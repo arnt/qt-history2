@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#359 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#360 $
 **
 ** Implementation of QFileDialog class
 **
@@ -155,7 +155,7 @@ static const char *link_file_xpm[]={
     ".aaaacaefcfac",
     ".aaaacaagchac",
     ".ddddcaaahaac",
-    "ccccccccccccc"};                                                               
+    "ccccccccccccc"};
 
 /* XPM */
 static const char* file_xpm[]={
@@ -480,7 +480,7 @@ struct QFileDialogPrivate {
 		return -1;
 	    if ( !i1->isDir() && i2->isDir() )
 		return 1;
-	    
+	
 	    if ( QUrlInfo::equal( *i1, *i2, sortFilesBy ) )
 		return 0;
 	    else if ( QUrlInfo::greaterThan( *i1, *i2, sortFilesBy ) )
@@ -497,7 +497,7 @@ struct QFileDialogPrivate {
     };
 
     UrlInfoList sortedList;
-    
+
     QFileListBox * moreFiles;
 
     QFileDialog::Mode mode;
@@ -3926,30 +3926,53 @@ void QFileDialog::insertEntry( const QUrlInfo &inf, QNetworkOperation * )
 	
 	i->i = i2;
     }
-    
+
     d->sortedList.append( new QUrlInfo( inf ) );
 }									
 
 void QFileDialog::removeEntry( QNetworkOperation *op )
 {
+    if ( !op )
+	return;
+
+    QUrlInfo *i = 0;
     QListViewItemIterator it( files );
-    for ( ; it.current(); ++it ) {
+    bool ok1 = FALSE, ok2 = FALSE;
+    for ( i = d->sortedList.first(); it.current(); ++it, i = d->sortedList.next() ) {
 	if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() == op->arg1() ) {
 	    delete ( (QFileDialogPrivate::File*)it.current() )->i;
 	    delete it.current();
-	    break;
+	    ok1 = TRUE;
 	}
+	if ( i && i->name() == op->arg1() ) {
+	    d->sortedList.removeRef( i );
+	    i = d->sortedList.prev();
+	    ok2 = TRUE;
+	}
+	if ( ok1 && ok2 )
+	    break;
     }
 }									
 
 void QFileDialog::itemChanged( QNetworkOperation *op )
 {
+    if ( !op )
+	return;
+    
+    QUrlInfo *i = 0;
     QListViewItemIterator it( files );
-    for ( ; it.current(); ++it ) {
+    bool ok1 = FALSE, ok2 = FALSE;
+    for ( i = d->sortedList.first(); it.current(); ++it, i = d->sortedList.next() ) {
 	if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() == op->arg1() ) {
 	    ( (QFileDialogPrivate::File*)it.current() )->info.setName( op->arg2() );
-	    break;
+	    ok1 = TRUE;
 	}
+	if ( i && i->name() == op->arg1() ) {
+	    i->setName( op->arg2() );
+	    ok2 = TRUE;
+	}
+	if ( ok1 && ok2 )
+	    break;
     }
 
     resortDir();
@@ -4044,13 +4067,13 @@ void QFileDialog::resortDir()
     QFileDialogPrivate::MCItem *item2 = 0;
 
     d->sortedList.sort();
-    
+
     if ( files->childCount() > 0 || d->moreFiles->count() > 0 ) {
 	files->clear();
 	d->moreFiles->clear();
 	files->setSorting( -1 );
     }
-    
+
     QUrlInfo *i = sortAscending ? d->sortedList.first() : d->sortedList.last();
     for ( ; i; i = sortAscending ? d->sortedList.next() : d->sortedList.prev() ) {
 	item = new QFileDialogPrivate::File( d, i, files );

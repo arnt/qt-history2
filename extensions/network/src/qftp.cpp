@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#43 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#44 $
 **
 ** Implementation of Network Extension Library
 **
@@ -77,7 +77,7 @@ void QFtp::operationMkDir( QNetworkOperation *op )
 
 void QFtp::operationRemove( QNetworkOperation *op )
 {
-    QString path = url()->dirPath().isEmpty() ? QString( "/" ) : url()->dirPath();
+    QString path = url()->path().isEmpty() ? QString( "/" ) : url()->path();
     QString cmd = "CWD " + path + "\r\n";
     commandSocket->writeBlock( cmd.latin1(), cmd.length() );
 }
