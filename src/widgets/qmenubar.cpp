@@ -890,7 +890,7 @@ int QMenuBar::calculateRects( int max_width )
 
     if ( update ) {
 	if ( separator >= 0 ) {
-	    int moveBy = max_width - x - frameWidth();
+	    int moveBy = reverse ? - x - frameWidth() : max_width - x - frameWidth();
 	    rightSide = x;
 	    while( --i >= separator ) {
 		irects[i].moveBy( moveBy, 0 );
