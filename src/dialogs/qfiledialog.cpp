@@ -3458,6 +3458,13 @@ void QFileDialog::okClicked()
 	}
     }
 
+    if ( mode() == ExistingFile ) {
+	QUrlOperator u( d->url, nameEdit->text() );
+        QFileInfo f( u.path() );
+	if ( !f.exists() )
+	    return;
+    }
+
     // If selection is valid, return it, else try
     // using selection as a directory to change to.
     if ( !d->currentFileName.isNull() && !d->currentFileName.contains( "*" ) ) {
