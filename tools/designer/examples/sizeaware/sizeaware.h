@@ -10,9 +10,9 @@ class SizeAware : public QDialog
 public:
     SizeAware( QDialog *parent = 0, const char *name = 0, bool modal = FALSE );
     ~SizeAware();
-    void setCompany( QString company ) { m_company = company; }
+    void setCompany( const QString &company ) { m_company = company; }
     QString company() const { return m_company; } 
-    void setSettingsFile( QString settingsFile ) { m_settingsFile = settingsFile; }
+    void setSettingsFile( const QString &settingsFile ) { m_settingsFile = settingsFile; }
     QString settingsFile() const { return m_settingsFile; }
 public slots:
     void destroy();
