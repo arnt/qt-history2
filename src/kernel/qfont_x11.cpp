@@ -87,7 +87,8 @@ Bool XftNameUnparse (XftPattern *, char *, int);
 // because of the way the font matcher works
 // these lists must have at least 2 entries
 static const char * const empty_encodings[] = { 0, 0 };
-static const char * const latin_encodings[] = { "iso8859-1", 0 };
+static const char * const latin_encodings[] = { "iso8859-1", "adobe-fontspecific",
+						"microsoft-symbol", 0 };
 static const char * const greek_encodings[] = { "iso8859-7", 0 };
 static const char * const cyrillic_encodings[] = { "iso8859-5", "koi8-r", "koi8-ru", 0 };
 static const char * const hebrew_encodings[] = { "iso8859-8", 0 };
@@ -2545,6 +2546,8 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	if (script < QFont::Unicode || script > QFont::NoScript) {
 	    if ( script == QFont::Hebrew )
 		codec = QTextCodec::codecForName( "ISO 8859-8-I" );
+	    else if ( script == QFont::Latin )
+		codec = QTextCodec::codecForName("ISO-8859-1");
 	    else
 		codec =
 		    QTextCodec::codecForName(script_table[script].list[script_table[script].index]);

@@ -3756,10 +3756,17 @@ void QTextParag::format( int start, bool doMove )
 	for ( ; it != lineStarts.end(); ++it )
 	    usedw = QMAX( usedw, (*it)->w );
 	// ##### Lars, for left-to-right the QMAX was wrong (message boxes suddenly took up the whole screen width)
-	if ( !string()->isBidi() )
-	    r.setWidth( QMIN( usedw, r.width() ) );
-	else
-	    r.setWidth( QMAX( usedw, r.width() ) );
+	if ( r.width() <= 0 ) {
+	    // if the user specifies an invalid rect, this means that the
+	    // bounding box should grow to the width that the text actually
+	    // needs
+	    r.setWidth( usedw );
+	} else {
+	    if ( !string()->isBidi() )
+		r.setWidth( QMIN( usedw, r.width() ) );
+	    else
+		r.setWidth( QMAX( usedw, r.width() ) );
+	}
      }
 
     if ( y != r.height() )

@@ -2671,8 +2671,6 @@ void qt_format_text( const QFont& font, const QRect &r,
     QTextParag *parag;
 
     QRect rect = r;
-    if ( rect.width() == 0 )
-	rect.setWidth( INT_MAX );
 
     if ( decode ) {
 	parag = *internal;
