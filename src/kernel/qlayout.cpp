@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#80 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#81 $
 **
 ** Implementation of layout classes
 **
@@ -452,12 +452,12 @@ static void distributeMultiBox( QArray<QLayoutStruct> &chain,
 
     for ( i = start; i <= end; i++ ) {
 	w += chain[i].minimumSize;
-	exp = exp || chain[i].expansive &&
-	             chain[i].maximumSize > chain[i].minimumSize;
+	exp = exp || chain[i].expansive;
 	chain[i].empty = FALSE;
     }
     if ( w < minSize ) {
 	//	debug( "Big multicell" );
+	//##### We must distribute excess space better!
 	int diff = minSize - w;
 	for ( i = start; i <= end; i++ ) {
 	    if ( chain[i].maximumSize > chain[i].minimumSize
@@ -472,7 +472,7 @@ static void distributeMultiBox( QArray<QLayoutStruct> &chain,
 }
 
 
-
+//#define QT_LAYOUT_DISABLE_CACHING
 
 void QLayoutArray::setupLayoutData()
 {
@@ -528,12 +528,14 @@ void QLayoutArray::setupLayoutData()
         }
     }
     for ( i = 0; i < rr; i++ ) {
-        rowData[i].expansive = rowData[i].maximumSize > rowData[i].sizeHint &&
-                            ( rowData[i].expansive || rowData[i].stretch > 0 );
+        rowData[i].expansive = rowData[i].expansive || rowData[i].stretch > 0;
+	if ( rowData[i].expansive )
+	    rowData[i].maximumSize = QCOORD_MAX;
     }
     for ( i = 0; i < cc; i++ ) {
-        colData[i].expansive = colData[i].maximumSize > colData[i].sizeHint &&
-                            ( colData[i].expansive || colData[i].stretch > 0 );
+        colData[i].expansive = colData[i].expansive || colData[i].stretch > 0;
+	if ( colData[i].expansive )
+	    colData[i].maximumSize = QCOORD_MAX;
     }
 
 
@@ -610,8 +612,7 @@ void QLayoutArray::setupHfwLayoutData()
 	}
     }
     for ( i = 0; i < rr; i++ ) {
-	rData[i].expansive = rData[i].maximumSize > rData[i].sizeHint &&
-			     ( rData[i].expansive || rData[i].stretch > 0 );
+	rData[i].expansive = rData[i].expansive || rData[i].stretch > 0;
     }
 }
 
