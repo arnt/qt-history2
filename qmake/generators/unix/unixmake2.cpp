@@ -255,18 +255,6 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
 
     t << "####### Build rules" << endl << endl;
-    QString srcdir = QDir::currentDirPath(), qtdir=project->first("QT_SOURCE_TREE");
-    if(!project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())
-	srcdir = project->first("QMAKE_ABSOLUTE_SOURCE_PATH");
-    if(project->first("QT_PRODUCT") == "qt-internal" && 
-       !qtdir.isEmpty() && srcdir.left(qtdir.length()) == qtdir) {
-	deps.prepend("QTDIR ");
-	t << "QTDIR: FORCE" << "\n\t"
-	  << "@if [ \"$(QTDIR)\" != \"" << qtdir << "\" ]; then"
-	  << " echo \"Warning: ********* Your QTDIR seems to be wrong!\";" 
-	  << " test ! /bin/true; fi" << endl;
-    }
-
     if(!project->variables()["SUBLIBS"].isEmpty()) {
 	t << "SUBLIBS= ";
 	QStringList &l = project->variables()["SUBLIBS"];
