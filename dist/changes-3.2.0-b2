@@ -51,7 +51,7 @@ for 3.2 which needs to be run for these compilers.
 	with accelerated nVidia drivers.
 
 - QImage
-	Fix writing of QImages.
+	Fixed writing of QImages.
 
 - QLayout
 	Fixed layout to take the menu bar's minimum width into
