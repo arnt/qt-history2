@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#35 $
 **
 ** Implementation of QFrame widget class
 **
@@ -15,7 +15,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#34 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#35 $")
 
 
 /*----------------------------------------------------------------------------
@@ -304,7 +304,8 @@ void QFrame::updateFrameWidth()
     if ( fwidth == -1 ) {			// invalid style?
 	fwidth = 0;
 #if defined(CHECK_RANGE)
-	warning( "QFrame::updateFrameWidth: Internal error" );
+	warning( "QFrame::updateFrameWidth: Internal error (%d, %d)",
+	    type, style );
 #endif
     }
     frameChanged();
