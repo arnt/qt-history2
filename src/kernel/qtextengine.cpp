@@ -733,7 +733,7 @@ void QTextEngine::reallocate( int totalGlyphs )
     void ** newMemory = (void **)::malloc( newAllocated*sizeof( void * ) );
 
     void **nm = newMemory;
-    memcpy( nm, memory, num_glyphs*sizeof(QCharAttributes) );
+    memcpy( nm, memory, string.length()*sizeof(QCharAttributes) );
     nm += space_charAttributes;
     memcpy( nm, glyphPtr, num_glyphs*sizeof(glyph_t) );
     glyphPtr = (glyph_t *) nm;
