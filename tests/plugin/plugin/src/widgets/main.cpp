@@ -12,13 +12,14 @@
 #define LIBEXPORT
 #endif
 
-QCleanUpHandler<QWidget>* widgets = 0;
-
 class TestInterface : public QWidgetInterface
 {
 public:
     TestInterface();
     ~TestInterface();
+
+    bool connectNotify( QApplication* theApp );
+    bool disconnectNotify( QApplication* theApp );
 
     QString queryInterface() { return "QWidgetInterface"; }
 
@@ -28,16 +29,33 @@ public:
 
     QStringList featureList();
     QWidget* create( const QString &classname, QWidget* parent = 0, const char* name = 0 );
+
+    QCleanUpHandler<QWidget>* widgets;
 };
 
 TestInterface::TestInterface()
 {
-    widgets = new QCleanUpHandler<QWidget>;
 }
 
 TestInterface::~TestInterface()
 {
-    delete widgets;
+}
+
+bool TestInterface::connectNotify( QApplication* theApp )
+{
+    qDebug("Widget-Plugin: I've been loaded by %p", theApp );
+    widgets = new QCleanUpHandler<QWidget>();
+    return TRUE;
+}
+
+bool TestInterface::disconnectNotify( QApplication* theApp )
+{
+    if ( !widgets->clean() ) {
+	qDebug("Widget-Plugin: Can't be unloaded. Library is still use!" );
+	return FALSE;
+    }
+    qDebug("Widget-Plugin: I've been unloaded by %p", theApp);
+    return TRUE;
 }
 
 QStringList TestInterface::featureList()
@@ -72,27 +90,8 @@ extern "C"
 
 LIBEXPORT QWidgetInterface* loadInterface()
 {
+    
     return new TestInterface();
-}
-
-LIBEXPORT bool onConnect( QApplication* theApp )
-{
-    qDebug("Widget-Plugin: I've been loaded by %p", theApp );
-    return TRUE;
-}
-
-LIBEXPORT bool onDisconnect( QApplication* theApp )
-{
-    // this is wrong now, as the interface gets destroyed (indirectly) when 
-    // the toplevel widget gets closed, so the application is of course
-    // not closing down yet (or at least it doesn't know it)
-    if ( theApp && !theApp->closingDown() && !widgets->clean() ) {
-	qDebug("Widget-Plugin: Can't be unloaded. Library is still use!" );
-	return FALSE;
-    }
-    qDebug("Widget-Plugin: I've been unloaded by %p", theApp);
-
-    return TRUE;
 }
 
 #if defined(__cplusplus)
