@@ -123,7 +123,7 @@
     fields["forename"]->setText( "Homer" );
     fields["surname"]->setText( "Simpson" );
 
-    QDictIterator<char> it( extra ); // See QDictIterator
+    QDictIterator<QLineEdit> it( fields ); // See QDictIterator
     for( ; it.current(); ++it )
 	cout << it.currentKey() << ": " << it.current()->text() << endl;
     cout << endl;
