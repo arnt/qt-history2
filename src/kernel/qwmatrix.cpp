@@ -14,12 +14,7 @@
 
 #include "qwmatrix.h"
 #include "qdatastream.h"
-#if defined(Q_WS_X11)
-double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
-#else
-#include <math.h>
-#endif
-
+#include "qmath_p.h"
 #include <limits.h>
 
 #ifndef QT_NO_WMATRIX
@@ -757,13 +752,8 @@ const double deg2rad = 0.017453292519943295769;	// pi/180
 QWMatrix &QWMatrix::rotate( double a )
 {
     double b = deg2rad*a;			// convert to radians
-#if defined(Q_WS_X11)
-    double sina = qsincos(b,FALSE);		// fast and convenient
-    double cosa = qsincos(b,TRUE);
-#else
-    double sina = sin(b);
-    double cosa = cos(b);
-#endif
+    double sina = qsin(b);		// fast and convenient
+    double cosa = qcos(b);
     double tm11 = cosa*_m11 + sina*_m21;
     double tm12 = cosa*_m12 + sina*_m22;
     double tm21 = -sina*_m11 + cosa*_m21;
