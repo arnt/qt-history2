@@ -62,31 +62,6 @@ void qt_mac_command_set_enabled(UInt32 cmd, bool b)
 
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 
-static void qt_mac_set_modal_state(bool b)
-{
-    MenuRef mr = AcquireRootMenu();
-    for(int i = 1; i < CountMenuItems(mr); i++) {
-	MenuRef mr2;
-	GetMenuItemHierarchicalMenu(mr, i+1, &mr2);
-	if(b)
-	    DisableMenuItem(mr2, 0);
-	else
-	    EnableMenuItem(mr2, 0);
-    }
-    ReleaseMenu(mr);
-    qt_mac_command_set_enabled(kHICommandQuit, !b);
-    qt_mac_command_set_enabled(kHICommandPreferences, !b);
-    qt_mac_command_set_enabled(kHICommandAbout, !b);
-    qt_mac_command_set_enabled('CUTE', !b);
-}
-
-static void qt_mac_clear_menubar()
-{
-    ClearMenuBar();
-    qt_mac_command_set_enabled(kHICommandPreferences, false);
-    InvalMenuBar();
-}
-
 //internal class
 class QMenuBar::MacPrivate {
 public:
@@ -134,6 +109,55 @@ public:
 };
 static QGuardedPtr<QMenuBar> fallbackMenuBar; //The current global menubar
 static QGuardedPtr<QMenuBar> activeMenuBar; //The current global menubar
+
+void qt_mac_set_modal_state(bool b, QMenuBar *mb)
+{
+    if(mb && mb != activeMenuBar) { //shouldn't be possible, but just in case
+	qWarning("%s:%d: This cannot happen!", __FILE__, __LINE__);
+	mb = 0;
+    }
+
+    MenuRef mr = AcquireRootMenu();
+    for(int i = 1; i < CountMenuItems(mr); i++) {
+	MenuRef mr2;
+	GetMenuItemHierarchicalMenu(mr, i+1, &mr2);
+	bool enabled = true;
+	if(!b && mb && mb->mac_d->popups) {
+	    QMenuBar::MacPrivate::PopupBinding *pb = mb->mac_d->popups->find(GetMenuID(mr2));
+	    if(pb && !pb->tl)
+		qWarning("%s:%d That cannot happen either!", __FILE__, __LINE__);
+	    enabled = (!pb || (pb->qpopup && pb->qpopup->isEnabled()));
+	} else if(b) {
+	    enabled = false;
+	}
+	if(enabled)
+	    EnableMenuItem(mr2, 0);
+	else
+	    DisableMenuItem(mr2, 0);
+    }
+    ReleaseMenu(mr);
+
+    UInt32 commands[] = { kHICommandQuit, kHICommandPreferences, kHICommandAbout, 'CUTE', 0 };
+    for(int c = 0; commands[c]; c++) {
+	bool enabled = true;
+	if(!b && mb && mb->mac_d->commands) {
+	    if(QMenuBar::MacPrivate::CommandBinding *cb = mb->mac_d->commands->find(commands[c])) {
+		if(cb->qpopup) 
+		    enabled = cb->qpopup->isItemEnabled(cb->qpopup->idAt(cb->index));
+	    }
+	} else if(b) {
+	    enabled = false;
+	}
+	qt_mac_command_set_enabled(commands[c], enabled);
+    }
+}
+
+static void qt_mac_clear_menubar()
+{
+    ClearMenuBar();
+    qt_mac_command_set_enabled(kHICommandPreferences, false);
+    InvalMenuBar();
+}
 
 #if !defined(QMAC_QMENUBAR_NO_EVENT)
 //event callbacks
@@ -716,7 +740,7 @@ void QMenuBar::cleanup()
 bool QMenuBar::macUpdateMenuBar()
 {
     if(qt_mac_no_native_menubar) //nothing to be done..
-	return TRUE; 
+	return true; 
 
     QMenuBar *mb = 0;
     bool fall_back_to_empty = false;
@@ -760,7 +784,7 @@ bool QMenuBar::macUpdateMenuBar()
 	    if(mb->mac_d->modal != qt_modal_state()) {
 		bool qms = qt_modal_state();
 		if(!qms || menubars->value(qApp->activeModalWidget()) != mb)
-		    qt_mac_set_modal_state(mb->mac_d->modal = qms);
+		    qt_mac_set_modal_state(mb->mac_d->modal = qms, mb);
 	    }
 	    return mb->mac_eaten_menubar;
 	}
@@ -783,7 +807,7 @@ bool QMenuBar::macUpdateMenuBar()
 	if(mb->mac_d->modal != qt_modal_state()) {
 	    bool qms = qt_modal_state();
 	    if(!qms || menubars->value(qApp->activeModalWidget()) != mb)
-		qt_mac_set_modal_state(mb->mac_d->modal = qms);
+		qt_mac_set_modal_state(mb->mac_d->modal = qms, mb);
 	}
 	return true;
     } else if(first || fall_back_to_empty) {
