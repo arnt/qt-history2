@@ -112,6 +112,8 @@ QFtp::QFtp()
 	     this, SLOT( dataReadyRead() ) );
     connect( dataSocket, SIGNAL( bytesWritten( int ) ),
 	     this, SLOT( dataBytesWritten( int ) ) );
+    connect( dataSocket, SIGNAL( error( int ) ),
+	     this, SLOT( error( int ) ) );
 }
 
 /*!
@@ -137,6 +139,7 @@ void QFtp::operationListChildren( QNetworkOperation *op )
 {
     op->setState( StInProgress );
     errorInListChildren = FALSE;
+    passiveMode = FALSE;
 #if defined(QFTP_DEBUG)
     qDebug( "QFtp: switch command socket to passive mode!" );
 #endif
@@ -534,6 +537,7 @@ void QFtp::okGoOn( int code, const QCString &data )
 		s = s.simplifyWhiteSpace();
 		getTotalSize = s.toInt();
 		operationInProgress()->setState( StInProgress );
+		startGetOnFail = FALSE;
 #if defined(QFTP_COMMANDSOCKET_DEBUG)
 		qDebug( "QFtp S: PASV" );
 #endif
@@ -712,8 +716,37 @@ void QFtp::okButNeedMoreInfo( int code, const QCString & )
   Handles error messages from the server.
 */
 
-void QFtp::errorForNow( int, const QCString & )
+void QFtp::errorForNow( int, const QCString &data )
 {
+    QString msg( data.mid( 4 ) );
+    msg = msg.simplifyWhiteSpace();
+    QNetworkOperation *op = operationInProgress();
+    if ( op ) {
+	op->setProtocolDetail( msg );
+	op->setState( StFailed );
+	switch ( op->operation() ) {
+	    case OpListChildren:
+		op->setErrorCode( (int)ErrListChildren );
+		break;
+	    case OpMkDir:
+		op->setErrorCode( (int)ErrMkDir );
+		break;
+	    case OpRemove:
+		op->setErrorCode( (int)ErrRemove );
+		break;
+	    case OpRename:
+		op->setErrorCode( (int)ErrRename );
+		break;
+	    case OpGet:
+		op->setErrorCode( (int)ErrGet );
+		break;
+	    case OpPut:
+		op->setErrorCode( (int)ErrPut );
+		break;
+	}
+	emit finished( op );
+    }
+    reinitCommandSocket();
 }
 
 /*
@@ -771,6 +804,10 @@ void QFtp::errorForgetIt( int code, const QCString &data )
 	}
 	reinitCommandSocket();
 	emit finished( op );
+    } break;
+    default: {
+	// other permanent failure (we don't know the details)
+	errorForNow( code, data );
     } break;
     }
 }
