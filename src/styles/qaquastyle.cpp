@@ -262,12 +262,53 @@ void QAquaStylePrivate::objDestroyed(QObject *o)
   \brief The QAquaStyle class implements the Aqua 'Look and Feel'.
   \ingroup appearance
 
-  This class implements the Aqua look and feel. The class
-  emulates the Mac OS X Aqua GUI style with the QStyle system. 
+  This class implements the Aqua look and feel. The class tries to emulate
+  the Mac OS X Aqua GUI style with the QStyle system. There are issues that
+  need to be addressed as well, to make your program fit in with the \link
+  http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html Aqua
+  Style Guidelines \endlink. Although this list is not complete, several issues
+  will be outlined above to give an idea of changes your program may have
+  to change in order to fully comply with these guidelines from Apple
+  Computers:
+
+  \list
+
+  \i Layout - The restrictions on window layout is such that some of these
+  things cannot be done with QLayout as it is today. Changes are being
+  considered (and feedback would be appreciated) to make this QStyle-able
+  however now these rules will must be looked into when using QLayout. Some
+  of these restrictions involve horizontal/vertical widget alignment and
+  widget size (listed below).
+
+  \i Widget size - Aqua allows for specific sized widgets, however Qt does
+  not govern this behaviour for cross-platform reasons. As a result you may
+  scale a widget to any size and QAquaStyle will respect your size, even if
+  it is not an appropriate size from the Aqua Style Guidelines. 
+
+  \i Effects - QAquaStyle is an emulating style, therefore all the
+  animations and effects are not completed yet, if you notice immediate
+  shortcomings please do report them and Trolltech will address it, it is
+  our aim to have this emulation style as native a "look and feel" as
+  possible.
+
+  \i More - There are other issues that need to be considered in the feel
+  of your application (including general color scheme to match the Aqua
+  colors). The Guidelines link above will remain current with new advances
+  and design suggestions for Mac OS X.
+
+  \endlist
   
-  The QAquaStyle code may not be distributed onto any other 
-  platform or included in any other licensed package unless 
-  explicit permission is granted.
+  All this said, it is of course up to the application developer to decide
+  how much of the Aqua experience they want to pass onto their users - as
+  QAquaStyle is today it is a pretty good representation, but not without
+  different design goals. It could also be suggested (if using the \e {Qt
+  Designer}) to have separate .ui files to go with platforms that have very
+  different design criteria, this is no necesary, but could be recommended
+  if your interface must change drastically to suit this new enviornment.
+
+  \warning The QAquaStyle code may not be distributed onto any other
+  platform or included in any other licensed package unless explicit
+  permission is granted by Trolltech.
 
   Note that the functions provided by QAquaStyle are reimplementations
   of QStyle functions; see QStyle for their documentation.
