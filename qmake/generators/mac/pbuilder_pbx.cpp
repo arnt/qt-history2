@@ -114,7 +114,13 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		continue;
 	    bool in_root = TRUE;
 	    QString src_key = keyFor(file), name = file;
-	    if(!project->isActiveConfig("flat")) {
+	    if(project->isActiveConfig("flat")) {
+		QString flat_file = fileFixify(file, QDir::currentDirPath(), Option::output_dir, TRUE);
+		if(flat_file.find(Option::dir_sep) != -1) {
+		    QStringList dirs = QStringList::split(Option::dir_sep, flat_file);
+		    name = dirs.back();
+		}
+		} else {
 		QString flat_file = fileFixify(file, QDir::currentDirPath(), Option::output_dir, TRUE);
 		if(QDir::isRelativePath(flat_file) && flat_file.find(Option::dir_sep) != -1) {
 		    QString last_grp("QMAKE_PBX_" + srcs[i] + "_HEIR_GROUP");
