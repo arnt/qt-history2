@@ -198,7 +198,7 @@ QWidget * QSqlFormMap::widget( uint i ) const
 {
     QMap< QWidget *, QSqlField * >::ConstIterator it;
     uint cnt = 0;
-    
+
     if( i > map.count() ) return 0;
     for( it = map.begin(); it != map.end(); ++it ){
 	if( cnt++ == i )
@@ -243,7 +243,7 @@ void QSqlFormMap::readFields()
     QSqlField * f;
     QMap< QWidget *, QSqlField * >::Iterator it;
     QSqlPropertyMap * pmap = (m == 0) ? QSqlPropertyMap::defaultMap() : m;
-        
+
     for(it = map.begin() ; it != map.end(); ++it ){
 	f = widgetToField( it.key() );
 	if( !f ) continue;
@@ -328,10 +328,10 @@ QSqlForm::QSqlForm( QObject * parent, const char * name )
   generates a form, were \a widget becomes the parent of the generated
   widgets. The form fields will be spread across \a columns number of
   columns.
-  
+
   \sa populate()
 */
-QSqlForm::QSqlForm( QWidget * widget, QSqlCursor * view, uint columns = 1, 
+QSqlForm::QSqlForm( QWidget * widget, QSqlCursor * view, uint columns = 1,
 		    QObject * parent, const char * name )
     : QObject( parent, name ),
       autodelete( FALSE ),
@@ -342,7 +342,7 @@ QSqlForm::QSqlForm( QWidget * widget, QSqlCursor * view, uint columns = 1,
 }
 
 /*!
-  
+
   Destructs the form.
 */
 QSqlForm::~QSqlForm()
@@ -384,10 +384,10 @@ QSqlCursor * QSqlForm::view() const
 }
 
 /*!
-  
+
   Installs a custom QEditorFactory. This is used in the populate()
   function to automatically create the widgets in the form.
-  
+
   \sa installPropertyMap(QSqlPropertyMap *), QEditorFactory
  */
 void QSqlForm::installEditorFactory( QEditorFactory * f )
@@ -398,11 +398,11 @@ void QSqlForm::installEditorFactory( QEditorFactory * f )
 }
 
 /*!
-  
+
  Installs a custom QSqlPropertyMap. Used together with custom field
  editors. Please note that the QSqlForm class will take ownership of
  the propery map, so don't delete it!
- 
+
  \sa installEditorFactory(QEditorFactory *), QSqlPropertyMap
 */
 void QSqlForm::installPropertyMap( QSqlPropertyMap * m )
@@ -411,7 +411,7 @@ void QSqlForm::installPropertyMap( QSqlPropertyMap * m )
 }
 
 /*!
-  
+
   Sets the form state.
  */
 void QSqlForm::setReadOnly( bool state )
@@ -426,7 +426,7 @@ void QSqlForm::setReadOnly( bool state )
 }
 
 /*!
-  
+
   Returns the form state.
  */
 bool QSqlForm::isReadOnly() const
@@ -435,17 +435,17 @@ bool QSqlForm::isReadOnly() const
 }
 
 /*!
-  
+
   Sets the auto-delete option of the form.
-  
+
   Enabling auto-delete (\a enable is TRUE) will delete the view the
   form currently operates on.
-  
+
   Disabling auto-delete (\a enable is FALSE) will <em>not<\em> delete
   the view when the form goes out of scope, or is deleted.
-  
+
   The default setting is FALSE.
-  
+
   \sa autoDelete().
  */
 void QSqlForm::setAutoDelete( bool enable )
@@ -453,9 +453,9 @@ void QSqlForm::setAutoDelete( bool enable )
     autodelete = enable;
 }
 /*!
-  
+
   Returns the setting of the auto-delete option (default is FALSE).
-  
+
   \sa setAutoDelete().
  */
 bool QSqlForm::autoDelete() const
@@ -609,7 +609,7 @@ void QSqlForm::seek( uint i )
 }
 
 /*!
-  
+
   This is a convenience function used to automatically populate a form
   with fields based on a QSqlCursor. The form will contain a name label
   and an editor widget for each of the fields in the view. The widgets
@@ -620,51 +620,54 @@ void QSqlForm::seek( uint i )
 void QSqlForm::populate( QWidget * widget, QSqlCursor * view, uint columns )
 {
     // ### Remove the children before populating?
-    
+
     if( !widget || !view ) return;
+
+    //###
+    //    QEditorFactory * f = (factory == 0) ? QEditorFactory::defaultFactory() :
+    //	                                  factory;
+    QEditorFactory* f = 0;
     
-    QEditorFactory * f = (factory == 0) ? QEditorFactory::defaultFactory() :
-	                                  factory;
     QWidget * editor;
-    QLabel * label; 
+    QLabel * label;
     QVBoxLayout * vb = new QVBoxLayout( widget );
     QGridLayout * g  = new QGridLayout( vb );
-    
+
     g->setMargin( 5 );
     g->setSpacing( 3 );
-    
+
     QString pi = view->primaryIndex().toString();
-    
+
     if( columns < 1 ) columns = 1;
     int numPerColumn = view->count() / columns;
-    
+
     if( (view->count() % columns) > 0)
 	numPerColumn++;
-    
+
     int col = 0, currentCol = 0;
-    
+
     for(uint i = 0; i < view->count(); i++){
 	if( col >= numPerColumn ){
 	    col = 0;
 	    currentCol += 2;
 	}
-	
+
 	// Do not show primary index fields in the form
 	QString name = view->field( i )->name();
 	if( name == pi ) continue;
-	
+
 	// ### crap - use the field displayLabel() instead!
 	name[0] = name[0].upper(); // capitalize the first letter
 	label = new QLabel( name, widget );
-	
+
 	g->addWidget( label, col, currentCol );
-	
+
 	editor = f->createEditor( widget, view->value( i ) );
 	g->addWidget( editor, col, currentCol + 1 );
 	associate( editor, view->field( i ) );
 	col++;
     }
-    
+
     setView( view );
     readFields();
 }
