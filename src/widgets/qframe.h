@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#6 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#7 $
 **
 ** Definition of QFrame widget class
 **
@@ -20,7 +20,7 @@ class QFrame : public QWidget			// frame class
 {
     Q_OBJECT
 public:
-    QFrame( QWidget *parent=0, const char *name=0 );
+    QFrame( QWidget *parent=0, const char *name=0, WFlags f=0 );
 
     const int	NoFrame = 0;			// no frame
     const int	Box	= 0x0001;		// rectangular box

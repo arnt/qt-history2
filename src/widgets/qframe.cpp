@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#14 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#14 $";
 #endif
 
 
@@ -56,7 +56,8 @@ Constructs a frame widget with frame style \c NoFrame and 1 pixel frame width.
 The \e parent and \e name arguments are passed to the QWidget constructor.
 */
 
-QFrame::QFrame( QWidget *parent, const char *name ) : QWidget( parent, name )
+QFrame::QFrame( QWidget *parent, const char *name, WFlags f )
+    : QWidget( parent, name, f )
 {
     initMetaObject();
     frect  = QRect( 0, 0, 0, 0 );
