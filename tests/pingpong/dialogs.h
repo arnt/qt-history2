@@ -2,7 +2,6 @@
 #define DIALOGS_H
 
 #include <qdialog.h>
-#include "pingpongapp.h"
 
 class QSqlForm;
 class QSqlRecord;

@@ -3,6 +3,7 @@
 
 #include <qlayout.h>
 #include <qsqlform.h>
+#include <qsqleditorfactory.h>
 #include <qlabel.h>
 #include <qfont.h>
 #include <qpushbutton.h>
