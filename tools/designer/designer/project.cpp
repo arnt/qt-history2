@@ -23,7 +23,9 @@
 #include "config.h"
 #include "designerappiface.h"
 #include "pixmapcollection.h"
+#ifndef QT_NO_SQL
 #include "dbconnectionimpl.h"
+#endif
 
 #include <qfile.h>
 #include <qtextstream.h>
