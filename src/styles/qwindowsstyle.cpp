@@ -55,8 +55,9 @@
 #include "qscrollbar.h"
 #include "qtabbar.h"
 #include "qlistview.h"
+#include <qbitmap.h>
 #include <limits.h>
-
+#include <qcleanuphandler.h>
 
 class QWindowsStylePrivate
 {
@@ -1706,13 +1707,43 @@ QWindowsStyle::drawListViewItem( QPainter *p, int, int y, int w, int, const QCol
 	p->setPen( cg.text() );
 	p->setPen( DotLine );
 
+	static QBitmap *verticalLine = NULL, *horizontalLine = NULL;
+	static QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
+	if ( !verticalLine ) {
+	    // make 128*1 and 1*128 bitmaps that can be used for
+	    // drawing the right sort of lines.
+	    verticalLine = new QBitmap( 1, 129, TRUE );
+	    horizontalLine = new QBitmap( 128, 1, TRUE );
+	    QPointArray a( 64 );
+	    QPainter p;
+	    p.begin( verticalLine );
+	    int i;
+	    for( i=0; i<64; i++ )
+		a.setPoint( i, 0, i*2+1 );
+	    p.setPen( color1 );
+	    p.drawPoints( a );
+	    p.end();
+	    QApplication::flushX();
+	    verticalLine->setMask( *verticalLine );
+	    p.begin( horizontalLine );
+	    for( i=0; i<64; i++ )
+		a.setPoint( i, i*2+1, 0 );
+	    p.setPen( color1 );
+	    p.drawPoints( a );
+	    p.end();
+	    QApplication::flushX();
+	    horizontalLine->setMask( *horizontalLine );
+	    qlv_cleanup_bitmap.add( verticalLine );
+	    qlv_cleanup_bitmap.add( horizontalLine );
+	}
+
 	//parents
 	if(child->depth() > 1) {
 	    QListView *lv = child->listView();
 	    QListViewItem *below = child->itemBelow();
 	    for( int line = bx - lv->treeStepSize(), count=child->depth()-1; count; count--, line-=lv->treeStepSize() ) {
 		if(below && count <= below->depth())
-		    p->drawLine( line, y, line, child->height());
+		    p->drawPixmap( line, y, *verticalLine, 0, 0, -1, child->height()-y );
 	    }
 	}
 	
@@ -1724,13 +1755,13 @@ QWindowsStyle::drawListViewItem( QPainter *p, int, int y, int w, int, const QCol
 	else
 	    end = child->height() / 2;
 	if(child->childCount() || child->isExpandable()) {
-	    p->drawLine(bx, y, bx, linebot-4);
+	    p->drawPixmap( bx, y, *verticalLine, 0, 0, -1, (linebot-4)-y);
 	    if(sib)
-		p->drawLine(bx, y+linebot+4, bx, y + end);
-	    p->drawLine(bx+4, linebot, bx + w, linebot);
+		p->drawPixmap(bx, y+linebot+4, *verticalLine, 0, 0, -1, (y + end)-(y+linebot+4));
+	    p->drawPixmap(bx+4, linebot, *horizontalLine, 0, 0, w - 4, -1);
 	} else {
-	    p->drawLine(bx, y, bx, y + end);
-	    p->drawLine(bx, linebot, bx + w, linebot);
+	    p->drawPixmap(bx, y, *verticalLine, 0, 0, -1, end);
+	    p->drawPixmap(bx, linebot, *horizontalLine, 0, 0, w, -1);
 	}
     }
 }
