@@ -167,6 +167,9 @@ QAutoDeleter<T>* qAutoDeleter( T* p )
     return new QAutoDeleter<T>( p );
 }
 
+#define Q_DEFINED_QMEMBUF
+#include "qwinexport.h"
+
 class Q_EXPORT QMembuf
 {
 public:

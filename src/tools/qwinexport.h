@@ -213,5 +213,10 @@ QM_TEMPLATE_EXTERN_TABLE template class QM_EXPORT_TABLE QPtrVector<QTableItem>;
 //Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrVector<QTable>;
 #endif
 
+#if defined(Q_DEFINED_QPTRLIST) && defined(Q_DEFINED_QMEMBUF) && !defined(Q_EXPORTED_QMEMBUF_TEMPLATES)
+#define Q_EXPORTED_QMEMBUF_TEMPLATES
+Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrList<QByteArray>;
+#endif
+
 // MOC_SKIP_END
 #endif // template defined
