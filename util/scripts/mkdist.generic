@@ -113,8 +113,7 @@ echo "Removing local files..." >&2
 cd ${DISTDIR}
 rm -f qt/doc.conf qt/opengl/doc.conf
 find qt -name .cvsignore | xargs rm -f
-rm -rf qt/doc qt/etc qt/gif
-rm -f qt/TODO
+rm -rf qt/doc qt/etc qt/gif qt/tmake
 rm -rf qt/examples/sheet
 
 echo "Removing kernel .cpp files for other platforms..." >&2
