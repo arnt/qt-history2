@@ -80,8 +80,6 @@ static inline void x11SetClipRegion(Display *dpy, GC gc, GC gc2,
 #ifndef QT_NO_XFT
     if (picture)
         XRenderSetPictureClipRectangles(dpy, picture, 0, 0, rects, num);
-#else
-    Q_UNUSED(draw);
 #endif // QT_NO_XFT
 }
 
@@ -104,8 +102,6 @@ static inline void x11ClearClipRegion(Display *dpy, GC gc, GC gc2,
         attrs.clip_mask = XNone;
         XRenderChangePicture (dpy, picture, CPClipMask, &attrs);
     }
-#else
-    Q_UNUSED(draw);
 #endif // QT_NO_XFT
 }
 
