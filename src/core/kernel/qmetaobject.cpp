@@ -1597,7 +1597,8 @@ const char* QMetaClassInfo::value() const
 
     \ingroup objectmodel
 
-    The class is used to queue signals and slots connections.
+    The class is used to queue signals and slots connections. Register
+    new types with qRegisterMetaType<T>()
 */
 
 
@@ -1681,9 +1682,9 @@ const char *QMetaType::typeName(int type)
     return 0;
 }
 
-/*!
+/*! \internal
     Registers a user type for marshalling, with \a typeName, a \a
-    destructor, and a \a copyConstructor. Returns the type's handle,
+    destructor, and a \a constructor. Returns the type's handle,
     or -1 if the type could not be registered.
  */
 int QMetaType::registerType(const char *typeName, Destructor destructor,
