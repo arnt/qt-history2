@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#86 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -16,6 +16,7 @@
 #include "qbitmap.h"
 #include "qpmcache.h"
 #include "qlist.h"
+#include "qintdict.h"
 #include <ctype.h>
 #include <malloc.h>
 #define	 GC GC_QQQ
@@ -24,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#85 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#86 $";
 #endif
 
 
@@ -737,6 +738,49 @@ void QPainter::cleanup()
 }
 
 
+typedef declare(QIntDictM,QPaintDevice) QPaintDeviceDict;
+static QPaintDeviceDict *pdev_dict = 0;
+
+/*!
+Redirects all paint command for a paint device \e pdev to another paint
+device \e replacement.
+
+A redirected paint device is reset if \e replacement is 0.
+
+The following example draws a widget in a pixmap:
+\code
+  QPixmap pm( someWidget->width(), someWidget->height() );
+  pm.fill( someWidget->backgroundColor() );
+  QPainter::redirect( someWidget, &pm );
+  someWidget->repaint();
+  QPainter::redirect( someWidget, 0 );
+\endcode
+*/
+
+void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
+{
+    if ( pdev_dict == 0 ) {
+	if ( replacement == 0 )
+	    return;
+	pdev_dict = new QPaintDeviceDict;
+	CHECK_PTR( pdev_dict );
+    }
+#if defined(CHECK_NULL)
+    if ( pdev == 0 )
+	warning( "QPainter::redirect: The pdev argument cannot be 0" );
+#endif
+    if ( replacement )
+	pdev_dict->insert( (long)pdev, replacement );
+    else {
+	pdev_dict->remove( (long)pdev );
+	if ( pdev_dict->count() == 0 ) {
+	    delete pdev_dict;
+	    pdev_dict = 0;
+	}
+    }
+}
+
+
 /*!
 Constructs a painter.
 */
@@ -1155,7 +1199,13 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 
     bool reinit = flags != IsStartingUp;	// 2nd or 3rd etc. time called
     flags = DirtyFont | DirtyPen | DirtyBrush;	// default flags
-    pdev = pdev_ov ? pdev_ov : (QPaintDevice *)pd;
+    if ( pdev_dict ) {				// redirected paint device?
+	pdev = pdev_dict->find( (long)pd );
+	if ( !pdev )				// no
+	    pdev = (QPaintDevice *)pd;
+    }
+    else
+	pdev = (QPaintDevice *)pd;
     if ( pdev->devFlags & PDF_EXTDEV )
 	setf(ExtDev);				// this is an extended device
     dpy = pdev->dpy;				// get display variable
