@@ -24,6 +24,8 @@ struct PimEntry
 
 class PimModel : public QAbstractListModel
 {
+    Q_OBJECT
+
 public:
 
     enum Roles {
@@ -35,7 +37,7 @@ public:
         DepartmentRole,
         JobTitleRole
     };
-    
+
     PimModel(QObject *parent = 0);
     ~PimModel();
 
