@@ -360,7 +360,7 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 	return;
     }
 
-    if ( d->active && d->active->windowWidget() == w )
+    if ( d->active && d->active->windowWidget() == w && w->hasFocus() )
 	return;
 
     for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
