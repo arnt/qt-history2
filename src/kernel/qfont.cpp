@@ -2633,413 +2633,329 @@ QString QFontPrivate::key() const
 #endif
 }
 
+
+
+// There are no typos here... really...
+static const unsigned char extendedLatinTable[128] = {
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_3,
+    QFont::LatinExtendedA_3,
+    QFont::LatinExtendedA_3,
+    QFont::LatinExtendedA_3,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::Latin,
+    QFont::Latin,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_3,
+    QFont::LatinExtendedA_3,
+    QFont::LatinExtendedA_3,
+    QFont::LatinExtendedA_3,
+
+    QFont::LatinExtendedA_3,
+    QFont::LatinExtendedA_3,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_3,
+    QFont::LatinExtendedA_3,
+    QFont::LatinExtendedA_3,
+    QFont::LatinExtendedA_3,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::Latin,
+    QFont::Latin,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+
+    QFont::LatinExtendedA_3,
+    QFont::LatinExtendedA_3,
+    QFont::Latin,
+    QFont::Latin,
+    QFont::LatinExtendedA_3,
+    QFont::LatinExtendedA_3,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::Latin,
+
+    QFont::Latin,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::Latin,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::Latin,
+    QFont::Latin,
+
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_15,
+    QFont::LatinExtendedA_15,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_3,
+    QFont::LatinExtendedA_3,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_3,
+    QFont::LatinExtendedA_3,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_4,
+    QFont::LatinExtendedA_14,
+    QFont::LatinExtendedA_14,
+    QFont::LatinExtendedA_14,
+    QFont::LatinExtendedA_14,
+    QFont::LatinExtendedA_15,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::LatinExtendedA_2,
+    QFont::Latin
+};
+
+static const unsigned char otherScripts [112] = {
+#define SCRIPTS_02 0
+    0xaf, QFont::Latin, 0xff, QFont::SpacingModifiers, 			// row 0x02, index 0
+#define SCRIPTS_03 4
+    0x6f, QFont::CombiningMarks, 0xff, QFont::Greek, 			// row 0x03, index 4
+#define SCRIPTS_05 8
+    0x2f, QFont::Cyrillic, 0x8f, QFont::Armenian, 0xff, QFont::Hebrew,	// row 0x05, index 8
+#define SCRIPTS_07 14
+    0x4f, QFont::Syriac, 0x7f, QFont::Unicode, 0xbf, QFont::Thaana,
+    0xff, QFont::Unicode, 						// row 0x07, index 14
+#define SCRIPTS_10 22
+    0x9f, QFont::Myanmar, 0xff, QFont::Georgian,			// row 0x10, index 20
+#define SCRIPTS_13 26
+    0x7f, QFont::Ethiopic, 0x9f, QFont::Unicode, 0xff, QFont::Cherokee,	// row 0x13, index 24
+#define SCRIPTS_16 32
+    0x7f, QFont::CanadianAboriginal, 0x9f, QFont::Ogham, 
+    0xff, QFont::Runic, 						// row 0x16 index 30
+#define SCRIPTS_17 38
+//     0x1f, QFont::Tagalog, 0x3f, QFont::Hanunoo, 0x5f, QFont::Buhid,
+//     0x7f, QFont::Tagbanwa, 0xff, QFont::Khmer,				// row 0x17, index 36
+    0x1f, QFont::Unicode, 0x3f, QFont::Unicode, 0x5f, QFont::Unicode,
+    0x7f, QFont::Unicode, 0xff, QFont::Khmer,				// row 0x17, index 36
+#define SCRIPTS_18 48
+    0xaf, QFont::Mongolian, 0xff, QFont::Unicode,		       	// row 0x18, index 46
+#define SCRIPTS_20 52
+    0x6f, QFont::Unicode, 0x9f, QFont::NumberForms, 
+    0xab, QFont::CurrencySymbols, 0xac, QFont::LatinExtendedA_15,
+    0xcf, QFont::CurrencySymbols, 0xff, QFont::CombiningMarks,		// row 0x20, index 50
+#define SCRIPTS_21 64
+    0x4f, QFont::LetterlikeSymbols, 0x8f, QFont::NumberForms, 
+    0xff, QFont::MathematicalOperators,					// row 0x21, index 62
+#define SCRIPTS_24 70
+    0x5f, QFont::TechnicalSymbols, 0xff, QFont::EnclosedAndSquare,	// row 0x24, index 68
+#define SCRIPTS_2e 74
+    0x7f, QFont::Unicode, 0xff, QFont::Han,				// row 0x2e, index 72
+#define SCRIPTS_30 78
+    0x3f, QFont::Han, 0x9f, QFont::Hiragana, 0xff, QFont::Katakana,	// row 0x30, index 76
+#define SCRIPTS_31 84
+    0x2f, QFont::Bopomofo, 0x8f, QFont::Hangul, 0x9f, QFont::Han, 
+    0xff, QFont::Unicode,						// row 0x31, index 82
+#define SCRIPTS_fb 92
+    0x06, QFont::Latin, 0x1c, QFont::Unicode, 0x4f, QFont::Hebrew,
+    0xff, QFont::Arabic,						// row 0xfb, index 90
+#define SCRIPTS_fe 100
+    0x1f, QFont::Unicode, 0x2f, QFont::CombiningMarks, 0x6f, QFont::Unicode,
+    0xff, QFont::Arabic,						// row 0xfe, index 98
+#define SCRIPTS_ff 108
+    0xef, QFont::Hiragana, 0xff, QFont::Unicode,			// row 0xff, index 106
+};
+
+// (uc-0x0900)>>7
+static const unsigned char indicScripts [] =
+{
+    QFont::Devanagari, QFont::Bengali,
+    QFont::Gurmukhi, QFont::Gujarati,
+    QFont::Oriya, QFont::Tamil,
+    QFont::Telugu, QFont::Kannada,
+    QFont::Malayalam, QFont::Sinhala,
+    QFont::Thai, QFont::Lao
+};
+
+
+#define SCRIPTS_LATINEXT 0x7f
+#define SCRIPTS_INDIC 0x7e
+// 0x80 + x: x is the offset into the otherScripts table
+static const unsigned char scriptTable[256] =
+{
+    QFont::LatinBasic, SCRIPTS_LATINEXT, 0x80+SCRIPTS_02, 0x80+SCRIPTS_03, 
+    QFont::Cyrillic, 0x80+SCRIPTS_05, QFont::Arabic, 0x80+SCRIPTS_07,
+    QFont::Unicode, SCRIPTS_INDIC, SCRIPTS_INDIC, SCRIPTS_INDIC, 
+    SCRIPTS_INDIC, SCRIPTS_INDIC, SCRIPTS_INDIC, QFont::Tibetan,
+
+    0x80+SCRIPTS_10, QFont::Hangul, QFont::Ethiopic, 0x80+SCRIPTS_13, 
+    QFont::CanadianAboriginal, QFont::CanadianAboriginal, 0x80+SCRIPTS_16, 0x80+SCRIPTS_17,
+    0x80+SCRIPTS_18, QFont::Unicode, QFont::Unicode, QFont::Unicode, 
+    QFont::Unicode, QFont::Unicode, QFont::Latin, QFont::Greek,
+    
+    0x80+SCRIPTS_20, 0x80+SCRIPTS_21, QFont::MathematicalOperators, QFont::TechnicalSymbols, 
+    0x80+SCRIPTS_24, QFont::GeometricSymbols, QFont::MiscellaneousSymbols, QFont::MiscellaneousSymbols,
+    QFont::Braille, QFont::Unicode, QFont::Unicode, QFont::Unicode, 
+    QFont::Unicode, QFont::Unicode, 0x80+SCRIPTS_2e, QFont::Han,
+    
+    0x80+SCRIPTS_30, 0x80+SCRIPTS_31, QFont::EnclosedAndSquare, QFont::EnclosedAndSquare, 
+    QFont::Han, QFont::Han, QFont::Han, QFont::Han,
+    QFont::Han, QFont::Han, QFont::Han, QFont::Han, 
+    QFont::Han, QFont::Han, QFont::Han, QFont::Han,
+    
+    QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han,
+    QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han,
+    
+    QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han,
+    QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han,
+    
+    QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han,
+    QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han,
+    
+    QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han,
+    QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han,
+
+    
+    QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han,
+    QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han,
+    
+    QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han,
+    QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han, QFont::Han,
+    
+    QFont::Yi, QFont::Yi, QFont::Yi, QFont::Yi, QFont::Yi, QFont::Unicode, QFont::Unicode, QFont::Unicode,
+    QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, 
+    
+    QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, 
+    QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, 
+    
+    QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, 
+    QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, 
+    
+    QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, QFont::Hangul, 
+    QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, 
+    
+    QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, 
+    QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, 
+    
+    QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, QFont::Unicode, 
+    QFont::Unicode, QFont::Han, QFont::Han, 0x80+SCRIPTS_fb, QFont::Arabic, QFont::Arabic, 0x80+SCRIPTS_fe, 0x80+SCRIPTS_ff
+};
+
+
+#ifndef Q_WS_QWS
+static inline QFont::Script scriptForChar( ushort uc )
+{
+    unsigned char script = scriptTable[(uc>>8)];
+    if ( script >= SCRIPTS_INDIC ) {
+	if ( script == SCRIPTS_LATINEXT ) {
+	    unsigned char cell = uc &0xff;
+	    if ( cell < 0x80 )
+		script = extendedLatinTable[cell];
+	    else
+		script = QFont::Latin;
+	} else if ( script == SCRIPTS_INDIC ) {
+	    script = indicScripts[ (uc-0x0900)>>7 ];
+	} else {
+	    // 0x80 + SCRIPTS_xx
+	    unsigned char index = script-0x80;
+	    unsigned char cell = uc &0xff;
+	    while( otherScripts[index] < cell )
+		index += 2;
+	    script = otherScripts[index+1];
+	}
+    }
+    return (QFont::Script)script;
+}
+#endif //Q_WS_QWS
+
+#ifdef Q_WS_X11
+#define SCRIPT_FOR_CHAR( script, c, priv ) 	\
+do { 						\
+    unsigned short _uc = (c).unicode(); 		\
+    if ( _uc < 0x100 ) {				\
+	script = QFont::LatinBasic;		\
+    } else { 					\
+        script = ::scriptForChar( _uc ); 	\
+        if ( script == QFont::Han ) 		\
+            script = priv->hanHack( c ); 	\
+    } 						\
+} while( FALSE )
+
+#else
+#define SCRIPT_FOR_CHAR( script, c, priv ) script = ::scriptForChar( c )
+#endif
+
 QFont::Script QFontPrivate::scriptForChar( const QChar &c )
 {
 #ifndef Q_WS_QWS
-    uchar row = c.row();
-    uchar cell = c.cell();
-
-    // Thankfully LatinBasic is more or less == ISO-8859-1
-    if (! row)
-	return QFont::LatinBasic;
-
-    switch ( row ) {
-    case 0x01:
-	// There are no typos here... really...
-	switch (cell) {
-	case 0x00: return QFont::LatinExtendedA_4;
-	case 0x01: return QFont::LatinExtendedA_4;
-	case 0x02: return QFont::LatinExtendedA_2;
-	case 0x03: return QFont::LatinExtendedA_2;
-	case 0x04: return QFont::LatinExtendedA_2;
-	case 0x05: return QFont::LatinExtendedA_2;
-	case 0x06: return QFont::LatinExtendedA_2;
-	case 0x07: return QFont::LatinExtendedA_2;
-	case 0x08: return QFont::LatinExtendedA_3;
-	case 0x09: return QFont::LatinExtendedA_3;
-	case 0x0A: return QFont::LatinExtendedA_3;
-	case 0x0B: return QFont::LatinExtendedA_3;
-	case 0x0C: return QFont::LatinExtendedA_2;
-	case 0x0D: return QFont::LatinExtendedA_2;
-	case 0x0E: return QFont::LatinExtendedA_2;
-	case 0x0F: return QFont::LatinExtendedA_2;
-	case 0x10: return QFont::LatinExtendedA_2;
-	case 0x11: return QFont::LatinExtendedA_2;
-	case 0x12: return QFont::LatinExtendedA_4;
-	case 0x13: return QFont::LatinExtendedA_4;
-	case 0x16: return QFont::LatinExtendedA_4;
-	case 0x17: return QFont::LatinExtendedA_4;
-	case 0x18: return QFont::LatinExtendedA_2;
-	case 0x19: return QFont::LatinExtendedA_2;
-	case 0x1A: return QFont::LatinExtendedA_2;
-	case 0x1B: return QFont::LatinExtendedA_2;
-	case 0x1C: return QFont::LatinExtendedA_3;
-	case 0x1D: return QFont::LatinExtendedA_3;
-	case 0x1E: return QFont::LatinExtendedA_3;
-	case 0x1F: return QFont::LatinExtendedA_3;
-	case 0x20: return QFont::LatinExtendedA_3;
-	case 0x21: return QFont::LatinExtendedA_3;
-	case 0x22: return QFont::LatinExtendedA_4;
-	case 0x23: return QFont::LatinExtendedA_4;
-	case 0x24: return QFont::LatinExtendedA_3;
-	case 0x25: return QFont::LatinExtendedA_3;
-	case 0x26: return QFont::LatinExtendedA_3;
-	case 0x27: return QFont::LatinExtendedA_3;
-	case 0x28: return QFont::LatinExtendedA_4;
-	case 0x29: return QFont::LatinExtendedA_4;
-	case 0x2A: return QFont::LatinExtendedA_4;
-	case 0x2B: return QFont::LatinExtendedA_4;
-	case 0x2E: return QFont::LatinExtendedA_4;
-	case 0x2F: return QFont::LatinExtendedA_4;
-	case 0x30: return QFont::LatinExtendedA_3;
-	case 0x31: return QFont::LatinExtendedA_3;
-	case 0x34: return QFont::LatinExtendedA_3;
-	case 0x35: return QFont::LatinExtendedA_3;
-	case 0x36: return QFont::LatinExtendedA_4;
-	case 0x37: return QFont::LatinExtendedA_4;
-	case 0x38: return QFont::LatinExtendedA_4;
-	case 0x39: return QFont::LatinExtendedA_2;
-	case 0x3A: return QFont::LatinExtendedA_2;
-	case 0x3B: return QFont::LatinExtendedA_4;
-	case 0x3C: return QFont::LatinExtendedA_4;
-	case 0x3D: return QFont::LatinExtendedA_2;
-	case 0x3E: return QFont::LatinExtendedA_2;
-	case 0x41: return QFont::LatinExtendedA_2;
-	case 0x42: return QFont::LatinExtendedA_2;
-	case 0x43: return QFont::LatinExtendedA_2;
-	case 0x44: return QFont::LatinExtendedA_2;
-	case 0x45: return QFont::LatinExtendedA_4;
-	case 0x46: return QFont::LatinExtendedA_4;
-	case 0x47: return QFont::LatinExtendedA_2;
-	case 0x48: return QFont::LatinExtendedA_2;
-	case 0x4A: return QFont::LatinExtendedA_4;
-	case 0x4B: return QFont::LatinExtendedA_4;
-	case 0x4C: return QFont::LatinExtendedA_4;
-	case 0x4D: return QFont::LatinExtendedA_4;
-	case 0x50: return QFont::LatinExtendedA_2;
-	case 0x51: return QFont::LatinExtendedA_2;
-	case 0x52: return QFont::LatinExtendedA_15;
-	case 0x53: return QFont::LatinExtendedA_15;
-	case 0x54: return QFont::LatinExtendedA_2;
-	case 0x55: return QFont::LatinExtendedA_2;
-	case 0x56: return QFont::LatinExtendedA_4;
-	case 0x57: return QFont::LatinExtendedA_4;
-	case 0x58: return QFont::LatinExtendedA_2;
-	case 0x59: return QFont::LatinExtendedA_2;
-	case 0x5A: return QFont::LatinExtendedA_2;
-	case 0x5B: return QFont::LatinExtendedA_2;
-	case 0x5C: return QFont::LatinExtendedA_3;
-	case 0x5D: return QFont::LatinExtendedA_3;
-	case 0x5E: return QFont::LatinExtendedA_2;
-	case 0x5F: return QFont::LatinExtendedA_2;
-	case 0x60: return QFont::LatinExtendedA_2;
-	case 0x61: return QFont::LatinExtendedA_2;
-	case 0x62: return QFont::LatinExtendedA_2;
-	case 0x63: return QFont::LatinExtendedA_2;
-	case 0x64: return QFont::LatinExtendedA_2;
-	case 0x65: return QFont::LatinExtendedA_2;
-	case 0x66: return QFont::LatinExtendedA_4;
-	case 0x67: return QFont::LatinExtendedA_4;
-	case 0x68: return QFont::LatinExtendedA_4;
-	case 0x69: return QFont::LatinExtendedA_4;
-	case 0x6A: return QFont::LatinExtendedA_4;
-	case 0x6B: return QFont::LatinExtendedA_4;
-	case 0x6C: return QFont::LatinExtendedA_3;
-	case 0x6D: return QFont::LatinExtendedA_3;
-	case 0x6E: return QFont::LatinExtendedA_2;
-	case 0x6F: return QFont::LatinExtendedA_2;
-	case 0x70: return QFont::LatinExtendedA_2;
-	case 0x71: return QFont::LatinExtendedA_2;
-	case 0x72: return QFont::LatinExtendedA_4;
-	case 0x73: return QFont::LatinExtendedA_4;
-	case 0x74: return QFont::LatinExtendedA_14;
-	case 0x75: return QFont::LatinExtendedA_14;
-	case 0x76: return QFont::LatinExtendedA_14;
-	case 0x77: return QFont::LatinExtendedA_14;
-	case 0x78: return QFont::LatinExtendedA_15;
-	case 0x79: return QFont::LatinExtendedA_2;
-	case 0x7A: return QFont::LatinExtendedA_2;
-	case 0x7B: return QFont::LatinExtendedA_2;
-	case 0x7C: return QFont::LatinExtendedA_2;
-	case 0x7D: return QFont::LatinExtendedA_2;
-	case 0x7E: return QFont::LatinExtendedA_2;
-	}
-	return QFont::Latin;
-
-    case 0x02:
-	if (cell <= 0xaf)
-	    return QFont::Latin;
-	return QFont::SpacingModifiers;
-
-    case 0x03:
-	if (cell <= 0x6f)
-	    return QFont::CombiningMarks;
-	return QFont::Greek;
-
-    case 0x04:
-	return QFont::Cyrillic;
-
-    case 0x05:
-	if (cell <= 0x2f)
-	    break;
-	if (cell <= 0x8f)
-	    return QFont::Armenian;
-	return QFont::Hebrew;
-
-    case 0x06:
-	return QFont::Arabic;
-
-    case 0x07:
-	if (cell <= 0x4f)
-	    return QFont::Syriac;
-	if (cell <= 0x7f)
-	    break;
-	if (cell <= 0xbf)
-	    return QFont::Thaana;
-	break;
-
-    case 0x09:
-	if (cell <= 0x7f)
-	    return QFont::Devanagari;
-	return QFont::Bengali;
-
-    case 0x0a:
-	if (cell <= 0x7f)
-	    return QFont::Gurmukhi;
-	return QFont::Gujarati;
-
-    case 0x0b:
-	if ( cell <= 0x7f )
-	    return QFont::Oriya;
-	return QFont::Tamil;
-
-    case 0x0c:
-	if (cell <= 0x7f)
-	    return QFont::Telugu;
-	return QFont::Kannada;
-
-    case 0x0d:
-	if (cell <= 0x7f)
-	    return QFont::Malayalam;
-	return QFont::Sinhala;
-
-    case 0x0e:
-	if (cell <= 0x7f)
-	    return QFont::Thai;
-	return QFont::Lao;
-
-    case 0x0f:
-	if (cell <= 0xbf)
-	    return QFont::Tibetan;
-	break;
-
-    case 0x10:
-	if (cell <= 0x9f)
-	    return QFont::Myanmar;
-	return QFont::Georgian;
-
-    case 0x11:
-	return QFont::Hangul;
-
-    case 0x12:
-	return QFont::Ethiopic;
-
-    case 0x13:
-	if (cell <= 0x7f)
-	    return QFont::Ethiopic;
-	if (cell <= 0x8f)
-	    break;
-	return QFont::Cherokee;
-
-    case 0x14:
-    case 0x15:
-	return QFont::CanadianAboriginal;
-
-    case 0x16:
-	if (cell <= 0x7f)
-	    return QFont::CanadianAboriginal;
-	if (cell <= 0x9f)
-	    return QFont::Ogham;
-	if (cell <= 0xf0)
-	    return QFont::Runic;
-	break;
-
-    case 0x17:
-	if (cell <= 0x7f)
-	    break;
-	return QFont::Khmer;
-
-    case 0x18:
-	if (cell <= 0xaf)
-	    return QFont::Mongolian;
-	break;
-
-    case 0x1e:
-	return QFont::Latin;
-
-    case 0x1f:
-	return QFont::Greek;
-
-    case 0x20:
-        if (cell == 0xac)                   // &euro;
-            return QFont::LatinExtendedA_15;
-	if (cell <= 0x6f)
-	    break;
-	if (cell <= 0x9f)
-	    return QFont::NumberForms;
-	if (cell <= 0xcf)
-	    return QFont::CurrencySymbols;
-	return QFont::CombiningMarks;
-
-    case 0x21:
-	if (cell <= 0x4f)
-	    return QFont::LetterlikeSymbols;
-	if (cell <= 0x8f)
-	    return QFont::NumberForms;
-	return QFont::MathematicalOperators;
-
-    case 0x22:
-	return QFont::MathematicalOperators;
-
-    case 0x23:
-	return QFont::TechnicalSymbols;
-
-    case 0x24:
-	if (cell <= 0x5f)
-	    return QFont::TechnicalSymbols;
-	return QFont::EnclosedAndSquare;
-
-    case 0x25:
-	return QFont::GeometricSymbols;
-
-    case 0x26:
-    case 0x27:
-	return QFont::MiscellaneousSymbols;
-
-    case 0x28:
-	return QFont::Braille;
-
-    case 0x2e:
-	if (cell <= 0x7f)
-	    break;
-#ifdef Q_WS_X11
-	return hanHack( c );
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, c, this );
+    return script;
 #else
-	return QFont::Han;
-#endif
-
-    case 0x2f:
-	if (cell <= 0xd5) {
-#ifdef Q_WS_X11
-	    return hanHack( c );
-#else
-	    return QFont::Han;
-#endif
-	}
-	if (cell <= 0xef)
-	    break;
-#ifdef Q_WS_X11
-	return hanHack( c );
-#else
-	return QFont::Han;
-#endif
-
-    case 0x30:
-	if (cell <= 0x3f) {
-	    // Unified Han Symbols and Punctuation
-#ifdef Q_WS_X11
-	    return hanHack( c );
-#else
-	    return QFont::Han;
-#endif
-	}
-	if (cell <= 0x9f)
-	    return QFont::Hiragana;
-	return QFont::Katakana;
-
-    case 0x31:
-	if (cell <= 0x2f)
-	    return QFont::Bopomofo;
-
-	// Hangul Compatibility Jamo
-	if (cell <= 0x8f)
-	    return QFont::Hangul;
-	if (cell <= 0x9f) {
-#ifdef Q_WS_X11
-	    return hanHack( c );
-#else
-	    return QFont::Han;
-#endif
-	}
-	break;
-
-    case 0x32:
-    case 0x33:
-	return QFont::EnclosedAndSquare;
-
-    case 0xa0:
-    case 0xa1:
-    case 0xa2:
-    case 0xa3:
-	return QFont::Yi;
-    case 0xa4:
-	if (cell <= 0xcf)
-	    return QFont::Yi;
-	break;
-
-    case 0xfb:
-	if (cell <= 0x06)
-	    return QFont::Latin;
-	if (cell <= 0x1c)
-	    break;
-	if (cell <= 0x4f)
-	    return QFont::Hebrew;
-	return QFont::Arabic;
-
-    case 0xfc:
-    case 0xfd:
-	return QFont::Arabic;
-
-    case 0xfe:
-	if (cell <= 0x1f)
-	    break;
-	if (cell <= 0x2f)
-	    return QFont::CombiningMarks;
-	if (cell <= 0x6f)
-	    break;
-	return QFont::Arabic;
-
-    case 0xff:
-	// Hiragana half/full width forms block
-	if (cell <= 0xef)
-	    return QFont::Hiragana;
-	break;
-    }
-
-    // Canadian Aboriginal Syllabics
-    if (row >= 0x14 && (row < 0x16 || (row == 0x16 && cell <= 0x7f))) {
-	return QFont::CanadianAboriginal;
-    }
-
-    // Hangul Syllables
-    if (row >= 0xac && (row < 0xd7 || (row == 0xd7 && cell <= 0xa3))) {
-	return QFont::Hangul;
-    }
-
-    if (// Unified Han + Extension-A
-	(row >= 0x34 && row <= 0x9f) ||
-	// Unified Han Compatibility
-	(row >= 0xf9 && row <= 0xfa)
-	) {
-#ifdef Q_WS_X11
-	return hanHack( c );
-#else
-	return QFont::Han;
-#endif
-    }
-
-    // return QFont::UnknownScript;
-#endif //Q_WS_QWS
     // "Qt/Embedded is Unicode throughout..."
-    return QFont::Unicode;
+    return QFont::Unicode
+#endif
 }
+
+
+#ifdef Q_WS_X11
+#include "qfont_x11.cpp"
+#endif

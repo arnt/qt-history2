@@ -636,7 +636,7 @@ static inline XCharStruct *getCharStruct1d(XFontStruct *xfs, uint c)
     if (c >= xfs->min_char_or_byte2 &&
 	c <= xfs->max_char_or_byte2) {
 	if (xfs->per_char != NULL) {
-	    xcs = &(xfs->per_char[(c - xfs->min_char_or_byte2)]);
+	    xcs = xfs->per_char + (c - xfs->min_char_or_byte2);
 	    if (charNonExistent(xcs))
 		xcs = (XCharStruct *) -1;
 	} else
@@ -657,10 +657,10 @@ static inline XCharStruct *getCharStruct2d(XFontStruct *xfs, uint r, uint c)
 	c >= xfs->min_char_or_byte2 &&
 	c <= xfs->max_char_or_byte2) {
 	if (xfs->per_char != NULL) {
-	    xcs = &(xfs->per_char[((r - xfs->min_byte1) *
+	    xcs = xfs->per_char + ((r - xfs->min_byte1) *
 				   (xfs->max_char_or_byte2 -
 				    xfs->min_char_or_byte2 + 1)) +
-				  (c - xfs->min_char_or_byte2)]);
+		  (c - xfs->min_char_or_byte2);
 	    if (charNonExistent(xcs))
 		xcs = (XCharStruct *) -1;
 	} else
@@ -676,7 +676,7 @@ static inline XCharStruct *getCharStruct(QFontStruct *qfs, const QString &str, i
 {
     XFontStruct *xfs;
     XCharStruct *xcs;
-    QChar ch;
+    unsigned short ch;
 
     if (! qfs || qfs == (QFontStruct *) -1 ||
     	! (xfs = (XFontStruct *) qfs->handle)) {
@@ -685,20 +685,20 @@ static inline XCharStruct *getCharStruct(QFontStruct *qfs, const QString &str, i
     }
 
     if (qfs->codec)
-	ch = QChar(qfs->codec->characterFromUnicode(str, pos));
+	ch = qfs->codec->characterFromUnicode(str, pos);
     else
-	ch = QComplexText::shapedCharacter(str, pos);
+	ch = QComplexText::shapedCharacter( str, pos ).unicode();
 
-    if (ch.unicode() == 0) {
+    if (ch == 0) {
 	xcs = 0;
 	goto end;
     }
 
     if (! xfs->max_byte1)
 	// single row font
-	xcs = getCharStruct1d(xfs, ch.cell());
+	xcs = getCharStruct1d(xfs, ch);
     else
-	xcs = getCharStruct2d(xfs, ch.row(), ch.cell());
+	xcs = getCharStruct2d(xfs, (ch>>8), ch&0xff);
 
  end:
     return xcs;
@@ -716,7 +716,6 @@ static inline XGlyphInfo *getGlyphInfo(QFontStruct *qfs, const QString &str, int
 {
     XftFont *xftfs;
     XGlyphInfo *xgi;
-    QChar ch;
     XftChar16 c;
 
     if (! qfs || qfs == (QFontStruct *) -1 ||
@@ -726,9 +725,7 @@ static inline XGlyphInfo *getGlyphInfo(QFontStruct *qfs, const QString &str, int
     }
 
     // no need for codec, all Xft fonts are in unicode mapping
-    ch = QComplexText::shapedCharacter(str, pos);
-
-    c = ch.unicode();
+    c = QComplexText::shapedCharacter(str, pos).unicode();
     if (c == 0) {
 	xgi = 0;
 	goto end;
@@ -780,7 +777,8 @@ static inline XGlyphInfo *getGlyphInfo(QFontStruct *qfs, const QChar &ch)
 // comment me
 QRect QFontPrivate::boundingRect( const QChar &ch )
 {
-    QFont::Script script = scriptForChar( ch );
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch, this );
 
     QFontStruct *qfs = 0;
     XCharStruct *xcs = 0;
@@ -818,6 +816,7 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
 
 
 // returns the width of the string in pixels (replaces XTextWidth)
+// assumes the string is already shaped
 int QFontPrivate::textWidth( const QString &str, int pos, int len )
 {
     const QChar *chars = str.unicode() + pos;
@@ -836,7 +835,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 
     for (i = 0; i < len; i++) {
 	if (chars->combiningClass() == 0 || pos + i == 0) {
-	    tmp = scriptForChar(*chars);
+	    SCRIPT_FOR_CHAR( tmp, *chars, this );
 
 	    if (tmp != current) {
 		// new script, make sure the font is loaded
@@ -848,11 +847,11 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 
 		w += (int) (tmpw*scale);
 		current = tmp;
-		scale = (qfs != (QFontStruct *)-1) ? qfs->scale : 1.;
+		scale =  (qfs != (QFontStruct *)-1) ? qfs->scale : 1.;
 	    }
 
 #ifndef QT_NO_XFTFREETYPE
-	    if ((xgi = getGlyphInfo(qfs, str, pos + i)) != (XGlyphInfo *) -2) {
+	    if ((xgi = getGlyphInfo(qfs, *chars)) != (XGlyphInfo *) -2) {
 		if (xgi == (XGlyphInfo *) -1) {
 		    // character isn't in the font, set the script to UnknownScript
 		    tmp = current = QFont::UnknownScript;
@@ -909,7 +908,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 
     for (i = 0; i < len; i++) {
 	if (chars->combiningClass() == 0 || pos + i == 0) {
-	    tmp = scriptForChar(*chars);
+	    SCRIPT_FOR_CHAR( tmp, *chars, this );
 
 	    if (tmp != current ||
 		// X11 doesn't draw strings wider than 32768px
@@ -1030,7 +1029,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 	    // deal with all marks
 	    for (int n = 0; n < nmarks; n++) {
 		// make sure font is loaded for mark
-		tmp = scriptForChar(*chars);
+		SCRIPT_FOR_CHAR( tmp, *chars, this );
 		if (tmp != QFont::UnknownScript) {
 		    load(tmp);
 		    qfs = x11data.fontstruct[tmp];
@@ -1122,7 +1121,7 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
     float scale = 1;
     for (i = 0; i < len; i++) {
 	if (chars->combiningClass() == 0 || pos + i == 0) {
-	    tmp = scriptForChar(*chars);
+	    SCRIPT_FOR_CHAR( tmp, *chars, this );
 
 	    if (tmp != current) {
 		// new script, make sure the font is loaded
@@ -1195,7 +1194,7 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
 	    // deal with all marks
 	    for (int n = 0; n < nmarks; n++) {
 		// make sure font is loaded for mark
-		tmp = scriptForChar(*chars);
+		SCRIPT_FOR_CHAR( tmp, *chars, this );
 		if (tmp != QFont::UnknownScript) {
 		    load(tmp);
 		    qfs = x11data.fontstruct[tmp];
@@ -1351,7 +1350,8 @@ void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE
 // returns TRUE if the character exists in the font, FALSE otherwise
 bool QFontPrivate::inFont( const QChar &ch )
 {
-    QFont::Script script = scriptForChar( ch );
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch, this );
 
     if (script == QFont::UnknownScript)
 	return FALSE;
@@ -2103,9 +2103,9 @@ void QFontPrivate::computeLineWidth()
 void QFontPrivate::initFontInfo(QFont::Script script, double scale)
 {
     // set the scale value for each font correctly...
-    if ( scale > 0 && x11data.fontstruct[script] != (QFontStruct *) -1 )
+    if ( scale > 0 && x11data.fontstruct[script] != (QFontStruct *) -1 ) {
 	x11data.fontstruct[script]->scale = scale;
-
+    }
     if ((script != QFont::Unicode && script != defaultScript) || !actual.dirty ||
 	x11data.fontstruct[script] == (QFontStruct *) -1) {
 	// make sure the pixel size is correct, so that we can draw the missing char
@@ -2307,75 +2307,72 @@ static inline int maxIndex(XFontStruct *f) {
 // returns a sample unicode character for the specified script
 static QChar sampleCharacter(QFont::Script script)
 {
-    QChar ch;
-    uchar row, cell;
+    ushort ch;
 
     switch (script) {
-    case QFont::Latin:                     row = 0x00; cell = 0x30; break;
-    case QFont::Greek:                     row = 0x03; cell = 0x90; break;
-    case QFont::Cyrillic:                  row = 0x04; cell = 0x10; break;
-    case QFont::Armenian:                  row = 0x05; cell = 0x40; break;
-    case QFont::Georgian:                  row = 0x10; cell = 0xa0; break;
-    case QFont::Runic:                     row = 0x16; cell = 0xa0; break;
-    case QFont::Ogham:                     row = 0x16; cell = 0x80; break;
-    case QFont::CombiningMarks:            row = 0x03; cell = 0x00; break;
+    case QFont::Latin:                     ch = 0x0030; break;
+    case QFont::Greek:                     ch = 0x0390; break;
+    case QFont::Cyrillic:                  ch = 0x0410; break;
+    case QFont::Armenian:                  ch = 0x0540; break;
+    case QFont::Georgian:                  ch = 0x10a0; break;
+    case QFont::Runic:                     ch = 0x16a0; break;
+    case QFont::Ogham:                     ch = 0x1680; break;
+    case QFont::CombiningMarks:            ch = 0x0300; break;
 
-    case QFont::Hebrew:                    row = 0x05; cell = 0xd0; break;
-    case QFont::Arabic:                    row = 0x06; cell = 0x30; break;
-    case QFont::Syriac:                    row = 0x07; cell = 0x10; break;
-    case QFont::Thaana:                    row = 0x07; cell = 0x80; break;
+    case QFont::Hebrew:                    ch = 0x05d0; break;
+    case QFont::Arabic:                    ch = 0x0630; break;
+    case QFont::Syriac:                    ch = 0x0710; break;
+    case QFont::Thaana:                    ch = 0x0780; break;
 
-    case QFont::Devanagari:                row = 0x09; cell = 0x10; break;
-    case QFont::Bengali:                   row = 0x09; cell = 0x90; break;
-    case QFont::Gurmukhi:                  row = 0xa0; cell = 0x10; break;
-    case QFont::Gujarati:                  row = 0x0a; cell = 0x90; break;
-    case QFont::Oriya:                     row = 0x0b; cell = 0x10; break;
-    case QFont::Tamil:                     row = 0x0b; cell = 0x90; break;
-    case QFont::Telugu:                    row = 0x0c; cell = 0x10; break;
-    case QFont::Kannada:                   row = 0x0c; cell = 0x90; break;
-    case QFont::Malayalam:                 row = 0x0d; cell = 0x10; break;
-    case QFont::Sinhala:                   row = 0x0d; cell = 0x90; break;
-    case QFont::Thai:                      row = 0x0e; cell = 0x10; break;
-    case QFont::Lao:                       row = 0xe0; cell = 0x81; break;
-    case QFont::Tibetan:                   row = 0x0f; cell = 0x00; break;
-    case QFont::Myanmar:                   row = 0x10; cell = 0x00; break;
-    case QFont::Khmer:                     row = 0x17; cell = 0x80; break;
+    case QFont::Devanagari:                ch = 0x0910; break;
+    case QFont::Bengali:                   ch = 0x0990; break;
+    case QFont::Gurmukhi:                  ch = 0xa010; break;
+    case QFont::Gujarati:                  ch = 0x0a90; break;
+    case QFont::Oriya:                     ch = 0x0b10; break;
+    case QFont::Tamil:                     ch = 0x0b90; break;
+    case QFont::Telugu:                    ch = 0x0c10; break;
+    case QFont::Kannada:                   ch = 0x0c90; break;
+    case QFont::Malayalam:                 ch = 0x0d10; break;
+    case QFont::Sinhala:                   ch = 0x0d90; break;
+    case QFont::Thai:                      ch = 0x0e10; break;
+    case QFont::Lao:                       ch = 0xe081; break;
+    case QFont::Tibetan:                   ch = 0x0f00; break;
+    case QFont::Myanmar:                   ch = 0x1000; break;
+    case QFont::Khmer:                     ch = 0x1780; break;
 
-    case QFont::Han:                       row = 0x4e; cell = 0x00; break;
-    case QFont::Hiragana:                  row = 0x30; cell = 0x50; break;
-    case QFont::Katakana:                  row = 0x30; cell = 0xb0; break;
-    case QFont::Hangul:                    row = 0xac; cell = 0x00; break;
-    case QFont::Bopomofo:                  row = 0x31; cell = 0x10; break;
-    case QFont::Yi:                        row = 0xa0; cell = 0x00; break;
+    case QFont::Han:                       ch = 0x4e00; break;
+    case QFont::Hiragana:                  ch = 0x3050; break;
+    case QFont::Katakana:                  ch = 0x30b0; break;
+    case QFont::Hangul:                    ch = 0xac00; break;
+    case QFont::Bopomofo:                  ch = 0x3110; break;
+    case QFont::Yi:                        ch = 0xa000; break;
 
-    case QFont::Ethiopic:                  row = 0x12; cell = 0x00; break;
-    case QFont::Cherokee:                  row = 0x13; cell = 0xa0; break;
-    case QFont::CanadianAboriginal:        row = 0x14; cell = 0x10; break;
-    case QFont::Mongolian:                 row = 0x18; cell = 0x00; break;
+    case QFont::Ethiopic:                  ch = 0x1200; break;
+    case QFont::Cherokee:                  ch = 0x13a0; break;
+    case QFont::CanadianAboriginal:        ch = 0x1410; break;
+    case QFont::Mongolian:                 ch = 0x1800; break;
 
-    case QFont::CurrencySymbols:           row = 0x20; cell = 0xaa; break;
-    case QFont::LetterlikeSymbols:         row = 0x21; cell = 0x22; break;
-    case QFont::NumberForms:               row = 0x21; cell = 0x5b; break;
-    case QFont::MathematicalOperators:     row = 0x22; cell = 0x2b; break;
-    case QFont::TechnicalSymbols:          row = 0x24; cell = 0x40; break;
-    case QFont::GeometricSymbols:          row = 0x25; cell = 0xa1; break;
-    case QFont::MiscellaneousSymbols:      row = 0x26; cell = 0x00; break;
-    case QFont::EnclosedAndSquare:         row = 0x24; cell = 0x60; break;
-    case QFont::Braille:                   row = 0x28; cell = 0x00; break;
+    case QFont::CurrencySymbols:           ch = 0x20aa; break;
+    case QFont::LetterlikeSymbols:         ch = 0x2122; break;
+    case QFont::NumberForms:               ch = 0x215b; break;
+    case QFont::MathematicalOperators:     ch = 0x222b; break;
+    case QFont::TechnicalSymbols:          ch = 0x2440; break;
+    case QFont::GeometricSymbols:          ch = 0x25a1; break;
+    case QFont::MiscellaneousSymbols:      ch = 0x2600; break;
+    case QFont::EnclosedAndSquare:         ch = 0x2460; break;
+    case QFont::Braille:                   ch = 0x2800; break;
 
-    case QFont::LatinExtendedA_2:          row = 0x01; cell = 0x02; break;
-    case QFont::LatinExtendedA_3:          row = 0x01; cell = 0x08; break;
-    case QFont::LatinExtendedA_4:          row = 0x01; cell = 0x00; break;
-    case QFont::LatinExtendedA_14:         row = 0x01; cell = 0x74; break;
-    case QFont::LatinExtendedA_15:         row = 0x01; cell = 0x52; break;
+    case QFont::LatinExtendedA_2:          ch = 0x0102; break;
+    case QFont::LatinExtendedA_3:          ch = 0x0108; break;
+    case QFont::LatinExtendedA_4:          ch = 0x0100; break;
+    case QFont::LatinExtendedA_14:         ch = 0x0174; break;
+    case QFont::LatinExtendedA_15:         ch = 0x0152; break;
 
     default:
- 	row = cell = 0;
+ 	ch = 0;
     }
 
-    ch.setCell( cell );
-    ch.setRow( row );
-    return ch;
+    return QChar(ch);
 }
 
 
@@ -2900,7 +2897,8 @@ void QFont::initialize()
 	QFontPrivate *priv = new QFontPrivate;
 
 	for (uint i = 0; i < sample.length(); i++) {
-	    tmp = priv->scriptForChar(*uc++);
+	    SCRIPT_FOR_CHAR( tmp, *uc, priv );
+	    uc++;
 	    if (tmp != cs && tmp != QFont::UnknownScript) {
 		cs = tmp;
 		break;
@@ -3144,7 +3142,8 @@ bool QFontMetrics::inFont(QChar ch) const
 */
 int QFontMetrics::leftBearing(QChar ch) const
 {
-    QFont::Script script = d->scriptForChar(ch);
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch, d );
 
     if (script == QFont::UnknownScript)
 	return 0;
@@ -3173,7 +3172,8 @@ int QFontMetrics::leftBearing(QChar ch) const
 */
 int QFontMetrics::rightBearing(QChar ch) const
 {
-    QFont::Script script = d->scriptForChar(ch);
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch, d );
 
     if (script == QFont::UnknownScript)
 	return 0;
@@ -3388,7 +3388,8 @@ int QFontMetrics::width(QChar ch) const
     if ( ch.combiningClass() > 0 )
 	return 0;
 
-    QFont::Script script = d->scriptForChar(ch);
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch, d );
 
     if (script == QFont::UnknownScript)
 	return d->actual.pixelSize * 3 / 4;
@@ -3436,11 +3437,12 @@ int QFontMetrics::width(QChar ch) const
 */
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
-    QChar ch = str[pos];
+    const QChar &ch = str.unicode()[pos];
     if ( ch.combiningClass() > 0 )
 	return 0;
 
-    QFont::Script script = d->scriptForChar(ch);
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch, d );
 
     if (script == QFont::UnknownScript)
 	return d->actual.pixelSize * 3 / 4;
@@ -3495,8 +3497,10 @@ int QFontMetrics::width( const QString &str, int len ) const
 	return 0;
 
     // this algorithm is similar to the one used for painting
-    QString shaped = QComplexText::shapedString( str, 0, len, QPainter::Auto, this );
-    len = shaped.length();
+    bool simple = str.simpleText();
+    QString shaped = str ? str : QComplexText::shapedString( str, 0, len, QPainter::Auto, this );
+    if ( !simple )
+	len = shaped.length();
 
     return d->textWidth( shaped, 0, len );
 }
@@ -3529,11 +3533,14 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 	return QRect();
 
     // this algorithm is similar to width(const QString &, int)
-    QString shaped = QComplexText::shapedString( str, 0, len, QPainter::Auto, this);
+    bool simple = str.simpleText();
+    QString shaped = simple ? str : QComplexText::shapedString( str, 0, len, QPainter::Auto, this);
+    if ( !simple )
+	len = shaped.length();
 
     QCharStruct overall;
 
-    d->textExtents( shaped, 0, shaped.length(), &overall );
+    d->textExtents( shaped, 0, len, &overall );
 
     bool underline;
     bool strikeOut;

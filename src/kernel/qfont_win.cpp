@@ -231,7 +231,7 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
 	} else {
 	    QCString str = QString( ch ).local8Bit();
 	    uchar *res = (uchar *) str.data();
-	    if ( str.length() > 1 ) { 
+	    if ( str.length() > 1 ) {
 		chr = (ushort) *res << 8;
 		res++;
 	    }
@@ -250,7 +250,7 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
 	if ( res != GDI_ERROR )
 	    return QRect(gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y, gm.gmBlackBoxX, gm.gmBlackBoxY);
 // This is supposed to fail sometimes as we use it in inFont.
-/* 
+/*
 #ifndef QT_NO_DEBUG
 	else if ( qt_winver & Qt::WV_NT_based )
 	    qSystemWarning( "QFontPrivate: GetGlyphOutline failed error code" );
@@ -317,9 +317,9 @@ void QFontPrivate::initFontInfo()
     }
 
     actual.dirty = FALSE;
-    exactMatch = ( actual.family == request.family && 
-		   ( request.pointSize == -1 || ( actual.pointSize == request.pointSize ) ) && 
-		   ( request.pixelSize == -1 || ( actual.pixelSize == request.pixelSize ) ) && 
+    exactMatch = ( actual.family == request.family &&
+		   ( request.pointSize == -1 || ( actual.pointSize == request.pointSize ) ) &&
+		   ( request.pixelSize == -1 || ( actual.pixelSize == request.pixelSize ) ) &&
 		   actual.fixedPitch == request.fixedPitch );
 }
 
@@ -342,7 +342,7 @@ void QFontPrivate::load()
     } else {
 	qfs->ref();
     }
-    if ( fin ) 
+    if ( fin )
 	fin->deref();
     fin = qfs;
 
@@ -557,7 +557,7 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
 	    qual = ANTIALIASED_QUALITY;
     } else if ( request.styleStrategy & QFont::NoAntialias ) {
 	qual = NONANTIALIASED_QUALITY;
-    }    
+    }
 
     lf.lfQuality	= qual;
 
@@ -700,7 +700,7 @@ void QFontPrivate::drawText( HDC hdc, int x, int y, QFontPrivate::TextRun *cache
     while ( cache ) {
 	if ( cache->script != QFont::Hebrew )
 	    TextOutW( hdc, x + cache->xoff, y + cache->yoff, (wchar_t *)cache->string, cache->length );
-	else 
+	else
 	{
 	    // we need to print every character by itself to keep the bidi
 	    // algorithm of uniscribe from reordering things once again.
@@ -1053,6 +1053,11 @@ int QFontMetrics::width( const QString &str, int len ) const
     // Japanese win95 fails without this
     if ( len == 0 )
 	return 0;
+
+    bool simple = str.simpleText();
+    QString shaped = str ? str : QComplexText::shapedString( str, 0, len, QPainter::Auto, this );
+    if ( !simple )
+	len = shaped.length();
 
     return d->textWidth( str, 0, len );
 }
