@@ -721,7 +721,7 @@ inline void QRectF::adjust(qreal xp1, qreal yp1, qreal xp2, qreal yp2)
 { xp += xp1; yp += yp1; w += xp2 - xp1; h += yp2 - yp1; }
 
 inline QRectF QRectF::adjusted(qreal xp1, qreal yp1, qreal xp2, qreal yp2) const
-{ return QRectF(xp + xp1, yp + yp2, w + xp2 - xp1, h + yp2 - yp1); }
+{ return QRectF(xp + xp1, yp + yp1, w + xp2 - xp1, h + yp2 - yp1); }
 
 inline void QRectF::setWidth(qreal aw)
 { this->w = aw; }
