@@ -1172,7 +1172,7 @@ bool QFontEngineXft::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     bool mirrored = flags & QTextEngine::RightToLeft;
     if (_cmap != -1) {
        for ( int i = 0; i < len; ++i ) {
-           unsigned short uc = ::mirroredChar(str[i]).unicode();
+           unsigned short uc = str[i].unicode();
            glyphs[i].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
            if ( !glyphs[i].glyph ) {
                glyph_t glyph = XftCharIndex(0, _font, uc);
