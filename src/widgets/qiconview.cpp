@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#50 $
 **
 ** Definition of QIconView widget class
 **
@@ -1263,7 +1263,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
 
-    viewport()->setBackgroundMode( NoBackground );
+    viewport()->setBackgroundMode( PaletteBase );
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( QWidget::WheelFocus );
 }
