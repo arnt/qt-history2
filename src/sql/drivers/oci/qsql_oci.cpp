@@ -1261,8 +1261,7 @@ QOCIResult::~QOCIResult()
 #endif
     }
     delete d;
-    if ( cols )
-	delete cols;
+    delete cols;
 }
 
 OCIStmt* QOCIResult::statement()
@@ -1439,11 +1438,10 @@ int QOCIResult::numRowsAffected()
 bool QOCIResult::prepare( const QString& query )
 {
     int r = 0;
-    
-    if ( cols ) {
-	delete cols;
-	cols = 0;
-    }
+
+    delete cols;
+    cols = 0;
+
     d->rowCache.clear();
     fs.clear();
     if ( d->sql ) {
@@ -1531,7 +1529,7 @@ bool QOCIResult::exec()
 	}
 	ub4 parmCount = 0;
 	int r = OCIAttrGet( d->sql, OCI_HTYPE_STMT, (dvoid*)&parmCount, NULL, OCI_ATTR_PARAM_COUNT, d->err );
-	if ( r == 0 )
+	if ( r == 0 && !cols )
 	    cols = new QOCIResultPrivate( parmCount, d );
 	OCIParam* param = 0;
 	sb4 parmStatus = 0;
@@ -1781,10 +1779,9 @@ int QOCI9Result::numRowsAffected()
 bool QOCI9Result::prepare( const QString& query )
 {
     int r = 0;
-    if ( cols ) {
-	delete cols;
-	cols = 0;
-    }
+    delete cols;
+    cols = 0;
+
     fs.clear();
     if ( d->sql ) {
 	r = OCIHandleFree( d->sql, OCI_HTYPE_STMT );
@@ -1870,7 +1867,7 @@ bool QOCI9Result::exec()
 	}
 	ub4 parmCount = 0;
 	int r = OCIAttrGet( d->sql, OCI_HTYPE_STMT, (dvoid*)&parmCount, NULL, OCI_ATTR_PARAM_COUNT, d->err );
-	if ( r == 0 ) {
+	if ( r == 0 && !cols ) {
 	    cols = new QOCIResultPrivate( parmCount, d );
 	}
 	OCIParam* param = 0;
