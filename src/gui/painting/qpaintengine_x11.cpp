@@ -174,7 +174,7 @@ static QPixmap qt_patternForAlpha(uchar alpha)
     return pm;
 }
 
-#if !defined(QT_NO_XRENDER) && !defined(QT_NO_XRENDER)
+#if !defined(QT_NO_XRENDER)
 
 /*
  * Polygon tesselator - can probably be optimized a bit more
@@ -480,7 +480,7 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 // 	}
 //     }
 }
-#endif // !defined(QT_NO_XRENDER) && !defined(QT_NO_XRENDER)
+#endif // !defined(QT_NO_XRENDER)
 
 void QX11PaintEnginePrivate::init()
 {
@@ -691,7 +691,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
         return;
     }
 
-#if !defined(QT_NO_XRENDER) && !defined(QT_NO_XRENDER)
+#if !defined(QT_NO_XRENDER)
     ::Picture pict = d->picture;
 
     if (X11->use_xrender && (d->pdev->depth() != 1) && pict && d->cbrush.style() != Qt::NoBrush
@@ -716,7 +716,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
                 XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width(), r.height());
         }
     } else
-#endif // !QT_NO_XRENDER && !QT_NO_XRENDER
+#endif // !QT_NO_XRENDER
     {
         if (d->cbrush.style() != Qt::NoBrush && d->cpen.style() != Qt::NoPen) {
             for (int i = 0; i < rectCount; ++i) {
@@ -763,7 +763,7 @@ void QX11PaintEngine::drawPoints(const QPoint *points, int pointCount)
 
 QPainter::RenderHints QX11PaintEngine::supportedRenderHints() const
 {
-#if !defined(QT_NO_XRENDER) && !defined(QT_NO_XRENDER)
+#if !defined(QT_NO_XRENDER)
     if (X11->use_xrender)
         return QPainter::Antialiasing;
 #endif
@@ -1019,7 +1019,6 @@ void QX11PaintEngine::drawEllipse(const QRect &rect)
     }
 
     if (!X11->solid_fills[i].picture) {
-
 	Pixmap pixmap = XCreatePixmap (X11->display, RootWindow (X11->display, screen), 1, 1, 32);
         XRenderPictureAttributes attrs;
 	attrs.repeat = True;
@@ -1053,7 +1052,7 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
         fill_gc = gc;
     }
 
-#if !defined(QT_NO_XRENDER) && !defined(QT_NO_XRENDER)
+#if !defined(QT_NO_XRENDER)
     bool antialias = q->renderHints() & QPainter::Antialiasing;
     if (X11->use_xrender && fill.style() != Qt::NoBrush &&
         (antialias || fill.color().alpha() != 255))
@@ -1392,7 +1391,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
     if (pixmap.depth() > 1 && d->txop <= QPainterPrivate::TxTranslate
         && pixmap.hasAlphaChannel() && !pixmap.data->x11_mask)
     {
-#if !defined(QT_NO_XRENDER) && !defined(QT_NO_XRENDER)
+#if !defined(QT_NO_XRENDER)
         if (d->picture && pixmap.x11PictureHandle()) {
             // this is essentially drawTile() from above, inlined for
             // the XRenderComposite call
