@@ -1,8 +1,6 @@
 /**********************************************************************
 **   Copyright (C) 2001 Trolltech AS.  All rights reserved.
 **
-**   splashloader.cpp
-**
 **   This file is part of Qt Linguist.
 **
 **   See the file LICENSE included in the distribution for the usage

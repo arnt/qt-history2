@@ -1,7 +1,5 @@
 /**********************************************************************
-**   Copyright (C) 2000 Trolltech AS.  All rights reserved.
-**
-**   listviews.h
+**   Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
 **
 **   This file is part of Qt Linguist.
 **

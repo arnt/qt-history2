@@ -1,7 +1,5 @@
 /**********************************************************************
-**   Copyright (C) 2000 Trolltech AS.  All rights reserved.
-**
-**   simtexth.cpp
+**   Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 **   This file is part of Qt Linguist.
 **

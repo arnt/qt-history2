@@ -1,7 +1,5 @@
 /**********************************************************************
-**   Copyright (C) 2000 Trolltech AS.  All rights reserved.
-**
-**   main.cpp
+**   Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 **   This file is part of Qt Linguist.
 **
@@ -24,7 +22,7 @@
 #include <qtranslator.h>
 #include <qsettings.h>
 
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 extern void qt_wait_for_window_manager( QWidget * );
 #endif
 

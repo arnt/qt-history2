@@ -1,8 +1,6 @@
 /**********************************************************************
 **   Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
-**   trwindow.cpp
-**
 **   This file is part of Qt Linguist.
 **
 **   See the file LICENSE included in the distribution for the usage
