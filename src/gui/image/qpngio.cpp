@@ -119,6 +119,8 @@ void setup_qt(QImage& image, png_structp png_ptr, png_infop info_ptr, float scre
             if (!image.create(width, height, 32))
                 return;
             image.setAlphaBuffer(true);
+            if (QImage::systemByteOrder() == QImage::BigEndian)
+                png_set_swap_alpha(png_ptr);
 
             png_read_update_info(png_ptr, info_ptr);
         } else {
@@ -202,6 +204,9 @@ void setup_qt(QImage& image, png_structp png_ptr, png_infop info_ptr, float scre
         } else {
             image.setAlphaBuffer(true);
         }
+
+        if (QImage::systemByteOrder() == QImage::BigEndian) 
+            png_set_swap_alpha(png_ptr);
 
         png_read_update_info(png_ptr, info_ptr);
     }
