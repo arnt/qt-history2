@@ -99,6 +99,7 @@ table {
     FORMS 	+=widgets/widgetsbase_pro.ui
 }
 
-TRANSLATIONS	= translations/demo_de.ts \
+TRANSLATIONS	= translations/demo_ar.ts \
+		  translations/demo_de.ts \
 		  translations/demo_fr.ts \
 		  translations/demo_iw.ts
