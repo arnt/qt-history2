@@ -2903,7 +2903,10 @@ void QListView::insertItem( QListViewItem * i )
 
 void QListView::clear()
 {
+    bool wasUpdatesEnabled = viewport()->isUpdatesEnabled();
+    viewport()->setUpdatesEnabled( FALSE );
     setContentsPos( 0, 0 );
+    viewport()->setUpdatesEnabled( wasUpdatesEnabled );   
     bool block = signalsBlocked();
     blockSignals( TRUE );
     d->clearing = TRUE;
@@ -4069,7 +4072,8 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 
 void QListView::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-    e->accept();
+    if ( receivers( SIGNAL(contextMenuRequested(QListViewItem *, const QPoint &, int)) ) )
+	e->accept();
     if ( e->reason() == QContextMenuEvent::Keyboard ) {
 	QListViewItem *item = currentItem();
 	if ( item ) {
