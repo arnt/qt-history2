@@ -119,9 +119,9 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
     // qDebug( "Choosing cmap for vID %0x", vi->visualid );
 
     if ( vi->visualid ==
-	 XVisualIDFromVisual( (Visual*)QPaintDevice::x11AppVisual() ) ) {
+	 XVisualIDFromVisual( (Visual*)QPaintDevice::x11AppVisual( vi->screen ) ) ) {
 	// qDebug( "Using x11AppColormap" );
-	return QPaintDevice::x11AppColormap();
+	return QPaintDevice::x11AppColormap( vi->screen );
     }
 
     if ( mesa_gl ) {				// we're using MesaGL
@@ -267,8 +267,8 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     if ( deviceIsPixmap() &&
 	 (((XVisualInfo*)vi)->depth != d->paintDevice->x11Depth() ||
 	  ((XVisualInfo*)vi)->screen != d->paintDevice->x11Screen() ||
-	  ((XVisualInfo*)vi)->visualid != 
-	        XVisualIDFromVisual( (Visual*)d->paintDevice->x11Visual() )) ) 
+	  ((XVisualInfo*)vi)->visualid !=
+	        XVisualIDFromVisual( (Visual*)d->paintDevice->x11Visual() )) )
     {
 	XFree( vi );
 	XVisualInfo appVisInfo;
@@ -316,7 +316,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     // sharing between rgba and color-index will give wrong colors
     // Also, if one context is doing direct rendering and the other renders
     // via the X server things will go terribly wrong.
-    if ( shareContext && 
+    if ( shareContext &&
 	 ((format().rgba() != shareContext->format().rgba()) ||
 	  (direct != shareContext->format().directRendering()) ) )
 	shareContext = 0;
@@ -599,16 +599,17 @@ QColor QGLContext::overlayTransparentColor() const
 
 uint QGLContext::colorIndex( const QColor& c ) const
 {
+    int screen = ((XVisualInfo *)vi)->screen;
     if ( isValid() ) {
 	if ( format().plane()
-	     && c.pixel() == overlayTransparentColor().pixel() )
-	    return c.pixel();			// Special; don't look-up
+	     && c.pixel( screen ) == overlayTransparentColor().pixel( screen ) )
+	    return c.pixel( screen );		// Special; don't look-up
 	if ( ((XVisualInfo*)vi)->visualid ==
-	     XVisualIDFromVisual( (Visual*)QPaintDevice::x11AppVisual() ) )
-	    return c.pixel();		// We're using QColor's cmap
+	     XVisualIDFromVisual( (Visual*)QPaintDevice::x11AppVisual( screen ) ) )
+	    return c.pixel( screen );		// We're using QColor's cmap
 
 	CMapEntry *x = cmap_dict->find( (long)((XVisualInfo*)vi)->visualid );
-	if ( x && !x->alloc) {		// It's a standard colormap
+	if ( x && !x->alloc) {			// It's a standard colormap
 	    int rf = (int)(((float)c.red() * (x->scmap.red_max+1))/256.0);
 	    int gf = (int)(((float)c.green() * (x->scmap.green_max+1))/256.0);
 	    int bf = (int)(((float)c.blue() * (x->scmap.blue_max+1))/256.0);
@@ -619,7 +620,7 @@ uint QGLContext::colorIndex( const QColor& c ) const
 	    return p;
 	}
 	else {
-	    return c.pixel(); // ### wrong; should really ask QColor to alloc
+	    return c.pixel( screen ); // ### wrong; should really ask QColor to alloc
 	}
     }
     return 0;
@@ -881,9 +882,9 @@ void QGLWidget::setContext( QGLContext *context,
     XSetWindowAttributes a;
 
     a.colormap = choose_cmap( x11Display(), vi );	// find best colormap
-    a.background_pixel = backgroundColor().pixel();
-    a.border_pixel = black.pixel();
-    Window p = RootWindow( x11Display(), DefaultScreen(x11Display()) ); //#
+    a.background_pixel = backgroundColor().pixel( vi->screen );
+    a.border_pixel = black.pixel( vi->screen );
+    Window p = RootWindow( x11Display(), vi->screen );
     if ( parentWidget() )
 	p = parentWidget()->winId();
 

@@ -212,19 +212,23 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	// desktop on a certain screen other than the default requested
 	QPaintDeviceX11Data* xd = getX11Data( TRUE );
 	xd->x_screen = qt_x11_create_desktop_on_screen;
-	xd->x_depth = DefaultDepth( xd->x_display, xd->x_screen );
+	xd->x_depth = QPaintDevice::x11AppDepth( xd->x_screen );
+	xd->x_cells = QPaintDevice::x11AppCells( xd->x_screen );
+	xd->x_colormap = QPaintDevice::x11AppColormap( xd->x_screen );
+	xd->x_defcolormap = QPaintDevice::x11AppDefaultColormap( xd->x_screen );
+	xd->x_visual = QPaintDevice::x11AppVisual( xd->x_screen );
+	xd->x_defvisual = QPaintDevice::x11AppDefaultVisual( xd->x_screen );
 	setX11Data( xd );
     } else if ( parentWidget() &&  parentWidget()->x11Screen() != x11Screen() ) {
 	// if we have a parent widget, move to its screen if necessary
 	QPaintDeviceX11Data* xd = getX11Data( TRUE );
 	xd->x_screen = parentWidget()->x11Screen();
-	xd->x_depth = parentWidget()->x11Depth();
-
-	if (xd->x_screen != DefaultScreen(x11Display())) {
-	    xd->x_visual = DefaultVisual(x11Display(), xd->x_screen);
-	    xd->x_colormap = DefaultColormap(x11Display(), xd->x_screen);
-	}
-
+	xd->x_depth = QPaintDevice::x11AppDepth( xd->x_screen );
+	xd->x_cells = QPaintDevice::x11AppCells( xd->x_screen );
+	xd->x_colormap = QPaintDevice::x11AppColormap( xd->x_screen );
+	xd->x_defcolormap = QPaintDevice::x11AppDefaultColormap( xd->x_screen );
+	xd->x_visual = QPaintDevice::x11AppVisual( xd->x_screen );
+	xd->x_defvisual = QPaintDevice::x11AppDefaultVisual( xd->x_screen );
 	setX11Data( xd );
     }
 
@@ -270,11 +274,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 					      crect.left(), crect.top(),
 					      crect.width(), crect.height(),
 					      0,
-					      black.pixel(),
-					      bg_col.pixel() );
+					      black.pixel(x11Screen()),
+					      bg_col.pixel(x11Screen()) );
 	} else {
-	    wsa.background_pixel = bg_col.pixel();
-	    wsa.border_pixel = black.pixel();
+	    wsa.background_pixel = bg_col.pixel(x11Screen());
+	    wsa.border_pixel = black.pixel(x11Screen());
 	    wsa.colormap = (Colormap)x11Colormap();
 	    id = (WId)qt_XCreateWindow( this, dpy, parentw,
 					crect.left(), crect.top(),
@@ -498,11 +502,24 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    setWState( WState_Visible );
 
 	QPaintDeviceX11Data* xd = getX11Data( TRUE );
+
+	// find which screen the window is on...
+	xd->x_screen = QPaintDevice::x11AppScreen(); // by default, use the default :)
+	int i;
+	for ( i = 0; i < ScreenCount( dpy ); i++ ) {
+	    if ( RootWindow( dpy, i ) == a.root ) {
+		xd->x_screen = i;
+		break;
+	    }
+	}
+
 	xd->x_depth = a.depth;
+	xd->x_cells = DisplayCells( dpy, xd->x_screen );
 	xd->x_visual = a.visual;
 	xd->x_defvisual = ( XVisualIDFromVisual( a.visual ) ==
-			    XVisualIDFromVisual( (Visual*)x11AppVisual() ) );
+			    XVisualIDFromVisual( (Visual*)x11AppVisual(x11Screen()) ) );
 	xd->x_colormap = a.colormap;
+	xd->x_defcolormap = ( a.colormap == x11AppColormap( x11Screen() ) );
 	setX11Data( xd );
     }
 
@@ -650,7 +667,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
     if ( bgp )
 	XSetWindowBackgroundPixmap( dpy, winid, bgp->handle() );
     else
-	XSetWindowBackground( dpy, winid, bgc.pixel() );
+	XSetWindowBackground( dpy, winid, bgc.pixel(x11Screen()) );
     if ( p.isNull() )
 	resize( s );
     else
@@ -781,7 +798,7 @@ void QWidget::setBackgroundColorDirect( const QColor &color )
 	delete extra->bg_pix;
 	extra->bg_pix = 0;
     }
-    XSetWindowBackground( x11Display(), winId(), bg_col.pixel() );
+    XSetWindowBackground( x11Display(), winId(), bg_col.pixel(x11Screen()) );
 }
 
 static int allow_null_pixmaps = 0;
@@ -793,7 +810,7 @@ void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
     if ( extra && extra->bg_pix )
 	old = *extra->bg_pix;
     if ( !allow_null_pixmaps && pixmap.isNull() ) {
-	XSetWindowBackground( x11Display(), winId(), bg_col.pixel() );
+	XSetWindowBackground( x11Display(), winId(), bg_col.pixel(x11Screen()) );
 	if ( extra && extra->bg_pix ) {
 	    delete extra->bg_pix;
 	    extra->bg_pix = 0;
@@ -1429,7 +1446,9 @@ void QWidget::showWindow()
 		XFree( (char *)h );
 	    topData()->showMode = sm == 1?3:0; // trigger reset to normal state next time
 	}
-	if ( topData()->parentWinId && topData()->parentWinId != qt_xrootwin() && !isMinimized() ) {
+	if ( topData()->parentWinId &&
+	     topData()->parentWinId != QPaintDevice::x11AppRootWindow(x11Screen()) &&
+	     !isMinimized() ) {
 	    qt_deferred_map_add( this );
 	    return;
 	}
@@ -2297,9 +2316,9 @@ void QWidget::setName( const char *name )
 {
     QObject::setName( name );
     if ( isTopLevel() ) {
-	XChangeProperty(qt_xdisplay(), winId(),
-			qt_window_role, XA_STRING, 8, PropModeReplace,
-			(unsigned char *)name, qstrlen( name ) );
+	XChangeProperty( x11Display(), winId(),
+			 qt_window_role, XA_STRING, 8, PropModeReplace,
+			 (unsigned char *)name, qstrlen( name ) );
     }
 }
 

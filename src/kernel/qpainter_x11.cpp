@@ -86,14 +86,20 @@ void qt_erase_region( QWidget* w, const QRegion& region)
     QRegion reg = region;
 
     if ( !w->isTopLevel() && w->backgroundPixmap()
-	    && w->backgroundOrigin() != QWidget::WidgetOrigin ) {
-	QPoint offset = w->backgroundOffset();
-	int ox = offset.x();
-	int oy = offset.y();
-
-	bool unclipped = w->testWFlags( Qt::WPaintUnclipped );
-	if ( unclipped )
-		((QWFlagWidget*)w)->clearWFlags( Qt::WPaintUnclipped );
+         && w->backgroundOrigin() != QWidget::WidgetOrigin ) {
+        int ox = w->x();
+        int oy = w->y();
+        if ( w->backgroundOrigin() == QWidget::WindowOrigin ) {
+	    QWidget *topl = w;
+	    while(!topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow))
+		topl = topl->parentWidget(TRUE);
+            QPoint p = w->mapTo( topl, QPoint(0, 0) );
+            ox = p.x();
+            oy = p.y();
+        }
+        bool unclipped = w->testWFlags( Qt::WPaintUnclipped );
+        if ( unclipped )
+            ((QWFlagWidget*)w)->clearWFlags( Qt::WPaintUnclipped );
         QPainter p( w );
         p.setClipRegion( region ); // automatically includes paintEventDevice if required
         p.drawTiledPixmap( 0, 0, w->width(), w->height(),
@@ -521,7 +527,7 @@ void QPainter::initialize()
 void QPainter::cleanup()
 {
     cleanup_gc_cache();
-    cleanup_gc_array( qt_xdisplay() );
+    cleanup_gc_array( QPaintDevice::x11AppDisplay() );
     QPointArray::cleanBuffers();
 }
 
@@ -662,7 +668,7 @@ void QPainter::updatePen()
             else
                 free_gc( dpy, gc );
         }
-        obtained = obtain_gc(&penRef, &gc, cpen.color().pixel(), dpy, scrn,
+        obtained = obtain_gc(&penRef, &gc, cpen.color().pixel(scrn), dpy, scrn,
 			     hd, clip_serial);
         if ( !obtained && !penRef )
             gc = alloc_gc( dpy, scrn, hd, FALSE );
@@ -793,8 +799,8 @@ void QPainter::updatePen()
         break;
     }
 
-    XSetForeground( dpy, gc, cpen.color().pixel() );
-    XSetBackground( dpy, gc, bg_col.pixel() );
+    XSetForeground( dpy, gc, cpen.color().pixel(scrn) );
+    XSetBackground( dpy, gc, bg_col.pixel(scrn) );
 
     if ( dash_len ) {                           // make dash list
         XSetDashes( dpy, gc, 0, dashes, dash_len );
@@ -874,7 +880,7 @@ static uchar *pat_tbl[] = {
             else
                 free_gc( dpy, gc_brush );
         }
-        obtained = obtain_gc(&brushRef, &gc_brush, cbrush.color().pixel(), dpy,
+        obtained = obtain_gc(&brushRef, &gc_brush, cbrush.color().pixel(scrn), dpy,
 			     scrn, hd, clip_serial);
         if ( !obtained && !brushRef )
             gc_brush = alloc_gc( dpy, scrn, hd, FALSE );
@@ -938,8 +944,8 @@ static uchar *pat_tbl[] = {
     }
 
     XSetLineAttributes( dpy, gc_brush, 0, LineSolid, CapButt, JoinMiter );
-    XSetForeground( dpy, gc_brush, cbrush.color().pixel() );
-    XSetBackground( dpy, gc_brush, bg_col.pixel() );
+    XSetForeground( dpy, gc_brush, cbrush.color().pixel(scrn) );
+    XSetBackground( dpy, gc_brush, bg_col.pixel(scrn) );
 
     if ( bs == CustomPattern || pat ) {
         QPixmap *pm;
@@ -1070,7 +1076,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
             setTabArray( tabarray );
     }
 
-    if ( pdev->x11Depth() != pdev->x11AppDepth() ) {    // non-standard depth
+    if ( pdev->x11Depth() != pdev->x11AppDepth( scrn ) ) {    // non-standard depth
         setf(NoCache);
         setf(UsePrivateCx);
     }
@@ -2684,7 +2690,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     }
 
     if ( mono ) {
-        XSetBackground( dpy, gc, bg_col.pixel() );
+        XSetBackground( dpy, gc, bg_col.pixel(scrn) );
         XSetFillStyle( dpy, gc, FillOpaqueStippled );
         XSetStipple( dpy, gc, pixmap.handle() );
         XSetTSOrigin( dpy, gc, x-sx, y-sy );
@@ -2779,7 +2785,6 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
         sy = sh - -sy % sh;
     else
         sy = sy % sh;
-
     /*
       Requirements for optimizing tiled pixmaps:
       - not an external device
@@ -2860,7 +2865,6 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 #else
     // for now we'll just output the original and let the postscript
     // code make what it can of it.  qpicture will be unhappy.
-
     drawTile( this, x, y, w, h, pixmap, sx, sy );
 #endif
 }

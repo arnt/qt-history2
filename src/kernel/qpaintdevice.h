@@ -113,16 +113,28 @@ public:
 
     static Display *x11AppDisplay();
     static int	    x11AppScreen();
+    static int      x11AppDpiX();
+    static int      x11AppDpiY();
+    static void     x11SetAppDpiX(int);
+    static void     x11SetAppDpiY(int);
+
     static int	    x11AppDepth();
     static int	    x11AppCells();
-    static int	    x11AppDpiX();
-    static int	    x11AppDpiY();
+    static Qt::HANDLE   x11AppRootWindow();
     static Qt::HANDLE   x11AppColormap();
     static bool     x11AppDefaultColormap();
     static void    *x11AppVisual();
     static bool	    x11AppDefaultVisual();
-    static void	    x11SetAppDpiX(int);
-    static void	    x11SetAppDpiY(int);
+
+    // ### in 4.0, the above need to go away, the below needs to take a -1 default
+    // argument, signifying the default screen...
+    static int	    x11AppDepth( int screen );
+    static int	    x11AppCells( int screen );
+    static Qt::HANDLE   x11AppRootWindow( int screen );
+    static Qt::HANDLE   x11AppColormap( int screen );
+    static void    *x11AppVisual( int screen );
+    static bool     x11AppDefaultColormap( int screen );
+    static bool	    x11AppDefaultVisual( int screen );
 #endif
 
 #if defined(Q_WS_QWS)
@@ -233,18 +245,30 @@ protected:
 #endif
 #if defined(Q_WS_X11)
     friend void qt_init_internal( int *, char **, Display *, Qt::HANDLE, Qt::HANDLE );
+    friend void qt_cleanup();
 #endif
 
 private:
 #if defined(Q_WS_X11)
     static Display *x_appdisplay;
     static int	    x_appscreen;
+
     static int	    x_appdepth;
     static int	    x_appcells;
+    static Qt::HANDLE   x_approotwindow;
     static Qt::HANDLE   x_appcolormap;
     static bool	    x_appdefcolormap;
     static void	   *x_appvisual;
     static bool     x_appdefvisual;
+
+    // ### in 4.0, remove the above, and replace with the below
+    static int	      *x_appdepth_arr;
+    static int	      *x_appcells_arr;
+    static Qt::HANDLE *x_approotwindow_arr;
+    static Qt::HANDLE *x_appcolormap_arr;
+    static bool	      *x_appdefcolormap_arr;
+    static void	     **x_appvisual_arr;
+    static bool       *x_appdefvisual_arr;
 
     QPaintDeviceX11Data* x11Data;
 #endif
@@ -327,11 +351,35 @@ inline Display *QPaintDevice::x11AppDisplay()
 inline int QPaintDevice::x11AppScreen()
 { return x_appscreen; }
 
+inline int QPaintDevice::x11AppDepth( int screen )
+{ return x_appdepth_arr[ screen == -1 ? x_appscreen : screen ]; }
+
+inline int QPaintDevice::x11AppCells( int screen )
+{ return x_appcells_arr[ screen == -1 ? x_appscreen : screen ]; }
+
+inline Qt::HANDLE QPaintDevice::x11AppRootWindow( int screen )
+{ return x_approotwindow_arr[ screen == -1 ? x_appscreen : screen ]; }
+
+inline Qt::HANDLE QPaintDevice::x11AppColormap( int screen )
+{ return x_appcolormap_arr[ screen == -1 ? x_appscreen : screen ]; }
+
+inline bool QPaintDevice::x11AppDefaultColormap( int screen )
+{ return x_appdefcolormap_arr[ screen == -1 ? x_appscreen : screen ]; }
+
+inline void *QPaintDevice::x11AppVisual( int screen )
+{ return x_appvisual_arr[ screen == -1 ? x_appscreen : screen ]; }
+
+inline bool QPaintDevice::x11AppDefaultVisual( int screen )
+{ return x_appdefvisual_arr[ screen == -1 ? x_appscreen : screen ]; }
+
 inline int QPaintDevice::x11AppDepth()
 { return x_appdepth; }
 
 inline int QPaintDevice::x11AppCells()
 { return x_appcells; }
+
+inline Qt::HANDLE QPaintDevice::x11AppRootWindow()
+{ return x_approotwindow; }
 
 inline Qt::HANDLE QPaintDevice::x11AppColormap()
 { return x_appcolormap; }

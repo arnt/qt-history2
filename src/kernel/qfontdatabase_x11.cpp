@@ -90,8 +90,8 @@ void QFontDatabase::createDatabase()
 	int slant_value;
 	int spacing_value;
 
-	foundries = XftListFonts (qt_xdisplay(),
-				  qt_xscreen(),
+	foundries = XftListFonts (QPaintDevice::x11AppDisplay(),
+				  QPaintDevice::x11AppScreen(),
 				  0,
 				  XFT_FOUNDRY,
 				  0);
@@ -112,13 +112,14 @@ void QFontDatabase::createDatabase()
 
 	    if (hasFoundries)
 		families =
-		    XftListFonts(qt_xdisplay (), qt_xscreen(),
+		    XftListFonts(QPaintDevice::x11AppDisplay(),
+				 QPaintDevice::x11AppScreen(),
 				 XFT_FOUNDRY, XftTypeString, foundryName.data(), 0,
 				 XFT_FAMILY, 0);
 	    else
 		families =
-		    XftListFonts(qt_xdisplay (),
-				 qt_xscreen(),
+		    XftListFonts(QPaintDevice::x11AppDisplay(),
+				 QPaintDevice::x11AppScreen(),
 				 0,
 				 XFT_FAMILY, 0);
 
@@ -133,8 +134,8 @@ void QFontDatabase::createDatabase()
 
 		    if (hasFoundries)
 			styles =
-			    XftListFonts (qt_xdisplay (),
-					  qt_xscreen(),
+			    XftListFonts (QPaintDevice::x11AppDisplay(),
+					  QPaintDevice::x11AppScreen(),
 					  XFT_FOUNDRY, XftTypeString, foundryName.data(),
 					  XFT_FAMILY, XftTypeString, familyName.data(),
 					  0,
@@ -142,8 +143,8 @@ void QFontDatabase::createDatabase()
 					  0);
 		    else
 			styles =
-			    XftListFonts (qt_xdisplay (),
-					  qt_xscreen(),
+			    XftListFonts (QPaintDevice::x11AppDisplay(),
+					  QPaintDevice::x11AppScreen(),
 					  XFT_FAMILY, XftTypeString, familyName.data(),
 					  0,
 					  XFT_STYLE, XFT_WEIGHT, XFT_SLANT, XFT_SPACING,
@@ -190,7 +191,8 @@ void QFontDatabase::createDatabase()
 	{
 	    int fontCount;
 	    // force the X server to give us XLFDs
-	    char **fontList = XListFonts( qt_xdisplay(), "-*-*-*-*-*-*-*-*-*-*-*-*-*-*",
+	    char **fontList = XListFonts( QPaintDevice::x11AppDisplay(),
+					  "-*-*-*-*-*-*-*-*-*-*-*-*-*-*",
 					  32767, &fontCount );
 
 	    if ( fontCount >= 32767 )

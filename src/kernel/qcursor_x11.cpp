@@ -76,7 +76,7 @@ QCursorData::QCursorData( int s )
 
 QCursorData::~QCursorData()
 {
-    Display *dpy = qt_xdisplay();
+    Display *dpy = QPaintDevice::x11AppDisplay();
     if ( hcurs )
 	XFreeCursor( dpy, hcurs );
     if ( pm )
@@ -376,16 +376,20 @@ Qt::HANDLE QCursor::handle() const
 
   \sa setPos(), QWidget::mapFromGlobal(), QWidget::mapToGlobal()
 */
-
 QPoint QCursor::pos()
 {
     Window root;
     Window child;
     int root_x, root_y, win_x, win_y;
     uint buttons;
-    XQueryPointer( qt_xdisplay(), qt_xrootwin(), &root, &child,
-		   &root_x, &root_y, &win_x, &win_y, &buttons );
-    return QPoint( root_x, root_y );
+    Display* dpy = QPaintDevice::x11AppDisplay();
+    for ( int i = 0; i < ScreenCount( dpy ); i++ ) {
+	if ( XQueryPointer( dpy, QPaintDevice::x11AppRootWindow( i ), &root, &child,
+			    &root_x, &root_y, &win_x, &win_y, &buttons ) )
+
+	    return QPoint( root_x, root_y );
+    }
+    return QPoint();
 }
 
 /*! \internal
@@ -396,9 +400,9 @@ int QCursor::x11Screen()
     Window child;
     int root_x, root_y, win_x, win_y;
     uint buttons;
-    Display* dpy = qt_xdisplay();
+    Display* dpy = QPaintDevice::x11AppDisplay();
     for ( int i = 0; i < ScreenCount( dpy ); i++ ) {
-	if ( XQueryPointer( qt_xdisplay(), RootWindow( dpy, i ), &root, &child,
+	if ( XQueryPointer( dpy, QPaintDevice::x11AppRootWindow( i ), &root, &child,
 			    &root_x, &root_y, &win_x, &win_y, &buttons ) )
 	    return i;
     }
@@ -416,14 +420,37 @@ int QCursor::x11Screen()
 
 void QCursor::setPos( int x, int y )
 {
+    QPoint current, target(x, y);
+
+    // this is copied from pos(), since we need the screen number for the correct
+    // root window in the XWarpPointer call
+    Window root;
+    Window child;
+    int root_x, root_y, win_x, win_y;
+    uint buttons;
+    Display* dpy = QPaintDevice::x11AppDisplay();
+    int screen;
+    for ( screen = 0; screen < ScreenCount( dpy ); screen++ ) {
+	if ( XQueryPointer( dpy, QPaintDevice::x11AppRootWindow( screen ), &root, &child,
+			    &root_x, &root_y, &win_x, &win_y, &buttons ) ) {
+	    current = QPoint( root_x, root_y );
+	    break;
+	}
+    }
+
+    if ( screen >= ScreenCount( dpy ) )
+	return;
+
     // Need to check, since some X servers generate null mouse move
     // events, causing looping in applications which call setPos() on
     // every mouse move event.
     //
-    if (pos() == QPoint(x,y))
+    if ( current == target )
 	return;
 
-    XWarpPointer( qt_xdisplay(), None, qt_xrootwin(), 0, 0, 0, 0, x, y );
+    XWarpPointer( QPaintDevice::x11AppDisplay(), None,
+		  QPaintDevice::x11AppRootWindow( screen ),
+		  0, 0, 0, 0, x, y );
 }
 
 /*!
@@ -443,8 +470,8 @@ void QCursor::update() const
     if ( d->hcurs )				// already loaded
 	return;
 
-    Display *dpy = qt_xdisplay();
-    Window rootwin = qt_xrootwin();
+    Display *dpy = QPaintDevice::x11AppDisplay();
+    Window rootwin = QPaintDevice::x11AppRootWindow();
 
     if ( d->cshape == BitmapCursor ) {
 	d->hcurs = XCreatePixmapCursor( dpy, d->bm->handle(), d->bmm->handle(),

@@ -140,6 +140,8 @@ typedef unsigned long  WId;
 Q_EXPORT Display *qt_xdisplay();
 Q_EXPORT int	 qt_xscreen();
 Q_EXPORT WId	 qt_xrootwin();
+// ### FIXME!
+// Q_EXPORT WId	 qt_xrootwin( int scrn = -1 );
 Q_EXPORT GC	 qt_xget_readonly_gc( int scrn, bool monochrome );
 Q_EXPORT GC	 qt_xget_temp_gc( int scrn, bool monochrome );
 

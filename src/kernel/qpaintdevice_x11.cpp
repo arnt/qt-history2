@@ -96,12 +96,23 @@ void MyWidget::paintEvent( QPaintEvent * )
 
 Display *QPaintDevice::x_appdisplay = 0;
 int	 QPaintDevice::x_appscreen;
-int	 QPaintDevice::x_appdepth;
-int	 QPaintDevice::x_appcells;
-Qt::HANDLE QPaintDevice::x_appcolormap;
-bool	 QPaintDevice::x_appdefcolormap;
-void	*QPaintDevice::x_appvisual;
-bool	 QPaintDevice::x_appdefvisual;
+
+int	  QPaintDevice::x_appdepth;
+int	  QPaintDevice::x_appcells;
+Qt::HANDLE  QPaintDevice::x_approotwindow;
+Qt::HANDLE  QPaintDevice::x_appcolormap;
+bool	  QPaintDevice::x_appdefcolormap;
+void	 *QPaintDevice::x_appvisual;
+bool	  QPaintDevice::x_appdefvisual;
+
+// ### in 4.0, remove the above, and use the below
+int	 *QPaintDevice::x_appdepth_arr;
+int	 *QPaintDevice::x_appcells_arr;
+Qt::HANDLE *QPaintDevice::x_approotwindow_arr;
+Qt::HANDLE *QPaintDevice::x_appcolormap_arr;
+bool	 *QPaintDevice::x_appdefcolormap_arr;
+void	**QPaintDevice::x_appvisual_arr;
+bool	 *QPaintDevice::x_appdefvisual_arr;
 
 /*!
     \enum QPaintDevice::PDevCmd
@@ -562,7 +573,7 @@ static mask_gc gc_vec[max_mask_gcs];
 
 static void cleanup_mask_gc()
 {
-    Display *dpy = qt_xdisplay();
+    Display *dpy = QPaintDevice::x11AppDisplay();
     init_mask_gc = FALSE;
     for ( int i=0; i<max_mask_gcs; i++ ) {
 	if ( gc_vec[i].gc )
@@ -858,8 +869,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 			    GCStipple | GCTileStipXOrigin | GCTileStipYOrigin;
 	if ( td == QInternal::Widget ) {	// set GC colors
 	    QWidget *w = (QWidget *)dst;
-	    gcvals.background = w->backgroundColor().pixel();
-	    gcvals.foreground = w->foregroundColor().pixel();
+	    gcvals.background = w->backgroundColor().pixel( dst->x11Screen() );
+	    gcvals.foreground = w->foregroundColor().pixel( dst->x11Screen() );
 	    if ( include_inferiors ) {
 		valmask |= GCSubwindowMode;
 		gcvals.subwindow_mode = IncludeInferiors;
@@ -868,8 +879,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    gcvals.background = 0;
 	    gcvals.foreground = 1;
 	} else {
-	    gcvals.background = Qt::white.pixel();
-	    gcvals.foreground = Qt::black.pixel();
+	    gcvals.background = Qt::white.pixel( dst->x11Screen() );
+	    gcvals.foreground = Qt::black.pixel( dst->x11Screen() );
 	}
 
 	gcvals.fill_style  = FillOpaqueStippled;

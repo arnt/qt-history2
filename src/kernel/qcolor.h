@@ -87,7 +87,7 @@ public:
     bool   isDirty() const;
 #ifndef QT_NO_SPRINTF
     QString name() const;
-#endif    
+#endif
     void   setNamedColor( const QString& name );
 
     void   rgb( int *r, int *g, int *b ) const;
@@ -111,6 +111,12 @@ public:
 
     uint   alloc();
     uint   pixel()  const;
+
+#if defined(Q_WS_X11)
+    // ### in 4.0, make this take a default argument of -1 for default screen?
+    uint alloc( int screen );
+    uint pixel( int screen ) const;
+#endif
 
     static int  maxColors();
     static int  numBitPlanes();

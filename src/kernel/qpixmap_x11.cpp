@@ -279,7 +279,12 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     if ( defaultScreen >= 0 && defaultScreen != x11Screen() ) {
 	QPaintDeviceX11Data* xd = getX11Data( TRUE );
 	xd->x_screen = defaultScreen;
-	xd->x_depth = DefaultDepth( xd->x_display, xd->x_screen );
+	xd->x_depth = QPaintDevice::x11AppDepth( xd->x_screen );
+	xd->x_cells = QPaintDevice::x11AppCells( xd->x_screen );
+	xd->x_colormap = QPaintDevice::x11AppColormap( xd->x_screen );
+	xd->x_defcolormap = QPaintDevice::x11AppDefaultColormap( xd->x_screen );
+	xd->x_visual = QPaintDevice::x11AppVisual( xd->x_screen );
+	xd->x_defvisual = QPaintDevice::x11AppDefaultVisual( xd->x_screen );
 	setX11Data( xd );
     }
 
@@ -530,7 +535,7 @@ void QPixmap::fill( const QColor &fillColor )
 	return;
     detach();					// detach other references
     GC gc = qt_xget_temp_gc( x11Screen(), depth()==1 );
-    XSetForeground( x11Display(), gc, fillColor.pixel() );
+    XSetForeground( x11Display(), gc, fillColor.pixel(x11Screen()) );
     XFillRectangle( x11Display(), hd, gc, 0, 0, width(), height() );
 }
 
@@ -944,7 +949,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     int	 w   = image.width();
     int	 h   = image.height();
     int	 d   = image.depth();
-    int	 dd  = defaultDepth();
+    int	 dd  = x11Depth();
     bool force_mono = (dd == 1 || isQBitmap() ||
 		       (conversion_flags & ColorMode_Mask)==MonoOnly );
 
@@ -1400,7 +1405,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	px = &pixarr_sorted[0];
 	for ( i=0; i<ncols; i++ ) {		// allocate colors
 	    QColor c( px->r, px->g, px->b );
-	    pix[px->index] = c.pixel();
+	    pix[px->index] = c.pixel(x11Screen());
 	    px++;
 	}
 	delete [] pixarr;
@@ -1595,7 +1600,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
     }
     QPixmap pm( w, h );				// create new pixmap
     pm.data->uninit = FALSE;
-    GC gc = qt_xget_temp_gc( qt_xscreen(), FALSE );
+    GC gc = qt_xget_temp_gc( QPaintDevice::x11AppScreen(), FALSE );
     XSetSubwindowMode( dpy, gc, IncludeInferiors );
     XCopyArea( dpy, window, pm.handle(), gc, x, y, w, h, 0, 0 );
     XSetSubwindowMode( dpy, gc, ClipByChildren );
@@ -1704,7 +1709,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	if ( depth1 )				// fill with zeros
 	    memset( dptr, 0, dbytes );
 	else if ( bpp == 8 )			// fill with background color
-	    memset( dptr, Qt::white.pixel(), dbytes );
+	    memset( dptr, Qt::white.pixel( x11Screen() ), dbytes );
 	else
 	    memset( dptr, 0xff, dbytes );
 #if defined(QT_MITSHM)
@@ -1774,6 +1779,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	GC gc = qt_xget_readonly_gc( x11Screen(), FALSE );
 	QPixmap pm( w, h );
 	pm.data->uninit = FALSE;
+	pm.x11SetScreen( x11Screen() );
 #if defined(QT_MITSHM)
 	if ( use_mitshm ) {
 	    XCopyArea( dpy, xshmpm, pm.handle(), gc, 0, 0, w, h, 0, 0 );
@@ -1879,8 +1885,13 @@ void QPixmap::x11SetScreen( int screen )
     if ( isNull() ) {
 	QPaintDeviceX11Data* xd = getX11Data( TRUE );
 	xd->x_screen = screen;
-	xd->x_depth = DefaultDepth( xd->x_display, xd->x_screen );
-	setX11Data( xd );
+	xd->x_depth = QPaintDevice::x11AppDepth( screen );
+	xd->x_cells = QPaintDevice::x11AppCells( screen );
+	xd->x_colormap = QPaintDevice::x11AppColormap( screen );
+	xd->x_defcolormap = QPaintDevice::x11AppDefaultColormap( screen );
+	xd->x_visual = QPaintDevice::x11AppVisual( screen );
+	xd->x_defvisual = QPaintDevice::x11AppDefaultVisual( screen );
+    	setX11Data( xd );
 	return;
     }
 #if 0
@@ -1891,7 +1902,12 @@ void QPixmap::x11SetScreen( int screen )
     resize(0,0);
     QPaintDeviceX11Data* xd = getX11Data( TRUE );
     xd->x_screen = screen;
-    xd->x_depth = DefaultDepth( xd->x_display, xd->x_screen );
+    xd->x_depth = QPaintDevice::x11AppDepth( screen );
+    xd->x_cells = QPaintDevice::x11AppCells( screen );
+    xd->x_colormap = QPaintDevice::x11AppColormap( screen );
+    xd->x_defcolormap = QPaintDevice::x11AppDefaultColormap( screen );
+    xd->x_visual = QPaintDevice::x11AppVisual( screen );
+    xd->x_defvisual = QPaintDevice::x11AppDefaultVisual( screen );
     setX11Data( xd );
     convertFromImage( img );
 }
