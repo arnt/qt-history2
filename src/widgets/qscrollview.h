@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#40 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#41 $
 **
 ** Definition of QScrollView class
 **
@@ -82,10 +82,10 @@ public:
     void	updateContents( int x, int y, int w, int h );
     void	repaintContents( int x, int y, int w, int h, bool erase=TRUE );
 
-    void	contentToViewport(int x, int y, int& vx, int& vy);
-    void	viewportToContent(int vx, int vy, int& x, int& y);
-    QPoint	contentToViewport(const QPoint&);
-    QPoint	viewportToContent(const QPoint&);
+    void	contentsToViewport(int x, int y, int& vx, int& vy);
+    void	viewportToContents(int vx, int vy, int& x, int& y);
+    QPoint	contentsToViewport(const QPoint&);
+    QPoint	viewportToContents(const QPoint&);
     void	enableClipper(bool y);
 
     QSize	viewportSize( int, int ) const;
@@ -109,6 +109,16 @@ protected:
     void	resizeEvent(QResizeEvent*);
     void 	wheelEvent( QWheelEvent * );
     bool	eventFilter( QObject *, QEvent *e );
+
+    virtual void contentsMousePressEvent( QMouseEvent* );
+    virtual void contentsMouseReleaseEvent( QMouseEvent* );
+    virtual void contentsMouseDoubleClickEvent( QMouseEvent* );
+    virtual void contentsMouseMoveEvent( QMouseEvent* );
+    virtual void contentsDragEnterEvent( QDragEnterEvent * );
+    virtual void contentsDragMoveEvent( QDragMoveEvent * );
+    virtual void contentsDragLeaveEvent( QDragLeaveEvent * );
+    virtual void contentsDropEvent( QDropEvent * );
+    virtual void contentsWheelEvent( QWheelEvent * );
 
     virtual void viewportPaintEvent( QPaintEvent* );
     virtual void viewportResizeEvent( QResizeEvent* );

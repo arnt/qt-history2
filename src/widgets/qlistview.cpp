@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#239 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#240 $
 **
 ** Implementation of QListView widget class
 **
@@ -2220,7 +2220,7 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 	switch( me2.type() ) {
 	case QEvent::MouseButtonPress:
 	    if ( me2.button() == RightButton ) {
-		mousePressEvent( &me2 );
+		viewportMousePressEvent( &me2 );
 		return TRUE;
 	    }
 	    break;
@@ -2230,13 +2230,13 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 	    break;
 	case QEvent::MouseMove:
 	    if ( me2.state() & RightButton ) {
-		mouseMoveEvent( &me2 );
+		viewportMouseMoveEvent( &me2 );
 		return TRUE;
 	    }
 	    break;
 	case QEvent::MouseButtonRelease:
 	    if ( me2.button() == RightButton ) {
-		mouseReleaseEvent( &me2 );
+		viewportMouseReleaseEvent( &me2 );
 		return TRUE;
 	    }
 	    break;
@@ -2244,22 +2244,9 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 	    break;
 	}
     } else if ( o == viewport() ) {
-	QMouseEvent * me = (QMouseEvent *)e;
 	QFocusEvent * fe = (QFocusEvent *)e;
 
 	switch( e->type() ) {
-	case QEvent::MouseButtonPress:
-	    mousePressEvent( me );
-	    return TRUE;
-	case QEvent::MouseButtonDblClick:
-	    mouseDoubleClickEvent( me );
-	    return TRUE;
-	case QEvent::MouseMove:
-	    mouseMoveEvent( me );
-	    return TRUE;
-	case QEvent::MouseButtonRelease:
-	    mouseReleaseEvent( me );
-	    return TRUE;
 	case QEvent::FocusIn:
 	    focusInEvent( fe );
 	    return TRUE;
@@ -2499,25 +2486,26 @@ void QListViewItem::widthChanged( int c ) const
 */
 
 
-/*!  Processes mouse move events on behalf of the viewed widget;
-  eventFilter() calls this function.  Note that the coordinates in \a
-  e is in the coordinate system of viewport(). */
-
-void QListView::mousePressEvent( QMouseEvent * e )
+/*!
+  Processes mouse move events on behalf of the viewed widget.
+*/
+void QListView::contentsMousePressEvent( QMouseEvent * e )
 {
     if ( !e )
 	return;
 
+    QPoint vp = contentsToViewport(e->pos());
+
     if ( e->button() == RightButton ) {
 	QListViewItem * i;
-	if ( viewport()->rect().contains( e->pos() ) )
-	    i = itemAt( e->pos() );
+	if ( viewport()->rect().contains( vp ) )
+	    i = itemAt( vp );
 	else
 	    i = d->currentSelected;
 
 	if ( i ) {
-	    int c = d->h->mapToLogical( d->h->cellAt( e->pos().x() ) );
-	    emit rightButtonPressed( i, viewport()->mapToGlobal( e->pos() ),
+	    int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
+	    emit rightButtonPressed( i, viewport()->mapToGlobal( vp ),
 				     c );
 	}
 	return;
@@ -2529,13 +2517,13 @@ void QListView::mousePressEvent( QMouseEvent * e )
     d->ignoreDoubleClick = FALSE;
     d->buttonDown = TRUE;
 
-    QListViewItem * i = itemAt( e->pos() );
+    QListViewItem * i = itemAt( vp );
     if ( !i )
 	return;
 
     if ( (i->isExpandable() || i->childCount()) &&
-	 d->h->mapToLogical( d->h->cellAt( e->pos().x() ) ) == 0 ) {
-	int x1 = e->pos().x() +
+	 d->h->mapToLogical( d->h->cellAt( vp.x() ) ) == 0 ) {
+	int x1 = vp.x() +
 		 d->h->offset() -
 		 d->h->cellPos( d->h->mapToActual( 0 ) );
 	QListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
@@ -2549,7 +2537,7 @@ void QListView::mousePressEvent( QMouseEvent * e )
 		if ( !d->currentSelected ) {
 		    setCurrentItem( i );
 		    // i may have been deleted here
-		    i = itemAt( e->pos() );
+		    i = itemAt( vp );
 		}
 		d->buttonDown = FALSE;
 		d->ignoreDoubleClick = TRUE;
@@ -2572,11 +2560,10 @@ void QListView::mousePressEvent( QMouseEvent * e )
 }
 
 
-/*!  Processes mouse move events on behalf of the viewed widget;
-  eventFilter() calls this function.  Note that the coordinates in \a
-  e is in the coordinate system of viewport(). */
-
-void QListView::mouseReleaseEvent( QMouseEvent * e )
+/*!
+  Processes mouse move events on behalf of the viewed widget.
+*/
+void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 {
   // delete and disconnect autoscroll timer, if we have one
     if ( d->scrollTimer ) {
@@ -2590,16 +2577,18 @@ void QListView::mouseReleaseEvent( QMouseEvent * e )
     if ( !e )
 	return;
 
+    QPoint vp = contentsToViewport(e->pos());
+
     if ( e->button() == RightButton ) {
 	QListViewItem * i;
-	if ( viewport()->rect().contains( e->pos() ) )
-	    i = itemAt( e->pos() );
+	if ( viewport()->rect().contains( vp ) )
+	    i = itemAt( vp );
 	else
 	    i = d->currentSelected;
 
 	if ( i ) {
-	    int c = d->h->mapToLogical( d->h->cellAt( e->pos().x() ) );
-	    emit rightButtonClicked( i, viewport()->mapToGlobal( e->pos() ),
+	    int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
+	    emit rightButtonClicked( i, viewport()->mapToGlobal( vp ),
 				     c );
 	}
 	return;
@@ -2608,7 +2597,7 @@ void QListView::mouseReleaseEvent( QMouseEvent * e )
     if ( e->button() != LeftButton || !d->buttonDown )
 	return;
 
-    QListViewItem * i = itemAt( e->pos() );
+    QListViewItem * i = itemAt( vp );
     if ( !i )
 	return;
 
@@ -2621,11 +2610,10 @@ void QListView::mouseReleaseEvent( QMouseEvent * e )
 }
 
 
-/*!  Processes mouse double-click events on behalf of the viewed
-  widget; eventFilter() calls this function.  Note that the
-  coordinates in \a e is in the coordinate system of viewport(). */
-
-void QListView::mouseDoubleClickEvent( QMouseEvent * e )
+/*!
+  Processes mouse double-click events on behalf of the viewed widget.
+*/
+void QListView::contentsMouseDoubleClickEvent( QMouseEvent * e )
 {
     if ( !e )
 	return;
@@ -2639,7 +2627,9 @@ void QListView::mouseDoubleClickEvent( QMouseEvent * e )
 	return;
     }
 
-    QListViewItem * i = itemAt( e->pos() );
+    QPoint vp = contentsToViewport(e->pos());
+
+    QListViewItem * i = itemAt( vp );
 
     if ( !i )
 	return;
@@ -2655,19 +2645,20 @@ void QListView::mouseDoubleClickEvent( QMouseEvent * e )
 }
 
 
-/*!  Processes mouse move events on behalf of the viewed widget;
-  eventFilter() calls this function.  Note that the coordinates in \a
-  e is in the coordinate system of viewport(). */
-
-void QListView::mouseMoveEvent( QMouseEvent * e )
+/*!
+  Processes mouse move events on behalf of the viewed widget.
+*/
+void QListView::contentsMouseMoveEvent( QMouseEvent * e )
 {
     if ( !e || !d->buttonDown )
 	return;
 
     bool needAutoScroll = FALSE;
 
+    QPoint vp = contentsToViewport(e->pos());
+
     // check, if we need to scroll
-    if ( e->y() > visibleHeight() || e->y() < 0 )
+    if ( vp.y() > visibleHeight() || vp.y() < 0 )
 	needAutoScroll = TRUE;
 	
     // if we need to scroll and no autoscroll timer is started,
@@ -2956,8 +2947,8 @@ void QListView::keyPressEvent( QKeyEvent * e )
 }
 
 
-/*!  Returns a pointer to the QListViewItem at \a screenPos.  Note
-  that \a screenPos is in the coordinate system of viewport(), not in
+/*!  Returns a pointer to the QListViewItem at \a viewPos.  Note
+  that \a viewPos is in the coordinate system of viewport(), not in
   the listview's own, much larger, coordinate system.
 
   itemAt() returns 0 if there is no such item.
@@ -2965,13 +2956,13 @@ void QListView::keyPressEvent( QKeyEvent * e )
   \sa itemPos() itemRect()
 */
 
-QListViewItem * QListView::itemAt( const QPoint & screenPos ) const
+QListViewItem * QListView::itemAt( const QPoint & viewPos ) const
 {
     if ( !d->drawables || d->drawables->isEmpty() )
 	buildDrawableList();
 
     QListViewPrivate::DrawableItem * c = d->drawables->first();
-    int g = screenPos.y() + contentsY();
+    int g = viewPos.y() + contentsY();
 
     while( c && c->i && c->y + c->i->height() <= g )
 	c = d->drawables->next();

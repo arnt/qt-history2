@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#99 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#100 $
 **
 ** Implementation of QScrollView class
 **
@@ -1025,6 +1025,106 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 }
 
 /*!
+  This event handler is called whenever the QScrollView receives a
+  mousePressEvent() - the press position is translated to be a
+  point on the contents.
+
+  The default implementation does nothing.
+*/
+void QScrollView::contentsMousePressEvent( QMouseEvent* )
+{
+}
+
+/*!
+  This event handler is called whenever the QScrollView receives a
+  mouseReleaseEvent() - the release position is translated to be a
+  point on the contents.
+
+  The default implementation does nothing.
+*/
+void QScrollView::contentsMouseReleaseEvent( QMouseEvent* )
+{
+}
+
+/*!
+  This event handler is called whenever the QScrollView receives a
+  mouseDoubleClickEvent() - the click position is translated to be a
+  point on the contents.
+
+  The default implementation does nothing.
+*/
+void QScrollView::contentsMouseDoubleClickEvent( QMouseEvent* )
+{
+}
+
+/*!
+  This event handler is called whenever the QScrollView receives a
+  mouseMoveEvent() - the mouse position is translated to be a
+  point on the contents.
+
+  The default implementation does nothing.
+*/
+void QScrollView::contentsMouseMoveEvent( QMouseEvent* )
+{
+}
+
+/*!
+  This event handler is called whenever the QScrollView receives a
+  dragEnterEvent() - the drag position is translated to be a
+  point on the contents.
+
+  The default implementation does nothing.
+*/
+void QScrollView::contentsDragEnterEvent( QDragEnterEvent * )
+{
+}
+
+/*!
+  This event handler is called whenever the QScrollView receives a
+  dragMoveEvent() - the drag position is translated to be a
+  point on the contents.
+
+  The default implementation does nothing.
+*/
+void QScrollView::contentsDragMoveEvent( QDragMoveEvent * )
+{
+}
+
+/*!
+  This event handler is called whenever the QScrollView receives a
+  dragLeaveEvent() - the drag position is translated to be a
+  point on the contents.
+
+  The default implementation does nothing.
+*/
+void QScrollView::contentsDragLeaveEvent( QDragLeaveEvent * )
+{
+}
+
+/*!
+  This event handler is called whenever the QScrollView receives a
+  dropEvent() - the drop position is translated to be a
+  point on the contents.
+
+  The default implementation does nothing.
+*/
+void QScrollView::contentsDropEvent( QDropEvent * )
+{
+}
+
+/*!
+  This event handler is called whenever the QScrollView receives a
+  wheelEvent() - the mouse position is translated to be a
+  point on the contents.
+
+  The default implementation does nothing.
+*/
+void QScrollView::contentsWheelEvent( QWheelEvent * )
+{
+}
+
+
+/*!
   This is a low-level painting routine that draws the viewport
   contents.  Override this if drawContentsOffset() is too high-level.
   (for example, if you don't want to open a QPainter on the viewport).
@@ -1065,7 +1165,7 @@ void QScrollView::viewportPaintEvent( QPaintEvent* pe )
 
   \sa QWidget::resizeEvent()
 */
-void QScrollView::viewportResizeEvent( QResizeEvent*  )
+void QScrollView::viewportResizeEvent( QResizeEvent* )
 {
 }
 
@@ -1073,10 +1173,16 @@ void QScrollView::viewportResizeEvent( QResizeEvent*  )
   To provide simple processing of events on the contents, this method receives all mouse
   press events sent to the viewport.
 
-  \sa QWidget::mousePressEvent()
+  The default implementation translates the event and calls
+  contentsMousePressEvent().
+
+  \sa contentsMousePressEvent(), QWidget::mousePressEvent()
 */
-void QScrollView::viewportMousePressEvent( QMouseEvent* )
+void QScrollView::viewportMousePressEvent( QMouseEvent* e )
 {
+    QMouseEvent ce(e->type(), viewportToContents(e->pos()),
+	e->globalPos(), e->button(), e->state());
+    contentsMousePressEvent(&ce);
 }
 
 /*!
@@ -1084,10 +1190,16 @@ void QScrollView::viewportMousePressEvent( QMouseEvent* )
   this method receives all mouse
   release events sent to the viewport.
 
+  The default implementation translates the event and calls
+  contentsMouseReleaseEvent().
+
   \sa QWidget::mouseReleaseEvent()
 */
-void QScrollView::viewportMouseReleaseEvent( QMouseEvent* )
+void QScrollView::viewportMouseReleaseEvent( QMouseEvent* e )
 {
+    QMouseEvent ce(e->type(), viewportToContents(e->pos()),
+	e->globalPos(), e->button(), e->state());
+    contentsMouseReleaseEvent(&ce);
 }
 
 /*!
@@ -1095,10 +1207,16 @@ void QScrollView::viewportMouseReleaseEvent( QMouseEvent* )
   this method receives all mouse
   double click events sent to the viewport.
 
+  The default implementation translates the event and calls
+  contentsMouseDoubleClickEvent().
+
   \sa QWidget::mouseDoubleClickEvent()
 */
-void QScrollView::viewportMouseDoubleClickEvent( QMouseEvent* )
+void QScrollView::viewportMouseDoubleClickEvent( QMouseEvent* e )
 {
+    QMouseEvent ce(e->type(), viewportToContents(e->pos()),
+	e->globalPos(), e->button(), e->state());
+    contentsMouseDoubleClickEvent(&ce);
 }
 
 /*!
@@ -1106,10 +1224,16 @@ void QScrollView::viewportMouseDoubleClickEvent( QMouseEvent* )
   this method receives all mouse
   move events sent to the viewport.
 
+  The default implementation translates the event and calls
+  contentsMouseMoveEvent().
+
   \sa QWidget::mouseMoveEvent()
 */
-void QScrollView::viewportMouseMoveEvent( QMouseEvent* )
+void QScrollView::viewportMouseMoveEvent( QMouseEvent* e )
 {
+    QMouseEvent ce(e->type(), viewportToContents(e->pos()),
+	e->globalPos(), e->button(), e->state());
+    contentsMouseMoveEvent(&ce);
 }
 
 /*!
@@ -1117,10 +1241,16 @@ void QScrollView::viewportMouseMoveEvent( QMouseEvent* )
   this method receives all drag enter
   events sent to the viewport.
 
+  The default implementation translates the event and calls
+  contentsDragEnterEvent().
+
   \sa QWidget::dragEnterEvent()
 */
-void QScrollView::viewportDragEnterEvent( QDragEnterEvent * )
+void QScrollView::viewportDragEnterEvent( QDragEnterEvent* e )
 {
+    e->setPoint(viewportToContents(e->pos()));
+    contentsDragEnterEvent(e);
+    e->setPoint(contentsToViewport(e->pos()));
 }
 
 /*!
@@ -1128,10 +1258,16 @@ void QScrollView::viewportDragEnterEvent( QDragEnterEvent * )
   this method receives all drag move
   events sent to the viewport.
 
+  The default implementation translates the event and calls
+  contentsDragMoveEvent().
+
   \sa QWidget::dragMoveEvent()
 */
-void QScrollView::viewportDragMoveEvent( QDragMoveEvent * )
+void QScrollView::viewportDragMoveEvent( QDragMoveEvent* e )
 {
+    e->setPoint(viewportToContents(e->pos()));
+    contentsDragMoveEvent(e);
+    e->setPoint(contentsToViewport(e->pos()));
 }
 
 /*!
@@ -1139,10 +1275,13 @@ void QScrollView::viewportDragMoveEvent( QDragMoveEvent * )
   this method receives all drag leave
   events sent to the viewport.
 
+  The default implementation calls contentsDragLeaveEvent().
+
   \sa QWidget::dragLeaveEvent()
 */
-void QScrollView::viewportDragLeaveEvent( QDragLeaveEvent * )
+void QScrollView::viewportDragLeaveEvent( QDragLeaveEvent* e )
 {
+    contentsDragLeaveEvent(e);
 }
 
 /*!
@@ -1150,10 +1289,16 @@ void QScrollView::viewportDragLeaveEvent( QDragLeaveEvent * )
   this method receives all drop
   events sent to the viewport.
 
+  The default implementation translates the event and calls
+  contentsDropEvent().
+
   \sa QWidget::dropEvent()
 */
-void QScrollView::viewportDropEvent( QDropEvent * )
+void QScrollView::viewportDropEvent( QDropEvent* e )
 {
+    e->setPoint(viewportToContents(e->pos()));
+    contentsDropEvent(e);
+    e->setPoint(contentsToViewport(e->pos()));
 }
 
 /*!
@@ -1161,10 +1306,20 @@ void QScrollView::viewportDropEvent( QDropEvent * )
   this method receives all wheel
   events sent to the viewport.
 
+  The default implementation translates the event and calls
+  contentsWheelEvent().
+
   \sa QWidget::wheelEvent()
 */
-void QScrollView::viewportWheelEvent( QWheelEvent * )
+void QScrollView::viewportWheelEvent( QWheelEvent* e )
 {
+    QWheelEvent ce( viewportToContents(e->pos()),
+	e->globalPos(), e->delta(), e->state());
+    contentsWheelEvent(&ce);
+    if ( ce.isAccepted() )
+	e->accept();
+    else
+	e->ignore();
 }
 
 /*!
@@ -1794,7 +1949,7 @@ void QScrollView::enableClipper(bool y)
   translated to
     a point on the viewport() widget.
 */
-QPoint QScrollView::contentToViewport(const QPoint& p)
+QPoint QScrollView::contentsToViewport(const QPoint& p)
 {
     if ( d->clipped_viewport ) {
 	return QPoint( p.x() - contentsX() - d->clipped_viewport->x(),
@@ -1811,7 +1966,7 @@ QPoint QScrollView::contentToViewport(const QPoint& p)
   translated to
     a point in the contents.
 */
-QPoint QScrollView::viewportToContent(const QPoint& vp)
+QPoint QScrollView::viewportToContents(const QPoint& vp)
 {
     if ( d->clipped_viewport ) {
 	return QPoint( vp.x() + contentsX() + d->clipped_viewport->x(),
@@ -1829,9 +1984,9 @@ QPoint QScrollView::viewportToContent(const QPoint& vp)
   to
     a point (\a vx, \a vy) on the viewport() widget.
 */
-void QScrollView::contentToViewport(int x, int y, int& vx, int& vy)
+void QScrollView::contentsToViewport(int x, int y, int& vx, int& vy)
 {
-    const QPoint v = contentToViewport(QPoint(x,y));
+    const QPoint v = contentsToViewport(QPoint(x,y));
     vx = v.x();
     vy = v.y();
 }
@@ -1842,9 +1997,9 @@ void QScrollView::contentToViewport(int x, int y, int& vx, int& vy)
   to
     a point (\a x, \a y) in the contents.
 */
-void QScrollView::viewportToContent(int vx, int vy, int& x, int& y)
+void QScrollView::viewportToContents(int vx, int vy, int& x, int& y)
 {
-    const QPoint c = viewportToContent(QPoint(vx,vy));
+    const QPoint c = viewportToContents(QPoint(vx,vy));
     x = c.x();
     y = c.y();
 }
