@@ -10,12 +10,16 @@ class QVarLengthArray
 {
 public:
     inline QVarLengthArray(int size = 0)
-        : a(Prealloc), s(size) {
-        ptr = reinterpret_cast<T *>(array);
-        if (s > Prealloc)
+        : s(size) {
+        if (s > Prealloc) {
             ptr = reinterpret_cast<T *>(qMalloc(s * sizeof(T)));
+            a = s;
+        } else {
+            ptr = reinterpret_cast<T *>(array);
+            a = Prealloc;
+        }
         if (QTypeInfo<T>::isComplex) {
-            T* i = ptr + s;
+            T *i = ptr + s;
             while (i != ptr)
                 new (--i) T;
         }
@@ -37,7 +41,6 @@ public:
 
     inline int capacity() const { return a; }
     inline void reserve(int size) { if (size > a) realloc(s, size); }
-    inline void squeeze() { realloc(s, s); }
 
     inline T &operator[](int idx) {
         Q_ASSERT(idx >= 0 && idx < s);
@@ -72,15 +75,15 @@ private:
 template <class T, int Prealloc>
 Q_OUTOFLINE_TEMPLATE void QVarLengthArray<T, Prealloc>::realloc(int size, int alloc)
 {
+    Q_ASSERT(alloc >= size);
     T *oldPtr = ptr;
+    int osize = s;
+    s = size;
+
     if (alloc != a) {
         ptr = (T *)qMalloc(alloc * sizeof(T));
         a = alloc;
-    }
 
-    int osize = s;
-    s = size;
-    if (ptr != oldPtr) {
         if (QTypeInfo<T>::isStatic) {
             T *i = ptr + osize;
             T *j = oldPtr + osize;
@@ -89,7 +92,7 @@ Q_OUTOFLINE_TEMPLATE void QVarLengthArray<T, Prealloc>::realloc(int size, int al
                 j->~T();
             }
         } else {
-            qMemCopy(ptr, oldPtr, osize*sizeof(T));
+            qMemCopy(ptr, oldPtr, osize * sizeof(T));
         }
     }
 
@@ -107,7 +110,7 @@ Q_OUTOFLINE_TEMPLATE void QVarLengthArray<T, Prealloc>::realloc(int size, int al
         }
     }
 
-    if (oldPtr != (T*)array && oldPtr != ptr)
+    if (oldPtr != reinterpret_cast<T *>(array) && oldPtr != ptr)
         qFree(oldPtr);
 }
 
