@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#19 $
 **
 ** Implementation of something useful
 **
@@ -16,11 +16,12 @@
 #include "qstack.h"
 #include "qlist.h"
 #include "qstrlist.h"
+#include "qapp.h"
 #include "qpixmap.h"
 
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#19 $");
 
 
 struct QListViewPrivate
@@ -65,7 +66,11 @@ struct QListViewPrivate
     QTimer * timer;
     int levelWidth;
 
+    // the list of drawables, and the range drawables covers entirely
+    // (it may also include a few items above topPixel)
     QList<DrawableItem> * drawables;
+    int topPixel;
+    int bottomPixel;
 
     bool multi;
 };
@@ -390,16 +395,16 @@ const char * QListViewItem::text( int column ) const
 */
 
 void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
-			       int column, int width ) const
+			       int column, int width, bool showFocus ) const
 {
     if ( !p )
 	return;
 
-    p->fillRect( 0, 0, width, height(), cg.base() );
-
+    QListView *lv = listView();
     int r = 2;
-
     QPixmap * icon = 0; // ### temporary! to be replaced with an array
+
+    p->fillRect( 0, 0, width, height(), cg.base() );
 
     if ( icon && !column ) {
 	p->drawPixmap( 0, (height()-icon->height())/2, *icon );
@@ -408,13 +413,28 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 
     const char * t = text( column );
     if ( t ) {
-	p->setPen( cg.text() );
-	QListView *lv = listView();
 	if ( lv )
 	    p->setFont( lv->font() );
 
+	if ( isSelected() && column==0 ) {
+	    p->fillRect( r-2, 0, width - r + 2, height(),
+			 QApplication::winStyleHighlightColor() );
+	    p->setPen( white ); // ###
+	} else {
+	    p->setPen( cg.text() );
+	}
+
 	// should do the ellipsis thing here
 	p->drawText( r, 0, width-2-r, height(), AlignLeft + AlignVCenter, t );
+    }
+
+    if ( showFocus && !column ) {
+	if ( listView()->style() == WindowsStyle ) {
+	    p->drawWinFocusRect( r-2, 0, width-r+2, height() );
+	} else {
+	    p->setPen( black );
+	    p->drawRect( r-2, 0, width-r+2, height() );
+	}
     }
 }
 
@@ -632,7 +652,10 @@ QListView::~QListView()
 void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 				    int cx, int cy, int cw, int ch )
 {
-    if ( !d->drawables || d->drawables->isEmpty() )
+    if ( !d->drawables ||
+	 d->drawables->isEmpty() ||
+	 d->topPixel > ch || 
+	 d->bottomPixel < cy + ch - 1 )
 	buildDrawableList();
 
     QListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
@@ -652,6 +675,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	int ith = current->i->totalHeight();
 	int fc, lc, c;
 	int cs;
+
+	//	debug( "i %p y %d", current->i, current->y );
 
 	// need to paint current?
 	if ( ih > 0 && current->y < cy+ch && current->y+ih >= cy ) {
@@ -675,6 +700,10 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 			cs = d->h->cellSize( c );
 		}
 		lc = c;
+		// also make sure that the top item indicates focus,
+		// if nothing would otherwise
+		if ( !d->currentSelected )
+		    d->currentSelected = current->i;
 	    }
 
 	    x = fx;
@@ -694,7 +723,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
                 p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
                 p->translate( r.left(), r.top() );
 		current->i->paintCell( p, colorGroup(),
-				       d->h->mapToLogical( c ), r.width() );
+				       d->h->mapToLogical( c ), r.width(),
+				       current->i == d->currentSelected );
 		p->restore();
 		x += cs;
 		c++;
@@ -757,8 +787,10 @@ void QListView::buildDrawableList() const
 
     // could mess with cy and ch in order to speed up vertical
     // scrolling
-    int cy = viewY();
-    int ch = viewHeight();
+    int cy = -viewY();
+    int ch = ((QListView *)this)->viewport()->height();
+    d->topPixel = cy + ch; // one below bottom
+    d->bottomPixel = cy - 1; // one above top
 
     struct QListViewPrivate::Pending * cur;
 
@@ -781,8 +813,15 @@ void QListView::buildDrawableList() const
 	int ith = cur->i->totalHeight();
 
 	// is this item, or its branch symbol, inside the viewport?
-	if ( cur->y + ith >= cy && cur->y < cy + ch )
+	if ( cur->y + ith >= cy && cur->y < cy + ch ) {
 	    dl->append( new QListViewPrivate::DrawableItem(cur));
+	    // perhaps adjust topPixel up to this item?  may be adjusted
+	    // down again if any children are not to be painted
+	    if ( cur->y < d->topPixel )
+		d->topPixel = cur->y;
+	    // bottompixel is easy: the bottom item drawn contains it
+	    d->bottomPixel = cur->y + ih - 1;
+	}
 
 	// push younger sibling of cur on the stack?
 	if ( cur->y + ith < cy+ch && cur->i->siblingItem )
@@ -798,11 +837,12 @@ void QListView::buildDrawableList() const
 	    QListViewItem * c = cur->i->childItem;
 	    int y = cur->y + ih;
 
-	    // skip past some of the children quickly... not strictly
-	    // necessary but it probably helps
+	    // if any of the children are not to be painted, skip them
+	    // and invalidate topPixel
 	    while ( c && y + c->totalHeight() <= cy ) {
 		y += c->totalHeight();
 		c = c->siblingItem;
+		d->topPixel = cy + ch;
 	    }
 
 	    // push one child on the stack, if there is at least one
@@ -1075,8 +1115,15 @@ void QListView::mousePressEvent( QMouseEvent * e )
     if ( !i )
 	return;
 
-    i->setSelected( isMultiSelection() ? !i->isSelected() : TRUE );
-    setHighlightedItem( i );
+    if ( isMultiSelection() ) {
+	i->setSelected( !i->isSelected() );
+    } else if ( i != d->currentSelected ) {
+	if ( d->currentSelected )
+	    d->currentSelected->setSelected( FALSE );
+	i->setSelected( TRUE );
+    }
+
+    setCurrentItem( i ); // repaints
 
     return;
 }
@@ -1095,10 +1142,15 @@ void QListView::mouseReleaseEvent( QMouseEvent * e )
     if ( !i )
 	return;
 
-    i->setSelected( hightlightedItem() 
-		    ? hightlightedItem()->isSelected()
-		    : TRUE );
-    setHighlightedItem( i );
+    if ( isMultiSelection() ) {
+	i->setSelected( currentItem() ? currentItem()->isSelected() : TRUE );
+    } else if ( i != d->currentSelected ) {
+	if ( d->currentSelected )
+	    d->currentSelected->setSelected( FALSE );
+	i->setSelected( TRUE );
+    }
+
+    setCurrentItem( i ); // repaints
     return;
 }
 
@@ -1116,10 +1168,15 @@ void QListView::mouseMoveEvent( QMouseEvent * e )
     if ( !i )
 	return;
 
-    i->setSelected( hightlightedItem() 
-		    ? hightlightedItem()->isSelected() 
-		    : TRUE );
-    setHighlightedItem( i );
+    if ( isMultiSelection() ) {
+	i->setSelected( currentItem() ? currentItem()->isSelected() : TRUE );
+    } else if ( i != d->currentSelected ) {
+	if ( d->currentSelected )
+	    d->currentSelected->setSelected( FALSE );
+	i->setSelected( TRUE );
+    }
+
+    setCurrentItem( i ); // repaints
     return;
 }
 
@@ -1167,14 +1224,12 @@ QListViewItem * QListView::itemAt( QPoint screenPos ) const
 	buildDrawableList();
 
     QListViewPrivate::DrawableItem * c = d->drawables->first();
-    int p = -viewY();
-    int g = screenPos.y();
+    int g = screenPos.y() - viewY();
 
-    while( c && c->i && p + c->i->height() < g ) {
-	p += c->i->height();
+    while( c && c->i && c->y + c->i->height() < g )
 	c = d->drawables->next();
-    }
-    return c ? c->i : 0;
+
+    return (c && c->y <= g) ? c->i : 0;
 }
 
 
@@ -1220,12 +1275,13 @@ void QListView::setSelected( QListViewItem * item, bool selected )
 
     if ( selected && !isMultiSelection() && d->currentSelected ) {
 	d->currentSelected->setSelected( FALSE );
-	
+	viewport()->repaint( itemRect( d->currentSelected ) );
     }
 
     if ( item->isSelected() != selected ) {
 	item->setSelected( selected );
-
+	d->currentSelected = item;
+	viewport()->repaint( itemRect( item ) );
     }
 }
 
@@ -1246,16 +1302,17 @@ bool QListView::isSelected( QListViewItem * i ) const
   item is used for keyboard navigation and focus indication; it
   doesn't mean anything else.
 
-  \sa highlightedItem()
+  \sa currentItem()
 */
 
-void QListView::setHighlightedItem( QListViewItem * i )
+void QListView::setCurrentItem( QListViewItem * i )
 {
-    if ( d->currentSelected && d->currentSelected != i )
-	repaint( itemRect( d->currentSelected ) );
+    QListViewItem * prev = d->currentSelected;
     d->currentSelected = i;
+    if ( prev && prev != i )
+	viewport()->repaint( itemRect( prev ) );
     if ( i )
-	repaint( itemRect( i ) );
+	viewport()->repaint( itemRect( i ) );
 }
 
 
@@ -1263,7 +1320,7 @@ void QListView::setHighlightedItem( QListViewItem * i )
 
 */
 
-QListViewItem * QListView::hightlightedItem() const
+QListViewItem * QListView::currentItem() const
 {
     return d ? d->currentSelected : 0;
 }
@@ -1281,7 +1338,7 @@ QListViewItem * QListView::hightlightedItem() const
   \code
     QRect r( listView->itemRect( item ) );
     r.setHeight( (QCOORD)(QMIN( item->totalHeight(),
-				listView->viewHeight() - r.y() ) ) )
+				listView->viewport->height() - r.y() ) ) )
   \endcode
 
   Note the way it avoids too-high rectangles.  totalHeight() can be
@@ -1301,10 +1358,13 @@ QRect QListView::itemRect( QListViewItem * i ) const
     while( c && c->i && c->i != i )
 	c = d->drawables->next();
 
-    if ( c && c->i ) {
-	QRect r( 0, c->y - viewY(), d->h->width(), i->height() );
-	if ( r.intersects( QRect( 0, 0, viewWidth(), viewHeight() ) ) )
+    if ( c && c->i == i ) {
+	int y = c->y + viewY();
+	if ( y + c->i->height() >= 0 &&
+	     y < ((QListView *)this)->viewport()->height() ) {
+	    QRect r( 0, y, d->h->width(), i->height() );
 	    return r;
+	}
     }
 
     return QRect( 0, 0, -1, -1 );

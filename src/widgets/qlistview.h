@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#8 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#9 $
 **
 ** Definition of 
 **
@@ -51,7 +51,7 @@ public:
     bool isSelected() const { return selected; }
 
     virtual void paintCell( QPainter *,  const QColorGroup & cg,
-			    int column, int width ) const;
+			    int column, int width, bool showFocus ) const;
     virtual void paintBranches( QPainter * p, const QColorGroup & cg,
 				int w, int y, int h, GUIStyle s ) const;
 
@@ -108,8 +108,8 @@ public:
     virtual void setSelected( QListViewItem *, bool );
     bool isSelected( QListViewItem * ) const;
 
-    virtual void setHighlightedItem( QListViewItem * );
-    QListViewItem * hightlightedItem() const;
+    virtual void setCurrentItem( QListViewItem * );
+    QListViewItem * currentItem() const;
 
 public slots:
     void triggerUpdate();
