@@ -105,7 +105,6 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     if(shareContext && ( format().rgba() != shareContext->format().rgba()))
 	shareContext = 0;
     AGLContext ctx = aglCreateContext(fmt, (AGLContext) (shareContext ? shareContext->cx : NULL));
-    d->shareCtx = shareContext;
     d->sharing = shareContext && shareContext->cx;
 
     if((cx = (void *)ctx)) {
@@ -209,7 +208,6 @@ void QGLContext::reset()
     vi = 0;
     d->oldR = QRect(1, 1, 1, 1);
     d->crWin = FALSE;
-    d->shareCtx = NULL;
     d->sharing = FALSE;
     d->valid = FALSE;
     d->transpColor = QColor();
@@ -350,7 +348,7 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
 
 void QGLWidget::init(const QGLFormat& format, const QGLWidget* shareWidget)
 {
-    glcx = 0;
+    slcx = glcx = 0;
     autoSwap = TRUE;
 
     gl_pix = NULL;
@@ -408,8 +406,6 @@ void QGLWidget::resizeEvent(QResizeEvent *)
 {
     if(!isValid())
 	return;
-    if(macInternalDoubleBuffer(FALSE))
-        macInternalRecreateContext(req_format);
     makeCurrent();
     if(!glcx->initialized())
 	glInit();
@@ -480,6 +476,7 @@ void QGLWidget::setContext(QGLContext *context,
 	glcx->doneCurrent();
     QGLContext* oldcx = glcx;
     glcx = context;
+    slcx = shareContext;
     glcx_dblbuf = dblbuf;
 
     if(!glcx->isValid()) {
@@ -582,13 +579,13 @@ void QGLWidget::macInternalRecreateContext(const QGLFormat& format, const QGLCon
 	    gl_pix = new QPixmap(width(), height(), QPixmap::BestOptim);
 	    if(oldcx)
 		qgl_delete_d(this); 
-	    setContext(new QGLContext(format, gl_pix), !share_ctx && oldcx ? oldcx->d->shareCtx : share_ctx, FALSE);
+	    setContext(new QGLContext(format, gl_pix), share_ctx ? share_ctx : slcx, FALSE);
 	}
     } else {
 	setEraseColor(black);
 	if(oldcx)
 	    qgl_delete_d(this); 
-	setContext(new QGLContext(format, this), !share_ctx && oldcx ? oldcx->d->shareCtx : share_ctx, FALSE);
+	setContext(new QGLContext(format, this), share_ctx ? share_ctx : slcx, FALSE);
 	glcx->fixBufferRect();
     }
     if(update) 

@@ -242,8 +242,7 @@ private:
 	QPaintDevice*	paintDevice;
 	QColor		transpColor;
 #ifdef Q_WS_MAC
-	QRect           oldR;
-	QGContext      *shareCtx;
+	QRect             oldR;
 #endif
     };
     Private* d;
@@ -365,6 +364,7 @@ private:	// Disabled copy constructor and operator=
 
 #if defined(Q_WS_MAC)
 private:
+    const QGLContext *slcx;
     uint pending_fix : 1, glcx_dblbuf : 2, dblbuf : 1, clp_serial : 15;
     QPixmap *gl_pix;
     QGLFormat req_format;
