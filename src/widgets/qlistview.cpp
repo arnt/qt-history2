@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#240 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#241 $
 **
 ** Implementation of QListView widget class
 **
@@ -1306,7 +1306,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	if ( !verticalLine ) {
 	    // make 128*1 and 1*128 bitmaps that can be used for
 	    // drawing the right sort of lines.
-	    verticalLine = new QBitmap( 1, 128, TRUE );
+	    verticalLine = new QBitmap( 1, 129, TRUE );
 	    horizontalLine = new QBitmap( 128, 1, TRUE );
 	    QPointArray a( 64 );
 	    QPainter p;
@@ -1353,15 +1353,14 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	    } else {
 		end = dotlines[line+1].y();
 		point = dotlines[line].y();
-		if ( (point & 1) != dotoffset )
-		    point++;
+		int pixmapoffset = ((point & 1) != dotoffset ) ? 1 : 0;
 		other = dotlines[line].x();
 		while( point < end ) {
 		    i = 128;
 		    if ( i+point > end )
 			i = end-point;
 		    p->drawPixmap( other, point, *verticalLine,
-				   0, 0, 1, i );
+				   0, pixmapoffset, 1, i );
 		    point += i;
 		}
 	    }
