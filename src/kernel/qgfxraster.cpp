@@ -1,8 +1,8 @@
 /*****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#73 $
 **
-** Implementation of QGC (graphics context) class for QWS
-**
+** Implementation of QGfxRaster (unaccelerated graphics context) class for
+** Embedded Qt
 ** Created : 940721
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
