@@ -100,8 +100,7 @@ bool QTableModel::insertRows(int row, const QModelIndex &, int count)
     if (rc == 0)
         table.resize(cc * count);
     else
-        for (int column = 0; column < count; ++column)
-            table.insert(tableIndex(row, column), cc, 0);
+        table.insert(tableIndex(row, 0), cc * count, 0);
     emit rowsInserted(QModelIndex::Null, row, row + count - 1);
     return true;
 }
