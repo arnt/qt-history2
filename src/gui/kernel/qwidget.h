@@ -744,7 +744,7 @@ protected:
 };
 
 #if defined Q_CC_MSVC && _MSC_VER < 1300
-template <> inline QWidget *qt_cast_helper<QWidget*>(const QObject *o, QWidget *)
+template <> inline QWidget *qt_cast_helper<QWidget*>(QObject *o, QWidget *)
 {
     if (!o || !o->isWidgetType()) return 0;
     return (QWidget*)(o);
