@@ -82,7 +82,7 @@ static char *nstrdup(const char *s1) {
 
 
 static char *nstrndup(const char *s1, int l) {
-    if (! s1) return (char *) 0;
+    if (! s1 || l == 0) return (char *) 0;
 
     char *s2 = new char[l];
     strncpy(s2, s1, l);
@@ -91,7 +91,7 @@ static char *nstrndup(const char *s1, int l) {
 
 
 static Window *nwindup(Window *w1, int n) {
-    if (! w1) return (Window *) 0;
+    if (! w1 || n == 0) return (Window *) 0;
 
     Window *w2 = new Window[n];
     while (n--)	w2[n] = w1[n];
@@ -870,10 +870,10 @@ unsigned long NETRootInfo::event(XEvent *e) {
 		done = True;
 	}
 
-	update(dirty);
+	update(dirty & p->protocols);
     }
 
-    return dirty;
+    return dirty & p->protocols;
 }
 
 
@@ -885,50 +885,45 @@ void NETRootInfo::update(unsigned long dirty) {
     unsigned char *data_ret;
     unsigned long nitems_ret, unused;
 
-    dirty = dirty & p->protocols;
+    dirty &= p->protocols;
 
     if (dirty & ClientList) {
-#ifdef    DEBUG
-	fprintf(stderr, "NETRootInfo::update: ClientLIst dirty, rereading...\n");
-#endif
-	
 	if (XGetWindowProperty(p->display, p->root, net_client_list,
 			       0l, (long) BUFSIZE, False, XA_WINDOW, &type_ret,
 			       &format_ret, &nitems_ret, &unused, &data_ret)
 	    == Success) {
-#ifdef    DEBUG
-	    fprintf(stderr, "\tgot property, reading data...\n");
-#endif
-	    
 	    if (data_ret) {
 		if (type_ret == XA_WINDOW && format_ret == 32) {
 		    Window *wins = (Window *) data_ret;
 
 		    qsort(wins, nitems_ret, sizeof(Window), wcmp);
-
+		    
 		    if (p->clients) {
 			if (role == Client) {
-			    unsigned long n, o;
-
-			    for (n = o = 0;
-				 n < nitems_ret && o < p->clients_count; ) {
-				if (o == p->clients_count)
-				    addClient(wins[n++]);
-				else if (n == nitems_ret)
-				    removeClient(p->clients[o++]);
-				else {
-				    if (p->clients[o] < wins[n])
-					removeClient(p->clients[o++]);
-				    else if (p->clients[o] > wins[n])
-					addClient(wins[n++]);
-				    else {
-					n++;
-					o++;
+			    unsigned long new_index = 0, old_index = 0;
+			    unsigned long new_count = nitems_ret,
+					  old_count = p->clients_count;
+			    
+			    while (old_index < old_count || new_index < new_count) {
+				if (old_index == old_count) {
+				    addClient(wins[new_index++]);
+				} else if (new_index == new_count) {
+				    removeClient(p->clients[old_index++]);
+				} else {
+				    if (p->clients[old_index] <
+					wins[new_index]) {
+					removeClient(p->clients[old_index++]);
+				    } else if (wins[new_index] <
+					       p->clients[old_index]) {
+					addClient(wins[new_index++]);
+				    } else {
+					new_index++;
+					old_index++;
 				    }
 				}
 			    }
 			}
-
+			
 			delete [] p->clients;
 		    } else {
 			unsigned long n;
@@ -936,11 +931,6 @@ void NETRootInfo::update(unsigned long dirty) {
 			    addClient(wins[n]);
 		    }
 		    
-#ifdef    DEBUG
-		    fprintf(stderr,"NETRootInfo::update: ClientList updated, "
-			    "have %ld clients\n", nitems_ret);
-#endif
-
 		    p->clients_count = nitems_ret;
 		    p->clients = nwindup(wins, p->clients_count);
 		}
@@ -960,27 +950,28 @@ void NETRootInfo::update(unsigned long dirty) {
 		    Window *wins = (Window *) data_ret;
 
 		    qsort(wins, nitems_ret, sizeof(Window), wcmp);
-		    //		    windowSort(wins, nitems_ret);
 
 		    if (p->kde_docking_windows) {
 			if (role == Client) {
-			    unsigned long n, o;
+			    unsigned long new_index = 0, new_count = nitems_ret;
+			    unsigned long old_index = 0,
+					  old_count = p->kde_docking_windows_count;
 
-			    for (n = o = 0;
-				 n < nitems_ret &&
-				     o < p->kde_docking_windows_count; ) {
-				if (o == p->kde_docking_windows_count)
-				    addDockWin(wins[n++]);
-				else if (n == nitems_ret)
-				    removeDockWin(p->kde_docking_windows[o++]);
-				else {
-				    if (p->kde_docking_windows[o] < wins[n])
-					removeDockWin(p->kde_docking_windows[o++]);
-				    else if (p->kde_docking_windows[o] > wins[n])
-					addDockWin(wins[n++]);
-				    else {
-					n++;
-					o++;
+			    while(old_index < old_count || new_index < new_count) {
+				if (old_index == old_count) {
+				    addDockWin(wins[new_index++]);
+				} else if (new_index == new_count) {
+				    removeDockWin(p->kde_docking_windows[old_index++]);
+				} else {
+				    if (p->kde_docking_windows[old_index] <
+					wins[new_index]) {
+					removeDockWin(p->kde_docking_windows[old_index++]);
+				    } else if (wins[new_index] <
+					       p->kde_docking_windows[old_index]) {
+					addDockWin(wins[new_index++]);
+				    } else {
+					new_index++;
+					old_index++;
 				    }
 				}
 			    }
@@ -988,11 +979,6 @@ void NETRootInfo::update(unsigned long dirty) {
 
 			delete [] p->kde_docking_windows;
 		    }
-
-#ifdef    DEBUG
-		    fprintf(stderr,"NETRootInfo::update: KDEDockWindows updated, "
-			    "have %ld clients\n", nitems_ret);
-#endif
 
 		    p->kde_docking_windows_count = nitems_ret;
 		    p->kde_docking_windows =
@@ -1516,7 +1502,7 @@ void NETWinInfo::update(unsigned long dirty) {
     unsigned long nitems_ret, unused;
     unsigned char *data_ret;
 
-    dirty = dirty & p->properties;
+    dirty &= p->properties;
 
     if (dirty & INTERNAL_XAWMState)
 	if (XGetWindowProperty(p->display, p->window, xa_wm_state, 0l, 1l,
