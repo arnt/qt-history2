@@ -589,7 +589,7 @@ QCString QFontPrivate::fixXLFD( const QCString &xlfd )
 bool QFontPrivate::fillFontDef( XFontStruct *fs, QFontDef *fd, int screen )
 {
     unsigned long value;
-    if ( ! XGetFontProperty( fs, XA_FONT, &value ) )
+    if ( !fs || !XGetFontProperty( fs, XA_FONT, &value ) )
 	return FALSE;
 
     char *n = XGetAtomName( QPaintDevice::x11AppDisplay(), value );
