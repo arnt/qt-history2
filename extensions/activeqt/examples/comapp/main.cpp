@@ -194,7 +194,7 @@ void Application::quit()
     delete docs;
     docs = 0;
 
-    ui->deleteLater();
+    delete ui;
     ui = 0;
     QTimer::singleShot(0, qApp, SLOT(quit()));
 }
