@@ -304,10 +304,16 @@ Option::init(int argc, char **argv)
     Option::pkgcfg_ext = ".pc";
     Option::prf_ext = ".prf";
     Option::ui_ext = ".ui";
-    Option::h_ext << ".h" << ".hpp" << ".hh" << ".H" << ".hxx";
+    Option::h_ext << ".h" << ".hpp" << ".hh" << ".hxx";
+#ifndef Q_OS_WIN
+    Option::h_ext << ".H";
+#endif
     Option::cpp_moc_ext = ".moc";
     Option::h_moc_ext = ".cpp";
-    Option::cpp_ext << ".cpp" << ".cc" << ".cxx" << ".C";
+    Option::cpp_ext << ".cpp" << ".cc" << ".cxx";
+#ifndef Q_OS_WIN
+    Option::cpp_ext << ".C";
+#endif
     Option::lex_ext = ".l";
     Option::yacc_ext = ".y";
     Option::pro_ext = ".pro";
