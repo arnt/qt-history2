@@ -1784,7 +1784,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 			    curtag.style = sheet_->item( "ol" );
 
 			if ( attr.contains( "align" ) ) {
-			    QString align = attr["align"];
+			    QString align = attr["align"].lower();
 			    if ( align == "center" )
 				curtag.alignment = Qt::AlignCenter;
 			    else if ( align == "right" )
