@@ -499,8 +499,11 @@ void QTextHTMLImporter::import()
             block.setFirstLineMargin(firstLineMargin(i));
 
             if (node->isListItem) {
-                Q_ASSERT(!listReferences.isEmpty());
-                block.setObjectIndex(listReferences.last());
+                if (!listReferences.isEmpty()) {
+                    block.setObjectIndex(listReferences.last());
+                } else {
+                    qWarning("QTextDocumentFragment(html import): list item outside list found. bad html?");
+                }
             } else if (indent && block.objectIndex() == listReferences.last()) {
                 block.setIndent(indent);
             }
