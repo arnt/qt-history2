@@ -234,6 +234,7 @@ public:
     void setStatic( bool statique ) { sta = statique; }
     void setOverload( bool overlode );
     void addParameter( const Parameter& parameter );
+    inline void setParameters( const QValueList<Parameter>& parameters );
     void borrowParameterNames( const FunctionNode *source );
     void setReimplementedFrom( FunctionNode *from );
 
@@ -298,5 +299,10 @@ private:
     Trool sto;
     Trool des;
 };
+
+inline void FunctionNode::setParameters(
+	const QValueList<Parameter>& parameters ) {
+    params = parameters;
+}
 
 #endif

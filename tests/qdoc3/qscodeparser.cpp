@@ -175,12 +175,12 @@ void QsCodeParser::doneParsingSourceFiles( Tree *tree )
 FunctionNode *QsCodeParser::findFunctionNode( const QString& synopsis,
 					      Tree *tree )
 {
-    QStringList path;
+    QStringList parentPath;
     FunctionNode *clone;
     FunctionNode *func = 0;
 
-    if ( makeFunctionNode(synopsis, &path, &clone) ) {
-	func = tree->findFunctionNode( path, clone );
+    if ( makeFunctionNode(synopsis, &parentPath, &clone) ) {
+	func = tree->findFunctionNode( parentPath, clone );
 	delete clone;
     }
     return func;
@@ -198,12 +198,31 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 					 const QString& arg )
 {
     if ( command == COMMAND_QUICKFN ) {
-	QStringList path;
+	QStringList parentPath;
 	FunctionNode *quickFunc = 0;
 	FunctionNode *clone;
 
-	if ( makeFunctionNode(arg, &path, &clone) ) {
-	    quickFunc = qsTre->findFunctionNode( path, clone );
+	if ( makeFunctionNode(arg, &parentPath, &clone) ) {
+	    quickFunc = qsTre->findFunctionNode( parentPath, clone );
+	    if ( quickFunc == 0 ) {
+		QStringList path = parentPath;
+		path << clone->name();
+		FunctionNode *kernelFunc = (FunctionNode *)
+			qsTre->findFunctionNode( path );
+
+		if ( kernelFunc != 0 &&
+		     kernelFunc->returnType() == "Object" &&
+		     kernelFunc->parameters().count() == 1 &&
+		     kernelFunc->parameters().first().leftType() == "..." ) {
+		    kernelFunc->setAccess( Node::Private );
+		    quickFunc = new FunctionNode( kernelFunc->parent(),
+						  kernelFunc->name() );
+		    quickFunc->setLocation( kernelFunc->location() );
+		    quickFunc->setReturnType( clone->returnType() );
+		    quickFunc->setParameters( clone->parameters() );
+		}
+	    }
+
 	    if ( quickFunc == 0 ) {
 		doc.location().warning( tr("Cannot resolve '%1' specified with"
 					   " '\\%2'")
@@ -428,7 +447,8 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
     ClassNode *qtClass = 0;
     ClassNode *wrapperClass = 0;
 
-    if ( (wrapperClass = tryClass("Quick" + bare)) != 0 ) {
+    if ( (wrapperClass = tryClass("Quick" + bare)) != 0 ||
+	 (wrapperClass = tryClass("QS" + bare + "Class")) != 0 ) {
 	qtClass = tryClass( qtClassName );
 	if ( qtClass == 0 ) {
 	    qtClass = wrapperClass;
@@ -446,8 +466,6 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
 	wrapperClass = tryClass( "Q" + bare + "Ptr" );
 	if ( wrapperClass == 0 )
 	    wrapperClass = tryClass( "Quick" + bare + "Interface" );
-	if ( wrapperClass == 0 )
-	    wrapperClass = tryClass( "QS" + bare + "Class" );
 	qtClass = tryClass( qtClassName );
     }
 
@@ -733,14 +751,15 @@ void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc,
 }
 
 bool QsCodeParser::makeFunctionNode( const QString& synopsis,
-				     QStringList *pathPtr,
+				     QStringList *parentPathPtr,
 				     FunctionNode **funcPtr )
 {
     QRegExp funcRegExp(
 	    "\\s*([A-Za-z0-9_]+)\\.([A-Za-z0-9_]+)\\s*\\((" + balancedParens +
-	    ")\\)\\s*" );
+	    ")\\)(?:\\s*:\\s*([A-Za-z0-9_]+))?\\s*" );
     QRegExp paramRegExp(
-	    "(?:\\s*([A-Za-z0-9_]+)\\s*:)?\\s*([A-Za-z0-9_]+)\\s*" );
+	    "\\s*(\\[)?\\s*(?:([A-Za-z0-9_]+)\\s*:\\s*)?"
+	    "([A-Za-z0-9_]+|\\.\\.\\.)\\s*(\\[)?[\\s\\]]*" );
 
     if ( !funcRegExp.exactMatch(synopsis) )
 	return FALSE;
@@ -751,24 +770,36 @@ bool QsCodeParser::makeFunctionNode( const QString& synopsis,
 	return FALSE;
 
     FunctionNode *clone = new FunctionNode( 0, funcRegExp.cap(2) );
+    bool optional = FALSE;
 
     QString paramStr = funcRegExp.cap( 3 );
     QStringList params = QStringList::split( ",", paramStr );
     QStringList::ConstIterator p = params.begin();
     while ( p != params.end() ) {
 	if ( paramRegExp.exactMatch(*p) ) {
-	    clone->addParameter( Parameter(paramRegExp.cap(2), "",
-					   paramRegExp.cap(1)) );
+	    if ( !paramRegExp.cap(1).isEmpty() )
+		optional = TRUE;
+	    clone->addParameter( Parameter(paramRegExp.cap(3), "",
+					   paramRegExp.cap(2),
+					   optional ? "undefined" : "") );
+	    if ( !paramRegExp.cap(4).isEmpty() )
+		optional = TRUE;
 	} else {
 	    delete clone;
 	    return FALSE;
 	}
 	++p;
     }
-    if ( pathPtr != 0 )
-	*pathPtr = QStringList() << classe->name();
-    if ( funcPtr != 0 )
+    QString returnType = funcRegExp.cap( 4 );
+    if ( !returnType.isEmpty() )
+	clone->setReturnType( returnType );
+    if ( parentPathPtr != 0 )
+	*parentPathPtr = QStringList() << classe->name();
+    if ( funcPtr != 0 ) {
 	*funcPtr = clone;
+    } else {
+	delete clone;
+    }
     return TRUE;
 }
 

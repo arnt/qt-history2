@@ -58,7 +58,7 @@ private:
     void setQuickDoc( Node *quickNode, const Doc& doc,
 		      const QStringList& qtParams = QStringList(),
 		      const QStringList& quickParams = QStringList() );
-    bool makeFunctionNode( const QString& synopsis, QStringList *pathPtr,
+    bool makeFunctionNode( const QString& synopsis, QStringList *parentPathPtr,
 			   FunctionNode **funcPtr );
 
     static bool isWord( QChar ch );

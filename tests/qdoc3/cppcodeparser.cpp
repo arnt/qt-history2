@@ -120,13 +120,13 @@ void CppCodeParser::doneParsingSourceFiles( Tree *tree )
 const FunctionNode *CppCodeParser::findFunctionNode( const QString& synopsis,
 						     Tree *tree )
 {
-    QStringList path;
+    QStringList parentPath;
     FunctionNode *clone;
     FunctionNode *func = 0;
 
     reset( tree );
-    if ( makeFunctionNode(synopsis, &path, &clone) ) {
-	func = tree->findFunctionNode( path, clone );
+    if ( makeFunctionNode(synopsis, &parentPath, &clone) ) {
+	func = tree->findFunctionNode( parentPath, clone );
 	delete clone;
     }
     return func;
@@ -152,21 +152,21 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 #else
     if ( command == COMMAND_FN ) {
 #endif
-	QStringList path;
+	QStringList parentPath;
 	FunctionNode *func = 0;
 	FunctionNode *clone;
 
-	if ( !makeFunctionNode(arg, &path, &clone) &&
-	     !makeFunctionNode("void " + arg, &path, &clone) ) {
+	if ( !makeFunctionNode(arg, &parentPath, &clone) &&
+	     !makeFunctionNode("void " + arg, &parentPath, &clone) ) {
 #ifdef QDOC2_COMPAT
 	    if ( command != COMMAND_OVERLOAD )
 #endif
 	    doc.location().warning( tr("Invalid syntax in '\\%1'")
 				    .arg(COMMAND_FN) );
 	} else {
-	    func = tre->findFunctionNode( path, clone );
+	    func = tre->findFunctionNode( parentPath, clone );
 	    if ( func == 0 ) {
-		if ( path.isEmpty() && !lastPath.isEmpty() )
+		if ( parentPath.isEmpty() && !lastPath.isEmpty() )
 		    func = tre->findFunctionNode( lastPath, clone );
 		if ( func == 0 ) {
 		    doc.location().warning( tr("Cannot resolve '%1' in '\\%2'")
@@ -180,7 +180,7 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 					    .arg(COMMAND_FN) );
 		}
 	    } else {
-		lastPath = path;
+		lastPath = parentPath;
 	    }
 
 	    if ( func != 0 ) {
@@ -194,7 +194,7 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 	}
 	return func;
     } else if ( nodeTypeMap.contains(command) ) {
-	// ### split(" ") hack to support header file syntax
+	// ### split(" ") hack is there to support header file syntax
 	QStringList path = QStringList::split( "::",
 				   QStringList::split(" ", arg)[0] );
 	Node *node = tre->findNode( path, nodeTypeMap[command] );
@@ -489,11 +489,12 @@ bool CppCodeParser::matchParameter( FunctionNode *func )
     return TRUE;
 }
 
-bool CppCodeParser::matchFunctionDecl( InnerNode *parent, QStringList *pathPtr,
+bool CppCodeParser::matchFunctionDecl( InnerNode *parent,
+				       QStringList *parentPathPtr,
 				       FunctionNode **funcPtr )
 {
     CodeChunk returnType;
-    QStringList path;
+    QStringList parentPath;
     QString name;
 
     bool sta = match( Tok_static );
@@ -508,7 +509,7 @@ bool CppCodeParser::matchFunctionDecl( InnerNode *parent, QStringList *pathPtr,
 	 (returnType.toString().isEmpty() ||
 	  returnType.toString().endsWith("::")) ) {
 	// 'QString::operator const char *()'
-	path = QStringList::split( sep, returnType.toString() );
+	parentPath = QStringList::split( sep, returnType.toString() );
 	returnType = CodeChunk();
 	readToken();
 
@@ -518,10 +519,10 @@ bool CppCodeParser::matchFunctionDecl( InnerNode *parent, QStringList *pathPtr,
 	name = "operator " + restOfName.toString();
     } else if ( tok == Tok_LeftParen ) {
 	// constructor or destructor
-	path = QStringList::split( sep, returnType.toString() );
-	if ( !path.isEmpty() ) {
-	    name = path.last();
-	    path.remove( path.fromLast() );
+	parentPath = QStringList::split( sep, returnType.toString() );
+	if ( !parentPath.isEmpty() ) {
+	    name = parentPath.last();
+	    parentPath.remove( parentPath.fromLast() );
 	}
 	returnType = CodeChunk();
     } else {
@@ -530,7 +531,7 @@ bool CppCodeParser::matchFunctionDecl( InnerNode *parent, QStringList *pathPtr,
 	    matchTemplateAngles();
 
 	    if ( match(Tok_Gulbrandsen) ) {
-		path.append( name );
+		parentPath.append( name );
 	    } else {
 		break;
 	    }
@@ -595,8 +596,8 @@ bool CppCodeParser::matchFunctionDecl( InnerNode *parent, QStringList *pathPtr,
 	    readToken();
 	match( Tok_RightBrace );
     }
-    if ( pathPtr != 0 )
-	*pathPtr = path;
+    if ( parentPathPtr != 0 )
+	*parentPathPtr = parentPath;
     if ( funcPtr != 0 )
 	*funcPtr = func;
     return TRUE;
@@ -898,12 +899,12 @@ bool CppCodeParser::matchDocsAndStuff()
 	    QValueList<Doc> docs;
 
 	    if ( command.isEmpty() ) {
-		QStringList path;
+		QStringList parentPath;
 		FunctionNode *clone;
 		FunctionNode *func = 0;
 
-		if ( matchFunctionDecl(0, &path, &clone) ) {
-		    func = tre->findFunctionNode( path, clone );
+		if ( matchFunctionDecl(0, &parentPath, &clone) ) {
+		    func = tre->findFunctionNode( parentPath, clone );
 		    if ( func == 0 ) {
 			doc.location().warning( tr("Cannot tie this"
 						    " documentation to"
@@ -937,11 +938,11 @@ bool CppCodeParser::matchDocsAndStuff()
 		++n;
 	    }
 	} else {
-	    QStringList path;
+	    QStringList parentPath;
 	    FunctionNode *clone;
 	    FunctionNode *node = 0;
 
-	    if ( matchFunctionDecl(0, &path, &clone) ) {
+	    if ( matchFunctionDecl(0, &parentPath, &clone) ) {
 		/*
 		  The location of the definition is more interesting
 		  than that of the declaration. People equipped with
@@ -951,7 +952,7 @@ bool CppCodeParser::matchDocsAndStuff()
 		  Signals are implemented in uninteresting files
 		  generated by moc.
 		*/
-		node = tre->findFunctionNode( path, clone );
+		node = tre->findFunctionNode( parentPath, clone );
 		if ( node != 0 && node->metaness() != FunctionNode::Signal )
 		    node->setLocation( clone->location() );
 		delete clone;
@@ -965,7 +966,7 @@ bool CppCodeParser::matchDocsAndStuff()
 }
 
 bool CppCodeParser::makeFunctionNode( const QString& synopsis,
-				      QStringList *pathPtr,
+				      QStringList *parentPathPtr,
 				      FunctionNode **funcPtr )
 {
     Tokenizer *outerTokenizer = tokenizer;
@@ -977,7 +978,8 @@ bool CppCodeParser::makeFunctionNode( const QString& synopsis,
     tokenizer = &stringTokenizer;
     readToken();
 
-    bool ok = matchFunctionDecl( 0, pathPtr, funcPtr );
+    bool ok = matchFunctionDecl( 0, parentPathPtr, funcPtr );
+    // potential memory leak with funcPtr
 
     tokenizer = outerTokenizer;
     tok = outerTok;

@@ -68,15 +68,29 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
 		synopsis += " (";
         	if ( !func->parameters().isEmpty() ) {
         	    synopsis += " ";
+		    int numOptional = 0;
         	    QValueList<Parameter>::ConstIterator p =
 			    func->parameters().begin();
         	    while ( p != func->parameters().end() ) {
-                	if ( p != func->parameters().begin() )
-                	    synopsis += ", ";
-			synopsis += " <@param>" + protect( (*p).name() ) +
-				    "</@param> : " + protect( (*p).leftType() );
+			if ( !(*p).defaultValue().isEmpty() ) {
+			    if ( p == func->parameters().begin() ) {
+				synopsis += "[ ";
+			    } else {
+				synopsis += " [ , ";
+			    }
+			    numOptional++;
+			} else {
+                	    if ( p != func->parameters().begin() )
+                		synopsis += ", ";
+			}
+			if ( !(*p).name().isEmpty() )
+			    synopsis += "<@param>" + protect( (*p).name() ) +
+					"</@param> : ";
+			synopsis += protect( (*p).leftType() );
                 	++p;
         	    }
+		    for ( int i = 0; i < numOptional; i++ )
+			synopsis += " ]";
         	    synopsis += " ";
         	}
 		synopsis += ")";

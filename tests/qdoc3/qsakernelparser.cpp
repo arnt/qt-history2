@@ -53,8 +53,9 @@ void QsaKernelParser::parseSourceFile( const Location& location,
 	    if ( tok == Tok_Gulbrandsen && tokenizer->braceDepth() == 0 &&
 		 tokenizer->parenDepth() == 0 ) {
 		className = ident;
-	    } else if ( ident == "addMember" && tok == Tok_LeftParen ) {
-		bool isProperty = FALSE;
+	    } else if ( ident.startsWith("add") && ident.endsWith("Member") &&
+			tok == Tok_LeftParen ) {
+		bool isProperty = ( ident == "addVariableMember" );
 		bool isWritable = TRUE;
 		bool isStatic = FALSE;
 
@@ -109,7 +110,13 @@ void QsaKernelParser::parseSourceFile( const Location& location,
 			    property->setSetter( setter );
 			}
 		    } else {
-			
+			FunctionNode *func = new FunctionNode( classe, member );
+			func->setLocation( tokenizer->location() );
+			func->setAccess( FunctionNode::Public );
+			func->setReturnType( "Object" );
+			func->setMetaness( FunctionNode::Slot );
+			func->addParameter( Parameter("...") );
+			func->setStatic( FALSE ); // ###
 		    }
 		}
 	    }

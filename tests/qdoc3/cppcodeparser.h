@@ -58,7 +58,7 @@ private:
     bool matchTemplateHeader();
     bool matchDataType( CodeChunk *type, QString *var = 0 );
     bool matchParameter( FunctionNode *func );
-    bool matchFunctionDecl( InnerNode *parent, QStringList *pathPtr = 0,
+    bool matchFunctionDecl( InnerNode *parent, QStringList *parentPathPtr = 0,
 			    FunctionNode **funcPtr = 0 );
     bool matchBaseSpecifier( ClassNode *classe );
     bool matchBaseList( ClassNode *classe );
@@ -69,7 +69,7 @@ private:
     bool matchProperty( InnerNode *parent );
     bool matchDeclList( InnerNode *parent );
     bool matchDocsAndStuff();
-    bool makeFunctionNode( const QString& synopsis, QStringList *pathPtr,
+    bool makeFunctionNode( const QString& synopsis, QStringList *parentPathPtr,
 			   FunctionNode **funcPtr );
 
     QMap<QString, Node::Type> nodeTypeMap;

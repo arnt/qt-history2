@@ -18,7 +18,8 @@ public:
 
     Node *findNode( const QStringList& path );
     Node *findNode( const QStringList& path, Node::Type type );
-    FunctionNode *findFunctionNode( const QStringList& path,
+    FunctionNode *findFunctionNode( const QStringList& path );
+    FunctionNode *findFunctionNode( const QStringList& parentPath,
 				    const FunctionNode *clone );
     void addBaseClass( ClassNode *subclass, Node::Access access,
 		       const QStringList& basePath,

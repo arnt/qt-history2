@@ -41,8 +41,8 @@ Node *Tree::findNode( const QStringList& path )
     Node *node = root();
 
     QStringList::ConstIterator p = path.begin();
-    while ( p != path.end() && node != 0 ) {
-	if ( !node->isInnerNode() )
+    while ( p != path.end() ) {
+	if ( node == 0 || !node->isInnerNode() )
 	    return 0;
 	node = ((InnerNode *) node)->findNode( *p );
 	++p;
@@ -60,14 +60,26 @@ Node *Tree::findNode( const QStringList& path, Node::Type type )
     }
 }
 
-FunctionNode *Tree::findFunctionNode( const QStringList& path,
-				      const FunctionNode *synopsis )
+FunctionNode *Tree::findFunctionNode( const QStringList& path )
 {
-    Node *parent = findNode( path );
+    QStringList parentPath = path;
+    parentPath.remove( parentPath.fromLast() );
+    Node *parent = findNode( parentPath );
     if ( parent == 0 || !parent->isInnerNode() ) {
 	return 0;
     } else {
-	return ((InnerNode *) parent)->findFunctionNode( synopsis );
+	return ((InnerNode *) parent)->findFunctionNode( path.last() );
+    }
+}
+
+FunctionNode *Tree::findFunctionNode( const QStringList& parentPath,
+				      const FunctionNode *clone )
+{
+    Node *parent = findNode( parentPath );
+    if ( parent == 0 || !parent->isInnerNode() ) {
+	return 0;
+    } else {
+	return ((InnerNode *) parent)->findFunctionNode( clone );
     }
 }
 
