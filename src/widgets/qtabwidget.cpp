@@ -465,6 +465,18 @@ QString QTabWidget::tabLabel( QWidget * w ) const
     return t ? t->label : QString::null;
 }
 
+/*!  Sets the label of the page \a w to \a l
+ */
+
+void QTabWidget::setTabLabel( QWidget * w, const QString &l )
+{
+    QTab * t = d->tabs->tab( d->stack->id( w ) );
+    if ( t )
+	t->label = l;
+    d->tabs->layoutTabs();
+    d->tabs->update();
+}
+
 /*!  Returns a pointer to the page currently being displayed by the
 tab dialog.  The tab dialog does its best to make sure that this value
 is never 0, but if you try hard enough it can be.
@@ -651,7 +663,7 @@ void QTabWidget::setTabPosition( TabPosition pos)
 
 /*!
   Returns the shape of the tabs.
-  
+
   \sa setTabShape()
 */
 

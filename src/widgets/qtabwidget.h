@@ -62,7 +62,7 @@ class Q_EXPORT QTabWidget : public QWidget
     Q_PROPERTY( int currentPage READ currentPageIndex WRITE setCurrentPage )
     
 public:
-    
+
     QTabWidget( QWidget *parent, const char *name, WFlags f);
     QTabWidget( QWidget *parent=0, const char *name=0);
    ~QTabWidget();
@@ -84,7 +84,8 @@ public:
     void showPage( QWidget * );
     void removePage( QWidget * );
     QString tabLabel( QWidget * ) const;
-
+    void setTabLabel( QWidget *p, const QString &l );
+    
     QWidget * currentPage() const;
     int currentPageIndex() const;
     void setCurrentPage( int );
@@ -99,7 +100,7 @@ public:
     enum TabShape { Rounded, Triangular };
     TabShape tabShape() const;
     void setTabShape( TabShape s );
-    
+
     int margin() const;
     void setMargin( int );
 
