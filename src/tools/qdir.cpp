@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#36 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#37 $
 **
 ** Implementation of QDir class
 **
@@ -27,10 +27,10 @@
 #include <ctype.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#37 $");
 
 
-#if defined(_OS_FATFS_)
+#if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
 
 static void convertSeparators( char *n )
 {
@@ -1084,6 +1084,7 @@ QString QDir::homeDirPath()
 {
     QString d( PATH_MAX );
     d = getenv("HOME");
+    convertSeparators( d.data() );
     if ( d.isNull() )
 	d = rootDirPath();
     return d;
@@ -1139,12 +1140,9 @@ QString QDir::cleanDirPath( const char *filePath )
 	return name;
 
     convertSeparators( name.data() );
-#if defined(_OS_FATFS_)
-    return name;
-#endif
 
     bool addedSeparator;
-    if ( isRelativePath(filePath) ) {
+    if ( isRelativePath(name) ) {
 	addedSeparator = TRUE;
 	name.insert( 0, '/' );
     } else {
@@ -1182,6 +1180,14 @@ QString QDir::cleanDirPath( const char *filePath )
     } else {
 	if ( newPath.isEmpty() )
 	    newPath = "/";
+#if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
+	if ( name[0] == '/' ) {
+	    if ( name[1] == '/' )		// "\\machine\x\ ..."
+		newPath.insert( 0, '/' );
+	} else {
+	    newPath = name.left(2) + newPath;
+	}
+#endif
     }
     return newPath;
 }
