@@ -115,6 +115,7 @@ private:
     int m_defaultSpacing;
 
     bool m_externPixmap;
+    QString m_generatedClass;
 };
 
 

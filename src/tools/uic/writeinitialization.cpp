@@ -52,6 +52,7 @@ void WriteInitialization::accept(DomUI *node)
         m_stdsetdef = node->attributeStdSetDef();
 
     QString className = node->elementClass() + option.postfix;
+    m_generatedClass = className;
 
     QString varName = driver->findOrInsertWidget(node->elementWidget());
     m_registerdWidgets.insert(varName, node->elementWidget()); // register the main widget
@@ -671,9 +672,9 @@ QString WriteInitialization::translate(const QString &text, const QString &class
     if (option.translateFunction.size())
         return option.translateFunction + "(" + text + ")";
 
-    Q_ASSERT( className.size() != 0 );
+    Q_UNUSED(className);
 
-    return QLatin1String("qApp->translate(\"") + className + QLatin1String("\", ") + text + QLatin1String(")");
+    return QLatin1String("qApp->translate(\"") + m_generatedClass + QLatin1String("\", ") + text + QLatin1String(")");
 }
 
 void WriteInitialization::accept(DomLayoutDefault *node)
