@@ -247,14 +247,6 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
     if ( qt_is_gui_used ) {
         qApp->setName( appName );   
     }
-
-#if 0
-    //my desktop hacks, trying to figure out how to get a desktop, this doesn't work
-    //but I'm going to leave it for now so I can test some more FIXME!!!
-    WindowRef *foo = NULL; 
-    GetCWMgrPort(foo);
-    qDebug("Found something: %d", foo);
-#endif
 }
 
 

@@ -122,14 +122,27 @@ WId myactive = 0;
 QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
 
+static WId qt_root_win() {
+    WindowPtr ret = NULL; 
+#if 0
+    //my desktop hacks, trying to figure out how to get a desktop, this doesn't work
+    //but I'm going to leave it for now so I can test some more FIXME!!!
+    GetCWMgrPort(ret);
+#else
+    //FIXME NEED TO FIGURE OUT HOW TO GET DESKTOP ON MACX
+#endif
+    return (WId) ret;
+}
+
 //FIXME How can I create translucent windows? (Need them for pull down menus)
 //FIXME Is this even possible with the Carbon API? (You can't do it on OS9)
 //FIXME Perhaps we need to access the lower level Quartz API?
 //FIXME Documentation on Quartz, where is it?
-void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindow */ )
+void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  )
 {
     bg_pix = 0;
-    WId root_win = 0;
+    WId root_win = qt_root_win();
+    WId destroyw = 0;
     setWState( WState_Created );                        // set created flag
 
     if ( !parentWidget() )
@@ -189,23 +202,38 @@ void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindo
     WindowPtr behind = (WindowPtr)-1;
     unsigned char goaway=true;
 
-    if( !parentWidget() || (popup || modal) ) {
+    if ( window ) {				// override the old window
+	if ( destroyOldWindow )
+	    destroyw = winid;
+	id = window;
+	hd = (void *)id;
+	setWinId(id);
+    } else if ( desktop ) {			// desktop widget
+	id = (WId)parentw;			// id = root window
+	QWidget *otherDesktop = find( id );	// is there another desktop?
+	if ( otherDesktop && otherDesktop->testWFlags(WPaintDesktop) ) {
+	    otherDesktop->setWinId( 0 );	// remove id from widget mapper
+	    setWinId( id );			// make sure otherDesktop is
+	    otherDesktop->setWinId( id );	//   found first
+	} else {
+	    setWinId( id );
+	}
+    } else if( !parentWidget() || (popup || modal) ) {
 	mytop = this;
 	SetRect( &boundsRect, 50, 50, 600, 200 );
 	id = (WId)NewCWindow( nil, &boundsRect, (const unsigned char*)title,
 			      visible, procid, behind, goaway, 0);
 	hd = (void *)id;
-	SetPortWindowPort((WindowPtr)hd);
-
-	setWinId( id );
+	setWinId(id);
     } else {
+	mytop = topLevelWidget( );
 	while(QWidget::find(++serial_id));
 	setWinId(serial_id);
-
-	mytop = topLevelWidget( );
-	id = (WId)mytop->hd;
+	id = serial_id;
 	hd = mytop->hd;
+	setWinId(id);
     }
+    qDebug("Created %s with %d", name(), id);
 
     bg_col = pal.normal().background();
 
@@ -219,6 +247,9 @@ void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindo
     clearWState(WState_Visible);
     dirtyClippedRegion(TRUE);
     macDropEnabled = false;
+
+    if ( destroyw )
+	DisposeWindow((WindowPtr)destroyw);
 }
 
 void qt_mac_destroy_widget(QWidget *w);
@@ -235,27 +266,26 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
             while ( (obj=it.current()) ) {      // destroy all widget children
                 ++it;
                 if ( obj->isWidgetType() )
-                    ((QWidget*)obj)->destroy(destroySubWindows,
-                                             destroySubWindows);
+                    ((QWidget*)obj)->destroy(destroySubWindows, destroySubWindows);
             }
         }
 	if ( mac_mouse_grabber == this )
 	    releaseMouse();
 	if ( mac_keyboard_grabber == this )
 	    releaseKeyboard();
+	if ( acceptDrops() )
+	    setAcceptDrops(FALSE);
+
         if ( testWFlags(WType_Modal) )          // just be sure we leave modal
             qt_leave_modal( this );
         else if ( testWFlags(WType_Popup) )
             qApp->closePopup( this );
 	if ( testWFlags(WType_Desktop) ) {
-#if 0
-	    if ( acceptDrops() )
-		qt_dnd_enable( this, FALSE );
-#endif
 	} else {
 	    if ( destroyWindow && !isTopLevel() && hd)
 	        DisposeWindow( (WindowPtr)hd );
 	}
+
     }
     QWidget * mya;
     mya=QWidget::find(myactive);
@@ -299,7 +329,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	parentObj = parent;			// avoid insertChild warning
 	parent->insertChild( this );
     }
-    bool     enable = isEnabled();		// remember status
+    bool     dropable = acceptDrops();
+    bool     enable = isEnabled();
     FocusPolicy fp = focusPolicy();
     QSize    s	    = size();
     QString capt= caption();
@@ -307,10 +338,13 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     clearWState( WState_Created | WState_Visible | WState_ForceHide );
     if ( isTopLevel() || (!parent || parent->isVisibleTo( 0 ) ) )
 	setWState( WState_ForceHide );	// new widgets do not show up in already visible parents 
+    if(dropable) 
+	setAcceptDrops(FALSE);
     create();
     setGeometry( p.x(), p.y(), s.width(), s.height() );
     setEnabled( enable );
     setFocusPolicy( fp );
+    setAcceptDrops(dropable);
     if ( !capt.isNull() ) {
 	extra->topextra->caption = QString::null;
 	setCaption( capt );
@@ -334,6 +368,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	if ( fd->focusWidgets.findRef(this) < 0 )
  	    fd->focusWidgets.append( this );
     }
+    QEvent e( QEvent::Reparent );
+    QApplication::sendEvent( this, &e );
 }
 
 
@@ -689,7 +725,8 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
     QRect  r( x, y, w, h );
     setCRect( r );
-    if (!isTopLevel() &&  size() == olds && oldp == pos() )
+//    qDebug("Resizing %s %s", name(), className());
+    if (!isTopLevel() && size() == olds && oldp == pos() )
 	return;
 
     if ( isTopLevel() && isMove && mytop == this )
@@ -961,19 +998,15 @@ void qt_macdnd_register( QWidget *widget, QWExtra *extra ); //dnd_mac
 
 void QWidget::setAcceptDrops( bool on )
 {
-    // Enablement is defined by extra->dropTarget != 0.
-
     if ( (on && macDropEnabled) || (!on && !macDropEnabled) )
 	return;
 
     if ( on ) {
-	// Turn on.
 	topLevelWidget()->createExtra();
 	QWExtra *extra = topLevelWidget()->extraData();
 	qt_macdnd_register( topLevelWidget(), extra );
 	macDropEnabled = true;
     } else {
-	// Turn off.
 	macDropEnabled = false;
 	QWExtra *extra = topLevelWidget()->extraData();
 	qt_macdnd_unregister( topLevelWidget(), extra );
