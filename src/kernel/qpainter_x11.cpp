@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#161 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#162 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#161 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#162 $")
 
 
 /*****************************************************************************
@@ -1115,18 +1115,21 @@ void QPainter::setBrushOrigin( int x, int y )
   Updates an internal integer transformation matrix.
  ----------------------------------------------------------------------------*/
 
-void QPainter::updateXForm()			// update xform params
+void QPainter::updateXForm()
 {
     QWMatrix m;
     if ( testf(VxF) ) {
 	m.translate( vx, vy );
 	m.scale( 1.0*vw/ww, 1.0*vh/wh );
 	m.translate( -wx, -wy );
-	m = wxmat * m;
     }
-    else
-	m = wxmat;
-    wm11 = qRound((double)m.m11()*65536.0);
+    if ( testf(WxF) ) {
+	if ( testf(VxF) )
+	    m = wxmat * m;
+	else
+	    m = wxmat;
+    }
+    wm11 = qRound((double)m.m11()*65536.0);	// make integer matrix
     wm12 = qRound((double)m.m12()*65536.0);
     wm21 = qRound((double)m.m21()*65536.0);
     wm22 = qRound((double)m.m22()*65536.0);
@@ -1153,7 +1156,7 @@ void QPainter::updateXForm()			// update xform params
   Updates an internal integer inverse transformation matrix.
  ----------------------------------------------------------------------------*/
 
-void QPainter::updateInvXForm()			// update inv-xform params
+void QPainter::updateInvXForm()
 {
 #if defined(CHECK_STATE)
     ASSERT( txinv == FALSE );
@@ -1165,12 +1168,15 @@ void QPainter::updateInvXForm()			// update inv-xform params
 	m.translate( vx, vy );
 	m.scale( 1.0*vw/ww, 1.0*vh/wh );
 	m.translate( -wx, -wy );
-	m = wxmat * m;
     }
-    else
-	m = wxmat;
-    m = wxmat.invert( &invertible );		// invert matrix
-    im11 = qRound((double)m.m11()*65536.0);
+    if ( testf(WxF) ) {
+	if ( testf(VxF) )
+	    m = wxmat * m;
+	else
+	    m = wxmat;
+    }
+    m = m.invert( &invertible );		// invert matrix
+    im11 = qRound((double)m.m11()*65536.0);	// make integer matrix
     im12 = qRound((double)m.m12()*65536.0);
     im21 = qRound((double)m.m21()*65536.0);
     im22 = qRound((double)m.m22()*65536.0);
