@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS += webbrowser \
+           comapp \
 	   multiple \
 	   simple \
 	   wrapper \
