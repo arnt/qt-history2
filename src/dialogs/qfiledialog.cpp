@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#328 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#329 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1907,7 +1907,35 @@ void QFileDialog::init()
     nameEdit->setFocus();
 
     connect( nameEdit, SIGNAL( returnPressed() ),
-	     okB, SIGNAL( clicked() ) );
+	     this, SLOT( fileNameEditReturnPressed() ) );
+}
+
+/*!
+  \internal
+*/
+
+void QFileDialog::fileNameEditReturnPressed()
+{
+    if ( d->mode != Directory )
+	okClicked();
+    else {
+	if ( nameEdit->text().isEmpty() ) {
+	    emit fileSelected( d->currentFileName );
+	    accept();
+	} else {
+	    QUrlInfo f;
+	    QFileDialogPrivate::File * c
+		= (QFileDialogPrivate::File *)files->currentItem();
+	    if ( c && files->isSelected(c) )
+		f = c->info;
+	    else
+		f = QUrlInfo( d->url, nameEdit->text() );
+	    if ( f.isDir() ) {
+		setUrl( QUrlOperator( d->url, nameEdit->text() + "/" ) );
+		trySetSelection( TRUE, d->url, TRUE );
+	    }
+	}
+    }
 }
 
 /*!
@@ -3758,6 +3786,9 @@ void QFileDialog::copyProgress( int step, int total, QNetworkOperation *op )
 
 void QFileDialog::insertEntry( const QUrlInfo &inf, QNetworkOperation * )
 {
+    if ( d->mode == Directory && !inf.isDir() )
+	return;
+    
     if ( inf.name() == ".." ) {
 	d->hadDotDot = TRUE;
 	if ( d->url.path() == "/" )
