@@ -5,17 +5,18 @@
   \section1 QAxContainer: Qt applications using ActiveX controls:
 
   \list
-  \i \link examples-webbrowser.html A Web Browser \endlink
-  \i \link examples-testcon.html An ActiveX Test Container \endlink
+  \i \link qaxcontainer-example-webbrowser.html A Web Browser \endlink
+  \i \link qaxcontainer-example-testcon.html An ActiveX Test Container \endlink
+  \i \link qaxcontainer-example-qutlook.html The Qt address book example in sync with Microsoft Outlook \endlink
   \endlist
 
   \section1 QAxServer: ActiveX controls written with Qt:
 
   \list
-  \i \link examples-simple.html A Simple widget (executable) \endlink
-  \i \link examples-tetrix.html A Qt example as an ActiveX server (executable) \endlink
-  \i \link examples-multiple.html Multiple QWidgets (in-process) \endlink
-  \i \link examples-wrapper.html Standard Qt widgets (in-process) \endlink
-  \i \link examples-opengl.html Qt's OpenGL widget as an ActiveX (executable) \endlink
+  \i \link qaxserver-example-simple.html A Simple widget (executable) \endlink
+  \i \link qaxserver-example-tetrix.html A Qt example as an ActiveX server (executable) \endlink
+  \i \link qaxserver-example-multiple.html Multiple QWidgets (in-process) \endlink
+  \i \link qaxserver-example-wrapper.html Standard Qt widgets (in-process) \endlink
+  \i \link qaxserver-example-opengl.html Qt's OpenGL widget as an ActiveX (executable) \endlink
   \endlist
 */

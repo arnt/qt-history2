@@ -1,4 +1,45 @@
-/*! \page examples-multiple.html
+/*! \page qaxserver-demo-multiple.html
+
+  \title Two simple Qt widgets
+
+\raw html
+<script language=javascript>
+function setColor( form )
+{
+    Ax1.fillColor = form.colorEdit.value;
+}
+
+function setWidth( form )
+{
+    Ax2.lineWidth = form.widthEdit.value;
+}
+</script>
+
+<p>
+This is one QWidget subclass:<br>
+<object ID="Ax1" CLASSID="CLSID:1D9928BD-4453-4bdd-903D-E525ED17FDE5">
+[Object not available! Did you forget to build and register the server?]
+</object><br>
+<form>
+Fill Color: <input type="edit" ID="colorEdit" value = "red">
+<input type="button" value = "Set" onClick="setColor(this.form)">
+<input type="button" value = "Hide" onClick="Ax1.hide()">
+<input type="button" value = "Show" onClick="Ax1.show()">
+</form>
+
+<p>
+This is another QWidget subclass:<br>
+<object ID="Ax2" CLASSID="CLSID:58139D56-6BE9-4b17-937D-1B1EDEDD5B71">
+[Object not available! Did you forget to build and register the server?]
+</object><br>
+<form>
+Line width: <input type="edit" ID="widthEdit" value = "1">
+<input type="button" value = "Set" onClick="setWidth(this.form)">
+</form>
+\endraw
+*/
+
+/*! \page qaxserver-example-multiple.html
 
   \title Two simple Qt widgets (in-process)
 
@@ -7,52 +48,51 @@
   subclasses reimplementing the paintEvent() method.
 
   It demonstrates the implementation of a QAxFactory to provide multiple
-  ActiveX controls in a single executable ActiveX server, and the use of
+  ActiveX controls in a single in process ActiveX server, and the use of
   the QAXFACTORY_EXPORT macro.
+
+  The first control draws a filled rectangle. The fill color is exposed
+  as a property.
+  \quotefile multiple/ax1.h
+  \skipto class
+  \printuntil };
+
+  The second control draws a circle. The linewith is exposed as a property.
+  \quotefile multiple/ax2.h
+  \skipto class
+  \printuntil };
+
+  The controls are provided by an implementation of the QAxFactory.
+  \quotefile multiple/main.cpp
+  \skipto class
+
+  The constructor just propagates the identifiers for the type library and the
+  application to the QAxFactory.
+  \printto QStringList
+  The featureList implementation returns the class names of the controls.
+  \printto QWidget*
+  The implementations of the factory functions return the value for the requested 
+  key.
+  \printto exposeToSuperClass
+  The \c exposeToSuperClass implementations returns the key for the "QAxWidget2", and
+  calls the default implementation otherwise. The QAxWidget2 control will not expose
+  properties or methods of any parent class, while QAxWidget1 exposes all properties,
+  signals and slots of QWidget and QObject, too.
+  \printuntil };
+  The factory is exported from the server using the QAXFACTORY_EXPORT macro.
+  The implementation of \c main is just a dummy, but required for the linker.
+  \printuntil }
 
   To build the example you must first build the \link qaxserver.html
   QAxServer \endlink library. Then run qmake and your make tool in 
   \c examples/multiple.
 
-  The \link demo-multiple.html demonstration \endlink requires your
+  The \link qaxserver-demo-multiple.html demonstration \endlink requires your
   WebBrowser to support ActiveX controls, and scripting to be enabled.
 
   <hr>
 
-  \code
-  <p>
-  This is one QWidget subclass:<br>
-  <object ID="Ax1" CLASSID="CLSID:1D9928BD-4453-4bdd-903D-E525ED17FDE5">
-      [Object not available! Did you forget to build and register the server?]
-  </object><br>
-  (<a href="multiple/ax1.h">here</a> is the code)
-
-  <p>
-  This is another QWidget subclass:<br>
-  <object ID="Ax2" CLASSID="CLSID:58139D56-6BE9-4b17-937D-1B1EDEDD5B71">
-      [Object not available! Did you forget to build and register the server?]
-  </object><br>
-  (<a href="multiple/ax2.h">here</a> is the code)
-  \endcode
-*/
-
-/*! \page demo-multiple.html
-
-  \title Two simple Qt widgets
-
-\raw html
-<p>
-This is one QWidget subclass:<br>
-<object ID="Ax1" CLASSID="CLSID:1D9928BD-4453-4bdd-903D-E525ED17FDE5">
-[Object not available! Did you forget to build and register the server?]
-</object><br>
-(<a href="multiple/ax1.h">here</a> is the code)
-
-<p>
-This is another QWidget subclass:<br>
-<object ID="Ax2" CLASSID="CLSID:58139D56-6BE9-4b17-937D-1B1EDEDD5B71">
-[Object not available! Did you forget to build and register the server?]
-</object><br>
-(<a href="multiple/ax2.h">here</a> is the code)
-\endraw
+  \quotefile multiple/multiple.doc
+  \skipuntil raw html
+  \printto endraw
 */

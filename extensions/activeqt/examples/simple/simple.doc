@@ -1,4 +1,44 @@
-/*! \page examples-simple.html
+/*! \page qaxserver-demo-simple.html
+
+  \title A standard ActiveX and the "simple" ActiveQt widget.
+
+\raw html
+<SCRIPT LANGUAGE=VBScript>
+Sub Calendar_Click()
+    MsgBox( "Calendar Clicked!" )
+End Sub
+
+Sub QSimpleAX_TextChanged( str )
+    document.title = str
+End Sub
+
+Sub QSimpleAX_ValueChanged( Newvalue )
+    Calendar.Day = Newvalue
+End Sub
+</SCRIPT>
+
+<object ID="QSimpleAX" CLASSID="CLSID:DF16845C-92CD-4AAB-A982-EB9840E74669">
+    <PARAM NAME="text" VALUE="A simple ActiveQt control">
+    <PARAM NAME="value" VALUE="1">
+[Object not available! Did you forget to build and register the server?]
+</object>
+
+<FORM>
+    <INPUT TYPE="BUTTON" VALUE="About..." onClick="QSimpleAX.about()">
+</FORM>
+
+<object ID="Calendar" CLASSID="CLSID:8E27C92B-1264-101C-8A2F-040224009C02">
+[Standard Calendar control not available!]
+    <PARAM NAME="day" VALUE="1">
+</object>
+
+<FORM>
+    <INPUT TYPE="BUTTON" VALUE="Today" onClick="Calendar.Today()">
+</FORM>
+\endraw
+*/
+
+/*! \page qaxserver-example-simple.html
 
   \title A simple ActiveQt control (executable)
 
@@ -27,104 +67,25 @@
   QAxServer \endlink library. Then run qmake and your make tool in 
   \c examples/simple.
 
-  The \link demo-simple.html demonstration \endlink requires your
+  The \link qaxserver-demo-simple.html demonstration \endlink requires your
   WebBrowser to support ActiveX controls, and scripting to be enabled.
+
   The following HTML code is used on the demonstration page to instantiate
   the object.
-  \code
-  <object ID="QSimpleAX" CLASSID="CLSID:DF16845C-92CD-4AAB-A982-EB9840E74669">
-      <PARAM NAME="text" VALUE="ActiveQt!">
-      <PARAM NAME="value" VALUE="0">
-      [Object not available! Did you forget to build and register the server?]
-  </object>
-  \endcode
-
-  A second ActiveX control - the standard Calendar Control - is instantiated
  
-  \code
-  <object ID="Calendar" CLASSID="CLSID:8E27C92B-1264-101C-8A2F-040224009C02">
-  [Standard Calendar control not available!]
-      <PARAM NAME="day" VALUE="1">
-  </object>
-  \endcode
+  \quotefile simple/simple.doc
+  \skipto <object ID
+  \printuntil </object>
 
   A simple HTML form is connected to the ActiveQt's about() slot.
-  \code
-  <FORM>
-      <INPUT TYPE="BUTTON" VALUE="Reset" onClick="aboutSimple()">
-  </FORM>
-  \endcode
+  \printuntil </FORM>
 
-  The \c aboutSimple() function is implemented using JavaScript
-  <SCRIPT LANGUAGE=JavaScript>
-  function resetSimple()
-  {
-      QSimpleAX.about();
-  }
-  </SCRIPT>
+  A second ActiveX control - the standard Calendar Control - is instantiated
+  \skipto <object ID
+  \printuntil </object>
 
-  Events from the ActiveX controls are handled using Visual Basic Script
-  \code
-  <SCRIPT LANGUAGE=VBScript>
-  Sub Calendar_Click()
-      MsgBox( "Clicked!" )
-  End Sub
-
-  Sub QSimpleAX_TextChanged( str )
-      MsgBox( str )
-  End Sub
-  
-  Sub QSimpleAX_ValueChanged( value )
-      Calendar.Day = value
-  End Sub
-  </SCRIPT>
-
-  \endcode  
-*/
-
-/*! \page demo-simple.html
-
-  \title A standard ActiveX and the "simple" ActiveQt widget.
-
-\raw html
-<SCRIPT LANGUAGE=VBScript>
-Sub Calendar_Click()
-    MsgBox( "Clicked!" )
-End Sub
-
-Sub QSimpleAX_TextChanged( str )
-    MsgBox( str )
-End Sub
-
-Sub QSimpleAX_ValueChanged( value )
-    Calendar.Day = value
-End Sub
-</SCRIPT>
-
-<SCRIPT LANGUAGE=JavaScript>
-function aboutSimple()
-{
-    QSimpleAX.about();
-}
-</SCRIPT>
-
-<object ID="QSimpleAX" CLASSID="CLSID:DF16845C-92CD-4AAB-A982-EB9840E74669">
-    <PARAM NAME="text" VALUE="ActiveQt!">
-    <PARAM NAME="value" VALUE="1">
-[Object not available! Did you forget to build and register the server?]
-</object>
-
-<FORM>
-    <INPUT TYPE="BUTTON" VALUE="Reset" onClick="aboutSimple()">
-</FORM>
-
-<object ID="Calendar" CLASSID="CLSID:8E27C92B-1264-101C-8A2F-040224009C02">
-[Standard Calendar control not available!]
-    <PARAM NAME="day" VALUE="1">
-</object>
-
-<FORM>
-    <INPUT TYPE="BUTTON" VALUE="Today" onClick="Calendar.Today()">
-</FORM>
-\endraw
+  Events from the ActiveX controls are handled using Visual Basic Script.
+  \quotefile simple/simple.doc
+  \skipto VBScript
+  \printuntil </SCRIPT
 */
