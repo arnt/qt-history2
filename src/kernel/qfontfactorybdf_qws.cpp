@@ -223,12 +223,19 @@ public:
 		}
 	    }
 	} while (!s.atEnd());
-	if ( !glyph[0].data ) {
-	    glyph[0].data = glyph[default_qchar.unicode()].data;
-	    glyph[0].metrics = glyph[default_qchar.unicode()].metrics;
-	}
 	funderlinepos = ptsize/200+1;
 	funderlinewidth = ptsize/200+1;
+    }
+
+    ~QRenderedFontBDF()
+    {
+	if ( glyph ) {
+	    for (int i=0; i<0x10000; i++) {
+		if ( glyph[i].data )
+		    delete [] glyph[i].data;
+		delete glyph[i].metrics;
+	    }
+	}
     }
 
     bool inFont(QChar ch) const
@@ -238,10 +245,17 @@ public:
 
     QGlyph render(QChar ch)
     {
-	const QGlyph& g = glyph[ch.unicode()];
-	if ( g.data )
-	    return g;
-	return glyph[0];
+	// Return a copy
+	QGlyph* g = &glyph[ch.unicode()];
+	if ( !g->data )
+	    g = &glyph[default_qchar.unicode()];
+	QGlyph ng;
+	ng.metrics = new QGlyphMetrics;
+	memcpy(ng.metrics,g->metrics,sizeof(*g->metrics));
+	int n=ng.metrics->linestep*ng.metrics->height;
+	ng.data = new uchar[n];
+	memcpy(ng.data,g->data,n);
+	return ng;
     }
 };
 
