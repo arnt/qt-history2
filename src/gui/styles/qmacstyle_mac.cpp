@@ -1674,7 +1674,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             if (btn->state & QStyle::Style_HasFocus
                     && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
                 bdi.adornment |= kThemeAdornmentFocus;
-            if (btn->state & QStyle::Style_ButtonDefault && animatable(AquaPushButton, w)) {
+            if (btn->features & QStyleOptionButton::DefaultButton && animatable(AquaPushButton, w)) {
                 bdi.adornment |= kThemeAdornmentDefault;
                 bdi.animation.time.start = defaultButtonStart;
                 bdi.animation.time.current = CFAbsoluteTimeGetCurrent();
