@@ -813,7 +813,7 @@ QAccessible::State QAccessibleWidget::state(int child) const
     if (!w->isEnabled())
         state |= Unavailable;
     if (w->isWindow()) {
-        if (w->testWFlags(Qt::WStyle_Title))
+        if (w->windowFlags() & Qt::WindowSystemMenuHint)
             state |= Movable;
         if (w->minimumSize() != w->maximumSize())
             state |= Sizeable;

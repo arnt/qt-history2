@@ -762,7 +762,7 @@ QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
         } else {
             QWidget *tlw = q->window();
             if(parent && (QMacMenuBarPrivate::menubars.isEmpty() || !QMacMenuBarPrivate::menubars.contains(tlw)) &&
-               (((parent->isDialog()
+               ((((parent->windowType() == Qt::Dialog)
 #ifndef QT_NO_MAINWINDOW
                   || ::qt_cast<QMainWindow *>(parent)
 #endif
@@ -855,7 +855,7 @@ bool QMenuBar::macUpdateMenuBar()
         while(w && !mb)
             mb = QMenuBarPrivate::QMacMenuBarPrivate::menubars.value((w = w->parentWidget()));
     }
-    if(!w || (!w->testWFlags(Qt::WStyle_Tool) && !w->testWFlags(Qt::WType_Popup)))
+    if(!w || (!(w->windowType() == Qt::Tool) && !(w->windowType() == Qt::Popup)))
         fall_back_to_empty = true;
     if(!mb)
         mb = QMenuBarPrivate::QMacMenuBarPrivate::fallback;

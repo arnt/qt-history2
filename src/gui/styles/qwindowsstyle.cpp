@@ -1071,7 +1071,7 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
                         ret = 1;
                     } else if (d->altDown()) {
                         ret = 1;
-                    } else if (qApp->focusWidget() && qApp->focusWidget()->isPopup()) {
+                    } else if (qApp->focusWidget() && qApp->focusWidget()(->windowType() == Qt::Popup)) {
                         popupMenu = qt_cast<const QMenu *>(qApp->focusWidget());
                         if (qt_cast<QMenuBar *>(popupMenu->parentWidget()) == menuBar) {
                             if (d->hasSeenAlt(menuBar))

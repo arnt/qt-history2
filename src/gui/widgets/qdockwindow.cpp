@@ -660,9 +660,7 @@ void QDockWindow::setTopLevel(bool topLevel)
 
     const bool visible = isVisible();
 
-    setParent(parentWidget(), (topLevel
-                               ? (getWFlags() | Qt::WType_TopLevel)
-                               : (getWFlags() & ~Qt::WType_TopLevel)));
+    setParent(parentWidget(), topLevel ? Qt::Tool : Qt::Widget);
 
     if (topLevel) {
         QMainWindowLayout *layout = qt_cast<QMainWindowLayout *>(parentWidget()->layout());

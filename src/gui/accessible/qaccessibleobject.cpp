@@ -183,7 +183,7 @@ static QWidgetList topLevelWidgets()
     const QWidgetList tlw(qApp->topLevelWidgets());
     for (int i = 0; i < tlw.count(); ++i) {
         QWidget *w = tlw.at(i);
-        if (!w->isPopup() && !w->isDesktop())
+        if (!(w->windowType() == Qt::Popup) && !(w->windowType() == Qt::Desktop))
             list.append(w);
     }
 

@@ -201,11 +201,9 @@ QWidgetPrivate::~QWidgetPrivate()
         isVisible(),
         isVisibleTo(),
         isMinimized(),
-        isDesktop(),
         isEnabled(),
         isEnabledTo(),
         isModal(),
-        isPopup(),
         isWindow(),
         setEnabled(),
         hasMouseTracking(),
@@ -285,10 +283,6 @@ QWidgetPrivate::~QWidgetPrivate()
 
     \row \i Internal kernel functions \i
         focusNextPrevChild(),
-        clearWFlags(),
-        getWFlags(),
-        setWFlags(),
-        testWFlags().
 
     \endtable
 
@@ -748,7 +742,7 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
 */
 
 QWidget::QWidget(QWidget *parent, Qt::WFlags f)
-    : QObject(*new QWidgetPrivate, ((parent && parent->isDesktop()) ? 0 : parent)), QPaintDevice(QInternal::Widget)
+    : QObject(*new QWidgetPrivate, ((parent && (parent->windowType() == Qt::Desktop)) ? 0 : parent)), QPaintDevice(QInternal::Widget)
 {
     d_func()->init(f);
 }
@@ -759,7 +753,7 @@ QWidget::QWidget(QWidget *parent, Qt::WFlags f)
     \obsolete
  */
 QWidget::QWidget(QWidget *parent, const char *name, Qt::WFlags f)
-    : QObject(*new QWidgetPrivate, ((parent && parent->isDesktop()) ? 0 : parent)), QPaintDevice(QInternal::Widget)
+    : QObject(*new QWidgetPrivate, ((parent && (parent->windowType() == Qt::Desktop)) ? 0 : parent)), QPaintDevice(QInternal::Widget)
 {
     d_func()->init(f);
     setObjectName(name);
@@ -769,7 +763,7 @@ QWidget::QWidget(QWidget *parent, const char *name, Qt::WFlags f)
 /*! \internal
 */
 QWidget::QWidget(QWidgetPrivate &dd, QWidget* parent, Qt::WFlags f)
-    : QObject(dd, ((parent && parent->isDesktop()) ? 0 : parent)), QPaintDevice(QInternal::Widget)
+    : QObject(dd, ((parent && (parent->windowType() == Qt::Desktop)) ? 0 : parent)), QPaintDevice(QInternal::Widget)
 {
     d_func()->init(f);
 }
@@ -793,7 +787,6 @@ void QWidgetPrivate::init(Qt::WFlags f)
     data.winid = 0;
     data.widget_attributes = 0;
     data.window_flags = f;
-    data.window_type = 0;
     data.window_state = 0;
     data.focus_policy = 0;
     data.context_menu_policy = Qt::DefaultContextMenu;
@@ -808,7 +801,7 @@ void QWidgetPrivate::init(Qt::WFlags f)
     data.fnt.x11SetScreen(xinfo.screen());
 #endif // Q_WS_X11
 
-    if (!q->isDesktop())
+    if (!(q->windowType() == Qt::Desktop))
         updateSystemBackground();
     if (q->isWindow()) {
         if (QApplication::isRightToLeft())
@@ -891,23 +884,30 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         return;
     setAttribute(Qt::WA_WState_Created);                        // set created flag
 
+    Qt::WindowType type = windowType();
+    Qt::WindowFlags &flags = data->window_flags;
+
+    if (type == Qt::Widget && !parentWidget()) {
+        type = Qt::Window;
+        flags |= Qt::Window;
+    }
 #ifdef QT3_SUPPORT
-    if (data->window_flags & Qt::WStaticContents)
+    if (flags & Qt::WStaticContents)
         setAttribute(Qt::WA_StaticContents);
-    if (data->window_flags & Qt::WDestructiveClose)
+    if (flags & Qt::WDestructiveClose)
 	setAttribute(Qt::WA_DeleteOnClose);
-    if (data->window_flags & Qt::WShowModal)
+    if (flags & Qt::WShowModal)
 	setAttribute(Qt::WA_ShowModal);
-    if (data->window_flags & Qt::WMouseNoMask)
+    if (flags & Qt::WMouseNoMask)
 	setAttribute(Qt::WA_MouseNoMask);
-    if (data->window_flags & Qt::WGroupLeader)
+    if (flags & Qt::WGroupLeader)
 	setAttribute(Qt::WA_GroupLeader);
+    if (flags & Qt::WNoMousePropagation)
+	setAttribute(Qt::WA_NoMousePropagation);
 #endif
-    if(testWFlags(Qt::WType_Dialog) && !testAttribute(Qt::WA_ShowModal)
+    if(type == Qt::Dialog && !testAttribute(Qt::WA_ShowModal)
        && parentWidget() && parentWidget()->testAttribute(Qt::WA_ShowModal))
         setAttribute(Qt::WA_ShowModal);
-    if (!parentWidget() || parentWidget()->isDesktop())
-        setWFlags(Qt::WType_TopLevel);                // top-level widget
 
     d->create_sys(window, initializeWindow, destroyOldWindow);
 
@@ -1102,7 +1102,7 @@ void QWidgetPrivate::deleteExtra()
 bool QWidgetPrivate::isForegroundInherited() const
 {
     Q_Q(const QWidget);
-    return (q->testWFlags(Qt::WType_TopLevel|Qt::WSubWindow) == 0
+    return (!q->isWindow() && !(q->windowType() == Qt::SubWindow)
             && (q->testAttribute(Qt::WA_ForegroundInherited)
                 || (!q->testAttribute(Qt::WA_SetPalette)
                     && !q->testAttribute(Qt::WA_SetForegroundRole)
@@ -1122,7 +1122,7 @@ bool QWidgetPrivate::isForegroundInherited() const
 bool QWidgetPrivate::isBackgroundInherited() const
 {
     Q_Q(const QWidget);
-    return (q->testWFlags(Qt::WType_TopLevel|Qt::WSubWindow) == 0
+    return (!q->isWindow() && !(q->windowType() == Qt::SubWindow)
             && (!q->testAttribute(Qt::WA_SetPalette)
                     && !q->testAttribute(Qt::WA_SetBackgroundRole)));
 }
@@ -1359,36 +1359,6 @@ QWidget *QWidget::find(WId id)
     return QWidgetPrivate::mapper ? QWidgetPrivate::mapper->value(id, 0) : 0;
 }
 
-/*!
-    \fn Qt::WFlags QWidget::getWFlags() const
-
-    Returns the widget flags for this this widget.
-
-    Widget flags are a combination of \l{Qt::WindowFlag}s.
-
-    \sa testWFlags(), setWFlags(), clearWFlags()
-*/
-
-/*!
-    \fn void QWidget::setWFlags(Qt::WFlags f)
-
-    Sets the widget flags \a f.
-
-    Widget flags are a combination of \l{Qt::WindowFlag}s.
-
-    \sa testWFlags(), getWFlags(), clearWFlags()
-*/
-
-/*!
-    \fn void QWidget::clearWFlags(Qt::WFlags f)
-
-    Clears the widget flags \a f.
-
-    Widget flags are a combination of \l{Qt::WindowFlag}s.
-
-    \sa testWFlags(), getWFlags(), setWFlags()
-*/
-
 
 
 /*!
@@ -1441,7 +1411,7 @@ void QWidget::setStyle(QStyle *style)
     QStyle *old  = QWidget::style();
     d->createExtra();
     d->extra->style = style;
-    if (!testWFlags(Qt::WType_Desktop) // (except desktop)
+    if (!(windowType() == Qt::Desktop) // (except desktop)
          && d->polished) { // (and have been polished)
         old->unpolish(this);
         QWidget::style()->polish(this);
@@ -1472,9 +1442,7 @@ QStyle* QWidget::setStyle(const QString &style)
     \brief whether the widget is a top-level widget
 
     A top-level widget is a widget which usually has a frame and a
-    \link QWidget::setWindowTitle() title\endlink. \link
-    QWidget::isPopup() Popup\endlink and \link QWidget::isDesktop()
-    desktop\endlink widgets are also top-level widgets.
+    \link QWidget::setWindowTitle() title\endlink. \link.
 
     A top-level widget can have a \link QWidget::parentWidget() parent
     widget\endlink. It will then be grouped with its parent and deleted
@@ -1486,37 +1454,7 @@ QStyle* QWidget::setStyle(const QString &style)
     a parent widget is specified in the constructor. This behavior is
     specified by the \c Qt::WType_TopLevel widget flag.
 
-    \sa window(), isDialog(), isModal(), isPopup(), isDesktop(), parentWidget()
-*/
-
-/*!
-    \property QWidget::isDialog
-    \brief whether the widget is a dialog widget
-
-    A dialog widget is a secondary top-level widget, i.e. a top-level
-    widget with a parent.
-
-    \sa isWindow(), QDialog
-*/
-
-/*!
-    \property QWidget::isPopup
-    \brief whether the widget is a popup widget
-
-    A popup widget is created by specifying the widget flag \c
-    Qt::WType_Popup to the widget constructor. A popup widget is also a
-    top-level widget.
-
-    \sa isWindow()
-*/
-
-/*!
-    \property QWidget::isDesktop
-    \brief whether the widget is a desktop widget, i.e. represents the desktop
-
-    A desktop widget is also a top-level widget.
-
-    \sa isWindow(), QApplication::desktop()
+    \sa window(), isModal(), parentWidget()
 */
 
 /*!
@@ -1527,7 +1465,7 @@ QStyle* QWidget::setStyle(const QString &style)
     widget prevents widgets in all other top-level widgets from
     getting any input.
 
-    \sa isWindow(), isDialog(), QDialog
+    \sa isWindow(), QDialog
 */
 
 /*!
@@ -2017,7 +1955,7 @@ void QWidget::setDisabled(bool disable)
 QRect QWidget::frameGeometry() const
 {
     Q_D(const QWidget);
-    if (isWindow() && ! isPopup()) {
+    if (isWindow() && ! (windowType() == Qt::Popup)) {
         if (data->fstrut_dirty)
             d->updateFrameStrut();
         QTLWExtra *top = d->topData();
@@ -2043,7 +1981,7 @@ QRect QWidget::frameGeometry() const
 int QWidget::x() const
 {
     Q_D(const QWidget);
-    if (isWindow() && ! isPopup()) {
+    if (isWindow() && ! (windowType() == Qt::Popup)) {
         if (data->fstrut_dirty)
             d->updateFrameStrut();
         return data->crect.x() - d->topData()->fleft;
@@ -2064,7 +2002,7 @@ int QWidget::x() const
 int QWidget::y() const
 {
     Q_D(const QWidget);
-    if (isWindow() && ! isPopup()) {
+    if (isWindow() && ! (windowType() == Qt::Popup)) {
         if (data->fstrut_dirty)
             d->updateFrameStrut();
         return data->crect.y() - d->topData()->ftop;
@@ -2098,7 +2036,7 @@ int QWidget::y() const
 QPoint QWidget::pos() const
 {
     Q_D(const QWidget);
-    if (isWindow() && ! isPopup()) {
+    if (isWindow() && ! (windowType() == Qt::Popup)) {
         if (data->fstrut_dirty)
             d->updateFrameStrut();
         QTLWExtra *top = d->topData();
@@ -3259,7 +3197,7 @@ void QWidget::setFocus(Qt::FocusReason reason)
 #endif
 
 #if defined(Q_WS_WIN)
-        if (!f->window()->isPopup())
+        if (!f->window()(->windowType() == Qt::Popup))
             SetFocus(f->winId());
         else {
 #endif
@@ -3300,7 +3238,7 @@ void QWidget::clearFocus()
 #endif
         QApplication::setFocusWidget(0, Qt::OtherFocusReason);
 #if defined(Q_WS_WIN)
-        if (!isPopup() && GetFocus() == winId())
+        if (!(windowType() == Qt::Popup) && GetFocus() == winId())
             SetFocus(0);
         else {
 #endif
@@ -3413,9 +3351,9 @@ QWidget *QWidget::nextInFocusChain() const
 bool QWidget::isActiveWindow() const
 {
     QWidget *tlw = window();
-    if(testWFlags(Qt::WSubWindow) && parentWidget())
+    if((windowType() == Qt::SubWindow) && parentWidget())
         tlw = parentWidget()->window();
-    if(tlw == qApp->activeWindow() || (isVisible() && tlw->isPopup()))
+    if(tlw == qApp->activeWindow() || (isVisible() && (tlw->windowType() == Qt::Popup)))
         return true;
 #ifdef Q_WS_MAC
     { //check process
@@ -3432,15 +3370,15 @@ bool QWidget::isActiveWindow() const
         return true;
 #endif
     if(style()->styleHint(QStyle::SH_Widget_ShareActivation, 0, this)) {
-        if((tlw->isDialog() || tlw->testWFlags(Qt::WStyle_Tool)) &&
+        if(((tlw->windowType() == Qt::Dialog) || (tlw->windowType() == Qt::Tool)) &&
            !tlw->testAttribute(Qt::WA_ShowModal) &&
            (!tlw->parentWidget() || tlw->parentWidget()->isActiveWindow()))
            return true;
         QWidget *w = qApp->activeWindow();
-        if(!testWFlags(Qt::WSubWindow) && w && w->testWFlags(Qt::WSubWindow) &&
+        if(!(windowType() == Qt::SubWindow) && w && (w->windowType() == Qt::SubWindow) &&
             w->parentWidget()->window() == tlw)
             return true;
-        while(w && (tlw->isDialog() || tlw->testWFlags(Qt::WStyle_Tool)) &&
+        while(w && ((tlw->windowType() == Qt::Dialog) || (tlw->windowType() == Qt::Tool)) &&
               !w->testAttribute(Qt::WA_ShowModal) && w->parentWidget()) {
             w = w->parentWidget()->window();
             if(w == tlw)
@@ -3611,7 +3549,7 @@ int QWidgetPrivate::pointToRect(const QPoint &p, const QRect &r)
 QSize QWidget::frameSize() const
 {
     Q_D(const QWidget);
-    if (isWindow() && !isPopup()) {
+    if (isWindow() && !(windowType() == Qt::Popup)) {
         if (data->fstrut_dirty)
             d->updateFrameStrut();
         QWidget *that = (QWidget *) this;
@@ -3967,7 +3905,7 @@ void QWidgetPrivate::show_helper()
     // popup handling: new popups and tools need to be raised, and
     // exisiting popups must be closed.
     if (q->isWindow()) {
-        if (q->testWFlags(Qt::WStyle_Tool|q->testWFlags(Qt::WType_Popup)))
+        if ((q->windowType() == Qt::Tool) || (q->windowType() == Qt::Popup))
             q->raise();
         else
             while (QApplication::activePopupWidget()) {
@@ -3980,7 +3918,7 @@ void QWidgetPrivate::show_helper()
     // stores the correct old focus widget even if it's stolen in the
     // showevent
 #if defined(Q_WS_WIN)
-    if (q->testWFlags(Qt::WType_Popup))
+    if ((q->windowType() == Qt::Popup))
         qApp->openPopup(q);
 #endif
 
@@ -4026,7 +3964,7 @@ void QWidgetPrivate::show_helper()
     show_sys();
 
 #if !defined(Q_WS_WIN)
-    if (q->testWFlags(Qt::WType_Popup))
+    if ((q->windowType() == Qt::Popup))
         qApp->openPopup(q);
 #endif
 
@@ -4052,7 +3990,7 @@ void QWidgetPrivate::show_helper()
 void QWidgetPrivate::hide_helper()
 {
     Q_Q(QWidget);
-    if (q->testWFlags(Qt::WType_Popup))
+    if ((q->windowType() == Qt::Popup))
         qApp->closePopup(q);
 
     // Move test modal here.  Otherwise, a modal dialog could get
@@ -4062,7 +4000,7 @@ void QWidgetPrivate::hide_helper()
         qt_leave_modal(q);
 
 #if defined(Q_WS_WIN)
-    if (q->isWindow() && !q->isPopup() && q->parentWidget() && q->isActiveWindow())
+    if (q->isWindow() && !(q->windowType() == Qt::Popup) && q->parentWidget() && q->isActiveWindow())
         q->parentWidget()->activateWindow();        // Activate parent
 #endif
 
@@ -4241,7 +4179,7 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
     Q_Q(QWidget);
     data.is_closing = 1;
     bool isMain = qApp->mainWidget() == q;
-    bool checkLastWindowClosed = q->isWindow() && !q->isPopup();
+    bool checkLastWindowClosed = q->isWindow() && !(q->windowType() == Qt::Popup);
     bool wasDeleted = false;
 
     if (mode != CloseNoEvent) {
@@ -4276,9 +4214,9 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
                 continue;
 #endif
             if (!w->isExplicitlyHidden()
-                && !w->isDesktop()
-                && !w->isPopup()
-                && (!(w->isDialog() || w->testWFlags(Qt::WStyle_Tool)) || !w->parentWidget()))
+                && !(w->windowType() == Qt::Desktop)
+                && !(w->windowType() == Qt::Popup)
+                && (!((w->windowType() == Qt::Dialog) || (w->windowType() == Qt::Tool)) || !w->parentWidget()))
                 widget = w;
         }
         if (widget == 0)
@@ -4544,28 +4482,6 @@ QSize QWidget::minimumSizeHint() const
     parent widget.
 */
 
-/*!
-    \fn Qt::WFlags QWidget::testWFlags(Qt::WFlags f) const
-
-    Returns the bitwise AND of the widget flags and \a f.
-
-    Widget flags are a combination of \l{Qt::WindowFlag}s.
-
-    If you want to test for the presence of multiple flags (or
-    composite flags such as \c Qt::WStyle_Splash), test the
-    return value for equality against the argument. For example:
-
-    \code
-    int flags = Qt::WStyle_Tool | Qt::WStyle_NoBorder;
-    if (testWFlags(flags))
-        ... // Qt::WStyle_Tool or Qt::WStyle_NoBorder or both are set
-    if (testWFlags(flags) == flags)
-        ... // both Qt::WStyle_Tool and Qt::WStyle_NoBorder are set
-    \endcode
-
-    \sa getWFlags(), setWFlags(), clearWFlags()
-*/
-
 
 /*****************************************************************************
   QWidget event handling
@@ -4796,7 +4712,7 @@ bool QWidget::event(QEvent *e)
         d->resolveFont();
         break;
     case QEvent::ApplicationPaletteChange:
-        if (!isDesktop())
+        if (!(windowType() == Qt::Desktop))
             d->resolvePalette();
         break;
     case QEvent::ToolBarChange:
@@ -4934,7 +4850,7 @@ bool QWidget::event(QEvent *e)
         break; }
 #endif
     case QEvent::EmbeddingControl:
-        clearWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_MinMax | Qt::WStyle_SysMenu);
+        data->window_flags & ~Qt::WindowType_Mask;
         d->topData()->ftop = 0;
         d->topData()->fright = 0;
         d->topData()->fleft = 0;
@@ -5027,7 +4943,7 @@ void QWidget::mouseMoveEvent(QMouseEvent * e)
 void QWidget::mousePressEvent(QMouseEvent *e)
 {
     e->ignore();
-    if (isPopup()) {
+    if ((windowType() == Qt::Popup)) {
         e->accept();
         QWidget* w;
         while ((w = qApp->activePopupWidget()) && w != this){
@@ -5132,7 +5048,7 @@ void QWidget::tabletEvent(QTabletEvent *e)
 
 void QWidget::keyPressEvent(QKeyEvent *e)
 {
-    if (isPopup() && e->key() == Qt::Key_Escape) {
+    if ((windowType() == Qt::Popup) && e->key() == Qt::Key_Escape) {
         e->accept();
         close();
     } else {
@@ -5924,7 +5840,15 @@ void QWidget::updateGeometry()
 
 void QWidget::setWindowFlags(Qt::WindowFlags f)
 {
-    setParent(parentWidget(), 0 /*#### FIXME type */);
+    if (!(data->window_flags & Qt::Window) && !(f & Qt::Window))
+        data->window_flags = f;
+    else
+        setParent(parentWidget(), f);
+}
+
+void QWidget::overrideWindowFlags(Qt::WindowFlags f)
+{
+    data->window_flags = f;
 }
 
 /*! \fn Qt::WindowType windowType() const
@@ -5964,7 +5888,7 @@ void QWidget::setParent(QWidget *parent)
 {
     if (parent == parentWidget())
         return;
-    setParent((QWidget*)parent, getWFlags() & ~Qt::WType_Mask);
+    setParent((QWidget*)parent, windowFlags() & ~Qt::WindowType_Mask);
 }
 
 /*!
@@ -6072,7 +5996,7 @@ void QWidget::repaint(const QRect &r)
     If the \c Qt::WRepaintNoErase widget flag is set, the widget is
     responsible for painting all its pixels itself.
 
-    \sa repaint() paintEvent(), setUpdatesEnabled(), setWFlags()
+    \sa repaint() paintEvent(), setUpdatesEnabled()
 */
 
 /*! \fn void QWidget::update(int x, int y, int w, int h)

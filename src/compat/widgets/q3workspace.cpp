@@ -469,10 +469,10 @@ void Q3Workspace::childEvent(QChildEvent * e)
     if (e->type() == QEvent::ChildInserted && e->child()->isWidgetType()) {
         QWidget* w = static_cast<QWidget*>(e->child());
         if (!w || qt_cast<Q3WorkspaceChild*>(w)
-            || !w->testWFlags(Qt::WStyle_Title | Qt::WStyle_NormalBorder | Qt::WStyle_DialogBorder)
+            || !(w->windowFlags() & Qt::WStyle_Title | Qt::WStyle_NormalBorder | Qt::WStyle_DialogBorder)
             || d->icons.contains(w) || w == d->vbar || w == d->hbar || w == d->corner)
             return;
-        addWindow(w, reinterpret_cast<Q3Workspace*>(w)->getWFlags());
+        addWindow(w, w->windowFlags());
     } else
         if (e->removed()) {
             if (d->windows.removeAll(static_cast<Q3WorkspaceChild*>(e->child()))) {
@@ -537,8 +537,8 @@ void Q3WorkspacePrivate::activateWindow(QWidget* w, bool change_focus)
         return;
 
     if (d->maxWindow && d->maxWindow != d->active && d->active->windowWidget() &&
-         d->active->windowWidget()->testWFlags(Qt::WStyle_MinMax) &&
-         !d->active->windowWidget()->testWFlags(Qt::WStyle_Tool)) {
+        (d->active->windowWidget()->windowFlags() & Qt::WStyle_MinMax) &&
+        !(d->active->windowWidget()->windowType() == Qt::Tool)) {
         d->active->showMaximized();
         if (d->maxtools) {
             if (!!w->windowIcon()) {
@@ -767,7 +767,7 @@ void Q3Workspace::resizeEvent(QResizeEvent *)
     while (it != d->windows.end()) {
         Q3WorkspaceChild* c = *it;
         ++it;
-        if (c->windowWidget() && !c->windowWidget()->testWFlags(Qt::WStyle_Tool))
+        if (c->windowWidget() && !(c->windowWidget()->windowType() == Qt::Tool))
             continue;
 
         int x = c->x();
@@ -825,7 +825,7 @@ void Q3WorkspacePrivate::minimizeWindow(QWidget* w)
 {
     Q3WorkspaceChild* c = findChild(w);
 
-        if (!w || w && (!w->testWFlags(Qt::WStyle_Minimize) || w->testWFlags(Qt::WStyle_Tool)))
+        if (!w || w && (!(w->windowFlags() & Qt::WStyle_Minimize) || (w->windowType() == Qt::Tool)))
         return;
 
     if (c) {
@@ -913,7 +913,7 @@ void Q3WorkspacePrivate::maximizeWindow(QWidget* w)
 {
     Q3WorkspaceChild* c = findChild(w);
 
-    if (!w || w && (!w->testWFlags(Qt::WStyle_Maximize) || w->testWFlags(Qt::WStyle_Tool)))
+    if (!w || w && (!(w->windowFlags() & Qt::WStyle_Maximize) || (w->windowType() == Qt::Tool)))
         return;
 
     if (!c || c == d->maxWindow)
@@ -965,11 +965,11 @@ void Q3WorkspacePrivate::maximizeWindow(QWidget* w)
 
 void Q3WorkspacePrivate::showWindow(QWidget* w)
 {
-    if (w->isMinimized() && w->testWFlags(Qt::WStyle_Minimize) && !w->testWFlags(Qt::WStyle_Tool))
+    if (w->isMinimized() && (w->windowFlags() & Qt::WStyle_Minimize) && !(w->windowType() == Qt::Tool))
         minimizeWindow(w);
-    else if ((d->maxWindow && w->testWFlags(Qt::WStyle_Maximize) && !w->testWFlags(Qt::WStyle_Tool)) || w->isMaximized())
+    else if ((d->maxWindow && (w->windowFlags() & Qt::WStyle_Maximize) && !(w->windowType() == Qt::Tool)) || w->isMaximized())
         maximizeWindow(w);
-    else if (!w->testWFlags(Qt::WStyle_Tool))
+    else if (!(w->windowType() == Qt::Tool))
         normalizeWindow(w);
     else
         w->parentWidget()->show();
@@ -1139,7 +1139,7 @@ void Q3WorkspacePrivate::showMaximizeControls()
         l->setMargin(d->maxcontrols->frameWidth());
         l->setSpacing(0);
         if (d->maxWindow->windowWidget() &&
-             d->maxWindow->windowWidget()->testWFlags(Qt::WStyle_Minimize)) {
+            (d->maxWindow->windowWidget()->windowFlags() & Qt::WStyle_Minimize)) {
             QToolButton* iconB = new QToolButton(d->maxcontrols);
             iconB->setObjectName("iconify");
             iconB->setToolTip(q->tr("Minimize"));
@@ -1279,9 +1279,9 @@ void Q3WorkspacePrivate::showOperationMenu()
 {
     if  (!d->active || !d->active->windowWidget())
         return;
-    Q_ASSERT(d->active->windowWidget()->testWFlags(Qt::WStyle_SysMenu));
+    Q_ASSERT((d->active->windowWidget()->windowFlags() & Qt::WStyle_SysMenu));
     QPoint p;
-    QMenu *popup = d->active->windowWidget()->testWFlags(Qt::WStyle_Tool) ? d->toolPopup : d->popup;
+    QMenu *popup = (d->active->windowWidget()->windowType() == Qt::Tool) ? d->toolPopup : d->popup;
     if (QApplication::reverseLayout()) {
         p = QPoint(d->active->windowWidget()->mapToGlobal(QPoint(d->active->windowWidget()->width(),0)));
         p.rx() -= popup->sizeHint().width();
@@ -1297,9 +1297,9 @@ void Q3WorkspacePrivate::showOperationMenu()
 
 void Q3WorkspacePrivate::popupOperationMenu(const QPoint&  p)
 {
-    if (!d->active || !d->active->windowWidget() || !d->active->windowWidget()->testWFlags(Qt::WStyle_SysMenu))
+    if (!d->active || !d->active->windowWidget() || !(d->active->windowWidget()->windowFlags() & Qt::WStyle_SysMenu))
         return;
-    if (d->active->windowWidget()->testWFlags(Qt::WStyle_Tool))
+    if ((d->active->windowWidget()->windowType() == Qt::Tool))
         d->toolPopup->popup(p);
     else
         d->popup->popup(p);
@@ -1318,8 +1318,8 @@ void Q3WorkspacePrivate::updateActions()
     QWidget *windowWidget = d->active->windowWidget();
     bool canResize = windowWidget->maximumSize() != windowWidget->minimumSize();
     d->actions[Q3WorkspacePrivate::ResizeAct]->setEnabled(canResize);
-    d->actions[Q3WorkspacePrivate::MinimizeAct]->setEnabled(windowWidget->testWFlags(Qt::WStyle_Minimize));
-    d->actions[Q3WorkspacePrivate::MaximizeAct]->setEnabled(windowWidget->testWFlags(Qt::WStyle_Maximize) && canResize);
+    d->actions[Q3WorkspacePrivate::MinimizeAct]->setEnabled((windowWidget->windowFlags() & Qt::WStyle_Minimize));
+    d->actions[Q3WorkspacePrivate::MaximizeAct]->setEnabled((windowWidget->windowFlags() & Qt::WStyle_Maximize) && canResize);
 
     if (d->active == d->maxWindow) {
         d->actions[Q3WorkspacePrivate::MoveAct]->setEnabled(false);
@@ -1343,7 +1343,7 @@ void Q3WorkspacePrivate::updateActions()
     }
     d->actions[Q3WorkspacePrivate::StaysOnTopAct]->setEnabled(!d->active->shademode && canResize);
     d->actions[Q3WorkspacePrivate::StaysOnTopAct]->setChecked(
-        d->active->windowWidget()->testWFlags(Qt::WStyle_StaysOnTop));
+        (d->active->windowWidget()->windowFlags() & Qt::WStyle_StaysOnTop));
 }
 
 void Q3WorkspacePrivate::operationMenuActivated(QAction *action)
@@ -1365,11 +1365,11 @@ void Q3WorkspacePrivate::operationMenuActivated(QAction *action)
     } else if(action == d->actions[Q3WorkspacePrivate::ShadeAct]) {
         d->active->showShaded();
     } else if(action == d->actions[Q3WorkspacePrivate::StaysOnTopAct]) {
-        if(Q3Workspace* w = (Q3Workspace*)d->active->windowWidget()) {
-            if (w->testWFlags(Qt::WStyle_StaysOnTop)) {
-                w->clearWFlags(Qt::WStyle_StaysOnTop);
+        if(QWidget* w = d->active->windowWidget()) {
+            if ((w->windowFlags() & Qt::WStyle_StaysOnTop)) {
+                w->overrideWindowFlags(w->windowFlags() & ~Qt::WStyle_StaysOnTop);
             } else {
-                w->setWFlags(Qt::WStyle_StaysOnTop);
+                w->overrideWindowFlags(w->windowFlags() | Qt::WStyle_StaysOnTop);
                 w->parentWidget()->raise();
             }
         }
@@ -1497,7 +1497,7 @@ void Q3Workspace::cascade()
 
     for (it = d->focus.begin(); it != d->focus.end(); ++it) {
         wc = *it;
-        if (wc->windowWidget()->isVisibleTo(this) && !wc->windowWidget()->testWFlags(Qt::WStyle_Tool))
+        if (wc->windowWidget()->isVisibleTo(this) && !(wc->windowWidget()->windowType() == Qt::Tool))
             widgets.append(wc);
     }
 
@@ -1565,8 +1565,8 @@ void Q3Workspace::tile()
         c = *it;
         ++it;
         if (!c->windowWidget()->isExplicitlyHidden()
-         && !c->windowWidget()->testWFlags(Qt::WStyle_StaysOnTop)
-         && !c->windowWidget()->testWFlags(Qt::WStyle_Tool)
+            && !(c->windowWidget()->windowFlags() & Qt::WStyle_StaysOnTop)
+            && !(c->windowWidget()->windowType() == Qt::Tool)
          && !c->iconw)
             n++;
     }
@@ -1591,13 +1591,13 @@ void Q3Workspace::tile()
     while (it != d->windows.end()) {
         c = *it;
         ++it;
-        if (c->iconw || c->windowWidget()->isExplicitlyHidden() || c->windowWidget()->testWFlags(Qt::WStyle_Tool))
+        if (c->iconw || c->windowWidget()->isExplicitlyHidden() || (c->windowWidget()->windowType() == Qt::Tool))
             continue;
         if (!row && !col) {
             w -= c->baseSize().width();
             h -= c->baseSize().height();
         }
-        if (c->windowWidget()->testWFlags(Qt::WStyle_StaysOnTop)) {
+        if ((c->windowWidget()->windowFlags() & Qt::WStyle_StaysOnTop)) {
             QPoint p = c->pos();
             if (p.x()+c->width() < 0)
                 p.setX(0);
@@ -1646,7 +1646,7 @@ void Q3Workspace::tile()
 Q3WorkspaceChild::Q3WorkspaceChild(QWidget* window, Q3Workspace *parent, Qt::WFlags flags)
     : QWidget(parent,
              Qt::WStyle_NoBorder | Qt::WStyle_Customize
-             | Qt::WNoMousePropagation | Qt::WSubWindow)
+             | Qt::WNoMousePropagation | Qt::SubWindow)
 {
     setAttribute(Qt::WA_DeleteOnClose, true);
     setMouseTracking(true);
@@ -1676,7 +1676,7 @@ Q3WorkspaceChild::Q3WorkspaceChild(QWidget* window, Q3Workspace *parent, Qt::WFl
         }
     }
 
-    if (window && window->testWFlags(Qt::WStyle_Title)) {
+    if (window && (flags & Qt::WStyle_Title)) {
         titlebar = new Q3TitleBar(window, this);
         connect(titlebar, SIGNAL(doActivate()),
                  this, SLOT(activate()));
@@ -1883,7 +1883,7 @@ bool Q3WorkspaceChild::eventFilter(QObject * o, QEvent * e)
         if (((Q3Workspace*)parentWidget())->d->focus.indexOf(this) < 0)
             ((Q3Workspace*)parentWidget())->d->focus.append(this);
 
-        if (windowWidget() && windowWidget()->testWFlags(Qt::WStyle_StaysOnTop)) {
+        if (windowWidget() && (windowWidget()->windowFlags() & Qt::WStyle_StaysOnTop)) {
             internalRaise();
             show();
             backgroundWidget->lower();
@@ -1903,7 +1903,7 @@ bool Q3WorkspaceChild::eventFilter(QObject * o, QEvent * e)
                     titlebar->repaint();
                 break;
             }
-            if (windowWidget()->testWFlags(Qt::WStyle_Maximize) && !windowWidget()->testWFlags(Qt::WStyle_Tool))
+            if ((windowWidget()->windowFlags() & Qt::WStyle_Maximize) && !(windowWidget()->windowType() == Qt::Tool))
                 ((Q3Workspace*)parentWidget())->d->maximizeWindow(windowWidget());
             else
                 ((Q3Workspace*)parentWidget())->d->normalizeWindow(windowWidget());
@@ -2217,7 +2217,7 @@ void Q3WorkspaceChild::showShaded()
 {
     if (!titlebar)
         return;
-    Q_ASSERT(windowWidget()->testWFlags(Qt::WStyle_MinMax) && windowWidget()->testWFlags(Qt::WStyle_Tool));
+    Q_ASSERT((windowWidget()->windowFlags() & Qt::WStyle_MinMax) && (windowWidget()->windowType() == Qt::Tool));
     ((Q3Workspace*)parentWidget())->d->activateWindow(windowWidget());
     QWidget* w = windowWidget();
     if (shademode) {
@@ -2249,12 +2249,12 @@ void Q3WorkspaceChild::titleBarDoubleClicked()
 {
     if (!windowWidget())
         return;
-    if (windowWidget()->testWFlags(Qt::WStyle_MinMax)) {
-        if (windowWidget()->testWFlags(Qt::WStyle_Tool))
+    if ((windowWidget()->windowFlags() & Qt::WStyle_MinMax)) {
+        if ((windowWidget()->windowType() == Qt::Tool))
             showShaded();
         else if (iconw)
             showNormal();
-        else if (windowWidget()->testWFlags(Qt::WStyle_Maximize))
+        else if ((windowWidget()->windowFlags() & Qt::WStyle_Maximize))
             showMaximized();
     }
 }
@@ -2292,7 +2292,7 @@ void Q3WorkspaceChild::internalRaise()
         iconw->parentWidget()->raise();
     raise();
 
-    if (windowWidget() && windowWidget()->testWFlags(Qt::WStyle_StaysOnTop)) {
+    if (windowWidget() && (windowWidget()->windowFlags() & Qt::WStyle_StaysOnTop)) {
 
         QList<Q3WorkspaceChild *>::Iterator it(((Q3Workspace*)parent())->d->windows.begin());
         while (it != ((Q3Workspace*)parent())->d->windows.end()) {
@@ -2300,7 +2300,7 @@ void Q3WorkspaceChild::internalRaise()
             ++it;
             if (c->windowWidget() &&
                 !c->windowWidget()->isExplicitlyHidden() &&
-                c->windowWidget()->testWFlags(Qt::WStyle_StaysOnTop))
+                (c->windowWidget()->windowFlags() & Qt::WStyle_StaysOnTop))
                 c->raise();
         }
     }
@@ -2318,7 +2318,7 @@ void Q3WorkspaceChild::move(int x, int y)
     int nx = x;
     int ny = y;
 
-    if (windowWidget() && windowWidget()->testWFlags(Qt::WStyle_Tool)) {
+    if (windowWidget() && (windowWidget()->windowType() == Qt::Tool)) {
         int dx = 10;
         int dy = 10;
 

@@ -96,7 +96,7 @@ void MainWindow::setupDockWindows()
         uint allowedAreas;
         uint features;
     } sets [] = {
-        { "Black", Qt::WMacDrawer, Qt::LeftDockWindowArea,
+        { "Black", Qt::Drawer, Qt::LeftDockWindowArea,
           Qt::LeftDockWindowArea | Qt::RightDockWindowArea,
           QDockWindow::DockWindowClosable },
 

@@ -1478,7 +1478,7 @@ void Q3MainWindow::childEvent(QChildEvent* e)
     if (e->type() == QEvent::ChildRemoved) {
         if (e->child() == 0 ||
              !e->child()->isWidgetType() ||
-             ((QWidget*)e->child())->testWFlags(Qt::WType_TopLevel)) {
+             ((QWidget*)e->child())->isWindow()) {
             // nothing
         } else if (e->child() == d->sb) {
             d->sb = 0;

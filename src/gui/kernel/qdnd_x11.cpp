@@ -221,7 +221,7 @@ static bool xdndEnable(QWidget* w, bool on)
 {
     if (on) {
         QWidget * xdnd_widget = 0;
-        if (w->isDesktop()) {
+        if ((w->windowType() == Qt::Desktop)) {
             if (xdnd_data.desktop_proxy) // *WE* already have one.
                 return false;
 
@@ -251,7 +251,7 @@ static bool xdndEnable(QWidget* w, bool on)
             return false;
         }
     } else {
-        if (w->isDesktop()) {
+        if ((w->windowType() == Qt::Desktop)) {
             XDeleteProperty(X11->display, w->winId(), ATOM(XdndProxy));
             delete xdnd_data.desktop_proxy;
             xdnd_data.desktop_proxy = 0;
@@ -421,7 +421,7 @@ static void handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
     if (!passive && checkEmbedded(c, xe))
         return;
 
-    if (!c || !c->acceptDrops() && c->isDesktop())
+    if (!c || !c->acceptDrops() && (c->windowType() == Qt::Desktop))
         return;
 
     if (l[0] != qt_xdnd_dragsource_xid) {
@@ -529,7 +529,7 @@ static void handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
     }
 
     QWidget * source = QWidget::find(qt_xdnd_dragsource_xid);
-    if (source && source->isDesktop() && !source->acceptDrops())
+    if (source && (source->windowType() == Qt::Desktop) && !source->acceptDrops())
         source = 0;
 
     DEBUG() << "sending XdndStatus";
@@ -654,7 +654,7 @@ void qt_xdnd_send_leave()
 
     QWidget * w = QWidget::find(qt_xdnd_current_proxy_target);
 
-    if (w && w->isDesktop() && !w->acceptDrops())
+    if (w && (w->windowType() == Qt::Desktop) && !w->acceptDrops())
         w = 0;
 
     if (w)
@@ -697,8 +697,8 @@ void QX11Data::xdndHandleDrop(QWidget *, const XEvent * xe, bool passive)
 
     if (!passive) {
         QMimeData *dropData = (manager->object) ? manager->dragPrivate()->data : manager->dropData;
-        QDropEvent de(qt_xdnd_current_position, possible_actions, dropData, 
-	              QApplication::mouseButtons(), QApplication::keyboardModifiers());
+        QDropEvent de(qt_xdnd_current_position, possible_actions, dropData,
+                      QApplication::mouseButtons(), QApplication::keyboardModifiers());
         QApplication::sendEvent(qt_xdnd_current_widget, &de);
         if (!de.isAccepted()) {
             // Ignore a failed drag
@@ -975,7 +975,7 @@ void QDragManager::move(const QPoint & globalPos)
     QWidget* w;
     if (target) {
         w = QWidget::find((WId)target);
-        if (w && w->isDesktop() && !w->acceptDrops())
+        if (w && (w->windowType() == Qt::Desktop) && !w->acceptDrops())
             w = 0;
     } else {
         w = 0;
@@ -1106,7 +1106,7 @@ void QDragManager::drop()
 
     QWidget * w = QWidget::find(qt_xdnd_current_proxy_target);
 
-    if (w && w->isDesktop() && !w->acceptDrops())
+    if (w && (w->windowType() == Qt::Desktop) && !w->acceptDrops())
         w = 0;
 
     if (w)
@@ -1183,7 +1183,7 @@ static QByteArray xdndObtainData(const char *format)
     QDragManager *manager = QDragManager::self();
     if (qt_xdnd_dragsource_xid && manager->object &&
          (w=QWidget::find(qt_xdnd_dragsource_xid))
-         && (!w->isDesktop() || w->acceptDrops()))
+         && (!(w->windowType() == Qt::Desktop) || w->acceptDrops()))
     {
         QDragPrivate * o = QDragManager::self()->dragPrivate();
         if (o->data->hasFormat(QLatin1String(format)))
@@ -1199,7 +1199,7 @@ static QByteArray xdndObtainData(const char *format)
         return result; // should never happen?
 
     QWidget* tw = qt_xdnd_current_widget;
-    if (!qt_xdnd_current_widget || qt_xdnd_current_widget->isDesktop())
+    if (!qt_xdnd_current_widget || (qt_xdnd_current_widget->windowType() == Qt::Desktop))
         tw = new QWidget;
 
     XConvertSelection(X11->display, ATOM(XdndSelection), a, ATOM(XdndSelection), tw->winId(), CurrentTime);
@@ -1219,7 +1219,7 @@ static QByteArray xdndObtainData(const char *format)
             }
         }
     }
-    if (!qt_xdnd_current_widget || qt_xdnd_current_widget->isDesktop())
+    if (!qt_xdnd_current_widget || (qt_xdnd_current_widget->windowType() == Qt::Desktop))
         delete tw;
 
     return result;

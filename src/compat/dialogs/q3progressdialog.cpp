@@ -589,7 +589,7 @@ void Q3ProgressDialog::setProgress(int progress)
     bar()->setProgress(progress);
 
     if (d->shown_once) {
-        if (testWFlags(Qt::WShowModal))
+        if (isModal())
             qApp->processEvents();
     } else {
         if (progress == 0) {

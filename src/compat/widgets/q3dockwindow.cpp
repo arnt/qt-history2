@@ -549,7 +549,6 @@ Q3DockWindowTitleBar::Q3DockWindowTitleBar(Q3DockWindow *dw)
       mousePressed(false), hadDblClick(false), opaque(default_opaque)
 {
     setObjectName("qt_dockwidget_internal");
-    setWFlags(getWFlags() | Qt::WStyle_Tool);
     ctrlDown = false;
     setMouseTracking(true);
     QStyleOptionTitleBar opt = getStyleOption();
@@ -586,7 +585,7 @@ void Q3DockWindowTitleBar::mousePressEvent(QMouseEvent *e)
     opt.text = windowTitle();
     opt.icon = windowIcon();
     opt.titleBarState = window() ? window()->windowState() : static_cast<Qt::WindowStates>(Qt::WindowNoState);
-    opt.titleBarFlags = getWFlags();
+    opt.titleBarFlags = windowFlags();
     QStyle::SubControl tbctrl = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt,
                                                                e->pos(), this);
     if (tbctrl > QStyle::SC_TitleBarLabel) {
@@ -674,9 +673,9 @@ void Q3DockWindowTitleBar::resizeEvent(QResizeEvent *e)
 void Q3DockWindowTitleBar::updateGui()
 {
     if (dockWindow->isCloseEnabled()) {
-        setWFlags(getWFlags() | Qt::WStyle_SysMenu);
+        setWindowFlags(windowFlags() | Qt::WStyle_SysMenu);
     } else {
-        setWFlags(getWFlags() & ~Qt::WStyle_SysMenu);
+        setWindowFlags(windowFlags() & ~Qt::WStyle_SysMenu);
     }
 }
 

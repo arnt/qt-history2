@@ -369,8 +369,6 @@ extern void qt_create_std_palette();
 class QETWidget : public QWidget                // event translator widget
 {
 public:
-    void setWFlags(Qt::WFlags f)                { QWidget::setWFlags(f); }
-    void clearWFlags(Qt::WFlags f)        { QWidget::clearWFlags(f); }
     bool translateMouseEvent(const XEvent *);
     bool translateKeyEventInternal(const XEvent *, int& count, QString& text,
                                    Qt::KeyboardModifiers& modifiers, int &code,
@@ -2140,8 +2138,7 @@ GC qt_xget_temp_gc(int scrn, bool monochrome)                // get temporary GC
 void QApplication::setMainWidget(QWidget *mainWidget)
 {
 #ifndef QT_NO_DEBUG
-    if (mainWidget && mainWidget->parentWidget() &&
-         ! mainWidget->parentWidget()->isDesktop())
+    if (mainWidget && mainWidget->parentWidget() && mainWidget->isWindow())
         qWarning("QApplication::setMainWidget(): New main widget (%s/%s) "
                   "has a parent!",
                   mainWidget->metaObject()->className(), mainWidget->objectName().toLocal8Bit().constData());
@@ -2332,7 +2329,7 @@ QWidget *QApplication::widgetAt_sys(int x, int y)
             QWidget     *widget = list->first();
             while (widget && !w) {
                 Window        ctarget = target;
-                if (widget->isVisible() && !widget->isDesktop()) {
+                if (widget->isVisible() && !(widget->windowType() == Qt::Desktop)) {
                     Window wid = widget->winId();
                     while (ctarget && !w) {
                         XTranslateCoordinates(X11->display,
@@ -2745,7 +2742,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
         break;
 
     case XFocusIn: {                                // got focus
-        if (widget->isDesktop())
+        if ((widget->windowType() == Qt::Desktop))
             break;
         if (inPopupMode()) // some delayed focus event to ignore
             break;
@@ -2766,7 +2763,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
         break;
 
     case XFocusOut:                                // lost focus
-        if (widget->isDesktop())
+        if ((widget->windowType() == Qt::Desktop))
             break;
         if (!widget->isWindow())
             break;
@@ -2792,7 +2789,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
             event->xcrossing.detail == NotifyNonlinearVirtual)
             break;
         if (event->xcrossing.focus &&
-            !widget->isDesktop() && !widget->isActiveWindow()) {
+            !(widget->windowType() == Qt::Desktop) && !widget->isActiveWindow()) {
             if (X11->focus_model == QX11Data::FM_Unknown) // check focus model
                 qt_check_focus_model();
             if (X11->focus_model == QX11Data::FM_PointerRoot) // PointerRoot mode
@@ -2811,7 +2808,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
             break;
         if (event->xcrossing.mode != NotifyNormal)
             break;
-        if (!widget->isDesktop())
+        if (!(widget->windowType() == Qt::Desktop))
             widget->translateMouseEvent(event); //we don't get MotionNotify, emulate it
 
         QWidget* enter = 0;
@@ -2832,7 +2829,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
                 continue;
             enter = event_widget;
             if (ev.xcrossing.focus &&
-                enter && !enter->isDesktop() && !enter->isActiveWindow()) {
+                enter && !(enter->windowType() == Qt::Desktop) && !enter->isActiveWindow()) {
                 if (X11->focus_model == QX11Data::FM_Unknown) // check focus model
                     qt_check_focus_model();
                 if (X11->focus_model == QX11Data::FM_PointerRoot) // PointerRoot mode
@@ -2841,7 +2838,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
             break;
         }
 
-        if ((! enter || enter->isDesktop()) &&
+        if ((! enter || (enter->windowType() == Qt::Desktop)) &&
             event->xcrossing.focus && widget == QApplicationPrivate::active_window &&
             X11->focus_model == QX11Data::FM_PointerRoot // PointerRoot mode
             ) {
@@ -2857,7 +2854,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
         break;
 
     case UnmapNotify:                                // window hidden
-        if (widget->isWindow() && !widget->isPopup()) {
+        if (widget->isWindow() && !(widget->windowType() == Qt::Popup)) {
             widget->setAttribute(Qt::WA_Mapped, false);
             if (!widget->isExplicitlyHidden()) {
                 widget->d->topData()->spont_unmapped = 1;
@@ -2869,7 +2866,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
         break;
 
     case MapNotify:                                // window shown
-        if (widget->isWindow() && !widget->isPopup()) {
+        if (widget->isWindow() && !(widget->windowType() == Qt::Popup)) {
             widget->setAttribute(Qt::WA_Mapped);
             if (widget->d->topData()->spont_unmapped) {
                 widget->d->topData()->spont_unmapped = 0;
@@ -2909,7 +2906,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
             if (X11->focus_model != QX11Data::FM_Unknown) {
                 // toplevel reparented...
                 QWidget *newparent = QWidget::find(event->xreparent.parent);
-                if (! newparent || newparent->isDesktop()) {
+                if (! newparent || (newparent->windowType() == Qt::Desktop)) {
                     // we dont' know about the new parent (or we've been
                     // reparented to root), perhaps a window manager
                     // has been (re)started?  reset the focus model to unknown
@@ -3462,7 +3459,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         if (popup != this) {
             if (event->type == LeaveNotify)
                 return false;
-            if (testWFlags(Qt::WType_Popup) && rect().contains(pos))
+            if ((windowType() == Qt::Popup) && rect().contains(pos))
                 popup = this;
             else                                // send to last popup
                 pos = popup->mapFromGlobal(globalPos);
@@ -3509,7 +3506,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         if (qApp->activePopupWidget() != activePopupWidget
             && replayPopupMouseEvent) {
             // the active popup was closed, replay the mouse event
-            if (!isPopup()) {
+            if (!(windowType() == Qt::Popup)) {
                 QMouseEvent e(type, mapFromGlobal(globalPos), globalPos, button,
                               buttons, modifiers);
                 QApplication::sendSpontaneousEvent(this, &e);

@@ -2099,7 +2099,7 @@ void Q3ListBox::updateSelection()
         int ind = index(i);
 #endif
         if (selectionMode() == Single || selectionMode() == NoSelection) {
-            if (i && (d->mouseInternalPress || testWFlags(Qt::WType_Popup)))
+            if (i && (d->mouseInternalPress || (windowType() == Qt::Popup)))
                 setCurrentItem(i);
         } else {
             if (d->selectionMode == Extended && (

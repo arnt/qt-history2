@@ -692,7 +692,7 @@ void qt_event_activate_timer_callbk(EventLoopTimerRef r, void *)
     qt_event_remove_activate();
     if(r == otc && !request_activate_pending.widget.isNull()) {
         const QWidget *tlw = request_activate_pending.widget->window();
-        if(tlw->isVisible() && !tlw->isDesktop() && !tlw->isPopup() && !tlw->testWFlags(Qt::WStyle_Tool)) {
+        if(tlw->isVisible() && !(tlw->windowType() == Qt::Desktop) && !(tlw->windowType() == Qt::Popup) && !(tlw->windowType() == Qt::Tool)) {
             CreateEvent(0, kEventClassQt, kEventQtRequestActivate, GetCurrentEventTime(),
                         kEventAttributeUserEvent, &request_activate_pending.event);
             PostEventToQueue(GetMainEventQueue(), request_activate_pending.event, kEventPriorityHigh);
@@ -1436,8 +1436,8 @@ bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
             set_active = !(GetCurrentKeyModifiers() & cmdKey);
         if(set_active) {
             widget->raise();
-            if(!widget->isActiveWindow() && widget->isWindow() && !widget->isDesktop()
-               && !widget->isPopup() && !qt_mac_is_macsheet(widget)
+            if(!widget->isActiveWindow() && widget->isWindow() && !(widget->windowType() == Qt::Desktop)
+               && !(widget->windowType() == Qt::Popup) && !qt_mac_is_macsheet(widget)
                && (widget->isModal() || !::qt_cast<QDockWindow *>(widget))) {
                 widget->activateWindow();
                 if(windowPart == inContent) {
@@ -1932,7 +1932,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                                 // Make sure we didn't pass over a widget with a "fake hole" in it.
                                 QPoint pos = widget->mapFromGlobal(QPoint(where.h, where.v));
                                 QWidget *otherWidget = widget->childAt(pos);
-                                if (otherWidget && otherWidget->testWFlags(Qt::WMouseNoMask))
+                                if (otherWidget && otherWidget->testAttribute(Qt::WA_MouseNoMask))
                                     widget = otherWidget;
                             }
                         }
@@ -2420,7 +2420,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 unhandled_dialogs.remove(wid);
             handled_event = false;
             break;
-        } else if(widget->isDesktop()) {
+        } else if((widget->windowType() == Qt::Desktop)) {
             handled_event = false;
             break;
         }
@@ -2461,7 +2461,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         } else if(ekind == kEventWindowHidden) {
         } else if(ekind == kEventWindowShown) {
 #if 0
-            if(!widget->testWFlags(Qt::WType_Popup))
+            if(!(widget->windowType() == Qt::Popup))
                 widget->activateWindow();
 #endif
         } else if(ekind == kEventWindowActivated) {
@@ -2477,10 +2477,10 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 
             if(widget && widget->window()->isVisible()) {
                 QWidget *tlw = widget->window();
-		if(tlw->isWindow() && !tlw->isPopup()
+		if(tlw->isWindow() && !(tlw->windowType() == Qt::Popup)
                    && !qt_mac_is_macdrawer(tlw)
                    && (!tlw->parentWidget() || tlw->isModal()
-                       || !tlw->testWFlags(Qt::WStyle_Tool))) {
+                       || !(tlw->windowType() == Qt::Tool))) {
                     bool just_send_event = false;
                     {
                         WindowActivationScope scope;

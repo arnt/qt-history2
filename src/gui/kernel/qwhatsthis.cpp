@@ -159,7 +159,7 @@ static const int vMargin = 8;
 static const int hMargin = 12;
 
 QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor)
-    : QWidget(parent, Qt::WType_Popup),
+    : QWidget(parent, Qt::Popup),
       widget(showTextFor), pressed(false), text(txt)
 {
     delete instance;

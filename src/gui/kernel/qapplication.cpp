@@ -1174,7 +1174,7 @@ void QApplication::setStyle(QStyle *style)
         if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
             for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin(); it != QWidgetPrivate::mapper->constEnd(); ++it) {
                 register QWidget *w = *it;
-                if (!w->testWFlags(Qt::WType_Desktop) &&        // except desktop
+                if (!(w->windowType() == Qt::Desktop) &&        // except desktop
                      w->testAttribute(Qt::WA_WState_Polished)) { // has been polished
                     old->unpolish(w);
                 }
@@ -1199,7 +1199,7 @@ void QApplication::setStyle(QStyle *style)
         if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
             for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin(); it != QWidgetPrivate::mapper->constEnd(); ++it) {
                 register QWidget *w = *it;
-                if (!w->testWFlags(Qt::WType_Desktop)) {        // except desktop
+                if (!(w->windowType() == Qt::Desktop)) {        // except desktop
                     if (w->testAttribute(Qt::WA_WState_Polished))
                         QApplicationPrivate::app_style->polish(w);                // repolish
                     QEvent e(QEvent::StyleChange);
@@ -1841,8 +1841,8 @@ bool QApplication::event(QEvent *e)
         QWidgetList list = topLevelWidgets();
         for (int i = 0; i < list.size(); ++i) {
             QWidget *w = list.at(i);
-            if (!w->isExplicitlyHidden() && !w->isDesktop() && !w->isPopup() &&
-                 (!w->isDialog() || !w->parentWidget())) {
+            if (!w->isExplicitlyHidden() && !(w->windowType() == Qt::Desktop) && !(w->windowType() == Qt::Popup) &&
+                 (!(w->windowType() == Qt::Dialog) || !w->parentWidget())) {
                 ce->ignore();
                 break;
             }
@@ -1856,7 +1856,7 @@ bool QApplication::event(QEvent *e)
         QWidgetList list = topLevelWidgets();
         for (int i = 0; i < list.size(); ++i) {
             QWidget *w = list.at(i);
-            if (!w->isDesktop())
+            if (!(w->windowType() == Qt::Desktop))
                 postEvent(w, new QEvent(QEvent::LanguageChange));
         }
     } else if (e->type() == QEvent::Timer) {
@@ -2178,7 +2178,7 @@ bool qt_tryModalHelper(QWidget *widget, QWidget **rettop) {
 QDesktopWidget *QApplication::desktop()
 {
     if (!qt_desktopWidget || // not created yet
-         !qt_desktopWidget->isDesktop()) { // reparented away
+         !(qt_desktopWidget->windowType() == Qt::Desktop)) { // reparented away
         qt_desktopWidget = new QDesktopWidget();
     }
     return qt_desktopWidget;
@@ -2801,7 +2801,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 res = notify_helper(w, w == receiver ? mouse : &me);
                 e->spont = false;
                 if ((res && (w == receiver ? mouse : &me)->isAccepted())
-                    || w->isWindow() || w->testWFlags(Qt::WNoMousePropagation))
+                    || w->isWindow() || w->testAttribute(Qt::WA_NoMousePropagation))
                     break;
 
                 relpos += w->pos();
@@ -2840,7 +2840,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 res = notify_helper(w,  w == receiver ? wheel : &we);
                 e->spont = false;
                 if ((res && (w == receiver ? wheel : &we)->isAccepted())
-                    || w->isWindow() || w->testWFlags(Qt::WNoMousePropagation))
+                    || w->isWindow() || w->testAttribute(Qt::WA_NoMousePropagation))
                     break;
 
                 relpos += w->pos();
@@ -2865,7 +2865,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 e->spont = false;
 
                 if ((res && (w == receiver ? context : &ce)->isAccepted())
-                    || w->isWindow() || w->testWFlags(Qt::WNoMousePropagation))
+                    || w->isWindow() || w->testAttribute(Qt::WA_NoMousePropagation))
                     break;
 
                 relpos += w->pos();
@@ -2893,7 +2893,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 res = notify_helper(w, w == receiver ? tablet : &te);
                 e->spont = false;
                 if ((res && (w == receiver ? tablet : &te)->isAccepted()
-                     || w->isWindow() || w->testWFlags(Qt::WNoMousePropagation)))
+                     || w->isWindow() || w->testAttribute(Qt::WA_NoMousePropagation)))
                     break;
 
                 relpos += w->pos();

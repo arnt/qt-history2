@@ -673,7 +673,7 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
         pm = QPixmap(w, h, 32);
         extern WindowPtr qt_mac_window_for(const QWidget *); // qwidget_mac.cpp
         const BitMap *windowPort = 0;
-        if(widget->isDesktop()) {
+        if((widget->windowType() == Qt::Desktop)) {
 	    GDHandle gdh;
 #if 0
 	    if(GetWindowGreatestAreaDevice((WindowPtr)w->handle(), kWindowStructureRgn, &gdh, NULL) || !gdh)

@@ -303,8 +303,6 @@ extern "C" LRESULT CALLBACK QtWndProc(HWND, UINT, WPARAM, LPARAM);
 class QETWidget : public QWidget                // event translator widget
 {
 public:
-    void        setWFlags(Qt::WFlags f) { QWidget::setWFlags(f); }
-    void        clearWFlags(Qt::WFlags f) { QWidget::clearWFlags(f); }
     QWExtra    *xtra() { return d->extraData(); }
     QTLWExtra  *topData() { return d->topData(); }
     QWidgetData *dataPtr() { return data; }
@@ -336,10 +334,10 @@ static void qt_show_system_menu(QWidget* tlw)
 #define disabled (MF_BYCOMMAND | MF_GRAYED)
 
 #ifndef Q_OS_TEMP
-    EnableMenuItem(menu, SC_MINIMIZE, tlw->testWFlags(Qt::WStyle_Minimize)?enabled:disabled);
+    EnableMenuItem(menu, SC_MINIMIZE, (tlw->windowFlags() & Qt::WindowMinimizeButtonHint)?enabled:disabled);
     bool maximized = IsZoomed(tlw->winId());
 
-    EnableMenuItem(menu, SC_MAXIMIZE, !tlw->testWFlags(Qt::WStyle_Maximize) || maximized?disabled:enabled);
+    EnableMenuItem(menu, SC_MAXIMIZE, ! (tlw->windowFlags() & Qt::WindowMaximizeButtonHint) || maximized?disabled:enabled);
     EnableMenuItem(menu, SC_RESTORE, maximized?enabled:disabled);
 
     EnableMenuItem(menu, SC_SIZE, maximized?disabled:enabled);
@@ -1142,10 +1140,10 @@ void QApplication::winFocus(QWidget *widget, bool gotFocus)
     if (gotFocus) {
         setActiveWindow(widget);
         if (QApplicationPrivate::active_window
-	    && QApplicationPrivate::active_window->testWFlags(Qt::WType_Dialog)) {
+	    && QApplicationPrivate::(active_window->windowType() == Qt::Dialog)) {
             // raise the entire application, not just the dialog
             QWidget* mw = QApplicationPrivate::active_window;
-            while(mw->parentWidget() && mw->testWFlags(Qt::WType_Dialog))
+            while(mw->parentWidget() && (mw->windowType() == Qt::Dialog))
                 mw = mw->parentWidget()->window();
             if (mw != QApplicationPrivate::active_window)
                 SetWindowPos(mw->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
@@ -1934,7 +1932,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             break;
 
         case WM_THEMECHANGED:
-            if (widget->testWFlags(Qt::WType_Desktop) || !qApp || qApp->closingDown()
+            if ((widget->windowType() == Qt::Desktop) || !qApp || qApp->closingDown()
                                                          || qApp->type() == QApplication::Tty)
                 break;
 
@@ -2103,7 +2101,7 @@ static bool qt_blocked_modal(QWidget *widget)
         return false;
     if (qApp->activePopupWidget())
         return false;
-    if (widget->testWFlags(Qt::WStyle_Tool))        // allow tool windows
+    if ((widget->windowType() == Qt::Tool))        // allow tool windows
         return false;
 
     QWidget *modal=0, *top=qt_modal_stack->first();
@@ -2518,7 +2516,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         QWidget *popup = activePopupWidget;
 
         if (popup != this) {
-            if (testWFlags(Qt::WType_Popup) && rect().contains(pos))
+            if ((windowType() == Qt::Popup) && rect().contains(pos))
                 popup = this;
             else                                // send to last popup
                 pos = popup->mapFromGlobal(QPoint(gpos.x, gpos.y));

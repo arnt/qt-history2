@@ -36,10 +36,8 @@
 */
 
 Q3Button::Q3Button( QWidget *parent, const char *name, Qt::WFlags f )
-    : QAbstractButton( parent )
+    : QAbstractButton( parent, name, f )
 {
-    setWFlags(f);
-    setObjectName(name);
 }
 
 /*!

@@ -231,7 +231,7 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
 #endif
                     }
                 } else {
-                    d->hdc = GetDC(w->isDesktop() ? 0 : w->winId());
+                    d->hdc = GetDC((w->windowType() == Qt::Desktop) ? 0 : w->winId());
                 }
                 const_cast<QWidgetPrivate *>(w->d)->hd = (Qt::HANDLE)d->hdc;
             }
@@ -313,7 +313,7 @@ bool QWin32PaintEngine::end()
 
     if (d->pdev->devType() == QInternal::Widget && !d->usesWidgetDC) {
         QWidget *w = static_cast<QWidget*>(d->pdev);
-        ReleaseDC(w->isDesktop() ? 0 : w->winId(), d->hdc);
+        ReleaseDC((w->windowType() == Qt::Desktop) ? 0 : w->winId(), d->hdc);
         const_cast<QWidgetPrivate*>(w->d)->hd = 0;
     } else {
         d->pdev->releaseDC(d->hdc);

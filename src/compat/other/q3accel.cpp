@@ -219,7 +219,7 @@ bool Q3AccelManager::correctSubWindow(QWidget* w, Q3AccelPrivate* d) {
     /* if we live in a floating dock window, keep our parent's
      * accelerators working */
 #ifndef QT_NO_MAINWINDOW
-    if (tlw->isDialog() && tlw->parentWidget() && ::qt_cast<QDockWindow*>(tlw))
+    if ((tlw->windowType() == Qt::Dialog) && tlw->parentWidget() && ::qt_cast<QDockWindow*>(tlw))
 	return tlw->parentWidget()->window() == wtlw;
 
     if (wtlw  != tlw)
@@ -228,7 +228,7 @@ bool Q3AccelManager::correctSubWindow(QWidget* w, Q3AccelPrivate* d) {
     /* if we live in a MDI subwindow, ignore the event if we are
        not the active document window */
     QWidget* sw = d->watch;
-    while (sw && !sw->testWFlags(WSubWindow))
+    while (sw && !sw->windowType() == Qt::SubWindow)
 	sw = sw->parentWidget(true);
     if (sw)  { // we are in a subwindow indeed
 	QWidget* fw = w;

@@ -309,7 +309,6 @@ Q3ToolBar::Q3ToolBar(const QString &label, Q3MainWindow * mainWindow,
     mw = mainWindow;
     init();
 
-    clearWFlags(Qt::WType_Dialog | Qt::WStyle_Customize | Qt::WStyle_NoBorder);
     setParent(parent);
 
     if (mainWindow)

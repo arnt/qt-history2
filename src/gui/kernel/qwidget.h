@@ -65,8 +65,7 @@ class QWidgetData
 public:
     WId winid;
     uint widget_attributes;
-    uint window_flags;
-    Qt::WindowFlags window_type;
+    Qt::WindowFlags window_flags;
     uint window_state : 4;
     uint focus_policy : 4;
     uint sizehint_forced :1;
@@ -174,9 +173,7 @@ public:
 
     bool isTopLevel() const;
     bool isWindow() const;
-    bool isDialog() const;
-    bool isPopup() const;
-    bool isDesktop() const;
+
     bool isModal() const;
 
     bool isEnabled() const;
@@ -455,10 +452,10 @@ public:
 
     void setWindowFlags(Qt::WindowFlags type);
     Qt::WindowFlags windowFlags() const;
+    void overrideWindowFlags(Qt::WindowFlags type);
 
     Qt::WindowType windowType() const;
 
-    Qt::WFlags testWFlags(Qt::WFlags f) const;
     static QWidget *find(WId);
 #ifdef QT3_SUPPORT
     static QT3_SUPPORT QWidgetMapper *wmapper();
@@ -563,10 +560,6 @@ protected:
     void destroy(bool destroyWindow = true,
                  bool destroySubWindows = true);
 
-    inline Qt::WFlags getWFlags() const;
-    void setWFlags(Qt::WFlags f);
-    void clearWFlags(Qt::WFlags f);
-
     virtual bool focusNextPrevChild(bool next);
 
 protected:
@@ -620,7 +613,7 @@ public:
     inline QT3_SUPPORT void reparent(QWidget *parent, Qt::WFlags f, const QPoint &p, bool showIt=false)
     { setParent(parent, f); setGeometry(p.x(),p.y(),width(),height()); if (showIt) show(); }
     inline QT3_SUPPORT void reparent(QWidget *parent, const QPoint &p, bool showIt=false)
-    { setParent(parent, getWFlags() & ~Qt::WType_Mask); setGeometry(p.x(),p.y(),width(),height()); if (showIt) show(); }
+    { setParent(parent, windowFlags() & ~Qt::WindowType_Mask); setGeometry(p.x(),p.y(),width(),height()); if (showIt) show(); }
     inline QT3_SUPPORT void recreate(QWidget *parent, Qt::WFlags f, const QPoint & p, bool showIt=false)
     { setParent(parent, f); setGeometry(p.x(),p.y(),width(),height()); if (showIt) show(); }
     inline QT3_SUPPORT void setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw)
@@ -694,6 +687,9 @@ public:
     inline QT3_SUPPORT void setActiveWindow() { activateWindow(); }
     inline QT3_SUPPORT bool isHidden() const { return isExplicitlyHidden(); }
     inline QT3_SUPPORT bool isShown() const { return !isExplicitlyHidden(); }
+    inline QT3_SUPPORT bool isDialog() const { return windowType() == Qt::Dialog; }
+    inline QT3_SUPPORT bool isPopup() const { return windowType() == Qt::Popup; }
+    inline QT3_SUPPORT bool isDesktop() const { return windowType() == Qt::Desktop; }
 
 
 private:
@@ -730,30 +726,18 @@ template <> inline const QWidget *qt_cast<const QWidget*>(const QObject *o)
 #endif
 
 inline Qt::WindowType QWidget::windowType() const
-{ return static_cast<Qt::WindowType>(int(data->window_type & Qt::WindowType_Mask)); }
+{ return static_cast<Qt::WindowType>(int(data->window_flags & Qt::WindowType_Mask)); }
 inline Qt::WindowFlags QWidget::windowFlags() const
-{ return data->window_type; }
-
-inline Qt::WFlags QWidget::testWFlags(Qt::WFlags f) const
-{ return QFlag(data->window_flags & f); }
+{ return data->window_flags; }
 
 inline WId QWidget::winId() const
 { return data->winid; }
 
 inline bool QWidget::isTopLevel() const
-{ return testWFlags(Qt::WType_TopLevel); }
+{ return (windowType() & Qt::Window); }
 
 inline bool QWidget::isWindow() const
-{ return testWFlags(Qt::WType_TopLevel); }
-
-inline bool QWidget::isDialog() const
-{ return testWFlags(Qt::WType_Dialog); }
-
-inline bool QWidget::isPopup() const
-{ return testWFlags(Qt::WType_Popup); }
-
-inline bool QWidget::isDesktop() const
-{ return testWFlags(Qt::WType_Desktop); }
+{ return (windowType() & Qt::Window); }
 
 inline bool QWidget::isEnabled() const
 { return !testAttribute(Qt::WA_Disabled); }
@@ -844,15 +828,6 @@ inline int QWidget::height() const
 
 inline QWidget *QWidget::parentWidget() const
 { return static_cast<QWidget *>(QObject::parent()); }
-
-inline Qt::WFlags QWidget::getWFlags() const
-{ return QFlag(data->window_flags); }
-
-inline void QWidget::setWFlags(Qt::WFlags f)
-{ data->window_flags |= f; }
-
-inline void QWidget::clearWFlags(Qt::WFlags f)
-{ data->window_flags &= ~f; }
 
 inline void QWidget::setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeType ver)
 { setSizePolicy(QSizePolicy(hor, ver)); }

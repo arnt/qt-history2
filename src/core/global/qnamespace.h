@@ -179,14 +179,15 @@ public:
     enum WindowType {
         Widget = 0x00000000,
         Window = 0x00000001,
-        Dialog = 0x00000003,
-        Sheet = 0x00000005,
-        Drawer = 0x00000007,
-        Popup = 0x00000009,
-        Tool = 0x0000000b,
-        ToolTip = 0x0000000d,
-        SplashScreen = 0x0000000f,
-        Desktop = 0x00000011,
+        Dialog = 0x00000002 | Window,
+        Sheet = 0x00000004 | Window,
+        Drawer = 0x00000006 | Window,
+        Popup = 0x00000008 | Window,
+        Tool = 0x0000000a | Window,
+        ToolTip = 0x0000000c | Window,
+        SplashScreen = 0x0000000e | Window,
+        Desktop = 0x00000010 | Window,
+        SubWindow =  0x00000012,
 
         WindowType_Mask = 0x000000ff,
         MSWindowsFixedSizeDialogHint = 0x00000100,
@@ -200,16 +201,17 @@ public:
         WindowContextHelpButtonHint = 0x00008000,
         WindowStaysOnTopHint = 0x00010000
 
-#ifdef QT3_SUPPORT_TBD
+#ifdef QT3_SUPPORT
         ,
-        WMouseNoMask = 0x00010000,
-        WDestructiveClose = 0x00020000,
-        WStaticContents = 0x00040000,
-        WGroupLeader = 0x00080000,
-        WShowModal = 0x00100000,
+        WMouseNoMask = 0x00040000,
+        WDestructiveClose = 0x00080000,
+        WStaticContents = 0x00100000,
+        WGroupLeader = 0x00200000,
+        WShowModal = 0x00400000,
+        WNoMousePropagation = 0x00800000,
 
         WType_TopLevel = Window,
-        WType_Dialog = Dialog
+        WType_Dialog = Dialog,
         WType_Popup = Popup,
         WType_Desktop = Desktop,
         WType_Mask = WindowType_Mask,
@@ -252,84 +254,6 @@ public:
     };
 
     Q_DECLARE_FLAGS(WindowFlags, WindowType)
-
-    // documented in qwidget.cpp
-    enum WFlag {
-        WType_TopLevel          = 0x00000001,        // widget type flags
-        WType_Dialog            = 0x00000002,
-        WType_Popup             = 0x00000004,
-        WType_Desktop           = 0x00000008,
-        WType_Mask              = 0x0000000f,
-
-        WStyle_Customize        = 0x00000010,        // window style flags
-        WStyle_NormalBorder     = 0x00000020,
-        WStyle_DialogBorder     = 0x00000040, // MS-Windows only
-        WStyle_NoBorder         = 0x00002000,
-        WStyle_Title            = 0x00000080,
-        WStyle_SysMenu          = 0x00000100,
-        WStyle_Minimize         = 0x00000200,
-        WStyle_Maximize         = 0x00000400,
-        WStyle_MinMax           = WStyle_Minimize | WStyle_Maximize,
-        WStyle_Tool             = 0x00000800,
-        WStyle_StaysOnTop       = 0x00001000,
-        WStyle_ContextHelp      = 0x00004000,
-        WStyle_Reserved         = 0x00008000,
-        WStyle_Mask             = 0x0000fff0,
-
-        // misc flags
-        WPaintDesktop           = 0x00020000,
-        // reserved WPaintUnclipped = 0x00040000,
-        // reserved WPaintClever  = 0x00080000,
-        // reserved WResizeNoErase= 0x00100000,
-        WMouseNoMask            = 0x00200000,
-
-#if defined(Q_WS_X11)
-        WX11BypassWM            = 0x01000000,
-        WWinOwnDC               = 0x00000000,
-        WMacSheet               = 0x00000000,
-        WMacDrawer              = 0x00000000,
-#elif defined(Q_WS_MAC)
-        WX11BypassWM            = 0x00000000,
-        WWinOwnDC               = 0x00000000,
-        WMacSheet               = 0x01000000 | WType_TopLevel,
-        WMacDrawer              = 0x20000000 | WType_TopLevel,
-#else
-        WX11BypassWM            = 0x00000000,
-        WWinOwnDC               = 0x01000000,
-        WMacSheet               = 0x00000000,
-        WMacDrawer              = 0x00000000,
-#endif
-        WGroupLeader            = 0x02000000,
-        WShowModal              = 0x04000000,
-        WNoMousePropagation     = 0x08000000,
-        WSubWindow              = 0x10000000,
-#if defined(Q_WS_X11)
-        WStyle_Splash           = 0x20000000,
-#else
-        WStyle_Splash           = WStyle_NoBorder | WStyle_Tool | WWinOwnDC,
-#endif
-#if defined(Q_WS_MAC)
-        WStyle_ToolTip          = 0x40000000
-#else
-        WStyle_ToolTip          = WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM
-#endif
-#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
-        ,
-        WDestructiveClose      = 0x00010000,
-        WStaticContents        = 0x00400000,
-        WNoAutoErase           = 0x00800000,
-        WRepaintNoErase        = WNoAutoErase,
-        WNorthWestGravity      = WStaticContents,
-        WType_Modal            = WType_Dialog | WShowModal,
-        WStyle_Dialog          = WType_Dialog,
-        WStyle_NoBorderEx      = WStyle_NoBorder,
-        WResizeNoErase = 0,
-        WPaintClever = 0,
-        WMacNoSheet = 0
-#endif
-    };
-
-    Q_DECLARE_FLAGS(WFlags, WFlag)
 
     enum WindowState {
         WindowNoState    = 0x00000000,
@@ -404,6 +328,7 @@ public:
         WA_ShowModal = 70, // ## for now, need mode (application modal, modal to parent, ...)
         WA_MouseNoMask = 71,
         WA_GroupLeader = 72, // ## for now, might go away.
+        WA_NoMousePropagation = 73, // ## for now, might go away.
 
         // Add new attributes above this!
         WA_AttributeCount
@@ -1271,11 +1196,11 @@ public:
 #elif defined(Q_WS_QWS)
     typedef void * HANDLE;
 #endif
+    typedef WindowFlags WFlags;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::MouseButtons)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::KeyboardModifiers)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Alignment)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ImageConversionFlags)

@@ -171,7 +171,7 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev)
             d->locked = true;
         }
 
-        if(w->isDesktop()) {
+        if((w->windowType() == Qt::Desktop)) {
             if(!unclipped)
                 qWarning("QQuickDrawPaintEngine::begin: Does not support clipped desktop on Mac OS X");
             ShowWindow(qt_mac_window_for(w));
@@ -210,7 +210,7 @@ QQuickDrawPaintEngine::end()
 
     delete d->saved;
     d->saved = 0;
-    if(d->pdev->devType() == QInternal::Widget && static_cast<QWidget*>(d->pdev)->isDesktop())
+    if(d->pdev->devType() == QInternal::Widget && static_cast<QWidget*>(d->pdev)(->windowType() == Qt::Desktop))
         HideWindow(qt_mac_window_for(static_cast<QWidget*>(d->pdev)));
 
     d->pdev = 0;
@@ -1121,7 +1121,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
         }
 	bool unclipped = w->testAttribute(Qt::WA_PaintUnclipped);
 
-        if(w->isDesktop()) {
+        if((w->windowType() == Qt::Desktop)) {
             if(!unclipped)
                 qWarning("QCoreGraphicsPaintEngine::begin: Does not support clipped desktop on Mac OSX");
             ShowWindow(qt_mac_window_for(w));
@@ -1153,7 +1153,7 @@ bool
 QCoreGraphicsPaintEngine::end()
 {
     setActive(false);
-    if(d->pdev->devType() == QInternal::Widget && ((QWidget*)d->pdev)->isDesktop())
+    if(d->pdev->devType() == QInternal::Widget && ((QWidget*)d->pdev)(->windowType() == Qt::Desktop))
         HideWindow(qt_mac_window_for(static_cast<QWidget*>(d->pdev)));
     if(d->shading) {
         CGShadingRelease(d->shading);

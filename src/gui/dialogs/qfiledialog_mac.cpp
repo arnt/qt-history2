@@ -236,7 +236,7 @@ QStringList qt_mac_get_open_file_names(const QFileDialogArgs &args, QString *pwd
     static const int w = 450, h = 350;
     options.location.h = options.location.v = -1;
     if (parent && parent->isVisible()) {
-        if (!parent->window()->isDesktop()) {
+        if (!parent->window()(->windowType() == Qt::Desktop)) {
             options.modality = kWindowModalityWindowModal;
             options.parentWindow = qt_mac_window_for(parent);
         } else {
@@ -363,7 +363,7 @@ QString qt_mac_get_save_file_name(const QFileDialogArgs &args, QString *pwd,
     if (!args.caption.isEmpty())
         options.windowTitle = QCFString::toCFStringRef(args.caption);
     if (parent && parent->isVisible()) {
-        if (!parent->window()->isDesktop()) {
+        if (!parent->window()(->windowType() == Qt::Desktop)) {
             options.modality = kWindowModalityWindowModal;
             options.parentWindow = qt_mac_window_for(parent);
         } else {

@@ -535,7 +535,7 @@ bool QShortcutMap::correctContext(Qt::ShortcutContext context, QWidget *w, QWidg
 #ifndef QT_NO_MAINWINDOW
     /* if we live in a floating dock window, keep our parent's
      * shortcuts working */
-    if (tlw->isDialog() && tlw->parentWidget() && ::qt_cast<QDockWindow*>(tlw))
+    if ((tlw->windowType() == Qt::Dialog) && tlw->parentWidget() && ::qt_cast<QDockWindow*>(tlw))
         return tlw->parentWidget()->window() == active_window;
 #endif
 
@@ -546,9 +546,9 @@ bool QShortcutMap::correctContext(Qt::ShortcutContext context, QWidget *w, QWidg
     /* if we live in a MDI subwindow, ignore the event if we are
        not the active document window */
     const QWidget* sw = w;
-    while (sw && !sw->testWFlags(Qt::WSubWindow) && !sw->isWindow())
+    while (sw && !(sw->windowType() == Qt::SubWindow) && !sw->isWindow())
         sw = sw->parentWidget();
-    if (sw && sw->testWFlags(Qt::WSubWindow)) {
+    if (sw && (sw->windowType() == Qt::SubWindow)) {
         const QWidget *actW = ::qt_cast<const QWorkspace*>(sw->parentWidget())->activeWindow();
         // If workspace has no active window return false
         if (!actW)

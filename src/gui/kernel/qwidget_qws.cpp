@@ -121,10 +121,11 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
     isSettingGeometry = false;
     data.overlapping_children = -1;
 
-    bool topLevel = q->testWFlags(Qt::WType_TopLevel);
-    bool popup = q->testWFlags(Qt::WType_Popup);
-    bool dialog = q->testWFlags(Qt::WType_Dialog);
-    bool desktop = q->testWFlags(Qt::WType_Desktop);
+    bool topLevel = q->isWindow();
+    bool popup = (q->windowType() == Qt::Popup);
+    bool dialog = (q->windowType() == Qt::Dialog);
+    bool desktop = (q->windowType() == Qt::Desktop);
+
     WId           id;
     QWSDisplay* dpy = q->qwsDisplay();
 
@@ -189,7 +190,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
                     // XXX ...
                 }
             }
-            if (q->testWFlags(Qt::WStyle_Tool)) {
+            if ((q->windowType() == Qt::Tool)) {
                 // XXX ...
             }
         } else {                                // normal top-level widget
@@ -208,10 +209,10 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
         QWidget *p = q->parentWidget();        // real parent
         if (p)
             p = p->window();
-        if (q->testWFlags(Qt::WStyle_DialogBorder)
-             || q->testWFlags(Qt::WStyle_StaysOnTop)
-             || q->testWFlags(Qt::WType_Dialog)
-             || q->testWFlags(Qt::WStyle_Tool)) {
+        if (testWFlags(Qt::WStyle_DialogBorder)
+             || testWFlags(Qt::WStyle_StaysOnTop)
+             || (q->windowType() == Qt::Dialog)
+             || (q->windowType() == Qt::Tool)) {
             // XXX ...
         }
 
@@ -316,9 +317,9 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             releaseKeyboard();
         if (testAttribute(Qt::WA_ShowModal))                // just be sure we leave modal
             qt_leave_modal(this);
-        else if (testWFlags(Qt::WType_Popup))
+        else if ((windowType() == Qt::Popup))
             qApp->closePopup(this);
-        if (testWFlags(Qt::WType_Desktop)) {
+        if ((windowType() == Qt::Desktop)) {
         } else {
             if (parentWidget() && parentWidget()->testAttribute(Qt::WA_WState_Created)) {
                 d->hide_sys();
@@ -343,7 +344,7 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WFlags f)
 #endif
 
     WId old_winid = data.winid;
-    if (q->testWFlags(Qt::WType_Desktop))
+    if ((q->windowType() == Qt::Desktop))
         old_winid = 0;
 
     if (!q->isWindow() && q->parentWidget() && q->parentWidget()->testAttribute(Qt::WA_WState_Created))
@@ -863,7 +864,7 @@ void QWidget::repaint(const QRegion& rgn)
 
 void QWidgetPrivate::show_sys()
 {
-    if (q->testWFlags(Qt::WType_TopLevel)) {
+    if (q->isWindow()) {
         updateRequestedRegion(q->mapToGlobal(QPoint(0,0)));
         QRegion r(data.req_region);
 #ifndef QT_NO_QWS_MANAGER
@@ -874,7 +875,7 @@ void QWidgetPrivate::show_sys()
         }
 #endif
         q->qwsDisplay()->requestRegion(data.winid, r);
-        if (!q->testWFlags(Qt::WStyle_Tool)) {
+        if (!(q->windowType() == Qt::Tool)) {
             q->qwsDisplay()->requestFocus(data.winid,true);
         }
         q->qwsDisplay()->setAltitude(data.winid,
@@ -898,7 +899,7 @@ void QWidgetPrivate::hide_sys()
     if (data.req_region.isEmpty())        // Already invisible?
         return;
 
-    if (q->testWFlags(Qt::WType_TopLevel)) {
+    if (q->isWindow()) {
         q->releaseMouse();
         q->qwsDisplay()->requestRegion(data.winid, QRegion());
         q->qwsDisplay()->requestFocus(data.winid,false);
@@ -984,12 +985,12 @@ void QWidgetPrivate::raise_sys()
 {
     if (q->isWindow()) {
 #ifdef QT_NO_WINDOWGROUPHINT
-        if (!q->testWFlags(Qt::WStyle_Tool))
+        if (!(q->windowType() == Qt::Tool))
             activateWindow();
         qwsDisplay()->setAltitude(q->winId(), 0);
 #else
         QWidget* act=0;
-        if (!q->testWFlags(Qt::WStyle_Tool))
+        if (!(q->windowType() == Qt::Tool))
             act=q;
         q->qwsDisplay()->setAltitude(q->winId(), 0);
 
@@ -1009,7 +1010,7 @@ void QWidgetPrivate::raise_sys()
                 QWidget *w = toraise.at(i);
 
                 if (w->isVisible()) {
-                    bool wastool = w->testWFlags(Qt::WStyle_Tool);
+                    bool wastool = (w->windowType() == Qt::Tool);
                     w->setWFlags(Qt::WStyle_Tool); // avoid activateWindow flicker
                     w->raise();
                     if (!wastool) {
@@ -1087,7 +1088,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     QPoint oldPos = q->pos();
     data.crect = r;
 
-    if (q->testWFlags(Qt::WType_Desktop))
+    if ((q->windowType() == Qt::Desktop))
         return;
 
     if (q->isWindow()) {
@@ -1308,7 +1309,7 @@ void QWidget::setSizeIncrement(int w, int h)
         return;
     x->incw = w;
     x->inch = h;
-    if (testWFlags(Qt::WType_TopLevel)) {
+    if (isWindow()) {
         // XXX ...
     }
 }
@@ -1321,7 +1322,7 @@ void QWidget::setBaseSize(int basew, int baseh)
         return;
     x->basew = basew;
     x->baseh = baseh;
-    if (testWFlags(Qt::WType_TopLevel)) {
+    if (isWindow()) {
         // XXX
     }
 }
@@ -1788,7 +1789,7 @@ void QWidgetPrivate::updateFrameStrut() const
 {
     QWidget *that = const_cast<QWidget *>(q);
 
-    if(!q->isVisible() || q->isDesktop()) {
+    if(!q->isVisible() || (q->windowType() == Qt::Desktop)) {
         that->data->fstrut_dirty = q->isVisible();
         return;
     }

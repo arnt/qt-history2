@@ -695,7 +695,7 @@ QByteArray QX11Data::motifdndObtainData(const char *mimeType)
     }
 
     QWidget* tw = drop_widget;
-    if (drop_widget->isDesktop()) {
+    if ((drop_widget->windowType() == Qt::Desktop)) {
         tw = new QWidget;
     }
 
@@ -721,7 +721,7 @@ QByteArray QX11Data::motifdndObtainData(const char *mimeType)
     // wait again for SelectionNotify event
     X11->clipboardWaitForEvent(tw->winId(), SelectionNotify, &xevent, 5000);
 
-    if (drop_widget->isDesktop()) {
+    if ((drop_widget->windowType() == Qt::Desktop)) {
         delete tw;
     }
 

@@ -628,7 +628,7 @@ bool qt_mac_is_macsheet(const QWidget *w)
 {
 #if 1
     if(w && w->testWFlags(Qt::WMacSheet) == Qt::WMacSheet
-       && w->parentWidget() && !w->parentWidget()->window()->isDesktop()
+       && w->parentWidget() && !w->parentWidget()->window()(->windowType() == Qt::Desktop)
        && w->parentWidget()->window()->isVisible())
         return true;
 #else
@@ -783,10 +783,10 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     d->window_event = 0;
     WId destroyid = 0;
 
-    bool topLevel = q->testWFlags(Qt::WType_TopLevel);
-    bool popup = q->testWFlags(Qt::WType_Popup);
-    bool dialog = q->testWFlags(Qt::WType_Dialog);
-    bool desktop = q->testWFlags(Qt::WType_Desktop);
+    bool topLevel = q->isWindow();
+    bool popup = (q->windowType() == Qt::Popup);
+    bool dialog = (q->windowType() == Qt::Dialog);
+    bool desktop = (q->windowType() == Qt::Desktop);
 
     //position
     QRect dskr;
@@ -801,7 +801,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     } else {
         if(QDesktopWidget *dsk = QApplication::desktop()) {
             int deskn = dsk->primaryScreen();
-            if(q->parentWidget() && !q->parentWidget()->isDesktop())
+            if(q->parentWidget() && !q->parentWidget()(->windowType() == Qt::Desktop))
                 deskn = dsk->screenNumber(q->parentWidget());
             dskr = dsk->screenGeometry(deskn);
         }
@@ -867,8 +867,8 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             wclass = kMovableModalWindowClass;
         else if(q->testWFlags(Qt::WStyle_ToolTip))
             wclass = kHelpWindowClass;
-        else if(q->testWFlags(Qt::WStyle_Tool)
-                || (dialog && q->parentWidget() && !q->parentWidget()->window()->isDesktop()))
+        else if((q->windowType() == Qt::Tool)
+                || (dialog && parentWidget() && !parentWidget()->window()(->windowType() == Qt::Desktop)))
             wclass = kFloatingWindowClass;
         else if(dialog)
             wclass = kToolbarWindowClass;
@@ -894,7 +894,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                     if(wclass != kModalWindowClass)
                         wattr |= kWindowResizableAttribute;
                     if(wclass == kToolbarWindowClass) {
-                        if(!q->parentWidget() || q->parentWidget()->isDesktop())
+                        if(!q->parentWidget() || q->parentWidget()(->windowType() == Qt::Desktop))
                             wclass = kDocumentWindowClass;
                         else
                             wclass = kFloatingWindowClass;
@@ -915,7 +915,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                 }
             }
         }
-        if(q->testWFlags(Qt::WStyle_Tool) && q->testWFlags(Qt::WStyle_Splash) != Qt::WStyle_Splash && !q->isModal())
+        if((q->windowType() == Qt::Tool) && q->testWFlags(Qt::WStyle_Splash) != Qt::WStyle_Splash && !q->isModal())
             wattr |= kWindowHideOnSuspendAttribute;
         wattr |= kWindowLiveResizeAttribute;
 
@@ -1037,7 +1037,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 #endif
         if(d->extra && !d->extra->mask.isEmpty())
            ReshapeCustomWindow(window);
-        if(q->testWFlags(Qt::WType_Popup) || q->testWFlags(Qt::WStyle_Tool))
+        if((q->windowType() == Qt::Popup) || (q->windowType() == Qt::Tool))
             SetWindowModality(window, kWindowModalityNone, NULL);
         if(qt_mac_is_macsheet(q))
             q->setWindowOpacity(0.70);
@@ -1082,7 +1082,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
     d->deactivateWidgetCleanup();
     qt_mac_event_release(this);
     qt_mac_unicode_cleanup(this);
-    if(isDesktop() && destroyWindow)
+    if((windowType() == Qt::Desktop) && destroyWindow)
         qt_root_win_widgets.removeAll(this);
     if(testAttribute(Qt::WA_WState_Created)) {
         setAttribute(Qt::WA_WState_Created, false);
@@ -1101,7 +1101,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 
         if(testAttribute(Qt::WA_ShowModal))          // just be sure we leave modal
             qt_leave_modal(this);
-        else if(testWFlags(Qt::WType_Popup))
+        else if((windowType() == Qt::Popup))
             qApp->closePopup(this);
         if(destroyWindow) {
             if(d->window_event)
@@ -1130,7 +1130,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
 
     EventHandlerRef old_window_event = 0;
     HIViewRef old_id = 0;
-    if(!q->isDesktop()) {
+    if(!(q->windowType() == Qt::Desktop)) {
         old_id = (HIViewRef)q->winId();
         old_window_event = d->window_event;
     }
@@ -1389,13 +1389,13 @@ QWidget *QWidget::keyboardGrabber()
 void QWidget::activateWindow()
 {
     QWidget *tlw = window();
-    if(!tlw->isVisible() || !tlw->isWindow() || tlw->isDesktop())
+    if(!tlw->isVisible() || !tlw->isWindow() || (tlw->windowType() == Qt::Desktop))
         return;
     qt_event_remove_activate();
     qt_mac_set_fullscreen_mode((tlw->windowState() & Qt::WindowFullScreen) &&
                                !qApp->desktop()->screenNumber(this));
     WindowPtr window = qt_mac_window_for(tlw);
-    if(tlw->isPopup() || tlw->testWFlags(Qt::WStyle_Tool) || qt_mac_is_macdrawer(tlw)) {
+    if((tlw->windowType() == Qt::Popup) || (tlw->windowType() == Qt::Tool) || qt_mac_is_macdrawer(tlw)) {
         ActivateWindow(window, true);
     } else {
         if(IsWindowActive(window)) {
@@ -1446,7 +1446,7 @@ void QWidget::repaint(const QRegion &rgn)
 
 void QWidgetPrivate::show_sys()
 {
-    if(q->isDesktop()) //desktop is always visible
+    if((q->windowType() == Qt::Desktop)) //desktop is always visible
         return;
 
     if (q->testAttribute(Qt::WA_OutsideWSRange))
@@ -1488,7 +1488,7 @@ void QWidgetPrivate::show_sys()
 
 void QWidgetPrivate::hide_sys()
 {
-    if(q->isDesktop()) //you can't hide the desktop!
+    if((q->windowType() == Qt::Desktop)) //you can't hide the desktop!
         return;
 
     if(q->isWindow()) {
@@ -1505,7 +1505,7 @@ void QWidgetPrivate::hide_sys()
             ShowHide(window, false);
             d->toggleDrawers(false);
         }
-        if(q->isActiveWindow() && !q->isPopup()) {
+        if(q->isActiveWindow() && !(q->windowType() == Qt::Popup)) {
             QWidget *w = 0;
             if(q->parentWidget())
                 w = q->parentWidget()->window();
@@ -1655,7 +1655,7 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
 
 void QWidgetPrivate::raise_sys()
 {
-    if(q->isDesktop())
+    if((q->windowType() == Qt::Desktop))
         return;
     if(q->isWindow()) {
         //raise this window
@@ -1672,7 +1672,7 @@ void QWidgetPrivate::raise_sys()
 
 void QWidgetPrivate::lower_sys()
 {
-    if(q->isDesktop())
+    if((q->windowType() == Qt::Desktop))
         return;
     if(q->isWindow()) {
         SendBehind(qt_mac_window_for(q), 0);
@@ -1684,7 +1684,7 @@ void QWidgetPrivate::lower_sys()
 
 void QWidgetPrivate::stackUnder_sys(QWidget *w)
 {
-    if(!w || q->isWindow() || q->isDesktop())
+    if(!w || q->isWindow() || (q->windowType() == Qt::Desktop))
         return;
 
     QWidget *p = q->parentWidget();
@@ -1825,7 +1825,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 {
     if(q->isWindow() && isMove)
         d->topData()->is_moved = 1;
-    if(q->isDesktop())
+    if((q->windowType() == Qt::Desktop))
         return;
     if(QWExtra *extra = d->extraData()) {        // any size restrictions?
         if(q->isWindow()) {
@@ -2079,7 +2079,7 @@ void QWidgetPrivate::updateFrameStrut() const
     that->data.fstrut_dirty = false;
     QTLWExtra *top = that->topData();
     top->fleft = top->fright = top->ftop = top->fbottom = 0;
-    if(!q->isDesktop() && q->isWindow()) {
+    if(!(q->windowType() == Qt::Desktop) && q->isWindow()) {
         WindowPtr window = qt_mac_window_for(q);
         Rect window_r, content_r;
         //get bounding rects

@@ -5615,7 +5615,7 @@ bool QMacStyle::event(QEvent *e)
            d->focusable(QApplication::focusWidget())) {
             f = QApplication::focusWidget();
             QWidget *top = f->parentWidget();
-            while (top && !top->isWindow() && !top->testWFlags(Qt::WSubWindow))
+            while (top && !top->isWindow() && !(top->windowType() == Qt::SubWindow))
                 top = top->parentWidget();
 #ifndef QT_NO_MAINWINDOW
             if (qt_cast<QMainWindow *>(top)) {

@@ -295,19 +295,33 @@ static void qt_change_net_wm_state(const QWidget* w, bool set, Atom one, Atom tw
 
 void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyOldWindow)
 {
-    bool popup = q->testWFlags(Qt::WType_Popup);
-    bool dialog = q->testWFlags(Qt::WType_Dialog);
-    bool desktop = q->testWFlags(Qt::WType_Desktop);
+    Qt::WindowType type = q->windowType();
+    Qt::WindowFlags &flags = data.window_flags;
 
-    // these are top-level, too
-    if (dialog || popup || desktop || q->testWFlags(Qt::WStyle_Splash))
-        q->setWFlags(Qt::WType_TopLevel);
+    if (type == Qt::ToolTip)
+        flags |= Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint;
+
+    bool popup = (type == Qt::Popup);
+    bool dialog = (type == Qt::Dialog) || (flags & Qt::MSWindowsFixedSizeDialogHint);
+    bool desktop = (type == Qt::Desktop);
+    bool tool = (type == Qt::Tool || type == Qt::SplashScreen || type == Qt::ToolTip);
+
+    bool customize =  (flags & (
+                           Qt::MSWindowsFixedSizeDialogHint
+                           | Qt::X11BypassWindowManagerHint
+                           | Qt::FramelessWindowHint
+                           | Qt::WindowTitleHint
+                           | Qt::WindowSystemMenuHint
+                           | Qt::WindowMinimizeButtonHint
+                           | Qt::WindowMaximizeButtonHint
+                           | Qt::WindowContextHelpButtonHint
+                           ));
 
     // a popup stays on top
     if (popup)
-        q->setWFlags(Qt::WStyle_StaysOnTop);
+        flags |= Qt::WindowStaysOnTopHint;
 
-    bool topLevel = q->testWFlags(Qt::WType_TopLevel);
+    bool topLevel = (flags & Qt::Window);
     Window parentw, destroyw = 0;
     WId           id;
 
@@ -382,14 +396,14 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         xinfo.setX11Data(xd);
     } else if (desktop) {                        // desktop widget
         id = (WId)parentw;                        // id = root window
-        QWidget *otherDesktop = QWidget::find(id);        // is there another desktop?
-        if (otherDesktop && otherDesktop->testWFlags(Qt::WPaintDesktop)) {
-            otherDesktop->d->setWinId(0);        // remove id from widget mapper
-            d->setWinId(id);                     // make sure otherDesktop is
-            otherDesktop->d->setWinId(id);       // found first
-        } else {
+//         QWidget *otherDesktop = find(id);        // is there another desktop?
+//         if (otherDesktop && otherDesktop->testWFlags(Qt::WPaintDesktop)) {
+//             otherDesktop->d->setWinId(0);        // remove id from widget mapper
+//             d->setWinId(id);                     // make sure otherDesktop is
+//             otherDesktop->d->setWinId(id);       // found first
+//         } else {
             d->setWinId(id);
-        }
+//         }
     } else {
         if (xinfo.defaultVisual() && xinfo.defaultColormap()) {
             id = (WId)qt_XCreateSimpleWindow(q, dpy, parentw,
@@ -440,50 +454,44 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     if (topLevel && ! (desktop || popup)) {
         ulong wsa_mask = 0;
 
-        if (q->testWFlags(Qt::WStyle_Splash)) {
-            if (qt_net_supports(ATOM(_NET_WM_WINDOW_TYPE_SPLASH))) {
-                q->clearWFlags(Qt::WX11BypassWM);
-                net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_SPLASH);
-            } else {
-                q->setWFlags(Qt::WX11BypassWM | Qt::WStyle_Tool | Qt::WStyle_NoBorder);
-            }
-        }
-        if (q->testWFlags(Qt::WStyle_Customize)) {
-            mwmhints.decorations = 0L;
-            mwmhints.flags |= MWM_HINTS_DECORATIONS;
-
-            if (q->testWFlags(Qt::WStyle_NoBorder)) {
+        if (customize) {
+            if (flags & Qt::FramelessWindowHint) {
                 // override netwm type - quick and easy for KDE noborder
                 net_wintypes[curr_wintype++] = ATOM(_KDE_NET_WM_WINDOW_TYPE_OVERRIDE);
             } else {
-                if (q->testWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_DialogBorder)) {
-                    mwmhints.decorations |= MWM_DECOR_BORDER;
-                    mwmhints.decorations |= MWM_DECOR_RESIZEH;
-                }
+                mwmhints.decorations |= MWM_DECOR_BORDER;
+                mwmhints.decorations |= MWM_DECOR_RESIZEH;
 
-                if (q->testWFlags(Qt::WStyle_Title))
+                if (flags & Qt::WindowTitleHint)
                     mwmhints.decorations |= MWM_DECOR_TITLE;
 
-                if (q->testWFlags(Qt::WStyle_SysMenu))
+                if (flags & Qt::WindowSystemMenuHint)
                     mwmhints.decorations |= MWM_DECOR_MENU;
 
-                if (q->testWFlags(Qt::WStyle_Minimize))
+                if (flags & Qt::WindowMinimizeButtonHint)
                     mwmhints.decorations |= MWM_DECOR_MINIMIZE;
 
-                if (q->testWFlags(Qt::WStyle_Maximize))
+                if (flags & Qt::WindowMaximizeButtonHint)
                     mwmhints.decorations |= MWM_DECOR_MAXIMIZE;
             }
-
-            if (q->testWFlags(Qt::WStyle_Tool)) {
-                wsa.save_under = True;
-                wsa_mask |= CWSaveUnder;
+        } else if (type == Qt::Dialog) {
+            flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowContextHelpButtonHint;
+        }
+        else if (type == Qt::SplashScreen) {
+            if (qt_net_supports(ATOM(_NET_WM_WINDOW_TYPE_SPLASH))) {
+                flags &= ~Qt::X11BypassWindowManagerHint;
+                net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_SPLASH);
+            } else {
+                flags |= Qt::X11BypassWindowManagerHint | Qt::FramelessWindowHint;
             }
-        } else if (q->testWFlags(Qt::WType_Dialog)) {
-            q->setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu | Qt::WStyle_ContextHelp);
         } else {
-            q->setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_MinMax | Qt::WStyle_SysMenu);
+            flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint;
         }
 
+        if (tool) {
+            wsa.save_under = True;
+            wsa_mask |= CWSaveUnder;
+        }
         // ### need a better way to do this
         if (q->inherits("QMenu")) {
             // menu netwm type
@@ -491,7 +499,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         } else if (q->inherits("QToolBar")) {
             // toolbar netwm type
             net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_TOOLBAR);
-        } else if (q->testWFlags(Qt::WStyle_Customize) && q->testWFlags(Qt::WStyle_Tool)) {
+        } else if (type == Qt::Tool) {
             // utility netwm type
             net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_UTILITY);
         }
@@ -501,17 +509,15 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         // normal netwm type - default
         net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_NORMAL);
 
-        if (q->testWFlags(Qt::WX11BypassWM)) {
+        if (flags & Qt::X11BypassWindowManagerHint) {
             wsa.override_redirect = True;
             wsa_mask |= CWOverrideRedirect;
         }
 
         if (wsa_mask && initializeWindow)
             XChangeWindowAttributes(dpy, id, wsa_mask, &wsa);
-    } else {
-        if (! q->testWFlags(Qt::WStyle_Customize))
-            q->setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title |
-                      Qt::WStyle_MinMax | Qt::WStyle_SysMenu);
+    } else if (!customize) {
+        flags |= Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint;
     }
 
 
@@ -531,7 +537,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         if (p)
             p = p->window();
 
-        if (dialog || q->testWFlags(Qt::WStyle_DialogBorder) || q->testWFlags(Qt::WStyle_Tool)) {
+        if (dialog || tool) {
             if (p) {
                 // transient for window
                 XSetTransientForHint(dpy, id, p->winId());
@@ -570,7 +576,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         protocols[n++] = ATOM(WM_DELETE_WINDOW);        // support del window protocol
         protocols[n++] = ATOM(WM_TAKE_FOCUS);                // support take focus window protocol
         protocols[n++] = ATOM(_NET_WM_PING);                // support _NET_WM_PING protocol
-        if (q->testWFlags(Qt::WStyle_ContextHelp))
+        if (flags & Qt::WindowContextHelpButtonHint)
             protocols[n++] = ATOM(_NET_WM_CONTEXT_HELP);
         XSetWMProtocols(dpy, id, protocols, n);
 
@@ -621,10 +627,10 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 
     // set X11 event mask
     if (desktop) {
-        QWidget* main_desktop = QWidget::find(id);
-        if (main_desktop->testWFlags(Qt::WPaintDesktop))
-            XSelectInput(dpy, id, stdDesktopEventMask | ExposureMask);
-        else
+//         QWidget* main_desktop = find(id);
+//         if (main_desktop->testWFlags(Qt::WPaintDesktop))
+//             XSelectInput(dpy, id, stdDesktopEventMask | ExposureMask);
+//         else
             XSelectInput(dpy, id, stdDesktopEventMask);
     } else {
         XSelectInput(dpy, id, stdWidgetEventMask);
@@ -694,7 +700,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             X11->deferred_map.removeAll(this);
         if (testAttribute(Qt::WA_ShowModal))                // just be sure we leave modal
             qt_leave_modal(this);
-        else if (testWFlags(Qt::WType_Popup))
+        else if ((windowType() == Qt::Popup))
             qApp->closePopup(this);
 
 #ifndef QT_NO_XFT
@@ -707,7 +713,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
         }
 #endif // QT_NO_XFT
 
-        if (testWFlags(Qt::WType_Desktop)) {
+        if ((windowType() == Qt::Desktop)) {
             if (acceptDrops())
                 X11->dndEnable(this, false);
         } else {
@@ -749,7 +755,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
 
     QWidget *oldparent = q->parentWidget();
     WId old_winid = data.winid;
-    if (q->testWFlags(Qt::WType_Desktop))
+    if ((q->windowType() == Qt::Desktop))
         old_winid = 0;
     setWinId(0);
 
@@ -783,10 +789,12 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
             if (!w->isWindow()) {
                 XReparentWindow(X11->display, w->winId(), q->winId(),
                                 w->geometry().x(), w->geometry().y());
-            } else if (w->isPopup()
-                        || w->testWFlags(Qt::WStyle_DialogBorder)
-                        || w->testWFlags(Qt::WType_Dialog)
-                        || w->testWFlags(Qt::WStyle_Tool)) {
+            } else if ((w->windowType() == Qt::Popup)
+                       || (w->windowFlags() & Qt::MSWindowsFixedSizeDialogHint)
+                       || (w->windowType() == Qt::Dialog)
+                       || (w->windowType() == Qt::SplashScreen)
+                       || (w->windowType() == Qt::ToolTip)
+                       || (w->windowType() == Qt::Tool)) {
                 /*
                   when reparenting toplevel windows with toplevel-transient children,
                   we need to make sure that the window manager gets the updated
@@ -1611,11 +1619,8 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
                 if (newstate & Qt::WindowFullScreen) {
                     const QRect normalGeometry = QRect(pos(), size());
 
-                    top->savedFlags = getWFlags();
-                    setParent(0, Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_NoBorder |
-                              // preserve some widget flags
-                              (getWFlags() & 0xffff0000));
-
+                    top->savedFlags = windowFlags();
+                    setParent(0, Qt::Window | Qt::FramelessWindowHint);
                     const QRect r = top->normalGeometry;
                     setGeometry(qApp->desktop()->screenGeometry(this));
                     top->normalGeometry = r;
@@ -1749,7 +1754,8 @@ void QWidgetPrivate::show_sys()
         Atom net_winstates[6] = { 0, 0, 0, 0, 0, 0 };
         int curr_winstate = 0;
 
-        if (q->testWFlags(Qt::WStyle_StaysOnTop)) {
+        Qt::WindowFlags flags = q->windowFlags();
+        if (flags & Qt::WindowStaysOnTopHint) {
             net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_ABOVE);
             net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_STAYS_ON_TOP);
         }
@@ -2055,7 +2061,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 {
     Display *dpy = X11->display;
 
-    if (q->testWFlags(Qt::WType_Desktop))
+    if ((q->windowType() == Qt::Desktop))
         return;
     if (q->isWindow()) {
         if (!qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT))
@@ -2167,7 +2173,7 @@ void QWidget::setMinimumSize(int minw, int minh)
         if (maximized)
             data->window_state = data->window_state | Qt::WindowMaximized;
     }
-    if (testWFlags(Qt::WType_TopLevel))
+    if (isWindow())
         do_size_hints(this, d->extra);
     updateGeometry();
 }
@@ -2206,7 +2212,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
         resize(qMin(maxw,width()), qMin(maxh,height()));
         setAttribute(Qt::WA_Resized, resized); //not a user resize
     }
-    if (testWFlags(Qt::WType_TopLevel))
+    if (isWindow())
         do_size_hints(this, d->extra);
     updateGeometry();
 }
@@ -2224,7 +2230,7 @@ void QWidget::setSizeIncrement(int w, int h)
         return;
     x->incw = w;
     x->inch = h;
-    if (testWFlags(Qt::WType_TopLevel))
+    if (isWindow())
         do_size_hints(this, d->extra);
 }
 
@@ -2242,7 +2248,7 @@ void QWidget::setBaseSize(int basew, int baseh)
         return;
     x->basew = basew;
     x->baseh = baseh;
-    if (testWFlags(Qt::WType_TopLevel))
+    if (isWindow())
         do_size_hints(this, d->extra);
 }
 /*!
@@ -2430,7 +2436,7 @@ void QWidgetPrivate::deleteTLSysExtra()
 void QWidgetPrivate::checkChildrenDnd()
 {
     QWidget *widget = q;
-    while (widget && !widget->isDesktop()) {
+    while (widget && !(widget->windowType() == Qt::Desktop)) {
         // note: this isn't done for the desktop widget
         bool children_use_dnd = false;
         for (int i = 0; i < widget->d->children.size(); ++i) {
@@ -2458,7 +2464,7 @@ void QWidgetPrivate::checkChildrenDnd()
     Setting this property to true announces to the system that this
     widget \e may be able to accept drop events.
 
-    If the widget is the desktop (QWidget::isDesktop()), this may
+    If the widget is the desktop (QWidget::(windowType() == Qt::Desktop)), this may
     fail if another application is using the desktop; you can call
     acceptDrops() to test if this occurs.
 
@@ -2556,7 +2562,7 @@ void QWidget::clearMask()
 
 void QWidgetPrivate::updateFrameStrut() const
 {
-    if (! q->isVisible() || q->isDesktop()) {
+    if (! q->isVisible() || (q->windowType() == Qt::Desktop)) {
         data.fstrut_dirty = (!q->isVisible());
         return;
     }

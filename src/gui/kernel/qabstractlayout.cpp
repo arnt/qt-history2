@@ -788,7 +788,7 @@ int QLayout::margin() const
     QWidget *pw = parentWidget();
     if (pw)
         return pw->style()->pixelMetric(
-            (pw->isWindow() || pw->testWFlags(Qt::WSubWindow))
+            (pw->isWindow() || (pw->windowType() == Qt::SubWindow))
             ? QStyle::PM_DefaultToplevelMargin
             : QStyle::PM_DefaultChildMargin
             );

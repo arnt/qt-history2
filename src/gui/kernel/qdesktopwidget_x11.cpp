@@ -191,7 +191,7 @@ QWidget *QDesktopWidget::screen(int screen)
     }
 
     if (! d->screens[screen] ||               // not created yet
-         ! d->screens[screen]->isDesktop()) { // reparented away
+        ! (d->screens[screen]->windowType() == Qt::Desktop)) { // reparented away
         qt_x11_create_desktop_on_screen = screen;
         d->screens[screen] = new QSingleDesktopWidget;
         qt_x11_create_desktop_on_screen = -1;

@@ -228,7 +228,7 @@ void Q3ScrollViewData::hideOrShowAll(Q3ScrollView* sv, bool isScroll)
         // clipped_viewport still covers viewport
         if(static_bg)
             clipped_viewport->repaint(true);
-        else if ((!isScroll && !clipped_viewport->testWFlags(Qt::WStaticContents)) || static_bg)
+        else if ((!isScroll && !clipped_viewport->testAttribute(Qt::WA_StaticContents)) || static_bg)
             clipped_viewport->update(clipped_viewport->visibleRegion());
     } else {
         // Re-center
@@ -1283,13 +1283,7 @@ void Q3ScrollView::setCornerWidget(QWidget* corner)
     if (oldcorner != corner) {
         if (oldcorner) oldcorner->hide();
         d->corner = corner;
-
-        if (corner && corner->parentWidget() != this) {
-            // #### No clean way to get current WFlags
-            corner->reparent(this, (((Q3ScrollView*)corner))->getWFlags(),
-                              QPoint(0,0), false);
-        }
-
+        corner->setParent(this);
         updateScrollBars();
         if (corner) corner->show();
     }

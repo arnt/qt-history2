@@ -239,10 +239,6 @@ class QWSKeyEvent;
 class QETWidget : public QWidget                 // event translator widget
 {
 public:
-//    void setAttribute(Qt::WState f) { QWidget::setAttribute(f); }
-//    void setAttribute(Qt::WState f, false) { QWidget::setAttribute(f, false); }
-    void setWFlags(Qt::WFlags f) { QWidget::setWFlags(f); }
-    void clearWFlags(Qt::WFlags f) { QWidget::clearWFlags(f); }
     bool translateMouseEvent(const QWSMouseEvent *, int oldstate);
     bool translateKeyEvent(const QWSKeyEvent *, bool grab);
     bool translateRegionModifiedEvent(const QWSRegionModifiedEvent *);
@@ -1362,7 +1358,7 @@ void QWSDisplay::setTransformation(int t)
     for (int i = list.size()-1; i >= 0; --i) {
         QWidget *w = (QWidget*)list[i];
 
-        if (w->testWFlags(Qt::WType_Desktop)) {
+        if ((w->windowType() == Qt::Desktop)) {
             //nothing
         } else if (w->testAttribute(Qt::WA_WState_FullScreen)) {
             w->resize(qt_screen->width(), qt_screen->height());
@@ -2158,7 +2154,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                 qt_pressGrab = w;
                 if (!widget->isActiveWindow() &&
                      (!app_do_modal || QApplication::activeModalWidget() == widget) &&
-                     !widget->testWFlags(Qt::WStyle_NoBorder|Qt::WStyle_Tool)) {
+                    !((widget->windowFlags() & Qt::FramelessWindowHint) || (widget->windowType() == Qt::Tool))) {
                     widget->activateWindow();
                     if (widget->raiseOnClick())
                         widget->raise();
@@ -2757,7 +2753,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
         QPoint dp = qt_screen->mapToDevice(globalPos, s);
         for (int i = 0; i < QApplicationPrivate::popupWidgets->size(); ++i) {
             QWidget *w = QApplicationPrivate::popupWidgets->at(i);
-            if (w->testWFlags(Qt::WType_Popup) && w->data->alloc_region.contains(dp)) {
+            if ((w->windowType() == Qt::Popup) && w->data->alloc_region.contains(dp)) {
                 popup = w;
                 break;
             }
@@ -2833,7 +2829,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
 
         if (popupCloseDownMode) {
             popupCloseDownMode = false;
-            if (testWFlags(Qt::WType_Popup))        // ignore replayed event
+            if ((windowType() == Qt::Popup))        // ignore replayed event
                 return true; //EXIT
         }
 
@@ -2956,7 +2952,7 @@ void QETWidget::repaintDecoration(QRegion r, bool post)
     //therefore, normal ways of painting do not work.
     // However, it does listen to paint events.
 
-    if (testWFlags(Qt::WType_TopLevel) && d->topData()->qwsManager
+    if (isWindow() && d->topData()->qwsManager
         && !d->topData()->decor_allocated_region.isEmpty()) {
         r &= d->topData()->qwsManager->region();
         if (!r.isEmpty()) {
@@ -2975,7 +2971,7 @@ void QETWidget::repaintDecoration(QRegion r, bool post)
 
 void QETWidget::updateRegion()
 {
-    if (testWFlags(Qt::WType_Desktop))
+    if ((windowType() == Qt::Desktop))
        return;
     if (d->extra && !d->extra->mask.isEmpty()) {
        data->req_region = d->extra->mask;
@@ -3026,7 +3022,7 @@ bool QETWidget::translateRegionModifiedEvent(const QWSRegionModifiedEvent *event
         QRegion newRegion = rgnMan->region(data->alloc_region_index);
         QWSDisplay::ungrab();
 #ifndef QT_NO_QWS_MANAGER
-        if (testWFlags(Qt::WType_TopLevel) && d->topData()->qwsManager) {
+        if (isWindow() && d->topData()->qwsManager) {
             if (event->simpleData.nrectangles && qws_regionRequest) {
                 extraExposed = d->topData()->decor_allocated_region;
                 QSize s(qt_screen->deviceWidth(), qt_screen->deviceHeight());

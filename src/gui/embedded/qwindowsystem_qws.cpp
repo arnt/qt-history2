@@ -1250,7 +1250,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
         //checking for virtual keyboards ### could be better
         QWidget *target = winClient == serverClient ?
                           QApplication::widgetAt(pos) : 0;
-        if (kbw != win && (!target || !target->testWFlags(Qt::WStyle_Tool) || target->focusPolicy() != Qt::NoFocus))
+        if (kbw != win && (!target || !(target->windowType() == Qt::Tool) || target->focusPolicy() != Qt::NoFocus))
             resetInputMethod();
     }
 #endif

@@ -90,10 +90,24 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 {
     static int sw = -1, sh = -1;
 
-    bool topLevel = q->testWFlags(Qt::WType_TopLevel);
-    bool popup = q->testWFlags(Qt::WType_Popup);
-    bool dialog = q->testWFlags(Qt::WType_Dialog);
-    bool desktop  = q->testWFlags(Qt::WType_Desktop);
+    Qt::WindowType type = q->windowType();
+    Qt::WindowFlags &flags = data.window_flags;
+
+    bool popup = (type == Qt::Popup);
+    bool dialog = (type == Qt::Dialog) || (flags & Qt::MSWindowsFixedSizeDialogHint);
+    bool desktop = (type == Qt::Desktop);
+    bool tool = (type == Qt::Tool || type == Qt::SplashScreen || type == Qt::ToolTip);
+
+    bool customize =  (flags & (
+                           Qt::MSWindowsFixedSizeDialogHint
+                           | Qt::X11BypassWindowManagerHint
+                           | Qt::FramelessWindowHint
+                           | Qt::WindowTitleHint
+                           | Qt::WindowSystemMenuHint
+                           | Qt::WindowMinimizeButtonHint
+                           | Qt::WindowMaximizeButtonHint
+                           | Qt::WindowContextHelpButtonHint
+                           ));
     HINSTANCE appinst  = qWinAppInst();
     HWND   parentw, destroyw = 0;
     WId           id;
@@ -156,7 +170,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             }
         } else {
             style = WS_OVERLAPPED;
-            if (q->testWFlags(Qt::WType_Dialog))
+            if ((q->windowType() == Qt::Dialog))
 #ifndef Q_OS_TEMP
                 q->setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu | Qt::WStyle_ContextHelp);
             else
@@ -197,7 +211,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                 style |= WS_MINIMIZEBOX;
             if (q->testWFlags(Qt::WStyle_Maximize))
                 style |= WS_MAXIMIZEBOX;
-            if (q->testWFlags(Qt::WStyle_Tool) | q->testWFlags(Qt::WType_Popup))
+            if ((q->windowType() == Qt::Tool) | (q->windowType() == Qt::Popup))
                 exsty |= WS_EX_TOOLWINDOW;
             if (q->testWFlags(Qt::WStyle_ContextHelp))
                 exsty |= WS_EX_CONTEXTHELP;
@@ -377,9 +391,9 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             releaseKeyboard();
         if (testAttribute(Qt::WA_ShowModal))                // just be sure we leave modal
             qt_leave_modal(this);
-        else if (testWFlags(Qt::WType_Popup))
+        else if ((windowType() == Qt::Popup))
             qApp->closePopup(this);
-        if (destroyWindow && !testWFlags(Qt::WType_Desktop)) {
+        if (destroyWindow && !(windowType() == Qt::Desktop)) {
             DestroyWindow(winId());
         }
         d->setWinId(0);
@@ -393,7 +407,7 @@ void QWidgetPrivate::reparentChildren()
         QObject *obj = chlist.at(i);
         if (obj->isWidgetType()) {
             QWidget *w = (QWidget *)obj;
-            if (w->isPopup()) {
+            if ((w->windowType() == Qt::Popup)) {
                 ;
             } else if (w->isWindow()) {
                 bool showIt = !w->isExplicitlyHidden();
@@ -423,7 +437,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     bool accept_drops = q->acceptDrops();
     if (accept_drops)
         q->setAcceptDrops(false); // ole dnd unregister (we will register again below)
-    if (q->testWFlags(Qt::WType_Desktop))
+    if ((q->windowType() == Qt::Desktop))
         old_winid = 0;
     setWinId(0);
 
@@ -1165,7 +1179,7 @@ void QWidgetPrivate::show_sys()
         else if (q->isMinimized())
             sm = SW_SHOWMAXIMIZED;
     }
-    if (q->testWFlags(Qt::WStyle_Tool) || q->isPopup())
+    if ((q->windowType() == Qt::Tool) || (q->windowType() == Qt::Popup))
         sm = SW_SHOWNOACTIVATE;
 
     ShowWindow(q->winId(), sm);
@@ -1210,7 +1224,7 @@ void QWidget::show_sys()
         d->topData()->showMode = 0; // reset
     }
 
-    if (testWFlags(Qt::WStyle_Tool) || isPopup())
+    if ((windowType() == Qt::Tool) || (windowType() == Qt::Popup))
         sm = SW_SHOWNOACTIVATE;
 
     ShowWindow(winId(), sm);
@@ -1323,13 +1337,13 @@ void QWidget::showNormal()
 
 void QWidgetPrivate::raise_sys()
 {
-    uint f = (q->isPopup() || q->testWFlags(Qt::WStyle_Tool)) ? SWP_NOACTIVATE : 0;
+    uint f = ((q->windowType() == Qt::Popup) || (q->windowType() == Qt::Tool)) ? SWP_NOACTIVATE : 0;
     SetWindowPos(q->winId(), HWND_TOP, 0, 0, 0, 0, f | SWP_NOMOVE | SWP_NOSIZE);
 }
 
 void QWidgetPrivate::lower_sys()
 {
-    uint f = (q->isPopup() || q->testWFlags(Qt::WStyle_Tool)) ? SWP_NOACTIVATE : 0;
+    uint f = ((q->windowType() == Qt::Popup) || (q->windowType() == Qt::Tool)) ? SWP_NOACTIVATE : 0;
     SetWindowPos(q->winId(), HWND_BOTTOM, 0, 0, 0, 0, f | SWP_NOMOVE |
                   SWP_NOSIZE);
 }
@@ -1776,7 +1790,7 @@ void QWidget::clearMask()
 
 void QWidgetPrivate::updateFrameStrut() const
 {
-    if (!q->isVisible() || q->isDesktop()) {
+    if (!q->isVisible() || (q->windowType() == Qt::Desktop)) {
         q->data->fstrut_dirty = q->isVisible();
         return;
     }

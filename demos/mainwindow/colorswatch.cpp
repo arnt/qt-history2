@@ -140,7 +140,7 @@ void ColorSwatch::polishEvent(QEvent *)
     const Qt::DockWindowAreas areas = allowedAreas();
 
     closableAction->setChecked(features() & QDockWindow::DockWindowClosable);
-    if (testWFlags(Qt::WMacDrawer)) {
+    if (windowType() == Qt::Drawer) {
         floatableAction->setEnabled(false);
         topLevelAction->setEnabled(false);
         movableAction->setEnabled(false);
