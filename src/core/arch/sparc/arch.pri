@@ -1,5 +1,5 @@
 #
-# sparc (V7) arch files
+# SPARC arch files
 #
 
 ARCH_CPP=$$QT_SOURCE_TREE/src/core/arch/sparc
@@ -9,6 +9,6 @@ DEPENDPATH += $$ARCH_CPP;$$ARCH_H
 
 HEADERS += $$ARCH_H/qatomic.h
 
-*-64:SOURCES += $$ARCH_CPP/qatomic64.S
-else:SOURCES += $$ARCH_CPP/qatomic.S
+*-64:SOURCES += $$ARCH_CPP/qatomic64.s
+else:SOURCES += $$ARCH_CPP/qatomic32.s
 
