@@ -41,7 +41,7 @@ View::View(QWidget *parent)
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
     connect(this, SIGNAL(activated(const QModelIndex&)),
-            this, SLOT(open(const QModelIndex&)));
+            this, SLOT(expand(const QModelIndex&)));
 
     connect(m_model, SIGNAL(propertyChanged(IProperty*)),
             this, SIGNAL(propertyChanged(IProperty*)));
