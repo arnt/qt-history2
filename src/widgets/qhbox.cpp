@@ -128,7 +128,8 @@ QSize QHBox::sizeHint() const
 }
 
 /*!
-    Sets the stretch factor of widget \a w to \a stretch.
+    Sets the stretch factor of widget \a w to \a stretch. Returns TRUE if
+    \a w is found. Otherwise returns FALSE.
 
     \sa QBoxLayout::setStretchFactor() \link layout.html Layouts\endlink
 */
