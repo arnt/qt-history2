@@ -145,6 +145,7 @@ private:
             menuOption.checkState = QStyleOptionMenuItem::Checked;
         else
             menuOption.checkState = QStyleOptionMenuItem::Unchecked;
+        menuOption.exclusive = false;
         menuOption.menuItemType = QStyleOptionMenuItem::Normal;
         menuOption.icon = model->data(index, QAbstractItemModel::DecorationRole).toIconSet();
         menuOption.text = model->data(index, QAbstractItemModel::DisplayRole).toString();
