@@ -3465,7 +3465,7 @@ QString &QString::insertHelper( uint index, const char *s, uint len )
     if ( s ) {
 #ifndef QT_NO_TEXTCODEC
 	if ( QTextCodec::codecForCStrings() )
-	    return insert( index, fromAscii( s ) );
+	    return insert( index, fromAscii( s, len ) );
 #endif
 	if ( len == UINT_MAX )
 	    len = strlen( s );
@@ -4926,7 +4926,7 @@ QString &QString::operatorPlusEqHelper( const char *s, uint len2 )
     if ( s ) {
 #ifndef QT_NO_TEXTCODEC
 	if ( QTextCodec::codecForCStrings() )
-	    return operator+=( fromAscii( s ) );
+	    return operator+=( fromAscii( s, len2 ) );
 #endif
 
 	uint len1 = length();
