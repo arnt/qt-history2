@@ -471,7 +471,8 @@ void QPainterSubpath::removeBrokenSegments()
     painter path.
 
     If the current subpath is closed, a new subpath is started. The ellipse
-    is clockwise starting and starting zero degrees.
+    is drawn as a clockwise curve, starting and finishing at zero degrees
+    (the 3 o'clock position).
 */
 
 /*!
@@ -821,7 +822,8 @@ void QPainterPath::addPolygon(const QPolygonF &polygon)
     \a boundingRect and adds it to the painter path.
 
     If the current subpath is closed, a new subpath is started. The ellipse
-    is clockwise starting and starting zero degrees.
+    is drawn as a clockwise curve, starting and finishing at zero degrees
+    (the 3 o'clock position).
 */
 void QPainterPath::addEllipse(const QRectF &boundingRect)
 {
