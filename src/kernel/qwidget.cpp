@@ -3656,12 +3656,15 @@ void QWidget::show()
     if ( !isTopLevel() && !parentWidget()->isVisible() ) {
 	// we should become visible, but one of our ancestors is
 	// explicitly hidden. Since we cleared the ForceHide flag, our
-	// immediate parent will call show() on us again during his
+	// immediate parent will call show() on us again during its
 	// own processing of show().
 	if ( wasHidden ) {
 	    QEvent showToParentEvent( QEvent::ShowToParent );
 	    QApplication::sendEvent( this, &showToParentEvent );
 	}
+	if ( postLayoutHint )
+	    QApplication::postEvent( parentWidget(),
+				     new QEvent(QEvent::LayoutHint) );
 	return;
     }
 
@@ -3738,7 +3741,7 @@ void QWidget::show()
 
     if ( postLayoutHint )
 	QApplication::postEvent( parentWidget(),
-				 new QEvent( QEvent::LayoutHint) );
+				 new QEvent(QEvent::LayoutHint) );
 
     // Required for Mac, not sure whether we should always do that
     if( isTopLevel() )
