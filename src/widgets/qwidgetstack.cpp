@@ -128,8 +128,13 @@ QWidgetStack::~QWidgetStack()
   at 0. If you pass any other negative integer a unique negative
   integer (<= -2) will be generated. No widget has an id of -1.
 
+  The aboutToShow(int) signal is only emitted for widgets with id >=
+  0. The aboutToShow(QWidget *) signal is emitted for any widget.
+
   If \a w is not a child of \c this, QWidgetStack moves it using
   reparent().
+
+  \sa aboutToShow()
 */
 
 int QWidgetStack::addWidget( QWidget * w, int id )
@@ -299,7 +304,7 @@ void QWidgetStack::raiseWidget( QWidget * w )
     if ( isVisible() ) {
 	emit aboutToShow( w );
 	int i = id( w );
-	if ( i >= 0 )
+	if ( i != -1 )
 	    emit aboutToShow( i );
     }
 
@@ -415,7 +420,7 @@ int QWidgetStack::id( QWidget * widget ) const
 }
 
 
-/*! Returns a pointer to the currently visible widget (the one on the
+/*! Returns a pointer to the currently visible widget (the one at the
   top of the stack), or 0 if nothing is currently being shown.
 
   \sa aboutToShow() id() raiseWidget()
@@ -430,7 +435,7 @@ QWidget * QWidgetStack::visibleWidget() const
 /*! \fn void QWidgetStack::aboutToShow( int )
 
   This signal is emitted just before a managed widget is shown if
-  that managed widget has a non-zero id. The argument is the numeric
+  that managed widget has an id != -1. The argument is the numeric
   id of the widget.
 */
 

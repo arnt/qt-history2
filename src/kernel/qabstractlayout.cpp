@@ -76,22 +76,26 @@
 */
 
 /*! \fn const QSize &QWidgetItem::widgetSizeHint() const
+
   Implemented in subclasses to return a reference to the preferred
   size of this item.
 */
 
 /*! \fn QLayoutItem::QLayoutItem( int alignment )
+
   Constructs a layout item with an \a alignment
-  that is a bitwise OR of Qt::AlignmentFlags.
-  Alignment may not be supported by some subclasses.
+  that is a bitwise OR of the \l{Qt::AlignmentFlags}.
+  Not all subclasses support alignment.
 */
 
 /*! \fn int QLayoutItem::alignment() const
+
   Returns the alignment of this item.
 */
 
 /*! Sets the alignment of this item to \a a,
-  which is a bitwise OR of Qt::AlignmentFlags.
+  which is a bitwise OR of the \l{Qt::AlignmentFlags}.
+  Not all subclasses support alignment.
 */
 void QLayoutItem::setAlignment( int a )
 {
@@ -99,22 +103,27 @@ void QLayoutItem::setAlignment( int a )
 }
 
 /*! \fn QSize QLayoutItem::maximumSize() const
+
   Implemented in subclasses to return the maximum size of this item.
 */
 
 /*! \fn QSize QLayoutItem::minimumSize() const
+
   Implemented in subclasses to return the minimum size of this item.
 */
 
 /*! \fn QSize QLayoutItem::sizeHint() const
+
   Implemented in subclasses to return the preferred size of this item.
 */
 
 /*! \fn QSizePolicy::ExpandData QLayoutItem::expanding() const
+
   Implemented in subclasses to return whether this item "wants" to expand.
 */
 
 /*! \fn void QLayoutItem::setGeometry( const QRect &r )
+
   Implemented in subclasses to set this item's geometry to \a r.
 */
 
@@ -125,12 +134,14 @@ void QLayoutItem::setAlignment( int a )
 */
 
 /*! \fn virtual bool QLayoutItem::isEmpty() const
+
   Implemented in subclasses to return whether this item is empty,
   i.e. whether it contains any widgets.
 */
 
 /*! \fn QSpacerItem::QSpacerItem( int w, int h, QSizePolicy::SizeType hData,
 				  QSizePolicy::SizeType vData )
+
   Constructs a spacer item with preferred width \a w, preferred height
   \a h, horizontal size policy \a hData and vertical size policy
   \a vData.
@@ -223,7 +234,8 @@ QWidget * QWidgetItem::widget()
 
 /*!
   Returns TRUE if this layout's preferred height depends on its
-  width. The default implementation returns FALSE.
+  width; otherwise returns FALSE. The default implementation returns
+  FALSE.
 
   Reimplement this function in layout managers that support
   height for width.
@@ -426,7 +438,7 @@ int QWidgetItem::heightForWidth( int w ) const
 }
 
 /*!
-  Returns whether this spacer item is expanding.
+  Returns TRUE if this spacer item is expanding; otherwise returns FALSE.
 */
 QSizePolicy::ExpandData QSpacerItem::expanding() const
 {
@@ -434,7 +446,7 @@ QSizePolicy::ExpandData QSpacerItem::expanding() const
 }
 
 /*!
-  Returns whether this item's widget is expanding.
+  Returns TRUE if this item's widget is expanding; otherwise returns FALSE.
 */
 QSizePolicy::ExpandData QWidgetItem::expanding() const
 {
@@ -1249,7 +1261,7 @@ possible (e.g. the horizontal direction of a slider).
 widget can make use of extra space, so it should get as much space as
 possible (e.g. the horizontal direction of a slider).
 
-\value Ignored the sizeHint() is ignored. The widget will get as much 
+\value Ignored the sizeHint() is ignored. The widget will get as much
 space as possible.
 
 In any case, QLayout never shrinks a widget below the
@@ -1354,11 +1366,11 @@ Returns the vertical stretch factor of the size policy.
 */
 
 /*! \fn void QSizePolicy::setHorStretch( uchar sf )
-Sets the horizontal stretch factor of the size policy to \a sf. 
+Sets the horizontal stretch factor of the size policy to \a sf.
 */
 
 /*! \fn void QSizePolicy::setVerStretch( uchar sf )
-Sets the vertical stretch factor of the size policy to \a sf. 
+Sets the vertical stretch factor of the size policy to \a sf.
 */
 
 
