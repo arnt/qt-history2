@@ -391,6 +391,12 @@ void QStatusBar::clear()
     hideOrShow();
 }
 
+/*!
+    \fn QStatusBar::messageChanged( const QString &message )
+
+    This signal is emitted when the temporary status messages
+    changes.
+*/
 
 /*!
   Ensures that the right widgets are visible.  Used by message()
@@ -410,6 +416,7 @@ void QStatusBar::hideOrShow()
 	item = d->items.next();
     }
 
+    emit messageChanged( d->tempItem );
     repaint();
 }
 

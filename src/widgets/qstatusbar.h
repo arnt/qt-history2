@@ -68,6 +68,9 @@ public slots:
     void message( const QString &, int );
     void clear();
 
+signals:
+    void messageChanged( const QString &text );
+
 protected:
     void paintEvent( QPaintEvent * );
     void resizeEvent( QResizeEvent * );
