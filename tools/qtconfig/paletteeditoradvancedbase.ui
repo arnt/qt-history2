@@ -37,9 +37,6 @@
     <property name="caption">
         <string>Tune Palette</string>
     </property>
-    <property name="icon">
-        <pixmap>logo.png</pixmap>
-    </property>
     <property name="sizeGripEnabled">
         <bool>true</bool>
     </property>
@@ -669,5 +666,4 @@
     <tabstop>comboEffect</tabstop>
     <tabstop>buttonEffect</tabstop>
 </tabstops>
-<pixmapinproject/>
 </UI>
