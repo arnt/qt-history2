@@ -3181,12 +3181,14 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 	if ( !parag->isValid() )
 	    parag->format();
 
-	if ( !parag->rect().intersects( QRect( cx, cy, cw, ch ) ) &&
-	     !QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) ) {
+	if ( !parag->rect().intersects( QRect( cx, cy, cw, ch ) ) ) {
 	    QRect pr( parag->rect() );
 	    pr.setWidth( parag->document()->width() );
 	    if ( pr.intersects( QRect( cx, cy, cw, ch ) ) )
-		p->fillRect( pr.intersect( QRect( cx, cy, cw, ch ) ), cg.brush( QColorGroup::Base ) );
+		if ( !QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) )
+		    p->fillRect( pr.intersect( QRect( cx, cy, cw, ch ) ), cg.brush( QColorGroup::Base ) );
+		else
+		    drawParag( p, parag, cx, cy, cw, ch, doubleBuffer, cg, drawCursor, cursor, resetChanged );
 	    if ( parag->rect().y() > cy + ch ) {
 		tmpCursor = 0;
 		goto floating;
@@ -3195,8 +3197,7 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 	    continue;
 	}
 
-	if ( !parag->hasChanged() && onlyChanged &&
-	     !QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) ) {
+	if ( !parag->hasChanged() && onlyChanged ) {
 	    parag = parag->next();
 	    continue;
 	}
