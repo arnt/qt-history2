@@ -51,8 +51,8 @@
 #define MSVCNET_BUTTON 0
 #define MSVC_BUTTON    2
 #define BORLAND_BUTTON 3
-#define MINGW_BUTTON   4
-#define OTHER_BUTTON   5
+#define MINGW_BUTTON   5
+#define OTHER_BUTTON   4
 
 static const char* const logo_data[] = {
 "32 32 238 2",
@@ -668,6 +668,8 @@ void SetupWizardImpl::sysOtherComboChanged( int )
 #ifndef Q_OS_MACX
     if (optionsPage->sysOtherCombo->currentText() == "win32-g++" )
 	clickedSystem(MINGW_BUTTON);
+    else
+	clickedSystem(OTHER_BUTTON);
 #endif
 }
 
@@ -688,7 +690,10 @@ void SetupWizardImpl::clickedSystem( int sys )
 	    globalInformation.setSysId( GlobalInformation::MinGW );
 	    break;
 	case OTHER_BUTTON:
-	    globalInformation.setSysId( GlobalInformation::Other );
+	    if (optionsPage->sysOtherCombo->currentText() == "win32-g++" )
+		globalInformation.setSysId( GlobalInformation::MinGW );
+	    else
+                globalInformation.setSysId( GlobalInformation::Other );
 	    break;
 	default:
 	    break;
