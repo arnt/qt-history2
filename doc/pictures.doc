@@ -55,10 +55,10 @@ you see a <a href="qstatusbar.html">QStatusBar</a> and at the
 right/bottom edge a <a href="qsizegrip.html">QSizeGrip</a>
 <p><img src=mainwindow-w.png >&nbsp;Windows<br>
 
-Here you see a <a href="qfiledialog.html">QFileDialog</a>. On 
+Here you see a <a href="qfiledialog.html">QFileDialog</a>. On
 the Windows Platform you can either use the QFileDialog or the native
-Windows Filedialog. For more information on that see the 
-<a href="qfiledialog.html">QFileDialog</a> class documentation. 
+Windows Filedialog. For more information on that see the
+<a href="qfiledialog.html">QFileDialog</a> class documentation.
 <p><img src=qfiledlg-w.png >&nbsp;Windows<br>
 
 This is a <a href="qprintdialog.html">QPrintDialog</a>. On Windows
@@ -85,7 +85,7 @@ widget too.
 In the screenshot below you see a <a href="qgroupbox.html">QGroupBox</a>
 which contains a <a href="qlineedit.html">QLineEdit</a>, a read-only
 <a href="qcombobox.html">QComboBox</a> and a
-writeable <a href="qcombobox.html">QComboBox</a>.
+editable <a href="qcombobox.html">QComboBox</a>.
 <p><img src=groupbox-w.png >&nbsp;Windows<br>
 
 This screenshot shows a <a href="qpopupmenu.html">QPopupMenu</a>.
