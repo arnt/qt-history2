@@ -747,10 +747,10 @@ void QOpenGLPaintEngine::drawTextureRect(int tx_width, int tx_height, const QRec
 
     glBegin(GL_QUADS);
     {
-        double x1 = sr.x() / (double) tx_width;
-        double x2 = x1 + sr.width() / (double) tx_width;
-        double y1 = sr.y() / (double) tx_height;
-        double y2 = y1 + sr.height() / (double) tx_height;
+        float x1 = sr.x() / (float) tx_width;
+        float x2 = x1 + sr.width() / (float) tx_width;
+        float y1 = sr.y() / (float) tx_height;
+        float y2 = y1 + sr.height() / (float) tx_height;
         glTexCoord2f(x1, y2); glVertex2f(r.x(), r.y());
         glTexCoord2f(x2, y2); glVertex2f(r.x()+r.width(), r.y());
         glTexCoord2f(x2, y1); glVertex2f(r.x()+r.width(), r.y()+r.height());
