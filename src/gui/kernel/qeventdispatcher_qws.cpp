@@ -36,6 +36,7 @@ class QEventDispatcherQWSPrivate : public QEventDispatcherUNIXPrivate
 public:
     inline QEventDispatcherQWSPrivate()
     { }
+    QList<QWSEvent*> queuedUserInputEvents;
 };
 
 
@@ -55,19 +56,32 @@ extern QWSDisplay* qt_fbdpy; // QWS `display'
 
 bool QEventDispatcherQWS::processEvents(QEventLoop::ProcessEventsFlags flags)
 {
+    Q_D(QEventDispatcherQWS);
     // process events from the QWS server
     int           nevents = 0;
 
     // handle gui and posted events
     QApplication::sendPostedEvents();
 
-    while (qt_fbdpy->eventPending()) {        // also flushes output buffer
-#ifdef ZERO_FOR_THE_MOMENT
-        if (d->shortcut) {
-            return false;
+    while (!d->interrupt) {        // also flushes output buffer ###can be optimized
+        QWSEvent *event;
+        if (!(flags & QEventLoop::ExcludeUserInputEvents)
+            && !d->queuedUserInputEvents.isEmpty()) {
+            // process a pending user input event
+            event = d->queuedUserInputEvents.takeFirst();
+        } else if  (qt_fbdpy->eventPending()) {
+            event = qt_fbdpy->getEvent();        // get next event
+             if (flags & QEventLoop::ExcludeUserInputEvents) {
+                 // queue user input events
+                 if (event->type == QWSEvent::Mouse || event->type == QWSEvent::Key) {
+                      d->queuedUserInputEvents.append(event);
+                        continue;
+                 }
+             }
+        } else {
+            break;
         }
-#endif
-        QWSEvent *event = qt_fbdpy->getEvent();        // get next event
+
         if (filterEvent(event))
             continue;
         nevents++;
@@ -79,18 +93,16 @@ bool QEventDispatcherQWS::processEvents(QEventLoop::ProcessEventsFlags flags)
         }
     }
 
-#ifdef ZERO_FOR_THE_MOMENT
-    if (d->shortcut) {
-        return false;
-    }
-#endif
-    extern QList<QWSCommand*> *qt_get_server_queue();
-    if (!qt_get_server_queue()->isEmpty()) {
-        QWSServer::processEventQueue();
-    }
+    if (!d->interrupt) {
+        extern QList<QWSCommand*> *qt_get_server_queue();
+        if (!qt_get_server_queue()->isEmpty()) {
+            QWSServer::processEventQueue();
+        }
 
-    if (QEventDispatcherUNIX::processEvents(flags))
-        return true;
+        if (QEventDispatcherUNIX::processEvents(flags))
+            return true;
+    }
+    d->interrupt = false;
     return (nevents > 0);
 }
 
