@@ -380,14 +380,12 @@ static bool block_set_alignment = FALSE;
 */
 
 /*!  \fn QTextDocument *QTextEdit::document() const
-    \preliminary
 
   This function returns the QTextDocument which is used by the text
   edit.
 */
 
 /*!  \fn void QTextEdit::setDocument( QTextDocument *doc )
-    \preliminary
 
   This function sets the QTextDocument which should be used by the text
   edit to \a doc. This can be used, for example, if you want to
@@ -543,7 +541,6 @@ static bool block_set_alignment = FALSE;
 */
 
 /*! \fn QTextCursor *QTextEdit::textCursor() const
-    \preliminary
 
   Returns the text edit's text cursor. QTextCursor is not in the
   public API, but in special circumstances you might wish to use it.

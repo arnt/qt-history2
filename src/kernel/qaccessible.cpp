@@ -255,8 +255,6 @@
   \class QAccessibleInterface qaccessible.h
   \ingroup misc
   \brief The QAccessibleInterface class is an interface that exposes information about accessible objects.
-
-  \preliminary
 */
 
 /*!
@@ -505,7 +503,6 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
   \class QAccessibleObject qaccessible.h
   \ingroup misc
   \brief The QAccessibleObject class implements parts of the QAccessibleInterface for QObjects.
-  \preliminary
 
   This class is mainly provided for convenience. All further implementations
   of the QAccessibleInterface should use this class as the base class.

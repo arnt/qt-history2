@@ -37,8 +37,6 @@
 
 \title The Qt Component Model
 
-\preliminary
-
 Qt's Object Model provides very powerful extensions to the C++ Object
 Model and makes it natural to write components that are highly 
 encapsulated and easily reused. 

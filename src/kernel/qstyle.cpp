@@ -55,7 +55,6 @@ public:
 /*!
   \class QStyleOption qstyle.h
   \brief The QStyleOption class specifies optional parameters for QStyle functions.
-  \preliminary
   \ingroup appearance
 
   Some QStyle functions take an optional argument specifying extra
@@ -225,7 +224,6 @@ public:
 /*!
   \class QStyle qstyle.h
   \brief The QStyle class specifies the look and feel of a GUI.
-  \preliminary
   \ingroup appearance
 
     A large number of GUI elements are common to many widgets. The
