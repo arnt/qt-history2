@@ -15,6 +15,25 @@
 #define QALGORITHMS_H
 
 #include "QtCore/qglobal.h"
+#include "QtCore/qvector.h"
+
+/*
+    Warning: The contents of QAlgorithmsPrivate is not a part of the public Qt API
+    and may be changed from version to version or even be completely removed.
+*/
+namespace QAlgorithmsPrivate {
+
+template <typename BiIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE void qSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan);
+template <typename BiIterator, typename T>
+inline void qSortHelper(BiIterator begin, BiIterator end, const T &dummy);
+
+template <typename BiIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE void qStableSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan);
+template <typename BiIterator, typename T>
+inline void qStableSortHelper(BiIterator begin, BiIterator end, const T &dummy);
+
+}
 
 template <typename InputIterator, typename OutputIterator>
 inline OutputIterator qCopy(InputIterator begin, InputIterator end, OutputIterator dest)
@@ -92,63 +111,16 @@ public:
     }
 };
 
-template <typename BiIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan)
-{
-    --end;
-     if(end - start < 1)
-        return;
-
-     BiIterator pivot = start + (end - start) / 2;
-
-     T pivot_val = *pivot;
-     *pivot = *end;
-     *end = pivot_val;
-
-     BiIterator low = start, high = end-1;
-
-     while(low < high ) {
-        while(low < high && lessThan(*low, pivot_val))
-            ++low;
-
-        while(high > low && lessThan(pivot_val, *high))
-            --high;
-
-        if(low < high) {
-            T tmp = *low;
-            *low = *high;
-            *high = tmp;
-            ++low;
-            --high;
-        }
-     }
-
-     if(lessThan(*low, pivot_val))
-        ++low;
-
-     *end = *low;
-     *low = pivot_val;
-
-     qSortHelper(start, low, t, lessThan);
-     qSortHelper(low+1, end+1, t, lessThan);
-}
-
-template <typename BiIterator, typename T>
-inline void qSortHelper(BiIterator begin, BiIterator end, const T &dummy)
-{
-    qSortHelper(begin, end, dummy, qLess<T>());
-}
-
 template <typename BiIterator>
 inline void qSort(BiIterator start, BiIterator end)
 {
-    qSortHelper(start, end, *start);
+    QAlgorithmsPrivate::qSortHelper(start, end, *start);
 }
 
 template <typename BiIterator, typename LessThan>
 inline void qSort(BiIterator start, BiIterator end, LessThan lessThan)
 {
-    qSortHelper(start, end, *start, lessThan);
+    QAlgorithmsPrivate::qSortHelper(start, end, *start, lessThan);
 }
 
 template<typename Container>
@@ -158,17 +130,29 @@ inline void qSort(Container &c)
     // Work around Borland 5.5 optimizer bug
     c.detach();
 #endif
-    qSortHelper(c.begin(), c.end(), *c.begin());
+    QAlgorithmsPrivate::qSortHelper(c.begin(), c.end(), *c.begin());
 }
 
-template<typename Container, typename LessThan>
-inline void qSort(Container &c, LessThan lessThan)
+template <typename BiIterator>
+inline void qStableSort(BiIterator start, BiIterator end)
+{
+    QAlgorithmsPrivate::qStableSortHelper(start, end, *start);
+}
+
+template <typename BiIterator, typename LessThan>
+inline void qStableSort(BiIterator start, BiIterator end, LessThan lessThan)
+{
+    QAlgorithmsPrivate::qStableSortHelper(start, end, *start, lessThan);
+}
+
+template<typename Container>
+inline void qStableSort(Container &c)
 {
 #ifdef Q_CC_BOR
     // Work around Borland 5.5 optimizer bug
     c.detach();
 #endif
-    qSortHelper(c.begin(), c.end(), *c.begin(), lessThan);
+    QAlgorithmsPrivate::qStableSortHelper(c.begin(), c.end(), *c.begin());
 }
 
 template <typename RandomAccessIterator, typename T>
@@ -247,5 +231,118 @@ inline void qDeleteAll(const Container &c)
 {
     qDeleteAll(c.begin(), c.end());
 }
+
+/*
+    Warning: The contents of QAlgorithmsPrivate is not a part of the public Qt API
+    and may be changed from version to version or even be completely removed.
+*/
+namespace QAlgorithmsPrivate {
+
+template <typename BiIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE void qSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan)
+{
+    --end;
+     if(end - start < 1)
+        return;
+
+     BiIterator pivot = start + (end - start) / 2;
+
+     T pivot_val = *pivot;
+     *pivot = *end;
+     *end = pivot_val;
+
+     BiIterator low = start, high = end-1;
+
+     while(low < high ) {
+        while(low < high && lessThan(*low, pivot_val))
+            ++low;
+
+        while(high > low && lessThan(pivot_val, *high))
+            --high;
+
+        if(low < high) {
+            T tmp = *low;
+            *low = *high;
+            *high = tmp;
+            ++low;
+            --high;
+        }
+     }
+
+     if(lessThan(*low, pivot_val))
+        ++low;
+
+     *end = *low;
+     *low = pivot_val;
+
+     qSortHelper(start, low, t, lessThan);
+     qSortHelper(low+1, end+1, t, lessThan);
+}
+
+template <typename BiIterator, typename T>
+inline void qSortHelper(BiIterator begin, BiIterator end, const T &dummy)
+{
+    qSortHelper(begin, end, dummy, qLess<T>());
+}
+
+
+template <typename BiIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE void qStableSortHelper(BiIterator start, BiIterator end, LessThan lessThan, T *buf)
+{
+    if(end - start < 2)
+       return;
+
+    BiIterator middle = start + (end - start) / 2;
+    qStableSortHelper(start, middle, lessThan, buf);
+    qStableSortHelper(middle, end, lessThan, buf);
+
+    BiIterator pos = start;
+    T *bufPos = buf;
+    while(pos != (end)) {
+        *bufPos++ = *pos++;
+    };
+
+    T* bufEnd = bufPos;
+    T* bufMiddle = buf  + (bufEnd - buf) /2;
+    T* b1 = buf;
+    T* b2 = bufMiddle;
+
+    pos = start;
+    while(b1 < bufMiddle && b2 < bufEnd) {
+        if(lessThan(*b2, *b1))
+            *pos++ = *b2++;
+        else
+            *pos++ = *b1++;
+    }
+
+    while(b1 < bufMiddle )
+        *pos++ = *b1++;
+    while(b2 < bufEnd)
+        *pos++ = *b2++;
+}
+
+
+template <typename BiIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE void qStableSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan)
+{
+    Q_UNUSED(t);
+    if(end - start < 2)
+       return;
+
+    int size = end - start;
+    T *buf = (T*)malloc(size * sizeof(T));
+    qStableSortHelper(start, end, lessThan, buf);
+    free(buf);
+}
+
+
+template <typename BiIterator, typename T>
+inline void qStableSortHelper(BiIterator begin, BiIterator end, const T &dummy)
+{
+    qStableSortHelper(begin, end, dummy, qLess<T>());
+}
+
+} //namespace QAlgorithmsPrivate
+
 
 #endif // QALGORITHMS_H
