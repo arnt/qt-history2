@@ -5643,8 +5643,8 @@ void QFileDialog::insertEntry( const QValueList<QUrlInfo> &lst, QNetworkOperatio
 #if defined(Q_WS_WIN)
  	if ( !bShowHiddenFiles ) {
 	    if ( d->url.isLocalFile() ) {
-#if defined(UNICODE)
 		QString file = d->url.path() + inf.name();
+#if defined(UNICODE)
 		if ( qWinVersion() & Qt::WV_NT_based ) {
 		    if ( GetFileAttributesW( (TCHAR*)qt_winTchar( file, TRUE ) ) & FILE_ATTRIBUTE_HIDDEN )
 			continue;
