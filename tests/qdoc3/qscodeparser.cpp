@@ -385,7 +385,7 @@ void QsCodeParser::applyReplacementList( QString& source, const Doc& doc )
 	    QString after = replaceRegExp.cap( 2 );
 
 	    if ( before.isValid() ) {
-		uint oldLen = source.length();
+		int oldLen = source.length();
 		source.replace( before, after );
 
 		// this condition is sufficient but not necessary

@@ -301,7 +301,7 @@ QValueList<ClassSection> CppCodeMarker::classSections( const ClassNode *classe,
 	append( sections, privateSlots );
 	append( sections, staticPrivateMembers );
 	append( sections, relatedNonMemberFunctions );
-    } else {
+    } else if (style == Detailed) {
 	FastClassSection memberFunctions( classe,
 		"Member Function Documentation" );
 	FastClassSection memberTypes( classe, "Member Type Documentation" );
@@ -325,6 +325,29 @@ QValueList<ClassSection> CppCodeMarker::classSections( const ClassNode *classe,
 	append( sections, properties );
 	append( sections, memberFunctions );
 	append( sections, relatedNonMemberFunctions );
+    } else {
+	FastClassSection all( classe );
+
+	QValueStack<const ClassNode *> stack;
+	stack.push( classe );
+
+	while ( !stack.isEmpty() ) {
+	    const ClassNode *ancestorClass = stack.pop();
+
+	    NodeList::ConstIterator c = ancestorClass->childNodes().begin();
+	    while ( c != ancestorClass->childNodes().end() ) {
+		if ( (*c)->access() == Node::Public )
+		    insert( all, *c, style );
+		++c;
+	    }
+
+	    QValueList<RelatedClass>::ConstIterator r = ancestorClass->baseClasses().begin();
+	    while ( r != ancestorClass->baseClasses().end() ) {
+		stack.prepend( (*r).node );
+		++r;
+	    }
+	}
+	append( sections, all );
     }
     return sections;
 }

@@ -5,6 +5,7 @@
 #include <qapplication.h>
 #include <qdict.h>
 #include <qdir.h>
+#include <qtranslator.h>
 
 #include "ccodeparser.h"
 #include "codemarker.h"
@@ -68,8 +69,7 @@ static void printVersion()
 
 static void processQdocFile( const QString& fileName )
 {
-    QPtrList<QTranslator> translators;
-    translators.setAutoDelete( TRUE );
+    QList<QTranslator *> translators;
 
     Config config( tr("qdoc") );
 
@@ -162,6 +162,9 @@ static void processQdocFile( const QString& fileName )
     Tokenizer::terminate();
     Location::terminate();
     QDir::setCurrent( prevCurrentDir );
+
+    Q_FOREACH (QTranslator *translator, translators)
+	delete translator;
 }
 
 int main( int argc, char **argv )

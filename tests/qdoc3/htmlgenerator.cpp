@@ -348,8 +348,7 @@ void HtmlGenerator::generateNamespaceNode( const NamespaceNode *namespasse,
     generateFooter( namespasse );
 }
 
-void HtmlGenerator::generateClassNode( const ClassNode *classe,
-				       CodeMarker *marker )
+void HtmlGenerator::generateClassNode(const ClassNode *classe, CodeMarker *marker)
 {
     QValueList<ClassSection> sections;
     QValueList<ClassSection>::ConstIterator s;
@@ -367,9 +366,7 @@ void HtmlGenerator::generateClassNode( const ClassNode *classe,
     }
 
     if ( !classe->includes().isEmpty() ) {
-	out() << "<pre>"
-	      << highlightedCode( marker->markedUpIncludes(classe->includes()),
-				  classe )
+	out() << "<pre>" << highlightedCode(marker->markedUpIncludes(classe->includes()), classe)
 	      << "</pre>";
     }
 
@@ -563,21 +560,24 @@ void HtmlGenerator::generateNavigationBar( const NavigationBar& bar,
 QString HtmlGenerator::generateListOfAllMemberFile( const ClassNode *classe,
 						    CodeMarker *marker )
 {
-    QString fileName = fileBase( classe ) + "-members." +
-		       fileExtension( classe );
-    beginSubPage( classe->location(), fileName );
-    generateHeader( "List of All Members for " + classe->name() );
-    out() << "<p>This is the complete list of members for ";
-    generateFullName( classe, 0, marker );
-    out() << ", including inherited members.</p>\n";
+    QValueList<ClassSection> sections = marker->classSections( classe, CodeMarker::SeparateList );
+    if (sections.size() == 1) {
+        QString fileName = fileBase( classe ) + "-members." + fileExtension( classe );
+        beginSubPage( classe->location(), fileName );
+        generateHeader( "List of All Members for " + classe->name() );
+        out() << "<p>This is the complete list of members for ";
+        generateFullName( classe, 0, marker );
+        out() << ", including inherited members.</p>\n";
 
-    ClassSection section =
-	    marker->classSections( classe, CodeMarker::SeparateList ).first();
-    generateClassSectionList( section, 0, marker, CodeMarker::SeparateList );
+        ClassSection section = sections.first();
+        generateClassSectionList( section, 0, marker, CodeMarker::SeparateList );
 
-    generateFooter();
-    endSubPage();
-    return fileName;
+        generateFooter();
+        endSubPage();
+        return fileName;
+    } else {
+	return "";
+    }
 }
 
 void HtmlGenerator::generateSynopsis( const Node *node,

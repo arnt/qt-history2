@@ -1,5 +1,6 @@
 TEMPLATE = app
 DEFINES += QDOC2_COMPAT
+QCONFIG += compat
 HEADERS += archiveextractor.h \
 	   atom.h \
 	   bookgenerator.h \

@@ -126,7 +126,17 @@ public:
 	: granularity( Doc::Part ) { }
 };
 
-class DocPrivate : public QShared
+struct Shared
+{
+    Shared()
+	: count(1) { }
+    void ref() { ++count; }
+    bool deref() { return (--count == 0); }
+
+    int count;
+};
+
+class DocPrivate : public Shared
 {
 public:
     DocPrivate( const Location& location = Location::null,
@@ -296,7 +306,6 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
     QString link;
     QString x;
     int begin;
-    int end;
     int indent;
 
     while ( pos < len ) {
@@ -612,7 +621,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    leavePara();
 		    begin = pos;
 		    x = getUntilEnd( command );
-		    x = untabifyEtc( in.mid(begin, end - begin) );
+		    x = untabifyEtc( x );
 #if 0
 		    append( Atom::RawFormat, "html" ); // ###
 		    append( Atom::RawString, x );
@@ -1668,7 +1677,8 @@ const Location& Doc::location() const
 
 const QString& Doc::source() const
 {
-    return priv == 0 ? QString::null : priv->src;
+    static QString null;
+    return priv == 0 ? null : priv->src;
 }
 
 bool Doc::isEmpty() const
@@ -1689,8 +1699,9 @@ Text Doc::briefText() const
 
 const QString& Doc::baseName() const
 {
+    static QString null;
     if ( priv == 0 || priv->extra == 0 ) {
-	return QString::null;
+	return null;
     } else {
 	return priv->extra->baseName;
     }

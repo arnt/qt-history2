@@ -8,6 +8,7 @@
 #include <qmap.h>
 #include <qregexp.h>
 #include <qstring.h>
+#include <qvaluelist.h>
 
 #include "text.h"
 

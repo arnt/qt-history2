@@ -5,6 +5,7 @@
 #ifndef CODEMARKER_H
 #define CODEMARKER_H
 
+#include <qpair.h>
 #include <qregexp.h>
 
 #include "node.h"

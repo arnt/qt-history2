@@ -418,7 +418,7 @@ int Config::numParams( const QString& value )
     int max = 0;
     for ( int i = 0; i < (int) value.length(); i++ ) {
 	if ( value[i].unicode() > 0 && value[i].unicode() < 8 )
-	    max = QMAX( max, value[i].unicode() );
+	    max = QMAX( max, (int)value[i].unicode() );
     }
     return max;
 }
@@ -426,22 +426,19 @@ int Config::numParams( const QString& value )
 bool Config::removeDirContents( const QString& dir )
 {
     QDir dirInfo( dir );
-    const QFileInfoList *entries = dirInfo.entryInfoList();
-    if ( entries == 0 )
-	return FALSE;
+    QFileInfoList entries = dirInfo.entryInfoList();
 
-    QFileInfoListIterator it( *entries );
-    QFileInfo *entry;
     bool ok = TRUE;
 
-    while ( (entry = it.current()) != 0 ) {
-	if ( entry->isFile() ) {
-	    if ( !dirInfo.remove(entry->fileName()) )
+    QFileInfoList::Iterator it = entries.begin();
+    while ( it != entries.end() ) {
+	if ( (*it).isFile() ) {
+	    if ( !dirInfo.remove((*it).fileName()) )
 		ok = FALSE;
-	} else if ( entry->isDir() ) {
-	    if ( entry->fileName() != "." && entry->fileName() != ".." ) {
-		if ( removeDirContents(entry->absFilePath()) ) {
-		    if ( !dirInfo.rmdir(entry->fileName()) )
+	} else if ( (*it).isDir() ) {
+	    if ( (*it).fileName() != "." && (*it).fileName() != ".." ) {
+		if ( removeDirContents((*it).absFilePath()) ) {
+		    if ( !dirInfo.rmdir((*it).fileName()) )
 			ok = FALSE;
 		} else {
 		    ok = FALSE;

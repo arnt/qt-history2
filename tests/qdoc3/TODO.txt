@@ -1,0 +1,5 @@
+  * make it work for C++
+  * optimize qdoc
+  * implement \table
+  * implement qbook
+  * implement ASCII-art inheritance tree
