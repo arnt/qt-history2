@@ -643,7 +643,12 @@ suitable widget.
 
 We provide basic editing features with a spin box, checking only that
 we are allowed to provide an editor. If the editor is not the expected
-spin box, we cancel the editor process.
+spin box, we cancel the editor process. We install the delegate's default
+event filter on the editor to ensure that it provides the standard editing
+shortcuts that users expect. Additional shortcuts can be added to the
+editor to allow more sophisticated behavior; these are discussed in the
+section on \l{#EditingHints}{Editing Hints}.
+
 The view ensures that we set up the editor's data and geometry
 correctly by calling functions that we define later for this purpose.
 We can create different editors depending on say, the model index, for
@@ -723,31 +728,38 @@ view option in the item rectangle. A delegate that renders items with
 several elements would not use the item rectangle directly. It would
 position the editor in relation to the other elements in the item.
 
-\section2 Other issues
-
-The behavior of the editor in our delegate needs to be adjusted to
-make it more user friendly. In the implementation so far, if the user
-hits \key Return to confirm their choice in the spin box, the editor
-remains open where we would otherwise expect it to commit the value to
-the model and close. We can change this behavior by installing an
-event filter on the spin box, but \l QItemDelegate provides one that
-implements the most common editing shortcuts.
-
-Another approach that does not require the use of an event
-filter is to provide our own editor widget, perhaps subclassing
-QSpinBox for convenience. This alternative approach would give us
-more control over how the editor widget behaves.
+\target EditingHints
+\section2 Editing Hints
 
 After editing, delegates should provide hints to the other components
 about the result of the editing process, and provide hints that will
 assist any subsequent editing operations. This is achieved by
 providing a suitable hint with the
-\l{QAbstractItemDelegate::closeEditor()}{closeEditor()} signal.
+\l{QAbstractItemDelegate::closeEditor()}{closeEditor()} signal, and
+this is taken care of by the default QItemDelegate event filter which
+we installed on the spin box when it was constructed.
 
+The behavior of the spin box could be adjusted to make it more user
+friendly. In the default event filter supplied by QItemDelegate, if
+the user hits \key Return to confirm their choice in the spin box,
+the delegate commits the value to the model and closes the spin box.
+We can change this behavior by installing our own event filter on the
+spin box, and provide editing hints that suit our needs; for example,
+we might emit closeEditor() with the
+\l{QAbstractItemDelegate::EndEditHint}{EditNextItem} hint to
+automatically start editing the next item in the view.
+
+Another approach that does not require the use of an event
+filter is to provide our own editor widget, perhaps subclassing
+QSpinBox for convenience. This alternative approach would give us
+more control over how the editor widget behaves at the cost of
+writing additional code. It is usually easier to install an event
+filter in the delegate if you need to customize the behavior of
+standard Qt editor widgets.
 
 Delegates do not have to emit these hints, but those that do not will
-be less integrated into applications, and will be less usable than those
-that emit reasonable hints to support common editing actions.
+be less integrated into applications, and will be less usable than
+those that emit hints to support common editing actions.
 
 \section2 Comments
 
@@ -1236,10 +1248,10 @@ items.
     the number of rows given. 
     We ignore the parent index to simplify our implementation, and just
     remove the corresponding items from the string list.
-    The \l{QAbstractItemModel::rowsRemoved()}{rowsRemoved()} signal is
-    always emitted before the rows are removed, specifying the first and
-    last rows to be removed. This is to allow other components to access the
-    data before it is removed.
+    The \l{QAbstractItemModel::rowsAboutToBeRemoved()}{rowsAboutToBeRemoved()}
+    signal is always emitted before the rows are removed, specifying the first
+    and last rows to be removed. This is to allow other components to access
+    the data before it is removed.
 
     \section1 Next Steps
 
