@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#174 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#175 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -43,7 +43,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#174 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#175 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -722,8 +722,8 @@ static Window findClientWindow( Window win, Atom WM_STATE, bool leaf )
   Returns a pointer to the widget at global screen position \e (x,y), or a
   null pointer if there is no Qt widget there.
 
-  Returns a child widget if \e child is TRUE or a top level widget if
-  \e child is FALSE.
+  If \e child is FALSE and there is a child widget at position \e (x,y),
+  the top-level widget containing it will be returned.
 
   \sa QCursor::pos(), QWidget::grabMouse(), QWidget::grabKeyboard()
 */
