@@ -96,22 +96,12 @@ public:
 	return !priv->object();
     }
 
-    T* operator->()
+    T* operator->() const
     {
 	return (T*) priv->object();
     }
 
-    const T* operator->() const
-    {
-	return (T*) priv->object();
-    }
-
-    T& operator*()
-    {
-	return *( (T*)priv->object() );
-    }
-
-    const T& operator*() const
+    T& operator*() const
     {
 	return *( (T*)priv->object() );
     }
