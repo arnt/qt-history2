@@ -14,14 +14,31 @@ extern const unsigned char * p_str(const char * c);
 
 class QFontInternal {
 public:
+    inline QFontInternal::QFontInternal( const QFontDef& d ) :   s(d) { }
+    inline const QFontDef *spec()  const { return &s; }
+    int ascent() const { return info.ascent+2; /*2?? fixme!*/ }
+    int descent() const { return info.descent; /*2?? fixme!*/ }
+    int minLeftBearing() const { return 0; }
+    int minRightBearing() const { return 0; }
+    int leading() const { return info.leading; }
+    int maxWidth() const { return info.widMax; }
+
     static short currentFnum;
     static int currentFsize;
-    FontInfo info;;
     short fnum;
     int psize;
+    FontInfo info;
+    QFontDef s;
+
 };
 short QFontInternal::currentFnum = 0;
 int QFontInternal::currentFsize = 0;
+
+#include <qdict.h>
+typedef QDict<QFontInternal>	      QFontDict;
+typedef QDictIterator<QFontInternal>  QFontDictIt;
+static QFontDict     *fontDict	     = 0;	// dict of all loaded fonts
+						// default character set:
 
 int QFontMetrics::lineSpacing() const
 {
@@ -38,17 +55,17 @@ int QFontMetrics::lineWidth() const
 
 int QFontMetrics::leading() const
 {
-    return FI->info.leading;
+    return FI->leading();
 }
 
 int QFontMetrics::ascent() const
 {
-    return FI->info.ascent+2; //2?? fixme!
+    return FI->ascent();
 }
 
 int QFontMetrics::descent() const
 {
-    return FI->info.descent; //2?? fixme!
+    return FI->descent();
 }
 
 int char_widths[256];
@@ -64,6 +81,16 @@ int QFontMetrics::width(QChar c) const
     TextFont(QFontInternal::currentFnum);
     TextSize(QFontInternal::currentFsize);
     return char_width;
+}
+
+const QFontDef *QFontMetrics::spec() const
+{
+    if ( painter ) {
+	painter->cfont.handle();
+	return painter->cfont.d->fin->spec();
+    } else {
+	return d->fin->spec();
+    }
 }
 
 int QFontMetrics::width(const QString &s,int len) const
@@ -86,7 +113,7 @@ int QFontMetrics::width(const QString &s,int len) const
 
 int QFontMetrics::maxWidth() const
 {
-    return FI->info.widMax;
+    return FI->maxWidth();
 }
 
 int QFontMetrics::height() const
@@ -96,12 +123,12 @@ int QFontMetrics::height() const
 
 int QFontMetrics::minRightBearing() const
 {
-    return 0;
+    return FI->minRightBearing();
 }
 
 int QFontMetrics::minLeftBearing() const
 {
-    return 0;
+    return FI->minLeftBearing();
 }
 
 int QFontMetrics::leftBearing(QChar ch) const
@@ -127,11 +154,14 @@ int QFontMetrics::underlinePos() const
 
 QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 {
-    return QRect( 0,-(ascent()),width(str,len)+2,height());
+    return QRect( 0,-(ascent()),width(str,len)+5,height()+5);
 }
 
 void QFont::cleanup()
 {
+    if ( fontDict )
+	fontDict->setAutoDelete( TRUE );
+    delete fontDict;
 }
 
 Qt::HANDLE QFont::handle() const
@@ -163,7 +193,15 @@ void QFont::macSetFont(QPaintDevice *v)
 void QFont::load() const
 {
     d->req.dirty=FALSE;
-    d->fin=new QFontInternal;
+
+    QString k = key();
+    QFontInternal* fin = fontDict->find(k);
+    if ( !fin ) {
+	fin = new QFontInternal(d->req);
+	fontDict->insert(k,fin);
+    }
+    d->fin=fin;
+
     d->fin->psize=pointSize();
     ((QFont *)this)->macSetFont(NULL);
     GetFontInfo(&d->fin->info);
@@ -210,17 +248,8 @@ int qFontGetWeight( const QCString &weightString, bool adjustScore )
 
 void QFont::initialize()
 {
-#if 0
-    if ( fontCache )
-	return;
-    fontCache = new QFontCache( fontCacheSize, 29 );
-    Q_CHECK_PTR( fontCache );
     fontDict  = new QFontDict( 29 );
     Q_CHECK_PTR( fontDict );
-    fontNameDict = new QFontNameDict( 29 );
-    Q_CHECK_PTR( fontNameDict );
-    fontNameDict->setAutoDelete( TRUE );
-#endif
 }
 
 void QFont::setPixelSizeFloat( float pixelSize )
@@ -237,7 +266,12 @@ int QFont::pixelSize() const
 
 const QFontDef *QFontInfo::spec() const
 {
-    return 0;
+    if ( painter ) {
+	painter->cfont.handle();
+	return painter->cfont.d->fin->spec();
+    } else {
+	return fin->spec();
+    }
 }
 
 QUtf8Codec * quc=0;
