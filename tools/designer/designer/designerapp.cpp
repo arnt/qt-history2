@@ -107,6 +107,23 @@ void DesignerApplication::closeSplash()
     splash->hide();
 }
 
+static QString *settings_key = 0;
+
+QString DesignerApplication::settingsKey()
+{
+    if ( !settings_key )
+	settings_key = new QString( "/Qt Designer/3.1/" );
+    return *settings_key;
+}
+
+void DesignerApplication::setSettingsKey( const QString &key )
+{
+    if ( !settings_key )
+	settings_key = new QString( key );
+    else
+	*settings_key = key;
+}
+
 #if defined(Q_WS_WIN)
 bool DesignerApplication::winEventFilter( MSG *msg )
 {
