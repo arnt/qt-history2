@@ -689,10 +689,15 @@ bool QProcess::start( QStringList *env )
 		if ( !command.contains( '/' ) ) {
 		    QStringList pathList = QStringList::split( ':', getenv( "PATH" ) );
 		    for (QStringList::Iterator it = pathList.begin(); it != pathList.end(); ++it ) {
+			QString dir = *it;
+#ifdef Q_OS_MACX
+			if(QFile::exists(dir + "/" + command + ".app")) //look in a bundle
+			    dir += "/" + command + ".app/Contents/MacOS";
+#endif
 #ifndef QT_NO_DIR
-			QFileInfo fileInfo( *it, command );
+			QFileInfo fileInfo( dir, command );
 #else
-			QFileInfo fileInfo( *it + "/" + command );
+			QFileInfo fileInfo( dir + "/" + command );
 #endif
 			if ( fileInfo.isExecutable() ) {
 			    arglistQ[0] = fileInfo.filePath().local8Bit();
