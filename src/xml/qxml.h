@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#17 $
+** $Id: //depot/qt/main/src/xml/qxml.h#18 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -152,17 +152,20 @@ class QM_EXPORT QXmlInputSource
 {
 public:
     QXmlInputSource();
-    QXmlInputSource( QTextStream& stream );
-    QXmlInputSource( QFile& file );
+    QXmlInputSource( QIODevice *dev );
+    QXmlInputSource( QFile& file ); // obsolete
+    QXmlInputSource( QTextStream& stream ); // obsolete
     virtual ~QXmlInputSource();
 
-    virtual const QString& data() const;
+    virtual QString data() const;
+    virtual QString data( const QString& encoding ) const;
     virtual void setData( const QString& d );
 
 private:
-    void readInput( QByteArray& rawData );
+    void init();
 
-    QString input;
+    QString *stringData;
+    QByteArray *rawData;
 
     QXmlInputSourcePrivate *d;
 };
@@ -254,17 +257,19 @@ public:
 
 private:
     // variables
-    QXmlContentHandler* contentHnd;
-    QXmlErrorHandler*   errorHnd;
-    QXmlDTDHandler*     dtdHnd;
-    QXmlEntityResolver* entityRes;
-    QXmlLexicalHandler* lexicalHnd;
-    QXmlDeclHandler*    declHnd;
+    QXmlContentHandler *contentHnd;
+    QXmlErrorHandler   *errorHnd;
+    QXmlDTDHandler     *dtdHnd;
+    QXmlEntityResolver *entityRes;
+    QXmlLexicalHandler *lexicalHnd;
+    QXmlDeclHandler    *declHnd;
+
+    const QXmlInputSource *inputSource;
 
     QChar c; // the character at reading position
-    int lineNr; // number of line
-    int columnNr; // position in line
-    int pos; // position in string
+    int   lineNr; // number of line
+    int   columnNr; // position in line
+    int   pos; // position in string
 
     int     namePos;
     QChar   nameArray[256]; // only used for names
