@@ -172,6 +172,9 @@ void QMakeSourceFileInfo::setDependencyPaths(const QList<QMakeLocalFileName> &l)
 QStringList QMakeSourceFileInfo::dependencies(const QString &file)
 {
     QStringList ret;
+    if(!files)
+        return ret;
+
     if(SourceFile *node = files->lookupFile(file)) {
         if(node->deps) {
             /* I stick them into a SourceDependChildren here because it is faster to just
@@ -194,7 +197,7 @@ QStringList QMakeSourceFileInfo::dependencies(const QString &file)
 int
 QMakeSourceFileInfo::included(const QString &file)
 {
-    if (files == 0)
+    if (!files)
         return 0;
 
     if(SourceFile *node = files->lookupFile(file))
