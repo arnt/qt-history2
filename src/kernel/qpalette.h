@@ -195,7 +195,5 @@ Q_EXPORT QDataStream &operator<<(QDataStream &ds, const QPalette &p);
 Q_EXPORT QDataStream &operator>>(QDataStream &ds, QPalette &p);
 #endif // QT_NO_DATASTREAM
 
-#undef QT_NO_COMPAT
-
 #endif // QT_NO_PALETTE
 #endif // QPALETTE_H
