@@ -62,8 +62,15 @@ void HelpWindow::setSource( const QString &name )
 	mw->saveSettings();
 	mw->saveToolbarSettings();
 	MainWindow *nmw = new MainWindow;
+
+	QFileInfo currentInfo( source() );
+	QFileInfo linkInfo( name );
+	QString target = name;
+	if( linkInfo.isRelative() )
+	    target = currentInfo.dirPath( TRUE ) + "/" + name;
+
 	nmw->setup();
-	nmw->showLink( name );
+	nmw->showLink( target );
 	nmw->move( mw->geometry().topLeft() );
 	if ( mw->isMaximized() )
 	    nmw->showMaximized();
@@ -186,7 +193,7 @@ QPopupMenu *HelpWindow::createPopupMenu( const QPoint& pos )
     QPopupMenu *m = new QPopupMenu( this );
     lastAnchor = anchorAt( pos );
     if ( !lastAnchor.isEmpty() ) {
-	if ( lastAnchor.find( '#' )>=0 ) {
+	if ( lastAnchor.at( 0 ) == '#' ) {
 	    QString src = source();
 	    int hsh = src.find( '#' );
 	    lastAnchor = ( hsh>=0 ? src.left( hsh ) : src ) + lastAnchor;
