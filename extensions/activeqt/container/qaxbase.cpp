@@ -1468,13 +1468,22 @@ private:
             prop.first = replaceType(type);
         prop.second |= flags;
         QVariant::Type vartype = QVariant::nameToType(prop.first);
-        if (vartype != QVariant::Invalid) {
+        switch(vartype) {
+        case QVariant::Invalid:
+            if (prop.first == "QVariant") {
+                prop.second |= 0xff << 24;
+                break;
+            }
+            // fall through
+        case QVariant::UserType:
+            if (prop.first.endsWith('*')) {
+                qRegisterMetaType(prop.first, (void**)0);
+                // prop.second |= QVariant::UserType << 24;
+            }
+            break;
+        default:
             prop.second |= vartype << 24;
-        } else if (prop.first == "QVariant") {
-            prop.second |= 0xff << 24;
-        } else if (prop.first.endsWith('*')) {
-            qRegisterMetaType(prop.first, (void**)0);
-            prop.second |= QVariant::UserType << 24;
+            break;
         }
     }
 
