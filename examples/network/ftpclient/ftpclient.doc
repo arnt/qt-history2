@@ -8,9 +8,8 @@ $Id: $
 
   \title An FTP client
  
-  This is a more advanced example that implements a FTP client. It uses the
-  QFtp class of Qt indirectly through the QUrlOperator class to do all FTP
-  commands.
+  This example implements a FTP client. It uses QUrlOperator (which in
+  turn uses QFtp) to perform its FTP commands.
 
   <hr>
  

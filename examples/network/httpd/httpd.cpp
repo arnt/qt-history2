@@ -118,7 +118,7 @@ private slots:
     }
     void endConnect()
     {
-	infoText->append( "Connection closed" );
+	infoText->append( "Connection closed\n\n" );
     }
     void wroteToClient()
     {
