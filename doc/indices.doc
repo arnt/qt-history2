@@ -697,3 +697,12 @@ These classes are relevant to Qt/Embedded users.
 These classes are relevant to text processing. (See the XML classes
 for XML.)
 */
+
+
+/*! \defgroup mainclasses
+
+\title Qt's Main Classes
+
+These are the most often used and most important Qt classes.
+
+*/

@@ -203,7 +203,7 @@ void QUrlInfo::setDir( bool b )
 }
 
 
-/*
+/*!
 If \a b is TRUE then the URL is set to be a file; if \b is FALSE
 then the URL is set not to be a file (which normally means it is
 a directory). (Note that a URL can refer both a file and a directory even
