@@ -20,6 +20,7 @@
 #include <qapplication.h>
 #include <qmessagebox.h>
 #include <qmenubar.h>
+#include <qpopupmenu.h>
 
 SoundPlayer::SoundPlayer() :
     QMainWindow(),
@@ -45,10 +46,10 @@ SoundPlayer::SoundPlayer() :
     }
 
     QPopupMenu *file = new QPopupMenu;
-    file->insertItem("Play &1",  this, SLOT(doPlay1()), CTRL+Key_1);
-    file->insertItem("Play &2",  this, SLOT(doPlay2()), CTRL+Key_2);
-    file->insertItem("Play from bucket &3",  this, SLOT(doPlay3()), CTRL+Key_3);
-    file->insertItem("Play from bucket &4",  this, SLOT(doPlay4()), CTRL+Key_4);
+    file->insertItem("Play &1",  this, SLOT(doPlay1()), Qt::CTRL+Qt::Key_1);
+    file->insertItem("Play &2",  this, SLOT(doPlay2()), Qt::CTRL+Qt::Key_2);
+    file->insertItem("Play from bucket &3",  this, SLOT(doPlay3()), Qt::CTRL+Qt::Key_3);
+    file->insertItem("Play from bucket &4",  this, SLOT(doPlay4()), Qt::CTRL+Qt::Key_4);
     file->insertSeparator();
     file->insertItem("Play 3 and 4 together",  this, SLOT(doPlay34()));
     file->insertItem("Play all together",  this, SLOT(doPlay1234()));
