@@ -94,6 +94,9 @@
   in your class (which must, of course, inherit QObject).  The
   disadvantage is that timerEvent() does not support such high-level
   features as single-shot timers or signals.
+
+  Some operating systems limit the number of timers that may be used;
+  Qt tries to work around these limitations.
 */
 
 
