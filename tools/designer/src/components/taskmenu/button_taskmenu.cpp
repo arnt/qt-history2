@@ -99,7 +99,7 @@ QObject *ButtonTaskMenuFactory::createExtension(QObject *object, const QString &
 
 void ButtonTaskMenu::updateText(const QString &text)
 {
-    m_formWindow->cursor()->setProperty(QLatin1String("text"), QVariant(text));
+    m_formWindow->cursor()->setWidgetProperty(m_button, QLatin1String("text"), QVariant(text));
 }
 
 void ButtonTaskMenu::updateSelection()
