@@ -29,7 +29,6 @@ QPixmap *QDecorationDefault::staticNormalizePixmap = 0;
 #ifndef QT_NO_IMAGEIO_XPM
 
 /* XPM */
-
 static int menu_width = 20;
 static const char * const default_menu_xpm[] = {
 /* width height ncolors chars_per_pixel */
@@ -312,19 +311,9 @@ QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegio
 #endif
 }
 
-int QDecorationDefault::getTitleWidth(const QWidget *widget)
-{
-    return widget->width() - 4 * getTitleHeight(widget) - 4;
-}
-
-int QDecorationDefault::getTitleHeight(const QWidget *)
-{
-    return 20;
-}
-
 QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, int decorationRegion)
 {
-    int titleHeight = getTitleHeight(widget);
+    int titleHeight = 20;
     int bw = BORDER_WIDTH;
     int bbw = BOTTOM_BORDER_WIDTH;
 

@@ -19,7 +19,6 @@
 #ifndef QT_NO_QWS_MANAGER
 #if !defined(QT_NO_QWS_DECORATION_DEFAULT) || defined(QT_PLUGIN)
 
-
 #define CORNER_GRAB 16
 #define BORDER_WIDTH  4
 #define BOTTOM_BORDER_WIDTH BORDER_WIDTH
@@ -39,10 +38,6 @@ protected:
                              DecorationState state, const QPalette &pal);
     virtual QPixmap pixmapFor(const QWidget *widget, int decorationRegion, int &xoff, int &yoff);
 
-    /* Added these virtual functions to enable other styles to be added more easily */
-    virtual int getTitleWidth(const QWidget *widget);
-    virtual int getTitleHeight(const QWidget *widget);
-
     virtual const char **helpPixmap();
     virtual const char **menuPixmap();
     virtual const char **closePixmap();
@@ -51,7 +46,6 @@ protected:
     virtual const char **normalizePixmap();
 
 private:
-
     static QPixmap *staticHelpPixmap;
     static QPixmap *staticMenuPixmap;
     static QPixmap *staticClosePixmap;
