@@ -1655,7 +1655,7 @@ QList<int> QFontDatabase::pointSizes(const QString &family,
     returned.
 */
 QFont QFontDatabase::font(const QString &family, const QString &style,
-                           int pointSize)
+                           int pointSize) const
 {
     QString familyName,  foundryName;
     parseFontName(family, foundryName, familyName);

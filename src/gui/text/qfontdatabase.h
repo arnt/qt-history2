@@ -46,7 +46,7 @@ public:
     QList<int> smoothSizes(const QString &, const QString &);
     QString styleString(const QFont &);
 
-    QFont font(const QString &, const QString &, int);
+    QFont font(const QString &, const QString &, int) const;
 
     bool isBitmapScalable(const QString &, const QString & = QString::null) const;
     bool isSmoothlyScalable(const QString &, const QString & = QString::null) const;
