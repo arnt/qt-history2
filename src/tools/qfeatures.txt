@@ -204,7 +204,7 @@ SeeAlso: ???
 
 Feature: COMPONENT
 Section: File I/O
-Requires: QUUID_STRING SETTINGS LIBRARY
+Requires: QUUID_STRING SETTINGS SPRINTF LIBRARY
 Name: Dynamic module linking
 SeeAlso: ???
 
@@ -222,7 +222,7 @@ SeeAlso: ???
 
 Feature: IMAGEIO
 Section: Images
-Requires:
+Requires: REGEXP
 Name: Image formats
 SeeAlso: ???
 
@@ -308,6 +308,12 @@ Feature: TRANSLATION
 Section: Internationalization
 Requires: DATASTREAM
 Name: Translations via QObject::tr()
+SeeAlso: ???
+
+Feature: TRANSLATION_UTF8
+Section: Internationalization
+Requires: TRANSLATION TEXTCODEC
+Name: Translations via QObject::trUtf8()
 SeeAlso: ???
 
 Feature: TEXTCODEC
@@ -493,7 +499,7 @@ SeeAlso: ???
 
 Feature: QWS_TRANSFORMED
 Section: Qt/Embedded-specific
-Requires:
+Requires: QWS_LINUXFB
 Name: Transformed frame buffer
 SeeAlso: ???
 
@@ -745,7 +751,7 @@ SeeAlso: ???
 
 Feature: PRINTER
 Section: Painting
-Requires: TEXTSTREAM STRINGLIST SPRINTF DATESTRING
+Requires: TEXTSTREAM SPRINTF FONTDATABASE DATESTRING
 Name: Printing
 SeeAlso: ???
 
@@ -985,7 +991,7 @@ SeeAlso: ???
 
 Feature: TEXTEDIT
 Section: Widgets
-Requires: RICHTEXT SCROLLVIEW
+Requires: RICHTEXT SCROLLVIEW DATASTREAM
 Name: Rich text edit
 SeeAlso: ???
 
@@ -1243,7 +1249,7 @@ SeeAlso: ???
 
 Feature: DATETIMEEDIT
 Section: Widgets
-Requires: RICHTEXT DATESTRING
+Requires: RICHTEXT SPINWIDGET DATESTRING
 Name: QDateTimeEdit
 SeeAlso: ???
 
@@ -1263,7 +1269,7 @@ SeeAlso: ???
 
 Feature: WIDGETPLUGIN
 Section: Widgets
-Requires: COMPONENT
+Requires: COMPONENT ICONSET
 Name: QWidgetPlugin
 SeeAlso: ???
 
