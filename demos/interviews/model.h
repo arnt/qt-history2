@@ -1,0 +1,46 @@
+#ifndef MODEL_H
+#define MODEL_H
+
+#include <qabstractitemmodel.h>
+#include <qvector.h>
+
+class Model : public QAbstractItemModel
+{
+    Q_OBJECT
+
+public:
+    Model(int rows, int columns, QObject *parent = 0);
+    ~Model();
+
+    QModelIndex index(int row, int column, const QModelIndex &parent, QModelIndex::Type type) const;
+    QModelIndex parent(const QModelIndex &child) const;
+
+    int rowCount(const QModelIndex &parent) const;
+    int columnCount(const QModelIndex &parent) const;
+
+    QVariant data(const QModelIndex &index, int role) const;
+
+    bool hasChildren(const QModelIndex &parent) const;
+    bool isDragEnabled(const QModelIndex &index) const;
+
+private:
+    
+    struct Node
+    {
+	Node(Node *parent = 0) : parent(parent), children(0) {}
+	~Node() { delete children; }
+	Node *parent;
+	QVector<Node> *children;
+    };
+
+    Node *node(int row, Node *parent) const;
+    Node *parent(Node *child) const;
+    int row(Node *node) const;
+    
+    int rc, cc;
+    QVector<Node> *tree;
+    
+    mutable QChar strbuf[65];
+};
+
+#endif
