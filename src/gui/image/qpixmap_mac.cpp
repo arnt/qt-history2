@@ -431,15 +431,8 @@ void QPixmap::fill(const QColor &fillColor)
 
 void QPixmap::detach()
 {
-    if ( data->count == 1 ) {
-        data->uninit = FALSE;
-        if(data->cgimage) {
-            CGImageRelease(data->cgimage);
-            data->cgimage = 0;
-        }
-        return;
-    }
-    *this = copy();
+    if (data->count != 1)
+        *this = copy();
     data->uninit = FALSE;
     if(data->cgimage) {
         CGImageRelease(data->cgimage);
