@@ -1228,7 +1228,7 @@ void MetaDataBase::setupInterfaceManagers()
     dir += "/plugins";
     if ( !eventInterfaceManager ) {
 	eventInterfaceManager = new QInterfaceManager<EventInterface>( IID_EventInterface, dir, "*.dll; *.so; *.dylib" );
-	MetaDataBase::setEventsEnabled( !eventInterfaceManager->libraryList().isEmpty() );
+	MetaDataBase::setEventsEnabled( !eventInterfaceManager->featureList().isEmpty() );
     }
     if ( !languageInterfaceManager ) {
 	languageInterfaceManager = new QInterfaceManager<LanguageInterface>( IID_LanguageInterface, dir, "*.dll; *.so; *.dylib" );
