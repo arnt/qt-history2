@@ -4236,6 +4236,17 @@ int Q3TextEdit::alignment() const
     return currentAlignment;
 }
 
+/*!
+    Returns the vertical alignment of the current format.
+
+    \sa setVerticalAlignment()
+*/
+
+Q3TextEdit::VerticalAlignment Q3TextEdit::verticalAlignment() const
+{
+    return (Q3TextEdit::VerticalAlignment) currentFormat->vAlign();
+}
+
 void Q3TextEdit::startDrag()
 {
 #ifndef QT_NO_DRAGANDDROP

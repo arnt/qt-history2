@@ -254,6 +254,7 @@ public:
     QFont font() const;
     QFont currentFont() const;
     int alignment() const;
+    VerticalAlignment verticalAlignment() const;
     int undoDepth() const;
 
     // do not use, will go away
