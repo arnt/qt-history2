@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#57 $
 **
 ** Implementation of QPixmap class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#57 $");
 
 
 /*!
@@ -72,6 +72,66 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#56 $");
 
   \sa QBitmap, QImage, QImageIO, \link shclass.html Shared Classes\endlink
 */
+
+
+/*!
+  Constructs a null pixmap.
+  \sa isNull()
+*/
+
+QPixmap::QPixmap()
+    : QPaintDevice( PDT_PIXMAP )
+{
+    init( 0, 0, 0 );
+}
+
+/*!
+  Constructs a pixmap with \e w width, \e h height and of \e depth bits per
+  pixels.
+
+  The contents of the pixmap is uninitialized.
+
+  The \e depth can be either 1 (monochrome) or the depth of the
+  current video mode.  If \e depth is negative, then the hardware
+  depth of the current video mode will be used.
+
+  If either \e width or \e height is zero, a null pixmap is constructed.
+
+  \sa isNull()
+*/
+
+QPixmap::QPixmap( int w, int h, int depth )
+    : QPaintDevice( PDT_PIXMAP )
+{
+    init( w, h, depth );
+}
+
+/*!
+  \overload QPixmap::QPixmap( const QSize &size, int depth )
+*/
+
+QPixmap::QPixmap( const QSize &size, int depth )
+    : QPaintDevice( PDT_PIXMAP )
+{
+    init( size.width(), size.height(), depth );
+}
+
+/*!
+  Constructs a pixmap from the file \e fileName. If the file does not
+  exist, or is of an unknown format, the pixmap becomes a null pixmap.
+
+  The parameters are passed on to load().
+
+  \sa isNull(), load(), loadFromData(), save(), imageFormat()
+*/
+
+QPixmap::QPixmap( const char *fileName, const char *format, ColorMode mode )
+    : QPaintDevice( PDT_PIXMAP )
+{
+    init( 0, 0, 0 );
+    load( fileName, format, mode );
+}
+
 
 /*!
   Special-purpose function that detaches the pixmap from shared pixmap data.
@@ -334,11 +394,11 @@ bool qt_image_did_native_bmp()
 
 
 /*!
-  Loads an image from the file \e fileName into the pixmap.
-  Returns TRUE if successful, or FALSE if the image could not be loaded.
+  Loads a pixmap from the file \e fileName.
+  Returns TRUE if successful, or FALSE if the pixmap could not be loaded.
 
-  If \e format is specified, then the loader tries to read the image
-  using the specified format.  If \e format is not specified (default),
+  If \e format is specified, the loader attempts to read the pixmap using the
+  specified format. If \e format is not specified (default),
   the loader reads a few bytes from the header to guess the file format.
 
   The \e mode argument specifies whether the resulting pixmap should be a
@@ -350,7 +410,7 @@ bool qt_image_did_native_bmp()
   The QImageIO documentation lists the supported image formats and
   explains how to add extra formats.
 
-  \sa loadFromData(), save(), imageFormat()
+  \sa loadFromData(), save(), imageFormat(), QImage::load(), QImageIO
 */
 
 bool QPixmap::load( const char *fileName, const char *format,
@@ -372,11 +432,11 @@ bool QPixmap::load( const char *fileName, const char *format,
 }
 
 /*!
-  Loads an image from the binary data in \e buf (\e len bytes).
-  Returns TRUE if successful, or FALSE if the image could not be loaded.
+  Loads a pixmap from the binary data in \e buf (\e len bytes).
+  Returns TRUE if successful, or FALSE if the pixmap could not be loaded.
 
-  If \e format is specified, then the loader tries to read the image
-  using the specified format.  If \e format is not specified (default),
+  If \e format is specified, the loader attempts to read the pixmap using the
+  specified format. If \e format is not specified (default),
   the loader reads a few bytes from the header to guess the file format.
 
   The \e mode argument specifies whether the resulting pixmap should be a
@@ -388,7 +448,7 @@ bool QPixmap::load( const char *fileName, const char *format,
   The QImageIO documentation lists the supported image formats and
   explains how to add extra formats.
 
-  \sa load(), save(), imageFormat()
+  \sa load(), save(), imageFormat(), QImage::loadFromData(), QImageIO
 */
 
 bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
@@ -417,9 +477,9 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
 
 /*!
   Saves the pixmap to the file \e fileName, using the image file format
-  \e format.  Returns TRUE if successful, or FALSE if the image could not
+  \e format.  Returns TRUE if successful, or FALSE if the pixmap could not
   be saved.
-  \sa load(), loadFromData(), imageFormat()
+  \sa load(), loadFromData(), imageFormat(), QImage::save(), QImageIO
 */
 
 bool QPixmap::save( const char *fileName, const char *format ) const
@@ -439,6 +499,7 @@ bool QPixmap::save( const char *fileName, const char *format ) const
 /*!
   \relates QPixmap
   Writes a pixmap to the stream as a BMP image.
+  \sa QPixmap::save()
 */
 
 QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
@@ -451,12 +512,13 @@ QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
 
 /*!
   \relates QPixmap
-  Reads a pixmap from the stream as a BMP image.
+  Reads a pixmap from the stream.
+  \sa QPixmap::load()
 */
 
 QDataStream &operator>>( QDataStream &s, QPixmap &pixmap )
 {
-    QImageIO io( s.device(), "BMP" );
+    QImageIO io( s.device(), 0 );
     if ( io.read() )
 	pixmap.convertFromImage( io.image() );
     return s;

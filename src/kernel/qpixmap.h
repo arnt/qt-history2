@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#63 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#64 $
 **
 ** Definition of QPixmap class
 **
@@ -27,8 +27,8 @@ public:
     QPixmap();
     QPixmap( int w, int h,  int depth=-1 );
     QPixmap( const QSize &, int depth=-1 );
-    QPixmap( const QPixmap & );
     QPixmap( const char *fileName, const char *format=0, ColorMode mode=Auto );
+    QPixmap( const QPixmap & );
    ~QPixmap();
 
     QPixmap    &operator=( const QPixmap & );

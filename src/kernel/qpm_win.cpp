@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#37 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#37 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -93,24 +93,6 @@ void QPixmap::init( int w, int h, int d )
 }
 
 
-QPixmap::QPixmap()
-    : QPaintDevice( PDT_PIXMAP )
-{
-    init( 0, 0, 0 );
-}
-
-QPixmap::QPixmap( int w, int h, int depth )
-    : QPaintDevice( PDT_PIXMAP )
-{
-    init( w, h, depth );
-}
-
-QPixmap::QPixmap( const QSize &size, int depth )
-    : QPaintDevice( PDT_PIXMAP )
-{
-    init( size.width(), size.height(), depth );
-}
-
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     : QPaintDevice( PDT_PIXMAP )
 {						// for bitmaps only
@@ -161,13 +143,6 @@ QPixmap::QPixmap( const QPixmap &pixmap )
 	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
 	hdc = pixmap.hdc;			// copy QPaintDevice hdc
     }
-}
-
-QPixmap::QPixmap( const char *fileName, const char *format, ColorMode mode )
-    : QPaintDevice( PDT_PIXMAP )
-{
-    init( 0, 0, 0 );
-    load( fileName, format, mode );
 }
 
 QPixmap::~QPixmap()
@@ -291,11 +266,11 @@ void QPixmap::fill( const QColor &fillColor )
     bool tmp_hdc = hdc == 0;
     if ( tmp_hdc )
 	allocMemDC();
-    if ( fillColor == black )
+    if ( fillColor == black ) {
 	PatBlt( hdc, 0, 0, data->w, data->h, BLACKNESS );
-    else if ( fillColor == white )
+    } else if ( fillColor == white ) {
 	PatBlt( hdc, 0, 0, data->w, data->h, WHITENESS );
-    else {
+    } else {
 	HANDLE hbrush = CreateSolidBrush( fillColor.pixel() );
 	HANDLE hb_old = SelectObject( hdc, hbrush );
 	PatBlt( hdc, 0, 0, width(), height(), PATCOPY );
@@ -318,7 +293,6 @@ int QPixmap::metric( int m ) const
     } else {
 	HDC gdc = GetDC( 0 );
 	switch ( m ) {
-	    // !!!hanord: return widget mm width/height
 	    case PDM_WIDTHMM:
 		val = GetDeviceCaps( gdc, HORZSIZE );
 		break;
@@ -619,9 +593,9 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     }
 
     bpp  = depth();
-    if ( bpp > 1 && bpp < 8 ) {
+    if ( bpp > 1 && bpp < 8 )
 	bpp = 8;
-    }
+
     sbpl = ((ws*bpp+31)/32)*4;
     sptr = new uchar[hs*sbpl];
     int ncols;
@@ -750,7 +724,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
 		default: {
 #if defined(CHECK_RANGE)
-		warning( "QPixmap::xForm: DISPLAY NOT SUPPORTED (BPP=%d)",bpp);
+		warning( "QPixmap::xForm: Display not supported (bpp=%d)",bpp);
 #endif
 		QPixmap pm;
 		return pm;

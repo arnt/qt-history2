@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#32 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#33 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -24,6 +24,7 @@ public:
     QImage();
     QImage( int width, int height, int depth, int numColors=0,
 	    Endian bitOrder=IgnoreEndian );
+    QImage( const char *fileName, const char *format=0 );
     QImage( const QImage & );
    ~QImage();
 
@@ -63,6 +64,12 @@ public:
     static QImage::Endian systemBitOrder();
     static QImage::Endian systemByteOrder();
 
+    static const char *imageFormat( const char *fileName );
+    bool	load( const char *fileName, const char *format=0 );
+    bool	loadFromData( const uchar *buf, uint len,
+			      const char *format=0 );
+    bool	save( const char *fileName, const char *format ) const;
+
 private:
     void	init();
     void	freeBits();
@@ -78,6 +85,12 @@ private:
 	uchar **bits;				// image data
     } *data;
 };
+
+
+// QImage stream functions
+
+QDataStream &operator<<( QDataStream &, const QImage & );
+QDataStream &operator>>( QDataStream &, QImage & );
 
 
 class QIODevice;

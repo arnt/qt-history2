@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#77 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -14,12 +14,13 @@
 #include "qregexp.h"
 #include "qfile.h"
 #include "qdstream.h"
+#include "qbuffer.h"
 #include "qlist.h"
 #include "qintdict.h"
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#76 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#77 $");
 
 
 /*!
@@ -484,9 +485,9 @@ void QImage::setNumColors( int numColors )
 	if ( data->ctbl && numColors > data->ncols )
 	    memset( (char *)&data->ctbl[data->ncols], 0,
 		    (numColors-data->ncols)*sizeof(QRgb) );
-    }
-    else					// create new color table
+    } else {					// create new color table
 	data->ctbl = (QRgb*)calloc( numColors*sizeof(QRgb), 1 );
+    }
     data->ncols = data->ctbl == 0 ? 0 : numColors;
 }
 
@@ -778,8 +779,7 @@ static bool dither_image( const QImage *src, QImage *dst )
     if ( use_gray ) {				// 8 bit image
 	while ( p < end )
 	    *b2++ = gray[*p++];
-    }
-    else {					// 32 bit image
+    } else {					// 32 bit image
 	while ( p < end ) {
 	    *b2++ = qGray(*p);
 	    p += 4;
@@ -796,8 +796,7 @@ static bool dither_image( const QImage *src, QImage *dst )
 	    if ( use_gray ) {			// 8 bit image
 		while ( p < end )
 		    *b2++ = gray[*p++];
-	    }
-	    else {				// 24 bit image
+	    } else {				// 24 bit image
 		while ( p < end ) {
 		    *b2++ = qGray(*p);
 		    p += 4;
@@ -912,6 +911,123 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
 	*b++ = bitflip[*p++];
     memcpy( image.colorTable(), colorTable(), numColors()*sizeof(QRgb) );
     return image;
+}
+
+
+/*!
+  Returns a string that specifies the image format of the file \e fileName,
+  or null if the file cannot be read or if the format cannot be recognized.
+
+  The QImageIO documentation lists the supported image formats.
+
+  \sa load(), save()
+*/
+
+const char *QImage::imageFormat( const char *fileName )
+{
+    return QImageIO::imageFormat(fileName);
+}
+
+
+/*!
+  Loads an image from the file \e fileName.
+  Returns TRUE if successful, or FALSE if the image could not be loaded.
+
+  If \e format is specified, the loader attempts to read the image using the
+  specified format. If \e format is not specified (default),
+  the loader reads a few bytes from the header to guess the file format.
+
+  The QImageIO documentation lists the supported image formats and
+  explains how to add extra formats.
+
+  \sa loadFromData(), save(), imageFormat(), QPixmap::load(), QImageIO
+*/
+
+bool QImage::load( const char *fileName, const char *format )
+{
+    QImageIO io( fileName, format );
+    bool result = io.read();
+    if ( result )
+	operator=( io.image() );
+    return result;
+}
+
+/*!
+  Loads an image from the binary data in \e buf (\e len bytes).
+  Returns TRUE if successful, or FALSE if the image could not be loaded.
+
+  If \e format is specified, the loader attempts to read the image using the
+  specified format. If \e format is not specified (default),
+  the loader reads a few bytes from the header to guess the file format.
+
+  The QImageIO documentation lists the supported image formats and
+  explains how to add extra formats.
+
+  \sa load(), save(), imageFormat(), QPixmap::loadFromData(), QImageIO
+*/
+
+bool QImage::loadFromData( const uchar *buf, uint len, const char *format )
+{
+    QByteArray a;
+    a.setRawData( (char *)buf, len );
+    QBuffer b( a );
+    b.open( IO_ReadOnly );
+    QImageIO io( &b, format );
+    bool result = io.read();
+    b.close();
+    a.resetRawData( (char *)buf, len );
+    if ( result )
+	operator=( io.image() );
+    return result;
+}
+
+/*!
+  Saves the image to the file \e fileName, using the image file format
+  \e format.  Returns TRUE if successful, or FALSE if the image could not
+  be saved.
+  \sa load(), loadFromData(), imageFormat(), QPixmap::save(), QImageIO
+*/
+
+bool QImage::save( const char *fileName, const char *format ) const
+{
+    if ( isNull() )
+	return FALSE;				// nothing to save
+    QImageIO io( fileName, format );
+    io.setImage( *this );
+    return io.write();
+}
+
+
+/*****************************************************************************
+  QImage stream functions
+ *****************************************************************************/
+
+/*!
+  \relates QImage
+  Writes an image to the stream as a BMP image.
+  \sa QImage::save()
+*/
+
+QDataStream &operator<<( QDataStream &s, const QImage &image )
+{
+    QImageIO io( s.device(), "BMP" );
+    io.setImage( image );
+    io.write();
+    return s;
+}
+
+/*!
+  \relates QImage
+  Reads an image from the stream.
+  \sa QImage::load()
+*/
+
+QDataStream &operator>>( QDataStream &s, QImage &image )
+{
+    QImageIO io( s.device(), 0 );
+    if ( io.read() )
+	image = io.image();
+    return s;
 }
 
 

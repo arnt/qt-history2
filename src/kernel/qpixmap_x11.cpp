@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#94 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#95 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#94 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#95 $");
 
 
 /*****************************************************************************
@@ -194,48 +194,6 @@ void QPixmap::init( int w, int h, int d )
 
 
 /*!
-  Constructs a null pixmap.
-  \sa isNull()
-*/
-
-QPixmap::QPixmap()
-    : QPaintDevice( PDT_PIXMAP )
-{
-    init( 0, 0, 0 );
-}
-
-/*!
-  Constructs a pixmap with \e w width, \e h height and of \e depth bits per
-  pixels.
-
-  The contents of the pixmap is uninitialized.
-
-  The \e depth can be either 1 (monochrome) or the depth of the
-  current video mode.  If \e depth is negative, then the hardware
-  depth of the current video mode will be used.
-
-  If either \e width or \e height is zero, a null pixmap is constructed.
-
-  \sa isNull()
-*/
-
-QPixmap::QPixmap( int w, int h, int depth )
-    : QPaintDevice( PDT_PIXMAP )
-{
-    init( w, h, depth );
-}
-
-/*!
-  \overload QPixmap::QPixmap( const QSize &size, int depth )
-*/
-
-QPixmap::QPixmap( const QSize &size, int depth )
-    : QPaintDevice( PDT_PIXMAP )
-{
-    init( size.width(), size.height(), depth );
-}
-
-/*!
   Constructs a monochrome pixmap which is initialized with the data in \e bits.
   This constructor is protected and used by the QBitmap class.
 */
@@ -277,22 +235,6 @@ QPixmap::QPixmap( const QPixmap &pixmap )
 	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
 	hd = pixmap.hd;				// copy QPaintDevice drawable
     }
-}
-
-/*!
-  Constructs a pixmap from the file \e fileName. If the file does not
-  exist, or is of an unknown format, the pixmap becomes a null pixmap.
-
-  The parameters are passed on to load().
-
-  \sa isNull(), load(), loadFromData(), save(), imageFormat()
-*/
-
-QPixmap::QPixmap( const char *fileName, const char *format, ColorMode mode )
-    : QPaintDevice( PDT_PIXMAP )
-{
-    init( 0, 0, 0 );
-    load( fileName, format, mode );
 }
 
 /*!
@@ -632,19 +574,17 @@ QImage QPixmap::convertToImage() const
 		*dst++ = qRgb(r, g, b);
 	    }
 	}
-    }
-    else if ( xi->bits_per_pixel == d ) {	// compatible depth
+    } else if ( xi->bits_per_pixel == d ) {	// compatible depth
 	char *xidata = xi->data;		// copy each scanline
 	int bpl = QMIN(image.bytesPerLine(),xi->bytes_per_line);
 	for ( int y=0; y<h; y++ ) {
 	    memcpy( image.scanLine(y), xidata, bpl );
 	    xidata += xi->bytes_per_line;
 	}
-    }
-    else {
+    } else {
 	/* Typically 2 or 4 bits display depth */
 #if defined(CHECK_RANGE)
-	warning( "QPixmap::convertToImage: DISPLAY NOT SUPPORTED (BPP=%d)",
+	warning( "QPixmap::convertToImage: Display not supported (bpp=%d)",
 		 xi->bits_per_pixel );
 #endif
 	image.reset();
@@ -655,8 +595,7 @@ QImage QPixmap::convertToImage() const
 	image.setNumColors( 2 );
 	image.setColor( 0, qRgb(255,255,255) );
 	image.setColor( 1, qRgb(0,0,0) );
-    }
-    else if ( !trucol ) {			// pixmap with colormap
+    } else if ( !trucol ) {			// pixmap with colormap
 	register uchar *p;
 	uchar *end;
 	uchar  use[256];			// pixel-in-use table
@@ -708,9 +647,9 @@ QImage QPixmap::convertToImage() const
     if ( data->optim ) {			// keep ximage that we fetched
 	((QPixmap*)this)->data->dirty  = FALSE;
 	((QPixmap*)this)->data->ximage = xi;
-    }
-    else
+    } else {
 	XDestroyImage( xi );
+    }
     return image;
 }
 
@@ -780,9 +719,9 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	}
     } else {					// can be both
 	bool conv8 = FALSE;
-	if ( mode == Color )			// native depth wanted
+	if ( mode == Color ) {			// native depth wanted
 	    conv8 = d == 1;
-	else if ( d == 1 && image.numColors() == 2 ) {
+	} else if ( d == 1 && image.numColors() == 2 ) {
 	    QRgb c0 = image.color(0);		// mode==Auto: convert to best
 	    QRgb c1 = image.color(1);
 	    conv8 = QMIN(c0,c1) != 0 || QMAX(c0,c1) != qRgb(255,255,255);
