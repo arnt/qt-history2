@@ -19,7 +19,7 @@ RemoteCtrlImpl::~RemoteCtrlImpl()
 {
 }
 
-void RemoteCtrlImpl::sendPacket( const QByteArray &ba, char type )
+void RemoteCtrlImpl::sendPacket( const QByteArray &ba, Q_UINT8 type )
 {
     QDataStream ds( socket );
     ds << (Q_UINT32) ba.size();

@@ -44,19 +44,17 @@ private slots:
 		if ( packetType == QVariant::String ) {
 		    QString txt;
 		    ds >> txt;
-		    bytesAvail -= packetSize;
 		    emit receivedText( txt );
 		} else if ( packetType == QVariant::Image ) {
 		    QImage image;
 		    ds >> image;
-		    bytesAvail -= packetSize;
 		    emit receivedPixmap( QPixmap(image) );
 		} else if ( packetType == QVariant::Palette ) {
 		    QPalette pal;
 		    ds >> pal;
-		    bytesAvail -= packetSize;
 		    QApplication::setPalette( pal, TRUE );
 		}
+		bytesAvail -= packetSize;
 		packetSize = 0;
 		packetType = 0;
 	    }
