@@ -1533,6 +1533,7 @@ void QWorkspace::toolMenuAboutToShow()
     if ( !d->active || !d->active->windowWidget() )
 	return;
 
+    d->toolPopup->setItemEnabled( 3, !d->active->shademode );
     if ( d->active->shademode )
 	d->toolPopup->changeItem( 6,
 				  QIconSet(style().stylePixmap(QStyle::SP_TitleBarUnshadeButton)), tr("&Unshade") );
@@ -1554,6 +1555,8 @@ void QWorkspace::operationMenuActivated( int a )
 	d->active->doMove();
 	break;
     case 3:
+	if ( d->active->shademode )
+	    d->active->showShaded();
 	d->active->doResize();
 	break;
     case 4:
@@ -2456,6 +2459,7 @@ void QWorkspaceChild::showShaded()
     if ( shademode ) {
 	QWorkspaceChild* fake = (QWorkspaceChild*)windowWidget();
 	fake->clearWState( WState_Minimized );
+	clearWState( WState_Minimized );
 
 	shademode = FALSE;
 	resize( shadeRestore );
@@ -2467,11 +2471,10 @@ void QWorkspaceChild::showShaded()
 	shademode = TRUE;
 	QWorkspaceChild* fake = (QWorkspaceChild*)windowWidget();
 	fake->setWState( WState_Minimized );
+	setWState( WState_Minimized );
 
 	resize( width(), titlebar->height() + 2*lineWidth() + 1 );
     }
-    titlebar->setMovable( !shademode );
-    widgetResizeHandler->setActive( !shademode );
     titlebar->update();
 }
 

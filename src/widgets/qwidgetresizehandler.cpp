@@ -150,6 +150,9 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
 	    mode = Right;
 	else
 	    mode = Center;
+
+	if ( widget->isMinimized() )
+	    mode = Center;
 #ifndef QT_NO_CURSOR
 	setMouseCursor( mode );
 #endif
@@ -229,8 +232,12 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
 		  boundedTo( childWidget->maximumSize() + QSize( 2*fw, 2*fw + extrahei +1 ) ) );
 
     if ( geom != widget->geometry() &&
-	( widget->isTopLevel() || widget->parentWidget()->rect().intersects( geom ) ) )
-	widget->setGeometry( geom );
+	( widget->isTopLevel() || widget->parentWidget()->rect().intersects( geom ) ) ) {
+	if ( widget->isMinimized() )
+	    widget->move( geom.topLeft() );
+	else
+	    widget->setGeometry( geom );
+    }
 
 #if defined(Q_WS_WIN)
     MSG msg;
@@ -408,6 +415,9 @@ void QWidgetResizeHandler::keyPressEvent( QKeyEvent * e )
 
 void QWidgetResizeHandler::doResize()
 {
+    if ( !active )
+	return;
+
     moveResizeMode = TRUE;
     buttonDown = TRUE;
     moveOffset = widget->mapFromGlobal( QCursor::pos() );
@@ -436,6 +446,9 @@ void QWidgetResizeHandler::doResize()
 
 void QWidgetResizeHandler::doMove()
 {
+    if ( !active )
+	return;
+
     mode = Center;
     moveResizeMode = TRUE;
     buttonDown = TRUE;
