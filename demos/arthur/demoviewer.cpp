@@ -51,7 +51,7 @@ class ItemModel : public QAbstractListModel
 public:
     QVariant data(const QModelIndex &index, int role) const {
         if ((role == DisplayRole)
-            && index.type() == QModelIndex::View  && index.isValid()
+            && index.isValid()
             && index.row() < rowCount()
             && index.column() < columnCount()) {
             if (role == DisplayRole)
