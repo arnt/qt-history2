@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#109 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#110 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -73,7 +73,7 @@ class QListM_QWidget;				// object list
 #define QWidgetList QListM_QWidget
 
 
-#if defined(_CC_BOR_) || defined(_CC_WAT_)
+#if defined(_CC_BOR_) || (defined(_CC_WAT_) && !defined(_OS_QNX_))
 #define NEEDS_QMAIN
 #endif
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#125 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#126 $
 **
 ** Global type declarations and definitions
 **
@@ -105,7 +105,9 @@
 #elif defined(DGUX)
 #define _OS_DGUX_
 #elif defined(sco)
-#define _OS_UNIXWARE7
+#define _OS_UNIXWARE7_
+#elif defined(__QNX__)
+#define _OS_QNX_
 #else
 #error "Qt has not been ported to this OS - talk to qt-bugs@troll.no"
 #endif
