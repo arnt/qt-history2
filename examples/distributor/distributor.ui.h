@@ -162,7 +162,7 @@ void Distributor::checkLibData()
 	QApplication::setOverrideCursor( WaitCursor );
 
 	// instead of reading in the entire file, do the search in chunks
-	char data[1000000];
+	char data[60000];
 	ulong offset = 0;
 
 	while ( ! file.atEnd() && completed < total_steps ) {
