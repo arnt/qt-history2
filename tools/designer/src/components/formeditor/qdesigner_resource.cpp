@@ -228,13 +228,19 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
     if (!w)
         return 0;
 
+    if (QMainWindow *mw = qobject_cast<QMainWindow*>(parentWidget)) {
+        mw->setCentralWidget(w);
+    }
+
     ui_widget->setAttributeClass(className); // fix the class name
 
+#if 0
     if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(w)) {
         QWidget *central_widget = createWidget(QLatin1String("QWidget"), mainWindow, "__qt_central_widget");
         Q_ASSERT(qobject_cast<QDesignerWidget*>(central_widget));
         mainWindow->setCentralWidget(central_widget);
     }
+#endif
 
     QList<DomActionRef*> action_ref_list = ui_widget->elementAddAction();
     foreach (DomActionRef *action_ref, action_ref_list) {
