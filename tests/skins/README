@@ -4,11 +4,20 @@ If you do any work on this stuff, add it into here please.
 QWidgets
 			status		tested
 * QPushButton		done		partial
+  - Still needs label/no-label option.
 * QDial			90%		partial
-* QCheckBox		0
-* QRadioButton		0
+  - Still needs start/end angle, As well as 2 image mode.  E.G. Base, 
+    peg, hotspot (on peg).
+  - Still needs to be done in styles.  Currently external class.
+* QCheckBox		50%
+  - Still needs label image, along with label/no-label options.
+* QRadioButton		50%
+  - Same as QCheckBox
 * Digital disp		0
-* QSlider		0
+  - Not much to do here... except force dropping of frame box
+* QSlider		30%
+  - Still need angle (up/down/left/right).  Also the multi-image mode is still
+    needed.
 * QComboBox		0
 * QScrollBar		0
 * QTabWidget		0
@@ -18,9 +27,13 @@ Style
 
 * Easier Usage
   + Auto overide style if specified in skin.
-  + Auto set skin and find skin file.
+  + Auto set skin and find skin file. 
+    (e.g. -skin name, inbuilt to qapplication).
 * Custom widgets
 * Better example.  Something at least partially functional.
 * Layout
   + Should be able to have resizable layouts.  This one will require some
     creativity though.
+* Undo
+  + Should be able to change skins
+  + Should be able to go to normal style
