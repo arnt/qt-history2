@@ -33,15 +33,25 @@
   \ingroup qtl
   \ingroup tools
 
-  Define a template instance QMap\<Key,Data\> to create a dictionary with keys of type X
-  and values of type Y. Please notice that QMap does not store pointers to the
-  members of the map. It holds a copy of every member. That is the reason why this
-  kind of classes are called "value based" while QList and QDict are "reference based".
+  Define a template instance QMap\<Key,Data\> to create a dictionary
+  with keys of type X and values of type Y. QMap does not store
+  pointers to the members of the map. Instead, it holds a copy of
+  every member. For that reason this kind of classes is called "value
+  based" while QList and QDict are "reference based".
 
-  Some classes can not be used within a QMap. For example everything derived from
-  QObject and as a reason of this that extends to all classes which implement widgets.
-  You can only put stuff in a QMap which can be easily copied. That means that the 
-  class X and Y must implement a copy constructor.
+  Some classes can not be used within a QMap, for example everything
+  derived from QObject and thus all classes that implement widgets.
+  Only values can be used in a QMap. To qualify as a value, the class
+  must provide
+  <ul>
+  <li>a copy constructor,
+  <li>an assignment operator and
+  <li> a default constructor, i.e. a constructor that does not take any arguments.
+  </ul>
+
+  Note that C++ defaults to field-by-field assignment operators and
+  copy constructors if no explicit version is supplied. In many cases,
+  this is sufficient.
 
   Example:
   \code
@@ -52,16 +62,19 @@
     class Employee
     {
     public:
-        Employee( const QString& name, int salary ) { n=name; s=salary; }
-        Employee( const Employee& _e ) { n = _e.name; s = _e.s; }
+	Employee(): s(0){}
+	Employee( const QString& name, int salary )
+	    : n(name), s(salary)
+	{}
 
-        QString     name()   const		 { return n; }
-        int	    salary() const		 { return s; }
-	void	    setSalary( int _s ) const	 { s = _s; }
+	QString     name()   const	 	{ return n; }
+	int	    salary() const	 	{ return s; }
+	void	    setSalary( int salary )	{ s = salary; }
     private:
-        QString     n;
-        int         s;
+	QString     n;
+	int         s;
     };
+
 
     void main()
     {
@@ -69,8 +82,8 @@
 	EmployeeMap map;		// map of Employee
 
 	map.insert( "Gates", Employee("Bill", 50000) );
-	map.insert( "Ballmer", ( Employee("Steve",80000) );
-	map.insert( "Sommer," ( Employee("Ron",  60000) );
+	map.insert( "Ballmer", Employee("Steve",80000) );
+	map.insert( "Sommer,", Employee("Ron",  60000) );
 
 	Employee joe( "Joe", 50000 );
 	map.insert( "Doe", joe );
@@ -78,7 +91,7 @@
 	
 	EmployeeMap::Iterator it;
 	for( it = map.begin(); it != map.end(); ++it )
-	    printf( "%s, %s earns %d\n", it.key(), it.data().name(), it.data().salary() );
+	    printf( "%s, %s earns %d\n", it.key().latin1(), it.data().name().latin1(), it.data().salary() );
     }
   \endcode
 
@@ -143,7 +156,7 @@
   other.
 
   There are two ways of inserting new elements in a list. One uses the
-  insert() method while the other one uses operator[] like this: 
+  insert() method while the other one uses operator[] like this:
 
   \code
   	QMap<QString,QString> map;
@@ -403,7 +416,7 @@
 	Gates, Bill earns 50000
 	Sommer, Ron earns 60000
   \endcode
- 
+
   The only way to traverse a map is to use iterators.
   QMap is highly optimized for performance and memory usage.
   On the other hand that means that you have to be a bit more careful

@@ -38,10 +38,19 @@
   members of the list. It holds a copy of every member. That is the reason why this
   kind of classes are called "value based" while QList and QDict are "reference based".
 
-  Some classes can not be used within a QValueList. For example everything derived from
-  QObject and as a reason of this that extends to all classes which implement widgets.
-  You can only put stuff in a QValueList which can be easily copied. That means that the
-  class X should implement a fast copy constructor.
+  Some classes can not be used within a QValueList,  for example everything
+  derived from QObject and thus all classes that implement widgets.
+  Only values can be used in a QValueList. To qualify as a value, the class
+  must provide
+  <ul>
+  <li>a copy constructor,
+  <li>an assignment operator and
+  <li> a default constructor, i.e. a constructor that does not take any arguments.
+  </ul>
+
+  Note that C++ defaults to field-by-field assignment operators and
+  copy constructors if no explicit version is supplied. In many cases,
+  this is sufficient.
 
   Example:
   \code
@@ -52,16 +61,17 @@
     class Employee
     {
     public:
-        Employee( const QString& name, int salary )
-		: n(name), s(salary)
+	Employee(): s(0){}
+	Employee( const QString& name, int salary )
+	    : n(name), s(salary)
 	{}
 
-        QString     name()   const		 	{ return n; }
-        int	    salary() const		 	{ return s; }
-	void	    setSalary( int salary ) const 	{ s = salary; }
+	QString     name()   const	 	{ return n; }
+	int	    salary() const	 	{ return s; }
+	void	    setSalary( int salary )	{ s = salary; }
     private:
-        QString     n;
-        int         s;
+	QString     n;
+	int         s;
     };
 
     void main()

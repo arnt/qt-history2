@@ -38,11 +38,6 @@
   members of the stack. It holds a copy of every member. That is the reason why this
   kind of classes are called "value based" while QStack, QList and QDict are "reference based".
 
-  Some classes can not be used within a QValueStack. For example everything derived from
-  QObject and as a reason of this that extends to all classes which implement widgets.
-  You can only put stuff in a QValueStack which can be easily copied. That means that the
-  class X should implement a fast copy constructor.
-
   A stack is a Last In, First Out (LIFO) structure. Items are added to
   the top of the stack with push() and retrieved from the top with
   pop(). Furthermore, top() provides access to the topmost item
@@ -75,6 +70,22 @@
   convenience. All of QValueList's functionality applies also to
   QStack, for example the facility to iterate over all elements using
   QValueStack<T>::Iterator. See QValueListIterator for further details.
+
+  Some classes can not be used within a QValueStack, for example everything
+  derived from QObject and thus all classes that implement widgets.
+  Only values can be used in a QValueStack. To qualify as a value, the class
+  must provide
+  <ul>
+  <li>a copy constructor,
+  <li>an assignment operator and
+  <li> a default constructor, i.e. a constructor that does not take any arguments.
+  </ul>
+
+  Note that C++ defaults to field-by-field assignment operators and
+  copy constructors if no explicit version is supplied. In many cases,
+  this is sufficient.
+
+
 
 */
 
