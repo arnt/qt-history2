@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#169 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#170 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -44,7 +44,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#169 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#170 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -794,8 +794,7 @@ void QApplication::syncX()
 
 
 /*!
-  Makes a simple tone.  The tone has the default length, frequency
-  and volume.
+  Sounds the bell, using the default volume and sound.
 */
 
 void QApplication::beep()
