@@ -47,6 +47,7 @@
 #include "qobjectlist.h"
 #include "qiconset.h"
 #include "qcombobox.h"
+#include "qcheckbox.h"
 #include <stdlib.h>
 #include <limits.h>
 
@@ -629,7 +630,7 @@ void QTableComboBoxItem::setContentFromEditor( QWidget *w )
 /*! \reimp */
 
 void QTableComboBoxItem::paint( QPainter *p, const QColorGroup &cg,
-			   const QRect &cr, bool selected )
+			   const QRect &cr, bool )
 {
     int w = cr.width();
     int h = cr.height();
@@ -638,10 +639,7 @@ void QTableComboBoxItem::paint( QPainter *p, const QColorGroup &cg,
     QRect tmpR = table()->style().comboButtonRect( 0, 0, w, h );
     QRect textR( tmpR.x() + 1, tmpR.y() + 1, tmpR.width() - 2, tmpR.height() - 2 );
 
-    if ( selected )
-	p->setPen( cg.highlightedText() );
-    else
-	p->setPen( cg.text() );
+    p->setPen( cg.text() );
     p->drawText( textR, wordWrap() ? ( alignment() | WordBreak ) : alignment(), currentText() );
 }
 
@@ -704,6 +702,90 @@ void QTableComboBoxItem::setEditable( bool b )
 bool QTableComboBoxItem::isEditable() const
 {
     return edit;
+}
+
+/*!
+  \class QTableCheckBoxItem qtable.h
+
+  \brief The QTableCheckoBoxItem class implements a convenient class to
+  put checkbox items in a QTable
+
+  \module table
+
+  This class implements a checkbox item for QTable. It has set the
+  edit type WhenCurrent. This means, when this item is not the current
+  one, it paints itself like a checkbox, but without using a real
+  QCheckBox widget. When the item becomes the current one, it shows a
+  real checkbox, so that the user can edit the value.
+
+  This has the advantage, that this item is always visible as a
+  chexkbox without the need of always showing a real QCheckBox widget,
+  which would waste resources.
+
+*/
+
+QTableCheckBoxItem::QTableCheckBoxItem( QTable *table, const QString &txt )
+    : QTableItem( table, WhenCurrent, txt )
+{
+}
+
+/*! \reimp */
+
+QWidget *QTableCheckBoxItem::createEditor() const
+{
+    // create an editor - a combobox in our case
+    ( (QTableCheckBoxItem*)this )->cb = new QCheckBox( table()->viewport() );
+    cb->setChecked( checked );
+    cb->setText( text() );
+    cb->setBackgroundMode( table()->viewport()->backgroundMode() );
+    return cb;
+}
+
+/*! \reimp */
+
+void QTableCheckBoxItem::setContentFromEditor( QWidget *w )
+{
+    if ( w->inherits( "QCheckBox" ) ) {
+	QCheckBox *cb = (QCheckBox*)w;
+	checked = cb->isChecked();
+    }
+}
+
+/*! \reimp */
+
+void QTableCheckBoxItem::paint( QPainter *p, const QColorGroup &cg,
+				const QRect &cr, bool selected )
+{
+    p->fillRect( 0, 0, cr.width(), cr.height(),
+		 selected ? cg.brush( QColorGroup::Highlight )
+		          : cg.brush( QColorGroup::Base ) );
+
+    int w = cr.width();
+    int h = cr.height();
+    QSize sz = table()->style().indicatorSize();
+    table()->style().drawIndicator( p, 0, ( h - sz.height() ) / 2, sz.width(), sz.height(), cg, checked ? QButton::On : QButton::Off, FALSE, TRUE );
+    int x = sz.width() + 6;
+    w = w - x;
+    if ( selected )
+	p->setPen( cg.highlightedText() );
+    else
+	p->setPen( cg.text() );
+    p->drawText( x, 0, w, h, wordWrap() ? ( alignment() | WordBreak ) : alignment(), text() );
+}
+
+/*! Sets the item to be checked, of \a b is TRUE */
+
+void QTableCheckBoxItem::setChecked( bool b )
+{
+    checked = b;
+    table()->updateCell( row(), col() );
+}
+
+/*! returns whether the item is checked or not */
+
+bool QTableCheckBoxItem::isChecked() const
+{
+    return checked;
 }
 
 // ### this needs a bit of general stuff at the top

@@ -60,6 +60,7 @@ class QPaintEvent;
 class QTimer;
 class QResizeEvent;
 class QComboBox;
+class QCheckBox;
 
 struct QTablePrivate;
 struct QTableHeaderPrivate;
@@ -168,6 +169,23 @@ private:
     QStringList entries;
     int current;
     bool edit;
+
+};
+
+class Q_EXPORT QTableCheckBoxItem : public QTableItem
+{
+public:
+    QTableCheckBoxItem( QTable *table, const QString &txt );
+    virtual QWidget *createEditor() const;
+    virtual void setContentFromEditor( QWidget *w );
+    virtual void paint( QPainter *p, const QColorGroup &cg,
+			const QRect &cr, bool selected );
+    virtual void setChecked( bool b );
+    bool isChecked() const;
+
+private:
+    QCheckBox *cb;
+    bool checked;
 
 };
 
