@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#30 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#30 $";
 #endif
 
 // #define DEBUG_FONT
@@ -233,10 +233,18 @@ QFont QFont::defFont( TRUE );  // default font
 // QFont member functions
 //
 
+  /*!
+  Returns the system default font.
+  */
+
 const QFont &QFont::defaultFont()
 {
     return defFont;
 }
+
+  /*!
+  Sets the system default font.
+  */
 
 void  QFont::setDefaultFont( const QFont &f )
 {
