@@ -1301,6 +1301,7 @@ QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
         ops |= QCoreGraphicsPaintEnginePrivate::CGFill;
     else
         ops |= QCoreGraphicsPaintEnginePrivate::CGEOFill;
+    CGContextBeginPath(d->hd);
     d->drawPath(ops, path);
     CGPathRelease(path);
 }
@@ -1310,11 +1311,18 @@ QCoreGraphicsPaintEngine::drawRect(const QRect &r)
 {
     Q_ASSERT(isActive());
 
-    CGMutablePathRef path = CGPathCreateMutable();
-    CGPathAddRect(path, 0, d->adjustedRect(r));
+    CGContextBeginPath(d->hd);
+    CGMutablePathRef path = 0;
+    if(d->current.brush.style() == Qt::LinearGradientPattern) {
+        path = CGPathCreateMutable();
+        CGPathAddRect(path, 0, d->adjustedRect(r));
+    } else {
+        CGContextAddRect(d->hd, d->adjustedRect(r));
+    }
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke,
                 path);
-    CGPathRelease(path);
+    if(path)
+        CGPathRelease(path);
 }
 
 void
@@ -1357,6 +1365,7 @@ QCoreGraphicsPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
     CGPathAddArcToPoint(path, &transform, 0, 0, fw/2, 0, 1);
     CGPathAddArcToPoint(path, &transform, fw, 0, fw, fh/2, 1);
     CGPathCloseSubpath(path);
+    CGContextBeginPath(d->hd);
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill | QCoreGraphicsPaintEnginePrivate::CGStroke,
                 path);
     CGPathRelease(path);
@@ -1373,6 +1382,7 @@ QCoreGraphicsPaintEngine::drawEllipse(const QRect &rr)
     CGPathAddArc(path, &transform,
                  (r.origin.x + (r.size.width / 2)) / (r.size.width / r.size.height),
                  r.origin.y + (r.size.height / 2), r.size.height / 2, 0, 2 * M_PI, false);
+    CGContextBeginPath(d->hd);
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill | QCoreGraphicsPaintEnginePrivate::CGStroke,
                 path);
     CGPathRelease(path);
@@ -1388,6 +1398,7 @@ QCoreGraphicsPaintEngine::drawArc(const QRect &r, int a, int alen)
     float begin_radians = ((float)a/16) * (M_PI/180), end_radians = ((float)((a+alen)/16)) * (M_PI/180);
     CGPathAddArc(path, &transform, (r.x()+(r.width()/2))/((float)r.width()/r.height()), r.y() + (r.height()/2),
 		 r.height()/2, begin_radians, end_radians, a < 0 || alen < 0);
+    CGContextBeginPath(d->hd);
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke, path);
     CGPathRelease(path);
 }
@@ -1404,6 +1415,7 @@ QCoreGraphicsPaintEngine::drawPie(const QRect &r, int a, int alen)
     CGPathAddArc(path, &transform, (r.x()+(r.width()/2))/((float)r.width()/r.height()),
                  r.y() + (r.height()/2), r.height()/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGPathAddLineToPoint(path, 0, r.x() + (r.width()/2), r.y() + (r.height()/2));
+    CGContextBeginPath(d->hd);
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill | QCoreGraphicsPaintEnginePrivate::CGStroke,
                 path);
     CGPathRelease(path);
@@ -1414,6 +1426,7 @@ QCoreGraphicsPaintEngine::drawPolyInternal(const QPointArray &a, bool close)
 {
     Q_ASSERT(isActive());
 
+    CGContextBeginPath(d->hd);
     CGContextMoveToPoint(d->hd, a[0].x(), a[0].y());
     for(int x = 1; x < a.size(); x++)
         CGContextAddLineToPoint(d->hd, a[x].x(), a[x].y());
@@ -1434,6 +1447,7 @@ QCoreGraphicsPaintEngine::drawChord(const QRect &r, int a, int alen)
     for(int i = 0; i < 2; i++)
         CGPathAddArc(path, &transform, (r.x()+(r.width()/2))/((float)r.width()/r.height()),
                      r.y()+(r.height()/2), r.height()/2, begin_radians, end_radians, a < 0 || alen < 0);
+    CGContextBeginPath(d->hd);
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill | QCoreGraphicsPaintEnginePrivate::CGStroke,
                 path);
     CGPathRelease(path);
@@ -1603,20 +1617,13 @@ void QCoreGraphicsPaintEngine::updateRenderHints(QPainter::RenderHints hints)
     CGContextSetShouldSmoothFonts(d->hd, hints & QPainter::TextAntialiasing);
 }
 
-static inline void qt_setMutablePath(CGContextRef cg, CGMutablePathRef path)
-{
-    if (path) {
-        CGContextBeginPath(cg);
-        CGContextAddPath(cg, path);
-    }
-}
-
 void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
 {
     Q_ASSERT((ops & (CGFill | CGEOFill)) != (CGFill | CGEOFill)); //can't really happen
-    qt_setMutablePath(hd, path);
     if ((ops & (CGFill | CGEOFill))) {
         if (current.brush.style() == Qt::LinearGradientPattern) {
+            Q_ASSERT(path);
+            CGContextAddPath(hd, path);
             CGContextSaveGState(hd);
             if (ops & CGFill)
                 CGContextClip(hd);
@@ -1624,7 +1631,6 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
                 CGContextEOClip(hd);
             CGContextDrawShading(hd, shading);
             CGContextRestoreGState(hd);
-            qt_setMutablePath(hd, path);
             ops &= ~CGFill;
             ops &= ~CGEOFill;
         } else if (current.brush.style() == Qt::NoBrush) {
@@ -1648,5 +1654,7 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
         mode = kCGPathFill;
     else //nothing to do..
         return;
+    if(path) 
+        CGContextAddPath(hd, path);
     CGContextDrawPath(hd, mode);
 }
