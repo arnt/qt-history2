@@ -1,4 +1,4 @@
-#include "../../tools/designer/plugins/designerinterface.h"
+#include "../tools/designer/plugins/designerinterface.h"
 
 #include <qaction.h>
 #include <qapplicationinterface.h>
@@ -77,7 +77,7 @@ bool TestInterface::connectNotify( QApplication* theApp )
     if ( !theApp )
 	return FALSE;
 
-    appInterface = theApp->requestApplicationInterface();
+    appInterface = theApp->queryInterface();
     if ( !appInterface )
 	return FALSE;
 
