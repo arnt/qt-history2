@@ -1016,7 +1016,7 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
     QLatin1String styleTag("<span style=\"");
     html += styleTag;
 
-    const bool attributesEmitted = emitCharFormatStyle(formatDifference(defaultCharFormat, format).toCharFormat());
+    const bool attributesEmitted = emitCharFormatStyle(format);
     if (attributesEmitted)
         html += QLatin1String("\">");
     else
@@ -1127,6 +1127,17 @@ void QTextHtmlExporter::emitBlockAttributes(const QTextBlock &block)
         hasStyle = true;
     }
 
+    // ### 'if' needed as long as the block char format of a block at pos == 0
+    // is equivalent to the char format at that position.
+    // later on in the piecetable that's not the case, that's when the block char
+    // fmt is at block.position() - 1
+    // When changing this also change the 'if' in emitBlock
+    if (block.position() > 0) {
+        QTextCharFormat diff = formatDifference(defaultCharFormat, block.charFormat()).toCharFormat();
+        if (!diff.properties().isEmpty())
+            hasStyle |= emitCharFormatStyle(diff);
+    }
+
     if (hasStyle)
         html += QLatin1Char('"');
     else
@@ -1205,6 +1216,15 @@ void QTextHtmlExporter::emitBlock(const QTextBlock &block)
     emitBlockAttributes(block);
 
     html += QLatin1Char('>');
+
+    // ### 'if' needed as long as the block char format of a block at pos == 0
+    // is equivalent to the char format at that position.
+    // later on in the piecetable that's not the case, that's when the block char
+    // fmt is at block.position() - 1
+    // When changing this also change the 'if' in emitBlockAttributes
+    if (block.position() > 0) {
+        defaultCharFormat.merge(block.charFormat());
+    }
 
     for (QTextBlock::Iterator it = block.begin();
          !it.atEnd(); ++it)
