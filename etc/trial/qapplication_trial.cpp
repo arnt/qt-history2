@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/trial/qapplication_trial.cpp#4 $
+** $Id: //depot/qt/main/etc/trial/qapplication_trial.cpp#5 $
 **
 **		     ***   STRICTLY CONFIDENTIAL   ***
 **
@@ -34,10 +34,10 @@ static long randomSeed = 13579;
 static void setRandomSeed( int seed )
 {
     if ( seed < 0 )
-        seed = - seed;
+	seed = - seed;
     randomSeed = seed - (seed / 100000)*100000;
     if ( randomSeed == 0 )
-        randomSeed = 15397;
+	randomSeed = 15397;
 }
 
 static inline uchar randomValue()
@@ -45,7 +45,7 @@ static inline uchar randomValue()
     randomSeed = randomSeed*147;
     randomSeed = randomSeed - (randomSeed / 100000)*100000;
     if ( randomSeed == 0 )
-        randomSeed = 15397;
+	randomSeed = 15397;
     return randomSeed % 256;
 }
 
@@ -291,7 +291,7 @@ static const int trial_len_copyright = 131;
 
 /*****************************************************************************
   Dummy messages. The original messages are not used. They are only stored
-  to fool potential pseudo-hackers who think they can just change the texts.
+  to fool potential pseudo-hackers who think they just can change the texts.
  *****************************************************************************/
 
 static char *dummy_1 =  "Qt %s Evaluation License\n\nThis trial version may"
