@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.17 1999/01/15 16:30:52 warwick Exp $
+** $Id: porting.doc,v 1.18 1999/01/21 12:05:48 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -23,7 +23,25 @@
 	(eg. function names, class names).  Where possible, we have tried
 	to make problem code cause compile-time errors when compiled 
 	with Qt 2.0.
-</ul>
+ <li> To take full advantage of the Internationalization functionality in Qt 2.0:
+    <ul>
+     <li> Start converting all uses of "const char*" in parameters to
+            "const QString&" - this can often be done mechanically, eg.
+            using Perl.  Convert uses of char[] for temporary string
+            building to QString (much software already uses QString for
+            this purpose as it offers many more facilities).  
+     <li> Put a breakpoint in QString::ascii() to catch places where
+	    Unicode information is being converted to ASCII (loosing
+	    information if your user in not using Latin1).  Qt has
+	    a small number of calls to this - ignore those.
+     <li> Convert all <em>user-visible</em> strings to be calls to
+	    QObject::tr().  Note that a few strings, in particular
+	    object/widget names are <em>programmer-space</em> strings -
+	    translating these is pointless.  As your application matures,
+	    start producing translation files for other languages.
+    </ul>
+ <li> 
+</ul> 
 
 <h2>Notes</h2>
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.5 1998/11/11 14:00:55 warwick Exp $
+** $Id: i18n.doc,v 1.6 1999/01/21 12:05:47 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -53,10 +53,17 @@ in the following stages:
 	or, if the quoted text is not in a member function, by using
 	the tr() function of an approriate class, or the
 	QApplication::translate() function directly.
- <li><b>Use QMessageFile to load translated text.</b>
+ <li><b>Use QTranslator to load translated text.</b>
 	<p>
 	Once you are using tr() sufficiently, you can start producing
 	translations of the user-visible text in your program.
+ <li><b>Use the QString::arg() for simple arguments.</b>
+	<p>
+	The printf style of inserting arguments in strings
+	is a poor choice for internationalized text, as it is often
+	necessary to change the order of arguments when translating.
+	The QString::arg() functions offer simple
+	means for numbered arguments.
  <li><b>Support encodings.</b>
 	<p>
 	The QTextCodec class and the facilities in QTextStream
