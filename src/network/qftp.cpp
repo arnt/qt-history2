@@ -152,6 +152,7 @@ private:
     QFtpPI *pi;
     QString err;
     int totalBytes;
+    bool callWriteData;
 
     union {
 	QByteArray *ba;
@@ -289,9 +290,10 @@ QFtpCommand::~QFtpCommand()
  *
  *********************************************************************/
 QFtpDTP::QFtpDTP( QFtpPI *p, QObject *parent, const char *name ) :
-    QSocket( parent, name ), pi(p),
-    err( QString::null ), data_ba(FALSE)
+    QSocket( parent, name ), pi( p ),
+    err( QString::null ), callWriteData( FALSE )
 {
+    data_ba = FALSE;
     data.ba = 0;
 
     connect( this, SIGNAL( connected() ),
@@ -324,7 +326,6 @@ void QFtpDTP::writeData()
 #if defined(QFTPDTP_DEBUG)
 	qDebug( "QFtpDTP::writeData: write %d bytes", data.ba->size() );
 #endif
-	totalBytes = 0;
 	if ( data.ba->size() == 0 )
 	    emit dataProgress( 0 );
 	else
@@ -332,6 +333,26 @@ void QFtpDTP::writeData()
 	close();
 	data_ba = FALSE;
 	data.ba = 0;
+    } else if ( data.dev ) {
+	callWriteData = FALSE;
+	const int blockSize = 16*1024;
+	char buf[blockSize];
+	while ( !data.dev->atEnd() && bytesToWrite()==0 ) {
+	    Q_LONG read = data.dev->readBlock( buf, blockSize );
+#if defined(QFTPDTP_DEBUG)
+	    qDebug( "QFtpDTP::writeData: writeBlock() of size %d bytes", (int)read );
+#endif
+	    writeBlock( buf, read );
+	}
+	if ( data.dev->atEnd() ) {
+	    if ( totalBytes==0 && bytesToWrite()==0 )
+		emit dataProgress( 0 );
+	    close();
+	    data_ba = FALSE;
+	    data.ba = 0;
+	} else {
+	    callWriteData = TRUE;
+	}
     }
 }
 
@@ -564,7 +585,12 @@ void QFtpDTP::slotConnectionClosed()
 void QFtpDTP::slotBytesWritten( int bytes )
 {
     totalBytes += bytes;
-    emit dataProgress( bytes );
+#if defined(QFTPDTP_DEBUG)
+    qDebug( "QFtpDTP::bytesWritten( %d )", totalBytes );
+#endif
+    emit dataProgress( totalBytes );
+    if ( callWriteData )
+	writeData();
 }
 
 /**********************************************************************
@@ -1289,6 +1315,27 @@ int QFtp::put( const QByteArray &data, const QString &file )
 }
 
 /*!
+  Reads the data from the IO device \a dev and stores it under \a file on the
+  server. The data is read in chunks from the IO device, so this overload
+  allows you to transmit large amounts of data without the need to read all
+  data into memory at once.
+
+  Make sure that the \a dev pointer is valid throughout the whole pending
+  operation (it is safe to emit it when the finishedSuccess() or
+  finishedError() is emitted).
+*/
+int QFtp::put( QIODevice *dev, const QString &file )
+{
+    QStringList cmds;
+    cmds << "TYPE I\r\n";
+    cmds << "PASV\r\n";
+    if ( !dev->isSequentialAccess() )
+	cmds << "ALLO " + QString::number(dev->size()) + "\r\n";
+    cmds << "STOR " + file + "\r\n";
+    return addCommand( new QFtpCommand( Put, cmds, dev ) );
+}
+
+/*!
   Deletes the file \a file from the server.
 
   This function returns immediately; the command is scheduled and its execution
@@ -1444,6 +1491,12 @@ void QFtp::startNextCommand()
 	    if ( c->data_ba && c->data.ba ) {
 		d->pi.dtp.setData( c->data.ba );
 		emit dataSize( c->data.ba->size() );
+	    } else if ( !c->data_ba && c->data.dev ) {
+		d->pi.dtp.setDevice( c->data.dev );
+		if ( c->data.dev->isSequentialAccess() )
+		    emit dataSize( 0 );
+		else
+		    emit dataSize( c->data.dev->size() );
 	    }
 	} else if ( c->command == Get ) {
 	    if ( !c->data_ba && c->data.dev ) {

@@ -88,7 +88,6 @@ public:
 	Remove,
 	Mkdir,
 	Rmdir,
-//###	Copy,
 //###	Rename,
 	FtpCommand
     };
@@ -101,6 +100,7 @@ public:
     int get( const QString &file );
     int get( const QString &file, QIODevice *dev );
     int put( const QByteArray &data, const QString &file );
+    int put( QIODevice *dev, const QString &file );
     int remove( const QString &file );
     int mkdir( const QString &dir );
     int rmdir( const QString &dir );
