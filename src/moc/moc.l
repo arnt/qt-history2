@@ -253,6 +253,7 @@ STRING		{ALMOSTSTRING}\"
 <QT_DEF>"..."			{ X;return TRIPLE_DOT; }
 <QT_DEF>"template"		{ X;return TEMPLATE; }
 <QT_DEF>"mutable"		{ X;return MUTABLE; }
+<QT_DEF>"throw"			{ X;return THROW; }
 <QT_DEF>"using"		        { X;return USING; }
 <QT_DEF>"namespace"		{ X;return NAMESPACE; }
 

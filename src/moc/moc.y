@@ -610,6 +610,7 @@ enum Flags  {
 %token			NAMESPACE
 %token			USING
 %token			MUTABLE
+%token			THROW
 
 %token			SIGNALS
 %token			SLOTS
@@ -938,6 +939,7 @@ fct_decl:		  '('
 			  ')'
 			  cv_qualifier_list_opt
 			  ctor_initializer_opt
+			  exception_spec_opt
 			  fct_body_or_semicolon
 						{ tmpFunc->args	     = $2;
 						  tmpFunc->qualifier = $4; }
@@ -1047,6 +1049,14 @@ full_class_head:	  class_head
 nested_class_head:	  class_key
 			  qualified_class_name 	
 			  opt_base_spec		{ templateClass = templateClassOld; }
+
+exception_spec_opt:		/* empty */
+			| exception_spec
+			;
+
+/* looser than the real thing */
+exception_spec:		THROW '(' argument_declaration_list ')'
+			;
 
 ctor_initializer_opt:		/* empty */
 			| ctor_initializer
