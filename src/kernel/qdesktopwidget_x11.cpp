@@ -199,7 +199,7 @@ int QDesktopWidget::screenNumber( QWidget *widget ) const
 	// this is how we do it for xinerama
 	QRect frame = widget->frameGeometry();
 	if ( !widget->isTopLevel() )
-	    frame.moveTopLeft( widget->mapToGlobal( frame.topLeft() ) );
+	    frame.moveTopLeft( widget->mapToGlobal( QPoint( 0, 0 ) ) );
 
 	int maxSize = -1;
 	int maxScreen = -1;
