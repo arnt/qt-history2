@@ -114,7 +114,7 @@ echo "Auto-detected the Qt version number -- " $VERSION >&2
 
 if [ -z "$noch" -a ! -f "${DISTDIR}/qt/dist/changes-$VERSION" ]
 then
-    echo "You must create qt/dist/changes-$VERSION first"
+    echo "You must create qt/dist/changes-$VERSION first (or run with -noch)"
     exit 1
 fi
 

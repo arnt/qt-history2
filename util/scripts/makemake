@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 # 
 # Copyright 1997 Troll Tech AS.  All rights reserved.
 #
@@ -67,12 +67,18 @@ variables: Makefile
 
 EOF
 
-for a in configs/* ; do
-	A=`echo $a | sed -e 's-.*/--'`
-	echo ${A}: Makefile
-	echo '	./propagate configs/'${A}
-	echo
-done
+# Implicit...
+echo '%: configs/%'
+echo '	./propagate configs/$*'
+echo
+#
+# Explicit...
+#for a in configs/* ; do
+#	A=`echo $a | sed -e 's-.*/--'`
+#	echo ${A}: Makefile
+#	echo '	./propagate configs/'${A}
+#	echo
+#done
 
 cat <<EOF
 
