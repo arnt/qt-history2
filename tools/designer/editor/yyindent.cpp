@@ -118,7 +118,7 @@ static bool isOnlyWhiteSpace( const QString& t )
 /*
   Assuming string t is a line, returns the column number of a given
   index. Column numbers and index are identical for strings that don't
-  contain '\t's. The index may be t.length().
+  contain '\t's.
 */
 static int columnForIndex( const QString& t, int index )
 {
@@ -682,6 +682,8 @@ static int indentForContinuationLine()
     int braceDepth = 0;
     int delimDepth = 0;
 
+    bool leftBraceFollowed = yyLeftBraceFollows;
+
     for ( int i = 0; i < SmallRoof; i++ ) {
 	int hook = -1;
 
@@ -793,7 +795,7 @@ static int indentForContinuationLine()
 	  continuation line or something.
 	*/
 	if ( delimDepth == 0 ) {
-	    if ( isContinuationLine() || yyLeftBraceFollows ) {
+	    if ( isContinuationLine() || leftBraceFollowed ) {
 		/*
 		  We have
 
