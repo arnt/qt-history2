@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/richtext/richtext.cpp#3 $
+** $Id: //depot/qt/main/examples/richtext/richtext.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -17,7 +17,7 @@
 #include <qbrush.h>
 #include <qapplication.h>
 
-static const QString sayings[] = {
+static const char* sayings[] = {
     "<b>Saying 1:</b><br>"
     "<hr><br><br>"
     "<big>Evil is that which one believes of others.  It is a sin to believe evil "
@@ -71,7 +71,7 @@ static const QString sayings[] = {
     "what his grandson will be.</big><br><br>"
     "<center><i>-- Abraham Lincoln</i></center>",
 
-    (const char*)0
+    0
 };
 
 
@@ -125,12 +125,12 @@ void MyRichText::prev()
 
 void MyRichText::next()
 {
-    if ( sayings[++num].isEmpty() )
+    if ( !sayings[++num] )
         return;
 
     view->setText( sayings[num] );
 
-    if ( sayings[num + 1].isEmpty() )
+    if ( !sayings[num + 1] )
         bNext->setEnabled( FALSE );
 
     bPrev->setEnabled( TRUE );
