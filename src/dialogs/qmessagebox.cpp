@@ -442,7 +442,6 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
     else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
         QDialog::setIcon( *qApp->mainWidget()->icon() );
 #endif
-
     init( Ok, 0, 0 );
 }
 
@@ -576,6 +575,8 @@ void QMessageBox::init( int button0, int button1, int button2 )
     }
     mbd = new QMessageBoxData(this);
     Q_CHECK_PTR( mbd );
+    mbd->icon = NoIcon;
+    mbd->iconLabel.setPixmap( QPixmap() );
     mbd->numButtons = 0;
     mbd->button[0] = button0;
     mbd->button[1] = button1;
