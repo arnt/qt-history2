@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#243 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#244 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#243 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#244 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -2750,7 +2750,8 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 				   xevent.xexpose.y,
 				   xevent.xexpose.width,
 				   xevent.xexpose.height);
-		    should_clip |= translateBySips( this, exposure );
+		    if ( translateBySips( this, exposure ) )
+			should_clip = TRUE; // WARWICK! if !should_clip && ???
 		    paintRect = paintRect.unite( exposure );
 		} else {
 		    translateScrollDoneEvent( &xevent );

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#73 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1721,7 +1721,6 @@ int QMultiLineEdit::mapToView( int xIndex, int line )
 void QMultiLineEdit::updateCellWidth()
 {
     QString *s = contents->first();
-    QFontMetrics fm( font() );
     int maxW = 0;
     int w;
     while ( s ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#94 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#95 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#94 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#95 $");
 
 
 /*!
@@ -402,27 +402,17 @@ void QPushButton::drawButton( QPainter *paint )
 void QPushButton::drawButtonLabel( QPainter *paint )
 {
     register QPainter *p = paint;
-    GUIStyle	gs = style();
-    QColorGroup g  = colorGroup();
-    int		dt = 0;
-    switch ( gs ) {
-    case WindowsStyle:
-	dt = 1;
-	break;
-    case MotifStyle:
-	break;
-    default:
-	;
-    }
+
     QRect r = rect();
     int x, y, w, h;
     r.rect( &x, &y, &w, &h );
-    if ( isDown() || isOn() ) {			// shift pixmap/text
-	x += dt;
-	y += dt;
+    if ( (isDown() || isOn()) && style() == WindowsStyle ) {
+        // shift pixmap/text
+	x++;
+	y++;
     }
     x += 2;  y += 2;  w -= 4;  h -= 4;
-    qDrawItem( p, gs, x, y, w, h, 
+    qDrawItem( p, style(), x, y, w, h,
 	       AlignCenter|ShowPrefix,
 	       colorGroup(), isEnabled(),
 	       pixmap(), text() );

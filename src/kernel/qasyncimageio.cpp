@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#18 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -348,7 +348,7 @@ class QGIFDecoderFactory : public QImageFormatDecoderFactory {
     QImageFormatDecoder* decoderFor(const uchar* buffer, int length);
     const char* formatName() const;
 };
-static QGIFDecoderFactory factory;
+
 
 QImageFormatDecoder* QGIFDecoderFactory::decoderFor(
     const uchar* buffer, int length)

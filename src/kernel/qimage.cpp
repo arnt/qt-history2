@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#125 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#126 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#125 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#126 $");
 
 
 /*!
@@ -2994,7 +2994,6 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
 {
     const int	buflen = 300;
     char	buf[buflen];
-    QRegExp	r1, r2;
     QIODevice  *d = iio->ioDevice();
     int		w, h, nbits, mcc, y;
     int		pbm_bpl;
@@ -3477,7 +3476,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
     for( currentColor=0; currentColor < ncols; ++currentColor ) {
 	if ( !read_xpm_string( buf, d, source, index ) )
 	    return;
-	QString index, color;
+	QString index;
 	index = buf.left( cpp );
 	buf = buf.mid( cpp, buf.length() ).simplifyWhiteSpace().lower();
 	if ( buf[0] != 'c' || buf[1] != ' ' ) {

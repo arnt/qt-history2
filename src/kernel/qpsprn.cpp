@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#34 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -18,7 +18,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#34 $");
 
 #if !defined(QT_HEADER_PS)
      // produced from qpshdr.txt
@@ -573,8 +573,7 @@ void QPSPrinter::orientationSetup()
 void QPSPrinter::newPageSetup( QPainter *paint )
 {
     QPDevCmdParam param[1];
-    QFont  defaultFont;			// default drawing tools
-    QPen   defaultPen;
+    QPen   defaultPen;			// default drawing tools
     QBrush defaultBrush;
 
     param[0].color = &paint->backgroundColor();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#79 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#78 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#79 $");
 
 
 /*!
@@ -615,7 +615,6 @@ QMenuBar::Separator QMenuBar::separator() const
 void QMenuBar::drawContents( QPainter *p )
 {
     QColorGroup g;
-    QFontMetrics fm = fontMetrics();
     int fw = frameWidth();
     GUIStyle gs = style();
     bool e;
