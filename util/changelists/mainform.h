@@ -24,6 +24,8 @@ private slots:
 
 private:
     void startChanges( QString label );
+    void parseDescribe( const QString& );
+    void setDescFilesDiff( const QString&, const QString&, const QString& );
 
     QProcess process;
     QValueList<int> *changeListFrom;

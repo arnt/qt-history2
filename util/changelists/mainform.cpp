@@ -101,7 +101,7 @@ void MainForm::go()
 void MainForm::currentChanged( QListViewItem *li )
 {
     if ( li == 0 ) {
-	description->setText( "" );
+	parseDescribe( "" );
     } else {
 	if ( process.isRunning() ) {
 	    //qWarning( "Process is running!!!!" );
@@ -241,19 +241,68 @@ void MainForm::processExited()
 	}
     } else if ( command == "describe" ) {
 	QString desc( process.readStdout() );
-#if 0
-	// ### do some nice syntax highlighting
-	desc = desc.replace( QRegExp("<"), "&lt;" );
-	desc = desc.replace( QRegExp(">"), "&gt;" );
-	desc = desc.replace( QRegExp("^\\+"), "<font color=blue>+</font>" );
-#endif
-	description->setCursorPosition( 0, 0 );
-	description->setText( desc );
-	if ( changes->currentItem() != 0 ) {
-	    int i = desc.find( '\n' );
-	    QString tmp = desc.left(i).replace( QRegExp("^Change \\d* by .* on ") , "" );
-	    changes->currentItem()->setText( 1, tmp );
-	}
+	parseDescribe( desc );
 	QApplication::restoreOverrideCursor();
     }
+}
+
+void MainForm::parseDescribe( const QString& desc )
+{
+    static QRegExp filesRE( "Affected files \\.\\.\\." );
+    static QRegExp diffRE( "Differences \\.\\.\\." );
+    int posFiles = desc.find( filesRE );
+    int posDiff = desc.find( diffRE );
+
+    if ( posFiles != -1 ) {
+	if ( posDiff != -1 ) {
+	    QString _desc = desc.left( posFiles );
+	    QString _files = desc.mid( posFiles, posDiff-posFiles );
+	    QString _diff = desc.mid( posDiff );
+	    setDescFilesDiff( _desc, _files, _diff );
+	} else {
+	    // ###
+	    qDebug( "not implemented yet posFiles=%d posDiff=%d", posFiles, posDiff );
+	    setDescFilesDiff( desc, "", "" );
+	}
+    } else {
+	if ( posDiff != -1 ) {
+	    // ###
+	    qDebug( "not implemented yet posFiles=%d posDiff=%d", posFiles, posDiff );
+	    setDescFilesDiff( desc, "", "" );
+	} else {
+	    setDescFilesDiff( desc, "", "" );
+	}
+    }
+
+    // ### that should go somewhre else
+    if ( changes->currentItem() != 0 ) {
+	int i = desc.find( '\n' );
+	QString tmp = desc.left(i).replace( QRegExp("^Change \\d* by .* on ") , "" );
+	changes->currentItem()->setText( 1, tmp );
+    }
+#if 0
+    description->setCursorPosition( 0, 0 );
+    description->setText( desc );
+    if ( changes->currentItem() != 0 ) {
+	int i = desc.find( '\n' );
+	QString tmp = desc.left(i).replace( QRegExp("^Change \\d* by .* on ") , "" );
+	changes->currentItem()->setText( 1, tmp );
+    }
+#endif
+}
+
+void MainForm::setDescFilesDiff( const QString& de, const QString& f, const QString& di )
+{
+#if 0
+    // ### do some nice syntax highlighting
+    di = di.replace( QRegExp("<"), "&lt;" );
+    di = di.replace( QRegExp(">"), "&gt;" );
+    di = di.replace( QRegExp("^\\+"), "<font color=blue>+</font>" );
+#endif
+    description->setCursorPosition( 0, 0 );
+    description->setText( de );
+    affectedFiles->setCursorPosition( 0, 0 );
+    affectedFiles->setText( f );
+    diff->setCursorPosition( 0, 0 );
+    diff->setText( di );
 }

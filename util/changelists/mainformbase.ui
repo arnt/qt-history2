@@ -9,8 +9,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>691</width>
-            <height>652</height>
+            <width>687</width>
+            <height>650</height>
         </rect>
     </property>
     <property name="caption">
@@ -124,49 +124,6 @@
                     </property>
                 </spacer>
             </hbox>
-        </widget>
-        <widget class="QSplitter" row="3" column="0">
-            <property name="name">
-                <cstring>splitter</cstring>
-            </property>
-            <property name="orientation">
-                <enum>Horizontal</enum>
-            </property>
-            <widget class="QListView">
-                <column>
-                    <property name="text">
-                        <string>Change</string>
-                    </property>
-                    <property name="clickable">
-                        <bool>true</bool>
-                    </property>
-                    <property name="resizeable">
-                        <bool>true</bool>
-                    </property>
-                </column>
-                <column>
-                    <property name="text">
-                        <string>Date</string>
-                    </property>
-                    <property name="clickable">
-                        <bool>true</bool>
-                    </property>
-                    <property name="resizeable">
-                        <bool>true</bool>
-                    </property>
-                </column>
-                <property name="name">
-                    <cstring>changes</cstring>
-                </property>
-            </widget>
-            <widget class="QTextView">
-                <property name="name">
-                    <cstring>description</cstring>
-                </property>
-                <property name="wordWrap">
-                    <enum>NoWrap</enum>
-                </property>
-            </widget>
         </widget>
         <widget class="QTextView" row="4" column="0">
             <property name="name">
@@ -310,6 +267,73 @@
                     </property>
                 </widget>
             </hbox>
+        </widget>
+        <widget class="QSplitter" row="3" column="0">
+            <property name="name">
+                <cstring>splitter</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Horizontal</enum>
+            </property>
+            <widget class="QListView">
+                <column>
+                    <property name="text">
+                        <string>Change</string>
+                    </property>
+                    <property name="clickable">
+                        <bool>true</bool>
+                    </property>
+                    <property name="resizeable">
+                        <bool>true</bool>
+                    </property>
+                </column>
+                <column>
+                    <property name="text">
+                        <string>Date</string>
+                    </property>
+                    <property name="clickable">
+                        <bool>true</bool>
+                    </property>
+                    <property name="resizeable">
+                        <bool>true</bool>
+                    </property>
+                </column>
+                <property name="name">
+                    <cstring>changes</cstring>
+                </property>
+            </widget>
+            <widget class="QSplitter">
+                <property name="name">
+                    <cstring>Splitter3</cstring>
+                </property>
+                <property name="orientation">
+                    <enum>Vertical</enum>
+                </property>
+                <widget class="QTextView">
+                    <property name="name">
+                        <cstring>description</cstring>
+                    </property>
+                    <property name="wordWrap">
+                        <enum>NoWrap</enum>
+                    </property>
+                </widget>
+                <widget class="QTextView">
+                    <property name="name">
+                        <cstring>affectedFiles</cstring>
+                    </property>
+                    <property name="wordWrap">
+                        <enum>NoWrap</enum>
+                    </property>
+                </widget>
+                <widget class="QTextView">
+                    <property name="name">
+                        <cstring>diff</cstring>
+                    </property>
+                    <property name="wordWrap">
+                        <enum>NoWrap</enum>
+                    </property>
+                </widget>
+            </widget>
         </widget>
     </grid>
 </widget>
