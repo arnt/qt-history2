@@ -1,4 +1,4 @@
-// $Id: application.doc,v 2.5 1999/07/10 20:11:21 agulbra Exp $
+// $Id: application.doc,v 2.6 1999/07/20 18:59:11 warwick Exp $
 
 /*! \page simple-application.html
 <title>Qt Simple Application</title>
@@ -44,8 +44,8 @@ We'll go over main() in detail.
 \line QApplication
 
 We create a QApplication object with the usual constructor and let it
-parse \e argc and \e argv so that on X11, this program behaves like X
-programs are expected to do.
+parse \e argc and \e argv so that on X11, this program behaves as X
+programs are expected to.
 
 \line ApplicationWindow
 \line setCaption
