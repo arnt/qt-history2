@@ -2018,6 +2018,54 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
     } else if ( e.tagName() == "cursor" ) {
 	v = "QCursor( %1 )";
 	v = v.arg( e.firstChild().toText().data() );
+    } else if ( e.tagName() == "date" ) {
+	QDomElement n3 = e.firstChild().toElement();
+	int y, m, d;
+	while ( !n3.isNull() ) {
+	    if ( n3.tagName() == "year" )
+		y = n3.firstChild().toText().data().toInt();
+	    else if ( n3.tagName() == "month" )
+		m = n3.firstChild().toText().data().toInt();
+	    else if ( n3.tagName() == "day" )
+		d = n3.firstChild().toText().data().toInt();
+	    n3 = n3.nextSibling().toElement();
+	}
+	v = "QDate( %1, %2, %3 )";
+	v = v.arg(y).arg(m).arg(d);
+    } else if ( e.tagName() == "time" ) {
+	QDomElement n3 = e.firstChild().toElement();
+	int h, m, s;
+	while ( !n3.isNull() ) {
+	    if ( n3.tagName() == "hour" )
+		h = n3.firstChild().toText().data().toInt();
+	    else if ( n3.tagName() == "minute" )
+		m = n3.firstChild().toText().data().toInt();
+	    else if ( n3.tagName() == "second" )
+		s = n3.firstChild().toText().data().toInt();
+	    n3 = n3.nextSibling().toElement();
+	}
+	v = "QTime( %1, %2, %3 )";
+	v = v.arg(h).arg(m).arg(s);
+    } else if ( e.tagName() == "datetime" ) {
+	QDomElement n3 = e.firstChild().toElement();
+	int h, mi, s, y, mo, d;
+	while ( !n3.isNull() ) {
+	    if ( n3.tagName() == "hour" )
+		h = n3.firstChild().toText().data().toInt();
+	    else if ( n3.tagName() == "minute" )
+		mi = n3.firstChild().toText().data().toInt();
+	    else if ( n3.tagName() == "second" )
+		s = n3.firstChild().toText().data().toInt();
+	    else if ( n3.tagName() == "year" )
+		y = n3.firstChild().toText().data().toInt();
+	    else if ( n3.tagName() == "month" )
+		mo = n3.firstChild().toText().data().toInt();
+	    else if ( n3.tagName() == "day" )
+		d = n3.firstChild().toText().data().toInt();
+	    n3 = n3.nextSibling().toElement();
+	}
+	v = "QDateTime( QDate( %1, %2, %3 ), QTime( %4, %5, %6 ) )";
+	v = v.arg(y).arg(mo).arg(d).arg(h).arg(mi).arg(s);
     }
     return v;
 }
