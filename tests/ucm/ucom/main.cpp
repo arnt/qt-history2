@@ -99,22 +99,6 @@ URESULT invoke( int id, UObject *o )
 }
 
 
-void signal( int t0 ) 
-{
-    QList<UDispatchInterface> listeners;
-    if ( listeners.isEmpty() )
-  	return;
-    UObject o[3];
-    pUType_double->set( o+1, 7 );
-    pUType_int->set( o+2, 3.14159268 );
-    QListIterator<UDispatchInterface> it(listeners);
-    UDispatchInterface* l;
-    while ( (l=it.current()) ) {
-	++it;
-	l->invoke( 0, o );
-    }
-}
-
 int main( int /*argc*/, char** /*argv*/ )
 {
     {

@@ -28,6 +28,69 @@ bool UType_ptr::convertTo( UObject *, UType * )
     return false;
 }
 
+// {F2D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
+const UUid TID_UType_iface = { 0xf2d3be80, 0x2f2f, 0x44f7, { 0xab, 0x11, 0xe8, 0xa0, 0xce, 0xc8, 0x4b, 0x82 } };
+static UType_iface static_UType_iface;
+UType_iface *pUType_iface = &static_UType_iface;
+const UUid *UType_iface::uuid() const  { return &TID_UType_iface; }
+const char *UType_iface::desc() const { return "UnknownInterface"; }
+
+void UType_iface::set( UObject *o, UUnknownInterface* iface )
+{
+    o->payload.iface = iface;
+    o->type = this;
+}
+
+UUnknownInterface* &UType_iface::get( UObject *o, bool *ok )
+{
+    UTYPE_INIT( o, 0, ok )
+    return o->payload.iface;
+}
+
+bool UType_iface::convertFrom( UObject *o, UType *t )
+{
+    return t->convertTo( o, this );
+}
+
+bool UType_iface::convertTo( UObject *, UType * )
+{
+    return false;
+}
+
+// {F3D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
+const UUid TID_UType_idisp = { 0xf3d3be80, 0x2f2f, 0x44f7, { 0xab, 0x11, 0xe8, 0xa0, 0xce, 0xc8, 0x4b, 0x82 } };
+static UType_idisp static_UType_idisp;
+UType_idisp *pUType_idisp = &static_UType_idisp;
+const UUid *UType_idisp::uuid() const  { return &TID_UType_idisp; }
+const char *UType_idisp::desc() const { return "DispatchInterface"; }
+
+void UType_idisp::set( UObject *o, UDispatchInterface* idisp )
+{
+    o->payload.idisp = idisp;
+    o->type = this;
+}
+
+UDispatchInterface* &UType_idisp::get( UObject *o, bool *ok )
+{
+    UTYPE_INIT( o, 0, ok )
+    return o->payload.idisp;
+}
+
+bool UType_idisp::convertFrom( UObject *o, UType *t )
+{
+    return t->convertTo( o, this );
+}
+
+bool UType_idisp::convertTo( UObject *o, UType *t )
+{
+    if ( isEqual( t,  pUType_iface ) ) {
+	o->payload.iface = o->payload.idisp;
+	o->type = pUType_iface;
+	return true;
+    }
+    return false;
+}
+
 // {E1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
 const UUid TID_UType_int = { 0xe1d3be80, 0x2f2f, 0x44f7, { 0xab, 0x11, 0xe8, 0xa0, 0xce, 0xc8, 0x4b, 0x82 } };
 static UType_int static_UType_int;
@@ -65,7 +128,6 @@ bool UType_int::convertTo( UObject *o, UType *t )
 	o->type = pUType_double;
 	return true;
     }
-
     return false;
 }
 
@@ -106,7 +168,6 @@ bool UType_double::convertTo( UObject *o, UType *t )
 	o->type = pUType_int;
 	return true;
     }
-
     return false;
 }
 

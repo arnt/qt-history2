@@ -24,7 +24,33 @@ struct UType_ptr : public UType
 };
 extern UType_ptr * pUType_ptr;
 
+// {F2D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
+extern const UUid TID_UType_iface;
+struct UType_iface : public UType
+{
+    const UUid *uuid() const;
+    const char *desc() const;
 
+    void set( UObject *, UUnknownInterface* );
+    UUnknownInterface* &get( UObject *, bool * = 0 );
+    bool convertFrom( UObject *, UType * );
+    bool convertTo( UObject *, UType * );
+};
+extern UType_iface * pUType_iface;
+
+// {F3D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
+extern const UUid TID_UType_idisp;
+struct UType_idisp : public UType
+{
+    const UUid *uuid() const;
+    const char *desc() const;
+
+    void set( UObject *, UDispatchInterface* );
+    UDispatchInterface* &get( UObject *, bool * = 0 );
+    bool convertFrom( UObject *, UType * );
+    bool convertTo( UObject *, UType * );
+};
+extern UType_idisp * pUType_idisp;
 
 // {E1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
 extern const UUid TID_UType_int;

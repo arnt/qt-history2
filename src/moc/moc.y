@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#233 $
+** $Id: //depot/qt/main/src/moc/moc.y#234 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -101,7 +101,7 @@ struct Function					// member function meta data
     QCString    type;
     int	       lineNo;
     ArgList   *args;
-    Function() { args=0; isVirtual = FALSE;}
+    Function() { args=0;}
    ~Function() { delete args; }
     const char* accessAsString() {
 	switch ( access ) {
@@ -110,7 +110,6 @@ struct Function					// member function meta data
 	default: return "Public";
 	}
     }
-    bool isVirtual;
 };
 
 class FuncList : public QList<Function> {	// list of member functions
@@ -557,7 +556,7 @@ storage_class_specifier:  AUTO
 			;
 
 fct_specifier:		  INLINE
-			| VIRTUAL 		{ tmpFunc->isVirtual = TRUE; }
+			| VIRTUAL 		
 			;
 
 type_specifier:		  CONST			{ $$ = "const"; }
@@ -2783,9 +2782,12 @@ QCString uType( QCString ctype )
     } else if ( ctype.right(1) == "*" ) {
 	QCString raw = ctype.left( ctype.length() - 1 );
 	ctype = "ptr";
-	if ( raw = "char" )
+	if ( raw == "char" )
 	    ctype = "charstar";
-	
+	else if ( raw == "QUnknownInterface" )
+	    ctype = "iface";
+	else if ( raw == "QDispatchInterface" )
+	    ctype = "idisp";
     }
     return ctype;
 }
@@ -2811,7 +2813,7 @@ QCString uTypeExtra( QCString ctype )
     } else if ( ctype.right(1) == "*" ) {
 	QCString raw = ctype.left( ctype.length() - 1 );
 	ctype = "ptr";
-	if ( raw = "char" )
+	if ( raw == "char" )
 	    ;
 	else
 	    typeExtra.sprintf( "\"%s\"", raw.data() );
@@ -3120,7 +3122,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#233 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#234 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -3481,12 +3483,6 @@ void addEnum()
 
 void addMember( Member m )
 {
-
-    if ( m == MethodMember && !tmpFunc->isVirtual )
-	moc_err( "Method %s must be virtual.", (const char*)tmpFunc->name );
-    if ( m == EventMember && tmpFunc->isVirtual )
-	moc_err( "Event %s must not be virtual.", (const char*)tmpFunc->name );
-
     if ( skipFunc ) {
 	tmpFunc->args = tmpArgList; // just to be sure
   	delete tmpFunc;
