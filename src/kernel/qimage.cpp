@@ -4642,7 +4642,7 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 		    c |= *(uchar*)(b+2)<<16;
 		*p++ = qRgb(((c & red_mask) >> red_shift) * red_scale,
 					((c & green_mask) >> green_shift) * green_scale,
-					((c & blue_mask) >> blue_shift)) * blue_scale;
+					((c & blue_mask) >> blue_shift) * blue_scale);
 		b += nbits/8;
 	    }
 	}
