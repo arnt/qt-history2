@@ -123,6 +123,7 @@ public:
         FileOpen = 116,                         // file open request
 
         Shortcut = 117,                         // shortcut triggered
+        ShortcutOverride = 118,                 // shortcut override request
 
 #ifdef QT_COMPAT
         CaptionChange = WindowTitleChange,

@@ -216,7 +216,7 @@ Qt::SequenceMatch QShortcutMap::state()
 }
 
 /*! \internal
-    Uses the old AccelOverride event to see if any widgets want to override
+    Uses ShortcutOverride event to see if any widgets want to override
     the event. If not, uses nextState(QKeyEvent) to check for a grabbed
     Shortcut, and dispatchEvent() is found an identical.
     \sa nextState dispatchEvent
@@ -225,7 +225,7 @@ bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
 {
     if (d->currentState == Qt::NoMatch) {
         ushort orgType = e->t;
-        e->t = QEvent::AccelOverride;
+        e->t = QEvent::ShortcutOverride;
         e->ignore();
         QApplication::sendSpontaneousEvent(w, e);
         e->t = orgType;
