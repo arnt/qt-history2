@@ -73,6 +73,7 @@
 #include "qhostaddress.h"
 #include "qlist.h"
 #include "qtcpsocket.h"
+#include "qpointer.h"
 #include "private/qobject_p.h"
 #include "qsocketnotifier.h"
 
@@ -138,13 +139,17 @@ void QTcpServerPrivate::processIncomingConnection(int)
         qDebug("QTcpServerPrivate::processIncomingConnection() accepted socket %i", descriptor);
 #endif
         q->incomingConnection(descriptor);
+
+        QPointer<QTcpServer> that = q;
         emit q->newConnection();
+        if (!that || !q->isListening())
+            return;
     }
 }
 
 /*!
     Constructs a QTcpServer object.
-    
+
     \a parent is passed to the QObject constructor.
 
     \sa listen(), setSocketDescriptor()
@@ -282,7 +287,7 @@ int QTcpServer::socketDescriptor() const
 /*!
     Sets the socket descriptor this server should use when listening
     for incoming connections to \a socketDescriptor.
-    
+
     The socket is assumed to be in listening state.
 
     \sa socketDescriptor(), isListening()
