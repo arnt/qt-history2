@@ -309,7 +309,7 @@ void qt_mac_update_os_settings()
 	int i = qt_mac_get_global_setting("AppleKeyboardUIMode", "0").toInt(&ok);
 	qt_tab_all_widgets = !ok || (i & 0x2);
     }
-    { //focus mode
+    { //paging mode
 	/* I just reverse engineered this, I'm not so sure how well it will hold up but it works as of 10.2.3 */
 	QString paging = qt_mac_get_global_setting("AppleScrollerPagingBehavior", "false");
 	qt_scrollbar_jump_to_pos = (paging == "true");
@@ -2461,7 +2461,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	} else if(ekind == kEventWindowDispose) {
 	    qt_mac_unicode_cleanup(widget);
 	} else if(ekind == kEventWindowExpanded) {
-	    widget->setWindowState(widget->windowState() & ~WindowMinimized | WindowActive);
+	    widget->setWindowState((widget->windowState() & ~WindowMinimized) | WindowActive);
 	    QShowEvent qse;
 	    QApplication::sendSpontaneousEvent(widget, &qse);
 	} else if(ekind == kEventWindowBoundsChanged) {
@@ -2638,11 +2638,15 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #endif
 	    {
 		if(cmd.commandID == kHICommandQuit) {
-		    QCloseEvent ev;
-		    QApplication::sendSpontaneousEvent(app, &ev);
-		    HiliteMenu(0);
-		    if(ev.isAccepted())
-			app->quit();
+                    HiliteMenu(0);
+                    if (!qt_modal_state()) {
+                        QCloseEvent ev;
+                        QApplication::sendSpontaneousEvent(app, &ev);
+                        if(ev.isAccepted())
+                            app->quit();
+                    } else {
+                        QApplication::beep();
+                    }
 		} else if(cmd.commandID == kHICommandAbout) {
 		    QMessageBox::aboutQt(0);
 		    HiliteMenu(0);
@@ -2708,14 +2712,16 @@ OSStatus QApplication::globalAppleEventProcessor(const AppleEvent *ae, AppleEven
     if(aeClass == kCoreEventClass) {
 	switch(aeID) {
 	case kAEQuitApplication: {
-	    if(!qt_modal_state() || IsMenuCommandEnabled(NULL, kHICommandQuit)) {
+	    if(!qt_modal_state() && IsMenuCommandEnabled(NULL, kHICommandQuit)) {
 		QCloseEvent ev;
 		QApplication::sendSpontaneousEvent(app, &ev);
 		if(ev.isAccepted()) {
 		    handled_event = true;
 		    app->quit();
 		}
-	    }
+	    } else {
+                QApplication::beep();  // Sorry, you can't quit right now.
+            }
 	    break; }
 	case kAEOpenDocuments: {
 #if 0
