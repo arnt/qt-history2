@@ -985,9 +985,11 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
                 } else if (try_family->scripts[QFont::UnknownScript] & QtFontFamily::Supported) {
                     // try with the unknown script (for a symbol font)
                     override_script = QFont::UnknownScript;
+#ifndef QT_NO_XFTFREETYPE
                 } else if (try_family->scripts[QFont::Unicode] & QtFontFamily::Supported) {
                     // try with the unicode script instead
                     override_script = QFont::Unicode;
+#endif
                 } else {
                     // family not supported by unicode/unknown scripts
                     continue;

@@ -1159,7 +1159,7 @@ static double addPatternProps(XftPattern *pattern, const QtFontStyle::Key &key, 
 
 #  ifdef XFT_MATRIX
     if ((request.stretch > 0 && request.stretch != 100) ||
-         (key.oblique && fakeOblique)) {
+        (key.oblique && fakeOblique)) {
         XftMatrix matrix;
         XftMatrixInit(&matrix);
 
@@ -1177,15 +1177,16 @@ static double addPatternProps(XftPattern *pattern, const QtFontStyle::Key &key, 
                           !(request.styleStrategy & QFont::NoAntialias));
     }
 
-    FcCharSet *cs = FcCharSetCreate();
-    QChar sample = sampleCharacter(script);
-    FcCharSetAddChar(cs, sample.unicode());
-    if (script == QFont::Latin)
-        // add Euro character
-        FcCharSetAddChar(cs, 0x20ac);
-    FcPatternAddCharSet(pattern, FC_CHARSET, cs);
-    FcCharSetDestroy(cs);
-
+    if (script != QFont::Unicode) {
+        FcCharSet *cs = FcCharSetCreate();
+        QChar sample = sampleCharacter(script);
+        FcCharSetAddChar(cs, sample.unicode());
+        if (script == QFont::Latin)
+            // add Euro character
+            FcCharSetAddChar(cs, 0x20ac);
+        FcPatternAddCharSet(pattern, FC_CHARSET, cs);
+        FcCharSetDestroy(cs);
+    }
     return scale;
 }
 #endif // QT_NO_XFTFREETYPE
@@ -1268,7 +1269,7 @@ QFontEngine *loadEngine(QFont::Script script,
  		FcCharSetAddChar(cs, sample.unicode());
  		FcPatternAddCharSet(pattern, FC_CHARSET, cs);
  		FcCharSetDestroy(cs);
- 		result = XftFontMatch( QPaintDevice::x11AppDisplay(), fp->screen, pattern, &res );
+ 		result = XftFontMatch(QX11Info::appDisplay(), fp->screen, pattern, &res);
  	    }
  	}
 	XftPatternDestroy(pattern);
@@ -1382,11 +1383,11 @@ static void parseFontName(const QString &name, QString &foundry, QString &family
 static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &request, QFont::Script script)
 {
     if (!X11->has_xft)
-        return 0;
+	return 0;
 
     QStringList family_list;
     if (request.family.isEmpty()) {
-        family_list = fp->request.family.split(QChar(','));
+	family_list = fp->request.family.split(QChar(','));
 
         QString stylehint;
         switch (request.styleHint) {
@@ -1469,6 +1470,17 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
         printf("final pattern contains:\n");
         FcPatternPrint(pattern);
 #endif
+    }
+
+    if (script != QFont::Unicode) {
+        FcCharSet *cs = FcCharSetCreate();
+        QChar sample = sampleCharacter(script);
+        FcCharSetAddChar(cs, sample.unicode());
+        if (script == QFont::Latin)
+            // add Euro character
+            FcCharSetAddChar(cs, 0x20ac);
+        FcPatternAddCharSet(pattern, FC_CHARSET, cs);
+        FcCharSetDestroy(cs);
     }
 
     FcResult result;
