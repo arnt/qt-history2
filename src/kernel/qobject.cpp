@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#224 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#225 $
 **
 ** Implementation of QObject class
 **
@@ -55,8 +55,8 @@
 
 /*! \enum Qt::Orientation
 
-  This type is used to signify whether an object should be \a
-  Horizontal or \a Vertical (for example in QScrollBar).
+  This type is used to signify whether an object should be \c
+  Horizontal or \c Vertical (for example in QScrollBar).
 */
 
 
@@ -1782,6 +1782,7 @@ void QObject::initMetaObject()
 /*!
   The functionality of initMetaObject(), provided as a static function.
 */
+
 #ifdef QT_BUILDER
 QMetaObject* QObject::staticMetaObject()
 {
@@ -2951,7 +2952,7 @@ QDomElement QObject::configuration( QDomDocument& doc, bool properties ) const
 	x.setNum( (long)this );
 	e.setAttribute( "__ptr", x );
     }
-    
+
     return e;
 }
 
