@@ -1608,20 +1608,34 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
         // map x and y to the root window
         WId unused;
         if (! XTranslateCoordinates(dpy, window, window_attr.root, x, y,
-                                      &x, &y, &unused))
+                                    &x, &y, &unused))
             return QPixmap();
 
-       window = window_attr.root;
+        window = window_attr.root;
+        window_attr = root_attr;
     }
 
     QPixmap pm(w, h);
     pm.data->uninit = false;
     pm.x11SetScreen(scr);
 
-    GC gc = qt_xget_temp_gc(scr, false);
-    XSetSubwindowMode(dpy, gc, IncludeInferiors);
-    XCopyArea(dpy, window, pm.handle(), gc, x, y, w, h, 0, 0);
-    XSetSubwindowMode(dpy, gc, ClipByChildren);
+#ifndef QT_NO_XRENDER
+    if (X11->has_xft && X11->use_xrender) {
+        XRenderPictFormat *format = XRenderFindVisualFormat(dpy, window_attr.visual);
+        XRenderPictureAttributes pattr;
+        pattr.subwindow_mode = IncludeInferiors;
+        Picture src_pict = XRenderCreatePicture(dpy, window, format, CPSubwindowMode, &pattr);
+        Picture dst_pict = pm.xftPictureHandle();
+        XRenderComposite(dpy, PictOpSrc, src_pict, 0, dst_pict, x, y, x, y, 0, 0, w, h);
+        XRenderFreePicture(dpy, src_pict);
+    } else
+#endif
+        {
+            GC gc = qt_xget_temp_gc(scr, false);
+            XSetSubwindowMode(dpy, gc, IncludeInferiors);
+            XCopyArea(dpy, window, pm.handle(), gc, x, y, w, h, 0, 0);
+            XSetSubwindowMode(dpy, gc, ClipByChildren);
+        }
 
     return pm;
 }
