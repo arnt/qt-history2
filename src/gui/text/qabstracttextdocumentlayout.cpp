@@ -96,83 +96,28 @@ QSize QAbstractTextDocumentLayout::pageSize() const
 }
 
 
-QTextLayout *QAbstractTextDocumentLayout::BlockIterator::layout() const
-{
-    const QTextPieceTable::BlockMap &blockMap = pt->blockMap();
-    return blockMap.fragment(block)->layout;
-}
-
-QTextBlockFormat QAbstractTextDocumentLayout::BlockIterator::format() const
-{
-    int idx = formatIndex();
-    if (idx == -1)
-        return QTextBlockFormat();
-
-    return pt->formatCollection()->blockFormat(idx);
-}
-
-int QAbstractTextDocumentLayout::BlockIterator::formatIndex() const
-{
-    if (atEnd())
-        return -1;
-
-    QTextPieceTable::FragmentIterator it = pt->find(pt->blockMap().position(block));
-    Q_ASSERT(!it.atEnd());
-
-    return it.value()->format;
-}
-
-int QAbstractTextDocumentLayout::BlockIterator::position() const
-{
-    return pt->blockMap().position(block);
-}
-
-int QAbstractTextDocumentLayout::BlockIterator::length() const
-{
-    return pt->blockMap().size(block);
-}
-
-bool QAbstractTextDocumentLayout::BlockIterator::operator<(const BlockIterator &it) const
-{
-    Q_ASSERT(pt == it.pt);
-    return pt->blockMap().position(block) < pt->blockMap().position(it.block);
-}
-
-QAbstractTextDocumentLayout::BlockIterator& QAbstractTextDocumentLayout::BlockIterator::operator++()
-{
-    block = pt->blockMap().next(block);
-    return *this;
-}
-
-QAbstractTextDocumentLayout::BlockIterator& QAbstractTextDocumentLayout::BlockIterator::operator--()
-{
-    block = pt->blockMap().prev(block);
-    return *this;
-}
-
-
-QAbstractTextDocumentLayout::BlockIterator QAbstractTextDocumentLayout::findBlock(int pos) const
+QTextBlockIterator QAbstractTextDocumentLayout::findBlock(int pos) const
 {
     QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
     if (!pieceTable)
-        return BlockIterator();
-    return BlockIterator(pieceTable, pieceTable->blockMap().findNode(pos));
+        return QTextBlockIterator();
+    return QTextBlockIterator(pieceTable, pieceTable->blockMap().findNode(pos));
 }
 
-QAbstractTextDocumentLayout::BlockIterator QAbstractTextDocumentLayout::begin() const
+QTextBlockIterator QAbstractTextDocumentLayout::begin() const
 {
     QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
     if (!pieceTable)
-        return BlockIterator();
-    return BlockIterator(pieceTable, pieceTable->blockMap().begin().n);
+        return QTextBlockIterator();
+    return QTextBlockIterator(pieceTable, pieceTable->blockMap().begin().n);
 }
 
-QAbstractTextDocumentLayout::BlockIterator QAbstractTextDocumentLayout::end() const
+QTextBlockIterator QAbstractTextDocumentLayout::end() const
 {
     QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
     if (!pieceTable)
-        return BlockIterator();
-    return BlockIterator(pieceTable, 0);
+        return QTextBlockIterator();
+    return QTextBlockIterator(pieceTable, 0);
 }
 
 int QAbstractTextDocumentLayout::formatIndex(int pos)
