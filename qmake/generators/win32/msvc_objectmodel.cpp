@@ -2048,6 +2048,8 @@ XmlOutput &operator<<(XmlOutput &xml, const VCProjectSingleConfig &tool)
                 << (VCFilter&)tool.HeaderFiles
                 << (VCFilter&)tool.GeneratedFiles
                 << (VCFilter&)tool.LexYaccFiles
+                << (VCFilter&)tool.TranslationFiles
+                << (VCFilter&)tool.FormFiles
                 << (VCFilter&)tool.ResourceFiles;
     for(int j = 0; j < tool.ExtraCompilersFiles.size(); ++j)
         xml     << (VCFilter&)tool.ExtraCompilersFiles.at(j);
