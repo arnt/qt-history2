@@ -76,7 +76,7 @@ extern "C" {
 	    return 0;
 	}
 
-	if (qApp->focusWidget() != qic->focusWidget) {
+	if (qApp->focusWidget() != qic->focusWidget && qic->text.isEmpty()) {
 	    if (qic->focusWidget) {
 		QIMEvent endevent(QEvent::IMEnd, qic->lastcompose, -1);
 		QApplication::sendEvent(qic->focusWidget, &endevent);
