@@ -1,12 +1,12 @@
 SOURCES	+= main.cpp 
 TARGET      = receiver
-INTERFACES	= mainform.ui 
+IMAGEFILE	= images.cpp
+PROJECTNAME	= receiver
+FORMS	= mainform.ui 
 TEMPLATE	=app
 CONFIG	+= qt warn_on release
 INCLUDEPATH	+= $(QTDIR)/tools/designer/uilib
 win32:LIBS	+= $(QTDIR)/lib/qui.lib
 unix:LIBS	+= -lqui
 DBFILE	= receiver.db
-IMAGEFILE	= images.cpp
-PROJECTNAME	= receiver
 LANGUAGE	= C++

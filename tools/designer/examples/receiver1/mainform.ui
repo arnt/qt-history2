@@ -1,8 +1,5 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>MainForm</class>
-<include location="global" impldecl="in implementation">qspinbox.h</include>
-<include location="global" impldecl="in implementation">qwidgetfactory.h</include>
-<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>MainForm</cstring>
@@ -63,41 +60,28 @@
     </grid>
 </widget>
 <connections>
-    <connection language="C++">
+    <connection>
         <sender>creditPushButton</sender>
         <signal>clicked()</signal>
         <receiver>MainForm</receiver>
         <slot>creditDialog()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>quitPushButton</sender>
         <signal>clicked()</signal>
         <receiver>MainForm</receiver>
         <slot>accept()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
-    <slot access="public" language="C++" returnType="void">creditDialog()</slot>
 </connections>
-<functions>
-    <function name="init()" >{
-
-}</function>
-    <function name="destroy()" >{
-
-}</function>
-    <function name="creditDialog()" >{
-    QDialog *creditForm = (QDialog *)
-    	QWidgetFactory::create( "../credit/creditformbase.ui" );
-    // Set up the dynamic dialog here
-    
-    if ( creditForm-&gt;exec() ) {
-	// The user accepted, act accordingly
-	QSpinBox *amount = (QSpinBox *) creditForm-&gt;child( "amountSpinBox", "QSpinBox" );
-	if ( amount )
-	    ratingTextLabel-&gt;setText( amount-&gt;text() ); 
-    }
-    delete creditForm;
-}</function>
-</functions>
+<includes>
+    <include location="global" impldecl="in implementation">qspinbox.h</include>
+    <include location="global" impldecl="in implementation">qwidgetfactory.h</include>
+    <include location="local" impldecl="in implementation">mainform.ui.h</include>
+</includes>
+<slots>
+    <slot access="protected">init()</slot>
+    <slot access="protected">destroy()</slot>
+    <slot>creditDialog()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>
