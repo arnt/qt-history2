@@ -27,7 +27,6 @@
 	    Project('TMAKE_LIBS *= $(SYSCONF_LIBS_QT)');
 	}
     } elsif ( Config("qtinc") ) {
-	# eg. moc only needs the includes
 	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_QT)');
     }
     if ( Config("opengl") ) {
