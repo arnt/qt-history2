@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#94 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#95 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#94 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#95 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -635,7 +635,7 @@ bool QWidget::focusPrevChild()
   Enables widget updates if \e enable is TRUE, or  disables widget updates
   if \e enable is FALSE.
 
-  If updates are disabled, the widget will not receive repaint events.
+  If updates are disabled, repaint events for the widget will be discarded.
   \sa update(), repaint(), paintEvent()
 */
 
@@ -650,7 +650,7 @@ bool QWidget::enableUpdates( bool enable )	// enable widget update/repaint
 }
 
 /*!
-  Updates the widget unless updates are disabled.
+  Updates the widget if (and \e only if) updates are enabled.
 
   Updating the widget will erase the widget contents and generate a paint
   event from the window system.
