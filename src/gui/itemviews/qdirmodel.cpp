@@ -842,62 +842,44 @@ void QDirModel::refresh(const QModelIndex &parent)
 QModelIndex QDirModel::index(const QString &path, int column) const
 {
     Q_D(const QDirModel);
-    if (path.isEmpty() || path == QObject::tr("My Computer"))// the root path
+
+    if (path.isEmpty() || path == QObject::tr("My Computer"))
         return QModelIndex();
 
-    const QChar sep = '/';
-    QStringList pth = QDir(path).absolutePath().split(sep, QString::SkipEmptyParts);
-
-#ifdef Q_OS_WIN
-    if (pth.isEmpty()) {
-        qWarning("index: no path elements");
+    if (!QFileInfo(path).exists()) {
+        QString converted = QDir::convertSeparators(path);
+        QString warn = QString("index: the path '%1'does not exist\n").arg(converted);
+        qWarning(warn.toLatin1().constData());
         return QModelIndex();
     }
-#endif
 
-    QStringList entries;
-    QDirModelPrivate::QDirNode *node;
-    QModelIndex idx; // start with the root node
-
-#ifndef Q_OS_WIN
-    idx = index(0, 0, idx); // "/"
-    node = &(d->root);
-#endif
-
-    for (int i = 0; i < pth.count(); ++i) {
-
-        if (pth.at(i).isEmpty()) {
-            qWarning("index: path element %d was empty", i);
-            continue;
-        }
-        node = idx.isValid() ? static_cast<QDirModelPrivate::QDirNode*>(idx.data()) : &(d->root);
-
+    QString absolutePath = QDir(path).absolutePath();
+    QStringList pathElements = absolutePath.split(QChar('/'), QString::SkipEmptyParts);
 #ifdef Q_OS_WIN
-        if (!idx.isValid()) {
-            QFileInfoList info = d->rootChildren(); // the children could be drives
-            entries.clear();
+    Q_ASSERT(!pathElements.isEmpty()); // a path that only consists of  "/" is illegal on windows
+#else
+    pathElements.prepend("/"); // add the "/" item, since it is a valid path element on unix
+#endif
+    QModelIndex idx; // start with "My Computer"
+    for (int i = 0; i < pathElements.count(); ++i) {
+        QStringList entries;
+        Q_ASSERT(!pathElements.at(i).isEmpty()); // we don't allow empty elements
+        // get the list of children of the current path element
+        if (idx.isValid()) {
+            QDirModelPrivate::QDirNode *node =
+                static_cast<QDirModelPrivate::QDirNode*>(idx.data());
+            Q_ASSERT(node);
+            entries = d->entryList(node->info.absoluteFilePath());
+        } else { // parent is "My Computer"
+            QFileInfoList info = d->rootChildren();
             for (int j = 0; j < info.count(); ++j)
                 entries << QDir::cleanPath(info.at(j).absoluteFilePath());
-        } else
-#endif
-        {
-            QString absPath = node->info.absoluteFilePath();
-
-            QFileInfoList info = d->entryInfoList(absPath);
-            entries.clear();
-            for (int fi = 0; fi < info.count(); ++fi)
-                entries << info.at(fi).fileName();
         }
 
-        QString entry = pth.at(i);
-        int r = entries.indexOf(entry);
-        idx = index(r, column, idx); // will check row and lazily populate
-        if (!idx.isValid()) {
-            QString converted = QDir::convertSeparators(path);
-            QString warn = QString("index: the path '%1' could not be found\n").arg(converted);
-            qWarning(warn.toLatin1().constData());
-            return QModelIndex();
-        }
+        // find the row of the current path element in the list of children
+        int row = entries.indexOf(pathElements.at(i));
+        idx = index(row, column, idx); // will check row and lazily populate
+        Q_ASSERT(idx.isValid());
     }
 
     return idx;
