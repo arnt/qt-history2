@@ -266,6 +266,10 @@ QListView::lastItem() (andy)
 Services/Daemons (vohi, rms)
   Platform independent API to install deamons on Unix and Services on NT. (support/arc-12/24505)
 
+QComboBox
+  Be able to have right aligned text, on Windows, this means putting the arrow on the left
+  hand side of the combobox.
+
 New functionality
 -----------------
 
