@@ -543,7 +543,7 @@ void LightStyle::drawTab(QPainter *p, const QTabBar *tabbar, QTab *tab,
     p->save();
 
     QColorGroup g = tabbar->colorGroup();
-    QRect fr(tab->r);
+    QRect fr(tab->rect());
     fr.setLeft(fr.left() + 2);
 
     if (! selected) {
@@ -556,7 +556,7 @@ void LightStyle::drawTab(QPainter *p, const QTabBar *tabbar, QTab *tab,
         }
     }
 
-    QRegion tabr(tab->r);
+    QRegion tabr(tab->rect());
 
     QPointArray cliptri(4);
     cliptri.setPoint(0, fr.left(), fr.top());
