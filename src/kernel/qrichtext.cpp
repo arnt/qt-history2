@@ -2210,6 +2210,7 @@ QString QTextDocument::selectedText( int id, bool withCustom ) const
 
     QTextDocumentSelection sel = *it;
 
+
     QTextCursor c1 = sel.startCursor;
     QTextCursor c2 = sel.endCursor;
     if ( sel.swapped ) {
@@ -2220,24 +2221,16 @@ QString QTextDocument::selectedText( int id, bool withCustom ) const
     c2.restoreState();
     c1.restoreState();
 
-    if ( c1.parag() == c2.parag() )
-	return c1.parag()->string()->toString().mid( c1.index(), c2.index() - c1.index() );
-
-    QString s;
-    s += c1.parag()->string()->toString().mid( c1.index() );
-    s.remove( s.length() - 1, 1 );
-    s += "\n";
-    QTextParag *p = c1.parag()->next();
-    while ( p ) {
-	int end = p == c2.parag() ? c2.index() : p->length() - 1;
-	if ( p == c2.parag() && p->at( QMAX( 0, end - 1 ) )->isCustom() )
+    if ( c1.parag() == c2.parag() ) {
+	QString s;
+	QTextParag *p = c1.parag();
+	int end = c2.index();
+	if ( p->at( QMAX( 0, end - 1 ) )->isCustom() )
 	    ++end;
 	if ( !withCustom || !p->customItems() ) {
-	    s += p->string()->toString().left( end );
-	    if ( p != c2.parag() )
-		s += "\n";
+	    s += p->string()->toString().mid( c1.index(), end - c1.index() );
 	} else {
-	    for ( int i = 0; i < end; ++i ) {
+	    for ( int i = c1.index(); i < end; ++i ) {
 		if ( p->at( i )->isCustom() ) {
 		    if ( p->at( i )->customItem()->isNested() ) {
 			s += "\n";
@@ -2253,6 +2246,38 @@ QString QTextDocument::selectedText( int id, bool withCustom ) const
 		s += "\n";
 	    }
 	}
+	return s;
+    }
+
+    QString s;
+    QTextParag *p = c1.parag();
+    int start = c1.index();
+    while ( p ) {
+	int end = p == c2.parag() ? c2.index() : p->length() - 1;
+	if ( p == c2.parag() && p->at( QMAX( 0, end - 1 ) )->isCustom() )
+	    ++end;
+	if ( !withCustom || !p->customItems() ) {
+	    s += p->string()->toString().mid( start, end - start );
+	    if ( p != c2.parag() )
+		s += "\n";
+	} else {
+	    for ( int i = start; i < end; ++i ) {
+		if ( p->at( i )->isCustom() ) {
+		    if ( p->at( i )->customItem()->isNested() ) {
+			s += "\n";
+			QTextTable *t = (QTextTable*)p->at( i )->customItem();
+			QPtrList<QTextTableCell> cells = t->tableCells();
+			for ( QTextTableCell *c = cells.first(); c; c = cells.next() )
+			    s += c->richText()->plainText() + "\n";
+			s += "\n";
+		    }
+		} else {
+		    s += p->at( i )->c;
+		}
+		s += "\n";
+	    }
+	}
+	start = 0;
 	if ( p == c2.parag() )
 	    break;
 	p = p->next();
