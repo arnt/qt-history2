@@ -334,7 +334,7 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
     return var;
 }
 
-void QVariantToQUObject( const QVariant &var, QUObject &obj )
+void QVariantToQUObject( const QVariant &var, QUObject &obj, const void *typeExtra )
 {
     QUType *preset = obj.type;
     switch ( var.type() ) {
@@ -402,15 +402,24 @@ void QVariantToQUObject( const QVariant &var, QUObject &obj )
 	break;
     }
     if ( !QUType::isEqual(preset, &static_QUType_Null ) && !QUType::isEqual( preset, obj.type ) ) {
-#ifndef QT_NO_DEBUG
 	if ( !preset->canConvertFrom( &obj, obj.type ) ) {
-	    if ( QUType::isEqual( preset, &static_QUType_ptr ) )
+	    if ( typeExtra && ( var.type() == QVariant::String || var.type() == QVariant::CString ) 
+		&& QUType::isEqual( preset, &static_QUType_enum ) ) {
+		const QUEnum *uEnum = (const QUEnum *)typeExtra;
+		for ( uint eItem = 0; eItem<uEnum->count; ++eItem ) {
+		    if ( uEnum->items[eItem].key == var.toString() ) {
+			static_QUType_enum.set( &obj, uEnum->items[eItem].value );
+			break;
+		    }
+		}
+	    }
+#ifndef QT_NO_DEBUG
+	    else if ( QUType::isEqual( preset, &static_QUType_ptr ) )
 		qWarning( "QVariant does not support pointer types" );
 	    else
 		qWarning( "Can't coerce QVariant to requested type (%s to %s)", obj.type->desc(), preset->desc() );
-	} else 
 #endif
-	{
+	} else {
 	    preset->convertFrom( &obj, obj.type );
 	}
     }

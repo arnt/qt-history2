@@ -95,7 +95,7 @@ static QColor OLEColorToQColor( uint col )
 
 extern QAX_EXPORT VARIANT QVariantToVARIANT( const QVariant &var, const char *type = 0 );
 extern QAX_EXPORT QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint = 0 );
-extern QAX_EXPORT void QVariantToQUObject( const QVariant &var, QUObject &obj );
+extern QAX_EXPORT void QVariantToQUObject( const QVariant &var, QUObject &obj, const void *typeExtra = 0 );
 extern QAX_EXPORT void QUObjectToVARIANT( QUObject *obj, VARIANT &var, const QUParameter *param );
 
 #endif //TYPES_H
