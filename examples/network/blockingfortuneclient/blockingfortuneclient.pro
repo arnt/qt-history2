@@ -1,6 +1,6 @@
-HEADERS       = client.h \
+HEADERS       = blockingclient.h \
                 thread.h
-SOURCES       = client.cpp \
+SOURCES       = blockingclient.cpp \
                 main.cpp \
                 thread.cpp
 QT           += network

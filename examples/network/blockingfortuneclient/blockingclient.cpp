@@ -1,9 +1,9 @@
 #include <QtGui>
 #include <QtNetwork>
 
-#include "client.h"
+#include "blockingclient.h"
 
-Client::Client(QWidget *parent)
+BlockingClient::BlockingClient(QWidget *parent)
     : QDialog(parent)
 {
     hostLabel = new QLabel(tr("&Host name:"), this);
@@ -54,13 +54,13 @@ Client::Client(QWidget *parent)
     portLineEdit->setFocus();
 }
 
-void Client::requestNewFortune()
+void BlockingClient::requestNewFortune()
 {
     thread.requestNewFortune(hostLineEdit->text(),
                              portLineEdit->text().toInt());
 }
 
-void Client::showFortune(const QString &nextFortune)
+void BlockingClient::showFortune(const QString &nextFortune)
 {
     if (nextFortune == currentFortune) {
         requestNewFortune();
@@ -71,7 +71,7 @@ void Client::showFortune(const QString &nextFortune)
     statusLabel->setText(currentFortune);
 }
 
-void Client::displayError(int socketError, const QString &message)
+void BlockingClient::displayError(int socketError, const QString &message)
 {
     switch (socketError) {
     case Qt::HostNotFoundError:
@@ -93,7 +93,7 @@ void Client::displayError(int socketError, const QString &message)
     }
 }
 
-void Client::enableGetFortuneButton()
+void BlockingClient::enableGetFortuneButton()
 {
     getFortuneButton->setEnabled(!hostLineEdit->text().isEmpty()
                                  && !portLineEdit->text().isEmpty());

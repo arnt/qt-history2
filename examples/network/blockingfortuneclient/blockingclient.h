@@ -1,5 +1,5 @@
-#ifndef CLIENT_H
-#define CLIENT_H
+#ifndef BLOCKINGCLIENT_H
+#define BLOCKINGCLIENT_H
 
 #include <QDialog>
 
@@ -9,12 +9,12 @@ class QLabel;
 class QLineEdit;
 class QPushButton;
 
-class Client : public QDialog
+class BlockingClient : public QDialog
 {
     Q_OBJECT
 
 public:
-    Client(QWidget *parent = 0);
+    BlockingClient(QWidget *parent = 0);
 
 private slots:
     void requestNewFortune();

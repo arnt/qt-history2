@@ -1,11 +1,11 @@
-#include <QtGui>
+#include <QApplication>
 
-#include "client.h"
+#include "blockingclient.h"
 
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
-    Client client;
+    BlockingClient client;
     app.setMainWidget(&client);
     client.show();
     return app.exec();
