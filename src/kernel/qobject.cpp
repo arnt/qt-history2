@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#165 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#166 $
 **
 ** Implementation of QObject class
 **
@@ -167,13 +167,13 @@
 // Internal for QObject::connect() and QObject::disconnect()
 //
 
-inline bool isIdentChar( char x )
+static inline bool isIdentChar( char x )
 {						// Avoid bug in isalnum
     return x == '_' || (x >= '0' && x <= '9') ||
 	 (x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z');
 }
 
-inline bool isSpace( char x )
+static inline bool isSpace( char x )
 {
 #if defined(_CC_BOR_)
   /*

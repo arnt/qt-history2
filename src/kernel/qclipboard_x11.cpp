@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#34 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -49,6 +49,7 @@ static void cleanup() {
     buf = 0;
 }
 
+static
 void setupOwner()
 {
     if ( owner )

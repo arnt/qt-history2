@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#58 $
 **
 ** Implementation of QScrollView class
 **
@@ -34,8 +34,8 @@
 
 const int sbDim = 16;
 
-struct ChildRec {
-    ChildRec(QWidget* c, int xx, int yy) :
+struct QSVChildRec {
+    QSVChildRec(QWidget* c, int xx, int yy) :
 	child(c),
 	x(xx), y(yy)
     {
@@ -91,8 +91,8 @@ struct QScrollViewData {
 	deleteAll();
     }
 
-    ChildRec* rec(QWidget* w) { return childDict.find(w); }
-    ChildRec* ancestorRec(QWidget* w)
+    QSVChildRec* rec(QWidget* w) { return childDict.find(w); }
+    QSVChildRec* ancestorRec(QWidget* w)
     {
 	while (w->parentWidget() != &viewport) {
 	    w = w->parentWidget();
@@ -100,14 +100,14 @@ struct QScrollViewData {
 	}
 	return rec(w);
     }
-    ChildRec* addChildRec(QWidget* w, int x, int y )
+    QSVChildRec* addChildRec(QWidget* w, int x, int y )
     {
-	ChildRec *r = new ChildRec(w,x,y);
+	QSVChildRec *r = new QSVChildRec(w,x,y);
 	children.append(r);
 	childDict.insert(w, r);
 	return r;
     }
-    void deleteChildRec(ChildRec* r)
+    void deleteChildRec(QSVChildRec* r)
     {
 	childDict.remove(r->child);
 	children.removeRef(r);
@@ -115,25 +115,25 @@ struct QScrollViewData {
     }
     void hideOrShowAll(QScrollView* sv)
     {
-	for (ChildRec *r = children.first(); r; r=children.next()) {
+	for (QSVChildRec *r = children.first(); r; r=children.next()) {
 	    r->hideOrShow(sv);
 	}
     }
     void moveAllBy(int dx, int dy)
     {
-	for (ChildRec *r = children.first(); r; r=children.next()) {
+	for (QSVChildRec *r = children.first(); r; r=children.next()) {
 	    r->child->move(r->child->x()+dx,r->child->y()+dy);
 	}
     }
     void deleteAll()
     {
-	for (ChildRec *r = children.first(); r; r=children.next()) {
+	for (QSVChildRec *r = children.first(); r; r=children.next()) {
 	    delete r;
 	}
     }
     bool anyVisibleChildren()
     {
-	for (ChildRec *r = children.first(); r; r=children.next()) {
+	for (QSVChildRec *r = children.first(); r; r=children.next()) {
 	    if (r->child->isVisible()) return TRUE;
 	}
 	return FALSE;
@@ -141,7 +141,7 @@ struct QScrollViewData {
     void autoResize(QScrollView* sv)
     {
 	if ( policy == QScrollView::AutoOne ) {
-	    ChildRec* r = children.first();
+	    QSVChildRec* r = children.first();
 	    sv->resizeContents(r->child->width(),r->child->height());
 	}
     }
@@ -150,8 +150,8 @@ struct QScrollViewData {
     QScrollBar	hbar;
     QScrollBar	vbar;
     QWidget	viewport;
-    QList<ChildRec>	children;
-    QPtrDict<ChildRec>	childDict;
+    QList<QSVChildRec>	children;
+    QPtrDict<QSVChildRec>	childDict;
     QWidget*	corner;
     int		vx, vy, vwidth, vheight; // for drawContents-style usage
     int		l_marg, r_marg, t_marg, b_marg;
@@ -577,7 +577,7 @@ void QScrollView::removeChild(QWidget* child)
     if ( !d ) // In case we are destructing
 	return;
 
-    ChildRec *r = d->rec(child);
+    QSVChildRec *r = d->rec(child);
     if ( r ) d->deleteChildRec( r );
 }
 
@@ -595,7 +595,7 @@ void QScrollView::addChild(QWidget* child, int x, int y)
 {
     if ( child->parentWidget() == &d->viewport ) {
 	// May already be there
-	ChildRec *r = d->rec(child);
+	QSVChildRec *r = d->rec(child);
 	if (r) {
 	    r->moveTo(this,x,y);
 	    if ( d->policy > Manual ) {
@@ -706,7 +706,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	}
     } else {
 	// must be a child
-	ChildRec* r = d->rec((QWidget*)obj);
+	QSVChildRec* r = d->rec((QWidget*)obj);
 	if (!r) return FALSE; // spurious
 	switch ( e->type() ) {
 	  case Event_Resize:
@@ -1193,7 +1193,7 @@ bool QScrollView::focusNextPrevChild( bool next )
     QWidget *startingPoint = f->home();
     QWidget *candidate = 0;
     QWidget *w = next ? f->next() : f->prev();
-    ChildRec *r;
+    QSVChildRec *r;
 
     // then scan for a possible focus widget candidate
     while( !candidate && w != startingPoint ) {
