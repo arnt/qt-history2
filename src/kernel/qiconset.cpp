@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#9 $
 **
 ** Implementation of QIconSet class
 **
@@ -53,7 +53,7 @@ struct QIconSetPrivate: public QShared
 
   QIconSet must be fed at least one icon, and can generate the other
   icons from the ones it is fed, or use programmer-specified icons.
-  
+
   Using the icon or icons specified, QIconSet generates a set of six
   icons: <ul>
   <li> Small, normal
@@ -63,7 +63,7 @@ struct QIconSetPrivate: public QShared
   <li> Large, disabled
   <li> Large, active
   </ul>
-  
+
   You can set any of the icons using setPixmap() and when you retrieve
   aone using pixmap(), QIconSet will compute and cache that from the
   closest other icon.
@@ -71,7 +71,7 @@ struct QIconSetPrivate: public QShared
   The \c Disabled appearance is computed using a "shadow" algorithm
   which produces results very similar to that used in of Microsoft
   Windows 95.
-  
+
   The \c Active appearance is identical to the \c Normal appearance
   unless you use setPixmap() to set it to something special.
 
@@ -81,7 +81,7 @@ struct QIconSetPrivate: public QShared
 
   In Qt 1.40 only QToolButton uses QIconSet.  In Qt 2.0 we will use it
   in more classes, including the menu system.
-  
+
   \sa QPixmap QLabel QToolButton
   <a href="guibooks.html#fowler">GUI Design Handbook: Iconic Label.</a>
 */
@@ -334,9 +334,14 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 			tmp.convertFromImage( i, MonoOnly + ThresholdDither );
 		    }
 		} else {
-		    i = pixmap( Small, Normal ).convertToImage();
-		    i = i.createHeuristicMask();
-		    tmp.convertFromImage( i, MonoOnly + ThresholdDither );
+		    const QBitmap *origMask = pixmap( Small, Normal ).mask();
+		    if ( origMask ) {
+			tmp = *origMask;
+		    } else {
+			i = pixmap( Small, Normal ).convertToImage();
+			i = i.createHeuristicMask();
+			tmp.convertFromImage( i, MonoOnly + ThresholdDither );
+		    }
 		    p->smallDisabled.pm
 			= new QPixmap( p->small.pm->width()+1,
 				       p->small.pm->height()+1);
@@ -349,6 +354,8 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		    painter.drawPixmap( 0, 0, tmp );
 		}
 		if ( !p->smallDisabled.pm->mask() ) {
+		    if ( !tmp.mask() )
+			tmp.setMask( tmp );
 		    QBitmap mask( d->smallDisabled.pm->size() );
 		    mask.fill( color0 );
 		    QPainter painter( &mask );
@@ -357,6 +364,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		    painter.end();
 		    p->smallDisabled.pm->setMask( mask );
 		}
+
 		p->smallDisabled.generated = TRUE;
 	    }
 	    pm = p->smallDisabled.pm;
