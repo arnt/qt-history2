@@ -2,8 +2,8 @@
 @Doc @Text @Begin
 @Place 
     x { right - 5.6c }
-    y { foot + 1c }
-{ darkgrey @Colour 9p @Font 1f @High WEL300505NO-03"/"03 }
+    y { foot + 1.025c }
+{ darkgrey @Colour 9p @Font 1f @High WEL500505NO-04"/"04 }
 @Place x{left + 2.5c} y{foot + 1c}
 {-1.5p @Font{Trolltech, Qt and the Qt logo are registered trademarks of Trolltech AS.}}
 @CD @Heading { Welcome to Qt{@Sup @Register}! }
