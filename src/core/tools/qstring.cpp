@@ -3023,6 +3023,10 @@ QByteArray qt_winQString2MB(const QString& s, int uclen)
 
 QByteArray qt_winQString2MB(const QChar *ch, int uclen)
 {
+    if (!ch)
+	return QByteArray();
+    if (uclen == 0)
+        return QByteArray("");
     BOOL used_def;
     QByteArray mb(4096, 0);
     int len;
