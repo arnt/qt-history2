@@ -4,6 +4,7 @@
 #include <qpixmap.h>
 #include <qimage.h>
 #include <qpaintdevicemetrics.h>
+#include <qpicture.h>
 
 
 void drawPoint( QPainter & p, const QRect &r )
@@ -184,9 +185,9 @@ const char *fileopen_xpm[] = {
 void drawPixmap( QPainter & p, const QRect &r )
 {
     double s;
-    s = 1.0 * r.width() / 16;
-    if ( s < r.height() / 13 )
-	s = r.height() / 13;
+    s = r.width() / 16.0;
+    if ( s > r.height() / 13.0 )
+	s = r.height() / 13.0;
     p.translate( r.left(), r.top() );
     p.scale( s, s );
     p.drawPixmap( 0, 0, QPixmap( fileopen_xpm ) );
@@ -196,9 +197,9 @@ void drawPixmap( QPainter & p, const QRect &r )
 void drawImage( QPainter & p, const QRect &r )
 {
     double s;
-    s = 1.0 * r.width() / 16;
-    if ( s < r.height() / 13 )
-	s = r.height() / 13;
+    s =  r.width() / 16.0;
+    if ( s > r.height() / 13.0 )
+	s = r.height() / 13.0;
     p.translate( r.left(), r.top() );
     p.scale( s, s );
     p.drawImage( 0, 0, QImage( fileopen_xpm ) );
@@ -211,13 +212,83 @@ void drawTiledPixmap( QPainter & p, const QRect &r )
 }
 
 
-void drawPicture( QPainter & p, const QRect &r )
-{
-}
+static const char * futility_of_love =
+"The day starts out all right.  Barbara Dare, porn star, is "
+"appearing at a local video store.  I arrive just a few hours early "
+"and help the guy open the store.  After lunch, Ms. Dare arrived. "
+"Her skin was very clear and her hair smelled really good.  I was in "
+"love and felt queasy when I looked at all the lechers ogling her. "
+"But worse still, at the end of the day, she retreated to a back "
+"room and emerged with her panties in her hand.  They were to be "
+"auctioned off."
+"\n\n"
+"Oh the humanity."
+"\n\n"
+"I got the panties and headed back home.  On TV Johnny "
+"Cougar's (Yeah, I don't give a fuck what he calls himself, he'll "
+"always be Johnny Cougar to me) new video (\"Get a leg up\") is on and "
+"in it, he's dancing with this model (Elaine Irwin?  Nancy Irwin? "
+"Ashley Montana?) and there's something about the way she smiles as "
+"she dances that makes the whole Barbara Dare thing seem cheap, and "
+"leave a bad taste in my mouth."
+"\n\n"
+"So I take the panties from my mouth and later that evening "
+"head out to a local comedy club.  The manager is a guy I went to "
+"high school with and after the show I go out with him for coffee. "
+"Joining us is the woman who had just performed (to a standing "
+"ovation), mousey, deadpan comedienne Margaret Smith.  She and the "
+"manager are buzzed because the show went so great and I'm buzzed "
+"because as we drink our coffee, smoke our cigarettes down to the "
+"filter and talk, I come to realize that her onstage persona (the "
+"first lady of angst) is no sham--she *is* just like that.  Her "
+"despair is voluptuous; her entropy goes straight to the bone."
+"\n\n"
+"Mine."
+"\n\n"
+"Her skin is pasty; she is flat-chested; her ass (as she puts "
+"it) is two Saltines; she smells like stale cigarettes and I want "
+"her desperately.  Our calves touch under the table and she doesn't "
+"pull hers back.  I lose my breath and when my manager-friend goes "
+"to the bathroom I ask her out."
+"\n\n"
+"A few hours later, as I'm whacking off into Barbara Dare's "
+"panties, I laugh so hard I burst a blood vessel in my neck and I "
+"die."
+"\n\n"
+"Oh, I die.";
 
 
 void drawText( QPainter & p, const QRect &r )
 {
+    p.setFont( QFont( "Helvetica", 4 ) );
+    p.setPen( Qt::black );
+    p.drawText( r, Qt::AlignLeft + Qt::AlignTop + Qt::WordBreak,
+		futility_of_love );
+}
+
+
+void drawPicture( QPainter & p, const QRect &r )
+{
+    QPicture picture;
+    QPainter p2( &picture );
+    p2.save();
+    drawImage( p2, QRect( r.topLeft(), r.center() ) );
+    p2.restore();
+    p2.save();
+    drawText( p2, QRect( r.topRight(), r.center() ).normalize() );
+    p2.restore();
+    p2.save();
+    drawPolyline( p2, QRect( r.bottomLeft(), r.center() ).normalize() );
+    p2.restore();
+    p2.save();
+    drawQuadBezier( p2, QRect( r.bottomRight(), r.center() ).normalize() );
+    p2.restore();
+    p2.end();
+    p.drawPicture( picture );
+
+    p.setPen( Qt::darkGray );
+    p.drawLine( r.left(), r.center().y(), r.right(), r.center().y() );
+    p.drawLine( r.center().x(), r.top(), r.center().x(), r.bottom() );
 }
 
 
@@ -228,7 +299,7 @@ TestFunction f[17] = {
     drawPoint, drawPoints, drawLine, drawRect, drawWinFocusRect,
     drawEllipse, drawArc, drawChord, drawLineSegments, drawPolyline,
     drawPolygon, drawQuadBezier, drawPixmap, drawImage,
-    drawTiledPixmap, drawPicture, drawText
+    drawTiledPixmap, drawText, drawPicture
 };
 
 
@@ -236,7 +307,7 @@ const char * n[17] = {
     "drawPoint", "drawPoints", "drawLine", "drawRect", "drawWinFocusRect",
     "drawEllipse", "drawArc", "drawChord", "drawLineSegments", "drawPolyline",
     "drawPolygon", "drawQuadBezier", "drawPixmap", "drawImage",
-    "drawTiledPixmap", "drawPicture", "drawText"
+    "drawTiledPixmap", "drawText", "drawPicture"
 };
 
 
@@ -252,6 +323,7 @@ void test( const char * output,
 	printer.setOutputToFile( TRUE );
     }
 
+    printer.setFullPage( TRUE );
     printer.setOrientation( o );
     printer.setColorMode( cm );
     printer.setNumCopies( copies );
@@ -262,10 +334,12 @@ void test( const char * output,
     p.setFont( QFont( "Helvetica", 8 ) );
 
     p.setPen( Qt::lightGray );
-    int i;
-    QRect cr( 28, 28, 127, 127 );
+    int i = multipage ? 240 : 127;
+    QRect cr( 28, 28, i, i );
     QRect pr( 14, 14, cr.width()-28, cr.width()-28 );
     int paperWidth = QPaintDeviceMetrics( &printer ).width();
+    int paperHeight = QPaintDeviceMetrics( &printer ).height();
+
     for( i=0; i<17; i++ ) {
 	p.setPen( Qt::lightGray );
 	p.drawRect( cr );
@@ -276,12 +350,17 @@ void test( const char * output,
 	p.translate( cr.left(), cr.top() );
 	f[i]( p, pr );
 	p.restore();
-	
+
 	// two 28-point margins
-	if ( cr.left() + 2*cr.width() >= paperWidth-2*28 )
+	cr.setRect( cr.right()+1, cr.top(), cr.width(), cr.height() );
+	if ( cr.right() >= paperWidth-2*28 ) {
 	    cr.setRect( 28, cr.bottom()+1, cr.width(), cr.height() );
-	else
-	    cr.setRect( cr.right()+1, cr.top(), cr.width(), cr.height() );
+	    if ( multipage &&
+		 cr.bottom() >= paperHeight - 2*28 ) {
+		printer.newPage();
+		cr.setRect( 28, 28, cr.width(), cr.height() );
+	    }
+	}
     }
 }
 
@@ -294,4 +373,8 @@ main(int argc, char** argv)
     test( "/tmp/landscape-1.ps", QPrinter::Landscape, QPrinter::GrayScale,
 	  1, FALSE, 0 );
 
+    test( "/tmp/portrait-2.ps", QPrinter::Portrait, QPrinter::GrayScale,
+	  1, TRUE, 0 );
+    test( "/tmp/landscape-2.ps", QPrinter::Landscape, QPrinter::GrayScale,
+	  1, TRUE, 0 );
 }
