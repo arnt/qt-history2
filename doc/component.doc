@@ -135,24 +135,27 @@ struct IntegerInterface : public QUnknownInterface
 };
 \endcode
 
-Many platforms provide a tool to generate a UUID that is associated with
-this interface. The Qt distribution includes \e quuidgen which is a GUI tool 
-that makes it easy to copy the generated ID directly into the source code:
+Many platforms provide a tool to generate a UUID that is associated
+with this interface. The Qt distribution includes \e quuidgen, a GUI
+tool that makes it easy to copy the generated ID directly into the
+source code:
 
 \code
 // {2FFC826E-AA74-4528-8FC9-2FDE08F77CD4} 
 #ifndef IID_Integer
-#define IID_Integer QUuid( 0x2ffc826e, 0xaa74, 0x4528, 0x8f, 0xc9, 0x2f, 0xde, 0x08, 0xf7, 0x7c, 0xd4)
+#define IID_Integer QUuid( 0x2ffc826e, 0xaa74, 0x4528, 0x8f, 0xc9,
+			   0x2f, 0xde, 0x08, 0xf7, 0x7c, 0xd4 )
 #endif
 \endcode
 
 It is common to use the name of the interface together with the prefix \e IID_
 as the descriptor for an interface ID.
 
-quuidgen is located in the tools/quuidgen subdirectory of your Qt distribution and is not build by
-default, as the required header files or libraries are not present on all platforms. If you have
-difficulties building the quuidgen tool, go to e.g. <a href="http://www.google.com"> www.google.com </a>
-and search for \e libuuid
+quuidgen is located in the tools/quuidgen subdirectory of your Qt
+distribution and is not build by default, as the required header
+files or libraries are not present on all platforms. If you have
+difficulties building the quuidgen tool, go to e.g. \l
+http://www.google.com and search for \e libuuid.
 
 \section1 Implementing an Interface
 
@@ -208,7 +211,8 @@ more detailed explanation of those rules.
 An implementation of \e queryInterface usually looks like this:
 
 \code
-QRESULT NumberComponent::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
+QRESULT NumberComponent::queryInterface( const QUuid &uuid,
+					 QUnknownInterface **iface )
 {
     *iface = 0;
     if ( uuid == IID_QUnknown )
@@ -286,7 +290,7 @@ public:
 \endcode
 
 
-\section2 Implementing multiple interfaces
+\section2 Implementing Multiple Interfaces
 
 Since interfaces consist entirely of pure virtual functions, multiple 
 inheritance makes it easy to implement multiple interfaces within a single 
@@ -397,8 +401,8 @@ Q_EXPORT_INTERFACE()
 }
 \endcode
 
-The <tt>ucom_instantiate</tt> function must be declared and implemented exactly once for 
-each component server.
+The ucom_instantiate() function must be declared and implemented
+exactly once for  each component server.
 
 Sidenote: The \e Q_EXPORT_INTERFACE macro expands to a declaration and implementation of a 
 second exported function:
@@ -409,7 +413,7 @@ This function is called by the QLibrary class to ensure that the plugin does not
 incompatible Qt library versions, e.g. a multi threaded library when the application is 
 running single threaded.
 
-\section2 Setting up a qmake project for a Component Server
+\section2 Setting Up a qmake Project for a Component Server
 
 To build a component server, some settings have to be changed in the compiler and linker
 options. If you use qmake to generate your makefiles, the \e plugin configuration does that
@@ -436,7 +440,7 @@ will generate a makefile to build a shared library myplugin100 into the director
 with \e DESTDIR.
 
 
-\section2 Multiple Components in one Component Server
+\section2 Multiple Components in One Component Server
 
 The function exported by the component server returns a pointer to an implementation of 
 QUnknownInterface. The client can then use \e queryInterface on that interface to query 
@@ -450,9 +454,12 @@ components. This component has to be the one returned by the exported function, 
 to implement the interface
 
 \code
-struct Q_EXPORT QComponentFactoryInterface : public QUnknownInterface
+struct Q_EXPORT QComponentFactoryInterface
+	: public QUnknownInterface
 {
-    virtual QRESULT createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface** instance, QUnknownInterface *outer ) = 0;
+    virtual QRESULT createInstance( const QUuid &cid, const QUuid &iid,
+				    QUnknownInterface** instance,
+				    QUnknownInterface *outer ) = 0;
 };
 \endcode
 
@@ -467,16 +474,18 @@ public:
     ...
     static QUuid CID;
     ...
-
 };
 
-QUuid NumberComponent::CID = QUuid( 0xDD19964B, 0xA2C8, 0x42AE, 0xAA, 0xF9, 0x8A, 0xDC, 0x50, 0x9B, 0xCA, 0x03 );
+QUuid NumberComponent::CID = QUuid( 0xDD19964B, 0xA2C8, 0x42AE,
+	0xAA, 0xF9, 0x8A, 0xDC, 0x50, 0x9B, 0xCA, 0x03 );
 \endcode
 
 The \e iid and \e iface parameters are then passed to the queryInterface function of the created component:
 
 \code
-QRESULT ComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface** iface, QUnknownInterface *outer )
+QRESULT ComponentFactory::createInstance( const QUuid &cid, const QUuid &iid,
+					  QUnknownInterface** iface,
+					  QUnknownInterface *outer )
 {
     if ( cid == NumberComponent::CID ) {
 	NumberComponent *comp = new NumberComponent;
@@ -511,7 +520,8 @@ wants to use it can load the component server using the QLibrary class like this
 
     QLibrary lib( "filename" );
     IntegerInterface *iface;
-    if ( lib->queryInterface( IID_Integer, (QUnknownInterface**)&iface ) == QS_OK )
+    if ( lib->queryInterface( IID_Integer,
+			      (QUnknownInterface**)&iface ) == QS_OK ) {
 	sum = iface->add( 5, 8 );
 	iface->release;
     }
@@ -543,7 +553,8 @@ using the \link qcomponentfactory.html QComponentFactory \endlink class like thi
 \code
 bool ComponentServer::registerComponents( const QString &filepath ) const
 {
-    return QComponentFactory::registerComponent( NumberComponent::cid, filepath, "Component for numbers" );
+    return QComponentFactory::registerComponent( NumberComponent::cid,
+		   filepath, "Component for numbers" );
 }
 
 bool ComponentServer::unregisterComponents() const
@@ -566,7 +577,9 @@ functions of the QComponentFactory class to get an interface to the requested co
 int sum;
 
 IntegerInterface *iface;
-if ( QComponentFactory::createInstance( QUuid("{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}"), IID_Integer, (QUnknownInterface**)&iface ) == QS_OK )
+if ( QComponentFactory::createInstance(
+	     QUuid("{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}"),
+	     IID_Integer, (QUnknownInterface**)&iface ) == QS_OK ) {
     sum = iface->add( 5, 3 );
     iface->release();
 }
@@ -590,7 +603,7 @@ interface to add a color-manipulation filter:
 \code
 struct ImageColorInterface : public QUnknownInterface
 {
-    QImage	changeColor( const QImage &image ) = 0;
+    QImage changeColor( const QImage &image ) = 0;
 };
 \endcode
 
@@ -616,7 +629,7 @@ To make the ImageColorInterface "plugable" it has to inherit QFeatureListInterfa
 \code
 struct ImageColorInterface : public QFeatureListInterface
 {
-    QImage	changeColor( const QString &feature, const QImage &image ) = 0;
+    QImage changeColor( const QString &feature, const QImage &image ) = 0;
 };
 \endcode
 
@@ -624,7 +637,8 @@ All functions of this interface must be passed the name of the requested
 feature, and have to be implemented like this:
 
 \code
-QImage ImageColorComponent::changeColor( const QString &feature, const QImage &image )
+QImage ImageColorComponent::changeColor( const QString &feature,
+	const QImage &image )
 {
     QImage newImage;
     if ( feature == "Sepia" ) {
@@ -647,10 +661,10 @@ inform the application about what the component does:
 \code
 struct QComponentInterface : public QUnknownInterface
 {
-    QString	name() const = 0;
-    QString	description() const = 0;
-    QString	version() const = 0;
-    QString	author() const = 0;
+    QString name() const = 0;
+    QString description() const = 0;
+    QString version() const = 0;
+    QString author() const = 0;
 };
 \endcode
 
@@ -696,7 +710,8 @@ QComponentServerInterface:
 \code
 bool ComponentServer::registerComponents( const QString &filepath ) const
 {
-    return QComponentFactory::registerComponent( TestComponent::cid, filepath, "Test Component" );
+    return QComponentFactory::registerComponent( TestComponent::cid,
+		   filepath, "Test Component" );
 }
 \endcode
 */
