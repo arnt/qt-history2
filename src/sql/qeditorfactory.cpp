@@ -102,7 +102,6 @@ QEditorFactory * QEditorFactory::defaultFactory()
 }
 
 /*!
-
   Replaces the default editor factory with \a factory.
   <em>QEditorFactory takes ownership of factory, and destroys it when
   it is no longer needed. </em>
@@ -110,7 +109,7 @@ QEditorFactory * QEditorFactory::defaultFactory()
 
 void QEditorFactory::installDefaultFactory( QEditorFactory * factory )
 {
-    if( factory == 0 ) return;
+    if( factory == 0 || factory == defaultfactory ) return;
 
     if( defaultfactory != 0 ){
 	q_cleanup_editor_factory.remove( &defaultfactory );
