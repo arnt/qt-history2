@@ -685,9 +685,9 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 				  bool ) const
 {
     QString r;
-    if ( field->isNull() )
+    if ( field->isNull() ) {
 	r = nullText();
-    else if ( field->type() == QVariant::DateTime ) {
+    } else if ( field->type() == QVariant::DateTime ) {
 	if ( field->value().toDateTime().isValid() ){
 	    QDate dt = field->value().toDateTime().date();
 	    QTime tm = field->value().toDateTime().time();
@@ -697,6 +697,11 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 		tm.toString() + "'";
 	} else
 	    r = nullText();
+    } else if ( field->type() == QVariant::Bool ) {
+	if ( field->value().toBool() )
+	    r = "TRUE";
+	else
+	    r = "FALSE";
     } else {
 	r = QSqlDriver::formatValue( field );
     }
