@@ -32,12 +32,12 @@ QByteArray FilePorter::noPreprocess(const QString &filePath)
 }
 
 FilePorter::FilePorter(QString rulesfilename)
-:rulesFromXml(rulesfilename)
-,tokenReplacementRules(rulesFromXml.getNoPreprocessPortingTokenRules())
+:portingRules(rulesfilename)
+,tokenReplacementRules(portingRules.getNoPreprocessPortingTokenRules())
 ,replaceToken(tokenReplacementRules)
 {
     int dummy=0;
-    foreach(QString headerName, rulesFromXml.getHeaderList(RulesFromXml::Qt4)) {
+    foreach(QString headerName, portingRules.getHeaderList(PortingRules::Qt4)) {
         qt4HeaderNames.insert(headerName, dummy);
     }
 }
@@ -105,7 +105,7 @@ QByteArray FilePorter::includeAnalyse(QByteArray fileContents, FileType /*fileTy
 
     //compare class and header names, find classes that lacks a
     //curresponding include directive
-    QStringList neededHeaders = rulesFromXml.getNeededHeaderList();
+    QStringList neededHeaders = portingRules.getNeededHeaderList();
     QStringList headersToInsert;
     QMapIterator<QByteArray, int> c(classes);
     //loop through classes

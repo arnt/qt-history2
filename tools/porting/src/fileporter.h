@@ -30,7 +30,7 @@ private:
     QByteArray noPreprocess(const QString &fileName);
     QByteArray includeAnalyse(QByteArray file, FileType fileType);
 
-    RulesFromXml rulesFromXml;
+    PortingRules portingRules;
     QList<TokenReplacement*> tokenReplacementRules;
     ReplaceToken replaceToken;
     QMap<QString, int> qt4HeaderNames;

@@ -73,7 +73,7 @@ private:
 class ScopedTokenReplacement : public TokenReplacement
 {
 public:
-    ScopedTokenReplacement(QByteArray oldToken, QByteArray newToken, const QStringList inheritsQt);
+    ScopedTokenReplacement(QByteArray oldToken, QByteArray newToken);
     bool doReplace(TokenStream *tokenStream, TextReplacements &textReplacements);
     QByteArray getReplaceKey();
 private:
@@ -82,7 +82,6 @@ private:
     int getNextScopeToken(TokenStream *tokenStream, int startTokenIndex);
     QByteArray oldToken;
     QByteArray newToken;
-    const QStringList inheritsQt; //a list of Qt3 classes that inherits the Qt class
 };
 
 #endif

@@ -166,6 +166,7 @@ int main(int argc, char**argv)
         cout << "Using rules file: " << QDir::convertSeparators(rulesFilePath).toLocal8Bit().constData() <<endl;
     }
 
+    PortingRules::createInstance(rulesFilePath);
 
     int retval;
     if(in.endsWith(".pro") || in.endsWith(".pri"))
@@ -192,5 +193,6 @@ int main(int argc, char**argv)
     fileWriter.writeFile(logFileName, logContents);
 
     Logger::deleteInstance();
+    PortingRules::deleteInstance();
     return retval;
 }

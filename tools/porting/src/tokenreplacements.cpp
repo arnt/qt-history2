@@ -12,9 +12,11 @@
 ****************************************************************************/
 
 #include "tokenreplacements.h"
+#include <stdio.h>
 #include <iostream>
 #include "logger.h"
-#include <stdio.h>
+#include "rulesfromxml.h"
+
 
 using std::cout;
 using std::endl;
@@ -85,11 +87,9 @@ bool GenericTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacemen
 ///////////////////
 
 ScopedTokenReplacement::ScopedTokenReplacement(QByteArray oldToken,
-                                               QByteArray newToken,
-                                               const QStringList inheritsQt)
+                                               QByteArray newToken)
 :oldToken(oldToken)
 ,newToken(newToken)
-,inheritsQt(inheritsQt)
 {}
 
 bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacements &textReplacements)
@@ -120,7 +120,7 @@ bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacement
                     // This will cach cases such as QWidget::ButtonState, wich will be
                     // renamed to Qt:ButtonState
                     if(oldTokenScope == "Qt") {
-                        if(!inheritsQt.contains(scopeText))
+                        if (!PortingRules::instance()->getInheritsQt().contains(scopeText))
                             return false;    //false alarm, scopeText is not a Qt class
                      } else {
                          return false;

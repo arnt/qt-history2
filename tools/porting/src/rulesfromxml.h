@@ -19,25 +19,28 @@
 #include <QList>
 #include <QStringList>
 
-class QStringList;
-class RulesFromXml
+class PortingRules
 {
 public:
+    static void createInstance(QString xmlFilePath);
+    static PortingRules *instance();
+    static void deleteInstance();
+
     enum QtVersion{Qt3, Qt4};
-    RulesFromXml(QString xmlFilePath);
+    PortingRules(QString xmlFilePath);
     QList<TokenReplacement*> getNoPreprocessPortingTokenRules();
     QStringList getHeaderList(QtVersion qtVersion);
     QStringList getNeededHeaderList();
+    QStringList getInheritsQt();
 private:
+    static PortingRules *theInstance;
     QtSimpleXml xml;
-        
-    bool isParsed;
     QList<TokenReplacement*> tokenRules;
     QStringList qt3Headers;
     QStringList qt4Headers;
     QStringList neededHeaders;
     QStringList inheritsQtClass;
-    void parseXml();    
+    void parseXml();
 };
 
 #endif
