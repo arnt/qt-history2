@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#26 $
 **
 ** Implementation of QIconSet class
 **
@@ -179,7 +179,7 @@ void QIconSet::reset( const QPixmap & pm, Size s )
 {
     detach();
     if ( s == Small ||
-	 (s == Automatic && pm.width() <= 20 ) )
+	 (s == Automatic && pm.width() <= 22 ) )
 	setPixmap( pm, Small, Normal );
     else
 	setPixmap( pm, Large, Normal );
