@@ -345,12 +345,26 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 	}
 
     case PE_Splitter:
-	if (flags & Style_Horizontal)
-	    flags &= ~Style_Horizontal;
-	else
-	    flags |= Style_Horizontal;
-	// fallthrough intended
-
+	{
+	    QPen oldPen = p->pen();
+	    p->setPen( cg.light() );
+	    if ( flags & Style_Horizontal ) {
+		p->drawLine( r.x() + 1, r.y(), r.x() + 1, r.height() );
+		p->setPen( cg.dark() );
+		p->drawLine( r.x(), r.y(), r.x(), r.height() );
+		p->drawLine( r.right()-1, r.y(), r.right()-1, r.height() );
+		p->setPen( cg.shadow() );
+		p->drawLine( r.right(), r.y(), r.right(), r.height() );
+	    } else {
+		p->drawLine( r.x(), r.y() + 1, r.width(), r.y() + 1 );
+		p->setPen( cg.dark() );
+		p->drawLine( r.x(), r.bottom() - 1, r.width(), r.bottom() - 1 );
+		p->setPen( cg.shadow() );
+		p->drawLine( r.x(), r.bottom(), r.width(), r.bottom() );
+	    }
+	    p->setPen( oldPen );
+	    break;
+	}
     case PE_DockWindowResizeHandle:
 	{
 	    QPen oldPen = p->pen();
@@ -358,10 +372,10 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 	    if ( flags & Style_Horizontal ) {
 		p->drawLine( r.x(), r.y(), r.width(), r.y() );
 		p->setPen( cg.dark() );
-		p->drawLine( r.x(), r.bottom()-1, r.width(), r.bottom()-1 );
+		p->drawLine( r.x(), r.bottom() - 1, r.width(), r.bottom() - 1 );
 		p->setPen( cg.shadow() );
 		p->drawLine( r.x(), r.bottom(), r.width(), r.bottom() );
-	    } else { 
+	    } else {
 		p->drawLine( r.x(), r.y(), r.x(), r.height() );
 		p->setPen( cg.dark() );
 		p->drawLine( r.right()-1, r.y(), r.right()-1, r.height() );
