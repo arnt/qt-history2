@@ -69,6 +69,7 @@ void QToolBarPrivate::init()
     handle->setShown(movable);
 
     extension = new QToolBarExtension(q);
+    extension->setFocusPolicy(Qt::NoFocus);
     extension->hide();
 
 #ifdef Q_WS_MAC
@@ -775,7 +776,8 @@ void QToolBar::resizeEvent(QResizeEvent *event)
                 // ### the preview
             }
         }
-	d->extension->show();
+        if (pop->actions().size() > 0)
+            d->extension->show();
     } else if (d->extension->isShown()) {
 	if (d->extension->menu())
 	    d->extension->menu()->clear();
