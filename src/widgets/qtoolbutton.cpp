@@ -76,7 +76,22 @@ QToolButton::QToolButton( QWidget * parent, const char *name )
     : QButton( parent, name )
 {
     init();
-    setUsesBigPixmap( FALSE );
+    if ( parent->inherits( "QToolBar" ) ) {
+	setAutoRaise( TRUE );
+	QToolBar* tb = (QToolBar*)parent; 
+	if ( tb->mainWindow() ) {
+	    connect( tb->mainWindow(), SIGNAL(pixmapSizeChanged(bool)),
+	             this, SLOT(setUsesBigPixmap(bool)) );
+	    setUsesBigPixmap( tb->mainWindow()->usesBigPixmaps() );
+	    connect( tb->mainWindow(), SIGNAL(usesTextLabelChanged(bool)),
+	             this, SLOT(setUsesTextLabel(bool)) );
+	    setUsesTextLabel( tb->mainWindow()->usesTextLabel() );
+	} else {
+	    setUsesBigPixmap( FALSE );
+	}
+    } else {
+	setUsesBigPixmap( FALSE );
+    }
 }
 
 
