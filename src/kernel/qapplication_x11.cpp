@@ -392,8 +392,8 @@ static int composingKeycode=0;
 static QTextCodec * input_mapper = 0;
 
 Q_EXPORT Time	qt_x_time = CurrentTime;
-extern bool     qt_check_clipboard_sentinel( XEvent* ); //def in qclipboard_x11.cpp
-extern bool	qt_check_selection_sentinel( XEvent* ); //def in qclipboard_x11.cpp
+extern bool     qt_check_clipboard_sentinel(); //def in qclipboard_x11.cpp
+extern bool	qt_check_selection_sentinel(); //def in qclipboard_x11.cpp
 
 static void	qt_save_rootinfo();
 bool	qt_try_modal( QWidget *, XEvent * );
@@ -3276,10 +3276,10 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if ( event->xproperty.window == QPaintDevice::x11AppRootWindow( 0 ) ) {
 	    // root properties for the first screen
 	    if ( event->xproperty.atom == qt_clipboard_sentinel ) {
-		if (qt_check_clipboard_sentinel( event ) )
+		if (qt_check_clipboard_sentinel() )
 		    emit clipboard()->dataChanged();
 	    } else if ( event->xproperty.atom == qt_selection_sentinel ) {
-		if (qt_check_selection_sentinel( event ) )
+		if (qt_check_selection_sentinel() )
 		    emit clipboard()->selectionChanged();
 	    } else if ( obey_desktop_settings ) {
 		if ( event->xproperty.atom == qt_resource_manager )
