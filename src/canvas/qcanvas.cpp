@@ -428,7 +428,12 @@ static int scm(int a, int b)
     Multiple QCanvasView widgets may be associated with a canvas to
     provide multiple views of the same canvas.
 
-    The canvas is optimized for large numbers of items. Qt provides a rich
+    The canvas is optimized for large numbers of items, particularly
+    where only a small percentage of the items change at any
+    one time. If the entire display changes very regularly, you should
+    consider using your own custom QScrollView subclass.
+
+    Qt provides a rich
     set of canvas item classes, e.g. QCanvasEllipse, QCanvasLine,
     QCanvasPolygon, QCanvasPolygonalItem, QCanvasRectangle, QCanvasSpline,
     QCanvasSprite and QCanvasText. You can subclass to create your own
