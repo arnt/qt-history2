@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#106 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#107 $
 **
 ** Implementation of QPixmap class
 **
@@ -511,7 +511,10 @@ void QPixmap::setMask( const QBitmap &mask )
 	return;
     }
     delete data->mask;
-    data->mask = new QBitmap( mask );
+    QBitmap* newmask = new QBitmap( mask );
+    if ( !newmask->mask().isNull() )
+	newmask->setMask( QBitmap() );		// remove mask's mask
+    data->mask = newmask;
 }
 
 
