@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#67 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#68 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1160,7 +1160,7 @@ sub printclass {
 		    $fndocs{$u}++;
 		} else {
 		    print "undocumented: ", $t," ", $name{$url}, "::", $f,
-		        " (",$a,")\n" if ($errmsg++<$maxerr);
+		        " (",$a,") ", $c, "\n" if ($errmsg++<$maxerr);
 		    $_ = join("", &html($t), "<strong>", 
 			      &html($f), "</strong> (", 
 			      &html($a), ") ", $c);
@@ -1187,7 +1187,7 @@ sub printclass {
 		    $fndocs{$u}++;
 		} else {
 		    print "undocumented: ", $name{$url}, "::operator ", $r,
-		        " ()\n" if ($errmsg++<$maxerr);
+		        " () ", $c, "\n" if ($errmsg++<$maxerr);
 		    $_ = join("", "operator <strong>", &html($r),
 			      "</strong> ()", $c);
 		}
