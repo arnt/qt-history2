@@ -63,6 +63,9 @@
  Last revised 11 July 1995.
 */
 
+// Get the system specific includes and defines
+#include "qplatformdefs.h"
+
 #include "qpsprinter_p.h"
 
 #ifndef QT_NO_PRINTER
@@ -74,12 +77,10 @@
 #include "qpaintdevicemetrics.h"
 #include "qimage.h"
 #include "qdatetime.h"
-
 #include "qstring.h"
 #include "qdict.h"
 #include "qmemarray.h"
 #include "qregexp.h"
-
 #include "qfile.h"
 #include "qbuffer.h"
 #include "qintdict.h"
@@ -88,11 +89,6 @@
 #include "qmap.h"
 
 #include <ctype.h>
-#if defined(_OS_WIN32_)
-#include <io.h>
-#else
-#include <unistd.h>
-#endif
 
 #ifdef Q_WS_X11
 #include "qt_x11.h"
@@ -6334,5 +6330,4 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 }
 
 
-
-#endif
+#endif // QT_NO_PRINTER
