@@ -5,7 +5,7 @@
 #include <qstringlist.h>
 #include <qwindowdefs.h>
 
-class QPlugIn : virtual public QPlugInInterface
+class QPlugIn : public QPlugInInterface
 {
 public:
     enum LibraryPolicy
