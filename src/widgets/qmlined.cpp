@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#81 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1592,21 +1592,23 @@ void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 				cellWidth() - 2 * BORDER );
 
     if ( wordMark ) {
-	int i = newX;
 	int lim = s->length();
-	int startclass = i < 0 || i >= lim ? -1 : charClass(s->at(i));
-	if ( markAnchorY < markDragY || markAnchorY == markDragY
-	     && markAnchorX < markDragX ) {
-	    // going right
-	    while ( i < lim && charClass(s->at(i)) == startclass )
+	if ( newX >= 0 && newX < lim ) {
+	    int i = newX;
+	    int startclass = charClass(s->at(i));
+	    if ( markAnchorY < markDragY || markAnchorY == markDragY
+		 && markAnchorX < markDragX ) {
+		// going right
+		while ( i < lim && charClass(s->at(i)) == startclass )
+		    i++;
+	    } else {
+		// going left
+		while ( i >= 0 && charClass(s->at(i)) == startclass )
+		    i--;
 		i++;
-	} else {
-	    // going left
-	    while ( i >= 0 && charClass(s->at(i)) == startclass )
-		i--;
-	    i++;
+	    }
+	    newX = i;
 	}
-	newX = i;
     }
 
     if ( markDragX == newX && markDragY == newY )
