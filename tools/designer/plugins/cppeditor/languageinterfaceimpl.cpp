@@ -162,7 +162,7 @@ bool LanguageInterfaceImpl::supports( Support s ) const
     if ( s == ConnectionsToCustomSlots )
 	return TRUE;
     if ( s == AdditionalFiles )
-	return FALSE;
+	return TRUE;
     if ( s == SaveFormCodeExternal )
 	return TRUE;
     if ( s == StoreFormCodeSeperate )
@@ -172,15 +172,15 @@ bool LanguageInterfaceImpl::supports( Support s ) const
 
 void LanguageInterfaceImpl::fileFilters( QMap<QString, QString> &extensionFilterMap ) const
 {
-    extensionFilterMap.insert( "cpp", "QuickScript Files (*.cpp)" );
-    extensionFilterMap.insert( "C", "QuickScript Files (*.C)" );
-    extensionFilterMap.insert( "cxx", "QuickScript Files (*.cxx)" );
-    extensionFilterMap.insert( "c++", "QuickScript Files (*.c++)" );
-    extensionFilterMap.insert( "c", "QuickScript Files (*.c)" );
-    extensionFilterMap.insert( "h", "QuickScript Files (*.h)" );
-    extensionFilterMap.insert( "H", "QuickScript Files (*.H)" );
-    extensionFilterMap.insert( "hpp", "QuickScript Files (*.hpp)" );
-    extensionFilterMap.insert( "hxx", "QuickScript Files (*.hxx)" );
+    extensionFilterMap.insert( "cpp", "C++ Files (*.cpp)" );
+    extensionFilterMap.insert( "C", "C++ Files (*.C)" );
+    extensionFilterMap.insert( "cxx", "C++ Files (*.cxx)" );
+    extensionFilterMap.insert( "c++", "C++ Files (*.c++)" );
+    extensionFilterMap.insert( "c", "C Files (*.c)" );
+    extensionFilterMap.insert( "h", "Header Files (*.h)" );
+    extensionFilterMap.insert( "H", "Header Files (*.H)" );
+    extensionFilterMap.insert( "hpp", "Header Files (*.hpp)" );
+    extensionFilterMap.insert( "hxx", "Header Files (*.hxx)" );
 }
 
 QString LanguageInterfaceImpl::projectKeyForExtenstion( const QString &extension ) const

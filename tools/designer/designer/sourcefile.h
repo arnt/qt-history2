@@ -44,10 +44,14 @@ public:
 
     DesignerSourceFile *iFace();
 
+    void setOriginalFileName( const QString &f ) { ofn = f; }
+    QString originalFileName() const { return ofn.isEmpty() ? filename : ofn; }
+
 private:
     QString filename;
     QString txt;
     DesignerSourceFile *iface;
+    QString ofn;
 
 };
 
