@@ -2797,6 +2797,8 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	// check for cursor mark
 	if ( cursor && this == cursor->parag() && i == cursor->index() ) {
 	    curx = chr->x;
+	    if ( chr->rightToLeft )
+		curx += cw;
 	    curh = h;
 	    cury = cy;
 	}
@@ -3109,7 +3111,7 @@ QTextFormatter::QTextFormatter( QTextDocument *d )
 
 /* only used for bidi or complex text reordering
  */
-QTextParag::LineStart *QTextFormatter::formatLine( QTextString *string, QTextParag::LineStart *line, 
+QTextParag::LineStart *QTextFormatter::formatLine( QTextString *string, QTextParag::LineStart *line,
 				 QTextString::Char *start, QTextString::Char *last )
 {
     if( string->isBidi() )
@@ -3171,7 +3173,7 @@ static QChar::Direction basicDirection(const QTextString &text)
 #include <iostream>
 
 // collects one line of the paragraph and transforms it to visual order
-QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QTextParag::LineStart *line, 
+QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QTextParag::LineStart *line,
 				 QTextString::Char *startChar, QTextString::Char *lastChar )
 {
     int start = (startChar - &text->at(0));
@@ -3183,7 +3185,7 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
     runs.setAutoDelete(TRUE);
 
     QTextBidiContext *context = line->context();
-    if ( !context ) { 
+    if ( !context ) {
 	// first line
 	if( start != 0 )
 	    qDebug( "bidiReorderLine::internal error");
@@ -5494,7 +5496,7 @@ void QTextTableCell::draw( int x, int y, int cx, int cy, int cw, int ch, const Q
 QTextBidiContext::QTextBidiContext(unsigned char l, QChar::Direction e, QTextBidiContext *p, bool o)
     : level(l) , override(o), dir(e)
 {
-    if(p) 
+    if(p)
 	p->ref();
     parent = p;
     count = 0;
