@@ -452,6 +452,26 @@ public:
 #ifndef QT_NO_REGEXP
     int         contains( const QRegExp & ) const;
 #endif
+
+    enum FieldFlags {
+	FieldNone                = 0x00,
+	FieldSkipEmpty           = 0x01,
+	FieldIncludeLeadingSeps  = 0x02,
+	FieldIncludeTrailingSeps = 0x04,
+	FieldCaseInsensitiveSeps = 0x08
+    };
+    QString     fields( QChar sep, int field, int count = 1, int flags = FieldSkipEmpty ) const;
+    QString     fields( char sep, int field, int count = 1, int flags = FieldSkipEmpty ) const
+	          { return fields(QChar(sep), field, count, flags); }
+#ifndef QT_NO_CAST_ASCII
+    QString     fields( const char *substr, int field, int count = 1, int flags = FieldSkipEmpty ) const
+	          { return fields(QString(substr), field, count, flags); }
+#endif
+    QString     fields( QString substr, int field, int count = 1, int flags = FieldSkipEmpty ) const;
+#ifndef QT_NO_REGEXP
+    QString     fields( const QRegExp &regxp, int field, int count = 1, int flags = FieldSkipEmpty ) const;
+#endif
+
     QString     left( uint len )  const;
     QString     right( uint len ) const;
     QString     mid( uint index, uint len=0xffffffff) const;
