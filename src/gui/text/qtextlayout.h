@@ -105,9 +105,9 @@ public:
     bool usesDesignMetrics() const;
 
     enum LayoutMode {
-        NoBidi,
-        SingleLine,
-        MultiLine
+        MultiLine = 0,
+        NoBidi = 1,
+        SingleLine = 2,
     };
 
     void clearLines();

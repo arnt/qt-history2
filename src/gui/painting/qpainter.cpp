@@ -3441,7 +3441,7 @@ void qt_format_text(const QFont& font, const QRect &_r,
         int lineWidth = wordbreak ? qMax(0, r.width()) : 0x01000000;
         if(!wordbreak)
             tf |= Qt::TextIncludeTrailingSpaces;
-        textLayout.beginLayout((tf & Qt::TextDontPrint) ? QTextLayout::NoBidi : QTextLayout::SingleLine);
+        textLayout.beginLayout((tf & Qt::TextDontPrint) ? QTextLayout::NoBidi : QTextLayout::MultiLine);
 
         int leading = fm.leading();
         height = -leading;
