@@ -5,7 +5,7 @@
 **
 ** Created : 970610
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -194,11 +194,11 @@ void QValidator::fixup( QString & ) const
     Example of use:
 
     \code
-    QIntValidator v( 0, 100, this );
     QLineEdit* edit = new QLineEdit( this );
+    QValidator* validator = new QIntValidator( 0, 100, edit );
 
     // the edit lineedit will only accept integers between 0 and 100
-    edit->setValidator( &v );
+    edit->setValidator( v );
     \endcode
 
     Below we present some examples of validators. In practice they would
@@ -531,12 +531,11 @@ void QDoubleValidator::setDecimals( int decimals )
 
     Example of use:
     \code
+    QLineEdit* edit = new QLineEdit( split );
     // regexp: optional '-' followed by between 1 and 3 digits
     QRegExp rx( "-?\\d{1,3}" );
-    QRegExpValidator validator( rx, 0 );
-
-    QLineEdit *edit = new QLineEdit( split );
-    edit->setValidator( &validator );
+    QValidator* validator = new QRegExpValidator( rx, edit );
+    edit->setValidator( validator );
     \endcode
 
     Below we present some examples of validators. In practice they would
