@@ -86,12 +86,13 @@ public:
 
 signals:
     void rightButtonPressed( const QPoint &globalPos );
-    
+
 protected:
     void mousePressEvent( QMouseEvent *e );
 
 private:
     int findDockWidget( QDockWidget *w );
+    int QDockArea::lineOf( int index );
 
 private:
     Orientation orient;
