@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qdstream.cpp#4 $
 **
 ** Implementation of QDataStream class
 **
 ** Author  : Haavard Nord
 ** Created : 930831
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -22,7 +22,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdstream.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdstream.cpp#4 $";
 #endif
 
 
@@ -407,7 +407,9 @@ QDataStream &QDataStream::writeBytes(const char *s, uint len)
 {						// write char array with length
     CHECK_STREAM_PRECOND
     *this << (INT32)len;			// write length specifier
-    return writeRawBytes( s, len );
+    if ( len )
+	writeRawBytes( s, len );
+    return *this;
 }
 
 
