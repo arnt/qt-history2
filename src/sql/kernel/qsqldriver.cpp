@@ -314,17 +314,11 @@ QSqlRecord QSqlDriver::record(const QString& ) const
     Returns the \a identifier escaped according to the database rules.
     \a identifier can either be a table name or field name.
 
-    The default implementation encases the identifier with double quotes.
+    The default implementation does nothing.
  */
 QString QSqlDriver::escapeIdentifier(const QString &identifier) const
 {
-    QString res = identifier;
-    res.replace(QLatin1Char('"'), QLatin1String("\"\""));
-    res.prepend(QLatin1Char('"')).append(QLatin1Char('"'));
-    int idx = identifier.indexOf(QLatin1Char('.'));
-    if (idx != -1)
-        res.replace(QLatin1Char('.'), QLatin1String("\".\""));
-    return res;
+    return identifier;
 }
 
 /*!
