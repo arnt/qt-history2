@@ -301,12 +301,13 @@ the list click 'QMsDev - Win32 Release', then click \OK. Now click
 the file
 \File %QTDIR%\\tools\\designer\\integration\\qmsdev\\Release\\qmsdev.dll
 into
-\File {\\Program Files\\Microsoft Visual Studio\\Common\\MSDev98\\AddIns}.
+\File {Microsoft Visual Studio\Common\MSDev98\AddIns}.
 Now click \Menu Tools|Customize. Click the Add-in Macro Files
 tab, then click the \Button Browse button. Change the
 file type to 'Add-ins (.dll)' and navigate to
-\File {\\Program Files\\Microsoft Visual Studio\\Common\\MSDev98\\AddIns}.
-Click the \index qmsdev.dll
+\File {Microsoft Visual Studio\Common\MSDev98\AddIns}.
+Click the 
+\index qmsdev.dll
 \File qmsdev.dll file, click
 \Button Open, then click \Button Close.
 

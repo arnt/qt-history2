@@ -177,7 +177,7 @@ void QStringList::sort()
   This version of the function uses a QChar as separator, rather than
   a regular expression.
 
-  \sa join()
+  \sa join() QString::section()
 */
 
 QStringList QStringList::split( const QChar &sep, const QString &str,
@@ -198,6 +198,8 @@ QStringList QStringList::split( const QChar &sep, const QString &str,
   If \a allowEmptyEntries is TRUE, an empty string is inserted in the
   list wherever the separator matches twice without intervening
   text.
+
+  \sa join() QString::section()
 */
 
 QStringList QStringList::split( const QString &sep, const QString &str,
@@ -242,7 +244,7 @@ QStringList QStringList::split( const QString &sep, const QString &str,
   If \a sep does not match anywhere in \a str, split() returns a list
   consisting of the single string \a str.
 
-  \sa join()
+  \sa join() QString::section()
 */
 
 QStringList QStringList::split( const QRegExp &sep, const QString &str,
