@@ -78,11 +78,9 @@ echo "Removing internal files..." >&2
 cd ${DISTDIR}/qt/src
 rm -fv `make showinternal`
 
-LIBVERSION=`grep "#define.*QT_VERSION_STR" ${DISTDIR}/qt/src/tools/qglobal.h | fmt -1 | grep '"' | sed -e 's/"//g'`
-VERSIONMAJOR=`echo ${LIBVERSION} | sed -e 's/\..*$//'`
-VERSION=`echo ${LIBVERSION} | sed -e 's/0$//'`
+VERSION=`grep "#define.*QT_VERSION_STR" ${DISTDIR}/qt/src/tools/qglobal.h | fmt -1 | grep '"' | sed -e 's/"//g'`
+VERSIONMAJOR=`echo ${VERSION} | sed -e 's/\..*$//'`
 echo "Auto-detected the Qt version number -- " $VERSION >&2
-echo "             library version number -- " $LIBVERSION >&2
 
 QTDIR=${DISTDIR}/qt
 export QTDIR
