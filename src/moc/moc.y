@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#56 $
+** $Id: //depot/qt/main/src/moc/moc.y#57 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -29,6 +29,8 @@
 *****************************************************************************/
 
 %{
+void yyerror( char *msg );
+
 #include "qlist.h"
 #include "qstring.h"
 #include "qdatetm.h"
@@ -36,7 +38,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#56 $")
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#57 $")
 
 QString rmWS( const char * );
 
@@ -751,16 +753,14 @@ opt_identifier:		  /* empty */
 
 %%
 
-#if defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined(_OS_OS2_)
-extern "C" int read( int, void *, uint );
-#if defined(_CC_MSC_)
-extern "C" int fileno( FILE *stream );
+#if defined(_OS_WIN32_)
+#if defined(_CC_MSVC_)
+extern "C" int _isatty( int );
+#define isatty _isatty
 #endif
-int yydebug;
-#include "lexyy.c"
-#else
+#endif
+
 #include "lex.yy.c"
-#endif
 
 void init();					// initialize
 void initClass();				// prepare for new class
