@@ -724,14 +724,11 @@ void Uic::createFormImpl( const QDomElement &e )
 
     // find out what images are required
     QStringList requiredImages;
-    nl = e.elementsByTagName( "pixmap" );
-    int j;
-    for ( j = 0; j < (int) nl.length(); j++ ) {
-	requiredImages += nl.item(j).firstChild().toText().data();
-    }
-    nl = e.parentNode().toElement().elementsByTagName( "iconset" );
-    for ( j = 0; j < (int) nl.length(); j++ ) {
-	requiredImages += nl.item(j).firstChild().toText().data();
+    static const char *imgTags[] = { "pixmap", "iconset", 0 };
+    for ( i = 0; imgTags[i] != 0; i++ ) {
+	nl = e.parentNode().toElement().elementsByTagName( imgTags[i] );
+	for ( int j = 0; j < (int) nl.length(); j++ )
+	    requiredImages += nl.item(j).firstChild().toText().data();
     }
 
     if ( !requiredImages.isEmpty() || externPixmaps ) {
