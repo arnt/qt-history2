@@ -36,7 +36,11 @@
 **********************************************************************/
 
 #include "qmotifstyle.h"
+
 #ifndef QT_NO_STYLE_MOTIF
+
+#define INCLUDE_MENUITEM_DEF
+#include "qpopupmenu.h"
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qpalette.h"
@@ -47,8 +51,6 @@
 #include "qpushbutton.h"
 #include "qscrollbar.h"
 #include "qtabbar.h"
-#define INCLUDE_MENUITEM_DEF
-#include "qpopupmenu.h"
 #include <limits.h>
 
 // NOT REVISED

@@ -35,9 +35,12 @@
 **
 **********************************************************************/
 
-#define INCLUDE_MENUITEM_DEF
 #include "qsgistyle.h"
+
 #ifndef QT_NO_STYLE_SGI
+
+#define INCLUDE_MENUITEM_DEF
+#include "qpopupmenu.h"
 #include "qapplication.h"
 #include "qbutton.h"
 #include "qpainter.h"
@@ -47,7 +50,6 @@
 #include "qwidget.h"
 #include "qpushbutton.h"
 #include "qscrollbar.h"
-#include "qpopupmenu.h"
 #include <limits.h>
 
 

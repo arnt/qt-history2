@@ -43,7 +43,6 @@
 #include "qpalette.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
-
 #define INCLUDE_MENUITEM_DEF
 #include "qmenudata.h"
 

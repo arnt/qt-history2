@@ -36,7 +36,9 @@
 **********************************************************************/
 
 #include "qcdestyle.h"
+
 #ifndef QT_NO_STYLE_CDE
+
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qbutton.h"

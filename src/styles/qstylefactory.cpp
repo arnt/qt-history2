@@ -1,6 +1,6 @@
+#include "qstyleinterface.h" // up here for GCC 2.7.2.3 compatibility
 #include "qstylefactory.h"
 
-#include "qstyleinterface.h"
 #include "qinterfacemanager.h"
 #include "qwindowsstyle.h"
 #include "qmotifstyle.h"

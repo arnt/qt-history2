@@ -36,7 +36,11 @@
 **********************************************************************/
 
 #include "qwindowsstyle.h"
+
 #ifndef QT_NO_STYLE_WINDOWS
+
+#define INCLUDE_MENUITEM_DEF
+#include "qpopupmenu.h"
 #include "qapplication.h"
 #include "../kernel/qapplication_p.h"
 #include "qpainter.h"
@@ -51,8 +55,6 @@
 #include "qrangecontrol.h"
 #include "qscrollbar.h"
 #include "qtabbar.h"
-#define INCLUDE_MENUITEM_DEF
-#include "qpopupmenu.h"
 #include <limits.h>
 
 
