@@ -31,6 +31,7 @@
 #include <qmessagebox.h>
 #include <qwindowsstyle.h>
 #ifdef Q_WS_MAC
+#include <private/qunicodetables_p.h>
 #include <qmacstyle_mac.h>
 #endif
 #include <qdebug.h>
@@ -1856,6 +1857,14 @@ static void qt_get_dir_and_selection(const QString &path, QString *cwd, QString 
     if (sel) *sel = QString();
 }
 
+#if defined(Q_WS_MAC)
+static QString precomposeFileName(const QString &str)
+{
+    return QUnicodeTables::normalize(str, QString::NormalizationForm_C);
+}
+#endif
+
+
 /*!
   This is a convenience static function that returns an existing file
   selected by the user. If the user presses Cancel, it returns a null
@@ -1924,7 +1933,7 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
     if (::qt_cast<QMacStyle*>(qApp->style())) {
         QStringList files = qt_mac_get_open_file_names(filter, &qt_working_dir, parent,
                                                        caption, selectedFilter, false, false);
-        return files.isEmpty() ? QString() : files.first();
+        return files.isEmpty() ? QString() : precomposeFileName(files.first());
     }
 #endif
 
@@ -1951,7 +1960,11 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
 
     qt_resolve_symlinks = save_qt_resolve_symlinks;
 
+#if defined(Q_WS_MAC)
+    return precomposeFileName(result);
+#else
     return result;
+#endif
 }
 
 /*!
@@ -2019,8 +2032,8 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
 					 parent, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
     if (::qt_cast<QMacStyle*>(qApp->style()))
-        return qt_mac_get_save_file_name(initialSelection, filter, &qt_working_dir,
-                                         parent, caption, selectedFilter);
+        return precomposeFileName(qt_mac_get_save_file_name(initialSelection, filter, &qt_working_dir,
+                                                            parent, caption, selectedFilter));
 #endif
 
     QFileDialog *dlg = new QFileDialog(parent,
@@ -2046,7 +2059,11 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
 
     qt_resolve_symlinks = save_qt_resolve_symlinks;
 
+#if defined(Q_WS_MAC)
+    return precomposeFileName(result);
+#else
     return result;
+#endif
 }
 
 /*!
@@ -2102,7 +2119,7 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
 #elif defined(Q_WS_MAC)
     if (::qt_cast<QMacStyle*>(qApp->style())) {
         QStringList files = qt_mac_get_open_file_names("", 0, parent, caption, 0, false, true);
-        return files.isEmpty() ? QString() : files.first();
+        return files.isEmpty() ? QString() : precomposeFileName(files.first());
     }
 #endif
 
@@ -2132,7 +2149,11 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
 
     qt_resolve_symlinks = save_qt_resolve_symlinks;
 
+#if defined(Q_WS_MAC)
+    return precomposeFileName(result);
+#else
     return result;
+#endif
 }
 
 /*!
@@ -2204,8 +2225,13 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
     if (::qt_cast<QWindowsStyle*>(qApp->style()))
         return qt_win_get_open_file_names(filter, &qt_working_dir, parent, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
-    if (::qt_cast<QMacStyle*>(qApp->style()))
-        return qt_mac_get_open_file_names(filter, &qt_working_dir, parent, caption, selectedFilter, true, false);
+    if (::qt_cast<QMacStyle*>(qApp->style())) {
+        QStringList sl = qt_mac_get_open_file_names(filter, &qt_working_dir, parent, caption,
+                                                    selectedFilter, true, false);
+        for (int i = 0; i < sl.count(); ++i)
+            sl.replace(i, precomposeFileName(sl.at(i)));
+        return sl;
+    }
 #endif
 
     QFileDialog *dlg = new QFileDialog(parent,
@@ -2228,6 +2254,10 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
 
     qt_resolve_symlinks = save_qt_resolve_symlinks;
 
+#if defined(Q_WS_MAC)
+    for (int i = 0; i < lst.count(); ++i)
+        lst.replace(i, precomposeFileName(lst.at(i)));
+#endif
     return lst;
 }
 
