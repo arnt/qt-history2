@@ -599,6 +599,9 @@ QModelIndex QAbstractItemView::rootIndex() const
 */
 void QAbstractItemView::selectAll()
 {
+    if (!model() || !selectionModel())
+        return;
+
     QItemSelection selection;
     QModelIndex tl = model()->index(0, 0, rootIndex());
     QModelIndex br = model()->index(model()->rowCount(rootIndex()) - 1,
@@ -624,7 +627,8 @@ void QAbstractItemView::edit(const QModelIndex &index)
 */
 void QAbstractItemView::clearSelection()
 {
-    selectionModel()->clear();
+    if (selectionModel())
+        selectionModel()->clear();
 }
 
 /*!
@@ -1314,6 +1318,9 @@ bool QAbstractItemView::edit(const QModelIndex &index,
                              EditTrigger trigger,
                              QEvent *event)
 {
+    if (!model())
+        return false;
+
     QModelIndex buddy = model()->buddy(index);
 
     QStyleOptionViewItem options = viewOptions();
@@ -1541,6 +1548,9 @@ int QAbstractItemView::verticalStepsPerItem() const
 */
 void QAbstractItemView::keyboardSearch(const QString &search)
 {
+    if (!model())
+        return;
+
     QModelIndex start = currentIndex().isValid() ? currentIndex()
                         : model()->index(0, 0, rootIndex());
     QTime now(QTime::currentTime());
@@ -1582,18 +1592,25 @@ void QAbstractItemView::keyboardSearch(const QString &search)
 }
 
 /*!
-    Returns the size hint for the item with the specified \a index.
+    Returns the size hint for the item with the specified \a index or
+    an invalid size for invalid indexes.
 */
 QSize QAbstractItemView::sizeHintForIndex(const QModelIndex &index) const
 {
+    if (!index.isValid())
+        return QSize();
     return itemDelegate()->sizeHint(viewOptions(), index);
 }
 
 /*!
-    Returns the height size hint for the specified \a row.
+    Returns the height size hint for the specified \a row or -1 if
+    there is no model.
 */
 int QAbstractItemView::sizeHintForRow(int row) const
 {
+    if(!model())
+        return -1;
+
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     int height = 0;
@@ -1607,10 +1624,13 @@ int QAbstractItemView::sizeHintForRow(int row) const
 }
 
 /*!
-    Returns the width size hint for the specified \a column.
+    Returns the width size hint for the specified \a column or -1 if there is no model.
 */
 int QAbstractItemView::sizeHintForColumn(int column) const
 {
+    if(!model())
+        return -1;
+
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     int width = 0;

@@ -205,6 +205,8 @@ QWidget *QItemDelegate::createEditor(QWidget *parent,
                                      const QStyleOptionViewItem &,
                                      const QModelIndex &index) const
 {
+    if (!index.isValid())
+        return 0;
     QVariant::Type t = index.model()->data(index, QAbstractItemModel::EditRole).type();
     QWidget *w = QItemEditorFactory::defaultFactory()->createEditor(t, parent);
     if (w) w->installEventFilter(const_cast<QItemDelegate *>(this));

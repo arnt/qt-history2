@@ -675,12 +675,16 @@ void QTableView::updateGeometries()
 }
 
 /*!
-    Returns the size hint for the given \a row's height.
+    Returns the size hint for the given \a row's height or -1 if there
+    is no model.
 
     \sa QWidget::sizeHint
 */
 int QTableView::sizeHintForRow(int row) const
 {
+    if (!model())
+        return -1;
+
     int columnfirst = columnAt(0);
     int columnlast = columnAt(d->viewport->width());
     if (columnlast < 0)
@@ -698,12 +702,16 @@ int QTableView::sizeHintForRow(int row) const
 }
 
 /*!
-    Returns the size hint for the given \a column's width.
+    Returns the size hint for the given \a column's width or -1 if
+    there is no model.
 
     \sa QWidget::sizeHint
 */
 int QTableView::sizeHintForColumn(int column) const
 {
+    if (!model())
+        return -1;
+
     int rowfirst = rowAt(0);
     int rowlast = rowAt(d->viewport->height());
     if (rowlast < 0)

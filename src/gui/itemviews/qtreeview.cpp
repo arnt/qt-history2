@@ -1138,6 +1138,8 @@ void QTreeView::sortByColumn(int column)
 void QTreeView::selectAll()
 {
     Q_D(QTreeView);
+    if (!selectionModel())
+        return;
     d->select(0, d->viewItems.count() - 1,
               QItemSelectionModel::ClearAndSelect
               |QItemSelectionModel::Rows);
@@ -1194,7 +1196,8 @@ void QTreeView::updateGeometries()
 }
 
 /*!
-  Returns the size hint for the \a column's width.
+  Returns the size hint for the \a column's width or -1 if there is no
+  model.
 
   \sa QWidget::sizeHint
 */
@@ -1202,7 +1205,7 @@ int QTreeView::sizeHintForColumn(int column) const
 {
     Q_D(const QTreeView);
     if (d->viewItems.count() <= 0)
-        return 0;
+        return -1;
 
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();

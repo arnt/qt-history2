@@ -1734,6 +1734,8 @@ QPoint QListViewPrivate::snapToGrid(const QPoint &pos) const
 QRect QListViewPrivate::mapToViewport(const QRect &rect) const
 {
     Q_Q(const QListView);
+    if (!rect.isValid())
+        return rect;
     QRect result(rect.left() - q->horizontalOffset(),
                  rect.top() - q->verticalOffset(),
                  rect.width(), rect.height());
