@@ -35,15 +35,14 @@ extern QMutexPool *static_qt_global_mutexpool; // in qmutexpool.cpp
 static QMutexPool *qt_thread_mutexpool = 0;
 
 
-static DWORD qt_tls_index = 0;
+static DWORD qt_tls_index = TLS_OUT_OF_INDEXES;
 static void create_tls()
 {
-    if ( qt_tls_index ) return;
+    if (qt_tls_index != TLS_OUT_OF_INDEXES) return;
 
     static QMutex mutex;
     mutex.lock();
-    if ( ! qt_tls_index )
-	qt_tls_index = TlsAlloc();
+    qt_tls_index = TlsAlloc();
     mutex.unlock();
 }
 
@@ -54,8 +53,11 @@ static void create_tls()
 
 QThreadInstance *QThreadInstance::current()
 {
-    QThreadInstance *ret = (QThreadInstance *) TlsGetValue( qt_tls_index );
-    if ( ! ret ) return &main_instance;
+    QThreadInstance *ret = 0;
+    if (qt_tls_index != TLS_OUT_OF_INDEXES)
+	ret = (QThreadInstance *)TlsGetValue(qt_tls_index);
+    if (!ret)
+	return &main_instance;
     return ret;
 }
 
