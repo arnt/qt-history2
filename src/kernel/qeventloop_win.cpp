@@ -642,22 +642,25 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 	}
     }
 
+    bool handled = FALSE;
     if ( msg.message == WM_TIMER ) {		// timer message received
 	const bool handled = dispatchTimer( msg.wParam, &msg );
 	if ( handled )
 	    return TRUE;
-    } else if ( !msg.hwnd && msg.message ) {
+    } else if ( msg.message && (!msg.hwnd || !QWidget::find(msg.hwnd)) ) {
 	long res = 0;
-	qt_winEventFilter( &msg, res );
+	handled = qt_winEventFilter( &msg, res );
     }
 
-    QInputContext::TranslateMessage( &msg );			// translate to WM_CHAR
+    if ( !handled ) {
+	QInputContext::TranslateMessage( &msg );			// translate to WM_CHAR
 
-    QT_WA( {
-        DispatchMessage( &msg );		// send to QtWndProc
-    } , {
-	DispatchMessageA( &msg );		// send to QtWndProc
-    } );
+	QT_WA( {
+	    DispatchMessage( &msg );		// send to QtWndProc
+	} , {
+	    DispatchMessageA( &msg );		// send to QtWndProc
+	} );
+    }
 
     if ( !(flags & ExcludeSocketNotifiers ) )
 	activateSocketNotifiers();
