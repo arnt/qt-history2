@@ -789,91 +789,83 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             const int default_frame = pixelMetric(PM_DefaultFrameWidth, tab, widget);
             const int frame_offset =  (default_frame > 1) ? 1 : 0;
 
-            if (tab->shape == QTabBar::RoundedNorth) {
+            if (tab->shape == QTabBar::RoundedNorth || tab->shape == QTabBar::RoundedEast ||
+                tab->shape == QTabBar::RoundedSouth || tab->shape == QTabBar::RoundedWest) {
+                p->save();
+                QRect tabRect = opt->rect;
+                QColor tabLight = opt->palette.light().color();
+                QColor tabDark = opt->palette.dark().color();
+                if(tab->shape == QTabBar::RoundedWest) {
+                    tabDark = opt->palette.light().color();
+                    tabLight = opt->palette.dark().color();
+                    tabRect = QRect(0, 0, tabRect.height(), tabRect.width());
+                    p->translate(opt->rect.left(), opt->rect.bottom());
+                    p->rotate(-90);
+                } else if(tab->shape == QTabBar::RoundedSouth) {
+                    tabDark = opt->palette.light().color();
+                    tabLight = opt->palette.dark().color();
+                    tabRect = QRect(0, 0, tabRect.width(), tabRect.height());
+                    p->translate(opt->rect.right(), opt->rect.bottom());
+                    p->rotate(180);
+                } else if(tab->shape == QTabBar::RoundedEast) {
+                    tabRect = QRect(0, 0, tabRect.height(), tabRect.width());
+                    p->translate(opt->rect.right(), opt->rect.top());
+                    p->rotate(90);
+                }
+
                 if (default_frame > 1) {
-                    p->setPen(opt->palette.light().color());
-                    p->drawLine(opt->rect.left(), opt->rect.bottom(), opt->rect.right(), opt->rect.bottom());
-                    p->setPen(opt->palette.light().color());
-                    p->drawLine(opt->rect.left(), opt->rect.bottom()-1, opt->rect.right(), opt->rect.bottom()-1);
-                    if (opt->rect.left() == 0)
-                        p->drawPoint(opt->rect.bottomLeft());
+                    p->setPen(tabLight);
+                    p->drawLine(tabRect.left(), tabRect.bottom(),
+                                tabRect.right(), tabRect.bottom());
+                    p->setPen(tabLight);
+                    p->drawLine(tabRect.left(), tabRect.bottom()-1,
+                                tabRect.right(), tabRect.bottom()-1);
+                    if (tabRect.left() == 0)
+                        p->drawPoint(tabRect.bottomLeft());
                 } else {
-                    p->setPen(opt->palette.light().color());
-                    p->drawLine(opt->rect.left(), opt->rect.bottom(), opt->rect.right(), opt->rect.bottom());
+                    p->setPen(tabLight);
+                    p->drawLine(tabRect.left(), tabRect.bottom(),
+                                tabRect.right(), tabRect.bottom());
                 }
 
                 if (opt->state & State_Selected) {
-                    p->fillRect(QRect(opt->rect.left()+1, opt->rect.bottom()-frame_offset, opt->rect.width()-3, 2),
+                    p->fillRect(QRect(tabRect.left()+1, tabRect.bottom()-frame_offset,
+                                      tabRect.width()-3, 2),
                                 tab->palette.brush(QPalette::Active, QPalette::Background));
                     p->setPen(tab->palette.background().color());
-                    // p->drawLine(opt->rect.left()+1, opt->rect.bottom(), opt->rect.right()-2, opt->rect.bottom());
-                    // if (default_frame > 1)
-                    // p->drawLine(opt->rect.left()+1, opt->rect.bottom()-1, opt->rect.right()-2, opt->rect.bottom()-1);
-                    p->drawLine(opt->rect.left()+1, opt->rect.bottom(), opt->rect.left()+1, opt->rect.top()+2);
-                    p->setPen(tab->palette.light().color());
+                    p->drawLine(tabRect.left()+1, tabRect.bottom(),
+                                tabRect.left()+1, tabRect.top()+2);
+                    p->setPen(tabLight);
                 } else {
-                    p->setPen(tab->palette.light().color());
+                    p->setPen(tabLight);
                 }
-                p->drawLine(opt->rect.left(), opt->rect.bottom()-1, opt->rect.left(), opt->rect.top() + 2);
-                p->drawPoint(opt->rect.left()+1, opt->rect.top() + 1);
-                p->drawLine(opt->rect.left()+2, opt->rect.top(),
-                            opt->rect.right() - 2, opt->rect.top());
-                p->drawPoint(opt->rect.left(), opt->rect.bottom());
+                p->drawLine(tabRect.left(), tabRect.bottom()-1,
+                            tabRect.left(), tabRect.top() + 2);
+                p->drawPoint(tabRect.left()+1, tabRect.top() + 1);
+                p->drawLine(tabRect.left()+2, tabRect.top(),
+                            tabRect.right() - 2, tabRect.top());
+                p->drawPoint(tabRect.left(), tabRect.bottom());
 
                 if (default_frame > 1) {
-                    p->drawLine(opt->rect.left()+1, opt->rect.bottom(), opt->rect.left()+1, opt->rect.top() + 2);
-                    p->drawLine(opt->rect.left()+2, opt->rect.top()+1,
-                                opt->rect.right() - 2, opt->rect.top()+1);
+                    p->drawLine(tabRect.left()+1, tabRect.bottom(),
+                                tabRect.left()+1, tabRect.top() + 2);
+                    p->drawLine(tabRect.left()+2, tabRect.top()+1,
+                                tabRect.right() - 2, tabRect.top()+1);
                 }
 
-                p->setPen(tab->palette.dark().color());
-                p->drawLine(opt->rect.right() - 1, opt->rect.top() + 2,
-                            opt->rect.right() - 1, opt->rect.bottom() - 1 +
+                p->setPen(tabDark);
+                p->drawLine(tabRect.right() - 1, tabRect.top() + 2,
+                            tabRect.right() - 1, tabRect.bottom() - 1 +
                             ((opt->state & State_Selected) ? frame_offset : -frame_offset));
                 if (default_frame > 1) {
-                    p->drawPoint(opt->rect.right() - 1, opt->rect.top() + 1);
-                    p->drawLine(opt->rect.right(), opt->rect.top() + 2, opt->rect.right(),
-                                opt->rect.bottom() -
+                    p->drawPoint(tabRect.right() - 1, tabRect.top() + 1);
+                    p->drawLine(tabRect.right(), tabRect.top() + 2, tabRect.right(),
+                                tabRect.bottom() -
                                 ((opt->state & State_Selected) ?
                                  ((tab->position == QStyleOptionTab::End) ? 0:1):1+frame_offset));
-                    p->drawPoint(opt->rect.right() - 1, opt->rect.top() + 1);
+                    p->drawPoint(tabRect.right() - 1, tabRect.top() + 1);
                 }
-            } else if (tab->shape  == QTabBar::RoundedSouth) {
-                if (opt->state & State_Selected) {
-                    p->fillRect(QRect(opt->rect.left()+1, opt->rect.top(), opt->rect.width()-3, 1),
-                                tab->palette.brush(QPalette::Active, QPalette::Background));
-                    p->setPen(tab->palette.background().color());
-                    // p->drawLine(opt->rect.left()+1, opt->rect.top(), opt->rect.right()-2, opt->rect.top());
-                    p->drawLine(opt->rect.left()+1, opt->rect.top(), opt->rect.left()+1, opt->rect.bottom()-2);
-                    p->setPen(tab->palette.dark().color());
-                } else {
-                    p->setPen(tab->palette.dark().color());
-                    p->drawLine(opt->rect.left(), opt->rect.top(), opt->rect.right(), opt->rect.top());
-                    p->drawLine(opt->rect.left() + 1, opt->rect.top() + 1,
-                                opt->rect.right() - (tab->position == QStyleOptionTab::End ? 0 : 2),
-                                opt->rect.top() + 1);
-                }
-                p->drawLine(opt->rect.right() - 1, opt->rect.top(),
-                            opt->rect.right() - 1, opt->rect.bottom() - 2);
-                p->drawPoint(opt->rect.right() - 2, opt->rect.bottom() - 2);
-                p->drawLine(opt->rect.right() - 2, opt->rect.bottom() - 1,
-                            opt->rect.left() + 1, opt->rect.bottom() - 1);
-                p->drawPoint(opt->rect.left() + 1, opt->rect.bottom() - 2);
-
-                if (default_frame > 1) {
-                    p->drawLine(opt->rect.right(), opt->rect.top(),
-                                opt->rect.right(), opt->rect.bottom() - 1);
-                    p->drawPoint(opt->rect.right() - 1, opt->rect.bottom() - 1);
-                    p->drawLine(opt->rect.right() - 1, opt->rect.bottom(),
-                                opt->rect.left() + 2, opt->rect.bottom());
-                }
-
-                p->setPen(tab->palette.light().color());
-                p->drawLine(opt->rect.left(), opt->rect.top() + ((opt->state & State_Selected) ? 0 : 2),
-                            opt->rect.left(), opt->rect.bottom() - 2);
-                p->drawLine(opt->rect.left() + 1, opt->rect.top() + ((opt->state & State_Selected) ? 0 : 2),
-                            opt->rect.left() + 1, opt->rect.bottom() - 3);
-
+                p->restore();
             } else {
                 QCommonStyle::drawControl(element, opt, p, widget);
             }
