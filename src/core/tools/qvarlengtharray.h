@@ -70,6 +70,7 @@ public:
         resize(idx + 1);
         ptr[idx] = t;
     }
+    void append(const T *buf, int size);
 
     inline T *data() { return ptr; }
     inline const T *data() const { return ptr; }
@@ -88,6 +89,26 @@ private:
     unsigned char array[Prealloc * sizeof(T)];
     T *ptr;
 };
+
+template <class T, int Prealloc>
+Q_OUTOFLINE_TEMPLATE void QVarLengthArray<T, Prealloc>::append(const T *buf, int size)
+{
+    Q_ASSERT(buf);
+    if (size <= 0)
+        return;
+
+    const int idx = s;
+    resize(idx + size);
+
+    if (QTypeInfo<T>::isComplex) {
+        T *i = ptr + idx;
+        T *j = i + size;
+        while (i < j)
+            new (i++) T(*buf++);
+    } else {
+        qMemCopy(&ptr[idx], buf, size * sizeof(T));
+    }
+}
 
 template <class T, int Prealloc>
 Q_OUTOFLINE_TEMPLATE void QVarLengthArray<T, Prealloc>::realloc(int size, int alloc)
