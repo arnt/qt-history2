@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#63 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#64 $
 **
 ** Implementation of QRegExp class
 **
@@ -315,7 +315,7 @@ void QRegExp::setCaseSensitive( bool enable )
 
   Example:
   \code
-    QRegExp r("[0-9]*\.[0-9]+");		// matches floating point
+    QRegExp r("[0-9]*\\.[0-9]+");		// matches floating point
     int len;
     r.match("pi = 3.1416", 0, &len);		// returns 5, len == 6
   \endcode
