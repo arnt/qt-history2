@@ -50,7 +50,9 @@
   # @HeadingFont	{ Bold			} # font for @Heading
   # @FixedWidthFont	{ Courier Base -1p	} # font for @F
   # @ParaGap		{ 1.3vx @OrIfPlain 1f	} # gap between paragraphs
+  @ParaGap		{ 1.5vx @OrIfPlain 1f	} # gap between paragraphs
   # @ParaIndent		{ 2.00f	@OrIfPlain 5s	} # first-line indent for @LP
+  @ParaIndent		{ 0c	@OrIfPlain 0s	} # first-line indent for @LP
   # @DisplayGap		{ 1.00v	@OrIfPlain 1f	} # gap above, below displays
   @DisplayGap		{ 0.75v	@OrIfPlain 1f	} # gap above, below displays
   # @DisplayIndent	{ 2.00f	@OrIfPlain 5s	} # @IndentedDisplay indent

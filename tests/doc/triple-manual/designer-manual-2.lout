@@ -93,8 +93,10 @@ Settings} dialog.
 Click @Option{File"|"Save} to save the project.
 }
 @EndList
+    
 @Figure 
     @Caption { The Project Settings Dialog }
+    @Location { Raw }
     0.45 @Scale @IncludeGraphic { "images/qs-projset.eps.gz" }
 
 @End @Section
@@ -488,7 +490,7 @@ Press @Option{Esc} to leave tab order mode.
 @EndList
 @Figure
     @Caption { Tab Order Mode }
-    0.45 @Scale @IncludeGraphic { "images/qs-taborder.eps.gz" }
+    0.666 @Scale @IncludeGraphic { "images/qs-taborder.eps.gz" }
 @End @SubSubSection
 @EndSubSubSections
 @End @SubSection

@@ -59,7 +59,7 @@ rubber.band.selecting @Index{ Rubber band, Selecting } selecting
 @RawIndex{ Selecting } selecting.rubber.band @SubIndex{ Rubber band }
 grouping.widgets @Index{ Grouping Widgets } widgets @RawIndex{ Widgets
 } widgets.grouping @SubIndex{ Grouping }
-@LP
+@SidebarPP
 If you want to insert a widget into a gap between widgets which
 are in a layout we can click the toolbar button for the new widget
 and then click in the gap. @QDR will ask us if we
@@ -68,7 +68,7 @@ layout will be broken and our widget inserted. We can then select
 the widgets and groups we want to lay out and lay them out again.
 The same effect can be achieved by clicking the group and either
 clicking the @Option{Break Layout} toolbar button or pressing @Option{Ctrl+B}.
-@LP
+@SidebarPP
 Multiple widgets can be selected in five different ways:
 @NumberedList
 @LI{
@@ -374,12 +374,11 @@ Keyboard @PageMark{changing.the.tab.order.sidebar} users press the
 form. The order in which the focus moves is called the tab order.
 tab.order @Index{ Tab Order } tab.order.mode @RawIndex{ Tab Order Mode
 } tab.order.mode.tab.order @SubIndex{ Tab Order }
-@SBPP
+@SidebarPP
 To change a form's tab order click the @NamePageRef{tab.order}
 toolbar button. This will put @QDR into tab order mode; a number in a
 blue circle will appear next to every widget that can accept focus.
-
-@LP
+@SidebarPP
 To change the tab order, click every widget in turn in the order
 you want them to accept focus. If a widget already has the right
 tab order number you must @I{still click it} unless that widget
@@ -387,8 +386,7 @@ and @I{all} the following widgets have the correct tab order
 numbers; in which case you can stop. Press @Option{Esc} to leave tab
 order mode. You can test the tab order by previewing (@Option{Ctrl+T})
 and pressing the @Option{Tab} key.
-
-@LP
+@SidebarPP
 If you prefer the tab order that you had before this one, click
 @Option{Edit"|"Undo} (or press @Option{Ctrl+Z}).
 @LP
@@ -473,7 +471,7 @@ For includes there is no difference between adding an include to
 @Win{Object Explorer}'s @Option{Members} @Option{Includes (in
 Implementation)} and typing the include directly in the @File{.ui.h}
 file.
-@LP
+@SidebarPP
 The situation is different for variables. If you add these to
 @Option{Members}, @Option{Class Variables}, they will be included as
 private variables in the class definition. If you type them at the top

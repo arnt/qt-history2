@@ -152,7 +152,7 @@ rather than duplicate them in each form in which they appear. See
 @NamePageRef{the.designer.approach} chapter's
 @NamePageRef{project.management} section for detailed information on
 the benefits of using project files.
-@DP
+@SidebarPP
 Project files use the @File{.pro} suffix and are used
 by the @File{qmake} tool to create makefiles for the relevant
 target platforms.
@@ -342,7 +342,7 @@ its properties. (See the ``Using the Property Editor''
 An @PageMark{actions.and.action.groups.sidebar} @I{action} is an
 operation that the user initiates through the user interface, for
 example, saving a file or changing some text's font weight to bold.
-@DP
+@SidebarPP
 We often want the user to be able to perform an action using a variety
 of means. For example, to save a file we might want the user to be
 able to press @Option{Ctrl+S}, or to click the @Option{Save} toolbar button or
@@ -353,12 +353,12 @@ operation. In Qt we can create an action (a @Class{QAction}qaction @Index{
 QAction } object) which will call the appropriate function when the
 action is invoked. We can assign an accelerator, (e.g. @Option{Ctrl+S}), to
 an action. We can also add an action to a menu and to a toolbar.
-@DP
+@SidebarPP
 If the action has an on"/"off state, e.g. bold is on or off,
 when the user changes the state, for example by clicking a toolbar
 button, the state of everything associated with the action, e.g.
 menu items and toolbar buttons, are updated.
-@DP
+@SidebarPP
 Some actions should operate together like radio buttons. For example,
 if we have left align, center align and right align actions, only one
 should be 'on' at any one time. An @I{action group} (a
@@ -368,7 +368,7 @@ the group can be on at any one time. If the user changes the state of
 an action in an action group where @Prop{exclusive} is @TRUE,
 everything associated with the actions in the action group, e.g. menu
 items and toolbar buttons, are updated.
-@DP
+@SidebarPP
 @QDR can create actions and action groups visually,
 assign accelerators to them, and associate them with menu items
 and toolbar buttons.
@@ -425,12 +425,12 @@ to make the Property Editor show its properties.
 @PageMark{using.the.property.editor.sidebar}
 using.the.property.editor @Index{ Using the Property Editor }
 properties @Index{ Properties }
-@DP
+@SidebarPP
 For example, click the @Prop{sizePolicy} property's plus sign to
 reveal the hSizeType, vSizeType, horizontalStretch and verticalStretch
 properties. The revealed properties can be edited just like any other
 properties.
-@DP
+@SidebarPP
 If you want to set a property to the same value for a whole set of widgets,
 (e.g. to give them all a common cursor, tooltip,
 color, etc.), @Option{Click} one of the widgets, then
@@ -441,7 +441,7 @@ technique is especially useful for forms with lots of nested widgets
 and layouts.) Their common properties will be shown in the
 property editor, and any change made to one property will be made to
 that same property for all the selected widgets.
-@DP
+@SidebarPP
 Some properties have simple values, such as text or a number. To
 change a text value click the existing text and type in your new text.
 To change a numeric value click the value and either type in a new
@@ -467,7 +467,7 @@ have ellipsis buttons which lead to different dialogs depending on
 what settings the property can have. For example, if you have a lot of
 text to enter for a @Prop{text} property you could click the ellipsis
 button to invoke the @Win{Multi-line Edit} dialog.
-@DP
+@SidebarPP
 The names of properties which have changed are shown in bold.
 If you've changed a property but want to revert it to its default
 value click the property's value and then click the red 'X' button
@@ -600,11 +600,11 @@ adding.toolbar.separators @SubIndex{ Toolbar Separators }
 All the actions in an action group are added to a toolbar in
 one go, simply by dragging the action group from the Action Editor
 and dropping it on the toolbar.
-@LP
+@SidebarPP
 Since toolbar buttons normally only show an image, all actions
 that are to be used in toolbars should have their @Prop{iconSet}
 property set to a suitable image.
-@LP
+@SidebarPP
 Toolbar buttons and separators (usually represented as indented
 vertical gray lines), can be dragged and dropped into new positions
 in the toolbar at any time. Separators can be inserted by right
@@ -619,7 +619,7 @@ deleting @RawIndex{ Deleting }
 deleting.toolbar.separators @SubIndex{ Toolbar Separators }
 deleting @RawIndex{ Deleting }
 deleting.toolbars @SubIndex{ Toolbars }
-@LP
+@SidebarPP
 If you preview an application you'll find that all the toolbars
 can be dragged to different docking points (top, left, right
 and bottom of a @Class{QMainWindow}qmainwindow @Index{ QMainWindow } or subclass), or dragged out
@@ -632,9 +632,9 @@ previewing.toolbars @SubIndex{ Toolbars }
     @Caption { Toolbar with all the Actions Added }
  0.75 @Scale @IncludeGraphic { "images/mw-actiongroup.eps.gz"
 }
-@LP
+@SidebarPP
 @Heading { Adding Widgets to the Toolbar{@PageMark{adding.widgets.to.the.toolbar}} }
-@LP
+@SidebarPP
 Sometimes a simple button is insufficient for our needs. For
 example, if we wanted the user to be able to choose a font name
 and font size from the toolbar we might want to provide a direct
@@ -645,7 +645,7 @@ widgets @RawIndex{ Widgets }
 widgets.adding.to.toolbars @SubIndex{ Adding to Toolbars }
 adding @RawIndex{ Adding }
 adding.widgets @SubIndex{ Widgets }
-@LP
+@SidebarPP
 It is perfectly feasible to add @I{ComboBox}es and @I{SpinBox}es
 to toolbars. For example, a @I{ComboBox} could be used to list
 the available font names and the @I{SpinBox} used to select a
@@ -656,7 +656,7 @@ widgets @RawIndex{ Widgets }
 widgets.spinbox @SubIndex{ SpinBox }
 separator @RawIndex{ Separator }
 separator.toolbar.button @SubIndex{ Toolbar button }
-@LP
+@SidebarPP
 Although you can put any widget into a toolbar we recommend that
 widgets which can be associated with an action should @I{not}
 be added to the toolbar directly. For these widgets, i.e. menu
@@ -775,7 +775,7 @@ widgets in the Object Explorer which is especially useful for forms
 that have many widgets or which use layouts. Multiple widgets can be
 selected by @Option{Click}ing the first one then
 @Option{Shift+Click}ing the others.
-@DP
+@SidebarPP
 In the original version of @QDR if you wanted to provide
 code for a form you had to subclass the form and put your code
 in the subclass. This version fully supports the subclassing
@@ -808,7 +808,7 @@ Variables, then click @Option{New} then enter your text, e.g.
 @Code{QString m_filename}. If one or more items exist, right
 clicking will popup a menu that has @Option{New}, @Option{Edit} and
 @Option{Delete} options.
-@DP
+@SidebarPP
 If
 you want to enter multiple items, e.g. multiple include files or
 multiple data members, it is easiest to right click in the relevant
@@ -844,7 +844,7 @@ forms @RawIndex{ Forms }
 forms.destructor @SubIndex{ destructor }
 forms @RawIndex{ Forms }
 forms.constructor @SubIndex{ constructor }
-@DP
+@SidebarPP
 If you subclass the form you create your own subclassing @Index{
 Subclassing } cpp @Index{ .cpp } @File{.cpp} files which can
 contain your own constructor, destructor, functions, slots,
@@ -1371,7 +1371,7 @@ code (either with the mouse, or @Option{Shift+Arrow}s) and press
 @Option{Tab}: this will make @QDR fix the indentation. Note that you
 must select the @I{entire} function, including its name and
 parameters.
-@DP
+@SidebarPP
 Remember that if you copy and paste just the body of functions
 into the skeletons @QDR provides, you must manually
 enter the names of the arguments in the functions' parameter

@@ -21,7 +21,7 @@ macro @Comma { |0.65s } # For numbers, e.g. 1,500 => 1{@Comma}500
 macro @TTGreenColour		{{cmyk 0.40 0.00 1.00 0.01}}
 macro @LightGreyColour		{{rgb 0.90 0.90 0.90}}
 
-macro @SBPP { //0.35f 2f @Wide &0c }
+macro @SidebarPP { //0.35f 2f @Wide &0c }
 
 def @C right x { { 0.875 1.00 } @Scale { Courier Base } @Font x }
 macro @Code { @C }
@@ -82,6 +82,8 @@ def @Sidebar
     @SendDetails x
 }
 
+
+import @BasicSetup 
 
 def @Ftp  right x { @HContract{ftp{:|0.15s{"/"|0.4fo "/"}x}}}
 def @Http right x { @HContract{http{:|0.15s{"/"|0.4fo "/"}x}}}

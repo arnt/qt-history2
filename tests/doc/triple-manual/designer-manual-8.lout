@@ -80,8 +80,7 @@ records which are defined in the
 been tested with PostgreSQL 6 and PostgreSQL 7. You may need to modify
 the SQL in this file to recreate the example database on your own
 system.
-
-@LP
+@SidebarPP
 Schema @Code{CREATE TABLE} Statements
 @LD @Code @RawVerbatim @Begin
     CREATE TABLE author (
