@@ -221,7 +221,7 @@ static OSStatus qt_mac_create_window(WindowClass wclass, WindowAttributes wattr,
     if(geo->bottom == geo->top)
         geo->bottom++;
     if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
-        Rect null_rect; SetRect(&null_rect, 0, 0, 0, 0);
+        Rect null_rect; SetRect(&null_rect, 0, 0, 1, 1);
         ret = CreateNewWindow(wclass, wattr, &null_rect, w);
         if(ret == noErr) {
             ret = SetWindowBounds(*w, kWindowContentRgn, geo);
@@ -817,7 +817,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         }
     } else if(isTopLevel()) {
         Rect r;
-        SetRect(&r, data->crect.left(), data->crect.top(), data->crect.left(), data->crect.top());
+        SetRect(&r, data->crect.left(), data->crect.top(), data->crect.right(), data->crect.bottom());
         WindowClass wclass = kSheetWindowClass;
         if(qt_mac_is_macdrawer(this))
             wclass = kDrawerWindowClass;
