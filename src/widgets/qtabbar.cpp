@@ -1071,7 +1071,7 @@ void QTabBar::layoutTabs()
 	t = d->lstatic.last();
     else
 	t = d->lstatic.first();
-    int x = t ? t->r.x() : 0;
+    int x = (t && d->scrolls) ? t->r.x() : 0;
     for (int i=0; i<d->lstatic.size(); ++i) {
 	t = d->lstatic.at(reverse ? d->lstatic.size() - 1 - i : i );
 	int lw = fm.width( t->label );
@@ -1244,6 +1244,7 @@ void QTabBar::updateArrowButtons()
     } else {
 	d->leftB->hide();
 	d->rightB->hide();
+	layoutTabs();
     }
 }
 
