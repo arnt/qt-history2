@@ -59,15 +59,20 @@ public:
     static bool itemGreaterThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
 
     QList<QTreeWidgetItem*> find(const QRegExp &rx, int column) const;
-
-    void emitDataChanged(QTreeWidgetItem *item, int column);
-    void invalidatePersistentIndex(QTreeWidgetItem *item);
     
+    void appendToTopLevel(QTreeWidgetItem *item);
+    void insertInTopLevel(int row, QTreeWidgetItem *item);
+    void removeFromTopLevel(QTreeWidgetItem *item);
+    QTreeWidgetItem *takeFromTopLevel(int row);
+
+    void notifyItemAboutToBeRemoved(QTreeWidgetItem *item);
+    void notifyItemInserted(QTreeWidgetItem *item);
+
 protected:
-    void append(QTreeWidgetItem *item);
-    void remove(QTreeWidgetItem *item);
+    void emitDataChanged(QTreeWidgetItem *item, int column);
     void emitRowsInserted(QTreeWidgetItem *item);
     void emitRowsAboutToBeRemoved(QTreeWidgetItem *item);
+    void invalidatePersistentIndexRow(QTreeWidgetItem *item);
 
 private:
     QList<QTreeWidgetItem*> tree;
@@ -569,36 +574,27 @@ QList<QTreeWidgetItem*> QTreeModel::find(const QRegExp &rx, int column) const
 /*!
   \internal
 
-  Emits the dataChanged() signal for the given \a item.
+  Appends the tree view \a item to the tree model as a toplevel item.
 */
 
-void QTreeModel::emitDataChanged(QTreeWidgetItem *item, int column)
-{
-    QModelIndex tl = index(item, (column != -1 ? column : 0));
-    QModelIndex br = (column != -1 ? tl : index(item, columnCount() - 1));
-    emit dataChanged(tl, br);
-}
-
-/*!
-  \internal
-*/
-void QTreeModel::invalidatePersistentIndex(QTreeWidgetItem *item)
-{
-    for (int c = 0; c < columnCount(QModelIndex()); ++c)
-        QAbstractItemModel::invalidatePersistentIndex(index(item, c));
-}
-
-/*!
-  \internal
-
-  Appends the tree view \a item to the tree model and a toplevel item.
-*/
-
-void QTreeModel::append(QTreeWidgetItem *item)
+void QTreeModel::appendToTopLevel(QTreeWidgetItem *item)
 {
     int r = tree.count();
-    tree.push_back(item);
+    tree.append(item);
     emit rowsInserted(QModelIndex(), r, r);
+}
+
+
+/*!
+  \internal
+
+  Inserts the tree view \a item to the tree model as a  toplevel item.
+*/
+
+void QTreeModel::insertInTopLevel(int row, QTreeWidgetItem *item)
+{
+    tree.insert(row, item);
+    notifyItemInserted(item);
 }
 
 /*!
@@ -607,13 +603,57 @@ void QTreeModel::append(QTreeWidgetItem *item)
   Remove the treeview toplevel \a item from the tree model.
 */
 
-void QTreeModel::remove(QTreeWidgetItem *item)
+void QTreeModel::removeFromTopLevel(QTreeWidgetItem *item)
 {
-    int r = tree.indexOf(item);
-    if (r != -1) {
-        tree.removeAt(r);
-        emit rowsAboutToBeRemoved(QModelIndex(), r, r);
-    }
+    int row = tree.indexOf(item);
+    Q_ASSERT(row != -1);
+    notifyItemAboutToBeRemoved(item);
+    tree.removeAt(row);
+}
+
+/*!
+  \internal
+
+  Takes the treeview toplevel item in \a row from the tree model.
+*/
+
+QTreeWidgetItem *QTreeModel::takeFromTopLevel(int row)
+{
+    Q_ASSERT(row != -1);
+    emit rowsAboutToBeRemoved(QModelIndex(), row, row);
+    return tree.takeAt(row);
+}
+
+/*!
+  \internal
+*/
+void QTreeModel::notifyItemAboutToBeRemoved(QTreeWidgetItem *item)
+{
+    emitRowsAboutToBeRemoved(item);
+    invalidatePersistentIndexRow(item); // remove the row, and its children
+    // FIXME: update persistent indexes below the item
+}
+
+/*!
+  \internal
+*/
+void QTreeModel::notifyItemInserted(QTreeWidgetItem *item)
+{
+    // FIXME: update persistent indexes below the item
+    emitRowsInserted(item);
+}
+
+/*!
+  \internal
+
+  Emits the dataChanged() signal for the given \a item.
+*/
+
+void QTreeModel::emitDataChanged(QTreeWidgetItem *item, int column)
+{
+    QModelIndex tl = index(item, (column != -1 ? column : 0));
+    QModelIndex br = (column != -1 ? tl : index(item, columnCount() - 1));
+    emit dataChanged(tl, br);
 }
 
 /*!
@@ -644,6 +684,15 @@ void QTreeModel::emitRowsAboutToBeRemoved(QTreeWidgetItem *item)
     QModelIndex idx = index(item, 0);
     QModelIndex parentIndex = parent(idx);
     emit rowsAboutToBeRemoved(parentIndex, idx.row(), idx.row());
+}
+
+/*!
+  \internal
+*/
+void QTreeModel::invalidatePersistentIndexRow(QTreeWidgetItem *item)
+{
+    for (int c = 0; c < columnCount(QModelIndex()); ++c)
+        QAbstractItemModel::invalidatePersistentIndex(index(item, c));
 }
 
 /*!
@@ -919,7 +968,7 @@ void QTreeModel::emitRowsAboutToBeRemoved(QTreeWidgetItem *item)
   \internal
   Constructs a tree widget item. The item must be inserted into a tree view.
 
-  \sa QTreeModel::append() QTreeWidget::append()
+  \sa QTreeModel::appendToTopLevel() QTreeWidget::append()
 */
 
 QTreeWidgetItem::QTreeWidgetItem()
@@ -1019,13 +1068,13 @@ QTreeWidgetItem::~QTreeWidgetItem()
     children.clear();
 
     if (model)
-        model->invalidatePersistentIndex(this);
+        model->invalidatePersistentIndexRow(this);
     if (par) {
         par->children.removeAll(this);
         return;
     }
     if (model)
-        model->remove(this);
+        model->removeFromTopLevel(this);
 }
 
 /*!
@@ -1146,7 +1195,7 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
     child->view = view;
     child->model = model;
     if (model)
-        model->emitRowsInserted(child);
+        model->notifyItemInserted(child);
 }
 
 /*!
@@ -1155,11 +1204,8 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
 QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
 {
     if (index >= 0 && index < children.count()) {
-        if (model) {
-            QTreeWidgetItem *child = children.at(index);
-            model->invalidatePersistentIndex(child);
-            model->emitRowsAboutToBeRemoved(child);
-        }
+        if (model)
+            model->notifyItemAboutToBeRemoved(children.at(index));
         return children.takeAt(index);
     }
     return 0;
@@ -1532,7 +1578,7 @@ int QTreeWidget::topLevelItemCount() const
 
 void QTreeWidget::insertTopLevelItem(int index, QTreeWidgetItem *item)
 {
-    d->model()->tree.insert(index, item);
+    d->model()->insertInTopLevel(index, item);
 }
 
 /*!
@@ -1543,7 +1589,7 @@ void QTreeWidget::insertTopLevelItem(int index, QTreeWidgetItem *item)
 
 void QTreeWidget::appendTopLevelItem(QTreeWidgetItem *item)
 {
-    d->model()->tree.append(item);
+    d->model()->appendToTopLevel(item);
 }
 
 /*!
@@ -1553,10 +1599,8 @@ void QTreeWidget::appendTopLevelItem(QTreeWidgetItem *item)
 
 QTreeWidgetItem *QTreeWidget::takeTopLevelItem(int index)
 {
-    if (index >= 0 && index < d->model()->tree.count()) {
-        d->model()->emitRowsAboutToBeRemoved(topLevelItem(index));
-        return d->model()->tree.takeAt(index);
-    }
+    if (index >= 0 && index < d->model()->tree.count())
+        return d->model()->takeFromTopLevel(index);
     return 0;
 }
 

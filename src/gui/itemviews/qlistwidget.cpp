@@ -35,7 +35,7 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
     QModelIndex index(QListWidgetItem *item) const;
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
@@ -91,6 +91,8 @@ void QListModel::remove(QListWidgetItem *item)
 {
     int row = lst.indexOf(item);
     if (row != -1) {
+        emit rowsAboutToBeRemoved(QModelIndex(), row, row);
+        invalidatePersistentIndex(index(row));
         lst.at(row)->model = 0;
         lst.removeAt(row);
     }
@@ -112,6 +114,7 @@ QListWidgetItem *QListModel::take(int row)
 {
     if (row >= 0 && row < lst.count()) {
         emit rowsAboutToBeRemoved(QModelIndex(), row, row);
+        invalidatePersistentIndex(index(row));
         lst.at(row)->model = 0;
         return lst.takeAt(row);
     }
