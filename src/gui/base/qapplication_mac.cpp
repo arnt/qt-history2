@@ -784,8 +784,6 @@ static EventTypeSpec events[] = {
     { kEventClassApplication, kEventAppActivated },
     { kEventClassApplication, kEventAppDeactivated },
 
-    { kEventClassControl, kEventControlDraw },
-
     { kEventClassMenu, kEventMenuOpening },
     { kEventClassMenu, kEventMenuClosed },
     { kEventClassMenu, kEventMenuTargetItem },
@@ -2454,32 +2452,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    handled_event = false;
 	}
 	break; }
-    case kEventClassControl:
-	if(ekind == kEventControlDraw) {
-	    HIViewRef hiview;
-	    GetEventParameter(event, kEventParamDirectObject, typeControlRef, 0,
-			      sizeof(hiview), 0, &hiview);
-	    widget = QWidget::find((WId)hiview);
-	    qDebug("asked for a repaint of %s", widget ? widget->className() : "*none!*");
-	    if(widget) {
-		//get the data, this is of course just a hack for now..
-		widget->d->clp_serial++;
-		RgnHandle rgn;
-		GetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, NULL, sizeof(rgn), NULL, &rgn);
-		widget->d->clp = qt_mac_convert_mac_region(rgn);
-		CGContextRef cgref;
-		GetEventParameter(event, kEventParamCGContextRef, typeCGContextRef, NULL, sizeof(cgref), NULL, &cgref);
-		widget->hd = cgref;
-
-		//remove the old pointers
-		widget->d->clp_serial++;
-		widget->d->clp = QRegion();
-		widget->hd = 0;
-	    }
-	} else {
-	    handled_event = false;
-	}
-	break; 
     case kEventClassApplication:
 	if(ekind == kEventAppActivated) {
 	    if(QApplication::desktopSettingsAware())
