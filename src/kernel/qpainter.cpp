@@ -2906,7 +2906,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	    bool linesep = FALSE;
 	    while ( 1 ) {
 		QTextItem ti = textLayout.currentItem();
-// 		qDebug("item: from=%d, ch=%x", ti.from(), text.unicode()[ti.from()].unicode() );
+ 		//qDebug("item: from=%d, ch=%x", ti.from(), text.unicode()[ti.from()].unicode() );
 		if ( expandtabs && ti.isTab() ) {
 		    int tw = 0;
 		    int x = textLayout.widthUsed();
@@ -2938,11 +2938,11 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	    textLayout.setLineWidth( r.width() + add );
 	    int state = textLayout.endLine( 0, height, tf, &ascent, &descent,
 					    &lineLeft, &lineRight );
-	    left = QMIN( left, lineLeft );
-	    right = QMAX( right, lineRight );
 
 	    if ( state != QTextLayout::LineEmpty || linesep ) {
-		//qDebug("finalizing line: ascent = %d, descent=%d", ascent, descent );
+		//qDebug("finalizing line: ascent = %d, descent=%d lineleft=%d lineright=%d", ascent, descent,lineLeft, lineRight  );
+		left = QMIN( left, lineLeft );
+		right = QMAX( right, lineRight );
 		height += ascent + descent + 1;
 		add = 0;
 		if ( linesep )
