@@ -67,31 +67,34 @@ QSize QErrorMessageTextView::sizeHint() const
     return QSize(250, 75);
 }
 
-/*! \class QErrorMessage
+/*! 
+    \class QErrorMessage
 
     \brief The QErrorMessage class provides an error message display dialog.
 
     \ingroup dialogs
     \ingroup misc
 
-    This is basically a QLabel and a "show this message again" checkbox which
-    remembers what not to show.
+    An error message widget consists of a text label and a checkbox. The
+    checkbox lets the user control whether the same error message will be
+    displayed again in the future, typically displaying the text,
+    "Show this message again" translated into the appropriate local
+    language.
 
-    There are two ways to use this class:
-    \list 1
-    \i For production applications. In this context the class can be used to
-    display messages which you don't need the user to see more than once. To use
-    QErrorMessage like this, you create the dialog in the usual way and call the
-    showMessage() slot, or connect signals to it.
+    For production applications, the class can be used to display messages which
+    the user only needs to see once. To use QErrorMessage like this, you create
+    the dialog in the usual way, and show it by calling the showMessage() slot or
+    connecting signals to it.
 
-    \i For developers. In this context the static qtHandler() installs
-    a message handler using qInstallMsgHandler() and creates a QErrorMessage
-    that displays qDebug(), qWarning() and qFatal() messages.
-    \endlist
+    For Qt/Embedded developers, the static qtHandler() installs a message handler
+    using qInstallMsgHandler() and creates a QErrorMessage that displays qDebug(),
+    qWarning() and qFatal() messages.
 
-    In both cases QErrorMessage will queue pending messages, and display
-    them (or not) in order, as soon as the user presses Enter or clicks OK
-    after seeing each message.
+    In both cases QErrorMessage will queue pending messages and display
+    them in order, with each new message being shown as soon as the user
+    has accepted the previous message. Once the user has specified that a
+    message is not to be shown again it is automatically skipped, and the
+    dialog will show the next appropriate message in the queue.
 
     \img qerrormessage.png
 
@@ -173,8 +176,7 @@ QErrorMessage::QErrorMessage(QWidget * parent)
 
 
 /*!
-    Destroys the object and frees any allocated resources.
-    Note that the list of "do not show again" messages is deleted.
+    Destroys the error message dialog.
 */
 
 QErrorMessage::~QErrorMessage()
@@ -239,7 +241,8 @@ bool QErrorMessagePrivate::nextPending()
 }
 
 
-/*! Shows message \a message and returns immediately. This function does
+/*! 
+    Shows the given \a message, and returns immediately. This function does
     nothing if the user has requested that \a message should not be shown again.
 
     Normally, \a message is shown at once, but if there are pending messages,
