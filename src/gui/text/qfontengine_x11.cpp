@@ -117,8 +117,8 @@ bool QFontEngineBox::stringToCMap(const QChar *, int len, QGlyphLayout *glyphs, 
     memset(glyphs, 0, len * sizeof(QGlyphLayout));
 
     for (int i = 0; i < len; i++) {
-        (glyphs++)->advance.x = _size;
-        (glyphs++)->advance.y = 0;
+        glyphs[i].advance.x = _size;
+        glyphs[i].advance.y = 0;
     }
 
     *nglyphs = len;
@@ -326,8 +326,9 @@ bool QFontEngineXLFD::stringToCMap(const QChar *str, int len, QGlyphLayout *glyp
     if (!_fs->per_char) {
         xcs = &_fs->min_bounds;
         while (g != glyphs) {
-            (--g)->advance.x = xcs->width;
-            (--g)->advance.y = 0;
+            --g;
+            g->advance.x = xcs->width;
+            g->advance.y = 0;
         }
     }
     else if (!_fs->max_byte1) {
