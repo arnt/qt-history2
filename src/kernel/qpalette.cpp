@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#93 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -39,6 +39,7 @@
 
 #ifndef QT_NO_PALETTE
 #include "qdatastream.h"
+#include "qcleanuphandler.h"
 
 /*****************************************************************************
   QColorGroup member functions
@@ -501,9 +502,16 @@ static int palette_count = 1;
 
 QPalette::QPalette()
 {
-    data = new QPalData;
-    Q_CHECK_PTR( data );
-    data->ser_no = palette_count++;
+    static QPalData *defPalData = 0;
+    if ( !defPalData ) {                // create common palette data
+        defPalData = new QPalData;      //   for the default palette
+        Q_CHECK_PTR( defPalData );
+	static QCleanupHandler<QPalData> defPalCleanup;
+	defPalCleanup.add( defPalData );
+        defPalData->ser_no = palette_count++;
+    }
+    data = defPalData;
+    data->ref();
 }
 
 /*!\obsolete
