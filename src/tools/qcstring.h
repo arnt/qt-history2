@@ -45,20 +45,12 @@
 
 #include <string.h>
 
-#if defined(Q_OS_SUN) && defined(Q_CC_GNU)
-#include <strings.h>
-#endif
-
 
 /*****************************************************************************
   Safe and portable C string functions; extensions to standard string.h
  *****************************************************************************/
 
 Q_EXPORT void *qmemmove( void *dst, const void *src, uint len );
-
-#if defined(Q_OS_SUN) || defined(Q_CC_OC)
-#define memmove(s1,s2,n) qmemmove((s1),(s2),(n))
-#endif
 
 Q_EXPORT char *qstrdup( const char * );
 
