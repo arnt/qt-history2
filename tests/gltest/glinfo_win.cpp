@@ -39,60 +39,62 @@ GLInfo::GLInfo(QWidget* parent, const char* name)
 
 QString GLInfo::getText()
 {
-	int   i;
+    int   i;
     char* s;
     char  t[80];
     char* p;
-	HDC dc;
+    HDC dc;
 
     makeCurrent();
 
-	infotext->sprintf("%sdisplay: N/A\n"
-					  "server wgl vendor string: N/A\n"
-					  "server wgl version string: N/A\n"
-					  "server wgl extensions (WGL_): N/A\n"
-					  "client wgl version: N/A\n"
-					  "client wgl extensions (WGL_): none\n"
-					  "OpenGL vendor string: %s\n", (const char*)*infotext, ((const char*)glGetString(GL_VENDOR)));
-	qDebug("%s", glGetString(GL_VENDOR));
-    infotext->sprintf("%sOpenGL renderer string: %s\n", (const char*)*infotext, glGetString(GL_RENDERER));
-    infotext->sprintf("%sOpenGL version string: %s\n", (const char*)*infotext, glGetString(GL_VERSION));
+    infotext->sprintf("%sdisplay: N/A\n"
+		      "server wgl vendor string: N/A\n"
+		      "server wgl version string: N/A\n"
+		      "server wgl extensions (WGL_): N/A\n"
+		      "client wgl version: N/A\n"
+		      "client wgl extensions (WGL_): none\n"
+		      "OpenGL vendor string: %s\n", (const char*)*infotext, 
+		      ((const char*)glGetString(GL_VENDOR)));
+    infotext->sprintf("%sOpenGL renderer string: %s\n", (const char*)*infotext, 
+		      glGetString(GL_RENDERER));
+    infotext->sprintf("%sOpenGL version string: %s\n", (const char*)*infotext, 
+		      glGetString(GL_VERSION));
     infotext->sprintf("%sOpenGL extensions (GL_): \n", (const char*)*infotext);
 
 
-	/* do the magic to separate all extensions with comma's, except
+    /* do the magic to separate all extensions with comma's, except
        for the last one that _may_ terminate in a space. */
     i = 0;
     s = (char*)glGetString(GL_EXTENSIONS);
-	t[79] = '\0';
+    t[79] = '\0';
     while(*s) {
-		t[i++] = *s;
-		if(*s == ' ') {
-			if (*(s+1) != '\0') {
-				t[i-1] = ',';
-				t[i] = ' ';
-				p = &t[i++];
-			} else {       // zoinks! last one terminated in a space! //
-				t[i-1] = '\0';
-			}
-		}
-		if(i > 80 - 5) {
-			*p = t[i] = '\0';
-			infotext->sprintf("%s    %s\n", (const char*)*infotext, t);
-			p++;
-			i = strlen(p);
-			strcpy(t, p);
-		}
-		s++;
+        t[i++] = *s;
+	if(*s == ' ') {
+	    if (*(s+1) != '\0') {
+	        t[i-1] = ',';
+		t[i] = ' ';
+		p = &t[i++];
+	    } else {       // zoinks! last one terminated in a space! //
+	        t[i-1] = '\0';
+	    }
 	}
+	if(i > 80 - 5) {
+	    *p = t[i] = '\0';
+	    infotext->sprintf("%s    %s\n", (const char*)*infotext, t);
+	    p++;
+	    i = strlen(p);
+	    strcpy(t, p);
+	}
+	s++;
+    }
     t[i] = '\0';
     infotext->sprintf("%s    %s.", (const char*)*infotext, t);
 
-	dc = GetDC( winId() );
-	VisualInfo( dc );	
-	ReleaseDC( winId(), dc );
+    dc = GetDC( winId() );
+    VisualInfo( dc );	
+    ReleaseDC( winId(), dc );
 
-  return *infotext;
+    return *infotext;
 }
 
 QStringList GLInfo::getViewList()
@@ -102,140 +104,111 @@ QStringList GLInfo::getViewList()
 
 void GLInfo::VisualInfo(HDC hDC)
 {
-	QString str;
+    QString str;
     int i, maxpf;
     PIXELFORMATDESCRIPTOR pfd;
 	
-	/* calling DescribePixelFormat() with NULL args return maximum
+    /* calling DescribePixelFormat() with NULL args return maximum
        number of pixel formats */
     maxpf = DescribePixelFormat(hDC, 0, 0, NULL);
 	
-
-	printf("   visual  x  bf lv rg d st  r  g  b a  ax dp st accum buffs  ms \n");
-	printf(" id dep cl sp sz l  ci b ro sz sz sz sz bf th cl  r  g  b  a ns b\n");
-	printf("-----------------------------------------------------------------\n");
 	
-	/* loop through all the pixel formats */
+    /* loop through all the pixel formats */
     for(i = 1; i <= maxpf; i++) { 
-		str = "";
-		DescribePixelFormat(hDC, i, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
+        str = "";
+	DescribePixelFormat(hDC, i, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
 		
-		/* only describe this format if it supports OpenGL */
-		if(!(pfd.dwFlags & PFD_SUPPORT_OPENGL))
-			continue;
-			
-		/* other criteria could be tested here for actual pixel format
-           choosing in an application:
-  
-		for (...each pixel format...) {
+	/* only describe this format if it supports OpenGL */
+	if(!(pfd.dwFlags & PFD_SUPPORT_OPENGL))
+	    continue;
 		
-			if (pfd.dwFlags & PFD_SUPPORT_OPENGL &&
-			pfd.dwFlags & PFD_DOUBLEBUFFER &&
-			pfd.cDepthBits >= 24 &&
-			pfd.cColorBits >= 24)
-			{
-				goto found;
-			}
-		}
-		... not found so exit ...
-   
-		found:
-		... found so use it ...
-		*/ 
+	/* print out the information for this pixel format */
+	str.sprintf("0x%02x %d ", i, pfd.cColorBits);
 		
-		/* print out the information for this pixel format */
-		str.sprintf("0x%02x %d ", i, pfd.cColorBits);
+	//printf("%2d ", pfd.cColorBits);
+	if(pfd.dwFlags & PFD_DRAW_TO_WINDOW)
+	    str.sprintf("%swindow ", (const char*)str);
+	else if(pfd.dwFlags & PFD_DRAW_TO_BITMAP) 
+	    str.sprintf("%sbitmap ", (const char*)str);
+	else 
+	    str.sprintf("%s. ", (const char*)str);
 		
-		//printf("%2d ", pfd.cColorBits);
-		if(pfd.dwFlags & PFD_DRAW_TO_WINDOW)
-			str.sprintf("%swindow ", (const char*)str);
-		else if(pfd.dwFlags & PFD_DRAW_TO_BITMAP) 
-			str.sprintf("%sbitmap ", (const char*)str);
-		else 
-			str.sprintf("%s. ", (const char*)str);
+	/* should find transparent pixel from LAYERPLANEDESCRIPTOR */
+	str.sprintf("%s0 %2d ", (const char*)str, pfd.cColorBits);
 		
-		/* should find transparent pixel from LAYERPLANEDESCRIPTOR */
-		str.sprintf("%s0 %2d ", (const char*)str, pfd.cColorBits);
+	/* bReserved field indicates number of over/underlays */
+	if(pfd.bReserved) 
+	    str.sprintf("%s%d ", (const char*)str, pfd.bReserved);
+	else 
+	    str.sprintf("%s0 ", (const char*)str);
 		
-		/* bReserved field indicates number of over/underlays */
-		if(pfd.bReserved) 
-			str.sprintf("%s%d ", (const char*)str, pfd.bReserved);
-		else 
-			str.sprintf("%s0 ", (const char*)str);
-		
-		if(pfd.iPixelType == PFD_TYPE_RGBA)
-			str.sprintf("%srgba ", (const char*)str);
-		else
-			str.sprintf("%scolor_index ", (const char*)str);
+	if(pfd.iPixelType == PFD_TYPE_RGBA)
+	    str.sprintf("%srgba ", (const char*)str);
+	else
+	    str.sprintf("%scolor_index ", (const char*)str);
 
-		str.sprintf("%s%c %c ", (const char*)str, 
-								   pfd.dwFlags & PFD_DOUBLEBUFFER ? 'y' : '0',
-								   pfd.dwFlags & PFD_STEREO ? 'y' : '0');
+	str.sprintf("%s%c %c ", (const char*)str, 
+		    pfd.dwFlags & PFD_DOUBLEBUFFER ? 'y' : '0',
+		    pfd.dwFlags & PFD_STEREO ? 'y' : '0');
 		
-		if(pfd.cRedBits && pfd.iPixelType == PFD_TYPE_RGBA)
-			str.sprintf("%s%d ", (const char*)str, pfd.cRedBits);
-		else 
-			str.sprintf("%s0 ", (const char*)str); 
+	if(pfd.cRedBits && pfd.iPixelType == PFD_TYPE_RGBA)
+	    str.sprintf("%s%d ", (const char*)str, pfd.cRedBits);
+	else 
+	    str.sprintf("%s0 ", (const char*)str); 
 		
-		if(pfd.cGreenBits && pfd.iPixelType == PFD_TYPE_RGBA)
-			str.sprintf("%s%d ", (const char*)str, pfd.cGreenBits);
-		else 
-			str.sprintf("%s0 ", (const char*)str);
+	if(pfd.cGreenBits && pfd.iPixelType == PFD_TYPE_RGBA)
+	    str.sprintf("%s%d ", (const char*)str, pfd.cGreenBits);
+	else 
+	    str.sprintf("%s0 ", (const char*)str);
 		
-		if(pfd.cBlueBits && pfd.iPixelType == PFD_TYPE_RGBA)
-			str.sprintf("%s%d ", (const char*)str, pfd.cBlueBits);
-		else 
-			str.sprintf("%s0 ", (const char*)str);
+	if(pfd.cBlueBits && pfd.iPixelType == PFD_TYPE_RGBA)
+	    str.sprintf("%s%d ", (const char*)str, pfd.cBlueBits);
+	else 
+	    str.sprintf("%s0 ", (const char*)str);
 		
-		if(pfd.cAlphaBits && pfd.iPixelType == PFD_TYPE_RGBA)
-			str.sprintf("%s%d ", (const char*)str, pfd.cAlphaBits);
-		else 
-			str.sprintf("%s0 ", (const char*)str);
+	if(pfd.cAlphaBits && pfd.iPixelType == PFD_TYPE_RGBA)
+	    str.sprintf("%s%d ", (const char*)str, pfd.cAlphaBits);
+	else 
+	    str.sprintf("%s0 ", (const char*)str);
 		
-		if(pfd.cAuxBuffers)     
-			str.sprintf("%s%d ", (const char*)str, pfd.cAuxBuffers);
-		else 
-			str.sprintf("%s0 ", (const char*)str);
+	if(pfd.cAuxBuffers)     
+	    str.sprintf("%s%d ", (const char*)str, pfd.cAuxBuffers);
+	else 
+	    str.sprintf("%s0 ", (const char*)str);
 		
-		if(pfd.cDepthBits)      
-			str.sprintf("%s%d ", (const char*)str, pfd.cDepthBits);
-		else 
-			str.sprintf("%s0 ", (const char*)str);
+	if(pfd.cDepthBits)      
+	    str.sprintf("%s%d ", (const char*)str, pfd.cDepthBits);
+	else 
+	    str.sprintf("%s0 ", (const char*)str);
 		
-		if(pfd.cStencilBits)
-			str.sprintf("%s%d ", (const char*)str, pfd.cStencilBits);
-		else 
-			str.sprintf("%s0 ", (const char*)str);
+	if(pfd.cStencilBits)
+	    str.sprintf("%s%d ", (const char*)str, pfd.cStencilBits);
+	else 
+	    str.sprintf("%s0 ", (const char*)str);
 		
-		if(pfd.cAccumRedBits)
-			str.sprintf("%s%d ", (const char*)str, pfd.cAccumRedBits);
-		else 
-			str.sprintf("%s0 ", (const char*)str);
+	if(pfd.cAccumRedBits)
+	    str.sprintf("%s%d ", (const char*)str, pfd.cAccumRedBits);
+	else 
+	    str.sprintf("%s0 ", (const char*)str);
 		
-		if(pfd.cAccumGreenBits)
-			str.sprintf("%s%d ", (const char*)str, pfd.cAccumGreenBits);
-		else 
-			str.sprintf("%s0 ", (const char*)str);
+	if(pfd.cAccumGreenBits)
+	    str.sprintf("%s%d ", (const char*)str, pfd.cAccumGreenBits);
+	else 
+	    str.sprintf("%s0 ", (const char*)str);
 		
-		if(pfd.cAccumBlueBits)
-			str.sprintf("%s%d ", (const char*)str, pfd.cAccumBlueBits);
-		else 
-			str.sprintf("%s0 ", (const char*)str);
+	if(pfd.cAccumBlueBits)
+	    str.sprintf("%s%d ", (const char*)str, pfd.cAccumBlueBits);
+	else 
+	    str.sprintf("%s0 ", (const char*)str);
 		
-		if(pfd.cAccumAlphaBits)
-			str.sprintf("%s%d ", (const char*)str, pfd.cAccumAlphaBits);
-		else 
-			str.sprintf("%s0 ", (const char*)str);
+	if(pfd.cAccumAlphaBits)
+	    str.sprintf("%s%d ", (const char*)str, pfd.cAccumAlphaBits);
+	else 
+	    str.sprintf("%s0 ", (const char*)str);
 
-		/* no multisample in Win32 */
-		str.sprintf("%s0 0", (const char*)str);
+	/* no multisample in Win32 */
+	str.sprintf("%s0 0", (const char*)str);
 
-		viewlist->append(str);
-	}
-	
-	/* print table footer */
-	printf("-----------------------------------------------------------------\n");
-	printf("   visual  x  bf lv rg d st  r  g  b a  ax dp st accum buffs  ms \n");
-	printf(" id dep cl sp sz l  ci b ro sz sz sz sz bf th cl  r  g  b  a ns b\n");
-	printf("-----------------------------------------------------------------\n");
+	viewlist->append(str);
+    }
 }
