@@ -59,41 +59,51 @@ struct BidiControl {
     };
 
     inline BidiControl( bool rtl )
-	: cCtx( 0 ), singleLine( FALSE ) {
-	ctx[0].level = (rtl ? 1 : 0);
-	ctx[0].override = FALSE;
-    }
+	: cCtx( 0 ), base(rtl), override(false), level(rtl), singleLine(false) {}
 
-    inline void embed( int level, bool override = FALSE ) {
-	if ( ctx[cCtx].level < 61 && cCtx < 61 ) {
-	    (void) ++cCtx;
-	    ctx[cCtx].level = level;
-	    ctx[cCtx].override = override;
+    inline void embed( bool rtl, bool o = FALSE ) {
+	uchar plus2 = 0;
+	if( (level%2 != 0) == rtl  ) {
+	    level++;
+	    plus2 = 2;
+	}
+	level++;
+	if (level <= 61) {
+	    override = o;
+	    unsigned char control = (plus2 + (override ? 1 : 0)) << (cCtx % 4)*2;
+	    unsigned char mask = ~(0x3 << (cCtx % 4)*2);
+	    ctx[cCtx>>2] &= mask;
+	    ctx[cCtx>>2] |= control;
+	    cCtx++;
 	}
     }
+    inline bool canPop() const { return cCtx != 0; }
     inline void pdf() {
-	if ( cCtx ) (void) --cCtx;
+	Q_ASSERT(cCtx);
+	(void) --cCtx;
+	unsigned char control = (ctx[cCtx>>2] >> ((cCtx % 4)*2)) & 0x3;
+	override = control & 0x1;
+	level--;
+	if (control & 0x2)
+	    level--;
     }
 
-    inline uchar level() const {
-	return ctx[cCtx].level;
+    inline QChar::Direction basicDirection() const {
+	return (base ? QChar::DirR : QChar:: DirL );
     }
-    inline bool override() const {
-	return ctx[cCtx].override;
+    inline uchar baseLevel() const {
+	return base;
     }
-    inline QChar::Direction basicDirection() {
-	return (ctx[0].level ? QChar::DirR : QChar:: DirL );
-    }
-    inline uchar baseLevel() {
-	return ctx[0].level;
-    }
-    inline QChar::Direction direction() {
-	return ((ctx[cCtx].level%2) ? QChar::DirR : QChar:: DirL );
+    inline QChar::Direction direction() const {
+	return ((level%2) ? QChar::DirR : QChar:: DirL);
     }
 
-    Context ctx[63];
-    unsigned int cCtx : 8;
-    bool singleLine : 8;
+    unsigned char ctx[15];
+    unsigned char cCtx : 6;
+    unsigned char base : 1;
+    unsigned char override : 1;
+    unsigned char level : 6;
+    bool singleLine : 1;
 };
 
 static QChar::Direction basicDirection( const QString &str )
@@ -134,9 +144,9 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl
 	return;
     }
 
-    int level = control.level();
+    int level = control.level;
 
-    if(dir != QChar::DirON && !control.override()) {
+    if(dir != QChar::DirON && !control.override) {
 	// add level of run (cases I1 & I2)
 	if( level % 2 ) {
 	    if(dir == QChar::DirL || dir == QChar::DirAN || dir == QChar::DirEN )
@@ -157,7 +167,7 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl
     item.position = start;
     item.analysis.script = script;
     item.analysis.bidiLevel = level;
-    item.analysis.override = control.override();
+    item.analysis.override = control.override;
     item.analysis.reserved = 0;
 
     if ( control.singleLine ) {
@@ -264,7 +274,7 @@ static void bidiItemize( QTextEngine *engine, bool rightToLeft, int mode )
 	     << " eor=" << eor << "/" << directions[status.eor]
 	     << " sor=" << sor << " lastStrong="
 	     << directions[status.lastStrong]
-	     << " level=" << (int)control.level() << endl;
+	     << " level=" << (int)control.level << " override=" << (bool)control.override << endl;
 #endif
 
 	switch(dirCurrent) {
@@ -278,16 +288,13 @@ static void bidiItemize( QTextEngine *engine, bool rightToLeft, int mode )
 		bool rtl = (dirCurrent == QChar::DirRLE || dirCurrent == QChar::DirRLO );
 		bool override = (dirCurrent == QChar::DirLRO || dirCurrent == QChar::DirRLO );
 
-		uchar level = control.level();
-		if( (level%2 != 0) == rtl  )
-		    level += 2;
-		else
-		    level++;
+		uchar level = control.level+1;
+		if ((level%2 != 0) == rtl) ++level;
 		if(level < 61) {
 		    eor = current-1;
 		    appendItems(engine, sor, eor, control, dir);
 		    eor = current;
-		    control.embed( level, override );
+		    control.embed(rtl, override);
 		    QChar::Direction edir = (rtl ? QChar::DirR : QChar::DirL );
 		    dir = status.eor = edir;
 		    status.lastStrong = edir;
@@ -296,21 +303,23 @@ static void bidiItemize( QTextEngine *engine, bool rightToLeft, int mode )
 	    }
 	case QChar::DirPDF:
 	    {
-		if (dir != control.direction()) {
-		    eor = current-1;
+		if (control.canPop()) {
+		    if (dir != control.direction()) {
+			eor = current-1;
+			appendItems(engine, sor, eor, control, dir);
+			dir = control.direction();
+		    }
+		    eor = current;
 		    appendItems(engine, sor, eor, control, dir);
-		    dir = control.direction();
+		    control.pdf();
+		    dir = QChar::DirON; status.eor = QChar::DirON;
+		    status.last = control.direction();
+		    if ( control.override )
+			dir = control.direction();
+		    else
+			dir = QChar::DirON;
+		    status.lastStrong = control.direction();
 		}
-		eor = current;
-		appendItems(engine, sor, eor, control, dir);
-		dir = QChar::DirON; status.eor = QChar::DirON;
-		status.last = control.direction();
-		control.pdf();
-		if ( control.override() )
-		    dir = control.direction();
-		else
-		    dir = QChar::DirON;
-		status.lastStrong = control.direction();
 		break;
 	    }
 
