@@ -119,6 +119,22 @@ bool QRichTextDrag::canDecode(const QMimeSource* e)
     return QTextDrag::canDecode(e);
 }
 
+// could go into QTextCursor...
+static QTextLine currentTextLine(const QTextCursor &cursor)
+{
+    QTextLine line;
+    const QTextBlock block = cursor.block();
+    if (!block.isValid())
+        return QTextLine();
+
+    const QTextLayout *layout = block.layout();
+    if (!layout)
+        return QTextLine();
+
+    const int relativePos = cursor.position() - block.position();
+    return layout->findLine(relativePos);
+}
+
 bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 {
     QTextCursor::MoveMode mode = e->state() & Qt::ShiftButton
@@ -1660,10 +1676,13 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *ev)
         return;
     }
 
-    d->cursor.movePosition(QTextCursor::PreviousWord);
-    d->cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
-    d->selectionChanged();
-    d->viewport->update();
+    QTextLine line = currentTextLine(d->cursor);
+    if (line.isValid() && line.length()) {
+        d->cursor.movePosition(QTextCursor::PreviousWord);
+        d->cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+        d->selectionChanged();
+        d->viewport->update();
+    }
 
     d->trippleClickPoint = ev->globalPos();
     d->trippleClickTimer.start(qApp->doubleClickInterval(), this);
