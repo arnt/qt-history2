@@ -40,66 +40,66 @@ ApplicationWindow::ApplicationWindow()
     : QMainWindow( 0, "example application main window", WDestructiveClose )
 {
     printer = new QPrinter;
-    
-    QAction * fileNewAction; 
-    QAction * fileOpenAction; 
-    QAction * fileSaveAction, * fileSaveAsAction, * filePrintAction; 
+
+    QAction * fileNewAction;
+    QAction * fileOpenAction;
+    QAction * fileSaveAction, * fileSaveAsAction, * filePrintAction;
     QAction * fileCloseAction, * fileQuitAction;
-    
+
     fileNewAction = new QAction( "New", "&New", CTRL+Key_N, this, "new" );
-    connect( fileNewAction, SIGNAL( activated() ) , this, 
+    connect( fileNewAction, SIGNAL( activated() ) , this,
              SLOT( newDoc() ) );
-    
-    fileOpenAction = new QAction( "Open File", QPixmap( fileopen ), "&Open", 
+
+    fileOpenAction = new QAction( "Open File", QPixmap( fileopen ), "&Open",
                                   CTRL+Key_O, this, "open" );
     connect( fileOpenAction, SIGNAL( activated() ) , this, SLOT( choose() ) );
 
     const char * fileOpenText = "<p><img source=\"fileopen\"> "
                      "Click this button to open a <em>new file</em>. <br>"
                      "You can also select the <b>Open</b> command "
-                     "from the <b>File</b> menu.</p>"; 
-    QMimeSourceFactory::defaultFactory()->setPixmap( "fileopen", 
+                     "from the <b>File</b> menu.</p>";
+    QMimeSourceFactory::defaultFactory()->setPixmap( "fileopen",
                           fileOpenAction->iconSet().pixmap() );
     fileOpenAction->setWhatsThis( fileOpenText );
-    
-    fileSaveAction = new QAction( "Save File", QPixmap( filesave ), 
+
+    fileSaveAction = new QAction( "Save File", QPixmap( filesave ),
                                   "&Save", CTRL+Key_S, this, "save" );
     connect( fileSaveAction, SIGNAL( activated() ) , this, SLOT( save() ) );
 
     const char * fileSaveText = "<p>Click this button to save the file you "
                      "are editing. You will be prompted for a file name.\n"
                      "You can also select the <b>Save</b> command "
-                     "from the <b>File</b> menu.</p>";   
+                     "from the <b>File</b> menu.</p>";
     fileSaveAction->setWhatsThis( fileSaveText );
 
-    fileSaveAsAction = new QAction( "Save File As", "Save &as", 0,  this, 
+    fileSaveAsAction = new QAction( "Save File As", "Save &as", 0,  this,
                                     "save as" );
-    connect( fileSaveAsAction, SIGNAL( activated() ) , this, 
+    connect( fileSaveAsAction, SIGNAL( activated() ) , this,
              SLOT( saveAs() ) );
     fileSaveAsAction->setWhatsThis( fileSaveText );
-    
-    filePrintAction = new QAction( "Print File", QPixmap( fileprint ), 
+
+    filePrintAction = new QAction( "Print File", QPixmap( fileprint ),
                                    "&Print", CTRL+Key_P, this, "print" );
-    connect( filePrintAction, SIGNAL( activated() ) , this, 
+    connect( filePrintAction, SIGNAL( activated() ) , this,
              SLOT( print() ) );
 
     const char * filePrintText = "Click this button to print the file you "
                      "are editing.\n You can also select the Print "
-                     "command from the File menu.";     
+                     "command from the File menu.";
     filePrintAction->setWhatsThis( filePrintText );
-    
-    fileCloseAction = new QAction( "Close", "&Close", CTRL+Key_W, this, 
+
+    fileCloseAction = new QAction( "Close", "&Close", CTRL+Key_W, this,
                                    "close" );
-    connect( fileCloseAction, SIGNAL( activated() ) , this, 
+    connect( fileCloseAction, SIGNAL( activated() ) , this,
              SLOT( close() ) );
 
-    fileQuitAction = new QAction( "Quit", "&Quit", CTRL+Key_Q, this, 
+    fileQuitAction = new QAction( "Quit", "&Quit", CTRL+Key_Q, this,
                                   "quit" );
-    connect( fileQuitAction, SIGNAL( activated() ) , qApp, 
+    connect( fileQuitAction, SIGNAL( activated() ) , qApp,
              SLOT( closeAllWindows() ) );
 
     // populate a tool bar with some actions
-    
+
     QToolBar * fileTools = new QToolBar( this, "file operations" );
     fileTools->setLabel( "File Operations" );
     fileOpenAction->addTo( fileTools );
@@ -107,9 +107,9 @@ ApplicationWindow::ApplicationWindow()
     filePrintAction->addTo( fileTools );
     (void)QWhatsThis::whatsThisButton( fileTools );
 
-    
+
     // populate a menu with all actions
-    
+
     QPopupMenu * file = new QPopupMenu( this );
     menuBar()->insertItem( "&File", file );
     fileNewAction->addTo( file );
@@ -122,22 +122,22 @@ ApplicationWindow::ApplicationWindow()
     fileCloseAction->addTo( file );
     fileQuitAction->addTo( file );
 
-    
+
     menuBar()->insertSeparator();
 
     // add a help menu
-    
+
     QPopupMenu * help = new QPopupMenu( this );
     menuBar()->insertItem( "&Help", help );
     help->insertItem( "&About", this, SLOT(about()), Key_F1 );
     help->insertItem( "About &Qt", this, SLOT(aboutQt()) );
     help->insertSeparator();
-    help->insertItem( "What's &This", this, SLOT(whatsThis()), 
+    help->insertItem( "What's &This", this, SLOT(whatsThis()),
                       SHIFT+Key_F1 );
 
-    
+
     // create and define the central widget
-    
+
     e = new QTextEdit( this, "editor" );
     e->setFocus();
     setCentralWidget( e );
@@ -177,10 +177,11 @@ void ApplicationWindow::load( const QString &fileName )
     if ( !f.open( IO_ReadOnly ) )
 	return;
 
-    e->load( fileName );
+    QTextStream ts( &f );
+    e->setText( ts.read() );
     e->setModified( FALSE );
     setCaption( fileName );
-    statusBar()->message( "Loaded document " + fileName, 2000 );    
+    statusBar()->message( "Loaded document " + fileName, 2000 );
 }
 
 
