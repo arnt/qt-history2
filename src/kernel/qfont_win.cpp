@@ -509,6 +509,15 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
     else if ( request.styleStrategy & QFont::PreferQuality )
 	qual = PROOF_QUALITY;
 #endif
+    if ( request.styleStrategy & QFont::PreferAntialias ) {
+
+	if ( qt_winver >= Qt::WV_XP )
+	    qual = 5; // == CLEARTYPE_QUALITY;
+	else
+	    qual = ANTIALIASED_QUALITY;
+    } else if ( request.styleStrategy & QFont::NoAntialias )
+	qual = NONANTIALIASED_QUALITY;
+    
 
     lf.lfQuality	= qual;
 
