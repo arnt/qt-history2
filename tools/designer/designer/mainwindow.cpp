@@ -1,14 +1,28 @@
-/****************************************************************************
-**
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+ /**********************************************************************
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-****************************************************************************/
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "designerappiface.h"
 #include "designerapp.h"
@@ -37,10 +51,33 @@
 #include "pixmapcollection.h"
 #include "qcompletionedit.h"
 #include "sourcefile.h"
+#include "orderindicator.h"
 #include <qtoolbox.h>
 #include "widgetaction.h"
 #include "propertyobject.h"
 #include "popupmenueditor.h"
+#include "menubareditor.h"
+
+#include "startdialog.h"
+#include "createtemplate.h"
+#include "editfunctions.h"
+//#include "connectionviewer.h"
+#include "formsettings.h"
+#include "preferences.h"
+#include "pixmapcollectioneditor.h"
+#include "dbconnectionimpl.h"
+//#include "connectioneditor.h"
+#include "customwidgeteditorimpl.h"
+#include "paletteeditorimpl.h"
+#include "listboxeditorimpl.h"
+#include "listvieweditorimpl.h"
+#include "iconvieweditorimpl.h"
+#include "tableeditorimpl.h"
+#include "multilineeditor.h"
+#include "finddialog.h"
+#include "replacedialog.h"
+#include "gotolinedialog.h"
+
 #include <qinputdialog.h>
 #include <qtoolbar.h>
 #include <qfeatures.h>
@@ -69,8 +106,9 @@
 #include <qsettings.h>
 #include <qaccel.h>
 #include <qtooltip.h>
+#include <qsizegrip.h>
+#include <qtextview.h>
 #include <qassistantclient.h>
-#include <qdesktopwidget.h>
 #include <stdlib.h>
 
 static bool mblockNewForms = FALSE;
@@ -81,7 +119,6 @@ extern bool qwf_stays_on_top;
 extern void set_splash_status( const QString &txt );
 extern QObject* qwf_form_object;
 extern QString *qwf_plugin_dir;
-/*### static bool tbSettingsRead = FALSE; */
 
 MainWindow *MainWindow::self = 0;
 
@@ -105,12 +142,11 @@ static QString textNoAccel( const QString& text)
 
 
 MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
-    : QMainWindow( 0, "designer_mainwindow", WType_TopLevel | (single ? WFlags(0) : WFlags(WDestructiveClose)) | WGroupLeader ),
+    : QMainWindow( 0, "designer_mainwindow", WType_TopLevel | (single ? 0 : WDestructiveClose) | WGroupLeader ),
       grd( 10, 10 ), sGrid( TRUE ), snGrid( TRUE ), restoreConfig( TRUE ), splashScreen( TRUE ),
       fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
       previewing( FALSE ), databaseAutoEdit( FALSE ), autoSaveEnabled( FALSE ), autoSaveInterval( 1800 )
 {
-    qDebug("----> new mainwindow");
     extern void qInitImages_designercore();
     qInitImages_designercore();
 
@@ -141,7 +177,7 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     if ( !single )
 	qApp->setMainWidget( this );
     QWidgetFactory::addWidgetFactory( new CustomWidgetFactory );
-#ifndef Q_WS_MAC
+#ifndef Q_WS_MACX
     setIcon( QPixmap::fromMimeSource( "designer_appicon.png" ) );
 #endif
 
@@ -568,15 +604,16 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 	    w->setPalette( *palet );
 	}
 
-	if ( style ) {
+	if ( style )
 	    w->setStyle( style );
 
-	    QObjectList l = w->queryList( "QWidget" );
-	    for (int i = 0; i < l.size(); ++i) {
-		QObject *o = l.at(i);
+	QObjectList *l = w->queryList( "QWidget" );
+	for ( QObject *o = l->first(); o; o = l->next() ) {
+	    if ( style )
 		( (QWidget*)o )->setStyle( style );
-	    }
 	}
+	delete l;
+
 	w->move( fw->mapToGlobal( QPoint(0,0) ) );
 	((MainWindow*)w )->setWFlags( WDestructiveClose );
 	previewing = TRUE;
@@ -611,24 +648,24 @@ void MainWindow::previewForm( const QString & style )
 	w = previewFormInternal( st, &p );
     } else if ( style == "CDE" ) {
 	QPalette p( QColor( 75, 123, 130 ) );
-	p.setColor( QPalette::Active, QPalette::Base, QColor( 55, 77, 78 ) );
-	p.setColor( QPalette::Inactive, QPalette::Base, QColor( 55, 77, 78 ) );
-	p.setColor( QPalette::Disabled, QPalette::Base, QColor( 55, 77, 78 ) );
-	p.setColor( QPalette::Active, QPalette::Highlight, Qt::white );
-	p.setColor( QPalette::Active, QPalette::HighlightedText, QColor( 55, 77, 78 ) );
-	p.setColor( QPalette::Inactive, QPalette::Highlight, Qt::white );
-	p.setColor( QPalette::Inactive, QPalette::HighlightedText, QColor( 55, 77, 78 ) );
-	p.setColor( QPalette::Disabled, QPalette::Highlight, Qt::white );
-	p.setColor( QPalette::Disabled, QPalette::HighlightedText, QColor( 55, 77, 78 ) );
-	p.setColor( QPalette::Active, QPalette::Foreground, Qt::white );
-	p.setColor( QPalette::Active, QPalette::Text, Qt::white );
-	p.setColor( QPalette::Active, QPalette::ButtonText, Qt::white );
-	p.setColor( QPalette::Inactive, QPalette::Foreground, Qt::white );
-	p.setColor( QPalette::Inactive, QPalette::Text, Qt::white );
-	p.setColor( QPalette::Inactive, QPalette::ButtonText, Qt::white );
-	p.setColor( QPalette::Disabled, QPalette::Foreground, Qt::lightGray );
-	p.setColor( QPalette::Disabled, QPalette::Text, Qt::lightGray );
-	p.setColor( QPalette::Disabled, QPalette::ButtonText, Qt::lightGray );
+	p.setColor( QPalette::Active, QColorGroup::Base, QColor( 55, 77, 78 ) );
+	p.setColor( QPalette::Inactive, QColorGroup::Base, QColor( 55, 77, 78 ) );
+	p.setColor( QPalette::Disabled, QColorGroup::Base, QColor( 55, 77, 78 ) );
+	p.setColor( QPalette::Active, QColorGroup::Highlight, Qt::white );
+	p.setColor( QPalette::Active, QColorGroup::HighlightedText, QColor( 55, 77, 78 ) );
+	p.setColor( QPalette::Inactive, QColorGroup::Highlight, Qt::white );
+	p.setColor( QPalette::Inactive, QColorGroup::HighlightedText, QColor( 55, 77, 78 ) );
+	p.setColor( QPalette::Disabled, QColorGroup::Highlight, Qt::white );
+	p.setColor( QPalette::Disabled, QColorGroup::HighlightedText, QColor( 55, 77, 78 ) );
+	p.setColor( QPalette::Active, QColorGroup::Foreground, Qt::white );
+	p.setColor( QPalette::Active, QColorGroup::Text, Qt::white );
+	p.setColor( QPalette::Active, QColorGroup::ButtonText, Qt::white );
+	p.setColor( QPalette::Inactive, QColorGroup::Foreground, Qt::white );
+	p.setColor( QPalette::Inactive, QColorGroup::Text, Qt::white );
+	p.setColor( QPalette::Inactive, QColorGroup::ButtonText, Qt::white );
+	p.setColor( QPalette::Disabled, QColorGroup::Foreground, Qt::lightGray );
+	p.setColor( QPalette::Disabled, QColorGroup::Text, Qt::lightGray );
+	p.setColor( QPalette::Disabled, QColorGroup::ButtonText, Qt::lightGray );
 
 	w = previewFormInternal( st, &p );
     } else if ( style == "SGI" ) {
@@ -641,15 +678,15 @@ void MainWindow::previewForm( const QString & style )
 	QColor gtkbs(0xff, 0xff, 0xff);
 	QColor gtkbg(0xd6, 0xd6, 0xd6);
 	QColor gtksl(0x00, 0x00, 0x9c);
-	QPalette active(gtkfg,            // foreground
-			gtkbg,            // button
-			gtkbg.light(),    // light
-			gtkbg.dark(142),  // dark
-			gtkbg.dark(110),  // mid
-			gtkfg,            // text
-			gtkfg,            // bright text
-			gtkbs,            // base
-			gtkbg),           // background
+	QColorGroup active(gtkfg,            // foreground
+			   gtkbg,            // button
+			   gtkbg.light(),    // light
+			   gtkbg.dark(142),  // dark
+			   gtkbg.dark(110),  // mid
+			   gtkfg,            // text
+			   gtkfg,            // bright text
+			   gtkbs,            // base
+			   gtkbg),           // background
 	    disabled(gtkdf,            // foreground
 		     gtkbg,            // button
 		     gtkbg.light(), // light
@@ -662,17 +699,17 @@ void MainWindow::previewForm( const QString & style )
 
 	QPalette pal(active, disabled, active);
 
-	pal.setColor(QPalette::Active, QPalette::Highlight,
+	pal.setColor(QPalette::Active, QColorGroup::Highlight,
 		     gtksl);
-	pal.setColor(QPalette::Active, QPalette::HighlightedText,
+	pal.setColor(QPalette::Active, QColorGroup::HighlightedText,
 		     gtksf);
-	pal.setColor(QPalette::Inactive, QPalette::Highlight,
+	pal.setColor(QPalette::Inactive, QColorGroup::Highlight,
 		     gtksl);
-	pal.setColor(QPalette::Inactive, QPalette::HighlightedText,
+	pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText,
 		     gtksf);
-	pal.setColor(QPalette::Disabled, QPalette::Highlight,
+	pal.setColor(QPalette::Disabled, QColorGroup::Highlight,
 		     gtksl);
-	pal.setColor(QPalette::Disabled, QPalette::HighlightedText,
+	pal.setColor(QPalette::Disabled, QColorGroup::HighlightedText,
 		     gtkdf);
 	w = previewFormInternal( st, &pal );
     } else {
@@ -681,7 +718,7 @@ void MainWindow::previewForm( const QString & style )
 
     if ( !w )
 	return;
-    st->setParent(w);
+    w->insertChild( st );
     w->show();
 }
 
@@ -719,7 +756,7 @@ void MainWindow::helpContents()
 
     if ( propertyEditor->widget() && !showClassDocu ) {
 	if ( !propertyEditor->currentProperty().isEmpty() ) {
-	    const QMetaObject* mo = propertyEditor->metaObjectOfCurrentProperty();
+	    QMetaObject* mo = propertyEditor->metaObjectOfCurrentProperty();
 	    QString s;
 	    QString cp = propertyEditor->currentProperty();
 	    if ( cp == "layoutMargin" ) {
@@ -849,7 +886,7 @@ void MainWindow::showProperties( QObject *o )
 	if ( fw->numSelectedWidgets() > 1 ) {
 	    QWidgetList wl = fw->selectedWidgets();
 	    if ( wl.first() != w ) {
-		wl.remove( w );
+		wl.removeRef( w );
 		wl.insert( 0, w );
 	    }
 	    propertyEditor->setWidget( new PropertyObject( wl ), fw );
@@ -863,7 +900,7 @@ void MainWindow::showProperties( QObject *o )
     }
 
     if ( currentTool() == POINTER_TOOL && fw &&
-	 ( !qworkspace->activeWindow() || !qworkspace->activeWindow()->inherits( "SourceEditor" ) ) )
+	 ( !qworkspace->activeWindow() || !::qt_cast<SourceEditor*>(qworkspace->activeWindow()) ) )
 	fw->setFocus();
 }
 
@@ -880,15 +917,25 @@ void MainWindow::updateProperties( QObject * )
 
 bool MainWindow::eventFilter( QObject *o, QEvent *e )
 {
-    if ( o && ( o->inherits( "MenuBarEditor" ) ||
-		o->inherits( "PopupMenuEditor" ) ||
-		(o->parent() && o->parent()->inherits( "PopupMenuEditor" ) ) ||
-		(o->parent() && o->parent()->inherits( "MenuBarEditor" ) ) ) ) {
+    if ( ::qt_cast<MenuBarEditor*>(o) || ::qt_cast<PopupMenuEditor*>(o) ||
+	 ( o &&
+	   ( ::qt_cast<MenuBarEditor*>(o->parent()) ||
+	     ::qt_cast<PopupMenuEditor*>(o->parent()) ) ) ) {
 
-	if ( e->type() == QEvent::Accel &&
-	     o->inherits( "PopupMenuEditor" ) )
+	if ( e->type() == QEvent::Accel && ::qt_cast<PopupMenuEditor*>(o) ) {
 	    return TRUE; // consume accel events
-
+ 	} else if ( e->type() == QEvent::MouseButtonPress && ::qt_cast<MenuBarEditor*>(o) ) {
+	    QPoint pos = ((QMouseEvent*)e)->pos();
+	    MenuBarEditor *m = ::qt_cast<MenuBarEditor*>(o);
+	    showProperties( o );
+	    if ( m->findItem( pos ) >= m->count() )
+		m->setFocus();
+	} else if ( e->type() == QEvent::MouseButtonPress && ::qt_cast<PopupMenuEditor*>(o) ) {
+	    PopupMenuEditor *m = ::qt_cast<PopupMenuEditor*>(o);
+	    PopupMenuEditorItem *i = m->at( ((QMouseEvent*)e)->pos() );
+	    if ( m->find( i->action() ) != -1 && !i->isSeparator() ) 
+		showProperties( i->action() );
+	}
 	return QMainWindow::eventFilter( o, e );
     }
 
@@ -897,14 +944,13 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 
     QWidget *w = 0;
     bool passiveInteractor;
-    QWidget *ed = 0;
     switch ( e->type() ) {
     case QEvent::AccelOverride:
 	if ( ( (QKeyEvent*)e )->key() == Key_F1 &&
 	     ( ( (QKeyEvent*)e )->state() & ShiftButton ) != ShiftButton ) {
 	    w = (QWidget*)o;
 	    while ( w ) {
-		if ( w->inherits( "PropertyList" ) )
+		if ( ::qt_cast<PropertyList*>(w) )
 		    break;
 		w = w->parentWidget( TRUE );
 	    }
@@ -920,7 +966,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	       ( (QKeyEvent*)e )->key() == Key_E ) &&
 	     ( (QKeyEvent*)e )->state() & ControlButton ) {
 	    if ( qWorkspace()->activeWindow() &&
-		 qWorkspace()->activeWindow()->inherits( "SourceEditor" ) ) {
+		 ::qt_cast<SourceEditor*>(qWorkspace()->activeWindow()) ) {
 		( (QKeyEvent*)e )->ignore();
 		return TRUE;
 	    }
@@ -929,42 +975,44 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
     case QEvent::ContextMenu:
     case QEvent::MouseButtonPress:
 	if ( o && currentTool() == POINTER_TOOL &&
-	     ( o->inherits( "MenuBarEditor" ) ||
-	       o->inherits( "PopupMenuEditor" ) ||
-	       o->inherits( "QDesignerToolBar" ) ||
-	       ( o->inherits( "QComboBox") ||
-		 o->inherits( "QToolButton" ) ||
-		 o->inherits( "QDesignerToolBarSeparator" ) ) &&
-	       o->parent() && o->parent()->inherits( "QDesignerToolBar" ) ) ) {
+	     ( ::qt_cast<MenuBarEditor*>(o) ||
+	       ::qt_cast<PopupMenuEditor*>(o) ||
+	       ::qt_cast<QDesignerToolBar*>(o) ||
+	       ( ::qt_cast<QComboBox*>(o) ||
+		 ::qt_cast<QToolButton*>(o) ||
+		 ::qt_cast<QDesignerToolBarSeparator*>(o) ) &&
+	       o->parent()
+	       && ( ::qt_cast<QDesignerToolBar*>(o->parent())
+		   || ::qt_cast<QDesignerWidgetStack*>(o->parent())) ) ) {
 	    QWidget *w = (QWidget*)o;
-	    if ( w->inherits( "QToolButton" ) ||
-		 w->inherits( "QComboBox" ) ||
-		 w->inherits( "PopupMenuEditor" ) ||
-		 w->inherits( "QDesignerToolBarSeparator" ) )
+	    if ( ::qt_cast<QToolButton*>(w) ||
+		 ::qt_cast<QComboBox*>(w) ||
+		 ::qt_cast<PopupMenuEditor*>(w) ||
+		 ::qt_cast<QDesignerToolBarSeparator*>(w) )
 		w = w->parentWidget();
 	    QWidget *pw = w->parentWidget();
 	    while ( pw ) {
-		if ( pw->inherits( "FormWindow" ) ) {
+		if ( ::qt_cast<FormWindow*>(pw) ) {
 		    ( (FormWindow*)pw )->emitShowProperties( w );
-		    if ( !o->inherits( "QDesignerToolBar" ) )
-			return ( !o->inherits( "QToolButton" ) &&
-				 !o->inherits( "MenuBarEditor" ) &&
-				 !o->inherits( "QComboBox" ) &&
-				 !o->inherits( "QDesignerToolBarSeparator" ) );
+		    if ( !::qt_cast<QDesignerToolBar*>(o) )
+			return ( !::qt_cast<QToolButton*>(o) &&
+				 !::qt_cast<MenuBarEditor*>(o) &&
+				 !::qt_cast<QComboBox*>(o) &&
+				 !::qt_cast<QDesignerToolBarSeparator*>(o) );
 		}
 		pw = pw->parentWidget();
 	    }
 	}
-	if ( o && ( o->inherits( "QDesignerToolBar" ) || o->inherits( "QDockWindowHandle" ) )
+	if ( o && ( ::qt_cast<QDesignerToolBar*>(o) || o->inherits("QDockWindowHandle") )
 	     && e->type() == QEvent::ContextMenu )
 	    break;
 	if ( isAToolBarChild( o ) && currentTool() != CONNECT_TOOL && currentTool() != BUDDY_TOOL )
 	    break;
-	if ( o && o->inherits( "QSizeGrip" ) )
+	if ( ::qt_cast<QSizeGrip*>(o) )
 	    break;
 	if ( !( w = isAFormWindowChild( o ) ) ||
-	     o->inherits( "SizeHandle" ) ||
-	     o->inherits( "OrderIndicator" ) )
+	     ::qt_cast<SizeHandle*>(o) ||
+	     ::qt_cast<OrderIndicator*>(o) )
 	    break;
 	if ( !w->hasFocus() )
 	    w->setFocus();
@@ -989,11 +1037,11 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	lastPressWidget = 0;
 	if ( isAToolBarChild( o )  && currentTool() != CONNECT_TOOL && currentTool() != BUDDY_TOOL )
 	    break;
-	if ( o && o->inherits( "QSizeGrip" ) )
+	if ( ::qt_cast<QSizeGrip*>(o) )
 	    break;
 	if ( !( w = isAFormWindowChild( o ) ) ||
-	     o->inherits( "SizeHandle" ) ||
-	     o->inherits( "OrderIndicator" ) )
+	     ::qt_cast<SizeHandle*>(o) ||
+	     ::qt_cast<OrderIndicator*>(o) )
 	    break;
 	passiveInteractor = WidgetFactory::isPassiveInteractor( o );
 	if ( !passiveInteractor )
@@ -1009,15 +1057,15 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    break;
 	w = isAFormWindowChild( o );
 	if ( lastPressWidget != (QWidget*)o && w &&
-	     !o->inherits( "SizeHandle" ) && !o->inherits( "OrderIndicator" ) &&
-	     !o->inherits( "PopupMenuEditor" ) && !o->inherits( "QMenuBar" ) &&
-	     !o->inherits( "QSizeGrip" ) )
+	     !::qt_cast<SizeHandle*>(o) && !::qt_cast<OrderIndicator*>(o) &&
+	     !::qt_cast<PopupMenuEditor*>(o) && !::qt_cast<QMenuBar*>(o) &&
+	     !::qt_cast<QSizeGrip*>(o) )
 	    return TRUE;
-	if ( o && o->inherits( "QSizeGrip" ) )
+	if ( o && ::qt_cast<QSizeGrip*>(o) )
 	    break;
 	if ( lastPressWidget != (QWidget*)o ||
-	     ( !w || o->inherits( "SizeHandle" ) ||
-	       o->inherits( "OrderIndicator" ) ) )
+	     ( !w || ::qt_cast<SizeHandle*>(o) ) ||
+	       ::qt_cast<OrderIndicator*>(o) )
 	    break;
 	passiveInteractor = WidgetFactory::isPassiveInteractor( o );
 	if ( !passiveInteractor )
@@ -1030,15 +1078,14 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    return FALSE;
 	}
 	if ( ( (QKeyEvent*)e )->key() == Key_Escape && incrementalSearch->hasFocus() ) {
-	    if ( qWorkspace()->activeWindow() &&
-		 qWorkspace()->activeWindow()->inherits( "SourceEditor" ) ) {
+	    if ( ::qt_cast<SourceEditor*>(qWorkspace()->activeWindow()) ) {
 		qWorkspace()->activeWindow()->setFocus();
 		return TRUE;
 	    }
 	}
 	if ( !( w = isAFormWindowChild( o ) ) ||
-	     o->inherits( "SizeHandle" ) ||
-	     o->inherits( "OrderIndicator" ) )
+	     ::qt_cast<SizeHandle*>(o) ||
+	     ::qt_cast<OrderIndicator*>(o) )
 	    break;
 	( (FormWindow*)w )->handleKeyPress( (QKeyEvent*)e, ( (FormWindow*)w )->designerWidget( o ) );
 	if ( ((QKeyEvent*)e)->isAccepted() )
@@ -1046,10 +1093,10 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	break;
     case QEvent::MouseButtonDblClick:
 	if ( !( w = isAFormWindowChild( o ) ) ||
-	     o->inherits( "SizeHandle" ) ||
-	     o->inherits( "OrderIndicator" ) ) {
-	    if ( o && o->inherits( "QToolButton" ) && ( ( QToolButton*)o )->isOn() &&
-		 o->parent() && o->parent()->inherits( "QToolBar" ) && formWindow() )
+	     ::qt_cast<SizeHandle*>(o) ||
+	     ::qt_cast<OrderIndicator*>(o) ) {
+	    if ( ::qt_cast<QToolButton*>(o) && ((QToolButton*)o)->isOn() &&
+		 o->parent() && ::qt_cast<QToolBar*>(o->parent()) && formWindow() )
 		formWindow()->setToolFixed();
 	    break;
 	}
@@ -1063,8 +1110,8 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	return TRUE;
     case QEvent::KeyRelease:
 	if ( !( w = isAFormWindowChild( o ) ) ||
-	     o->inherits( "SizeHandle" ) ||
-	     o->inherits( "OrderIndicator" ) )
+	     ::qt_cast<SizeHandle*>(o) ||
+	     ::qt_cast<OrderIndicator*>(o) )
 	    break;
 	( (FormWindow*)w )->handleKeyRelease( (QKeyEvent*)e, ( (FormWindow*)w )->designerWidget( o ) );
 	if ( ((QKeyEvent*)e)->isAccepted() )
@@ -1072,8 +1119,8 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	break;
     case QEvent::Hide:
 	if ( !( w = isAFormWindowChild( o ) ) ||
-	     o->inherits( "SizeHandle" ) ||
-	     o->inherits( "OrderIndicator" ) )
+	     ::qt_cast<SizeHandle*>(o) ||
+	     ::qt_cast<OrderIndicator*>(o) )
 	    break;
 	if ( ( (FormWindow*)w )->isWidgetSelected( (QWidget*)o ) )
 	    ( (FormWindow*)w )->selectWidget( (QWidget*)o, FALSE );
@@ -1081,16 +1128,16 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
     case QEvent::Enter:
     case QEvent::Leave:
 	if ( !( w = isAFormWindowChild( o ) ) ||
-	     o->inherits( "SizeHandle" ) ||
-	     o->inherits( "OrderIndicator" ) ||
-	     o->inherits( "MenuBarEditor" ) )
+	     ::qt_cast<SizeHandle*>(o) ||
+	     ::qt_cast<OrderIndicator*>(o) ||
+	     ::qt_cast<MenuBarEditor*>(o) )
 	    break;
 	return TRUE;
     case QEvent::Resize:
     case QEvent::Move:
 	if ( !( w = isAFormWindowChild( o ) ) ||
-	     o->inherits( "SizeHandle" ) ||
-	     o->inherits( "OrderIndicator" ) )
+	     ::qt_cast<SizeHandle*>(o) ||
+	     ::qt_cast<OrderIndicator*>(o) )
 	    break;
 	if ( WidgetFactory::layoutType( (QWidget*)o->parent() ) != WidgetFactory::NoLayout ) {
 	    ( (FormWindow*)w )->updateSelection( (QWidget*)o );
@@ -1103,8 +1150,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    if ( lastActiveFormWindow && lastActiveFormWindow->project() ) {
 		QStringList lst =
 		    MetaDataBase::fakeProperty( lastActiveFormWindow, "database" ).toStringList();
-		if (!lst.isEmpty())
-		    lastActiveFormWindow->project()->closeDatabase( lst[ 0 ] );
+		lastActiveFormWindow->project()->closeDatabase( lst[ 0 ] );
 	    }
 	}
 	break;
@@ -1137,51 +1183,33 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	return TRUE;
     case QEvent::Wheel:
 	if ( !( w = isAFormWindowChild( o ) ) ||
-	     o->inherits( "SizeHandle" ) ||
-	     o->inherits( "OrderIndicator" ) )
+	     ::qt_cast<SizeHandle*>(o) ||
+	     ::qt_cast<OrderIndicator*>(o) )
 	    break;
 	return TRUE;
     case QEvent::FocusIn:
-	if ( !o->inherits( "FormWindow" ) && isAFormWindowChild( o ) )
+	if ( !::qt_cast<FormWindow*>(o) && isAFormWindowChild( o ) )
 	    return TRUE; //FIXME
-	if ( qworkspace->activeWindow() &&
-	     qworkspace->activeWindow()->inherits( "SourceEditor" ) )
-	    ed = (QWidget*)qworkspace->activeWindow()->child( 0, "Editor" );
-	if ( o != ed && ( o->inherits( "Editor" ) || o->inherits( "FormWindow" ) ) ) {
-	    // QCustomEvent( 9999 ) is used by QListView to end in-place
-	    // editing. In the case that one edits e.g. a class variable in
-	    // the form definition view and clicks on another form in the
-	    // designer, the in-place editor receives a focus out event. This
-	    // event posts a QCustomEvent( 9999 ) to QListView to end in-place
-	    // editing, which triggers a FormDefinitionView::save(). To make
-	    // sure that we save() before the new active formwindow is set,
-	    // post queued custom events of that type now.
-	    // BUT: We must not do that of we click on the editor
-	    // which is currently active already anyway. This crashes
-	    // for some reason, which I couldn't find. That's why
-	    // there is the o != ed condition in the if statement
-	    // above
-	    if ( hierarchyView->formDefinitionView()->isRenaming() )
-		QApplication::sendPostedEvents( hierarchyView->formDefinitionView()->
-						child( 0, "QLineEdit" ) , 9999 );
-	}
+	if ( hierarchyView->formDefinitionView()->isRenaming()
+	     && ( o->inherits( "Editor" ) || ::qt_cast<FormWindow*>(o) ) )
+		QApplication::sendPostedEvents();
 	if ( o->inherits( "Editor" ) ) {
 	    QWidget *w = (QWidget*)o;
 	    while ( w ) {
-		if ( w->inherits( "SourceEditor" ) )
+		if ( ::qt_cast<SourceEditor*>(w) )
 		    break;
 		w = w->parentWidget( TRUE );
 	    }
-	    if ( w && w->inherits( "SourceEditor" ) )
+	    if ( ::qt_cast<SourceEditor*>(w) )
 		( (SourceEditor*)w )->checkTimeStamp();
-	} else if ( o->inherits( "FormWindow" ) ) {
+	} else if ( ::qt_cast<FormWindow*>(o) ) {
 	    FormWindow *fw = (FormWindow*)o;
 	    if ( fw->formFile() && fw->formFile()->editor() )
 		fw->formFile()->editor()->checkTimeStamp();
 	}
 	break;
     case QEvent::FocusOut:
-	if ( !o->inherits( "FormWindow" ) && isAFormWindowChild( o ) )
+	if ( !::qt_cast<FormWindow*>(o) && isAFormWindowChild( o ) )
 	    return TRUE;
 	break;
     default:
@@ -1193,10 +1221,10 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 
 QWidget *MainWindow::isAFormWindowChild( QObject *o ) const
 {
-    if ( o->parent() && o->parent()->inherits( "QWizard" ) && !o->inherits( "QPushButton" ) )
+    if ( ::qt_cast<QWizard*>(o->parent()) && !::qt_cast<QPushButton*>(o) )
 	return 0;
     while ( o ) {
-	if ( o->inherits( "FormWindow" ) )
+	if ( ::qt_cast<FormWindow*>(o) )
 	    return (QWidget*)o;
 	o = o->parent();
     }
@@ -1206,9 +1234,9 @@ QWidget *MainWindow::isAFormWindowChild( QObject *o ) const
 QWidget *MainWindow::isAToolBarChild( QObject *o ) const
 {
     while ( o ) {
-	if ( o->inherits( "QDesignerToolBar" ) )
+	if ( ::qt_cast<QDesignerToolBar*>(o) )
 	    return (QWidget*)o;
-	if ( o->inherits( "FormWindow" ) )
+	if ( ::qt_cast<FormWindow*>(o) )
 	    return 0;
 	o = o->parent();
     }
@@ -1219,10 +1247,10 @@ FormWindow *MainWindow::formWindow()
 {
     if ( qworkspace->activeWindow() ) {
 	FormWindow *fw = 0;
-	if ( qworkspace->activeWindow()->inherits( "FormWindow" ) )
+	if ( ::qt_cast<FormWindow*>(qworkspace->activeWindow()) )
 	    fw = (FormWindow*)qworkspace->activeWindow();
 	else if ( lastActiveFormWindow &&
-		    qworkspace->windowList().indexOf( lastActiveFormWindow ) != -1)
+		    qworkspace->windowList().find( lastActiveFormWindow ) != -1)
 	    fw = lastActiveFormWindow;
 	return fw;
     }
@@ -1331,7 +1359,7 @@ bool MainWindow::unregisterClient( FormWindow *w )
 void MainWindow::activeWindowChanged( QWidget *w )
 {
     QWidget *old = formWindow();
-    if ( w && w->inherits( "FormWindow" ) ) {
+    if ( ::qt_cast<FormWindow*>(w) ) {
 	FormWindow *fw = (FormWindow*)w;
 	FormWindow *ofw = lastActiveFormWindow;
 	lastActiveFormWindow = fw;
@@ -1344,13 +1372,14 @@ void MainWindow::activeWindowChanged( QWidget *w )
 		formWindow()->clearSelection();
 	}
 	workspace()->activeFormChanged( fw );
-	setAppropriate( (QDockWindow*)actionEditor->parentWidget(), lastActiveFormWindow->mainContainer()->inherits( "QMainWindow" ) );
+	setAppropriate( (QDockWindow*)actionEditor->parentWidget(),
+			::qt_cast<QMainWindow*>(lastActiveFormWindow->mainContainer()) );
 	if ( appropriate( (QDockWindow*)actionEditor->parentWidget() ) ) {
 	    if ( actionEditor->wantToBeShown() )
 		actionEditor->parentWidget()->show();
 	} else {
 	    QWidget *mc = 0;
-	    if ( ofw && (mc = ofw->mainContainer()) && mc->inherits( "QMainWindow" ) )
+	    if ( ofw && (mc = ofw->mainContainer()) && ::qt_cast<QMainWindow*>(mc) )
 		actionEditor->setWantToBeShown( !actionEditor->parentWidget()->isHidden() );
 	    actionEditor->parentWidget()->hide();
 	}
@@ -1385,7 +1414,7 @@ void MainWindow::activeWindowChanged( QWidget *w )
 
     selectionChanged();
 
-    if ( w && w->inherits( "SourceEditor" ) ) {
+    if ( ::qt_cast<SourceEditor*>(w) ) {
 	SourceEditor *se = (SourceEditor*)w;
 	QGuardedPtr<FormWindow> fw = se->formWindow();
 	if ( se->formWindow() &&
@@ -1438,7 +1467,7 @@ void MainWindow::updateUndoRedo( bool undoAvailable, bool redoAvailable,
 				 const QString &undoCmd, const QString &redoCmd )
 {
     if ( qWorkspace()->activeWindow() &&
-	 qWorkspace()->activeWindow()->inherits( "SourceEditor" ) )
+	 ::qt_cast<SourceEditor*>(qWorkspace()->activeWindow()) )
 	 return; // do not set a formWindow related command
     actionEditUndo->setEnabled( undoAvailable );
     actionEditRedo->setEnabled( redoAvailable );
@@ -1463,7 +1492,7 @@ void MainWindow::updateUndoRedo( bool undoAvailable, bool redoAvailable,
 void MainWindow::updateEditorUndoRedo()
 {
     if ( !qWorkspace()->activeWindow() ||
-	 !qWorkspace()->activeWindow()->inherits( "SourceEditor" ) )
+	 !::qt_cast<SourceEditor*>(qWorkspace()->activeWindow()) )
 	return;
     SourceEditor *editor = (SourceEditor*)qWorkspace()->activeWindow();
     actionEditUndo->setEnabled( editor->editIsUndoAvailable() );
@@ -1513,41 +1542,41 @@ void MainWindow::popupWidgetMenu( const QPoint &gp, FormWindow * /*fw*/, QWidget
 
 void MainWindow::setupRMBProperties( QValueList<uint> &ids, QMap<QString, int> &props, QWidget *w )
 {
-    QMetaProperty text = w->metaObject()->property( w->metaObject()->indexOfProperty( "text" ) );
-    if ( text && qstrcmp( text.type(), "QString") != 0 )
-	text = QMetaProperty();
-    QMetaProperty title = w->metaObject()->property( w->metaObject()->indexOfProperty( "title" ) );
-    if ( title && qstrcmp( title.type(), "QString") != 0 )
-	title = QMetaProperty();
-    QMetaProperty pagetitle =
-	w->metaObject()->property( w->metaObject()->indexOfProperty( "pageTitle" ) );
-    if ( pagetitle && qstrcmp( pagetitle.type(), "QString") != 0 )
-	pagetitle = QMetaProperty();
-    QMetaProperty pixmap =
-	w->metaObject()->property( w->metaObject()->indexOfProperty( "pixmap" ) );
-    if ( pixmap && qstrcmp( pixmap.type(), "QPixmap") != 0 )
-	pixmap = QMetaProperty();
+    const QMetaProperty* text = w->metaObject()->property( w->metaObject()->findProperty( "text", TRUE ), TRUE );
+    if ( text && qstrcmp( text->type(), "QString") != 0 )
+	text = 0;
+    const QMetaProperty* title = w->metaObject()->property( w->metaObject()->findProperty( "title", TRUE ), TRUE );
+    if ( title && qstrcmp( title->type(), "QString") != 0 )
+	title = 0;
+    const QMetaProperty* pagetitle =
+	w->metaObject()->property( w->metaObject()->findProperty( "pageTitle", TRUE ), TRUE );
+    if ( pagetitle && qstrcmp( pagetitle->type(), "QString") != 0 )
+	pagetitle = 0;
+    const QMetaProperty* pixmap =
+	w->metaObject()->property( w->metaObject()->findProperty( "pixmap", TRUE ), TRUE );
+    if ( pixmap && qstrcmp( pixmap->type(), "QPixmap") != 0 )
+	pixmap = 0;
 
-    if ( text.isDesignable(w) ||
-	 title.isDesignable(w) ||
-	 pagetitle.isDesignable(w) ||
-	 pixmap.isDesignable(w) ) {
+    if ( text && text->designable(w) ||
+	 title && title->designable(w) ||
+	 pagetitle && pagetitle->designable(w) ||
+	 pixmap && pixmap->designable(w) ) {
 	int id = 0;
 	if ( ids.isEmpty() )
 	    ids << rmbWidgets->insertSeparator(0);
-	if ( pixmap.isDesignable(w) ) {
+	if ( pixmap && pixmap->designable(w) ) {
 	    ids << ( id = rmbWidgets->insertItem( tr("Choose Pixmap..."), -1, 0) );
 	    props.insert( "pixmap", id );
 	}
-	if ( text.isDesignable(w) && !w->inherits( "QTextEdit" ) ) {
+	if ( text && text->designable(w) && !::qt_cast<QTextEdit*>(w) ) {
 	    ids << ( id = rmbWidgets->insertItem( tr("Edit Text..."), -1, 0) );
 	    props.insert( "text", id );
 	}
-	if ( title.isDesignable(w) ) {
+	if ( title && title->designable(w) ) {
 	    ids << ( id = rmbWidgets->insertItem( tr("Edit Title..."), -1, 0) );
 	    props.insert( "title", id );
 	}
-	if ( pagetitle.isDesignable(w) ) {
+	if ( pagetitle && pagetitle->designable(w) ) {
 	    ids << ( id = rmbWidgets->insertItem( tr("Edit Page Title..."), -1, 0) );
 	    props.insert( "pagetitle", id );
 	}
@@ -1573,7 +1602,7 @@ void MainWindow::setupRMBSpecialCommands( QValueList<uint> &ids,
 {
     int id;
 
-    if ( w->inherits( "QTabWidget" ) ) {
+    if ( ::qt_cast<QTabWidget*>(w) ) {
 	if ( ids.isEmpty() )
 	    ids << rmbWidgets->insertSeparator( 0 );
 	if ( ( (QDesignerTabWidget*)w )->count() > 1) {
@@ -1582,7 +1611,7 @@ void MainWindow::setupRMBSpecialCommands( QValueList<uint> &ids,
 	}
 	ids << ( id = rmbWidgets->insertItem( tr("Add Page"), -1, 0 ) );
 	commands.insert( "add", id );
-    } else if ( w->inherits( "QWidgetStack" ) ) {
+    } else if ( ::qt_cast<QWidgetStack*>(w) ) {
 	if ( ids.isEmpty() )
 	    ids << rmbWidgets->insertSeparator( 0 );
 	if ( ( (QDesignerWidgetStack*)w )->count() > 1) {
@@ -1596,7 +1625,7 @@ void MainWindow::setupRMBSpecialCommands( QValueList<uint> &ids,
 	}
 	ids << ( id = rmbWidgets->insertItem( tr("Add Page"), -1, 0 ) );
 	commands.insert( "add", id );
-    } else if ( w->inherits( "QToolBox" ) ) {
+    } else if ( ::qt_cast<QToolBox*>(w) ) {
 	if ( ids.isEmpty() )
 	    ids << rmbWidgets->insertSeparator( 0 );
 	if ( ( (QToolBox*)w )->count() > 1 ) {
@@ -1642,7 +1671,7 @@ void MainWindow::setupRMBSpecialCommands( QValueList<uint> &ids,
 {
     int id;
 
-    if ( fw->mainContainer()->inherits( "QWizard" ) ) {
+    if ( ::qt_cast<QWizard*>(fw->mainContainer()) ) {
 	if ( ids.isEmpty() )
 	    ids << rmbFormWindow->insertSeparator( 0 );
 
@@ -1660,7 +1689,7 @@ void MainWindow::setupRMBSpecialCommands( QValueList<uint> &ids,
 	ids << ( id = rmbFormWindow->insertItem( tr("Edit Pages..."), -1, 0 ) );
 	commands.insert( "edit", id );
 
-    } else if ( fw->mainContainer()->inherits( "QMainWindow" ) ) {
+    } else if ( ::qt_cast<QMainWindow*>(fw->mainContainer()) ) {
 	if ( ids.isEmpty() )
 	    ids << rmbFormWindow->insertSeparator( 0 );
 	ids << ( id = rmbFormWindow->insertItem( tr( "Add Menu Item" ), -1, 0 ) );
@@ -1675,7 +1704,7 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
     if ( id == props[ "text" ] ) {
 	bool ok = FALSE;
 	bool oldDoWrap = FALSE;
-	if ( w->inherits( "QLabel" ) ) {
+	if ( ::qt_cast<QLabel*>(w) ) {
 	    int align = w->property( "alignment" ).toInt();
 	    if ( align & WordBreak )
 		oldDoWrap = TRUE;
@@ -1683,8 +1712,8 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 	bool doWrap = oldDoWrap;
 
 	QString text;
-	if ( w->inherits( "QTextView" ) || w->inherits( "QLabel" ) || w->inherits( "QButton" ) ) {
-	    text = MultiLineEditor::getText( this, w->property( "text" ).toString(), !w->inherits( "QButton" ), &doWrap );
+	if ( ::qt_cast<QTextView*>(w) || ::qt_cast<QLabel*>(w) || ::qt_cast<QButton*>(w) ) {
+	    text = MultiLineEditor::getText( this, w->property( "text" ).toString(), !::qt_cast<QButton*>(w), &doWrap );
 	    ok = !text.isNull();
 	} else {
 	    text = QInputDialog::getText( tr("Text"), tr( "New text" ),
@@ -1694,8 +1723,8 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 	    if ( oldDoWrap != doWrap ) {
 		QString pn( tr( "Set 'wordwrap' of '%1'" ).arg( w->name() ) );
 		SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
-								  "wordwrap", QVariant( oldDoWrap),
-								  QVariant(doWrap), QString::null, QString::null );
+								  "wordwrap", QVariant( oldDoWrap, 0 ),
+								  QVariant( doWrap, 0 ), QString::null, QString::null );
 		cmd->execute();
 		formWindow()->commandHistory()->addCommand( cmd );
 		MetaDataBase::setPropertyChanged( w, "wordwrap", TRUE );
@@ -1737,7 +1766,7 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 	    MetaDataBase::setPropertyChanged( w, "pageTitle", TRUE );
 	}
     } else if ( id == props[ "pixmap" ] ) {
-	QPixmap oldPix = QVariant(w->property( "pixmap" )).toPixmap();
+	QPixmap oldPix = w->property( "pixmap" ).toPixmap();
 	QPixmap pix = qChoosePixmap( this, formWindow(), oldPix );
 	if ( !pix.isNull() ) {
 	    QString pn( tr( "Set the 'pixmap' of '%2'" ).arg( w->name() ) );
@@ -1753,7 +1782,7 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 
 void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands, QWidget *w )
 {
-    if ( w->inherits( "QTabWidget" ) ) {
+    if ( ::qt_cast<QTabWidget*>(w) ) {
 	QTabWidget *tw = (QTabWidget*)w;
 	if ( id == commands[ "add" ] ) {
 	    AddTabPageCommand *cmd =
@@ -1772,7 +1801,7 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 		cmd->execute();
 	    }
 	}
-    } else if ( w->inherits( "QToolBox" ) ) {
+    } else if ( ::qt_cast<QToolBox*>(w) ) {
 	QToolBox *tb = (QToolBox*)w;
 	if ( id == commands[ "add" ] ) {
 	    AddToolBoxPageCommand *cmd =
@@ -1792,7 +1821,7 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 		cmd->execute();
 	    }
 	}
-    } else if ( w->inherits( "QWidgetStack" ) ) {
+    } else if ( ::qt_cast<QWidgetStack*>(w) ) {
 	QDesignerWidgetStack *ws = (QDesignerWidgetStack*)w;
 	if ( id == commands[ "add" ] ) {
 	    AddWidgetStackPageCommand *cmd =
@@ -1891,7 +1920,7 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 
 void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands, FormWindow *fw )
 {
-    if ( fw->mainContainer()->inherits( "QWizard" ) ) {
+    if ( ::qt_cast<QWizard*>(fw->mainContainer()) ) {
 	QWizard *wiz = (QWizard*)fw->mainContainer();
 	if ( id == commands[ "add" ] ) {
 	    AddWizardPageCommand *cmd =
@@ -1929,7 +1958,7 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 		cmd->execute();
 	    }
 	}
-    } else if ( fw->mainContainer()->inherits( "QMainWindow" ) ) {
+    } else if ( ::qt_cast<QMainWindow*>(fw->mainContainer()) ) {
 	QMainWindow *mw = (QMainWindow*)fw->mainContainer();
 	if ( id == commands[ "add_toolbar" ] ) {
 	    AddToolBarCommand *cmd =
@@ -1993,8 +2022,7 @@ void MainWindow::selectionChanged()
     if ( selectedWidgets > 1 ) {
 	int unlaidout = 0;
 	int laidout = 0;
-	for (int i = 0; i < widgets.size(); ++i) {
-	    QWidget *w = widgets.at(i);
+	for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
 	    if ( !w->parentWidget() || WidgetFactory::layoutType( w->parentWidget() ) == WidgetFactory::NoLayout )
 		unlaidout++;
 	    else
@@ -2237,8 +2265,18 @@ void MainWindow::readConfig()
 		break;
 	    }
 	}
-	recentlyFiles = config.readListEntry( keybase + "RecentlyOpenedFiles" );
-	recentlyProjects = config.readListEntry( keybase + "RecentlyOpenedProjects" );
+	// We know that the oldSettingsKey() will return 3.1
+	if ( keybase == DesignerApplication::oldSettingsKey() ) {
+	    recentlyFiles = config.readListEntry( keybase + "RecentlyOpenedFiles", ',' );
+	    if ( recentlyFiles.count() == 1 && recentlyFiles[0].isNull() )
+		recentlyFiles.clear();
+	    recentlyProjects = config.readListEntry( keybase + "RecentlyOpenedProjects", ',' );
+	    if ( recentlyProjects.count() == 1 && recentlyProjects[0].isNull() )
+		recentlyProjects.clear();
+	} else {
+	    recentlyFiles = config.readListEntry( keybase + "RecentlyOpenedFiles" );
+	    recentlyProjects = config.readListEntry( keybase + "RecentlyOpenedProjects" );
+	}
 
 	backPix = config.readBoolEntry( keybase + "Background/UsePixmap", TRUE ) | readPreviousConfig;
 	if ( backPix ) {
@@ -2285,11 +2323,11 @@ void MainWindow::readConfig()
 	w->includePolicy = (MetaDataBase::CustomWidget::IncludePolicy)l[ 2 ].toInt();
 	w->sizeHint.setWidth( l[ 3 ].toInt() );
 	w->sizeHint.setHeight( l[ 4 ].toInt() );
-	int c = 5;
+	uint c = 5;
 	if ( l.count() > c ) {
-	    int signalCount = l[ c ].toInt();
+	    int numSignals = l[ c ].toInt();
 	    c++;
-	    for ( int i = 0; i < signalCount; ++i, c++ )
+	    for ( int i = 0; i < numSignals; ++i, c++ )
 		w->lstSignals.append( fixArgs2( l[ c ] ).latin1() );
 	}
 	if ( l.count() > c ) {
@@ -2417,18 +2455,20 @@ void MainWindow::closeEvent( QCloseEvent *e )
     }
 
     QWidgetList windows = qWorkspace()->windowList();
-    for (int i = 0; i < windows.size(); ++i) {
-	QWidget *w = windows.at(i);
-	if ( w->inherits( "FormWindow" ) ) {
+    QWidgetListIt wit( windows );
+    while ( wit.current() ) {
+	QWidget *w = wit.current();
+	++wit;
+	if ( ::qt_cast<FormWindow*>(w) ) {
 	    if ( ( (FormWindow*)w )->formFile()->editor() )
-		windows.remove( ( (FormWindow*)w )->formFile()->editor() );
+		windows.removeRef( ( (FormWindow*)w )->formFile()->editor() );
 	    if ( ( (FormWindow*)w )->formFile()->formWindow() )
-		windows.remove( ( (FormWindow*)w )->formFile()->formWindow() );
+		windows.removeRef( ( (FormWindow*)w )->formFile()->formWindow() );
 	    if ( !( (FormWindow*)w )->formFile()->close() ) {
 		e->ignore();
 		return;
 	    }
-	} else if ( w->inherits( "SourceEditor" ) ) {
+	} else if ( ::qt_cast<SourceEditor*>(w) ) {
 	    if ( !( (SourceEditor*)w )->close() ) {
 		e->ignore();
 		return;
@@ -2437,7 +2477,7 @@ void MainWindow::closeEvent( QCloseEvent *e )
 	w->close();
     }
 
-    QMap<QAction*, Project*>::ConstIterator it = projects.begin();
+    QMapConstIterator<QAction*, Project*> it = projects.begin();
     while( it != projects.end() ) {
 	Project *pro = it.data();
 	++it;
@@ -2547,12 +2587,12 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 	return TRUE;
     }
 
-    QMetaProperty text = w->metaObject()->property( w->metaObject()->indexOfProperty( "text" ) );
-    QMetaProperty title = w->metaObject()->property( w->metaObject()->indexOfProperty( "title" ) );
-    if ( text.isDesignable(w) ) {
+    const QMetaProperty* text = w->metaObject()->property( w->metaObject()->findProperty( "text", TRUE ), TRUE );
+    const QMetaProperty* title = w->metaObject()->property( w->metaObject()->findProperty( "title", TRUE ), TRUE );
+    if ( text && text->designable(w) ) {
 	bool ok = FALSE;
 	bool oldDoWrap = FALSE;
-	if ( w->inherits( "QLabel" ) ) {
+	if ( ::qt_cast<QLabel*>(w) ) {
 	    int align = w->property( "alignment" ).toInt();
 	    if ( align & WordBreak )
 		oldDoWrap = TRUE;
@@ -2560,8 +2600,9 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 	bool doWrap = oldDoWrap;
 
 	QString text;
-	if ( w->inherits( "QTextEdit" ) || w->inherits( "QLabel" ) || w->inherits( "QButton" ) ) {
-	    text = MultiLineEditor::getText( this, w->property( "text" ).toString(), !w->inherits( "QButton" ), &doWrap );
+	if ( ::qt_cast<QTextEdit*>(w) || ::qt_cast<QLabel*>(w) || ::qt_cast<QButton*>(w) ) {
+	    text = MultiLineEditor::getText( this, w->property( "text" ).toString(),
+					     !::qt_cast<QButton*>(w), &doWrap );
 	    ok = !text.isNull();
 	} else {
 	    text = QInputDialog::getText( tr("Text"), tr( "New text" ),
@@ -2571,8 +2612,8 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 	    if ( oldDoWrap != doWrap ) {
 		QString pn( tr( "Set 'wordwrap' of '%1'" ).arg( w->name() ) );
 		SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
-								  "wordwrap", QVariant(oldDoWrap),
-								  QVariant(doWrap), QString::null, QString::null );
+								  "wordwrap", QVariant( oldDoWrap, 0 ),
+								  QVariant( doWrap, 0 ), QString::null, QString::null );
 		cmd->execute();
 		formWindow()->commandHistory()->addCommand( cmd );
 		MetaDataBase::setPropertyChanged( w, "wordwrap", TRUE );
@@ -2588,7 +2629,7 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 	}
 	return TRUE;
     }
-    if ( title.isDesignable(w) ) {
+    if ( title && title->designable(w) ) {
 	bool ok = FALSE;
 	QString text;
 	text = QInputDialog::getText( tr("Title"), tr( "New title" ), QLineEdit::Normal, w->property("title").toString(), &ok, this );
@@ -2674,9 +2715,8 @@ void MainWindow::rebuildCommonWidgetsToolBoxPage()
 bool MainWindow::isCustomWidgetUsed( MetaDataBase::CustomWidget *wid )
 {
     QWidgetList windows = qWorkspace()->windowList();
-    for (int i = 0; i < windows.size(); ++i) {
-	QWidget *w = windows.at(i);
-	if ( w->inherits( "FormWindow" ) ) {
+    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+	if ( ::qt_cast<FormWindow*>(w) ) {
 	    if ( ( (FormWindow*)w )->isCustomWidgetUsed( wid ) )
 		return TRUE;
 	}
@@ -2690,9 +2730,8 @@ void MainWindow::setGrid( const QPoint &p )
 	return;
     grd = p;
     QWidgetList windows = qWorkspace()->windowList();
-    for (int i = 0; i < windows.size(); ++i) {
-	QWidget *w = windows.at(i);
-	if ( !w->inherits( "FormWindow" ) )
+    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+	if ( !::qt_cast<FormWindow*>(w) )
 	    continue;
 	( (FormWindow*)w )->mainContainer()->update();
     }
@@ -2704,9 +2743,8 @@ void MainWindow::setShowGrid( bool b )
 	return;
     sGrid = b;
     QWidgetList windows = qWorkspace()->windowList();
-    for (int i = 0; i < windows.size(); ++i) {
-	QWidget *w = windows.at(i);
-	if ( !w->inherits( "FormWindow" ) )
+    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+	if ( !::qt_cast<FormWindow*>(w) )
 	    continue;
 	( (FormWindow*)w )->mainContainer()->update();
     }
@@ -2792,45 +2830,48 @@ void MainWindow::showDialogHelp()
 
     QString link = documentationPath() + "/designer-manual-13.html#";
 
-    if ( w->inherits( "NewFormBase" ) || w->inherits( "StartDialogBase" ) ) // own doc for startdialog?
+    if ( ::qt_cast<NewFormBase*>(w) || ::qt_cast<StartDialogBase*>(w) ) // own doc for startdialog?
 	link += "dialog-file-new";
-    else if ( w->inherits( "CreateTemplate" ) )
+    else if ( ::qt_cast<CreateTemplate*>(w) )
 	link += "dialog-file-create-template";
-    else if ( w->inherits( "EditFunctionsBase" ) )
+    else if ( ::qt_cast<EditFunctionsBase*>(w) )
 	link += "dialog-edit-functions";
-    else if ( w->inherits( "ConnectionViewerBase" ) )
-	link += "dialog-view-connections";
-    else if ( w->inherits( "FormSettingsBase" ) )
+//     else if ( ::qt_cast<ConnectionViewerBase*>(w) )
+    else if ( w->inherits("ConnectionViewerBase") )
+ 	link += "dialog-view-connections";
+    else if ( ::qt_cast<FormSettingsBase*>(w) )
 	link += "dialog-edit-form-settings";
-    else if ( w->inherits( "Preferences" ) )
+    else if ( ::qt_cast<Preferences*>(w) )
 	link += "dialog-edit-preferences";
-    else if ( w->inherits( "PixmapCollectionEditor" ) )
+    else if ( ::qt_cast<PixmapCollectionEditor*>(w) )
 	link += "dialog-image-collection";
+//    else if ( ::qt_cast<DatabaseConnectionBase*>(w) )
     else if ( w->inherits( "DatabaseConnectionBase" ) )
 	link += "dialog-edit-database-connections";
-    else if ( w->inherits( "ProjectSettingsBase" ) )
+    else if ( ::qt_cast<ProjectSettingsBase*>(w) )
 	link += "dialog-project-settings";
-    else if ( w->inherits( "FindDialog" ) )
+    else if ( ::qt_cast<FindDialog*>(w) )
 	link += "dialog-find-text";
-    else if ( w->inherits( "ReplaceDialog" ) )
+    else if ( ::qt_cast<ReplaceDialog*>(w) )
 	link += "dialog-replace-text";
-    else if ( w->inherits( "GotoLineDialog" ) )
+    else if ( ::qt_cast<GotoLineDialog*>(w) )
 	link += "dialog-go-to-line";
-    else if ( w->inherits( "ConnectionEditorBase" ) )
+//    else if ( ::qt_cast<ConnectionEditorBase*>(w) )
+    else if ( w->inherits("ConnectionEditorBase") )
 	link += "dialog-edit-connections";
-    else if ( w->inherits( "CustomWidgetEditorBase" ) )
+    else if ( ::qt_cast<CustomWidgetEditorBase*>(w) )
 	link += "dialog-edit-custom-widgets";
-    else if ( w->inherits( "PaletteEditorBase" ) )
+    else if ( ::qt_cast<PaletteEditorBase*>(w) )
 	link += "dialog-edit-palette";
-    else if ( w->inherits( "ListBoxEditorBase" ) )
+    else if ( ::qt_cast<ListBoxEditorBase*>(w) )
 	link += "dialog-edit-listbox";
-    else if ( w->inherits( "ListViewEditorBase" ) )
+    else if ( ::qt_cast<ListViewEditorBase*>(w) )
 	link += "dialog-edit-listview";
-    else if ( w->inherits( "IconViewEditorBase" ) )
+    else if ( ::qt_cast<IconViewEditorBase*>(w) )
 	link += "dialog-edit-iconview";
-    else if ( w->inherits( "TableEditorBase" ) )
+    else if ( ::qt_cast<TableEditorBase*>(w) )
 	link += "dialog-edit-table";
-    else if ( w->inherits( "MultiLineEditor" ) )
+    else if ( ::qt_cast<MultiLineEditor*>(w) )
 	link += "dialog-text";
 
     else {
@@ -2925,7 +2966,7 @@ void MainWindow::setupRecentlyProjectsMenu()
 QPtrList<DesignerProject> MainWindow::projectList() const
 {
     QPtrList<DesignerProject> list;
-    QMap<QAction*, Project*>::ConstIterator it = projects.begin();
+    QMapConstIterator<QAction*, Project*> it = projects.begin();
 
     while( it != projects.end() ) {
 	Project *p = it.data();
@@ -2985,15 +3026,15 @@ void MainWindow::setCurrentProjectByFilename( const QString& proFilename )
 void MainWindow::recentlyFilesMenuActivated( int id )
 {
     if ( id != -1 ) {
-	if ( !QFile::exists( recentlyFiles.at( id ) ) ) {
+	if ( !QFile::exists( *recentlyFiles.at( id ) ) ) {
 	    QMessageBox::warning( this, tr( "Open File" ),
 				  tr( "Could not open '%1'. File does not exist." ).
-				  arg( recentlyFiles.at( id ) ) );
+				  arg( *recentlyFiles.at( id ) ) );
 	    recentlyFiles.remove( recentlyFiles.at( id ) );
 	    return;
 	}
-	fileOpen( "", "", recentlyFiles.at( id ) );
-	QString fn( recentlyFiles.at( id ) );
+	fileOpen( "", "", *recentlyFiles.at( id ) );
+	QString fn( *recentlyFiles.at( id ) );
 	addRecentlyOpened( fn, recentlyFiles );
     }
 }
@@ -3001,15 +3042,15 @@ void MainWindow::recentlyFilesMenuActivated( int id )
 void MainWindow::recentlyProjectsMenuActivated( int id )
 {
     if ( id != -1 ) {
-	if ( !QFile::exists( recentlyProjects.at( id ) ) ) {
+	if ( !QFile::exists( *recentlyProjects.at( id ) ) ) {
 	    QMessageBox::warning( this, tr( "Open Project" ),
 				  tr( "Could not open '%1'. File does not exist." ).
-				  arg( recentlyProjects.at( id ) ) );
+				  arg( *recentlyProjects.at( id ) ) );
 	    recentlyProjects.remove( recentlyProjects.at( id ) );
 	    return;
 	}
-	openProject( recentlyProjects.at( id ) );
-	QString fn( recentlyProjects.at( id ) );
+	openProject( *recentlyProjects.at( id ) );
+	QString fn( *recentlyProjects.at( id ) );
 	addRecentlyOpened( fn, recentlyProjects );
     }
 }
@@ -3109,10 +3150,10 @@ void MainWindow::setModified( bool b, QWidget *window )
 {
     QWidget *w = window;
     while ( w ) {
-	if ( w->inherits( "FormWindow" ) ) {
+	if ( ::qt_cast<FormWindow*>(w) ) {
 	    ( (FormWindow*)w )->modificationChanged( b );
 	    return;
-	} else if ( w->inherits( "SourceEditor" ) ) {
+	} else if ( ::qt_cast<SourceEditor*>(w) ) {
 	    FormWindow *fw = ( (SourceEditor*)w )->formWindow();
 	    if ( fw && !fw->isFake() ) {
 		//fw->commandHistory()->setModified( b );
@@ -3147,7 +3188,7 @@ void MainWindow::doFunctionsChanged()
 
 void MainWindow::updateFunctionList()
 {
-    if ( !qWorkspace()->activeWindow() || !qWorkspace()->activeWindow()->inherits( "SourceEditor" ) )
+    if ( !qWorkspace()->activeWindow() || !::qt_cast<SourceEditor*>(qWorkspace()->activeWindow()) )
 	return;
     SourceEditor *se = (SourceEditor*)qWorkspace()->activeWindow();
     se->save();
@@ -3218,28 +3259,27 @@ void MainWindow::finishedRun()
 void MainWindow::enableAll( bool enable )
 {
     menuBar()->setEnabled( enable );
-    QObjectList l = queryList( "QDockWindow" );
-    for (int i = 0; i < l.size(); ++i ) {
-	QObject *o = l.at(i);
+    QObjectList *l = queryList( "QDockWindow" );
+    for ( QObject *o = l->first(); o; o = l->next() ) {
 	if ( o == wspace->parentWidget() ||
 	     o == oWindow->parentWidget() ||
 	     o == hierarchyView->parentWidget() )
 	    continue;
 	( (QWidget*)o )->setEnabled( enable );
     }
+    delete l;
 }
 
 void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 {
     QWidgetList windows = qworkspace->windowList();
-    for (int i = 0; i < windows.size(); ++i) {
-	QWidget *w = windows.at(i);
+    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	FormWindow *fw = 0;
 	SourceEditor *se = 0;
 	SourceFile *sf = 0;
-	if ( w->inherits( "FormWindow" ) ) {
+	if ( ::qt_cast<FormWindow*>(w) ) {
 	    fw = (FormWindow*)w;
-	} else if ( w->inherits( "SourceEditor" ) ) {
+	} else if ( ::qt_cast<SourceEditor*>(w) ) {
 	    se = (SourceEditor*)w;
 	    if ( !se->object() )
 		continue;
@@ -3307,7 +3347,7 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 	}
     }
 
-    if ( o->inherits( "SourceFile" ) ) {
+    if ( ::qt_cast<SourceFile*>(o) ) {
 	for ( QPtrListIterator<SourceFile> sources = currentProject->sourceFiles();
 	      sources.current(); ++sources ) {
 	    SourceFile* f = sources.current();
@@ -3368,14 +3408,13 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 QObject *MainWindow::findRealObject( QObject *o )
 {
     QWidgetList windows = qWorkspace()->windowList();
-    for (int i = 0; i < windows.size(); ++i) {
-	QWidget *w = windows.at(i);
-	if ( w->inherits( "FormWindow" ) && QString( w->name() ) == QString( o->name() ) )
+    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+	if ( ::qt_cast<FormWindow*>(w) && QString( w->name() ) == QString( o->name() ) )
 	    return w;
-	else if ( w->inherits( "SourceEditor" ) && ( (SourceEditor*)w )->formWindow() &&
+	else if ( ::qt_cast<SourceEditor*>(w) && ( (SourceEditor*)w )->formWindow() &&
 		  QString( ( (SourceEditor*)w )->formWindow()->name() ) == QString( o->name() ) )
 	    return w;
-	else if ( w->inherits( "SourceFile" ) && ( (SourceEditor*)w )->sourceFile() &&
+	else if ( ::qt_cast<SourceFile*>(w) && ( (SourceEditor*)w )->sourceFile() &&
 		  ( (SourceEditor*)w )->sourceFile() == o )
 	    return o;
     }
@@ -3396,7 +3435,7 @@ void MainWindow::breakPointsChanged()
 {
     if ( !inDebugMode )
 	return;
-    if ( !qWorkspace()->activeWindow() || !qWorkspace()->activeWindow()->inherits( "SourceEditor" ) )
+    if ( !qWorkspace()->activeWindow() || !::qt_cast<SourceEditor*>(qWorkspace()->activeWindow()) )
 	return;
     SourceEditor *e = (SourceEditor*)qWorkspace()->activeWindow();
     if ( !e->object() || !e->project() )
@@ -3422,8 +3461,7 @@ void MainWindow::breakPointsChanged()
 
     e->saveBreakPoints();
 
-    for (int i = 0; i < debuggingForms.size(); ++i ) {
-	QObject *o = debuggingForms.at(i);
+    for ( QObject *o = debuggingForms.first(); o; o = debuggingForms.next() ) {
 	if ( qstrcmp( o->name(), e->object()->name() ) == 0 ) {
 	    iiface->setBreakPoints( o, MetaDataBase::breakPoints( e->object() ) );
 	    break;
@@ -3560,15 +3598,17 @@ void MainWindow::setSingleProject( Project *pro )
 	pro->save();
 	QWidgetList windows = qWorkspace()->windowList();
 	qWorkspace()->blockSignals( TRUE );
-	for (int i = 0; i < windows.size(); ++i) {
-	    QWidget *w = windows.at(i);
-	    if ( w->inherits( "FormWindow" ) ) {
+	QWidgetListIt wit( windows );
+	while ( wit.current() ) {
+	    QWidget *w = wit.current();
+	    ++wit;
+	    if ( ::qt_cast<FormWindow*>(w) ) {
 		if ( ( (FormWindow*)w )->project() == pro ) {
 		    if ( ( (FormWindow*)w )->formFile()->editor() )
-			windows.remove( ( (FormWindow*)w )->formFile()->editor() );
+			windows.removeRef( ( (FormWindow*)w )->formFile()->editor() );
 		    ( (FormWindow*)w )->formFile()->close();
 		}
-	    } else if ( w->inherits( "SourceEditor" ) ) {
+	    } else if ( ::qt_cast<SourceEditor*>(w) ) {
 		( (SourceEditor*)w )->close();
 	    }
 	}

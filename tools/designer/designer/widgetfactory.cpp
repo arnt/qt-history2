@@ -1,14 +1,28 @@
-/****************************************************************************
-**
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+/**********************************************************************
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-****************************************************************************/
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include <qvariant.h> // HP-UX compiler need this here
 #include "widgetfactory.h"
@@ -28,6 +42,8 @@
 #include "tableeditorimpl.h"
 #endif
 #include "project.h"
+#include "menubareditor.h"
+#include "popupmenueditor.h"
 
 #include <qfeatures.h>
 
@@ -52,6 +68,7 @@
 #include <qtabbar.h>
 #include <qlistbox.h>
 #include <qlistview.h>
+#include <qobjectlist.h>
 #include <qlcdnumber.h>
 #include <qslider.h>
 #include <qdial.h>
@@ -70,6 +87,7 @@
 #include <qapplication.h>
 #include <qsplitter.h>
 #include <qtoolbox.h>
+#include <qsizegrip.h>
 #ifndef QT_NO_SQL
 #include "database.h"
 #endif
@@ -83,7 +101,7 @@ FormWindow *find_formwindow( QWidget *w )
     if ( !w )
 	return 0;
     for (;;) {
-	if ( w->inherits( "FormWindow" ) )
+	if ( ::qt_cast<FormWindow*>(w) )
 	    return (FormWindow*)w;
 	if ( !w->parentWidget() )
 	    return 0;
@@ -474,15 +492,14 @@ QMap< int, QStringList > *changedProperties = 0;
 void WidgetFactory::saveDefaultProperties( QObject *w, int id )
 {
     QMap< QString, QVariant> propMap;
-    int numProps = w->metaObject()->propertyCount();
-    for ( int i = 0; i < numProps; ++i ) {
-	QMetaProperty p = w->metaObject()->property(i);
-	QVariant var = w->property( p.name() );
-	if ( !var.isValid() && qstrcmp( "pixmap", p.name() ) == 0 )
+    QStrList lst = w->metaObject()->propertyNames( TRUE );
+    for ( uint i = 0; i < lst.count(); ++i ) {
+	QVariant var = w->property( lst.at( i ) );
+	if ( !var.isValid() && qstrcmp( "pixmap", lst.at( i ) ) == 0 )
 	    var = QVariant( QPixmap() );
-	else if ( !var.isValid() && qstrcmp( "iconSet", p.name() ) == 0 )
+	else if ( !var.isValid() && qstrcmp( "iconSet", lst.at( i ) ) == 0 )
 	    var = QVariant( QIconSet() );
-	propMap.replace( p.name(), var );
+	propMap.replace( lst.at( i ), var );
     }
     defaultProperties->replace( id, propMap );
 }
@@ -514,7 +531,7 @@ QWidget *WidgetFactory::create( int id, QWidget *parent, const char *name, bool 
     QString str = WidgetDatabase::createWidgetName( id );
     const char *s = str.latin1();
     w = createWidget( n, parent, name ? name : s, init, r, orient );
-    if ( w && w->inherits( "QScrollView" ) )
+    if ( ::qt_cast<QScrollView*>(w) )
 	( (QScrollView*)w )->disableSizeHintCaching();
     if ( !w && WidgetDatabase::isCustomWidget( id ) )
 	w = createCustomWidget( parent, name ? name : s, MetaDataBase::customWidget( id ) );
@@ -542,31 +559,31 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout *layout, LayoutTy
     int metaspacing = MetaDataBase::spacing( widget );
     int metamargin = MetaDataBase::margin( widget );
 
-    if ( widget && !widget->inherits( "QLayoutWidget" ) &&
+    if ( ::qt_cast<QLayoutWidget*>(widget) &&
 	 ( WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( widget ) ) ) ||
-	   widget && widget->parentWidget() && widget->parentWidget()->inherits( "FormWindow" ) ) )
+	   widget && ::qt_cast<FormWindow*>(widget->parentWidget()) ) )
 	margin = MainWindow::self->currentLayoutDefaultMargin();
 
-    if ( !layout && widget && widget->inherits( "QTabWidget" ) )
+    if ( !layout && ::qt_cast<QTabWidget*>(widget) )
 	widget = ((QTabWidget*)widget)->currentPage();
 
-    if ( !layout && widget && widget->inherits( "QWizard" ) )
+    if ( !layout && ::qt_cast<QWizard*>(widget) )
 	widget = ((QWizard*)widget)->currentPage();
 
-    if ( !layout && widget && widget->inherits( "QMainWindow" ) )
+    if ( !layout && ::qt_cast<QMainWindow*>(widget) )
 	widget = ((QMainWindow*)widget)->centralWidget();
 
-    if ( !layout && widget && widget->inherits( "QWidgetStack" ) )
+    if ( !layout && ::qt_cast<QWidgetStack*>(widget) )
 	widget = ((QWidgetStack*)widget)->visibleWidget();
 
-    if ( !layout && widget && widget->inherits( "QToolBox" ) )
+    if ( !layout && ::qt_cast<QToolBox*>(widget) )
 	widget = ((QToolBox*)widget)->currentItem();
 
     MetaDataBase::addEntry( widget );
 
     QLayout *l = 0;
-    Alignment align = 0;
-    if ( !layout && widget && widget->inherits( "QGroupBox" ) ) {
+    int align = 0;
+    if ( !layout && ::qt_cast<QGroupBox*>(widget) ) {
 	QGroupBox *gb = (QGroupBox*)widget;
 	gb->setColumnLayout( 0, Qt::Vertical );
 	layout = gb->layout();
@@ -640,15 +657,15 @@ void WidgetFactory::deleteLayout( QWidget *widget )
     if ( !widget )
 	return;
 
-    if ( widget->inherits( "QTabWidget" ) )
+    if ( ::qt_cast<QTabWidget*>(widget) )
 	widget = ((QTabWidget*)widget)->currentPage();
-    if ( widget->inherits( "QWizard" ) )
+    if ( ::qt_cast<QWizard*>(widget) )
 	widget = ((QWizard*)widget)->currentPage();
-    if ( widget->inherits( "QMainWindow" ) )
+    if ( ::qt_cast<QMainWindow*>(widget) )
 	widget = ((QMainWindow*)widget)->centralWidget();
-    if ( widget->inherits( "QWidgetStack" ) )
+    if ( ::qt_cast<QWidgetStack*>(widget) )
 	widget = ((QWidgetStack*)widget)->visibleWidget();
-    if ( widget->inherits( "QToolBox" ) )
+    if ( ::qt_cast<QToolBox*>(widget) )
 	widget = ((QToolBox*)widget)->currentItem();
     delete widget->layout();
 }
@@ -672,12 +689,12 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	    b = new QDesignerPushButton( parent, name );
 	}
 	QWidget *w = find_formwindow( b );
-	b->setAutoDefault( w && ( (FormWindow*)w )->mainContainer()->inherits( "QDialog" ) );
+	b->setAutoDefault( w && ::qt_cast<QDialog*>(((FormWindow*)w)->mainContainer()) );
 	return b;
     } else if ( className == "QToolButton" ) {
 	if ( init ) {
 	    QDesignerToolButton *tb = new QDesignerToolButton( parent, name );
-	    if (widgetOfContainer(parent)->inherits("QToolBox")) {
+	    if ( ::qt_cast<QToolBox*>(widgetOfContainer(parent))) {
 		tb->setUsesTextLabel(TRUE);
 		tb->setTextLabel("...");
 		tb->setAutoRaise(TRUE);
@@ -810,12 +827,12 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return new QComboBox( FALSE, parent, name );
     } else if ( className == "QWidget" ) {
 	if ( parent &&
-	     ( parent->inherits( "FormWindow" ) ||
-	       parent->inherits( "QWizard" ) ||
-	       parent->inherits( "QTabWidget" ) ||
-	       parent->inherits( "QWidgetStack" ) ||
-	       parent->inherits( "QToolBox" ) ||
-	       parent->inherits( "QMainWindow" ) ) ) {
+	     ( ::qt_cast<FormWindow*>(parent) ||
+	       ::qt_cast<QWizard*>(parent) ||
+	       ::qt_cast<QTabWidget*>(parent) ||
+	       ::qt_cast<QWidgetStack*>(parent) ||
+	       ::qt_cast<QToolBox*>(parent) ||
+	       ::qt_cast<QMainWindow*>(parent) ) ) {
 	    FormWindow *fw = find_formwindow( parent );
 	    if ( fw ) {
 		QDesignerWidget *dw = new QDesignerWidget( fw, parent, name );
@@ -826,12 +843,12 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return new QWidget( parent, name );
     } else if ( className == "QDialog" ) {
 	QDialog *dia = 0;
-	if ( parent && parent->inherits( "FormWindow" ) )
+	if ( ::qt_cast<FormWindow*>(parent) )
 	    dia = new QDesignerDialog( (FormWindow*)parent, parent, name );
 	else
 	    dia = new QDialog( parent, name );
 #if defined(QT_NON_COMMERCIAL)
-	if ( parent && !parent->inherits("MainWindow") )
+	if ( ::qt_cast<MainWindow*>(parent) )
 #else
 	if ( parent )
 #endif
@@ -840,12 +857,12 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
     } else if ( className == "QWizard" ) {
 	QWizard *wiz = new QDesignerWizard( parent, name );
 #if defined(QT_NON_COMMERCIAL)
-	if ( parent && !parent->inherits("MainWindow") )
+	if ( ::qt_cast<MainWindow*>(parent) )
 #else
 	if ( parent )
 #endif
 	    wiz->reparent( parent, QPoint( 0, 0 ), TRUE );
-	if ( init && parent && parent->inherits( "FormWindow" ) ) {
+	if ( init && ::qt_cast<FormWindow*>(parent) ) {
 	    QDesignerWidget *dw = new QDesignerWidget( (FormWindow*)parent, wiz, "WizardPage" );
 	    MetaDataBase::addEntry( dw );
 	    wiz->addPage( dw, FormWindow::tr( "Page" ) );
@@ -985,36 +1002,37 @@ WidgetFactory::LayoutType WidgetFactory::layoutType( QWidget *w, QLayout *&layou
 {
     layout = 0;
 
-    if ( w && w->inherits( "QTabWidget" ) )
+    if ( ::qt_cast<QTabWidget*>(w) )
 	w = ((QTabWidget*)w)->currentPage();
-    if ( w && w->inherits( "QWizard" ) )
+    if ( ::qt_cast<QWizard*>(w) )
 	w = ((QWizard*)w)->currentPage();
-    if ( w && w->inherits( "QMainWindow" ) )
+    if ( ::qt_cast<QMainWindow*>(w) )
 	w = ((QMainWindow*)w)->centralWidget();
-    if ( w && w->inherits( "QWidgetStack" ) )
+    if ( ::qt_cast<QWidgetStack*>(w) )
 	w = ((QWidgetStack*)w)->visibleWidget();
-    if ( w && w->inherits( "QToolBox" ) )
+    if ( ::qt_cast<QToolBox*>(w) )
 	w = ((QToolBox*)w)->currentItem();
 
-    if ( w && w->inherits( "QSplitter" ) )
+    if ( ::qt_cast<QSplitter*>(w) )
 	return ( (QSplitter*)w )->orientation() == Horizontal ? HBox : VBox;
 
     if ( !w || !w->layout() )
 	return NoLayout;
     QLayout *lay = w->layout();
 
-    if ( qt_cast<QGroupBox *>(w) ) {
-	QObjectList l = lay->queryList( "QLayout" );
-	if ( l.size() )
-	    lay = (QLayout*)l.first();
+    if ( ::qt_cast<QGroupBox*>(w) ) {
+	QObjectList *l = lay->queryList( "QLayout" );
+	if ( l && l->first() )
+	    lay = (QLayout*)l->first();
+	delete l;
     }
     layout = lay;
 
-    if ( lay->inherits( "QHBoxLayout" ) )
+    if ( ::qt_cast<QHBoxLayout*>(lay) )
 	return HBox;
-    else if ( lay->inherits( "QVBoxLayout" ) )
+    else if ( ::qt_cast<QVBoxLayout*>(lay) )
 	return VBox;
-    else if ( lay->inherits( "QGridLayout" ) )
+    else if ( ::qt_cast<QGridLayout*>(lay) )
 	return Grid;
     return NoLayout;
 }
@@ -1024,11 +1042,11 @@ WidgetFactory::LayoutType WidgetFactory::layoutType( QWidget *w, QLayout *&layou
 */
 WidgetFactory::LayoutType WidgetFactory::layoutType( QLayout *layout )
 {
-    if ( layout->inherits( "QHBoxLayout" ) )
+    if ( ::qt_cast<QHBoxLayout*>(layout) )
 	return HBox;
-    else if ( layout->inherits( "QVBoxLayout" ) )
+    else if ( ::qt_cast<QVBoxLayout*>(layout) )
 	return VBox;
-    else if ( layout->inherits( "QGridLayout" ) )
+    else if ( ::qt_cast<QGridLayout*>(layout) )
 	return Grid;
     return NoLayout;
 }
@@ -1067,15 +1085,15 @@ QWidget* WidgetFactory::containerOfWidget( QWidget *w )
 {
     if ( !w )
 	return w;
-    if ( w->inherits( "QTabWidget" ) )
+    if ( ::qt_cast<QTabWidget*>(w) )
 	return ((QTabWidget*)w)->currentPage();
-    if ( w->inherits( "QWizard" ) )
+    if ( ::qt_cast<QWizard*>(w) )
 	return ((QWizard*)w)->currentPage();
-    if ( w->inherits( "QWidgetStack" ) )
+    if ( ::qt_cast<QWidgetStack*>(w) )
 	return ((QWidgetStack*)w)->visibleWidget();
-    if ( w->inherits( "QToolBox" ) )
+    if ( ::qt_cast<QToolBox*>(w) )
 	return ((QToolBox*)w)->currentItem();
-    if ( w->inherits( "QMainWindow" ) )
+    if ( ::qt_cast<QMainWindow*>(w) )
 	return ((QMainWindow*)w)->centralWidget();
     if ( !WidgetDatabase::isCustomPluginWidget( WidgetDatabase::idFromClassName( classNameOf( w ) ) ) )
 	return w;
@@ -1105,16 +1123,16 @@ QWidget* WidgetFactory::containerOfWidget( QWidget *w )
 
 QWidget* WidgetFactory::widgetOfContainer( QWidget *w )
 {
-    if ( w->parentWidget() && w->parentWidget()->inherits( "QWidgetStack" ) )
+    if ( w && ::qt_cast<QWidgetStack*>(w->parentWidget()) )
 	w = w->parentWidget();
     if ( w->parentWidget() && w->parentWidget()->parentWidget() &&
 	 w->parentWidget()->parentWidget()->parentWidget() &&
-	 w->parentWidget()->parentWidget()->parentWidget()->inherits( "QToolBox" ) )
+	 ::qt_cast<QToolBox*>(w->parentWidget()->parentWidget()->parentWidget()) )
 	return w->parentWidget()->parentWidget()->parentWidget();
     while ( w ) {
 	int id = WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) );
 	if ( WidgetDatabase::isContainer( id ) ||
-	     w && w->parentWidget() && w->parentWidget()->inherits( "FormWindow" ) )
+	     w && ::qt_cast<FormWindow*>(w->parentWidget()) )
 	    return w;
 	w = w->parentWidget();
     }
@@ -1137,20 +1155,21 @@ bool WidgetFactory::isPassiveInteractor( QObject* o )
     if ( QApplication::activePopupWidget() ) // if a popup is open, we have to make sure that this one is closed, else X might do funny things
 	return ( lastWasAPassiveInteractor = TRUE );
 
-    if ( o->inherits( "QTabBar" ) )
+    if ( ::qt_cast<QTabBar*>(o) )
 	return ( lastWasAPassiveInteractor = TRUE );
-    else if ( o->inherits( "QSizeGrip" ) )
+    else if ( ::qt_cast<QSizeGrip*>(o) )
 	return ( lastWasAPassiveInteractor = TRUE );
-    else if ( o->inherits( "QButton" ) && o->parent()
-	      && (o->parent()->inherits( "QTabBar" )|| o->parent()->inherits("QToolBox"))
-	)
+    else if ( ::qt_cast<QButton*>(o) &&
+	      ( ::qt_cast<QTabBar*>(o->parent()) || ::qt_cast<QToolBox*>(o->parent()) ) )
 	return ( lastWasAPassiveInteractor = TRUE );
-    else if ( o->parent() && o->parent()->inherits( "QWizard" ) && o->inherits( "QPushButton" ) )
+    else if ( ::qt_cast<QPushButton*>(o) && ::qt_cast<QWizard*>(o->parent()) )
 	return ( lastWasAPassiveInteractor = TRUE );
-    else if ( o->parent() && o->parent()->inherits( "QMainWindow" ) && o->inherits( "QMenuBar" ) )
+    else if ( ::qt_cast<QMenuBar*>(o) && ::qt_cast<QMainWindow*>(o->parent()) )
 	return ( lastWasAPassiveInteractor = TRUE );
+//    else if ( ::qt_cast<QDockWindowHandle*>(o) )
     else if ( o->inherits( "QDockWindowHandle" ) )
 	return ( lastWasAPassiveInteractor = TRUE );
+//    else if ( ::qt_cast<QHideDock*>(o) )
     else if ( o->inherits( "QHideDock" ) )
 	return ( lastWasAPassiveInteractor = TRUE );
     else if ( qstrcmp( o->name(), "designer_wizardstack_button" ) == 0 )
@@ -1160,7 +1179,7 @@ bool WidgetFactory::isPassiveInteractor( QObject* o )
 	return ( lastWasAPassiveInteractor = FALSE );
     WidgetInterface *iface = 0;
     QWidget *w = (QWidget*)o;
-    while ( !iface && w && !w->inherits( "FormWindow" ) ) {
+    while ( !iface && w && !::qt_cast<FormWindow*>(w) ) {
 	widgetManager()->queryInterface( classNameOf( w ), &iface );
 	w = w->parentWidget();
     }
@@ -1190,46 +1209,46 @@ const char* WidgetFactory::classNameOf( QObject* o )
 {
     if ( o->isA( "PropertyObject" ) )
 	return o->className();
-    if ( o->inherits( "QDesignerTabWidget" ) )
+    if ( ::qt_cast<QDesignerTabWidget*>(o) )
 	return "QTabWidget";
-    else if ( o->inherits( "QDesignerWidgetStack" ) )
+    else if ( ::qt_cast<QDesignerWidgetStack*>(o) )
 	return "QWidgetStack";
-    else if ( o->inherits( "QWidgetStack" ) )
+    else if ( ::qt_cast<QWidgetStack*>(o) )
 	return "QWeDoNotWantToBreakTabWidget";
-    else if ( o->inherits( "QDesignerDialog" ) )
+    else if ( ::qt_cast<QDesignerDialog*>(o) )
 	return "QDialog";
-    else if ( o->inherits( "QDesignerWidget" ) )
+    else if ( ::qt_cast<QDesignerWidget*>(o) )
 	return "QWidget";
     else if ( o->inherits( "CustomWidget" ) )
 	return ( (CustomWidget*)o )->realClassName().latin1();
-    else if ( o->inherits( "QDesignerLabel" ) )
+    else if ( ::qt_cast<QDesignerLabel*>(o) )
 	return "QLabel";
-    else if ( o->inherits( "QDesignerWizard" ) )
+    else if ( ::qt_cast<QDesignerWizard*>(o) )
 	return "QWizard";
-    else if ( o->inherits( "QDesignerPushButton" ) )
+    else if ( ::qt_cast<QDesignerPushButton*>(o) )
 	return "QPushButton";
-    else if ( o->inherits( "QDesignerToolButton" ) )
+    else if ( ::qt_cast<QDesignerToolButton*>(o) )
 	return "QToolButton";
-    else if ( o->inherits( "QDesignerRadioButton" ) )
+    else if ( ::qt_cast<QDesignerRadioButton*>(o) )
 	return "QRadioButton";
-    else if ( o->inherits( "QDesignerCheckBox" ) )
+    else if ( ::qt_cast<QDesignerCheckBox*>(o) )
 	return "QCheckBox";
-    else if ( o->inherits( "MenuBarditor" ) )
+    else if ( ::qt_cast<MenuBarEditor*>(o) )
 	return "QMenuBar";
-    else if ( o->inherits( "QDesignerToolBar" ) )
+    else if ( ::qt_cast<QDesignerToolBar*>(o) )
 	return "QToolBar";
-    else if ( o->inherits( "QDesignerAction" ) )
+    else if ( ::qt_cast<QDesignerAction*>(o) )
 	return "QAction";
-    else if ( o->inherits( "QDesignerActionGroup" ) )
+    else if ( ::qt_cast<QDesignerActionGroup*>(o) )
 	return "QActionGroup";
-    else if ( o->inherits( "PopupMenuEditor" ) )
+    else if ( ::qt_cast<PopupMenuEditor*>(o) )
 	return "QPopupMenu";
-    else if ( o->inherits( "QDesignerToolBox" ) )
+    else if ( ::qt_cast<QDesignerToolBox*>(o) )
 	return "QToolBox";
 #ifndef QT_NO_SQL
-    else if ( o->inherits( "QDesignerDataBrowser" ) )
+    else if ( ::qt_cast<QDesignerDataBrowser*>(o) )
 	return "QDataBrowser";
-    else if ( o->inherits( "QDesignerDataView" ) )
+    else if ( ::qt_cast<QDesignerDataView*>(o) )
 	return "QDataView";
 #endif
     return o->className();
@@ -1237,29 +1256,29 @@ const char* WidgetFactory::classNameOf( QObject* o )
 
 QString WidgetFactory::defaultSignal( QObject *w )
 {
-    if ( w->inherits( "QRadioButton" ) || w->inherits( "QCheckBox" ) )
+    if ( ::qt_cast<QRadioButton*>(w) || ::qt_cast<QCheckBox*>(w) )
 	return "toggled";
-    else if ( w->inherits( "QButton" ) || w->inherits( "QButtonGroup" ) )
+    else if ( ::qt_cast<QButton*>(w) || ::qt_cast<QButtonGroup*>(w) )
 	return "clicked";
-    else if ( w->inherits( "QTextBrowser" ) )
+    else if ( ::qt_cast<QTextBrowser*>(w) )
 	return "linkClicked";
-    else if ( w->inherits( "QLineEdit" ) || w->inherits( "QTextEdit" ) )
+    else if ( ::qt_cast<QLineEdit*>(w) || ::qt_cast<QTextEdit*>(w) )
 	return "textChanged";
-    else if ( w->inherits( "QListView" ) || w->inherits( "QIconView" ) ||
-	      w->inherits( "QListBox" ) || w->inherits( "QTable" ) )
+    else if ( ::qt_cast<QListView*>(w) || ::qt_cast<QIconView*>(w) ||
+	      ::qt_cast<QListBox*>(w) || ::qt_cast<QTable*>(w) )
 	return "selectionChanged";
-    else if ( w->inherits( "QTabWidget" ) )
+    else if ( ::qt_cast<QTabWidget*>(w) )
 	return "selected";
-    else if ( w->inherits( "QToolBox" ) )
+    else if ( ::qt_cast<QToolBox*>(w) )
 	return "currentChanged";
-    else if ( w->inherits( "QWidgetStack" ) )
+    else if ( ::qt_cast<QWidgetStack*>(w) )
 	return "aboutToShow";
-    else if ( w->inherits( "QSpinBox" ) || w->inherits( "QSlider" ) ||
-	      w->inherits( "QScrollBar" ) || w->inherits( "QDateEdit" ) ||
-	      w->inherits( "QTimeEdit" ) || w->inherits( "QDateTimeEdit" ) ||
-	      w->inherits( "QDial" ) )
+    else if ( ::qt_cast<QSpinBox*>(w) || ::qt_cast<QSlider*>(w) ||
+	      ::qt_cast<QScrollBar*>(w) || ::qt_cast<QDateEdit*>(w) ||
+	      ::qt_cast<QTimeEdit*>(w) || ::qt_cast<QDateTimeEdit*>(w) ||
+	      ::qt_cast<QDial*>(w) )
 	return "valueChanged";
-    else if ( w->inherits( "QComboBox" ) )
+    else if ( ::qt_cast<QComboBox*>(w) )
 	return "activated";
     return QString::null;
 }
@@ -1275,11 +1294,14 @@ void WidgetFactory::initChangedProperties( QObject *o )
 	 MainWindow::self->currProject()->fakeFormFileFor( o ) )
 	return;
     MetaDataBase::setPropertyChanged( o, "name", TRUE );
-    if ( !o->inherits( "QDesignerToolBar" ) && !o->inherits( "QDesignerMenuBar" ) )
+    if ( !::qt_cast<QDesignerToolBar*>(o) && !::qt_cast<MenuBarEditor*>(o) )
 	MetaDataBase::setPropertyChanged( o, "geometry", TRUE );
 
-    if ( o->inherits( "QPushButton" ) || o->inherits("QRadioButton") || o->inherits( "QCheckBox" ) || o->inherits( "QToolButton" ) ) {
-	if (o->inherits("QToolButton") && widgetOfContainer((QWidget*)o->parent())->inherits("QToolBox")) {
+    if ( ::qt_cast<QPushButton*>(o) ||
+	 ::qt_cast<QRadioButton*>(o) ||
+	 ::qt_cast<QCheckBox*>(o) ||
+	 ::qt_cast<QToolButton*>(o) ) {
+	if (::qt_cast<QToolButton*>(o) && ::qt_cast<QToolBox*>(widgetOfContainer((QWidget*)o->parent()))) {
 	    MetaDataBase::setPropertyChanged( o, "usesTextLabel", TRUE );
 	    MetaDataBase::setPropertyChanged( o, "textLabel", TRUE );
 	    MetaDataBase::setPropertyChanged( o, "autoRaise", TRUE );
@@ -1288,19 +1310,19 @@ void WidgetFactory::initChangedProperties( QObject *o )
 	    MetaDataBase::setPropertyChanged( o, "text", TRUE );
 	}
     }
-    else if ( o->inherits( "QGroupBox" ) )
+    else if ( ::qt_cast<QGroupBox*>(o) )
 	MetaDataBase::setPropertyChanged( o, "title", TRUE );
     else if ( o->isA( "QFrame" ) ) {
 	MetaDataBase::setPropertyChanged( o, "frameShadow", TRUE );
 	MetaDataBase::setPropertyChanged( o, "frameShape", TRUE );
-    } else if ( o->inherits( "QTabWidget" ) || o->inherits( "QWizard" ) ) {
+    } else if ( ::qt_cast<QTabWidget*>(o) || ::qt_cast<QWizard*>(o) ) {
 	MetaDataBase::setPropertyChanged( o, "pageTitle", TRUE );
 	MetaDataBase::setPropertyChanged( o, "pageName", TRUE );
 	MetaDataBase::setPropertyChanged( o, "currentPage", TRUE );
-    } else if ( o->inherits( "QWidgetStack" ) ) {
+    } else if ( ::qt_cast<QWidgetStack*>(o) ) {
 	MetaDataBase::setPropertyChanged( o, "currentPage", TRUE );
 	MetaDataBase::setPropertyChanged( o, "pageName", TRUE );
-    } else if ( o->inherits( "QToolBox" ) ) {
+    } else if ( ::qt_cast<QToolBox*>(o) ) {
 	MetaDataBase::setPropertyChanged( o, "currentIndex", TRUE );
 	MetaDataBase::setPropertyChanged( o, "itemName", TRUE );
 	MetaDataBase::setPropertyChanged( o, "itemLabel", TRUE );
@@ -1308,7 +1330,7 @@ void WidgetFactory::initChangedProperties( QObject *o )
 	MetaDataBase::setPropertyChanged( o, "itemToolTip", TRUE );
 	MetaDataBase::setPropertyChanged( o, "itemBackgroundMode", TRUE );
 #ifndef QT_NO_TABLE
-    } else if ( o->inherits( "QTable" ) && !o->inherits( "QDataTable" ) ) {
+    } else if ( ::qt_cast<QTable*>(o) && !::qt_cast<QDataTable*>(o) ) {
 	MetaDataBase::setPropertyChanged( o, "numRows", TRUE );
 	MetaDataBase::setPropertyChanged( o, "numCols", TRUE );
 	QTable *t = (QTable*)o;
@@ -1317,11 +1339,11 @@ void WidgetFactory::initChangedProperties( QObject *o )
 	    t->verticalHeader()->setLabel( i, QString::number( i + 1 ) );
 	}
 #endif
-    } else if ( o->inherits( "QSplitter" )  ) {
+    } else if ( ::qt_cast<QSplitter*>(o)  ) {
 	MetaDataBase::setPropertyChanged( o, "orientation", TRUE );
-    } else if ( o->inherits( "QDesignerToolBar" )  ) {
+    } else if ( ::qt_cast<QDesignerToolBar*>(o)  ) {
 	MetaDataBase::setPropertyChanged( o, "label", TRUE );
-    } else if ( o->inherits( "MenuBarEditor" )  ) {
+    } else if ( ::qt_cast<MenuBarEditor*>(o)  ) {
 	MetaDataBase::setPropertyChanged( o, "itemName", TRUE );
 	MetaDataBase::setPropertyChanged( o, "itemNumber", TRUE );
 	MetaDataBase::setPropertyChanged( o, "itemText", TRUE );
@@ -1365,7 +1387,7 @@ void WidgetFactory::editWidget( int id, QWidget *parent, QWidget *editWidget, Fo
     QString className = WidgetDatabase::className( id );
 
     if ( className.contains( "ListBox" ) ) {
-	if ( !editWidget->inherits( "QListBox" ) )
+	if ( !::qt_cast<QListBox*>(editWidget) )
 	    return;
 	ListBoxEditor *e = new ListBoxEditor( parent, editWidget, fw );
 	e->exec();
@@ -1374,7 +1396,7 @@ void WidgetFactory::editWidget( int id, QWidget *parent, QWidget *editWidget, Fo
     }
 
     if ( className.contains( "ComboBox" ) ) {
-	if ( !editWidget->inherits( "QComboBox" ) )
+	if ( !::qt_cast<QComboBox*>(editWidget) )
 	    return;
 	QComboBox *cb = (QComboBox*)editWidget;
 	ListBoxEditor *e = new ListBoxEditor( parent, cb->listBox(), fw );
@@ -1385,7 +1407,7 @@ void WidgetFactory::editWidget( int id, QWidget *parent, QWidget *editWidget, Fo
     }
 
     if ( className.contains( "ListView" ) ) {
-	if ( !editWidget->inherits( "QListView" ) )
+	if ( !::qt_cast<QListView*>(editWidget) )
 	    return;
 	QListView *lv = (QListView*)editWidget;
 	ListViewEditor *e = new ListViewEditor( parent, lv, fw );
@@ -1395,7 +1417,7 @@ void WidgetFactory::editWidget( int id, QWidget *parent, QWidget *editWidget, Fo
     }
 
     if ( className.contains( "IconView" ) ) {
-	if ( !editWidget->inherits( "QIconView" ) )
+	if ( !::qt_cast<QIconView*>(editWidget) )
 	    return;
 	IconViewEditor *e = new IconViewEditor( parent, editWidget, fw );
 	e->exec();
@@ -1429,36 +1451,35 @@ bool WidgetFactory::canResetProperty( QObject *w, const QString &propName )
 
 bool WidgetFactory::resetProperty( QObject *w, const QString &propName )
 {
-    QMetaProperty p = w->metaObject()->property( w->metaObject()->
-						 indexOfProperty( propName ) );
+    const QMetaProperty *p = w->metaObject()->property( w->metaObject()->
+							findProperty( propName, TRUE ), TRUE );
     if (!p )
 	return FALSE;
-    return p.reset( w );
+    return p->reset( w );
 }
 
 QVariant WidgetFactory::defaultValue( QObject *w, const QString &propName )
 {
     if ( propName == "wordwrap" ) {
 	int v = defaultValue( w, "alignment" ).toInt();
-	return QVariant(( v & WordBreak ) == WordBreak);
+	return QVariant( ( v & WordBreak ) == WordBreak, 0 );
     } else if ( propName == "toolTip" || propName == "whatsThis" ) {
 	return QVariant( QString::fromLatin1( "" ) );
     } else if ( w->inherits( "CustomWidget" ) ) {
 	return QVariant();
     } else if ( propName == "frameworkCode" ) {
-	return QVariant(TRUE);
+	return QVariant( TRUE, 0 );
     } else if ( propName == "layoutMargin" || propName == "layoutSpacing" ) {
 	return QVariant( -1 );
     }
 
-    return defaultProperties->value(
-	WidgetDatabase::idFromClassName(classNameOf(w))).value(propName);
+    return *( *defaultProperties->find( WidgetDatabase::idFromClassName( classNameOf( w ) ) ) ).find( propName );
 }
 
 QString WidgetFactory::defaultCurrentItem( QObject *w, const QString &propName )
 {
-    QMetaProperty p = w->metaObject()->
-		      property( w->metaObject()->indexOfProperty( propName ) );
+    const QMetaProperty *p = w->metaObject()->
+			     property( w->metaObject()->findProperty( propName, TRUE ), TRUE );
     if ( !p ) {
 	int v = defaultValue( w, "alignment" ).toInt();
 	if ( propName == "hAlign" ) {
@@ -1485,7 +1506,7 @@ QString WidgetFactory::defaultCurrentItem( QObject *w, const QString &propName )
 	return QString::null;
 
     }
-    return p.enumerator().valueToKey( defaultValue( w, propName ).toInt() );
+    return p->valueToKey( defaultValue( w, propName ).toInt() );
 }
 
 QWidget *WidgetFactory::createCustomWidget( QWidget *parent, const char *name, MetaDataBase::CustomWidget *w )
@@ -1497,9 +1518,9 @@ QWidget *WidgetFactory::createCustomWidget( QWidget *parent, const char *name, M
 
 QVariant WidgetFactory::property( QObject *w, const char *name )
 {
-    int id = w->metaObject()->indexOfProperty( name );
-    QMetaProperty p = w->metaObject()->property( id );
-    if ( !p )
+    int id = w->metaObject()->findProperty( name, TRUE );
+    const QMetaProperty* p = w->metaObject()->property( id, TRUE );
+    if ( !p || !p->isValid() )
 	return MetaDataBase::fakeProperty( w, name );
     return w->property( name );
 }
@@ -1510,9 +1531,14 @@ void QDesignerLabel::updateBuddy()
     if ( myBuddy.isEmpty() )
 	return;
 
-    QObjectList l = topLevelWidget()->queryList( "QWidget", myBuddy, FALSE, TRUE );
-    if (l.size())
-	QLabel::setBuddy( (QWidget*)l.first() );
+    QObjectList *l = topLevelWidget()->queryList( "QWidget", myBuddy, FALSE, TRUE );
+    if ( !l || !l->first() ) {
+	delete l;
+	return;
+    }
+
+    QLabel::setBuddy( (QWidget*)l->first() );
+    delete l;
 }
 
 
@@ -1562,8 +1588,7 @@ bool QLayoutWidget::event( QEvent *e )
 */
 void QLayoutWidget::updateSizePolicy()
 {
-    QObjectList l = children();
-    if (!l.size()) {
+    if ( !children() || children()->count() == 0 ) {
 	sp = QWidget::sizePolicy();
 	return;
     }
@@ -1589,18 +1614,22 @@ void QLayoutWidget::updateSizePolicy()
 	QLayout *parentLayout = 0;
 	if ( parent() && parent()->isWidgetType() ) {
 	    parentLayout = ((QWidget *)parent())->layout();
-	    if ( parentLayout && parentLayout->mainWidget()->inherits("QLayoutWidget") )
+	    if ( parentLayout &&
+		 ::qt_cast<QLayoutWidget*>(parentLayout->mainWidget()) )
 		parentLayout = 0;
 	}
 
-	if ( layout()->inherits("QVBoxLayout") ) {
-	    if ( parentLayout && parentLayout->inherits("QHBoxLayout") )
+	QObjectListIt it( *children() );
+	QObject *o;
+
+	if ( ::qt_cast<QVBoxLayout*>(layout()) ) {
+	    if ( ::qt_cast<QHBoxLayout*>(parentLayout) )
 		vt = QSizePolicy::Minimum;
 	    else
 		vt = QSizePolicy::Fixed;
 
-	    for (int i = 0; i < l.size(); ++i) {
-		QObject *o = l.at(i);
+	    while ( ( o = it.current() ) ) {
+		++it;
 		if ( !o->isWidgetType() || ( (QWidget*)o )->testWState( WState_ForceHide ) )
 		    continue;
 		QWidget *w = (QWidget*)o;
@@ -1614,14 +1643,14 @@ void QLayoutWidget::updateSizePolicy()
 		if ( w->sizePolicy().mayShrinkVertically() )
 		    vt |= QSizePolicy::Maximum;
 	    }
-	} else if ( layout()->inherits("QHBoxLayout") ) {
-	    if ( parentLayout && parentLayout->inherits("QVBoxLayout") )
+	} else if ( ::qt_cast<QHBoxLayout*>(layout()) ) {
+	    if ( ::qt_cast<QVBoxLayout*>(parentLayout) )
 		ht = QSizePolicy::Minimum;
 	    else
 		ht = QSizePolicy::Fixed;
 
-	    for (int i = 0; i < l.size(); ++i) {
-		QObject *o = l.at(i);
+	    while ( ( o = it.current() ) ) {
+		++it;
 		if ( !o->isWidgetType() || ( (QWidget*)o )->testWState( WState_ForceHide ) )
 		    continue;
 		QWidget *w = (QWidget*)o;
@@ -1635,18 +1664,18 @@ void QLayoutWidget::updateSizePolicy()
 		if ( !w->sizePolicy().mayShrinkVertically() )
 		    vt &= ~QSizePolicy::Maximum;
 	    }
-	} else if ( layout()->inherits("QGridLayout") ) {
+	} else if ( ::qt_cast<QGridLayout*>(layout()) ) {
 	    ht = QSizePolicy::Fixed;
 	    vt = QSizePolicy::Fixed;
 	    if ( parentLayout ) {
-		if ( parentLayout->inherits("QVBoxLayout") )
+		if ( ::qt_cast<QVBoxLayout*>(parentLayout) )
 		    ht = QSizePolicy::Minimum;
-		else if ( parentLayout->inherits("QHBoxLayout") )
+		else if ( ::qt_cast<QHBoxLayout*>(parentLayout) )
 		    vt = QSizePolicy::Minimum;
 	    }
 
-	    for (int i = 0; i < l.size(); ++i) {
-		QObject *o = l.at(i);
+	    while ( ( o = it.current() ) ) {
+		++it;
 		if ( !o->isWidgetType() || ( (QWidget*)o )->testWState( WState_ForceHide ) )
 		    continue;
 		QWidget *w = (QWidget*)o;
@@ -1675,12 +1704,12 @@ void QLayoutWidget::updateSizePolicy()
 
 void CustomWidget::paintEvent( QPaintEvent *e )
 {
-    if ( parentWidget() && parentWidget()->inherits( "FormWindow" ) ) {
+    if ( ::qt_cast<FormWindow*>(parentWidget()) ) {
 	( (FormWindow*)parentWidget() )->paintGrid( this, e );
     } else {
 	QPainter p( this );
-	p.fillRect( rect(), palette().dark() );
-	p.setPen( palette().light() );
+	p.fillRect( rect(), colorGroup().dark() );
+	p.setPen( colorGroup().light() );
 	p.drawText( 2, 2, width() - 4, height() - 4, Qt::AlignAuto | Qt::AlignTop, cusw->className );
 	p.drawPixmap( ( width() - cusw->pixmap->width() ) / 2,
 		      ( height() - cusw->pixmap->height() ) / 2,

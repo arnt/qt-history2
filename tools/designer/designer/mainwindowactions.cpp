@@ -1,14 +1,28 @@
-/****************************************************************************
-**
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+/**********************************************************************
+** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-****************************************************************************/
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "mainwindow.h"
 
@@ -929,15 +943,15 @@ void MainWindow::setupWindowActions()
     int j = 0;
     for ( int i = 0; i < int( windows.count() ); ++i ) {
 	QWidget *w = windows.at( i );
-	if ( !w->inherits( "FormWindow" ) && !w->inherits( "SourceEditor" ) )
+	if ( !::qt_cast<FormWindow*>(w) && !::qt_cast<SourceEditor*>(w) )
 	    continue;
-	if ( w->inherits( "FormWindow" ) && ( ( (FormWindow*)w )->isFake() ) )
+	if ( ::qt_cast<FormWindow*>(w) && ( ( (FormWindow*)w )->isFake() ) )
 	    continue;
 	j++;
 	QString itemText;
 	if ( j < 10 )
 	    itemText = QString("&%1 ").arg( j );
-	if ( w->inherits( "FormWindow" ) )
+	if ( ::qt_cast<FormWindow*>(w) )
 	    itemText += w->name();
 	else
 	    itemText += w->caption();
@@ -977,8 +991,7 @@ void MainWindow::setupHelpActions()
     connect( actionHelpRegister, SIGNAL( activated() ), this, SLOT( helpRegister() ) );
 #endif
 
-    actionHelpWhatsThis = new QAction( tr("What's This?"), QIconSet( QPixmap(whatsthis_image),
-								     QPixmap(whatsthis_image) ),
+    actionHelpWhatsThis = new QAction( tr("What's This?"), QIconSet( whatsthis_image, whatsthis_image ),
 				       tr("What's This?"), SHIFT + Key_F1, this, 0 );
     actionHelpWhatsThis->setStatusTip( tr("\"What's This?\" context sensitive help") );
     actionHelpWhatsThis->setWhatsThis( whatsThisFrom( "Help|What's This?" ) );
@@ -1068,9 +1081,9 @@ void MainWindow::fileClose()
     } else {
 	QWidget *w = qworkspace->activeWindow();
 	if ( w ) {
-	    if ( w->inherits( "FormWindow" ) )
+	    if ( ::qt_cast<FormWindow*>(w) )
 		( (FormWindow*)w )->formFile()->close();
-	    else if ( w->inherits( "SourceEditor" ) )
+	    else if ( ::qt_cast<SourceEditor*>(w) )
 		( (SourceEditor*)w )->close();
 	}
     }
@@ -1111,16 +1124,18 @@ void MainWindow::fileCloseProject()
 
 	QWidgetList windows = qWorkspace()->windowList();
 	qWorkspace()->blockSignals( TRUE );
-	for (int i = 0; i < windows.size(); ++i) {
-	    QWidget *w = windows.at(i);
-	    if ( w->inherits( "FormWindow" ) ) {
+	QWidgetListIt wit( windows );
+	while ( wit.current() ) {
+	    QWidget *w = wit.current();
+	    ++wit;
+	    if ( ::qt_cast<FormWindow*>(w) ) {
 		if ( ( (FormWindow*)w )->project() == pro ) {
 		    if ( ( (FormWindow*)w )->formFile()->editor() )
-			windows.remove( ( (FormWindow*)w )->formFile()->editor() );
+			windows.removeRef( ( (FormWindow*)w )->formFile()->editor() );
 		    if ( !( (FormWindow*)w )->formFile()->close() )
 			return;
 		}
-	    } else if ( w->inherits( "SourceEditor" ) ) {
+	    } else if ( ::qt_cast<SourceEditor*>(w) ) {
 		if ( !( (SourceEditor*)w )->close() )
 		    return;
 	    }
@@ -1128,7 +1143,7 @@ void MainWindow::fileCloseProject()
 	hierarchyView->clear();
 	windows = qWorkspace()->windowList();
 	qWorkspace()->blockSignals( FALSE );
-	a->setParent(0);
+	actionGroupProjects->removeChild( a );
 	projects.remove( a );
 	delete a;
 	currentProject = 0;
@@ -1137,9 +1152,8 @@ void MainWindow::fileCloseProject()
 	    statusBar()->message( "Selected project '" + tr( currentProject->projectName() + "'") );
 	}
 	if ( !windows.isEmpty() ) {
-	    for (int i = 0; i < windows.size(); ++i) {
-		QWidget *w = windows.at(i);
-		if ( !w->inherits( "FormWindow" ) )
+	    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+		if ( !::qt_cast<FormWindow*>(w) )
 		    continue;
 		w->setFocus();
 		activeWindowChanged( w );
@@ -1336,7 +1350,7 @@ bool MainWindow::fileSaveForm()
 
     QWidget *w = qWorkspace()->activeWindow();
     if ( w ) {
-	if ( w->inherits( "SourceEditor" ) ) {
+	if ( ::qt_cast<SourceEditor*>(w) ) {
 	    SourceEditor *se = (SourceEditor*)w;
 	    if ( se->formWindow() )
 		fw = se->formWindow();
@@ -1369,9 +1383,9 @@ bool MainWindow::fileSaveAs()
     QWidget *w = qworkspace->activeWindow();
     if ( !w )
 	return TRUE;
-    if ( w->inherits( "FormWindow" ) )
+    if ( ::qt_cast<FormWindow*>(w) )
 	return ( (FormWindow*)w )->formFile()->saveAs();
-    else if ( w->inherits( "SourceEditor" ) )
+    else if ( ::qt_cast<SourceEditor*>(w) )
 	return ( (SourceEditor*)w )->saveAs();
     return FALSE;
 }
@@ -1468,7 +1482,7 @@ void MainWindow::createNewTemplate()
 void MainWindow::editUndo()
 {
     if ( qWorkspace()->activeWindow() &&
-	 qWorkspace()->activeWindow()->inherits( "SourceEditor" ) ) {
+	 ::qt_cast<SourceEditor*>(qWorkspace()->activeWindow()) ) {
 	( (SourceEditor*)qWorkspace()->activeWindow() )->editUndo();
 	return;
     }
@@ -1479,7 +1493,7 @@ void MainWindow::editUndo()
 void MainWindow::editRedo()
 {
     if ( qWorkspace()->activeWindow() &&
-	 qWorkspace()->activeWindow()->inherits( "SourceEditor" ) ) {
+	 ::qt_cast<SourceEditor*>(qWorkspace()->activeWindow()) ) {
 	( (SourceEditor*)qWorkspace()->activeWindow() )->editRedo();
 	return;
     }
@@ -1490,7 +1504,7 @@ void MainWindow::editRedo()
 void MainWindow::editCut()
 {
     if ( qWorkspace()->activeWindow() &&
-	 qWorkspace()->activeWindow()->inherits( "SourceEditor" ) ) {
+	 ::qt_cast<SourceEditor*>(qWorkspace()->activeWindow()) ) {
 	( (SourceEditor*)qWorkspace()->activeWindow() )->editCut();
 	return;
     }
@@ -1501,7 +1515,7 @@ void MainWindow::editCut()
 void MainWindow::editCopy()
 {
     if ( qWorkspace()->activeWindow() &&
-	 qWorkspace()->activeWindow()->inherits( "SourceEditor" ) ) {
+	 ::qt_cast<SourceEditor*>(qWorkspace()->activeWindow()) ) {
 	( (SourceEditor*)qWorkspace()->activeWindow() )->editCopy();
 	return;
     }
@@ -1512,7 +1526,7 @@ void MainWindow::editCopy()
 void MainWindow::editPaste()
 {
     if ( qWorkspace()->activeWindow() &&
-	 qWorkspace()->activeWindow()->inherits( "SourceEditor" ) ) {
+	 ::qt_cast<SourceEditor*>(qWorkspace()->activeWindow()) ) {
 	( (SourceEditor*)qWorkspace()->activeWindow() )->editPaste();
 	return;
     }
@@ -1551,7 +1565,7 @@ void MainWindow::editDelete()
 void MainWindow::editSelectAll()
 {
     if ( qWorkspace()->activeWindow() &&
-	 qWorkspace()->activeWindow()->inherits( "SourceEditor" ) ) {
+	 ::qt_cast<SourceEditor*>(qWorkspace()->activeWindow()) ) {
 	( (SourceEditor*)qWorkspace()->activeWindow() )->editSelectAll();
 	return;
     }
@@ -1667,8 +1681,7 @@ void MainWindow::editBreakLayout()
 	return;
     } else {
 	QWidgetList widgets = formWindow()->selectedWidgets();
-	for (int i = 0; i < widgets.size(); ++i) {
-	    QWidget *w = widgets.at(i);
+	for ( w = widgets.first(); w; w = widgets.next() ) {
 	    if ( WidgetFactory::layoutType( w ) != WidgetFactory::NoLayout ||
 		 w->parentWidget() && WidgetFactory::layoutType( w->parentWidget() ) != WidgetFactory::NoLayout )
 		break;
@@ -1922,7 +1935,7 @@ void MainWindow::editPreferences()
 void MainWindow::searchFind()
 {
     if ( !qWorkspace()->activeWindow() ||
-	 !qWorkspace()->activeWindow()->inherits( "SourceEditor" ) )
+	 !::qt_cast<SourceEditor*>(qWorkspace()->activeWindow()) )
 	 return;
 
     if ( !findDialog )
@@ -1944,7 +1957,7 @@ void MainWindow::searchIncremetalFindMenu()
 void MainWindow::searchIncremetalFind()
 {
     if ( !qWorkspace()->activeWindow() ||
-	 !qWorkspace()->activeWindow()->inherits( "SourceEditor" ) )
+	 !::qt_cast<SourceEditor*>(qWorkspace()->activeWindow()) )
 	 return;
 
     ( (SourceEditor*)qWorkspace()->activeWindow() )->editorInterface()->find( incrementalSearch->text(),
@@ -1954,7 +1967,7 @@ void MainWindow::searchIncremetalFind()
 void MainWindow::searchIncremetalFindNext()
 {
     if ( !qWorkspace()->activeWindow() ||
-	 !qWorkspace()->activeWindow()->inherits( "SourceEditor" ) )
+	 !::qt_cast<SourceEditor*>(qWorkspace()->activeWindow()) )
 	 return;
 
     ( (SourceEditor*)qWorkspace()->activeWindow() )->editorInterface()->find( incrementalSearch->text(),
@@ -1964,7 +1977,7 @@ void MainWindow::searchIncremetalFindNext()
 void MainWindow::searchReplace()
 {
     if ( !qWorkspace()->activeWindow() ||
-	 !qWorkspace()->activeWindow()->inherits( "SourceEditor" ) )
+	 !::qt_cast<SourceEditor*>(qWorkspace()->activeWindow()) )
 	 return;
 
     if ( !replaceDialog )
@@ -1980,7 +1993,7 @@ void MainWindow::searchReplace()
 void MainWindow::searchGotoLine()
 {
     if ( !qWorkspace()->activeWindow() ||
-	 !qWorkspace()->activeWindow()->inherits( "SourceEditor" ) )
+	 !::qt_cast<SourceEditor*>(qWorkspace()->activeWindow()) )
 	 return;
 
     if ( !gotoLineDialog )
@@ -2013,7 +2026,6 @@ void MainWindow::toolsConfigure()
 
 void MainWindow::showStartDialog()
 {
-    qDebug("showStartDialog called");
     if ( singleProjectMode() )
 	return;
     for ( int i = 1; i < qApp->argc(); ++i ) {

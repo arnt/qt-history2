@@ -1,14 +1,28 @@
-/****************************************************************************
-**
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+/**********************************************************************
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-****************************************************************************/
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "actiondnd.h"
 #include "command.h"
@@ -47,9 +61,11 @@
 #include <qmessagebox.h>
 #include <qmetaobject.h>
 #include <qobject.h>
+#include <qobjectlist.h>
 #include <qtabbar.h>
 #ifndef QT_NO_TABLE
 #include <qtable.h>
+#include <qdatatable.h>
 #endif
 #include <qtabwidget.h>
 #include <qtabwidget.h>
@@ -62,6 +78,8 @@
 #include <qwizard.h>
 #include <qworkspace.h>
 #include <qworkspace.h>
+#include <qsplitter.h>
+#include <private/qucom_p.h>
 
 static QString makeIndent( int indent )
 {
@@ -83,7 +101,7 @@ static QString entitize( const QString &s, bool attribute = FALSE )
     return s2;
 }
 
-#ifdef Q_WS_MAC
+#ifdef Q_WS_MACX
 static struct {
     int key;
     const char* name;
@@ -175,7 +193,7 @@ static struct {
 #endif
 static QString platformNeutralKeySequence(const QKeySequence &ks)
 {
-#ifndef Q_WS_MAC
+#ifndef Q_WS_MACX
     return QString(ks);
 #else
     uint k;
@@ -664,7 +682,7 @@ bool Resource::save( QIODevice* dev )
 	return FALSE;
 
     if ( !langIface ) {
-	QString lang = "Qt Script";
+	QString lang = "C++";
 	if ( mainwindow )
 	    lang = mainwindow->currProject()->language();
 	langIface = MetaDataBase::languageInterface( lang );
@@ -678,13 +696,13 @@ bool Resource::save( QIODevice* dev )
     ts << "<!DOCTYPE UI><UI version=\"3.3\" stdsetdef=\"1\">" << endl;
     saveMetaInfoBefore( ts, 0 );
     saveObject( formwindow->mainContainer(), 0, ts, 0 );
-    if ( formwindow->mainContainer()->inherits( "QMainWindow" ) ) {
+    if ( ::qt_cast<QMainWindow*>(formwindow->mainContainer()) ) {
 	saveMenuBar( (QMainWindow*)formwindow->mainContainer(), ts, 0 );
 	saveToolBars( (QMainWindow*)formwindow->mainContainer(), ts, 0 );
     }
     if ( !MetaDataBase::customWidgets()->isEmpty() && !usedCustomWidgets.isEmpty() )
 	saveCustomWidgets( ts, 0 );
-    if ( formwindow->mainContainer()->inherits( "QMainWindow" ) )
+    if ( ::qt_cast<QMainWindow*>(formwindow->mainContainer()) )
 	saveActions( formwindow->actionList(), ts, 0 );
     if ( !images.isEmpty() )
 	saveImageCollection( ts, 0 );
@@ -713,12 +731,11 @@ QString Resource::copy()
     ts << "<!DOCTYPE UI-SELECTION><UI-SELECTION>" << endl;
     QWidgetList widgets = formwindow->selectedWidgets();
     QWidgetList tmp( widgets );
-    for (int i = 0; i < widgets.size(); ++i) {
-	QWidget *w = widgets.at(i);
+    for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
 	QWidget *p = w->parentWidget();
 	bool save = TRUE;
 	while ( p ) {
-	    if ( tmp.indexOf( p ) != -1 ) {
+	    if ( tmp.findRef( p ) != -1 ) {
 		save = FALSE;
 		break;
 	    }
@@ -857,9 +874,10 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 
     QDesignerWidgetStack* ws = 0;
 
-    if ( obj->inherits( "QTabWidget" ) ) {
+    if ( ::qt_cast<QTabWidget*>(obj) ) {
 	QTabWidget* tw = (QTabWidget*) obj;
-	QWidgetStack *ws = (QWidgetStack*)tw->queryList( "QWidgetStack" ).first();
+	QObjectList* tmpl = tw->queryList( "QWidgetStack" );
+	QWidgetStack *ws = (QWidgetStack*)tmpl->first();
 	QTabBar *tb = ( (QDesignerTabWidget*)obj )->tabBar();
 	for ( int i = 0; i < tb->count(); ++i ) {
 	    QTab *t = tb->tabAt( i );
@@ -887,7 +905,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    --indent;
 	    ts << makeIndent( indent ) << "</widget>" << endl;
 	}
-//	delete tmpl;
+	delete tmpl;
     } else if ( (ws = ::qt_cast<QDesignerWidgetStack*>(obj)) != 0 ) {
 	for ( int i = 0; i < ws->count(); ++i ) {
 	    QWidget *w = ws->page( i );
@@ -911,7 +929,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    --indent;
 	    ts << makeIndent( indent ) << "</widget>" << endl;
 	}
-    } else if ( obj->inherits( "QToolBox" ) ) {
+    } else if ( ::qt_cast<QToolBox*>(obj) ) {
 	QToolBox* tb = (QToolBox*)obj;
 	for ( int i = 0; i < tb->count(); ++i ) {
 	    QWidget *w = tb->item( i );
@@ -940,7 +958,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    --indent;
 	    ts << makeIndent( indent ) << "</widget>" << endl;
 	}
-    } else if ( obj->inherits( "QWizard" ) ) {
+    } else if ( ::qt_cast<QWizard*>(obj) ) {
 	QWizard* wiz = (QWizard*)obj;
 	for ( int i = 0; i < wiz->pageCount(); ++i ) {
 	    QWidget *w = wiz->page( i );
@@ -965,7 +983,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    --indent;
 	    ts << makeIndent( indent ) << "</widget>" << endl;
 	}
-    } else if ( obj->inherits( "QMainWindow" ) ) {
+    } else if ( ::qt_cast<QMainWindow*>(obj) ) {
 	saveChildrenOf( ( (QMainWindow*)obj )->centralWidget(), ts, indent );
     } else {
 	bool saved = FALSE;
@@ -981,8 +999,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 			if ( !containers.isEmpty() ) {
 			    saved = TRUE;
 			    int i = 0;
-			    for (int j = 0; j < containers.size(); ++j) {
-				QWidget *w = containers.at(j);
+			    for ( QWidget *w = containers.first(); w; w = containers.next(), ++i ) {
 				if ( WidgetDatabase::
 				     idFromClassName( WidgetFactory::classNameOf( w ) ) == -1 )
 				    continue; // we don't know this widget
@@ -1031,17 +1048,18 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 			MetaDataBase::CustomWidget *cw = new MetaDataBase::CustomWidget;
 			cw->className = className;
 			cw->includeFile =  WidgetDatabase::includeFile( classID );
-			int i;
-			for (i = 0; i < w->metaObject()->signalCount(); ++i)
-			    cw->lstSignals.append(w->metaObject()->signal(i).signature());
+			QStrList lst = w->metaObject()->signalNames( TRUE );
+			for ( QPtrListIterator<char> it(lst); it.current(); ++it )
+			    cw->lstSignals.append(it.current());
 
-			int total = w->metaObject()->propertyCount();
+			int i;
+			int total = w->metaObject()->numProperties( TRUE );
 			for ( i = 0; i < total; i++ ) {
-			    QMetaProperty p = w->metaObject()->property( i );
-			    if ( p.isDesignable(w) ) {
+			    const QMetaProperty *p = w->metaObject()->property( i, TRUE );
+			    if ( p->designable(w) ) {
 				MetaDataBase::Property prop;
-				prop.property = p.name();
-				QString pType = p.type();
+				prop.property = p->name();
+				QString pType = p->type();
 				// *sigh* designer types are not normal types
 				// Handle most cases, the ones it misses are
 				// probably too difficult to deal with anyway...
@@ -1055,23 +1073,29 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 			    }
 			}
 
-			total = w->metaObject()->slotCount( );
+			total = w->metaObject()->numSlots( TRUE );
 			for ( i = 0; i < total; i++ ) {
-			    QMetaMember md = w->metaObject()->slot( i );
+			    const QMetaData *md = w->metaObject()->slot( i, TRUE );
 			    MetaDataBase::Function funky;
-			    funky.returnType = md.type();
-			    funky.function = md.signature();
+			    // Find out if we have a return type.
+			    if ( md->method->count > 0 ) {
+				const QUParameter p = md->method->parameters[0];
+				if ( p.inOut == QUParameter::InOut )
+				    funky.returnType = p.type->desc();
+			    }
+
+			    funky.function = md->name;
 			    funky.language = "C++";
-			    switch ( md.access() ) {
-			    case QMetaMember::Public:
-				funky.access = "public";
-				break;
-			    case QMetaMember::Protected:
-				funky.access = "protected";
-				break;
-			    case QMetaMember::Private:
-				funky.access = "private";
-				break;
+			    switch ( md->access ) {
+				case QMetaData::Public:
+				    funky.access = "public";
+				    break;
+				case QMetaData::Protected:
+				    funky.access = "protected";
+				    break;
+				case QMetaData::Private:
+				    funky.access = "private";
+				    break;
 			    }
 			    cw->lstSlots.append( funky );
 			}
@@ -1092,9 +1116,9 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 
 void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 {
-    if ( obj->inherits( "QListBox" ) || obj->inherits( "QComboBox" ) ) {
+    if ( ::qt_cast<QListBox*>(obj) || ::qt_cast<QComboBox*>(obj) ) {
 	QListBox *lb = 0;
-	if ( obj->inherits( "QListBox" ) )
+	if ( ::qt_cast<QListBox*>(obj) )
 	    lb = (QListBox*)obj;
 	else
 	    lb = ( (QComboBox*)obj )->listBox();
@@ -1112,7 +1136,7 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	    indent--;
 	    ts << makeIndent( indent ) << "</item>" << endl;
 	}
-    } else if ( obj->inherits( "QIconView" ) ) {
+    } else if ( ::qt_cast<QIconView*>(obj) ) {
 	QIconView *iv = (QIconView*)obj;
 
 	QIconViewItem *i = iv->firstItem();
@@ -1128,7 +1152,7 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	    indent--;
 	    ts << makeIndent( indent ) << "</item>" << endl;
 	}
-    } else if ( obj->inherits( "QListView" ) ) {
+    } else if ( ::qt_cast<QListView*>(obj) ) {
 	QListView *lv = (QListView*)obj;
 	int i;
 	for ( i = 0; i < lv->header()->count(); ++i ) {
@@ -1157,11 +1181,11 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	saveItem( lv->firstChild(), ts, indent - 1 );
     }
 #ifndef QT_NO_TABLE
-    else if ( obj->inherits( "QTable" ) ) {
+    else if ( ::qt_cast<QTable*>(obj) ) {
 	QTable *table = (QTable*)obj;
 	int i;
 	QMap<QString, QString> columnFields = MetaDataBase::columnFields( table );
-	bool isDataTable = table->inherits( "QDataTable" );
+	bool isDataTable = ::qt_cast<QDataTable*>(table);
 	for ( i = 0; i < table->horizontalHeader()->count(); ++i ) {
 	    if ( !table->horizontalHeader()->label( i ).isNull() &&
 		 table->horizontalHeader()->label( i ).toInt() != i + 1 ||
@@ -1176,7 +1200,7 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 		if ( table->horizontalHeader()->iconSet( i ) )
 		    pix.append( new QPixmap( table->horizontalHeader()->iconSet( i )->pixmap() ) );
 		saveItem( l, pix, ts, indent );
-		if ( table->inherits( "QDataTable" ) && !columnFields.isEmpty() ) {
+		if ( ::qt_cast<QDataTable*>(table) && !columnFields.isEmpty() ) {
 		    ts << makeIndent( indent ) << "<property name=\"field\">" << endl;
 		    indent++;
 		    ts << makeIndent( indent ) << "<string>" << entitize( *columnFields.find( l[ 0 ] ) ) << "</string>" << endl;
@@ -1307,15 +1331,15 @@ void Resource::saveItem( const QStringList &text,
 
 void Resource::saveChildrenOf( QObject* obj, QTextStream &ts, int indent )
 {
-    const QObjectList l = obj->children();
-    if ( l.isEmpty() )
+    const QObjectList *l = obj->children();
+    if ( !l )
 	return; // no children to save
 
     QString closeTag;
     // if the widget has a layout we pretend that all widget's childs are childs of the layout - makes the structure nicer
     QLayout *layout = 0;
     QDesignerGridLayout* grid = 0;
-    if ( !obj->inherits( "QSplitter" ) &&
+    if ( !::qt_cast<QSplitter*>(obj) &&
 	 WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( obj ) ) ) &&
 	 obj->isWidgetType() &&
 	 WidgetFactory::layoutType( (QWidget*)obj, layout ) != WidgetFactory::NoLayout ) {
@@ -1347,11 +1371,10 @@ void Resource::saveChildrenOf( QObject* obj, QTextStream &ts, int indent )
 
     }
 
-    for (int i = 0; i < l.size(); ++i) {
-	QObject *o = l.at(i);
+    QObject *o = 0;
+    for ( QPtrListIterator<QObject> it ( *l ); ( o = it.current() ); ++it )
 	if ( !QString( o->name() ).startsWith( "qt_dead_widget_" ) )
 	    saveObject( o, grid, ts, indent );
-    }
     if ( !closeTag.isEmpty() ) {
 	indent--;
 	ts << closeTag << endl;
@@ -1375,7 +1398,7 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 		changed << "iconSet";
 	    }
 	}
-    } else if ( w->inherits( "QLayout" ) ) {
+    } else if ( ::qt_cast<QLayout*>(w) ) {
 	if ( MetaDataBase::spacing( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) ) > -1 )
 	    changed << "spacing";
 	if ( MetaDataBase::margin( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) ) > -1 )
@@ -1398,43 +1421,42 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
     bool inLayout = w != formwindow->mainContainer() && !copying && w->isWidgetType() && ( (QWidget*)w )->parentWidget() &&
 		    WidgetFactory::layoutType( ( (QWidget*)w )->parentWidget() ) != WidgetFactory::NoLayout;
 
-    bool super = !w->inherits( "Spacer" );
-    int offset = super ? 0 : w->metaObject()->propertyOffset();
-    int numProps = w->metaObject()->propertyCount() - offset;
-    for ( int i = 0; i < numProps; ++i ) {
-	QMetaProperty p = w->metaObject()->property(i + offset);
-	if ( changed.find( QString::fromLatin1( p.name() ) ) == changed.end() )
+    QStrList lst = w->metaObject()->propertyNames( !::qt_cast<Spacer*>(w) );
+    for ( QPtrListIterator<char> it( lst ); it.current(); ++it ) {
+	if ( changed.find( QString::fromLatin1( it.current() ) ) == changed.end() )
 	    continue;
-	if ( saved.find( QString::fromLatin1( p.name() ) ) != saved.end() )
+	if ( saved.find( QString::fromLatin1( it.current() ) ) != saved.end() )
 	    continue;
-	saved << QString::fromLatin1( p.name() );
-	if ( !p || !p.isStored( w ) || ( inLayout && qstrcmp( p.name(), "geometry" ) == 0 ) )
+	saved << QString::fromLatin1( it.current() );
+	const QMetaProperty* p = w->metaObject()->
+				 property( w->metaObject()->findProperty( it.current(), TRUE ), TRUE );
+	if ( !p || !p->stored( w ) || ( inLayout && qstrcmp( p->name(), "geometry" ) == 0 ) )
 	    continue;
-	if ( w->inherits( "QLabel" ) && qstrcmp( p.name(), "pixmap" ) == 0 &&
+	if ( ::qt_cast<QLabel*>(w) && qstrcmp( p->name(), "pixmap" ) == 0 &&
 	     ( !( (QLabel*)w )->pixmap() || ( (QLabel*)w )->pixmap()->isNull() ) )
 	    continue;
-	if ( w->inherits( "MenuBarEditor" ) &&
-	     ( qstrcmp( p.name(), "itemName" ) == 0 || qstrcmp( p.name(), "itemNumber" ) == 0 ||
-	       qstrcmp( p.name(), "itemText" ) == 0 ) )
+	if ( ::qt_cast<MenuBarEditor*>(w) &&
+	     ( qstrcmp( p->name(), "itemName" ) == 0 || qstrcmp( p->name(), "itemNumber" ) == 0 ||
+	       qstrcmp( p->name(), "itemText" ) == 0 ) )
 	    continue;
-	if ( qstrcmp( p.name(), "name" ) == 0 )
+	if ( qstrcmp( p->name(), "name" ) == 0 )
 	    knownNames << w->property( "name" ).toString();
-	if ( !p.isFlagType() && !p.isEnumType() && !w->property( p.name() ).isValid() )
+	if ( !p->isSetType() && !p->isEnumType() && !w->property( p->name() ).isValid() )
 	    continue;
 	ts << makeIndent( indent ) << "<property";
-	ts << " name=\"" << p.name() << "\"";
-	if ( !p.hasStdCppSet() )
+	ts << " name=\"" << it.current() << "\"";
+	if ( !p->stdSet() )
 	    ts << " stdset=\"0\"";
 	ts << ">" << endl;
 	indent++;
-	if ( strcmp( p.name(), "resizeMode" ) == 0 && w->inherits( "QLayout" ) ) {
-	    saveProperty( w, p.name(), "", QVariant::String, ts, indent );
-	} else if ( p.isFlagType() ) {
-	    saveSetProperty( w, p.name(), QVariant::nameToType( p.type() ), ts, indent );
-	} else if ( p.isEnumType() ) {
-	    saveEnumProperty( w, p.name(), QVariant::nameToType( p.type() ), ts, indent );
+	if ( strcmp( it.current(), "resizeMode" ) == 0 && ::qt_cast<QLayout*>(w) ) {
+	    saveProperty( w, it.current(), "", QVariant::String, ts, indent );
+	} else if ( p->isSetType() ) {
+	    saveSetProperty( w, it.current(), QVariant::nameToType( p->type() ), ts, indent );
+	} else if ( p->isEnumType() ) {
+	    saveEnumProperty( w, it.current(), QVariant::nameToType( p->type() ), ts, indent );
 	} else {
-	    saveProperty( w, p.name(), w->property( p.name() ), QVariant::nameToType( p.type() ), ts, indent );
+	    saveProperty( w, it.current(), w->property( p->name() ), QVariant::nameToType( p->type() ), ts, indent );
 	}
 	indent--;
 	ts << makeIndent( indent ) << "</property>" << endl;
@@ -1463,14 +1485,21 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 
 void Resource::saveSetProperty( QObject *w, const QString &name, QVariant::Type, QTextStream &ts, int indent )
 {
-    QMetaProperty p = w->metaObject()->property( w->metaObject()->indexOfProperty( name ) );
-    ts << makeIndent( indent ) << "<set>" << p.enumerator().valueToKeys( w->property( name ).toInt() ) << "</set>" << endl;
+    const QMetaProperty *p = w->metaObject()->property( w->metaObject()->findProperty( name, TRUE ), TRUE );
+    QStrList l( p->valueToKeys( w->property( name ).toInt() ) );
+    QString v;
+    for ( uint i = 0; i < l.count(); ++i ) {
+	v += l.at( i );
+	if ( i < l.count() - 1 )
+	    v += "|";
+    }
+    ts << makeIndent( indent ) << "<set>" << v << "</set>" << endl;
 }
 
 void Resource::saveEnumProperty( QObject *w, const QString &name, QVariant::Type, QTextStream &ts, int indent )
 {
-    QMetaProperty p = w->metaObject()->property( w->metaObject()->indexOfProperty( name ) );
-    ts << makeIndent( indent ) << "<enum>" << p.enumerator().valueToKey( w->property( name ).toInt() ) << "</enum>" << endl;
+    const QMetaProperty *p = w->metaObject()->property( w->metaObject()->findProperty( name, TRUE ), TRUE );
+    ts << makeIndent( indent ) << "<enum>" << p->valueToKey( w->property( name ).toInt() ) << "</enum>" << endl;
 }
 
 void Resource::saveProperty( QObject *w, const QString &name, const QVariant &value, QVariant::Type t, QTextStream &ts, int indent )
@@ -1507,7 +1536,7 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
 	ts << makeIndent( indent ) << "<bool>" << mkBool( value.toBool() ) << "</bool>" << endl;
 	break;
     case QVariant::Int:
-	if ( w && w->inherits( "QLayout" ) ) {
+	if ( ::qt_cast<QLayout*>(w) ) {
 	    num = -1;
 	    if ( name == "spacing" )
 		num = MetaDataBase::spacing( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) );
@@ -1644,7 +1673,7 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
 	break;
     case QVariant::StringList: {
 	QStringList lst = value.toStringList();
-	int i = 0;
+	uint i = 0;
 	ts << makeIndent( indent ) << "<stringlist>" << endl;
 	indent++;
 	if ( !lst.isEmpty() ) {
@@ -1754,7 +1783,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	    mainContainerSet = TRUE;
 	}
 	w = (QWidget*)obj;
-	if ( w->inherits( "QMainWindow" ) )
+	if ( ::qt_cast<QMainWindow*>(w) )
 	    w = ( (QMainWindow*)w )->centralWidget();
 	if ( layout ) {
 	    switch ( WidgetFactory::layoutType( layout ) ) {
@@ -1779,20 +1808,16 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 
 	if ( w && formwindow ) {
 	    if ( !parent ||
-		 ( !parent->inherits( "QTabWidget" ) &&
-		   !parent->inherits("QWidgetStack") &&
-		   !parent->inherits("QToolBox") &&
-		   !parent->inherits( "QWizard" )
-		   && !isPlugin
-		     ) )
+		 ( !::qt_cast<QTabWidget*>(parent) &&
+		   !::qt_cast<QWidgetStack*>(parent) &&
+		   !::qt_cast<QToolBox*>(parent) &&
+		   !::qt_cast<QWizard*>(parent) && !isPlugin ) )
 		formwindow->insertWidget( w, pasting );
 	    else if ( parent &&
-		      ( parent->inherits( "QTabWidget" ) ||
-			parent->inherits("QWidgetStack") ||
-			parent->inherits("QToolBox") ||
-			parent->inherits( "QWizard" )
-			|| isPlugin
-			  ) )
+		      ( ::qt_cast<QTabWidget*>(parent) ||
+			::qt_cast<QWidgetStack*>(parent) ||
+			::qt_cast<QToolBox*>(parent) ||
+			::qt_cast<QWizard*>(parent) || isPlugin ) )
 		MetaDataBase::addEntry( w );
 	}
     }
@@ -1831,16 +1856,16 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	} else if ( n.tagName() == "attribute" && w ) {
 	    QString attrib = n.attribute( "name" );
 	    QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
-	    if ( parent->inherits( "QTabWidget" ) ) {
+	    if ( ::qt_cast<QTabWidget*>(parent) ) {
 		if ( attrib == "title" )
 		    ( (QTabWidget*)parent )->insertTab( w, v.toString() );
-	    } else if ( parent->inherits( "QWidgetStack" ) ) {
+	    } else if ( ::qt_cast<QWidgetStack*>(parent) ) {
 		if ( attrib == "id" )
 		    ( (QDesignerWidgetStack*)parent )->insertPage( w, v.toInt() );
-	    } else if ( parent->inherits( "QToolBox" ) ) {
+	    } else if ( ::qt_cast<QToolBox*>(parent) ) {
 		if ( attrib == "label" )
 		    ( (QToolBox*)parent )->addItem( w, v.toString() );
-	    } else if ( parent->inherits( "QWizard" ) ) {
+	    } else if ( ::qt_cast<QWizard*>(parent) ) {
 		if ( attrib == "title" )
 		    ( (QWizard*)parent )->addPage( w, v.toString() );
 	    } else if ( isPlugin ) {
@@ -1886,7 +1911,7 @@ void Resource::createColumn( const QDomElement &e, QWidget *widget )
     if ( !widget )
 	return;
 
-    if ( widget->inherits( "QListView" ) && e.tagName() == "column" ) {
+    if ( ::qt_cast<QListView*>(widget) && e.tagName() == "column" ) {
 	QListView *lv = (QListView*)widget;
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;
@@ -1920,7 +1945,7 @@ void Resource::createColumn( const QDomElement &e, QWidget *widget )
 	    lv->header()->setResizeEnabled( resizable, i );
     }
 #ifndef QT_NO_TABLE
-    else if ( widget->inherits( "QTable" ) ) {
+    else if ( ::qt_cast<QTable*>(widget) ) {
 	QTable *table = (QTable*)widget;
 	bool isRow;
 	if ( ( isRow = e.tagName() == "row" ) )
@@ -1987,14 +2012,14 @@ void Resource::createItem( const QDomElement &e, QWidget *widget, QListViewItem 
     if ( !widget || !WidgetFactory::hasItems( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( widget ) ) ) )
 	return;
 
-    if ( widget->inherits( "QListBox" ) || widget->inherits( "QComboBox" ) ) {
+    if ( ::qt_cast<QListBox*>(widget) || ::qt_cast<QComboBox*>(widget) ) {
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;
 	bool hasPixmap = FALSE;
 	QString txt;
 	loadItem( n, pix, txt, hasPixmap );
 	QListBox *lb = 0;
-	if ( widget->inherits( "QListBox" ) )
+	if ( ::qt_cast<QListBox*>(widget) )
 	    lb = (QListBox*)widget;
 	else
 	    lb = ( (QComboBox*)widget)->listBox();
@@ -2003,7 +2028,7 @@ void Resource::createItem( const QDomElement &e, QWidget *widget, QListViewItem 
 	} else {
 	    new QListBoxText( lb, txt );
 	}
-    } else if ( widget->inherits( "QIconView" ) ) {
+    } else if ( ::qt_cast<QIconView*>(widget) ) {
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;
 	bool hasPixmap = FALSE;
@@ -2014,7 +2039,7 @@ void Resource::createItem( const QDomElement &e, QWidget *widget, QListViewItem 
 	    new QIconViewItem( iv, txt, pix );
 	else
 	    new QIconViewItem( iv, txt );
-    } else if ( widget->inherits( "QListView" ) ) {
+    } else if ( ::qt_cast<QListView*>(widget) ) {
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;
 	QValueList<QPixmap> pixmaps;
@@ -2081,7 +2106,7 @@ QWidget *Resource::createSpacer( const QDomElement &e, QWidget *parent, QLayout 
     if ( formwindow )
 	formwindow->insertWidget( spacer, pasting );
     if ( layout ) {
-	if ( layout->inherits( "QBoxLayout" ) )
+	if ( ::qt_cast<QBoxLayout*>(layout) )
 	    ( (QBoxLayout*)layout )->addWidget( spacer, 0, spacer->alignment() );
 	else
 	    ( (QDesignerGridLayout*)layout )->addMultiCellWidget( spacer, row, row + rowspan - 1, col, col + colspan - 1,
@@ -2095,9 +2120,9 @@ QWidget *Resource::createSpacer( const QDomElement &e, QWidget *parent, QLayout 
 */
 void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomElement &e )
 {
-    QMetaProperty p = obj->metaObject()->property( obj->metaObject()->indexOfProperty( prop ) );
+    const QMetaProperty *p = obj->metaObject()->property( obj->metaObject()->findProperty( prop, TRUE ), TRUE );
 
-    if ( !obj->inherits( "QLayout" )  ) {// no layouts in metadatabase... (RS)
+    if ( !::qt_cast<QLayout*>(obj)  ) {// no layouts in metadatabase... (RS)
 	if ( obj->inherits( "CustomWidget" ) ) {
 	    MetaDataBase::CustomWidget *cw = ( (CustomWidget*)obj )->customWidget();
 	    if ( cw && !cw->hasProperty( prop.latin1() ) && !p && prop != "toolTip" && prop != "whatsThis" )
@@ -2168,16 +2193,19 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 	    n = n.nextSibling().toElement();
 	}
 	v = QPalette( p );
-    } else if ( e.tagName() == "enum" && p && p.isEnumType() && prop != "resizeMode" ) {
+    } else if ( e.tagName() == "enum" && p && p->isEnumType() && prop != "resizeMode" ) {
 	QString key( v.toString() );
-	int vi = p.enumerator().keyToValue( key );
-	if ( p.enumerator().valueToKey( vi ) != key )
+	int vi = p->keyToValue( key );
+	if ( p->valueToKey( vi ) != key )
 	    return; // ignore invalid properties
 	v = QVariant( vi );
-    } else if ( e.tagName() == "set" && p && p.isFlagType() ) {
+    } else if ( e.tagName() == "set" && p && p->isSetType() ) {
 	QString keys( v.toString() );
-	int vi = p.enumerator().keysToValue( keys );
-	v = QVariant( vi );
+	QStringList lst = QStringList::split( '|', keys );
+	QStrList l;
+	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it )
+	    l.append( *it );
+	v = QVariant( p->keysToValue( l ) );
     }
 
     if ( prop == "caption" ) {
@@ -2207,7 +2235,7 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 	}
     }
 
-    if ( obj->inherits( "QLayout" ) ) {
+    if ( ::qt_cast<QLayout*>(obj) ) {
 	if ( prop == "spacing" ) {
 	    MetaDataBase::setSpacing( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)obj ) ), v.toInt() );
 	    return;
@@ -2331,7 +2359,7 @@ static QImage loadImageData( QDomElement &n2 )
     QString format = n2.attribute( "format", "PNG" );
     if ( format == "XPM.GZ" || format == "XBM.GZ" ) {
 	ulong len = n2.attribute( "length" ).toULong();
-	if ( len < (ulong)data.length() * 5 )
+	if ( len < data.length() * 5 )
 	    len = data.length() * 5;
 	// qUncompress() expects the first 4 bytes to be the expected length of
 	// the uncompressed data
@@ -2440,9 +2468,13 @@ void Resource::loadConnections( const QDomElement &e )
 		    } else {
 			if ( name == "this" )
 			    name = toplevel->name();
-			QObjectList l = toplevel->queryList( 0, name, FALSE );
-			if ( l.size() )
-			    conn.sender = l.first();
+			QObjectList *l = toplevel->queryList( 0, name, FALSE );
+			if ( l ) {
+			    if ( l->first() )
+				conn.sender = l->first();
+			    delete l;
+			    l = 0;
+			}
 			if ( !conn.sender )
 			    conn.sender = formwindow->findAction( name );
 		    }
@@ -2454,9 +2486,13 @@ void Resource::loadConnections( const QDomElement &e )
 		    if ( name == "this" || qstrcmp( toplevel->name(), name ) == 0 ) {
 			conn.receiver = toplevel;
 		    } else {
-			QObjectList l = toplevel->queryList( 0, name, FALSE );
-			if ( l.size() )
-			    conn.receiver = l.first();
+			QObjectList *l = toplevel->queryList( 0, name, FALSE );
+			if ( l ) {
+			    if ( l->first() )
+				conn.receiver = l->first();
+			    delete l;
+			    l = 0;
+			}
 			if ( !conn.receiver )
 			    conn.receiver = formwindow->findAction( name );
 		    }
@@ -2643,8 +2679,7 @@ void Resource::saveTabOrder( QTextStream &ts, int indent )
     ts << makeIndent( indent ) << "<tabstops>" << endl;
     indent++;
 
-    for (int i = 0; i < l.size(); ++i) {
-	QWidget *w = l.at(i);
+    for ( QWidget *w = l.first(); w; w = l.next() ) {
 	if ( w->testWState( Qt::WState_ForceHide ) || knownNames.findIndex( w->name() ) == -1 )
 	    continue;
 	ts << makeIndent( indent ) << "<tabstop>" << w->name() << "</tabstop>" << endl;
@@ -2664,13 +2699,16 @@ void Resource::loadTabOrder( const QDomElement &e )
 	    QString name = n.firstChild().toText().data();
 	    if ( name.isEmpty() )
 		continue;
-	    QObjectList l = toplevel->queryList( 0, name, FALSE );
-	    if ( l.size() ) {
-		QWidget *w = (QWidget*)l.first();
-		widgets.append( w );
-		if ( last )
-		    toplevel->setTabOrder( last, w );
-		last = w;
+	    QObjectList *l = toplevel->queryList( 0, name, FALSE );
+	    if ( l ) {
+		if ( l->first() ) {
+		    QWidget *w = (QWidget*)l->first();
+		    widgets.append( w );
+		    if ( last )
+			toplevel->setTabOrder( last, w );
+		    last = w;
+		}
+		delete l;
 	    }
 	}
 	n = n.nextSibling().toElement();
@@ -2864,15 +2902,16 @@ QColorGroup Resource::loadColorGroup( const QDomElement &e )
 
 void Resource::saveChildActions( QAction *a, QTextStream &ts, int indent )
 {
-    QObjectList l = a->children();
-    if ( !l.size() )
+    if ( !a->children() )
 	return;
-    for (int i = 0; i < l.size(); ++i) {
-	QObject *o = l.at(i);
-	QAction *ac = qt_cast<QAction *>(o);
-	if (!ac)
+    QObjectListIt it( *a->children() );
+    while ( it.current() ) {
+	QObject *o = it.current();
+	++it;
+	if ( !::qt_cast<QAction*>(o) )
 	    continue;
-	bool isGroup = ac->inherits( "QActionGroup" );
+	QAction *ac = (QAction*)o;
+	bool isGroup = ::qt_cast<QActionGroup*>(ac);
 	if ( isGroup )
 	    ts << makeIndent( indent ) << "<actiongroup>" << endl;
 	else
@@ -2901,7 +2940,7 @@ void Resource::saveActions( const QPtrList<QAction> &actions, QTextStream &ts, i
     QPtrListIterator<QAction> it( actions );
     while ( it.current() ) {
 	QAction *a = it.current();
-	bool isGroup = a->inherits( "QActionGroup" );
+	bool isGroup = ::qt_cast<QActionGroup*>(a);
 	if ( isGroup )
 	    ts << makeIndent( indent ) << "<actiongroup>" << endl;
 	else
@@ -2938,7 +2977,7 @@ void Resource::loadChildAction( QObject *parent, const QDomElement &e )
 	    }
 	    n2 = n2.nextSibling().toElement();
 	}
-	if ( !parent->inherits( "QAction" ) )
+	if ( !::qt_cast<QAction*>(parent) )
 	    formwindow->actionList().append( a );
     } else if ( n.tagName() == "actiongroup" ) {
 	a = new QDesignerActionGroup( parent );
@@ -2953,7 +2992,7 @@ void Resource::loadChildAction( QObject *parent, const QDomElement &e )
 	    }
 	    n2 = n2.nextSibling().toElement();
 	}
-	if ( !parent->inherits( "QAction" ) )
+	if ( !::qt_cast<QAction*>(parent) )
 	    formwindow->actionList().append( a );
     }
 }
@@ -2989,10 +3028,10 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
 	    saveObjectProperties( tb, ts, indent );
 	    QPtrList<QAction> actionList = ( (QDesignerToolBar*)tb )->insertedActions();
 	    for ( QAction *a = actionList.first(); a; a = actionList.next() ) {
-		if ( a->inherits( "QSeparatorAction" ) ) {
+		if ( ::qt_cast<QSeparatorAction*>(a) ) {
 		    ts << makeIndent( indent ) << "<separator/>" << endl;
 		} else {
-		    if ( a->inherits( "QDesignerAction" ) && !( (QDesignerAction*)a )->supportsMenu() ) {
+		    if ( ::qt_cast<QDesignerAction*>(a) && !( (QDesignerAction*)a )->supportsMenu() ) {
 			QWidget *w = ( (QDesignerAction*)a )->widget();
 			ts <<  makeIndent( indent ) << "<widget class=\""
 			   << WidgetFactory::classNameOf( w ) << "\">" << endl;

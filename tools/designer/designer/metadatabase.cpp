@@ -299,7 +299,7 @@ int MetaDataBase::spacing( QObject *o )
     if ( !o )
 	return -1;
     setupDataBase();
-    if ( o->inherits( "QMainWindow" ) )
+    if ( ::qt_cast<QMainWindow*>(o) )
 	o = ( (QMainWindow*)o )->centralWidget();
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r || !o->isWidgetType() ) {
@@ -330,9 +330,9 @@ void MetaDataBase::setMargin( QObject *o, int margin )
     bool isInnerLayout = TRUE;
 
     QWidget *widget = (QWidget*)o;
-    if ( widget && !widget->inherits( "QLayoutWidget" ) &&
+    if ( widget && !::qt_cast<QLayoutWidget*>(widget) &&
 	( WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( widget ) ) ) ||
-	widget && widget->parentWidget() && widget->parentWidget()->inherits( "FormWindow" ) ) )
+	widget && widget->parentWidget() && ::qt_cast<FormWindow*>(widget->parentWidget()) ) )
 	isInnerLayout = FALSE;
 
 
@@ -356,7 +356,7 @@ int MetaDataBase::margin( QObject *o )
     if ( !o )
 	return -1;
     setupDataBase();
-    if ( o->inherits( "QMainWindow" ) )
+    if ( ::qt_cast<QMainWindow*>(o) )
 	o = ( (QMainWindow*)o )->centralWidget();
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r || !o->isWidgetType() ) {
@@ -387,7 +387,7 @@ QString MetaDataBase::resizeMode( QObject *o )
     if ( !o )
 	return QString::null;
     setupDataBase();
-    if ( o->inherits( "QMainWindow" ) )
+    if ( ::qt_cast<QMainWindow*>(o) )
 	o = ( (QMainWindow*)o )->centralWidget();
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r || !o->isWidgetType() ) {
@@ -418,15 +418,15 @@ void MetaDataBase::addConnection( QObject *o, QObject *sender, const QCString &s
     r->connections.append( conn );
     if ( addCode ) {
 	QString rec = receiver->name();
-	if ( o->inherits( "FormWindow" ) && receiver == ( (FormWindow*)o )->mainContainer() )
+	if ( ::qt_cast<FormWindow*>(o) && receiver == ( (FormWindow*)o )->mainContainer() )
 	    rec = "this";
 	QString sen = sender->name();
-	if ( o->inherits( "FormWindow" ) && sender == ( (FormWindow*)o )->mainContainer() )
+	if ( ::qt_cast<FormWindow*>(o) && sender == ( (FormWindow*)o )->mainContainer() )
 	    sen = "this";
 	FormFile *ff = 0;
-	if ( o->inherits( "FormFile" ) )
+	if ( ::qt_cast<FormFile*>(o) )
 	    ff = (FormFile*)o;
-	else if ( o->inherits( "FormWindow" ) )
+	else if ( ::qt_cast<FormWindow*>(o) )
 	    ff = ( (FormWindow*)o )->formFile();
 	ff->addConnection( sen, signal, rec, slot );
     }
@@ -454,7 +454,7 @@ void MetaDataBase::removeConnection( QObject *o, QObject *sender, const QCString
 	    break;
 	}
     }
-    if ( o->inherits( "FormWindow" ) ) {
+    if ( ::qt_cast<FormWindow*>(o) ) {
 	QString rec = receiver->name();
 	if ( receiver == ( (FormWindow*)o )->mainContainer() )
 	    rec = "this";
@@ -472,7 +472,7 @@ void MetaDataBase::setupConnections( QObject *o, const QValueList<LanguageInterf
 	return;
     }
 
-    if ( !o->inherits( "FormFile" ) )
+    if ( !::qt_cast<FormFile*>(o) )
 	return;
 
     FormFile *formfile = (FormFile*)o;
@@ -646,12 +646,13 @@ bool MetaDataBase::hasSlot( QObject *o, const QCString &slot, bool onlyCustom )
 	if (o->metaObject()->indexOfSlot(slot) != -1)
 	    return TRUE;
 
-	if ( o->inherits( "FormWindow" ) ) {
+	if ( ::qt_cast<FormWindow*>(o) ) {
 	    o = ( (FormWindow*)o )->mainContainer();
 	    if (o->metaObject()->indexOfSlot(slot) != -1)
 		return TRUE;
 	}
 
+	//if ( ::qt_cast<CustomWidget*>(o) ) {
 	if ( o->inherits( "CustomWidget" ) ) {
 	    MetaDataBase::CustomWidget *w = ( (::CustomWidget*)o )->customWidget();
 	    for ( QValueList<Function>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it ) {
@@ -873,12 +874,13 @@ bool MetaDataBase::hasFunction( QObject *o, const QCString &function, bool onlyC
 	if ( o->metaObject()->indexOfSlot( function ) != -1 )
 	    return TRUE;
 
-	if ( o->inherits( "FormWindow" ) ) {
+	if ( ::qt_cast<FormWindow*>(o) ) {
 	    o = ( (FormWindow*)o )->mainContainer();
 	    if ( o->metaObject()->indexOfSlot( function ) != -1 )
 		return TRUE;
 	}
 
+	//if ( ::qt_cast<CustomWidget*>(o) ) {
 	if ( o->inherits( "CustomWidget" ) ) {
 	    MetaDataBase::CustomWidget *w = ( (::CustomWidget*)o )->customWidget();
 	    for ( QValueList<Function>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it ) {

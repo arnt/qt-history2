@@ -117,7 +117,7 @@ PopupMenuEditorItem::PopupMenuEditorItem( QAction * action, PopupMenuEditor * me
       removable( TRUE )
 {
     init();
-    if ( /*a->name() == "qt_separator_action" ||*/ a->inherits( "QSeparatorAction" ) )
+    if ( /*a->name() == "qt_separator_action" ||*/ ::qt_cast<QSeparatorAction*>(a) )
 	separator = TRUE;
     if ( a && !!a->children() )
  	a->installEventFilter( this );
@@ -1009,12 +1009,12 @@ void PopupMenuEditor::focusInEvent( QFocusEvent * )
 void PopupMenuEditor::focusOutEvent( QFocusEvent * )
 {
     QWidget * fw = qApp->focusWidget();
-    if ( !fw || ( !fw->inherits( "PopupMenuEditor" ) && fw != lineEdit ) ) {
+    if ( !fw || ( !::qt_cast<PopupMenuEditor*>(fw) && fw != lineEdit ) ) {
 	hideSubMenu();
-	if ( fw && fw->inherits( "MenuBarEditor" ) )
+	if ( fw && ::qt_cast<MenuBarEditor*>(fw) )
 	    return;
 	QWidget * w = this;
-	while ( w && w != fw && w->inherits( "PopupMenuEditor" ) ) { // hide all popups
+	while ( w && w != fw && ::qt_cast<PopupMenuEditor*>(w) ) { // hide all popups
 	    w->hide();
 	    w = ((PopupMenuEditor *)w)->parentEditor();
 	}
