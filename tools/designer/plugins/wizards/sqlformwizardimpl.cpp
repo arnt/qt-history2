@@ -15,7 +15,6 @@
 #include <qmultilineedit.h>
 #include <qlistview.h>
 
-#define Q_GUIDIMPL
 #include "../designerinterface.h"
 
 SqlFormWizard::SqlFormWizard( QComponentInterface *aIface, QWidget *w,

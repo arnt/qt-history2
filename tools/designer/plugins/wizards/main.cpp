@@ -1,7 +1,6 @@
-#define Q_INIT_INTERFACES
-#define Q_INITGUID
+#define Q_GUIDIMPL
 #include <qcleanuphandler.h>
-#include "../../shared/templatewizardiface.h"
+#include "../designerinterface.h"
 #include <qwidget.h>
 #include "sqlformwizardimpl.h"
 
