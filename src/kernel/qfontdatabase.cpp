@@ -141,7 +141,9 @@ private:
                 bool italic, bool lesserItalic, int weight );
 #endif
 
-
+#ifdef Q_WS_QWS
+    friend void QFontDatabase::qwsAddDiskFont( QDiskFont *qdf );
+#endif
 };
 
 
@@ -207,6 +209,10 @@ private:
 			   bool italic, bool lesserItalic, int weight );
 #endif
 
+#ifdef Q_WS_QWS
+    friend void QFontDatabase::qwsAddDiskFont( QDiskFont *qdf );
+#endif
+
 
 };
 
@@ -239,6 +245,10 @@ private:
 
 #ifdef Q_WS_WIN
     friend void newWinFont( void * p );
+#endif
+
+#ifdef Q_WS_QWS
+    friend void QFontDatabase::qwsAddDiskFont( QDiskFont *qdf );
 #endif
 };
 
@@ -273,6 +283,10 @@ private:
 
 #ifdef Q_WS_WIN
     friend void newWinFont( void * p );
+#endif
+
+#ifdef Q_WS_QWS
+    friend void QFontDatabase::qwsAddDiskFont( QDiskFont *qdf );
 #endif
 };
 static QFontDatabasePrivate *db=0;
