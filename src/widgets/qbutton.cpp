@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#74 $
 **
 ** Implementation of QButton widget class
 **
@@ -18,10 +18,11 @@
 #include "qaccel.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#73 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#74 $");
 
 
-static const int autoRepeatPeriod = 200;
+static const int autoRepeatDelay  = 300;
+static const int autoRepeatPeriod = 100;
 
 /*
   Internal function that returns the shortcut character in a string.
@@ -36,6 +37,20 @@ static int shortcutChar( const char *str )
     while ( p && *p && p[1] == '&' )
 	p = strchr( p+2, '&' );
     return (p && *p && p[1] && p[1] != '&') ? p[1] : 0;
+}
+
+struct QButtonData {
+    QButtonData() : group(0) { }
+    QButtonGroup* group;
+    QTimer	  timer;
+};
+
+void QButton::ensureData()
+{
+    if (!d) {
+	d = new QButtonData();
+	connect(&d->timer, SIGNAL(timeout()), this, SLOT(autoRepeatSlot()));
+    }
 }
 
 
@@ -155,11 +170,10 @@ QButton::QButton( QWidget *parent, const char *name )
     autoresize = FALSE;				// not auto resizing
     isTiming   = FALSE;				// not in keyboard mode
     repeat     = FALSE;				// not in autorepeat mode
+    d	       = 0;
     if ( parent && parent->inherits("QButtonGroup") ) {
-	group = (QButtonGroup*)parent;
-	group->insert( this );			// insert into button group
-    } else {
-	group = 0;
+	setGroup((QButtonGroup*)parent);
+	group()->insert( this );		// insert into button group
     }
     setFocusPolicy( TabFocus );
 }
@@ -170,8 +184,8 @@ QButton::QButton( QWidget *parent, const char *name )
 
 QButton::~QButton()
 {
-    if ( group )				// remove from button group
-	group->remove( this );
+    if ( group() )				// remove from button group
+	group()->remove( this );
     delete bpixmap;
 }
 
@@ -350,8 +364,11 @@ void QButton::setAutoResize( bool enable )
 void QButton::setAutoRepeat( bool enable )
 {
     repeat = (uint)enable;
-    if ( repeat && mlbDown )
-	QTimer::singleShot( autoRepeatPeriod, this, SLOT(autoRepeatSlot()) );
+    if ( repeat ) {
+	ensureData();
+	if ( mlbDown )
+	    d->timer.start( autoRepeatDelay, TRUE );
+    }
 }
 
 
@@ -543,8 +560,7 @@ void QButton::mousePressEvent( QMouseEvent *e )
 	repaint();
 	emit pressed();
 	if ( repeat )
-	    QTimer::singleShot( autoRepeatPeriod,
-				this, SLOT(autoRepeatSlot()) );
+	    d->timer.start( autoRepeatDelay, TRUE );
     }
 }
 
@@ -557,6 +573,8 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
 {
     if ( e->button() != LeftButton || !mlbDown )
 	return;
+    if ( d )
+	d->timer.stop();
     mlbDown = FALSE;				// left mouse button up
     bool hit = hitButton( e->pos() );
     buttonDown = FALSE;
@@ -702,8 +720,12 @@ void QButton::timerSlot()
 void QButton::autoRepeatSlot()
 {
     if ( mlbDown && isEnabled() && autoRepeat() ) {
-	QTimer::singleShot( autoRepeatPeriod, this, SLOT(autoRepeatSlot()) );
-	emit clicked();
+	if ( buttonDown ) {
+	    emit released();
+	    emit clicked();
+	    emit pressed();
+	}
+	d->timer.start( autoRepeatPeriod, TRUE );
     }
 }
 
@@ -755,4 +777,16 @@ void QButton::animateClick()
 void QButton::repaintSlot()
 {
     repaint( FALSE );
+}
+
+
+void QButton::setGroup( QButtonGroup* g )
+{
+    ensureData();
+    d->group = g;
+}
+
+QButtonGroup* QButton::group() const
+{
+    return d ? d->group : 0;
 }

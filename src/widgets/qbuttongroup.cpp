@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#33 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -14,7 +14,7 @@
 #include "qbutton.h"
 #include "qlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#32 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#33 $");
 
 
 /*!
@@ -105,7 +105,7 @@ void QButtonGroup::init()
 QButtonGroup::~QButtonGroup()
 {
     for ( register QButtonItem *bi=buttons->first(); bi; bi=buttons->next() )
-	bi->button->group = 0;
+	bi->button->setGroup(0);
     delete buttons;
 }
 
@@ -167,8 +167,8 @@ void QButtonGroup::setExclusive( bool enable )
 
 int QButtonGroup::insert( QButton *button, int id )
 {
-    if ( button->group )
-	button->group->remove( button );
+    if ( button->group() )
+	button->group()->remove( button );
     static int seq_no = -2;
     register QButtonItem *bi = new QButtonItem;
     CHECK_PTR( bi );
@@ -179,7 +179,7 @@ int QButtonGroup::insert( QButton *button, int id )
     else
 	bi->id = id;
     bi->button = button;
-    button->group  = this;
+    button->setGroup(this);
     buttons->append( bi );
     connect( button, SIGNAL(pressed()) , SLOT(buttonPressed()) );
     connect( button, SIGNAL(released()), SLOT(buttonReleased()) );
@@ -200,7 +200,7 @@ void QButtonGroup::remove( QButton *button )
     for ( QButtonItem *i=buttons->first(); i; i=buttons->next() ) {
 	if ( i->button == button ) {
 	    buttons->remove();
-	    button->group = 0;
+	    button->setGroup(0);
 	    button->disconnect( this );
 	    break;
 	}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#50 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#51 $
 **
 ** Definition of QButton widget class
 **
@@ -16,7 +16,7 @@
 
 
 class QButtonGroup;				// button group (qbttngrp.h)
-
+struct QButtonData;
 
 class QButton : public QWidget			// button class
 {
@@ -87,9 +87,12 @@ private:
     uint	autoresize	: 1;
     uint	isTiming	: 1;
     uint	repeat		: 1;
-    QButtonGroup *group;
+    QButtonData *d;
 
     friend class QButtonGroup;
+    void          ensureData();
+    void	  setGroup( QButtonGroup* );
+    QButtonGroup* group() const;
 
 private:	// Disabled copy constructor and operator=
     QButton( const QButton & ) {}
