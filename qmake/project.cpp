@@ -1049,8 +1049,10 @@ QMakeProject::read(uchar cmd)
 
     if(cmd & ReadPostFiles) { // parse post files
         const QStringList l = vars["QMAKE_POST_INCLUDE_FILES"];
-        for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it)
-            read((*it), vars);
+        for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
+            if(read((*it), vars)) 
+                vars["QMAKE_INTERNAL_INCLUDED_FILES"].append((*it));
+        }
     }
 
     if(cmd & ReadCmdLine) {
@@ -1117,7 +1119,7 @@ QMakeProject::read(uchar cmd)
         templ.append(QString("app"));
     else if(vars["TEMPLATE"].first().endsWith(".t"))
         templ = QStringList(templ.first().left(templ.first().length() - 2));
-    if(!Option::user_template_prefix.isEmpty())
+    if(!Option::user_template_prefix.isEmpty() && !templ.first().startsWith(Option::user_template_prefix))
         templ.first().prepend(Option::user_template_prefix);
 
     QString test_version = qgetenv("QTESTVERSION");
