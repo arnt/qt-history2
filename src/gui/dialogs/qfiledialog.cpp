@@ -1660,8 +1660,8 @@ static QFileDialog *qt_create_file_dialog(QWidget *parent,
     dlg->setWindowTitle(caption);
     if (!filter.isEmpty())
         dlg->setFilters(qt_make_filter_list(filter));
-//     if (selectedFilter)
-//         dlg->selectFilter(*selectedFilter);
+    if (selectedFilter)
+        dlg->selectFilter(*selectedFilter);
     if (!initialSelection.isEmpty())
         dlg->selectFile(initialSelection);
     return dlg;
