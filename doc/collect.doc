@@ -71,20 +71,21 @@ while the value based one store copies instead of pointers.
 
 <h2>Architecture</h2>
 
-There are three internal base
-classes for the reference based containers; \link QGCache QGCache\endlink, \link QGDict QGDict\endlink and
-\link QGList QGList\endlink that operate on \c void* pointers.  A thin
-template layer implements the actual collections by casting item pointers
-to and from \c void*.
+There are three internal base classes for the reference based
+containers; \l QGCache, \l QGDict and \l QGList that operate on \c
+void* pointers.  A thin template layer implements the actual
+collections by casting item pointers to and from \c void*.
 
 This strategy allows Qt's templates to be very economical on space
 (instantiating one of these templates adds only inline-able calls to
 the base classes), while it does not hurt performance too much.
-The Qt Template Library in contrast is more like the STL. It does not store
-pointers, instead it stores real copies. This is faster for small
-values like integers or QRect for example. But the value based containers
-can not be used with everything derived from QObject since it is impossible
-to make a copy of a QObject
+
+<a href="qtl.html">The Qt Template Library</a> in contrast is more
+like the C++ Standard Template Library (STL). It provides classes like
+\l QValueList and \l QMap that are not reference based but store real
+copies instead.  This is extremely efficient for implicit shared
+values like QString, or any standard C++ data type like int, bool or
+double.
 
 <h2>A QList Example</h2>
 
@@ -133,10 +134,12 @@ Program output:
 
 <h2>A QValueList Example</h2>
 
-This example shows something compareable to the above QList example.
-It especially shows the value based semantics.
+This example shows something compareable to the QList example above,
+but uses the value-based \l QValueList container:
 
 \code
+  Example:
+  \code
     #include <qvaluelist.h>
     #include <qstring.h>
     #include <stdio.h>
@@ -144,15 +147,17 @@ It especially shows the value based semantics.
     class Employee
     {
     public:
-        Employee( const QString& name, int salary ) { n=name; s=salary; }
-        Employee( const Employee& _e ) { n = _e.name; s = _e.s; }
+	Employee(): s(0){}
+	Employee( const QString& name, int salary )
+	    : n(name), s(salary)
+	{}
 
-        QString     name()   const		 { return n; }
-        int	    salary() const		 { return s; }
-	void	    setSalary( int _s ) const	 { s = _s; }
+	QString     name()   const	 	{ return n; }
+	int	    salary() const	 	{ return s; }
+	void	    setSalary( int salary )	{ s = salary; }
     private:
-        QString     n;
-        int         s;
+	QString     n;
+	int         s;
     };
 
     void main()
@@ -170,22 +175,23 @@ It especially shows the value based semantics.
 	
 	EmployeeList::Iterator it;
 	for( it = list.begin(); it != list.end(); ++it )
-	    printf( "%s earns %d\n", (*it).name(), (*it).salary() );
+	    printf( "%s earns %d\n", (*it).name().latin1(), (*it).salary() );
     }
-  \endcode
+\endcode
 
-  Program output:
-  \code
+Program output:
+\code
 	Bill earns 50000
 	Steve earns 80000
 	Ron earns 60000
 	Joe earns 50000
-  \endcode
+\endcode
 
 As you can see, the latest changes to Joes salary did not affect the value
 in the list because the list created a copy of Joes entry.
 
-For more informations about value based containers see <a href="qtl.html">The Qt Template Library</a>.
+For more informations about value based containers see <a
+href="qtl.html">The Qt Template Library</a>.
 
 <h2>Managing Collection Items</h2>
 
@@ -314,10 +320,10 @@ advantage, though: They are extremely efficient when being used with
 value objects that implement a fast copy constructor. This is the case
 with all implicit shared Qt classes such as QString or any of the C++
 standard data types like int, bool or double. Since we needed that
-functionality for Qt itself, we added a few value based containers in
-Qt-2.0. As with the other containers, the new ones have a well
-documented interface and a naming scheme that matches the usual Qt
-conventions - another advantage over the STL classes.
+functionality for Qt itself, we added a few <a href="qtl.html">value
+based containers</a> in Qt-2.0. As with the other containers, the new
+ones have a well documented interface and a naming scheme that matches
+the usual Qt conventions - another advantage over the STL classes.
 
 There are also other differences, but the ones above are the important
 reasons behind our decision to write, use and provide these classes.

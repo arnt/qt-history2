@@ -52,12 +52,13 @@
     class Employee
     {
     public:
-        Employee( const QString& name, int salary ) { n=name; s=salary; }
-        Employee( const Employee& _e ) { n = _e.name; s = _e.s; }
+        Employee( const QString& name, int salary )
+		: n(name), s(salary)
+	{}
 
-        QString     name()   const		 { return n; }
-        int	    salary() const		 { return s; }
-	void	    setSalary( int _s ) const	 { s = _s; }
+        QString     name()   const		 	{ return n; }
+        int	    salary() const		 	{ return s; }
+	void	    setSalary( int salary ) const 	{ s = salary; }
     private:
         QString     n;
         int         s;
@@ -501,34 +502,36 @@
     class Employee
     {
     public:
-        Employee( const QString& name, int salary ) { n=name; s=salary; }
-        Employee( const Employee& _e ) { n = _e.name; s = _e.s; }
+	Employee(): s(0) {}
+	Employee( const QString& name, int salary )
+	    : n(name), s(salary)
+	{}
 
-        QString     name()   const		 { return n; }
-        int	    salary() const		 { return s; }
-	void	    setSalary( int _s ) const	 { s = _s; }
+	QString     name()   const		{ return n; }
+	int	    salary() const		{ return s; }
+	void	    setSalary( int salary )	{ s = salary; }
     private:
-        QString     n;
-        int         s;
+	QString     n;
+	int         s;
     };
 
     void main()
-    {
-	typedef QValueList<Employee> EmployeeList;
-	EmployeeList list;		// list of Employee
+	{
+	    typedef QValueList<Employee> EmployeeList;
+	    EmployeeList list;		// list of Employee
 
-	list.append( Employee("Bill", 50000) );
-	list.append( Employee("Steve",80000) );
-	list.append( Employee("Ron",  60000) );
+	    list.append( Employee("Bill", 50000) );
+	    list.append( Employee("Steve",80000) );
+	    list.append( Employee("Ron",  60000) );
 
-	Employee joe( "Joe", 50000 );
-	list.append( joe );
-	joe.setSalary( 4000 );
+	    Employee joe( "Joe", 50000 );
+	    list.append( joe );
+	    joe.setSalary( 4000 );
 	
-	EmployeeList::Iterator it;
-	for( it = list.begin(); it != list.end(); ++it )
-	    printf( "%s earns %d\n", (*it).name(), (*it).salary() );
-    }
+	    EmployeeList::Iterator it;
+	    for( it = list.begin(); it != list.end(); ++it )
+		printf( "%s earns %d\n", (*it).name().latin1(), (*it).salary() );
+	}
   \endcode
 
   Program output:

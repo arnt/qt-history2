@@ -37,9 +37,9 @@ Standard Template Library (STL).
 
 It currently provides the containers QMap, QValueList and QValueStack
 plus a set of iterators operating on these classes ( \l QMapIterator,
-\l QMapConstIterator, \l QValueListOperator and \l
+\l QMapConstIterator, \l QValueListIterator and \l
 QValueListConstIterator ). For convenience, it also includes a
-specialized class \l QStringList that features a list of unicode
+predefined class \l QStringList that stores a list of unicode
 string.
 
 While QCollection and friends store pointers to objects, these classes
@@ -60,10 +60,9 @@ more sanity checking.
 If you have objects that implement value semantics, use the Qt
 template library.  Value semantics require at least
 <ul>
-<li>a copy cnstructor,
+<li>a copy constructor,
 <li>an assignment operator and
-<ku> a default constructor, i.e. a
-constructor that does not take any arguments.
+<li> a default constructor, i.e. a constructor that does not take any arguments.
 </ul>
 Note that a fast copy constructor is absolutely crucial for the
 overall performance of the container since many copy operations are
@@ -74,7 +73,7 @@ base types like int, bool or double.
 
 The Qt template library is designed for speed. Especially iterators
 are extremely fast. On the drawback side, lesser error checking than
-in the QCollection based containers is provided. A template library
+in the QCollection based containers is done. A template library
 container for example does not track associated iterators. This makes
 certain validy checks, like on removing items, impossible to perform
 automatically.
