@@ -1554,10 +1554,9 @@ void QScrollView::contentsContextMenuEvent( QContextMenuEvent *e )
 void QScrollView::viewportPaintEvent( QPaintEvent* pe )
 {
     QWidget* vp = viewport();
-    QPainter p(vp);
-
     QMemArray<QRect> rects = pe->region().rects();
     for ( int i = 0; i < (int)rects.size(); ++i ) {
+	QPainter p(vp);
 	QRect r = rects[i];
 	if ( d->clipped_viewport ) {
 	    QRect rr(
