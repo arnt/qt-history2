@@ -524,17 +524,17 @@ bool QTranslator::do_load( const uchar *data, int len )
 	}
 
 	if ( tag == QTranslatorPrivate::Contexts && !d->contextArray ) {
-	    d->contextArray = new QByteArray;
-	    d->contextArray->setRawData( array.constData() + s.device()->at(),
-					 blockLen );
+	    d->contextArray = new QConstByteArray(array.constData() 
+						  + s.device()->at(),
+						  blockLen );
 	} else if ( tag == QTranslatorPrivate::Hashes && !d->offsetArray ) {
-	    d->offsetArray = new QByteArray;
-	    d->offsetArray->setRawData( array.constData() + s.device()->at(),
-					blockLen );
+	    d->offsetArray = new QConstByteArray( array.constData() 
+						  + s.device()->at(),
+						  blockLen );
 	} else if ( tag == QTranslatorPrivate::Messages && !d->messageArray ) {
-	    d->messageArray = new QByteArray;
-	    d->messageArray->setRawData( array.constData() + s.device()->at(),
-					 blockLen );
+	    d->messageArray = new QConstByteArray( array.constData() 
+						   + s.device()->at(),
+						   blockLen );
 	}
 
 	if ( !s.device()->at(s.device()->at() + blockLen) ) {
@@ -616,20 +616,14 @@ void QTranslator::clear()
     }
 
     if ( d->messageArray ) {
-	d->messageArray->resetRawData( *d->messageArray,
-				       d->messageArray->size() );
 	delete d->messageArray;
 	d->messageArray = 0;
     }
     if ( d->offsetArray ) {
-	d->offsetArray->resetRawData( *d->offsetArray,
-				      d->offsetArray->size() );
 	delete d->offsetArray;
 	d->offsetArray = 0;
     }
     if ( d->contextArray ) {
-	d->contextArray->resetRawData( *d->contextArray,
-				       d->contextArray->size() );
 	delete d->contextArray;
 	d->contextArray = 0;
     }

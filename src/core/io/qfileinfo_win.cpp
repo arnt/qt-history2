@@ -78,7 +78,7 @@ static void resolveLibs()
 #endif
 
 	triedResolve = TRUE;
-	if ( qWinVersion() & Qt::WV_NT_based ) {
+	if ( QSysInfo::WindowsVersion & Qt::WV_NT_based ) {
 	    QLibrary lib("advapi32");
 	    lib.setAutoUnload( FALSE );
 
@@ -292,7 +292,7 @@ Q_CORE_EXPORT int qt_ntfs_permission_lookup = 1;
 
 QString QFileInfo::owner() const
 {
-    if ( ( qt_ntfs_permission_lookup > 0 ) && ((qWinVersion()&Qt::WV_NT_based) > Qt::WV_NT ) ) {
+    if ( ( qt_ntfs_permission_lookup > 0 ) && ((QSysInfo::WindowsVersion&Qt::WV_NT_based) > Qt::WV_NT ) ) {
 	PSID pOwner = 0;
 	PSECURITY_DESCRIPTOR pSD;
 	QString name;
@@ -328,7 +328,7 @@ uint QFileInfo::ownerId() const
 
 QString QFileInfo::group() const
 {
-    if ( ( qt_ntfs_permission_lookup > 0 ) && ((qWinVersion()&Qt::WV_NT_based) > Qt::WV_NT ) ) {
+    if ( ( qt_ntfs_permission_lookup > 0 ) && ((QSysInfo::WindowsVersion&Qt::WV_NT_based) > Qt::WV_NT ) ) {
 	PSID pGroup = 0;
 	PSECURITY_DESCRIPTOR pSD;
 	QString name;
@@ -363,7 +363,7 @@ uint QFileInfo::groupId() const
 
 bool QFileInfo::permission( int p ) const
 {
-    if ( ( qt_ntfs_permission_lookup > 0 ) && ((qWinVersion()&Qt::WV_NT_based) > Qt::WV_NT ) ) {
+    if ( ( qt_ntfs_permission_lookup > 0 ) && ((QSysInfo::WindowsVersion&Qt::WV_NT_based) > Qt::WV_NT ) ) {
 	PSID pOwner = 0;
 	PSID pGroup = 0;
 	PACL pDacl;

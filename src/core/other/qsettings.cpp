@@ -947,7 +947,7 @@ bool QSettings::sync()
 #ifndef Q_WS_WIN
 		&& di.isWritable()
 #else
-		&& ((qWinVersion()&Qt::WV_NT_based) > Qt::WV_2000 || di.isWritable())
+		&& ((QSysInfo::WindowsVersion&Qt::WV_NT_based) > Qt::WV_2000 || di.isWritable())
 #endif
 		)) {
 		filename = fi.filePath();
