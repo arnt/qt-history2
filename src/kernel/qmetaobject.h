@@ -54,28 +54,28 @@ struct QMetaEnum
 struct QMetaProperty
 {
     QMetaProperty()
-	:name(0),set(0),get(0),type(0),enumType(0),
+	:name(0),get(0),set(0),type(0),enumType(0),
 	 sspec(Unspecified),gspec(Unspecified),state(0)
     {
     }
 
     const char*	name;
-    QMember 	set;
     QMember 	get;
+    QMember 	set;
     const char 	*type;
     QMetaEnum	*enumType;
-    
+
     bool readable() const { return get != 0; }
     bool writeable() const { return set != 0; }
     bool isValid() const { return !testState( UnresolvedEnum) ; }
 
     bool isEnumType() const { return enumType != 0; }
     QStrList enumNames() const;
-    
+
     enum Specification  { Unspecified, Class, Reference, Pointer, ConstCharStar };
 
-    Specification sspec;
     Specification gspec;
+    Specification sspec;
 
     enum State  {
 	UnresolvedEnum = 0x00000001
@@ -118,7 +118,7 @@ public:
 
     int  	numSlots( bool super = FALSE ) const;
     int		numSignals( bool super = FALSE ) const;
-    
+
     QMetaData	*slot( int index, bool super = FALSE ) const;
     QMetaData	*signal( int index, bool super = FALSE ) const;
 
@@ -128,7 +128,7 @@ public:
     QMetaProperty	*property( const char* name, bool super = FALSE ) const;
     QStrList		propertyNames( bool super = FALSE ) const;
     QMetaEnum		*enumerator( const char* name, bool super = FALSE ) const;
-    
+
     static QMetaObject *new_metaobject( const char *, const char *,
 					QMetaData *, int,
 					QMetaData *, int,
@@ -139,7 +139,7 @@ public:
 					QMetaData *, int,
 					QMetaData *, int );
     static QMetaData	*new_metadata( int );
-    
+
     void		resolveProperty( QMetaProperty* prop );
 
 private:

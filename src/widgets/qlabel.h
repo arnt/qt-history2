@@ -40,7 +40,7 @@ Q_OBJECT
 class Q_EXPORT QLabel : public QFrame
 {
     Q_OBJECT
-    Q_PROPERTY( text, QString, setText, text )
+    Q_PROPERTY( text, QString, text, setText )
 public:
     QLabel( QWidget *parent, const char *name=0, WFlags f=0 );
     QLabel( const QString &text, QWidget *parent, const char *name=0,
@@ -49,51 +49,50 @@ public:
 	    QWidget * parent, const char * name=0, WFlags f=0 );
    ~QLabel();
 
-    QString	text()		const	{ return ltext; }
-    QPixmap    *pixmap()	const	{ return lpixmap; }
-
-    QMovie     *movie()		const;
+    QString	 text()		const	{ return ltext; }
+    QPixmap     *pixmap()	const	{ return lpixmap; }
+    QMovie      *movie()		const;
 
     Qt::TextFormat textFormat() const;
-    void setTextFormat( Qt::TextFormat );
+    void 	 setTextFormat( Qt::TextFormat );
 
-    int		alignment()	const	{ return align; }
+    int		 alignment() const	{ return align; }
     virtual void setAlignment( int );
-    int		indent()	const	{ return extraMargin; }
-    void setIndent( int );
+    int		 indent() const		{ return extraMargin; }
+    void 	 setIndent( int );
 
-    bool	autoResize()	const	{ return autoresize; }
+    bool 	 autoResize() const	{ return autoresize; }
     virtual void setAutoResize( bool );
 
-    QSize	sizeHint() const;
-    QSize	minimumSizeHint() const;
-    QSizePolicy sizePolicy() const;
+    QSize	 sizeHint() const;
+    QSize	 minimumSizeHint() const;
+    QSizePolicy  sizePolicy() const;
 
     virtual void setBuddy( QWidget * );
-    QWidget    *buddy() const;
+    QWidget     *buddy() const;
 
-    void setAutoMask(bool);
+    void	 setAutoMask(bool);
 
-    int heightForWidth(int) const;
+    int		 heightForWidth(int) const;
 
 public slots:
-    virtual void	setText( const QString &);
-    virtual void	setPixmap( const QPixmap & );
-    virtual void	setMovie( const QMovie & );
-    virtual void	setNum( int );
-    virtual void	setNum( double );
-    void	clear();
+    virtual void setText( const QString &);
+    virtual void setPixmap( const QPixmap & );
+    virtual void setMovie( const QMovie & );
+    virtual void setNum( int );
+    virtual void setNum( double );
+    void	 clear();
 
 protected:
-    void	drawContents( QPainter * );
-    void	drawContentsMask( QPainter * );
-    void	fontChange( const QFont & );
+    void	 drawContents( QPainter * );
+    void	 drawContentsMask( QPainter * );
+    void	 fontChange( const QFont & );
 
 private slots:
-    void	acceleratorSlot();
-    void	buddyDied();
-    void	movieUpdated(const QRect&);
-    void	movieResized(const QSize&);
+    void	 acceleratorSlot();
+    void	 buddyDied();
+    void	 movieUpdated(const QRect&);
+    void	 movieResized(const QSize&);
 
 private:
     void	init();

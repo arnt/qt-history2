@@ -92,7 +92,7 @@ struct Function					// member function meta data
 class FuncList : public QList<Function> {	// list of member functions
 public:
     FuncList( bool autoDelete = FALSE ) { setAutoDelete( autoDelete ); }
-    
+
     FuncList find( const char* name )
     {
 	FuncList result;
@@ -118,19 +118,19 @@ public:
 
 struct Property
 {
-    Property( int l, const char* n, const char* t, const char* s, const char* g) 
-	: lineNo(l), name(n), type(t), set(s), get(g), setfunc(0), getfunc(0), 
+    Property( int l, const char* n, const char* t, const char* g, const char* s)
+	: lineNo(l), name(n), type(t), get(g), set(s), getfunc(0), setfunc(0),
 	  sspec(Unspecified), gspec(Unspecified)
     {}
-    
+
     int lineNo;
     QCString name;
     QCString type;
-    QCString set;
     QCString get;
-    
-    Function* setfunc;
+    QCString set;
+
     Function* getfunc;
+    Function* setfunc;
 
     enum Specification  { Unspecified, Class, Reference, Pointer, ConstCharStar };
     Specification sspec;
@@ -464,7 +464,7 @@ template_spec:		  TEMPLATE '<' template_args '>'
 
 opt_template_spec:	  /* empty */
 			| template_spec		{ templateClassOld = templateClass;
-						  templateClass = TRUE; 
+						  templateClass = TRUE;
 						}
 			;
 
@@ -727,7 +727,7 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 			  }
 			| Q_PROPERTY { tmpYYStart = YY_START; BEGIN IN_PROPERTY; }
 			  '(' IDENTIFIER ',' IDENTIFIER ',' prop_access_function ',' prop_access_function ')'
-				  { 
+				  {
 				        if ( doProperties )
 					    props.append( new Property( lineNo, $4,$6,$8,$10) );
 					else
@@ -746,7 +746,7 @@ slot_area:		  SIGNALS ':'	{ moc_err( "Signals cannot "
                                                   BEGIN IN_CLASS;
 					  suppress_func_warn = TRUE;
                                         }
-			  opt_property_candidates 
+			  opt_property_candidates
 					{
 					  suppress_func_warn = FALSE;
 					}
@@ -1702,8 +1702,8 @@ void finishProps()
 {
     int entry = 0;
     for( QListIterator<Property> it( props ); it.current(); ++it ) {
-	if ( !isPropertyType( it.current()->type ) || 
-	     it.current()->getfunc == 0 || 
+	if ( !isPropertyType( it.current()->type ) ||
+	     it.current()->getfunc == 0 ||
 	     it.current()->setfunc == 0  )
 	    fprintf( out, "    metaObj->resolveProperty( &props_tbl[%d] );\n", entry );
 	++entry;
@@ -1721,7 +1721,7 @@ int generateEnums()
     for ( QListIterator<Enum> it( enums ); it.current(); ++it, ++i ) {
 	fprintf( out, "    enums[%i].name = \"%s\";\n", i, (const char*)it.current()->name );
 	fprintf( out, "    enums[%i].count = %i;\n", i, (const char*)it.current()->count() );
-	fprintf( out, "    enums[%i].items = new QMetaEnum::Item[%i];\n", 
+	fprintf( out, "    enums[%i].items = new QMetaEnum::Item[%i];\n",
 		 i,(const char*)it.current()->count() );
 	int k = 0;
 	for( QStrListIterator eit( *it.current() ); eit.current(); ++eit, ++k ) {
@@ -1776,12 +1776,12 @@ int generateProps()
 	    }
 	    if ( p->setfunc == 0 ) {
 		if ( displayWarnings ) {
-		    fprintf( stderr, "%s:%d: Warning: Property '%s' not available.\n", 
+		    fprintf( stderr, "%s:%d: Warning: Property '%s' not available.\n",
 			     fileName.data(), p->lineNo, (const char*) p->name );
-		    fprintf( stderr, "   Have been looking for public set functions \n" 
+		    fprintf( stderr, "   Have been looking for public set functions \n"
 			     "      void %s( %s )\n"
 			     "      void %s( %s& )\n"
-			     "      void %s( const %s& )\n", 
+			     "      void %s( const %s& )\n",
 			     (const char*) p->set, (const char*) p->type,
 			     (const char*) p->set, (const char*) p->type,
 			     (const char*) p->set, (const char*) p->type );
@@ -1789,7 +1789,7 @@ int generateProps()
 		    if ( p->type == "QCString" )
 			fprintf( stderr, "      void %s( const char* ) const\n",
 				 (const char*) p->set );
-		    
+		
 		    if ( !candidates.isEmpty() ) {
 			fprintf( stderr, "   but only found the missmatching candidate(s)\n");
 			for ( Function* f = candidates.first(); f; f = candidates.next() ) {
@@ -1805,7 +1805,7 @@ int generateProps()
 				}
 				a = f->args->next();
 			    }
-			    fprintf( stderr, "      %s:%d: %s %s(%s)\n", fileName.data(), f->lineNo, 
+			    fprintf( stderr, "      %s:%d: %s %s(%s)\n", fileName.data(), f->lineNo,
 				     (const char*) f->type,(const char*) f->name, (const char*) typstr );
 			}
 		    }
@@ -1848,9 +1848,9 @@ int generateProps()
 	    }
 	    if ( p->getfunc == 0 ) {
 		if ( displayWarnings ) {
-		    fprintf( stderr, "%s:%d: Warning: Property '%s' not available.\n", 
+		    fprintf( stderr, "%s:%d: Warning: Property '%s' not available.\n",
 			     fileName.data(), p->lineNo, (const char*) p->name );
-		    fprintf( stderr, "   Have been looking for public get functions \n" 
+		    fprintf( stderr, "   Have been looking for public get functions \n"
 			     "      %s %s() const\n"
 			     "      %s& %s() const\n"
 			     "      %s* %s() const\n",		
@@ -1878,8 +1878,8 @@ int generateProps()
 				}
 				a = f->args->next();
 			    }
-			    fprintf( stderr, "      %s:%d: %s %s(%s) %s\n", fileName.data(), f->lineNo, 
-				     (const char*) f->type,(const char*) f->name, (const char*) typstr, 
+			    fprintf( stderr, "      %s:%d: %s %s(%s) %s\n", fileName.data(), f->lineNo,
+				     (const char*) f->type,(const char*) f->name, (const char*) typstr,
 				     f->qualifier.isNull()?"":(const char*) f->qualifier );
 			}
 		    }
@@ -1887,7 +1887,7 @@ int generateProps()
 	    }
 	}
     }
-    
+
     //
     // Generate all typedefs
     //
@@ -2100,7 +2100,7 @@ void generateClass()		      // generate C++ source code for a class
     fprintf( out, "    metaObj = QMetaObject::new_metaobject(\n"
 		  "\t\"%s\", \"%s\",\n",
 	     (const char*)qualifiedClassName(), (const char*)qualifiedSuperclassName() );
-    
+
     if ( slots.count() )
 	fprintf( out, "\tslot_tbl, %d,\n", slots.count() );
     else
@@ -2285,7 +2285,7 @@ void addMember( Member m )
 	skipFunc    = FALSE;
 	return;
     }
-    
+
     tmpFunc->accessPerm = tmpAccessPerm;
     tmpFunc->args	= tmpArgList;
     tmpFunc->lineNo	= lineNo;
@@ -2303,7 +2303,7 @@ void addMember( Member m )
 	if ( doProperties && !tmpFunc->name.isEmpty() && tmpFunc->accessPerm == _PUBLIC )
 	    propfuncs.append( tmpFunc );
     }
-    
+
  Failed:
     skipFunc = FALSE;
     tmpFunc  = new Function;
