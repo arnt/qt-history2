@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.h#2 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.h#3 $
 **
 ** Definition of QBitMap class
 **
@@ -35,7 +35,6 @@ public:
 
     QBitMap *wxform( const QWXFMatrix & );	// world xform bitmap
     static QWXFMatrix wxfTrueMatrix( const QWXFMatrix &, int w, int h );
-    QBitMap *rotate( int a );			// !!!NOTE: remove later
 
 protected:
     char  *data;
