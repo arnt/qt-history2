@@ -100,8 +100,9 @@ public:
         FramePadding = 0x4082,
         Width = 0x4100,
         Height = 0x4101,
-        TableColumnConstraints = 0x4280,
-        TableColumnConstraintValues = 0x4281,
+        TableColumnConstraints = 0x4200,
+        TableColumnConstraintValues = 0x4201,
+        TableCellSpacing = 0x4300,
 
         // table cell properties
         TableCellRowSpan = 0x4810,
@@ -466,6 +467,11 @@ public:
 
     inline QList<int> tableColumnConstraintTypes() const { return intListProperty(TableColumnConstraints); }
     inline QList<int> tableColumnConstraintValues() const { return intListProperty(TableColumnConstraintValues); }
+
+    inline int cellSpacing() const
+    { return intProperty(TableCellSpacing, 0); }
+    inline void setCellSpacing(int spacing)
+    { setProperty(TableCellSpacing, spacing, 0); }
 };
 
 #endif
