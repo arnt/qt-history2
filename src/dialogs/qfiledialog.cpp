@@ -130,33 +130,6 @@ static const char *end_xpm[]={
     "aaa.............",
     "aaaaaaaaaaaaaaaa"};
 
-// /* XPM */
-// static const char *end_xpm[] = {
-//     "16 15 8 1",
-//     ". c #cec6bd",
-//     "# c #000000",
-//     "a c #ffff00",
-//     "b c #999999",
-//     "c c #cccccc",
-//     "d c #dcdcdc",
-//     "e c #ffffff",
-//     "f c #b2c0dc",
-//     ".....######fffff",
-//     "....##eeee#bbfff",
-//     "...#d#eeee#eebff",
-//     "..#dd#eeee#caebf",
-//     ".#####eeee#acebf",
-//     "#eeeeeeeee#caebf",
-//     "#eeebbbbbbbbbbbb",
-//     "#eebbeeeeeeeeeeb",
-//     "#eb#aacacacacaeb",
-//     "#e#cacacacacaebf",
-//     "#e#acacacacacebf",
-//     "##baacacacacebff",
-//     "#bbbbbbbbbbbbbff",
-//     "#############fff",
-//     "ffffffffffffffff"};
-
 /* XPM */
 static const char* open_xpm[]={
     "16 15 6 1",
@@ -488,6 +461,130 @@ static void makeVariables() {
 	detailViewMode = FALSE;
     }
 }
+
+/******************************************************************
+ *
+ * Definitions of view classes
+ *
+ ******************************************************************/
+
+class QFileListBox : public QListBox
+{
+    friend class QFileDialog;
+
+    Q_OBJECT
+
+private:
+    QFileListBox( QWidget *parent, QFileDialog *d );
+
+    void clear();
+    void show();
+    void startRename( bool check = TRUE );
+    void setSelected( QListBoxItem *i, bool s );
+    void setSelected( int i, bool s );
+    void viewportMousePressEvent( QMouseEvent *e );
+    void viewportMouseReleaseEvent( QMouseEvent *e );
+    void viewportMouseDoubleClickEvent( QMouseEvent *e );
+    void viewportMouseMoveEvent( QMouseEvent *e );
+    void viewportDragEnterEvent( QDragEnterEvent *e );
+    void viewportDragMoveEvent( QDragMoveEvent *e );
+    void viewportDragLeaveEvent( QDragLeaveEvent *e );
+    void viewportDropEvent( QDropEvent *e );
+    bool acceptDrop( const QPoint &pnt, QWidget *source );
+    void setCurrentDropItem( const QPoint &pnt );
+    void keyPressEvent( QKeyEvent *e );
+
+private slots:
+    void rename();
+    void cancelRename();
+
+private slots:
+    void doubleClickTimeout();
+    void changeDirDuringDrag();
+    void doDragScroll();
+    void dragObjDestroyed();
+
+private:
+    QRenameEdit *lined;
+    QFileDialog *filedialog;
+    bool renaming;
+    QTimer* renameTimer;
+    QListBoxItem *renameItem;
+    QPoint pressPos, oldDragPos;
+    bool mousePressed, eraseDragShape;
+    int urls;
+    QString startDragDir;
+    QListBoxItem *currDropItem;
+    QTimer *changeDirTimer;
+    QTimer *dragScrollTimer;
+    bool firstMousePressEvent;
+    QUrlOperator startDragUrl;
+
+};
+
+
+class QFileListView : public QListView
+{
+    friend class QFileDialog;
+
+    Q_OBJECT
+
+private:
+    QFileListView( QWidget *parent, QFileDialog *d );
+
+    void clear();
+    void startRename( bool check = TRUE );
+    void setSorting( int column, bool increasing = TRUE );
+
+private:
+    void viewportMousePressEvent( QMouseEvent *e );
+    void viewportMouseDoubleClickEvent( QMouseEvent *e );
+    void keyPressEvent( QKeyEvent *e );
+    void viewportMouseReleaseEvent( QMouseEvent *e );
+    void viewportMouseMoveEvent( QMouseEvent *e );
+    void viewportDragEnterEvent( QDragEnterEvent *e );
+    void viewportDragMoveEvent( QDragMoveEvent *e );
+    void viewportDragLeaveEvent( QDragLeaveEvent *e );
+    void viewportDropEvent( QDropEvent *e );
+    bool acceptDrop( const QPoint &pnt, QWidget *source );
+    void setCurrentDropItem( const QPoint &pnt );
+
+private slots:
+    void rename();
+    void cancelRename();
+    void changeSortColumn2( int column );
+
+private slots:
+    void doubleClickTimeout();
+    void changeDirDuringDrag();
+    void doDragScroll();
+    void dragObjDestroyed();
+
+private:
+    QRenameEdit *lined;
+    QFileDialog *filedialog;
+    bool renaming;
+    QTimer* renameTimer;
+    QListViewItem *renameItem;
+    QPoint pressPos, oldDragPos;
+    bool mousePressed, eraseDragShape;
+    int urls;
+    QString startDragDir;
+    QListViewItem *currDropItem;
+    QTimer *changeDirTimer;
+    QTimer *dragScrollTimer;
+    bool firstMousePressEvent;
+    bool ascending;
+    int sortcolumn;
+    QUrlOperator startDragUrl;
+
+};
+
+/****************************************************************************
+ *
+ * Classes for copy progress dialog
+ *
+ ****************************************************************************/
 
 class ProgressAnimation : public QWidget
 {
@@ -2051,7 +2148,7 @@ void QFileDialog::init()
     if ( ol && ol->first() )
 	( (QLineEdit*)ol->first() )->installEventFilter( this );
     delete ol;
-    
+
     d->geometryDirty = TRUE;
     d->types = new QComboBox( TRUE, this, "file types" );
     d->types->setEnableMultipleInsertion( FALSE );
