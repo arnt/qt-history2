@@ -176,6 +176,7 @@ public:
     virtual void dragLeft();
 
     void viewModeChanged( QtFileIconView::ViewMode m );
+    void paintItem( QPainter *p, const QColorGroup &cg );
 
 protected:
     virtual void dropped( QDropEvent *e );

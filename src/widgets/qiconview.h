@@ -232,7 +232,7 @@ protected slots:
 protected:
     virtual void removeRenameBox();
     virtual void calcRect( const QString &text_ = QString::null );
-    virtual void paintItem( QPainter *p, const QColorGroup &cg, const QFont &font );
+    virtual void paintItem( QPainter *p, const QColorGroup &cg );
     virtual void paintFocus( QPainter *p, const QColorGroup &cg );
     virtual void dropped( QDropEvent *e );
     virtual void dragEntered();

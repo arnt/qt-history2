@@ -493,6 +493,17 @@ QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
     init();
 }
 
+void QtFileIconViewItem::paintItem( QPainter *p, const QColorGroup &cg )
+{
+    if ( itemFileInfo->isSymLink() ) {
+	QFont f( p->font() );
+	f.setItalic( TRUE );
+	p->setFont( f );
+    }
+
+    QIconViewItem::paintItem( p, cg );
+}
+
 void QtFileIconViewItem::viewModeChanged( QtFileIconView::ViewMode m )
 {
     vm = m;

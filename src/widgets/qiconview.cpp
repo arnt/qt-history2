@@ -1471,16 +1471,15 @@ void QIconViewItem::calcRect( const QString &text_ )
 }
 
 /*!
-  Paints the item using the painter \a p, the color group \a cg and the font \a font. If you want, that
+  Paints the item using the painter \a p, the color group \a cg. If you want, that
   your iconview item is drawn with a different font or color, reimplement this method and
-  change the values of the color group or the font and call then the paintItem() method of the
+  change the values of the color group or the painter's font and call then the paintItem() method of the
   super class with the changed values.
 */
 
-void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg, const QFont &font )
+void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg )
 {
     p->save();
-    p->setFont( font );
 
     if ( isSelected() ) {
 	p->setPen( cg.highlightedText() );
@@ -2572,8 +2571,12 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	
 	    QIconViewItem *item = c->items.first();
 	    for ( ; item; item = c->items.next() ) {
-		if ( item->rect().intersects( r ) && !item->dirty )
-		    item->paintItem( p, colorGroup(), font() );
+		if ( item->rect().intersects( r ) && !item->dirty ) {
+		    p->save();
+		    p->setFont( font() );
+		    item->paintItem( p, colorGroup() );
+		    p->restore();
+		}
 	    }
 	    alreadyIntersected = TRUE;
 	} else {
