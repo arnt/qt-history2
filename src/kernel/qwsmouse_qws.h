@@ -66,7 +66,7 @@ protected:
 };
 
 
-#if !defined(QT_QWS_IPAQ) && !defined(QT_QWS_CASSIOPEIA)
+#if !defined(QT_QWS_IPAQ) && !defined(QT_QWS_CASSIOPEIA) && !defined(QT_QWS_EBX)
 # define QT_NO_QWS_MOUSE_CALIBRATED
 #endif
 
