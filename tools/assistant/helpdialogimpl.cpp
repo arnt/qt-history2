@@ -55,6 +55,7 @@ static const char * book_xpm[]={
 #include "mainwindow.h"
 
 #include <stdlib.h>
+#include <limits.h>
 
 #include <qprogressbar.h>
 #include <qfile.h>
