@@ -279,7 +279,8 @@ void QEventDispatcherMac::registerSocketNotifier(QSocketNotifier *notifier)
 {
     QEventDispatcherUNIX::registerSocketNotifier(notifier);
     MacSocketInfo *mac_notifier = 0;
-    if(notifier->type() == QSocketNotifier::Read) {
+    if(notifier->type() == QSocketNotifier::Read &&
+       QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
         mac_notifier = new MacSocketInfo;
         CFStreamCreatePairWithSocket(kCFAllocatorDefault, notifier->socket(), &mac_notifier->read_not, 0);
         CFStreamClientContext ctx;
@@ -288,7 +289,8 @@ void QEventDispatcherMac::registerSocketNotifier(QSocketNotifier *notifier)
         CFReadStreamSetClient(mac_notifier->read_not, kCFStreamEventOpenCompleted, qt_mac_select_read_callbk, &ctx);
         CFReadStreamScheduleWithRunLoop(mac_notifier->read_not, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
         CFReadStreamOpen(mac_notifier->read_not);
-    } else if(notifier->type() == QSocketNotifier::Write) {
+    } else if(notifier->type() == QSocketNotifier::Write &&
+              QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
         mac_notifier = new MacSocketInfo;
         CFStreamCreatePairWithSocket(kCFAllocatorDefault, notifier->socket(), 0, &mac_notifier->write_not);
         CFStreamClientContext ctx;
