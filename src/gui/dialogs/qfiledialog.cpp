@@ -873,8 +873,6 @@ void QFileDialogPrivate::navigateToPrevious()
 void QFileDialogPrivate::navigateToParent()
 {
     QModelIndex index = rootIndex();
-    if (!index.isValid())
-        return;
     history.push_back(index);
     QModelIndex parent = model->parent(index);
     setRootIndex(parent);
@@ -1531,21 +1529,23 @@ void QFileDialogPrivate::setupWidgets(QGridLayout *grid)
 
 void QFileDialogPrivate::updateButtons(const QModelIndex &index)
 {
-    if (!index.isValid())
-        return; // "My Computer" is already in the list
     toParent->setEnabled(index.isValid());
     back->setEnabled(!history.isEmpty());
     newFolder->setEnabled(!model->isReadOnly());
-    QString pth = toNative(d->model->filePath(index));
-    Q_ASSERT(!pth.isEmpty()); // this should be caught by the first if statement
-    QIcon icn = d->model->fileIcon(index);
-    int i = lookIn->findText(pth);
     bool block = lookIn->blockSignals(true);
-    if (i > -1) {
-        lookIn->setCurrentIndex(i);
-    } else {
-        lookIn->addItem(icn, pth);
-        lookIn->setCurrentIndex(lookIn->count() - 1);
+    if (index.isValid()) {
+        QString pth = toNative(d->model->filePath(index));
+        Q_ASSERT(!pth.isEmpty()); // this should be caught by the first if statement
+        QIcon icn = d->model->fileIcon(index);
+        int i = lookIn->findText(pth);
+        if (i > -1) {
+            lookIn->setCurrentIndex(i);
+        } else {
+            lookIn->addItem(icn, pth);
+            lookIn->setCurrentIndex(lookIn->count() - 1);
+        }
+    } else { // "My Computer" is already in the list
+        lookIn->setCurrentIndex(0);
     }
     lookIn->blockSignals(block);
 }
