@@ -21,9 +21,8 @@
 
 
 QBezier::QBezier()
-    : x1(0), y1(0), x2(0), y2(0), x3(0), y3(0), x4(0), y4(0)
+    : valid(false)
 {
-    init();
 }
 
 /*!
@@ -53,6 +52,8 @@ QBezier::QBezier(const QPointF &p1, const QPointF &p2, const QPointF &p3, const 
 */
 void QBezier::init()
 {
+    valid = true;
+
     ax = -x1 + 3*x2 - 3*x3 + x4;
     bx = 3*x1 - 6*x2 + 3*x3;
     cx = -3*x1 + 3*x2;
@@ -80,6 +81,8 @@ Q_DECLARE_TYPEINFO(QBezierLineSegment, Q_PRIMITIVE_TYPE); // actually MOVABLE, b
 */
 QPolygonF QBezier::toPolygon() const
 {
+    Q_ASSERT(valid);
+
     QBezierLineSegment *lines = (QBezierLineSegment *) qMalloc(32 * sizeof(QBezierLineSegment));
     int pos = 0;
     int alloc = 32;
@@ -125,3 +128,95 @@ QPolygonF QBezier::toPolygon() const
     qFree(lines);
     return polygon;
 }
+
+void QBezier::split(QBezier *firstHalf, QBezier *secondHalf)
+{
+    Q_ASSERT(valid);
+    Q_ASSERT(firstHalf);
+    Q_ASSERT(secondHalf);
+
+    qreal ax8 = ax/8;
+    qreal ay8 = ay/8;
+    qreal bx4 = bx/4;
+    qreal by4 = by/4;
+    qreal cx2 = cx/2;
+    qreal cy2 = cy/2;
+
+    // Calculate the a, b, c, d values based on f(t/2)
+    firstHalf->ax = ax8;
+    firstHalf->ay = ay8;
+    firstHalf->bx = bx4;
+    firstHalf->by = by4;
+    firstHalf->cx = cx2;
+    firstHalf->cy = cy2;
+    firstHalf->dx = dx;
+    firstHalf->dy = dy;
+
+    // Get the control points by solving M^-1 * [a b c d], where M is
+    // the matrix mapping control points to a, b, c, d, as used in init().
+    firstHalf->x1 = firstHalf->dx;
+    firstHalf->y1 = firstHalf->dy;
+    firstHalf->x2 = firstHalf->cx / 3 + firstHalf->dx;
+    firstHalf->y2 = firstHalf->cy / 3 + firstHalf->dx;
+    firstHalf->x3 = firstHalf->bx / 3 + firstHalf->cx * 2 / 3 + dx;
+    firstHalf->y3 = firstHalf->by / 3 + firstHalf->cy * 2 / 3 + dx;
+    firstHalf->x4 = firstHalf->ax + firstHalf->bx + firstHalf->cx + firstHalf->dx;
+    firstHalf->y4 = firstHalf->ay + firstHalf->by + firstHalf->cy + firstHalf->dy;
+
+    // Repeat for second half, calculated throught f(1/2 + t/2)
+    secondHalf->ax = ax8;
+    secondHalf->ay = ay8;
+    secondHalf->bx = 3*ax8 + bx4;
+    secondHalf->by = 3*ay8 + by4;
+    secondHalf->cx = 3*ax8 + 2*bx4 + cx2;
+    secondHalf->cy = 3*ay8 + 2*by4 + cy2;
+    secondHalf->dx = ax8 + bx4 + cx2 + dx;
+    secondHalf->dy = ay8 + by4 + cy2 + dy;
+
+    secondHalf->x1 = secondHalf->dx;
+    secondHalf->y1 = secondHalf->dy;
+    secondHalf->x2 = secondHalf->cx / 3 + secondHalf->dx;
+    secondHalf->y2 = secondHalf->cy / 3 + secondHalf->dy;
+    secondHalf->x3 = secondHalf->bx / 3 + secondHalf->cx * 2 / 3 + dx;
+    secondHalf->y3 = secondHalf->by / 3 + secondHalf->cy * 2 / 3 + dy;
+    secondHalf->x4 = secondHalf->ax + secondHalf->bx + secondHalf->cx + secondHalf->dx;
+    secondHalf->y4 = secondHalf->ay + secondHalf->by + secondHalf->cy + secondHalf->dy;
+
+    firstHalf->valid = true;
+    secondHalf->valid = true;
+}
+
+#if 0
+int QBezier::offsetted(QBezier *curveSegments, int maxSegments, float offset)
+{
+    Q_ASSERT(curveSegments);
+    Q_ASSERT(maxSegments < 0);
+    QLineF l1(x1, y1, x2, y2);
+    QLineF l1n = l1.normalVector().unitVector();
+    l1.translate(l1n.vx(), l1n.vy());
+
+    QLineF l2(x3, y3, x4, y4);
+    QLineF l2n = l2.normalVector().unitVector();
+    l2.translate(l2n.vx() * offset, l2n.vy() * offset);
+
+    QBezier offsetted(l1.start(), l1.end(), l2.start(), l2.end());
+
+    QPointF curveCenter = pointAt(0.5);
+    QLineF centerDistLine(curveCenter, offsetted.pointAt(0.5));
+
+    if (qAbs(centerDistLine.length() - offset) > 1) {
+        printf("not close enough... recursing...\n");
+
+        QBezier firstHalf, secondHalf;
+        split(&firstHalf, &secondHalf);
+
+        int num = firstHalf.offsetted(curveSegments, maxSegments, offset);
+        if (maxSegments > num)
+            num += secondHalf.offsetted(curveSegments + num, maxSegments - num, offset);
+        return num;
+    } else {
+        *curveSegments = offsetted;
+    }
+    return 1;
+}
+#endif

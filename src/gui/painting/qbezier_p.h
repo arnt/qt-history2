@@ -44,9 +44,21 @@ public:
 #endif
     QPolygonF toPolygon() const;
 
+    QPointF startPoint() const { Q_ASSERT(valid); return QPointF(x1, y1); }
+    QPointF controlPoint1() const { Q_ASSERT(valid); return QPointF(x2, y2); }
+    QPointF controlPoint2() const { Q_ASSERT(valid); return QPointF(x3, y3); }
+    QPointF endPoint() const { Q_ASSERT(valid); return QPointF(x4, y4); }
+
+    void split(QBezier *firstHalf, QBezier *secondHalf);
+
+#if 0
+    int offsetted(QBezier *curveSegments, int maxSegmets, float offset);
+#endif
+
 private:
     void init();
 
+    bool valid;
     qreal x1, y1, x2, y2, x3, y3, x4, y4;
     qreal ax, bx, cx, dx, ay, by, cy, dy;
 };
@@ -54,6 +66,7 @@ private:
 #ifdef QT_USE_FIXED_POINT
 inline QPointF QBezier::pointAt(QFixedPointLong _t) const
 {
+    Q_ASSERT(valid);
     QFixedPointLong _ax = ax;
     QFixedPointLong _ay = ay;
     QFixedPointLong _bx = bx;
@@ -66,6 +79,7 @@ inline QPointF QBezier::pointAt(QFixedPointLong _t) const
 #else
 inline QPointF QBezier::pointAt(qreal t) const
 {
+    Q_ASSERT(valid);
     Q_ASSERT(t >= 0);
     Q_ASSERT(t <= 1);
     return QPointF(ax*t*t*t + bx*t*t + cx*t + dx,
