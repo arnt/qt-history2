@@ -1107,12 +1107,18 @@ public:
 
    The above will range scan the "myfile.dbf" file by name="trolltech".
 
+//## do we need this: If the P2 parameter is specified, all records
+//which are marked are also saved (see SaveResult). <- but how do we
+//specify what fields are saved?  If this was implemented, we would
+//only have to visit records once when doing a simple range scan &
+//save.
+
 */
 class RangeScan : public Label
 {
 public:
     RangeScan( const QVariant& id,
-		  const QString& label = QString::null )
+	       const QString& label = QString::null )
 	: Label( id, label ) {}
     QString name() const { return "RangeScan"; }
     int exec( Interpreter::Environment* env )
