@@ -481,24 +481,39 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
     case PE_ArrowDown:
     case PE_ArrowRight:
     case PE_ArrowLeft: {
-	p->save();
-	p->setPen(cg.text());
 	QPointArray a;
 	if(pe == PE_ArrowDown)
-	    a.setPoints(3, r.x(), r.y(), r.right(), r.y(), r.x() + (r.width() / 2) ,
-			 r.bottom());
-	else if(pe == PE_ArrowRight)
-	    a.setPoints(3, r.x(), r.y(), r.right(), r.y() + (r.height() / 2), r.x(),
-			 r.bottom());
+	    a.setPoints(7, -4,-2, 2,-2, -3,-1, 1,-1, -2,0, 0,0, -1,1);
 	else if(pe == PE_ArrowUp)
-	    a.setPoints(3, r.x() + (r.width() / 2), r.y(), r.right(), r.bottom(), r.x(),
-			 r.bottom());
+	    a.setPoints(7, -4,1, 2,1, -3,0, 1,0, -2,-1, 0,-1, -1,-2);
+	else if(pe == PE_ArrowRight)
+	    a.setPoints(7, -2,-3, -2,3, -1,-2, -1,2, 0,-1, 0,1, 1,0);
 	else
-	    a.setPoints(3, r.x(), r.y() + (r.height() / 2), r.right(), r.y(), r.right(),
-			 r.bottom());
+	    a.setPoints(7, 0,-3, 0,3, -1,-2, -1,2, -2,-1, -2,1, -3,0);
+	p->save();
+#if 1
+	if ( flags & Style_Enabled ) {
+	    a.translate(r.x() + r.width() / 2, r.y() + r.height() / 2);
+	    p->setPen(cg.text());
+	    p->drawLineSegments(a, 0, 3);         // draw arrow
+	    p->drawPoint(a[6]);
+	} else {
+	    a.translate(r.x() + r.width() / 2 + 1, r.y() + r.height() / 2 + 1);
+	    p->setPen(cg.light());
+	    p->drawLineSegments(a, 0, 3);         // draw arrow
+	    p->drawPoint(a[6]);
+	    a.translate(-1, -1);
+	    p->setPen(cg.mid());
+	    p->drawLineSegments(a, 0, 3);
+	    p->drawPoint(a[6]);
+	}
+#else
+	a.translate(r.x() + r.width() / 2, r.y() + r.height() / 2);
+	p->setPen(cg.text());
 	p->setBrush(cg.text());
 	p->drawPolygon(a);
 	p->setBrush(NoBrush);
+#endif
 	p->restore();
 	break; }
     case PE_SizeGrip: {
@@ -904,6 +919,7 @@ void QMacStyle::drawControl(ControlElement element,
 	    }
 	}
 
+	ThemeButtonKind bkind = kThemePushButton;
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
 	if(btn->isFlat())
 	    info.adornment = kThemeAdornmentNoShadow;
@@ -912,7 +928,7 @@ void QMacStyle::drawControl(ControlElement element,
         { //The AppManager draws outside my rectangle, so account for that difference..
 	    Rect macRect, myRect;
 	    SetRect(&myRect,r.x(), r.y(), r.width(), r.height());
-	    GetThemeButtonBackgroundBounds(&myRect, kThemePushButton, &info, &macRect);
+	    GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
 	    off_rct = QRect(myRect.left - macRect.left, myRect.top - macRect.top,
 			    (myRect.left - macRect.left) + (macRect.right - myRect.right), 
 			    (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
@@ -920,13 +936,13 @@ void QMacStyle::drawControl(ControlElement element,
 
 	((QMacPainter *)p)->setport();
 	DrawThemeButton(qt_glb_mac_rect(r, p, FALSE, off_rct), 
-			kThemePushButton, &info, NULL, NULL, NULL, 0);
+			bkind, &info, NULL, NULL, NULL, 0);
 	if(buffer) {
 	    if(do_draw && frame) {
 		QMacSavedPortInfo savedInfo(buffer);
 		const Rect *buff_rct = qt_glb_mac_rect(QRect(0, 0, r.width(), r.height()), 
 						       buffer, FALSE, off_rct);
-		DrawThemeButton(buff_rct, kThemePushButton, &info, NULL, NULL, NULL, 0);
+		DrawThemeButton(buff_rct, bkind, &info, NULL, NULL, NULL, 0);
 
 		QPixmap buffer_mask(buffer->size(), 32);
 		{
@@ -934,7 +950,7 @@ void QMacStyle::drawControl(ControlElement element,
 		    ThemeButtonDrawInfo mask_info = info;
 		    mask_info.state = kThemeStateActive;
 		    QMacSavedPortInfo savedInfo(&buffer_mask);
-		    DrawThemeButton(buff_rct, kThemePushButton, &mask_info, NULL, NULL, NULL, 0);
+		    DrawThemeButton(buff_rct, bkind, &mask_info, NULL, NULL, NULL, 0);
 		}
 
 		QImage img = buffer->convertToImage(), maskimg = buffer_mask.convertToImage();
@@ -1556,6 +1572,23 @@ QRect QMacStyle::subRect(SubRect r, const QWidget *w) const
 {
     QRect ret;
     switch(r) {
+    case SR_PushButtonContents: {
+	ThemeButtonKind bkind = kThemePushButton;
+	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
+	Rect macRect, myRect;
+	SetRect(&myRect, 0, 0, w->width(), w->height());
+	GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
+	int offx = myRect.left - macRect.left, offy = myRect.top - macRect.top,
+	    offw = (myRect.left - macRect.left) + (macRect.right - myRect.right), 
+	    offh = (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom);
+	myRect.left   += offx;
+	myRect.top    += offy;
+	myRect.right  -= offw;
+	myRect.bottom -= offh;
+	GetThemeButtonContentBounds(&myRect, bkind, &info, &macRect);
+	ret.setRect(macRect.left - offx, macRect.top - offy, 
+		    (macRect.right + offw) - (macRect.left - offx), macRect.bottom + offh);
+	break; }
     case SR_ProgressBarLabel:
     case SR_ProgressBarGroove:
 	break;
@@ -1757,10 +1790,11 @@ QSize QMacStyle::sizeFromContents(ContentsType contents,
 		sz.setHeight(macsz.height());
 	}
 	if(contents == CT_PushButton) { //I hate to do this, but it seems to be needed
+	    ThemeButtonKind bkind = kThemePushButton;
 	    ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
 	    Rect macRect, myRect;
 	    SetRect(&myRect,0, 0, sz.width(), sz.height());
-	    GetThemeButtonBackgroundBounds(&myRect, kThemePushButton, &info, &macRect);
+	    GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
 	    sz.setWidth(sz.width() + 
 			(myRect.left - macRect.left) + (macRect.bottom - myRect.bottom));
 	    sz.setHeight(sz.height() + 
