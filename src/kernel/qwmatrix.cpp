@@ -412,8 +412,8 @@ QWMatrix &QWMatrix::rotate( double a )
 QWMatrix QWMatrix::invert( bool *invertible ) const
 {
     double det = _m11*_m22 - _m12*_m21;
-    if ( QABS(det) < 0.000001 ) {		// very close to zero
-	if ( invertible )			//   (whatever that means...)
+    if ( det == 0.0 ) {
+	if ( invertible )
 	    *invertible = FALSE;		// singular matrix
 	QWMatrix defaultMatrix;
 	return defaultMatrix;
