@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#67 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#66 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#67 $";
 #endif
 
 /*!
@@ -410,6 +410,18 @@ void QWidget::disable()				// disable events
   \sa size()
 */
 
+
+/*!
+  Returns a bounding rectangle of all child widgets.
+*/
+
+QRect QWidget::childrenRect() const
+{
+    QRect r( 32767, 32767, 0, 0 );
+    return r;
+}
+
+
 /*!
   \fn QFontMetrics QWidget::fontMetrics() const
   Returns the font metrics for the widget.
@@ -711,9 +723,20 @@ A widget is considered visible even if it is obscured by other windows on the
 screen.
 */
 
-/*! \fn QWidget *QWidget::parentWidget() const
-Returns a pointer to the parent of this widget, or a null pointer if
-it does not have any parent widget.
+
+/*!
+  Adjusts the widget size.
+*/
+
+void QWidget::adjustSize()
+{
+}
+
+
+/*!
+  \fn QWidget *QWidget::parentWidget() const
+  Returns a pointer to the parent of this widget, or a null pointer if
+  it does not have any parent widget.
 */
 
 /*!
