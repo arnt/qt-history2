@@ -606,11 +606,16 @@ static const char * const iso8859_3locales[] = {
     "eo", 0 };
 
 static const char * const iso8859_4locales[] = {
-    "ee", "ee_EE", "lt", "lt_LT", "lv", "lv_LV", 0 };
+    "ee", "ee_EE", "lv", "lv_LV", 0 };
 
 static const char * const iso8859_5locales[] = {
-    "bg", "bg_BG", "bulgarian", "mk", "mk_MK",
-    "sp", "sp_YU", 0 };
+    "mk", "mk_MK", "sp", "sp_YU", 0 };
+
+static const char * const cp_1251locales[] = {
+    "be", "be_BY", "bg", "bg_BG", "bulgarian", 0 };
+
+static const char * const pt_154locales[] = {
+    "ba_RU", "ky", "ky_KG", "kk", "kk_KZ", 0 };
 
 static const char * const iso8859_6locales[] = {
     "ar_AA", "ar_SA", "arabic", 0 };
@@ -624,6 +629,9 @@ static const char * const iso8859_8locales[] = {
 static const char * const iso8859_9locales[] = {
     "tr", "tr_TR", "turkish", 0 };
 
+static const char * const iso8859_13locales[] = {
+    "lt", "lt_LT", 0 };
+
 static const char * const iso8859_15locales[] = {
     "fr", "fi", "french", "finnish", "et", "et_EE", 0 };
 
@@ -632,7 +640,6 @@ static const char * const koi8_ulocales[] = {
 
 static const char * const tis_620locales[] = {
     "th", "th_TH", "thai", 0 };
-
 
 static bool try_locale_list( const char * const locale[], const char * lang )
 {
@@ -712,50 +719,66 @@ QTextCodec* QTextCodec::codecForLocale()
     char *charset = nl_langinfo (CODESET);
     if ( charset )
       localeMapper = codecForName( charset );
-
 #endif
 
     if ( !localeMapper ) {
 	// Very poorly defined and followed standards causes lots of code
 	// to try to get all the cases...
 
-	char * lang = qstrdup( getenv("LANG") );
+	// Try to determine locale codeset from locale name assigned to
+	// LC_CTYPE category.
 
-#ifdef Q_WS_X11_
-	// use LC_CTYPE if LANG is not available, as X11 uses it too, and we otherwise get inconsitencies between
-	// XmbLookupString and the Qt input mapper
-	if ( !lang || lang[0] == 0 )
+	// First part is getting that locale name.  First try setlocale() which
+	// definitely knows it, but since we cannot fully trust it, get ready
+	// to fall back to environment variables.
+	char * ctype = qstrdup( setlocale( LC_CTYPE, 0 ) );
+
+	// Get the first nonempty value from $LC_ALL, $LC_CTYPE, and $LANG
+	// environment variables.
+	char * lang = qstrdup( getenv("LC_ALL") );
+	if ( !lang || lang[0] == 0 || qstrcmp( lang, "C" ) != 0 ) {
+	    if ( lang ) delete [] lang;
 	    lang = qstrdup( getenv("LC_CTYPE") );
-#endif
-
-	char * p = lang ? strchr( lang, '.' ) : 0;
-	if ( !p || *p != '.' ) {
-	    // Some versions of setlocale return encoding, others not.
-	    char *ctype = qstrdup( setlocale( LC_CTYPE, 0 ) );
-	    // Some Linux distributions have broken locales which will return
-	    // "C" for LC_CTYPE
-	    if ( qstrcmp( ctype, "C" ) == 0 ) {
-		delete [] ctype;
-	    } else {
-		if ( lang )
-		    delete [] lang;
-		lang = ctype;
-		p = lang ? strchr( lang, '.' ) : 0;
-	    }
+	}
+	if ( !lang || lang[0] == 0 || qstrcmp( lang, "C" ) != 0 ) {
+	    if ( lang ) delete [] lang;
+	    lang = qstrdup( getenv("LANG") );
 	}
 
-	if( p && *p == '.' ) {
-	    // if there is an encoding and we don't know it, we return 0
-	    // User knows what they are doing.  Codecs will believe them.
+	// Now try these in order:
+	// 1. CODESET from ctype if it contains a .CODESET part (e.g. en_US.ISO8859-15)
+	// 2. CODESET from lang if it contains a .CODESET part
+	// 3. ctype (maybe the locale is named "ISO-8859-1" or something)
+	// 4. locale (ditto)
+	// 5. guess locale from ctype unless ctype is "C"
+	// 6. guess locale from lang
+
+	// 1. CODESET from ctype if it contains a .CODESET part (e.g. en_US.ISO8859-15)
+	char * codeset = ctype ? strchr( ctype, '.' ) : 0;
+	if ( codeset && *codeset == '.' )
+	    localeMapper = codecForName( codeset + 1 );
+
+	// 2. CODESET from lang if it contains a .CODESET part
+	codeset = lang ? strchr( lang, '.' ) : 0;
+	if ( !localeMapper && codeset && *codeset == '.' )
+	    localeMapper = codecForName( codeset + 1 );
+
+	// 3. ctype (maybe the locale is named "ISO-8859-1" or something)
+	if ( !localeMapper && ctype && *ctype != 0 )
+	    localeMapper = codecForName( ctype );
+
+	// 4. locale (ditto)
+	if ( !localeMapper && lang && *lang != 0 )
 	    localeMapper = codecForName( lang );
-	    if ( !localeMapper ) {
-		// Use or codec disagree.
-		localeMapper = codecForName( p+1 );
-	    }
-	}
-	if ( !localeMapper || !(p && *p == '.') ) {
-	    // if there is none, we default to 8859-1
-	    // We could perhaps default to 8859-15.
+
+	// 5. guess locale from ctype unless ctype is "C"
+	// 6. guess locale from lang
+	char * try_by_name = ctype;
+	if ( ctype && *ctype != 0 && qstrcmp (ctype, "C") != 0 )
+	    try_by_name = lang;
+
+	// Now do the quessing.
+	if ( !localeMapper && try_by_name && *try_by_name != 0 ) {
 	    if ( try_locale_list( iso8859_2locales, lang ) )
 		localeMapper = codecForName( "ISO 8859-2" );
 	    else if ( try_locale_list( iso8859_3locales, lang ) )
@@ -772,23 +795,32 @@ QTextCodec* QTextCodec::codecForLocale()
 		localeMapper = codecForName( "ISO 8859-8-I" );
 	    else if ( try_locale_list( iso8859_9locales, lang ) )
 		localeMapper = codecForName( "ISO 8859-9" );
+	    else if ( try_locale_list( iso8859_13locales, lang ) )
+		localeMapper = codecForName( "ISO 8859-13" );
 	    else if ( try_locale_list( iso8859_15locales, lang ) )
 		localeMapper = codecForName( "ISO 8859-15" );
 	    else if ( try_locale_list( tis_620locales, lang ) )
 		localeMapper = codecForName( "ISO 8859-11" );
 	    else if ( try_locale_list( koi8_ulocales, lang ) )
 		localeMapper = codecForName( "KOI8-U" );
+	    else if ( try_locale_list( cp_1251locales, lang ) )
+		localeMapper = codecForName( "CP 1251" );
+	    else if ( try_locale_list( pt_154locales, lang ) )
+		localeMapper = codecForName( "PT 154" );
 	    else if ( try_locale_list( probably_koi8_rlocales, lang ) )
 		localeMapper = ru_RU_hack( lang );
-	    else if (!lang || !(localeMapper = codecForName(lang) ))
-		localeMapper = codecForName( "ISO 8859-1" );
 	}
-	delete[] lang;
-    }
-#endif
 
+	
+    }
     if ( localeMapper && localeMapper->mibEnum() == 11 )
 	localeMapper = codecForName( "ISO 8859-8-I" );
+       
+    // If everything failed, we default to 8859-1
+    // We could perhaps default to 8859-15.
+    if ( !localeMapper )
+	localeMapper = codecForName( "ISO 8859-1" );
+#endif
     return localeMapper;
 }
 
