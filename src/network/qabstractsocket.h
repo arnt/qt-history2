@@ -57,7 +57,7 @@ public:
     virtual ~QAbstractSocket();
 
     virtual QIODevice::DeviceType deviceType() const { return castDeviceType(); }
-    static QIODevice::DeviceType castDeviceType() { return QIODevice::IOSocket; }
+    static QIODevice::DeviceType castDeviceType() { return QIODevice::IOType_QAbstractSocket; }
 
     virtual bool connectToHost(const QString &hostName, Q_UINT16 port);
     bool connectToHost(const QHostAddress &address, Q_UINT16 port);

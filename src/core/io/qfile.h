@@ -81,7 +81,7 @@ public:
     ~QFile();
 
     virtual QIODevice::DeviceType deviceType() const { return castDeviceType(); }
-    static QIODevice::DeviceType castDeviceType() { return QIODevice::IOFile; }
+    static QIODevice::DeviceType castDeviceType() { return QIODevice::IOType_QFile; }
 
     Error error() const;
     void unsetError();

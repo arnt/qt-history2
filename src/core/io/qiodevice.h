@@ -52,8 +52,8 @@ public:
     QIODevice();
     virtual ~QIODevice();
 
-    enum DeviceType { IOUnknown, IOFile, IOBuffer, IOSocket, IOUser = 30 };
-    virtual DeviceType deviceType() const { return IOUnknown; }
+    enum DeviceType { IOType_QFile, IOType_QBuffer, IOType_QAbstractSocket, IOType_Unknown = 30 };
+    virtual DeviceType deviceType() const { return IOType_Unknown; }
 
     int flags() const;
     inline int mode() const { return flags() & ModeMask; }
@@ -127,7 +127,7 @@ private:
 template <typename T>
 T qt_cast(const QIODevice *device)
 {
-    Q_ASSERT(device->deviceType() != QIODevice::IOUnknown);
+    Q_ASSERT(device->deviceType() != QIODevice::IOType_Unknown);
     if(static_cast<T>(0)->castDeviceType() == device->deviceType())
         return static_cast<T>(device);
     return 0;
@@ -136,7 +136,7 @@ T qt_cast(const QIODevice *device)
 template <typename T>
 T qt_cast(QIODevice *device)
 {
-    Q_ASSERT(device->deviceType() != QIODevice::IOUnknown);
+    Q_ASSERT(device->deviceType() != QIODevice::IOType_Unknown);
     if(static_cast<T>(0)->castDeviceType() == device->deviceType())
         return static_cast<T>(device);
     return 0;
