@@ -12,6 +12,7 @@ public:
 
 private:
     bool createDir( QString fullPath );
+    QString OLESTR2QString( LPOLESTR str );
 public:
     QString localProgramsFolderName;
     QString commonProgramsFolderName;

@@ -66,7 +66,7 @@ bool QEnvironment::recordUninstall( QString displayName, QString cmdString )
     HKEY key;
     QByteArray buffer;
 
-    if( int( qWinVersion ) & int( Qt::WV_NT_based ) ) {
+    if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	if( RegCreateKeyExW( HKEY_LOCAL_MACHINE, (WCHAR*)qt_winTchar( QString( "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" ) + displayName, true ), 0, NULL, 0, KEY_WRITE, NULL, &key, NULL ) == ERROR_SUCCESS ) {
 	    const QChar* data;
 	    int i;
@@ -111,7 +111,7 @@ bool QEnvironment::removeUninstall( QString displayName )
 {
     HKEY key;
     
-    if( int( qWinVersion ) & int( Qt::WV_NT_based ) ) {
+    if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	if( RegOpenKeyExW( HKEY_LOCAL_MACHINE, (WCHAR*)qt_winTchar( QString( "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall" ), true ), 0, KEY_WRITE, &key ) == ERROR_SUCCESS )
 	    RegDeleteKeyW( key, (WCHAR*)qt_winTchar( QString( displayName ), true ) );
 	return true;
@@ -132,7 +132,7 @@ QString QEnvironment::getRegistryString( QString keyName, QString valueName, int
     DWORD valueSize( 0 );
     QByteArray buffer, expBuffer;
 
-    if( int(qWinVersion) & int(Qt::WV_NT_based) ) {
+    if( int( qWinVersion() ) & int(Qt::WV_NT_based) ) {
 	if( RegOpenKeyExW( scopeKeys[ scope ], (WCHAR*)qt_winTchar( keyName, true ), 0, KEY_READ, &key ) == ERROR_SUCCESS ) {
 	    if( RegQueryValueExW( key, (WCHAR*)qt_winTchar( valueName, true ), NULL, NULL, NULL, &valueSize ) == ERROR_SUCCESS ) {
 		buffer.resize( valueSize );
@@ -174,7 +174,7 @@ QString QEnvironment::getTempPath()
     QByteArray tmp;
     QString tmpPath;
 
-    if( int( qWinVersion ) & int( Qt::WV_NT_based ) ) {
+    if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	tmpSize = GetTempPathW( 0, NULL );
 	tmp.resize( tmpSize * 2 );
 	GetTempPathW( tmpSize, (WCHAR*)tmp.data() );

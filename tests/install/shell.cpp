@@ -135,24 +135,23 @@ WinShell::WinShell()
     commonProgramsFolderName = QString::null;
     windowsFolderName = QString::null;
 
-    if( int( qWinVersion ) & int( Qt::WV_NT_based ) ) {
+    if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_PROGRAMS, &item ) ) ) {
-	    if( SHGetPathFromIDListW( item, (LPOLESTR)qt_winTchar( buffer, true ) ) ) {
-		localProgramsFolderName = buffer.data();
-		if( int( qWinVersion ) & int( Qt::WV_NT_based ) ) { // On NT we also have a common folder
-		    if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_COMMON_PROGRAMS, &item ) ) ) {
-			if( SHGetPathFromIDListW( item, (LPOLESTR)qt_winTchar( buffer, true ) ) )
-			    commonProgramsFolderName = buffer.data();
-			else
-			    qDebug( "Could not get name of common programs folder" );
-		    }
+	    if( SHGetPathFromIDList( item, (LPTSTR)buffer.data() ) ) {
+		localProgramsFolderName = OLESTR2QString( (LPTSTR)buffer.data() );
+		if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_COMMON_PROGRAMS, &item ) ) ) {
+		    if( SHGetPathFromIDListW( item, (LPTSTR)buffer.data() ) )
+			commonProgramsFolderName = OLESTR2QString( (LPTSTR)buffer.data() );
 		    else
-			qDebug( "Could not get common programs folder location" );
-		    if( GetWindowsDirectoryW( (LPOLESTR)buffer.data(), buffer.size() ) )
-			windowsFolderName = buffer.data();
-		    else
-			qDebug( "Could not get Windows directory" );
+			qDebug( "Could not get name of common programs folder" );
 		}
+		else
+		    qDebug( "Could not get common programs folder location" );
+
+		if( GetWindowsDirectoryW( (LPTSTR)buffer.data(), buffer.size() ) )
+		    windowsFolderName = OLESTR2QString( (LPTSTR)buffer.data() );
+		else
+		    qDebug( "Could not get Windows directory" );
 	    }
 	    else
 		qDebug( "Could not get name of programs folder" );
@@ -323,4 +322,14 @@ QPixmap* WinShell::getFileImage()
 QPixmap* WinShell::getInfoImage()
 {
     return infoImage;
+}
+
+QString WinShell::OLESTR2QString( LPOLESTR str )
+{
+    QString tmp;
+    
+    for( int i = 0; str[ i ]; i++ )
+	tmp += QChar( str[ i ] );
+
+    return tmp;
 }

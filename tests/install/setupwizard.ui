@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>509</width>
-            <height>341</height>
+            <width>505</width>
+            <height>339</height>
         </rect>
     </property>
     <property name="caption">
@@ -545,14 +545,6 @@
                     <property name="spacing">
                         <number>6</number>
                     </property>
-                    <widget class="QTextView">
-                        <property name="name">
-                            <cstring>filesDisplay</cstring>
-                        </property>
-                        <property name="wordWrap">
-                            <enum>NoWrap</enum>
-                        </property>
-                    </widget>
                     <widget class="QProgressBar">
                         <property name="name">
                             <cstring>operationProgress</cstring>
@@ -562,6 +554,14 @@
                         </property>
                         <property name="percentageVisible">
                             <bool>false</bool>
+                        </property>
+                    </widget>
+                    <widget class="QMultiLineEdit">
+                        <property name="name">
+                            <cstring>filesDisplay</cstring>
+                        </property>
+                        <property name="readOnly">
+                            <bool>true</bool>
                         </property>
                     </widget>
                 </vbox>

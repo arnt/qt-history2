@@ -20,6 +20,8 @@
 
 #define BUFFERSIZE 64 * 1024
 
+//#define USE_ARCHIVES 1
+
 SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool modal, WFlags f ) :
     SetupWizard( pParent, pName, modal, f ),
     filesCopied( false ),
@@ -36,8 +38,9 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     setNextEnabled( buildPage, false );
     setFinishEnabled( finishPage, true );
     setBackEnabled( finishPage, false );
-
+#if defined (USE_ARCHIVES)
     readArchive( "sys.arq", tmpPath );
+#endif
 }
 
 void SetupWizardImpl::clickedPath()
@@ -241,6 +244,7 @@ void SetupWizardImpl::integratorDone()
     shell.createShortcut( dirName, common, "Designer", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\designer.exe", "GUI designer" );
     shell.createShortcut( dirName, common, "Reconfigure Qt", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configurator.exe", "Reconfigure the Qt library" );
     shell.createShortcut( dirName, common, "License agreement", "notepad.exe", "Review the license agreement", QString( "\"" ) + QEnvironment::getEnv( "QTDIR" ) + "\\LICENSE\"" );
+    shell.createShortcut( dirName, common, "On-line documentation", QEnvironment::getEnv( "QTDIR" ) + "\\doc\\index.html", "Browse the On-line documentation" );
     if( installTutorials->isChecked() ) {
 	tutorialsName = shell.createFolder( folderPath->text() + "\\Tutorials", common );
 	installIcons( tutorialsName, QEnvironment::getEnv( "QTDIR" ) + "\\tutorial", common );
@@ -381,10 +385,10 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	devSysPathButton->setEnabled( sysID == 0 );
 	if( sysID == 0 )
 	    devSysPath->setText( QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine ) );
-	if( int( qWinVersion ) & int( Qt::WV_NT_based ) )   // On NT we also have a common folder
+	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) )   // On NT we also have a common folder
 	    folderGroups->setEnabled( true );
 	else
-	    folderGroups->setEnabled( false );
+	    folderGroups->setDisabled( true );
     }
     else if( newPage == progressPage ) {
 	int totalSize( 0 );
@@ -392,6 +396,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	totalRead = 0;
 
 	if( !filesCopied ) {
+#if defined (USE_ARCHIVES)
 	    fi.setFile( "qt.arq" );
 	    if( fi.exists() )
 		totalSize = fi.size();
@@ -435,6 +440,9 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 		readArchive( "examples.arq", installPath->text() );
 	    if( installTutorials->isChecked() )
 		readArchive( "tutorial.arq", installPath->text() );
+#else
+//	    copyFiles( QDir::currentDirPath(), installPath->text(), true );
+#endif
 	    filesCopied = true;
 	    logFiles( "All files have been copied,\nThis log has been saved to the installation directory.\n", true );
 	}
@@ -608,6 +616,7 @@ bool SetupWizardImpl::createDir( QString fullPath )
     return success;
 }
 
+#if defined (USE_ARCHIVES)
 void SetupWizardImpl::readArchive( QString arcname, QString installPath )
 {
     QDataStream inStream, outStream;
@@ -719,6 +728,7 @@ void SetupWizardImpl::readArchive( QString arcname, QString installPath )
 	inFile.close();
     }
 }
+#endif
 
 void SetupWizardImpl::logFiles( QString entry, bool close )
 {
@@ -730,6 +740,7 @@ void SetupWizardImpl::logFiles( QString entry, bool close )
     QTextStream outstream( &fileLog );
 
     filesDisplay->append( entry );
+//    filesDisplay->setText( filesDisplay->text() + entry );
     outstream << entry;
 
     if( close )
@@ -752,3 +763,65 @@ void SetupWizardImpl::logOutput( QString entry, bool close )
     if( close )
 	outputLog.close();
 }
+
+#if !defined( USE_ARCHIVES )
+void SetupWizardImpl::copyFiles( QString sourcePath, QString destPath, bool topLevel )
+{
+    QDir dir( sourcePath );
+    const QFileInfoList* list = dir.entryInfoList();
+    QFileInfoListIterator it( *list );
+    QFileInfo* fi;
+
+    while( ( fi = it.current() ) ) {
+	if( fi->fileName()[ 0 ] != '.' ) {
+	    QString entryName = sourcePath + QDir::separator() + fi->fileName();
+	    QString targetName = destPath + QDir::separator() + fi->fileName();
+	    if( app ) {
+		app->processEvents();
+//		operationProgress->setProgress( totalRead );
+		logFiles( targetName + "\n" );
+	    }
+	    if( fi->isDir() ) {
+		if( !dir.exists( targetName ) )
+		    createDir( targetName );
+		if( topLevel ) {
+		    if( fi->fileName() == "doc" )
+			if( installDocs->isChecked() )
+			    copyFiles( entryName, targetName );
+			else
+			    continue;
+		    else if( fi->fileName() == "tutorial" )
+			if ( installTutorials->isChecked() )
+			    copyFiles( entryName, targetName );
+			else
+			    continue;
+		    else if( fi->fileName() == "examples" )
+			if( installExamples->isChecked() )
+			    copyFiles( entryName, targetName );
+			else
+			    continue;
+		}
+		copyFiles( entryName, targetName );
+	    }
+	    else {
+		QByteArray buffer( fi->size() );
+		QFile inFile( entryName );
+		QFile outFile( targetName );
+
+		if( inFile.open( IO_ReadOnly ) ) {
+		    if( outFile.open( IO_WriteOnly ) ) {
+			if( buffer.size() ) {
+			    inFile.readBlock( buffer.data(), buffer.size() );
+			    outFile.writeBlock( buffer.data(), buffer.size() );
+			}
+			outFile.close();
+		    }
+		    inFile.close();
+		}
+	    }
+	}
+	++it;
+    }
+}
+#endif
+
