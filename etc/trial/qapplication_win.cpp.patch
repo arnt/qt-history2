@@ -1,32 +1,28 @@
-Index: qapp_win.cpp
-===================================================================
-RCS file: /local/lib/cvs/qt/src/kernel/qapp_win.cpp,v
-retrieving revision 2.26
-diff -u -r2.26 qapp_win.cpp
---- qapp_win.cpp	1997/03/18 09:54:42	2.26
-+++ qapp_win.cpp	1997/04/30 12:55:39
-@@ -103,6 +103,11 @@
+--- orig\qapp_win.cpp	Mon Oct 13 21:20:31 1997
++++ qapp_win.cpp	Mon Oct 13 21:54:27 1997
+@@ -115,6 +115,11 @@
  typedef Q_DECLARE(QArrayM,pchar) ArgV;
  
  
 +#if defined(QT_TRIAL)
-+#include "qapp_trial.cpp"
++#include "../../etc/trial/qapp_trial.cpp"
 +#endif // QT_TRIAL
 +
 +
  /*****************************************************************************
    WinMain() - initializes Windows and calls user's startup function main()
   *****************************************************************************/
-@@ -811,12 +816,33 @@
-     if ( winEventFilter(&msg) )			// pass through event filter
- 	return TRUE;				//   the event was eaten up
+@@ -889,12 +894,34 @@
+ 	}
+     }
  
 +#if defined(QT_TRIAL)
 +    static int random_ofs = 0;
 +    msg.message += (random_ofs & 0xffff);
 +#endif
++
      if ( msg.message == WM_TIMER ) {		// timer message received
- 	activateTimer( msg.wParam );
+ 	do_timers( msg.wParam, &msg );
 +#if defined(QT_TRIAL)
 +	if ( msg.wParam == (WPARAM)trial_timer ) {
 +	    static bool first_time = TRUE;
@@ -44,21 +40,22 @@ diff -u -r2.26 qapp_win.cpp
  	return TRUE;
      }
  
-     if ( msg.message == WM_KEYDOWN || msg.message == WM_KEYUP ) {
+-
 +#if defined(QT_TRIAL)
++    if ( msg.message == WM_KEYDOWN || msg.message == WM_KEYUP )
 +	msg.wParam += trial_messup_1 * 7;
 +#endif
- 	if ( translateKeyCode(msg.wParam) == 0 ) {
- 	    TranslateMessage( &msg );		// translate to WM_CHAR
- 	    return TRUE;
-@@ -977,6 +1003,10 @@
+     TranslateMessage( &msg );			// translate to WM_CHAR
+     DispatchMessage( &msg );			// send to WndProc
+     if ( configRequests )			// any pending configs?
+@@ -1054,6 +1081,10 @@
+ 	    RECT     rect;
  	    HBRUSH   brush;
  	    HPALETTE oldPal;
- 	    GetClientRect( hwnd, &rect );
 +#if defined(QT_TRIAL)
 +	    if ( !trial_messup_2 )
 +		break;
 +#endif
+ 	    GetClientRect( hwnd, &rect );
  	    if ( QColor::hPal() ) {
  		oldPal = SelectPalette( hdc, QColor::hPal(), FALSE );
- 		RealizePalette( hdc );
