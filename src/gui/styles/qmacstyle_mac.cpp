@@ -48,31 +48,26 @@
 #include <qtoolbar.h>
 #include <qtreeview.h>
 
-class QMacStyleQDPainter : public QPainter
+static inline bool isQDPainter(const QPainter *p)
 {
-public:
-    QMacStyleQDPainter(QPaintDevice *p) : QPainter(p) { }
-    QPoint domap(int x, int y) { map(x, y, &x, &y); return QPoint(x, y); }
-    inline void setport();
-    bool isQDPainter() const { 
-        QPaintEngine *engine = d_ptr->engine;
-        if(engine->type() == QPaintEngine::MacPrinter)
-            engine = static_cast<QMacPrintEngine*>(engine)->paintEngine();
-        return engine && engine->type() == QPaintEngine::QuickDraw;
-    }
-};
-void QMacStyleQDPainter::setport()
+    QPaintEngine *engine = p->device()->paintEngine();
+    if(engine->type() == QPaintEngine::MacPrinter)
+        engine = static_cast<QMacPrintEngine*>(engine)->paintEngine();
+    return engine && engine->type() == QPaintEngine::QuickDraw;
+}
+
+void qt_mac_set_port(const QPainter *p)
 {
-    QPaintEngine *engine = d_ptr->engine;
+    QPaintEngine *engine = p->d_ptr->engine;
     if(engine->type() == QPaintEngine::MacPrinter)
         engine = static_cast<QMacPrintEngine*>(engine)->paintEngine();
 
-    QQuickDrawPaintEngine *mpe = NULL;
+    QQuickDrawPaintEngine *mpe = 0;
     if (engine && (engine->type() == QPaintEngine::QuickDraw
                    || engine->type() == QPaintEngine::CoreGraphics))
         mpe = static_cast<QQuickDrawPaintEngine *>(engine);
     if (mpe) {
-        mpe->updateState(d_ptr->state);
+        mpe->updateState(p->d_ptr->state);
         if(mpe->type() == QPaintEngine::QuickDraw) {
             mpe->setupQDPort(true);
         } else {
@@ -82,6 +77,12 @@ void QMacStyleQDPainter::setport()
         }
     }
     NormalizeThemeDrawingState();
+}
+
+static inline QPoint domap(const QPainter *p, int x, int y)
+{
+    p->map(x, y, &x, &y);
+    return QPoint(x, y);
 }
 
 // Utility to generate correct rectangles for AppManager internals
@@ -115,7 +116,7 @@ static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPainter *p,
                                           bool off=true, const QRect &rect=QRect())
 {
     QPoint pt = qr.topLeft();
-    QRect r(((QMacStyleQDPainter*)p)->domap(pt.x(), pt.y()), qr.size());
+    QRect r(domap(p, pt.x(), pt.y()), qr.size());
     return qt_glb_mac_rect(r, p->device(), off, rect);
 }
 
@@ -274,8 +275,8 @@ void QAquaFocusWidget::paintEvent(QPaintEvent *)
 void QAquaFocusWidget::drawFocusRect(QPainter *p) const
 {
     int fo = focusOutset();
-    if(reinterpret_cast<QMacStyleQDPainter*>(p)->isQDPainter()) {
-        reinterpret_cast<QMacStyleQDPainter*>(p)->setport();
+    if (isQDPainter(p)) {
+        qt_mac_set_port(p);
         QRect r(fo, fo,  width() - (fo*2), height() - (fo*2));
         DrawThemeFocusRect(qt_glb_mac_rect(r, p, TRUE, QRect(1, 1, 1, 1)), true);
     } else {
@@ -2426,7 +2427,6 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                         p->fillRect(tb->rect, tb->palette.color(tb->bgRole));
                         bdi.state = kThemeStateInactive;
                     }
-                    reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
                     myRect = qt_hirectForQRect(button, p, false, off_rct);
                     HIThemeDrawButton(&myRect, &bdi, cg, kHIThemeOrientationNormal, 0);
                 }
@@ -2892,7 +2892,7 @@ void QMacStylePrivate::AppManPolish(QWidget *w)
         QColor pc(Qt::black);
         {
             QPainter p(&px);
-            reinterpret_cast<QMacStyleQDPainter*>(&p)->setport();
+            qt_mac_set_port(&p);
             Rect r; SetRect(&r, 0, 0, px.width(), px.height());
             ApplyThemeBackground(kThemeBackgroundSecondaryGroupBox, &r,
                                  kThemeStateActive, px.depth(), true);
@@ -2967,7 +2967,7 @@ void QMacStylePrivate::AppManPolish(QApplication *app)
     QColor pc(Qt::black);
     {
         QPainter p(&px);
-        reinterpret_cast<QMacStyleQDPainter *>(&p)->setport();
+        qt_mac_set_port(&p);
         SetThemeBackground(kThemeBrushDialogBackgroundActive, px.depth(), true);
         EraseRect(qt_glb_mac_rect(QRect(0, 0, px.width(), px.height()),
                   static_cast<QPaintDevice *>(0), false));
@@ -3038,7 +3038,7 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
                 p->fillRect(btn->rect, Qt::color1);
                 p->restore();
             } else {
-                reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+                qt_mac_set_port(p);
                 DrawThemeButton(qt_glb_mac_rect(btn->rect, p, false), bkind, &info, 0, 0, 0, 0);
             }
         }
@@ -3054,7 +3054,7 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
             currentInfo.state |= kThemeStatePressed;
         currentInfo.value = opt->state & QStyle::Style_Open ? kThemeDisclosureDown : kThemeDisclosureRight;
         currentInfo.adornment = kThemeAdornmentNone;
-        reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+        qt_mac_set_port(p);
         DrawThemeButton(qt_glb_mac_rect(opt->rect, p), kThemeDisclosureButton, &currentInfo,
                         0, 0, 0, 0);
         break;
@@ -3067,7 +3067,7 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
     case QStyle::PE_SizeGrip: {
         const Rect *rect = qt_glb_mac_rect(opt->rect, p);
         Point orig = { rect->top, rect->left };
-        reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+        qt_mac_set_port(p);
         ThemeGrowDirection dir = kThemeGrowRight | kThemeGrowDown;
 #if 0
         if(QApplication::reverseLayout())
@@ -3137,11 +3137,11 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
 		QPainter pixPainter(&headerPix);
 		Rect pixRect = *qt_glb_mac_rect(QRect(0, 0, ir.width(), headerHeight),
 						&pixPainter, false);
-		reinterpret_cast<QMacStyleQDPainter *>(&pixPainter)->setport();
+                qt_mac_set_port(&pixPainter);
 		DrawThemeButton(&pixRect, bkind, &info, 0, 0, 0, 0);
 		p->drawPixmap(ir, headerPix);
 	    } else {
-		reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+                qt_mac_set_port(p);
 		DrawThemeButton(qt_glb_mac_rect(ir, p, false), bkind, &info, 0, 0, 0, 0);
 	    }
         }
@@ -3172,7 +3172,7 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
                 const Rect *rect = qt_glb_mac_rect(frame->rect, p, false,
                                                    QRect(frame_size, frame_size, frame_size * 2,
                                                          frame_size * 2));
-                reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+                qt_mac_set_port(p);
                 if (pe == QStyle::PE_PanelLineEdit)
                     DrawThemeEditTextFrame(rect, tds);
                 else
@@ -3184,7 +3184,7 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
         break;
     case QStyle::PE_PanelGroupBox:
         if (const QStyleOptionFrame *frame = qt_cast<const QStyleOptionFrame *>(opt)) {
-            reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+            qt_mac_set_port(p);
 #ifdef QMAC_DO_SECONDARY_GROUPBOXES
             if (w && qt_cast<QGroupBox *>(w->parentWidget()))
                 DrawThemeSecondaryGroup(qt_glb_mac_rect(frame->rect, p), kThemeStateActive);
@@ -3218,11 +3218,11 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
             size = kThemeArrow5pt;
         else
             size = kThemeArrow9pt;
-        reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+        qt_mac_set_port(p);
         DrawThemePopupArrow(qt_glb_mac_rect(opt->rect, p), orientation, size, tds, 0, 0);
         break; }
     case QStyle::PE_TabBarBase:
-        reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+        qt_mac_set_port(p);
         DrawThemeTabPane(qt_glb_mac_rect(opt->rect, p), tds);
         break;
     default:
@@ -3284,7 +3284,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                                 (myRect.left - macRect.left) + (macRect.right - myRect.right),
                                 (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
             }
-            reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+            qt_mac_set_port(p);
             DrawThemeButton(qt_glb_mac_rect(opt->rect, p, false, off_rct), bkind, &info, 0, 0, 0, 0);
             if (!buffer.isNull() && bkind == kThemePushButton) {
                 if (do_draw && frame) {
@@ -3357,7 +3357,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 tmit |= kThemeMenuItemHierarchical;
             if (!mi->icon.isNull())
                 tmit |= kThemeMenuItemHasIcon;
-            reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+            qt_mac_set_port(p);
             if (mi->menuItemType != QStyleOptionMenuItem::Separator) {
                 DrawThemeMenuItem(&mrect, &irect, mrect.top, mrect.bottom, tms, tmit, 0, 0);
             } else {
@@ -3465,7 +3465,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 else
                     tmit = kThemeMenuItemScrollUpArrow;
             }
-            reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+            qt_mac_set_port(p);
             DrawThemeMenuItem(&mrect, &irect, mrect.top, mrect.bottom, tms, tmit, 0, 0);
             if (ce == QStyle::CE_MenuTearoff) {
                 p->setPen(QPen(mi->palette.dark(), 1, Qt::DashLine));
@@ -3487,14 +3487,14 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 tms = kThemeMenuDisabled;
             if (mi->state & QStyle::Style_Down)
                 tms = kThemeMenuSelected;
-            reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+            qt_mac_set_port(p);
             DrawThemeMenuTitle(&mrect, &irect, tms, 0, 0, 0);
             q->QWindowsStyle::drawControl(ce, mi, p, widget);
         }
         break;
     case QStyle::CE_MenuBarEmptyArea:
         if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
-            reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+            qt_mac_set_port(p);
             DrawThemeMenuBarBackground(qt_glb_mac_rect(mi->rect, p, false), kThemeMenuBarNormal,
                                        kThemeMenuSquareMenuBar);
         }
@@ -3534,7 +3534,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 tdi.enableState = kThemeTrackDisabled;
             else
                 tdi.enableState = kThemeTrackActive;
-            reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+            qt_mac_set_port(p);
             DrawThemeTrack(&tdi, 0, 0, 0);
         }
         break;
@@ -3597,7 +3597,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                        tab->rect.height() + q->pixelMetric(QStyle::PM_TabBarBaseOverlap, widget));
             if (ttd == kThemeTabSouth)
                 tabr.moveBy(0, -q->pixelMetric(QStyle::PM_TabBarBaseOverlap, widget));
-            reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+            qt_mac_set_port(p);
             DrawThemeTab(qt_glb_mac_rect(tabr, p, false), tts, ttd, 0, 0);
             if (!(tab->state & QStyle::Style_Selected)) {
                 //The "fudge" is just so the left and right side doesn't
@@ -3610,7 +3610,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                     pr.moveBy(0, -(tab->rect.height() + 2));
                 p->save();
                 p->setClipRect(QRect(pr.x() + fudge, pr.y(), pr.width() - (fudge * 2), pr.height()));
-                reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+                qt_mac_set_port(p);
                 ThemeDrawState tabpane_tds = kThemeStateActive;
                 if (qAquaActive(tab->palette)) {
                     if (!(tab->state & QStyle::Style_Enabled))
@@ -3736,7 +3736,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
                 tdi.value = slider->sliderValue;
             }
 
-            reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+            qt_mac_set_port(p);
             DrawThemeTrack(&tdi, tracking ? 0 : r, 0, 0);
             if (!tracking)
                 qt_mac_dispose_rgn(r);
@@ -3770,7 +3770,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
                 int y = lv->rect.y(),
                 h = lv->rect.height(),
                 x = lv->rect.right() - 10;
-                reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+                qt_mac_set_port(p);
                 ::RGBColor f;
                 f.red = lv->viewportPalette.color(lv->viewportBGRole).red() * 256;
                 f.green = lv->viewportPalette.color(lv->viewportBGRole).green() * 256;
@@ -3832,7 +3832,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
                     else
                         p->fillRect(updown, sb->palette.color(bgRole));
                 }
-                reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+                qt_mac_set_port(p);
                 ThemeButtonKind kind = kThemeIncDecButton;
                 switch (qt_aqua_size_constrain(widget)) {
                 case QAquaSizeMini:
@@ -3913,7 +3913,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
                         p->fillRect(tb->rect, tb->palette.color(tb->bgRole));
                         info.state = kThemeStateInactive;
                     }
-                    reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+                    qt_mac_set_port(p);
                     DrawThemeButton(qt_glb_mac_rect(button, p, false, off_rct),
                                     bkind, &info, 0, 0, 0, 0);
                 }
@@ -3925,7 +3925,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
                     info.adornment |= kThemeAdornmentFocus;
                 if (tb->state & (QStyle::Style_On | QStyle::Style_Down) || (tb->activeParts & QStyle::SC_ToolButtonMenu))
                     info.value |= kThemeStatePressed;
-                reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+                qt_mac_set_port(p);
                 DrawThemeButton(qt_glb_mac_rect(menuarea, p, false), bkind, &info, 0, 0, 0, 0);
                 QRect r(menuarea.x() + ((menuarea.width() / 2) - 4), menuarea.height() - 8, 8, 8);
                 DrawThemePopupArrow(qt_glb_mac_rect(r, p), kThemeArrowDown, kThemeArrow7pt, tds,
@@ -3944,8 +3944,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
             if (cmb->editable) {
                 info.adornment |= kThemeAdornmentArrowDownArrow;
                 QRect buttonR = q->querySubControlMetrics(QStyle::CC_ComboBox, cmb, QStyle::SC_ComboBoxArrow, widget);
-                reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
-
+                qt_mac_set_port(p);
                 ThemeButtonKind bkind = kThemeArrowButton;
                 switch (qt_aqua_size_constrain(widget)) {
                     case QAquaSizeMini:
@@ -3971,7 +3970,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
                                 bkind, &info, 0, 0, 0, 0);
             } else {
                 info.adornment |= kThemeAdornmentArrowLeftArrow;
-                reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+                qt_mac_set_port(p);
                 DrawThemeButton(qt_glb_mac_rect(cmb->rect, p, true, QRect(1, 0, 0, 0)),
                                 kThemePopupButton, &info, 0, 0, 0, 0);
             }
@@ -4028,7 +4027,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
                     QPixmap pix(newr.width(), newr.height(), 32);
                     QPainter pixp(&pix);
 
-                    reinterpret_cast<QMacStyleQDPainter *>(&pixp)->setport();
+                    qt_mac_set_port(&pixp);
                     DrawThemeWindowFrame(QtWinType, qt_glb_mac_rect(newr, &pixp, false), tds,
                                          &twm, twa, NULL, 0);
 
@@ -4055,7 +4054,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
                     QPixmapCache::insert(pmkey, pix);
                 }
             } else {
-                reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+                qt_mac_set_port(p);
                 DrawThemeWindowFrame(QtWinType, qt_glb_mac_rect(newr, p, false), tds,
                                      &twm, twa, NULL, 0);
             }
@@ -4077,7 +4076,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
             tm.metricSize = sizeof(tm);
             const Rect *wm_rect = qt_glb_mac_rect(newr, p, false);
             bool active = qAquaActive(tbar->palette);
-            reinterpret_cast<QMacStyleQDPainter *>(p)->setport();
+            qt_mac_set_port(p);
             for (int i = 0; types[i].qt_type; ++i) {
                 ThemeDrawState ctrl_tds = wtds;
                 if (active && (tbar->activeParts & types[i].qt_type))

@@ -65,7 +65,7 @@ protected:
     void setupQDPen();
     void setupQDPort(bool force=false, QPoint *off=NULL, QRegion *rgn=NULL);
 
-    friend class QMacStyleQDPainter;
+    friend void qt_mac_set_port(const QPainter *p);
     friend class QFontEngineMac;
 
 private:
