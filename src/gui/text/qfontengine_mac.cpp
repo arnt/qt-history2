@@ -649,12 +649,13 @@ void QFontEngineMac::addOutlineToPath(float x, float y, const QGlyphLayout *glyp
     values[arr] = &layopts;
     arr++;
 
+    QMacCGContext q_ctx;
     if(QSysInfo::MacintoshVersion <= QSysInfo::MV_10_2) {
         tags[arr] = kATSUCGContextTag;
         static QPixmap *pixmap = 0;
         if(!pixmap)
             pixmap = new QPixmap(1, 1, 32);
-        QMacCGContext q_ctx = QMacCGContext(pixmap);
+        q_ctx = QMacCGContext(pixmap);
         CGContextRef ctx = static_cast<CGContextRef>(q_ctx);
         valueSizes[arr] = sizeof(ctx);
         values[arr] = &ctx;
