@@ -332,5 +332,8 @@ public:
 
 QAXFACTORY_EXPORT( ActiveQtFactory, "{b934af55-89ec-4b65-8a7d-80a4892fc86a}", "{83cc66df-c867-4c23-b641-9e06d02f3b33}" )
 
-void main()
-{}
+int main( int argc, char **argv )
+{
+    QApplication app( argc, argv );
+    return app.exec();
+}
