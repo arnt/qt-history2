@@ -886,6 +886,7 @@ bool QAbstractItemViewPrivate::createEditor(const QModelIndex &item,
     QItemOptions options;
     q->getViewOptions(&options);
     options.itemRect = q->itemViewportRect(item);
+    options.focus = item == q->currentItem();
     QWidget *editor = delegate->createEditor(action, q->viewport(), options, item);
     if (!editor)
         return false;
