@@ -795,6 +795,7 @@ HRESULT WINAPI QAxHostWindow::OnPosRectChange( LPCRECT /*lprcPosRect*/ )
 //**** IOleInPlaceFrame
 HRESULT WINAPI QAxHostWindow::InsertMenus( HMENU /*hmenuShared*/, LPOLEMENUGROUPWIDTHS lpMenuWidths )
 {
+    /* ###
     QMenuBar *mb = menuBar;
     if (!mb)
 	mb = qFindChild<QMenuBar*>(widget->topLevelWidget());
@@ -810,22 +811,16 @@ HRESULT WINAPI QAxHostWindow::InsertMenus( HMENU /*hmenuShared*/, LPOLEMENUGROUP
 	QString menuText = mb->text( id );
 	if ( menuText == "&File" ) {
 	    QMenuItem *item = mb->findItem( id );
-            /* ###
 	    if ( item )
 		fileMenu = item->popup();
-            */
 	} else if ( menuText == "&View" ) {
 	    QMenuItem *item = mb->findItem( id );
-            /* ###
 	    if ( item )
 		viewMenu = item->popup();
-            */
 	} else if ( menuText == "&Window" ) {
 	    QMenuItem *item = mb->findItem( id );
-            /* ###
 	    if ( item )
 		windowMenu = item->popup();
-            */
 	}
     }
     if ( fileMenu )
@@ -834,6 +829,8 @@ HRESULT WINAPI QAxHostWindow::InsertMenus( HMENU /*hmenuShared*/, LPOLEMENUGROUP
 	lpMenuWidths->width[2] = viewMenu->count();
     if ( windowMenu )
 	lpMenuWidths->width[4] = windowMenu->count();
+
+    */
 
     return S_OK;
 }
@@ -876,6 +873,7 @@ static int menuItemEntry( HMENU menu, int index, MENUITEMINFOA item, QString &te
 QPopupMenu *QAxHostWindow::generatePopup( HMENU subMenu, QWidget *parent )
 {
     QPopupMenu *popup = 0;
+    /* ###
     int count = GetMenuItemCount( subMenu );
     if ( count )
 	popup = new QPopupMenu( parent );
@@ -928,12 +926,13 @@ QPopupMenu *QAxHostWindow::generatePopup( HMENU subMenu, QWidget *parent )
 	    menuItemMap.insert( qtid, oleItem );
 	}
     }
-
+*/
     return popup;
 }
 
 HRESULT WINAPI QAxHostWindow::SetMenu( HMENU hmenuShared, HOLEMENU /*holemenu*/, HWND hwndActiveObject )
 {
+    /* ###
     if ( hmenuShared ) {
 	m_menuOwner = hwndActiveObject;
 	QMenuBar *mb = menuBar;
@@ -997,16 +996,15 @@ HRESULT WINAPI QAxHostWindow::SetMenu( HMENU hmenuShared, HOLEMENU /*holemenu*/,
 	    int qtid = it.key();
 	    QMenuItem *qtitem = menuBar->findItem( qtid );
 	    if ( qtitem ) {
-            /* ### QPopupMenu *popupMenu = qtitem->popup(); */
+            QPopupMenu *popupMenu = qtitem->popup();
 		menuBar->removeItem( qtid );
-            /* ###
 		if ( popupMenu )
 		    delete popupMenu;
-*/
 	    }
 	}
 	menuItemMap.clear();
     }
+    */
     return S_OK;
 }
 
