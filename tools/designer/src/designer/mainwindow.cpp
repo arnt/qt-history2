@@ -74,7 +74,11 @@ MainWindow::MainWindow()
       m_newFormDialog(0), m_preferenceDialog(0), m_actionWindowList(0), m_actionWindowSeparator(0),
       assistant(0)
 {
+#ifdef Q_WS_WIN32
     invisibleParent = new QWidget(0, Qt::WStyle_Tool);
+#else
+    invisibleParent = this;
+#endif
     setWindowTitle(tr("Qt Designer"));
     setupFormEditor();
     setupWidgetBox();
@@ -111,7 +115,9 @@ MainWindow::~MainWindow()
     delete core->widgetBox();
     core->setWidgetBox(0);
 
+#ifdef Q_WS_WIN32
     delete invisibleParent;
+#endif
 }
 
 void MainWindow::setupFormEditor()
@@ -367,7 +373,7 @@ void MainWindow::setupMenuBar()
     m_formActionList.append(m_formWindowManager->actionGridLayout());
     m_formActionList.append(m_formWindowManager->actionBreakLayout());
     m_formActionList.append(m_formWindowManager->actionAdjustSize());
-    
+
     menu->addAction(m_formWindowManager->actionHorizontalLayout());
     menu->addAction(m_formWindowManager->actionVerticalLayout());
     menu->addAction(m_formWindowManager->actionSplitHorizontal());
@@ -475,7 +481,7 @@ void MainWindow::setupToolBar()
     formToolbar->addAction(m_formWindowManager->actionGridLayout());
     formToolbar->addAction(m_formWindowManager->actionBreakLayout());
     formToolbar->addAction(m_formWindowManager->actionAdjustSize());
-    
+
     m_editModeSelector = new QComboBox(formToolbar);
     formToolbar->addWidget(m_editModeSelector);
     QList<QAction*> editModeActions = m_editModeGrp->actions();
@@ -501,7 +507,7 @@ void MainWindow::editMode(QAction *action)
         else
             Q_ASSERT(0);
     }
-    
+
     QList<QAction*> editModeActions = m_editModeGrp->actions();
     for (int i = 0; i < editModeActions.size(); ++i) {
         if (editModeActions.at(i) == action) {
@@ -1079,9 +1085,9 @@ void MainWindow::showTheNewStuff()
 
 void MainWindow::showHelp(const QString &url)
 {
-    if (!assistant) 
+    if (!assistant)
         assistant = new QAssistantClient(qInstallPathBins(), this);
-    assistant->showPage(QString(qInstallPathDocs()) + "/html/" + url);    
+    assistant->showPage(QString(qInstallPathDocs()) + "/html/" + url);
 }
 
 void MainWindow::aboutDesigner()
