@@ -9,7 +9,6 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
 #include "textedit.h"
 
 #include <qtextedit.h>
@@ -30,7 +29,7 @@
 #include <qsimplerichtext.h>
 #include <qcolordialog.h>
 #include <qpainter.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 
 TextEdit::TextEdit( QWidget *parent, const char *name )
     : QMainWindow( parent, name )
@@ -146,8 +145,8 @@ void TextEdit::setupTextActions()
     comboFont->lineEdit()->setText( QApplication::font().family() );
 
     comboSize = new QComboBox( TRUE, tb );
-    QValueList<int> sizes = db.standardSizes();
-    QValueList<int>::Iterator it = sizes.begin();
+    QList<int> sizes = db.standardSizes();
+    QList<int>::Iterator it = sizes.begin();
     for ( ; it != sizes.end(); ++it )
 	comboSize->insertItem( QString::number( *it ) );
     connect( comboSize, SIGNAL( activated( const QString & ) ),
@@ -307,7 +306,7 @@ void TextEdit::filePrint()
   	QRect view( body );
 	int page = 1;
 	do {
-	    richText.draw( &p, body.left(), body.top(), view, colorGroup() );
+	    richText.draw( &p, body.left(), body.top(), view, palette() );
 	    view.moveBy( 0, body.height() );
 	    p.translate( 0 , -body.height() );
 	    p.setFont( font );

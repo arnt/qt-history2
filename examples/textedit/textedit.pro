@@ -2,6 +2,7 @@ TEMPLATE	= app
 TARGET		= textedit
 
 CONFIG		+= qt warn_on release
+QCONFIG = compat
 
 QTDIR_build:REQUIRES	= full-config nocrosscompiler
 
