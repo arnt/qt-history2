@@ -3373,7 +3373,7 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 		else
 		    r.setHeight( d->currentItem->y() - item->y() + d->currentItem->height() );
 		r = r.normalize();
-		QIconViewPrivate::ItemContainer *c = 
+		QIconViewPrivate::ItemContainer *c =
 		    (QIconViewPrivate::ItemContainer*)firstItemContainer( r.topLeft() );
 		bool alreadyIntersected = FALSE;
 		QRect redraw;
@@ -4917,22 +4917,22 @@ void *QIconView::firstItemContainer( const QPoint &pos ) const
 	( (QIconView*)this )->rebuildContainers();
 	c = d->firstContainer;
     }
-    
+
     int p = -1;
     if ( d->alignMode == East ) {
-	p = pos.x() / RECT_EXTENSION;
-    } else {
 	p = pos.y() / RECT_EXTENSION;
+    } else {
+	p = pos.x() / RECT_EXTENSION;
     }
-    
+
     if ( p == -1 ) {
 	qWarning( "(%d/%d) not in any rect!", pos.x(), pos.y() );
 	return 0;
     }
-    
+
     while ( p-- > 0 && c )
 	c = c->n;
-    
+
     return c;
 }
 
