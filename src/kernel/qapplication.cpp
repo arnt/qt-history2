@@ -1357,13 +1357,13 @@ QStringList QApplication::libraryPaths()
 
   \sa libraryPaths(), addLibraryPath(), removeLibraryPath(), QLibrary
  */
-void QApplication::setLibraryPaths(const QStringList &paths)
+void QApplication::setLibraryPaths( const QStringList &paths )
 {
     if ( paths.isEmpty() )
 	return;
 
     delete app_libpaths;
-    app_libpaths = new QStringList(paths);
+    app_libpaths = new QStringList( paths );
 }
 
 /*!
@@ -1374,7 +1374,7 @@ void QApplication::setLibraryPaths(const QStringList &paths)
 
   \sa removeLibraryPath(), libraryPaths(), setLibraryPaths()
  */
-void QApplication::addLibraryPath(const QString &path)
+void QApplication::addLibraryPath( const QString &path )
 {
     if ( path.isEmpty() )
 	return;
@@ -1382,8 +1382,8 @@ void QApplication::addLibraryPath(const QString &path)
     // make sure that library paths is initialized
     libraryPaths();
 
-    if ( !app_libpaths->contains(path) )
-	app_libpaths->prepend(path);
+    if ( !app_libpaths->contains( path ) )
+	app_libpaths->prepend( path );
 }
 
 /*!
@@ -1392,7 +1392,7 @@ void QApplication::addLibraryPath(const QString &path)
 
   \sa addLibraryPath(), libraryPaths(), setLibraryPaths()
 */
-void QApplication::removeLibraryPath(const QString &path)
+void QApplication::removeLibraryPath( const QString &path )
 {
     if ( path.isEmpty() )
 	return;
@@ -1400,8 +1400,8 @@ void QApplication::removeLibraryPath(const QString &path)
     // make sure that library paths is initialized
     libraryPaths();
 
-    if (! app_libpaths->contains(path))
-	app_libpaths->remove(path);
+    if ( app_libpaths->contains( path ) )
+	app_libpaths->remove( path );
 }
 #endif //QT_NO_COMPONENT
 
