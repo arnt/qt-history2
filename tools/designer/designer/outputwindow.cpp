@@ -1,5 +1,6 @@
 #include "outputwindow.h"
 #include "designerappiface.h"
+#include "metadatabase.h"
 
 #include <qlistview.h>
 #include <qtextedit.h>
@@ -32,7 +33,10 @@ void OutputWindow::setupError()
 {
     errorView = new QListView( this, "OutputWindow::errorView" );
 
-    addTab( errorView, tr( "Error Messages" ) );
+    if ( MetaDataBase::languages().count() > 1 )
+	addTab( errorView, tr( "Error Messages" ) );
+    else
+	errorView->hide();
     errorView->addColumn( tr( "Message" ) );
     errorView->addColumn( tr( "Line" ) );
     errorView->header()->setStretchEnabled( TRUE );
