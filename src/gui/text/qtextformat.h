@@ -55,6 +55,7 @@ public:
             case VariableLength: return maximumLength;
             case PercentageLength: return fixedValueOrPercentage * maximumLength / 100;
         }
+        return -1;
     }
 
     inline int rawValue() const { return fixedValueOrPercentage; }
@@ -473,10 +474,12 @@ public:
     inline int padding() const
     { return intProperty(FramePadding, 0); }
 
-    inline void setWidth(int border)
-    { setProperty(Width, border, -1); }
-    inline int width() const
-    { return intProperty(Width, -1); }
+    inline void setWidth(int width)
+    { setProperty(Width, QTextLength(QTextLength::FixedLength, width)); }
+    inline void setWidth(const QTextLength &length)
+    { setProperty(Width, length); }
+    inline QTextLength width() const
+    { return lengthProperty(Width); }
 
     inline void setHeight(int border)
     { setProperty(Height, border, -1); }

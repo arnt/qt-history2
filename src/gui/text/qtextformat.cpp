@@ -19,6 +19,57 @@
 #include <qmap.h>
 #include <qhash.h>
 
+/*!
+    \class QTextLength qtextformat.h
+    \brief The QTextLength class encapsulates different types of lengths, used for example
+    for tables.
+
+    \ingroup text
+
+    Length specifications in a text document can be of different types. For example the width of
+    a table can be specified either in a fixed amount of pixels, using a percentage value, relative
+    to the available width of the frame it is contained in or by width a variable length, making it
+    take up just the space it prefers.
+*/
+
+/*!
+    \fn QTextLength::QTextLength()
+
+    Constructs a new length object which represents a variable size.
+*/
+
+/*!
+    \fn QTextLength::QTextLength(Type type, int value)
+
+    Constructs a new length object of the given \a type and \a value.
+*/
+
+/*!
+    \fn Type QTextLength::type() const
+
+    Returns the type of length.
+
+    \sa QTextLength::Type
+*/
+
+/*!
+    \fn int QTextLength::value(int maximumLength) const
+
+    Returns the effective length, constrained by the type of the length object
+    and the specified \a maximumLength.
+
+    \sa type()
+*/
+
+/*!
+    \fn int QTextLength::rawValue() const
+
+    Returns the constraint value that is specific for the type of the lenght.
+    If the length is QTextLength::PercentageLengt then the raw value is in
+    percent, in the range of 0 to 100. If the length is QTextLength::FixedLength
+    then that fixed amount is returned. For variable lengths zero is returned.
+*/
+
 QDataStream &operator<<(QDataStream &stream, const QTextLength &length)
 {
     return stream << Q_INT32(length.lengthType) << length.fixedValueOrPercentage;
@@ -1857,15 +1908,27 @@ QFont QTextCharFormat::font() const
 */
 
 /*!
-    \fn QTextFrameFormat::setWidth(int width)
+    \fn QTextFrameFormat::setWidth(const QTextLength &width)
 
     Sets the frame's border rectangle's \a width.
+
+    \sa QTextLength
 */
 
 /*!
-    \fn int QTextFrameFormat::width() const
+    \fn QTextFrameFormat::setWidth(int width)
+    \overload
+
+    Convenience method that sets the width of the frame's border
+    rectangle's width to the specified fixed \a width.
+*/
+
+/*!
+    \fn QTextLength QTextFrameFormat::width() const
 
     Returns the width of the frame's border rectangle.
+
+    \sa QTextLength
 */
 
 /*!

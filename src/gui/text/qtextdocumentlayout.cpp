@@ -1041,23 +1041,23 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
     QTextFrame *parent = f->parentFrame();
     const QTextFrameData *pd = parent ? data(parent) : 0;
 
-    int width = fformat.width();
-    if (width == -1) {
-        QTextTable *t = qt_cast<QTextTable *>(parent);
-        Q_ASSERT(t == 0);
-        /*
-        if (t) {
-            const QTextTableData *td = static_cast<const QTextTableData *>(pd);
-            QTextTableCell cell = t->cellAt(f->firstPosition());
-            int c = cell.column();
-            int cspan = cell.columnSpan();
-            width = td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1)
-                    - td->columnPositions.at(c) - 2*td->padding;
-        } else {
-        */
-            width = pd ? pd->contentsWidth : pageSize.width();
-        //}
-    }
+    /*
+    QTextTable *t = qt_cast<QTextTable *>(parent);
+    Q_ASSERT(t == 0);
+    */
+    /*
+       if (t) {
+       const QTextTableData *td = static_cast<const QTextTableData *>(pd);
+       QTextTableCell cell = t->cellAt(f->firstPosition());
+       int c = cell.column();
+       int cspan = cell.columnSpan();
+       width = td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1)
+       - td->columnPositions.at(c) - 2*td->padding;
+       } else {
+       */
+    const int maximumWidth = pd ? pd->contentsWidth : pageSize.width();
+
+    const int width = fformat.width().value(maximumWidth);
 
     int height = fformat.height();
     if (height == -1)
