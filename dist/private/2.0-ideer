@@ -104,3 +104,6 @@ ARNT'S THINGS:
 > defaultButtonPressed() in QTabDialog are somewhat misnamed, because
 > they are emitted when the corresponding button is clicked, not pressed
 > (i.e., emits the signal clicked(), not pressed()). 
+
+How about a possibility for adding a WhatsThis button to QTabDialog,
+beside OK, Cancel etc. (lro)
