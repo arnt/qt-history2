@@ -69,7 +69,7 @@ public:
 
 class QTipManager : public QObject
 {
-    Q_OBJECT	/* tmake ignore Q_OBJECT */
+    Q_OBJECT
 public:
     QTipManager();
    ~QTipManager();
