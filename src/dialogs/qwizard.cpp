@@ -288,7 +288,7 @@ void QWizard::insertPage( QWidget * page, const QString & title, int index )
     if ( index < 0  || index > (int)d->pages.count() )
 	index = d->pages.count();
 
-    if( index > 0 && ( index == d->pages.count() ) )
+    if( index > 0 && ( index == (int)d->pages.count() ) )
 	d->pages.at( index - 1 )->nextEnabled = TRUE;
 
     QWizardPrivate::Page * p = new QWizardPrivate::Page( page, title );
