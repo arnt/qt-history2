@@ -275,9 +275,14 @@ QVariant QSqlClientResultBuffer::data( int fieldNumber ) const
 {
     if ( !d->data( fieldNumber ) )
 	return QVariant();
-    QVariant v = d->format()->format( d->data( fieldNumber ),
-				      d->size( fieldNumber ),
-				      d->type( fieldNumber ) );
+    QVariant v;
+    if ( d->nullData( fieldNumber ) && d->nullData( fieldNumber )->isNull() ) {
+	v.cast( d->type( fieldNumber ) );
+    } else {
+	v = d->format()->format( d->data( fieldNumber ),
+				 d->size( fieldNumber ),
+				 d->type( fieldNumber ) );
+    }
     return v;
 }
 
