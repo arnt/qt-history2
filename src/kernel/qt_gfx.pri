@@ -7,8 +7,7 @@ mng {
         system-mng {
 	    win32:LIBS += libmng.lib
             unix:LIBS  += -lmng
-        }
-	!system-mng {
+        } else {
 	   INCLUDEPATH        += 3rdparty/libmng
 	   SOURCES += 3rdparty/libmng/libmng_callback_xs.c \
 		  3rdparty/libmng/libmng_chunk_io.c \
@@ -32,13 +31,12 @@ mng {
 	no-jpeg {
 		message(Use of mng requires support for jpeg)
 		CONFIG += jpeg
-	}
-	!jpeg {
+	} else:!jpeg {
 		message(Use of mng requires support for jpeg)
 		CONFIG += jpeg
 	}
 }
-!mng:DEFINES += QT_NO_IMAGEIO_MNG
+else:DEFINES += QT_NO_IMAGEIO_MNG
 
 #jpeg support..
 HEADERS += $$KERNEL_H/qjpegio.h 
@@ -47,8 +45,7 @@ jpeg {
         system-jpeg {
 	   unix:LIBS += -ljpeg
 	   win32:LIBS += libjpeg.lib
-	} 
-	!system-jpeg {
+	} else {
 	    INCLUDEPATH += 3rdparty/libjpeg
 	    SOURCES += 3rdparty/libjpeg/jcapimin.c \
 		  3rdparty/libjpeg/jcapistd.c \
@@ -98,7 +95,7 @@ jpeg {
 		  3rdparty/libjpeg/jmemansi.c
         }
 }
-!jpeg:DEFINES += QT_NO_IMAGEIO_JPEG
+else:DEFINES += QT_NO_IMAGEIO_JPEG
 
 #png support
 HEADERS+=$$KERNEL_H/qpngio.h
@@ -107,8 +104,7 @@ png {
         system-png {
 	    unix:LIBS  += -lpng
 	    win32:LIBS += libpng.lib
-	}
-	!system-png {
+	} else {
 	    INCLUDEPATH  += 3rdparty/libpng
 	    SOURCES	+= 3rdparty/libpng/png.c \
 		  3rdparty/libpng/pngerror.c \
@@ -127,7 +123,7 @@ png {
 		  3rdparty/libpng/pngwutil.c 
         }
 }
-!png:DEFINES += QT_NO_IMAGEIO_PNG
+else:DEFINES += QT_NO_IMAGEIO_PNG
 
 #zlib support
 zlib {
@@ -147,8 +143,10 @@ zlib {
 		  3rdparty/zlib/uncompr.c \
 		  3rdparty/zlib/zutil.c
 }
-!no-zlib:!zlib:unix:LIBS += -lz
-!no-zlib:!zlib:win32:LIBS += libz.lib
+!no-zlib:!zlib {
+   unix:LIBS += -lz
+   win32:LIBS += libz.lib
+}
 
 #use Qt gif
 gif:DEFINES += QT_BUILTIN_GIF_READER=1

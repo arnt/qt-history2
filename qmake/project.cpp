@@ -82,7 +82,8 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	s = s.mid(1).stripWhiteSpace();
 	if(s.isEmpty())
 	    return TRUE;
-    } else if(!(scope_flag & (0x01 << scope_block))) {
+    } 
+    if(!(scope_flag & (0x01 << scope_block))) {
 	/* adjust scope for each block which appears on a single line */
 	for(int i = (s.contains('{')-s.contains('}')); i; i--)
 	    scope_flag &= ~(0x01 << (++scope_block));
