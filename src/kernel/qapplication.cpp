@@ -274,7 +274,7 @@ bool	  qt_is_gui_used;
 QRect qt_maxWindowRect;
 static int drag_time = 500;
 static int drag_distance = 4;
-static bool reverse_layout = false;
+static bool reverse_layout = FALSE;
 QSize     QApplication::app_strut	= QSize( 0,0 ); // no default application strut
 bool	  QApplication::animate_ui	= TRUE;
 bool	  QApplication::animate_menu	= FALSE;
