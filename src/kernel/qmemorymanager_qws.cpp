@@ -4,6 +4,20 @@
 #include "qfontdata_p.h"
 #include "qfile.h"
 
+#if defined(_OS_UNIX_) // always for now
+#define QT_USE_MMAP
+#endif
+
+#ifdef QT_USE_MMAP
+// for mmap
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <unistd.h>
+#endif
+
 class QGlyphTree {
     /* Builds up a tree like this:
 
@@ -40,10 +54,17 @@ class QGlyphTree {
     QGlyphTree* more;
     QGlyph* glyph;
 public:
+#ifdef QT_USE_MMAP
+    QGlyphTree(uchar*& data)
+    {
+	read(data);
+    }
+#else
     QGlyphTree(QIODevice& f)
     {
 	read(f);
     }
+#endif
 
     QGlyphTree(const QChar& from, const QChar& to, QRenderedFont* renderer) :
 	min(from),
@@ -61,7 +82,24 @@ public:
 
     ~QGlyphTree()
     {
+	// NOTE: does not delete glyph[*].metrics or .data.
+	//       the caller does this (only they know who owns
+	//	 the data).  See clear().
+	delete less;
+	delete more;
 	delete [] glyph;
+    }
+
+    void clear()
+    {
+	if ( less ) less->clear();
+	if ( more ) more->clear();
+	int n = max.unicode()-min.unicode()+1;
+	for (int i=0; i<n; i++) {
+	    delete glyph[i].metrics;
+	    if ( glyph[i].data )
+		delete [] glyph[i].data;
+	}
     }
 
     bool inFont(const QChar& ch) const
@@ -230,6 +268,17 @@ private:
 	if ( more ) more->writeData(f);
     }
 
+#ifdef QT_USE_MMAP
+    void read(uchar*& data)
+    {
+	// All node data first
+	readNode(data);
+	// Then all non-video data
+	readMetrics(data);
+	// Then all video data
+	readData(data);
+    }
+#else
     void read(QIODevice& f)
     {
 	// All node data first
@@ -239,7 +288,31 @@ private:
 	// Then all video data
 	readData(f);
     }
+#endif
 
+#ifdef QT_USE_MMAP
+    void readNode(uchar*& data)
+    {
+	memcpy((uchar*)&min,data,sizeof(QChar)); data += sizeof(QChar);
+	memcpy((uchar*)&max,data,sizeof(QChar)); data += sizeof(QChar);
+	int flags = *data++;
+	if ( flags & 1 )
+	    less = new QGlyphTree;
+	else
+	    less = 0;
+	if ( flags & 2 )
+	    more = new QGlyphTree;
+	else
+	    more = 0;
+	int n = max.unicode()-min.unicode()+1;
+	glyph = new QGlyph[n];
+
+	if ( less )
+	    less->readNode(data);
+	if ( more )
+	    more->readNode(data);
+    }
+#else
     void readNode(QIODevice& f)
     {
 	f.readBlock((char*)&min, sizeof(QChar));
@@ -261,8 +334,22 @@ private:
 	if ( more )
 	    more->readNode(f);
     }
+#endif
 
-
+#ifdef QT_USE_MMAP
+    void readMetrics(uchar*& data)
+    {
+	int n = max.unicode()-min.unicode()+1;
+	for (int i=0; i<n; i++) {
+	    glyph[i].metrics = (QGlyphMetrics*)data;
+	    data += sizeof(QGlyphMetrics);
+	}
+	if ( less )
+	    less->readMetrics(data);
+	if ( more )
+	    more->readMetrics(data);
+    }
+#else
     void readMetrics(QIODevice& f)
     {
 	int n = max.unicode()-min.unicode()+1;
@@ -275,7 +362,22 @@ private:
 	if ( more )
 	    more->readMetrics(f);
     }
+#endif
 
+#ifdef QT_USE_MMAP
+    void readData(uchar*& data)
+    {
+	int n = max.unicode()-min.unicode()+1;
+	for (int i=0; i<n; i++) {
+	    uint datasize = glyph[i].metrics->linestep * glyph[i].metrics->height;
+	    glyph[i].data = data; data += datasize;
+	}
+	if ( less )
+	    less->readData(data);
+	if ( more )
+	    more->readData(data);
+    }
+#else
     void readData(QIODevice& f)
     {
 	int n = max.unicode()-min.unicode()+1;
@@ -289,6 +391,7 @@ private:
 	if ( more )
 	    more->readData(f);
     }
+#endif
 
     static QGlyph* concatGlyphs(QGlyphTree* a, QGlyphTree* b, QChar& min, QChar& max)
     {
@@ -316,6 +419,13 @@ public:
 	delete default_glyph->metrics;
 	delete [] default_glyph->data;
 	delete default_glyph;
+#if defined(QT_USE_MMAP) // otherwise always delete since not mmap'ed
+	if ( renderer ) // not pre-rendered
+#endif
+	{
+	    tree->clear();
+	    delete tree;
+	}
     }
 
     QGlyph* defaultGlyph()
@@ -475,11 +585,29 @@ QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
 	    }
 	}
 	if ( QFile::exists(filename) ) {
+	    mmf->renderer = 0;
+#if defined(QT_USE_MMAP)
+	    int f = ::open( QFile::encodeName(filename), O_RDONLY );
+	    ASSERT(f>=0);
+	    struct stat st;
+	    if ( fstat( f, &st ) )
+		qFatal("Failed to stat %s",QFile::encodeName(filename).data());
+	    uchar* data = (uchar*)mmap( 0, // any address
+		    st.st_size, // whole file
+                    PROT_READ, // read-only memory
+                    MAP_FILE | MAP_PRIVATE, // swap-backed map from file
+                    f, 0 ); // from offset 0 of f
+	    if ( !data || data == (uchar*)MAP_FAILED )
+		qFatal("Failed to mmap %s",QFile::encodeName(filename).data());
+	    ::close(f);
+	    memcpy((char*)&mmf->fm,data,sizeof(mmf->fm)); data += sizeof(mmf->fm);
+	    mmf->tree = new QGlyphTree(data);
+#else
 	    QFile f(filename);
 	    f.open(IO_ReadOnly);
-	    mmf->renderer = 0;
 	    f.readBlock((char*)&mmf->fm,sizeof(mmf->fm));
 	    mmf->tree = new QGlyphTree(f);
+#endif
 	} else {
 	    if(!mmf->renderer) {
 		mmf->fm.ascent=0;
