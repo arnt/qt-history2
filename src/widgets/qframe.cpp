@@ -195,7 +195,7 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
 */
 
 /*!
-  \fn Shape QFrame::setFrameShape() const
+  \fn void QFrame::setFrameShape(Shape)
   Sets the frame shape value of the frame style.
   \sa frameShape(), frameStyle(), setFrameShadow()
 */
@@ -207,7 +207,7 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
 */
 
 /*!
-  \fn void QFrame::setFrameShadow( Shadow ) const
+  \fn void QFrame::setFrameShadow( Shadow )
   Sets the frame shadow value of the frame style.
   \sa frameShadow(), frameStyle(), setFrameShape()
 */
