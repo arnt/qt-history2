@@ -2,12 +2,14 @@
 #define QPLATFORMDEFS_H
 
 // Get Qt defines/settings
+
 #include "qglobal.h"
 
 
-// Set any POSIX/XOPEN defines at the top of this file to turn on
-// specific APIs
+// Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
+
 #ifdef QT_THREAD_SUPPORT
+// POSIX thread interfaces must be explictly specified in glibc 2.0
 #define _GNU_SOURCE
 #endif // QT_THREAD_SUPPORT
 
@@ -16,8 +18,7 @@
 #include <sys/types.h>
 
 
-// We are hot - unistd.h should have turned on all the specific
-// APIs we requested
+// We are hot - unistd.h should have turned on the specific APIs we requested
 
 #ifdef QT_THREAD_SUPPORT
 #include <pthread.h>
