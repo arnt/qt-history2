@@ -1063,15 +1063,18 @@ void QGridLayout::add( QLayoutItem *item, int row, int col )
 /*!
   Adds the \a item to the cell grid, spanning multiple rows/columns.
 
-  Alignment is specified by \a alignmnt
+  Alignment is specified by \a alignment which is a bitwise OR of
+  Qt::AlignmentFlags values.
+  The default alignment is 0, which means
+  that the widget fills the entire cell.
 
 */
 
 void QGridLayout::addMultiCell( QLayoutItem *item, int fromRow, int toRow,
-  int fromCol, int toCol, int alignmnt )
+  int fromCol, int toCol, int alignment )
 {
     QLayoutBox *b = new QLayoutBox( item );
-    b->setAlignment( alignmnt );
+    b->setAlignment( alignment );
     array->add( b, fromRow, toRow, fromCol, toCol );
 }
 
@@ -1108,21 +1111,22 @@ static bool checkWidget( QLayout *l, QWidget *w )
   Adds the widget \a w to the cell grid at \a row, \a col.
   The top left position is (0,0)
 
-  Alignment is specified by \a alignmnt which takes the same arguments
-  as QLabel::setAlignment(). The default alignment is 0, which means
+  Alignment is specified by \a alignment which is a bitwise OR of
+  Qt::AlignmentFlags values.
+  The default alignment is 0, which means
   that the widget fills the entire cell.
 
   Note 1: You should not call this if you have enabled the
   \link QLayout::setAutoAdd() auto-add facility of the layout\endlink.
 
-  Note 2: The alignment parameter is interpreted more aggressively
+  Note 2: The \a alignment parameter is interpreted more aggressively
   than in previous versions of Qt.  A non-default alignment now
   indicates that the widget should not grow to fill the available
   space, but should be sized according to sizeHint().
 
 */
 
-void QGridLayout::addWidget( QWidget *w, int row, int col, int alignmnt )
+void QGridLayout::addWidget( QWidget *w, int row, int col, int alignment )
 {
     if ( !checkWidget( this, w ) )
 	return;
@@ -1136,15 +1140,16 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int alignmnt )
 	return;
     }
     QWidgetItem *b = new QWidgetItem( w );
-    b->setAlignment( alignmnt );
+    b->setAlignment( alignment );
     add( b, row, col );
 }
 
 /*!
   Adds the widget \a w to the cell grid, spanning multiple rows/columns.
 
-  Alignment is specified by \a alignmnt which takes the same arguments as
-  QLabel::setAlignment(). The default alignment is 0, which means
+  Alignment is specified by \a alignment which is a bitwise OR of
+  Qt::AlignmentFlags values.
+  The default alignment is 0, which means
   that the widget fills the entire cell.
 
   A non-zero alignment indicates that the widget should not grow to
@@ -1154,10 +1159,10 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int alignmnt )
 */
 
 void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
-				      int fromCol, int toCol, int alignmnt )
+				      int fromCol, int toCol, int alignment )
 {
     QLayoutBox *b = new QLayoutBox( w );
-    b->setAlignment( alignmnt );
+    b->setAlignment( alignment );
     array->add( b, fromRow, toRow, fromCol, toCol );
 }
 
@@ -1761,8 +1766,8 @@ void QBoxLayout::addStrut( int size )
 }
 
 /*!
-  Adds \a widget to the box, with stretch factor \a stretch and
-  alignment \a alignmnt.
+  Adds \a widget to the box, with a \a stretch factor and
+  \a alignment.
 
   The stretch factor applies only in the \link direction() direction
   \endlink of the QBoxLayout, and is relative to the other boxes and
@@ -1773,8 +1778,9 @@ void QBoxLayout::addStrut( int size )
   stretch factor greater than zero, the space is distributed according
   to the QWidget:sizePolicy() of each widget that's involved.
 
-  Alignment is specified by \a alignmnt which takes the same arguments
-  as QLabel::setAlignment(). The default alignment is 0, which means
+  Alignment is specified by \a alignment which is a bitwise OR of
+  Qt::AlignmentFlags values.
+  The default alignment is 0, which means
   that the widget fills the entire cell.
 
   Note: The alignment parameter is interpreted more aggressively
@@ -1785,12 +1791,12 @@ void QBoxLayout::addStrut( int size )
   \sa setAutoAdd(), addLayout(), addSpacing()
 */
 
-void QBoxLayout::addWidget( QWidget *widget, int stretch, int alignmnt )
+void QBoxLayout::addWidget( QWidget *widget, int stretch, int alignment )
 {
     if ( !checkWidget( this, widget ) )
 	 return;
     QWidgetItem *b = new QWidgetItem( widget );
-    b->setAlignment( alignmnt );
+    b->setAlignment( alignment );
     QBoxLayoutItem *it = new QBoxLayoutItem( b, stretch );
     data->list.append( it );
     invalidate();
