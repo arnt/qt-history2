@@ -553,6 +553,8 @@ QObjectList *MainWindow::runProject( bool execMain )
 			QStringList error;
 			QValueList<int> line;
 			if ( !piface->check( f->text(), error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
+			    if ( !isVisible() )
+				show();
 			    showSourceLine( f, line[ 0 ] - 1, Error );
 			    QStringList l;
 			    QObjectList l2;
