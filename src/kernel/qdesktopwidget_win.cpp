@@ -10,7 +10,7 @@ public:
     ~QDesktopWidgetPrivate();
 
     static int screenCount;
-    static int appScreen;
+    static int primaryScreen;
 
     static QArray<QRect> rects;
 
@@ -32,7 +32,7 @@ public:
 };
 
 int QDesktopWidgetPrivate::screenCount = 1;
-int QDesktopWidgetPrivate::appScreen = 0;
+int QDesktopWidgetPrivate::primaryScreen = 0;
 QDesktopWidgetPrivate::EnumFunc QDesktopWidgetPrivate::enumDisplayMonitors = 0;
 QDesktopWidgetPrivate::InfoFunc QDesktopWidgetPrivate::getMonitorInfo = 0;
 HMODULE QDesktopWidgetPrivate::user32hnd = 0;
@@ -58,7 +58,7 @@ BOOL CALLBACK enumCallback( HMONITOR hMonitor, HDC, LPRECT, LPARAM )
     QDesktopWidgetPrivate::rects.at( sn ) = qr;
 
     if ( info.dwFlags & 0x00000001 ) //MONITORINFOF_PRIMARY
-	QDesktopWidgetPrivate::appScreen = sn;
+	QDesktopWidgetPrivate::primaryScreen = sn;
 
     ++sn;
     // Stop the enumeration if we have them all
@@ -98,35 +98,74 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
 {
 }
 
-// creates a widget with the size of the virtual desktop (see qwidget_win.cpp)
+/*!
+  \class QDesktopWidget qdesktopwidget.h
+  \brief The QDesktopWidget class provides an API to access the screen information on multi-head systems.
+*/
+
+/*!
+  Creates the desktop widget.
+  If supported, this widget will have the size of the virtual desktop. Otherwise it
+  represents the primary screen.
+*/
 QDesktopWidget::QDesktopWidget()
 : QWidget( 0, "desktop", WType_Desktop )
 {
     d = new QDesktopWidgetPrivate;
 }
 
+/*!
+  Destroy the object and free allocated resources.
+*/
 QDesktopWidget::~QDesktopWidget()
 {
     delete d;
 }
 
+/*!
+  Returns the index of the primary screen.
+
+  \sa numScreens
+*/
 int QDesktopWidget::primaryScreen() const
 {
-    return d->appScreen;
+    return d->primaryScreen;
 }
 
+/*!
+  Returns the total number of available screens.
+
+  \sa primaryScreen
+*/
 int QDesktopWidget::numScreens() const
 {
     return d->screenCount;
 }
 
-QWidget *QDesktopWidget::screen( int /*screen*/ )
+/*!
+  Returns a widget that represents the screen with index \a screen.
+  This widget can be used to draw directly on the desktop, using an
+  unclipped painter like this:
+
+  \code
+
+  QPainter paint( QApplication::desktop()->screen( 0 ), TRUE );
+  paint.draw...
+  ...
+  paint.end();
+
+  \endcode
+
+  \sa primaryScreen, numScreens
+*/
+QWidget *QDesktopWidget::screen( int screen )
 {
+    Q_UNUSED( screen );
     // It seems that a WType_Desktop cannot be moved?
     return this;
 /*
     if ( screen < 0 || screen >= d->screenCount )
-	screen = d->appScreen;
+	screen = d->primaryScreen;
 
     if ( !d->screens )
     	memset( ( screens = new QWidget*[screenCount] ), 0, screenCount * sizeof( QWidget*) );
@@ -144,24 +183,35 @@ QWidget *QDesktopWidget::screen( int /*screen*/ )
 */
 }
 
+/*!
+  Returns the geometry of the display with index \a screen.
+
+  \sa screenNumber( QWidget* )
+*/
 const QRect& QDesktopWidget::screenGeometry( int screen ) const
 {
     if ( screen < 0 || screen >= d->screenCount )
-	screen = d->appScreen;
+	screen = d->primaryScreen;
 
     return d->rects[ screen ];
 }
 
+/*!
+  Returns the index of the screen that contains the biggest
+  part of \a widget.
+
+  \sa primaryScreen
+*/
 int QDesktopWidget::screenNumber( QWidget *widget ) const
 {
     if ( !widget )
-	return d->appScreen;
+	return d->primaryScreen;
     QRect frame = widget->frameGeometry();
     if ( !widget->isTopLevel() )
 	frame.moveTopLeft( widget->mapToGlobal( frame.topLeft() ) );
 
     int maxSize = -1;
-    int maxScreen = d->appScreen;
+    int maxScreen = d->primaryScreen;
 
     for ( int i = 0; i < d->screenCount; ++i ) {
 	QRect sect = d->rects[i].intersect( frame );
@@ -174,11 +224,16 @@ int QDesktopWidget::screenNumber( QWidget *widget ) const
     return maxScreen;
 }
 
+/*!
+  Returns the index of the screen that contains \a point.
+
+  \sa primaryScreen
+*/
 int QDesktopWidget::screenNumber( const QPoint &point ) const
 {
     for ( int i = 0; i < d->screenCount; ++i ) {
 	if ( d->rects[i].contains( point ) )
 	    return i;
     }
-    return d->appScreen;
+    return d->primaryScreen;
 }
