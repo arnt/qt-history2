@@ -245,9 +245,12 @@ void ClassScope::addBaseClass(Type *baseClass)
 FunctionMember::FunctionMember()
     : m_returnType(0),
       m_functionBodyScope(0),
-      m_signal(0), m_slot(0),
+      m_signal(0),
       m_virtual(0), m_abstract(0)
 {
+    // need to assign this outside the construction list, to work around
+    // a bug in aCC.
+    m_slot = 0;
     m_argument = new  ArgumentCollectionBuilder(this);
 }
 
