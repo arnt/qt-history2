@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#65 $
 **
 **  Splitter widget
 **
@@ -177,7 +177,8 @@ public:
   can use setOrientation( QSplitter::Vertical ) to set it to vertical.
 
   By default, all widgets can be as large or as small as the user
-  wishes. You can naturally use setMinimumSize() and/or
+  wishes, down to \link QWidget::minimumSizeHint() minimumSizeHint()\endlink.
+  You can naturally use setMinimumSize() and/or
   setMaximumSize() on the children. Use setResizeMode() to specify that
   a widget should keep its size when the splitter is resized.
 
@@ -198,6 +199,20 @@ public:
   \sa QTabBar
 */
 
+
+
+static QSize minSize( const QWidget *w )
+{
+    QSize min = w->minimumSize();
+    QSize s;
+    if ( (min.height() <= 0 || min.width() <= 0 )   )
+	s = w->minimumSizeHint();
+    if ( min.height() > 0 )
+	s.setHeight( min.height() );
+    if ( min.width() > 0 )
+	s.setWidth( min.width() );
+    return s.expandedTo(QSize(0,0));
+}
 
 /*!
   Creates a horizontal splitter.
@@ -490,7 +505,7 @@ void QSplitter::moveBefore( int pos, int id, bool upLeft )
     } else {
 	int left = pick( w->pos() );
 	int d = pos - left + 1;
-	d = QMAX( pick(w->minimumSize()), QMIN(d, pick(w->maximumSize())));
+	d = QMAX( pick(minSize(w)), QMIN(d, pick(w->maximumSize())));
 	int newLeft = pos-d+1;
 	setG( w, newLeft, d );
 	if ( left != newLeft )
@@ -525,7 +540,7 @@ void QSplitter::moveAfter( int pos, int id, bool upLeft )
 	int right = pick( w->geometry().bottomRight() );
 
        	int d = right - pos + 1;
-	d = QMAX( pick(w->minimumSize()), QMIN(d, pick(w->maximumSize())));
+	d = QMAX( pick(minSize(w)), QMIN(d, pick(w->maximumSize())));
 	int newRight = pos+d-1;
 	setG( w, pos, d );
 	if ( right != newRight )
@@ -556,7 +571,7 @@ void QSplitter::getRange( int id, int *min, int *max )
 	    minB += s->sizer;
 	    maxB += s->sizer;
 	} else {
-	    minB += pick( s->wid->minimumSize() );
+	    minB += pick( minSize(s->wid) );
 	    maxB += pick( s->wid->maximumSize() );
 	}
     }
@@ -566,7 +581,7 @@ void QSplitter::getRange( int id, int *min, int *max )
 	    minA += s->sizer;
 	    maxA += s->sizer;
 	} else {
-	    minA += pick( s->wid->minimumSize() );
+	    minA += pick( minSize(s->wid) );
 	    maxA += pick( s->wid->maximumSize() );
 	}
     }
@@ -613,7 +628,7 @@ void QSplitter::doResize()
 	} else { //proportional
 	    a[i].stretch = s->sizer;
 	    a[i].maximumSize = pick( s->wid->maximumSize() );
-	    a[i].sizeHint = a[i].minimumSize = pick( s->wid->minimumSize() );
+	    a[i].sizeHint = a[i].minimumSize = pick( minSize(s->wid) );
 	    //	    a[i].expansive = TRUE; 	//may not be necessary, but cannot hurt
 	}
     }
@@ -651,9 +666,10 @@ void QSplitter::recalc( bool update )
 	    QSplitterLayoutStruct *p = splid < (int)data->list.count() ?
 				      data->list.at( splid ) : 0;	
 	    if ( !s->wid->testWState(WState_ForceHide) ) {
-		minl += pick( s->wid->minimumSize() );
+		QSize minS = minSize(s->wid);
+		minl += pick( minS );
 		maxl += pick( s->wid->maximumSize() );
-		mint = QMAX( mint,  trans( s->wid->minimumSize() ));
+		mint = QMAX( mint,  trans( minS ));
 		maxt = QMIN( maxt,  trans( s->wid->maximumSize() ));
 		first = FALSE;
 		if ( p && p->isSplitter )
@@ -813,7 +829,7 @@ QSize QSplitter::sizeHint() const
 
 	while( (o=it.current()) != 0 ) {
 	    ++it;
-	    if ( o->isWidgetType() && 
+	    if ( o->isWidgetType() &&
 		 !((QWidget*)o)->testWState(WState_ForceHide) ) {
 		QSize s = ((QWidget*)o)->sizeHint();
 		if ( s.isValid() ) {
@@ -842,9 +858,9 @@ QSize QSplitter::minimumSizeHint() const
 
 	while( (o=it.current()) != 0 ) {
 	    ++it;
-	    if ( o->isWidgetType() && 
+	    if ( o->isWidgetType() &&
 		 !((QWidget*)o)->testWState(WState_ForceHide) ) {
-		QSize s = ((QWidget*)o)->minimumSize();
+		QSize s = minSize((QWidget*)o);
 		if ( s.isValid() ) {
 		    l += pick( s );
 		    t = QMAX( t, trans( s ) );
@@ -852,7 +868,7 @@ QSize QSplitter::minimumSizeHint() const
 	    }
 	}
     }
-    return orientation() == Horizontal ? QSize( l, t ) : QSize( t, l );    
+    return orientation() == Horizontal ? QSize( l, t ) : QSize( t, l );
 }
 
 
