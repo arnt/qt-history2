@@ -124,7 +124,8 @@ public:
     virtual void drawTextItem(const QPointF &p, const QTextItem &ti, int textflags);
     virtual void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
 				 Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
-
+    virtual void drawImage(const QRectF &r, const QImage &pm, const QRectF &sr,
+                           Qt::ImageConversionFlags flags = Qt::AutoColor);
 
     virtual QPainter::RenderHints supportedRenderHints() const;
     QPainter::RenderHints renderHints() const;

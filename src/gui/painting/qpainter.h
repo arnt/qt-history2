@@ -186,6 +186,21 @@ public:
     inline void drawPixmap(int x, int y, int w, int h, const QPixmap &pm,
                            Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
 
+    void drawImage(const QRectF &targetRect, const QImage &image, const QRectF &sourceRect,
+                   Qt::ImageConversionFlags flags = Qt::AutoColor);
+    inline void drawImage(const QRect &targetRect, const QImage &image, const QRect &sourceRect,
+                          Qt::ImageConversionFlags flags = Qt::AutoColor);
+    inline void drawImage(const QPointF &p, const QImage &image, const QRectF &sr,
+                          Qt::ImageConversionFlags flags = Qt::AutoColor);
+    inline void drawImage(const QPoint &p, const QImage &image, const QRect &sr,
+                          Qt::ImageConversionFlags flags = Qt::AutoColor);
+    inline void drawImage(const QRectF &r, const QImage &image);
+    inline void drawImage(const QRect &r, const QImage &image);
+    inline void drawImage(const QPointF &p, const QImage &image);
+    inline void drawImage(const QPoint &p, const QImage &image);
+    inline void drawImage(int x, int y, const QImage &image, int sx = 0, int sy = 0,
+                          int sw = -1, int sh = -1, Qt::ImageConversionFlags flags = Qt::AutoColor);
+
     void drawText(const QPoint &p, const QString &s, TextDirection dir = Auto);
     inline void drawText(int x, int y, const QString &s, TextDirection dir = Auto);
 
@@ -230,17 +245,6 @@ public:
         { drawText(p, s.left(len), dir); }
     inline QT_COMPAT bool begin(QPaintDevice *pdev, const QWidget *init)
         { bool ret = begin(pdev); initFrom(init); return ret; }
-    inline QT_COMPAT void drawImage(const QPoint &p, const QImage &image, const QRect &sr,
-                                    Qt::ImageConversionFlags flags = Qt::AutoColor)
-        { QPixmap pm; pm.fromImage(image, flags); drawPixmap(p, pm, sr); }
-    inline QT_COMPAT void drawImage(const QRect &r, const QImage &image)
-        { drawPixmap(r, QPixmap(image)); }
-    inline QT_COMPAT void drawImage(int x, int y, const QImage &image,
-                                    int sx = 0, int sy = 0, int sw = -1, int sh = -1,
-                                    Qt::ImageConversionFlags flags = Qt::AutoColor)
-        { QPixmap pm; pm.fromImage(image, flags); drawPixmap(QPoint(x, y), pm, QRect(sx, sy, sw, sh)); }
-    inline QT_COMPAT void drawImage(const QPoint &p, const QImage &image)
-        { drawPixmap(p, QPixmap(image)); }
     QT_COMPAT void drawPoints(const QPointArray &pa, int index, int npoints = -1);
     QT_COMPAT void drawCubicBezier(const QPointArray &pa, int index = 0);
 
@@ -411,9 +415,52 @@ inline void QPainter::drawPixmap(int x, int y, const QPixmap &pm, Qt::PixmapDraw
     drawPixmap(QPoint(x, y), pm, mode);
 }
 
+inline void QPainter::drawImage(const QRect &targetRect, const QImage &image, const QRect &sourceRect,
+                                Qt::ImageConversionFlags flags)
+{
+    drawImage(QRectF(targetRect), image, QRectF(sourceRect), flags);
+}
 
-inline QRect QPainter::boundingRect(const QRect &r, int flags,
-                                    const QString&s, int len)
+inline void QPainter::drawImage(const QPointF &p, const QImage &image, const QRectF &sr,
+                                Qt::ImageConversionFlags flags)
+{
+    drawImage(QRectF(p.x(), p.y(), -1, -1), image, sr, flags);
+}
+
+inline void QPainter::drawImage(const QPoint &p, const QImage &image, const QRect &sr,
+                                Qt::ImageConversionFlags flags)
+{
+    drawImage(QRect(p.x(), p.y(), -1, -1), image, sr, flags);
+}
+
+
+inline void QPainter::drawImage(const QRectF &r, const QImage &image)
+{
+    drawImage(r, image, QRect(0, 0, image.width(), image.height()));
+}
+
+inline void QPainter::drawImage(const QRect &r, const QImage &image)
+{
+    drawImage(r, image, QRectF(0, 0, image.width(), image.height()));
+}
+
+inline void QPainter::drawImage(const QPointF &p, const QImage &image)
+{
+    drawImage(QRectF(p.x(), p.y(), -1, -1), image, QRectF(0, 0, image.width(), image.height()));
+}
+
+inline void QPainter::drawImage(const QPoint &p, const QImage &image)
+{
+    drawImage(QRectF(p.x(), p.y(), -1, -1), image, QRectF(0, 0, image.width(), image.height()));
+}
+
+inline void QPainter::drawImage(int x, int y, const QImage &image, int sx, int sy, int sw, int sh,
+                                Qt::ImageConversionFlags flags)
+{
+    drawImage(QRectF(x, y, -1, -1), image, QRectF(sx, sy, sw, sh), flags);
+}
+
+inline QRect QPainter::boundingRect(const QRect &r, int flags, const QString&s, int len)
 {
     return boundingRect(r.x(), r.y(), r.width(), r.height(), flags, s, len);
 }

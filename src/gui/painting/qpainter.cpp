@@ -656,8 +656,8 @@ void QPainterPrivate::updateInvMatrix()
     There are functions to draw pixmaps/images, namely drawPixmap(),
     drawImage() and drawTiledPixmap(). drawPixmap() and drawImage()
     produce the same result, except that drawPixmap() is faster
-    on-screen and drawImage() faster and sometimes better on QPrinter
-    and QPicture.
+    on-screen while drawImage() may be faster on QPrinter and other
+    devices.
 
     Text drawing is done using drawText(), and when you need
     fine-grained positioning, boundingRect() tells you where a given
@@ -2919,6 +2919,24 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
 }
 
 /*!
+    Draws the rectanglular portion \a sourceRect, of image \a image, into rectangle
+    \a targetRect in the paint device.
+
+    If the image needs to be modified to fit in a lower-resolution
+    result (e.g. converting from 32-bit to 8-bit), use the \a
+    conversionFlags to specify how you'd prefer this to happen.
+
+    \sa Qt::ImageConversionFlags
+*/
+void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QRectF &sourceRect,
+                         Qt::ImageConversionFlags flags)
+{
+    if (!isActive() || image.isNull())
+        return;
+    d->engine->drawImage(targetRect, image, sourceRect, flags);
+}
+
+/*!
     \fn void QPainter::drawText(int x, int y, const QString &text, TextDirection dir)
 
     \overload
@@ -4341,59 +4359,72 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
 ###
 */
 
+
 /*!
-    \fn void QPainter::drawImage(const QPoint &p, const QImage &image, const QRect &sr,
-                                 Qt::ImageConversionFlags conversionFlags = 0)
+    \fn void QPainter::drawImage(const QPoint &p, const QImage &image)
 
-    Draw a pixmap instead.
-
-    \oldcode
-    painter.drawImage(p, image, sr, conversionFlags);
-    \newcode
-    QPixmap pixmap;
-    pixmap.convertFromImage(image, conversionFlags);
-    painter.drawPixmap(p, pixmap, sr);
-    \endcode
+    Draws the image \a i at point \a p.
 */
 
 /*!
-    \fn void QPainter::drawImage(const QRect &r, const QImage &image)
+    \fn void QPainter::drawImage(const QPointF &p, const QImage &image)
 
-    Draw a pixmap instead.
+    \overload
+*/
 
-    \oldcode
-    painter.drawImage(r, image);
-    \newcode
-    painter.drawPixmap(r, QPixmap(image));
-    \endcode
+/*!
+    \fn void QPainter::drawImage(const QPointF &p, const QImage &image, const QRectF &sr,
+                                 Qt::ImageConversionFlags conversionFlags = 0)
+
+    Draws the rectangle \a sr of image \a image with its origin at point \a p.
+
+    If the image needs to be modified to fit in a lower-resolution
+    result (e.g. converting from 32-bit to 8-bit), use the \a
+    conversionFlags to specify how you'd prefer this to happen.
+
+    \sa Qt::ImageConversionFlags
+*/
+
+/*!
+    \fn void QPainter::drawImage(const QPoint &p, const QImage &image, const QRect &sr,
+                                 Qt::ImageConversionFlags conversionFlags = 0)
+    \overload
+*/
+
+/*!
+    \fn void QPainter::drawImage(const QRectF &rectangle, const QImage &image)
+
+    Draws \a image into \a rectangle.
+*/
+
+/*!
+    \fn void QPainter::drawImage(const QRect &rectangle, const QImage &image)
+
+    \overload
 */
 
 /*!
     \fn void QPainter::drawImage(int x, int y, const QImage &image,
                                  int sx, int sy, int sw, int sh,
                                  Qt::ImageConversionFlags conversionFlags)
+    \overload
 
-    Draw a pixmap instead.
+    Draws an image at (\a{x}, \a{y}) by copying a part of \a image into
+    the paint device.
 
-    \oldcode
-    painter.drawImage(x, y, image, sx, sy, sw, sh, conversionFlags);
-    \newcode
-    QPixmap pixmap;
-    pixmap.convertFromImage(image, conversionFlags);
-    painter.drawPixmap(QPoint(x, y), pixmap, QRect(sx, sy, sw, sh));
-    \endcode
+    (\a{x}, \a{y}) specifies the top-left point in the paint device that is
+    to be drawn onto. (\a{sx}, \a{sy}) specifies the top-left point in \a
+    image that is to be drawn. The default is (0, 0).
+
+    (\a{sw}, \a{sh}) specifies the size of the image that is to be drawn.
+    The default, (-1, -1), means all the way to the bottom-right of
+    the image.
 */
 
 /*!
-    \fn void QPainter::drawImage(const QPoint &p, const QImage &image)
-
-    Draw a pixmap instead.
-
-    \oldcode
-    painter.drawImage(p, image);
-    \newcode
-    painter.drawPixmap(p, QPixmap(image));
-    \endcode
+    \fn void QPainter::drawImage(const QRect &targetRect, const QImage &image, const QRect &sourceRect,
+                                 Qt::ImageConversionFlags flags)
+    \overload
 */
 
 /*!

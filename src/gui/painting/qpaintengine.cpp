@@ -306,6 +306,23 @@ void QPaintEngine::drawTiledPixmap(const QRectF &rect, const QPixmap &pixmap, co
 }
 
 /*!
+    \fn void QPaintEngine::drawImage(const QRectF &rectangle, const QImage
+    &image, const QRectF &sr, Qt::ImageConversionFlags flags)
+
+    Reimplement this function to draw the part of the \a image
+    specified by the \a sr rectangle in the given \a rectangle using
+    the given conversion flags \a flags, to convert it to a pixmap.
+*/
+
+void QPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF &sr,
+                             Qt::ImageConversionFlags flags)
+{
+    QPixmap pm;
+    pm.fromImage(image, flags);
+    painter()->drawPixmap(r.toRect(), pm, sr.toRect());
+}
+
+/*!
     \fn Type QPaintEngine::type() const
 
     Reimplement this function to return the paint engine \l{Type}.
@@ -803,4 +820,3 @@ void QPaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op
   This function is called when the clip region changes, specified by \a region or
   when clipping is enabled or disabled, specified by \a enabled.
 */
-
