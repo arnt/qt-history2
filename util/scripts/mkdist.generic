@@ -88,13 +88,18 @@ rm -rf ${DISTDIR}/qt/extensions/nsplugin/src/jri*
 
 VERSION=`grep "#define.*QT_VERSION_STR" ${DISTDIR}/qt/src/tools/qglobal.h | fmt -1 | grep '"' | sed -e 's/"//g'`
 VERSIONMAJOR=`echo ${VERSION} | sed -e 's/\..*$//'`
-VERSION_SHORT=`echo ${VERSION} | sed -e 's/[0-9]$//'`
 case "$VERSION" in
-  *-snapshot)
-    NEWVERSION=${VERSION%-snapshot}-$(date +%Y%m%d)
-    perl -i -p -e "s/$NEWVERSION/$VERSION/" ${DISTDIR}/qt/src/tools/qglobal.h
-    VERSION=${NEWVERSION}
+  *-snapshot|*-somethingelse)
+    SPECIAL=${VERSION##*-}
+
+    N=${VERSION%-$SPECIAL}-$(date +%Y%m%d)
+    perl -i -p -e "s/$VERSION/$N/" ${DISTDIR}/qt/src/tools/qglobal.h
+    VERSION=${N}
+;; *)
+    SPECIAL=stable
 esac
+VERSION_SHORT=`echo ${VERSION} | sed -e 's/\.\(.\).*/.\1/'`
+VERSIONWIN=`echo ${VERSION} | sed -e 's/\.//'`
 
 echo "Auto-detected the Qt version number -- " $VERSION >&2
 
@@ -175,7 +180,7 @@ if [ "${platform}" = "win" ]; then
   mv extensions/imageio/src/q*.h include
   mv extensions/nsplugin/src/q*.h include
   rm -rf makefiles
-  find . -o -name 'qtx11.*' | xargs rm -vf
+  find . -name 'qtx11.*' | xargs rm -vf
   echo "Converting Unix text files to DOS..." >&2
   cd ${DISTDIR}
   find qt -type f -print | fmt -1 | \
@@ -236,6 +241,15 @@ tar cf - * | (cd ${DISTDIR}/qt ; tar xf -)
 cd ${DISTDIR}
 rm -rf qt/dist qt/util qt/tmake qt/makefiles
 
+echo "Including version-specific information..." >&2
+cd ${DISTDIR}/qt
+perl -0777 -i \
+    -e "s/%SPECIAL-$SPECIAL\\s*([^%]*)%/\$1/g;" \
+    -e "s/%SPECIAL-[^%]*%//g;" \
+    -e "s/%VERSION%/$VERSION/g;" \
+    -e "s/%VERSIONWIN%/$VERSIONWIN/g;" \
+    -e "s/%YEAR%/$(date +%Y)/g;" \
+	[A-Z]*
 
 echo "Finally packing the distribution, see ${DISTDIR} ..." >&2
 
@@ -243,8 +257,7 @@ if [ "${platform}" = "win" ]; then
   cd ${DISTDIR}
   mkdir qt/src/tmp
   echo "This is a temporary directory for moc output" > qt/src/tmp/README
-  v=`echo ${VERSION} | sed -e 's/\.//'`
-  zip -q -r -9 qtwin${v}.zip qt
+  zip -q -r -9 qtwin${VERSIONWIN}.zip qt
 fi
 
 if [ "${platform}" = "x11" ]; then
