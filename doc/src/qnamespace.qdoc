@@ -1113,3 +1113,23 @@
 
     \omitvalue WhiteSpaceModeUndefined
 */
+
+/*!
+    \enum Qt::ButtonState_enum
+    \compat
+    \value ShiftButton  
+    \value ControlButton
+    \value AltButton    
+    \value MetaButton   
+    \value Keypad       
+    \value KeyButtonMask
+
+    Use Qt::KeyboardModifier instead.
+*/
+
+/*!
+    \typedef Qt::ButtonState
+    \compat
+
+    Use Qt::KeyboardModifier instead.
+*/
