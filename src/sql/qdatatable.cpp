@@ -365,7 +365,7 @@ QString QDataTable::filter() const
 
   \brief the data filter for the data table
 
-  The filter applies to the data shown in the table. To actually
+  The filter applies to the data shown in the table. To view data with
   a new filter, use refresh(). A filter string is an SQL WHERE
   clause without the WHERE keyword.
 
