@@ -13889,7 +13889,7 @@ QString QString::section( QString sep, int start, int count, int flags ) const
 
     \warning Section on QRegExp is much more expensive than the overloaded
     string and character versions.
-    
+
     \sa QStringList::split() simplifyWhiteSpace()
 */
 class section_chunk {
@@ -15549,7 +15549,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 */
 
 /*!
-  \fn const QChar& QString::at( uint ) const
+  \fn QChar QString::at( uint ) const
 
   Returns the character at index \a i, or 0 if \a i is beyond the length
   of the string.
@@ -15565,7 +15565,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 */
 
 /*!
-  \fn const QChar& QString::constref(uint i) const
+  \fn QChar QString::constref(uint i) const
 
   Returns the QChar at index \a i by value.
 
@@ -15591,7 +15591,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 */
 
 /*!
-  \fn const QChar& QString::operator[]( int ) const
+  \fn QChar QString::operator[]( int ) const
 
   Returns the character at index \a i, or QChar::null if \a i is beyond the
   length of the string.
