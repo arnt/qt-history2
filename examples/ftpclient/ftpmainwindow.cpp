@@ -123,6 +123,7 @@ void FtpMainWindow::setupRightSide()
     portSpin = new QSpinBox( 0, 32767, 1, h );
     portSpin->setValue( 21 );
     portSpin->setFixedWidth( portSpin->sizeHint().width() );
+    remoteOperator.setPort( portSpin->value() );
 
     h = new QHBox( layout );
     h->setSpacing( 5 );

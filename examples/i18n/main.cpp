@@ -121,7 +121,7 @@ int main( int argc, char** argv )
 	} else {
 	    QButtonGroup *bg = new QButtonGroup(4,Qt::Vertical,"Choose Locales",&dlg);
 	    for ( int i=0; qm[i]; i++ )
-		qmb[i] = new QCheckBox(qm[i],bg);
+		qmb[i] = new QCheckBox((const char*)qm[i],bg);
 	    dlg.addButtons("Cancel","OK","All");
 	    r = dlg.exec();
 	}
@@ -131,7 +131,7 @@ int main( int argc, char** argv )
 	    int y=25;
 	    for ( int i=0; qm[i]; i++ ) {
 		if ( r == 2 || qmb[i]->isChecked() ) {
-		    MyWidget* w = showLang(qm[i]);
+		    MyWidget* w = showLang((const char*)qm[i]);
 		    QObject::connect(w, SIGNAL(closed()), qApp, SLOT(quit()));
 		    w->setGeometry(x,y,197,356);
 		    w->show();
