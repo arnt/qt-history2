@@ -632,21 +632,21 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         if(sz == QAquaSizeLarge) {
             if(sld->orientation() == Qt::Horizontal) {
                 w = qt_mac_aqua_get_metric(kThemeMetricHSliderHeight);
-                if(sld->tickmarks() != QSlider::NoMarks)
+                if(sld->tickPosition() != QSlider::NoMarks)
                     w += qt_mac_aqua_get_metric(kThemeMetricHSliderTickHeight);
             } else {
                 w = qt_mac_aqua_get_metric(kThemeMetricVSliderWidth);
-                if(sld->tickmarks() != QSlider::NoMarks)
+                if(sld->tickPosition() != QSlider::NoMarks)
                     w += qt_mac_aqua_get_metric(kThemeMetricVSliderTickWidth);
             }
         } else if(sz == QAquaSizeSmall) {
             if(sld->orientation() == Qt::Horizontal) {
                 w = qt_mac_aqua_get_metric(kThemeMetricSmallHSliderHeight);
-                if(sld->tickmarks() != QSlider::NoMarks)
+                if(sld->tickPosition() != QSlider::NoMarks)
                     w += qt_mac_aqua_get_metric(kThemeMetricSmallHSliderTickHeight);
             } else {
                 w = qt_mac_aqua_get_metric(kThemeMetricSmallVSliderWidth);
-                if(sld->tickmarks() != QSlider::NoMarks)
+                if(sld->tickPosition() != QSlider::NoMarks)
                     w += qt_mac_aqua_get_metric(kThemeMetricSmallVSliderTickWidth);
             }
         }
@@ -654,11 +654,11 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         else if(sz == QAquaSizeMini) {
             if(sld->orientation() == Qt::Horizontal) {
                 w = qt_mac_aqua_get_metric(kThemeMetricMiniHSliderHeight);
-                if(sld->tickmarks() != QSlider::NoMarks)
+                if(sld->tickPosition() != QSlider::NoMarks)
                     w += qt_mac_aqua_get_metric(kThemeMetricMiniHSliderTickHeight);
             } else {
                 w = qt_mac_aqua_get_metric(kThemeMetricMiniVSliderWidth);
-                if(sld->tickmarks() != QSlider::NoMarks)
+                if(sld->tickPosition() != QSlider::NoMarks)
                     w += qt_mac_aqua_get_metric(kThemeMetricMiniVSliderTickWidth);
             }
         }
@@ -887,9 +887,9 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
     if (!isScrollbar) {
         if (slider->state & QStyle::QStyle::Style_HasFocus)
             tdi->attributes |= kThemeTrackHasFocus;
-        if (slider->tickmarks == QSlider::NoMarks || slider->tickmarks == QSlider::Both)
+        if (slider->tickPosition == QSlider::NoMarks || slider->tickPosition == QSlider::Both)
             tdi->trackInfo.slider.thumbDir = kThemeThumbPlain;
-        else if (slider->tickmarks == QSlider::Above)
+        else if (slider->tickPosition == QSlider::Above)
             tdi->trackInfo.slider.thumbDir = kThemeThumbUpward;
         else
             tdi->trackInfo.slider.thumbDir = kThemeThumbDownward;
@@ -951,9 +951,9 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
     if (!(slider->state & QStyle::Style_Active))
         tdi->enableState = kThemeTrackDisabled;
     if (!isScrollbar) {
-        if (slider->tickmarks == QSlider::NoMarks || slider->tickmarks == QSlider::Both)
+        if (slider->tickPosition == QSlider::NoMarks || slider->tickPosition == QSlider::Both)
             tdi->trackInfo.slider.thumbDir = kThemeThumbPlain;
-        else if (slider->tickmarks == QSlider::Above)
+        else if (slider->tickPosition == QSlider::Above)
             tdi->trackInfo.slider.thumbDir = kThemeThumbUpward;
         else
             tdi->trackInfo.slider.thumbDir = kThemeThumbDownward;
