@@ -17,7 +17,7 @@ public:
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
     bool insertRow(int row, const QModelIndex &parent = 0, int count = 1);
-    bool removeRow(int row, const QModelIndex &parent = 0);
+    bool removeRow(int row, const QModelIndex &parent = 0, int count = 1);
 
     bool isSelectable(const QModelIndex &index) const;
     bool isEditable(const QModelIndex &index) const;
@@ -81,7 +81,7 @@ bool QListModel::insertRow(int row, const QModelIndex &parent, int)
     return true;
 }
 
-bool QListModel::removeRow(int row, const QModelIndex &parent)
+bool QListModel::removeRow(int row, const QModelIndex &parent, int)
 {
     if (row < rowCount(parent)) {
         lst.removeAt(row);

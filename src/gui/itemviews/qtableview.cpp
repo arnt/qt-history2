@@ -14,8 +14,8 @@ public:
     virtual bool insertRow(int row, const QModelIndex &parent = 0, int count = 1);
     virtual bool insertColumn(int column, const QModelIndex &parent = 0, int count = 1);
 
-    virtual bool removeRow(int row, const QModelIndex &parent = 0);
-    virtual bool removeColumn(int column, const QModelIndex &parent = 0);
+    virtual bool removeRow(int row, const QModelIndex &parent = 0, int count = 1);
+    virtual bool removeColumn(int column, const QModelIndex &parent = 0, int count = 1);
 
     virtual void setText(int row, int column, const QString &text);
     virtual void setIconSet(int row, int column, const QIconSet &iconSet);
@@ -128,14 +128,14 @@ bool QTableModel::insertColumn(int, const QModelIndex &, int)
     return false;
 }
 
-bool QTableModel::removeRow(int, const QModelIndex &)
+bool QTableModel::removeRow(int, const QModelIndex &, int)
 {
 // FIXME: not implemented
     qDebug("removeRow: not implemented");
     return false;
 }
 
-bool QTableModel::removeColumn(int, const QModelIndex &)
+bool QTableModel::removeColumn(int, const QModelIndex &, int)
 {
 // FIXME: not implemented
     qDebug("removeColumn: not implemented");

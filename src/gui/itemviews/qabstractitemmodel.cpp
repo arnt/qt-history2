@@ -636,24 +636,25 @@ bool QAbstractItemModel::insertColumn(int, const QModelIndex &, int)
 }
 
 /*!
-    Removes row \a row under parent \a parent from the model. Returns
-    true if the row was successfully removed; otherwise returns false.
+    Removes \a count rows starting with row \a row under parent \a
+    parent from the model. Returns true if the rows were successfully
+    removed; otherwise returns false.
 
     The base class implementation does nothing and returns false.
 */
-bool QAbstractItemModel::removeRow(int, const QModelIndex &)
+bool QAbstractItemModel::removeRow(int, const QModelIndex &, int)
 {
     return false;
 }
 
 /*!
-    Removes column \a column under parent \a parent from the model.
-    Returns true if the column was successfully removed; otherwise
-    returns false.
+    Removes \a count columns starting with column \a column under parent
+    \a parent from the model.  Returns true if the columns were
+    successfully removed; otherwise returns false.
 
     The base class implementation does nothing and returns false.
 */
-bool QAbstractItemModel::removeColumn(int, const QModelIndex &)
+bool QAbstractItemModel::removeColumn(int, const QModelIndex &, int)
 {
     return false;
 }
