@@ -86,9 +86,9 @@ Qt searches in the following directories for plugin categories:
 \endlist
 
 Application specific plugin paths can be added using 
-QApplication::addLibraryPath(). The build-directory of Qt is hardcoded
+QCoreApplication::addLibraryPath(). The build-directory of Qt is hardcoded
 in the Qt library and can be changed as a part of the installation
-process (see the \l distributor-example.html Distributor example).
+process.
 
 \section1 Dynamic Dialogs 
 

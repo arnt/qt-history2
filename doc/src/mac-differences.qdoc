@@ -178,7 +178,7 @@
     into Mac native menu bars. Fitting this into your existing Qt application
     will normally be automatic, however, if you have special needs the Qt/Mac
     implementation currently selects a menu bar by starting at the active window
-    (ie QApplication::activeWindow()), and applying:
+    (i.e. QApplication::activeWindow()), and applying:
 
     \list 1
     \i If the window has a QMenuBar then it is used.

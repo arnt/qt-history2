@@ -7,7 +7,7 @@
     an \e interval in milliseconds as argument. The function returns a
     unique integer timer id. The timer will now "fire" every \e interval
     milliseconds, until you explicitly call QObject::killTimer() with
-    the timer id.
+    the timer ID.
 
     For this mechanism to work, the application must run in an event
     loop. You start an event loop with QApplication::exec(). When a
@@ -55,17 +55,9 @@
     events in any thread that has an event loop. To start an event
     loop from a non-GUI thread, use QThread::exec().
 
-    If you already have a QObject subclass and want an easy
-    optimization, you can use QBasicTimer instead of QTimer. With
-    QBasicTimer, you must reimplement
-    \l{QObject::timerEvent()}{timerEvent()} in your QObject subclass
-    and handle the timeout there.
-
-    To compare the two, we'll consider the \l widgets/analogclock and
-    \l widgets/digitalclock examples. The former uses QTimer; the
-    latter, QBasicTimer.
-
-    From \c{AnalogClock}'s implementation:
+    The \l widgets/analogclock example shows how to use QTimer to
+    redraw a widget at regular intervals. From \c{AnalogClock}'s
+    implementation:
 
     \quotefromfile widgets/analogclock/analogclock.cpp
     \skipto ::AnalogClock
@@ -79,42 +71,13 @@
     \skipto /^\}$/
     \printline }
 
-    Every 5 seconds, QTimer will call QWidget::update() to refresh
-    the clock's display. (An analog clock advances very slowly, so 5
-    seconds is a reasonable delay.)
+    Every 5 seconds, QTimer will call the QWidget::update() slot to
+    refresh the clock's display. (An analog clock advances very
+    slowly, so 5 seconds is a reasonable delay.)
 
-    Now let's look at \c{DigitalClock}. Here's the class definition:
-
-    \quotefromfile widgets/digitalclock/digitalclock.h
-    \skipto class DigitalClock
-    \printuntil };
-
-    Here's the constructor:
-
-    \quotefromfile widgets/digitalclock/digitalclock.cpp
-    \skipto ::DigitalClock
-    \printline ::
-    \printline : QLCDNumber
-    \printline {
-    \dots
-    \skipto timer.start
-    \printline timer.start
-    \dots
-    \skipto }
-    \printline }
-
-    The second argument to QBasicTimer::start() is a pointer to the
-    QObject that will receive the timer events. (The QBasicTimer
-    isn't a QObject, so it cannot receive events itself.)
-
-    Here's the \l{QObject::timerEvent()}{timerEvent()}
-    implementation:
-
-    \skipto ::timerEvent
-    \printline ::timerEvent
-    \printuntil /^\}$/
-
-    If the timer event is the right one, we call our \c showTime()
-    function. Otherwise, we forward the event to \c{DigitalClock}'s
-    base class.
+    If you already have a QObject subclass and want an easy
+    optimization, you can use QBasicTimer instead of QTimer. With
+    QBasicTimer, you must reimplement
+    \l{QObject::timerEvent()}{timerEvent()} in your QObject subclass
+    and handle the timeout there.
 */

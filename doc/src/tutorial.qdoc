@@ -160,9 +160,12 @@
     \printline }
 
     This is where \c main() passes control to Qt.
-    QApplication::exec() will return when the application exits.
+    QCoreApplication::exec() will return when the application exits.
+    (QCoreApplication is QApplication's base class. It implements
+    QApplication's core, non-GUI functionality and can be used when
+    developing non-GUI applications.)
 
-    In QApplication::exec(), Qt receives and processes user and
+    In QCoreApplication::exec(), Qt receives and processes user and
     system events and passes these on to the appropriate widgets.
 
     You should now try to compile and run this program.
@@ -260,7 +263,7 @@
     inherits QObject.
 
     Here, the \l{QPushButton::clicked()}{clicked()} signal of \c quit
-    is connected to the \l{QApplication::quit()}{quit()} slot of \c
+    is connected to the \l{QCoreApplication::quit()}{quit()} slot of \c
     app, so that when the button is clicked, the application quits.
 
     The \l{signalsandslots.html}{Signals and Slots} documentation
@@ -2275,10 +2278,10 @@
     We define three shortcut keys. We want the \c fire() slot to be
     called when the user presses \key{Enter} or \key{Return}. We also
     want the application to quit when key \key{Ctrl+Q} is pressed.
-    Instead of connecting to QApplication::quit(), we connect to
+    Instead of connecting to QCoreApplication::quit(), we connect to
     QWidget::close() this time. Since the \c GameBoard is the
     application's main widget, this has the same effect as
-    \l{QApplication::quit()}{quit()}.
+    \l{QCoreApplication::quit()}{quit()}.
 
     Qt::CTRL, Qt::Key_Enter, Qt::Key_Return, and Qt::Key_Q are all
     constants declared in the \l Qt namespace.

@@ -152,7 +152,7 @@ const char* and char from traditional C.
 
 Wherever your program uses \c{"quoted text"} for text that will
 be presented to the user, ensure that it is processed by the \l
-QApplication::translate() function. Essentially all that is necessary
+QCoreApplication::translate() function. Essentially all that is necessary
 to achieve this is to use \l QObject::tr(). For example, assuming the
 \c LoginWidget is a subclass of QWidget:
 
@@ -169,7 +169,7 @@ write.
 
 If the quoted text is not in a member function of a
 QObject subclass, use either the tr() function of an
-appropriate class, or the QApplication::translate() function
+appropriate class, or the QCoreApplication::translate() function
 directly:
 
 \code
@@ -233,7 +233,7 @@ Disabling the conversion can make programming a bit cumbersome.
 If your source language uses characters outside Latin1, you
 might find QObject::trUtf8() more convenient than
 QObject::tr(), as tr() depends on the
-QApplication::defaultCodec(), which makes it more fragile than
+QTextCodec::codecForTr(), which makes it more fragile than
 QObject::trUtf8().
 
 \section2 Use QKeySequence() for Accelerator Values
@@ -344,7 +344,7 @@ you add the \c TRANSLATIONS entry.
 
 In your application, you must \l QTranslator::load() the translation
 files appropriate for the user's language, and install them using \l
-QApplication::installTranslator().
+QCoreApplication::installTranslator().
 
 If you have been using the old Qt tools (\c findtr, \c msg2qm and \c
 mergetr), you can use \e qm2ts to convert your old \c .qm files.
@@ -371,19 +371,19 @@ useful.)
 
 Typically, your application's main() function will look like this:
 \code
-    int main( int argc, char **argv )
+    int main(int argc, char *argv[])
     {
-	QApplication app( argc, argv );
+	QApplication app(argc, argv);
 
 	// translation file for Qt
-	QTranslator qt( 0 );
-	qt.load( QString( "qt_" ) + QTextCodec::locale(), "." );
-	app.installTranslator( &qt );
+	QTranslator qt;
+	qt.load("qt_" + QLocale::system());
+	app.installTranslator(&qt);
 
 	// translation file for application strings
-	QTranslator myapp( 0 );
-	myapp.load( QString( "myapp_" ) + QTextCodec::locale(), "." );
-	app.installTranslator( &myapp );
+	QTranslator myapp;
+	myapp.load("myapp_" + QTextCodec::locale());
+	app.installTranslator(&myapp);
 
 	...
 

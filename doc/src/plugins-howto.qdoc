@@ -49,13 +49,13 @@ But where is the \c{pluginsbase} directory? When the application is
 run, Qt will first treat the application's executable directory as the
 \c{pluginsbase}. For example if the application is in \c{C:\Program
 Files\MyApp} and has a style plugin, Qt will look in \c{C:\Program
-Files\MyApp\styles}. (See \l{QApplication::applicationDirPath()} for
+Files\MyApp\styles}. (See QCoreApplication::applicationDirPath() for
 how to find out where the application's executable is.) Qt will also
 look in the directory specified by \c{qInstallPathPlugins()}. If you want
 Qt to look in additional places you can add as many paths as you need
-with calls to \c{QApplication::addLibraryPath()}. And if you want to
+with calls to QCoreApplication::addLibraryPath(). And if you want to
 set your own path or paths you can use
-\c{QApplication::setLibraryPaths()}.
+QCoreApplication::setLibraryPaths().
 
 Suppose that you have a new style class called 'MyStyle' that you want
 to make available as a plugin. The required code is straightforward:
@@ -98,7 +98,7 @@ no explicit object creation is required. Qt will find and create them
 as required. Styles are an exception, since you might want to set a
 style explicitly in code. To apply a style, use code like this:
 \code
-    QApplication::setStyle( QStyleFactory::create( "MyStyle" ) );
+    QApplication::setStyle(QStyleFactory::create("MyStyle"));
 \endcode
 
 Some plugin classes require additional functions to be implemented.
@@ -124,7 +124,7 @@ styles. If you want your applications to use plugins and you don't
 want to use the standard plugins path, have your installation process
 determine the path you want to use for the plugins, and save the path,
 e.g. using QSettings, for the application to read when it runs. The
-application can then call QApplication::addLibraryPath() with this
+application can then call QCoreApplication::addLibraryPath() with this
 path and your plugins will be available to the application. Note that
 the final part of the path, i.e. \c styles, \c widgets, etc., cannot
 be changed.
@@ -137,7 +137,7 @@ is to create a subdirectory under the application, e.g. \c
 appdir/plugins/designer, and place the plugin in that directory.
 
 For \link designer-manual.html Qt Designer\endlink, you may need to
-call QApplication::addLibraryPath("QTDIR/plugins/designer") to load
+call QCoreApplication::addLibraryPath("QTDIR/plugins/designer") to load
 your \link designer-manual.html Qt Designer\endlink plugins.
 
 \section1 Loading and Verifying Plugins

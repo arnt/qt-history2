@@ -29,7 +29,7 @@
 
     Since programs need to react in varied and complex ways, Qt's
     event delivery mechanisms are flexible. The documentation for
-    QApplication::notify() concisely tells the whole story; the
+    QCoreApplication::notify() concisely tells the whole story; the
     \e{Qt Quarterly} article
     \l{http://doc.trolltech.com/qq/qq11-events.html}{Another Look at Events}
     rehashes it less concisely; here we
@@ -81,10 +81,9 @@
     see the event at all.
 
     It's also possible to filter \e all events for the entire application,
-    by installing an event filter on QApplication. This is what
-    QToolTip does in order to see \e all the mouse and keyboard activity.
-    This is very powerful, but it also slows down event delivery of every
-    single event in the entire application, so it's best avoided.
+    by installing an event filter on the QApplication or QCoreApplication
+    object. This is very powerful, but it also slows down event delivery
+    of every single event in the entire application, so it's best avoided.
 
     The global event filters are called before the object-specific
     filters.

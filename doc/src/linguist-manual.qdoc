@@ -957,11 +957,11 @@
 
     \section2 Translating Text that is Outside of a QObject subclass
 
-    \section3 Using QApplication::translate()
+    \section3 Using QCoreApplication::translate()
 
     If the quoted text is not in a member function of a QObject subclass,
     use either the tr() function of an appropriate class, or the
-    QApplication::translate() function directly: 
+    QCoreApplication::translate() function directly: 
 
     \code
         void some_global_function(LoginWidget *logwid)
