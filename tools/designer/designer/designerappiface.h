@@ -23,7 +23,7 @@ public:
 class DesignerMainWindowInterfaceImpl : public QApplicationComponentInterface
 {
 public:
-    DesignerMainWindowInterfaceImpl( MainWindow *mw, QUnknownInterface* parent  );
+    DesignerMainWindowInterfaceImpl( MainWindow *mw, QUnknownInterface* parent );
 
     QString interfaceID() const { return "DesignerMainWindowInterface"; }
 };

@@ -7,7 +7,7 @@
 #include <qstatusbar.h>
 
 DesignerApplicationInterface::DesignerApplicationInterface()
-    : QApplicationInterface()
+    : QApplicationInterface( "Designer Application Interface" )
 {
     MainWindow* mw = (MainWindow*)qApp->mainWidget();
     FormList* fl = mw ? mw->formlist() : 0;
@@ -22,7 +22,7 @@ DesignerApplicationInterface::DesignerApplicationInterface()
  * DesignerMainWindowInterface
 */
 DesignerMainWindowInterfaceImpl::DesignerMainWindowInterfaceImpl( MainWindow *mw, QUnknownInterface* parent )
-    : DesignerMainWindowInterface( mw, parent )
+    : DesignerMainWindowInterface( mw, parent, "Designer MainWindow Interface" )
 {
     new DesignerStatusBarInterfaceImpl( ((QMainWindow*)component())->statusBar(), this );
 }
@@ -31,7 +31,7 @@ DesignerMainWindowInterfaceImpl::DesignerMainWindowInterfaceImpl( MainWindow *mw
  * DesignerStatusBarInterface
 */
 DesignerStatusBarInterfaceImpl::DesignerStatusBarInterfaceImpl( QStatusBar *sb, QUnknownInterface* parent )
-    : DesignerStatusBarInterface( sb, parent )
+    : DesignerStatusBarInterface( sb, parent, "Designer StatusBar Interface" )
 {
 }
 
@@ -53,7 +53,7 @@ bool DesignerStatusBarInterfaceImpl::requestSetProperty( const QCString &p, cons
  * DesignerFormListInterface
 */
 DesignerFormListInterfaceImpl::DesignerFormListInterfaceImpl( FormList *fl, QUnknownInterface* parent )
-    : DesignerFormListInterface( fl, parent )
+    : DesignerFormListInterface( fl, parent, "Designer FormList Interface" )
 {
     new DesignerActiveFormWindowInterfaceImpl( fl, this );
 }
@@ -67,7 +67,7 @@ QList<DesignerFormWindowInterface>* DesignerFormListInterfaceImpl::queryFormInte
     while ( it.current() ) {
 	FormListItem* item = (FormListItem*)it.current();
 	++it;
-	list->append( new DesignerFormWindowInterface( item->formWindow() ) );
+	list->append( new DesignerFormWindowInterface( item->formWindow(), this ) );
     }
 
     return list;
@@ -135,7 +135,7 @@ void DesignerFormListInterfaceImpl::setPixmap( DesignerFormWindowInterface *form
  * DesignerActiveFormWindowInterface
 */
 DesignerActiveFormWindowInterfaceImpl::DesignerActiveFormWindowInterfaceImpl ( FormList* fl, QUnknownInterface *parent )
-    : DesignerActiveFormWindowInterface( fl, parent ), formWindow( 0 )
+    : DesignerActiveFormWindowInterface( fl, parent, "Designer ActiveForm Interface" ), formWindow( 0 )
 {
     connect( component(), SIGNAL( selectionChanged() ),
 	     this, SLOT( reconnect() ) );

@@ -20,7 +20,8 @@ typedef QApplicationComponentInterface DesignerStatusBarInterface;
 class DesignerFormListInterface : public QApplicationComponentInterface
 {
 public:
-    DesignerFormListInterface( QObject *li, QUnknownInterface* parent = 0 ) : QApplicationComponentInterface( li, parent ) {}
+    DesignerFormListInterface( QObject *li, QUnknownInterface* parent, const char *name = 0 ) 
+	: QApplicationComponentInterface( li, parent, name ) {}
     QString interfaceID() const { return "DesignerFormListInterface"; }
 
     virtual const QPixmap* pixmap( DesignerFormWindowInterface*, int col ) const = 0;
