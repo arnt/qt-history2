@@ -796,14 +796,13 @@ integer properties are displayed in spinboxes, and compound properties such
 as colors and sizes are presented in drop-down lists of input widgets.
 \endtable
 
-\target TheObjectInspector
 \section1 The Object Inspector
 
 The Object Inspector shows an up-to-date hierarchical list of the objects
 (widgets, layouts, spacers, and other objects) on the form that is currently
 being edited.
 
-\target EditingProperties
+\target TheObjectInspector
 \table
 \row \i 
 \inlineimage designer-object-inspector.png
@@ -925,7 +924,6 @@ to other objects.
 
 \target HighlightedObjects
 \table
-\target HighlightedObjects
 \row
 \i \inlineimage designer-connection-highlight.png
 \i \bold{Highlighted objects}
