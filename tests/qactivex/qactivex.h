@@ -6,6 +6,7 @@
 
 struct IUnknown;
 class QAxEventSink;
+struct QUuid;
 
 class QActiveXBase : public QWidget
 {
@@ -19,9 +20,18 @@ public:
 
     QString control() const;
 
+    long queryInterface( const QUuid &, void** );
+    QVariant dynamicCall( const QCString&, const QVariant &v1 = QVariant(), 
+					   const QVariant &v2 = QVariant(),
+					   const QVariant &v3 = QVariant(),
+					   const QVariant &v4 = QVariant(),
+					   const QVariant &v5 = QVariant(),
+					   const QVariant &v6 = QVariant(),
+					   const QVariant &v7 = QVariant(),
+					   const QVariant &v8 = QVariant() );
+
 public slots:
     virtual void clear();
-    void invoke( const QString& );
     void setControl( const QString& );
 
 signals:
@@ -56,14 +66,6 @@ public:
     ~QActiveX();
 
     void clear();
-    QVariant dynamicCall( const QCString&, const QVariant &v1 = QVariant(), 
-					   const QVariant &v2 = QVariant(),
-					   const QVariant &v3 = QVariant(),
-					   const QVariant &v4 = QVariant(),
-					   const QVariant &v5 = QVariant(),
-					   const QVariant &v6 = QVariant(),
-					   const QVariant &v7 = QVariant(),
-					   const QVariant &v8 = QVariant() );
 
 private:
     QMetaObject *metaObj;

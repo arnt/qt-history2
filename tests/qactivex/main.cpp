@@ -27,9 +27,9 @@ public:
 	activex->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 	QHBox *hbox = new QHBox( vbox );
 	leControl = new QLineEdit( hbox );
-	QPushButton *button = new QPushButton( "Create", hbox );
+	pbInstantiate = new QPushButton( "Create", hbox );
 
-	connect( button, SIGNAL(clicked()), this, SLOT(instantiate()) );
+	connect( pbInstantiate, SIGNAL(clicked()), this, SLOT(instantiate()) );
 	
 	vbox = new QVBox( splitter );
 	listview = new QListView( vbox );
@@ -38,21 +38,25 @@ public:
 	listview->setRootIsDecorated( TRUE );
 	hbox = new QHBox( vbox );
 	leSlot = new QLineEdit( hbox );
-	button = new QPushButton( "Invoke", hbox );
+	pbInvoke = new QPushButton( "Invoke", hbox );
 
 	populate();
 
-	connect( button, SIGNAL(clicked()), this, SLOT(invoke()) );
+	connect( pbInvoke, SIGNAL(clicked()), this, SLOT(invoke()) );
+
 	connect( listview, SIGNAL(doubleClicked(QListViewItem*)), this, SLOT(invoke(QListViewItem*)) );
 	connect( activex, SIGNAL(signal(const QString&,int,void*)), this, SLOT(slot(const QString&,int,void*)) );
-
-	activex->setProperty( "Variant", "Foo" );
     }
 
 public slots:
     void invoke()
     {
-	activex->invoke( leSlot->text() );
+	QString text = leSlot->text();
+	if ( text.right(2) == "()" )
+	    text.truncate( text.length()-2 );
+	activex->dynamicCall( (const char*)text );
+
+	leSlot->setSelection( 0, text.length() );
     }
     void invoke( QListViewItem *item )
     {
@@ -70,6 +74,8 @@ public slots:
 
     void instantiate() 
     {
+	pbInvoke->setDefault( TRUE );
+	leSlot->setFocus();
 	activex->setControl( leControl->text() );
 	populate();
     }
@@ -106,6 +112,8 @@ private:
     QListView *listview;
     QLineEdit *leSlot;
     QLineEdit *leControl;
+    QPushButton *pbInstantiate;
+    QPushButton *pbInvoke;
     QActiveX *activex;
 };
 

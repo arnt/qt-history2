@@ -370,8 +370,11 @@ static inline DATE QDateTimeToDATE( const QDateTime &dt )
 
 static inline QString BSTRToQString( BSTR bstr )
 {
-    int len = wcslen( bstr );
     QString str;
+    if ( !bstr )
+	return str;
+
+    int len = wcslen( bstr );
     str.setUnicode( (QChar*)bstr, len );
     return str;
 }
@@ -1011,19 +1014,73 @@ void QActiveXBase::initialize()
 }
 
 /*!
-    Calls the ActiveX control's method \a name.
+    ###
 */
-void QActiveXBase::invoke( const QString &name )
+long QActiveXBase::queryInterface( const QUuid &uuid, void **iface )
 {
-    int index = metaObject()->findSlot( name );
-    const QMetaData *slot = metaObject()->slot( index - metaObject()->slotOffset() );
-    if ( !slot || ( slot->method->count > 1 ) || 
-	( slot->method->count == 1 && !(slot->method->parameters[0].inOut & QUParameter::Out) ) )
-	return;
-
-    qt_invoke( index, 0 );
+    *iface = 0;
+    if ( ptr && !uuid.isNull() )
+	return ptr->QueryInterface( uuid, iface );
+    
+    return E_NOTIMPL;
 }
 
+QVariant QActiveXBase::dynamicCall( const QCString &function, const QVariant &var1, 
+							 const QVariant &var2, 
+							 const QVariant &var3, 
+							 const QVariant &var4, 
+							 const QVariant &var5, 
+							 const QVariant &var6, 
+							 const QVariant &var7, 
+							 const QVariant &var8 )
+{
+    QUObject obj[9];
+    // obj[0] is the result
+    QVariantToQUObject( var1, obj[1] );
+    QVariantToQUObject( var2, obj[2] );
+    QVariantToQUObject( var3, obj[3] );
+    QVariantToQUObject( var4, obj[4] );
+    QVariantToQUObject( var5, obj[5] );
+    QVariantToQUObject( var6, obj[6] );
+    QVariantToQUObject( var7, obj[7] );
+    QVariantToQUObject( var8, obj[8] );
+
+    QVariant result;
+
+    const QMetaData *slot_data = 0;
+    const QUMethod *slot = 0;
+    const QMetaObject *meta = metaObject();
+    int index = 0;
+    do {
+	slot_data = meta->slot( index );
+	if ( slot_data ) {
+	    slot = slot_data->method;
+	    if ( !qstrcmp( slot->name, function ) )
+		break;
+	} else {
+	    slot = 0;
+	}
+	++index;
+    } while ( slot_data );
+
+    if ( slot ) {
+	qt_invoke( index + meta->slotOffset(), obj );
+	if ( !QUType::isEqual( obj[0].type, &static_QUType_Null ) ) {
+	    if ( obj[0].type == &static_QUType_int ) {
+		result = static_QUType_int.get( &obj[0] );
+	    } else if ( obj[0].type == &static_QUType_ptr ) {
+	    }
+	}
+    }
+#if defined(QT_CHECK_RANGE)
+    else {
+	const char *coclass = meta->classInfo( "CoClass" );
+	qWarning( "QActiveX::dynamicCall: %s: No such method in %s %s", (const char*)function, control().latin1(), 
+	    coclass ? coclass: "(unknown)" );
+    }
+#endif
+    return result;
+}
 
 /*!
     \class QActiveX qactivex.h
@@ -1747,16 +1804,6 @@ QMetaObject *QActiveX::staticMetaObject()
 void *QActiveX::qt_cast( const char *cname )
 {
     if ( !qstrcmp( cname, "QActiveX" ) ) return this;
-    
-    // check whether "cname" is a UUID and if the control implements that interface
-    QUuid uuid( cname );
-    if ( ptr && !uuid.isNull() ) {
-	void *iface = 0;
-	ptr->QueryInterface( uuid, &iface );
-	if ( iface )
-	    return iface;
-    }
-
     return QActiveXBase::qt_cast( cname );
 }
 
@@ -2050,61 +2097,4 @@ bool QActiveX::qt_property( int _id, int _f, QVariant* _v )
 	return FALSE;
     }
     return QActiveXBase::qt_property( _id, _f, _v );
-}
-
-QVariant QActiveX::dynamicCall( const QCString &function, const QVariant &var1, 
-							 const QVariant &var2, 
-							 const QVariant &var3, 
-							 const QVariant &var4, 
-							 const QVariant &var5, 
-							 const QVariant &var6, 
-							 const QVariant &var7, 
-							 const QVariant &var8 )
-{
-    QUObject obj[9];
-    // obj[0] is the result
-    QVariantToQUObject( var1, obj[1] );
-    QVariantToQUObject( var2, obj[2] );
-    QVariantToQUObject( var3, obj[3] );
-    QVariantToQUObject( var4, obj[4] );
-    QVariantToQUObject( var5, obj[5] );
-    QVariantToQUObject( var6, obj[6] );
-    QVariantToQUObject( var7, obj[7] );
-    QVariantToQUObject( var8, obj[8] );
-
-    QVariant result;
-
-    const QMetaData *slot_data = 0;
-    const QUMethod *slot = 0;
-    const QMetaObject *meta = metaObject();
-    int index = 0;
-    do {
-	slot_data = meta->slot( index );
-	if ( slot_data ) {
-	    slot = slot_data->method;
-	    if ( !qstrcmp( slot->name, function ) )
-		break;
-	} else {
-	    slot = 0;
-	}
-	++index;
-    } while ( slot_data );
-
-    if ( slot ) {
-	qt_invoke( index + meta->slotOffset(), obj );
-	if ( !QUType::isEqual( obj[0].type, &static_QUType_Null ) ) {
-	    if ( obj[0].type == &static_QUType_int ) {
-		result = static_QUType_int.get( &obj[0] );
-	    } else if ( obj[0].type == &static_QUType_ptr ) {
-	    }
-	}
-    }
-#if defined(QT_CHECK_RANGE)
-    else {
-	const char *coclass = meta->classInfo( "CoClass" );
-	qWarning( "QActiveX::dynamicCall: %s: No such method in %s %s", (const char*)function, control().latin1(), 
-	    coclass ? coclass: "(unknown)" );
-    }
-#endif
-    return result;
 }
