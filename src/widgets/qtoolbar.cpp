@@ -177,17 +177,25 @@ QSizePolicy QToolBarSeparator::sizePolicy() const
   QMainWindow, and can optionally start a new line in its dock.  Tool
   bars that start a new line are always positioned at the left end or
   top of the tool bar dock; others are placed next to the previous
-  tool bar and word-wrapped as necessary.
+  tool bar and word-wrapped as necessary. The main window can
+  be resized to a smaller size than a toolbar would need to show all
+  items. If this happens QToolbar shows a little arrow button at the
+  roght or bottom end. When clicking on that button, a popup menu is
+  opened which shows all items of the toolbar which are
+  outside the visible area of the mainwindow.
 
   Usually, a toolbar gets just the space it needs. However, with
-  setStretchable() or setStretchableWidget() you can advise the main
-  window to expand the toolbar horizontally to fill all available width.
+  setHorizontalStretchable()/setVerticalStretchable() or
+  setStretchableWidget() you can advise the main window to expand
+  the toolbar to fill all available width in the specified orientation.
 
   The tool bar arranges its buttons either horizontally or vertically
   (see setOrientation() for details). Generally, QMainWindow will set
   the orientation correctly for you. The toolbar emits a signal
   orientationChanged() each time the orientation changes, in case some
   child widgets need adjustments.
+
+  To remove all items from a toolbar, you can use the clear() method.
 
   \sa QToolButton QMainWindow
   <a href="http://www.iarchitect.com/visual.htm">Parts of Isys on Visual Design</a>
@@ -346,7 +354,7 @@ void QToolBar::show()
 {
     QWidget::show();
     if ( mw )
-	mw->triggerLayout();
+	mw->triggerLayout( FALSE );
 }
 
 
@@ -358,7 +366,7 @@ void QToolBar::hide()
 {
     QWidget::hide();
     if ( mw )
-	mw->triggerLayout();
+	mw->triggerLayout( FALSE );
 }
 
 void QToolBar::setUpGM()
@@ -390,13 +398,13 @@ QMainWindow * QToolBar::mainWindow()
 
 /*!
   Sets \a w to be expanded if this toolbar is requested to stretch
-  (because QMainWindow right-justifies the dock it's in or isStretchable()
-  of this toolbar is TRUE).
+  (because QMainWindow right-justifies the dock it's in or isVerticalStretchable()
+  or isHorizontalStretchable() of this toolbar is TRUE).
 
   If you call setStretchableWidget() and the toolbar is not stretchable
   yet, setStretchable(  ) is called.
 
-  \sa QMainWindow::setRightJustification(), setStretchable()
+  \sa QMainWindow::setRightJustification(), setVerticalStretchable(), setHorizontalStretchable()
 */
 
 void QToolBar::setStretchableWidget( QWidget * w )
@@ -423,8 +431,17 @@ bool QToolBar::event( QEvent * e )
 	QObject * child = ((QChildEvent*)e)->child();
 	if ( child && child->isWidgetType() && ((QWidget*)child) == sw )
 	    bl->setStretchFactor( (QWidget*)child, 1 );
-	if ( child && child->isWidgetType() && child->parent() == this && !child->inherits( "QPopupMenu" ) )
+	if ( isVisible() && child && child->isWidgetType() &&
+	     child->parent() == this && !child->inherits( "QPopupMenu" ) )
 	    ( (QWidget*)child )->show();
+    } else if ( e->type() == QEvent::ChildRemoved ) {
+	QObject * child = ((QChildEvent*)e)->child();
+	if ( child == d->arrow )
+	    d->arrow = 0;
+	if ( child == d->menu )
+	    d->menu = 0;
+	if ( child == d->back )
+	    d->back = 0;
     }
     return r;
 }
@@ -478,7 +495,8 @@ void QToolBar::clear()
     d->menu = 0;
     d->arrow = 0;
     d->back = 0;
-    updateArrowStuff();
+    if ( isVisible() )
+	updateArrowStuff();
 }
 
 /*!
@@ -620,12 +638,16 @@ void QToolBar::resizeEvent( QResizeEvent *e )
 {
     QWidget::resizeEvent( e );
 #if defined(TOOLBAR_MENU)
-    updateArrowStuff();
+    if ( isVisible() )
+	updateArrowStuff();
 #endif
 }
 
 void QToolBar::updateArrowStuff()
 {
+#if defined(TOOLBAR_MENU)
+    if ( !isVisible() )
+	return;
     if ( orientation() == Horizontal ) {
 	int shw = sizeHint().width();
 	if ( d->arrow && d->back && d->arrow->isVisible() && d->back->isVisible() )
@@ -723,10 +745,14 @@ void QToolBar::updateArrowStuff()
 	    setUpdatesEnabled( TRUE );
 	}
     }
+#endif
 }
 
 void QToolBar::setupArrowMenu()
 {
+#if defined(TOOLBAR_MENU)
+    if ( !isVisible() )
+	return;
     if ( !d->menu ) {
 	d->menu = new QPopupMenu( this );
 	connect( d->menu, SIGNAL( activated( int ) ),
@@ -734,17 +760,18 @@ void QToolBar::setupArrowMenu()
 	connect( d->menu, SIGNAL( aboutToShow() ),
 		 this, SLOT( setupArrowMenu() ) );
     }
-    QObjectList *childs = (QObjectList*)children();
+
+    QObjectList *childs = queryList( "QWidget" );
     if ( childs ) {
 	d->menu->clear();
 	d->menu->setCheckable( TRUE );
 	d->hiddenItems.clear();
 	bool justHadSep = TRUE;
-	QObject *o = 0;
-	for ( o = childs->first(); o; o = childs->next() ) {
-	    if ( o->isWidgetType() && ( (QWidget*)o )->isVisible() && o->parent() == this &&
-		 o != d->arrow && o != d->menu && o->inherits( "QButton" ) ) {
-		QWidget *w = (QWidget*)o;
+	QObject *ob = 0;
+	for ( ob = childs->first(); ob; ob = childs->next() ) {
+	    if ( ob->isWidgetType() && ( (QWidget*)ob )->isVisible() && ob->parent() == this &&
+		 ob != d->arrow && ob != d->menu && ob->inherits( "QButton" ) ) {
+		QWidget *w = (QWidget*)ob;
 		bool mv = FALSE;
 		if ( orientation() == Horizontal )
 		    mv = ( w->x() + w->width() > width() - 20 ||	
@@ -753,12 +780,12 @@ void QToolBar::setupArrowMenu()
 		    mv = ( w->y() + w->height() > height() - 20 ||
 			   w->x() == -w->width() && w->y() == -w->height() );
 		if ( mv ) {
-		    bool hd = FALSE;
+		    bool hdb = FALSE;
 		    if ( orientation() == Horizontal )
-			hd = w->x() > 2 * style().toolBarHandleExtend();
+			hdb = w->x() > 2 * style().toolBarHandleExtend();
 		    else
-			hd = w->y() > 2 * style().toolBarHandleExtend();
-		    if ( hd )
+			hdb = w->y() > 2 * style().toolBarHandleExtend();
+		    if ( hdb )
 			w->move( -w->width(), -w->height() );
 		    if ( w->inherits( "QToolButton" ) ) {
 			QToolButton *b = (QToolButton*)w;
@@ -790,13 +817,15 @@ void QToolBar::setupArrowMenu()
 			justHadSep = FALSE;
 		    }
 		}
-	    } else if ( o->inherits( "QToolBarSeparator" ) ) {
+	    } else if ( ob->inherits( "QToolBarSeparator" ) ) {
 		if ( !justHadSep )
 		    d->menu->insertSeparator();
 		justHadSep = TRUE;
 	    }
 	}
     }
+    delete childs;
+#endif
 }
 
 void QToolBar::popupSelected( int id )
@@ -850,8 +879,8 @@ void QToolBar::paintToolBar()
 	w++;
     else if ( orientation() == Vertical && h < sizeHint().height() )
 	h++;
-    qDrawShadePanel( &p, 0, 0, w, h,
-		     colorGroup(), FALSE, 1, 0 );
+    style().drawPanel( &p, 0, 0, w, h,
+		       colorGroup(), FALSE, 1, 0 );
     style().drawToolBarHandle( &p, QRect( 0, 0, width(), height() ),
 			       orientation(), d->moving, colorGroup() );
 }

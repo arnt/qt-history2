@@ -50,7 +50,7 @@
  */
 
 /* Perl script to generate (run perl -x tools/qstring.cpp)
-
+   
 #!perl
 
 sub numberize
@@ -13617,7 +13617,7 @@ ulong QString::toULong( bool *ok, int base ) const
     const QChar *p = unicode();
     ulong val=0;
     int l = length();
-    const ulong max_mult = 429496729;
+    const ulong max_mult = 429496729;		// UINT_MAX/10, rounded down
     bool is_ok = FALSE;
     if ( !p )
 	goto bye;
@@ -14354,8 +14354,10 @@ void QString::subat( uint i )
 QString& QString::setUnicode( const QChar *unicode, uint len )
 {
     if ( len == 0 ) {				// set to null string
-	deref();
-	d = shared_null ? shared_null : makeSharedNull();
+	if ( d != shared_null ) {		// beware of nullstring being set to nullstring
+	    deref();
+	    d = shared_null ? shared_null : makeSharedNull();
+	}
     } else if ( d->count != 1 || len > d->maxl ||
 	 ( len*4 < d->maxl && d->maxl > 4 ) ) {	// detach, grown or shrink
 	Q2HELPER(stat_copy_on_write++);

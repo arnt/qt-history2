@@ -493,8 +493,8 @@ static QFont default_font( QWidget *parent )
 	disabled even when all its ancestors are set to enabled
 	state. This implies WState_Disabled.
   <dt>WState_Visible<dd> The widget is currently visible.
-  <dt>WState_ForceHide<dd> The widget is explicitely hidden, i.e.it will remain invisible
-       even when all its ancestors are shown. This implies !WState_Visible
+  <dt>WState_ForceHide<dd> The widget is explicitely hidden, i.e. it won't become
+  	visible unless you call show() on it.  ForceHide implies !WState_Visible
   <dt>WState_OwnCursor<dd> A cursor has been set for this widget.
   <dt>WState_MouseTracking<dd> Mouse tracking is enabled.
   <dt>WState_CompressKeys<dd> Compress keyboard events.
@@ -509,9 +509,8 @@ static QFont default_font( QWidget *parent )
   <dt>WState_Modal<dd> Only for WType_Modal. Defines whether the widget is
         actually performing  modality when shown. Modality can be switched on/off with
         this flag.
-  <dt> WState_Withdrawn<dd> The widget is withdrawn, i.e. hidden from the
-	   window system by the program itself.
-  </dl>
+  <dt> WState_Exposed<dd> the widget was finally exposed (x11 only,
+        helps avoiding paint event doubling).  </dl>
 */
 
 
@@ -661,7 +660,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 {
     isWidget = TRUE;				// is a widget
     winid = 0;					// default attributes
-    widget_state = WState_Withdrawn;
+    widget_state = 0;
     widget_flags = f;
     focus_policy = 0;
     own_font = 0;
@@ -677,6 +676,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     QApplication::postEvent( this, new QResizeEvent(crect.size(),
 						    crect.size()) );
     if ( isTopLevel() ) {
+	setWState( WState_ForceHide );
 	if ( testWFlags( WType_Modal ) )
 	    setWState( WState_Modal ); // default for modal windows is to be modal
 	QFocusData *fd = focusData( TRUE );
@@ -684,7 +684,9 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	    fd->focusWidgets.append( this );
     } else {
 	if ( !parentWidget()->isEnabled() )
-	    setWState( WState_Disabled );
+	    setWState( WState_Disabled ); 	// propagate enabled state
+	if ( parentWidget()->isVisible() )
+	    setWState( WState_ForceHide );	// new widgets do not show up in already visible parents
     }
 }
 
@@ -1259,6 +1261,10 @@ void QWidget::enabledChange( bool )
   \fn QRect QWidget::frameGeometry() const
   Returns the geometry of the widget, relative to its parent and
   including the window frame.
+  
+  See the \link geometry.html Window Geometry documentation\endlink
+  for an overview of geometry issues with top-level widgets.
+  
   \sa geometry(), x(), y(), pos()
 */
 
@@ -1273,6 +1279,10 @@ QRect QWidget::frameGeometry() const
   \fn const QRect &QWidget::geometry() const
   Returns the geometry of the widget, relative to its parent widget
   and excluding the window frame.
+
+  See the \link geometry.html Window Geometry documentation\endlink
+  for an overview of geometry issues with top-level widgets.
+  
   \sa frameGeometry(), size(), rect()
 */
 
@@ -1280,6 +1290,10 @@ QRect QWidget::frameGeometry() const
   \fn int QWidget::x() const
   Returns the x coordinate of the widget, relative to its parent
   widget and including the window frame.
+
+  See the \link geometry.html Window Geometry documentation\endlink
+  for an overview of geometry issues with top-level widgets.
+
   \sa frameGeometry(), y(), pos()
 */
 
@@ -1287,6 +1301,10 @@ QRect QWidget::frameGeometry() const
   \fn int QWidget::y() const
   Returns the y coordinate of the widget, relative to its parent
   widget and including the window frame.
+
+  See the \link geometry.html Window Geometry documentation\endlink
+  for an overview of geometry issues with top-level widgets.
+
   \sa frameGeometry(), x(), pos()
 */
 
@@ -1294,6 +1312,10 @@ QRect QWidget::frameGeometry() const
   \fn QPoint QWidget::pos() const
   Returns the position of the widget in its parent widget, including
   the window frame.
+
+  See the \link geometry.html Window Geometry documentation\endlink
+  for an overview of geometry issues with top-level widgets.
+
   \sa move(), frameGeometry(), x(), y()
 */
 
@@ -1306,12 +1328,20 @@ QRect QWidget::frameGeometry() const
 /*!
   \fn int QWidget::width() const
   Returns the width of the widget, excluding the window frame.
+  
+  See the \link geometry.html Window Geometry documentation\endlink
+  for an overview of geometry issues with top-level widgets.
+  
   \sa geometry(), height(), size()
 */
 
 /*!
   \fn int QWidget::height() const
   Returns the height of the widget, excluding the window frame.
+  
+  See the \link geometry.html Window Geometry documentation\endlink
+  for an overview of geometry issues with top-level widgets.
+
   \sa geometry(), width(), size()
 */
 
@@ -1319,6 +1349,10 @@ QRect QWidget::frameGeometry() const
   \fn QRect QWidget::rect() const
   Returns the the internal geometry of the widget, excluding the window frame.
   rect() equals QRect(0,0,width(),height()).
+  
+  See the \link geometry.html Window Geometry documentation\endlink
+  for an overview of geometry issues with top-level widgets.
+  
   \sa size()
 */
 
@@ -2795,9 +2829,9 @@ void QWidget::setCRect( const QRect &r )
   Moves the widget to the position \e (x,y) relative to the parent widget and
   including the window frame.
 
-  A \link moveEvent() move event\endlink is generated immediately if
-  the widget is visible. If the widget is invisible, the move event
-  is generated when show() is called.
+  If the widget is visible, it receives a \link moveEvent() move
+  event\endlink immediately. If the widget is not shown yet, it is
+  guaranteed to receive an event before it actually becomes visible.
 
   This function is virtual, and all other overloaded move()
   implementations call it.
@@ -2805,6 +2839,9 @@ void QWidget::setCRect( const QRect &r )
   \warning If you call move() or setGeometry() from moveEvent(), you
   may see infinite recursion.
 
+  See the \link geometry.html Window Geometry documentation\endlink
+  for an overview of geometry issues with top-level widgets.
+  
   \sa pos(), resize(), setGeometry(), moveEvent()
 */
 
@@ -2824,9 +2861,9 @@ void QWidget::move( int x, int y )
 /*!
   Resizes the widget to size \e w by \e h pixels.
 
-  A \link resizeEvent() resize event\endlink is generated immediately if
-  the widget is visible. If the widget is invisible, the resize event
-  is generated when show() is called.
+  If the widget is visible, it receives a \link resizeEvent() resize
+  event\endlink immediately. If the widget is not shown yet, it is
+  guaranteed to receive an event before it actually becomes visible.
 
   The size is adjusted if it is outside the \link setMinimumSize()
   minimum\endlink or \link setMaximumSize() maximum\endlink widget size.
@@ -2855,9 +2892,10 @@ void QWidget::resize( int w, int h )
   Sets the widget geometry to \e w by \e h, positioned at \e x,y in its
   parent widget.
 
-  A \link resizeEvent() resize event\endlink and a \link moveEvent() move
-  event\endlink are generated immediately if the widget is visible. If the
-  widget is invisible, the events are generated when show() is called.
+  If the widget is visible, it receives a \link moveEvent() move
+  event\endlink and/or \link resizeEvent() resize event \endlink
+  immediately. If the widget is not shown yet, it is guaranteed to
+  receive appropriate events before it actually becomes visible.
 
   The size is adjusted if it is outside the \link setMinimumSize()
   minimum\endlink or \link setMaximumSize() maximum\endlink widget size.
@@ -3010,7 +3048,7 @@ static bool noMoreToplevels()
     QWidgetList *list   = qApp->topLevelWidgets();
     QWidget     *widget = list->first();
     while ( widget ) {
-	if ( !widget->testWState( Qt::WState_Withdrawn )
+	if ( !widget->testWState( Qt::WState_ForceHide )
 	     && !widget->isDesktop()
 	     && !widget->isPopup()
 	     && !widget->testWFlags( Qt::WStyle_Dialog) )
@@ -3042,6 +3080,7 @@ bool qt_modal_state();				// --- "" ---
 
 void QWidget::show()
 {
+    bool sendLayoutHint = !isTopLevel() && testWState( WState_ForceHide );
     clearWState( WState_ForceHide );
 
     if ( testWState(WState_Visible) )
@@ -3080,8 +3119,6 @@ void QWidget::show()
     QApplication::sendPostedEvents( this, QEvent::Move );
     QApplication::sendPostedEvents( this, QEvent::Resize );
 
-    bool sendLayoutHint = testWState( WState_Withdrawn ) && !isTopLevel();
-    clearWState( WState_Withdrawn );
     setWState( WState_Visible );
 
      if ( parentWidget() )
@@ -3157,17 +3194,15 @@ void QWidget::show()
 
 void QWidget::hide()
 {
-    setWState( WState_ForceHide );
-    if ( testWState(WState_Withdrawn) )
+    if ( testWState(WState_ForceHide) )
 	return;
+    setWState( WState_ForceHide );
 
     if ( testWFlags(WType_Popup) )
 	qApp->closePopup( this );
 
     bool activateParent = isTopLevel() && parentWidget() &&  isActiveWindow();
     hideWindow();
-
-    setWState( WState_Withdrawn );
 
    if ( !testWState(WState_Visible) )
 	return;
@@ -3253,8 +3288,8 @@ void QWidget::sendHideEventsToChildren( bool spontaneous )
   guarantee since the initialization of the subclasses might not be
   finished.
 
-  After this function, the wiget has a proper font and palette and
-  QApplication::polish() has been called.
+  After this function, the widget has a proper font and palette and
+  QApplication::polish() has been called. 
 
   Remember to call QWidget's implementation when reimplementing this
   function.
@@ -4400,9 +4435,19 @@ void QWidget::setLayout( QLayout *l )
   policy specified by that layout is used. If there is no such
   QLayout, the result of this function is used.
 
-  The default implementation returns a value which means
-  that  the widget can be freely resized,
-  but prefers to be the size sizeHint() returns.
+  The default implementation returns a value which means that the
+  widget can be freely resized, but prefers to be the size sizeHint()
+  returns. Button-like widgets reimplement sizeHint to specify that
+  they may stretch horizontally, but are fixed vertically. The same
+  applies to lineedit controls (such as QLineEdit, QSpinBox or an
+  editable QComboBox) and other horizontally orientated widgets (such
+  as QProgressBar).  A QToolButton on the other hand wants to be
+  squared, therefore it allows growth in both directions. Widgets that
+  support different directions (such as QSlider, QScrollBar or
+  QHeader) specify stretching in the respecitive direction
+  only. Widgets that can provide scrollbars (usually subclasses of
+  QScrollView) tend to specify that they can use additional space, and
+  that they can survive on less than sizeHint().
 
   \sa sizeHint() QLayout QSizePolicy, updateGeometry()
 */

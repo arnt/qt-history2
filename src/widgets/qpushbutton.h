@@ -70,8 +70,6 @@ public:
     virtual void setIsMenuButton( bool );
     bool	isMenuButton() const;
 
-    virtual void setOn( bool );
-
     void setPopup( QPopupMenu* popup );
     QPopupMenu* popup() const;
 
@@ -79,6 +77,8 @@ public:
     QIconSet* iconSet() const;
 
 public slots:
+    virtual void setOn( bool );
+
     void	toggle();
 
 protected:

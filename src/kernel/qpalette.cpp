@@ -91,8 +91,8 @@
   <li> \c Base - used as background color for e.g. text entry widgets,
   usually white or another light color.
 
-  <li> \c Text - the text color used with \c Base, which is usually
-  the same as the \c Foreground.  \c Text must always provide good
+  <li> \c Text - the forground color used with \c Base. Usually this
+  is the same as the \c Foreground, in what case it must provide good
   contrast both with \c Background and \c Base.
 
   <li> \c Button - general button background color, where buttons need a
@@ -661,9 +661,10 @@ void QPalette::setBrush( QColorGroup::ColorRole r, const QBrush &b )
 {
     detach();
     data->ser_no = palette_count++;
-    directBrush( Normal,   r ) = b;
-    directBrush( Disabled, r ) = b;
     directBrush( Active,   r ) = b;
+    directBrush( Disabled, r ) = b;
+    directBrush( Inactive,   r ) = b;
+    data->normal = data->active; // #### remove 3.0
 }
 
 

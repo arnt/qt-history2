@@ -149,13 +149,13 @@ public:
 
     int length() const;
 
+    static void setDefaultTabStop( int ex );
+    static int defaultTabStop();
+public slots:
     virtual void       setText( const QString &);
     virtual void       setReadOnly( bool );
     virtual void       setOverwriteMode( bool );
 
-    static void setDefaultTabStop( int ex );
-    static int defaultTabStop();
-public slots:
     void       clear();
     void       append( const QString &);
     void       deselect();

@@ -26,7 +26,7 @@
 #include "qglobal.h"
 
 #include "qfile.h"
-#include "qfiledefs.h"
+#include "qfiledefs_p.h"
 
 #define HAS_TEXT_FILEMODE
 

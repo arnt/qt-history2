@@ -118,8 +118,9 @@ public:
 	WState_Reserved2	= 0x00020000,
 	WState_Reserved3	= 0x00040000,
 	WState_Reserved4	= 0x00080000,
-	WState_Withdrawn	= 0x00100000,
-	WState_ForceDisabled	= 0x00200000
+	WState_Reserved5	= 0x00100000,
+	WState_ForceDisabled	= 0x00200000,
+	WState_Exposed		= 0x00400000
     };
 
     // Widget flags
@@ -493,7 +494,22 @@ public:
 	DashLine,
 	DotLine,
 	DashDotLine,
-	DashDotDotLine
+	DashDotDotLine,
+	MPenStyle = 0x0f
+    };
+
+    enum PenCapStyle { // line endcap style
+	FlatCap = 0x00,
+	SquareCap = 0x10,
+	RoundCap = 0x20,
+	MPenCapStyle = 0x30
+    };
+
+    enum PenJoinStyle { // line join style
+	MiterJoin = 0x00,
+	BevelJoin = 0x40,
+	RoundJoin = 0x80,
+	MPenJoinStyle = 0xc0
     };
 
     enum BrushStyle { // brush style
@@ -516,10 +532,14 @@ public:
     };
 
     enum WindowsVersion {
-	WV_NT,
-	WV_95,
-	WV_98,
-	WV_32s
+	WV_32s 		= 0x0001,
+	WV_95 		= 0x0002,
+	WV_98		= 0x0003,
+	WV_DOS_based	= 0x000f,
+	
+	WV_NT 		= 0x0010,
+	WV_2000 	= 0x0020,
+	WV_NT_based	= 0x00f0
     };
 
 

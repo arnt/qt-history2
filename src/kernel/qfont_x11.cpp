@@ -105,8 +105,8 @@ public:
     QCString bestFamilyMember( const char *foundry,
 			       const char *family, int *score );
     QCString findFont( bool *exact );
-    bool needsSet() const { return charSet() >= Set_1 && charSet() <= Set_N
-	    || charSet() == Set_Big5; }
+    bool needsSet() const { return (charSet() >= Set_1 && charSet() <= Set_N)
+	    || charSet() == Set_GBK || charSet() == Set_Big5; }
 
 };
 
@@ -299,6 +299,8 @@ static struct {
     { "JIS7", QFont::Set_Ja },
     { "eucKR", QFont::Set_Ko },
     { "TACTIS", QFont::Set_Th_TH },
+    { "GBK", QFont::Set_GBK },
+    { "zh_CN.GBK", QFont::Set_GBK },
     { "eucCN", QFont::Set_Zh },
     { "eucTW", QFont::Set_Zh_TW },
     { "zh_TW.Big5", QFont::Set_Big5 },

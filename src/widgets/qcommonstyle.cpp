@@ -37,6 +37,7 @@
 #include "qrangecontrol.h"
 #include "qtabbar.h"
 #include "qscrollbar.h"
+#include "qtoolbutton.h"
 #include <limits.h>
 
 
@@ -296,4 +297,43 @@ QRect QStyle::pushButtonContentsRect( QPushButton* btn )
 	r.moveBy( sx, sy );
     }
     return r;
+}
+
+void QStyle::drawToolButton( QToolButton* btn, QPainter *p)
+{
+    if ( !btn )
+	return;
+
+    int x = 0;
+    int y = 0;
+    int w = btn->width();
+    int h = btn->height();
+    const QColorGroup &g = btn->colorGroup();
+    bool sunken = ( btn->isOn() && !btn->son ) || btn->isDown();
+    QBrush fill = btn->colorGroup().brush( QColorGroup::Button );
+    if ( guiStyle() == WindowsStyle && btn->isOn() )
+	fill = QBrush( g.light(), Dense4Pattern );
+#if defined(_WS_WIN_)
+    // WIN2000 is really tricky here!
+    bool drawRect = btn->isOn();
+    if ( guiStyle() == WindowsStyle && btn->isOn() &&
+	 ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 ) &&
+	 btn->uses3D() ) {
+	fill = btn->colorGroup().brush( QColorGroup::Button );
+	drawRect = FALSE;
+    }
+    if ( guiStyle() == WindowsStyle &&
+	 ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 ) &&
+	 btn->autoRaise() ) {
+	drawPanel( p, x, y, w, h, g, sunken, 1, &fill );
+	if ( drawRect ) {
+	    p->setPen( QPen( g.color( QColorGroup::Button ) ) );
+	    p->drawRect( x + 1, y + 1, w - 2, h - 2 );
+	}
+    } else {
+	drawToolButton( p, x, y, w, h, g, sunken, &fill );
+    }
+#else
+    drawToolButton( p, x, y, w, h, g, sunken, &fill );
+#endif
 }

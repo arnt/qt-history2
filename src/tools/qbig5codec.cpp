@@ -24,9 +24,10 @@
 *****************************************************************************/
 
 // Most of the code here was originally written by Ming-Che Chuang and
-// is include in Qt with the author's permission, and the grateful
+// is included in Qt with the author's permission, and the grateful
 // thanks of the Troll Tech team.
 
+// (Note: Ming-Che's code is also QPL'd, ref mail to into@troll.no)
 
 #include "qbig5codec.h"
 
@@ -117,7 +118,7 @@ int QBig5Codec::heuristicContentMatch(const char* chars, int len) const
 {
   int score = 0;
   for (int i=0; i<len; i++) {
-    uchar ch = chars[i];  	
+    uchar ch = chars[i];
     // No nulls allowed.
     if ( !ch )
       return -1;
@@ -127,13 +128,14 @@ int QBig5Codec::heuristicContentMatch(const char* chars, int len) const
 	score--;
     } else if ( ch < 0x80 ) {
       // Inconclusive
+      score++;
     } else if ( IsBig5Char(ch) ) {
       // Big5 1984
       if ( i < len-1 ) {
 	uchar c2 = chars[++i];
 	if ( !((c2 >=0x40) &&  (c2<=0xfe) ))
 	  return -1;
-	score++;
+	score+=2;
       }
       score++;
     } else {

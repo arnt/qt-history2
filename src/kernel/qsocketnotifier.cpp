@@ -230,14 +230,12 @@ void QSocketNotifier::setEnabled( bool enable )
 }
 
 
-/*!
-  Handles events for the socket notifier object.
-
-  Emits the activated() signal when a \c QEvent::SockAct is received.
+/*!\reimp
 */
-
 bool QSocketNotifier::event( QEvent *e )
 {
+    // Emits the activated() signal when a \c QEvent::SockAct is
+    // received.
     QObject::event( e );			// will activate filters
     if ( e->type() == QEvent::SockAct ) {
 	emit activated( sockfd );

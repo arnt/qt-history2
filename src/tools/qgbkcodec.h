@@ -1,9 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbig5codec.h#4 $
+** $Id: $
 **
-** Definition of QBig5Codec class
-**
-** Created : 990713
+** Definition of QGbkCodec template/macro class
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
@@ -23,20 +21,20 @@
 **
 *****************************************************************************/
 
-// Most of the code here was originally written by Ming-Che Chuang and
-// is included in Qt with the author's permission, and the grateful
-// thanks of the Troll Tech team.
+// Contributed by Justin Yu <justiny@turbolinux.com.cn>
+//                Sean Chen <seanc@turbolinux.com.cn>
+// See the documentation for their license statement for the code as
+// it was at the time of contribution.
 
-#ifndef QBIG5CODEC_H
-#define QBIG5CODEC_H
+#ifndef QGBKCODEC_H
+#define QGBKCODEC_H
 
-
-#ifndef QT_H
 #include "qtextcodec.h"
-#endif // QT_H
 
-class QBig5Codec : public QTextCodec {
+class Q_EXPORT QGbkCodec : public QTextCodec {
 public:
+    QGbkCodec();
+
     virtual int mibEnum() const;
     const char* name() const;
 

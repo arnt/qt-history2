@@ -169,6 +169,7 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
     updateFrameWidth();
 }
 
+static const int wpwidth = 2; // WinPanel lwidth
 
 /*!
   \fn int QFrame::frameStyle() const
@@ -380,7 +381,7 @@ void QFrame::updateFrameWidth()
 	case Plain:
 	case Raised:
 	case Sunken:
-	    fwidth = lwidth = 2;
+	    fwidth =  wpwidth; //WinPanel does not use lwidth!
 	    break;
 	}
 	break;
@@ -473,13 +474,13 @@ QRect QFrame::contentsRect() const
     return r;
 }
 
-/*!
-  Returns a size hint for the frame - for HLine and VLine shapes,
-  this is stretchable one way and 3 pixels wide the other.
-  For other shapes, QWidget::sizeHint() is used.
+/*!\reimp
 */
 QSize QFrame::sizeHint() const
 {
+    //   Returns a size hint for the frame - for HLine and VLine
+    //   shapes, this is stretchable one way and 3 pixels wide the
+    //   other.  For other shapes, QWidget::sizeHint() is used.
     switch (fstyle & MShape) {
     case HLine:
 	return QSize(-1,3);
@@ -492,14 +493,13 @@ QSize QFrame::sizeHint() const
 
 
 
-/*!
-  If this is a  line, it may stretch in the direction of the line, but it is
-  fixed in the other direction. If this is a normal frame, use QWidget's
-  default behavior.
+/*!\reimp
 */
-
 QSizePolicy QFrame::sizePolicy() const
 {
+    //   If this is a line, it may stretch in the direction of the
+    //   line, but it is fixed in the other direction. If this is a
+    //   normal frame, use QWidget's default behavior.
     switch (fstyle & MShape) {
     case HLine:
 	return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
@@ -619,7 +619,7 @@ void QFrame::drawFrame( QPainter *p )
 
     case WinPanel:
 	if ( cstyle == Plain )
-	    qDrawPlainRect( p, r, g.foreground(), lwidth );
+	    qDrawPlainRect( p, r, g.foreground(), wpwidth );
 	else
 	    qDrawWinPanel( p, r, g, cstyle == Sunken );
 	break;
@@ -748,7 +748,7 @@ void QFrame::drawFrameMask( QPainter* p )
 
     case WinPanel:
 	if ( style == Plain )
-	    qDrawPlainRect( p, r, g.foreground(), lwidth );
+	    qDrawPlainRect( p, r, g.foreground(), wpwidth );
 	else
 	    qDrawWinPanel( p, r, g, style == Sunken );
 	break;

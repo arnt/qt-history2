@@ -152,10 +152,8 @@ static int extraWidth( int gs )
 }
 
 
-/*!
-  Returns a size which fits the contents of the check box.
+/*!\reimp
 */
-
 QSize QCheckBox::sizeHint() const
 {
     // Any more complex, and we will use style().itemRect()
@@ -178,9 +176,7 @@ QSize QCheckBox::sizeHint() const
 }
 
 
-/*!
-  Draws the check box.  Calls drawButtonLabel() to draw the content.
-  \sa drawButtonLabel()
+/*!\reimp
 */
 
 void QCheckBox::drawButton( QPainter *paint )
@@ -245,11 +241,8 @@ void QCheckBox::drawButton( QPainter *paint )
 }
 
 
-/*!
-  Draws the check box label.
-  \sa drawButton()
+/*!\reimp
 */
-
 void QCheckBox::drawButtonLabel( QPainter *p )
 {
     int x, y, w, h;
@@ -352,11 +345,8 @@ void QCheckBox::updateMask()
 }
 
 
-/*!
-  Specifies that this widget may stretch horizontally, but is fixed
-  vertically.
+/*!\reimp
 */
-
 QSizePolicy QCheckBox::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );

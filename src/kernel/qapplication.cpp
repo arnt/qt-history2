@@ -61,7 +61,7 @@
   QApplication object, no matter whether the application has 0, 1, 2
   or even more windows at the moment.
 
-  This object (you can access is using the global variable \e qApp)
+  This object (you can access is using the global variable \c qApp)
   does a great many things, most importantly: <ul>
 
   <li> It initializes the application to the user's desktop settings
@@ -124,7 +124,7 @@
   usually a good idea to create it \e before any interpretation or
   modification of \c argv is done in the application itself.  (Note
   also that for X11, setMainWidget() may change the main widget
-  according to the \e -geometry option.  To preserve this
+  according to the \c -geometry option.  To preserve this
   functionality, you must set your defaults before setMainWidget() and
   any overrides after.)
 
@@ -370,7 +370,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 
 /*!
   Initializes the window system and constructs an application object
-  with the command line arguments \e argc and \e argv.
+  with the command line arguments \a argc and \a argv.
 
   The global \c qApp pointer refers to this application object. Only
   one application object should be created.
@@ -379,8 +379,8 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
   QPaintDevice paint devices\endlink (includes widgets, pixmaps, bitmaps
   etc.)
 
-  Notice that \e argc and \e argv might be changed.  Qt removes
-  command line arguments that it recognizes.  \e argc and \e argv are
+  Notice that \a argc and \a argv might be changed.  Qt removes
+  command line arguments that it recognizes.  \a argc and \a argv are
   can be accessed later by \c qApp->argc() and \c qApp->argv().	 The
   documentation for argv() contains a detailed description of how to
   process command line arguments.
@@ -455,20 +455,44 @@ QApplication::QApplication( int &argc, char **argv )
 }
 
 
-#if defined(_WS_X11_)
-
-// note: #ifdef'ed stuff is NOT documented.
 /*!
-  Constructs an application object
-  with the command line arguments \e argc and \e argv.
+  Constructs an application object with the command line arguments \a
+  argc and \a argv. If \a GUIenabled is TRUE, a normal application is
+  constructed, otherwise a non-GUI application is created.
 
-  Initializes the window system if \a GUIenabled is TRUE,
-  otherwise a non-GUI application is created.
+  Set \a GUIenabled to FALSE for programs without a graphical user
+  interface that should be able to run without a window system.
 
-  \warning This functionality is experimental.
+  On X11, the window system is initialized if \a GUIenabled is TRUE.
+  If \a GUIenabled is FALSE, the application does not connect to the
+  X-server.
 
-  This constructor is only available on X11 in this version of the Qt
-  library.
+  On Windows, currently the window system is always initialized,
+  regardless of the value of GUIenabled. This may change in future
+  versions of Qt.
+  
+  The following example shows how to create an application that
+  uses a graphical interface when available.
+\code  
+  int main( int argc, char **argv )
+  {
+#ifdef _WS_X11_
+    bool useGUI = getenv( "DISPLAY" ) != 0;
+#else
+    bool useGUI = TRUE;
+#endif
+    QApplication app(argc, argv, useGUI);
+
+    if ( useGUI ) {
+       //start GUI version
+       ...
+    } else {
+       //start non-GUI version
+       ...
+    }
+    return app.exec();
+  }
+\endcode
 */
 
 QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
@@ -486,6 +510,7 @@ QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
 }
 
 
+#if defined(_WS_X11_)
 // note: #ifdef'ed stuff is NOT documented.
 /*!
   Create an application, given an already open display.  This is
@@ -709,7 +734,7 @@ QApplication::~QApplication()
 */
 
 /*!
-  Sets the application GUI style to \e style.  Ownership of the style
+  Sets the application GUI style to \a style.  Ownership of the style
   object is not transfered.
 
   When switching application styles, the color palette is set back to
@@ -935,7 +960,7 @@ QPalette QApplication::palette(const QWidget* w)
 
 
 /*!
-  Changes the default application palette to \e palette.  If \e informWidgets
+  Changes the default application palette to \a palette.  If \a informWidgets
   is TRUE, then existing widgets are informed about the change and thus
   may adjust themselves to the new application setting.  Otherwise the
   change only affects newly created widgets.  If \a className is
@@ -1017,7 +1042,7 @@ QFont QApplication::font( const QWidget *w )
     return *app_font;
 }
 
-/*!  Changes the default application font to \e font.  If \e
+/*!  Changes the default application font to \a font.  If \a
   informWidgets is TRUE, then existing widgets are informed about the
   change and thus may adjust themselves to the new application
   setting.  Otherwise the change only affects newly created widgets.
@@ -1206,9 +1231,9 @@ QFontMetrics QApplication::fontMetrics()
 
   After this function has been called, the application leaves the main
   event loop and returns from the call to exec(). The exec() function
-  returns \e retcode.
+  returns \a retcode.
 
-  By convention, \e retcode 0 means success, any non-zero value indicates
+  By convention, \a retcode 0 means success, any non-zero value indicates
   an error.
 
   Note that unlike the C library exit function, this function \e does
@@ -1280,7 +1305,7 @@ void QApplication::closeAllWindows()
     bool did_close = TRUE;
     QWidget* w = list->first();
     while ( did_close && w ) {
-	if ( !w->testWState( WState_Withdrawn ) ) {
+	if ( !w->testWState( WState_ForceHide ) ) {
 	    did_close = w->close();
 	    delete list;
 	    list = QApplication::topLevelWidgets();
@@ -1343,7 +1368,7 @@ void QApplication::closeAllWindows()
 */
 
 /*!
-  Sends \e event to \e receiver: <code>receiver->event( event )</code>
+  Sends \a event to \a receiver: <code>receiver->event( event )</code>
   Returns the value that is returned from the receiver's event handler.
 
   Reimplementing this virtual function is one of five ways to process
@@ -1537,10 +1562,10 @@ const QColor& QApplication::winStyleHighlightColor()
   Returns the version of the Windows operating system running:
 
   <ul>
-  <li> \c Qt::WV_NT Windows NT.
   <li> \c Qt::WV_95 Windows 95.
   <li> \c Qt::WV_98 Windows 98.
-  <li> \c Qt::WV_32s Win32s.
+  <li> \c Qt::WV_NT Windows NT (NT4).
+  <li> \c Qt::WV_2000 Windows 2000 (NT5).
   </ul>
 
   Note that this function is implemented for the Windows version
@@ -1762,7 +1787,14 @@ void QApplication::sendPostedEvents()
 
 void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 {
-    if ( !postedEvents )
+    if ( receiver == 0 ) {			// serious error
+#if defined(CHECK_NULL)
+	qWarning( "QApplication::sendPostedEvents: Unexpected null receiver" );
+#endif
+	return;
+    }
+    
+    if ( !receiver->pendEvent || !postedEvents )
 	return;
     QPostEventListIt it(*postedEvents);
     QPostEvent *pe;
@@ -1773,43 +1805,48 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
     QRegion paintRegion;
     QRegion erasePaintRegion;
     bool first=TRUE;
+    bool pendEvent = FALSE;
+    receiver->pendEvent = FALSE;
 
     while ( (pe = it.current()) ) {
 	++it;
 
-	if ( pe->event && pe->receiver == receiver
-	     && pe->event->type() == event_type ) {
-	    postedEvents->take( postedEvents->findRef( pe ) );
-	    switch ( event_type ) {
-	    case QEvent::Move:
-		if ( first ) {
-		    oldpos = ((QMoveEvent*)pe->event)->oldPos();
+	if ( pe->event && pe->receiver == receiver ) {
+	    if ( pe->event->type() != event_type ) {
+		pendEvent = TRUE;
+	    } else {
+		postedEvents->take( postedEvents->findRef( pe ) );
+		pe->event->posted = FALSE;
+		switch ( event_type ) {
+		case QEvent::Move:
+		    if ( first ) {
+			oldpos = ((QMoveEvent*)pe->event)->oldPos();
+			first = FALSE;
+		    }
+		    newpos = ((QMoveEvent*)pe->event)->pos();
+		    break;
+		case QEvent::Resize:
+		    if ( first ) {
+			oldsize = ((QResizeEvent*)pe->event)->oldSize();
+			first = FALSE;
+		    }
+		    newsize = ((QResizeEvent*)pe->event)->size();
+		    break;
+		case QEvent::LayoutHint:
 		    first = FALSE;
-		}
-		newpos = ((QMoveEvent*)pe->event)->pos();
-		break;
-	    case QEvent::Resize:
-		if ( first ) {
-		    oldsize = ((QResizeEvent*)pe->event)->oldSize();
+		    break;
+		case QEvent::Paint:
+		    if ( ((QPaintEvent*)pe->event)->erased() )
+			erasePaintRegion = erasePaintRegion.unite(  ((QPaintEvent*)pe->event)->region() );
+		    else
+			paintRegion = paintRegion.unite(  ((QPaintEvent*)pe->event)->region() );
 		    first = FALSE;
+		    break;
+		default:
+		    sendEvent( receiver, pe->event );
 		}
-		newsize = ((QResizeEvent*)pe->event)->size();
-		break;
-	    case QEvent::LayoutHint:
-		first = FALSE;
-		break;
-	    case QEvent::Paint:
-		if ( ((QPaintEvent*)pe->event)->erased() )
-		    erasePaintRegion = erasePaintRegion.unite(  ((QPaintEvent*)pe->event)->region() );
-		else
-		    paintRegion = paintRegion.unite(  ((QPaintEvent*)pe->event)->region() );
-		first = FALSE;
-		break;
-	    default:
-	      sendEvent( receiver, pe->event );
+		delete pe;
 	    }
-	    pe->event->posted = FALSE;
-	    delete pe;
 	}
     }
 
@@ -1833,6 +1870,8 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	    }
 	}
     }
+    
+    receiver->pendEvent = receiver->pendEvent || pendEvent;
 }
 
 

@@ -41,7 +41,6 @@
 /* paintevent magic to provide Windows semantics on X11
  */
 static QRegion* paintEventClipRegion = 0;
-static QRegion* paintEventSaveRegion = 0;
 static QPaintDevice* paintEventDevice = 0;
 
 void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
@@ -56,9 +55,7 @@ void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
 void qt_clear_paintevent_clipping()
 {
     delete paintEventClipRegion;
-    delete paintEventSaveRegion;
     paintEventClipRegion = 0;
-    paintEventSaveRegion = 0;
     paintEventDevice = 0;
 }
 
@@ -269,16 +266,18 @@ static void free_gc( Display *dpy, GC gc, bool privateGC = FALSE )
 
 struct QGCC					// cached GC
 {
-    GC	    gc;
-    uint    pix;
-    int	    count;
-    int	    hits;
+    GC gc;
+    uint pix;
+    int count;
+    int hits;
+    int clip_serial;
 };
 
 const  int   gc_cache_size = 29;		// multiply by 4
 static QGCC *gc_cache_buf;
 static QGCC *gc_cache[4*gc_cache_size];
 static bool  gc_cache_init = FALSE;
+static int gc_cache_clip_serial = 0;
 
 
 static void init_gc_cache()
@@ -400,6 +399,7 @@ static bool obtain_gc( void **ref, GC *gc, uint pix, Display *dpy, HANDLE hd )
 	g->pix	 = pix;
 	g->count = 1;
 	g->hits	 = 1;
+	g->clip_serial = 0;
 	*gc = g->gc;
 	return FALSE;
     }
@@ -571,6 +571,8 @@ void QPainter::updatePen()
 		   (ps == NoPen || ps == SolidLine) &&
 		   cpen.width() == 0 && rop == CopyROP;
 
+    bool obtained = FALSE;
+    bool internclipok = hasClipping();
     if ( cacheIt ) {
 	if ( gc ) {
 	    if ( penRef )
@@ -578,9 +580,8 @@ void QPainter::updatePen()
 	    else
 		free_gc( dpy, gc );
 	}
-	if ( obtain_gc(&penRef, &gc, cpen.color().pixel(), dpy, hd) )
-	    return;
-	if ( !penRef )
+	obtained = obtain_gc(&penRef, &gc, cpen.color().pixel(), dpy, hd);
+	if ( !obtained && !penRef )
 	    gc = alloc_gc( dpy, hd, FALSE );
     } else {
 	if ( gc ) {
@@ -588,15 +589,36 @@ void QPainter::updatePen()
 		release_gc( penRef );
 		penRef = 0;
 		gc = alloc_gc( dpy, hd, testf(MonoDev) );
+	    } else {
+		internclipok = TRUE;
 	    }
 	} else {
 	    gc = alloc_gc( dpy, hd, testf(MonoDev), testf(UsePrivateCx) );
 	}
     }
 
+    if ( !internclipok ) {
+	if ( pdev == paintEventDevice ) {
+	    if ( penRef &&((QGCC*)penRef)->clip_serial < gc_cache_clip_serial ) {
+		XSetRegion( dpy, gc, paintEventClipRegion->handle() );
+		((QGCC*)penRef)->clip_serial = gc_cache_clip_serial;
+	    } else {
+		XSetRegion( dpy, gc, paintEventClipRegion->handle() );
+	    }
+	} else if (penRef && ((QGCC*)penRef)->clip_serial ) {
+	    XSetClipMask( dpy, gc, None );
+	    ((QGCC*)penRef)->clip_serial = 0;
+	}
+    }
+    
+    if ( obtained )
+	return;
+
     char *dashes = 0;				// custom pen dashes
     int dash_len = 0;				// length of dash list
     int s = LineSolid;
+    int cp = CapButt;
+    int jn = JoinMiter;
 
     switch( ps ) {
 	case NoPen:
@@ -621,6 +643,32 @@ void QPainter::updatePen()
 	    break;
     }
 
+    switch ( cpen.capStyle() ) {
+    case SquareCap:
+	cp = CapProjecting;
+	break;
+    case RoundCap:
+	cp = CapRound;
+	break;
+    case FlatCap:
+    default:
+	cp = CapButt;
+	break;
+    }
+    switch ( cpen.joinStyle() ) {
+    case BevelJoin:
+	jn = JoinBevel;
+	break;
+    case RoundJoin:
+	jn = JoinRound;
+	break;
+    case MiterJoin:
+    default:
+	jn = JoinMiter;
+	break;
+    }
+
+
     XSetForeground( dpy, gc, cpen.color().pixel() );
     XSetBackground( dpy, gc, bg_col.pixel() );
 
@@ -628,7 +676,7 @@ void QPainter::updatePen()
 	XSetDashes( dpy, gc, 0, dashes, dash_len );
 	s = bg_mode == TransparentMode ? LineOnOffDash : LineDoubleDash;
     }
-    XSetLineAttributes( dpy, gc, cpen.width(), s, CapButt, JoinMiter );
+    XSetLineAttributes( dpy, gc, cpen.width(), s, cp, jn );
 }
 
 
@@ -691,6 +739,8 @@ static uchar *pat_tbl[] = {
 		   (bs == NoBrush || bs == SolidPattern) &&
 		   bro.x() == 0 && bro.y() == 0 && rop == CopyROP;
 
+    bool obtained = FALSE;
+    bool internclipok = hasClipping();
     if ( cacheIt ) {
 	if ( gc_brush ) {
 	    if ( brushRef )
@@ -698,9 +748,8 @@ static uchar *pat_tbl[] = {
 	    else
 		free_gc( dpy, gc_brush );
 	}
-	if ( obtain_gc(&brushRef, &gc_brush, cbrush.color().pixel(), dpy, hd) )
-	    return;
-	if ( !brushRef )
+	obtained = obtain_gc(&brushRef, &gc_brush, cbrush.color().pixel(), dpy, hd);
+	if ( !obtained && !brushRef )
 	    gc_brush = alloc_gc( dpy, hd, FALSE );
     } else {
 	if ( gc_brush ) {
@@ -708,11 +757,30 @@ static uchar *pat_tbl[] = {
 		release_gc( brushRef );
 		brushRef = 0;
 		gc_brush = alloc_gc( dpy, hd, testf(MonoDev) );
+	    } else {
+		internclipok = TRUE;
 	    }
 	} else {
 	    gc_brush = alloc_gc( dpy, hd, testf(MonoDev), testf(UsePrivateCx));
 	}
     }
+    
+    if ( !internclipok ) {
+	if ( pdev == paintEventDevice ) {
+	    if ( brushRef &&((QGCC*)brushRef)->clip_serial < gc_cache_clip_serial ) {
+		XSetRegion( dpy, gc_brush, paintEventClipRegion->handle() );
+		((QGCC*)brushRef)->clip_serial = gc_cache_clip_serial;
+	    } else {
+		XSetRegion( dpy, gc_brush, paintEventClipRegion->handle() );
+	    }
+	} else if (brushRef && ((QGCC*)brushRef)->clip_serial ) {
+	    XSetClipMask( dpy, gc_brush, None );
+	    ((QGCC*)brushRef)->clip_serial = 0;
+	}
+    }
+
+    if ( obtained )
+	return;
 
     uchar *pat = 0;				// pattern
     int d = 0;					// defalt pattern size: d*d
@@ -950,10 +1018,9 @@ bool QPainter::begin( const QPaintDevice *pd )
 	setBackgroundMode( TransparentMode );	// default background mode
 	setRasterOp( CopyROP );			// default raster operation
     }
+    gc_cache_clip_serial++;
     updateBrush();
     updatePen();
-    if ( paintEventDevice == device() )
-	setClipRegion( *paintEventClipRegion );
     return TRUE;
 }
 
@@ -1006,9 +1073,6 @@ bool QPainter::end()				// end painting
 
     if ( testf(ExtDev) )
 	pdev->cmd( QPaintDevice::PdcEnd, this, 0 );
-
-    if ( paintEventSaveRegion )
-	*paintEventSaveRegion = QRegion();
 
     flags = 0;
     pdev->painters--;
@@ -1213,25 +1277,8 @@ void QPainter::setClipping( bool enable )
 	return;
     }
 
-    if ( enable == testf(ClipOn)
-	 && ( paintEventDevice != device() || !enable
-	      || !paintEventSaveRegion || paintEventSaveRegion->isNull() ) )
-	 return;
-
-    if ( paintEventDevice == device() ) {
-	if ( !enable ) {
-	    enable = TRUE;
-	    if ( !paintEventSaveRegion )
-		paintEventSaveRegion = new QRegion( crgn );
-	    else
-		*paintEventSaveRegion = crgn;
-	    crgn = *paintEventClipRegion;
-	}
-	else {
-	    if ( paintEventSaveRegion && !paintEventSaveRegion->isNull() )
-		crgn = *paintEventSaveRegion;
-	}
-    }
+    if ( !isActive() || enable == testf(ClipOn) )
+	return;
 
     setf( ClipOn, enable );
     if ( testf(ExtDev) ) {
@@ -1241,15 +1288,23 @@ void QPainter::setClipping( bool enable )
 	    return;
     }
     if ( enable ) {
+	QRegion rgn = crgn;
+	if ( pdev == paintEventDevice )
+	    rgn = rgn.intersect( *paintEventClipRegion );
 	if ( penRef )
 	    updatePen();
-	XSetRegion( dpy, gc, crgn.handle() );
+	XSetRegion( dpy, gc, rgn.handle() );
 	if ( brushRef )
 	    updateBrush();
-	XSetRegion( dpy, gc_brush, crgn.handle() );
+	XSetRegion( dpy, gc_brush, rgn.handle() );
     } else {
-	XSetClipMask( dpy, gc, None );
-	XSetClipMask( dpy, gc_brush, None );
+	if ( pdev == paintEventDevice ) {
+	    XSetRegion( dpy, gc, paintEventClipRegion->handle() );
+	    XSetRegion( dpy, gc_brush, paintEventClipRegion->handle() );
+	} else {
+	    XSetClipMask( dpy, gc, None );
+	    XSetClipMask( dpy, gc_brush, None );
+	}
     }
 }
 
@@ -1281,11 +1336,6 @@ void QPainter::setClipRegion( const QRegion &rgn )
 	qWarning( "QPainter::setClipRegion: Will be reset by begin()" );
 #endif
     crgn = rgn;
-    if ( paintEventDevice == device() ) {
-	crgn = crgn.intersect( *paintEventClipRegion );
-	if ( paintEventSaveRegion )
-	    *paintEventSaveRegion = QRegion();
-    }
 
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
@@ -1333,6 +1383,8 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 
 /*!
   Draws/plots a single point at \e (x,y) using the current pen.
+
+  \sa QPen
 */
 
 void QPainter::drawPoint( int x, int y )
@@ -1419,8 +1471,9 @@ void QPainter::moveTo( int x, int y )
 
 /*!
   Draws a line from the current point to \e (x,y) and sets this to the new
-  current point. Both endpoints are are drawn.
-  \sa moveTo(), drawLine()
+  current point.
+
+  \sa QPen moveTo(), drawLine()
 */
 
 void QPainter::lineTo( int x, int y )
@@ -1443,8 +1496,9 @@ void QPainter::lineTo( int x, int y )
 }
 
 /*!
-  Draws a line from \e (x1,y2) to \e (x2,y2). Both endpoints are drawn.
-  \sa moveTo(), lineTo()
+  Draws a line from \e (x1,y2) to \e (x2,y2).
+
+  \sa QPen, drawLine()
 */
 
 void QPainter::drawLine( int x1, int y1, int x2, int y2 )
@@ -1474,7 +1528,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
   Draws a rectangle with upper left corner at \e (x,y) and with
   width \e w and height \e h.
 
-  \sa drawRoundRect()
+  \sa QPen, drawRoundRect()
 */
 
 void QPainter::drawRect( int x, int y, int w, int h )
@@ -1634,7 +1688,7 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 
   The width and height include all of the drawn lines.
 
-  \sa drawRect()
+  \sa drawRect(), QPen
 */
 
 void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
@@ -2032,7 +2086,7 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
   Draws the 1st line from \e a[index] to \e a[index+1].
   Draws the 2nd line from \e a[index+2] to \e a[index+3] etc.
 
-  \sa drawPolyline(), drawPolygon()
+  \sa drawPolyline(), drawPolygon(), QPen
 */
 
 void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
@@ -2078,7 +2132,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
   If \e npoints is -1 all points until the end of the array are used
   (i.e. a.size()-index-1 line segments are drawn).
 
-  \sa drawLineSegments(), drawPolygon()
+  \sa drawLineSegments(), drawPolygon(), QPen
 */
 
 void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
@@ -2131,7 +2185,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
   fill algorithm. If \e winding is FALSE, the polygon is filled using the
   even-odd (alternative) fill algorithm.
 
-  \sa drawLineSegments(), drawPolyline()
+  \sa drawLineSegments(), drawPolyline(), QPen
 */
 
 void QPainter::drawPolygon( const QPointArray &a, bool winding,
@@ -2329,7 +2383,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 
     QBitmap *mask = (QBitmap *)pixmap.mask();
     bool mono = pixmap.depth() == 1;
-
+    
     if ( mask && !hasClipping() ) {
 	if ( mono ) {				// needs GCs pen color
 	    bool selfmask = pixmap.data->selfmask;
@@ -2348,13 +2402,20 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    XSetFillStyle( dpy, gc, FillSolid );
 	    if ( !selfmask ) {
 		XSetClipOrigin( dpy, gc, 0, 0 );
-		XSetClipMask( dpy, gc, None );
+		if ( pdev == paintEventDevice )
+		    XSetRegion( dpy, gc, paintEventClipRegion->handle() );
+		else
+		    XSetClipMask( dpy, gc, None );
 	    }
 	} else {
 	    bitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop );
 	}
 	return;
     }
+
+    QRegion rgn = crgn;
+    if ( mask && pdev == paintEventDevice ) // implies that clipping is on
+	rgn = rgn.intersect( *paintEventClipRegion );
 
     if ( mask ) {				// pixmap has clip mask
 	// Implies that clipping is on
@@ -2367,7 +2428,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	XFillRectangle( dpy, comb->handle(), cgc, 0, 0, sw, sh );
 	XSetBackground( dpy, cgc, 0 );
 	XSetForeground( dpy, cgc, 1 );
-	XSetRegion( dpy, cgc, crgn.handle() );
+	XSetRegion( dpy, cgc, rgn.handle() );
 	XSetClipOrigin( dpy, cgc, -x, -y );
 	XSetFillStyle( dpy, cgc, FillOpaqueStippled );
 	XSetStipple( dpy, cgc, mask->handle() );
@@ -2397,7 +2458,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 
     if ( mask ) {				// restore clipping
 	XSetClipOrigin( dpy, gc, 0, 0 );
-	XSetRegion( dpy, gc, crgn.handle() );
+	XSetRegion( dpy, gc, rgn.handle() );
 	delete mask;				// delete comb, created above
     }
 }

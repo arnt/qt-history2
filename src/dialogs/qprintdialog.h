@@ -48,6 +48,8 @@ public:
     void setPrinter( QPrinter *, bool = FALSE );
     QPrinter * printer() const;
 
+    void addButton( QPushButton *but );
+    
 private slots:
     void browseClicked();
     void okClicked();
@@ -69,6 +71,7 @@ private:
     QGroupBox * setupDestination();
     QGroupBox * setupOptions();
     QGroupBox * setupPaper();
+    QGroupBox * setupPrinterSettings();
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

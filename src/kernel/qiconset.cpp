@@ -145,6 +145,53 @@ struct QIconSetPrivate: public QShared
 
 
 /*!
+  \enum QIconSet::Size
+
+  This enum type describes the size for which a pixmap is intended to be
+  provided.
+  The currently defined sizes are:
+
+  <ul>
+    <li> \c Automatic - the size of the pixmap is determined from its
+		    pixel size. This is a useful default.
+    <li> \c Small - the pixmap is the smaller of two.
+    <li> \c Large - the pixmap is the larger of two
+  </ul>
+
+  If a Small pixmap is not set by QIconSet::setPixmap(), then the
+  Large pixmap may be automatically scaled to two-thirds of its size to
+  generate the Small pixmap.  Conversely, a Small pixmap will be
+  automatically scaled up by 50% to create a Large pixmap if needed.
+
+  \sa setPixmap() pixmap() QIconViewItem::setViewMode()
+      QMainWindow::setUsesBigPixmaps()
+*/
+
+/*!
+  \enum QIconSet::Mode
+
+  This enum type describes the mode for which a pixmap is intended to be
+  provided.
+  The currently defined modes are:
+
+  <ul>
+    <li> \c Normal
+	- the pixmap to be displayed when the user is
+	not interacting with the icon, but when the
+	functionality represented by the icon is available.
+    <li> \c Disabled
+	- the pixmap to be displayed when the
+	functionality represented by the icon is not available.
+    <li> \c Active
+	- the pixmap to be displayed when the
+	functionality represented by the icon is available and
+	the user is interacting with the icon, such as by pointing
+	at it or by invoking it.
+  </ul>
+*/
+
+
+/*!
   Constructs an icon set of \link QPixmap::isNull() null\endlink pixmaps.
   Use setPixmap(), reset(), or operator=() to set some pixmaps.
 
@@ -193,53 +240,6 @@ QIconSet::~QIconSet()
     if ( d && d->deref() )
 	delete d;
 }
-
-/*!
-  \enum QIconSet::Size
-
-  This enum type describes the size for which a pixmap is intended to be
-  provided.
-  The currently defined sizes are:
-
-  <ul>
-    <li> \c Automatic - the size of the pixmap is determined from its
-		    pixel size. This is a useful default.
-    <li> \c Small - the pixmap is the smaller of two.
-    <li> \c Large - the pixmap is the larger of two
-  </ul>
-
-  If a Small pixmap is not set by QIconSet::setPixmap(), then the
-  Large pixmap may be automatically scaled to two-thirds of its size to
-  generate the Small pixmap.  Conversely, a Small pixmap will be
-  automatically scaled up by 50% to create a Large pixmap if needed.
-
-  \sa setPixmap() pixmap() QIconViewItem::setViewMode()
-      QMainWindow::setUsesBigPixmaps()
-*/
-
-/*!
-  \enum QIconSet::Mode
-
-  This enum type describes the mode for which a pixmap is intended to be
-  provided.
-  The currently defined modes are:
-
-  <ul>
-    <li> \c Normal
-	- the pixmap to be displayed when the user is
-	not interacting with the icon, but when the
-	functionality represented by the icon is available.
-    <li> \c Disabled
-	- the pixmap to be displayed when the
-	functionality represented by the icon is not available.
-    <li> \c Active
-	- the pixmap to be displayed when the
-	functionality represented by the icon is available and
-	the user is interacting with the icon, such as by pointing
-	at it or by invoking it.
-  </ul>
-*/
-
 
 /*!
   Assigns \a other to this icon set and returns a reference to this

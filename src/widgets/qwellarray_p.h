@@ -23,8 +23,21 @@
 **
 *****************************************************************************/
 
-#ifndef QWELLARRAY_H
-#define QWELLARRAY_H
+#ifndef QWELLARRAY_P_H
+#define QWELLARRAY_P_H
+
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of qwellarray.cpp and qcolordialog.cpp.
+// This header file may change from version to version without notice,
+// or even be removed.
+//
+//
+
 
 #ifndef QT_H
 #include "qtableview.h"

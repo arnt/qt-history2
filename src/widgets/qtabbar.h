@@ -38,16 +38,29 @@ class Q_EXPORT QTab
 {
 public:
     QTab():  enabled( TRUE ), id( 0 ), iconset(0) {}
+#if 1
+    QTab( const QString& s):  label(s), enabled( TRUE ), id( 0 ), iconset(0) {}
+    QTab( const QIconSet& icon, const QString& s = QString::null )
+	:label(s), enabled( TRUE ), id( 0 ), iconset(new QIconSet(icon)) {}
     virtual ~QTab();
 
+    void setText( const QString& s) { label = s;}
+    QString text() const { return label; }
+    void setIconSet( const QIconSet& icon ) { iconset = new QIconSet( icon ); }
+    QIconSet* iconSet() const { return iconset; }
+    void setRect( const QRect& rect ) { r = rect; }
+    QRect rect() const { return r; }
+    void setEnabled( bool enable ) { enabled = enable; }
+    bool isEnabled() const { return enabled; }
+    void setIdentifier( int i ) { id = i; }
+    int identitifer() const { return id; }
+#endif    
+    // private: ( public for compatibility)
     QString label;
-    // the bounding rectangle of this - may overlap with others
-    QRect r;
+    QRect r;    // the bounding rectangle of this - may overlap with others
     bool enabled;
     int id;
-
-    // an optional iconset
-    QIconSet* iconset;
+    QIconSet* iconset;     // an optional iconset
 };
 
 

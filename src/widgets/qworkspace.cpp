@@ -46,6 +46,57 @@ const bool win32 = TRUE;
 #define OFFSET 20
 
 
+// REVISED: arnt
+
+/*!
+  \class QWorkspace qworkspace.h
+  \brief The QWorkspace widget provides a workspace window that can
+  contain decorated windows, e.g. for MDI.
+
+  \ingroup application
+  \ingroup organizers
+
+  An MDI application has one main window with a menu bar.  The central
+  widget of this window is a workspace.  The workspace itself contains
+  zero, one or more document windows, each of which displays a
+  document.
+
+  The workspace itself is an ordinary Qt widget.  It has a standard
+  constructor that takes a parent widget and an object name.  The
+  parent window is usually a QMainWindow, but it need not be.
+
+  Document windows (alias MDI windows) are also ordinary Qt widgets,
+  that have the workspace as parent widget.  When you call show(),
+  hide(), showMaximized(), setCaption(), etc on a document window, it
+  is shown, hidden etc. with a frame, caption, icon and icon text,
+  just as you'd expect.
+
+  A document window becomes active when it gets the keyboard focus.
+  You can activate it using setFocus(), and the user can activate it
+  by moving focus in the normal ways.  The workspace emits a signal
+  windowActivated() when it detects the activation change, and the
+  function activeWindow() always returns a pointer to the active
+  document window.
+
+  The convenience function windowList() returns a list of all document
+  windows.  This is useful to create a popup menu "&Windows" on the
+  fly, for example.
+
+  QWorkspace provides two built-in layout strategies for child
+  windows, cascade() and tile().  Both are slots, so you can easily
+  connect menu entries to them.
+
+  In case the toplevel window contains a menu bar and a document
+  window is maximized, QWorkspace moves the document window's
+  minimize, restore and close buttons from the document window's frame
+  to the workspace window's menu bar, and inserts a window operations
+  menu on the extreme left of the menu bar.
+
+  \warning User interface research indicates that most users have
+  problems with MDI applications.  Use this class cautiously.
+*/
+
+
 static const char * close_xpm[] = {
 "16 16 2 1",
 "# c #000000",
@@ -146,7 +197,7 @@ const bool win32 = FALSE;
 static const char * close_xpm[] = {
 "16 16 3 1",
 "       s None  c None",
-".      c white",
+".      c #ffffff",
 "X      c #707070",
 "                ",
 "                ",
@@ -168,7 +219,7 @@ static const char * close_xpm[] = {
 static const char * maximize_xpm[] = {
 "16 16 3 1",
 "       s None  c None",
-".      c white",
+".      c #ffffff",
 "X      c #707070",
 "                ",
 "                ",
@@ -191,7 +242,7 @@ static const char * maximize_xpm[] = {
 static const char * minimize_xpm[] = {
 "16 16 3 1",
 "       s None  c None",
-".      c white",
+".      c #ffffff",
 "X      c #707070",
 "                ",
 "                ",
@@ -213,7 +264,7 @@ static const char * minimize_xpm[] = {
 static const char * normalize_xpm[] = {
 "16 16 3 1",
 " 	s None	c None",
-".	c white",
+".	c #ffffff",
 "X	c #707070",
 "                ",
 "                ",
@@ -296,7 +347,7 @@ class Q_EXPORT QWorkspaceChild : public QFrame
 {
     Q_OBJECT
 public:
-    QWorkspaceChild( QWidget* client,
+    QWorkspaceChild( QWidget* window,
 		     QWorkspace *parent=0, const char *name=0 );
     ~QWorkspaceChild();
 
@@ -305,7 +356,7 @@ public:
 
     void adjustToFullscreen();
 
-    QWidget* clientWidget() const;
+    QWidget* windowWidget() const;
     QWidget* iconWidget() const;
 
     void doResize();
@@ -334,7 +385,7 @@ protected:
     bool eventFilter( QObject *, QEvent * );
 
 private:
-    QWidget * clientw;
+    QWidget * childWidget;
     QWidget * lastfocusw;
     bool buttonDown;
     enum MousePosition {
@@ -357,7 +408,7 @@ private:
     bool act;
     QWorkspaceChildTitleBar* titlebar;
     QGuardedPtr<QWorkspaceChildTitleBar> iconw;
-    QSize clientSize;
+    QSize windowSize;
 
 };
 
@@ -368,7 +419,7 @@ public:
     QList<QWorkspaceChild> windows;
     QList<QWorkspaceChild> focus;
     QList<QWidget> icons;
-    QWorkspaceChild* maxClient;
+    QWorkspaceChild* maxWindow;
     QRect maxRestore;
     QFrame* maxcontrols;
 
@@ -380,58 +431,6 @@ public:
     int controlId;
 };
 
-// NOT REVISED
-
-/*!
-  \class QWorkspace qworkspace.h
-
-  \brief The QWorkspace widget provides a workspace window that can
-  contain decorated windows, e.g. for MDI.
-
-  \ingroup application
-  \ingroup organizers
-
-  An MDI application has one main window with a menu bar.  The central
-  widget of this window is a workspace.  The workspace itself contains
-  zero, one or more document windows, each of which displays a
-  document.
-
-  The workspace itself is an ordinary Qt widget.  It has a standard
-  constructor that takes a parent widget and an object name.  The
-  parent window is usually a QMainWindow, but it need not be.
-
-  Document windows (alias MDI windows) are also ordinary Qt widgets,
-  that have the workspace as parent widget.  When you call show(),
-  hide(), showMaximized(), setCaption(), etc on a document window, it
-  is shown, hidden etc. with a frame, caption, icon and icon text,
-  just as you'd expect.
-
-  A document window becomes active when it gets the keyboard focus.
-  You can activate it using setFocus(), and the user can activate it
-  by moving focus in the normal ways.  The workspace emits a signal
-  clientActivated() when it detects the activation change, and the
-  function activeClient() always returns a pointer to the active
-  document window.
-
-  The convenience function clientList() returns a list of all document
-  windows.  This is useful to create a popup menu "&Windows" on the
-  fly, for example.
-
-  QWorkspace provides two built-in layout strategies for child
-  windows, cascade() and tile().  Both are slots, so you can easily
-  connect menu entries to them.
-
-  In case the toplevel window contains a menu bar and a document
-  window is maximized, QWorkspace moves the child window's minimize,
-  restore and close buttons from the document's frame to the workspace
-  window's menu bar, and inserts a window operations menu on the
-  extreme left of the menu bar.
-
-  \warning User interface research indicates that most users have
-  problems with MDI applications.  Use this class cautiously.
-*/
-
-
 /*!
   Constructs a workspace with a \a parent and a \a name
  */
@@ -441,7 +440,7 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     d = new QWorkspaceData;
     d->maxcontrols = 0;
     d->active = 0;
-    d->maxClient = 0;
+    d->maxWindow = 0;
     d->px = 0;
     d->py = 0;
     d->becomeActive = 0;
@@ -457,25 +456,25 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     d->popup->insertItem(tr("Ma&ximize"), 5);
     d->popup->insertSeparator();
     d->popup->insertItem(tr("Close")+"\t"+QAccel::keyToString( CTRL+Key_W),
-		  this, SLOT( closeActiveClient() ) );
+		  this, SLOT( closeActiveWindow() ) );
 
     QAccel* a = new QAccel( this );
     a->connectItem( a->insertItem( ALT + Key_Minus),
 		    this, SLOT( showOperationMenu() ) );
     a->connectItem( a->insertItem( ALT + Key_W),
-		    this, SLOT( closeActiveClient() ) );
+		    this, SLOT( closeActiveWindow() ) );
     a->connectItem( a->insertItem( ALT + Key_F6),
-		    this, SLOT( activateNextClient() ) );
+		    this, SLOT( activateNextWindow() ) );
     a->connectItem( a->insertItem( CTRL + Key_Tab),
-		    this, SLOT( activateNextClient() ) );
+		    this, SLOT( activateNextWindow() ) );
     a->connectItem( a->insertItem( CTRL +  ALT + Key_Tab),
-		    this, SLOT( activateNextClient() ) );
+		    this, SLOT( activateNextWindow() ) );
     a->connectItem( a->insertItem( ALT + SHIFT + Key_F6),
-		    this, SLOT( activatePreviousClient() ) );
+		    this, SLOT( activatePreviousWindow() ) );
     a->connectItem( a->insertItem( CTRL + SHIFT + Key_Tab),
-		    this, SLOT( activatePreviousClient() ) );
+		    this, SLOT( activatePreviousWindow() ) );
     a->connectItem( a->insertItem( CTRL +  ALT + SHIFT + Key_Tab),
-		    this, SLOT( activatePreviousClient() ) );
+		    this, SLOT( activatePreviousWindow() ) );
 }
 
 
@@ -486,14 +485,21 @@ QWorkspace::~QWorkspace()
     delete d;
 }
 
-/*!
-  Specifies that this widget can use additional space, and that it can
-  survive on less than sizeHint().
+/*!\reimp
 */
 QSizePolicy QWorkspace::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 }
+
+/*!\reimp
+ */
+QSize QWorkspace::sizeHint() const
+{
+    QSize s( QApplication::desktop()->size() );
+    return QSize( s.width()*2/3, s.height()*2/3);
+}
+
 
 /*! \reimp */
 
@@ -514,7 +520,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 	d->focus.append( child );
 	place( child );
 	child->raise();
-	activateClient( w );
+	activateWindow( w );
     } else if (e->removed() ) {
 	if ( d->windows.contains( (QWorkspaceChild*)e->child() ) ) {
 	    d->windows.removeRef( (QWorkspaceChild*)e->child() );
@@ -525,41 +531,41 @@ void QWorkspace::childEvent( QChildEvent * e)
 		d->active = 0;
 
 	    if (  !d->windows.isEmpty() ) {
-		if ( e->child() == d->maxClient  ) {
-		    d->maxClient = 0;
-		    maximizeClient( d->windows.first()->clientWidget() );
+		if ( e->child() == d->maxWindow  ) {
+		    d->maxWindow = 0;
+		    maximizeWindow( d->windows.first()->windowWidget() );
 		} else {
-		    activateClient( d->windows.first()->clientWidget() );
+		    activateWindow( d->windows.first()->windowWidget() );
 		}
-	    } else if ( e->child() == d->maxClient )
-		d->maxClient = 0;
+	    } else if ( e->child() == d->maxWindow )
+		d->maxWindow = 0;
 	}
     }
 }
 
 
 
-void QWorkspace::activateClient( QWidget* w, bool change_focus )
+void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 {
     if ( !isVisible() ) {
 	d->becomeActive = w;
 	return;
     }
 
-    if ( d->active && d->active->clientWidget() == w )
+    if ( d->active && d->active->windowWidget() == w )
 	return;
 
     for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
-	c->setActive( c->clientWidget() == w );
-	if (c->clientWidget() == w)
+	c->setActive( c->windowWidget() == w );
+	if (c->windowWidget() == w)
 	    d->active = c;
     }
 
     if (!d->active)
 	return;
 
-    if ( d->maxClient && d->maxClient != d->active )
-	maximizeClient( d->active->clientWidget() );
+    if ( d->maxWindow && d->maxWindow != d->active )
+	maximizeWindow( d->active->windowWidget() );
 
     d->active->raise();
 
@@ -567,16 +573,16 @@ void QWorkspace::activateClient( QWidget* w, bool change_focus )
 	d->focus.removeRef( d->active );
 	d->focus.append( d->active );
     }
-    emit clientActivated( w );
+    emit windowActivated( w );
 }
 
 
 /*!
-  Returns the active client, or 0 if no client is active.
+  Returns the active window, or 0 if no window is active.
  */
-QWidget* QWorkspace::activeClient() const
+QWidget* QWorkspace::activeWindow() const
 {
-    return d->active?d->active->clientWidget():0;
+    return d->active?d->active->windowWidget():0;
 }
 
 
@@ -639,8 +645,8 @@ void QWorkspace::removeIcon( QWidget* w)
 /*! \reimp  */
 void QWorkspace::resizeEvent( QResizeEvent * )
 {
-    if ( d->maxClient )
-	d->maxClient->adjustToFullscreen();
+    if ( d->maxWindow )
+	d->maxWindow->adjustToFullscreen();
     layoutIcons();
 }
 
@@ -649,9 +655,9 @@ void QWorkspace::showEvent( QShowEvent *e )
 {
     QWidget::showEvent( e );
     if ( d->becomeActive )
-	activateClient( d->becomeActive );
+	activateWindow( d->becomeActive );
     else if ( d->windows.count() > 0 && !d->active )
-	activateClient( d->windows.first()->clientWidget() );
+	activateWindow( d->windows.first()->windowWidget() );
 }
 
 void QWorkspace::layoutIcons()
@@ -670,27 +676,27 @@ void QWorkspace::layoutIcons()
     }
 }
 
-void QWorkspace::minimizeClient( QWidget* w)
+void QWorkspace::minimizeWindow( QWidget* w)
 {
     QWorkspaceChild* c = findChild( w );
     if ( c ) {
 	c->hide();
 	insertIcon( c->iconWidget() );
-	if ( d->maxClient == c ) {
+	if ( d->maxWindow == c ) {
 	    c->setGeometry( d->maxRestore );
-	    d->maxClient = 0;
+	    d->maxWindow = 0;
 	    hideMaximizeControls();
 	}
     }
 }
 
-void QWorkspace::normalizeClient( QWidget* w)
+void QWorkspace::normalizeWindow( QWidget* w)
 {
     QWorkspaceChild* c = findChild( w );
     if ( c ) {
-	if ( c == d->maxClient ) {
+	if ( c == d->maxWindow ) {
 	    c->setGeometry( d->maxRestore );
-	    d->maxClient = 0;
+	    d->maxWindow = 0;
 	}
 	else {
 	    removeIcon( c->iconWidget() );
@@ -700,58 +706,58 @@ void QWorkspace::normalizeClient( QWidget* w)
     }
 }
 
-void QWorkspace::maximizeClient( QWidget* w)
+void QWorkspace::maximizeWindow( QWidget* w)
 {
     QWorkspaceChild* c = findChild( w );
 
     if ( c ) {
 	if (d->icons.contains(c->iconWidget()) )
-	    normalizeClient( w );
+	    normalizeWindow( w );
 	QRect r( c->geometry() );
 	c->adjustToFullscreen();
 	c->show();
 	c->raise();
-	if ( d->maxClient && d->maxClient != c ) {
-	    d->maxClient->setGeometry( d->maxRestore );
+	if ( d->maxWindow && d->maxWindow != c ) {
+	    d->maxWindow->setGeometry( d->maxRestore );
 	}
-	if ( d->maxClient != c ) {
-	    d->maxClient = c;
+	if ( d->maxWindow != c ) {
+	    d->maxWindow = c;
 	    d->maxRestore = r;
 	}
 
-	activateClient( w);
+	activateWindow( w);
 	showMaximizeControls();
     }
 }
 
-void QWorkspace::showClient( QWidget* w)
+void QWorkspace::showWindow( QWidget* w)
 {
-    if ( d->maxClient )
-	maximizeClient( w );
+    if ( d->maxWindow )
+	maximizeWindow( w );
     else
-	normalizeClient( w );
+	normalizeWindow( w );
 }
 
 
 QWorkspaceChild* QWorkspace::findChild( QWidget* w)
 {
     for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
-	if (c->clientWidget() == w)
+	if (c->windowWidget() == w)
 	    return c;
     }
     return 0;
 }
 
 /*!
-  Returns a list of all clients.
+  Returns a list of all windows.
  */
-QWidgetList QWorkspace::clientList() const
+QWidgetList QWorkspace::windowList() const
 {
-    QWidgetList clients;
+    QWidgetList windows;
     for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
-	clients.append( c->clientWidget() );
+	windows.append( c->windowWidget() );
     }
-    return clients;
+    return windows;
 }
 
 /*!\reimp*/
@@ -785,14 +791,14 @@ void QWorkspace::showMaximizeControls()
 	iconB->setIconSet( QPixmap( minimize_xpm ));
  	iconB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	connect( iconB, SIGNAL( clicked() ),
-		 this, SLOT( minimizeActiveClient() ) );
+		 this, SLOT( minimizeActiveWindow() ) );
 	QToolButton* restoreB = new QToolButton( d->maxcontrols, "restore" );
 	l->addWidget( restoreB );
 	restoreB->setFocusPolicy( NoFocus );
 	restoreB->setIconSet( QPixmap( normalize_xpm ));
  	restoreB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	connect( restoreB, SIGNAL( clicked() ),
-		 this, SLOT( normalizeActiveClient() ) );
+		 this, SLOT( normalizeActiveWindow() ) );
 
 	l->addSpacing( 2 );
 	QToolButton* closeB = new QToolButton( d->maxcontrols, "close" );
@@ -801,7 +807,7 @@ void QWorkspace::showMaximizeControls()
 	closeB->setIconSet( QPixmap( close_xpm ) );
  	closeB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	connect( closeB, SIGNAL( clicked() ),
-		 this, SLOT( closeActiveClient() ) );
+		 this, SLOT( closeActiveWindow() ) );
 
 	if ( !win32 ) {
 	    iconB->setAutoRaise( TRUE );
@@ -818,8 +824,8 @@ void QWorkspace::showMaximizeControls()
 	d->controlId = b->insertItem( dmaxcontrols, -1, b->count() );
     }
     if ( d->active && d->menuId == -1 ) {
-	if ( d->active->clientWidget()->icon() ) {
-	    const QPixmap* pm = d->active->clientWidget()->icon();
+	if ( d->active->windowWidget()->icon() ) {
+	    const QPixmap* pm = d->active->windowWidget()->icon();
 	    QPopupMenu* pu = d->popup;
 	    d->menuId = b->insertItem( *pm, pu, -1, 0 );
 	} else {
@@ -852,20 +858,20 @@ void QWorkspace::hideMaximizeControls()
     d->controlId = -1;
 }
 
-void QWorkspace::closeActiveClient()
+void QWorkspace::closeActiveWindow()
 {
-    QWidget* w = activeClient();
+    QWidget* w = activeWindow();
     if ( w )
 	w->close();
 }
 
-void QWorkspace::normalizeActiveClient()
+void QWorkspace::normalizeActiveWindow()
 {
     if  ( d->active )
 	d->active->showNormal();
 }
 
-void QWorkspace::minimizeActiveClient()
+void QWorkspace::minimizeActiveWindow()
 {
     if  ( d->active )
 	d->active->showMinimized();
@@ -875,7 +881,7 @@ void QWorkspace::showOperationMenu()
 {
     if  ( !d->active )
 	return;
-    QPoint p( d->active->clientWidget()->mapToGlobal( QPoint(0,0) ) );
+    QPoint p( d->active->windowWidget()->mapToGlobal( QPoint(0,0) ) );
     if ( !d->active->isVisible() ) {
 	p = d->active->iconWidget()->mapToGlobal( QPoint(0,0) );
 	p.ry() -= d->popup->sizeHint().height();
@@ -899,7 +905,7 @@ void QWorkspace::operationMenuAboutToShow()
     if ( !d->active )
 	return;
 
-    if ( d->active == d->maxClient ) {
+    if ( d->active == d->maxWindow ) {
 	d->popup->setItemEnabled( 2, FALSE );
 	d->popup->setItemEnabled( 3, FALSE );
 	d->popup->setItemEnabled( 5, FALSE );
@@ -937,12 +943,12 @@ void QWorkspace::operationMenuActivated( int a )
     }
 }
 
-void QWorkspace::activateNextClient()
+void QWorkspace::activateNextWindow()
 {
     if ( d->focus.isEmpty() )
 	return;
     if ( !d->active ) {
-	activateClient( d->focus.first()->clientWidget(), FALSE );
+	activateWindow( d->focus.first()->windowWidget(), FALSE );
 	return;
     }
 
@@ -951,15 +957,15 @@ void QWorkspace::activateNextClient()
 	a = d->focus.count()-1;
     else
 	a--;
-    activateClient( d->focus.at( a )->clientWidget(), FALSE );
+    activateWindow( d->focus.at( a )->windowWidget(), FALSE );
 }
 
-void QWorkspace::activatePreviousClient()
+void QWorkspace::activatePreviousWindow()
 {
     if ( d->focus.isEmpty() )
 	return;
     if ( !d->active ) {
-	activateClient( d->focus.last()->clientWidget(), FALSE );
+	activateWindow( d->focus.last()->windowWidget(), FALSE );
 	return;
     }
 
@@ -968,16 +974,16 @@ void QWorkspace::activatePreviousClient()
 	a = 0;
     else
 	a++;
-    activateClient( d->focus.at( a )->clientWidget(), FALSE );
+    activateWindow( d->focus.at( a )->windowWidget(), FALSE );
 }
 
 
 /*!
-  \fn void QWorkspace::clientActivated( QWidget* w )
+  \fn void QWorkspace::windowActivated( QWidget* w )
 
-  This signal is emitted when the client widget \a w becomes active.
+  This signal is emitted when the window widget \a w becomes active.
 
-  \sa activeClient(), clientList()
+  \sa activeWindow(), windowList()
 */
 
 
@@ -1176,7 +1182,7 @@ bool QWorkspaceChildTitleBar::eventFilter( QObject * o, QEvent * e)
 	     || e->type() == QEvent::MouseButtonRelease
 	     || e->type() == QEvent::MouseMove) {
 	    QMouseEvent* me = (QMouseEvent*) e;
-	    QMouseEvent ne( me->type(), titleL->mapToParent(me->pos()), me->globalPos(), 
+	    QMouseEvent ne( me->type(), titleL->mapToParent(me->pos()), me->globalPos(),
 			    me->button(), me->state() );
 
 	    if (e->type() == QEvent::MouseButtonPress )
@@ -1303,31 +1309,33 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     setFrameStyle( QFrame::WinPanel | QFrame::Raised );
     setMinimumSize( 128, 96 );
 
-    clientw = window;
-    if (!clientw)
+    childWidget = window;
+    if (!childWidget)
 	return;
 
-    titlebar->setText( clientw->caption() );
-    if( clientw->icon() )
-	titlebar->setIcon( *clientw->icon() );
+    titlebar->setText( childWidget->caption() );
+    if( childWidget->icon() )
+	titlebar->setIcon( *childWidget->icon() );
 
     int th = titlebar->sizeHint().height();
 
-    bool hasBeenResize = clientw->testWState( WState_Resized );
-    clientw->reparent( this, QPoint( contentsRect().x()+BORDER,
-				     th + BORDER + TITLEBAR_SEPARATION + contentsRect().y() ), TRUE  );
+    bool hasBeenResize = childWidget->testWState( WState_Resized );
+    childWidget->reparent( this, QPoint( contentsRect().x()+BORDER,
+					 th + BORDER + TITLEBAR_SEPARATION +
+					 contentsRect().y() ), TRUE  );
 
     if ( !hasBeenResize ) {
-	QSize cs = clientw->sizeHint();
+	QSize cs = childWidget->sizeHint();
 	QSize s( cs.width() + 2*frameWidth() + 2*BORDER,
-		 cs.height() + 3*frameWidth() + th +TITLEBAR_SEPARATION+2*BORDER );
+		 cs.height() + 3*frameWidth() + th +TITLEBAR_SEPARATION + 
+		 2*BORDER );
 	resize( s );
     } else {
-	resize( clientw->width() + 2*frameWidth() + 2*BORDER,
-		clientw->height() + 2*frameWidth() + th +2*BORDER);
+	resize( childWidget->width() + 2*frameWidth() + 2*BORDER,
+		childWidget->height() + 2*frameWidth() + th +2*BORDER);
     }
 
-    clientw->installEventFilter( this );
+    childWidget->installEventFilter( this );
 }
 
 QWorkspaceChild::~QWorkspaceChild()
@@ -1339,21 +1347,22 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 {
     QRect r = contentsRect();
     int th = titlebar->sizeHint().height();
-    titlebar->setGeometry( r.x() + BORDER, r.y() + BORDER, r.width() - 2*BORDER, th+1);
+    titlebar->setGeometry( r.x() + BORDER, r.y() + BORDER,
+			   r.width() - 2*BORDER, th+1);
 
-    if (!clientw)
+    if (!childWidget)
 	return;
 
     QRect cr( r.x() + BORDER, r.y() + BORDER + TITLEBAR_SEPARATION + th,
-			r.width() - 2*BORDER,
-			  r.height() - 2*BORDER - TITLEBAR_SEPARATION - th);
-    clientSize = cr.size();
-    clientw->setGeometry( cr );
+	      r.width() - 2*BORDER,
+	      r.height() - 2*BORDER - TITLEBAR_SEPARATION - th);
+    windowSize = cr.size();
+    childWidget->setGeometry( cr );
 }
 
 void QWorkspaceChild::activate()
 {
-    ((QWorkspace*)parentWidget())->activateClient( clientWidget() );
+    ((QWorkspace*)parentWidget())->activateWindow( windowWidget() );
 }
 
 
@@ -1364,9 +1373,9 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 			  e->type() == QEvent::FocusIn ) )
 	activate();
 
-    // for all widgets except the client, we that's the only thing we
-    // process, and if we have no clientw we skip totally
-    if ( o != clientw || clientw == 0 )
+    // for all widgets except the window, we that's the only thing we
+    // process, and if we have no childWidget we skip totally
+    if ( o != childWidget || childWidget == 0 )
 	return FALSE;
 
     switch ( e->type() ) {
@@ -1375,7 +1384,7 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	    break;
 	if (( (QShowEvent*)e)->spontaneous() )
 	    break;
-	((QWorkspace*)parentWidget())->showClient( clientWidget() );
+	((QWorkspace*)parentWidget())->showWindow( windowWidget() );
 	break;
     case QEvent::ShowMaximized:
 	showMaximized();
@@ -1387,7 +1396,7 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	showNormal();
 	break;
     case QEvent::Hide:
-	if ( !clientw->isVisibleTo( this ) ) {
+	if ( !childWidget->isVisibleTo( this ) ) {
 	    QWidget * w = iconw;
 	    if ( w )
 		w = w->parentWidget();
@@ -1399,11 +1408,11 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	}
 	break;
     case QEvent::CaptionChange:
-	titlebar->setText( clientw->caption() );
+	titlebar->setText( childWidget->caption() );
 	break;
     case QEvent::IconChange:
-	if ( clientw->icon() ) {
-	    titlebar->setIcon( *clientw->icon() );
+	if ( childWidget->icon() ) {
+	    titlebar->setIcon( *childWidget->icon() );
 	} else {
 	    QPixmap pm;
 	    titlebar->setIcon( pm );
@@ -1415,10 +1424,11 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
     case QEvent::Resize:
 	if ( e ) {
 	    QResizeEvent* re = (QResizeEvent*)e;
-	    if ( re->size() != clientSize ){
+	    if ( re->size() != windowSize ){
 		int th = titlebar->sizeHint().height();
 		QSize s( re->size().width() + 2*frameWidth() + 2*BORDER,
-			 re->size().height() + 3*frameWidth() + th +TITLEBAR_SEPARATION+2*BORDER );
+			 re->size().height() + 3*frameWidth() + th + 
+			 TITLEBAR_SEPARATION+2*BORDER );
 		resize( s );
 	    }
 	}
@@ -1433,8 +1443,8 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 
 void QWorkspaceChild::childEvent( QChildEvent*  e)
 {
-    if ( e->type() == QEvent::ChildRemoved && e->child() == clientw ) {
-	clientw = 0;
+    if ( e->type() == QEvent::ChildRemoved && e->child() == childWidget ) {
+	childWidget = 0;
 	if ( iconw ) {
 	    ((QWorkspace*)parentWidget())->removeIcon( iconw->parentWidget() );
 	    delete iconw->parentWidget();
@@ -1495,16 +1505,19 @@ void QWorkspaceChild::mouseMoveEvent( QMouseEvent * e)
     QPoint p = globalPos + invertedMoveOffset;
     QPoint pp = globalPos - moveOffset;
 
-    int mw = QMAX(clientw->minimumSizeHint().width(), clientw->minimumWidth()) 
-	     + 2 * BORDER + 2 * frameWidth();
-    int mh = QMAX(clientw->minimumSizeHint().height(),clientw->minimumHeight())
-	     + 2 * BORDER +  2 * frameWidth() + TITLEBAR_SEPARATION + titlebar->sizeHint().height();
-    
-    QSize mpsize( geometry().right() - pp.x() + 1, geometry().bottom() - pp.y() + 1 );
+    int mw = QMAX(childWidget->minimumSizeHint().width(),
+		  childWidget->minimumWidth()) + 2 * BORDER + 2 * frameWidth();
+    int mh = QMAX(childWidget->minimumSizeHint().height(),
+		  childWidget->minimumHeight())
+	     + 2 * BORDER +  2 * frameWidth() + TITLEBAR_SEPARATION 
+	     + titlebar->sizeHint().height();
+
+    QSize mpsize( geometry().right() - pp.x() + 1,
+		  geometry().bottom() - pp.y() + 1 );
     mpsize = mpsize.expandedTo( minimumSize() ).expandedTo( QSize(mw, mh) );
     QPoint mp( geometry().right() - mpsize.width() + 1,
 	       geometry().bottom() - mpsize.height() + 1 );
-    
+
     QRect geom = geometry();
 
     switch ( mode ) {
@@ -1583,22 +1596,22 @@ void QWorkspaceChild::setActive( bool b )
     if ( iconw )
 	iconw->setActive( act );
 
-    QObjectList* ol = clientw->queryList( "QWidget" );
+    QObjectList* ol = childWidget->queryList( "QWidget" );
     if ( act ) {
 	QObject *o;
 	for ( o = ol->first(); o; o = ol->next() )
 	    o->removeEventFilter( this );
-	bool hasFocus = isChildOf( focusWidget(), clientw );
+	bool hasFocus = isChildOf( focusWidget(), childWidget );
 	if ( !hasFocus ) {
 	    if ( lastfocusw && ol->contains( lastfocusw ) &&
 		 lastfocusw->focusPolicy() != NoFocus ) {
 		// this is a bug if lastfocusw has been deleted, a new
 		// widget has been created, and the new one is a child
-		// of the same client as the old one.  but even though
+		// of the same window as the old one.  but even though
 		// it's a bug the behaviour is reasonable :)
 		lastfocusw->setFocus();
-	    } else if ( clientw->focusPolicy() != NoFocus ) {
-		clientw->setFocus();
+	    } else if ( childWidget->focusPolicy() != NoFocus ) {
+		childWidget->setFocus();
 	    } else {
 		// find something, anything, that accepts focus, and use that.
 		o = ol->first();
@@ -1610,7 +1623,7 @@ void QWorkspaceChild::setActive( bool b )
 	}
     } else {
 	lastfocusw = 0;
-	if ( isChildOf( focusWidget(), clientw ) )
+	if ( isChildOf( focusWidget(), childWidget ) )
 	    lastfocusw = focusWidget();
 	QObject * o;
 	for ( o = ol->first(); o; o = ol->next() ) {
@@ -1626,9 +1639,9 @@ bool QWorkspaceChild::isActive() const
     return act;
 }
 
-QWidget* QWorkspaceChild::clientWidget() const
+QWidget* QWorkspaceChild::windowWidget() const
 {
-    return clientw;
+    return childWidget;
 }
 
 
@@ -1644,7 +1657,7 @@ QWidget* QWorkspaceChild::iconWidget() const
 	connect( iconw, SIGNAL( doActivate() ),
 		 this, SLOT( activate() ) );
 	connect( iconw, SIGNAL( doClose() ),
-		 clientWidget(), SLOT( close() ) );
+		 windowWidget(), SLOT( close() ) );
 	connect( iconw, SIGNAL( doNormal() ),
 		 this, SLOT( showNormal() ) );
 	connect( iconw, SIGNAL( doMaximize() ),
@@ -1654,25 +1667,25 @@ QWidget* QWorkspaceChild::iconWidget() const
 	connect( iconw, SIGNAL( showOperationMenu() ),
 		 this, SIGNAL( showOperationMenu() ) );
     }
-    iconw->setText( clientWidget()->caption() );
-    if ( clientWidget()->icon() )
-	iconw->setIcon( *clientWidget()->icon() );
+    iconw->setText( windowWidget()->caption() );
+    if ( windowWidget()->icon() )
+	iconw->setIcon( *windowWidget()->icon() );
     return iconw->parentWidget();
 }
 
 void QWorkspaceChild::showMinimized()
 {
-    ((QWorkspace*)parentWidget())->minimizeClient( clientWidget() );
+    ((QWorkspace*)parentWidget())->minimizeWindow( windowWidget() );
 }
 
 void QWorkspaceChild::showMaximized()
 {
-    ((QWorkspace*)parentWidget())->maximizeClient( clientWidget() );
+    ((QWorkspace*)parentWidget())->maximizeWindow( windowWidget() );
 }
 
 void QWorkspaceChild::showNormal()
 {
-    ((QWorkspace*)parentWidget())->normalizeClient( clientWidget() );
+    ((QWorkspace*)parentWidget())->normalizeWindow( windowWidget() );
     if (iconw) {
 	((QWorkspace*)parentWidget())->removeIcon( iconw->parentWidget() );
 	delete iconw->parentWidget();
@@ -1682,9 +1695,9 @@ void QWorkspaceChild::showNormal()
 
 void QWorkspaceChild::adjustToFullscreen()
 {
-    setGeometry( -clientw->x(), -clientw->y(),
-		 parentWidget()->width() + width() - clientw->width(),
-		 parentWidget()->height() + height() - clientw->height() );
+    setGeometry( -childWidget->x(), -childWidget->y(),
+		 parentWidget()->width() + width() - childWidget->width(),
+		 parentWidget()->height() + height() - childWidget->height() );
 }
 
 

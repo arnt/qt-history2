@@ -118,7 +118,6 @@ public:
 			    const QPalette& pal,
 			    bool act, bool enabled, int x, int y, int w, int h);
 
-
 protected:
     void drawWinShades( QPainter *p,
 			int x, int y, int w, int h,

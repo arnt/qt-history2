@@ -309,9 +309,10 @@ void QSplitter::resizeEvent( QResizeEvent * )
 /*!
   Inserts the widget \a w at the end, or at the beginning if \a first is TRUE
 
-  It is the responsibility of the caller of this function to make
-  sure that \a w is not already in the splitter, and to call recalcId if needed.
-  (If \a first is TRUE, then recalcId is very probably needed.)
+  It is the responsibility of the caller of this function to make sure
+  that \a w is not already in the splitter, and to call recalcId if
+  needed.  (If \a first is TRUE, then recalcId is very probably
+  needed.)
 */
 
 QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool first )
@@ -430,7 +431,7 @@ void QSplitter::setRubberband( int p )
 
 bool QSplitter::event( QEvent *e )
 {
-    if ( e->type() == QEvent::LayoutHint )
+    if ( e->type() == QEvent::LayoutHint || ( e->type() == QEvent::Resize && !isVisible() ) )
 	recalc( isVisible() );
     return QWidget::event( e );
 }
@@ -875,10 +876,8 @@ void QSplitter::recalcId()
 }
 
 
-/*!
-  Returns a size based on the child widgets.
+/*!\reimp
 */
-
 QSize QSplitter::sizeHint() const
 {
     constPolish();
@@ -936,10 +935,8 @@ QSize QSplitter::minimumSizeHint() const
 
 
 
-/*!
-  Says that this widget wants to grow in both height and width.
+/*!\reimp
 */
-
 QSizePolicy QSplitter::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );

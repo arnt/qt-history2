@@ -1203,14 +1203,6 @@ QCustomEvent::QCustomEvent( int type )
   Remove in 3.0
 */
 
-/*!
-  \fn void QDropEvent::setAction( Action a )
-
-  Sets the action.  This is used internally, you should not need to
-  call this in your code - the \e source decides the action, not the
-  target.
-*/
-
 
 /*!
   \enum QDropEvent::Action
@@ -1233,6 +1225,14 @@ QCustomEvent::QCustomEvent( int type )
 
   The Link and Move actions only makes sense if the data is
   a reference, such as text/uri-list file lists (see QUriDrag).
+*/
+
+/*!
+  \fn void QDropEvent::setAction( Action a )
+
+  Sets the action.  This is used internally, you should not need to
+  call this in your code - the \e source decides the action, not the
+  target.
 */
 
 /*!

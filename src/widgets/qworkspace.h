@@ -43,13 +43,14 @@ public:
     QWorkspace( QWidget *parent=0, const char *name=0 );
     ~QWorkspace();
 
-    QWidget* activeClient() const;
-    QWidgetList clientList() const;
+    QWidget* activeWindow() const;
+    QWidgetList windowList() const;
 
     QSizePolicy sizePolicy() const;
-    
+    QSize sizeHint() const;
+
 signals:
-    void clientActivated( QWidget* w);
+    void windowActivated( QWidget* w);
 
 public slots:
     void cascade();
@@ -62,15 +63,15 @@ protected:
     void showEvent( QShowEvent *e );
 
 private slots:
-    void closeActiveClient();
-    void normalizeActiveClient();
-    void minimizeActiveClient();
+    void closeActiveWindow();
+    void normalizeActiveWindow();
+    void minimizeActiveWindow();
     void showOperationMenu();
     void popupOperationMenu( const QPoint& );
     void operationMenuActivated( int );
     void operationMenuAboutToShow();
-    void activateNextClient();
-    void activatePreviousClient();
+    void activateNextWindow();
+    void activatePreviousWindow();
 
 private:
     void insertIcon( QWidget* w);
@@ -81,11 +82,11 @@ private:
     void showMaximizeControls();
     void hideMaximizeControls();
     void layoutIcons();
-    void activateClient( QWidget* w, bool change_focus = TRUE );
-    void showClient( QWidget* w);
-    void maximizeClient( QWidget* w);
-    void minimizeClient( QWidget* w);
-    void normalizeClient( QWidget* w);
+    void activateWindow( QWidget* w, bool change_focus = TRUE );
+    void showWindow( QWidget* w);
+    void maximizeWindow( QWidget* w);
+    void minimizeWindow( QWidget* w);
+    void normalizeWindow( QWidget* w);
 
     QPopupMenu* popup;
     QWorkspaceData* d;

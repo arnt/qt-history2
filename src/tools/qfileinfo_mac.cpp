@@ -25,11 +25,16 @@
 
 #include "qglobal.h"
 #include "qfileinfo.h"
-#include "qfiledefs.h"
+#include "qfiledefs_p.h"
 #include "qdatetime.h"
 #include "qdir.h"
 
 void QFileInfo::slashify( QString& )
+{
+    return;
+}
+
+void QFileInfo::makeAbs( QString& )
 {
     return;
 }
@@ -107,4 +112,47 @@ QDateTime QFileInfo::lastRead() const
 
 void QFileInfo::doStat() const
 {
+}
+
+QString QFileInfo::dirPath( bool absPath ) const
+{
+    QString s;
+    if ( absPath )
+	s = absFilePath();
+    else
+	s = fn;
+    int pos = s.findRev( '/' );
+    if ( pos == -1 ) {
+	return QString::fromLatin1(".");
+    } else {
+	if ( pos == 0 )
+	    return QString::fromLatin1( "/" );
+	return s.left( pos );
+    }
+}
+
+QString QFileInfo::fileName() const
+{
+    int p = fn.findRev( '/' );
+    if ( p == -1 ) {
+	return fn;
+    } else {
+	return fn.mid(p+1);
+    }
+}
+
+QString QFileInfo::absFilePath() const
+{
+    if ( QDir::isRelativePath(fn) ) {
+	QString tmp = QDir::currentDirPath();
+	tmp += '/';
+	tmp += fn;
+	makeAbs( tmp );
+	return QDir::cleanDirPath( tmp );
+    } else {
+	QString tmp = fn;
+	makeAbs( tmp );
+	return QDir::cleanDirPath( tmp );
+    }
+
 }

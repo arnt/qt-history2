@@ -83,6 +83,7 @@ public:
     QSize	minimumSizeHint() const;
     QSizePolicy sizePolicy() const;
 
+    virtual void setEnabled( bool );
     virtual void setFont( const QFont & );
     virtual void setPalette( const QPalette & );
     virtual void setSelection( int, int );
@@ -114,10 +115,9 @@ public:
     bool	hasMarkedText() const;
     QString	markedText() const;
 
-    virtual void setEnabled( bool );
+public slots:
     virtual void setText( const QString &);
 
-public slots:
     void	selectAll();
     void	deselect();
 

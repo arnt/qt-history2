@@ -135,8 +135,9 @@ void QWidgetStack::addWidget( QWidget * w, int id )
 	focusWidgets->replace( w, w->focusWidget() );
     }
 
+    w->hide();
     if ( w->parent() != this )
-	w->reparent( this, 0, contentsRect().topLeft(), TRUE );
+	w->reparent( this, 0, contentsRect().topLeft(), FALSE );
     w->setGeometry( contentsRect() );
 }
 
@@ -321,11 +322,11 @@ void QWidgetStack::setChildGeometries()
 }
 
 
-/*!  Reimplemented in order to set the children's geometries
-  appropriately. */
-
+/*! \reimp */
 void QWidgetStack::show()
 {
+    //  Reimplemented in order to set the children's geometries
+    //  appropriately.
     if ( !isVisible() && children() ) {
 	setChildGeometries();
 
@@ -416,9 +417,7 @@ void QWidgetStack::resizeEvent( QResizeEvent * e )
 }
 
 
-/*!
-  \reimp
-*/
+/*! \reimp */
 
 QSize QWidgetStack::sizeHint() const
 {
@@ -445,9 +444,7 @@ QSize QWidgetStack::sizeHint() const
 }
 
 
-/*!
-  \reimp
-*/
+/*! \reimp */
 QSize QWidgetStack::minimumSizeHint() const
 {
     constPolish();
@@ -470,8 +467,7 @@ QSize QWidgetStack::minimumSizeHint() const
     return QSize( size.width() + 2*frameWidth(), size.height() + 2*frameWidth() );
 }
 
-/*!\reimp
- */
+/*! \reimp  */
 void QWidgetStack::childEvent( QChildEvent * e)
 {
     if ( e->child()->isWidgetType() && e->removed() )

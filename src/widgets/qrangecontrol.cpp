@@ -417,7 +417,7 @@ int QRangeControl::bound( int v ) const
 
 
 /*!
-  Converts \a logical_val to a pixel position. minValue() maps to 0, maxValue()
+  Converts \a logical_val to a pixel position.  minValue() maps to 0, maxValue()
   maps to \a span, and other values are distributed evenly in between.
 
   This function can handle the entire integer range without overflow.
@@ -430,28 +430,41 @@ int QRangeControl::bound( int v ) const
 
 int QRangeControl::positionFromValue( int logical_val, int span ) const
 {
-    if ( maxValue() > minValue() ) {
-	uint range = maxValue() - minValue();
-	uint p = logical_val - minValue();
-	int scale = 1;
-	if ( range > uint(INT_MAX/4096) )
-	     scale = 4096*2;
-	return ( (p/scale) * span ) / (range/scale);
-    } else {
+    if ( span <= 0 || logical_val < minValue() || maxValue() <= minValue() )
 	return 0;
+    if ( logical_val > maxValue() )
+	return span;
+
+    uint range = maxValue() - minValue();
+    uint p = logical_val - minValue();
+
+    if ( range > (uint)INT_MAX/4096 ) {
+	const int scale = 4096*2;
+	return ( (p/scale) * span ) / (range/scale);
+	// ### the above line is probably not 100% correct
+	// ### but fixing it isn't worth the extreme pain...
+    } else if ( range > (uint)span ) {
+	return (2*p*span + range) / (2*range);
+    } else {
+	uint div = span / range;
+	uint mod = span - div * range; // faster than span % range
+	return p*div + (2*p*mod + range) / (2*range);
     }
+    //equiv. to (p*span)/range + 0.5
+    // no overflow because of this implicit assumption:
+    // span <= 4096
 }
 
 
 /*!
-  Converts the pixel position \a pos to a value. 0 maps to minValue(),
+  Converts the pixel position \a pos to a value.  0 maps to minValue(),
   \a span maps to maxValue(), and other values are distributed evenly
   in between.
 
   This function can handle the entire integer range without overflow.
   
   Calling this method is useful if you actually implemented a range control
-  widget like QScrollBar and want to handle mouse press events. This function
+  widget like QScrollBar and want to handle mouse press events.  This function
   maps then screen coordinates to the logical values.
   
   \sa positionFromValue()
@@ -465,8 +478,15 @@ int QRangeControl::valueFromPosition( int pos, int span ) const
 	return maxValue();
 
     uint range = maxValue() - minValue();
-    return  minValue() +  pos*(range/span)
-	+ (2 * pos * (range%span) + span) / (2*span) ;
-    //equiv. to minValue() + ( p * r) / span + 0.5;
 
+    if ( (uint)span > range )
+	return  minValue() + (2*pos*range + span) / (2*span);
+    else {
+	uint div = range / span;
+	uint mod = range - div * span; // faster than range % span
+	return  minValue() + pos*div + (2*pos*mod + span) / (2*span);
+    }
+    // equiv. to minValue() + (pos*range)/span + 0.5
+    // no overflow because of this implicit assumption:
+    // pos <= span < sqrt(INT_MAX+0.0625)+0.25 ~ sqrt(INT_MAX)
 }

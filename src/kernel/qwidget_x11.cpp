@@ -166,7 +166,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( !window )				// always initialize
 	initializeWindow = TRUE;
 
-    if ( popup ) {				
+    if ( popup ) {
 	setWFlags(WStyle_StaysOnTop); // a popup stays on top
     }
 
@@ -219,7 +219,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 					 bg_col.pixel() );
 	} else {
 	    wsa.background_pixel = bg_col.pixel();
-	    wsa.border_pixel = black.pixel();		
+	    wsa.border_pixel = black.pixel();
 	    wsa.colormap = (Colormap)x11Colormap();
 	    id = (WId)qt_XCreateWindow( this, dpy, parentw,
 				   crect.left(), crect.top(),
@@ -283,25 +283,25 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	while ( p && p->parentWidget()) {
 	    p = p->parentWidget()->topLevelWidget();
 	}
-	
+
 	XSizeHints size_hints;
 	size_hints.flags = USSize | PSize | PWinGravity;
 	size_hints.x = crect.left();
 	size_hints.y = crect.top();
 	size_hints.width = crect.width();
 	size_hints.height = crect.height();
-	size_hints.win_gravity = 1;		// NorthWest
+	size_hints.win_gravity = NorthWestGravity;
 	char *title = qAppName();
 	XWMHints wm_hints;			// window manager hints
 	wm_hints.input = True; // this should really be False, but too many window managers are broken
 	wm_hints.initial_state = NormalState;
 	wm_hints.flags = InputHint | StateHint;
-	
+
 	if (p) { // the real client leader (head of the group)
 	    wm_hints.window_group = p->winId();
 	    wm_hints.flags |= WindowGroupHint;
 	}
-	
+
 	XClassHint class_hint;
 	class_hint.res_name = title;		// app name and widget name
 	class_hint.res_class = name() ? (char *)name() : title;
@@ -319,7 +319,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
 
     if ( initializeWindow ) {
-	//    if ( testWFlags(WResizeNoErase) && initializeWindow ) { //}
 	wsa.bit_gravity = NorthWestGravity;	// don't erase when resizing
 	XChangeWindowAttributes( dpy, id, CWBitGravity, &wsa );
     }
@@ -1103,7 +1102,7 @@ void QWidget::setActiveWindow()
   is processed after the program has returned to the main event loop.
   Calling update() many times in a row will generate a single paint
   event.
-  
+
   If the widgets sets the WRepaintNoErase flag, update() will not erase
   its contents.
 
@@ -1113,7 +1112,7 @@ void QWidget::setActiveWindow()
 void QWidget::update()
 {
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
-	QApplication::postEvent( this, new QPaintEvent( visibleRect(), 
+	QApplication::postEvent( this, new QPaintEvent( visibleRect(),
 		!testWFlags(WRepaintNoErase) ) );
 // 	XClearArea( x11Display(), winId(), 0, 0, 0, 0, TRUE );
     }
@@ -1131,7 +1130,7 @@ void QWidget::update()
 
   If \e w is negative, it is replaced with <code>width() - x</code>.
   If \e h is negative, it is replaced width <code>height() - y</code>.
-  
+
 
   If the widgets sets the WRepaintNoErase flag, update() will not erase
   its contents.
@@ -1148,8 +1147,8 @@ void QWidget::update( int x, int y, int w, int h )
 	if ( h < 0 )
 	    h = crect.height() - y;
 	if ( w != 0 && h != 0 )
-	    QApplication::postEvent( this, 
-	        new QPaintEvent( visibleRect().intersect(QRect(x,y,w,h)), 
+	    QApplication::postEvent( this,
+	        new QPaintEvent( visibleRect().intersect(QRect(x,y,w,h)),
 				 !testWFlags( WRepaintNoErase ) ) );
 // 	    XClearArea( x11Display(), winId(), x, y, w, h, TRUE );
     }
@@ -1203,7 +1202,8 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	if ( r.isEmpty() )
 	    return; // nothing to do
 	QPaintEvent e( r, erase );
-	qt_set_paintevent_clipping( this, r );
+ 	if ( r != rect() )
+	    qt_set_paintevent_clipping( this, r );
 	if ( erase && w != 0 && h != 0 )
 	    XClearArea( x11Display(), winId(), x, y, w, h, FALSE );
 	QApplication::sendEvent( this, &e );
@@ -1233,9 +1233,9 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 {
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
 	QPaintEvent e( reg );
-	qt_set_paintevent_clipping( this, reg );
 	if ( erase )
 	    this->erase(reg);
+	qt_set_paintevent_clipping( this, reg );
 	QApplication::sendEvent( this, &e );
 	qt_clear_paintevent_clipping();
     }
@@ -1263,7 +1263,7 @@ void QWidget::showWindow()
 	    if ( !got_hints ) {
 		h = &wm_hints;
 		h->flags = 0;
-	    }	
+	    }
 	    h->initial_state = sm == 1? IconicState : NormalState;
 	    h->flags |= StateHint;
 	    XSetWMHints( x11Display(), winId(), h );
@@ -1287,12 +1287,16 @@ void QWidget::showWindow()
 
 void QWidget::hideWindow()
 {
+    clearWState( WState_Exposed );
     deactivateWidgetCleanup();
     if ( isTopLevel() ) {
 	qt_deferred_map_take( this );
 	XWithdrawWindow( x11Display(), winId(), x11Screen() );
 	if ( topData()->wmstate ) // wm_state supported
 	    topData()->wmstate = 2; // waiting for wm_state change before next showWindow
+	fpos = crect.topLeft();
+	topData()->fsize = crect.size();
+	topData()->parentWinId = 0;
     }
     else
 	XUnmapWindow( x11Display(), winId() );
@@ -1339,6 +1343,10 @@ bool QWidget::isMinimized() const
 
   Calling this function has no effect for other than \link isTopLevel()
   top-level widgets\endlink.
+  
+  On X11, this function may not work properly with certain window
+  managers. See the \link geometry.html Window Geometry
+  documentation\endlink for details on why.
 
   \sa showNormal(), showMinimized(), show(), hide(), isVisible()
 */
@@ -1352,17 +1360,20 @@ void QWidget::showMaximized()
 	int sh = DisplayHeight(dpy,scr);
 	if ( topData()->normalGeometry.width() < 0 )
 	    topData()->normalGeometry = geometry();
-	if ( !topData()->parentWinId ) {
+	if ( !topData()->parentWinId && !isVisible() ) {
 	    setGeometry(0, 0, sw, sh );
 	    show();
+	    QApplication::flushX();
 	    XEvent ev;
-	    while (!XCheckTypedWindowEvent( qt_xdisplay(), winId(), ReparentNotify, &ev ))
-		;
+	    while (!XCheckTypedWindowEvent( qt_xdisplay(), winId(), ReparentNotify, &ev )) {
+		if ( XCheckTypedWindowEvent( qt_xdisplay(), winId(), MapNotify, &ev ) )
+		    break;
+	    }
 	    qApp->x11ProcessEvent( &ev );
 	}
 	sw -= frameGeometry().width() - width();
 	sh -= frameGeometry().height() - height();
-	setGeometry( 0, 0, sw, sh );
+	resize( sw, sh );
     }
     show();
     QCustomEvent e( QEvent::ShowMaximized, 0 );
@@ -1441,7 +1452,7 @@ void QWidget::lower()
   a negative position.
 */
 
-int qwidget_tlw_gravity = 1;
+int qwidget_tlw_gravity = NorthWestGravity;
 
 static void do_size_hints( QWidget* widget, QWExtra *x )
 {
@@ -1471,7 +1482,7 @@ static void do_size_hints( QWidget* widget, QWExtra *x )
 	    s.base_width = x->topextra->basew;
 	    s.base_height = x->topextra->baseh;
 	}
-	
+
 	if ( x->topextra && x->topextra->uspos) {
 	    s.flags |= USPosition;
 	    s.flags |= PPosition;
@@ -1482,8 +1493,8 @@ static void do_size_hints( QWidget* widget, QWExtra *x )
 	}
     }
     s.flags |= PWinGravity;
-    s.win_gravity = qwidget_tlw_gravity;	// usually NorthWest (1)
-    qwidget_tlw_gravity = 1;			// reset in case it was set
+    s.win_gravity = qwidget_tlw_gravity;	// usually NorthWest
+    qwidget_tlw_gravity = NorthWestGravity;	// reset in case it was set
     XSetWMNormalHints( widget->x11Display(), widget->winId(), &s );
 }
 
@@ -1537,12 +1548,9 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    QApplication::sendEvent( this, &e );
 	}
 	if ( isResize ) {
-	    if ( isTopLevel() )
-		setWState( WState_ConfigPending );
+	    setWState( WState_ConfigPending );
 	    QResizeEvent e( size(), oldSize );
 	    QApplication::sendEvent( this, &e );
-	    if ( !testWFlags( WNorthWestGravity ) )
-		repaint( visibleRect(), !testWFlags(WResizeNoErase) );
 	}
     } else {
 	if ( isMove && pos() != oldPos )
@@ -1631,7 +1639,7 @@ void QWidget::setMaximumSize( int maxw, int maxh )
     extra->maxh = maxh;
     if ( maxw < width() || maxh < height() ) {
 	bool resized = testWState( WState_Resized );
-	resize( QMIN(maxw,width()), QMIN(maxh,height()) );	
+	resize( QMIN(maxw,width()), QMIN(maxh,height()) );
 	if ( !resized )
 	    clearWState( WState_Resized ); //not a user resize
     }

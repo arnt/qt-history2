@@ -38,6 +38,7 @@ class QTabBar;
 class QTab;
 class QPopupMenu;
 class QMenuItem;
+class QToolButton;
 
 class Q_EXPORT QStyle: public QObject
 {
@@ -111,6 +112,7 @@ public:
     virtual void drawToolButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken = FALSE,
 		     const QBrush *fill = 0 );
+    void drawToolButton( QToolButton* btn, QPainter *p); // ##### virtual in 3.0
 
     QRect toolButtonRect(  int x, int y, int w, int h); // ### virtual/const 3.0
 

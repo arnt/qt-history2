@@ -1273,11 +1273,10 @@ void QTableView::setupPainter( QPainter * )
   \sa paintEvent(), QPainter(), setTableFlags() */
 
 
-/*!
-  Handles paint events for the table view, by calling paintCell()
-  and drawFrame().
-
-  It is optimized to repaint only the cells that need to be repainted.
+/*!  
+  Handles paint events for the table view. 
+  
+  Calls paintCell() for the cells that needs to be repainted.
 */
 
 void QTableView::paintEvent( QPaintEvent *e )
@@ -1398,12 +1397,8 @@ void QTableView::paintEvent( QPaintEvent *e )
     }
 }
 
-/*!
-  Handles resize events for the table view.
-
-  The scroll bars are moved and cells repainted as necessary.
+/*!\reimp
 */
-
 void QTableView::resizeEvent( QResizeEvent * )
 {
     updateScrollBars( horValue | verValue | horSteps | horGeometry | horRange |

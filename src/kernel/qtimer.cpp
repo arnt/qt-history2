@@ -177,10 +177,8 @@ void QTimer::stop()
 }
 
 
-/*!
-  Handles timer events.	 Emits timeout() when a timer event is received.
+/*!\reimp
 */
-
 bool QTimer::event( QEvent *e )
 {
     if ( e->type() != QEvent::Timer )		// ignore all other events

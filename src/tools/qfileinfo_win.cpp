@@ -32,7 +32,7 @@
 #endif
 
 #include "qfileinfo.h"
-#include "qfiledefs.h"
+#include "qfiledefs_p.h"
 #include "qdatetime.h"
 #include "qdir.h"
 
@@ -68,6 +68,14 @@ void QFileInfo::slashify( QString &s )
     }
     if ( s[ (int)s.length() - 1 ] == '/' && s.length() > 3 )
 	s.remove( (int)s.length() - 1, 1 );
+}
+
+void QFileInfo::makeAbs( QString &s )
+{
+    if ( s[ 1 ] != ':' && s[ 1 ] != '/' ) {
+ 	s.prepend( ":" );
+ 	s.prepend( _getdrive() + 'A' - 1 );
+    }
     if ( s[ 1 ] == ':' && s.length() > 3 && s[ 2 ] != '/' ) {
   	QString d = currentDirOfDrive( (char)s[ 0 ].latin1() );
   	slashify( d );
@@ -222,4 +230,59 @@ void QFileInfo::doStat() const
 	delete that->fic;
 	that->fic = 0;
     }
+}
+
+QString QFileInfo::dirPath( bool absPath ) const
+{
+    QString s;
+    if ( absPath )
+	s = absFilePath();
+    else
+	s = fn;
+    int pos = s.findRev( '/' );
+    if ( pos == -1 ) {
+	if ( s[ 2 ] == '/' )
+	    return s.left( 3 );
+	if ( s[ 1 ] == ':' ) {
+	    if ( absPath )
+		return s.left( 2 ) + "/";
+	    return s.left( 2 );
+	}
+	return QString::fromLatin1(".");
+    } else {
+	if ( pos == 0 )
+	    return QString::fromLatin1( "/" );
+	if ( pos == 2 && s[ 1 ] == ':'  && s[ 2 ] == '/')
+	    pos++;
+	return s.left( pos );
+    }
+}
+
+QString QFileInfo::fileName() const
+{
+    int p = fn.findRev( '/' );
+    if ( p == -1 ) {
+	int p = fn.findRev( ':' );
+	if ( p != -1 )
+	    return fn.mid( p + 1 );
+	return fn;
+    } else {
+	return fn.mid(p+1);
+    }
+}
+
+QString QFileInfo::absFilePath() const
+{
+    if ( QDir::isRelativePath(fn) && fn[ 1 ] != ':' ) {
+	QString tmp = QDir::currentDirPath();
+	tmp += '/';
+	tmp += fn;
+	makeAbs( tmp );
+	return QDir::cleanDirPath( tmp );
+    } else {
+	QString tmp = fn;
+	makeAbs( tmp );
+	return QDir::cleanDirPath( tmp );
+    }
+
 }

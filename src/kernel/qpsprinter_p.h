@@ -1,9 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.h#22 $
-**
-**		      ***   INTERNAL HEADER FILE   ***
-**
-**		This file is NOT a part of the Qt interface!
+** $Id: //depot/qt/main/src/kernel/qpsprinter_p.h#1 $
 **
 ** Definition of internal QPSPrinter class.
 ** QPSPrinter implements PostScript (tm) output via QPrinter.
@@ -28,8 +24,21 @@
 **
 *****************************************************************************/
 
-#ifndef QPSPRINTER_H
-#define QPSPRINTER_H
+#ifndef QPSPRINTER_P_H
+#define QPSPRINTER_P_H
+
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of qpsprinter.cpp and qprinter_x11.cpp.
+// This header file may change from version to version without notice,
+// or even be removed.
+//
+//
+
 
 #ifndef QT_H
 #include "qprinter.h"
@@ -79,4 +88,4 @@ private:
 };
 
 
-#endif // QPSPRINTER_H
+#endif // QPSPRINTER_P_H

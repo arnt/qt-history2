@@ -53,7 +53,7 @@ struct QNetworkProtocolPrivate
 
   \brief This is the base class for network protocols which provides
   a common API for network protocols.
-  
+
   \ingroup io
 
   This is a baseclass which should be used for implementations
@@ -80,19 +80,35 @@ struct QNetworkProtocolPrivate
 */
 
 /*!
-  \fn void QNetworkProtocol::newChild( const QUrlInfo &i, QNetworkOperation *op )
+  \fn void QNetworkProtocol::newChildren( const QValueList<QUrlInfo> &i, QNetworkOperation *op )
 
   This signal is emitted after listChildren() was called and
-  a new child (e.g. file) has been read from e.g. a list of files. \a i
-  holds the information about the new child.
+  new children (e.g. files) have been read from list of files. \a i
+  holds the information about the new children.
   \a op is the pointer to the operation object, which contains all infos
   of the operation, including the state and so on.
 
   When a protocol emits this signal, QNetworkProtocol is smart enough
   to let the QUrlOperator, which is used by the network protocol, emit
   its corresponding signal.
+
+  When implementing an own network protocol and reading children in most
+  cases you don't read one child at once, but a list of them. That's why this signal
+  takes a list of QUrlInfo objects. But if you read only one child at once, you can
+  use the convenience signal newChild(), which takes only a single QUrlInfo object.
 */
 
+/*!
+  \fn void QNetworkProtocol::newChild( const QUrlInfo &i, QNetworkOperation *op )
+
+  This signal is emitted if a new child has been read. QNetworkProtocol
+  automatically connects that to a slot which creates a list of QUrlInfo objects
+  (with just the one QUrlInfo \a i) and emits then newChildren() signal with this
+  created list.
+
+  So this is just a convenience signal when implementing an own network protocol. In all
+  other cases just care about the newChildren() signal with the list of QUrlInfo objects.
+*/
 
 /*!
   \fn void QNetworkProtocol::finished( QNetworkOperation *op )
@@ -318,10 +334,10 @@ QNetworkProtocol::QNetworkProtocol()
 		 url(), SIGNAL( finished( QNetworkOperation * ) ) );
 	connect( this, SIGNAL( start( QNetworkOperation * ) ),
 		 url(), SIGNAL( start( QNetworkOperation * ) ) );
-	connect( this, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
-		 url(), SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ) );
-	connect( this, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
-		 url(), SLOT( addEntry( const QUrlInfo & ) ) );
+	connect( this, SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ),
+		 url(), SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ) );
+	connect( this, SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ),
+		 url(), SLOT( addEntry( const QValueList<QUrlInfo> & ) ) );
 	connect( this, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
 		 url(), SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
 	connect( this, SIGNAL( removed( QNetworkOperation * ) ),
@@ -336,6 +352,8 @@ QNetworkProtocol::QNetworkProtocol()
 
     connect( this, SIGNAL( finished( QNetworkOperation * ) ),
 	     this, SLOT( processNextOperation( QNetworkOperation * ) ) );
+    connect( this, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
+	     this, SLOT( emitNewChildren( const QUrlInfo &, QNetworkOperation * ) ) );
 
 }
 
@@ -382,10 +400,10 @@ void QNetworkProtocol::setUrl( QUrlOperator *u )
 		    url(), SIGNAL( finished( QNetworkOperation * ) ) );
 	disconnect( this, SIGNAL( start( QNetworkOperation * ) ),
 		    url(), SIGNAL( start( QNetworkOperation * ) ) );
-	disconnect( this, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
-		    url(), SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ) );
-	disconnect( this, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
-		    url(), SLOT( addEntry( const QUrlInfo & ) ) );
+	disconnect( this, SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ),
+		    url(), SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ) );
+	disconnect( this, SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ),
+		    url(), SLOT( addEntry( const QValueList<QUrlInfo> & ) ) );
 	disconnect( this, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
 		    url(), SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
 	disconnect( this, SIGNAL( removed( QNetworkOperation * ) ),
@@ -407,10 +425,10 @@ void QNetworkProtocol::setUrl( QUrlOperator *u )
 		 url(), SIGNAL( finished( QNetworkOperation * ) ) );
 	connect( this, SIGNAL( start( QNetworkOperation * ) ),
 		 url(), SIGNAL( start( QNetworkOperation * ) ) );
-	connect( this, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
-		 url(), SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ) );
-	connect( this, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
-		 url(), SLOT( addEntry( const QUrlInfo & ) ) );
+	connect( this, SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ),
+		 url(), SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ) );
+	connect( this, SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ),
+		 url(), SLOT( addEntry( const QValueList<QUrlInfo> & ) ) );
 	connect( this, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
 		 url(), SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
 	connect( this, SIGNAL( removed( QNetworkOperation * ) ),
@@ -844,6 +862,13 @@ void QNetworkProtocol::removeMe()
     }
 }
 
+void QNetworkProtocol::emitNewChildren( const QUrlInfo &i, QNetworkOperation *op )
+{
+    QValueList<QUrlInfo> lst;
+    lst << i;
+    emit newChildren( lst, op );
+}
+
 struct QNetworkOperationPrivate
 {
     QNetworkProtocol::Operation operation;
@@ -860,12 +885,16 @@ struct QNetworkOperationPrivate
 
   \brief This class is used to define operations for network
   protocols and return the state, arguments, etc.
-  
+
   \ingroup io
 
   For each operation, which a network protocol should process
   such an object is created to describe the operation and the current
   state.
+
+  For a detailed description about the Qt Network Architecture, and
+  also how to implement and use network protocols in Qt, look
+  at the <a href="network.html">Qt Network Documentation</a>.
 
   \sa QNetworkProtocol
 */
@@ -1109,6 +1138,8 @@ QByteArray& QNetworkOperation::raw( int num ) const
   Because QNetworkOperation pointers are passed around a lot the QNetworkProtocol
   can't delete these at the correct time. So, if a QNetworkProtocol doesn't need an operation
   anymore and calles this method, so that it gets deleted correctly.
+
+  You should never need to call the method yourself!
 */
 
 void QNetworkOperation::free()

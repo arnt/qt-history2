@@ -69,6 +69,31 @@
   \sa QLabel, QFrame
 */
 
+/*! \enum QLCDNumber::Mode
+
+  This type determines how numbers are shown. The possible values are:
+
+  <ul>
+  <li>\c Hex - Hexadecimal
+  <li>\c Dec - Decimal
+  <li>\c Oct - Octal
+  <li>\c Bin - Binary
+  </ul>
+ */
+
+/*! \enum QLCDNumber::SegmentStyle
+
+  This type determines the visual appearance of the QLCDNumber
+  widget. The possible values are:
+
+  <ul>
+  <li>\c Outline gives raised segments filled with the background brush.
+  <li>\c Filled gives raised segments filled with the foreground brush.
+  <li>\c Flat gives flat segments filled with the foreground brush.
+  </ul>
+ */
+
+
 
 /*!
   \fn void QLCDNumber::overflow()
@@ -1106,26 +1131,16 @@ QLCDNumber::SegmentStyle QLCDNumber::segmentStyle() const
 }
 
 
-/*!  Returns a suitable size for this LCD number.  The size hint is on
-  the small side, so as to be usable as minimum size.
-
-  The size hint takes numDigits() and smallDecimalPoint() into
-  consideration.
-
-  \sa setNumDigits() setSmallDecimalPoint() setMinimumSize()
+/*!\reimp
 */
-
 QSize QLCDNumber::sizeHint() const
 {
     return QSize( 10 + 9 * (numDigits() + (smallDecimalPoint() ? 0 : 1)), 23 );
 }
 
 
-/*!
-  Specifies that this widget may stretch horizontally and
-  vertically beyond the sizeHint().
+/*!\reimp
 */
-
 QSizePolicy QLCDNumber::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );

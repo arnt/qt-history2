@@ -181,12 +181,20 @@ bool QUrl::isRelativeUrl( const QString &url )
   QUrl u( "ftp://ftp.troll.no/qt/source", "qt-2.0.2.tar.gz" );
   \endcode
 
-  will be "/qt/src/qt-2.0.2.tar.gz".
+  will be "/qt/srource/qt-2.0.2.tar.gz".
 
   And
 
   \code
   QUrl u( "ftp://ftp.troll.no/qt/source", "/usr/local" );
+  \endcode
+
+  will result in a new URL,  "ftp://ftp.troll.no/usr/local",
+
+  And
+
+  \code
+  QUrl u( "ftp://ftp.troll.no/qt/source", "file:/usr/local" );
   \endcode
 
   will result in a new URL, with "/usr/local" as path
@@ -802,6 +810,8 @@ void QUrl::setFileName( const QString& name )
     }
 
     p += fn;
+    if ( !d->queryEncoded.isEmpty() )
+	p += "?" + d->queryEncoded;
     setEncodedPathAndQuery( p );
 }
 
@@ -965,7 +975,7 @@ void QUrl::addPath( const QString& pa )
   Returns the directory path of the URL. This is the part
   of the path of this URL without the fileName(). See
   the documentation of fileName() for a discussion
-  what is handled as file and what as directory path.
+  what is handled as file name and what as directory path.
 */
 
 QString QUrl::dirPath() const
@@ -973,7 +983,10 @@ QString QUrl::dirPath() const
     if ( path().isEmpty() )
 	return QString::null;
 
-    return QFileInfo( path() ).dirPath() + "/";
+    QString s = QFileInfo( path() ).dirPath();
+    if ( s[ (int)s.length() - 1 ] != '/' )
+	s += "/";
+    return s;
 }
 
 /*!

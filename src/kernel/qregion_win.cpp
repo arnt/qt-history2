@@ -339,7 +339,7 @@ QRect QRegion::boundingRect() const
     if ( result == 0 || result == NULLREGION )
 	return QRect(0,0,0,0);
     else
-	return QRect(r.left, r.top, r.right-r.left, r.bottom-r.top);
+	return QRect(r.left, r.top, r.right-r.left+1, r.bottom-r.top+1);
 }
 
 
@@ -366,7 +366,7 @@ QArray<QRect> QRegion::rects() const
     a = QArray<QRect>( rd->rdh.nCount );
     RECT *r = (RECT*)rd->Buffer;
     for ( int i=0; i<(int)a.size(); i++ ) {
-	a[i].setCoords( r->left, r->top, r->right-1, r->bottom-1);
+	a[i].setCoords( r->left, r->top, r->right, r->bottom);
 	r++;
     }
 

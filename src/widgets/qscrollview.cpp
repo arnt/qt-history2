@@ -197,6 +197,13 @@ struct QScrollViewData {
 	}
 	return FALSE;
     }
+    void autoMove(QScrollView* sv)
+    {
+	if ( policy == QScrollView::AutoOne ) {
+	    QSVChildRec* r = children.first();
+	    sv->setContentsPos(-r->child->x(),-r->child->y());
+	}
+    }
     void autoResize(QScrollView* sv)
     {
 	if ( policy == QScrollView::AutoOne ) {
@@ -396,10 +403,6 @@ covered up by the viewport, clipper, or scrollbars.
 
   <li> \c AutoOne - if there is only only child widget, the view stays
   the size of that widget.  Otherwise, the behaviour is undefined.
-
-  <li> \c ResizeOne - if there is only one child, that child is
-  resized to the size of the scroll view, but never smaller than its
-  sizeHint().
 
   </ul>
 */
@@ -633,7 +636,7 @@ void QScrollView::updateScrollBars()
         porth=h-hsbExt-tmarg-bmarg;
     } else {
 	if (!needh)
-	    hslide( 0 ); // move to left
+	    d->hbar.setValue(0);
 	d->hbar.hide();
 	porth=h-tmarg-bmarg;
     }
@@ -641,7 +644,7 @@ void QScrollView::updateScrollBars()
 	portw=w-vsbExt-lmarg-rmarg;
     } else {
 	if (!needv)
-	    vslide( 0 ); // move to top
+	    d->vbar.setValue(0);
 	d->vbar.hide();
 	portw=w-lmarg-rmarg;
     }
@@ -748,11 +751,11 @@ void QScrollView::updateScrollBars()
 
 
 /*! \reimp
-
-  Ensures that scrollbars have the correct size when the widget is shown.
 */
 void QScrollView::show()
 {
+    //     Ensures that scrollbars have the correct size when the
+    //     widget is shown.
     if (isVisible()) return;
     QWidget::show();
     updateScrollBars();
@@ -760,29 +763,29 @@ void QScrollView::show()
 }
 
 /*! \reimp
-
-  Ensures that scrollbars have the correct size when the widget is resized.
-*/
+ */
 void QScrollView::resize( int w, int h )
 {
+    //   Ensures that scrollbars have the correct size when the widget is
+    //   resized.
     QWidget::resize( w, h );
 }
 
 /*! \reimp
-
-  Ensures that scrollbars have the correct size when the widget is resized.
 */
 void QScrollView::resize( const QSize& s )
 {
+    //   Ensures that scrollbars have the correct size when the widget is
+    //   resized.
     resize(s.width(),s.height());
 }
 
 /*! \reimp
-
-  Ensures that scrollbars have the correct size when the widget is resized.
 */
 void QScrollView::resizeEvent( QResizeEvent* event )
 {
+    // Ensures that scrollbars have the correct size when the widget
+    // is resized.
     bool u = isUpdatesEnabled();
     setUpdatesEnabled( FALSE );
     QFrame::resizeEvent( event );
@@ -799,7 +802,6 @@ void QScrollView::resizeEvent( QResizeEvent* event )
 
 
 /*! \reimp
-Pass wheel events to the vertical scrollbar.
 */
 void QScrollView::wheelEvent( QWheelEvent *e ){
     QWheelEvent ce( viewport()->mapFromGlobal( e->globalPos() ),
@@ -954,10 +956,8 @@ QScrollView::ResizePolicy QScrollView::resizePolicy() const
     return d->policy;
 }
 
-/*!
-  \reimp
+/*! \reimp
 */
-
 void QScrollView::setEnabled( bool enable )
 {
     QFrame::setEnabled( enable );
@@ -1151,6 +1151,8 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	if (!r) return FALSE; // spurious
 	if ( e->type() == QEvent::Resize )
 	    d->autoResize(this);
+	else if ( e->type() == QEvent::Move )
+	    d->autoMove(this);
     }
     return FALSE;  // always continue with standard event processing
 }
@@ -1861,10 +1863,11 @@ void QScrollView::drawContents(QPainter*, int, int, int, int)
 }
 
 /*! \reimp
-Ensures that scrollbars have the correct size when the frame style changes.
 */
 void QScrollView::frameChanged()
 {
+    // Ensures that scrollbars have the correct size when the frame
+    // style changes.
     updateScrollBars();
 }
 
@@ -1917,11 +1920,13 @@ void QScrollView::changeFrameRect(const QRect& r)
 	QRegion fr( frameRect() );
 	fr = fr.subtract( contentsRect() );
 	setFrameRect( r );
-	cr = cr.intersect( contentsRect() );
-	fr = fr.unite( frameRect() );
-	fr = fr.subtract( cr );
-	if ( !fr.isEmpty() )
-	    QApplication::postEvent( this, new QPaintEvent( fr, FALSE ) );
+	if ( isVisible() ) {
+	    cr = cr.intersect( contentsRect() );
+	    fr = fr.unite( frameRect() );
+	    fr = fr.subtract( cr );
+	    if ( !fr.isEmpty() )
+		QApplication::postEvent( this, new QPaintEvent( fr, FALSE ) );
+	}
     }
 }
 
@@ -1992,12 +1997,12 @@ int QScrollView::bottomMargin() const
 }
 
 /*! \reimp
-
-  Makes sure that the new focus widget is on-screen, if necessary by
-  scrolling the scroll view.
 */
 bool QScrollView::focusNextPrevChild( bool next )
 {
+    //  Makes sure that the new focus widget is on-screen, if
+    //  necessary by scrolling the scroll view.
+    
     // first set things up for the scan
     QFocusData *f = focusData();
     QWidget *startingPoint = f->home();
@@ -2128,9 +2133,7 @@ void QScrollView::viewportToContents(int vx, int vy, int& x, int& y)
 }
 
 
-/*!
-  Specifies that this widget can use additional space, and that it can
-  survive on less than sizeHint().
+/*!\reimp
 */
 QSizePolicy QScrollView::sizePolicy() const
 {
@@ -2141,7 +2144,7 @@ QSizePolicy QScrollView::sizePolicy() const
 /*!
   \reimp
 */
-QSize	QScrollView::sizeHint() const
+QSize QScrollView::sizeHint() const
 {
     constPolish();
     QSize result = QSize(frameWidth()*2, frameWidth()*2);
@@ -2162,7 +2165,7 @@ QSize	QScrollView::sizeHint() const
 /*!
   \reimp
 */
-QSize	QScrollView::minimumSizeHint() const
+QSize QScrollView::minimumSizeHint() const
 {
     return QSize(100+frameWidth()*2,
 		 100+frameWidth()*2);
@@ -2172,7 +2175,6 @@ QSize	QScrollView::minimumSizeHint() const
 /*!
   \reimp
 */
-
 void QScrollView::drawContents( QPainter * )
 {
     //implemented to get rid of a compiler warning.
@@ -2181,7 +2183,6 @@ void QScrollView::drawContents( QPainter * )
 /*!
   \internal
 */
-
 void QScrollView::startDragAutoScroll()
 {
     if ( !d->autoscroll_timer.isActive() ) {

@@ -1221,24 +1221,24 @@ void QPlatinumStyle::drawSlider( QPainter *p,
     int my = h/2;
 
 
-    QBrush oldBrush = p->brush();
-    p->setBrush( g.brush( QColorGroup::Button ) );
-    p->setPen( NoPen );
-    p->drawRect( x,y,w,h );
-    p->setBrush( oldBrush );
-
-
     if ( orient == Vertical ) {
+
+	// Background
+	QBrush oldBrush = p->brush();
+	p->setBrush( g.brush( QColorGroup::Button ) );
+	p->setPen( NoPen );
+	QPointArray a(6);
+	a.setPoint( 0, x1+1, y1+1 );
+	a.setPoint( 1, x2-my+2, y1+1 );
+	a.setPoint( 2, x2-1, y1+my-1 );
+	a.setPoint( 3, x2-1, y2-my+1 );
+	a.setPoint( 4, x2-my+2, y2-1 );
+	a.setPoint( 5, x1+1, y2-1 );
+	p->drawPolygon( a );
+	p->setBrush( oldBrush );
+
 	// shadow border
 	p->setPen( c0 );
-// 	p->drawLine(x1+1,y1,x2-1,y1);
-// 	p->drawLine(x1, y2-mx+2, x1+mx-2, y2);
-// 	p->drawLine(x2, y2-mx+2, x1+mx+2, y2);
-// 	p->drawLine(x1+mx-2, y2, x1+mx+2, y2);
-// 	p->drawLine(x1, y1+1, x1, y2-mx+2);
-// 	p->drawLine(x2, y1+1, x2, y2-mx+2);
-
-
 	p->drawLine(x1, y1+1, x1,y2-1);
 	p->drawLine( x2-my+2, y1, x2, y1+my-2);
 	p->drawLine( x2-my+2, y2, x2, y1+my+2);
@@ -1262,6 +1262,20 @@ void QPlatinumStyle::drawSlider( QPainter *p,
 	drawRiffles(p, x, y+2, w-3, h-4, g, TRUE);
     }
     else { // Horizontal
+
+	// Background
+	QBrush oldBrush = p->brush();
+	p->setBrush( g.brush( QColorGroup::Button ) );
+	p->setPen( NoPen );
+	QPointArray a(6);
+	a.setPoint( 0, x2-1, y1+1 );
+	a.setPoint( 1, x2-1, y2-mx+2 );
+	a.setPoint( 2, x2-mx+1, y2-1 );
+	a.setPoint( 3, x1+mx-1, y2-1 );
+	a.setPoint( 4, x1+1, y2-mx+2 );
+	a.setPoint( 5, x1+1, y1+1 );
+	p->drawPolygon( a );
+	p->setBrush( oldBrush );
 
 	// shadow border
 	p->setPen( c0 );
@@ -1301,12 +1315,21 @@ void QPlatinumStyle::drawSliderMask( QPainter *p,
     int my = h/2;
 
 
-    p->setBrush( color1 );
-    p->setPen( NoPen );
-    p->drawRect( x,y,w,h );
-    p->setPen( color1 );
-
     if ( orient == Vertical ) {
+
+	// Background
+	p->setBrush( color1 );
+	p->setPen( NoPen );
+	QPointArray a(6);
+	a.setPoint( 0, x1+1, y1+1 );
+	a.setPoint( 1, x2-my+2, y1+1 );
+	a.setPoint( 2, x2-1, y1+my-1 );
+	a.setPoint( 3, x2-1, y2-my+1 );
+	a.setPoint( 4, x2-my+2, y2-1 );
+	a.setPoint( 5, x1+1, y2-1 );
+	p->drawPolygon( a );
+	p->setPen( color1 );
+
 	// shadow border
 	p->drawLine(x1, y1+1, x1,y2-1);
 	p->drawLine( x2-my+2, y1, x2, y1+my-2);
@@ -1324,9 +1347,21 @@ void QPlatinumStyle::drawSliderMask( QPainter *p,
 	p->drawLine(x2-1, y1+my-2, x2-1, y1+my+2);
 	p->drawLine( x2-my+2, y2-1, x2-1, y1+my+2);
 	p->drawLine(x1+1, y2-1, x2-my+2, y2-1);
-
     }
     else { // Horizontal
+
+	// Background
+	p->setBrush( color1 );
+	p->setPen( NoPen );
+	QPointArray a(6);
+	a.setPoint( 0, x2-1, y1+1 );
+	a.setPoint( 1, x2-1, y2-mx+2 );
+	a.setPoint( 2, x2-mx+1, y2-1 );
+	a.setPoint( 3, x1+mx-1, y2-1 );
+	a.setPoint( 4, x1+1, y2-mx+2 );
+	a.setPoint( 5, x1+1, y1+1 );
+	p->drawPolygon( a );
+	p->setPen( color1 );
 
 	// shadow border
 	p->drawLine(x1+1,y1,x2-1,y1);
@@ -1481,4 +1516,3 @@ void QPlatinumStyle::getButtonShift( int &x, int &y)
     x = 0;
     y = 0;
 }
-

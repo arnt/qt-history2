@@ -93,8 +93,7 @@ void QGrid::setSpacing( int space )
 }
 
 
-/*!
-  Reimplemented for internal purposes
+/*!\reimp
  */
 void QGrid::frameChanged()
 {

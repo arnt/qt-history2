@@ -331,8 +331,7 @@ void QClipboard::connectNotify( const char * )
 }
 
 
-/*!
-  Handles clipboard events (very platform-specific).
+/*!\reimp
 */
 
 bool QClipboard::event( QEvent *e )
@@ -370,7 +369,7 @@ bool QClipboard::event( QEvent *e )
 
 	    if ( !d->source() )
 		d->setSource(new QClipboardWatcher());
-	
+
 	    const char* fmt;
 	    QByteArray data;
 	    static Atom xa_targets = *qt_xdnd_str_to_atom( "TARGETS" );
@@ -427,7 +426,7 @@ bool QClipboard::event( QEvent *e )
 				      xa_targets, 32,
 				      PropModeReplace,
 				      (uchar *)data.data(),
-				      data.size() );
+				      data.size()/4 );
 		    evt.xselection.property = property;
 		} else {
 		    bool already_done = FALSE;
@@ -440,7 +439,7 @@ bool QClipboard::event( QEvent *e )
 			pm.loadFromData(data);
 			Pixmap ph = pm.handle();
 			XChangeProperty ( dpy, req->requestor, property,
-					  target, 32,
+					  target, 8,
 					  PropModeReplace,
 					  (uchar *)&ph,
 					  sizeof(Pixmap));
@@ -457,7 +456,7 @@ bool QClipboard::event( QEvent *e )
 			    pm.convertFromImage(img);
 			    Pixmap ph = pm.handle();
 			    XChangeProperty ( dpy, req->requestor, property,
-					      target, 32,
+					      target, 8,
 					      PropModeReplace,
 					      (uchar *)&ph,
 					      sizeof(Pixmap));
@@ -467,7 +466,7 @@ bool QClipboard::event( QEvent *e )
 			    pm.convertFromImage(img.convertDepth(1));
 			    Pixmap ph = pm.handle();
 			    XChangeProperty ( dpy, req->requestor, property,
-					      target, 32,
+					      target, 8,
 					      PropModeReplace,
 					      (uchar *)&ph,
 					      sizeof(Pixmap));

@@ -176,7 +176,7 @@ static const int repeatTime	= 50;
 */
 
 QScrollBar::QScrollBar( QWidget *parent, const char *name )
-    : QWidget( parent, name, WResizeNoErase )
+    : QWidget( parent, name )
 {
     orient = Vertical;
     init();
@@ -192,7 +192,7 @@ QScrollBar::QScrollBar( QWidget *parent, const char *name )
 
 QScrollBar::QScrollBar( Orientation orientation, QWidget *parent,
 			const char *name )
-    : QWidget( parent, name, WResizeNoErase )
+    : QWidget( parent, name )
 {
     orient = orientation;
     init();
@@ -215,7 +215,7 @@ QScrollBar::QScrollBar( Orientation orientation, QWidget *parent,
 QScrollBar::QScrollBar( int minValue, int maxValue, int lineStep, int pageStep,
 			int value,  Orientation orientation,
 			QWidget *parent, const char *name )
-    : QWidget( parent, name, WResizeNoErase ),
+    : QWidget( parent, name ),
       QRangeControl( minValue, maxValue, lineStep, pageStep, value )
 {
     orient = orientation;
@@ -311,12 +311,8 @@ void QScrollBar::setPalette( const QPalette &p )
 }
 
 
-/*!
-  Returns a size hint for this scroll bar.
-
-  \sa QStyle::scrollBarExtent()
+/*!\reimp
 */
-
 QSize QScrollBar::sizeHint() const
 {
     constPolish();
@@ -329,14 +325,8 @@ QSize QScrollBar::sizeHint() const
     }
 }
 
-/*!
-  Specifies that this widget can use any amount of space
-  in the orientation() direction; space in the other
-  direction is fixed.
-
-  \sa sizeHint()
+/*!\reimp
 */
-
 QSizePolicy QScrollBar::sizePolicy() const
 {
     if ( orient == Horizontal )
@@ -427,8 +417,7 @@ void QScrollBar::stopAutoRepeat()
 }
 
 
-/*!
-  Handles wheel events for the scroll bar.
+/*!\reimp
 */
 void QScrollBar::wheelEvent( QWheelEvent *e ){
     static float offset = 0;
@@ -450,25 +439,22 @@ void QScrollBar::wheelEvent( QWheelEvent *e ){
 }
 
 
-/*!
-  Handles key press events for the scroll bar.
-
-  <ul>
-    <li>Left/Right move a horizontal scrollbar by one line.
-    <li>Up/Down move a vertical scrollbar by one line.
-    <li>PageUp moves up one page.
-    <li>PageDown moves down one page.
-    <li>Home moves to the start (minValue()).
-    <li>End moves to the end (maxValue()).
-  </ul>
-
-  Note that unless you call setFocusPolicy(), the default NoFocus
-  will apply and the user will not be able to use the keyboard to
-  interact with the scrollbar.
+/*!\reimp
 */
-
 void QScrollBar::keyPressEvent( QKeyEvent *e )
 {
+    //   <ul>
+    //     <li>Left/Right move a horizontal scrollbar by one line.
+    //     <li>Up/Down move a vertical scrollbar by one line.
+    //     <li>PageUp moves up one page.
+    //     <li>PageDown moves down one page.
+    //     <li>Home moves to the start (minValue()).
+    //     <li>End moves to the end (maxValue()).
+    //   </ul>
+
+    //   Note that unless you call setFocusPolicy(), the default NoFocus
+    //   will apply and the user will not be able to use the keyboard to
+    //   interact with the scrollbar.
     switch ( e->key() ) {
     case Key_Left:
 	if ( orient == Horizontal )
@@ -505,21 +491,16 @@ void QScrollBar::keyPressEvent( QKeyEvent *e )
 }
 
 
-/*!
-  Handles resize events for the scroll bar.
+/*!\reimp
 */
-
 void QScrollBar::resizeEvent( QResizeEvent * )
 {
     positionSliderFromValue();
-    repaint(rect());
 }
 
 
-/*!
-  Handles paint events for the scroll bar.
+/*!\reimp
 */
-
 void QScrollBar::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
@@ -530,12 +511,8 @@ void QScrollBar::paintEvent( QPaintEvent * )
 
 static QCOORD sliderStartPos = 0;
 
-/*!
-  Handles mouse press events for the scroll bar.
-
-  \sa sliderPressed();
+/*!\reimp
 */
-
 void QScrollBar::mousePressEvent( QMouseEvent *e )
 {
     if ( !(e->button() == LeftButton ||
@@ -578,12 +555,8 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 }
 
 
-/*!
-  Handles mouse release events for the scroll bar.
-
-  \sa sliderReleased(), valueChanged()
+/*!\reimp
 */
-
 void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( !clickedAt || !( e->button() == LeftButton ||
@@ -605,12 +578,8 @@ void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 }
 
 
-/*!
-  Handles mouse move events for the scroll bar.
-
-  \sa sliderMoved(), valueChanged()
+/*!\reimp
 */
-
 void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !isVisible() ) {

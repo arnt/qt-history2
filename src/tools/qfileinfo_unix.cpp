@@ -33,7 +33,7 @@
 #include <grp.h>
 
 #include "qfileinfo.h"
-#include "qfiledefs.h"
+#include "qfiledefs_p.h"
 #include "qdatetime.h"
 #include "qdir.h"
 
@@ -43,6 +43,11 @@ extern "C" int readlink( const char *, void *, uint );
 #endif
 
 void QFileInfo::slashify( QString& )
+{
+    return;
+}
+
+void QFileInfo::makeAbs( QString & )
 {
     return;
 }
@@ -324,4 +329,80 @@ void QFileInfo::doStat() const
 	delete that->fic;
 	that->fic = 0;
     }
+}
+
+/*!
+  Returns the directory path of the file.
+
+  If \e absPath is TRUE an absolute path is always returned.
+
+  \sa dir(), filePath(), fileName(), isRelative()
+*/
+
+QString QFileInfo::dirPath( bool absPath ) const
+{
+    QString s;
+    if ( absPath )
+	s = absFilePath();
+    else
+	s = fn;
+    int pos = s.findRev( '/' );
+    if ( pos == -1 ) {
+	return QString::fromLatin1(".");
+    } else {
+	if ( pos == 0 )
+	    return QString::fromLatin1( "/" );
+	return s.left( pos );
+    }
+}
+
+/*!
+  Returns the name of the file, the file path is not included.
+
+  Example:
+  \code
+     QFileInfo fi( "/tmp/abdomen.lower" );
+     QString name = fi.fileName();		// name = "abdomen.lower"
+  \endcode
+
+  \sa isRelative(), filePath(), baseName(), extension()
+*/
+
+QString QFileInfo::fileName() const
+{
+    int p = fn.findRev( '/' );
+    if ( p == -1 ) {
+	return fn;
+    } else {
+	return fn.mid(p+1);
+    }
+}
+
+/*!
+  Returns the absolute path name.
+
+  The absolute path name is the file name including the absolute path. If
+  the QFileInfo is absolute (i.e. not relative) this function will return
+  the same string as filePath().
+
+  Note that this function can be time-consuming under UNIX. (in the order
+  of milliseconds on a 486 DX2/66 running Linux).
+
+  \sa isRelative(), filePath()
+*/
+
+QString QFileInfo::absFilePath() const
+{
+    if ( QDir::isRelativePath(fn) ) {
+	QString tmp = QDir::currentDirPath();
+	tmp += '/';
+	tmp += fn;
+	makeAbs( tmp );
+	return QDir::cleanDirPath( tmp );
+    } else {
+	QString tmp = fn;
+	makeAbs( tmp );
+	return QDir::cleanDirPath( tmp );
+    }
+
 }

@@ -87,9 +87,9 @@ boolean qt_fill_input_buffer(j_decompress_ptr cinfo)
 	src->buffer[0] = (JOCTET) 0xFF;
 	src->buffer[1] = (JOCTET) JPEG_EOI;
 	src->bytes_in_buffer = 2;
-    }
-    else
+    } else {
 	src->bytes_in_buffer = num_read;
+    }
     return TRUE;
 }
 
@@ -228,7 +228,7 @@ public:
 	if (dev->status() == IO_Ok) {
 	    return;
         } else {
-	    // cinfo->err->msg_code = JERR_FILE_WRITE; 
+	    // cinfo->err->msg_code = JERR_FILE_WRITE;
 	    (*cinfo->err->error_exit)((j_common_ptr)cinfo);
 	}
     }
@@ -251,7 +251,7 @@ public:
     {
 	my_jpeg_destination_mgr* dest = (my_jpeg_destination_mgr*)cinfo->dest;
 	QIODevice* dev = dest->iio->ioDevice();
-	int n = max_buf - dest->free_in_buffer; 
+	int n = max_buf - dest->free_in_buffer;
 
 	if ( dev->writeBlock( (char*)dest->buffer, n ) != n )
 	    exit_on_error(cinfo, dev);

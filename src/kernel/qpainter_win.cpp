@@ -79,7 +79,6 @@ static void  *stock_ptr = (void *)&stock_dummy;
 /* paintevent magic to provide Windows semantics on Windows ;)
  */
 static QRegion* paintEventClipRegion = 0;
-static QRegion* paintEventSaveRegion = 0;
 static QPaintDevice* paintEventDevice = 0;
 
 void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
@@ -94,9 +93,7 @@ void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
 void qt_clear_paintevent_clipping()
 {
     delete paintEventClipRegion;
-    delete paintEventSaveRegion;
     paintEventClipRegion = 0;
-    paintEventSaveRegion = 0;
     paintEventDevice = 0;
 }
 
@@ -360,7 +357,7 @@ void QPainter::setFont( const QFont &font )
     if ( !isActive() )
 	qWarning( "QPainter::setFont: Will be reset by begin()" );
 #endif
-    if ( cfont.d != font.d ) {
+    if ( cfont.d != font.d || testf(VolatileDC) ) {
 	cfont = font;
 	setf(DirtyFont);
     }
@@ -382,7 +379,7 @@ void QPainter::updateFont()
     if ( ownFont ) {
 	int dw = pdev->metric( QPaintDeviceMetrics::PdmWidth );
 	int dh = pdev->metric( QPaintDeviceMetrics::PdmHeight );
-	bool vxfScale = testf(VxF) 
+	bool vxfScale = testf(VxF)
 	                && ( dw != ww || dw != vw || dh != wh || dh != vh );
 	bool stockFont;
 	hfont = cfont.create( &stockFont, hdc, vxfScale );
@@ -396,7 +393,7 @@ void QPainter::updateFont()
 	DeleteObject( hfont_old );
     if ( !textmet ) {
 #ifdef UNICODE
-	if ( qt_winver == WV_NT ) {
+	if ( qt_winver & WV_NT_based ) {
 	    textmet = new char[sizeof(TEXTMETRICW)];
 	} else
 #endif
@@ -405,7 +402,7 @@ void QPainter::updateFont()
 	}
     }
 #ifdef UNICODE
-    if ( qt_winver == WV_NT ) {
+    if ( qt_winver & WV_NT_based ) {
 	if ( ownFont )
 	    GetTextMetricsW( hdc, (TEXTMETRICW*)textmet );
 	else
@@ -485,8 +482,39 @@ void QPainter::updatePen()
 	    qWarning( "QPainter::updatePen: Invalid pen style" );
 #endif
     }
-
-    hpen = CreatePen( s, cpen.width(), pix );
+    if ( (qt_winver & WV_NT_based) && cpen.width() ) {
+	LOGBRUSH lb;
+	lb.lbStyle = 0;
+	lb.lbColor = pix;
+	lb.lbHatch = 0;
+	int pst = PS_GEOMETRIC | s;
+	switch ( cpen.capStyle() ) {
+	    case SquareCap:
+		pst |= PS_ENDCAP_SQUARE;
+		break;
+	    case RoundCap:
+		pst |= PS_ENDCAP_ROUND;
+		break;
+	    case FlatCap:
+		pst |= PS_ENDCAP_FLAT;
+		break;
+	}
+	switch ( cpen.joinStyle() ) {
+	    case BevelJoin:
+		pst |= PS_JOIN_BEVEL;
+		break;
+	    case RoundJoin:
+		pst |= PS_JOIN_ROUND;
+		break;
+	    case MiterJoin:
+		pst |= PS_JOIN_MITER;
+		break;
+	}
+	hpen = ExtCreatePen( pst, cpen.width(), &lb, 0, 0 );
+    }
+    else {
+	hpen = CreatePen( s, cpen.width(), pix );
+    }
     SetTextColor( hdc, pix );			// pen color is also text color
     SelectObject( hdc, hpen );
     if ( hpen_old )				// delete last pen
@@ -741,7 +769,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	if ( pdev->handle() )
 	    hdc = pdev->handle();
 	flags |= (NoCache | RGBColor);
-	if ( qt_winver != WV_NT )
+	if ( qt_winver & WV_DOS_based )
 	    flags |= VolatileDC;
     } else if ( dt == QInternal::System ) {	// system-dependent device
 	hdc = pdev->handle();
@@ -781,8 +809,8 @@ bool QPainter::begin( const QPaintDevice *pd )
     }
     updatePen();
     updateBrush();
-    if ( paintEventDevice == device() )
-	setClipRegion( *paintEventClipRegion );
+    if ( pdev == paintEventDevice )
+	SelectClipRgn( hdc, paintEventClipRegion->handle() );
     setf(DirtyFont);
     return TRUE;
 }
@@ -851,12 +879,9 @@ bool QPainter::end()
     } else if ( pdev->devType() == QInternal::Pixmap ) {
 	QPixmap *pm = (QPixmap*)pdev;
 	if ( pm->optimization() == QPixmap::MemoryOptim &&
-	     qt_winver != WV_NT )
+	     ( qt_winver & WV_DOS_based ) )
 	    pm->allocCell();
     }
-
-    if ( paintEventSaveRegion )
-	*paintEventSaveRegion = QRegion();
 
     flags = 0;
     pdev->painters--;
@@ -1008,25 +1033,8 @@ void QPainter::setClipping( bool enable )
 	return;
     }
 
-    if ( enable == testf(ClipOn)
-	 && ( paintEventDevice != device() || !enable
-	      || !paintEventSaveRegion || paintEventSaveRegion->isNull() ) )
-	 return;
-
-    if ( paintEventDevice == device() ) {
-	if ( !enable ) {
-	    enable = TRUE;
-	    if ( !paintEventSaveRegion )
-		paintEventSaveRegion = new QRegion( crgn );
-	    else
-		*paintEventSaveRegion = crgn;
-	    crgn = *paintEventClipRegion;
-	}
-	else {
-	    if ( paintEventSaveRegion && !paintEventSaveRegion->isNull() )
-		crgn = *paintEventSaveRegion;
-	}
-    }
+    if ( !isActive() || enable == testf(ClipOn) )
+	return;
 
     setf( ClipOn, enable );
     if ( testf(ExtDev) ) {
@@ -1036,18 +1044,23 @@ void QPainter::setClipping( bool enable )
 	    return;
     }
     if ( enable ) {
-	QRegion rcrgn = crgn;
+	QRegion rgn = crgn;
+	if ( pdev == paintEventDevice )
+	    rgn = rgn.intersect( *paintEventClipRegion );
 	if ( pdev->devType() == QInternal::Printer ) {
 	    QPrinter* printer = (QPrinter*)pdev;
 	    if ( printer->fullPage() ) {	// must adjust for margins
 		QSize margins = printer->margins();
-		rcrgn.translate( -margins.width(), -margins.height() );
+		rgn.translate( -margins.width(), -margins.height() );
 	    }
 	}
-	SelectClipRgn( hdc, rcrgn.handle() );
+	SelectClipRgn( hdc, rgn.handle() );
     }
     else {
-	SelectClipRgn( hdc, 0 );
+	if ( pdev == paintEventDevice )
+	    SelectClipRgn( hdc, paintEventClipRegion->handle() );
+	else
+	    SelectClipRgn( hdc, 0 );
     }
 }
 
@@ -1065,11 +1078,6 @@ void QPainter::setClipRegion( const QRegion &rgn )
 	qWarning( "QPainter::setClipRegion: Will be reset by begin()" );
 #endif
     crgn = rgn;
-    if ( paintEventDevice == device() ) {
-	crgn = crgn.intersect( *paintEventClipRegion );
-	if ( paintEventSaveRegion )
-	    *paintEventSaveRegion = QRegion();
-    }
 
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
@@ -1212,18 +1220,24 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
     }
     POINT pts[2];
     bool plot_pixel = FALSE;
-    if ( x1 == x2 ) {				// vertical
-	if ( y1 < y2 )
-	    y2++;
-	else
-	    y2--;
-    } else if ( y1 == y2 ) {			// horizontal
-	if ( x1 < x2 )
-	    x2++;
-	else
-	    x2--;
-    } else {
-	plot_pixel = cpen.style() == SolidLine; // plot last pixel
+    if ( qt_winver & WV_NT_based )
+	plot_pixel = (cpen.width() == 0) && (cpen.style() == SolidLine);
+    else
+	plot_pixel = (cpen.width() <= 1) && (cpen.style() == SolidLine);
+    if ( plot_pixel ) {
+	if ( x1 == x2 ) {				// vertical
+	    if ( y1 < y2 )
+		y2++;
+	    else
+		y2--;
+	    plot_pixel = FALSE;
+	} else if ( y1 == y2 ) {			// horizontal
+	    if ( x1 < x2 )
+		x2++;
+	    else
+		x2--;
+	    plot_pixel = FALSE;
+	}
     }
     pts[0].x = x1;  pts[0].y = y1;
     pts[1].x = x2;  pts[1].y = y2;
@@ -1626,8 +1640,12 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 
     int	 x1, y1, x2, y2;
     uint i = index;
-    bool solid = cpen.style() == SolidLine;
     uint pixel = COLOR_VALUE(cpen.data->color);
+    bool maybe_plot_pixel = FALSE;
+    if ( qt_winver & WV_NT_based )
+	maybe_plot_pixel = (cpen.width() == 0) && (cpen.style() == SolidLine);
+    else
+	maybe_plot_pixel = (cpen.width() <= 1) && (cpen.style() == SolidLine);
 
     while ( nlines-- ) {
 	pa.point( i++, &x1, &y1 );
@@ -1642,13 +1660,10 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 		x2++;
 	    else
 		x2--;
-	} else if ( solid )			// draw last pixel
+	} else if ( maybe_plot_pixel )		// draw last pixel
 	    SetPixelV( hdc, x2, y2, pixel );
-#if defined(_WS_WIN32_)
+
 	MoveToEx( hdc, x1, y1, 0 );
-#else
-	MoveTo( hdc, x1, y1 );
-#endif
 	LineTo( hdc, x2, y2 );
     }
 }
@@ -1689,18 +1704,24 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
     pa.point( index+npoints-1, &x2, &y2 );
     xsave = x2; ysave = y2;
     bool plot_pixel = FALSE;
-    if ( x1 == x2 ) {				// vertical
-	if ( y1 < y2 )
-	    y2++;
-	else
-	    y2--;
-    } else if ( y1 == y2 ) {			// horizontal
-	if ( x1 < x2 )
-	    x2++;
-	else
-	    x2--;
-    } else {
-	plot_pixel = cpen.style() == SolidLine; // plot last pixel
+    if ( qt_winver & WV_NT_based )
+	plot_pixel = (cpen.width() == 0) && (cpen.style() == SolidLine);
+    else
+	plot_pixel = (cpen.width() <= 1) && (cpen.style() == SolidLine);
+    if ( plot_pixel ) {
+	if ( x1 == x2 ) {				// vertical
+	    if ( y1 < y2 )
+		y2++;
+	    else
+		y2--;
+	    plot_pixel = FALSE;
+	} else if ( y1 == y2 ) {			// horizontal
+	    if ( x1 < x2 )
+		x2++;
+	    else
+		x2--;
+	    plot_pixel = FALSE;
+	}
     }
     if ( plot_pixel ) {
 	Polyline( hdc, (POINT*)(pa.data()+index), npoints );
@@ -2038,7 +2059,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
     if ( !isActive() )
 	return;
 
-    bool nat_xf = ( qt_winver == WV_NT && txop >= TxScale );
+    bool nat_xf = ( (qt_winver & WV_NT_based) && txop >= TxScale );
 
     if ( len < 0 )
 	len = str.length();

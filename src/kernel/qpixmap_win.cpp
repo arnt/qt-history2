@@ -119,7 +119,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     }
     data->w = w;
     data->h = h;
-    if ( data->optim == MemoryOptim && qt_winver != WV_NT ) {
+    if ( data->optim == MemoryOptim && ( qt_winver & WV_DOS_based ) ) {
 	hdc = 0;
 	if ( allocCell() >= 0 )			// successful
 	    return;
@@ -256,7 +256,7 @@ void QPixmap::setOptimization( Optimization optimization )
 	    delete data->maskpm;
 	    data->maskpm = 0;
 	}
-	if ( qt_winver != WV_NT )
+	if ( qt_winver & WV_DOS_based )
 	    allocCell();
     } else {
 	if ( data->mcp )
@@ -1080,7 +1080,7 @@ static int index_of_mcp_list( int width, bool mono, int *size=0 )
 
 int QPixmap::allocCell()
 {
-    if ( qt_winver == WV_NT )			// only for Windows 9x
+    if ( qt_winver & WV_NT_based )		// only for NT based systems
 	return -1;
     if ( !mcp_lists_init )
 	init_mcp();
@@ -1111,7 +1111,7 @@ int QPixmap::allocCell()
 	    return offset;
 	}
 	list->append( mcp );
-    } 
+    }
     if ( hdc ) {				// copy into multi cell pixmap
 	BitBlt( mcp->handle(), 0, offset, width(), height(), hdc,
 		0, 0, SRCCOPY );

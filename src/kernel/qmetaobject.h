@@ -42,6 +42,7 @@ struct QMetaData				// member function meta data
 
 struct QMetaEnum 				// enumerator meta data
 {						//  for properties
+    QMetaEnum() { }
     ~QMetaEnum() { delete [] items; }
     const char *name;				// - enumerator name
     uint count;					// - number of values

@@ -1,3 +1,32 @@
+/****************************************************************************
+** $Id:  $
+**
+** Implementation of Motif Dynamic Drag and Drop class
+**
+** Created : 950419
+**
+** Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing, or see
+** http://www.troll.no/qpl/ for QPL licensing information.
+**
+*****************************************************************************/
+
+/* The following copyright notice pertains to the code as contributed
+to Troll Tech, not to Troll Tech's modifications. It is replicated in
+qdragobject.cpp, where the documentation system can see it. */
+
 /* Copyright 1996 Daniel Dardailler.
 
    Permission to use, copy, modify, distribute, and sell this software
@@ -31,7 +60,7 @@
 static Atom atom_message_type, atom_receiver_info, atom_src_property_type;
 static Atom atom_motif_window, atom_target_list ;
 
-static bool in_drop_site = false;
+static bool in_drop_site = FALSE;
 static Window cur_window = 0;
 static QWidget *drop_widget = 0L;
 
@@ -546,9 +575,9 @@ static DndTargetsTable TargetsTable(Display *display)
     /* ideally, register for property notify on this target_list
        atom and update when necessary only */
 
-    if ((XGetWindowProperty (display, motif_window,	
-			     atom_target_list, 0L, 100000L,	
-			     False, atom_target_list,	
+    if ((XGetWindowProperty (display, motif_window,
+			     atom_target_list, 0L, 100000L,
+			     False, atom_target_list,
 			     &type, &format,	&size, &bytes_after,
 			     (unsigned char **) &target_prop) != Success) ||
 	type == None) {
@@ -725,7 +754,7 @@ void qt_motifdnd_handle_msg( QWidget * /* w */ , const XEvent * xe, bool /* pass
 	       send a drop site enter or drop site leave or echo */
 
 	    QPoint p( dnd_data.x, dnd_data.y );
-	    QWidget *c = QApplication::widgetAt( p, true );
+	    QWidget *c = QApplication::widgetAt( p, TRUE );
 
 	    while ( c && !c->acceptDrops() && !c->isTopLevel() ) {
 		p = c->mapToParent( p );
@@ -747,7 +776,7 @@ void qt_motifdnd_handle_msg( QWidget * /* w */ , const XEvent * xe, bool /* pass
 		}
 
 		drop_widget = c;
-	
+
 		if (!in_drop_site) {
 		    in_drop_site = True ;
 
@@ -816,7 +845,7 @@ void qt_motifdnd_handle_msg( QWidget * /* w */ , const XEvent * xe, bool /* pass
 
 	cur_window = dnd_data.src_window ;
 	qt_motifdnd_active = TRUE;
-		
+
 	/* no answer needed, just read source property */
 	DndReadSourceProperty (event.xclient.display,
 			       cur_window,

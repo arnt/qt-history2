@@ -71,12 +71,13 @@ int QUtf8Codec::heuristicContentMatch(const char* chars, int len) const
 	    return -1;
 	if ( ch < 128 ) {
 	    // Inconclusive
+	    score++;
 	} else if ( (ch&0xe0) == 0xc0 ) {
 	    if ( i < len-1 ) {
 		uchar c2 = chars[++i];
 		if ( (c2&0xc0) != 0x80 )
 		    return -1;
-		score+=2;
+		score+=3;
 	    }
 	} else if ( (ch&0xf0) == 0xe0 ) {
 	    if ( i < len-1 ) {
@@ -92,6 +93,7 @@ int QUtf8Codec::heuristicContentMatch(const char* chars, int len) const
 		    }
 #endif
 		}
+		score+=2;
 	    }
 	}
     }
@@ -167,7 +169,7 @@ int QUtf16Codec::heuristicContentMatch(const char* chars, int len) const
     uchar* uchars = (uchar*)chars;
     if ( len >= 2 && (uchars[0] == 0xff && uchars[1] == 0xfe ||
 		      uchars[1] == 0xff && uchars[0] == 0xfe) )
-	return 2;
+	return len;
     else
 	return 0;
 }

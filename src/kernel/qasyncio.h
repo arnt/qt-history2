@@ -1,10 +1,6 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qasyncio.h#10 $
 **
-**		      ***   INTERNAL HEADER FILE   ***
-**
-**		This file is NOT a part of the Qt interface!
-**
 ** Definition of asynchronous I/O classes
 **
 ** Created : 970617

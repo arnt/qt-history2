@@ -99,7 +99,8 @@ public:
 private:
     void	doStat() const;
     static void slashify( QString & );
-
+    static void makeAbs( QString & );
+    
     QString	fn;
     QFileInfoCache *fic;
     bool	cache;

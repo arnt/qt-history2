@@ -520,17 +520,12 @@ int QLabel::heightForWidth( int w ) const
 
 
 
-/*!
-  Returns a size which fits the contents of the label.
-
-  \bug Does not work well with the WordBreak flag; use
-  heightForWidth() in stead.
-
-  \sa adjustSize()
+/*!\reimp
 */
-
 QSize QLabel::sizeHint() const
 {
+    //     Does not work well with the WordBreak flag; use
+    //    heightForWidth() in stead.
     return sizeForWidth( -1 );
 }
 
@@ -547,11 +542,8 @@ QSize QLabel::minimumSizeHint() const
 }
 
 
-/*!
-  Specifies that this widget may stretch horizontally and vertically
-  beyond the sizeHint().
+/*!\reimp
 */
-
 QSizePolicy QLabel::sizePolicy() const
 {
     if ( doc || align & WordBreak )

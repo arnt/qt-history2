@@ -32,6 +32,7 @@
 #include "qpixmapcache.h"
 #include "qfocusdata.h"
 #include "qapplication.h"
+#include "qpushbutton.h"
 #include <ctype.h>
 
 static const int autoRepeatDelay  = 300;
@@ -670,13 +671,13 @@ void QButton::setState( ToggleState s )
   \sa isToggleButton()
 */
 
-/*!
-  Returns TRUE if \e pos is inside the widget rectangle, or FALSE if it
-  is outside.
+/*!  
+  Returns TRUE if \e pos is inside the clickable button rectangle, or
+  FALSE if it is outside.
 
-  This virtual function is reimplemented by subclasses.
+  Per default, the clickable area is the entire widget. Subclasses may
+  reimplement it, though.
 */
-
 bool QButton::hitButton( const QPoint &pos ) const
 {
     return rect().contains( pos );
@@ -685,7 +686,11 @@ bool QButton::hitButton( const QPoint &pos ) const
 /*!
   Draws the button.  The default implementation does nothing.
 
-  This virtual function is reimplemented by subclasses to draw real buttons.
+  This virtual function is reimplemented by subclasses to draw real
+  buttons. At some point in time, these reimplementations are supposed
+  to call drawButtonLabel().
+  
+  \sa drawButtonLabel(), paintEvent()
 */
 
 void QButton::drawButton( QPainter * )
@@ -696,7 +701,10 @@ void QButton::drawButton( QPainter * )
 /*!
   Draws the button text or pixmap.
 
-  This virtual function is reimplemented by subclasses to draw real buttons.
+  This virtual function is reimplemented by subclasses to draw real
+  buttons. It's invoked by drawButton().
+  
+  \sa drawButton(), paintEvent()
 */
 
 void QButton::drawButtonLabel( QPainter * )
@@ -705,33 +713,52 @@ void QButton::drawButtonLabel( QPainter * )
 }
 
 
-static bool got_a_release = FALSE; // binary compatibility trick, keyReleaseEvent is new
-/*!
-  Handles keyboard events for the button.
-
-  Space presses the button, the arrow keys cause focus changes.
+static bool got_a_release = FALSE; // ### binary compatibility trick, keyReleaseEvent is new
+/*!\reimp
 */
 
 void QButton::keyPressEvent( QKeyEvent *e )
 {
-    if ( e->key() == Key_Space && !e->isAutoRepeat() ) {
-	if ( got_a_release )
-	    setDown( TRUE );
-	else {
-	    buttonDown = TRUE;
-	    repaint( FALSE );
+    switch ( e->key() ) {
+    case Key_Enter:
+    case Key_Return:
+	if ( inherits("QPushButton") )
+	    emit clicked();
+	else
+	    e->ignore();
+	break;
+    case Key_Space:
+	if ( !e->isAutoRepeat() ) {
+	    if ( got_a_release )
+		setDown( TRUE );
+	    else {
+		buttonDown = TRUE;
+		repaint( FALSE );
+	    }
 	}
-    } else if ( group() &&
-		( e->key() == Key_Up ||
-		  e->key() == Key_Left ||
-		  e->key() == Key_Down ||
-		  e->key() == Key_Right ) ) {
-	group()->moveFocus( e->key() );
-    } else if ( e->key() == Key_Up || e->key() == Key_Left ) {
-	focusNextPrevChild( FALSE );
-    } else if ( e->key() == Key_Down || e->key() == Key_Right ) {
-	focusNextPrevChild( TRUE );
-    } else {
+	break;
+    case Key_Up:
+    case Key_Left:
+	if ( group() )
+	    group()->moveFocus( e->key() );
+	else
+	    focusNextPrevChild( FALSE );
+	break;
+    case Key_Right:
+    case Key_Down:
+	if ( group() )
+	    group()->moveFocus( e->key() );
+	else
+	    focusNextPrevChild( TRUE );
+	break;
+    case Key_Escape:
+	if ( buttonDown ) {
+	    buttonDown = FALSE;
+	    update();
+	    break;
+	}
+	// fall through
+    default:
 	e->ignore();
     }
 }
@@ -742,13 +769,18 @@ void QButton::keyPressEvent( QKeyEvent *e )
 void QButton::keyReleaseEvent( QKeyEvent * e)
 {
     got_a_release = TRUE;
-    if ( e->key() == Key_Space && !e->isAutoRepeat() ) {
-	buttonDown = FALSE;
-	nextState();
-	emit released();
-	emit clicked();
-    } else
+    switch ( e->key() ) {
+    case Key_Space:
+	if ( buttonDown && !e->isAutoRepeat() ) {
+	    buttonDown = FALSE;
+	    nextState();
+	    emit released();
+	    emit clicked();
+	}
+	break;
+    default:
 	e->ignore();
+    }
 }
 
 
@@ -762,9 +794,7 @@ bool QButton::focusNextPrevChild( bool next )
 }
 
 
-/*!
-  Handles mouse press events for the button.
-  \sa mouseReleaseEvent()
+/*!\reimp
 */
 
 void QButton::mousePressEvent( QMouseEvent *e )
@@ -782,9 +812,7 @@ void QButton::mousePressEvent( QMouseEvent *e )
     }
 }
 
-/*!
-  Handles mouse release events for the button.
-  \sa mousePressEvent()
+/*!\reimp
 */
 
 void QButton::mouseReleaseEvent( QMouseEvent *e)
@@ -805,9 +833,7 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
     }
 }
 
-/*!
-  Handles mouse move events for the button.
-  \sa mousePressEvent(), mouseReleaseEvent()
+/*!\reimp
 */
 
 void QButton::mouseMoveEvent( QMouseEvent *e )
@@ -831,11 +857,13 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
 
 
 /*!
-  Handles paint events for the button.
-
-  Opens the painter on the button and calls drawButton().
+  Handles paint events for buttons.  Small and typically complex
+  buttons (less than 300x100 pixels) are painted double-buffered to
+  reduce flicker. The actually drawing is done in the virtual functions
+  drawButton() and drawButtonLabel().
+  
+  \sa drawButton(), drawButtonLabel()
 */
-
 void QButton::paintEvent( QPaintEvent *event )
 {
     if ( event &&

@@ -692,19 +692,15 @@ void QMultiLineEdit::focusInEvent( QFocusEvent * )
 }
 
 
-/*!
-  Handles auto-copy of selection (X11 only).
+/*!\reimp
 */
-
 void QMultiLineEdit::leaveEvent( QEvent * )
 {
 }
 
 
-/*!
-  stops the cursor blinking.
+/*!\reimp
 */
-
 void QMultiLineEdit::focusOutEvent( QFocusEvent * )
 {
     stopAutoScroll();
@@ -905,6 +901,8 @@ void QMultiLineEdit::selectAll()
     markDragY = numLines() - 1;
     markDragX = lineLength( markDragY );
     markIsOn = ( markDragX != markAnchorX ||  markDragY != markAnchorY );
+    if ( autoUpdate() )
+	update();
 }
 
 
@@ -1887,10 +1885,8 @@ void QMultiLineEdit::end( bool mark )
 	turnMarkOff();
 }
 
-/*!
-  Handles mouse press events.
+/*!\reimp
 */
-
 void QMultiLineEdit::mousePressEvent( QMouseEvent *e )
 {
     stopAutoScroll();
@@ -1907,6 +1903,10 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *e )
 	    !isReadOnly() && (bool)QApplication::clipboard()->text().length() );
 	d->popup->setItemEnabled( this->d->id[ 5 ],
 				  !isReadOnly() && (bool)text().length() );
+	int allSelected = markIsOn && markAnchorX == 0 && markAnchorY == 0 &&
+			  markDragY == numLines() - 1 && markDragX == lineLength( markDragY );
+	d->popup->setItemEnabled( this->d->id[ 6 ],
+				  (bool)text().length() && !allSelected );
 
 	int id = d->popup->exec( e->globalPos() );
 	if ( id == d->id[ 0 ] )
@@ -2019,8 +2019,7 @@ void QMultiLineEdit::stopAutoScroll()
     }
 }
 
-/*!
-  Handles mouse move events.
+/*!\reimp
 */
 void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
@@ -2076,8 +2075,7 @@ void QMultiLineEdit::extendSelectionWord( int &newX, int&newY)
 
 
 
-/*!
-  Handles mouse release events.
+/*!\reimp
 */
 void QMultiLineEdit::mouseReleaseEvent( QMouseEvent *e )
 {
@@ -2117,10 +2115,8 @@ void QMultiLineEdit::mouseReleaseEvent( QMouseEvent *e )
 }
 
 
-/*!
-  Handles double click events.
+/*!\reimp
 */
-
 void QMultiLineEdit::mouseDoubleClickEvent( QMouseEvent *m )
 {
     if ( m->button() == LeftButton ) {
@@ -2139,8 +2135,7 @@ void QMultiLineEdit::mouseDoubleClickEvent( QMouseEvent *m )
     }
 }
 
-/*!
-  Handles drag motion events, accepting text and positioning the cursor.
+/*!\reimp
 */
 void QMultiLineEdit::dragMoveEvent( QDragMoveEvent* event )
 {
@@ -2158,16 +2153,14 @@ void QMultiLineEdit::dragMoveEvent( QDragMoveEvent* event )
 	event->acceptAction();
 }
 
-/*!
-  Handles drag leave events, cancelling any auto-scrolling.
+/*!\reimp
 */
 void QMultiLineEdit::dragLeaveEvent( QDragLeaveEvent* )
 {
     stopAutoScroll();
 }
 
-/*!
-  Handles drop events, pasting text.
+/*!\reimp
 */
 void QMultiLineEdit::dropEvent( QDropEvent* event )
 {
@@ -2398,6 +2391,7 @@ void QMultiLineEdit::clear()
     int w  = textWidth( QString::fromLatin1("") );
     contents->append( new QMultiLineEditRow(QString::fromLatin1(""), w) );
     setWidth( w );
+    setNumRows( 1 );
     dummy = TRUE;
     markIsOn = FALSE;
     if ( autoUpdate() )
@@ -2407,8 +2401,7 @@ void QMultiLineEdit::clear()
 }
 
 
-/*!
-  Reimplements QWidget::setFont() to update the list box line height.
+/*!\reimp
 */
 
 void QMultiLineEdit::setFont( const QFont &font )
@@ -2417,6 +2410,9 @@ void QMultiLineEdit::setFont( const QFont &font )
     d->clearChartable();
     QFontMetrics fm( font );
     setCellHeight( fm.lineSpacing() );
+    for ( QMultiLineEditRow* r = contents->first(); r; r = contents->next() )
+	r->w = textWidth( r->s  );
+    rebreakAll();
     updateCellWidth();
 }
 
@@ -2733,11 +2729,8 @@ QPoint QMultiLineEdit::cursorPoint() const
 }
 
 
-/*!
-  Specifies that this widget can use additional space, and that it can
-  survive on less than sizeHint().
+/*! \reimp
 */
-
 QSizePolicy QMultiLineEdit::sizePolicy() const
 {
     if ( d->maxlines >= 0 && d->maxlines <= 6 ) {
@@ -2748,9 +2741,7 @@ QSizePolicy QMultiLineEdit::sizePolicy() const
 }
 
 
-/*!
-  Returns a size sufficient for a few lines of text, or any value set by
-  setFixedVisibleLines().
+/*!\reimp
 */
 QSize QMultiLineEdit::sizeHint() const
 {
@@ -2794,8 +2785,7 @@ QSize QMultiLineEdit::minimumSizeHint() const
 
 
 
-/*!
-  Reimplemented for internal purposes
+/*!\reimp
 */
 
 void QMultiLineEdit::resizeEvent( QResizeEvent *e )
@@ -3804,15 +3794,15 @@ void QMultiLineEdit::del()
 	    addUndoCmd( new QEndCommand );
 	}
 	else if ( ! atEnd() ) {
-	    int cursorY, cursorX;
-	    cursorPosition( &cursorY, &cursorX );
-	    int offset = positionToOffsetInternal( cursorY, cursorX );
-	    QMultiLineEditRow* r = contents->at( cursorY );
+	    int crsorY, crsorX;
+	    cursorPosition( &crsorY, &crsorX );
+	    int offset = positionToOffsetInternal( crsorY, crsorX );
+	    QMultiLineEditRow* r = contents->at( crsorY );
 	    if (r) {
-		if (cursorX != (int)r->s.length())
-		    deleteNextChar( offset, cursorY, cursorX );
+		if (crsorX != (int)r->s.length())
+		    deleteNextChar( offset, crsorY, crsorX );
 		else if (r->newline)
-		    deleteNextChar( offset, cursorY, cursorX );
+		    deleteNextChar( offset, crsorY, crsorX );
 		else
 		    ; // noop
 	    }

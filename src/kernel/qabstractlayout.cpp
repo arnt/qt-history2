@@ -803,6 +803,10 @@ QLayout::QLayout( int space, const char *name )
   top-level layouts; QBoxLayout and QGridLayout support margins for
   child layouts.
 
+  For some layout classes, this function only has an effect on
+  top-level layouts; QBoxLayout and QGridLayout support margins for
+  child layouts.
+
   \sa margin() setSpacing() supportsMargin()
  */
 
@@ -1342,28 +1346,6 @@ bool QLayout::activate()
   \sa QSizePolicy::SizeType
 */
 
-/*!
-  \fn QSizePolicy::QSizePolicy ()
-
-  Default constructor, produces a minimally initialized QSizePolicy.
-*/
-
-/*!
-  \fn QSizePolicy::QSizePolicy( SizeType hor, SizeType ver, bool hfw )
-
-  <a name="interesting"></a>
-  This is the constructor normally used to return a value in the
-  overridden \l QWidget::sizePolicy() function of a QWidget subclass.
-
-  It constructs a QSizePolicy with independent horizontal and vertical
-  sizing types, \a hor and \a ver respectively.  These \link
-  QSizePolicy::SizeType sizing types\endlink affect how the widget is
-  treated by the \a link QLayout layout engine\endlink.
-
-  If \a hfw is TRUE, the preferred height of the widget is dependent on the
-  width of the widget (for example, a QLabel with automatic word-breaking).
-*/
-
 /*! \enum QSizePolicy::SizeType
 
 The per-dimension sizing types used when constructing a QSizePolicy
@@ -1416,6 +1398,28 @@ says.
 taller than sizeHint() says.
 
 </ul>
+*/
+
+/*!
+  \fn QSizePolicy::QSizePolicy ()
+
+  Default constructor, produces a minimally initialized QSizePolicy.
+*/
+
+/*!
+  \fn QSizePolicy::QSizePolicy( SizeType hor, SizeType ver, bool hfw )
+
+  <a name="interesting"></a>
+  This is the constructor normally used to return a value in the
+  overridden \l QWidget::sizePolicy() function of a QWidget subclass.
+
+  It constructs a QSizePolicy with independent horizontal and vertical
+  sizing types, \a hor and \a ver respectively.  These \link
+  QSizePolicy::SizeType sizing types\endlink affect how the widget is
+  treated by the \a link QLayout layout engine\endlink.
+
+  If \a hfw is TRUE, the preferred height of the widget is dependent on the
+  width of the widget (for example, a QLabel with automatic word-breaking).
 */
 
 
@@ -1682,7 +1686,6 @@ void QLayout::setAutoAdd( bool b )
 {
     autoNewChild = b;
 }
-
 
 
 /*!

@@ -903,11 +903,8 @@ void QPopupMenu::enableAccel( bool enable )
 }
 
 
-/*!
-  Reimplements QWidget::setFont() to be able to refresh the popup menu
-  when its font changes.
+/*!\reimp
 */
-
 void QPopupMenu::setFont( const QFont &font )
 {
     QWidget::setFont( font );
@@ -918,10 +915,8 @@ void QPopupMenu::setFont( const QFont &font )
     }
 }
 
-/*!
-  Reimplements QWidget::show() for internal purposes.
+/*!\reimp
 */
-
 void QPopupMenu::show()
 {
     if ( !isPopup() && isVisible() )
@@ -929,6 +924,7 @@ void QPopupMenu::show()
 
     if ( isVisible() ) {
 	supressAboutToShow = FALSE;
+	QWidget::show();
 	return;
     }
     if (!supressAboutToShow)
@@ -941,14 +937,15 @@ void QPopupMenu::show()
     popupActive = -1;
 }
 
-/*!
-  Reimplements QWidget::hide() for internal purposes.
+/*!\reimp
 */
 
 void QPopupMenu::hide()
 {	
-    if ( !isVisible() )
+    if ( !isVisible() ) {
+	QWidget::hide();
   	return;
+    }
 
     actItem = popupActive = -1;
     mouseBtDn = FALSE;				// mouse button up
@@ -1043,8 +1040,7 @@ void QPopupMenu::drawContents( QPainter* p )
   Event handlers
  *****************************************************************************/
 
-/*!
-  Handles paint events for the popup menu.
+/*!\reimp
 */
 
 void QPopupMenu::paintEvent( QPaintEvent *e )
@@ -1052,8 +1048,7 @@ void QPopupMenu::paintEvent( QPaintEvent *e )
     QFrame::paintEvent( e );
 }
 
-/*!
-  Handles close events for the popup menu.
+/*!\reimp
 */
 
 void QPopupMenu::closeEvent( QCloseEvent * e) {
@@ -1063,8 +1058,7 @@ void QPopupMenu::closeEvent( QCloseEvent * e) {
 }
 
 
-/*!
-  Handles mouse press events for the popup menu.
+/*!\reimp
 */
 
 void QPopupMenu::mousePressEvent( QMouseEvent *e )
@@ -1097,8 +1091,7 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
     }
 }
 
-/*!
-  Handles mouse release events for the popup menu.
+/*!\reimp
 */
 
 void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
@@ -1151,28 +1144,12 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
     }
 }
 
-/*!
-  Handles mouse move events for the popup menu.
+/*!\reimp
 */
 
 void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 {
     motion++;
-
-    /* cannot remember why we had that workaround, but it breaks tear-off menus. Matthias */
-//     if ( parentMenu && parentMenu->isPopupMenu &&
-// 	 (parentMenu->actItem != ((QPopupMenu *)parentMenu)->popupActive ) ) {
-// 	// hack it to work: if there's a parent popup, and its active
-// 	// item is not the same as its popped-up child, make the
-// 	// popped-up child active
-// 	QPopupMenu * p = (QPopupMenu *)parentMenu;
-// 	int lastActItem = p->actItem;
-// 	p->actItem = p->popupActive;
-// 	if ( lastActItem >= 0 )
-// 	    p->updateRow( lastActItem );
-// 	if ( p->actItem >= 0 )
-// 	    p->updateRow( p->actItem );
-//     }
 
     if ( (e->state() & Qt::MouseButtonMask) == 0 &&
 	 !hasMouseTracking() )
@@ -1217,8 +1194,7 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 }
 
 
-/*!
-  Handles key press events for the popup menu.
+/*!\reimp
 */
 
 void QPopupMenu::keyPressEvent( QKeyEvent *e )
@@ -1413,8 +1389,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 }
 
 
-/*!
-  Handles timer events for the popup menu.
+/*!\reimp
 */
 
 void QPopupMenu::timerEvent( QTimerEvent *e )
@@ -1422,8 +1397,7 @@ void QPopupMenu::timerEvent( QTimerEvent *e )
     QFrame::timerEvent( e );
 }
 
-/*!
-  Reimplemented for internal purposes.
+/*!\reimp
 */
 void  QPopupMenu::styleChange( QStyle& old )
 {
@@ -1659,17 +1633,7 @@ void QPopupMenu::setActiveItem( int i )
 }
 
 
-/*!
-  Returns the size the popupmenu would use shall it become visible
-  now. (##### is that english??)
-
-  Note that this size may be different from the popup's actual
-  size. It changes all the time a new item is added or an existing one
-  is modified. For performance reasons, QPopupMenu doesn't change its
-  physical size each time this happens but only once before it is
-  shown.
-
-  \sa exec(), show()
+/*!\reimp
  */
 QSize QPopupMenu::sizeHint() const
 {

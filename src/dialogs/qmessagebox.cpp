@@ -434,6 +434,19 @@ static const char *qtlogo_xpm[] = {
 */
 
 
+/*!
+  \enum QMessageBox::Icon
+
+  This type includes the following values:
+  <ul>
+  <li> \c QMessageBox::NoIcon
+  <li> \c QMessageBox::Information
+  <li> \c QMessageBox::Warning
+  <li> \c QMessageBox::Critical
+  </ul>
+*/
+
+
 struct QMBData {
     QMBData(QMessageBox* parent) :
 	iconLabel( parent, "icon" )
@@ -712,18 +725,6 @@ void QMessageBox::setText( const QString &text )
 }
 
 /*!
-  \enum QMessageBox::Icon
-
-  This type includes the following values:
-  <ul>
-  <li> \c QMessageBox::NoIcon
-  <li> \c QMessageBox::Information
-  <li> \c QMessageBox::Warning
-  <li> \c QMessageBox::Critical
-  </ul>
-*/
-
-/*!
   Returns the icon of the message box.
 
   \sa setIcon(), iconPixmap()
@@ -936,10 +937,8 @@ void QMessageBox::adjustSize()
 }
 
 
-/*!
-  Handles resize events for the message box.
+/*!\reimp
 */
-
 void QMessageBox::resizeEvent( QResizeEvent * )
 {
     int i;
@@ -973,10 +972,8 @@ void QMessageBox::resizeEvent( QResizeEvent * )
 }
 
 
-/*!
-  Handles key press events for the message box.
+/*!\reimp
 */
-
 void QMessageBox::keyPressEvent( QKeyEvent *e )
 {
     if ( e->key() == Key_Escape ) {
@@ -1208,8 +1205,9 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
   1-3 buttons.  Returns the number of the button that was clicked
   (0, 1 or 2).
 
-  \a button0Text is the text of the first button and must be present,
-  \a button1Text is the text of the second button and is optional, and
+  \a button0Text is the text of the first button and is optional.  If
+  \a button0Text is not supplied, "OK" (translated) will be used.
+  \a button1Text is the text of the second button and is optional.
   \a button2Text is the text of the third button and is optional.  \a
   defaultbuttonNumber (0-2) is the index of the default button;
   pressing Return or Enter is the same as clicking the default button.
@@ -1245,7 +1243,8 @@ int QMessageBox::information( QWidget *parent, const QString &caption,
   1-3 buttons.  Returns the number of the button that was clicked
   (0, 1 or 2).
 
-  \a button0Text is the text of the first button and must be present,
+  \a button0Text is the text of the first button and is optional.  If
+  \a button0Text is not supplied, "OK" (translated) will be used.
   \a button1Text is the text of the second button and is optional, and
   \a button2Text is the text of the third button and is optional.  \a
   defaultbuttonNumber (0-2) is the index of the default button;
@@ -1282,7 +1281,8 @@ int QMessageBox::warning( QWidget *parent, const QString &caption,
   1-3 buttons.  Returns the number of the button that was clicked
   (0, 1 or 2).
 
-  \a button0Text is the text of the first button and must be present,
+  \a button0Text is the text of the first button and is optional.  If
+  \a button0Text is not supplied, "OK" (translated) will be used.
   \a button1Text is the text of the second button and is optional, and
   \a button2Text is the text of the third button and is optional.  \a
   defaultbuttonNumber (0-2) is the index of the default button;

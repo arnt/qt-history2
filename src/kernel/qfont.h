@@ -70,6 +70,7 @@ public:
 			The above will be obsoleted and a same-named list
 			added below.
 		     */
+		     Set_GBK,
 		     Set_Big5
 		    };
     enum StyleHint { Helvetica, Times, Courier, OldEnglish,  System, AnyStyle,

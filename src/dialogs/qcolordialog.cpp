@@ -28,7 +28,7 @@
 #include "qpainter.h"
 #include "qlayout.h"
 #include "qlabel.h"
-#include "qwellarray.h"
+#include "../widgets/qwellarray_p.h"
 #include "qpushbutton.h"
 #include "qlineedit.h"
 #include "qimage.h"
@@ -1131,7 +1131,3 @@ int QColorDialog::selectedAlpha() const
 
 
 #include "qcolordialog.moc"
-
-
-
-

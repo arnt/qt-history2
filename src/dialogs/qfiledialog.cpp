@@ -133,13 +133,14 @@ static const char *end_xpm[]={
 
 /* XPM */
 static const char* open_xpm[]={
-    "16 15 6 1",
+    "16 16 6 1",
     ". c None",
     "b c #ffff00",
     "d c #000000",
     "* c #999999",
     "c c #cccccc",
     "a c #ffffff",
+    "................",
     "................",
     "...*****........",
     "..*aaaaa*.......",
@@ -158,7 +159,7 @@ static const char* open_xpm[]={
 
 /* XPM */
 static const char *link_dir_xpm[]={
-    "15 15 10 1",
+    "16 16 10 1",
     "h c #808080",
     "g c #a0a0a0",
     "d c #000000",
@@ -169,25 +170,26 @@ static const char *link_dir_xpm[]={
     "e c #585858",
     "c c #ffffff",
     ". c None",
-    "...............",
-    "..#####........",
-    ".#ababa#.......",
-    "#abababa######.",
-    "#cccccccccccc#d",
-    "#cbababababab#d",
-    "#cabababababa#d",
-    "#cbababdddddddd",
-    "#cababadccccccd",
-    "#cbababdcececcd",
-    "#cababadcefdfcd",
-    "#cbababdccgdhcd",
-    "#######dccchccd",
-    ".dddddddddddddd",
-    "..............."};
+    "................",
+    "................",
+    "..#####.........",
+    ".#ababa#........",
+    "#abababa######..",
+    "#cccccccccccc#d.",
+    "#cbababababab#d.",
+    "#cabababababa#d.",
+    "#cbababdddddddd.",
+    "#cababadccccccd.",
+    "#cbababdcececcd.",
+    "#cababadcefdfcd.",
+    "#cbababdccgdhcd.",
+    "#######dccchccd.",
+    ".dddddddddddddd.",
+    "................"};
 
 /* XPM */
 static const char *link_file_xpm[]={
-    "13 15 10 1",
+    "16 16 10 1",
     "h c #808080",
     "g c #a0a0a0",
     "d c #c3c3c3",
@@ -198,70 +200,73 @@ static const char *link_file_xpm[]={
     "e c #585858",
     "a c #ffffff",
     "# c None",
-    "..........###",
-    ".aaaaaaaab.##",
-    ".aaaaaaaaba.#",
-    ".aaaaaaaacccc",
-    ".aaaaaaaaaabc",
-    ".aaaaaaaaaabc",
-    ".aaaaaaaaaadc",
-    ".aaaaaaaaaadc",
-    ".aaaacccccccc",
-    ".aaaacaaaaaac",
-    ".aaaacaeaeaac",
-    ".aaaacaefcfac",
-    ".aaaacaagchac",
-    ".ddddcaaahaac",
-    "ccccccccccccc"};
+    "################",
+    "..........######",
+    ".aaaaaaaab.#####",
+    ".aaaaaaaaba.####",
+    ".aaaaaaaacccc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaadc###",
+    ".aaaaaaaaaadc###",
+    ".aaaacccccccc###",
+    ".aaaacaaaaaac###",
+    ".aaaacaeaeaac###",
+    ".aaaacaefcfac###",
+    ".aaaacaagchac###",
+    ".ddddcaaahaac###",
+    "ccccccccccccc###"};
 
 /* XPM */
 static const char* file_xpm[]={
-    "13 15 5 1",
+    "16 16 5 1",
     ". c #7f7f7f",
     "# c None",
     "c c #000000",
     "b c #bfbfbf",
     "a c #ffffff",
-    "..........###",
-    ".aaaaaaaab.##",
-    ".aaaaaaaaba.#",
-    ".aaaaaaaacccc",
-    ".aaaaaaaaaabc",
-    ".aaaaaaaaaabc",
-    ".aaaaaaaaaabc",
-    ".aaaaaaaaaabc",
-    ".aaaaaaaaaabc",
-    ".aaaaaaaaaabc",
-    ".aaaaaaaaaabc",
-    ".aaaaaaaaaabc",
-    ".aaaaaaaaaabc",
-    ".bbbbbbbbbbbc",
-    "ccccccccccccc"};
+    "################",
+    "..........######",
+    ".aaaaaaaab.#####",
+    ".aaaaaaaaba.####",
+    ".aaaaaaaacccc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".bbbbbbbbbbbc###",
+    "ccccccccccccc###"};
 
 /* XPM */
 static const char* closed_xpm[]={
-    "15 15 6 1",
+    "16 16 6 1",
     ". c None",
     "b c #ffff00",
     "d c #000000",
     "* c #999999",
     "a c #cccccc",
     "c c #ffffff",
-    "...............",
-    "..*****........",
-    ".*ababa*.......",
-    "*abababa******.",
-    "*cccccccccccc*d",
-    "*cbababababab*d",
-    "*cabababababa*d",
-    "*cbababababab*d",
-    "*cabababababa*d",
-    "*cbababababab*d",
-    "*cabababababa*d",
-    "*cbababababab*d",
-    "**************d",
-    ".dddddddddddddd",
-    "..............."};
+    "................",
+    "................",
+    "..*****.........",
+    ".*ababa*........",
+    "*abababa******..",
+    "*cccccccccccc*d.",
+    "*cbababababab*d.",
+    "*cabababababa*d.",
+    "*cbababababab*d.",
+    "*cabababababa*d.",
+    "*cbababababab*d.",
+    "*cabababababa*d.",
+    "*cbababababab*d.",
+    "**************d.",
+    ".dddddddddddddd.",
+    "................"};
 
 
 /* XPM */
@@ -366,7 +371,7 @@ static const char* previewcontentsview_xpm[]={
     "#######a#bbb#a",
     "..#####a#####a",
     ".#.#bb#a#####a",
-    "...####aaaaaaa"};                                                              /* XPM */
+    "...####aaaaaaa"};
 
 /* XPM */
 static const char* mclistview_xpm[]={
@@ -387,6 +392,23 @@ static const char* mclistview_xpm[]={
     ".a.*bbb*.a.*bbb",
     "...*****...****"};
 
+/* XPM */
+static const char * back_xpm [] = {
+    "13 11 3 1",
+    "a c #00ffff",
+    "# c #000000",
+    ". c None",
+    ".....#.......",
+    "....##.......",
+    "...#a#.......",
+    "..#aa########",
+    ".#aaaaaaaaaa#",
+    "#aaaaaaaaaaa#",
+    ".#aaaaaaaaaa#",
+    "..#aa########",
+    "...#a#.......",
+    "....##.......",
+    ".....#......."};
 
 static QPixmap * openFolderIcon = 0;
 static QPixmap * closedFolderIcon = 0;
@@ -407,6 +429,7 @@ static bool sortAscending = TRUE;
 static bool detailViewMode = FALSE;
 static QPixmap * previewContentsViewIcon = 0;
 static QPixmap * previewInfoViewIcon = 0;
+static QPixmap *goBackIcon = 0;
 static QSize *lastSize = 0;
 
 static void cleanup() {
@@ -440,6 +463,8 @@ static void cleanup() {
     startCopyIcon = 0;
     delete endCopyIcon;
     endCopyIcon = 0;
+    delete goBackIcon;
+    goBackIcon = 0;
 }
 
 #if defined(_WS_WIN_)
@@ -479,6 +504,7 @@ static void makeVariables() {
 	previewContentsViewIcon = new QPixmap( previewcontentsview_xpm );
 	startCopyIcon = new QPixmap( start_xpm );
 	endCopyIcon = new QPixmap( end_xpm );
+	goBackIcon = new QPixmap( back_xpm );
 	fifteenTransparentPixels = new QPixmap( closedFolderIcon->width(), 1 );
 	QBitmap m( fifteenTransparentPixels->width(), 1 );
 	m.fill( Qt::color0 );
@@ -553,7 +579,7 @@ private:
     QFileDialog *filedialog;
     bool renaming;
     QTimer* renameTimer;
-    QListBoxItem *renameItem;
+    QListBoxItem *renameItem, *dragItem;
     QPoint pressPos, oldDragPos;
     bool mousePressed;
     int urls;
@@ -611,7 +637,7 @@ private:
     bool mousePressed;
     int urls;
     QString startDragDir;
-    QListViewItem *currDropItem;
+    QListViewItem *currDropItem, *dragItem;
     QTimer *changeDirTimer;
     bool firstMousePressEvent;
     bool ascending;
@@ -778,6 +804,8 @@ void QFDProgressDialog::setWriteLabel( const QString &s )
 struct QFileDialogPrivate {
     ~QFileDialogPrivate();
 
+    QStringList history;
+
     bool geometryDirty;
     QComboBox * paths;
     QComboBox * types;
@@ -796,7 +824,7 @@ struct QFileDialogPrivate {
     QWidgetStack * stack;
 
     QToolButton * cdToParent, *newFolder, * detailView, * mcView,
-	*previewInfo, *previewContents;
+	*previewInfo, *previewContents, *goBack;
     QButtonGroup * modeButtons;
 
     QString currentFileName;
@@ -967,6 +995,7 @@ QFileListBox::QFileListBox( QWidget *parent, QFileDialog *dlg )
     connect( this, SIGNAL( contentsMoving( int, int ) ),
 	     this, SLOT( contentsMoved( int, int ) ) );
     viewport()->setAcceptDrops( TRUE );
+    dragItem = 0;
 }
 
 void QFileListBox::show()
@@ -1031,6 +1060,7 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
 
 void QFileListBox::viewportMouseReleaseEvent( QMouseEvent *e )
 {
+    dragItem = 0;
     QListBox::viewportMouseReleaseEvent( e );
     mousePressed = FALSE;
 }
@@ -1043,13 +1073,12 @@ void QFileListBox::viewportMouseDoubleClickEvent( QMouseEvent *e )
 
 void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
 {
+    if ( !dragItem )
+	dragItem = itemAt( e->pos() );
     renameTimer->stop();
     if (  ( pressPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() && mousePressed ) {
-	if ( !itemAt( e->pos() ) )
-	     return;
-	QListBoxItem *item = currentItem() != -1 ?
-			     QListBox::item( currentItem() ) :
-			     itemAt( e->pos() );
+	QListBoxItem *item = dragItem;
+	dragItem = 0;
 	if ( item ) {
 	    if ( !itemRect( item ).contains( e->pos() ) )
 		return;
@@ -1147,7 +1176,6 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
 	return;
     }
 
-
     QStringList l;
     QUrlDrag::decodeToUnicodeUris( e, l );
 
@@ -1159,7 +1187,6 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
 	       ;
     else
 	supportAction = FALSE;
-
 
     QUrlOperator dest;
     if ( currDropItem )
@@ -1239,13 +1266,14 @@ void QFileListBox::startRename( bool check )
     int w = item( i )->width( this ) - bdr - 1;
     int h = r.height() - 2;
 
+    lined->parentWidget()->setGeometry( x, y - 3, w + 6, h + 6 );
     lined->setFocusPolicy( StrongFocus );
     lined->setFocus();
     lined->setText( item( i )->text() );
     lined->selectAll();
     lined->setFrame( FALSE );
-    lined->parentWidget()->setGeometry( x, y - 3, w + 6, h + 6 );
     lined->parentWidget()->show();
+    lined->setGeometry( 2, 2, w + 2, h + 2 );
     viewport()->setFocusProxy( lined );
     renaming = TRUE;
 }
@@ -1300,6 +1328,7 @@ QFileListView::QFileListView( QWidget *parent, QFileDialog *dlg )
     box->setFrameStyle( QFrame::Box | QFrame::Plain );
     lined = new QRenameEdit( box );
     box->hide();
+    box->setBackgroundMode( PaletteBase );
     renameTimer = new QTimer( this );
     connect( lined, SIGNAL( returnPressed() ),
 	     this, SLOT (rename() ) );
@@ -1320,6 +1349,7 @@ QFileListView::QFileListView( QWidget *parent, QFileDialog *dlg )
     viewport()->setAcceptDrops( TRUE );
     sortcolumn = 0;
     ascending = TRUE;
+    dragItem = 0;
 }
 
 void QFileListView::setSorting( int column, bool increasing )
@@ -1415,17 +1445,17 @@ void QFileListView::viewportMouseReleaseEvent( QMouseEvent *e )
 {
     QListView::viewportMouseReleaseEvent( e );
     mousePressed = FALSE;
+    dragItem = 0;
 }
 
 void QFileListView::viewportMouseMoveEvent( QMouseEvent *e )
 {
     renameTimer->stop();
+    if ( !dragItem )
+	dragItem = itemAt( e->pos() );
     if (  ( pressPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() && mousePressed ) {
-	if ( !itemAt( e->pos() ) )
-	     return;
-	QListViewItem *item = currentItem() ?
-			      currentItem() :
-			      itemAt( e->pos() );
+	QListViewItem *item = dragItem;
+	dragItem = 0;
 	if ( item ) {
 	    QUriDrag* drag = new QUriDrag( viewport() );
 	    drag->setUnicodeUris( filedialog->selectedFiles() );
@@ -1513,7 +1543,6 @@ void QFileListView::viewportDragLeaveEvent( QDragLeaveEvent * )
 void QFileListView::viewportDropEvent( QDropEvent *e )
 {
     changeDirTimer->stop();
-
 
     if ( !QUriDrag::canDecode( e ) ) {
 	e->ignore();
@@ -1613,13 +1642,14 @@ void QFileListView::startRename( bool check )
     int w = columnWidth( 0 ) - bdr - 1;
     int h = r.height() - 2;
 
+    lined->parentWidget()->setGeometry( x, y - 3, w + 6, h + 6 );
     lined->setFocusPolicy( StrongFocus );
     lined->setFocus();
     lined->setText( i->text( 0 ) );
     lined->selectAll();
     lined->setFrame( FALSE );
-    lined->parentWidget()->setGeometry( x, y - 3, w + 6, h + 6 );
     lined->parentWidget()->show();
+    lined->setGeometry( 2, 2, w + 2, h + 2 );
     viewport()->setFocusProxy( lined );
     renaming = TRUE;
 }
@@ -1691,6 +1721,7 @@ QString QFileDialogPrivate::File::text( int column ) const
 	char a[256];
 	time_t t1 = epoch.secsTo( info.lastModified() );
 	struct tm * t2 = ::localtime( &t1 );
+	// looks wrong for the last hour of the day...
 	if ( t2 && t2->tm_hour != info.lastModified().time().hour() )
 	    t2->tm_hour = info.lastModified().time().hour();
 	// use a static const char here, so that egcs will not see
@@ -1874,13 +1905,12 @@ static QStringList makeFiltersList( const QString &filter )
 /*! \enum QFileDialog::Mode
 
   This enum type is used to set and read QFileDialog's operating mode.
-  The defined values are: <ul>
-
+  The defined values are:
+  <ul>
   <li> \c AnyFile - Return the name of any file, whether existing or not.
   <li> \c ExistingFile - Return the name of a single, existing, file.
   <li> \c Directory - Return the name of a directory.
   <li> \c ExistingFiles - Return the names of zero or more existing files.
-
   </ul>
 */
 
@@ -1888,17 +1918,20 @@ static QStringList makeFiltersList( const QString &filter )
   \enum QFileDialog::ViewMode
 
   This enum type describes the view mode of the filedialog.
-
   <ul>
   <li> \c Detail - View which shows except the filename also
   size, date, etc. of a file in columns
   <li> \c List - Simple view which shows only all filenames plus icons
+  </ul>
 
   Using setViewMode() you can set this mode to the file dialog.
 */
 
 /*!
   \enum QFileDialog::PreviewMode
+
+  This enum type describes the preview mode of the filedialog.
+  <ul>
   <li> \c NoPreview - No preview is shown at all
   <li> \c Contents - Besides the view with the files a preview
   widget is shown shich shows the contents of the currently selected file
@@ -1995,8 +2028,8 @@ void QFileDialog::init()
              this, SLOT( urlStart( QNetworkOperation * ) ) );
     connect( &d->url, SIGNAL( finished( QNetworkOperation * ) ),
              this, SLOT( urlFinished( QNetworkOperation * ) ) );
-    connect( &d->url, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
-             this, SLOT( insertEntry( const QUrlInfo &, QNetworkOperation * ) ) );
+    connect( &d->url, SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ),
+             this, SLOT( insertEntry( const QValueList<QUrlInfo> &, QNetworkOperation * ) ) );
     connect( &d->url, SIGNAL( removed( QNetworkOperation * ) ),
              this, SLOT( removeEntry( QNetworkOperation * ) ) );
     connect( &d->url, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
@@ -2026,8 +2059,6 @@ void QFileDialog::init()
 
     files->setMinimumSize( 50, 25 + 2*fm.lineSpacing() );
 
-    connect( files, SIGNAL(selectionChanged(QListViewItem *)),
-	     this, SLOT(updateFileNameEdit(QListViewItem *)) );
     connect( files, SIGNAL( selectionChanged() ),
 	     this, SLOT( detailViewSelectionChanged() ) );
     connect( files, SIGNAL(currentChanged(QListViewItem *)),
@@ -2101,7 +2132,28 @@ void QFileDialog::init()
     d->fileL = new QLabel( nameEdit, tr("File &name:"), this );
     d->typeL = new QLabel( d->types, tr("File &type:"), this );
 
+#if defined(_WS_WIN_)
+    if ( QApplication::winVersion() == Qt::WV_2000 ) {
+	d->goBack = new QToolButton( this, "go back" );
+	d->goBack->setAutoRaise( TRUE );
+	d->goBack->setEnabled( FALSE );
+	d->goBack->setFocusPolicy( TabFocus );
+	connect( d->goBack, SIGNAL( clicked() ),
+		 this, SLOT( goBack() ) );
+	QToolTip::add( d->goBack, tr( "Back" ) );
+	d->goBack->setIconSet( *goBackIcon );
+    } else {
+	d->goBack = 0;
+    }
+#else
+    d->goBack = 0;
+#endif
+
     d->cdToParent = new QToolButton( this, "cd to parent" );
+#if defined(_WS_WIN_)
+    if ( QApplication::winVersion() == Qt::WV_2000 )
+	d->cdToParent->setAutoRaise( TRUE );
+#endif
     d->cdToParent->setFocusPolicy( TabFocus );
     QToolTip::add( d->cdToParent, tr( "One directory up" ) );
     d->cdToParent->setIconSet( *cdToParentIcon );
@@ -2109,6 +2161,10 @@ void QFileDialog::init()
 	     this, SLOT(cdUpClicked()) );
 
     d->newFolder = new QToolButton( this, "new folder" );
+#if defined(_WS_WIN_)
+    if ( QApplication::winVersion() == Qt::WV_2000 )
+	d->newFolder->setAutoRaise( TRUE );
+#endif
     d->newFolder->setFocusPolicy( TabFocus );
     QToolTip::add( d->newFolder, tr( "Create New Folder" ) );
     d->newFolder->setIconSet( *newFolderIcon );
@@ -2125,12 +2181,20 @@ void QFileDialog::init()
 	     this, SLOT(changeMode(int)) );
 
     d->mcView = new QToolButton( this, "mclistbox view" );
+#if defined(_WS_WIN_)
+    if ( QApplication::winVersion() == Qt::WV_2000 )
+	d->mcView->setAutoRaise( TRUE );
+#endif
     d->mcView->setFocusPolicy( TabFocus );
     QToolTip::add( d->mcView, tr( "List View" ) );
     d->mcView->setIconSet( *multiColumnListViewIcon );
     d->mcView->setToggleButton( TRUE );
     d->stack->addWidget( d->moreFiles, d->modeButtons->insert( d->mcView ) );
     d->detailView = new QToolButton( this, "list view" );
+#if defined(_WS_WIN_)
+    if ( QApplication::winVersion() == Qt::WV_2000 )
+	d->detailView->setAutoRaise( TRUE );
+#endif
     d->detailView->setFocusPolicy( TabFocus );
     QToolTip::add( d->detailView, tr( "Detail View" ) );
     d->detailView->setIconSet( *detailViewIcon );
@@ -2138,6 +2202,10 @@ void QFileDialog::init()
     d->stack->addWidget( files, d->modeButtons->insert( d->detailView ) );
 
     d->previewInfo = new QToolButton( this, "preview info view" );
+#if defined(_WS_WIN_)
+    if ( QApplication::winVersion() == Qt::WV_2000 )
+	d->previewInfo->setAutoRaise( TRUE );
+#endif
     d->previewInfo->setFocusPolicy( TabFocus );
     QToolTip::add( d->previewInfo, tr( "Preview File Info" ) );
     d->previewInfo->setIconSet( *previewInfoViewIcon );
@@ -2145,6 +2213,10 @@ void QFileDialog::init()
     d->modeButtons->insert( d->previewInfo );
 
     d->previewContents = new QToolButton( this, "preview info view" );
+#if defined(_WS_WIN_)
+    if ( QApplication::winVersion() == Qt::WV_2000 )
+	d->previewContents->setAutoRaise( TRUE );
+#endif
     d->previewContents->setFocusPolicy( TabFocus );
     QToolTip::add( d->previewContents, tr( "Preview File Contents" ) );
     d->previewContents->setIconSet( *previewContentsViewIcon );
@@ -2189,10 +2261,12 @@ void QFileDialog::init()
     h->addSpacing( 8 );
     h->addWidget( d->paths );
     h->addSpacing( 8 );
+    if ( d->goBack )
+	h->addWidget( d->goBack );
     h->addWidget( d->cdToParent );
-    h->addSpacing( 8 );
+    h->addSpacing( 2 );
     h->addWidget( d->newFolder );
-    h->addSpacing( 8 );
+    h->addSpacing( 4 );
     h->addWidget( d->mcView );
     h->addWidget( d->detailView );
     h->addWidget( d->previewInfo );
@@ -2223,7 +2297,12 @@ void QFileDialog::init()
 
     updateGeometries();
 
-    setTabOrder( d->paths, d->cdToParent );
+    if ( d->goBack ) {
+	setTabOrder( d->paths, d->goBack );
+	setTabOrder( d->goBack, d->cdToParent );
+    } else {
+	setTabOrder( d->paths, d->cdToParent );
+    }
     setTabOrder( d->cdToParent, d->newFolder );
     setTabOrder( d->newFolder, d->mcView );
     setTabOrder( d->mcView, d->detailView );
@@ -2291,9 +2370,9 @@ void QFileDialog::init()
 
 void QFileDialog::fileNameEditReturnPressed()
 {
-    if ( d->mode != Directory )
+    if ( d->mode != Directory ) {
 	okClicked();
-    else {
+    } else {
 	d->currentFileName = QString::null;
 	if ( nameEdit->text().isEmpty() ) {
 	    emit fileSelected( d->currentFileName );
@@ -2360,7 +2439,10 @@ void QFileDialog::changeMode( int id )
 
 QFileDialog::~QFileDialog()
 {
+    files->clear();
+    d->moreFiles->clear();
     delete d;
+    d = 0;
 }
 
 
@@ -2495,7 +2577,7 @@ void QFileDialog::setFilter( const QString & newFilter )
     if ( !newFilter )
 	return;
     QString f = newFilter;
-    QRegExp r( QString::fromLatin1("([a-zA-Z0-9\\.\\*\\?\\ \\+\\;]*)$") );
+    QRegExp r( QString::fromLatin1("([a-zA-Z0-9\\.\\*\\?\\ \\+\\;\\#]*)$") );
     int len;
     int index = r.match( f, 0, &len );
     if ( index >= 0 )
@@ -2950,8 +3032,7 @@ void QFileDialog::cancelClicked()
 }
 
 
-/*!
-  Handles resize events for the file dialog.
+/*!\reimp
 */
 
 void QFileDialog::resizeEvent( QResizeEvent * )
@@ -3035,8 +3116,6 @@ void QFileDialog::updateGeometries()
 	return;
 
     d->geometryDirty = FALSE;
-    QWidget *ew = 0, *eb = 0;
-    QLabel *el = 0;
 
     QSize r, t;
 
@@ -3050,19 +3129,9 @@ r.setHeight( QMAX(r.height(),t.height()) )
     RM;
     t = d->typeL->sizeHint();
     RM;
-    if ( !d->extraLabels.isEmpty() ) {
-	for ( el = d->extraLabels.first(); el; el = d->extraLabels.next() ) {
-	    t = el->sizeHint();
-	    RM;
-	}
-    }
     d->pathL->setFixedSize( d->pathL->sizeHint() );
     d->fileL->setFixedSize( r );
     d->typeL->setFixedSize( r );
-    if ( !d->extraLabels.isEmpty() ) {
-	for ( el = d->extraLabels.first(); el; el = d->extraLabels.next() )
-	    el->setFixedSize( r );
-    }
 
     // single-line input areas
     r = d->paths->sizeHint();
@@ -3071,12 +3140,6 @@ r.setHeight( QMAX(r.height(),t.height()) )
     t = d->types->sizeHint();
     RM;
     r.setWidth( t.width() * 2 / 3 );
-    if ( !d->extraWidgets.isEmpty() ) {
-	for ( ew = d->extraWidgets.first(); ew; ew = d->extraWidgets.next() ) {
-	    t = ew->sizeHint();
-	    RM;
-	}
-    }
     t.setWidth( QWIDGETSIZE_MAX );
     t.setHeight( r.height() );
     d->paths->setMinimumSize( r );
@@ -3085,10 +3148,6 @@ r.setHeight( QMAX(r.height(),t.height()) )
     nameEdit->setMaximumSize( t );
     d->types->setMinimumSize( r );
     d->types->setMaximumSize( t );
-    if ( !d->extraWidgets.isEmpty() ) {
-	for ( ew = d->extraWidgets.first(); ew; ew = d->extraWidgets.next() )
-	    ew->setMinimumSize( r );
-    }
 
     // buttons on top row
     r = QSize( 0, d->paths->minimumSize().height() );
@@ -3096,6 +3155,8 @@ r.setHeight( QMAX(r.height(),t.height()) )
     RM;
     if ( r.height()+1 > r.width() )
 	r.setWidth( r.height()+1 );
+    if ( d->goBack )
+	d->goBack->setFixedSize( r );
     d->cdToParent->setFixedSize( r );
     d->newFolder->setFixedSize( r );
     d->mcView->setFixedSize( r );
@@ -3129,19 +3190,9 @@ r.setHeight( QMAX(r.height(),t.height()) )
     RM;
     t = cancelB->sizeHint();
     RM;
-    if ( !d->extraButtons.isEmpty() ) {
-	for ( eb = d->extraButtons.first(); eb; eb = d->extraButtons.next() ) {
-	    t = eb->sizeHint();
-	    RM;
-	}
-    }
 
     okB->setFixedSize( r );
     cancelB->setFixedSize( r );
-    if ( !d->extraButtons.isEmpty() ) {
-	for ( eb = d->extraButtons.first(); eb; eb = d->extraButtons.next() )
-	    eb->setFixedSize( r );
-    }
 
     d->topLevelLayout->activate();
 
@@ -3261,6 +3312,7 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 
     QFileDialogPrivate::File * i = (QFileDialogPrivate::File *)newItem;
 
+    QString oldName = nameEdit->text();
     if ( i->info.isDir() ) {
 	setUrl( QUrlOperator( d->url, i->info.name() + "/" ) );
 	if ( mode() == Directory ) {
@@ -3277,6 +3329,8 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 	d->currentFileName = d->url;
 	accept();
     }
+    if ( !oldName.isEmpty() )
+	nameEdit->setText( oldName );
 }
 
 
@@ -3481,7 +3535,6 @@ void QFileDialog::deleteFile( const QString &filename )
     if ( fi.isSymLink() )
 	t = "symlink";
 
-
     if ( QMessageBox::warning( this,
 			       tr( "Delete %1" ).arg( t ),
 			       tr( "<qt>Do you really want to delete the %1 \"%2\"?</qt>" )
@@ -3514,7 +3567,10 @@ void QFileDialog::pathSelected( int )
 
 void QFileDialog::cdUpClicked()
 {
+    QString oldName = nameEdit->text();
     setUrl( QUrlOperator( d->url, ".." ) );
+    if ( !oldName.isEmpty() )
+	nameEdit->setText( oldName );
 }
 
 void QFileDialog::newFolderClicked()
@@ -3955,7 +4011,8 @@ QFileIconProvider::QFileIconProvider( QObject * parent, const char* name )
 
   The default implementation returns particular icons for files, directories,
   link-files, link-directories, and blank for other types.
-  Future versions of Qt may extend this further.
+
+  If you return a pixmap here, it should be of the size 16x16.
 */
 
 const QPixmap * QFileIconProvider::pixmap( const QFileInfo & info )
@@ -3998,11 +4055,6 @@ QFileIconProvider * QFileDialog::iconProvider()
 {
     return fileIconProvider;
 }
-
-
-/*! \reimp */
-
-
 
 
 #if defined(_WS_WIN_)
@@ -4479,8 +4531,10 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 
 void QFileDialog::fixupNameEdit()
 {
-    if ( files->currentItem() && d->mode != ExistingFiles )
-	nameEdit->setText( files->currentItem()->text( 0 ) );
+    if ( files->currentItem() && d->mode != ExistingFiles ) {
+	if ( ( (QFileDialogPrivate::File*)files->currentItem() )->info.isFile() )
+	    nameEdit->setText( files->currentItem()->text( 0 ) );
+    }
 }
 
 /*!
@@ -4498,9 +4552,17 @@ static bool isRoot( const QUrl &u )
 	if ( u.path() == "/" )
 	    return TRUE;
 #elif defined(_OS_WIN32_)
-	if ( u.path().length() == 3 &&
-	     u.path().right( 2 ) == ":/" )
+	QString p = u.path();
+	if ( p.length() == 3 &&
+	     p.right( 2 ) == ":/" )
 	    return TRUE;
+	if ( p[ 0 ] == '/' && p[ 1 ] == '/' ) {
+	    int slashes = p.contains( '/' );
+	    if ( slashes <= 3 )
+		return TRUE;
+	    if ( slashes == 4 && p[ (int)p.length() - 1 ] == '/' )
+		return TRUE;
+	}
 #endif
 
 	if ( !u.isLocalFile() && u.path() == "/" )
@@ -4515,6 +4577,7 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	return;
 
     if ( op->operation() == QNetworkProtocol::OpListChildren ) {
+	qApp->processEvents();
 	d->sortedList.clear();
 	d->pendingItems.clear();
 	d->moreFiles->clearSelection();
@@ -4538,6 +4601,12 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	    d->cdToParent->setEnabled( FALSE );
 	else
 	    d->cdToParent->setEnabled( TRUE );
+	
+	if ( d->goBack && d->history.last() != d->url.toString() ) {
+	    d->history.append( d->url.toString() );
+	    if ( d->history.count() > 1 )
+		d->goBack->setEnabled( TRUE );
+	}
     }
 
 }
@@ -4572,14 +4641,22 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
     } else if ( op->operation() == QNetworkProtocol::OpListChildren &&
 		op == d->currListChildren ) {
 	if ( !d->hadDotDot && !isRoot( d->url ) ) {
-
-	    QUrlInfo ui( d->url, ".." );
-	    ui.setName( ".." );
-	    ui.setDir( TRUE );
-	    ui.setFile( FALSE );
-	    ui.setSymLink( FALSE );
-	    ui.setSize( 0 );
-	    insertEntry( ui, 0 );
+	    bool ok = TRUE;
+#if defined(_WS_WIN_)
+	    if ( d->url.path().left( 2 ) == "//" )
+		ok = FALSE;
+#endif
+	    if ( ok ) {
+		QUrlInfo ui( d->url, ".." );
+		ui.setName( ".." );
+		ui.setDir( TRUE );
+		ui.setFile( FALSE );
+		ui.setSymLink( FALSE );
+		ui.setSize( 0 );
+		QValueList<QUrlInfo> lst;
+		lst << ui;
+		insertEntry( lst, 0 );
+	    }
 	}
 	resortDir();
     } else if ( op->operation() == QNetworkProtocol::OpGet ) {
@@ -4635,37 +4712,49 @@ void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkO
     }
 }
 
-void QFileDialog::insertEntry( const QUrlInfo &inf, QNetworkOperation * )
+void QFileDialog::insertEntry( const QValueList<QUrlInfo> &lst, QNetworkOperation *op )
 {
-    if ( inf.name() == ".." ) {
-	d->hadDotDot = TRUE;
-	if ( isRoot( d->url ) )
-	    return;
-    } else if ( inf.name() == "." )
+    if ( op && op->operation() == QNetworkProtocol::OpListChildren &&
+	 op != d->currListChildren )
 	return;
 
-    // check for hidden files
-    // #### todo make this work on windows
-    if ( !bShowHiddenFiles && inf.name() != ".." &&
-	 inf.name()[ 0 ] == QChar( '.' ) )
-	return;
+    QValueList<QUrlInfo>::ConstIterator it = lst.begin();
+    for ( ; it != lst.end(); ++it ) {
+	const QUrlInfo &inf = *it;
+	if ( inf.name() == ".." ) {
+	    d->hadDotDot = TRUE;
+	    if ( isRoot( d->url ) )
+		continue;
+#if defined(_WS_WIN_)
+	    if ( d->url.path().left( 2 ) == "//" )
+		continue;
+#endif
+	} else if ( inf.name() == "." )
+	    continue;
 
-    if ( !d->url.isLocalFile() ) {
-	QFileDialogPrivate::File * i = 0;
-	QFileDialogPrivate::MCItem *i2 = 0;
-	i = new QFileDialogPrivate::File( d, &inf, files );
-	i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
+	// check for hidden files
+	// #### todo make this work on windows
+	if ( !bShowHiddenFiles && inf.name() != ".." &&
+	     inf.name()[ 0 ] == QChar( '.' ) )
+	    continue;
 
-	if ( ( d->mode == ExistingFiles && inf.isDir() ) ||
-	     d->mode == Directory ) {
-	    i->setSelectable( FALSE );
-	    i2->setSelectable( FALSE );
+	if ( !d->url.isLocalFile() ) {
+	    QFileDialogPrivate::File * i = 0;
+	    QFileDialogPrivate::MCItem *i2 = 0;
+	    i = new QFileDialogPrivate::File( d, &inf, files );
+	    i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
+
+	    if ( ( d->mode == ExistingFiles && inf.isDir() ) ||
+		 d->mode == Directory ) {
+		i->setSelectable( FALSE );
+		i2->setSelectable( FALSE );
+	    }
+
+	    i->i = i2;
 	}
 
-	i->i = i2;
+	d->sortedList.append( new QUrlInfo( inf ) );
     }
-
-    d->sortedList.append( new QUrlInfo( inf ) );
 }
 
 void QFileDialog::removeEntry( QNetworkOperation *op )
@@ -4963,8 +5052,8 @@ void QFileDialog::doMimeTypeLookup()
 	} else
 	    fi.setFile( item->info.name() ); // #####
 	const QPixmap *p = iconProvider()->pixmap( fi );
-	if ( p && p != item->pixmap( 0 ) && 
-	     ( !item->pixmap( 0 ) || p->serialNumber() != item->pixmap( 0 )->serialNumber() ) && 
+	if ( p && p != item->pixmap( 0 ) &&
+	     ( !item->pixmap( 0 ) || p->serialNumber() != item->pixmap( 0 )->serialNumber() ) &&
 	     p != fifteenTransparentPixels ) {
 	    item->hasMimePixmap = TRUE;
 
@@ -4979,21 +5068,24 @@ void QFileDialog::doMimeTypeLookup()
 
 	    if ( files->isVisible() ) {
 		QRect ir( files->itemRect( item ) );
-		if ( ir != QRect( 0, 0, -1, -1 ) )
+		if ( ir != QRect( 0, 0, -1, -1 ) ) {
 		    r = r.unite( ir );
+		}
 	    } else {
 		QRect ir( d->moreFiles->itemRect( item->i ) );
-		if ( ir != QRect( 0, 0, -1, -1 ) )
+		if ( ir != QRect( 0, 0, -1, -1 ) ) {
 		    r = r.unite( ir );
+		}
 	    }
 	}
 	d->pendingItems.removeFirst();
     }
 
-    if ( d->moreFiles->isVisible() )
+    if ( d->moreFiles->isVisible() ) {
 	d->moreFiles->viewport()->repaint( r, FALSE );
-    else
+    } else {
 	files->viewport()->repaint( r, FALSE );
+    }
 
     d->mimeTypeTimer->start( 0 );
 }
@@ -5009,6 +5101,16 @@ void QFileDialog::selectAll( bool b )
 	return;
     d->moreFiles->selectAll( b );
     files->selectAll( b );
+}
+
+void QFileDialog::goBack()
+{
+    if ( !d->goBack || !d->goBack->isEnabled() )
+	return;
+    d->history.remove( d->history.last() );
+    if ( d->history.count() < 2 )
+	d->goBack->setEnabled( FALSE );
+    setUrl( d->history.last() );
 }
 
 QFilePreview::QFilePreview()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#169 $
+** $Id: //depot/qt/main/src/moc/moc.y#170 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2195,7 +2195,7 @@ int generateProps()
 	}
 
 	// Resolve and verify the STORED function (if any)
-	if ( !p->stored.isEmpty() & p->stored != "true" && p->stored != "false" ) {
+	if ( !p->stored.isEmpty() &&  p->stored != "true" && p->stored != "false" ) {
 	    bool found = FALSE;
 	    FuncList candidates = propfuncs.find( p->stored );
 	    for ( Function* f = candidates.first(); f; f = candidates.next() ) {
@@ -2397,7 +2397,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#169 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#170 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;

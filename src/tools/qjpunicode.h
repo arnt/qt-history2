@@ -79,12 +79,16 @@ class Q_EXPORT QJpUnicodeConv {
 public:
     static const QJpUnicodeConv *newConverter(int rule);
 
+    // ### NOTE: member function names will be changed in Qt 3.0; see doc
+
     virtual uint AsciiToUnicode(uint h, uint l) const;
     /*virtual*/ uint Jisx0201ToUnicode(uint h, uint l) const;
     virtual uint Jisx0201LatinToUnicode(uint h, uint l) const;
     /*virtual*/ uint Jisx0201KanaToUnicode(uint h, uint l) const;
     virtual uint Jisx0208ToUnicode(uint h, uint l) const;
     virtual uint Jisx0212ToUnicode(uint h, uint l) const;
+
+    // ### NOTE: member function names will be changed in Qt 3.0; see doc
 
     uint AsciiToUnicode(uint ascii) const {
 	return AsciiToUnicode((ascii & 0xff00) >> 8, (ascii & 0x00ff));
@@ -105,12 +109,16 @@ public:
 	return Jisx0212ToUnicode((jis & 0xff00) >> 8, (jis & 0x00ff));
     }
 
+    // ### NOTE: member function names will be changed in Qt 3.0; see doc
+
     virtual uint UnicodeToAscii(uint h, uint l) const;
     /*virtual*/ uint UnicodeToJisx0201(uint h, uint l) const;
     virtual uint UnicodeToJisx0201Latin(uint h, uint l) const;
     /*virtual*/ uint UnicodeToJisx0201Kana(uint h, uint l) const;
     virtual uint UnicodeToJisx0208(uint h, uint l) const;
     virtual uint UnicodeToJisx0212(uint h, uint l) const;
+
+    // ### NOTE: member function names will be changed in Qt 3.0; see doc
 
     uint UnicodeToAscii(uint unicode) const {
 	return UnicodeToAscii((unicode & 0xff00) >> 8, (unicode & 0x00ff));
@@ -131,8 +139,12 @@ public:
 	return UnicodeToJisx0212((unicode & 0xff00) >> 8, (unicode & 0x00ff));
     }
 
+    // ### NOTE: member function names will be changed in Qt 3.0; see doc
+
     uint SjisToUnicode(uint h, uint l) const;
     uint UnicodeToSjis(uint h, uint l) const;
+
+    // ### NOTE: member function names will be changed in Qt 3.0; see doc
 
     uint SjisToUnicode(uint sjis) const {
 	return SjisToUnicode((sjis & 0xff00) >> 8, (sjis & 0x00ff));

@@ -74,11 +74,11 @@
   signals of less importance are pressed() when the button is pressed
   down and released() when it is released, respectively.
 
-  Command buttons are by default auto-default buttons, i.e. they
-  become the default push button automatically when they receive the
-  keyboard input focus. A default button is a command button that is
-  activated when the users hits the Enter or Return key in a
-  dialog. Adjust this behaviour with setAutoDefault(). Note that
+  Command buttons in dialogs are by default auto-default buttons,
+  i.e. they become the default push button automatically when they
+  receive the keyboard input focus. A default button is a command
+  button that is activated when the users hits the Enter or Return key
+  in a dialog. Adjust this behaviour with setAutoDefault(). Note that
   auto-default buttons reserve a little extra space necessary to draw
   a default-button indicator. If you do not want this space around
   your buttons, call setAutoDefault( FALSE ).
@@ -239,7 +239,7 @@ void QPushButton::init()
     lastDown = FALSE;
     lastEnabled = FALSE;
     hasMenuArrow = FALSE;
-    autoDefButton = TRUE;
+    autoDefButton = topLevelWidget()->inherits("QDialog");
     setBackgroundMode( PaletteButton );
 }
 
@@ -298,8 +298,8 @@ void QPushButton::toggle()
   Sets the push buttons to an auto-default button if \a enable is TRUE,
   or to a normal button if \a enable is FALSE.
 
-  An auto-default button becomes the default push button automatically
-  when it receives the keyboard input focus.
+  An auto-default button becomes automatically the default push button
+  in a dialog when it receives the keyboard input focus.
 
   In some GUI styles, a default button is drawn with an extra frame
   around it, up to 3 pixels or more. Qt automatically keeps this space
@@ -312,6 +312,8 @@ void QPushButton::toggle()
 void QPushButton::setAutoDefault( bool enable )
 {
     if ( (bool)autoDefButton == enable )
+	return;
+    if ( !topLevelWidget()->inherits("QDialog") )		// not a dialog
 	return;
     autoDefButton = enable;
     if ( isVisible() ) {
@@ -333,35 +335,34 @@ void QPushButton::setAutoDefault( bool enable )
   \link QDialog dialog\endlink if \a enable is TRUE, or to be a normal button
   if \a enable is FALSE.
 
-  The current default button gets clicked when the user presses the "Enter"
-  key, independently of which widget in the dialog currently has the keyboard
-  input focus. Only one push button can at any time be the default button.
+  The current default button gets clicked when the user presses the
+  "Enter" key, independently of which widget in the dialog currently
+  has the keyboard input focus.  Only one push button can at any time
+  be the default button.  This button is then displayed with an
+  additional frame ( depending on the GUI style ).
 
-  The default button behaviour is only provided in dialogs. Buttons can always
-  be clicked from the keyboard by pressing the spacebar whern the button has
-  focus.
+  The default button behaviour is only provided in dialogs. Buttons
+  can always be clicked from the keyboard by pressing return or the
+  spacebar when the button has focus.
 
   \sa isDefault(), setAutoDefault(), QDialog
 */
 
 void QPushButton::setDefault( bool enable )
 {
-    if ( (defButton && enable) || !(defButton || enable) )
+    if ( (bool)defButton == enable )
 	return;					// no change
-    QWidget *p = topLevelWidget();
-    if ( !p->inherits("QDialog") )		// not a dialog
+    if ( !topLevelWidget()->inherits("QDialog") )		// not a dialog
 	return;
     defButton = enable;
     if ( defButton )
-	((QDialog*)p)->setDefault( this );
+ 	((QDialog*)topLevelWidget())->setDefault( this );
     update();
 }
 
 
-/*!
-  Returns a size which fits the contents of the push button.
+/*!\reimp
 */
-
 QSize QPushButton::sizeHint() const
 {
     constPolish();
@@ -407,7 +408,6 @@ QSize QPushButton::sizeHint() const
 	if ( h <= 25 )
 	    h = 22;
 	if ( w < 85 && !pixmap() &&
-	     topLevelWidget() &&
 	     topLevelWidget()->inherits( "QDialog" ) )
 	    w = 80;
     }
@@ -416,65 +416,50 @@ QSize QPushButton::sizeHint() const
 }
 
 
-/*!
-  Specifies that this widget may stretch horizontally, but is fixed
-  vertically.
+/*!\reimp
 */
-
 QSizePolicy QPushButton::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
 }
 
-/*!
-  Reimplements QWidget::move() for internal purposes.
+/*!\reimp
 */
-
 void QPushButton::move( int x, int y )
 {
     QWidget::move( x, y );
 }
 
-/*!
-  Reimplements QWidget::move() for internal purposes.
+/*!\reimp
 */
-
 void QPushButton::move( const QPoint &p )
 {
     move( p.x(), p.y() );
 }
 
-/*!
-  Reimplements QWidget::resize() for internal purposes.
+/*!\reimp
 */
-
 void QPushButton::resize( int w, int h )
 {
     QWidget::resize( w, h );
 }
 
-/*!
-  Reimplements QWidget::resize() for internal purposes.
+/*!\reimp
 */
-
 void QPushButton::resize( const QSize &s )
 {
     resize( s.width(), s.height() );
 }
 
-/*!
-  Reimplements QWidget::setGeometry() for internal purposes.
+/*!\reimp
 */
-
 void QPushButton::setGeometry( int x, int y, int w, int h )
 {
     QWidget::setGeometry( x, y, w, h );
 }
 
-/*!
-  Reimplements QWidget::setGeometry() for internal purposes.
+/*!\reimp
 */
-
 void QPushButton::setGeometry( const QRect &r )
 {
     QWidget::setGeometry( r );
@@ -488,11 +473,8 @@ void QPushButton::resizeEvent( QResizeEvent * )
 	updateMask();
 }
 
-/*!
-  Draws the push button, except its label.
-  \sa drawButtonLabel()
+/*!\reimp
 */
-
 void QPushButton::drawButton( QPainter *paint )
 {
     int diw = 0;
@@ -535,11 +517,8 @@ void QPushButton::drawButton( QPainter *paint )
 }
 
 
-/*!
-  Draws the push button label.
-  \sa drawButton()
+/*!\reimp
 */
-
 void QPushButton::drawButtonLabel( QPainter *paint )
 {
     style().drawPushButtonLabel( this, paint );
@@ -562,27 +541,26 @@ void QPushButton::updateMask()
     setMask( bm );
 }
 
-/*!
-  Handles focus in events for the push button.
+/*!\reimp
 */
-
 void QPushButton::focusInEvent( QFocusEvent *e )
 {
     if ( autoDefButton )
 	setDefault( TRUE );
+    else {
+	if ( topLevelWidget()->inherits("QDialog") )
+	    ((QDialog*)topLevelWidget())->hideDefault();
+    }
     QButton::focusInEvent( e );
 }
 
-/*!
-  Handles focus out events for the push button.
+/*!\reimp
 */
-
 void QPushButton::focusOutEvent( QFocusEvent *e )
 {
     if ( defButton && autoDefButton ) {
-	QWidget *p = topLevelWidget();
-	if ( p->inherits("QDialog") )
-	    ((QDialog*)p)->setDefault( 0 );
+	if ( topLevelWidget()->inherits("QDialog") )
+	    ((QDialog*)topLevelWidget())->setDefault( 0 );
     }
 
     QButton::focusOutEvent( e );

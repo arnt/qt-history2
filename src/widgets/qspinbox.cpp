@@ -399,10 +399,8 @@ bool QSpinBox::wrapping() const
 
 
 
-/*!
-  Returns a good-looking size for the spin box.
+/*!\reimp
 */
-
 QSize QSpinBox::sizeHint() const
 {
     constPolish();
@@ -473,11 +471,8 @@ void QSpinBox::arrangeWidgets()
 	vi->setGeometry( contentsRect() );
 }
 
-/*!
-  Specifies that this widget may stretch horizontally, but is fixed
-  vertically.
+/*!\reimp
 */
-
 QSizePolicy QSpinBox::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
@@ -594,17 +589,14 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
 }
 
 
-/*!
-  Handles resize events for the spin box.
+/*!\reimp
 */
-
 void QSpinBox::resizeEvent( QResizeEvent* )
 {
     arrangeWidgets();
 }
 
-/*!
-  Handles wheel events for the spinbox.
+/*!\reimp
 */
 void QSpinBox::wheelEvent( QWheelEvent * e )
 {

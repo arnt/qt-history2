@@ -73,4 +73,11 @@ QApplication::QApplication( int &argc, char **argv )
     qt_ebg( qt_erase_background );
 }
 
+QApplication::QApplication( int &argc, char **argv, bool useGUI )
+    : QBaseApplication( argc, argv, useGUI )
+{
+    qt_ebg( qt_erase_background );
+}
+
+
 #endif

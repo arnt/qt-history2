@@ -84,7 +84,7 @@ struct QLineEditPrivate {
 };
 
 
-// REVISED: warwick
+// REVISED: arnt
 /*!
   \class QLineEdit qlineedit.h
 
@@ -160,7 +160,7 @@ static const int scrollTime = 40;		// mark text scroll time
 */
 
 QLineEdit::QLineEdit( QWidget *parent, const char *name )
-    : QWidget( parent, name, WRepaintNoErase | WNorthWestGravity )
+    : QWidget( parent, name, WRepaintNoErase )
 {
     init();
 }
@@ -527,6 +527,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 #if defined (_WS_WIN_)
 	case Key_Insert:
 	    copy();
+	    break;
 #endif
 	case Key_Z:
 	    if ( !d->readonly )
@@ -592,8 +593,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 }
 
 
-/*!
-  Handles the cursor blinking.
+/*!\reimp
 */
 
 void QLineEdit::focusInEvent( QFocusEvent * e)
@@ -606,8 +606,7 @@ void QLineEdit::focusInEvent( QFocusEvent * e)
 }
 
 
-/*!
-  Handles the cursor blinking and selection copying.
+/*!\reimp
 */
 
 void QLineEdit::focusOutEvent( QFocusEvent * e )
@@ -618,7 +617,7 @@ void QLineEdit::focusOutEvent( QFocusEvent * e )
 	copy();
 #endif
     }
-    if ( e->reason() != QFocusEvent::ActiveWindow 
+    if ( e->reason() != QFocusEvent::ActiveWindow
 	 && e->reason() != QFocusEvent::Popup )
 	deselect();
     d->dragTimer.stop();
@@ -626,8 +625,7 @@ void QLineEdit::focusOutEvent( QFocusEvent * e )
 	blinkSlot();
 }
 
-/*!
-  Handles selection copying.
+/*!\reimp
 */
 void QLineEdit::leaveEvent( QEvent * )
 {
@@ -638,8 +636,7 @@ void QLineEdit::leaveEvent( QEvent * )
 }
 
 
-/*!
-  Handles paint events for the line edit.
+/*!\reimp
 */
 
 void QLineEdit::paintEvent( QPaintEvent *e )
@@ -718,7 +715,8 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	int curYTop = d->cursorRepaintRect.y();
 	int curYBot = d->cursorRepaintRect.bottom();
 	int curXPos = d->cursorRepaintRect.x() + 2;
-	if ( !d->readonly && cursorOn && d->cursorRepaintRect.intersects( e->rect() ) ) {
+	if ( !d->readonly && cursorOn &&
+	     d->cursorRepaintRect.intersects( e->rect() ) ) {
 	    p.drawLine( curXPos, curYTop, curXPos, curYBot );
 	    if ( style() != WindowsStyle ) {
 		p.drawLine( curXPos - 2, curYTop, curXPos + 2, curYTop );
@@ -736,26 +734,20 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 }
 
 
-/*!
-  Handles resize events for this widget.
+/*!\reimp
 */
 
 void QLineEdit::resizeEvent( QResizeEvent * )
 {
     delete d->pm;
     d->pm = 0;
+    offset = 0;
     updateOffset();
 }
 
 
-/*!
-  Handles mouse press events for this widget.
-
-  The left mouse button is used for moving the cursor, selecting text,
-  and initiating drag-and-drop.  The right mouse button brings up an
-  edit menu.
+/*! \reimp
 */
-
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
     if ( e->button() == RightButton ) {
@@ -771,6 +763,9 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 		&& (bool)QApplication::clipboard()->text().length() );
 	d->popup->setItemEnabled( this->d->id[ 5 ],
 		!this->d->readonly && (bool)text().length() );
+	int allSelected = minMark() == 0 && maxMark() == (int)text().length();
+	d->popup->setItemEnabled( this->d->id[ 6 ],
+				  (bool)text().length() && !allSelected );
 	int id = d->popup->exec( e->globalPos() );
 	if ( id == d->id[ 0 ] )
 	    undoInternal();
@@ -821,11 +816,8 @@ void QLineEdit::doDrag()
     }
 }
 
-/*!
-  Handles mouse move events for the line edit, primarily for
-  marking text.
+/*!\reimp
 */
-
 void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
     if ( d->dndTimer.isActive() ) {
@@ -857,10 +849,8 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
     }
 }
 
-/*!
-  Handles mouse release events for this widget.
+/*!\reimp
 */
-
 void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 {
     dragScrolling = FALSE;
@@ -912,13 +902,8 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 }
 
 
-/*!
-  Handles mouse double click events for this widget.
-
-  Double clicking begins word marking rather than
-  the normal character marking.
+/*!\reimp
 */
-
 void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
 {
     d->inDoubleClick = TRUE;
@@ -1126,11 +1111,14 @@ void QLineEdit::cut()
   \sa alignment()
 */
 void QLineEdit::setAlignment( int flag ){
+    if ( flag == alignmentFlag )
+	return;
     if ( flag == Qt::AlignRight ||
 	 flag == Qt::AlignCenter ||
 	 flag == Qt::AlignLeft ) {
 	alignmentFlag = flag;
 	updateOffset();
+	update();
     }
 }
 
@@ -1199,6 +1187,7 @@ void QLineEdit::setFrame( bool enable )
     d->frame = enable;
     d->pmDirty = TRUE;
     updateOffset();
+    update();
 }
 
 
@@ -1243,6 +1232,7 @@ void QLineEdit::setEchoMode( EchoMode mode )
     d->mode = mode;
     d->pmDirty = TRUE;
     updateOffset();
+    update();
 }
 
 
@@ -1280,14 +1270,11 @@ bool QLineEdit::isReadOnly() const
 
 
 
-/*!
-  Returns a size which fits the contents of the line edit.
-
-  The width returned tends to be enough for about 15-20 characters.
+/*!\reimp
 */
-
 QSize QLineEdit::sizeHint() const
 {
+    //   the width returned tends to be enough for about 15-20 characters.
     constPolish();
     QFontMetrics fm( font() );
     int h = fm.height();
@@ -1328,13 +1315,12 @@ QSize QLineEdit::minimumSizeHint() const
 
 
 
-/*!
-  Specifies that this widget can use more, but is able to survive on
-  less, horizontal space; and is fixed vertically.
+/*!\reimp
 */
-
 QSizePolicy QLineEdit::sizePolicy() const
 {
+    //   Specifies that this widget can use more, but is able to survive on
+    //   less, horizontal space; and is fixed vertically.
     return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 }
 
@@ -1377,8 +1363,7 @@ void QLineEdit::clearValidator()
 
 
 
-/*!
-  Reimplemented to accept text drags entering the line edit.
+/*! \reimp
 */
 void QLineEdit::dragEnterEvent( QDragEnterEvent *e )
 {
@@ -1387,8 +1372,7 @@ void QLineEdit::dragEnterEvent( QDragEnterEvent *e )
 }
 
 
-/*!
-  Reimplemented to accept text drops into the line edit.
+/*!\reimp
 */
 void QLineEdit::dropEvent( QDropEvent *e )
 {
@@ -1488,6 +1472,9 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 	    maxP = t.length();
 	tbuf = t;
 
+	if ( cursorPos < (int)text().length() && maxP < (int)text().length() )
+	    maxP = text().length();
+	
 	repaintArea( minP, maxP );
     }
     if ( tc ) {
@@ -1551,10 +1538,15 @@ void QLineEdit::repaintArea( int from, int to )
     }
 
     d->pmDirty = TRUE;
+    int old = offset;
     if ( d->offsetDirty || cursorPos >= a && cursorPos <= b )
 	updateOffset();
-    if ( !d->pmDirty )
+    if ( !d->pmDirty ) {
 	return;
+    } else if ( old != offset ) {
+	repaint( FALSE );
+	return;
+    }
 
     QFontMetrics fm = fontMetrics();
     int x = fm.width( buf.left( a ) ) + offset - 2 + (frame() ? 2 : 0);
@@ -1715,7 +1707,7 @@ void QLineEdit::cursorWordBackward( bool mark )
 
 
 void QLineEdit::updateOffset()
-{
+{ // must not call repaint() - paintEvent() calls this
     if ( !isVisible() ) {
 	d->offsetDirty = TRUE;
 	return;
@@ -1759,7 +1751,6 @@ void QLineEdit::updateOffset()
 	return;
 
     d->pmDirty = TRUE;
-    update();
 }
 
 

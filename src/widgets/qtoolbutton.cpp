@@ -57,39 +57,50 @@ public:
 /*!
   \class QToolButton qtoolbutton.h
 
-  \brief The QToolButton class provides a push button whose appearance
-  has been tailored for use in a QToolBar.
+  \brief The QToolButton class provides a quick-access button to
+  specific commands or options, usually used inside a QToolBar.
 
   \ingroup basic
 
-  A QToolButton is a special case of a QPushButton which should be used in
-  QToolBars. A tool button normally contains an icon and optionally a text
-  label. By default only the icon is shown, but this can be changed using
-  setUsesTextLabel(). (See also QMainWindow::setUsesTextLabel()). But
-  it's suggested always to set a text label (see setTextLabel()) for a QToolButton.
+  A tool button is a special button that provides quick-access to
+  specific commands or options. As opposed to a normal command button,
+  a tool button usually doesn't show a text label, but an icon.  Its
+  classic usage is to select tools, for example the "pen"-tool in a
+  drawing program. This would be implemented with a QToolButton as
+  toggle button (see setToggleButton() ). 
   
-  As a tool bar can either show tool buttons with small or large icons,
-  QToolButton supports that too. So, using setUsesBigPixmap() it can be 
-  specified which size of icons the button should show (see also 
-  QMainWindow::setUsesBigPixmap()). So as the tool button has to support 
-  different sizes of icons, it doesn't take a single QPixmap but a QIconSet instead
-  when specifying the icon (see setIconSet()).
-  
-  A QToolButton also supports auto-raising. This means normally the button
-  just shows the pixmap (and optionally the text label), but no raised frame. Only
-  if the user moves the mouse cursor over the button, a raised frame is drawn.
-  This behaviour can be controlled with setAutoRaise().
-  
-  A tool button can also be used to show a popup menu. You can set the popup
-  menu using setPopup(). By default the popup shows up 600 ms after the user
-  pressed the button, if you want to change that delay, use setPopupDelay().
-  
+  QToolButton supports auto-raising. In auto-raise mode, the button
+  draws a 3D frame only when the mouse points at it.  The feature is
+  automatically turned on when a button is used inside a QToolBar.
+  Change it with setAutoRaise().
+
+  A tool button's icon is set as QIconSet. This makes it possible to
+  specify different pixmaps for the disabled and active state. The
+  disabled pixmap is used when the button's functionality is not
+  available. The active pixmap is displayed when the button is
+  auto-raised because the user is pointing at it.
+
+  The button's look and dimension is adjustable with
+  setUsesBigPixmap() and setUsesTextLabel(). When used inside a
+  QToolBar, the button automatically adjusts to QMainWindow's settings
+  (see QMainWindow::setUsesTextLabel() and
+  QMainWindow::setUsesBigPixmaps()).
+
+  A tool button can offer additional choices in a popup menu.  The
+  feature is sometimes used with the "Back" button in a web browsers:
+  After pressing the button down for a while, a menu pops up showing
+  all possible pages to browse back.  With QToolButton, you can set a
+  popup menu using setPopup(). The default delay is 600ms, you may
+  adjust it with setPopupDelay().
+
   \sa QPushButton QToolBar QMainWindow
   <a href="guibooks.html#fowler">GUI Design Handbook: Push Button</a>
 */
 
 
-/*!  Constructs an empty tool button. */
+/*!
+  Constructs an empty tool button. 
+*/
 
 QToolButton::QToolButton( QWidget * parent, const char *name )
     : QButton( parent, name )
@@ -267,11 +278,8 @@ void QToolButton::setToggleButton( bool enable )
 }
 
 
-/*!  Returns a size suitable for this tool button.  This depends on
-  \link style() GUI style,\endlink usesBigPixmap(), textLabel() and
-  usesTextLabel().
+/*!  \reimp
 */
-
 QSize QToolButton::sizeHint() const
 {
     constPolish();
@@ -311,10 +319,8 @@ QSize QToolButton::sizeHint() const
 }
 
 
-/*!
-  Specifies that this widget may grow.
+/*!\reimp
 */
-
 QSizePolicy QToolButton::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
@@ -439,17 +445,12 @@ void QToolButton::toggle()
 }
 
 
-/*!  Draws the edges and decoration of the button (pretty much
-  nothing) and calls drawButtonLabel().
-
-  \sa drawButtonLabel() QButton::paintEvent() */
-
+/*! \reimp
+ */
 void QToolButton::drawButton( QPainter * p )
 {
     if ( uses3D() || isDown() || (isOn()&&!son) ) {
-	style().drawToolButton( p, 0, 0, width(), height(), colorGroup(),
-				(isOn()&&!son)||isDown(),
-				&colorGroup().brush( QColorGroup::Button ) );
+	style().drawToolButton( this, p );
     } else if ( parentWidget() && parentWidget()->backgroundPixmap() ){
 	// pseudo tranparency
 	p->drawTiledPixmap( 0, 0, width(), height(),
@@ -470,10 +471,8 @@ void QToolButton::drawButton( QPainter * p )
 }
 
 
-/*!  Draws the contents of the button (pixmap and optionally text).
-
-  \sa drawButton() QButton::paintEvent() */
-
+/*!\reimp
+ */
 void QToolButton::drawButtonLabel( QPainter * p )
 {
     int sx = 0;
@@ -531,8 +530,8 @@ void QToolButton::drawButtonLabel( QPainter * p )
 }
 
 
-/*! Reimplemented to handle the automatic 3D effects in Windows style. */
-
+/*!\reimp
+ */
 void QToolButton::enterEvent( QEvent * e )
 {
     if ( autoRaise() ) {
@@ -544,8 +543,8 @@ void QToolButton::enterEvent( QEvent * e )
 }
 
 
-/*! Reimplemented to handle the automatic 3D effects in Windows style. */
-
+/*!\reimp
+ */
 void QToolButton::leaveEvent( QEvent * e )
 {
     if ( autoRaise() ) {
@@ -559,12 +558,12 @@ void QToolButton::leaveEvent( QEvent * e )
 
 
 
-/*!
-  Reimplemented to handle pseudo transparency in case the toolbars has
-  a fancy pixmap background.
+/*!\reimp
  */
 void QToolButton::moveEvent( QMoveEvent * )
 {
+    //   Reimplemented to handle pseudo transparency in case the toolbars
+    //   has a fancy pixmap background.
     if ( parentWidget() && parentWidget()->backgroundPixmap() &&
 	 autoRaise() && !uses3D() )
 	repaint( FALSE );
@@ -821,8 +820,7 @@ int QToolButton::popupDelay() const
 
 
 /*!
-  Enables or disables auto-raising according to \a enable. The default
-  is TRUE.
+  Enables or disables auto-raising according to \a enable.
 
   \sa autoRaise
  */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#369 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#370 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -349,7 +349,7 @@ static void qt_show_system_menu( QWidget* tlw)
 				tlw->winId(),
 				0);
     if (ret)
-	if ( qt_winver == Qt::WV_NT )
+	if ( qt_winver & Qt::WV_NT_based )
 	    DefWindowProc(tlw->winId(), WM_SYSCOMMAND, ret, 0);
 	else
 	    DefWindowProcA(tlw->winId(), WM_SYSCOMMAND, ret, 0);
@@ -369,7 +369,7 @@ static void qt_set_windows_resources()
     QFont messageFont;
     QFont statusFont;
 
-    if ( qt_winver == Qt::WV_NT ) {
+    if ( qt_winver & Qt::WV_NT_based ) {
 	// W or A version
 	NONCLIENTMETRICS ncm;
 	ncm.cbSize = sizeof( ncm );
@@ -451,7 +451,12 @@ static void qt_set_windows_resources()
 	QColorGroup dcg( disabled, cg.button(), cg.light(), cg.dark(), cg.mid(),
 			 disabled, Qt::white, Qt::white, cg.background() );
 
-	QPalette pal(cg, dcg, cg);
+	QColorGroup icg = cg;
+	if ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 ) {
+	    icg.setColor( QColorGroup::ButtonText, icg.dark() );
+	}
+
+	QPalette pal(cg, dcg, icg);
 	QApplication::setPalette( pal, TRUE, "QPopupMenu");
 	QApplication::setPalette( pal, TRUE, "QMenuBar");
     }
@@ -515,14 +520,14 @@ void qt_init( int */*argcptr*/, char **/*argv*/ )
     // Get the application name/instance if qWinMain() was not invoked
     set_winapp_name();
     if ( appInst == 0 ) {
-	if ( qt_winver == Qt::WV_NT )
+	if ( qt_winver & Qt::WV_NT_based )
 	    appInst = GetModuleHandle( 0 );
 	else
 	    appInst = GetModuleHandleA( 0 );
     }
 
     // Tell tools/ modules.
-    qt_winunicode = qt_winver == Qt::WV_NT;
+    qt_winunicode = (qt_winver & Qt::WV_NT_based);
 
     // Initialize OLE/COM
     //	 S_OK means success and S_FALSE means that it has already
@@ -548,7 +553,7 @@ void qt_init( int */*argcptr*/, char **/*argv*/ )
     {
 	HFONT hfont = (HFONT)GetStockObject( DEFAULT_GUI_FONT );
 	QFont f("MS Sans Serif",8);
-	if ( qt_winver == Qt::WV_NT ) {
+	if ( qt_winver & Qt::WV_NT_based ) {
 	    LOGFONT lf;
 	    if ( GetObject( hfont, sizeof(lf), &lf ) )
 		f = qt_LOGFONTtoQFont((LOGFONT&)lf,TRUE);
@@ -595,6 +600,7 @@ void qt_cleanup()
 	    f = (VFPTR)postRList->first();
 	}
 	delete postRList;
+	postRList = 0;
     }
 #if defined(USE_HEARTBEAT)
     KillTimer( 0, heartBeat );
@@ -705,7 +711,7 @@ const char* qt_reg_winclass( int flags )	// register window class
     if ( winclassNames->find(cname) )		// already registered
 	return cname;
 
-    if ( qt_winver == Qt::WV_NT ) {
+    if ( qt_winver & Qt::WV_NT_based ) {
 	WNDCLASS wc;
 	wc.style	= style;
 	wc.lpfnWndProc	= (WNDPROC)QtWndProc;
@@ -760,7 +766,7 @@ static void unregWinClasses()
     QAsciiDictIterator<int> it(*winclassNames);
     const char *k;
     while ( (k = it.currentKey()) ) {
-	if ( qt_winver == Qt::WV_NT ) {
+	if ( qt_winver & Qt::WV_NT_based ) {
 	    UnregisterClass( (TCHAR*)qt_winTchar(QString::fromLatin1(k),TRUE),
 			     (HINSTANCE)qWinAppInst() );
 	} else {
@@ -803,17 +809,20 @@ Qt::WindowsVersion QApplication::winVersion()
 	osver.dwOSVersionInfoSize = sizeof(osver);
 	GetVersionExA( &osver );
 	switch ( osver.dwPlatformId ) {
-	    case VER_PLATFORM_WIN32s:
-		qt_winver = Qt::WV_32s;
-		break;
-	    case VER_PLATFORM_WIN32_WINDOWS:
-		if ( osver.dwMinorVersion == 10 )
-		    qt_winver = Qt::WV_98;
-		else
-		    qt_winver = Qt::WV_95;
-		break;
-	    default:
+	case VER_PLATFORM_WIN32s:
+	    qt_winver = Qt::WV_32s;
+	    break;
+	case VER_PLATFORM_WIN32_WINDOWS:
+	    if ( osver.dwMinorVersion == 10 )
+		qt_winver = Qt::WV_98;
+	    else
+		qt_winver = Qt::WV_95;
+	    break;
+	default: // VER_PLATFORM_WIN32_NT
+	    if ( osver.dwMajorVersion < 5 )
 		qt_winver = Qt::WV_NT;
+	    else
+		qt_winver = Qt::WV_2000;
 	}
     }
     return qt_winver;
@@ -1053,8 +1062,8 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 
     QSNDict  *dict = *sn_vec[type];
 
-    if ( !dict )
-	return FALSE; // eg. when shutting down
+    if ( !dict && QApplication::closingDown() )
+	return FALSE; // after sn_cleanup, don't reinitialize.
 
     QSockNot *sn;
 
@@ -1157,7 +1166,7 @@ void qt_draw_tiled_pixmap( HDC hdc, int x, int y, int w, int h,
 			   const QPixmap *bg_pixmap,
 			   int off_x, int off_y )
 {
-    if ( qt_winver == Qt::WV_NT ) {
+    if ( qt_winver & Qt::WV_NT_based ) {
 	// NT has no brush size limitation, so this is straight-forward
 	// Note: Since multi cell pixmaps are not used under NT, we can
 	// safely access the hbm() parameter of the pixmap.
@@ -1249,7 +1258,7 @@ static
 bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 		     UINT wMsgFilterMax, UINT wRemoveMsg )
 {
-    if ( qt_winver == Qt::WV_NT )
+    if ( qt_winver & Qt::WV_NT_based )
 	return PeekMessage( msg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg );
     else
 	return PeekMessageA( msg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg );
@@ -1259,7 +1268,7 @@ static
 bool winGetMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 		     UINT wMsgFilterMax )
 {
-    if ( qt_winver == Qt::WV_NT )
+    if ( qt_winver & Qt::WV_NT_based )
 	return GetMessage( msg, hWnd, wMsgFilterMin, wMsgFilterMax );
     else
 	return GetMessageA( msg, hWnd, wMsgFilterMin, wMsgFilterMax );
@@ -1302,7 +1311,7 @@ bool QApplication::processNextEvent( bool canWait )
 
 
     TranslateMessage( &msg );			// translate to WM_CHAR
-    if ( qt_winver == Qt::WV_NT )
+    if ( qt_winver & Qt::WV_NT_based )
 	DispatchMessage( &msg );		// send to QtWndProc
     else
 	DispatchMessageA( &msg );		// send to QtWndProc
@@ -1413,7 +1422,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	if ( type >= 0 )
 	    sn_activate_fd( wParam, type );
     } else
-	if ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ) {
+	if ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST
+	     && message != WM_MOUSEWHEEL ) {
 	    if ( qApp->activePopupWidget() != 0) { // in popup mode
 		POINT curPos;
 		GetCursorPos( &curPos );
@@ -1644,7 +1654,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	return FALSE;
 
 do_default:
-    if ( qt_winver == Qt::WV_NT )
+    if ( qt_winver & Qt::WV_NT_based )
 	return DefWindowProc(hwnd,message,wParam,lParam);
     else
 	return DefWindowProcA(hwnd,message,wParam,lParam);
@@ -2499,7 +2509,7 @@ QChar wmchar_to_unicode(DWORD c)
 {
     // qt_winMB2QString is the generalization of this function.
 
-    if ( qt_winver == Qt::WV_NT ) {
+    if ( qt_winver & Qt::WV_NT_based ) {
 	ushort uc = (ushort)c;
 	return QChar(uc&0xff,(uc>>8)&0xff);
     } else {
@@ -2518,7 +2528,7 @@ QChar imechar_to_unicode(DWORD c)
 {
     // qt_winMB2QString is the generalization of this function.
 
-    if ( qt_winver == Qt::WV_NT ) {
+    if ( qt_winver & Qt::WV_NT_based ) {
 	ushort uc = (ushort)c;
 	return QChar(uc&0xff,(uc>>8)&0xff);
     } else {
@@ -2601,7 +2611,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		else {
 		    if (t != WM_SYSKEYDOWN) {
 			UINT map;
-			if ( qt_winver == Qt::WV_NT ) {
+			if ( qt_winver & Qt::WV_NT_based ) {
 			    map = MapVirtualKey( msg.wParam, 2 );
 			} else {
 			    map = MapVirtualKeyA( msg.wParam, 2 );
@@ -2759,15 +2769,17 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
 //
 // Paint event translation
 //
-
 bool QETWidget::translatePaintEvent( const MSG & )
 {
     PAINTSTRUCT ps;
+    QRegion rgn(0,0,1,1); // trigger handle
+    int res = GetUpdateRgn(winId(), (HRGN) rgn.handle(), FALSE);
     setWState( WState_InPaintEvent );
     hdc = BeginPaint( winId(), &ps );
-    QRect r(QPoint(ps.rcPaint.left,ps.rcPaint.top),
-	    QPoint(ps.rcPaint.right,ps.rcPaint.bottom));
-    QPaintEvent e(r);
+    if ( res != COMPLEXREGION )
+	rgn = QRect(QPoint(ps.rcPaint.left,ps.rcPaint.top),
+		    QPoint(ps.rcPaint.right,ps.rcPaint.bottom));
+    QPaintEvent e(rgn);
     QApplication::sendEvent( this, (QEvent*) &e );
     hdc = 0;
     EndPaint( winId(), &ps );
@@ -2800,7 +2812,6 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		extra->topextra->iconic = 1;
 		if ( isVisible() ) {
 		    clearWState( WState_Visible );
-		    clearWState( WState_Withdrawn );
 		    QHideEvent e( TRUE );
 		    QApplication::sendEvent( this, &e );
 		    sendHideEventsToChildren( TRUE );
@@ -2810,7 +2821,6 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		extra->topextra->iconic = 0;
 		if ( !isVisible() ) {
 		    setWState( WState_Visible );
-		    clearWState( WState_Withdrawn );
 		    clearWState( WState_ForceHide );
 		    sendShowEventsToChildren( TRUE );
 		    QShowEvent e( TRUE );
@@ -2824,7 +2834,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		txt = caption();
 
 	    if ( !!txt ) {
-		if ( qt_winver == Qt::WV_NT )
+		if ( qt_winver & Qt::WV_NT_based )
 		    SetWindowText( winId(), (TCHAR*)qt_winTchar(txt,TRUE) );
 		else
 		    SetWindowTextA( winId(), txt.local8Bit() );

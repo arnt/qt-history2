@@ -610,9 +610,7 @@ QSize QProgressDialog::sizeHint() const
     return QSize( QMAX(200, sh.width() + 2*margin_lr), h );
 }
 
-/*!
-  Handles resize events for the progress dialog, sizing the label,
-  dialog, and cancellation button.
+/*!\reimp
 */
 void QProgressDialog::resizeEvent( QResizeEvent * )
 {

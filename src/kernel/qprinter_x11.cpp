@@ -28,7 +28,7 @@
 #include "qfile.h"
 #include "qfileinfo.h"
 #include "qdir.h"
-#include "qpsprinter.h"
+#include "qpsprinter_p.h"
 #include "qprintdialog.h"
 #include "qapplication.h"
 #include <stdlib.h>
@@ -176,9 +176,9 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
     if ( c ==  PdcBegin ) {
 	if ( state == PST_IDLE ) {
 	    if ( output_file ) {
-		int fd;
+		int fd = 0;
 #if defined(_OS_WIN32_)
-		if ( qt_winver == Qt::WV_NT )
+		if ( qt_winver & Qt::WV_NT_based )
 		    fd = _topen( qt_winTchar(output_filename,TRUE),
 				_O_CREAT | _O_BINARY | _O_TRUNC | _O_WRONLY );
 		else
@@ -413,5 +413,5 @@ margins() is automatically subtracted from the pageSize() by QPrinter.
 
 QSize QPrinter::margins() const
 {
-    return QSize( 36, 22 );
+    return (orient == Portrait) ? QSize( 36, 22 ) : QSize( 22, 36 );
 }

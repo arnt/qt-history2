@@ -35,14 +35,13 @@
 
 
 class QToolButtonPrivate;
-
 class QToolBar;
-
+class QStyle;
 
 class Q_EXPORT QToolButton: public QButton
 {
     Q_OBJECT
-    
+
     Q_PROPERTY( QIconSet onIconSet READ onIconSet WRITE setOnIconSet )
     Q_PROPERTY( QIconSet offIconSet READ offIconSet WRITE setOffIconSet )
     Q_PROPERTY( bool usesBigPixmap READ usesBigPixmap WRITE setUsesBigPixmap )
@@ -50,7 +49,7 @@ class Q_EXPORT QToolButton: public QButton
     Q_PROPERTY( QString textLabel READ textLabel WRITE setTextLabel )
     Q_PROPERTY( int popupDelay READ popupDelay WRITE setPopupDelay )
     Q_PROPERTY( bool autoRaise READ autoRaise WRITE setAutoRaise )
-    
+
     Q_OVERRIDE( bool on WRITE setOn )
 	
 public:
@@ -99,7 +98,7 @@ public slots:
     virtual void setOn( bool enable ); //### fjern virtual 3.0
     void toggle();
     void setTextLabel( const QString & );
-    
+
 protected:
     void drawButton( QPainter * );
     void drawButtonLabel( QPainter * );
@@ -130,6 +129,8 @@ private:
     uint utl: 1;
     uint ubp: 1;
     uint hasArrow : 1;
+
+    friend class QStyle;
 };
 
 

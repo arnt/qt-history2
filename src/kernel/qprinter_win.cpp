@@ -51,8 +51,8 @@ QPrinter::QPrinter()
     to_edge	= FALSE;
     viewOffsetDone = FALSE;
     painter     = 0;
-    
-    if ( qt_winver == Qt::WV_NT ) {
+
+    if ( qt_winver & Qt::WV_NT_based ) {
 	PRINTDLG pd;
 	memset( &pd, 0, sizeof(PRINTDLG) );
 	pd.lStructSize = sizeof(PRINTDLG);
@@ -84,7 +84,7 @@ bool QPrinter::newPage()
     bool success = FALSE;
     if ( hdc && state == PST_ACTIVE ) {
 	bool restorePainter = FALSE;
-	if ( qt_winver != Qt::WV_NT && painter && painter->isActive() ) {
+	if ( (qt_winver& Qt::WV_DOS_based) && painter && painter->isActive() ) {
 	    painter->save();               // EndPage/StartPage ruins the DC
 	    restorePainter = TRUE;
 	}
@@ -314,7 +314,7 @@ bool QPrinter::setup( QWidget *parent )
     bool result = FALSE;
 
     // Must handle the -A and -W versions separately; they're incompatible
-    if ( qt_winver == Qt::WV_NT ) {
+    if ( qt_winver & Qt::WV_NT_based ) {
 	PRINTDLG pd;
 	memset( &pd, 0, sizeof(PRINTDLG) );
 	pd.lStructSize = sizeof(PRINTDLG);
@@ -430,7 +430,7 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
     BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
     bmh->biSize		  = sizeof(BITMAPINFOHEADER);
     bmh->biWidth	  = w;
-    if ( qt_winver != Qt::WV_NT && !pixmap.isNull() && pixmap.isQBitmap() )
+    if ( (qt_winver & Qt::WV_DOS_based) && !pixmap.isNull() && pixmap.isQBitmap() )
       bmh->biHeight	  = h;
     else
       bmh->biHeight	  = -h;
@@ -466,7 +466,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	    if ( !hdc )
 		ok = FALSE;
 	}
-	if ( qt_winver == Qt::WV_NT ) {
+	if ( qt_winver & Qt::WV_NT_based ) {
 	    DOCINFO di;
 	    memset( &di, 0, sizeof(DOCINFO) );
 	    di.cbSize = sizeof(DOCINFO);
@@ -655,4 +655,4 @@ QSize QPrinter::margins() const
 		  GetDeviceCaps( handle(), PHYSICALOFFSETY ) );
 }
 
-		 
+		

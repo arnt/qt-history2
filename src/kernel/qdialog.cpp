@@ -134,8 +134,10 @@ QDialog::~QDialog()
 
 /*!
   \internal
-  This function is called by the push button \e pushButton when it becomes
-  the default button.
+  This function is called by the push button \e pushButton when it
+  becomes the default button. If \a pushButton is 0, the dialogs
+  default default button becomes the default button. This is what a
+  push button calls when it looses focus.
 */
 
 void QDialog::setDefault( QPushButton *pushButton )
@@ -145,17 +147,33 @@ void QDialog::setDefault( QPushButton *pushButton )
     QPushButton *pb;
     bool hasMain = FALSE;
     while ( (pb = (QPushButton*)it.current()) ) {
+	++it;
 	if ( pb == mainDef )
 	    hasMain = TRUE;
 	if ( pb != pushButton )
 	    pb->setDefault( FALSE );
-	++it;
     }
     if (!pushButton && hasMain)
 	mainDef->setDefault( TRUE );
     if (!hasMain)
 	mainDef = pushButton;
     delete list;
+}
+
+/*!
+  \internal
+  Hides the default button indicator. Called when non auto-default
+  push button get focus.
+ */
+void QDialog::hideDefault()
+{
+    QObjectList *list = queryList( "QPushButton" );
+    QObjectListIt it( *list );
+    QPushButton *pb;
+    while ( (pb = (QPushButton*)it.current()) ) {
+	++it;
+	pb->setDefault( FALSE );
+    }
 }
 
 
@@ -250,16 +268,13 @@ void QDialog::reject()
   Event handlers
  *****************************************************************************/
 
-/*!
-  Handles key press events for the dialog.
-
-  Calls reject() if Escape is pressed.
-  Simulates a button click for the default button if Enter is pressed.
-  All other keys are ignored.
+/*!\reimp
 */
-
 void QDialog::keyPressEvent( QKeyEvent *e )
 {
+    //   Calls reject() if Escape is pressed.  Simulates a button click
+    //   for the default button if Enter is pressed.  All other keys are
+    //   ignored.
     if ( e->state() == 0 ) {
 	switch ( e->key() ) {
 	case Key_Enter:
@@ -401,11 +416,11 @@ void QDialog::show()
 	qApp->enter_loop();
 }
 
-/*!
-  Reimplemented to exit a modal when the dialog is hidden.
+/*!\reimp
 */
 void QDialog::hide()
 {
+    // Reimplemented to exit a modal when the dialog is hidden.
     bool ex = testWState(WState_Visible) && testWFlags(WType_Modal);
     QWidget::hide();
     if ( ex )

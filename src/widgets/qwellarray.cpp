@@ -22,13 +22,14 @@
 ** http://www.troll.no/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
-//#include <qlayout.h>
+
+#include "qwellarray_p.h"
+
+//#include "qlayout.h"
 #include "qdrawutil.h"
-//#include <qevent.h>
+//#include "qevent.h"
 //#include "qobjectlist.h"
 #include "qobjectdict.h"
-
-#include "qwellarray.h"
 
 struct QWellArrayData {
     QBrush *brush;
@@ -36,7 +37,7 @@ struct QWellArrayData {
 
 // NOT REVISED
 /* WARNING, NOT
-  \class QWellArray qwellarray.h
+  \class QWellArray qwellarray_p.h
   \brief ....
 
   ....
@@ -171,34 +172,32 @@ void QWellArray::drawContents( QPainter *p, int row, int col, const QRect &r )
 }
 
 
-/*
-  Handles mouse press events for the well array.
-  The current cell marker is set to the cell the mouse is pressed in.
+/*\reimp
 */
-
 void QWellArray::mousePressEvent( QMouseEvent* e )
 {
+    // The current cell marker is set to the cell the mouse is pressed
+    // in.
     QPoint pos = e->pos();
     setCurrent( findRow( pos.y() ), findCol( pos.x() ) );
 }
 
-/*
-  Handles mouse release events for the well array.
-  The current cell marker is set to the cell the mouse is clicked in.
+/*\reimp
 */
 void QWellArray::mouseReleaseEvent( QMouseEvent* )
 {
+    // The current cell marker is set to the cell the mouse is clicked
+    // in.
     setSelected( curRow, curCol );
 }
 
 
-/*
-  Handles mouse move events for the well array.
-  The current cell marker is set to the cell the mouse is clicked in.
+/*\reimp
 */
-
 void QWellArray::mouseMoveEvent( QMouseEvent* e )
 {
+    //   The current cell marker is set to the cell the mouse is
+    //   clicked in.
     if ( smallStyle ) {
 	QPoint pos = e->pos();
 	setCurrent( findRow( pos.y() ), findCol( pos.x() ) );
@@ -263,11 +262,8 @@ void QWellArray::setSelected( int row, int col )
 
 
 
-/*!
-  Handles focus reception events for the well array.
-  Repaint only the current cell; to avoid flickering
+/*!\reimp
 */
-
 void QWellArray::focusInEvent( QFocusEvent* )
 {
     updateCell( curRow, curCol );
@@ -324,9 +320,7 @@ QBrush QWellArray::cellBrush( int row, int col )
 
 
 
-/*!
-  Handles focus loss events for the well array.
-  Repaint only the current cell; to avoid flickering
+/*!\reimp
 */
 
 void QWellArray::focusOutEvent( QFocusEvent* )
@@ -334,11 +328,8 @@ void QWellArray::focusOutEvent( QFocusEvent* )
     updateCell( curRow, curCol );
 }
 
-/*
-  Handles key press events for the well array.
-  Allows moving the current cell marker around with the arrow keys
+/*\reimp
 */
-
 void QWellArray::keyPressEvent( QKeyEvent* e )
 {
     switch( e->key() ) {			// Look at the key code
@@ -387,9 +378,3 @@ void QWellArray::keyPressEvent( QKeyEvent* e )
     }
 
 }
-    //    if ( e->key() == Key_Enter || e->key() == Key_Return )
-    //		emit return_pressed; // or ignore the event or something...
-
-
-
-

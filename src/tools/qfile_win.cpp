@@ -32,7 +32,7 @@
 #endif
 
 #include "qfile.h"
-#include "qfiledefs.h"
+#include "qfiledefs_p.h"
 
 #include <windows.h>
 #include <direct.h>

@@ -963,7 +963,7 @@ void QDragManager::updatePixmap()
 		int w = x2-x1+1;
 		int h = y2-y1+1;
 
-		if ( qt_winver != WV_NT ) {
+		if ( qt_winver & WV_DOS_based ) {
 		    // Limited cursor size
 		    int reqw = GetSystemMetrics(SM_CXCURSOR);
 		    int reqh = GetSystemMetrics(SM_CYCURSOR);

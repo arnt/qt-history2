@@ -502,10 +502,8 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 	updateMask();
 }
 
-/*!
-  Returns a suitable size for the tab widget.
+/*!\reimp
 */
-
 QSize QTabWidget::sizeHint() const
 {
     QSize s( d->stack->sizeHint() );

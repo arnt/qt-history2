@@ -26,7 +26,7 @@
 #include "qglobal.h"
 
 #include "qfile.h"
-#include "qfiledefs.h"
+#include "qfiledefs_p.h"
 
 bool qt_file_access( const QString& fn, int t )
 {

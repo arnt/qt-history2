@@ -294,7 +294,7 @@ int		qt_visual_option = -1;
 bool		qt_cmap_option	 = FALSE;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 
-extern bool qt_is_gui_used; // qwidget.cpp
+extern bool qt_is_gui_used; // qapplication.cpp
 
 struct QScrollInProgress {
     static long serial;
@@ -456,7 +456,9 @@ static int qt_x_errhandler( Display *dpy, XErrorEvent *err )
 
     char errstr[256];
     XGetErrorText( dpy, err->error_code, errstr, 256 );
-    qFatal( "X Error: %s %d\n  Major opcode:  %d", errstr, err->error_code, err->request_code );
+    qWarning( "X Error: %s %d\n  Major opcode:  %d", errstr, err->error_code, err->request_code );
+    //### we really should distinguish between severe, non-servere and
+    //### application specific errors
     return 0;
 }
 
@@ -465,6 +467,8 @@ static int qt_xio_errhandler( Display * )
 {
     qWarning( "%s: Fatal IO error: client killed", appName );
     exit( 1 );
+    //### give the application a chance for a proper shutdown instead, exit(1)
+    //### doesn't help.
     return 0;
 }
 
@@ -833,6 +837,16 @@ void QApplication::create_xim()
 	}
 	if ( qt_xim_style ) {
 #ifdef USE_X11R6_XIM
+// XIM segfaults on Solaris with C locale!
+// Let's hope the "en_US" locale is installed on all systems with a C locale,
+// otherwise we'll have to modify the source more extensively
+#if defined (_OS_SOLARIS_)
+	    const char* locale = ::setlocale( LC_ALL, 0 );
+	    if ( !locale || ::strcmp( locale, "C" ) == 0 ) {
+		locale = ::setlocale( LC_ALL, "en_US" );
+		ASSERT( ::strcmp( locale, "en_US" ) == 0 );
+	    }
+#endif
 	    XUnregisterIMInstantiateCallback(appDpy,0,0,0,
 					     (XIMProc )create_xim,0);
 #endif
@@ -1098,10 +1112,10 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 #ifdef USE_X11R6_XIM
 	else if ( ximServer &&
 		  XSetLocaleModifiers (ximServerName.ascii()) == 0 )
-	    qDebug( "Qt: Cannot set locale modifiers: %s", 
+	    qDebug( "Qt: Cannot set locale modifiers: %s",
 		    ximServerName.ascii());
 	else if ( !noxim )
-	    XRegisterIMInstantiateCallback( appDpy, 0 , 0, 0, 
+	    XRegisterIMInstantiateCallback( appDpy, 0 , 0, 0,
 					    (XIMProc)QApplication::create_xim,
 					    0);
 #else
@@ -1537,16 +1551,18 @@ void QApplication::restoreOverrideCursor()
 	return;
     cursorStack->removeLast();
     app_cursor = cursorStack->last();
-    QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
-    register QWidget *w;
-    while ( (w=it.current()) ) {		// set back to original cursors
-	if ( w->testWState(WState_OwnCursor) )
-	    XDefineCursor( w->x11Display(), w->winId(),
-			   app_cursor ? app_cursor->handle()
-			   : w->cursor().handle() );
-	++it;
+    if ( QWidget::mapper != 0 && !closingDown() ) {
+	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
+	register QWidget *w;
+	while ( (w=it.current()) ) {		// set back to original cursors
+	    if ( w->testWState(WState_OwnCursor) )
+		XDefineCursor( w->x11Display(), w->winId(),
+			       app_cursor ? app_cursor->handle()
+			       : w->cursor().handle() );
+	    ++it;
+	}
+	XFlush( appDpy );
     }
-    XFlush( appDpy );
     if ( !app_cursor ) {
 	delete cursorStack;
 	cursorStack = 0;
@@ -2253,8 +2269,10 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	} else {
 	    if ( focus_widget )
 		keywidget = (QETWidget*)focus_widget;
-	    else if ( widget )
-		keywidget = (QETWidget*)widget->topLevelWidget();
+	    else if ( inPopupMode() )
+ 		widget = (QETWidget*) activePopupWidget();
+	    if ( !keywidget && widget )
+		keywidget = widget->focusWidget()?(QETWidget*)widget->focusWidget():widget;
 	}
     }
     int xkey_keycode = event->xkey.keycode;
@@ -2361,12 +2379,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case GraphicsExpose:
     case Expose:				// paint event
-	if ( widget->testWState(WState_ForceHide) ) {
-	    //widget->setWState( WState_Visible );
-	    //widget->hide();
-	} else {
-	    widget->translatePaintEvent( event );
-	}
+	widget->translatePaintEvent( event );
 	break;
 
     case ConfigureNotify:			// window move/resize event
@@ -2439,7 +2452,6 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if ( widget->isVisible() && widget->isTopLevel() ) {
 	    if ( widget->topData()->wmstate ) {
 		widget->clearWState( WState_Visible );
-		widget->clearWState( WState_Withdrawn );
 		QHideEvent e( TRUE );
 		QApplication::sendEvent( widget, &e );
 		widget->sendHideEventsToChildren( TRUE );
@@ -2448,15 +2460,15 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	break;
 
     case MapNotify:				// window shown
-	if ( !widget->isVisible() )  {
-	    if ( widget->testWState( WState_Withdrawn ) ) {
-		// this cannot happen in normal applications but might happen with embedding
+	if ( widget->isTopLevel() && !widget->isVisible() )  {
+	    if ( !widget->topData()->wmstate || widget->testWState( WState_ForceHide ) ) {
+		// widget was not shown before. This cannot happen in
+		// normal applications but might happen with embedding
 		if ( widget->isTopLevel() )
 		    widget->show();
 	    }
 	    else {
 		widget->setWState( WState_Visible );
-		widget->clearWState( WState_Withdrawn );
 		widget->sendShowEventsToChildren( TRUE );
 		QShowEvent e( TRUE );
 		QApplication::sendEvent( widget, &e );
@@ -2474,33 +2486,40 @@ int QApplication::x11ProcessEvent( XEvent* event )
 					event ) )
 	    ;	// skip old reparent events
 	if ( event->xreparent.parent == appRootWin ) {
-
 	    if ( widget->isTopLevel() )
 		widget->topData()->parentWinId = appRootWin;
 	}
 	else if (!QWidget::find((WId)event->xreparent.parent) )
 	    {
 		Window parent = event->xreparent.parent;
-
-		// We can drop the entire crect calculation here (it's
-		// already done in translateConfigEvent()
-		// anyway). QWidget::frameGeometry() should do this
-		// calculation instead - Matthias
-
 		int x = event->xreparent.x;
 		int y = event->xreparent.y;
 		XWindowAttributes a;
 		qt_ignore_badwindow();
-		XGetWindowAttributes( widget->x11Display(), parent,
-				      &a );
+		XGetWindowAttributes( widget->x11Display(), parent, &a );
 		if (qt_badwindow())
 		    break;
 
 		QRect& r = widget->crect;
 		QRect frect ( r );
 
-		if ( x == 0 && y == 0 && a.width == r.width() && a.height == r.height() ) {
-		    // multi reparenting window manager, parent is just a shell
+ 		// help OL(V)WM to get things right: they sometimes
+ 		// need a little bit longer, i.e. both a and x/y may
+ 		// contain bogus values at this point in time.
+ 		int count = 0;
+ 		while ( count < 10 && a.x == 0 && a.y == 0 && ( a.width < r.width() || a.height < r.height() ) ) {
+ 		    count++;
+ 		    QApplication::syncX();
+ 		    qt_ignore_badwindow();
+ 		    XGetWindowAttributes( widget->x11Display(), parent, &a );
+ 		    if (qt_badwindow())
+ 			break;
+		}
+
+		if ( x <= 4 && y <= 4 && a.width <= r.width()+8 && a.height <= r.height()+8 ) {
+		    // multi reparenting window manager, parent is
+		    // just a shell. The 4 is for safety to support
+		    // BlackBox...
 		    Window root_return, parent_return, *children_return;
 		    unsigned int nchildren;
 		    if ( XQueryTree( widget->x11Display(), parent,
@@ -2516,17 +2535,21 @@ int QApplication::x11ProcessEvent( XEvent* event )
 			    break;
 			x += a.x;
 			y += a.y;
-			frect.setRect(r.left() - x - a2.border_width,
-				      r.top() - y - a2.border_width,
-				      a2.width + 2*a2.border_width,
-				      a2.height + 2*a2.border_width);
+			frect.setRect(r.left() - x , r.top() - y, a2.width, a2.height );
 		    }
 		} else {
+		    if ( x == y && x == 0 && a.x == r.x() && a.y == r.y()  ) {
+			// we do not believe this, OL(V)M tries to lie to us
+			XWindowAttributes aw;
+			qt_ignore_badwindow();
+			XGetWindowAttributes( widget->x11Display(), widget->winId(), &aw );
+			if (qt_badwindow())
+			    break;
+			x = aw.x;
+			y = aw.y;
+		    }
 		    // single reparenting window manager
-		    frect.setRect(r.left() - x - a.border_width,
-				  r.top() - y - a.border_width,
-				  a.width + 2*a.border_width,
-				  a.height + 2*a.border_width);
+		    frect.setRect(r.left() - x, r.top() - y, a.width, a.height );
 		}
 
 		widget->fpos = frect.topLeft();
@@ -3251,7 +3274,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    case Button1: button = LeftButton;   goto DoFocus;
 	    case Button2: button = MidButton;    goto DoFocus;
 	    case Button3: button = RightButton;       DoFocus:
-		if ( isEnabled() ) {
+		if ( isEnabled() && event->type == ButtonPress ) {
 		    QWidget* w = this;
 		    while ( w->focusProxy() )
 			w = w->focusProxy();
@@ -3404,7 +3427,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     } else {
 	QWidget *widget = this;
 	QWidget *w = QWidget::mouseGrabber();
-	if ( !w ) 
+	if ( !w )
 	    w = qt_button_down;
 	if ( w && w != this ) {
 	    widget = w;
@@ -3423,7 +3446,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 				    RightButton)) == 0 ) {
 	    qt_button_down = 0;
 	}
-	
+
 	QMouseEvent e( type, pos, globalPos, button, state );
 	QApplication::sendEvent( widget, &e );
     }
@@ -3948,6 +3971,7 @@ bool translateBySips( QWidget* that, QRect& paintRect )
 
 bool QETWidget::translatePaintEvent( const XEvent *event )
 {
+    setWState( WState_Exposed );
     QRect  paintRect( event->xexpose.x,	   event->xexpose.y,
 		      event->xexpose.width, event->xexpose.height );
     bool   merging_okay = !testWFlags(WPaintClever);
@@ -4003,7 +4027,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 
     QPaintEvent e( paintRegion );
     setWState( WState_InPaintEvent );
-    qt_set_paintevent_clipping( this, paintRegion);
+    qt_set_paintevent_clipping( this, paintRegion );
     QApplication::sendEvent( this, &e );
     qt_clear_paintevent_clipping();
     clearWState( WState_InPaintEvent );
@@ -4039,77 +4063,77 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 {
     clearWState(WState_ConfigPending);
 
-    if ( !testWFlags( WType_TopLevel )
-	 || testWFlags( WType_Popup )
-	 || (!testWFlags( WStyle_DialogBorder ) &&
-	     !testWFlags( WStyle_NormalBorder ) )
-	 || testWFlags( WType_Desktop ) )
-	return TRUE;			// child widget or override_redirect
+    if ( isTopLevel() ) {
+	QPoint newCPos( geometry().topLeft() );
+	QSize  newSize( event->xconfigure.width, event->xconfigure.height );
 
-    QPoint newCPos( geometry().topLeft() );
-    QSize  newSize( event->xconfigure.width, event->xconfigure.height );
-
-    if (event->xconfigure.send_event ||
-	( topData()->parentWinId == None ||
-	  topData()->parentWinId == appRootWin ) ) {
-	/* if a ConfigureNotify comes from a true sendevent request, we can
+	if (event->xconfigure.send_event ||
+	    ( topData()->parentWinId == None ||
+	      topData()->parentWinId == appRootWin ) ) {
+	    /* if a ConfigureNotify comes from a true sendevent request, we can
 	   trust its values. */
-	newCPos.rx() = event->xconfigure.x;
-	newCPos.ry() = event->xconfigure.y;
-//     }
-//     else {
-// 	Display *dpy = x11Display();
-// 	Window child;
-// 	// ### this slows down display of all top-level widgets, and most
-// 	// ### don't care about the result.  can it be avoided?
-// 	XTranslateCoordinates( dpy, winId(), DefaultRootWindow(dpy),
-// 			       0, 0, &x, &y, &child );
+	    newCPos.rx() = event->xconfigure.x + event->xconfigure.border_width;
+	    newCPos.ry() = event->xconfigure.y + event->xconfigure.border_width;
+	}
+
+	XEvent otherEvent;
+	while ( XCheckTypedWindowEvent( x11Display(),winId(),ConfigureNotify,&otherEvent ) ) {
+	    if ( qt_x11EventFilter( &otherEvent ) )
+		break;
+	    if (x11Event( &otherEvent ) )
+		break;
+	    newSize.setWidth( otherEvent.xconfigure.width );
+	    newSize.setHeight( otherEvent.xconfigure.height );
+	    if ( otherEvent.xconfigure.send_event ) {
+		newCPos.rx() = otherEvent.xconfigure.x + otherEvent.xconfigure.border_width;
+		newCPos.ry() = otherEvent.xconfigure.y + otherEvent.xconfigure.border_width;
+	    }
+	}
+
+	QRect cr ( geometry() );
+	if ( newSize != cr.size() ) {			// size changed
+	    QSize oldSize = size();
+	    cr.setSize( newSize );
+	    setCRect( cr );
+	    if ( isVisible() ) {
+		QResizeEvent e( newSize, oldSize );
+		QApplication::sendEvent( this, &e );
+	    } else {
+		QResizeEvent * e = new QResizeEvent( newSize, oldSize );
+		QApplication::postEvent( this, e );
+	    }
+	}
+
+	if ( newCPos != cr.topLeft() ) { // compare with cpos (exluding frame)
+	    QPoint oldPos = pos();
+	    cr.moveTopLeft( newCPos );
+	    setCRect( cr );
+	    if ( isVisible() ) {
+		QMoveEvent e( pos(), oldPos ); // pos (including frame), not cpos
+		QApplication::sendEvent( this, &e );
+	    } else {
+		QMoveEvent * e = new QMoveEvent( pos(), oldPos );
+		QApplication::postEvent( this, e );
+	    }
+	}
+    } else {
+	XEvent xevent;
+	while ( XCheckTypedWindowEvent(x11Display(),winId(), ConfigureNotify,&xevent) &&
+		!qt_x11EventFilter(&xevent)  &&
+		!x11Event( &xevent ) ) // send event through filter
+	    ;
     }
 
-    XEvent otherEvent;
-    while ( XCheckTypedWindowEvent( x11Display(),winId(),ConfigureNotify,&otherEvent ) ) {
-	if ( qt_x11EventFilter( &otherEvent ) )
-	    break;
-	if (x11Event( &otherEvent ) )
-	    break;
-	newSize.setWidth( otherEvent.xconfigure.width );
-	newSize.setHeight( otherEvent.xconfigure.height );
-	if ( otherEvent.xconfigure.send_event ) {
-	    newCPos.rx() = otherEvent.xconfigure.x;
-	    newCPos.ry() = otherEvent.xconfigure.y;
-	}
+    if ( !testWFlags( WNorthWestGravity ) && testWState( WState_Exposed ) ) {
+	// remove unnecessary paint events from the queue
+	XEvent xevent;
+	while ( XCheckTypedWindowEvent(x11Display(),winId(), Expose,&xevent) &&
+		!qt_x11EventFilter(&xevent)  &&
+		!x11Event( &xevent ) ) // send event through filter
+	    ;
+	repaint( visibleRect(), !testWFlags(WResizeNoErase) );
     }
 
-    QRect cr ( geometry() );
-    if ( newSize != cr.size() ) {			// size changed
-	QSize oldSize = size();
-	cr.setSize( newSize );
-	setCRect( cr );
-	if ( isVisible() ) {
-	    QResizeEvent e( newSize, oldSize );
-	    QApplication::sendEvent( this, &e );
-	} else {
-	    QResizeEvent * e = new QResizeEvent( newSize, oldSize );
-	    QApplication::postEvent( this, e );
-	}
-	// visibleRect() is not really useful yet, since isTopLevel()
-	// is always TRUE here
-	if ( !testWFlags( WNorthWestGravity ) )
-	    repaint( visibleRect(), !testWFlags(WResizeNoErase) );
-    }
-
-    if ( newCPos != cr.topLeft() ) { // compare with cpos (exluding frame)
-	QPoint oldPos = pos();
-	cr.moveTopLeft( newCPos );
-	setCRect( cr );
-	if ( isVisible() ) {
-	    QMoveEvent e( pos(), oldPos ); // pos (including frame), not cpos
-	    QApplication::sendEvent( this, &e );
-	} else {
-	    QMoveEvent * e = new QMoveEvent( pos(), oldPos );
-	    QApplication::postEvent( this, e );
-	}
-    }
     return TRUE;
 }
 

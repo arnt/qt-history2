@@ -626,6 +626,7 @@ void QListViewItem::takeItem( QListViewItem * item )
 	}
 
 	if ( lv->d->focusItem ) {
+	    bool selected = lv->d->focusItem->isSelected();
 	    const QListViewItem * c = lv->d->focusItem;
 	    while( c && c != item )
 		c = c->parentItem;
@@ -638,6 +639,9 @@ void QListViewItem::takeItem( QListViewItem * item )
 		    lv->d->focusItem = item->itemAbove();
 		else
 		    lv->d->focusItem = 0;
+		emit lv->currentChanged( lv->d->focusItem );
+		if ( selected )
+		    emit lv->selectionChanged();
 	    }
 	}
     }
@@ -827,6 +831,15 @@ void QListViewItem::setOpen( bool o )
     if ( o == (bool)open )
 	return;
     open = o;
+
+    QListView *lv = listView();
+    if ( lv && this != lv->d->r ) {
+	if ( o )
+	    emit lv->expanded( this );
+	else
+	    emit lv->collapsed( this );
+    }
+
 
     if ( !nChildren )
 	return;
@@ -2431,11 +2444,12 @@ int QListView::columnAlignment( int column ) const
 
 
 
-/*!  Reimplemented to setx the correct background mode and viewed area
-  size. */
-
+/*! \reimp
+ */
 void QListView::show()
 {
+    // Reimplemented to setx the correct background mode and viewed
+    // area size.
     if ( !isVisible() ) {
 	QWidget * v = viewport();
 	if ( v )
@@ -2947,6 +2961,26 @@ void QListViewItem::widthChanged( int c ) const
 */
 
 
+/*! \fn void QListView::expanded( QListViewItem *item )
+
+  This signals is emitted when the \a item has been expanded. This means
+  the children of the item are shown because the user double-clicked
+  the item or clicked on the root decoration, or setOpen() with TRUE
+  as argument has been called.
+
+  \sa collapsed()
+*/
+
+/*! \fn void QListView::collapsed( QListViewItem *item )
+
+  This signals is emitted when the \a item has been collapsed. This means
+  the children of the item are hidden because the user double-clicked
+  the item or clicked on the root decoration, or setOpen() with FALSE
+  as argument has been called.
+
+  \sa expanded()
+*/
+
 /*!
   Processes mouse move events on behalf of the viewed widget.
 */
@@ -2986,16 +3020,27 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	if ( it.current() ) {
 	    x1 -= treeStepSize() * (it.current()->l - 1);
 	    if ( x1 >= 0 && ( !i->isSelectable() || x1 < treeStepSize() ) ) {
-		setCurrentItem( i );
+		bool close = i->isOpen();
 		setOpen( i, !i->isOpen() );
-		if ( !d->currentSelected ) {
-		    setCurrentItem( i );
-		    // i may have been deleted here
+		if ( !d->focusItem )
+			setCurrentItem( i );
+		if ( close ) {
+		    bool newCurrent = FALSE;
+		    QListViewItem *ci = d->focusItem;
+		    while ( ci ) {
+			if ( ci->parent() && ci->parent() == i ) {
+			    newCurrent = TRUE;
+			    break;
+			}
+			ci = ci->parent();
+		    }
+		    if ( newCurrent )
+			setCurrentItem( i );
 		}
 		d->buttonDown = FALSE;
 		d->ignoreDoubleClick = TRUE;
 		d->buttonDown = FALSE;
-		goto emit_signals;
+		return;
 	    }
 	}
     }
@@ -3012,14 +3057,23 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	else if ( selectionMode() == Multi  )
 	    setSelected( i, d->select );
 	else if ( selectionMode() == Extended ) {
+	    bool changed = FALSE;
 	    if ( !( ( e->state() & ControlButton ) ||
 		 ( e->state() & ShiftButton ) ) ) {
-		if ( !i->isSelected() )
+		if ( !i->isSelected() ) {
+		    bool blocked = signalsBlocked();
+		    blockSignals( TRUE );
 		    clearSelection();
-		setSelected( i, TRUE );
+		    blockSignals( blocked );
+		    i->selected = TRUE;
+		    changed = TRUE;
+		}
 	    } else {
 		if ( e->state() & ControlButton || !oldCurrent || !i || oldCurrent == i ) {
-		    setSelected( i, d->select );
+		    if ( (bool)i->selected != d->select ) {
+			changed = TRUE;
+			i->selected = d->select;
+		    }
 		} else {
 		    bool down = oldCurrent->itemPos() < i->itemPos();
 		    QListViewItemIterator lit( down ? oldCurrent : i );
@@ -3029,7 +3083,10 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 			    goto emit_signals;
 			}
 			if ( down && lit.current() == i ) {
-			    i->setSelected( d->select );
+			    if ( (bool)i->selected != d->select ) {
+				i->selected = d->select;
+				changed = TRUE;
+			    }
 			    triggerUpdate();
 			    break;
 			}
@@ -3038,11 +3095,15 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 			    triggerUpdate();
 			    break;
 			}
-			lit.current()->setSelected( d->select );
+			if ( (bool)lit.current()->selected != d->select ) {
+			    lit.current()->selected = d->select;
+			    changed = TRUE;
+			}
 		    }
 		}
 	    }
-	    emit selectionChanged();
+	    if ( changed )
+		emit selectionChanged();
 	}
     }
 
@@ -3106,6 +3167,7 @@ void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 	    if ( !i ) {
 		clearSelection();
 		emit rightButtonClicked( 0, viewport()->mapToGlobal( vp ), -1 );
+		return;
 	    }
 
 	    int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
@@ -3280,6 +3342,7 @@ void QListView::focusInEvent( QFocusEvent *e )
 	repaintItem( d->focusItem );
     else if ( firstChild() && e->reason() != QFocusEvent::Mouse ) {
 	d->focusItem = firstChild();
+	emit currentChanged( d->focusItem );
 	repaintItem( d->focusItem );
     }
 }
@@ -3428,7 +3491,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	break;
     case Key_Escape:
 	e->ignore(); // For QDialog
-	break;
+	return;
     default:
 	if ( e->text().length() > 0 && e->text()[ 0 ].isPrint() ) {
 	    QString input( d->currentPrefix );
@@ -3492,8 +3555,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	return;
 
     if ( i->isSelectable() && d->selectionMode != NoSelection ) {
-	if ( d->selectionMode == Single ) {
-	    clearSelection();
+	if ( d->selectionMode == Single && !i->isSelected() ) {
 	    setSelected( i, TRUE );
 	} else  if ( e->state() & ShiftButton ) {
 	    setSelected( i, !i->isSelected() );
@@ -3625,30 +3687,31 @@ void QListView::setSelected( QListViewItem * item, bool selected )
 	 !item->isSelectable() || selectionMode() == NoSelection )
 	return;
 
-    if ( d->currentSelected == item && !selected ) {
-	d->currentSelected = 0;
-	item->setSelected( FALSE );
-	repaintItem( item );
+    bool emitHighlighted = FALSE;
+    if ( selectionMode() == Single && d->focusItem != item ) {
+	QListViewItem *o = d->focusItem;
+	if ( d->focusItem && d->focusItem->selected )
+	    d->focusItem->selected = FALSE;
+	d->focusItem = item;
+	if ( o )
+	    repaintItem( o );
+	emitHighlighted = TRUE;
     }
 
-    if ( selected && !isMultiSelection() && d->currentSelected ) {
-	d->currentSelected->setSelected( FALSE );
-	repaintItem( d->currentSelected );
-    }
+    item->selected = selected;
 
-    if ( item->isSelected() != selected ) {
-	item->setSelected( selected );
-	d->currentSelected = selected ? item : 0;
-	repaintItem( item );
-    }
+    if ( d->currentSelected == item && !selected )
+ 	d->currentSelected = 0;
+    d->currentSelected = selected ? item : 0;
 
-    if ( item && !isMultiSelection() && selected && d->focusItem != item )
-	setCurrentItem( item );
+    repaintItem( item );
 
-    if ( !isMultiSelection() )
-	emit selectionChanged( selected ? item : 0 );
-
+    if ( d->selectionMode == Single && selected )
+	emit selectionChanged( item );
     emit selectionChanged();
+
+    if ( emitHighlighted )
+	emit currentChanged( d->focusItem );
 }
 
 
@@ -3683,15 +3746,19 @@ void QListView::selectAll( bool select )
 	while ( i ) {
 	    if ( i->childItem )
 		s.push( i->childItem );
-	    //anything = TRUE;
-	    setSelected( i, select );
+	    if ( (bool)i->selected != select ) {
+		i->selected = select;
+		anything = TRUE;
+	    }
 	    i = i->siblingItem;
 	    if ( !i )
 		i = s.pop();
 	}
 	blockSignals( b );
-	if ( anything )
+	if ( anything ) {
 	    emit selectionChanged();
+	    triggerUpdate();
+	}
     } else if ( d->focusItem ) {
 	QListViewItem * i = d->focusItem;
 	setSelected( i, select );
@@ -3712,7 +3779,7 @@ void QListView::invertSelection()
     blockSignals( TRUE );
     QListViewItemIterator it( this );
     for ( ; it.current(); ++it )
-	setSelected( it.current(), !it.current()->isSelected() );
+	it.current()->selected = !it.current()->isSelected();
     blockSignals( b );
     emit selectionChanged();
 }
@@ -3762,13 +3829,26 @@ void QListView::setCurrentItem( QListViewItem * i )
     d->focusItem = i;
 
     if ( i != prev ) {
+	if ( i && d->selectionMode == Single ) {
+	    bool changed = FALSE;
+	    if ( prev && prev->selected ) {
+		changed = TRUE;
+		prev->selected = FALSE;
+	    }
+	    if ( i && !i->selected && d->selectionMode != NoSelection && i->isSelectable() ) {
+		i->selected = TRUE;
+		changed = TRUE;
+		emit selectionChanged( i );
+	    }
+	    if ( changed )
+		emit selectionChanged();
+	}
+
 	if ( i )
 	    repaintItem( i );
 	if ( prev )
 	    repaintItem( prev );
 	emit currentChanged( i );
-	if ( i && d->selectionMode == Single && prev )
-	    setSelected( i, TRUE );
     }
 }
 
@@ -3933,10 +4013,8 @@ int QListView::itemMargin() const
   click was outside the list).
 */
 
-/*!  Reimplemented to let the list view items update themselves.  \a s
-  is the new GUI style.
+/*!\reimp
 */
-
 void QListView::styleChange( QStyle& old )
 {
     reconfigureItems();
@@ -3944,10 +4022,8 @@ void QListView::styleChange( QStyle& old )
 }
 
 
-/*!  Reimplemented to let the list view items update themselves.  \a f
-  is the new font.
+/*!  \reimp
 */
-
 void QListView::setFont( const QFont & f )
 {
     d->h->setFont( f );
@@ -3956,10 +4032,8 @@ void QListView::setFont( const QFont & f )
 }
 
 
-/*!  Reimplemented to let the list view items update themselves.  \a p
-  is the new palette.
+/*!\reimp
 */
-
 void QListView::setPalette( const QPalette & p )
 {
     d->h->setPalette( p );
@@ -4330,6 +4404,9 @@ void QCheckListItem::setup()
     setHeight( h );
 }
 
+/*!
+  \reimp
+ */
 
 int QCheckListItem::width( const QFontMetrics& fm, const QListView* lv, int column) const
 {
@@ -4505,12 +4582,13 @@ void QCheckListItem::paintBranches( QPainter * p, const QColorGroup & cg,
 }
 
 
-/*!  Returns a size suitable for this scroll view.  This is as wide as
-  QHeader::sizeHint() recommends and tall enough for perhaps 10 items.
+/*!\reimp  
 */
-
 QSize QListView::sizeHint() const
 {
+    //    This is as wide as QHeader::sizeHint() recommends and tall
+    //    enough for perhaps 10 items.
+								 
     constPolish();
     if ( !isVisible() &&
 	 (!d->drawables || d->drawables->isEmpty()) )

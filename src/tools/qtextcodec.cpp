@@ -27,6 +27,7 @@
 #include "qtextcodec.h"
 #ifndef QT_NO_CODECS
 #include "qutfcodec.h"
+#include "qgbkcodec.h"
 #include "qeucjpcodec.h"
 #include "qjiscodec.h"
 #include "qsjiscodec.h"
@@ -437,22 +438,7 @@ static const char * iso8859_3locales[] = {
 
 static const char * iso8859_5locales[] = {
     "bg", "bg_BG", "bulgarian", "mk", "mk_MK",
-    /*"ru", "ru_SU", */ // Russians (and errr... Russian speaking Sudanese(!)
-    "ru_RU",
-    "russian", "sp", "sp_YU", 0 };
-
-// This is NOT CORRECT.  But so many Russians use this rather than the
-// ISO standard that we default to this.  Russian users SHOULD set their
-// $LANG to ru_RU.KOI8-R if they are not using the X default, but since
-// they DON'T, we work around it, forcing the small number of iso8859-5
-// users to set THEIR LANG to ru_RU.iso8859-5.  If you read the history,
-// it seems that many Russians blame ISO and Peristroika for the confusion.
-//
-// The real bug is that some programs break if the user specifies
-// ru_RU.KOI8-R
-//
-static const char * koi8_rlocales[] = {
-    "ru", "ru_SU", 0 };
+    "sp", "sp_YU", 0 };
 
 static const char * iso8859_6locales[] = {
     "ar_AA", "ar_SA", "arabic", 0 };
@@ -476,6 +462,46 @@ static bool try_locale_list( const char * locale[], const char * lang )
     for( i=0; locale[i] && strcmp(locale[i], lang); i++ )
 	;
     return locale[i] != 0;
+}
+
+// For the probably_koi8_locales we have to look. the standard says
+// these are 8859-5, but almsot all Russion users uses KOI8-R and
+// incorrectly set $LANG to ru_RU. We'll check tolower() to see what
+// tolower() things ru_RU means.
+
+// If you read the history, it seems that many Russians blame ISO and
+// Peristroika for the confusion.
+//
+// The real bug is that some programs break if the user specifies
+// ru_RU.KOI8-R.
+
+static const char * probably_koi8_rlocales[] = {
+    "ru", "ru_SU", "ru_RU", "russian", 0 };
+
+// this means ANY of these locale aliases. if they're aliases for
+// different locales, the code breaks.
+static QTextCodec * ru_RU_codec = 0;
+
+static QTextCodec * ru_RU_hack( const char * i ) {
+    if ( ! ru_RU_codec ) {
+	QCString origlocale = setlocale( LC_CTYPE, i );
+	// unicode   koi8r   latin5   name
+	// 0x044E    0xC0    0xEE     CYRILLIC SMALL LETTER YU
+	// 0x042E    0xE0    0xCE     CYRILLIC CAPITAL LETTER YU
+	int latin5 = tolower( 0xCE );
+	int koi8r = tolower( 0xE0 );
+	if ( koi8r == 0xC0 && latin5 != 0xEE ) {
+	    ru_RU_codec = QTextCodec::codecForName( "KOI8-R" );
+	} else if ( koi8r != 0xC0 && latin5 == 0xEE ) {
+	    ru_RU_codec = QTextCodec::codecForName( "ISO 8859-5" );
+	} else {
+	    // something else again... let's assume... *throws dice*
+	    ru_RU_codec = QTextCodec::codecForName( "KOI8-R" );
+	    qWarning( "QTextCodec: using KOI8-R but probe failed" );
+	}
+	setlocale( LC_CTYPE, origlocale.data() );
+    }
+    return ru_RU_codec;
 }
 
 #endif
@@ -543,8 +569,8 @@ QTextCodec* QTextCodec::codecForLocale()
 	    localeMapper = codecForName( "ISO 8859-9" );
 	else if ( try_locale_list( iso8859_15locales, lang ) )
 	    localeMapper = codecForName( "ISO 8859-15" );
-	else if ( try_locale_list( koi8_rlocales, lang ) )
-	    localeMapper = codecForName( "KOI8-R" );
+	else if ( try_locale_list( probably_koi8_rlocales, lang ) )
+	    localeMapper = ru_RU_hack( lang );
 	else if (!lang || !(localeMapper = codecForName(lang) ))
 	    localeMapper = codecForName( "ISO 8859-1" );
     }
@@ -582,6 +608,10 @@ QTextCodec* QTextCodec::codecForName(const char* hint, int accuracy)
 /*!
   Searches all installed QTextCodec objects, returning the one
   which most recognizes the given content.  May return 0.
+
+  Note that this is often a poor choice, since character
+  encodings often use most of the available character sequences,
+  and so only by linguistic analysis could a true match be made.
 
   \sa heuristicContentMatch()
 */
@@ -1268,7 +1298,7 @@ static struct {
     int mib;
     Q_UINT16 values[128];
 } unicodevalues[] = {
-    // from RFC 1489, http://ds.internic.net/rfc/rfc1489.txt
+    // from RFC 1489, ftp://ftp.isi.edu/in-notes/rfc1489.txt
     { "KOI8-R", 2084,
       { 0x2500, 0x2502, 0x250C, 0x2510, 0x2514, 0x2518, 0x251C, 0x2524,
 	0x252C, 0x2534, 0x253C, 0x2580, 0x2584, 0x2588, 0x258C, 0x2590,
@@ -1576,15 +1606,18 @@ int QSimpleTextCodec::heuristicContentMatch(const char* chars, int len) const
     const uchar * c = (const unsigned char *)chars;
     int r = 0;
     while( i<len && c && *c ) {
-	if ( *c >= 128 &&
-	     unicodevalues[forwardIndex].values[(*c)-128] == 0xfffd )
-	    return -1;
+	if ( *c >= 128 ) {
+	    if ( unicodevalues[forwardIndex].values[(*c)-128] == 0xfffd )
+		return -1;
+	}
 	if ( (*c >= ' ' && *c < 127) ||
 	     *c == '\n' || *c == '\t' || *c == '\r' )
 	    r++;
 	i++;
 	c++;
     }
+    if ( mibEnum()==4 )
+	r+=1;
     return r;
 }
 
@@ -1600,6 +1633,7 @@ static void setupBuiltinCodecs()
     (void)new QSjisCodec;
     (void)new QJisCodec;
     (void)new QEucKrCodec;
+    (void)new QGbkCodec;
     (void)new QBig5Codec;
     (void)new QUtf8Codec;
     (void)new QUtf16Codec;

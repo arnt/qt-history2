@@ -94,7 +94,7 @@ QHeader::QHeader( QWidget *parent, const char *name )
 */
 
 QHeader::QHeader( int n,  QWidget *parent, const char *name )
-    : QWidget( parent, name )
+    : QWidget( parent, name, WNorthWestGravity )
 {
     orient = Horizontal;
     init( n );
@@ -135,6 +135,7 @@ QHeader::~QHeader()
   move and \a to is the new actual index.
 */
 
+// ### ### ### setCellSize() uses logical, cellSize() actual
 /*!
   Returns the size in pixels of section \a i of the header. \a i is the
   actual index.
@@ -794,8 +795,7 @@ int QHeader::addLabel( const QString &s, int size )
 }
 
 
-/*!
-  Returns the recommended size of the QHeader.
+/*!\reimp
 */
 QSize QHeader::sizeHint() const
 {
@@ -821,11 +821,8 @@ QSize QHeader::sizeHint() const
     }
 }
 
-/*!
-  A horizontal header may stretch horizontally, but is fixed
-  vertically.
+/*!\reimp
 */
-
 QSizePolicy QHeader::sizePolicy() const
 {
     if ( orient == Horizontal )

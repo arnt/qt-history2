@@ -146,6 +146,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    else
 		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
 	}
+	// workaround for some versions of Windows
+	if ( testWFlags( WStyle_MinMax ) )
+	    clearWFlags( WStyle_ContextHelp );
     }
     if ( !desktop ) {
 	style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN ;
@@ -403,7 +406,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 void QWidget::setFontSys()
 {
     HIMC imc = ImmGetContext( winId() ); // Can we store it?
-    if ( qt_winver == WV_NT ) {
+    if ( qt_winver & WV_NT_based ) {
 	LOGFONT lf;
 	if ( GetObject( font().handle(), sizeof(lf), &lf ) )
 	    ImmSetCompositionFont( imc, &lf );
@@ -531,7 +534,7 @@ void QWidget::setCaption( const QString &caption )
     if ( QWidget::caption() == caption )
 	return; // for less flicker
     topData()->caption = caption;
-    if ( qt_winver == WV_NT )
+    if ( qt_winver & WV_NT_based )
 	SetWindowText( winId(), (TCHAR*)qt_winTchar(caption,TRUE) );
     else
 	SetWindowTextA( winId(), caption.local8Bit() );
@@ -730,7 +733,8 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	QRegion reg = r;
 	ValidateRgn( winId(), reg.handle() );
 	QPaintEvent e( r, erase );
-	qt_set_paintevent_clipping( this, r );
+	if ( r != rect() )
+	    qt_set_paintevent_clipping( this, r );
 	if ( erase )
 	    this->erase( x, y, w, h );
 	QApplication::sendEvent( this, &e );
@@ -904,7 +908,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	qWinRequestConfig( winId(), 2, x, y, w, h );
     } else {
 	setWState( WState_ConfigPending );
-	//setCRect( QRect( x, y, w, h ) );
 	if ( isTopLevel() ) {
 	    QRect fr( frameGeometry() );
 	    if ( extra ) {

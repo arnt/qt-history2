@@ -58,7 +58,7 @@ struct QUrlOperatorPrivate
 
   \brief The QUrlOperator class provides common operations on URLs
   (get() and more).
-  
+
   \ingroup misc
 
   This class operates on hirachical structures (like filesystems)
@@ -96,11 +96,11 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrlOperator::newChild( const QUrlInfo &i, QNetworkOperation *op )
+  \fn void QUrlOperator::newChildren( const QValueList<QUrlInfo> &i, QNetworkOperation *op )
 
   This signal is emitted after listChildren() was called and
-  a new child (e.g. file) has been read from e.g. a list of files. \a i
-  holds the information about the new child.
+  new children (e.g. files) have been read from a list of files. \a i
+  holds the information about the new children.
   \a op is the pointer to the operation object, which contains all infos
   of the operation, including the state and so on.
 
@@ -303,10 +303,10 @@ QUrlOperator::~QUrlOperator()
 }
 
 /*!
-  Starts listing the childs of this URL (e.g. of a directory). The signal
+  Starts listing the children of this URL (e.g. of a directory). The signal
   start()  is emitted, before the first entry is listed,
   and after the last one finished() is emitted.
-  For each new entry, the newChild()
+  For each list of new entries, the newChildren()
   signals is emitted.
   If an error occures, also the signal finished()
   is emitted, so check the state of the network operation pointer!
@@ -318,7 +318,7 @@ QUrlOperator::~QUrlOperator()
   by the QUrlOperator). The return value can be also 0 if the operation object
   couldn't be created.
 
-  The path of this QUrlOperator has to point to a directory, because the childs
+  The path of this QUrlOperator has to point to a directory, because the children
   of this directory will be listed, and not to a file, else this operation might not work!
 */
 
@@ -351,7 +351,7 @@ const QNetworkOperation *QUrlOperator::listChildren()
 
 /*!
   Tries to create a directory (child) with the name \a dirname.
-  If it has been successful a newChild()
+  If it has been successful a newChildren()
   signal with the new child is emitted, and the
   createdDirectory() signal with
   the information about the new child is emitted too.
@@ -842,9 +842,11 @@ void QUrlOperator::clearEntries()
   Adds an entry to the children cache.
 */
 
-void QUrlOperator::addEntry( const QUrlInfo &i )
+void QUrlOperator::addEntry( const QValueList<QUrlInfo> &i )
 {
-    d->entryMap[ i.name().stripWhiteSpace() ] = i;
+    QValueList<QUrlInfo>::ConstIterator it = i.begin();
+    for ( ; it != i.end(); ++it )
+	d->entryMap[ ( *it ).name().stripWhiteSpace() ] = *it;
 }
 
 /*!

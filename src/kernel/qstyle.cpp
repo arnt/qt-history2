@@ -79,7 +79,7 @@ static void delete_d( const QStyle* foo )
 /*!
   \class QStyle qstyle.h
   \brief Encapsulates common Look and Feel of a GUI.
-  
+
   \ingroup appearance
 
   While it is not possible to fully enumerate the look of graphic elements
@@ -388,6 +388,15 @@ QRect QStyle::comboButtonRect( int x, int y, int w, int h)
   pixmap.
 */
 
+
+/*!
+  \overload void QStyle::drawToolButton( QToolButton*, QPainter *)
+
+  Draws a toolbutton. This function will normally call drawToolButton()
+  with arguments according to the current state of the toolbutton.
+
+  \sa QToolButton::drawButton()
+*/
 
 /*!
   \fn void QStyle::drawPushButton( QPushButton*, QPainter *)

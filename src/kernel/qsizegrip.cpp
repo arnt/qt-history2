@@ -39,8 +39,7 @@ extern Atom qt_sizegrip;			// defined in qapplication_x11.cpp
 static QWidget *qt_sizegrip_topLevelWidget( QWidget* w)
 {
     QWidget *p = w->parentWidget();
-    while ( !w->testWFlags(Qt::WType_TopLevel) && p &&
-	    ( !p->inherits("QWorkspace") || !p->inherits( "QFileDialog" ) ) ) {
+    while ( !w->isTopLevel() && p && !p->inherits("QWorkspace") ) {
 	w = p;
 	p = p->parentWidget();
     }
@@ -49,7 +48,9 @@ static QWidget *qt_sizegrip_topLevelWidget( QWidget* w)
 
 static QWidget* qt_sizegrip_workspace( QWidget* w )
 {
-    while ( w && ( !w->inherits("QWorkspace") || !w->inherits( "QFileDialog" ) ) ) {
+    while ( w && !w->inherits("QWorkspace" ) ) {
+	if ( w->isTopLevel() )
+	    return 0;
 	w = w->parentWidget();
     }
     return w;
@@ -91,10 +92,12 @@ QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
     setCursor( sizeFDiagCursor );
 
 #if defined(_WS_X11_)
-    WId id = winId();
-    XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
-		    qt_sizegrip, XA_WINDOW, 32, PropModeReplace,
-		    (unsigned char *)&id, 1);
+    if ( !qt_sizegrip_workspace( this ) ) {
+	WId id = winId();
+	XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
+			qt_sizegrip, XA_WINDOW, 32, PropModeReplace,
+			(unsigned char *)&id, 1);
+    }
 #endif
 }
 
@@ -138,11 +141,13 @@ void QSizeGrip::paintEvent( QPaintEvent *e )
     painter.drawPolygon( a );
     painter.setPen( colorGroup().light() );
     painter.drawLine(  0, 12, 12,  0 );
-    painter.drawLine(  5, 12, 12,  5 );
-    painter.drawLine( 10, 12, 12, 10 );
-    painter.setPen( colorGroup().background() );
     painter.drawLine(  4, 12, 12,  4 );
-    painter.drawLine(  9, 12, 12,  9 );
+    painter.drawLine( 8, 12, 12, 8 );
+    painter.setPen( colorGroup().background() );
+    painter.drawLine(  3, 12, 12,  3 );
+    painter.drawLine(  7, 12, 12,  7 );
+    painter.drawLine(  11, 12, 12,  11 );
+    painter.drawLine(  12, 12, 12,  12 );
 }
 
 /*!

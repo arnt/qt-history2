@@ -27,30 +27,48 @@
 // a.k.a. Junji Takagi, and is include in Qt with the author's permission,
 // and the grateful thanks of the Troll Tech team.
 
-/*
- * Copyright (c) 1999 Serika Kurusugawa, All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- */
+/*! \class QJisCodec qjiscodec.h
+
+  \brief Provides conversion to and from JIS character sets
+
+  The QJisCodec class subclasses QTextCodec to provide support for JIS
+  X 0201 Latin, JIS X 0201 Kana, JIS X 0208 and JIS X 0212.
+
+  The environment variable \c UNICODEMAP_JP can be used to fine-tune how
+  QJpUnicodeConv, QEucJpCodec, QJisCodec and QSjisCodec do their work.
+  The QJpUnicodeConv documentation describes how to use this variable.
+
+  It was largely written by Serika Kurusugawa a.k.a. Junji Takagi, and
+  is included in Qt with the author's permission, and the grateful
+  thanks of the Troll Tech team. Here is the copyright statement for
+  that code:
+
+  \mustquote
+
+  Copyright (c) 1999 Serika Kurusugawa, All rights reserved.
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met: <ol>
+  <li> Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  <li> Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+  </ol>
+
+  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+  SUCH DAMAGE.
+*/
 
 #include "qjiscodec.h"
 
@@ -89,10 +107,12 @@ static const char *Esc_SEQ[] = { Esc_Ascii,
 				 Esc_JISX0208_1983,
 				 Esc_JISX0212 };
 
+/*! \internal */
 QJisCodec::QJisCodec() : conv(QJpUnicodeConv::newConverter(JU_Default))
 {
 }
 
+/*! \internal */
 int QJisCodec::mibEnum() const
 {
     /*
@@ -105,6 +125,7 @@ int QJisCodec::mibEnum() const
     return 16;
 }
 
+/*! \internal */
 QCString QJisCodec::fromUnicode(const QString& uc, int& len_in_out) const
 {
     int l = QMIN((int)uc.length(),len_in_out);
@@ -166,6 +187,7 @@ QCString QJisCodec::fromUnicode(const QString& uc, int& len_in_out) const
     return result;
 }
 
+/*! \internal */
 QString QJisCodec::toUnicode(const char* chars, int len) const
 {
     QString result;
@@ -275,11 +297,13 @@ QString QJisCodec::toUnicode(const char* chars, int len) const
     return result;
 }
 
+/*! \internal */
 const char* QJisCodec::name() const
 {
     return "JIS7";
 }
 
+/*! \internal */
 int QJisCodec::heuristicNameMatch(const char* hint) const
 {
     int score = 0;
@@ -311,6 +335,7 @@ int QJisCodec::heuristicNameMatch(const char* hint) const
     return QTextCodec::heuristicNameMatch(hint);
 }
 
+/*! \internal */
 int QJisCodec::heuristicContentMatch(const char* chars, int len) const
 {
     int score = 0;
@@ -586,6 +611,7 @@ public:
     }
 };
 
+/*! \internal */
 QTextDecoder* QJisCodec::makeDecoder() const
 {
     return new QJisDecoder(conv);

@@ -312,10 +312,8 @@ bool QTabBar::isTabEnabled( int id ) const
 
 
 
-/*!
-  Returns a suitable size for the tab control.
+/*!\reimp
 */
-
 QSize QTabBar::sizeHint() const
 {
     QTab * t = l->first();
@@ -330,11 +328,8 @@ QSize QTabBar::sizeHint() const
 }
 
 
-/*!
-  Specifies that this widget can use more, but is able to survive on
-  less, horizontal space; and has a fixed height.
+/*!\reimp
 */
-
 QSizePolicy QTabBar::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
@@ -531,20 +526,15 @@ QTab * QTabBar::selectTab( const QPoint & p ) const
 }
 
 
-/*!
-  Handles mouse press events; records what tab the mouse points to.
+/*!\reimp
 */
-
 void QTabBar::mousePressEvent( QMouseEvent * e )
 {
     d->pressed = selectTab( e->pos() );
 }
 
 
-/*!
-  Handles mouse release events for the tab control.  Checks that the
-  mouse is released over the tab where it was pressed, and if it was,
-  selects that tab.
+/*!\reimp
 */
 
 void QTabBar::mouseReleaseEvent( QMouseEvent * e )
@@ -557,17 +547,16 @@ void QTabBar::mouseReleaseEvent( QMouseEvent * e )
 }
 
 
-/*!  Shows the widget, and ensures that one tab is selected.
+/*!  \reimp
 */
-
 void QTabBar::show()
 {
+    //  ensures that one tab is selected.
     QTab * t = l->last();
     QWidget::show();
     if ( t )
 	emit selected( t->id );
 }
-
 
 /*!  If a page is currently visible, returns its ID.  If no page is
   currently visible, returns either -1 or the ID of one of the pages.
@@ -640,14 +629,14 @@ int QTabBar::keyboardFocusTab() const
 }
 
 
-/*!  Handles the tab bar's keyboard interface (if enabled).
-
-  The right and left arrow keys move a selector, the spacebar makes
-  the tab with the selector active.  All other keys are ignored.
+/*!\reimp
 */
-
 void QTabBar::keyPressEvent( QKeyEvent * e )
 {
+    //   The right and left arrow keys move a selector, the spacebar
+    //   makes the tab with the selector active.  All other keys are
+    //   ignored.
+    
     int old = d->focus;
 
     if ( e->key() == Key_Left ) {
@@ -843,8 +832,8 @@ void QTabBar::resizeEvent( QResizeEvent * )
 
 void QTabBar::scrollTabs()
 {
-    QTab* left;
-    QTab* right;
+    QTab* left = 0;
+    QTab* right = 0;
     for ( QTab* t = lstatic->first(); t; t = lstatic->next() ) {
 	if ( t->r.left() < 0 && t->r.right() > 0 )
 	    left = t;

@@ -117,7 +117,7 @@ public:
     void setSelection( const QString &);
 
     void selectAll( bool b );
-    
+
     QStringList selectedFiles() const;
 
     QString dirPath() const;
@@ -216,10 +216,11 @@ private slots:
     void urlStart( QNetworkOperation *op );
     void urlFinished( QNetworkOperation *op );
     void dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation * );
-    void insertEntry( const QUrlInfo &fi, QNetworkOperation *op );
+    void insertEntry( const QValueList<QUrlInfo> &fi, QNetworkOperation *op );
     void removeEntry( QNetworkOperation * );
     void createdDirectory( const QUrlInfo &info, QNetworkOperation * );
     void itemChanged( QNetworkOperation * );
+    void goBack();
 
 private:
     enum PopupAction {

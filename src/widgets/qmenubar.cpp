@@ -854,10 +854,8 @@ void QMenuBar::drawContents( QPainter *p )
 }
 
 
-/*!
-  Handles mouse press events for the menu bar.
+/*!\reimp
 */
-
 void QMenuBar::mousePressEvent( QMouseEvent *e )
 {
     if ( e->button() != LeftButton &&
@@ -870,10 +868,8 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 }
 
 
-/*!
-  Handles mouse release events for the menu bar.
+/*!\reimp
 */
-
 void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( e->button() != LeftButton &&
@@ -896,10 +892,8 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 }
 
 
-/*!
-  Handles mouse move events for the menu bar.
+/*!\reimp
 */
-
 void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 {
     int item = itemAtPos( e->pos() );
@@ -919,9 +913,8 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 }
 
 
-/*!  Handles leave events for the menu bar.
+/*!\reimp
 */
-
 void QMenuBar::leaveEvent( QEvent * e )
 {
     hasmouse = 0;
@@ -930,10 +923,8 @@ void QMenuBar::leaveEvent( QEvent * e )
 }
 
 
-/*!
-  Handles key press events for the menu bar.
+/*!\reimp
 */
-
 void QMenuBar::keyPressEvent( QKeyEvent *e )
 {
     if ( actItem < 0 )
@@ -1009,10 +1000,8 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 }
 
 
-/*!
-  Handles resize events for the menu bar.
+/*!\reimp
 */
-
 void QMenuBar::resizeEvent( QResizeEvent * )
 {
     QRect fr = frameRect();

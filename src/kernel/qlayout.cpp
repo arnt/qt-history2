@@ -1493,6 +1493,22 @@ private:
 
 
 
+/*! \enum QBoxLayout::Direction
+
+  This type is used to determine the direction of
+  a box layout. The possible values are:
+
+  <ul>
+  <li>\c LeftToRight - Horizontal, from left to right
+  <li>\c RightToLeft - Horizontal, from right to left
+  <li>\c TopToBottom - Vertical, from top to bottom
+  <li>\c Down - An alias for \c TopToBottom
+  <li>\c BottomToTop - Vertical, from bottom to top
+  <li>\c Up - An alias for \c BottomToTop
+  </ul>
+ */
+
+
 
 static inline bool horz( QBoxLayout::Direction dir )
 {
@@ -2210,22 +2226,6 @@ int QBoxLayout::calcHfw( int w )
     data->hfwWidth = w;
     return h;
 }
-
-
-/*! \enum QBoxLayout::Direction
-
-  This type is used to determine the direction of
-  a box layout. The possible values are:
-
-  <ul>
-  <li>\c LeftToRight - Horizontal, from left to right
-  <li>\c RightToLeft - Horizontal, from right to left
-  <li>\c TopToBottom - Vertical, from top to bottom
-  <li>\c Down - An alias for \c TopToBottom
-  <li>\c BottomToTop - Vertical, from bottom to top
-  <li>\c Up - An alias for \c BottomToTop
-  </ul>
- */
 
 
 /*!

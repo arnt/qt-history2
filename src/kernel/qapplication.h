@@ -55,8 +55,8 @@ class Q_EXPORT QApplication : public QObject
     Q_OBJECT
 public:
     QApplication( int &argc, char **argv);
-#if defined(_WS_X11_)
     QApplication( int &argc, char **argv, bool GUIenabled );
+#if defined(_WS_X11_)
     QApplication( Display* dpy );
 #endif
     virtual ~QApplication();
@@ -327,6 +327,7 @@ class QApplication : public QBaseApplication
 {
 public:
     QApplication( int &, char ** );
+    QApplication( int &, char **, bool );
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QApplication( const QApplication & );

@@ -79,6 +79,12 @@ private:
 };
 
 
+static double scale_factor( double v ) 
+{
+    return v/96;
+}
+
+
 void QTextOptions::erase( QPainter* p, const QRect& r ) const
 {
     if ( !paper )
@@ -177,19 +183,8 @@ void QTextImage::realize( QPainter* p )
     if ( !p || p->device()->devType() != QInternal::Printer )
 	return;
     QPaintDeviceMetrics metrics(p->device());
-    QPaintDeviceMetrics defmetrics( QApplication::desktop() );
-    width *= metrics.logicalDpiX() / defmetrics.logicalDpiX();
-    height *= metrics.logicalDpiY() / defmetrics.logicalDpiY();
-    if ( !pm.isNull() ) {
-	QImage img = pm.convertToImage().smoothScale( width, height );
-	pm.convertFromImage( img );
-	if ( pm.mask() ) {
-	    QRegion mask( *pm.mask() );
-	    QRegion all( 0, 0, pm.width(), pm.height() );
-	    delete reg;
-	    reg = new QRegion( all.subtract( mask ) );
-	}
-    }
+    width = int( width * scale_factor( metrics.logicalDpiX() ) );
+    height = int( height * scale_factor( metrics.logicalDpiY() ) );
 }
 
 void QTextImage::draw(QPainter* p, int x, int y,
@@ -200,8 +195,21 @@ void QTextImage::draw(QPainter* p, int x, int y,
 	p->fillRect( x-ox , y-oy, width, height,  cg.dark() );
 	return;
     }
-    QRect r( x-ox, y-oy, width, height );
+
+    if ( p->device()->devType() == QInternal::Printer ) {
+	p->saveWorldMatrix();
+	QPaintDeviceMetrics metrics(p->device());
+	p->translate( x-ox, y-oy );
+	p->scale( scale_factor( metrics.logicalDpiY() ),
+		  scale_factor( metrics.logicalDpiY() ) );
+	p->drawPixmap( 0, 0, pm );
+	p->restoreWorldMatrix();
+	return;
+    }
+    
+    QRect r( x-ox, y-oy, pm.width(), pm.height() );
     backgroundRegion = backgroundRegion.subtract( r );
+    
     if ( reg ){
 	QRegion tmp( *reg );
 	tmp.translate( x-ox, y-oy );
@@ -215,8 +223,7 @@ void QTextHorizontalLine::realize( QPainter* p )
     if ( !p || p->device()->devType() != QInternal::Printer )
 	return;
     QPaintDeviceMetrics metrics(p->device());
-    QPaintDeviceMetrics defmetrics( QApplication::desktop() );
-    height *= metrics.logicalDpiY() / defmetrics.logicalDpiY();
+    height = int( height * scale_factor( metrics.logicalDpiY() ) );
 }
 
 
@@ -1516,9 +1523,8 @@ void QRichTextFormatter::gotoParagraph( QPainter* p, QTextParagraph* b )
     if ( !formatinuse ) { // ### a bit hacky
 	if ( p && p->device()->devType() == QInternal::Printer ) {
 	    QPaintDeviceMetrics metrics(p->device());
-	    QPaintDeviceMetrics defmetrics( QApplication::desktop() );
-	    xscale = metrics.logicalDpiX() / defmetrics.logicalDpiX();
-	    yscale = metrics.logicalDpiY() / defmetrics.logicalDpiY();
+	    xscale = scale_factor( metrics.logicalDpiX() );
+	    yscale = scale_factor( metrics.logicalDpiY() );
 	}
     }
 
@@ -1726,13 +1732,13 @@ void QRichTextFormatter::drawLabel( QPainter* p, QTextParagraph* par, int x, int
 	break;
     case QStyleSheetItem::ListSquare:
 	{
- 	    QRect er( r.right()-size*2, r.top() + base - fm.ascent()/2 - size/2, size, size);
+ 	    QRect er( r.right()-size*2, r.top() + base - fm.boundingRect('A').height()/2 - size/2 - 1, size, size);
 	    p->fillRect( er , cg.brush( QColorGroup::Foreground ) );
 	}
 	break;
     case QStyleSheetItem::ListCircle:
 	{
-	    QRect er( r.right()-size*2, r.top() + base - fm.ascent()/2 - size/2, size, size);
+	    QRect er( r.right()-size*2, r.top() + base - fm.boundingRect('A').height()/2 - size/2 - 1, size, size);
 	    p->drawEllipse( er );
 	}
 	break;
@@ -1740,7 +1746,7 @@ void QRichTextFormatter::drawLabel( QPainter* p, QTextParagraph* par, int x, int
     default:
 	{
 	    p->setBrush( cg.brush( QColorGroup::Foreground ));
-	    QRect er( r.right()-size*2, r.top() + base - fm.ascent()/2 - size/2, size, size);
+	    QRect er( r.right()-size*2, r.top() + base - fm.boundingRect('A').height()/2 - size/2 - 1, size, size);
 	    p->drawEllipse( er );
 	    p->setBrush( Qt::NoBrush );
 	}
@@ -2009,14 +2015,16 @@ bool QRichTextFormatter::goTo( QPainter* p, int xpos, int ypos )
 		QRect geom( lineGeometry() );
 		if ( ypos <= geom.bottom()  ) {
 		    gotoLineStart( p );
+		    bool within = geom.contains(QPoint(xpos,ypos));
 		    if ( ypos >= geom.top() ) {
 			while ( !atEndOfLine() && geom.left() + x() < xpos )
 			    right( p );
 			if ( geom.left() + x() > xpos )
 			    left( p ); //####necesssary? TODO
+			else
+			    within = FALSE;
 		    }
-		    return geom.contains( QPoint(xpos,ypos) )
-			&& ( geom.left() + currentx + currentoffsetx < xpos );
+		    return within;
 		}
 	    }
 	    while ( gotoNextLine( p ) );
@@ -2392,8 +2400,7 @@ void QTextTable::realize( QPainter* p)
     painter = p;
     if ( p && p->device()->devType() != QInternal::Printer ) {
 	QPaintDeviceMetrics metrics(p->device());
-	QPaintDeviceMetrics defmetrics( QApplication::desktop() );
-	double xscale = metrics.logicalDpiX() / defmetrics.logicalDpiX();
+	double xscale = scale_factor( metrics.logicalDpiX() );
 	cellspacing = int(cellspacing * xscale);
 	border = int(border * xscale);
 	innerborder = int(innerborder * xscale);

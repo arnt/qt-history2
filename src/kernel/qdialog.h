@@ -69,7 +69,8 @@ protected:
     void	keyPressEvent( QKeyEvent * );
     void	closeEvent( QCloseEvent * );
 private:
-    virtual void	setDefault( QPushButton * );
+    virtual void	setDefault( QPushButton * ); // ## remove virtual 3.0
+    void		hideDefault();
     int		rescode;
     uint	did_move   : 1;
     uint	did_resize : 1;

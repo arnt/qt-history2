@@ -506,10 +506,8 @@ void QWindowsStyle::drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool sel
 
 	if ( selected ) {
 	    p->fillRect( QRect( r.left()+1, r.bottom()-1, r.width()-3, 2),
-			 tb->palette().normal().brush( QColorGroup::Background ));
+			 tb->colorGroup().brush( QColorGroup::Background ));
 	    p->setPen( tb->colorGroup().background() );
-// 	    p->drawLine( r.left()+1, r.bottom(), r.right()-2, r.bottom() );
-// 	    p->drawLine( r.left()+1, r.bottom()-1, r.right()-2, r.bottom()-1 );
 	    p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top()+2 );
 	    p->setPen( tb->colorGroup().light() );
 	} else {
@@ -686,8 +684,8 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
     }
     if ( controls & SubLine ) {
 	qDrawWinPanel( p, subB.x(), subB.y(),
-			 subB.width(), subB.height(), g,
-			 SUB_LINE_ACTIVE );
+		       subB.width(), subB.height(), g,
+		       SUB_LINE_ACTIVE, &g.brush( QColorGroup::Button )  );
 	drawArrow( p, VERTICAL ? UpArrow : LeftArrow,
 		   SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
 		   subB.width()-4, subB.height()-4, g, !maxedOut );
@@ -774,6 +772,8 @@ void QWindowsStyle::drawSlider( QPainter *p,
     int y1 = y;
     int y2 = y+h-1;
 
+    p->fillRect( x, y, w, h, g.brush( QColorGroup::Background ) );
+
     if ( tickAbove && tickBelow || !tickAbove && !tickBelow ) {
 	qDrawWinButton( p, QRect(x,y,w,h), g, FALSE,
 			&g.brush( QColorGroup::Button ) );
@@ -796,7 +796,7 @@ void QWindowsStyle::drawSlider( QPainter *p,
 
     QPointArray a;
 
-    int d;
+    int d = 0;
     switch ( dir ) {
     case SlUp:
 	y1 = y1 + w/2;
@@ -824,7 +824,7 @@ void QWindowsStyle::drawSlider( QPainter *p,
     QBrush oldBrush = p->brush();
     p->setBrush( g.brush( QColorGroup::Button ) );
     p->setPen( NoPen );
-    //p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
+    p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
     p->drawPolygon( a );
     p->setBrush( oldBrush );
 

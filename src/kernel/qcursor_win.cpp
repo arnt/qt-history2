@@ -431,7 +431,7 @@ void QCursor::update() const
 #endif
 	    return;
     }
-    if ( qt_winver == Qt::WV_NT )
+    if ( qt_winver & Qt::WV_NT_based )
 	data->hcurs = LoadCursor( 0, (TCHAR*)sh );
     else
 	data->hcurs = LoadCursorA( 0, sh );

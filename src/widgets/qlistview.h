@@ -290,6 +290,9 @@ signals:
     void onItem( QListViewItem *item );
     void onViewport();
 
+    void expanded( QListViewItem *item );
+    void collapsed( QListViewItem *item );
+    
 protected:
     void contentsMousePressEvent( QMouseEvent * e );
     void contentsMouseReleaseEvent( QMouseEvent * e );

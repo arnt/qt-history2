@@ -137,6 +137,7 @@ signals:
     void connectionStateChanged( int state, const QString &data );
     void finished( QNetworkOperation *res );
     void start( QNetworkOperation *res );
+    void newChildren( const QValueList<QUrlInfo> &, QNetworkOperation *res );
     void newChild( const QUrlInfo &, QNetworkOperation *res );
     void createdDirectory( const QUrlInfo &, QNetworkOperation *res );
     void removed( QNetworkOperation *res );
@@ -159,6 +160,7 @@ private:
 private slots:
     void processNextOperation( QNetworkOperation *old );
     void startOps();
+    void emitNewChildren( const QUrlInfo &i, QNetworkOperation *op );
 
     void removeMe();
 
@@ -193,10 +195,10 @@ public:
     int errorCode() const;
 
     void free();
-    
+
 private slots:
     void deleteMe();
-    
+
 private:
     QByteArray &raw( int num ) const;
 

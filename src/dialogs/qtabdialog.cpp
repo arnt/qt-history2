@@ -377,16 +377,13 @@ bool QTabDialog::hasOkButton() const
 */
 
 
-/*!
-  Shows the tab view and its children.  Reimplemented in order to
-  delay show()'ing of every page except the initially visible one, and
-  in order to emit the aboutToShow() signal.
-
-  \sa hide(), aboutToShow()
+/*!\reimp
 */
-
 void QTabDialog::show()
 {
+    //   Reimplemented in order to delay show()'ing of every page
+    //   except the initially visible one, and in order to emit the
+    //   aboutToShow() signal.
     if ( topLevelWidget() == this )
 	d->tw->setFocus();
     emit aboutToShow();
@@ -1003,27 +1000,19 @@ void QTabDialog::setSizes()
     setTabOrder( w, d->tw );
 }
 
-
-
-
-/*!
-  Handles resize events for the tab dialog.
+/*!\reimp
 */
-
 void QTabDialog::resizeEvent( QResizeEvent * e )
 {
     QDialog::resizeEvent( e );
 }
 
 
-/*!
-  Handles paint events for the tabbed dialog
+/*!\reimp
 */
-
 void QTabDialog::paintEvent( QPaintEvent * )
 {
 }
-
 
 
 /*!
@@ -1087,9 +1076,8 @@ QString QTabDialog::tabLabel( QWidget * w )
 }	
 
 
-/*!  Reimplemented to hndle a change of GUI style while on-screen.
+/*!  \reimp
 */
-
 void QTabDialog::styleChange( QStyle& s )
 {
     QDialog::styleChange( s );

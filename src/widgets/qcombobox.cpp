@@ -476,45 +476,6 @@ bool QComboBox::duplicatesEnabled() const
     return d->duplicatesEnabled;
 }
 
-/* #### this may have to move to styleChange
-void QComboBox::setStyle( GUIStyle s )
-{
-    if ( style() != s ) {
-	//#####	QWidget::setStyle( s );
-	if ( !d->usingListBox ) {
-	    QPopupMenu * p = d->popup;
-	    d->listBox = new QListBox( 0, 0, WType_Popup );
-	    d->listBox->setAutoScrollBar( FALSE );
-	    d->listBox->setBottomScrollBar( FALSE );
-	    d->listBox->setAutoBottomScrollBar( FALSE );
-	    d->listBox->setFrameStyle( QFrame::Box | QFrame::Plain );
-	    d->listBox->setLineWidth( 1 );
-	    d->listBox->resize( 100, 10 );
-	    d->usingListBox      = TRUE;
-	    connect( d->listBox, SIGNAL(selected(int)),
-		     SLOT(internalActivate(int)) );
-	    connect( d->listBox, SIGNAL(highlighted(int)),
-		     SLOT(internalHighlight(int)));
-	    if ( p ) {
-		int n;
-		for( n=p->count()-1; n>=0; n-- ) {
-		    if ( !p->text( n ).isNull() )
-			d->listBox->insertItem( p->text( n ), 0 );
-		    else if ( p->pixmap( n ) )
-			d->listBox->insertItem( *(p->pixmap( n )), 0 );
-		}
-		delete p;
-	    }
-	}
-
-    }
-    if ( d->ed )
-	d->ed->setFrame( s == MotifStyle );
-
-}
-
-*/
-
 
 /*!
   Returns the number of items in the combo box.
@@ -968,8 +929,7 @@ void QComboBox::setAutoResize( bool enable )
 }
 
 
-/*!
-  Returns a size which fits the contents of the combo box button.
+/*!\reimp
 */
 QSize QComboBox::sizeHint() const
 {
@@ -1017,11 +977,8 @@ QSize QComboBox::sizeHint() const
 }
 
 
-/*!
-  Specifies that this widget may stretch horizontally, but is fixed
-  vertically.
+/*!\reimp
 */
-
 QSizePolicy QComboBox::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
@@ -1131,8 +1088,7 @@ void QComboBox::setFont( const QFont &font )
 }
 
 
-/*!
-  Handles resize events for the combo box.
+/*!\reimp
 */
 
 void QComboBox::resizeEvent( QResizeEvent * e )
@@ -1144,8 +1100,7 @@ void QComboBox::resizeEvent( QResizeEvent * e )
     QWidget::resizeEvent( e );
 }
 
-/*!
-  Handles paint events for the combo box.
+/*!\reimp
 */
 
 void QComboBox::paintEvent( QPaintEvent * )
@@ -1271,8 +1226,7 @@ QRect QComboBox::arrowRect() const
 }
 
 
-/*!
-  Handles mouse press events for the combo box.
+/*!\reimp
 */
 
 void QComboBox::mousePressEvent( QMouseEvent *e )
@@ -1302,24 +1256,21 @@ void QComboBox::mousePressEvent( QMouseEvent *e )
     }
 }
 
-/*!
-  Handles mouse move events for the combo box.
+/*!\reimp
 */
 
 void QComboBox::mouseMoveEvent( QMouseEvent * )
 {
 }
 
-/*!
-  Handles mouse release events for the combo box.
+/*!\reimp
 */
 
 void QComboBox::mouseReleaseEvent( QMouseEvent * )
 {
 }
 
-/*!
-  Handles mouse double click events for the combo box.
+/*!\reimp
 */
 
 void QComboBox::mouseDoubleClickEvent( QMouseEvent *e )
@@ -1328,18 +1279,12 @@ void QComboBox::mouseDoubleClickEvent( QMouseEvent *e )
 }
 
 
-/*!
-  Handles key press events for the combo box.
-
-  In Motif style, up and down change the selected item and both enter
-  and return pops up the list.  In Windows style, all four arrow keys
-  change the selected item, and Space pops up the list.
+/*!\reimp
 */
 
 void QComboBox::keyPressEvent( QKeyEvent *e )
 {
     int c;
-
     if ( ( e->key() == Key_F4 && e->state() == 0 ) ||
 	 ( e->key() == Key_Down && (e->state() & AltButton) ) ||
 	 ( !d->ed && e->key() == Key_Space ) ) {
@@ -1855,7 +1800,7 @@ void QComboBox::returnPressed()
 }
 
 
-/*!  Reimplemented for internal purposes.
+/*! \reimp
 */
 
 void QComboBox::setEnabled( bool enable )

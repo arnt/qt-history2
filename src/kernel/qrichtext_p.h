@@ -209,7 +209,7 @@ public:
 
     void draw(QPainter* , int , int ,
 	      int, int, int, int, int, int,
-	      QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to ){}
+	      QRegion& , const QColorGroup& , const QTextOptions&  ){}
 private:
     Clear clr;
 };

@@ -22,5 +22,5 @@
 *****************************************************************************/
 #ifndef QPSPRN_H
 #define QPSPRN_H
-#include "qpsprinter.h"
+#include "qpsprinter_p.h"
 #endif

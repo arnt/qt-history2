@@ -2114,6 +2114,8 @@ void pnmscale(const QImage& src, QImage& dst)
 
   pnmscale.c - read a portable anymap and scale it
 
+  \mustquote
+
   Copyright (C) 1989, 1991 by Jef Poskanzer.
 
   Permission to use, copy, modify, and distribute this software and its

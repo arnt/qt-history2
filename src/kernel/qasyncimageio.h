@@ -1,10 +1,6 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#25 $
 **
-**		      ***   INTERNAL HEADER FILE   ***
-**
-**		This file is NOT a part of the Qt interface!
-**
 ** Definition of asynchronous image/movie loading classes
 **
 ** Created : 970617

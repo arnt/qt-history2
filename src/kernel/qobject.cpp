@@ -274,8 +274,8 @@ static void insert_tree( QObject* obj )
 
 static void remove_tree( QObject* obj )
 {
-    ensure_object_trees();
-    object_trees->removeRef( obj );
+    if ( object_trees )
+	object_trees->removeRef( obj );
 }
 
 
@@ -2226,6 +2226,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     if ( !value.canCast( type ) )
 	return FALSE;
 
+    // Some stupid casts in this switch... for #@$!&@ SunPro C++ 5.0 compiler
     switch ( type ) {
 
     case QVariant::Custom:
@@ -2235,7 +2236,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     case QVariant::Image:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoImage m = (ProtoImage)p->set;
-	    (this->*m)( value.toImage() );
+	    (this->*m)( (QImage)(value.toImage()) );
 	}
 	else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoImage m = (RProtoImage)p->set;
@@ -2261,7 +2262,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     case QVariant::StringList:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoStringList m = (ProtoStringList)p->set;
-	    (this->*m)( value.toStringList() );
+	    (this->*m)( (QStringList)value.toStringList() );
 	}
 	else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoStringList m = (RProtoStringList)p->set;
@@ -2274,7 +2275,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     case QVariant::String:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoString m = (ProtoString)p->set;
-	    (this->*m)( value.toString() );
+	    (this->*m)( (QString)(value.toString()) );
 	}
 	else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoString m = (RProtoString)p->set;
@@ -2287,7 +2288,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     case QVariant::CString:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoCString m = (ProtoCString)p->set;
-	    (this->*m)( value.toCString() );
+	    (this->*m)( (QCString)(value.toCString()) );
 	}
 	else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoCString m = (RProtoCString)p->set;
@@ -2304,7 +2305,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     case QVariant::Font:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoFont m = (ProtoFont)p->set;
-	    (this->*m)( value.toFont() );
+	    (this->*m)( (QFont)(value.toFont()) );
 	}
 	else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoFont m = (RProtoFont)p->set;
@@ -2317,7 +2318,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     case QVariant::Pixmap:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoPixmap m = (ProtoPixmap)p->set;
-	    (this->*m)( value.toPixmap() );
+	    (this->*m)( (QPixmap)(value.toPixmap()) );
 	}
 	else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoPixmap m = (RProtoPixmap)p->set;
@@ -2330,7 +2331,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     case QVariant::Brush:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoBrush m = (ProtoBrush)p->set;
-	    (this->*m)( value.toBrush() );
+	    (this->*m)( (QBrush)(value.toBrush()) );
 	}
 	else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoBrush m = (RProtoBrush)p->set;
@@ -2369,7 +2370,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     case QVariant::Color:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoColor m = (ProtoColor)p->set;
-	    (this->*m)( value.toColor() );
+	    (this->*m)( (QColor)(value.toColor()) );
 	}
 	else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoColor m = (RProtoColor)p->set;
@@ -2382,7 +2383,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     case QVariant::Palette:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoPalette m = (ProtoPalette)p->set;
-	    (this->*m)( value.toPalette() );
+	    (this->*m)( (QPalette)(value.toPalette()) );
 	}
 	else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoPalette m = (RProtoPalette)p->set;
@@ -2399,7 +2400,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	}
 	else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoColorGroup m = (RProtoColorGroup)p->set;
-	    (this->*m)( value.toColorGroup() );
+	    (this->*m)( (QColorGroup)(value.toColorGroup()) );
 	}
 	else
 	    ASSERT( 0 );
@@ -2412,7 +2413,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	}
 	else if ( p->sspec == QMetaProperty::Reference )  {
 	    RProtoBitmap m = (RProtoBitmap)p->set;
-	    (this->*m)( value.toBitmap() );
+	    (this->*m)( (QBitmap)(value.toBitmap()) );
 	}
 	else
 	    ASSERT( 0 );
@@ -2421,7 +2422,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     case QVariant::Region:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoRegion m = (ProtoRegion)p->set;
-	    (this->*m)( value.toRegion() );
+	    (this->*m)( (QRegion)(value.toRegion()) );
 	}
 	else if ( p->sspec == QMetaProperty::Reference )  {
 	    RProtoRegion m = (RProtoRegion)p->set;
@@ -2438,7 +2439,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	}
 	else if ( p->sspec == QMetaProperty::Reference )  {
 	    RProtoPointArray m = (RProtoPointArray)p->set;
-	    (this->*m)( value.toPointArray() );
+	    (this->*m)( (QPointArray)(value.toPointArray()) );
 	}
 	else
 	    ASSERT( 0 );
@@ -2447,7 +2448,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     case QVariant::Cursor:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoCursor m = (ProtoCursor)p->set;
-	    (this->*m)( value.toCursor() );
+	    (this->*m)( (QCursor)(value.toCursor()) );
 	}
 	else if ( p->sspec == QMetaProperty::Reference )  {
 	    RProtoCursor m = (RProtoCursor)p->set;
@@ -2460,7 +2461,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     case QVariant::IconSet:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoIconSet m = (ProtoIconSet)p->set;
-	    (this->*m)( value.toIconSet() );
+	    (this->*m)( (QIconSet)(value.toIconSet()) );
 	}
 	else if ( p->sspec == QMetaProperty::Reference )  {
 	    RProtoIconSet m = (RProtoIconSet)p->set;
@@ -2525,7 +2526,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     case QVariant::List:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoList m = (ProtoList)p->set;
-	    (this->*m)( value.toList() );
+	    (this->*m)( (QValueList<QVariant>)(value.toList()) );
 	}
 	else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoList m = (RProtoList)p->set;
@@ -2538,7 +2539,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     case QVariant::Map:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoMap m = (ProtoMap)p->set;
-	    (this->*m)( value.toMap() );
+	    (this->*m)( (QMap<QString, QVariant>)(value.toMap()) );
 	}
 	else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoMap m = (RProtoMap)p->set;

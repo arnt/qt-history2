@@ -71,8 +71,7 @@ QHBox::QHBox( bool horizontal, QWidget *parent , const char *name, WFlags f, boo
     lay->setAutoAdd( TRUE );
 }
 
-/*!
-  Reimplemented for internal purposes
+/*!\reimp
  */
 void QHBox::frameChanged()
 {

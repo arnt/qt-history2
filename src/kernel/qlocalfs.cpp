@@ -38,7 +38,7 @@
   \class QLocalFs qlocalfs.h
   \brief Implementation of a QNetworkProtocol which works
   on the local filesystem.
-  
+
   \ingroup io
 
   This class is a subclass of QNetworkProtocol and works
@@ -95,13 +95,14 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
     emit start( op );
     QFileInfoListIterator it( *filist );
     QFileInfo *fi;
+    QValueList<QUrlInfo> infos;
     while ( ( fi = it.current() ) != 0 ) {
 	++it;
-	QUrlInfo inf( fi->fileName(), 0/*permissions*/, fi->owner(), fi->group(),
-		      fi->size(), fi->lastModified(), fi->lastRead(), fi->isDir(), fi->isFile(),
-		      fi->isSymLink(), fi->isWritable(), fi->isReadable(), fi->isExecutable() );
-	emit newChild( inf, op );
+	infos << QUrlInfo( fi->fileName(), 0/*permissions*/, fi->owner(), fi->group(),
+			   fi->size(), fi->lastModified(), fi->lastRead(), fi->isDir(), fi->isFile(),
+			   fi->isSymLink(), fi->isWritable(), fi->isReadable(), fi->isExecutable() );
     }
+    emit newChildren( infos, op );
     op->setState( StDone );
     emit finished( op );
 }

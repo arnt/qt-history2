@@ -795,11 +795,11 @@ void polygonizeQBezier( double* acc, int& accsize, const double ctrl[],
     double r[8];
     split( ctrl, l, r);
 
-	// convert to integers for line condition check
-	int c0[2]; c0[0] = int(ctrl[0]); c0[1] = int(ctrl[1]);
-	int c1[2]; c1[0] = int(ctrl[2]); c1[1] = int(ctrl[3]);
-	int c2[2]; c2[0] = int(ctrl[4]); c2[1] = int(ctrl[5]);
-	int c3[2]; c3[0] = int(ctrl[6]); c3[1] = int(ctrl[7]);
+    // convert to integers for line condition check
+    int c0[2]; c0[0] = int(ctrl[0]); c0[1] = int(ctrl[1]);
+    int c1[2]; c1[0] = int(ctrl[2]); c1[1] = int(ctrl[3]);
+    int c2[2]; c2[0] = int(ctrl[4]); c2[1] = int(ctrl[5]);
+    int c3[2]; c3[0] = int(ctrl[6]); c3[1] = int(ctrl[7]);
 
     if ( pnt_on_line( c0, c3, c1 ) == 2
       && pnt_on_line( c0, c3, c2 ) == 2 )
@@ -889,7 +889,7 @@ QPointArray QPointArray::quadBezier() const
 	QRect r = boundingRect();
 	int m = 4+2*QMAX(r.width(),r.height());
 	double *p = new double[m];
-	double *ctrl = new double[8];
+	double ctrl[8];
 	int i;
 	for (i=0; i<4; i++) {
 	    ctrl[i*2] = at(i).x();
@@ -908,7 +908,6 @@ QPointArray QPointArray::quadBezier() const
 	// add last pt on the line, which will be at the last control pt
 	pa[(int)pa.size()-1] = at(3);
 	delete[] p;
-	delete[] ctrl;
 
 	return pa;
     }

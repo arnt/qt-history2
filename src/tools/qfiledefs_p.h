@@ -1,12 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledefs.h#29 $
-**
-**		      ***   INTERNAL HEADER FILE   ***
-**
-**		This file is NOT a part of the Qt interface!
+** $Id: //depot/qt/main/src/tools/qfiledefs_p.h#1 $
 **
 ** Common macros and system include files for QFile, QFileInfo and QDir.
-** This file is included by qfile.cpp, qfileinfo.cpp and qdir.cpp
 **
 ** Created : 930812
 **
@@ -28,8 +23,21 @@
 **
 *****************************************************************************/
 
-#ifndef QFILEDEFS_H
-#define QFILEDEFS_H
+#ifndef QFILEDEFS_P_H
+#define QFILEDEFS_P_H
+
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of qfile.cpp, qfileinfo.cpp and qdir.cpp.
+// This header file may change from version to version without notice,
+// or even be removed.
+//
+//
+
 
 #if defined(_CC_MWERKS_)
 # include <stdlib.h>

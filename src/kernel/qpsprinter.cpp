@@ -23,7 +23,7 @@
 **
 *****************************************************************************/
 
-#include "qpsprinter.h"
+#include "qpsprinter_p.h"
 #include "qpainter.h"
 #include "qpaintdevicemetrics.h"
 #include "qimage.h"
@@ -1571,7 +1571,7 @@ static const struct {
     QFont::CharSet cs;
     Q_UINT16 values[128];
 } unicodevalues[] = {
-    // from RFC 1489, http://ds.internic.net/rfc/rfc1489.txt
+    // from RFC 1489, ftp://ftp.isi.edu/in-notes/rfc1489.txt
     { QFont::KOI8R,
       { 0x2500, 0x2502, 0x250C, 0x2510, 0x2514, 0x2518, 0x251C, 0x2524,
 	0x252C, 0x2534, 0x253C, 0x2580, 0x2584, 0x2588, 0x258C, 0x2590,

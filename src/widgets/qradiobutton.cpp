@@ -140,10 +140,8 @@ void QRadioButton::setChecked( bool check )
 
 
 
-/*!
-  Returns a size which fits the contents of the radio button.
+/*!\reimp
 */
-
 QSize QRadioButton::sizeHint() const
 {
     // Any more complex, and we will use style().itemRect()
@@ -164,9 +162,7 @@ QSize QRadioButton::sizeHint() const
 }
 
 
-/*!
-  Specifies that this widget may stretch horizontally, but is fixed
-  vertically.
+/*!\reimp
 */
 
 QSizePolicy QRadioButton::sizePolicy() const
@@ -175,23 +171,16 @@ QSizePolicy QRadioButton::sizePolicy() const
 }
 
 
-/*!
-  Reimplements QButton::hitButton().  This function is implemented to
-  prevent a radio button that is \link isOn() on \endlink from being
-  switched off.
+/*!\reimp
 */
-
 bool QRadioButton::hitButton( const QPoint &pos ) const
 {
     return rect().contains( pos );
 }
 
 
-/*!
-  Draws the radio button, but not the button label.
-  \sa drawButtonLabel()
+/*!\reimp
 */
-
 void QRadioButton::drawButton( QPainter *paint )
 {
     QPainter	*p = paint;
@@ -254,11 +243,8 @@ void QRadioButton::drawButton( QPainter *paint )
 
 
 
-/*!
-  Draws the radio button label.
-  \sa drawButton()
+/*!\reimp
 */
-
 void QRadioButton::drawButtonLabel( QPainter *p )
 {
     int x, y, w, h;

@@ -137,6 +137,14 @@
   QImageFormatType, and the QMovie class can be used for using
   all installed incremental image formats; QImageDecoder is only
   useful for creating new ways of feeding data to an QImageConsumer.
+  
+  \mustquote
+
+  Qt supports GIF reading, if it is configured that way during
+  installation (see qgif.h). If it is, we are required to state that
+  "The Graphics Interchange Format(c) is the Copyright property of
+  CompuServe Incorporated. GIF(sm) is a Service Mark property of
+  CompuServe Incorporated."
 */
 
 static const int max_header = 32;

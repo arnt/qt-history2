@@ -33,7 +33,7 @@
 
 #include "qdir.h"
 #include "qfileinfo.h"
-#include "qfiledefs.h"
+#include "qfiledefs_p.h"
 #include "qregexp.h"
 #include "qstringlist.h"
 #include <stdlib.h>

@@ -61,6 +61,11 @@ unix:KERNEL_H	= kernel
 unix:TOOLS_H	= tools
 unix:WIDGETS_H	= widgets
 
+DIALOGS_P	= dialogs
+KERNEL_P	= kernel
+TOOLS_P		= tools
+WIDGETS_P	= widgets
+
 win32:DEPENDPATH = ../include
 unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H
 
@@ -90,7 +95,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qevent.h \
 		  $$KERNEL_H/qfocusdata.h \
 		  $$KERNEL_H/qfont.h \
-		  $$KERNEL_H/qfontdata_p.h \
+		  $$KERNEL_P/qfontdata_p.h \
 		  $$KERNEL_H/qfontinfo.h \
 		  $$KERNEL_H/qfontmetrics.h \
 		  $$KERNEL_H/qguardedptr.h \
@@ -100,7 +105,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qkeycode.h \
 		  $$KERNEL_H/qjpegio.h \
 		  $$KERNEL_H/qlayout.h \
-		  $$KERNEL_H/qlayoutengine_p.h \
+		  $$KERNEL_P/qlayoutengine_p.h \
 		  $$KERNEL_H/qtranslator.h \
 		  $$KERNEL_H/qmetaobject.h \
 		  $$KERNEL_H/qmime.h \
@@ -123,7 +128,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qpngio.h \
 		  $$KERNEL_H/qpointarray.h \
 		  $$KERNEL_H/qpoint.h \
-		  $$KERNEL_H/qpolygonscanner.h \
 		  $$KERNEL_H/qprinter.h \
 		  $$KERNEL_H/qrect.h \
 		  $$KERNEL_H/qregion.h \
@@ -166,9 +170,10 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$TOOLS_H/qeucjpcodec.h \
 		  $$TOOLS_H/qeuckrcodec.h \
 		  $$TOOLS_H/qfile.h \
-		  $$TOOLS_H/qfiledefs.h \
+		  $$TOOLS_P/qfiledefs_p.h \
 		  $$TOOLS_H/qfileinfo.h \
 		  $$TOOLS_H/qgarray.h \
+		  $$TOOLS_H/qgbkcodec.h \
 		  $$TOOLS_H/qgcache.h \
 		  $$TOOLS_H/qgdict.h \
 		  $$TOOLS_H/qgeneric.h \
@@ -201,7 +206,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 	          $$TOOLS_H/qvaluelist.h \
 		  $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qbutton.h \
-		  $$WIDGETS_H/qcanvas.h \
 		  $$WIDGETS_H/qcheckbox.h \
 		  $$WIDGETS_H/qcdestyle.h \
 		  $$WIDGETS_H/qcombobox.h \
@@ -249,7 +253,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qvbox.h \
 		  $$WIDGETS_H/qvbuttongroup.h \
 		  $$WIDGETS_H/qvgroupbox.h \
-		  $$WIDGETS_H/qwellarray.h \
+		  $$WIDGETS_P/qwellarray_p.h \
 		  $$WIDGETS_H/qwhatsthis.h \
 		  $$WIDGETS_H/qwidgetstack.h \
 		  $$WIDGETS_H/qwindowsstyle.h \
@@ -312,6 +316,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  tools/qfile.cpp \
 		  tools/qfileinfo.cpp \
 		  tools/qgarray.cpp \
+		  tools/qgbkcodec.cpp \
 		  tools/qgcache.cpp \
 		  tools/qgdict.cpp \
 		  tools/qglist.cpp \
@@ -368,7 +373,6 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qpngio.cpp \
 		  kernel/qpointarray.cpp \
 		  kernel/qpoint.cpp \
-		  kernel/qpolygonscanner.cpp \
 		  kernel/qprinter.cpp \
 		  kernel/qrect.cpp \
 		  kernel/qregion.cpp \
@@ -392,7 +396,6 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qvariant.cpp \
 		  widgets/qbuttongroup.cpp \
 		  widgets/qbutton.cpp \
-		  widgets/qcanvas.cpp \
 		  widgets/qcdestyle.cpp \
 		  widgets/qcheckbox.cpp \
 		  widgets/qcombobox.cpp \
@@ -455,7 +458,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  dialogs/qinputdialog.cpp
 
 unix:HEADERS   += $$DIALOGS_H/qprintdialog.h \
-		  $$KERNEL_H/qpsprinter.h \
+		  $$KERNEL_P/qpsprinter_p.h \
 		  $$KERNEL_H/qfontdatabase.h
 
 PNG_SOURCES	= 3rdparty/libpng/png.c \

@@ -1035,6 +1035,8 @@ void QStyleSheet::init()
 
      style = new QStyleSheetItem( this, QString::fromLatin1("head") );
      style->setDisplayMode(QStyleSheetItem::DisplayNone);
+     style = new QStyleSheetItem( this, QString::fromLatin1("div") );
+     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
      style = new QStyleSheetItem( this, QString::fromLatin1("dl") );
      style->setDisplayMode(QStyleSheetItem::DisplayBlock);
      style = new QStyleSheetItem( this, QString::fromLatin1("dt") );

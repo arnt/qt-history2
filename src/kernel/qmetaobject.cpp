@@ -482,7 +482,7 @@ QMetaData *QMetaObject::mdata( int code, const char *name, bool super ) const
 QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
 {
     register QMetaObject *meta = (QMetaObject *)this;
-    QMetaData *d;
+    QMetaData *md;
     QMemberDict *dict;
     while ( TRUE ) {
 	switch ( code ) {			// find member
@@ -502,12 +502,12 @@ QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
 	}
 	if ( index >= 0 && index < n ) {
 	    switch ( code ) {			// find member
-	    case SLOT_CODE:	  d = meta->slotData;	break;
-	    case SIGNAL_CODE: d = meta->signalData; break;
-	    default:	  d = 0;	// eliminates compiler warning
+	    case SLOT_CODE:	  md = meta->slotData;	break;
+	    case SIGNAL_CODE: md = meta->signalData; break;
+	    default:	  md = 0;	// eliminates compiler warning
 	    }
-	    if ( d )
-		return &(d[n-index-1]);
+	    if ( md )
+		return &(md[n-index-1]);
 	} else {				// bad index
 	    return 0;
 	}

@@ -360,7 +360,12 @@ void QMimeSourceFactory::setExtensionType( const QString& ext, const char* mimet
 */
 QString QMimeSourceFactory::makeAbsolute(const QString& abs_or_rel_name, const QString& context) const
 {
-    if ( context.isNull() )
+    if ( context.isNull() ||
+	 !(context[0] == '/'
+#ifdef _WS_WIN_
+	 || ( context[0] && context[1] == ':')
+#endif
+	   ))
 	return abs_or_rel_name;
     if ( abs_or_rel_name.isEmpty() )
 	return context;

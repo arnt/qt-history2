@@ -94,7 +94,7 @@ static int sliderStartVal = 0; //##### class member?
 */
 
 QSlider::QSlider( QWidget *parent, const char *name )
-    : QWidget( parent, name, WResizeNoErase )
+    : QWidget( parent, name  )
 {
     orient = Vertical;
     init();
@@ -109,7 +109,7 @@ QSlider::QSlider( QWidget *parent, const char *name )
 */
 
 QSlider::QSlider( Orientation orientation, QWidget *parent, const char *name )
-    : QWidget( parent, name, WResizeNoErase )
+    : QWidget( parent, name )
 {
     orient = orientation;
     init();
@@ -130,7 +130,7 @@ QSlider::QSlider( Orientation orientation, QWidget *parent, const char *name )
 QSlider::QSlider( int minValue, int maxValue, int pageStep,
 		  int value, Orientation orientation,
 		  QWidget *parent, const char *name )
-    : QWidget( parent, name, WResizeNoErase ),
+    : QWidget( parent, name ),
       QRangeControl( minValue, maxValue, 1, pageStep, value )
 {
     orient = orientation;
@@ -296,17 +296,14 @@ void QSlider::valueChange()
 }
 
 
-/*!
-  Handles resize events for the slider.
+/*!\reimp
 */
-
 void QSlider::resizeEvent( QResizeEvent * )
 {
     rangeChange();
     initTicks();
     if ( autoMask() )
 	updateMask();
-    repaint( rect() );
 }
 
 
@@ -337,7 +334,7 @@ void QSlider::setOrientation( Orientation orientation )
 {
     orient = orientation;
     rangeChange();
-    repaint();	//slightly inefficient...
+    update();
 }
 
 
@@ -451,10 +448,8 @@ void QSlider::drawWinGroove( QPainter *p, QCOORD c )
 }
 
 
-/*!
-  Handles paint events for the slider.
+/*!\reimp
 */
-
 void QSlider::paintEvent( QPaintEvent * )
 {
 
@@ -566,10 +561,8 @@ void QSlider::updateMask()
     setMask( bm );
 }
 
-/*!
-  Handles mouse press events for the slider.
+/*!\reimp
 */
-
 void QSlider::mousePressEvent( QMouseEvent *e )
 {
     resetState();
@@ -607,10 +600,8 @@ void QSlider::mousePressEvent( QMouseEvent *e )
     }
 }
 
-/*!
-  Handles mouse move events for the slider.
+/*!\reimp
 */
-
 void QSlider::mouseMoveEvent( QMouseEvent *e )
 {
     if ( state != Dragging )
@@ -637,8 +628,7 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
     moveSlider( pos - clickOffset );
 }
 
-/*!
-  Handles wheel events for the slider.
+/*!\reimp
 */
 void QSlider::wheelEvent( QWheelEvent * e){
     static float offset = 0;
@@ -655,10 +645,8 @@ void QSlider::wheelEvent( QWheelEvent * e){
 }
 
 
-/*!
-  Handles mouse release events for the slider.
+/*!\reimp
 */
-
 void QSlider::mouseReleaseEvent( QMouseEvent * )
 {
     resetState();
@@ -739,10 +727,8 @@ void QSlider::resetState()
 }
 
 
-/*!
-  Handles key press events for the slider.
+/*!\reimp
 */
-
 void QSlider::keyPressEvent( QKeyEvent *e )
 {
     bool sloppy = ( style() == MotifStyle );
@@ -853,10 +839,8 @@ int QSlider::goodPart( const QPoint &p ) const
     return (orient == Horizontal) ?  p.x() : p.y();
 }
 
-/*!
-  Returns the recommended size of the slider.
+/*!\reimp
 */
-
 QSize QSlider::sizeHint() const
 {
     constPolish();
@@ -896,12 +880,8 @@ QSize QSlider::minimumSizeHint() const
 
 
 
-/*!
-  Specifies that this widget can use more, but is able to survive on
-  less, space in the orientation() direction; and is fixed in the other
-  direction.
+/*!\reimp
 */
-
 QSizePolicy QSlider::sizePolicy() const
 {
     if ( orient == Horizontal )

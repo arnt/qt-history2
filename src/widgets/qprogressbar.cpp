@@ -174,10 +174,8 @@ void QProgressBar::setProgress( int progress )
 }
 
 
-/*!
-  Returns a size which fits the contents of the progress bar.
+/*!\reimp
 */
-
 QSize QProgressBar::sizeHint() const
 {
     constPolish();
@@ -197,11 +195,8 @@ QSize QProgressBar::minimumSizeHint() const
 }
 
 
-/*!
-  Specifies that this widget can use more, but is able to survive on
-  less, horizontal space; and is fixed vertically.
+/*!\reimp
 */
-
 QSizePolicy QProgressBar::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
@@ -341,13 +336,8 @@ bool QProgressBar::setIndicator( QString & indicator, int progress,
 }
 
 
-/*!
-  Handles paint events for the progress bar.
-  In WindowsStyle, \link QColorGroup::text() colorGroup().text()\endlink
-  and colorGroup::highlight() are used.  In MotifStyle,
-  \link QColorGroup::base() colorGroup().base()\endlink is also used.
+/*!\reimp
 */
-
 void QProgressBar::drawContents( QPainter *p )
 {
     const int unit_width  = 9;	    // includes 2 bg pixels

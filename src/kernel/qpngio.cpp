@@ -90,7 +90,13 @@ void qpiw_write_fn(png_structp png_ptr, png_bytep data, png_size_t length)
 static
 void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr )
 {
-    png_set_strip_16(png_ptr);
+    if (info_ptr->bit_depth == 16 )
+	png_set_strip_16(png_ptr);
+
+    // 2.2 is a good guess for the screen gamma of a PC
+    // monitor in a bright office or a dim room
+    if (info_ptr->valid & PNG_INFO_gAMA)
+	png_set_gamma(png_ptr, 2.2, info_ptr->gamma);
 
     if (info_ptr->bit_depth < 8
     && (info_ptr->bit_depth != 1
@@ -100,9 +106,6 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr )
     {
 	png_set_packing(png_ptr);
     }
-
-    if (info_ptr->valid & PNG_INFO_gAMA)
-	png_set_gamma(png_ptr, 2.2, info_ptr->gamma);
 
     bool noalpha = FALSE;
 
@@ -118,8 +121,8 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr )
 	image.setColor(1, qRgb(0,0,0) );
 	image.setColor(0, qRgb(255,255,255) );
     } else if (info_ptr->color_type == PNG_COLOR_TYPE_PALETTE
-    && (info_ptr->valid & PNG_INFO_PLTE)
-    && info_ptr->num_palette <= 256)
+     && (info_ptr->valid & PNG_INFO_PLTE)
+     && info_ptr->num_palette <= 256)
     {
 	// 1-bit and 8-bit color
 	png_read_update_info(png_ptr, info_ptr);
@@ -130,43 +133,46 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr )
 	    info_ptr->num_palette,
 	    QImage::BigEndian
 	);
-	for (int i=0; i<info_ptr->num_palette; i++) {
-	    image.setColor(i, qRgb(
-		info_ptr->palette[i].red,
-		info_ptr->palette[i].green,
-		info_ptr->palette[i].blue
-		)
-	    );
-	}
+
+	int i = 0;
 	if ( info_ptr->valid & PNG_INFO_tRNS ) {
 	    image.setAlphaBuffer( TRUE );
-	    int i;
-	    for (i=0; i<info_ptr->num_trans; i++) {
-		image.setColor(i, image.color(i)  &~(0xff << 24) |
-		    (info_ptr->trans[i] << 24));
-	    }
-	    while (i < info_ptr->num_palette) {
-		image.setColor(i, image.color(i) | (0xff << 24));
+	    while ( i < info_ptr->num_trans ) {
+		image.setColor(i, qRgba(
+		    info_ptr->palette[i].red,
+		    info_ptr->palette[i].green,
+		    info_ptr->palette[i].blue,
+		    info_ptr->trans[i]
+		    )
+		);
 		i++;
 	    }
 	}
-    } else if (info_ptr->color_type == PNG_COLOR_TYPE_GRAY)
-    {
+	while ( i<info_ptr->num_palette ) {
+	    image.setColor(i, qRgba(
+		info_ptr->palette[i].red,
+		info_ptr->palette[i].green,
+		info_ptr->palette[i].blue,
+		0xff
+		)
+	    );
+	    i++;
+	}
+    } else if (info_ptr->color_type == PNG_COLOR_TYPE_GRAY) {
 	// 8-bit greyscale
 	int ncols = info_ptr->bit_depth < 8 ? 1 << info_ptr->bit_depth : 256;
-	int g = info_ptr->trans_values.gray;
-	if ( info_ptr->bit_depth > 8 ) {
-	    g >>= (info_ptr->bit_depth-8);
-	}
 	png_read_update_info(png_ptr, info_ptr);
 	image.create(info_ptr->width,info_ptr->height,8,ncols);
 	for (int i=0; i<ncols; i++) {
 	    int c = i*255/(ncols-1);
-	    image.setColor( i, 0xff000000 | qRgb(c,c,c) );
+	    image.setColor( i, qRgba(c,c,c,0xff) );
 	}
 	if ( info_ptr->valid & PNG_INFO_tRNS ) {
+	    int g = info_ptr->trans_values.gray;
+	    if ( info_ptr->bit_depth > 8 )
+	        g >>= (info_ptr->bit_depth-8);
 	    image.setAlphaBuffer( TRUE );
-	    image.setColor(g, 0x00ffffff & image.color(g));
+	    image.setColor(g, RGB_MASK & image.color(g));
 	}
     } else {
 	// 32-bit

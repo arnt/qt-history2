@@ -932,9 +932,12 @@ QString QFont::encodingName( CharSet cs )
     case QFont::Set_Zh_TW:
 	result = "Set_Zh_TW";
 	break;
+    case QFont::Set_GBK:
+	result = "Set_GBK";
+	break;
     case QFont::Set_Big5:
-	 result = "Set_Big5";
-	 break;
+	result = "Set_Big5";
+	break;
     case QFont::AnyCharSet:
 	result = "AnyCharSet";
 	break;

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/tools/qjpunicode.cpp#7 $
 **
-** Implementation of QJpUnicode class
+** Implementation of QJpUnicodeConv class
 **
 ** Created : 990225
 **
@@ -23,34 +23,90 @@
 **
 *****************************************************************************/
 
-// Most of the code here was originally written by Serika Kurusugawa
-// a.k.a. Junji Takagi, and is include in Qt with the author's permission,
-// and the grateful thanks of the Troll Tech team.
+/*! \class QJpUnicodeConv qjpunicode.h
 
-/*
- * Copyright (c) 1999 Serika Kurusugawa, All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- */
+  \brief The QJpUnicodeConv class provides implementation support for
+  QJisCodec, QSjisCodec, and QEucJpCodec.
+
+  You should not need to use this class directly.  If you do, keep in
+  mind that the function names will change in Qt 3.0: Every function
+  name will get a lower-case first letter: Jisx0212ToUnicode becomes
+  jisx0212ToUnicode, and so on.  We apologize for the upheaval.
+
+  The environment variable \c UNICODEMAP_JP can be used to fine-tune how
+  QJpUnicodeConv, QEucJpCodec, QJisCodec and QSjisCodec do their work.
+  The mapping names are as for the Japanese XML working group's <a
+  href="http://www.y-adagio.com/public/standards/tr_xml_jpf/toc.htm">
+  XML Japanese Profile</a>, as it names and explains all the widely
+  used mappings. Here are brief descriptions, written by Serika
+  Kurusugawa: <ul>
+
+  <li> "unicode-0.9" or "unicode-0201" for Unicode style. This assume
+  JISX0201 for 0x00-0x7f. (0.9 is a table version of jisx02xx mapping
+  used for Uniocde spec version 1.1)
+
+  <li> "unicode-ascii" This assume US-ASCII for 0x00-0x7f, and some
+  chars (JISX0208 0x2140 and JISX0212 0x2237) are different from
+  Unicode 1.1 to avoid conflict.
+
+  <li> "open-19970715-0201" ("open-0201" for convenience) or
+  "jisx0221-1995" for JISX0221-JISX0201 style. JIS X 0221 is JIS
+  version of Unicode, but a few chars (0x5c, 0x7e, 0x2140, 0x216f,
+  0x2131) are different from Unicode 1.1. This is used when 0x5c is
+  treated as YEN SIGN.
+
+  <li> "open-19970715-ascii" ("open-ascii" for convenience) for
+  JISX0221-ASCII style. This is used when 0x5c is treated as REVERSE
+  SOLIDUS.
+
+  <li> "open-19970715-ms" ("open-ms" for convenience) or "cp932" for
+  Microsoft Windows style. Windows Code Page 932. Some chars (0x2140,
+  0x2141, 0x2142, 0x215d, 0x2171, 0x2172) are different from Unicode
+  1.1.
+
+  <li> "jdk1.1.7" for Sun's JDK style Same as Unicode 1.1, except that
+  JIS 0x2140 is mapped to UFF3C. Either ASCII or JISX0201 can be used
+  for 0x00-0x7f.
+
+  </ul> In addition, QJpUnicodeConv supports some  extensions:  "nec-vdc", "ibm-vdc" or "udc".
+
+  For example, if you want to use Unicode style conversion, but with
+  NEC's extension, set \c UNICODEMAP_JP to
+  <code>unicode-0.9, nec-vdc</code>. (You will probably need to quote
+  that in the shell command.)
+
+  Most of the code here was originally written by Serika Kurusugawa
+  a.k.a. Junji Takagi, and is includes in Qt with the author's
+  permission, and the grateful thanks of the Troll Tech team. Here is
+  the copyright statement for that code:
+
+  \mustquote
+
+  Copyright (c) 1999 Serika Kurusugawa, All rights reserved.
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met: <ol>
+  <li> Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  <li> Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+  </ol>
+
+  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+  SUCH DAMAGE.
+
+*/
 
 #include "qcstring.h"
 #include <stdlib.h>
@@ -96,6 +152,7 @@ static uint Unicode11ToJisx0212(uint h, uint l);
  * Unicode 1.1 conversion.
  */
 
+/*! \internal */
 uint QJpUnicodeConv::AsciiToUnicode(uint h, uint l) const
 {
     if ((h == 0) && (l < 0x80)) {
@@ -104,6 +161,7 @@ uint QJpUnicodeConv::AsciiToUnicode(uint h, uint l) const
     return 0x0000;
 }
 
+/*! \internal */
 uint QJpUnicodeConv::Jisx0201ToUnicode(uint h, uint l) const
 {
     if (h == 0) {
@@ -116,6 +174,7 @@ uint QJpUnicodeConv::Jisx0201ToUnicode(uint h, uint l) const
     return 0x0000;
 }
 
+/*! \internal */
 uint QJpUnicodeConv::Jisx0201LatinToUnicode(uint h, uint l) const
 {
     if ((h == 0) && IsLatin(l)) {
@@ -124,6 +183,7 @@ uint QJpUnicodeConv::Jisx0201LatinToUnicode(uint h, uint l) const
     return 0x0000;
 }
 
+/*! \internal */
 uint QJpUnicodeConv::Jisx0201KanaToUnicode(uint h, uint l) const
 {
     if ((h == 0) && IsKana(l)) {
@@ -132,6 +192,7 @@ uint QJpUnicodeConv::Jisx0201KanaToUnicode(uint h, uint l) const
     return 0x0000;
 }
 
+/*! \internal */
 uint QJpUnicodeConv::Jisx0208ToUnicode(uint h, uint l) const
 {
     if (rule & JU_UDC){
@@ -149,6 +210,7 @@ uint QJpUnicodeConv::Jisx0208ToUnicode(uint h, uint l) const
     return Jisx0208ToUnicode11(h, l);
 }
 
+/*! \internal */
 uint QJpUnicodeConv::Jisx0212ToUnicode(uint h, uint l) const
 {
     if (rule & JU_UDC){
@@ -167,6 +229,7 @@ uint QJpUnicodeConv::Jisx0212ToUnicode(uint h, uint l) const
     return Jisx0212ToUnicode11(h, l);
 }
 
+/*! \internal */
 uint QJpUnicodeConv::UnicodeToAscii(uint h, uint l) const
 {
     if ((h == 0) && (l < 0x80)) {
@@ -175,6 +238,7 @@ uint QJpUnicodeConv::UnicodeToAscii(uint h, uint l) const
     return 0x0000;
 }
 
+/*! \internal */
 uint QJpUnicodeConv::UnicodeToJisx0201(uint h, uint l) const
 {
     uint jis;
@@ -186,6 +250,7 @@ uint QJpUnicodeConv::UnicodeToJisx0201(uint h, uint l) const
     return 0x0000;
 }
 
+/*! \internal */
 uint QJpUnicodeConv::UnicodeToJisx0201Latin(uint h, uint l) const
 {
     uint jis = Unicode11ToJisx0201(h, l);
@@ -195,6 +260,7 @@ uint QJpUnicodeConv::UnicodeToJisx0201Latin(uint h, uint l) const
     return 0x0000;
 }
 
+/*! \internal */
 uint QJpUnicodeConv::UnicodeToJisx0201Kana(uint h, uint l) const
 {
     uint jis = Unicode11ToJisx0201(h, l);
@@ -204,6 +270,7 @@ uint QJpUnicodeConv::UnicodeToJisx0201Kana(uint h, uint l) const
     return 0x0000;
 }
 
+/*! \internal */
 uint QJpUnicodeConv::UnicodeToJisx0208(uint h, uint l) const
 {
     if (rule & JU_UDC){
@@ -224,6 +291,7 @@ uint QJpUnicodeConv::UnicodeToJisx0208(uint h, uint l) const
     return jis;
 }
 
+/*! \internal */
 uint QJpUnicodeConv::UnicodeToJisx0212(uint h, uint l) const
 {
     if (rule & JU_UDC){
@@ -245,6 +313,7 @@ uint QJpUnicodeConv::UnicodeToJisx0212(uint h, uint l) const
     return jis;
 }
 
+/*! \internal */
 uint QJpUnicodeConv::SjisToUnicode(uint h, uint l) const
 {
     if (h == 0) {
@@ -255,6 +324,7 @@ uint QJpUnicodeConv::SjisToUnicode(uint h, uint l) const
     return 0x0000;
 }
 
+/*! \internal */
 uint QJpUnicodeConv::UnicodeToSjis(uint h, uint l) const
 {
     uint jis;
@@ -341,6 +411,7 @@ uint QJpUnicodeConv_Unicode_ASCII::UnicodeToJisx0208(uint h, uint l) const
     return QJpUnicodeConv::UnicodeToJisx0208(h, l);
 }
 
+/*! \internal */
 uint QJpUnicodeConv_Unicode_ASCII::UnicodeToJisx0212(uint h, uint l) const
 {
     if ((h == 0x00) && (l == 0x7e)) {
@@ -490,6 +561,7 @@ uint QJpUnicodeConv_JISX0221_ASCII::UnicodeToJisx0208(uint h, uint l) const
     return QJpUnicodeConv::UnicodeToJisx0208(h, l);
 }
 
+/*! \internal */
 uint QJpUnicodeConv_JISX0221_ASCII::UnicodeToJisx0212(uint h, uint l) const
 {
     if ((h == 0x00) && (l == 0x7e)) {
@@ -575,6 +647,7 @@ uint QJpUnicodeConv_Sun::UnicodeToJisx0208(uint h, uint l) const
     return QJpUnicodeConv::UnicodeToJisx0208(h, l);
 }
 
+/*! \internal */
 uint QJpUnicodeConv_Sun::UnicodeToJisx0212(uint h, uint l) const
 {
 #if 1
@@ -713,10 +786,8 @@ uint QJpUnicodeConv_Microsoft::UnicodeToJisx0212(uint h, uint l) const
     return QJpUnicodeConv::UnicodeToJisx0212(h, l);
 }
 
-/*
- *
- */
 
+/*! \internal */
 const QJpUnicodeConv *QJpUnicodeConv::newConverter(int rule)
 {
     const char * e = 0;
@@ -10412,3 +10483,75 @@ static uint Unicode11ToJisx0212(uint h, uint l)
     return 0x0000;
 }
 #endif
+
+// and now for the inlines:
+
+/*! \fn uint  QJpUnicodeConv::AsciiToUnicode (uint ascii) const
+
+\internal
+*/
+
+/*! \fn uint  QJpUnicodeConv::Jisx0201ToUnicode (uint jis) const
+
+\internal
+*/
+
+/*! \fn uint  QJpUnicodeConv::Jisx0201LatinToUnicode (uint jis) const
+
+\internal
+*/
+
+/*! \fn uint  QJpUnicodeConv::Jisx0201KanaToUnicode (uint jis) const
+
+\internal
+*/
+
+/*! \fn uint  QJpUnicodeConv::Jisx0208ToUnicode (uint jis) const
+
+\internal
+*/
+
+/*! \fn uint  QJpUnicodeConv::Jisx0212ToUnicode (uint jis) const
+
+\internal
+*/
+
+/*! \fn uint  QJpUnicodeConv::UnicodeToAscii (uint unicode) const
+
+\internal
+*/
+
+/*! \fn uint  QJpUnicodeConv::UnicodeToJisx0201 (uint unicode) const
+
+\internal
+*/
+
+/*! \fn uint  QJpUnicodeConv::UnicodeToJisx0201Latin (uint unicode) const
+
+\internal
+*/
+
+/*! \fn uint  QJpUnicodeConv::UnicodeToJisx0201Kana (uint unicode) const
+
+\internal
+*/
+
+/*! \fn uint  QJpUnicodeConv::UnicodeToJisx0208 (uint unicode) const
+
+\internal
+*/
+
+/*! \fn uint  QJpUnicodeConv::UnicodeToJisx0212 (uint unicode) const
+
+\internal
+*/
+
+/*! \fn uint  QJpUnicodeConv::SjisToUnicode (uint sjis) const
+
+\internal
+*/
+
+/*! \fn uint  QJpUnicodeConv::UnicodeToSjis (uint unicode) const
+
+\internal
+*/

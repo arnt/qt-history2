@@ -279,7 +279,7 @@ bool QClipboard::event( QEvent *e )
 	    break;
     }
     if ( propagate && nextClipboardViewer ) {
-	if ( qt_winver == Qt::WV_NT )
+	if ( qt_winver & Qt::WV_NT_based )
 	    SendMessage( nextClipboardViewer, m->message,
 			 m->wParam, m->lParam );
 	else
