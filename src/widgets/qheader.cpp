@@ -793,25 +793,25 @@ int QHeader::addLabel( const QString &s, int size )
   Returns the recommended size of the QHeader.
 */
 QSize QHeader::sizeHint() const
-{ // #### seriously buggy if there are lots of columns
+{
     QFontMetrics fm = fontMetrics();
     if ( orient == Horizontal ) {
 	int height = fm.lineSpacing() + 6;
-	for ( int i=0 ; i<count() ; i++ )
+	int width = 0;
+	for ( int i=0 ; i<count() ; i++ ) {
 	    height = QMAX( height , data->heights[i] );
-	return QSize( count() > 0
-		      ? cellSize( count()-1 ) + cellPos( count()-1 )
-		      : -1,
-		      height );
+	    width += data->sizes[i];
+	}
+	return QSize( width, height );
     }
     else {
 	int width = fm.width( ' ' );
-	for ( int i=0 ; i<count() ; i++ )
+	int height = 0;
+	for ( int i=0 ; i<count() ; i++ ) {
 	    width = QMAX( width , data->heights[i] );
-	return QSize( width + 2*QH_MARGIN,
-		      count() > 0
-		      ? cellSize( count()-1 ) + cellPos( count()-1 )
-		      : -1 );
+	    height += data->sizes[i];
+	}
+	return QSize( width, height );
     }
 }
 
