@@ -801,9 +801,17 @@
       }
     }
 
+    if ( gdef->GlyphClassDef.loaded )
+    {
     error = Get_Class( &gdef->GlyphClassDef, glyphID, &klass, &index );
     if ( error && error != TTO_Err_Not_Covered )
       return error;
+    }
+    else
+    {
+        klass = 0;
+        index = 0;
+    }
 
     /* if we have a constructed class table, check whether additional
        values have been assigned                                      */
@@ -1060,10 +1068,17 @@
     FT_UShort**            ngc;
 
 
+    if ( gdef->GlyphClassDef.loaded )
+    {
     error = Get_Class( &gdef->GlyphClassDef, glyphID, &klass, &index );
     if ( error && error != TTO_Err_Not_Covered )
       return error;
-
+    }
+    else
+    {
+        klass = 0;
+        index = 0;
+    }
     /* we don't accept glyphs covered in `GlyphClassDef' */
 
     if ( !error )
