@@ -14,7 +14,7 @@
 
 #include "qpaintengine_qws.h"
 #include "qpainter_p.h"
-#include "qfontengine_p.h"
+#include <private/qfontengine_p.h>
 
 #include "qgfx_qws.h"
 #include "qregion.h"

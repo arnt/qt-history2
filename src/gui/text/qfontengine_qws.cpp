@@ -18,7 +18,7 @@
 #include <private/qunicodetables_p.h>
 #include <qbitmap.h>
 #include <qstackarray.h>
-#include "qpainter_p.h"
+#include <private/qpainter_p.h>
 #include "qpaintengine_qws.h"
 #define GFX(p) static_cast<QWSPaintEngine *>(p)->gfx()
 

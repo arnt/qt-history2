@@ -16,7 +16,7 @@
 
 #ifndef QT_NO_FREETYPE
 
-#include "qfontdata_p.h"
+#include <private/qfontdata_p.h>
 #include <string.h>
 #include <stdio.h>
 

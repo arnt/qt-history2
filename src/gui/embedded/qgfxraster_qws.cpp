@@ -15,6 +15,7 @@
 #include "qgfxraster_qws.h"
 #include "qpen.h"
 #include "qpaintdevicemetrics.h"
+#include "qpaintdevice.h"
 #include "qmemorymanager_qws.h"
 #include "qwsregionmanager_qws.h"
 #include "qwsdisplay_qws.h"
@@ -1688,11 +1689,11 @@ void QGfxRasterBase::setBrush( const QBrush & b )
 	QColor tmpcol=b.color();
 	srccol=tmpcol.alloc();
 	qt_screen=tmp;
-    } else 
+    } else
 #endif
 	srccol=b.color().pixel();
 
-    
+
 }
 
 /*!
@@ -1730,7 +1731,7 @@ void QGfxRasterBase::setSourcePen()
 	QColor tmpcol=cpen.color();
 	srccol = tmpcol.alloc();
 	qt_screen=tmp;
-    } else 
+    } else
 #endif
 	srccol = cpen.color().pixel();
 
@@ -2487,7 +2488,7 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
 	if ( qt_screen->depth() == 16 && depth==32 ) {
 	    srcclut[1]=qt_conv16ToRgb(pixel);
 	    transclut[1]=qt_conv16ToRgb(pixel);
-	} else 
+	} else
 #endif
 	{
 	    srcclut[1]=pixel;
@@ -5373,7 +5374,7 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 		    if ( srctype == SourceImage ) {
 			if ( srcdepth == 1) {
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-			if  ( srcbits == qt_screen->base() ) 
+			if  ( srcbits == qt_screen->base() )
 				 src_little_endian =  !src_little_endian;
 #endif
 			    srcptr=find_pointer(srcbits,(x-rx)+srcoffs.x(),
@@ -5381,7 +5382,7 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 					 monobitcount, monobitval,
 					 !src_little_endian, reverse);
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-			if  ( srcbits == qt_screen->base() ) 
+			if  ( srcbits == qt_screen->base() )
 				 src_little_endian =  !src_little_endian;
 #endif
 			} else if ( srcdepth == 4) {
@@ -5389,7 +5390,7 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 					 j+srcoffs.y(), x2-x, srclinestep,
 					 monobitcount, monobitval, reverse
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-						    , srcbits == qt_screen->base() 
+						    , srcbits == qt_screen->base()
 #endif
 				);
 			} else if ( reverse )
@@ -5656,7 +5657,7 @@ GFX_INLINE void QGfxRaster<depth,type>::useBrush()
 				    cbrush.color().green(),
 				    cbrush.color().blue());
 	}
-    } else 
+    } else
 #endif
 	pixel = cbrush.color().pixel();
 }

@@ -15,7 +15,7 @@
 #include "qfontmanager_qws.h"
 #include "qgfx_qws.h"
 #include "qpaintdevice.h"
-#include "qfontdata_p.h"
+#include <private/qfontdata_p.h>
 #include "qfile.h"
 #include "qdir.h"
 
@@ -580,7 +580,7 @@ public:
 	}
 	return default_glyph;
     }
-    
+
     QGlyph *get(glyph_t gl)
     {
 	QGlyph *g;

@@ -33,7 +33,7 @@
 #include "qevent.h"
 #include "qdesktopwidget.h"
 
-#include "qwidget_p.h"
+#include <private/qwidget_p.h>
 
 #include "qpaintengine_qws.h"
 

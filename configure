@@ -51,15 +51,15 @@ PLATFORM_MAC=no
 PLATFORM_QWS=no
 PLATFORM_QNX=no
 
-if [ -f $relpath/src/kernel/qapplication_mac.cpp ] && [ -d /System/Library/Frameworks/Carbon.framework ]; then
+if [ -f $relpath/src/gui/base/qapplication_mac.cpp ] && [ -d /System/Library/Frameworks/Carbon.framework ]; then
     # Qt/Mac
     # ~ the Carbon SDK exists
-    # ~ src/kernel/qapplication_mac.cpp is present
+    # ~ src/gui/base/qapplication_mac.cpp is present
     # ~ this is the internal edition and Qt/Mac sources exist
     PLATFORM_MAC=maybe
-elif [ -f $relpath/src/kernel/qapplication_qws.cpp ]; then
+elif [ -f $relpath/src/gui/base/qapplication_qws.cpp ]; then
     # Qt/Embedded
-    # ~ src/kernel/qapplication_qws.cpp is present
+    # ~ src/gui/base/qapplication_qws.cpp is present
     # ~ this is the free or commercial edition
     # ~ this is the internal edition and Qt/Embedded is explicitly enabled
     # ~ this is the internal edition and the OS is QNX
@@ -95,6 +95,7 @@ elif [ -f $relpath/LICENSE.EVAL ]; then
 elif [ -f $relpath/LICENSE.TROLL ]; then
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QNX" = "maybe" ] && PLATFORM_QNX=yes
+    [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
     Edition="troll"
     Licensee="Trolltech"
     Products="qt-internal"
@@ -2026,7 +2027,7 @@ Configure options:
 
  *  -no-gif ............ Do not compile in GIF reading support.
     -qt-gif ............ Compile in GIF reading support.
-			 See src/kernel/qgif.h
+			 See src/gui/image/qgif.h
 
  *  -qt-zlib ........... Use the zlib bundled with Qt.
     -system-zlib ....... Use zlib from the operating system.

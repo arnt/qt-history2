@@ -16,7 +16,7 @@
 
 #ifndef QT_NO_BDF
 
-#include "qfontdata_p.h"
+#include <private/qfontdata_p.h>
 #include "qtextcodec.h"
 #include "qtextstream.h"
 #include "qfile.h"

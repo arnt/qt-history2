@@ -15,7 +15,7 @@
 #include "qfontmanager_qws.h"
 #include "qfontfactoryttf_qws.h"
 #include "qfontfactorybdf_qws.h"
-#include "qfontdata_p.h"
+#include <private/qfontdata_p.h>
 #include "qfile.h"
 #include "qbytearray.h"
 #include <stdio.h>
