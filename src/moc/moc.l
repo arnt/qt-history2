@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#3 $
+** $Id: //depot/qt/main/src/moc/moc.l#4 $
 **
 ** Lexical analyzer for meta object compiler
 **
@@ -24,7 +24,7 @@
                                ,lineNo,yytext,level);};
 #define Z if(lexdebug){fprintf(stderr,"LEX (%i) : skipped the string %s\"\n"\
                                ,lineNo,yytext);};
-#define BEGIN_INSIDE 
+#define BEGIN_INSIDE
 
 
 #define  linput() (c = input()) == '\n' ? (lineNo++,c) : c
@@ -180,13 +180,13 @@ int level = 1;    /* Used to keep track of nested curly braces in INSIDE */
                        }
 
 <CLASS_DEF>'\\[0-7]+'  { X;
-                         yylval.char_val = 
+                         yylval.char_val =
 			   (char)strtol( &yytext[1], 0, 8 );
                          return CHAR_VAL;
                        }
 
 <CLASS_DEF>'\\x[0-9a-fA-F]+' { X;
-                         yylval.char_val = 
+                         yylval.char_val =
 			   (char)strtol( &yytext[2], 0, 16 );
                          return CHAR_VAL;
                        }
