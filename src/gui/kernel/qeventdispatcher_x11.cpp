@@ -126,7 +126,7 @@ int QEventDispatcherX11::select(int nfds, fd_set *readfds, fd_set *writefds, fd_
 {
     Q_D(QEventDispatcherX11);
     if (d->xfd > 0) {
-        nfds = qMax(nfds, d->xfd);
+        nfds = qMax(nfds - 1, d->xfd) + 1;
         FD_SET(d->xfd, readfds);
     }
     return QEventDispatcherUNIX::select(nfds, readfds, writefds, exceptfds, timeout);
