@@ -2992,7 +2992,12 @@ void QFileDialog::setDir( const QDir &dir )
 void QFileDialog::setUrl( const QUrlOperator &url )
 {
     QString nf = d->url.nameFilter();
-    d->url = QUrl( d->url, QFileDialogPrivate::encodeFileName( QFileDialogPrivate::encodeFileName( url.toString( FALSE, FALSE ) ) ) );
+
+    if ( url.protocol() == "file" ) {
+	d->url = QUrl( d->url, QFileDialogPrivate::encodeFileName( QFileDialogPrivate::encodeFileName( url.toString( FALSE, FALSE ) ) ) );
+    } else {
+	d->url = QUrl( d->url, url.toString( FALSE, FALSE ) );
+    }
     d->url.setNameFilter( nf );
 
     d->checkForFilter = TRUE;
