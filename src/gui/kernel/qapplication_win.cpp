@@ -3509,42 +3509,6 @@ void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
         QApplicationPrivate::animate_ui = enable;
         break;
     }
-    if (desktopSettingsAware()
-	&& !(QSysInfo::WindowsVersion == QSysInfo::WV_95
-	     || QSysInfo::WindowsVersion == QSysInfo::WV_NT)) {
-        // we know that they can be used when we are here
-        UINT api;
-        switch (effect) {
-        case Qt::UI_AnimateMenu:
-            api = SPI_SETMENUANIMATION;
-            break;
-        case Qt::UI_FadeMenu:
-            if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)
-                return;
-            api = SPI_SETMENUFADE;
-            break;
-        case Qt::UI_AnimateCombo:
-            api = SPI_SETCOMBOBOXANIMATION;
-            break;
-        case Qt::UI_AnimateTooltip:
-            api = SPI_SETTOOLTIPANIMATION;
-            break;
-        case Qt::UI_FadeTooltip:
-            if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)
-                return;
-            api = SPI_SETTOOLTIPFADE;
-            break;
-        default:
-           api = SPI_SETUIEFFECTS;
-        break;
-        }
-        BOOL onoff = enable;
-        QT_WA({
-            SystemParametersInfo(api, 0, (void*)onoff, 0);
-        }, {
-            SystemParametersInfoA(api, 0, (void*)onoff, 0);
-        });
-    }
 }
 
 bool QApplication::isEffectEnabled(Qt::UIEffect effect)
@@ -3552,7 +3516,8 @@ bool QApplication::isEffectEnabled(Qt::UIEffect effect)
     if (QColormap::instance().depth() < 16)
         return false;
 
-    if (!effect_override && desktopSettingsAware() && !(QSysInfo::WindowsVersion == QSysInfo::WV_95 || QSysInfo::WindowsVersion == QSysInfo::WV_NT)) {
+    if (!effect_override && desktopSettingsAware() 
+        && !(QSysInfo::WindowsVersion == QSysInfo::WV_95 || QSysInfo::WindowsVersion == QSysInfo::WV_NT)) {
         // we know that they can be used when we are here
         BOOL enabled = false;
         UINT api;
@@ -3589,23 +3554,23 @@ bool QApplication::isEffectEnabled(Qt::UIEffect effect)
             SystemParametersInfoA(api, 0, &enabled, 0);
         });
         return enabled;
-    } else {
-        switch(effect) {
-        case Qt::UI_AnimateMenu:
-            return QApplicationPrivate::animate_menu;
-        case Qt::UI_FadeMenu:
-            return QApplicationPrivate::fade_menu;
-        case Qt::UI_AnimateCombo:
-            return QApplicationPrivate::animate_combo;
-        case Qt::UI_AnimateTooltip:
-            return QApplicationPrivate::animate_tooltip;
-        case Qt::UI_FadeTooltip:
-            return QApplicationPrivate::fade_tooltip;
-        case Qt::UI_AnimateToolBox:
-            return QApplicationPrivate::animate_toolbox;
-        default:
-            return QApplicationPrivate::animate_ui;
-        }
+    }
+
+    switch(effect) {
+    case Qt::UI_AnimateMenu:
+        return QApplicationPrivate::animate_menu;
+    case Qt::UI_FadeMenu:
+        return QApplicationPrivate::fade_menu;
+    case Qt::UI_AnimateCombo:
+        return QApplicationPrivate::animate_combo;
+    case Qt::UI_AnimateTooltip:
+        return QApplicationPrivate::animate_tooltip;
+    case Qt::UI_FadeTooltip:
+        return QApplicationPrivate::fade_tooltip;
+    case Qt::UI_AnimateToolBox:
+        return QApplicationPrivate::animate_toolbox;
+    default:
+        return QApplicationPrivate::animate_ui;
     }
 }
 
