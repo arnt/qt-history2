@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#29 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -32,6 +32,8 @@
 
 static HWND nextClipboardViewer = 0;
 static bool inClipboardChain = FALSE;
+extern Qt::WindowsVersion qt_winver;
+ 		// defined in qapplication_win.cpp
 
 
 static QWidget *clipboardOwner()
