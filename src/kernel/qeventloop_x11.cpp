@@ -85,11 +85,6 @@ void QEventLoop::cleanup()
     d->xfd = -1;
 }
 
-bool QEventLoop::x11ProcessEvent( XEvent *event )
-{
-    return qApp->x11ProcessEvent( event );
-}
-
 bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 {
     // process events from the X server
@@ -138,7 +133,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 			continue;
 		}
 
-		if ( x11ProcessEvent( &event ) == 1 ) {
+		if ( qApp->x11ProcessEvent( &event ) == 1 ) {
 		    return TRUE;
 		}
 	    }
@@ -303,7 +298,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
     return (nevents > 0);
 }
 
-bool QEventLoop::hasPendingEvents()
+bool QEventLoop::hasPendingEvents() const
 {
     extern uint qGlobalPostedEventsCount(); // from qapplication.cpp
     return ( qGlobalPostedEventsCount() || XPending( QPaintDevice::x11AppDisplay() ) );

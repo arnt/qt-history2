@@ -557,7 +557,7 @@ void QEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
 
 }
 
-bool QEventLoop::hasPendingEvents()
+bool QEventLoop::hasPendingEvents() const
 {
     MSG msg;
     return qGlobalPostedEventsCount() || winPeekMessage( &msg, NULL, 0, 0, PM_NOREMOVE );

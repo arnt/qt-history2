@@ -485,7 +485,7 @@ void QEventLoop::wakeUp()
     }
 }
 
-int QEventLoop::timeToWait()
+int QEventLoop::timeToWait() const
 {
     timeval *tm = qt_wait_timer();
     if ( ! tm )	// no active timers

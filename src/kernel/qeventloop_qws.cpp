@@ -75,11 +75,6 @@ void QEventLoop::cleanup()
     cleanupTimers();
 }
 
-bool QEventLoop::qwsProcessEvent( QWSEvent *event )
-{
-    return qApp->qwsProcessEvent( event );
-}
-
 bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 {
     // process events from the QWS server
@@ -103,7 +98,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	    QWSEvent *event = qt_fbdpy->getEvent();	// get next event
 	    nevents++;
 
-	    bool ret = qwsProcessEvent( event ) == 1;
+	    bool ret = qApp->qwsProcessEvent( event ) == 1;
 	    delete event;
 	    if ( ret ) {
 		return TRUE;
