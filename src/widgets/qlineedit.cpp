@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#140 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#141 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1216,20 +1216,20 @@ bool QLineEdit::event( QEvent * e )
 	return TRUE;
     } else if ( e->type() == Event_Drop ) {
 	QDropEvent * de = (QDropEvent *) e;
-	QByteArray payload = de->data( "text/plain" );
-	if ( payload.isNull() ) {
+	QString str;
+	if ( QTextDrag::convert( de, str ) ) {
+	    if ( !hasMarkedText() ) {
+		int margin = frame() ? 2 : 0;
+		setCursorPosition( xPosToCursorPos( &tbuf[(int)offset],
+						    fontMetrics(),
+						    de->pos().x() - margin,
+						    width() - 2*margin ) );
+	    }
+	    insert( str );
+	    de->accept();
+	} else {
 	    de->ignore();
-	    return TRUE;
 	}
-	if ( !hasMarkedText() ) {
-	    int margin = frame() ? 2 : 0;
-	    setCursorPosition( xPosToCursorPos( &tbuf[(int)offset],
-						fontMetrics(),
-						de->pos().x() - margin,
-						width() - 2*margin ) );
-	}
-	insert( payload.data() );
-	de->accept();
 	return TRUE;
     }
     return QWidget::event( e );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#34 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -89,7 +89,8 @@ static QDict<Atom> * qt_xdnd_atom_numbers = 0;
 
 // rectangle in which the answer will be the same
 static QRect qt_xdnd_source_sameanswer;
-static QRect qt_xdnd_target_sameanswer;
+//static QRect qt_xdnd_target_sameanswer;
+static bool qt_xdnd_target_answerwas;
 // top-level window we sent position to last.
 static Window qt_xdnd_current_target;
 // widget we forwarded position to last, and local position
@@ -282,6 +283,9 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
 	    me.accept( de.answerRect() );
 	else
 	    me.ignore( de.answerRect() );
+    } else {
+	if ( qt_xdnd_target_answerwas )
+	    me.accept();
     }
 
     qt_xdnd_current_widget = c;
@@ -289,6 +293,7 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
     qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
 
     QApplication::sendEvent( c, &me );
+    qt_xdnd_target_answerwas = me.isAccepted();
     if ( me.isAccepted() )
 	response.data.l[1] = 1; // yess!!!!
     else
