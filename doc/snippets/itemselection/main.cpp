@@ -28,22 +28,22 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    TableModel *model = new TableModel(8, 8, &app);
+    TableModel *model = new TableModel(8, 4, &app);
 
     QTableView *table = new QTableView(0);
     table->setModel(model);
 
     QItemSelectionModel *selectionModel = table->selectionModel();
 
-    QModelIndex topLeft = model->index(3, 3, QModelIndex(), QModelIndex::View);
-    QModelIndex bottomRight = model->index(4, 4, QModelIndex(),
+    QModelIndex topLeft = model->index(3, 1, QModelIndex(), QModelIndex::View);
+    QModelIndex bottomRight = model->index(4, 2, QModelIndex(),
         QModelIndex::View);
-    
+
     QItemSelection selection(topLeft, bottomRight, model);
     selectionModel->select(selection, QItemSelectionModel::Select);
 
     for (int row = 0; row < 8; row += 2) {
-        for (int column = 0; column < 8; column += 2) {
+        for (int column = 0; column < 4; column += 1) {
 
             QModelIndex topLeft = model->index(row, column, QModelIndex(),
                 QModelIndex::View);
@@ -51,13 +51,14 @@ int main(int argc, char *argv[])
                 QModelIndex(), QModelIndex::View);
 
             QItemSelection selection(topLeft, bottomRight, model);
-            if (((row % 4) ^ (column % 4)) != 0)
+            if (((row % 4) ^ (column % 2)) != 0)
                 selectionModel->select(selection, QItemSelectionModel::Toggle);
         }
     }
 
     table->setWindowTitle("Selected items in a table model");
     table->show();
+    table->resize(460, 280);
     app.setMainWidget(table);
 
     return app.exec();
