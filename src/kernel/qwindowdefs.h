@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#29 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#30 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -7,7 +7,7 @@
 ** Author  : Haavard Nord
 ** Created : 931029
 **
-** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -177,9 +177,8 @@ typedef ulong WFlags;
 #define WState_Active	0x00000008
 #define WState_Paint	0x00000010
 #define WState_MGrab	0x00000020
-#define WState_KGrab	0x00000030
-#define WState_FocusA	0x00000040		// active focus
-#define WState_FocusP	0x00000080		// passive focus
+#define WState_KGrab	0x00000040
+#define WState_Focus	0x00000080
 
 #define WType_Overlap	0x00000100		// widget type flags
 #define WType_Modal	0x00000200
@@ -202,7 +201,8 @@ typedef ulong WFlags;
 #define WCursorSet	0x01000000
 #define WPaintDesktop	0x02000000
 #define WPaintUnclipped	0x04000000
-#define WRecreated	0x08000000
+#define WNoUpdates	0x08000000
+#define WRecreated	0x10000000
 
 
 // Extra Widget data
