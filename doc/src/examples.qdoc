@@ -33,7 +33,7 @@
     \o \l{widgets/spinboxes}{Spin Boxes}
     \o \l{widgets/styles}{Styles}\raisedaster
     \o \l{widgets/tetrix}{Tetrix}
-    \o \l{widgets/wiggly}{Wiggly}
+    \o \l{widgets/wiggly}{Wiggly}\raisedaster
     \endlist
 
     \section1 Dialog Examples
@@ -95,6 +95,13 @@
     \o \l{threads/mandelbrot}{Mandelbrot}\raisedaster
     \o \l{threads/semaphores}{Semaphores}\raisedaster
     \o \l{threads/waitconditions}{Wait Conditions}\raisedaster
+    \endlist
+
+    \section1 XML Examples
+
+    \list
+    \o \l{xml/dombookmarks}{DOM Bookmarks}
+    \o \l{xml/saxbookmarks}{SAX Bookmarks}
     \endlist
 
     \section1 Network Examples
