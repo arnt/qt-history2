@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#364 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#365 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3795,6 +3795,23 @@ QUrlOperator QFileDialog::url() const
     return d->url;
 }
 
+static bool isRoot( const QUrl &u )
+{
+#if defined( UNIX )
+	if ( u.path() == "/" )
+	    return TRUE;
+#elif defined (_OS_FATFS_)
+	if ( u.length() == 3 && 
+	     u.path().left( 2 ) == ":/" )
+	    return TRUE;
+#endif
+	
+	if ( !u.isLocalFile() && u.path() == "/" )
+	    return TRUE;
+	    
+	return FALSE;
+}
+
 void QFileDialog::urlStart( QNetworkOperation *op )
 {
     if ( !op )
@@ -3819,16 +3836,7 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	d->paths->setCurrentItem( i );
 	d->last = 0;
 	d->hadDotDot = FALSE;
-	bool isRoot = FALSE;
-#if defined( UNIX )
-	if ( d->url.path() == "/" )
-	    isRoot = TRUE;
-#elif defined (_OS_FATFS_)
-	if ( d->url.path().length() == 3 &&
-	     d->url->path().left( 2 ) == ":/" )
-	    isRoot = TRUE;
-#endif
-	if ( isRoot )
+	if ( isRoot( d->url ) )
 	    d->cdToParent->setEnabled( FALSE );
 	else
 	    d->cdToParent->setEnabled( TRUE );
@@ -3863,7 +3871,7 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	} else
 	    ; // another error happened, no need to go back to last dir
     } else if ( op->operation() == QNetworkProtocol::OpListChildren ) {
-	if ( !d->hadDotDot && d->url.path() != "/" ) {
+	if ( !d->hadDotDot && !isRoot( d->url ) ) {
 	    QUrlInfo ui( d->url, ".." );
 	    ui.setName( ".." );
 	    ui.setDir( TRUE );
@@ -3911,12 +3919,13 @@ void QFileDialog::insertEntry( const QUrlInfo &inf, QNetworkOperation * )
 
     if ( inf.name() == ".." ) {
 	d->hadDotDot = TRUE;
-	if ( d->url.path() == "/" )
+	if ( isRoot( d->url ) )
 	    return;
     } else if ( inf.name() == "." )
 	return;
 
     // check for hidden files
+    // #### todo make this work on windows
     if ( !bShowHiddenFiles && inf.name() != ".." &&
 	 inf.name()[ 0 ] == QChar( '.' ) )
 	return;
