@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#185 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#186 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#185 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#186 $");
 
 
 /*!
@@ -586,11 +586,25 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	initDeferredDicts();
     create();					// platform-dependent init
     deferMove( frect.topLeft() );
-    deferResize( crect.size() );    
-    if ( testWFlags(WState_TabToFocus) ) {	// focus was set using WFlags
+    deferResize( crect.size() );
+    if ( isTopLevel() ||			// kludge alert
+	 testWFlags(WState_TabToFocus) ) {	// focus was set using WFlags
 	QFocusData *fd = focusData( TRUE );
 	if ( fd->focusWidgets.findRef(this) < 0 )
  	    fd->focusWidgets.append( this );
+	if ( isTopLevel() ) {
+	    // kludge details: set focus to this widget, whether it
+	    // acceps focus or not.  this makes buggy old qt programs
+	    // which assume that the tlw has focus even though it
+	    // doesn't accept focus work.
+	    if ( fd->it.current() != this ) {
+		fd->it.toFirst();
+		while ( fd->it.current() != this && !fd->it.atLast() )
+		    ++fd->it;
+	    }
+	    // set the flag, but do -not- send a focusInEvent()
+	    setWFlags( WFocusSet );
+	}
     }
 }
 
