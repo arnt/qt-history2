@@ -1,4 +1,5 @@
 #include "fontextent.h"
+#include <qfontdialog.h>
 #include <qpainter.h>
 #include <qapplication.h>
 #include <qkeycode.h>
@@ -36,12 +37,14 @@ void Main::keyPressEvent(QKeyEvent* ke)
     } else if ( ke->key() == Key_Up ||  ke->key() == Key_Down ) {
 	flags = AlignCenter;
     } else if ( ke->key() == Key_Escape ) {
-	QLabel *l = new QLabel(line);
+	QLabel *l = new QLabel(line,0);
 	l->resize(l->sizeHint());
 	l->setAlignment(flags);
 	l->show();
+    } else if ( ke->key() == Key_S && ke->state()&AltButton ) {
+	setFont(QFontDialog::getFont(0,font()));
     } else if ( ke->key() == Key_G && ke->state()&AltButton ) {
-	flags ^= GrayText;
+	//flags ^= GreyText;
     } else if ( ke->key() == Key_C && ke->state()&AltButton ) {
 	flags ^= DontClip;
     } else if ( ke->key() == Key_P && ke->state()&AltButton ) {
@@ -51,8 +54,7 @@ void Main::keyPressEvent(QKeyEvent* ke)
 	    draw(p);
 	}
     } else {
-	if ( ke->ascii() )
-	    line += ke->ascii();
+	line += ke->text();
     }
     update();
 }
@@ -71,16 +73,17 @@ void Main::paintEvent(QPaintEvent* e)
 void Main::draw(QPainter& p)
 {
     //p.setBackgroundMode(OpaqueMode);
+p.setFont(font());
     QFontMetrics fm = p.fontMetrics();
     QRect br = fm.boundingRect(line);
     int w = width()/2;
     int h = height()/2;
     int vmarg = h*3/4;
     int hmarg = w/2;
-    br.moveBy(hmarg,vmarg);
     QRect r(hmarg,vmarg+h-80,w/2,80);
     QRect pbr = p.boundingRect(r,flags,line);
     int right = fm.width(line)+hmarg-1;
+    br.moveBy(hmarg,vmarg);
 
     p.setPen(yellow);
     p.drawLine(hmarg,0,hmarg,height());
@@ -94,9 +97,9 @@ void Main::draw(QPainter& p)
     p.drawLine(right, br.bottom(), right, br.bottom()+10);
     if (line.length()==1) {
 	QString str;
-	str.sprintf("%c: lb = %d, rb = %d, width=%d\n"
+	str.sprintf("%04x: lb = %d, rb = %d, width=%d\n"
 		    "    ml = %d, mr = %d",
-	    line[0],
+	    line[0].unicode(),
 	    fm.leftBearing(line[0]),
 	    fm.rightBearing(line[0]),
 	    fm.width(line[0]),
@@ -121,13 +124,14 @@ void Main::draw(QPainter& p)
 
 main(int argc, char** argv)
 {
-    QApplication::setFont(QFont("Times",100,QFont::Normal,FALSE));
+    QApplication app(argc, argv);
+    //QApplication::setFont(QFont("Times",100,QFont::Normal,FALSE));
     //QApplication::setFont(QFont("Times",100,QFont::Normal,TRUE));
     //QApplication::setFont(QFont("System",100,QFont::Normal,TRUE));
     //QApplication::setFont(QFont("Courier",100,QFont::Normal,TRUE));
-    QApplication app(argc, argv);
 
     Main m;
+    //m.setFont(QFont("Verdana",100,QFont::Normal,TRUE));
     m.show();
 
     QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
