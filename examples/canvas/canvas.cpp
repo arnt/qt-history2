@@ -156,7 +156,7 @@ NodeItem::NodeItem( QCanvas *canvas )
 FigureEditor::FigureEditor(
 	QCanvas& c, QWidget* parent,
 	const char* name, WFlags f) :
-    QCanvasView(&c,parent,name,f)
+    QCanvasView(&c,parent,name,f), moving(0)
 {
 }
 
@@ -164,6 +164,7 @@ void FigureEditor::contentsMousePressEvent(QMouseEvent* e)
 {
     QPoint p = inverseWorldMatrix().map(e->pos());
     QCanvasItemList l=canvas()->collisions(p);
+    moving = 0;
     for (QCanvasItemList::Iterator it=l.begin(); it!=l.end(); ++it) {
 	if ( (*it)->rtti() == imageRTTI ) {
 	    ImageItem *item= (ImageItem*)(*it);
@@ -172,9 +173,8 @@ void FigureEditor::contentsMousePressEvent(QMouseEvent* e)
 	}
 	moving = *it;
 	moving_start = p;
-	return;
+	break;
     }
-    moving = 0;
 }
 
 void FigureEditor::clear()
