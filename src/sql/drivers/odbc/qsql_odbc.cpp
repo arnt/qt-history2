@@ -1390,7 +1390,7 @@ bool QODBCDriver::beginTransaction()
     SQLRETURN r  = SQLSetConnectAttr( d->hDbc,
 				      SQL_ATTR_AUTOCOMMIT,
 				      (SQLPOINTER)ac,
-				      sizeof(ac));
+				      sizeof(ac) );
     if ( r != SQL_SUCCESS ) {
 	setLastError( qMakeError( "Unable to disable autocommit", QSqlError::Transaction, d ) );
 	return FALSE;
@@ -1406,9 +1406,9 @@ bool QODBCDriver::commitTransaction()
 #endif
 	return FALSE;
     }
-    SQLRETURN r = SQLEndTran( SQL_HANDLE_ENV,
-			      d->hEnv,
-			      SQL_COMMIT);
+    SQLRETURN r = SQLEndTran( SQL_HANDLE_DBC,
+			      d->hDbc,
+			      SQL_COMMIT );
     if ( r != SQL_SUCCESS ) {
 	setLastError( qMakeError("Unable to commit transaction", QSqlError::Transaction, d ) );
 	return FALSE;
@@ -1424,9 +1424,9 @@ bool QODBCDriver::rollbackTransaction()
 #endif
 	return FALSE;
     }
-    SQLRETURN r = SQLEndTran( SQL_HANDLE_ENV,
-			      d->hEnv,
-			      SQL_ROLLBACK);
+    SQLRETURN r = SQLEndTran( SQL_HANDLE_DBC,
+			      d->hDbc,
+			      SQL_ROLLBACK );
     if ( r != SQL_SUCCESS ) {
 	setLastError( qMakeError( "Unable to rollback transaction", QSqlError::Transaction, d ) );
 	return FALSE;
