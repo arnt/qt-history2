@@ -1173,6 +1173,7 @@ void Configure::generateConfigfiles()
 	outStream << "const char *qInstallPathPlugins() { return QT_INSTALL_PLUGINS + 11; }" << endl;
 	outStream << "const char *qInstallPathData()    { return QT_INSTALL_DATA    + 11;    }" << endl;
 	outStream << "const char *qInstallPathTranslations() { return QT_INSTALL_TRANSLATIONS + 11; }" << endl;
+	outStream << "const char *qInstallPathSysconf() { return 0; }" << endl;
 
 	outFile.close();
     }
