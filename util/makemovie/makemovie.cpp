@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/makemovie/makemovie.cpp#3 $
+** $Id: //depot/qt/main/util/makemovie/makemovie.cpp#4 $
 **
 ** C++ file
 **
@@ -26,13 +26,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define FRAME_DELAY 300
+#define FRAME_DELAY 30
 #define MAX_CLUSTERS 16
 bool demo_mode = false;
 
+class QMovieFrame {
+public:
+    QMovieFrame(int x, int y, int w, int h, int t) :
+	offx(x), offy(y), wd(w), ht(h), time(t) { }
+    int xOffset() const { return offx; }
+    int yOffset() const { return offy; }
+    int width() const { return wd; }
+    int height() const { return ht; }
+    void setDelay(int t) { time = t; }
+    int operator< (const QMovieFrame& other) const {
+	return offy < other.offy; }
+    int operator== (const QMovieFrame& other) const {
+	return FALSE; }
+
+private:
+    int offx,offy;
+    int wd, ht;
+    int time;
+};
 
 typedef QList<QMovieFrame> QMovieFrames;
 
+/*
 QDataStream& operator>>(QDataStream& str, QMovieFrame& frame)
 {
     Q_INT32 x, y, t;
@@ -78,6 +98,7 @@ QDataStream& operator<<(QDataStream& str, QMovieFrames& frames)
     }
     return str;
 }
+*/
 
 
 
@@ -93,7 +114,7 @@ QList<QMovieFrame> optimize( QStrList& files, unsigned int count )
     file.open( IO_WriteOnly );
     QPNGImageWriter writer(&file);
     writer.setDisposalMethod(QPNGImageWriter::NoDisposal);
-    writer.setLooping();
+    writer.setLooping(3);
 
     QList<QMovieFrame> frames;
     if ( count == 0 )
@@ -107,13 +128,14 @@ QList<QMovieFrame> optimize( QStrList& files, unsigned int count )
 	  exit(1);
 	}
 	img2 = img3.convertDepth(32,Qt::ColorOnly);
-	img3 = img3.convertDepth(8,Qt::ColorOnly|Qt::PreferDither|Qt::OrderedDither);
+	//img3 = img3.convertDepth(8,Qt::ColorOnly|Qt::PreferDither|Qt::OrderedDither);
+	img3 = img3.convertDepth(8,Qt::AvoidDither);
 	writer.setFrameDelay(FRAME_DELAY);
 	writer.writeImage(img3);
 
-	QPixmap pix;
-	pix.convertFromImage( img2, Qt::ColorOnly | Qt::AvoidDither );
-	QMovieFrame *f = new QMovieFrame( pix, 0, 0, 0 );
+	//QPixmap pix;
+	//pix.convertFromImage( img2, Qt::ColorOnly | Qt::AvoidDither );
+	QMovieFrame *f = new QMovieFrame( 0, 0, img2.width(), img2.height(), 0 );
 	frames.append( f );
 	if ( count < 2 )
 	  return frames;
@@ -131,7 +153,8 @@ QList<QMovieFrame> optimize( QStrList& files, unsigned int count )
         exit(1);
       }
       img2 = img3.convertDepth(32,Qt::ColorOnly);
-      img3 = img3.convertDepth(8,Qt::ColorOnly|Qt::PreferDither|Qt::OrderedDither);
+      //img3 = img3.convertDepth(8,Qt::ColorOnly|Qt::PreferDither|Qt::OrderedDither);
+      img3 = img3.convertDepth(8,Qt::AvoidDither);
 
       clusterizer.clear();
       ASSERT( img1.depth() == 32 );
@@ -223,10 +246,8 @@ QList<QMovieFrame> optimize( QStrList& files, unsigned int count )
       // How much do we loose if we take just a simple frame ?
       if ( (float)area * 1.20 >= (float)( maxrect.width() * maxrect.height() ) )
       {
-        QPixmap dpix;
-        dpix.resize( maxrect.width(), maxrect.height() );
-        bitBlt( &dpix, QPoint( 0, 0 ), &pix2, maxrect, Qt::CopyROP );
-        QMovieFrame* f = new QMovieFrame( dpix, maxrect.left(), maxrect.top(), FRAME_DELAY );
+        QMovieFrame* f = new QMovieFrame( maxrect.left(), maxrect.top(),
+			    maxrect.width(), maxrect.height(), FRAME_DELAY );
         frames.append( f );
         printf("....... No optimization possible .......Factor of saving was %f percent \n",
       	 ((float)(maxrect.width() * maxrect.height())) / (float)area * 100.0 - 100.0 );
@@ -247,15 +268,12 @@ debug("offset = %d,%d",maxrect.left(), maxrect.top());
         {
           QRect rect = clusterizer[c];
           
-          QPixmap dpix;
-          dpix.resize( rect.width(), rect.height() );
-          bitBlt( &dpix, QPoint(0, 0), &pix2, rect, Qt::CopyROP );
-          QMovieFrame* f = new QMovieFrame( dpix, rect.left(), rect.top(), 0 );
+          QMovieFrame* f = new QMovieFrame( rect.left(), rect.top(),
+			    rect.width(), rect.height(), 0 );
           list.inSort( f );
         }
         if ( list.first() )
-          list.first()->set( list.first()->pixmap(), list.first()->xOffset(),
-      		       list.first()->yOffset(), FRAME_DELAY );
+          list.first()->setDelay( FRAME_DELAY );
         // Copy the sorted frames to the movie
 	writer.setFrameDelay(0);
         QMovieFrame* f = list.first();
@@ -264,10 +282,8 @@ debug("offset = %d,%d",maxrect.left(), maxrect.top());
 	    QMovieFrame* nf = list.next();
 	    if ( !nf )
 	        writer.setFrameDelay(FRAME_DELAY);
-debug("offset = %d,%d;  size = %dx%d",f->xOffset(), f->yOffset(),
-f->pixmap().width(), f->pixmap().height());
 	    QImage clip = img3.copy(f->xOffset(), f->yOffset(),
-				    f->pixmap().width(), f->pixmap().height());
+				    f->width(), f->height());
 	    writer.writeImage(clip, f->xOffset(), f->yOffset());
 	    f = nf;
 	}
@@ -347,14 +363,16 @@ main(int argc, char** argv)
 	file.close();
       }
 
+/*
       QMovie mov( frames );
       QLabel* l = new QLabel( 0L );
       l->setMovie( mov );
       l->setGeometry( 0,0,640,480);
       l->show();
+*/
     }
 
-    app.exec();
+    //app.exec();
 
     return 0;
 }
