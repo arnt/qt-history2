@@ -4,11 +4,14 @@
 #include "../kernel/qapplication_p.h"
 #include "qtoolbutton.h"
 #include "qtooltip.h"
-#include "../workspace/qworkspace.h"
 #include "qimage.h"
 #include "qdatetime.h"
 #include "qpainter.h"
 #include "qcleanuphandler.h"
+
+#ifndef QT_NO_WORKSPACE
+#include "../workspace/qworkspace.h"
+#endif
 
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
@@ -274,6 +277,7 @@ const char * const qt_unshade_xpm[] = {
 static QPixmap *buffer = 0;
 static QCleanupHandler<QPixmap> qtb_cleanup;
 
+#ifndef QT_NO_WORKSPACE
 
 QTitleBar::QTitleBar (QWorkspace* w, QWidget* win, QWidget* parent,
 						  const char* name, bool iconMode )
@@ -588,6 +592,8 @@ QSize QTitleBar::sizeHint() const
 
     return QSize( 128, QMAX( titleHeight, fontMetrics().lineSpacing() ) );
 }
+
+#endif
 
 /*
   QTitleBarLabel

@@ -57,7 +57,6 @@
 #include "qpixmap.h"
 #endif // QT_H
 
-class QWorkspace;
 class QTitleBar;
 
 class QTitleBarLabel : public QFrame
@@ -98,6 +97,10 @@ private:
     QString cuttext;
     bool act;
 };
+
+#ifndef QT_NO_WORKSPACE
+
+class QWorkspace;
 
 class QTitleBar : public QWidget
 {
@@ -153,6 +156,8 @@ private:
 
     QString text;
 };
+
+#endif
 
 extern const char * const qt_close_xpm[];
 extern const char * const qt_maximize_xpm[];
