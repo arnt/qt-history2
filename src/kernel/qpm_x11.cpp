@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#17 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#17 $";
 #endif
 
 
@@ -121,6 +121,18 @@ static int highest_bit( ulong v )
     for ( i=31; ((b & v) == 0) && i>=0;  i-- )
 	b >>= 1;
     return i;
+}
+
+
+static int lowest_bit( ulong v )
+{
+    int i = 0;	// get pos of lowest set bit in v
+    ulong b = 1;
+    while (!(b & v) && (i<32)) {
+	b <<= 1;
+	i++;
+    }
+    return (b & v) ? i : -1; // returns -1 on error
 }
 
 
@@ -454,10 +466,10 @@ long QPixmap::metric( int m ) const		// get metric information
 Converts the pixmap to an image. Returns a null image if the operation failed.
 
 If the pixmap has 1 bit depth, the returned image will also get 1 bit
-depth.<br>
-If the pixmap has 2-8 bits depth, the returned image gets 8 bit depth.<br>
+depth.
+If the pixmap has 2-8 bits depth, the returned image gets 8 bit depth.
 If the pixmap has greater than 8 bits depth, the returned image gets
-24 bits depth.<br>
+24 bits depth.
 
 \bug Does not support 2 or 4 bit display hardware. This function needs
 to be tested on different types of X servers.
@@ -513,9 +525,9 @@ QImage QPixmap::convertToImage() const
 	uint red_mask	 = visual->red_mask;
 	uint green_mask	 = visual->green_mask;
 	uint blue_mask	 = visual->blue_mask;
-	int  red_shift	 = highest_bit( red_mask )   - 7;
-	int  green_shift = highest_bit( green_mask ) - 7;
-	int  blue_shift	 = highest_bit( blue_mask )  - 7;
+	int  red_shift	 = lowest_bit( red_mask );
+	int  green_shift = lowest_bit( green_mask );
+	int  blue_shift	 = lowest_bit( blue_mask );
 	int  r, g, b;
 
 	uchar *dst = image.bits();
@@ -527,7 +539,7 @@ QImage QPixmap::convertToImage() const
 	    bppc++;
 
 	for ( int y=0; y<h; y++ ) {
-	    src = (uchar *)xi->data + xi->bytes_per_line*y;	    
+	    src = (uchar *)xi->data + xi->bytes_per_line*y;
 	    for ( int x=0; x<w; x++ ) {
 		switch ( bppc ) {
 		    case 8:
@@ -725,9 +737,9 @@ bool QPixmap::convertFromImage( const QImage &img )
 	uint  red_mask	  = visual->red_mask;
 	uint  green_mask  = visual->green_mask;
 	uint  blue_mask	  = visual->blue_mask;
-	int   red_shift	  = highest_bit( red_mask )   - 7;
-	int   green_shift = highest_bit( green_mask ) - 7;
-	int   blue_shift  = highest_bit( blue_mask )  - 7;
+	int   red_shift	  = lowest_bit( red_mask );
+	int   green_shift = lowest_bit( green_mask );
+	int   blue_shift  = lowest_bit( blue_mask );
 	int   r, g, b;
 
 	if ( d8 ) {				// setup pixel translation
