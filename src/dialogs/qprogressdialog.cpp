@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#46 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#47 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -443,10 +443,12 @@ void QProgressDialog::setProgress( int progress )
 	    }
 	    d->starttime.start();
 	} else {
+	    bool need_show;
 	    int elapsed = d->starttime.elapsed();
-	    if ( !d->showTime || elapsed > minWaitTime ) {
-		bool need_show;
-		if ( d->showTime ) {
+	    if ( elapsed >= d->showTime ) {
+		need_show = TRUE;
+	    } else {
+		if ( elapsed > minWaitTime ) {
 		    int estimate;
 		    if ( (totalSteps() - progress) >= INT_MAX / elapsed )
 			estimate = (totalSteps() - progress) / progress * elapsed;
@@ -454,14 +456,14 @@ void QProgressDialog::setProgress( int progress )
 			estimate = elapsed * (totalSteps() - progress) / progress;
 		    need_show = estimate >= d->showTime;
 		} else {
-		    need_show = TRUE;
+		    need_show = FALSE;
 		}
-		if ( need_show ) {
-		    resize(sizeHint());
-		    center();
-		    show();
-		    d->shown_once = TRUE;
-		}
+	    }
+	    if ( need_show ) {
+		resize(sizeHint());
+		center();
+		show();
+		d->shown_once = TRUE;
 	    }
 	}
     }
