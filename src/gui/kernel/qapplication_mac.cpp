@@ -146,7 +146,7 @@ extern bool qt_mac_can_clickThrough(const QWidget *); //qwidget_mac.cpp
 extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
 extern WindowPtr qt_mac_window_for(const QWidget*); //qwidget_mac.cpp
 extern QWidget *qt_mac_find_window(WindowPtr); //qwidget_mac.cpp
-extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
+extern void qt_mac_set_cursor(const QCursor *, const QPoint &); //qcursor_mac.cpp
 extern bool qt_mac_is_macsheet(const QWidget *); //qwidget_mac.cpp
 extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
 extern void qt_mac_command_set_enabled(MenuRef, UInt32, bool); //qmenu_mac.cpp
@@ -987,13 +987,8 @@ void QApplication::setOverrideCursor(const QCursor &cursor)
 {
     qApp->d->cursor_list.prepend(cursor);
 
-    if(qApp && qApp->activeWindow()) {
-        Point mouse_pos;
-        QPoint qmp(QCursor::pos());
-        mouse_pos.h = qmp.x();
-        mouse_pos.v = qmp.y();
-        qt_mac_set_cursor(&qApp->d->cursor_list.first(), &mouse_pos);
-    }
+    if(qApp && qApp->activeWindow())
+        qt_mac_set_cursor(&qApp->d->cursor_list.first(), QCursor::pos());
 }
 
 void QApplication::restoreOverrideCursor()
@@ -1003,13 +998,8 @@ void QApplication::restoreOverrideCursor()
     qApp->d->cursor_list.removeFirst();
 
     if(qApp && qApp->activeWindow()) {
-        Point mouse_pos;
-        QPoint qmp(QCursor::pos());
-        mouse_pos.h = qmp.x();
-        mouse_pos.v = qmp.y();
-
         const QCursor def(Qt::ArrowCursor);
-        qt_mac_set_cursor(qApp->d->cursor_list.isEmpty() ? &def : &qApp->d->cursor_list.first(), &mouse_pos);
+        qt_mac_set_cursor(qApp->d->cursor_list.isEmpty() ? &def : &qApp->d->cursor_list.first(), QCursor::pos());
     }
 }
 #endif
@@ -1327,11 +1317,11 @@ static int get_key(int modif, int key, int scan)
 /*!
     \internal
 */
-bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
+bool QApplicationPrivate::do_mouse_down(const QPoint &pt, bool *mouse_down_unhandled)
 {
     //find the widget/part
     QWidget *widget = 0;
-    short windowPart = qt_mac_window_at(pt->h, pt->v, &widget);
+    short windowPart = qt_mac_window_at(pt.x(), pt.y(), &widget);
 
     //close down the popups
     int popup_close_count = 0;
@@ -1348,8 +1338,11 @@ bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
     if(mouse_down_unhandled)
         (*mouse_down_unhandled) = false;
     if(windowPart == inMenuBar) {
+        Point mac_pt;
+        mac_pt.h = pt.x();
+        mac_pt.v = pt.y();
         QMacBlockingFunction block;
-        MenuSelect(*pt); //allow menu tracking
+        MenuSelect(mac_pt); //allow menu tracking
         return false;
     } else if(!widget) {
         if(mouse_down_unhandled)
@@ -1367,7 +1360,7 @@ bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
                 widget->activateWindow();
                 if(windowPart == inContent) {
                     HIViewRef child;
-                    const HIPoint hiPT = CGPointMake(pt->h - widget->geometry().x(), pt->v - widget->geometry().y());
+                    const HIPoint hiPT = CGPointMake(pt.x() - widget->geometry().x(), pt.y() - widget->geometry().y());
                     if(HIViewGetSubviewHit((HIViewRef)widget->winId(), &hiPT, true, &child) == noErr && child) {
                         if(!qt_mac_can_clickThrough(QWidget::find((WId)child))) {
                             if(mouse_down_unhandled)
@@ -1386,8 +1379,11 @@ bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
     if(windowPart == inGoAway || windowPart == inCollapseBox ||
        windowPart == inZoomIn || windowPart == inZoomOut
        || windowPart == inToolbarButton) {
+        Point mac_pt;
+        mac_pt.h = pt.x();
+        mac_pt.v = pt.y();
         QMacBlockingFunction block;
-        if(!TrackBox(window, *pt, windowPart))
+        if(!TrackBox(window, mac_pt, windowPart))
             return false;
     }
 
@@ -1411,8 +1407,11 @@ bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
         }
     case inDrag: {
         {
+            Point mac_pt;
+            mac_pt.h = pt.x();
+            mac_pt.v = pt.y();
             QMacBlockingFunction block;
-            DragWindow(window, *pt, 0);
+            DragWindow(window, mac_pt, 0);
         }
         QPoint np, op(widget->data->crect.x(), widget->data->crect.y());
         {
@@ -1433,8 +1432,11 @@ bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
                     extra->maxh < 32767 ? extra->maxh : 32767);
         int growWindowSize;
         {
+            Point mac_pt;
+            mac_pt.h = pt.x();
+            mac_pt.v = pt.y();
             QMacBlockingFunction block;
-            growWindowSize = GrowWindow(window, *pt, limits.left == -2 ? 0 : &limits);
+            growWindowSize = GrowWindow(window, mac_pt, limits.left == -2 ? 0 : &limits);
         }
         if(growWindowSize) {
             // nw/nh might not match the actual size if setSizeIncrement is used
@@ -1900,7 +1902,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     }
                 }
             }
-            qt_mac_set_cursor(&cursor, &where);
+            qt_mac_set_cursor(&cursor, QPoint(where.h, where.v));
         }
 
         //This mouse button state stuff looks like this on purpose
@@ -1908,7 +1910,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         if(widget && app_do_modal && !qt_try_modal(widget, event)) {
             if(ekind == kEventMouseDown && qt_mac_is_macsheet(QApplication::activeModalWidget())) {
                 QApplication::activeModalWidget()->parentWidget()->activateWindow(); //sheets have a parent
-                app->d->do_mouse_down(&where, 0);
+                app->d->do_mouse_down(QPoint(where.h, where.v), 0);
             }
             break;
         }
@@ -1948,7 +1950,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 
         if(ekind == kEventMouseDown) {
             bool mouse_down_unhandled;
-            if(!app->d->do_mouse_down(&where, &mouse_down_unhandled)) {
+            if(!app->d->do_mouse_down(QPoint(where.h, where.v), &mouse_down_unhandled)) {
                 if(mouse_down_unhandled) {
                     handled_event = false;
                     break;

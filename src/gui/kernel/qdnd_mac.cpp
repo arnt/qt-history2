@@ -287,7 +287,7 @@ QStringList QDropData::formats() const
     for(int x = 1; x <= (int)cnt; x++) {
         if(GetFlavorType(qt_mac_current_dragRef, ref, x, &flav) == noErr) {
             QString mime = QMacMime::flavorToMime(qmt, flav);
-            if(!mime.isNull() && !ret.contains(mime)) 
+            if(!mime.isNull() && !ret.contains(mime))
                 ret.append(mime);
         }
     }
@@ -354,7 +354,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
 
     //lookup the source
     QMimeData *dropdata = QDragManager::self()->dropData;
-    if(QDragManager::self()->source()) 
+    if(QDragManager::self()->source())
         dropdata = QDragManager::self()->dragPrivate()->data;
 
     //Dispatch events
@@ -370,7 +370,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
                            QApplication::mouseButtons(), QApplication::keyboardModifiers());
         QApplication::sendEvent(q, &de);
         de.accept();
-        if(!de.isAccepted()) 
+        if(!de.isAccepted())
             ret = false;
     } else if(kind == kEventControlDragLeave) {
         QDragLeaveEvent de;
@@ -379,7 +379,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
         QDropEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
                       QApplication::mouseButtons(), QApplication::keyboardModifiers());
         de.accept();
-        if(QDragManager::self()->object) 
+        if(QDragManager::self()->object)
             QDragManager::self()->dragPrivate()->target = q;
         QApplication::sendEvent(q, &de);
         if(!de.isAccepted()) {
@@ -406,7 +406,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
         if(desc) {
             QPoint pos(q->mapFromGlobal(QPoint(mouse.h, mouse.v)));
             qDebug("Sending <%s>(%d, %d) event to %s %s [%d] (%p)",
-                   desc, pos.x(), pos.y(), q->metaObject()->className(), 
+                   desc, pos.x(), pos.y(), q->metaObject()->className(),
                    q->objectName().local8Bit(), ret, dragRef);
         }
     }
@@ -437,7 +437,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
         }
     }
     if(found_cursor) {
-        qt_mac_set_cursor(0, 0); //just use our's
+        qt_mac_set_cursor(0, QPoint()); //just use our's
     } else {
         QCursor cursor(Qt::ArrowCursor);
         if(qApp && qApp->overrideCursor()) {
@@ -450,7 +450,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
                 }
             }
         }
-        qt_mac_set_cursor(&cursor, &mouse);
+        qt_mac_set_cursor(&cursor, QPoint(mouse.h, mouse.v));
     }
 
     //idle things
@@ -494,10 +494,10 @@ Qt::DropAction QDragManager::drag(QDrag *o)
     SetDragSendProc(dragRef, make_sendUPP(), o->d); //fullfills the promise!
     //setup the actions
     SetDragAllowableActions(dragRef, //local
-                            qt_mac_dnd_map_qt_actions(o->d->possible_actions), 
+                            qt_mac_dnd_map_qt_actions(o->d->possible_actions),
                             true);
     SetDragAllowableActions(dragRef, //remote (same as local)
-                            qt_mac_dnd_map_qt_actions(o->d->possible_actions), 
+                            qt_mac_dnd_map_qt_actions(o->d->possible_actions),
                             false);
 
     //encode the data

@@ -76,7 +76,7 @@ extern void qt_mac_event_release(QWidget *w); //qapplication_mac.cpp
 extern void qt_event_request_showsheet(QWidget *); //qapplication_mac.cpp
 extern void qt_event_request_window_change(); //qapplication_mac.cpp
 extern IconRef qt_mac_create_iconref(const QPixmap &); //qpixmap_mac.cpp
-extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
+extern void qt_mac_set_cursor(const QCursor *, const QPoint &); //qcursor_mac.cpp
 extern bool qt_nograb();
 CGImageRef qt_mac_create_cgimage(const QPixmap &, Qt::PixmapDrawingMode, bool); //qpixmap_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
@@ -1235,15 +1235,10 @@ void QWidget::setCursor(const QCursor &cursor)
     setAttribute(Qt::WA_SetCursor);
 
     if(qApp && qApp->activeWindow() && QApplication::widgetAt(QCursor::pos()) == this) {
-        Point mouse_pos;
-        QPoint qmp(QCursor::pos());
-        mouse_pos.h = qmp.x();
-        mouse_pos.v = qmp.y();
-
         const QCursor *n = &cursor;
         if(QApplication::overrideCursor())
             n = QApplication::overrideCursor();
-        qt_mac_set_cursor(n, &mouse_pos);
+        qt_mac_set_cursor(n, QCursor::pos());
     }
 }
 
@@ -1258,11 +1253,6 @@ void QWidget::unsetCursor()
     }
 
     if(qApp && qApp->activeWindow() && QApplication::widgetAt(QCursor::pos()) == this) {
-        Point mouse_pos;
-        QPoint qmp(QCursor::pos());
-        mouse_pos.h = qmp.x();
-        mouse_pos.v = qmp.y();
-
         const QCursor *n = 0;
         if(QApplication::overrideCursor()) {
             n = QApplication::overrideCursor();
@@ -1277,7 +1267,7 @@ void QWidget::unsetCursor()
         }
         const QCursor def(Qt::ArrowCursor);
         if(!n) n = &def; //I give up..
-        qt_mac_set_cursor(n, &mouse_pos);
+        qt_mac_set_cursor(n, QCursor::pos());
     }
 }
 

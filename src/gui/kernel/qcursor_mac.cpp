@@ -105,7 +105,7 @@ static QCursorData *currentCursor = 0; //current cursor
 #ifndef QMAC_NO_FAKECURSOR
 static Point currentPoint = { 0, 0 };
 #endif
-void qt_mac_set_cursor(const QCursor *c, const Point *p)
+void qt_mac_set_cursor(const QCursor *c, const QPoint &p)
 {
     if(!c) {
 #ifndef QMAC_NO_FAKECURSOR
@@ -119,11 +119,11 @@ void qt_mac_set_cursor(const QCursor *c, const Point *p)
 
 #ifndef QMAC_NO_FAKECURSOR
     if(c->d->type == QCursorData::TYPE_FakeCursor &&
-        (currentCursor != c->d || currentPoint.h != p->h || currentPoint.v != p->v)) {
+       (currentCursor != c->d || currentPoint.h != p->x() || currentPoint.v != p->y())) {
         /* That's right folks, I want nice big cursors - if apple won't give them to me, why
            I'll just take them!!! */
-        c->d->curs.fc.widget->move(p->h - c->d->curs.fc.empty_curs->hotSpot.h,
-                                      p->v - c->d->curs.fc.empty_curs->hotSpot.v);
+        c->d->curs.fc.widget->move(p->x() - c->d->curs.fc.empty_curs->hotSpot.h,
+                                   p->y() - c->d->curs.fc.empty_curs->hotSpot.v);
         SetCursor(c->d->curs.fc.empty_curs);
         if(currentCursor && currentCursor != c->d
                 && currentCursor->type == QCursorData::TYPE_FakeCursor)

@@ -44,7 +44,7 @@ class QBitmap;
 class QPixmap;
 
 #if defined(Q_WS_MAC)
-void qt_mac_set_cursor(const QCursor *c, const Point *p);
+void qt_mac_set_cursor(const QCursor *c, const QPoint &p);
 #endif
 
 class Q_GUI_EXPORT QCursor
@@ -87,7 +87,7 @@ private:
     void setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY);
     QCursorData *d;
 #if defined(Q_WS_MAC)
-    friend void qt_mac_set_cursor(const QCursor *c, const Point *p);
+    friend void qt_mac_set_cursor(const QCursor *c, const QPoint &p);
 #endif
 };
 
