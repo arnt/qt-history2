@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#52 $
 **
 ** Implementation of QScrollView class
 **
@@ -1190,8 +1190,9 @@ bool QScrollView::focusNextPrevChild( bool next )
 	r = d->ancestorRec( w );
 	if ( w != startingPoint && w->testWFlags( WState_TabToFocus ) &&
 	     w->isEnabledToTLW() &&!w->focusProxy() &&
-	     ( r 
-	       ? ( r->wantshown && w->isVisibleTo( r->child ) )
+	     ( r
+	       ? ( r->wantshown && ( r->child == w || 
+				     w->isVisibleTo( r->child ) ) )
 	       : w->isVisibleToTLW() ) )
 	    candidate = w;
 	w = next ? f->next() : f->prev();
@@ -1203,7 +1204,8 @@ bool QScrollView::focusNextPrevChild( bool next )
 
     // we've found one.
     r = d->ancestorRec( candidate );
-    if ( r && candidate->isVisibleTo( r->child ) ) {
+    if ( r && ( r->child == candidate ||
+		candidate->isVisibleTo( r->child ) ) ) {
 	QPoint cp = candidate->mapToGlobal(QPoint(0,0));
 	QPoint cr = r->child->mapToGlobal(QPoint(0,0)) - cp;
 	ensureVisible( r->x+cr.x()+candidate->width()/2,
