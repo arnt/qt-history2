@@ -2132,9 +2132,13 @@ void QTextEdit::mergeCurrentCharFormat(const QTextCharFormat &modifier)
         return;
 
     if (!d->cursor.hasSelection()) {
-        QTextCursor word = d->cursor;
-        word.select(QTextCursor::WordUnderCursor);
-        word.mergeCharFormat(modifier);
+        if (d->cursor.atBlockStart() && d->cursor.atBlockEnd()) {
+            d->cursor.mergeBlockCharFormat(modifier);
+        } else {
+            QTextCursor word = d->cursor;
+            word.select(QTextCursor::WordUnderCursor);
+            word.mergeCharFormat(modifier);
+        }
     }
     d->cursor.mergeCharFormat(modifier);
     d->lastCharFormat = d->cursor.charFormat();
