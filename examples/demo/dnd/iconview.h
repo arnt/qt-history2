@@ -3,6 +3,7 @@
 
 #include <qiconview.h>
 #include <qstring.h>
+#include <qvaluelist.h>
 
 class IconViewItem : public QIconViewItem
 {
