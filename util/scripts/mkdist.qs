@@ -170,7 +170,7 @@ editionKeep["preview"] = [ new RegExp(".") ];
  */
 
 moduleMap["demonstration applications"]  = new RegExp("^demos");
-moduleMap["documentation"]  = new RegExp("^doc");
+moduleMap["documentation"]               = new RegExp("^doc");
 moduleMap["example classes"]             = new RegExp("^examples");
 moduleMap["qmake application"]           = new RegExp("^qmake");
 moduleMap["activeqt module"]             = new RegExp("^extensions/activeqt");
