@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#64 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#65 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#64 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#65 $")
 
 
 /*****************************************************************************
@@ -300,7 +300,7 @@ UINT16 qchecksum( const char *data, uint len )	// generate CRC-16 checksum
   QByteArray member functions
  *****************************************************************************/
 
-/*!
+/*----------------------------------------------------------------------------
   \class QByteArray qstring.h
   \brief The QByteArray class provides an array of bytes.
 
@@ -308,7 +308,8 @@ UINT16 qchecksum( const char *data, uint len )	// generate CRC-16 checksum
   \ingroup tools
 
   This class will be documented later.
-*/
+ ----------------------------------------------------------------------------*/
+
 
 /*****************************************************************************
   QByteArray stream functions
@@ -353,12 +354,15 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
   \class QString qstring.h
 
   \brief The QString class provides an abstraction of the classic C
-  zero-terminated char array.
+  zero-terminated char array (<var>char*</var>).
 
   \ingroup tools
   \ingroup shared
 
   QString inherits QByteArray, which is defined as QArray\<char\>.
+
+  Since QString is a QArray, it uses explicit
+  \link shclass.html sharing\endlink with a reference count.
 
   Note that for the QString methods that take a <var>const char *</var>
   parameter the results are undefined if the QString is not
@@ -371,27 +375,36 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
   QStrings are legal parameters to the methods. Assigning <var>const char
   * 0</var> to QString gives a null QString.
 
+  \sa \link shclass.html Shared classes\endlink
  ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
   \fn QString::QString()
   Constructs a null string.
+  \sa isNull()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QString::QString( const QString &s )
   Constructs a shallow copy \e s.
+  \sa assign()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Constructs a string with room for \e size characters, including
-  the '\0'-terminator.
+  Constructs a string with room for \e size characters, including the
+  '\0'-terminator.
+  Makes a null string if \e size == 0.
+
+  If \e size > 0, then the first and last characters in the string are
+  initialized to '\0'.  All other characters are uninitialized.
+
+  \sa resize(), isNull()
  ----------------------------------------------------------------------------*/
 
 QString::QString( int size ) : QByteArray( size )
-{						// allocate size incl. \0
-    if ( size ) {
+{
+    if ( size > 0 ) {
 	*data() = '\0';				// set terminator
 	*(data()+size-1) = '\0';
     }
@@ -401,7 +414,7 @@ QString::QString( int size ) : QByteArray( size )
   Constructs a string that is a deep copy of \e str.
  ----------------------------------------------------------------------------*/
 
-QString::QString( const char *str )		// deep copy
+QString::QString( const char *str )
 {
     duplicate( str, strlen(str)+1 );
 }
@@ -409,13 +422,14 @@ QString::QString( const char *str )		// deep copy
 
 /*----------------------------------------------------------------------------
   \fn QString &QString::operator=( const QString &s )
-  Assigns a shallow copy of \e s and returns a reference to this
-  string.
+  Assigns a shallow copy of \e s to this string and returns a reference to
+  this string.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QString &QString::operator=( const char *str )
-  Assigns a deep copy of \e str and returns a reference to this string.
+  Assigns a deep copy of \e str to this string and returns a reference to
+  this string.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -558,6 +572,13 @@ bool QString::fill( char c, int len )
     *(data()+len) = '\0';
     return TRUE;
 }
+
+
+/*----------------------------------------------------------------------------
+  \fn QString QString::copy() const
+  Returns a deep copy of this string.
+  \sa detach()
+ ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
@@ -1531,54 +1552,63 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 
 /*----------------------------------------------------------------------------
   \fn bool operator==( const QString &s1, const QString &s2 )
+  \relates QString
   Returns TRUE if the two strings are equal, or FALSE if they are different.
   Equivalent to <code>strcmp(s1,s2) == 0</code>.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool operator==( const QString &s1, const char *s2 )
+  \relates QString
   Returns TRUE if the two strings are equal, or FALSE if they are different.
   Equivalent to <code>strcmp(s1,s2) == 0</code>.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool operator==( const char *s1, const QString &s2 )
+  \relates QString
   Returns TRUE if the two strings are equal, or FALSE if they are different.
   Equivalent to <code>strcmp(s1,s2) == 0</code>.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool operator!=( const QString &s1, const QString &s2 )
+  \relates QString
   Returns TRUE if the two strings are different, or FALSE if they are equal.
   Equivalent to <code>strcmp(s1,s2) != 0</code>.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool operator!=( const QString &s1, const char *s2 )
+  \relates QString
   Returns TRUE if the two strings are different, or FALSE if they are equal.
   Equivalent to <code>strcmp(s1,s2) != 0</code>.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool operator!=( const char *s1, const QString &s2 )
+  \relates QString
   Returns TRUE if the two strings are different, or FALSE if they are equal.
   Equivalent to <code>strcmp(s1,s2) != 0</code>.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool operator<( const QString &s1, const char *s2 )
+  \relates QString
   Returns TRUE if \e s1 is alphabetically less than \e s2, otherwise FALSE.
   Equivalent to <code>strcmp(s1,s2) < 0</code>.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool operator<( const char *s1, const QString &s2 )
+  \relates QString
   Returns TRUE if \e s1 is alphabetically less than \e s2, otherwise FALSE.
   Equivalent to <code>strcmp(s1,s2) < 0</code>.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool operator<=( const QString &s1, const char *s2 )
+  \relates QString
   Returns TRUE if \e s1 is alphabetically less than or equal to \e s2,
   otherwise FALSE.
   Equivalent to <code>strcmp(s1,s2) <= 0</code>.
@@ -1586,6 +1616,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 
 /*----------------------------------------------------------------------------
   \fn bool operator<=( const char *s1, const QString &s2 )
+  \relates QString
   Returns TRUE if \e s1 is alphabetically less than or equal to \e s2,
   otherwise FALSE.
   Equivalent to <code>strcmp(s1,s2) <= 0</code>.
@@ -1593,18 +1624,21 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 
 /*----------------------------------------------------------------------------
   \fn bool operator>( const QString &s1, const char *s2 )
+  \relates QString
   Returns TRUE if \e s1 is alphabetically greater than \e s2, otherwise FALSE.
   Equivalent to <code>strcmp(s1,s2) > 0</code>.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool operator>( const char *s1, const QString &s2 )
+  \relates QString
   Returns TRUE if \e s1 is alphabetically greater than \e s2, otherwise FALSE.
   Equivalent to <code>strcmp(s1,s2) > 0</code>.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool operator>=( const QString &s1, const char *s2 )
+  \relates QString
   Returns TRUE if \e s1 is alphabetically greater than or equal to \e s2,
   otherwise FALSE.
   Equivalent to <code>strcmp(s1,s2) >= 0</code>.
@@ -1612,6 +1646,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 
 /*----------------------------------------------------------------------------
   \fn bool operator>=( const char *s1, const QString &s2 )
+  \relates QString
   Returns TRUE if \e s1 is alphabetically greater than or equal to \e s2,
   otherwise FALSE.
   Equivalent to <code>strcmp(s1,s2) >= 0</code>.
@@ -1619,25 +1654,30 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 
 /*----------------------------------------------------------------------------
   \fn QString operator+( const QString &s1, const QString &s2 )
+  \relates QString
   Returns the concatenated string of s1 and s2.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QString operator+( const QString &s1, const char *s2 )
+  \relates QString
   Returns the concatenated string of s1 and s2.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QString operator+( const char *s1, const QString &s2 )
+  \relates QString
   Returns the concatenated string of s1 and s2.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QString operator+( const QString &s, char c )
+  \relates QString
   Returns the concatenated string of s and c.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QString operator+( char c, const QString &s )
+  \relates QString
   Returns the concatenated string of c and s.
  ----------------------------------------------------------------------------*/
