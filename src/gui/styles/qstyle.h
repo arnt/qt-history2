@@ -642,6 +642,9 @@ public:
         // bool - If the titlebar should show a * for modified Windows
         SH_TitlebarModifyNotification,
 
+        // FocusPolicy - The default focus policy for a button.
+        SH_Button_FocusPolicy,
+
         // do not add any values below/greater than this
         SH_CustomBase = 0xf0000000
     };

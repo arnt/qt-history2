@@ -2506,7 +2506,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, c
     case CT_HeaderSection:
         if (const QStyleOptionHeader *hdr = qt_cast<const QStyleOptionHeader *>(opt)) {
             int margin = pixelMetric(QStyle::PM_HeaderMargin);
-            QSize icn = hdr->icon.isNull() ? QSize(0,0) : QIcon::iconSize(QIcon::Small);
+            QSize icn = hdr->icon.isNull() ? QSize(0,0) : QIcon::pixmapSize(QIcon::Small);
             QSize txt = fm.size(0, hdr->text);
             sz.setHeight(margin + qMax(icn.height(), txt.height()) + margin);
             sz.setWidth(margin + icn.width() + margin + txt.width() + margin);
@@ -2615,6 +2615,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
 
     case SH_TipLabel_Opacity:
         ret = 255;
+        break;
+
+    case SH_Button_FocusPolicy:
+        ret = Qt::StrongFocus;
         break;
 
     default:

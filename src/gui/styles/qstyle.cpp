@@ -1454,6 +1454,8 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value SH_TitlebarModifyNotification  Indicates if the titlebar should show
     a '*' for windows that are modified.
 
+    \value SH_Button_FocusPolicy The default focus policy for buttons.
+
     \value SH_CustomBase  Base value for custom ControlElements.
     Custom values must be greater than this value.
 

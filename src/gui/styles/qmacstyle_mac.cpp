@@ -4696,34 +4696,34 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
 {
     SInt32 ret = 0;
     switch(sh) {
-    case QStyle::SH_Menu_AllowActiveAndDisabled:
+    case SH_Menu_AllowActiveAndDisabled:
         ret = false;
         break;
-    case QStyle::SH_Menu_SubMenuPopupDelay:
+    case SH_Menu_SubMenuPopupDelay:
         ret = 100;
         break;
-    case QStyle::SH_ScrollBar_LeftClickAbsolutePosition:
+    case SH_ScrollBar_LeftClickAbsolutePosition:
         extern bool qt_scrollbar_jump_to_pos; //qapplication_mac.cpp
         ret = qt_scrollbar_jump_to_pos;
         break;
-    case QStyle::SH_TabBar_PreferNoArrows:
+    case SH_TabBar_PreferNoArrows:
         ret = true;
         break;
-    case QStyle::SH_LineEdit_PasswordCharacter:
+    case SH_LineEdit_PasswordCharacter:
         ret = kBulletUnicode;
         break;
 	/*
-    case QStyle::SH_DialogButtons_DefaultButton:
+    case SH_DialogButtons_DefaultButton:
         ret = QDialogButtons::Reject;
         break;
 	*/
-    case QStyle::SH_Menu_SloppySubMenus:
+    case SH_Menu_SloppySubMenus:
         ret = true;
         break;
-    case QStyle::SH_GroupBox_TextLabelVerticalAlignment:
+    case SH_GroupBox_TextLabelVerticalAlignment:
         ret = Qt::AlignTop;
         break;
-    case QStyle::SH_ScrollView_FrameOnlyAroundContents:
+    case SH_ScrollView_FrameOnlyAroundContents:
         if (w && (w->isTopLevel() || !w->parentWidget() || w->parentWidget()->isTopLevel())
             && (qt_cast<const QViewport *>(w)
 #ifdef QT_COMPAT
@@ -4734,48 +4734,51 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
         else
             ret = QWindowsStyle::styleHint(sh, opt, w, shret);
         break;
-    case QStyle::SH_Menu_FillScreenWithScroll:
+    case SH_Menu_FillScreenWithScroll:
         ret = (QSysInfo::MacintoshVersion < QSysInfo::MV_PANTHER);
         break;
-    case QStyle::SH_Menu_Scrollable:
+    case SH_Menu_Scrollable:
         ret = true;
         break;
-    case QStyle::SH_RichText_FullWidthSelection:
+    case SH_RichText_FullWidthSelection:
         ret = true;
         break;
-    case QStyle::SH_BlinkCursorWhenTextSelected:
+    case SH_BlinkCursorWhenTextSelected:
         ret = false;
         break;
-    case QStyle::SH_ScrollBar_StopMouseOverSlider:
+    case SH_ScrollBar_StopMouseOverSlider:
         ret = true;
         break;
-    case QStyle::SH_ListViewExpand_SelectMouseType:
-    case QStyle::SH_TabBar_SelectMouseType:
+    case SH_ListViewExpand_SelectMouseType:
+    case SH_TabBar_SelectMouseType:
         ret = QEvent::MouseButtonRelease;
         break;
-    case QStyle::SH_ComboBox_Popup:
+    case SH_ComboBox_Popup:
         if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt))
             ret = !cmb->editable;
         else
             ret = 0;
         break;
-    case QStyle::SH_Workspace_FillSpaceOnMaximize:
+    case SH_Workspace_FillSpaceOnMaximize:
         ret = true;
         break;
-    case QStyle::SH_Widget_ShareActivation:
+    case SH_Widget_ShareActivation:
         ret = true;
         break;
-    case QStyle::SH_Header_ArrowAlignment:
+    case SH_Header_ArrowAlignment:
         ret = Qt::AlignRight;
         break;
-    case QStyle::SH_TabBar_Alignment:
+    case SH_TabBar_Alignment:
         ret = Qt::AlignHCenter;
         break;
-    case QStyle::SH_UnderlineShortcut:
+    case SH_UnderlineShortcut:
         ret = false;
         break;
-    case QStyle::SH_TipLabel_Opacity:
+    case SH_TipLabel_Opacity:
         ret = 242; // About 95%
+        break;
+    case SH_Button_FocusPolicy:
+        ret = Qt::TabFocus;
         break;
     default:
         ret = QWindowsStyle::styleHint(sh, opt, w, shret);

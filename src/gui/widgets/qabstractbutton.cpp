@@ -358,7 +358,7 @@ void QAbstractButtonPrivate::fixFocusPolicy()
 
 void QAbstractButtonPrivate::init()
 {
-    q->setFocusPolicy(Qt::StrongFocus);
+    q->setFocusPolicy(Qt::FocusPolicy(q->style().styleHint(QStyle::SH_Button_FocusPolicy)));
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 }
 
