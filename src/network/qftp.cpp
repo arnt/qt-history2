@@ -950,7 +950,7 @@ class QFtpPrivate
 public:
     QFtpPrivate(QFtp *q0)
 	: q(q0), close_waitForStateChange(false), state(QFtp::Unconnected), error(QFtp::NoError) { }
-    ~QFtpPrivate() { pending.deleteAll(); }
+    ~QFtpPrivate() { while (!pending.isEmpty()) delete pending.takeFirst(); }
 
     int addCommand(QFtpCommand *cmd);
 
@@ -1794,13 +1794,9 @@ bool QFtp::hasPendingCommands() const
 */
 void QFtp::clearPendingCommands()
 {
-    QFtpCommand *c = 0;
-    if ( d->pending.count() > 0 )
-	c = d->pending.takeFirst();
-    d->pending.deleteAll();
-    d->pending.clear();
-    if ( c )
-	d->pending.append( c );
+    // delete all entires except the first one
+    while (d->pending.count() > 1)
+	delete d->pending.takeLast();
 }
 
 /*!

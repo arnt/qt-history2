@@ -58,7 +58,7 @@ public:
     QHttpPrivate()
 	: state(QHttp::Unconnected), error(QHttp::NoError), port(0), toDevice(0), postDevice(0),
 	  bytesDone(0), chunkedSize(-1), idleTimer(0) { }
-    ~QHttpPrivate() { pending.deleteAll(); }
+    ~QHttpPrivate() { while (!pending.isEmpty()) delete pending.takeFirst(); }
 
     QSocket socket;
     QList<QHttpRequest *> pending;
@@ -1517,13 +1517,9 @@ bool QHttp::hasPendingRequests() const
 */
 void QHttp::clearPendingRequests()
 {
-    QHttpRequest *r = 0;
-    if ( d->pending.count() > 0 )
-	r = d->pending.takeAt(0);
-    d->pending.deleteAll();
-    d->pending.clear();
-    if ( r )
-	d->pending.append( r );
+    // delete all entires except the first one
+    while (d->pending.count() > 1)
+	delete d->pending.takeLast();
 }
 
 /*!
@@ -1805,9 +1801,8 @@ void QHttp::finishedWithError( const QString& detail, int errorCode )
     d->errorString = detail;
     emit requestFinished(r->id, true);
 
-    d->pending.deleteAll();
-    d->pending.clear();
-
+    while (!d->pending.isEmpty())
+	delete d->pending.takeFirst();
     emit done(true);
 }
 

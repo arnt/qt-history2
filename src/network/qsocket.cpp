@@ -135,7 +135,8 @@ QSocketPrivate::~QSocketPrivate()
     delete dns4;
     delete dns6;
 #endif
-    wba.deleteAll();
+    while (!wba.isEmpty())
+	delete wba.takeFirst();
 }
 
 void QSocketPrivate::closeSocket()
@@ -156,8 +157,8 @@ void QSocketPrivate::close()
     closeSocket();
     wsize = 0;
     rba.clear();
-    wba.deleteAll();
-    wba.clear();
+    while (!wba.isEmpty())
+	delete wba.takeFirst();
     windex = 0;
 }
 
@@ -166,8 +167,8 @@ void QSocketPrivate::connectionClosed()
     // We keep the open state in case there's unread incoming data
     state = QSocket::Idle;
     closeSocket();
-    wba.deleteAll();
-    wba.clear();
+    while (!wba.isEmpty())
+	delete wba.takeFirst();
     windex = wsize = 0;
 }
 
@@ -924,8 +925,8 @@ Q_ULONG QSocket::bytesToWrite() const
 
 void QSocket::clearPendingData()
 {
-    d->wba.deleteAll();
-    d->wba.clear();
+    while (!d->wba.isEmpty())
+	delete d->wba.takeFirst();
     d->windex = d->wsize = 0;
 }
 

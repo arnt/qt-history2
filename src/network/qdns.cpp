@@ -303,7 +303,8 @@ QDnsAnswer::~QDnsAnswer()
 	for (int i = 0; i < rrs.count(); ++i)
 	    rrs.at(i)->t = QDns::None; // will be deleted soonish
     }
-    rrs.deleteAll();
+    while (!rrs.isEmpty())
+	delete rrs.takeFirst();
 }
 
 
@@ -913,7 +914,8 @@ QDnsManager::QDnsManager()
 	}
     }
 
-    ::ns->deleteAll();
+    while (!::ns->isEmpty())
+	delete ::ns->takeFirst();
     delete ::ns;
     ::ns = ns;
 
@@ -945,8 +947,13 @@ QDnsManager::~QDnsManager()
 {
     if ( globalManager )
 	globalManager = 0;
-    queries.deleteAll();
-    cache.deleteAll();
+    while (!queries.isEmpty())
+	delete queries.takeFirst();
+    QHash<QString, QDnsDomain *>::ConstIterator it = cache.constBegin();
+    while (it != cache.constEnd()) {
+	delete it.value();
+	++it;
+    }
     delete ipv4Socket;
 #if !defined (QT_NO_IPV6)
     delete ipv6Socket;
@@ -1250,7 +1257,8 @@ QDnsDomain::QDnsDomain( const QString & label )
 
 QDnsDomain::~QDnsDomain()
 {
-    rrs.deleteAll();
+    while (!rrs.isEmpty())
+	delete rrs.takeFirst();
 }
 
 void QDnsDomain::add( const QString & label, QDnsRR * rr )
