@@ -18,10 +18,8 @@
 **
 **********************************************************************/
 
-#include <qapplication.h>
-#include <stdlib.h>
-
 #include "main.h"
+#include <qapplication.h>
 #include <qfile.h>
 #include <qtextstream.h>
 #include <qlistview.h>
@@ -39,6 +37,7 @@
 #else
 #include <unistd.h>
 #endif
+#include <stdlib.h>
 
 
 /* XPM */
@@ -376,7 +375,7 @@ template <class K, class D>
 QValueList<K> keys(QMap<K,D> map)
 {
     QValueList<K> result;
-    for (QMap<K,D>::ConstIterator it = map.begin(); it!=map.end(); ++it)
+    for (Q_TYPENAME QMap<K,D>::ConstIterator it = map.begin(); it!=map.end(); ++it)
 	result.append(it.key());
     return result;
 }
