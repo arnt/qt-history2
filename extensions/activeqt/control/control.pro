@@ -16,7 +16,8 @@ contains( QT_PRODUCT, qt-internal) {
     message( "ActiveQt requires a Qt/Enterprise license." )
 }
 contains( QT_PRODUCT, qt-(enterprise|internal) ) {
-    HEADERS     = $$ACTIVEQT_H/qaxbindable.h \
+    HEADERS     = $$ACTIVEQT_H/qaxaggregated.h \
+                  $$ACTIVEQT_H/qaxbindable.h \
 		  $$ACTIVEQT_H/qaxfactory.h \
 		  ../shared/types.h
 
