@@ -33,8 +33,8 @@ void QDocMainWindow::init()
     QDir e( qtdirenv + "/util/qdoc");
     proc->setWorkingDirectory( e );
     proc->addArgument( qtdirenv + "/util/qdoc/qdoc" );
-    /*proc->addArgument( "-Wall" );
-    proc->addArgument( "-W4" );*/
+    proc->addArgument( "-Wall" );
+    proc->addArgument( "-W4" );
 
     connect( proc, SIGNAL(readyReadStderr()), this, SLOT(readOutput()));
     connect( proc, SIGNAL(processExited()), this, SLOT(finished()));
