@@ -106,6 +106,7 @@ protected:
     void	focusInEvent( QFocusEvent * );
     void	focusOutEvent( QFocusEvent * );
     void	timerEvent( QTimerEvent * );
+    void	leaveEvent( QEvent * );
     void 	styleChange( QStyle& );
     int 	columns() const;
 

@@ -1703,6 +1703,18 @@ void QPopupMenu::timerEvent( QTimerEvent *e )
 
 /*!\reimp
 */
+void QPopupMenu::leaveEvent( QEvent * )
+{
+    if ( testWFlags( WStyle_Tool ) && style().styleHint(QStyle::SH_PopupMenu_MouseTracking, this) ) {
+	int lastActItem = actItem;
+	actItem = -1;
+	if ( lastActItem >= 0 )
+	    updateRow( lastActItem );
+    }
+}
+
+/*!\reimp
+*/
 void  QPopupMenu::styleChange( QStyle& old )
 {
     setMouseTracking(style().styleHint(QStyle::SH_PopupMenu_MouseTracking, this));
