@@ -859,6 +859,8 @@ void QLineEdit::drawContents( QPainter *painter )
     parag->invalidate( 0 );
     parag->format();
     int xoff = 1 - d->offset;
+    if ( ( alignment() & AlignRight ) == AlignRight )
+	xoff -= 4;
     int yoff = ( height() - parag->rect().height() ) / 2;
     if ( yoff < 0 )
 	yoff = 0;
