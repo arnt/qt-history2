@@ -400,8 +400,17 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #endif
     if ( ff == FF_ERROR ) {
 	// if it is a floppy disk drive, it might just not have a file on it
-	if ( plen > 1 && p[ 1 ] == ':' )
+	if ( plen > 1 && p[1] == ':' &&
+		( p[0]=='A' || p[0]=='a' || p[0]=='B' || p[0]=='b' ) ) {
+	    if ( !fiList ) {
+		fiList = new QFileInfoList;
+		Q_CHECK_PTR( fiList );
+		fiList->setAutoDelete( TRUE );
+	    } else {
+		fiList->clear();
+	    }
 	    return TRUE;
+	}
 #ifndef QT_NO_CODECS
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QDir::readDirEntries: Cannot read the directory: %s (UTF8)",
