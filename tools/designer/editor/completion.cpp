@@ -33,9 +33,9 @@
 
 static QColor getColor( const QString &type )
 {
-    if ( type == "function" || type == "slot")
+    if ( type == "function" || type == "slot" || type == "package" )
 	return Qt::blue;
-    else if ( type == "variable" || type == "widget" )
+    else if ( type == "variable" || type == "widget" || type == "dir" )
 	return Qt::darkRed;
     else if ( type == "object" )
 	return Qt::darkBlue;
