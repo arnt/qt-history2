@@ -141,7 +141,7 @@ void QTextCursor::gotoPosition( QTextParagraph* p, int index )
     if ( para && p != para ) {
 	while ( para->document() != p->document() && !indices.isEmpty() )
 	    pop();
-	Q_ASSERT( para->document() == p->document() );
+	Q_ASSERT( indices.isEmpty() || para->document() == p->document() );
     }
     para = p;
     if ( index < 0 || index >= para->length() ) {
