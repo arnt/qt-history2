@@ -14,11 +14,24 @@ public:
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
 
+public slots:
+    void setFillRule(Qt::FillRule rule);
+    void setFillGradient(const QColor &color1, const QColor &color2);
+    void setStrokeWidth(int width);
+    void setStrokeGradient(const QColor &color1, const QColor &color2);
+    void setRotationAngle(int degrees);
+
 protected:
     void paintEvent(QPaintEvent *event);
 
 private:
     QPainterPath path;
+    QColor fillColor1;
+    QColor fillColor2;
+    int strokeWidth;
+    QColor strokeColor1;
+    QColor strokeColor2;
+    int rotationAngle;
 };
 
 #endif

@@ -3,6 +3,9 @@
 
 #include <QWidget>
 
+class QComboBox;
+class QLabel;
+class QSpinBox;
 class RenderArea;
 
 class Window : public QWidget
@@ -12,16 +15,34 @@ class Window : public QWidget
 public:
     Window();
 
+private slots:
+    void fillRuleChanged();
+    void fillGradientChanged();
+    void strokeGradientChanged();
+
 private:
-    RenderArea *rectArea;
-    RenderArea *roundRectArea;
-    RenderArea *ellipseArea;
-    RenderArea *pieArea;
-    RenderArea *polylineArea;
-    RenderArea *polygonArea;
-    RenderArea *textArea;
-    RenderArea *bezierArea;
-    RenderArea *compositionArea;
+    void addItem(QComboBox *comboBox, const QString &text, int id);
+    void addColor(QComboBox *comboBox, const QString &text,
+                  const QColor &color);
+    void populateWithColors(QComboBox *comboBox);
+
+    enum { NumRenderAreas = 9 };
+
+    RenderArea *renderAreas[NumRenderAreas];
+    QLabel *fillRuleLabel;
+    QLabel *fillGradientLabel;
+    QLabel *fillToLabel;
+    QLabel *strokeWidthLabel;
+    QLabel *strokeGradientLabel;
+    QLabel *strokeToLabel;
+    QLabel *rotationAngleLabel;
+    QComboBox *fillRuleComboBox;
+    QComboBox *fillColor1ComboBox;
+    QComboBox *fillColor2ComboBox;
+    QSpinBox *strokeWidthSpinBox;
+    QComboBox *strokeColor1ComboBox;
+    QComboBox *strokeColor2ComboBox;
+    QSpinBox *rotationAngleSpinBox;
 };
 
 #endif
