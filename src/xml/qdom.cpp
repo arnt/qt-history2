@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#48 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#49 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -876,7 +876,7 @@ uint QDomNodeListPrivate::length() const
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 
-  \sa QDomNode::childNode() QDomDocument::elementsByTagName()
+  \sa QDomNode::childNodes() QDomDocument::elementsByTagName()
 */
 
 /*!
@@ -2142,7 +2142,7 @@ QTextStream& operator<<( QTextStream& str, const QDomNode& node )
   If this function returns TRUE, this does not imply that this object is
   a QDomAttribute; you can get the QDomAttribute with toAttribute().
 
-  \sa toAttribute()
+  \sa toAttr()
 */
 bool QDomNode::isAttr() const
 {
@@ -3825,7 +3825,7 @@ QString QDomElement::tagName() const
   Returns the attribute with the name \a name. If the attribute does not exist
   \a defValue is returned.
 
-  \sa setAttribute() attributeNode() setAttributeNode()
+  \sa setAttribute() attributeNode() setAttributeNode() attributeNS()
 */
 QString QDomElement::attribute( const QString& name,  const QString& defValue ) const
 {
@@ -3837,6 +3837,8 @@ QString QDomElement::attribute( const QString& name,  const QString& defValue ) 
 /*!
   Sets the attribute with the name \a name to the string \a value.  If the
   attribute does not exist, a new one is created.
+
+  \sa attribute() setAttributeNode() setAttributeNS()
 */
 void QDomElement::setAttribute( const QString& name, const QString& value )
 {
@@ -3881,7 +3883,7 @@ void QDomElement::setAttribute( const QString& name, double value )
 /*!
   Removes the attribute with the name \a name from this element.
 
-  \sa setAttribute() attribute()
+  \sa setAttribute() attribute() removeAttributeNS()
 */
 void QDomElement::removeAttribute( const QString& name )
 {
@@ -3894,7 +3896,7 @@ void QDomElement::removeAttribute( const QString& name )
   Returns the QDomAttr object that corresponds to the attribute with the name
   \a name.  If no such attribute exists a null object is returned.
 
-  \sa setAttributeNode() attribute() setAttribute()
+  \sa setAttributeNode() attribute() setAttribute() attributeNodeNS()
 */
 QDomAttr QDomElement::attributeNode( const QString& name)
 {
@@ -3906,10 +3908,11 @@ QDomAttr QDomElement::attributeNode( const QString& name)
 /*!
   Adds the attribute \a newAttr to this element.
 
-  If an attribute with the name \a newAttr exists in the element, the function
-  returns this attribute; otherwise the function returns a null attribute.
+  If the element has another attribute that has the same name as \a newAttr,
+  this function replaces that attribute and returns it; otherwise the function
+  returns a null attribute.
 
-  \sa attributeNode()
+  \sa attributeNode() setAttribute() setAttributeNodeNS()
 */
 QDomAttr QDomElement::setAttributeNode( const QDomAttr& newAttr )
 {
@@ -3974,61 +3977,90 @@ bool QDomElement::hasAttribute( const QString& name ) const
 }
 
 /*!
-  fnord
+  Returns the attribute with the local name \a localName and the namespace URI
+  \a nsURI. If the attribute does not exist \a defValue is returned.
+
+  \sa setAttributeNS() attributeNodeNS() setAttributeNodeNS() attribute()
 */
-QString QDomElement::attributeNS( const QString /*nsURI*/, const QString& /*localName*/ ) const
+QString QDomElement::attributeNS( const QString /*nsURI*/, const QString& /*localName*/, const QString& /*defValue*/ ) const
 {
+    // ### implementation!
     return QString::null;
 }
 
 /*!
-  fnord
+  Adds an attribute with the qualified name \a qName and the namespace URI \a
+  nsURI to the string \a value. If an attribute with the same local name and
+  namespace URI exists, its prefix is replaced by the prefix of \a qName and
+  its value is repaced by \a value.
+
+  Please note that the argument \a qName is the qualified name, but the local
+  name is used for the test, if an existing attribute should be replaced.
+
+  \sa attributeNS() setAttributeNodeNS() setAttribute()
 */
 void QDomElement::setAttributeNS( const QString /*nsURI*/, const QString& /*qName*/, const QString& /*value*/ )
 {
+    // ### implementation!
 }
 
 /*!  \overload
-  fnord
 */
 void QDomElement::setAttributeNS( const QString /*nsURI*/, const QString& /*qName*/, int /*value*/ )
 {
+    // ### implementation!
 }
 
 /*!  \overload
-  fnord
 */
 void QDomElement::setAttributeNS( const QString /*nsURI*/, const QString& /*qName*/, uint /*value*/ )
 {
+    // ### implementation!
 }
 
 /*!  \overload
-  fnord
 */
 void QDomElement::setAttributeNS( const QString /*nsURI*/, const QString& /*qName*/, double /*value*/ )
 {
+    // ### implementation!
 }
 
 /*!
-  fnord
+  Removes the attribute with the local name \a localName and the namespace URI
+  \a nsURI from this element.
+
+  \sa setAttributeNS() attributeNS() removeAttribute()
 */
 void QDomElement::removeAttributeNS( const QString& /*nsURI*/, const QString& /*localName*/ )
 {
+    // ### implementation!
 }
 
 /*!
-  fnord
+  Returns the QDomAttr object that corresponds to the attribute with the local
+  name \a localName and the namespace URI \a nsURI. If no such attribute
+  exists a null object is returned.
+
+  \sa setAttributeNode() attribute() setAttribute() attributeNodeNS()
 */
 QDomAttr QDomElement::attributeNodeNS( const QString& /*nsURI*/, const QString& /*localName*/ )
 {
+    // ### implementation!
     return QDomAttr();
 }
 
 /*!
-  fnord
+  Adds the attribute \a newAttr to this element.
+
+  If the element has another attribute that has the same local name and
+  namespace URI as \a newAttr, this function replaces that attribute and
+  returns it; otherwise the function returns a null attribute.
+
+  \sa attributeNodeNS() setAttributeNS() setAttributeNode()
 */
 QDomAttr QDomElement::setAttributeNodeNS( const QDomAttr& /*newAttr*/ )
 {
+    // ### implementation!
     return QDomAttr();
 }
 
@@ -4046,10 +4078,12 @@ QDomNodeList QDomElement::elementsByTagNameNS( const QString& nsURI, const QStri
 }
 
 /*!
-  fnord
+  Returns TRUE is this element has an attribute with the local name \a
+  localName and the namespace URI \a nsURI, otherwise FALSE.
 */
 bool QDomElement::hasAttributeNS( const QString& /*nsURI*/, const QString& /*localName*/ ) const
 {
+    // ### implementation!
     return FALSE;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.h#17 $
+** $Id: //depot/qt/main/src/xml/qdom.h#18 $
 **
 ** Definition of QDomDocument and related classes.
 **
@@ -470,7 +470,7 @@ public:
     virtual QDomNodeList elementsByTagName( const QString& tagname ) const;
     bool hasAttribute( const QString& name ) const;
 
-    QString attributeNS( const QString nsURI, const QString& localName ) const;
+    QString attributeNS( const QString nsURI, const QString& localName, const QString& defValue ) const;
     void setAttributeNS( const QString nsURI, const QString& qName, const QString& value );
     void setAttributeNS( const QString nsURI, const QString& qName, int value );
     void setAttributeNS( const QString nsURI, const QString& qName, uint value );
