@@ -434,7 +434,7 @@ void VcprojGenerator::initCompilerTool()
 	placement = ".\\";
 
     vcProject.Configuration.compiler.AssemblerListingLocation = placement ;
-    vcProject.Configuration.compiler.ProgramDataBaseFileName = "" ;
+    vcProject.Configuration.compiler.ProgramDataBaseFileName = ".\\" ;
     vcProject.Configuration.compiler.ObjectFile = placement ;
     //vcProject.Configuration.compiler.PrecompiledHeaderFile = placement + project->first("QMAKE_ORIG_TARGET") + ".pch";
 
