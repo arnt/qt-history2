@@ -2224,7 +2224,7 @@ void QLineEditPrivate::updateTextLayout()
     QString display( q->displayText() );
     QChar* uc = (QChar*)display.unicode();
     for ( uint i = 0; i < display.length(); i++ )
-	if ( uc[(int)i]== '\n' || uc[(int)i] == 0x2028U || uc[(int)i] == '\t' )
+	if ( uc[(int)i]== '\n' || QChar(0x2028U) || uc[(int)i] == '\t' )
 	    uc[(int)i] = 0x20;
     textLayout.setText( display, q->font() );
     // ### want to do textLayout.setRightToLeft( text.isRightToLeft() );
