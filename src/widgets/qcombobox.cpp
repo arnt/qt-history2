@@ -37,6 +37,8 @@
 #include "qbitmap.h"
 #include <limits.h>
 
+//#define ANIMATED_COMBO
+
 // NOT REVISED
 /*!
   \class QComboBox qcombobox.h
@@ -231,8 +233,11 @@ struct QComboData
     bool	completeNow;
     int		completeAt;
     bool duplicatesEnabled;
-
+    int fullHeight, currHeight;
+    
     QLineEdit * ed;  // /bin/ed rules!
+    QTimer *showTimer;
+
 private:
     bool	usingLBox;
     QComboBoxPopup *pop;
@@ -337,6 +342,9 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
 			     SLOT(internalActivate(int)) );
 	connect( d->listBox(), SIGNAL(highlighted(int)),
 			     SLOT(internalHighlight(int)));
+	d->showTimer = new QTimer( this );
+	connect( d->showTimer, SIGNAL( timeout() ),
+		 this, SLOT( showMore() ) );
     } else {
 	d = new QComboData( this );
 	d->setPopupMenu( new QComboBoxPopup );
@@ -400,6 +408,10 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     d->shortClick = FALSE;
     d->useCompletion = FALSE;
 
+    d->showTimer = new QTimer( this );
+    connect( d->showTimer, SIGNAL( timeout() ),
+	     this, SLOT( showMore() ) );
+    
     setFocusPolicy( StrongFocus );
 
     if ( rw ) {
@@ -1427,7 +1439,16 @@ void QComboBox::popup()
 	d->listBox()->setCurrentItem( d->listBox()->item( d->current ) );
 	d->listBox()->blockSignals( FALSE );
 	d->listBox()->setAutoScrollBar( TRUE );
+#ifdef ANIMATED_COMBO	
+	d->fullHeight = d->listBox()->height();
+	d->currHeight = 0;
+	d->listBox()->resize( d->listBox()->width(), 0 );
 	d->listBox()->show();
+	d->listBox()->setVScrollBarMode( QScrollView::AlwaysOff );
+	d->showTimer->start( 2 );
+#else
+	d->listBox()->show();
+#endif
     } else {
 	d->popup()->installEventFilter( this );
 	d->popup()->popup( mapToGlobal( QPoint(0,0) ), this->d->current );
@@ -1999,4 +2020,22 @@ void QComboBox::styleChange( QStyle& s )
 	d->updateLinedGeometry();
     //d->ed->setGeometry(style().comboButtonRect( 0, 0, width(), height() ));
     QWidget::styleChange( s );
+}
+
+/*!
+  \internal
+*/
+
+void QComboBox::showMore()
+{
+    if ( !d->listBox() )
+	return;
+    d->currHeight += 10;
+    if ( d->currHeight > d->fullHeight )
+	d->currHeight = d->fullHeight;
+    d->listBox()->resize( d->listBox()->width(), d->currHeight );
+    if ( d->currHeight == d->fullHeight ) {
+	d->listBox()->setVScrollBarMode( QScrollView::Auto );
+	d->showTimer->stop();
+    }
 }

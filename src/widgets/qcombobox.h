@@ -136,7 +136,8 @@ private slots:
     void	internalHighlight( int );
     void	internalClickTimeout();
     void	returnPressed();
-
+    void	showMore();
+    
 protected:
     void	paintEvent( QPaintEvent * );
     void	resizeEvent( QResizeEvent * );
