@@ -460,7 +460,7 @@ QRect QWindowsStyle::comboButtonFocusRect( int x, int y, int w, int h)
 
   \sa QStyle
   */
-void QWindowsStyle::scrollbarMetrics( const QScrollBar* sb, int *sliderMin, int *sliderMax, int *sliderLength )
+void QWindowsStyle::scrollBarMetrics( const QScrollBar* sb, int *sliderMin, int *sliderMax, int *sliderLength )
 {
     int buttonDim, maxLength;
     int b = 0;
@@ -495,14 +495,14 @@ void QWindowsStyle::scrollbarMetrics( const QScrollBar* sb, int *sliderMin, int 
 
   \sa QStyle
   */
-void QWindowsStyle::drawScrollbarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
+void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
 {
 #define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
 #define SUB_LINE_ACTIVE ( activeControl == SUB_LINE )
     QColorGroup g  = sb->colorGroup();
 
     int sliderMin, sliderMax, sliderLength;
-    scrollbarMetrics( sb, &sliderMin, &sliderMax, &sliderLength );
+    scrollBarMetrics( sb, &sliderMin, &sliderMax, &sliderLength );
 
     int b = 0;
     int dimB = sliderMin - b;

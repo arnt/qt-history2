@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.h#2 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.h#3 $
 **
 ** Definition of something or other
 **
@@ -55,8 +55,8 @@ public:
     QRect comboButtonRect( int x, int y, int w, int h);
     QRect comboButtonFocusRect( int x, int y, int w, int h);
 
-    void scrollbarMetrics( const QScrollBar*,  int *, int *, int * );
-    void drawScrollbarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
+    void scrollBarMetrics( const QScrollBar*,  int *, int *, int * );
+    void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
 
 
     int sliderLength() const;

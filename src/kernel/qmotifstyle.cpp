@@ -353,7 +353,7 @@ QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
 
   \sa QStyle
   */
-void QMotifStyle::scrollbarMetrics( const QScrollBar* sb, int *sliderMin, int *sliderMax, int *sliderLength )
+void QMotifStyle::scrollBarMetrics( const QScrollBar* sb, int *sliderMin, int *sliderMax, int *sliderLength )
 {
     int buttonDim, maxLength;
     int b = MOTIF_BORDER;
@@ -388,14 +388,14 @@ void QMotifStyle::scrollbarMetrics( const QScrollBar* sb, int *sliderMin, int *s
 
   \sa QStyle
   */
-void QMotifStyle::drawScrollbarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
+void QMotifStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
 {
 #define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
 #define SUB_LINE_ACTIVE ( activeControl == SUB_LINE )
     QColorGroup g  = sb->colorGroup();
 
     int sliderMin, sliderMax, sliderLength;
-    scrollbarMetrics( sb, &sliderMin, &sliderMax, &sliderLength );
+    scrollBarMetrics( sb, &sliderMin, &sliderMax, &sliderLength );
 
     int b = MOTIF_BORDER;
     int dimB = sliderMin - b;

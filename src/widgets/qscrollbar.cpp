@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#113 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#114 $
 **
 ** Implementation of QScrollBar class
 **
@@ -515,7 +515,7 @@ static QCOORD sliderStartPos = 0;
 void QScrollBar::mousePressEvent( QMouseEvent *e )
 {
     if ( !(e->button() == LeftButton ||
-	   (style() == MotifStyle && e->button() == MidButton) ) )
+	   (/*style() == MotifStyle &&*/ e->button() == MidButton) ) )
 	return;
 
     if ( maxValue() == minValue() ) // nothing to be done
@@ -527,7 +527,7 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
     if ( (pressedControl == ADD_PAGE ||
 	  pressedControl == SUB_PAGE ||
 	  pressedControl == SLIDER ) &&
-	 style() == MotifStyle &&
+	 /*style() == MotifStyle &&*/
 	 e->button() == MidButton ) {
 	int dummy1, dummy2, sliderLength;
 	PRIV->metrics( &dummy1, &dummy2, &sliderLength );
@@ -561,7 +561,7 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( !clickedAt || !(e->button() == LeftButton ||
-			 (style() == MotifStyle &&
+			 (/*style() == MotifStyle &&*/
 			  e->button() == MidButton)) )
 	return;
     ScrollControl tmp = (ScrollControl) pressedControl;
@@ -599,8 +599,8 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	return;
     }
     if ( !clickedAt || !(e->state() & LeftButton ||
-			 ((e->state() & MidButton) &&
-			  style() == MotifStyle)) )
+			 ((e->state() & MidButton) /*&&
+			  style() == MotifStyle*/)) )
 	return;
     int newSliderPos;
     if ( pressedControl == SLIDER ) {
@@ -696,7 +696,7 @@ void QScrollBar_Private::metrics( int *sliderMin, int *sliderMax,
 				  int *sliderLength ) const
 {
 
-    style().scrollbarMetrics( this, sliderMin, sliderMax, sliderLength);
+    style().scrollBarMetrics( this, sliderMin, sliderMax, sliderLength);
     return;
 
     int buttonDim, maxLength;
@@ -822,7 +822,7 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 				       QPainter *p ) const
 {
 
-    style().drawScrollbarControls(p, this, sliderStart(), controls, activeControl);
+    style().drawScrollBarControls(p, this, sliderStart(), controls, activeControl);
     return;
 
 #define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )

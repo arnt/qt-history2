@@ -463,7 +463,7 @@ void QPlatinumStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 
   \sa QStyle
   */
-void QPlatinumStyle::scrollbarMetrics( const QScrollBar* sb, int *sliderMin, int *sliderMax, int *sliderLength )
+void QPlatinumStyle::scrollBarMetrics( const QScrollBar* sb, int *sliderMin, int *sliderMax, int *sliderLength )
 {
     int buttonDim, maxLength;
     int b = 0;
@@ -501,7 +501,7 @@ void QPlatinumStyle::scrollbarMetrics( const QScrollBar* sb, int *sliderMin, int
 
   \sa QStyle
   */
-void QPlatinumStyle::drawScrollbarBackground( QPainter *p, int x, int y, int w, int h,
+void QPlatinumStyle::drawScrollBarBackground( QPainter *p, int x, int y, int w, int h,
 					      const QColorGroup &g, bool horizontal, const QBrush* fill)
 {
     QPen oldPen = p->pen();
@@ -573,14 +573,14 @@ void QPlatinumStyle::drawScrollbarBackground( QPainter *p, int x, int y, int w, 
 
   \sa QStyle
   */
-void QPlatinumStyle::drawScrollbarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
+void QPlatinumStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
 {
 #define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
 #define SUB_LINE_ACTIVE ( activeControl == SUB_LINE )
     QColorGroup g  = sb->colorGroup();
 
     int sliderMin, sliderMax, sliderLength;
-    scrollbarMetrics( sb, &sliderMin, &sliderMax, &sliderLength );
+    scrollBarMetrics( sb, &sliderMin, &sliderMax, &sliderLength );
 
     int b = 0;
     int dimB = sliderMin - b;
@@ -646,11 +646,11 @@ void QPlatinumStyle::drawScrollbarControls( QPainter* p, const QScrollBar* sb, i
 
 
     if ( controls & SUB_PAGE )
-	drawScrollbarBackground( p, subPageR.x(), subPageR.y(), subPageR.width(),
+	drawScrollBarBackground( p, subPageR.x(), subPageR.y(), subPageR.width(),
 				 subPageR.height(),
 				 g, HORIZONTAL );
     if ( controls & ADD_PAGE )
-	drawScrollbarBackground( p, addPageR.x(), addPageR.y(), addPageR.width(),
+	drawScrollBarBackground( p, addPageR.x(), addPageR.y(), addPageR.width(),
 				 addPageR.height(),
 				 g, HORIZONTAL );
     if ( controls & SLIDER ) {

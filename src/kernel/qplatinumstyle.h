@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qplatinumstyle.h#3 $
+** $Id: //depot/qt/main/src/kernel/qplatinumstyle.h#4 $
 **
 ** Definition of something or other
 **
@@ -28,8 +28,8 @@ public:
     void drawPushButton( QPushButton* btn, QPainter *p);
     void drawPushButtonLabel( QPushButton* btn, QPainter *p);
 
-    void scrollbarMetrics( const QScrollBar*,  int *, int *, int * );
-    void drawScrollbarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
+    void scrollBarMetrics( const QScrollBar*,  int *, int *, int * );
+    void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
 
     QSize indicatorSize() const;
     void drawIndicator( QPainter* p, int x, int y, int w, int h,  const QColorGroup &g,
@@ -65,7 +65,7 @@ public:
     //     void polish( QWidget* );
 
 protected:
-    void drawScrollbarBackground( QPainter *p, int x, int y, int w, int h,
+    void drawScrollBarBackground( QPainter *p, int x, int y, int w, int h,
 				  const QColorGroup &g, bool horizontal, const QBrush* fill = 0);
     QColor mixedColor(const QColor &, const QColor &);
     void drawRiffles( QPainter* p,  int x, int y, int w, int h,

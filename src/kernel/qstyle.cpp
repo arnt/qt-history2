@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#20 $
 **
 ** Implementation of QStyle class
 **
@@ -410,7 +410,7 @@ QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool /* on *
 
 /*!
 
-  \fn void QStyle::scrollbarMetrics( const QScrollBar*, int *, int *, int * )
+  \fn void QStyle::scrollBarMetrics( const QScrollBar*, int *, int *, int * )
 
   Returns the metrics of the passed scrollbar: sliderMin, sliderMax
   and sliderLength
@@ -419,7 +419,7 @@ QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool /* on *
 
 /*!
 
-  \fn  void QStyle::drawScrollbarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls,
+  \fn  void QStyle::drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls,
   uint activeControl )
 
   Draws the given scrollbar. Used internally by QScrollbar.
