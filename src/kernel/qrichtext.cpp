@@ -2012,10 +2012,9 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		}
 	    }
 	    if (  curtag.wsm == QStyleSheetItem::WhiteSpacePre && c == '\n' ) {
-		hasNewPar = FALSE;
-		tags.push( curtag );
+		hasNewPar = FALSE; // for a new paragraph ...
 		NEWPAR;
-		curtag = tags.pop();
+		hasNewPar = FALSE; // ... and amke it non-reusable
 	    }
 	}
     }
@@ -5222,7 +5221,9 @@ int QTextParag::topMargin() const
 	for ( int i = (int)mStyleSheetItemsVec->size() - 2 ; i >= 0; --i ) {
 	    item = (*mStyleSheetItemsVec)[ i ];
 	    if ( p && i < (int) p->size() &&
-		 ( (*p)[ i ] == item || (*p)[ i ]->displayMode() == QStyleSheetItem::DisplayListItem ) )
+		 (  ( item->displayMode() == QStyleSheetItem::DisplayBlock &&
+		      (*p)[ i ] == item )
+		    || (*p)[ i ]->displayMode() == QStyleSheetItem::DisplayListItem ) )
 		break;
 	    int mar = item->margin( QStyleSheetItem::MarginTop );
 	    mar = QMAX( mar, 0 );
@@ -5245,9 +5246,11 @@ int QTextParag::bottomMargin() const
 	QPtrVector<QStyleSheetItem> * n = next() ? next()->mStyleSheetItemsVec : 0;
 	for ( int i = (int)mStyleSheetItemsVec->size() - 2 ; i >= 0; --i ) {
 	    item = (*mStyleSheetItemsVec)[ i ];
-   	    if ( n && i < (int) n->size() &&
-		 ( (*n)[ i ] == item || (*n)[ i ]->displayMode() == QStyleSheetItem::DisplayListItem ) )
- 		break;
+	    if ( n && i < (int) n->size() &&
+		 (  ( item->displayMode() == QStyleSheetItem::DisplayBlock &&
+		      (*n)[ i ] == item )
+		    || (*n)[ i ]->displayMode() == QStyleSheetItem::DisplayListItem ) )
+		break;
 	    int mar = item->margin( QStyleSheetItem::MarginBottom );
 	    mar = QMAX( mar, 0 );
 	    m = QMAX( m, mar );
