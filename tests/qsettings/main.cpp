@@ -1,18 +1,11 @@
 #include <qapplication.h>
-#include "qsettings.h"
-#include <qvariant.h>
-#include <qimage.h>
-#include <qfile.h>
-#include <qtextstream.h>
-#include <qpixmap.h>
-#include <qbitmap.h>
-#include <qiconset.h>
-#include <qpointarray.h>
-#include <qcursor.h>
-#include <qcursor.h>
-#include <qdom.h>
+#include <qwindowsstyle.h>
+#include <qsettings.h>
+#include <qstring.h>
+#include <qstringlist.h>
 
 #ifdef Q_OS_UNIX
+#include <stdlib.h>
 #include <sys/time.h>
 #else
 #include <time.h>
@@ -23,223 +16,297 @@ int main(int argc, char **argv) {
     QApplication app(argc, argv);
 
     {
-	qDebug("== testing all QVariant data types");
+	qDebug("== reading settings");
+
+	QApplication::setStyle(new QWindowsStyle);
 
 	QSettings settings;
-	QSettings settings2;
-	QSettings settings3;
 
-	settings.setWritable(TRUE);
+	// QVariant v = app.palette();
+	// settings.writeEntry("/qt/palette", v);
 
-	settings.setPath(QSettings::Unix, "variantrc");
-	settings2.setPath(QSettings::Unix, "variantrc2");
-	settings3.setPath(QSettings::Unix, "variantrc3");
+	// v = QFont("tahoma", 12);
+	// settings.writeEntry("/qt/font", v);
 
-	settings.setFallback(&settings2);
-	settings2.setFallback(&settings3);
+	/*
+	  settings.writeEntry("/qt/style", "Platinum");
+	  settings.writeEntry("/qt/doubleclicktime", 500);
+	  settings.writeEntry("/qt/cursorflashtime", 1500);
+	  settings.writeEntry("/qt/wheelscrolllines", 5);
+	  settings.writeEntry("/qt/guieffects", "general animatecombo animatemenu");
+	*/
 
-	// String
-	QString vstring = "this is a string";
-	settings.writeEntry("/variant/string/string", vstring);
+       	QString val = settings.readEntry("/qt/Font/Substitutions");
+	qDebug("/qt/Font/Substitutions = %s", val.latin1());
 
-       	// StringList
-	QStringList vstrlist;
-	vstrlist.append("foo");
-	vstrlist.append("bar");
-	vstrlist.append("baz");
-	vstrlist.append("b0rk");
-	settings.writeEntry("/variant/string/list", vstrlist);
+	val = settings.readEntry("/qt/guieffects");
+	qDebug("/qt/guieffects = %s", val.latin1());
 
-	// Font
-	QFont vfont;
-	settings.writeEntry("/variant/font/font", vfont);
+	val = settings.readEntry("/qt/style");
+	qDebug("/qt/style = %s", val.latin1());
 
-	// Image
-	QImage vimage;
-	vimage.load("qtlogo.png");
-	settings.writeEntry("/variant/image/image", vimage);
+	val = settings.readEntry("style");
+	qDebug("style = %s", val.latin1());
 
-	// Pixmap
-	QPixmap vpixmap;
-	vpixmap = vimage;
-	settings.writeEntry("/variant/image/pixmap", vpixmap);
+	val = settings.readEntry("/qt/font/substitutions/tahoma");
+	qDebug("/qt/font/substitutions/tahoma = %s", val.latin1());
 
-	// Bitmap
-	QBitmap vbitmap;
-	vbitmap = vimage.convertDepth(1);
-	settings.writeEntry("/variant/image/bitmap", vbitmap);
+	val = settings.readEntry("/qt");
+	qDebug("/qt = %s", val.latin1());
 
-	// Color
-	QColor vcolor(192, 192, 176);
-	settings.writeEntry("/variant/painter/color", vcolor);
+	bool b = settings.readBoolEntry("/qt/posixMeHarder");
+	qDebug("/qt/posixMeHarder = %d", b);
 
-	// Brush
-	QBrush vbrush;
-	vbrush.setColor(vcolor);
-	vbrush.setPixmap(vpixmap);
-	settings.writeEntry("/variant/painter/brush", vbrush);
+	double d = settings.readDoubleEntry("pointSize");
+	qDebug("pointSize = %f", d);
 
-	// Rect
-	QRect vrect(424, 242, 42, 42);
-	settings.writeEntry("/variant/dimensions/rect", vrect);
+	int i = settings.readNumEntry("desktopCount");
+	qDebug("desktopCount = %d", i);
 
-	// Size
-	QSize vsize(666, 666);
-	settings.writeEntry("/variant/dimensions/size", vsize);
+	QStringList l = settings.readListEntry("font", ',');
+	qDebug("font = %d count", l.count());
 
-	// Palette
-	QPalette vpalette;
-	settings.writeEntry("/variant/painter/palette", vpalette);
 
-	// ColorGroup
-	settings.writeEntry("/variant/palette/colorgroup", vpalette.active());
+	qDebug("=== writing settings");
 
-	// IconSet
-	QIconSet viconset;
-	viconset.setPixmap(vpixmap, QIconSet::Small, QIconSet::Normal);
-	viconset.setPixmap(vpixmap, QIconSet::Small, QIconSet::Active);
-	viconset.setPixmap(vbitmap, QIconSet::Small, QIconSet::Disabled);
-	viconset.setPixmap(vpixmap, QIconSet::Large, QIconSet::Normal);
-	viconset.setPixmap(vpixmap, QIconSet::Large, QIconSet::Active);
-	viconset.setPixmap(vbitmap, QIconSet::Large, QIconSet::Disabled);
-	settings.writeEntry("/variant/image/iconset", viconset);
+	settings.writeEntry("/qt/Font/Substitutions", "tahoma");
+	settings.writeEntry("/qt/guieffects", "all!");
+	settings.writeEntry("/qt/style", "Aqua");
+	settings.writeEntry("style", "Platinum");
+	settings.writeEntry("/qt/font/substitutions/tahoma", "EH?");
+	settings.writeEntry("/qt", "INVAL");
+	settings.writeEntry("/qt/posixMeHarder", TRUE);
+	settings.writeEntry("pointSize", 16.0);
+	settings.writeEntry("desktopCount", 6);
+	settings.writeEntry("font", l, ',');
 
-	// Point
-	QPoint vpoint(424, 242);
-	settings.writeEntry("/variant/dimensions/point", vpoint);
-
-	// Int
-	int vint = -4242;
-	settings.writeEntry("/variant/primitive/int", vint);
-
-	// UInt
-	int vuint = 4242;
-	settings.writeEntry("/variant/primitive/uint", vuint);
-
-	// Bool
-	bool vbool = TRUE;
-	settings.writeEntry("/variant/primitive/bool", QVariant(vbool, 0));
-
-	// Double
-	double vdouble = 4242.666;
-	settings.writeEntry("/variant/primitive/double", vdouble);
-
-	// CString
-	QCString vcstring = "Fear the k0w";
-	settings.writeEntry("/variant/string/cstring", vcstring);
-
-	// PointArray
-	QPointArray vpa(5);
-	vpa[0] = QPoint(1, 2);
-	vpa[1] = QPoint(3, 4);
-	vpa[2] = QPoint(5, 6);
-	vpa[3] = QPoint(7, 8);
-	vpa[4] = QPoint(9, 10);
-	settings.writeEntry("/variant/dimensions/pointarray", vpa);
-
-	// Region
-	QRegion vregion;
-	vregion = QRegion(1, 2, 3, 4);
-	vregion = vregion.unite(QRegion(5, 6, 7, 8));
-	vregion = vregion.unite(QRegion(9, 10, 11, 12));
-	settings.writeEntry("/variant/dimensions/region", vregion);
-
-	// Cursor
-	QCursor vcursor(Qt::forbiddenCursor);
-	settings.writeEntry("/variant/gui/cursor", vcursor);
-
-	// SizePolicy
-	QSizePolicy vsp;
-	vsp.setHorData(QSizePolicy::MinimumExpanding);
-	vsp.setVerData(QSizePolicy::Fixed);
-	settings.writeEntry("/variant/gui/sizepolicy", vsp);
-
-	// Map
-	QMap<QString,QVariant> vmap;
-	vmap["string"] = vstring;
-	vmap["stringlist"] = vstrlist;
-	vmap["font"] = vfont;
-	vmap["image"] = vimage;
-	vmap["pixmap"] = vpixmap;
-	vmap["bitmap"] = vbitmap;
-	vmap["color"] = vcolor;
-	vmap["brush"] = vbrush;
-	vmap["rect"] = vrect;
-	vmap["size"] = vsize;
-	vmap["palette"] = vpalette;
-	vmap["colorgroup"] = vpalette.inactive();
-	vmap["iconset"] = viconset;
-	vmap["point"] = vpoint;
-	vmap["int"] = vint;
-	vmap["uint"] = vuint;
-	vmap["bool"] = QVariant(vbool, 0);
-	vmap["double"] = vdouble;
-	vmap["cstring"] = vcstring;
-	vmap["pointarray"] = vpa;
-	vmap["region"] = vregion;
-	vmap["cursor"] = vcursor;
-	vmap["sizepolicy"] = vsp;
-
-	// List
-	QValueList<QVariant> vlist;
-	vlist.append(vstring);
-	vlist.append(vstrlist);
-	vlist.append(vfont);
-	vlist.append(vimage);
-	vlist.append(vpixmap);
-	vlist.append(vbitmap);
-	vlist.append(vcolor);
-	vlist.append(vbrush);
-	vlist.append(vrect);
-	vlist.append(vsize);
-	vlist.append(vpalette);
-	vlist.append(vpalette.disabled());
-	vlist.append(viconset);
-	vlist.append(vpoint);
-	vlist.append(vint);
-	vlist.append(vuint);
-	vlist.append(QVariant(vbool, 0));
-	vlist.append(vdouble);
-	vlist.append(vcstring);
-	vlist.append(vpa);
-	vlist.append(vregion);
-	vlist.append(vcursor);
-	vlist.append(vsp);
-
-	// Map + List
-	vmap["list"] = vlist;
-	vlist.append(vmap);
-
-	settings.writeEntry("/variant/map", vmap);
-	settings.writeEntry("/variant/list", vlist);
-
-	// remove
-	settings.removeEntry("/variant/image");
-	settings.removeEntry("/variant/painter");
-	settings.removeEntry("/variant/list");
-	settings.removeEntry("/variant/map");
-	settings.removeEntry("/variant/string");
-
-	// read the recently destroyed to see if fallback works
-	QVariant v = settings.readEntry("/variant/string/string");
-
-	if (v.isValid() && v.type() == QVariant::String)
-	    qDebug("  read /variant/string/string = '%s'", v.toString().latin1());
-	else
-	    qDebug("   failed to read /variant/string/string");
-
-	settings.write();
-
-	settings3.setWritable(TRUE);
-	settings3.writeEntry("/variant/string/string",
-			     QVariant(QString("this is a string")));
-	settings3.write();
-
-	settings3.readEntry("////////");
-	settings3.removeEntry("/variant/");
-
-	qDebug("-- done");
+	if (settings.removeEntry("/qt/spankomatic")) {
+	    qDebug("removed /qt/spankomatic");
+	} else {
+	    qDebug("failed to remove /qt/spankomatic");
+	}
     }
+
+    /*
+      {
+      qDebug("== testing all QVariant data types");
+
+      QSettings settings;
+      QSettings settings2;
+      QSettings settings3;
+
+      settings.setWritable(TRUE);
+
+      settings.setPath(QSettings::Unix, "variantrc");
+      settings2.setPath(QSettings::Unix, "variantrc2");
+      settings3.setPath(QSettings::Unix, "variantrc3");
+
+      settings.setFallback(&settings2);
+      settings2.setFallback(&settings3);
+
+      // String
+      QString vstring = "this is a string";
+      settings.writeEntry("/variant/string/string", vstring);
+
+      // StringList
+      QStringList vstrlist;
+      vstrlist.append("foo");
+      vstrlist.append("bar");
+      vstrlist.append("baz");
+      vstrlist.append("b0rk");
+      settings.writeEntry("/variant/string/list", vstrlist);
+
+      // Font
+      QFont vfont;
+      settings.writeEntry("/variant/font/font", vfont);
+
+      // Image
+      QImage vimage;
+      vimage.load("qtlogo.png");
+      settings.writeEntry("/variant/image/image", vimage);
+
+      // Pixmap
+      QPixmap vpixmap;
+      vpixmap = vimage;
+      settings.writeEntry("/variant/image/pixmap", vpixmap);
+
+      // Bitmap
+      QBitmap vbitmap;
+      vbitmap = vimage.convertDepth(1);
+      settings.writeEntry("/variant/image/bitmap", vbitmap);
+
+      // Color
+      QColor vcolor(192, 192, 176);
+      settings.writeEntry("/variant/painter/color", vcolor);
+
+      // Brush
+      QBrush vbrush;
+      vbrush.setColor(vcolor);
+      vbrush.setPixmap(vpixmap);
+      settings.writeEntry("/variant/painter/brush", vbrush);
+
+      // Rect
+      QRect vrect(424, 242, 42, 42);
+      settings.writeEntry("/variant/dimensions/rect", vrect);
+
+      // Size
+      QSize vsize(666, 666);
+      settings.writeEntry("/variant/dimensions/size", vsize);
+
+      // Palette
+      QPalette vpalette;
+      settings.writeEntry("/variant/painter/palette", vpalette);
+
+      // ColorGroup
+      settings.writeEntry("/variant/palette/colorgroup", vpalette.active());
+
+      // IconSet
+      QIconSet viconset;
+      viconset.setPixmap(vpixmap, QIconSet::Small, QIconSet::Normal);
+      viconset.setPixmap(vpixmap, QIconSet::Small, QIconSet::Active);
+      viconset.setPixmap(vbitmap, QIconSet::Small, QIconSet::Disabled);
+      viconset.setPixmap(vpixmap, QIconSet::Large, QIconSet::Normal);
+      viconset.setPixmap(vpixmap, QIconSet::Large, QIconSet::Active);
+      viconset.setPixmap(vbitmap, QIconSet::Large, QIconSet::Disabled);
+      settings.writeEntry("/variant/image/iconset", viconset);
+
+      // Point
+      QPoint vpoint(424, 242);
+      settings.writeEntry("/variant/dimensions/point", vpoint);
+
+      // Int
+      int vint = -4242;
+      settings.writeEntry("/variant/primitive/int", vint);
+
+      // UInt
+      int vuint = 4242;
+      settings.writeEntry("/variant/primitive/uint", vuint);
+
+      // Bool
+      bool vbool = TRUE;
+      settings.writeEntry("/variant/primitive/bool", QVariant(vbool, 0));
+
+      // Double
+      double vdouble = 4242.666;
+      settings.writeEntry("/variant/primitive/double", vdouble);
+
+      // CString
+      QCString vcstring = "Fear the k0w";
+      settings.writeEntry("/variant/string/cstring", vcstring);
+
+      // PointArray
+      QPointArray vpa(5);
+      vpa[0] = QPoint(1, 2);
+      vpa[1] = QPoint(3, 4);
+      vpa[2] = QPoint(5, 6);
+      vpa[3] = QPoint(7, 8);
+      vpa[4] = QPoint(9, 10);
+      settings.writeEntry("/variant/dimensions/pointarray", vpa);
+
+      // Region
+      QRegion vregion;
+      vregion = QRegion(1, 2, 3, 4);
+      vregion = vregion.unite(QRegion(5, 6, 7, 8));
+      vregion = vregion.unite(QRegion(9, 10, 11, 12));
+      settings.writeEntry("/variant/dimensions/region", vregion);
+
+      // Cursor
+      QCursor vcursor(Qt::forbiddenCursor);
+      settings.writeEntry("/variant/gui/cursor", vcursor);
+
+      // SizePolicy
+      QSizePolicy vsp;
+      vsp.setHorData(QSizePolicy::MinimumExpanding);
+      vsp.setVerData(QSizePolicy::Fixed);
+      settings.writeEntry("/variant/gui/sizepolicy", vsp);
+
+      // Map
+      QMap<QString,QVariant> vmap;
+      vmap["string"] = vstring;
+      vmap["stringlist"] = vstrlist;
+      vmap["font"] = vfont;
+      vmap["image"] = vimage;
+      vmap["pixmap"] = vpixmap;
+      vmap["bitmap"] = vbitmap;
+      vmap["color"] = vcolor;
+      vmap["brush"] = vbrush;
+      vmap["rect"] = vrect;
+      vmap["size"] = vsize;
+      vmap["palette"] = vpalette;
+      vmap["colorgroup"] = vpalette.inactive();
+      vmap["iconset"] = viconset;
+      vmap["point"] = vpoint;
+      vmap["int"] = vint;
+      vmap["uint"] = vuint;
+      vmap["bool"] = QVariant(vbool, 0);
+      vmap["double"] = vdouble;
+      vmap["cstring"] = vcstring;
+      vmap["pointarray"] = vpa;
+      vmap["region"] = vregion;
+      vmap["cursor"] = vcursor;
+      vmap["sizepolicy"] = vsp;
+
+      // List
+      QValueList<QVariant> vlist;
+      vlist.append(vstring);
+      vlist.append(vstrlist);
+      vlist.append(vfont);
+      vlist.append(vimage);
+      vlist.append(vpixmap);
+      vlist.append(vbitmap);
+      vlist.append(vcolor);
+      vlist.append(vbrush);
+      vlist.append(vrect);
+      vlist.append(vsize);
+      vlist.append(vpalette);
+      vlist.append(vpalette.disabled());
+      vlist.append(viconset);
+      vlist.append(vpoint);
+      vlist.append(vint);
+      vlist.append(vuint);
+      vlist.append(QVariant(vbool, 0));
+      vlist.append(vdouble);
+      vlist.append(vcstring);
+      vlist.append(vpa);
+      vlist.append(vregion);
+      vlist.append(vcursor);
+      vlist.append(vsp);
+
+      // Map + List
+      vmap["list"] = vlist;
+      vlist.append(vmap);
+
+      settings.writeEntry("/variant/map", vmap);
+      settings.writeEntry("/variant/list", vlist);
+
+      // remove
+      settings.removeEntry("/variant/image");
+      settings.removeEntry("/variant/painter");
+      settings.removeEntry("/variant/list");
+      settings.removeEntry("/variant/map");
+      settings.removeEntry("/variant/string");
+
+      // read the recently destroyed to see if fallback works
+      QVariant v = settings.readEntry("/variant/string/string");
+
+      if (v.isValid() && v.type() == QVariant::String)
+      qDebug("  read /variant/string/string = '%s'", v.toString().latin1());
+      else
+      qDebug("   failed to read /variant/string/string");
+
+      settings.write();
+
+      settings3.setWritable(TRUE);
+      settings3.writeEntry("/variant/string/string",
+      QVariant(QString("this is a string")));
+      settings3.write();
+
+      settings3.readEntry("////////");
+      settings3.removeEntry("/variant/");
+
+      qDebug("-- done");
+      }
+    */
 
     /*
       {
