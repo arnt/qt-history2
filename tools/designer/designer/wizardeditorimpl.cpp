@@ -32,13 +32,13 @@
 WizardEditor::WizardEditor( QWidget *parent, QWizard *w, FormWindow *fw )
     : WizardEditorBase( parent, 0 ), formwindow( fw ), wizard( w )
 {
+    connect( buttonHelp, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
     fillListBox();
 }
 
 WizardEditor::~WizardEditor()
 {
     commands.setAutoDelete( TRUE );
-    commands.clear();
 }
 
 void WizardEditor::okClicked()

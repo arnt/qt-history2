@@ -8,12 +8,14 @@
 #include <qheader.h>
 #include <qlistbox.h>
 #include <qlineedit.h>
+#include <qpushbutton.h>
 #include "pixmapchooser.h"
 #include "command.h"
 #include <qvaluelist.h>
 #include <qtabwidget.h>
 #include "project.h"
 #include "metadatabase.h"
+#include "mainwindow.h"
 
 TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw, const char* name, bool modal, WFlags fl )
     : TableEditorBase( parent, name, modal, fl ),
@@ -22,6 +24,7 @@ TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw,
 #endif
     formWindow( fw )
 {
+    connect( buttonHelp, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
 #ifndef QT_NO_TABLE
     labelColumnPixmap->setText( "" );
     labelRowPixmap->setText( "" );

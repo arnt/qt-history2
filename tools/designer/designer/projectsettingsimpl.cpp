@@ -76,7 +76,9 @@ static QPixmap *filePixmap = 0;
 ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* name, bool modal, WFlags fl )
     : ProjectSettingsBase( parent, name, modal, fl ), project( pro )
 {
+    connect( buttonHelp, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
 
+    // #### implement remove/add files from/to project again
     PushButton5->hide();
     PushButton4->hide();
     listInterfaces->hide();

@@ -30,6 +30,7 @@
 #include <qsqldatabase.h>
 #include <qmessagebox.h>
 #include <qapplication.h>
+#include "mainwindow.h"
 
 static bool blockChanges = FALSE;
 
@@ -43,6 +44,7 @@ static bool blockChanges = FALSE;
 DatabaseConnectionsEditor::DatabaseConnectionsEditor( Project *pro, QWidget* parent,  const char* name, bool modal, WFlags fl )
     : DatabaseConnectionBase( parent, name, modal, fl ), project( pro )
 {
+    connect( buttonHelp, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
     connectionWidget = new DatabaseConnectionWidget( grp );
     grpLayout->addWidget( connectionWidget, 0, 0 );
 #ifndef QT_NO_SQL
