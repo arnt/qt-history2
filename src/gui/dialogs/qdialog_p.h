@@ -8,16 +8,16 @@ class QSizeGrip;
 
 class QDialogPrivate : public QWidgetPrivate
 {
-    Q_DECLARE_PUBLIC(QWidget)
+    Q_DECLARE_PUBLIC(QDialog)
 public:
 
     QDialogPrivate()
-        : mainDef(0), orientation(Horizontal),extension(0), doShowExtension(false)
+        : mainDef(0), orientation(Horizontal),extension(0), doShowExtension(false),
 #ifndef QT_NO_SIZEGRIP
-        ,resizer(0)
+          resizer(0),
 #endif
-        {
-    }
+          rescode(0), in_loop(0)
+        {}
 
     QPushButton* mainDef;
     Orientation orientation;
@@ -28,6 +28,16 @@ public:
     QSizeGrip* resizer;
 #endif
     QPoint lastRMBPress;
+
+    void        setDefault(QPushButton *);
+    void        setMainDefault(QPushButton *);
+    void        hideDefault();
+#ifdef Q_OS_TEMP
+    void        hideSpecial();
+#endif
+
+    int                rescode;
+    uint        in_loop: 1;
 };
 
 #endif // QDIALOGPRIVATE_P_H

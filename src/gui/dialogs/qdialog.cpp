@@ -209,8 +209,7 @@
 */
 
 QDialog::QDialog(QWidget *parent, WFlags f)
-    : QWidget(*new QDialogPrivate, parent, f | WType_Dialog),
-      rescode(0), in_loop(0)
+    : QWidget(*new QDialogPrivate, parent, f | WType_Dialog)
 {
 }
 
@@ -220,8 +219,7 @@ QDialog::QDialog(QWidget *parent, WFlags f)
 */
 QDialog::QDialog(QWidget *parent, const char *name, bool modal, WFlags f)
     : QWidget(*new QDialogPrivate, parent,
-               (modal ? (f|WShowModal) : f) | WType_Dialog),
-      rescode(0), in_loop(0)
+              (modal ? (f|WShowModal) : f) | WType_Dialog)
 {
     if (name)
         setObjectName(name);
@@ -232,8 +230,7 @@ QDialog::QDialog(QWidget *parent, const char *name, bool modal, WFlags f)
   \internal
 */
 QDialog::QDialog(QDialogPrivate &dd, QWidget *parent, WFlags f)
-    : QWidget(dd, parent, f | WType_Dialog),
-      rescode(0), in_loop(0)
+    : QWidget(dd, parent, f | WType_Dialog)
 {
 }
 
@@ -255,14 +252,13 @@ QDialog::~QDialog()
   default default button becomes the default button. This is what a
   push button calls when it loses focus.
 */
-
-void QDialog::setDefault(QPushButton *pushButton)
+void QDialogPrivate::setDefault(QPushButton *pushButton)
 {
     bool hasMain = false;
-    QList<QPushButton*> list = qFindChildren<QPushButton*>(this);
+    QList<QPushButton*> list = qFindChildren<QPushButton*>(q);
     for (int i=0; i<list.size(); ++i) {
         QPushButton *pb = list.at(i);
-        if (pb->topLevelWidget() == this) {
+        if (pb->topLevelWidget() == q) {
             if (pb == d->mainDef)
                 hasMain = true;
             if (pb != pushButton)
@@ -280,7 +276,7 @@ void QDialog::setDefault(QPushButton *pushButton)
   This function sets the default default pushbutton to \a pushButton.
   This function is called by QPushButton::setDefault().
 */
-void QDialog::setMainDefault(QPushButton *pushButton)
+void QDialogPrivate::setMainDefault(QPushButton *pushButton)
 {
     d->mainDef = 0;
     setDefault(pushButton);
@@ -291,9 +287,9 @@ void QDialog::setMainDefault(QPushButton *pushButton)
   Hides the default button indicator. Called when non auto-default
   push button get focus.
  */
-void QDialog::hideDefault()
+void QDialogPrivate::hideDefault()
 {
-    QList<QPushButton*> list = qFindChildren<QPushButton*>(this);
+    QList<QPushButton*> list = qFindChildren<QPushButton*>(q);
     for (int i=0; i<list.size(); ++i) {
         list.at(i)->setDefault(false);
     }
@@ -344,19 +340,25 @@ void QDialog::hideSpecial()
 #endif
 
 /*!
-  \fn int QDialog::result() const
-
   Returns the modal dialog's result code, \c Accepted or \c Rejected.
 
   Do not call this function if the dialog was constructed with the \c
   WDestructiveClose flag.
 */
+int QDialog::result() const
+{
+    return d->rescode;
+}
 
 /*!
   \fn void QDialog::setResult(int i)
 
   Sets the modal dialog's result code to \a i.
 */
+void QDialog::setResult(int r)
+{
+    d->rescode = r;
+}
 
 
 /*!
@@ -372,7 +374,7 @@ void QDialog::hideSpecial()
 
 int QDialog::exec()
 {
-    if (in_loop) {
+    if (d->in_loop) {
         qWarning("QDialog::exec: Recursive call detected");
         return -1;
     }
@@ -386,7 +388,7 @@ int QDialog::exec()
 
     show();
 
-    in_loop = true;
+    d->in_loop = true;
     qApp->enter_loop();
 
     if (!wasShowModal)
@@ -759,8 +761,8 @@ void QDialog::hide()
 
     // Reimplemented to exit a modal when the dialog is hidden.
     QWidget::hide();
-    if (in_loop) {
-        in_loop = false;
+    if (d->in_loop) {
+        d->in_loop = false;
         qApp->exit_loop();
     }
 }

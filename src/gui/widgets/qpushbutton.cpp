@@ -17,6 +17,7 @@
 #include "qbutton.h"
 #include "qdesktopwidget.h"
 #include "qdialog.h"
+#include <private/qdialog_p.h>
 #include "qdrawutil.h"
 #include "qevent.h"
 #include "qfontmetrics.h"
@@ -307,8 +308,11 @@ void QPushButton::setDefault(bool enable)
         return;
     d->d->defaultButton = enable;
 #ifndef QT_NO_DIALOG
-    if (d->defaultButton && qt_cast<QDialog*>(topLevelWidget()))
-        ((QDialog*)topLevelWidget())->setMainDefault(this);
+    if (d->defaultButton) {
+        QDialog *dlg = qt_cast<QDialog*>(topLevelWidget());
+        if (dlg)
+            dlg->d->setMainDefault(this);
+    }
 #endif
     update();
 #ifndef QT_NO_ACCESSIBILITY
@@ -394,7 +398,7 @@ void QPushButton::updateMask()
     Q4StyleOptionButton opt = d->getStyleOption();
     style().drawControlMask(QStyle::CE_PushButton, &opt, &p, this);
     p.end();
-    
+
     setMask(bm);
 }
 
@@ -442,8 +446,9 @@ void QPushButton::focusInEvent(QFocusEvent *e)
     if (d->autoDefault && !d->defaultButton) {
         d->defaultButton = true;
 #ifndef QT_NO_DIALOG
-        if (qt_cast<QDialog*>(topLevelWidget()))
-            ((QDialog*)topLevelWidget())->setDefault(this);
+        QDialog *dlg = qt_cast<QDialog*>(topLevelWidget());
+        if (dlg)
+            dlg->d->setDefault(this);
 #endif
     }
     QAbstractButton::focusInEvent(e);
@@ -456,8 +461,9 @@ void QPushButton::focusOutEvent(QFocusEvent *e)
 {
     if (d->autoDefault && d->defaultButton) {
 #ifndef QT_NO_DIALOG
-        if (qt_cast<QDialog*>(topLevelWidget()))
-            ((QDialog*)topLevelWidget())->setDefault(0);
+        QDialog *dlg = qt_cast<QDialog*>(topLevelWidget());
+        if (dlg)
+            dlg->d->setDefault(0);
         else
 #endif
             d->defaultButton = false;

@@ -42,19 +42,19 @@ public:
 
     enum DialogCode { Rejected, Accepted };
 
-    int                result() const { return rescode; }
+    int result() const;
 
-    void        show();
-    void        hide();
+    void show();
+    void hide();
 
-    void        setOrientation(Orientation orientation);
-    Orientation        orientation() const;
+    void setOrientation(Orientation orientation);
+    Orientation orientation() const;
 
-    void        setExtension(QWidget* extension);
-    QWidget*        extension() const;
+    void setExtension(QWidget* extension);
+    QWidget* extension() const;
 
-    QSize        sizeHint() const;
-    QSize        minimumSizeHint() const;
+    QSize sizeHint() const;
+    QSize minimumSizeHint() const;
 
     void setSizeGripEnabled(bool);
     bool isSizeGripEnabled() const;
@@ -62,7 +62,7 @@ public:
     void setModal(bool modal);
     bool isModal() const;
 #ifdef Q_OS_TEMP
-    bool        event(QEvent *);
+    bool event(QEvent *);
 #endif
 
 public slots:
@@ -73,30 +73,19 @@ protected slots:
     virtual void accept();
     virtual void reject();
 
-    void        showExtension(bool);
+    void showExtension(bool);
 
 protected:
     QDialog(QDialogPrivate &, QWidget *parent, WFlags f = 0);
 
-    void        setResult(int r)        { rescode = r; }
-    void        keyPressEvent(QKeyEvent *);
-    void        closeEvent(QCloseEvent *);
-    void        showEvent(QShowEvent *);
-    void        resizeEvent(QResizeEvent *);
-    void        contextMenuEvent(QContextMenuEvent *);
-    bool        eventFilter(QObject *, QEvent *);
-    void        adjustPosition(QWidget*);
-
-private:
-    void        setDefault(QPushButton *);
-    void        setMainDefault(QPushButton *);
-    void        hideDefault();
-#ifdef Q_OS_TEMP
-    void        hideSpecial();
-#endif
-
-    int                rescode;
-    uint        in_loop: 1;
+    void setResult(int r);
+    void keyPressEvent(QKeyEvent *);
+    void closeEvent(QCloseEvent *);
+    void showEvent(QShowEvent *);
+    void resizeEvent(QResizeEvent *);
+    void contextMenuEvent(QContextMenuEvent *);
+    bool eventFilter(QObject *, QEvent *);
+    void adjustPosition(QWidget*);
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
