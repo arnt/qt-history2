@@ -1,8 +1,10 @@
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
-HEADERS         = scribble.h \
+HEADERS         = canvas.h \
+                  scribble.h \
                   tabletstats.h
-SOURCES		= main.cpp \
+SOURCES         = canvas.cpp \
+                  main.cpp \
                   scribble.cpp \
                   tabletstats.cpp
 TARGET		= scribble

@@ -22,51 +22,9 @@
 class QMouseEvent;
 class QResizeEvent;
 class QPaintEvent;
-class QPushButton;
 class QSpinBox;
-
-class Canvas : public QWidget
-{
-    Q_OBJECT
-
-public:
-    Canvas( QWidget *parent = 0, const char *name = 0 );
-
-    void setPenColor( const QColor &c )
-    { 	saveColor = c;
-	pen.setColor( saveColor ); }
-
-    void setPenWidth( int w )
-    { pen.setWidth( w ); }
-
-    QColor penColor()
-    { return pen.color(); }
-
-    int penWidth()
-    { return pen.width(); }
-
-    void save( const QString &filename, const QString &format );
-
-    void clearScreen();
-
-protected:
-    void mousePressEvent( QMouseEvent *e );
-    void mouseReleaseEvent( QMouseEvent *e );
-    void mouseMoveEvent( QMouseEvent *e );
-    void resizeEvent( QResizeEvent *e );
-    void paintEvent( QPaintEvent *e );
-    void tabletEvent( QTabletEvent *e );
-
-    QPen pen;
-    QPointArray polyline;
-
-    bool mousePressed;
-    int oldPressure;
-    QColor saveColor;
-
-    QPixmap buffer;
-
-};
+class QToolButton;
+class Canvas;
 
 class Scribble : public QMainWindow
 {
@@ -79,7 +37,7 @@ protected:
     Canvas* canvas;
 
     QSpinBox *bPWidth;
-    QPushButton *bPColor, *bSave, *bClear;
+    QToolButton *bPColor, *bSave, *bClear;
 
 protected slots:
     void slotSave();
