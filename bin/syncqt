@@ -61,6 +61,8 @@ my %dirs = (
 	 "$basedir/src/network" => "QtNetwork",
 	 "$basedir/src/canvas" => "QtCanvas",
 	 "$basedir/src/compat" => "Qt3Compat",
+	 "$basedir/extensions/activeqt/container" => "ActiveQt",
+	 "$basedir/extensions/activeqt/control" => "ActiveQt",
 );
 
 $dirs{"mkspecs" . $ENV{"MKSPEC"}} = "QCore" if defined $ENV{"MKSPEC"}; 
