@@ -1,0 +1,215 @@
+\chapter Qt Designer Menu Options \QD
+
+\section1 Menu Items and Functions
+
+\QD provides many Menu Items that perform the functions #or actions# necessary to
+create applications. Most menu items have additional options such as
+dialog boxes that provide more specific functionality. In
+addition,many Menu Items also have corresponding toolbar buttons. This
+section of the reference manual will define each menu item and it's
+use. For each menu item that invokes dialog boxes or corresponding
+toolbar buttons, click the link to go to the appropriate chapter within
+the reference manual which explains the dialogs boxes and buttons in detail.
+
+\img menufile.png
+\caption file
+
+\Menu File \Key Alt+F
+\list
+
+\i \Menu File|New \Key Ctrl+N: This menu item is used to start a new
+project or to create new widgets or files. The \l{New Form dialog box}
+appears with the default set to 'Dialog'. Click \OK once an option has
+been selected, or click \Key Cancel to exit the dialog box. 
+
+\i \Menu File|Open \Key Ctrl+O: This menu item is used to open existing
+projects or files. A dialog box appears and the file name and type
+must be selected.
+
+\i \Menu File|Close: This menu item closes the project that is currently open. If
+changes were made to the project and it has not been saved, the
+\l{Save Form dialog box} appears.
+
+\i \Menu File|Save \Key Ctrl+S: This menu item saves the project. The \l{Save As
+dialog box} appears for any forms or files that are listed as
+'unnamed'. If the project has already been given a name, then 'Save'
+will save it to that name. 
+
+\i \Menu {File|Save As}: This menu item saves the project and the \l{Save As
+dialog box} appears with the option to give the file a new name.
+
+\i \Menu {File|Save All}: This menu item saves ###
+
+\i \Menu {File|Create Template} ###
+
+\i \Menu {File|Recently Opened Files}: This menu item lists the most
+recently opened files. Select a file from the list.
+
+\i \Menu {File|Recently Opened Projects}: This menu item lists the most
+recently opened projects. Select a project from the list.
+
+\i \Menu File|Exit: This menu item exits Designer. If the project has not
+been saved, the \l{Save Project Settings dialog box} appears. If the
+form has not been saved, the \l {Save Form dialog box} appears.
+
+\list \Menu Edit \Key Alt+E
+
+\i \Menu Edit|Undo \Key Ctrl+Z: This menu item will undo an action. It records the
+name of the last action performed and it will read 'Undo' followed by
+the name of the action.
+
+\i \Menu Edit|Redo \Key Ctrl+Y: This menu item will redo an action. It
+records the name of the last action performed and it will read 'Redo' followed by
+the name of the action.
+
+\i \Menu Edit|Cut \Key Ctrl+X: This menu item will cut a selected item 
+and place it on the clipboard.
+
+\i \Menu Edit|Copy \Key Ctrl+C: This menu item will copy a selected item.
+
+\i \Menu Edit|Paste \Key Ctrl+Y: This menu item will paste a selected item.
+
+\i \Menu Edit|Delete \Key Del: This menu item will delete a selected
+item.
+
+\i \Menu {Edit|Select All} \Key Ctrl+A: This menu item will highlight all
+the widgets on the form or text in a file. 
+
+\i \Menu {Edit|Check Accelerator} \Key Alt+R: ###
+
+\i \Menu Edit|Slots: This menu item is used to edit or create slots which
+are then used in conjunction with signals to provide communication between
+two objects. The \l{Edit Slots dialog box} appears with options for
+the slots. ###
+
+\i \Menu Edit|Connections: This menu item will display the \l{View
+Connections dialog box}.
+
+\i \Menu {Edit|Form Settings}: This menu item will display the \l{Form
+Settings dialog box}. Form Settings are used for #####
+
+\i \Menu Edit|Preferences: This menu item will display the \l{Preferences
+dialog box}. This is used to change the properties of \QD and the C++
+Editor. ###
+
+\list \Menu Project \Key Alt+O:
+
+\i \Menu {Project|Active Project|<project name>}: This menu item will
+allow you to switch between projects if there is more than one project open.
+
+\i \Menu {Project|Insert File \Key Ctrl+I}: This menu item will allow you
+to insert a file into the project.
+
+\i \Menu {Project|Project Settings}: This menu item will enable you to
+change the project settings or properties through the \l {Project Settings dialog box}.
+
+\i \Menu {Project|Image Collection}: This menu item will display the \l
+{Edit Image Collection dialog box}, which allows you to add or edit
+images imported from any file and used for the current project.
+
+\i \Menu {Project|Database Connections}: This menu item displays the \l
+{Edit Database Connections dialog box} ###
+
+\list \Menu Search \Key Alt+S
+
+\i \Menu Search|Find \Key Ctrl+F: This menu item is used to locate
+specific words or characters in the files. 
+
+\i \Menu {Search|Find Incremental} \Key Alt+L: This menu item ### 
+
+\i \Menu Search|Replace \Key Ctrl+R: This menu item is used to replace specific
+words or characters with different words or characters.
+
+\i \Menu Search|Goto line \Key Alt+G: This menu item allows the user
+to go to specific line numbers in files.
+
+\list \Menu Tools \Key Alt+T:
+
+\i \Menu Tools|Pointer \Key F2: This menu item is set as the default
+to allow the user to use the cursor or pointer. When a widget is
+clicked, the pointer cannot be used. 
+
+\i \Menu {Tools|Connect Signals and Slots} \Key F3: This menu item is
+used to connect signals and slots. When this is selected, you must
+click on a widget and drag the resulting pink line to the widget that
+it will be connected to. The \l {Edit Connections dialog box} will
+appear and the connections can be added, edited or deleted.
+
+\i \Menu {Tools|Tab Order} \F4: This menu item is used to set the
+tab order for all the widgets on the form that can accept keyboard
+focus. When this item is clicked, blue circles with numbers in them
+appear next to the widgets. Click once on number 1. Then click
+once on the number next to each widget until all the widgets follow
+the tab order you want. If you make a mistake, double click the first
+widget and start again. If there are no widgets on the form, clicking
+this item will not invoke an action. 
+
+\i \Menu {Tools|Buttons|PushButton}: This menu item is used by
+selecting it, and then clicking the form to place the widget on it.
+
+\i \Menu {Tools|Buttons|ToolButton}: This menu item is used by
+selecting it and then clicking the form to place the widget on it.
+
+\i \Menu {Tools|Buttons|RadioButton}: When this item is selected,
+click the form to place the button on the form. See \l {Toolbars:RadioButton}.
+
+\i \Menu {Tools|Buttons|ToolButton}:When this item is selected,
+click the form to place the button on the form.
+
+\i \Menu {Tools|Buttons|CheckBox}: When this item is selected,
+click the form to place the button on the form.
+
+\i \Menu {Tools|Containers|GroupBox}:When this item is selected,
+click the form to place it on the form.
+
+\i \Menu {Tools|Containers|ButtonGroup}:When this item is selected,
+click the form to place it on the form.
+
+\i \Menu {Tools|Containers|Frame}:When this item is selected,
+click the form to place it on the form.
+
+\i \Menu {Tools|Containers|TabWidget}:When this item is selected,
+click the form to place it on the form.
+
+\i \Menu {Tools|Views|ListBox}:When this item is selected,
+click the form to place it on the form.
+
+\i \Menu {Tools|Views|ListView}:When this item is selected,
+click the form to place it on the form.
+
+\i \Menu {Tools|Views|Icon View}:When this item is selected,
+click the form to place it on the form.
+
+\i \Menu {Tools|Views|Table}:When this item is selected,
+click the form to place it on the form.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
