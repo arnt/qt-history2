@@ -336,8 +336,11 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     grid->addLayout( vbox, 2, 1 );
 
     // Create a slider
-    QSlider *sb = new QSlider( 0, 300, 30, 100, QSlider::Horizontal,
-			       central, "Slider" );
+    QSlider *sb = new QSlider( QSlider::Horizontal, central );
+    sb->setMinimum( 0 );
+    sb->setMaximumWidth( 300 );
+    sb->setPageStep( 30 );
+    sb->setSliderPosition( 100 );
     sb->setTickmarks( QSlider::Below );
     sb->setTickInterval( 10 );
     sb->setFocusPolicy( QWidget::TabFocus );
