@@ -921,9 +921,8 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
         printf(" - QWin32PaintEngine::drawTextItem(), (%.2f,%.2f), string=%s\n",
                p.x(), p.y(), QString::fromRawData(ti.chars, ti.num_chars).toLatin1().data());
 #endif
-#ifdef Q_WS_WIN
     Q_D(QRasterPaintEngine);
-
+#ifdef Q_WS_WIN
     QRectF logRect(p.x(), p.y() - ti.ascent, ti.width, ti.ascent + ti.descent);
     QRect devRect = d->matrix.mapRect(logRect).toRect();
 
@@ -1328,7 +1327,7 @@ QImage *QRasterPaintEnginePrivate::colorizeBitmap(const QImage *image)
     QRgb color1 = 0xff000000;
 #else
 //     QRgb color0 = 0xffffffff;
-    QRgb color1 = 0xffffffffff;
+    QRgb color1 = 0xffffffff;
 #endif
     QRgb fg = pen.color().rgba();
     QRgb bg = opaqueBackground ? bgBrush.color().rgba() : 0;
