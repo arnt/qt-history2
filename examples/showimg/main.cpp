@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/showimg/main.cpp#2 $
+** $Id: //depot/qt/main/examples/showimg/main.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -23,6 +23,8 @@ int main( int argc, char **argv )
 	QApplication::setColorSpec( QApplication::ManyColor );
 	argc--;
 	argv++;
+    } else {
+	QApplication::setColorSpec( QApplication::CustomColor );
     }
 
     QApplication::setFont( QFont("Helvetica", 12) );
