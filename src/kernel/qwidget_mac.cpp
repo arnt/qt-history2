@@ -130,6 +130,14 @@ static WId qt_root_win() {
     GetCWMgrPort(ret);
 #else
     //FIXME NEED TO FIGURE OUT HOW TO GET DESKTOP ON MACX
+    char title[2];
+    title[0]=0;
+    title[1]='\0';
+    Rect boundsRect;
+    SetRect( &boundsRect, 0, 0, 1024, 768 );
+    ret = (WindowPtr)NewCWindow( nil, &boundsRect, (const unsigned char*)title,
+				 0, plainDBox, (WindowPtr)-1, TRUE, 0);
+    DisposeWindow(ret);
 #endif
     return (WId) ret;
 }
@@ -229,37 +237,41 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	WindowClass wclass = kSheetWindowClass;
 	if(testWFlags( WStyle_Tool ) || testWFlags(WType_Popup) ) 
 	    wclass = kSheetWindowClass;
-	else if(testWFlags(WType_Modal)) 
+	else if(testWFlags(WShowModal)) 
 	    wclass = kModalWindowClass;
-	else if(testWFlags(WType_TopLevel)) 
+	else if(testWFlags(WType_TopLevel) || testWFlags(WType_Dialog) ) 
 	    wclass = kDocumentWindowClass;
 	else if(testWFlags(WType_Desktop)) 
 	    wclass = kDesktopWindowClass;
 
 	WindowAttributes wattr = kWindowNoAttributes;
-	if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
-	    if(wclass == kDocumentWindowClass ) 
-		wattr |= kWindowStandardDocumentAttributes;	
-	} else if( testWFlags(WStyle_Customize) ) {
-	    if(testWFlags( WStyle_NoBorder ) || testWFlags( WStyle_NoBorderEx) ) 
-		wclass = kSheetWindowClass;
+	if( testWFlags(WStyle_Customize) ) {
+	    if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
+		if(wclass == kDocumentWindowClass ) 
+		    wattr |= kWindowStandardDocumentAttributes;	
+	    } else {
+		//FIXME I shouldn't have to do this
+		if(wclass == kDocumentWindowClass ) 
+		    wclass = kSheetWindowClass;
 
-	    //FIXME need to handle stays on top flag
+		//FIXME need to handle stays on top flag
 #if 0
-	    if( testWFlags( WStyle_StaysOnTop ) ) {
-		wclass = kFloatingWindowClass;
-		if(!testWFlags( WStyle_NoBorder) && !testWFlags( WStyle_NoBorderEx) ) 
-		    wattr |= kWindowStandardFloatingAttributes;
-	    }
+		if( testWFlags( WStyle_StaysOnTop ) ) {
+		    wclass = kFloatingWindowClass;
+		    if(!testWFlags( WStyle_NoBorder) && !testWFlags( WStyle_NoBorderEx) ) 
+			wattr |= kWindowStandardFloatingAttributes;
+		}
 #endif
 
-	    if( testWFlags( WStyle_Maximize ) ) 
-		wattr |= kWindowFullZoomAttribute;
-	    if( testWFlags( WStyle_Minimize ) ) 
-		wattr |= kWindowCollapseBoxAttribute;
-	    if( testWFlags( WStyle_SysMenu ) ) 
-		wattr |= kWindowCloseBoxAttribute;
-	}
+		if( testWFlags( WStyle_Maximize ) ) 
+		    wattr |= kWindowFullZoomAttribute;
+		if( testWFlags( WStyle_Minimize ) ) 
+		    wattr |= kWindowCollapseBoxAttribute;
+		if( testWFlags( WStyle_SysMenu ) ) 
+		    wattr |= kWindowCloseBoxAttribute;
+	    }
+	} 
+
 	CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id);
 
 	hd = (void *)id;
