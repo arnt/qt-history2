@@ -35,11 +35,9 @@ public:
     virtual void startingUp();
     virtual void closingDown();
 
-    typedef bool(*ProcessEventHandler)(void *message);
-    typedef bool(*EventFilter)(void *message, long *result);
-
-    ProcessEventHandler setProcessEventHandler(ProcessEventHandler handler);
+    typedef bool(*EventFilter)(void *message);
     EventFilter setEventFilter(EventFilter filter);
+    bool filterEvent(void *message);
 
 signals:
     void aboutToBlock();

@@ -108,7 +108,7 @@ Qt::HANDLE qt_application_thread_id = 0;
 Q_GLOBAL_STATIC(QThreadData, mainData)
 
 QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
-    : QObjectPrivate(), argc(aargc), argv(aargv), eventDispatcher(0)
+    : QObjectPrivate(), argc(aargc), argv(aargv), eventDispatcher(0), eventFilter(0)
 {
     static const char *empty = "";
     if (argc == 0 || argv == 0) {
@@ -1354,6 +1354,48 @@ void QCoreApplication::removeLibraryPath(const QString &path)
 }
 
 #endif //QT_NO_COMPONENT
+
+/*!
+    Sets the event filter \a filter. Returns a pointer to the filter
+    function previously defined.
+
+    The event filter is a function that is called for every message
+    received in all threads. This does \e not include messages to
+    objects that are not handled by Qt.
+
+    The function can return true to stop the event to be processed by
+    Qt, or false to continue with the standard event processing.
+
+    Only one filter can be defined, but the filter can use the return
+    value to call the previously set event filter. By default, no
+    filter is set (ie.  the function returns 0).
+*/
+QCoreApplication::EventFilter
+QCoreApplication::setEventFilter(QCoreApplication::EventFilter filter)
+{
+    EventFilter old = d->eventFilter;
+    d->eventFilter = filter;
+    return old;
+}
+
+/*!
+    Sends \a message through the event filter that was set by
+    setEventFilter().  If no event filter has been set, this function
+    returns false; otherwise, this function returns the result of the
+    event filter function.
+
+    \sa setEventFilter()
+*/
+bool QCoreApplication::filterEvent(void *message, long *result)
+{
+    if (d->eventFilter)
+        return d->eventFilter(message, result);
+#ifdef Q_OS_WIN
+    return winEventFilter(message, result);
+#else
+    return false;
+#endif
+}
 
 #ifdef QT_COMPAT
 /*! \fn void QCoreApplication::lock()

@@ -121,6 +121,10 @@ public:
     static void watchUnixSignal(int signal, bool watch);
 #endif
 
+    typedef bool (*EventFilter)(void *message, long *result);
+    EventFilter setEventFilter(EventFilter filter);
+    bool filterEvent(void *message, long *result);
+
 public slots:
     void quit();
 

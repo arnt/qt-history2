@@ -9,9 +9,8 @@ class QAbstractEventDispatcherPrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QAbstractEventDispatcher)
 public:
     inline QAbstractEventDispatcherPrivate()
-        : process_event_handler(0), event_filter(0)
+        : event_filter(0)
     { }
-    QAbstractEventDispatcher::ProcessEventHandler process_event_handler;
     QAbstractEventDispatcher::EventFilter event_filter;
 };
 

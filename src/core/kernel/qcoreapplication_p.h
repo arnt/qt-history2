@@ -55,6 +55,8 @@ public:
 #ifndef QT_NO_COMPONENT
     QStringList *app_libpaths;
 #endif
+
+    QCoreApplication::EventFilter eventFilter;
 };
 
 #endif
