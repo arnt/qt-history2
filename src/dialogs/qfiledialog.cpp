@@ -5170,7 +5170,14 @@ void QFileDialog::resortDir()
 	    item2->setSelectable( FALSE );
 	}
     }
-    d->mimeTypeTimer->start( 0 );
+    
+    // ##### As the QFileIconProvider only support QFileInfo and no
+    // QUrlInfo it can be only used for local files at the moment. In
+    // 3.0 we have to change the API of QFileIconProvider to work on
+    // QUrlInfo so that also remote filesystems can be show mime-type
+    // specific icons.
+    if ( d->url.isLocalFile() )
+	d->mimeTypeTimer->start( 0 );
 }
 
 /*!
