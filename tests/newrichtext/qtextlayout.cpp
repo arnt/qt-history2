@@ -202,57 +202,34 @@ int TextLayoutQt::xToCursor( ShapedItem &shaped, int x ) const
     if ( x < 0 )
 	return reverse ? d->length : 0;
 
-    int cp_before;
-    int cp_after;
-    int x_before;
-    int x_after;
 
     if ( reverse ) {
-	cp_before = d->length;
-	cp_after = d->length;
-	x_before = 0;
-	x_after = 0;
-
-	int lastCluster = d->num_glyphs;
-	for ( int i = d->length-1; i >= 0; i-- ) {
-	    int newCluster = d->logClusters[i];
-	    if ( newCluster != lastCluster ) {
-		// calculate cluster width
-		int newCluster = d->logClusters[i];
-		cp_before = cp_after;
-		x_before = x_after;
-		cp_after = i;
-		for ( int j = lastCluster-1; j >= newCluster; j-- )
-		    x_after += d->advances[j].x;
-// 		qDebug("cluster boundary: lastCluster=%d, newCluster=%d, cp_before=%d, cp_after=%d, x_before=%d, x_after=%d",
-// 		       lastCluster, newCluster, cp_before, cp_after, x_before, x_after );
-		if ( x_after > x )
-		    break;
-		lastCluster = newCluster;
-	    }
+	int width = 0;
+	for ( int i = 0; i < d->num_glyphs; i++ ) {
+	    width += d->advances[i].x;
 	}
-    } else {
-	cp_before = 0;
-	cp_after = 0;
-	x_before = 0;
-	x_after = 0;
+	x = -x + width;
+    }
+    int cp_before = 0;
+    int cp_after = 0;
+    int x_before = 0;
+    int x_after = 0;
 
-	int lastCluster = 0;
-	for ( int i = 1; i <= d->length; i++ ) {
-	    int newCluster = i < d->length ? d->logClusters[i] : d->num_glyphs;
-	    if ( newCluster != lastCluster ) {
-		// calculate cluster width
-		cp_before = cp_after;
-		x_before = x_after;
-		cp_after = i;
-		for ( int j = lastCluster; j < newCluster; j++ )
-		    x_after += d->advances[j].x;
-// 		qDebug("cluster boundary: lastCluster=%d, newCluster=%d, x_before=%d, x_after=%d",
-// 		       lastCluster, newCluster, x_before, x_after );
-		if ( x_after > x )
-		    break;
-		lastCluster = newCluster;
-	    }
+    int lastCluster = 0;
+    for ( int i = 1; i <= d->length; i++ ) {
+	int newCluster = i < d->length ? d->logClusters[i] : d->num_glyphs;
+	if ( newCluster != lastCluster ) {
+	    // calculate cluster width
+	    cp_before = cp_after;
+	    x_before = x_after;
+	    cp_after = i;
+	    for ( int j = lastCluster; j < newCluster; j++ )
+		x_after += d->advances[j].x;
+	    // 		qDebug("cluster boundary: lastCluster=%d, newCluster=%d, x_before=%d, x_after=%d",
+	    // 		       lastCluster, newCluster, x_before, x_after );
+	    if ( x_after > x )
+		break;
+	    lastCluster = newCluster;
 	}
     }
 
