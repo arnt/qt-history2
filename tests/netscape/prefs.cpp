@@ -175,8 +175,8 @@ static QWidget *appsPage()
     QLabelled *frame = new QLabelled( page );
     QVBox *box = new QVBox( frame );
     QListView *lv = new QListView( box );
-    lv->setColumn( "Description", 250 );
-    lv->setColumn( "Handled By", 200 );
+    lv->addColumn( "Description", 250 );
+    lv->addColumn( "Handled By", 200 );
     new QListViewItem( lv, "GIF Image", "Netscape" );
     new QListViewItem( lv, "Hypertext Markup Language", "Netscape" );
     new QListViewItem( lv, "Plain text", "Netscape" );
@@ -286,7 +286,7 @@ Preferences::Preferences(QWidget* parent, const char* name, int f) :
 
     QFontMetrics fm=fontMetrics();
     int w = fm.width("New Page Colors ")+selector->treeStepSize()*2;
-    selector->setColumn( "Category", w );
+    selector->addColumn( "Category", w );
 #define LISTVIEW_BUG_FIXED
 #ifdef LISTVIEW_BUG_FIXED
     selector->setMaximumWidth( w );
