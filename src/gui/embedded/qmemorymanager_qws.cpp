@@ -12,7 +12,6 @@
 **
 ****************************************************************************/
 #include "qmemorymanager_qws.h"
-#include "qfontmanager_qws.h"
 #include "qgfx_qws.h"
 #include "qpaintdevice.h"
 #include <private/qfontdata_p.h>
@@ -37,6 +36,7 @@
 
 #include "qgfx_qws.h"
 
+#if 0
 #define FM_SMOOTH 1
 
 static void getProcessedGlyph(QGlyph& tmp, QGlyph& g, bool smooth)
@@ -623,6 +623,7 @@ public:
 	Q_UINT8 reserved3;
     } fm;
 };
+#endif
 
 // ####### We don't use this info yet
 void* qt_unused_vram;
@@ -634,8 +635,7 @@ QMemoryManager::QMemoryManager(
     void* fontrom
     //, ...
 ) :
-    next_pixmap_id(1000),
-    next_font_id(1000)
+    next_pixmap_id(1000)
 {
     qt_unused_vram = vram;
     qt_unused_vramsize = vramsize;
@@ -725,6 +725,7 @@ void QMemoryManager::findPixmap(PixmapID id, int width, int depth, uchar** addre
     *linestep = calcLineStep( width, depth, id&1 );
 }
 
+#if 0
 // Fonts
 
 static QString fontKey(const QFontDef& font)
@@ -1040,6 +1041,6 @@ int QMemoryManager::fontLineWidth(FontID id) const
     QMemoryManagerFont* mmf = (QMemoryManagerFont*)id;
     return mmf->fm.underlinewidth ? mmf->fm.underlinewidth : 1;
 }
-
+#endif
 
 QMemoryManager* memorymanager=0;

@@ -19,7 +19,6 @@
 #include "qwidget.h"
 #include "qnamespace.h"
 #include "qimage.h"
-#include "qfontmanager_qws.h"
 #include "qmemorymanager_qws.h"
 #include "qpoint.h"
 #endif // QT_H
@@ -384,8 +383,6 @@ public:
     // Pointer to data, linestep
     virtual void setAlphaSource(unsigned char *,int)=0;
     virtual void setAlphaSource(int,int=-1,int=-1,int=-1)=0;
-
-    virtual void drawGlyphs( QMemoryManager::FontID font, glyph_t *glyphs, QPoint *positions, int num_glyphs ) = 0;
 
     virtual void setClut(QRgb *,int)=0;
 

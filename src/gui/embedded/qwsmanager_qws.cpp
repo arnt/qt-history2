@@ -445,7 +445,7 @@ void QWSManager::menu(const QPoint &pos)
 
 	// Add Style menu
 	QPopupMenu *styleMenu = new QPopupMenu();
-	for (int i = 0; WMStyleList[i].WMStyleName != NULL; i++)
+	for (int i = 0; WMStyleList[i].WMStyleName; i++)
 	    styleMenu->insertItem( qApp->translate("QWSDecoration", WMStyleList[i].WMStyleName.latin1()), WMStyleList[i].WMStyleType );
 	styleMenu->connect(styleMenu, SIGNAL(activated(int)), this, SLOT(styleMenuActivated(int)));
 //	popup->insertSeparator();
@@ -470,7 +470,7 @@ void QWSManager::menu(const QPoint &pos)
 
 void QWSManager::styleMenuActivated(int id)
 {
-    for (int i = 0; WMStyleList[i].WMStyleName != NULL; i++) {
+    for (int i = 0; WMStyleList[i].WMStyleName; i++) {
     	if (id == WMStyleList[i].WMStyleType) {
 	    qApp->qwsSetDecoration( WMStyleList[i].new_WMDecorations() );
     	}

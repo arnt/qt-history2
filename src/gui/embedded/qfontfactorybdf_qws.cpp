@@ -37,7 +37,7 @@ static
 QTextCodec* calc_mapper(const QString& charset_registry, const QString& charset_encoding)
 {
     if ( !charset_registry.isNull() ) {
-	QString e = charset_registry+"-"+charset_encoding;
+	QString e = charset_registry + '-' + charset_encoding;
 	if ( e != "10646-1" ) // don't map Unicode, we do it faster directly.
 	    return QTextCodec::codecForName(e.latin1());
     }
@@ -128,7 +128,7 @@ public:
 			}
 		}
 	    } else {
-		QStringList token = QStringList::split(QChar(' '),line);
+		QStringList token = line.split(QChar(' '));
 		QString tag = token[0];
 		if ( tag == "BITMAP" ) {
 		    if ( glyph_index >= 0 ) {

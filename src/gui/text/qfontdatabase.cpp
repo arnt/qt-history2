@@ -29,6 +29,7 @@
 #endif
 #include <stdlib.h>
 #include <limits.h>
+
 // #define QFONTDATABASE_DEBUG
 #ifdef QFONTDATABASE_DEBUG
 #  define FD_DEBUG qDebug
@@ -120,6 +121,9 @@ struct QtFontSize
     QtFontEncoding *encodingID( int id, uint xpoint = 0, uint xres = 0,
 				uint yres = 0, uint avgwidth = 0, bool add = FALSE);
 #endif // Q_WS_X11
+#ifdef Q_WS_QWS
+    QByteArray fileName;
+#endif
 };
 
 
@@ -240,6 +244,9 @@ QtFontSize *QtFontStyle::pixelSize( unsigned short size, bool add )
 #ifdef Q_WS_X11
     pixelSizes[count].count = 0;
     pixelSizes[count].encodings = 0;
+#endif
+#ifdef Q_WS_QWS
+    new (&pixelSizes[count].fileName) QByteArray;
 #endif
     return pixelSizes + (count++);
 }
@@ -428,7 +435,6 @@ QtFontFamily *QFontDatabasePrivate::family( const QString &f, bool create )
     return families[pos];
 }
 
-#if defined(Q_WS_X11) || defined(Q_WS_WIN) || defined(Q_WS_MAC)
 static const unsigned short sample_chars[QFont::LastPrivateScript] =
 {
     // European Alphabetic Scripts
@@ -608,7 +614,6 @@ static inline bool canRender( QFontEngine *fe, QFont::Script script )
 
     return hasChar;
 }
-#endif // Q_WS_X11 || Q_WS_WIN
 
 
 static QSingleCleanupHandler<QFontDatabasePrivate> qfontdatabase_cleanup;
@@ -625,7 +630,6 @@ static QFontDatabasePrivate *db=0;
 #  include "qfontdatabase_qws.cpp"
 #endif
 
-#if defined(Q_WS_X11) || defined(Q_WS_WIN) || defined(Q_WS_MAC)
 static
 unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStrategy,
 			  const QtFontFamily *family, const QString &foundry_name,
@@ -842,6 +846,9 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 #ifdef Q_WS_X11
 			     , 0, 0, FALSE
 #endif
+#ifdef Q_WS_QWS
+			     , 0
+#endif
 		);
 
 	    // if we fail to load the rawmode font, use a 12pixel box engine instead
@@ -1039,6 +1046,9 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 #ifdef Q_WS_X11
 			     , best_size, best_encoding, ( force_encoding_id >= 0 )
 #endif
+#ifdef Q_WS_QWS
+			     , best_size
+#endif
 		);
 	}
 	if (fe) {
@@ -1153,7 +1163,6 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
     return fe;
 }
-#endif // Q_WS_X11 || Q_WS_WIN || Q_WS_MAC
 
 
 static QString styleString( int weight, bool italic, bool oblique )

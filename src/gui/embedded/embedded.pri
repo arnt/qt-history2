@@ -10,9 +10,6 @@ embedded {
 	HEADERS += \
 		    embedded/qcopchannel_qws.h \
 		    embedded/qdirectpainter_qws.h \
-		    embedded/qfontfactorybdf_qws.h \
-		    embedded/qfontfactoryttf_qws.h \
-		    embedded/qfontmanager_qws.h \
 		    embedded/qgfx_qws.h \
 		    embedded/qgfxraster_qws.h \
 		    embedded/qlock_p.h \
@@ -39,9 +36,6 @@ embedded {
          SOURCES +=  \
 		    embedded/qcopchannel_qws.cpp \
 		    embedded/qdirectpainter_qws.cpp \
-		    embedded/qfontfactorybdf_qws.cpp \
-		    embedded/qfontfactoryttf_qws.cpp \
-		    embedded/qfontmanager_qws.cpp \
 		    embedded/qgfx_qws.cpp \
 		    embedded/qgfxraster_qws.cpp \
 		    embedded/qlock.cpp \

@@ -271,6 +271,8 @@ private:
     friend class QFontEngineWin;
 #elif defined( Q_WS_QWS )
     friend class QWSManager;
+    friend class QFontEngineBox;
+    friend class QFontEngineFT;
 #elif defined( Q_WS_MAC )
     friend class QFontEngineMac;
     friend class QMacStyleQDPainter;

@@ -41,7 +41,6 @@
 #include "qwscommand_qws.h"
 #include "qwsproperty_qws.h"
 #include "qgfx_qws.h"
-#include "qfontmanager_qws.h"
 #include "qcopchannel_qws.h"
 #include "private/qlock_p.h"
 #include "qmemorymanager_qws.h"
@@ -1463,7 +1462,6 @@ static void init_display()
     QCursor::initialize();
 #endif
     QWSPaintEngine::initialize();
-    QFontManager::initialize();
 #ifndef QT_NO_QWS_MANAGER
     qws_decoration = QWSManager::newDefaultDecoration();
 #endif
@@ -1640,7 +1638,6 @@ void qt_cleanup()
 #endif
     QFont::cleanup();
     QColor::cleanup();
-    QFontManager::cleanup();
 
     if ( qws_single_process ) {
 	QWSServer::closedown();
@@ -2575,7 +2572,7 @@ bool QETWidget::translateMouseEvent( const QWSMouseEvent *event, int oldstate )
 		    // focus code went. The IM code was (after testing for ClickToFocus):
 		    //if ( mouse.state&button && w != QInputContext::microFocusWidget() ) //button press
 		    //	QInputContext::reset( oldFocus );
-		    
+
 #endif
 		    if ( mouse.state&button ) { //button press
 			qt_button_down = QApplication::findChildWidget( this, pos );	//magic for masked widgets

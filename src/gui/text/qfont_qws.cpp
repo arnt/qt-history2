@@ -24,7 +24,6 @@
 #include "qtextstream.h"
 #include "qmap.h"
 #include "qshared.h"
-#include "qfontmanager_qws.h"
 #include "qmemorymanager_qws.h"
 #include "qgfx_qws.h"
 #include "qtextengine_p.h"
@@ -54,7 +53,9 @@ Qt::HANDLE QFont::handle() const
     QFontEngine *engine = d->engineForScript( QFontPrivate::defaultScript );
     Q_ASSERT( engine != 0 );
 
-    return engine->handle();
+    if (engine->type() == QFontEngine::Freetype)
+	return static_cast<QFontEngineFT *>(engine)->handle();
+    return 0;
 }
 
 QString QFont::rawName() const
@@ -103,6 +104,7 @@ QString QFont::lastResortFont() const
 void QFontPrivate::load( QFont::Script )
 {
     QFontDef req = request;
+    QFont::Script script = QFont::NoScript;
 
     // 75 dpi on embedded
     if ( req.pixelSize == -1 )
@@ -111,7 +113,7 @@ void QFontPrivate::load( QFont::Script )
 	req.pointSize = req.pixelSize*10;
 
     if ( ! engineData ) {
-	QFontCache::Key key( req, QFont::NoScript, (int)paintdevice );
+	QFontCache::Key key( req, script, (int)paintdevice );
 
 	// look for the requested font in the engine data cache
 	engineData = QFontCache::instance->findEngineData( key );
@@ -129,8 +131,56 @@ void QFontPrivate::load( QFont::Script )
     if ( engineData->engine ) return;
 
     // load the font
-    engineData->engine = new QFontEngine(req, paintdevice);
-    engineData->engine->ref();
+    QFontEngine *engine = 0;
+    //    double scale = 1.0; // ### TODO: fix the scale calculations
+
+    // list of families to try
+    QStringList family_list;
+
+    if (!req.family.isEmpty()) {
+	family_list = QStringList::split( ',', req.family );
+
+	// append the substitute list for each family in family_list
+	QStringList subs_list;
+	QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
+	for ( ; it != end; ++it )
+	    subs_list += QFont::substitutes( *it );
+	family_list += subs_list;
+
+	// append the default fallback font for the specified script
+	// family_list << ... ; ###########
+
+	// add the default family
+	QString defaultFamily = QApplication::font().family();
+	if ( ! family_list.contains( defaultFamily ) )
+	    family_list << defaultFamily;
+
+	// add QFont::defaultFamily() to the list, for compatibility with
+	// previous versions
+	family_list << QApplication::font().defaultFamily();
+    }
+
+    // null family means find the first font matching the specified script
+    family_list << QString::null;
+
+    QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
+    for ( ; ! engine && it != end; ++it ) {
+	req.family = *it;
+
+	engine = QFontDatabase::findFont( script, this, req );
+	if ( engine ) {
+	    if ( engine->type() != QFontEngine::Box )
+		break;
+
+	    if ( ! req.family.isEmpty() )
+		engine = 0;
+
+	    continue;
+	}
+    }
+
+    engine->ref();
+    engineData->engine = engine;
 }
 
 
@@ -141,15 +191,17 @@ void QFontPrivate::load( QFont::Script )
 int QFontMetrics::leftBearing(QChar ch) const
 {
     QFontEngine *engine = d->engineForScript( QFont::NoScript );
-    return (memorymanager->lockGlyphMetrics( engine->handle(), ch.unicode() )->bearingx*engine->scale)>>8;
+    return 0;// #################(memorymanager->lockGlyphMetrics( engine->handle(), ch.unicode() )->bearingx*engine->scale)>>8;
 }
 
 
 int QFontMetrics::rightBearing(QChar ch) const
 {
     QFontEngine *engine = d->engineForScript( QFont::NoScript );
-    QGlyphMetrics *metrics = memorymanager->lockGlyphMetrics( engine->handle(), ch.unicode() );
-    return ((metrics->advance - metrics->width - metrics->bearingx)*engine->scale)>>8;
+    return 0;
+    // ##########3
+//     QGlyphMetrics *metrics = memorymanager->lockGlyphMetrics( engine->handle(), ch.unicode() );
+//     return ((metrics->advance - metrics->width - metrics->bearingx)*engine->scale)>>8;
 }
 
 int QFontMetrics::charWidth( const QString &str, int pos ) const
@@ -203,31 +255,17 @@ int QFontMetrics::width( QChar ch ) const
     if ( ::category( ch ) == QChar::Mark_NonSpacing )
 	return 0;
 
-    int width = memorymanager->lockGlyphMetrics( engine->handle(), ch.unicode() )->advance;
+    QGlyphLayout glyphs[8];
+    int nglyphs = 7;
+    engine->stringToCMap( &ch, 1, glyphs, &nglyphs, FALSE );
 
-    if ( ch.unicode() < QFontEngineData::widthCacheSize && width < 0x100 )
-	d->engineData->widthCache[ ch.unicode() ] = width;
+    // ### can nglyphs != 1 happen at all? Not currently I think
+    if ( uc < QFontEngineData::widthCacheSize && glyphs[0].advance < 0x100 )
+	d->engineData->widthCache[ uc ] = glyphs[0].advance;
 
-    return (width*engine->scale)>>8;
+    return (glyphs[0].advance*engine->scale)>>8;
 }
 
-// ### should maybe use the common method aswell, but since that one is quite a bit slower
-// and we currently don't support complex text rendering on embedded, leave it as is.
-/*!
-    \overload
-
-    Returns the width of the first \a len characters of string \a str.
-*/
-int QFontMetrics::width( const QString &str, int len ) const
-{
-    if ( len < 0 )
-	len = str.length();
-    int ret=0;
-    QFontEngine *engine = d->engineForScript( QFont::NoScript );
-    for (int i=0; i<len; i++)
-	ret += memorymanager->lockGlyphMetrics( engine->handle(), str[i].unicode() )->advance;
-    return (ret*engine->scale)>>8;
-}
 
 /*!
     \overload
@@ -255,6 +293,6 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 void QFont::qwsRenderToDisk(bool all)
 {
 #ifndef QT_NO_QWS_SAVEFONTS
-    memorymanager->savePrerenderedFont(handle(), all);
+//     memorymanager->savePrerenderedFont(handle(), all);
 #endif
 }

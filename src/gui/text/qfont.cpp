@@ -2205,8 +2205,6 @@ int QFontMetrics::rightBearing(QChar ch) const
 }
 #endif // !Q_WS_WIN
 
-
-#ifndef Q_WS_QWS
 /*!
     Returns the width in pixels of the first \a len characters of \a
     str. If \a len is negative (the default), the entire string is
@@ -2267,7 +2265,6 @@ int QFontMetrics::width( const QString &str, int len ) const
 #endif
     return width;
 }
-#endif
 
 /*! \fn int QFontMetrics::width( QChar ch ) const
 

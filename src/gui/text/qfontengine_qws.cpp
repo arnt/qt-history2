@@ -11,182 +11,141 @@
 ****************************************************************************/
 
 #include "qfontengine_p.h"
-#include "qmemorymanager_qws.h"
 #include <private/qunicodetables_p.h>
-#include <qpainter.h>
 #include <qgfxraster_qws.h>
-#include <private/qunicodetables_p.h>
-#include <qbitmap.h>
 #include <qvarlengtharray.h>
 #include <private/qpainter_p.h>
 #include "qpaintengine_qws.h"
-#define GFX(p) static_cast<QWSPaintEngine *>(p)->gfx()
+#include "qtextengine_p.h"
 
+#define GFX(p) static_cast<QWSPaintEngine *>(p)->gfx()
 #include "qgfx_qws.h"
 
+FT_Library QFontEngineFT::ft_library = 0;
+
+class QGlyph {
+public:
+    QGlyph() :
+	advance(0),
+	data(0) {}
+    ~QGlyph() {}
+
+    Q_UINT8 linestep;
+    Q_UINT8 width;
+    Q_UINT8 height;
+
+    Q_INT8 bearingx;      // Difference from pen position to glyph's left bbox
+    Q_UINT8 advance;       // Difference between pen positions
+    Q_INT8 bearingy;      // Used for putting characters on baseline
+
+    Q_INT16 reserved;      // Do not use
+    uchar* data;
+};
 
 
-/*QMemoryManager::FontID*/ void *QFontEngine::handle() const
+static void render(FT_Face face, glyph_t index, QGlyph *result, bool smooth)
 {
-    return id;
+    FT_Error err;
+
+    int loadFlags = FT_LOAD_RENDER;
+    if (!smooth)
+	loadFlags |= FT_LOAD_MONOCHROME;
+    err=FT_Load_Glyph(face, index, loadFlags);
+    if (err) {
+	qDebug("failed loading glyph %d from font", index);
+	Q_ASSERT(!err);
+    }
+
+    FT_Bitmap bm = face->glyph->bitmap;
+    result->linestep = bm.pitch;
+    result->width = bm.width;
+    result->height = bm.rows;
+
+    int size = bm.pitch*bm.rows;
+    result->data = new uchar[size];
+
+    if ( size )
+	memcpy( result->data, bm.buffer, size );
+    else
+	result->data = 0;
+
+    result->bearingx = face->glyph->metrics.horiBearingX/64;
+    result->advance = face->glyph->metrics.horiAdvance/64;
+    result->bearingy = face->glyph->metrics.horiBearingY/64;
 }
 
-QFontEngine::QFontEngine( const QFontDef& d, const QPaintDevice *pd )
+
+FT_Face QFontEngineFT::handle() const
 {
-    QFontDef fontDef = d;
-    id = memorymanager->refFont(fontDef);
+    return face;
+}
+
+QFontEngineFT::QFontEngineFT(const QFontDef& d, const QPaintDevice *pd, FT_Face ft_face)
+{
+    fontDef = d;
+    face = ft_face;
     scale = pd ? (pd->resolution()<<8)/75 : 1<<8;
+
+    smooth = FT_IS_SCALABLE(face);
+    if (fontDef.styleStrategy & QFont::NoAntialias)
+	smooth = false;
+    rendered_glyphs = new QGlyph *[face->num_glyphs];
+    memset(rendered_glyphs, 0, face->num_glyphs*sizeof(QGlyph *));
+    cache_cost = face->num_glyphs*6*8; // ##########
 }
 
-QFontEngine::~QFontEngine()
+QFontEngineFT::~QFontEngineFT()
 {
-    memorymanager->derefFont(id);
+    for (int i = 0; i < face->num_glyphs; ++i)
+	delete rendered_glyphs[i];
+    delete [] rendered_glyphs;
+    FT_Done_Face(face);
 }
 
 
-QFontEngine::FECaps QFontEngine::capabilites() const
+QFontEngine::FECaps QFontEngineFT::capabilites() const
 {
     return NoTransformations;
 }
 
 
 /* returns 0 as glyph index for non existant glyphs */
-QFontEngine::Error QFontEngine::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored ) const
+QFontEngine::Error QFontEngineFT::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored ) const
 {
     if(*nglyphs < len) {
 	*nglyphs = len;
 	return OutOfMemory;
     }
     if ( mirrored ) {
-	for(int i = 0; i < len; i++ )
-	    glyphs[i].glyph = ::mirroredChar(str[i]).unicode();
+	for(int i = 0; i < len; i++ ) {
+	    unsigned short ch = ::mirroredChar(str[i]).unicode();
+	    glyphs[i].glyph = FT_Get_Char_Index(face, ch);
+	}
     } else {
 	for(int i = 0; i < len; i++ )
-	    glyphs[i].glyph = str[i].unicode();
+	    glyphs[i].glyph = FT_Get_Char_Index(face, str[i].unicode());
     }
     *nglyphs = len;
-    for(int i = 0; i < len; i++)
+    for(int i = 0; i < len; i++) {
+	int g = glyphs[i].glyph;
+	if (!rendered_glyphs[g]) {
+	    rendered_glyphs[g] = new QGlyph;
+	    render(face, g, rendered_glyphs[g], smooth);
+	}
 	if ( ::category(str[i]) == QChar::Mark_NonSpacing )
 	    glyphs[i].advance = 0;
 	else
-	    glyphs[i].advance = (memorymanager->lockGlyphMetrics(handle(), str[i].unicode() )->advance*scale)>>8;
+	    glyphs[i].advance = rendered_glyphs[g]->advance;
+    }
     return NoError;
 }
 
 
-
-struct QtFontEnginePos {
- 	int x;
- 	int y;
-     };
-
-void QFontEngine::draw( QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags )
+void QFontEngineFT::draw( QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags )
 {
-#ifndef QT_NO_TRANSFORMATIONS
-    if ( p->painterState()->txop > QPainter::TxScale ) {
-	int aw = si.width;
-	int ah = si.ascent + si.descent + 1;
-	int tx = 0;
-	int ty = 0;
-	if ( aw == 0 || ah == 0 )
-	    return;
+    Q_ASSERT(p->painterState()->txop < QPainter::TxScale);
 
-	QWMatrix mat1 = p->painterState()->matrix;
-#ifndef QT_NO_PIXMAP_TRANSFORMATION
-	QWMatrix mat2 = QPixmap::trueMatrix( mat1, aw, ah );
-#endif
-	QPixmap *tpm = 0;
-	QBitmap *wx_bm = 0;
-	if ( memorymanager->fontSmooth(handle()) &&
-	     QPaintDevice::qwsDisplay()->supportsDepth(32) )
-	{
-	    QPixmap pm(aw, ah, 32);
-	    QPainter paint(&pm);
-	    paint.fillRect(pm.rect(),Qt::black);
-	    paint.setPen(QPen(Qt::white));
-	    draw( paint.d->engine, 0, si.ascent, si, textFlags );
-	    paint.end();
-	    // Now we have an image with r,g,b gray scale set.
-	    // Put this in alpha channel and set pixmap to pen color.
-	    QRgb bg = p->painterState()->pen.color().rgb() & 0x00FFFFFF;
-	    for ( int y = 0; y < ah; y++ ) {
-		uint *p = (uint *)pm.scanLine(y);
-		for ( int x = 0; x < aw; x++ ) {
-		    int a = *p & 0xFF;
-		    *p = bg | (a << 24);
-		    p++;
-		}
-	    }
-#ifndef QT_NO_PIXMAP_TRANSFORMATION
-	    tpm = new QPixmap( pm.xForm( mat2 ) );
-#else
-	    tpm = new QPixmap( pm );
-#endif
-	    if ( tpm->isNull() ) {
-		delete tpm;
-		return;
-	    }
-	} else {
-#if 0
-	    bm_key = gen_text_bitmap_key( mat2, dfont, string, len );
-	    wx_bm = get_text_bitmap( bm_key );
-	    create_new_bm = wx_bm == 0;
-	    if ( create_new_bm && !empty )
-#endif
-	    { // no such cached bitmap
-		QBitmap bm( aw, ah, TRUE );	// create bitmap
-		QPainter paint;
-		paint.begin( &bm );		// draw text in bitmap
-		paint.setPen( p->color1 );
-		draw( paint.d->engine, 0, si.ascent, si, textFlags );
-		paint.end();
-#ifndef QT_NO_PIXMAP_TRANSFORMATION
-		wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
-#else
-		wx_bm = new QBitmap( bm );
-#endif
-		if ( wx_bm->isNull() ) {
-		    delete wx_bm;		// nothing to draw
-		    return;
-		}
-	    }
-	}
-	double fx=x, fy=y - si.ascent, nfx, nfy;
-	mat1.map( fx,fy, &nfx,&nfy );
-	double tfx=tx, tfy=ty, dx, dy;
-#ifndef QT_NO_PIXMAP_TRANSFORMATION
-	mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
-#endif
-	x = qRound(nfx-dx);
-	y = qRound(nfy-dy);
-
-	if ( memorymanager->fontSmooth(handle()) &&
-	     QPaintDevice::qwsDisplay()->supportsDepth(32) ) {
-	    GFX(p)->setSource( tpm );
-	    GFX(p)->setAlphaType(QGfx::InlineAlpha);
-	    GFX(p)->blt(x, y, tpm->width(),tpm->height(), 0, 0);
-	    delete tpm;
-	    return;
-	} else {
-	    GFX(p)->setSource(wx_bm);
-	    GFX(p)->setAlphaType(QGfx::LittleEndianMask);
-	    GFX(p)->setAlphaSource(wx_bm->scanLine(0), wx_bm->bytesPerLine());
-	    GFX(p)->blt(x, y, wx_bm->width(),wx_bm->height(), 0, 0);
-
-#if 0
-	    if ( create_new_bm )
-		ins_text_bitmap( bm_key, wx_bm );
-#else
-	    delete wx_bm;
-#endif
-	}
-	return;
-    }
-#endif
-
-#ifndef QT_NO_TRANSFORMATIONS
     if (p->painterState()->txop == QPainter::TxTranslate)
-#endif
 	p->painterState()->painter->map( x, y, &x, &y );
 
     if ( textFlags ) {
@@ -203,34 +162,51 @@ void QFontEngine::draw( QPaintEngine *p, int x, int y, const QTextItem &si, int 
 
     QGlyphLayout *glyphs = si.glyphs;
 
-    QVarLengthArray<QtFontEnginePos> positions(si.num_glyphs);
-    QVarLengthArray<ushort> g(si.num_glyphs);
+#ifdef DEBUG_LOCKS
+    qDebug("unaccelerated drawText grab");
+#endif
 
-    for (int i = 0; i < si.num_glyphs; ++i)
-	g[i] = glyphs[i].glyph;
+#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
+    QWSDisplay::grab(); // we need it later, and grab-must-precede-lock
+#endif
 
-    if ( si.right_to_left ) {
-	int i = si.num_glyphs;
-	while( i-- ) {
-	    x += glyphs[i].advance;
-	    glyph_metrics_t gi = boundingBox( glyphs[i].glyph );
-	    positions[i].x = x-glyphs[i].offset.x-gi.xoff;
-	    positions[i].y = y+glyphs[i].offset.y-gi.yoff;
-	}
-    } else {
-	int i = 0;
-	while( i < si.num_glyphs ) {
-	    positions[i].x = x+glyphs[i].offset.x;
-	    positions[i].y = y+glyphs[i].offset.y;
-	    x += glyphs[i].advance;
-	    i++;
-	}
+#ifdef DEBUG_LOCKS
+    qDebug("unaccelerated drawText lock");
+#endif
+
+    QGfx *gfx = GFX(p);
+    gfx->setSourcePen();
+    gfx->setAlphaType(smooth ? QGfx::SeparateAlpha : QGfx::BigEndianMask);
+
+    if (si.right_to_left)
+	glyphs += si.num_glyphs - 1;
+    for( int i = 0; i < si.num_glyphs; i++ ) {
+	const QGlyphLayout *g = glyphs + (si.right_to_left ? -i : i);
+	const QGlyph *glyph = rendered_glyphs[g->glyph];
+	Q_ASSERT(glyph);
+	int myw = glyph->width;
+	gfx->setAlphaSource(glyph->data, glyph->linestep);
+	int myx = x + g->offset.x + glyph->bearingx;
+	int myy = y + g->offset.y - glyph->bearingy;
+
+	if( glyph->width != 0 && glyph->height != 0 && glyph->linestep != 0)
+	    gfx->blt(myx,myy,myw,glyph->height,0,0);
+
+	x += g->advance;
     }
-//    QConstString cstr( (QChar *)g, si.num_glyphs );
-    GFX(p)->drawGlyphs(handle(), g, (QPoint *)positions.data(), si.num_glyphs);
+#ifdef DEBUG_LOCKS
+    qDebug("unaccelerated drawText unlock");
+#endif
+#ifdef DEBUG_LOCKS
+    qDebug("unaccelerated drawText ungrab");
+#endif
+#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
+    QWSDisplay::ungrab();
+#endif
+    gfx->setAlphaType(QGfx::IgnoreAlpha);
 }
 
-glyph_metrics_t QFontEngine::boundingBox( const QGlyphLayout *glyphs, int numGlyphs )
+glyph_metrics_t QFontEngineFT::boundingBox( const QGlyphLayout *glyphs, int numGlyphs )
 {
     if ( numGlyphs == 0 )
 	return glyph_metrics_t();
@@ -243,62 +219,197 @@ glyph_metrics_t QFontEngine::boundingBox( const QGlyphLayout *glyphs, int numGly
     return glyph_metrics_t(0, -ascent(), w, ascent()+descent()+1, w, 0 );
 }
 
-glyph_metrics_t QFontEngine::boundingBox( glyph_t glyph )
+glyph_metrics_t QFontEngineFT::boundingBox( glyph_t glyph )
 {
-    QGlyphMetrics *metrics = memorymanager->lockGlyphMetrics( handle(), glyph);
-    return glyph_metrics_t( (metrics->bearingx*scale)>>8, (metrics->bearingy*scale)>>8, (metrics->width*scale)>>8, (metrics->height*scale)>>8, (metrics->advance*scale)>>8, 0 );
+    const QGlyph *g = rendered_glyphs[glyph];
+    Q_ASSERT(g);
+    return glyph_metrics_t( (g->bearingx*scale)>>8, (g->bearingy*scale)>>8,
+			    (g->width*scale)>>8, (g->height*scale)>>8,
+			    (g->advance*scale)>>8, 0 );
 }
 
-bool QFontEngine::canRender( const QChar *string,  int len )
+bool QFontEngineFT::canRender( const QChar *string,  int len )
 {
-    bool allExist = TRUE;
     while ( len-- )
-	if ( !memorymanager->inFont( handle(), string[len].unicode() ) ) {
-	    allExist = FALSE;
-	    break;
-	}
+	for(int i = 0; i < len; i++ )
+	    if (!FT_Get_Char_Index(face, string[i].unicode()))
+		return false;
 
-    return allExist;
+    return true;
+}
+
+#define FLOOR(x)  ((x) & -64)
+#define CEIL(x)   (((x)+63) & -64)
+#define TRUNC(x)  ((x) >> 6)
+
+int QFontEngineFT::ascent() const
+{
+    return CEIL(face->size->metrics.ascender)/64;
+}
+
+int QFontEngineFT::descent() const
+{
+    return -FLOOR(face->size->metrics.descender)/64-1;
+}
+
+int QFontEngineFT::leading() const
+{
+    return CEIL(face->size->metrics.height)/64
+	- CEIL(face->size->metrics.ascender)/64 /*ascent*/
+	- (-FLOOR(face->size->metrics.descender)/64-1) /* descent */
+	- 1;
+}
+
+int QFontEngineFT::maxCharWidth() const
+{
+    return CEIL(face->size->metrics.max_advance)/64;
+}
+
+int QFontEngineFT::minLeftBearing() const
+{
+    return 0;
+//     return (memorymanager->fontMinLeftBearing(handle())*scale)>>8;
+}
+
+int QFontEngineFT::minRightBearing() const
+{
+    return 0;
+//     return (memorymanager->fontMinRightBearing(handle())*scale)>>8;
+}
+
+int QFontEngineFT::underlinePosition() const
+{
+    return CEIL(FT_MulFix(face->underline_position, face->size->metrics.y_scale))/64;
+}
+
+int QFontEngineFT::lineThickness() const
+{
+    return CEIL(FT_MulFix(face->underline_thickness, face->size->metrics.y_scale))/64;
+}
+
+QFontEngine::Type QFontEngineFT::type() const
+{
+    return Freetype;
 }
 
 
-int QFontEngine::ascent() const
+
+// box font engine
+QFontEngineBox::QFontEngineBox(int size) : _size(size)
 {
-    return (memorymanager->fontAscent(handle())*scale)>>8;
+    //qDebug("box font engine created!");
+    cache_cost = 1;
 }
 
-int QFontEngine::descent() const
+QFontEngineBox::~QFontEngineBox()
 {
-    return (memorymanager->fontDescent(handle())*scale)>>8;
 }
 
-int QFontEngine::leading() const
+QFontEngine::FECaps QFontEngineBox::capabilites() const
 {
-    return (memorymanager->fontLeading(handle())*scale)>>8;
+    return FullTransformations;
 }
 
-int QFontEngine::maxCharWidth() const
+QFontEngine::Error QFontEngineBox::stringToCMap(const QChar *, int len, QGlyphLayout *glyphs, int *nglyphs, bool) const
 {
-    return (memorymanager->fontMaxWidth(handle())*scale)>>8;
+    if(*nglyphs < len) {
+	*nglyphs = len;
+	return OutOfMemory;
+    }
+
+    for(int i = 0; i < len; i++)
+	glyphs[i].glyph = 0;
+    *nglyphs = len;
+
+    for(int i = 0; i < len; i++)
+	(glyphs++)->advance = _size;
+
+    return NoError;
 }
 
-int QFontEngine::minLeftBearing() const
+void QFontEngineBox::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
 {
-    return (memorymanager->fontMinLeftBearing(handle())*scale)>>8;
+    Q_UNUSED(p);
+    Q_UNUSED(x);
+    Q_UNUSED(y);
+    Q_UNUSED(si);
+    Q_UNUSED(textFlags);
+    //qDebug("QFontEngineBox::draw(%d, %d, numglyphs=%d", x, y, numGlyphs);
 }
 
-int QFontEngine::minRightBearing() const
+glyph_metrics_t QFontEngineBox::boundingBox(const QGlyphLayout *, int numGlyphs)
 {
-    return (memorymanager->fontMinRightBearing(handle())*scale)>>8;
+    glyph_metrics_t overall;
+    overall.x = overall.y = 0;
+    overall.width = _size*numGlyphs;
+    overall.height = _size;
+    overall.xoff = overall.width;
+    overall.yoff = 0;
+    return overall;
+}
+
+glyph_metrics_t QFontEngineBox::boundingBox(glyph_t)
+{
+    return glyph_metrics_t(0, _size, _size, _size, _size, 0);
+}
+
+int QFontEngineBox::ascent() const
+{
+    return _size;
+}
+
+int QFontEngineBox::descent() const
+{
+    return 0;
+}
+
+int QFontEngineBox::leading() const
+{
+    int l = qRound(_size * 0.15);
+    return (l > 0) ? l : 1;
+}
+
+int QFontEngineBox::maxCharWidth() const
+{
+    return _size;
+}
+
+const char *QFontEngineBox::name() const
+{
+    return "null";
+}
+
+bool QFontEngineBox::canRender(const QChar *, int)
+{
+    return TRUE;
+}
+
+QFontEngine::Type QFontEngineBox::type() const
+{
+    return Box;
+}
+
+
+int QFontEngine::lineThickness() const
+{
+    // ad hoc algorithm
+    int score = fontDef.weight * fontDef.pixelSize;
+    int lw = score / 700;
+
+    // looks better with thicker line for small pointsizes
+    if ( lw < 2 && score >= 1050 ) lw = 2;
+    if ( lw == 0 ) lw = 1;
+
+    return lw;
 }
 
 int QFontEngine::underlinePosition() const
 {
-    return memorymanager->fontUnderlinePos(handle());
+    int pos = ( ( lineThickness() * 2 ) + 3 ) / 6;
+    return pos ? pos : 1;
 }
 
-int QFontEngine::lineThickness() const
+
+QFontEngine::~QFontEngine()
 {
-    return memorymanager->fontLineWidth(handle());
 }
-

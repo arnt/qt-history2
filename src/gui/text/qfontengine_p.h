@@ -35,7 +35,6 @@ typedef int advance_t;
 class QTextEngine;
 struct QGlyphLayout;
 
-#if defined(Q_WS_X11) || defined(Q_WS_WIN) || defined(Q_WS_MAC)
 class QFontEngine : public QShared
 {
 public:
@@ -59,7 +58,7 @@ public:
 	Mac,
 
 	// Trolltech QWS types
-	QWS
+	Freetype
     };
 
     enum Capabilities {
@@ -74,6 +73,9 @@ public:
 
     QFontEngine() {
 	count = 0; cache_count = 0;
+#ifdef Q_WS_QWS
+	scale = 1;
+#endif
     }
     virtual ~QFontEngine();
 
@@ -107,8 +109,10 @@ public:
 
     virtual bool canRender(const QChar *string,  int len) = 0;
 
+#ifndef Q_WS_QWS
     virtual void setScale(double) {}
     virtual double scale() const { return 1.; }
+#endif
 
     virtual Type type() const = 0;
 
@@ -140,55 +144,24 @@ public:
     short lbearing;
     short rbearing;
 #endif // Q_WS_WIN
+#ifdef Q_WS_QWS
+    int scale;
+#endif
 };
 
-#elif defined(Q_WS_QWS)
-class QGfx;
+#if defined(Q_WS_QWS)
 
-class QFontEngine : public QShared
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
+class QGlyph;
+
+class QFontEngineFT : public QFontEngine
 {
 public:
-    QFontEngine(const QFontDef&, const QPaintDevice * = 0);
-   ~QFontEngine();
-    /*QMemoryManager::FontID*/ void *handle() const;
-
-    enum Type {
-	// X11 types
-	Box,
-	XLFD,
-	Xft,
-
-	// MS Windows types
-	Win,
-	Uniscribe,
-
-	// Apple MacOS types
-	Mac,
-
-	// Trolltech QWS types
-	Qws
-    };
-
-    enum TextFlags {
-	Underline = 0x01,
-	Overline  = 0x02,
-	StrikeOut = 0x04
-    };
-
-    enum Error {
-	NoError,
-	OutOfMemory
-    };
-
-    enum Capabilities {
-	NoTransformations = 0x00,
-	Scale = 0x01,
-	Rotate = 0x02,
-	RotScale = 0x03,
-	Shear = 0x04,
-	FullTransformations = 0x0f
-    };
-    Q_DECLARE_FLAGS(FECaps, Capabilities);
+    QFontEngineFT(const QFontDef&, const QPaintDevice *, FT_Face face);
+   ~QFontEngineFT();
+    FT_Face handle() const;
 
     FECaps capabilites() const;
 
@@ -209,18 +182,22 @@ public:
     int underlinePosition() const;
     int lineThickness() const;
 
-    Type type() { return Qws; }
+    Type type() const;
 
     bool canRender(const QChar *string,  int len);
     inline const char *name() const { return 0; }
 
     QFontDef fontDef;
-    /*QMemoryManager::FontID*/ void *id;
+    FT_Face face;
     int cache_cost;
     int cache_count;
-    int scale;
+    bool smooth;
+    QGlyph **rendered_glyphs;
+
+    friend class QFontDatabase;
+    static FT_Library ft_library;
 };
-#endif // WIN || X11 || MAC
+#endif // QWS
 
 
 
@@ -241,7 +218,6 @@ enum IndicFeatures {
     HalantFeature
 };
 
-#if defined(Q_WS_X11) || defined(Q_WS_WIN) || defined(Q_WS_MAC)
 class QFontEngineBox : public QFontEngine
 {
 public:
@@ -278,7 +254,6 @@ private:
     friend class QFontPrivate;
     int _size;
 };
-#endif
 
 #ifdef Q_WS_QWS
 #ifndef QT_NO_XFTFREETYPE

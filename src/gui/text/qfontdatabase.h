@@ -32,9 +32,6 @@ class QStringList;
 template <class T> class QList;
 struct QFontDef;
 class QFontEngine;
-#ifdef Q_WS_QWS
-class QDiskFont;
-#endif
 
 class QFontDatabasePrivate;
 
@@ -66,10 +63,6 @@ public:
     static QString scriptName(QFont::Script);
     static QString scriptSample(QFont::Script);
 
-#ifdef Q_WS_QWS
-    static void qwsAddDiskFont( QDiskFont *qdf );
-#endif
-
     // For source compatibility with < 3.0
 #ifdef QT_COMPAT
     QT_COMPAT QStringList families(bool) const;
@@ -90,10 +83,8 @@ public:
 #endif // QT_COMPAT
 
 private:
-#if defined(Q_WS_X11) || defined(Q_WS_WIN) || defined(Q_WS_MAC)
     static QFontEngine *findFont( QFont::Script script, const QFontPrivate *fp,
 				  const QFontDef &request, int force_encoding_id = -1 );
-#endif // Q_WS_X11
 
     static void createDatabase();
 

@@ -20,7 +20,6 @@
 #include "qpen.h"
 #include "qbrush.h"
 #include "qimage.h"
-#include "qfontmanager_qws.h"
 #include "qmemorymanager_qws.h"
 #include "qwsdisplay_qws.h"
 #include "qpointarray.h"
@@ -176,7 +175,6 @@ public:
     virtual void setAlphaType(AlphaType);
     virtual void setAlphaSource(unsigned char *,int);
     virtual void setAlphaSource(int,int=-1,int=-1,int=-1);
-    virtual void drawGlyphs( QMemoryManager::FontID font, glyph_t *glyphs, QPoint *positions, int num_glyphs );
 
     virtual void sync();
 
