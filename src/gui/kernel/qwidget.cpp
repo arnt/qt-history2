@@ -5771,11 +5771,11 @@ void QWidget::setSizePolicy(QSizePolicy policy)
 }
 
 /*!
-    \fn void QWidget::setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw)
+    \fn void QWidget::setSizePolicy(QSizePolicy::SizeType horizontal, QSizePolicy::SizeType vertical)
     \overload
 
-    Sets the size policy of the widget to \a hor, \a ver and \a hfw
-    (height for width).
+    Sets the size policy of the widget to \a horizontal and \a
+    vertical, with standard stretch and no heightForWidth.
 
     \sa QSizePolicy::QSizePolicy()
 */
