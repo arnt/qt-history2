@@ -336,7 +336,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
                 }
                 QRect cellRect(QPoint(td->columnPositions.at(c), td->rowPositions.at(r)),
                                QPoint(td->columnPositions.at(c+cspan-1) + td->widths.at(c+cspan-1),
-                                      td->rowPositions.at(r+rspan-1) + td->widths.at(r+rspan-1)));
+                                      td->rowPositions.at(r+rspan-1) + td->heights.at(r+rspan-1)));
                 if (!cellRect.intersects(painter->clipRegion().boundingRect()))
                     continue;
 
