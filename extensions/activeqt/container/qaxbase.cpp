@@ -2427,7 +2427,7 @@ static const QMetaProperty props_tbl[] = {
 QMetaObject *MetaObjectGenerator::metaObject( QMetaObject *parentObject )
 {
     readClassInfo();
-    if ( tryCache() )
+    if ( d->useClassInfo && tryCache() )
 	return d->metaobj;
     readEnumInfo();
     readFuncInfo();
