@@ -484,10 +484,13 @@ bool QShortcutMap::correctContext(const QShortcutEntry &item) {
     Q_ASSERT_X(item.owner, "QShortcutMap", "Shortcut has no owner. Illegal map state!");
     QWidget *wtlw = qApp->activeWindow();
 
-    const QWidget *w = item.owner;
-    while (qt_cast<QMenu*>(w))
-        w = w->parentWidget();
-    if (!w || !w->isVisible() || !w->isEnabled() || !wtlw)
+    // If shortcut's on a QMenu, walk up until
+    // another widget or top for correct context
+    const QWidget *up, *w = item.owner;
+    while (qt_cast<QMenu*>(w) && (up = w->parentWidget()))
+        w = up;
+
+    if (!w->isVisible() || !w->isEnabled() || !wtlw)
         return false;
 
     QWidget *tlw = w->topLevelWidget();
