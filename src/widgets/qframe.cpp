@@ -160,7 +160,7 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f )
     : QWidget( parent, name, f )
 {
     frect  = QRect( 0, 0, 0, 0 );
-    fstyle = NoFrame;
+    fstyle = NoFrame | Plain;
     lwidth = 1;
     mwidth = 0;
     mlwidth = 0;
