@@ -44,6 +44,14 @@ class QObjectUserData;
 
 typedef QList<QObject*> QObjectList;
 
+#ifndef QT_NO_MEMBER_TEMPLATES
+template<typename T> inline T qFindChild(const QObject *, const QString & = QString());
+template<typename T> inline QList<T> qFindChildren(const QObject *, const QString & = QString());
+# ifndef QT_NO_REGEXP
+template<typename T> inline QList<T> qFindChildren(const QObject *, const QRegExp &);
+# endif
+#endif
+
 class QObjectData {
 public:
     virtual ~QObjectData() = 0;
@@ -107,11 +115,20 @@ public:
     int startTimer(int interval);
     void killTimer(int id);
 
-    QObject *findChild(const QString &name) const;
-    QObjectList findChildren(const QString &name) const;
+#ifndef QT_NO_MEMBER_TEMPLATES
+    template<typename T>
+    inline T findChild(const QString &name) const
+    { return qFindChild<T>(this, name); }
+
+    template<typename T>
+    inline QList<T> findChildren(const QString &name) const
+    { return qFindChildren<T>(this, name); }
 
 #ifndef QT_NO_REGEXP
-    QObjectList findChildren(const QRegExp &re) const;
+    template<typename T>
+    inline QList<T> findChildren(const QRegExp &re) const
+    { return qFindChildren<T>(this, re); }
+#endif
 #endif
 
 #ifdef QT3_SUPPORT
@@ -122,7 +139,7 @@ public:
                           bool regexpMatch = true,
                           bool recursiveSearch = true) const;
 #endif
-    const QObjectList &children() const { return d_ptr->children; }
+    inline const QObjectList &children() const { return d_ptr->children; }
 
     void setParent(QObject *);
     void installEventFilter(QObject *);

@@ -244,7 +244,7 @@ QAccessible::Relation QAccessibleApplication::relationTo(int child, const
 
     for (int i = 0; i < tlw.count(); ++i) {
         QWidget *w = tlw.at(i);
-        QObjectList cl = w->findChildren(QString());
+        QObjectList cl = qFindChildren<QObject *>(w, QString());
         if (cl.contains(o))
             return Ancestor;
     }

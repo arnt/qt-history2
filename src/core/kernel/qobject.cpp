@@ -1215,39 +1215,31 @@ QObjectList QObject::queryList(const char *inheritsClass,
 }
 #endif
 
-/*!
-    Returns the child of this object that is called \a name, or 0 if
-    there is no such object. The search is performed recursively.
+/*! \fn T *QObject::findChild(const QString &name) const
+    Returns the child of this object that can be casted into type T and
+    that is called \a name, or 0 if there is no such object.
+    A null string matches all object names.
+    The search is performed recursively.
 
     \sa findChildren()
 */
-QObject *QObject::findChild(const QString &name) const
-{
-    return qt_qFindChild_helper(this, name, QObject::staticMetaObject);
-}
 
-/*!
-    Returns the children of this object that are called \a name, or an
-    empty list if there are no such objects. The search is performed
-    recursively.
+/*! \fn QList<T> QObject::findChildren(const QString &name) const
+    Returns the children of this object that can be casted into type T
+    and that are called \a name, or an empty list if there are no such objects.
+    A null string matches all object names.
+    The search is performed recursively.
 
     \sa findChild()
 */
-QObjectList QObject::findChildren(const QString &name) const
-{
-    QObjectList list;
-    qt_qFindChildren_helper(this, name, 0, QObject::staticMetaObject,
-                         reinterpret_cast<QList<void *>*>(&list));
-    return list;
-}
 
-#ifndef QT_NO_REGEXP
-/*!
+/*! \fn QList<T> QObject::findChildren(const QRegExp &re) const
     \overload
 
-    Returns the children of this object that have names matching the
-    regular expression \a re, or an empty list if there are no such
-    objects. The search is performed recursively.
+    Returns the children of this object that can be casted to type T
+    and that have names matching the regular expression \a re,
+    or an empty list if there are no such objects.
+    The search is performed recursively.
 
     \sa findChild()
 */
@@ -1258,7 +1250,6 @@ QObjectList QObject::findChildren(const QRegExp &re) const
                          reinterpret_cast<QList<void *>*>(&list));
     return list;
 }
-#endif
 
 /*! \internal
  */
@@ -2124,7 +2115,7 @@ void QMetaObject::connectSlotsByName(QObject *o)
         return;
     const QMetaObject *mo = o->metaObject();
     Q_ASSERT(mo);
-    const QObjectList list(o->findChildren(QString()));
+    const QObjectList list = qFindChildren<QObject *>(o, QString());
     for (int i = 0; i < mo->memberCount(); ++i) {
         const char *slot = mo->member(i).signature();
         Q_ASSERT(slot);
