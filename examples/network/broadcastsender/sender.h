@@ -1,5 +1,5 @@
-#ifndef SERVER_H
-#define SERVER_H
+#ifndef SENDER_H
+#define SENDER_H
 
 #include <QDialog>
 
@@ -8,12 +8,12 @@ class QPushButton;
 class QTimer;
 class QUdpSocket;
 
-class Server : public QDialog
+class Sender : public QDialog
 {
     Q_OBJECT
 
 public:
-    Server(QWidget *parent = 0);
+    Sender(QWidget *parent = 0);
 
 private slots:
     void startBroadcasting();

@@ -2,9 +2,9 @@
 #include <QtGui>
 #include <QtNetwork>
 
-#include "server.h"
+#include "sender.h"
 
-Server::Server(QWidget *parent)
+Sender::Sender(QWidget *parent)
     : QDialog(parent)
 {
     statusLabel = new QLabel(tr("Ready to broadcast datagrams on port 45454"),
@@ -28,16 +28,16 @@ Server::Server(QWidget *parent)
     mainLayout->addWidget(statusLabel);
     mainLayout->addLayout(buttonLayout);
 
-    setWindowTitle(tr("Broadcast Server"));
+    setWindowTitle(tr("Broadcast Sender"));
 }
 
-void Server::startBroadcasting()
+void Sender::startBroadcasting()
 {
     startButton->setEnabled(false);
     timer->start(1000);
 }
 
-void Server::broadcastDatagram()
+void Sender::broadcastDatagram()
 {
     statusLabel->setText(tr("Now broadcasting datagram %1").arg(messageNo));
     QByteArray datagram = "Broadcast message " + QByteArray::number(messageNo);
