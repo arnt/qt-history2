@@ -95,19 +95,6 @@ QStyleFactoryPrivate::~QStyleFactoryPrivate()
 
 QStyle *QStyleFactory::create( const QString& s )
 {
-#ifndef QT_NO_COMPONENT
-    if ( !instance )
-	instance = new QStyleFactoryPrivate;
-
-    QStyleInterface *iface = QStyleFactoryPrivate::manager->queryInterface( s );
-
-    if ( iface ) {
-	QStyle *style = iface->create( s );
-	iface->release();
-        return style;
-    }
-#endif
-
     QString style = s.lower();
 #ifndef QT_NO_STYLE_WINDOWS
     if ( style == "windows" )
@@ -147,6 +134,19 @@ QStyle *QStyleFactory::create( const QString& s )
 #ifndef QT_NO_STYLE_AQUA
     if ( style == "aqua" )
         return new QAquaStyle;
+#endif
+
+#ifndef QT_NO_COMPONENT
+    if ( !instance )
+	instance = new QStyleFactoryPrivate;
+
+    QStyleInterface *iface = QStyleFactoryPrivate::manager->queryInterface( style );
+
+    if ( iface ) {
+	QStyle *st = iface->create( style );
+	iface->release();
+        return st;
+    }
 #endif
 
     return 0;
