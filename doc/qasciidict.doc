@@ -48,98 +48,49 @@
   \important autoDelete setAutoDelete
 
   QAsciiDict is implemented as a template class. Define a template instance
-  QAsciiDict\<X\> to create a dictionary that operates on pointers to X, or X*.
+  QAsciiDict\<X\> to create a dictionary that operates on pointers to X (X*).
 
-  A dictionary is a collection that associates an item with a key.
-  The key is used for inserting and looking up an item.  QAsciiDict has
-  \c char* keys.  QAsciiDict cannot handle Unicode keys; use the
-  QDict template instead, which uses \l QString keys.  A QDict has the same performace
-  as a QAsciiDict.
+  A dictionary is a collection of key-value pairs. The key is a char*
+  used for insertion, removal and lookup. The value is a pointer.
+  Dictionaries provide very fast insertion and lookup.
 
-  The dictionary has very fast insertion and lookup.
+  QAsciiDict cannot handle Unicode keys; use the QDict template
+  instead, which uses \l QString keys.  A QDict has the same
+  performace as a QAsciiDict.
 
   Example:
-  \code
-    #include <qdict.h>
-    #include <stdio.h>
+    \code
+    QAsciiDict<QLineEdit> fields;
+    fields.insert( "forename", new QLineEdit( this ) );
+    fields.insert( "surname", new QLineEdit( this ) );
 
-    int main()
-    {
-      // Creates a dictionary that maps char* ==> char* (case insensitive)
-	QAsciiDict<char> dict( 17, FALSE );
+    fields["forename"]->setText( "Homer" );
+    fields["surname"]->setText( "Simpson" );
 
-	dict.insert( "France", "Paris" );
-	dict.insert( "Russia", "Moscow" );
-	dict.insert( "Norway", "Oslo" );
+    QAsciiDictIterator<char> it( extra ); // See QAsciiDictIterator
+    for( ; it.current(); ++it )
+	cout << it.currentKey() << ": " << it.current()->text() << endl;
+    cout << endl;
 
-	printf( "%s\n", dict["Norway"] );
-	printf( "%s\n", dict["france"] );
-	printf( "%s\n", dict["RUSSIA"] );
+    if ( fields["forename"] && fields["surname"] )
+	cout << fields["forename"]->text() << " " 
+	    << fields["surname"]->text() << endl;  // Prints "Homer Simpson"
 
-	dict.remove( "France" );
+    fields.remove( "forename" ); // Does not delete the line edit
+    if ( ! fields["forename"] )
+	cout << "forename is not in the dictionary" << endl;
+    \endcode
+    In this example we use a dictionary to keep track of the line
+    edits we're using. We insert each line edit into the dictionary
+    with a unique name and then access the line edits via the
+    dictionary. See QPtrDict, QIntDict and QDict.
 
-	if ( !dict["France"] )
-	    printf( "France undefined\n" );
+    See QDict for full details, including the choice of dictionary
+    size, and how deletions are handled. 
 
-	return 0;
-    }
-  \endcode
 
-  Program output:
-  \code
-    Oslo
-    Paris
-    Moscow
-    France undefined
-  \endcode
-
-  The dictionary in our example maps \c char* keys to \c char* items.
-  Note that the mapping is case-insensitive (specified in the
-  \link QAsciiDict::QAsciiDict() constructor\endlink).
-  QAsciiDict implements \l operator[]() to look up an item.
-
-  QAsciiDict is implemented by QGDict as a hash array with a fixed number of
-  entries. Each array entry points to a singly linked list of buckets, in
-  which the dictionary items are stored.
-
-  When an item is inserted with a key, the key is converted (hashed) to
-  an integer index into the hash array. The item is inserted before the
-  first bucket in the list of buckets.
-
-  Looking up an item is normally very fast. The key is again hashed to an
-  array index. Then QAsciiDict scans the list of buckets and returns the item
-  found, or null if the item was not found.  You cannot insert null pointers
-  into a dictionary.
-
-  The size of the hash array is very important. In order to get good
-  performance, you should use a suitably large prime
-  number.  Suitable means equal to or larger than the maximum
-  expected number of dictionary items.
-
-  Items with equal keys are allowed.  When inserting two items with the
-  same key, only the last inserted item will be visible (last in, first out)
-  until it is removed.
-
-  The QAsciiDictIterator class can traverse the dictionary contents, but only
-  in an arbitrary order.  Multiple iterators may independently traverse the
-  same dictionary.
-
-  Calling setAutoDelete(TRUE) for a dictionary tells it to delete items
-  that are removed.  The default is to not delete items when they are
-  removed.
-
-  When inserting an item into a dictionary, only the pointer is copied, not
-  the item itself. This is called a shallow copy. It is possible to make the
-  dictionary copy all of the item's data (known as a deep copy) when an
-  item is inserted.  insert() calls the virtual function
-  QPtrCollection::newItem() for the item to be inserted.
-  Inherit a dictionary and reimplement it if you want deep copies.
-
-  When removing a dictionary item, the virtual function
-  QPtrCollection::deleteItem() is called.  QAsciiDict's default implementation
-  is to delete the item if auto-deletion is enabled.
-
-  \sa QAsciiDictIterator, QDict, QIntDict, QPtrDict
+  \sa QAsciiDictIterator, QDict, QIntDict, QPtrDict,
+      \link collection.html Collection Classes\endlink
 */
 
 
@@ -382,35 +333,28 @@
 
   Example:
   \code
-    #include <qasciidict.h>
-    #include <stdio.h>
+    QAsciiDict<QLineEdit> fields;
+    fields.insert( "forename", new QLineEdit( this ) );
+    fields.insert( "surname", new QLineEdit( this ) );
+    fields.insert( "age", new QLineEdit( this ) );
 
-    int main()
-    {
-      // Creates a dictionary that maps char* ==> char* (case insensitive)
-	QAsciiDict<char> dict( 17, FALSE );
+    fields["forename"]->setText( "Homer" );
+    fields["surname"]->setText( "Simpson" );
+    fields["age"]->setText( "45" );
 
-	dict.insert( "France", "Paris" );
-	dict.insert( "Russia", "Moscow" );
-	dict.insert( "Norway", "Oslo" );
+    QAsciiDictIterator<char> it( extra );
+    for( ; it.current(); ++it )
+	cout << it.currentKey() << ": " << it.current()->text() << endl;
+    cout << endl;
 
-	QAsciiDictIterator<char> it( dict ); // iterator for dict
-
-        while ( it.current() ) {
-	    printf( "%s -> %s\n", it.currentKey(), it.current() );
-	    ++it;
-	}
-
-	return 0;
-    }
+    // Output (random order):
+    //	age: 45
+    //	surname: Simpson
+    //	forename: Homer
   \endcode
-
-  Program output:
-  \code
-    Russia -> Moscow
-    Norway -> Oslo
-    France -> Paris
-  \endcode
+  In the example we insert some line edits into a dictionary, then
+  iterate over the dictionary printing the strings associated with
+  those line edits.
 
   Note that the traversal order is arbitrary; you are not guaranteed any
   particular order.

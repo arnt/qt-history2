@@ -49,124 +49,48 @@
 
   QPtrDict is implemented as a template class. Define a
   template instance QPtrDict\<X\> to create a dictionary that operates on
-  pointers to X, or X*.
+  pointers to X (X*).
 
-  A dictionary is a collection that associates an item with a key.
-  The key is used for inserting and looking up an item.  QPtrDict has
-  \c void* keys.
-
-  The dictionary has very fast insertion and lookup.
+  A dictionary is a collection of key-value pairs. The key is a void*
+  used for insertion, removal and lookup. The value is a pointer.
+  Dictionaries provide very fast insertion and lookup.
 
   Example:
-  \code
-    #include <qptrdict.h>
-    #include <stdio.h>
+    \code
+    QPtrDict<char> extra;
 
-    int main()
-    {
-	int *a = new int[12];
-	int *b = new int[10];
-	int *c = new int[18];
-	int *d = new int[13];
+    QLineEdit *le1 = new QLineEdit( this );
+    le1->setText( "Simpson" );
+    QLineEdit *le2 = new QLineEdit( this );
+    le2->setText( "Homer" );
+    QLineEdit *le3 = new QLineEdit( this );
+    le3->setText( "45" );
 
-	QPtrDict<char> dict;		   // maps void* -> char*
+    extra.insert( le1, "Surname" );
+    extra.insert( le2, "Forename" );
+    extra.insert( le3, "Age" );
 
-	dict.insert( a, "a is int[12]" );  // describe pointers
-	dict.insert( b, "b is int[10]" );
-	dict.insert( c, "c is int[18]" );
+    QPtrDictIterator<char> it( extra ); // See QPtrDictIterator
+    for( ; it.current(); ++it )
+	cout << it.current() << endl;
+    cout << endl;
 
-	printf( "%s\n", dict[a] );	   // print descriptions
-	printf( "%s\n", dict[b] );
-	printf( "%s\n", dict[c] );
+    if ( extra[le1] ) // Prints "Surname: Simpson"
+	cout << extra[le1] << ": " << le1->text() << endl; 
+    if ( extra[le2] ) // Prints "Forename: Homer"
+	cout << extra[le2] << ": " << le2->text() << endl; 
 
-	if ( !dict[d] )
-	    printf( "d not in dictionary\n" );
+    extra.remove( le1 ); // Removes le1 from the dictionary
+    cout << le1->text() << endl; // Prints "Simpson"
+    \endcode
+    In this example we use a dictionary to add an extra property (a
+    char*) to the line edits we're using. 
 
-	return 0;
-    }
-  \endcode
+    See QDict for full details, including the choice of dictionary
+    size, and how deletions are handled. 
 
-  Program output:
-  \code
-	a is int[12]
-	b is int[10]
-	c is int[18]
-	d not in dictionary
-  \endcode
-
-  The dictionary in our example maps \c int* keys to \c char* items.
-  QPtrDict implements operator[] to look up
-  an item.
-
-  QPtrDict is implemented by QGDict as a hash array with a fixed number of
-  entries. Each array entry points to a singly linked list of buckets in
-  which the dictionary items are stored.
-
-  When an item is inserted with a key, the key is converted (hashed) to
-  an integer index into the hash array using the \c mod operation. The
-  item is inserted before the first bucket in the list of buckets.
-
-  Looking up an item is normally very fast. The key is again hashed to an
-  array index. QPtrDict then scans the list of buckets and returns the item
-  found or null if the item was not found.  You cannot insert null pointers
-  into a dictionary.
-
-  The size of the hash array is very important. In order to get good
-  performance you should use a suitably large prime
-  number.  Suitable means equal to or larger than the maximum
-  expected number of dictionary items.
-
-  Items with equal keys are allowed.  When inserting two items with the
-  same key, only the last inserted item will be visible (last in, first out)
-  until it is removed.
-
-  Example:
-  \code
-    #include <qptrdict.h>
-    #include <stdio.h>
-
-    int main()
-    {
-	QPtrDict<char> dict;		// maps char* ==> char*
-
-	double *ptr = new double[28];
-	dict.insert( ptr, "first" );
-	dict.insert( ptr, "second" );
-
-	printf( "%s\n", dict[ptr] );
-	dict.remove( ptr );
-	printf( "%s\n", dict[ptr] );
-
-	return 0;
-    }
-  \endcode
-
-  Program output:
-  \code
-    second
-    first
-  \endcode
-
-  The QPtrDictIterator class can traverse the dictionary contents, but only
-  in an arbitrary order.  Multiple iterators may independently traverse the
-  same dictionary.
-
-  Calling setAutoDelete(TRUE) for a dictionary tells it to delete items
-  that are removed.  The default is to not delete items when they are
-  removed.
-
-  When inserting an item into a dictionary, only the pointer is copied, not
-  the item itself. This is called a shallow copy. It is possible to make the
-  dictionary copy all of the item's data (known as a deep copy) when an
-  item is inserted.  insert() calls the virtual function
-  QPtrCollection::newItem() for the item to be inserted.
-  Inherit a dictionary and reimplement it if you want deep copies.
-
-  When removing a dictionary item, the virtual function
-  QPtrCollection::deleteItem() is called.  QPtrDict's default implementation
-  is to delete the item if auto-deletion is enabled.
-
-  \sa QPtrDictIterator, QDict, QAsciiDict, QIntDict
+  \sa QPtrDictIterator, QDict, QAsciiDict, QIntDict,
+      \link collection.html Collection Classes\endlink
 */
 
 
@@ -177,14 +101,14 @@
 
   Setting \a size to a suitably large prime number
   (equal to or greater than the expected number of entries) makes the hash
-  distribution better and hence the loopup faster.
+  distribution better and hence the lookup faster.
 */
 
 /*!
   \fn QPtrDict::QPtrDict( const QPtrDict<type> &dict )
   Constructs a copy of \a dict.
 
-  Each item in \a dict are inserted into this dictionary.
+  Each item in \a dict is inserted into this dictionary.
   Only the pointers are copied (shallow copy).
 */
 
@@ -202,9 +126,9 @@
   Assigns \a dict to this dictionary and returns a reference to this
   dictionary.
 
-  This dictionary is first cleared and then each item in \a dict is inserted
-  into the dictionary. Only the pointers are copied (shallow copy), unless newItem() has been
-  reimplemented().
+  This dictionary is first cleared and then each item in \a dict is
+  inserted into the dictionary. Only the pointers are copied (shallow
+  copy), unless newItem() has been reimplemented.
 */
 
 /*!
@@ -215,22 +139,21 @@
 
 /*!
   \fn uint QPtrDict::size() const
-  Returns the size of the internal hash array (as specified in the
+  Returns the size of the internal hash table (as specified in the
   constructor).
   \sa count()
 */
 
 /*!
   \fn void QPtrDict::resize( uint newsize )
-  Changes the size of the hashtable to \a newsize.
+  Changes the size of the hash table to \a newsize.
   The contents of the dictionary are preserved,
   but all iterators on the dictionary become invalid.
 */
 
 /*!
   \fn bool QPtrDict::isEmpty() const
-  Returns TRUE if the dictionary is empty, i.e., count() == 0. Returns FALSE
-  otherwise.
+  Returns TRUE if the dictionary is empty; otherwise returns FALSE.
   \sa count()
 */
 
@@ -248,9 +171,10 @@
 
 /*!
   \fn void QPtrDict::replace( void *key, const type *item )
-  Replaces an item that has a key equal to \a key with \a item.
 
-  If the item does not already exist, \a item is inserted.
+  If the dictionary has key \a key, this key's item is replaced with
+  \a item. If the dictionary doesn't contain key \a key, \a item is
+  inserted into the dictionary using key \a key. 
 
   Null items are not allowed.
 
@@ -258,7 +182,7 @@
   \code
     QPtrDict<char> dict;
 	...
-    if ( dict.find(key) )
+    if ( dict.find( key ) )
 	dict.remove( key );
     dict.insert( key, item );
   \endcode
@@ -270,13 +194,12 @@
 */
 
 /*!
-  \fn bool QPtrDict::remove( void *key )
-  Removes the item associated with \a key from the dictionary.
-  Returns TRUE if successful, or FALSE if the key does not exist in the
-  dictionary.
+  \fn bool QPtrDict::remove( void *key ) Removes the item associated
+  with \a key from the dictionary. Returns TRUE if successful, or
+  FALSE if the key does not exist in the dictionary.
 
-  If there are two or more items with equal keys, then the last inserted
-  of these will be removed.
+  If there are two or more items with equal keys, then the last item
+  that was inserted of will be removed.
 
   The removed item is deleted if \link QPtrCollection::setAutoDelete()
   auto-deletion\endlink is enabled.
@@ -293,8 +216,8 @@
   deleting it (even if \link QPtrCollection::setAutoDelete()
   auto-deletion\endlink is enabled).
 
-  If there are two or more items with equal keys, then the last inserted
-  of these will be taken.
+  If there are two or more items with equal keys, then the last item
+  that was inserted of will be removed.
 
   Returns a pointer to the item taken out, or null if the key does not
   exist in the dictionary.
@@ -324,8 +247,8 @@
 
   This function uses an internal hashing algorithm to optimize lookup.
 
-  If there are two or more items with equal keys, then the last inserted
-  of these will be found.
+  If there are two or more items with equal keys, then the last item
+  that was inserted will be found.
 
   Equivalent to the [] operator.
 
@@ -339,8 +262,8 @@
 
   This function uses an internal hashing algorithm to optimize lookup.
 
-  If there are two or more items with equal keys, then the last inserted
-  of these will be found.
+  If there are two or more items with equal keys, then the last item
+  that was inserted will be found.
 
   Equivalent to the find() function.
 
@@ -388,42 +311,34 @@
 
   Example:
   \code
-    #include <qptrdict.h>
-    #include <stdio.h>
+    QPtrDict<char> extra;
 
-    int main()
-    {
-	int *a = new int[12];
-	int *b = new int[10];
-	int *c = new int[18];
-	int *d = new int[13];
+    QLineEdit *le1 = new QLineEdit( this );
+    le1->setText( "Simpson" );
+    QLineEdit *le2 = new QLineEdit( this );
+    le2->setText( "Homer" );
+    QLineEdit *le3 = new QLineEdit( this );
+    le3->setText( "45" );
 
-	QPtrDict<char> dict;		   // maps void* -> char*
+    extra.insert( le1, "Surname" );
+    extra.insert( le2, "Forename" );
+    extra.insert( le3, "Age" );
 
-	dict.insert( a, "a is int[12]" );  // describe pointers
-	dict.insert( b, "b is int[10]" );
-	dict.insert( c, "c is int[18]" );
-
-	QPtrDictIterator<char> it( dict ); // iterator for dict
-
-        while ( it.current() ) {
-	    printf( "%x -> %s\n", it.currentKey(), it.current() );
-	    ++it;
-	}
-
-	return 0;
+    QPtrDictIterator<char> it( extra );
+    for( ; it.current(); ++it ) {
+	QLineEdit *le = (QLineEdit)it.currentKey();
+	cout << it.current() << ": " << le->text() << endl;
     }
-  \endcode
+    cout << endl;
 
-  Program output:
-  \code
-	804a788 -> a is int[12]
-	804a7f0 -> c is int[18]
-	804a7c0 -> b is int[10]
+    // Output (random order):
+    //	Forename: Homer
+    //	Age: 45
+    //	Surname: Simpson
   \endcode
-
-  Note that the traversal order is arbitrary; you are not guaranteed the
-  order above.
+  In the example we insert some line edits into a dictionary, then
+  iterate over the dictionary printing the strings associated with
+  those line edits.
 
   Multiple iterators may independently traverse the same dictionary.
   A QPtrDict knows about all iterators that are operating on the dictionary.
@@ -453,8 +368,7 @@
 
 /*!
   \fn bool QPtrDictIterator::isEmpty() const
-  Returns TRUE if the dictionary is empty, i.e., count() == 0. Returns FALSE
-  otherwise.
+  Returns TRUE if the dictionary is empty; otherwise returns FALSE.
   \sa count()
 */
 

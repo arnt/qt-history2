@@ -20,6 +20,7 @@
 \class QDomNotation
 \class QDomProcessingInstruction
 \class QDomText
+\class QSvgDevice
 \class QXmlAttributes
 \class QXmlContentHandler
 \class QXmlDeclHandler

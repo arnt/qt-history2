@@ -48,51 +48,71 @@
   \important autoDelete setAutoDelete
 
   Define a template instance QPtrList\<X\> to create a list that
-  operates on pointers to X, or X*.
-
-  Example:
-  \code
-    #include <qptrlist.h>
-    #include <qstring.h>
-    #include <stdio.h>
-
-    class Employee
-    {
-    public:
-        Employee( const QString& name, int salary ) { n=name; s=salary; }
-        QString     name()   const		 { return n; }
-        int	    salary() const		 { return s; }
-    private:
-        QString     n;
-        int         s;
-    };
-
-    int main()
-    {
-	QPtrList<Employee> list;		// list of pointers to Employee
-	list.setAutoDelete( TRUE );	// delete items when they are removed
-
-	list.append( new Employee("Bill", 50000) );
-	list.append( new Employee("Steve",80000) );
-	list.append( new Employee("Ron",  60000) );
-
-	Employee *emp;
-	for ( emp=list.first(); emp != 0; emp=list.next() )
-	    printf( "%s earns %d\n", emp->name().latin1(), emp->salary() );
-	return 0;
-    }
-  \endcode
-
-  Program output:
-  \code
-    Bill earns 50000
-    Steve earns 80000
-    Ron earns 60000
-  \endcode
+  operates on pointers to X (X*).
 
   The list class is indexable and has a \link at() current index\endlink
   and a \link current() current item\endlink.  The first item corresponds
   to index 0.  The current index is -1 if the current item is null.
+
+    Items are inserted with prepend(), insert() or append(). Items are
+    removed with remove(), removeRef(), removeFirst() and
+    removeLast(). You can search for an item using find(), findNext(),
+    findRef() or findNextRef(). The list can be sorted with sort().
+    You can count the number of occurrences of an item with contains()
+    or containsRef(). You can get a pointer to the current item with
+    current(), to an item at a particular index position in the list
+    with at() or to the first or last item with getFirst() and
+    getLast(). You can also iterate over the list with first(),
+    last(), next() and prev() (which update current()). The list's
+    deletion property is set with setAutoDelete().
+
+  Example:
+  \code
+    class Employee
+    {
+    public:
+	Employee(): sn(0) {}
+	Employee( const QString& forename, const QString& surname, int salary )
+	    : fn(forename), sn(surname), sal(salary)
+	{}
+
+	QString forename() const { return fn; }
+	QString surname() const { return sn; }
+	int salary() const { return sal; }
+	void setSalary( int salary ) { sal = salary; }
+    private:
+	QString fn;
+	QString sn;
+	int sal;
+    };
+
+    QPtrList<Employee> list;
+    list.setAutoDelete( TRUE ); // We want the list to own the Employees
+
+    list.append( new Employee("John", "Doe", 50000) );
+    list.append( new Employee("Jane", "Williams", 80000) );
+    list.append( new Employee("Tom", "Jones", 60000) );
+
+    Employee *employee; // See QPtrListIterator
+    for ( employee = list.first(); employee; employee = list.next() )
+	cout << employee->surname().latin1() << ", " <<
+		employee->forename().latin1() << " earns " <<
+		employee->salary() << endl;
+    cout << endl;
+
+    for ( uint i = 0; i < list.count(); ++i )
+	if ( list.at( i ) )
+	    cout << list.at( i )->surname().latin1() << endl;
+
+  // Output:
+  //	Doe, John earns 50000
+  //	Williams, Jane earns 80000
+  //	Jones, Tom earns 60000
+  //
+  //	Doe
+  //	Williams
+  //	Jones
+  \endcode
 
   QPtrList has several member functions for traversing the list, but
   using a QPtrListIterator can be more practical. Multiple list
@@ -111,12 +131,12 @@
   QLNode, but they should be used with care. The data component of the
   node is available through QLNode::getData().
 
-  When inserting an item into a list only the pointer is copied, not the
-  item itself. This is called a shallow copy. It is possible to make the
-  list copy all of the item's data (known as a deep copy) when an item is
+  When inserting an item into a list only the pointer is copied, not
+  the item itself, i.e. we make a shallow copy. It is possible to make
+  the list copy all of the item's data (deep copy) when an item is
   inserted.  insert(), inSort() and append() call the virtual function
-  QPtrCollection::newItem() for the item to be inserted.
-  Inherit a list and reimplement it if you want deep copies.
+  QPtrCollection::newItem() for the item to be inserted. Inherit a
+  list and reimplement it if you want deep copies.
 
   When removing an item from a list, the virtual function
   QPtrCollection::deleteItem() is called.  QPtrList's default implementation
@@ -171,7 +191,7 @@
   \fn bool QPtrList::operator==(const QPtrList<type> &list ) const
 
   Compares this list with \a list. Returns TRUE if the lists
-  contain the same data, otherwise FALSE.
+  contain the same data; otherwise returns FALSE.
 */
 
 /*!
@@ -186,7 +206,7 @@
   Sorts the list by the result of the virtual compareItems() function.
 
   The Heap-Sort algorithm is used for sorting.  It sorts n items with
-  O(n*log n) compares.  This is the asymptotic optimal solution of the
+  O(n*log n) comparisons.  This is the asymptotic optimal solution of the
   sorting problem.
 
   If the items in your list support operator< and operator==, you
@@ -198,7 +218,7 @@
 
 /*!
   \fn bool QPtrList::isEmpty() const
-  Returns TRUE if the list is empty, i.e., count() == 0, otherwise it returns FALSE.
+  Returns TRUE if the list is empty; otherwise returns FALSE.
   
   \sa count()
 */
@@ -229,12 +249,12 @@
 
   The \a item must not be a null pointer.
 
-  Please note that inSort is slow. If you want to insert lots of items
+  Please note that inSort() is slow. If you want to insert lots of items
   in a list and sort after inserting, you should use sort().
   inSort() takes up to O(n) compares. That means inserting n items in
   your list will need O(n^2) compares whereas sort() only needs O(n*log n)
-  for the same task. So you inSort() only if you already have a presorted
-  list and want to insert only a few additional items.
+  for the same task. So use inSort() only if you already have a presorted
+  list and want to insert just a few additional items.
 
   \sa insert(), compareItems(), current(), sort()
 */
@@ -244,8 +264,7 @@
   Inserts the \a item at the end of the list.
 
   The inserted item becomes the current list item.
-  This is equivalent to \c insert(count(),item).
-
+  This is equivalent to \c{insert( count(), item )}.
 
   The \a item must not be a null pointer.
 
@@ -258,7 +277,7 @@
   Inserts the \a item at the start of the list.
 
   The inserted item becomes the current list item.
-  This is equivalent to insert(0, \a item).
+  This is equivalent to \c{insert( 0, item )}.
 
   The \a item must not be a null pointer.
 
@@ -270,7 +289,7 @@
   Removes the item at position \a index in the list.
 
   Returns TRUE if successful, or FALSE if \a index is out of range.
-  The valid range is <code>0 .. (count() - 1)</code> inclusive.
+  The valid range is \c{0..(count() - 1)} inclusive.
 
   The removed item is deleted if \link setAutoDelete()
   auto-deletion\endlink is enabled.
@@ -298,10 +317,10 @@
   auto-deletion\endlink is enabled.
 
   The item after the removed item becomes the new current list item if
-  the removed item is not the last item in the list.  If the last item
-  is removed, the new last item becomes the current item in Qt 2.x.
-  In 3.0, the current item will be set to null.  The current item is
-  set to null if the list becomes empty.
+  the removed item is not the last item in the list. If the last item
+  is removed, the the current item will be set to null. (In Qt 2.x, if
+  the last item was removed the current item pointed to the new last
+  item.) The current item is set to null if the list becomes empty.
 
   All list iterators that refer to the removed item will be set to point
   to the new current item.
@@ -325,10 +344,10 @@
   efficient to call removeRef().
 
   The item after the removed item becomes the new current list item if
-  the removed item is not the last item in the list.  If the last item
-  is removed, the new last item becomes the current item in Qt 2.x.
-  In 3.0, the current item will be set to null.  The current item is
-  set to null if the list becomes empty.
+  the removed item is not the last item in the list. If the last item
+  is removed, the the current item will be set to null. (In Qt 2.x, if
+  the last item was removed the current item pointed to the new last
+  item.) The current item is set to null if the list becomes empty.
 
   All list iterators that refer to the removed item will be set to point
   to the new current item.
@@ -351,15 +370,15 @@
 
   Equivalent to:
   \code
-    if ( list.findRef(item) != -1 )
+    if ( list.findRef( item ) != -1 )
 	list.remove();
   \endcode
 
   The item after the removed item becomes the new current list item if
-  the removed item is not the last item in the list.  If the last item
-  is removed, the new last item becomes the current item in Qt 2.x.
-  In 3.0, the current item will be set to null.  The current item is
-  set to null if the list becomes empty.
+  the removed item is not the last item in the list. If the last item
+  is removed, the the current item will be set to null. (In Qt 2.x, if
+  the last item was removed the current item pointed to the new last
+  item.) The current item is set to null if the list becomes empty.
 
   All list iterators that refer to the removed item will be set to point
   to the new current item.
@@ -430,13 +449,13 @@
 
   Returns a pointer to the item taken out of the list, or null if
   the index is out of range.
-  The valid range is <code>0 .. (count() - 1)</code> inclusive.
+  The valid range is \c{0..(count() - 1)} inclusive.
 
-  The item after the taken item becomes the new current list item if
-  the taken item is not the last item in the list.  If the last item
-  is taken, the new last item becomes the current item in Qt 2.x.  In
-  3.0, the current item will be set to null.  The current item is set
-  to null if the list becomes empty.
+  The item after the removed item becomes the new current list item if
+  the removed item is not the last item in the list. If the last item
+  is removed, the the current item will be set to null. (In Qt 2.x, if
+  the last item was removed the current item pointed to the new last
+  item.) The current item is set to null if the list becomes empty.
 
   All list iterators that refer to the taken item will be set to point to
   the new current item.
@@ -452,11 +471,11 @@
   Returns a pointer to the item taken out of the list, or null if
   the current item is null.
 
-  The item after the taken item becomes the new current list item if
-  the taken item is not the last item in the list.  If the last item
-  is taken, the new last item becomes the current item in Qt 2.x.  In
-  3.0, the current item will be set to null.  The current item is set
-  to null if the list becomes empty.
+  The item after the removed item becomes the new current list item if
+  the removed item is not the last item in the list. If the last item
+  is removed, the the current item will be set to null. (In Qt 2.x, if
+  the last item was removed the current item pointed to the new last
+  item.) The current item is set to null if the list becomes empty.
 
   All list iterators that refer to the taken item will be set to point to
   the new current item.
@@ -569,7 +588,7 @@
   in the list. If compareItems() is not reimplemented, it is more
   efficient to call containsRef().
 
-  Does not affect the current list item.
+  This function does not affect the current list item.
 
   \sa containsRef(), compareItems()
 */
@@ -582,7 +601,7 @@
   compares \a item with each list item using compareItems().
   This function only compares the pointers.
 
-  Does not affect the current list item.
+  This function does not affect the current list item.
 
   \sa contains()
 */
@@ -593,7 +612,7 @@
   null if the index is out of range.
 
   Sets the current list item to this item if \a index is valid.
-  The valid range is <code>0 .. (count() - 1)</code> inclusive.
+  The valid range is \c{0..(count() - 1)} inclusive.
 
   This function is very efficient.  It starts scanning from the first
   item, last item, or current item, whichever is closest to \a index.
@@ -634,7 +653,7 @@
   Returns a pointer to the first item in the list, or null if the
   list is empty.
 
-  Does not affect the current list item.
+  This function does not affect the current list item.
 
   \sa first(), getLast()
 */
@@ -644,7 +663,7 @@
   Returns a pointer to the last item in the list, or null if the
   list is empty.
 
-  Does not affect the current list item.
+  This function does not affect the current list item.
 
   \sa last(), getFirst()
 */
@@ -712,45 +731,26 @@
 
   Example:
   \code
-    #include <qptrlist.h>
-    #include <qstring.h>
-    #include <stdio.h>
+    //... See QPtrList
 
-    class Employee
-    {
-    public:
-        Employee( const char *name, int salary ) { n=name; s=salary; }
-        const char *name()   const		 { return n; }
-        int	    salary() const		 { return s; }
-    private:
-        QString     n;
-        int         s;
-    };
+    QPtrList<Employee> list;
+    list.setAutoDelete( TRUE ); // We want the list to own the Employees
 
-    int main()
-    {
-	QPtrList<Employee> list;		  // list of pointers to Employee
-	list.setAutoDelete( TRUE );	  // delete items when they are removed
+    list.append( new Employee("John", "Doe", 50000) );
+    list.append( new Employee("Jane", "Williams", 80000) );
+    list.append( new Employee("Tom", "Jones", 60000) );
 
-	list.append( new Employee("Bill", 50000) );
-	list.append( new Employee("Steve",80000) );
-	list.append( new Employee("Ron",  60000) );
+    Employee *employee; // See QPtrListIterator
+    for ( employee = list.first(); employee; employee = list.next() )
+	cout << employee->surname().latin1() << ", " <<
+		employee->forename().latin1() << " earns " <<
+		employee->salary() << endl;
 
-	QPtrListIterator<Employee> it(list); // iterator for employee list
-	for ( ; it.current(); ++it ) {
-	    Employee *emp = it.current();
-	    printf( "%s earns %d\n", emp->name().latin1(), emp->salary() );
-        }
-	return 0;
-    }
-  \endcode
-
-  Program output:
-  \code
-	Bill earns 50000
-	Steve earns 80000
-	Ron earns 60000
-  \endcode
+    // Output:
+    //	Doe, John earns 50000
+    //	Williams, Jane earns 80000
+    //	Jones, Tom earns 60000
+    \endcode
 
   Although QPtrList has member functions to traverse the doubly-linked list
   structure, using a list iterator is a much more robust way of traversing
@@ -763,47 +763,7 @@
   When an item is removed from the list, the list updates all iterators
   pointing the removed item to point to the new current list item.
 
-  Example:
-  \code
-    #include <qptrlist.h>
-    #include <qstring.h>
-    #include <stdio.h>
-
-    class Employee
-    {
-	...	// same as above
-    };
-
-    int main()
-    {
-	QPtrList<Employee> list;		  // list of pointers to Employee
-	list.setAutoDelete( TRUE );	  // delete items when they are removed
-
-	list.append( new Employee("Bill", 50000) );
-	list.append( new Employee("Steve",80000) );
-	list.append( new Employee("Ron",  60000) );
-
-	QPtrListIterator<Employee> it(list);
-
-	list.at( 1 );			  // current list item: "Steve"
-        it.toLast();			  // it: "Ron"
-	--it;				  // it: "Steve"
-
-	  // Now, both the list and the iterator are referring the same item
-
-	list.remove();
-	printf( "%s\n", it.current()->name().latin1() );
-
-	return 0;
-    }
-  \endcode
-
-  Program output:
-  \code
-	Ron
-  \endcode
-
-  \sa QPtrList
+  \sa QPtrList, \link collection.html collection classes\endlink
 */
 
 /*!
@@ -825,21 +785,21 @@
 
 /*!
   \fn bool QPtrListIterator::isEmpty() const
-  Returns TRUE if the list is empty (i.e., count() == 0), otherwise FALSE.
+  Returns TRUE if the list is empty; otherwise returns FALSE.
   \sa count()
 */
 
 /*!
   \fn bool QPtrListIterator::atFirst() const
-  Returns TRUE if the current iterator item is the first list item, otherwise
-  FALSE.
+  Returns TRUE if the current iterator item is the first list item; otherwise
+  returns FALSE.
   \sa toFirst(), atLast()
 */
 
 /*!
   \fn bool QPtrListIterator::atLast() const
-  Returns TRUE if the current iterator item is the last list item, otherwise
-  FALSE.
+  Returns TRUE if the current iterator item is the last list item; otherwise
+  returns FALSE.
   \sa toLast(), atFirst()
 */
 
@@ -934,6 +894,8 @@
 
   \ingroup collection
   \ingroup tools
+
+    If you want a string list of QStrings use QStringList.
 
   This class is a QPtrList\<char\> instance (a list of char*).
 

@@ -42,7 +42,7 @@
   \ingroup tools
 
   A template instance QPtrQueue\<X\> is a queue that operates on
-  pointers to X.
+  pointers to X (X*).
 
   A queue is a first in, first out structure. Items are added to the
   tail of the queue with enqueue() and retrieved from the head with
@@ -62,7 +62,7 @@
 /*! \fn QPtrQueue::QPtrQueue( const QPtrQueue<type>& queue )
   Creates a queue from \a queue.
 
-  Only the pointers are copied - the items are not.  The autoDelete()
+  Only the pointers are copied; the items are not.  The autoDelete()
   flag is set to FALSE.
 */
 
@@ -87,15 +87,14 @@
 
 /*! \fn bool QPtrQueue::isEmpty() const
 
-  Returns TRUE if the queue is empty and FALSE if there is at least
-  one item enqueued.
+  Returns TRUE if the queue is empty; otherwise returns FALSE.
 
   \sa count() dequeue() head()
 */
 
 /*! \fn void QPtrQueue::enqueue (const type* d)
 
-  Adds \a d to the tail of the queue.
+  Adds item \a d to the tail of the queue.
 
   \sa count() dequeue()
 */
@@ -107,7 +106,7 @@
   \sa enqueue() count()
 */
 
-/*! \fn bool QPtrQueue::remove ()
+/*! \fn bool QPtrQueue::remove()
 
   Removes the head item from the queue, and returns TRUE if there was
   an item or FALSE if the queue was empty.
@@ -132,7 +131,7 @@
   \sa isEmpty()
 */
 
-/*! \fn type* QPtrQueue::head () const
+/*! \fn type* QPtrQueue::head() const
 
   Returns a reference to the head item in the queue.  The queue is
   not changed.
@@ -140,7 +139,7 @@
   \sa dequeue() isEmpty()
 */
 
-/*! \fn QPtrQueue::operator type* ()const
+/*! \fn QPtrQueue::operator type*() const
 
   Returns a reference to the head item in the queue.  The queue is
   not changed.
@@ -148,7 +147,7 @@
   \sa dequeue() isEmpty()
 */
 
-/*! \fn type* QPtrQueue::current () const
+/*! \fn type* QPtrQueue::current() const
 
   Returns a reference to the head item in the queue.  The queue is
   not changed.
@@ -168,7 +167,7 @@
   \fn void QPtrQueue::setAutoDelete( bool enable )
 
   Sets the queue to auto-delete its contents if \a enable is TRUE and
-  to never delete them if \a enable is FALSE.
+  not to delete them if \a enable is FALSE.
 
   If auto-deleting is turned on, all the items in a queue are deleted
   when the queue itself is deleted. This can be quite convenient if
@@ -185,8 +184,8 @@
   \fn QDataStream& QPtrQueue::read( QDataStream& s,
 				    QPtrCollection::Item& item )
 
-  Reads a queue item from the stream \a s and returns a reference to
-  the stream.
+  Reads a queue item, \a item, from the stream \a s and returns a
+  reference to the stream.
 
   The default implementation sets \a item to 0.
 

@@ -2,6 +2,7 @@
 
 \page eventsandfilters.html
 \page customlayout.html
+\page customstyles.html
 \class QAccel
 \class QAction
 \class QActionGroup

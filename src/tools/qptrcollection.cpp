@@ -37,18 +37,18 @@
 
 #include "qptrcollection.h"
 
-// NOT REVISED
 /*!
   \class QPtrCollection qptrcollection.h
-  \brief The QPtrCollection class is the base class of most value-based Qt collections.
+  \brief The QPtrCollection class is the base class of most pointer-based Qt collections.
 
   \ingroup collection
   \ingroup tools
 
   The QPtrCollection class is an abstract base class for the Qt \link
-  collection.html collection classes\endlink QDict, QPtrList, etc.
+  collection.html collection classes\endlink QDict, QPtrList, etc. Qt
+  also includes value based collections, e.g. QValueList, QMap, etc.
 
-  A QPtrCollection knows only about the number of objects in the
+  A QPtrCollection only knows about the number of objects in the
   collection and the deletion strategy (see setAutoDelete()).
 
   A collection is implemented using the \c Item (generic collection
@@ -76,8 +76,8 @@
   Constructs a copy of \a source with autoDelete() set to FALSE. The
   constructor is protected because QPtrCollection is an abstract class.
 
-  Note that if \a source has autoDelete turned on, copying it is a
-  good way to get memory leaks, reading freed memory, or both.
+  Note that if \a source has autoDelete turned on, copying it will
+  risk memory leaks, reading freed memory, or both.
 */
 
 /*!
@@ -102,9 +102,8 @@
   and to never delete them if \a enable is FALSE.
 
   If auto-deleting is turned on, all the items in a collection are
-  deleted when the collection itself is deleted. This can be quite
-  convenient if the collection has the only pointer to the
-  items.
+  deleted when the collection itself is deleted. This is convenient if
+  the collection has the only pointer to the items.
 
   The default setting is FALSE, for safety. If you turn it on, be
   careful about copying the collection - you might find yourself with
@@ -130,12 +129,11 @@
     \fn void     QPtrCollection::deleteItem( Item d )
     Reimplement this function if you want to be able to delete items.
 
-  Deletes an item that is about to be removed from
-  the collection.
+  Deletes an item that is about to be removed from the collection.
 
   This function has to reimplemented in the collection template
-  classes, and should delete \a d if and only if auto-delete has been
-  enabled.
+  classes, and should \e only delete item \a d if auto-delete has
+  been enabled.
 
   \warning If you reimplement this function you must also reimplement
   the destructor and call the virtual function clear() from your
@@ -143,7 +141,7 @@
   destructors work in C++: Virtual functions in derived classes cannot
   be called from a destructor.  If you do not do this, your
   deleteItem() function will not be called when the container is
-  destructed.
+  destroyed.
 
   \sa newItem(), setAutoDelete()
 */

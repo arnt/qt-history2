@@ -111,9 +111,36 @@
   QPtrCollection::deleteItem() is called.  QDict's default implementation
   is to delete the item if auto-deletion is enabled.
 
-  Example:
+  Example #1:
+    \code
+    QDict<QLineEdit> fields;
+    fields.insert( "forename", new QLineEdit( this ) );
+    fields.insert( "surname", new QLineEdit( this ) );
 
-  \code
+    fields["forename"]->setText( "Homer" );
+    fields["surname"]->setText( "Simpson" );
+
+    QDictIterator<char> it( extra ); // See QDictIterator
+    for( ; it.current(); ++it )
+	cout << it.currentKey() << ": " << it.current()->text() << endl;
+    cout << endl;
+
+    if ( fields["forename"] && fields["surname"] )
+	cout << fields["forename"]->text() << " " 
+	    << fields["surname"]->text() << endl;  // Prints "Homer Simpson"
+
+    fields.remove( "forename" ); // Does not delete the line edit
+    if ( ! fields["forename"] )
+	cout << "forename is not in the dictionary" << endl;
+    \endcode
+    In this example we use a dictionary to keep track of the line
+    edits we're using. We insert each line edit into the dictionary
+    with a unique name and then access the line edits via the
+    dictionary. 
+
+  Example #2:
+
+    \code
     QStringList styleList = QStyleFactory::styles();
     styleList.sort();
     QDict<int> letterDict( 17, FALSE );
@@ -134,7 +161,7 @@
 	}
 	(void) new QAction( styleName, QIconSet(), styleAccel, parent );
     }
-  \endcode
+    \endcode
     In the example we are using the dictionary to provide fast random
     access to the keys, and we don't care what the values are. The example
     is used to generate a menu of QStyles, each with a unique
@@ -398,21 +425,28 @@
 
   Example:
   \code
-    QDict<QWidget> widgets;
-    // ...
-    widgets.insert( "OK", okButton );
-    widgets.insert( "Cancel", cancelButton );
-    widgets.insert( "Options", optionsCombobox );
-    // ...
-    QStringList buttonList;
-    QDictIterator<QWidget> it( widgets );
-    for ( ; it.current(); ++it )
-	if ( it.current()->inherits( "QPushButton" ) )
-	    buttonList += it.currentKey();
+    QDict<QLineEdit> fields;
+    fields.insert( "forename", new QLineEdit( this ) );
+    fields.insert( "surname", new QLineEdit( this ) );
+    fields.insert( "age", new QLineEdit( this ) );
+
+    fields["forename"]->setText( "Homer" );
+    fields["surname"]->setText( "Simpson" );
+    fields["age"]->setText( "45" );
+
+    QDictIterator<char> it( extra );
+    for( ; it.current(); ++it )
+	cout << it.currentKey() << ": " << it.current()->text() << endl;
+    cout << endl;
+
+    // Output (random order):
+    //	age: 45
+    //	surname: Simpson
+    //	forename: Homer
   \endcode
-  In the example we insert some widgets into a dictionary, then
-  iterate over the dictionary adding the string keys for those widgets
-  which are derived from QPushButton, into a list.
+  In the example we insert some line edits into a dictionary, then
+  iterate over the dictionary printing the strings associated with
+  those line edits.
 
   \sa QDict
 */

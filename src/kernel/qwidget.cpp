@@ -706,6 +706,9 @@ Internal flags.
   zero). To customize the frame, set the \c WStyle_Customize flag OR'ed with
   any of the Qt::WidgetFlags.
 
+    If you add a child widget to an already visible widget you must
+    explicitly show the child to make it visible.
+
   Note that the X11 version of Qt may not be able to deliver all
   combinations of style flags on all systems.  This is because on X11,
   Qt can only ask the window manager, and the window manager can
@@ -2380,7 +2383,7 @@ void QWidget::setPaletteBackgroundPixmap( const QPixmap &pixmap )
 
     The background brush depends on a widget's palette and its
     background mode.
-    
+
   \sa backgroundColor,  backgroundPixmap, eraseColor,  palette, QApplication::setPalette()
 */
 const QBrush& QWidget::backgroundBrush() const
@@ -2433,7 +2436,7 @@ const QColorGroup &QWidget::colorGroup() const
   has been called, this is either a special palette for the widget
   class, the parent's palette or (if this widget is a top level
   widget) the default application palette.
-  
+
   Instead of defining an entirely new palette, you can also use the \l
   paletteBackgroundColor, \l paletteBackgroundPixmap and \l
   paletteForegroundColor convenience properties to change a widget's

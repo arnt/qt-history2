@@ -123,7 +123,7 @@ public:
   that the operation has completeed when you call setProgress() with
   totalSteps() as argument.
 
-  The dialog automatically resets and hides itslef at the end of the
+  The dialog automatically resets and hides itself at the end of the
   operation. Use setAutoReset() and setAutoClose() to change this
   behavior.
 
@@ -131,22 +131,22 @@ public:
 
   Using a modal QProgressDialog is simpler for the programmer, but you
   have to call qApp->processEvents() to keep the event loop running
-  and prevent the application from freezing. Do the operation in a loop -
-  call \l setProgress() at intervals and check for cancellation with
-  wasCancelled(). For example:
-  \code
-    QProgressDialog progress( "Copying files...", "Abort Copy", numFiles,
-				this, "progress", TRUE );
-    for (int i=0; i<numFiles; i++) {
-	progress.setProgress( i );
-	qApp->processEvents();
+  to ensure that the application doesn't freeze. Do the operation in a
+  loop, call \l setProgress() at intervals, and check for cancellation
+  with wasCancelled(). For example:
+\code
+QProgressDialog progress( "Copying files...", "Abort Copy", numFiles,
+                          this, "progress", TRUE );
+for ( int i = 0; i < numFiles; i++ ) {
+    progress.setProgress( i );
+    qApp->processEvents();
 
-	if ( progress.wasCancelled() )
-	    break;
-	... // copy one file
-    }
-    progress.setProgress( numFiles );
-  \endcode
+    if ( progress.wasCancelled() )
+        break;
+    //... copy one file
+}
+progress.setProgress( numFiles );
+\endcode
 
   A non-modal progress dialog is suitable for operations that take
   place in the background, where the user is able to interact with the
@@ -157,35 +157,33 @@ public:
 
   You need an event loop to be running. Connect the cancelled()
   signal to a slot that stops the operation, and call \l setProgress() at
-  intervals.
+  intervals. For example:
+\code
+Operation::Operation( QObject *parent = 0 )
+    : QObject( parent ), steps( 0 )
+{
+    pd = new QProgressDialog( "Operation in progress.", "Cancel", 100 );
+    connect( pd, SIGNAL(cancelled()), this, SLOT(cancel()) );
+    t = new QTimer( this );
+    connect( t, SIGNAL(timeout()), this, SLOT(perform()) );
+    t->start( 0 );
+}
 
-  Example:
-  \code
-  Operation::Operation( QObject *parent = 0 )
-      : QObject( parent ), steps(0)
-  {
-      pd = new QProgressDialog( "Operation in progress.", "Cancel", 100 );
-      connect( pd, SIGNAL(cancelled()), this, SLOT(cancel()) );
-      t = new QTimer( this );
-      connect( t, SIGNAL(timeout()), this, SLOT(perform()) );
-      t->start(0);
-  }
+void Operation::perform()
+{
+    pd->setProgress( steps );
+    //... perform one percent of the operation
+    steps++;
+    if ( steps > pd->totalSteps() )
+        t->stop();
+}
 
-  void Operation::perform()
-  {
-      pd->setProgress( steps );
-      ...	//perform one percent of the operation
-      steps++;
-      if ( steps > pd->totalSteps() )
-		t->stop();
-  }
-
-  void Operation::cancel()
-  {
-      t->stop();
-      ...	//cleanup
-  }
-  \endcode
+void Operation::cancel()
+{
+    t->stop();
+    //... cleanup
+}
+\endcode
 
 
   In both modes the progress dialog may be customized by
@@ -203,7 +201,7 @@ public:
 
 /*!
   Returns the QLabel currently being displayed above the progress bar.
-  Note that this QLabel remains owned by the QProgressDialog.
+  Note that this QLabel is owned by the QProgressDialog.
 
   \sa setLabel()
 */
@@ -213,8 +211,8 @@ QLabel *QProgressDialog::label() const
 }
 
 /*!
-  Returns the QProgressBar currently being used to displayed progress.
-  Note that this QProgressBar remains owned by the QProgressDialog.
+  Returns the QProgressBar currently being used to display progress.
+  Note that this QProgressBar is owned by the QProgressDialog.
 
   \sa setBar()
 */
@@ -228,17 +226,18 @@ QProgressBar *QProgressDialog::bar() const
   Constructs a progress dialog.
 
   Default settings:
-  <ul>
-    <li>The label text is empty.
-    <li>The cancel button text is "Cancel".
-    <li>The total number of steps is 100.
-  </ul>
+  \list
+  \i The label text is empty.
+  \i The cancel button text is "Cancel".
+  \i The total number of steps is 100.
+  \endlist
 
-  The top level parent of \a creator becomes the parent of the dialog.
-  \a name, \a modal, and \a f are sent to the QDialog::QDialog() constructor.
-  Note that if \a modal is FALSE (the default), you will need to have an
-  event loop proceeding for any redrawing of the dialog to occur.  If it is TRUE,
-  the dialog ensures that events are processed when needed.
+  The top level parent of the \a creator widget becomes the parent of
+  the dialog. The \a name, \a modal, and the widget flags, \a f, are
+  passed to the QDialog::QDialog() constructor. Note that if \a modal
+  is FALSE (the default), you must have an event loop proceeding for
+  any redrawing of the dialog to occur.  If \a modal is TRUE, the
+  dialog ensures that events are processed when needed.
 
   \sa setLabelText(), setLabel(), setCancelButtonText(), setCancelButton(),
   setTotalSteps()
@@ -254,22 +253,23 @@ QProgressDialog::QProgressDialog( QWidget *creator, const char *name,
 /*!
   Constructs a progress dialog.
 
-   \a labelText is text telling the user what is progressing.
+   The \a labelText is text used to remind the user what is progressing.
 
-   \a cancelButtonText is the text on the cancel button,
+   The \a cancelButtonText is the text to display on the cancel button,
 	    or 0 if no cancel button is to be shown.
 
-   \a totalSteps is the total number of steps in the operation of which
-    this progress dialog shows the progress.  For example, if the operation
-    is to examine 50 files, this value would be 50. Before examining
-    the first file, call setProgress(0); call setProgress(50) after examining the last file
-    .
+   The \a totalSteps is the total number of steps in the operation of
+   which this progress dialog shows the progress.  For example, if the
+   operation is to examine 50 files, this value would be 50. Before
+   examining the first file, call setProgress(0). As each file is
+   processed call setProgress(1), setProgress(2), etc., finally
+   calling setProgress(50) after examining the last file.
 
-   \a name, \a modal, and \a f are sent to the
-    QDialog::QDialog() constructor. Note that if \a modal is FALSE (the
-    default), you will need to have an event loop proceeding for any
-    redrawing of the dialog to occur.  If it is TRUE, the dialog ensures
-    that events are processed when needed.
+   The \a name, \a modal, and widget flags, \a f, are passed to the
+   QDialog::QDialog() constructor. Note that if \a modal is FALSE (the
+   default), you will need to have an event loop proceeding for any
+   redrawing of the dialog to occur.  If \a modal is TRUE, the dialog
+   ensures that events are processed when needed.
 
     The \a creator argument is the widget to use as the dialog's parent.
     If \a creator is not a top level widget the argument passed on to
@@ -329,10 +329,9 @@ void QProgressDialog::init( QWidget *creator,
 
 
 /*!
-  Sets the label to \a label. The progress dialog resizes to fit.
-  The label becomes owned by the
-  progress dialog and will be deleted when necessary,
-  so do not pass the address of an object on the stack.
+  Sets the label to \a label. The progress dialog resizes to fit. The
+  label becomes owned by the progress dialog and will be deleted when
+  necessary, so do not pass the address of an object on the stack.
 
   \sa setLabelText()
 */
@@ -358,7 +357,7 @@ void QProgressDialog::setLabel( QLabel *label )
 
 /*!
   \property QProgressDialog::labelText
-  \brief the labels text.
+  \brief the label's text
 */
 
 QString QProgressDialog::labelText() const
@@ -380,10 +379,10 @@ void QProgressDialog::setLabelText( const QString &text )
 
 
 /*!
-  Sets the cancel button to \a cancelButton. The progress dialog takes
-  ownership of this button which will be deleted when necessary, so do
-  not pass the address of an object that is on the stack, i.e. use new()
-  to create the button.
+  Sets the cancel button to the push button, \a cancelButton. The
+  progress dialog takes ownership of this button which will be deleted
+  when necessary, so do not pass the address of an object that is on
+  the stack, i.e. use new() to create the button.
 
   \sa setCancelButtonText()
 */
@@ -455,7 +454,7 @@ void QProgressDialog::setBar( QProgressBar *bar )
 
 /*!
   \property QProgressDialog::wasCancelled
-  \brief whether the dialog was cancelled.
+  \brief whether the dialog was cancelled
 
   \sa setProgress()
 */
@@ -468,7 +467,7 @@ bool QProgressDialog::wasCancelled() const
 
 /*!
   \property QProgressDialog::totalSteps
-  \brief the total number of steps.
+  \brief the total number of steps
 */
 
 int QProgressDialog::totalSteps() const
@@ -525,14 +524,15 @@ void QProgressDialog::cancel()
   \property QProgressDialog::progress
   \brief the current amount of progress made.
 
-  For the progress dialog to work correctly,
-  you must initially set this property to 0 and finally to QProgressDialog::totalSteps();
-  you may call it any number of times in-between.
+  For the progress dialog to work as expected, you should initially set
+  this property to 0 and finally set it to
+  QProgressDialog::totalSteps(); you can call setProgress() any number of times
+  in-between.
 
   \warning If the progress dialog is modal
     (see QProgressDialog::QProgressDialog()),
     this function calls QApplication::processEvents(), so take care that
-    this does not cause undesirable re-entrancy to your code. For example,
+    this does not cause undesirable re-entrancy in your code. For example,
     don't use a QProgressDialog inside a paintEvent()!
 
   \sa totalSteps
@@ -598,8 +598,8 @@ void QProgressDialog::setProgress( int progress )
 
 /*!
   Returns a size that fits the contents of the progress dialog.
-  The progress dialog resizes itself as required, so this should not
-  be needed in user code.
+  The progress dialog resizes itself as required, so you should not
+  need to call this yourself.
 */
 
 QSize QProgressDialog::sizeHint() const
@@ -672,7 +672,7 @@ void QProgressDialog::layout()
 
 /*!
   \property QProgressDialog::minimumDuration
-  \brief the duration the progress has to take before the dialog opens.
+  \brief the time that the progress should run for before the dialog opens
 
   The dialog will not appear if the anticipated duration of the
   progressing task is less than the minimum duration.
@@ -707,7 +707,7 @@ void QProgressDialog::closeEvent( QCloseEvent *e )
 
 /*!
   \property QProgressDialog::autoReset
-  \brief whether the progress dialog calls reset() as soon as progress() equals totalSteps().
+  \brief whether the progress dialog calls reset() as soon as progress() equals totalSteps()
 
   \sa setAutoClose()
 */
@@ -725,7 +725,7 @@ bool QProgressDialog::autoReset() const
 /*!
   \property QProgressDialog::autoClose
 
-  \brief whether the dialog gets hidden by reset().
+  \brief whether the dialog gets hidden by reset()
 
   \sa setAutoReset()
 */

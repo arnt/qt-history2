@@ -13,6 +13,7 @@
 \class QDial
 \class QFilePreview
 \class QFrame
+\class QGridView
 \class QGroupBox
 \class QHButtonGroup
 \class QHGroupBox

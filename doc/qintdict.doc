@@ -49,107 +49,41 @@
 
   QIntDict is implemented as a template class. Define a
   template instance QIntDict\<X\> to create a dictionary that operates on
-  pointers to X, or X*.
+  pointers to X (X*).
 
   A dictionary is a collection of key-value pairs. The key is an \c
   long used for insertion, removal and lookup. The value is a pointer.
   Dictionaries provide very fast insertion and lookup.
 
-  The size() of the dictionary is very important. In order to get good
-  performance, you should use a suitably large \link primes.html prime
-  number\endlink.  Suitable means equal to or larger than the maximum
-  expected number of dictionary items. Size is set in the constructor
-  but may be changed with resize().
-
-  Items are inserted with insert(), and removed with remove(). All the
-  items in a dictionary can be removed with clear(). The number of items
-  in the dictionary is returned by count(). If the dictionary
-  contains no items isEmpty() returns TRUE. You can change an
-  item's value with replace(). Items are looked up with operator[](),
-  or with find() which return a pointer to the value or 0 if the given
-  key does not exist. You can take an item out of the dictionary with
-  take().
-
-  Calling setAutoDelete(TRUE) for a dictionary tells it to delete items
-  that are removed.  The default behaviour is not to delete items when
-  they are removed.
-
-  QIntDict is implemented as a hash array with a fixed number of
-  entries. Each array entry points to a singly linked list of buckets,
-  in which the dictionary items are stored. When an item is inserted
-  with a key, the key is converted (hashed) to an integer index into the
-  hash array using the \c mod function. The item is inserted before
-  the first bucket in the list of buckets.
-
-  Looking up an item is normally very fast. The key is again hashed to an
-  array index. Then QIntDict scans the list of buckets and returns the item
-  found or null if the item was not found.  You cannot insert null pointers
-  into a dictionary.
-
-  Items with equal keys are allowed.  When inserting two items with the
-  same key, only the last inserted item will be visible (last in, first out)
-  until it is removed.
-
-  The QIntDictIterator class can traverse the dictionary, but only
-  in an arbitrary order.  Multiple iterators may independently traverse the
-  same dictionary.
-
-  When inserting an item into a dictionary, only the pointer is copied,
-  not the item itself, i.e. a shallow copy is made. It is possible to
-  make the dictionary copy all of the item's data (a deep copy)
-  when an item is inserted.  insert() calls the virtual function
-  QPtrCollection::newItem() for the item to be inserted. Inherit a
-  dictionary and reimplement it if you want deep copies.
-
-  When removing a dictionary item, the virtual function
-  QPtrCollection::deleteItem() is called.  QIntDict's default implementation
-  is to delete the item if auto-deletion is enabled.
-
   Example:
-  \code
-    #include <qintdict.h>
-    #include <stdio.h>
+    \code
+    QIntDict<QLineEdit> fields;
+    for ( int i = 0; i < 3; i++ )
+	fields.insert( i, new QLineEdit( this ) );
 
-    int main()
-    {
-	QIntDict<char> dict; // maps long ==> char*
+    fields[0]->setText( "Homer" );
+    fields[1]->setText( "Simpson" );
+    fields[2]->setText( "45" );
 
-	dict.insert( 33, "France" );
-	dict.insert(  7, "Russia" );
-	dict.insert( 49, "Norway" );
-	dict.insert( 28, "Belgium" );
+    QIntDictIterator<char> it( fields ); // See QIntDictIterator
+    for ( ; it.current(); ++it )
+	cout << it.currentKey() << ": " << it.current()->text() << endl;
+    
+    for ( int i = 0; i < 3; i++ )
+	cout << fields[i]->text() << " "; // Prints "Homer Simpson 45"
+    cout << endl;
 
-	printf( "%s\n", dict[49] );
-	printf( "%s\n", dict[33] );
-	printf( "%s\n", dict[7] );
-	printf( "%s\n", dict[28] );
+    fields.remove( 1 ); // Does not delete the line edit
+    for ( int i = 0; i < 3; i++ )
+	if ( fields[i] )
+	    cout << fields[i]->text() << " "; // Prints "Homer 45"
+    \endcode
 
-	dict.remove( 28 );
+    See QDict for full details, including the choice of dictionary
+    size, and how deletions are handled. 
 
-	if ( !dict[39] ) 
-	    printf( "39 not defined\n" ); // Never existed
-	if ( !dict[28] ) 
-	    printf( "28 not defined\n" ); // Removed
-
-	return 0;
-    }
-  \endcode
-
-  Program output:
-  \code
-    Norway
-    France
-    Russia
-    Belgium
-    39 not defined
-    28 not defined
-  \endcode
-
-  The dictionary in our example maps \c long keys to \c char* items.
-  QIntDict implements the \link operator[]() [] operator\endlink to look up
-  an item.
-
-  \sa QIntDictIterator, QDict, QAsciiDict, QPtrDict
+  \sa QIntDictIterator, QDict, QAsciiDict, QPtrDict,
+      \link collection.html Collection Classes\endlink
 */
 
 
@@ -160,7 +94,7 @@
 
   Setting \a size to a suitably large prime number
   (equal to or greater than the expected number of entries) makes the hash
-  distribution better and hence the loopup faster.
+  distribution better and hence the lookup faster.
 */
 
 /*!
@@ -371,36 +305,23 @@
   dictionary iterator that operates on QIntDict\<X\> (dictionary of X*).
 
   Example:
-  \code
-    #include <qintdict.h>
-    #include <stdio.h>
+    \code
+    QIntDict<QLineEdit> fields;
+    for ( int i = 0; i < 3; i++ )
+	fields.insert( i, new QLineEdit( this ) );
 
-    int main()
-    {
-	QIntDict<char> dict; // maps long ==> char*
+    fields[0]->setText( "Homer" );
+    fields[1]->setText( "Simpson" );
+    fields[2]->setText( "45" );
 
-	dict.insert( 33, "France" );
-	dict.insert(  7, "Russia" );
-	dict.insert( 49, "Norway" );
-	dict.insert( 28, "Belgium" );
+    QIntDictIterator<char> it( fields ); 
+    for ( ; it.current(); ++it )
+	cout << it.currentKey() << ": " << it.current()->text() << endl;
 
-	QIntDictIterator<char> it( dict ); // iterator 
-
-        while ( it.current() ) {
-	    printf( "%2d: %s\n", it.currentKey(), it.current() );
-	    ++it;
-	}
-
-	return 0;
-    }
-  \endcode
-
-  Program output:
-  \code
-	28: Belgium
-	 7: Russia
-	49: Norway
-	33: France
+    // Output (random order):
+    //	0: Homer
+    //	1: Simpson
+    //	2: 45
   \endcode
 
   Note that the traversal order is arbitrary; you are not guaranteed the
