@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#24 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#25 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -450,7 +450,7 @@ public:
     QDomDocumentPrivate( QDomDocumentPrivate* n, bool deep );
     ~QDomDocumentPrivate();
 
-    bool setContent( QXmlInputSource& source );
+    bool setContent( QXmlInputSource& source, bool namespaceProcessing );
 
     // Attributes
     QDomDocumentTypePrivate* doctype() { return type; };
@@ -493,7 +493,7 @@ public:
 class QDomHandler : public QXmlDefaultHandler
 {
 public:
-    QDomHandler( QDomDocumentPrivate* d );
+    QDomHandler( QDomDocumentPrivate* d, bool namespaceProcessing );
     ~QDomHandler();
 
     // content handler
@@ -525,6 +525,7 @@ private:
     QDomDocumentPrivate* doc;
     QDomNodePrivate* node;
     bool cdata;
+    bool nsProcessing;
 };
 
 /**************************************************************
@@ -5073,21 +5074,26 @@ void QDomDocumentPrivate::clear()
     QDomNodePrivate::clear();
 }
 
-bool QDomDocumentPrivate::setContent( QXmlInputSource& source )
+bool QDomDocumentPrivate::setContent( QXmlInputSource& source, bool namespaceProcessing )
 {
     clear();
     impl = new QDomImplementationPrivate;
     type = new QDomDocumentTypePrivate( this, this );
 
     QXmlSimpleReader reader;
-    QDomHandler hnd( this );
+    QDomHandler hnd( this, namespaceProcessing );
     reader.setContentHandler( &hnd );
     reader.setErrorHandler( &hnd );
     reader.setLexicalHandler( &hnd );
     reader.setDeclHandler( &hnd );
     reader.setDTDHandler( &hnd );
-    reader.setFeature( "http://xml.org/sax/features/namespaces", FALSE );
-    reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", TRUE );
+    if ( namespaceProcessing ) {
+	reader.setFeature( "http://xml.org/sax/features/namespaces", TRUE );
+	reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", FALSE );
+    } else {
+	reader.setFeature( "http://xml.org/sax/features/namespaces", FALSE );
+	reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", TRUE );
+    }
     reader.setFeature( "http://trolltech.com/xml/features/report-whitespace-only-CharData", FALSE );
 
     if ( !reader.parse( source ) ) {
@@ -5329,47 +5335,52 @@ QDomDocument::~QDomDocument()
 
 /*!
   This function parses the string \a text and sets it as the content of the
-  document.
+  document. If \a namespaceProcessing is TRUE, the parser recognizes namespaces
+  in the XML file and sets the prefix name, local name and namespace URI to
+  appropriate values. If \a namespaceProcessing is FALSE, the parser does no
+  namespace processing when it reads the XML file.
+
+  \sa QDomNode::namespaceURI() QDomNode::localName() QDomNode::prefix()
 */
-bool QDomDocument::setContent( const QString& text )
+bool QDomDocument::setContent( const QString& text, bool namespaceProcessing )
 {
     if ( !impl )
 	impl = new QDomDocumentPrivate;
     QXmlInputSource source;
     source.setData( text );
-    return IMPL->setContent( source );
+    return IMPL->setContent( source, namespaceProcessing );
 }
 
 /*!
   \overload
 */
-bool QDomDocument::setContent( const QByteArray& buffer )
+bool QDomDocument::setContent( const QByteArray& buffer, bool namespaceProcessing )
 {
     if ( !impl )
 	impl = new QDomDocumentPrivate;
     QTextStream ts( buffer, IO_ReadOnly );
     QXmlInputSource source( ts );
-    return IMPL->setContent( source );
+    return IMPL->setContent( source, namespaceProcessing );
 }
 
 /*!
   \overload
 */
-bool QDomDocument::setContent( const QCString& buffer )
+bool QDomDocument::setContent( const QCString& buffer, bool namespaceProcessing )
 {
-    return setContent( QString::fromUtf8( buffer, buffer.length() ) );
+    return setContent( QString::fromUtf8( buffer, buffer.length() ), namespaceProcessing );
 }
 
 /*!
   \overload
 */
-bool QDomDocument::setContent( QIODevice* dev )
+bool QDomDocument::setContent( QIODevice* dev, bool namespaceProcessing )
 {
     if ( !impl )
 	impl = new QDomDocumentPrivate;
     QTextStream ts( dev );
     QXmlInputSource source( ts );
-    return IMPL->setContent( source );
+    return IMPL->setContent( source, namespaceProcessing );
 }
 
 /*!
@@ -5777,11 +5788,12 @@ QDomComment QDomNode::toComment()
  *
  **************************************************************/
 
-QDomHandler::QDomHandler( QDomDocumentPrivate* adoc )
+QDomHandler::QDomHandler( QDomDocumentPrivate* adoc, bool namespaceProcessing )
 {
     doc = adoc;
     node = doc;
     cdata = FALSE;
+    nsProcessing = namespaceProcessing;
 }
 
 QDomHandler::~QDomHandler()
@@ -5807,21 +5819,30 @@ bool QDomHandler::startDTD( const QString& name, const QString&, const QString&)
     return TRUE;
 }
 
-bool QDomHandler::startElement( const QString&, const QString&, const QString& qName, const QXmlAttributes& atts )
+bool QDomHandler::startElement( const QString& namespaceURI, const QString&, const QString& qName, const QXmlAttributes& atts )
 {
     // tag name
-    QDomNodePrivate* n = doc->createElement( qName );
+    QDomNodePrivate* n;
+    if ( nsProcessing && !namespaceURI.isNull() ) {
+	n = doc->createElementNS( namespaceURI, qName );
+    } else {
+	n = doc->createElement( qName );
+    }
     node->appendChild( n );
     node = n;
 
     // attributes
     for ( int i=0; i<atts.length(); i++ )
     {
-	if ( !node->isElement() ) {
-	    // ### Exception
-	    return FALSE;
+	if ( nsProcessing && !atts.uri(i).isNull() ) {
+	    QDomAttrPrivate *attr = doc->createAttributeNS( atts.uri(i), atts.qName(i) );
+	    attr->value = atts.value(i);
+	    ((QDomElementPrivate*)node)->setAttributeNode( attr );
+	    // ### use this instead (?):
+	    //((QDomElementPrivate*)node)->setAttributeNS( atts.uri(i), atts.qName(i), atts.value(i) );
+	} else {
+	    ((QDomElementPrivate*)node)->setAttribute( atts.qName(i), atts.value(i) );
 	}
-	((QDomElementPrivate*)node)->setAttribute( atts.qName(i), atts.value(i) );
     }
 
     return TRUE;

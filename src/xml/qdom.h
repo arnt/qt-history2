@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.h#8 $
+** $Id: //depot/qt/main/src/xml/qdom.h#9 $
 **
 ** Definition of QDomDocument and related classes.
 **
@@ -313,10 +313,10 @@ public:
     QDomElement documentElement() const;
 
     // Qt extensions
-    bool setContent( const QCString& text );
-    bool setContent( const QByteArray& text );
-    bool setContent( const QString& text );
-    bool setContent( QIODevice* dev );
+    bool setContent( const QCString& text, bool namespaceProcessing=FALSE );
+    bool setContent( const QByteArray& text, bool namespaceProcessing=FALSE );
+    bool setContent( const QString& text, bool namespaceProcessing=FALSE );
+    bool setContent( QIODevice* dev, bool namespaceProcessing=FALSE );
 
     // Reimplemented from QDomNode
     QDomNode::NodeType nodeType() const;
