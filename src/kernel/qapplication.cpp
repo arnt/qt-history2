@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#273 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#274 $
 **
 ** Implementation of QApplication class
 **
@@ -813,7 +813,7 @@ QPalette QApplication::palette(const QWidget* w)
 }
 
 
-#ifdef QT_BUILDER    
+#ifdef QT_BUILDER
 /*!
   Returns a pointer to the default application palette.	 There is
   always an application palette, i.e. the returned pointer is
@@ -830,7 +830,7 @@ QPalette QApplication::palette(const QWidget* w)
   \sa setPalette(), QWidget::palette()
 */
 
-QPalette	 QApplication::palette( const QWidget* w, const char* className  )
+QPalette QApplication::palette( const QWidget* w, const char* className  )
 {
     if ( w )
 	return palette( w );
@@ -843,9 +843,9 @@ QPalette	 QApplication::palette( const QWidget* w, const char* className  )
         QAsciiDictIterator<QPalette> it( *app_palettes );
         const char* name;
         while ( (name=it.currentKey()) != 0 ) {
-	    if ( qstrdup( className, name ) == 0 )
+	    if ( qstrcmp( className, name ) == 0 )
 		return *it.current();
-	    ++it; 
+	    ++it;
         }
     }
     return *app_pal;
