@@ -293,13 +293,8 @@ QDnsAnswer::QDnsAnswer( const QByteArray& answer_,
 QDnsAnswer::~QDnsAnswer()
 {
     if ( !ok && rrs ) {
-	QList<QDnsRR *>::Iterator it = rrs->begin();
-	QDnsRR * tmprr;
-	while (it != rrs->end()) {
-	    tmprr = *it;
-	    ++it;
-	    tmprr->t = QDns::None; // will be deleted soonish
-	}
+	for (int i = 0; i < rrs->count(); ++i)
+	    rrs->at(i)->t = QDns::None; // will be deleted soonish
     }
     delete rrs;
 }
@@ -696,13 +691,11 @@ void QDnsAnswer::parse()
 
     // now go through the list and mark all the As that are referenced
     // by something we care about.  we want to cache such As.
-    QList<QDnsRR *>::Iterator rrsi = rrs->begin();
-
     QHash<QString, void *> used; used.reserve(17);
     used.setAutoDelete( FALSE );
-    while (rrsi != rrs->end()) {
-	rr = *rrsi;
-	++rrsi;
+
+    for (int i = 0; i < rrs->count(); ++i) {
+	rr = rrs->at(i);
 	if ( rr->target.length() && rr->deleteTime > 0 && rr->current )
 	    used.insert( rr->target, (void*)42 );
 	if ( ( rr->t == QDns::A || rr->t == QDns::Aaaa ) &&
@@ -711,17 +704,11 @@ void QDnsAnswer::parse()
     }
 
     // next, for each RR, delete any older RRs that are equal to it
-    rrsi = rrs->begin();
-    while (rrsi != rrs->end()) {
-	rr = *rrsi;
-	++rrsi;
+    for (int i = 0; i < rrs->count(); ++i) {
+	rr = rrs->at(i);
 	if ( rr && rr->domain && rr->domain->rrs ) {
-	    QList<QDnsRR *> *drrs = rr->domain->rrs;
-	    QList<QDnsRR *>::Iterator drrsi = drrs->begin();
-
-	    QDnsRR * older;
-	    while (drrsi != drrs->end()) {
-		older = *drrsi;
+	    for (int j = 0; j < rr->domain->rrs->count(); ++j) {
+		QDnsRR *older = rr->domain->rrs->at(j);
 		if ( older != rr &&
 		     older->t == rr->t &&
 		     older->nxdomain == rr->nxdomain &&
@@ -746,7 +733,6 @@ void QDnsAnswer::parse()
 		    qDebug( "    adjusted expire is %d", rr->expireTime );
 #endif
 		}
-		++drrsi;
 	    }
 	}
     }
@@ -770,7 +756,7 @@ void QDnsAnswer::notify()
 
     QHash<void *, void *> notified;
     notified.setAutoDelete( FALSE );
-
+    
     QHash<void *, void *>::Iterator it = query->dns->begin();
     QDns * dns;
     while (it != query->dns->end()) {
@@ -825,7 +811,7 @@ public:
     void answer();
 
 public:
-    QPtrVector<QDnsQuery> queries;
+    QList<QDnsQuery *> queries;
     QDict<QDnsDomain> cache;
     QSocketDevice * socket;
 };
@@ -864,7 +850,7 @@ void QDnsUgleHack::ugle( bool emitAnyway)
 
 QDnsManager::QDnsManager()
     : QDnsSocket( qApp, "Internal DNS manager" ),
-      queries( QPtrVector<QDnsQuery>( 0 ) ),
+      queries(QList<QDnsQuery *>()),
       cache( QDict<QDnsDomain>( 83, FALSE ) ),
       socket( new QSocketDevice( QSocketDevice::Datagram ) )
 {
@@ -892,17 +878,10 @@ QDnsManager::QDnsManager()
     // might be hidden in the lists.
     QList<QHostAddress *> *ns = new QList<QHostAddress *>;
 
-    QList<QHostAddress *>::Iterator nsi = ::ns->begin();
-    QHostAddress * h;
-    while (nsi != ::ns->end()) {
-	h = *nsi;
+    for (int i = 0; i < ::ns->count(); ++i) {
+	QHostAddress *h = ::ns->at(i);
 
-	QList<QHostAddress *>::Iterator nsj = ns->begin();
-
-	while (nsj != ns->end() && *nsj != h)
-	    ++nsj;
-
-	if (nsj == ns->end()) {
+	if (!ns->contains(h)) {
 	    ns->append( new QHostAddress(*h) );
 #if defined(QDNS_DEBUG)
 	    qDebug( "using name server %s", h->toString().latin1() );
@@ -910,8 +889,6 @@ QDnsManager::QDnsManager()
 	    qDebug( "skipping address %s", h->toString().latin1() );
 #endif
 	}
-
-	++nsi;
     }
 
     delete ::ns;
@@ -983,9 +960,9 @@ void QDnsManager::retransmit()
     if ( o == 0 || globalManager == 0 || this != globalManager )
 	return;
     uint q = 0;
-    while( q < queries.size() && queries[q] != o )
+    while( q < (uint) queries.size() && queries[q] != o )
 	q++;
-    if ( q < queries.size() )
+    if ( q < (uint) queries.size() )
 	transmitQuery( q );
 }
 
@@ -1006,10 +983,10 @@ void QDnsManager::answer()
 
     Q_UINT16 aid = (((Q_UINT8)a[0]) << 8) + ((Q_UINT8)a[1]);
     uint i = 0;
-    while( i < queries.size() &&
+    while( i < (uint) queries.size() &&
 	   !( queries[i] && queries[i]->id == aid ) )
 	i++;
-    if ( i == queries.size() ) {
+    if ( i == (uint) queries.size() ) {
 #if defined(QDNS_DEBUG)
 	qDebug( "DNS Manager: bad id (0x%04x) %d", aid, i );
 #endif
@@ -1029,7 +1006,7 @@ void QDnsManager::answer()
     QDnsAnswer answer( a, q );
     answer.parse();
     if ( answer.ok ) {
-	queries.take( i );
+	queries.takeAt( i );
 	answer.notify();
 	delete q;
     }
@@ -1042,10 +1019,9 @@ void QDnsManager::transmitQuery( QDnsQuery * query_ )
 	return;
 
     uint i = 0;
-    while( i < queries.size() && queries[i] != 0 )
+    while( i < (uint) queries.size() && queries[i] != 0 )
 	i++;
-    if ( i == queries.size() )
-	queries.resize( i+1 );
+    
     queries.insert( i, query_ );
     transmitQuery( i );
 }
@@ -1053,7 +1029,7 @@ void QDnsManager::transmitQuery( QDnsQuery * query_ )
 
 void QDnsManager::transmitQuery( int i )
 {
-    if ( i < 0 || i >= (int)queries.size() )
+    if ( i < 0 || i >= queries.size() )
 	return;
     QDnsQuery * q = queries[i];
 
@@ -1063,7 +1039,7 @@ void QDnsManager::transmitQuery( int i )
 	QDnsAnswer answer( q );
 	answer.notify();
 	// and then get rid of the query
-	queries.take( i );
+	queries.takeAt( i );
 #if defined(QDNS_DEBUG)
 	qDebug( "DNS Manager: giving up on query 0x%04x", q->id );
 #endif
@@ -1152,7 +1128,7 @@ void QDnsManager::transmitQuery( int i )
 	QDnsAnswer answer( q );
 	answer.notify();
 	// and then get rid of the query
-	queries.take( i );
+	queries.takeAt( i );
 #if defined(QDNS_DEBUG)
 	qDebug( "DNS Manager: no DNS server found on query 0x%04x", q->id );
 #endif
@@ -1162,9 +1138,8 @@ void QDnsManager::transmitQuery( int i )
 	return;
     }
 
-    QHostAddress *qh = ns->at(q->step % ns->count());
-    QList<QHostAddress *>::Iterator nsi = ns->find(qh);
-    socket->writeBlock(p, pp, *qh, 53);
+    int nsindex = q->step % ns->count();
+    socket->writeBlock(p, pp, *ns->at(nsindex), 53);
 #if defined(QDNS_DEBUG)
     qDebug( "issuing query 0x%04x (%d) about %s type %d to %s",
 	    q->id, q->step, q->l.ascii(), q->t,
@@ -1175,15 +1150,12 @@ void QDnsManager::transmitQuery( int i )
 	// outstanding queries, send nonrecursive queries to the other
 	// name servers too.
 	p[2] = 0;
-	QHostAddress * server;
-	++nsi;
-	while (nsi != ns->end()) {
-	    server = *nsi;
-	    socket->writeBlock( p, pp, *server, 53 );
+	++nsindex;
+	for (; nsindex < ns->count(); ++nsindex) {
+	    socket->writeBlock(p, pp, *ns->at(nsindex), 53);
 #if defined(QDNS_DEBUG)
 	    qDebug( "copying query to %s", server->toString().ascii() );
 #endif
-	    ++nsi;
 	}
     }
     q->step++;
@@ -1298,16 +1270,15 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
 #if defined(QDNS_DEBUG)
 	qDebug( " - found %d RRs", d && d->rrs ? d->rrs->count() : 0 );
 #endif
-	QList<QDnsRR *>::Iterator rrsi;
-	if ( d->rrs )
-	    rrsi = d->rrs->begin();
-	
-	QDnsRR * rr;
 	bool answer = FALSE;
-	while (d->rrs && rrsi != d->rrs->end()) {
-	    rr = *rrsi;
-	    if ( rr->t == QDns::Cname && r->recordType() != QDns::Cname &&
-		 !rr->nxdomain && cnamecount < 16 ) {
+	int i = 0;
+	while (d->rrs && i < d->rrs->count()) {
+	    QDnsRR *rr = d->rrs->at(i);
+	    ++i;
+	    
+	    if ( rr->t == QDns::Cname
+		 && r->recordType() != QDns::Cname
+		 && !rr->nxdomain && cnamecount < 16 ) {
 		// cname.  if the code is ugly, that may just
 		// possibly be because the concept is.
 #if defined(QDNS_DEBUG)
@@ -1316,8 +1287,7 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
 #endif
 		s = rr->target;
 		d = m->domain( s );
-		if ( d->rrs ) // ### if (true)?
-		    rrsi = d->rrs->begin();
+		i = 0;
 		it = end;
 		// we've elegantly moved over to whatever the cname
 		// pointed to.  well, not elegantly.  let's remember
@@ -1352,8 +1322,6 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
 			QDnsManager::manager()->transmitQuery( query );
 		    }
 		}
-
-		++rrsi;
 	    }
 	}
 	// if we found a positive result, return quickly
@@ -1362,9 +1330,8 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
 	    qDebug( "found %d records for %s",
 		    l->count(), r->label().ascii() );
 
-	    QList<QDnsRR *>::Iterator li = l->begin();
-	    while (li != l->end()) {
-		QDnsRR *lcur = *li;
+	    for (int i = 0; i < l->count(); ++i) {
+		QDnsRR *lcur = l->at(i);
 		qDebug( "  type %d target %s address %s",
 		       lcur->t,
 		       lcur->target.latin1(),
@@ -1385,7 +1352,7 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
 	    // if we didn't, and not a negative result either, perhaps
 	    // we need to transmit a query.
 	    uint q = 0;
-	    while ( q < m->queries.size() &&
+	    while ( q < (uint) m->queries.size() &&
 		    ( m->queries[q] == 0 ||
 		      m->queries[q]->t != r->recordType() ||
 		      m->queries[q]->l != s ) )
@@ -1393,7 +1360,7 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
 	    // we haven't done it before, so maybe we should.  but
 	    // wait - if it's an unqualified name, only ask when all
 	    // the other alternatives are exhausted.
-	    if ( q == m->queries.size() && ( s.find( '.' ) >= 0 ||
+	    if ( q == (uint) m->queries.size() && ( s.find( '.' ) >= 0 ||
 					     (int)l->count() >= n.count()-1 ) ) {
 		QDnsQuery * query = new QDnsQuery;
 		query->started = now();
@@ -1404,7 +1371,7 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
 		QObject::connect( query, SIGNAL(timeout()),
 				  QDnsManager::manager(), SLOT(retransmit()) );
 		QDnsManager::manager()->transmitQuery( query );
-	    } else if ( q < m->queries.size() ) {
+	    } else if ( q < (uint) m->queries.size() ) {
 		// if we've found an earlier query for the same
 		// domain/type, subscribe to its answer
 		m->queries[q]->dns->insert((void *)r, (void *)r);
@@ -1422,9 +1389,8 @@ void QDnsDomain::sweep( Q_UINT32 thisSweep )
 	return;
 
     QDnsRR * rr;
-    QList<QDnsRR *>::Iterator rrsi = rrs->begin();
-    while (rrsi != rrs->end()) {
-	rr = *rrsi;
+    for (int i = 0; i < rrs->count(); ++i) {
+	rr = rrs->at(i);
 	if ( !rr->deleteTime )
 	    rr->deleteTime = thisSweep; // will hit next time around
 
@@ -1438,9 +1404,7 @@ void QDnsDomain::sweep( Q_UINT32 thisSweep )
 	     rr->t == QDns::None ||
 	     rr->deleteTime <= thisSweep ||
 	     rr->expireTime <= thisSweep )
-	    rrsi = rrs->erase(rrsi);
-	else
-	    ++rrsi;
+	    rrs->removeAt(i);
     }
 
     if ( rrs->isEmpty() ) {
@@ -1598,7 +1562,7 @@ QDns::~QDns()
     if ( globalManager ) {
 	uint q = 0;
 	QDnsManager * m = globalManager;
-	while( q < m->queries.size() ) {
+	while( q < (uint) m->queries.size() ) {
 	    QDnsQuery * query=m->queries[q];
 	    if ( query && query->dns )
 		    (void)query->dns->take( (void*) this );
@@ -1852,17 +1816,15 @@ bool QDns::isWorking() const
 #endif
 
     QList<QDnsRR *> *ll = QDnsDomain::cached(this);
-    QList<QDnsRR *>::Iterator lli = ll->begin();
-    
     Q_LONG queries = n.count();
-    while (lli != ll->end()) {
-	if ( (*lli)->nxdomain ) {
+
+    for (int i = 0; i < ll->count(); ++i) {
+	if (ll->at(i)->nxdomain) {
 	    queries--;
 	} else {
 	    delete ll;
 	    return FALSE;
 	}
-	++lli;
     }
     delete ll;
 
@@ -1905,14 +1867,11 @@ QList<QHostAddress> QDns::addresses() const
 	return result;
 
     QList<QDnsRR *> *cached = QDnsDomain::cached(this);
-    QList<QDnsRR *>::Iterator cachedi = cached->begin();
-    
-    QDnsRR * rr;
-    while (cachedi != cached->end()) {
-	rr = *cachedi;
+
+    for (int i = 0; i < cached->count(); ++i) {
+	QDnsRR *rr = cached->at(i);
 	if (rr->current && !rr->nxdomain)
 	    result.append( rr->address );
-	++cachedi;
     }
     delete cached;
     return result;
@@ -1961,16 +1920,12 @@ QList<QDns::MailServer> QDns::mailServers() const
 	return result;
 
     QList<QDnsRR *> *cached = QDnsDomain::cached(this);
-    QList<QDnsRR *>::Iterator cachedi = cached->begin();
-
-    QDnsRR * rr;
-    while (cachedi != cached->end()) {
-	rr = *cachedi;
+    for (int i = 0; i < cached->count(); ++i) {
+	QDnsRR *rr = cached->at(i);
 	if (rr->current && !rr->nxdomain) {
 	    MailServer ms( rr->target, rr->priority );
 	    result.append( ms );
 	}
-	++cachedi;
     }
     delete cached;
     return result;
@@ -2020,16 +1975,12 @@ QList<QDns::Server> QDns::servers() const
 	return result;
 
     QList<QDnsRR *> *cached = QDnsDomain::cached(this);
-    QList<QDnsRR *>::Iterator cachedi = cached->begin();
-    
-    QDnsRR * rr;
-    while (cachedi != cached->end()) {
-	rr = *cachedi;
+    for (int i = 0; i < cached->count(); ++i) {
+	QDnsRR *rr = cached->at(i);
 	if ( rr->current && !rr->nxdomain ) {
 	    Server s( rr->target, rr->priority, rr->weight, rr->port );
 	    result.append( s );
 	}
-	++cachedi;
     }
     delete cached;
     return result;
@@ -2061,16 +2012,12 @@ QStringList QDns::hostNames() const
 	return result;
 
     QList<QDnsRR *> *cached = QDnsDomain::cached(this);
-    QList<QDnsRR *>::Iterator cachedi = cached->begin();
-
-    QDnsRR * rr;
-    while (cachedi != cached->end()) {
-	rr = *cachedi;
+    for (int i = 0; i < cached->count(); ++i) {
+	QDnsRR *rr = cached->at(i);
 	if ( rr->current && !rr->nxdomain ) {
 	    QString str( rr->target );
 	    result.append( str );
 	}
-	++cachedi;
     }
     delete cached;
     return result;
@@ -2101,16 +2048,12 @@ QStringList QDns::texts() const
 	return result;
 
     QList<QDnsRR *> *cached = QDnsDomain::cached(this);
-    QList<QDnsRR *>::Iterator cachedi = cached->begin();
-    
-    QDnsRR * rr;
-    while (cachedi != cached->end()) {
-	rr = *cachedi;
+    for (int i = 0; i < cached->count(); ++i) {
+	QDnsRR *rr = cached->at(i);
 	if ( rr->current && !rr->nxdomain ) {
 	    QString str( rr->text );
 	    result.append( str );
 	}
-	++cachedi;
     }
     delete cached;
     return result;
@@ -2140,17 +2083,15 @@ QString QDns::canonicalName() const
     RecordType oldType = t;
     that->t = Cname;
     QList<QDnsRR *> *cached = QDnsDomain::cached(that);
-    QList<QDnsRR *>::Iterator cachedi = cached->begin();
-    that->t = oldType;
 
-    QDnsRR * rr;
-    while (cachedi != cached->end()) {
-	rr = *cachedi;
+    that->t = oldType;
+    
+    for (int i = 0; i < cached->count(); ++i) {
+	QDnsRR *rr = cached->at(i);
 	if ( rr->current && !rr->nxdomain && rr->domain ) {
 	    delete cached;
 	    return rr->target;
 	}
-	++cachedi;
     }
     delete cached;
     return QString::null;
