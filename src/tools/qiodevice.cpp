@@ -512,10 +512,11 @@ bool QIODevice::atEnd() const
 */
 
 /*!
-  This convenience function returns all of the remaining data in
-  the device.  Note that this only works for
-  \link isDirectAccess() <em>direct access</em>\endlink devices,
-  such as QFile.
+  This convenience function returns all of the remaining data in the
+  device.  Note that this only works for direct access devices, such
+  as QFile.
+  
+  \sa isDirectAccess() 
 */
 QByteArray QIODevice::readAll()
 {
