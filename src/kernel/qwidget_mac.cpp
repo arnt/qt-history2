@@ -1328,8 +1328,10 @@ int QWidget::metric( int m ) const
     case QPaintDeviceMetrics::PdmDepth:// FIXME : this is a lie in most cases
 	return 16;
     case QPaintDeviceMetrics::PdmDpiX: // FIXME : this is a lie in most cases
+    case QPaintDeviceMetrics::PdmPhysicalDpiX:
 	return 80;
     case QPaintDeviceMetrics::PdmDpiY: // FIXME : this is a lie in most cases
+    case QPaintDeviceMetrics::PdmPhysicalDpiY:
 	return 80;
     default: //leave this so the compiler complains when new ones are added
 	qWarning("QWidget::metric unhandled parameter %d",m);

@@ -2207,9 +2207,11 @@ int QWidget::metric( int m ) const
 	int scr = x11Screen();
 	switch ( m ) {
 	    case QPaintDeviceMetrics::PdmDpiX:
+	    case QPaintDeviceMetrics::PdmPhysicalDpiX:
 		val = QPaintDevice::x11AppDpiX();
 		break;
 	    case QPaintDeviceMetrics::PdmDpiY:
+	    case QPaintDeviceMetrics::PdmPhysicalDpiY:
 		val = QPaintDevice::x11AppDpiY();
 		break;
 	    case QPaintDeviceMetrics::PdmWidthMM:

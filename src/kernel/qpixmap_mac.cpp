@@ -398,19 +398,28 @@ void QPixmap::detach()
 int QPixmap::metric(int m) const
 {
     int val;
-    if ( m == QPaintDeviceMetrics::PdmWidth || m == QPaintDeviceMetrics::PdmHeight ) {
-        if ( m == QPaintDeviceMetrics::PdmWidth )
-            val = width();
-        else
-            val = height();
-    } else {
-        switch ( m ) {
+    switch ( m ) {
+	case QPaintDeviceMetrics::PdmWidth:
+	    val = width();
+	case QPaintDeviceMetrics::PdmHeight:
+	    val = height();
 	case QPaintDeviceMetrics::PdmWidthMM:
+	    
 	    break;
 	case QPaintDeviceMetrics::PdmHeightMM:
 	    break;
 	case QPaintDeviceMetrics::PdmNumColors:
 	    val = 1 << depth();
+	    break;
+	case QPaintDeviceMetrics::PdmDpiX:
+	case QPaintDeviceMetrics::PdmPhysicalDpiX:
+	    // ### fill with real values!
+	    val = 72;
+	    break;
+	case QPaintDeviceMetrics::PdmDpiY:
+	case QPaintDeviceMetrics::PdmPhysicalDpiY:
+	    // ### fill with real values!
+	    val = 72;
 	    break;
 	case QPaintDeviceMetrics::PdmDepth:
 	    val = depth();
@@ -420,7 +429,6 @@ int QPixmap::metric(int m) const
 #if defined(QT_CHECK_RANGE)
 	    warning( "QPixmap::metric: Invalid metric command" );
 #endif
-        }
     }
     return val;
 }

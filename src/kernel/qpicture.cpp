@@ -781,9 +781,11 @@ int QPicture::metric( int m ) const
 	    val = int(25.4/72.0*d->brect.height());
 	    break;
 	case QPaintDeviceMetrics::PdmDpiX:
+	case QPaintDeviceMetrics::PdmPhysicalDpiX:
 	    val = 72;
 	    break;
 	case QPaintDeviceMetrics::PdmDpiY:
+	case QPaintDeviceMetrics::PdmPhysicalDpiY:
 	    val = 72;
 	    break;
 	case QPaintDeviceMetrics::PdmNumColors:
