@@ -1360,6 +1360,9 @@ void QHeaderView::setSortIndicator(int section, Qt::SortOrder order)
     d->sortIndicatorSection = section;
     d->sortIndicatorOrder = order;
 
+    if (section >= d->sections.count())
+        return; // nothing to do
+
     if (d->sections.at(section).mode == Custom
         || (old > -1 && d->sections.at(old).mode == Custom)) {
         resizeSections();
