@@ -586,29 +586,35 @@ bool QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, Q
 }
 
 /*!
-    Inserts a new row into the model after \a row. The row will be a
-    child of \a parent (which can be 0). Returns true if the row was
-    successfully inserted; otherwise returns false.
+  Inserts \a count rows in the model at position \a row. If \a row is 0 the
+  rows are prepended to the model, if \a row is rowCount() the rows are
+  appended to the model. The row will be a child of \a parent.
+  If \a parent has no children \a count rows with at least one column is inserted.
+  Returns true if the rows were successfully inserted; otherwise returns
+  false.
 
-    The base class implementation does nothing and returns false. If
-    you want to be able to insert rows you must reimplement this
-    function.
+  The base class implementation does nothing and returns false. If
+  you want to be able to insert rows you must reimplement this
+  function.
 */
-bool QAbstractItemModel::insertRow(int, const QModelIndex &)
+bool QAbstractItemModel::insertRow(int, const QModelIndex &, int)
 {
     return false;
 }
 
 /*!
-    Inserts a new column in the model after \a column. The column will
-    be a child of \a parent (which can be 0). Returns true if the
-    column was successfully inserted; otherwise returns false.
+  Inserts \a count new columns in the model at position \a column. If \a
+  column is 0 the columns are prepended to the model, if \a column is
+  columnCount() the columns are appended to the model. The column will
+  be a child of \a parent.   If \a parent has no children \a count columns with at least one row is inserted.
+  Returns true if the columns were successfully inserted; otherwise
+  returns false.
 
-    The base class implementation does nothing and returns false. If
-    you want to be able to insert columns you must reimplement this
-    function.
+  The base class implementation does nothing and returns false. If
+  you want to be able to insert columns you must reimplement this
+  function.
 */
-bool QAbstractItemModel::insertColumn(int, const QModelIndex &)
+bool QAbstractItemModel::insertColumn(int, const QModelIndex &, int)
 {
     return false;
 }

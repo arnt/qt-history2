@@ -11,8 +11,8 @@ public:
     virtual void setRowCount(int rows);
     virtual void setColumnCount(int columns);
 
-    virtual bool insertRow(int row, const QModelIndex &parent = 0);
-    virtual bool insertColumn(int column, const QModelIndex &parent = 0);
+    virtual bool insertRow(int row, const QModelIndex &parent = 0, int count = 1);
+    virtual bool insertColumn(int column, const QModelIndex &parent = 0, int count = 1);
 
     virtual bool removeRow(int row, const QModelIndex &parent = 0);
     virtual bool removeColumn(int column, const QModelIndex &parent = 0);
@@ -114,14 +114,14 @@ void QTableModel::setColumnCount(int columns)
         emit contentsRemoved(topLeft, bottomRight);
 }
 
-bool QTableModel::insertRow(int, const QModelIndex &)
+bool QTableModel::insertRow(int, const QModelIndex &, int)
 {
 // FIXME: not implemented
     qDebug("insertRow: not implemented");
     return false;
 }
 
-bool QTableModel::insertColumn(int, const QModelIndex &)
+bool QTableModel::insertColumn(int, const QModelIndex &, int)
 {
 // FIXME: not implemented
     qDebug("insertColumn: not implemented");
