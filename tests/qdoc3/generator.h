@@ -63,6 +63,7 @@ protected:
     QString imageFileName( const Location& location, const QString& fileBase );
     void setImageFileExtensions( const QStringList& extensions );
     void unknownAtom( const Atom *atom );
+    bool matchAhead( const Atom *atom, Atom::Type expectedAtomType );
     QMap<QString, QString>& formattingLeftMap();
     QMap<QString, QString>& formattingRightMap();
 

@@ -423,6 +423,11 @@ void Generator::unknownAtom( const Atom *atom )
 			     .arg(atom->typeString()).arg(format()) );
 }
 
+bool Generator::matchAhead( const Atom *atom, Atom::Type expectedAtomType )
+{
+    return atom->next() != 0 && atom->next()->type() == expectedAtomType;
+}
+
 QMap<QString, QString>& Generator::formattingLeftMap()
 {
     return fmtLeftMaps[format()];

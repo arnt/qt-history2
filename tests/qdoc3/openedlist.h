@@ -17,7 +17,7 @@ public:
 
     OpenedList()
 	: sty( Bullet ), ini( 1 ), nex( 0 ) { }
-    OpenedList( const Location& location, Style style );
+    OpenedList( Style style );
     OpenedList( const Location& location, const QString& hint );
 
     void next() { nex++; }

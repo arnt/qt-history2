@@ -9,7 +9,7 @@
 
 static const char roman[] = "m\2d\5c\2l\5x\2v\5i";
 
-OpenedList::OpenedList( const Location& location, Style style )
+OpenedList::OpenedList( Style style )
     : sty( style ), ini( 1 ), nex( 0 )
 {
 }

@@ -24,7 +24,7 @@
     \value NoFocuss A
     \omitvalue TabFocus
     \value ClickFocus C
-    \value StrongFocus D
+    \value StrongFocus
     \value WheelFocus E
   
   And what else?

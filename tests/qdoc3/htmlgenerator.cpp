@@ -68,7 +68,7 @@ void HtmlGenerator::startText( const Node * /* relative */,
 int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 				 CodeMarker *marker )
 {
-    int skipAtoms = 0;
+    int skipAhead = 0;
 
     switch ( atom->type() ) {
     case Atom::AbstractLeft:
@@ -129,7 +129,9 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	{
 	    QString fileName = imageFileName( relative->doc().location(),
 					      atom->string() );
-	    QString text = atom->next()->string();
+	    QString text;
+	    if ( atom->next() != 0 )
+		text = atom->next()->string();
 	    if ( fileName.isEmpty() ) {
 		out() << "<font color=\"red\">[Missing image "
 		      << protect( atom->string() ) << "]</font>";
@@ -170,7 +172,7 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
             } else { // ( atom->string() == ATOM_LIST_NUMERIC )
         	out() << "1";
             }
-            if ( atom->next()->string().toInt() != 1 )
+            if ( atom->next() != 0 && atom->next()->string().toInt() != 1 )
         	out() << " start=" << atom->next()->string();
             out() << ">\n";
 	}
@@ -188,7 +190,8 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	if ( atom->string() == ATOM_LIST_TAG ) {
 	    out() << "</dt>\n";
 	} else { // ( atom->string() == ATOM_LIST_VALUE )
-	    out() << " -- ";
+	    if ( matchAhead(atom, Atom::ListItemLeft) )
+		out() << " -- ";
 	}
 	break;
     case Atom::ListItemLeft:
@@ -197,8 +200,8 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	} else if ( atom->string() != ATOM_LIST_VALUE ) {
 	    out() << "<li>";
 	}
-	if ( atom->next() != 0 && atom->next()->type() == Atom::ParaLeft )
-	    skipAtoms = 1;
+	if ( matchAhead(atom, Atom::ParaLeft) )
+	    skipAhead = 1;
 	break;
     case Atom::ListItemRight:
 	if ( atom->string() == ATOM_LIST_TAG ) {
@@ -223,7 +226,7 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	out() << "<p>";
 	break;
     case Atom::ParaRight:
-	if ( atom->next() == 0 || atom->next()->type() != Atom::ListItemRight )
+	if ( !matchAhead(atom, Atom::ListItemRight) )
 	    out() << "</p>\n";
 	break;
     case Atom::QuotationLeft:
@@ -282,7 +285,7 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
     default:
 	unknownAtom( atom );
     }
-    return skipAtoms;
+    return skipAhead;
 }
 
 void HtmlGenerator::generateNamespaceNode( const NamespaceNode *namespasse,

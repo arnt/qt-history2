@@ -248,6 +248,7 @@ private:
     enum ParaState { OutsidePara, InsideSingleLinePara, InsideMultiLinePara };
     ParaState paraState;
     bool indexStartedPara; // ### rename
+    Atom::Type pendingParaLeftType;
     Atom::Type pendingParaRightType;
     QString pendingParaString;
 
@@ -280,6 +281,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 
     paraState = OutsidePara;
     indexStartedPara = FALSE;
+    pendingParaLeftType = Atom::Nop;
     pendingParaRightType = Atom::Nop;
 
     braceDepth = 0;
@@ -1141,6 +1143,7 @@ void DocParser::enterPara( Atom::Type leftType, Atom::Type rightType,
 	leaveValueList();
 	append( leftType, string );
 	indexStartedPara = FALSE;
+	pendingParaLeftType = leftType;
 	pendingParaRightType = rightType;
 	pendingParaString = string;
 	if ( leftType == Atom::BriefLeft ||
@@ -1160,10 +1163,15 @@ void DocParser::leavePara()
 	    pendingFormats.clear();
 	}
 
-	if ( priv->text.lastAtom()->type() == Atom::String &&
-	     priv->text.lastAtom()->string().endsWith(" ") )
-	    priv->text.lastAtom()->chopString();
-	append( pendingParaRightType, pendingParaString );
+	if ( priv->text.lastAtom()->type() == pendingParaLeftType ) {
+	    priv->text.stripLastAtom();
+	} else {
+	    if ( priv->text.lastAtom()->type() == Atom::String &&
+		 priv->text.lastAtom()->string().endsWith(" ") ) {
+		priv->text.lastAtom()->chopString();
+	    }
+	    append( pendingParaRightType, pendingParaString );
+	}
 	paraState = OutsidePara;
 	indexStartedPara = FALSE;
 	pendingParaRightType = Atom::Nop;
@@ -1175,11 +1183,14 @@ void DocParser::leaveValue()
 {
     leavePara();
     if ( openedLists.isEmpty() ) {
-	openedLists.push( OpenedList(location(),
-				     OpenedList::Value) );
+	openedLists.push( OpenedList(OpenedList::Value) );
 	append( Atom::ListLeft, ATOM_LIST_VALUE );
     } else {
-	append( Atom::ListItemRight, ATOM_LIST_VALUE );
+	if ( priv->text.lastAtom()->type() == Atom::ListItemLeft ) {
+	    priv->text.stripLastAtom();
+	} else {
+	    append( Atom::ListItemRight, ATOM_LIST_VALUE );
+	}
     }
 }
 

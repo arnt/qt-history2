@@ -74,6 +74,23 @@ void Text::stripFirstAtom()
     }
 }
 
+void Text::stripLastAtom()
+{
+    if ( last != 0 ) {
+	Atom *oldLast = last;
+	if ( first == last ) {
+	    first = 0;
+	    last = 0;
+	} else {
+	    last = first;
+	    while ( last->next() != oldLast )
+		last = last->next();
+	    last->setNext( 0 );
+	}
+	delete oldLast;
+    }
+}
+
 QString Text::toString() const
 {
     QString str;
