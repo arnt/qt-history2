@@ -1,0 +1,85 @@
+cd $QTDIR/include
+BOGUS="/extensions/|qmutex.h"
+HEADERS=$( /bin/ls -l q*.h | egrep -v "$BOGUS" | awk '{ print $9 }' )
+HEADMARK='Q[A-Z][A-Z][A-Z]*_H'
+STARTMARK='#ifndef QT_H'
+ENDMARK='#endif \/\/ QT_H'
+echo "#define QT_H"
+
+
+#grep "#define $HEADMARK" $HEADERS /dev/null |
+# sed 's/\(.*\):#define \(.*\)/\1 \2/'
+
+awk '
+BEGIN { 
+    N=1
+}
+/'"$STARTMARK"'/ {
+    incscan=1
+}
+/'"$ENDMARK"'/ {
+    incscan=0
+    nextfile
+}
+/#include ["<]/ {
+    if (incscan) {
+	inc=substr($2,2,length($2)-2)
+	DEP[FILENAME inc]=1
+	LOCAL[inc]=(substr($2,1,1)=="\"")
+	if (!SEEN[FILENAME]) {
+	    SEEN[FILENAME]=1
+	    FILE[N++]=FILENAME
+	}
+	if (!SEEN[inc]) {
+	    SEEN[inc]=1
+	    FILE[N++]=inc
+	}
+    }
+}
+END {
+    done=0
+    # Bubble sort...
+    while (!done) {
+	done=1
+	for (i=2; i<N; i++) {
+	    for (j=1; j<i; j++) {
+		if (DEP[FILE[j] FILE[i]]) {
+		    # j depends on i, swap
+		    t=FILE[i]
+		    FILE[i]=FILE[j]
+		    FILE[j]=t
+		    done=0
+		}
+	    }
+	}
+    }
+    for (i=1; i<N; i++) {
+	if (LOCAL[FILE[i]])
+	    print "#include \"" FILE[i] "\""
+	else
+	    print "#include <" FILE[i] ">"
+    }
+}
+' $HEADERS
+
+if [ "$1" = -fix ]
+then
+    for i in $HEADERS
+    do
+	if grep -q -v '#ifndef QT_H' $i && grep -q '#include'
+	then
+	    echo "\
+/^#include
+i
+#ifndef QT_H
+.
+/class
+?^#include
+a
+#endif // QT_H
+.
+w
+q" | ed $i
+	fi
+    done
+fi
