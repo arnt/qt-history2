@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#15 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#16 $
 **
 ** Definition of QStyle class
 **
@@ -23,9 +23,14 @@ class QScrollBar;
 class Q_EXPORT QStyle: public QObject
 {
     GUIStyle gs;
-public:
+    
+private:
     QStyle(GUIStyle);
     QStyle();
+    friend class QMotifStyle;
+    friend class QWindowsStyle;
+    friend class QPlatinumStyle;
+public:
     virtual ~QStyle();
 
 
