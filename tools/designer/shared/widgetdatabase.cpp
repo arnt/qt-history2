@@ -405,7 +405,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->name = "Spacer";
     r->group = widgetGroup( "Temp" );
     r->toolTip = "Spacer";
-    r->whatsThis = "The Spacer provides horizontal and vertical spacing to be able to manipulate the bahviour of layouts.";
+    r->whatsThis = "The Spacer provides horizontal and vertical spacing to be able to manipulate the behaviour of layouts.";
 
     append( r );
 
