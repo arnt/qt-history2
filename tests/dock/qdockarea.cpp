@@ -22,7 +22,7 @@ class QToolLayout : public QLayout
 {
     Q_OBJECT
     friend class QDockArea;
-    
+
 public:
     QToolLayout( QWidget* parent, Qt::Orientation o, QList<QDockWidget> *wl, int space = -1, int margin = -1, const char *name = 0 )
 	: QLayout( parent, space, margin, name ), orient( o ), dockWidgets( wl ), parentWidget( parent ) { init(); }
@@ -351,9 +351,12 @@ QDockArea::~QDockArea()
 void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r, bool swap )
 {
     QDockWidget *dockWidget = 0;
-    int i = findDockWidget( w );
-    if ( i != -1 ) {
-	dockWidget = dockWidgets->take( i );
+    int dockWidgetIndex = findDockWidget( w );
+    QList<QDockWidget> lineStarts = layout->lineStarts();
+    if ( dockWidgetIndex != -1 ) {
+	dockWidget = dockWidgets->take( dockWidgetIndex );
+	if ( lineStarts.findRef( dockWidget ) != -1 && dockWidgetIndex < (int)dockWidgets->count() )
+	    dockWidgets->at( dockWidgetIndex )->setNewLine( TRUE );
 	layout->layoutItems( QRect( 0, 0, width(), height() ), TRUE );
     } else {
 	dockWidget = w;
@@ -413,9 +416,9 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 	    qDebug( "insert at the begin" );
 	} else { // insert somewhere in between
 	    // make sure each line start has a new line
-	    QList<QDockWidget> lineStarts = layout->lineStarts();
 	    for ( dw = lineStarts.first(); dw; dw = lineStarts.next() )
 		dw->setNewLine( TRUE );
+				
 	    // find the index of the first widget in the search line	
 	    int searchLine = dockLine;
 	    qDebug( "search line start of %d", searchLine );
@@ -463,6 +466,9 @@ void QDockArea::removeDockWidget( QDockWidget *w, bool makeFloating, bool swap )
 	return;
     dockWidget = dockWidgets->at( i );
     dockWidgets->remove( i );
+    QList<QDockWidget> lineStarts = layout->lineStarts();
+    if ( lineStarts.findRef( dockWidget ) != -1 && i < (int)dockWidgets->count() )
+	dockWidgets->at( i )->setNewLine( TRUE );
     if ( makeFloating )
 	dockWidget->reparent( 0, WStyle_Customize | WStyle_NoBorderEx, QPoint( 0, 0 ), FALSE );
     if ( swap )
