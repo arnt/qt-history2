@@ -255,7 +255,7 @@ Utilities
 
 */
 
-/*! \defgroup tools.html
+/*! \defgroup tools
 
 \title The Tool Classes
 
@@ -270,7 +270,7 @@ classes</a>.
 
 */
 
-/*! \defgroup io.html
+/*! \defgroup io
 
 \title I/O Classes
 
@@ -279,7 +279,7 @@ devices, files etc., as well as manipulating files and directories.
 
 */
 
-/*! \defgroup basic.html
+/*! \defgroup basic
 
 \title Basic Controls
 
@@ -289,7 +289,7 @@ subclassing, and some <a href="advanced.html">more complex widgets.</a>
 
 */
 
-/*! \defgroup advanced.html
+/*! \defgroup advanced
 
 \title Advanced Controls
 
@@ -297,7 +297,7 @@ These classes provide more complex user interface controls.
 
 */
 
-/*! \defgroup abstractwidgets.html
+/*! \defgroup abstractwidgets
 
 \title Abstract Widget Classes
 
@@ -307,7 +307,7 @@ these classes.
 
 */
 
-/*! \defgroup objectmodel.html
+/*! \defgroup objectmodel
 
 \title Object Model
 
@@ -315,7 +315,7 @@ These classes form the basis of the <a href="object.html">Qt Object Model</a>.
 
 */
 
-/*! \defgroup organizers.html
+/*! \defgroup organizers
 
 \title Organizers
 
@@ -325,7 +325,7 @@ complex applications or dialogs.
 */
 
 
-/*! \defgroup dialogs.html
+/*! \defgroup dialogs
 
 \title Dialog Classes
 
@@ -334,7 +334,7 @@ boxes, generally.
 
 */
 
-/*! \defgroup images.html
+/*! \defgroup images
 
 \title Image Processing Classes
 
@@ -342,7 +342,7 @@ These classes are used for manipulating images.
 
 */
 
-/*! \defgroup drawing.html
+/*! \defgroup drawing
 
 \title Drawing Classes
 
@@ -353,7 +353,7 @@ coordinate system</a>.
 
 */
 
-/*! \defgroup draganddrop.html
+/*! \defgroup draganddrop
 
 \title Drag And Drop Classes
 
@@ -363,7 +363,7 @@ Qt</a>.
 
 */
 
-/*! \defgroup appearance.html
+/*! \defgroup appearance
 
 \title Widget Appearance
 
@@ -371,7 +371,7 @@ These classes are used to customize an application's appearance.
 
 */
 
-/*! \defgroup shared.html
+/*! \defgroup shared
 
 \title Implicitly and Explicitly Shared Classes
 
@@ -385,7 +385,7 @@ seem heavyweight.
 
 */
 
-/*! \defgroup time.html
+/*! \defgroup time
 
 \heading Time and Date
 
@@ -395,7 +395,7 @@ These classes provide system-independent date and time abstractions.
 */
 
 
-/*! \defgroup application.html
+/*! \defgroup application
 
 \heading Main Window And Friends
 
@@ -406,7 +406,7 @@ a statusbar, etc.
 */
 
 
-/*! \defgroup geomanagement.html
+/*! \defgroup geomanagement
 
 \heading Geometry Management
 
@@ -415,7 +415,7 @@ These classes provide automatic geometry management of widgets.
 */
 
 
-/*! \defgroup helpsystem.html
+/*! \defgroup helpsystem
 
 \heading Help System
 
@@ -437,7 +437,7 @@ with three levels of detail:
 */
 
 
-/*! \defgroup environment.html
+/*! \defgroup environment
 
 \heading Environment Classes
 
@@ -447,7 +447,7 @@ event handling, access to system settings, internationalization, etc.
 */
 
 
-/*! \defgroup misc.html
+/*! \defgroup misc
 
 \heading Miscellaneous Classes
 
