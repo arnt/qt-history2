@@ -1064,7 +1064,7 @@ void QTextCursor::splitAndInsertEmptyParag( bool ind, bool updateIds )
 
     if ( atParagStart() ) {
 	QTextParag *p = string->prev();
-	QTextParag *s = new QTextParag( doc, p, string, updateIds );
+	QTextParag *s = doc->createParag( doc, p, string, updateIds );
 	if ( f )
 	    s->setFormat( 0, 1, f, TRUE );
 	s->setStyleSheetItems( string->styleSheetItems() );
@@ -1078,7 +1078,7 @@ void QTextCursor::splitAndInsertEmptyParag( bool ind, bool updateIds )
 	}
     } else if ( atParagEnd() ) {
 	QTextParag *n = string->next();
-	QTextParag *s = new QTextParag( doc, string, n, updateIds );
+	QTextParag *s = doc->createParag( doc, string, n, updateIds );
 	if ( f )
 	    s->setFormat( 0, 1, f, TRUE );
 	s->setStyleSheetItems( string->styleSheetItems() );
@@ -1096,7 +1096,7 @@ void QTextCursor::splitAndInsertEmptyParag( bool ind, bool updateIds )
     } else {
 	QString str = string->string()->toString().mid( idx, 0xFFFFFF );
 	QTextParag *n = string->next();
-	QTextParag *s = new QTextParag( doc, string, n, updateIds );
+	QTextParag *s = doc->createParag( doc, string, n, updateIds );
 	s->setStyleSheetItems( string->styleSheetItems() );
 	s->setListStyle( string->listStyle() );
 	s->setAlignment( string->alignment() );
@@ -1221,7 +1221,7 @@ QTextDocument::QTextDocument( QTextDocument *p )
     else
 	withoutDoubleBuffer = FALSE;
 
-    lParag = fParag = new QTextParag( this, 0, 0 );
+    lParag = fParag = createParag( this, 0, 0 );
     tmpCursor = 0;
 
     cx = 0;
@@ -1280,7 +1280,7 @@ void QTextDocument::clear( bool createEmptyParag )
     }
     fParag = lParag = 0;
     if ( createEmptyParag )
-	fParag = lParag = new QTextParag( this );
+	fParag = lParag = createParag( this );
     selections.clear();
 }
 
@@ -1299,6 +1299,11 @@ int QTextDocument::widthUsed() const
 	p = p->next();
     }
     return w;
+}
+
+QTextParag *QTextDocument::createParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool updateIds )
+{
+    return new QTextParag( d, pr, nx, updateIds );
 }
 
 bool QTextDocument::setMinimumWidth( int w, QTextParag *p )
@@ -1328,7 +1333,7 @@ void QTextDocument::setPlainText( const QString &text )
     lParag = 0;
     QStringList lst = QStringList::split( '\n', text, TRUE );
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-	lParag = new QTextParag( this, lParag, 0 );
+	lParag = createParag( this, lParag, 0 );
 	if ( !fParag )
 	    fParag = lParag;
 	s = *it;
@@ -1337,7 +1342,7 @@ void QTextDocument::setPlainText( const QString &text )
     }
 
     if ( !lParag )
-	lParag = fParag = new QTextParag( this, 0, 0 );
+	lParag = fParag = createParag( this, 0, 0 );
 }
 
 struct Tag {
@@ -1355,14 +1360,14 @@ struct Tag {
 #endif
 };
 
-#define NEWPAR       do{ if ( !hasNewPar ) curpar = new QTextParag( this, curpar ); \
+#define NEWPAR       do{ if ( !hasNewPar ) curpar = createParag( this, curpar ); \
 		    hasNewPar = TRUE;  \
 		    QVector<QStyleSheetItem> vec( tags.count() ); \
 		    int i = 0; \
 		    for ( QValueStack<Tag>::Iterator it = tags.begin(); it != tags.end(); ++it ) \
 			vec.insert( i++, (*it).style ); 	\
 		    curpar->setStyleSheetItems( vec ); }while(FALSE)
-#define NEWPAROPEN(nstyle)       do{ if ( !hasNewPar ) curpar = new QTextParag( this, curpar ); \
+#define NEWPAROPEN(nstyle)       do{ if ( !hasNewPar ) curpar = createParag( this, curpar ); \
 		    hasNewPar = TRUE;  \
 		    QVector<QStyleSheetItem> vec( tags.count()+1 ); \
 		    int i = 0; \
@@ -1378,7 +1383,7 @@ void QTextDocument::setRichText( const QString &text, const QString &context )
     if ( !context.isEmpty() )
 	setContext( context );
     clear();
-    fParag = new QTextParag( this );
+    fParag = createParag( this );
     QTextParag* curpar = fParag;
 
     int pos = 0;

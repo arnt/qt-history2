@@ -831,6 +831,8 @@ public:
     int length() const;
     void clear( bool createEmptyParag = FALSE );
 
+    virtual QTextParag *createParag( QTextDocument *d, QTextParag *pr = 0, QTextParag *nx = 0, bool updateIds = TRUE );
+
 signals:
     void minimumWidthChanged( int );
 
