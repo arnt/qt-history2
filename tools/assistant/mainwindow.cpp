@@ -323,7 +323,7 @@ void MainWindow::on_actionFilePrint_triggered()
             return;
 
         qApp->setOverrideCursor(QCursor(Qt::WaitCursor));
-        qApp->eventLoop()->processEvents(QEventLoop::ExcludeUserInput);
+        qApp->processEvents(QEventLoop::ExcludeUserInput);
 
         QPaintDeviceMetrics metrics(p.device());
         const int dpiy = metrics.logicalDpiY();
@@ -343,7 +343,7 @@ void MainWindow::on_actionFilePrint_triggered()
 
         int page = 1;
         do {
-            qApp->eventLoop()->processEvents(QEventLoop::ExcludeUserInput);
+            qApp->processEvents(QEventLoop::ExcludeUserInput);
 
             QAbstractTextDocumentLayout::PaintContext ctx;
             ctx.palette = palette();
@@ -365,7 +365,7 @@ void MainWindow::on_actionFilePrint_triggered()
             page++;
         } while (true);
 
-        qApp->eventLoop()->processEvents(QEventLoop::ExcludeUserInput);
+        qApp->processEvents(QEventLoop::ExcludeUserInput);
         qApp->restoreOverrideCursor();
     }
     delete dlg;

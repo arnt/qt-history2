@@ -244,7 +244,7 @@ void HelpDialog::initialize()
 
 void HelpDialog::processEvents()
 {
-    qApp->eventLoop()->processEvents(QEventLoop::ExcludeUserInput);
+    qApp->processEvents(QEventLoop::ExcludeUserInput);
 }
 
 
