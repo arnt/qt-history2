@@ -259,7 +259,7 @@ QWin32GC::QWin32GC(const QPaintDevice *target)
       d(new QWin32GCPrivate)
 {
     // ### below is temp hack to survive pixmap gc construction
-    d->hwnd = target ? ((QWidget*)target)->winId() : 0;
+    d->hwnd = (target && target->devType()==QInternal::Widget) ? ((QWidget*)target)->winId() : 0;
     d->flags |= IsStartingUp;
 }
 
