@@ -1,12 +1,14 @@
 #ifndef WIDGETINTERFACE_H
 #define WIDGETINTERFACE_H
 
+#undef Q_INIT_INTERFACES
 #include <qcomponentinterface.h>
 #include <qiconset.h>
 #include <qstringlist.h>
 
 class QWidget;
 
+#define Q_INITGUID
 // {55184143-F18F-42c0-A8EB-71C01516019A}
 Q_GUID(IID_WidgetInterface, 
 0x55184143, 0xf18f, 0x42c0, 0xa8, 0xeb, 0x71, 0xc0, 0x15, 0x16, 0x1, 0x9a);

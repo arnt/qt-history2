@@ -6,6 +6,7 @@
   that can be used in the plugins.
 */
 
+#undef Q_INIT_INTERFACES
 #include <qcomponentinterface.h>
 #include <qvariant.h>
 #include "../designer/actioninterface.h"
@@ -13,6 +14,7 @@
 #include "../designer/filterinterface.h"
 #include "../shared/editorinterface.h"
 
+#define Q_INITGUID
 /*
  * Interfaces for MainWindow access
  */
