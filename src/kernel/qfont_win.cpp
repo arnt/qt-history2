@@ -472,7 +472,13 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
 
     LOGFONT lf;
     memset( &lf, 0, sizeof(LOGFONT) );
-    lf.lfHeight = -MulDiv(d->req.pointSize, GetDeviceCaps(hdc ? hdc : shared_dc, LOGPIXELSY), 720);
+    if ( hdc && !VxF ) {
+	lf.lfHeight = -int((float)d->req.pointSize*
+			   GetDeviceCaps(hdc,LOGPIXELSY)/(float)720+0.5);
+    } else {
+	lf.lfHeight = -int((float)d->req.pointSize*
+			   GetDeviceCaps(shared_dc,LOGPIXELSY)/(float)720+0.5);
+    }
     lf.lfWidth		= 0;
     lf.lfEscapement	= 0;
     lf.lfOrientation	= 0;
