@@ -225,7 +225,7 @@ public:
     HideDock *hideDock;
     QPoint cursorOffset;
     int lastTopHeight;
-    
+
     bool movable;
     bool opaque;
 
@@ -1039,9 +1039,9 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
 #endif
 	    if ( it.key().intersects( d->oldPosRect ) ) {
 		QRect ir = it.key().intersect( d->oldPosRect );
-		if ( rect_extend( ir, o, TRUE ) < 5 )
+		if ( rect_extend( ir, o, TRUE ) < 3 )
 		    continue;
-		if ( rect_extend( ir, o, TRUE ) < ( 3 * rect_extend( it.key(), o, TRUE ) ) / 4 ) {
+		if ( rect_extend( ir, o, TRUE ) < ( 2 * rect_extend( it.key(), o, TRUE ) ) / 5 ) {
 		    if ( rect_pos( ir, o, TRUE ) <= rect_pos( it.key(), o, TRUE ) ) {
 #ifdef QMAINWINDOW_DEBUG
 			qDebug( "above" );
@@ -1236,7 +1236,7 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
 {
     d = new QMainWindowPrivate;
     d->hideDock = new HideDock( this, d );
-    d->opaque = TRUE;
+    d->opaque = FALSE;
 }
 
 
@@ -2450,19 +2450,21 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 
 	// finally really move the toolbar, if the mouse was moved...
 	if ( d->movedEnough ) {
-	    ToolBarDock dock = d->oldDock;
-	    if ( dock != Unmanaged && isDockEnabled( dock ) &&
-		 isDockEnabled( t, dock ) ) {
-		int ipos;
-		QToolBar *relative;
-		QPoint pos = mapFromGlobal( e->globalPos() );	
-		QRect r, r2;
-		findDockArea( pos, r, t, &r2 );
-		if ( dock != d->origDock ) {
-		    saveToolLayout( d, d->origDock, t );
+	    if ( !d->opaque ) {
+		ToolBarDock dock = d->oldDock;
+		if ( dock != Unmanaged && isDockEnabled( dock ) &&
+		     isDockEnabled( t, dock ) ) {
+		    int ipos;
+		    QToolBar *relative;
+		    QPoint pos = mapFromGlobal( e->globalPos() );	
+		    QRect r, r2;
+		    findDockArea( pos, r, t, &r2 );
+		    if ( dock != d->origDock ) {
+			saveToolLayout( d, d->origDock, t );
+		    }
+		    findNewToolbarPlace( d, t, dock, r2, relative, ipos );
+		    moveToolBar( t, dock, relative, ipos );
 		}
-		findNewToolbarPlace( d, t, dock, r2, relative, ipos );
-		moveToolBar( t, dock, relative, ipos );
 	    }
 	} else { // ... or hide it if it was only a click
 	    if ( isDockEnabled( Hidden ) && isDockEnabled( t, Hidden ) )
