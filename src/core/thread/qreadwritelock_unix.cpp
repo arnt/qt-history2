@@ -205,7 +205,7 @@ void QReadWriteLock::unlock()
         report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::unlock()", "mutex unlock");
     } else if (d->waitingReaders != 0) {
         report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::unlock()", "mutex lock");
-        pthread_cond_signal(&d->readerWait);
+        pthread_cond_broadcast(&d->readerWait);
         report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::unlock()", "mutex unlock");
     }
 }
