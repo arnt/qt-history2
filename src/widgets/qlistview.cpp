@@ -713,6 +713,8 @@ void QListViewItem::takeItem( QListViewItem * item )
 
     QListView *lv = listView();
     bool was_selected = FALSE;
+    bool emit_changed = FALSE;
+    QListViewItem *oldCurrent = 0;
     if ( lv && !lv->d->clearing ) {
 
 	if ( lv->d->iterators ) {
@@ -768,7 +770,8 @@ void QListViewItem::takeItem( QListViewItem * item )
  		    lv->d->focusItem = item->itemAbove();
 		else
 		    lv->d->focusItem = 0;
-		emit lv->currentChanged( lv->d->focusItem );
+		emit_changed = TRUE;
+		oldCurrent = lv->d->focusItem;
 	    }
 	}
 
@@ -790,6 +793,8 @@ void QListViewItem::takeItem( QListViewItem * item )
     item->maybeTotalHeight = -1;
     item->configured = FALSE;
 
+    if ( emit_changed )
+	emit lv->currentChanged( oldCurrent );
     if ( was_selected )
 	emit lv->selectionChanged();
 }
