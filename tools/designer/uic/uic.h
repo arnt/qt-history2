@@ -47,6 +47,7 @@ public:
     QString createListBoxItemImpl( const QDomElement &e, const QString &parent );
     QString createIconViewItemImpl( const QDomElement &e, const QString &parent );
     QString createListViewColumnImpl( const QDomElement &e, const QString &parent );
+    QString createTableRowColumnImpl( const QDomElement &e, const QString &parent );
     QString createListViewItemImpl( const QDomElement &e, const QString &parent,
 				    const QString &parentItem );
     void createColorGroupImpl( const QString& cg, const QDomElement& e );

@@ -1426,9 +1426,13 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		if ( !s.isEmpty() )
 		    out << s << endl;
 	    }
-	} else if ( n.tagName() == "column" ) {
+	} else if ( n.tagName() == "column" || n.tagName() == "row" ) {
 	    if ( objClass.mid( 1 ) == "ListView" ) {
 		QString s = createListViewColumnImpl( n, objName );
+		if ( !s.isEmpty() )
+		    out << s;
+	    } else if ( objClass.contains( "Table" ) ) {
+		QString s = createTableRowColumnImpl( n, objName );
 		if ( !s.isEmpty() )
 		    out << s;
 	    }
@@ -1623,6 +1627,57 @@ QString Uic::createListViewColumnImpl( const QDomElement &e, const QString &pare
     if ( !resizeable )
 	s += indent + parent + "->header()->setResizeEnabled( FALSE, " + parent + "->header()->count() - 1 );\n";
 
+    return s;
+}
+
+QString Uic::createTableRowColumnImpl( const QDomElement &e, const QString &parent )
+{
+    // #### Generate QSqlTable Database code
+
+    QDomElement n = e.firstChild().toElement();
+    QString txt;
+    QString pix;
+    QString field;
+    bool isRow = e.tagName() == "row";
+    while ( !n.isNull() ) {
+	if ( n.tagName() == "property" ) {
+	    QString attrib = n.attribute("name");
+	    QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
+	    if ( attrib == "text" )
+		txt = v.toString();
+	    else if ( attrib == "pixmap" ) {
+		pix = v.toString();
+		if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
+		    pix.prepend( pixmapLoaderFunction + "( " );
+		    pix.append( " )" );
+		}
+	    } else if ( attrib == "field" )
+		field = v.toString();
+	}
+	n = n.nextSibling().toElement();
+    }
+
+    // ### This generated code sucks! We have to set the number of
+    // rows/cols before and then only do setLabel/()
+
+    QString s;
+    if ( isRow ) {
+	s = indent + parent + "->setNumRows( " + parent + "->numRows() + 1 );";
+	if ( pix.isEmpty() )
+	    s += indent + parent + "->verticalHeader()->setLabel( " + parent + "->numRows() - 1, "
+		 + trmacro + "( \"" + fixString( txt ) + "\" ) );\n";
+	else
+	    s += indent + parent + "->verticalHeader()->setLabel( " + parent + "->numRows() - 1, "
+		 + pix + ", " + trmacro + "( \"" + fixString( txt ) + "\" ) );\n";
+    } else {
+	s = indent + parent + "->setNumCols( " + parent + "->numCols() + 1 );";
+	if ( pix.isEmpty() )
+	    s += indent + parent + "->horizontalHeader()->setLabel( " + parent + "->numCols() - 1, "
+		 + trmacro + "( \"" + fixString( txt ) + "\" ) );\n";
+	else
+	    s += indent + parent + "->horizontalHeader()->setLabel( " + parent + "->numCols() - 1, "
+		 + pix + ", " + trmacro + "( \"" + fixString( txt ) + "\" ) );\n";
+    }
     return s;
 }
 
