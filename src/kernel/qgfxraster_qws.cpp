@@ -3337,6 +3337,7 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h )
     GFX_END
 }
 
+#if defined(QT_FEATURE_MOVIE) || defined(QT_FEATURE_TRANSFORMATIONS)
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::stretchBlt( int rx,int ry,int w,int h,
 					 int sw,int sh )
@@ -3444,6 +3445,7 @@ void QGfxRaster<depth,type>::stretchBlt( int rx,int ry,int w,int h,
     delete [] data;
     GFX_END
 }
+#endif
 
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::tiledBlt( int rx,int ry,int w,int h )

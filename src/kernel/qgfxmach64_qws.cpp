@@ -160,7 +160,9 @@ public:
     virtual void drawRect(int,int,int,int);
     virtual void blt( int,int,int,int );
     virtual void scroll( int,int,int,int,int,int );
+#if defined(QT_FEATURE_MOVIE) || defined(QT_FEATURE_TRANSFORMATIONS)
     virtual void stretchBlt( int,int,int,int,int,int );
+#endif
     virtual void drawText(int,int,const QString &);
     virtual void drawPolygon(const QPointArray &,bool winding,int index,
 			     int npoints);
@@ -666,6 +668,7 @@ void QGfxMach64<depth,type>::scroll( int rx,int ry,int w,int h,int sx,int sy )
     blt(rx,ry,w,h);
 }
 
+#if defined(QT_FEATURE_MOVIE) || defined(QT_FEATURE_TRANSFORMATIONS)
 template<const int depth,const int type>
 void QGfxMach64<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 					int sw,int sh)
@@ -789,6 +792,7 @@ void QGfxMach64<depth,type>::stretchBlt(int rx,int ry,int w,int h,
     }
     GFX_END
 }
+#endif
 
 
 

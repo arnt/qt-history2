@@ -109,7 +109,9 @@ public:
     virtual void drawPolygon( const QPointArray &,bool,int,int );
     virtual void blt( int,int,int,int );
     virtual void scroll( int,int,int,int,int,int );
+#if defined(QT_FEATURE_MOVIE) || defined(QT_FEATURE_TRANSFORMATIONS)
     virtual void stretchBlt( int,int,int,int,int,int );
+#endif
     virtual void tiledBlt( int,int,int,int );
 };
 
@@ -201,6 +203,7 @@ void QGfxVFb<depth,type>::scroll( int x,int y,int w,int h,int sx,int sy )
     QWSDisplay::ungrab();
 }
 
+#if defined(QT_FEATURE_MOVIE) || defined(QT_FEATURE_TRANSFORMATIONS)
 template <const int depth, const int type>
 void QGfxVFb<depth,type>::stretchBlt( int x,int y,int w,int h,int sx,int sy )
 {
@@ -209,6 +212,7 @@ void QGfxVFb<depth,type>::stretchBlt( int x,int y,int w,int h,int sx,int sy )
     QGfxRaster<depth,type>::stretchBlt( x, y, w, h, sx, sy );
     QWSDisplay::ungrab();
 }
+#endif
 
 template <const int depth, const int type>
 void QGfxVFb<depth,type>::tiledBlt( int x,int y,int w,int h )

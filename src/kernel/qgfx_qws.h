@@ -186,7 +186,9 @@ public:
     virtual void blt( int,int,int,int )=0;
     virtual void scroll( int,int,int,int,int,int )=0;
 
+#if defined(QT_FEATURE_MOVIE) || defined(QT_FEATURE_TRANSFORMATIONS)
     virtual void stretchBlt( int,int,int,int,int,int )=0;
+#endif
     virtual void tiledBlt( int,int,int,int )=0;
 
     enum SourceType { SourcePen, SourceImage };
