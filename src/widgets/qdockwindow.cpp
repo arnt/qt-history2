@@ -1799,7 +1799,7 @@ void QDockWindow::dock()
 void QDockWindow::hideEvent( QHideEvent *e )
 {
     QFrame::hideEvent( e );
-    if ( !parentWidget() || parentWidget()->isVisible() )
+    if ( !e->spontaneous() )
 	emit visibilityChanged( FALSE );
 }
 
@@ -1809,7 +1809,8 @@ void QDockWindow::hideEvent( QHideEvent *e )
 void QDockWindow::showEvent( QShowEvent *e )
 {
     QFrame::showEvent( e );
-    emit visibilityChanged( TRUE );
+    if ( !e->spontaneous() )
+	emit visibilityChanged( TRUE );
 }
 
 /*!
