@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#408 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#409 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -230,7 +230,7 @@ int		qt_ncols_option  = 216;		// used in qcolor_x11.cpp
 int		qt_visual_option = -1;
 bool		qt_cmap_option	 = FALSE;
 QWidget*	qt_button_down	     = 0;	// the widget getting last button-down
-Window 	qt_window_for_button_down = 0; // the window which recieves the mouse events
+Window 	qt_window_for_button_down = 0; // the window which receives the mouse events
 
 // stuff in tq_xdnd.cpp
 // setup
@@ -3618,7 +3618,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 {
     if ( !testWFlags(WType_TopLevel) )
 	return TRUE;				// child widget
-    
+
     clearWFlags(WState_ConfigPending);
 
     QSize  newSize( event->xconfigure.width, event->xconfigure.height );

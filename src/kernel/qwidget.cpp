@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#325 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#326 $
 **
 ** Implementation of QWidget class
 **
@@ -2057,7 +2057,7 @@ const QCursor &QWidget::cursor() const
 	return (extra && extra->curs)
 	    ? *extra->curs
 	    : arrowCursor;
-    else 
+    else
 	return isTopLevel()?arrowCursor:parentWidget()->cursor();
 }
 
@@ -2428,9 +2428,9 @@ QFocusData * QWidget::focusData( bool create )
 
 /*!
   Enables key event compression. Per default, the compression is
-  turned off.  If you enable it, the widget recieves compressed key
+  turned off.  If you enable it, the widget receives compressed key
   press events whenever the user types too fast for your program. That
-  means you may recieve an entire word in the QKeyEvent::text() field
+  means you may receive an entire word in the QKeyEvent::text() field
   of they QKeyEvent, instead of one event for each character. This
   makes sense for a word processor, for example, since it takes almost
   as much time to insert a single character as it takes to insert a
