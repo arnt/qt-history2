@@ -60,7 +60,7 @@ QHostAddressPrivate::QHostAddressPrivate(const Q_IPV6ADDR &a_) : a(0), isIp4(fal
     \ingroup io
     \module network
 
-    This class contains an IP address in a platform and protocol
+    This class holds an IP address in a platform and protocol
     independent manner. It stores both IPv4 and IPv6 addresses in a
     way that you can easily access on any platform.
 
@@ -68,8 +68,9 @@ QHostAddressPrivate::QHostAddressPrivate(const Q_IPV6ADDR &a_) : a(0), isIp4(fal
     QServerSocket and QSocketDevice to set up a server or to connect
     to a host.
 
-    Host addresses may be set with setAddress() and retrieved with
-    toIPv4Address() or toString().
+    A host address is set with setAddress(), checked for its type
+    using isIPv4Address() or isIPv6Address(), and retrieved with
+    toIPv4Address(), toIPv6Address(), or toString().
 
     \sa QSocket, QServerSocket, QSocketDevice
 */
@@ -98,7 +99,7 @@ QHostAddress::QHostAddress(Q_UINT32 ip4Addr)
 /*!
     Creates a host address object with the specified IPv6 address.
 
-    \a ip6Addr must be a 16 byte array in network byte order
+    \a ip6Addr must be an array of 16 bytes in network byte order
     (high-order byte first).
 */
 QHostAddress::QHostAddress(Q_UINT8 *ip6Addr)
@@ -173,7 +174,7 @@ void QHostAddress::setAddress(Q_UINT32 ip4Addr)
 
     Set the IPv6 address specified by \a ip6Addr.
 
-    \a ip6Addr must be a 16 byte array in network byte order
+    \a ip6Addr must be an array of 16 bytes in network byte order
     (high-order byte first).
 */
 void QHostAddress::setAddress(Q_UINT8 *ip6Addr)
@@ -208,7 +209,7 @@ static bool parseIp4(const QString& address, Q_UINT32 *addr)
     Sets the IPv4 or IPv6 address specified by the string
     representation \a address (e.g. "127.0.0.1"). Returns true and
     sets the address if the address was successfully parsed; otherwise
-    returns false and leaves the address unchanged.
+    returns false.
 */
 bool QHostAddress::setAddress(const QString& address)
 {
@@ -387,7 +388,7 @@ bool QHostAddress::operator==(const QHostAddress & other) const
 /*!
     Returns true if this host address is null (INADDR_ANY or in6addr_any). The
     default constructor creates a null address, and that address isn't valid
-    for any particular host or interface.
+    for any host or interface.
 */
 bool QHostAddress::isNull() const
 {
