@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#94 $
 **
 ** Implementation of QTableView class
 **
@@ -2081,7 +2081,7 @@ void QTableView::updateScrollBars( uint f )
 
 	if ( sbDirty & horSteps ) {
 	    if ( cellW )
-		hScrollBar->setSteps( cellW, viewWidth() );
+		hScrollBar->setSteps( QMIN(cellW,viewWidth()/2), viewWidth() );
 	    else
 		hScrollBar->setSteps( 16, viewWidth() );
 	}
@@ -2104,7 +2104,7 @@ void QTableView::updateScrollBars( uint f )
 
 	if ( sbDirty & verSteps ) {
 	    if ( cellH )
-		vScrollBar->setSteps( cellH, viewHeight() );
+		vScrollBar->setSteps( QMIN(cellH,viewHeight()/2), viewHeight() );
 	    else
 		vScrollBar->setSteps( 16, viewHeight() );  // fttb! ###
 	}
