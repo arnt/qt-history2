@@ -2558,7 +2558,9 @@ QRegion::QRegion( const QBitmap & bm )
 	data = new QRegionData;
 	Q_CHECK_PTR( data );
 	data->is_null = FALSE;
-	data->rgn = qt_x11_bitmapToRegion(bm);
+	data->rgn = 0;
+	data->xrectangles = 0;
+	data->region = qt_bitmapToRegion(bm);
     }
 }
 
