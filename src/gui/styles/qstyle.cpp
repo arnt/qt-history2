@@ -267,7 +267,7 @@ QStyle::~QStyle()
     expected to work reasonably with all current and \e future
     widgets.
 
-    \sa unPolish()
+    \sa unpolish()
 */
 void QStyle::polish(QWidget * /* widget */)
 {
@@ -292,7 +292,7 @@ void QStyle::unpolish(QWidget * /* widget */)
 
     Late initialization of the QApplication object \a app.
 
-    \sa unPolish()
+    \sa unpolish()
 */
 void QStyle::polish(QApplication * /* app */)
 {
@@ -326,9 +326,7 @@ void QStyle::polish(QPalette & /* pal */)
     Returns the appropriate area (see below) within rectangle \a rect in
     which to draw \a text using the font metrics \a metrics.
 
-    If \a len is -1 (the default) all the \a text is drawn; otherwise
-    only the first \a len characters of \a text are drawn. The text
-    is aligned in accordance with \a alignment. The \a enabled bool
+    The text is aligned in accordance with \a alignment. The \a enabled bool
     indicates whether or not the item is enabled.
 
     If \a rect is larger than the area needed to render the \a text
@@ -391,10 +389,7 @@ QRect QStyle::itemPixmapRect(const QRect &rect, int alignment, const QPixmap &pi
     when reimplementing this bool should influence how the item is
     drawn.
 
-    If \a len is -1 (the default), all the \a text is drawn;
-    otherwise only the first \a len characters of \a text are drawn.
-    The text is aligned and wrapped according to \a
-    alignment.
+    The text is aligned and wrapped according to \a alignment.
 
     \sa Qt::Alignment
 */
@@ -497,6 +492,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PE_IndicatorToolBarHandle  The handle of a toolbar.
     \value PE_IndicatorToolBarSeparator  The separator in a toolbar.
     \value PE_PanelToolBar  The panel for a toolbar.
+    \value PE_PanelTipLabel The panel for a tip label.
+    \value PE_FrameTabBarBase The frame that is drawn for a tabbar, ususally drawn for a tabbar that isn't part of a tab widget
 
     \value PE_CustomBase  Base value for custom PrimitiveElements.
         All values above this are reserved for custom use. Custom
@@ -577,22 +574,22 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \row \i \l PE_IndicatorRadioButton \i \l QStyleOptionButton
           \i \l State_On \i Indicates that a radio button is selected.
-    \row \i{1,3} \l PE_Q3CheckListExclusiveIndicator, \l PE_CheckListIndicator
-         \i{1,3} \l QStyleOptionListView \i \l State_On
+    \row \i{1,3} \l PE_Q3CheckListExclusiveIndicator, \l PE_Q3CheckListIndicator
+         \i{1,3} \l QStyleOptionQ3ListView \i \l State_On
          \i Indicates whether or not the controller is selected.
     \row \i \l State_NoChange \i Indicates a "tri-state" controller.
-    \row \i \l State_Enable \i Indicates the controller is enabled.
-    \row \i{1,2} \l PE_TreeBranch \i{1,2} \l QStyleOption
+    \row \i \l State_Enabled \i Indicates the controller is enabled.
+    \row \i{1,2} \l PE_IndicatorBranch \i{1,2} \l QStyleOption
          \i \l State_DownArrow \i Indicates that the Tree Branch is pressed
     \row \i \l State_Open \i Indicates that the tree branch is expanded.
     \row \i \l PE_IndicatorHeaderArrow \i \l QStyleOptionHeader
          \i \l State_UpArrow \i Indicates that the arrow should be drawn up;
          otherwise it should be down.
-    \row \i \l PE_PanelGroupBox, \l PE_Panel, \l PE_PanelLineEdit,
-            \l PE_PanelPopup, \l PE_PanelDockWidget
+    \row \i \l PE_FrameGroupBox, \l PE_Frame, \l PE_FrameLineEdit,
+            \l PE_FrameMenu, \l PE_FrameDockWidget
          \i \l QStyleOptionFrame \i \l State_Sunken
          \i Indicates that the Frame should be sunken.
-    \row \i \l PE_Q3DockWindowHandle \i \l QStyleOptionDockWidget
+    \row \i \l PE_IndicatorToolBarHandle \i \l QStyleOption
          \i \l State_Horizontal \i Indicates that the window handle is horizontal
          instead of vertical.
     \row \i \l PE_Q3DockWindowSeparator \i \l QStyleOption
@@ -604,7 +601,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
          \i \l State_Sunken \i Indicates that the button is pressed.
     \endtable
 
-    \sa PrimitiveElement, StyleFlags, QStyleOption
+    \sa PrimitiveElement, State, QStyleOption
 */
 
 /*!
@@ -710,10 +707,9 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \row \i \l State_HasFocus \i Set if the button has input focus
     \row \i \l State_Raised \i Set if the button is not down, not on and not flat
     \row \i \l State_On \i Set if the button is a toggle button and is toggled on
-    \row \i \l State_DownArrow
+    \row \i \l State_Sunken
          \i Set if the button is down (i.e., the mouse button or the
          space bar is pressed on the button)
-    \row \i \l State_ButtonDefault \i Set if the button is a default button
 
     \row \i{1,6} \l CE_RadioButton, \l CE_RadioButtonLabel,
                  \l CE_CheckBox, \l CE_CheckBoxLabel
@@ -723,7 +719,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \row \i \l State_On \i Set if the button is checked
     \row \i \l State_Off \i Set if the button is not checked
     \row \i \l State_NoChange \i Set if the button is in the NoChange state
-    \row \i \l State_DownArrow
+    \row \i \l State_Sunken
          \i Set if the button is down (i.e., the mouse button or
          the space bar is pressed on the button)
     \row \i{1,2} \l CE_ProgressBarContents, \l CE_ProgressBarLabel,
@@ -736,7 +732,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
          \i{1,7} \l QStyleOptionToolButton
          \i \l State_Enabled \i Set if the tool button is enabled
     \row \i \l State_HasFocus \i Set if the tool button has input focus
-    \row \i \l State_DownArrow
+    \row \i \l State_Sunken
          \i Set if the tool button is down (i.e., a mouse button or
          the space bar is pressed)
     \row \i \l State_On \i Set if the tool button is a toggle button and is toggled on
@@ -751,7 +747,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \row \i \l State_DownArrow \i Indicates that the sort indicator should be pointing down.
     \endtable
 
-    \sa ControlElement, StyleFlags, QStyleOption
+    \sa ControlElement, State, QStyleOption
 */
 
 /*!
@@ -793,8 +789,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SE_DialogButtonRetry  Area for a dialog's retry button
     \value SE_DialogButtonAbort  Area for a dialog's abort button
     \value SE_DialogButtonIgnore  Area for a dialog's ignore button
-    \value SE_DialogButtonCustom  Area for a dialog's custom widget
-    area (in the button row)
+    \value SE_DialogButtonCustom  Area for a dialog's custom widget area (in the button row)
 
     \value SE_HeaderArrow
     \value SE_HeaderLabel
@@ -837,7 +832,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \row \i \l SE_RadioButtonContents  \i \l QStyleOptionButton
     \row \i \l SE_RadioButtonFocusRect \i \l QStyleOptionButton
     \row \i \l SE_ComboBoxFocusRect    \i \l QStyleOptionComboBox
-    \row \i \l SE_DockWidgetHandleRect \i \l QStyleOptionDockWidget
+    \row \i \l SE_Q3DockWindowHandleRect \i \l QStyleOptionQ3DockWindow
     \row \i \l SE_ProgressBarGroove    \i \l QStyleOptionProgressBar
     \row \i \l SE_ProgressBarContents  \i \l QStyleOptionProgressBar
     \row \i \l SE_ProgressBarLabel     \i \l QStyleOptionProgressBar
@@ -853,13 +848,14 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     different behavior depending upon where the user clicks on them
     or which keys are pressed.
 
-    \value CC_SpinBox
-    \value CC_ComboBox
-    \value CC_ScrollBar
-    \value CC_Slider
-    \value CC_ToolButton
-    \value CC_TitleBar
-    \value CC_Q3ListView
+    \value CC_SpinBox           A spinbox, like QSpinBox
+    \value CC_ComboBox          A combobox, like QComboBox
+    \value CC_ScrollBar         A scroll bar, like QScrollBar
+    \value CC_Slider            A slider, like QSlider
+    \value CC_ToolButton        A tool button, like QToolButton
+    \value CC_TitleBar          A Title bar, like what is used in Q3Workspace
+    \value CC_Q3ListView        Used for drawing the Q3ListView class
+    \value CC_Dial              A dial, like QDial
 
     \value CC_CustomBase  Base value for custom ControlElements.
     Custom values must be greater than this value.
@@ -916,6 +912,12 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SC_Q3ListView  The list view area
     \value SC_Q3ListViewExpand  Expand item (i.e., show/hide child items)
+
+    \value SC_DialHandle The handle of the dial (i.e. what you use to control the dial)
+    \value SC_DialGroove The groove for the dial
+    \value SC_DialTickmarks The tickmarks for the dial
+
+
     \value SC_All  Special value that matches all SubControls
     \omitvalue SC_Q3ListViewBranch
 
@@ -959,6 +961,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
          \i \l State_Enabled \i Set if the slider is enabled
     \row \i \l State_HasFocus \i Set if the slider has input focus
 
+    \row \i{1,2} \l {CC_Dial} \i{1,2} \l QStyleOptionSlider
+         \i \l State_Enabled \i Set if the dial is enabled
+    \row \i \l State_HasFocus \i Set if the dial has input focus
+
     \row \i{1,6} \l {CC_ToolButton} \i{1,6} \l QStyleOptionToolButton
          \i \l State_Enabled \i Set if the tool button is enabled
     \row \i \l State_HasFocus \i Set if the tool button has input focus
@@ -973,8 +979,9 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \row \i \l{CC_TitleBar} \i \l QStyleOptionTitleBar
          \i \l State_Enabled \i Set if the title bar is enabled
 
-    \row \i \l{CC_Q3ListView} \i \l QStyleOptionListView
+    \row \i \l{CC_Q3ListView} \i \l QStyleOptionQ3ListView
          \i \l State_Enabled \i Set if the list view is enabled
+
     \endtable
 
     \sa ComplexControl SubControl QStyleOptionComplex
@@ -1188,7 +1195,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CT_CheckBox
     \value CT_ComboBox
     \value CT_DialogButtons
-    \value CT_DockWidget
+    \value CT_Q3DockWindow
     \value CT_HeaderSection
     \value CT_LineEdit
     \value CT_Menu
@@ -1427,6 +1434,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
      \value SH_Dial_BackgroundRole Defines the style's preferred
      background role (as QPalette::ColorRole) for a dial widget.
 
+     \value SH_ScrollBar_BackgroundMode The backgroundMode() for a scroll bar.
+
      \omitvalue SH_UnderlineAccelerator
 
     \sa styleHint()
@@ -1560,8 +1569,8 @@ QRect QStyle::visualRect(Qt::LayoutDirection direction, const QRect &boundingRec
 }
 
 /*!
-    Returns the point \a logicalPos converted to screen coordinates based on \a
-    direction.  The \a boundingRect rectangle is used to perform the
+    Returns the point \a logicalPos converted to screen coordinates based on
+    \a direction.  The \a boundingRect rectangle is used to perform the
     translation.
 
     \sa QWidget::layoutDirection
@@ -1575,7 +1584,7 @@ QPoint QStyle::visualPos(Qt::LayoutDirection direction, const QRect &boundingRec
 
 /*!
      Returns a new rectangle of \a size that is aligned to \a
-     rectangle according to \a alignment.
+     rectangle according to \a alignment and based on \a direction.
  */
 QRect QStyle::alignedRect(Qt::LayoutDirection direction, Qt::Alignment alignment, const QSize &size, const QRect &rectangle)
 {
@@ -1631,7 +1640,7 @@ Qt::Alignment QStyle::visualAlignment(Qt::LayoutDirection direction,  Qt::Alignm
     right for horizontal items and on the bottom for vertical items.
     Set \a upsideDown to true to reverse this behavior.
 
-    \sa valueFromPosition()
+    \sa sliderValueFromPosition()
 */
 
 int QStyle::sliderPositionFromValue(int min, int max, int logicalValue, int span, bool upsideDown)
@@ -1673,7 +1682,7 @@ int QStyle::sliderPositionFromValue(int min, int max, int logicalValue, int span
     is on the right for horizontal items and on the bottom for
     vertical items. Set \a upsideDown to true to reverse this behavior.
 
-    \sa positionFromValue()
+    \sa sliderPositionFromValue()
 */
 
 int QStyle::sliderValueFromPosition(int min, int max, int pos, int span, bool upsideDown)

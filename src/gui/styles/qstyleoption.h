@@ -227,6 +227,7 @@ public:
     QDOC_PROPERTY(int row)
     QDOC_PROPERTY(TabPosition position)
     QDOC_PROPERTY(SelectedPosition selectedPosition)
+    QDOC_PROPERTY(CornerWidgets cornerWidgets)
 
 protected:
     QStyleOptionTab(int version);

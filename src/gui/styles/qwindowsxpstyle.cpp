@@ -629,6 +629,7 @@ void QWindowsXPStyle::unpolish(QWidget *widget)
     QWindowsStyle::unpolish(widget);
 }
 
+/*! \reimp */
 QRect QWindowsXPStyle::subElementRect(SubElement sr, const QStyleOption *option, const QWidget *widget) const
 {
     QRect rect(option->rect);
@@ -2287,6 +2288,7 @@ int QWindowsXPStyle::styleHint(StyleHint hint, const QStyleOption *option, const
     }
 }
 
+/*! \reimp */
 bool QWindowsXPStyle::eventFilter(QObject *o, QEvent *e)
 {
     if (!o || !o->isWidgetType() || e->type() == QEvent::Paint || !use_xp)

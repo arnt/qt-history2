@@ -2357,6 +2357,7 @@ QMotifStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *w
     return ret;
 }
 
+/*! \reimp */
 QPalette QMotifStyle::standardPalette()
 {
 #ifdef Q_WS_X11

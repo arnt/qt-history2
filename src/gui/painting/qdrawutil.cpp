@@ -167,7 +167,7 @@ void qDrawShadeLine(QPainter *p, int x1, int y1, int x2, int y2,
     widgets that follow the current GUI style.
 
     \sa qDrawShadeLine(), qDrawShadePanel(), qDrawPlainRect(),
-    QStyle::drawItem(), QStyle::drawControl()
+    QStyle::drawItemText(), QStyle::drawItemPixmap(), QStyle::drawControl(),
     QStyle::drawComplexControl()
 */
 

@@ -101,7 +101,8 @@
     \value SO_FocusRect \l QStyleOptionFocusRect
     \value SO_Button \l QStyleOptionButton
     \value SO_Tab \l QStyleOptionTab
-    \value SO_TabWidgetFrame \l QStyleOptionTabWidgetFrame
+    \value SO_TabWidgetFrame \l QStyleOptionTabBarBase
+    \value SO_TabBarBase \l QStyleOptionTabWidgetFrame
     \value SO_MenuItem \l QStyleOptionMenuItem
     \value SO_Complex \l QStyleOptionComplex
     \value SO_Slider \l QStyleOptionSlider
@@ -179,6 +180,9 @@ void QStyleOption::init(const QWidget *widget)
     fontMetrics = widget->fontMetrics();
 }
 
+/*!
+   Copy the QStyleOption \a other.
+*/
 QStyleOption::QStyleOption(const QStyleOption &other)
     : version(Version), type(Type), state(other.state),
       direction(other.direction), rect(other.rect), fontMetrics(other.fontMetrics),
@@ -186,6 +190,9 @@ QStyleOption::QStyleOption(const QStyleOption &other)
 {
 }
 
+/*!
+    Assign \a other to this QStyleOption.
+*/
 QStyleOption &QStyleOption::operator=(const QStyleOption &other)
 {
     state = other.state;
@@ -218,7 +225,7 @@ QStyleOption &QStyleOption::operator=(const QStyleOption &other)
     \brief the style flags that are used when drawing the control
 
     \sa QStyle::drawPrimitive(), QStyle::drawControl(), QStyle::drawComplexControl(),
-        QStyle::StyleFlags
+        QStyle::State
 */
 
 /*!
@@ -370,6 +377,37 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
 */
 
 /*!
+    \enum QStyleOptionHeader::SectionPosition
+
+    This enum lets you know where the section's position is in relation to the other sections
+
+    \value Beginning At the beginining of the header
+    \value Middle In the middle of the header
+    \value End At the end of the header
+    \value OnlyOneSection Only one header section
+*/
+
+/*!
+    \enum QStyleOptionHeader::SelectedPosition
+
+    This enum lets you know where the section's position is in relation to the selected section
+
+    \value NotAdjacent Not adjacent to the selected section
+    \value NextIsSelected The next section is selected
+    \value Previous The previous section is selected
+    \value NextAndPreviousAreSelected Both the next and previous section are selected
+*/
+
+/*!
+    \enum QStyleOptionHeader::SortIndicator
+
+    Indicates which direction the sort indicator should be drawn
+    \value None No sort indicator is needed
+    \value SortUp Draw an up indicator
+    \value SortDown Draw a down indicator
+*/
+
+/*!
     \class QStyleOptionButton
     \brief The QStyleOptionButton class is used to describe the
     parameters for drawing buttons.
@@ -476,6 +514,17 @@ QStyleOptionTab::QStyleOptionTab(int version)
     \sa position
 */
 
+/*!
+    \enum QStyleOptionTab::CornerWidget
+
+    These flags indicate the corner widgets in a tab.
+
+    \value NoCornerWidgets  There are no corner widgets
+    \value LeftCornerWidget  Left corner widget
+    \value RightCornerWidget Right corner widget
+
+    \sa cornerWidgets
+*/
 
 /*! \enum QStyleOptionTab::SelectedPosition
 
@@ -493,6 +542,15 @@ QStyleOptionTab::QStyleOptionTab(int version)
     need to draw a tab differently depending on whether or not it is adjacent
     to the selected tab.
 */
+
+/*!
+    \property QStyleOptionTab::cornerWidgets
+
+    \brief Information on the cornerwidgets of the tab bar.
+
+    \sa CornerWidget
+*/
+
 
 /*!
     \property QStyleOptionTab::shape
@@ -594,8 +652,6 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
     \brief The text alignment for the text in the QProgressBar
 
     This can be used as a guide on where the text should be in the progressbar.
-
-    \sa QProgressBar::textAlignment
 */
 
 /*!
@@ -644,7 +700,7 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
     These values indicate the type of menu item that the structure describes.
 
     \value Normal A normal menu item.
-    \value DefaultItem A menu item that is the default action \sa QMenu::defaultAction().
+    \value DefaultItem A menu item that is the default action as specified with \l QMenu::defaultAction().
     \value Separator A menu separator.
     \value SubMenu Indicates the menu item points to a sub-menu.
     \value Scroller A popup menu scroller (currently only used on Mac OS X).
@@ -663,7 +719,7 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
     \value Exclusive The item is an exclusive check item (like a radio button).
     \value NonExclusive The item is a non-exclusive check item (like a check box).
 
-    \sa QAction::checkable QAction::checked QActionGroup::exculsive
+    \sa QAction::checkable QAction::checked QActionGroup::isExculsive
 */
 
 /*!
@@ -846,6 +902,20 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
 */
 
 /*!
+    \property QStyleOptionSlider::notchTarget
+    \brief The number of pixel between notches
+
+    \sa QDial::notchTarget()
+*/
+
+/*!
+    \property QStyleOptionSlider::dialWrapping
+    \brief Indicates whether or not the dial should wrap or not
+
+    \sa QDial::wrapping()
+*/
+
+/*!
     \property QStyleOptionSlider::upsideDown
     \brief Indicates slider control orientation.
 
@@ -853,7 +923,7 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
     indicates that it should do the opposite (increase as it moves down or to
     the left).
 
-    \sa QStyle::positionFromValue(), QStyle::valueFromPosition(),
+    \sa QStyle::sliderPositionFromValue(), QStyle::sliderValueFromPosition(),
         QAbstractSlider::invertedAppearance
 */
 
@@ -1005,7 +1075,7 @@ QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
 
     This variable is a bitwise OR of the features of the item.
 
-    \sa ListViewItemFeature
+    \sa Q3ListViewItemFeature
 */
 
 /*!
@@ -1028,7 +1098,7 @@ QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
     \property QStyleOptionQ3ListViewItem::itemY
     \brief The Y-coordinate for the item
 
-    \sa Q3ListViewItem::itemY()
+    \sa Q3ListViewItem::itemPos()
 */
 
 /*!
@@ -1121,7 +1191,7 @@ QStyleOptionQ3ListView::QStyleOptionQ3ListView(int version)
 /*!
     \class QStyleOptionQ3DockWindow
     \brief The QStyleOptionQ3DockWindow class is used to describe the
-    parameters for drawing various parts of \l Q3DockWindows.
+    parameters for drawing various parts of a \l Q3DockWindow.
 
     This class is used for drawing the old Q3DockWindow and its
     parts. It is not recommended for new classes.
@@ -1260,7 +1330,15 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
     \property QStyleOptionToolButton::text
     \brief The text of the tool button.
 
-    This value is only used if \l features includes \l TextLabel.
+    This value is only used if toolButtonStyle is Qt::ToolButtonTextUnderIcon,
+    Qt::ToolButtonTextBesideIcon, or Qt::ToolButtonTextOnly
+*/
+
+/*!
+    \property QStyleOptionToolButton::iconSize
+    \brief The size of the icon
+
+    \sa QToolButton::iconSize()
 */
 
 /*!
@@ -1286,7 +1364,8 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
     \property QStyleOptionToolButton::font
     \brief The font that is used for the text.
 
-    This value is only used if \l features includes \l TextLabel.
+    This value is only used if toolButtonStyle is Qt::ToolButtonTextUnderIcon,
+    Qt::ToolButtonTextBesideIcon, or Qt::ToolButtonTextOnly
 */
 
 /*!
@@ -1483,13 +1562,6 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
     \brief The position of the decoration for the item.
 
     \sa Position
-*/
-
-/*!
-    \property QStyleOptionViewItem::decorationSize
-    \brief The size ofthe decoration for the item.
-
-    \sa Size
 */
 
 /*!
