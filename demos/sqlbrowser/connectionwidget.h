@@ -14,38 +14,11 @@
 #ifndef CONNECTIONWIDGET_H
 #define CONNECTIONWIDGET_H
 
-#include <qabstractitemmodel.h>
-#include <qvector.h>
-#include <qstringlist.h>
 #include <qwidget.h>
 
-class QTreeView;
+class QTreeWidget;
+class QTreeWidgetItem;
 class QSqlDatabase;
-
-class ConnectionModel: public QAbstractItemModel
-{
-    Q_OBJECT
-public:
-    ConnectionModel(QObject *parent = 0);
-
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = DisplayRole) const;
-    QVariant data(const QModelIndex &index, int role = DisplayRole) const;
-    bool hasChildren(const QModelIndex &parent) const;
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const;
-    QModelIndex parent(const QModelIndex &child) const;
-
-    bool isActiveConnection(const QModelIndex &index) const;
-
-public slots:
-    void refresh();
-
-private:
-    struct CData { QString cname, label; };
-    QVector<CData> connections;
-    QList<QStringList> tableNames;
-};
 
 class ConnectionWidget: public QWidget
 {
@@ -58,10 +31,13 @@ public:
 
 public slots:
     void refresh();
+    void on_tree_doubleClicked(QTreeWidgetItem *item, int column, Qt::ButtonState button);
 
 private:
-    QTreeView *tree;
-    ConnectionModel *model;
+    void setActive(QTreeWidgetItem *);
+
+    QTreeWidget *tree;
+    QString activeDb;
 };
 
 #endif
