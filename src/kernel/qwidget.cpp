@@ -4236,6 +4236,7 @@ QRegion QWidget::clipRegion() const
 
 void QWidget::adjustSize()
 {
+    QApplication::sendPostedEvents( 0, QEvent::ChildInserted );
     QApplication::sendPostedEvents( 0, QEvent::LayoutHint );
     if ( !testWState(WState_Polished) )
 	polish();
