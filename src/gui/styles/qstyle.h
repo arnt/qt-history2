@@ -647,6 +647,9 @@ public:
         // int - the popup delay for menus attached to tool buttons
         SH_ToolButton_PopupDelay,
 
+        // Qt::IconSize - the preferred icon size for tool bars
+        SH_ToolBar_IconSize,
+
         // do not add any values below/greater than this
         SH_CustomBase = 0xf0000000
     };

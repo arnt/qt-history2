@@ -115,6 +115,7 @@ QToolBarItem QToolBarPrivate::createItem(QAction *action)
     } else {
         QToolButton *button = new QToolButton(q);
         button->setAutoRaise(true);
+        button->setIconSize(Qt::IconSize(q->style()->styleHint(QStyle::SH_ToolBar_IconSize, 0, q)));
         QObject::connect(q, SIGNAL(iconSizeChanged(Qt::IconSize)),
                          button, SLOT(setIconSize(Qt::IconSize)));
         QObject::connect(q, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),

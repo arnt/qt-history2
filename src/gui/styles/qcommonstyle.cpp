@@ -932,7 +932,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
 
                         if (tb->toolButtonStyle == Qt::ToolButtonTextUnderIcon) {
                             int fh = p->fontMetrics().height();
-                            pr.addCoords(0, 1, 0, -fh - 3);
+                            pr.addCoords(0, 3, 0, -fh - 3);
                             tr.addCoords(0, pr.bottom(), 0, -3);
                             pr.translate(shiftX, shiftY);
                             drawItem(p, pr, Qt::AlignCenter, tb->palette,
@@ -2650,6 +2650,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
 
     case SH_ToolButton_PopupDelay:
         ret = 600;
+        break;
+
+    case SH_ToolBar_IconSize:
+        ret = Qt::AutomaticIconSize;
         break;
 
     default:

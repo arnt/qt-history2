@@ -3796,9 +3796,9 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
             menuarea = q->querySubControlMetrics(cc, tb, QStyle::SC_ToolButtonMenu, widget);
 	    QStyle::StyleFlags bflags = tb->state,
             mflags = tb->state;
-            if (tb->subControls & QStyle::SC_ToolButton)
+            if (tb->activeSubControls & QStyle::SC_ToolButton)
                 bflags |= QStyle::Style_Down;
-            if (tb->subControls & QStyle::SC_ToolButtonMenu)
+            if (tb->activeSubControls & QStyle::SC_ToolButtonMenu)
                 mflags |= QStyle::Style_Down;
 
             if (tb->subControls & QStyle::SC_ToolButton) {
@@ -4700,6 +4700,9 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_Button_FocusPolicy:
         ret = Qt::TabFocus;
         break;
+    case SH_ToolBar_IconSize:
+        ret = Qt::LargeIconSize;
+        break;
     default:
         ret = QWindowsStyle::styleHint(sh, opt, w, shret);
         break;
@@ -4907,6 +4910,42 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             drawItem(p, textr, Qt::AlignVCenter, header->palette,
                      header->state & QStyle::Style_Enabled, header->text, -1, &penColor);
         }
+    case CE_ToolButtonLabel:
+        if (w && qt_cast<QToolBar *>(w->parentWidget())) {
+            if (const QStyleOptionToolButton *tb = qt_cast<const QStyleOptionToolButton *>(opt)) {
+                QRect cr = tb->rect;
+                if (tb->toolButtonStyle != Qt::ToolButtonIconOnly && !tb->text.isEmpty()
+                    && (tb->state & QStyle::Style_Down)) {
+                    if (tb->toolButtonStyle == Qt::ToolButtonTextOnly) {
+                        p->drawText(cr, Qt::AlignCenter, tb->text);
+                    } else {
+                        QIcon::Mode iconMode = (tb->state & QStyle::Style_Enabled) ? QIcon::Normal
+                                                                                   : QIcon::Disabled;
+                        if (tb->state & QStyle::Style_Down)
+                            iconMode = QIcon::Active;
+                        QIcon::State iconState = (tb->state & QStyle::Style_On) ? QIcon::On
+                                                                                : QIcon::Off;
+                        const QPixmap pixmap = tb->icon.pixmap(Qt::LargeIconSize, iconMode,
+                                                               iconState);
+                        int alignment = 0;
+                        if (tb->toolButtonStyle == Qt::ToolButtonTextUnderIcon) {
+                            int fh = p->fontMetrics().height();
+                            cr.addCoords(0, cr.bottom() - fh - 6, 0, -3);
+                            alignment |= Qt::AlignCenter;
+                        } else {
+                            cr.addCoords(pixmap.width() + 8, 0, 0, 0);
+                            alignment |= Qt::AlignLeft | Qt::AlignVCenter;
+                        }
+                        p->drawText(cr, alignment, tb->text);
+
+                    }
+
+                }
+            }
+            QWindowsStyle::drawControl(ce, opt, p, w);
+        } else {
+            QWindowsStyle::drawControl(ce, opt, p, w);
+        }
         break;
     case CE_ToolBoxTab:
         QCommonStyle::drawControl(ce, opt, p, w);
@@ -4932,10 +4971,33 @@ QRect QMacStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *w) 
 void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
                                    const QWidget *w) const
 {
-    if (d->useHITheme)
-	d->HIThemeDrawComplexControl(cc, opt, p, w);
-    else
-	d->AppManDrawComplexControl(cc, opt, p, w);
+    switch (cc) {
+    default:
+        if (d->useHITheme)
+            d->HIThemeDrawComplexControl(cc, opt, p, w);
+        else
+            d->AppManDrawComplexControl(cc, opt, p, w);
+    case CC_ToolButton:
+        if (w && qt_cast<QToolBar *>(w->parentWidget())) {
+            if (const QStyleOptionToolButton *tb = qt_cast<const QStyleOptionToolButton *>(opt)) {
+                if (tb->subControls & QStyle::SC_ToolButtonMenu) {
+                    QStyleOption arrowOpt(0);
+                    arrowOpt.rect = querySubControlMetrics(cc, tb, QStyle::SC_ToolButtonMenu, w);
+                    arrowOpt.rect.setY(arrowOpt.rect.y() + arrowOpt.rect.height() / 2);
+                    arrowOpt.rect.setHeight(arrowOpt.rect.height() / 2);
+                    arrowOpt.state = tb->state;
+                    arrowOpt.palette = tb->palette;
+                    drawPrimitive(QStyle::PE_IndicatorArrowDown, &arrowOpt, p, w);
+                }
+            }
+        } else {
+            if (d->useHITheme)
+                d->HIThemeDrawComplexControl(cc, opt, p, w);
+            else
+                d->AppManDrawComplexControl(cc, opt, p, w);
+        }
+        break;
+    }
 }
 
 /*! \reimp */
