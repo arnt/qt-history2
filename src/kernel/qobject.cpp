@@ -1975,7 +1975,6 @@ void QObject::activate_signal( const char *signal )
     if ( !clist || signalsBlocked() )
 	return;
     typedef void (QObject::*RT)();
-    typedef RT *PRT;
     RT r;
     QConnectionListIt it(*clist);
     register QConnection *c;
@@ -1984,7 +1983,7 @@ void QObject::activate_signal( const char *signal )
 	++it;
 	object = c->object();
 	object->sigSender = this;
-	r = *((PRT)(c->member()));
+	r = (RT)*(c->member());
 	(object->*r)();
     }
 }
@@ -2015,9 +2014,7 @@ void QObject::FNAME( const char *signal, TYPE param )			      \
     if ( !clist || signalsBlocked() )					      \
 	return;								      \
     typedef void (QObject::*RT0)();					      \
-    typedef RT0 *PRT0;							      \
     typedef void (QObject::*RT1)( TYPE );				      \
-    typedef RT1 *PRT1;							      \
     RT0 r0;								      \
     RT1 r1;								      \
     QConnectionListIt it(*clist);					      \
@@ -2028,10 +2025,10 @@ void QObject::FNAME( const char *signal, TYPE param )			      \
 	object = c->object();						      \
 	object->sigSender = this;					      \
 	if ( c->numArgs() ) {						      \
-	    r1 = *((PRT1)(c->member()));				      \
+	    r1 = (RT1)*(c->member());					      \
 	    (object->*r1)( param );					      \
 	} else {							      \
-	    r0 = *((PRT0)(c->member()));				      \
+	    r0 = (RT0)*(c->member());					      \
 	    (object->*r0)();						      \
 	}								      \
     }									      \

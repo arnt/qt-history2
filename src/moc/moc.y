@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#184 $
+** $Id: //depot/qt/main/src/moc/moc.y#185 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2436,7 +2436,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#184 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#185 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2711,12 +2711,10 @@ void generateClass()		      // generate C++ source code for a class
 	    for ( i=0; i<=nargs; i++ ) {
 		fprintf( out, "    typedef void (QObject::*RT%d)(%s);\n",
 			 i, (const char*)typvec[i] );
-		fprintf( out, "    typedef RT%d *PRT%d;\n", i, i );
 	    }
 	} else {
 	    fprintf( out, "    typedef void (QObject::*RT)(%s);\n",
 		     (const char*)typstr);
-	    fprintf( out, "    typedef RT *PRT;\n" );
 	}
 	if ( nargs ) {
 	    for ( i=0; i<=nargs; i++ )
@@ -2735,14 +2733,14 @@ void generateClass()		      // generate C++ source code for a class
 	    fprintf( out, "\tswitch ( c->numArgs() ) {\n" );
 	    for ( i=0; i<=nargs; i++ ) {
 		fprintf( out, "\t    case %d:\n", i );
-		fprintf( out, "\t\tr%d = *((PRT%d)(c->member()));\n", i, i );
+		fprintf( out, "\t\tr%d = (RT%d)*(c->member());\n", i, i );
 		fprintf( out, "\t\t(object->*r%d)(%s);\n",
 			 i, (const char*)valvec[i] );
 		fprintf( out, "\t\tbreak;\n" );
 	    }
 	    fprintf( out, "\t}\n" );
 	} else {
-	    fprintf( out, "\tr = *((PRT)(c->member()));\n" );
+	    fprintf( out, "\tr = (RT)*(c->member());\n" );
 	    fprintf( out, "\t(object->*r)(%s);\n", (const char*)valstr );
 	}
 	fprintf( out, "    }\n}\n" );
