@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#2 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#3 $
 **
 ** Definition of QFont class
 **
 ** Author  : Haavard Nord
 ** Created : 940514
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,7 +14,7 @@
 #define QFONT_H
 
 #include "qwindefs.h"
-#include "qshared.h"
+#include "qstring.h"
 
 
 enum FontType { TimesFont, CourierFont, SystemFont };	// NOT USED YET...
@@ -31,6 +31,8 @@ public:
    ~QFont();
     QFont &operator=( const QFont & );
 
+    char  *name() const;			// get font name
+
     bool   changeFont( const char *name );
 
 #if defined(_WS_X11_)
@@ -42,6 +44,7 @@ public:
 
 private:
     struct QFontData : QShared {		// font data
+	QString  name;
 #if defined(_WS_WIN_)
 	HANDLE hfont;
 #elif defined(_WS_PM_)

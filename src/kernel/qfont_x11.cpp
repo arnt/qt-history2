@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#2 $
 **
 ** Implementation of QFont and QFontMetrics classes for X11
 **
 ** Author  : Haavard Nord
 ** Created : 940515
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -18,7 +18,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#2 $";
 #endif
 
 
@@ -64,6 +64,7 @@ QFont::QFont()
 #endif
 	    fontDict->insert( DEFAULT_FONT, f );
 	}
+	data->name = DEFAULT_FONT;
 	data->f = f;
     }
     else {
@@ -103,6 +104,10 @@ QFont &QFont::operator=( const QFont &font )
 }
 
 
+char *QFont::name() const			// get font name
+{
+    return data->name;
+}
 
 bool QFont::changeFont( const char *name )
 {
@@ -125,6 +130,7 @@ bool QFont::changeFont( const char *name )
 	    f = fontDict->find( DEFAULT_FONT );
 	}
     }
+    data->name = name;
     data->f = f;
     QPainter::changedFont( this, TRUE );	// tell painter about new font
     return res;
