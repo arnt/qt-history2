@@ -1873,8 +1873,7 @@ void qt_setSettingsBasePath(const QString &); //qsettings_mac.cpp
     QSettings::Global for system-wide settings (generally
     these will be read-only to many users).
 
-    Not all information is relevant on all systems (e.g. scoping is
-    currently used only if QSettings accesses the Windows registry).
+    Not all information is relevant on all systems.
 */
 
 void QSettings::setPath( const QString &domain, const QString &product, Scope scope )
@@ -1912,7 +1911,11 @@ void QSettings::setPath( const QString &domain, const QString &product, Scope sc
     actualSearchPath = "/" + domain.left( lastDot ) + "." + product;
     insertSearchPath( Mac, actualSearchPath );
 #else
-    actualSearchPath = "/" + domain.mid( 0, lastDot ) + "/" + product;
+    if (scope == User)
+	actualSearchPath = QDir::homeDirPath() + "/.";
+    else
+	actualSearchPath = QString(qInstallPathSysconf()) + "/";
+    actualSearchPath += domain.mid( 0, lastDot ) + "/" + product;
     insertSearchPath( Unix, actualSearchPath );
 #endif
 }
