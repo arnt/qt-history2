@@ -4650,7 +4650,7 @@ void Q3IconView::contentsDragMoveEvent(QDragMoveEvent *e)
         }
         if (!item->rect().contains(d->oldDragPos))
             item->dragEntered();
-        if (item->acceptDrop(e)) {
+        if (item->acceptDrop(e) || (item->isSelected() && e->source() == viewport())) {
             d->oldDragAcceptAction = true;
             e->acceptAction();
         } else {
@@ -4713,7 +4713,7 @@ void Q3IconView::contentsDropEvent(QDropEvent *e)
 
     Q3IconViewItem *i = findItem(e->pos());
 
-    if (!i && e->source() == viewport() && d->currentItem && !d->cleared) {
+    if ((!i || i->isSelected()) && e->source() == viewport() && d->currentItem && !d->cleared) {
         if (!d->rearrangeEnabled)
             return;
         QRect r = d->currentItem->rect();
