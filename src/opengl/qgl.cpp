@@ -2014,8 +2014,13 @@ int QGLWidget::displayListBase( const QFont & fnt, int listBase )
 	return 0;
     }
 
+#ifdef Q_WS_WIN // always regenerate disp. lists for pixmaps under Windows
     bool regenerate = glcx->deviceIsPixmap();
     QString key = fnt.key() + QString::number( regenerate );
+#else
+    bool regenerate = FALSE;
+    QString key = fnt.key();
+#endif
     if ( !regenerate && (d->displayListCache.find( key ) != d->displayListCache.end()) ) {
 	base = d->displayListCache[ key ];
     } else {
