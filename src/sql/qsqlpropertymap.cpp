@@ -159,6 +159,8 @@ QSqlPropertyMap::QSqlPropertyMap()
 	{ "QScrollBar",		"value" },
 	{ "QSlider",		"value" },
 	{ "QSpinBox",		"value" },
+	{ "QTabBar",		"currentTab" },
+	{ "QTabWidget",		"currentPage" },
 	{ "QTextBrowser",	"source" },
 	{ "QTextEdit",		"text" },
 	{ "QTextView",		"text" },
