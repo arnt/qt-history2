@@ -3780,62 +3780,64 @@ QListBoxItem *QListBox::findItem( const QString &text, ComparisonFlags compare )
 	return 0;
     
     QListBoxItem *item = d->current;
-    QString itmtxt = item->text();
-    QString comtxt = text;
+    if ( item ) {
+        QString itmtxt = item->text();
+        QString comtxt = text;
 
-    for ( ; item; item = item->n ) {
-        if ( ! (compare & CaseSensitive) ) {
-            itmtxt = item->text().lower();
-            comtxt = text.lower();
+        for ( ; item; item = item->n ) {
+            if ( ! (compare & CaseSensitive) ) {
+                itmtxt = item->text().lower();
+                comtxt = text.lower();
+            }
+            
+            if ( compare & ExactMatch ) {
+                if ( itmtxt == comtxt ) 
+                    return item;
+            }
+            
+            if ( compare & BeginsWith ) {
+                if ( itmtxt.startsWith( comtxt ) )
+                    return item;
+            }
+            
+            if ( compare & EndsWith ) {
+                if ( itmtxt.right( comtxt.length() ) == comtxt )
+                    return item;
+            }
+            
+            if ( compare & Contains ) {
+                if ( itmtxt.contains( comtxt, FALSE ) )
+                    return item;
+            }
         }
-
-        if ( compare & ExactMatch ) {
-            if ( itmtxt == comtxt ) 
-                return item;
-        }
-
-        if ( compare & BeginsWith ) {
-            if ( itmtxt.startsWith( comtxt ) )
-                return item;
-        }
-
-        if ( compare & EndsWith ) {
-            if ( itmtxt.right( comtxt.length() ) == comtxt )
-                return item;
-        }
-    
-        if ( compare & Contains ) {
-            if ( itmtxt.contains( comtxt, FALSE ) )
-                return item;
-        }
-    }
-
-    item = d->head;
-
-    for ( ; item && item != d->current; item = item->n ) {
-        if ( ! (compare & CaseSensitive) ) {
-            itmtxt = item->text().lower();
-            comtxt = text.lower();
-        }
-
-        if ( compare & ExactMatch ) {
-            if ( itmtxt == comtxt ) 
-                return item;
-        }
-
-        if ( compare & BeginsWith ) {
-            if ( itmtxt.startsWith( comtxt ) )
-                return item;
-        }
-
-        if ( compare & EndsWith ) {
-            if ( itmtxt.right( comtxt.length() ) == comtxt )
-                return item;
-        }
-    
-        if ( compare & Contains ) {
-            if ( itmtxt.contains( comtxt, FALSE ) )
-                return item;
+        
+        item = d->head;
+        
+        for ( ; item && item != d->current; item = item->n ) {
+            if ( ! (compare & CaseSensitive) ) {
+                itmtxt = item->text().lower();
+                comtxt = text.lower();
+            }
+            
+            if ( compare & ExactMatch ) {
+                if ( itmtxt == comtxt ) 
+                    return item;
+            }
+            
+            if ( compare & BeginsWith ) {
+                if ( itmtxt.startsWith( comtxt ) )
+                    return item;
+            }
+            
+            if ( compare & EndsWith ) {
+                if ( itmtxt.right( comtxt.length() ) == comtxt )
+                    return item;
+            }
+            
+            if ( compare & Contains ) {
+                if ( itmtxt.contains( comtxt, FALSE ) )
+                    return item;
+            }
         }
     }
     return 0;
