@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#371 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#372 $
 **
 ** Implementation of QWidget class
 **
@@ -497,6 +497,9 @@ inline bool QWidgetMapper::remove( WId id )
     combined with \c WStyle_NoBorder. A tool window is a small window that
     lives for a short time and it is typically used for creating popup
     windows.
+  <li> \c WStyle_StaysOnTop informs the window system that the window
+  should stay on top of its parent window or, if there's no parent, on
+  top of the desktop. 
   </ul>
 
   Note that X11 does not necessarily support all style flag combinations. X11
@@ -4034,22 +4037,22 @@ int QWidget::heightForWidth( int w ) const
     (void)w;
     return -1;
 }
-    
+
 
 /*!
   Returns whether the widget wants to handle Whats This help
   manually. The default implementation returns FALSE, which means the
   widget will not receive any events in Whats This mode.
-  
+
   The widget may leave Whats This mode by calling
   QWhatsThis::leaveWhatsThisMode(), with or without actually
   displaying any help text.
-  
+
   You may also reimplement customWhatsThis() if your widget is a
   so-called "passive interactor" that is supposed to work under all
   circumstances. Simply never call QWhatsThis::leaveWhatsThisMode() in
   that case.
-  
+
   \sa QWhatsThis::inWhatsThisMode(), QWhatsThis::leaveWhatsThisMode()
  */
 bool QWidget::customWhatsThis() const

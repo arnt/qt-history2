@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#180 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#181 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -107,7 +107,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	topLevel = TRUE;
 	setWFlags( WType_TopLevel );
     }
-
+    
     if ( desktop ) {				// desktop widget
 	modal = popup = FALSE;			// force this flags off
 	fpos = QPoint(0, 0);
@@ -198,7 +198,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 				 CW_USEDEFAULT, CW_USEDEFAULT,
 				 parentw, 0, appinst, 0 );
 	setWinId( id );
-	if ( tool )
+	if ( tool || ( !parentw && testWFlags( WStyle_StaysOnTop) ) )
 	    SetWindowPos( id, HWND_TOPMOST, 0, 0, 100, 100, SWP_NOACTIVATE );
     } else {					// create child widget
 	// WWA: I cannot get the Unicode versions to work.

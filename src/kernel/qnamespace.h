@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#22 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#23 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -137,10 +137,10 @@ public:
 	WStyle_Maximize		= 0x00000400,
 	WStyle_MinMax		= WStyle_Minimize | WStyle_Maximize,
 	WStyle_Tool		= 0x00000800,
-	WStyle_Reserved1	= 0x00001000,
-	WStyle_Reserved2	= 0x00002000,
-	WStyle_Reserved3	= 0x00004000,
-	WStyle_Reserved4	= 0x00008000,
+	WStyle_StaysOnTop	= 0x00001000,
+	WStyle_Reserved1	= 0x00002000,
+	WStyle_Reserved2	= 0x00004000,
+	WStyle_Reserved3	= 0x00008000,
 	WStyle_Mask		= 0x0000fff0,
 
 	WDestructiveClose	= 0x00010000,	// misc flags

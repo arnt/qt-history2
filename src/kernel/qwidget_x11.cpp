@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#335 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#336 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -251,7 +251,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	QWidget *p = parentWidget();	// real parent
 	if (p)
 	    p = p->topLevelWidget();
-	if ( (!testWFlags(WStyle_Customize) && modal) || testWFlags(WStyle_DialogBorder) ) {
+	if ( (!testWFlags(WStyle_Customize) && modal) 
+	     || testWFlags(WStyle_DialogBorder) 
+	     || testWFlags(WStyle_StaysOnTop) 
+	     || testWFlags(WStyle_Tool) ) {
 	    if ( p )
 		XSetTransientForHint( dpy, id, p->winId() );
 	    else				// application-modal
