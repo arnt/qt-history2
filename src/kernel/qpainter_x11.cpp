@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#26 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#26 $";
 #endif
 
 
@@ -1962,9 +1962,17 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
     QFontMetrics fm( cfont );			// get font metrics
 
-    int codelen = len + len/2 + 10;
-    ushort *codes = (ushort *)malloc( sizeof(ushort)*codelen );
-    ushort cc = 0;				// character code
+    ushort codearray[200];
+    int	   codelen    = 200;
+    bool   code_alloc = FALSE;
+    ushort *codes     = codearray;
+    ushort cc 	      = 0;			// character code
+
+    if ( len > 150 ) {				// need to alloc code array
+	codelen = len + len/2;
+	codes = (ushort *)malloc( sizeof(ushort)*codelen );
+	code_alloc = TRUE;
+    }
 
     const BEGLINE  = 0x8000;			// encoding 0x8zzz, zzz=width
     const TABSTOP  = 0x4000;			// encoding 0x4zzz, zzz=tab pos
@@ -1978,18 +1986,20 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     int begline;				// index at beginning of line
     int breakindex;				// index where to break
     int breakwidth;				// width of text at breakindex
+    int maxwidth;				// maximum width of a line
     int bcwidth;				// width of break char
     int tabindex;				// tab array index
     int cw;					// character width
     int k;					// index for p
     int tw;					// text width
-
     short charwidth[255];			// TO BE REMOVED LATER!!!
     memset( charwidth, -1, 255*sizeof(short) );
 
 #define CWIDTH(x) (charwidth[x]>=0 ? charwidth[x] : (charwidth[x]=fm.width(x)))
 #undef  MIN
+#undef  MAX
 #define MIN(x,y) ((x) < (y) ? (x) : (y))
+#define MAX(x,y) ((x) > (y) ? (x) : (y))
 
     bool wordbreak  = (tf & WordBreak)  == WordBreak;
     bool expandtabs = (tf & ExpandTabs) == ExpandTabs;
@@ -2000,7 +2010,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
     nlines = 0;
     index  = 1;					// first index contains BEGLINE
-    begline = breakindex = breakwidth = bcwidth = tabindex = 0;
+    begline = breakindex = breakwidth = maxwidth = bcwidth = tabindex = 0;
     k = tw = 0;
 
     while ( k < len ) {				// convert string to codes
@@ -2081,6 +2091,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    }
 	    else {				// break at breakindex
 		codes[begline] = BEGLINE | MIN(breakwidth,MAXWIDTH);
+		maxwidth = MAX(maxwidth,breakwidth);
 		begline = breakindex;
 		nlines++;
 		tw -= breakwidth + bcwidth;
@@ -2092,6 +2103,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
 	if ( cc == BEGLINE ) {
 	    codes[begline] = BEGLINE | MIN(tw,MAXWIDTH);
+	    maxwidth = MAX(maxwidth,tw);
 	    begline = index;
 	    nlines++;
 	    tw = 0;
@@ -2099,28 +2111,42 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	}
 	codes[index++] = cc;
 	if ( index >= codelen - 1 ) {		// grow code array
-	    codelen += len;
-	    codes = (ushort *)realloc( codes, sizeof(ushort)*codelen );
+	    codelen *= 2;
+	    if ( code_alloc )
+		codes = (ushort *)realloc( codes, sizeof(ushort)*codelen );
+	    else {
+		codes = (ushort *)malloc( sizeof(ushort)*codelen );
+		code_alloc = TRUE;
+	    }
 	}
 	k++;
 	p++;
     }
 
     codes[begline] = BEGLINE | MIN(tw,MAXWIDTH);
+    maxwidth = MAX(maxwidth,tw);
     nlines++;
     codes[index++] = 0;
     codelen = index;
 
-    int fascent  = fm.ascent();			// get font measurements
-    int fdescent = fm.descent();
-    int fheight  = fm.height();
-    QRegion save_rgn   = crgn;			// save the current region
-    QPen    save_pen   = cpen;			// save the current pen
-    QBrush  save_brush = cbrush;		// save the current brush
-    int xp, yp;
-    p = new char[len];				// buffer for printable string
+    int     fascent  = fm.ascent();		// get font measurements
+    int     fdescent = fm.descent();
+    int     fheight  = fm.height();
+    QRegion save_rgn = crgn;			// save the current region
+    int     xp, yp;
+    char    p_array[200];
+    bool    p_alloc;
 
-    if ( nlines == 1 && (codes[0] & WIDTHBITS) < w && h > fheight )
+    if ( len > 200 ) {
+	p = new char[len];			// buffer for printable string
+	p_alloc = TRUE;
+    }
+    else {
+	p = p_array;
+	p_alloc = FALSE;
+    }
+
+    if ( nlines == 1 && maxwidth < w && h > fheight )
 	tf |= DontClip;				// no need to clip
 
     if ( (tf & DontClip) == 0 )	{		// clip text
@@ -2154,11 +2180,23 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	}
     }
 
+    QPixMap  *pm;
+    QPainter *pp;
+
     if ( (tf & GrayText) == GrayText ) {	// prepare to draw gray text
-	setPen( QPen(cpen.color(), 0, NoPen ) );
-	updatePen();
-	setBrush( QBrush(bg_col, Pix1Pattern) );
-	updateBrush();
+	pm = new QPixMap( w, fheight );
+	pp = new QPainter;
+	pp->begin( pm );
+	pp->setBackgroundColor( bg_col );
+	pp->setFont( font() );
+	pp->setPen( cpen.color() );
+	pp->updatePen();
+	pp->setBrush( QBrush(bg_col, Pix1Pattern) );
+	pp->updateBrush();
+    }
+    else {
+	pm = 0;
+	pp = 0;
     }
 
     if ( (tf & AlignVCenter) == AlignVCenter )	// vertically centered text
@@ -2189,33 +2227,49 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	else
 	    xp = 0;				// left aligned
 
+	if ( pp )				// erase pixmap if gray text
+	    pp->eraseRect( 0, 0, w, fheight );
+
 	int bx = xp;				// base x position
 	while ( TRUE ) {
 	    k = 0;
 	    while ( *cp && (*cp & (BEGLINE|TABSTOP)) == 0 ) {
 		if ( (*cp & PREFIX) == PREFIX ) {
 		    int xcpos = fm.width( p, k );
-		    drawLine( x+xp+xcpos, y+yp+2,
-			      x+xp+xcpos+CWIDTH( *cp&0xff ), y+yp+2 );
+		    if ( pp ) {			// gray text
+			pp->cpen.setStyle( SolidLine );
+			pp->drawLine( xp+xcpos, fascent+2,
+				      xp+xcpos+CWIDTH( *cp&0xff ), fascent+2 );
+		    }
+		    else
+			drawLine( x+xp+xcpos, y+yp+2,
+				  x+xp+xcpos+CWIDTH( *cp&0xff ), y+yp+2 );
 		}
 		p[k++] = (char)*cp++;
 		index++;
 	    }
-	    drawText( x+xp, y+yp, p, k );	// draw the text
+	    if ( pp )				// gray text
+		pp->drawText( xp, fascent, p, k );
+	    else
+		drawText( x+xp, y+yp, p, k );	// draw the text
 	    if ( (*cp & TABSTOP) == TABSTOP )
 		xp = bx + (*cp++ & WIDTHBITS);
 	    else				// *cp == 0 || *cp == BEGLINE
 		break;
 	}
-	if ( (tf & GrayText) == GrayText )	// draw filled rectangle
-	    drawRect( x+bx, y+yp-fascent, tw, fheight );
+	if ( pp ) {				// gray text
+	    pp->cpen.setStyle( NoPen );
+	    pp->drawRect( bx, 0, tw, fheight );
+	    drawPixMap( x, y+yp-fascent, *pm );
+	}
 
 	yp += fheight;
     }
 
-    if ( (tf & GrayText) == GrayText ) {	// restore pen and brush
-	setPen( save_pen );
-	setBrush( save_brush );
+    if ( pp ) {					// gray text
+	pp->end();
+	delete pp;
+	delete pm;
     }
 
     if ( (tf & DontClip) == 0 ) {		// restore clipping
@@ -2227,8 +2281,10 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    setClipRegion( save_rgn );
     }
 
-    delete p;
-    free( (void *)codes );
+    if ( p_alloc )
+	delete p;
+    if ( code_alloc )
+	free( (void *)codes );
 }
 
 
