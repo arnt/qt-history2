@@ -216,14 +216,20 @@ static void place_line( const QValueList<DockData> &lastLine, Qt::Orientation o,
     if ( !last->isStretchable() )
 	set_geometry( last, lastRect.x(), lastRect.y(), lastRect.width(), lastRect.height(), o );
     else
-	set_geometry( last, lastRect.x(), lastRect.y(), fullextend - lastRect.x(),
+	set_geometry( last, lastRect.x(), lastRect.y(), fullextend - lastRect.x() - ( o == Qt::Vertical ? 1 : 0 ),
 		      last->isResizeEnabled() ? linestrut : lastRect.height(), o );
 }
 
-int QDockAreaLayout::layoutItems( const QRect &r, bool testonly )
+int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 {
     if ( !dockWidgets || !dockWidgets->first() )
 	return 0;
+    // some corrections
+    QRect r = rect;
+    if ( orientation() == Vertical )
+	r.setHeight( r.height() - 3 );
+
+    // init
     lines.clear();
     ls.clear();
     QListIterator<QDockWidget> it( *dockWidgets );
@@ -233,14 +239,24 @@ int QDockAreaLayout::layoutItems( const QRect &r, bool testonly )
     int sectionpos = 0;
     int linestrut = 0;
     QValueList<DockData> lastLine;
+
     // go through all widgets in the dock
     while ( ( dw = it.current() ) != 0 ) {
  	++it;
 	if ( !dw->isVisibleTo( parentWidget ) )
 	    continue;
+	// find position for the widget: This is the maximum of the
+	// end of the previous widget and the offset of the widget. If
+	// the position + the width of the widget dosn't fit into the
+	// dock, try moving it a bit back, if possible.
+	int op = pos;
+	if ( !dw->isStretchable() )
+	    pos = QMAX( pos, dw->offset() );
+	if ( pos + dock_extend( dw, orientation() )> size_extend( r.size(), orientation() ) - 1 )
+	    pos = QMAX( op, size_extend( r.size(), orientation() ) - 1 - dock_extend( dw, orientation() ) );
 	// if the current widget doesn't fit into the line anymore and it is not the first widget of the line
 	if ( !lastLine.isEmpty() &&
-	     ( space_left( r, QMAX( pos, dw->offset() ), orientation() ) < dock_extend( dw, orientation() ) || dw->newLine() ) ) {
+	     ( space_left( r, pos, orientation() ) < dock_extend( dw, orientation() ) || dw->newLine() ) ) {
 	    if ( !testonly ) // place the last line, if not in test mode
 		place_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ) );
 	    // remember the line coordinats of the last line
@@ -256,12 +272,16 @@ int QDockAreaLayout::layoutItems( const QRect &r, bool testonly )
 	}
 
 	// remeber first widget of a line
-	if ( lastLine.isEmpty() )
+	if ( lastLine.isEmpty() ) {
 	    ls.append( dw );
-	
+	    // try to make the best position
+	    int op = pos;
+	    if ( !dw->isStretchable() )
+		pos = QMAX( pos, dw->offset() );
+	    if ( pos + dock_extend( dw, orientation() )> size_extend( r.size(), orientation() ) - 1 )
+		pos = QMAX( op, size_extend( r.size(), orientation() ) - 1 - dock_extend( dw, orientation() ) );
+	}
 	// do some calculations and add the remember the rect which the docking widget requires for the placing
-	if ( !dw->isStretchable() )
-	    pos = QMAX( pos, dw->offset() );
 	lastLine.append( DockData( dw, QRect( pos, sectionpos,
 					      dock_extend( dw, orientation() ), dock_strut( dw, orientation() ) ) ) );
 	linestrut = QMAX( dock_strut( dw, orientation() ), linestrut );
