@@ -8,36 +8,9 @@
 #include <qsqltable.h>
 #include <qsqleditorfactory.h>
 
+#include "cursors.h"
+
 class QLabel;
-class QSqlForm;
-
-class MatchCursor : public QSqlCursor
-{
-public:
-    MatchCursor();
-
-protected:
-    QVariant calculateField( const QString& name );
-    void     primeInsert( QSqlRecord* buf );
-
-    QSqlCursor * teamCr;
-};
-
-class PlayerCursor : public QSqlCursor
-{
-public:
-    PlayerCursor();
-protected:
-    void     primeInsert( QSqlRecord* buf );
-};
-
-class TeamCursor : public QSqlCursor
-{
-public:
-    TeamCursor();
-protected:
-    void     primeInsert( QSqlRecord* buf );
-};
 
 class MatchTable : public QSqlTable
 {
@@ -61,11 +34,7 @@ protected slots:
     void insertMatch();
     void deleteMatch();
 
-    void editPlayer();
-    void editTeam();
-
-protected:
-    void editWindow( QSqlCursor& cursor, const QString& sortField, const QString& caption );
+    void editTeams();
 
 private:
     QSqlTable * matchTable;

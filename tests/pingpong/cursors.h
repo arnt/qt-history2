@@ -1,0 +1,49 @@
+#ifndef CURSOR_H
+#define CURSOR_H
+
+#include <qsqlcursor.h>
+
+class QSqlRecord;
+
+class MatchCursor : public QSqlCursor
+{
+public:
+    MatchCursor();
+
+protected:
+    QVariant calculateField( const QString& name );
+    void     primeInsert( QSqlRecord* buf );
+
+    QSqlCursor * teamCr;
+};
+
+class Player2TeamCursor : public QSqlCursor
+{
+public:
+    Player2TeamCursor();
+
+protected:
+    QVariant calculateField( const QString& name );
+    void     primeInsert( QSqlRecord * buf );
+};
+
+class PlayerCursor : public QSqlCursor
+{
+public:
+    PlayerCursor();
+
+protected:
+    void     primeInsert( QSqlRecord * buf );
+};
+
+class TeamCursor : public QSqlCursor
+{
+public:
+    TeamCursor();
+
+protected:
+    void     primeInsert( QSqlRecord * buf );
+};
+
+
+#endif // CURSOR_H

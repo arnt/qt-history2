@@ -1,98 +1,17 @@
 #include "pingpongapp.h"
 #include "dialogs.h"
+#include "cursors.h"
 
 #include <qlayout.h>
-#include <qfile.h>
-#include <qtextstream.h>
 #include <qsqltable.h>
 #include <qmessagebox.h>
 #include <qmenubar.h>
 #include <qpopupmenu.h>
-#include <qwidget.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
 #include <qfont.h>
 #include <qframe.h>
-#include <qsplitter.h>
 #include <qapplication.h>
-#include <qfiledialog.h>
-
-
-MatchCursor::MatchCursor()
-    : QSqlCursor( "match" )
-{
-    teamCr = new QSqlCursor( "team" );
-
-    field("winnerid")->setVisible( FALSE );
-    field("loserid")->setVisible( FALSE );
-
-    field("losses")->setDisplayLabel( "Losses" );
-    field("wins")->setDisplayLabel( "Wins" );
-    field("date")->setDisplayLabel( "Date" );
-    field("sets")->setDisplayLabel( "Sets" );
-
-    // add lookup field
-    QSqlField loser("loser", QVariant::String );
-    loser.setDisplayLabel("Loser");
-    append( loser );
-
-    QSqlField winner("winner", QVariant::String );
-    winner.setDisplayLabel("Winner");
-    append( winner );
-
-    setCalculated( loser.name(), TRUE );
-    setCalculated( winner.name(), TRUE );
-}
-
-QVariant MatchCursor::calculateField( const QString& name )
-{
-    if( name == "winner" )
-	teamCr->setValue( "id", field("winnerid")->value() );
-    else if( name == "loser" )
-	teamCr->setValue( "id", field("loserid")->value() );
-    else
-	return QVariant( QString::null );
-
-    teamCr->select( teamCr->primaryIndex(), teamCr->primaryIndex() );
-    if( teamCr->next() )
-	return teamCr->value( "name" );
-    return QVariant( QString::null );
-}
-
-void MatchCursor::primeInsert( QSqlRecord* buf )
-{
-    QSqlQuery q;
-    q.exec( "select nextval( 'matchid_sequence' );" );
-    if ( q.next() )
-	buf->setValue( "id", q.value(0) );
-    buf->setValue( "date", QDate::currentDate() );
-}
-
-PlayerCursor::PlayerCursor()
-    : QSqlCursor( "player" )
-{
-}
-
-void PlayerCursor::primeInsert( QSqlRecord* buf )
-{
-    QSqlQuery q;
-    q.exec( "select nextval( 'playerid_sequence' );" );
-    if ( q.next() )
-	buf->setValue( "id", q.value(0) );
-}
-
-TeamCursor::TeamCursor()
-    : QSqlCursor( "team" )
-{
-}
-
-void TeamCursor::primeInsert( QSqlRecord* buf )
-{
-    QSqlQuery q;
-    q.exec( "select nextval( 'teamid_sequence' );" );
-    if ( q.next() )
-	buf->setValue( "id", q.value(0) );
-}
 
 MatchTable::MatchTable( QWidget * parent = 0, const char * name = 0 )
     : QSqlTable( parent, name )
@@ -122,15 +41,14 @@ PingPongApp::PingPongApp( QWidget * parent, const char * name )
 
 void PingPongApp::init()
 {
-    setCaption( "Trolltech PingPong Statistics" );
+    setCaption( "National Pingpong Association (NPA) League Table" );
     QPixmap ppicon( "pingpong.xpm" );
     setIcon( ppicon );
 
     // Setup menus
     QPopupMenu * menu = new QPopupMenu( this );
+    menu->insertItem( "Edit &Teams", this, SLOT( editTeams() ), CTRL+Key_T );
     menu->insertSeparator();
-    menu->insertItem( "Edit &Players", this, SLOT( editPlayer() ), CTRL+Key_P );
-    menu->insertItem( "Edit &Teams", this, SLOT( editTeam() ), CTRL+Key_T );
     menu->insertItem( "&Quit", qApp, SLOT( quit() ), CTRL+Key_Q );
     menuBar()->insertItem( "&File", menu );
 
@@ -201,7 +119,7 @@ void PingPongApp::insertMatch()
 {
      QSqlCursor * cr = matchTable->cursor();
 
-     UpdateMatchDialog dlg( cr->insertBuffer(), UpdateMatchDialog::Insert, this );
+     MatchDialog dlg( cr->insertBuffer(), MatchDialog::Insert, this );
      if( dlg.exec() == QDialog::Accepted ){
  	cr->insert();
  	matchTable->refresh();
@@ -212,7 +130,7 @@ void PingPongApp::updateMatch()
 {
      QSqlCursor * cr = matchTable->cursor();
 
-     UpdateMatchDialog dlg( cr->updateBuffer(), UpdateMatchDialog::Update, this );
+     MatchDialog dlg( cr->updateBuffer(), MatchDialog::Update, this );
      if( dlg.exec() == QDialog::Accepted ){
  	cr->update();
  	matchTable->refresh();
@@ -223,42 +141,16 @@ void PingPongApp::deleteMatch()
 {
      QSqlCursor * cr = matchTable->cursor();
 
-     UpdateMatchDialog dlg( cr->updateBuffer(), UpdateMatchDialog::Delete, this );
+     MatchDialog dlg( cr->updateBuffer(), MatchDialog::Delete, this );
      if( dlg.exec() == QDialog::Accepted ){
  	cr->del();
  	matchTable->refresh();
      }
 }
 
-void PingPongApp::editPlayer()
+void PingPongApp::editTeams()
 {
-    PlayerCursor pc;
-    editWindow( pc, "name", "Edit Players" );
-}
-
-void PingPongApp::editTeam()
-{
-    TeamCursor tc;
-    editWindow( tc, "name", "Edit Teams" );
-}
-
-void PingPongApp::editWindow( QSqlCursor& cursor, const QString& sortField, const QString& caption )
-{
-    QDialog* dlg = new QDialog( this, "dlg", TRUE );
-    dlg->setMinimumSize( 320, 240 );
-    dlg->setCaption( caption );
-    QGridLayout* gl = new QGridLayout( dlg );
-    QSqlTable* t = new QSqlTable( dlg );
-    gl->addWidget( t, 0, 0);
-    QPushButton* close = new QPushButton( dlg );
-    close->setText( "&Close" );
-    close->setDefault( TRUE );
-    gl->addWidget( close, 1, 0 );
-    connect( close, SIGNAL( clicked() ),
-	     dlg, SLOT( accept() ) );
-    t->viewport()->setFocus();
-    cursor.select( cursor.index( sortField ) );
-    t->setCursor( &cursor );
-    dlg->exec();
-    delete dlg;
+    EditTeamsDialog dlg( this );
+    dlg.resize( 400, 300 );
+    dlg.exec();
 }
