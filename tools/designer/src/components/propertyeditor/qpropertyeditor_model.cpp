@@ -78,8 +78,6 @@ bool Model::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (IProperty *property = privateData(index)) {
         if (role == EditRole) {
-            qDebug() << "Model::setData()" << property->propertyName() << value;
-
             property->setValue(value);
             refresh(property);
 
@@ -171,7 +169,7 @@ void Model::refresh(IProperty *property)
     }
 
     // Refresh all children
-            
+
     if (property->kind() == IProperty::Property_Group) {
         IPropertyGroup *prop_group = static_cast<IPropertyGroup*>(property);
         for (int i = 0; i < prop_group->propertyCount(); ++i) {
