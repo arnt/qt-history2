@@ -64,9 +64,9 @@ public:
     bool writeHeader( const QArchiveHeader header );
     bool writeFile( const QString& fileName, const QString& localPath = QString::null );
     bool writeFileList( const QStringList fileList );
-    bool writeDir( const QString& dirName, bool includeLastComponent = FALSE, 
+    bool writeDir( const QString& dirName, bool includeLastComponent = false, 
 		   const QString& localPath = QString::null );
-    bool writeDirList( const QStringList dirList, bool includeLastComponent = TRUE );
+    bool writeDirList( const QStringList dirList, bool includeLastComponent = true );
 
     QArchiveHeader* readArchiveHeader();
     QArchiveHeader* readArchiveHeader( QDataStream *inStream );

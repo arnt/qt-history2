@@ -60,7 +60,7 @@ references.
 \section1 Dropping
 
 To be able to receive media dropped on a widget, call
-\link QWidget::setAcceptDrops() setAcceptDrops(TRUE)\endlink
+\link QWidget::setAcceptDrops() setAcceptDrops(true)\endlink
 for the widget (e.g. in its constructor), and override the
 event handler methods
 \link QWidget::dragEnterEvent() dragEnterEvent()\endlink and
@@ -76,7 +76,7 @@ MyWidget::MyWidget(...) :
     QWidget(...)
 {
     ...
-    setAcceptDrops(TRUE);
+    setAcceptDrops(true);
 }
 
 void MyWidget::dragEnterEvent(QDragEnterEvent* event)

@@ -55,7 +55,7 @@ class SetupWizardImpl : public QWizard
 {
     Q_OBJECT
 public:
-    SetupWizardImpl( QWidget* parent = 0, const char* name = NULL, bool modal = FALSE, WFlags f = 0 );
+    SetupWizardImpl( QWidget* parent = 0, const char* name = NULL, bool modal = false, WFlags f = 0 );
 
     void showPage( QWidget* );
     void stopProcesses();
@@ -157,8 +157,8 @@ private:
 #endif
     void doIDEIntegration();
     void doStartMenuIntegration();
-    void logFiles( const QString& entry, bool close = FALSE );
-    void logOutput( const QString& entry, bool close = FALSE );
+    void logFiles( const QString& entry, bool close = false );
+    void logOutput( const QString& entry, bool close = false );
 
     void setInstallStep( int step );
     void readLicense( QString filePath );

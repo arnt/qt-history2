@@ -149,12 +149,12 @@ bool QArchive::writeFile( const QString& fileName, const QString& localPath )
 		outStream.writeRawBytes( outBuffer.data(), ztream.total_out );
 	    }
 	    inFile.close();
-	    return TRUE;
+	    return true;
 	} else {
-	    return FALSE;
+	    return false;
 	}
     }
-    return FALSE;
+    return false;
 }
 
 bool QArchive::setDirectory( const QString& dirName )
@@ -166,9 +166,9 @@ bool QArchive::setDirectory( const QString& dirName )
 	    fullName += "/";
 	outStream << (int)ChunkDirectory;
 	outStream << fullName.latin1();
-	return TRUE;
+	return true;
     }
-    return FALSE;
+    return false;
 }
 
 bool QArchive::writeHeader( const QArchiveHeader header )
@@ -182,9 +182,9 @@ bool QArchive::writeHeader( const QArchiveHeader header )
 	outStream << header.description();
 	outStream << header.extraData;
 	outStream << (int)ChunkEndHeader;
-	return TRUE;
+	return true;
     }
-    return FALSE;
+    return false;
 }
 
 bool QArchive::writeDir( const QString &dirName1, bool includeLastComponent, const QString &localPath1 )
@@ -210,7 +210,7 @@ bool QArchive::writeDir( const QString &dirName1, bool includeLastComponent, con
 	while( ( pFi = dirIter.current() ) ) {
 	    if( pFi->fileName() != "." && pFi->fileName() != ".." ) {
 		if( pFi->isDir() )
-		    writeDir( pFi->absFilePath(), TRUE, localPath + "/" +
+		    writeDir( pFi->absFilePath(), true, localPath + "/" +
 			      pFi->fileName() ); // Subdirs should always get its name in the archive.
 		else
 		    writeFile( pFi->absFilePath(), localPath );
@@ -309,11 +309,11 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
     //get the key
     QArchiveHeader *header = readArchiveHeader( inStream );
     if ( header == 0 )
-	return FALSE;
+	return false;
     uint infeatures = featuresForKey( key );
     if( (header->features() & infeatures) != header->features()) {
 	emit operationFeedback( "Invalid key" );
-	return FALSE;
+	return false;
     }
 
     // Set up the initial directory.
@@ -321,7 +321,7 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
     dirName = QDir::convertSeparators( outpath );
     outDir.setPath( dirName );
     if( !outDir.exists( dirName ) && !createDir( dirName ) )
-	return FALSE;
+	return false;
     outDir.cd( dirName );
 
     while(  !inStream->atEnd()  ) {
@@ -345,7 +345,7 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
 
 		if( !outDir.exists( dirName ) && !createDir( dirName ) ) {
 		    emit operationFeedback( "Cannot create directory: " + dirName );
-		    return FALSE;
+		    return false;
 		}
 		outDir.cd( dirName );
 	    }
@@ -399,7 +399,7 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
 #endif
 	    } else {
 		emit operationFeedback( "Cannot open: " + fileName );
-		return FALSE;
+		return false;
 	    }
 	} else if(chunktype == ChunkSymlink) {
 	    *inStream >> entryLength;
@@ -426,6 +426,6 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
 	if( verbosityMode & Progress )
 	    emit operationFeedback( inStream->device()->at() );
     }
-    return TRUE;
+    return true;
 }
 

@@ -1,6 +1,5 @@
 #include "archive.h"
 #include "resource.h"
-
 #include <qfile.h>
 #include <qmessagebox.h>
 #include <windows.h>
@@ -17,7 +16,7 @@ bool addArchive( const QString& name )
 		QString( "Could not add archive %1.\n"
 		    "Could not get the name of the application.").arg(name)
 		);
-	return FALSE;
+	return false;
     }
     QFile fromFile( aName );
     if ( !fromFile.open( IO_ReadOnly ) ) {
@@ -25,7 +24,7 @@ bool addArchive( const QString& name )
 		"Could not add archive",
 		QString("Could not copy executable %1.\n").arg(aName)
 		);
-	return FALSE;
+	return false;
     }
     QString destinationName = name;
     if ( destinationName.right(4) == ".arq" ) {
@@ -38,7 +37,7 @@ bool addArchive( const QString& name )
 		"Could not add archive",
 		QString("Could not copy executable %1 to %2.\n").arg(aName).arg(destinationName)
 		);
-	return FALSE;
+	return false;
     }
     ba = fromFile.readAll();
     toFile.writeBlock( ba );
@@ -51,7 +50,7 @@ bool addArchive( const QString& name )
 		"Could not add archive",
 		QString("Could not open archive %1.\n").arg(name)
 		);
-	return FALSE;
+	return false;
     }
     ba = fArq.readAll();
 
@@ -63,7 +62,7 @@ bool addArchive( const QString& name )
 		"Could not add archive",
 		QString("Could not add archive %1.\n").arg(name) + errorMsg
 		);
-	return FALSE;
+	return false;
     }
 
 #if 0
@@ -72,5 +71,5 @@ bool addArchive( const QString& name )
 	    QString("Added the archive %1.\n").arg(name) + errorMsg
 	    );
 #endif
-    return TRUE;
+    return true;
 }

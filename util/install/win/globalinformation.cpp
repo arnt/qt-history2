@@ -2,7 +2,7 @@
 
 GlobalInformation::GlobalInformation() :
     _qtVersionStr( QT_VERSION_STR ),
-    _reconfig( FALSE )
+    _reconfig( false )
 {
 #if defined(Q_OS_WIN32)
     _sysId = Other;

@@ -350,11 +350,11 @@ bool findFile( const QString &fileName )
 #endif
     if ( file.endsWith( ".h" ) ) {
 	if ( globalInformation.sysId() == GlobalInformation::Borland )
-	    return TRUE;
+	    return true;
 	paths = QStringList::split( split, QEnvironment::getEnv( "INCLUDE" ) );
     } else if ( file.endsWith( ".lib" ) ) {
 	if ( globalInformation.sysId() == GlobalInformation::Borland )
-	    return TRUE;
+	    return true;
 	paths = QStringList::split( split, QEnvironment::getEnv( "LIB" ) );
     } else {
 	paths = QStringList::split( split, QEnvironment::getEnv( "PATH" ) );
@@ -418,7 +418,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* parent, const char* name, bool modal,
     QFont f( font() );
     f.setFamily( "Arial" );
     f.setPointSize( 12 );
-    f.setBold( TRUE );
+    f.setBold( true );
     setTitleFont( f );
 
     totalFiles = 0;
@@ -620,18 +620,18 @@ void SetupWizardImpl::initPages()
 #undef ADD_PAGE
 
     if ( licensePage ) {
-	setNextEnabled( licensePage, FALSE );
+	setNextEnabled( licensePage, false );
     }
     if ( licenseAgreementPage ) {
-	setNextEnabled( licenseAgreementPage, FALSE );
+	setNextEnabled( licenseAgreementPage, false );
     }
     if ( licenseAgreementPageQsa ) {
-	setNextEnabled( licenseAgreementPageQsa, FALSE );
+	setNextEnabled( licenseAgreementPageQsa, false );
 	licenseAgreementPage->titleStr = "License agreement Qt";
 	licenseAgreementPageQsa->titleStr = "License agreement QSA";
     }
     if ( optionsPage ) {
-	setBackEnabled( optionsPage, FALSE );
+	setBackEnabled( optionsPage, false );
     }
     if ( optionsPageQsa ) {
 	optionsPageQsa->installExamples->hide();
@@ -649,18 +649,18 @@ void SetupWizardImpl::initPages()
 	optionsPageQsa->shortTitleStr = "Choose options for QSA";
     }
     if ( configPage )
-	setBackEnabled( configPage, FALSE );
+	setBackEnabled( configPage, false );
     if ( progressPage ) {
-	setBackEnabled( progressPage, FALSE );
-	setNextEnabled( progressPage, FALSE );
+	setBackEnabled( progressPage, false );
+	setNextEnabled( progressPage, false );
     }
     if ( buildPage ) {
-	setBackEnabled( buildPage, FALSE );
-	setNextEnabled( buildPage, FALSE );
+	setBackEnabled( buildPage, false );
+	setNextEnabled( buildPage, false );
     }
     if ( finishPage ) {
-	setBackEnabled( finishPage, FALSE );
-	setFinishEnabled( finishPage, TRUE );
+	setBackEnabled( finishPage, false );
+	setFinishEnabled( finishPage, true );
     }
     emit wizardPages( pages );
 }
@@ -1197,9 +1197,9 @@ void SetupWizardImpl::doIDEIntegration()
 		    autoexp->open(IO_WriteOnly | IO_Translate);
 	    }
 	    if( autoexp->isOpen() ) {
-		bool written = FALSE;
+		bool written = false;
 		QTextStream outstream( autoexp );
-		QStringList entries = QStringList::split("\r\n", autoExpContents, TRUE);
+		QStringList entries = QStringList::split("\r\n", autoExpContents, true);
 		for (QStringList::Iterator entry = entries.begin(); entry != entries.end(); ++entry) {
 		    QString e(*entry);
 		    outstream << e << endl;
@@ -1218,7 +1218,7 @@ void SetupWizardImpl::doIDEIntegration()
 			outstream << "QGuardedPtr<*> =ptr=<priv->obj>" << endl;
 			outstream << "QEvent =type=<t>" << endl;
 			outstream << "QObject =class=<metaObj->classname,s> name=<objname,s>" << endl;
-			written = TRUE;
+			written = true;
 		    }
 		}
 		autoexp->close();
@@ -1393,7 +1393,7 @@ void SetupWizardImpl::makeDone( bool error )
 	    emit wizardPageFailed( indexOf(currentPage()) );
 	    QMessageBox::critical( this, "Error", "The build process failed!\nSee the log for details." );
 	    buildPage->restartBuild->setText( "Restart compile" );
-	    backButton()->setEnabled(TRUE);
+	    backButton()->setEnabled(true);
 	}
 	setAppropriate( progressPage, false );
 #if defined(QSA)
@@ -1410,7 +1410,7 @@ void SetupWizardImpl::makeDone( bool error )
 		       "Make sure that your compiler tools are installed\n"
 		       "and registered correctly in your PATH environment." );
 	    emit wizardPageFailed( indexOf(currentPage()) );
-	    backButton()->setEnabled( TRUE );
+	    backButton()->setEnabled( true );
 	}
 #endif
     } else {
@@ -1424,7 +1424,7 @@ void SetupWizardImpl::makeDone( bool error )
 	    logOutput( "The build was successful", true );
 	}
 	buildPage->restartBuild->setText( "Success" );
-	buildPage->restartBuild->setEnabled( FALSE );
+	buildPage->restartBuild->setEnabled( false );
     }
 }
 
@@ -1441,7 +1441,7 @@ void SetupWizardImpl::configDone()
 	emit wizardPageFailed( indexOf(currentPage()) );
 	buildPage->restartBuild->setText( "Restart configure" );
 	setAppropriate( progressPage, false );
-	backButton()->setEnabled(TRUE);
+	backButton()->setEnabled(true);
     } else
 #endif
     {
@@ -1474,7 +1474,7 @@ void SetupWizardImpl::configDone()
 	}
 	if ( args.count() == 1 ) {
 	    make.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
-	    makeDone( FALSE );
+	    makeDone( false );
 	    return;
 	}
 #endif
@@ -1490,7 +1490,7 @@ void SetupWizardImpl::configDone()
 		       "Make sure that your compiler tools are installed\n"
 		       "and registered correctly in your PATH environment." );
 	    emit wizardPageFailed( indexOf(currentPage()) );
-	    backButton()->setEnabled( TRUE );
+	    backButton()->setEnabled( true );
 	} else {
 	    buildPage->restartBuild->setText( "Stop compilation" );
 	}
@@ -1505,10 +1505,10 @@ void SetupWizardImpl::restartBuild()
 	    configure.kill();
 	    buildPage->restartBuild->setText( "Restart configure" );
 	    logOutput( "\n*** Configure stopped by user...\n" );
-	    backButton()->setEnabled( TRUE );
+	    backButton()->setEnabled( true );
 	} else {			// Restart configure
 	    emit wizardPageShowed( indexOf(currentPage()) );
-	    backButton()->setEnabled( FALSE );
+	    backButton()->setEnabled( false );
 	    cleanDone();
 	    buildPage->restartBuild->setText( "Stop configure" );
 	    logOutput( "\n*** Configure restarted by user...\n" );
@@ -1518,11 +1518,11 @@ void SetupWizardImpl::restartBuild()
 	if ( make.isRunning() ) {	// Stop compile
 	    buildPage->restartBuild->setText( "Restart compile" );
 	    logOutput( "\n*** Compilation stopped by user...\n" );
-	    backButton()->setEnabled( TRUE );
+	    backButton()->setEnabled( true );
 	    make.kill();
 	} else {			// Restart compile
 	    wizardPageShowed( indexOf(currentPage()) );
-	    backButton()->setEnabled( FALSE );
+	    backButton()->setEnabled( false );
 	    configDone();
 	    buildPage->restartBuild->setText( "Stop compile" );
 	    logOutput( "\n*** Compilation restarted by user...\n" );
@@ -1627,11 +1627,11 @@ void SetupWizardImpl::showPageLicense()
 
 void SetupWizardImpl::showPageOptions()
 {
-    static bool done = FALSE;
+    static bool done = false;
     if (done)
 	return;
 
-    done = TRUE;
+    done = true;
 
     // First make sure that the current license information is saved
     if( !globalInformation.reconfig() )
@@ -1645,44 +1645,44 @@ void SetupWizardImpl::showPageOptions()
     optionsPage->installExtensions->setEnabled( enterprise );
 
 #if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
-    optionsPage->installDocs->setEnabled( FALSE );
-    optionsPage->skipBuild->setEnabled( FALSE );
+    optionsPage->installDocs->setEnabled( false );
+    optionsPage->skipBuild->setEnabled( false );
     if ( globalInformation.sysId()==GlobalInformation::Borland ) {
-	optionsPage->sysMsvcNet->setEnabled( FALSE );
-	optionsPage->sysMsvc->setEnabled( FALSE );
-	optionsPage->sysBorland->setEnabled( TRUE );
-	optionsPage->sysMinGW->setEnabled( FALSE );
-	optionsPage->sysIntel->setEnabled( FALSE );
-	optionsPage->sysOther->setEnabled( FALSE );
+	optionsPage->sysMsvcNet->setEnabled( false );
+	optionsPage->sysMsvc->setEnabled( false );
+	optionsPage->sysBorland->setEnabled( true );
+	optionsPage->sysMinGW->setEnabled( false );
+	optionsPage->sysIntel->setEnabled( false );
+	optionsPage->sysOther->setEnabled( false );
     } else {
-	optionsPage->sysMsvcNet->setEnabled( TRUE );
-	optionsPage->sysMsvc->setEnabled( TRUE );
-	optionsPage->sysBorland->setEnabled( FALSE );
-	optionsPage->sysOther->setEnabled( FALSE );
-	optionsPage->sysIntel->setEnabled( FALSE );
-	optionsPage->sysMinGW->setEnabled( FALSE );
+	optionsPage->sysMsvcNet->setEnabled( true );
+	optionsPage->sysMsvc->setEnabled( true );
+	optionsPage->sysBorland->setEnabled( false );
+	optionsPage->sysOther->setEnabled( false );
+	optionsPage->sysIntel->setEnabled( false );
+	optionsPage->sysMinGW->setEnabled( false );
     }
 #  if defined(Q_OS_WIN32)
-    optionsPage->installExamples->setEnabled( TRUE );
-    optionsPage->installTutorials->setEnabled( TRUE );
-    optionsPage->installTools->setEnabled( FALSE );
+    optionsPage->installExamples->setEnabled( true );
+    optionsPage->installTutorials->setEnabled( true );
+    optionsPage->installTools->setEnabled( false );
 #    if defined(NON_COMMERCIAL)
     optionsPage->installExtensions->hide();
 #    else
-    optionsPage->installExtensions->setChecked( TRUE );
-    optionsPage->installExtensions->setEnabled( TRUE );
+    optionsPage->installExtensions->setChecked( true );
+    optionsPage->installExtensions->setEnabled( true );
 #    endif
 #  else
-    optionsPage->installExamples->setEnabled( FALSE );
-    optionsPage->installTutorials->setEnabled( FALSE );
-    optionsPage->installExtensions->setChecked( FALSE );
-    optionsPage->installExtensions->setEnabled( FALSE );
+    optionsPage->installExamples->setEnabled( false );
+    optionsPage->installTutorials->setEnabled( false );
+    optionsPage->installExtensions->setChecked( false );
+    optionsPage->installExtensions->setEnabled( false );
 #  endif
 #else
 #  if defined(Q_OS_WIN32)
     // No need to offer the option of skipping the build on 9x, it's skipped anyway
     if ( qWinVersion() & WV_DOS_based )
-	optionsPage->skipBuild->setEnabled( FALSE );
+	optionsPage->skipBuild->setEnabled( false );
 #  endif
 #endif
 
@@ -1888,7 +1888,7 @@ void SetupWizardImpl::showPageProgress()
 	    QStringList qtDlls = lib.entryList( "libqt-mt-eval.dylib" );
 #	endif
 	    if ( qtDlls.count() == 0 ) {
-		copySuccessful = FALSE;
+		copySuccessful = false;
 		QMessageBox::critical( this,
 			tr( "Error patching Qt library" ),
 #    if defined(EVAL)
@@ -1919,7 +1919,7 @@ void SetupWizardImpl::showPageProgress()
 			installDir.absPath()
 			);
 		if ( ret != 0 ) {
-		    copySuccessful = FALSE;
+		    copySuccessful = false;
 		    QMessageBox::critical( this,
 			    tr( "Error patching Qt library" ),
 #    if defined(EVAL)
@@ -2115,9 +2115,9 @@ void SetupWizardImpl::licenseChanged()
 	    );
 
     if ( ret == 0 )
-	setNextEnabled( licensePage, TRUE );
+	setNextEnabled( licensePage, true );
     else
-	setNextEnabled( licensePage, FALSE );
+	setNextEnabled( licensePage, false );
     return;
 #else
     QDate date;
@@ -2165,7 +2165,7 @@ void SetupWizardImpl::licenseChanged()
 	goto rejectLicense;
     }
     if ( date < QDate::currentDate() && currentPage() == licensePage ) {
-	static bool alreadyShown = FALSE;
+	static bool alreadyShown = false;
 	if ( !alreadyShown ) {
 	    QMessageBox::warning( this,
 		    tr("Support and upgrade period has expired"),
@@ -2180,13 +2180,13 @@ void SetupWizardImpl::licenseChanged()
 			"Please contact sales@trolltech.com to renew your\n"
 			"support and upgrades for this license.")
 		    );
-	    alreadyShown = TRUE;
+	    alreadyShown = true;
 	}
     }
     if ( features & Feature_US )
-	usLicense = TRUE;
+	usLicense = true;
     else
-	usLicense = FALSE;
+	usLicense = false;
 
     licensePage->expiryDate->setText( date.toString( Qt::ISODate ) );
     if( features & Feature_Enterprise ) {
@@ -2196,7 +2196,7 @@ void SetupWizardImpl::licenseChanged()
 	licensePage->productsString->setCurrentItem( 0 );
 	emit editionString( "Professional Edition" );
     }
-    setNextEnabled( licensePage, TRUE );
+    setNextEnabled( licensePage, true );
     return;
 
 rejectLicense:
@@ -2208,7 +2208,7 @@ rejectLicense:
     licensePage->productsString->setCurrentItem( -1 );
 #  endif
     emit editionString( "" );
-    setNextEnabled( licensePage, FALSE );
+    setNextEnabled( licensePage, false );
     return;
 #endif
 }
@@ -2502,12 +2502,12 @@ void SetupWizardImpl::readLicenseAgreement()
 #endif
     if ( rcLoader->isValid() ) {
 	lap->introText->setText( rcLoader->data() );
-	lap->acceptLicense->setEnabled( TRUE );
+	lap->acceptLicense->setEnabled( true );
     } else {
 	emit wizardPageFailed( indexOf(currentPage()) );
 	QMessageBox::critical( this, tr("Package corrupted"),
 		tr("Could not find the LICENSE file in the package.\nThe package might be corrupted.") );
-	lap->acceptLicense->setEnabled( FALSE );
+	lap->acceptLicense->setEnabled( false );
     }
     delete rcLoader;
 }

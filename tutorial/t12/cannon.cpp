@@ -41,7 +41,7 @@ void CannonField::setAngle( int degrees )
     if ( ang == degrees )
 	return;
     ang = degrees;
-    repaint( cannonRect(), FALSE );
+    repaint( cannonRect(), false );
     emit angleChanged( ang );
 }
 
@@ -70,9 +70,9 @@ void CannonField::shoot()
 
 void  CannonField::newTarget()
 {
-    static bool first_time = TRUE;
+    static bool first_time = true;
     if ( first_time ) {
-	first_time = FALSE;
+	first_time = false;
 	QTime midnight( 0, 0, 0 );
 	srand( midnight.secsTo(QTime::currentTime()) );
     }

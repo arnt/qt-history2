@@ -122,17 +122,17 @@ static int getextra( const char *key, const char *filename )
 int main( int argc, char** argv )
 {
     uint features = 0;
-    bool output = TRUE, doSyms = TRUE;
+    bool output = true, doSyms = true;
     QString desc;
     QString dest;
     QMap<QString,QString> extra;
 #if defined(Q_OS_WIN32)
     QString arq, exe;
     QString resName;
-    bool doRes = FALSE;
-    bool doLicense = FALSE;
-    bool doLicenseUs = FALSE;
-    bool getRes = FALSE;
+    bool doRes = false;
+    bool doLicense = false;
+    bool doLicenseUs = false;
+    bool getRes = false;
 #endif
     QStringList files;
     int i;
@@ -144,9 +144,9 @@ int main( int argc, char** argv )
 	    else
 		return usage(argv[0]);
 	} else if(!strcmp(argv[i], "-n")) {
-	    doSyms = FALSE;
+	    doSyms = false;
 	} else if(!strcmp(argv[i], "-s")) {
-	    output = FALSE;
+	    output = false;
 	} else if(!strcmp(argv[i], "-desc")) {
 	    if ( ++i < argc )
 		desc = argv[i];
@@ -191,19 +191,19 @@ int main( int argc, char** argv )
 #if defined(Q_OS_WIN32)
 	//res (Windows only)
 	} else if(!strcmp(argv[i], "-res")) {
-	    doRes = TRUE;
+	    doRes = true;
 	    if ( ++i < argc )
 		arq = argv[i];
 	    if ( ++i < argc )
 		exe = argv[i];
 	//getres (Windows only)
 	} else if(!strcmp(argv[i], "-getres")) {
-	    getRes = TRUE;
+	    getRes = true;
 	    if ( ++i < argc )
 		exe = argv[i];
 	//res (Windows only)
 	} else if(!strcmp(argv[i], "-namedres")) {
-	    doRes = TRUE;
+	    doRes = true;
 	    if ( ++i < argc )
 		resName = argv[i];
 	    if ( ++i < argc )
@@ -212,14 +212,14 @@ int main( int argc, char** argv )
 		exe = argv[i];
 	//license (Windows only)
 	} else if(!strcmp(argv[i], "-license")) {
-	    doLicense = TRUE;
+	    doLicense = true;
 	    if ( ++i < argc )
 		arq = argv[i];
 	    if ( ++i < argc )
 		exe = argv[i];
 	//licenseUs (Windows only)
 	} else if(!strcmp(argv[i], "-license-us")) {
-	    doLicenseUs = TRUE;
+	    doLicenseUs = true;
 	    if ( ++i < argc )
 		arq = argv[i];
 	    if ( ++i < argc )
@@ -248,7 +248,7 @@ int main( int argc, char** argv )
 	}
 	QByteArray ba = fArq.readAll();
 	// ignore wide character versions (this is for internal use only)
-	HANDLE hExe = BeginUpdateResourceA( exe.latin1(), FALSE );
+	HANDLE hExe = BeginUpdateResourceA( exe.latin1(), false );
 	if ( hExe == 0 ) {
 	    fprintf(stderr, "Could not load executable %s\n", exe.latin1() );
 	    qSystemWarning( "" );
@@ -264,12 +264,12 @@ int main( int argc, char** argv )
 	    }
 	}
 	if ( !UpdateResourceA(hExe,RT_RCDATA,resName.latin1(),0,ba.data(),ba.count()) ) {
-	    EndUpdateResource( hExe, TRUE );
+	    EndUpdateResource( hExe, true );
 	    fprintf(stderr, "Could not update executable %s\n", exe.latin1() );
 	    qSystemWarning( "" );
 	    return -1;
 	}
-	if ( !EndUpdateResource(hExe,FALSE) ) {
+	if ( !EndUpdateResource(hExe,false) ) {
 	    fprintf(stderr, "Could not update executable %s\n", exe.latin1() );
 	    qSystemWarning( "" );
 	    return -1;
@@ -343,7 +343,7 @@ int main( int argc, char** argv )
 		continue;
 	    }
 	    if(f.isDir())
-		archive.writeDir( (*it), TRUE, (*it) );
+		archive.writeDir( (*it), true, (*it) );
 	    else
 		archive.writeFile( (*it), (*it) );
 	}

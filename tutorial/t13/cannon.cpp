@@ -27,7 +27,7 @@ CannonField::CannonField( QWidget *parent, const char *name )
     shoot_ang = 0;
     shoot_f = 0;
     target = QPoint( 0, 0 );
-    gameEnded = FALSE;
+    gameEnded = false;
     setPalette( QPalette( QColor( 250, 250, 200) ) );
     newTarget();
 }
@@ -42,7 +42,7 @@ void CannonField::setAngle( int degrees )
     if ( ang == degrees )
 	return;
     ang = degrees;
-    repaint( cannonRect(), FALSE );
+    repaint( cannonRect(), false );
     emit angleChanged( ang );
 }
 
@@ -66,15 +66,15 @@ void CannonField::shoot()
     shoot_ang = ang;
     shoot_f = f;
     autoShootTimer->start( 50 );
-    emit canShoot( FALSE );
+    emit canShoot( false );
 }
 
 
 void  CannonField::newTarget()
 {
-    static bool first_time = TRUE;
+    static bool first_time = true;
     if ( first_time ) {
-	first_time = FALSE;
+	first_time = false;
 	QTime midnight( 0, 0, 0 );
 	srand( midnight.secsTo(QTime::currentTime()) );
     }
@@ -90,7 +90,7 @@ void CannonField::setGameOver()
 	return;
     if ( isShooting() )
 	autoShootTimer->stop();
-    gameEnded = TRUE;
+    gameEnded = true;
     repaint();
 }
 
@@ -98,9 +98,9 @@ void CannonField::restartGame()
 {
     if ( isShooting() )
 	autoShootTimer->stop();
-    gameEnded = FALSE;
+    gameEnded = false;
     repaint();
-    emit canShoot( TRUE );
+    emit canShoot( true );
 }
 
 void CannonField::moveShot()
@@ -113,11 +113,11 @@ void CannonField::moveShot()
     if ( shotR.intersects( targetRect() ) ) {
 	autoShootTimer->stop();
 	emit hit();
-	emit canShoot( TRUE );
+	emit canShoot( true );
     } else if ( shotR.x() > width() || shotR.y() > height() ) {
 	autoShootTimer->stop();
 	emit missed();
-	emit canShoot( TRUE );
+	emit canShoot( true );
     } else {
 	r = r.unite( QRegion( shotR ) );
     }

@@ -84,21 +84,21 @@ void CheckListItem::setRequiredFileLocation(const QString &location)
 bool CheckListItem::verify() const
 {
     if (text(0) == "Off")
-	return TRUE;
+	return true;
 
     if (!required_files.count()) {
 	if (parent() && parent()->rtti() == RTTI)
 	    return ((CheckListItem*)parent())->verify();
-	return TRUE;
+	return true;
     }
 
     QStringList::ConstIterator it;
     for (it = required_files.begin(); it != required_files.end(); ++it) {
 	QString file(*it);
 	if (!findFile(file))
-	    return FALSE;
+	    return false;
     }
-    return TRUE;
+    return true;
 }
 
 bool CheckListItem::testAndWarn()
@@ -109,7 +109,7 @@ bool CheckListItem::testAndWarn()
 			warning_text + "<br>Select anyway?", "Yes", "No" );
 	    return r == 0;
 	} else {
-	    return TRUE;
+	    return true;
 	}
     }
 
@@ -117,7 +117,7 @@ bool CheckListItem::testAndWarn()
     if (!required_files.count() && text(0) != "Off") {
 	if (parent() && parent()->rtti() == RTTI)
 	    return ((CheckListItem*)parent())->testAndWarn();
-	return TRUE;
+	return true;
     }
 
     if (!verify()) {
@@ -135,7 +135,7 @@ bool CheckListItem::testAndWarn()
 		    message + "<p>Select anyway?", "Yes", "No" );
 	return r == 0;
     }
-    return TRUE;
+    return true;
 }
 
 void CheckListItem::displayHelp()
@@ -332,18 +332,18 @@ void SetupWizardImpl::setJpegDirect( bool jd )
 {
     // direct MNG support requires also direct JPEG support
     if ( jd ) {
-	jpegOff->setOn( FALSE );
-	jpegPlugin->setOn( FALSE );
-	jpegDirect->setOn( TRUE );
+	jpegOff->setOn( false );
+	jpegPlugin->setOn( false );
+	jpegDirect->setOn( true );
 
-	jpegOff->setEnabled( FALSE );
-	jpegPlugin->setEnabled( FALSE );
-	jpegDirect->setEnabled( TRUE );
+	jpegOff->setEnabled( false );
+	jpegPlugin->setEnabled( false );
+	jpegDirect->setEnabled( true );
     } else {
-	jpegOff->setEnabled( TRUE );
+	jpegOff->setEnabled( true );
 	if ( !staticItem->isOn() )
-	    jpegPlugin->setEnabled( TRUE );
-	jpegDirect->setEnabled( TRUE );
+	    jpegPlugin->setEnabled( true );
+	jpegDirect->setEnabled( true );
     }
 }
 
@@ -353,23 +353,23 @@ void SetupWizardImpl::optionClicked( CheckListItem *item )
 	return;
 
     if ( item->text(0) == "Static" && item->isOn() ) {
-	setStaticEnabled( TRUE );
+	setStaticEnabled( true );
 	return;
     } else if ( item->text( 0 ) == "Shared" && item->isOn() ) {
-	setStaticEnabled( FALSE );
+	setStaticEnabled( false );
 	return;
     } else if ( item==mngDirect || item==mngPlugin || item==mngOff ) {
 	setJpegDirect( mngDirect->isOn() );
     } else if ( item==db2Direct && odbcDirect->isOn() ) {
 	if ( odbcPlugin->isEnabled() )
-	    odbcPlugin->QCheckListItem::setOn(TRUE);
+	    odbcPlugin->QCheckListItem::setOn(true);
 	else 
-	    odbcOff->QCheckListItem::setOn(TRUE);
+	    odbcOff->QCheckListItem::setOn(true);
     } else if ( item==odbcDirect && db2Direct->isOn() ) {
 	if ( db2Plugin->isEnabled() )
-	    db2Plugin->QCheckListItem::setOn(TRUE);
+	    db2Plugin->QCheckListItem::setOn(true);
 	else 
-	    db2Off->QCheckListItem::setOn(TRUE);
+	    db2Off->QCheckListItem::setOn(true);
     }
 }
 
@@ -434,7 +434,7 @@ void SetupWizardImpl::cleanDone()
 	// Start the configure process
 	buildPage->compileProgress->setTotalSteps( int(double(filesToCompile) * 2.6) );
 	buildPage->restartBuild->setText( "Stop configure" );
-	buildPage->restartBuild->setEnabled( TRUE );
+	buildPage->restartBuild->setEnabled( true );
 	buildPage->restartBuild->show();
 	buildPage->compileProgress->show();
 	if( !configure.start() ) {
@@ -743,7 +743,7 @@ void SetupWizardImpl::cleanDone()
 	// Start the configure process
 	buildPage->compileProgress->setTotalSteps( int(double(filesToCompile) * 2.6) );
 	buildPage->restartBuild->setText( "Stop configure" );
-	buildPage->restartBuild->setEnabled( TRUE );
+	buildPage->restartBuild->setEnabled( true );
 	buildPage->restartBuild->show();
 	buildPage->compileProgress->show();
 	if( !configure.start() ) {
@@ -888,10 +888,10 @@ void SetupWizardImpl::showPageConfig()
 #if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
     setBackEnabled( buildPage, false );
 
-    static bool alreadyInitialized = FALSE;
+    static bool alreadyInitialized = false;
     if ( !alreadyInitialized ) {
 	configPage->installList->setSorting( -1 );
-	configPage->installList->setUpdatesEnabled(FALSE);
+	configPage->installList->setUpdatesEnabled(false);
 
 	CheckListItem *item;
 	CheckListItem *folder;
@@ -978,7 +978,7 @@ void SetupWizardImpl::showPageConfig()
 #endif
 #else
 	item = new CheckListItem( folder, "SQLite", QCheckListItem::CheckBox );
-	item->setOn( TRUE );
+	item->setOn( true );
 	sqlitePluginInstall = item;
     	sqlitePluginInstall->setHelpText( tr(
 		    "Installs the SQLite driver.\n"
@@ -988,16 +988,16 @@ void SetupWizardImpl::showPageConfig()
 		    ), configPage->explainOption );
 #endif
 
-	configPage->installList->setUpdatesEnabled(TRUE);
-	alreadyInitialized = TRUE;
+	configPage->installList->setUpdatesEnabled(true);
+	alreadyInitialized = true;
     }
 #else
 
     prepareEnvironment();
 
     bool enterprise = licenseInfo[ "PRODUCTS" ] == "qt-enterprise";
-    configPage->configList->setUpdatesEnabled(FALSE);
-    configPage->advancedList->setUpdatesEnabled(FALSE);
+    configPage->configList->setUpdatesEnabled(false);
+    configPage->advancedList->setUpdatesEnabled(false);
 
     if( configPage->configList->childCount() ) {
 	QListViewItem* current = configPage->configList->firstChild();
@@ -1206,7 +1206,7 @@ void SetupWizardImpl::showPageConfig()
     pngOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     pngOff->setOn( entry == "Off" );
     // PNG is required by the build system (ie. we use PNG), so don't allow it to be turned off
-    pngOff->setEnabled( FALSE );
+    pngOff->setEnabled( false );
     pngPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
     pngPlugin->setOn( entry == "Plugin" );
     pngDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
@@ -1452,8 +1452,8 @@ void SetupWizardImpl::showPageConfig()
     setStaticEnabled( staticItem->isOn() );
     setJpegDirect( mngDirect->isOn() );
 
-    configPage->configList->setUpdatesEnabled(TRUE);
-    configPage->advancedList->setUpdatesEnabled(TRUE);
+    configPage->configList->setUpdatesEnabled(true);
+    configPage->advancedList->setUpdatesEnabled(true);
     
     // Needed to force the scrollbars to appear on Windows 9x...
     QListViewItem *dummy = new QListViewItem(configPage->configList, "Dummy Item");
@@ -1515,7 +1515,7 @@ static bool verifyHelper(QListView *listview, bool result)
 
 bool SetupWizardImpl::verifyConfig()
 {
-    bool result = TRUE;
+    bool result = true;
 #if !defined(EVAL) && !defined(EDU) && !defined(NON_COMMERCIAL)
     result = verifyHelper(configPage->configList, result);
     result = verifyHelper(configPage->advancedList, result);

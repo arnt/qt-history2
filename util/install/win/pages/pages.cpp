@@ -1,4 +1,5 @@
 #include "pages.h"
+#include "resource.h"
 #include "../environment.h"
 #include <qcombobox.h>
 #include <qlineedit.h>
@@ -18,8 +19,6 @@
 #include <qtextbrowser.h>
 #include <qtextview.h>
 #include <qlayout.h>
-
-#include "resource.h"
 
 #if defined(Q_OS_WIN32)
 #include <windows.h>
@@ -46,7 +45,7 @@ ConfigPageImpl::ConfigPageImpl( QWidget* parent, const char* name, WFlags fl )
 	    rebuildInstallation->show();
 #if defined(Q_OS_WIN32)
 	else {
-	    rebuildInstallation->setChecked( FALSE );
+	    rebuildInstallation->setChecked( false );
 	    rebuildInstallation->hide();
 	}
 #endif
@@ -187,8 +186,8 @@ LicensePageImpl::LicensePageImpl( QWidget* parent, const char* name, WFlags fl )
     licenseID->setValidator( new QIntValidator( -1, 9999999, licenseID ) );
 
     // expiryDate and productsString comes from the license key
-    expiryDate->setEnabled( FALSE );
-    productsString->setEnabled( FALSE );
+    expiryDate->setEnabled( false );
+    productsString->setEnabled( false );
     keyLabel->setText( tr("License key") );
     licenseInfoHeader->setText( tr("Please enter your license information.\n"
 		"The License key is required to be able to proceed with the installation process.") );

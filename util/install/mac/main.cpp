@@ -46,13 +46,13 @@ static int usage(const char *argv0, const char *un=NULL) {
 int main( int argc, char** argv )
 {
     QString key;
-    bool output = TRUE;
+    bool output = true;
     QStringList files;
     QApplication app( argc, argv );
     for(int i = 1; i < argc; i++) {
 	//options
 	if(!strcmp(argv[i], "-s")) 
-	    output = FALSE;
+	    output = false;
 	else if(!strcmp(argv[i], "-k")) 
 	    key = argv[++i];
 	else if(!strcmp(argv[i], "-h"))

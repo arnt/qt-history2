@@ -136,13 +136,13 @@ static PtrSHGetPathFromIDListW ptrSHGetPathFromIDListW = 0;
 
 static void resolveLibs()
 {
-    static bool triedResolve = FALSE;
+    static bool triedResolve = false;
 
     if ( !triedResolve ) {
-	triedResolve = TRUE;
+	triedResolve = true;
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	    QLibrary lib("shell32");
-	    lib.setAutoUnload( FALSE );
+	    lib.setAutoUnload( false );
 	    ptrSHGetPathFromIDListW = (PtrSHGetPathFromIDListW) lib.resolve( "SHGetPathFromIDListW" );
 	}
     }

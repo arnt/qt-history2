@@ -19,7 +19,7 @@ int main( int argc, char** argv )
 
     for( int i = 0; i < app.argc(); i++ ) {
 	if( QString( app.argv()[i] ) == "-reconfig" ) {
-	    globalInformation.setReconfig( TRUE );
+	    globalInformation.setReconfig( true );
 
 	    QString qmakespec = QEnvironment::getEnv( "QMAKESPEC" );
 	    for (int mks = 0; mks <= GlobalInformation::MACX; ++mks) {
