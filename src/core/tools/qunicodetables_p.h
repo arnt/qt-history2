@@ -42,6 +42,23 @@ namespace QUnicodeTables {
         LineBreak_CB, LineBreak_SP
     };
 
+    inline uint surrogateToUcs4(ushort high, ushort low) {
+        return (high<<10) + low - 0x35fdc00;
+    }
+    inline ushort highSurrogate(uint ucs4) {
+        return (ucs4>>10) + 0xd7c0;
+    }
+    inline ushort lowSurrogate(uint ucs4) {
+        return ucs4%0x400 + 0xdc00;
+    }
+    inline bool isHighSurrogate(uint utf16) {
+        return (utf16 >= 0xd800 && utf16 < 0xdc00);
+    }
+    inline bool isLowSurrogate(uint utf16) {
+        return (utf16 >= 0xdc00 && utf16 < 0xe000);
+    }
+
+
     Q_CORE_EXPORT QChar::Category  QT_FASTCALL category(uint ucs4);
     Q_CORE_EXPORT unsigned char  QT_FASTCALL combiningClass(uint ucs4);
     Q_CORE_EXPORT QChar::Direction QT_FASTCALL direction(uint ucs4);

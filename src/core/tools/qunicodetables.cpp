@@ -97,6 +97,7 @@ static const unsigned short * QT_FASTCALL decomposition(uint ucs4, int *length, 
         buffer[1] = Hangul_VBase + (SIndex % Hangul_NCount) / Hangul_TCount; // V
         buffer[2] = Hangul_TBase + SIndex % Hangul_TCount; // T
         *length = buffer[2] == Hangul_TBase ? 2 : 3;
+        *tag = QChar::Canonical;
         return buffer;
     }
 
@@ -168,11 +169,11 @@ static QString decompose(const QString &str, bool canonical)
     const unsigned short *uc = utf16 + s.length();
     while (uc != utf16) {
         uint ucs4 = *(--uc);
-        if (ucs4 >= 0xd800 && ucs4 < 0xdc00 && uc != utf16) {
-            ushort low = *(uc - 1);
-            if (low >= 0xdc00 && low < 0xe000) {
+        if (QUnicodeTables::isLowSurrogate(ucs4) && uc != utf16) {
+            ushort high = *(uc - 1);
+            if (QUnicodeTables::isHighSurrogate(high)) {
                 --uc;
-                ucs4 = (ucs4 - 0xd800)*0x400 + (low - 0xdc00) + 0x10000;
+                ucs4 = QUnicodeTables::surrogateToUcs4(high, ucs4);
             }
         }
         int length;
@@ -195,23 +196,36 @@ static QString compose(const QString &str)
 {
     QString s = str;
 
-    // the loop can ignore high Unicode as all ligatures are in the BMP
-    const unsigned short *uc = s.utf16();
-    const unsigned short *end = uc + s.length();
-    ushort last = *(uc++);
-    while (uc != end) {
-        ushort utf16 = *uc;
-        QChar ligature = QUnicodeTables::ligature(last, utf16);
-        if (ligature.unicode()) {
-            int pos = uc - s.utf16() - 1;
-            s.replace(pos, 2, &ligature, 1);
-            // since the insert invalidates the pointers and we do decomposition recursive
-            uc = s.utf16() + pos;
-            end = s.utf16() + s.length();
-            utf16 = ligature.unicode();
+    if (s.length() < 2)
+        return s;
+
+    // the loop can partly ignore high Unicode as all ligatures are in the BMP
+    int starter = 0;
+    int lastCombining = 0;
+    int pos = 0;
+    while (pos < s.length()) {
+        uint uc = s.utf16()[pos];
+        if (QUnicodeTables::isHighSurrogate(uc) && pos < s.length()-1) {
+            ushort low = s.utf16()[pos+1];
+            if (QUnicodeTables::isLowSurrogate(low)) {
+                uc = QUnicodeTables::surrogateToUcs4(uc, low);
+                ++pos;
+            }
         }
-        last = utf16;
-        uc++;
+        int combining = QUnicodeTables::combiningClass(uc);
+        if (starter == pos - 1 || combining != lastCombining) {
+            // allowed to form ligature with S
+            QChar ligature = QUnicodeTables::ligature(s.utf16()[starter], uc);
+            if (ligature.unicode()) {
+                s[starter] = ligature;
+                s.remove(pos, 1);
+                continue;
+            }
+        }
+        if (!combining)
+            starter = pos;
+        lastCombining = combining;
+        ++pos;
     }
     return s;
 }
@@ -223,22 +237,56 @@ static QString canonicalOrder(const QString &str)
     const int l = s.length()-1;
     int pos = 0;
     while (pos < l) {
-        int c2 = QUnicodeTables::combiningClass(s.at(pos+1).unicode());
+        int p2 = pos+1;
+        uint u1 = s.at(pos).unicode();
+        if (QUnicodeTables::isHighSurrogate(u1)) {
+            ushort low = s.at(pos+1).unicode();
+            if (QUnicodeTables::isLowSurrogate(low)) {
+                p2++;
+                u1 = QUnicodeTables::surrogateToUcs4(u1, low);
+                if (p2 >= l)
+                    break;
+            }
+        }
+        uint u2 = s.at(p2).unicode();
+        if (QUnicodeTables::isHighSurrogate(u2) && p2 < l-1) {
+            ushort low = s.at(p2+1).unicode();
+            if (QUnicodeTables::isLowSurrogate(low)) {
+                p2++;
+                u2 = QUnicodeTables::surrogateToUcs4(u2, low);
+            }
+        }
+
+        int c2 = QUnicodeTables::combiningClass(u2);
         if (c2 == 0) {
-            pos += 2;
+            pos = p2+1;
             continue;
         }
-        int c1 = QUnicodeTables::combiningClass(s.at(pos-1).unicode());
+        int c1 = QUnicodeTables::combiningClass(u1);
         if (c1 > c2) {
-            // exchange characters
             QChar *uc = s.data();
-            QChar tmp = uc[pos];
-            uc[pos] = uc[pos+1];
-            uc[pos+1] = tmp;
+            int p = pos;
+            // exchange characters
+            if (u2 < 0x10000) {
+                uc[p++] = u2;
+            } else {
+                uc[p++] = QUnicodeTables::highSurrogate(u2);
+                uc[p++] = QUnicodeTables::lowSurrogate(u2);
+            }
+            if (u1 < 0x10000) {
+                uc[p++] = u1;
+            } else {
+                uc[p++] = QUnicodeTables::highSurrogate(u1);
+                uc[p++] = QUnicodeTables::lowSurrogate(u1);
+            }
             if (pos > 0)
+                --pos;
+            if (pos > 0 && QUnicodeTables::isLowSurrogate(s.at(pos).unicode()))
                 --pos;
         } else {
             ++pos;
+            if (u1 > 0x10000)
+                ++pos;
         }
     }
     return s;
