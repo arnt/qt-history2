@@ -1352,7 +1352,7 @@ QList<QTableWidgetItem*> QTableWidget::findItems(const QString &text,
 
 int QTableWidget::visualRow(const QTableWidgetItem *item) const
 {
-    return verticalHeader()->index(row(item));
+    return verticalHeader()->visualIndex(row(item));
 }
 
 /*!
@@ -1361,7 +1361,7 @@ int QTableWidget::visualRow(const QTableWidgetItem *item) const
 
 int QTableWidget::visualColumn(const QTableWidgetItem *item) const
 {
-    return horizontalHeader()->index(column(item));
+    return horizontalHeader()->visualIndex(column(item));
 }
 
 /*!
@@ -1371,8 +1371,8 @@ int QTableWidget::visualColumn(const QTableWidgetItem *item) const
 
 QTableWidgetItem *QTableWidget::visualItem(int visualRow, int visualColumn) const
 {
-    int row = verticalHeader()->section(visualRow);
-    int column = horizontalHeader()->section(visualColumn);
+    int row = verticalHeader()->logicalIndex(visualRow);
+    int column = horizontalHeader()->logicalIndex(visualColumn);
     return item(row, column);
 }
 

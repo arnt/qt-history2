@@ -73,10 +73,10 @@ public slots:
     void resizeColumnToContents(int column);
 
 protected slots:
-    void rowIndexChanged(int row, int oldIndex, int newIndex);
-    void columnIndexChanged(int column, int oldIndex, int newIndex);
-    void rowHeightChanged(int row, int oldHeight, int newHeight);
-    void columnWidthChanged(int column, int oldWidth, int newWidth);
+    void rowMoved(int row, int oldIndex, int newIndex);
+    void columnMoved(int column, int oldIndex, int newIndex);
+    void rowResized(int row, int oldHeight, int newHeight);
+    void columnResized(int column, int oldWidth, int newWidth);
     void rowCountChanged(int oldCount, int newCount);
     void columnCountChanged(int oldCount, int newCount);
 

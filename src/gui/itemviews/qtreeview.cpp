@@ -166,10 +166,10 @@ QHeaderView *QTreeView::header() const
 void QTreeView::setHeader(QHeaderView *header)
 {
     if (d->header) {
-        QObject::disconnect(d->header, SIGNAL(sectionSizeChanged(int,int,int)),
-                            this, SLOT(columnWidthChanged(int,int,int)));
-        QObject::disconnect(d->header, SIGNAL(sectionIndexChanged(int,int,int)),
-                            this, SLOT(columnIndexesChanged()));
+        QObject::disconnect(d->header, SIGNAL(sectionResized(int,int,int)),
+                            this, SLOT(columnResized(int,int,int)));
+        QObject::disconnect(d->header, SIGNAL(sectionMoved(int,int,int)),
+                            this, SLOT(columnMoved()));
         QObject::disconnect(d->header, SIGNAL(sectionCountChanged(int,int)),
                             this, SLOT(columnCountChanged(int,int)));
         QObject::disconnect(d->header, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
@@ -179,10 +179,10 @@ void QTreeView::setHeader(QHeaderView *header)
 
     d->header = header;
 
-    QObject::connect(d->header, SIGNAL(sectionSizeChanged(int,int,int)),
-                     this, SLOT(columnWidthChanged(int,int,int)), Qt::QueuedConnection);
-    QObject::connect(d->header, SIGNAL(sectionIndexChanged(int,int,int)),
-                     this, SLOT(columnIndexesChanged()), Qt::QueuedConnection);
+    QObject::connect(d->header, SIGNAL(sectionResized(int,int,int)),
+                     this, SLOT(columnResized(int,int,int)), Qt::QueuedConnection);
+    QObject::connect(d->header, SIGNAL(sectionMoved(int,int,int)),
+                     this, SLOT(columnMoved()), Qt::QueuedConnection);
     QObject::connect(d->header, SIGNAL(sectionCountChanged(int,int)),
                      this, SLOT(columnCountChanged(int,int)), Qt::QueuedConnection);
     QObject::connect(d->header, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
@@ -257,8 +257,8 @@ int QTreeView::columnAt(int x) const
 {
     int p = x + d->header->offset();
     if (!QApplication::reverseLayout())
-        return d->header->sectionAt(p);
-    return d->header->sectionAt(p - (d->header->x() - d->viewport->x()));
+        return d->header->logicalIndexAt(p);
+    return d->header->logicalIndexAt(p - (d->header->x() - d->viewport->x()));
 }
 
 /*!
@@ -496,8 +496,8 @@ void QTreeView::paintEvent(QPaintEvent *e)
 
     QPainter painter(d->viewport);
 
-    d->left = d->header->indexAt(d->header->offset() + area.left());
-    d->right = d->header->indexAt(d->header->offset() + area.right() - 1);
+    d->left = d->header->visualIndexAt(d->header->offset() + area.left());
+    d->right = d->header->visualIndexAt(d->header->offset() + area.right() - 1);
 
     if (d->left == -1)
         d->left = 0;
@@ -577,7 +577,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     QModelIndex modelIndex;
 
     for (int headerIndex = d->left; headerIndex <= d->right; ++headerIndex) {
-        headerSection = d->header->section(headerIndex);
+        headerSection = d->header->logicalIndex(headerIndex);
         if (header->isSectionHidden(headerSection))
             continue;
         position = columnViewportPosition(headerSection);
@@ -869,7 +869,7 @@ void QTreeView::scrollContentsBy(int dx, int dy)
 
     if (dx) {
         int scrollbarValue = horizontalScrollBar()->value();
-        int column = d->header->section(scrollbarValue / d->horizontalFactor);
+        int column = d->header->logicalIndex(scrollbarValue / d->horizontalFactor);
         int left = (scrollbarValue % d->horizontalFactor) * d->header->sectionSize(column);
         int offset = (left / d->horizontalFactor) + d->header->sectionPosition(column);
         if (QApplication::reverseLayout()) {
@@ -910,10 +910,10 @@ void QTreeView::scrollContentsBy(int dx, int dy)
 }
 
 /*!
-  This slot is called whenever the items in the tree view are changed.
+  This slot is called whenever a column has been moved.
 */
 
-void QTreeView::columnIndexesChanged()
+void QTreeView::columnMoved()
 {
     QAbstractItemView::dataChanged(QModelIndex::Null, QModelIndex::Null);
 }
@@ -999,11 +999,10 @@ void QTreeView::selectAll()
 }
 
 /*!
-  Changes the \a column's width from the size specified by \a oldSize to
-  the size specified by \a newSize.
+  This column is called whenever the column size is changed in the header.
 */
 
-void QTreeView::columnWidthChanged(int column, int, int)
+void QTreeView::columnResized(int column, int, int)
 {
     bool reverse = QApplication::reverseLayout();
     int x = d->header->sectionPosition(column) - d->header->offset()
@@ -1098,8 +1097,8 @@ int QTreeView::rowSizeHint(const QModelIndex &left) const
     QAbstractItemDelegate *delegate = itemDelegate();
     int width = d->viewport->width();
     int height = 0;
-    int start = d->header->indexAt(d->header->offset());
-    int end = d->header->indexAt(d->header->offset() + width);
+    int start = d->header->visualIndexAt(d->header->offset());
+    int end = d->header->visualIndexAt(d->header->offset() + width);
 
     start = start == -1 ? 0 : start;
     end = end == -1 ? d->header->count() - 1 : end;
@@ -1331,7 +1330,7 @@ int QTreeViewPrivate::columnAt(int x) const
     int hx = x + header->offset() - header->x();
     if (QApplication::reverseLayout() && q->verticalScrollBar()->isVisible())
         hx += q->verticalScrollBar()->width();
-    return header->sectionAt(hx);
+    return header->logicalIndexAt(hx);
 }
 
 void QTreeViewPrivate::relayout(const QModelIndex &parent)
@@ -1446,7 +1445,7 @@ int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
     int scrollbar = reverse && q->verticalScrollBar()->isVisible()
                     ? q->verticalScrollBar()->width() : 0;
     int x = pos.x() - header->x() + header->offset() + scrollbar;
-    int column = header->sectionAt(x);
+    int column = header->logicalIndexAt(x);
     int position = header->sectionPosition(column);
     int cx = reverse ? position + header->sectionSize(column) - x : x - position;
     int viewItemIndex = item(pos.y());

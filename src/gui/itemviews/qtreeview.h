@@ -77,9 +77,9 @@ public slots:
     void selectAll();
 
 protected slots:
-    void columnWidthChanged(int column, int oldSize, int newSize);
+    void columnResized(int column, int oldSize, int newSize);
     void columnCountChanged(int oldCount, int newCount);
-    void columnIndexesChanged();
+    void columnMoved();
     void reopen();
 
 protected:

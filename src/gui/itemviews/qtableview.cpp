@@ -229,10 +229,10 @@ QHeaderView *QTableView::verticalHeader() const
 void QTableView::setHorizontalHeader(QHeaderView *header)
 {
     if (d->horizontalHeader) {
-        QObject::disconnect(d->horizontalHeader,SIGNAL(sectionSizeChanged(int,int,int)),
-                            this, SLOT(columnWidthChanged(int,int,int)));
-        QObject::disconnect(d->horizontalHeader, SIGNAL(sectionIndexChanged(int,int,int)),
-                            this, SLOT(columnIndexChanged(int,int,int)));
+        QObject::disconnect(d->horizontalHeader,SIGNAL(sectionResized(int,int,int)),
+                            this, SLOT(columnResized(int,int,int)));
+        QObject::disconnect(d->horizontalHeader, SIGNAL(sectionMoved(int,int,int)),
+                            this, SLOT(columnMoved(int,int,int)));
         QObject::disconnect(d->horizontalHeader, SIGNAL(sectionCountChanged(int,int)),
                             this, SLOT(columnCountChanged(int,int)));
         QObject::disconnect(d->horizontalHeader, SIGNAL(sectionPressed(int,ButtonState)),
@@ -243,10 +243,10 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
 
     d->horizontalHeader = header;
 
-    QObject::connect(d->horizontalHeader,SIGNAL(sectionSizeChanged(int,int,int)),
-                     this, SLOT(columnWidthChanged(int,int,int)), Qt::QueuedConnection);
-    QObject::connect(d->horizontalHeader, SIGNAL(sectionIndexChanged(int,int,int)),
-                     this, SLOT(columnIndexChanged(int,int,int)), Qt::QueuedConnection);
+    QObject::connect(d->horizontalHeader,SIGNAL(sectionResized(int,int,int)),
+                     this, SLOT(columnResized(int,int,int)), Qt::QueuedConnection);
+    QObject::connect(d->horizontalHeader, SIGNAL(sectionMoved(int,int,int)),
+                     this, SLOT(columnMoved(int,int,int)), Qt::QueuedConnection);
     QObject::connect(d->horizontalHeader, SIGNAL(sectionCountChanged(int,int)),
                      this, SLOT(columnCountChanged(int,int)), Qt::QueuedConnection);
     QObject::connect(d->horizontalHeader, SIGNAL(sectionPressed(int,ButtonState)),
@@ -263,10 +263,10 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
 void QTableView::setVerticalHeader(QHeaderView *header)
 {
     if (d->verticalHeader) {
-        QObject::disconnect(d->verticalHeader, SIGNAL(sectionSizeChanged(int,int,int)),
-                            this, SLOT(rowHeightChanged(int,int,int)));
-        QObject::disconnect(d->verticalHeader, SIGNAL(sectionIndexChanged(int,int,int)),
-                            this, SLOT(rowIndexChanged(int,int,int)));
+        QObject::disconnect(d->verticalHeader, SIGNAL(sectionResized(int,int,int)),
+                            this, SLOT(rowResized(int,int,int)));
+        QObject::disconnect(d->verticalHeader, SIGNAL(sectionMoved(int,int,int)),
+                            this, SLOT(rowMoved(int,int,int)));
         QObject::disconnect(d->verticalHeader, SIGNAL(sectionCountChanged(int,int)),
                             this, SLOT(rowCountChanged(int,int)));
         QObject::disconnect(d->verticalHeader, SIGNAL(sectionPressed(int,ButtonState)),
@@ -277,10 +277,10 @@ void QTableView::setVerticalHeader(QHeaderView *header)
 
     d->verticalHeader = header;
 
-    QObject::connect(d->verticalHeader, SIGNAL(sectionSizeChanged(int,int,int)),
-                     this, SLOT(rowHeightChanged(int,int,int)), Qt::QueuedConnection);
-    QObject::connect(d->verticalHeader, SIGNAL(sectionIndexChanged(int,int,int)),
-                     this, SLOT(rowIndexChanged(int,int,int)), Qt::QueuedConnection);
+    QObject::connect(d->verticalHeader, SIGNAL(sectionResized(int,int,int)),
+                     this, SLOT(rowResized(int,int,int)), Qt::QueuedConnection);
+    QObject::connect(d->verticalHeader, SIGNAL(sectionMoved(int,int,int)),
+                     this, SLOT(rowMoved(int,int,int)), Qt::QueuedConnection);
     QObject::connect(d->verticalHeader, SIGNAL(sectionCountChanged(int,int)),
                      this, SLOT(rowCountChanged(int,int)), Qt::QueuedConnection);
     QObject::connect(d->verticalHeader, SIGNAL(sectionPressed(int,ButtonState)),
@@ -298,7 +298,7 @@ void QTableView::scrollContentsBy(int dx, int dy)
 {
     if (dx) { // horizontal
         int value = horizontalScrollBar()->value();
-        int section = d->horizontalHeader->section(value / horizontalFactor());
+        int section = d->horizontalHeader->logicalIndex(value / horizontalFactor());
         int left = (value % horizontalFactor()) * d->horizontalHeader->sectionSize(section);
         int offset = (left / horizontalFactor()) + d->horizontalHeader->sectionPosition(section);
         if (QApplication::reverseLayout()) {
@@ -315,7 +315,7 @@ void QTableView::scrollContentsBy(int dx, int dy)
 
     if (dy) { // vertical
         int value = verticalScrollBar()->value();
-        int section = d->verticalHeader->section(value / verticalFactor());
+        int section = d->verticalHeader->logicalIndex(value / verticalFactor());
         int above = (value % verticalFactor()) * d->verticalHeader->sectionSize(section);
         int offset = (above / verticalFactor()) + d->verticalHeader->sectionPosition(section);
         dy = d->verticalHeader->offset() - offset;
@@ -558,10 +558,11 @@ QRect QTableView::selectionViewportRect(const QItemSelection &selection) const
         QItemSelectionRange r = selection.at(i);
         if (r.parent().isValid())
             continue;
-        rangeTop = d->verticalHeader->index(r.top());
-        rangeLeft = d->horizontalHeader->index(r.left());
-        rangeBottom = d->verticalHeader->index(r.bottom());
-        rangeRight = d->horizontalHeader->index(r.right());
+        // find the visual top, left, bottom and right
+        rangeTop = d->verticalHeader->visualIndex(r.top());
+        rangeLeft = d->horizontalHeader->visualIndex(r.left());
+        rangeBottom = d->verticalHeader->visualIndex(r.bottom());
+        rangeRight = d->horizontalHeader->visualIndex(r.right());
         if (rangeTop < top)
             top = rangeTop;
         if (rangeLeft < left)
@@ -572,10 +573,10 @@ QRect QTableView::selectionViewportRect(const QItemSelection &selection) const
             right = rangeRight;
     }
 
-    int leftCol = d->horizontalHeader->section(left);
-    int topRow = d->verticalHeader->section(top);
-    int rightCol = d->horizontalHeader->section(right);
-    int bottomRow = d->verticalHeader->section(bottom);
+    int leftCol = d->horizontalHeader->logicalIndex(left);
+    int topRow = d->verticalHeader->logicalIndex(top);
+    int rightCol = d->horizontalHeader->logicalIndex(right);
+    int bottomRow = d->verticalHeader->logicalIndex(bottom);
 
     int leftPos = columnViewportPosition(leftCol);
     int topPos = rowViewportPosition(topRow);
@@ -710,7 +711,7 @@ int QTableView::rowHeight(int row) const
 
 int QTableView::rowAt(int y) const
 {
-    return d->verticalHeader->sectionAt(y + d->verticalHeader->offset());
+    return d->verticalHeader->logicalIndexAt(y + d->verticalHeader->offset());
 }
 
 /*!
@@ -744,8 +745,8 @@ int QTableView::columnAt(int x) const
 {
     int p = x + d->horizontalHeader->offset();
     if (!QApplication::reverseLayout())
-        return d->horizontalHeader->sectionAt(p);
-    return d->horizontalHeader->sectionAt(p - (d->horizontalHeader->x() - d->viewport->x()));
+        return d->horizontalHeader->logicalIndexAt(p);
+    return d->horizontalHeader->logicalIndexAt(p - (d->horizontalHeader->x() - d->viewport->x()));
 }
 
 /*!
@@ -892,10 +893,10 @@ void QTableView::ensureItemVisible(const QModelIndex &index)
     old height is specified by \a oldHeight, and the new height by \a
     newHeight.
 
-    \sa columnWidthChanged()
+    \sa columnResized()
 */
 
-void QTableView::rowHeightChanged(int row, int, int)
+void QTableView::rowResized(int row, int, int)
 {
     int y = rowViewportPosition(row);
     d->viewport->update(QRect(0, y, d->viewport->width(), d->viewport->height() - y));
@@ -907,10 +908,10 @@ void QTableView::rowHeightChanged(int row, int, int)
     The old width is specified by \a oldWidth, and the new width by \a
     newWidth.
 
-    \sa rowHeightChanged()
+    \sa rowResized()
 */
 
-void QTableView::columnWidthChanged(int column, int, int)
+void QTableView::columnResized(int column, int, int)
 {
     bool reverse = QApplication::reverseLayout();
     int x = columnViewportPosition(column) - (reverse ? columnWidth(column) : 0);
@@ -924,13 +925,13 @@ void QTableView::columnWidthChanged(int column, int, int)
     table view. The old index is specified by \a oldIndex, and the new
     index by \a newIndex.
 
-    \sa columnIndexChanged()
+    \sa columnMoved()
 */
 
-void QTableView::rowIndexChanged(int, int oldIndex, int newIndex)
+void QTableView::rowMoved(int, int oldIndex, int newIndex)
 {
-    int o = rowViewportPosition(d->verticalHeader->section(oldIndex));
-    int n = rowViewportPosition(d->verticalHeader->section(newIndex));
+    int o = rowViewportPosition(d->verticalHeader->logicalIndex(oldIndex));
+    int n = rowViewportPosition(d->verticalHeader->logicalIndex(newIndex));
     int top = (o < n ? o : n);
     int height = d->viewport->height() - (o > n ? o : n);
     updateGeometries();
@@ -942,13 +943,13 @@ void QTableView::rowIndexChanged(int, int oldIndex, int newIndex)
     the table view. The old index is specified by \a oldIndex, and
     the new index by \a newIndex.
 
-    \sa rowIndexChanged()
+    \sa rowMoved()
 */
 
-void QTableView::columnIndexChanged(int, int oldIndex, int newIndex)
+void QTableView::columnMoved(int, int oldIndex, int newIndex)
 {
-    int o = columnViewportPosition(d->horizontalHeader->section(oldIndex));
-    int n = columnViewportPosition(d->horizontalHeader->section(newIndex));
+    int o = columnViewportPosition(d->horizontalHeader->logicalIndex(oldIndex));
+    int n = columnViewportPosition(d->horizontalHeader->logicalIndex(newIndex));
     int left = (o < n ? o : n);
     int width = d->viewport->width() - (o > n ? o : n);
     updateGeometries();

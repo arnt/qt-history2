@@ -44,32 +44,33 @@ public:
     int offset() const;
     int length() const;
     QSize sizeHint() const;
-    int sectionSizeHint(int section) const;
+    int sectionSizeHint(int logicalIndex) const;
 
-    int indexAt(int position) const;
-    int sectionAt(int position) const;
-    int sectionSize(int section) const;
-    int sectionPosition(int section) const;
+    int visualIndexAt(int position) const;
+    int logicalIndexAt(int position) const;
 
-    inline int sectionAt(int x, int y) const
-        { return orientation() == Qt::Horizontal ? sectionAt(x) : sectionAt(y); }
-    inline int sectionAt(const QPoint &pos) const
-        { return sectionAt(pos.x(), pos.y()); }
+    inline int logicalIndexAt(int x, int y) const
+        { return orientation() == Qt::Horizontal ? logicalIndexAt(x) : logicalIndexAt(y); }
+    inline int logicalIndexAt(const QPoint &pos) const
+        { return logicalIndexAt(pos.x(), pos.y()); }
+
+    int sectionSize(int logicalIndex) const;
+    int sectionPosition(int logicalIndex) const;
 
     void moveSection(int from, int to);
-    void resizeSection(int section, int size);
+    void resizeSection(int logicalIndex, int size);
 
-    inline void hideSection(int section)
-        { setSectionHidden(section, true); }
-    inline void showSection(int section)
-        { setSectionHidden(section, false); }
-
-    bool isSectionHidden(int section) const;
-    void setSectionHidden(int section, bool hide);
+    bool isSectionHidden(int logicalIndex) const;
+    void setSectionHidden(int logicalIndex, bool hide);
+    
+    inline void hideSection(int logicalIndex)
+        { setSectionHidden(logicalIndex, true); }
+    inline void showSection(int logicalIndex)
+        { setSectionHidden(logicalIndex, false); }
 
     int count() const;
-    int index(int section) const;
-    int section(int index) const;
+    int visualIndex(int logicalIndex) const;
+    int logicalIndex(int visualIndex) const;
 
     void setMovable(bool movable);
     bool isMovable() const;
@@ -81,14 +82,14 @@ public:
     bool highlightCurrentSection() const;
 
     void setResizeMode(ResizeMode mode);
-    void setResizeMode(ResizeMode mode, int section);
-    ResizeMode resizeMode(int section) const;
+    void setResizeMode(ResizeMode mode, int logicalIndex);
+    ResizeMode resizeMode(int logicalIndex) const;
     int stretchSectionCount() const;
 
     void setSortIndicatorShown(bool show);
     bool isSortIndicatorShown() const;
 
-    void setSortIndicator(int section, Qt::SortOrder order);
+    void setSortIndicator(int logicalIndex, Qt::SortOrder order);
     int sortIndicatorSection() const;
     Qt::SortOrder sortIndicatorOrder() const;
 
@@ -96,22 +97,22 @@ public:
 
 public slots:
     void setOffset(int offset);
-    void headerDataChanged(Qt::Orientation orientation, int first, int last);
+    void headerDataChanged(Qt::Orientation orientation, int logicalFirst, int logicalLast);
 
 signals:
-    void sectionIndexChanged(int section, int oldIndex, int newIndex);
-    void sectionSizeChanged(int section, int oldSize, int newSize);
-    void sectionPressed(int section, Qt::ButtonState state);
-    void sectionClicked(int section, Qt::ButtonState state);
+    void sectionMoved(int logicalIndex, int oldVisualIndex, int newVisualIndex);
+    void sectionResized(int logicalIndex, int oldSize, int newSize);
+    void sectionPressed(int logicalIndex, Qt::ButtonState state);
+    void sectionClicked(int logicalIndex, Qt::ButtonState state);
     void sectionCountChanged(int oldCount, int newCount);
-    void sectionHandleDoubleClicked(int section, Qt::ButtonState state);
-    void sectionAutoResize(int section, ResizeMode mode);
+    void sectionHandleDoubleClicked(int logicalIndex, Qt::ButtonState state);
+    void sectionAutoResize(int logicalIndex, ResizeMode mode);
 
 protected slots:
-    void updateSection(int section);
+    void updateSection(int logicalIndex);
     void resizeSections();
-    void sectionsInserted(const QModelIndex &parent, int first, int last);
-    void sectionsRemoved(const QModelIndex &parent, int first, int last);
+    void sectionsInserted(const QModelIndex &parent, int logicalFirst, int logicalLast);
+    void sectionsRemoved(const QModelIndex &parent, int logicalFirst, int logicalLast);
 
 protected:
     QHeaderView(QHeaderViewPrivate &, Qt::Orientation orientation, QWidget *parent);
@@ -126,8 +127,8 @@ protected:
     void mouseReleaseEvent(QMouseEvent *e);
     void mouseDoubleClickEvent(QMouseEvent *e);
 
-    virtual void paintSection(QPainter *painter, const QRect &rect, int section) const;
-    virtual QSize sectionSizeFromContents(int section) const;
+    virtual void paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const;
+    virtual QSize sectionSizeFromContents(int logicalIndex) const;
 
     int horizontalOffset() const;
     int verticalOffset() const;
