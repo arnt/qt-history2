@@ -331,7 +331,8 @@ void QAbstractItemView::dragEnterEvent(QDragEnterEvent *e)
 
 void QAbstractItemView::dropEvent(QDropEvent *e)
 {
-    if (model()->decode(e))
+    QModelIndex index = itemAt(e->pos());
+    if (model()->decode(e, (index.isValid() ? index : root())))
         e->accept();
 }
 

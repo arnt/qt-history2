@@ -14,7 +14,7 @@ public:
     QByteArray encodedData(const char *mime) const;
 
     static bool canDecode(QMimeSource *src);
-    static bool decode(QMimeSource *src, QAbstractItemModel *model);
+    static bool decode(QMimeSource *src, QAbstractItemModel *model, const QModelIndex &parent);
 
     static const char *format();
 
@@ -67,11 +67,13 @@ bool QAbstractItemModelDrag::canDecode(QMimeSource *src)
     return src->provides(format());
 }
 
-bool QAbstractItemModelDrag::decode(QMimeSource *src, QAbstractItemModel *model)
+bool QAbstractItemModelDrag::decode(QMimeSource *src, QAbstractItemModel *model,
+                                    const QModelIndex &parent)
 {
     if (!canDecode(src))
         return false;
-
+    return false;
+/*
     QByteArray encoded = src->encodedData(format());
     QDataStream stream(&encoded, IO_ReadOnly);
     bool newItem = true;
@@ -92,6 +94,7 @@ bool QAbstractItemModelDrag::decode(QMimeSource *src, QAbstractItemModel *model)
         }
     }
     return true;
+*/
 }
 
 const char *QAbstractItemModelDrag::format()
@@ -168,9 +171,9 @@ bool QAbstractItemModel::canDecode(QMimeSource *src) const
     return QAbstractItemModelDrag::canDecode(src);
 }
 
-bool QAbstractItemModel::decode(QMimeSource *src)
+bool QAbstractItemModel::decode(QDropEvent *e, const QModelIndex &parent)
 {
-    return QAbstractItemModelDrag::decode(src, this);
+    return QAbstractItemModelDrag::decode(e, this, parent);
 }
 
 QDragObject *QAbstractItemModel::dragObject(const QModelIndexList &indices, QWidget *dragSource)

@@ -44,6 +44,7 @@ public:
     bool isSelectable(const QModelIndex &index) const;
     bool isEditable(const QModelIndex &index) const;
     bool isDragEnabled(const QModelIndex &index) const;
+    bool isDropEnabled(const QModelIndex &index) const;
 
     bool isSortable() const;
     void sort(int column, SortOrder order);
@@ -68,13 +69,13 @@ public:
     QString name(const QModelIndex &index) const;
     QFileInfo fileInfo(const QModelIndex &index) const;
 
-    bool isDir(const QModelIndex &index);
+    bool isDir(const QModelIndex &index) const;
     QModelIndex mkdir(const QModelIndex &parent, const QString &name);
     bool rmdir(const QModelIndex &index);
     bool remove(const QModelIndex &index);
 
     bool canDecode(QMimeSource *src) const;
-    bool decode(QMimeSource *src);
+    bool decode(QDropEvent *e, const QModelIndex &parent);
     QDragObject *dragObject(const QModelIndexList &indices, QWidget *dragSource);
 
 protected:

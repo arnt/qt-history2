@@ -7,6 +7,7 @@
 #include <qvariant.h>
 #include <qlist.h>
 #include <qmap.h>
+#include <qevent.h>
 #endif
 
 class Q_GUI_EXPORT QModelIndex
@@ -77,7 +78,7 @@ public:
     virtual bool hasChildren(const QModelIndex &parent) const;
 
     virtual bool canDecode(QMimeSource *src) const;
-    virtual bool decode(QMimeSource *src);
+    virtual bool decode(QDropEvent *e, const QModelIndex &parent = 0);
     virtual QDragObject *dragObject(const QModelIndexList &indices, QWidget *dragSource);
 
     virtual QVariant data(const QModelIndex &index, int role = Display) const = 0;

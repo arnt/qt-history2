@@ -142,6 +142,20 @@ static const char * const link_file_xpm[]={
     ".ddddcaaahaac###",
     "ccccccccccccc###"};
 
+static void qt_copy_file(const QString &from, const QString &to)
+{
+    qDebug("function not implemented: copy %s to %s", from.latin1(), to.latin1());
+}
+
+static void qt_link_file(const QString &from, const QString &to)
+{
+    qDebug("function not implemented: link %s to %s", from.latin1(), to.latin1());
+}
+
+static void qt_move_file(const QString &from, const QString &to)
+{
+    qDebug("function not implemented: move %s to %s", from.latin1(), to.latin1());
+}
 
 Q4FileIconProvider::Q4FileIconProvider()
 {
@@ -364,6 +378,11 @@ bool QDirModel::isDragEnabled(const QModelIndex &) const
     return true;
 }
 
+bool QDirModel::isDropEnabled(const QModelIndex &index) const
+{
+    return isDir(index) && isEditable(index);
+}
+
 bool QDirModel::isSortable() const
 {
     return true;
@@ -519,7 +538,7 @@ QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
     return node->info;
 }
 
-bool QDirModel::isDir(const QModelIndex &index)
+bool QDirModel::isDir(const QModelIndex &index) const
 {
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
     if (!node) {
@@ -607,12 +626,32 @@ bool QDirModel::canDecode(QMimeSource *src) const
     return QUriDrag::canDecode(src);
 }
 
-bool QDirModel::decode(QMimeSource *src)
+bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
 {
     QStringList files;
-    if (!QUriDrag::decodeLocalFiles(src, files))
+    if (!QUriDrag::decodeLocalFiles(e, files))
         return false;
-    // FIXME: do something with these files
+    QString to = path(parent);
+    QStringList::const_iterator it = files.begin();
+    switch (e->action()) {
+    case QDropEvent::Copy:
+        for (; it != files.end(); ++it)
+            qt_copy_file(*it, to);
+        break;
+    case QDropEvent::Link:
+        for (; it != files.end(); ++it)
+            qt_link_file(*it, to);
+        break;
+    case QDropEvent::Move:
+        for (; it != files.end(); ++it)
+            qt_move_file(*it, to);
+        break;
+//    case default:
+//        return false;
+    }
+
+    // update view
+    // emit signal
     return true;
 }
 
