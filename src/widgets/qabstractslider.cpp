@@ -475,14 +475,13 @@ void QAbstractSlider::timerEvent(QTimerEvent *e)
 }
 
 /*!  Reimplement this virtual function to track slider changes such as
-  \c SliderRangeChange, \c SliderOrientationChange, \cSliderStepsChange, or
-  \c SliderValueChange.
+  \c SliderRangeChange, \c SliderOrientationChange,
+  \cSliderStepsChange, or \c SliderValueChange. The default
+  implementation only updates the display.
  */
-void QAbstractSlider::sliderChange(SliderChange change)
+void QAbstractSlider::sliderChange(SliderChange)
 {
     update();
-    if (change != SliderValueChange)
-	updateGeometry();
 }
 
 
