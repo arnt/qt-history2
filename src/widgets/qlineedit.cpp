@@ -2863,7 +2863,7 @@ int QLineEdit::nextSeparator( uint pos, QChar sep ) const
     if ( p == -1 )
 	return -1;
 
-    if ( d->maskData[ p ].maskChar == sep )
+    if ( d->maskData[ p ].maskChar == sep.unicode() )
 	return p;
     else
 	return nextSeparator( p + 1, sep );
@@ -2972,7 +2972,7 @@ QString QLineEdit::maskString( uint pos, const QString &str, bool clear) const
 	if ( strIndex < str.length() ) {
 	    if ( d->maskData[ i ].separator ) {
 		s += d->maskData[ i ].maskChar;
-		if ( str[(int)strIndex] == d->maskData[ i ].maskChar )
+		if ( str[(int)strIndex].unicode() == d->maskData[ i ].maskChar )
 		    strIndex++;
 	    } else {
 		if ( isValidInput( str[(int)strIndex], d->maskData[ i ].maskChar ) ) {
