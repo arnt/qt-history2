@@ -218,9 +218,9 @@ bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
         e->t = QEvent::AccelOverride;
         e->ignore();
         QApplication::sendSpontaneousEvent(w, e);
+        e->t = orgType;
         if (e->isAccepted())
             return false;
-        e->t = orgType;
     }
     switch(nextState(e)) {
     case Qt::NoMatch:
