@@ -1273,7 +1273,12 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	    return false;
 	}
 	QRegExp regx(args[1]);
-	return (regx.search(place[args[0]].join(QString(Option::field_sep))) != -1);
+	const QStringList &l = place[args[0]];
+	for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
+	    if(regx.exactMatch((*it))) 
+		return true;
+	}
+	return false;
     } else if(func == "infile") {
 	if(args.count() < 2 || args.count() > 3) {
 	    fprintf(stderr, "%s:%d: infile(file, var, val) requires at least 2 arguments.\n",
