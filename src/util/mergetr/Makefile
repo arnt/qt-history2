@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/src/util/mergetr/Makefile#1 $
+# $Id: //depot/qt/main/src/util/mergetr/Makefile#2 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -7,6 +7,6 @@
 #
 #############################################################################
 
-PROJECT = msgmerge
+PROJECT = mergetr
 
 !INCLUDE $(QTDIR)\Makefile.inc
