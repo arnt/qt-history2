@@ -4,7 +4,7 @@
 #include <qstringlist.h>
 #include <qstrlist.h>
 #include <qdict.h>
-#include "qapplicationinterfaces.h"
+#include "qdualinterface.h"
 
 class QPlugInInterface
 {
@@ -32,6 +32,10 @@ protected:
     QClientInterface* clientInterface( const QCString& request ) const
     {
 	return cIfaces[request];
+    }
+
+    virtual void connectNotify( const QCString& iface )
+    {
     }
 
 private:

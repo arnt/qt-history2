@@ -1,5 +1,6 @@
 #include "qplugin.h"
-#include "qapplicationinterfaces.h"
+#include "qdualinterface.h"
+#include "qapplicationinterface.h"
 #include <qapplication.h>
 
 #ifdef _WS_WIN_
@@ -361,6 +362,8 @@ bool QPlugIn::loadInterface()
 		if ( ai && ci ) {
 		    QObject::connect( ci, SIGNAL(writeProperty(const QCString&, const QVariant&)), ai, SLOT(requestSetProperty(const QCString&, const QVariant&)) );
 		    QObject::connect( ci, SIGNAL(readProperty(const QCString&,QVariant&)), ai, SLOT(requestProperty(const QCString&,QVariant&)) );
+		    QObject::connect( ci, SIGNAL(makeConnection(const char*,QObject*,const char*)), ai, SLOT(requestSignal(const char*,QObject*,const char*)) );
+		    ifc->connectNotify( iface );
 		} else {
 #ifdef CHECK_RANGE
 		    qWarning( "Can't setup connection for interface \"%s\"", (const char*)iface );
