@@ -435,6 +435,10 @@ short QPrinter::winPageSize() const
 	wps = dm->dmPaperSize;
 	GlobalUnlock( dm );
     }
+#ifndef QT_NO_DEBUG
+    else
+	qSystemWarning( "QPrinter::winPageSize: GlobalLock returns zero." );
+#endif
     return wps;
 }
 
@@ -461,6 +465,10 @@ void QPrinter::readPdlg( void* pdv )
     }
     hdc = pd->hDC;
     if ( pd->hDevMode ) {
+        if ( hdevmode && hdevmode != pd->hDevMode )
+	    GlobalFree( hdevmode );
+        hdevmode = pd->hDevMode;
+
         DEVMODE* dm = (DEVMODE*)GlobalLock( pd->hDevMode );
         if ( dm ) {
             if ( dm->dmOrientation == DMORIENT_PORTRAIT )
@@ -483,9 +491,18 @@ void QPrinter::readPdlg( void* pdv )
 		color_mode = GrayScale;
 	    GlobalUnlock( pd->hDevMode );
         }
+#ifndef QT_NO_DEBUG
+	else
+	    qSystemWarning( "QPrinter::readPdlg: GlobalLock returns zero." );
+#endif
+        pd->hDevMode = 0;
     }
 
     if ( pd->hDevNames ) {
+        if ( hdevnames && hdevnames != pd->hDevNames )
+	    GlobalFree( hdevnames );
+        hdevnames = pd->hDevNames;
+
         DEVNAMES* dn = (DEVNAMES*)GlobalLock( pd->hDevNames );
         if ( dn ) {
 	    // order is important here since
@@ -497,23 +514,15 @@ void QPrinter::readPdlg( void* pdv )
 	    setDefaultPrinter( printer_name, &hdevmode, &hdevnames );
 	    GlobalUnlock( pd->hDevNames );
         }
+#ifndef QT_NO_DEBUG
+	else
+	    qSystemWarning( "QPrinter::readPdlg: GlobalLock returns zero." );
+#endif
+        pd->hDevNames = 0;
     }
 
     if ( d->printerMode != ScreenResolution && !res_set )
 	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
-
-    if ( pd->hDevMode ) {
-        if ( hdevmode )
-            GlobalFree( hdevmode );
-        hdevmode = pd->hDevMode;
-        pd->hDevMode = 0;
-    }
-    if ( pd->hDevNames ) {
-        if ( hdevnames )
-            GlobalFree( hdevnames );
-        hdevnames = pd->hDevNames;
-        pd->hDevNames = 0;
-    }
 }
 
 
@@ -557,6 +566,10 @@ void QPrinter::readPdlgA( void* pdv )
 		color_mode = GrayScale;
 	    GlobalUnlock( pd->hDevMode );
         }
+#ifndef QT_NO_DEBUG
+	else
+	    qSystemWarning( "QPrinter::readPdlgA: GlobalLock returns zero." );
+#endif
     }
 
     if ( pd->hDevNames ) {
@@ -572,6 +585,10 @@ void QPrinter::readPdlgA( void* pdv )
 	    setDefaultPrinter( printer_name, &hdevmode, &hdevnames );
 	    GlobalUnlock( pd->hDevNames );
         }
+#ifndef QT_NO_DEBUG
+	else
+	    qSystemWarning( "QPrinter::readPdlgA: GlobalLock returns zero." );
+#endif
     }
 
     if ( d->printerMode != ScreenResolution && !res_set )
@@ -640,6 +657,10 @@ static void setDefaultPrinterW(const QString &printerName, HANDLE *hmode, HANDLE
 	Q_ASSERT(hdevmode != 0);
 	DEVMODE *pDevMode = (DEVMODE *)GlobalLock(hdevmode);
 	Q_ASSERT(pDevMode != 0);
+#ifndef QT_NO_DEBUG
+	if ( !pDevMode )
+	    qSystemWarning( "QPrinter::setDefaultPrinterW: GlobalLock returns zero." );
+#endif
 
 	// Copy DEVMODE from PRINTER_INFO_2 Structure
 	memcpy(pDevMode,pinf2->pDevMode,szDEVMODE);
@@ -659,6 +680,10 @@ static void setDefaultPrinterW(const QString &printerName, HANDLE *hmode, HANDLE
     Q_ASSERT(hdevnames != 0);
     DEVNAMES *pDevNames = (DEVNAMES *)GlobalLock(hdevnames);
     Q_ASSERT(pDevNames != 0);
+#ifndef QT_NO_DEBUG
+    if ( !pDevNames )
+	qSystemWarning( "QPrinter::setDefaultPrinterW: GlobalLock returns zero." );
+#endif
 
     // Create DEVNAMES Information from PRINTER_INFO_2 Structure
     int tcOffset = sizeof(DEVNAMES) / sizeof(TCHAR);
@@ -738,6 +763,10 @@ static void setDefaultPrinterA(const QString &printerName, HANDLE *hmode, HANDLE
 	Q_ASSERT(hdevmode != 0);
 	DEVMODE *pDevMode = (DEVMODE *)GlobalLock(hdevmode);
 	Q_ASSERT(pDevMode != 0);
+#ifndef QT_NO_DEBUG
+	if ( !pDevMode )
+	    qSystemWarning( "QPrinter::setDefaultPrinterA: GlobalLock returns zero." );
+#endif
 
 	// Copy DEVMODE from PRINTER_INFO_2 Structure
 	memcpy(pDevMode,pinf2->pDevMode,szDEVMODE);
@@ -757,6 +786,10 @@ static void setDefaultPrinterA(const QString &printerName, HANDLE *hmode, HANDLE
     Q_ASSERT(hdevnames != 0);
     DEVNAMES *pDevNames = (DEVNAMES *)GlobalLock(hdevnames);
     Q_ASSERT(pDevNames != 0);
+#ifndef QT_NO_DEBUG
+    if ( !pDevNames )
+	qSystemWarning( "QPrinter::setDefaultPrinterA: GlobalLock returns zero." );
+#endif
 
     // Create DEVNAMES Information from PRINTER_INFO_2 Structure
     int tcOffset = sizeof(DEVNAMES);
@@ -924,7 +957,10 @@ bool QPrinter::setup( QWidget *parent )
 
 	    if ( pd.hDevMode ) {
 		DEVMODE* dm = (DEVMODE*)GlobalLock( pd.hDevMode );
-		writeDevmode( dm );
+		if ( dm )
+		    writeDevmode( dm );
+		else
+		    qSystemWarning( "QPrinter::setup: GlobalLock returns zero." );
 		GlobalUnlock( pd.hDevMode );
 	    }
             // } writePdlg
@@ -978,7 +1014,10 @@ bool QPrinter::setup( QWidget *parent )
 
 	    if ( pd.hDevMode ) {
 		DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd.hDevMode );
-		writeDevmodeA( dm );
+		if ( dm )
+		    writeDevmodeA( dm );
+		else
+		    qSystemWarning( "QPrinter::setup: GlobalLock returns zero." );
 		GlobalUnlock( pd.hDevMode );
 	    }
 	    result = PrintDlgA( &pd );
@@ -1403,14 +1442,16 @@ void QPrinter::reinit()
 		qt_winTchar( printer_name, true );
 		hdcTmp = CreateDC( L"WINSPOOL", (TCHAR*)printer_name.ucs2(), 0, dm );
 		GlobalUnlock( hdevmode );
-	    }
+	    } else
+		qSystemWarning( "QPrinter::reinit: GlobalLock returns zero." );
 	} , {
 	    DEVMODEA* dm = (DEVMODEA*)GlobalLock( hdevmode );
 	    if ( dm ) {
 		writeDevmodeA( dm );
 		hdcTmp = CreateDCA( "WINSPOOL", printer_name.latin1(), 0, dm );
 		GlobalUnlock( hdevmode );
-	    }
+	    } else
+		qSystemWarning( "QPrinter::reinit: GlobalLock returns zero." );
 	} );
 	if ( hdcTmp ) {
 	    DeleteDC( hdc );
