@@ -1,6 +1,12 @@
-/*
-$Id$
-*/
+/****************************************************************************
+** $Id: //depot/qt/main/examples/xml/tagreader-with-features/tagreader.cpp#6 $
+**
+** Copyright (C) 2001 Trolltech AS.  All rights reserved.
+**
+** This file is part of an example program for Qt.  This example
+** program may be used, distributed and modified without limitation.
+**
+*****************************************************************************/
 
 #include "structureparser.h"
 #include <qapplication.h>
@@ -41,19 +47,22 @@ int main( int argc, char **argv )
     source.reset();
     reader.parse( source );
 
-    QLabel * namespaceLabel = new QLabel( 
+    // namespace label
+    (void) new QLabel( 
              "Default:\n"
              "http://xml.org/sax/features/namespaces: TRUE\n"
              "http://xml.org/sax/features/namespace-prefixes: FALSE\n",
              container );
 
-    QLabel * namespacePrefixLabel = new QLabel( 
+    // namespace prefix label
+    (void) new QLabel( 
              "\n"
              "http://xml.org/sax/features/namespaces: TRUE\n"
              "http://xml.org/sax/features/namespace-prefixes: TRUE\n",
              container );
 
-    QLabel * prefixLabel = new QLabel( 
+    // prefix label
+    (void) new QLabel( 
              "\n"
              "http://xml.org/sax/features/namespaces: FALSE\n"
              "http://xml.org/sax/features/namespace-prefixes: TRUE\n",
