@@ -969,6 +969,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		qwsDisplay()->requestRegion(winId(), rgn);
 		if ( extra && extra->topextra ) {
 		    QRect br( rgn.boundingRect() );
+		    br = qt_screen->mapFromDevice( br, QSize(qt_screen->deviceWidth(), qt_screen->deviceHeight()) );
 		    extra->topextra->fleft = crect.x()-br.x();
 		    extra->topextra->ftop = crect.y()-br.y();
 		    extra->topextra->fright = br.right()-crect.right();
