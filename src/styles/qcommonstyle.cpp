@@ -1127,7 +1127,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    bool down = active & SC_TitleBarCloseButton;
 	    QPixmap pm(stylePixmap(SP_TitleBarCloseButton, widget));
 	    drawPrimitive(PO_ButtonTool, p, ir, titlebar->colorGroup(),
-			  down ? PStyle_Sunken : PStyle_Raised);
+			  down ? PStyle_Down : PStyle_Raised);
 	    int xoff = 0, yoff = 0;
 	    if (down) {
 		xoff = pixelMetric(PM_ButtonShiftHorizontal);
@@ -1144,7 +1144,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    down = active & SC_TitleBarMaxButton;
 	    pm = QPixmap(stylePixmap(SP_TitleBarMaxButton, widget));
 	    drawPrimitive(PO_ButtonTool, p, ir, titlebar->colorGroup(),
-			  down ? PStyle_Sunken : PStyle_Raised);
+			  down ? PStyle_Down : PStyle_Raised);
 	    xoff = 0;
 	    yoff = 0;
 	    if(down) {
@@ -1167,7 +1167,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    down = active & ctrl;
 	    pm = QPixmap(stylePixmap(spixmap, widget));
 	    drawPrimitive(PO_ButtonTool, p, ir, titlebar->colorGroup(),
-			  down ? PStyle_Sunken : PStyle_Raised);
+			  down ? PStyle_Down : PStyle_Raised);
 	    xoff=0, yoff=0;
 	    if(down) {
 		xoff = pixelMetric(PM_ButtonShiftHorizontal);
