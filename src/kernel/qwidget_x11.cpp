@@ -126,7 +126,7 @@ const uint stdWidgetEventMask =			// X event mask
 	    FocusChangeMask |
 	    ExposureMask |
 	    PropertyChangeMask |
-	    StructureNotifyMask | SubstructureRedirectMask
+	    StructureNotifyMask
 	);
 
 const uint stdDesktopEventMask =			// X event mask
