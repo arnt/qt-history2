@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#17 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#18 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -59,15 +59,15 @@ public:
    ~QPalette();
     QPalette &operator=( const QPalette & );
 
-    QPalette  copy() const;
+    QPalette	copy() const;
 
     const QColorGroup &normal()	  const { return data->normal; }
     const QColorGroup &disabled() const { return data->disabled; }
     const QColorGroup &active()	  const { return data->active; }
 
-    void  setNormal( const QColorGroup & );
-    void  setDisabled( const QColorGroup & );
-    void  setActive( const QColorGroup & );
+    void	setNormal( const QColorGroup & );
+    void	setDisabled( const QColorGroup & );
+    void	setActive( const QColorGroup & );
 
     bool	operator==( const QPalette &p ) const;
     bool	operator!=( const QPalette &p ) const
@@ -76,7 +76,7 @@ public:
     int		serialNumber() const	{ return data->ser_no; }
 
 private:
-    struct QPalData : public QShared {		// palette data
+    struct QPalData : public QShared {
 	QColorGroup normal;
 	QColorGroup disabled;
 	QColorGroup active;

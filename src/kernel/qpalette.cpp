@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#5 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -12,7 +12,7 @@
 #include "qpalette.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#5 $");
 
 
 /*****************************************************************************
@@ -349,6 +349,16 @@ bool QPalette::operator==( const QPalette &p ) const
 	   data->disabled == p.data->disabled &&
 	   data->active == p.data->active;
 }
+
+
+/*!
+  \fn int QPalette::serialNumber() const
+
+  Returns a number that uniquely identifies this QPalette object. The
+  serial number is very useful for caching.
+
+  \sa QPixmap, QPixmapCache
+*/
 
 
 /*****************************************************************************
