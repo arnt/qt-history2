@@ -2442,7 +2442,7 @@ int QString::count(const QRegExp& rx) const
 
 QString QString::section(const QString &sep, int start, int end, int flags) const
 {
-    QStringList sections = split(sep, KeepEmptyParts, 
+    QStringList sections = split(sep, KeepEmptyParts,
                                  (flags & SectionCaseInsensitiveSeps) ? Qt::CaseInsensitive : Qt::CaseSensitive);
     if(sections.isEmpty())
         return QString();
@@ -2483,7 +2483,7 @@ QString QString::section(const QString &sep, int start, int end, int flags) cons
                 }
                 run = 0;
                 ret += section;
-                if((flags & SectionIncludeTrailingSep) && i != sections.size()-1) 
+                if((flags & SectionIncludeTrailingSep) && i != sections.size()-1)
                     ret += sep;
             }
         }
@@ -6209,7 +6209,7 @@ QDataStream &operator>>(QDataStream &in, QString &str)
         in >> l;
         str = QString::fromAscii(l);
     } else {
-        Q_UINT32 bytes;
+        Q_UINT32 bytes = 0;
         in >> bytes;                                  // read size of string
         if (bytes == 0xffffffff) {                    // null string
             str = QString::null;
