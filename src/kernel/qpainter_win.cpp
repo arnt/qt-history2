@@ -2090,9 +2090,8 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
 
 void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 {
-	int lenOut;
-	QChar *shaped = (QChar *)QComplexText::shapedString( str, pos, len, &lenOut );
-    drawText( x, y, QConstString( shaped, lenOut ).string(), lenOut );
+    QString shaped = QComplexText::shapedString( str, pos, len );
+    drawText( x, y, shaped, shaped.length() );
 }
 
 void QPainter::drawText( int x, int y, const QString &str, int len )
