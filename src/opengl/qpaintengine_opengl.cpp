@@ -818,8 +818,19 @@ static void bind_texture_from_cache(const QPixmap &pm)
 }
 
 void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
-                                    Qt::BlendMode)
+                                    Qt::BlendMode blend)
 {
+    if (pm.depth() == 1) {
+	QPixmap tpx(pm.size());
+	tpx.fill(d->bgbrush);
+	QPainter p(&tpx);
+	p.setPen(d->cpen);
+	p.drawPixmap(0, 0, pm);
+	p.end();
+	drawPixmap(r, tpx, sr, blend);
+	return;
+    }
+
     // see if we have this pixmap cached as a texture - if not cache it
     bind_texture_from_cache(pm);
 
