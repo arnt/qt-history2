@@ -613,5 +613,6 @@ private:
 
 Q_XML_EXPORT QTextStream& operator<<(QTextStream&, const QDomNode&);
 
-#endif //QT_NO_DOM
-#endif
+#endif // QT_NO_DOM
+
+#endif // QDOM_H
