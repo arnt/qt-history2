@@ -227,9 +227,10 @@ void ToolBar::order()
         actions1.removeAll(action);
         ordered.append(action);
     }
+    while (!actions1.isEmpty())
+	ordered.prepend(actions1.takeFirst());
 
     clear();
-    addAction(menu->menuAction());
     addActions(ordered);
 
     orderAction->setEnabled(false);
