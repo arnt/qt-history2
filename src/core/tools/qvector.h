@@ -109,6 +109,7 @@ public:
     inline const T& first() const { Q_ASSERT(!isEmpty()); return *begin(); }
     inline T& last() { Q_ASSERT(!isEmpty()); return *(end()-1); }
     inline const T& last() const { Q_ASSERT(!isEmpty()); return *(end()-1); }
+    QVector<T> mid(int pos, int length = -1) const;
 
     T value(int i) const;
     T value(int i, const T &defaultValue) const;
@@ -520,6 +521,22 @@ int QVector<T>::count(const T &t) const
             ++c;
     return c;
 }
+
+template<typename T>
+Q_OUTOFLINE_TEMPLATE QVector<T> QVector<T>::mid(int pos, int length) const
+{
+    if (length < 0)
+        length = size() - pos;
+    if (pos == 0 && length == size())
+        return *this;
+    QVector<T> copy;
+    if (pos + length > size())
+        length = size() - pos;
+    for (int i=pos; pos<pos + length; ++i)
+        copy += at(i);
+    return copy;
+}
+
 
 Q_DECLARE_ITERATOR(QVector)
 

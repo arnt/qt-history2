@@ -179,7 +179,7 @@ public:
     const T& last() const { Q_ASSERT(!isEmpty()); return *(--end()); }
     inline void removeFirst() { Q_ASSERT(!isEmpty()); erase(begin()); }
     inline void removeLast() { Q_ASSERT(!isEmpty()); erase(--end()); }
-    inline QList<T> mid(int pos, int length = -1);
+    QList<T> mid(int pos, int length = -1) const;
 
     T value(int i) const;
     T value(int i, const T &defaultValue) const;
@@ -347,7 +347,7 @@ inline void QList<T>::move(int from, int to)
 }
 
 template<typename T>
-Q_OUTOFLINE_TEMPLATE QList<T> QList<T>::mid(int pos, int length)
+Q_OUTOFLINE_TEMPLATE QList<T> QList<T>::mid(int pos, int length) const
 {
     if (length < 0)
         length = size() - pos;
