@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#16 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#17 $
 **
 ** Definition of QApplication class
 **
@@ -48,6 +48,9 @@ public:
     QWidget	   *mainWidget() const { return main_widget; }
 
     virtual bool    notify( QObject *, QEvent * ); // send event to object
+
+    static bool	    startingUp() const;		// is application starting up?
+    static bool	    closingDown() const;	// is application closing down?
 
     static void     flushX();			// flush X output buffer
     static void     syncX();			// syncronize with X server
