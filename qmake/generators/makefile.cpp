@@ -1952,6 +1952,8 @@ MakefileGenerator::createObjectList(const QString &var)
     QString objdir, dir;
     if(!project->variables()["OBJECTS_DIR"].isEmpty())
 	objdir = project->first("OBJECTS_DIR");
+    if(!objdir.endsWith(Option::dir_sep))
+	objdir += Option::dir_sep;
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi(Option::fixPathToLocalOS((*it)));
 	if(objdir.isEmpty() && project->isActiveConfig("object_with_source")) {
