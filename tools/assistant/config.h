@@ -31,7 +31,7 @@ public:
     void load();
     void save();
     Profile *profile() const { return profil; }
-    QString profileName() const { return profil->props["name"]; }
+    QString profileName() const { return profil->props[QLatin1String("name")]; }
     bool validProfileName() const;
     void hideSideBar( bool b );
     bool sideBarHidden() const;

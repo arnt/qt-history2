@@ -130,17 +130,17 @@ void MainWindow::setup()
 #if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
     QAccel *acc = new QAccel(this);
 //     acc->connectItem(acc->insertItem(Key_F5), browser, SLOT(reload()));
-    acc->connectItem(acc->insertItem(QKeySequence("SHIFT+CTRL+=")), ui.actionZoomIn, SIGNAL(triggered()));
+    acc->connectItem(acc->insertItem(tr("SHIFT+CTRL+=")), ui.actionZoomIn, SIGNAL(triggered()));
 #endif
 
     QAccel *a = new QAccel(this, dw);
-    a->connectItem(a->insertItem(QKeySequence("Ctrl+T")),
+    a->connectItem(a->insertItem(tr("Ctrl+T")),
                     helpDock, SLOT(toggleContents()));
-    a->connectItem(a->insertItem(QKeySequence("Ctrl+I")),
+    a->connectItem(a->insertItem(tr("Ctrl+I")),
                     helpDock, SLOT(toggleIndex()));
-    a->connectItem(a->insertItem(QKeySequence("Ctrl+B")),
+    a->connectItem(a->insertItem(tr("Ctrl+B")),
                     helpDock, SLOT(toggleBookmarks()));
-    a->connectItem(a->insertItem(QKeySequence("Ctrl+S")),
+    a->connectItem(a->insertItem(tr("Ctrl+S")),
                     helpDock, SLOT(toggleSearch()));
 
     Config *config = Config::configuration();
@@ -215,8 +215,8 @@ void MainWindow::closeEvent(QCloseEvent *e)
 void MainWindow::about()
 {
     QMessageBox box(this);
-    box.setText("<center><img src=\"splash.png\">"
-                 "<p>Version " + QString(QT_VERSION_STR) + "</p>"
+    box.setText(QLatin1String("<center><img src=\"splash.png\">"
+                 "<p>Version ") + QLatin1String(QT_VERSION_STR) + QLatin1String("</p>"
                  "<p>Copyright (C) 2000-$THISYEAR$ Trolltech AS. All rights reserved."
                  "</p></center><p></p>"
                  "<p>Qt Commercial Edition license holders: This program is"
@@ -229,7 +229,7 @@ void MainWindow::about()
                  " software distribution.</p><p>The program is provided AS IS"
                  " with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF"
                  " DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE."
-                 "</p>");
+                 "</p>"));
     box.setWindowTitle(tr("Qt Assistant"));
     box.setIcon(QMessageBox::NoIcon);
     box.exec();
@@ -238,14 +238,14 @@ void MainWindow::about()
 void MainWindow::on_actionAboutApplication_triggered()
 {
     QString url = Config::configuration()->aboutURL();
-    if (url == "about_qt") {
-        QMessageBox::aboutQt(this, "Qt Assistant");
+    if (url == QLatin1String("about_qt")) {
+        QMessageBox::aboutQt(this, QLatin1String("Qt Assistant"));
         return;
     }
     QString text;
     QFile file(url);
     if(file.exists() && file.open(IO_ReadOnly))
-        text = QString(file.readAll());
+        text = QString::fromAscii(file.readAll());
     if(text.isNull())
         text = tr("Failed to open about application contents in file: '%1'").arg(url);
 
@@ -351,7 +351,7 @@ void MainWindow::setupBookmarkMenu()
     bookmarks.clear();
     ui.bookmarkMenu->addAction(ui.actionAddBookmark);
 
-    QFile f(QDir::homePath() + "/.assistant/bookmarks." +
+    QFile f(QDir::homePath() + QLatin1String("/.assistant/bookmarks.") +
         Config::configuration()->profileName());
     if (!f.open(IO_ReadOnly))
         return;
@@ -386,7 +386,7 @@ void MainWindow::showLink(const QString &link)
         qWarning("The link is empty!");
     }
 
-    int find = link.indexOf('#');
+    int find = link.indexOf(QLatin1Char('#'));
     QString name = find >= 0 ? link.left(find) : link;
 
     QString absLink = link;
@@ -453,7 +453,7 @@ void MainWindow::timerEvent(QTimerEvent *e)
 
 void MainWindow::showQtHelp()
 {
-    showLink(QString(qInstallPathDocs()) + "/html/index.html");
+    showLink(QFile::decodeName(qInstallPathDocs()) + QLatin1String("/html/index.html"));
 }
 
 void MainWindow::on_actionSettings_triggered()
@@ -477,7 +477,7 @@ void MainWindow::showSettingsDialog(int page)
     settingsDia->fontCombo()->lineEdit()->setText(tabs->browserFont().family());
     settingsDia->fixedFontCombo()->clear();
     settingsDia->fixedFontCombo()->insertStringList(fonts.families());
-    settingsDia->fixedFontCombo()->lineEdit()->setText(tabs->styleSheet()->item("pre")->fontFamily());
+    settingsDia->fixedFontCombo()->lineEdit()->setText(tabs->styleSheet()->item(QLatin1String("pre"))->fontFamily());
     settingsDia->linkUnderlineCB()->setChecked(tabs->linkUnderline());
 
     QPalette pal = settingsDia->colorButton()->palette();
@@ -518,9 +518,9 @@ void MainWindow::showSettingsDialog(int page)
     QString family = settingsDia->fixedFontCombo()->currentText();
 
     QStyleSheet *sh = tabs->styleSheet();
-    sh->item("pre")->setFontFamily(family);
-    sh->item("code")->setFontFamily(family);
-    sh->item("tt")->setFontFamily(family);
+    sh->item(QLatin1String("pre"))->setFontFamily(family);
+    sh->item(QLatin1String("code"))->setFontFamily(family);
+    sh->item(QLatin1String("tt"))->setFontFamily(family);
     tabs->currentBrowser()->setText(tabs->currentBrowser()->text());
     showLink(tabs->currentBrowser()->source());
 }
@@ -550,7 +550,7 @@ void MainWindow::saveSettings()
     Config *config = Config::configuration();
     config->setFontFamily(tabs->browserFont().family());
     config->setFontSize(tabs->currentBrowser()->font().pointSize());
-    config->setFontFixedFamily(tabs->styleSheet()->item("pre")->fontFamily());
+    config->setFontFixedFamily(tabs->styleSheet()->item(QLatin1String("pre"))->fontFamily());
     config->setLinkUnderline(tabs->linkUnderline());
     config->setLinkColor(tabs->palette().color(QPalette::Active, QPalette::Link).name());
     config->setSideBarPage(helpDock->tabWidget()->currentIndex());
@@ -620,7 +620,7 @@ void MainWindow::showGoActionLink()
 {
     const QObject *origin = sender();
     if(!origin ||
-        origin->metaObject()->className() != QString("QAction"))
+        QLatin1String(origin->metaObject()->className()) != QLatin1String("QAction"))
         return;
 
     QAction *action = (QAction*) origin;
@@ -630,7 +630,7 @@ void MainWindow::showGoActionLink()
 
 void MainWindow::on_actionHelpAssistant_triggered()
 {
-    showLink(Config::configuration()->assistantDocPath() + "/assistant.html");
+    showLink(Config::configuration()->assistantDocPath() + QLatin1String("/assistant.html"));
 }
 
 HelpDialog* MainWindow::helpDialog() const

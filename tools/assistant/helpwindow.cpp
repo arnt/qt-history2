@@ -55,7 +55,7 @@ void HelpWindow::setSource(const QString &name)
         QFileInfo linkInfo(name);
         QString target = name;
         if(linkInfo.isRelative())
-            target = currentInfo.absolutePath() + "/" + name;
+            target = currentInfo.absolutePath() + QLatin1String("/") + name;
 
         nmw->setup();
         nmw->showLink(target);
@@ -81,7 +81,7 @@ void HelpWindow::setSource(const QString &name)
 #else
             int result = QMessageBox::information(mw, tr("Help"),
                          tr("Currently no Web browser is selected.\nPlease use the settings dialog to specify one!\n"),
-                         "Open", "Cancel");
+                         tr("Open"), tr("Cancel"));
             if (result == 0) {
                 emit chooseWebBrowser();
                 webbrowser = Config::configuration()->webBrowser();
@@ -99,7 +99,7 @@ void HelpWindow::setSource(const QString &name)
         return;
     }
 
-    if (name.right(3) == "pdf") {
+    if (name.right(3) == QLatin1String("pdf")) {
         QString pdfbrowser = Config::configuration()->pdfReader();
         if (pdfbrowser.isEmpty()) {
 #if defined(Q_OS_MAC)
@@ -139,7 +139,10 @@ void HelpWindow::setSource(const QString &name)
         return;
     }
 
-    setText("<body bgcolor=\"" + palette().color(backgroundRole()).name() + "\">");
+    setText(QLatin1String("<body bgcolor=\"") 
+        + palette().color(backgroundRole()).name() 
+        + QLatin1String("\">"));
+        
     QTextBrowser::setSource(name);
 }
 
@@ -178,9 +181,9 @@ QPopupMenu *HelpWindow::createPopupMenu(const QPoint& pos)
     QPopupMenu *m = new QPopupMenu(0);
     lastAnchor = anchorAt(pos);
     if (!lastAnchor.isEmpty()) {
-        if (lastAnchor.at(0) == '#') {
+        if (lastAnchor.at(0) == QLatin1Char('#')) {
             QString src = source();
-            int hsh = src.indexOf(QChar('#'));
+            int hsh = src.indexOf(QLatin1Char('#'));
             lastAnchor = (hsh>=0 ? src.left(hsh) : src) + lastAnchor;
         }
         m->addAction(tr("Open Link in New Window\tShift+LMB"),
@@ -223,11 +226,11 @@ void HelpWindow::copy()
         Qt::TextFormat oldTf = textFormat();
         setTextFormat(Qt::PlainText);
         QString selectText = selectedText();
-        selectText.replace("<br>", "\n");
-        selectText.replace("\xa0", " ");
-        selectText.replace("&gt;", ">");
-        selectText.replace("&lt;", "<");
-        selectText.replace("&amp;", "&");
+        selectText.replace(QLatin1String("<br>"), QLatin1String("\n"));
+        selectText.replace(QLatin1String("\xa0"), QLatin1String(" "));
+        selectText.replace(QLatin1String("&gt;"), QLatin1String(">"));
+        selectText.replace(QLatin1String("&lt;"), QLatin1String("<"));
+        selectText.replace(QLatin1String("&amp;"), QLatin1String("&"));
 
         QClipboard *cb = QApplication::clipboard();
         if (cb->supportsSelection())

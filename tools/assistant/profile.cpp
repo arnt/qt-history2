@@ -17,48 +17,48 @@
 #include <qdir.h>
 #include <qlist.h>
 
-#define QT_TITLE "Qt Reference Documentation"
-#define DESIGNER_TITLE "Qt Designer Manual"
-#define ASSISTANT_TITLE  "Qt Assistant Manual"
-#define LINGUIST_TITLE "Guide to the Qt Translation Tools"
-#define QMAKE_TITLE "qmake User Guide"
+#define QT_TITLE         QLatin1String("Qt Reference Documentation")
+#define DESIGNER_TITLE   QLatin1String("Qt Designer Manual")
+#define ASSISTANT_TITLE  QLatin1String("Qt Assistant Manual")
+#define LINGUIST_TITLE   QLatin1String("Guide to the Qt Translation Tools")
+#define QMAKE_TITLE      QLatin1String("qmake User Guide")
 
 Profile *Profile::createDefaultProfile()
 {
-    QString path = QString( qInstallPathDocs() ) + "/html/";
+    QString path = QFile::decodeName( qInstallPathDocs() ) + QLatin1String("/html/");
     Profile *profile = new Profile;
     profile->valid = TRUE;
     profile->type = DefaultProfile;
-    profile->props["name"] = "default";
-    profile->props["applicationicon"] = "appicon.png";
-    profile->props["aboutmenutext"] = "About Qt";
-    profile->props["abouturl"] = "about_qt";
-    profile->props["title"] = "Qt Assistant";
-    profile->props["basepath"] = path;
-    profile->props["startpage"] = path + "index.html";
+    profile->props[QLatin1String("name")] = QLatin1String("default");
+    profile->props[QLatin1String("applicationicon")] = QLatin1String("appicon.png");
+    profile->props[QLatin1String("aboutmenutext")] = QLatin1String("About Qt");
+    profile->props[QLatin1String("abouturl")] = QLatin1String("about_qt");
+    profile->props[QLatin1String("title")] = QLatin1String("Qt Assistant");
+    profile->props[QLatin1String("basepath")] = path;
+    profile->props[QLatin1String("startpage")] = path + QLatin1String("index.html");
 
-    profile->addDCFTitle( path + "qt.dcf", QT_TITLE );
-    profile->addDCFTitle( path + "designer.dcf", DESIGNER_TITLE );
-    profile->addDCFTitle( path + "assistant.dcf", ASSISTANT_TITLE );
-    profile->addDCFTitle( path + "linguist.dcf", LINGUIST_TITLE );
-    profile->addDCFTitle( path + "qmake.dcf", QMAKE_TITLE );
+    profile->addDCFTitle( path + QLatin1String("qt.dcf"), QT_TITLE );
+    profile->addDCFTitle( path + QLatin1String("designer.dcf"), DESIGNER_TITLE );
+    profile->addDCFTitle( path + QLatin1String("assistant.dcf"), ASSISTANT_TITLE );
+    profile->addDCFTitle( path + QLatin1String("linguist.dcf"), LINGUIST_TITLE );
+    profile->addDCFTitle( path + QLatin1String("qmake.dcf"), QMAKE_TITLE );
 
-    profile->addDCFIcon( QT_TITLE, "qt.png" );
-    profile->addDCFIcon( DESIGNER_TITLE, "designer.png" );
-    profile->addDCFIcon( ASSISTANT_TITLE, "assistant.png" );
-    profile->addDCFIcon( LINGUIST_TITLE, "linguist.png" );
+    profile->addDCFIcon( QT_TITLE, QLatin1String("qt.png") );
+    profile->addDCFIcon( DESIGNER_TITLE, QLatin1String("designer.png") );
+    profile->addDCFIcon( ASSISTANT_TITLE, QLatin1String("assistant.png") );
+    profile->addDCFIcon( LINGUIST_TITLE, QLatin1String("linguist.png") );
 
-    profile->addDCFIndexPage( QT_TITLE, path + "index.html" );
-    profile->addDCFIndexPage( DESIGNER_TITLE, path + "designer-manual.html" );
-    profile->addDCFIndexPage( ASSISTANT_TITLE, path + "assistant.html" );
-    profile->addDCFIndexPage( LINGUIST_TITLE, path + "linguist-manual.html" );
-    profile->addDCFIndexPage( QMAKE_TITLE, path + "qmake-manual.html" );
+    profile->addDCFIndexPage( QT_TITLE, path + QLatin1String("index.html") );
+    profile->addDCFIndexPage( DESIGNER_TITLE, path + QLatin1String("designer-manual.html") );
+    profile->addDCFIndexPage( ASSISTANT_TITLE, path + QLatin1String("assistant.html") );
+    profile->addDCFIndexPage( LINGUIST_TITLE, path + QLatin1String("linguist-manual.html") );
+    profile->addDCFIndexPage( QMAKE_TITLE, path + QLatin1String("qmake-manual.html") );
 
-    profile->addDCFImageDir( QT_TITLE, "../../gif/" );
-    profile->addDCFImageDir( DESIGNER_TITLE, "../../gif/" );
-    profile->addDCFImageDir( ASSISTANT_TITLE, "../../gif/" );
-    profile->addDCFImageDir( LINGUIST_TITLE, "../../gif/" );
-    profile->addDCFImageDir( QMAKE_TITLE, "../../gif/" );
+    profile->addDCFImageDir( QT_TITLE, QLatin1String("../../gif/") );
+    profile->addDCFImageDir( DESIGNER_TITLE, QLatin1String("../../gif/") );
+    profile->addDCFImageDir( ASSISTANT_TITLE, QLatin1String("../../gif/") );
+    profile->addDCFImageDir( LINGUIST_TITLE, QLatin1String("../../gif/") );
+    profile->addDCFImageDir( QMAKE_TITLE, QLatin1String("../../gif/") );
 
     return profile;
 }

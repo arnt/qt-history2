@@ -38,7 +38,7 @@ static QString reduceLabelLength( const QString &s )
     if ( str.length() < maxLength )
         return str;
     str = str.left( maxLength - 3 );
-    str += "...";
+    str += QLatin1String("...");
     return str;
 }
 
@@ -152,11 +152,11 @@ void TabbedBrowser::init()
     }
 
     mimeSourceFactory = new QMimeSourceFactory();
-    mimeSourceFactory->setExtensionType("html","text/html;charset=UTF-8");
-    mimeSourceFactory->setExtensionType("htm","text/html;charset=UTF-8");
-    mimeSourceFactory->setExtensionType("png", "image/png");
-    mimeSourceFactory->setExtensionType("jpg", "image/jpeg");
-    mimeSourceFactory->setExtensionType("jpeg", "image/jpeg");
+    mimeSourceFactory->setExtensionType(QLatin1String("html"), "text/html;charset=UTF-8");
+    mimeSourceFactory->setExtensionType(QLatin1String("htm"), "text/html;charset=UTF-8");
+    mimeSourceFactory->setExtensionType(QLatin1String("png"), "image/png");
+    mimeSourceFactory->setExtensionType(QLatin1String("jpg"), "image/jpeg");
+    mimeSourceFactory->setExtensionType(QLatin1String("jpeg"), "image/jpeg");
     setMimePath(Config::configuration()->mimePaths());
 
     connect(ui.tab, SIGNAL(currentChanged(QWidget*)),
@@ -178,7 +178,7 @@ void TabbedBrowser::init()
     ui.tab->setCornerWidget(newTabButton, Qt::TopLeft);
     newTabButton->setCursor(Qt::arrowCursor);
     newTabButton->setAutoRaise(true);
-    newTabButton->setIcon(QPixmap(":/trolltech/assistant/images/addtab.png"));
+    newTabButton->setIcon(QPixmap(QString::fromUtf8(":/trolltech/assistant/images/addtab.png")));
     newTabButton->setFixedSize(s, s);
     QObject::connect(newTabButton, SIGNAL(clicked()), this, SLOT(newTab()));
     newTabButton->setToolTip(tr("Add page"));
@@ -188,8 +188,8 @@ void TabbedBrowser::init()
     ui.tab->setCornerWidget(closeTabButton, Qt::TopRight);
     closeTabButton->setCursor(Qt::arrowCursor);
     closeTabButton->setAutoRaise(true);
-    QIconSet is(QPixmap(":/trolltech/assistant/images/closetab.png"));
-    QPixmap disabledPix = QPixmap(":/trolltech/assistant/images/d_closetab.png");
+    QIconSet is(QString::fromUtf8(":/trolltech/assistant/images/closetab.png"));
+    QPixmap disabledPix = QString::fromUtf8(":/trolltech/assistant/images/d_closetab.png");
     is.setPixmap(disabledPix, QIconSet::Small, QIconSet::Disabled);
     closeTabButton->setIcon(is);
     closeTabButton->setFixedSize(s, s);
@@ -205,8 +205,8 @@ void TabbedBrowser::setMimePath(QStringList lst)
 
 void TabbedBrowser::setMimeExtension(const QString &ext)
 {
-    mimeSourceFactory->setExtensionType("html", ext);
-    mimeSourceFactory->setExtensionType("htm", ext);
+    mimeSourceFactory->setExtensionType(QLatin1String("html"), ext);
+    mimeSourceFactory->setExtensionType(QLatin1String("htm"), ext);
 }
 
 void TabbedBrowser::updateTitle(const QString &title)
@@ -225,7 +225,8 @@ void TabbedBrowser::transferFocus()
         currentBrowser()->setFocus();
     }
     mainWindow()->setWindowTitle(Config::configuration()->title()
-                             + " - " + currentBrowser()->documentTitle());
+                             + QLatin1String(" - ") 
+                             + currentBrowser()->documentTitle());
 }
 
 void TabbedBrowser::initHelpWindow(HelpWindow * /*win*/)
@@ -253,9 +254,9 @@ void TabbedBrowser::setup()
     tabLinkUnderline = config->isLinkUnderline();
 
     QString family = config->fontFixedFamily();
-    tabStyleSheet->item("pre")->setFontFamily(family);
-    tabStyleSheet->item("code")->setFontFamily(family);
-    tabStyleSheet->item("tt")->setFontFamily(family);
+    tabStyleSheet->item(QLatin1String("pre"))->setFontFamily(family);
+    tabStyleSheet->item(QLatin1String("code"))->setFontFamily(family);
+    tabStyleSheet->item(QLatin1String("tt"))->setFontFamily(family);
 
     newTab(QString::null);
 }
@@ -346,7 +347,7 @@ void TabbedBrowser::sourceChanged()
     Q_ASSERT(win);
     QString docTitle(win->documentTitle());
     if (docTitle.isEmpty())
-        docTitle = "...";
+        docTitle = QLatin1String("...");
     setTitle(win, docTitle);
 }
 
@@ -354,6 +355,6 @@ void TabbedBrowser::setTitle(HelpWindow *win, const QString &title)
 {
     ui.tab->setTabText(ui.tab->indexOf(win), reduceLabelLength(title));
     if (win == currentBrowser())
-        mainWindow()->setWindowTitle(Config::configuration()->title() + " - " + title);
+        mainWindow()->setWindowTitle(Config::configuration()->title() + QLatin1String(" - ") + title);
 }
 

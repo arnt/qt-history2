@@ -49,8 +49,8 @@ Index::Index( const QString &dp, const QString &hp )
 {
     Q_UNUSED(hp);
 
-    alreadyHaveDocList = FALSE;
-    lastWindowClosed = FALSE;
+    alreadyHaveDocList = false;
+    lastWindowClosed = false;
     connect( qApp, SIGNAL( lastWindowClosed() ),
              this, SLOT( setLastWinClosed() ) );
 }
@@ -60,15 +60,15 @@ Index::Index( const QStringList &dl, const QString &hp )
 {
     Q_UNUSED(hp);
     docList = dl;
-    alreadyHaveDocList = TRUE;
-    lastWindowClosed = FALSE;
+    alreadyHaveDocList = true;
+    lastWindowClosed = false;
     connect( qApp, SIGNAL( lastWindowClosed() ),
              this, SLOT( setLastWinClosed() ) );
 }
 
 void Index::setLastWinClosed()
 {
-    lastWindowClosed = TRUE;
+    lastWindowClosed = true;
 }
 
 void Index::setDictionaryFile( const QString &f )
@@ -113,7 +113,7 @@ void Index::setupDocumentList()
     QStringList lst = d.entryList(filters);
     QStringList::ConstIterator it = lst.begin();
     for ( ; it != lst.end(); ++it )
-        docList.append( docPath + "/" + *it );
+        docList.append( docPath + QLatin1String("/") + *it );
 }
 
 void Index::insertInDict( const QString &str, int docNum )
@@ -138,7 +138,7 @@ void Index::parseDocument( const QString &filename, int docNum )
 {
     QFile file( filename );
     if ( !file.open( IO_ReadOnly ) ) {
-        qWarning( "can not open file " + filename );
+        qWarning( (QLatin1String("can not open file ") + filename).ascii() );
         return;
     }
 
@@ -147,23 +147,23 @@ void Index::parseDocument( const QString &filename, int docNum )
     if (text.isNull())
         return;
 
-    bool valid = TRUE;
+    bool valid = true;
     const QChar *buf = text.unicode();
     QChar str[64];
     QChar c = buf[0];
     int j = 0;
     int i = 0;
     while ( j < text.length() ) {
-        if ( c == '<' || c == '&' ) {
-            valid = FALSE;
+        if ( c == QLatin1Char('<') || c == QLatin1Char('&') ) {
+            valid = false;
             if ( i > 1 )
                 insertInDict( QString(str,i), docNum );
             i = 0;
             c = buf[++j];
             continue;
         }
-        if ( ( c == '>' || c == ';' ) && !valid ) {
-            valid = TRUE;
+        if ( ( c == QLatin1Char('>') || c == QLatin1Char(';') ) && !valid ) {
+            valid = true;
             c = buf[++j];
             continue;
         }
@@ -171,7 +171,7 @@ void Index::parseDocument( const QString &filename, int docNum )
             c = buf[++j];
             continue;
         }
-        if ( ( c.isLetterOrNumber() || c == '_' ) && i < 63 ) {
+        if ( ( c.isLetterOrNumber() || c == QLatin1Char('_') ) && i < 63 ) {
             str[i] = c.toLower();
             ++i;
         } else {
@@ -242,9 +242,9 @@ QStringList Index::query( const QStringList &terms, const QStringList &termSeq, 
     QList<Term> termList;
     for (QStringList::ConstIterator it = terms.begin(); it != terms.end(); ++it ) {
         Entry *e = 0;
-        if ( (*it).contains( '*' ) ) {
+        if ( (*it).contains(QLatin1Char('*')) ) {
             QList<Document> wcts = setupDummyTerm( getWildcardTerms( *it ) );
-            termList.append( Term( "dummy", wcts.count(), wcts ) );
+            termList.append( Term(QLatin1String("dummy"), wcts.count(), wcts ) );
         } else if ( dict[ *it ] ) {
             e = dict[ *it ];
             termList.append( Term( *it, e->documents.count(), e->documents ) );
@@ -261,11 +261,11 @@ QStringList Index::query( const QStringList &terms, const QStringList &termSeq, 
         Term *t = &(*it);
         QList<Document> docs = t->documents;
         for(QList<Document>::Iterator minDoc_it = minDocs.begin(); minDoc_it != minDocs.end(); ) {
-            bool found = FALSE;
+            bool found = false;
             for (QList<Document>::ConstIterator doc_it = docs.begin(); doc_it != docs.end(); ++doc_it ) {
                 if ( (*minDoc_it).docNumber == (*doc_it).docNumber ) {
                     (*minDoc_it).frequency += (*doc_it).frequency;
-                    found = TRUE;
+                    found = true;
                     break;
                 }
             }
@@ -297,14 +297,14 @@ QString Index::getDocumentTitle( const QString &fileName )
 {
     QFile file( fileName );
     if ( !file.open( IO_ReadOnly ) ) {
-        qWarning( "cannot open file " + fileName );
+        qWarning( (QLatin1String("cannot open file ") + fileName).ascii() );
         return fileName;
     }
     QTextStream s( &file );
     QString text = s.read();
 
-    int start = text.indexOf( "<title>", 0, Qt::CaseInsensitive) + 7;
-    int end = text.indexOf( "</title>", 0, Qt::CaseInsensitive);
+    int start = text.indexOf(QLatin1String("<title>"), 0, Qt::CaseInsensitive) + 7;
+    int end = text.indexOf(QLatin1String("</title>"), 0, Qt::CaseInsensitive);
 
     QString title = ( end - start <= 0 ? tr("Untitled") : text.mid( start, end - start ) );
     return title;
@@ -318,31 +318,31 @@ QStringList Index::getWildcardTerms( const QString &term )
 
     for(QHash<QString, Entry*>::Iterator it = dict.begin(); it != dict.end(); ++it) {
         int index = 0;
-        bool found = FALSE;
+        bool found = false;
         QString text( it.key() );
         for ( iter = terms.begin(); iter != terms.end(); ++iter ) {
-            if ( *iter == "*" ) {
-                found = TRUE;
+            if ( *iter == QLatin1String("*") ) {
+                found = true;
                 continue;
             }
             if ( iter == terms.begin() && (*iter)[0] != text[0] ) {
-                found = FALSE;
+                found = false;
                 break;
             }
             index = text.indexOf( *iter, index );
             if ( *iter == terms.last() && index != (int)text.length()-1 ) {
                 index = text.lastIndexOf( *iter );
                 if ( index != (int)text.length() - (int)(*iter).length() ) {
-                    found = FALSE;
+                    found = false;
                     break;
                 }
             }
             if ( index != -1 ) {
-                found = TRUE;
+                found = true;
                 index += (*iter).length();
                 continue;
             } else {
-                found = FALSE;
+                found = false;
                 break;
             }
         }
@@ -357,15 +357,15 @@ QStringList Index::split( const QString &str )
 {
     QStringList lst;
     int j = 0;
-    int i = str.indexOf( '*', j );
+    int i = str.indexOf(QLatin1Char('*'), j );
 
     while ( i != -1 ) {
         if ( i > j && i <= (int)str.length() ) {
             lst << str.mid( j, i - j );
-            lst << "*";
+            lst << QLatin1String("*");
         }
         j = i + 1;
-        i = str.indexOf( '*', j );
+        i = str.indexOf(QLatin1Char('*'), j );
     }
 
     int l = str.length() - 1;
@@ -413,8 +413,8 @@ bool Index::searchForPattern( const QStringList &patterns, const QStringList &wo
 {
     QFile file( fileName );
     if ( !file.open( IO_ReadOnly ) ) {
-        qWarning( "cannot open file " + fileName );
-        return FALSE;
+        qWarning( (QLatin1String("cannot open file ") + fileName).ascii() );
+        return false;
     }
 
     wordNum = 3;
@@ -425,23 +425,23 @@ bool Index::searchForPattern( const QStringList &patterns, const QStringList &wo
 
     QTextStream s( &file );
     QString text = s.read();
-    bool valid = TRUE;
+    bool valid = true;
     const QChar *buf = text.unicode();
     QChar str[64];
     QChar c = buf[0];
     int j = 0;
     int i = 0;
     while ( j < text.length() ) {
-        if ( c == '<' || c == '&' ) {
-            valid = FALSE;
+        if ( c == QLatin1Char('<') || c == QLatin1Char('&') ) {
+            valid = false;
             if ( i > 1 )
                 buildMiniDict( QString(str,i) );
             i = 0;
             c = buf[++j];
             continue;
         }
-        if ( ( c == '>' || c == ';' ) && !valid ) {
-            valid = TRUE;
+        if ( ( c == QLatin1Char('>') || c == QLatin1Char(';') ) && !valid ) {
+            valid = true;
             c = buf[++j];
             continue;
         }
@@ -449,7 +449,7 @@ bool Index::searchForPattern( const QStringList &patterns, const QStringList &wo
             c = buf[++j];
             continue;
         }
-        if ( ( c.isLetterOrNumber() || c == '_' ) && i < 63 ) {
+        if ( ( c.isLetterOrNumber() || c == QLatin1Char('_') ) && i < 63 ) {
             str[i] = c.toLower();
             ++i;
         } else {
@@ -468,7 +468,7 @@ bool Index::searchForPattern( const QStringList &patterns, const QStringList &wo
     QList<uint> a, b;
     QList<uint>::iterator aIt;
     for ( ; patIt != patterns.end(); ++patIt ) {
-        wordLst = (*patIt).split(QChar(' '));
+        wordLst = (*patIt).split(QLatin1Char(' '));
         a = miniDict[ wordLst[0] ]->positions;
         for ( int j = 1; j < (int)wordLst.count(); ++j ) {
             b = miniDict[ wordLst[j] ]->positions;
@@ -484,6 +484,6 @@ bool Index::searchForPattern( const QStringList &patterns, const QStringList &wo
         }
     }
     if ( a.count() )
-        return TRUE;
-    return FALSE;
+        return true;
+    return false;
 }

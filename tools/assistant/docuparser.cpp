@@ -37,7 +37,7 @@ QDataStream &operator<<(QDataStream &s, const ContentItem &ci)
     return s;
 }
 
-const QString DocuParser::DocumentKey = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/";
+const QString DocuParser::DocumentKey = QLatin1String("/Qt Assistant/") + QLatin1String(QT_VERSION_STR) + QLatin1String("/");
 
 DocuParser *DocuParser::createParser(const QString &fileName)
 {
@@ -50,7 +50,7 @@ DocuParser *DocuParser::createParser(const QString &fileName)
     int read = 0;
     int maxlen = 1024;
     int majVer = 0, minVer = 0, serVer = 0;
-    static QRegExp re("assistantconfig +version=\"(\\d)\\.(\\d)\\.(\\d)\"", Qt::CaseInsensitive);
+    static QRegExp re(QLatin1String("assistantconfig +version=\"(\\d)\\.(\\d)\\.(\\d)\""), Qt::CaseInsensitive);
     Q_ASSERT(re.isValid());
     while(read != -1) {
          read = file.readLine(str, maxlen);
@@ -116,10 +116,10 @@ void DocuParser310::addTo(Profile *p)
 bool DocuParser310::startDocument()
 {
     state = StateInit;
-    errorProt = "";
+    errorProt = QLatin1String("");
 
-    contentRef = "";
-    indexRef = "";
+    contentRef = QLatin1String("");
+    indexRef = QLatin1String("");
     depth = 0;
     contentList.clear();
     indexList.clear();
@@ -132,22 +132,22 @@ bool DocuParser310::startElement(const QString &, const QString &,
                                const QString &qname,
                                const QXmlAttributes &attr)
 {
-    if (qname == "DCF" && state == StateInit) {
+    if (qname == QLatin1String("DCF") && state == StateInit) {
         state = StateContent;
-        contentRef = absolutify(attr.value("ref"));
+        contentRef = absolutify(attr.value(QLatin1String("ref")));
         conURL = contentRef;
-        docTitle = attr.value("title");
-        iconName = absolutify(attr.value("icon"));
+        docTitle = attr.value(QLatin1String("title"));
+        iconName = absolutify(attr.value(QLatin1String("icon")));
         contentList.append(ContentItem(docTitle, contentRef, depth));
-    } else if (qname == "section" && (state == StateContent || state == StateSect)) {
+    } else if (qname == QLatin1String("section") && (state == StateContent || state == StateSect)) {
         state = StateSect;
-        contentRef = absolutify(attr.value("ref"));
-        title = attr.value("title");
+        contentRef = absolutify(attr.value(QLatin1String("ref")));
+        title = attr.value(QLatin1String("title"));
         depth++;
         contentList.append(ContentItem(title, contentRef, depth));
-    } else if (qname == "keyword" && state == StateSect) {
+    } else if (qname == QLatin1String("keyword") && state == StateSect) {
         state = StateKeyword;
-        indexRef = absolutify(attr.value("ref"));
+        indexRef = absolutify(attr.value(QLatin1String("ref")));
     } else
         return false;
     return true;
@@ -203,7 +203,7 @@ bool DocuParser310::characters(const QString& ch)
 
 bool DocuParser310::fatalError(const QXmlParseException& exception)
 {
-    errorProt += QString("fatal parsing error: %1 in line %2, column %3\n")
+    errorProt += QString::fromLatin1("fatal parsing error: %1 in line %2, column %3\n")
         .arg(exception.message())
         .arg(exception.lineNumber())
         .arg(exception.columnNumber());
@@ -236,10 +236,10 @@ void DocuParser320::addTo(Profile *p)
 bool DocuParser320::startDocument()
 {
     state = StateInit;
-    errorProt = "";
+    errorProt = QLatin1String("");
 
-    contentRef = "";
-    indexRef = "";
+    contentRef = QLatin1String("");
+    indexRef = QLatin1String("");
     depth = 0;
     contentList.clear();
     indexList.clear();
@@ -258,43 +258,43 @@ bool DocuParser320::startElement(const QString &, const QString &,
     switch(state) {
 
     case StateInit:
-        if(lower == "assistantconfig")
+        if(lower == QLatin1String("assistantconfig"))
             state = StateDocRoot;
         break;
 
     case StateDocRoot:
-        if(lower == "dcf") {
+        if(lower == QLatin1String("dcf")) {
             state = StateContent;
-            contentRef = absolutify(attr.value("ref"));
+            contentRef = absolutify(attr.value(QLatin1String("ref")));
             conURL = contentRef;
-            docTitle = attr.value("title");
-            iconName = absolutify(attr.value("icon"));
+            docTitle = attr.value(QLatin1String("title"));
+            iconName = absolutify(attr.value(QLatin1String("icon")));
             contentList.append(ContentItem(docTitle, contentRef, depth));
-        } else if(lower == "profile") {
+        } else if(lower == QLatin1String("profile")) {
             state = StateProfile;
         }
         break;
 
     case StateSect:
-        if (lower == "keyword" && state == StateSect) {
+        if (lower == QLatin1String("keyword") && state == StateSect) {
             state = StateKeyword;
-            indexRef = absolutify(attr.value("ref"));
+            indexRef = absolutify(attr.value(QLatin1String("ref")));
             break;
         } // else if (lower == "section")
     case StateContent:
-        if(lower == "section") {
+        if(lower == QLatin1String("section")) {
             state = StateSect;
-            contentRef = absolutify(attr.value("ref"));
-            title = attr.value("title");
+            contentRef = absolutify(attr.value(QLatin1String("ref")));
+            title = attr.value(QLatin1String("title"));
             depth++;
             contentList.append(ContentItem(title, contentRef, depth));
         }
         break;
 
     case StateProfile:
-        if(lower == "property") {
+        if(lower == QLatin1String("property")) {
             state = StateProperty;
-            propertyName = attr.value("name");
+            propertyName = attr.value(QLatin1String("name"));
         }
         break;
 
@@ -330,8 +330,10 @@ bool DocuParser320::endElement(const QString &nameSpace,
         if(propertyName.isEmpty() || propertyValue.isEmpty())
             return false;
         {
-            static const QStringList lst = QStringList() << "startpage" << "abouturl"
-                                                         << "applicationicon" << "assistantdocs";
+            static const QStringList lst = QStringList() 
+                << QLatin1String("startpage") << QLatin1String("abouturl")
+                << QLatin1String("applicationicon") << QLatin1String("assistantdocs");
+                
             if (lst.contains(propertyName))
                 propertyValue = absolutify(propertyValue);
         }
@@ -381,7 +383,7 @@ bool DocuParser320::characters(const QString& ch)
 
 bool DocuParser320::fatalError(const QXmlParseException& exception)
 {
-    errorProt += QString("fatal parsing error: %1 in line %2, column %3\n")
+    errorProt += QString::fromLatin1("fatal parsing error: %1 in line %2, column %3\n")
         .arg(exception.message())
         .arg(exception.lineNumber())
         .arg(exception.columnNumber());

@@ -50,7 +50,7 @@
 static QString stripAmpersand(const QString &str)
 {
     QString s(str);
-    s = s.replace('&', "");
+    s = s.replace(QLatin1String("&"), QLatin1String(""));
     return s;
 }
 
@@ -102,9 +102,9 @@ QValidator::State SearchValidator::validate(QString &str, int &) const
 {
     for (int i = 0; i < (int) str.length(); ++i) {
         QChar c = str[i];
-        if (!c.isLetterOrNumber() && c != '\'' && c != '`'
-            && c != '\"' && c != ' ' && c != '-' && c != '_'
-            && c!= '*')
+        if (!c.isLetterOrNumber() && c != QLatin1Char('\'') && c != QLatin1Char('`')
+            && c != QLatin1Char('\"') && c != QLatin1Char(' ') && c != QLatin1Char('-') && c != QLatin1Char('_')
+            && c!= QLatin1Char('*'))
             return QValidator::Invalid;
     }
     return QValidator::Acceptable;
@@ -117,7 +117,7 @@ HelpNavigationListItem::HelpNavigationListItem(QListBox *ls, const QString &txt)
 
 void HelpNavigationListItem::addLink(const QString &link)
 {
-    int hash = link.indexOf('#');
+    int hash = link.indexOf(QLatin1Char('#'));
     if (hash == -1) {
         linkList << link;
         return;
@@ -202,7 +202,7 @@ void HelpDialog::initialize()
     connect(ui.resultBox, SIGNAL(contextMenuRequested(QListBoxItem*, const QPoint&)),
              this, SLOT(showItemMenu(QListBoxItem*, const QPoint&)));
 
-    cacheFilesPath = QDir::homePath() + "/.assistant/"; //### Find a better location for the dbs
+    cacheFilesPath = QDir::homePath() + QLatin1String("/.assistant/"); //### Find a better location for the dbs
 
     ui.editIndex->installEventFilter(this);
     ui.listBookmarks->header()->hide();
@@ -259,10 +259,14 @@ void HelpDialog::removeOldCacheFiles()
         qWarning("Failed to created assistant directory");
         return;
     }
-    QString pname = "." + Config::configuration()->profileName();
+    QString pname = QLatin1String(".") + Config::configuration()->profileName();
 
     QStringList fileList;
-    fileList <<  "indexdb" << "indexdb.dict" << "indexdb.doc" << "contentdb";
+    fileList << QLatin1String("indexdb") 
+        << QLatin1String("indexdb.dict")
+        << QLatin1String("indexdb.doc")
+        << QLatin1String("contentdb");
+        
     QStringList::iterator it = fileList.begin();
     for (; it != fileList.end(); ++it) {
         if (QFile::exists(cacheFilesPath + *it + pname)) {
@@ -299,7 +303,7 @@ void HelpDialog::loadIndexFile()
 
 
     QList<IndexKeyword> lst;
-    QFile indexFile(cacheFilesPath + "indexdb." +
+    QFile indexFile(cacheFilesPath + QLatin1String("indexdb.") +
                      Config::configuration()->profileName());
     if (!indexFile.open(IO_ReadOnly)) {
         buildKeywordDB();
@@ -409,7 +413,7 @@ void HelpDialog::buildKeywordDB()
         bool ok = handler->parse(&file);
         file.close();
         if(!ok){
-            QString msg = QString("In file %1:\n%2")
+            QString msg = QString::fromLatin1("In file %1:\n%2")
                           .arg(QFileInfo(file).absoluteFilePath())
                           .arg(handler->errorProtocol());
             QMessageBox::critical(this, tr("Parse Error"), tr(msg));
@@ -438,7 +442,7 @@ void HelpDialog::buildKeywordDB()
     if (!lst.isEmpty())
         qHeapSort(lst);
 
-    QFile indexout(cacheFilesPath + "indexdb." + Config::configuration()->profileName());
+    QFile indexout(cacheFilesPath + QLatin1String("indexdb.") + Config::configuration()->profileName());
     if (verifyDirectory(cacheFilesPath) && indexout.open(IO_WriteOnly)) {
         QDataStream s(&indexout);
         s << fileAges;
@@ -473,7 +477,7 @@ void HelpDialog::setupTitleMap()
 
 void HelpDialog::getAllContents()
 {
-    QFile contentFile(cacheFilesPath + "contentdb." + Config::configuration()->profileName());
+    QFile contentFile(cacheFilesPath + QLatin1String("contentdb.") + Config::configuration()->profileName());
     contentList.clear();
     if (!contentFile.open(IO_ReadOnly)) {
         buildContentDict();
@@ -527,7 +531,7 @@ void HelpDialog::buildContentDict()
             contentList.insert(*it, QList<ContentItem>(handler->getContentItems()));
             delete handler;
         } else {
-            QString msg = QString("In file %1:\n%2")
+            QString msg = QString::fromLatin1("In file %1:\n%2")
                           .arg(QFileInfo(file).absoluteFilePath())
                           .arg(handler->errorProtocol());
             QMessageBox::critical(this, tr("Parse Error"), tr(msg));
@@ -535,7 +539,7 @@ void HelpDialog::buildContentDict()
         }
     }
 
-    QFile contentOut(cacheFilesPath + "contentdb." + Config::configuration()->profileName());
+    QFile contentOut(cacheFilesPath + QLatin1String("contentdb.") + Config::configuration()->profileName());
     if (contentOut.open(IO_WriteOnly)) {
         QDataStream s(&contentOut);
         s << fileAges;
@@ -654,7 +658,7 @@ void HelpDialog::searchInIndex(const QString &s)
 QString HelpDialog::titleOfLink(const QString &link)
 {
     QString s(link);
-    s.remove(s.indexOf('#'), s.length());
+    s.remove(s.indexOf(QLatin1Char('#')), s.length());
     s = titleMap[ s ];
     if (s.isEmpty())
         return link;
@@ -736,7 +740,7 @@ void HelpDialog::insertBookmarks()
         return;
     bookmarksInserted = true;
     ui.listBookmarks->clear();
-    QFile f(cacheFilesPath + "bookmarks." + Config::configuration()->profileName());
+    QFile f(cacheFilesPath + QLatin1String("bookmarks.") + Config::configuration()->profileName());
     if (!f.open(IO_ReadOnly))
         return;
     QTextStream ts(&f);
@@ -759,15 +763,15 @@ void HelpDialog::showBookmarkTopic()
         return;
 
     HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)ui.listBookmarks->currentItem();
-    QString absPath = "";
+    QString absPath;
     if (QFileInfo(i->link()).isRelative())
-        absPath = documentationPath + "/";
+        absPath = documentationPath + QLatin1String("/");
     emit showLink(absPath + i->link());
 }
 
 void HelpDialog::saveBookmarks()
 {
-    QFile f(cacheFilesPath + "bookmarks." + Config::configuration()->profileName());
+    QFile f(cacheFilesPath + QLatin1String("bookmarks.") + Config::configuration()->profileName());
     if (!f.open(IO_WriteOnly))
         return;
     QTextStream ts(&f);
@@ -814,7 +818,7 @@ void HelpDialog::insertContents()
             ContentItem item = *it;
             if (item.depth == 0) {
                 newEntry = new HelpNavigationContentsItem(ui.listContents, 0);
-                newEntry->setPixmap(0, QPixmap(":/trolltech/assistant/images/book.png"));
+                newEntry->setPixmap(0, QPixmap(QString::fromUtf8(":/trolltech/assistant/images/book.png")));
                 newEntry->setText(0, item.title);
                 newEntry->setLink(item.reference);
                 stack.push(newEntry);
@@ -916,13 +920,13 @@ void HelpDialog::setupFullTextIndex()
                                 "Assistant will not work!"));
         return;
     }
-    fullTextIndex->setDictionaryFile(cacheFilesPath + "indexdb.dict." + pname);
-    fullTextIndex->setDocListFile(cacheFilesPath + "indexdb.doc." + pname);
+    fullTextIndex->setDictionaryFile(cacheFilesPath + QLatin1String("indexdb.dict.") + pname);
+    fullTextIndex->setDocListFile(cacheFilesPath + QLatin1String("indexdb.doc.") + pname);
     processEvents();
 
     connect(fullTextIndex, SIGNAL(indexingProgress(int)),
              this, SLOT(setIndexingProgress(int)));
-    QFile f(cacheFilesPath + "indexdb.dict." + pname);
+    QFile f(cacheFilesPath + QLatin1String("indexdb.dict.") + pname);
     if (!f.exists()) {
         help->statusBar()->clear();
         setCursor(Qt::waitCursor);
@@ -958,40 +962,40 @@ void HelpDialog::setIndexingProgress(int prog)
 void HelpDialog::startSearch()
 {
     QString str = ui.termsEdit->text();
-    str = str.replace("\'", "\"");
-    str = str.replace("`", "\"");
+    str = str.replace(QLatin1String("\'"), QLatin1String("\""));
+    str = str.replace(QLatin1String("`"), QLatin1String("\""));
     QString buf = str;
-    str = str.replace("-", " ");
-    str = str.replace(QRegExp("\\s[\\S]?\\s"), " ");
-    terms = str.split(QChar(' '));
+    str = str.replace(QLatin1String("-"), QLatin1String(" "));
+    str = str.replace(QRegExp(QLatin1String("\\s[\\S]?\\s")), QLatin1String(" "));
+    terms = str.split(QLatin1Char(' '));
     QStringList termSeq;
     QStringList seqWords;
     QStringList::iterator it = terms.begin();
     for (; it != terms.end(); ++it) {
         (*it) = (*it).simplified();
         (*it) = (*it).toLower();
-        (*it) = (*it).replace("\"", "");
+        (*it) = (*it).replace(QLatin1String("\""), QLatin1String(""));
     }
-    if (str.contains('\"')) {
-        if ((str.count('\"'))%2 == 0) {
+    if (str.contains(QLatin1Char('\"'))) {
+        if ((str.count(QLatin1Char('\"')))%2 == 0) {
             int beg = 0;
             int end = 0;
             QString s;
-            beg = str.indexOf('\"', beg);
+            beg = str.indexOf(QLatin1Char('\"'), beg);
             while (beg != -1) {
                 beg++;
-                end = str.indexOf('\"', beg);
+                end = str.indexOf(QLatin1Char('\"'), beg);
                 s = str.mid(beg, end - beg);
                 s = s.toLower();
                 s = s.simplified();
-                if (s.contains('*')) {
+                if (s.contains(QLatin1Char('*'))) {
                     QMessageBox::warning(this, tr("Full Text Search"),
                         tr("Using a wildcard within phrases is not allowed."));
                     return;
                 }
-                seqWords += s.split(QChar(' '));
+                seqWords += s.split(QLatin1Char(' '));
                 termSeq << s;
-                beg = str.indexOf('\"', end + 1);
+                beg = str.indexOf(QLatin1Char('\"'), end + 1);
             }
         } else {
             QMessageBox::warning(this, tr("Full Text Search"),
@@ -1002,7 +1006,7 @@ void HelpDialog::startSearch()
     setCursor(Qt::waitCursor);
     foundDocs.clear();
     foundDocs = fullTextIndex->query(terms, termSeq, seqWords);
-    QString msg(QString("%1 documents found.").arg(foundDocs.count()));
+    QString msg = QString::fromLatin1("%1 documents found.").arg(foundDocs.count());
     help->statusBar()->message(tr(msg), 3000);
     ui.resultBox->clear();
     for (it = foundDocs.begin(); it != foundDocs.end(); ++it)
@@ -1010,19 +1014,19 @@ void HelpDialog::startSearch()
 
     terms.clear();
     bool isPhrase = false;
-    QString s = "";
+    QString s;
     for (int i = 0; i < (int)buf.length(); ++i) {
-        if (buf[i] == '\"') {
+        if (buf[i] == QLatin1Char('\"')) {
             isPhrase = !isPhrase;
             s = s.simplified();
             if (!s.isEmpty())
                 terms << s;
-            s = "";
-        } else if (buf[i] == ' ' && !isPhrase) {
+            s = QLatin1String("");
+        } else if (buf[i] == QLatin1Char(' ') && !isPhrase) {
             s = s.simplified();
             if (!s.isEmpty())
                 terms << s;
-            s = "";
+            s = QLatin1String("");
         } else
             s += buf[i];
     }
@@ -1034,7 +1038,7 @@ void HelpDialog::startSearch()
 
 void HelpDialog::on_helpButton_clicked()
 {
-    emit showLink(Config::configuration()->assistantDocPath() + "/assistant-5.html");
+    emit showLink(Config::configuration()->assistantDocPath() + QLatin1String("/assistant-5.html"));
 }
 
 void HelpDialog::on_resultBox_mouseButtonClicked(int button, QListBoxItem *i, const QPoint &)

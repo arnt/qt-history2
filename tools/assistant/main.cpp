@@ -82,8 +82,8 @@ void AssistantSocket::readClient()
     while ( canReadLine() )
         link = readLine();
     if ( !link.isNull() ) {
-        link = link.replace( "\n", "" );
-        link = link.replace( "\r", "" );
+        link = link.replace(QLatin1String("\n"), QLatin1String(""));
+        link = link.replace(QLatin1String("\r"), QLatin1String(""));
         emit showLinkRequest( link );
     }
 }
@@ -121,12 +121,12 @@ int main( int argc, char ** argv )
 {
     bool withGUI = TRUE;
     if ( argc > 1 ) {
-        QString arg( argv[1] );
+        QString arg = QString::fromAscii(argv[1]);
         arg = arg.toLower();
-        if ( arg == "-addcontentfile"
-            || arg == "-removecontentfile"
+        if ( arg == QLatin1String("-addcontentfile")
+            || arg == QLatin1String("-removecontentfile")
 #ifndef Q_WS_WIN
-            || arg == "-help"
+            || arg == QLatin1String("-help")
 #endif
             )
             withGUI = FALSE;
@@ -141,23 +141,24 @@ int main( int argc, char ** argv )
     bool hideSidebar = FALSE;
     if ( argc == 2 ) {
         if ( (argv[1])[0] != '-' )
-            file = argv[1];
+            file = QString::fromUtf8(argv[1]);
     }
     if ( file.isEmpty() ) {
         for ( int i = 1; i < argc; i++ ) {
-            if ( QString( argv[i] ).toLower() == "-file" ) {
+            QString opt = QString::fromAscii(argv[i]).toLower();
+            if ( opt == QLatin1String("-file") ) {
                 INDEX_CHECK( "Missing file argument!" );
                 i++;
-                file = argv[i];
-            } else if ( QString( argv[i] ).toLower() == "-server" ) {
+                file = QFile::decodeName(argv[i]);
+            } else if ( opt == QLatin1String("-server") ) {
                 server = TRUE;
-            } else if ( QString( argv[i] ).toLower() == "-profile" ) {
+            } else if ( opt == QLatin1String("-profile") ) {
                 INDEX_CHECK( "Missing profile argument!" );
-                profileName = argv[++i];
-            } else if ( QString( argv[i] ).toLower() == "-addcontentfile" ) {
+                profileName = QFile::decodeName(argv[++i]);
+            } else if ( opt == QLatin1String("-addcontentfile") ) {
                 INDEX_CHECK( "Missing content file!" );
                 Config *c = Config::loadConfig( QString::null );
-                QFileInfo file( argv[i+1] );
+                QFileInfo file( QFile::decodeName(argv[i+1]) );
                 if( !file.exists() ) {
                     fprintf( stderr, "Could not locate content file: '%s'\n",
                              file.absoluteFilePath().latin1() );
@@ -166,7 +167,7 @@ int main( int argc, char ** argv )
                 }
                 DocuParser *parser = DocuParser::createParser( file.absoluteFilePath() );
                 if( parser ) {
-                    QFile f( argv[i+1] );
+                    QFile f( QFile::decodeName(argv[i+1]) );
                     if( !parser->parse( &f ) ) {
                         fprintf( stderr, "Failed to parse file: '%s'\n, ",
                                  file.absoluteFilePath().latin1() );
@@ -178,11 +179,11 @@ int main( int argc, char ** argv )
                     c->save();
                 }
                 return 0;
-            } else if ( QString( argv[i] ).toLower() == "-removecontentfile" ) {
+            } else if ( opt == QLatin1String("-removecontentfile") ) {
                 INDEX_CHECK( "Missing content file!" );
                 Config *c = Config::loadConfig( QString::null );
                 Profile *profile = c->profile();
-                QStringList entries = profile->docs.find(argv[i+1]);
+                QStringList entries = profile->docs.find(QString::fromAscii(argv[i+1]));
                 if (entries.count() == 0) {
                     fprintf(stderr, "Could not locate content file: '%s'\n",
                             argv[i+1]);
@@ -206,10 +207,10 @@ int main( int argc, char ** argv )
                     c->save();
                 }
                 return 0;
-            } else if ( QString( argv[i] ).toLower() == "-hidesidebar" ) {
+            } else if ( opt == QLatin1String("-hidesidebar") ) {
                 hideSidebar = TRUE;
-            } else if ( QString( argv[i] ).toLower() == "-help" ) {
-                QString helpText( "Usage: assistant [option]\n"
+            } else if ( opt == QLatin1String("-help") ) {
+                QString helpText = QLatin1String( "Usage: assistant [option]\n"
                                   "Options:\n"
                                   " -file Filename             assistant opens the specified file\n"
                                   " -server                    reads commands from a socket after\n"
@@ -223,14 +224,15 @@ int main( int argc, char ** argv )
                                   " -hideSidebar               assistant will hide the sidebar.\n"
                                   " -help                      shows this help.");
 #ifdef Q_WS_WIN
-                QMessageBox::information( 0, "Qt Assistant", "<pre>" + helpText + "</pre>" );
+                QMessageBox::information( 0, QLatin1String("Qt Assistant"), 
+                    QLatin1String("<pre>") + helpText + QLatin1String("</pre>") );
 #else
                 printf( "%s\n", helpText.latin1() );
 #endif
                 exit( 0 );
-            } else if ( QString( argv[i] ).toLower() == "-resourcedir" ) {
+            } else if ( opt == QLatin1String("-resourcedir") ) {
                 INDEX_CHECK( "Missing resource directory argument!" );
-                resourceDir = QString( argv[++i] );
+                resourceDir = QFile::decodeName( argv[++i] );
             } else {
                 fprintf( stderr, "Unrecognized option '%s'. Try -help to get help.\n",
                          argv[i] );
@@ -240,14 +242,14 @@ int main( int argc, char ** argv )
     }
 
     if( resourceDir.isNull() )
-        resourceDir = qInstallPathTranslations();
+        resourceDir = QFile::decodeName(qInstallPathTranslations());
 
     QTranslator translator( 0 );
-    translator.load( QString("assistant_") + QTextCodec::locale(), resourceDir );
+    translator.load( QLatin1String("assistant_") + QLatin1String(QTextCodec::locale()), resourceDir );
     a.installTranslator( &translator );
 
     QTranslator qtTranslator( 0 );
-    qtTranslator.load( QString("qt_") + QTextCodec::locale(), resourceDir );
+    qtTranslator.load( QLatin1String("qt_") + QLatin1String(QTextCodec::locale()), resourceDir );
     a.installTranslator( &qtTranslator );
 
     Config *conf = Config::loadConfig( profileName );
@@ -262,7 +264,7 @@ int main( int argc, char ** argv )
     conf->hideSideBar( hideSidebar );
 
     QPointer<MainWindow> mw = new MainWindow();
-    mw->setObjectName("Assistant");
+    mw->setObjectName(QLatin1String("Assistant"));
 
     if ( server ) {
         as = new AssistantServer();
