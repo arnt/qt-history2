@@ -150,7 +150,7 @@ public:
 	: QListViewItem( printers, name, host, comment ), ali( aliases ) { }
 
     bool samePrinter( const QString& name ) {
-	return text( 0 ) == name || ali.find( name ) != ali.end();
+	return text( 0 ) == name || ali.contains( name );
     }
 
     QStringList ali;

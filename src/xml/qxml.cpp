@@ -667,7 +667,7 @@ void QXmlNamespaceSupport::reset()
 */
 int QXmlAttributes::index( const QString& qName ) const
 {
-    return qnameList.find( qName );
+    return qnameList.indexOf( qName );
 }
 
 /*!
@@ -7207,7 +7207,7 @@ bool QXmlSimpleReader::insertXmlRef( const QString &data, const QString &name, b
 	d->xmlRef.push( data );
     }
     d->xmlRefName.push( name );
-    uint n = (uint)QMAX( d->parameterEntities.count(), d->entities.count() );
+    int n = QMAX( d->parameterEntities.count(), d->entities.count() );
     if ( d->xmlRefName.count() > n+1 ) {
 	// recursive entities
 	reportParseError( XMLERR_RECURSIVEENTITIES );

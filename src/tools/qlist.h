@@ -75,8 +75,8 @@ public:
     void removeAt(int i);
     int take(const T &t);
     T takeAt(int i);
-    int find(const T &t, int i = 0) const;
-    int findRev(const T &t, int i = -1) const;
+    int indexOf(const T &t, int from = 0) const;
+    int lastIndexOf(const T &t, int from = -1) const;
     QBool contains(const T &t) const;
     int count(const T &t) const;
 
@@ -87,20 +87,24 @@ public:
 	typedef T *pointer;
 	typedef T &reference;
 	Node *i; public:
-	inline operator Node*() const { return i; }
 	inline Iterator(Node *n = 0): i(n){}
+	inline Iterator(const Iterator &o): i(o.i){}
 	inline T &operator*() { return i->t(); }
 	inline T &operator[](int j) { return i[j].t(); }
+	inline bool operator==(const Iterator &o) const { return i == o.i; }
+	inline bool operator!=(const Iterator &o) const { return i != o.i; }
 	inline Iterator operator++() { ++i; return *this; }
 	inline Iterator operator++(int) { Node *n = i; ++i; return n; }
 	inline Iterator operator--() { i--; return *this; }
 	inline Iterator operator--(int) { Node *n = i; i--; return n; }
 	inline Iterator &operator+=(int j) { i+=j; return *this; }
 	inline Iterator &operator-=(int j) { i-=j; return *this; }
-	inline Iterator operator+(int j) { return Iterator(i+j); }
-	inline Iterator operator-(int j) { return Iterator(i-j); }
-	inline int operator-(Iterator j) { return i - j.i; }
+	inline Iterator operator+(int j) const { return Iterator(i+j); }
+	inline Iterator operator-(int j) const { return Iterator(i-j); }
+	inline int operator-(Iterator j) const { return i - j.i; }
+	friend class QList;
     };
+
     class ConstIterator {
 	typedef std::random_access_iterator_tag  iterator_category;
 	typedef ptrdiff_t difference_type;
@@ -108,20 +112,23 @@ public:
 	typedef T *pointer;
  	typedef T &reference;
 	Node *i; public:
-	inline operator Node *() const { return i; }
-	inline ConstIterator(const Iterator &o): i((Node*) o){}
 	inline ConstIterator(Node *n = 0): i(n){}
+	inline ConstIterator(const ConstIterator &o): i(o.i){}
+	inline ConstIterator(const Iterator &o): i(((ConstIterator&) o).i){}
 	inline const T &operator*() const { return i->t(); }
 	inline const T &operator[](int j) const { return i[j].t(); }
+	inline bool operator==(const ConstIterator &o) const { return i == o.i; }
+	inline bool operator!=(const ConstIterator &o) const { return i != o.i; }
 	inline ConstIterator operator++() { ++i; return *this; }
 	inline ConstIterator operator++(int) { Node *n = i; ++i; return n; }
 	inline ConstIterator operator--() { i--; return *this; }
 	inline ConstIterator operator--(int) { Node *n = i; i--; return n; }
 	inline ConstIterator &operator+=(int j) { i+=j; return *this; }
 	inline ConstIterator &operator-=(int j) { i+=j; return *this; }
-	inline ConstIterator operator+(int j) { return ConstIterator(i+j); }
-	inline ConstIterator operator-(int j) { return ConstIterator(i-j); }
-	inline int operator-(Iterator j) { return i - j.i; }
+	inline ConstIterator operator+(int j) const { return ConstIterator(i+j); }
+	inline ConstIterator operator-(int j) const { return ConstIterator(i-j); }
+	inline int operator-(ConstIterator j) const { return i - j.i; }
+	friend class QList;
     };
 
     inline Iterator begin() { detach(); return (Node*) p.begin(); }
@@ -155,13 +162,21 @@ public:
     inline void pop_front() { removeFirst(); }
     inline void pop_back() { removeLast(); }
     inline bool empty() const { return isEmpty(); }
+    inline Iterator find (const T& t)
+        { int i = indexOf(t); return (i == -1 ? end() : (begin()+i)); }
+    inline ConstIterator find (const T& t) const
+        { int i = indexOf(t); return (i == -1 ? end() : (begin()+i)); }
+    inline Iterator find (Iterator it, const T& t)
+	{ int i = indexOf(t, it-begin()); return i == -1 ? end() : begin()+i; }
+    inline ConstIterator find (ConstIterator it, const T& t) const
+	{ int i = indexOf(t, it-begin()); return i == -1 ? end() : begin()+i; }
     typedef int size_type;
 
 #ifndef QT_NO_COMPAT
     // compatibility
     inline Iterator remove(Iterator it) { return erase(it); }
     inline int count() const { return p.size(); }
-    int findIndex( const T& x ) const { return find(x); }
+    inline int findIndex( const T& x ) const { return indexOf(x); }
 #endif
 
     // comfort
@@ -233,12 +248,12 @@ inline QList<T> &QList<T>::operator=(const QList<T> &l)
 }
 template <typename T>
 inline typename QList<T>::Iterator QList<T>::insert(Iterator before, const T &t)
-{ Node *n = (Node*) p.insert((Node*)before-(Node*)p.begin());
+{ Node *n = (Node*) p.insert(before.i-(Node*)p.begin());
  node_construct(n,t); return n; }
 template <typename T>
 inline typename QList<T>::Iterator QList<T>::erase(Iterator it)
-{ node_destruct((Node*)it);
- return (Node*) p.erase((void**)(Node*)it); }
+{ node_destruct(it.i);
+ return (Node*) p.erase((void**)it.i); }
 template <typename T>
 inline const T &QList<T>::at(int i) const
 { Q_ASSERT(i >= 0 && i < size());
@@ -397,12 +412,12 @@ QList<T> &QList<T>::operator+=(const QList<T> &l)
 }
 
 template <typename T>
-int QList<T>::find(const T &t, int i) const
+int QList<T>::indexOf(const T &t, int from) const
 {
-    if (i < 0)
-	i = QMAX(i + p.size(), 0);
-    if (i < p.size()) {
-	Node *n = (Node*) p.at(i -1);
+    if (from < 0)
+	from = QMAX(from + p.size(), 0);
+    if (from < p.size()) {
+	Node *n = (Node*) p.at(from -1);
 	Node *e = (Node*) p.end();
 	while (++n != e)
 	    if (n->t() == t)
@@ -412,15 +427,15 @@ int QList<T>::find(const T &t, int i) const
 }
 
 template <typename T>
-int QList<T>::findRev(const T &t, int i) const
+int QList<T>::lastIndexOf(const T &t, int from) const
 {
-    if (i < 0)
-	i += p.size();
-    else if (i >= p.size())
-	i = p.size()-1;
-    if (i >= 0) {
+    if (from < 0)
+	from += p.size();
+    else if (from >= p.size())
+	from = p.size()-1;
+    if (from >= 0) {
 	Node *b = (Node*) p.begin();
-	Node *n = (Node*) p.at(i + 1);
+	Node *n = (Node*) p.at(from + 1);
 	while (n-- != b) {
 	    if (n->t() == t)
 		return n - b;

@@ -163,20 +163,8 @@ public:
         { Q_ASSERT(i < size()); detach(); return begin()+i; }
     typename QValueList<T>::ConstIterator at(typename QValueList<T>::size_type i) const
         { Q_ASSERT(i < size()); return begin()+i; }
-    typename QValueList<T>::Iterator find (const T& x)
-        { int i = QList<T>::find(x); return (i == -1 ? end() : (begin()+i)); }
-    typename QValueList<T>::ConstIterator find (const T& x) const
-        { int i = QList<T>::find(x); return (i == -1 ? end() : (begin()+i)); }
-    typename QValueList<T>::Iterator find (typename QValueList<T>::Iterator it,
-					   const T& x)
-	{ int i = QList<T>::find(x, it-begin()); return i == -1 ? end() : begin()+i; }
-    typename QValueList<T>::ConstIterator find(typename QValueList<T>::ConstIterator it,
-					       const T& x) const
-	{ int i = QList<T>::find(x, it-begin()); return i == -1 ? end() : begin()+i; }
     typename QValueList<T>::size_type contains(const T& x) const
         { return QList<T>::count(x); }
-
-    typename QValueList<T>::size_type count() const { return size(); }
 
     QValueList<T>& operator+= (const T& x) { append(x); return *this; }
 };

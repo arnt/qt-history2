@@ -80,10 +80,10 @@ public:
     // #### move to qnamespace
     enum CaseSensitivity { CaseInsensitive, CaseSensitive };
 
-    int find(QChar c, int i = 0, CaseSensitivity cs = CaseSensitive) const;
-    int find(const QString &s, int i = 0, CaseSensitivity cs = CaseSensitive) const;
-    int findRev(QChar c, int i = -1, CaseSensitivity cs = CaseSensitive) const;
-    int findRev(const QString &s, int i = -1, CaseSensitivity cs = CaseSensitive) const;
+    int indexOf(QChar c, int from = 0, CaseSensitivity cs = CaseSensitive) const;
+    int indexOf(const QString &s, int from = 0, CaseSensitivity cs = CaseSensitive) const;
+    int lastIndexOf(QChar c, int from = -1, CaseSensitivity cs = CaseSensitive) const;
+    int lastIndexOf(const QString &s, int from = -1, CaseSensitivity cs = CaseSensitive) const;
 
     QBool contains(QChar c, CaseSensitivity cs = CaseSensitive) const;
     QBool contains(const QString &s, CaseSensitivity cs = CaseSensitive) const;
@@ -91,8 +91,8 @@ public:
     int count(const QString &s, CaseSensitivity cs = CaseSensitive) const;
 
 #ifndef QT_NO_REGEXP
-    int find(const QRegExp &, int i=0) const;
-    int findRev(const QRegExp &, int i=-1) const;
+    int indexOf(const QRegExp &, int from = 0) const;
+    int lastIndexOf(const QRegExp &, int from = -1) const;
     inline QBool contains(const QRegExp &rx) const { return find(rx) != -1; }
     int count(const QRegExp &) const;
 #endif
@@ -295,14 +295,20 @@ public:
     { return replace(c, after, cs?CaseSensitive:CaseInsensitive); }
     inline QString &replace(const QString  &before, const QString  &after, bool cs)
     { return replace(before, after, cs?CaseSensitive:CaseInsensitive); }
-    inline int find(QChar c, int i, bool cs) const
-    { return find(c, i, cs?CaseSensitive:CaseInsensitive); }
-    inline int find(const QString &s, int i, bool cs) const
-    { return find(s, i, cs?CaseSensitive:CaseInsensitive); }
-    inline int findRev(QChar c, int i, bool cs) const
-    { return findRev(c, i, cs?CaseSensitive:CaseInsensitive); }
-    inline int findRev(const QString &s, int i, bool cs) const
-    { return findRev(s, i, cs?CaseSensitive:CaseInsensitive); }
+    inline int find(QChar c, int i = 0, bool cs = true) const
+    { return indexOf(c, i, cs?CaseSensitive:CaseInsensitive); }
+    inline int find(const QString &s, int i = 0, bool cs = true) const
+    { return indexOf(s, i, cs?CaseSensitive:CaseInsensitive); }
+    inline int findRev(QChar c, int i = -1, bool cs = true) const
+    { return lastIndexOf(c, i, cs?CaseSensitive:CaseInsensitive); }
+    inline int findRev(const QString &s, int i = -1, bool cs = true) const
+    { return lastIndexOf(s, i, cs?CaseSensitive:CaseInsensitive); }
+#ifndef QT_NO_REGEXP
+    int find(const QRegExp &rx, int i=0) const
+    { return indexOf(rx, i); }
+    int findRev(const QRegExp &rx, int i=-1) const
+    { return lastIndexOf(rx, i); }
+#endif
     inline QBool contains(QChar c, bool cs) const
     { return contains(c, cs?CaseSensitive:CaseInsensitive); }
     inline QBool contains(const QString &s, bool cs) const

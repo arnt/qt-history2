@@ -792,12 +792,12 @@ bool operator==(const QString &s1, const QString &s2)
 
     Returns the position of \a c or -1 if \a c could not be found.
 */
-int QString::find(QChar c, int i, QString::CaseSensitivity cs) const
+int QString::indexOf(QChar c, int from, QString::CaseSensitivity cs) const
 {
-    if (i < 0)
-	i = QMAX(i + d->size, 0);
-    if (i  < d->size) {
-	const QChar *n = (const QChar*)d->data + i - 1;
+    if (from < 0)
+	from = QMAX(from + d->size, 0);
+    if (from  < d->size) {
+	const QChar *n = (const QChar*)d->data + from - 1;
 	const QChar *e = (const QChar*)d->data + d->size;
 	if (cs == CaseSensitive) {
 	    while (++n != e)
@@ -830,14 +830,14 @@ int QString::find(QChar c, int i, QString::CaseSensitivity cs) const
 	int i = string.findRev('a');      // i == 5
     \endcode
 */
-int QString::findRev(QChar c, int i, QString::CaseSensitivity cs) const
+int QString::lastIndexOf(QChar c, int from, QString::CaseSensitivity cs) const
 {
-    if (i < 0)
-	i += d->size;
-    else if (i > d->size)
-	i = d->size-1;
-    if (i >= 0) {
-	const QChar *n =  (const QChar*)d->data + i;
+    if (from < 0)
+	from += d->size;
+    else if (from > d->size)
+	from = d->size-1;
+    if (from >= 0) {
+	const QChar *n =  (const QChar*)d->data + from;
 	const QChar *b = (const QChar*)d->data;
 	if (cs == CaseSensitive) {
 	    for (; n >= b; --n)
@@ -961,19 +961,19 @@ static int bm_find(const QChar *uc, uint l, int index, const QChar *puc, uint pl
     Returns the position of \a str or -1 if \a s could not be found.
 */
 
-int QString::find(const QString& s, int i, QString::CaseSensitivity cs) const
+int QString::indexOf(const QString& s, int from, QString::CaseSensitivity cs) const
 {
     const uint l = d->size;
     const uint sl = s.d->size;
-    if (i < 0)
-	i += l;
-    if (sl + i > l)
+    if (from < 0)
+	from += l;
+    if (sl + from > l)
 	return -1;
     if (!sl)
-	return i;
+	return from;
 
     if (sl == 1)
-	return find(*(const QChar*) s.d->data, i, cs);
+	return find(*(const QChar*) s.d->data, from, cs);
 
     // we use the Boyer-Moore algorithm in cases where the overhead
     // for the hash table should pay off, otherwise we use a simple
@@ -981,7 +981,7 @@ int QString::find(const QString& s, int i, QString::CaseSensitivity cs) const
     if (l > 500 && sl > 5) {
 	uint skiptable[0x100];
 	bm_init_skiptable((const QChar*)s.d->data , sl, skiptable, cs);
-	return bm_find((const QChar*) d->data, l, i, (const QChar*)s.d->data , sl ,skiptable, cs);
+	return bm_find((const QChar*) d->data, l, from, (const QChar*)s.d->data , sl ,skiptable, cs);
     }
 
     /*
@@ -991,7 +991,7 @@ int QString::find(const QString& s, int i, QString::CaseSensitivity cs) const
       or ucstrnicmp.
    */
     const QChar *needle = (const QChar*) s.d->data;
-    const QChar *haystack = (const QChar*) d->data + i;
+    const QChar *haystack = (const QChar*) d->data + from;
     const QChar *end = (const QChar*) d->data + (l-sl);
     const uint sl_minus_1 = sl-1;
     uint hashNeedle = 0, hashHaystack = 0, idx;
@@ -1052,28 +1052,28 @@ int QString::find(const QString& s, int i, QString::CaseSensitivity cs) const
     int i = string.findRev("ana");      // i == 3
     \endcode
 */
-int QString::findRev(const QString& s, int i, QString::CaseSensitivity cs) const
+int QString::lastIndexOf(const QString& s, int from, QString::CaseSensitivity cs) const
 {
     /*
-      See QString::find() for explanations.
+      See QString::indexOf() for explanations.
    */
     const uint l = d->size;
-    if (i < 0)
-	i += l;
+    if (from < 0)
+	from += l;
     const uint sl = s.d->size;
     int delta = l-sl;
-    if (i < 0 || i > (int)l || delta < 0)
+    if (from < 0 || from > (int)l || delta < 0)
 	return -1;
-    if (i > delta)
-	i = delta;
+    if (from > delta)
+	from = delta;
 
 #ifndef MACOSX_101
     if (sl == 1)
-	return findRev(*(const QChar*) s.d->data, i, cs);
+	return findRev(*(const QChar*) s.d->data, from, cs);
 #endif
 
     const QChar *needle = (const QChar*) s.d->data;
-    const QChar *haystack = (const QChar*) d->data + i;
+    const QChar *haystack = (const QChar*) d->data + from;
     const QChar *end = (const QChar*) d->data;
     const uint sl_minus_1 = sl-1;
     const QChar *n = needle+sl_minus_1;
@@ -1475,7 +1475,7 @@ int QString::count(const QString& s, QString::CaseSensitivity cs) const
 #ifndef QT_NO_REGEXP
 /*! \overload
     Finds the first match of the regular expression \a rx, starting
-    from position \a i. If \a i is -1, the search starts at
+    from position \a from. If \a i is -1, the search starts at
     the last character; if -2, at the next to last character and so
     on. (See findRev() for searching backwards.)
 
@@ -1489,13 +1489,13 @@ int QString::count(const QString& s, QString::CaseSensitivity cs) const
 
     \sa findRev() replace() contains()
 */
-int QString::find(const QRegExp& rx, int i) const { return rx.search(*this, i); }
+int QString::indexOf(const QRegExp& rx, int from) const { return rx.search(*this, from); }
 
 /*!
     \overload
 
     Finds the first match of the regexp \a rx, starting at position \a
-    index and searching backwards. If the index is -1, the search
+    from and searching backwards. If the index is -1, the search
     starts at the last character, if it is -2, at the next to last
     character and so on. (See findRev() for searching backwards.)
 
@@ -1509,7 +1509,7 @@ int QString::find(const QRegExp& rx, int i) const { return rx.search(*this, i); 
     \sa find()
 */
 
-int QString::findRev(const QRegExp& rx, int i) const { return rx.searchRev(*this, i); }
+int QString::lastIndexOf(const QRegExp& rx, int from) const { return rx.searchRev(*this, from); }
 
 
 /*!
