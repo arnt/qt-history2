@@ -11,7 +11,7 @@ function setWidth( form )
 }
 </script>
 
-<p>
+<p />
 This is one QWidget subclass:<br />
 <object ID="Ax1" CLASSID="CLSID:1D9928BD-4453-4bdd-903D-E525ED17FDE5"
 CODEBASE="http://www.trolltech.com/demos/multipleax.cab">
@@ -24,7 +24,7 @@ Fill Color: <input type="edit" ID="colorEdit" value = "red" />
 <input type="button" value = "Show" onClick="Ax1.show()" />
 </form>
 
-<p>
+<p />
 This is another QWidget subclass:<br />
 <object ID="Ax2" CLASSID="CLSID:58139D56-6BE9-4b17-937D-1B1EDEDD5B71"
 CODEBASE="http://www.trolltech.com/demos/multipleax.cab">
