@@ -3283,7 +3283,7 @@ void QCanvasSprite::draw(QPainter& painter)
   canvas, so you will need to call setCanvas() to display a canvas.
 */
 QCanvasView::QCanvasView(QWidget* parent, const char* name, WFlags f) :
-    QScrollView(parent,name,f|WRepaintNoErase|WResizeNoErase|WStaticContents)
+    QScrollView(parent,name,f|WResizeNoErase|WStaticContents)
 {
     d = new QCanvasViewData;
     viewing = 0;
@@ -3298,7 +3298,7 @@ QCanvasView::QCanvasView(QWidget* parent, const char* name, WFlags f) :
   parent, and name \a name, using the widget flags \a f.
 */
 QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, WFlags f) :
-    QScrollView(parent,name,f)
+    QScrollView(parent,name,f|WResizeNoErase|WStaticContents)
 {
     d = new QCanvasViewData;
     viewing = 0;
@@ -4215,49 +4215,34 @@ QPointArray QCanvasLine::areaPoints() const
     int pw = pen().width();
     int dx = QABS(x1-x2);
     int dy = QABS(y1-y2);
-    if ( pw <= 1 ) {
-	// thin
-	if ( dx > dy ) {
-	    p[0] = QPoint(x1+xi,y1+yi-1);
-	    p[1] = QPoint(x2+xi,y2+yi-1);
-	    p[2] = QPoint(x2+xi,y2+yi+1);
-	    p[3] = QPoint(x1+xi,y1+yi+1);
+    pw = pw*4/3+2; // approx pw*sqrt(2)
+    int px = x1<x2 ? -pw : pw ;
+    int py = y1<y2 ? -pw : pw ;
+    if ( dx && dy && (dx > dy ? (dx*2/dy <= 2) : (dy*2/dx <= 2)) ) {
+	// steep
+	if ( px == py ) {
+	    p[0] = QPoint(x1+xi   ,y1+yi+py);
+	    p[1] = QPoint(x2+xi-px,y2+yi   );
+	    p[2] = QPoint(x2+xi   ,y2+yi-py);
+	    p[3] = QPoint(x1+xi+px,y1+yi   );
 	} else {
-	    p[0] = QPoint(x1+xi-1,y1+yi);
-	    p[1] = QPoint(x2+xi-1,y2+yi);
-	    p[2] = QPoint(x2+xi+1,y2+yi);
-	    p[3] = QPoint(x1+xi+1,y1+yi);
+	    p[0] = QPoint(x1+xi+px,y1+yi   );
+	    p[1] = QPoint(x2+xi   ,y2+yi-py);
+	    p[2] = QPoint(x2+xi-px,y2+yi   );
+	    p[3] = QPoint(x1+xi   ,y1+yi+py);
 	}
+    } else if ( dx > dy ) {
+	// horizontal
+	p[0] = QPoint(x1+xi+px,y1+yi+py);
+	p[1] = QPoint(x2+xi-px,y2+yi+py);
+	p[2] = QPoint(x2+xi-px,y2+yi-py);
+	p[3] = QPoint(x1+xi+px,y1+yi-py);
     } else {
-	pw = pw*4/3+2; // approx pw*sqrt(2)
-	int px = x1<x2 ? -pw : pw ;
-	int py = y1<y2 ? -pw : pw ;
-	if ( dx && dy && (dx > dy ? (dx*2/dy <= 2) : (dy*2/dx <= 2)) ) {
-	    // steep
-	    if ( px == py ) {
-		p[0] = QPoint(x1+xi   ,y1+yi+py);
-		p[1] = QPoint(x2+xi-px,y2+yi   );
-		p[2] = QPoint(x2+xi   ,y2+yi-py);
-		p[3] = QPoint(x1+xi+px,y1+yi   );
-	    } else {
-		p[0] = QPoint(x1+xi+px,y1+yi   );
-		p[1] = QPoint(x2+xi   ,y2+yi-py);
-		p[2] = QPoint(x2+xi-px,y2+yi   );
-		p[3] = QPoint(x1+xi   ,y1+yi+py);
-	    }
-	} else if ( dx > dy ) {
-	    // horizontal
-	    p[0] = QPoint(x1+xi+px,y1+yi+py);
-	    p[1] = QPoint(x2+xi-px,y2+yi+py);
-	    p[2] = QPoint(x2+xi-px,y2+yi-py);
-	    p[3] = QPoint(x1+xi+px,y1+yi-py);
-	} else {
-	    // vertical
-	    p[0] = QPoint(x1+xi+px,y1+yi+py);
-	    p[1] = QPoint(x2+xi+px,y2+yi-py);
-	    p[2] = QPoint(x2+xi-px,y2+yi-py);
-	    p[3] = QPoint(x1+xi-px,y1+yi+py);
-	}
+	// vertical
+	p[0] = QPoint(x1+xi+px,y1+yi+py);
+	p[1] = QPoint(x2+xi+px,y2+yi-py);
+	p[2] = QPoint(x2+xi-px,y2+yi-py);
+	p[3] = QPoint(x1+xi-px,y1+yi+py);
     }
     return p;
 }
