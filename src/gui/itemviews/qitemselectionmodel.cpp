@@ -153,11 +153,14 @@ void QItemSelectionModel::select(const QItemSelection &selection, int updateMode
     QItemSelection sel = selection;
     QItemSelection old;
 
-    if (d->selectionMode == Single && !sel.isEmpty()) {
-        QModelIndex singleIndex = model()->index(sel.at(sel.count()-1).bottom(),
-                                                 sel.at(sel.count()-1).right(),
-                                                 sel.at(sel.count()-1).parent());
-        sel = QItemSelection(singleIndex, singleIndex, model());
+    if (d->selectionMode == Single) {
+        if (!sel.isEmpty()) {
+            QModelIndex singleIndex = model()->index(sel.at(sel.count()-1).bottom(),
+                                                     sel.at(sel.count()-1).right(),
+                                                     sel.at(sel.count()-1).parent());
+            sel = QItemSelection(singleIndex, singleIndex, model());
+        }
+        updateMode |= Clear;
     }
 
     if (behavior != SelectItems)
