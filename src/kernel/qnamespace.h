@@ -135,6 +135,9 @@ public:
 	Anywhere 	= 0x8000
     };
 
+    // Widget flags
+    typedef uint WState;
+    
     // QWidget state flags (internal, not documented but should be)
     enum WidgetState {
 	WState_Created		= 0x00000001,
