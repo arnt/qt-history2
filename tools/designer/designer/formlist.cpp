@@ -213,6 +213,9 @@ void FormList::setProject( Project *pro )
     bufferEdit->clear();
 
     LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
+    QString extension = "xx";
+    if ( iface )
+	extension = iface->formCodeExtension();
 
     if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
 	sourceParent = new FormListItem( this );
@@ -236,6 +239,8 @@ void FormList::setProject( Project *pro )
 	item->setType( FormListItem::Form );
 	QString className = project->formName( item->text( 1 ) );
 	bufferEdit->addCompletionEntry( item->text( 1 ) );
+	if ( QFile::exists( project->makeAbsolute( item->text( 1 ) + extension ) ) )
+	    bufferEdit->addCompletionEntry( item->text( 1 ) + extension );
 	if ( !className.isEmpty() ) {
 	    item->setText( 0, className );
 	    bufferEdit->addCompletionEntry( className );
@@ -339,9 +344,15 @@ void FormList::modificationChanged( bool, FormWindow *fw )
 
 void FormList::fileNameChanged( const QString &fn, FormWindow *fw )
 {
+    QString extension = "xx";
+    LanguageInterface *iface = MetaDataBase::languageInterface( project->language() );
+    if ( iface )
+	extension = iface->formCodeExtension();
+
     QString s = project->makeRelative( fn );
     FormListItem *i = findItem( fw );
     bufferEdit->removeCompletionEntry( i->text( 1 ) );
+    bufferEdit->removeCompletionEntry( i->text( 1 ) + extension );
     if ( !i )
 	return;
     if ( s.isEmpty() ) {
@@ -349,6 +360,8 @@ void FormList::fileNameChanged( const QString &fn, FormWindow *fw )
     } else {
 	i->setText( 1, s );
 	bufferEdit->addCompletionEntry( s );
+	if ( QFile::exists( project->makeAbsolute( s + extension ) ) )
+	    bufferEdit->addCompletionEntry( s + extension );
     }
     if ( project )
 	project->setFormWindowFileName( fw, s );
@@ -419,9 +432,15 @@ void FormList::bufferChosen( const QString &buffer )
     bufferEdit->setText( "" );
     QListViewItemIterator it( this );
     QListViewItem *res = 0;
+    QString extension = "xx";
+    LanguageInterface *iface = MetaDataBase::languageInterface( project->language() );
+    if ( iface )
+	extension = iface->formCodeExtension();
+    bool formCode = buffer.right( extension.length() ) == extension;
     while ( it.current() ) {
-	if ( it.current()->text( 0 ) == buffer ||
-	     it.current()->text( 1 ) == buffer ) {
+	if ( !formCode &&
+	     ( it.current()->text( 0 ) == buffer || it.current()->text( 1 ) == buffer ) ||
+	     formCode && ( it.current()->text( 1 ) + extension ) == buffer ) {
 	    res = it.current();
 	    break;
 	}
@@ -431,6 +450,8 @@ void FormList::bufferChosen( const QString &buffer )
     if ( res ) {
 	setCurrentItem( res );
 	itemClicked( LeftButton, res );
+	if ( formCode )
+	    MainWindow::self->editSource();
     }
 }
 
