@@ -286,6 +286,9 @@ qwerty
 rangecontrols
     This examples shows how to use QSpinBox and QSlider.
 
+regexptester
+    This little application is useful for testing regular expressions.
+
 richtext
     This example shows the use of QTextView (a read/only QTextEdit
     subclass).
