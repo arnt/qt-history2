@@ -384,7 +384,7 @@ static QSNDict *sn_except = 0;
 
 static QSNDict**sn_vec[3] = { &sn_read, &sn_write, &sn_except };
 
-static uint	sn_msg	  = 0;			// socket notifier message
+uint	qt_sn_msg	  = 0;			// socket notifier message
 static QWidget *sn_win	  = 0;			// win msg via this window
 
 
@@ -404,9 +404,9 @@ static void sn_init()
 	return;
     qAddPostRoutine( sn_cleanup );
 #ifdef Q_OS_TEMP
-    sn_msg = RegisterWindowMessage(L"QtSNEvent");
+    qt_sn_msg = RegisterWindowMessage(L"QtSNEvent");
 #else
-    sn_msg = RegisterWindowMessageA( "QtSNEvent" );
+    qt_sn_msg = RegisterWindowMessageA( "QtSNEvent" );
 #endif
     sn_win = new QWidget(0,"QtSocketNotifier_Internal_Widget");
     Q_CHECK_PTR( sn_win );
@@ -417,7 +417,7 @@ static void sn_init()
     }
 }
 
-static void sn_activate_fd( int sockfd, int type )
+void qt_sn_activate_fd( int sockfd, int type )
 {
     QSNDict  *dict = *sn_vec[type];
     QSockNot *sn   = dict ? dict->find(sockfd) : 0;
@@ -491,7 +491,7 @@ void QEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
     }
     // BoundsChecker may emit a warning for WSAAsyncSelect when sn_event == 0
     // This is a BoundsChecker bug and not a Qt bug
-    WSAAsyncSelect( sockfd, sn_win->winId(), sn_event ? sn_msg : 0, sn_event );
+    WSAAsyncSelect( sockfd, sn_win->winId(), sn_event ? qt_sn_msg : 0, sn_event );
 #else
 /*
 	fd_set	rd,wt,ex;
@@ -541,7 +541,7 @@ void QEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
 	sn_event |= FD_OOB;
   // BoundsChecker may emit a warning for WSAAsyncSelect when sn_event == 0
   // This is a BoundsChecker bug and not a Qt bug
-    WSAAsyncSelect( sockfd, sn_win->winId(), sn_event ? sn_msg : 0, sn_event );
+    WSAAsyncSelect( sockfd, sn_win->winId(), sn_event ? qt_sn_msg : 0, sn_event );
 #else
 /*
 	fd_set	rd,wt,ex;
@@ -611,26 +611,6 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 	const bool handled = dispatchTimer( msg.wParam, &msg );
 	if ( handled )
 	    return TRUE;
-    } else if ( sn_msg && msg.message == sn_msg ) {	// socket notifier message
-	int type = -1;
-#ifndef Q_OS_TEMP
-	switch ( WSAGETSELECTEVENT(msg.lParam) ) {
-	case FD_READ:
-	case FD_CLOSE:
-	case FD_ACCEPT:
-	    type = 0;
-	    break;
-	case FD_WRITE:
-	case FD_CONNECT:
-	    type = 1;
-	    break;
-	case FD_OOB:
-	    type = 2;
-	    break;
-	}
-#endif
-	if ( type >= 0 )
-	    sn_activate_fd( msg.wParam, type );
     } else if ( !msg.hwnd && msg.message ) {
 	qt_winEventFilter( &msg );
     }
