@@ -223,7 +223,7 @@ protected:
 };
 
 #ifdef QT_COMPAT
-class Q_CORE_EXPORT QCustomEvent : public QEvent
+class QT_COMPAT Q_CORE_EXPORT QCustomEvent : public QEvent
 {
 public:
     QT_COMPAT_CONSTRUCTOR QCustomEvent(int type, void *data = 0);
