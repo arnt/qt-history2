@@ -1026,7 +1026,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         QString lib = project->first("QMAKE_ORIG_TARGET");
         if(project->isActiveConfig("staticlib")) {
             lib = project->first("TARGET");
-        } else if(!project->isActiveConfig("frameworklib")) {
+        } else if(!project->isActiveConfig("lib_bundle")) {
             if(project->isActiveConfig("plugin"))
                 lib = project->first("TARGET");
             else
@@ -1163,7 +1163,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             t << "\t\t\t\t" << "LIBRARY_STYLE = DYNAMIC;" << "\n";
         }
         QString lib = project->first("QMAKE_ORIG_TARGET");
-        if (!project->isActiveConfig("frameworklib") && !project->isActiveConfig("staticlib"))
+        if (!project->isActiveConfig("lib_bundle") && !project->isActiveConfig("staticlib"))
             lib.prepend("lib");
         t << "\t\t\t\t" << "PRODUCT_NAME = " << lib << ";" << "\n";
     }
@@ -1240,7 +1240,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
           << "\t\t\t" << "productName = " << project->first("QMAKE_ORIG_TARGET") << ";" << "\n";
     } else {
         QString lib = project->first("QMAKE_ORIG_TARGET");
-        if(!project->isActiveConfig("frameworklib") && !project->isActiveConfig("staticlib"))
+        if(!project->isActiveConfig("lib_bundle") && !project->isActiveConfig("staticlib"))
            lib.prepend("lib");
         t << "\t\t\t" << "name = \"" << lib << "\";" << "\n"
           << "\t\t\t" << "productName = " << lib << ";" << "\n";
