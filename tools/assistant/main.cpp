@@ -392,7 +392,7 @@ int main( int argc, char ** argv )
 #endif
 
     if ( argc == 1 || QString( argv[1] ).left( 2 ) != "d:" ) {
-	MainWindow * mw = new MainWindow;
+	MainWindow * mw = new MainWindow(0, "Assistant" );
 	mw->setIcon( logo_xpm );
 
 	QString keybase("/Qt Assistant/3.1/");
