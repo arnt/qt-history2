@@ -273,6 +273,9 @@ QIntValidator::~QIntValidator()
     valid range, \c Intermediate if the \a input is an integer outside
     the valid range and \c Invalid if the \a input is not an integer.
 
+    Note: If the valid range consists of just positive integers (e.g. 0 - 100)
+    and \a input is a negative integer then Invalid is returned.
+
     \code
     s = "35";
     v.validate( s, 0 ); // returns Acceptable
@@ -282,6 +285,7 @@ QIntValidator::~QIntValidator()
 
     s = "abc";
     v.validate( s, 0 ); // returns Invalid
+
     \endcode
 */
 
