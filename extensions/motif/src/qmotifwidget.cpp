@@ -262,6 +262,11 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
     else
 	d->widget = XtCreateWidget( name, widgetclass, motifparent, args, argcount );
 
+    if (! extraData()) {
+        // createExtra() is private, so use topData() to ensure that
+        // the extra data is created
+        (void) topData();
+    }
     extraData()->compress_events = FALSE;
 }
 
