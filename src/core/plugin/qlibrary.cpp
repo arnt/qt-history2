@@ -38,33 +38,36 @@
     \ingroup plugins
 
     An instance of a QLibrary object operates on a single shared
-    object file (or library, or DLL) and provide access to the
-    functionality in the library in a platform independent way. You
-    can either pass a file name in the constructor, or set it
-    explicitly with setFileName(). When loading the library, QLibrary
-    searches in all system-specific library locations
-    (e.g. LD_LIBRARY_PATH on Unix), unless the file name specifies an
-    absolute file path. If the file cannot be found, QLibrary probes
-    different platform specific file suffixes, like ".so" on Unix,
-    ".dylib" on the Mac or ".dll" on MS-Windows. This makes it
-    possible to specify shared libraries through only the basename, so
-    the same code will work on different operating system platforms.
+    object file (which we call a "library", but is also known as a
+    "DLL"). A QLibrary provides access to the functionality in the
+    library in a platform independent way. You can either pass a file
+    name in the constructor, or set it explicitly with setFileName().
+    When loading the library, QLibrary searches in all system-specific
+    library locations (e.g. \c LD_LIBRARY_PATH on Unix), unless the
+    file name has an absolute file path. If the file cannot be found,
+    QLibrary tries the name with different platform-specific file
+    suffixes, like ".so" on Unix, ".dylib" on the Mac, or ".dll" on
+    Microsoft Windows. This makes it possible to specify shared
+    libraries that are only identified by their basename (i.e. without
+    their suffix), so the same code will work on different operating
+    systems.
 
     The most important functions are load() to dynamically load the
-    library file, isLoaded() to know whether loading was successful,
-    and resolve() to resolve a symbol in the library.  resolve()
-    implicitly tries to load the library if it has not been loaded
-    yet. Multiple instance of QLibrary can wrap the same physical
-    shared object file. Once loaded, libraries remain in memory until
-    the application exists. With unload(), you can explicitly unload a
-    library, presuming there are no other QLibrary instances that
-    operate on the same shared object file.
+    library file, isLoaded() to check whether loading was successful,
+    and resolve() to resolve a symbol in the library. The resolve()
+    function implicitly tries to load the library if it has not been
+    loaded yet. Multiple instances of QLibrary can be used to access
+    the same physical library. Once loaded, libraries remain in memory
+    until the application terminates. You can programmatically unload
+    a library using unload(), but if you do this, you are responsible
+    for ensuring that no other QLibrary instances are making use of
+    the library you've unloaded.
 
     A typical use of QLibrary is to resolve an exported symbol in a
-    shared object file, and to call the C-function that this symbol
-    represents. This is called "explicit linking" in contrast to
-    "implicit linking", which is done by the link step in the build
-    process when linking an executable against a library.
+    library, and to call the C-function that this symbol represents.
+    This is called "explicit linking" in contrast to "implicit
+    linking", which is done by the link step in the build process when
+    linking an executable against a library.
 
     The following code snippet loads a library, resolves the symbol
     "mysymbol", and calls the function if everything succeeded. If
@@ -73,7 +76,7 @@
     called.
 
     \code
-    QLibrary myLib("mylib");
+    QLibrary myLib("mylib"); // mylib.dll or mylib.so or mylib.dylib
     typedef void (*MyPrototype)();
     MyPrototype myFunction = (MyPrototype) myLib.resolve("mysymbol");
     if (myFunction) {
@@ -81,12 +84,14 @@
     }
     \endcode
 
-    The symbol must be exported as C-function from the library for
-    resolve to work. This requires the \c {extern "C"} notation if the
-    library is compiled with a C++ compiler. On MS-Windows, this also
-    requires a dllexport macro. See resolve() for details how this is
-    done. For convenience, there is a static resolve function for the
-    common case that does not require creating a QLibrary instance:
+    The symbol must be exported as a C-function from the library for
+    resolve() to work. This means that the function must be wrapped in
+    an \c{extern "C"} block if the library is compiled with a C++
+    compiler. On Microsoft Windows, this also requires the use of a \c
+    dllexport macro. See resolve() for the details of how this is
+    done. For convenience, there is a static resolve() function which
+    you can use if you just want to call a function in a library
+    without explicitly loading the library first:
 
     \code
     typedef void (*MyPrototype)();
@@ -483,11 +488,12 @@ bool QLibraryPrivate::isPlugin()
 }
 
 /*!
-    Loads the library and returns true if the library could be loaded;
-    otherwise returns false. Since resolve() always calls this
-    function before resolving any symbols it is not necessary to call
-    it explicitly. In some situations you might want the library
-    loaded in advance, in which case you would use this function.
+    Loads the library and returns true if the library was loaded
+    successfully; otherwise returns false. Since resolve() always
+    calls this function before resolving any symbols it is not
+    necessary to call it explicitly. In some situations you might want
+    the library loaded in advance, in which case you would use this
+    function.
 
     On Darwin and Mac OS X this function uses code from dlcompat, part of the
     OpenDarwin project.
@@ -531,6 +537,13 @@ bool QLibrary::load()
     Unloads the library and returns true if the library could be
     unloaded; otherwise returns false.
 
+    QLibrary handles this automatically so you shouldn't normally need
+    to call this function.
+
+    \warning If you unload() a library that is being used elsewhere in
+    your application, e.g. by another QLibrary instance, you may
+    experience undefined behavior.
+
     \sa resolve(), load()
 */
 bool QLibrary::unload()
@@ -554,7 +567,7 @@ bool QLibrary::isLoaded() const
 
 
 /*!
-  Constructs a library with parent \a parent.
+    Constructs a library with the given \a parent.
  */
 QLibrary::QLibrary(QObject *parent)
     :QObject(parent), d(0), did_load(false)
@@ -563,16 +576,16 @@ QLibrary::QLibrary(QObject *parent)
 
 
 /*!
-    Constructs a library with parent \a parent, and file name \a fileName.
+    Constructs a library object with the given \a parent that will
+    load the library specified by \a fileName.
 
-    When setting the file name, the platform specific file suffixes
-    can be omitted. If the file cannot be found, QLibrary probes
-    different platform specific file suffixes, like ".so" on Unix,
-    ".dylib" on the Mac or ".dll" on MS-Windows. This makes it
-    possible to specify shared libraries through only the basename, so
-    the same code will work on different operating system platforms.
+    We recommend omitting the file's suffix in \a fileName, since
+    QLibrary will automatically look for the file with the appropriate
+    suffix in accordance with the platform, e.g. ".so" on Unix,
+    ".dylib" on Mac OS X, and ".dll" on Windows. (See \l{fileName}.)
 
-    See \l fileName for details.
+    To make use of the library you must resolve() one or more of its
+    symbols.
  */
 QLibrary::QLibrary(const QString& fileName, QObject *parent)
     :QObject(parent), d(0), did_load(false)
@@ -584,7 +597,7 @@ QLibrary::QLibrary(const QString& fileName, QObject *parent)
     Destroys the QLibrary object.
 
     Unless unload() was called explicitly, the shared object file
-    stays in memory until the application exits.
+    stays in memory until the application terminates.
 
     \sa isLoaded(), unload()
 */
@@ -597,30 +610,23 @@ QLibrary::~QLibrary()
 
 /*!
     \property QLibrary::fileName
+    \brief the file name of the library
 
-    \brief the file name of the share object file
+    We recommend omitting the file's suffix in the file name, since
+    QLibrary will automatically look for the file with the appropriate
+    suffix in accordance with the following list:
 
-    When setting the file name, the platform specific file suffixes
-    can be omitted. When loading the library, QLibrary searches in all
-    system-specific library locations (e.g. LD_LIBRARY_PATH on Unix),
-    unless the file name specifies an absolute file path. If the file
-    cannot be found, QLibrary probes different platform specific file
-    suffixes, like ".so" on Unix, ".dylib" on the Mac or ".dll" on
-    MS-Windows. This makes it possible to specify shared libraries
-    through only the basename, so the same code will work on different
-    operating system platforms.
+    \table
+    \header \i Platform \i Supported suffixes
+    \row \i Windows     \i dll
+    \row \i Unix/Linux  \i so
+    \row \i HP-UX       \i sl
+    \row \i Mac OS X    \i dylib, bundle, so
+    \endtable.
 
-    The current list of supported suffixes is:
-    \list
-    \i On MS-Windows: dll
-    \i On Unix: so
-    \i On HPUX: sl
-    \i On MacOSX: dylib, bundle, so
-    \endlist
-
-    Specifying the extension explicitly is not recommended, since
-    doing so introduces a platform dependency.
-
+    When loading the library, QLibrary searches in all system-specific
+    library locations (e.g. \c LD_LIBRARY_PATH on Unix), unless the
+    file name has an absolute path.
 */
 
 void QLibrary::setFileName(const QString &fileName)
@@ -647,8 +653,9 @@ QString QLibrary::fileName() const
 /*!
     Returns the address of the exported symbol \a symbol. The library is
     loaded if necessary. The function returns 0 if the symbol could
-    not be resolved or the library could not be loaded.
+    not be resolved or if the library could not be loaded.
 
+    Example:
     \code
     typedef int (*avgProc)(int, int);
 
@@ -660,10 +667,10 @@ QString QLibrary::fileName() const
     \endcode
 
     The symbol must be exported as a C-function from the library. This
-    requires the \c {extern "C"} notation if the library is compiled
-    with a C++ compiler. On Windows you also have to explicitly export
-    the function from the DLL using the \c {__declspec(dllexport)}
-    compiler directive.
+    means that the function must be wrapped in an \c{extern "C"} if
+    the library is compiled with a C++ compiler. On Windows you must
+    also explicitly export the function from the DLL using the
+    \c{__declspec(dllexport)} compiler directive, for example:
 
     \code
     extern "C" MY_EXPORT_MACRO int avg(int a, int b)
@@ -721,12 +728,12 @@ void *QLibrary::resolve(const char *symbol)
     \overload
 
     Loads the library \a fileName and returns the address of the
-    exported symbol \a symbol. Note that like the constructor, \a
-    fileName does not need to include the (platform specific) file
-    extension. The library remains loaded until the application exits.
+    exported symbol \a symbol. Note that \a fileName should not
+    include the platform-specific file suffix; (see \l{fileName}). The
+    library remains loaded until the application exits.
 
-    The function returns 0 if the symbol could not be resolved or the
-    library could not be loaded.
+    The function returns 0 if the symbol could not be resolved or if
+    the library could not be loaded.
 
     \sa resolve()
 */
