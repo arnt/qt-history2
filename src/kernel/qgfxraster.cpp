@@ -411,7 +411,7 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
 {
     // Buffers should always be aligned
     if(((unsigned long)b) & 0x3) {
-	qDebug("Waah, QGfx buffer unaligned: %lx",(unsigned long)b);
+	qDebug("QGfx buffer unaligned: %lx",(unsigned long)b);
     }
     is_screen_gfx = buffer==qt_screen->base();
     width=w;
@@ -1064,7 +1064,7 @@ static inline int match(QRgb a,QRgb b)
     v1=qBlue(a);
     h2=qRed(b);
     s2=qGreen(b);
-    v2=qBlue(b);    
+    v2=qBlue(b);
     ret=abs(h1-h2);
     ret+=abs(s1-s2);
     ret+=abs(v1-v2);
@@ -3787,12 +3787,17 @@ bool QScreen::initCard()
 	    screenclut[loopc]=qRgb(loopc,loopc,loopc);
 #else
 	    int a,b,c;
+	    /*
 	    a=((loopc & 0xe0) >> 5) << 5;
 	    b=((loopc & 0x18) >> 3) << 6;
 	    c=(loopc & 0x07) << 5;
 	    a=a | 0x3f;
 	    b=b | 0x3f;
 	    c=c | 0x3f;
+	    */
+	    a=rand() & 0xff;
+	    b=rand() & 0xff;
+	    c=rand() & 0xff;
 	    cmap.red[loopc]=a << 8;
 	    cmap.green[loopc]=b << 8;
 	    cmap.blue[loopc]=c << 8;

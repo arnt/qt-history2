@@ -300,7 +300,6 @@ QImage QPixmap::convertToImage() const
 	abort();
 #endif
 #endif
-	qWarning("Waah, we're null!");
 	return image;
     }
 
