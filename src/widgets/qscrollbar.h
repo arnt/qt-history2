@@ -38,6 +38,14 @@ class QTimer;
 class Q_EXPORT QScrollBar : public QWidget, public QRangeControl
 {
     Q_OBJECT
+    Q_PROPERTY( int, "minValue", privMinValue, privSetMinValue )
+    Q_PROPERTY( int, "maxValue", privMaxValue, privSetMaxValue )
+    Q_PROPERTY( int, "lineStep", privLineStep, privSetLineStep )
+    Q_PROPERTY( int, "pageStep", privPageStep, privSetPageStep )
+    Q_PROPERTY( bool, "tracking", tracking, setTracking )
+    Q_PROPERTY( bool, "draggingSlider", draggingSlider, 0 )
+    // ##### Q_PROPERTY( Orientation, "orientation", orientation, setOrientation )
+	
 public:
     QScrollBar( QWidget *parent, const char *name=0 );
     QScrollBar( Orientation, QWidget *parent, const char *name=0 );
@@ -109,6 +117,15 @@ private:
     void drawControls( uint controls, uint activeControl,
 				QPainter *p ) const;
 
+    int	 privMinValue() const;
+    int	 privMaxValue() const;
+    void privSetMinValue( int );
+    void privSetMaxValue( int );
+    int	 privLineStep() const;
+    int	 privPageStep() const;
+    void privSetLineStep( int );
+    void privSetPageStep( int );
+    
     uint pressedControl	 : 8;
     uint track		 : 1;
     uint clickedAt	 : 1;

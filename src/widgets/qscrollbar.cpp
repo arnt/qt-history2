@@ -808,5 +808,69 @@ void QScrollBar::styleChange( QStyle& old )
     QWidget::styleChange( old );
 }
 
+/*
+  Used to implement property.
+*/
+int QScrollBar::privMinValue() const
+{
+    return minValue();
+}
+
+/*
+  Used to implement property.
+*/
+int QScrollBar::privMaxValue() const
+{
+    return maxValue();
+}
+
+/*
+  Used to implement property.
+*/
+void QScrollBar::privSetMinValue( int i )
+{
+    setRange( i, maxValue() );
+}
+
+/*
+  Used to implement property.
+*/
+void QScrollBar::privSetMaxValue( int i )
+{
+    setRange( minValue(), i );
+}
+
+/*
+  Used to implement property.
+*/
+int QScrollBar::privLineStep() const
+{
+    return lineStep();
+}
+
+/*
+  Used to implement property.
+*/
+int QScrollBar::privPageStep() const
+{
+    return pageStep();
+}
+
+/*
+  Used to implement property.
+*/
+void QScrollBar::privSetLineStep( int i )
+{
+    setSteps( i, pageStep() );
+}
+
+/*
+  Used to implement property.
+*/
+void QScrollBar::privSetPageStep( int i )
+{
+    setSteps( lineStep(), i );
+}
+
 #undef ADD_LINE_ACTIVE
 #undef SUB_LINE_ACTIVE
