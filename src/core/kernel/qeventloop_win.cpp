@@ -98,7 +98,7 @@ bool QEventLoopPrivate::activateTimer(uint id)    // activate timer
     register TimerInfo *t = d->timerDict.value(id);
     if (!t)                                       // no such timer id
         return false;
-    QTimerEvent e(t->ind + 1);
+    QTimerEvent e(t->ind);
     QCoreApplication::sendEvent(t->obj, &e);      // send event
     return true;                                  // timer event was processed
 }
@@ -118,7 +118,7 @@ void QEventLoopPrivate::activateZeroTimers()                // activate full-spe
             else if (i == d->timerVec.size())                // should not happen
                 return;
         }
-        QTimerEvent e(t->ind + 1);
+        QTimerEvent e(t->ind);
         QCoreApplication::sendEvent(t->obj, &e);
     }
 }
@@ -155,7 +155,7 @@ int QEventLoop::registerTimer(int interval, QObject *obj)
     }
     d->timerVec.append(t);                        // store in timer vector
     d->timerDict.insert(t->id, t);                // store in dict
-    return t->ind + 1;                              // return index in vector
+    return t->ind;                              // return index in vector
 }
 
 bool QEventLoop::unregisterTimer(int ind)
@@ -165,7 +165,7 @@ bool QEventLoop::unregisterTimer(int ind)
 
     TimerInfo *t = 0;
     for (int i=0; i<d->timerVec.size(); ++i) {
-        if (d->timerVec.at(i)->ind == ind-1) {
+        if (d->timerVec.at(i)->ind == ind) {
             t = d->timerVec.at(i);
             break;
         }
