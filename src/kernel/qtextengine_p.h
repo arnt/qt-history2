@@ -177,7 +177,7 @@ struct GlyphAttributes {
 
 // also this is compatible to uniscribe. Do not change.
 struct QCharAttributes {
-    uchar softBreak      :1;     // Potential linebreak point
+    uchar softBreak      :1;     // Potential linebreak point _before_ this character
     uchar whiteSpace     :1;     // A unicode whitespace character, except NBSP, ZWNBSP
     uchar charStop       :1;     // Valid cursor position (for left/right arrow)
     uchar wordStop       :1;     // Valid cursor position (for ctrl + left/right arrow)

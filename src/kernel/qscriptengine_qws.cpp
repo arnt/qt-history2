@@ -68,17 +68,17 @@ const q_scriptEngine scriptEngines[] = {
 
 	// // East Asian Scripts
 	// Han,
-    { basic_shape, basic_attributes },
+    { basic_shape, asian_attributes },
 	// Hiragana,
-    { basic_shape, basic_attributes },
+    { basic_shape, asian_attributes },
 	// Katakana,
-    { basic_shape, basic_attributes },
+    { basic_shape, asian_attributes },
 	// Hangul,
-    { basic_shape, basic_attributes },
+    { basic_shape, asian_attributes },
 	// Bopomofo,
-    { basic_shape, basic_attributes },
+    { basic_shape, asian_attributes },
 	// Yi,
-    { basic_shape, basic_attributes },
+    { basic_shape, asian_attributes },
 
 	// // Additional Scripts
 	// Ethiopic,
