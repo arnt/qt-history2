@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qhttp.cpp#28 $
+** $Id: //depot/qt/main/src/network/qhttp.cpp#29 $
 **
 ** Implementation of QHtpp and related classes.
 **
@@ -50,17 +50,180 @@
 
 /****************************************************
  *
+ * "Private" class declarations
+ *
+ ****************************************************/
+
+class QHttpHeader
+{
+public:
+    QHttpHeader();
+    QHttpHeader( const QHttpHeader& header );
+    QHttpHeader( const QString& str );
+    virtual ~QHttpHeader();
+
+    QHttpHeader& operator=( const QHttpHeader& h );
+
+    QString value( const QString& key ) const;
+    QStringList keys() const;
+    bool hasKey( const QString& key ) const;
+
+    void setValue( const QString& key, const QString& value );
+    void removeValue( const QString& key );
+
+    uint contentLength() const;
+    QString contentType() const;
+    void setContentLength( int len );
+    void setContentType( const QString& type );
+
+    enum Connection { Close, KeepAlive };
+    void setConnection( Connection );
+    Connection connection() const;
+
+    virtual QString toString() const;
+
+    bool isValid() const;
+
+    QTextStream& read( QTextStream& );
+    QTextStream& write( QTextStream& ) const;
+
+protected:
+    virtual bool parseLine( const QString& line, int number );
+
+    void parse( const QString& str );
+
+private:
+    QMap<QString,QString> m_values;
+    bool m_bValid;
+};
+
+
+class QHttpReplyHeader : public QHttpHeader
+{
+public:
+    QHttpReplyHeader();
+    QHttpReplyHeader( int code, const QString& text = QString::null, int version = 10 );
+    QHttpReplyHeader( const QHttpReplyHeader& header );
+    QHttpReplyHeader( const QString& str );
+
+    void setReply( int code, const QString& text = QString::null, int version = 10 );
+    int replyCode() const;
+    QString replyText() const;
+    int version() const;
+    bool hasAutoContentLength() const;
+
+    virtual QString toString() const;
+
+protected:
+    virtual bool parseLine( const QString& line, int number );
+
+private:
+    int m_code;
+    QString m_text;
+    int m_version;
+};
+
+
+class QHttpRequestHeader : public QHttpHeader
+{
+public:
+    QHttpRequestHeader();
+    QHttpRequestHeader( const QString& method, const QString& path, int version = 10 );
+    QHttpRequestHeader( const QHttpRequestHeader& header );
+    QHttpRequestHeader( const QString& str );
+
+    void setRequest( const QString& method, const QString& path, int version = 10 );
+    QString method() const;
+    QString path() const;
+    int version();
+
+    virtual QString toString() const;
+
+protected:
+    virtual bool parseLine( const QString& line, int number );
+
+private:
+    QString m_method;
+    QString m_path;
+    int m_version;
+};
+
+
+class QHttpClient : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY( State state READ state )
+    Q_ENUMS( State )
+    //Q_PROPERTY( QIODevice* device READ device WRITE setDevice )
+
+public:
+    enum State { Closed, Connecting, Sending, Reading, Alive, Idle };
+
+    QHttpClient( QObject* parent = 0, const char* name = 0 );
+    ~QHttpClient();
+
+    virtual bool request( const QString& hostname, int port, const QHttpRequestHeader& header, const char* data, uint size );
+    bool request( const QString& hostname, int port, const QHttpRequestHeader& header, const QByteArray& data );
+    bool request( const QString& hostname, int port, const QHttpRequestHeader& header, const QCString& data );
+    bool request( const QString& hostname, int port, const QHttpRequestHeader& header, QIODevice* device );
+    bool request( const QString& hostname, int port, const QHttpRequestHeader& header );
+
+    void close();
+
+    State state() const;
+    void setDevice( QIODevice* );
+    QIODevice* device() const;
+
+signals:
+    void reply( const QHttpReplyHeader& repl, const QByteArray& data );
+    void reply( const QHttpReplyHeader& repl, const QIODevice* device );
+    void replyChunk( const QHttpReplyHeader& repl, const QByteArray& data );
+    void replyHeader( const QHttpReplyHeader& repl );
+    void requestFailed();
+    void finished();
+    
+protected:
+    void timerEvent( QTimerEvent * );
+
+private slots:
+    void readyRead();
+    void connected();
+    void error( int );
+    void closed();
+    void bytesWritten( int );
+
+private:
+    void killIdleTimer();
+
+    QSocket* m_socket;
+    QByteArray m_buffer;
+    uint m_bytesRead;
+    QHttpRequestHeader m_header;
+    State m_state;
+    bool m_readHeader;
+    QHttpReplyHeader m_reply;
+
+    int m_idleTimer;
+
+    QIODevice* m_device;
+    QIODevice* m_postDevice;
+};
+
+
+QTextStream& operator>>( QTextStream&, QHttpRequestHeader& );
+QTextStream& operator<<( QTextStream&, const QHttpRequestHeader& );
+
+QTextStream& operator>>( QTextStream&, QHttpReplyHeader& );
+QTextStream& operator<<( QTextStream&, const QHttpReplyHeader& );
+
+
+/****************************************************
+ *
  * QHttpHeader
  *
  ****************************************************/
 
-class QHttpHeaderPrivate
-{
-public:
-    QMap<QString,QString> m_values;
-};
-
-/*!
+/*
   \class QHttpHeader qhttp.h
   \brief The QHttpHeader class contains header information for HTTP.
 
@@ -103,7 +266,6 @@ public:
 QHttpHeader::QHttpHeader()
     : m_bValid( TRUE )
 {
-    d = new QHttpHeaderPrivate;
 }
 
 /*!
@@ -112,8 +274,7 @@ QHttpHeader::QHttpHeader()
 QHttpHeader::QHttpHeader( const QHttpHeader& header )
     : m_bValid( header.m_bValid )
 {
-    d = new QHttpHeaderPrivate;
-    d->m_values = header.d->m_values;
+    m_values = header.m_values;
 }
 
 /*!
@@ -125,7 +286,6 @@ QHttpHeader::QHttpHeader( const QHttpHeader& header )
 QHttpHeader::QHttpHeader( const QString& str )
     : m_bValid( TRUE )
 {	
-    d = new QHttpHeaderPrivate;
     parse( str );
 }
 
@@ -134,7 +294,6 @@ QHttpHeader::QHttpHeader( const QString& str )
 */
 QHttpHeader::~QHttpHeader()
 {
-    delete d;
 }
 
 /*!
@@ -142,7 +301,7 @@ QHttpHeader::~QHttpHeader()
 */
 QHttpHeader& QHttpHeader::operator=( const QHttpHeader& h )
 {
-    d->m_values = h.d->m_values;
+    m_values = h.m_values;
     m_bValid = h.m_bValid;
     return *this;
 }
@@ -240,7 +399,7 @@ QTextStream& QHttpHeader::read( QTextStream& stream )
 */
 QString QHttpHeader::value( const QString& key ) const
 {
-    return d->m_values[ key.lower() ];
+    return m_values[ key.lower() ];
 }
 
 /*!
@@ -252,8 +411,8 @@ QStringList QHttpHeader::keys() const
 {
     QStringList lst;
 
-    QMap<QString,QString>::ConstIterator it = d->m_values.begin();
-    for( ; it != d->m_values.end(); ++it )
+    QMap<QString,QString>::ConstIterator it = m_values.begin();
+    for( ; it != m_values.end(); ++it )
 	lst.append( *it );
 
     return lst;
@@ -267,7 +426,7 @@ QStringList QHttpHeader::keys() const
 */
 bool QHttpHeader::hasKey( const QString& key ) const
 {
-    return d->m_values.contains( key.lower() );
+    return m_values.contains( key.lower() );
 }
 
 /*!
@@ -280,7 +439,7 @@ bool QHttpHeader::hasKey( const QString& key ) const
 */
 void QHttpHeader::setValue( const QString& key, const QString& value )
 {
-    d->m_values[ key.lower() ] = value;
+    m_values[ key.lower() ] = value;
 }
 
 /*!
@@ -290,7 +449,7 @@ void QHttpHeader::setValue( const QString& key, const QString& value )
 */
 void QHttpHeader::removeValue( const QString& key )
 {
-    d->m_values.remove( key.lower() );
+    m_values.remove( key.lower() );
 }
 
 /*!
@@ -305,7 +464,7 @@ bool QHttpHeader::parseLine( const QString& line, int )
     if ( i == -1 )
 	return FALSE;
 
-    d->m_values.insert( line.left( i ).stripWhiteSpace(), line.mid( i + 1 ).stripWhiteSpace() );
+    m_values.insert( line.left( i ).stripWhiteSpace(), line.mid( i + 1 ).stripWhiteSpace() );
 
     return TRUE;
 }
@@ -319,8 +478,8 @@ QString QHttpHeader::toString() const
 {
     QString ret = "";
 
-    QMap<QString,QString>::ConstIterator it = d->m_values.begin();
-    for( ; it != d->m_values.end(); ++it )
+    QMap<QString,QString>::ConstIterator it = m_values.begin();
+    for( ; it != m_values.end(); ++it )
 	ret += it.key() + ": " + it.data() + "\r\n";
 
     return ret;
@@ -345,7 +504,7 @@ QTextStream& QHttpHeader::write( QTextStream& stream ) const
 */
 uint QHttpHeader::contentLength() const
 {
-    return d->m_values[ "content-length" ].toUInt();
+    return m_values[ "content-length" ].toUInt();
 }
 
 /*!
@@ -355,7 +514,7 @@ uint QHttpHeader::contentLength() const
 */
 QString QHttpHeader::contentType() const
 {
-    QString type = d->m_values[ "content-type" ];
+    QString type = m_values[ "content-type" ];
     if ( type.isEmpty() )
 	return QString::null;
     
@@ -366,7 +525,7 @@ QString QHttpHeader::contentType() const
     return type.left( pos ).stripWhiteSpace();
 }
 
-/*!
+/*
   \enum QHttpHeader::Connection
 
   <ul>
@@ -381,10 +540,10 @@ QString QHttpHeader::contentType() const
 */
 QHttpHeader::Connection QHttpHeader::connection() const
 {
-    if ( !d->m_values.contains( "connection" ) )
+    if ( !m_values.contains( "connection" ) )
 	return Close;
 
-    const char* c = d->m_values[ "connection" ].latin1();
+    const char* c = m_values[ "connection" ].latin1();
 
 //    if ( strcasecmp( c, "close" ) == 0 ) ### correct change?
     if ( qstrcmp( c, "close" ) == 0 )
@@ -403,7 +562,7 @@ QHttpHeader::Connection QHttpHeader::connection() const
 */
 void QHttpHeader::setContentLength( int len )
 {
-    d->m_values[ "content-length" ] = QString::number( len );
+    m_values[ "content-length" ] = QString::number( len );
 }
 
 /*!
@@ -413,7 +572,7 @@ void QHttpHeader::setContentLength( int len )
 */
 void QHttpHeader::setContentType( const QString& type )
 {
-    d->m_values[ "content-type" ] = type;
+    m_values[ "content-type" ] = type;
 }
 
 /*!
@@ -426,10 +585,10 @@ void QHttpHeader::setConnection( QHttpHeader::Connection con )
     switch( con )
     {
     case Close:
-	d->m_values[ "connection" ] = "close";
+	m_values[ "connection" ] = "close";
 	break;
     case KeepAlive:
-	d->m_values[ "connection" ] = "Keep-Alive";
+	m_values[ "connection" ] = "Keep-Alive";
 	break;
     }
 }
@@ -440,7 +599,7 @@ void QHttpHeader::setConnection( QHttpHeader::Connection con )
  *
  ****************************************************/
 
-/*!
+/*
   \class QHttpReplyHeader qhttp.h
   \brief The QHttpReplyHeader class contains reply header information for HTTP.
 
@@ -469,7 +628,6 @@ void QHttpHeader::setConnection( QHttpHeader::Connection con )
 */
 QHttpReplyHeader::QHttpReplyHeader()
 {
-    d = 0;
 }
 
 /*!
@@ -479,7 +637,6 @@ QHttpReplyHeader::QHttpReplyHeader()
 QHttpReplyHeader::QHttpReplyHeader( int code, const QString& text, int version )
     : QHttpHeader(), m_code( code ), m_text( text ), m_version( version )
 {
-    d = 0;
 }
 
 /*!
@@ -488,7 +645,6 @@ QHttpReplyHeader::QHttpReplyHeader( int code, const QString& text, int version )
 QHttpReplyHeader::QHttpReplyHeader( const QHttpReplyHeader& header )
     : QHttpHeader( header ), m_code( header.m_code ), m_text( header.m_text ), m_version( header.m_version )
 {
-    d = 0;
 }
 
 /*!
@@ -498,7 +654,6 @@ QHttpReplyHeader::QHttpReplyHeader( const QHttpReplyHeader& header )
 QHttpReplyHeader::QHttpReplyHeader( const QString& str )
     : QHttpHeader()
 {
-    d = 0;
     parse( str );
 }
 
@@ -620,7 +775,7 @@ bool QHttpReplyHeader::hasAutoContentLength() const
  *
  ****************************************************/
 
-/*!
+/*
   \class QHttpRequestHeader qhttp.h
   \brief The QHttpRequestHeader class contains request header information for
   HTTP.
@@ -649,7 +804,6 @@ bool QHttpReplyHeader::hasAutoContentLength() const
 QHttpRequestHeader::QHttpRequestHeader()
     : QHttpHeader()
 {
-    d = 0;
 }
 
 /*!
@@ -659,7 +813,6 @@ QHttpRequestHeader::QHttpRequestHeader()
 QHttpRequestHeader::QHttpRequestHeader( const QString& method, const QString& path, int version )
     : QHttpHeader(), m_method( method ), m_path( path ), m_version( version )
 {
-    d = 0;
 }
 
 /*!
@@ -668,7 +821,6 @@ QHttpRequestHeader::QHttpRequestHeader( const QString& method, const QString& pa
 QHttpRequestHeader::QHttpRequestHeader( const QHttpRequestHeader& header )
     : QHttpHeader( header ), m_method( header.m_method ), m_path( header.m_path ), m_version( header.m_version )
 {
-    d = 0;
 }
 
 /*!
@@ -677,7 +829,6 @@ QHttpRequestHeader::QHttpRequestHeader( const QHttpRequestHeader& header )
 QHttpRequestHeader::QHttpRequestHeader( const QString& str )
     : QHttpHeader()
 {
-    d = 0;
     parse( str );
 }
 
@@ -783,7 +934,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
  *
  ****************************************************/
 
-/*!
+/*
   \class QHttpClient qhttp.h
   \brief The QHttpClient class provides the client side of HTTP.
 
@@ -818,7 +969,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
   document was received.
 */
 
-/*!
+/*
   \fn void QHttpClient::reply( const QHttpReplyHeader& repl, const QByteArray& data )
 
   This signal is emitted when the reply is available. The reply header is
@@ -829,7 +980,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
 
   \sa replyChunk()
 */
-/*!
+/*
   \fn void QHttpClient::reply( const QHttpReplyHeader& repl, const QIODevice* device )
   \overload
 
@@ -841,7 +992,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
 
   \sa replyChunk()
 */
-/*!
+/*
   \fn void QHttpClient::replyChunk( const QHttpReplyHeader& repl, const QByteArray& data )
 
   This signal is emitted if the client has received a piece of the reply data.
@@ -855,7 +1006,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
 
   \sa finished() reply()
 */
-/*!
+/*
   \fn void QHttpClient::replyHeader( const QHttpReplyHeader& repl )
 
   This signal is emitted if the HTTP header of the reply is available. The
@@ -866,14 +1017,14 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
 
   \sa setDevice() reply() replyChunk()
 */
-/*!
+/*
   \fn void QHttpClient::requestFailed()
 
   This signal is emitted if a request failed.
 
   \sa request()
 */
-/*!
+/*
   \fn void QHttpClient::finished()
 
   This signal is emitted when the QHttpClient is able to start a new request.
@@ -890,7 +1041,6 @@ QHttpClient::QHttpClient( QObject* parent, const char* name )
     : QObject( parent, name ), m_state( QHttpClient::Idle ), m_idleTimer( 0 ),
       m_device( 0 ), m_postDevice( 0 )
 {
-    d = 0;
     m_socket = new QSocket( this );
 
     connect( m_socket, SIGNAL( connected() ), this, SLOT( connected() ) );
@@ -1051,9 +1201,7 @@ void QHttpClient::closed()
     // may still be data left to read.
     if ( m_state == Reading ) {
 	while( m_socket->bytesAvailable() > 0 ) {
-	    qDebug(">>>>>>>>>>>>>>>>");
 	    readyRead();
-	    qDebug("<<<<<<<<<<<<<<<<");
 	}
 
 	// If we got no Content-Length then we know
@@ -1069,12 +1217,10 @@ void QHttpClient::closed()
 	} else {
 	    // We got Content-Length, so did we get all bytes ?
 	    if ( m_bytesRead != m_reply.contentLength() ) {
-		qDebug("-----------------> REQUEST FAILED 1 <-------------------");
 		emit requestFailed();
 	    }
 	}
     } else if ( m_state == Connecting || m_state == Sending ) {
-	qDebug("-----------------> REQUEST FAILED 2 <-------------------");
 	emit requestFailed();
     }
     
@@ -1124,7 +1270,6 @@ void QHttpClient::bytesWritten( int )
 	    return;
 	}
 	if ( m_postDevice->atEnd() ) {
-	    // qDebug("At end");
 	    m_postDevice = 0;
 	}
 
@@ -1256,7 +1401,7 @@ void QHttpClient::readyRead()
     }
 }
 
-/*!
+/*
   \enum QHttpClient::State
 
   This enum is used to specify the state the client is in. The possible values
@@ -1347,403 +1492,6 @@ QIODevice* QHttpClient::device() const
     return m_device;
 }
 
-/****************************************************
- *
- * QHttpServer
- *
- ****************************************************/
-
-/*!
-  \class QHttpServer qhttp.h
-  \brief The QHttpServer class provides a class that accepts connections.
-
-  \module network
-
-  You must overload the newConnection() function.
-
-  Usually your implementation will create a derived object of QHttpConnection
-  to handle the connection.
-*/
-
-/*!
-  Constructor. The parameters \a port, \a parent and \a name are passed to the
-  QServerSocket constructor.
-*/
-QHttpServer::QHttpServer( int port, QObject* parent, const char* name )
-    : QServerSocket( port, 0, parent, name )
-{
-    d = 0;
-}
-
-/****************************************************
- *
- * QHttpConnection
- *
- ****************************************************/
-
-/*!
-  \class QHttpConnection qhttp.h
-  \brief The QHttpConnection class provides ???.
-
-  \module network
-
-  fnord
-*/
-
-/*!
-  \fn void QHttpConnection::replyFinished()
-
-  This signal is emitted when the server has sent the entire reply succesfully.
-*/
-/*!
-  \fn void QHttpConnection::replyFailed()
-
-  This signal is emitted when the server has failed to sent the entire reply.
-*/
-
-/*!
-  Constructs a HTTP connection for the OS socket \a socket. The \a socket must
-  be connected to the server. The parameters \a parent and \a name are passed
-  to the QObject constructor.
-*/
-QHttpConnection::QHttpConnection( int socket, QObject* parent, const char* name )
-    : QObject( parent, name ), m_bytesToWrite( 0 ), m_state( Created ), m_killTimer( 0 ),
-      m_allowKeepAlive( TRUE ), m_keepAliveTimeout( 10000 )
-{
-    d = 0;
-    m_socket = new QSocket( this );
-    m_socket->setSocket( socket );
-
-    connect( m_socket, SIGNAL( readyRead() ), this, SLOT( readyRead() ) );
-    connect( m_socket, SIGNAL( bytesWritten(int) ), this, SLOT( bytesWritten(int) ) );
-    connect( m_socket, SIGNAL( connectionClosed() ), this, SLOT( closed() ) );
-    connect( m_socket, SIGNAL( delayedCloseFinished() ), this, SLOT( closed() ) );
-    connect( m_socket, SIGNAL( error(int) ), this, SLOT( socketError(int) ) );
-}
-
-/*!
-  Destructor.
-*/
-QHttpConnection::~QHttpConnection()
-{
-    // qDebug("QHttpConnection::~QHttpConnection()");
-}
-
-/*!
-  \enum QHttpConnection::State
-
-  <ul>
-  <li> Created
-  <li> Reading
-  <li> Waiting
-  <li> Writing
-  <li> Alive
-  <li> Closed
-  </ul>
-*/
-/*!
-  Returns the state of the connection.
-*/
-QHttpConnection::State QHttpConnection::state() const
-{
-    return m_state;
-}
-
-/*! \overload
-*/
-void QHttpConnection::reply( const QHttpReplyHeader& repl, const QCString& data )
-{
-    reply( repl, data, data.length() );
-}
-
-/*! \overload
-*/
-void QHttpConnection::reply( const QHttpReplyHeader& repl, const QByteArray& data )
-{
-    reply( repl, data, data.size() );
-}
-
-/*!
-  Sends a HTTP reply with the header \a repl. \a data is a char array with the
-  size \a size. This is used as the data for the HTTP reply.
-*/
-void QHttpConnection::reply( const QHttpReplyHeader& repl, const char* data, uint size )
-{
-    if ( m_state != Waiting ) {
-	qWarning("QHttpConnection did not expect a call to QHttpConnection::reply." );
-
-	emit replyFailed();
-
-	return;
-    }
-
-    m_state = Writing;
-
-    QHttpReplyHeader r = repl;
-
-    // Fix the header if needed
-    if ( size != repl.contentLength() )
-	r.setContentLength( size );
-
-    // Insert information about the connection.
-    if ( m_header.connection() == QHttpHeader::KeepAlive && m_allowKeepAlive ) {
-	r.setConnection( QHttpHeader::KeepAlive );
-	QString s( "timeout=%1" );
-	r.setValue( "Keep-Alive", s.arg( m_keepAliveTimeout / 1000 ) );
-    } else {
-	r.setConnection( QHttpHeader::Close );
-    }
-
-    QString str = r.toString();
-
-    // Remember how many bytes we send on the wire
-    m_bytesToWrite = r.contentLength() + str.length();
-
-    m_socket->writeBlock( str.latin1(), str.length() );
-    m_socket->writeBlock( data, size );
-    // HACK ?
-    // m_socket->flush();
-}
-
-void QHttpConnection::readyRead()
-{
-    Q_ASSERT( m_state == Created || m_state == Reading || m_state == Alive );
-
-    // Stop the timeout if this is a keep alive connection.
-    if ( m_killTimer )
-	killTimer( m_killTimer );
-
-    // Start reading? Do some initialization
-    if ( m_state != Reading ) {
-	m_state = Reading;
-	m_buffer = QByteArray();
-	m_readHeader = TRUE;
-    }
-
-    //
-    // Reading the header.
-    //
-    if ( m_readHeader ) {
-	int n = m_socket->bytesAvailable();
-	int s = m_buffer.size();
-	m_buffer.resize( s + n );
-	n = m_socket->readBlock( m_buffer.data() + s, n );
-
-	// Search for \r\n\r\n
-	const char* d = m_buffer.data();
-	int i;
-	bool end = FALSE;
-	for( i = QMAX( 0, s - 3 ); !end && i+3 < s + n; ++i ) {
-	    if ( d[i] == '\r' && d[i+1] == '\n' && d[i+2] == '\r' && d[i+3] == '\n' )
-		end = TRUE;
-	}
-
-	// Found the end of the header ?
-	if ( end ) {
-	    // Set a trailing zero
-	    --i;
-	    m_buffer[i] = 0;
-		
-	    // Parse the header
-	    m_header = QHttpRequestHeader( QString( m_buffer ) );
-	    m_bytesToRead = m_header.contentLength();
-
-	    // Now he have to read the data.
-	    m_readHeader = FALSE;
-		
-	    // Test wether header was valid.
-	    if ( !m_header.isValid() ) {
-		qWarning("Invalid header.\n==========\n%s\n===========", QString( m_buffer ).latin1() );
-		close();
-		return;
-	    }
-
-	    // ### Check for a maximum content length
-
-	    // Copy data that was already read to the beginning of the buffer.
-	    // And resize the buffer so that it can hold the entire data.
-	    QByteArray tmp;
-	    if ( !tmp.resize( m_header.contentLength() ) ) {
-		qWarning("Could not allocate memory");
-		close();
-		return;
-	    }
-	    int n = QMIN( tmp.size(), m_buffer.size() - i - 4 );
-	    memcpy( tmp.data(), m_buffer.data() + i + 4, n );
-	    m_buffer = tmp;
-
-	    m_bytesToRead -= n;
-	}
-    }
-
-    //
-    // Reading "data"
-    //
-    if ( !m_readHeader ) {
-	// Still need to read bytes ?
-	if ( m_bytesToRead > 0 ) {
-	    int n = m_socket->bytesAvailable();
-	    // Are bytes available ?
-	    if ( n > 0 )
-            {
-		n = QMIN( m_bytesToRead, n );
-		n = m_socket->readBlock( m_buffer.data() + m_buffer.size() - m_bytesToRead, n );
-		m_bytesToRead -= n;
-	    }
-	}
-
-	// Did we read the entire request ?
-	if ( m_bytesToRead <= 0 ) {
-	    // We are waiting for the reply.
-	    m_state = Waiting;
-
-	    // Tell the world about the request.
-	    request( m_header, m_buffer );
-
-	    // Dont waste memory
-	    m_buffer = QByteArray();
-	}
-    }
-}
-
-void QHttpConnection::bytesWritten( int n )
-{
-    m_bytesToWrite -= n;
-
-    if ( m_bytesToWrite <= 0 )
-    {
-	if ( m_allowKeepAlive && m_header.connection() == QHttpHeader::KeepAlive )
-        {
-	    m_state = Alive;
-
-	    emit replyFinished();
-		
-	    if ( m_keepAliveTimeout )
-		m_killTimer = startTimer( m_keepAliveTimeout );
-	}
-	else
-        {
-	    emit replyFinished();
-
-	    close();
-	}
-    }
-}
-
-/*!
-  Closes the socket and starts the kill timer.  That means the socket will self
-  destruct itself once the application comes back to its event loop.
-*/
-void QHttpConnection::close()
-{
-    if ( m_state == Closed )
-	return;
-
-    m_state = Closed;
-
-    if ( !m_socket->isOpen() )
-    {
-	m_killTimer = startTimer( 0 );
-    }
-    else
-    {
-	m_socket->close();
-
-	// Did close succeed immediately ?
-	if ( m_socket->state() == QSocket::Idle )
-        {
-	    // Prepare to die.
-	    m_killTimer = startTimer( 0 );
-	}
-    }
-}
-
-void QHttpConnection::closed()
-{
-    m_state = Closed;
-
-    // Closed before all bytes were written ?
-    if ( m_bytesToWrite > 0 )
-	emit replyFailed();
-
-    m_killTimer = startTimer( 0 );
-}
-
-void QHttpConnection::socketError( int e )
-{
-    error( e );
-
-    emit replyFailed();
-
-    close();
-}
-
-/*!
-  \fn void QHttpConnection::request( const QHttpRequestHeader& header, const QByteArray& data )
-
-  Grmpf
-### fnord
-*/
-
-/*!
-  This function is called when an error occues. The default implementation
-  does nothing. Overload this method to implement your own error handling.
-*/
-void QHttpConnection::error( int )
-{
-    qWarning("Error in QHttpConnection");
-
-    // Do nothing
-}
-
-/*! \reimp
-*/
-void QHttpConnection::timerEvent( QTimerEvent *e )
-{
-    if ( e->timerId() == m_killTimer ) {
-	Q_ASSERT( m_state == Closed || m_state == Alive );
-	delete this;
-    } else {
-	QObject::timerEvent( e );
-    }
-}
-
-/*!
-  If \a a is TRUE, the connection will try to keep it alive. If \a a is FALSE,
-  the connection is not allowed to be kept alive.
-*/
-void QHttpConnection::allowKeepAlive( bool a )
-{
-    m_allowKeepAlive = a;
-}
-
-/*!
-  Returns TRUE, if the connection will try to keep it alive, otherwise FALSE.
-*/
-bool QHttpConnection::isKeepAliveAllowed() const
-{
-    return m_allowKeepAlive;
-}
-
-/*!
-  Sets the timeout after which a connection that is kept alive will be
-  terminated to \a timeout milliseconds. Passing a value of 0 means infinite
-  waiting.
-*/
-void QHttpConnection::setKeepAliveTimeout( int timeout )
-{
-    m_keepAliveTimeout = timeout;
-}
-
-/*!
-  Returns the timeout after which a connection that is kept alive will be
-  terminated. The default value is 10 seconds.
-*/
-int QHttpConnection::keepAliveTimeout() const
-{
-    return m_keepAliveTimeout;
-}
-
 
 /****************************************************
  *
@@ -1752,15 +1500,40 @@ int QHttpConnection::keepAliveTimeout() const
  ****************************************************/
 /*!
   \class QHttp qhttp.h
-  \brief The QHttp class is a network protocol class for HTTP.
+  \brief The QHttp class provides an implementation of the HTTP protocol.
 
   \module network
 
-  fnord
+  This class is derived from QNetworkProtocol and can be
+  used with QUrlOperator. In fact, you normally will not
+  use the QHttp class directly, but rather use it through
+  the QUrlOperator like
+
+  \code
+  QUrlOperator op( "http://www.trolltech.com" );
+  op.get( "index.html" );
+  \endcode
+
+  This code will only work if the QHttp class is registered; to register the
+  class, you have to call qInitNetworkProtocols() before using a QUrlOperator
+  with HTTP.
+
+  QHttp supports only the operations operationGet() and operationPut(), i.e.
+  QUrlOperator::get() and QUrlOperator::put(), if you use it with a
+  QUrlOperator.
+
+  If you really need to use QHttp directly, don't forget
+  to set the QUrlOperator on which it works using
+  setUrl().
+
+  \sa <a href="network.html">Qt Network Documentation</a> QNetworkProtocol, QUrlOperator
 */
 
 /*!
-  Constructor.
+  Constructs a QHttp object. Usually there is no need to use QHttp directly,
+  since it is more convenient to use it through a QUrlOperator. If you want to
+  use it directly, you have to the QUrlOperator on which it works using
+  setUrl().
 */
 QHttp::QHttp()
 {
@@ -1828,8 +1601,6 @@ bool QHttp::checkConnection( QNetworkOperation * )
 }
 #endif
 
-/*! \internal
-*/
 void QHttp::reply( const QHttpReplyHeader &rep, const QByteArray & dataA )
 {
     if ( operation == Get && !dataA.isEmpty() ) {
@@ -1841,8 +1612,6 @@ void QHttp::reply( const QHttpReplyHeader &rep, const QByteArray & dataA )
     }
 }
 
-/*! \internal
-*/
 void QHttp::requestFinished()
 {
     emit finished( operationInProgress() );
