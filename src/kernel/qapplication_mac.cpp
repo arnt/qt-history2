@@ -1614,9 +1614,17 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		QContextMenuEvent qme( QContextMenuEvent::Mouse, plocal, where, 0 );
 		QApplication::sendEvent( widget, &qme );
 		if(qme.isAccepted()) { //once this happens the events before are pitched
+		    if(qt_button_down && mouse_button_state) {
+			qDebug("sucked it %s %s", qt_button_down->name(),
+			       qt_button_down->className());
+			QMouseEvent qme( QEvent::MouseButtonRelease, plocal, where, 
+					 mouse_button_state, mouse_button_state );
+			QApplication::sendSpontaneousEvent( qt_button_down, &qme );
+		    }
+		    qDebug("done..");
 		    qt_button_down = NULL;
 		    mouse_button_state = 0;
-		}
+		} 
 	    } else {
 		handled_event = FALSE;
 	    }
@@ -1802,6 +1810,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		qt_mac_set_cursor(n);
 	    }
 	    if ( qt_mouseover != widget ) {
+#ifdef DEBUG_MOUSE_MAPS
+		qDebug("Entering: %s (%s), Leaving %s (%s)", 
+		       widget ? widget->className() : "none", widget ? widget->name() : "",
+		       qt_mouseovert ? qt_mouseover->className() : "none", 
+		       qt_mouseover ? qt_mouseover->name() : "");
+#endif
 		qt_dispatchEnterLeave( widget, qt_mouseover );
 		qt_mouseover = widget;
 	    }
