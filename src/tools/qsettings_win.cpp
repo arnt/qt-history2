@@ -73,6 +73,7 @@ public:
 
     bool writeKey( const QString &key, const QByteArray &value, ulong type );
     QByteArray readKey( const QString &key, bool *ok );
+    HKEY readKeyHelper( HKEY root, const QString &folder, const QString &entry, ulong &size );
 
     HKEY openKey( const QString &key, bool write, bool remove = FALSE );
 
@@ -290,7 +291,7 @@ HKEY QSettingsSysPrivate::openKey( const QString &key, bool write, bool remove )
 bool QSettingsSysPrivate::writeKey( const QString &key, const QByteArray &value, ulong type )
 {
     QString e;
-    LONG res;
+    LONG res = ERROR_ACCESS_DENIED;
 
     HKEY handle = 0;
     for ( QStringList::Iterator it = paths.fromLast(); it != paths.end(); --it ) {
@@ -330,52 +331,66 @@ bool QSettingsSysPrivate::writeKey( const QString &key, const QByteArray &value,
     return TRUE;
 }
 
+HKEY QSettingsSysPrivate::readKeyHelper( HKEY root, const QString &folder, const QString &entry, ulong &size )
+{
+    HKEY handle;
+    LONG res = ERROR_ACCESS_DENIED;
+#ifdef Q_OS_TEMP
+    res = RegOpenKeyExW( root, (TCHAR*)qt_winTchar( folder, TRUE ), 0, KEY_READ, &handle );
+#else
+#if defined(UNICODE)
+    if ( qWinVersion() & Qt::WV_NT_based )
+	res = RegOpenKeyExW( root, (TCHAR*)qt_winTchar( folder, TRUE ), 0, KEY_READ, &handle );
+    else
+#endif
+	res = RegOpenKeyExA( root, folder.local8Bit(), 0, KEY_READ, &handle );
+#endif
+    
+    if ( res == ERROR_SUCCESS ) {
+#ifdef Q_OS_TEMP
+	res = RegQueryValueExW( handle, entry.isEmpty() ? 0 : (TCHAR*)qt_winTchar( entry, TRUE ), NULL, NULL, NULL, &size );
+#else
+#if defined(UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based )
+	    res = RegQueryValueExW( handle, entry.isEmpty() ? 0 : (TCHAR*)qt_winTchar( entry, TRUE ), NULL, NULL, NULL, &size );
+	else
+#endif
+	    res = RegQueryValueExA( handle, entry.isEmpty() ? (const char*)0 : (const char*)entry.local8Bit(), NULL, NULL, NULL, &size );
+#endif
+    }
+    if ( res != ERROR_SUCCESS ) {
+	size = 0;
+	handle = 0;
+    }
+
+    return handle;
+}
+
 QByteArray QSettingsSysPrivate::readKey( const QString &key, bool *ok )
 {
     HKEY handle = 0;
-    LONG res;
     ulong size = 0;
     QString e;
-    for ( QStringList::Iterator it = paths.fromLast(); it != paths.end(); --it ) {
-	if ( handle ) {
-	    RegCloseKey( handle );
-	    handle = 0;
-	}
 
-	QString k = *it + "/" + key;
-	QString f = folder( k );
-	e = entry( k );
-	if ( e == "Default" || e == "." )
-	    e = "";
-	if ( user ) {
-#ifdef Q_OS_TEMP
-	    res = RegOpenKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_READ, &handle );
-#else
-#if defined(UNICODE)
-	    if ( qWinVersion() & Qt::WV_NT_based )
-		res = RegOpenKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_READ, &handle );
-	    else
-#endif
-		res = RegOpenKeyExA( user, f.local8Bit(), 0, KEY_READ, &handle );
-#endif
-
-	    if ( res == ERROR_SUCCESS ) {
-#ifdef Q_OS_TEMP
-		res = RegQueryValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, NULL, &size );
-#else
-#if defined(UNICODE)
-		if ( qWinVersion() & Qt::WV_NT_based )
-		    res = RegQueryValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, NULL, &size );
-		else
-#endif
-		    res = RegQueryValueExA( handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), NULL, NULL, NULL, &size );
-#endif
+    if ( user ) {
+	for ( QStringList::Iterator it = paths.fromLast(); it != paths.end(); --it ) {
+	    if ( handle ) {
+		RegCloseKey( handle );
+		handle = 0;
 	    }
+	    QString k = *it + "/" + key;
+	    QString f = folder( key );
+	    e = entry( key );
+	    if ( e == "Default" || e == "." )
+		e = "";
+
+	    handle = readKeyHelper( user, f, e, size );
+
+	    if ( !handle )
+		size = 0;
+	    else if ( size )
+		break;
 	}
-	if ( res != ERROR_SUCCESS )
-	    size = 0;
-	else if ( size )
-	    break;
     }
 
     if ( !size && local ) {
@@ -386,36 +401,14 @@ QByteArray QSettingsSysPrivate::readKey( const QString &key, bool *ok )
 	    }
 
 	    QString k = *it + "/" + key;
-
-	    QString f = folder( k );
-	    e = entry( k );
+	    QString f = folder( key );
+	    e = entry( key );
 	    if ( e == "Default" || e == "." )
 		e = "";
 
-#ifdef Q_OS_TEMP
-	    res = RegOpenKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_READ, &handle );
-#else
-#if defined(UNICODE)
-	    if ( qWinVersion() & Qt::WV_NT_based )
-		res = RegOpenKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_READ, &handle );
-	    else
-#endif
-		res = RegOpenKeyExA( local, f, 0, KEY_READ, &handle );
-#endif
+	    handle = readKeyHelper( local, f, e, size );
 
-	    if ( res == ERROR_SUCCESS ) {
-#ifdef Q_OS_TEMP
-		res = RegQueryValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, NULL, &size );
-#else
-#if defined(UNICODE)
-		if ( qWinVersion() & Qt::WV_NT_based )
-		    res = RegQueryValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, NULL, &size );
-		else
-#endif
-		    res = RegQueryValueExA( handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), NULL, NULL, NULL, &size );
-#endif
-	    }
-	    if ( res != ERROR_SUCCESS )
+	    if ( !handle )
 		size = 0;
 	    else if ( size )
 		break;
