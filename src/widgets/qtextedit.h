@@ -60,7 +60,7 @@ class QMouseEvent;
 class QTimer;
 class QTextString;
 class QTextCommand;
-class QTextParag;
+class QTextParagraph;
 class QTextFormat;
 class QFont;
 class QColor;
@@ -474,7 +474,7 @@ private:
     void checkUndoRedoInfo( UndoRedoInfo::Type t );
     void updateCurrentFormat();
     bool handleReadOnlyKeyEvent( QKeyEvent *e );
-    void makeParagVisible( QTextParag *p );
+    void makeParagVisible( QTextParagraph *p );
 #ifndef QT_NO_MIME
     QCString pickSpecial(QMimeSource* ms, bool always_ask, const QPoint&);
 #endif
@@ -490,7 +490,7 @@ private:
     void clearUndoRedo();
     void paintDocument( bool drawAll, QPainter *p, int cx = -1, int cy = -1, int cw = -1, int ch = -1 );
     void moveCursor( CursorAction action );
-    void ensureFormatted( QTextParag *p );
+    void ensureFormatted( QTextParagraph *p );
     void placeCursor( const QPoint &pos, QTextCursor *c, bool link );
     void updateMicroFocusHint();
 
@@ -525,7 +525,7 @@ private:
     QTextDocument *doc;
     QTextCursor *cursor;
     QTimer *formatTimer, *scrollTimer, *changeIntervalTimer, *blinkTimer, *dragStartTimer;
-    QTextParag *lastFormatted;
+    QTextParagraph *lastFormatted;
     int interval;
     UndoRedoInfo undoRedoInfo;
     QTextFormat *currentFormat;

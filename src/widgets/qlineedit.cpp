@@ -67,7 +67,7 @@
 
 struct UndoRedoInfo {
     enum Type { Invalid, Insert, Delete, Backspace, RemoveSelected };
-    UndoRedoInfo( QTextParag *p ) : type( Invalid ), parag( p ) {
+    UndoRedoInfo( QTextParagraph *p ) : type( Invalid ), parag( p ) {
 	text = QString::null; index = -1;
     }
     bool valid() const { return !text.isEmpty() && index >= 0; }
@@ -87,7 +87,7 @@ struct UndoRedoInfo {
     QString text;
     int index;
     Type type;
-    QTextParag *parag;
+    QTextParagraph *parag;
 };
 
 struct QLineEditPrivate {
@@ -103,7 +103,7 @@ struct QLineEditPrivate {
 	validator( 0 ),
 	blinkTimer( l, "QLineEdit blink timer" ),
 	dndTimer( l, "DnD Timer" ),
-	parag( new QTextParag( 0, 0, 0, FALSE ) ),
+	parag( new QTextParagraph( 0, 0, 0, FALSE ) ),
 	dragTimer( l, "QLineEdit drag timer" ),
 	undoRedoInfo( parag ),
 	dragEnabled( TRUE ),
@@ -114,7 +114,7 @@ struct QLineEditPrivate {
     {
 	parag->formatter()->setWrapEnabled( FALSE );
 	cursor = new QTextCursor( 0 );
-	cursor->setParag( parag );
+	cursor->setParagraph( parag );
     }
     static QPixmap* pm; // only used when we have focus
 
@@ -141,13 +141,13 @@ struct QLineEditPrivate {
 	}
 	return res;
     }
-    void getTextObjects( QTextParag **p, QTextCursor **c )
+    void getTextObjects( QTextParagraph **p, QTextCursor **c )
     {
 	if ( mode == QLineEdit::Password ) {
-	    *p = new QTextParag( 0, 0, 0, FALSE);
+	    *p = new QTextParagraph( 0, 0, 0, FALSE);
 	    (*p)->formatter()->setWrapEnabled( FALSE );
 	    *c = new QTextCursor( 0 );
-	    (*c)->setParag( *p );
+	    (*c)->setParagraph( *p );
 	    (*p)->append( displayText() );
 	    (*c)->setIndex( cursor->index() );
 	} else {
@@ -155,7 +155,7 @@ struct QLineEditPrivate {
 	    *c = cursor;
 	}
     }
-    void releaseTextObjects( QTextParag **p, QTextCursor **c )
+    void releaseTextObjects( QTextParagraph **p, QTextCursor **c )
     {
 	if ( mode == QLineEdit::Password ) {
 	    cursor->setIndex( (*c)->index() );
@@ -202,7 +202,7 @@ struct QLineEditPrivate {
     QTimer blinkTimer;
 
     QTimer dndTimer;
-    QTextParag *parag;
+    QTextParagraph *parag;
     QTextCursor *cursor;
     QPoint dnd_startpos;
     QTimer dragTimer;
@@ -432,7 +432,7 @@ void QLineEdit::setText( const QString &text )
     d->parag->commands()->clear();
     d->cursor->setIndex( d->parag->length() - 1 );
     if ( hasFocus() )
-	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
+	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->paragraph()->rect().height(), TRUE );
     deselect();
     update();
     setEdited( FALSE );
@@ -460,7 +460,7 @@ void QLineEdit::selectAll()
     d->cursor->gotoEnd();
     updateSelection();
     if ( hasFocus() )
-	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
+	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->paragraph()->rect().height(), TRUE );
     update();
 }
 
@@ -837,7 +837,7 @@ void QLineEdit::imStartEvent( QIMEvent *e )
     d->preeditStart = cursorPosition();
     d->preeditLength = 0;
     setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0,
-	d->cursor->parag()->rect().height(), TRUE );
+	d->cursor->paragraph()->rect().height(), TRUE );
     e->accept();
 }
 
@@ -883,7 +883,7 @@ void QLineEdit::focusInEvent( QFocusEvent * e)
     if ( e->reason() == QFocusEvent::Tab || e->reason() == QFocusEvent::Backtab )
 	selectAll();
     update();
-    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
+    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->paragraph()->rect().height(), TRUE );
 }
 
 
@@ -934,7 +934,7 @@ void QLineEdit::drawContents( QPainter *painter )
 	painter->fillRect( 0, linetop + lineheight, width(), linetop, bg );
     }
 
-    QTextParag *parag;
+    QTextParagraph *parag;
     QTextCursor *cursor;
     d->getTextObjects( &parag, &cursor );
     if ( echoMode() == Password ) {
@@ -1050,7 +1050,7 @@ enum {
     IdSelectAll = 6
 };
 
-static bool inSelection( int x, QTextParag *p )
+static bool inSelection( int x, QTextParagraph *p )
 {
     return ( x >= p->at( p->selectionStart( QTextDocument::Standard ) )->x &&
 	     x <= p->at( p->selectionEnd( QTextDocument::Standard ) )->x );
@@ -1068,7 +1068,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 
     d->inDoubleClick = FALSE;
     QPoint p( e->pos().x() + d->offset - frameWidth() - margin() - 1, 0 );
-    QTextParag *par;
+    QTextParagraph *par;
     QTextCursor *c;
     d->getTextObjects(&par, &c);
     int oldPos = c->index();
@@ -1179,7 +1179,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 void QLineEdit::dragSlot()
 {
     QPoint p( d->lastMovePos.x() + d->offset - frameWidth() - margin() - 1, 0 );
-    QTextParag *par;
+    QTextParagraph *par;
     QTextCursor *c;
     d->getTextObjects(&par, &c);
     c->place( p, par );
@@ -1239,7 +1239,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 	return;
 
     QPoint p( e->pos().x() + d->offset - frameWidth() - margin() - 1, 0 );
-    QTextParag *par;
+    QTextParagraph *par;
     QTextCursor *c;
     d->getTextObjects(&par, &c);
     c->place( p, par );
@@ -1374,7 +1374,7 @@ void QLineEdit::cursorForward( bool mark, int steps )
 	d->selectionStart = d->cursor->index();
     }
     if ( hasFocus() )
-	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
+	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->paragraph()->rect().height(), TRUE );
     update();
 }
 
@@ -1421,7 +1421,7 @@ void QLineEdit::home( bool mark )
 	deselect();
 	d->selectionStart = d->cursor->index();
     }
-    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
+    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->paragraph()->rect().height(), TRUE );
     update();
 }
 
@@ -1442,7 +1442,7 @@ void QLineEdit::end( bool mark )
 	deselect();
 	d->selectionStart = d->cursor->index();
     }
-    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
+    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->paragraph()->rect().height(), TRUE );
     update();
 }
 
@@ -1515,7 +1515,7 @@ void QLineEdit::setAlignment( int flag )
     d->parag->format();
     updateOffset();
     if ( hasFocus() )
-	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
+	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->paragraph()->rect().height(), TRUE );
     update();
 }
 
@@ -1829,7 +1829,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 
     if ( hasFocus() )
 	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(),
-			   0, d->cursor->parag()->rect().height(), TRUE );
+			   0, d->cursor->paragraph()->rect().height(), TRUE );
 
     if ( text_changed ) {
 #if defined(QT_ACCESSIBILITY_SUPPORT)
@@ -1892,7 +1892,7 @@ void QLineEdit::insert( const QString &newText )
 #endif
     if ( hasFocus() )
 	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0,
-			   d->cursor->parag()->rect().height(), TRUE );
+			   d->cursor->paragraph()->rect().height(), TRUE );
 }
 
 
@@ -2006,7 +2006,7 @@ void QLineEdit::cursorWordForward( bool mark )
 	d->selectionStart = d->cursor->index();
     }
     if ( hasFocus() )
-	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
+	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->paragraph()->rect().height(), TRUE );
     update();
 }
 
@@ -2026,7 +2026,7 @@ void QLineEdit::cursorWordBackward( bool mark )
 	d->selectionStart = d->cursor->index();
     }
     if ( hasFocus() )
-	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
+	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->paragraph()->rect().height(), TRUE );
     update();
 }
 
@@ -2048,7 +2048,7 @@ void QLineEdit::blinkOn()
 void QLineEdit::updateOffset()
 {
     // must not call repaint() - paintEvent() calls this
-    int parWidth = d->parag->rect().width() - 4; // QTextParag adds 4 pixels to the real width
+    int parWidth = d->parag->rect().width() - 4; // QTextParagraph adds 4 pixels to the real width
     int leftGap = d->parag->leftGap();
     int textWidth = parWidth - leftGap;
     int w = width();
@@ -2256,11 +2256,11 @@ void QLineEdit::windowActivationChange( bool )
 int QLineEdit::characterAt( int xpos, QChar *chr ) const
 {
     QTextCursor c;
-    c.setParag( d->parag );
+    c.setParagraph( d->parag );
     c.setIndex( 0 );
-    c.place( QPoint( xpos, 0 ), c.parag() );
+    c.place( QPoint( xpos, 0 ), c.paragraph() );
     if ( chr )
-	*chr = c.parag()->at( c.index() )->c;
+	*chr = c.paragraph()->at( c.index() )->c;
     return c.index();
 }
 
@@ -2310,7 +2310,7 @@ void QLineEdit::delOrBackspace( bool backspace )
 		    d->cursor->gotoPreviousLetter();
 		    d->undoRedoInfo.index = d->cursor->index();
 		}
-		QChar ch = d->cursor->parag()->at( d->cursor->index() )->c;
+		QChar ch = d->cursor->paragraph()->at( d->cursor->index() )->c;
 		if ( backspace ) {
 		    d->undoRedoInfo.text.prepend( ch );
 		} else {
@@ -2326,7 +2326,7 @@ void QLineEdit::delOrBackspace( bool backspace )
 		d->selectionStart = d->cursor->index();
 		d->ed = TRUE;
 		update();
-		setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
+		setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->paragraph()->rect().height(), TRUE );
 		emit textChanged( text() );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 		QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );

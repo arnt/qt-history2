@@ -221,12 +221,12 @@ class QDateTimeEditorPrivate
 public:
     QDateTimeEditorPrivate()
 	: frm( TRUE ),
-	  parag( new QTextParag( 0, 0, 0, FALSE ) ),
+	  parag( new QTextParagraph( 0, 0, 0, FALSE ) ),
 	  focusSec(0)
     {
 	parag->formatter()->setWrapEnabled( FALSE );
 	cursor = new QTextCursor( 0 );
-	cursor->setParag( parag );
+	cursor->setParagraph( parag );
 	offset = 0;
 	sep = localDateSep();
 	refcount++;
@@ -361,7 +361,7 @@ protected:
     }
 private:
     bool frm;
-    QTextParag *parag;
+    QTextParagraph *parag;
     QTextCursor *cursor;
     QSize sz;
     int focusSec;
@@ -743,7 +743,7 @@ public:
 	: QSpinWidget( parent, name )
     {
     }
-    
+
 protected:
     void wheelEvent( QWheelEvent *e )
     {

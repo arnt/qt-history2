@@ -2729,8 +2729,9 @@ void QPainter::drawText( const QRect &r, int tf,
 void qt_format_text( const QFont& font, const QRect &r,
 		     int tf, const QString& str, int len, QRect *brect,
 		     int tabstops, int* tabarray, int tabarraylen,
-		     QTextParag **internal, QPainter* painter )
+		     QTextParag **internalrag, QPainter* painter )
 {
+    QTextParagraph** internal = (QTextParagraph**) internalrag;
     bool   decode     = internal && *internal;	// decode from internal data
     bool   encode     = internal && !*internal; // build internal data
 
@@ -2766,7 +2767,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 #ifdef QT_FORMAT_TEXT_DEBUG	
 	qDebug("using simple format for string %s", str.utf8().data() );
 #endif
-	// we can use a simple drawText instead of the QTextParag.
+	// we can use a simple drawText instead of the QTextParagraph.
 	QFontMetrics fm = painter ? painter->fontMetrics() : QFontMetrics( font );
 	QString parStr = str;
 	// str.setLength() always does a deep copy, so the replacement code below is safe.
@@ -2890,7 +2891,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	qDebug("using richtext format for string %s", str.utf8().data() );
 	qDebug("textflags: %d %d %d %d alignment: %d/%d", wordbreak, expandtabs, singleline, showprefix, tf&Qt::AlignHorizontal_Mask, tf&Qt::AlignVertical_Mask);
 #endif
-	QTextParag *parag;
+	QTextParagraph *parag;
 
 	QRect rect = r;
 
@@ -2901,7 +2902,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    // str.setLength() always does a deep copy, so the replacement code below is safe.
 	    parStr.setLength( len );
 	    // need to build paragraph
-	    parag = new QTextParag( 0, 0, 0, FALSE );
+	    parag = new QTextParagraph( 0, 0, 0, FALSE );
 	    QTextFormatter *formatter;
 	    formatter = new QTextFormatterBreakWords;
 	    if ( !wordbreak )

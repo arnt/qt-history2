@@ -149,7 +149,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 
 int QMultiLineEdit::numLines() const
 {
-    return document()->lastParag()->paragId() + 1;
+    return document()->lastParagraph()->paragId() + 1;
 }
 
 /*! \property QMultiLineEdit::atEnd
@@ -160,7 +160,7 @@ int QMultiLineEdit::numLines() const
 
 bool QMultiLineEdit::atEnd() const
 {
-    return textCursor()->parag() == document()->lastParag() && textCursor()->atParagEnd();
+    return textCursor()->paragraph() == document()->lastParagraph() && textCursor()->atParagEnd();
 }
 
 
@@ -172,7 +172,7 @@ bool QMultiLineEdit::atEnd() const
 
 bool QMultiLineEdit::atBeginning() const
 {
-    return textCursor()->parag() == document()->firstParag() && textCursor()->atParagStart();
+    return textCursor()->paragraph() == document()->firstParagraph() && textCursor()->atParagStart();
 }
 
 /*!  Returns the number of characters at paragraph number \a row. If
@@ -316,7 +316,7 @@ void QMultiLineEdit::backspace()
 	return;
     }
 
-    if ( !textCursor()->parag()->prev() &&
+    if ( !textCursor()->paragraph()->prev() &&
 	 textCursor()->atParagStart() )
 	return;
 
@@ -389,7 +389,7 @@ void QMultiLineEdit::setAlignment( int flag )
 	flag = AlignHCenter;
     if ( flag != AlignLeft && flag != AlignRight && flag != AlignHCenter )
 	return;
-    QTextParag *p = document()->firstParag();
+    QTextParagraph *p = document()->firstParagraph();
     while ( p ) {
 	p->setAlignment( flag );
 	p = p->next();
@@ -398,7 +398,7 @@ void QMultiLineEdit::setAlignment( int flag )
 
 int QMultiLineEdit::alignment() const
 {
-    return document()->firstParag()->alignment();
+    return document()->firstParagraph()->alignment();
 }
 
 

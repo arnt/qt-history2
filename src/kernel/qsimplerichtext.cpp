@@ -386,8 +386,8 @@ QString QSimpleRichText::anchorAt( const QPoint& pos ) const
     if ( d->cachedWidth < 0 )
 	d->adjustSize();
     QTextCursor c( d->doc );
-    c.place( pos, d->doc->firstParag(), TRUE );
-    return c.parag()->at( c.index() )->anchorHref();
+    c.place( pos, d->doc->firstParagraph(), TRUE );
+    return c.paragraph()->at( c.index() )->anchorHref();
 }
 
 /*!
@@ -402,9 +402,9 @@ bool QSimpleRichText::inText( const QPoint& pos ) const
     if ( pos.y()  > d->doc->height() )
 	return FALSE;
     QTextCursor c( d->doc );
-    c.place( pos, d->doc->firstParag() );
-    return c.totalOffsetX() + c.parag()->at( c.index() )->x +
-	c.parag()->at( c.index() )->format()->width( c.parag()->at( c.index() )->c ) > pos.x();
+    c.place( pos, d->doc->firstParagraph() );
+    return c.totalOffsetX() + c.paragraph()->at( c.index() )->x +
+	c.paragraph()->at( c.index() )->format()->width( c.paragraph()->at( c.index() )->c ) > pos.x();
 }
 
 /*!
