@@ -1,3 +1,4 @@
+//depot/qt/3.0/src/kernel/qpainter_x11.cpp#27 - edit change 87417 (text)
 /****************************************************************************
 ** $Id: $
 **
@@ -2452,8 +2453,6 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
     }
     if ( winding )                              // set to winding fill rule
         XSetFillRule( dpy, gc_brush, WindingRule );
-    else
-        XSetFillRule( dpy, gc_brush, EvenOddRule );
 
     if ( pa[index] != pa[index+npoints-1] ){   // close open pointarray
         pa.detach();
