@@ -65,7 +65,9 @@ int main( int argc, char** argv )
 	** Just hang around until someone clicks the "OK" button
 	*/
 	app->exec();
+#if defined(Q_OS_WIN32)
 	QEnvironment::removeUninstall( QString( "Qt " ) + argv[ 3 ] );
+#endif
     }
 
     return 0;
