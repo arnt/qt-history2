@@ -341,7 +341,9 @@ void QIconViewToolTip::maybeTip( const QPoint &pos )
     r.setWidth( view->d->fm->boundingRect( item->itemText ).width() + 4 );
     r = QRect( view->contentsToViewport( QPoint( r.x(), r.y() ) ), QSize( r.width(), r.height() ) );
 
-    tip( r, item->rect(), item->itemText );
+    QRect r2( item->pixmapRect( FALSE ) );
+    r2 = QRect( view->contentsToViewport( QPoint( r2.x(), r2.y() ) ), QSize( r2.width(), r2.height() ) );
+    tip( r, r2, item->itemText );
 }
 #endif
 
@@ -2837,7 +2839,7 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 
     if ( d->firstItem == item || item->prev || item->next)
 	return;
-    
+
     if ( !item->view )
 	item->view = this;
 
@@ -3802,7 +3804,7 @@ void QIconView::ensureItemVisible( QIconViewItem *item )
 
     If you want to find all items that touch \a r, you will need to
     use this function and nextItem() in a loop ending at
-    findLastVisibleItem() and test QIconViewItem::rect() for each of 
+    findLastVisibleItem() and test QIconViewItem::rect() for each of
     these items.
 
     \sa findLastVisibleItem() QIconViewItem::rect()
@@ -6107,7 +6109,7 @@ void QIconView::windowActivationChange( bool oldActive )
 
     if ( palette().active() == palette().inactive() )
 	return;
-    
+
     repaintSelectedItems();
 }
 
