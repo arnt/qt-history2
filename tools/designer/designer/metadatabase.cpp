@@ -46,6 +46,7 @@ public:
     MetaDataBase::MetaInfo metaInfo;
     QCursor cursor;
     QMap<int, QString> pixmapArguments;
+    QMap<QString, QString> columnFields;
 };
 
 static QPtrDict<MetaDataBaseRecord> *db = 0;
@@ -870,4 +871,35 @@ void MetaDataBase::clearPixmapArguments( QObject *o )
     }
 
     r->pixmapArguments.clear();
+}
+
+
+void MetaDataBase::setColumnFields( QObject *o, const QMap<QString, QString> &columnFields )
+{
+    if ( !o )
+	return;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    r->columnFields = columnFields;
+}
+
+QMap<QString, QString> MetaDataBase::columnFields( QObject *o )
+{
+    if ( !o )
+	return QMap<QString, QString>();
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return QMap<QString, QString>();
+    }
+
+    return r->columnFields;
 }

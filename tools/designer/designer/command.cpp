@@ -1251,12 +1251,13 @@ PopulateTableCommand::PopulateTableCommand( const QString &n, FormWindow *fw, QT
     : Command( n, fw ), newRows( rows ), newColumns( columns ), table( t )
 {
     int i = 0;
+    QMap<QString, QString> columnFields = MetaDataBase::columnFields( table );
     for ( i = 0; i < table->horizontalHeader()->count(); ++i ) {
 	PopulateTableCommand::Column col;
 	col.text = table->horizontalHeader()->label( i );
 	if ( table->horizontalHeader()->iconSet( i ) )
 	    col.pix = table->horizontalHeader()->iconSet( i )->pixmap();
-	// ### todo field stuff
+	col.field = *columnFields.find( col.text );
 	oldColumns.append( col );
     }
     for ( i = 0; i < table->verticalHeader()->count(); ++i ) {
@@ -1270,12 +1271,15 @@ PopulateTableCommand::PopulateTableCommand( const QString &n, FormWindow *fw, QT
 
 void PopulateTableCommand::execute()
 {
+    QMap<QString, QString> columnFields;
     table->setNumCols( newColumns.count() );
     int i = 0;
     for ( QValueList<Column>::Iterator cit = newColumns.begin(); cit != newColumns.end(); ++cit, ++i ) {
 	table->horizontalHeader()->setLabel( i, (*cit).pix, (*cit).text );
-	// ### todo field stuff
+	if ( !(*cit).field.isEmpty() )
+	    columnFields.insert( (*cit).text, (*cit).field );
     }
+    MetaDataBase::setColumnFields( table, columnFields );
     table->setNumRows( newRows.count() );
     i = 0;
     for ( QValueList<Row>::Iterator rit = newRows.begin(); rit != newRows.end(); ++rit, ++i )
@@ -1284,12 +1288,15 @@ void PopulateTableCommand::execute()
 
 void PopulateTableCommand::unexecute()
 {
+    QMap<QString, QString> columnFields;
     table->setNumCols( oldColumns.count() );
     int i = 0;
     for ( QValueList<Column>::Iterator cit = oldColumns.begin(); cit != oldColumns.end(); ++cit, ++i ) {
 	table->horizontalHeader()->setLabel( i, (*cit).pix, (*cit).text );
-	// ### todo field stuff
+	if ( !(*cit).field.isEmpty() )
+	    columnFields.insert( (*cit).text, (*cit).field );
     }
+    MetaDataBase::setColumnFields( table, columnFields );
     table->setNumRows( oldRows.count() );
     i = 0;
     for ( QValueList<Row>::Iterator rit = oldRows.begin(); rit != oldRows.end(); ++rit, ++i )

@@ -176,6 +176,9 @@ public:
     static QString pixmapArgument( QObject *o, int pixmap );
     static void clearPixmapArguments( QObject *o );
 
+    static void setColumnFields( QObject *o, const QMap<QString, QString> &columnFields );
+    static QMap<QString, QString> columnFields( QObject *o );
+
 };
 
 #endif
