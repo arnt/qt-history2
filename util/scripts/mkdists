@@ -782,9 +782,9 @@ for plat in mac win x11 qws; do
 		esac
 	    done
 	    status "Text files..."
-	    { for a in $txtfiles; do echo $a; done } | zip -l9q $OUT_TREE/${PLATNAME}.zip -@
+	    { for a in $txtfiles; do echo $a; done ; } | zip -l9q $OUT_TREE/${PLATNAME}.zip -@
 	    status "Binary files..."
-	    { for a in $binfiles; do echo $a; done } | zip -9q $OUT_TREE/${PLATNAME}.zip -@
+	    { for a in $binfiles; do echo $a; done ; } | zip -9q $OUT_TREE/${PLATNAME}.zip -@
 	fi
 	)
 	status "" "-1"
