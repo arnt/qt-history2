@@ -490,7 +490,7 @@ void FormFile::syncCode()
 
 void FormFile::checkTimeStamp()
 {
-    if ( !seperateSource || timeStamp.isUpToDate() )
+    if ( timeStamp.isUpToDate() )
 	return;
     timeStamp.update();
     if ( codeEdited ) {
