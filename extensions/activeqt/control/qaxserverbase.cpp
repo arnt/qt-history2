@@ -279,6 +279,7 @@ private:
     unsigned isUIActive		:1;
     unsigned wasUIActive	:1;
     unsigned isBindable		:1;
+    unsigned inDesignMode	:1;
     short freezeEvents;
 
     HWND m_hWnd;
@@ -734,6 +735,7 @@ QAxServerBase::QAxServerBase( const QString &classname )
     isUIActive		= FALSE;
     wasUIActive		= FALSE;
     isBindable		= FALSE;
+    inDesignMode	= FALSE;
     freezeEvents = 0;
 
     sizeExtent.cx = 2500;
@@ -1522,7 +1524,7 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 	return TRUE;
     }
 
-    if ( freezeEvents )
+    if ( freezeEvents || inDesignMode )
 	return TRUE;
 
     if ( !signallist )
@@ -2401,6 +2403,7 @@ HRESULT WINAPI QAxServerBase::OnAmbientPropertyChange( DISPID dispID )
 	return S_OK;
 
     VARIANT var;
+    VariantInit( &var );
     DISPPARAMS params = { 0, 0, 0, 0 };
     disp->Invoke( dispID, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, &var, 0, 0 );
     disp->Release();
@@ -2476,6 +2479,9 @@ HRESULT WINAPI QAxServerBase::OnAmbientPropertyChange( DISPID dispID )
 	activeqt->setEnabled( !var.boolVal );
 	break;
     case DISPID_AMBIENT_USERMODE:
+	if ( var.vt != VT_BOOL )
+	    break;
+	inDesignMode = !var.boolVal;
 	break;
     case DISPID_AMBIENT_RIGHTTOLEFT:
 	if ( var.vt != VT_BOOL )
@@ -2948,6 +2954,7 @@ HRESULT QAxServerBase::internalActivate()
 	}
     }
 
+    OnAmbientPropertyChange( DISPID_AMBIENT_USERMODE );
     m_spClientSite->ShowObject();
 
     return S_OK;
@@ -3214,6 +3221,9 @@ bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 	}
 	break;
     case QEvent::KeyPress:
+	if ( inDesignMode )
+	    return TRUE;
+
 	if ( o == activeqt && hasStockEvents ) {
 	    QKeyEvent *ke = (QKeyEvent*)e;
 	    QUObject obj[3];
@@ -3225,6 +3235,9 @@ bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 	}
 	break;
     case QEvent::KeyRelease:
+	if ( inDesignMode )
+	    return TRUE;
+
 	if ( o == activeqt && hasStockEvents ) {
 	    QKeyEvent *ke = (QKeyEvent*)e;
 	    QUObject obj[3];
@@ -3234,6 +3247,9 @@ bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 	}
 	break;
     case QEvent::MouseMove:
+	if ( inDesignMode )
+	    return TRUE;
+
 	if ( o == activeqt && hasStockEvents ) {
 	    QMouseEvent *me = (QMouseEvent*)e;
 	    QUObject obj[5]; // 0 = return value
@@ -3245,6 +3261,9 @@ bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 	}
 	break;
     case QEvent::MouseButtonRelease:
+	if ( inDesignMode )
+	    return TRUE;
+
 	if ( o == activeqt && hasStockEvents ) {
 	    QMouseEvent *me = (QMouseEvent*)e;
 	    QUObject obj[5]; // 0 = return value
@@ -3257,12 +3276,18 @@ bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 	}
 	break;
     case QEvent::MouseButtonDblClick:
+	if ( inDesignMode )
+	    return TRUE;
+
 	if ( o == activeqt && hasStockEvents ) {
 	    QMouseEvent *me = (QMouseEvent*)e;
 	    qt_emit( DISPID_DBLCLICK, 0 );
 	}
 	break;
     case QEvent::MouseButtonPress:
+	if ( inDesignMode )
+	    return TRUE;
+
 	{
 	    if ( o == activeqt && hasStockEvents ) {
 		QMouseEvent *me = (QMouseEvent*)e;
