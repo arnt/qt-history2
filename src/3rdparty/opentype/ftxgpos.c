@@ -2829,9 +2829,8 @@ static FT_Error  default_mmfunc( FT_Face      face,
     comp_index = in->glyph_properties[in->pos].component;
 
     /* ###### why the hell doesn't this compile?
-       if (comp_index == MAX_COMPONENT_INDEX)
-       comp_index = lat->ComponentCount - 1;
-    */
+     if (comp_index == MAX_COMPONENT_INDEX)
+ 	comp_index = lat->ComponentCount - 1; */
     if ( comp_index >= lat->ComponentCount )
         return TTO_Err_Not_Covered;
 
@@ -6156,7 +6155,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
     while ( in->pos < in->length )
     {
-	if (1) /*where_to_apply[in->pos]) */
+	if (1) /* where_to_apply[in->pos]) */
       {
         /* 0xFFFF indicates that we don't have a context length yet. */
 

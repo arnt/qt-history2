@@ -94,7 +94,7 @@
   {
 
     /* sanity check */
-      /*assert( !( !in || !out || in->length == 0 || in->pos >= in->length || in->length < in->pos + num_in ) ); */
+      /*assert( !( !in || !out || in->length == 0 || in->pos >= in->length || in->length < in->pos + num_in ) );*/
 
     if ( out->pos + num_out > out->allocated )
 	TT_GSUB_String_Allocate( out, out->pos + num_out );
@@ -136,7 +136,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
 {
 
     /* sanity check */
-    /* assert( !( !in || !out || in->length == 0 || in->pos >= in->length || in->length < in->pos + num_in ) ); */
+    /*assert( !( !in || !out || in->length == 0 || in->pos >= in->length || in->length < in->pos + num_in ) );*/
 
     if ( out->pos >= out->allocated )
 	TT_GSUB_String_Allocate( out, out->pos + 1 );

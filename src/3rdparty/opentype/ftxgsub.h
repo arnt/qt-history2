@@ -480,8 +480,7 @@ extern "C" {
   typedef union TTO_GSUB_SubTable_  TTO_GSUB_SubTable;
 
     struct TTO_Glyph_property_ {
-	unsigned char type : 3;
-	unsigned char component :5;
+	unsigned char component;
     };
     typedef struct TTO_Glyph_property_ TTO_Glyph_property;
 #define MAX_COMPONENT_INDEX = 0x1f;
