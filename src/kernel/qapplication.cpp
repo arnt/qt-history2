@@ -2159,7 +2159,6 @@ void QApplication::processEvents()
 }
 
 /*!
-    \internal
   Waits for an event to occur, processes it, then returns.
 
   This function is useful for adapting Qt to situations where the
