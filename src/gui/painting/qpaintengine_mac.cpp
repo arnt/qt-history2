@@ -1060,9 +1060,11 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
         }
     } else if(d->pdev->devType() == QInternal::Pixmap) {             // device is a pixmap
         QPixmap *pm = (QPixmap*)d->pdev;
-        if(pm->depth() == 1)
-            clearRenderHints(QPainter::RenderHints(QPainter::LineAntialiasing
-                                                   | QPainter::TextAntialiasing));
+        if(pm->depth() == 1) {
+            setRenderHint(QPainter::LineAntialiasing, false);
+            setRenderHint(QPainter::TextAntialiasing, false);
+        }
+
         if(pm->isNull()) {
             qWarning("QCoreGraphicsPaintEngine::begin: Cannot paint null pixmap");
             end();
