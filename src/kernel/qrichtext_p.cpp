@@ -146,6 +146,8 @@ void QTextDocument::setSelectionStart( int id, QTextCursor *cursor )
 
 QTextParag *QTextDocument::paragAt( int i ) const
 {
+    // ### disabled cache for now because it crashes. Fix for 3.0.4!
+#if 0
     QTextParag* p = curParag;
     if ( !p || p->paragId() > i )
 	p = fParag;
@@ -153,6 +155,12 @@ QTextParag *QTextDocument::paragAt( int i ) const
 	p = p->next();
     ((QTextDocument*)this)->curParag = p;
     return p;
+#else
+    QTextParag *p = fParag;
+    while ( p && p->paragId() != i )
+	p = p->next();
+    return p;
+#endif
 }
 
 
