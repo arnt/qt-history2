@@ -975,6 +975,7 @@ QSpinBoxPrivate::QSpinBoxPrivate()
 
 void QSpinBoxPrivate::emitSignals()
 {
+    QAbstractSpinBoxPrivate::emitSignals();
     emit q->valueChanged(edit->displayText());
     emit q->valueChanged(value.toInt());
 }

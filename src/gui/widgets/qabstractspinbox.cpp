@@ -21,7 +21,9 @@
 bool operator<(const QCoreVariant &arg1, const QCoreVariant &arg2);
 bool operator>(const QCoreVariant &arg1, const QCoreVariant &arg2);
 QCoreVariant operator+(const QCoreVariant &arg1, const QCoreVariant &arg2);
-QCoreVariant operator*(const QCoreVariant &arg1, int multiplier);
+QCoreVariant operator-(const QCoreVariant &arg1, const QCoreVariant &arg2);
+QCoreVariant operator*(const QCoreVariant &arg1, double multiplier);
+double operator/(const QCoreVariant &arg1, const QCoreVariant &arg2);
 
 /*!
     \class QAbstractSpinBox q4abstractspinbox.h \brief
@@ -235,6 +237,19 @@ void QAbstractSpinBox::setWrapping(bool w)
     d->wrapping = w;
 }
 
+bool QAbstractSpinBox::slider() const
+{
+    return d->slider;
+}
+
+void QAbstractSpinBox::setSlider(bool s)
+{
+    d->slider = s;
+    d->sliderpressed = d->slider && d->sliderpressed;
+    update();
+}
+
+
 /*!
     \property QAbstractSpinBox::alignment
     \brief the alignment of the spin box
@@ -393,8 +408,9 @@ void QAbstractSpinBox::changeEvent(QEvent *e)
 
 void QAbstractSpinBox::resizeEvent(QResizeEvent *e)
 {
-    d->edit->setGeometry(style().querySubControlMetrics(QStyle::CC_SpinBox, this,
-                                                        QStyle::SC_SpinBoxEditField));
+    Q4StyleOptionSpinBox sb = d->styleOption();
+    sb.parts = QStyle::SC_SpinBoxEditField;
+    d->edit->setGeometry(style().querySubControlMetrics(QStyle::CC_SpinBox, &sb, this));
     QWidget::resizeEvent(e);
 }
 
@@ -590,6 +606,8 @@ void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
 void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
 {
     d->dragging = true;
+    if (d->sliderpressed)
+        d->setValue(d->valueForPosition(e->pos().x()), EmitIfChanged);
     QWidget::mouseMoveEvent(e);
 }
 
@@ -601,8 +619,9 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
 {
     const QPoint p(e->pos());
     const StepEnabled se = stepEnabled();
-    if (style().querySubControlMetrics(QStyle::CC_SpinBox, this,
-                                       QStyle::SC_SpinBoxUp).contains(p)) {
+    Q4StyleOptionSpinBox sb = d->styleOption();
+    sb.parts = QStyle::SC_SpinBoxUp;
+    if (style().querySubControlMetrics(QStyle::CC_SpinBox, &sb, this).contains(p)) {
 	if (e->button() != Qt::LeftButton || !(se & StepUpEnabled) || d->buttonstate != None) {
 	    e->accept();
 	    return;
@@ -610,8 +629,10 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
 	d->spinclicktimerid = startTimer(d->spinclicktimerinterval);
 	d->buttonstate = (Mouse | Up);
 	stepBy(1);
-    } else if (style().querySubControlMetrics(QStyle::CC_SpinBox, this,
-               QStyle::SC_SpinBoxDown).contains(p)) {
+        return;
+    }
+    sb.parts = QStyle::SC_SpinBoxDown;
+    if (style().querySubControlMetrics(QStyle::CC_SpinBox, &sb, this).contains(p)) {
 	if (e->button() != Qt::LeftButton || !(se & StepDownEnabled) || d->buttonstate != None) {
 	    e->accept();
 	    return;
@@ -619,9 +640,21 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
 	d->spinclicktimerid = startTimer(d->spinclicktimerinterval);
 	d->buttonstate = (Mouse | Down);
 	stepBy(-1);
-    } else {
-	QWidget::mousePressEvent(e);
+        return;
     }
+
+    sb.parts = QStyle::SC_SpinBoxSlider;
+    if (d->slider && style().querySubControlMetrics(QStyle::CC_SpinBox, &sb, this).contains(p)) {
+        if (e->button() != Qt::LeftButton || d->buttonstate != None) {
+	    e->accept();
+	    return;
+	}
+        d->sliderpressed = true;
+        d->setValue(d->valueForPosition(e->pos().x()), EmitIfChanged);
+        return;
+    }
+
+    QWidget::mousePressEvent(e);
 }
 
 /*
@@ -630,7 +663,7 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
 
 void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *e)
 {
-    d->dragging = false;
+    d->dragging = d->sliderpressed = false;
     if (d->buttonstate & Mouse) {
 	d->resetState();
     } else {
@@ -646,10 +679,10 @@ void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *e)
 */
 
 QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
-    : edit(0), spinclicktimerid(-1), spinkeytimerid(-1), spinclicktimerinterval(100),
-      spinkeytimerinterval(200), buttonstate(None), sizehintdirty(true), dirty(true),
-      useprivate(false), pendingemit(false), tracking(false), wrapping(false), dragging(false),
-      ignorecursorpositionchanged(false), buttonsymbols(QAbstractSpinBox::UpDownArrows)
+    : edit(0), spinclicktimerid(-1), spinkeytimerid(-1), spinclicktimerinterval(100), spinkeytimerinterval(200),
+      buttonstate(None), sizehintdirty(true), dirty(true), useprivate(false), pendingemit(false),
+      tracking(false), wrapping(false), dragging(false), ignorecursorpositionchanged(false), slider(false),
+      sliderpressed(false), buttonsymbols(QAbstractSpinBox::UpDownArrows)
 {
     resetState();
 }
@@ -692,6 +725,9 @@ bool QAbstractSpinBoxPrivate::specialValue() const
 
 void QAbstractSpinBoxPrivate::emitSignals()
 {
+    if (slider) {
+        updateSlider();
+    }
 }
 
 /*!
@@ -819,14 +855,29 @@ QLineEdit *QAbstractSpinBoxPrivate::lineEdit()
     \internal
 
     Calls QWidget::update() on the area where the arrows are painted.
-    Also makes sure that rect is initialised.
 */
 
 void QAbstractSpinBoxPrivate::updateSpinBox()
 {
     if (q) {
-	q->update(q->style().querySubControlMetrics(QStyle::CC_SpinBox, q,
-                                                    QStyle::SC_SpinBoxButtonField));
+        Q4StyleOptionSpinBox sb = styleOption();
+        sb.parts = QStyle::SC_SpinBoxButtonField;
+	q->update(q->style().querySubControlMetrics(QStyle::CC_SpinBox, &sb, q));
+    }
+}
+
+/*!
+    \internal
+
+    Calls QWidget::update() on the area where the slider is painted.
+*/
+
+void QAbstractSpinBoxPrivate::updateSlider()
+{
+    if (q) {
+        Q4StyleOptionSpinBox sb = styleOption();
+        sb.parts = QStyle::SC_SpinBoxSlider;
+	q->update(q->style().querySubControlMetrics(QStyle::CC_SpinBox, &sb, q));
     }
 }
 
@@ -877,15 +928,15 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
         }
         w += 30;
 
-        cachedsizehint = QSize(w + q->style().querySubControlMetrics(QStyle::CC_SpinBox, q,
-                               QStyle::SC_SpinBoxButtonField).width(),
-                               h + q->style().pixelMetric(QStyle::PM_DefaultFrameWidth) * 2).
-                               expandedTo(QApplication::globalStrut());
+        Q4StyleOptionSpinBox sb = styleOption();
+        sb.parts = QStyle::SC_SpinBoxButtonField;
 
-
-        w = edit->minimumSizeHint().width() + 20;
-        h = edit->minimumSizeHint().height() + (q->style().pixelMetric(QStyle::PM_DefaultFrameWidth)
-                                                * 2);
+        cachedsizehint = QSize(w + q->style().querySubControlMetrics(QStyle::CC_SpinBox, &sb, q).
+                               width(), h + q->style().pixelMetric(QStyle::PM_DefaultFrameWidth) * 2).
+                         expandedTo(QApplication::globalStrut());
+        h = edit->minimumSizeHint().height() + (q->style().pixelMetric(QStyle::PM_DefaultFrameWidth) * 2);
+        if (slider)
+            h += q->style().pixelMetric(QStyle::PM_SpinBoxSliderHeight, q);
         cachedminimumsizehint = QSize(w, h).expandedTo(QApplication::globalStrut());
         sizehintdirty = false;
     }
@@ -904,13 +955,30 @@ Q4StyleOptionSpinBox QAbstractSpinBoxPrivate::styleOption() const
     opt.stepEnabled = q->stepEnabled();
     opt.activeParts = 0;
     opt.buttonSymbols = buttonsymbols;
-    opt.parts = QStyle::SC_SpinBoxFrame | QStyle::PE_SpinBoxUp | QStyle::PE_SpinBoxDown;
-    if (buttonstate & Up) {
+    opt.parts = QStyle::SC_SpinBoxFrame|QStyle::PE_SpinBoxUp|QStyle::PE_SpinBoxDown;
+    if (slider) {
+        opt.parts |= QStyle::PE_SpinBoxSlider;
+    }
+    if (d->buttonstate & Up) {
         opt.activeParts = QStyle::PE_SpinBoxUp;
     } else if (buttonstate & Down) {
         opt.activeParts = QStyle::PE_SpinBoxDown;
     }
+    opt.percentage = (value - minimum) / (maximum - minimum);
+    opt.slider = slider;
     return opt;
+}
+
+QCoreVariant QAbstractSpinBoxPrivate::valueForPosition(int pos) const
+{
+    Q4StyleOptionSpinBox sb = styleOption();
+    sb.parts = QStyle::SC_SpinBoxSlider;
+    QRect r = q->style().querySubControlMetrics(QStyle::CC_SpinBox, &sb, q);
+
+    double percentage = (double)pos / r.width();
+
+    QCoreVariant ret = minimum + (maximum - minimum) * percentage;
+    return ret;
 }
 
 /*!
@@ -1248,7 +1316,48 @@ QCoreVariant operator+(const QCoreVariant &arg1, const QCoreVariant &arg2)
     switch (arg1.type()) {
     case QCoreVariant::Int: ret = QCoreVariant(arg1.toInt() + arg2.toInt()); break;
     case QCoreVariant::Double: ret = QCoreVariant(arg1.toDouble() + arg2.toDouble()); break;
-    case QCoreVariant::DateTime: ret = QCoreVariant(arg1.toDateTime() + arg2.toDateTime()); break;
+    case QCoreVariant::DateTime: {
+        QDateTime a2 = arg2.toDateTime();
+        QDateTime a1 = arg1.toDateTime().addDays(DATETIME_MIN.daysTo(a2));
+        a1.setTime(a1.time().addMSecs(QTime().msecsTo(a2.time())));
+        ret = QCoreVariant(a1);
+    }
+    default: break;
+    }
+    return ret;
+}
+
+
+/*!
+    \internal
+    Subtracts two variants and returns the result.
+*/
+
+QCoreVariant operator-(const QCoreVariant &arg1, const QCoreVariant &arg2)
+{
+    QCoreVariant ret;
+    if (arg1.type() != arg2.type())
+	qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
+		 arg1.typeName(), arg2.typeName());
+    switch (arg1.type()) {
+    case QCoreVariant::Int: ret = QCoreVariant(arg1.toInt() - arg2.toInt()); break;
+    case QCoreVariant::Double: ret = QCoreVariant(arg1.toDouble() - arg2.toDouble()); break;
+    case QCoreVariant::DateTime: {
+        QDateTime a1 = arg1.toDateTime();
+        QDateTime a2 = arg2.toDateTime();
+        int days = a2.daysTo(a1);
+        int secs = a2.secsTo(a2);
+        int msecs = qMax(0, a1.time().msec() - a2.time().msec());
+        if (days < 0 || secs < 0 || msecs < 0) {
+            qDebug("%s %d: if (days < 0 || secs < 0 || msecs < 0) {", __FILE__, __LINE__);
+            ret = arg1;
+        } else {
+            QDateTime dt = a2.addDays(days).addSecs(secs);
+            if (msecs > 0)
+                dt.setTime(dt.time().addMSecs(msecs));
+            ret = QCoreVariant(dt);
+        }
+    }
     default: break;
     }
     return ret;
@@ -1259,20 +1368,54 @@ QCoreVariant operator+(const QCoreVariant &arg1, const QCoreVariant &arg2)
     Multiplies \a arg1 by \a multiplier and returns the result.
 */
 
-QCoreVariant operator*(const QCoreVariant &arg1, int multiplier)
+QCoreVariant operator*(const QCoreVariant &arg1, double multiplier) // should probably do each field more separately
 {
     QCoreVariant ret;
 
     switch (arg1.type()) {
-    case QCoreVariant::Int: ret = QCoreVariant(arg1.toInt() * multiplier); break;
+    case QCoreVariant::Int: ret = QCoreVariant((int)(arg1.toInt() * multiplier)); break;
     case QCoreVariant::Double: ret = QCoreVariant(arg1.toDouble() * multiplier); break;
-    default: break;
+    case QCoreVariant::DateTime: {
+        double days = DATE_MIN.daysTo(arg1.toDateTime().date()) * multiplier;
+        int daysInt = (int)days;
+        days -= daysInt;
+        long msecs = (long)((TIME_MIN.msecsTo(arg1.toDateTime().time()) * multiplier) + (days * (24 * 3600 * 1000)));
+        ret = QDateTime(QDate().addDays(days), QTime().addMSecs(msecs));
+        break;
+    }
+    default: ret = arg1; break;
     }
 
     return ret;
 }
 
 
+
+double operator/(const QCoreVariant &arg1, const QCoreVariant &arg2)
+{
+    double a1 = 0;
+    double a2 = 0;
+
+    switch (arg1.type()) {
+    case QVariant::Int:
+        a1 = (double)arg1.toInt();
+        a2 = (double)arg2.toInt();
+        break;
+    case QVariant::Double:
+        a1 = arg1.toDouble();
+        a2 = arg2.toDouble();
+        break;
+    case QVariant::DateTime: {
+        a1 = DATE_MIN.daysTo(arg1.toDate());
+        a2 = DATE_MIN.daysTo(arg2.toDate());
+        a1 += (double)TIME_MIN.msecsTo(arg1.toDateTime().time()) / (long)(3600 * 24 * 1000);
+        a2 += (double)TIME_MIN.msecsTo(arg2.toDateTime().time()) / (long)(3600 * 24 * 1000);
+    }
+    default: break;
+    }
+
+    return (a1 != 0 && a2 != 0) ? (a1 / a2) : 0.0;
+}
 
 #include "moc_qabstractspinbox.cpp"
 

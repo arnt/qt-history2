@@ -16,6 +16,7 @@ class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
     Q_PROPERTY(bool wrapping READ wrapping WRITE setWrapping)
     Q_PROPERTY(bool tracking READ tracking WRITE setTracking)
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
+    Q_PROPERTY(bool slider READ slider WRITE setSlider)
     Q_PROPERTY(ButtonSymbols buttonSymbols READ buttonSymbols WRITE setButtonSymbols)
     QDOC_PROPERTY(QString text READ text)
     QDOC_PROPERTY(QString cleanText READ cleanText)
@@ -40,6 +41,9 @@ public:
 
     bool wrapping() const;
     void setWrapping(bool w);
+
+    bool slider() const;
+    void setSlider(bool s);
 
     void setAlignment(Qt::Alignment flag);
     Qt::Alignment alignment() const;

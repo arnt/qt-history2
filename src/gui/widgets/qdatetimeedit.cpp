@@ -42,6 +42,8 @@ public:
     void editorCursorPositionChanged(int lastpos, int newpos);
     QValidator::State validate(QString *input, int *pos, QCoreVariant *val) const;
 
+//    Q4StyleOptionSpinBox styleOption() const;
+
     void clearSection(SectionFlags s);
 
     int sectionLength(SectionFlags s) const;
@@ -745,6 +747,7 @@ QDateTimeEditPrivate::QDateTimeEditPrivate()
 
 void QDateTimeEditPrivate::emitSignals()
 {
+    QAbstractSpinBoxPrivate::emitSignals();
     if (value.toDate().isValid()) {
         emit q->dateTimeChanged(value.toDateTime());
         if (display & DateMask)
@@ -1324,10 +1327,42 @@ QDateTimeEditPrivate::SectionNode QDateTimeEditPrivate::nextPrevSection(SectionF
 
 /*!
     \internal
+    \reimp
+*/
+
+// Q4StyleOptionSpinBox QDateTimeEditPrivate::styleOption() const
+// {
+//     Q4StyleOptionSpinBox opt(0);
+//     opt.init(q);
+//     opt.stepEnabled = q->stepEnabled();
+//     opt.activeParts = 0;
+//     opt.buttonSymbols = buttonsymbols;
+//     opt.parts = QStyle::SC_SpinBoxFrame|QStyle::PE_SpinBoxUp|QStyle::PE_SpinBoxDown;
+//     if (slider) {
+//         opt.parts |= QStyle::PE_SpinBoxSlider;
+//     }
+//     if (d->buttonstate & Up) {
+//         opt.activeParts = QStyle::PE_SpinBoxUp;
+//     } else if (buttonstate & Down) {
+//         opt.activeParts = QStyle::PE_SpinBoxDown;
+//     }
+//     double days = minimum.toDateTime().daysTo(value.toDateTime()) +
+//                   (minimum.toDateTime().secsTo(value.toDateTime()) * 24 * 3600);
+//     double totalDays = minimum.toDateTime().daysTo(maximum.toDateTime()) +
+//                   (minimum.toDateTime().secsTo(maximum.toDateTime()) * 24 * 3600);
+
+//     opt.percentage = totalDays;
+//     opt.slider = slider;
+//     return opt;
+// }
+
+
+
+/*!
+    \internal
 
     Clears the text of section \a s.
 */
-
 
 void QDateTimeEditPrivate::clearSection(SectionFlags s)
 {

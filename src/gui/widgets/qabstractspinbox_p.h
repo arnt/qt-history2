@@ -34,7 +34,7 @@ enum Button {
     ButtonMask = 0x008,
     Up = 0x010,
     Down = 0x020,
-    DirectionMask = 0x040
+    DirectionMask = 0x040,
 };
 
 class QAbstractSpinBoxPrivate : public QWidgetPrivate
@@ -53,11 +53,14 @@ public:
     QCoreVariant bound(const QCoreVariant &val, const QCoreVariant &old = QCoreVariant(), int steps = 0) const;
     QLineEdit *lineEdit();
     void updateSpinBox();
-    void updateEdit() const;
+    void updateSlider();
     void update();
+    void updateEdit() const;
     void calculateSizeHints() const;
 
     Q4StyleOptionSpinBox styleOption() const;
+
+    QCoreVariant valueForPosition(int pos) const;
 
     virtual void emitSignals();
     virtual void refresh(EmitPolicy ep);
@@ -89,6 +92,8 @@ public:
     uint wrapping : 1;
     uint dragging : 1;
     uint ignorecursorpositionchanged : 1;
+    uint slider : 1;
+    uint sliderpressed : 1;
     QAbstractSpinBox::ButtonSymbols buttonsymbols;
 };
 
