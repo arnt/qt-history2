@@ -402,33 +402,18 @@ Editor.
 
 \section3 General Tab
 
-\img rd-prefgen1.png
+\img qd-preferences-dlg.png
 \caption Preferences- General Tab
 
-The 'General' tab has sections for Background, Grid, General, and
-Toolbars. 
+The 'General' tab has sections for Background, Grid, General, File
+Saving, and Plugin Paths.
 
-The Background section defaults to 'Pixmap'. To change the default, click the
-\Button {Select a Pixmap} button next to the 'Pixmap' radio button to invoke
-the \Dialog{Choose a Pixmap... Dialog}. Click the 'Color' radio button
-to change the background to a color instead of a pixmap. Click the
-\Button {Choose a Color} button located to the right of the 'Color'
-radio button to invoke the \Dialog{Select Color Dialog}.
-
-The 'General' section of the General tab has three checkboxes that are
-checked by default. Click the 'Restore last workspace on startup'
-checkbox to save the size and positions of the windows and toolbars of
-\QD. The next time you start up \QD, the windows and toolbars are
-restored to their last positions. Click the 'Show Splash Screen on
-startup' checkbox to display the \QD splash screen when you start up
-the application. Click the 'Disable Database Auto-Edit in Preview'
-checkbox to disable the ability to update or delete data in the
-database to which you are connected when working with database
-widgets. To change the path \QD uses to find it's online
-documentation, click the 'Documentation Path' line edit and type a new
-path. It would be unlikely to have to change this path. Another way to
-change the path is to click the \Button {(ellipsis)} button located
-to the right of the line edit. This invokes the \Dialog{Find Directory
+The Background section defaults to 'Pixmap'. To change the default,
+click the \Button {Select a Pixmap} button next to the 'Pixmap' radio
+button to invoke the \Dialog{Choose a Pixmap... Dialog}. Click the
+'Color' radio button to change the background to a color instead of a
+pixmap. Click the \Button {Choose a Color} button located to the right
+of the 'Color' radio button to invoke the \Dialog{Select Color
 Dialog}.
 
 The 'Grid' section has options for customizing the grid on the form. The
@@ -444,9 +429,24 @@ using the X|Y resolution. When it is unchecked, the 'Grid-X' and
 'Grid-Y' spin boxes are disabled. Click the 'Grid X' and 'Grid Y'
 spinboxes to customize the grid settings for all forms.
 
-The 'Toolbars' section has a 'Show Text Labels' checkbox. Click the
-checkbox to display the text labels for each icon shown in the \QD
-toolbar.
+The 'General' section of the General tab has four checkboxes.
+Check the 'Restore last workspace on startup'
+checkbox to save the size and positions of the windows and toolbars of
+\QD. The next time you start up \QD, the windows and toolbars are
+restored to their last positions. Check the 'Show Splash Screen on
+startup' checkbox to display the \QD splash screen when you start up
+the application. Check the 'Disable Database Auto-Edit in Preview'
+checkbox to disable the ability to update or delete data in the
+database to which you are connected when working with database
+widgets. Check the 'Show Toolbutton Label's to have textual labels
+appear beneath \QD's toolbar buttons.
+
+If you want \QD to automatically save files check 'Enable Auto Save',
+and set a time interval.
+
+\QD loads the plugins found in its plugin paths. If you want to add
+your own custom plugin paths, simply enter them (one per line) in the
+plugin paths multi-line editor.
 
 \section3 C++ Editor Tab
 
