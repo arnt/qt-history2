@@ -361,6 +361,7 @@ static int mac_count = 0;
 
     \value SizeSmall
     \value SizeLarge
+    \value SizeNone
     \value SizeDefault
 */
 

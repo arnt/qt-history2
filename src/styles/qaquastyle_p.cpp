@@ -701,16 +701,19 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg, QStyle::ContentsType
     QSize large = qt_aqua_get_known_size(ct, widg, szHint, QAquaSizeLarge),
 	  small = qt_aqua_get_known_size(ct, widg, szHint, QAquaSizeSmall);
 #ifdef Q_WS_MAC
+    bool guess_size = false;
     QAquaWidgetSize ret = QAquaSizeUnknown;
     QStyle *style = &widg->style();
     if (style->inherits("QMacStyle")) {
 	QMacStyle::WidgetSizePolicy wsp = ((QMacStyle*)style)->widgetSizePolicy((QWidget*)widg);
-	if(wsp == QMacStyle::SizeSmall)
+	if(wsp == QMacStyle::SizeDefault)
+	    guess_size = true;
+	else if(wsp == QMacStyle::SizeSmall)
 	    ret = QAquaSizeSmall;
 	else if(wsp == QMacStyle::SizeLarge)
 	    ret = QAquaSizeLarge;
     }
-    if(ret == QAquaSizeUnknown)
+    if(guess_size)
 	ret = qt_aqua_guess_size(widg, large, small);
 #else
     QAquaWidgetSize ret = qt_aqua_guess_size(widg, large, small);
@@ -725,7 +728,6 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg, QStyle::ContentsType
 	*insz = sz ? *sz : QSize(-1, -1);
 #ifdef DEBUG_SIZE_CONSTRAINT
     if(sz) {
-
 	const char *size_desc = "Unknown";
 	if(sz == &small)
 	    size_desc = "Small";
