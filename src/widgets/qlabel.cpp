@@ -916,9 +916,11 @@ void QLabel::setBuddy( QWidget *buddy )
 
     if ( !lbuddy )
 	return;
-
+#ifndef QT_NO_RICHTEXT
     if ( !( textformat == RichText || (textformat == AutoText &&
-				       QStyleSheet::mightBeRichText(ltext) ) ) ) {
+				       QStyleSheet::mightBeRichText(ltext) ) ) ) 
+#endif
+    {
 	int p = QAccel::shortcutKey( ltext );
 	if ( p ) {
 	    if ( !accel )

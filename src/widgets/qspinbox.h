@@ -132,7 +132,9 @@ protected:
 
     bool		eventFilter( QObject* obj, QEvent* ev );
     void		resizeEvent( QResizeEvent* ev );
+#ifndef QT_NO_WHEELEVENT
     void		wheelEvent( QWheelEvent * );
+#endif
     void		leaveEvent( QEvent* );
 
     void		styleChange( QStyle& );

@@ -170,7 +170,9 @@ protected:
     virtual void contentsDragLeaveEvent( QDragLeaveEvent * );
     virtual void contentsDropEvent( QDropEvent * );
 #endif
+#ifndef QT_NO_WHEELEVENT
     virtual void contentsWheelEvent( QWheelEvent * );
+#endif
     virtual void contentsContextMenuEvent( QContextMenuEvent * );
 
 
@@ -186,7 +188,9 @@ protected:
     virtual void viewportDragLeaveEvent( QDragLeaveEvent * );
     virtual void viewportDropEvent( QDropEvent * );
 #endif
+#ifndef QT_NO_WHEELEVENT
     virtual void viewportWheelEvent( QWheelEvent * );
+#endif
     virtual void viewportContextMenuEvent( QContextMenuEvent * );
 
     void	frameChanged();
@@ -207,7 +211,9 @@ protected:
     void 	mouseReleaseEvent( QMouseEvent * );
     void 	mouseDoubleClickEvent( QMouseEvent * );
     void 	mouseMoveEvent( QMouseEvent * );
+#ifndef QT_NO_WHEELEVENT
     void 	wheelEvent( QWheelEvent * );
+#endif
     void	contextMenuEvent( QContextMenuEvent * );
     bool	eventFilter( QObject *, QEvent *e );
 

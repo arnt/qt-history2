@@ -457,6 +457,7 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
 
 /*!\reimp
 */
+#ifndef QT_NO_WHEELEVENT
 void QSlider::wheelEvent( QWheelEvent * e){
     static float offset = 0;
     static QSlider* offset_owner = 0;
@@ -471,7 +472,7 @@ void QSlider::wheelEvent( QWheelEvent * e){
     offset -= int(offset);
     e->accept();
 }
-
+#endif
 
 /*!\reimp
 */

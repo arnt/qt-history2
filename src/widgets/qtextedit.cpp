@@ -1515,7 +1515,7 @@ enum {
 };
 
 /*! \reimp */
-
+#ifndef QT_NO_WHEELEVENT
 void QTextEdit::contentsWheelEvent( QWheelEvent *e )
 {
     if ( isReadOnly() ) {
@@ -1529,6 +1529,7 @@ void QTextEdit::contentsWheelEvent( QWheelEvent *e )
     }
     QScrollView::contentsWheelEvent( e );
 }
+#endif
 
 /*! \reimp */
 

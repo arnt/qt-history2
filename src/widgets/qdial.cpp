@@ -456,12 +456,12 @@ void QDial::mouseMoveEvent( QMouseEvent * e )
 /*!
   \reimp
 */
-
+#ifndef QT_NO_WHEELEVENT
 void QDial::wheelEvent( QWheelEvent *e )
 {
     setValue( value() - e->delta() / 120 );
 }
-
+#endif
 
 /*!
   \reimp

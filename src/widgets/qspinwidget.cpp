@@ -267,7 +267,7 @@ void QSpinWidget::mouseMoveEvent( QMouseEvent *e )
 /*!
     The event is passed in \a e.
 */
-
+#ifndef QT_NO_WHEELEVENT
 void QSpinWidget::wheelEvent( QWheelEvent *e )
 {
     e->accept();
@@ -286,7 +286,7 @@ void QSpinWidget::wheelEvent( QWheelEvent *e )
 	offset > 0 ? stepDown() : stepUp();
     offset -= ioff;
 }
-
+#endif
 
 /*!
 

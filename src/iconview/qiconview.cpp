@@ -906,7 +906,9 @@ QIconViewItem::~QIconViewItem()
 {
     if ( view && !view->d->clearing )
 	view->takeItem( this );
+#ifndef QT_NO_TEXTEDIT
     removeRenameBox();
+#endif
     view = 0;
     if ( itemIcon && itemIcon->serialNumber() != unknown_icon->serialNumber() )
 	delete itemIcon;
@@ -5968,7 +5970,11 @@ void QIconView::windowActivationChange( bool )
 
 bool QIconView::isRenaming() const
 {
+#ifndef QT_NO_TEXTEDIT
     return currentItem() && currentItem()->renameBox;
+#else
+    return FALSE;
+#endif
 }
 
 #endif // QT_NO_ICONVIEW

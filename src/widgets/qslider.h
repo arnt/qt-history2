@@ -120,7 +120,9 @@ protected:
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
+#ifndef QT_NO_WHEELEVENT
     void	wheelEvent( QWheelEvent * );
+#endif
     void	focusInEvent( QFocusEvent *e );
     void	focusOutEvent( QFocusEvent *e );
 

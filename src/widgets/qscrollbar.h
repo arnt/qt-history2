@@ -103,7 +103,9 @@ signals:
     void	prevPage();
 
 protected:
+#ifndef QT_NO_WHEELEVENT
     void 	wheelEvent( QWheelEvent * );
+#endif
     void	keyPressEvent( QKeyEvent * );
     void	resizeEvent( QResizeEvent * );
     void	paintEvent( QPaintEvent * );

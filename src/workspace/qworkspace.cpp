@@ -414,6 +414,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 
 /*! \reimp
 */
+#ifndef QT_NO_WHEELEVENT
 void QWorkspace::wheelEvent( QWheelEvent *e )
 {
     if ( !scrollBarsEnabled() )
@@ -423,6 +424,7 @@ void QWorkspace::wheelEvent( QWheelEvent *e )
     else if ( d->hbar && d->hbar->isVisible() )
 	QApplication::sendEvent( d->hbar, e );
 }
+#endif
 
 void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 {

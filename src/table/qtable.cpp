@@ -3372,6 +3372,7 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 	    return TRUE;
 	}
 	break;
+#ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
 	if ( o == this || o == viewport() ) {
 	    QWheelEvent* we = (QWheelEvent*)e;
@@ -3379,6 +3380,7 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 	    we->accept();
 	    return TRUE;
 	}
+#endif
     case QEvent::Hide:
 	if ( o->inherits( "QPopupMenu" ) ) {
 	    repaintSelections();

@@ -162,7 +162,9 @@ protected:
     void resizeEvent( QResizeEvent* ev );
     void mouseReleaseEvent( QMouseEvent *e );
     void mouseMoveEvent( QMouseEvent *e );
+#ifndef QT_NO_WHEELEVENT
     void wheelEvent( QWheelEvent * );
+#endif
     void styleChange( QStyle& );
     void paintEvent( QPaintEvent * );
     void enableChanged( bool old );

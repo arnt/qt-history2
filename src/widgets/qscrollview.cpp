@@ -1054,7 +1054,9 @@ void  QScrollView::mouseMoveEvent( QMouseEvent *e )
 
 /*! \reimp
 */
-void QScrollView::wheelEvent( QWheelEvent *e ){
+#ifndef QT_NO_WHEELEVENT
+void QScrollView::wheelEvent( QWheelEvent *e )
+{
     QWheelEvent ce( viewport()->mapFromGlobal( e->globalPos() ),
                     e->globalPos(), e->delta(), e->state());
     viewportWheelEvent(&ce);
@@ -1065,6 +1067,7 @@ void QScrollView::wheelEvent( QWheelEvent *e ){
 	    QApplication::sendEvent( verticalScrollBar(), e);
     }
 }
+#endif
 
 /*! \reimp
 */
@@ -1387,9 +1390,11 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
             viewportDropEvent( (QDropEvent*)e );
             break;
 #endif // QT_NO_DRAGANDDROP
+#ifndef QT_NO_WHEELEVENT
         case QEvent::Wheel:
             viewportWheelEvent( (QWheelEvent*)e );
             break;
+#endif
         case QEvent::ContextMenu:
             viewportContextMenuEvent( (QContextMenuEvent*)e );
             return TRUE;
@@ -1492,11 +1497,12 @@ void QScrollView::contentsDropEvent( QDropEvent * )
   wheelEvent() in \a e - the mouse position is translated to be a
   point on the contents.
 */
+#ifndef QT_NO_WHEELEVENT
 void QScrollView::contentsWheelEvent( QWheelEvent * e )
 {
     e->ignore();
 }
-
+#endif
 /*!
   This event handler is called whenever the QScrollView receives a
   contextMenuEvent() in \a e - the mouse position is translated to be a
@@ -1685,6 +1691,7 @@ void QScrollView::viewportDropEvent( QDropEvent* e )
 
   \sa QWidget::wheelEvent()
 */
+#ifndef QT_NO_WHEELEVENT
 void QScrollView::viewportWheelEvent( QWheelEvent* e )
 {
     QWheelEvent ce( viewportToContents(e->pos()),
@@ -1695,6 +1702,7 @@ void QScrollView::viewportWheelEvent( QWheelEvent* e )
     else
         e->ignore();
 }
+#endif
 
 /*! \internal
 

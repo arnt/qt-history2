@@ -316,7 +316,9 @@ protected:
     void contentsMouseMoveEvent( QMouseEvent *e );
     void contentsMouseReleaseEvent( QMouseEvent *e );
     void contentsMouseDoubleClickEvent( QMouseEvent *e );
+#ifndef QT_NO_WHEELEVENT
     void contentsWheelEvent( QWheelEvent *e );
+#endif
     void imStartEvent( QIMEvent * );
     void imComposeEvent( QIMEvent * );
     void imEndEvent( QIMEvent * );

@@ -424,7 +424,9 @@ void QScrollBar::stopAutoRepeat()
 
 /*!\reimp
 */
-void QScrollBar::wheelEvent( QWheelEvent *e ){
+#ifndef QT_NO_WHEELEVENT
+void QScrollBar::wheelEvent( QWheelEvent *e )
+{
     static float offset = 0;
     static QScrollBar* offset_owner = 0;
     if (offset_owner != this){
@@ -442,7 +444,7 @@ void QScrollBar::wheelEvent( QWheelEvent *e ){
     setValue( value() + int(offset) );
     offset -= int(offset);
 }
-
+#endif
 
 /*!\reimp
 */

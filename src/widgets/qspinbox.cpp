@@ -618,6 +618,7 @@ void QSpinBox::resizeEvent( QResizeEvent* )
 
 /*!\reimp
 */
+#ifndef QT_NO_WHEELEVENT
 void QSpinBox::wheelEvent( QWheelEvent * e )
 {
     e->accept();
@@ -636,6 +637,7 @@ void QSpinBox::wheelEvent( QWheelEvent * e )
 	offset > 0 ? stepDown() : stepUp();
     offset -= ioff;
 }
+#endif
 
 /*!  This virtual function is called by QRangeControl whenever the
   value has changed.  The QSpinBox reimplementation updates the
