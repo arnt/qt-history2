@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#59 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -27,15 +27,16 @@
   QColor static member functions
  *****************************************************************************/
 
-
 HPALETTE QColor::hpal = 0;			// application global palette
 
-static int  current_alloc_context = 0;
+static int current_alloc_context = 0;
+
 
 inline COLORREF qrgb2colorref(QRgb rgb)
 {
     return RGB(qRed(rgb),qGreen(rgb),qBlue(rgb));
 }
+
 
 int QColor::maxColors()
 {
@@ -146,8 +147,12 @@ void QColor::initialize()
 
     hpal = CreatePalette( (LOGPALETTE*)&rgb8palette );
 
-    ((QColor*)(&Qt::black))->   alloc();
-    ((QColor*)(&Qt::white))->   alloc();
+    ((QColor*)(&Qt::black))->alloc();
+    ((QColor*)(&Qt::white))->alloc();
+
+    HDC dc = qt_display_dc();			// update global DC
+    SelectPalette( dc, hpal, FALSE );
+    RealizePalette(dc );
 }
 
 
