@@ -85,6 +85,8 @@ int main(int argc, char **argv)
 	}
 	if(!dir.isNull() && dir != ".") 
 	    Option::output_dir = dir;
+	if(QDir::isRelativePath(Option::output_dir))
+	    Option::output_dir.prepend(oldpwd);
     }
 
     QMakeProperty prop;
