@@ -45,7 +45,10 @@
 #ifndef QT_NO_COMPAT
 #define QGL_VERSION	450
 #define QGL_VERSION_STR	"4.5"
-Q_EXPORT const char *qGLVersion();
+Q_EXPORT inline const char *qGLVersion() {
+    qObsolete( 0, "qGLVersion", "qVersion" );
+    return QGL_VERSION_STR;
+}
 #endif
 
 #if !(defined(Q_WGL) || defined(Q_GLX))
