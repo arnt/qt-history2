@@ -1151,7 +1151,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    QTextStream outStream( &outFile );
 
 	    if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
-		outStream << "cd " << QEnvironment::getEnv( "QTDIR" ) << endl;
+		outStream << "set QTDIR=" << QEnvironment::getEnv( "QTDIR" ) << endl;
+		outStream << "cd %QTDIR%" << endl;
 		outStream << args.join( " " ) << endl;
 		QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
 		outStream << makeCmds[ sysID ].latin1() << endl;
