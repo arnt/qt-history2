@@ -60,12 +60,14 @@ public:
     ImageList images;
     PixmapList pixmaps;
     StateList stack;
+    int currentClip;
 };
 
 enum ElementType {
     InvalidElement = 0,
     AnchorElement,
     CircleElement,
+    ClipElement,
     CommentElement,
     DescElement,
     EllipseElement,
@@ -111,6 +113,7 @@ QSvgDevice::QSvgDevice()
       pt( 0 )
 {
     d = new QSvgDevicePrivate;
+    d->currentClip = 0;
 }
 
 /*!
@@ -211,6 +214,7 @@ bool QSvgDevice::play( QPainter *painter )
 	{ "a",        AnchorElement   },
 	{ "#comment", CommentElement  },
         { "circle",   CircleElement   },
+	{ "clipPath", ClipElement     },
 	{ "desc",     DescElement     },
         { "ellipse",  EllipseElement  },
 	{ "g",        GroupElement    },
@@ -644,15 +648,38 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
     case PdcRestoreWMatrix:
 	dirtyTransform = TRUE;
 	break;
-    case PdcSetClip:
-	// ###
-	break;
+    case PdcSetClip: 
     case PdcSetClipRegion:
-	// ###
-	break;
+	{
+	    d->currentClip++;
+	    e = doc.createElement( "clipPath" );
+	    e.setAttribute( "id", QString("clip%1").arg(d->currentClip) );
+	    QRect br = p[0].rgn->boundingRect();
+	    QDomElement ce;
+	    if ( p[0].rgn->rects().count() == 1 ) {
+		// Then it's just a rect, boundingRect() will do
+		ce = doc.createElement( "rect" );
+		ce.setAttribute( "x", br.x() );
+		ce.setAttribute( "y", br.y() );
+		ce.setAttribute( "width", br.width() );
+		ce.setAttribute( "height", br.height() );
+	    } else {
+		// It's an ellipse, calculate the ellipse 
+		// from the boundingRect()
+		ce = doc.createElement( "ellipse" );
+		double cx = br.x() + (br.width() / 2.0);
+		double cy = br.y() + (br.height() / 2.0);
+		ce.setAttribute( "cx", cx );
+		ce.setAttribute( "cy", cy );
+		ce.setAttribute( "rx", cx - br.x() );
+		ce.setAttribute( "ry", cy - br.y() );
+	    }
+	    e.appendChild( ce );
+	    break;
+	}
     default:
 #if defined(CHECK_RANGE)
-	qWarning( "QSVDevice::cmd: Invalid command %d", c );
+	qWarning( "QSVGDevice::cmd: Invalid command %d", c );
 #endif
 	break;
     }
@@ -676,13 +703,21 @@ void QSvgDevice::appendChild( QDomElement &e, int c )
 	if ( c == PdcSave )
 	    current = e;
 	// ### optimize application of attributes utilizing <g>
-	if ( dirtyStyle )		// only reset when entering
-	    applyStyle( &e, c );	// or leaving a <g> tag
-	if ( dirtyTransform && e.tagName() != "g" ) {
-	    // same as above but not for <g> tags
-	    applyTransform( &e );
-	    if ( c == PdcSave )
-		dirtyTransform = FALSE;
+	if ( c == PdcSetClip || c == PdcSetClipRegion ) {
+	    QDomElement ne;
+	    ne = doc.createElement( "g" );
+	    ne.setAttribute( "style", QString("clip-path:url(#clip%1)").arg(d->currentClip) );
+	    current.appendChild( ne );
+	    current = ne;
+	} else {
+	    if ( dirtyStyle )		// only reset when entering
+		applyStyle( &e, c );	// or leaving a <g> tag
+	    if ( dirtyTransform && e.tagName() != "g" ) {
+		// same as above but not for <g> tags
+		applyTransform( &e );
+		if ( c == PdcSave )
+		    dirtyTransform = FALSE;
+	    }
 	}
     }
 }
@@ -921,13 +956,41 @@ bool QSvgDevice::play( const QDomNode &node )
 	case TitleElement:
 	    // ignored for now
 	    break;
+	case ClipElement:
+	    {
+		restoreAttributes(); // To ensure the clip rect is saved, we need to restore now
+		QDomNode child = node.firstChild();
+		QDomNamedNodeMap childAttr = child.attributes();
+		if ( child.nodeName() == "rect" ) {
+		    QRect r;
+		    r.setX(lenToInt( childAttr, "x" ));
+		    r.setY(lenToInt( childAttr, "y" ));
+		    r.setWidth(lenToInt( childAttr, "width" ));
+		    r.setHeight(lenToInt( childAttr, "height" ));
+		    pt->setClipRect( r, QPainter::CoordPainter );
+		} else if ( child.nodeName() == "ellipse" ) {
+		    QRect r;
+		    int x = lenToInt( childAttr, "cx" );
+		    int y = lenToInt( childAttr, "cy" );
+		    int width = lenToInt( childAttr, "rx" );
+		    int height = lenToInt( childAttr, "ry" );
+		    r.setX( x - width );
+		    r.setY( y - height );
+		    r.setWidth( width * 2 );
+		    r.setHeight( height * 2 );
+		    QRegion rgn( r, QRegion::Ellipse );
+		    pt->setClipRegion( rgn, QPainter::CoordPainter );
+		}
+		break;
+	    }
 	case InvalidElement:
 	    qWarning( "QSvgDevice::play: unknown element type " +
 		      node.nodeName() );
 	    break;
 	};
 
-    restoreAttributes();
+    if ( t != ClipElement )
+	restoreAttributes();
 
     return TRUE;
 }
