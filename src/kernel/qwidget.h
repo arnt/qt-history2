@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#51 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#52 $
 **
 ** Definition of QWidget class
 **
@@ -259,10 +259,10 @@ inline int QWidget::height() const
 inline QRect QWidget::rect() const
 { return QRect(0,0,crect.width(),crect.height()); }
 
-inline QFontMetrics QPaintDevice::fontMetrics() const
+inline QFontMetrics QWidget::fontMetrics() const
 { return QFontMetrics(this); }
 
-inline QFontInfo QPaintDevice::fontInfo() const
+inline QFontInfo QWidget::fontInfo() const
 { return QFontInfo(this); }
 
 inline void QWidget::repaint( bool erase )
