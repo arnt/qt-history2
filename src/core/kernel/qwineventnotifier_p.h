@@ -34,7 +34,7 @@ class Q_CORE_EXPORT QWinEventNotifier : public QObject
 public:
 
     explicit QWinEventNotifier(QObject *parent = 0);
-    explicit QWinEventNotifier(HANDLE hEvent, QObject *parent = 0);
+    QWinEventNotifier(HANDLE hEvent, QObject *parent = 0);
     ~QWinEventNotifier();
 
     void setHandle(HANDLE hEvent);

@@ -26,9 +26,9 @@ class Q_CORE_EXPORT QTranslatorMessage
 {
 public:
     QTranslatorMessage();
-    explicit QTranslatorMessage(const char * context, const char * sourceText,
-                                const char * comment,
-				const QString& translation = QString());
+    QTranslatorMessage(const char * context, const char * sourceText,
+                       const char * comment,
+                       const QString& translation = QString());
     explicit QTranslatorMessage(QDataStream &);
     QTranslatorMessage(const QTranslatorMessage & m);
 

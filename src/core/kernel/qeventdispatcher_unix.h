@@ -44,8 +44,7 @@ public:
     void flush();
 
 protected:
-    explicit QEventDispatcherUNIX(QEventDispatcherUNIXPrivate &,
-                                  QObject *parent);
+    QEventDispatcherUNIX(QEventDispatcherUNIXPrivate &, QObject *parent);
 
     void setSocketNotifierPending(QSocketNotifier *notifier);
 
