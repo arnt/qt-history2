@@ -22,6 +22,15 @@
 static QGLFormat* qgl_default_format = 0;
 static QGLFormat* qgl_default_overlay_format = 0;
 
+#if defined(Q_WS_X11)
+#include "private/qt_x11_p.h"
+#define INT32 dummy_INT32
+#include <GL/glx.h>
+#undef INT32
+#include "qgl_x11_p.h"
+static void *gl_pixmap_visual = 0;
+#endif
+
 static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
 
@@ -848,10 +857,11 @@ void QGLContext::init( QPaintDevice *dev )
 {
     d = new Private;
     d->valid = FALSE;
-    setDevice( dev );
 #if defined(Q_WS_X11)
+    qt_resolve_gl_symbols();
     gpm = 0;
 #endif
+    setDevice( dev );
 #if defined(Q_WS_WIN)
     dc = 0;
     win = 0;
@@ -1756,12 +1766,83 @@ void QGLWidget::paintEvent( QPaintEvent * )
 
 QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
 {
-    QPixmap nullPm;
     QSize sz = size();
     if ( (w > 0) && (h > 0) )
 	sz = QSize( w, h );
-    QPixmap pm( sz );
-    d->glcx->doneCurrent();
+    QPixmap pm;
+    pm.resize( sz );
+
+#if defined(Q_WS_X11)
+    // If we are using OpenGL widgets we HAVE to make sure that
+    // the default visual is GL enabled, otherwise it will wreck
+    // havock when e.g trying to render to GLXPixmaps via
+    // QPixmap. This is because QPixmap is always created with a
+    // QPaintDevice that uses x_appvisual per default. Preferably,
+    // use a visual that has depth and stencil buffers.
+
+    if (!gl_pixmap_visual) {
+	int nvis;
+	Visual *vis = (Visual *) QPaintDevice::x11AppVisual();
+	int screen = QPaintDevice::x11AppScreen();
+	Display *appDpy = QPaintDevice::x11AppDisplay();
+	XVisualInfo * vi;
+	XVisualInfo visInfo;
+	memset( &visInfo, 0, sizeof(XVisualInfo) );
+	visInfo.visualid = XVisualIDFromVisual( vis );
+	visInfo.screen = screen;
+	vi = XGetVisualInfo( appDpy, VisualIDMask | VisualScreenMask, &visInfo, &nvis );
+	if ( vi ) {
+	    int useGL;
+	    int ret = glXGetConfig( appDpy, vi, GLX_USE_GL, &useGL );
+	    if ( ret != 0 || !useGL ) {
+		// We have to find another visual that is GL capable
+		int i;
+		XVisualInfo * visuals;
+		memset( &visInfo, 0, sizeof(XVisualInfo) );
+		visInfo.screen = screen;
+		visInfo.c_class = vi->c_class;
+		visInfo.depth = vi->depth;
+		visuals = XGetVisualInfo( appDpy, VisualClassMask |
+					  VisualDepthMask |
+					  VisualScreenMask, &visInfo,
+					  &nvis );
+		if ( visuals ) {
+		    for ( i = 0; i < nvis; i++ ) {
+			int ret = glXGetConfig( appDpy, &visuals[i], GLX_USE_GL, &useGL );
+			if ( ret == 0 && useGL ) {
+			    vis = visuals[i].visual;
+			    break;
+			}
+		    }
+		    XFree( visuals );
+		}
+	    }
+	    XFree( vi );
+	}
+	gl_pixmap_visual = vis;
+    }
+
+    if (gl_pixmap_visual != QPaintDevice::x11AppVisual()) {
+	int nvis = 0;
+	XVisualInfo visInfo;
+	memset( &visInfo, 0, sizeof(XVisualInfo) );
+	visInfo.visualid = XVisualIDFromVisual( (Visual *) gl_pixmap_visual );
+	visInfo.screen = QPaintDevice::x11AppScreen();
+	XVisualInfo *vi = XGetVisualInfo( QPaintDevice::x11AppDisplay(), VisualIDMask | VisualScreenMask,
+					  &visInfo, &nvis );
+	if (vi) {
+	    QPaintDeviceX11Data* xd = pm.getX11Data( TRUE );
+	    xd->x_depth = vi->depth;
+	    xd->x_visual = (Visual *) gl_pixmap_visual;
+	    pm.setX11Data( xd );
+	    XFree(vi);
+	}
+    }
+
+#endif
+
+    glcx->doneCurrent();
+
     bool success = TRUE;
 
     if ( useContext && isValid() && renderCxPm( &pm ) )
@@ -1788,10 +1869,18 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
     if ( wasCurrent )
 	ocx->makeCurrent();
 
-    if ( success )
+    if ( success ) {
+#if defined(Q_WS_X11)
+	if (gl_pixmap_visual != QPaintDevice::x11AppVisual()) {
+	    QImage image = pm.convertToImage();
+	    QPixmap p;
+	    p = image;
+	    return p;
+	}
+#endif
 	return pm;
-    else
-	return nullPm;
+    } else
+	return QPixmap();
 }
 
 

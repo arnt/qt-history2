@@ -1389,7 +1389,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	}
 
 	p = newbits;
-	for ( i=0; i<nbytes; i++ ) {		// translate pixels
+	for ( i=0; i< (uint) nbytes; i++ ) {		// translate pixels
 	    *p = pix[*p];
 	    p++;
 	}

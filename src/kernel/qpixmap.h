@@ -251,6 +251,7 @@ private:
     friend class QBitmap;
     friend class QPaintDevice;
     friend class QPainter;
+    friend class QGLWidget;
 #if defined(Q_WS_X11)
     friend class QX11GC;
 #endif

@@ -276,6 +276,7 @@ CFG_NAS=no
 CFG_QWS_DEPTHS=prompted
 CFG_USER_BUILD_KEY=
 CFG_ACCESSIBILITY=auto
+CFG_DLOPEN_OPENGL=no
 CFG_SINGLEQTLIB=auto
 D_FLAGS=
 I_FLAGS=
@@ -357,7 +358,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-xshape|-tablet|-stl|-ipv6|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-xshape|-tablet|-stl|-ipv6|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script|-dlopen-opengl)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -980,6 +981,9 @@ while [ "$#" -gt 0 ]; do
     link)
 	l_FLAGS="$l_FLAGS -l${VAL}"
 	;;
+    dlopen-opengl)
+	CFG_DLOPEN_OPENGL="$VAL"
+	;;
     *)
 	UNKNOWN_OPT=yes
 	;;
@@ -1537,6 +1541,7 @@ if [ $AUTOTHREAD = never ]; then
 fi
 [ "$CFG_THREAD" = "auto" ] && CFG_THREAD=$AUTOTHREAD
 
+
 #-------------------------------------------------------------------------------
 # determine the system architecture
 #-------------------------------------------------------------------------------
@@ -1717,7 +1722,14 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect OpenGL support
     if echo $MODULES | grep opengl >/dev/null; then
-	$x11tests/opengl.test $XQMAKESPEC $CFG_THREAD $OPT_VERBOSE $L_FLAGS $I_FLAGS && MODULES=`echo $MODULES | sed -e 's/opengl//'`
+	if $x11tests/opengl.test $XQMAKESPEC $CFG_THREAD $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
+	    MODULES=`echo $MODULES | sed -e 's/opengl//'`
+        else
+	    if [ "$CFG_DLOPEN_OPENGL" = "yes" ]; then
+		QMAKE_VARS="$QMAKE_VARS DEFINES+=QT_DLOPEN_OPENGL"
+		QMAKE_VARS="$QMAKE_VARS QMAKE_LIBS_OPENGL_QT="
+	    fi
+	fi
     fi
     # auto-detect Xcursor support
     if [ "$CFG_XCURSOR" != "no" ]; then
@@ -2036,7 +2048,7 @@ fi
     cat << EOF
     -version-script .... Use a version script when linking the Qt library.
 			 Internal symbols will be marked as local. Requires
-			 a recent GNU binutils package. 
+			 a recent GNU binutils package.
 
 			 WARNING: Experimental, may be removed in future
 			 versions.
@@ -2250,6 +2262,10 @@ Qt/X11 only:
 
  $XKN  -no-xkb ............ Do not compile XKB (X KeyBoard extension) support.
  $XKY  -xkb ............... Compile XKB support.
+
+ *  -no-dlopen-opengl .. Qt links against OpenGL libraries directly.
+    -dlopen-opengl ..... Qt uses dlopen(3) to resolve OpenGL functions
+			 (instead of linking with OpenGL libraries directly).
 
 EOF
 fi

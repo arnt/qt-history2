@@ -72,10 +72,6 @@
 #include "qt_x11_p.h"
 #include "qx11info_x11.h"
 
-#if defined(QT_MODULE_OPENGL)
-#include <GL/glx.h>
-#endif
-
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -1623,58 +1619,6 @@ void qt_init( QApplicationPrivate *priv, int,
 			(XVisualIDFromVisual(vis) ==
 			 XVisualIDFromVisual(DefaultVisual(X11->display, screen)));
 		}
-
-#if defined( QT_MODULE_OPENGL )
-		// If we are using OpenGL widgets we HAVE to make sure
-		// that the default visual is GL enabled, otherwise it
-		// will wreck havock when e.g trying to render to
-		// GLXPixmaps via QPixmap. This is because QPixmap is
-		// always created with a QPaintDevice that uses
-		// x_appvisual per default. Preferably, use a visual that
-		// has depth and stencil buffers.
-
-		const char* probeGL = getenv("QT_NO_OPENGL_PROBE");
-		if (probeGL && probeGL[0] != '0' && probeGL[0] != '\0') {
-		    int nvis;
-		    XVisualInfo * vi;
-		    XVisualInfo visInfo;
-		    memset( &visInfo, 0, sizeof(XVisualInfo) );
-		    visInfo.visualid = XVisualIDFromVisual( vis );
-		    visInfo.screen = screen;
-		    vi = XGetVisualInfo( X11->display, VisualIDMask | VisualScreenMask,
-					 &visInfo, &nvis );
-		    if ( vi ) {
-			int useGL;
-			int ret = glXGetConfig( X11->display, vi, GLX_USE_GL, &useGL );
-			if ( ret != 0 || !useGL ) {
-			    // We have to find another visual that is GL capable
-			    int i;
-			    XVisualInfo * visuals;
-			    memset( &visInfo, 0, sizeof(XVisualInfo) );
-			    visInfo.screen = screen;
-			    visInfo.c_class = vi->c_class;
-			    visInfo.depth = vi->depth;
-			    visuals = XGetVisualInfo( X11->display, VisualClassMask |
-						      VisualDepthMask |
-						      VisualScreenMask, &visInfo,
-						      &nvis );
-			    if ( visuals ) {
-				for ( i = 0; i < nvis; i++ ) {
-				    int ret = glXGetConfig( X11->display, &visuals[i],
-							    GLX_USE_GL, &useGL );
-				    if ( ret == 0 && useGL ) {
-					vis = visuals[i].visual;
-					QX11Info::x_appdefvisual_arr[ screen ] = FALSE;
-					break;
-				    }
-				}
-				XFree( visuals );
-			    }
-			}
-			XFree( vi );
-		    }
-		}
-#endif
 		QX11Info::x_appvisual_arr[ screen ] = vis;
 	    }
 
