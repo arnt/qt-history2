@@ -18,6 +18,7 @@
 #include "qdrawutil.h"
 #include "qpainter.h"
 #include "qregion.h"
+#include "qwhatsthis.h"
 
 #include "qmenu.h"
 #include "private/qwidget_p.h"
@@ -184,17 +185,21 @@ void QDecoration::regionClicked(QWidget *widget, int reg)
         case Resize:
             startResize(widget);
             break;
-        case Close: {
+        case Help:
+            if (QWhatsThis::inWhatsThisMode())
+                QWhatsThis::leaveWhatsThisMode();
+            else
+                QWhatsThis::enterWhatsThisMode();
+            break;
+        case Close:
             widget->close();
             break;
-        }
-        case Maximize: {
+        case Maximize:
             if (widget->testWState(Qt::WState_Maximized))
                 widget->showNormal();
             else
                 widget->showMaximized();
             break;
-        }
     }
 }
 
