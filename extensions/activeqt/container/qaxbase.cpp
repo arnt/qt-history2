@@ -507,6 +507,17 @@ public:
     mutable IDispatch *disp;
     
     QMap<QByteArray, bool> propWritable;
+
+    QAxMetaObject *metaObject()
+    {
+        if (!metaobj) {
+            metaobj = new QAxMetaObject;
+
+            // ### connect stuff!
+        }
+        return metaobj;
+    }
+
     QAxMetaObject *metaobj;
     QMetaObject *staticMetaObject;
 };
@@ -2652,7 +2663,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
             clear();
             break;
         }
-        return index - d->metaobj->propertyCount();
+        return index - mo->propertyCount();
     }
     
     // get the IDispatch
@@ -2670,7 +2681,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
         return index;
     
     // we located the property, so everthing that goes wrong now should not bother the caller
-    index -= d->metaobj->propertyCount();
+    index -= mo->propertyCount();
     
     VARIANTARG arg;
     VariantInit(&arg);
@@ -2757,8 +2768,9 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     if (!disp)
         return index;
     
+    const QMetaObject *mo = metaObject();
     // get the slot information
-    QMetaMember slot = d->metaobj->slot(index + d->metaobj->slotOffset());
+    QMetaMember slot = mo->slot(index + mo->slotOffset());
     QByteArray signature(slot.signature());
     QByteArray slotname(signature);
     slotname.truncate(slotname.indexOf('('));
@@ -2782,12 +2794,12 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
         return index;
     
     // we located the property, so everthing that goes wrong now should not bother the caller
-    index -= d->metaobj->slotCount();
+    index -= mo->slotCount();
     
     // setup the parameters
     DISPPARAMS params;
     DISPID dispidNamed = DISPID_PROPERTYPUT;
-    params.cArgs = isProperty ? 1 : d->metaobj->numParameter(signature);
+    params.cArgs = isProperty ? 1 : d->metaObject()->numParameter(signature);
     params.cNamedArgs = isProperty ? 1 : 0;
     params.rgdispidNamedArgs = isProperty ? &dispidNamed : 0;
     params.rgvarg = 0;
@@ -2802,14 +2814,14 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     int p;
     for (p = 0; p < (int)params.cArgs; ++p) {
         bool out;
-        QByteArray type = d->metaobj->paramType(signature, p, &out);
+        QByteArray type = d->metaObject()->paramType(signature, p, &out);
         QVariant qvar(QVariant::nameToType(type), v[p + 1]);
         if (!qvar.isValid()) {
             if (type == "IDispatch*")
                 qVariantSet(qvar, *(IDispatch**)v[p+1], "IDispatch*");
             else if (type == "IUnknown*")
                 qVariantSet(qvar, *(IUnknown**)v[p+1], "IUnknown*");
-            else if (d->metaobj->indexOfEnumerator(type) != -1)
+            else if (mo->indexOfEnumerator(type) != -1)
                 qvar = *(int*)v[p + 1];
         }
 
@@ -2838,7 +2850,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     // update out parameters
     for (p = 0; p < (int)params.cArgs; ++p) {
         bool out;
-        QByteArray ptype = d->metaobj->paramType(signature, p, &out);
+        QByteArray ptype = d->metaObject()->paramType(signature, p, &out);
         if (out)
             QVariantToVoidStar(VARIANTToQVariant(params.rgvarg[params.cArgs - p - 1], ptype), v[p+1], ptype);
     }
@@ -2857,13 +2869,12 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
 */
 int QAxBase::qt_metacall(QMetaObject::Call call, int id, void **v)
 {
-    if (!d->metaobj)
-        metaObject();
+    const QMetaObject *mo = metaObject();
     
     switch(call) {
     case QMetaObject::EmitSignal:
-        QMetaObject::activate(qObject(), d->metaobj, id, v);
-        id -= d->metaobj->signalCount();
+        QMetaObject::activate(qObject(), mo, id, v);
+        id -= mo->signalCount();
         break;
     case QMetaObject::InvokeSlot:
         id = internalInvoke(call, id, v);
@@ -2877,7 +2888,7 @@ int QAxBase::qt_metacall(QMetaObject::Call call, int id, void **v)
     case QMetaObject::QueryPropertyDesignable:
     case QMetaObject::QueryPropertyStored:
     case QMetaObject::QueryPropertyEditable:
-        id -= d->metaobj->propertyCount();
+        id -= mo->propertyCount();
         break;
     }
     Q_ASSERT(id < 0);
