@@ -11308,7 +11308,6 @@ static int ucstrnicmp( const QChar *a, const QChar *b, int l )
     return al.unicode() - bl.unicode();
 }
 
-// NOT REVISED
 /*! \class QCharRef qstring.h
   \ingroup text
   \brief The QCharRef class is a helper class for QString.
@@ -11499,6 +11498,16 @@ make sense of anything.
   in the Unicode standard.
   See <a href="http://www.unicode.org">the Unicode Standard</a>
   for a more detailed description.
+*/
+
+/*!
+    \fn void QChar::setCell( uchar cell ) 
+    \internal
+*/
+
+/*!
+    \fn void QChar::setRow( uchar row ) 
+    \internal
 */
 
 

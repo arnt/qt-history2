@@ -812,6 +812,11 @@ QMetaProperty::~QMetaProperty()
 
   \internal
 */
+/*! \fn void QMetaProperty::copyFlags( uint mask )
+
+  \internal
+*/
+
 
 /*!
   Returns whether the property is designable for object \a o or

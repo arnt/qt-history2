@@ -161,7 +161,6 @@
 
 
 
-
 /*!
   Constructs a color group with all colors set to black.
 */
@@ -495,6 +494,19 @@ bool QColorGroup::operator==( const QColorGroup &g ) const
 
   \sa QApplication::setPalette(), QWidget::setPalette(), QColorGroup, QColor
 */ // ### should mention the constructors, copy stuff and isCopyOf()
+
+
+/*!
+    \fn const QColorGroup &QPalette::normal() const 
+    Returns the active color group.
+    \sa setActive() active()
+*/
+
+/*!
+    \fn void QPalette::setNormal( const QColorGroup & cg ) 
+    Sets the active color group to \a cg.
+    \sa setActive() active()
+*/
 
 
 static int palette_count = 1;

@@ -77,6 +77,16 @@
 */
 
 /*!
+    \enum Qt::ArrowType
+
+    \value UpArrow
+    \value DownArrow
+    \value LeftArrow
+    \value RightArrow
+
+*/
+
+/*!
   Constructs a QCommonStyle that provides the style \a s.  This determines
   the default behavior of the virtual functions.
 */

@@ -127,3 +127,13 @@ QPaintDeviceMetrics::QPaintDeviceMetrics( const QPaintDevice *pd )
   For X, this is usually the same as could be computed
   from heightMM(), but it varies on Windows.
 */
+
+/*!
+    \fn int QPaintDeviceMetrics::physicalDpiX() const
+    \internal
+*/
+/*!
+    \fn int QPaintDeviceMetrics::physicalDpiY() const
+    \internal
+*/
+

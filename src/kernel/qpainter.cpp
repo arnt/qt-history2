@@ -224,6 +224,28 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
   \link coordsys.html Coordinate System Overview \endlink
 */
 
+/*!
+    \enum Qt::BrushStyle
+
+    \value NoBrush
+    \value SolidPattern
+    \value Dense1Pattern
+    \value Dense2Pattern
+    \value Dense3Pattern
+    \value Dense4Pattern
+    \value Dense5Pattern
+    \value Dense6Pattern
+    \value Dense7Pattern
+    \value HorPattern
+    \value VerPattern
+    \value CrossPattern
+    \value BDiagPattern
+    \value FDiagPattern
+    \value DiagCrossPattern
+    \value CustomPattern
+
+*/
+
 /*! \enum Qt::RasterOp
 
   \keyword raster operation
@@ -372,6 +394,15 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
 
   \value RoundJoin  A circular arc between the two lines is filled.
   \value MPenJoinStyle mask of the pen join styles.
+*/
+
+/*!
+    \enum Qt::BGMode
+
+    Background mode
+
+    \value TransparentMode
+    \value OpaqueMode
 */
 
 /*!
@@ -2024,6 +2055,20 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
     drawPixmap( p.x(), p.y(), pm, 0, 0, pm.width(), pm.height() );
 }
 
+/*!
+    \overload void QPainter::drawImage( const QPoint &, const QImage &, const QRect &sr, int conversionFlags = 0 );
+    
+    Draws at point \a p the \sr rect from image \a pm, using \a
+    conversionFlags if the image needs to be converted to a pixmap.
+    The default value for \a conversionFlags is 0; see
+    convertFromImage() for information about what other values do.
+
+  This function may convert \a image to a pixmap and then draw it, if
+  device() is a QPixmap or a QWidget, or else draw it directly, if
+  device() is a QPrinter or QPicture.
+
+*/
+
 /*!  Draws at (\a x, \a y) the \a sw by \a sh area of pixels from (\a
   sx, \a sy) in \a image, using \a conversionFlags if the image needs
   to be converted to a pixmap.  The default value for \a
@@ -2208,6 +2253,28 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
   \l{Qt::AlignmentFlags}). \a br (if not null) is set to the actual
   bounding rectangle of the output. The \a internal parameter is for
   internal use only.
+*/
+
+/*!
+    \fn void	QPainter::drawText( const QPoint &, const QString &, int len = -1, TextDirection dir = Auto );
+    Draws the text in \a s at point \a p. If \a len is -1 the entire
+    string is drawn, otherwise just the first \a len characters. The
+    text's direction is specified by \a dir.
+*/
+
+
+/*!
+    \fn void     QPainter::drawText( int x, int y, const QString &, int pos, int len, TextDirection dir = Auto );
+    Draws the text in \a s, from position \a pos, at point \a ( x, y ). If \a
+    len is -1 the entire string is drawn, otherwise just the first \a
+    len characters. The text's direction is specified by \a dir.
+*/
+
+/*!
+    \fn void     QPainter::drawText( const QPoint &p, const QString &, int pos, int len, TextDirection dir = Auto );
+    Draws the text in \a s, from position \a pos, at point \a p If \a
+    len is -1 the entire string is drawn, otherwise just the first \a
+    len characters. The text's direction is specified by \a dir.
 */
 
 static inline void fix_neg_rect( int *x, int *y, int *w, int *h )
@@ -2562,7 +2629,8 @@ void qt_format_text( const QFont& font, const QRect &r,
   If \a len is negative (default value), the whole string is used.
 
   The \a tf argument is
-  the bitwise OR of the following flags:  \list
+  the bitwise OR of the following flags:  
+  \list
   \i AlignAuto aligns according to the language, usually left.
   \i AlignLeft aligns to the left border.
   \i AlignRight aligns to the right border.
@@ -2583,11 +2651,9 @@ void qt_format_text( const QFont& font, const QRect &r,
   If several of the horizontal or several of the vertical alignment flags
   are set, the resulting alignment is undefined.
 
-  These flags are defined in qnamespace.h.
-
   The \a internal parameter should not be used.
 
-  \sa drawText(), fontMetrics(), QFontMetrics::boundingRect(), Qt::AlignmentFlags
+  \sa drawText(), fontMetrics(), QFontMetrics::boundingRect(), Qt::TextFlags
 */
 
 QRect QPainter::boundingRect( const QRect &r, int tf,
@@ -2601,7 +2667,23 @@ QRect QPainter::boundingRect( const QRect &r, int tf,
     return brect;
 }
 
-// NOT REVISED BELOW THIS POINT
+/*!
+    \fn QRect	QPainter::boundingRect( int x, int y, int w, int h, int flags, const QString&, int len = -1, QTextParag **intern=0 );
+
+  Returns the bounding rectangle of the aligned text that would be
+  printed with the corresponding drawText() function (the first \a len
+  characters from \a str).  The drawing, and hence the bounding
+  rectangle, is constrained to the rectangle that begins at point \a
+  (x, y) with width \a w and hight \a h.
+
+  If \a len is negative (default value), the whole string is used.
+  The \a flags argument is the bitwise OR of the alignment flags.  
+  The \a internal parameter should not be used.
+  
+  \sa Qt::TextFlags
+*/
+
+
 
 /*****************************************************************************
   QPen member functions
@@ -3271,6 +3353,17 @@ bool QBrush::operator==( const QBrush &b ) const
 	    b.data->color  == data->color &&
 	    b.data->pixmap == data->pixmap);
 }
+
+
+/*!
+    \fn inline double QPainter::translationX() const
+    \internal
+*/
+
+/*!
+    \fn inline double QPainter::translationY() const
+    \internal
+*/
 
 
 /*****************************************************************************

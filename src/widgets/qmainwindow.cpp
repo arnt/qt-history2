@@ -790,6 +790,42 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 
 */
 
+/*!
+    \obsolete
+    \fn void QMainWindow::addToolBar( QDockWindow *, Dock = Top, bool newLine = FALSE );
+*/
+
+/*!
+    \obsolete
+    \overload void QMainWindow::addToolBar( QDockWindow *, const QString &label, Dock = Top, bool newLine = FALSE );
+*/
+
+/*!
+    \obsolete
+    \fn void QMainWindow::moveToolBar( QDockWindow *, Dock = Top );
+*/
+
+/*!
+    \obsolete
+    \overload void QMainWindow::moveToolBar( QDockWindow *, Dock, bool nl, int index, int extraOffset = -1 );
+*/
+
+/*!
+    \obsolete
+    \overload void QMainWindow::removeToolBar( QDockWindow * );
+*/
+
+/*!
+    \obsolete
+    \fn void QMainWindow::lineUpToolBars( bool keepNewLines = FALSE );
+*/
+
+/*!
+    \obsolete
+    \fn void QMainWindow::toolBarPositionChanged( QToolBar * );
+*/
+
+
 /*!  Constructs an empty main window. The \a parent, \a name and
     widget flags \a f, are passed to the QWidget constructor.
 */

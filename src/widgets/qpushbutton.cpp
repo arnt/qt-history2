@@ -637,4 +637,9 @@ bool QPushButton::isFlat() const
     return flt;
 }
 
+/*!
+    \obsolete
+    \fn virtual void QPushButton::setIsMenuButton( bool enable ) 
+*/
+
 #endif

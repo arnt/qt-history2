@@ -95,6 +95,10 @@
   \value Ellipse  the region is an ellipse inside the rectangle.
  */
 
+/*!
+    \fn Region  QRegion::handle() const 
+    Returns the region's handle.
+*/
 
 /*****************************************************************************
   QRegion member functions

@@ -3547,7 +3547,7 @@ QCString QTextEdit::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint&
 #endif // QT_NO_MIME
 #endif // QT_NO_CLIPBOARD
 
-/*! \enum QTextEdit::WordWrap
+/*! \enum Qt::WordWrap
 
   This enum defines the QTextEdit's word wrap modes.  The following
   values are valid:
@@ -3584,7 +3584,7 @@ QCString QTextEdit::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint&
   FixedPixelWidth or \c FixedColumnWidth you should also call
   setWrapColumnOrWidth() with the width you want.
 
-  \sa QTextEdit::WordWrap, wrapColumnOrWidth, wrapPolicy,
+  \sa Qt::WordWrap, wrapColumnOrWidth, wrapPolicy,
 */
 
 void QTextEdit::setWordWrap( WordWrap mode )
@@ -3654,7 +3654,7 @@ int QTextEdit::wrapColumnOrWidth() const
 }
 
 
-/*! \enum QTextEdit::WrapPolicy
+/*! \enum Qt::WrapPolicy
 
   This enum defines where text can be wrapped in word wrap mode.
 

@@ -121,6 +121,12 @@ public:
   <a href="guibooks.html#fowler">GUI Design Handbook: Label</a>
 */
 
+/*!
+    \fn QPicture * QLabel::picture() const
+    Returns the label's picture or 0 if the label doesn't have a
+    picture.
+*/
+
 
 /*!
   Constructs an empty label.

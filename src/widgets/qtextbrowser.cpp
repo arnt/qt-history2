@@ -439,6 +439,11 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
 		    i + 5, h + 5 );
 }
 
+/*!
+    \overload void QTextBrowser::setText( const QString &txt ) 
+    Sets the text to \a txt.
+*/
+
 /*! \reimp */
 
 void QTextBrowser::setText( const QString &txt, const QString &context )

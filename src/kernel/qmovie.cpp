@@ -58,7 +58,6 @@
 
 #include <stdlib.h>
 
-// NOT REVISED
 /*!
   \class QMovie qmovie.h
   \brief The QMovie class provides incremental loading of animations or images, signalling as it progresses.
@@ -110,6 +109,18 @@
   <img src="qmovie.png">
 
   \sa QLabel::setMovie()
+*/
+
+/*!
+    \enum QMovie::Status
+
+    \value SourceEmpty
+    \value UnrecognizedFormat
+    \value Paused
+    \value EndOfFrame
+    \value EndOfLoop
+    \value EndOfMovie
+    \value SpeedChanged
 */
 
 class QMoviePrivate : public QObject, public QShared,

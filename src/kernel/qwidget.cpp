@@ -659,6 +659,36 @@ Internal flags.
 
 */
 
+/*!
+    \enum Qt::WidgetState
+
+    Internal flags.
+
+    \value WState_Created
+    \value WState_Disabled
+    \value WState_Visible
+    \value WState_ForceHide
+    \value WState_OwnCursor
+    \value WState_MouseTracking
+    \value WState_CompressKeys
+    \value WState_BlockUpdates
+    \value WState_InPaintEvent
+    \value WState_Reparented
+    \value WState_ConfigPending
+    \value WState_Resized
+    \value WState_AutoMask
+    \value WState_Polished
+    \value WState_DND
+    \value WState_Reserved0
+    \value WState_Reserved1
+    \value WState_Reserved2
+    \value WState_Reserved3
+    \value WState_Maximized
+    \value WState_Minimized
+    \value WState_ForceDisabled
+    \value WState_Exposed
+*/
+
 
 /*!
   Constructs a widget which is a child of \a parent, with the name \a name and

@@ -138,6 +138,171 @@ public:
   <img src=qmlined-m.png> <img src=qmlined-w.png>
 */
 
+/*!
+    \property QtMultiLineEdit::numLines
+    \brief the number of lines in the multi-line edit
+
+  numLines() returns the number of lines in the editor. The count
+  includes any empty lines at top and bottom, so for an empty editor
+  this method will return 1.
+*/
+/*!
+    \property QtMultiLineEdit::atBeginning
+    \brief whether the cursor is at the beginning
+  
+    atBeginning() returns TRUE if the cursor is placed at the
+    beginning of the text.
+*/
+/*!
+    \property QtMultiLineEdit::atEnd
+    \brief whether the cursor is at the end
+
+  atEnd() returns TRUE if the cursor is placed at the end of the text.
+*/
+/*!
+    \property QtMultiLineEdit::maxLineWidth
+    \brief the maximum line width in pixels
+  Returns the width in pixels of the longest text line in this editor.
+*/
+/*!
+    \property QtMultiLineEdit::alignment
+    \brief the alignment
+    
+    Possible values are \c AlignLeft, \c Align(H)Center and \c
+    AlignRight.
+  \sa Qt::AlignmentFlags
+*/
+/*!
+    \property QtMultiLineEdit::edited
+    \brief whether the text had been edited
+
+edited() returns the edited flag of the line edit.  If this returns FALSE,
+the contents has not been changed since the construction of the
+QtMultiLineEdit (or the last call to setEdited( FALSE ), if any).  If
+it returns TRUE, the contents have been edited, or setEdited( TRUE )
+has been called.
+
+setEdited() sets the edited flag of this line edit to \e e.  The
+edited flag is never read by QtMultiLineEdit, but is changed to TRUE
+whenever the user changes its contents.
+
+This is useful e.g. for things that need to provide a default value,
+but cannot find the default at once.  Just open the widget without the
+best default and when the default is known, check the edited() return
+value and set the line edit's contents if the user has not started
+editing the line edit.  Another example is to detect whether the
+contents need saving.
+
+*/
+/*!
+    \property QtMultiLineEdit::echoMode
+    \brief the echo mode
+*/
+/*!
+    \property QtMultiLineEdit::maxLength
+    \brief the maximum length of the text
+
+  The currently set text length limit, or -1 if there is
+  no limit (this is the default).
+
+*/
+/*!
+    \property QtMultiLineEdit::maxLines
+    \brief the maximum number of lines
+  The currently set line limit, or -1 if there is
+  no limit (the default).
+
+  Note that excess lines are deleted from the \e bottom of the
+  lines. If you want teletype behaviour with lines disappearing
+  from the \e top as the limit is exceed, you probably just want
+  to use removeLine(0) prior to adding an excess line.
+
+*/
+/*!
+    \property QtMultiLineEdit::hMargin
+    \brief the horizontal margin
+  The horizontal margin current set.  The default is 3.
+*/
+/*!
+    \property QtMultiLineEdit::wordWrap
+    \brief the word wrap mode
+
+  By default, wrapping keeps words intact. To allow breaking within
+  words, set the wrap policy to \c Anywhere (see setWrapPolicy() ).
+
+  The default wrap mode is \c NoWrap.
+
+  \sa wordWrap(), setWrapColumnOrWidth(), setWrapPolicy()
+*/
+/*!
+    \property QtMultiLineEdit::wrapColumnOrWidth
+    \brief the wrap width in columns or pixels
+  The wrap column or wrap width, depending on the word wrap
+  mode.
+  \sa setWordWrap(), setWrapColumnOrWidth()
+*/
+/*!
+    \property QtMultiLineEdit::wrapPolicy
+    \brief the wrap policy mode
+   The default is \c AtWhiteSpace.
+
+*/
+/*!
+    \property QtMultiLineEdit::autoUpdate
+    \brief whether auto update is enabled
+
+  autoUpdate() returns TRUE if the view updates itself automatically
+  whenever it is changed in some way.
+
+  If autoUpdate() is TRUE (this is the default) then the editor updates
+  itself automatically whenever it has changed in some way (generally,
+  when text has been inserted or deleted).
+
+  If autoUpdate() is FALSE, the view does NOT repaint itself, or update
+  its internal state variables itself when it is changed.  This can be
+  useful to avoid flicker during large changes, and is singularly
+  useless otherwise: Disable auto-update, do the changes, re-enable
+  auto-update, and call repaint().
+
+  \warning Do not leave the view in this state for a long time
+  (i.e. between events ). If, for example, the user interacts with the
+  view when auto-update is off, strange things can happen.
+
+  Setting auto-update to TRUE does not repaint the view, you must call
+  repaint() to do this (preferable repaint(FALSE) to avoid flicker).
+
+  \sa autoUpdate() repaint()
+
+*/
+/*!
+    \property QtMultiLineEdit::undoEnabled
+    \brief whether undo is enabled
+*/
+/*!
+    \property QtMultiLineEdit::undoDepth
+    \brief the undo depth
+
+  The maximum number of operations that can be stored on the undo stack.
+
+  \sa setUndoDepth()
+*/
+/*!
+    \property QtMultiLineEdit::readOnly
+    \brief whether the multi-line edit is read-only
+*/
+/*!
+    \property QtMultiLineEdit::overWriteMode
+    \brief the overwrite mode
+*/
+/*!
+    \property QtMultiLineEdit::text
+    \brief the multi-line edit's text
+*/
+/*!
+    \property QtMultiLineEdit::length
+    \brief the length of the text
+*/
+
 static const char * const arrow_xpm[] = {
     "     8     8        2            1",
     ". c None",
@@ -463,24 +628,6 @@ QtMultiLineEdit::QtMultiLineEdit( QWidget *parent , const char *name )
     }
 }
 
-/*! \fn int QtMultiLineEdit::numLines() const
-
-  Returns the number of lines in the editor. The count includes any
-  empty lines at top and bottom, so for an empty editor this method
-  will return 1.
-*/
-
-/*! \fn bool QtMultiLineEdit::atEnd() const
-
-  Returns TRUE if the cursor is placed at the end of the text.
-*/
-
-/*! \fn bool QtMultiLineEdit::atBeginning() const
-
-  Returns TRUE if the cursor is placed at the beginning of the text.
-*/
-
-
 /*!
   \fn int QtMultiLineEdit::lineLength( int line ) const
   Returns the number of characters at line number \a line.
@@ -532,35 +679,8 @@ QtMultiLineEdit::QtMultiLineEdit( QWidget *parent , const char *name )
   copyAvailable( FALSE ) is next emitted.
 */
 
-/*! \fn bool QtMultiLineEdit::isReadOnly() const
 
-  Returns FALSE if this multi line edit accepts text input.
-  Scrolling and cursor movements are accepted in any case.
-
-  \sa setReadOnly() QWidget::isEnabled()
-*/
-
-/*! \fn bool QtMultiLineEdit::isOverwriteMode() const
-
-  Returns TRUE if this multi line edit is in overwrite mode, i.e.
-  if characters typed replace characters in the editor.
-
-  \sa setOverwriteMode()
-*/
-
-
-/*! \fn void QtMultiLineEdit::setOverwriteMode( bool on )
-
-  Sets overwrite mode if \a on is TRUE. Overwrite mode means
-  that characters typed replace characters in the editor.
-
-  \sa isOverwriteMode()
-*/
-
-
-
-
-/*!
+/*
   If \a on is FALSE, this multi line edit accepts text input.
   Scrolling and cursor movements are accepted in any case.
 
@@ -577,8 +697,7 @@ void QtMultiLineEdit::setReadOnly( bool on )
     }
 }
 
-/*!
-  Returns the width in pixels of the longest text line in this editor.
+/*
 */
 int QtMultiLineEdit::maxLineWidth() const
 {
@@ -938,7 +1057,7 @@ QString QtMultiLineEdit::textLine( int line ) const
 }
 
 
-/*!
+/*
   Returns a copy of the whole text. If the multi line edit contains no
   text, a
   \link QString::operator!() null string\endlink
@@ -985,7 +1104,7 @@ void QtMultiLineEdit::deselect()
 }
 
 
-/*!
+/*
   Sets the text to \a s, removing old text, if any.
 */
 
@@ -2896,10 +3015,7 @@ void QtMultiLineEdit::getCursorPosition( int *line, int *col ) const
 }
 
 
-/*!
-  Returns TRUE if the view updates itself automatically whenever it
-  is changed in some way.
-
+/*
   \sa setAutoUpdate()
 */
 
@@ -2909,27 +3025,9 @@ bool QtMultiLineEdit::autoUpdate() const
 }
 
 
-/*!
+/*
   Sets the auto-update option of multi-line editor to \a enable.
 
-  If \a enable is TRUE (this is the default) then the editor updates
-  itself automatically whenever it has changed in some way (generally,
-  when text has been inserted or deleted).
-
-  If \a enable is FALSE, the view does NOT repaint itself, or update
-  its internal state variables itself when it is changed.  This can be
-  useful to avoid flicker during large changes, and is singularly
-  useless otherwise: Disable auto-update, do the changes, re-enable
-  auto-update, and call repaint().
-
-  \warning Do not leave the view in this state for a long time
-  (i.e. between events ). If, for example, the user interacts with the
-  view when auto-update is off, strange things can happen.
-
-  Setting auto-update to TRUE does not repaint the view, you must call
-  repaint() to do this (preferable repaint(FALSE) to avoid flicker).
-
-  \sa autoUpdate() repaint()
 */
 
 void QtMultiLineEdit::setAutoUpdate( bool enable )
@@ -3051,7 +3149,7 @@ void QtMultiLineEdit::resizeEvent( QResizeEvent *e )
 	deselect();
 }
 
-/*!
+/*
   Sets the alignment to \a flags. Possible values are \c AlignLeft, \c
   Align(H)Center and \c AlignRight.
 
@@ -3065,10 +3163,9 @@ void QtMultiLineEdit::setAlignment( int flags )
     }
 }
 
-/*!
+/*
   Returns the alignment.
 
-  \sa setAlignment(), Qt::AlignmentFlags.
 */
 int QtMultiLineEdit::alignment() const
 {
@@ -3094,31 +3191,14 @@ const QValidator * QtMultiLineEdit::validator() const
     return d->val;
 }
 
-/*!  Sets the edited flag of this line edit to \a e.  The edited flag
-is never read by QtMultiLineEdit, but is changed to TRUE whenever the user
-changes its contents.
-
-This is useful e.g. for things that need to provide a default value,
-but cannot find the default at once.  Just open the widget without the
-best default and when the default is known, check the edited() return
-value and set the line edit's contents if the user has not started
-editing the line edit.  Another example is to detect whether the
-contents need saving.
-
-\sa edited()
+/*  \sa edited()
 */
 void QtMultiLineEdit::setEdited( bool e )
 {
     d->edited = e;
 }
 
-/*!  Returns the edited flag of the line edit.  If this returns FALSE,
-the contents has not been changed since the construction of the
-QtMultiLineEdit (or the last call to setEdited( FALSE ), if any).  If
-it returns TRUE, the contents have been edited, or setEdited( TRUE )
-has been called.
-
-\sa setEdited()
+/*  \sa setEdited()
 */
 bool QtMultiLineEdit::edited() const
 {
@@ -3144,7 +3224,7 @@ bool QtMultiLineEdit::edited() const
 */
 
 
-/*!
+/*
   Sets the echo mode to \a em.  The default is \c Normal.
 
   The display is updated according.
@@ -3160,7 +3240,7 @@ void QtMultiLineEdit::setEchoMode( EchoMode em )
     }
 }
 
-/*!
+/*
   Returns the currently set echo mode.
 
   \sa setEchoMode()
@@ -3197,9 +3277,7 @@ QString QtMultiLineEdit::stringShown(int row) const
     return QString::fromLatin1("");
 }
 
-/*!
-  Sets the maximum text length  to \a m.  Use -1 for unlimited
-  (the default).  Existing overlong text  will be truncated.
+/*
 
   \sa maxLength()
 */
@@ -3208,10 +3286,7 @@ void QtMultiLineEdit::setMaxLength(int m)
     d->maxlen = m;
 }
 
-/*!
-  Returns the currently set text length limit, or -1 if there is
-  no limit (this is the default).
-
+/*
   \sa setMaxLength()
 */
 int QtMultiLineEdit::maxLength() const
@@ -3220,7 +3295,7 @@ int QtMultiLineEdit::maxLength() const
 }
 
 
-/*!
+/*
   Returns the length of the current text.
 
   \sa setMaxLength()
@@ -3272,14 +3347,9 @@ int QtMultiLineEdit::maxLineLength() const
     return d->maxlinelen;
 }
 
-/*!
+/*
   Sets the maximum number of lines to \a m.  Use -1 for unlimited
   (the default).  Existing excess lines will be deleted.
-
-  Note that excess lines are deleted from the \e bottom of the
-  lines. If you want teletype behaviour with lines disappearing
-  from the \e top as the limit is exceed, you probably just want
-  to use removeLine(0) prior to adding an excess line.
 
   \sa maxLines(), numLines()
 */
@@ -3299,10 +3369,7 @@ void QtMultiLineEdit::setMaxLines(int m)
     }
 }
 
-/*!
-  Returns the currently set line limit, or -1 if there is
-  no limit (the default).
-
+/*
   \sa setMaxLines()
 */
 int QtMultiLineEdit::maxLines() const
@@ -3310,7 +3377,7 @@ int QtMultiLineEdit::maxLines() const
     return d->maxlines;
 }
 
-/*!
+/*
   Sets the horizontal margin to \a m.
 
   \sa hMargin()
@@ -3324,8 +3391,7 @@ void QtMultiLineEdit::setHMargin(int m)
     }
 }
 
-/*!
-  Returns the horizontal margin current set.  The default is 3.
+/*
 
   \sa setHMargin()
 */
@@ -3623,15 +3689,9 @@ void QtMultiLineEdit::rebreakAll()
  \sa setWordWrap()
 */
 
-/*!
+/*
   Sets the word wrap mode to \a mode.
 
-  Per default, wrapping keeps words intact. To allow breaking within
-  words, set the wrap policy to \c Anywhere (see setWrapPolicy() ).
-
-  The default wrap mode is \c NoWrap.
-
-  \sa wordWrap(), setWrapColumnOrWidth(), setWrapPolicy()
  */
 void QtMultiLineEdit::setWordWrap( WordWrap mode )
 {
@@ -3654,7 +3714,7 @@ void QtMultiLineEdit::setWordWrap( WordWrap mode )
         setText( text() );
 }
 
-/*!
+/*
   Returns the current word wrap mode.
 
   \sa setWordWrap()
@@ -3664,7 +3724,7 @@ QtMultiLineEdit::WordWrap QtMultiLineEdit::wordWrap() const
     return d->wordwrap;
 }
 
-/*!
+/*
   Sets the wrap column or wrap width to \a value, depending on the
   word wrap mode.
 
@@ -3679,11 +3739,7 @@ void QtMultiLineEdit::setWrapColumnOrWidth( int value )
 	setText( text() );
 }
 
-/*!
-  Returns the wrap column or wrap width, depending on the word wrap
-  mode.
-
-  \sa setWordWrap(), setWrapColumnOrWidth()
+/*
  */
 int QtMultiLineEdit::wrapColumnOrWidth() const
 {
@@ -3704,11 +3760,9 @@ int QtMultiLineEdit::wrapColumnOrWidth() const
    \sa setWrapPolicy()
 */
 
-/*!
+/*
   Sets the wrap \a policy, i.e. where text can be wrapped in word wrap
   mode.
-
-   The default is \c AtWhiteSpace.
 
   \sa setWordWrap(), wrapPolicy()
  */
@@ -3724,7 +3778,7 @@ void QtMultiLineEdit::setWrapPolicy( WrapPolicy policy )
     }
 }
 
-/*!
+/*
 
   Returns the current word wrap policy.
 
@@ -4018,7 +4072,7 @@ void QtMultiLineEdit::del()
 	delAux();
 }
 
-/*!
+/*
   Sets undo enabled to \a enable.
 
   \sa isUndoEnabled()
@@ -4034,7 +4088,7 @@ void QtMultiLineEdit::setUndoEnabled( bool enable )
 }
 
 
-/*!
+/*
   Returns whether the multilineedit is currently undo enabled or not.
 
   \sa setUndoEnabled()
@@ -4045,7 +4099,7 @@ bool QtMultiLineEdit::isUndoEnabled() const
 }
 
 
-/*!
+/*
   Sets the maximum number of operations that can be stored on the undo
   stack to \a depth.
 
@@ -4057,10 +4111,7 @@ void QtMultiLineEdit::setUndoDepth( int depth )
 }
 
 
-/*!
-  Returns the maximum number of operations that can be stored on the undo stack.
-
-  \sa setUndoDepth()
+/*
  */
 int QtMultiLineEdit::undoDepth() const
 {

@@ -87,6 +87,42 @@
   \sa QTextEdit
 */
 
+/*!
+    \fn bool QMultiLineEdit::autoUpdate() const 
+    \obsolete
+*/
+
+/*!
+    \fn virtual void QMultiLineEdit::setAutoUpdate( bool ) 
+    \obsolete
+*/
+
+/*!
+    \fn int QMultiLineEdit::totalWidth() const 
+    \obsolete
+*/
+
+/*!
+    \fn int QMultiLineEdit::totalHeight() const 
+    \obsolete
+*/
+
+/*!
+    \fn int QMultiLineEdit::maxLines() const 
+    \obsolete
+*/
+
+/*!
+    \fn void QMultiLineEdit::setMaxLines( int ) 
+    \obsolete
+*/
+
+/*!
+    \fn void QMultiLineEdit::deselect() 
+    \obsolete
+*/
+
+
 class QMultiLineEditData
 {
 };

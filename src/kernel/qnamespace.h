@@ -110,7 +110,7 @@ public:
 	AlignCenter		= AlignVCenter | AlignHCenter
     };
 
-    // documented in qpainter.cpp
+    // documented in qtextedit.cpp
     enum TextFlags {
 	SingleLine	= 0x0080,		// misc. flags
 	DontClip	= 0x0100,
@@ -125,7 +125,7 @@ public:
     // Widget flags
     typedef uint WState;
 
-    // QWidget state flags (internal, not documented but should be)
+    // QWidget state flags (internal, barely documented in qwidget.cpp)
     enum WidgetState {
 	WState_Created		= 0x00000001,
 	WState_Disabled		= 0x00000002,
@@ -235,6 +235,7 @@ public:
 	AvoidDither		= 0x00000080
     };
 
+    // documented in qpainter.cpp
     enum BGMode	{				// background mode
 	TransparentMode,
 	OpaqueMode
@@ -276,6 +277,7 @@ public:
 	ASCII_ACCEL = UNICODE_ACCEL // 1.x compat
     };
 
+    // documented in qevent.cpp
     enum Key {
 	Key_Escape = 0x1000,		// misc keys
 	Key_Tab = 0x1001,
@@ -517,6 +519,7 @@ public:
 	Key_unknown = 0xffff
     };
 
+    // documented in qcommonstyle.cpp
     enum ArrowType {
 	UpArrow,
 	DownArrow,
@@ -555,6 +558,7 @@ public:
 	MPenStyle = 0x0f
     };
 
+    // documented in qpainter.cpp
     enum PenCapStyle { // line endcap style
 	FlatCap = 0x00,
 	SquareCap = 0x10,
@@ -562,6 +566,7 @@ public:
 	MPenCapStyle = 0x30
     };
 
+    // documented in qpainter.cpp
     enum PenJoinStyle { // line join style
 	MiterJoin = 0x00,
 	BevelJoin = 0x40,
@@ -569,6 +574,7 @@ public:
 	MPenJoinStyle = 0xc0
     };
 
+    // documented in qpainter.cpp
     enum BrushStyle { // brush style
 	NoBrush,
 	SolidPattern,
@@ -588,6 +594,7 @@ public:
 	CustomPattern=24
     };
 
+    // documented in qapplication_win.cpp
     enum WindowsVersion {
 	WV_32s 		= 0x0001,
 	WV_95 		= 0x0002,
@@ -663,6 +670,7 @@ public:
     // compatibility
     typedef Dock ToolBarDock;
 
+    // documented in qdatetime.cpp
     enum DateFormat {
 	TextDate,      // default Qt
 	ISODate,       // ISO 8601

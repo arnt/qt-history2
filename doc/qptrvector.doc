@@ -394,3 +394,9 @@
 
   \sa read()
 */
+    
+/*!
+    \fn bool QPtrVector::operator==( const QPtrVector<type> &v ) const
+    Compares this pointer vector with \a v.
+*/
+

@@ -128,6 +128,10 @@
   \sa setAutoDelete()
 */
 
+/*!
+    \fn virtual void     QPtrCollection::deleteItem( Item )
+    Reimplement this function if you want to be able to delete items.
+*/
 
 /*!
   Virtual function that creates a copy of an object that is about to

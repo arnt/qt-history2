@@ -242,6 +242,14 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
   \sa QTime QDateTime QDateEdit QDateTimeEdit
 */
 
+/*!
+    \enum Qt::DateFormat
+
+    \value TextDate (default) Qt format
+    \value ISODate ISO 8601 format
+    \value LocalDate locale dependent format
+*/
+
 
 /*!
   \fn QDate::QDate()
