@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#89 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#88 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#89 $");
 
 
 /*!
@@ -305,7 +305,7 @@ QApplication::ColorMode QApplication::colorMode()
   if the display supports 256 colors.
   </ul>
 
-  Use \c CustomColors if you application need custom colors under
+  Use \c CustomColors if your application needs custom colors under
   Windows.
  */
 
