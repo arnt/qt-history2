@@ -1270,6 +1270,13 @@ void QTextHtmlExporter::emitBlockAttributes(const QTextBlock &block)
         hasStyle = true;
     }
 
+    if (format.hasProperty(QTextFormat::TextIndent)) {
+        html += QLatin1String(" text-indent:");
+        html += QString::number(format.indent());
+        html += QLatin1String("px;");
+        hasStyle = true;
+    }
+
     // ### 'if' needed as long as the block char format of a block at pos == 0
     // is equivalent to the char format at that position.
     // later on in the piecetable that's not the case, that's when the block char

@@ -562,7 +562,6 @@ void QTextHTMLImporter::import()
 
             block.setLeftMargin(leftMargin(i));
             block.setRightMargin(rightMargin(i));
-            block.setFirstLineMargin(firstLineMargin(i));
 
             if (node->isListItem) {
                 if (!listReferences.isEmpty()) {
@@ -576,6 +575,8 @@ void QTextHTMLImporter::import()
 
             if (node->hasCssBlockIndent)
                 block.setIndent(node->cssBlockIndent);
+            if (node->text_indent != 0.)
+                block.setTextIndent(node->text_indent);
 
             if (node->alignment)
                 block.setAlignment(node->alignment);

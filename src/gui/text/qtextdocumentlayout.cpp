@@ -1380,6 +1380,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
 //    tl->useDesignMetrics(true);
 //     tl->enableKerning(true);
         tl->beginLayout();
+        bool firstLine = true;
         while (1) {
             QTextLine line = tl->createLine();
             if (!line.isValid())
@@ -1387,9 +1388,17 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
 
             qreal left, right;
             floatMargins(layoutStruct->y, layoutStruct, &left, &right);
-
             left = qMax(left, l);
             right = qMin(right, r);
+            qreal text_indent = 0;
+            if (firstLine) {
+                text_indent = blockFormat.textIndent();
+                if (dir == Qt::LeftToRight)
+                    left += text_indent;
+                else
+                    right -= text_indent;
+                firstLine = false;
+            }
 //         qDebug() << "layout line y=" << currentYPos << "left=" << left << "right=" <<right;
 
             if (d->fixedColumnWidth != -1)
@@ -1401,6 +1410,10 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
             floatMargins(layoutStruct->y, layoutStruct, &left, &right);
             left = qMax(left, l);
             right = qMin(right, r);
+            if (dir == Qt::LeftToRight)
+                left += text_indent;
+            else
+                right -= text_indent;
 
             if (d->fixedColumnWidth == -1 && line.naturalTextWidth() > right-left) {
                 // float has been added in the meantime, redo
@@ -1417,6 +1430,10 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
                     // lines min width more than what we have
                     layoutStruct->y = findY(layoutStruct->y, layoutStruct, qRound(line.naturalTextWidth()));
                     floatMargins(layoutStruct->y, layoutStruct, &left, &right);
+                    if (dir == Qt::LeftToRight)
+                        left += text_indent;
+                    else
+                        right -= text_indent;
                     line.setLineWidth(qMax<qreal>(line.naturalTextWidth(), right-left));
                 }
 

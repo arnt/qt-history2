@@ -113,7 +113,7 @@ public:
         BlockBottomMargin = 0x1031,
         BlockLeftMargin = 0x1032,
         BlockRightMargin = 0x1033,
-        BlockFirstLineMargin = 0x1034,
+        TextIndent = 0x1034,
         BlockIndent = 0x1040,
         BlockNonBreakableLines = 0x1050,
 
@@ -378,10 +378,10 @@ public:
     inline qreal rightMargin() const
     { return doubleProperty(BlockRightMargin); }
 
-    inline void setFirstLineMargin(qreal margin)
-    { setProperty(BlockFirstLineMargin, margin); }
-    inline qreal firstLineMargin() const
-    { return doubleProperty(BlockFirstLineMargin); }
+    inline void setTextIndent(qreal margin)
+    { setProperty(TextIndent, margin); }
+    inline qreal textIndent() const
+    { return doubleProperty(TextIndent); }
 
     inline void setIndent(qreal indent)
     { setProperty(BlockIndent, indent); }

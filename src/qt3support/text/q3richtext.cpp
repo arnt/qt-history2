@@ -5562,6 +5562,7 @@ int Q3TextFormatterBreakInWords::format(Q3TextDocument *doc,Q3TextParagraph *par
     int col = 0;
     int ww = 0;
     QChar lastChr;
+    int tabBase = left < x ? left : x;
     for (; i < len; ++i, ++col) {
         if (c)
             lastChr = c->c;
@@ -5578,7 +5579,7 @@ int Q3TextFormatterBreakInWords::format(Q3TextDocument *doc,Q3TextParagraph *par
         if (c->c.unicode() >= 32 || c->isCustom()) {
             ww = parag->string()->width(i);
         } else if (c->c == '\t') {
-            int nx = parag->nextTab(i, x - left) + left;
+            int nx = parag->nextTab(i, x - tabBase) + tabBase;
             if (nx < x)
                 ww = w - x;
             else
@@ -5727,6 +5728,7 @@ int Q3TextFormatterBreakWords::format(Q3TextDocument *doc, Q3TextParagraph *para
     int ww = 0;
     QChar lastChr = c->c;
     Q3TextFormat *lastFormat = c->format();
+    int tabBase = left < x ? left : x;
     for (; i < len; ++i, ++col) {
         if (i) {
             c = &parag->string()->at(i-1);
@@ -5772,7 +5774,7 @@ int Q3TextFormatterBreakWords::format(Q3TextDocument *doc, Q3TextParagraph *para
                 ww = c->format()->width(' ');
             } else {
                 int tabx = lastWasHardBreak ? (left + (doc ? parag->firstLineMargin() : 0)) : x;
-                int nx = parag->nextTab(i, tabx - left) + left;
+                int nx = parag->nextTab(i, tabx - tabBase) + tabBase;
                 if (nx < tabx) // strrrange...
                     ww = 0;
                 else
@@ -5863,7 +5865,7 @@ int Q3TextFormatterBreakWords::format(Q3TextDocument *doc, Q3TextParagraph *para
                 x = doc ? doc->flow()->adjustLMargin(y + parag->rect().y(), parag->rect().height(), left, 4) : left;
                 w = dw - (doc ? doc->flow()->adjustRMargin(y + parag->rect().y(), parag->rect().height(), rm, 4) : 0);
                 if (!doc && c->c == '\t') { // qt_format_text tab handling
-                    int nx = parag->nextTab(i, x - left) + left;
+                    int nx = parag->nextTab(i, x - tabBase) + tabBase;
                     if (nx < x)
                         ww = w - x;
                     else
@@ -5894,7 +5896,7 @@ int Q3TextFormatterBreakWords::format(Q3TextDocument *doc, Q3TextParagraph *para
                 x = doc ? doc->flow()->adjustLMargin(y + parag->rect().y(), parag->rect().height(), left, 4) : left;
                 w = dw - (doc ? doc->flow()->adjustRMargin(y + parag->rect().y(), parag->rect().height(), rm, 4) : 0);
                 if (!doc && c->c == '\t') { // qt_format_text tab handling
-                    int nx = parag->nextTab(i, x - left) + left;
+                    int nx = parag->nextTab(i, x - tabBase) + tabBase;
                     if (nx < x)
                         ww = w - x;
                     else

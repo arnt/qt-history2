@@ -447,13 +447,12 @@ QTextHtmlParserNode::QTextHtmlParserNode()
       fontWeight(QFont::Normal), alignment(0), verticalAlignment(QTextCharFormat::AlignNormal),
       listStyle(QTextListFormat::ListStyleUndefined), imageWidth(-1), imageHeight(-1), tableBorder(0),
       tableCellRowSpan(1), tableCellColSpan(1), tableCellSpacing(2), tableCellPadding(0), cssBlockIndent(0),
-      cssListIndent(0), wsm(WhiteSpaceModeUndefined)
+      cssListIndent(0), text_indent(0), wsm(WhiteSpaceModeUndefined)
 {
     margin[QTextHtmlParser::MarginLeft] = 0;
     margin[QTextHtmlParser::MarginRight] = 0;
     margin[QTextHtmlParser::MarginTop] = 0;
     margin[QTextHtmlParser::MarginBottom] = 0;
-    margin[QTextHtmlParser::MarginFirstLine] = 0;
 }
 
 QTextCharFormat QTextHtmlParserNode::charFormat() const
@@ -536,8 +535,7 @@ int QTextHtmlParser::margin(int i, int mar) const {
     int m = 0;
     const QTextHtmlParserNode *node;
     if (mar == MarginLeft
-        || mar == MarginRight
-        || mar == MarginFirstLine) {
+        || mar == MarginRight) {
         while (i) {
             node = &at(i);
             if (!node->isBlock)
@@ -958,7 +956,6 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     margin[QTextHtmlParser::MarginRight] = 0;
     margin[QTextHtmlParser::MarginTop] = 0;
     margin[QTextHtmlParser::MarginBottom] = 0;
-    margin[QTextHtmlParser::MarginFirstLine] = 0;
     cssFloat = QTextFrameFormat::InFlow;
 
     const int oldFontPointSize = fontPointSize;
@@ -1303,9 +1300,10 @@ void QTextHtmlParser::parseAttributes()
                         node->cssFloat = QTextFrameFormat::FloatRight;
                 } else if (style.startsWith(QLatin1String("-qt-block-indent:"))) {
                     const QString s = style.mid(17).trimmed();
-                    if (setIntAttribute(&node->cssBlockIndent, s)) {
+                    if (setIntAttribute(&node->cssBlockIndent, s))
                         node->hasCssBlockIndent = true;
-                    }
+                } else if (style.startsWith(QLatin1String("text-indent:")) && style.endsWith(QLatin1String("px"))) {
+                    node->text_indent = style.mid(12, style.length() - 14).trimmed().toDouble();
                 } else if (style.startsWith(QLatin1String("-qt-list-indent:"))) {
                     const QString s = style.mid(16).trimmed();
                     if (setIntAttribute(&node->cssListIndent, s)) {

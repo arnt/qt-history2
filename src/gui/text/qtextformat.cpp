@@ -289,7 +289,7 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     \value BlockBottomMargin
     \value BlockLeftMargin
     \value BlockRightMargin
-    \value BlockFirstLineMargin
+    \value TextIndent
     \value BlockIndent
     \value BlockNonBreakableLines
 
@@ -1269,10 +1269,11 @@ QFont QTextCharFormat::font() const
     To cater for left-to-right and right-to-left languages you can set
     a block's direction with setDirection(). Paragraph alignment is
     set with setAlignment(). Margins are controlled by setTopMargin(),
-    setBottomMargin(), setLeftMargin(), setRightMargin(), and
-    setFirstLineMargin(). Overall indentation is set with setIndent().
-    Line breaking is controlled with setNonBreakableLines(). The
-    paragraph's background color is set with setBackgroundColor().
+    setBottomMargin(), setLeftMargin(), setRightMargin(). Overall
+    indentation is set with setIndent(), the indentation of the first
+    line with setTextIndent().  Line breaking is controlled with
+    setNonBreakableLines(). The paragraph's background color is set
+    with setBackgroundColor().
 
     A text block can also have a list format (if is part of a list);
     this is accessible using listFormat().
@@ -1332,7 +1333,7 @@ QFont QTextCharFormat::font() const
 
     Sets the paragraph's top \a margin.
 
-    \sa topMargin() setBottomMargin() setLeftMargin() setRightMargin() setFirstLineMargin()
+    \sa topMargin() setBottomMargin() setLeftMargin() setRightMargin()
 */
 
 
@@ -1350,7 +1351,7 @@ QFont QTextCharFormat::font() const
 
     Sets the paragraph's bottom \a margin.
 
-    \sa bottomMargin() setTopMargin() setLeftMargin() setRightMargin() setFirstLineMargin()
+    \sa bottomMargin() setTopMargin() setLeftMargin() setRightMargin()
 */
 
 
@@ -1369,7 +1370,7 @@ QFont QTextCharFormat::font() const
     Sets the paragraph's left \a margin. Indentation can be applied separately
     with setIndent().
 
-    \sa leftMargin() setRightMargin() setTopMargin() setBottomMargin() setFirstLineMargin()
+    \sa leftMargin() setRightMargin() setTopMargin() setBottomMargin()
 */
 
 
@@ -1387,7 +1388,7 @@ QFont QTextCharFormat::font() const
 
     Sets the paragraph's right \a margin.
 
-    \sa rightMargin() setLeftMargin() setTopMargin() setBottomMargin() setFirstLineMargin()
+    \sa rightMargin() setLeftMargin() setTopMargin() setBottomMargin()
 */
 
 
@@ -1401,22 +1402,22 @@ QFont QTextCharFormat::font() const
 
 
 /*!
-    \fn void QTextBlockFormat::setFirstLineMargin(qreal margin)
+    \fn void QTextBlockFormat::setTextIdent(qreal indent)
 
-    Sets the \a margin for the first line in the block. This allows the first
+    Sets the \a indent for the first line in the block. This allows the first
     line of a paragraph to be indented differently to the other lines,
     enhancing the readability of the text.
 
-    \sa firstLineMargin() setLeftMargin() setRightMargin() setTopMargin() setBottomMargin()
+    \sa textIndent() setLeftMargin() setRightMargin() setTopMargin() setBottomMargin()
 */
 
 
 /*!
-    \fn qreal QTextBlockFormat::firstLineMargin() const
+    \fn qreal QTextBlockFormat::textIndent() const
 
-    Returns the paragraph's first line margin.
+    Returns the paragraph's text indent.
 
-    \sa setFirstLineMargin()
+    \sa setTextIdent()
 */
 
 
@@ -1424,7 +1425,7 @@ QFont QTextCharFormat::font() const
     \fn void QTextBlockFormat::setIndent(qreal indentation)
 
     Sets the paragraph's \a indentation. Margins are set independently of
-    indentation with setLeftMargin() and setFirstLineMargin().
+    indentation with setLeftMargin() and setTextIdent().
 
     \sa indent()
 */

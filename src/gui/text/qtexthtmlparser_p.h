@@ -174,6 +174,7 @@ struct QTextHtmlParserNode {
 
     int cssBlockIndent;
     int cssListIndent;
+    qreal text_indent;
 
     QTextCharFormat charFormat() const;
 
@@ -215,7 +216,7 @@ struct QTextHtmlParserNode {
 private:
     bool isNestedList(const QTextHtmlParser *parser) const;
 
-    int margin[5];
+    int margin[4];
     friend class QTextHtmlParser;
 };
 Q_DECLARE_TYPEINFO(QTextHtmlParserNode, Q_MOVABLE_TYPE);
@@ -228,8 +229,7 @@ public:
         MarginLeft,
         MarginRight,
         MarginTop,
-        MarginBottom,
-        MarginFirstLine
+        MarginBottom
     };
 
     inline const QTextHtmlParserNode &at(int i) const { return nodes.at(i); }
@@ -241,7 +241,6 @@ public:
     int bottomMargin(int i) const;
     inline int leftMargin(int i) const { return margin(i, MarginLeft); }
     inline int rightMargin(int i) const { return margin(i, MarginRight); }
-    inline int firstLineMargin(int i) const { return margin(i, MarginFirstLine); }
 
     void dumpHtml();
 
