@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#32 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#32 $";
 #endif
 
 
@@ -49,7 +49,7 @@ static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#31 $";
   display the text or the pixmap.  All Qt buttons are capable of showing
   texts and pixmaps.
 
-  Another convention thing about QButtons is \link setAutoResizing()
+  Another convention thing about QButtons is \link setAutoResize()
   auto-resizing\endlink.  Enabling
   auto-resizing will make a label resize itself whenever the contents
   change.
@@ -69,7 +69,7 @@ QButton::QButton( QWidget *parent, const char *name )
     buttonDown = FALSE;			// button is up
     buttonOn   = FALSE;			// button is off
     mlbDown    = FALSE;			// mouse left button up
-    autoResize = FALSE;
+    autoresize = FALSE;
     if ( parent && parent->inherits("QButtonGroup") ) {
 	group = (QButtonGroup*)parent;
 	group->insert( this );			// insert into button group
@@ -128,7 +128,7 @@ QButton::~QButton()
 
   The button resizes itself if auto-resizing is enabled.
 
-  \sa text(), setPixmap(), setAutoResize().
+  \sa text(), setPixmap(), setAutoResize()
  ----------------------------------------------------------------------------*/
 
 void QButton::setText( const char *text )
@@ -140,7 +140,7 @@ void QButton::setText( const char *text )
 	delete bpixmap;
 	bpixmap = 0;
     }
-    if ( autoResize )
+    if ( autoresize )
 	adjustSize();
     else
 	update();
@@ -175,7 +175,7 @@ void QButton::setPixmap( const QPixmap &pixmap )
     *bpixmap = pixmap;
     if ( !btext.isNull() )
 	btext.resize( 0 );
-    if ( autoResize &&  (w != bpixmap->width() || h != bpixmap->height()) )
+    if ( autoresize &&  (w != bpixmap->width() || h != bpixmap->height()) )
 	adjustSize();
     else {
 	if ( w >= 0 && w <= bpixmap->width() && h <= bpixmap->height() ) {
@@ -191,13 +191,13 @@ void QButton::setPixmap( const QPixmap &pixmap )
 
 
 /*----------------------------------------------------------------------------
-  \fn bool QButton::autoResizing() const
+  \fn bool QButton::autoResize() const
   Returns TRUE if auto-resizing is enabled, or FALSE if auto-resizing is
   disabled.
 
   Auto-resizing is disabled by default.
 
-  \sa setAutoResizing()
+  \sa setAutoResize()
  ----------------------------------------------------------------------------*/
 
 
@@ -208,14 +208,14 @@ void QButton::setPixmap( const QPixmap &pixmap )
   When auto-resizing is enabled, the button will resize itself whenever
   the contents change.
 
-  \sa autoResizing(), adjustSize()
+  \sa autoResize(), adjustSize()
  ----------------------------------------------------------------------------*/
 
-void QButton::setAutoResizing( bool enable )
+void QButton::setAutoResize( bool enable )
 {
-    if ( (bool)autoResize != enable ) {
-	autoResize = enable;
-	if ( autoResize )
+    if ( (bool)autoresize != enable ) {
+	autoresize = enable;
+	if ( autoresize )
 	    adjustSize();			// calls resize which repaints
     }
 }

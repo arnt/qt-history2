@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#25 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#26 $
 **
 ** Definition of QButton widget class
 **
@@ -38,8 +38,8 @@ public:
     bool	isOn()		const	{ return buttonOn; }
     bool	isOff()		const	{ return !buttonOn; }
 
-    void	setAutoResizing( bool );
-    bool	autoResizing()	const	{ return autoResize; }
+    bool	autoResize()	const	{ return autoresize; }
+    void	setAutoResize( bool );
 
 signals:
     void	pressed();
@@ -71,7 +71,7 @@ private:
     uint	buttonDown	: 1;
     uint	buttonOn	: 1;
     uint	mlbDown		: 1;
-    uint	autoResize	: 1;
+    uint	autoresize	: 1;
     QButtonGroup *group;
 
     friend class QButtonGroup;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#17 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombobox.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombobox.cpp#17 $";
 #endif
 
 /*!
@@ -53,7 +53,7 @@ struct QComboData
 {
     int		current;
     QPopupMenu *popup;
-    uint	autoResize : 1;
+    uint	autoresize : 1;
 };
 
 
@@ -113,7 +113,7 @@ void QComboBox::init()
     d		  = new QComboData;
     d->popup	  = new QPopupMenu;
     d->current	  = 0;
-    d->autoResize = FALSE;
+    d->autoresize = FALSE;
     connect( d->popup, SIGNAL(activated(int))  ,SLOT(internalActivate(int)) );
     connect( d->popup, SIGNAL(highlighted(int)),SLOT(internalHighlight(int)) );
 }
@@ -343,12 +343,12 @@ void QComboBox::setCurrentItem( int index )
 
   Auto-resizing is disabled by default.
 
-  \sa setAutoResizing()
+  \sa setAutoResize()
 */
 
-bool QComboBox::autoResizing() const
+bool QComboBox::autoResize() const
 {
-    return d->autoResize;
+    return d->autoresize;
 }
 
 /*!
@@ -358,16 +358,16 @@ bool QComboBox::autoResizing() const
   When auto-resizing is enabled, the combo box button will resize itself
   whenever the current combo box item change.
 
-  \sa autoResizing(), adjustSize()
+  \sa autoResize(), adjustSize()
 */
 
-void QComboBox::setAutoResizing( bool enable )
+void QComboBox::setAutoResize( bool enable )
 {
-    if ( (bool)d->autoResize == enable )
-	return;
-    d->autoResize = enable;
-    if ( enable )
-	adjustSize();
+    if ( (bool)d->autoresize != enable ) {
+	d->autoresize = enable;
+	if ( enable )
+	    adjustSize();
+    }
 }
 
 /*!
@@ -376,7 +376,7 @@ void QComboBox::setAutoResizing( bool enable )
   This function is called automatically whenever the current item changes and
   auto-resizing is enabled.
 
-  \sa setAutoResizing()
+  \sa setAutoResize()
 */
 
 void QComboBox::adjustSize()
@@ -469,7 +469,7 @@ void QComboBox::setPalette( const QPalette &palette )
 
 void QComboBox::setFont( const QFont &font )
 {
-    if ( autoResizing() )
+    if ( d->autoresize )
 	adjustSize();
     QWidget::setFont( font );
     d->popup->setFont( font );
@@ -592,7 +592,7 @@ void QComboBox::reIndex()
 
 void QComboBox::currentChanged()
 {
-    if ( d->autoResize )
+    if ( d->autoresize )
 	adjustSize();
     repaint();
 }

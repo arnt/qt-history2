@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#24 $
 **
 ** Implementation of QLabel widget class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#24 $";
 #endif
 
 
@@ -61,7 +61,7 @@ QLabel::QLabel( QWidget *parent, const char *name )
     initMetaObject();
     lpixmap    = 0;
     align      = AlignLeft | AlignVCenter | ExpandTabs;
-    autoResize = FALSE;
+    autoresize = FALSE;
 }
 
 /*----------------------------------------------------------------------------
@@ -77,7 +77,7 @@ QLabel::QLabel( const char *text, QWidget *parent, const char *name )
     initMetaObject();
     lpixmap    = 0;
     align      = AlignLeft | AlignVCenter | ExpandTabs;
-    autoResize = FALSE;
+    autoresize = FALSE;
 }
 
 
@@ -92,7 +92,7 @@ QLabel::QLabel( const char *text, QWidget *parent, const char *name )
 
   The label resizes itself if auto-resizing is enabled.
 
-  \sa text(), setPixmap(), setAutoResizing()
+  \sa text(), setPixmap(), setAutoResize()
  ----------------------------------------------------------------------------*/
 
 void QLabel::setText( const char *text )
@@ -104,7 +104,7 @@ void QLabel::setText( const char *text )
 	delete lpixmap;
 	lpixmap = 0;
     }
-    if ( autoResize )
+    if ( autoresize )
 	adjustSize();
     else
 	updateLabel();
@@ -121,7 +121,7 @@ void QLabel::setText( const char *text )
 
   The label resizes itself if auto-resizing is enabled.
 
-  \sa pixmap(), setText(), setAutoResizing()
+  \sa pixmap(), setText(), setAutoResize()
  ----------------------------------------------------------------------------*/
 
 void QLabel::setPixmap( const QPixmap &pixmap )
@@ -138,7 +138,7 @@ void QLabel::setPixmap( const QPixmap &pixmap )
     *lpixmap = pixmap;
     if ( !ltext.isNull() )
 	ltext.resize( 0 );
-    if ( autoResize && (w != lpixmap->width() || h != lpixmap->height()) )
+    if ( autoresize && (w != lpixmap->width() || h != lpixmap->height()) )
 	adjustSize();
     else {
 	if ( w >= 0 && w <= lpixmap->width() && h <= lpixmap->height() ) {
@@ -159,7 +159,7 @@ void QLabel::setPixmap( const QPixmap &pixmap )
 
   The label resizes itself if auto-resizing is enabled.
 
-  \sa setAutoResizing()
+  \sa setAutoResize()
  ----------------------------------------------------------------------------*/
 
 void QLabel::setNum( long num )
@@ -168,7 +168,7 @@ void QLabel::setNum( long num )
     tmp.sprintf( "%ld", num );
     if ( tmp != ltext ) {
 	ltext = tmp;
-	if ( autoResize )
+	if ( autoresize )
 	    adjustSize();
 	else
 	    updateLabel();
@@ -181,7 +181,7 @@ void QLabel::setNum( long num )
 
   The label resizes itself if auto-resizing is enabled.
 
-  \sa setAutoResizing()
+  \sa setAutoResize()
  ----------------------------------------------------------------------------*/
 
 void QLabel::setNum( double num )
@@ -190,7 +190,7 @@ void QLabel::setNum( double num )
     tmp.sprintf( "%g", num );
     if ( tmp != ltext ) {
 	ltext = tmp;
-	if ( autoResize )
+	if ( autoresize )
 	    adjustSize();
 	else
 	    updateLabel();
@@ -204,7 +204,7 @@ void QLabel::setNum( double num )
 
   The label resizes itself if auto-resizing is enabled.
 
-  \sa setAutoResizing()
+  \sa setAutoResize()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -214,7 +214,7 @@ void QLabel::setNum( double num )
 
   The label resizes itself if auto-resizing is enabled.
 
-  \sa setAutoResizing()
+  \sa setAutoResize()
  ----------------------------------------------------------------------------*/
 
 
@@ -254,13 +254,13 @@ void QLabel::setAlignment( int alignment )
 
 
 /*----------------------------------------------------------------------------
-  \fn bool QLabel::autoResizing() const
+  \fn bool QLabel::autoResize() const
   Returns TRUE if auto-resizing is enabled, or FALSE if auto-resizing is
   disabled.
 
   Auto-resizing is disabled by default.
 
-  \sa setAutoResizing()
+  \sa setAutoResize()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------  
@@ -270,14 +270,14 @@ void QLabel::setAlignment( int alignment )
   When auto-resizing is enabled, the label will resize itself whenever the
   contents change.
 
-  \sa autoResizing(), adjustSize()
+  \sa autoResize(), adjustSize()
  ----------------------------------------------------------------------------*/
 
-void QLabel::setAutoResizing( bool enable )
+void QLabel::setAutoResize( bool enable )
 {
-    if ( autoResize != enable ) {
-	autoResize = enable;
-	if ( autoResize )
+    if ( autoresize != enable ) {
+	autoresize = enable;
+	if ( autoresize )
 	    adjustSize();			// calls resize which repaints
     }
 }
@@ -289,7 +289,7 @@ void QLabel::setAutoResizing( bool enable )
   This function is called automatically whenever the contents change and
   auto-resizing is enabled.
 
-  \sa setAutoResizing()
+  \sa setAutoResize()
  ----------------------------------------------------------------------------*/
 
 void QLabel::adjustSize()

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.h#8 $
+** $Id: //depot/qt/main/src/widgets/qcombo.h#9 $
 **
 ** Definition of QComboBox class
 **
@@ -47,8 +47,8 @@ public:
     int		currentItem()	const;
     void	setCurrentItem( int index );
 
-    bool	autoResizing()	const;
-    void	setAutoResizing( bool );
+    bool	autoResize()	const;
+    void	setAutoResize( bool );
     void	adjustSize();
 
     void	setBackgroundColor( const QColor & );
