@@ -44,32 +44,31 @@ static const short ropCodes[] = {                     // ROP translation table
 class QX11PaintEnginePrivate : public QPaintEnginePrivate {
 
 public:
-    QX11PaintEnginePrivate(QPaintEngine *engine)
-	: QPaintEnginePrivate(engine)
-	{
-	    dpy = 0;
-	    scrn = -1;
-	    hd = 0;
-	    rendhd = 0;
-//  	    flags = Qt::IsStartingUp;
-	    bg_col = Qt::white;                             // default background color
- 	    bg_mode = Qt::TransparentMode;                  // default background mode
-	    rop = Qt::CopyROP;                                // default ROP
-	    tabstops = 0;                               // default tabbing
-	    tabarray = 0;
-	    tabarraylen = 0;
-	    ps_stack = 0;
-	    wm_stack = 0;
-	    gc = gc_brush = 0;
-	    pdev = 0;
-	    dpy  = 0;
-// 	    txop = txinv = 0;
-	    penRef = brushRef = 0;
-	    clip_serial = 0;
-// 	    pfont = 0;
-// 	    block_ext = false;
-	    xinfo = 0;
-	}
+    QX11PaintEnginePrivate()
+    {
+	dpy = 0;
+	scrn = -1;
+	hd = 0;
+	rendhd = 0;
+	//  	    flags = Qt::IsStartingUp;
+	bg_col = Qt::white;                             // default background color
+	bg_mode = Qt::TransparentMode;                  // default background mode
+	rop = Qt::CopyROP;                                // default ROP
+	tabstops = 0;                               // default tabbing
+	tabarray = 0;
+	tabarraylen = 0;
+	ps_stack = 0;
+	wm_stack = 0;
+	gc = gc_brush = 0;
+	pdev = 0;
+	dpy  = 0;
+	// 	    txop = txinv = 0;
+	penRef = brushRef = 0;
+	clip_serial = 0;
+	// 	    pfont = 0;
+	// 	    block_ext = false;
+	xinfo = 0;
+    }
     Display *dpy;
     int scrn;
     Qt::HANDLE hd;

@@ -19,13 +19,24 @@
 #define d d_ptr()
 #define q q_ptr()
 
-QPaintEngine::QPaintEngine(QPaintEnginePrivate *dptr, GCCaps caps)
+QPaintEngine::QPaintEngine(GCCaps caps)
     : dirtyFlag(0),
       changeFlag(0),
       state(0),
       gccaps(caps),
-      d_ptr(dptr ? dptr : new QPaintEnginePrivate(this))
+      d_ptr(new QPaintEnginePrivate)
 {
+    d_ptr->q_ptr = this;
+}
+
+QPaintEngine::QPaintEngine(QPaintEnginePrivate &dptr, GCCaps caps)
+    : dirtyFlag(0),
+      changeFlag(0),
+      state(0),
+      gccaps(caps),
+      d_ptr(&dptr)
+{
+    d_ptr->q_ptr = this;
 }
 
 QPaintEngine::~QPaintEngine()

@@ -45,7 +45,6 @@ public:
 };
 Q_DECLARE_TYPEINFO(QTextItem, Q_PRIMITIVE_TYPE);
 
-
 class Q_GUI_EXPORT QPaintEngine : public Qt
 {
 public:
@@ -69,7 +68,7 @@ public:
 	DirtyRasterOp 		= 0x0040
     };
 
-    QPaintEngine(QPaintEnginePrivate *dptr, GCCaps devcaps=0);
+    QPaintEngine(GCCaps devcaps=0);
     virtual ~QPaintEngine();
 
     bool isActive() const { return active; }
@@ -171,6 +170,8 @@ public:
     inline QPainterState *painterState() const { return state; }
 
 protected:
+    QPaintEngine(QPaintEnginePrivate &data, GCCaps devcaps=0);
+
     uint dirtyFlag;
     uint changeFlag;
     uint active : 1;
@@ -191,7 +192,7 @@ private:
 class QWrapperPaintEngine : public QPaintEngine
 {
 public:
-    QWrapperPaintEngine(QPaintEngine *w) : QPaintEngine(0, w->gccaps), wrap(w) { }
+    QWrapperPaintEngine(QPaintEngine *w) : QPaintEngine(w->gccaps), wrap(w) { }
 
     virtual bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped) { return wrap->begin(pdev, state, unclipped); }
     virtual bool end() { return wrap->end(); }

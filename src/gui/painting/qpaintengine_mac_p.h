@@ -29,8 +29,8 @@ class QQuickDrawPaintEnginePrivate : public QPaintEnginePrivate
 {
     Q_DECL_PUBLIC(QQuickDrawPaintEngine);
 public:
-    QQuickDrawPaintEnginePrivate(QPaintEngine *engine)
-	: QPaintEnginePrivate(engine)
+    QQuickDrawPaintEnginePrivate()
+	: QPaintEnginePrivate()
     {
 	saved = 0;
 	paintevent = 0;
@@ -75,8 +75,7 @@ class QCoreGraphicsPaintEnginePrivate : public QQuickDrawPaintEnginePrivate
 {
     Q_DECL_PUBLIC(QQuickDrawPaintEngine);
 public:
-    QCoreGraphicsPaintEnginePrivate(QPaintEngine *engine)
-	: QQuickPaintEnginePrivate(engine)
+    QCoreGraphicsPaintEnginePrivate()
     {
 	hd = 0;
 	pdev = 0;

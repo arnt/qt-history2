@@ -28,7 +28,7 @@ class QApplicationPrivate;
 class QWSPaintEngine : public QPaintEngine
 {
 public:
-    QWSPaintEngine(QPaintEnginePrivate *dptr, const QPaintDevice *);
+    QWSPaintEngine(const QPaintDevice *);
     ~QWSPaintEngine();
 
     bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
@@ -76,6 +76,8 @@ public:
     QGfx *gfx();
 
 protected:
+    QWSPaintEngine(QPaintEnginePrivate &dptr, const QPaintDevice *);
+
     void drawPolyInternal(const QPointArray &a, bool close=TRUE);
 
     void copyQWSData(const QWSPaintEngine *);

@@ -1633,6 +1633,6 @@ Q_GUI_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 QPaintEngine *QPixmap::engine() const
 {
     if (!data->paintEngine)
-	data->paintEngine = new QWin32PaintEngine(0, this);
+	data->paintEngine = new QWin32PaintEngine(this);
     return data->paintEngine;
 }

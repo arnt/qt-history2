@@ -22,7 +22,7 @@ class QPainterState;
 class QX11PaintEngine : public QPaintEngine
 {
 public:
-    QX11PaintEngine(QPaintEnginePrivate *dptr, const QPaintDevice *);
+    QX11PaintEngine(const QPaintDevice *);
     ~QX11PaintEngine();
 
     bool begin(const QPaintDevice *pdev, QPainterState *state, bool begin = FALSE);
@@ -66,6 +66,8 @@ public:
     static void cleanup();
 
 protected:
+    QX11PaintEngine(QPaintEnginePrivate &dptr, const QPaintDevice *);
+
     friend void qt_cleanup();
     friend void qt_draw_transformed_rect( QPaintEngine *pp,  int x, int y, int w,  int h, bool fill );
     friend void qt_draw_background( QPaintEngine *pp, int x, int y, int w,  int h );

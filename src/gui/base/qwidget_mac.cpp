@@ -2581,9 +2581,9 @@ QPaintEngine *QWidget::engine() const
 {
     if (!d->paintEngine) {
 #if defined( USE_CORE_GRAPHICS )
-	const_cast<QWidget *>(this)->d->paintEngine = new QCoreGraphicsPaintEngine(0, this);
+	const_cast<QWidget *>(this)->d->paintEngine = new QCoreGraphicsPaintEngine(this);
 #else
-	((QWidget *) this)->d->paintEngine = new QQuickDrawPaintEngine(0, this);
+	((QWidget *) this)->d->paintEngine = new QQuickDrawPaintEngine(this);
 #endif
     }
     return d->paintEngine;

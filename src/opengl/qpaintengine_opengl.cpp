@@ -24,9 +24,7 @@
 class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
     Q_DECL_PUBLIC(QOpenGLPaintEngine);
 public:
-    QOpenGLPaintEnginePrivate(QPaintEngine *engine)
-	: QPaintEnginePrivate(engine)
-
+    QOpenGLPaintEnginePrivate()
     {
 	rop = Qt::CopyROP;
 	dev = 0;
@@ -44,7 +42,7 @@ public:
 #define dgl d->dev
 
 QOpenGLPaintEngine::QOpenGLPaintEngine(const QPaintDevice *)
-    : QPaintEngine(new QOpenGLPaintEnginePrivate(this),
+    : QPaintEngine(*(new QOpenGLPaintEnginePrivate),
 		   GCCaps(CoordTransform | PenWidthTransform | PixmapTransform))
 {
 }

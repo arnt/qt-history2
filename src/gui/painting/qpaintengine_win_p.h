@@ -46,8 +46,7 @@ class QWin32PaintEnginePrivate : public QPaintEnginePrivate
 public:
     Q_DECL_PUBLIC(QWin32PaintEngine);
 
-    QWin32PaintEnginePrivate(QPaintEngine *paintEngine) :
-	QPaintEnginePrivate(paintEngine),
+    QWin32PaintEnginePrivate() :
 	hwnd(0),
 	hdc(0),
 	hpen(0),

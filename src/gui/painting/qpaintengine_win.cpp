@@ -268,17 +268,15 @@ static inline bool obtain_brush(void **ref, HBRUSH *brush, uint pix)
 #define release_pen	release_obj
 #define release_brush	release_obj
 
-QWin32PaintEngine::QWin32PaintEngine(QWin32PaintEnginePrivate *dptr, const QPaintDevice *target)
+QWin32PaintEngine::QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, const QPaintDevice *target)
     :
 #ifndef NO_NATIVE_XFORM
-      QPaintEngine(dptr ? dptr : new QWin32PaintEnginePrivate(this),
-		   GCCaps(CoordTransform
-			  | PenWidthTransform
-			  | PixmapTransform
-			  | UsesFontEngine))
+      QPaintEngine(dptr, GCCaps(CoordTransform
+				| PenWidthTransform
+				| PixmapTransform
+				| UsesFontEngine))
 #else
-      QPaintEngine(dptr ? dptr : new QWin32PaintEnginePrivate(this),
-		   GCCaps(UsesFontEngine))
+      QPaintEngine(dptr, GCCaps(UsesFontEngine))
 #endif
 
 {
@@ -287,6 +285,22 @@ QWin32PaintEngine::QWin32PaintEngine(QWin32PaintEnginePrivate *dptr, const QPain
     d->flags |= IsStartingUp;
 }
 
+QWin32PaintEngine::QWin32PaintEngine(const QPaintDevice *target)
+    :
+#ifndef NO_NATIVE_XFORM
+      QPaintEngine(*(new QWin32PaintEnginePrivate), GCCaps(CoordTransform
+							   | PenWidthTransform
+							   | PixmapTransform
+							   | UsesFontEngine))
+#else
+      QPaintEngine(*(new QWin32PaintEnginePrivate), GCCaps(UsesFontEngine))
+#endif
+
+{
+    // ### below is temp hack to survive pixmap gc construction
+    d->hwnd = (target && target->devType()==QInternal::Widget) ? ((QWidget*)target)->winId() : 0;
+    d->flags |= IsStartingUp;
+}
 
 QWin32PaintEngine::~QWin32PaintEngine()
 {

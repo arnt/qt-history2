@@ -25,8 +25,8 @@ class QPaintEnginePrivate {
     Q_DECL_PUBLIC(QPaintEngine);
 
 public:
-    QPaintEnginePrivate(QPaintEngine *paintEngine) :
-	q_ptr(paintEngine)
+    QPaintEnginePrivate() :
+	q_ptr(0)
     {
     }
 

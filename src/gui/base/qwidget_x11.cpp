@@ -2564,7 +2564,7 @@ void QWidgetPrivate::setWindowRole(const char *role)
 QPaintEngine *QWidget::engine() const
 {
     if (!d->paintEngine)
-	((QWidget*) this)->d->paintEngine = new QX11PaintEngine(0, this);
+	((QWidget*) this)->d->paintEngine = new QX11PaintEngine(this);
     return d->paintEngine;
 }
 
