@@ -113,11 +113,14 @@ public:
 	ActivateControl = 80,			// ActiveX activation
 	DeactivateControl = 81,			// ActiveX deactivation
 	ContextMenu = 82,                       // context popup menu
+	IMStart = 83,				// input method composition start
+	IMCompose = 84,				// input method composition
+	IMEnd = 85,				// input method composition end
 	User = 1000,				// first user event id
-	MaxUser  = 65535                        // last user event id	
+	MaxUser  = 65535                        // last user event id
     };
 
-    
+
     QEvent( Type type ) : t(type), posted(FALSE) {}
     virtual ~QEvent();
     Type  type() const	{ return t; }
@@ -358,7 +361,7 @@ public:
     void    ignore()		{ accpt = FALSE; }
 
     Reason  reason() const { return Reason( reas ); }
-    
+
 protected:
     QPoint  p;
     QPoint  gp;
@@ -366,6 +369,24 @@ protected:
     uint    reas:8;
     ushort s;
 };
+
+
+class Q_EXPORT QIMEvent : public QEvent
+{
+public:
+    QIMEvent( Type type, const QString &text, int cursorPosition )
+	: QEvent(type), txt(text), cpos(cursorPosition), a(FALSE) {}
+    const QString &text() const { return txt; }
+    int cursorPos() const { return cpos; }
+    bool isAccepted() const { return a; }
+    void accept() { a = TRUE; }
+    void ignore() { a = FALSE; }
+private:
+    QString txt;
+    int cpos;
+    bool a;
+};
+
 
 #ifndef QT_NO_DRAGANDDROP
 

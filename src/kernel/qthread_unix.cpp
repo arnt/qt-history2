@@ -42,7 +42,6 @@
 #include "qapplication.h"
 #include "qlist.h"
 #include "qintdict.h"
-
 #include "qthread_p.h"
 
 

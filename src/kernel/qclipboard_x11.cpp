@@ -42,6 +42,8 @@
 // #define QCLIPBOARD_DEBUG
 // #define QCLIPBOARD_DEBUG_VERBOSE
 
+#include "qplatformdefs.h"
+
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qdatetime.h"
@@ -50,9 +52,6 @@
 #include "qt_x11.h"
 #include "qapplication_p.h"
 
-#include <sys/time.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 // REVISED: arnt
 

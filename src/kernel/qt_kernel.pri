@@ -36,6 +36,7 @@ kernel {
 		  $$KERNEL_H/qgif.h \
 		  $$KERNEL_H/qiconset.h \
 		  $$KERNEL_H/qimage.h \
+		  $$KERNEL_H/qinputcontext_p.h \
 		  $$KERNEL_H/qkeycode.h \
 		  $$KERNEL_H/qlayout.h \
 		  $$KERNEL_P/qlayoutengine_p.h \
@@ -124,6 +125,7 @@ kernel {
 			  $$KERNEL_CPP/qdnd_x11.cpp \
 			  $$KERNEL_CPP/qdesktopwidget_x11.cpp \
 			  $$KERNEL_CPP/qfont_x11.cpp \
+			  $$KERNEL_CPP/qinputcontext_x11.cpp \
 			  $$KERNEL_CPP/qmotifdnd_x11.cpp \
 			  $$KERNEL_CPP/qpixmap_x11.cpp \
 			  $$KERNEL_CPP/qpaintdevice_x11.cpp \

@@ -52,20 +52,13 @@ if [ "$relpath" != `pwd` ]; then
 	   esac
        fi
     done
-    # need include files, prefer syncqt internally
-    [ -d "$outpath/include/" ] || mkdir -p $outpath/include/
-    if [ -x "$relpath/bin/syncqt" ]; then
-	for a in `$relpath/bin/syncqt -show`; do
-	   ln -sf $relpath/$a $outpath/include/`basename $a`
-	done
-    else
-	ln -sf $relpath/include/*.h $outpath/include/
-    fi
+
+    # symlink the include directory
+    ln -sf $relpath/include $outpath/include
     # symlink the doc directory
     ln -sf $relpath/doc $outpath/doc
 
     #let qmake see qconfig/qmodules.h
-    QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=$outpath/src/tools\""
     #binaries from qt
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC=$outpath/bin/moc\""
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_UIC=$outpath/bin/uic\""
@@ -703,7 +696,7 @@ fi
 MKSPEC="$relpath/mkspecs/${PLATFORM}"
 XMKSPEC="$relpath/mkspecs/${XPLATFORM}"
 
-if [ '!' -f "$MKSPEC" ];
+if [ '!' -f "$MKSPEC" ]
 then
     echo
     echo
@@ -713,16 +706,31 @@ then
     echo
     exit 2
 fi
-if [ '!' -f "$XMKSPEC" ];
+if [ '!' -f "$XMKSPEC" ]
 then
     echo
     echo
-    echo '   The specified platform/compiler not supported: ' $PLATFORM
+    echo '   The specified platform/compiler not supported: ' $XPLATFORM
     echo '   Please see the PLATFORMS file for a complete list.'
     echo
     echo
     exit 2
 fi
+
+# Setup qplatformdefs.h
+if [ '!' -f "$XMKSPEC" ]
+then
+    echo
+    echo
+    echo '   The specified platform/compiler port is not complete: ' $XPLATFORM
+    echo '   Please contact qt-bugs@trolltech.com.'
+    echo
+    echo
+    exit 2
+fi
+# Link the platform include file into the include directory
+rm -f ${relpath}/include/qplatformdefs.h
+ln -s ${relpath}/mkspecs/${XPLATFORM}.h ${relpath}/include/qplatformdefs.h
 
 # Auto-detect opengl support
 if echo $MODULES | grep opengl >/dev/null 
@@ -974,36 +982,31 @@ case "$QCONFIG" in
     echo >&2 "No such configuration: $QCONFIG"
     HELP=yes
 esac
-[ ! -d $outpath/src/tools ] && mkdir -p $outpath/src/tools
-rm -f $outpath/src/tools/qconfig.h.new   # KLUDGE - shouldn't be in p4 depot
+rm -f $relpath/src/tools/qconfig.h.new   # KLUDGE - shouldn't be in p4 depot
 case "$QCONFIG" in
   full)
-    echo "// Everything" >$outpath/src/tools/qconfig.h.new
+    echo "// Everything" >$relpath/src/tools/qconfig.h.new
     ;;
   *)
     QCONFIGFILE=qconfig-$QCONFIG.h
-    echo "// Copied from $QCONFIGFILE" >$outpath/src/tools/qconfig.h.new
-    cat $outpath/src/tools/$QCONFIGFILE >>$outpath/src/tools/qconfig.h.new
+    echo "// Copied from $QCONFIGFILE" >$relpath/src/tools/qconfig.h.new
+    cat $relpath/src/tools/$QCONFIGFILE >>$relpath/src/tools/qconfig.h.new
     ;;
 esac
-cat >> $outpath/src/tools/qconfig.h.new <<EOF
+cat >> $relpath/src/tools/qconfig.h.new <<EOF
 // from configure
 #define QT_INSTALL_PREFIX "$QT_INSTALL_PREFIX"
 #define QT_PRODUCT_LICENSEE "$Licensee"
 #define QT_PRODUCT_LICENSE "$Products"
 EOF
-QCONF_CHANGES=`diff $outpath/src/tools/qconfig.h $outpath/src/tools/qconfig.h.new 2>&1 | wc -l | sed "s, ,,g"`
-if [ -f $outpath/src/tools/qconfig.h ] && [ "x$QCONF_CHANGES" = "x0" ]
+QCONF_CHANGES=`diff $relpath/src/tools/qconfig.h $relpath/src/tools/qconfig.h.new 2>&1 | wc -l | sed "s, ,,g"`
+if [ -f $relpath/src/tools/qconfig.h ] && [ "x$QCONF_CHANGES" = "x0" ]
 then
-    rm -f $outpath/src/tools/qconfig.h.new
+    rm -f $relpath/src/tools/qconfig.h.new
 else
-    [ -f $outpath/src/tools/qconfig.h ] && chmod +w $outpath/src/tools/qconfig.h
-    mv $outpath/src/tools/qconfig.h.new $outpath/src/tools/qconfig.h
-    chmod -w $outpath/src/tools/qconfig.h
-    # incase of shadow builds, relink qconfig.h
-    rm -f $outpath/include/qconfig.h
-    ln -sf $outpath/src/tools/qconfig.h $outpath/include/qconfig.h
-    ln -sf $outpath/src/tools/qconfig.h $relpath/include/qconfig.h
+    [ -f $relpath/src/tools/qconfig.h ] && chmod +w $relpath/src/tools/qconfig.h
+    mv $relpath/src/tools/qconfig.h.new $relpath/src/tools/qconfig.h
+    chmod -w $relpath/src/tools/qconfig.h
 fi
 
 # Next, emit a usage message if something failed.
@@ -1266,9 +1269,8 @@ QMAKE_VARS="$QMAKE_VARS \"QT_PREFIX=${QT_INSTALL_PREFIX}\""
 [ '!' -z "$QT_INSTALL_BINS" ] && QMAKE_VARS="$QMAKE_VARS \"QT_INSTALL_BINPATH=${QT_INSTALL_BINS}\""
 
 #do modules.h
-[ ! -d $outpath/src/tools ] && mkdir -p $outpath/src/tools
-rm -f $outpath/src/tools/qmodules.h.new
-cat >$outpath/src/tools/qmodules.h.new << EOF
+rm -f $relpath/src/tools/qmodules.h.new
+cat >$relpath/src/tools/qmodules.h.new << EOF
 // These modules are present in this configuration of Qt
 EOF
 for MODULE in $MODULES
@@ -1276,24 +1278,20 @@ do
     if [ -d "$relpath/src/$MODULE" ]
     then
 	M=`echo $MODULE | tr '[a-z]' '[A-Z]'`
-	echo "#define QT_MODULE_$M" >>$outpath/src/tools/qmodules.h.new
+	echo "#define QT_MODULE_$M" >>$relpath/src/tools/qmodules.h.new
 	QMAKE_CONFIG="$QMAKE_CONFIG $MODULE"
     fi
 done
 #because things depend on qmodules.h, I conditionally copy
 #so I don't rebuild them when I configure but change nothing..
-QMOD_CHANGES=`diff $outpath/src/tools/qmodules.h $outpath/src/tools/qmodules.h.new 2>&1 | wc -l | sed "s, ,,g"`
-if [ -f $outpath/src/tools/qmodules.h ] && [ "x$QMOD_CHANGES" = "x0" ]
+QMOD_CHANGES=`diff $relpath/src/tools/qmodules.h $relpath/src/tools/qmodules.h.new 2>&1 | wc -l | sed "s, ,,g"`
+if [ -f $relpath/src/tools/qmodules.h ] && [ "x$QMOD_CHANGES" = "x0" ]
 then
-    rm -f $outpath/src/tools/qmodules.h.new
+    rm -f $relpath/src/tools/qmodules.h.new
 else
-    [ -f $outpath/src/tools/qmodules.h ] && chmod +w $outpath/src/tools/qmodules.h
-    mv $outpath/src/tools/qmodules.h.new $outpath/src/tools/qmodules.h
-    chmod -w $outpath/src/tools/qmodules.h
-    # incase of shadow builds, relink qmodules.h
-    rm -f $outpath/include/qmodules.h
-    ln -sf $outpath/src/tools/qmodules.h $outpath/include/qmodules.h
-    ln -sf $outpath/src/tools/qmodules.h $relpath/include/qmodules.h
+    [ -f $relpath/src/tools/qmodules.h ] && chmod +w $relpath/src/tools/qmodules.h
+    mv $relpath/src/tools/qmodules.h.new $relpath/src/tools/qmodules.h
+    chmod -w $relpath/src/tools/qmodules.h
 fi
 
 # Create the .qmake.cache file

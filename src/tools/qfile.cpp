@@ -35,7 +35,7 @@
 **
 **********************************************************************/
 
-#include "qglobal.h"
+#include "qplatformdefs.h"
 #if defined(Q_OS_WIN32)
 #ifdef UNICODE
 #ifndef _UNICODE
@@ -45,7 +45,7 @@
 #endif
 
 #include "qfile.h"
-#include "qfiledefs_p.h"
+
 
 extern bool qt_file_access( const QString& fn, int t );
 

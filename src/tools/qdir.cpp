@@ -42,11 +42,11 @@
 #ifndef QT_NO_DIR
 #include "qdir_p.h"
 #include "qfileinfo.h"
-#include "qfiledefs_p.h"
 #include "qregexp.h"
 #include "qstringlist.h"
 #include <stdlib.h>
 #include <ctype.h>
+
 
 // NOT REVISED
 /*!
@@ -579,7 +579,7 @@ void QDir::setFilter( int filterSpec )
 
   The \e sortSpec is specified by or-ing values from the enum
   SortSpec.
-  
+
   \sa sorting() SortSpec
 */
 
