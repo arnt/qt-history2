@@ -45,9 +45,9 @@
 #include <stdlib.h>
 
 #define QOCI_DYNAMIC_CHUNK_SIZE  255
+static const ub2 CSID_UTF8 = 871; // UTF8 not defined in Oracle 8 libraries
 
 QByteArray qMakeOraDate( const QDateTime& dt );
-static ub2 csid_UTF8 = 871; // UTF8 not defined in Oracle 8 libraries
 
 class QOCIPrivate
 {
@@ -69,28 +69,33 @@ public:
 	if ( ext->bindMethod() == QSqlExtension::BindByName ) {
 	    QMap<QString, QVariant>::Iterator it;
 	    for ( it = ext->values.begin(); it != ext->values.end(); ++it ) {
-		OCIBind * hbnd = 0;
+		OCIBind * hbnd = 0; // Oracle handles these automatically
+		sb2 * indPtr = new sb2(0);
+		tmpStorage.append( indPtr );
+		if ( it.data().isNull() ) {
+		    *indPtr = -1;
+		}
 		switch ( it.data().type() ) {
-		    case QVariant::ByteArray: {
+		    case QVariant::ByteArray:
 			// this is for RAW, LONG RAW and BLOB fields..
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
 					   it.key().length(),
 					   (dvoid *) it.data().asByteArray().data(),
 					   it.data().asByteArray().size(),
-					   SQLT_BIN, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					   SQLT_BIN, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-			break; }
-		    case QVariant::CString: {
+			break;
+		    case QVariant::CString:
 			// ..while this is for CLOB and LONG fields that needs an SQLT_LNG binding
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
 					   it.key().length(),
 					   (dvoid *) it.data().asCString().data(),
 					   it.data().asCString().length(),
-					   SQLT_LNG, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					   SQLT_LNG, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-			break; }
+			break;
 		    case QVariant::Time:
 		    case QVariant::Date:
 		    case QVariant::DateTime: {
@@ -101,7 +106,7 @@ public:
 					   it.key().length(),
 					   (ub1 *) ba->data(),
 					   ba->size(),
-					   SQLT_DAT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					   SQLT_DAT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			break; }
 		    case QVariant::Int:
@@ -110,7 +115,7 @@ public:
 					   it.key().length(),
 					   (ub1 *) &it.data().asInt(),
 					   sizeof(int),
-					   SQLT_INT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					   SQLT_INT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			break;
 		    case QVariant::Double:
@@ -119,7 +124,7 @@ public:
 					   it.key().length(),
 					   (ub1 *) &it.data().asDouble(),
 					   sizeof(double),
-					   SQLT_FLT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					   SQLT_FLT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			break;
 		    case QVariant::String: {
@@ -130,12 +135,12 @@ public:
 					   it.key().length(),
 					   (ub1 *) str->data(),
 					   str->length() + 1, // number of UTF-8 bytes + 0 term. scan limit
-					   SQLT_STR, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					   SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			if ( r == 0 ) {
 			    r = OCIAttrSet( (void*) hbnd,
 					    OCI_HTYPE_BIND,
-					    (void*) &csid_UTF8,
+					    (void*) &CSID_UTF8,
 					    (ub4) 0,
 					    (ub4) OCI_ATTR_CHARSET_ID,
 					    err );
@@ -150,7 +155,7 @@ public:
 					   it.key().length(),
 					   (ub1 *) it.data().asString().local8Bit().data(),
 					   it.data().asString().length()+1,
-					   SQLT_STR, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					   SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			break;
 		}
@@ -161,27 +166,32 @@ public:
 	} else { // ..do positional binding
 	    QMap<int, QString>::Iterator it;
 	    for ( it = ext->index.begin(); it != ext->index.end(); ++it ) {
-		OCIBind * hbnd = 0; // XXX dealloc?
+		OCIBind * hbnd = 0; // Oracle handles these automatically
 		QVariant val( ext->values[ it.data() ] );
+		sb2 * indPtr = new sb2(0);
+		tmpStorage.append( indPtr );
+		if ( val.isNull() ) {
+		    *indPtr = -1;
+		}
 		switch ( val.type() ) {
-		    case QVariant::ByteArray: {
+		    case QVariant::ByteArray:
 			// this is for RAW, LONG RAW and BLOB fields..
 			r = OCIBindByPos( sql, &hbnd, err,
 					  it.key() + 1,
 					  (dvoid *) val.asByteArray().data(),
 					  val.asByteArray().size(),
-					  SQLT_BIN, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					  SQLT_BIN, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-			break; }
-		    case QVariant::CString: {
+			break;
+		    case QVariant::CString:
 			// ..while this is for CLOB and LONG fields that needs an SQLT_LNG binding
 			r = OCIBindByPos( sql, &hbnd, err,
 					  it.key() + 1,
 					  (dvoid *) val.asCString().data(),
 					  val.asCString().length(),
-					  SQLT_LNG, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					  SQLT_LNG, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-			break; }
+			break;
 		    case QVariant::Time:
 		    case QVariant::Date:
 		    case QVariant::DateTime: {
@@ -192,7 +202,7 @@ public:
 					  it.key() + 1,
 					  (ub1 *) ba->data(),
 					  ba->size(),
-					  SQLT_DAT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					  SQLT_DAT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			break; }
 		    case QVariant::Int:
@@ -200,7 +210,7 @@ public:
 					  it.key() + 1,
 					  (ub1 *) &ext->values[ it.data() ].asInt(), // avoid deep cpy
 					  sizeof(int),
-					  SQLT_INT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					  SQLT_INT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			break;
 		    case QVariant::Double:
@@ -208,7 +218,7 @@ public:
 					  it.key() + 1,
 					  (ub1 *) &ext->values[ it.data() ].asDouble(), // avoid deep cpy
 					  sizeof(double),
-					  SQLT_FLT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					  SQLT_FLT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			break;
 		    case QVariant::String: {
@@ -218,12 +228,12 @@ public:
 					  it.key() + 1,
  					  (ub1 *) str->data(),
 					  str->length() + 1, // number of UTF-8 bytes + 0 term. scan limit
-					  SQLT_STR, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					  SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			if ( r == 0 ) {
 			    r = OCIAttrSet( (void*) hbnd,
 					    OCI_HTYPE_BIND,
-					    (void*) &csid_UTF8,
+					    (void*) &CSID_UTF8,
 					    (ub4) 0,
 					    (ub4) OCI_ATTR_CHARSET_ID,
 					    err );
@@ -237,7 +247,7 @@ public:
 					  it.key() + 1,
 					  (ub1 *) val.asCString().data(),
 					  val.asCString().length() + 1, // oracle uses this as a limit to find the terminating 0..
-					  SQLT_STR, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					  SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			break;
 		}
@@ -688,7 +698,7 @@ public:
 		if ( r == 0 ) {
 		    r = OCIAttrSet( (void*)dfn,
 				    OCI_HTYPE_DEFINE,
-				    (void*)&csid_UTF8,
+				    (void*)&CSID_UTF8,
 				    (ub4)0,
 				    (ub4)OCI_ATTR_CHARSET_ID,
 				    d->err );

@@ -162,21 +162,20 @@ database version and enable features accordingly.
 \section3 Unicode support
 
 If the Oracle server supports Unicode, the OCI plugin will use UTF-8
-encoding to communicate with the server. When accessing an Oracle 8
-database, only retrieval of Unicode strings are supported. For Oracle
-9 both retrieval and insertion of Unicode strings are supported.
+encoding to communicate with the server.
 
 \section3 BLOB/LOB support
 
-Binary Large Objects (BLOBs) can be retrieved, but be aware that this
-process may require a lot of memory. We recommend using separate
-queries and retrieving only one BLOB at a time.
+Binary Large Objects (BLOBs) can be read and written, but be aware
+that this process may require a lot of memory.
 
 Note that Oracle 9 doesn't support scrollable result sets with LOB
 columns, you have to use a forward only query to select LOB fields
 (see QSqlQuery::setForwardOnly()).
 
-Inserting (B)LOB fields is limited to Oracle's maximum SQL string size.
+Inserting BLOBs should be done using either a prepared query where the
+BLOBs are bound to placeholders, or QSqlCursor which uses a prepared
+query to do this internally (see $QTDIR/examples/sql/blob).
 
 \section3 How to build the plugin on Unix/Linux
 
@@ -208,6 +207,12 @@ cd $QTDIR/plugins/src/sqldrivers/oci
 qmake -o Makefile "INCLUDEPATH+=$ORACLE_HOME/rdbms/public $ORACLE_HOME/rdbms/demo" "LIBS+=-L$ORACLE_HOME/lib -lclntsh -lwtc9" oci.pro
 make
 \endcode
+
+Note that some versions of the OCI 8 client libraries contain a bug
+that makes programs linked to these libraries segfault on exit. This
+only happens if the QOCI8 driver is compiled as a plugin. To work
+around this problem, either compile the driver into the Qt libray
+itself, or configure Qt with the option '-DQT_NO_LIBRARY_UNLOAD'.
 
 \section3 How to build the plugin on Windows
 
