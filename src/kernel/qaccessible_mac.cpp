@@ -189,16 +189,17 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
     UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
     switch(eclass) {
     case kEventClassAccessibility: {
+	AXUIElementRef element;
+	GetEventParameter(event, kEventParamAccessibleObject, typeCFTypeRef, NULL, sizeof(element), NULL, &element);
+	QObject *object = qt_mac_find_access_object(element);
 	if(ekind == kEventAccessibleGetFocusedChild) {
 	    if(QWidget *widget = qApp->focusWidget()) {
-		AXUIElementRef element = qt_mac_find_uielement(widget);
-		SetEventParameter(event, kEventParamAccessibleChild, typeCFTypeRef, sizeof(element), &element);
+		if(widget != object) {
+		    AXUIElementRef element = qt_mac_find_uielement(widget);
+		    SetEventParameter(event, kEventParamAccessibleChild, typeCFTypeRef, sizeof(element), &element);
+		}
 	    }
-	} else {
-	    AXUIElementRef element;
-	    GetEventParameter(event, kEventParamAccessibleObject, typeCFTypeRef, NULL, sizeof(element), NULL, &element);
-	    QObject *object = qt_mac_find_access_object(element);
-	    if(ekind == kEventAccessibleGetChildAtPoint) {
+	} else if(ekind == kEventAccessibleGetChildAtPoint) {
 		Point where;
 		GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, NULL,
 				  sizeof(where), NULL, &where);
@@ -227,7 +228,9 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		    SetEventParameter(event, kEventParamAccessibleChild, typeCFTypeRef, sizeof(element), &element);
 		}
 	    } else if(!object) { //the below are not mine then..
-		handled_event = FALSE;
+		OSStatus err = CallNextEventHandler(next_ref, event);
+		if(err != noErr)
+		    return err;
 	    } else if(ekind == kEventAccessibleGetAllAttributeNames) {
 		QAccessibleInterface *iface;
 		if(queryAccessibleInterface(object, &iface) == QS_OK) {
@@ -239,7 +242,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		    CFArrayAppendValue(attrs, kAXPositionAttribute);
 		    CFArrayAppendValue(attrs, kAXSizeAttribute);
 		    CFArrayAppendValue(attrs, kAXRoleDescriptionAttribute);
-		    CFArrayAppendValue(attrs, kAXTextAttribute);
+		    CFArrayAppendValue(attrs, kAXValueAttribute);
 		    CFArrayAppendValue(attrs, kAXHelpAttribute);
 		    CFArrayAppendValue(attrs, kAXRoleAttribute);
 		    CFArrayAppendValue(attrs, kAXEnabledAttribute);
@@ -304,9 +307,12 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		    } else if(CFStringCompare(str, kAXRoleDescriptionAttribute, 0) == kCFCompareEqualTo) {
 			CFStringRef str = qstring2cfstring(iface->text(Description, 0));
 			SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, sizeof(str), &str);
-		    } else if(CFStringCompare(str, kAXTextAttribute, 0) == kCFCompareEqualTo) {
-			CFStringRef str = qstring2cfstring(iface->text(Value, 0));
-			SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, sizeof(str), &str);
+		    } else if(CFStringCompare(str, kAXValueAttribute, 0) == kCFCompareEqualTo) {
+			bool ok;
+			int val = iface->text(Value, 0).toInt(&ok);
+			if(!ok)
+			    val = 0;
+			SetEventParameter(event, kEventParamAccessibleAttributeValue, typeInteger, sizeof(val), &val);
 		    } else if(CFStringCompare(str, kAXHelpAttribute, 0) == kCFCompareEqualTo) {
 			CFStringRef str = qstring2cfstring(iface->text(Help, 0));
 			SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, sizeof(str), &str);
@@ -457,10 +463,10 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 					     sizeof(val), NULL, &val) == noErr)
 			    iface->setText(Description, 0, cfstring2qstring(val));
 		    } else if(CFStringCompare(str, kAXTextAttribute, 0) == kCFCompareEqualTo) {
-			CFStringRef val;
-			if(GetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, NULL,
+			int val;
+			if(GetEventParameter(event, kEventParamAccessibleAttributeValue, typeInteger, NULL,
 					     sizeof(val), NULL, &val) == noErr)
-			    iface->setText(Value, 0, cfstring2qstring(val));
+			    iface->setText(Value, 0, QString::number(val));
 		    } else if(CFStringCompare(str, kAXHelpAttribute, 0) == kCFCompareEqualTo) {
 			CFStringRef val;
 			if(GetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, NULL,
@@ -486,7 +492,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 				      sizeof(str), NULL, &str);
 		    Boolean settable = false;
 		    if(CFStringCompare(str, kAXRoleDescriptionAttribute, 0) == kCFCompareEqualTo ||
-		       CFStringCompare(str, kAXTextAttribute, 0) == kCFCompareEqualTo ||
+		       CFStringCompare(str, kAXValueAttribute, 0) == kCFCompareEqualTo ||
 		       CFStringCompare(str, kAXHelpAttribute, 0) == kCFCompareEqualTo ||
 		       CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) 
 			settable = true;
@@ -499,7 +505,6 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 	    } else {
 		handled_event = FALSE;
 	    }
-	}
 	break; }
     case kEventClassHIObject: {
 	QAccessibleObjectWrapper *wrap = (QAccessibleObjectWrapper*)data;
