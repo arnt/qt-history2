@@ -362,7 +362,9 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, bool *ok )
 #endif
 	    }
 	}
-	if ( size )
+	if ( res != ERROR_SUCCESS )
+	    size = 0;
+	else if ( size )
 	    break;
     }
 
@@ -398,7 +400,9 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, bool *ok )
 		    res = RegQueryValueExA( handle, e.local8Bit(), NULL, NULL, NULL, &size );
 #endif
 	    }
-	    if ( size )
+	    if ( res != ERROR_SUCCESS )
+		size = 0;
+	    else if ( size )
 		break;
 	}
     }
