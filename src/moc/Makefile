@@ -15,7 +15,7 @@ CFLAGS		= -O2
 CC		= gcc
 
 LEX		= flex
-YACC		= yacc -d
+YACC		= yacc -t -v -d
 
 ####### Files
 
