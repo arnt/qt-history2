@@ -157,9 +157,9 @@ public:
 	    "<center><h1><img src=qtlogo><img src=face><br>"
 	    "Qt/Embedded</h1>"
 	    "</center>"
-"This display is a simple Qt/Embedded launcher application, running directly
-on the Linux console. The buttons and listbox
-to the right invoke additional applications.<p><br><hr>"
+"This display is a simple Qt/Embedded launcher application, running directly"
+"on the Linux console. The buttons and listbox"
+"to the right invoke additional applications.<p><br><hr>"
 		, vb);
 	info = new QLabel(vb);
 	info->setFont(QFont("smoothtimes",17));
@@ -225,78 +225,78 @@ private slots:
     {
 	static int i = 0;
 	static const char* infotext[] = {
-	"<h2>What is it?</h2>
+	"<h2>What is it?</h2>"
 
-	The Qt/Embedded product provides you with all you need to
-	create stunning graphical user interfaces for embedded devices.
-	Qt/Embedded installs and runs with a very small memory footprint on any
-	device running embedded Linux - without using X11.  ",
+	"The Qt/Embedded product provides you with all you need to"
+	"create stunning graphical user interfaces for embedded devices."
+	"Qt/Embedded installs and runs with a very small memory footprint on any"
+	"device running embedded Linux - without using X11.  ",
 
-	"<h2>Trust the promises</h2>
+	"<h2>Trust the promises</h2>"
 
-	Qt/Embedded features the same API as the excellent
-	Qt/Windows and Qt/X11 versions. Imagine writing your Qt application in
-	your favourite desktop environment and just recompiling to move it to
-	your embedded device. It saves you heaps of development effort and
-	allows you to work productively in your favorite programming
-	environment from day one. You can start today.  ",
+	"Qt/Embedded features the same API as the excellent"
+	"Qt/Windows and Qt/X11 versions. Imagine writing your Qt application in"
+	"your favourite desktop environment and just recompiling to move it to"
+	"your embedded device. It saves you heaps of development effort and"
+	"allows you to work productively in your favorite programming"
+	"environment from day one. You can start today.  ",
 
-	"<h2>Less is more</h2>
+	"<h2>Less is more</h2>"
 
-	Qt/Embedded is modular and scalable. You can assemble the
-	Qt features you really need and leave the others out. Since Qt/Embedded
-	is not based on X11 it has substantially lower memory requirements than
-	X11. By picking and choosing features, the memory demands of
-	Qt/Embedded can be tuned from 1 Mb to 3 Mb in ROM (Intel x86).
-	Furthermore,applications written with Qt are known to have a small
-	memory footprint compared to applications written with other toolkits.
-	Qt scales from the smallest embedded device to high-end workstations.  ",
+	"Qt/Embedded is modular and scalable. You can assemble the"
+	"Qt features you really need and leave the others out. Since Qt/Embedded"
+	"is not based on X11 it has substantially lower memory requirements than"
+	"X11. By picking and choosing features, the memory demands of"
+	"Qt/Embedded can be tuned from 1 Mb to 3 Mb in ROM (Intel x86)."
+	"Furthermore,applications written with Qt are known to have a small"
+	"memory footprint compared to applications written with other toolkits."
+	"Qt scales from the smallest embedded device to high-end workstations.  ",
 
-	"<h2>The source will be with you</h2>
+	"<h2>The source will be with you</h2>"
 
-	You know the value of source code availability. All Qt
-	releases are delivered with source code. Qt/Embedded is no exception.
-	You get a better understanding of how Qt works and it helps you debug
-	and tune your code. Customer feedback allows us to continually improve
-	the source code for better usability and performance.  ",
+	"You know the value of source code availability. All Qt"
+	"releases are delivered with source code. Qt/Embedded is no exception."
+	"You get a better understanding of how Qt works and it helps you debug"
+	"and tune your code. Customer feedback allows us to continually improve"
+	"the source code for better usability and performance.  ",
 
-	"<h2>Add your touch</h2>
+	"<h2>Add your touch</h2>"
 
-	Qt's clean object oriented design makes it easy to extend and
-	enhance the standard widgets. You can create specialized widgets for the
-	limited space offered by embedded screen devices. You can benefit from the
-	wealth of available third-party Qt software. It is easy to add the killer
-	feature you need.",
+	"Qt's clean object oriented design makes it easy to extend and"
+	"enhance the standard widgets. You can create specialized widgets for the"
+	"limited space offered by embedded screen devices. You can benefit from the"
+	"wealth of available third-party Qt software. It is easy to add the killer"
+	"feature you need.",
 
-	"<h2>The beauty of it</h2>
+	"<h2>The beauty of it</h2>"
 
-	Qt/Embedded features some great additional functionality compared
-	to X11. You will be stunned by the beauty of anti-aliased text and alpha
-	blended pixmaps. These new features could add an additional touch of class to a
-	user interface. Forget about embedded graphics which looks more like old
-	alphanumeric terminals. Qt/Embedded can use hardware graphics acceleration
-	and it is well suited for multimedia and web applications. Let Qt/Embedded
-	impress you and your customers.",
+	"Qt/Embedded features some great additional functionality compared"
+	"to X11. You will be stunned by the beauty of anti-aliased text and alpha"
+	"blended pixmaps. These new features could add an additional touch of class to a"
+	"user interface. Forget about embedded graphics which looks more like old"
+	"alphanumeric terminals. Qt/Embedded can use hardware graphics acceleration"
+	"and it is well suited for multimedia and web applications. Let Qt/Embedded"
+	"impress you and your customers.",
 
-	"<h2>Getting there faster</h2>
+	"<h2>Getting there faster</h2>"
 
-	Qt is one of the most popular GUI toolkits in the world.
-	Programmers like the compact code,the powerful API,the ease of use, and the
-	excellent support. It is easy to find existing developer skills with Qt and a
-	lot of quality Qt based code has already been written. Qt/Embedded allows you
-	and your programmers to move seamlessly into the exciting field of embedded
-	systems. Your Qt experts don't need to be retrained. Our customers tell us that
-	even programmers without Qt experience get up to speed sooner with Qt than with
-	other toolkits.",
+	"Qt is one of the most popular GUI toolkits in the world."
+	"Programmers like the compact code,the powerful API,the ease of use, and the"
+	"excellent support. It is easy to find existing developer skills with Qt and a"
+	"lot of quality Qt based code has already been written. Qt/Embedded allows you"
+	"and your programmers to move seamlessly into the exciting field of embedded"
+	"systems. Your Qt experts don't need to be retrained. Our customers tell us that"
+	"even programmers without Qt experience get up to speed sooner with Qt than with"
+	"other toolkits.",
 
-	"<h2>We support you</h2>
+	"<h2>We support you</h2>"
 
-	Embedded devices have other requirements than conventional
-	computers. The Qt/Embedded team at Trolltech is dedicated to support you with
-	new features and widgets. We can offer training, partnerships and first class
-	support. It is straightforward to port Qt/Embedded to new hardware. We can
-	offer you a port to your special device or the embedded operating system of
-	your choice. We look forward to working closely with you to help you succeed.",
+	"Embedded devices have other requirements than conventional"
+	"computers. The Qt/Embedded team at Trolltech is dedicated to support you with"
+	"new features and widgets. We can offer training, partnerships and first class"
+	"support. It is straightforward to port Qt/Embedded to new hardware. We can"
+	"offer you a port to your special device or the embedded operating system of"
+	"your choice. We look forward to working closely with you to help you succeed.",
 
 	0
 	};
