@@ -115,14 +115,14 @@ QIcon QFileIconProvider::icon(const QFileInfo &info) const
 QString QFileIconProvider::type(const QFileInfo &info) const
 {
     if (info.isRoot())
-        return "Drive";
+        return QObject::tr("Drive");
     if (info.isFile())
-        return info.suffix() + " File";
+        return info.suffix() + " " + QObject::tr("File");
     if (info.isDir())
-        return "Directory";
+        return QObject::tr("Directory");
     if (info.isSymLink())
-        return "Symbolic Link";
-    return "Unknown";
+        return QObject::tr("Symbolic Link");
+    return QObject::tr("Unknown");
 }
 
 class QDirModelPrivate : public QAbstractItemModelPrivate
