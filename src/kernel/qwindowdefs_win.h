@@ -34,7 +34,9 @@
 #ifndef QT_H
 #endif // QT_H
 
-#if defined(Q_CC_BOR) || defined(Q_CC_WAT)
+#if defined(Q_CC_BOR) && !defined(__CONSOLE__)
+#define NEEDS_QMAIN
+#elif defined(Q_CC_WAT)
 #define NEEDS_QMAIN
 #endif
 
