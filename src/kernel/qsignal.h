@@ -39,38 +39,41 @@
 #define QSIGNAL_H
 
 #ifndef QT_H
+#include "qvariant.h"
 #include "qobject.h"
 #endif // QT_H
 
 
-class QSignalPrivate;
-
-class Q_EXPORT QSignal : private QObject			// signal class
+class Q_EXPORT QSignal : public QObject
 {
+    Q_OBJECT
+
+    Q_PROPERTY( QVariant value READ value WRITE setValue )
 public:
     QSignal( QObject *parent=0, const char *name=0 );
     ~QSignal();
 
-    const char *name() const		{ return QObject::name(); }
-    void    setName( const char *name ) { QObject::setName(name); }
+    bool	connect( const QObject *receiver, const char *member );
+    bool	disconnect( const QObject *receiver, const char *member=0 );
 
-    bool    connect( const QObject *receiver, const char *member );
-    bool    disconnect( const QObject *receiver, const char *member=0 );
+#ifndef QT_NO_COMPAT
+    bool	isBlocked()	 const		{ return QObject::signalsBlocked(); }
+    void	block( bool b )		{ QObject::blockSignals( b ); }
 
-    bool    isBlocked()	 const		{ return QObject::signalsBlocked(); }
-    void    block( bool b )		{ QObject::blockSignals( b ); }
+    void	setParameter( int value );
+    int		parameter() const;
+#endif
 
-    void    activate();
+    void	activate();
 
-    void    setParameter( int value );
-    int     parameter() const;
+    void	setValue( const QVariant &value );
+    QVariant	value() const;
+
+signals:
+    void signal( const QVariant& );
 
 private:
-    void    dummy(int);
-    QSignalPrivate * d;
-    int val;
-/* tmake ignore Q_OBJECT */
-    Q_OBJECT_FAKE
+    QVariant val;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

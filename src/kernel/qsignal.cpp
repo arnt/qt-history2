@@ -100,10 +100,6 @@
   \endcode
 */
 
-
-QMetaObject *QSignal::metaObj = 0;
-static QMetaObjectCleanUp cleanUp_QSignal = QMetaObjectCleanUp();
-
 /*!
   Constructs a signal object with the parent object \e parent and a \e name.
   These arguments are passed directly to QObject.
@@ -123,33 +119,7 @@ QSignal::QSignal( QObject *parent, const char *name )
 */
 QSignal::~QSignal()
 {
-    //delete d;
 }
-
-
-/*!
-  \fn const char *QSignal::name() const
-  Returns the name of this signal object.
-
-  Since QObject is a private base class, we have added this function, which
-  calls QObject::name().
-*/
-
-/*!
-  \fn void QSignal::setName( const char *name )
-  Sets the name of this signal object to \e name.
-
-  Since QObject is a private base class, we have added this function, which
-  calls QObject::setName().
-*/
-
-/* NOTE: should not be documented */
-
-const char *QSignal::className() const
-{
-    return "QSignal";
-}
-
 
 /*!
   Connects the signal to \e member in object \e receiver.
@@ -158,7 +128,7 @@ const char *QSignal::className() const
 
 bool QSignal::connect( const QObject *receiver, const char *member )
 {
-    return QObject::connect( (QObject *)this, SIGNAL(x(int)),
+    return QObject::connect( (QObject *)this, SIGNAL(signal(const QVariant&)),
 			     receiver, member );
 }
 
@@ -169,13 +139,14 @@ bool QSignal::connect( const QObject *receiver, const char *member )
 
 bool QSignal::disconnect( const QObject *receiver, const char *member )
 {
-    return QObject::disconnect( (QObject *)this, SIGNAL(x(int)),
+    return QObject::disconnect( (QObject *)this, SIGNAL(signal(const QVariant&)),
 				receiver, member );
 }
 
 
 /*!
   \fn bool QSignal::isBlocked() const
+  \obsolete
   Returns TRUE if the signal is blocked, or FALSE if it is not blocked.
 
   The signal is not blocked by default.
@@ -185,6 +156,7 @@ bool QSignal::disconnect( const QObject *receiver, const char *member )
 
 /*!
   \fn void QSignal::block( bool b )
+  \obsolete
   Blocks the signal if \e b is TRUE, or unblocks the signal if \e b is FALSE.
 
   An activated signal disappears into hyperspace if it is blocked.
@@ -196,16 +168,16 @@ bool QSignal::disconnect( const QObject *receiver, const char *member )
 /*!
   \fn void QSignal::activate()
   Emits the signal.
-
-  \sa isBlocked()
 */
 void  QSignal::activate()
 {
-    activate_signal( metaObject()->signalOffset(), val );
+    emit signal( val );
 }
 
 
 /*!
+  \obsolete
+
   Sets the signal's parameter to \a value
  */
 void QSignal::setParameter( int value )
@@ -214,41 +186,27 @@ void QSignal::setParameter( int value )
 }
 
 /*!
+  \obsolete
+
   Returns the signal's parameter.
  */
 int QSignal::parameter() const
 {
-    return val;
+    return val.toInt();
 }
 
-void QSignal::dummy(int)				// just for the meta object
-{						//   should never be called
-#if defined(CHECK_STATE)
-    qWarning( "QSignal: Internal error" );
-#endif
-}
-
-QMetaObject* QSignal::staticMetaObject()
+/*!
+  Sets the signal's parameter to \a value
+*/
+void QSignal::setValue( const QVariant &value )
 {
-    if ( metaObj )
-	return metaObj;
-    QMetaObject *parentObject = QObject::staticMetaObject();
+    val = value;
+}
 
-    typedef void(QSignal::*m2_t0)(int);
-    m2_t0 v2_0 =  &QSignal::dummy;
-    QMetaData *signal_tbl = QMetaObject::new_metadata(1);
-    signal_tbl[0].name = "x(int)";
-    signal_tbl[0].ptr = *((QMember*)&v2_0);
-    signal_tbl[0].access = QMetaData::Public;
-    metaObj = QMetaObject::new_metaobject(
-	"QSignal", parentObject,
-	0, 0,
-	signal_tbl, 1,
-#ifndef QT_NO_PROPERTIES
-	0, 0,
-	0, 0,
-#endif // QT_NO_PROPERTIES
-	0, 0);
-    cleanUp_QSignal.setMetaObject( metaObj );
-    return metaObj;
+/*!
+  Returns the signal's parameter
+*/
+QVariant QSignal::value() const
+{
+    return val;
 }
