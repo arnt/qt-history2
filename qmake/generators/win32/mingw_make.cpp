@@ -61,7 +61,10 @@ void createLdObjectScriptFile(const QString &fileName, QStringList &objList)
         QTextStream t(&file);
         t << "INPUT(" << endl;
         for (QStringList::Iterator it = objList.begin(); it != objList.end(); ++it) {
-            t << *it << endl;
+            if (QDir::isRelativePath(*it)) 
+		t << "./" << *it << endl;
+	    else
+		t << *it << endl;
         }
         t << ");" << endl;
         file.close();
