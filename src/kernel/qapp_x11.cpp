@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#114 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#115 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -40,7 +40,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#114 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#115 $")
 
 
 /*****************************************************************************
@@ -1751,7 +1751,9 @@ static void cleanupTimers()			// cleanup timer data structure
 {
     if ( timerList ) {
 	delete timerList;
+	timerList = 0;
 	delete [] timerBitVec;
+	timerBitVec = 0;
     }
 }
 
