@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#354 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#355 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3304,15 +3304,15 @@ static Bool isPaintOrScrollDoneEvent( Display *, XEvent *ev, XPointer a )
     {
 	if ( ev->xexpose.window == info->window )
 	    return TRUE;
-#ifdef Q_OLD_CONFIG_WORKAROUND
     } else if ( ev->type == ConfigureNotify && info->check ) {
 	XConfigureEvent *c = (XConfigureEvent *)ev;
 	if ( c->window == info->window &&
 	     (c->width != info->w || c->height != info->h) ) {
+	    info->w = c->width;
+	    info->h = c->height;
 	    info->config++;
 	    return TRUE;
 	}
-#endif
     }
     return FALSE;
 }
@@ -3437,19 +3437,12 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 	}
     }
 
-#ifdef Q_OLD_CONFIG_WORKAROUND
     if ( info.config ) {
 	XConfigureEvent *c = (XConfigureEvent *)&xevent;
-	int  x, y;
-	uint w, h, b, d;
-	Window root;
-	XGetGeometry( dpy, winId(), &root, &x, &y, &w, &h, &b, &d );
-	c->width  = w;				// send resize event first
-	c->height = h;
-	translateConfigEvent( (XEvent*)c );	// will clear window
-	paintRegion = QRect( 0, 0, w, h );
+	c->width  = info.w;
+	c->height = info.h;
+	translateConfigEvent( (XEvent*)c );
     }
-#endif
 
     if ( should_clip ) {
 	paintRegion = paintRegion.intersect( rect() );
