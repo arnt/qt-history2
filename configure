@@ -2338,7 +2338,7 @@ if [ "$CFG_QWS_DEPTHS" = "prompted" -a "$PLATFORM_QWS" = "yes" ]; then
     echo
     echo "Your choices (default 8,16,32):"
     read CFG_QWS_DEPTHS
-    if [ -z "$CFG_QWS_DEPTHS" ]; then
+    if [ -z "$CFG_QWS_DEPTHS" ] || [ "$CFG_QWS_DEPTHS" = "yes" ]; then
 	CFG_QWS_DEPTHS=8,16,32
     fi
 fi
