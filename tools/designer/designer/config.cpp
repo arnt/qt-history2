@@ -177,7 +177,7 @@ void Config::parse( const QString &l )
     QString line = l.stripWhiteSpace();
     if ( line[ 0 ] == QChar( '[' ) ) {
 	QString gname = line;
-	gname = gname.remove( 0, 1 );
+	gname = gname.remove( (uint)0, 1 );
 	if ( gname[ (int)gname.length() - 1 ] == QChar( ']' ) )
 	    gname = gname.remove( gname.length() - 1, 1 );
 	ConfigGroup grp;

@@ -610,7 +610,7 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
 
 	QString s = func + "( ";
 	if ( s[ 0 ] == '\"' )
-	    s.remove( 0, 1 );
+	    s.remove( (uint)0, 1 );
 	i = 0;
 	for ( QStringList::Iterator it = args.begin(); it != args.end(); ++it, ++i ) {
 	    if ( i == argNum )

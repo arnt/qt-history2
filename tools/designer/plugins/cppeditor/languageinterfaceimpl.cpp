@@ -73,7 +73,7 @@ void LanguageInterfaceImpl::functions( const QString &code, QValueList<Function>
 	func.name.remove( 0, (*it).returnType().length() );
 	if ( func.name.find( "::" ) == -1 )
 	    continue;
-	func.name.remove( 0, func.name.find( "::" ) + 2 );
+	func.name.remove( (uint)0, func.name.find( "::" ) + 2 );
 	func.body = (*it).body();
 	func.returnType = (*it).returnType();
 	func.start = (*it).functionStartLineNum();

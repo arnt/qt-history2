@@ -61,7 +61,7 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
 	QMetaProperty p = obj->metaObject()->property(i);
 	QString f( p.name() );
 	QChar c = f[ 0 ];
-	f.remove( 0, 1 );
+	f.remove( (uint)0, 1 );
 	f.prepend( c.upper() );
 	f.prepend( "set" );
 
@@ -171,7 +171,7 @@ QValueList<QStringList> CppEditorCompletion::functionParameters( const QString &
 	f = f.left( f.find( "(" ) );
 	if ( f == func ) {
 	    f = QString( mm.signature() );
-	    f.remove( 0, f.find( "(" ) + 1 );
+	    f.remove( (uint)0, f.find( "(" ) + 1 );
 	    f = f.left( f.find( ")" ) );
 	    QStringList lst = QStringList::split( ',', f );
 	    if ( !lst.isEmpty() ) {

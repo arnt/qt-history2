@@ -65,7 +65,7 @@ void LVI::drawObsoleteText( QPainter * p, const QColorGroup & cg, int column,
 	tmp = "...";
 	while ( p->fontMetrics().width( tmp + t[i] ) < width )
 	    tmp += t[ i++ ];
-	tmp.remove( 0, 3 );
+	tmp.remove( (uint)0, 3 );
 	if ( tmp.isEmpty() )
 	    tmp = t.left( 1 );
 	tmp += "...";

@@ -274,7 +274,7 @@ int main( int argc, char ** argv )
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
 
     int appExec = a.exec();
-    delete mw;
+    delete (MainWindow*)mw;
     return appExec;
 }
 
