@@ -2148,9 +2148,8 @@ void QWidget::backgroundPixmapChange( const QPixmap & )
   The color group is determined by the state of the widget.
 
   A disabled widget returns the QPalette::disabled() color group, a
-  widget in the window with keyboard focus returns the
-  QPalette::active() color group and all inactive  widgets return the
-  QPalette::inactive() color group.
+  widget with keyboard focus returns the QPalette::active() color group,
+  and all inactive  widgets return the QPalette::inactive() color group.
 
   \sa palette(), setPalette()
 */
