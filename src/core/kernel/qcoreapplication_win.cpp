@@ -608,6 +608,15 @@ QString valueCheck(uint actual, ...)
     return result;
 };
 
+#ifdef Q_CC_BOR
+
+Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
+{
+    return QString::fromLatin1("THis is not supported on Borland");
+}
+
+#else
+
 // Returns a "human readable" string representation of the MSG and the
 // information it points to
 QString decodeMSG(const MSG& msg)
@@ -1012,6 +1021,8 @@ QString decodeMSG(const MSG& msg)
     message += parameters;
     return message;
 }
+
+#endif
 
 QDebug operator<<(QDebug dbg, const MSG &msg)
 {
