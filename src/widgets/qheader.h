@@ -118,10 +118,11 @@ public:
     void 	moveSection( int section, int toIndex );
     virtual void moveCell( int, int); // obsolete, do not use
 
-    void 	setSortIndicator( int section, bool ascending = TRUE );
-    int sortIndicator() const;
-    void setSortOrder( SortOrder );
-    SortOrder sortOrder() const;
+    void 	setSortIndicator( int section, bool ascending = TRUE ); // obsolete, do not use
+    inline void setSortIndicator( int section, SortOrder order )
+	{ setSortIndicator( section, (order == Ascending) ); }
+    int		sortIndicatorSection() const;
+    SortOrder	sortIndicatorOrder() const;
 
     void        adjustHeaderSize() { adjustHeaderSize( -1 ); }
 

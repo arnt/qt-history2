@@ -75,7 +75,7 @@ public:
 	clicks.fill( clicks_default );
 	resize.fill( resize_default );
 	move = TRUE;
-	sortColumn = -1;
+	sortSection = -1;
 	sortDirection = TRUE;
 	positionsDirty = TRUE;
 	lastPos = 0;
@@ -104,7 +104,7 @@ public:
     uint is_a_table_header : 1;
     bool sortDirection;
     bool positionsDirty;
-    int sortColumn;
+    int sortSection;
     int count;
     int lastPos;
     int fullSize;
@@ -1104,7 +1104,7 @@ QSize QHeader::sectionSizeHint( int section, const QFontMetrics& fm ) const
 	bound.setWidth( w );
     }
     int arrowWidth = 0;
-    if ( d->sortColumn == section )
+    if ( d->sortSection == section )
 	arrowWidth = ( ( orient == Qt::Horizontal ? height() : width() ) / 2 ) + 8;
     int height = QMAX( bound.height() + 2, ih ) + 4;
     int width = bound.width() + style().pixelMetric( QStyle::PM_HeaderMargin ) * 4
@@ -1454,7 +1454,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 
     QStyle::SFlags flags = ( orient == Horizontal ? QStyle::Style_Horizontal : 0 );
     //pass in some hint about the sort indicator if it is used
-    if(d->sortColumn != section)
+    if(d->sortSection != section)
 	flags |= QStyle::Style_Off;
     else if(!d->sortDirection)
 	flags |= QStyle::Style_Up;
@@ -1560,7 +1560,7 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
 
     if ( style().styleHint( QStyle::SH_Header_ArrowAlignment, this ) & AlignRight )
 	ew = fr.width() - tw - 8;
-    if ( d->sortColumn == section && tw <= fr.width() ) {
+    if ( d->sortSection == section && tw <= fr.width() ) {
 	if ( reverse() ) {
 	    tw = fr.width() - tw;
 	    ew = fr.width() - ew - tw;
@@ -1625,68 +1625,54 @@ void QHeader::paintEvent( QPaintEvent *e )
     }
 }
 
-/*!
-    Because the QHeader is often used in conjunction with table and
-    list widgets, QHeader can indicate a sort order. This is achieved
-    by displaying an arrow at the right edge of a section.
-
-    If \a ascending is TRUE (the default) the arrow will point
-    downwards; otherwise it will point upwards.
-
-    Only one section can show a sort indicator at any one time. If you
-    don't want any section to show a sort indicator pass a \a section
-    number of -1.
+/*! \overload
+  \obsolete
+  Use the other overload instead.
 */
 
 void QHeader::setSortIndicator( int section, bool ascending )
 {
-    d->sortColumn = section;
+    d->sortSection = section;
     if ( section != -1 )
-	oldHandleIdx = section;
+ 	oldHandleIdx = section;
     d->sortDirection = ascending;
     update();
     updateGeometry();
 }
 
 /*!
+  \function void QHeader::setSortIndicator(int section, SortOrder order)
+
+  Sets a sort indicator onto the specified \a section. The indicator's
+  \a order is either Ascending or Descending.
+
+  Only one section can show a sort indicator at any one time. If you
+  don't want any section to show a sort indicator pass a \a section
+  number of -1.
+
+  \sa sortIndicatorSection(), sortIndicatorOrder()
+*/
+
+/*!
     Returns the section showing the sort indicator or -1 if there is no sort indicator.
 
-    \sa setSortIndicator()
+    \sa setSortIndicator(), sortIndicatorOrder()
 */
 
-int QHeader::sortIndicator() const
+int QHeader::sortIndicatorSection() const
 {
-    return d->sortColumn;
+    return d->sortSection;
 }
 
 /*!
-  Sets the sort order of the QHeader.
-  The sort indicator points downwards for Ascending sort order.
+    Returns the implied sort order of the QHeaders sort indicator.
 
-  \sa setSortIndicator()
+    \sa setSortIndicator(), sortIndicatorSection()
 */
 
-void QHeader::setSortOrder( SortOrder order )
+Qt::SortOrder QHeader::sortIndicatorOrder() const
 {
-    if ( order == Ascending )
-	d->sortDirection = TRUE;
-    d->sortDirection = FALSE;
-    update();
-    updateGeometry();
-}
-
-/*!
-    Returns the sort order of the QHeader.
-    The sort indicator points downwards for Ascending sort order.
-
-    \sa setSortIndicator()
-*/
-
-Qt::SortOrder QHeader::sortOrder() const
-{
-    if ( d->sortDirection )
-	return Ascending;
-    return Descending;
+    return d->sortDirection ? Ascending : Descending;
 }
 
 /*!
