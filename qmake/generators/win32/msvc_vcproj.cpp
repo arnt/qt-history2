@@ -534,9 +534,16 @@ void VcprojGenerator::initCompilerTool()
     RConf.compiler.ObjectFile = placement ;
     // PCH
     if ( usePCH ) {
+	QFileInfo infoPCH(precomph);
 	RConf.compiler.PrecompiledHeaderFile = pch;
-	RConf.compiler.PrecompiledHeaderThrough = precomph;
+	RConf.compiler.PrecompiledHeaderThrough = infoPCH.fileName();
 	RConf.compiler.UsePrecompiledHeader = pchUseUsingSpecific;
+	// Minimal build option triggers an Internal Compiler Error
+	// when used in conjunction with /FI and /Yu, so remove it
+	project->variables()["QMAKE_CFLAGS_DEBUG"].remove("-Gm");
+	project->variables()["QMAKE_CFLAGS_DEBUG"].remove("/Gm");
+	project->variables()["QMAKE_CXXFLAGS_DEBUG"].remove("-Gm");
+	project->variables()["QMAKE_CXXFLAGS_DEBUG"].remove("/Gm");
     }
 
     RConf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS"]);

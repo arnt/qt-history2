@@ -707,9 +707,9 @@ public:
     // Functions
     VCFilter();
     ~VCFilter(){}
-    void generateMOC( QTextStream &strm, QString str ) const;
-    void generateUIC( QTextStream &strm, const QString& str ) const;
-    void addPCHstage( QTextStream &strm, const QString& str ) const;
+    void addMOCstage( QTextStream &strm, QString str );
+    void addUICstage( QTextStream &strm, QString str );
+    void addPCHstage( QTextStream &strm, QString str );
 
     // Variables
     QString		Name;
@@ -719,6 +719,10 @@ public:
     VcprojGenerator*	Project;
     QList<VCConfiguration> *Config;
     customBuildCheck	CustomBuild;
+    bool		useCustomBuildTool;
+    VCCustomBuildTool   CustomBuildTool;
+    bool		useCompilerTool;
+    VCCLCompilerTool    CompilerTool;
     bool		flat_files;
 };
 
@@ -757,7 +761,7 @@ QTextStream &operator<<( QTextStream &, const VCLibrarianTool & );
 QTextStream &operator<<( QTextStream &, const VCResourceCompilerTool & );
 QTextStream &operator<<( QTextStream &, const VCEventTool & );
 QTextStream &operator<<( QTextStream &, const VCConfiguration & );
-QTextStream &operator<<( QTextStream &, const VCFilter & );
+QTextStream &operator<<( QTextStream &, VCFilter & );
 QTextStream &operator<<( QTextStream &, const VCProject & );
 
 #endif //__MSVC_OBJECTMODEL_H__

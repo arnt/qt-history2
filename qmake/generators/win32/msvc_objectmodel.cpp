@@ -15,6 +15,7 @@
 #include "msvc_objectmodel.h"
 #include "msvc_vcproj.h"
 #include <qstringlist.h>
+#include <qfileinfo.h>
 
 // XML Tags ---------------------------------------------------------
 const char* _xmlInit				= "<?xml version=\"1.0\" encoding = \"Windows-1252\"?>";
@@ -1801,13 +1802,14 @@ QTextStream &operator<<( QTextStream &strm, const VCConfiguration &tool )
 VCFilter::VCFilter()
     :   ParseFiles( unset )
 {
+    useCustomBuildTool = FALSE;
+    useCompilerTool = FALSE;
 }
 
-void VCFilter::generateMOC( QTextStream &strm, QString filename ) const
+void VCFilter::addMOCstage( QTextStream &strm, QString filename )
 {
     QString mocOutput = Project->findMocDestination( filename );
     QString mocApp = Project->var( "QMAKE_MOC" );
-    QString pchOption;
 
     if( mocOutput.isEmpty() && filename.endsWith(".moc") ) {
         // In specialcases we DO moc .cpp files
@@ -1820,28 +1822,28 @@ void VCFilter::generateMOC( QTextStream &strm, QString filename ) const
     bool doPch = Project->usePCH && Project->deletePCHcpp && (Project->precomph == filename);
     if ( !doMoc && !doPch )
 	return;
-    if ( Project->usePCH )
-        pchOption = " -pch " + Project->precomph;
 
-    VCCustomBuildTool tool;
+    CustomBuildTool = VCCustomBuildTool();
+    useCustomBuildTool = TRUE;
+
     if ( doPch ) { // Setup PCH cpp stage
-	tool.Description += "Creating PCH cpp ";
-	tool.CommandLine = "@echo #include &quot;" 
-			    + Project->realPrecompH(Project->precompcpp) 
-			    + "&quot; &gt; " + Project->precompcpp;
-	tool.Outputs = Project->precompcpp;
+	CustomBuildTool.Description += "Creating PCH cpp ";
+	CustomBuildTool.CommandLine = "@echo #include &quot;" 
+				    + Project->realPrecompH(Project->precompcpp) 
+				    + "&quot; &gt; " + Project->precompcpp;
+	CustomBuildTool.Outputs = Project->precompcpp;
     }
     if ( doMoc ) { // Setup Moc stage
-	if ( !tool.Description.isEmpty() )
-	    tool.Description += "and ";
-	tool.Description = "Moc&apos;ing ";
-	tool.CommandLine += (mocApp + pchOption + " " 
-			    + filename + " -o " + mocOutput);
-	tool.AdditionalDependencies = mocApp;
-	tool.Outputs += mocOutput;
+	if ( !CustomBuildTool.Description.isEmpty() )
+	    CustomBuildTool.Description += "and ";
+	CustomBuildTool.Description = "Moc&apos;ing ";
+	CustomBuildTool.CommandLine += (mocApp + " " 
+				    + filename + " -o " + mocOutput);
+	CustomBuildTool.AdditionalDependencies = mocApp;
+	CustomBuildTool.Outputs += mocOutput;
     }
-    tool.Description += filename + "...";
-    
+    CustomBuildTool.Description += filename + "...";
+
     // Output custom build for all configurations
     for ( int i = 0; i < Config->count(); i++ ) {
 	strm << _begFileConfiguration;
@@ -1853,8 +1855,11 @@ void VCFilter::generateMOC( QTextStream &strm, QString filename ) const
     }
 }
 
-void VCFilter::generateUIC( QTextStream &strm, const QString& str ) const
+void VCFilter::addUICstage( QTextStream &strm, QString str )
 {
+    CustomBuildTool = VCCustomBuildTool();
+    useCustomBuildTool = TRUE;
+
     QString uicApp = Project->var("QMAKE_UIC");
     QString mocApp = Project->var( "QMAKE_MOC" );
     QString fname = str.section( '\\', -1 );
@@ -1915,28 +1920,34 @@ void VCFilter::generateUIC( QTextStream &strm, const QString& str ) const
     }
 }
 
-void VCFilter::addPCHstage( QTextStream &strm, const QString& str ) const
+void VCFilter::addPCHstage( QTextStream &strm, QString str )
 {
     if ( !Project->usePCH || !str.endsWith(".cpp") )
 	return;
 
+    CompilerTool = VCCLCompilerTool();
+    useCompilerTool = TRUE;
+
     bool createPCH = (Project->precompcpp == str);
     QString realPCHh = Project->realPrecompH(str);
+    QString filePCHh = QFileInfo(Project->precomph).fileName();
 
-    VCCLCompilerTool tool;
     // Unset some default options
-    tool.BufferSecurityCheck = unset;
-    tool.DebugInformationFormat = debugUnknown;
-    tool.ExceptionHandling = unset;
-    tool.GeneratePreprocessedFile = preprocessUnknown;
-    tool.Optimization = optimizeDefault;
-    tool.ProgramDataBaseFileName = QString::null;
-    tool.RuntimeLibrary = rtUnknown;
-    tool.WarningLevel = warningLevelUnknown;
+    CompilerTool.BufferSecurityCheck = unset;
+    CompilerTool.DebugInformationFormat = debugUnknown;
+    CompilerTool.ExceptionHandling = unset;
+    CompilerTool.GeneratePreprocessedFile = preprocessUnknown;
+    CompilerTool.Optimization = optimizeDefault;
+    CompilerTool.ProgramDataBaseFileName = QString::null;
+    CompilerTool.RuntimeLibrary = rtUnknown;
+    CompilerTool.WarningLevel = warningLevelUnknown;
+
     // Setup PCH options
-    tool.UsePrecompiledHeader = (createPCH ? pchCreateUsingSpecific : pchUseUsingSpecific);
-    tool.PrecompiledHeaderThrough = realPCHh;
-    tool.PrecompiledHeaderFile = Project->pch;
+    CompilerTool.UsePrecompiledHeader = (createPCH ? pchCreateUsingSpecific : pchUseUsingSpecific);
+    CompilerTool.PrecompiledHeaderThrough = (createPCH ? realPCHh : filePCHh);
+    CompilerTool.PrecompiledHeaderFile = Project->pch;
+    if (!createPCH)
+	CompilerTool.ForcedIncludeFiles += filePCHh;
 
     // Output custom build for all configurations
     for ( int i = 0; i < Config->count(); i++ ) {
@@ -1949,7 +1960,7 @@ void VCFilter::addPCHstage( QTextStream &strm, const QString& str ) const
     }
 }
 
-QTextStream &operator<<( QTextStream &strm, const VCFilter &tool )
+QTextStream &operator<<( QTextStream &strm, VCFilter &tool )
 {
     if ( tool.Files.count() == 0 )
 	return strm;
@@ -1991,15 +2002,34 @@ QTextStream &operator<<( QTextStream &strm, const VCFilter &tool )
 	    currentLevels = newDirs.count();
 	}
 
+	tool.useCustomBuildTool = FALSE;
+	tool.useCompilerTool = FALSE;
+	// Add UIC, MOC and PCH stages to file
+	if ( tool.CustomBuild == moc )
+	    tool.addMOCstage( strm, *it );
+	else if ( tool.CustomBuild == uic )
+	    tool.addUICstage( strm, *it );
+	if (tool.Project->usePCH)
+	    tool.addPCHstage( strm, *it );
+
 	strm << _begFile;
 	strm << SPair( _RelativePath, *it );
 	strm << ">";
-	if ( tool.CustomBuild == moc )
-	    tool.generateMOC( strm, *it );
-	else if ( tool.CustomBuild == uic )
-	    tool.generateUIC( strm, *it );
-	else 
-	    tool.addPCHstage( strm, *it );
+	// Output custom build and compiler options 
+	// for all configurations
+	if (tool.useCustomBuildTool || tool.useCompilerTool) {
+	    for ( uint i = 0; i < tool.Config->count(); i++ ) {
+		strm << _begFileConfiguration;
+		strm << _Name5;
+		strm << (*tool.Config)[i].Name;
+		strm << "\">";
+		if (tool.useCustomBuildTool)
+		    strm <<  tool.CustomBuildTool;
+		if (tool.useCompilerTool)
+		    strm <<  tool.CompilerTool;
+		strm << _endFileConfiguration;
+	    }
+	}
 	strm << _endFile;
     }
     // close remaining open filters, in non-flat mode
@@ -2039,14 +2069,14 @@ QTextStream &operator<<( QTextStream &strm, const VCProject &tool )
 	strm << tool.Configuration[i];
     strm << _endConfigurations;
     strm << _begFiles;
-    strm << tool.SourceFiles;
-    strm << tool.HeaderFiles;
-    strm << tool.MOCFiles;
-    strm << tool.UICFiles;
-    strm << tool.FormFiles;
-    strm << tool.TranslationFiles;
-    strm << tool.LexYaccFiles;
-    strm << tool.ResourceFiles;
+    strm << (VCFilter)tool.SourceFiles;
+    strm << (VCFilter)tool.HeaderFiles;
+    strm << (VCFilter)tool.MOCFiles;
+    strm << (VCFilter)tool.UICFiles;
+    strm << (VCFilter)tool.FormFiles;
+    strm << (VCFilter)tool.TranslationFiles;
+    strm << (VCFilter)tool.LexYaccFiles;
+    strm << (VCFilter)tool.ResourceFiles;
     strm << _endFiles;
     strm << _begGlobals;
     strm << _endGlobals;
