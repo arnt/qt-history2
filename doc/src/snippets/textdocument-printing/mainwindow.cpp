@@ -58,11 +58,9 @@ void MainWindow::openFile()
 void MainWindow::printFile()
 {
     QTextDocument *document = editor->document();
-
     QPrinter printer;
 
     QPrintDialog *dlg = new QPrintDialog(&printer, this);
-
     if (dlg->exec() != QDialog::Accepted)
         return;
 
