@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#6 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -94,9 +94,9 @@ void QSpinBox::append( const char ** items )
     if ( !l )
 	l = new QStrList;
 
-    int i = 1;
+    int i = 0;
     while ( items[i] )
-	l->append( items[i] );
+	l->append( items[i++] );
     enableButtons();
 }
 
