@@ -1719,14 +1719,14 @@ void FormWindow::highlightWidget(QWidget *widget, const QPoint &pos, HighlightMo
 {
     Q_ASSERT(widget);
 
-//    if (widget == mainContainer()) // skip the maincontainer
-//        return;
-
     QWidget *container = findContainer(widget, false);
 
     Q_ASSERT(!qobject_cast<ConnectionEdit*>(widget));
 
     if (container == 0 || core()->metaDataBase()->item(container) == 0)
+        return;
+
+    if (container == mainContainer()) // skip the maincontainer
         return;
 
     if (mode == Restore) {
