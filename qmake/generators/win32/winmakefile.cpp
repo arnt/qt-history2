@@ -239,6 +239,15 @@ Win32MakefileGenerator::processPrlFiles()
     QDict<void> processed;
     QPtrList<MakefileDependDir> libdirs;
     libdirs.setAutoDelete(TRUE);
+    {
+	QStringList &libpaths = project->variables()["QMAKE_LIBDIR"];
+	for(QStringList::Iterator libpathit = libpaths.begin(); libpathit != libpaths.end(); ++libpathit) {
+	    QString r = (*libpathit), l = r;
+	    fixEnvVariables(l);
+	    libdirs.append(new MakefileDependDir(r.replace("\"",""),
+						 l.replace("\"","")));
+	}
+    }
     for(bool ret = FALSE; TRUE; ret = FALSE) {
 	//read in any prl files included..
 	QStringList l_out;
