@@ -68,6 +68,7 @@ public:
 
     FormWindow * formWindow();
 
+    MenuBarEditorItem * createItem();
     //int insertItem( QString name, PopupMenuEditor * menu, int id = -1, int index = -1 ); //FIXME: change funcs to return id
     void insertItem( MenuBarEditorItem * item, int index = -1 );
     void insertItem( QString text, PopupMenuEditor * menu, int id = -1, int index = -1 );

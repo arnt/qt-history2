@@ -23,6 +23,7 @@ public:
 	ActionGroup = 3,
 	Widget = 4
     };
+    
     // FIXME: Qt-ify the constructors
     PopupMenuEditorItem( QAction * action, PopupMenuEditor * menu );
     PopupMenuEditorItem( QActionGroup * actionGroup, PopupMenuEditor * menu );
@@ -128,6 +129,7 @@ signals:
     void actionRemoved( QAction * );
     
 protected:
+    PopupMenuEditorItem * createItem( QAction * a = 0 );
     void deleteCurrentItem();
     PopupMenuEditorItem * currentItem();
     PopupMenuEditorItem * itemAt( const int y );

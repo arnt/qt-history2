@@ -557,11 +557,8 @@ void PopupMenuEditor::paste( int index )
 {
     if ( clipboardItem && clipboardOperation ) {
 	PopupMenuEditorItem * n = new PopupMenuEditorItem( clipboardItem, this );
-	AddActionToPopupCommand * cmd = new AddActionToPopupCommand( "Paste Item",
-								     formWnd,
-								     this,
-								     n,
-								     index );
+	AddActionToPopupCommand * cmd =
+	    new AddActionToPopupCommand( "Paste Item", formWnd, this, n, index );
 	formWnd->commandHistory()->addCommand( cmd );
 	cmd->execute();
     }
@@ -600,12 +597,7 @@ void PopupMenuEditor::loadIconPixmap( int index )
 	i = itemList.at( index );
 	a = i->anyAction();
     } else {
-	a = new QAction( 0 );
-	i = new PopupMenuEditorItem( a, this );
-	AddActionToPopupCommand * cmd =
-	    new AddActionToPopupCommand( "Add Item", formWnd, this, i );
-	formWnd->commandHistory()->addCommand( cmd );
-	cmd->execute();
+	createItem();
     }
 
     QIconSet icons( qChoosePixmap( 0, formWnd, 0, 0 ) );
@@ -654,13 +646,7 @@ void PopupMenuEditor::setAccelerator( int key, Qt::ButtonState state, int index 
     PopupMenuEditorItem * i = 0;
 
     if ( (uint) index >= itemList.count() ) {
-	i = new PopupMenuEditorItem( new QAction( 0 ), this );
-	AddActionToPopupCommand * cmd = new AddActionToPopupCommand( "Add Item",
-								     formWnd,
-								     this,
-								     i );
-	formWnd->commandHistory()->addCommand( cmd );
-	cmd->execute();		     
+	createItem();
     } else {
 	i = itemList.at( index );
     }
@@ -720,6 +706,16 @@ void PopupMenuEditor::focusCurrentItemMenu()
 FormWindow * PopupMenuEditor::formWindow()
 {
     return formWnd;
+}
+
+PopupMenuEditorItem * PopupMenuEditor::createItem( QAction * a )
+{
+    PopupMenuEditorItem * i = new PopupMenuEditorItem( a ? a : new QAction( 0 ), this );
+    AddActionToPopupCommand * cmd =
+	new AddActionToPopupCommand( "Add Item", formWnd, this, i );
+    formWnd->commandHistory()->addCommand( cmd );
+    cmd->execute();
+    return i;
 }
 
 void PopupMenuEditor::deleteCurrentItem()
@@ -865,8 +861,11 @@ void PopupMenuEditor::mouseMoveEvent( QMouseEvent * e )
 	    draggedItem = itemAt( mousePressPos.y() );
 
 	    if ( draggedItem == &addItem ) {
-		draggedItem = 0;
-		return;
+		draggedItem = createItem();
+		draggedItem->anyAction()->setMenuText( "new item" ); // FIXME: start rename after drop
+	    } else if ( draggedItem == &addSeparator ) {
+		draggedItem = createItem( new QSeparatorAction( 0 ) );
+		draggedItem->setSeparator( TRUE );
 	    }
 	    
 	    PopupMenuEditorItemPtrDrag * d =
@@ -1098,14 +1097,8 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 	    PopupMenuEditorItem * i = currentItem();
 
 	    if ( i == &addSeparator ) {
-		PopupMenuEditorItem * i = new PopupMenuEditorItem( new QAction( 0 ), this );
+		i = createItem( new QSeparatorAction( 0 ) );
 		i->setSeparator( TRUE );
-		AddActionToPopupCommand * cmd = new AddActionToPopupCommand( "Add Separator",
-									     formWnd,
-									     this,
-									     i );
-		formWnd->commandHistory()->addCommand( cmd );
-		cmd->execute();
 	    } else if ( i->isSeparator() ) {
 		break;
 	    } else if ( currentField == 0 ) {
@@ -1175,23 +1168,12 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 	case Qt::Key_Enter:
 	case Qt::Key_Return:
 	{
-	    PopupMenuEditorItem * i = 0;
-	    
+	    PopupMenuEditorItem * i = 0;    
 	    if ( currentIndex >= itemList.count() ) {
 		QAction * a = formWnd->mainWindow()->actioneditor()->newActionEx();
-		i = new PopupMenuEditorItem( a, this );
-		AddActionToPopupCommand * cmd = new AddActionToPopupCommand( "Add Item",
-									     formWnd,
-									     this,
-									     i );
-		formWnd->commandHistory()->addCommand( cmd );
-		cmd->execute();
+		i = createItem( a );
 		// Do not put rename on cmd stack (no undo/redo)
-		RenameActionCommand rename( "Rename Item",
-					    formWnd,
-					    i->anyAction(),
-					    this,
-					    lineEdit->text() );
+		RenameActionCommand rename( "Rename Item", formWnd, i->anyAction(), this, lineEdit->text() );
 		rename.execute();
 	    } else {
 		i = itemList.at( currentIndex );
@@ -1548,11 +1530,7 @@ void PopupMenuEditor::dropInPlace( PopupMenuEditorItem * i, int y )
 	n = itemList.next();
     }
     
-    AddActionToPopupCommand * cmd = new AddActionToPopupCommand( "Drop Item",
-								 formWnd,
-								 this,
-								 i,
-								 idx );
+    AddActionToPopupCommand * cmd = new AddActionToPopupCommand( "Drop Item", formWnd, this, i, idx );
     formWnd->commandHistory()->addCommand( cmd );
     cmd->execute();
     currentIndex = idx;

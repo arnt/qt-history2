@@ -220,6 +220,20 @@ FormWindow * MenuBarEditor::formWindow()
     return formWnd;
 }
 
+MenuBarEditorItem * MenuBarEditor::createItem()
+{
+    MenuBarEditorItem * i =
+	new MenuBarEditorItem( new PopupMenuEditor( formWnd, ( QWidget * ) parent() ),
+			       this );
+    AddMenuCommand * cmd = new AddMenuCommand( "Add Menu", formWnd, this, i );
+    formWnd->commandHistory()->addCommand( cmd );
+    cmd->execute();
+    return i;
+    // do not put rename on cmd stack
+    // RenameMenuCommand rename( "Rename Menu", formWnd, this, lineEdit->text(), i );
+    // rename.execute();
+}
+
 void MenuBarEditor::insertItem( MenuBarEditorItem * item, int index )
 {
     item->menu()->parentMenu = this;
@@ -368,7 +382,7 @@ int MenuBarEditor::findItem( QPoint & pos )
 MenuBarEditorItem * MenuBarEditor::item( int index )
 {
     if ( index == -1 ) {
-	return itemList.at( currentIndex ); // FIXME:!!!!!!!!!!
+	return itemList.at( currentIndex );
     }
     int c = itemList.count();
     if ( index == c ) {
@@ -571,14 +585,9 @@ void MenuBarEditor::mouseDoubleClickEvent( QMouseEvent * )
 {
     currentIndex = findItem( mousePressPos );
     if ( currentIndex > itemList.count() ) {
-	MenuBarEditorItem * i =
-	    new MenuBarEditorItem( new PopupMenuEditor( formWnd, ( QWidget * ) parent() ),
-				   this );
+	MenuBarEditorItem * i = createItem();
 	i->setSeparator( TRUE );
 	i->setMenuText( "separator" );
-	AddMenuCommand * cmd = new AddMenuCommand( "Add Menu", formWnd, this, i );
-	formWnd->commandHistory()->addCommand( cmd );
-	cmd->execute();
 	update();
     } else {
 	showLineEdit();
@@ -590,11 +599,13 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
     if ( e->state() & Qt::LeftButton ) {
 	if ( ( e->pos() - mousePressPos ).manhattanLength() > 3 ) {
 	    draggedItem = item( findItem( mousePressPos ) );
-	    if ( draggedItem == &addItem || draggedItem == &addSeparator ) {
-		draggedItem = 0;
-		// FIXME: create new item here
-		return;
-	    }	    
+	    if ( draggedItem == &addItem ) {
+		draggedItem = createItem();		
+	    } else if ( draggedItem == &addSeparator ) {
+		draggedItem = createItem();		
+		draggedItem->setSeparator( TRUE );
+		draggedItem->setMenuText( "separator" );
+	    }
 	    MenuBarEditorItemPtrDrag * d =
 		new MenuBarEditorItemPtrDrag( draggedItem, this );
 	    hideItem();
@@ -611,13 +622,13 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
 		hideItem();
 		draggedItem->setVisible( TRUE );
 		draggedItem = 0;
-		showItem();		
+		showItem();
 	    } else { // item was dropped
 		hideItem();
-		//FIXME: move to centralized node management
 		itemList.takeNode( node )->setVisible( TRUE );		
 		showItem();
 	    }
+	    update();
 	}
     }
 }
@@ -730,14 +741,8 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 	case Qt::Key_Return:
 	case Qt::Key_F2:
 	    if ( currentIndex > itemList.count() ) {
-		MenuBarEditorItem * i =
-		    new MenuBarEditorItem( new PopupMenuEditor( formWnd,
-								( QWidget * ) parent() ),
-					   this );
+		MenuBarEditorItem * i = createItem();
 		i->setSeparator( TRUE );
-		AddMenuCommand * cmd = new AddMenuCommand( "Add Menu", formWnd, this, i );
-		formWnd->commandHistory()->addCommand( cmd );
-		cmd->execute();
 	    } else {
 		showLineEdit();
 	    }
@@ -793,22 +798,14 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 	{
 	    MenuBarEditorItem * i = 0;
 	    if ( currentIndex >= itemList.count() ) {
-		i = new MenuBarEditorItem( new PopupMenuEditor( formWnd,
-								( QWidget * ) parent() ),
-					   this );
-		AddMenuCommand * cmd = new AddMenuCommand( "Add Menu", formWnd, this, i );
-		formWnd->commandHistory()->addCommand( cmd );
-		cmd->execute();
+		i = createItem();
 		// do not put rename on cmd stack
 		RenameMenuCommand rename( "Rename Menu", formWnd, this, lineEdit->text(), i );
 		rename.execute();
 	    } else {
 		i = itemList.at( currentIndex );
-		RenameMenuCommand * cmd = new RenameMenuCommand( "Rename Menu",
-								 formWnd,
-								 this,
-								 lineEdit->text(),
-								 i );
+		RenameMenuCommand * cmd =
+		    new RenameMenuCommand( "Rename Menu", formWnd, this, lineEdit->text(), i );
 		formWnd->commandHistory()->addCommand( cmd );
 		cmd->execute();
 	    }
