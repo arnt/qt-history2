@@ -217,8 +217,8 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     \c{$HOME/.qt/myapplicationrc} (assuming that the application is
     being run by an ordinary user, i.e. not by root).
 
-    For cross-platform applications you should ensure that the Windows
-    size limitations are not exceeded.
+    For cross-platform applications you should ensure that the
+    \link #sizelimit Windows size limitations \endlink are not exceeded.
 */
 
 /*!
@@ -1721,11 +1721,11 @@ QStringList QSettings::subkeyList(const QString &key) const
 
   This function returns the time of last modification for \a key.
 */
-QDateTime QSettings::lastModficationTime(const QString &key)
+QDateTime QSettings::lastModificationTime( const QString &key )
 {
     if ( !verifyKey( key ) ) {
 #if defined(QT_CHECK_STATE)
-	qWarning( "QSettings::lastModficationTime: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
+	qWarning( "QSettings::lastModificationTime: Invalid key '%s'", key.isNull() ? "(null)" : key.latin1() );
 #endif
 	return QDateTime();
     }
@@ -1743,7 +1743,7 @@ QDateTime QSettings::lastModficationTime(const QString &key)
 
 	if (list.count() < 2) {
 #ifdef QT_CHECK_STATE
-	    qWarning("QSettings::lastModficationTime: invalid key '%s'", theKey.latin1());
+	    qWarning("QSettings::lastModificationTime: Invalid key '%s'", theKey.latin1());
 #endif // QT_CHECK_STATE
 
 	    return QDateTime();

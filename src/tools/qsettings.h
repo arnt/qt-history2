@@ -145,8 +145,7 @@ private:
     QSettings &operator=(const QSettings &);
 #endif
 
-    // ### Tabcompletion was here...
-    QDateTime lastModficationTime( const QString & );
+    QDateTime lastModificationTime( const QString & );
     bool sync();
 
     friend class QApplication;
