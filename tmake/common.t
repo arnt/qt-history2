@@ -24,7 +24,7 @@ SYSCONF_LFLAGS		= #$ Expand('TMAKE_LFLAGS');
 SYSCONF_LIBS		= #$ Expand('TMAKE_LIBS');
 
 # Link flags shared objects
-SYSCONF_LFLAGS_SHOBJ	= $(TMAKE_LFLAGS_SHLIB)
+SYSCONF_LFLAGS_SHOBJ	= #$ Expand('TMAKE_LFLAGS_SHLIB');
 
 # Meta-object compiler
 SYSCONF_MOC		= #$ Expand('TMAKE_MOC');
