@@ -192,7 +192,7 @@ void FtpWindow::cdToParent()
     QApplication::setOverrideCursor(Qt::WaitCursor);
     fileList->clear();
     isDirectory.clear();
-    currentPath = currentPath.left(currentPath.lastIndexOf('/'));
+    currentPath = currentPath.left(currentPath.lastIndexOf('/') + 1);
     ftp->cd(currentPath);
     ftp->list();
 
