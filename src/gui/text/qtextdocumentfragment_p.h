@@ -35,6 +35,27 @@
 #include <qvarlengtharray.h>
 #include <qdatastream.h>
 
+class QTextDocumentFragmentPrivate;
+
+class QTextImportHelper
+{
+public:
+    QTextImportHelper(QTextDocumentFragmentPrivate *docFragment, QTextDocumentPrivate *priv);
+
+    void appendFragments(int pos, int endPos);
+    int appendFragment(int pos, int endPos, int objectIndex = -1);
+private:
+    int convertFormatIndex(const QTextFormat &oldFormat, int objectIndexToSet = -1);
+    inline int convertFormatIndex(int oldFormatIndex, int objectIndexToSet = -1)
+    { return convertFormatIndex(priv->formatCollection()->format(oldFormatIndex), objectIndexToSet); }
+
+    QTextDocumentFragmentPrivate *docFragment;
+    QTextDocumentPrivate *priv;
+    QTextFormatCollection &formatCollection;
+    const QString originalText;
+    QMap<int, int> objectIndexMap;
+};
+
 class QTextDocumentFragmentPrivate
 {
 public:
@@ -45,8 +66,6 @@ public:
 
     void insert(QTextCursor &cursor) const;
 
-    void appendFragments(QTextDocumentPrivate *priv, int pos, int endPos);
-    int appendFragment(QTextDocumentPrivate *priv, int pos, int endPos, int objectIndex = -1);
     void appendText(const QString &text, int formatIdx, int blockIdx = -2);
 
     QMap<int, int> fillFormatCollection(QTextFormatCollection *collection) const;
