@@ -68,7 +68,8 @@ int main(int argc, char **argv)
     if(!Option::parseCommandLine(argc, argv))
 	return 666;
 
-    QString oldpwd = QDir::current().currentDirPath();
+    QDir sunworkshop42workaround = QDir::current();
+    QString oldpwd = sunworkshop42workaround.currentDirPath();
     QMakeProject proj;
     int exit_val = 0;
     if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE) {
