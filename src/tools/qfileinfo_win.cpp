@@ -66,7 +66,10 @@ static PtrBuildTrusteeWithSidA ptrBuildTrusteeWithSidA = 0;
 typedef DWORD (WINAPI *PtrGetEffectiveRightsFromAclW)(PACL, PTRUSTEE_W, OUT PACCESS_MASK);
 static PtrGetEffectiveRightsFromAclW ptrGetEffectiveRightsFromAclW = 0; 
 typedef DWORD (WINAPI *PtrGetEffectiveRightsFromAclA)(PACL, PTRUSTEE_A, OUT PACCESS_MASK);
-static PtrGetEffectiveRightsFromAclA ptrGetEffectiveRightsFromAclA = 0; 
+static PtrGetEffectiveRightsFromAclA ptrGetEffectiveRightsFromAclA = 0;
+typedef DECLSPEC_IMPORT PVOID (WINAPI *PtrFreeSid)(PSID);
+static PtrFreeSid ptrFreeSid = 0;
+
 
 static void resolveLibs()
 {
@@ -86,6 +89,7 @@ static void resolveLibs()
 	    ptrBuildTrusteeWithSidA = (PtrBuildTrusteeWithSidA) lib.resolve( "BuildTrusteeWithSidA" );
 	    ptrGetEffectiveRightsFromAclW = (PtrGetEffectiveRightsFromAclW) lib.resolve( "GetEffectiveRightsFromAclW" );
 	    ptrGetEffectiveRightsFromAclA = (PtrGetEffectiveRightsFromAclA) lib.resolve( "GetEffectiveRightsFromAclA" );
+	    ptrFreeSid = (PtrFreeSid) lib.resolve( "FreeSid" );
 	}
     }
 }
@@ -357,7 +361,7 @@ bool QFileInfo::permission( int p ) const
 #if defined(UNICODE)
         TRUSTEE_W trustee;
 	PTRUSTEE_W pTrustee = &trustee;
-	if ( ptrGetNamedSecurityInfoW && ptrAllocateAndInitializeSid && ptrBuildTrusteeWithSidW && ptrGetEffectiveRightsFromAclW ) {
+	if ( ptrGetNamedSecurityInfoW && ptrAllocateAndInitializeSid && ptrBuildTrusteeWithSidW && ptrGetEffectiveRightsFromAclW && ptrFreeSid ) {
 	    if ( ptrGetNamedSecurityInfoW( (TCHAR*)qt_winTchar( fn, TRUE ), SE_FILE_OBJECT, 
 			OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
 			&pOwner, &pGroup, &pDacl, NULL, &pSD ) == ERROR_SUCCESS ) {
@@ -396,7 +400,7 @@ bool QFileInfo::permission( int p ) const
 			     ( p & ExeOther ) && !( *pAccess & ExecMask )      )
 			    result = FALSE;
 		    }
-		    FreeSid( pWorld );
+		    ptrFreeSid( pWorld );
 		}
 		LocalFree( pSD );
 	    } // if ( ptrGetNamedSecurityInfoW(..) == ERROR_SUCCESS )
@@ -404,7 +408,7 @@ bool QFileInfo::permission( int p ) const
 #else
         TRUSTEE_A trustee;
 	PTRUSTEE_A pTrustee = &trustee;
-	if ( ptrGetNamedSecurityInfoA && ptrAllocateAndInitializeSid && ptrBuildTrusteeWithSidA && ptrGetEffectiveRightsFromAclA ) {
+	if ( ptrGetNamedSecurityInfoA && ptrAllocateAndInitializeSid && ptrBuildTrusteeWithSidA && ptrGetEffectiveRightsFromAclA && ptrFreeSid ) {
 	    if ( ptrGetNamedSecurityInfoA( (LPSTR)(const char*)fn.local8Bit(), SE_FILE_OBJECT, 
 			OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
 			&pOwner, &pGroup, &pDacl, NULL, &pSD ) == ERROR_SUCCESS ) {
@@ -443,7 +447,7 @@ bool QFileInfo::permission( int p ) const
 			     ( p & ExeOther ) && !( *pAccess & ExecMask )      )
 			    result = FALSE;
 		    }
-		    FreeSid( pWorld );
+		    ptrFreeSid( pWorld );
 		}
 		LocalFree( pSD );
 	    } // if ( ptrGetNamedSecurityInfoA(..) == ERROR_SUCCESS )
