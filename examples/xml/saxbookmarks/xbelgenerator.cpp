@@ -48,7 +48,7 @@ QString XbelGenerator::escapedAttribute(const QString &str)
 
 void XbelGenerator::generateItem(QTreeWidgetItem *item, int depth)
 {
-    QString tagName = item->data(0, QAbstractItemModel::UserRole).toString();
+    QString tagName = item->data(0, Qt::UserRole).toString();
     if (tagName == "folder") {
         bool folded = !treeWidget->isItemExpanded(item);
         out << indent(depth) << "<folder folded=\"" << (folded ? "yes" : "no")

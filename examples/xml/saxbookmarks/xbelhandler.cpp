@@ -36,20 +36,20 @@ bool XbelHandler::startElement(const QString & /* namespaceURI */,
         metXbelTag = true;
     } else if (qName == "folder") {
         item = createChildItem(qName);
-        item->setFlags(item->flags() | QAbstractItemModel::ItemIsEditable);
+        item->setFlags(item->flags() | Qt::ItemIsEditable);
         item->setIcon(0, folderIcon);
         item->setText(0, QObject::tr("Folder"));
         bool folded = (attributes.value("folded") != "no");
         treeWidget->setItemExpanded(item, !folded);
     } else if (qName == "bookmark") {
         item = createChildItem(qName);
-        item->setFlags(item->flags() | QAbstractItemModel::ItemIsEditable);
+        item->setFlags(item->flags() | Qt::ItemIsEditable);
         item->setIcon(0, bookmarkIcon);
         item->setText(0, QObject::tr("Unknown title"));
         item->setText(1, attributes.value("href"));
     } else if (qName == "separator") {
         item = createChildItem(qName);
-        item->setFlags(item->flags() & ~QAbstractItemModel::ItemIsSelectable);
+        item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
         item->setText(0, QString(30, 0xB7));
     }
 
@@ -101,6 +101,6 @@ QTreeWidgetItem *XbelHandler::createChildItem(const QString &tagName)
     } else {
         childItem = new QTreeWidgetItem(treeWidget);
     }
-    childItem->setData(0, QAbstractItemModel::UserRole, tagName);
+    childItem->setData(0, Qt::UserRole, tagName);
     return childItem;
 }

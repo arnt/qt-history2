@@ -95,7 +95,7 @@ void XbelTree::parseFolderElement(const QDomElement &element,
     if (title.isEmpty())
         title = QObject::tr("Folder");
 
-    item->setFlags(item->flags() | QAbstractItemModel::ItemIsEditable);
+    item->setFlags(item->flags() | Qt::ItemIsEditable);
     item->setIcon(0, folderIcon);
     item->setText(0, title);
 
@@ -113,15 +113,13 @@ void XbelTree::parseFolderElement(const QDomElement &element,
             if (title.isEmpty())
                 title = QObject::tr("Folder");
 
-            childItem->setFlags(item->flags()
-                                | QAbstractItemModel::ItemIsEditable);
+            childItem->setFlags(item->flags() | Qt::ItemIsEditable);
             childItem->setIcon(0, bookmarkIcon);
             childItem->setText(0, title);
             childItem->setText(1, child.attribute("href"));
         } else if (child.tagName() == "separator") {
             QTreeWidgetItem *childItem = createItem(child, item);
-            childItem->setFlags(item->flags()
-                                & ~QAbstractItemModel::ItemIsSelectable);
+            childItem->setFlags(item->flags() & ~Qt::ItemIsSelectable);
             childItem->setText(0, QString(30, 0xB7));
         }
         child = child.nextSiblingElement();
