@@ -296,6 +296,7 @@ void QHash<Key, T>::free(QHashData *x)
 	}
     }
     delete [] x->buckets;
+    delete x;
 }
 
 template <class Key, class T>
