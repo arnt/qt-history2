@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#192 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#193 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -281,15 +281,19 @@ void QPainter::setf( uint b, bool v )
 
 /*!
   \fn bool QPainter::isActive() const
-  Returns the TRUE if the painter is active painting, i.e. begin() has
+
+  Returns TRUE if the painter is active painting, i.e. begin() has
   been called and end() has not yet been called.
+
   \sa QPaintDevice::paintingActive()
 */
 
 /*!
   \fn QPaintDevice *QPainter::device() const
-  Returns the paint device currently active for this painter, or null if
-  begin() has not been called.
+
+  Returns the paint device on which this painter is currently
+  painting, or null if the painter is not active.
+
   \sa QPaintDevice::paintingActive()
 */
 
@@ -322,6 +326,7 @@ typedef QStack<QPState> QPStateStack;
 void QPainter::killPStack()
 {
     delete (QPStateStack *)ps_stack;
+    ps_stack = 0;
 }
 
 /*!
@@ -350,7 +355,7 @@ void QPainter::save()
 	pss->setAutoDelete( TRUE );
 	ps_stack = pss;
     }
-    register QPState *ps = new QPState;
+    QPState *ps = new QPState;
     CHECK_PTR( ps );
     ps->font  = cfont;
     ps->pen   = cpen;
@@ -393,7 +398,7 @@ void QPainter::restore()
 #endif
 	return;
     }
-    register QPState *ps = pss->pop();
+    QPState *ps = pss->pop();
     bool hardRestore = testf(VolatileDC);
 
     if ( ps->font != cfont || hardRestore )
@@ -489,7 +494,7 @@ void QPainter::setPen( PenStyle style )
     if ( !isActive() )
 	qWarning( "QPainter::setPen: Will be reset by begin()" );
 #endif
-    register QPen::QPenData *d = cpen.data;	// low level access
+    QPen::QPenData *d = cpen.data;	// low level access
     if ( d->count != 1 ) {
 	cpen.detach();
 	d = cpen.data;
@@ -512,7 +517,7 @@ void QPainter::setPen( const QColor &color )
     if ( !isActive() )
 	qWarning( "QPainter::setPen: Will be reset by begin()" );
 #endif
-    register QPen::QPenData *d = cpen.data;	// low level access
+    QPen::QPenData *d = cpen.data;	// low level access
     if ( d->count != 1 ) {
 	cpen.detach();
 	d = cpen.data;
@@ -558,7 +563,7 @@ void QPainter::setBrush( BrushStyle style )
     if ( !isActive() )
 	qWarning( "QPainter::setBrush: Will be reset by begin()" );
 #endif
-    register QBrush::QBrushData *d = cbrush.data; // low level access
+    QBrush::QBrushData *d = cbrush.data; // low level access
     if ( d->count != 1 ) {
 	cbrush.detach();
 	d = cbrush.data;
@@ -584,7 +589,7 @@ void QPainter::setBrush( const QColor &color )
     if ( !isActive() )
 	qWarning( "QPainter::setBrush: Will be reset by begin()" );
 #endif
-    register QBrush::QBrushData *d = cbrush.data; // low level access
+    QBrush::QBrushData *d = cbrush.data; // low level access
     if ( d->count != 1 ) {
 	cbrush.detach();
 	d = cbrush.data;
@@ -2028,7 +2033,6 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     bool fakeBreak = FALSE;
     bool breakwithinwords = FALSE;
     while ( k <= len ) {				// convert string to codes
-
 	if ( !fakeBreak && k < len && ISPRINT(*p) ) {			// printable character
 	    if ( *p == '&' && showprefix ) {
 		cc = '&';			// assume ampersand
@@ -2226,8 +2230,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 
     if ( hAlignFlags > 1 )
 	qWarning("QPainter::drawText: More than one of AlignRight, AlignLeft\n"
-		"                    and AlignHCenter set in the tf parameter."
-		);
+		 "\t\t    and AlignHCenter set in the tf parameter.");
 
     int vAlignFlags = 0;
     if ( (tf & Qt::AlignTop) == Qt::AlignTop )
@@ -2239,15 +2242,14 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 
     if ( hAlignFlags > 1 )
 	qWarning("QPainter::drawText: More than one of AlignTop, AlignBottom\n"
-		"                    and AlignVCenter set in the tf parameter."
-		);
+		 "\t\t    and AlignVCenter set in the tf parameter.");
 #endif // CHECK_RANGE
 
     QRect br( x+xp, y+yp, maxwidth, nlines*fheight );
     if ( brect )				// set bounding rect
 	*brect = br;
 
-    if ( !painter || (tf & Qt::DontPrint) != 0 ) {	// can't/don't print any text
+    if ( !painter || (tf & Qt::DontPrint) != 0 ) {// can't/don't print any text
 	if ( code_alloc )
 	    free( codes );
 	return;
@@ -2287,7 +2289,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 
     yp += fascent;
 
-    register uint *cp = codes;
+    uint *cp = codes;
 
     while ( *cp ) {				// finally, draw the text
 	tw = *cp++ & WIDTHBITS;			// text width
