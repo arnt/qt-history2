@@ -5365,8 +5365,9 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
     the lowest numbered occurrence of \c %1, \c %2, ..., \c %9.
 
     The \a fieldWidth value specifies the minimum amount of space that
-    \a a is padded to. A positive value will produce right-aligned
-    text, whereas a negative value will produce left-aligned text.
+    \a a is padded to and filled with the character \a fillChar. A
+    positive value will produce right-aligned text, whereas a negative
+    value will produce left-aligned text.
 
     The following example shows how we could create a 'status' string
     when processing a list of files:
@@ -5430,7 +5431,7 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     a3).arg(\a a4), except that the strings are replaced in one pass.
 */
 
-/*! \fn QString QString::arg(int a, int fieldWidth, int base) const
+/*! \fn QString QString::arg(int a, int fieldWidth, int base, const QChar &fillChar) const
 
     \overload
 
@@ -5438,9 +5439,9 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     be between 2 and 36.
 
     The \a fieldWidth value specifies the minimum amount of space that
-    \a a is padded to. A positive value will produce a right-aligned
-    number, whereas a negative value will produce a left-aligned
-    number.
+    \a a is padded to and filled with the character \a fillChar. A
+    positive value will produce a right-aligned number, whereas a
+    negative value will produce a left-aligned number.
 
     The '%' can be followed by an 'L', in which case the sequence is
     replaced with a localized representation of \a a. The conversion uses
@@ -5463,7 +5464,7 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     \endcode
 */
 
-/*! \fn QString QString::arg(uint a, int fieldWidth, int base) const
+/*! \fn QString QString::arg(uint a, int fieldWidth, int base, const QChar &fillChar) const
 
     \overload
 
@@ -5472,14 +5473,14 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     decimal, and 16 hexadecimal numbers.
 */
 
-/*! \fn QString QString::arg(long a, int fieldWidth, int base) const
+/*! \fn QString QString::arg(long a, int fieldWidth, int base, const QChar &fillChar) const
 
     \overload
 
     The \a fieldWidth value specifies the minimum amount of space that
-    \a a is padded to. A positive value will produce a right-aligned
-    number, whereas a negative value will produce a left-aligned
-    number.
+    \a a is padded to and filled with the character \a fillChar. A
+    positive value will produce a right-aligned number, whereas a
+    negative value will produce a left-aligned number.
 
     \a a is expressed in base \a base, which is 10 by default and must
     be between 2 and 36.
@@ -5506,7 +5507,7 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     \endcode
 */
 
-/*! \fn QString QString::arg(ulong a, int fieldWidth, int base) const
+/*! \fn QString QString::arg(ulong a, int fieldWidth, int base, const QChar &fillChar) const
 
     \overload
 
@@ -5576,7 +5577,7 @@ QString QString::arg(Q_ULONGLONG a, int fieldWidth, int base, const QChar &fillC
 }
 
 /*!
-    \fn QString QString::arg(short a, int fieldWidth, int base) const
+    \fn QString QString::arg(short a, int fieldWidth, int base, const QChar &fillChar) const
 
     \overload
 
@@ -5586,7 +5587,7 @@ QString QString::arg(Q_ULONGLONG a, int fieldWidth, int base, const QChar &fillC
 */
 
 /*!
-    \fn QString QString::arg(ushort a, int fieldWidth, int base) const
+    \fn QString QString::arg(ushort a, int fieldWidth, int base, const QChar &fillChar) const
 
     \overload
 
@@ -5686,7 +5687,7 @@ QString QString::arg(double a, int fieldWidth, char fmt, int prec, const QChar &
                 break;
             default:
 #if defined(QT_CHECK_RANGE)
-                qWarning("QString::setNum: Invalid format char '%c'", fmt);
+                qWarning("QString::arg: Invalid format char '%c'", fmt);
 #endif
                 break;
         }
