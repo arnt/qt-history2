@@ -1,6 +1,23 @@
 #include <qwidgetplugin.h>
+#include <qlistbox.h>
+#include <qapplication.h>
 
 #include "qactivex.h"
+#include "qactivexselect.h"
+
+class QActiveXSelector : public QActiveXSelect
+{
+public:
+    QActiveXSelector( QWidget *parent )
+	: QActiveXSelect( parent, 0, TRUE )
+    {
+    }
+
+    QString controlName() const
+    {
+	return control;
+    }
+};
 
 /* XPM */
 static const char *icon[]={
@@ -55,8 +72,16 @@ QWidget* QActiveXPlugin::create( const QString &key, QWidget* parent, const char
 {
     QWidget* w = 0;
 
-    if ( key == "QActiveX" )
+    if ( key == "QActiveX" ) {
 	w = new QActiveX( parent, name );
+	if ( parent && parent->topLevelWidget()->inherits( "MainWindow" ) && qApp->isA( "DesignerApplication") ) {
+	    QActiveXSelector dialog( parent->topLevelWidget() );
+	    if ( dialog.exec() ) {
+		((QActiveX*)w)->setControl( dialog.controlName() );
+	    }
+	}
+    }
+
     return w;
 }
 

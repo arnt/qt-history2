@@ -792,9 +792,19 @@ private:
 
 /*!
     \class QActiveX qactivex.h
-    \brief The QActiveX class provides a QWidget that wraps an ActiveX control.
+    \brief The QActiveX class is a QWidget that wraps an ActiveX control.
 
     \extension QActiveX
+
+    A QActiveX can be instantiated as an empty object or with the name of the ActiveX control
+    it should wrap.The properties, methods and events of the ActiveX control become available as Qt properties, 
+    slots and signals. The baseclass QComBase provides also an API to access the ActiveX directly 
+    through the IUnknown pointer.
+
+    QActiveX is a QWidget and can be used as such, e.g. it can be organized in a widget hierarchy, receive events 
+    or act as an event filter. Standard widget properties, e.g. \link QWidget::enabled \endlink enabled are supported,
+    but it depends on the ActiveX control to implement support for ambient properties like e.g. palette or font. 
+    QActiveX tries to provide the necessary hints.
 */
 
 /*!
@@ -837,6 +847,11 @@ bool QActiveX::initialize( IUnknown **ptr )
 
     CAxWindow axWindow = winId();
     *ptr = 0;
+/*    
+    CoCreateInstance( QUuid(control()), NULL, CLSCTX_INPROC_SERVER|
+		CLSCTX_INPROC_HANDLER|CLSCTX_LOCAL_SERVER, IID_IUnknown, (void**)ptr );
+    ###clientside etc...
+*/
     axWindow.CreateControlEx( (unsigned short*)qt_winTchar( control(), TRUE ), 0, 0, ptr );
     if ( !*ptr ) {
 	_Module.Term();
@@ -844,12 +859,24 @@ bool QActiveX::initialize( IUnknown **ptr )
 	return FALSE;
     }
 
+    // remove old clientsite
     if ( clientsite ) {
 	clientsite->disconnect();
 	clientsite->Release();
+	clientsite = 0;
     }
-    clientsite = new QClientSite( this );
-    clientsite->AddRef();
+
+    // test if we have to set the client site (CreateControlEx does that, usually)
+    CComPtr<IOleObject> ole;
+    (*ptr)->QueryInterface( IID_IOleObject, (void**)&ole );
+    if ( ole ) {
+	DWORD miscStatus;
+	ole->GetMiscStatus( DVASPECT_CONTENT, &miscStatus );
+	if( !(miscStatus & OLEMISC_SETCLIENTSITEFIRST) ) {
+	    clientsite = new QClientSite( this );
+	    clientsite->AddRef();
+	}
+    }
 
     if ( !hhook )
 	hhook = SetWindowsHookEx( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );

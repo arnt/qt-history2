@@ -11,7 +11,7 @@
 
 void MainWindow::go()
 {
-    WebBrowser->dynamicCall( "Navigate", addressEdit->text() );
+    WebBrowser->dynamicCall( "Navigate(const QString&)", addressEdit->text() );
 }
 
 void MainWindow::newWindow()
@@ -47,7 +47,7 @@ void MainWindow::init()
 
     connect( WebBrowser, SIGNAL(ProgressChange(int,int)), this, SLOT(setProgress(int,int)) );
     
-    WebBrowser->dynamicCall( "GoHome" );
+    WebBrowser->dynamicCall( "GoHome()" );
 }
 
 void MainWindow::setTitle( const QString &title )

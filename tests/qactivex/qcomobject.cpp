@@ -10,15 +10,16 @@
 #include <qdatetime.h>
 #include <private/qcom_p.h>
 #include <qsettings.h>
+#include <ctype.h>
 
 #include <atlbase.h>
 CComModule _Module;
 
 static QMetaObject *tempMetaObj = 0;
 
-#define PropDesignable	1001
-#define PropScriptable	1002
-#define PropStored	1004
+#define PropDesignable	1000
+#define PropScriptable	2000
+#define PropStored	4000
 
 /*! 
     Helper functions 
@@ -653,9 +654,12 @@ public:
     void addConnection( IConnectionPoint *cpoint, IID iid ) 
     {	
 	ULONG cookie;
+	Connection i1( 0, iid, 0 );
+	connections.append( i1 );
 	cpoint->Advise( (IUnknown*)(IDispatch*)this, &cookie );
-	Connection i( cpoint, iid, cookie );
-	connections.append( i ); 
+	connections.remove( i1 );
+	Connection i2( cpoint, iid, cookie );
+	connections.append( i2 );
 	cpoint->AddRef();
     }
     
@@ -893,10 +897,33 @@ private:
 /*!
     \class QComBase qcomobject.h
 
-    \brief The QComBase class is an abstract class that provides properties 
-	   and slots to initalize and access a COM object.
+    \brief The QComBase class is an abstract class that provides an API to initalize and access a COM object.
 
     \extension QActiveX
+
+    QComBase is an abstract class that cannot be used directly, and is instantiated through the subclasses 
+    QComObject and QActiveX. This class however provides the API to access the COM object directly through 
+    its IUnknown implementation. If the COM object implements the IDispatch interface, the properties, 
+    methods and events of that object become available as Qt properties, slots and signals.
+
+    The pointer to the IUnknown interface is provided by the iface() function. Other interfaces implemented
+    by the COM object can be retrieved throught that pointer, as well as using queryInterface().
+
+    Properties exposed by the object's IDispatch implementation can be read and written through the property
+    system provided by the Qt Object Model (both subclasses are QObjects, so you can use 
+    \link QObject::setProperty \endlink setProperty and \link QObject::property \endlink property as with
+    QObject).
+
+    Write-functions for properties and other methods exposed by the object's IDispatch implementation can be 
+    called directly using dynamicCall(), or indirectly as slots connected to a signal.
+
+    Outgoing events supported by the COM object are emitted as standard Qt signals.
+
+    QComBase transparently converts between Qt data type and the equivalent COM data types. Some COM types,
+    for example the VARIANT type VT_CY, has no equivalent Qt data structure. Therefore, QComBase provides 
+    a generic signal that delivers the event data as delivered by the COM object. If you need to access 
+    properties of unsupported datatypes you have to access the COM object directly through its IDispatch or 
+    other interfaces implemented.
 */
 
 /*!
@@ -921,7 +948,10 @@ QComBase::~QComBase()
 }
 
 /*!
-    Sets the control to \a c and initilializes the COM object. Any existing COM object is shut down before.
+    \property QComBase::control
+    \brief the name of the COM object wrapped by this QComBase object.
+
+    Setting this property initilializes the COM object. Any COM object previously set is shut down.
 
     The most efficient way to set this property is by using the UUID of the registered component, e.g.
     \code
@@ -935,13 +965,13 @@ QComBase::~QComBase()
     \code
     ctrl->setControl( "Calendar Control 9.0" );
     \endcode
-
-    The read function of the control will always return the UUID of the control, no matter how you set the property.
+    
+    The read function of the control always returns the UUID of the control.
 */
-void QComBase::setControl( const QString &c )
+bool QComBase::setControl( const QString &c )
 {
     if ( c == ctrl )
-	return;
+	return !ctrl.isEmpty();
 
     clear();
     ctrl = c;
@@ -966,15 +996,16 @@ void QComBase::setControl( const QString &c )
     }
     if ( !!ctrl )
 	initialize( &ptr );
+    if ( isNull() ) {
 #ifndef QT_NO_DEBUG
-    if ( isNull() )
 	qWarning( "QComBase::setControl: requested control %s could not be instantiated.", c.latin1() );
 #endif
+	clear();
+	return FALSE;
+    }
+    return TRUE;
 }
 
-/*!
-    Returns the UUID of the current component.
-*/
 QString QComBase::control() const
 {
     return ctrl;
@@ -1003,7 +1034,7 @@ void QComBase::clear()
 	CoUninitialize();
     }
 
-    ctrl = QString(0);
+    ctrl = QString::null;
 
     if ( metaobj ) {
 	int i;
@@ -1611,6 +1642,7 @@ QMetaObject *QComBase::metaObject() const
 					uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
 					infolist.insert( QString("Events %1").arg(infolist.count()+1), new QString( uuidstr ) );
 					eventinfo = eventtype;
+					eventtype->ReleaseTypeAttr( eventattr );
 					break;
 				    }
 				    eventtype->ReleaseTypeAttr( eventattr );
@@ -2120,11 +2152,55 @@ bool QComBase::qt_property( int _id, int _f, QVariant* _v )
     return FALSE;
 }
 
+static inline bool isIdentChar( char x )
+{						// Avoid bug in isalnum
+    return x == '_' || (x >= '0' && x <= '9') ||
+	 (x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z');
+}
+
+static inline bool isSpace( char x )
+{
+#if defined(Q_CC_BOR)
+  /*
+    Borland C++ 4.5 has a weird isspace() bug.
+    isspace() usually works, but not here.
+    This implementation is sufficient for our internal use: rmWS()
+  */
+    return (uchar) x <= 32;
+#else
+    return isspace( (uchar) x );
+#endif
+}
+// this is copied from qobject.cpp
+static QCString qt_rmWS( const char *s )
+{
+    QCString result( qstrlen(s)+1 );
+    char *d = result.data();
+    char last = 0;
+    while( *s && isSpace(*s) )			// skip leading space
+	s++;
+    while ( *s ) {
+	while ( *s && !isSpace(*s) )
+	    last = *d++ = *s++;
+	while ( *s && isSpace(*s) )
+	    s++;
+	if ( *s && isIdentChar(*s) && isIdentChar(last) )
+	    last = *d++ = ' ';
+    }
+    result.truncate( (int)(d - result.data()) );
+    int void_pos = result.find("(void)");
+    if ( void_pos >= 0 )
+	result.remove( void_pos+1, (uint)strlen("void") );
+    return result;
+}
+
 /*!
-    Calls \a function and passes parameters \a var1 ... \a var8, and returns
-    the value, or an invalid variant if \a function does not return a value.
+    Calls the function \a id of the COM object passing the parameters \a var1 ... \a var8, 
+    and returns the value, or an invalid variant if the function does not return a value.
+
+    To get the ID of a function, use QMetaObject::findSlot( function, TRUE ).
 */
-QVariant QComBase::dynamicCall( const QCString &function, const QVariant &var1, 
+QVariant QComBase::dynamicCall( int id, const QVariant &var1, 
 							 const QVariant &var2, 
 							 const QVariant &var3, 
 							 const QVariant &var4, 
@@ -2147,23 +2223,11 @@ QVariant QComBase::dynamicCall( const QCString &function, const QVariant &var1,
     QVariant result;
 
     const QMetaData *slot_data = 0;
-    const QUMethod *slot = 0;
-    const QMetaObject *meta = metaObject();
-    int index = 0;
-    do {
-	slot_data = meta->slot( index, TRUE );
-	if ( slot_data ) {
-	    slot = slot_data->method;
-	    if ( !qstrcmp( slot->name, function ) )
-		break;
-	} else {
-	    slot = 0;
-	}
-	++index;
-    } while ( slot_data );
-
-    if ( slot ) {
-	qt_invoke( index, obj );
+    slot_data = metaObject()->slot( id, TRUE );
+    if ( slot_data ) {
+	const QUMethod *slot = 0;
+	slot = slot_data->method;
+	qt_invoke( id, obj );
 	if ( QUType::isEqual( obj->type, &static_QUType_int ) ) {
 	    result = static_QUType_int.get( obj );
 	} else if ( QUType::isEqual( obj->type, &static_QUType_QString ) ) {
@@ -2197,12 +2261,42 @@ QVariant QComBase::dynamicCall( const QCString &function, const QVariant &var1,
     }
 #if defined(QT_CHECK_RANGE)
     else {
-	const char *coclass = meta->classInfo( "CoClass" );
-	qWarning( "QActiveX::dynamicCall: %s: No such method in %s %s", (const char*)function, control().latin1(), 
+	const char *coclass = metaObject()->classInfo( "CoClass" );
+	qWarning( "QActiveX::dynamicCall: %d: No such method in %s %s", id, control().latin1(), 
 	    coclass ? coclass: "(unknown)" );
     }
 #endif
     return result;
+}
+
+/*!
+    \overload
+
+    Using this overload is more convenient, but slightly slower. For rapid calls to the
+    same function, get the function's ID using QMetaObject::findSlot( function, TRUE ) and
+    use the overload above.
+    \a function has to be provided as the full prototype, like e.g. in QObject::connect().
+*/
+QVariant QComBase::dynamicCall( const QCString &function, const QVariant &var1, 
+							 const QVariant &var2, 
+							 const QVariant &var3, 
+							 const QVariant &var4, 
+							 const QVariant &var5, 
+							 const QVariant &var6, 
+							 const QVariant &var7, 
+							 const QVariant &var8 )
+{
+    int index = metaObject()->findSlot( qt_rmWS(function), TRUE );
+    if ( index > -1 )
+	return dynamicCall( index, var1, var2, var3, var4, var5, var6, var7, var8 );
+#if defined(QT_CHECK_RANGE)
+    else {
+	const char *coclass = metaObject()->classInfo( "CoClass" );
+	qWarning( "QActiveX::dynamicCall: %s: No such method in %s %s", (const char*)function, control().latin1(), 
+	    coclass ? coclass: "(unknown)" );
+    }
+#endif
+    return QVariant();
 }
 
 /*!
@@ -2228,14 +2322,38 @@ QVariant QComBase::dynamicCall( const QCString &function, const QVariant &var1,
     Returns TRUE if there is no COM object loaded by this wrapper, otherwise return FALSE.
 */
 
+/*!
+    \fn void QComBase::signal( const QString &name, int argc, void *argv )
 
+    This generic signal gets emitted when the COM object issues the event \a name. \a argc
+    is the number of parameters provided by the event (DISPPARAMS.cArgs), and \a argv is 
+    the pointer to the parameter values (DISPPARAMS.rgvarg).
+    
+    Use this signal if the event has parameters of unsupported data types. Otherwise, connect
+    directly to the signal \a name.
+*/
 
+/*!
+    \fn void QComBase::propertyChanged( const QString &name )
+
+    If the COM object supports property notification, this signal gets emitted when the property
+    \a name is changed.
+*/
 
 /*!
     \class QComObject qcomobject.h
     \brief The QComObject class provides a QObject that wraps a COM object.
 
     \extension QActiveX
+
+    A QComObject can be instantiated as an empty object, with the name of the COM object
+    it should wrap, or with a pointer to the IUnknown that represents an existing COM object.
+    If the COM object implements the IDispatch interface, the properties, methods and events of
+    that object become available as Qt properties, slots and signals. The baseclass QComBase provides 
+    also an API to access the COM object directly through the IUnknown pointer.
+
+    QComObject is as well a QObject and can be used as such, e.g. it can be organized in an object
+    hierarchy and receive events.
 */
 
 /*!

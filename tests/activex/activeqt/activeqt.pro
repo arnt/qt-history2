@@ -1,6 +1,6 @@
 TEMPLATE = lib
 CONFIG += qt release warn_off
 SOURCES = activemain.cpp activeqt.cpp
-HEADERS = activemain.h activeiface.h activeqt.h
+HEADERS = activeiface.h activeqt.h
 TARGET = activeqt
 DESTDIR = $(QTDIR)\lib

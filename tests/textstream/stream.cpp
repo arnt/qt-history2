@@ -6,10 +6,13 @@
 #include <qapplication.h>
 #include <qdatastream.h>
 #include <qtextstream.h>
+#include <qtextcodec.h>
 
 #include <qmultilineedit.h>
 #include <qhbox.h>
 
+const char *str = "אנימנסהבימינו את KDE 3 BETA1, ויש לי בעיות עם זה, והייתי רוצה לשתף את";
+const char *str2 = "אנימנסהבימינו";
 
 main(int argc, char** argv)
 {
@@ -19,6 +22,9 @@ main(int argc, char** argv)
 	if ( (A)!=(E) ) { err++; printf("TEST(%s,%s) failed at %d\n",#A,#E,__LINE__); }
 
 	QString a;
+	
+	QString nonlatin = QString::fromUtf8( str );
+	QString nonlatin2 = QString::fromUtf8( str2 );
     QByteArray ar;
     {
 	QDataStream out(ar,IO_WriteOnly);
@@ -37,6 +43,96 @@ main(int argc, char** argv)
 	QTextStream in(ar,IO_ReadOnly);
 	in >> a;
 	TEST(a,"This");
+    }
+    {
+	QTextStream out(ar,IO_WriteOnly);
+	out.setEncoding( QTextStream::UnicodeUTF8 );
+	out << QString("This is Test Text");
+    }
+    {
+	QTextStream in(ar,IO_ReadOnly);
+	in.setEncoding( QTextStream::UnicodeUTF8 );
+	in >> a;
+	TEST(a,"This");
+    }
+    {
+	QTextStream out(ar,IO_WriteOnly);
+	out.setEncoding( QTextStream::Unicode );
+	out << QString("This is Test Text");
+    }
+    {
+	QTextStream in(ar,IO_ReadOnly);
+	in.setEncoding( QTextStream::Unicode );
+	in >> a;
+	TEST(a,"This");
+    }
+    {
+	QTextStream out(ar,IO_WriteOnly);
+	out.setEncoding( QTextStream::UnicodeReverse );
+	out << QString("This is Test Text");
+    }
+    {
+	QTextStream in(ar,IO_ReadOnly);
+	in.setEncoding( QTextStream::UnicodeReverse );
+	in >> a;
+	TEST(a,"This");
+    }
+    {
+	QTextStream out(ar,IO_WriteOnly);
+	out.setCodec( QTextCodec::codecForName( "iso2022-jp" ) );
+	out << QString("This is Test Text");
+    }
+    {
+	QTextStream in(ar,IO_ReadOnly);
+	in.setCodec( QTextCodec::codecForName( "iso2022-jp" ) );
+	in >> a;
+	TEST(a,"This");
+    }
+
+    // try with non latin1 string:
+    {
+	QTextStream out(ar,IO_WriteOnly);
+	out.setEncoding( QTextStream::UnicodeUTF8 );
+	out << nonlatin;
+    }
+    {
+	QTextStream in(ar,IO_ReadOnly);
+	in.setEncoding( QTextStream::UnicodeUTF8 );
+	in >> a;
+	TEST(a,nonlatin2);
+    }
+    {
+	QTextStream out(ar,IO_WriteOnly);
+	out.setEncoding( QTextStream::Unicode );
+	out << nonlatin;
+    }
+    {
+	QTextStream in(ar,IO_ReadOnly);
+	in.setEncoding( QTextStream::Unicode );
+	in >> a;
+	TEST(a,nonlatin2);
+    }
+    {
+	QTextStream out(ar,IO_WriteOnly);
+	out.setEncoding( QTextStream::UnicodeReverse );
+	out << nonlatin;
+    }
+    {
+	QTextStream in(ar,IO_ReadOnly);
+	in.setEncoding( QTextStream::UnicodeReverse );
+	in >> a;
+	TEST(a,nonlatin2);
+    }
+    {
+	QTextStream out(ar,IO_WriteOnly);
+	out.setCodec( QTextCodec::codecForName( "iso8859-8-i" ) );
+	out << nonlatin;
+    }
+    {
+	QTextStream in(ar,IO_ReadOnly);
+	in.setCodec( QTextCodec::codecForName( "iso8859-8-i" ) );
+	in >> a;
+	TEST(a,nonlatin2);
     }
 
     {

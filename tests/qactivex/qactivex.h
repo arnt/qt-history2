@@ -19,7 +19,7 @@ public:
     QObject* qObject() { return (QObject*)this; }
 
     QActiveX( QWidget* parent = 0, const char* name = 0 );
-    QActiveX( const QString &c, QWidget *parent = 0, const char *name = 0 );
+    QActiveX( const QString &c, QWidget *parent = 0, const char *name = 0);
     ~QActiveX();
 
     void clear();

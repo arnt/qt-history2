@@ -16,6 +16,10 @@ struct QUuid;
 
 class QCOM_EXPORT QComBase
 {
+#ifdef Q_QDOC
+#error "The Symbol Q_QDOC is reserved for documentation purposes."
+    Q_PROPERTY( QString control READ control WRITE setControl )
+#endif
 public:
     QComBase( IUnknown *iface = 0 );
     virtual ~QComBase();
@@ -33,6 +37,14 @@ public:
 					   const QVariant &v6 = QVariant(),
 					   const QVariant &v7 = QVariant(),
 					   const QVariant &v8 = QVariant() );
+    QVariant dynamicCall( int ID, const QVariant &v1 = QVariant(), 
+					   const QVariant &v2 = QVariant(),
+					   const QVariant &v3 = QVariant(),
+					   const QVariant &v4 = QVariant(),
+					   const QVariant &v5 = QVariant(),
+					   const QVariant &v6 = QVariant(),
+					   const QVariant &v7 = QVariant(),
+					   const QVariant &v8 = QVariant() );
 
     virtual QMetaObject *metaObject() const;
     virtual bool qt_invoke( int, QUObject* );
@@ -42,9 +54,16 @@ public:
 
     bool isNull() const { return !ptr; }
 
+#ifdef Q_QDOC
+#error "The Symbol Q_QDOC is reserved for documentation purposes."
+signals:
+    void signal(const QString&,int,void*);
+    void propertyChanged(const QString&);
+#endif
+
 public:
     virtual void clear();
-    void setControl( const QString& );
+    bool setControl( const QString& );
 
 protected:
     QMetaObject *metaobj;

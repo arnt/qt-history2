@@ -76,8 +76,6 @@ public slots:
     void invoke()
     {
 	QString text = leSlot->text();
-	if ( text.right(2) == "()" )
-	    text.truncate( text.length()-2 );
 	activex->dynamicCall( (const char*)text );
 
 	leSlot->setSelection( 0, text.length() );

@@ -61,7 +61,7 @@ bool CExeModule::StartMonitor()
 }
 
 BEGIN_OBJECT_MAP(ObjectMap)
-OBJECT_ENTRY(CLSID_QActiveX, QActiveX )
+OBJECT_ENTRY(CLSID_QActiveX, QActiveQtBase )
 END_OBJECT_MAP()
 
 
@@ -96,22 +96,21 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance,
     QStringList cmds = QStringList::split( " ", cmdLine );
     int nRet = 0;
     bool bRun = TRUE;
-    bool bRunMain = FALSE;
+    bool bRunMain = TRUE;
     for ( QStringList::Iterator it = cmds.begin(); it != cmds.end(); ++it ) {
 	QString cmd = (*it).lower();
 	if ( cmd == "-unregserver" || cmd == "-uninstall" ) {
 	    const QString appID = QUuid( IID_ActiveQtApp ).toString().upper();
-	    nRet = QActiveX::UpdateRegistry( FALSE );
+	    nRet = QActiveQtBase::UpdateRegistry( FALSE );
             bRun = FALSE;
             break;
 	} else if ( cmd == "-regserver" || cmd == "-install" ) {
 	    const QString appID = QUuid( IID_ActiveQtApp ).toString().upper();
-	    nRet = QActiveX::UpdateRegistry( TRUE );
+	    nRet = QActiveQtBase::UpdateRegistry( TRUE );
             bRun = FALSE;
             break;
-	} else if ( cmd == "-run" ) {
-	    bRun = TRUE;
-	    bRunMain = TRUE;
+	} else if ( cmd == "-activex" ) {
+	    bRunMain = FALSE;
 	}
     }
 
@@ -126,31 +125,12 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance,
 	_Module.StartMonitor();
 	hRes = _Module.RegisterClassObjects(CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE);
 	_ASSERTE(SUCCEEDED(hRes));
-	QApplication app( argc, argv.data() );
-	QWidget *widget = 0;
 	if ( bRunMain ) {
-#if 0
-	    QUnknownInterface *unknown = ucm_instantiate();
-	    QInterfacePtr<QWidgetFactoryInterface> iface = 0;
-	    if ( unknown->queryInterface( IID_QWidgetFactory, (QUnknownInterface**)&iface ) == QS_OK ) {
-		QString key = iface->featureList()[0];
-		widget = iface->create( key );
-		QObject::connect( &app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()) );
-		widget->show();
-		iface->release();
-	    }
-	    unknown->release();
-#else
-	    widget = axmain(0);
-#endif
-	    Q_ASSERT(widget);
-	    QObject::connect( &app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()) );
-	    widget->show();
+	    nRet = main( argc, argv.data() );
+	} else {
+	    QApplication app( argc, argv.data() );
+	    nRet = app.exec();
 	}
-	nRet = app.exec();
-	delete widget;
-	widget = 0;
-
 	_Module.RevokeClassObjects();
 	Sleep(dwPause); //wait for any threads to finish
     }

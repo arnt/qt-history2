@@ -1,187 +1,37 @@
 #include "activeqt.h"
+#include "qactiveqt.h"
 
 #include <qsettings.h>
 #include <qapplication.h>
 #include <qmetaobject.h>
+#include <private/qwidgetinterface_p.h>
 #include <private/qucom_p.h>
 #include <private/qucomextra_p.h>
 #include <qintdict.h>
-
-#define PropDesignable	1001
-#define PropScriptable	1002
-#define PropStored	1004
+#include <qmap.h>
+#include <qvariant.h>
 
 static QIntDict<QMetaData>* slotlist = 0;
-static QIntDict<QMetaData>* signallist = 0;
+static QMap<int,DISPID>* signallist = 0;
 static QIntDict<QMetaProperty>* proplist = 0;
 
-static inline QString vartypeToQt( VARTYPE vt )
+extern "C" QUnknownInterface *ucm_instantiate();
+extern QActiveQt *axmain( QWidget *parent );
+
+/*
+  A number of helper functions that are actually copied from the client side implementation.
+*/
+
+BSTR QStringToBSTR( const QString &str )
 {
-    QString str;
-    switch ( vt ) {
-    case VT_EMPTY:
-	// str = "[Empty]";
-	break;
-    case VT_NULL:
-	// str = "[Null]";
-	break;
-    case VT_I2:
-    case VT_I4:
-	str = "int";
-	break;
-    case VT_R4:
-    case VT_R8:
-	str = "double";
-	break;
-    case VT_CY:
-	str = "long long"; // ### 64bit struct CY { ulong lo, long hi };
-	break;
-    case VT_DATE:
-	str = "QDateTime";
-	break;
-    case VT_BSTR:
-	str = "QString";
-	break;
-    case VT_DISPATCH:
-	str = "IDispatch*";
-	break;
-    case VT_ERROR:
-	str = "long";
-	break;
-    case VT_BOOL:
-	str = "bool";
-	break;
-    case VT_VARIANT:
-	str = "QVariant";
-	break;
-    case VT_DECIMAL:
-	// str = "[DECIMAL]";
-	break;
-    case VT_RECORD:
-	// str = "[Usertype]";
-	break;
-    case VT_UNKNOWN:
-	str = "IUnknown*";
-	break;
-    case VT_I1:
-	str = "char";
-	break;
-    case VT_UI1:
-	str = "unsigned char";
-	break;
-    case VT_UI2:
-	str = "unsigned short";
-	break;
-    case VT_UI4:
-	str = "unsigned int";
-	break;
-    case VT_INT:
-	str = "int";
-	break;
-    case VT_UINT:
-	str = "unsigned int";
-	break;
-    case VT_VOID:
-	str = "void";
-	break;
-    case VT_HRESULT:
-	str = "long";
-	break;
+    BSTR bstrVal;
 
-    case VT_PTR:
-	// str = "[Pointer]";
-	break;
-    case VT_SAFEARRAY:
-	// str = "VT_ARRAY";
-	break;
-    case VT_CARRAY:
-	// str = "[C array]";
-	break;
-    case VT_USERDEFINED:
-	str = "USERDEFINED";
-	break;
-    case VT_LPSTR:
-	str = "const char*";
-	break;
-    case VT_LPWSTR:
-	str = "const unsigned short*";
-	break;
+    int wlen = str.length();
+    bstrVal = SysAllocStringByteLen( 0, wlen*2 );
+    memcpy( bstrVal, str.unicode(), sizeof(QChar)*(wlen) );
+    bstrVal[wlen] = 0;
 
-    case VT_FILETIME:
-	// str = "[FILETIME]";
-	break;
-    case VT_BLOB:
-	// str = "[Blob]";
-	break;
-    case VT_STREAM:
-	// str = "[Stream]";
-	break;
-    case VT_STORAGE:
-	// str = "[Storage]";
-	break;
-    case VT_STREAMED_OBJECT:
-	// str = "[Streamed object]";
-	break;
-    case VT_STORED_OBJECT:
-	// str = "[Stored object]";
-	break;
-    case VT_BLOB_OBJECT:
-	// str = "[Blob object]";
-	break;
-    case VT_CF:
-	// str = "[Clipboard]";
-	break;
-    case VT_CLSID:
-	// str = "GUID";
-	break;
-    case VT_VECTOR:
-	// str = "[Vector]";
-	break;
-
-    case VT_ARRAY:
-	// str = "SAFEARRAY*";
-	break;
-    case VT_RESERVED:
-	// str = "[Reserved]";
-	break;
-
-    default:
-	// str = "[Unknown]";
-	break;
-    }
-
-    if ( vt & VT_BYREF )
-	str += "*";
-
-    return str;
-}
-
-static inline QString typedescToQString( TYPEDESC typedesc )
-{
-    QString ptype;
-
-    VARTYPE vt = typedesc.vt;
-    if ( vt == VT_PTR ) {
-	vt = typedesc.lptdesc->vt;
-	ptype = vartypeToQt( vt );
-	if ( !!ptype ) 
-	    ptype += "*";
-    } else if ( vt == VT_SAFEARRAY ) {
-	vt = typedesc.lpadesc->tdescElem.vt;
-	ptype = vartypeToQt( vt );
-	if ( !!ptype ) 
-	    ptype = ptype + "[" + QString::number( typedesc.lpadesc->cDims ) + "]";
-    } else {
-	ptype = vartypeToQt( vt );
-    }
-    if ( ptype.isEmpty() )
-	ptype = "UNSUPPORTED";
-    else if ( ptype == "USERDEFINED" ) // most USERDEFINED types are long or ints, or interfaces
-	ptype = "int";
-    else if ( ptype == "USERDEFINED*" )
-	ptype = "IUnknown*";
-	
-    return ptype;
+    return bstrVal;
 }
 
 QString BSTRToQString( BSTR bstr )
@@ -195,734 +45,681 @@ QString BSTRToQString( BSTR bstr )
     return str;
 }
 
-static inline QString constRefify( const QString& type )
+static int monthdays[13] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365};
+#define HALF_SECOND  (1.0/172800.0)
+
+#include <math.h>
+
+static inline QDateTime DATEToQDateTime( DATE ole )
 {
-    QString crtype;
+    int year, month, day, wday, yday;
+    int hour, min, sec;
 
-    if ( type == "QString" )
-	crtype = "const QString&";
-    else if ( type == "QDateTime" )
-	crtype = "const QDateTime&";
-    else if ( type == "QVariant" )
-	crtype = "const QVariant&";
-    else 
-	crtype = type;
-
-    return crtype;
-}
-
-static inline void QStringToQUType( const QString& type, QUParameter *param )
-{
-    param->typeExtra = 0;
-    if ( type == "int" || type == "long" ) {
-	param->type = &static_QUType_int;
-    } else if ( type == "bool" ) {
-	param->type = &static_QUType_bool;
-    } else if ( type == "QString" || type == "const QString&" ) {
-	param->type = &static_QUType_QString;
-    } else if ( type == "double" ) {
-	param->type = &static_QUType_double;
-    } else if ( type == "QVariant" || type == "const QVariant&" ) {
-	param->type = &static_QUType_QVariant;
-    } else if ( type == "IUnknown*" ) {
-	param->type = &static_QUType_iface;
-	param->typeExtra = "QUnknownInterface";
-    } else if ( type == "IDispatch*" ) {
-	param->type = &static_QUType_idisp;
-	param->typeExtra = "QDispatchInterface";
+    long nDays;             // Number of days since Dec. 30, 1899
+    long nDaysAbsolute;     // Number of days since 1/1/0
+    long nSecsInDay;        // Time in seconds since midnight
+    long nMinutesInDay;     // Minutes in day
+    
+    long n400Years;         // Number of 400 year increments since 1/1/0
+    long n400Century;       // Century within 400 year block (0,1,2 or 3)
+    long n4Years;           // Number of 4 year increments since 1/1/0
+    long n4Day;             // Day within 4 year block
+    //  (0 is 1/1/yr1, 1460 is 12/31/yr4)
+    long n4Yr;              // Year within 4 year block (0,1,2 or 3)
+    BOOL bLeap4 = TRUE;     // TRUE if 4 year block includes leap year
+    
+    double dblDate = ole; // tempory serial date
+    
+    // If a valid date, then this conversion should not overflow
+    nDays = (long)dblDate;
+    
+    // Round to the second
+    dblDate += ((ole > 0.0) ? HALF_SECOND : -HALF_SECOND);
+    
+    nDaysAbsolute = (long)dblDate + 693959L; // Add days from 1/1/0 to 12/30/1899
+    
+    dblDate = fabs(dblDate);
+    nSecsInDay = (long)((dblDate - floor(dblDate)) * 86400.);
+    
+    // Calculate the day of week (sun=1, mon=2...)
+    //   -1 because 1/1/0 is Sat.  +1 because we want 1-based
+    wday = (int)((nDaysAbsolute - 1) % 7L) + 1;
+    
+    // Leap years every 4 yrs except centuries not multiples of 400.
+    n400Years = (long)(nDaysAbsolute / 146097L);
+    
+    // Set nDaysAbsolute to day within 400-year block
+    nDaysAbsolute %= 146097L;
+    
+    // -1 because first century has extra day
+    n400Century = (long)((nDaysAbsolute - 1) / 36524L);
+    
+    // Non-leap century
+    if (n400Century != 0) {
+	// Set nDaysAbsolute to day within century
+	nDaysAbsolute = (nDaysAbsolute - 1) % 36524L;
+	
+	// +1 because 1st 4 year increment has 1460 days
+	n4Years = (long)((nDaysAbsolute + 1) / 1461L);
+	
+	if (n4Years != 0) {
+	    n4Day = (long)((nDaysAbsolute + 1) % 1461L);
+	} else {
+	    bLeap4 = FALSE;
+	    n4Day = (long)nDaysAbsolute;
+	}
     } else {
-	param->type = &static_QUType_ptr;
-	QString ptype = type;
-	if ( ptype.right(1) == "*" )
-	    ptype.remove( ptype.length()-1, 1 );
-	param->typeExtra = new char[ ptype.length() + 1 ];
-	param->typeExtra = qstrcpy( (char*)param->typeExtra, ptype );
+	// Leap century - not special case!
+	n4Years = (long)(nDaysAbsolute / 1461L);
+	n4Day = (long)(nDaysAbsolute % 1461L);
     }
-}
-
-
-QActiveX::QActiveX()
-    : m_pTypeInfo( 0 )
-{
-}
-
-QActiveX::~QActiveX()
-{
-    if ( m_pTypeInfo ) {
-	m_pTypeInfo->setObject( 0 );
-	m_pTypeInfo->Release();
-	m_pTypeInfo = 0;
+    
+    if (bLeap4) {
+	// -1 because first year has 366 days
+	n4Yr = (n4Day - 1) / 365;
+	
+	if (n4Yr != 0)
+	    n4Day = (n4Day - 1) % 365;
+    } else {
+	n4Yr = n4Day / 365;
+	n4Day %= 365;
     }
-    if ( object ) {
-	delete object;
-    }
-    if ( m_pWidget ) {
-	delete m_pWidget;
-    }
-}
-
-LRESULT QActiveX::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-{
-    m_pWidget = new QVBox( 0, 0, Qt::WStyle_Customize );
-    ::SetWindowLong( m_pWidget->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
-#if 0
-    QUnknownInterface *unknown = ucm_instantiate();
-    QInterfacePtr<QWidgetFactoryInterface> iface = 0;
-    if ( unknown->queryInterface( IID_QWidgetFactory, (QUnknownInterface**)&iface ) == QS_OK ) {
-	QString key = iface->featureList()[0];
-	object = iface->create( key );
-	iface->release();
-    }
-    unknown->release();
-#else
-    object = axmain( m_pWidget );
-#endif
-
-    if ( !slotlist ) {
-	slotlist = new QIntDict<QMetaData>;
-	signallist = new QIntDict<QMetaData>;
-	proplist = new QIntDict<QMetaProperty>;
-
-	CComPtr<ITypeInfo> info;
-	GetTypeInfo( 0, LOCALE_SYSTEM_DEFAULT, &info );
-	// read type information
-	while ( info ) {
-	    ushort nFuncs = 0;
-	    ushort nVars = 0;
-	    ushort nImpl = 0;
-	    // get information about type
-	    TYPEATTR *typeattr;
-	    info->GetTypeAttr( &typeattr );
-	    if ( typeattr ) {
-		if ( ( typeattr->typekind != TKIND_DISPATCH && typeattr->typekind != TKIND_INTERFACE ) ||
-		     ( typeattr->guid == IID_IDispatch || typeattr->guid == IID_IUnknown ) ) {
-		    info->ReleaseTypeAttr( typeattr );
-		    break;
-		}
-		// get number of functions, variables, and implemented interfaces
-		nFuncs = typeattr->cFuncs;
-		nVars = typeattr->cVars;
-		nImpl = typeattr->cImplTypes;
-
-		info->ReleaseTypeAttr( typeattr );
-	    }
-
-	    // get information about all functions
-	    for ( ushort fd = 0; fd < nFuncs ; ++fd ) {
-		FUNCDESC *funcdesc;
-		info->GetFuncDesc( fd, &funcdesc );
-		if ( !funcdesc )
-		    break;
-
-		// get function prototype
-		QString function;
-		QString prototype;
-		QStringList parameters;
-		QStringList paramTypes;
-
-		// get return value
-		TYPEDESC typedesc = funcdesc->elemdescFunc.tdesc;
-		QString returnType = typedescToQString( typedesc );
-		if ( funcdesc->invkind == INVOKE_FUNC && returnType != "void" ) {
-		    parameters << "return";
-		    paramTypes << returnType;
-		}
-
-		BSTR bstrNames[256];
-		UINT maxNames = 255;
-		UINT maxNamesOut;
-		info->GetNames( funcdesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut );
-		for ( int p = 0; p < (int)maxNamesOut; ++ p ) {
-		    QString paramName = BSTRToQString( bstrNames[p] );
-		    SysFreeString( bstrNames[p] );
-
-		    // function name
-		    if ( !p ) {
-			function = paramName;
-			prototype = function + "(";
-			continue;
-		    }
-
-		    // parameter
-		    bool optional = p > funcdesc->cParams - funcdesc->cParamsOpt;
-		    QString ptype;
-		    TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ].tdesc;
-		    ptype = typedescToQString( tdesc );
-		    if ( funcdesc->invkind == INVOKE_FUNC )
-			ptype = constRefify( ptype );
-
-		    prototype += ptype;
-		    if ( optional )
-			ptype += "=0";
-		    paramTypes << ptype;
-		    parameters << paramName;
-		    if ( p < funcdesc->cParams )
-			prototype += ",";
-		}
-		if ( !!prototype )
-		    prototype += ")";
-
-		bool bindable = FALSE;
-		if ( funcdesc->wFuncFlags & FUNCFLAG_FBINDABLE )
-		    bindable = TRUE;
-		if ( funcdesc->wFuncFlags & FUNCFLAG_FREQUESTEDIT )
-		    bindable = TRUE;
-
-		// get type of function
-		if ( !(funcdesc->wFuncFlags & FUNCFLAG_FHIDDEN) ) switch( funcdesc->invkind ) {
-		case INVOKE_PROPERTYGET: // property
-		case INVOKE_PROPERTYPUT:
-		    {
-			if ( funcdesc->cParams > 1 ) {
-			    qWarning( "%s: Too many parameters in property", function.latin1() );
-			    break;
-			}
-			QMetaProperty *prop = proplist->find( funcdesc->memid );
-			if ( !prop ) {
-			    if ( bindable ) {
-#if 0
-				if ( !eventSink )
-				    that->eventSink = new QAxEventSink( that );
-#endif
-				// generate changed signal
-				QString signalName = function + "Changed";
-				QString signalParam = constRefify( paramTypes[0] );
-				QString signalProto = signalName + "(" + signalParam + ")";
-				QString paramName = "value";
-				if ( !signallist->find( funcdesc->memid ) ) {
-				    QUMethod *signal = new QUMethod;
-				    signal->name = new char[signalName.length()+1];
-				    signal->name = qstrcpy( (char*)signal->name, signalName );
-				    signal->count = 1;
-				    QUParameter *param = new QUParameter;
-				    param->name = new char[paramName.length()+1];
-				    param->name = qstrcpy( (char*)param->name, paramName );
-				    param->inOut = QUParameter::In;
-				    QStringToQUType( signalParam, param );
-				    signal->parameters = param;
-
-				    QMetaData *data = new QMetaData;
-				    data->name = new char[prototype.length()+1];
-				    data->name = qstrcpy( (char*)data->name, prototype );
-				    data->access = QMetaData::Public;
-				    data->method = signal;
-				    signallist->insert( funcdesc->memid, data );
-#if 0
-				    eventSink->addProperty( funcdesc->memid, function, signalProto );
-#endif
-				}
-			    }
-
-			    prop = new QMetaProperty;
-			    proplist->insert( funcdesc->memid, prop );
-			    prop->meta = 0;
-			    prop->_id = -1;
-			    prop->enumData = 0;
-			    prop->flags = PropStored;
-			    if ( !(funcdesc->wFuncFlags & FUNCFLAG_FNONBROWSABLE) )
-				prop->flags |= PropDesignable;
-			    if ( !(funcdesc->wFuncFlags & FUNCFLAG_FRESTRICTED) )
-				prop->flags |= PropScriptable;
-
-			    QString ptype = paramTypes[0];
-			    if ( ptype.isEmpty() )
-				ptype = returnType;
-			    if ( ptype != "void" ) {
-				prop->t = new char[ptype.length()+1];
-				prop->t = qstrcpy( (char*)prop->t, ptype );
-			    } else {
-				prop->t = 0;
-			    }
-			    prop->n = new char[function.length()+1];
-			    prop->n = qstrcpy( (char*)prop->n, function );
-			} else if ( !prop->t ) {
-			    QString ptype = paramTypes[0];
-			    if ( ptype.isEmpty() )
-				ptype = returnType;
-			    if ( paramTypes.isEmpty() )
-				paramTypes.append( ptype );
-			    else
-				paramTypes[0] = ptype;
-			    prop->t = new char[ptype.length()+1];
-			    prop->t = qstrcpy( (char*)prop->t, ptype );
-			}
-			if ( funcdesc->invkind == INVOKE_PROPERTYGET ) {
-			    prop->flags |= QMetaProperty::Readable;
-			} else {
-			    prop->flags |= QMetaProperty::Writable;
-			}
-			if ( !prop->t )
-			    break;
-			// fall through to generate put function as slot
-		    }
-
-		case INVOKE_FUNC: // method
-		    {
-			if ( funcdesc->invkind != INVOKE_FUNC ) {
-			    function = "set" + function;
-			    if ( prototype.right( 2 ) == "()" ) {
-				QString ptype = paramTypes[0];
-				if ( ptype.isEmpty() )
-				    ptype = returnType;
-				prototype = function + "(" + constRefify(ptype) + ")";
-			    } else {
-				prototype = "set" + prototype;
-			    }
-			    if ( slotlist->find( funcdesc->memid ) )
-				break;
-			}
-			bool defargs;
-			QString defprototype = prototype;
-			do {
-			    defargs = FALSE;
-			    QUMethod *slot = new QUMethod;
-			    slot->name = new char[function.length()+1];
-			    slot->name = qstrcpy( (char*)slot->name, function );
-			    slot->count = parameters.count();
-			    QUParameter *params = slot->count ? new QUParameter[slot->count] : 0;
-			    int offset = parameters[0] == "return" ? 1 : 0;
-			    for ( int p = 0; p< slot->count; ++p ) {
-				QString paramName = parameters[p];
-				QString paramType = paramTypes[p];
-				if ( paramType.right( 2 ) == "=0" ) {
-				    paramType.truncate( paramType.length()-2 );
-				    paramTypes[p] = paramType;
-				    defargs = TRUE;
-				    slot->count = p;
-				    prototype = function + "(";
-				    for ( int pp = offset; pp < p; ++pp ) {
-					prototype += paramTypes[pp];
-					if ( pp < p-1 )
-					    prototype += ",";
-				    }
-				    prototype += ")";
-				    break;
-				}
-				params[p].name = new char[paramName.length()+1];
-				params[p].name = qstrcpy( (char*)params[p].name, paramName );
-				params[p].inOut = 0;
-				if ( !p && paramName == "return" ) {
-				    params[p].inOut = QUParameter::Out;
-				} else if ( funcdesc->lprgelemdescParam + p - offset ) {
-				    ushort inout = funcdesc->lprgelemdescParam[p-offset].paramdesc.wParamFlags;
-				    if ( inout & PARAMFLAG_FIN )
-					params[p].inOut |= QUParameter::In;
-				    if ( inout & PARAMFLAG_FOUT )
-					params[p].inOut |= QUParameter::Out;
-				}
-
-				QStringToQUType( paramType, params + p );
-			    }
-
-			    slot->parameters = params;
-
-			    QMetaData *data = new QMetaData;
-			    data->name = new char[prototype.length()+1];
-			    data->name = qstrcpy( (char*)data->name, prototype );
-			    data->access = QMetaData::Public;
-			    data->method = slot;
-
-			    slotlist->insert( funcdesc->memid, data );
-			    prototype = defprototype;
-			} while ( defargs );
-		    }
-		    break;
-
-		default:
-		    break;
-		}
-
-#if 0 // documentation in metaobject would be cool?
-		// get function documentation
-		BSTR bstrDocu;
-		info->GetDocumentation( funcdesc->memid, 0, &bstrDocu, 0, 0 );
-		QString strDocu = BSTRToQString( bstrDocu );
-		if ( !!strDocu )
-		    desc += "[" + strDocu + "]";
-		desc += "\n";
-		SysFreeString( bstrDocu );
-#endif
-
-		info->ReleaseFuncDesc( funcdesc );
-	    }
-	    
-	    // get information about all variables
-	    for ( ushort vd = 0; vd < nVars; ++vd ) {
-		VARDESC *vardesc;
-		info->GetVarDesc( vd, &vardesc );
-		if ( !vardesc )
-		    break;
-
-		// no use if it's not a dispatched variable
-		if ( vardesc->varkind != VAR_DISPATCH ) {
-		    info->ReleaseVarDesc( vardesc );
-		    continue;
-		}
-
-		// get variable type
-		TYPEDESC typedesc = vardesc->elemdescVar.tdesc;
-		QString variableType = typedescToQString( typedesc );
-
-		// get variable name
-		QString variableName;
-
-		BSTR bstrNames[256];
-		UINT maxNames = 255;
-		UINT maxNamesOut;
-		info->GetNames( vardesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut );
-		for ( int v = 0; v < (int)maxNamesOut; ++v ) {
-		    QString varName = BSTRToQString( bstrNames[v] );
-		    SysFreeString( bstrNames[v] );
-
-		    if ( !v ) {
-			variableName = varName;
-			continue;
-		    }
-		}
-
-		bool bindable = FALSE;
-		if ( vardesc->wVarFlags & VARFLAG_FBINDABLE )
-		    bindable = TRUE;
-		if ( vardesc->wVarFlags & VARFLAG_FREQUESTEDIT )
-		    bindable = TRUE;
-
-		if ( !(vardesc->wVarFlags & VARFLAG_FHIDDEN) ) {
-		    // generate meta property
-		    QMetaProperty *prop = proplist->find( vardesc->memid );
-		    if ( !prop ) {
-			if ( bindable ) {
-#if 0
-			    if ( !eventSink )
-				that->eventSink = new QAxEventSink( that );
-#endif
-			    // generate changed signal
-			    QString signalName = variableName + "Changed";
-			    QString signalParam = constRefify( variableType );
-			    QString signalProto = signalName + "(" + signalParam + ")";
-			    QString paramName = "value";
-			    if ( !signallist->find( vardesc->memid ) ) {
-				QUMethod *signal = new QUMethod;
-				signal->name = new char[signalName.length()+1];
-				signal->name = qstrcpy( (char*)signal->name, signalName );
-				signal->count = 1;
-				QUParameter *param = new QUParameter;
-				param->name = new char[paramName.length()+1];
-				param->name = qstrcpy( (char*)param->name, paramName );
-				param->inOut = QUParameter::In;
-				QStringToQUType( signalParam, param );
-				signal->parameters = param;
-
-				QMetaData *data = new QMetaData;
-				data->name = new char[signalProto.length()+1];
-				data->name = qstrcpy( (char*)data->name, signalProto );
-				data->access = QMetaData::Public;
-				data->method = signal;
-
-				signallist->insert( vardesc->memid, data );
-#if 0
-				eventSink->addProperty( vardesc->memid, variableName, signalProto );
-#endif
-			    }
-			}
-
-			prop = new QMetaProperty;
-			proplist->insert( vardesc->memid, prop );
-			prop->meta = 0;
-			prop->_id = -1;
-			prop->enumData = 0;
-			prop->flags = QMetaProperty::Readable | PropStored;
-			if ( !(vardesc->wVarFlags & VARFLAG_FREADONLY) )
-			    prop->flags |= QMetaProperty::Writable;;
-			if ( !(vardesc->wVarFlags & VARFLAG_FNONBROWSABLE) )
-			    prop->flags |= PropDesignable;
-			if ( !(vardesc->wVarFlags & VARFLAG_FRESTRICTED) )
-			    prop->flags |= PropScriptable;
-
-			prop->t = new char[variableType.length()+1];
-			prop->t = qstrcpy( (char*)prop->t, variableType );
-			prop->n = new char[variableName.length()+1];
-			prop->n = qstrcpy( (char*)prop->n, variableName );
-		    }
-
-		    // generate a set slot
-		    if ( !(vardesc->wVarFlags & VARFLAG_FREADONLY) ) {
-			variableType = constRefify( variableType );
-
-			QString function = "set" + variableName;
-			QString prototype = function + "(" + variableType + ")";
-
-			if ( !slotlist->find( vardesc->memid ) ) {
-			    QUMethod *slot = new QUMethod;
-			    slot->name = new char[ function.length() + 1 ];
-			    slot->name = qstrcpy( (char*)slot->name, function );
-			    slot->count = 1;
-			    QUParameter *params = new QUParameter;
-			    params->inOut = QUParameter::In;
-			    params->name = new char[ variableName.length() + 1 ];
-			    params->name = qstrcpy( (char*)params->name, variableName );
-
-			    QStringToQUType( variableType, params );
-
-			    slot->parameters = params;
-
-			    QMetaData *data = new QMetaData;
-			    data->name = new char[prototype.length()+1];
-			    data->name = qstrcpy( (char*)data->name, prototype );
-			    data->access = QMetaData::Public;
-			    data->method = slot;
-
-			    slotlist->insert( vardesc->memid, data );
-			}
-		    }
-
-#if 0 // documentation in metaobject would be cool?
-		    // get function documentation
-		    BSTR bstrDocu;
-		    info->GetDocumentation( vardesc->memid, 0, &bstrDocu, 0, 0 );
-		    QString strDocu = BSTRToQString( bstrDocu );
-		    if ( !!strDocu )
-			desc += "[" + strDocu + "]";
-		    desc += "\n";
-		    SysFreeString( bstrDocu );
-#endif
-		}
-		info->ReleaseVarDesc( vardesc );
-	    }
-
-	    if ( !nImpl )
-		break;
-
-	    // go up one base class
-	    HREFTYPE pRefType;
-	    info->GetRefTypeOfImplType( 0, &pRefType );
-	    CComPtr<ITypeInfo> baseInfo;
-	    info->GetRefTypeInfo( pRefType, &baseInfo );
-	    if ( info == baseInfo ) // IUnknown inherits IUnknown ???
-		break;
-	    info = baseInfo;
+    
+    // n4Day is now 0-based day of year. Save 1-based day of year, year number
+    yday = (int)n4Day + 1;
+    year = n400Years * 400 + n400Century * 100 + n4Years * 4 + n4Yr;
+    
+    // Handle leap year: before, on, and after Feb. 29.
+    if (n4Yr == 0 && bLeap4) {
+	// Leap Year
+	if (n4Day == 59) {
+	    /* Feb. 29 */
+	    month = 2;
+	    day = 29;
+	    goto DoTime;
 	}
+	
+	// Pretend it's not a leap year for month/day comp.
+	if (n4Day >= 60)
+	    --n4Day;
+    }
+    
+    // Make n4DaY a 1-based day of non-leap year and compute
+    //  month/day for everything but Feb. 29.
+    ++n4Day;
+    
+    // Month number always >= n/32, so save some loop time */
+    for ( month = (n4Day >> 5) + 1; n4Day > monthdays[month]; month++ )
+	;
+    
+    day = (int)(n4Day - monthdays[month-1]);
+    
+DoTime:
+    if (nSecsInDay == 0) {
+	hour = min = sec = 0;
+    } else {
+	sec = (int)nSecsInDay % 60L;
+	nMinutesInDay = nSecsInDay / 60L;
+	min = (int)nMinutesInDay % 60;
+	hour = (int)nMinutesInDay / 60;
+    }
 
-	CComPtr<IConnectionPointContainer> cpoints;
-	QueryInterface( IID_IConnectionPointContainer, (void**)&cpoints );
-	if ( cpoints ) {
-	    CComPtr<IProvideClassInfo> classinfo;
-	    cpoints->QueryInterface( IID_IProvideClassInfo, (void**)&classinfo );
+    QDateTime dt;
+    dt.setDate( QDate( year, month, day ) );
+    dt.setTime( QTime( hour, min, sec ) );
+    return dt;
+}
 
-	    CComPtr<IEnumConnectionPoints> epoints;
-	    cpoints->EnumConnectionPoints( &epoints );
-	    if ( epoints ) {
-		ULONG c = 1;
-		epoints->Reset();
-		do {
-		    CComPtr<IConnectionPoint> cpoint;
-		    epoints->Next( c, &cpoint, &c );
-		    if ( !c )
-			break;
+static inline DATE QDateTimeToDATE( const QDateTime &dt )
+{
+    QDate date = dt.date();
+    QTime time = dt.time();
+    int year = date.year();
+    int month = date.month();
+    int day = date.day();
+    int hour = time.hour();
+    int min = time.minute();
+    int sec = time.second();
+    int dim = date.daysInMonth();
+    bool leap = date.leapYear( year );
 
-		    IID iid;
-		    cpoint->GetConnectionInterface( &iid );
-#if 0
-		    if ( !eventSink )
-			that->eventSink = new QAxEventSink( that );
-		    eventSink->addConnection( cpoint, iid );
-#endif
+    long oledate = year*365 + year/4 - year/100 + year/400 + monthdays[month-1] + day;
+    if ( month <= 2 && leap )
+	--oledate;
+    oledate -= 693959;
 
-		    if ( classinfo ) {
-			CComPtr<ITypeInfo> info;
-			CComPtr<ITypeInfo> eventinfo;
-			classinfo->GetClassInfo( &info );
-			if ( info ) { // this is the type info of the component, not the event interface
-			    // get information about type
-			    TYPEATTR *typeattr;
-			    info->GetTypeAttr( &typeattr );
-			    if ( typeattr ) {
-				// test if one of the interfaces implemented is the one we're looking for
-				for ( int impl = 0; impl < typeattr->cImplTypes; ++impl ) {
-				    // get the ITypeInfo for the interface
-				    HREFTYPE reftype;
-				    info->GetRefTypeOfImplType( impl, &reftype );
-				    CComPtr<ITypeInfo> eventtype;
-				    info->GetRefTypeInfo( reftype, &eventtype );
-				    if ( eventtype ) {
-					TYPEATTR *eventattr;
-					eventtype->GetTypeAttr( &eventattr );
-					// this is it
-					if ( eventattr && eventattr->guid == iid ) {
-					    eventinfo = eventtype;
-					    break;
-					}
-					eventtype->ReleaseTypeAttr( eventattr );
-				    }
-				}
-				info->ReleaseTypeAttr( typeattr );
+    double oletime = (((long)hour * 3600L) + ((long)min * 60L) + ((long)sec)) / 86400.;
 
-				// what about other event interfaces?
-				if ( eventinfo ) {
-				    TYPEATTR *eventattr;
-				    eventinfo->GetTypeAttr( &eventattr );
-				    // Number of functions
-				    ushort nEvents = eventattr->cFuncs;
+    DATE ole = (double) oledate + ( ( oledate >= 0 ) ? oletime : -oletime );
+    return ole;
+}
 
-				    // get information about all event functions
-				    for ( UINT fd = 0; fd < nEvents; ++fd ) {
-					FUNCDESC *funcdesc;
-					eventinfo->GetFuncDesc( fd, &funcdesc );
-					if ( !funcdesc )
-					    break;
-					if ( funcdesc->invkind != INVOKE_FUNC ||
-					     funcdesc->funckind != FUNC_DISPATCH ) {
-					    info->ReleaseFuncDesc( funcdesc );
-					    continue;
-					}
+static inline void VARIANTToQUObject( VARIANT arg, QUObject *obj )
+{
+    if ( arg.vt & VT_BYREF ) {
+	VARTYPE vt2 = arg.vt & ~VT_BYREF;
+	switch ( vt2 ) {
+	case VT_UI1:
+	    static_QUType_ptr.set( obj, arg.pbVal );
+	    break;
+	case VT_I2:
+	    static_QUType_ptr.set( obj, arg.piVal );
+	    break;
+	case VT_I4:
+	    static_QUType_ptr.set( obj, arg.plVal );
+	    break;
+	case VT_ERROR:
+	    static_QUType_ptr.set( obj, arg.pscode );
+	    break;
+	case VT_R4:
+	    static_QUType_ptr.set( obj, arg.pfltVal );
+	    break;
+	case VT_R8:
+	    static_QUType_ptr.set( obj, arg.pdblVal );
+	    break;
+	case VT_DATE:
+	    static_QUType_ptr.set( obj, new QDateTime( DATEToQDateTime( *arg.pdate ) ) );
+	    break;
+	case VT_BOOL:
+	    static_QUType_ptr.set( obj, arg.pboolVal );
+	    break;
+	case VT_BSTR:
+	    static_QUType_ptr.set( obj, BSTRToQString( *arg.pbstrVal ) );
+	    break;
+	case VT_UNKNOWN:
+	    static_QUType_ptr.set( obj, *arg.ppunkVal );
+	    break;
+	case VT_DISPATCH:
+	    static_QUType_ptr.set( obj, *arg.ppdispVal );
+	    break;
+	default:
+	    break;
+	}
+    } else switch ( arg.vt ) {
+    case VT_UI1: // byte -> int
+	static_QUType_int.set( obj, arg.bVal );
+	break;
+    case VT_I2: // short -> int
+	static_QUType_int.set( obj, arg.iVal );
+	break;
+    case VT_I4: // long -> int
+	static_QUType_int.set( obj, arg.lVal );
+	break;
+    case VT_ERROR: // SCODE == long
+	static_QUType_int.set( obj, arg.scode );
+	break;
+    case VT_R4: // float -> double
+	static_QUType_double.set( obj, arg.fltVal );
+	break;
+    case VT_R8: // double -> double
+	static_QUType_double.set( obj, arg.dblVal );
+	break;
+    case VT_CY: // Currency -> ###
+	break;
+    case VT_DATE: // DATE -> QDateTime
+	static_QUType_ptr.set( obj, new QDateTime( DATEToQDateTime( arg.date ) ) );
+	break;
+    case VT_BOOL: // bool -> bool
+	static_QUType_bool.set( obj, arg.boolVal );
+	break;
+    case VT_BSTR: // bstr -> QString
+	static_QUType_QString.set( obj, BSTRToQString( arg.bstrVal ) );
+	break;
+    case VT_UNKNOWN:  // IUnknown -> void*
+	static_QUType_ptr.set( obj, arg.punkVal );
+	break;
+    case VT_DISPATCH: // IDispatch -> void*
+	static_QUType_ptr.set( obj, arg.pdispVal );
+	break;
+    default:
+	break;
+    }
+}
 
-					// get return value
-					TYPEDESC typedesc = funcdesc->elemdescFunc.tdesc;
-					QString returnType = typedescToQString( typedesc );
+static inline VARIANT QVariantToVARIANT( const QVariant &var, const char *type = 0 )
+{
+    VARIANT arg;
+    arg.vt = VT_EMPTY;
 
-					// get event function prototype
-					QString function;
-					QString prototype;
-					QStringList parameters;
-					QStringList paramTypes;
+    switch ( var.type() ) {
+    case QVariant::String:
+	arg.vt = VT_BSTR;
+	arg.bstrVal = QStringToBSTR( var.toString() );
+	break;
+    case QVariant::Int:
+	if( !qstrcmp( type, "bool" ) ) {
+	    arg.vt = VT_BOOL;
+	    arg.boolVal = var.toBool();
+	    break;
+	}
+	arg.vt = VT_I4;
+	arg.lVal = var.toInt();
+	break;
+    case QVariant::UInt:
+	arg.vt = VT_UI4;
+	arg.ulVal = var.toUInt();
+	break;
+    case QVariant::Bool:
+	arg.vt = VT_BOOL;
+	arg.boolVal = var.toBool();
+	break;
+    case QVariant::Double:
+	arg.vt = VT_R8;
+	arg.dblVal = var.toDouble();
+	break;
+    case QVariant::CString:
+	arg.vt = VT_BSTR;
+	arg.bstrVal = QStringToBSTR( var.toCString() );
+	break;
+    case QVariant::Date:
+    case QVariant::Time:
+    case QVariant::DateTime:
+	arg.vt = VT_DATE;
+	arg.date = QDateTimeToDATE( var.toDateTime() );
+	break;
+    default:
+	break;
+    }
 
-					BSTR bstrNames[256];
-					UINT maxNames = 255;
-					UINT maxNamesOut;
-					eventinfo->GetNames( funcdesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut );
-					for ( int p = 0; p < (int)maxNamesOut; ++ p ) {
-					    QString paramName = BSTRToQString( bstrNames[p] );
-					    SysFreeString( bstrNames[p] );
+    return arg;
+}
 
-					    // function name
-					    if ( !p ) {
-						function = paramName;
-						prototype = function + "(";
-						continue;
-					    }
+static inline QVariant VARIANTToQVariant( const VARIANT &arg )
+{
+    QVariant var;
+    switch( arg.vt ) {
+    case VT_UI1:
+	var = arg.bVal;
+	break;
+    case VT_I2:
+	var = arg.iVal;
+	break;
+    case VT_ERROR:
+    case VT_I4:
+	var = arg.lVal;
+	break;
+    case VT_R4:
+	var = (double)arg.fltVal;
+	break;
+    case VT_R8:
+	var = arg.dblVal;
+	break;
+    case VT_CY: // __int64 -> int ###
+	var = arg.cyVal.Hi;
+	break;
+    case VT_DATE: // DATE -> QDateTime
+	var = DATEToQDateTime( arg.date );
+	break;
+    case VT_BOOL:
+	var = QVariant( arg.boolVal, 42 );
+	break;
+    case VT_BSTR:
+	var = BSTRToQString( arg.bstrVal );
+	break;
+    case VT_I1:
+	var = arg.cVal;
+	break;
+    case VT_UI2:
+	var = arg.uiVal;
+	break;
+    case VT_UI4:
+	var = (long)arg.ulVal;
+	break;
+    case VT_INT:
+	var = arg.intVal;
+	break;
+    case VT_UINT:
+	var = arg.uintVal;
+	break;
+    case VT_DISPATCH: // IDispatch* -> int ###
+	var = (Q_LONG)arg.pdispVal;
+	break;
+    case VT_UNKNOWN: // IUnkonwn* -> int ###
+	var = (Q_LONG)arg.punkVal;
+	break;
+    case VT_EMPTY:
+	// empty VARIANT type return
+	break;
+    default:
+	break;
+    }
+    return var;
+}
 
-					    // parameter
-					    bool optional = p > funcdesc->cParams - funcdesc->cParamsOpt;
-					    
-					    TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ].tdesc;
-					    QString ptype = typedescToQString( tdesc );
-					    if ( funcdesc->invkind == INVOKE_FUNC )
-						ptype = constRefify( ptype );
+/*!
+    Helper class to enumerate all supported event interfaces.
+*/
+class QAxSignalVec : public IEnumConnectionPoints
+{
+public:
+    QAxSignalVec( const QActiveQtBase::ConnectionPoints &points ) 
+	: cpoints( points ), ref(0) 
+    {
+    }
+    QAxSignalVec( const QAxSignalVec &old )
+    {
+	ref = 0;
+	cpoints = old.cpoints;
+	for ( QActiveQtBase::ConnectionPointsIterator i = cpoints.begin(); i != cpoints.end(); ++i )
+	    (*i)->AddRef();
+	it = old.it;
+    }
+    ~QAxSignalVec()
+    {
+	for ( QActiveQtBase::ConnectionPointsIterator i = cpoints.begin(); i != cpoints.end(); ++i )
+	    (*i)->Release();
+    }
+    unsigned long __stdcall AddRef() 
+    { 
+	return ref++; 
+    }
+    unsigned long __stdcall Release()
+    {
+	if ( !--ref ) {
+	    delete this;
+	    return 0;
+	}
+	return ref;
+    }
+    STDMETHOD(QueryInterface)(REFIID iid, void **iface)
+    {
+	*iface = 0;
+	if ( iid == IID_IUnknown )
+	    *iface = this;
+	else if ( iid == IID_IEnumConnectionPoints )
+	    *iface = this;
+	else
+	    return E_NOINTERFACE;
 
-					    paramTypes << ptype;
-					    parameters << paramName;
-					    prototype += ptype;
-					    if ( optional )
-						prototype += "=0";
-					    if ( p < funcdesc->cParams )
-						prototype += ",";
-					}
-					if ( !!prototype )
-					    prototype += ")";
+	AddRef();
+	return S_OK;
+    }
+    STDMETHOD(Next)( ULONG cConnections, IConnectionPoint **cpoint, ULONG *pcFetched )
+    {
+	unsigned long i;
+	for ( i = 0; i < cConnections; i++ ) {
+	    if ( it == cpoints.end() )
+		break;
+	    IConnectionPoint *cp = *it;
+	    cp->AddRef();
+	    cpoint[i] = cp;
+	    ++it;
+	}
+	*pcFetched = i;
+	return i == cConnections ? S_OK : S_FALSE;
+    }
+    STDMETHOD(Skip)( ULONG cConnections )
+    {
+	while ( cConnections ) {
+	    ++it;
+	    --cConnections;
+	    if ( it == cpoints.end() )
+		return S_FALSE;
+	}
+	return S_OK;
+    }
+    STDMETHOD(Reset)()
+    {
+	it = cpoints.begin();
 
-					if ( !signallist->find( funcdesc->memid ) ) {
-					    QUMethod *signal = new QUMethod;
-					    signal->name = new char[function.length()+1];
-					    signal->name = qstrcpy( (char*)signal->name, function );
-					    signal->count = parameters.count();
-					    QUParameter *params = signal->count ? new QUParameter[signal->count] : 0;
-					    for ( p = 0; p< signal->count; ++p ) {
-						QString paramName = parameters[p];
-						QString paramType = paramTypes[p];
-						params[p].name = new char[paramName.length()+1];
-						params[p].name = qstrcpy( (char*)params[p].name, paramName );
-						params[p].inOut = 0;
-						if ( funcdesc->lprgelemdescParam + p ) {
-						    ushort inout = funcdesc->lprgelemdescParam[p].paramdesc.wParamFlags;
-						    if ( inout & PARAMFLAG_FIN )
-							params[p].inOut |= QUParameter::In;
-						    if ( inout & PARAMFLAG_FOUT )
-							params[p].inOut |= QUParameter::Out;
-						}
+	return S_OK;
+    }
+    STDMETHOD(Clone)( IEnumConnectionPoints **ppEnum )
+    {
+	*ppEnum = new QAxSignalVec( *this );
+	(*ppEnum)->AddRef();
 
-						QStringToQUType( paramType, params + p );
-					    }
-					    signal->parameters = params;
+	return S_OK;
+    }
 
-					    QMetaData *data = new QMetaData;
-					    data->name = new char[prototype.length()+1];
-					    data->name = qstrcpy( (char*)data->name, prototype );
-					    data->access = QMetaData::Public;
-					    data->method = signal;
+    QActiveQtBase::ConnectionPoints cpoints;
+    QActiveQtBase::ConnectionPointsIterator it;
 
-					    signallist->insert( funcdesc->memid, data );
-#if 0
-					    eventSink->addSignal( funcdesc->memid, prototype );
-#endif
-					}
+private:
+    unsigned long ref;
+};
 
-#if 0 // documentation in metaobject would be cool?
-					// get function documentation
-					BSTR bstrDocu;
-					eventinfo->GetDocumentation( funcdesc->memid, 0, &bstrDocu, 0, 0 );
-					QString strDocu = BSTRToQString( bstrDocu );
-					if ( !!strDocu )
-					    desc += "[" + strDocu + "]";
-					desc += "\n";
-					SysFreeString( bstrDocu );
-#endif
-					eventinfo->ReleaseFuncDesc( funcdesc );
-				    }
-				}
-			    }
-			}
-		    }
-		} while ( c );
+/*!
+    Helper class to store and enumerate all connected event listeners.
+*/
+class QAxConnection : public IConnectionPoint,
+		      public IEnumConnections
+{
+public:
+    typedef QValueList<CONNECTDATA> Connections;
+    typedef QValueList<CONNECTDATA>::Iterator Iterator;
+
+    QAxConnection( QActiveQtBase *parent, const QUuid &uuid )
+	: that(parent), iid( uuid )
+    {
+    }
+    QAxConnection( const QAxConnection &old )
+    {
+	ref = 0;
+	connections = old.connections;
+	it = old.it;
+	that = old.that;
+	iid = old.iid;
+    }
+
+    unsigned long __stdcall AddRef() 
+    { 
+	return ref++; 
+    }
+    unsigned long __stdcall Release()
+    {
+	if ( !--ref ) {
+	    delete this;
+	    return 0;
+	}
+	return ref;
+    }
+    STDMETHOD(QueryInterface)(REFIID iid, void **iface)
+    {
+	*iface = 0;
+	if ( iid == IID_IUnknown )
+	    *iface = (IConnectionPoint*)this;
+	else if ( iid == IID_IConnectionPoint )
+	    *iface = this;
+	else if ( iid == IID_IEnumConnections )
+	    *iface = this;
+	else
+	    return E_NOINTERFACE;
+
+	AddRef();
+	return S_OK;
+    }
+    STDMETHOD(GetConnectionInterface)(IID *pIID)
+    {
+	*pIID = iid;
+	return S_OK;
+    }
+    STDMETHOD(GetConnectionPointContainer)(IConnectionPointContainer **ppCPC)
+    {
+	return that->QueryInterface(IID_IConnectionPointContainer, (void**)ppCPC );
+    }
+    STDMETHOD(Advise)(IUnknown*pUnk, DWORD *pdwCookie)
+    {
+	IUnknown *checkImpl = 0;
+	pUnk->QueryInterface( iid, (void**)&checkImpl );
+	if ( !checkImpl )
+	    return CONNECT_E_CANNOTCONNECT;
+	static DWORD cookie = 0;
+	CONNECTDATA cd;
+	cd.dwCookie = cookie++;
+	cd.pUnk = pUnk;
+	connections.append(cd);
+
+	*pdwCookie = 0;
+	return S_OK;
+    }	
+    STDMETHOD(Unadvise)(DWORD dwCookie)
+    {
+	for ( QValueList<CONNECTDATA>::Iterator i = connections.begin(); i != connections.end(); ++i ) {
+	    CONNECTDATA cd = *i;
+	    if ( cd.dwCookie == dwCookie ) {
+		connections.remove(i);
+		return S_OK;
 	    }
 	}
+	return CONNECT_E_NOCONNECTION;
+    }
+    STDMETHOD(EnumConnections)(IEnumConnections **ppEnum)
+    {
+	*ppEnum = this;
+	AddRef();
+
+	return S_OK;
+    }
+    STDMETHOD(Next)( ULONG cConnections, CONNECTDATA *cd, ULONG *pcFetched )
+    {
+	unsigned long i;
+	for ( i = 0; i < cConnections; i++ ) {
+	    if ( it == connections.end() )
+		break;
+	    cd[i] = *it;
+	    cd[i].pUnk->AddRef();
+	    ++it;
+	}
+	*pcFetched = i;
+	return i == cConnections ? S_OK : S_FALSE;
+    }
+    STDMETHOD(Skip)( ULONG cConnections )
+    {
+	while ( cConnections ) {
+	    ++it;
+	    --cConnections;
+	    if ( it == connections.end() )
+		return S_FALSE;
+	}
+	return S_OK;
+    }
+    STDMETHOD(Reset)()
+    {
+	it = connections.begin();
+
+	return S_OK;
+    }
+    STDMETHOD(Clone)( IEnumConnections **ppEnum )
+    {
+	*ppEnum = new QAxConnection( *this );
+	(*ppEnum)->AddRef();
+
+	return S_OK;
     }
 
-    Q_ASSERT(object);
+private:
+    QActiveQtBase *that;
+    QUuid iid;
+    Connections connections;
+    Iterator it;
+
+    unsigned long ref;
+};
+
+/*!
+  The parent of all ActiveXes.
+*/
+QActiveQt::QActiveQt( QWidget *parent, const char *name )
+    :QWidget( parent, 0, Qt::WStyle_Customize )
+{
+}
+
+bool QActiveQt::requestPropertyChange( const char *property )
+{
+    if ( !proplist )
+	activex->readMetaData();
+
+    QIntDictIterator <QMetaProperty> it( *proplist );
+    while ( it.current() ) {
+	QMetaProperty *mp = it.current();
+	++it;
+	if ( !qstrcmp( property, mp->name() ) )
+	    break;
+    }
+    DISPID dispId = it.currentKey();
+
+    return activex->emitRequestPropertyChange( dispId );
+}
+
+void QActiveQt::propertyChanged( const char *property )
+{
+    if ( !proplist )
+	activex->readMetaData();
+
+    QIntDictIterator <QMetaProperty> it( *proplist );
+    while ( it.current() ) {
+	QMetaProperty *mp = it.current();
+	++it;
+	if ( !qstrcmp( property, mp->name() ) )
+	    break;
+    }
+    DISPID dispId = it.currentKey();
+
+    activex->emitPropertyChanged( dispId );
+}
+
+QActiveQtBase::QActiveQtBase()
+: initNewCalled(FALSE), dirtyflag( FALSE )
+{
+    points[IID_IPropertyNotifySink] = new QAxConnection( this, IID_IPropertyNotifySink );
+    points[DIID__IQActiveXEvents] = new QAxConnection( this, DIID__IQActiveXEvents );
+}
+
+QActiveQtBase::~QActiveQtBase()
+{
+    for ( QActiveQtBase::ConnectionPointsIterator it = points.begin(); it != points.end(); ++it )
+	(*it)->Release();
+    if ( activeqt ) {
+	delete activeqt;
+    }
+}
+
+LRESULT QActiveQtBase::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+    activeqt = axmain( 0 );
+    Q_ASSERT(activeqt);
+    ::SetWindowLong( activeqt->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
+
+    // connect the generic slot to all signals of activeqt
+    QMetaObject *mo = activeqt->metaObject();
+    for ( int isignal = mo->numSignals( TRUE )-1; isignal >= 0; --isignal )
+	connectInternal( activeqt, isignal, this, 2, isignal );
     
     return 0;
 }
 
-LRESULT QActiveX::OnShowWindow( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+LRESULT QActiveQtBase::ForwardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
-    if( m_pWidget ) {
-	::SetParent( m_pWidget->winId(), m_hWnd );
-	m_pWidget->raise();
-	m_pWidget->move( 0, 0 );
-	if( wParam )
-	    m_pWidget->show();
-	else
-	    m_pWidget->hide();
+    if ( activeqt ) {
+	switch( uMsg ) {
+	case WM_SIZE:
+	    activeqt->resize( LOWORD(lParam), HIWORD(lParam) );
+	    break;
+	case WM_PAINT:
+	    activeqt->update();
+	    return 0;
+	case WM_SETFOCUS:
+	    ::SendMessage( activeqt->winId(), WM_ACTIVATE, MAKEWPARAM( WA_ACTIVE, 0 ), 0 );
+	    break;
+	case WM_SHOWWINDOW:
+	    ::SetParent( activeqt->winId(), m_hWnd );
+	    activeqt->raise();
+	    activeqt->move( 0, 0 );
+	    if( wParam )
+		activeqt->show();
+	    else
+		activeqt->hide();
+	    return 0;
+	default:
+	    break;
+	}
+	return ::SendMessage( activeqt->winId(), uMsg, wParam, lParam );
     }
     return 0;
 }
 
-LRESULT QActiveX::OnPaint( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
-{
-    if ( m_pWidget )
-	m_pWidget->update();
-    return 0;
-}
-
-LRESULT QActiveX::ForwardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
-{
-    if ( uMsg == WM_SIZE && m_pWidget ) {
-	m_pWidget->resize( LOWORD(lParam), HIWORD(lParam) );
-    }
-    if( m_pWidget )
-	return ::SendMessage( m_pWidget->winId(), uMsg, wParam, lParam );
-    return 0;
-}
-
-LRESULT QActiveX::ForwardFocusMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
-{
-    if( m_pWidget ) {
-	if ( uMsg == WM_SETFOCUS )
-	    ::SendMessage( m_pWidget->winId(), WM_ACTIVATE, MAKEWPARAM( WA_ACTIVE, 0 ), 0 );
-	return ::SendMessage( m_pWidget->winId(), uMsg, wParam, lParam );
-    }
-    return 0;
-}
-
-HRESULT WINAPI QActiveX::UpdateRegistry(BOOL bRegister)
+HRESULT QActiveQtBase::UpdateRegistry(BOOL bRegister)
 {
     char filename[MAX_PATH];
     GetModuleFileNameA( 0, filename, MAX_PATH-1 );
@@ -931,7 +728,6 @@ HRESULT WINAPI QActiveX::UpdateRegistry(BOOL bRegister)
     QString module = file.right( file.length() - path.length() );
     module = module.left( module.findRev( "." ) );
     
-    //return _Module.UpdateRegistryFromResource(IDR_QEXETEST, bRegister);
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Classes" );
     const QString appID = QUuid( IID_ActiveQtApp ).toString().upper();
@@ -945,11 +741,11 @@ HRESULT WINAPI QActiveX::UpdateRegistry(BOOL bRegister)
 	int argc(0);
 	tempapp = new QApplication( argc, 0 );
     }
-    QObject *qobject = axmain(0);
-    const QString className = QString(qobject->className());
+    QWidget *activeqt = axmain(0);
+    const QString className = QString(activeqt->className());
     
     if ( bRegister ) {
-	settings.writeEntry( "/AppID/" + appID + "/.", module );
+	settings.writeEntry( "/AppID/" + appID + "/.", module + " -activex" );
 	settings.writeEntry( "/AppID/" + module + ".EXE/AppID", appID );
 	
 	settings.writeEntry( "/" + module + "." + className + ".1/.", className + " Class" );
@@ -964,7 +760,7 @@ HRESULT WINAPI QActiveX::UpdateRegistry(BOOL bRegister)
 	settings.writeEntry( "/CLSID/" + classID + "/AppID", appID );
 	settings.writeEntry( "/CLSID/" + classID + "/Control/.", QString::null );
 	settings.writeEntry( "/CLSID/" + classID + "/Insertable/.", QString::null );
-	settings.writeEntry( "/CLSID/" + classID + "/LocalServer32/.", file );
+	settings.writeEntry( "/CLSID/" + classID + "/LocalServer32/.", file + " -activex" );
 	settings.writeEntry( "/CLSID/" + classID + "/MiscStatus/.", "0" );
 	settings.writeEntry( "/CLSID/" + classID + "/MiscStatus/1/.", "131473" );
 	settings.writeEntry( "/CLSID/" + classID + "/Programmable/.", QString::null );
@@ -1039,25 +835,455 @@ HRESULT WINAPI QActiveX::UpdateRegistry(BOOL bRegister)
 	settings.removeEntry( "/TypeLib/" + libID + "/1.0/." );
     }
     
-    delete qobject;
+    delete activeqt;
     if ( tempapp )
 	delete tempapp;
     return S_OK;
 }
 
-HRESULT WINAPI QActiveX::Invoke(DISPID dispidMember, REFIID riid,
-		  LCID lcid, WORD wFlags, DISPPARAMS* pdispparams, VARIANT* pvarResult,
-		  EXCEPINFO* pexcepinfo, UINT* puArgErr)
+void QActiveQtBase::readMetaData()
 {
-    QMetaData *slot = slotlist->find( dispidMember );
-    if ( slot ) {
-	int index = object->metaObject()->findSlot( slot->name );
-	if ( index != -1 ) {
-	    object->qt_invoke( index, 0 );
+    if ( !slotlist ) {
+	slotlist = new QIntDict<QMetaData>;
+	signallist = new QMap<int,DISPID>;
+	proplist = new QIntDict<QMetaProperty>;
+
+	QMetaObject *mo = activeqt->metaObject();
+	for ( int islot = mo->numSlots( TRUE )-1; islot >=0 ; --islot ) {
+	    const QMetaData *slot = mo->slot( islot, TRUE );
+
+	    BSTR bstrNames = QStringToBSTR( slot->method->name );
+	    UINT cNames = 1;
+	    DISPID dispId;
+	    GetIDsOfNames( IID_NULL, (BSTR*)&bstrNames, cNames, LOCALE_SYSTEM_DEFAULT, &dispId );
+	    if ( dispId >= 0 ) {
+		for ( int p = 0; p < (int)cNames; ++ p ) {
+		    slotlist->insert( dispId, slot );
+		    SysFreeString( bstrNames );
+		}
+	    }
 	}
-	return S_OK;
+	CComPtr<IConnectionPointContainer> cpoints;
+	QueryInterface( IID_IConnectionPointContainer, (void**)&cpoints );
+	if ( cpoints ) {
+	    CComPtr<IProvideClassInfo> classinfo;
+	    cpoints->QueryInterface( IID_IProvideClassInfo, (void**)&classinfo );
+	    if ( classinfo ) {
+		CComPtr<ITypeInfo> info;
+		CComPtr<ITypeInfo> eventinfo;
+		classinfo->GetClassInfo( &info );
+		if ( info ) {
+		    TYPEATTR *typeattr;
+		    info->GetTypeAttr( &typeattr );
+		    if ( typeattr ) {
+			for ( int impl = 0; impl < typeattr->cImplTypes; ++impl ) {
+			    // get the ITypeInfo for the interface
+			    HREFTYPE reftype;
+			    info->GetRefTypeOfImplType( impl, &reftype );
+			    CComPtr<ITypeInfo> eventtype;
+			    info->GetRefTypeInfo( reftype, &eventtype );
+			    if ( eventtype ) {
+				TYPEATTR *eventattr;
+				eventtype->GetTypeAttr( &eventattr );
+				// this is it
+				if ( eventattr && eventattr->guid == DIID__IQActiveXEvents ) {
+				    eventinfo = eventtype;
+				    eventtype->ReleaseTypeAttr( eventattr );
+				    break;
+				}
+				eventtype->ReleaseTypeAttr( eventattr );
+			    }
+			}
+			info->ReleaseTypeAttr( typeattr );
+		    }		
+		}
+		if ( eventinfo ) {
+		    for ( int isignal = mo->numSignals( TRUE )-1; isignal >= 0; --isignal ) {
+			const QMetaData *signal = mo->signal( isignal, TRUE );
+
+			BSTR bstrNames = QStringToBSTR( signal->method->name );
+			UINT cNames = 1;
+			DISPID dispId;
+			eventinfo->GetIDsOfNames( (BSTR*)&bstrNames, cNames, &dispId );
+			if ( dispId >= 0 ) {
+			    for ( int p = 0; p < (int)cNames; ++ p ) {
+				signallist->insert( isignal, dispId );
+				SysFreeString( bstrNames );
+			    }
+			}
+		    }
+		}
+	    }
+	}
+	for ( int iproperty = mo->numProperties( TRUE )-1; iproperty >= 0; --iproperty ) {
+	    const QMetaProperty *property = mo->property( iproperty, TRUE );
+
+	    BSTR bstrNames = QStringToBSTR( property->name() );
+	    UINT cNames = 1;
+	    DISPID dispId;
+	    GetIDsOfNames( IID_NULL, (BSTR*)&bstrNames, cNames, LOCALE_SYSTEM_DEFAULT, &dispId );
+	    if ( dispId >= 0 ) {
+		for ( int p = 0; p < (int)cNames; ++p ) {
+		    proplist->insert( dispId, property );
+		    SysFreeString( bstrNames );
+		}
+	    }
+	}
+    }
+}
+
+bool QActiveQtBase::qt_emit( int isignal, QUObject* _o )
+{
+    if ( !signallist )
+	readMetaData();
+
+    // get the signal information.
+    const QMetaData *signal = activeqt->metaObject()->signal( isignal, TRUE );
+    if ( !signal )
+	return FALSE;
+    const int signalcount = signal->method->count;
+
+    // Get the Dispatch ID of the method to be called
+    DISPID eventId = signallist->operator [](isignal);
+
+    CComPtr<IConnectionPoint> cpoint;
+    FindConnectionPoint( DIID__IQActiveXEvents, &cpoint );
+    if ( cpoint ) {
+	CComPtr<IEnumConnections> clist;
+	cpoint->EnumConnections( &clist );
+	if ( clist ) {
+	    clist->Reset();
+	    ULONG cc = 1;
+	    CONNECTDATA c[1];
+	    clist->Next( cc, (CONNECTDATA*)&c, &cc );
+	    if ( cc ) {
+		// setup parameters
+		unsigned int argErr = 0;
+		VARIANT arg;
+		DISPPARAMS dispParams;
+		dispParams.cArgs = signalcount;
+		dispParams.cNamedArgs = 0;
+		dispParams.rgdispidNamedArgs = 0;
+		dispParams.rgvarg = signalcount ? new VARIANTARG[signalcount] : 0;
+		int p;
+		for ( p = 0; p < signalcount; ++p ) {
+		    QUObject *obj = _o + p + 1;
+		    // map the QUObject's type to the VARIANT
+		    if ( QUType::isEqual( obj->type, &static_QUType_int ) ) {
+			arg.vt = VT_I4;
+			arg.lVal = static_QUType_int.get( obj );
+		    } else if ( QUType::isEqual( obj->type, &static_QUType_QString ) ) {
+			arg.vt = VT_BSTR;
+			arg.bstrVal = QStringToBSTR( static_QUType_QString.get( obj ) );
+		    } else if ( QUType::isEqual( obj->type, &static_QUType_charstar ) ) {
+			arg.vt = VT_BSTR;
+			arg.bstrVal = QStringToBSTR( static_QUType_charstar.get( obj ) );
+		    } else if ( QUType::isEqual( obj->type, &static_QUType_bool ) ) {
+			arg.vt = VT_BOOL;
+			arg.boolVal = static_QUType_bool.get( obj );
+		    } else if ( QUType::isEqual( obj->type, &static_QUType_double ) ) {
+			arg.vt = VT_R8;
+			arg.dblVal = static_QUType_double.get( obj );
+		    } else if ( QUType::isEqual( obj->type, &static_QUType_enum ) ) {
+			arg.vt = VT_I4;
+			arg.lVal = static_QUType_enum.get( obj );
+		    } else if ( QUType::isEqual( obj->type, &static_QUType_QVariant ) ) {
+			arg = QVariantToVARIANT( static_QUType_QVariant.get( obj ) );
+		    } else if ( QUType::isEqual( obj->type, &static_QUType_idisp ) ) {
+			arg.vt = VT_DISPATCH;
+			arg.pdispVal = (IDispatch*)static_QUType_ptr.get( obj );
+		    } else if ( QUType::isEqual( obj->type, &static_QUType_iface ) ) {
+			arg.vt = VT_UNKNOWN;
+			arg.punkVal = (IUnknown*)static_QUType_ptr.get( obj );
+		    } else if ( QUType::isEqual( obj->type, &static_QUType_ptr ) ) {
+			const QUParameter *param = signal->method->parameters + p;
+			const char *type = (const char*)param->typeExtra;
+			if ( !qstrcmp( type, "int" ) ) {
+			    arg.vt = VT_I4;
+			    arg.lVal = *(int*)static_QUType_ptr.get( obj );
+			} else if ( !qstrcmp( type, "QString" ) || !qstrcmp( type, "const QString&" ) ) {
+			    arg.vt = VT_BSTR;
+			    arg.bstrVal = QStringToBSTR( *(QString*)static_QUType_ptr.get( obj ) );
+			} else if ( !qstrcmp( type, "QDateTime" ) || !qstrcmp( type, "const QDateTime&" ) ) {
+			    arg.vt = VT_DATE;
+			    arg.date = QDateTimeToDATE( *(QDateTime*)static_QUType_ptr.get( obj ) );
+			} else {
+			    arg.vt = VT_UI4;
+			    arg.ulVal = (Q_ULONG)static_QUType_ptr.get( obj );
+			}
+			//###
+		    } else {
+			arg.vt = VT_EMPTY;
+		    }
+		    dispParams.rgvarg[ signalcount - p - 1 ] = arg;
+		}
+		// call listeners
+		while ( cc ) {
+		    if ( c->pUnk ) {
+			CComPtr<IDispatch> disp;
+			c->pUnk->QueryInterface( DIID__IQActiveXEvents, (void**)&disp );
+			if ( disp ) {
+			    disp->Invoke( eventId, IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_METHOD, &dispParams, 0, 0, &argErr );
+			}
+			c->pUnk->Release();
+		    }
+		    clist->Next( cc, (CONNECTDATA*)&c, &cc );
+		}
+
+		// clean up
+		for ( p = 0; p < signalcount; ++p ) {
+		    if ( dispParams.rgvarg[p].vt == VT_BSTR )
+			SysFreeString( dispParams.rgvarg[p].bstrVal );
+		}
+		delete [] dispParams.rgvarg;
+	    }	    
+	}
+    }
+    return TRUE;
+}
+
+bool QActiveQtBase::emitRequestPropertyChange( DISPID dispId )
+{
+    CComPtr<IConnectionPoint> cpoint;
+    FindConnectionPoint( IID_IPropertyNotifySink, &cpoint );
+    if ( cpoint ) {
+	CComPtr<IEnumConnections> clist;
+	cpoint->EnumConnections( &clist );
+	if ( clist ) {
+	    clist->Reset();
+	    ULONG cc = 1;
+	    CONNECTDATA c[1];
+	    clist->Next( cc, (CONNECTDATA*)&c, &cc );
+	    if ( cc ) {
+		while ( cc ) {
+		    if ( c->pUnk ) {
+			CComPtr<IPropertyNotifySink> sink;
+			c->pUnk->QueryInterface( IID_IPropertyNotifySink, (void**)&sink );
+			if ( sink && sink->OnRequestEdit( dispId ) == S_FALSE )
+				return FALSE;
+			c->pUnk->Release();
+		    }
+		    clist->Next( cc, (CONNECTDATA*)&c, &cc );
+		}
+	    }
+	}
+    }
+    return TRUE;
+}
+
+void QActiveQtBase::emitPropertyChanged( DISPID dispId )
+{
+    CComPtr<IConnectionPoint> cpoint;
+    FindConnectionPoint( IID_IPropertyNotifySink, &cpoint );
+    if ( cpoint ) {
+	CComPtr<IEnumConnections> clist;
+	cpoint->EnumConnections( &clist );
+	if ( clist ) {
+	    clist->Reset();
+	    ULONG cc = 1;
+	    CONNECTDATA c[1];
+	    clist->Next( cc, (CONNECTDATA*)&c, &cc );
+	    if ( cc ) {
+		while ( cc ) {
+		    if ( c->pUnk ) {
+			CComPtr<IPropertyNotifySink> sink;
+			c->pUnk->QueryInterface( IID_IPropertyNotifySink, (void**)&sink );
+			if ( sink )
+			    sink->OnChanged( dispId );
+			c->pUnk->Release();
+		    }
+		    clist->Next( cc, (CONNECTDATA*)&c, &cc );
+		}
+	    }
+	}
+    }
+}
+
+HRESULT QActiveQtBase::Invoke( DISPID dispidMember, REFIID riid,
+		  LCID lcid, WORD wFlags, DISPPARAMS* pDispParams, VARIANT* pvarResult,
+		  EXCEPINFO* pexcepinfo, UINT* puArgErr )
+{
+    if ( riid != IID_NULL )
+	return DISP_E_UNKNOWNINTERFACE;
+
+    HRESULT res = DISP_E_MEMBERNOTFOUND;
+
+    if ( !slotlist )
+	readMetaData();
+
+    switch ( wFlags ) {
+    case DISPATCH_METHOD:
+	{
+	    const QMetaData *slot = slotlist->find( dispidMember );
+	    if ( !slot )
+		break;
+	    int index = activeqt->metaObject()->findSlot( slot->name );
+	    if ( index == -1 )
+		break;
+	    // verify parameter count
+	    int pcount = slot->method->count;
+	    int argcount = pDispParams->cArgs;
+	    if ( pcount > argcount )
+		return DISP_E_PARAMNOTOPTIONAL;
+	    else if ( pcount < argcount )
+		return DISP_E_BADPARAMCOUNT;
+
+	    // setup parameters
+	    const QUParameter *params = slot->method->parameters;
+	    QUObject *objects = pcount ? new QUObject[pcount+1] : 0;
+	    for ( int p = 0; p < pcount; ++p ) // map the VARIANT to the QUObject
+		VARIANTToQUObject( pDispParams->rgvarg[ pcount-p-1 ], objects + p + 1 );
+
+	    // call the slot
+	    activeqt->qt_invoke( index, objects );
+
+	    // ### update reference parameters and value
+	    delete [] objects;
+	    res = S_OK;
+	}
+	break;
+    case DISPATCH_PROPERTYPUT:
+	{
+	    const QMetaProperty *property = proplist->find( dispidMember );
+	    if ( !property )
+		break;
+	    if ( !property->writable() )
+		return DISP_E_MEMBERNOTFOUND;
+	    if ( !pDispParams->cArgs )
+		return DISP_E_PARAMNOTOPTIONAL;
+	    if ( pDispParams->cArgs != 1 || 
+		 pDispParams->cNamedArgs != 1 ||
+		 *pDispParams->rgdispidNamedArgs != DISPID_PROPERTYPUT )
+		return DISP_E_BADPARAMCOUNT;
+
+	    emitRequestPropertyChange( dispidMember );
+
+	    QVariant var = VARIANTToQVariant( *pDispParams->rgvarg );
+	    if ( !var.isValid() ) {
+		if ( puArgErr )
+		    *puArgErr = 0;
+		return DISP_E_BADVARTYPE;
+	    }
+	    if ( !activeqt->setProperty( property->name(), var ) ) {
+		if ( puArgErr )
+		    *puArgErr = 0;
+		return DISP_E_TYPEMISMATCH;
+	    }
+
+	    emitPropertyChanged( dispidMember );
+
+	    res = S_OK;
+	}
+	break;
+    case DISPATCH_PROPERTYGET:
+	{
+	    const QMetaProperty *property = proplist->find( dispidMember );
+	    if ( !property )
+		break;
+	    if ( !pvarResult )
+		return DISP_E_PARAMNOTOPTIONAL;
+	    if ( pDispParams->cArgs || 
+		 pDispParams->cNamedArgs )
+		return DISP_E_BADPARAMCOUNT;
+
+	    QVariant var = activeqt->property( property->name() );
+	    if ( !var.isValid() )
+		return DISP_E_MEMBERNOTFOUND;
+
+	    *pvarResult = QVariantToVARIANT( var );
+	    res = S_OK;
+	}
+	break;
+    default:
+	break;
     }
 
+    if ( res == S_OK )
+	return res;
     return IDispatchImpl<IQActiveX, &IID_IQActiveX, &LIBID_ACTIVEQTEXELib >::
-	Invoke( dispidMember, riid, lcid, wFlags, pdispparams, pvarResult, pexcepinfo, puArgErr );
+	Invoke( dispidMember, riid, lcid, wFlags, pDispParams, pvarResult, pexcepinfo, puArgErr );
+}
+
+HRESULT QActiveQtBase::EnumConnectionPoints( IEnumConnectionPoints **epoints )
+{
+    if ( !epoints )
+	return E_POINTER;
+    *epoints = new QAxSignalVec( points );
+    (*epoints)->AddRef();
+    return S_OK;
+}
+
+HRESULT QActiveQtBase::FindConnectionPoint( REFIID iid, IConnectionPoint **cpoint )
+{
+    if ( !cpoint )
+	return E_POINTER;
+
+    IConnectionPoint *cp = points[iid];
+    *cpoint = cp;
+    if ( cp )
+	return S_OK;
+    return CONNECT_E_NOCONNECTION;
+}
+
+HRESULT QActiveQtBase::InitNew()
+{
+    if ( initNewCalled )
+	return CO_E_ALREADYINITIALIZED;
+
+    dirtyflag = FALSE;
+    initNewCalled = TRUE;
+    const QMetaObject *mo = activeqt->metaObject();
+    for ( int prop = 0; prop < mo->numProperties( TRUE ); ++prop ) {
+	// set property to default value...
+    }
+    return S_OK;
+}
+
+HRESULT QActiveQtBase::Load( IPropertyBag *bag, IErrorLog *log )
+{
+    if ( initNewCalled )
+	return E_UNEXPECTED;
+    if ( !bag )
+	return E_POINTER;
+
+    dirtyflag = FALSE;
+    bool error = FALSE;
+    const QMetaObject *mo = activeqt->metaObject();
+    for ( int prop = 0; prop < mo->numProperties( TRUE ); ++prop ) {
+	const char* property = mo->property( prop, TRUE )->name();
+	BSTR bstr = QStringToBSTR( property );
+	VARIANT var;
+	bag->Read( bstr, &var, 0 );
+	if ( !activeqt->setProperty( property, VARIANTToQVariant( var ) ) )
+	    error = TRUE;
+	SysFreeString(bstr);
+    }
+
+    return error ? E_FAIL : S_OK;
+}
+
+HRESULT QActiveQtBase::Save( IPropertyBag *bag, BOOL clearDirty, BOOL saveAll)
+{
+    if ( !bag )
+	return E_POINTER;
+
+    dirtyflag = FALSE;
+    bool error = FALSE;
+    const QMetaObject *mo = activeqt->metaObject();
+    for ( int prop = 0; prop < mo->numProperties( TRUE ); ++prop ) {
+	const char* property = mo->property( prop, TRUE )->name();
+	BSTR bstr = QStringToBSTR( property );
+	QVariant qvar;
+	if ( !activeqt->qt_property( prop, 1, &qvar ) )
+	    error = TRUE;
+	VARIANT var = QVariantToVARIANT( qvar );
+	bag->Write( bstr, &var );
+	SysFreeString(bstr);
+    }
+    return error ? E_FAIL : S_OK;
+}
+
+HRESULT QActiveQtBase::IsDirty()
+{
+    return dirtyflag ? S_OK : S_FALSE;
 }

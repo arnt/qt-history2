@@ -18,7 +18,13 @@ import "ocidl.idl";
 	]
 	interface IQActiveX : IDispatch
 	{
-		[id(1), helpstring("method invoke")] HRESULT doSomething();
+		[id(1), helpstring("method invoke")] HRESULT about();
+		[id(3), helpstring("method with int parameter")] HRESULT setValue(int);
+		[id(4), helpstring("method with string parameter")] HRESULT setText(BSTR);
+		[propget, id(2), helpstring("property text"), bindable, requestedit] HRESULT text([out, retval] BSTR *pVal);
+		[propput, id(2), helpstring("property text"), bindable, requestedit] HRESULT text([in] BSTR newVal);
+		[propget, id(5), helpstring("property value"), bindable, requestedit] HRESULT value([out, retval] int *pVal);
+		[propput, id(5), helpstring("property value"), bindable, requestedit] HRESULT value([in] int newVal);
 	};
 
 [
@@ -39,6 +45,9 @@ library ACTIVEQTEXELib
 	{
 		properties:
 		methods:
+		[id(1)] void someSignal();
+		[id(2)] void valueChanged(int);
+		[id(3)] void textChanged(BSTR);
 	};
 
 	[
