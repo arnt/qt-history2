@@ -566,7 +566,7 @@ void qScrollEffect(QWidget* w, QEffects::DirFlags orient, int time)
     Qt::WFlags flags = Qt::WStyle_Customize | Qt::WStyle_StaysOnTop
         | (w->isPopup() ? Qt::WFlags(Qt::WType_Popup) : (Qt::WX11BypassWM | Qt::WStyle_Tool));
 #else
-    Qt::WFlags flags = Qt::WStyle_Customize | Qt::WType_Popup | Qt::WX11BypassWM | Qt::WStyle_StaysOnTop;
+    Qt::WFlags flags = Qt::WStyle_Customize | Qt::WStyle_Tool | Qt::WX11BypassWM | Qt::WStyle_StaysOnTop;
 #endif
 
     // those can be popups - they would steal the focus, but are disabled
@@ -591,7 +591,7 @@ void qFadeEffect(QWidget* w, int time)
     Qt::WFlags flags = Qt::WStyle_Customize | Qt::WStyle_StaysOnTop
         | (w->isPopup() ? QFlag(Qt::WType_Popup) : (Qt::WX11BypassWM | Qt::WStyle_Tool));
 #else
-    Qt::WFlags flags = Qt::WStyle_Customize | Qt::WType_Popup | Qt::WX11BypassWM | Qt::WStyle_StaysOnTop;
+    Qt::WFlags flags = Qt::WStyle_Customize | Qt::WStyle_Tool | Qt::WX11BypassWM | Qt::WStyle_StaysOnTop;
 #endif
 
     // those can be popups - they would steal the focus, but are disabled
