@@ -4112,7 +4112,6 @@ void QListView::contentsContextMenuEvent( QContextMenuEvent *e )
 	    emit contextMenuRequested( item, mapToGlobal( p ), -1 );
 	}
     } else {
-	d->buttonDown = FALSE;
 	QPoint vp = contentsToViewport( e->pos() );
 	QListViewItem * i = itemAt( vp );
 	int c = i ? d->h->mapToLogical( d->h->cellAt( vp.x() ) ) : -1;
@@ -4441,6 +4440,9 @@ void QListView::focusInEvent( QFocusEvent *e )
 void QListView::focusOutEvent( QFocusEvent *e )
 {
     Q_UNUSED(e) // I need this to get rid of a Borland warning
+	
+    if ( e->reason() == QFocusEvent::Popup && d->buttonDown )
+	d->buttonDown = FALSE;
     if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
 	if ( e->reason() != QFocusEvent::Popup ) {
 	    bool db = d->useDoubleBuffer;
