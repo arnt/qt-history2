@@ -579,6 +579,7 @@ public:
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
     virtual void stretchBlt( int rx,int ry,int w,int h, int sw,int sh );
 #endif
+    virtual void tiledBlt( int rx,int ry,int w,int h );
     
     inline int tx( int x, int y ) {
 	switch ( qt_trans_screen->transformation() ) {
@@ -842,6 +843,52 @@ void QGfxTransformedRaster<depth,type>::stretchBlt( int x, int y, int w, int h,
 					rs.width(), rs.height() );
 }
 #endif
+
+template <const int depth, const int type>
+void QGfxTransformedRaster<depth,type>::tiledBlt( int rx,int ry,int w,int h )
+{
+    if ( w <= 0 || h <= 0 )
+	return;
+    inDraw = TRUE;
+    QRect r;
+    r.setCoords( tx(rx,ry), ty(rx,ry), tx(rx+w-1,ry+h-1), ty(rx+w-1,ry+h-1) );
+    r = r.normalize();
+
+    QPoint oldBrushOffs = brushoffs;
+    int brx, bry;
+    switch ( qt_trans_screen->transformation() ) {
+	case QTransformedScreen::Rot90:
+	    brx = brushoffs.y();
+	    bry = srcwidth - brushoffs.x() - w;
+	    break;
+	case QTransformedScreen::Rot180:
+	    brx = srcwidth - brushoffs.x() - w;
+	    bry = srcheight - brushoffs.y() - h;
+	    break;
+	case QTransformedScreen::Rot270:
+	    brx = srcheight - brushoffs.y() - h;
+	    bry = brushoffs.x();
+	    break;
+	default:
+	    brx = brushoffs.x();
+	    bry = brushoffs.y();
+	    break;
+    }
+    brushoffs = QPoint( brx, bry );
+
+    int oldsw = srcwidth;
+    int oldsh = srcheight;
+    QSize s = qt_screen->mapToDevice( QSize(srcwidth,srcheight) );
+    srcwidth = s.width();
+    srcheight = s.height();
+
+    QT_TRANS_GFX_BASE<depth,type>::tiledBlt( r.x(), r.y(), r.width(), r.height() );
+
+    srcwidth = oldsw;
+    srcheight = oldsh;
+    brushoffs = oldBrushOffs;
+    inDraw = FALSE;
+}
 
 int QTransformedScreen::initCursor(void* e, bool init)
 {
