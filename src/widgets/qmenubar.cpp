@@ -40,7 +40,7 @@ class QMenuDataData {
     // attention: also defined in qmenudata.cpp
 public:
     QMenuDataData();
-    QGuardedPtr<QWidget> aWidget; 
+    QGuardedPtr<QWidget> aWidget;
     int aInt;
 };
 
@@ -627,13 +627,13 @@ int QMenuBar::calculateRects( int max_width )
 	QMenuItem *mi = mitems->at(i);
 	int w=0, h=0;
 	if ( mi->pixmap() ) {			// pixmap item
-	    w = mi->pixmap()->width();
-	    h = mi->pixmap()->height();
+	    w = mi->pixmap()->width() + 2*motifItemHMargin;
+	    h = mi->pixmap()->height() + 2*motifItemVMargin;
 	} else if ( !mi->text().isNull() ) {	// text item
 	    QString s = mi->text();
 	    w = fm.width(s)
-		    - fm.minLeftBearing()
-		    - fm.minRightBearing()
+		    - fm.leftBearing( s[0] )
+		    - fm.rightBearing( s[ (uint) s.length()-1] )
 		    + 2*motifItemHMargin;
 		w -= s.contains('&')*fm.width('&');
 		w += s.contains("&&")*fm.width('&');
@@ -673,8 +673,11 @@ int QMenuBar::calculateRects( int max_width )
 	}
 	if ( max_height != height() )
 	    resize( max_width, max_height );
+	for ( i = 0; i < (int)mitems->count(); i++ )
+	    irects[i].setHeight( max_height - 2*motifBarFrame );
 	badSize = FALSE;
     }
+
     return max_height;
 }
 
