@@ -457,7 +457,7 @@ void MenuBarEditor::showItem( int index )
     if ( index == -1 ) {
 	index = currentIndex;
     }
-    if ( index < itemList.count() ) {
+    if ( (uint)index < itemList.count() ) {
 	MenuBarEditorItem * i = itemList.at( index );
 	if ( i->isSeparator() || draggedItem ) {
 	    return;
@@ -489,7 +489,7 @@ void MenuBarEditor::focusItem( int index )
     if ( index == -1 ) {
 	index = currentIndex;
     }
-    if ( index < itemList.count() ) {
+    if ( (uint)index < itemList.count() ) {
 	PopupMenuEditor * m = itemList.at( index )->menu();
 	m->setFocus();
 	m->update();
@@ -502,7 +502,7 @@ void MenuBarEditor::deleteItem( int index )
     if ( index == -1 ) {
 	index = currentIndex;
     }
-    if ( index < itemList.count() ) {
+    if ( (uint)index < itemList.count() ) {
 	RemoveMenuCommand * cmd = new RemoveMenuCommand( "Delete Menu",
 							 formWnd,
 							 this,
@@ -560,7 +560,7 @@ void MenuBarEditor::mousePressEvent( QMouseEvent * e )
 
 void MenuBarEditor::mouseDoubleClickEvent( QMouseEvent * e )
 {
-    QPoint pos = e->pos();
+    //QPoint pos = e->pos();
     currentIndex = findItem( mousePressPos );
     if ( currentIndex > itemList.count() ) {
 	MenuBarEditorItem * i =
@@ -641,7 +641,7 @@ void MenuBarEditor::dragMoveEvent( QDragMoveEvent * e )
     QPoint pos = e->pos();
     dropLine->move( snapToItem( pos ) );
 
-    int idx = findItem( pos );
+    uint idx = (uint)findItem( pos );
     if ( currentIndex != idx ) {
 	hideItem();
 	currentIndex = idx;

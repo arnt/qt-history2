@@ -485,7 +485,7 @@ void PopupMenuEditor::remove( int index )
 	emit actionRemoved( i->anyAction() ); // emit before or after actual emission
 	itemList.remove( index );
 	resizeToContents();
-	int n = itemList.count() + 1;
+	uint n = itemList.count() + 1;
 	if ( currentIndex >= n ) {
 	    currentIndex = itemList.count() + 1;
 	}
