@@ -26,6 +26,8 @@
 #include "qglobal.h"
 
 #include "qdir.h"
+#ifndef QT_NO_DIR
+
 #include "qfileinfo.h"
 #include "qfiledefs_p.h"
 #include "qregexp.h"
@@ -257,3 +259,4 @@ const QFileInfoList * QDir::drives()
 
     return knownMemoryLeak;
 }
+#endif //QT_NO_DIR

@@ -47,7 +47,9 @@ public:
     QFileInfo();
     QFileInfo( const QString &file );
     QFileInfo( const QFile & );
+#ifndef QT_NO_DIR
     QFileInfo( const QDir &, const QString &fileName );
+#endif
     QFileInfo( const QFileInfo & );
    ~QFileInfo();
 
@@ -55,8 +57,9 @@ public:
 
     void	setFile( const QString &file );
     void	setFile( const QFile & );
+#ifndef QT_NO_DIR
     void	setFile( const QDir &, const QString &fileName );
-
+#endif
     bool	exists()	const;
     void	refresh()	const;
     bool	caching()	const;
@@ -64,19 +67,26 @@ public:
 
     QString	filePath()	const;
     QString	fileName()	const;
+#ifndef QT_NO_DIR //###
     QString	absFilePath()	const;
+#endif
     QString	baseName()	const;
     QString	extension( bool complete = TRUE ) const;
 
+#ifndef QT_NO_DIR //###
     QString	dirPath( bool absPath = FALSE ) const;
+#endif
+#ifndef QT_NO_DIR
     QDir	dir( bool absPath = FALSE )	const;
-
+#endif
     bool	isReadable()	const;
     bool	isWritable()	const;
     bool	isExecutable()	const;
 
+#ifndef QT_NO_DIR //###
     bool	isRelative()	const;
     bool	convertToAbs();
+#endif
 
     bool	isFile()	const;
     bool	isDir()		const;

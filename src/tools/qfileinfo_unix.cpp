@@ -340,7 +340,7 @@ void QFileInfo::doStat() const
 
   \sa dir(), filePath(), fileName(), isRelative()
 */
-
+#ifndef QT_NO_DIR
 QString QFileInfo::dirPath( bool absPath ) const
 {
     QString s;
@@ -357,7 +357,7 @@ QString QFileInfo::dirPath( bool absPath ) const
 	return s.left( pos );
     }
 }
-
+#endif
 /*!
   Returns the name of the file, the file path is not included.
 
@@ -392,7 +392,7 @@ QString QFileInfo::fileName() const
 
   \sa isRelative(), filePath()
 */
-
+#ifndef QT_NO_DIR
 QString QFileInfo::absFilePath() const
 {
     if ( QDir::isRelativePath(fn) ) {
@@ -408,3 +408,4 @@ QString QFileInfo::absFilePath() const
     }
 
 }
+#endif

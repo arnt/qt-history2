@@ -114,7 +114,7 @@ QFileInfo::QFileInfo( const QFile &file )
 
   \sa isRelative()
 */
-
+#ifndef QT_NO_DIR
 QFileInfo::QFileInfo( const QDir &d, const QString &fileName )
 {
     fn	  = d.filePath( fileName );
@@ -122,7 +122,7 @@ QFileInfo::QFileInfo( const QDir &d, const QString &fileName )
     fic	  = 0;
     cache = TRUE;
 }
-
+#endif
 /*!
   Constructs a new QFileInfo that is a copy of \e fi.
 */
@@ -236,7 +236,7 @@ void QFileInfo::setFile( const QFile &file )
 
   \sa isRelative()
 */
-
+#ifndef QT_NO_DIR
 void QFileInfo::setFile( const QDir &d, const QString &fileName )
 {
     fn	= d.filePath( fileName );
@@ -244,7 +244,7 @@ void QFileInfo::setFile( const QDir &d, const QString &fileName )
     delete fic;
     fic = 0;
 }
-
+#endif
 
 /*!
   Returns TRUE if the file pointed to exists, otherwise FALSE.
@@ -377,12 +377,12 @@ QString QFileInfo::extension( bool complete ) const
 
   \sa dirPath(), filePath(), fileName(), isRelative()
 */
-
+#ifndef QT_NO_DIR
 QDir QFileInfo::dir( bool absPath ) const
 {
     return QDir( dirPath(absPath) );
 }
-
+#endif
 
 
 /*!
@@ -423,7 +423,7 @@ bool QFileInfo::isExecutable() const
 
   According to Einstein this function should always return TRUE.
 */
-
+#ifndef QT_NO_DIR
 bool QFileInfo::isRelative() const
 {
     return QDir::isRelativePath( fn );
@@ -443,3 +443,4 @@ bool QFileInfo::convertToAbs()
 	fn = absFilePath();
     return QDir::isRelativePath( fn );
 }
+#endif

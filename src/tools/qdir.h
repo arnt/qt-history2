@@ -31,6 +31,7 @@
 #include "qfileinfo.h"
 #endif // QT_H
 
+#ifndef QT_NO_DIR
 typedef QList<QFileInfo> QFileInfoList;
 typedef QListIterator<QFileInfo> QFileInfoListIterator;
 class QStringList;
@@ -218,5 +219,5 @@ struct QDirSortItem {
     QFileInfo* item;
 };
 
-
+#endif // QT_NO_DIR
 #endif // QDIR_H

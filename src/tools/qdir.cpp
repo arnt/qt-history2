@@ -26,6 +26,8 @@
 #include "qglobal.h"
 
 #include "qdir.h"
+
+#ifndef QT_NO_DIR
 #include "qfileinfo.h"
 #include "qfiledefs_p.h"
 #include "qregexp.h"
@@ -1202,3 +1204,4 @@ int qt_cmp_si( const void *n1, const void *n2 )
 }
 #endif
 
+#endif // QT_NO_DIR
