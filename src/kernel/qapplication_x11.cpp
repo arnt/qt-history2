@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#500 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#501 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -293,7 +293,7 @@ void qt_deferred_map_cleanup()
     delete deferred_map_list;
     deferred_map_list = 0;
 }
-void qt_deferred_map_add( QWidget* w) 
+void qt_deferred_map_add( QWidget* w)
 {
     if ( !deferred_map_list ) {
 	deferred_map_list = new QList<QWidget>;
@@ -337,10 +337,12 @@ public:
 
 static void close_xim()
 {
+#if !defined(NO_XIM)
     // Calling XCloseIM gives a Purify FMR error
     // XCloseIM( qt_xim );
     // We prefer a less serious memory leak
     qt_xim = 0;
+#endif
 }
 
 
@@ -914,9 +916,9 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
     qt_set_x11_resources(appFont, appFGCol, appBGCol, appBTNCol);
 
-    qt_xim = 0;
 
 #if !defined(NO_XIM)
+    qt_xim = 0;
     setlocale( LC_ALL, "" );		// use correct char set mapping
     setlocale( LC_NUMERIC, "C" );	// make sprintf()/scanf() work
 
@@ -2129,7 +2131,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    }
 	} else if ( widget ) { // widget properties
 	    if ( event->xproperty.atom == qt_wm_state ) {
-		widget->createTLExtra(); 
+		widget->createTLExtra();
 		widget->extra->topextra->wmstate = 1;
 		if ( qt_deferred_map_contains( widget ) ) {
 		    qt_deferred_map_take( widget );
@@ -2305,7 +2307,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case ReparentNotify:			// window manager reparents
 	if ( event->xreparent.parent == appRootWin ) {
-	    
+	
 	    QTLWExtra*  x = widget->extra? widget->extra->topextra : 0;
 	    if ( x )
 		x->parentWinId = appRootWin;
@@ -3246,6 +3248,9 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		return TRUE;
 	}
 
+	QMouseEvent e( type, pos, globalPos, button, state );
+	QApplication::sendEvent( widget, &e );
+
 	if ( type == QEvent::MouseButtonRelease &&
 	     (state & (~button) & ( LeftButton |
 				    MidButton |
@@ -3385,6 +3390,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
     }
 
     QEvent::Type type = (event->type == XKeyPress) ? QEvent::KeyPress : QEvent::KeyRelease;
+    QWidget* tlw = topLevelWidget();
 
 #if defined(NO_XIM)
 
@@ -3400,8 +3406,6 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
     static int composingKeycode;
     int	       keycode = event->xkey.keycode;
     Status     status;
-    static int c  = 0;
-    QWidget* tlw = topLevelWidget();
 
     // Perhaps we should filer ALL events.
     if ( XFilterEvent( (XEvent*)event, tlw->winId() ) ) {
@@ -3484,6 +3488,8 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
 	    chars[0] = 0;
 	}
     }
+
+    static int c  = 0;
 #define KOI8(x) c = (c == x || (!c && x == 0x1000) )? x+1 : 0
     if ( tlw && state == '0' ) {
 	switch ( code ) {
