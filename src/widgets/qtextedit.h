@@ -88,6 +88,7 @@ class Q_EXPORT QTextEdit : public QScrollView
     Q_PROPERTY( bool modified READ isModified WRITE setModified DESIGNABLE false )
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
     Q_PROPERTY( bool undoRedoEnabled READ isUndoRedoEnabled WRITE setUndoRedoEnabled )
+    Q_PROPERTY( int tabStopWidth READ tabStopWidth WRITE setTabStopWidth )
 
 public:
     enum WordWrap {
