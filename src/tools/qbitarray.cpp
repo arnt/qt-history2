@@ -416,13 +416,17 @@ QDataStream &operator>>( QDataStream &s, QBitArray &a )
 {
     Q_UINT32 len;
     s >> len;
-    a.resize( len ); // read size of array
-    if ( a.size() != (int)len ) {		// resize array
-	qWarning( "QDataStream: Not enough memory to read QBitArray" );
-	len = 0;
+    if (!len) {
+	a.d.clear();
+    } else {
+	a.resize( len ); // read size of array
+	if ( a.size() != (int)len ) {		// resize array
+	    qWarning( "QDataStream: Not enough memory to read QBitArray" );
+	    len = 0;
+	}
+	if ( len > 0 )				// read data
+	    s.readRawBytes( a.d.data(), a.d.size() );
     }
-    if ( len > 0 )				// read data
-	s.readRawBytes( a.d.data(), a.d.size() );
     return s;
 }
 #endif

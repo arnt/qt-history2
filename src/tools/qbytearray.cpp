@@ -1112,7 +1112,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
     Q_INT32 len;
     s >> len;					// read size of array
     if ( len == 0 || s.eof() ) {		// end of file reached
-	a.resize( 0 );
+	a.clear();
 	return s;
     }
     a.resize( len );
