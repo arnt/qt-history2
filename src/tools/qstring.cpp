@@ -15326,7 +15326,7 @@ QString QString::fromLatin1( const char* chars, int len )
 /*!
   Returns the string encoded in a locale-specific format.  On X11, this
   is the QTextCodec::codecForLocale().  On Windows, it is a system-defined
-  encoding.
+  encoding. On Mac OS X, this always uses utf8 as the encoding.
 
   See QTextCodec for more diverse coding/decoding of Unicode strings.
 
@@ -15346,10 +15346,8 @@ QCString QString::local8Bit() const
 	    : QCString(latin1());
 #endif
 #if defined( Q_WS_MACX )
-    QTextCodec* codec = QTextCodec::codecForLocale();
-    return codec
-	    ? codec->fromUnicode(*this)
-	    : QCString(latin1());
+    return utf8();
+#endif
 #elif defined( Q_WS_MAC9 )
      return QCString(latin1()); //I'm evil..
 #endif
@@ -15393,11 +15391,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 	    : fromLatin1( local8Bit, len );
 #endif
 #if defined( Q_WS_MAC )
-    QTextCodec* codec = QTextCodec::codecForLocale();
-    if ( len < 0 ) len = qstrlen(local8Bit);
-    return codec
-	    ? codec->toUnicode( local8Bit, len )
-	    : fromLatin1( local8Bit, len );
+    return fromUtf8(local8Bit,len);
 #endif
 // Should this be OS_WIN32?
 #ifdef Q_WS_WIN
