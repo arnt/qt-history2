@@ -4610,11 +4610,13 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 	painter.setPen( cg.text() );
     painter.setFont( format->font() );
 
-    if ( hasdoc && formatChar->isAnchor() && !formatChar->anchorHref().isEmpty() && format->useLinkColor() ) {
-	if ( document()->linkColor.isValid() )
-	    painter.setPen( document()->linkColor );
-	else
-	    painter.setPen( QPen( cg.link() ) );
+    if ( hasdoc && formatChar->isAnchor() && !formatChar->anchorHref().isEmpty() ) {
+	if ( format->useLinkColor() ) {
+	    if ( document()->linkColor.isValid() )
+		painter.setPen( document()->linkColor );
+	    else
+		painter.setPen( QPen( cg.link() ) );
+	}
 	if ( document()->underlineLinks() ) {
 	    QFont fn = format->font();
 	    fn.setUnderline( TRUE );
@@ -6476,7 +6478,12 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 		format.fn.setFamily( a );
 	    }
 	} else {
-
+	    if ( !style->isAnchor() && style->color().isValid() ) {
+		// the style is not an anchor and defines a color.
+		// It might be used inside an anchor and it should 
+		// override the link color.
+		format.linkColor = FALSE;
+	    }
 	    switch ( style->verticalAlignment() ) {
 	    case QStyleSheetItem::VAlignBaseline:
 		format.setVAlign( QTextFormat::AlignNormal );
