@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#35 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#36 $
 **
 ** Definition of QRegion class
 **
@@ -63,7 +63,7 @@ public:
     QRegion eor( const QRegion & )	const;
 
     QRect   boundingRect() const;
-    QArray<QRect> getRects() const;
+    QArray<QRect> rects() const;
 
     bool    operator==( const QRegion & )  const;
     bool    operator!=( const QRegion &r ) const
@@ -110,7 +110,6 @@ private:
 #if defined(_WS_PM_)
     static HPS hps;
 #endif
-    friend class QPSPrinter;
 };
 
 

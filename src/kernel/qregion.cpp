@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#23 $
 **
 ** Implementation of QRegion class
 **
@@ -14,7 +14,7 @@
 #include "qbuffer.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#23 $");
 
 
 /*!
@@ -74,7 +74,9 @@ QByteArray QRegion::QRegionData::unused_shared;	// ### remove in 2.0
 */
 QRegion::QRegion( int x, int y, int w, int h, RegionType t )
 {
-    *this = QRegion(QRect(x,y,w,h),t);
+    QRegion tmp(QRect(x,y,w,h),t);
+    tmp.data->ref();
+    data = tmp.data;
 }
 
 /*!
@@ -218,7 +220,7 @@ QDataStream &operator<<( QDataStream &s, const QRegion &r )
 #if QT_VERSION >= 200
 	case QRegion::QRegionData::ComplexRgn:
 	    {
-		QArray<QRect> a = r.getRects();
+		QArray<QRect> a = r.rects();
 		s << (Q_UINT32)(4+4+8*a.size());
 		s << (int)QRGN_RECTS;
 		s << (Q_UINT32)a.size();
@@ -228,7 +230,7 @@ QDataStream &operator<<( QDataStream &s, const QRegion &r )
 #else
 	case QRegion::QRegionData::ComplexRgn:
 	    {
-		QArray<QRect> a = r.getRects();
+		QArray<QRect> a = r.rects();
 		if ( a.isEmpty() ) {
 		    s << (Q_UINT32)0;
 		} else {
