@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#39 $
 **
 ** Implementation of layout classes
 **
@@ -740,7 +740,7 @@ QVBoxLayout::~QVBoxLayout()
 /*!
   \class QGridLayout qlayout.h
 
-  \brief The QVBoxLayout class lays out child widgets in a grid.
+  \brief The QGridLayout class lays out child widgets in a grid.
 
   \ingroup geomanagement
 
