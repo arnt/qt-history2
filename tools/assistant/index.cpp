@@ -295,14 +295,14 @@ QStringList Index::getWildcardTerms( const QString &term )
 	    index = text.find( *iter, index );
 	    if ( *iter == terms.last() && index != (int)text.length()-1 ) {
 		index = text.findRev( *iter );
-		if ( index != (int)text.length() - 1 ) {
+		if ( index != (int)text.length() - (int)(*iter).length() ) {
 		    found = FALSE;
 		    break;
 		}
 	    }
 	    if ( index != -1 ) {
 		found = TRUE;
-		++index;
+		index += (*iter).length();
 		continue;
 	    } else {
 		found = FALSE;
