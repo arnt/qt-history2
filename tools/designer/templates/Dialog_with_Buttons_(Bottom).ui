@@ -1,36 +1,28 @@
-<!DOCTYPE UI><UI>
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>MyDialog</class>
-<widget>
-    <class>QDialog</class>
-    <property>
-        <name>name</name>
+<widget class="QDialog">
+    <property name="name">
         <cstring>MyDialog</cstring>
     </property>
-    <property>
-        <name>geometry</name>
+    <property name="geometry">
         <rect>
-            <x>4</x>
-            <y>24</y>
-            <width>519</width>
-            <height>286</height>
+            <x>0</x>
+            <y>0</y>
+            <width>515</width>
+            <height>284</height>
         </rect>
     </property>
-    <property>
-        <name>caption</name>
+    <property name="caption">
         <string>MyDialog</string>
     </property>
-    <property>
-        <name>sizeGripEnabled</name>
-        <bool>1</bool>
+    <property name="sizeGripEnabled">
+        <bool>true</bool>
     </property>
-    <widget>
-        <class>QLayoutWidget</class>
-        <property>
-            <name>name</name>
+    <widget class="QLayoutWidget">
+        <property name="name">
             <cstring>Layout1</cstring>
         </property>
-        <property>
-            <name>geometry</name>
+        <property name="geometry">
             <rect>
                 <x>20</x>
                 <y>240</y>
@@ -39,99 +31,72 @@
             </rect>
         </property>
         <hbox>
-            <property>
-                <name>margin</name>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <property name="margin">
                 <number>0</number>
             </property>
-            <property>
-                <name>spacing</name>
+            <property name="spacing">
                 <number>6</number>
             </property>
-            <widget>
-                <class>QPushButton</class>
-                <property>
-                    <name>name</name>
+            <widget class="QPushButton">
+                <property name="name">
                     <cstring>buttonHelp</cstring>
                 </property>
-                <property>
-                    <name>text</name>
+                <property name="text">
                     <string>&amp;Help</string>
                 </property>
-                <property>
-                    <name>autoDefault</name>
-                    <bool>1</bool>
+                <property name="autoDefault">
+                    <bool>true</bool>
                 </property>
             </widget>
             <spacer>
-                <property>
-                    <name>name</name>
+                <property name="name" stdset="0">
                     <cstring>Horizontal Spacing2</cstring>
                 </property>
-                <property>
-                    <name>geometry</name>
-                    <rect>
-                        <x>87</x>
-                        <y>6</y>
-                        <width>130</width>
-                        <height>20</height>
-                    </rect>
-                </property>
-                <property>
-                    <name>orientation</name>
+                <property name="orientation">
                     <enum>Horizontal</enum>
                 </property>
-                <property>
-                    <name>sizeType</name>
+                <property name="sizeType">
                     <enum>Expanding</enum>
                 </property>
+                <property name="sizeHint">
+                    <size>
+                        <width>20</width>
+                        <height>20</height>
+                    </size>
+                </property>
             </spacer>
-            <widget>
-                <class>QPushButton</class>
-                <property>
-                    <name>name</name>
-                    <cstring>buttonApply</cstring>
-                </property>
-                <property>
-                    <name>text</name>
-                    <string>&amp;Apply</string>
-                </property>
-                <property>
-                    <name>autoDefault</name>
-                    <bool>1</bool>
-                </property>
-            </widget>
-            <widget>
-                <class>QPushButton</class>
-                <property>
-                    <name>name</name>
+            <widget class="QPushButton">
+                <property name="name">
                     <cstring>buttonOk</cstring>
                 </property>
-                <property>
-                    <name>text</name>
-                    <string>&amp;OK</string>
+                <property name="text">
+                    <string>OK</string>
                 </property>
-                <property>
-                    <name>autoDefault</name>
-                    <bool>1</bool>
+                <property name="autoDefault">
+                    <bool>true</bool>
                 </property>
-                <property>
-                    <name>default</name>
-                    <bool>1</bool>
+                <property name="default">
+                    <bool>true</bool>
+                </property>
+                <property name="accel">
+                    <number>0</number>
                 </property>
             </widget>
-            <widget>
-                <class>QPushButton</class>
-                <property>
-                    <name>name</name>
+            <widget class="QPushButton">
+                <property name="name">
                     <cstring>buttonCancel</cstring>
                 </property>
-                <property>
-                    <name>text</name>
-                    <string>&amp;Cancel</string>
+                <property name="text">
+                    <string>Cancel</string>
                 </property>
-                <property>
-                    <name>autoDefault</name>
-                    <bool>1</bool>
+                <property name="autoDefault">
+                    <bool>true</bool>
+                </property>
+                <property name="accel">
+                    <number>0</number>
                 </property>
             </widget>
         </hbox>

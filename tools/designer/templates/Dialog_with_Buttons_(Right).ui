@@ -1,36 +1,28 @@
-<!DOCTYPE UI><UI>
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>MyDialog</class>
-<widget>
-    <class>QDialog</class>
-    <property>
-        <name>name</name>
+<widget class="QDialog">
+    <property name="name">
         <cstring>MyDialog</cstring>
     </property>
-    <property>
-        <name>geometry</name>
+    <property name="geometry">
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>600</width>
-            <height>474</height>
+            <width>596</width>
+            <height>472</height>
         </rect>
     </property>
-    <property>
-        <name>caption</name>
+    <property name="caption">
         <string>MyDialog</string>
     </property>
-    <property>
-        <name>sizeGripEnabled</name>
+    <property name="sizeGripEnabled">
         <bool>true</bool>
     </property>
-    <widget>
-        <class>QLayoutWidget</class>
-        <property>
-            <name>name</name>
+    <widget class="QLayoutWidget">
+        <property name="name">
             <cstring>Layout5</cstring>
         </property>
-        <property>
-            <name>geometry</name>
+        <property name="geometry">
             <rect>
                 <x>500</x>
                 <y>30</y>
@@ -39,84 +31,72 @@
             </rect>
         </property>
         <vbox>
-            <property>
-                <name>margin</name>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <property name="margin">
                 <number>0</number>
             </property>
-            <property>
-                <name>spacing</name>
+            <property name="spacing">
                 <number>6</number>
             </property>
-            <widget>
-                <class>QPushButton</class>
-                <property>
-                    <name>name</name>
+            <widget class="QPushButton">
+                <property name="name">
                     <cstring>buttonOk</cstring>
                 </property>
-                <property>
-                    <name>text</name>
-                    <string>&amp;OK</string>
+                <property name="text">
+                    <string>OK</string>
                 </property>
-                <property>
-                    <name>autoDefault</name>
+                <property name="autoDefault">
                     <bool>true</bool>
                 </property>
-                <property>
-                    <name>default</name>
+                <property name="default">
                     <bool>true</bool>
+                </property>
+                <property name="accel">
+                    <number>0</number>
                 </property>
             </widget>
-            <widget>
-                <class>QPushButton</class>
-                <property>
-                    <name>name</name>
+            <widget class="QPushButton">
+                <property name="name">
                     <cstring>buttonCancel</cstring>
                 </property>
-                <property>
-                    <name>text</name>
-                    <string>&amp;Cancel</string>
+                <property name="text">
+                    <string>Cancel</string>
                 </property>
-                <property>
-                    <name>autoDefault</name>
+                <property name="autoDefault">
                     <bool>true</bool>
                 </property>
+                <property name="accel">
+                    <number>0</number>
+                </property>
             </widget>
-            <widget>
-                <class>QPushButton</class>
-                <property>
-                    <name>name</name>
+            <widget class="QPushButton">
+                <property name="name">
                     <cstring>buttonHelp</cstring>
                 </property>
-                <property>
-                    <name>text</name>
+                <property name="text">
                     <string>&amp;Help</string>
                 </property>
-                <property>
-                    <name>autoDefault</name>
+                <property name="autoDefault">
                     <bool>true</bool>
                 </property>
             </widget>
             <spacer>
-                <property>
-                    <name>name</name>
+                <property name="name" stdset="0">
                     <cstring>Spacer1</cstring>
                 </property>
-                <property>
-                    <name>geometry</name>
-                    <rect>
-                        <x>31</x>
-                        <y>103</y>
-                        <width>20</width>
-                        <height>306</height>
-                    </rect>
-                </property>
-                <property>
-                    <name>orientation</name>
+                <property name="orientation">
                     <enum>Vertical</enum>
                 </property>
-                <property>
-                    <name>sizeType</name>
+                <property name="sizeType">
                     <enum>Expanding</enum>
+                </property>
+                <property name="sizeHint">
+                    <size>
+                        <width>20</width>
+                        <height>20</height>
+                    </size>
                 </property>
             </spacer>
         </vbox>
