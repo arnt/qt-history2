@@ -27,49 +27,49 @@ all: symlinks src-qmake src-moc sub-src sub-tools \
 qt.install: all qmake-install moc-install src-install tools-install
 
 moc-install: src-moc
-	cd src/moc; $(MAKE) install
+	cd src/moc && $(MAKE) install
 
 src-install: sub-src
-	cd src; $(MAKE) install
+	cd src && $(MAKE) install
 
 tools-install: sub-tools
-	cd tools; $(MAKE) install
+	cd tools && $(MAKE) install
 
 qmake-install: src-qmake
-	cd qmake; $(MAKE) install
+	cd qmake && $(MAKE) install
 
 src-qmake: symlinks FORCE
-	cd qmake; $(MAKE)
+	cd qmake && $(MAKE)
 
 src-moc: src-qmake FORCE
-	cd src/moc; $(MAKE)
+	cd src/moc && $(MAKE)
 
 sub-tools: sub-plugins FORCE
-	cd tools; $(MAKE)
+	cd tools && $(MAKE)
 
 symlinks: .qmake.cache
-#	@cd include; rm -f q*.h; ln -s ../src/*/q*.h .; ln -s ../extensions/*/src/q*.h .; rm -f q*_p.h
+#	@cd include && rm -f q*.h; ln -s ../src/*/q*.h .; ln -s ../extensions/*/src/q*.h .; rm -f q*_p.h
 
 sub-src: src-moc .qmake.cache FORCE
-	cd src; $(MAKE)
+	cd src && $(MAKE)
 
 sub-plugins: sub-src .qmake.cache FORCE
-	cd plugins/src; $(MAKE)
+	cd plugins/src && $(MAKE)
 
 sub-tutorial: sub-src FORCE
-	cd tutorial; $(MAKE)
+	cd tutorial && $(MAKE)
 
 sub-examples: sub-tools FORCE
-	cd examples; $(MAKE)
+	cd examples && $(MAKE)
 
 clean:
-	cd qmake; $(MAKE) clean
-	cd tools; $(MAKE) clean
-	cd src/moc; $(MAKE) clean
-	cd src; $(MAKE) clean
-	cd src/codecs/src; $(MAKE) clean
-	cd tutorial; $(MAKE) clean
-	cd examples; $(MAKE) clean
+	cd qmake && $(MAKE) clean
+	cd tools && $(MAKE) clean
+	cd src/moc && $(MAKE) clean
+	cd src && $(MAKE) clean
+	cd src/codecs/src && $(MAKE) clean
+	cd tutorial && $(MAKE) clean
+	cd examples && $(MAKE) clean
 
 distclean: clean
 	-rm .qmake.cache
