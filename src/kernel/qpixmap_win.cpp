@@ -803,7 +803,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	int i = 0;
 	while ( i<image.height() && !hasRealAlpha ) {
 	    uchar *p = image.scanLine(i);
-	    uchar *end = p + image.width();
+	    uchar *end = p + image.bytesPerLine();
 	    p += 3;
 	    while ( p < end ) {
 		if ( *p!=0 && *p!=0xff ) {
