@@ -1300,7 +1300,6 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    if ( titlebar->window() ) {
 		QRect ir;
 		bool down = FALSE;
-		int xoff = 0, yoff = 0;
 		QPixmap pm;
 
 		if ( controls & SC_TitleBarCloseButton ) {
