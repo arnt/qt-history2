@@ -679,16 +679,9 @@ static const char * const ps_header[] = {
 
 // the next three commands are for defining fonts. The first one
 // tries to find the most suitable printer font out of a fontlist.
+// if encoding is false the default one will be used.
 "/MF {",                                // newname encoding fontlist
 "  qtfindfont qtdefinefont",
-"} D",
-
-// used for asian fonts. We don't need an encoding, but we can simulate italic.
-"/MSF {",                               // newname slant fontname
-"  findfont exch",                      // newname font slant
-"  /slant exch d",                      // newname font
-"  [ 1 0 slant 1 0 0 ] makefont",
-"  definefont pop",
 "} D",
 
 // an embedded font. This is used for the base fonts of the composite font used later on.
@@ -1960,7 +1953,7 @@ public:
     QPSPrinterFontPrivate();
     virtual ~QPSPrinterFontPrivate() {}
     virtual QString postScriptFontName() { return psname; }
-    virtual QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
+    virtual QString defineFont( QTextStream &stream, const QString &ps, const QFont &f, const QString &key,
                              QPSPrinterPrivate *d );
     virtual void download(QTextStream& s, bool global);
     virtual void drawText( QTextStream &stream, uint spaces, const QPoint &p,
@@ -2330,7 +2323,7 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QP
 }
 
 
-QString QPSPrinterFontPrivate::defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
+QString QPSPrinterFontPrivate::defineFont( QTextStream &stream, const QString &ps, const QFont &f, const QString &key,
                                    QPSPrinterPrivate *d )
 {
     QString fontName;
@@ -4646,21 +4639,19 @@ class QPSPrinterFontAsian
   : public QPSPrinterFontPrivate {
 public:
       QPSPrinterFontAsian()
-	  : QPSPrinterFontPrivate(), codec( 0 ) {}
+	  : QPSPrinterFontPrivate(), codec( 0 ), slant( 0. ) {}
       void download(QTextStream& s, bool global);
-      QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
-                          QPSPrinterPrivate *d ) = 0;
-      QString emitDef( QTextStream &stream, const QString &ps, const QFont &f,
-		       float slant, const QString &key, QPSPrinterPrivate *d);
-
+      QString defineFont( QTextStream &stream, const QString &ps, const QFont &f, const QString &key,
+                          QPSPrinterPrivate *d );
       void drawText( QTextStream &stream, uint spaces, const QPoint &p,
                      const QString &text, QPSPrinterPrivate *d, QPainter *paint );
       
       QTextCodec *codec;
+      float slant;
 };
 
-QString QPSPrinterFontAsian::emitDef( QTextStream &stream, const QString &ps, const QFont &f,
-				      float slant, const QString &key, QPSPrinterPrivate *d)
+QString QPSPrinterFontAsian::defineFont( QTextStream &stream, const QString &ps, const QFont &f,
+					 const QString &key, QPSPrinterPrivate *d)
 {
     QString fontName;
     QString fontName2;
@@ -4672,7 +4663,7 @@ QString QPSPrinterFontAsian::emitDef( QTextStream &stream, const QString &ps, co
             fontName = *tmp;
         } else {
 	    fontName.sprintf( "F%d", ++d->headerFontNumber );
-	    d->fontStream << "/" << fontName << " " << slant << "/" << ps << " MSF\n";
+	    d->fontStream << "/" << fontName << " false " << ps << "List MF\n";
 	    d->headerFontNames.insert( ps, new QString( fontName ) );
 	}
         fontName2.sprintf( "F%d", ++d->headerFontNumber );
@@ -4684,7 +4675,7 @@ QString QPSPrinterFontAsian::emitDef( QTextStream &stream, const QString &ps, co
             fontName = *tmp;
         } else {
 	    fontName.sprintf( "F%d", ++d->pageFontNumber );
-	    stream << "/" << fontName << " " << slant << "/" << ps << " MSF\n";
+	    stream << "/" << fontName << " false " << ps << "List MF\n";
 	    d->pageFontNames.insert( ps, new QString( fontName ) );
 	}
         fontName2.sprintf( "F%d", ++d->pageFontNumber );
@@ -4701,7 +4692,7 @@ void QPSPrinterFontAsian::download(QTextStream& s, bool)
     //qDebug("downloading asian font %s", psname.latin1() );
     s << "% Asian postscript font requested. Using "
       << psname << endl;
-    //emitPSFontNameList( s, psname, replacementList );
+    emitPSFontNameList( s, psname, replacementList );
 }
 
 void QPSPrinterFontAsian::drawText( QTextStream &stream, uint spaces, const QPoint &p,
@@ -4753,14 +4744,45 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, uint spaces, const QPoi
 
 // ----------- Japanese --------------
 
+static const psfont Japanese1 [] = {
+    { "Ryumin-Light-H", 0, 100. },
+    { "Ryumin-Light-H", 0.2, 100. },
+    { "GothicBBB-Medium-H", 0, 100. },
+    { "GothicBBB-Medium-H", 0.2, 100. }
+};
+
+static const psfont Japanese1a [] = {
+    { "GothicBBB-Medium-H", 0, 100. },
+    { "GothicBBB-Medium-H", 0.2, 100. },
+    { "Ryumin-Light-H", 0, 100. },
+    { "Ryumin-Light-H", 0.2, 100. }
+};
+
+static const psfont Japanese2 [] = {
+    { "GothicBBB-Medium-H", 0, 100. },
+    { "GothicBBB-Medium-H", 0.2, 100. },
+    { "GothicBBB-Medium-H", 0, 100. },
+    { "GothicBBB-Medium-H", 0.2, 100. }
+};
+
+static const psfont Japanese2a [] = {
+    { "Ryumin-Light-H", 0, 100. },
+    { "Ryumin-Light-H", 0.2, 100. },
+    { "Ryumin-Light-H", 0, 100. },
+    { "Ryumin-Light-H", 0.2, 100. }
+};
+
+static const psfont * const Japanese1Replacements[] = {
+    Japanese1, Japanese1a, 0
+};
+static const psfont * const Japanese2Replacements[] = {
+    Japanese2, Japanese2a, 0
+};
+
 class QPSPrinterFontJapanese
   : public QPSPrinterFontAsian {
 public:
       QPSPrinterFontJapanese(const QFont& f);
-      QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
-                          QPSPrinterPrivate *d );
-private:
-    const QTextCodec *convJP;
 };
 
 QPSPrinterFontJapanese::QPSPrinterFontJapanese(const QFont& f)
@@ -4768,44 +4790,17 @@ QPSPrinterFontJapanese::QPSPrinterFontJapanese(const QFont& f)
     codec = QTextCodec::codecForMib( 63 ); // jisx0208.1983-0
 
     psname = makePSFontName( f );
-    // now try to convert that to some japanese postscript font in a sensible way.
-    // as we don't support font substitution at the moment, we just use the
-    // two fonts that should be available on any system: Ryumin-Light and GothicBBB-Medium
+    int type = getPsFontType( f );
 
-    if ( psname.contains( "Helvetica" ) || psname.contains( "Bold" ) )
-        if ( psname.contains("Italic") || psname.contains("Oblique") ) {
-            psname = "GothicBBB-Oblique";
-        } else {
-            psname = "GothicBBB";
-        }
-    else
-        if ( psname.contains("Italic") || psname.contains("Oblique") ) {
-            psname = "Ryumin-Oblique";
-        } else {
-            psname = "Ryumin";
-        }
-    convJP = 0;
-    replacementList = makePSFontNameList( f );
-}
-
-
-QString QPSPrinterFontJapanese::defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
-                                       QPSPrinterPrivate *d )
-{
-    float slant = 0;
-    // do correct mapping
-    if ( ps == "GothicBBB-Oblique" ) {
-        slant = 0.2;
-        ps = "GothicBBB-Medium-H";
-    } else if ( ps == "GothicBBB" ) {
-        ps = "GothicBBB-Medium-H";
-    } else if ( ps == "Ryumin-Oblique" ) {
-        slant = 0.2;
-        ps = "Ryumin-Light-H";
-    } else if ( ps == "Ryumin" ) {
-        ps = "Ryumin-Light-H";
+    if ( psname.contains( "Helvetica" ) ) {
+	psname = Japanese2[type].psname;
+	slant = Japanese2[type].slant;
+	appendReplacements( replacementList, Japanese2Replacements, type );
+    } else {
+	psname = Japanese1[type].psname;
+	slant = Japanese1[type].slant;
+	appendReplacements( replacementList, Japanese1Replacements, type );
     }
-    return emitDef( stream, ps, f, slant, key, d );
 }
 
 // ----------- Korean --------------
@@ -4842,15 +4837,13 @@ static const psfont Munhwa [] = {
 };
 
 static const psfont * const KoreanReplacements[] = {
-    SMMyungjo, SMGothic, Munhwa, MKai, Helvetica, 0
+    SMGothic, Munhwa, MKai, Helvetica, 0
         };
 
 class QPSPrinterFontKorean
   : public QPSPrinterFontAsian {
 public:
       QPSPrinterFontKorean(const QFont& f);
-      QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
-                          QPSPrinterPrivate *d );
 };
 
 QPSPrinterFontKorean::QPSPrinterFontKorean(const QFont& f)
@@ -4858,25 +4851,89 @@ QPSPrinterFontKorean::QPSPrinterFontKorean(const QFont& f)
     codec = QTextCodec::codecForMib( 36 ); // ksc5601.1987-0
     int type = getPsFontType( f );
     psname = SMMyungjo[type].psname;
+    slant = SMMyungjo[type].slant;
     appendReplacements( replacementList, KoreanReplacements, type );
-}
-
-
-QString QPSPrinterFontKorean::defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
-                                       QPSPrinterPrivate *d )
-{
-    return QPSPrinterFontPrivate::defineFont( stream, ps, f, key, d );
 }
 
 // ----------- traditional chinese ------------
 
-static const psfont MSung [] = {
-    { "MSung-Light-B5-H", 0, 100. },
-    { "MSung-Light-B5-H", 0.2, 100. },
-    { "MSung-Light-B5-H", 0, 100. },
-    { "MSung-Light-B5-H", 0.2, 100. },
+// Arphic Public License Big5 TrueType fonts (on Debian and CLE and others)
+static const psfont ShanHeiSun [] = {
+    { "ShanHeiSun-Light-ETen-B5-H", 0, 100. },
+    { "ShanHeiSun-Light-Italic-ETen-B5-H", 0.2, 100. },
+    { "ShanHeiSun-Light-Bold-ETen-B5-H", 0, 100. },
+    { "ShanHeiSun-Light-BoldItalic-ETen-B5-H", 0.2, 100. },
+};
+static const psfont ZenKai [] = {
+    { "ZenKai-Medium-ETen-B5-H", 0, 100. },
+    { "ZenKai-Medium-Italic-ETen-B5-H", 0.2, 100. },
+    { "ZenKai-Medium-Bold-ETen-B5-H", 0, 100. },
+    { "ZenKai-Medium-BoldItalic-ETen-B5-H", 0.2, 100. },
 };
 
+// Fonts on Turbolinux
+static const psfont SongB5 [] = {
+    { "B5-MSung-Light-ETen-B5-H", 0, 100. },
+    { "B5-MSung-Italic-ETen-B5-H", 0, 100. },
+    { "B5-MSung-Bold-ETen-B5-H", 0, 100. },
+    { "B5-MSung-BoldItalic-ETen-B5-H", 0, 100. },
+};
+static const psfont KaiB5 [] = {
+    { "B5-MKai-Medium-ETen-B5-H", 0, 100. },
+    { "B5-MKai-Italic-ETen-B5-H", 0, 100. },
+    { "B5-MKai-Bold-ETen-B5-H", 0, 100. },
+    { "B5-MKai-BoldItalic-ETen-B5-H", 0, 100. },
+};
+static const psfont HeiB5 [] = {
+    { "B5-MHei-Medium-ETen-B5-H", 0, 100. },
+    { "B5-MHei-Italic-ETen-B5-H", 0, 100. },
+    { "B5-MHei-Bold-ETen-B5-H", 0, 100. },
+    { "B5-MHei-BoldItalic-ETen-B5-H", 0, 100. },
+};
+static const psfont FangSongB5 [] = {
+    { "B5-CFangSong-Light-ETen-B5-H", 0, 100. },
+    { "B5-CFangSong-Italic-ETen-B5-H", 0, 100. },
+    { "B5-CFangSong-Bold-ETen-B5-H", 0, 100. },
+    { "B5-CFangSong-BoldItalic-ETen-B5-H", 0, 100. },
+};
+
+// Arphic fonts on Thiz Linux
+static const psfont LinGothic [] = {
+    { "LinGothic-Light-ETen-B5-H", 0, 100. },
+    { "LinGothic-Light-Italic-ETen-B5-H", 0.2, 100. },
+    { "LinGothic-Light-Bold-ETen-B5-H", 0, 100. },
+    { "LinGothic-Light-BoldItalic-ETen-B5-H", 0.2, 100. },
+};
+static const psfont YenRound [] = {
+    { "YenRound-Light-ETen-B5-H", 0, 100. },
+    { "YenRound-Light-Italic-ETen-B5-H", 0.2, 100. },
+    { "YenRound-Light-Bold-ETen-B5-H", 0, 100. },
+    { "YenRound-Light-BoldItalic-ETen-B5-H", 0.2, 100. },
+};
+
+// Dr. Wang Hann-Tzong's GPL'ed Big5 TrueType fonts
+static const psfont HtWFangSong [] = {
+    { "HtW-FSong-Light-ETen-B5-H", 0, 100. },
+    { "HtW-FSong-Light-Italic-ETen-B5-H", 0.2, 100. },
+    { "HtW-FSong-Light-Bold-ETen-B5-H", 0, 100. },
+    { "HtW-FSong-Light-BoldItalic-ETen-B5-H", 0.2, 100. },
+};
+
+static const psfont MingB5 [] = {
+    { "Ming-Light-ETen-B5-H", 0, 100. },
+    { "Ming-Light-Italic-ETen-B5-H", 0.2, 100. },
+    { "Ming-Light-Bold-ETen-B5-H", 0, 100. },
+    { "Ming-Light-BoldItalic-ETen-B5-H", 0.2, 100. },
+};
+
+// Microsoft's Ming/Sung font?
+static const psfont MSung [] = {
+    { "MSung-Light-ETenms-B5-H", 0, 100. },
+    { "MSung-Light-ETenms-B5-H", 0.2, 100. },
+    { "MSung-Light-ETenms-B5-H", 0, 100. },
+    { "MSung-Light-ETenms-B5-H", 0.2, 100. },
+};
+// "Standard Sung/Ming" font by Taiwan Ministry of Education
 static const psfont MOESung [] = {
     { "MOESung-Regular-B5-H", 0, 100. },
     { "MOESung-Regular-B5-H", 0.2, 100. },
@@ -4884,33 +4941,141 @@ static const psfont MOESung [] = {
     { "MOESung-Regular-B5-H", 0.2, 100. },
 };
 
-static const psfont * const MSungReplacements[] = {
-    MSung, MOESung, Helvetica, 0
-        };
+static const psfont * const TraditionalReplacements[] = {
+    SongB5, ShanHeiSun, MingB5, MSung, FangSongB5, KaiB5, ZenKai, HeiB5,
+    LinGothic, YenRound, MOESung, Helvetica, 0
+	};
+
+#if 0
+static const psfont * const SongB5Replacements[] = {
+    SongB5, ShanHeiSun, MingB5, MSung, MOESung, Helvetica, 0
+	};
+#endif
+
+static const psfont * const FangSongB5Replacements[] = {
+    FangSongB5, HtWFangSong, Courier, 0
+	};
+static const psfont * const KaiB5Replacements[] = {
+    KaiB5, ZenKai, Times, 0
+	};
+static const psfont * const HeiB5Replacements[] = {
+    HeiB5, LinGothic, YenRound, LucidaSans, 0
+	};
+static const psfont * const YuanB5Replacements[] = {
+    YenRound, LinGothic, HeiB5, LucidaSans, 0
+	};
+
 
 class QPSPrinterFontTraditionalChinese
   : public QPSPrinterFontAsian {
 public:
       QPSPrinterFontTraditionalChinese(const QFont& f);
-      QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
-                          QPSPrinterPrivate *d );
 };
 
 QPSPrinterFontTraditionalChinese::QPSPrinterFontTraditionalChinese(const QFont& f)
 {
+    codec = QTextCodec::codecForMib( -2026 ); // Big5-0
     int type = getPsFontType( f );
     psname = MSung[type].psname;
-    appendReplacements( replacementList, MSungReplacements, type );
-}
-
-
-QString QPSPrinterFontTraditionalChinese::defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
-                                       QPSPrinterPrivate *d )
-{
-    return QPSPrinterFontPrivate::defineFont( stream, ps, f, key, d );
+    slant = MSung[type].slant;
+    appendReplacements( replacementList, TraditionalReplacements, type );
 }
 
 // ----------- simplified chinese ------------
+
+#if 0
+// GB18030 fonts on XteamLinux (?)
+static const psfont SimplifiedGBK2K [] = {
+    { "MSung-Light-GBK2K-H", 0, 100. },
+    { "MSung-Light-GBK2K-H", 0.2, 100. },
+    { "MKai-Medium-GBK2K-H", 0, 100. },
+    { "MKai-Medium-GBK2K-H", 0.2, 100. },
+};
+#endif
+
+#if 0
+
+// GB18030 fonts on Turbolinux
+static const psfont SongGBK2K [] = {
+    { "MSung-Light-GBK2K-H", 0, 100. },
+    { "MSung-Italic-GBK2K-H", 0, 100. },
+    { "MSung-Bold-GBK2K-H", 0, 100. },
+    { "MSung-BoldItalic-GBK2K-H", 0, 100. },
+};
+static const psfont KaiGBK2K [] = {
+    { "MKai-Medium-GBK2K-H", 0, 100. },
+    { "MKai-Italic-GBK2K-H", 0, 100. },
+    { "MKai-Bold-GBK2K-H", 0, 100. },
+    { "MKai-BoldItalic-GBK2K-H", 0, 100. },
+};
+static const psfont HeiGBK2K [] = {
+    { "MHei-Medium-GBK2K-H", 0, 100. },
+    { "MHei-Italic-GBK2K-H", 0, 100. },
+    { "MHei-Bold-GBK2K-H", 0, 100. },
+    { "MHei-BoldItalic-GBK2K-H", 0, 100. },
+};
+static const psfont FangSongGBK2K [] = {
+    { "CFangSong-Light-GBK2K-H", 0, 100. },
+    { "CFangSong-Italic-GBK2K-H", 0, 100. },
+    { "CFangSong-Bold-GBK2K-H", 0, 100. },
+    { "CFangSong-BoldItalic-GBK2K-H", 0, 100. },
+};
+
+static const psfont Simplified [] = {
+    { "MSung-Light-GBK-EUC-H", 0, 100. },
+    { "MSung-Light-GBK-EUC-H", 0.2, 100. },
+    { "MKai-Medium-GBK-EUC-H", 0, 100. },
+    { "MKai-Medium-GBK-EUC-H", 0.2, 100. },
+};
+
+static const psfont MSungGBK [] = {
+    { "MSung-Light-GBK-EUC-H", 0, 100. },
+    { "MSung-Light-GBK-EUC-H", 0.2, 100. },
+    { "MSung-Light-GBK-EUC-H", 0, 100. },
+    { "MSung-Light-GBK-EUC-H", 0.2, 100. },
+};
+
+static const psfont FangSong [] = {
+    { "CFangSong-Light-GBK-EUC-H", 0, 100. },
+    { "CFangSong-Light-GBK-EUC-H", 0.2, 100. },
+    { "CFangSong-Light-GBK-EUC-H", 0, 100. },
+    { "CFangSong-Light-GBK-EUC-H", 0.2, 100. },
+};
+
+// Arphic Public License GB2312 TrueType fonts (on Debian and CLE and others)
+static const psfont BousungEG [] = {
+    { "BousungEG-Light-GB-GB-EUC-H", 0, 100. },
+    { "BousungEG-Light-GB-GB-EUC-H", 0.2, 100. },
+    { "BousungEG-Light-GB-Bold-GB-EUC-H", 0, 100. },
+    { "BousungEG-Light-GB-Bold-GB-EUC-H", 0.2, 100. },
+};
+static const psfont GBZenKai [] = {
+    { "GBZenKai-Medium-GB-GB-EUC-H", 0, 100. },
+    { "GBZenKai-Medium-GB-GB-EUC-H", 0.2, 100. },
+    { "GBZenKai-Medium-GB-Bold-GB-EUC-H", 0, 100. },
+    { "GBZenKai-Medium-GB-Bold-GB-EUC-H", 0.2, 100. },
+};
+
+static const psfont * const SimplifiedReplacements[] = {
+    SongGBK2K, FangSongGBK2K, KaiGBK2K, HeiGBK2K,
+    Simplified, MSungGBK, FangSong, BousungEG, GBZenKai, Helvetica, 0
+	};
+#if 0
+static const psfont * const SongGBK2KReplacements[] = {
+    SongGBK2K, MSungGBK, BousungEG, Helvetica, 0
+	};
+#endif
+static const psfont * const FangSongGBK2KReplacements[] = {
+    FangSongGBK2K, FangSong, Courier, 0
+	};
+static const psfont * const KaiGBK2KReplacements[] = {
+    KaiGBK2K, GBZenKai, Times, 0
+	};
+static const psfont * const HeiGBK2KReplacements[] = {
+    HeiGBK2K, LucidaSans, 0
+	};
+
+#endif
 
 
 
@@ -4943,23 +5108,16 @@ class QPSPrinterFontSimplifiedChinese
   : public QPSPrinterFontAsian {
 public:
       QPSPrinterFontSimplifiedChinese(const QFont& f);
-      QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
-                          QPSPrinterPrivate *d );
 };
 
 QPSPrinterFontSimplifiedChinese::QPSPrinterFontSimplifiedChinese(const QFont& f)
 {
     int type = getPsFontType( f );
     psname = MSungGBK[type].psname;
+    slant = MSungGBK[type].slant;
     appendReplacements( replacementList, SimplifiedReplacements, type );
 }
 
-
-QString QPSPrinterFontSimplifiedChinese::defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
-                                       QPSPrinterPrivate *d )
-{
-    return QPSPrinterFontPrivate::defineFont( stream, ps, f, key, d );
-}
 #endif
 
 
@@ -4970,7 +5128,7 @@ public:
   QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *priv);
   ~QPSPrinterFont();
   QString postScriptFontName()     { return p->postScriptFontName(); }
-    QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
+    QString defineFont( QTextStream &stream, const QString &ps, const QFont &f, const QString &key,
                              QPSPrinterPrivate *d )
     { return p->defineFont( stream, ps, f, key, d ); }
     void    download(QTextStream& s, bool global) { p->download(s, global); }
@@ -5057,6 +5215,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 
 	    case 57: // GB 2312-1980
 	    case 2027: // GBK
+	    case -2500: // GB18030
 	    case 2026: // Big5
 		break;
 
@@ -5237,6 +5396,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 		switch( lc->mibEnum() ) {
 		    case 57: // GB 2312-1980
 		    case 2027: // GBK
+		    case -2500:
 			p = new QPSPrinterFontSimplifiedChinese( f );
 			break;
 		    case 2026: // Big5
