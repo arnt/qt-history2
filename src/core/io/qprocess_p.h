@@ -30,6 +30,7 @@ typedef int Q_PIPE;
 
 
 class QSocketNotifier;
+class QWindowsPipeWriter;
 class QTimer;
 
 class QProcessPrivate : public QIODevicePrivate
@@ -75,6 +76,7 @@ public:
 
     // the wonderfull windows notifier
     QTimer * notifier;
+    QWindowsPipeWriter *pipeWriter;
 
     void startProcess();
     void execChild();

@@ -45,6 +45,7 @@ QProcessPrivate::QProcessPrivate()
     writeSocketNotifier = 0;
     startupSocketNotifier = 0;
     notifier = 0;
+    pipeWriter = 0;
     standardReadPipe[0] = INVALID_Q_PIPE;
     standardReadPipe[1] = INVALID_Q_PIPE;
     errorReadPipe[0] = INVALID_Q_PIPE;
