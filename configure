@@ -1343,7 +1343,8 @@ fi
 if true #[ '!' -f "$outpath/bin/qmake" ]
 then
     echo "Creating qmake. Please wait..."
-    ln -sf $QMAKESPEC mkspecs/default
+    [ -h mkspecs/default ] && rm -f mkspecs/default
+    ln -s $QMAKESPEC mkspecs/default
     #fix makefiles
     for mkfile in GNUmakefile Makefile
     do
