@@ -198,7 +198,7 @@ bool QWidgetPluginPrivate::canUnload() const
   the Q_EXPORT_PLUGIN macro.
 */
 QWidgetPlugin::QWidgetPlugin()
-    : QGPlugin( (QWidgetFactoryInterface*)d = new QWidgetPluginPrivate( this ) )
+    : QGPlugin( (QWidgetFactoryInterface*)(d = new QWidgetPluginPrivate( this )) )
 {
 }
 
