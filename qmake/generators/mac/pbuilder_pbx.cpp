@@ -245,7 +245,7 @@ nextfile:
           << "\t\t\t" << "buildSettings = {" << "\n"
           << "\t\t\t\t" << "COPY_PHASE_STRIP = " << (as_release ? "YES" : "NO") << ";" << "\n";
         if(as_release)
-            t << "\t\t\t\t" << "DEBUGGING_SYMBOLS = NO;" << "\n";
+            t << "\t\t\t\t" << "GCC_GENERATE_DEBUGGING_SYMBOLS = NO;" << "\n";
         t << "\t\t\t" << "};" << "\n"
           << "\t\t\t" << "isa = PBXBuildStyle;" << "\n"
           << "\t\t\t" << "name = " << (as_release ? "Deployment" : "Development") << ";" << "\n"
@@ -1068,6 +1068,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t\t" << "HEADER_SEARCH_PATHS = \"" << fixListForOutput("INCLUDEPATH") << " " << fixForOutput(specdir()) << "\";" << "\n"
       << "\t\t\t\t" << "LIBRARY_SEARCH_PATHS = \"" << var("QMAKE_PBX_LIBPATHS") << "\";" << "\n"
       << "\t\t\t\t" << "OPTIMIZATION_CFLAGS = \"\";" << "\n"
+      << "\t\t\t\t" << "GCC_GENERATE_DEBUGGING_SYMBOLS = " <<
+        (project->isActiveConfig("debug") ? "YES" : "NO") << ";" << "\n"
       << "\t\t\t\t" << "OTHER_CFLAGS = \"" <<
         fixListForOutput("QMAKE_CFLAGS") << fixForOutput(varGlue("PRL_EXPORT_DEFINES"," -D"," -D","")) <<
         fixForOutput(varGlue("DEFINES"," -D"," -D","")) << "\";" << "\n"
@@ -1273,7 +1275,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
           << "\t\t\t" << "buildSettings = {" << "\n"
           << "\t\t\t\t" << "COPY_PHASE_STRIP = " << (as_release ? "YES" : "NO") << ";" << "\n";
         if(as_release) {
-            t << "\t\t\t\t" << "DEBUGGING_SYMBOLS = NO;" << "\n";
+            t << "\t\t\t\t" << "GCC_GENERATE_DEBUGGING_SYMBOLS = NO;" << "\n";
         } else {
             t << "\t\t\t\t" << "GCC_ENABLE_FIX_AND_CONTINUE = "
               << (project->isActiveConfig("no_fix_and_continue") ? "NO" : "YES") << ";" << "\n"
