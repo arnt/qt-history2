@@ -28,6 +28,7 @@ public:
     int rowCount() const;
     int columnCount() const;
     QVariant data(const QModelIndex &index, int role) const;
+    ItemFlags flags(const QModelIndex &index) const;
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = DisplayRole) const;
 

@@ -73,13 +73,30 @@ QVariant TableModel::data(const QModelIndex &index, int /* role */) const
 }
 
 /*!
+    Returns an appropriate value for the item's flags. Valid items are
+    enabled, selectable, and editable.
+*/
+
+QAbstractItemModel::ItemFlags TableModel::flags(const QModelIndex &index) const
+{
+    if (!index.isValid())
+        return ItemIsEnabled;
+
+    return ItemIsEnabled | ItemIsSelectable | ItemIsEditable;
+}
+
+/*!
     Returns the appropriate header string depending on the orientation of
-    the header and the section.
+    the header and the section. If anything other than the display role is
+    requested, we return an invalid variant.
 */
 
 QVariant TableModel::headerData(int section, Qt::Orientation orientation,
-                                int /* role */) const
+                                int role) const
 {
+    if (role != DisplayRole)
+        return QVariant();
+
     if (orientation == Qt::Horizontal)
         return QString("Column %1").arg(section);
     else
