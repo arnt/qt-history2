@@ -762,20 +762,10 @@ populated by the readFields() call as before.
 \line FormDialog::
 \until }
 
->>>> ORIGINAL sql.doc#14
-In the destructor we delete the \l QSqlCursor and \l QSqlForm we created
-in the constructor. We don't have to worry about the widgets since they
-are children of the form and will be deleted by Qt at the right time.
-==== THEIRS sql.doc#15
-In the destructor we delete the \l QSqlCursor we created in the
-constructor. We don't have to worry about the widgets since they are
-children of the form and will be deleted by Qt at the right time.
-==== YOURS sql.doc
 In the destructor we delete the \l QSqlCursor we created in the
 constructor. We don't have to worry about the widgets or QSqlForm since
 they are children of the form and will be deleted by Qt at the right
 time.
-<<<<
 
 \skip save
 \line save
