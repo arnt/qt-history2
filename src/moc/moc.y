@@ -1555,6 +1555,7 @@ class parser_reg {
     QByteArray  fileName;				// file name
     QByteArray  outputFile;				// output file name
     QStrList  includeFiles;			// name of #include files
+    QByteArray  pchFile;				// name of PCH file (used on Windows)
     QByteArray  includePath;				// #include file path
     QByteArray  qtPath;				// #include qt file path
     int           gen_count; //number of classes generated
@@ -1657,6 +1658,12 @@ int main(int argc, char **argv)
 		autoInclude = FALSE;
 		if (opt[1])			// -fsomething.h
 		    g->includeFiles.append(opt.mid(1));
+	    } else if (opt == "pch") {	// produce #include statement for PCH
+		if (!(n < argc-1)) {
+		    error = "Missing name of PCH file";
+		    break;
+		}
+		g->pchFile = argv[++n];
 	    } else if (opt[0] == 'p') {	// include file path
 		if (opt[1] == '\0') {
 		    if (!(n < argc-1)) {
@@ -1722,13 +1729,14 @@ int main(int argc, char **argv)
 	if (error)
 	    fprintf(stderr, "moc: %s\n", error);
 	fprintf(stderr, "Usage:  moc [options] <header-file>\n"
-		 "\t-o file  Write output to file rather than stdout\n"
-		 "\t-i       Do not generate an #include statement\n"
-		 "\t-f[file] Force #include, optional file name\n"
-		 "\t-p path  Path prefix for included file\n"
-		 "\t-k       Do not stop on errors\n"
-		 "\t-nw      Do not display warnings\n"
-		 "\t-v       Display version of moc\n");
+		 "\t-o file    Write output to file rather than stdout\n"
+		 "\t-pch file  Add #include \"file\" to beginning of output\n"
+		 "\t-f[file]   Force #include, optional file name\n"
+		 "\t-p path    Path prefix for included file\n"
+		 "\t-i         Do not generate an #include statement\n"
+		 "\t-k         Do not stop on errors\n"
+		 "\t-nw        Do not display warnings\n"
+		 "\t-v         Display version of moc\n" );
 	cleanup();
 	return 1;
     } else {
@@ -2884,6 +2892,8 @@ void generateClass()		      // generate C++ source code for a class
 	    */
 	    fprintf(out, "#undef QT_NO_COMPAT\n");
 
+	    if (!g->pchFile.isEmpty())
+	    	fprintf(out, "#include \"%s\" // PCH include\n", (const char*)g->pchFile);
 	    if (!g->includePath.isEmpty() && g->includePath.right(1) != "/")
 		g->includePath += "/";
 
