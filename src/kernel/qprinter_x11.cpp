@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#13 $
 **
 ** Implementation of QPrinter class for X-Windows
 **
@@ -21,7 +21,7 @@
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#12 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#13 $")
 
 
 /*****************************************************************************
@@ -166,9 +166,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    if ( pr.isEmpty() )		// not set, then read $PRINTER
 			pr = getenv( "PRINTER" );
 		    if ( pr.isEmpty() ) {	// no printer set
-#if defined(DEBUG)
-			warning( "QPrinter: No default printer." );
-#endif
+			pr = "lp";
 		    }
 		    else {
 			pr.insert( 0, "-P" );
