@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#197 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#198 $
 **
 ** Implementation of QObject class
 **
@@ -33,6 +33,7 @@
 
 
 /*! \class Qt qnamespace.h
+
   \brief The Qt class is a namespace for miscellaneous identifiers
   that need to be global-like.
 
@@ -44,6 +45,12 @@
   \c black, particularly in static utility functions (such as many
   class factories).
 
+*/
+
+/*! \enum Qt::Orientation
+
+  This type is used to signify whether an object should be \a
+  Horizontal or \a Vertical (for example in QScrollBar).
 */
 
 

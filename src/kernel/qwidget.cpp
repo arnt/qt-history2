@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#404 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#405 $
 **
 ** Implementation of QWidget class
 **
@@ -1498,18 +1498,17 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
     return extra ? (BackgroundMode)extra->bg_mode : PaletteBackground;
 }
 
-/*!
-  Tells the window system which color to clear this widget to when
-  sending a paint event.
+/*! \enum QWidget::BackgroundMode
 
-  In other words, this color is the color of the widget when
-  paintEvent() is called.  To minimize flicker, this should be the
-  most common color in the widget.
+  This enum describes how the background of a widget changes, as the widget's palette changes.
 
-  The following values are valid:
+  The background is what the widget contains when paintEvent() is called.
+  To minimize flicker, this should be the most common color in the
+  widget.
 
-  <ul>
-    <li> \c PaletteForeground
+  The following values are valid:  <ul>
+
+  <li> \c PaletteForeground
 	- use palette() . \link QColorGroup::fillForeground() fillForeground()\endlink
     <li> \c PaletteBackground
 	- use palette() . \link QColorGroup::fillBackground() fillBackground()\endlink
@@ -1542,6 +1541,17 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
 	    cover the drawing area.  This can help avoid flicker.
   </ul>
 
+  \sa setBackgroundMode() backgroundMode()
+*/  
+
+/*!
+  Tells the window system which color to clear this widget to when
+  sending a paint event.
+
+  In other words, this color is the color of the widget when
+  paintEvent() is called.  To minimize flicker, this should be the
+  most common color in the widget.
+
   The fill functions of the colorgroup returns \link QBrush
   Brushes\endlink, which may be either a plain color or a pixmap.
 
@@ -1553,7 +1563,6 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
   </ul>
 
   These values may not be used as parameters to setBackgroundMode().
-  \define QWidget::BackgroundMode
   For most widgets the default (PaletteBackground, normally
   gray) suffices, but some need to use PaletteBase (the
   background color for text output, normally white) and a few need
@@ -1738,6 +1747,21 @@ const QPalette &QWidget::palette() const
     return pal;
 }
 
+
+/*! \enum Qt::PropagationMode
+
+  This enum determines how fonts and palette changes are propagated to
+  children of a widget.
+
+  If a widget's propagation mode is \c NoChildren, changes to that
+  widget's font or palette do not affect the widget's children.  IF it
+  is \c AllChildren, all children are affected.  If it is \c SameFont
+  or \c SamePalette (mostly the default mode) then changes affect
+  those child widget for which no separate font/palette has been set,
+  but no other children.
+
+  \sa setFont() setPalette()
+*/
 
 /*!
   Sets the widget palette to \e p. The widget background color is set to
@@ -2782,9 +2806,9 @@ void QWidget::show()
 
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
     if ( parentWidget() )
-	QApplication::sendPostedEvents( parentWidget(), 
+	QApplication::sendPostedEvents( parentWidget(),
 					QEvent::ChildInserted );
-    
+
     if ( isTopLevel() && !testWState( WState_Resized ) )  {
 	QSize s = sizeHint();
 	QSizePolicy::ExpandData exp;
