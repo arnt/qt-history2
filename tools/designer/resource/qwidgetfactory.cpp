@@ -3,6 +3,8 @@
 #include <widgetinterface.h>
 #include <qmodules.h>
 #include "../integration/kdevelop/kdewidgets.h"
+#include "../designer/config.h"
+#include "../designer/database.h"
 #include <qdom.h>
 #include <qfile.h>
 #include <qlayout.h>
@@ -13,8 +15,10 @@
 #include <qwhatsthis.h>
 #include <zlib.h>
 #include <qobjectlist.h>
+#include <qsqlrecord.h>
+#include <qsqldatabase.h>
 
-// include all Qt widgets
+// include all Qt widgets we support
 #include <qpushbutton.h>
 #include <qtoolbutton.h>
 #include <qcheckbox.h>
@@ -147,6 +151,15 @@ QWidget *QWidgetFactory::create( const QString &uiFile, QObject *connector, QWid
     if ( !tabOrder.isNull() )
 	widgetFactory->loadTabOrder( tabOrder );
 
+    if ( widgetFactory->toplevel ) {
+	if ( widgetFactory->toplevel->inherits( "QDesignerSqlWidget" ) )
+	    ( (QDesignerSqlWidget*)widgetFactory->toplevel )->
+		initPreview( widgetFactory->defConnection, widgetFactory->defTable, widgetFactory->toplevel, widgetFactory->dbControls );
+	else if ( widgetFactory->toplevel->inherits( "QDesignerSqlDialog" ) )
+	    ( (QDesignerSqlDialog*)widgetFactory->toplevel )->
+		initPreview( widgetFactory->defConnection, widgetFactory->defTable, widgetFactory->toplevel, widgetFactory->dbControls );
+    }
+    
     delete widgetFactory;
 
     return w;
@@ -161,6 +174,52 @@ void QWidgetFactory::addWidgetFactory( QWidgetFactory *factory )
 {
     widgetFactories.append( factory );
 }
+
+bool QWidgetFactory::openDatabaseConnections( const QString &dbFileName )
+{
+    if ( !QFile::exists( dbFileName ) )
+	return FALSE;
+
+    Config conf( dbFileName );
+    conf.setGroup( "Connections" );
+
+    QString name, driver, dbName, username, password, hostname;
+    
+    QStringList conns = conf.readListEntry( "Connections", ',' );
+    for ( QStringList::Iterator it = conns.begin(); it != conns.end(); ++it ) {
+	name = *it;
+	conf.setGroup( *it );
+	driver = conf.readEntry( "Driver" );
+	dbName = conf.readEntry( "DatabaseName" );
+	username = conf.readEntry( "Username" );
+	password = conf.readEntry( "Password" );
+	hostname = conf.readEntry( "Hostname" );
+
+	QSqlDatabase *connection = 0;
+	if ( name == "(default)" ) {
+	    if ( !QSqlDatabase::contains() ) // default doesn't exists?
+		connection = QSqlDatabase::addDatabase( driver );
+	    else
+		connection = QSqlDatabase::database();
+	} else {
+	    if ( !QSqlDatabase::contains( name ) )
+		connection = QSqlDatabase::addDatabase( driver, name );
+	    else
+		connection = QSqlDatabase::database( name );
+	}
+	connection->setDatabaseName( dbName );
+	connection->setUserName( username );
+	connection->setPassword( password );
+	connection->setHostName( hostname );
+	if ( !connection->open() ) {
+	    delete connection;
+	    return FALSE;
+	}
+    }
+
+    return TRUE;
+}
+
 
 /*!  Creates the widget of the type \c className passing \a parent and
   \a name to its constructor. If \a className is a widget of the Qt
@@ -289,6 +348,18 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 #else
 	return 0;
 #endif
+    } else if ( className == "QSqlWidget" ) {
+#if defined(QT_MODULE_SQL)
+	return new QDesignerSqlWidget( parent, name );
+#else
+	return 0;
+#endif
+    } else if ( className == "QSqlDialog" ) {
+#if defined(QT_MODULE_SQL)
+	return new QDesignerSqlDialog( parent, name );
+#else
+	return 0;
+#endif
     }
 
     // maybe it is a KDE widget we support
@@ -362,8 +433,8 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	    layout = 0;
 	}
     }
-    
-    
+
+
     while ( !n.isNull() ) {
 	if ( n.tagName() == "spacer" ) {
 	    createSpacer( n, layout );
@@ -556,11 +627,17 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
 		    QWhatsThis::add( (QWidget*)obj, v.toString() );
 	    }
 	    if ( prop == "database" && obj != toplevel ) {
-		QStringList lst = DomTool::readProperty( e, "database", QVariant( QStringList() ) ).toStringList();
+		QStringList lst = DomTool::elementToVariant( e, QVariant( QStringList() ) ).toStringList();
 		if ( lst.count() > 2 )
 		    dbControls.insert( obj->name(), lst[ 2 ] );
 		else if ( lst.count() == 2 )
 		    dbTables.insert( obj->name(), lst );
+	    } else if ( prop == "database" && obj == toplevel ) {
+		QStringList lst = DomTool::elementToVariant( e, QVariant( QStringList() ) ).toStringList();
+		if ( lst.count() == 2 ) {
+		    defConnection = lst[ 0 ];
+		    defTable = lst[ 1 ];
+		}
 	    }
 	    return;
 	}
