@@ -867,7 +867,7 @@ static bool canCast(QCoreVariant::Private *d, QCoreVariant::Type t)
     case QCoreVariant::Time:
 	return d->type == QCoreVariant::String || d->type == QCoreVariant::DateTime;
     case QCoreVariant::DateTime:
-	return d->type == QCoreVariant::String;
+	return d->type == QCoreVariant::String || d->type == QCoreVariant::Date;
     case QCoreVariant::List:
 	return d->type == QCoreVariant::StringList;
 #ifndef QT_NO_TEMPLATE_VARIANT
