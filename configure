@@ -493,6 +493,20 @@ while [ -n "$1" ]; do
 	;;
     platform)
 	PLATFORM="$VAL"
+	case $PLATFORM in
+	aix-64)
+	    PLATFORM=aix-xlc64
+	    ;;
+	irix-64)
+	    PLATFORM=irix-n64
+	    ;;
+	reliant-64)
+	    PLATFORM=reliant-cds64
+	    ;;
+	solaris-64)
+	    PLATFORM=solaris-cc64
+	    ;;
+	esac
 	;;
     xplatform)
 	XPLATFORM="$VAL"
@@ -1091,7 +1105,7 @@ if [ "$CFG_EMBEDDED" != "yes" -a -z "$PLATFORM" ]; then
      AIX*)
 	#PLATFORM=aix-g++
 	PLATFORM=aix-xlc
-	#PLATFORM=aix-64
+	#PLATFORM=aix-xlc64
 	PLATFORM_NOTES="
 	    - Also available for AIX: aix-g++
 	"
@@ -1123,10 +1137,10 @@ if [ "$CFG_EMBEDDED" != "yes" -a -z "$PLATFORM" ]; then
      IRIX*)
 	#PLATFORM=irix-g++
 	PLATFORM=irix-n32
-	#PLATFORM=irix-64
+	#PLATFORM=irix-n64
 	#PLATFORM=irix-o32
 	PLATFORM_NOTES="
-	    - Also available for IRIX: irix-g++ irix-64 irix-o32
+	    - Also available for IRIX: irix-g++ irix-n64 irix-o32
 	"
 	;;
      HP-UX:*)
@@ -1155,8 +1169,9 @@ if [ "$CFG_EMBEDDED" != "yes" -a -z "$PLATFORM" ]; then
      SunOS:5*)
 	#PLATFORM=solaris-g++
 	PLATFORM=solaris-cc
+	#PLATFORM=solaris-cc64
 	PLATFORM_NOTES="
-	    - Also available for Solaris: solaris-g++ solaris-64
+	    - Also available for Solaris: solaris-g++ solaris-cc64
 	"
 	;;
      SunOS:4*)
