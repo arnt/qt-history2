@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#2 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#3 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -89,6 +89,28 @@ bool QSVGDevice::load( const QString &file )
     return doc.setContent( &f );
 }
 
+/*!
+  Replays the graphic using \a painter and returns TRUE if successful, or
+  FALSE if the document format is not valid.
+ */
+
+bool QSVGDevice::play( QPainter *painter )
+{
+    if ( doc.isNull() ) {
+	qWarning( "QSVGDevice::play: No SVG data set." );
+	return FALSE;
+    }
+				  
+    QDomNode svg = doc.namedItem( "svg" );
+    if ( svg.isNull() || !svg.isElement() ) {
+	qWarning( "QSVGDevice::play: Couldn't find any svg element." );
+	return FALSE;
+    }
+    
+    // 'play' all elements recursively starting with 'svg' as root
+    return play( svg, painter );
+}
+
 /*!  \fn QRect QSVGDevice::boundingRect() const
   Returns the bounding rectangle of the vector graphic.
  */
@@ -147,6 +169,15 @@ int QSVGDevice::metric( int m ) const
 bool QSVGDevice::cmd ( int, QPainter*, QPDevCmdParam * )
 {
     return FALSE;
+}
+
+/*!
+  \internal
+  Evaluate \a node, drawing on \a p. Allows recursive calls.
+*/
+
+bool QSVGDevice::play( const QDomNode &node, QPainter *p )
+{
 }
 
 #endif // QT_NO_SVG
