@@ -27,13 +27,13 @@ struct QSockNot {
 };
 typedef QHash<int, QSockNot *> QSNDict;
 
-struct TimerInfo {                                // internal timer info
+struct TimerInfo {                              // internal timer info
     int     ind;                                // - Qt timer identifier - 1
     uint     id;                                // - Windows timer identifier
-    QObject *obj;                                // - object to receive events
+    QObject *obj;                               // - object to receive events
 };
-typedef QList<TimerInfo*>  TimerVec;                // vector of TimerInfo structs
-typedef QHash<int,TimerInfo*> TimerDict;                // fast dict of timers
+typedef QList<TimerInfo*>  TimerVec;            // vector of TimerInfo structs
+typedef QHash<int,TimerInfo*> TimerDict;        // fast dict of timers
 
 class QEventDispatcherWin32Private : public QAbstractEventDispatcherPrivate
 {
