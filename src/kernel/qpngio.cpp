@@ -454,10 +454,8 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality, int off_x, in
     info_ptr->sig_bit.green = 8;
     info_ptr->sig_bit.blue = 8;
 
-#if 0 // libpng takes care of this.
-    if (image.depth() == 1 && image.bitOrder() == QImage::BigEndian)
+    if (image.depth() == 1 && image.bitOrder() == QImage::LittleEndian)
        png_set_packswap(png_ptr);
-#endif
 
     png_colorp palette = 0;
     png_bytep copy_trans = 0;
