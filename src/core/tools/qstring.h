@@ -83,8 +83,8 @@ public:
     const QChar operator[](uint i) const;
     QCharRef operator[](uint i);
 
-    QString arg(Q_LLONG a, int fieldwidth=0, int base=10, const QChar &fillChar = QLatin1Char(' ')) const;
-    QString arg(Q_ULLONG a, int fieldwidth=0, int base=10, const QChar &fillChar = QLatin1Char(' ')) const;
+    QString arg(Q_LONGLONG a, int fieldwidth=0, int base=10, const QChar &fillChar = QLatin1Char(' ')) const;
+    QString arg(Q_ULONGLONG a, int fieldwidth=0, int base=10, const QChar &fillChar = QLatin1Char(' ')) const;
     QString arg(long a, int fieldWidth = 0, int base = 10, const QChar &fillChar = QLatin1Char(' ')) const;
     QString arg(ulong a, int fieldWidth = 0, int base = 10, const QChar &fillChar = QLatin1Char(' ')) const;
     QString arg(int a, int fieldWidth = 0, int base = 10, const QChar &fillChar = QLatin1Char(' ')) const;
@@ -225,8 +225,8 @@ public:
     uint toUInt(bool *ok=0, int base=10)  const;
     long toLong(bool *ok=0, int base=10)  const;
     ulong toULong(bool *ok=0, int base=10) const;
-    Q_LLONG toLongLong(bool *ok=0, int base=10) const;
-    Q_ULLONG toULongLong(bool *ok=0, int base=10) const;
+    Q_LONGLONG toLongLong(bool *ok=0, int base=10) const;
+    Q_ULONGLONG toULongLong(bool *ok=0, int base=10) const;
     float toFloat(bool *ok=0) const;
     double toDouble(bool *ok=0) const;
 
@@ -236,8 +236,8 @@ public:
     QString &setNum(uint, int base=10);
     QString &setNum(long, int base=10);
     QString &setNum(ulong, int base=10);
-    QString &setNum(Q_LLONG, int base=10);
-    QString &setNum(Q_ULLONG, int base=10);
+    QString &setNum(Q_LONGLONG, int base=10);
+    QString &setNum(Q_ULONGLONG, int base=10);
     QString &setNum(float, char f='g', int prec=6);
     QString &setNum(double, char f='g', int prec=6);
 
@@ -245,8 +245,8 @@ public:
     static QString number(ulong, int base=10);
     static QString number(int, int base=10);
     static QString number(uint, int base=10);
-    static QString number(Q_LLONG, int base=10);
-    static QString number(Q_ULLONG, int base=10);
+    static QString number(Q_LONGLONG, int base=10);
+    static QString number(Q_ULONGLONG, int base=10);
     static QString number(double, char f='g', int prec=6);
 
     bool operator==(const QString &s) const;
@@ -524,31 +524,31 @@ inline QString::QString(const QString &s) : d(s.d)
 inline int QString::capacity() const
 { return d->alloc; }
 inline QString &QString::setNum(short n, int base)
-{ return setNum(Q_LLONG(n), base); }
+{ return setNum(Q_LONGLONG(n), base); }
 inline QString &QString::setNum(ushort n, int base)
-{ return setNum(Q_ULLONG(n), base); }
+{ return setNum(Q_ULONGLONG(n), base); }
 inline QString &QString::setNum(int n, int base)
-{ return setNum(Q_LLONG(n), base); }
+{ return setNum(Q_LONGLONG(n), base); }
 inline QString &QString::setNum(uint n, int base)
-{ return setNum(Q_ULLONG(n), base); }
+{ return setNum(Q_ULONGLONG(n), base); }
 inline QString &QString::setNum(long n, int base)
-{ return setNum(Q_LLONG(n), base); }
+{ return setNum(Q_LONGLONG(n), base); }
 inline QString &QString::setNum(ulong n, int base)
-{ return setNum(Q_ULLONG(n), base); }
+{ return setNum(Q_ULONGLONG(n), base); }
 inline QString &QString::setNum(float n, char f, int prec)
 { return setNum(double(n),f,prec); }
 inline QString QString::arg(long a, int fieldWidth, int base, const QChar &fillChar) const
-{ return arg(Q_LLONG(a), fieldWidth, base, fillChar); }
+{ return arg(Q_LONGLONG(a), fieldWidth, base, fillChar); }
 inline QString QString::arg(ulong a, int fieldWidth, int base, const QChar &fillChar) const
-{ return arg(Q_ULLONG(a), fieldWidth, base, fillChar); }
+{ return arg(Q_ULONGLONG(a), fieldWidth, base, fillChar); }
 inline QString QString::arg(int a, int fieldWidth, int base, const QChar &fillChar) const
-{ return arg(Q_LLONG(a), fieldWidth, base, fillChar); }
+{ return arg(Q_LONGLONG(a), fieldWidth, base, fillChar); }
 inline QString QString::arg(uint a, int fieldWidth, int base, const QChar &fillChar) const
-{ return arg(Q_ULLONG(a), fieldWidth, base, fillChar); }
+{ return arg(Q_ULONGLONG(a), fieldWidth, base, fillChar); }
 inline QString QString::arg(short a, int fieldWidth, int base, const QChar &fillChar) const
-{ return arg(Q_LLONG(a), fieldWidth, base, fillChar); }
+{ return arg(Q_LONGLONG(a), fieldWidth, base, fillChar); }
 inline QString QString::arg(ushort a, int fieldWidth, int base, const QChar &fillChar) const
-{ return arg(Q_ULLONG(a), fieldWidth, base, fillChar); }
+{ return arg(Q_ULONGLONG(a), fieldWidth, base, fillChar); }
 inline QString QString::arg(const QString &a1, const QString &a2) const
 { return multiArg(2, a1, a2); }
 inline QString QString::arg(const QString &a1, const QString &a2, const QString &a3) const

@@ -18,8 +18,6 @@
 #include "outputrevision.h"
 #include <stdio.h>
 
-
-
 // WARNING: a copy of this function is in qmetaobject.cpp
 static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixScope = true, bool adjustConst = true)
 {
@@ -740,9 +738,9 @@ void Moc::parseProperty(ClassDef *def, bool override)
     else if (type == "QValueList")
         type = "QValueList<QVariant>";
     else if (type == "LongLong")
-        type = "Q_LLONG";
+        type = "Q_LONGLONG";
     else if (type == "ULongLong")
-        type = "Q_ULLONG";
+        type = "Q_ULONGLONG";
     propDef.type = type;
 
     next();

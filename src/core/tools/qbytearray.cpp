@@ -2921,7 +2921,7 @@ bool QByteArray::isNull() const { return d == &shared_null; }
     \sa number()
 */
 
-Q_LLONG QByteArray::toLongLong(bool *ok, int base) const
+Q_LONGLONG QByteArray::toLongLong(bool *ok, int base) const
 {
 #if defined(QT_CHECK_RANGE)
     if (base != 0 && (base < 2 || base > 36)) {
@@ -2951,7 +2951,7 @@ Q_LLONG QByteArray::toLongLong(bool *ok, int base) const
     \sa number()
 */
 
-Q_ULLONG QByteArray::toULongLong(bool *ok, int base) const
+Q_ULONGLONG QByteArray::toULongLong(bool *ok, int base) const
 {
 #if defined(QT_CHECK_RANGE)
     if (base != 0 && (base < 2 || base > 36)) {
@@ -2982,7 +2982,7 @@ Q_ULLONG QByteArray::toULongLong(bool *ok, int base) const
 
 long QByteArray::toLong(bool *ok, int base) const
 {
-    Q_LLONG v = toLongLong(ok, base);
+    Q_LONGLONG v = toLongLong(ok, base);
     if (v < LONG_MIN || v > LONG_MAX) {
         if (ok)
             *ok = false;
@@ -3010,7 +3010,7 @@ long QByteArray::toLong(bool *ok, int base) const
 
 ulong QByteArray::toULong(bool *ok, int base) const
 {
-    Q_ULLONG v = toULongLong(ok, base);
+    Q_ULONGLONG v = toULongLong(ok, base);
     if (v > ULONG_MAX) {
         if (ok)
             *ok = false;
@@ -3276,7 +3276,7 @@ QByteArray QByteArray::toBase64() const
     \sa toLongLong()
 */
 
-QByteArray &QByteArray::setNum(Q_LLONG n, int base)
+QByteArray &QByteArray::setNum(Q_LONGLONG n, int base)
 {
 #if defined(QT_CHECK_RANGE)
     if (base < 2 || base > 36) {
@@ -3295,7 +3295,7 @@ QByteArray &QByteArray::setNum(Q_LLONG n, int base)
     \sa toULongLong()
 */
 
-QByteArray &QByteArray::setNum(Q_ULLONG n, int base)
+QByteArray &QByteArray::setNum(Q_ULONGLONG n, int base)
 {
 #if defined(QT_CHECK_RANGE)
     if (base < 2 || base > 36) {
@@ -3436,7 +3436,7 @@ QByteArray QByteArray::number(ulong n, int base)
 
     \sa toLongLong()
 */
-QByteArray QByteArray::number(Q_LLONG n, int base)
+QByteArray QByteArray::number(Q_LONGLONG n, int base)
 {
     QByteArray s;
     s.setNum(n, base);
@@ -3448,7 +3448,7 @@ QByteArray QByteArray::number(Q_LLONG n, int base)
 
     \sa toULongLong()
 */
-QByteArray QByteArray::number(Q_ULLONG n, int base)
+QByteArray QByteArray::number(Q_ULONGLONG n, int base)
 {
     QByteArray s;
     s.setNum(n, base);

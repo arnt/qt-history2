@@ -173,7 +173,7 @@ static int qIBaseTypeLength(int iType, int scale)
     case SQL_SHORT:
         return sizeof(short);
     case SQL_INT64:
-        return sizeof(Q_LLONG);
+        return sizeof(Q_LONGLONG);
     case SQL_FLOAT:
         return sizeof(float);
     case SQL_DOUBLE:
@@ -206,7 +206,7 @@ static ISC_TIME toTime(const QTime &t)
 class QIBaseDriverPrivate
 {
 public:
-    QIBaseDriverPrivate(QIBaseDriver *d): q(d)
+    QIBaseDriverPrivate(QIBaseDriver *d) : q(d)
     {
         ibase = 0;
         trans = 0;
@@ -364,7 +364,7 @@ static QList<QCoreVariant> toList<long>(char* buf, int count)
         if (sizeof(int) == sizeof(long))
             res.append(int((*(long*)(buf + sizeof(long) * i))));
         else
-            res.append((Q_LLONG)(*(long*)(buf + sizeof(long) * i)));
+            res.append((Q_LONGLONG)(*(long*)(buf + sizeof(long) * i)));
     }
     return res;
 }
@@ -406,7 +406,7 @@ QCoreVariant QIBaseResultPrivate::fetchArray(int pos, ISC_QUAD *arr)
     case SQL_SHORT:
         return toList<short>(ba.data(), desc.array_desc_length);
     case SQL_INT64:
-        return toList<Q_LLONG>(ba.data(), desc.array_desc_length);
+        return toList<Q_LONGLONG>(ba.data(), desc.array_desc_length);
     case SQL_FLOAT:
         return toList<float>(ba.data(), desc.array_desc_length);
     case SQL_DOUBLE:
@@ -597,10 +597,10 @@ bool QIBaseResult::exec()
             switch(d->inda->sqlvar[para].sqltype & ~1) {
             case SQL_INT64:
                 if (d->inda->sqlvar[para].sqlscale < 0)
-                    *((Q_LLONG*)d->inda->sqlvar[para].sqldata) = Q_LLONG(val.toDouble() *
-                                                                         pow(10, d->inda->sqlvar[para].sqlscale * -1));
+                    *((Q_LONGLONG*)d->inda->sqlvar[para].sqldata) =
+                        Q_LONGLONG(val.toDouble() * pow(10, d->inda->sqlvar[para].sqlscale * -1));
                 else
-                    *((Q_LLONG*)d->inda->sqlvar[para].sqldata) = val.toLongLong();
+                    *((Q_LONGLONG*)d->inda->sqlvar[para].sqldata) = val.toLongLong();
                 break;
             case SQL_LONG:
                 *((long*)d->inda->sqlvar[para].sqldata) = (long)val.toLongLong();
@@ -754,15 +754,15 @@ bool QIBaseResult::gotoNext(QSqlCachedResult::ValueCache& row, int rowIdx)
             break;
         case SQL_INT64:
             if (d->sqlda->sqlvar[i].sqlscale < 0)
-                row[idx] = *(Q_LLONG*)buf * pow(10, d->sqlda->sqlvar[i].sqlscale);
+                row[idx] = *(Q_LONGLONG*)buf * pow(10, d->sqlda->sqlvar[i].sqlscale);
             else
-                row[idx] = QCoreVariant(*(Q_LLONG*)buf);
+                row[idx] = QCoreVariant(*(Q_LONGLONG*)buf);
             break;
         case SQL_LONG:
             if (sizeof(int) == sizeof(long)) //dear compiler: please optimize me out.
                 row[idx] = QCoreVariant(int((*(long*)buf)));
             else
-                row[idx] = QCoreVariant(Q_LLONG((*(long*)buf)));
+                row[idx] = QCoreVariant(Q_LONGLONG((*(long*)buf)));
             break;
         case SQL_SHORT:
             row[idx] = QCoreVariant(int((*(short*)buf)));

@@ -565,7 +565,7 @@ void QIODevice::setStatus(int status, int errNum)
 */
 
 /*!
-    \fn Q_LLONG QIODevice::size() const
+    \fn Q_LONGLONG QIODevice::size() const
 
     Returns the size of the I/O device.
 
@@ -575,7 +575,7 @@ void QIODevice::setStatus(int status, int errNum)
 */
 
 /*!
-     \fn Q_LLONG QIODevice::at() const
+     \fn Q_LONGLONG QIODevice::at() const
 
     Returns the current I/O device position.
 
@@ -588,7 +588,7 @@ void QIODevice::setStatus(int status, int errNum)
 */
 
 /*!
-    \fn bool QIODevice::seek(Q_LLONG offset)
+    \fn bool QIODevice::seek(Q_LONGLONG offset)
 
     Sets the I/O device position to the \a offset given. Returns true if the
     position was successfully set (the \a offset is within range and the
@@ -611,7 +611,7 @@ void QIODevice::setStatus(int status, int errNum)
 */
 
 /*!
-    \fn Q_LLONG QIODevice::read(char *data, Q_LLONG len)
+    \fn Q_LONGLONG QIODevice::read(char *data, Q_LONGLONG len)
 
     Reads a number of characters from the I/O device into \a data. At most,
     the \a maximum number of characters will be read.
@@ -627,7 +627,7 @@ void QIODevice::setStatus(int status, int errNum)
 */
 
 /*!
-     \fn QByteArray QIODevice::read(Q_LLONG maxlen)
+     \fn QByteArray QIODevice::read(Q_LONGLONG maxlen)
     \overload
 
     This convenience function will read data into a preallocated QByteArray.
@@ -666,7 +666,7 @@ QByteArray QIODevice::readAll()
 }
 
 /*!
-    \fn Q_LONG QIODevice::write(const char *data, Q_LLONG len)
+    \fn Q_LONG QIODevice::write(const char *data, Q_LONGLONG len)
 
     Writes a number of characters from \a data to the I/O device. At most,
     the \a maximum of characters will be written. If successful,
@@ -713,8 +713,8 @@ QByteArray QIODevice::readAll()
     \sa read(), QTextStream::readLine()
 */
 
-Q_LLONG
-QIODevice::readLine(char *data, Q_LLONG maxlen)
+Q_LONGLONG
+QIODevice::readLine(char *data, Q_LONGLONG maxlen)
 {
     if (maxlen <= 0) // nothing to do
         return 0;
@@ -795,7 +795,7 @@ QIODevice::getch()
         return -1;
     }
     uchar ch;
-    Q_LLONG got = read((char*)&ch, 1);
+    Q_LONGLONG got = read((char*)&ch, 1);
     if(got <= 0)
         return -1;
     return (int)ch;
@@ -822,7 +822,7 @@ QIODevice::putch(int character)
         return -1;
     }
     uchar ch = (char)character;
-    Q_LLONG got = write((char*)&ch, 1);
+    Q_LONGLONG got = write((char*)&ch, 1);
     if(got <= 0)
         return -1;
     return ch;

@@ -17,16 +17,12 @@
 #include "qvector.h"
 #include "qwidget.h"
 
-
-
-
-
 #include <qlist.h>
 #include <qalgorithms.h>
 
 #ifndef QT_NO_LAYOUT
 
-typedef Q_LLONG Fixed;
+typedef Q_LONGLONG Fixed;
 static inline Fixed toFixed(int i) { return (Fixed)i * 256; }
 static inline int fRound(Fixed i) {
     return (i % 256 < 128) ? i / 256 : 1 + i / 256;

@@ -156,8 +156,8 @@ QResourceFileEngine::flush()
 
 }
 
-Q_LLONG
-QResourceFileEngine::read(char *data, Q_LLONG len)
+Q_LONGLONG
+QResourceFileEngine::read(char *data, Q_LONGLONG len)
 {
     if(len > d->resource->size()-d->offset) {
         len = d->resource->size()-d->offset;
@@ -169,8 +169,8 @@ QResourceFileEngine::read(char *data, Q_LLONG len)
     return len;
 }
 
-Q_LLONG
-QResourceFileEngine::write(const char *, Q_LLONG)
+Q_LONGLONG
+QResourceFileEngine::write(const char *, Q_LONGLONG)
 {
     return -1;
 }

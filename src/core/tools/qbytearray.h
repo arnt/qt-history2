@@ -198,8 +198,8 @@ public:
     uint toUInt(bool *ok = 0, int base = 10)  const;
     long toLong(bool *ok = 0, int base = 10)  const;
     ulong toULong(bool *ok = 0, int base = 10) const;
-    Q_LLONG toLongLong(bool *ok = 0, int base = 10) const;
-    Q_ULLONG toULongLong(bool *ok = 0, int base = 10) const;
+    Q_LONGLONG toLongLong(bool *ok = 0, int base = 10) const;
+    Q_ULONGLONG toULongLong(bool *ok = 0, int base = 10) const;
     float toFloat(bool *ok = 0) const;
     double toDouble(bool *ok = 0) const;
     QByteArray toBase64() const;
@@ -210,8 +210,8 @@ public:
     QByteArray &setNum(uint, int base = 10);
     QByteArray &setNum(long, int base = 10);
     QByteArray &setNum(ulong, int base = 10);
-    QByteArray &setNum(Q_LLONG, int base = 10);
-    QByteArray &setNum(Q_ULLONG, int base = 10);
+    QByteArray &setNum(Q_LONGLONG, int base = 10);
+    QByteArray &setNum(Q_ULONGLONG, int base = 10);
     QByteArray &setNum(float, char f = 'g', int prec = 6);
     QByteArray &setNum(double, char f = 'g', int prec = 6);
 
@@ -219,8 +219,8 @@ public:
     static QByteArray number(ulong, int base = 10);
     static QByteArray number(int, int base = 10);
     static QByteArray number(uint, int base = 10);
-    static QByteArray number(Q_LLONG, int base = 10);
-    static QByteArray number(Q_ULLONG, int base = 10);
+    static QByteArray number(Q_LONGLONG, int base = 10);
+    static QByteArray number(Q_ULONGLONG, int base = 10);
     static QByteArray number(double, char f = 'g', int prec = 6);
     static QByteArray fromRawData(const char *, int size);
     static QByteArray fromBase64(const QByteArray &base64);
@@ -463,17 +463,17 @@ inline QByteArray &QByteArray::replace(const char *before, const char *after)
 { return replace(fromRawData(before, strlen(before)), fromRawData(after, strlen(after))); }
 
 inline QByteArray &QByteArray::setNum(short n, int base)
-{ return setNum(Q_LLONG(n), base); }
+{ return setNum(Q_LONGLONG(n), base); }
 inline QByteArray &QByteArray::setNum(ushort n, int base)
-{ return setNum(Q_ULLONG(n), base); }
+{ return setNum(Q_ULONGLONG(n), base); }
 inline QByteArray &QByteArray::setNum(int n, int base)
-{ return setNum(Q_LLONG(n), base); }
+{ return setNum(Q_LONGLONG(n), base); }
 inline QByteArray &QByteArray::setNum(uint n, int base)
-{ return setNum(Q_ULLONG(n), base); }
+{ return setNum(Q_ULONGLONG(n), base); }
 inline QByteArray &QByteArray::setNum(long n, int base)
-{ return setNum(Q_LLONG(n), base); }
+{ return setNum(Q_LONGLONG(n), base); }
 inline QByteArray &QByteArray::setNum(ulong n, int base)
-{ return setNum(Q_ULLONG(n), base); }
+{ return setNum(Q_ULONGLONG(n), base); }
 inline QByteArray &QByteArray::setNum(float n, char f, int prec)
 { return setNum(double(n),f,prec); }
 

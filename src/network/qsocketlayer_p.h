@@ -57,16 +57,16 @@ public:
     bool nativeBind(const QHostAddress &address, Q_UINT16 port);
     bool nativeListen(int backlog);
     int nativeAccept();
-    Q_LLONG nativeBytesAvailable() const;
+    Q_LONGLONG nativeBytesAvailable() const;
 
     bool nativeHasPendingDatagrams() const;
-    Q_LLONG nativePendingDatagramSize() const;
-    Q_LLONG nativeReceiveDatagram(char *data, Q_LLONG maxLength,
-                                  QHostAddress *address, Q_UINT16 *port);
-    Q_LLONG nativeSendDatagram(const char *data, Q_LLONG length,
-                               const QHostAddress &host, Q_UINT16 port);
-    Q_LLONG nativeRead(char *data, Q_LLONG maxLength);
-    Q_LLONG nativeWrite(const char *data, Q_LLONG length);
+    Q_LONGLONG nativePendingDatagramSize() const;
+    Q_LONGLONG nativeReceiveDatagram(char *data, Q_LONGLONG maxLength,
+                                     QHostAddress *address, Q_UINT16 *port);
+    Q_LONGLONG nativeSendDatagram(const char *data, Q_LONGLONG length,
+                                  const QHostAddress &host, Q_UINT16 port);
+    Q_LONGLONG nativeRead(char *data, Q_LONGLONG maxLength);
+    Q_LONGLONG nativeWrite(const char *data, Q_LONGLONG length);
     int nativeSelect(int timeout, bool selectForRead) const;
 
     void nativeClose();

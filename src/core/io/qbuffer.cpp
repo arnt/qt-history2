@@ -242,7 +242,7 @@ void QBuffer::close()
   \reimp
 */
 
-Q_LLONG QBuffer::at() const
+Q_LONGLONG QBuffer::at() const
 {
     if (!isOpen())
         return 0;
@@ -253,16 +253,16 @@ Q_LLONG QBuffer::at() const
   \reimp
 */
 
-Q_LLONG QBuffer::size() const
+Q_LONGLONG QBuffer::size() const
 {
-    return (Q_LLONG)d->buf->size();
+    return (Q_LONGLONG)d->buf->size();
 }
 
 /*!
   \reimp
 */
 
-bool QBuffer::seek(Q_LLONG pos)
+bool QBuffer::seek(Q_LONGLONG pos)
 {
     if (!isOpen()) {
         qWarning("QBuffer::seek: IODevice is not open");
@@ -270,7 +270,7 @@ bool QBuffer::seek(Q_LLONG pos)
     }
 
     // #### maybe resize if not readonly?
-    if (pos > (Q_LLONG)d->buf->size()) {
+    if (pos > (Q_LONGLONG)d->buf->size()) {
         qWarning("QBuffer::seek: Index %lld out of range", pos);
         return false;
     }
@@ -282,7 +282,7 @@ bool QBuffer::seek(Q_LLONG pos)
   \reimp
 */
 
-Q_LLONG QBuffer::read(char *data, Q_LLONG len)
+Q_LONGLONG QBuffer::read(char *data, Q_LONGLONG len)
 {
     if (len <= 0) // nothing to do
         return 0;
@@ -313,7 +313,7 @@ Q_LLONG QBuffer::read(char *data, Q_LLONG len)
   \reimp
 */
 
-Q_LLONG QBuffer::write(const char *data, Q_LLONG len)
+Q_LONGLONG QBuffer::write(const char *data, Q_LONGLONG len)
 {
     if (len <= 0) // nothing to do
         return 0;

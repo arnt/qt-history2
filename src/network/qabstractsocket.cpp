@@ -159,15 +159,14 @@
     do not read any data, this class buffers the data and you can
     read it later, but no signal is emitted until new data arrives. A
     good practice is to read all data in the slot connected to this
-    signal unless you are sure that you need to receive more data to
-    be able to process it.
+    signal unless you need to receive more data to be able to process
+    it.
 
     \sa read(), readAll(), readLine(), bytesAvailable()
 */
 
-
 /*!
-    \fn void QAbstractSocket::bytesWritten(Q_LLONG numBytes)
+    \fn void QAbstractSocket::bytesWritten(Q_LONGLONG numBytes)
 
     This signal is emitted when a payload of data has been written to
     the network. The \a numBytes parameter specifies how many bytes
@@ -179,8 +178,8 @@
 /*!
     \fn void QAbstractSocket::error(int socketError)
 
-    This signal is emitted after an error occurred. The parameter \a
-    socketError is the \l Qt::SocketError value.
+    This signal is emitted after an error occurred. The \a
+    socketError parameter is a \l Qt::SocketError value.
 
     \sa socketError(), errorString()
 */
@@ -188,9 +187,8 @@
 /*!
     \fn void QAbstractSocket::stateChanged(int socketState)
 
-    This signal is emitted whenever QAbstractSocket's state
-    changes. The parameter \a socketState is the \l Qt::SocketState
-    value.
+    This signal is emitted whenever QAbstractSocket's state changes.
+    The \a socketState parameter is a \l Qt::SocketState value.
 
     \sa socketState()
 */
@@ -241,7 +239,7 @@
            already in use and was set to be exclusive.
     \value SocketAddressNotAvailableError The address specified to
            QUdpSocket::bind() does not belong to the host.
-    \value UnsupportedSocketOperationError The socket operation was
+    \value UnsupportedSocketOperationError The requested socket operation is
            not supported by the local operating system (e.g., lack of
            IPv6 support).
     \value UnknownSocketError An unidentified error occurred.
@@ -260,9 +258,7 @@
     \value BoundState The socket is bound to an address and port (for servers).
     \value ClosingState The socket is about to close (data may still
     be waiting to be written).
-
-    \omitvalue ListeningState
-    \omit This state is only used by QSocketLayer. \endomit
+    \value ListeningState For internal use only.
 
     \sa QAbstractSocket::socketState()
 */
@@ -566,17 +562,17 @@ int QRingBuffer::indexOf(char c) const
 /*! \internal
 
     Reads one line of data (all data up to and including the '\n'
-    character), no longer than \a maxLength bytes, and stores it in \a
+    character), no longer than \a maxSize bytes, and stores it in \a
     data. If the line is too long, or if no line could be read, -1 is
     returned.
 */
-int QRingBuffer::readLine(char *data, int maxLength)
+int QRingBuffer::readLine(char *data, int maxSize)
 {
     int index = indexOf('\n');
     if (index == -1)
         return -1;
 
-    if (index > maxLength)
+    if (index > maxSize)
         return -1;
 
     int readSoFar = 0;
@@ -860,7 +856,7 @@ void QAbstractSocketPrivate::flush()
         char *ptr = writeBuffer.readPointer();
 
         // Attempt to write it all in one chunk.
-        Q_LLONG written = socketLayer.write(ptr, nextSize);
+        Q_LONGLONG written = socketLayer.write(ptr, nextSize);
         if (written < 0) {
             socketError = socketLayer.socketError();
             socketErrorString = socketLayer.errorString();
@@ -1133,7 +1129,7 @@ void QAbstractSocketPrivate::abortConnectionAttempt()
 bool QAbstractSocketPrivate::readFromSocket()
 {
     // Find how many bytes we can read from the socket layer.
-    Q_LLONG bytesToRead;
+    Q_LONGLONG bytesToRead;
     if (readBufferMaxSize) {
         if (readBuffer.size() >= readBufferMaxSize) {
 #if defined(QABSTRACTSOCKET_DEBUG)
@@ -1156,7 +1152,7 @@ bool QAbstractSocketPrivate::readFromSocket()
     // Read from the socket, store data in the read buffer.
     if (bytesToRead > 0) {
         char *ptr = d->readBuffer.reserve(bytesToRead);
-        Q_LLONG readBytes = socketLayer.read(ptr, bytesToRead);
+        Q_LONGLONG readBytes = socketLayer.read(ptr, bytesToRead);
         d->readBuffer.truncate((int) (bytesToRead - readBytes));
 
         if (!socketLayer.isValid()) {
@@ -1358,12 +1354,12 @@ bool QAbstractSocket::isBlocking() const
 
     \sa bytesAvailable(), flush()
 */
-Q_LLONG QAbstractSocket::bytesToWrite() const
+Q_LONGLONG QAbstractSocket::bytesToWrite() const
 {
 #if defined(QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::bytesToWrite() == %i", d->writeBuffer.size());
 #endif
-    return (Q_LLONG)d->writeBuffer.size();
+    return (Q_LONGLONG)d->writeBuffer.size();
 }
 
 /*!
@@ -1371,11 +1367,11 @@ Q_LLONG QAbstractSocket::bytesToWrite() const
 
     \sa bytesToWrite(), read()
 */
-Q_LLONG QAbstractSocket::bytesAvailable() const
+Q_LONGLONG QAbstractSocket::bytesAvailable() const
 {
-    Q_LLONG available = 0;
+    Q_LONGLONG available = 0;
     if (d->isBuffered)
-        available = (Q_LLONG) d->readBuffer.size();
+        available = (Q_LONGLONG) d->readBuffer.size();
     else if (d->socketLayer.isValid())
         available = d->socketLayer.bytesAvailable();
 #if defined(QABSTRACTSOCKET_DEBUG)
@@ -1527,10 +1523,10 @@ int QAbstractSocket::socketDescriptor() const
 
 /*!
     Initializes QAbstractSocket with the native socket descriptor \a
-    socketDescriptor. Returns true on success (e.g. \a
-    socketDescriptor is accepted as a valid socket descriptor);
-    otherwise returns false. QAbstractSocket enters the socket state
-    specified by \a socketState.
+    socketDescriptor. Returns true if \a socketDescriptor is accepted
+    as a valid socket descriptor; otherwise returns false.
+    QAbstractSocket enters the socket state specified by \a
+    socketState.
 
     \sa socketDescriptor()
 */
@@ -1558,10 +1554,10 @@ bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, Qt::SocketState 
 }
 
 /*!
-    Waits until there is data available for reading, or up to \a
-    msecs milliseconds. Returns true if there is data available;
-    otherwise returns false, in which case error() should be called
-    to determine the cause of the error.
+    Waits until there is data available for reading, up to \a msecs
+    milliseconds. Returns true if there is data available; otherwise
+    returns false. In the case where it returns false, you can call
+    socketError() to determine the cause of the error.
 
     This function is blocking regardless of whether setBlocking() was
     called or not, but is most commonly used in blocking mode to
@@ -1571,11 +1567,13 @@ bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, Qt::SocketState 
     to arrive:
 
     \code
-        if (socket->waitForReadyRead(1000) && socket->canReadLine())
-            qDebug("Read a line: %s", socket->readLine().ascii());
+        if (socket->waitForReadyRead(1000) && socket->canReadLine()) {
+            QByteArray line = socket->readLine();
+            qDebug("Read line: %s", line.ascii());
+        }
     \endcode
 
-    \sa setBlocking()
+    \sa setBlocking(), readyRead()
 */
 bool QAbstractSocket::waitForReadyRead(int msecs)
 {
@@ -1584,8 +1582,7 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
 #endif
 
     if (socketState() != Qt::ConnectedState && socketState() != Qt::BoundState) {
-        qWarning("%s", tr("QAbstractSocket::waitForReadyRead() is only"
-                          " allowed in connected state.").latin1());
+        qWarning("QAbstractSocket::waitForReadyRead() is only allowed in connected state");
         return false;
     }
 
@@ -1609,8 +1606,8 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
 
 /*!
     Aborts the current connection and resets the socket. Unlike
-    close(), this function immediately closes the socket, losing any
-    pending data in the write buffer.
+    close(), this function immediately closes the socket, clearing
+    any pending data in the write buffer.
 
     \sa close()
 */
@@ -1644,7 +1641,7 @@ bool QAbstractSocket::open(int)
 /*!
     Same as bytesAvailable().
 */
-Q_LLONG QAbstractSocket::size() const
+Q_LONGLONG QAbstractSocket::size() const
 {
     return bytesAvailable();
 }
@@ -1652,7 +1649,7 @@ Q_LLONG QAbstractSocket::size() const
 /*!
     Always returns 0.
 */
-Q_LLONG QAbstractSocket::at() const
+Q_LONGLONG QAbstractSocket::at() const
 {
     return 0;
 }
@@ -1674,14 +1671,14 @@ void QAbstractSocket::flush()
 
 /*! \reimp
 */
-Q_LLONG QAbstractSocket::readLine(char *data, Q_LLONG maxLength)
+Q_LONGLONG QAbstractSocket::readLine(char *data, Q_LONGLONG maxSize)
 {
     int endOfLine = d->readBuffer.indexOf('\n');
     if (endOfLine == -1)
         return -1;
 
-     if (endOfLine + 1 > maxLength)
-         endOfLine = maxLength - 1;
+     if (endOfLine + 1 > maxSize)
+         endOfLine = maxSize - 1;
 
     d->readBuffer.readLine(data, endOfLine + 1);
     if (d->readSocketNotifier)
@@ -1709,7 +1706,7 @@ QByteArray QAbstractSocket::readAll()
 
 /*! \reimp
 */
-bool QAbstractSocket::seek(Q_LLONG off)
+bool QAbstractSocket::seek(Q_LONGLONG off)
 {
     return read(0, off) != -1;
 }
@@ -1741,20 +1738,20 @@ int QAbstractSocket::putch(int character)
 }
 
 /*!
-    Reads at most \a maxLength bytes from the socket into \a data.
+    Reads at most \a maxSize bytes from the socket into \a data.
     Returns the number of bytes read, or -1 if an error occurred.
 
-    If the socket is in blocking mode and no data is available (e.g.
+    If the socket is in blocking mode and no data is available (i.e.,
     bytesAvailable() returns 0), this function will block until data
     is available or until the timeout expires.
 
-    \sa readLine(), readAll(), getch(), write()
+    \sa readLine(), readAll(), getch(), write(), setBlocking()
 */
-Q_LLONG QAbstractSocket::read(char *data, Q_LLONG maxLength)
+Q_LONGLONG QAbstractSocket::read(char *data, Q_LONGLONG maxSize)
 {
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::read(%p, %lli), readBuffer.size() == %lli",
-           data, maxLength, Q_LLONG(d->readBuffer.size()));
+           data, maxSize, Q_LONGLONG(d->readBuffer.size()));
 #endif
     if (!isValid()) {
         qWarning("QAbstractSocket::read: Invalid socket");
@@ -1762,7 +1759,7 @@ Q_LLONG QAbstractSocket::read(char *data, Q_LLONG maxLength)
     }
 
     if (!d->isBuffered) {
-        Q_LLONG readBytes = d->socketLayer.read(data, maxLength);
+        Q_LONGLONG readBytes = d->socketLayer.read(data, maxSize);
         if (d->readSocketNotifier)
             d->readSocketNotifier->setEnabled(true);
         return readBytes;
@@ -1772,7 +1769,7 @@ Q_LLONG QAbstractSocket::read(char *data, Q_LLONG maxLength)
     if (d->readBuffer.size() > 0) {
         if (d->readSocketNotifier)
             d->readSocketNotifier->setEnabled(true);
-        int bytesToRead = qMin(d->readBuffer.size(), (int) maxLength);
+        int bytesToRead = qMin(d->readBuffer.size(), (int)maxSize);
         int readSoFar = 0;
         while (readSoFar < bytesToRead) {
             char *ptr = d->readBuffer.readPointer();
@@ -1801,7 +1798,7 @@ Q_LLONG QAbstractSocket::read(char *data, Q_LLONG maxLength)
     if (d->readSocketNotifier)
         d->readSocketNotifier->setEnabled(true);
 
-    int bytesToRead = qMin(d->readBuffer.size(), (int) maxLength);
+    int bytesToRead = qMin(d->readBuffer.size(), (int)maxSize);
     int readSoFar = 0;
     while (readSoFar < bytesToRead) {
         char *ptr = d->readBuffer.readPointer();
@@ -1815,16 +1812,17 @@ Q_LLONG QAbstractSocket::read(char *data, Q_LLONG maxLength)
 }
 
 /*!
-    Writes \a length bytes to the socket from \a data. Returns the
+    Writes \a size bytes to the socket from \a data. Returns the
     number of bytes written, or -1 if an error occurred.
 
-    This function always returns immediately, even if QAbstractSocket
-    is in blocking mode. To force the data to be written, call
-    flush().
+    If the socket is in blocking mode, this function will block until
+    all the data is written to the network. In non-blocking mode,
+    this function always returns immediately; to force the data to be
+    written, call flush().
 
-    \sa putch()
+    \sa putch(), read(), setBlocking()
 */
-Q_LLONG QAbstractSocket::write(const char *data, Q_LLONG length)
+Q_LONGLONG QAbstractSocket::write(const char *data, Q_LONGLONG size)
 {
     if (!isValid()) {
         qWarning("QAbstractSocket::write: Invalid socket");
@@ -1832,31 +1830,31 @@ Q_LLONG QAbstractSocket::write(const char *data, Q_LLONG length)
     }
 
     if (!d->isBuffered) {
-        Q_LLONG written = d->socketLayer.write(data, length);
+        Q_LONGLONG written = d->socketLayer.write(data, size);
         emit bytesWritten(written);
 
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::write(%p \"%s\", %lli) == %lli", data,
-           qt_prettyDebug(data, qMin((int) length, 16), length).data(),
-           length, written);
+           qt_prettyDebug(data, qMin((int)size, 16), size).data(),
+           size, written);
 #endif
         return written;
     }
 
-    char *ptr = d->writeBuffer.reserve(length);
-    if (length == 1)
+    char *ptr = d->writeBuffer.reserve(size);
+    if (size == 1)
         *ptr = *data;
     else
-        memcpy(ptr, data, length);
+        memcpy(ptr, data, size);
 
-    Q_LLONG written = length;
+    Q_LONGLONG written = size;
     if (d->isBlocking) {
         flush();
         // check if something happened in the flush
         if (!isValid()) {
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::write(%p \"%s\", %lli) == -1 (%s)", data,
-           qt_prettyDebug(data, qMin(length, 16), length).data(), length,
+           qt_prettyDebug(data, qMin(size, 16), size).data(), size,
            d->socketErrorString.latin1());
 #endif
             return -1;
@@ -1869,8 +1867,8 @@ Q_LLONG QAbstractSocket::write(const char *data, Q_LLONG length)
 
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::write(%p \"%s\", %lli) == %lli", data,
-           qt_prettyDebug(data, qMin((int) length, 16), length).data(),
-           length, written);
+           qt_prettyDebug(data, qMin((int)size, 16), size).data(),
+           size, written);
 #endif
     return written;
 }
@@ -1879,9 +1877,7 @@ Q_LLONG QAbstractSocket::write(const char *data, Q_LLONG length)
     Attempts to close the socket. If there is pending data waiting to
     be written, QAbstractSocket will enter Qt::ClosingState and wait
     until all data has been written. Eventually, it will enter
-    Qt::ClosedState.
-
-    When the socket has been closed, the closed() signal is emitted.
+    Qt::ClosedState and emit the closed() signal.
 
     \sa abort()
 */
@@ -1957,22 +1953,22 @@ void QAbstractSocket::close()
 
 /*!
     Returns the size of the internal read buffer. This limits the
-    amount of data that can be sent to the client before read() or
-    readAll() is called.
+    amount of data that the client can receive before you call read()
+    or readAll().
 
     A read buffer size of 0 (the default) means that the buffer has
-    no size limit.
+    no size limit, ensuring that no data is lost.
 
     \sa setReadBufferSize(), read()
 */
-Q_LLONG QAbstractSocket::readBufferSize() const
+Q_LONGLONG QAbstractSocket::readBufferSize() const
 {
     return d->readBufferMaxSize;
 }
 
 /*!
     Sets the size of QAbstractSocket's internal read buffer to be \a
-    bufSize bytes.
+    size bytes.
 
     If the buffer size is limited to a certain size, QAbstractSocket
     won't buffer more than this size of data. Exceptionally, a buffer
@@ -1986,9 +1982,9 @@ Q_LLONG QAbstractSocket::readBufferSize() const
 
     \sa readBufferSize(), read()
 */
-void QAbstractSocket::setReadBufferSize(Q_LLONG bufSize)
+void QAbstractSocket::setReadBufferSize(Q_LONGLONG size)
 {
-    d->readBufferMaxSize = bufSize;
+    d->readBufferMaxSize = size;
 }
 
 /*!

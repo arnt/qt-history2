@@ -61,8 +61,8 @@ public:
 
     virtual bool isValid() const;
 
-    virtual Q_LLONG bytesAvailable() const;
-    virtual Q_LLONG bytesToWrite() const;
+    virtual Q_LONGLONG bytesAvailable() const;
+    virtual Q_LONGLONG bytesToWrite() const;
 
     virtual bool canReadLine() const;
     virtual QByteArray readLine();
@@ -73,8 +73,8 @@ public:
     QHostAddress peerAddress() const;
     QString peerName() const;
 
-    virtual Q_LLONG readBufferSize() const;
-    virtual void setReadBufferSize(Q_LLONG size);
+    virtual Q_LONGLONG readBufferSize() const;
+    virtual void setReadBufferSize(Q_LONGLONG size);
 
     virtual bool waitForReadyRead(int msecs = 30000);
 
@@ -101,19 +101,19 @@ public:
     void close();
     void flush();
 
-    Q_LLONG size() const;
-    Q_LLONG at() const;
-    bool seek(Q_LLONG offset);
+    Q_LONGLONG size() const;
+    Q_LONGLONG at() const;
+    bool seek(Q_LONGLONG offset);
 
-    Q_LLONG read(char *data, Q_LLONG maxlen);
+    Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
 
-    Q_LLONG write(const char *data, Q_LLONG len);
+    Q_LONGLONG write(const char *data, Q_LONGLONG len);
 #if !defined(Q_NO_USING_KEYWORD)
     using QIODevice::write;
 #else
-    inline Q_LLONG write(const QByteArray &ba) { return QIODevice::write(ba); }
+    inline Q_LONGLONG write(const QByteArray &ba) { return QIODevice::write(ba); }
 #endif
-    Q_LLONG readLine(char *data, Q_LLONG maxlen);
+    Q_LONGLONG readLine(char *data, Q_LONGLONG maxlen);
     QByteArray readAll();
 
     int getch();
@@ -127,7 +127,7 @@ signals:
     void closed();
     void readyRead();
     void stateChanged(int);
-    void bytesWritten(Q_LLONG nbytes);
+    void bytesWritten(Q_LONGLONG nbytes);
     void error(int);
 
 protected:

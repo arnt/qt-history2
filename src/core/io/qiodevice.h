@@ -26,7 +26,7 @@ class Q_CORE_EXPORT QIODevice
     Q_DECLARE_PRIVATE(QIODevice)
 
 public:
-    typedef Q_LLONG Offset;
+    typedef Q_LONGLONG Offset;
 
     enum AccessTypes {
         Direct = 0x0100,
@@ -97,18 +97,18 @@ public:
     virtual void close() = 0;
     virtual inline void flush() { }
 
-    virtual Q_LLONG size() const = 0;
-    virtual Q_LLONG at() const = 0;
-    virtual bool seek(Q_LLONG off) = 0;
+    virtual Q_LONGLONG size() const = 0;
+    virtual Q_LONGLONG at() const = 0;
+    virtual bool seek(Q_LONGLONG off) = 0;
     virtual inline bool atEnd() const { return at() == size(); }
     inline bool reset() { return seek(0); }
 
-    virtual Q_LLONG read(char *data, Q_LLONG maxlen) = 0;
-    inline QByteArray read(Q_LLONG maxlen)
-    { QByteArray ret; ret.resize(maxlen); Q_LLONG r = read(ret.data(), maxlen); ret.resize(r > 0 ? r : 0); return ret; }
-    virtual Q_LLONG write(const char *data, Q_LLONG len) = 0;
-    inline Q_LLONG write(const QByteArray &data) { return write(data.constData(), data.size()); }
-    virtual Q_LLONG readLine(char *data, Q_LLONG maxlen);
+    virtual Q_LONGLONG read(char *data, Q_LONGLONG maxlen) = 0;
+    inline QByteArray read(Q_LONGLONG maxlen)
+    { QByteArray ret; ret.resize(maxlen); Q_LONGLONG r = read(ret.data(), maxlen); ret.resize(r > 0 ? r : 0); return ret; }
+    virtual Q_LONGLONG write(const char *data, Q_LONGLONG len) = 0;
+    inline Q_LONGLONG write(const QByteArray &data) { return write(data.constData(), data.size()); }
+    virtual Q_LONGLONG readLine(char *data, Q_LONGLONG maxlen);
     virtual QByteArray readLine();
     virtual QByteArray readAll();
 
@@ -118,7 +118,7 @@ public:
         StateMask = 0xf000
     };
     inline QT_COMPAT int state() const { return isOpen() ? Open : 0; }
-    inline QT_COMPAT bool at(Q_LLONG off) { return seek(off); }
+    inline QT_COMPAT bool at(Q_LONGLONG off) { return seek(off); }
     inline QT_COMPAT Q_LONG readBlock(char *data, Q_LONG maxlen)
     { return read(data, maxlen); }
     inline QT_COMPAT Q_LONG writeBlock(const char *data, Q_LONG maxlen)

@@ -41,15 +41,15 @@ inline uint qHash(ulong key)
     }
 }
 inline uint qHash(long key) { return qHash(ulong(key)); }
-inline uint qHash(Q_ULLONG key)
+inline uint qHash(Q_ULONGLONG key)
 {
-    if (sizeof(Q_ULLONG) > sizeof(uint)) {
+    if (sizeof(Q_ULONGLONG) > sizeof(uint)) {
         return uint((key >> (8 * sizeof(uint) - 1)) ^ key);
     } else {
         return uint(key);
     }
 }
-inline uint qHash(Q_LLONG key) { return qHash(Q_ULLONG(key)); }
+inline uint qHash(Q_LONGLONG key) { return qHash(Q_ULONGLONG(key)); }
 inline uint qHash(QChar key) { return qHash(key.unicode()); }
 Q_CORE_EXPORT uint qHash(const QByteArray &key);
 Q_CORE_EXPORT uint qHash(const QString &key);
@@ -57,7 +57,7 @@ Q_CORE_EXPORT uint qHash(const QString &key);
 template <class T> inline uint qHash(const T *key)
 {
     if (sizeof(const T *) > sizeof(uint))
-        return qHash(reinterpret_cast<Q_ULLONG>(key));
+        return qHash(reinterpret_cast<Q_ULONGLONG>(key));
     else
         return uint(reinterpret_cast<ulong>(key));
 }

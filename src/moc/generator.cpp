@@ -16,8 +16,6 @@
 #include "utils.h"
 #include <stdio.h>
 
-
-
 // if the flags change, you MUST to change it in qmetaobject.cpp too
 enum ProperyFlags  {
     Invalid = 0x00000000,
@@ -88,8 +86,8 @@ static const char* const type_map[ntypes] =
     "QBitArray",
     "QKeySequence",
     "QPen",
-    "Q_LLONG",
-    "Q_ULLONG",
+    "Q_LONGLONG",
+    "Q_ULONGLONG",
 };
 
 int qvariant_nameToType(const char* name)

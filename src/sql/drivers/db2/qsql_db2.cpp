@@ -921,7 +921,7 @@ QCoreVariant QDB2Result::data(int field)
     QCoreVariant* v = 0;
     switch (info.type()) {
         case QCoreVariant::LongLong:
-            v = new QCoreVariant((Q_LLONG) qGetBigIntData(d->hStmt, field, isNull));
+            v = new QCoreVariant((Q_LONGLONG) qGetBigIntData(d->hStmt, field, isNull));
             break;
         case QCoreVariant::Int:
             v = new QCoreVariant(qGetIntData(d->hStmt, field, isNull));

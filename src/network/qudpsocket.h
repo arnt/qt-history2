@@ -37,11 +37,12 @@ public:
     bool bind(Q_UINT16 port = 0);
 
     bool hasPendingDatagrams() const;
-    Q_LLONG pendingDatagramSize() const;
-    Q_LLONG readDatagram(char *data, Q_LLONG maxlen, QHostAddress *host = 0, Q_UINT16 *port = 0);
-    Q_LLONG writeDatagram(const char *data, Q_LLONG len, const QHostAddress &host, Q_UINT16 port);
-    inline Q_LLONG writeDatagram(const QByteArray &ba, const QHostAddress &host, Q_UINT16 port)
-                                { return writeDatagram(ba.data(), ba.size(), host, port); }
+    Q_LONGLONG pendingDatagramSize() const;
+    Q_LONGLONG readDatagram(char *data, Q_LLONG maxlen, QHostAddress *host = 0, Q_UINT16 *port = 0);
+    Q_LONGLONG writeDatagram(const char *data, Q_LLONG len, const QHostAddress &host,
+                             Q_UINT16 port);
+    inline Q_LONGLONG writeDatagram(const QByteArray &ba, const QHostAddress &host, Q_UINT16 port)
+        { return writeDatagram(ba.data(), ba.size(), host, port); }
 
 private:
     Q_DISABLE_COPY(QUdpSocket)

@@ -748,8 +748,8 @@ QFile::ungetch(int character)
     \reimp
 */
 
-Q_LLONG
-QFile::readLine(char *data, Q_LLONG maxlen)
+Q_LONGLONG
+QFile::readLine(char *data, Q_LONGLONG maxlen)
 {
     if (maxlen <= 0) // nothing to do
         return 0;
@@ -765,10 +765,10 @@ QFile::readLine(char *data, Q_LLONG maxlen)
 
 #ifndef QT_NO_FILE_BUFFER
     bool foundEnd = false;
-    Q_LLONG ret = 0;
+    Q_LONGLONG ret = 0;
     //from buffer
     while(!d->buffer.isEmpty() && ret < maxlen) {
-        uint buffered = qMin(maxlen, (Q_LLONG)d->buffer.used()), len = 0;
+        uint buffered = qMin(maxlen, (Q_LONGLONG)d->buffer.used()), len = 0;
         char *buffer = d->buffer.take(buffered, &buffered);
         for( ; len < buffered && len < maxlen-ret; len++) {
             if(*(buffer+len) == '\n')
@@ -788,7 +788,7 @@ QFile::readLine(char *data, Q_LLONG maxlen)
     //from the device
     while(!foundEnd && ret < maxlen) {
         char *buffer = d->buffer.alloc(read_cache_size);
-        Q_LLONG got = fileEngine()->read(buffer, read_cache_size);
+        Q_LONGLONG got = fileEngine()->read(buffer, read_cache_size);
         if(got == -1) {
             if(ret == 0)
                 ret = -1;
@@ -841,12 +841,12 @@ QFile::readLine(char *data, Q_LLONG maxlen)
     \sa read(), QTextStream::readLine()
 */
 
-Q_LLONG
-QFile::readLine(QString &s, Q_LLONG maxlen)
+Q_LONGLONG
+QFile::readLine(QString &s, Q_LONGLONG maxlen)
 {
     QByteArray ba;
     ba.resize(maxlen);
-    Q_LLONG l = readLine(ba.data(), maxlen);
+    Q_LONGLONG l = readLine(ba.data(), maxlen);
     if (l > 0)
         s = QString::fromLatin1(ba);
     return l;
@@ -1032,7 +1032,7 @@ bool QFile::isOpen() const
   \reimp
 */
 
-Q_LLONG QFile::size() const
+Q_LONGLONG QFile::size() const
 {
     return fileEngine()->size();
 }
@@ -1041,7 +1041,7 @@ Q_LLONG QFile::size() const
   \reimp
 */
 
-Q_LLONG QFile::at() const
+Q_LONGLONG QFile::at() const
 {
     if (!isOpen())
         return 0;
@@ -1056,7 +1056,7 @@ Q_LLONG QFile::at() const
   \reimp
 */
 
-bool QFile::seek(Q_LLONG off)
+bool QFile::seek(Q_LONGLONG off)
 {
     if (!isOpen()) {
         qWarning("QFile::seek: IODevice is not open");
@@ -1080,7 +1080,7 @@ bool QFile::seek(Q_LLONG off)
   \reimp
 */
 
-Q_LLONG QFile::read(char *data, Q_LLONG len)
+Q_LONGLONG QFile::read(char *data, Q_LONGLONG len)
 {
     if (len <= 0) // nothing to do
         return 0;
@@ -1095,11 +1095,11 @@ Q_LLONG QFile::read(char *data, Q_LLONG len)
     }
     resetStatus();
 
-    Q_LLONG ret = 0;
+    Q_LONGLONG ret = 0;
 #ifndef QT_NO_FILE_BUFFER
     //from buffer
     while(ret != len && !d->buffer.isEmpty()) {
-        uint buffered = qMin(len, (Q_LLONG)d->buffer.used());
+        uint buffered = qMin(len, (Q_LONGLONG)d->buffer.used());
         char *buffer = d->buffer.take(buffered, &buffered);
         memcpy(data+ret, buffer, buffered);
         d->buffer.free(buffered);
@@ -1108,17 +1108,17 @@ Q_LLONG QFile::read(char *data, Q_LLONG len)
     //from the device
     if(ret < len) {
         if(len > read_cache_size) {
-            Q_LLONG read = fileEngine()->read(data+ret, len-ret);
+            Q_LONGLONG read = fileEngine()->read(data+ret, len-ret);
             if(read != -1)
                 ret += read;
         } else {
             char *buffer = d->buffer.alloc(read_cache_size);
-            Q_LLONG got = fileEngine()->read(buffer, read_cache_size);
+            Q_LONGLONG got = fileEngine()->read(buffer, read_cache_size);
             if(got != -1) {
                 if(got < read_cache_size)
                     d->buffer.truncate(read_cache_size - got);
 
-                const Q_LLONG need = qMin(len-ret, got);
+                const Q_LONGLONG need = qMin(len-ret, got);
                 memcpy(data+ret, buffer, need);
                 d->buffer.free(need);
                 ret += need;
@@ -1130,7 +1130,7 @@ Q_LLONG QFile::read(char *data, Q_LLONG len)
         }
     }
 #else
-    Q_LLONG read = fileEngine()->read(data+ret, len-ret);
+    Q_LONGLONG read = fileEngine()->read(data+ret, len-ret);
     if(read != -1)
         ret += read;
 #endif
@@ -1147,7 +1147,7 @@ Q_LLONG QFile::read(char *data, Q_LLONG len)
   \reimp
 */
 
-Q_LLONG QFile::write(const char *data, Q_LLONG len)
+Q_LONGLONG QFile::write(const char *data, Q_LONGLONG len)
 {
     if (len <= 0) // nothing to do
         return 0;
@@ -1166,7 +1166,7 @@ Q_LLONG QFile::write(const char *data, Q_LLONG len)
     if(!d->buffer.isEmpty())
         seek(at());
 #endif
-    Q_LLONG ret = fileEngine()->write(data, len);
+    Q_LONGLONG ret = fileEngine()->write(data, len);
     if(ret < 0) {
         QIODevice::Status error = fileEngine()->errorStatus();
         if(error == QIODevice::UnspecifiedError)

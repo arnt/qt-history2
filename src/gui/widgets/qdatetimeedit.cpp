@@ -18,8 +18,6 @@
 #  define DEBUG if (false) qDebug
 #endif
 
-
-
 #include <private/qabstractspinbox_p.h>
 #include <qabstractspinbox.h>
 #include <qdatetimeedit.h>
@@ -1120,8 +1118,8 @@ QCoreVariant QDateTimeEditPrivate::valueForPosition(int pos) const
     }
 
     double diff = (totalDays * percentage);
-    QDate date = minimum.toDate().addDays((Q_LLONG)diff); // ### hack. There must be a nicer way
-    QTime time = QTime().addMSecs((int)(24 * 3600 * 1000 * (diff - ((double)(Q_LLONG)diff))));
+    QDate date = minimum.toDate().addDays((Q_LONGLONG)diff); // ### hack. There must be a nicer way
+    QTime time = QTime().addMSecs((int)(24 * 3600 * 1000 * (diff - ((double)(Q_LONGLONG)diff))));
     return QCoreVariant(QDateTime(date, time));
 }
 

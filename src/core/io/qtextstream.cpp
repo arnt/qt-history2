@@ -813,7 +813,7 @@ void QTextStreamPrivate::ts_ungetc(QChar c)
     \sa QIODevice::read()
 */
 
-QTextStream &QTextStream::readRawBytes(char *s, Q_LLONG len)
+QTextStream &QTextStream::readRawBytes(char *s, Q_LONGLONG len)
 {
     //just append directly onto the string (optimization)
     if (d->sourceType == QTextStreamPrivate::String) {
@@ -836,7 +836,7 @@ QTextStream &QTextStream::readRawBytes(char *s, Q_LLONG len)
     \sa QIODevice::write()
 */
 
-QTextStream &QTextStream::writeRawBytes(const char* s, Q_LLONG len)
+QTextStream &QTextStream::writeRawBytes(const char* s, Q_LONGLONG len)
 {
     //just append directly onto the string (optimization)
     if (d->sourceType == QTextStreamPrivate::String) {
@@ -859,7 +859,7 @@ QTextStream &QTextStream::writeRawBytes(const char* s, Q_LLONG len)
     \sa QIODevice::seek()
 */
 
-bool QTextStream::seek(Q_LLONG offset)
+bool QTextStream::seek(Q_LONGLONG offset)
 {
     if(d->dev->seek(offset)) {
         d->ungetcBuf.clear();

@@ -55,14 +55,14 @@ public:
     };
 
     enum Flags {
-        NoFlags                = 0,
+        NoFlags             = 0,
         Alternate           = 0x01,
         ZeroPadded          = 0x02,
         LeftAdjusted        = 0x04,
         BlankBeforePositive = 0x08,
         AlwaysShowSign      = 0x10,
         ThousandsGroup      = 0x20,
-        CapitalEorX                = 0x40
+        CapitalEorX         = 0x40
     };
 
     enum GroupSeparatorMode {
@@ -75,22 +75,22 @@ public:
                            DoubleForm form = DFSignificantDigits,
                            int width = -1,
                            unsigned flags = NoFlags) const;
-    QString longLongToString(Q_LLONG l, int precision = -1,
+    QString longLongToString(Q_LONGLONG l, int precision = -1,
                              int base = 10,
                              int width = -1,
                              unsigned flags = NoFlags) const;
-    QString unsLongLongToString(Q_ULLONG l, int precision = -1,
+    QString unsLongLongToString(Q_ULONGLONG l, int precision = -1,
                                 int base = 10,
                                 int width = -1,
                                 unsigned flags = NoFlags) const;
     double stringToDouble(const QString &num, bool *ok, GroupSeparatorMode group_sep_mode) const;
-    Q_LLONG stringToLongLong(const QString &num, int base, bool *ok, GroupSeparatorMode group_sep_mode) const;
-    Q_ULLONG stringToUnsLongLong(const QString &num, int base, bool *ok, GroupSeparatorMode group_sep_mode) const;
+    Q_LONGLONG stringToLongLong(const QString &num, int base, bool *ok, GroupSeparatorMode group_sep_mode) const;
+    Q_ULONGLONG stringToUnsLongLong(const QString &num, int base, bool *ok, GroupSeparatorMode group_sep_mode) const;
 
 
     static double bytearrayToDouble(QByteArray num, bool *ok);
-    static Q_LLONG bytearrayToLongLong(QByteArray num, int base, bool *ok);
-    static Q_ULLONG bytearrayToUnsLongLong(QByteArray num, int base, bool *ok);
+    static Q_LONGLONG bytearrayToLongLong(QByteArray num, int base, bool *ok);
+    static Q_ULONGLONG bytearrayToUnsLongLong(QByteArray num, int base, bool *ok);
 
     QByteArray numberToCLocale(const QString &num,
     	    	    	  GroupSeparatorMode group_sep_mode) const;

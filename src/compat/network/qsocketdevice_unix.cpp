@@ -708,7 +708,7 @@ Q_LONG QSocketDevice::waitForMore(int msecs, bool *timeout) const
     Reads \a maxlen bytes from the socket into \a data and returns the
     number of bytes read. Returns -1 if an error occurred.
 */
-Q_LLONG QSocketDevice::read(char *data, Q_LLONG maxlen)
+Q_LONGLONG QSocketDevice::read(char *data, Q_LONGLONG maxlen)
 {
     if (!isValid()) {
         qWarning("QSocketDevice::readBlock: Invalid socket");
@@ -780,7 +780,7 @@ Q_LLONG QSocketDevice::read(char *data, Q_LLONG maxlen)
 
     This is used for \c QSocketDevice::Stream sockets.
 */
-Q_LLONG QSocketDevice::write(const char *data, Q_LLONG len)
+Q_LONGLONG QSocketDevice::write(const char *data, Q_LONGLONG len)
 {
     if (!isValid()) {
         qWarning("QSocketDevice::writeBlock: Invalid socket");
@@ -846,8 +846,8 @@ Q_LLONG QSocketDevice::write(const char *data, Q_LLONG len)
     This is used for \c QSocketDevice::Datagram sockets. You must
     specify the \a host and \a port of the destination of the data.
 */
-Q_LLONG QSocketDevice::write(const char * data, Q_LLONG len,
-                             const QHostAddress & host, Q_UINT16 port)
+Q_LONGLONG QSocketDevice::write(const char * data, Q_LONGLONG len,
+                                const QHostAddress & host, Q_UINT16 port)
 {
     if (d->t != Datagram) {
         qWarning("QSocketDevice::sendBlock: Not datagram");

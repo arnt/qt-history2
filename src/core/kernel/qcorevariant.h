@@ -90,8 +90,8 @@ class Q_CORE_EXPORT QCoreVariant
 
     QCoreVariant(int i);
     QCoreVariant(uint ui);
-    QCoreVariant(Q_LLONG ll);
-    QCoreVariant(Q_ULLONG ull);
+    QCoreVariant(Q_LONGLONG ll);
+    QCoreVariant(Q_ULONGLONG ull);
     QCoreVariant(bool b);
     QCoreVariant(double d);
 
@@ -133,8 +133,8 @@ class Q_CORE_EXPORT QCoreVariant
 
     int toInt(bool *ok = 0) const;
     uint toUInt(bool *ok = 0) const;
-    Q_LLONG toLongLong(bool *ok = 0) const;
-    Q_ULLONG toULongLong(bool *ok = 0) const;
+    Q_LONGLONG toLongLong(bool *ok = 0) const;
+    Q_ULONGLONG toULongLong(bool *ok = 0) const;
     bool toBool() const;
     double toDouble(bool *ok = 0) const;
     QByteArray toByteArray() const;
@@ -152,8 +152,8 @@ class Q_CORE_EXPORT QCoreVariant
 #ifdef QT_COMPAT
     inline QT_COMPAT int &asInt();
     inline QT_COMPAT uint &asUInt();
-    inline QT_COMPAT Q_LLONG &asLongLong();
-    inline QT_COMPAT Q_ULLONG &asULongLong();
+    inline QT_COMPAT Q_LONGLONG &asLongLong();
+    inline QT_COMPAT Q_ULONGLONG &asULongLong();
     inline QT_COMPAT bool &asBool();
     inline QT_COMPAT double &asDouble();
     inline QT_COMPAT QByteArray &asByteArray();
@@ -195,8 +195,8 @@ class Q_CORE_EXPORT QCoreVariant
         QAtomic ref;
         union
         {
-            Q_LLONG ll;
-            Q_ULLONG ull;
+            Q_LONGLONG ll;
+            Q_ULONGLONG ull;
             double d;
             void *ptr;
         } value;
@@ -276,10 +276,10 @@ inline int &QCoreVariant::asInt()
 { return *static_cast<int *>(castOrDetach(Int)); }
 inline uint &QCoreVariant::asUInt()
 { return *static_cast<uint *>(castOrDetach(UInt)); }
-inline Q_LLONG &QCoreVariant::asLongLong()
-{ return *static_cast<Q_LLONG *>(castOrDetach(LongLong)); }
-inline Q_ULLONG &QCoreVariant::asULongLong()
-{ return *static_cast<Q_ULLONG *>(castOrDetach(ULongLong)); }
+inline Q_LONGLONG &QCoreVariant::asLongLong()
+{ return *static_cast<Q_LONGLONG *>(castOrDetach(LongLong)); }
+inline Q_ULONGLONG &QCoreVariant::asULongLong()
+{ return *static_cast<Q_ULONGLONG *>(castOrDetach(ULongLong)); }
 inline bool &QCoreVariant::asBool()
 { return *static_cast<bool *>(castOrDetach(Bool)); }
 inline double &QCoreVariant::asDouble()
@@ -327,8 +327,8 @@ inline T QVariant_to(const QCoreVariant &v)
 
 template<> inline int QVariant_to_helper<int>(const QCoreVariant &v, const int*) { return v.toInt(); }
 template<> inline uint QVariant_to_helper<uint>(const QCoreVariant &v, const uint*) { return v.toUInt(); }
-template<> inline Q_LLONG QVariant_to_helper<Q_LLONG>(const QCoreVariant &v, const Q_LLONG*) { return v.toLongLong(); }
-template<> inline Q_ULLONG QVariant_to_helper<Q_ULLONG>(const QCoreVariant &v, const Q_ULLONG*) { return v.toULongLong(); }
+template<> inline Q_LONGLONG QVariant_to_helper<Q_LONGLONG>(const QCoreVariant &v, const Q_LONGLONG*) { return v.toLongLong(); }
+template<> inline Q_ULONGLONG QVariant_to_helper<Q_ULONGLONG>(const QCoreVariant &v, const Q_ULONGLONG*) { return v.toULongLong(); }
 template<> inline bool QVariant_to_helper<bool>(const QCoreVariant &v, const bool*) { return v.toBool(); }
 template<> inline double QVariant_to_helper<double>(const QCoreVariant &v, const double*) { return v.toDouble(); }
 template<> inline QByteArray QVariant_to_helper<QByteArray>(const QCoreVariant &v, const QByteArray*) { return v.toByteArray(); }
@@ -351,8 +351,9 @@ QVariant_to_helper<QMap<QString,QCoreVariant> >(const QCoreVariant &v, const QMa
 template<typename T> T QVariant_to(const QCoreVariant &v);
 template<> inline int QVariant_to<int>(const QCoreVariant &v) { return v.toInt(); }
 template<> inline uint QVariant_to<uint>(const QCoreVariant &v) { return v.toUInt(); }
-template<> inline Q_LLONG QVariant_to<Q_LLONG>(const QCoreVariant &v) { return v.toLongLong(); }
-template<> inline Q_ULLONG QVariant_to<Q_ULLONG>(const QCoreVariant &v) { return v.toULongLong(); }
+template<> inline Q_LONGLONG QVariant_to<Q_LONGLONG>(const QCoreVariant &v)
+{ return v.toLongLong(); }
+template<> inline Q_ULONGLONG QVariant_to<Q_ULONGLONG>(const QCoreVariant &v) { return v.toULongLong(); }
 template<> inline bool QVariant_to<bool>(const QCoreVariant &v) { return v.toBool(); }
 template<> inline double QVariant_to<double>(const QCoreVariant &v) { return v.toDouble(); }
 template<> inline QByteArray QVariant_to<QByteArray>(const QCoreVariant &v) { return v.toByteArray(); }

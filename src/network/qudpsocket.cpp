@@ -143,7 +143,9 @@ QUdpSocket::QUdpSocket(QObject *parent)
 }
 
 /*!
-    Destroys the socket.
+    Destroys the socket, closing the connection if necessary.
+
+    \sa close()
 */
 QUdpSocket::~QUdpSocket()
 {
@@ -151,12 +153,12 @@ QUdpSocket::~QUdpSocket()
 
 /*!
     Binds this socket to the address \a address and the port \a port.
-    When bound, the signal readyRead() is emitted when a UDP datagram
-    arrives on the specified address and port. This function is
-    useful to write UDP servers.
+    When bound, the signal readyRead() is emitted whenever a UDP
+    datagram arrives on the specified address and port. This function
+    is useful to write UDP servers.
 
-    On success, it returns true and the socket enters Qt::BoundState;
-    otherwise it returns false.
+    On success, the functions returns true and the socket enters
+    Qt::BoundState; otherwise it returns false.
 
     \sa readDatagram()
 */
@@ -204,7 +206,7 @@ bool QUdpSocket::hasPendingDatagrams() const
 
     \sa hasPendingDatagrams(), readDatagram()
 */
-Q_LLONG QUdpSocket::pendingDatagramSize() const
+Q_LONGLONG QUdpSocket::pendingDatagramSize() const
 {
     QT_CHECK_BOUND("QUdpSocket::pendingDatagramSize()", -1);
     return d->socketLayer.pendingDatagramSize();
@@ -212,24 +214,22 @@ Q_LLONG QUdpSocket::pendingDatagramSize() const
 
 /*!
     Sends the datagram at \a data of size \a size to the host
-    address \a address at port \a port. On success, the number of
-    bytes sent is returned; otherwise this function returns -1.
+    address \a address at port \a port. Returns the number of
+    bytes sent on success; otherwise returns -1.
 
-    Datagrams are always written in one block. The maximum size of a
-    datagram is highly platform dependent, but if too large a datagram
-    is sent in one go, this function will return -1 and socketError()
-    will return Qt::DatagramTooLargeError.
+    Datagrams are always written as one block. The maximum size of a
+    datagram is highly platform-dependent, but can be as low as 8192
+    bytes. If the datagram is too large, this function will return -1
+    and socketError() will return Qt::DatagramTooLargeError.
 
-    Sending large datagrams is in general disadvised, as even if they
-    are sent successfully, they are likely to be fragmented before
-    arriving at their destination.
-
-    Experience has shown that it is usually safe to send datagrams of
-    sizes up to 512 bytes.
+    Sending datagrams larger than 512 bytes is in general disadvised,
+    as even if they are sent successfully, they are likely to be
+    fragmented by the IP layer before arriving at their final
+    destination.
 
     \sa readDatagram()
 */
-Q_LLONG QUdpSocket::writeDatagram(const char *data, Q_LLONG size, const QHostAddress &address,
+Q_LONGLONG QUdpSocket::writeDatagram(const char *data, Q_LONGLONG size, const QHostAddress &address,
                                   Q_UINT16 port)
 {
 #if defined QUDPSOCKET_DEBUG
@@ -237,7 +237,7 @@ Q_LLONG QUdpSocket::writeDatagram(const char *data, Q_LLONG size, const QHostAdd
            address.toString().latin1(), port);
 #endif
     QT_ENSURE_INITIALIZED(-1);
-    Q_LLONG sent = d->socketLayer.writeDatagram(data, size, address, port);
+    Q_LONGLONG sent = d->socketLayer.writeDatagram(data, size, address, port);
     if (sent >= 0) {
         emit bytesWritten(sent);
     } else {
@@ -249,27 +249,28 @@ Q_LLONG QUdpSocket::writeDatagram(const char *data, Q_LLONG size, const QHostAdd
 }
 
 /*!
-    Receives a datagram no larger than \a maxLength bytes and stores
+    Receives a datagram no larger than \a maxSize bytes and stores
     it in \a data. The sender's host address and port is stored in
     *\a address and *\a port (unless the pointers are 0).
 
-    Returns the size of the received datagram on success; otherwise
-    returns -1.
+    Returns the size of the datagram on success; otherwise returns
+    -1.
 
-    If \a maxLength is too small, the rest of the datagram will be
+    If \a maxSize is too small, the rest of the datagram will be
     lost. To avoid loss of data, call pendingDatagramSize() to
-    determine the size of the pending datagram before reading it.
+    determine the size of the pending datagram before attempting to
+    read it.
 
     \sa writeDatagram(), hasPendingDatagrams(), pendingDatagramSize()
 */
-Q_LLONG QUdpSocket::readDatagram(char *data, Q_LLONG maxLength, QHostAddress *address,
-                                 Q_UINT16 *port)
+Q_LONGLONG QUdpSocket::readDatagram(char *data, Q_LONGLONG maxSize, QHostAddress *address,
+                                    Q_UINT16 *port)
 {
 #if defined QUDPSOCKET_DEBUG
-    qDebug("QUdpSocket::readDatagram(%p, %llu, %p, %p)", data, maxLength, address, port);
+    qDebug("QUdpSocket::readDatagram(%p, %llu, %p, %p)", data, maxSize, address, port);
 #endif
     QT_CHECK_BOUND("QUdpSocket::readDatagram()", -1);
-    Q_LLONG readBytes = d->socketLayer.readDatagram(data, maxLength, address, port);
+    Q_LONGLONG readBytes = d->socketLayer.readDatagram(data, maxSize, address, port);
     if (readBytes < 0) {
         d->socketError = d->socketLayer.socketError();
         d->socketErrorString = d->socketLayer.errorString();

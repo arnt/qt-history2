@@ -106,8 +106,8 @@ static char *qdtoa(double d, int mode, int ndigits, int *decpt,
                         int *sign, char **rve, char **digits_str);
 static double qstrtod(const char *s00, char const **se, bool *ok);
 #endif
-static Q_LLONG qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok);
-static Q_ULLONG qstrtoull(const char *nptr, const char **endptr, register int base, bool *ok);
+static Q_LONGLONG qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok);
+static Q_ULONGLONG qstrtoull(const char *nptr, const char **endptr, register int base, bool *ok);
 
 static const uint locale_index[] = {
      0, // unused
@@ -2605,7 +2605,7 @@ QString QLocale::countryToString(Country country)
 
 short QLocale::toShort(const QString &s, bool *ok) const
 {
-    Q_LLONG i = toLongLong(s, ok);
+    Q_LONGLONG i = toLongLong(s, ok);
     if (i < SHRT_MIN || i > SHRT_MAX) {
         if (ok != 0)
             *ok = false;
@@ -2628,7 +2628,7 @@ short QLocale::toShort(const QString &s, bool *ok) const
 
 ushort QLocale::toUShort(const QString &s, bool *ok) const
 {
-    Q_ULLONG i = toULongLong(s, ok);
+    Q_ULONGLONG i = toULongLong(s, ok);
     if (i > USHRT_MAX) {
         if (ok != 0)
             *ok = false;
@@ -2651,7 +2651,7 @@ ushort QLocale::toUShort(const QString &s, bool *ok) const
 
 int QLocale::toInt(const QString &s, bool *ok) const
 {
-    Q_LLONG i = toLongLong(s, ok);
+    Q_LONGLONG i = toLongLong(s, ok);
     if (i < INT_MIN || i > INT_MAX) {
         if (ok != 0)
             *ok = false;
@@ -2674,7 +2674,7 @@ int QLocale::toInt(const QString &s, bool *ok) const
 
 uint QLocale::toUInt(const QString &s, bool *ok) const
 {
-    Q_ULLONG i = toULongLong(s, ok);
+    Q_ULONGLONG i = toULongLong(s, ok);
     if (i > UINT_MAX) {
         if (ok != 0)
             *ok = false;
@@ -2697,7 +2697,7 @@ uint QLocale::toUInt(const QString &s, bool *ok) const
 
 Q_LONG QLocale::toLong(const QString &s, bool *ok) const
 {
-    Q_LLONG i = toLongLong(s, ok);
+    Q_LONGLONG i = toLongLong(s, ok);
     if (i < LONG_MIN || i > LONG_MAX) {
         if (ok != 0)
             *ok = false;
@@ -2720,7 +2720,7 @@ Q_LONG QLocale::toLong(const QString &s, bool *ok) const
 
 Q_ULONG QLocale::toULong(const QString &s, bool *ok) const
 {
-    Q_ULLONG i = toULongLong(s, ok);
+    Q_ULONGLONG i = toULongLong(s, ok);
     if (i > ULONG_MAX) {
         if (ok != 0)
             *ok = false;
@@ -2742,7 +2742,7 @@ Q_ULONG QLocale::toULong(const QString &s, bool *ok) const
 */
 
 
-Q_LLONG QLocale::toLongLong(const QString &s, bool *ok) const
+Q_LONGLONG QLocale::toLongLong(const QString &s, bool *ok) const
 {
     return d->stringToLongLong(s, 0, ok, QLocalePrivate::ParseGroupSeparators);
 }
@@ -2760,7 +2760,7 @@ Q_LLONG QLocale::toLongLong(const QString &s, bool *ok) const
 */
 
 
-Q_ULLONG QLocale::toULongLong(const QString &s, bool *ok) const
+Q_ULONGLONG QLocale::toULongLong(const QString &s, bool *ok) const
 {
     return d->stringToUnsLongLong(s, 0, ok, QLocalePrivate::ParseGroupSeparators);
 }
@@ -2840,7 +2840,7 @@ double QLocale::toDouble(const QString &s, bool *ok) const
     \sa toLongLong()
 */
 
-QString QLocale::toString(Q_LLONG i) const
+QString QLocale::toString(Q_LONGLONG i) const
 {
     return d->longLongToString(i, -1, 10, QLocalePrivate::ThousandsGroup);
 }
@@ -2851,7 +2851,7 @@ QString QLocale::toString(Q_LLONG i) const
     \sa toULongLong()
 */
 
-QString QLocale::toString(Q_ULLONG i) const
+QString QLocale::toString(Q_ULONGLONG i) const
 {
     return d->unsLongLongToString(i, -1, 10, QLocalePrivate::ThousandsGroup);
 }
@@ -3006,7 +3006,7 @@ static char digitToCLocale(QChar zero, QChar d)
     return 0;
 }
 
-static QString qulltoa(Q_ULLONG l, int base, const QLocalePrivate &locale)
+static QString qulltoa(Q_ULONGLONG l, int base, const QLocalePrivate &locale)
 {
     QChar buff[65]; // length of MAX_ULLONG in base 2
     QChar *p = buff + 65;
@@ -3038,7 +3038,7 @@ static QString qulltoa(Q_ULLONG l, int base, const QLocalePrivate &locale)
     return QString(p, 65 - (p - buff));
 }
 
-static QString qlltoa(Q_LLONG l, int base, const QLocalePrivate &locale)
+static QString qlltoa(Q_LONGLONG l, int base, const QLocalePrivate &locale)
 {
     return qulltoa(l < 0 ? -l : l, base, locale);
 }
@@ -3263,7 +3263,7 @@ QString QLocalePrivate::doubleToString(double d,
     return num_str;
 }
 
-QString QLocalePrivate::longLongToString(Q_LLONG l, int precision,
+QString QLocalePrivate::longLongToString(Q_LONGLONG l, int precision,
                                             int base, int width,
                                             unsigned flags) const
 {
@@ -3347,7 +3347,7 @@ QString QLocalePrivate::longLongToString(Q_LLONG l, int precision,
     return num_str;
 }
 
-QString QLocalePrivate::unsLongLongToString(Q_ULLONG l, int precision,
+QString QLocalePrivate::unsLongLongToString(Q_ULONGLONG l, int precision,
                                             int base, int width,
                                             unsigned flags) const
 {
@@ -3562,7 +3562,7 @@ double QLocalePrivate::stringToDouble(const QString &number, bool *ok,
     return bytearrayToDouble(num, ok);
 }
 
-Q_LLONG QLocalePrivate::stringToLongLong(const QString &number, int base,
+Q_LONGLONG QLocalePrivate::stringToLongLong(const QString &number, int base,
                                             bool *ok, GroupSeparatorMode group_sep_mode) const
 {
     QByteArray num = numberToCLocale(number, group_sep_mode);
@@ -3575,7 +3575,7 @@ Q_LLONG QLocalePrivate::stringToLongLong(const QString &number, int base,
     return bytearrayToLongLong(num, base, ok);
 }
 
-Q_ULLONG QLocalePrivate::stringToUnsLongLong(const QString &number, int base,
+Q_ULONGLONG QLocalePrivate::stringToUnsLongLong(const QString &number, int base,
                                                 bool *ok, GroupSeparatorMode group_sep_mode) const
 {
     QByteArray num = numberToCLocale(number, group_sep_mode);
@@ -3623,11 +3623,11 @@ double QLocalePrivate::bytearrayToDouble(QByteArray num, bool *ok)
         return d;
 }
 
-Q_LLONG QLocalePrivate::bytearrayToLongLong(QByteArray num, int base, bool *ok)
+Q_LONGLONG QLocalePrivate::bytearrayToLongLong(QByteArray num, int base, bool *ok)
 {
     bool _ok;
     const char *endptr;
-    Q_LLONG l = qstrtoll(num, &endptr, base, &_ok);
+    Q_LONGLONG l = qstrtoll(num, &endptr, base, &_ok);
 
     if (!_ok || *endptr != '\0') {
         if (ok != 0)
@@ -3640,11 +3640,11 @@ Q_LLONG QLocalePrivate::bytearrayToLongLong(QByteArray num, int base, bool *ok)
     return l;
 }
 
-Q_ULLONG QLocalePrivate::bytearrayToUnsLongLong(QByteArray num, int base, bool *ok)
+Q_ULONGLONG QLocalePrivate::bytearrayToUnsLongLong(QByteArray num, int base, bool *ok)
 {
     bool _ok;
     const char *endptr;
-    Q_ULLONG l = qstrtoull(num, &endptr, base, &_ok);
+    Q_ULONGLONG l = qstrtoull(num, &endptr, base, &_ok);
 
     if (!_ok || *endptr != '\0') {
         if (ok != 0)
@@ -3694,17 +3694,17 @@ Q_ULLONG QLocalePrivate::bytearrayToUnsLongLong(QByteArray num, int base, bool *
 //  "$FreeBSD: src/lib/libc/stdlib/strtoull.c,v 1.5.2.1 2001/03/02 09:45:20 obrien Exp $";
 
 /*
- * Convert a string to an Q_ULLONG integer.
+ * Convert a string to an Q_ULONGLONG integer.
  *
  * Ignores `locale' stuff.  Assumes that the upper and lower case
  * alphabets and digits are each contiguous.
  */
-static Q_ULLONG qstrtoull(const char *nptr, const char **endptr, register int base, bool *ok)
+static Q_ULONGLONG qstrtoull(const char *nptr, const char **endptr, register int base, bool *ok)
 {
     register const char *s = nptr;
-    register Q_ULLONG acc;
+    register Q_ULONGLONG acc;
     register unsigned char c;
-    register Q_ULLONG qbase, cutoff;
+    register Q_ULONGLONG qbase, cutoff;
     register int neg, any, cutlim;
 
     if (ok != 0)
@@ -3737,8 +3737,8 @@ static Q_ULLONG qstrtoull(const char *nptr, const char **endptr, register int ba
     if (base == 0)
         base = c == '0' ? 8 : 10;
     qbase = unsigned(base);
-    cutoff = Q_ULLONG(ULLONG_MAX) / qbase;
-    cutlim = Q_ULLONG(ULLONG_MAX) % qbase;
+    cutoff = Q_ULONGLONG(ULLONG_MAX) / qbase;
+    cutlim = Q_ULONGLONG(ULLONG_MAX) % qbase;
     for (acc = 0, any = 0;; c = *s++) {
         if (!isascii(c))
             break;
@@ -3775,17 +3775,17 @@ static Q_ULLONG qstrtoull(const char *nptr, const char **endptr, register int ba
 
 
 /*
- * Convert a string to a Q_LLONG integer.
+ * Convert a string to a Q_LONGLONG integer.
  *
  * Ignores `locale' stuff.  Assumes that the upper and lower case
  * alphabets and digits are each contiguous.
  */
-static Q_LLONG qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok)
+static Q_LONGLONG qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok)
 {
     register const char *s;
-    register Q_ULLONG acc;
+    register Q_ULONGLONG acc;
     register unsigned char c;
-    register Q_ULLONG qbase, cutoff;
+    register Q_ULONGLONG qbase, cutoff;
     register int neg, any, cutlim;
 
     if (ok != 0)
@@ -3836,7 +3836,7 @@ static Q_LLONG qstrtoll(const char *nptr, const char **endptr, register int base
      * overflow.
      */
     qbase = unsigned(base);
-    cutoff = neg ? Q_ULLONG(0-(LLONG_MIN + LLONG_MAX)) + LLONG_MAX : LLONG_MAX;
+    cutoff = neg ? Q_ULONGLONG(0-(LLONG_MIN + LLONG_MAX)) + LLONG_MAX : LLONG_MAX;
     cutlim = cutoff % qbase;
     cutoff /= qbase;
     for (acc = 0, any = 0;; c = *s++) {

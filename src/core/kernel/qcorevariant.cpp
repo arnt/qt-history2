@@ -145,12 +145,12 @@ static void construct(QCoreVariant::Private *x, const void *copy)
         case QCoreVariant::LongLong:
             x->is_shared = true;
             x->data.shared = new QCoreVariant::PrivateShared();
-            x->data.shared->value.ll = *static_cast<const Q_LLONG *>(copy);
+            x->data.shared->value.ll = *static_cast<const Q_LONGLONG *>(copy);
             break;
         case QCoreVariant::ULongLong:
             x->is_shared = true;
             x->data.shared = new QCoreVariant::PrivateShared();
-            x->data.shared->value.ull = *static_cast<const Q_ULLONG *>(copy);
+            x->data.shared->value.ull = *static_cast<const Q_ULONGLONG *>(copy);
             break;
         case QCoreVariant::Invalid:
         case QCoreVariant::UserType:
@@ -213,12 +213,12 @@ static void construct(QCoreVariant::Private *x, const void *copy)
         case QCoreVariant::LongLong:
             x->is_shared = true;
             x->data.shared = new QCoreVariant::PrivateShared();
-            x->data.shared->value.ll = Q_LLONG(0);
+            x->data.shared->value.ll = Q_LONGLONG(0);
             break;
         case QCoreVariant::ULongLong:
             x->is_shared = true;
             x->data.shared = new QCoreVariant::PrivateShared();
-            x->data.shared->value.ull = Q_ULLONG(0);
+            x->data.shared->value.ull = Q_ULONGLONG(0);
             break;
         default:
             x->is_shared = true;
@@ -713,7 +713,7 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
         break;
     }
     case QCoreVariant::LongLong: {
-        Q_LLONG *l = static_cast<Q_LLONG *>(result);
+        Q_LONGLONG *l = static_cast<Q_LONGLONG *>(result);
         switch (d->type) {
         case QCoreVariant::String:
             *l = v_cast<QString>(d)->toLongLong(ok);
@@ -722,22 +722,22 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *l = v_cast<QByteArray>(d)->toLongLong(ok);
             break;
         case QCoreVariant::Int:
-            *l = (Q_LLONG)d->data.i;
+            *l = (Q_LONGLONG)d->data.i;
             break;
         case QCoreVariant::UInt:
-            *l = (Q_LLONG)d->data.u;
+            *l = (Q_LONGLONG)d->data.u;
             break;
         case QCoreVariant::LongLong:
             *l = d->data.shared->value.ll;
             break;
         case QCoreVariant::ULongLong:
-            *l = (Q_LLONG)d->data.shared->value.ull;
+            *l = (Q_LONGLONG)d->data.shared->value.ull;
             break;
         case QCoreVariant::Double:
-            *l = (Q_LLONG)d->data.shared->value.d;
+            *l = (Q_LONGLONG)d->data.shared->value.d;
             break;
         case QCoreVariant::Bool:
-            *l = (Q_LLONG)d->data.b;
+            *l = (Q_LONGLONG)d->data.b;
             break;
         default:
             *l = 0;
@@ -746,25 +746,25 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
         break;
     }
     case QCoreVariant::ULongLong: {
-        Q_ULLONG *l = static_cast<Q_ULLONG *>(result);
+        Q_ULONGLONG *l = static_cast<Q_ULONGLONG *>(result);
         switch (d->type) {
         case QCoreVariant::Int:
-            *l = (Q_ULLONG)d->data.i;
+            *l = (Q_ULONGLONG)d->data.i;
             break;
         case QCoreVariant::UInt:
-            *l = (Q_ULLONG)d->data.u;
+            *l = (Q_ULONGLONG)d->data.u;
             break;
         case QCoreVariant::LongLong:
-            *l = (Q_ULLONG)d->data.shared->value.ll;
+            *l = (Q_ULONGLONG)d->data.shared->value.ll;
             break;
         case QCoreVariant::ULongLong:
             *l = d->data.shared->value.ull;
             break;
         case QCoreVariant::Double:
-            *l = (Q_ULLONG)d->data.shared->value.d;
+            *l = (Q_ULONGLONG)d->data.shared->value.d;
             break;
         case QCoreVariant::Bool:
-            *l = (Q_ULLONG)d->data.b;
+            *l = (Q_ULONGLONG)d->data.b;
             break;
         case QCoreVariant::String:
             *l = v_cast<QString>(d)->toULongLong(ok);
@@ -834,7 +834,7 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             break;
         case QCoreVariant::ULongLong:
 #if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
-            *f = (double)(Q_LLONG)d->data.shared->value.ull;
+            *f = (double)(Q_LONGLONG)d->data.shared->value.ull;
 #else
             *f = (double)d->data.shared->value.ull;
 #endif
@@ -1253,13 +1253,13 @@ QCoreVariant::QCoreVariant(const char *val)
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(Q_LLONG val)
+  \fn QCoreVariant::QCoreVariant(Q_LONGLONG val)
 
     Constructs a new variant with a long long integer value, \a val.
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(Q_ULLONG val)
+  \fn QCoreVariant::QCoreVariant(Q_ULONGLONG val)
 
     Constructs a new variant with an unsigned long long integer value, \a val.
 */
@@ -1295,9 +1295,9 @@ QCoreVariant::QCoreVariant(int val)
 { create(Int, &val); }
 QCoreVariant::QCoreVariant(uint val)
 { create(UInt, &val); }
-QCoreVariant::QCoreVariant(Q_LLONG val)
+QCoreVariant::QCoreVariant(Q_LONGLONG val)
 { create(LongLong, &val); }
-QCoreVariant::QCoreVariant(Q_ULLONG val)
+QCoreVariant::QCoreVariant(Q_ULONGLONG val)
 { create(ULongLong, &val); }
 QCoreVariant::QCoreVariant(bool val)
 { create(Bool, &val); }
@@ -1472,8 +1472,8 @@ static const char* const type_map[ntypes] =
     "QBitArray",
     "QKeySequence",
     "QPen",
-    "Q_LLONG",
-    "Q_ULLONG",
+    "Q_LONGLONG",
+    "Q_ULONGLONG",
     "UserType"
 };
 
@@ -1792,7 +1792,7 @@ uint QCoreVariant::toUInt(bool *ok) const
 
     \sa canCast()
 */
-Q_LLONG QCoreVariant::toLongLong(bool *ok) const
+Q_LONGLONG QCoreVariant::toLongLong(bool *ok) const
 {
     if (d.type == LongLong) {
         if (ok)
@@ -1803,7 +1803,7 @@ Q_LLONG QCoreVariant::toLongLong(bool *ok) const
     bool c = canCast(LongLong);
     if (ok)
         *ok = c;
-    Q_LLONG res = 0;
+    Q_LONGLONG res = 0;
     if (c)
         handler->cast(&d, LongLong, &res, ok);
 
@@ -1820,7 +1820,7 @@ Q_LLONG QCoreVariant::toLongLong(bool *ok) const
 
     \sa canCast()
 */
-Q_ULLONG QCoreVariant::toULongLong(bool *ok) const
+Q_ULONGLONG QCoreVariant::toULongLong(bool *ok) const
 {
     if (d.type == ULongLong) {
         if (ok)
@@ -1831,7 +1831,7 @@ Q_ULLONG QCoreVariant::toULongLong(bool *ok) const
     bool c = canCast(ULongLong);
     if (ok)
         *ok = c;
-    Q_ULLONG res = 0;
+    Q_ULONGLONG res = 0;
     if (c)
         handler->cast(&d, ULongLong, &res, ok);
 
@@ -2152,13 +2152,13 @@ QDebug operator<<(QDebug dbg, const QCoreVariant &v)
 */
 
 /*!
-    \fn Q_LLONG &QCoreVariant::asLongLong()
+    \fn Q_LONGLONG &QCoreVariant::asLongLong()
 
     Use toLongLong() instead.
 */
 
 /*!
-    \fn Q_ULLONG &QCoreVariant::asULongLong()
+    \fn Q_ULONGLONG &QCoreVariant::asULongLong()
 
     Use toULongLong() instead.
 */

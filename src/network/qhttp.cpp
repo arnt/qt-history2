@@ -738,7 +738,7 @@ QString QHttpHeader::contentType() const
 {
     QString type = values["content-type"];
     if (type.isEmpty())
-        return QString::null;
+        return QString();
 
     int pos = type.indexOf(';');
     if (pos == -1)
@@ -904,7 +904,7 @@ bool QHttpResponseHeader::parseLine(const QString& line, int number)
             statCode = l.mid(9, pos - 9).toInt();
         } else {
             statCode = l.mid(9).toInt();
-            reasonPhr = QString::null;
+            reasonPhr.clear();
         }
     } else {
         return false;
@@ -1521,7 +1521,7 @@ Q_ULONG QHttp::bytesAvailable() const
 
     \sa get() post() request() readyRead() bytesAvailable() readAll()
 */
-Q_LLONG QHttp::read(char *data, Q_ULONG maxlen)
+Q_LONGLONG QHttp::read(char *data, Q_ULONG maxlen)
 {
     if (data == 0 && maxlen != 0) {
         qWarning("QHttp::read: Null pointer error");
@@ -2081,7 +2081,7 @@ void QHttp::slotError(int err)
     closeConn();
 }
 
-void QHttp::slotBytesWritten(Q_LLONG written)
+void QHttp::slotBytesWritten(Q_LONGLONG written)
 {
     d->bytesDone += written;
     emit dataSendProgress(d->bytesDone, d->bytesTotal);
@@ -2397,7 +2397,7 @@ void QHttp::setSock(QTcpSocket *socket)
     connect(d->socket, SIGNAL(closed()), this, SLOT(slotClosed()));
     connect(d->socket, SIGNAL(readyRead()), this, SLOT(slotReadyRead()));
     connect(d->socket, SIGNAL(error(int)), this, SLOT(slotError(int)));
-    connect(d->socket, SIGNAL(bytesWritten(Q_LLONG)), this, SLOT(slotBytesWritten(Q_LLONG)));
+    connect(d->socket, SIGNAL(bytesWritten(Q_LONGLONG)), this, SLOT(slotBytesWritten(Q_LONGLONG)));
 }
 
 #endif

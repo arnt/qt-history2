@@ -228,7 +228,7 @@ QString QFileEngine::errorString() const
 }
 
 /*!
-  \fn uchar *QIOEngine::map(Q_LLONG offset, Q_LLONG len)
+  \fn uchar *QIOEngine::map(Q_LONGLONG offset, Q_LONGLONG len)
 
   Maps the file contents from \a offset for the given \a number of
   bytes, returning a pointer (uchar *) to the contents. If this fails,
@@ -241,7 +241,7 @@ QString QFileEngine::errorString() const
  */
 
 uchar 
-*QFileEngine::map(Q_LLONG, Q_LLONG) 
+*QFileEngine::map(Q_LONGLONG, Q_LONGLONG) 
 { 
     return 0; 
 }
@@ -684,8 +684,8 @@ QFSFileEngine::flush()
     d->ungetchBuffer.clear();
 }
 
-Q_LLONG
-QFSFileEngine::read(char *data, Q_LLONG len)
+Q_LONGLONG
+QFSFileEngine::read(char *data, Q_LONGLONG len)
 {
     Q_LONG ret = 0;
     if (!d->ungetchBuffer.isEmpty()) {
@@ -712,8 +712,8 @@ QFSFileEngine::read(char *data, Q_LLONG len)
     return ret;
 }
 
-Q_LLONG
-QFSFileEngine::write(const char *data, Q_LLONG len)
+Q_LONGLONG
+QFSFileEngine::write(const char *data, Q_LONGLONG len)
 {
     d->resetErrors();
     Q_LONG ret = QT_WRITE(d->fd, data, len);
@@ -722,7 +722,7 @@ QFSFileEngine::write(const char *data, Q_LLONG len)
     return ret;
 }
 
-Q_LLONG
+Q_LONGLONG
 QFSFileEngine::at() const
 {
     return QT_LSEEK(d->fd, 0, SEEK_CUR);
@@ -786,7 +786,7 @@ QFSFileEngine::type() const
 }
 
 uchar 
-*QFSFileEngine::map(Q_LLONG /*off*/, Q_LLONG /*len*/) 
+*QFSFileEngine::map(Q_LONGLONG /*off*/, Q_LONGLONG /*len*/) 
 { 
     return 0; 
 }

@@ -652,7 +652,7 @@ Q_LONG QSocketDevice::waitForMore(int msecs, bool *timeout) const
 }
 
 
-Q_LLONG QSocketDevice::read(char *data, Q_LLONG maxlen)
+Q_LONGLONG QSocketDevice::read(char *data, Q_LONGLONG maxlen)
 {
     if (!isValid()) {
         qWarning("QSocketDevice::readBlock: Invalid socket");
@@ -737,7 +737,7 @@ Q_LLONG QSocketDevice::read(char *data, Q_LLONG maxlen)
 }
 
 
-Q_LLONG QSocketDevice::write(const char *data, Q_LLONG len)
+Q_LONGLONG QSocketDevice::write(const char *data, Q_LONGLONG len)
 {
     if (!isValid()) {
         qWarning("QSocketDevice::writeBlock: Invalid socket");
@@ -800,7 +800,8 @@ Q_LLONG QSocketDevice::write(const char *data, Q_LLONG len)
 }
 
 
-Q_LLONG QSocketDevice::write(const char *data, Q_LLONG len, const QHostAddress & host, Q_UINT16 port)
+Q_LONGLONG QSocketDevice::write(const char *data, Q_LONGLONG len, const QHostAddress & host,
+                                Q_UINT16 port)
 {
     if (d->t != Datagram) {
         qWarning("QSocketDevice::sendBlock: Not datagram");

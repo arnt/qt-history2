@@ -430,27 +430,27 @@ public:
     uint toUInt(const QString &s, bool *ok = 0) const;
     Q_LONG toLong(const QString &s, bool *ok = 0) const;
     Q_ULONG toULong(const QString &s, bool *ok = 0) const;
-    Q_LLONG toLongLong(const QString &s, bool *ok = 0) const;
-    Q_ULLONG toULongLong(const QString &s, bool *ok = 0) const;
+    Q_LONGLONG toLongLong(const QString &s, bool *ok = 0) const;
+    Q_ULONGLONG toULongLong(const QString &s, bool *ok = 0) const;
     float toFloat(const QString &s, bool *ok = 0) const;
     double toDouble(const QString &s, bool *ok = 0) const;
 
     QString toString(short i) const
-    { return toString(Q_LLONG(i)); }
+    { return toString(Q_LONGLONG(i)); }
     QString toString(ushort i) const
-    { return toString(Q_ULLONG(i)); }
+    { return toString(Q_ULONGLONG(i)); }
     QString toString(int i) const
-    { return toString(Q_LLONG(i)); }
+    { return toString(Q_LONGLONG(i)); }
     QString toString(uint i) const
-    { return toString(Q_ULLONG(i)); }
+    { return toString(Q_ULONGLONG(i)); }
 #if !defined(Q_OS_WIN64)
     QString toString(Q_LONG i) const
-    { return toString(Q_LLONG(i)); }
+    { return toString(Q_LONGLONG(i)); }
     QString toString(Q_ULONG i) const
-    { return toString(Q_ULLONG(i)); }
+    { return toString(Q_ULONGLONG(i)); }
 #endif
-    QString toString(Q_LLONG i) const;
-    QString toString(Q_ULLONG i) const;
+    QString toString(Q_LONGLONG i) const;
+    QString toString(Q_ULONGLONG i) const;
     QString toString(float i, char f = 'g', int prec = 6) const
     { return toString(double(i), f, prec); }
     QString toString(double i, char f = 'g', int prec = 6) const;

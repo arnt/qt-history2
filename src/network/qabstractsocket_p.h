@@ -74,7 +74,7 @@ public:
     void setupSocketNotifiers();
     bool readFromSocket();
 
-    Q_LLONG readBufferMaxSize;
+    Q_LONGLONG readBufferMaxSize;
     QRingBuffer readBuffer;
     QRingBuffer writeBuffer;
 

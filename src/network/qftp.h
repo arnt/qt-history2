@@ -79,10 +79,10 @@ public:
 
     int setProxy(const QString &host, Q_UINT16 port);
     int connectToHost(const QString &host, Q_UINT16 port=21);
-    int login(const QString &user=QString::null, const QString &password=QString::null);
+    int login(const QString &user = QString(), const QString &password = QString());
     int close();
     int setTransferMode(TransferMode mode);
-    int list(const QString &dir=QString::null);
+    int list(const QString &dir = QString());
     int cd(const QString &dir);
     int get(const QString &file, QIODevice *dev=0);
     int put(const QByteArray &data, const QString &file);
@@ -99,7 +99,7 @@ public:
     inline QT_COMPAT Q_LONG readBlock(char *data, Q_ULONG maxlen)
     { return read(data, maxlen); }
 #endif
-    Q_LLONG read(char *data, Q_ULONG maxlen);
+    Q_LONGLONG read(char *data, Q_ULONG maxlen);
     QByteArray readAll();
 
     int currentId() const;
@@ -120,7 +120,7 @@ signals:
     void stateChanged(int);
     void listInfo(const QUrlInfo&);
     void readyRead();
-    void dataTransferProgress(Q_LLONG, Q_LLONG);
+    void dataTransferProgress(Q_LONGLONG, Q_LONGLONG);
     void rawCommandReply(int, const QString&);
 
     void commandStarted(int);

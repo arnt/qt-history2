@@ -183,7 +183,7 @@ public:
     inline QT_COMPAT Q_LONG readBlock(char *data, Q_ULONG maxlen)
     { return read(data, maxlen); }
 #endif
-    Q_LLONG read(char *data, Q_ULONG maxlen);
+    Q_LONGLONG read(char *data, Q_ULONG maxlen);
     QByteArray readAll();
 
     int currentId() const;
@@ -221,7 +221,7 @@ private slots:
     void slotConnected();
     void slotError(int);
     void slotClosed();
-    void slotBytesWritten(Q_LLONG);
+    void slotBytesWritten(Q_LONGLONG numBytes);
 
 private:
     Q_DISABLE_COPY(QHttp)

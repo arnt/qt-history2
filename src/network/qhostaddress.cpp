@@ -189,36 +189,37 @@ void QHostAddressPrivate::clear()
 }
 
 /*!
-    \class QHostAddress qhostaddress.h
+    \class QHostAddress
     \brief The QHostAddress class provides an IP address.
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \ingroup io
     \module network
 
-    This class holds an IP address in a platform and protocol
-    independent manner. It stores both IPv4 and IPv6 addresses in a
-    way that you can easily access on any platform.
+    This class holds an IPv4 or IPv6 address in a platform- and
+    protocol-independent manner.
 
-    QHostAddress is normally used with the classes QSocket,
-    QServerSocket, and QSocketDevice to set up a server, or to connect
-    to a host.
+    QHostAddress is normally used with the QTcpSocket, QTcpServer,
+    and QUdpSocket to connect to a host or to set up a server.
 
     A host address is set with setAddress(), checked for its type
     using isIPv4Address() or isIPv6Address(), and retrieved with
     toIPv4Address(), toIPv6Address(), or toString().
 
-    \sa QSocket, QServerSocket, QSocketDevice
+    The class also supports common predefined addresses: \l Null, \l
+    LocalHost, \l LocalHostIPv6, \l Broadcast, and \l Any.
+
+    \sa QTcpSocket, QTcpServer, QUdpSocket
 */
 
 /*! \enum QHostAddress::SpecialAddress
 
-    \value Null The null address. Equivalent to QHostAddress().
+    \value Null The null address object. Equivalent to QHostAddress().
     \value LocalHost The IPv4 localhost address. Equivalent to QHostAddress("127.0.0.1").
     \value LocalHostIPv6 The IPv6 localhost address. Equivalent to QHostAddress("::1").
-    \value Broadcast
+    \value Broadcast The IPv4 broadcast address. Equivalent to QHostAddress("255.255.255.255").
     \value Any The IPv4 any-address. Equivalent to QHostAddress("0.0.0.0").
 */
 
@@ -232,10 +233,10 @@ QHostAddress::QHostAddress()
 }
 
 /*!
-    \internal
+    Creates an IPv4 or IPv6 address based on the string \a address
+    (e.g., "127.0.0.1").
 
-    DOC: We can only make this public if we specify precisely the
-    format of the address string.
+    \sa setAddress()
 */
 QHostAddress::QHostAddress(const QString &address)
     : d(new QHostAddressPrivate)

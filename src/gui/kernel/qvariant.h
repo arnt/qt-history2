@@ -83,8 +83,8 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
 
     inline QVariant(int i);
     inline QVariant(uint ui);
-    inline QVariant(Q_LLONG ll);
-    inline QVariant(Q_ULLONG ull);
+    inline QVariant(Q_LONGLONG ll);
+    inline QVariant(Q_ULONGLONG ull);
     inline QVariant(double d);
     inline QVariant(bool b);
 #ifdef QT_COMPAT
@@ -187,8 +187,8 @@ inline QVariant::QVariant(const QCoreVariant &other) : QCoreVariant(other) { }
 
 inline QVariant::QVariant(int i) : QCoreVariant(i) {};
 inline QVariant::QVariant(uint ui) : QCoreVariant(ui) {};
-inline QVariant::QVariant(Q_LLONG ll) : QCoreVariant(ll) {};
-inline QVariant::QVariant(Q_ULLONG ull) : QCoreVariant(ull) {};
+inline QVariant::QVariant(Q_LONGLONG ll) : QCoreVariant(ll) {};
+inline QVariant::QVariant(Q_ULONGLONG ull) : QCoreVariant(ull) {};
 inline QVariant::QVariant(bool b) : QCoreVariant(b) {};
 inline QVariant::QVariant(double d) : QCoreVariant(d) {};
 #ifdef QT_COMPAT

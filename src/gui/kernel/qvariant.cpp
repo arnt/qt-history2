@@ -874,13 +874,13 @@ const QVariant::Handler qt_gui_variant_handler = {
 */
 
 /*!
-    \fn QVariant::QVariant(Q_LLONG val)
+    \fn QVariant::QVariant(Q_LONGLONG val)
 
     Constructs a new variant with a long integer value of \a val.
 */
 
 /*!
-    \fn QVariant::QVariant(Q_ULLONG val)
+    \fn QVariant::QVariant(Q_ULONGLONG val)
 
     Constructs a new variant with an unsigned long integer value of \a val.
 */

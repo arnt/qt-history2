@@ -24,8 +24,8 @@
     \module network
 
     TCP (Transmission Control Protocol) is a reliable,
-    stream-oriented, connection-oriented transport protocol. TCP is
-    well suited for continuous transmission of data.
+    stream-oriented, connection-oriented transport protocol. It is
+    especially well suited for continuous transmission of data.
 
     QTcpSocket is a convenience subclass of QAbstractSocket that
     allows you to establish a TCP connection and transfer streams of
@@ -58,6 +58,8 @@ class QTcpSocketPrivate : public QAbstractSocketPrivate
     Creates a QTcpSocket object in state \c Qt::UnconnectedState.
 
     \a parent is passed on to the QObject constructor.
+
+    \sa socketType()
 */
 QTcpSocket::QTcpSocket(QObject *parent)
     : QAbstractSocket(Qt::TcpSocket, *new QTcpSocketPrivate, parent)
@@ -70,7 +72,7 @@ QTcpSocket::QTcpSocket(QObject *parent)
 }
 
 /*!
-    Destroys the socket. Closes the connection if necessary.
+    Destroys the socket, closing the connection if necessary.
 
     \sa close()
 */

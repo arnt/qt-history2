@@ -67,8 +67,9 @@ public:
                              const QHostAddress & host, Q_UINT16 port)
     { return write(data, len, host, port); }
 
-    virtual Q_LLONG write(const char *data, Q_LLONG len);
-    virtual Q_LLONG write(const char *data, Q_LLONG len, const QHostAddress & host, Q_UINT16 port);
+    virtual Q_LONGLONG write(const char *data, Q_LONGLONG len);
+    virtual Q_LONGLONG write(const char *data, Q_LONGLONG len, const QHostAddress & host,
+                             Q_UINT16 port);
 
     Q_LONG bytesAvailable() const;
     Q_LONG waitForMore(int msecs, bool *timeout=0) const;
@@ -80,10 +81,10 @@ public:
     bool isOpen() const { return true; };
     virtual int ungetch(int) { return -1; }
     virtual void close();
-    virtual Q_LLONG size() const;
-    virtual Q_LLONG at() const;
-    virtual bool seek(Q_LLONG off);
-    virtual Q_LLONG read(char *data, Q_LLONG maxlen);
+    virtual Q_LONGLONG size() const;
+    virtual Q_LONGLONG at() const;
+    virtual bool seek(Q_LONGLONG off);
+    virtual Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
 
     enum Error {
         NoError,

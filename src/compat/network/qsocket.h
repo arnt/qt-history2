@@ -61,7 +61,7 @@ public:
     Q_ULONG bytesToWrite() const;
     void clearPendingData();
 
-    virtual Q_LLONG readLine(char *data, Q_LLONG maxlen);
+    virtual Q_LONGLONG readLine(char *data, Q_LONGLONG maxlen);
     bool canReadLine() const;
     virtual QByteArray readLine();
 
@@ -77,11 +77,11 @@ public:
     virtual bool atEnd() const;
     virtual void flush();
     virtual void close();
-    virtual Q_LLONG size() const;
-    virtual Q_LLONG at() const;
-    virtual bool seek(Q_LLONG off);
-    virtual Q_LLONG read(char *data, Q_LLONG maxlen);
-    virtual Q_LLONG write(const char *data, Q_LLONG len);
+    virtual Q_LONGLONG size() const;
+    virtual Q_LONGLONG at() const;
+    virtual bool seek(Q_LONGLONG off);
+    virtual Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
+    virtual Q_LONGLONG write(const char *data, Q_LONGLONG len);
     virtual int ungetch(int);
 
 signals:

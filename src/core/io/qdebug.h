@@ -22,7 +22,7 @@
 class Q_CORE_EXPORT QDebug
 {
     struct Stream {
-        Stream():ts(&buffer, IO_WriteOnly),ref(1), space(true){}
+        Stream() : ts(&buffer, QIODevice::WriteOnly), ref(1), space(true){}
         QTextStream ts;
         QString buffer;
         int ref;
@@ -45,8 +45,10 @@ public:
     inline QDebug &operator<<(unsigned int t) { stream->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(signed long t) { stream->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(unsigned long t) { stream->ts << t; return maybeSpace(); }
-    inline QDebug &operator<<(Q_LLONG t) { stream->ts << QString::number(t); return maybeSpace(); }
-    inline QDebug &operator<<(Q_ULLONG t) { stream->ts << QString::number(t); return maybeSpace(); }
+    inline QDebug &operator<<(Q_LONGLONG t)
+        { stream->ts << QString::number(t); return maybeSpace(); }
+    inline QDebug &operator<<(Q_ULONGLONG t)
+        { stream->ts << QString::number(t); return maybeSpace(); }
     inline QDebug &operator<<(float t) { stream->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(double t) { stream->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(const char* t) { stream->ts << t; return maybeSpace(); }

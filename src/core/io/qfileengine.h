@@ -40,11 +40,11 @@ public:
 
     virtual bool isSequential() const = 0;
 
-    virtual uchar *map(Q_LLONG off, Q_LLONG len);
+    virtual uchar *map(Q_LONGLONG off, Q_LONGLONG len);
     virtual void unmap(uchar *data);
 
-    virtual Q_LLONG read(char *data, Q_LLONG maxlen) = 0;
-    virtual Q_LLONG write(const char *data, Q_LLONG len) = 0;
+    virtual Q_LONGLONG read(char *data, Q_LONGLONG maxlen) = 0;
+    virtual Q_LONGLONG write(const char *data, Q_LONGLONG len) = 0;
 
     virtual QIODevice::Status errorStatus() const;
     virtual QString errorString() const;
@@ -145,8 +145,8 @@ public:
     virtual QIODevice::Offset size() const;
     virtual QIODevice::Offset at() const;
     virtual bool seek(QIODevice::Offset);
-    virtual Q_LLONG read(char *data, Q_LLONG maxlen);
-    virtual Q_LLONG write(const char *data, Q_LLONG len);
+    virtual Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
+    virtual Q_LONGLONG write(const char *data, Q_LONGLONG len);
     virtual QString errorString() const;
     virtual QIODevice::Status errorStatus() const;
     
@@ -156,7 +156,7 @@ public:
 
     virtual bool isSequential() const;
 
-    virtual uchar *map(Q_LLONG off, Q_LLONG len);
+    virtual uchar *map(Q_LONGLONG off, Q_LONGLONG len);
     virtual void unmap(uchar *data);
 
     virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const;

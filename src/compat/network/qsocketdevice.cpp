@@ -310,7 +310,7 @@ void QSocketDevice::setSocket(int socket, Type type)
 
     The size is meaningless for a socket, therefore this function returns 0.
 */
-Q_LLONG QSocketDevice::size() const
+Q_LONGLONG QSocketDevice::size() const
 {
     return 0;
 }
@@ -322,7 +322,7 @@ Q_LLONG QSocketDevice::size() const
     The read/write index is meaningless for a socket, therefore this
     function returns 0.
 */
-Q_LLONG QSocketDevice::at() const
+Q_LONGLONG QSocketDevice::at() const
 {
     return 0;
 }
@@ -334,7 +334,7 @@ Q_LLONG QSocketDevice::at() const
     The read/write index is meaningless for a socket, therefore this
     function does nothing and returns true.
 */
-bool QSocketDevice::seek(Q_LLONG)
+bool QSocketDevice::seek(Q_LONGLONG)
 {
     return true;
 }

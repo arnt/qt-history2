@@ -45,15 +45,17 @@ public:
     int accept();
     void close();
 
-    Q_LLONG bytesAvailable() const;
+    Q_LONGLONG bytesAvailable() const;
 
-    Q_LLONG read(char *data, Q_LLONG maxlen);
-    Q_LLONG write(const char *data, Q_LLONG len);
+    Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
+    Q_LONGLONG write(const char *data, Q_LONGLONG len);
 
-    Q_LLONG readDatagram(char *data, Q_LLONG maxlen, QHostAddress *addr = 0, Q_UINT16 *port = 0);
-    Q_LLONG writeDatagram(const char *data, Q_LLONG len, const QHostAddress &addr, Q_UINT16 port);
+    Q_LONGLONG readDatagram(char *data, Q_LONGLONG maxlen, QHostAddress *addr = 0,
+                            Q_UINT16 *port = 0);
+    Q_LONGLONG writeDatagram(const char *data, Q_LONGLONG len, const QHostAddress &addr,
+                             Q_UINT16 port);
     bool hasPendingDatagrams() const;
-    Q_LLONG pendingDatagramSize() const;
+    Q_LONGLONG pendingDatagramSize() const;
 
     Qt::SocketState socketState() const;
 
@@ -62,11 +64,11 @@ public:
     QHostAddress peerAddress() const;
     Q_UINT16 peerPort() const;
 
-    Q_LLONG receiveBufferSize() const;
-    void setReceiveBufferSize(Q_LLONG bufferSize);
+    Q_LONGLONG receiveBufferSize() const;
+    void setReceiveBufferSize(Q_LONGLONG bufferSize);
 
-    Q_LLONG sendBufferSize() const;
-    void setSendBufferSize(Q_LLONG bufferSize);
+    Q_LONGLONG sendBufferSize() const;
+    void setSendBufferSize(Q_LONGLONG bufferSize);
 
     bool waitForRead(int msecs = 30000, bool *timedOut = 0) const;
     bool waitForWrite(int msecs = 30000, bool *timedOut = 0) const;

@@ -37,18 +37,18 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QIODevice::at;
 #else
-    inline QT_COMPAT bool at(Q_LLONG off) { return QIODevice::at(off); }
+    inline QT_COMPAT bool at(Q_LONGLONG off) { return QIODevice::at(off); }
 #endif
 #endif
 
     bool isOpen() const;
     virtual bool open(int mode);
     virtual void close();
-    virtual Q_LLONG size() const;
-    virtual Q_LLONG at() const;
-    virtual bool seek(Q_LLONG off);
-    virtual Q_LLONG read(char *data, Q_LLONG maxlen);
-    virtual Q_LLONG write(const char *data, Q_LLONG len);
+    virtual Q_LONGLONG size() const;
+    virtual Q_LONGLONG at() const;
+    virtual bool seek(Q_LONGLONG off);
+    virtual Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
+    virtual Q_LONGLONG write(const char *data, Q_LONGLONG len);
     virtual int getch();
     virtual int putch(int character);
     virtual int ungetch(int character);

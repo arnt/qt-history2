@@ -28,7 +28,7 @@
     Returns a human readable representation of the first \a len
     characters in \a data.
 */
-static QByteArray qt_prettyDebug(const char *data, int len, int maxLength)
+static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 {
     if (!data) return "(null)";
     QByteArray out;
@@ -47,7 +47,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxLength)
         }
     }
 
-    if (len < maxLength)
+    if (len < maxSize)
         out += "...";
 
     return out;
@@ -426,7 +426,7 @@ int QSocketLayerPrivate::nativeAccept()
     return acceptedDescriptor;
 }
 
-Q_LLONG QSocketLayerPrivate::nativeBytesAvailable() const
+Q_LONGLONG QSocketLayerPrivate::nativeBytesAvailable() const
 {
     /*
       Apparently, there is not consistency among different operating
@@ -445,9 +445,9 @@ Q_LLONG QSocketLayerPrivate::nativeBytesAvailable() const
     */
     size_t nbytes = 0;
     // gives shorter than true amounts on Unix domain sockets.
-    Q_LLONG available = 0;
+    Q_LONGLONG available = 0;
     if (::ioctl(socketDescriptor, FIONREAD, (char *) &nbytes) >= 0)
-        available = (Q_LLONG) *((int *) &nbytes);
+        available = (Q_LONGLONG) *((int *) &nbytes);
 
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayerPrivate::nativeBytesAvailable() == %lli", available);
@@ -495,7 +495,7 @@ bool QSocketLayerPrivate::nativeHasPendingDatagrams() const
     return result;
 }
 
-Q_LLONG QSocketLayerPrivate::nativePendingDatagramSize() const
+Q_LONGLONG QSocketLayerPrivate::nativePendingDatagramSize() const
 {
     int recvResult;
     do {
@@ -514,7 +514,7 @@ Q_LLONG QSocketLayerPrivate::nativePendingDatagramSize() const
     return recvResult;
 }
 
-Q_LLONG QSocketLayerPrivate::nativeReceiveDatagram(char *data, Q_LLONG maxLength,
+Q_LONGLONG QSocketLayerPrivate::nativeReceiveDatagram(char *data, Q_LONGLONG maxSize,
                                                     QHostAddress *address, Q_UINT16 *port)
 {
 #if !defined(QT_NO_IPV6)
@@ -528,7 +528,7 @@ Q_LLONG QSocketLayerPrivate::nativeReceiveDatagram(char *data, Q_LLONG maxLength
 
     ssize_t recvFromResult = 0;
     do {
-        recvFromResult = ::recvfrom(socketDescriptor, data, maxLength,
+        recvFromResult = ::recvfrom(socketDescriptor, data, maxSize,
                                     0, (struct sockaddr *)&aa, &sz);
     } while (recvFromResult == -1 && errno == EINTR);
 
@@ -540,16 +540,16 @@ Q_LLONG QSocketLayerPrivate::nativeReceiveDatagram(char *data, Q_LLONG maxLength
 
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayerPrivate::nativeReceiveDatagram(%p \"%s\", %lli, %s, %i) == %lli",
-           data, qt_prettyDebug(data, qMin(recvFromResult, 16), recvFromResult).data(), maxLength,
+           data, qt_prettyDebug(data, qMin(recvFromResult, 16), recvFromResult).data(), maxSize,
            address ? address->toString().latin1() : "(nil)",
-           port ? *port : 0, (Q_LLONG) recvFromResult);
+           port ? *port : 0, (Q_LONGLONG) recvFromResult);
 #endif
 
     return recvFromResult;
 }
 
-Q_LLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LLONG len,
-                                                 const QHostAddress &host, Q_UINT16 port)
+Q_LONGLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LONGLONG len,
+                                                   const QHostAddress &host, Q_UINT16 port)
 {
     struct sockaddr_in sockAddrIPv4;
     struct sockaddr *sockAddrPtr = 0;
@@ -592,7 +592,7 @@ Q_LLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LLONG len,
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayer::sendDatagram(%p \"%s\", %lli, \"%s\", %i) == %lli", data,
            qt_prettyDebug(data, qMin(len, 16), len).data(), len, host.toString().latin1(),
-           port, (Q_LLONG) sentBytes);
+           port, (Q_LONGLONG) sentBytes);
 #endif
 
     return sentBytes;
@@ -682,7 +682,7 @@ void QSocketLayerPrivate::nativeClose()
     ::close(socketDescriptor);
 }
 
-Q_LLONG QSocketLayerPrivate::nativeWrite(const char *data, Q_LLONG len)
+Q_LONGLONG QSocketLayerPrivate::nativeWrite(const char *data, Q_LONGLONG len)
 {
     // ignore the SIGPIPE signal
     qt_ignore_sigpipe();
@@ -719,11 +719,11 @@ Q_LLONG QSocketLayerPrivate::nativeWrite(const char *data, Q_LLONG len)
                                 (int) len).data(), len, (int) writtenBytes);
 #endif
 
-    return (Q_LLONG) writtenBytes;
+    return (Q_LONGLONG) writtenBytes;
 }
 /*
 */
-Q_LLONG QSocketLayerPrivate::nativeRead(char *data, Q_LLONG maxLength)
+Q_LONGLONG QSocketLayerPrivate::nativeRead(char *data, Q_LONGLONG maxSize)
 {
     if (!q->isValid()) {
         qWarning("QSocketLayer::unbufferedRead: Invalid socket");
@@ -732,7 +732,7 @@ Q_LLONG QSocketLayerPrivate::nativeRead(char *data, Q_LLONG maxLength)
 
     int r = 0;
     do {
-        r = ::read(socketDescriptor, data, maxLength);
+        r = ::read(socketDescriptor, data, maxSize);
     } while (r == -1 && errno == EINTR);
 
     if (r < 0) {
@@ -755,7 +755,7 @@ Q_LLONG QSocketLayerPrivate::nativeRead(char *data, Q_LLONG maxLength)
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayerPrivate::nativeRead(%p \"%s\", %llu) == %i",
            data, qt_prettyDebug(data, qMin(r, 16), r).data(),
-           maxLength, r);
+           maxSize, r);
 #endif
 
     return r;
