@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#244 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#245 $
 **
 ** Implementation of QWidget class
 **
@@ -2588,17 +2588,18 @@ bool QWidget::close( bool forceKill )
 
   Returns TRUE if the widget itself is set to visible status, or else
   FALSE.  Calling show() sets the widget to visible status; calling
-  hide() sets it to hidden status.
+  hide() sets it to hidden status. Iconified top-level widgets also
+  have hidden status.
 
   If a widget is set to visible status, but its parent widget is set
   to hidden status, this function returns TRUE.  isVisibleToTLW()
   looks at the visibility status of the parent widgets up to the
   top level widget.
 
-  This function returns TRUE if the widget it is obscured by other
-  windows on the screen, but would be visible if moved.
+  This function returns TRUE if the widget currently is obscured by
+  other windows on the screen, but would be visible if moved.
 
-  \sa show(), hide(), isVisibleToTLW(), iconified()
+  \sa show(), hide(), isVisibleToTLW()
 */
 
 
