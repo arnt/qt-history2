@@ -9,6 +9,12 @@ Supported platforms and compilers:
 
 Compilation problems:
 
+  If you have installed the Qt/X11 package from Fink (http://fink.sf.net), it
+  will set the QMAKESPEC environment variable to darwin-g++. This will cause
+  problems when you build the Qt/Mac package. To fix this, simply  unset your
+  QMAKESPEC or set it to macx-g++ before you run configure. You need to have a
+  fresh Qt distribution (make confclean).
+
   If you experience problems compiling Qt 4.x consult the platform
   notes found at http://www.trolltech.com/developer/platforms/ where
   we post workarounds and known issues as we become aware of them.

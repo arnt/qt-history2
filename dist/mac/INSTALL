@@ -1,5 +1,7 @@
 			  INSTALLING Qt/Mac Version %VERSION% (for Mac OS X)
 
+See the PLATFORMS file for details pertaining to your environment, especially
+if something doesn't work here.
 
 1.  Unpack the archive if you have not done so already:
 
@@ -143,5 +145,3 @@
 That's all! Qt is now installed. Qt's documentation can be read with
 Qt Assistant or by any web browser; the contents page is:
     $QTDIR/doc/html/index.html
-
-See the PLATFORM file for details pertaining to your environment.
