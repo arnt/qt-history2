@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#38 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#39 $
 **
 ** Implementation of date and time classes
 **
@@ -30,7 +30,7 @@
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatetm.cpp#38 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatetm.cpp#39 $")
 
 
 static const ulong FIRST_DAY	 = 2361222L;	// Julian day for 17520914
@@ -1013,7 +1013,7 @@ QDateTime QDateTime::currentDateTime()
 
 QDataStream &operator<<( QDataStream &s, const QDate &d )
 {
-    return s << d.jd;
+    return s << (UINT32)(d.jd);
 }
 
 /*----------------------------------------------------------------------------
@@ -1023,7 +1023,10 @@ QDataStream &operator<<( QDataStream &s, const QDate &d )
 
 QDataStream &operator>>( QDataStream &s, QDate &d )
 {
-    return s >> d.jd;
+    UINT32 tmp;
+    s >> tmp;
+    d.jd = tmp;
+    return s;
 }
 
 /*----------------------------------------------------------------------------
@@ -1035,7 +1038,7 @@ QDataStream &operator>>( QDataStream &s, QDate &d )
 
 QDataStream &operator<<( QDataStream &s, const QTime &t )
 {
-    return s << t.ds;
+    return s << (UINT32)(t.ds);
 }
 
 /*----------------------------------------------------------------------------
@@ -1045,7 +1048,10 @@ QDataStream &operator<<( QDataStream &s, const QTime &t )
 
 QDataStream &operator>>( QDataStream &s, QTime &t )
 {
-    return s >> t.ds;
+    UINT32 tmp;
+    s >> tmp;
+    t.ds = tmp;
+    return s;
 }
 
 /*----------------------------------------------------------------------------

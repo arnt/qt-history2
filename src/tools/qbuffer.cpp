@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#15 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#16 $
 **
 ** Implementation of QBuffer class
 **
@@ -13,7 +13,7 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#15 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#16 $")
 
 /*! \class QBuffer qbuffer.h
 
@@ -22,10 +22,10 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#15 $")
 
   \ingroup tools
 
-  This class is not yet documented.  Our <a
-  href=http://www.troll.no/>home page</a> contains a pointer to the
-  current version of Qt. */
+  This class only barely documented yet. */
 
+
+/*! Constructs a buffer. */
 
 QBuffer::QBuffer()
 {
@@ -34,6 +34,9 @@ QBuffer::QBuffer()
     a_len = 0;
 }
 
+
+/*! Constructs a buffer with \e ba as initial contents. */
+
 QBuffer::QBuffer( QByteArray ba )
 {
     setFlags( IO_Direct );
@@ -41,10 +44,17 @@ QBuffer::QBuffer( QByteArray ba )
     setBuffer( ba );				// set buffer
 }
 
+
+/*! Destroys the buffer. */
+
 QBuffer::~QBuffer()
 {
 }
 
+
+/*! Replaces the buffer's contents with \e ba.  This may not be done
+  while the buffer is held open by a \link QTextStream text \endlink
+  or \link QDataStream data \endlink stream. \sa open()  */
 
 bool QBuffer::setBuffer( QByteArray ba )	// set buffer
 {
@@ -59,6 +69,9 @@ bool QBuffer::setBuffer( QByteArray ba )	// set buffer
     return TRUE;
 }
 
+
+/*! Open the buffer for reading and/or writing.  The meaning of \e m
+  is the same as for QIODevice::open(). \sa close() isOpen() */
 
 bool QBuffer::open( int m  )			// open buffer
 {

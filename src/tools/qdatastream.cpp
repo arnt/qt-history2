@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.cpp#20 $
+** $Id: //depot/qt/main/src/tools/qdatastream.cpp#21 $
 **
 ** Implementation of QDataStream class
 **
@@ -21,7 +21,7 @@
 #include <netinet/in.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatastream.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatastream.cpp#21 $")
 
 
 /*----------------------------------------------------------------------------
@@ -358,34 +358,6 @@ QDataStream &QDataStream::operator>>( INT32 &i )
 	*p++ = b[1];
 	*p   = b[0];
     }
-    return *this;
-}
-
-
-/*----------------------------------------------------------------------------
-  Reads a signed integer from the stream as a 32-bit signed integer (INT32).
-  Returns a reference to the stream.
- ----------------------------------------------------------------------------*/
-
-QDataStream &QDataStream::operator>>( int &i )
-{
-    INT32 n;
-    *this >> n;
-    i = (int)n;
-    return *this;
-}
-
-
-/*----------------------------------------------------------------------------
-  Reads an unsigned integer from the stream as a 32-bit unsigned integer
-  (UINT32).  Returns a reference to the stream.
- ----------------------------------------------------------------------------*/
-
-QDataStream &QDataStream::operator>>( uint &i )
-{
-    UINT32 n;
-    *this >> n;
-    i = (uint)n;
     return *this;
 }
 

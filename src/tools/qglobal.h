@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#44 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#45 $
 **
 ** Global type declarations and definitions
 **
@@ -189,8 +189,8 @@ typedef char		INT8;			// 8 bit signed
 typedef unsigned char	UINT8;			// 8 bit unsigned
 typedef short		INT16;			// 16 bit signed
 typedef unsigned short	UINT16;			// 16 bit unsigned
-typedef long		INT32;			// 32 bit signed
-typedef unsigned long	UINT32;			// 32 bit unsigned
+typedef int		INT32;			// 32 bit signed
+typedef unsigned int	UINT32;			// 32 bit unsigned
 
 
 //

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#22 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#23 $
 **
 ** Global functions
 **
@@ -15,7 +15,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#22 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#23 $")
 
 
 /*----------------------------------------------------------------------------
@@ -51,6 +51,11 @@ static bool si_bigEndian;
 
 bool qSysInfo( int *wordSize, bool *bigEndian )
 {
+#if defined(CHECK_NULL)
+    ASSERT( wordsize != 0 );
+    ASSERT( bigEndian != 0 );
+#endif
+
     if ( si_alreadyDone ) {			// run it only once
 	*wordSize  = si_wordSize;
 	*bigEndian = si_bigEndian;
@@ -64,7 +69,9 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 	si_wordSize++;
     *wordSize = si_wordSize;
 
-    if ( *wordSize != 32 && *wordSize != 16 ) { // word size should be 16 or 32
+    if ( *wordSize != 64 && 
+	 *wordSize != 32 && 
+	 *wordSize != 16 ) { // word size should be 16, 32 or 64
 #if defined(CHECK_RANGE)
 	fatal( "qSysInfo: Unsupported system word size %d", *wordSize );
 #endif
@@ -80,7 +87,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 
     bool be16, be32;				// determine byte ordering
     short ns = 0x1234;
-    long nl = 0x12345678;
+    int nl = 0x12345678;
 
     unsigned char *p = (unsigned char *)(&ns);	// 16-bit integer
     be16 = *p == 0x12;
