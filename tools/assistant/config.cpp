@@ -61,25 +61,16 @@ bool Config::addProfile( const QString &profileFileName, const QString &path )
     if ( docPath.isEmpty() )
 	docPath = fi.dirPath( TRUE );
 
-    if ( !p->props["applicationicon"].isEmpty() ) {
-	QFileInfo fi( p->props["applicationicon"] );
-	if ( fi.isRelative() ) {
-	    QDir d( docPath + "/" + fi.dirPath() );
-	    p->props["applicationicon"] = d.path() + "/" + fi.fileName();
-	}
-    }
-    if ( !p->props["abouturl"].isEmpty() ) {
-	QFileInfo fi( p->props["abouturl"] );
-	if ( fi.isRelative() ) {
-	    QDir d( docPath + "/" + fi.dirPath() );
-	    p->props["abouturl"] = d.path() + "/" + fi.fileName();
-	}
-    }
-    if ( !p->props["startpage"].isEmpty() ) {
-	QFileInfo fi( p->props["startpage"] );
-	if ( fi.isRelative() ) {
-	    QDir d( docPath + "/" + fi.dirPath() );
-	    p->props["startpage"] = d.path() + "/" + fi.fileName();
+    QStringList lst;
+    lst << "applicationicon" << "abouturl" << "startpage";
+    QStringList::ConstIterator pit = lst.begin();
+    for ( ; pit != lst.end(); ++pit ) {
+	if ( !p->props[*pit].isEmpty() ) {
+	    QFileInfo fi( p->props[*pit] );
+	    if ( fi.isRelative() ) {
+		QDir d( docPath + "/" + fi.dirPath() );
+		p->props[*pit] = d.path() + "/" + fi.fileName();
+	    }
 	}
     }
 
@@ -256,14 +247,14 @@ void Config::saveProfile( Profile *profile, bool changed )
 {
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    const QString profKey = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/" + "Profile/" + profile->props["name"];
+    const QString profKey = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/Profile/" + profile->props["name"] + "/";
     settings.writeEntry( profKey, changed );
-    settings.writeEntry( profKey + "/AppIcon", profile->props["applicationicon"] );
-    settings.writeEntry( profKey + "/AboutMenuText", profile->props["aboutmenutext"] );
-    settings.writeEntry( profKey + "/AboutUrl", profile->props["abouturl"] );
-    settings.writeEntry( profKey + "/Title", profile->props["title"] );
-    settings.writeEntry( profKey + "/BasePath", profile->props["basepath"] );
-    settings.writeEntry( profKey + "/StartPage", profile->props["startpage"] );
+    settings.writeEntry( profKey + "AppIcon", profile->props["applicationicon"] );
+    settings.writeEntry( profKey + "AboutMenuText", profile->props["aboutmenutext"] );
+    settings.writeEntry( profKey + "AboutUrl", profile->props["abouturl"] );
+    settings.writeEntry( profKey + "Title", profile->props["title"] );
+    settings.writeEntry( profKey + "BasePath", profile->props["basepath"] );
+    settings.writeEntry( profKey + "StartPage", profile->props["startpage"] );
 
     QStringList titles, icons, imgDirs;
     QValueListConstIterator<QString> it = profile->docs.begin();
@@ -272,28 +263,28 @@ void Config::saveProfile( Profile *profile, bool changed )
 	icons << profile->icons[*it];
 	imgDirs << profile->imageDirs[*it];
     }
-    settings.writeEntry( profKey + "/DocFiles", profile->docs );
-    settings.writeEntry( profKey + "/DocTitles", titles );
-    settings.writeEntry( profKey + "/DocIcons", icons );
-    settings.writeEntry( profKey + "/ImageDirs", imgDirs );
+    settings.writeEntry( profKey + "DocFiles", profile->docs );
+    settings.writeEntry( profKey + "DocTitles", titles );
+    settings.writeEntry( profKey + "DocIcons", icons );
+    settings.writeEntry( profKey + "ImageDirs", imgDirs );
 }
 
 void Config::removeProfile( const QString &name )
 {
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    const QString profKey = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/" + "Profile/" + name;
+    const QString profKey = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/Profile/" + name + "/";
     settings.removeEntry( profKey );
-    settings.removeEntry( profKey + "/AppIcon" );
-    settings.removeEntry( profKey + "/AboutMenuText" );
-    settings.removeEntry( profKey + "/AboutUrl" );
-    settings.removeEntry( profKey + "/Title" );
-    settings.removeEntry( profKey + "/BasePath" );
-    settings.removeEntry( profKey + "/DocFiles" );
-    settings.removeEntry( profKey + "/DocTitles" );
-    settings.removeEntry( profKey + "/DocIcons" );
-    settings.removeEntry( profKey + "/ImageDirs" );
-    settings.removeEntry( profKey + "/StartPage" );
+    settings.removeEntry( profKey + "AppIcon" );
+    settings.removeEntry( profKey + "AboutMenuText" );
+    settings.removeEntry( profKey + "AboutUrl" );
+    settings.removeEntry( profKey + "Title" );
+    settings.removeEntry( profKey + "BasePath" );
+    settings.removeEntry( profKey + "DocFiles" );
+    settings.removeEntry( profKey + "DocTitles" );
+    settings.removeEntry( profKey + "DocIcons" );
+    settings.removeEntry( profKey + "ImageDirs" );
+    settings.removeEntry( profKey + "StartPage" );
 }
 
 bool Config::setCurrentProfile( const QString &name )
