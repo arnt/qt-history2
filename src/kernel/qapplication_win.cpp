@@ -27,7 +27,6 @@
 #include "qpixmapcache.h"
 #include "qsessionmanager.h"
 #include "qstyle.h"
-#include "qthread.h"
 #include "qwhatsthis.h" // ######## dependency
 #include "qwidget.h"
 #include "qt_windows.h"
@@ -36,6 +35,7 @@
 #endif
 
 #ifdef QT_THREAD_SUPPORT
+#include "qthread.h"
 #include "qmutex.h"
 #endif // QT_THREAD_SUPPORT
 
@@ -664,21 +664,21 @@ static void qt_set_windows_resources()
 	menu.setColor( QPalette::Disabled, QPalette::Text, disabled );
 	menu.setColor( QPalette::Disabled, QPalette::Highlight,
 		      QColor(qt_colorref2qrgb(GetSysColor(
-						  qt_winver == Qt::WV_XP ? COLOR_MENUHILIGHT : 
+						  qt_winver == Qt::WV_XP ? COLOR_MENUHILIGHT :
 						  COLOR_HIGHLIGHTTEXT))) );
 	menu.setColor( QPalette::Disabled, QPalette::HighlightedText,
 		      QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
 
-	menu.setColor( QPalette::Inactive, QPalette::Button, 
+	menu.setColor( QPalette::Inactive, QPalette::Button,
 		      menu.color(QPalette::Active, QPalette::Button));
-	menu.setColor( QPalette::Inactive, QPalette::Text, 
+	menu.setColor( QPalette::Inactive, QPalette::Text,
 		      menu.color(QPalette::Active, QPalette::Text));
-	menu.setColor( QPalette::Inactive, QPalette::Foreground, 
+	menu.setColor( QPalette::Inactive, QPalette::Foreground,
 		      menu.color(QPalette::Active, QPalette::Foreground));
-	menu.setColor( QPalette::Inactive, QPalette::ButtonText, 
+	menu.setColor( QPalette::Inactive, QPalette::ButtonText,
 		      menu.color(QPalette::Active, QPalette::ButtonText));
 	if ( qt_winver != Qt::WV_NT && qt_winver != Qt::WV_95 )
-	    menu.setColor( QPalette::Inactive, QPalette::Button, 
+	    menu.setColor( QPalette::Inactive, QPalette::Button,
 			  pal.color(QPalette::Inactive, QPalette::Dark));
 	QApplication::setPalette( menu, TRUE, "QPopupMenu");
 
