@@ -59,7 +59,7 @@ unsigned long PreferenceInterfaceImpl::release()
     return ref;
 }
 
-PreferenceInterface::Preference *PreferenceInterfaceImpl::globalPreference()
+PreferenceInterface::Preference *PreferenceInterfaceImpl::preference()
 {
     if ( !cppEditorSyntax ) {
 	cppEditorSyntax = new PreferencesBase( 0 );
@@ -77,6 +77,6 @@ PreferenceInterface::Preference *PreferenceInterfaceImpl::globalPreference()
 }
 
 void PreferenceInterfaceImpl::deletePreferenceObject( Preference *p )
-{ 
-    delete p; 
+{
+    delete p;
 }

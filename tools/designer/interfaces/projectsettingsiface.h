@@ -18,21 +18,21 @@
 **
 **********************************************************************/
 
-#ifndef PREFERANCEINTERFACE_H
-#define PREFERANCEINTERFACE_H
+#ifndef PROJECTSETTINGSINTERFACE_H
+#define PROJECTSETTINGSINTERFACE_H
 
 #include <qcomponentinterface.h>
 #include <qwidgetlist.h>
 #include <qcstring.h>
 
-// {5c168ee7-4bee-469f-9995-6afdb04ce5a2}
-#ifndef IID_PreferenceInterface
-#define IID_PreferenceInterface QUuid( 0x5c168ee7, 0x4bee, 0x469f, 0x99, 0x95, 0x6a, 0xfd, 0xb0, 0x4c, 0xe5, 0xa2 )
+// {d332785d-17fb-4894-84fe-50dbd0ad9512}
+#ifndef IID_ProjectSettingsInterface
+#define IID_ProjectSettingsInterface QUuid( 0xd332785d, 0x17fb, 0x4894, 0x84, 0xfe, 0x50, 0xdb, 0xd0, 0xad, 0x95, 0x12 )
 #endif
 
-struct PreferenceInterface : public QUnknownInterface
+struct ProjectSettingsInterface : public QUnknownInterface
 {
-    struct Preference
+    struct ProjectSettings
     {
 	QWidget *tab;
 	QString title;
@@ -41,9 +41,10 @@ struct PreferenceInterface : public QUnknownInterface
 	const char *accept_slot;
     };
 
-    virtual Preference *preference() = 0;
+    virtual ProjectSettings *projectSetting() = 0;
+    virtual QStringList projectSettings() const = 0;
     virtual void connectTo( QUnknownInterface *appInterface ) = 0;
-    virtual void deletePreferenceObject( Preference * ) = 0;
+    virtual void deleteProjectSettingsObject( ProjectSettings * ) = 0;
 };
 
 #endif

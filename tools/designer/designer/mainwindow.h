@@ -31,6 +31,7 @@
 #include "../interfaces/programinterface.h"
 #include "../interfaces/interpreterinterface.h"
 #include "../interfaces/preferenceinterface.h"
+#include "../interfaces/projectsettingsiface.h"
 #include "sourceeditor.h"
 
 #if defined(HAVE_KDE)
@@ -366,6 +367,7 @@ private:
     QInterfaceManager<ProgramInterface> *programPluginManager;
     QInterfaceManager<InterpreterInterface> *interpreterPluginManager;
     QInterfaceManager<PreferenceInterface> *preferencePluginManager;
+    QInterfaceManager<ProjectSettingsInterface> *projectSettingsPluginManager;
     QList<SourceEditor> sourceEditors;
     bool previewing;
     QUnknownInterface *desInterface;

@@ -120,8 +120,8 @@ DesignerDatabase *DatabaseConnection::iFace()
 
 ////////
 
-Project::Project( const QString &fn, const QString &pName, QInterfaceManager<PreferenceInterface> *pm )
-    : proName( pName ), preferencePluginManager( pm )
+Project::Project( const QString &fn, const QString &pName, QInterfaceManager<ProjectSettingsInterface> *pm )
+    : proName( pName ), projectSettingsPluginManager( pm )
 {
     iface = 0;
     lang = "C++";
@@ -793,9 +793,9 @@ QString Project::customSetting( const QString &key ) const
 
 void Project::updateCustomSettings()
 {
-    if ( !preferencePluginManager )
+    if ( !projectSettingsPluginManager )
 	return;
-    PreferenceInterface *iface = (PreferenceInterface*)preferencePluginManager->queryInterface( lang );
+    ProjectSettingsInterface *iface = (ProjectSettingsInterface*)projectSettingsPluginManager->queryInterface( lang );
     if ( !iface )
 	return;
     csList = iface->projectSettings();

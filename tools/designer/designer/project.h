@@ -32,7 +32,7 @@
 #include <qlist.h>
 #include <qmap.h>
 #include <qinterfacemanager.h>
-#include "../interfaces/preferenceinterface.h"
+#include "../interfaces/projectsettingsiface.h"
 
 class FormWindow;
 class QObjectList;
@@ -97,7 +97,7 @@ private:
 class Project
 {
 public:
-    Project( const QString &fn, const QString &pName = QString::null, QInterfaceManager<PreferenceInterface> *pm = 0 );
+    Project( const QString &fn, const QString &pName = QString::null, QInterfaceManager<ProjectSettingsInterface> *pm = 0 );
     ~Project();
 
     void setFileName( const QString &fn, bool doClear = TRUE );
@@ -175,7 +175,7 @@ private:
     DesignerProject *iface;
     QMap<QString, QString> customSettings;
     QStringList csList;
-    QInterfaceManager<PreferenceInterface> *preferencePluginManager;
+    QInterfaceManager<ProjectSettingsInterface> *projectSettingsPluginManager;
 };
 
 #endif

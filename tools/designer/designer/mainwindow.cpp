@@ -279,6 +279,7 @@ MainWindow::~MainWindow()
 
     delete actionPluginManager;
     delete preferencePluginManager;
+    delete projectSettingsPluginManager;
     delete interpreterPluginManager;
     delete programPluginManager;
     delete templateWizardPluginManager;
@@ -918,7 +919,7 @@ void MainWindow::setupFileActions()
     connect( ag, SIGNAL( selected( QAction * ) ), this, SLOT( projectSelected( QAction * ) ) );
     connect( ag, SIGNAL( selected( QAction * ) ), this, SIGNAL( projectChanged() ) );
     a = new QAction( tr( "<No Project>" ), tr( "<No Project>" ), 0, ag, 0, TRUE );
-    eProject = new Project( "", tr( "<No Project>" ), preferencePluginManager );
+    eProject = new Project( "", tr( "<No Project>" ), projectSettingsPluginManager );
     projects.insert( a, eProject );
     a->setOn( TRUE );
     ag->addTo( fileMenu );
@@ -1381,7 +1382,7 @@ void MainWindow::fileNew()
 
 void MainWindow::fileNewProject()
 {
-    Project *pro = new Project( "", "", preferencePluginManager );
+    Project *pro = new Project( "", "", projectSettingsPluginManager );
     ProjectSettings dia( pro, this, 0, TRUE );
     if ( dia.exec() != QDialog::Accepted ) {
 	delete pro;
@@ -4293,7 +4294,7 @@ void MainWindow::projectSelected( QAction *a )
 
 void MainWindow::openProject( const QString &fn )
 {
-    Project *pro = new Project( fn, "", preferencePluginManager );
+    Project *pro = new Project( fn, "", projectSettingsPluginManager );
     QAction *a = new QAction( pro->projectName(), pro->projectName(), 0, actionGroupProjects, 0, TRUE );
     projects.insert( a, pro );
     a->setOn( TRUE );
@@ -4539,6 +4540,7 @@ void MainWindow::setupPluginManagers()
     programPluginManager = new QInterfaceManager<ProgramInterface>( IID_ProgramInterface, pluginDir );
     interpreterPluginManager = new QInterfaceManager<InterpreterInterface>( IID_InterpreterInterface, pluginDir );
     preferencePluginManager = new QInterfaceManager<PreferenceInterface>( IID_PreferenceInterface, pluginDir );
+    projectSettingsPluginManager = new QInterfaceManager<ProjectSettingsInterface>( IID_ProjectSettingsInterface, pluginDir );
     if ( preferencePluginManager ) {
 	QStringList lst = preferencePluginManager->featureList();
 	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
@@ -4546,15 +4548,26 @@ void MainWindow::setupPluginManagers()
 	    i->connectTo( designerInterface() );
 	    if ( !i )
 		continue;
-	    PreferenceInterface::Preference *pf = i->globalPreference();
+	    PreferenceInterface::Preference *pf = i->preference();
 	    if ( pf )
 		addPreferencesTab( pf->tab, pf->title, pf->receiver, pf->init_slot, pf->accept_slot );
 	    i->deletePreferenceObject( pf );
 
-	    pf = i->projectSetting();
+	    i->release();
+	}
+    }
+    if ( projectSettingsPluginManager ) {
+	QStringList lst = projectSettingsPluginManager->featureList();
+	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	    ProjectSettingsInterface *i = projectSettingsPluginManager->queryInterface( *it );
+	    i->connectTo( designerInterface() );
+	    if ( !i )
+		continue;
+
+	    ProjectSettingsInterface::ProjectSettings *pf = i->projectSetting();
 	    if ( pf )
 		addProjectTab( pf->tab, pf->title, pf->receiver, pf->init_slot, pf->accept_slot );
-	    i->deletePreferenceObject( pf );
+	    i->deleteProjectSettingsObject( pf );
 	    i->release();
 	}
     }
