@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#138 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#139 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#138 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#139 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -805,6 +805,8 @@ void QWidget::show()
 
 void QWidget::hide()
 {
+    if ( testWFlags(WFocusSet) )
+	clearFocus();
     setWFlags( WState_DoHide );
     if ( !testWFlags(WState_Visible) )
 	return;

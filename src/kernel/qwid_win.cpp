@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#42 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#41 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#42 $")
 
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -507,6 +507,8 @@ void QWidget::show()
 
 void QWidget::hide()
 {
+    if ( testWFlags(WFocusSet) )
+	clearFocus();
     setWFlags( WState_DoHide );
     if ( !testWFlags(WState_Visible) )		// not visible
 	return;
