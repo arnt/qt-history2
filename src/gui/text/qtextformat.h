@@ -114,6 +114,7 @@ public:
         FontFixedPitch = 0x2008,
 
         TextColor = 0x2010,
+        TextVerticalAlignment = 0x2011,
 
         IsAnchor = 0x2020,
         AnchorHref = 0x2021,
@@ -233,6 +234,8 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format);
 class Q_GUI_EXPORT QTextCharFormat : public QTextFormat
 {
 public:
+    enum VerticalAlignment { AlignNormal = 0, AlignSuperScript, AlignSubScript };
+
     inline QTextCharFormat() : QTextFormat(CharFormat) {}
 
     bool isValid() const { return isCharFormat(); }
@@ -283,6 +286,11 @@ public:
     { setProperty(TextColor, color); }
     inline QColor textColor() const
     { return colorProperty(TextColor); }
+
+    inline void setVerticalAlignment(VerticalAlignment alignment)
+    { setProperty(TextVerticalAlignment, alignment); }
+    inline VerticalAlignment verticalAlignment() const
+    { return static_cast<VerticalAlignment>(intProperty(TextVerticalAlignment)); }
 
     inline void setAnchor(bool anchor)
     { setProperty(IsAnchor, anchor); }
