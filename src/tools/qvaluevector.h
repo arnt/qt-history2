@@ -467,7 +467,7 @@ protected:
     QValueVectorPrivate<T>* sh;
 
 private:
-    friend class QDeepCopy<QValueVector>;
+    friend class QDeepCopy< QValueVector<T> >;
 };
 
 template <class T>
