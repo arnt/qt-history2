@@ -35,6 +35,7 @@
 **
 **********************************************************************/
 
+#include "qplatformdefs.h"
 #include "qsettings.h"
 
 #ifndef QT_NO_SETTINGS
@@ -187,6 +188,69 @@
 */
 
 
+#if defined(Q_OS_UNIX)
+/*
+  Locks the file specified by name.  The lockfile is created as a
+  hidden file in the same directory as the target file, with .lock
+  appended to the name. For example, "/etc/settings/onerc" uses a
+  lockfile named "/etc/settings/.onerc.lock".  The type argument
+  controls the type of the lock, it can be either F_RDLCK for a read
+  lock, or F_WRLCK for a write lock.
+
+  A file descriptor for the lock file is returned, and should be
+  closed with closelock() when the lock is no longer needed.
+ */
+static int openlock( const QString &name, int type )
+{
+    QFileInfo info( name );
+    // lockfile should be hidden, and never removed
+    QString lockfile = info.dirPath() + "/." + info.fileName() + ".lock";
+
+    // open the lockfile
+    int fd = open( QFile::encodeName( lockfile ),
+		   O_RDWR | O_CREAT, S_IRUSR | S_IWUSR );
+
+    struct flock fl;
+    fl.l_type = type;
+    fl.l_whence = SEEK_SET;
+    fl.l_start = 0;
+    fl.l_len = 0;
+    if ( fcntl( fd, F_SETLKW, &fl ) == -1 ) {
+	perror( "fcntl" );
+    }
+
+    return fd;
+}
+
+/*
+  Closes the lock file specified by fd.  fd is the file descriptor
+  returned by the openlock() function.
+*/
+static void closelock( int fd )
+{
+    struct flock fl;
+    fl.l_type = F_UNLCK;
+    fl.l_whence = SEEK_SET;
+    fl.l_start = 0;
+    fl.l_len = 0;
+    if ( fcntl( fd, F_SETLKW, &fl ) == -1 ) {
+	perror( "fcntl" );
+    }
+
+    close( fd );
+}
+#else
+static int openlock( const QString &name, int type )
+{
+    qWarning( "QSettings: openlock unimplemented");
+    return -1;
+}
+
+void closelock( int fd )
+{
+    qWarning( "QSettings: closelock unimplemented");
+}
+#endif
 
 
 QSettingsGroup::QSettingsGroup()
@@ -202,6 +266,8 @@ void QSettingsHeading::read(const QString &filename)
     if (! QFileInfo(filename).exists())
 	return;
 
+    int lockfd = openlock( filename, F_RDLCK );
+
     QFile file(filename);
     if (! file.open(IO_ReadOnly)) {
 	qWarning("QSettings: failed to open file '%s'", filename.latin1());
@@ -210,7 +276,6 @@ void QSettingsHeading::read(const QString &filename)
 
     git = end();
 
-    QString line;
     QTextStream stream(&file);
     stream.setEncoding(QTextStream::UnicodeUTF8);
     while (! stream.atEnd())
@@ -219,6 +284,8 @@ void QSettingsHeading::read(const QString &filename)
     git = end();
 
     file.close();
+
+    closelock( lockfd );
 }
 
 
@@ -742,6 +809,8 @@ bool QSettings::sync()
 	    continue;
 	}
 
+	int lockfd = openlock( file.name(), F_WRLCK );
+
 	if (! file.open(IO_WriteOnly)) {
 
 #ifdef QT_CHECK_STATE
@@ -793,6 +862,8 @@ bool QSettings::sync()
 	}
 
 	file.close();
+
+	closelock( lockfd );
     }
 
     d->modified = FALSE;
