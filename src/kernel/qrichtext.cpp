@@ -1852,7 +1852,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 		    curtag = initag;
 
  		if ( needNewPar ) {
-		    if ( textEditMode && tagname == "p" ) // preserve empty paragraphs
+		    if ( textEditMode && (tagname == "p" || tagname == "div" ) ) // preserve empty paragraphs
 			hasNewPar = FALSE;
 		    NEWPAR;
 		}
