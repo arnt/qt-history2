@@ -23,7 +23,7 @@ and examples are given that show how to use the classes provided.
 
 Model-View-Controller (MVC) is a design pattern originating from
 Smalltalk that is often used when building user interfaces.
-In \l{model-view-programming.html#Gamma}{Design Patterns}, Gamma et al.
+In \l{resources.html#Gamma}{Design Patterns}, Gamma et al.
 write:
 
 \quote
@@ -98,16 +98,6 @@ by a section showing how you can create new components.
 \i \l{model-view-delegate.html}{Delegate Classes}
 \i \l{model-view-convenience.html}{Convenience Classes}
 \endlist
-
-
-\section1 References
-
-\target Gamma
-\l{http://www.amazon.com/exec/obidos/ASIN/0201633612/103-8144203-3273444}
-{Design Patterns - Elements of Reusable Object-Oriented Software},
-by Gamma, Helm, Johnson, and Vlissides, ISBN 0-201-63361-2, provides
-more information on the MVC paradigm, explaining MVC and its
-sub-patterns in detail.
 
 See also the \l{model-view.html}{list of model/view classes}.
 
@@ -1050,17 +1040,20 @@ items.
 
     The separation of functionality between the components in the model/view
     architecture enables new models to be written that can take advantage
-    of existing views. This approach lets us manage data from a variety of
-    sources, and present it using a standard graphical user interface.
+    of existing views. This approach lets us present data from a variety of
+    sources using standard graphical user interface components.
     The interface provided by the \l QAbstractItemModel class supports
     models that arrange their data in hierarchical structures, allowing for
     the possibility that data will be inserted, removed, changed, or sorted
     in some way. It also provides support for drag and drop operations.
 
-    In this section, we create a simple read-only model to explore
-    the basic principles of the model/view architecture. This model will
-    later be adapted so that items can be modified with an editor.
+    In this chapter, we create a simple read-only model to explore
+    the basic principles of the model/view architecture. Later in this
+    chapter, we will adapt this simple model so that items can be modified
+    by the user.
 
+    For an example of a more complex model, see the
+    \l{simpletreemodel.html}{Simple Tree Model} example.
 
     \section1 A Read-Only Example Model
 
