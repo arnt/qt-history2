@@ -77,6 +77,8 @@ public:
     QStringList primaryIndex();
     bool star( QVariant& v );
     bool starDescription( QVariant& v );
+    QValueList<uint> columnSizes() const;
+    QValueList<uint> columnPrecs() const;
 
 protected:
     virtual void setName( const QString& name ) { nm = name; }

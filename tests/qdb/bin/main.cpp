@@ -211,6 +211,8 @@ int main( int argc, char** argv )
 	}
 	QStringList cols = driver->columnNames();
 	QValueList<QVariant::Type> types = driver->columnTypes();
+	QValueList<uint> sizes = driver->columnSizes();
+	QValueList<uint> precs = driver->columnPrecs();
 	for ( i = 0; i < cols.count(); ++i ) {
 	    QVariant v;
 	    QString name = cols[i];
@@ -219,11 +221,12 @@ int main( int argc, char** argv )
 	    typeName = typeName.lower();
 	    if ( typeName[0] == 'q' )
 		typeName = typeName.mid( 1, typeName.length() );
+	    uint size = sizes[i];
+	    uint prec = precs[i];
 	    outstream << sep << " " << name.leftJustify( 14 ) << sep
-		      << " " << typeName.leftJustify( 14 ) << sep << endl;
-		//## fix
-		//		      << " " << QString::number( l[2].toInt() ).leftJustify( 14 ) << sep
-		//		      << " " << QString::number( l[3].toInt() ).leftJustify( 14 ) <<  sep << endl;
+		      << " " << typeName.leftJustify( 14 ) << sep
+		      << " " << QString::number( size ).leftJustify( 14 ) << sep
+		      << " " << QString::number( prec ).leftJustify( 14 ) <<  sep << endl;
 	}
 	QStringList priIdxDesc = driver->primaryIndex();
 	QString priIdx;

@@ -355,6 +355,22 @@ uint FileDriver::size() const
     return d->file.NoOfRecords();
 }
 
+QValueList<uint> FileDriver::columnSizes() const
+{
+    QValueList<uint> sizes;
+    for ( uint i = 0; i < count(); ++i )
+	sizes += d->file.GetFieldLen( i );
+    return sizes;
+}
+
+QValueList<uint> FileDriver::columnPrecs() const
+{
+    QValueList<uint> precs;
+    for ( uint i = 0; i < count(); ++i )
+	precs += d->file.GetFieldDecimal( i );
+    return precs;
+}
+
 QValueList<QVariant::Type> FileDriver::columnTypes() const
 {
     QValueList<QVariant::Type> types;
