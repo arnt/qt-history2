@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/main.cpp#5 $
+** $Id: //depot/qt/main/examples/demo/main.cpp#6 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -10,6 +10,8 @@
 
 #include "frame.h"
 #include "graph.h"
+#include "icons.h"
+
 #include "textdrawing/textedit.h"
 #include "textdrawing/helpwindow.h"
 
@@ -36,6 +38,7 @@ int main( int argc, char **argv )
     QPixmap pix;
     pix.convertFromImage( img.smoothScale( 48, 48 ) );
 
+	QPixmap dbpix(dbicon);
 
     // example 1
     QTabWidget *tab = new QTabWidget();
@@ -47,7 +50,7 @@ int main( int argc, char **argv )
     tab = new QTabWidget();
     w = new QWidget( tab );
     tab->addTab( w, "Database" );
-    frame.addCategory( tab, pix, "Database" );
+    frame.addCategory( tab, dbpix, "Database" );
 
     // example 3
     tab = new QTabWidget();
