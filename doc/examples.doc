@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 2.0 1996/09/24 10:15:14 agulbra Exp $
+** $Id: examples.doc,v 2.1 1997/03/20 21:15:41 agulbra Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 2.0 1996/09/24 10:15:14 agulbra Exp $";
+static char ident[] = "$Id: examples.doc,v 2.1 1997/03/20 21:15:41 agulbra Exp $";
 #endif
 
 
@@ -86,7 +86,8 @@ static char ident[] = "$Id: examples.doc,v 2.0 1996/09/24 10:15:14 agulbra Exp $
 /*! \example hello/hello.cpp
   <h1 align=center>Hello, World</h1>
 
-  This example brings up a message box with a text and a button.
+  This example brings up the words "Hello, World" moving up and down,
+  and in different colours.
 */
 
 
@@ -169,9 +170,15 @@ cursor is on.
 */
 
 
-/*! \example xshape/xshape.cpp
+/*! \example tellme/tellme.cpp
 
-  <h1 align=center>X Shape Extension Demo</h1>
+  <h1 align=center>Advanced use of tool tips</h1>
 
-  This example creates a window which make use of the X Shape Extension.
+  This example widget demonstrates how to use tool tips for static and
+  dynamic regions within a widget.
+
+  It displays two blue and one red rectangle.  The blue ones move every
+  time you click on them, the red one is static.  There are dynamic
+  tool tips on the blue rectangles and a static tool tip on the red one.
 */
+
