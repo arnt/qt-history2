@@ -173,7 +173,7 @@ void qt_AlphaBlend( HDC dst_dc, int dx, int dy, int sw, int sh, HDC src_dc, int 
 	255,
 	AC_SRC_ALPHA
     };
-    if ( alphaBlend != 0 ) {
+    if ( alphaBlend ) {
 	alphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, sw, sh, blend );
     } else {
 	if ( !loadAlphaBlendFailed ) {
@@ -355,7 +355,10 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     Q_ASSERT( src_dc && dst_dc );
 
     if ( src_pm && src_pm->data->realAlphaBits ) {
-	qt_AlphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
+	if ( td == QInternal::Pixmap && ((QPixmap *)dst)->data->realAlphaBits )
+	    QPixmap::bitBltAlphaPixmap( ((QPixmap *)dst), dx, dy, src_pm, sx, sy, sw, sh, TRUE );
+	else
+	    qt_AlphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
     } else if ( mask ) {
 	if ( src_pm && td==QInternal::Pixmap && ((QPixmap *)dst)->data->realAlphaBits ) {
 	    src_pm->convertToAlphaPixmap();
