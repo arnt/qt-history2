@@ -733,7 +733,7 @@ MetrowerksMakefileGenerator::processPrlFiles()
 		    } else if(opt.left(2) == "-l") {
 			QString lib = opt.right(opt.length() - 2), prl;
 			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
-			    prl = mdd->local_dir + Option::dir_sep + "lib" + lib + Option::prl_ext;
+			    prl = mdd->local_dir + Option::dir_sep + "lib" + lib;
 			    if(processPrlFile(prl)) {
 				if(prl.startsWith(mdd->local_dir))
 				    prl.replace(0, mdd->local_dir.length(), mdd->real_dir);
@@ -751,7 +751,7 @@ MetrowerksMakefileGenerator::processPrlFiles()
 			++it;
 			opt = (*it);
 			QString prl = "/System/Library/Frameworks/" + opt +
-				      ".framework/" + opt + Option::prl_ext;
+				      ".framework/" + opt;
 			if(processPrlFile(prl))
 			    ret = TRUE;
 		    }

@@ -561,7 +561,7 @@ UnixMakefileGenerator::processPrlFiles()
  				}
  			    }
 
-			    QString prl = mdd->local_dir + Option::dir_sep + "lib" + lib + Option::prl_ext;
+			    QString prl = mdd->local_dir + Option::dir_sep + "lib" + lib;
 			    if(processPrlFile(prl)) {
 				if(prl.startsWith(mdd->local_dir))
 				    prl.replace(0, mdd->local_dir.length(), mdd->real_dir);
@@ -582,7 +582,7 @@ UnixMakefileGenerator::processPrlFiles()
 			    opt = (*it);
 			}
 			QString prl = "/System/Library/Frameworks/" + opt +
-				      ".framework/" + opt + Option::prl_ext;
+				      ".framework/" + opt;
 			if(processPrlFile(prl))
 			    ret = TRUE;
 			l_out.append("-framework");

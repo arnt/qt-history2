@@ -275,7 +275,7 @@ Win32MakefileGenerator::findLibraries(const QString &where)
 		    if(ver > 0)
 			extension += QString::number(ver);
 		    extension += ".lib";
-		    if(QFile::exists(mdd->local_dir + Option::dir_sep + lib + Option::prl_ext) ||
+		    if(QMakeMetaInfo::libExists(mdd->local_dir + Option::dir_sep + lib) ||
 		       QFile::exists(mdd->local_dir + Option::dir_sep + lib + extension)) {
 			out = mdd->real_dir + Option::dir_sep + lib + extension;
 			break;
