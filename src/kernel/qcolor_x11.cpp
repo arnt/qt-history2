@@ -146,14 +146,17 @@ static int highest_bit( uint v )
 /*!
     Returns the maximum number of colors supported by the underlying
     window system if the window system uses a palette.
-    
+
     Otherwise returns -1. Use numBitPlanes() to calculate the available
     colors in that case.
 */
 
 int QColor::maxColors()
 {
-    return QPaintDevice::x11AppCells();
+    Visual *visual = (Visual *) QPaintDevice::x11AppVisual();
+    if (visual->c_class & 1)
+	return QPaintDevice::x11AppCells();
+    return -1;
 }
 
 /*!
