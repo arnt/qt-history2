@@ -138,6 +138,10 @@ static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popup
 static QWidget     *popupButtonFocus = 0;
 static QWidget     *popupOfPopupButtonFocus = 0;
 static bool	    popupCloseDownMode = FALSE;
+//timer stuff
+static void	initTimers();
+static void	cleanupTimers();
+static int      qt_activate_null_timers();
 
 /*****************************************************************************
   External functions
@@ -191,6 +195,21 @@ static short qt_mac_find_window( int x, int y, QWidget **w=NULL )
     return ret;
 }
 
+bool QMacBlockingFunction::block = FALSE;
+QMacBlockingFunction::QMacBlockingFunction()
+{
+    if(block)
+	qWarning("QMacBlockingFunction is a non-recursive function");
+    block = TRUE;
+    startTimer(1);
+}
+
+void QMacBlockingFunction::timerEvent(QTimerEvent *)
+{
+    if(qt_activate_null_timers())
+	QApplication::flush();
+}
+
 bool qt_nograb()				// application no-grab option
 {
 #if defined(QT_DEBUG)
@@ -237,11 +256,6 @@ void qt_remove_postselect_handler( VFPTR handler )
 		qt_postselect_handler->remove( it );
     }
 }
-
-//timer stuff
-static void	initTimers();
-static void	cleanupTimers();
-int      qt_activate_null_timers();
 
 /* Event masks */
 
@@ -647,7 +661,7 @@ static EventLoopTimerUPP timerUPP = NULL;       //UPP
 QMAC_PASCAL static void qt_activate_timers(EventLoopTimerRef, void *data)
 {
     TimerInfo *tmr = ((TimerInfo *)data);
-    if(qt_mac_in_drag) { //just send it immediately
+    if(QMacBlockingFunction::blocking()) { //just send it immediately
 	QTimerEvent e( tmr->id );
 	QApplication::sendEvent( tmr->obj, &e );	// send event
 	QApplication::flush(); //make sure to flush changes
@@ -1275,6 +1289,7 @@ bool QApplication::do_mouse_down( Point *pt )
     mouse_down_unhandled = FALSE;
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
     if( windowPart == inMenuBar) {
+	QMacBlockingFunction block;
 	MenuSelect(*pt); //allow menu tracking
 	return FALSE;
     } else
@@ -1338,7 +1353,10 @@ bool QApplication::do_mouse_down( Point *pt )
     case inDrag:
     {
 	if(widget) {
-	    DragWindow( (WindowPtr)widget->handle(), *pt, 0 );
+	    {
+		QMacBlockingFunction block;
+		DragWindow( (WindowPtr)widget->handle(), *pt, 0 );
+	    }
 	    QPoint np, op(widget->crect.x(), widget->crect.y());
 	    {
 		QMacSavedPortInfo savedInfo(widget);
@@ -1366,8 +1384,12 @@ bool QApplication::do_mouse_down( Point *pt )
 			 extra->maxw < QWIDGETSIZE_MAX ? extra->maxw : QWIDGETSIZE_MAX,
 			 extra->maxh < QWIDGETSIZE_MAX ? extra->maxh : QWIDGETSIZE_MAX);
 	}
-	int growWindowSize = GrowWindow( (WindowPtr)widget->handle(), 
+	int growWindowSize;
+	{
+	    QMacBlockingFunction block;
+	    growWindowSize = GrowWindow( (WindowPtr)widget->handle(), 
 					 *pt, limits.left == -2 ? NULL : &limits);
+	}
 	if( growWindowSize) {
 	    // nw/nh might not match the actual size if setSizeIncrement is used
 	    int nw = LoWord( growWindowSize );
@@ -1509,7 +1531,8 @@ QApplication::qt_context_timer_callbk(EventLoopTimerRef r, void *d)
     EventLoopTimerRef otc = mac_context_timer;
     RemoveEventLoopTimer(mac_context_timer);
     mac_context_timer = NULL;
-    if(r != otc || w != qt_button_down || request_context_pending || qt_mac_in_drag)
+    if(r != otc || w != qt_button_down || 
+       request_context_pending || QMacBlockingFunction::blocking())
 	return;
     request_context_pending = TRUE;
 
