@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#89 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#90 $
 **
 ** Implementation of QDir class
 **
@@ -1234,7 +1234,7 @@ QString QDir::currentDirPath()
 	    result = QString::fromLatin1(currentName);
 	}
     }
-    slashify();
+    slashify( result );
 #else
     STATBUF st;
 
