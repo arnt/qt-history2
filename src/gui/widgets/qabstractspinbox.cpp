@@ -81,13 +81,8 @@
 */
 
 /*!
-    Constructs an abstract spinbox.
-
-    The \a parent arguments is sent to the QWidget constructor.
-
-    \l wrapping defaults to false.
-    \l tracking defaults to false.
-    \l alignment defaults to Qt::AlignLeft. // ### qlocale
+    Constructs an abstract spinbox with the given \a parent with default
+    \l wrapping, \l tracking, and \l alignment properties.
 */
 
 QAbstractSpinBox::QAbstractSpinBox(QWidget *parent)
@@ -228,8 +223,8 @@ void QAbstractSpinBox::setTracking(bool t)
     you have minimum() and maximum() values set.
 
         QSpinBox *spinBox = new QSpinBox(this);
-	spinBox->setRange(0, 100);
-	spinBox->setWrapping(true);
+        spinBox->setRange(0, 100);
+        spinBox->setWrapping(true);
         sb->setValue(100);
         sb->stepBy(1);
         // value is 0
@@ -293,6 +288,8 @@ void QAbstractSpinBox::setFrame(bool enable)
 
     Possible Values are \c Qt::AlignAuto, \c Qt::AlignLeft, \c
     Qt::AlignRight and \c Qt::AlignHCenter.
+
+    By default, the alignment is Qt::AlignLeft.
 
     Attempting to set the alignment to an illegal flag combination
     does nothing.
