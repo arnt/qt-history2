@@ -36,7 +36,6 @@ kernel {
 		  $$KERNEL_H/qgif.h \
 		  $$KERNEL_H/qiconset.h \
 		  $$KERNEL_H/qimage.h \
-		  $$KERNEL_H/qinputcontext_p.h \
 		  $$KERNEL_H/qkeycode.h \
 		  $$KERNEL_H/qlayout.h \
 		  $$KERNEL_P/qlayoutengine_p.h \
@@ -186,7 +185,6 @@ kernel {
 		  $$KERNEL_CPP/qguardedptr.cpp \
 		  $$KERNEL_CPP/qiconset.cpp \
 		  $$KERNEL_CPP/qimage.cpp \
-		  $$KERNEL_CPP/qinputcontext.cpp \
 		  $$KERNEL_CPP/qlayout.cpp \
 		  $$KERNEL_CPP/qlayoutengine.cpp \
 		  $$KERNEL_CPP/qtranslator.cpp \

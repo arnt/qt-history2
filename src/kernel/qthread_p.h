@@ -53,13 +53,20 @@
 
 
 #ifndef QT_H
-#include "qplatformdefs.h"
+#include "qglobal.h"
 #ifdef QWS
 #include "qptrdict.h"
 #else
 #include "qintdict.h"
 #endif
 #endif // QT_H
+
+#include <unistd.h>
+#include <errno.h>
+
+
+// use POSIX pthreads API
+#include <pthread.h>
 
 
 // detect mutex types

@@ -448,9 +448,6 @@ protected:
     virtual void resizeEvent( QResizeEvent * );
     virtual void closeEvent( QCloseEvent * );
     virtual void contextMenuEvent( QContextMenuEvent * );
-    virtual void imStartEvent( QIMEvent * );
-    virtual void imComposeEvent( QIMEvent * );
-    virtual void imEndEvent( QIMEvent * );
 
 #ifndef QT_NO_DRAGANDDROP
     virtual void dragEnterEvent( QDragEnterEvent * );
@@ -545,11 +542,6 @@ private slots:
 
 private:
     void	 setFontSys( QFont *f = 0 );
-    void	 createInputContext();
-    void	 destroyInputContext();
-    void	 resetInputContext();
-    void	 focusInputContext();
-
 #ifndef QT_NO_LAYOUT
     void 	 setLayout( QLayout *l );
 #endif
