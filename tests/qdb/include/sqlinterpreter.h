@@ -32,8 +32,6 @@ public:
     bool rewindMarked();
     bool nextMarked();
     bool update( const qdb::List& data );
-    void setLastError( const QString& error ) { err = error; }
-    QString lastError() const { return err; }
     bool rangeScan( const qdb::List& data );
     bool createIndex( const qdb::List& data, bool unique );
     bool drop();
@@ -56,7 +54,6 @@ private:
     bool opened;
     int internalAt;
     int internalMarkedAt;
-    QString err;
     qdb::Environment* env;
 };
 

@@ -613,8 +613,6 @@ public:
 	    return 0;
 	}
 	bool b = drv->updateMarked( env->stack()->pop().toList() );
-	if ( !b )
-	    env->setLastError( drv->lastError() );
 	return b;
     }
 };
@@ -898,8 +896,6 @@ public:
 	    return 0;
 	}
 	bool b = drv->update( env->stack()->pop().toList() );
-	if ( !b )
-	    env->setLastError( drv->lastError() );
 	return b;
     }
 };
@@ -957,8 +953,6 @@ public:
 	    return 0;
 	}
 	bool b = drv->rangeScan( env->stack()->pop().toList() );
-	if ( !b )
-	    env->setLastError( drv->lastError() );
 	return b;
     }
 };
@@ -998,8 +992,6 @@ public:
 	    return 0;
 	}
 	bool b = drv->createIndex( env->stack()->pop().toList(), p2.toBool() );
-	if ( !b )
-	    env->setLastError( drv->lastError() );
 	return b;
     }
 };
@@ -1067,8 +1059,6 @@ public:
 	    return 0;
 	}
 	bool b = env->resultSet( p1.toInt() )->sort( env->stack()->pop().toList() );
-	if ( !b )
-	    env->setLastError( drv->lastError() );
 	return b;
     }
 };

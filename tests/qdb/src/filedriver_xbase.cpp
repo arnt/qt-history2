@@ -16,14 +16,14 @@
 
 #ifdef DEBUG_XBASE
 #define ERROR_RETURN(err) do { \
-			   setLastError( err ); \
+			   env->setLastError( err ); \
 			   close(); \
 			   env->output() << endl; \
 			   return FALSE; \
 			  } while(0)
 #else
 #define ERROR_RETURN(err) do { \
-			   setLastError( err ); \
+			   env->setLastError( err ); \
 			   close(); \
 			   return FALSE; \
 			  } while(0)
