@@ -48,110 +48,83 @@
 enum { NumSizes = 2, NumModes = 3, NumStates = 2 };
 
 static QIconFactory *defaultFac = 0;
-static short widths[2] = { 22, 32 };
-static short heights[2] = { 22, 32 };
 static QSingleCleanupHandler<QIconFactory> q_cleanup_icon_factory;
 
-enum IconOrigin { SuppliedFileName, SuppliedPixmap, Manufactured, Generated };
+static short widths[2] = { 22, 32 };
+static short heights[2] = { 22, 32 };
+
+enum QIconSetIconOrigin { SuppliedFileName, SuppliedPixmap, Manufactured,
+			  Generated };
+
+struct QIconSetIcon
+{
+    QIconSetIconOrigin origin;
+    union {
+	QString *fileName;
+	QPixmap *pixmap;
+    };
+
+    QIconSetIcon() : origin( Generated ) { pixmap = 0; }
+    QIconSetIcon( const QIconSetIcon& other )
+	: origin( Generated ) {
+	pixmap = 0;
+	operator=( other );
+    }
+    ~QIconSetIcon() {
+	if ( origin == SuppliedFileName ) {
+	    delete fileName;
+	} else {
+	    delete pixmap;
+	}
+    }
+
+    QIconSetIcon& operator=( const QIconSetIcon& other );
+
+    void clearCached() {
+	if ( (origin == Manufactured || origin == Generated) && pixmap ) {
+	    delete pixmap;
+	    pixmap = 0;
+	}
+    }
+};
+
+QIconSetIcon& QIconSetIcon::operator=( const QIconSetIcon& other )
+{
+    QPixmap *oldPixmap = 0;
+    QString *oldFileName = 0;
+    if ( origin == SuppliedFileName ) {
+	oldFileName = fileName;
+    } else {
+	oldPixmap = pixmap;
+    }
+
+    if ( other.origin == SuppliedFileName ) {
+	fileName = new QString( *other.fileName );
+    } else {
+	if ( other.pixmap ) {
+	    pixmap = new QPixmap( *other.pixmap );
+	} else {
+	    pixmap = 0;
+	}
+    }
+    origin = other.origin;
+    delete oldPixmap;
+    delete oldFileName;
+    return *this;
+}
 
 class QIconSetPrivate : public QShared
 {
 public:
-    struct Icon
-    {
-	IconOrigin origin;
-	union {
-	    QString *fileName;
-	    QPixmap *pixmap;
-	};
-
-	Icon() : origin( Generated ) { pixmap = 0; }
-	Icon( const Icon& other )
-	    : origin( Generated ) {
-	    pixmap = 0;
-	    operator=( other );
-	}
-	~Icon() {
-	    if ( origin == SuppliedFileName ) {
-		delete fileName;
-	    } else {
-		delete pixmap;
-	    }
-	}
-
-	Icon& operator=( const Icon& other ) {
-	    QPixmap *oldPixmap = 0;
-	    QString *oldFileName = 0;
-	    if ( origin == SuppliedFileName ) {
-		oldFileName = fileName;
-	    } else {
-		oldPixmap = pixmap;
-	    }
-
-	    if ( other.origin == SuppliedFileName ) {
-		fileName = new QString( *other.fileName );
-	    } else {
-		if ( other.pixmap ) {
-		    pixmap = new QPixmap( *other.pixmap );
-		} else {
-		    pixmap = 0;
-		}
-	    }
-	    origin = other.origin;
-	    delete oldPixmap;
-	    delete oldFileName;
-	    return *this;
-	}
-
-	void clearCached() {
-	    if ( (origin == Manufactured || origin == Generated) && pixmap ) {
-		delete pixmap;
-		pixmap = 0;
-	    }
-	}
-    };
-
-    Icon icons[NumSizes][NumModes][NumStates];
+    QIconSetIcon icons[NumSizes][NumModes][NumStates];
     QPixmap defaultPix;
     QIconFactory *factory;
 
     QIconSetPrivate() : factory( 0 ) {}
     ~QIconSetPrivate() {}
 
-    Icon *icon( const QIconSet *iconSet, QIconSet::Size size,
-		QIconSet::Mode mode, QIconSet::State state ) {
-	Icon *ik = &icons[(int) size - 1][(int) mode][(int) state];
-
-	if ( iconSet ) {
-	    if ( ik->origin == SuppliedFileName ) {
-		QPixmap *newPixmap = new QPixmap( *ik->fileName );
-		delete ik->fileName;
-
-		if ( newPixmap->isNull() ) {
-		    delete newPixmap;
-		    ik->origin = Generated;
-		    ik->pixmap = 0;
-		} else {
-		    ik->origin = SuppliedPixmap;
-		    ik->pixmap = newPixmap;
-		}
-	    }
-
-	    if ( !ik->pixmap ) {
-		QIconFactory *f = factory;
-		if ( !f )
-		    f = defaultFac;
-
-		if ( f ) {
-		    ik->pixmap = f->createPixmap( *iconSet, size, mode, state );
-		    if ( ik->pixmap )
-			ik->origin = Manufactured;
-		}
-	    }
-	}
-	return ik;
-    }
-
+    QIconSetIcon *icon( const QIconSet *iconSet, QIconSet::Size size,
+			QIconSet::Mode mode, QIconSet::State state );
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator==( const QIconSetPrivate& ) const { return FALSE; }
 #endif
@@ -173,8 +146,41 @@ public:
 #endif
 };
 
-typedef QIconSetPrivate::Icon Icon;
+QIconSetIcon *QIconSetPrivate::icon( const QIconSet *iconSet,
+				     QIconSet::Size size, QIconSet::Mode mode,
+				     QIconSet::State state )
+{
+    QIconSetIcon *ik = &icons[(int) size - 1][(int) mode][(int) state];
 
+    if ( iconSet ) {
+	if ( ik->origin == SuppliedFileName ) {
+	    QPixmap *newPixmap = new QPixmap( *ik->fileName );
+	    delete ik->fileName;
+
+	    if ( newPixmap->isNull() ) {
+		delete newPixmap;
+		ik->origin = Generated;
+		ik->pixmap = 0;
+	    } else {
+		ik->origin = SuppliedPixmap;
+		ik->pixmap = newPixmap;
+	    }
+	}
+
+	if ( !ik->pixmap ) {
+	    QIconFactory *f = factory;
+	    if ( !f )
+		f = defaultFac;
+
+	    if ( f ) {
+		ik->pixmap = f->createPixmap( *iconSet, size, mode, state );
+		if ( ik->pixmap )
+		    ik->origin = Manufactured;
+	    }
+	}
+    }
+    return ik;
+}
 
 /*! \class QIconSet qiconset.h
 
@@ -430,7 +436,7 @@ void QIconSet::setPixmap( const QPixmap& pixmap, Size size, Mode mode,
     detach();
     clearGenerated();
 
-    Icon *icon = d->icon( 0, size, mode, state );
+    QIconSetIcon *icon = d->icon( 0, size, mode, state );
     if ( icon->origin == SuppliedFileName ) {
 	delete icon->fileName;
 	icon->pixmap = 0;
@@ -457,7 +463,7 @@ void QIconSet::setPixmap( const QString& fileName, Size size, Mode mode,
 	detach();
 	clearGenerated();
 
-	Icon *icon = d->icon( 0, size, mode, state );
+	QIconSetIcon *icon = d->icon( 0, size, mode, state );
 	if ( icon->origin == SuppliedFileName ) {
 	    *icon->fileName = fileName;
 	} else {
@@ -486,7 +492,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
     if ( size == Automatic )
 	size = Small;
 
-    Icon *icon = d->icon( this, size, mode, state );
+    QIconSetIcon *icon = d->icon( this, size, mode, state );
     if ( icon->pixmap )
 	return *icon->pixmap;
 
@@ -494,7 +500,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 	return pixmap( size, Normal, state );
 
     Size otherSize = ( size == Large ) ? Small : Large;
-    Icon *otherSizeIcon = d->icon( this, otherSize, mode, state );
+    QIconSetIcon *otherSizeIcon = d->icon( this, otherSize, mode, state );
 
     if ( state == Off ) {
 	if ( mode == Disabled &&
@@ -513,7 +519,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 	      best ones first.
 	    */
 	    const int N = 10;
-	    struct {
+	    static const struct {
 		bool sameSize;
 		Mode mode;
 		State state;
@@ -533,8 +539,9 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 
 	    for ( int i = 0; i < N; i++ ) {
 		sameSize = tryList[i].sameSize;
-		Icon *tryIcon = d->icon( this, sameSize ? size : otherSize,
-					 tryList[i].mode, tryList[i].state );
+		QIconSetIcon *tryIcon =
+			d->icon( this, sameSize ? size : otherSize,
+				 tryList[i].mode, tryList[i].state );
 		if ( tryIcon->origin != Generated ) {
 		    icon->pixmap = new QPixmap( *tryIcon->pixmap );
 		    break;
@@ -558,8 +565,9 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		icon->pixmap = new QPixmap( pixmap(size, mode, Off) );
 	    }
 	} else { /* ( mode == Disabled ) */
-	    Icon *offIcon = d->icon( this, size, mode, Off );
-	    Icon *otherSizeOffIcon = d->icon( this, otherSize, mode, Off );
+	    QIconSetIcon *offIcon = d->icon( this, size, mode, Off );
+	    QIconSetIcon *otherSizeOffIcon = d->icon( this, otherSize, mode,
+						      Off );
 
 	    if ( offIcon->origin != Generated ) {
 		icon->pixmap = new QPixmap( *offIcon->pixmap );
@@ -626,8 +634,9 @@ void QIconSet::clearGenerated()
 
     for ( int i = 0; i < NumSizes; i++ ) {
 	for ( int j = 0; j < NumModes; j++ ) {
-	    for ( int k = 0; k < NumStates; k++ )
+	    for ( int k = 0; k < NumStates; k++ ) {
 		d->icons[i][j][k].clearCached();
+	    }
 	}
     }
 }
