@@ -1280,45 +1280,40 @@ FormWindow *MainWindow::openFormWindow( const QString &filename, bool validFileN
 	QTextStream ts( &f );
 	makeNew = ts.read().length() < 2;
     }
-    if ( !makeNew ) {
-	statusBar()->message( tr( "Reading file '%1'...").arg( filename ) );
-	if ( QFile::exists( filename ) ) {
-	    FormFile *ff2 = currentProject->findFormFile( currentProject->makeRelative( filename ) );
-	    if ( ff2 && ff2->formWindow() ) {
-		ff2->formWindow()->setFocus();
-		return ff2->formWindow();
-	    }
-	    if ( ff2 )
-		ff = ff2;
-	    QApplication::setOverrideCursor( WaitCursor );
-	    Resource resource( this );
-	    if ( !ff )
-		ff = new FormFile( currentProject->makeRelative( filename ), FALSE, currentProject );
-	    bool b = resource.load( ff ) && (FormWindow*)resource.widget();
-	    if ( !validFileName && resource.widget() )
-		( (FormWindow*)resource.widget() )->setFileName( QString::null );
-	    QApplication::restoreOverrideCursor();
-	    if ( b ) {
-		rebuildCustomWidgetGUI();
-		statusBar()->message( tr( "Loaded file '%1'").arg( filename ), 3000 );
-	    } else {
-		statusBar()->message( tr( "Failed to load file '%1'").arg( filename ), 5000 );
-		QMessageBox::information( this, tr("Load File"), tr("Couldn't load file '%1'").arg( filename ) );
-		delete ff;
-	    }
-	    return (FormWindow*)resource.widget();
-	} else {
-	    statusBar()->clear();
-	}
-    } else {
+    if ( makeNew ) {
 	fileNew();
 	if ( formWindow() )
 	    formWindow()->setFileName( filename );
 	return formWindow();
     }
-    return 0;
-}
 
+    statusBar()->message( tr( "Reading file '%1'...").arg( filename ) );
+    FormFile *ff2 = currentProject->findFormFile( currentProject->makeRelative(filename) );
+    if ( ff2 && ff2->formWindow() ) {
+	ff2->formWindow()->setFocus();
+	return ff2->formWindow();
+    }
+
+    if ( ff2 )
+	ff = ff2;
+    QApplication::setOverrideCursor( WaitCursor );
+    Resource resource( this );
+    if ( !ff )
+	ff = new FormFile( currentProject->makeRelative( filename ), FALSE, currentProject );
+    bool b = resource.load( ff ) && (FormWindow*)resource.widget();
+    if ( !validFileName && resource.widget() )
+	( (FormWindow*)resource.widget() )->setFileName( QString::null );
+    QApplication::restoreOverrideCursor();
+    if ( b ) {
+	rebuildCustomWidgetGUI();
+	statusBar()->message( tr( "Loaded file '%1'").arg( filename ), 3000 );
+    } else {
+	statusBar()->message( tr( "Failed to load file '%1'").arg( filename ), 5000 );
+	QMessageBox::information( this, tr("Load File"), tr("Couldn't load file '%1'").arg( filename ) );
+	delete ff;
+    }
+    return (FormWindow*)resource.widget();
+}
 
 bool MainWindow::fileSave()
 {
