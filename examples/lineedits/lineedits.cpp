@@ -80,8 +80,25 @@ LineEdits::LineEdits( QWidget *parent, const char *name )
     // ...and again the activated() SIGNAL gets connected with a SLOT
     connect( combo3, SIGNAL( activated( int ) ), this, SLOT( slotAlignmentChanged( int ) ) );
 
-    // and the lineedit
+    // and the third lineedit
     lined3 = new QLineEdit( this );
+
+    // last widget used for layouting
+    QHBox *row4 = new QHBox( this );
+    row4->setMargin( 5 );
+
+    // last label
+    (void)new QLabel( "Read-Only: ", row4 );
+
+    // A combo box for setting alignment
+    combo4 = new QComboBox( FALSE, row4 );
+    combo4->insertItem( "False", -1 );
+    combo4->insertItem( "True", -1 );
+    // ...and again the activated() SIGNAL gets connected with a SLOT
+    connect( combo4, SIGNAL( activated( int ) ), this, SLOT( slotReadOnlyChanged( int ) ) );
+
+    // and the last lineedit
+    lined4 = new QLineEdit( this );
 
     // give the first LineEdit the focus at the beginning
     lined1->setFocus();
@@ -146,7 +163,7 @@ void LineEdits::slotValidatorChanged( int i )
  * SLOT slotAlignmentChanged( int i )
  *
  * i contains the number of the item which the user has been chosen in
- * the second Combobox.  According to this value, we set an alignment
+ * the third Combobox.  According to this value, we set an alignment
  * third LineEdit.
  */
 
@@ -165,4 +182,26 @@ void LineEdits::slotAlignmentChanged( int i )
     }
 
     lined3->setFocus();
+}
+
+
+/*
+ * SLOT slotReadOnlyChanged( int i )
+ *
+ * i contains the number of the item which the user has been chosen in
+ * the fourth Combobox.  According to this value, we toggle read-only.
+ */
+
+void LineEdits::slotReadOnlyChanged( int i )
+{
+    switch ( i ) {
+    case 0:
+	lined4->setReadOnly( FALSE );
+        break;
+    case 1:
+	lined4->setReadOnly( TRUE );
+        break;
+    }
+
+    lined4->setFocus();
 }
