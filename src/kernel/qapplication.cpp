@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#114 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#115 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#114 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#115 $");
 
 
 /*!
@@ -508,6 +508,8 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
 /*!
   Returns a list of the top level widgets in the application.
 
+  The list is created using new and must be deleted by the caller.
+
   The list is \link QList::isEmpty() empty \endlink if there are no
   top level widgets.
 
@@ -535,12 +537,52 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
   You can get in serious trouble if you for instance try to access
   a widget that has been deleted.
 
-  \sa QWidget::isTopLevel(), QWidget::isVisible(), QList::isEmpty()
+  \sa allWidgets(), QWidget::isTopLevel(), QWidget::isVisible(),
+      QList::isEmpty()
 */
 
 QWidgetList *QApplication::topLevelWidgets()
 {
     return QWidget::tlwList();
+}
+
+/*!
+  Returns a list of all the widgets in the application.
+
+  The list is created using new and must be deleted by the caller.
+
+  The list is \link QList::isEmpty() empty \endlink if there are no
+  widgets.
+
+  Note that some of the widgets may be hidden.
+
+  Example:
+  \code
+    //
+    // Updates all widgets.
+    //
+    QWidgetList	 *list = QApplication::allWidgets();
+    QWidgetListIt it( *list );		// iterate over the widgets
+    while ( it.current() ) {		// for each top level widget...
+        it.current()->update();
+	++it;
+    }
+    delete list;			// delete the list, not the widgets
+  \endcode
+
+  The QWidgetList class is defined in the qwidcoll.h header file.
+
+  \warning
+  Delete the list away as soon you have finished using it.
+  You can get in serious trouble if you for instance try to access
+  a widget that has been deleted.
+
+  \sa topLevelWidgets(), QWidget::isVisible(), QList::isEmpty(), 
+*/
+
+QWidgetList *QApplication::allWidgets()
+{
+    return QWidget::wList();
 }
 
 

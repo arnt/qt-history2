@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#207 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#208 $
 **
 ** Implementation of QWidget class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#207 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#208 $");
 
 
 /*!
@@ -717,26 +717,43 @@ void QWidget::destroyMapper()
     mapper = 0;
 }
 
-/*!
-  \internal
-  Returns a list of top level widget.
-  \sa QApplication::topLevelWidgets()
-*/
 
-QWidgetList *QWidget::tlwList()
+QWidgetList *wListInternal( QWidgetMapper *mapper, bool onlyTopLevel )
 {
     QWidgetList *list = new QWidgetList;
     CHECK_PTR( list );
     if ( mapper ) {
-	register QWidget *w;
+	QWidget *w;
 	QWidgetIntDictIt it( *((QWidgetIntDict*)mapper) );
 	while ( (w=it.current()) ) {
 	    ++it;
-	    if ( w->isTopLevel() )
+	    if ( !onlyTopLevel || w->isTopLevel() )
 		list->append( w );
 	}
     }
     return list;
+}
+
+/*!
+  \internal
+  Returns a list of all top level widgets.
+  \sa wList(), QApplication::topLevelWidgets()
+*/
+
+QWidgetList *QWidget::tlwList()
+{
+    return wListInternal( mapper, TRUE );
+}
+
+/*!
+  \internal
+  Returns a list of all widgets.
+  \sa tlwList(), QApplication::allWidgets()
+*/
+
+QWidgetList *QWidget::wList()
+{
+    return wListInternal( mapper, FALSE );
 }
 
 

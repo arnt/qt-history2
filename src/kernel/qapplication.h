@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#70 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#71 $
 **
 ** Definition of QApplication class
 **
@@ -19,7 +19,6 @@
 // X11/X.h #defines TrueColor, so it can't be used in any class or enum
 #error "TrueColor already #defined by X11/X.h. Include X11/X.h after qapp.h"
 #endif
-
 
 extern QApplication *qApp;			// global application object
 
@@ -68,6 +67,7 @@ public:
     QWidget	    *mainWidget()  const;
     void	     setMainWidget( QWidget * );
 
+    static QWidgetList *allWidgets();
     static QWidgetList *topLevelWidgets();
     static QWidget  *desktop();
     static QWidget  *activePopupWidget();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#128 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#129 $
 **
 ** Definition of QWidget class
 **
@@ -315,6 +315,7 @@ private:
     QWidget	*focusChild; // ### unused now
     static void	 createMapper();
     static void	 destroyMapper();
+    static QWidgetList   *wList();
     static QWidgetList   *tlwList();
     static QWidgetMapper *mapper;
     friend class QApplication;
