@@ -49,7 +49,7 @@ create index alltypesindex_1 on alltypes ( n1, n2 );
 create index alltypesindex_2 on alltypes ( c1 ); 
 create index alltypesindex_3 on alltypes ( d1 ); 
 
-insert into alltypes values( 1, 12, 'non-latin1: ικλε ”™', 'more', '2001-01-11'); 
+insert into alltypes values( 1, 12, 'latin1: ικλε ”™', 'more', '2001-01-11'); 
 insert into alltypes values( 91, 12, 'csdfsdf', 'more', '2000-01-01');
 insert into alltypes values( 92, 22, 'csdfsdf', 'more', '2000-01-01');
 insert into alltypes values( 93, 32, 'xsdfsdf', 'more', '2000-01-01');

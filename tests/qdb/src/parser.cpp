@@ -602,6 +602,7 @@ int Parser::emitOpenTable( const QString& tableName )
     if ( t == yyOpenedTables.end() ) {
 	int tableId = yyOpenedTables.count();
 	yyOpenedTables.insert( tableName, tableId );
+	yyProg->append( new Open(tableId, tableName) );
 	return tableId;
     } else {
 	return *t;
