@@ -106,7 +106,7 @@ public:
     QT_COMPAT QIconSet *iconSet() const;
     inline QT_COMPAT void setIconSet(const QIconSet &icon){ setIcon(icon); }
 public slots:
-    inline QT_COMPAT void setOn(bool b) { setChecked(b); }
+    inline QT_MOC_COMPAT void setOn(bool b) { setChecked(b); }
 public:
     inline QT_COMPAT bool isToggleButton() const { return isCheckable(); }
     inline QT_COMPAT void setToggleButton(bool b) { setCheckable(b); }

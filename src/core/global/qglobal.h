@@ -636,11 +636,18 @@ typedef int QNoImplicitIntegralCast;
 //
 // Warnings and errors when sing deprecated methods
 //
-
-// make sure QT_COMPAT is defined to be void
-#ifdef QT_COMPAT
+#ifdef QT_COMPAT  // make sure QT_COMPAT is defined to be void
 #  undef QT_COMPAT
 #  define QT_COMPAT
+#endif
+
+#ifdef QT_MOC_COMPAT //for marking signals/slots
+# undef QT_MOC_COMPAT
+#endif
+# if defined(Q_MOC_RUN)
+#   define QT_MOC_COMPAT QT_MOC_COMPAT
+#else
+#   define QT_MOC_COMPAT 
 #endif
 
 #if defined(QT_COMPAT_WARNINGS)
@@ -657,7 +664,6 @@ typedef int QNoImplicitIntegralCast;
 #    define QT_COMPAT
 #  endif
 #endif
-
 
 #if defined(QT_DEPRECATED_WARNINGS)
 #  if defined(Q_MOC_RUN)

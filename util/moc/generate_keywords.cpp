@@ -183,7 +183,7 @@ static const Keyword keywords[] = {
     { "continue", "CONTINUE" },
     { "goto", "GOTO" },
     { "return", "RETURN" },
-    { "QT_COMPAT", "QT_COMPAT_TOKEN" },
+    { "QT_MOC_COMPAT", "QT_MOC_COMPAT_TOKEN" },
     { "Q_OBJECT", "Q_OBJECT_TOKEN" },
     { "Q_PROPERTY", "Q_PROPERTY_TOKEN" },
     { "Q_OVERRIDE", "Q_OVERRIDE_TOKEN" },

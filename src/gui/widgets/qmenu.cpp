@@ -589,8 +589,8 @@ QMenu::~QMenu()
     \overload
 
     This convenience function creates a new action with the text \a
-    text, and adds the new action to the menu's list of actions. It
-    returns the newly created action.
+    text. The function adds the newly created action to the menu's
+    list of actions and returns it.
 
     \sa QWidget::addAction()
 */
@@ -605,8 +605,8 @@ QAction *QMenu::addAction(const QString &text)
     \overload
 
     This convenience function creates a new action with the icon \a
-    icon, and text \a text, and adds the new action to the menu's list
-    of actions. It returns the newly created action.
+    icon, and text \a text. The function adds the newly created action
+    to the menu's list of actions and returns it.
 
     \sa QWidget::addAction()
 */
@@ -621,15 +621,17 @@ QAction *QMenu::addAction(const QIconSet &icon, const QString &text)
     \overload
 
     This convenience function creates a new action with the text \a
-    text, and adds the new action to the menu's list of actions. The
-    action's triggered() signal is connected to the \a receiver's \a
-    member slot. The function returns the newly created action.
+    text and a keyboard shortcut of \a shortcut. The action's
+    triggered() signal is connected to the \a receiver's \a member
+    slot. The function adds the newly created action to the menu's
+    list of actions and returns it.
 
     \sa QWidget::addAction()
 */
-QAction *QMenu::addAction(const QString &text, const QObject *receiver, const char* member)
+QAction *QMenu::addAction(const QString &text, const QObject *receiver, const char* member,
+                          const QKeySequence &shortcut)
 {
-    QAction *ret = new QAction(text, this);
+    QAction *ret = new QAction(text, shortcut, this);
     QObject::connect(ret, SIGNAL(triggered()), receiver, member);
     addAction(ret);
     return ret;
@@ -639,16 +641,17 @@ QAction *QMenu::addAction(const QString &text, const QObject *receiver, const ch
     \overload
 
     This convenience function creates a new action with the icon \a
-    icon, and the text \a text, and adds the new action to the menu's
-    list of actions. The action's triggered() signal is connected to
-    the \a receiver's \a member slot. The function returns the newly
-    created action.
+    icon, the text \a text, and a keyboard shortcut of \a
+    shortcut. The action's triggered() signal is connected to the \a
+    receiver's \a member slot. The function adds the newly created
+    action to the menu's list of actions and returns it.
 
     \sa QWidget::addAction()
 */
-QAction *QMenu::addAction(const QIconSet &icon, const QString &text, const QObject *receiver, const char* member)
+QAction *QMenu::addAction(const QIconSet &icon, const QString &text, const QObject *receiver, 
+                          const char* member, const QKeySequence &shortcut)
 {
-    QAction *ret = new QAction(icon, text, this);
+    QAction *ret = new QAction(icon, text, shortcut, this);
     QObject::connect(ret, SIGNAL(triggered()), receiver, member);
     addAction(ret);
     return ret;
@@ -656,8 +659,8 @@ QAction *QMenu::addAction(const QIconSet &icon, const QString &text, const QObje
 
 /*!
     This convenience function creates a new action with the text \a
-    text, and submenu \a menu, and adds the new action to this menu's
-    list of actions. It returns the newly created action.
+    text, and submenu \a menu. The function adds the newly created
+    action to the menu's list of actions and returns it.
 
     \sa QWidget::addAction()
 */
@@ -686,9 +689,9 @@ QAction *QMenu::addSeparator()
 
 /*!
     This convenience function creates a new action with the text \a
-    text, and submenu \a menu, and inserts the new action into this
-    menu's list of actions before action \a before. It returns the
-    newly created action.
+    text, and submenu \a menu. The function inserts the newly created
+    action into this menu's list of actions before action \a before
+    and returns it.
 
     \sa QWidget::insertAction() addMenu()
 */
@@ -701,9 +704,9 @@ QAction *QMenu::insertMenu(QAction *before, const QString &text, QMenu *menu)
 
 /*!
     This convenience function creates a new separator action, i.e. an
-    action with QAction::separator() set to true, and inserts the new
-    action to this menu's list of actions before action \a before. It
-    returns the newly created action.
+    action with QAction::separator() set to true. The function inserts
+    the newly created action into this menu's list of actions before
+    action \a before and returns it.
 
     \sa QWidget::insertAction() addSeparator()
 */
@@ -966,9 +969,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     } else
 #endif
     {
-#ifdef QT_COMPAT
         emit aboutToShow();
-#endif
         show();
     }
 

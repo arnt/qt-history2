@@ -221,8 +221,8 @@ public:
     QT_COMPAT int frameWidth() const;
 
 signals:
-    QT_COMPAT void activated(int itemId);
-    QT_COMPAT void highlighted(int itemId);
+    QT_MOC_COMPAT void activated(int itemId);
+    QT_MOC_COMPAT void highlighted(int itemId);
 
 private slots:
     void compatActivated(QAction *);

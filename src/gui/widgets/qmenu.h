@@ -45,8 +45,10 @@ public:
 #endif
     QAction *addAction(const QString &text);
     QAction *addAction(const QIconSet &icon, const QString &text);
-    QAction *addAction(const QString &text, const QObject *receiver, const char* member);
-    QAction *addAction(const QIconSet &icon, const QString &text, const QObject *receiver, const char* member);
+    QAction *addAction(const QString &text, const QObject *receiver, const char* member, 
+                       const QKeySequence& shortcut = 0);
+    QAction *addAction(const QIconSet &icon, const QString &text, const QObject *receiver, const char* member, 
+                       const QKeySequence& shortcut = 0);
     QAction *addMenu(const QString &text, QMenu *menu);
     QAction *addSeparator();
 
@@ -78,6 +80,7 @@ public:
 #endif
 
 signals:
+    void aboutToShow();
     void activated(QAction *action);
     void highlighted(QAction *action);
 
@@ -269,10 +272,9 @@ protected:
     }
 
 signals:
-    QT_COMPAT void aboutToHide();
-    QT_COMPAT void aboutToShow();
-    QT_COMPAT void activated(int itemId);
-    QT_COMPAT void highlighted(int itemId);
+    QT_MOC_COMPAT void aboutToHide();
+    QT_MOC_COMPAT void activated(int itemId);
+    QT_MOC_COMPAT void highlighted(int itemId);
 
 private slots:
     void compatActivated(QAction *);

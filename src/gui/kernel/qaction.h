@@ -142,7 +142,7 @@ signals:
     void triggered();
     void hovered();
 #ifdef QT_COMPAT
-    QT_COMPAT void activated();
+    QT_MOC_COMPAT void activated();
 #endif
 
 private:

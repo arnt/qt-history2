@@ -37,7 +37,7 @@
   QMenu globals
  *****************************************************************************/
 bool qt_mac_no_menubar_icons = false;
-bool qt_mac_no_native_menubar = false;
+bool qt_mac_no_native_menubar = true;
 bool qt_mac_no_menubar_merge = false;
 
 static uint qt_mac_menu_static_cmd_id = 'QT00';
@@ -298,12 +298,10 @@ OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
             if(GetMenuItemProperty(mr, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget), 0, &widget) == noErr) {
                 if(QMenu *qmenu = ::qt_cast<QMenu*>(widget)) {
                     handled_event = true;
-#ifdef QT_COMPAT
                     if(ekind == kEventMenuOpening) 
                         emit qmenu->aboutToShow();
                     else 
                         emit qmenu->aboutToHide();
-#endif
                 }
             }
 #ifdef QT_COMPAT
@@ -730,7 +728,6 @@ QMenuBarPrivate::QMacMenuBarPrivate::removeAction(QMacMenuAction *action)
 void
 QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
 {
-    return;
     if(!qt_mac_no_native_menubar) {
         if(!parent && !QMacMenuBarPrivate::fallback) {
             QMacMenuBarPrivate::fallback = q;
