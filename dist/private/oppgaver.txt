@@ -33,6 +33,9 @@ Bugs
    Dobbeltklikk bug:
       Trippelklikk gir to dobbeltklikk.
 
+
+   Får ikke alltid resize event før show.
+
 Funksjonalitet:
 ---------------
 
