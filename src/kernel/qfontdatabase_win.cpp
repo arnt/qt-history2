@@ -29,7 +29,7 @@
 
 #include "qt_windows.h"
 
-#define QFONTDATABASE_DEBUG
+// #define QFONTDATABASE_DEBUG
 
 static
 int CALLBACK
@@ -74,7 +74,7 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRICEX *textmetric, int /*type*/, LPARAM /
 	    styleKey.weight = QFont::DemiBold;
 	else if ( weight < 800 )
 	    styleKey.weight = QFont::Bold;
-	else 
+	else
 	    styleKey.weight = QFont::Black;
 
 	QtFontFamily *family = db->family( familyName, TRUE );
@@ -125,7 +125,7 @@ void populate_database(const QString& fam)
         }
         lf.lfPitchAndFamily = 0;
 
-        EnumFontFamiliesEx( dummy, &lf, 
+        EnumFontFamiliesEx( dummy, &lf,
             (FONTENUMPROC)storeFont, (LPARAM)db, 0 );
     } , {
         LOGFONTA lf;
@@ -176,7 +176,7 @@ void QFontDatabase::createDatabase()
 
 }
 
-static inline void load(const QString &family = QString::null,  int = -1 ) 
+static inline void load(const QString &family = QString::null,  int = -1 )
 {
     populate_database( family );
 }
