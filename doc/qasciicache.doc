@@ -244,7 +244,7 @@
 /*!
   \fn type *QAsciiCache::find( const char *k, bool ref ) const
 
-  Returns the item associated with \ k, or null if the key does not
+  Returns the item associated with \a k, or null if the key does not
   exist in the cache.  If \a ref is TRUE (the default), the item is
   moved to the front of the LRU list.
 
