@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#47 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -822,6 +822,9 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 
 void QMultiLineEdit::pageDown( bool mark )
 { 
+    bool oldAuto = autoUpdate();
+    if ( mark )
+	setAutoUpdate( FALSE );
     int delta = cursorY - topCell();
     int pageSize = viewHeight() / cellHeight();
     int newTopCell = QMIN( topCell() + pageSize, numLines() - 1 - pageSize );
@@ -841,19 +844,22 @@ void QMultiLineEdit::pageDown( bool mark )
 	cursorY = newTopCell + delta;
 	cursorX = mapFromView( curXPos, cursorY );
 	if ( mark )
-	    newMark( cursorX, cursorY );
+	    newMark( cursorX, cursorY, FALSE );
 	setTopCell( newTopCell );
     } else { // just move the cursor
 	cursorY = QMIN( cursorY + pageSize, numLines() - 1);
 	cursorX = mapFromView( curXPos, cursorY );
 	if ( mark )
-	    newMark( cursorX, cursorY );
+	    newMark( cursorX, cursorY, FALSE );
 	makeVisible();
     }
-    if ( mark )
-	repaint( FALSE );
-    else
-	updateCell( oldY, 0, FALSE );
+    if ( oldAuto )
+	if ( mark ) {
+	    setAutoUpdate( TRUE );
+	    repaint( FALSE );
+	} else {
+	    updateCell( oldY, 0, FALSE );
+	}
     if ( !mark )
 	turnMarkOff();
 }
@@ -866,6 +872,9 @@ void QMultiLineEdit::pageDown( bool mark )
 
 void QMultiLineEdit::pageUp( bool mark )
 {
+    bool oldAuto = autoUpdate();
+    if ( mark )
+	setAutoUpdate( FALSE );
     int delta = cursorY - topCell();
     int pageSize = viewHeight() / cellHeight();
     bool partial = delta == pageSize && viewHeight() != pageSize * cellHeight();
@@ -887,18 +896,21 @@ void QMultiLineEdit::pageUp( bool mark )
 	    cursorY--;
 	cursorX = mapFromView( curXPos, cursorY );
 	if ( mark )
-	    newMark( cursorX, cursorY );
+	    newMark( cursorX, cursorY, FALSE );
 	setTopCell( newTopCell );
     } else { // just move the cursor
 	cursorY = QMAX( cursorY - pageSize, 0 );
 	cursorX = mapFromView( curXPos, cursorY );
 	if ( mark )
-	    newMark( cursorX, cursorY );
+	    newMark( cursorX, cursorY, FALSE );
     }
-    if ( mark )
-	repaint( FALSE );
-    else
-	updateCell( oldY, 0, FALSE );
+    if ( oldAuto )
+	if ( mark ) {
+	    setAutoUpdate( TRUE );
+	    repaint( FALSE );
+	} else {
+	    updateCell( oldY, 0, FALSE );
+	}
     if ( !mark )
 	turnMarkOff();
 }
@@ -1548,8 +1560,13 @@ void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
     int newX = xPosToCursorPos( *getString( newY ), fontMetrics(),
 				e->pos().x() - BORDER + xOffset(),
 				cellWidth() - 2 * BORDER );
+
+    if ( markDragX == newX && markDragY == newY )
+	return;
+    int oldY = markDragY;
     newMark( newX, newY, FALSE );
-    repaint( FALSE ); //###
+    for ( int i = QMIN(oldY,newY); i <= QMAX(oldY,newY); i++ )
+	updateCell( i, 0, FALSE );
 }
 
 
