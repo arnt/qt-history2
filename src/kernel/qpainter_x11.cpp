@@ -2556,6 +2556,9 @@ void QPainter::drawCubicBezier( const QPointArray &a, int index )
     The default, (-1, -1), means all the way to the bottom right of
     the pixmap.
 
+    Currently the mask of the pixmap or it's alpha channel are ignored
+    when painting on a QPrinter.
+
     \sa bitBlt(), QPixmap::setMask()
 */
 

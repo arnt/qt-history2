@@ -2275,6 +2275,8 @@ void QPainter::drawPixmap( const QRect &r, const QPixmap &pm )
     if device() is a QPixmap or a QWidget, or else draw it directly,
     if device() is a QPrinter or QPicture.
 
+    Currently alpha masks of the image are ignored when painting on a QPrinter.
+
     \sa drawPixmap() QPixmap::convertFromImage()
 */
 void QPainter::drawImage( int x, int y, const QImage & image,
