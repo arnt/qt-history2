@@ -1584,6 +1584,7 @@ void QWindowsStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
     else
 	drawPanel( p, x, y, w, h, g, on || down, 1, thefill );
 
+#if defined(Q_WS_WIN)
     if ( on && 
 	( qWinVersion() == WV_2000 ||
 	  qWinVersion() == WV_98 ||
@@ -1591,6 +1592,7 @@ void QWindowsStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
         p->setPen( g.button() );
         p->drawRect( x + 1, y + 1, w - 2, h - 2 );
     }
+#endif
 }
 
 /*!
@@ -1604,6 +1606,7 @@ void QWindowsStyle::drawDropDownButton( QPainter *p, int x, int y, int w, int h,
     else
 	drawPanel( p, x, y, w, h, g, down, 1, fill );
 
+#if defined(Q_WS_WIN)
     if ( down && 
 	( qWinVersion() == WV_2000 ||
 	  qWinVersion() == WV_98 ||
@@ -1611,6 +1614,7 @@ void QWindowsStyle::drawDropDownButton( QPainter *p, int x, int y, int w, int h,
         p->setPen( g.button() );
         p->drawRect( x + 1, y + 1, w - 2, h - 2 );
     }
+#endif
 }
 
 #endif
