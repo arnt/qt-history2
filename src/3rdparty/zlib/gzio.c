@@ -205,7 +205,7 @@ local gzFile gz_open (path, mode, fd)
 /* ===========================================================================
      Opens a gzip (.gz) file for reading or writing.
 */
-gzFile Q_ZEXPORT gzopen (path, mode)
+gzFile ZEXPORT gzopen (path, mode)
     const char *path;
     const char *mode;
 {
@@ -391,7 +391,7 @@ local int destroy (s)
      Reads the given number of uncompressed bytes from the compressed file.
    gzread returns the number of bytes actually read (0 for end of file).
 */
-int Q_ZEXPORT gzread (file, buf, len)
+int ZEXPORT gzread (file, buf, len)
     gzFile file;
     voidp buf;
     unsigned len;
@@ -938,7 +938,7 @@ local uLong getLong (s)
      Flushes all pending output if necessary, closes the compressed file
    and deallocates all the (de)compression state.
 */
-int Q_ZEXPORT gzclose (file)
+int ZEXPORT gzclose (file)
     gzFile file;
 {
     int err;
