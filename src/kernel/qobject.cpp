@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#43 $
 **
 ** Implementation of QObject class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#42 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#43 $";
 #endif
 
 
@@ -735,6 +735,8 @@ static void err_member_notfound( int code, QObject *object, const char *member,
 
 #endif // CHECK_RANGE
 
+/*! Connects \e signal from object \e sender to \e member in object \e
+  receiver.  \sa disconnect(). */
 
 bool QObject::connect( QObject *sender,         const char *signal,
 		       const QObject *receiver, const char *member )
