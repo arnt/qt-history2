@@ -13,6 +13,9 @@
 FormDialog::FormDialog()
     : staffCursor( "staff" )
 {
+    staffCursor.setTrimmed( "forename", TRUE );
+    staffCursor.setTrimmed( "surname",  TRUE );
+
     QLabel	*forenameLabel = new QLabel( "Forename:", this );
     QLineEdit	*forenameEdit  = new QLineEdit( this );
     QLabel	*surnameLabel  = new QLabel( "Surname:", this );
@@ -33,8 +36,6 @@ FormDialog::FormDialog()
     grid->activate();
 
     idIndex = staffCursor.index( "id" );
-    staffCursor.setTrimmed( "forename", TRUE );
-    staffCursor.setTrimmed( "surname",  TRUE );
     staffCursor.select( idIndex );
     staffCursor.first();
 

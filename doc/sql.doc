@@ -796,6 +796,18 @@ QSqlForm since they will need to be accessed outside the constructor.
 
 
 \dontinclude sql/overview/form2/main.cpp
+\skipto setTrimmed
+\printline setTrimmed
+\printline
+
+We call setTrimmed() on the text fields so that any spaces used to right
+pad the fields are removed when the fields are retrieved. 
+
+Note that properties that we might wish to apply to fields, such as
+alignment and validation are achieved in the conventional way, for
+example, by calling QLineEdit::setAlignment and
+QLineEdit::setValidator.
+
 \skipto forenameEdit
 \printline forenameEdit
 
@@ -817,9 +829,8 @@ We add an extra row to the grid containing the save button.
 \printline staffCursor
 \printuntil first
 
-We create the \l QSqlCursor dynamically, create a \l QSqlIndex object
-and then execute a select() using the index. We then move to the first
-record in the result set.
+We create a \l QSqlIndex object and then execute a select() using the
+index. We then move to the first record in the result set.
 
 \skipto new QSqlForm
 \printline 

@@ -135,9 +135,16 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
     it was positioned on.
 
     Example:
-    \dontinclude sql/overview/retrieve1/main.cpp
+
+    \dontinclude sql/overview/retrieve2/main.cpp
     \skipto QSqlCursor
+    \printline QSqlCursor
     \printuntil }
+
+    We create a cursor specifying a table or view name. Then we call
+    select(), which can be parameterised to filter and order the records
+    retrieved. We then iterate through the result set with calls to
+    next(). 
 
 */
 
@@ -266,6 +273,9 @@ QSqlIndex QSqlCursor::sort() const
   are selected.  To select new records, use select(). The \a filter
   will apply to any subsequent select() calls that do not explicitly
   specify a filter.
+
+  The filter is an SQL \c WHERE clause without the keyword 'WHERE', e.g.
+  <tt>id=751</tt>.
 
 
 */
@@ -416,20 +426,21 @@ QSqlIndex QSqlCursor::index( const char* fieldName ) const
 
 /*!  Selects all fields in the cursor from the database matching the
   filter criteria \a filter.  The data is returned in the order
-  specified by the index \a sort.  Note that the \a filter string will
-  be placed in the generated WHERE clause, but should \e not include
-  the 'WHERE' keyword.  The cursor is initially positioned to an
-  invalid row, therefore data cannot be retrieved.  To move to a valid
-  row, use seek(), first(), last(), prev() or next(). For example:
+  specified by the index \a sort. The \a filter is a string containing
+  an SQL \c WHERE clause but without the 'WHERE' keyword. The cursor is
+  initially positioned at an invalid row.  To move to a valid row, use
+  seek(), first(), last(), prev() or next().
 
+    Example:
   \code
-  QSqlCursor myCursor( "Employee" );
-  myCursor.select( "deptno=10" ); // select everything in department 10
-  while( myCursor.next() ) {
+  QSqlCursor cur( "Employee" ); // Use the Employee table or view
+  cur.select( "deptno=10" ); // select all records in department 10
+  while( cur.next() ) {
       ... // process data
   }
   ...
-  myCursor.select( "deptno>10", myCursor.index( "deptno DESC" ) ); // select other departments, ordered descending by department number
+  // select records in other departments, ordered descending by department number
+  cur.select( "deptno>10", cur.index( "deptno DESC" ) );
   ...
   \endcode
 
@@ -438,13 +449,13 @@ QSqlIndex QSqlCursor::index( const char* fieldName ) const
   subsequent select() calls that do not explicitly specify a sort.
 
   \code
-  QSqlCursor myCursor( "Employee" );
-  myCursor.select( "deptno=10" ); // select everything in department 10
-  while( myCursor.next() ) {
+  QSqlCursor cur( "Employee" );
+  cur.select( "deptno=10" ); // select all records in department 10
+  while( cur.next() ) {
       ... // process data
   }
   ...
-  myCursor.select();  // re-select everything in department 10
+  cur.select();  // re-select all records in department 10
   ...
   \endcode
 
@@ -475,7 +486,7 @@ bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
   recent.  If there is no current sort, the order in which the rows are
   returned is undefined.  The records are filtered according to the
   filter specified by the last call to setFilter() or the last call to
-  select() that sepcified a filter, whichever is the most recent. If
+  select() that specified a filter, whichever is the most recent. If
   there is no current filter, all records are returned.  The cursor is
   initially positioned at an invalid row.  To move to a valid row, use
   seek(), first(), last(), prev() or next().
@@ -514,19 +525,19 @@ bool QSqlCursor::select( const QSqlIndex& sort )
   table's primary index:
 
   \code
-  QSqlCursor myCursor( "Employee" );
-  QSqlIndex pk = myCursor.primaryIndex();
-  myCursor.setValue( "id", 10 );
-  myCursor.select( pk, pk ); // generates "select ... from Employee where id=10 order by id;"
+  QSqlCursor cur( "Employee" );
+  QSqlIndex pk = cur.primaryIndex();
+  cur.setValue( "id", 10 );
+  cur.select( pk, pk ); // generates "SELECT ... FROM Employee WHERE id=10 ORDER BY id;"
   ...
   \endcode
 
   In this example the QSqlIndex, pk, is used for two different purposes.
-  When used as the filter argument, the field names it contains are used
-  for the WHERE clause, each set to the current cursor value, "WHERE
-  id=10" in this case. When used as the sort argument the field names it
-  contains are used for the ORDER BY clause, "ORDER BY id" in this
-  example.
+  When used as the filter (first) argument, the field names it contains
+  are used to construct the WHERE clause, each set to the current cursor
+  value, <tt>WHERE id=10</tt> in this case. When used as the sort
+  (second) argument the field names it contains are used for the ORDER
+  BY clause, <tt>ORDER BY id</tt> in this example.
 
 */
 bool QSqlCursor::select( const QSqlIndex & filter, const QSqlIndex & sort )
@@ -539,12 +550,12 @@ bool QSqlCursor::select( const QSqlIndex & filter, const QSqlIndex & sort )
   cursor is QSqlCursor::Writable.
 
   \code
-  QSqlCursor cursor( "Employee" );
-  cursor.setMode( QSqlCursor::Writeable ); // allow insert/update/delete
+  QSqlCursor cur( "Employee" );
+  cur.setMode( QSqlCursor::Writeable ); // allow insert/update/delete
   ...
-  cursor.setMode( QSqlCursor::Insert | QSqlCursor::Update ); // allow inserts and updates only
+  cur.setMode( QSqlCursor::Insert | QSqlCursor::Update ); // allow inserts and updates only
   ...
-  cursor.setMode( QSqlCursor::ReadOnly ); // no inserts/updates/deletes allowed
+  cur.setMode( QSqlCursor::ReadOnly ); // no inserts/updates/deletes allowed
 
   \endcode
 */
@@ -596,9 +607,10 @@ bool QSqlCursor::isCalculated( const QString& name ) const
 }
 
 /*! Sets field \a name to \a trim.  If the field \a name does not
-  exist, nothing happens.  The value of a trimmed field is
-  right-trimmed of all blank spaces if the field type is string or
-  cstring.
+  exist, nothing happens.  
+  
+    When a trimmed field of type string or cstring is read from the
+    database any trailing (right-most) spaces are removed.
 
   \sa isTrimmed() QVariant()
 */
@@ -612,6 +624,9 @@ void QSqlCursor::setTrimmed( const QString& name, bool trim )
 
 /*! Returns TRUE if the field \a name is trimmed, otherwise FALSE is
   returned. If the field \a name does not exist, FALSE is returned.
+
+    When a trimmed field of type string or cstring is read from the
+    database any trailing (right-most) spaces are removed.
 
   \sa setTrimmed()
 */
@@ -745,6 +760,15 @@ QString QSqlCursor::toString( const QSqlIndex& i, QSqlRecord* rec, const QString
     number of rows affected by the insert.  For error information, use
     lastError().
 
+    \dontinclude sql/overview/insert2/main.cpp
+    \skipto prices
+    \printline prices
+    \printuntil insert 
+
+    We create a cursor on the prices table and acquire a pointer to the
+    insert buffer. We set each field's value and then call insert() to
+    save the data in the database. 
+
   \sa setMode() lastError()
 */
 
@@ -861,17 +885,18 @@ QSqlRecord* QSqlCursor::primeInsert()
   updated, or 0 if there was an error (for example, if the cursor has no
   primary index). For error information, use lastError().  For example:
 
-  \code
+  \dontinclude sql/overview/update/main.cpp
+  \skipto prices
+  \printline prices
+  \printuntil update
+  \printline 
 
-  QSqlCursor empCursor ( "Employee" );
-  empCursor.select( "id=10");
-  if ( empCursor.next() ) {
-      QSqlRecord* buf = empCursor.primeUpdate();
-      buf->setValue( "forename", "Dave" );
-      empCursor.update();  // update employee name using primary index
-  }
-
-  \endcode
+  Here we create a cursor and select the record we wish to update. We
+  move to the record and acquire a pointer to the update buffer. We
+  calculate a new value and insert it into the buffer with the
+  setValue() call. Finally we call update() which uses the record's
+  primary index to update the record in the database with the contents
+  of the update buffer.
 
   Note that if the primary index does not uniquely distinguish records
   the database may be changed into an inconsistent state.
@@ -929,16 +954,15 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
   record. Returns the number of records which were deleted.  For error
   information, use lastError(). For example:
 
-  \code
+    \dontinclude sql/overview/del/main.cpp
+    \skipto prices
+    \printline prices
+    \printuntil }
 
-  QSqlCursor empCursor ( "Employee" );
-  empCursor.select( "id=10");
-  if ( empCursor.next() ) {
-      empCursor.primeDelete();
-      empCursor.del();  // delete employee #10
-  }
-
-  \endcode
+    Here we create the cursor and select the record we wish to delete.
+    If the record exists, cur.next() returns TRUE, we call primeDelete()
+    to populate the delete buffer with the cursor's values, e.g. with an
+    id of 999 and then call del() to delete the record.
 
   \sa primeDelete() setMode() lastError()
 */
@@ -959,6 +983,8 @@ int QSqlCursor::del( bool invalidate )
    invalidate is TRUE (the default), the current cursor can no longer
    be navigated. A new select() call must be made before you can move to
    a valid record. For error information, use lastError().
+
+   The \a filter is an SQL \c WHERE clause, e.g. <tt>id=500</tt>.
 
    \sa setMode() lastError()
 */
