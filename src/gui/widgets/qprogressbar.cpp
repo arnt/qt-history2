@@ -112,8 +112,6 @@ bool QProgressBarPrivate::repaintRequired() const
     QFtp or QHttp to download items when they are unable to determine the
     size of the item being downloaded.
 
-    \sa QProgressDialog
-
     \inlineimage macintosh-progressbar.png Screenshot in Macintosh style
     \inlineimage windows-progressbar.png Screenshot in Windows style
 
@@ -129,12 +127,9 @@ bool QProgressBarPrivate::repaintRequired() const
 */
 
 /*!
-    Constructs a progress bar.
+    Constructs a progress bar with the given \a parent.
 
-    By default, the minimum step value is set to 0, and the
-    maximum to 100.
-
-    The \a parent, ais passed on to the QWidget::QWidget() constructor.
+    By default, the minimum step value is set to 0, and the maximum to 100.
 
     \sa setTotalSteps()
 */
