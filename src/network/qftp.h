@@ -147,7 +147,7 @@ private:
 
 private slots:
     void startNextCommand();
-    void piFinishedOk( const QString& );
+    void piFinished( const QString& );
     void piError( const QString& );
     void piConnectState( int );
 
