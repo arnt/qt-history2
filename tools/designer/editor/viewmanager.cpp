@@ -106,6 +106,9 @@ void ViewManager::setError( int line )
 {
     QTextParag *p = ( (Editor*)curView )->document()->paragAt( line );
     if ( p ) {
+	( (Editor*)curView )->setErrorSelection( line );
+	( (Editor*)curView )->setCursorPosition( line, 0 );
+	( (Editor*)curView )->viewport()->setFocus();
 	( (Editor*)curView )->makeFunctionVisible( p );
 	ParagData *paragData = (ParagData*)p->extraData();
 	if ( !paragData )
@@ -113,9 +116,6 @@ void ViewManager::setError( int line )
 	paragData->marker = ParagData::Error;
 	p->setExtraData( paragData );
 	markerWidget->doRepaint();
-	( (Editor*)curView )->setErrorSelection( line );
-	( (Editor*)curView )->setCursorPosition( line, 0 );
-	( (Editor*)curView )->viewport()->setFocus();
     }
 }
 
@@ -129,6 +129,9 @@ void ViewManager::setStep( int line )
     }
     p = ( (Editor*)curView )->document()->paragAt( line );
     if ( p ) {
+	( (Editor*)curView )->setStepSelection( line );
+	( (Editor*)curView )->setCursorPosition( line, 0 );
+	( (Editor*)curView )->viewport()->setFocus();
 	( (Editor*)curView )->makeFunctionVisible( p );
 	ParagData *paragData = (ParagData*)p->extraData();
 	if ( !paragData )
@@ -136,9 +139,6 @@ void ViewManager::setStep( int line )
  	paragData->step = TRUE;
 	p->setExtraData( paragData );
 	markerWidget->doRepaint();
-	( (Editor*)curView )->setStepSelection( line );
-	( (Editor*)curView )->setCursorPosition( line, 0 );
-	( (Editor*)curView )->viewport()->setFocus();
     }
 }
 
@@ -158,6 +158,10 @@ void ViewManager::setStackFrame( int line )
 {
     QTextParag *p = ( (Editor*)curView )->document()->paragAt( line );
     if ( p ) {
+	( (Editor*)curView )->sync();
+	( (Editor*)curView )->setCursorPosition( line, 0 );
+	( (Editor*)curView )->ensureCursorVisible();
+	( (Editor*)curView )->viewport()->setFocus();
 	( (Editor*)curView )->makeFunctionVisible( p );
 	ParagData *paragData = (ParagData*)p->extraData();
 	if ( !paragData )
@@ -165,10 +169,6 @@ void ViewManager::setStackFrame( int line )
  	paragData->stackFrame = TRUE;
 	p->setExtraData( paragData );
 	markerWidget->doRepaint();
-	( (Editor*)curView )->sync();
-	( (Editor*)curView )->setCursorPosition( line, 0 );
-	( (Editor*)curView )->ensureCursorVisible();
-	( (Editor*)curView )->viewport()->setFocus();
     }
 }
 
