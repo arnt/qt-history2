@@ -5275,7 +5275,7 @@ static ArgEscapeData findArgEscapes(const QString &s)
 }
 
 static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int field_width,
-                                 const QString &arg, const QString &larg)
+                                 const QString &arg, const QString &larg, const QChar &fillChar = QLatin1Char(' '))
 {
     const QChar *uc_begin = s.unicode();
     const QChar *uc_end = uc_begin + s.length();
@@ -5331,7 +5331,7 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
 
             if (field_width > 0) { // left padded
                 for (uint i = 0; i < pad_chars; ++i)
-                    (rc++)->unicode() = ' ';
+                    (rc++)->unicode() = fillChar.unicode();
             }
 
             if (locale_arg) {
@@ -5345,7 +5345,7 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
 
             if (field_width < 0) { // right padded
                 for (uint i = 0; i < pad_chars; ++i)
-                    (rc++)->unicode() = ' ';
+                    (rc++)->unicode() = fillChar.unicode();
             }
 
             if (++repl_cnt == d.occurrences) {
@@ -5387,7 +5387,7 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
     If there is no place marker (\c %1, \c %2, etc.), a warning
     message is output and the result is undefined.
 */
-QString QString::arg(const QString &a, int fieldWidth) const
+QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) const
 {
     ArgEscapeData d = findArgEscapes(*this);
 
@@ -5396,7 +5396,7 @@ QString QString::arg(const QString &a, int fieldWidth) const
                   a.latin1());
         return *this;
     }
-    return replaceArgEscapes(*this, d, fieldWidth, a, a);
+    return replaceArgEscapes(*this, d, fieldWidth, a, a, fillChar);
 }
 
 /*!
@@ -5522,7 +5522,7 @@ QString QString::arg(const QString &a, int fieldWidth) const
     string. \a base must be between 2 and 36, with 8 giving octal, 10
     decimal, and 16 hexadecimal numbers.
 */
-QString QString::arg(Q_LLONG a, int fieldWidth, int base) const
+QString QString::arg(Q_LLONG a, int fieldWidth, int base, const QChar &fillChar) const
 {
     ArgEscapeData d = findArgEscapes(*this);
 
@@ -5542,7 +5542,7 @@ QString QString::arg(Q_LLONG a, int fieldWidth, int base) const
         locale_arg = locale.d->longLongToString(a, -1, base, -1, QLocalePrivate::ThousandsGroup);
     }
 
-    return replaceArgEscapes(*this, d, fieldWidth, arg, locale_arg);
+    return replaceArgEscapes(*this, d, fieldWidth, arg, locale_arg, fillChar);
 }
 
 /*!
@@ -5552,7 +5552,7 @@ QString QString::arg(Q_LLONG a, int fieldWidth, int base) const
     string. \a base must be between 2 and 36, with 8 giving octal, 10
     decimal, and 16 hexadecimal numbers.
 */
-QString QString::arg(Q_ULLONG a, int fieldWidth, int base) const
+QString QString::arg(Q_ULLONG a, int fieldWidth, int base, const QChar &fillChar) const
 {
     ArgEscapeData d = findArgEscapes(*this);
 
@@ -5572,7 +5572,7 @@ QString QString::arg(Q_ULLONG a, int fieldWidth, int base) const
         locale_arg = locale.d->unsLongLongToString(a, -1, base, -1, QLocalePrivate::ThousandsGroup);
     }
 
-    return replaceArgEscapes(*this, d, fieldWidth, arg, locale_arg);
+    return replaceArgEscapes(*this, d, fieldWidth, arg, locale_arg, fillChar);
 }
 
 /*!
@@ -5598,11 +5598,11 @@ QString QString::arg(Q_ULLONG a, int fieldWidth, int base) const
 /*!
     \overload
 */
-QString QString::arg(QChar a, int fieldWidth) const
+QString QString::arg(QChar a, int fieldWidth, const QChar &fillChar) const
 {
     QString c;
     c += a;
-    return arg(c, fieldWidth);
+    return arg(c, fieldWidth, fillChar);
 }
 
 /*!
@@ -5610,11 +5610,11 @@ QString QString::arg(QChar a, int fieldWidth) const
 
     \a a is interpreded as a Latin-1 character.
 */
-QString QString::arg(char a, int fieldWidth) const
+QString QString::arg(char a, int fieldWidth, const QChar &fillChar) const
 {
     QString c;
     c += QLatin1Char(a);
-    return arg(c, fieldWidth);
+    return arg(c, fieldWidth, fillChar);
 }
 
 /*!
@@ -5649,7 +5649,7 @@ QString QString::arg(char a, int fieldWidth) const
     the default locale, set by QLocale::setDefaultLocale(). If no default
     locale was specified, the "C" locale is used.
 */
-QString QString::arg(double a, int fieldWidth, char fmt, int prec) const
+QString QString::arg(double a, int fieldWidth, char fmt, int prec, const QChar &fillChar) const
 {
     ArgEscapeData d = findArgEscapes(*this);
 
@@ -5696,7 +5696,7 @@ QString QString::arg(double a, int fieldWidth, char fmt, int prec) const
         locale_arg = locale.d->doubleToString(a, prec, form, -1, flags);
     }
 
-    return replaceArgEscapes(*this, d, fieldWidth, arg, locale_arg);
+    return replaceArgEscapes(*this, d, fieldWidth, arg, locale_arg, fillChar);
 }
 
 
