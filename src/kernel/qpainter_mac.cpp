@@ -1746,12 +1746,12 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
     drawTile( this, x, y, w, h, pixmap, sx, sy );
 }
 
-void QPainter::drawText( int x, int y, const QString &str, int from, int len, QPainter::TextDirection)
+void QPainter::drawText( int x, int y, const QString &str, int from, int len, QPainter::TextDirection dir)
 {
-    drawText(x, y, str.mid(from), len);
+    drawText(x, y, str.mid(from), len, dir);
 }
 
-void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::TextDirection)
+void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::TextDirection dir)
 {
     if ( !isActive() )
 	return;
