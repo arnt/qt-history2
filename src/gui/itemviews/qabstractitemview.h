@@ -18,11 +18,10 @@
 #include <qabstractitemmodel.h>
 #include <qitemselectionmodel.h>
 #include <qabstractitemdelegate.h>
-#include <qdragobject.h>
-#include <qevent.h>
-#include <qdatetime.h>
 
 class QMenu;
+class QDrag;
+class QEvent;
 class QAbstractItemViewPrivate;
 
 class Q_GUI_EXPORT QAbstractItemView : public QViewport
@@ -188,7 +187,7 @@ protected:
     virtual QItemSelectionModel::SelectionFlags selectionCommand(const QModelIndex &index,
                                                                  const QEvent *event = 0) const;
 
-    virtual QDragObject *dragObject();
+    virtual QDrag *drag();
     virtual void startDrag();
     virtual bool isDragEnabled(const QModelIndex &index) const;
 

@@ -691,10 +691,10 @@ void QListView::resizeEvent(QResizeEvent *e)
 */
 void QListView::dragMoveEvent(QDragMoveEvent *e)
 {
-    if (!model()->canDecode(e)) {
-        e->ignore();
-        return;
-    }
+//     if (!model()->canDecode(e)) {
+//         e->ignore();
+//         return;
+//     }
 
     QPoint pos = e->pos();
     if (d->shouldAutoScroll(pos))
@@ -767,7 +767,7 @@ void QListView::dropEvent(QDropEvent *e)
 /*!
   \reimp
 */
-QDragObject *QListView::dragObject()
+QDrag *QListView::drag()
 {
     // This function does the same thing as in QAbstractItemView,
     // plus adding viewitems to the draggedItems list.
@@ -775,22 +775,22 @@ QDragObject *QListView::dragObject()
     QModelIndexList indexes = selectionModel()->selectedIndexes();
     QModelIndexList::ConstIterator it = indexes.begin();
 
-    QStyleOptionViewItem option = viewOptions();
-    option.rect = QRect(QPoint(0, 0), itemRect(*it).size());
-    QPixmap pixmap(option.rect.size());
+//     QStyleOptionViewItem option = viewOptions();
+//     option.rect = QRect(QPoint(0, 0), itemRect(*it).size());
+//     QPixmap pixmap(option.rect.size());
     //pixmap.setMask(pixmap.createHeuristicMask());
-    static QColor background(255, 255, 255, 127);
-    pixmap.fill(background);
-    QPainter painter(&pixmap);
-    itemDelegate()->paint(&painter, option, model(), *it);
-    painter.end();
+//     static QColor background(255, 255, 255, 127);
+//     pixmap.fill(background);
+//     QPainter painter(&pixmap);
+//     itemDelegate()->paint(&painter, option, model(), *it);
+//     painter.end();
 
     for (; it != indexes.end(); ++it)
         if (model()->flags(*it) & QAbstractItemModel::ItemIsDragEnabled)
             d->draggedItems.push_back(*it);
-    QDragObject *dragObject = model()->dragObject(indexes, this);
-    //dragObject->setPixmap(pixmap);
-    return dragObject;
+    QDrag *drg = new QDrag(this);
+    drg->setMimeData(model()->mimeData(indexes));
+    return drg;
 }
 
 /*!
@@ -799,7 +799,6 @@ QDragObject *QListView::dragObject()
 void QListView::startDrag()
 {
     QAbstractItemView::startDrag();
-    // clear dragged items
     d->draggedItems.clear();
 }
 

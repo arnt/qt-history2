@@ -20,6 +20,7 @@
 #include <qlistview.h>
 #include <qitemdelegate.h>
 #include <qmap.h>
+#include <qevent.h>
 #include <qlayout.h>
 #include <qscrollbar.h>
 #include <private/qcombobox_p.h>

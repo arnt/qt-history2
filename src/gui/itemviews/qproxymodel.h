@@ -39,15 +39,14 @@ public:
     int columnCount(const QModelIndex &parent) const;
     bool hasChildren(const QModelIndex &parent) const;
 
-    bool canDecode(QMimeSource *src) const;
-    bool decode(QDropEvent *e, const QModelIndex &parent);
-    QDragObject *dragObject(const QModelIndexList &indexes, QWidget *dragSource);
-
     QVariant data(const QModelIndex &index, int role) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     bool setHeaderData(int section, Qt::Orientation orientation, int role, const QVariant &value);
+
+    QMimeData *mimeData(const QModelIndexList &indexes) const;
+    bool setMimeData(const QMimeData *data, QDrag::DropAction action, const QModelIndex &parent);
 
     bool insertRows(int row, const QModelIndex &parent, int count);
     bool insertColumns(int column, const QModelIndex &parent, int count);

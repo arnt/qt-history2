@@ -19,6 +19,7 @@
 #include <qbitmap.h>
 #include <qpair.h>
 #include <qmenu.h>
+#include <qdrag.h>
 #include <qevent.h>
 #include <qeventloop.h>
 #include <qscrollbar.h>
@@ -26,6 +27,7 @@
 #include <qtooltip.h>
 #include <qrubberband.h>
 #include <qitemdelegate.h>
+#include <qdatetime.h>
 #include <qdebug.h>
 
 #include <private/qabstractitemview_p.h>
@@ -1027,8 +1029,8 @@ void QAbstractItemView::contextMenuEvent(QContextMenuEvent *e)
 */
 void QAbstractItemView::dragEnterEvent(QDragEnterEvent *e)
 {
-    if (model()->canDecode(e))
-        e->accept();
+//     if (model()->canDecode(e))
+//         e->accept();
 }
 
 /*!
@@ -1040,11 +1042,11 @@ void QAbstractItemView::dragEnterEvent(QDragEnterEvent *e)
 */
 void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
 {
-    if (!model()->canDecode(e)) {
-        e->ignore();
-        return;
-    }
-    e->accept();
+//    if (!model()->canDecode(e)) {
+//         e->ignore();
+//         return;
+//     }
+//     e->accept();
 
     if (d->shouldAutoScroll(e->pos()))
         startAutoScroll();
@@ -1060,8 +1062,8 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
 void QAbstractItemView::dropEvent(QDropEvent *e)
 {
     QModelIndex index = itemAt(e->pos());
-    if (model()->decode(e, (index.isValid() ? index : root())))
-        e->accept();
+//     if (model()->setMimeData(e->mimeData(), (index.isValid() ? index : root())))
+//         e->accept();
 }
 
 /*!
@@ -1718,26 +1720,28 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
 }
 
 /*!
-    Returns a new drag object that contains the model indexes of all
+    Returns a new drag  that contains the model indexes of all
     the model's selected items.
 
     \sa startDrag()
 */
-QDragObject *QAbstractItemView::dragObject()
+QDrag *QAbstractItemView::drag()
 {
-    QModelIndexList items = selectionModel()->selectedIndexes();
-    return model()->dragObject(items, this);
+    QModelIndexList indexes = selectionModel()->selectedIndexes();
+    QDrag *drag = new QDrag(this);
+    drag->setMimeData(model()->mimeData(indexes));
+    return drag;
 }
 
 /*!
-    Starts a drag by calling drag() on a new dragObject().
+    Starts a drag by calling drag->start().
 */
 void QAbstractItemView::startDrag()
 {
-    QDragObject *obj = dragObject();
-    if (!obj)
+    QDrag *drg = drag();
+    if (!drg)
         return;
-    obj->drag();
+    drg->start();
 }
 
 /*!

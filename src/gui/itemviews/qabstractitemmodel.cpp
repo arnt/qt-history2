@@ -12,113 +12,12 @@
 ****************************************************************************/
 
 #include "qabstractitemmodel.h"
-#include <qevent.h>
-#include <qdragobject.h>
 #include <qdatastream.h>
 #include <qmap.h>
+#include <qsize.h>
 #include <qmime.h>
-#include <qatomic.h>
 #include <qdebug.h>
 #include <private/qabstractitemmodel_p.h>
-
-class QAbstractItemModelDrag : public QDragObject
-{
-public:
-    QAbstractItemModelDrag(const QModelIndexList &indices, QAbstractItemModel *model,
-                           QWidget *dragSource);
-    ~QAbstractItemModelDrag();
-
-    const char *format(int i) const;
-    bool provides(const char *mime) const;
-    QByteArray encodedData(const char *mime) const;
-
-    static bool canDecode(QMimeSource *src);
-    static bool decode(QMimeSource *src, QAbstractItemModel *model, const QModelIndex &parent);
-
-    static const char *format();
-
-    QAbstractItemModel *model;
-    QModelIndexList indices;
-};
-
-QAbstractItemModelDrag::QAbstractItemModelDrag(const QModelIndexList &indices,
-                                               QAbstractItemModel *model,
-                                               QWidget *dragSource)
-    : QDragObject(dragSource), model(model), indices(indices)
-{
-}
-
-QAbstractItemModelDrag::~QAbstractItemModelDrag()
-{
-}
-
-const char *QAbstractItemModelDrag::format(int i) const
-{
-    if (i == 0)
-        return format();
-    return 0;
-}
-
-bool QAbstractItemModelDrag::provides(const char *mime) const
-{
-    return QString(mime) == QString(format());
-}
-
-QByteArray QAbstractItemModelDrag::encodedData(const char *mime) const
-{
-    if (indices.count() <= 0 || !provides(mime))
-        return QByteArray();
-
-    QByteArray encoded;
-    QDataStream stream(&encoded, IO_WriteOnly);
-    QModelIndexList::ConstIterator it = indices.begin();
-    for (; it != indices.end(); ++it) {
-        QMap<int, QVariant> data = model->itemData((*it));
-        stream << data.count();
-        QMap<int, QVariant>::ConstIterator it2 = data.begin();
-        for (; it2 != data.end(); ++it2) {
-            stream << it2.key();
-            stream << it2.value();
-        }
-    }
-    return encoded;
-}
-
-bool QAbstractItemModelDrag::canDecode(QMimeSource *src)
-{
-    return src->provides(format());
-}
-
-bool QAbstractItemModelDrag::decode(QMimeSource *src,
-                                    QAbstractItemModel *model,
-                                    const QModelIndex &parent)
-{
-    if (!canDecode(src))
-        return false;
-
-    QByteArray encoded = src->encodedData(format());
-    QDataStream stream(&encoded, IO_ReadOnly);
-    int row = model->rowCount(parent);
-    int count, role;
-    QVariant data;
-    QModelIndex index;
-    while (!stream.atEnd()) {
-        model->insertRows(row, parent, 1); // append row
-        index = model->index(row, 0, parent); // only insert in col 0
-        stream >> count;
-        for (int i = 0; i < count; ++i) {
-            stream >> role;
-            stream >> data;
-            model->setData(index, role, data);
-        }
-    }
-    return true;
-}
-
-const char *QAbstractItemModelDrag::format()
-{
-    return "application/x-qabstractitemmodeldatalist";
-}
 
 QPersistentModelIndexData QPersistentModelIndexData::shared_null;
 
@@ -539,12 +438,9 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 
 
 /*!
+  \fn QModelIndex QModelIndex::parent() const
   Return the parent of the model index or QModelIndex::Null if it has no parent.
 */
-QModelIndex QModelIndex::parent() const
-{
-    return m ? m->parent(*this) : QModelIndex::Null;
-}
 
 /*!
     \class QAbstractItemModel qabstractitemmodel.h
@@ -851,42 +747,6 @@ bool QAbstractItemModel::hasChildren(const QModelIndex &parent) const
 }
 
 /*!
-    Returns true if decode() would be able to decode \a src; otherwise
-    returns false.
-*/
-bool QAbstractItemModel::canDecode(QMimeSource *src) const
-{
-    return QAbstractItemModelDrag::canDecode(src);
-}
-
-/*!
-    \fn bool QAbstractItemModel::decode(QDropEvent *event, const QModelIndex &parent)
-
-    Decodes data contained in the \a event object, inserting it under the
-    \a parent index if possible.
-
-    Returns true if the data was successfully decoded and inserted;
-    otherwise returns false.
-*/
-bool QAbstractItemModel::decode(QDropEvent *e, const QModelIndex &parent)
-{
-    return QAbstractItemModelDrag::decode(e, this, parent);
-}
-
-/*!
-    \fn QDragObject *QAbstractItemModel::dragObject(const QModelIndexList &indexes, QWidget *dragSource)
-
-    Returns a pointer to a QDragObject object containing the data
-    associated with the \a indexes from the \a dragSource.
-
-    \sa itemData()
-*/
-QDragObject *QAbstractItemModel::dragObject(const QModelIndexList &indices, QWidget *dragSource)
-{
-    return new QAbstractItemModelDrag(indices, this, dragSource);
-}
-
-/*!
     Returns a map with values for all predefined roles in the model
     for the item at the given \a index.
 
@@ -951,6 +811,65 @@ bool QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, Q
     for (QMap<int, QVariant>::ConstIterator it = roles.begin(); it != roles.end(); ++it)
         b = b && setData(index, it.key(), it.value());
     return b;
+}
+
+/*!
+
+*/
+QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
+{
+    if (indexes.count() <= 0)
+        return 0;
+
+    QByteArray encoded;
+    QDataStream stream(&encoded, IO_WriteOnly);
+    QModelIndexList::ConstIterator it = indexes.begin();
+    for (; it != indexes.end(); ++it) {
+        QMap<int, QVariant> data = itemData(*it);
+        stream << data.count();
+        QMap<int, QVariant>::ConstIterator it2 = data.begin();
+        for (; it2 != data.end(); ++it2) {
+            stream << it2.key();
+            stream << it2.value();
+        }
+    }
+
+    static const QString format =  "application/x-qabstractitemmodeldatalist";
+    QMimeData *data = new QMimeData();
+    data->setData(format, encoded);
+    return data;
+}
+
+/*!
+
+*/
+bool QAbstractItemModel::setMimeData(const QMimeData *data, QDrag::DropAction action,
+                                     const QModelIndex &parent)
+{
+    Q_UNUSED(data);
+    Q_UNUSED(action);
+    Q_UNUSED(parent);
+//     static const QString format =  "application/x-qabstractitemmodeldatalist";
+//     if (!data->hasFormat(format))
+//         return false;
+//     QByteArray encoded = data->data(format);
+//     QDataStream stream(&encoded, IO_ReadOnly);
+//     int row = rowCount(parent);
+//     int count, role;
+//     QVariant value;
+//     QModelIndex idx;
+//     while (!stream.atEnd()) {
+//         insertRows(row, parent, 1); // append row
+//         idx = index(row, 0, parent); // only insert in col 0
+//         stream >> count;
+//         for (int i = 0; i < count; ++i) {
+//             stream >> role;
+//             stream >> value;
+//             setData(idx, role, value);
+//         }
+//     }
+//     return true;
+    return false;
 }
 
 /*!

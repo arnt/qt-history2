@@ -72,9 +72,8 @@ public:
     bool equal(const QModelIndex &left, const QModelIndex &right) const;
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
 
-    bool canDecode(QMimeSource *src) const;
-    bool decode(QDropEvent *e, const QModelIndex &parent);
-    QDragObject *dragObject(const QModelIndexList &indices, QWidget *dragSource);
+    QMimeData *mimeData(const QModelIndexList &indexes) const;
+    bool setMimeData(const QMimeData *data, QDrag::DropAction action, const QModelIndex &parent);
 
     // QDirModel specific API
 

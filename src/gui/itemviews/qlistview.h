@@ -111,7 +111,7 @@ protected:
     void dragLeaveEvent(QDragLeaveEvent *e);
     void dropEvent(QDropEvent *e);
 
-    QDragObject *dragObject();
+    QDrag *drag();
     void startDrag();
     bool isDragEnabled(const QModelIndex &index) const;
 

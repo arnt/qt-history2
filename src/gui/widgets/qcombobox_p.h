@@ -20,6 +20,7 @@
 #include <qbasictimer.h>
 #include <qabstractslider.h>
 #include <qstyle.h>
+#include <qpair.h>
 #include <qstyleoption.h>
 #include <qpainter.h>
 #include <qitemdelegate.h>

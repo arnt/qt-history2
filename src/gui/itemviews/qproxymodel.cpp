@@ -170,44 +170,6 @@ bool QProxyModel::hasChildren(const QModelIndex &parent) const
 }
 
 /*!
-    \fn bool QProxyModel::canDecode(QMimeSource *source) const
-
-    Returns true if the model can decode the data provided by the \a source;
-    otherwise returns false.
-*/
-bool QProxyModel::canDecode(QMimeSource *src) const
-{
-    return d->model->canDecode(src);
-}
-
-/*!
-    \fn bool QProxyModel::decode(QDropEvent *e, const QModelIndex &parent)
-
-    Decodes data contained in the \a event object, inserting it under the
-    \a parent index if possible.
-
-    Returns true if the data was successfully decoded and inserted;
-    otherwise returns false.
-
-    \sa QAbstractItemModel::decode()
-*/
-bool QProxyModel::decode(QDropEvent *e, const QModelIndex &parent)
-{
-    return d->model->decode(e, parent);
-}
-
-/*!
-    Returns a pointer to a QDragObject object containing the data
-    associated with the \a indexes from the \a dragSource.
-
-    \sa QAbstractItemModel::dragObject()
-*/
-QDragObject *QProxyModel::dragObject(const QModelIndexList &indexes, QWidget *dragSource)
-{
-    return d->model->dragObject(indexes, dragSource);
-}
-
-/*!
     Returns the data stored in the item with the given \a index under the
     specified \a role.
 */
@@ -245,9 +207,21 @@ QVariant QProxyModel::headerData(int section, Qt::Orientation orientation, int r
 
     \sa QAbstractItemModel::setHeaderData()
 */
-bool QProxyModel::setHeaderData(int section, Qt::Orientation orientation, int role, const QVariant &value)
+bool QProxyModel::setHeaderData(int section, Qt::Orientation orientation,
+                                int role, const QVariant &value)
 {
     return d->model->setHeaderData(section, orientation, role, value);
+}
+
+QMimeData *QProxyModel::mimeData(const QModelIndexList &indexes) const
+{
+    return d->model->mimeData(indexes);
+}
+
+bool QProxyModel::setMimeData(const QMimeData *data, QDrag::DropAction action,
+                              const QModelIndex &parent)
+{
+    return d->model->setMimeData(data, action, parent);
 }
 
 /*!

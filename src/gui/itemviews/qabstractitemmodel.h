@@ -16,6 +16,7 @@
 
 #include <qobject.h>
 #include <qvariant.h>
+#include <qdrag.h>
 
 class QAbstractItemModel;
 
@@ -31,12 +32,13 @@ public:
     inline int row() const { return r; }
     inline int column() const { return c; }
     inline void *data() const { return d; }
-    QModelIndex parent() const;
+    inline QModelIndex parent() const;
     inline const QAbstractItemModel *model() const { return m; }
     inline bool isValid() const { return (r >= 0) && (c >= 0) && (m != 0); }
     inline bool operator==(const QModelIndex &other) const
         { return (other.r == r && other.c == c && other.d == d && other.m == m); }
-    inline bool operator!=(const QModelIndex &other) const { return !(*this == other); }
+    inline bool operator!=(const QModelIndex &other) const
+        { return !(*this == other); }
 private:
     inline QModelIndex(int row, int column, void *data, const QAbstractItemModel *model)
         : r(row), c(column), d(data), m(model) {}
@@ -85,11 +87,8 @@ template<typename T>
 class QList;
 typedef QList<QModelIndex> QModelIndexList;
 
-class QWidget;
-class QDropEvent;
-class QDragObject;
-class QMimeSource;
 class QVariant;
+class QMimeData;
 class QAbstractItemModelPrivate;
 template <class Key, class T>
 class QMap;
@@ -158,10 +157,6 @@ public:
     virtual int columnCount(const QModelIndex &parent) const = 0;
     virtual bool hasChildren(const QModelIndex &parent) const;
 
-    virtual bool canDecode(QMimeSource *src) const;
-    virtual bool decode(QDropEvent *e, const QModelIndex &parent);
-    virtual QDragObject *dragObject(const QModelIndexList &indices, QWidget *dragSource);
-
     virtual QVariant data(const QModelIndex &index, int role = DisplayRole) const = 0;
     virtual bool setData(const QModelIndex &index, int role, const QVariant &value);
     inline bool setData(const QModelIndex &index, const QVariant &value)
@@ -174,9 +169,12 @@ public:
     inline bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value)
         { return setHeaderData(section, orientation, EditRole, value); }
 
-
     virtual QMap<int, QVariant> itemData(const QModelIndex &index) const;
     virtual bool setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles);
+
+    virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
+    virtual bool setMimeData(const QMimeData *data, QDrag::DropAction action,
+                             const QModelIndex &parent);
 
     virtual bool insertRows(int row, const QModelIndex &parent, int count);
     virtual bool insertColumns(int column, const QModelIndex &parent, int count);
@@ -315,5 +313,10 @@ private:
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
 };
+
+// inline implementations 
+
+inline QModelIndex QModelIndex::parent() const
+{ return m ? m->parent(*this) : QModelIndex::Null; }
 
 #endif

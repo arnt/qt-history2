@@ -23,6 +23,7 @@
 #include <qlayout.h>
 #include <qlineedit.h>
 #include <qmenu.h>
+#include <qevent.h>
 #include <qpixmap.h>
 #include <qpushbutton.h>
 #include <qregexp.h>

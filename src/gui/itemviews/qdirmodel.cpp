@@ -13,11 +13,11 @@
 
 #include "qdirmodel.h"
 #include <qfile.h>
+#include <qurl.h>
+#include <qmime.h>
 #include <qvector.h>
 #include <qobject.h>
-#include <qdragobject.h>
 #include <qdatetime.h>
-#include <qevent.h>
 #include <qstyle.h>
 #include <qapplication.h>
 #include <private/qabstractitemmodel_p.h>
@@ -644,23 +644,13 @@ bool QDirModel::lessThan(const QModelIndex &left, const QModelIndex &right) cons
 }
 
 /*!
-  \fn bool QDirModel::canDecode(QMimeSource *source) const
-
-  Returns true if the directory model can decode the \a source
-  information; otherwise returns false.
-*/
-
-bool QDirModel::canDecode(QMimeSource *src) const
-{
-    return QUriDrag::canDecode(src);
-}
-
-/*!
     Returns true if this directory model (whose parent is \a parent),
     can decode drop event \a e.
 */
 
-bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
+bool QDirModel::setMimeData(const QMimeData *data,
+                            QDrag::DropAction action,
+                            const QModelIndex &parent)
 {
     if (!parent.isValid()) {
         qWarning("decode: the parent index is invalid");
@@ -671,30 +661,39 @@ bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
         qWarning("decode: the node does not exist");
         return false;
     }
-    QStringList files;    // FIXME: what about directories ?
-    if (!QUriDrag::decodeLocalFiles(e, files))
-        return false;
+    QList<QUrl> urls = data->urls();
     d->savePersistentIndexes();
     emit rowsAboutToBeRemoved(parent, 0, rowCount(parent) - 1);
     bool success = true;
     QString to = path(parent) + QDir::separator();
-    QStringList::const_iterator it = files.begin();
-    switch (e->action()) {
-    case QDropEvent::Copy:
-        for (; it != files.end(); ++it)
-            success = qt_copy_file(*it, to + QFileInfo(*it).fileName()) && success;
+    QList<QUrl>::const_iterator it = urls.begin();
+
+    switch (action) {
+    case QDrag::DefaultAction:
+    case QDrag::CopyAction:
+        for (; it != urls.end(); ++it) {
+            QString path = (*it).toLocalFile();
+            success = qt_copy_file(path, to + QFileInfo(path).fileName()) && success;
+        }
         break;
-    case QDropEvent::Link:
-        for (; it != files.end(); ++it)
-            success = qt_link_file(*it, to + QFileInfo(*it).fileName()) && success;
+    case QDrag::LinkAction:
+        for (; it != urls.end(); ++it) {
+            QString path = (*it).toLocalFile();
+            success = qt_link_file(path, to + QFileInfo(path).fileName()) && success;
+        }
         break;
-    case QDropEvent::Move:
-        for (; it != files.end(); ++it)
-            success = qt_move_file(*it, to + QFileInfo(*it).fileName()) && success;
+    case QDrag::MoveAction:
+        for (; it != urls.end(); ++it) {
+            QString path = (*it).toLocalFile();
+            success = qt_move_file(path, to + QFileInfo(path).fileName()) && success;
+        }
         break;
     default:
         return false;
     }
+
+    return false;
+
     p->children = d->children(p);
     d->restorePersistentIndexes();
     emit rowsInserted(parent, 0, rowCount(parent) - 1);
@@ -702,19 +701,18 @@ bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
 }
 
 /*!
-  \fn QDragObject *QDirModel::dragObject(const QModelIndexList &indexes, QWidget *dragSource)
 
-  Returns the drag object for the list of model item \a indexes
-  originally dragged from the \a dragSource widget.
 */
 
-QDragObject *QDirModel::dragObject(const QModelIndexList &indices, QWidget *dragSource)
+QMimeData *QDirModel::mimeData(const QModelIndexList &indexes) const
 {
-    QList<QByteArray> uris;
-    QList<QModelIndex>::const_iterator it = indices.begin();
-    for (; it != indices.end(); ++it)
-        uris.append(QUriDrag::localFileToUri(path(*it)));
-    return new QUriDrag(uris, dragSource);
+    QList<QUrl> urls;
+    QList<QModelIndex>::const_iterator it = indexes.begin();
+    for (; it != indexes.end(); ++it)
+        urls << QUrl::fromLocalFile(path(*it));
+    QMimeData *data = new QMimeData();
+    data->setUrls(urls);
+    return data;
 }
 
 /*!

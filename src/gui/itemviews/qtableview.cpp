@@ -18,6 +18,7 @@
 #include <qpainter.h>
 #include <qstyle.h>
 #include <qsize.h>
+#include <qevent.h>
 #include <qscrollbar.h>
 #include <private/qtableview_p.h>
 
