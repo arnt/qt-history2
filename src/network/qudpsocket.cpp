@@ -248,6 +248,14 @@ Q_LONGLONG QUdpSocket::writeDatagram(const char *data, Q_LONGLONG size, const QH
     return sent;
 }
 
+/*! \fn Q_LONGLONG QUdpSocket::writeDatagram(const QByteArray &datagram,
+                                             const QHostAddress &host, Q_UINT16 port)
+    \overload
+
+    Sends the datagram \a datagram to the host address \a host and at
+    port \a port.
+*/
+
 /*!
     Receives a datagram no larger than \a maxSize bytes and stores
     it in \a data. The sender's host address and port is stored in
