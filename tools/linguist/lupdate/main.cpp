@@ -196,12 +196,13 @@ int main( int argc, char **argv )
 			     argv[i] );
 		}
 	    } else {
+		QFileInfo fi(argv[i]);
 		if ( QString(argv[i]).lower().endsWith(".ui") ) {
-        	    fetchtr_ui( argv[i], &fetchedTor, defaultContext, TRUE );
-		    fetchtr_cpp( QString(argv[i]) + ".h", &fetchedTor,
+        	    fetchtr_ui( fi.fileName(), &fetchedTor, defaultContext, TRUE );
+		    fetchtr_cpp( QString(fi.fileName()) + ".h", &fetchedTor,
 				 defaultContext, FALSE );
 		} else {
-        	    fetchtr_cpp( argv[i], &fetchedTor, defaultContext, TRUE );
+        	    fetchtr_cpp( fi.fileName(), &fetchedTor, defaultContext, TRUE );
 		}
 	    }
 	}
