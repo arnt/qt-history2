@@ -498,16 +498,14 @@ static void qt_set_windows_resources()
 	menu.setColor( QPalette::Active, QPalette::Foreground, menuText );
 	menu.setColor( QPalette::Active, QPalette::ButtonText, menuText );
 	const QColor fg = menu.foreground().color(), btn = menu.button().color();
-	QColor disabled( (fg.red()+btn.red())/2,(fg.green()+btn.green())/2,
-			 (fg.blue()+btn.blue())/2);
+	QColor disabled(qt_colorref2qrgb(GetSysColor(COLOR_GRAYTEXT)));
 	menu.setColor( QPalette::Disabled, QPalette::Foreground, disabled );
 	menu.setColor( QPalette::Disabled, QPalette::Text, disabled );
 	menu.setColor( QPalette::Disabled, QPalette::Highlight,
-		      QColor(qt_colorref2qrgb(GetSysColor(
-						  qWinVersion() == Qt::WV_XP ? COLOR_MENUHILIGHT :
-						  COLOR_HIGHLIGHTTEXT))) );
-	menu.setColor( QPalette::Disabled, QPalette::HighlightedText,
-		      QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
+		       QColor(qt_colorref2qrgb(GetSysColor(qWinVersion() == Qt::WV_XP
+							   ? COLOR_MENUHILIGHT
+							   : COLOR_HIGHLIGHT))));
+	menu.setColor( QPalette::Disabled, QPalette::HighlightedText, disabled);
 
 	menu.setColor( QPalette::Inactive, QPalette::Button,
 		      menu.color(QPalette::Active, QPalette::Button));
