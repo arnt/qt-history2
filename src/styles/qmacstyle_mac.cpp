@@ -94,13 +94,12 @@ void QMacStylePrivateObjectWatcher::destroyedObject(QObject *o)
     QWidget::sizeHint() will return the appropriate size for many
     managed widgets (widgets enumerated in \l QStyle::ContentsType).
 
-    \i Effects - QMacStyle (in contrast to QAquaStyle) is not emulating
-    (except where Appearance Manager does not provide certain
-    capabilities), for example QPushButton pulsing effects. In this case a
-    near matching emulation has been implemented, but naturally this will
-    not be identical to the similar functionality built into the Appearance
-    Manager. Please report any issues you see in effects or non-standard
-    widgets.
+    \i Effects - QMacStyle (in contrast to QAquaStyle) uses Appearance
+    Manager for performing most of the drawing, but also uses emulation
+    in a few cases where Appearance Manager does not provide enough
+    flexibility (for example, QPushButton pulsing effects). We tried to
+    make the emulation as close to the original as possible. Please
+    report any issues you see in effects or non-standard widgets.
 
     \endlist
 
