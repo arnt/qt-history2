@@ -36,7 +36,8 @@ int main(int argc, char **argv)
     viewer.addDemoWidget("Paths", new Paths);
     viewer.addDemoWidget("Stretched Pixmap", new Warpix);
 #ifndef QT_NO_OPENGL
-    viewer.addDemoWidget("OpenGL Painter", new GLPainter);
+    if (QGLFormat::hasOpenGL())
+	viewer.addDemoWidget("OpenGL Painter", new GLPainter);
 #endif
     viewer.show();
 
