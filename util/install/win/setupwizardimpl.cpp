@@ -742,7 +742,8 @@ void SetupWizardImpl::clickedSystem( int sys )
 					 "you have difficulties finding the files, or if you don't\n"
 					 "know how to modifiy the environment settings of your system." );
 	}
-	if ( globalInformation.sysId() != GlobalInformation::Borland && !findFile( "string.h" ) ) {
+	if ( globalInformation.sysId() != GlobalInformation::Borland && globalInformation.sysId() != GlobalInformation::MinGW 
+	    && !findFile( "string.h" ) ) {
 	    // ### try to adjust environment
 	    QMessageBox::critical( this, "Environment problems",
 				  "The file 'string.h' could not be located in any directory\n"

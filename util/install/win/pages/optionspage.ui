@@ -382,10 +382,10 @@
                                 </widget>
                                 <widget class="QRadioButton">
                                     <property name="name">
-                                        <cstring>sysMingW</cstring>
+                                        <cstring>sysMinGW</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>MingW32</string>
+                                        <string>MinGW32</string>
                                     </property>
                                     <property name="buttonGroupId">
                                         <number>3</number>
@@ -454,7 +454,7 @@
         <slot>setDisabled(bool)</slot>
     </connection>
     <connection>
-        <sender>sysMingW</sender>
+        <sender>sysMinGW</sender>
         <signal>toggled(bool)</signal>
         <receiver>installIDEIntegration</receiver>
         <slot>setDisabled(bool)</slot>
