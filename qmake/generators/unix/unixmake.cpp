@@ -115,8 +115,8 @@ UnixMakefileGenerator::init()
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
     if(!project->isEmpty("QMAKE_LIBDIR")) {
 	if ( !project->isEmpty("QMAKE_RPATH") )
-	    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR", " " + var("QMAKE_RPATH"),
-								  " " + var("QMAKE_RPATH"), "");
+	    project->variables()["QMAKE_LFLAGS"] += varGlue("QMAKE_LIBDIR", " " + var("QMAKE_RPATH"),
+							    " " + var("QMAKE_RPATH"), "");
 	project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue( "QMAKE_LIBDIR", "-L", " -L", "" );
     }
     if ( project->isActiveConfig("qtopia") ) {
@@ -144,11 +144,11 @@ UnixMakefileGenerator::init()
 	if ( !is_qt ) {
 	    if ( !project->isEmpty("QMAKE_RPATH") ) {
 		if ( !project->isEmpty("QMAKE_RTLDIR_QT") )
-		    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_RTLDIR_QT", " " + var("QMAKE_RPATH"),
-									  " " + var("QMAKE_RPATH"), "");
+		    project->variables()["QMAKE_LFLAGS"] += varGlue("QMAKE_RTLDIR_QT", " " + var("QMAKE_RPATH"),
+								    " " + var("QMAKE_RPATH"), "");
 		else if ( !project->isEmpty("QMAKE_LIBDIR_QT") )
-		    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_QT", " " + var("QMAKE_RPATH"),
-									  " " + var("QMAKE_RPATH"), "");
+		    project->variables()["QMAKE_LFLAGS"] += varGlue("QMAKE_LIBDIR_QT", " " + var("QMAKE_RPATH"),
+								    " " + var("QMAKE_RPATH"), "");
 	    }
 	    if ( !project->isEmpty("QMAKE_LIBDIR_QT") )
 		project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_QT", "-L", " -L", "");
