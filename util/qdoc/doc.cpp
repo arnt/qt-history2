@@ -113,8 +113,9 @@ static QString getEscape( const QString& in, int& pos )
 	return QString( "&gt;" );
     case '\\':
 	// double backslash becomes &#92; so that pass 2 leaves it alone
-    default:
 	pos++;
+	return QString( "&#92;" );
+    default:
 	return QString( "&#92;" );
     }
 }
@@ -267,7 +268,7 @@ static QString getArgument( const QString& in, int& pos )
     */
     if ( pos < (int) in.length() && in[pos] == QChar('{') ) {
 	pos++;
-	while ( pos < (int) in.length() && in[pos].unicode() != '}' )
+	while ( pos < (int) in.length() && in[pos] != QChar('}') )
 	    pos++;
 	pos++;
 	return in.mid( begin + 1, pos - begin - 2 ).stripWhiteSpace();
@@ -302,21 +303,15 @@ static QString getArgument( const QString& in, int& pos )
     }
 }
 
-// ### evil global variables
-
-// QMap<example file, LinkMap>
-static QMap<QString, LinkMap> includeLinkMaps;
-static QMap<QString, LinkMap> walkthroughLinkMaps;
-
-// QMap<function link, QMap<score, ExampleLocation> >
-static QMap<QString, QMap<int, ExampleLocation> > megaExampleMap;
-
-static StringSet includedExamples;
-static StringSet thruwalkedExamples;
+QMap<QString, LinkMap> Doc::includeLinkMaps;
+QMap<QString, LinkMap> Doc::walkthroughLinkMaps;
+QMap<QString, QMap<int, ExampleLocation> > Doc::megaExampleMap;
+StringSet Doc::includedExamples;
+StringSet Doc::thruwalkedExamples;
 
 // QMap<example file, example link>
-static QMap<QString, QString> includedExampleLinks;
-static QMap<QString, QString> thruwalkedExampleLinks;
+QMap<QString, QString> Doc::includedExampleLinks;
+QMap<QString, QString> Doc::thruwalkedExampleLinks;
 
 /*
   The DocParser class is an internal class that implements the first
@@ -1093,8 +1088,9 @@ void DocParser::flushWalkthrough( const Walkthrough& walk, StringSet *included,
     if ( walk.scoreMap().isEmpty() )
 	return;
 
-    bool alreadyIncluded = includedExamples.contains( walk.fileName() );
-    bool alreadyThruwalked = thruwalkedExamples.contains( walk.fileName() );
+    bool alreadyIncluded = Doc::includedExamples.contains( walk.fileName() );
+    bool alreadyThruwalked =
+	    Doc::thruwalkedExamples.contains( walk.fileName() );
 
     int numIncludes = 0;
     int numWalkthroughs = 0;
@@ -1102,7 +1098,6 @@ void DocParser::flushWalkthrough( const Walkthrough& walk, StringSet *included,
     ScoreMap::ConstIterator score = walk.scoreMap().begin();
     while ( score != walk.scoreMap().end() ) {
 	// score.key() is qaction.html#setWhatsThis, (*score) is a HighScore
-
 	if ( ((*score).inInclude() && !alreadyIncluded) ||
 	     (!(*score).inInclude() && !alreadyThruwalked) ) {
 	    if ( (*score).inInclude() )
@@ -1115,13 +1110,14 @@ void DocParser::flushWalkthrough( const Walkthrough& walk, StringSet *included,
 	    int total = (*score).total();
 
 	    QMap<QString, QMap<int, ExampleLocation> >::Iterator entry =
-		    megaExampleMap.find( score.key() );
-	    if ( entry == megaExampleMap.end() ) {
-		megaExampleMap[score.key()].insert( total, exloc );
+		    Doc::megaExampleMap.find( score.key() );
+	    if ( entry == Doc::megaExampleMap.end() ) {
+		Doc::megaExampleMap[score.key()].insert( total, exloc );
 	    } else {
-		// avoid collisions by incrementing score gently
+		// avoid collisions by decrementing the score gently
+		// ### evil because depends on mtime
 		while ( (*entry).contains(total) )
-		    total++;
+		    total--;
 		(*entry).insert( total, exloc );
 		if ( (int) (*entry).count() > AbsoluteMaxExamples )
 		    (*entry).remove( (*entry).begin() );
@@ -1131,16 +1127,13 @@ void DocParser::flushWalkthrough( const Walkthrough& walk, StringSet *included,
 	++score;
     }
 
-    if ( numIncludes == 0 ) {
-	if ( !alreadyThruwalked && numWalkthroughs > 0 ) {
-	    thruwalked->insert( walk.fileName() );
-	    thruwalkedExamples.insert( walk.fileName() );
-	}
-    } else if ( numWalkthroughs == 0 ) {
-	if ( !alreadyIncluded && numIncludes > 0 ) {
-	    included->insert( walk.fileName() );
-	    includedExamples.insert( walk.fileName() );
-	}
+    if ( !alreadyIncluded && numIncludes > 0 ) {
+	included->insert( walk.fileName() );
+	Doc::includedExamples.insert( walk.fileName() );
+    }
+    if ( !alreadyThruwalked && numWalkthroughs > 0 ) {
+	thruwalked->insert( walk.fileName() );
+	Doc::thruwalkedExamples.insert( walk.fileName() );
     }
 }
 
@@ -1224,8 +1217,8 @@ bool DocParser::somethingAheadPreventingNewParagraph()
     skipSpaces( yyIn, yyPos );
     if ( yyPos < yyLen - 4 ) {
 	QString lookahead = yyIn.mid( yyPos, 4 );
-	if ( lookahead == QString("<li>") || lookahead == QString("\\bug")
-	     || lookahead == QString("\\val") )
+	if ( lookahead == QString("<li>") || lookahead == QString("\\bug") ||
+	     lookahead == QString("\\val") )
 	    something = TRUE;
     }
     yyPos = inPos0;
@@ -1235,7 +1228,10 @@ bool DocParser::somethingAheadPreventingNewParagraph()
 void DocParser::enterWalkthroughSnippet()
 {
     if ( !yyInWalkthroughSnippet ) {
-	yyOut += QString( "<pre>" );
+	if ( yyOut.right(6) == QString("</pre>") )
+	    yyOut.truncate( yyOut.length() - 6 );
+	else
+	    yyOut += QString( "<pre>" );
 	yyInWalkthroughSnippet = TRUE;
     }
 }
@@ -1268,8 +1264,8 @@ void DocParser::leaveWalkthroughSnippet()
 
 ExampleLocation& ExampleLocation::operator=( const ExampleLocation& el )
 {
+    fname = el.fname;
     ininc = el.ininc;
-    exfile = el.exfile;
     ln = el.ln;
     uniq = el.uniq;
     return *this;
@@ -1308,16 +1304,17 @@ void Doc::setClassList( const QMap<QString, QString>& classList )
     if ( !config->autoHrefs() )
 	return;
 
-    QString t( "(?:<(?:a[ \n\t]+[^>]*|pre)>.*</(?:a|pre)>|"
+    // careful with this mega regexp: white space magic below
+    QString t( "(?:<(?:a [^>]*|pre)>.*</(?:a|pre)>|"
 	       "(?:Qmagicwordthatyoushouldavoid" );
     QMap<QString, QString>::ConstIterator s = keywordLinks.begin();
     while ( s != keywordLinks.end() ) {
-	if ( s == keywordLinks.end() )
-	    break;
 	t += QChar( '|' );
 	t += s.key();
 	++s;
     }
+
+    // white space magic
     t.replace( QRegExp(QChar(' ')), QString("[ \t\n]+") );
     t.prepend( QString("[ \t\n>]") );
     t.append( QString(")\\b)") );
@@ -1339,7 +1336,7 @@ void Doc::setClassList( const QMap<QString, QString>& classList )
 	    // g.key() is the score, *g is the ExampleLocation
 	    QMap<QString, LinkMap> *linkMaps =
 		    (*g).inInclude() ? &includeLinkMaps : &walkthroughLinkMaps;
-	    (*linkMaps)[(*g).exampleFile()][(*g).lineNum()]
+	    (*linkMaps)[(*g).fileName()][(*g).lineNum()]
 		    .insert( QChar('x') + QString::number((*g).uniqueNum()) );
 	    ++g;
 	}
@@ -1842,10 +1839,10 @@ QString Doc::htmlSeeAlso() const
 	if ( name.right(1) != QChar(')') && resolver()->resolvefn(name) )
 	    name += QString( "()" );
 
-	if ( name.startsWith(QString("\\link")) ) {
+	if ( name.startsWith(QString("&#92;link")) ) {
 	    QStringList toks =
 		    QStringList::split( QChar(' '),
-					name.mid(5).stripWhiteSpace() );
+					name.mid(9).stripWhiteSpace() );
 	    if ( toks.count() < 2 ) {
 		warning( 2, location(), "Bad '\\link' syntax in '\\sa'" );
 	    } else {
@@ -2087,8 +2084,9 @@ QString Doc::finalHtml() const
 	    if ( begin < end &&
 		 offsetOK(&offsetMap, yyOut.length(), yyOut.mid(begin)) ) {
 		/*
-		  It's always a good idea to include the '()', as it provides
-		  some typing (in at least two senses of the word).
+		  It's always a good idea to include the '()', as it
+		  provides some typing (in at least two senses of the
+		  word).
 		*/
 		if ( ch == QChar('(') && yyIn.mid(yyPos, 1) == QChar(')') ) {
 		    yyOut.replace( begin, end - begin,
@@ -2157,36 +2155,42 @@ QString Doc::finalHtml() const
     ((Doc *) this)->setDependsOn( dependsOn );
 
     /*
-      Generate the "Examples:" section.
+      Generate the "Examples:" section. Example file names are put in
+      alphabetical order. If we were not careful, the same example
+      file could appear twice: once in an '\include' and once in a
+      '\walkthrough'.
     */
-    QValueList<ExampleLocation> examples;
+    QMap<QString, ExampleLocation> alphabetizedExamples;
 
     QMap<int, ExampleLocation> exampleMap = megaExampleMap[lnk];
     QMap<int, ExampleLocation>::ConstIterator exloc = exampleMap.begin();
     while ( exloc != exampleMap.end() ) {
-	examples.prepend( *exloc );
+	alphabetizedExamples.insert( (*exloc).fileName(), *exloc );
 	++exloc;
     }
 
-    if ( !examples.isEmpty() ) {
+    if ( !alphabetizedExamples.isEmpty() ) {
 	yyOut += QString( "<p>Example" );
-	if ( examples.count() > 1 )
+	if ( alphabetizedExamples.count() > 1 )
 	    yyOut += QChar( 's' );
 	yyOut += QString( ": " );
 
-	QValueStack<QString> seps = separators( examples.count(),
+	QValueStack<QString> seps = separators( alphabetizedExamples.count(),
 						QString(".\n") );
-	QValueList<ExampleLocation>::ConstIterator e = examples.begin();
-	while ( e != examples.end() ) {
+	QMap<QString, ExampleLocation>::Iterator e =
+		alphabetizedExamples.begin();
+	while ( e != alphabetizedExamples.end() ) {
 	    QString link;
 	    if ( (*e).inInclude() )
-		link = includedExampleLinks[(*e).exampleFile()];
+		link = includedExampleLinks[(*e).fileName()];
 	    else
-		link = thruwalkedExampleLinks[(*e).exampleFile()];
+		link = thruwalkedExampleLinks[(*e).fileName()];
+if ( link.isEmpty() )
+qWarning( "'%s' included? %d  is empty", (*e).fileName().latin1(), (*e).inInclude() );
 
 	    link = linkBase( link ) + QString( "#x%1" ).arg( (*e).uniqueNum() );
 	    yyOut += QString( "<a href=\"%1\">%2</a>" )
-		     .arg( link ).arg( (*e).exampleFile() );
+		     .arg( link ).arg( (*e).fileName() );
 	    yyOut += seps.pop();
 	    ++e;
 	}
