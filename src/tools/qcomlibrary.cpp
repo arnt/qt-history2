@@ -52,18 +52,16 @@ QComLibrary::~QComLibrary()
 
 bool QComLibrary::unload()
 {
-    if ( libiface ) {
-	libiface->cleanup();
-	if ( !libiface->canUnload() )
-	    return FALSE;
-	libiface->release();
-	libiface = 0;
-    }
     int refs = entry ? entry->release() : 0;
-    if ( refs )
+    entry = 0;
+    if (refs || !libiface)
 	return FALSE;
 
-    entry = 0;
+    libiface->cleanup();
+    if ( !libiface->canUnload() )
+	return FALSE;
+    libiface->release();
+    libiface = 0;
 
     return QLibrary::unload();
 }
