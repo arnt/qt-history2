@@ -154,6 +154,7 @@ int get_key(int key)
 
 void QApplication::do_mouse_down(void * es)
 {
+    qDebug("do_mouse_down");
     EventRecord * er=(EventRecord *)es;
     WindowPtr wp;
     short part;
@@ -210,10 +211,12 @@ void QApplication::do_mouse_down(void * es)
 	}
 	break;
     case inGrow:
+	qDebug("inGrow");
 	Rect limits;
 	widget=QWidget::find((WId)wp);
 	SetRect(&limits,20,20,50000,50000);
 	if(widget) {
+	    qDebug("Widget found");
 	    if(widget->extra) {
 		SetRect(&limits,widget->extra->minw,widget->extra->minh,
 			widget->extra->maxw,widget->extra->maxh);
