@@ -740,18 +740,23 @@ void QTextHtmlExporter::emitBlockFormatAttributes(const QTextBlockFormat &format
 
 void QTextHtmlExporter::exportBlock(const QTextBlock &block)
 {
-    if (block.blockFormat().nonBreakableLines())
+    const bool pre = block.blockFormat().nonBreakableLines();
+    if (pre)
         html += QLatin1String("<pre");
     else
         html += QLatin1String("<p");
+
     emitBlockFormatAttributes(block.blockFormat());
     html += QLatin1String(">");
 
     for (QTextBlock::Iterator it = block.begin();
-         !it.atEnd(); ++it) {
+         !it.atEnd(); ++it)
         exportFragment(it.fragment());
-    }
-    html += QLatin1String("</p>");
+
+    if (pre)
+        html += QLatin1String("</pre>");
+    else
+        html += QLatin1String("</p>");
 }
 
 void QTextHtmlExporter::exportTable(const QTextTable *table)
