@@ -1059,5 +1059,9 @@ static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush)
 
 void QOpenGLPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int)
 {
+#if defined(Q_WS_WIN) || defined (Q_WS_MAC)
+    QPaintEngine::drawTextItem(p, ti, 0);
+#else
     dgl->renderText(p.x(), p.y(), QString(ti.chars, ti.num_chars), painter()->font());
+#endif
 }
