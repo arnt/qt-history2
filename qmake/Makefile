@@ -35,10 +35,10 @@ ADDCLEAN    =	qmake.tds
 
 #qmake code
 OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.obj msvc_nmake.obj msvc_dsp.obj msvc_vcproj.obj option.obj \
-	winmakefile.obj projectgenerator.obj metrowerks_xml.obj pbuilder_pbx.obj
+	winmakefile.obj projectgenerator.obj metrowerks_xml.obj pbuilder_pbx.obj msvc_objectmodel.obj
 
 #qt code
-QTOBJS=qstring.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qcstring.obj qdatastream.obj qgarray.obj qbuffer.obj \
+QTOBJS=qstring.obj quuid.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qcstring.obj qdatastream.obj qgarray.obj qbuffer.obj \
 	qglist.obj qptrcollection.obj qfile.obj qfile_win.obj qregexp.obj qgvector.obj qgcache.obj qbitarray.obj \
 	qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj qstringlist.obj qmap.obj qlibrary.obj qlibrary_win.obj \
         qconfig.obj
@@ -87,6 +87,9 @@ qcstring.obj: ..\src\tools\qcstring.cpp
 
 qstring.obj: ..\src\tools\qstring.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qstring.cpp
+
+quuid.obj: ..\src\tools\quuid.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\quuid.cpp
 
 qdatastream.obj: ..\src\tools\qdatastream.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qdatastream.cpp
@@ -186,3 +189,6 @@ metrowerks_xml.obj: generators/mac/metrowerks_xml.cpp
 
 pbuilder_pbx.obj: generators/mac/pbuilder_pbx.cpp
 	$(CXX) $(CXXFLAGS) generators/mac/pbuilder_pbx.cpp
+
+msvc_objectmodel.obj: generators/win32/msvc_objectmodel.cpp
+	$(CXX) $(CXXFLAGS) generators/win32/msvc_objectmodel.cpp
