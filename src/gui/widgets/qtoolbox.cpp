@@ -269,17 +269,18 @@ void QToolBoxButton::drawButton( QPainter *p )
     Each item has an itemLabel(), an optional icon, itemIconSet(), an
     optional itemToolTip(), and a \link item() widget\endlink. The
     item's attributes can be changed with setItemLabel(),
-    setItemIconSet() and setItemToolTip().
+    setItemIconSet(), and setItemToolTip().
 
     Items are added using addItem(), or inserted at particular
     positions using insertItem(). The total number of items is given
     by count(). Items can be deleted with delete, or removed from the
     toolbox with removeItem(). Combining removeItem() and insertItem()
-    allows to move items to different positions.
+    allows you to move items to different positions.
 
-    The current item widget is returned by currentItem() and set with
-    setCurrentItem(). If you prefer you can work in terms of indexes
-    using currentIndex(), setCurrentIndex(), indexOf() and item().
+    The index of the current item widget is returned by currentIndex(),
+    and set with setCurrentIndex(). The index of a particular item can
+    be found using indexOf(), and the item at a given index is returned
+    by item().
 
     The currentChanged() signal is emitted when the current item is
     changed.
@@ -290,7 +291,7 @@ void QToolBoxButton::drawButton( QPainter *p )
 /*!
     \fn void QToolBox::currentChanged( int index )
 
-    This signal is emitted when the current item changed. The new
+    This signal is emitted when the current item is changed. The new
     current item's index is passed in \a index, or -1 if there is no
     current item.
 */
@@ -492,7 +493,7 @@ int QToolBox::removeItem( QWidget *item )
 
 /*!
     \property QToolBox::currentIndex
-    \brief the index of the current item, or -1 if the toolbox is empty.
+    \brief The index of the current item, or -1 if the toolbox is empty.
     \sa indexOf(), item()
 */
 
@@ -526,8 +527,8 @@ int QToolBox::indexOf( QWidget *item ) const
 }
 
 /*!
-    If \a enabled is TRUE then the item at position \a index is enabled; otherwise item
-    \a index is disabled.
+    If \a enabled is TRUE then the item at position \a index is enabled; otherwise
+    the item at position \a index is disabled.
 */
 
 void QToolBox::setItemEnabled( int index, bool enabled )
@@ -604,7 +605,7 @@ bool QToolBox::isItemEnabled( int index ) const
 }
 
 /*!
-    Returns the label of the item at position \a index, or a null string if
+    Returns the label of the item at position \a index, or an empty string if
     \a index is out of range.
 */
 
@@ -626,8 +627,8 @@ QIconSet QToolBox::itemIconSet( int index ) const
 }
 
 /*!
-    Returns the tooltip of the item at position \a index, or a null
-    string if \a index is out of range.
+    Returns the tooltip of the item at position \a index, or an
+    empty string if \a index is out of range.
 */
 
 QString QToolBox::itemToolTip( int index ) const
