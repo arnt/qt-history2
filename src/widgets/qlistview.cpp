@@ -286,101 +286,106 @@ static QPoint activatedP;
 
 
 /*!
-  \class QListViewItem
-  \ingroup advanced
-  \brief The QListViewItem class implements a list view item.
+    \class QListViewItem
+    \brief The QListViewItem class implements a list view item.
 
-  A list view item is a multi-column object capable of displaying
-  itself in a QListView.  Its design has the following main goals:
-  \list
-  \i Work quickly and well for \e large sets of data.
-  \i Be easy to use in the simple case.
-  \endlist
+    \ingroup advanced
 
-  The easiest way to use QListViewItem is to construct one with a few
-  constant strings.  This creates an item that is a child of \e
-  parent with two fixed-content strings, and discards the pointer to
-  it:
+    A list view item is a multi-column object capable of displaying
+    itself in a QListView. Its design has the following main goals:
+    \list
+    \i Work quickly and well for \e large sets of data.
+    \i Be easy to use in the simple case.
+    \endlist
 
-  \code
-    (void) new QListViewItem( parent, "first column", "second column" );
-  \endcode
+    The easiest way to use QListViewItem is to construct one with a
+    few constant strings.
+    \code
+	(void) new QListViewItem( parent, "first column", "second column" );
+    \endcode
+    Here we create a new list view item with two literal strings. The
+    item becomes a child of \e parent. We've discarded the pointer to
+    the item since we can still access it via its \e parent. This
+    object will be deleted when \e parent is deleted, as usual for
+    \l{QObject}s.
 
-  This object will be deleted when \e parent is deleted, as for
-  \l {QObject}s.
+    The parent must be another QListViewItem or a QListView. If the
+    parent is a QListView, the item becomes a top-level item within
+    that QListView. If the parent is another QListViewItem, the item
+    becomes a child of that list view item.
 
-  The parent is either another QListViewItem or a QListView.  If the
-  parent is a QListView, this item is a top-level item within that
-  QListView.  If the parent is another QListViewItem, this item
-  becomes a child of that list view item.
+    If you keep the pointer, you can set or change the texts using
+    setText(), add pixmaps using setPixmap(), change its mode using
+    setSelectable(), setSelected(), setOpen() and setExpandable().
+    You'll also be able to change its height using setHeight(), and
+    traverse the tree. You don't have to keep the pointer since you
+    can get a pointer to any QListViewItem in a QListView using
+    QListView::selectedItem(), QListView::currentItem(),
+    QListView::firstChild(), QListView::lastItem() and
+    QListView::findItem().
 
-  If you keep the pointer, you can set or change the texts using
-  setText(), add pixmaps using setPixmap(), change its mode using
-  setSelectable(), setSelected(), setOpen() and setExpandable().
-  You'll also be able to change its height using setHeight(), and
-  traverse the tree. There's no need to retain the pointer however,
-  since you can get a pointer to any QListViewItem in a QListView
-  using QListView::selectedItem(), QListView::currentItem(),
-  QListView::firstChild(), QListView::lastItem(),
-  QListView::findItem().
+    \l{QCheckListItem}s are list view items that have a checkbox or
+    radio button and can be used in place of QListViewItems.
 
-  \l{QCheckListItem}s are list view items that have a checkbox or
-  radio button and can be used in place of QListViewItems.
+    You can traverse the tree as if it were a doubly-linked list using
+    itemAbove() and itemBelow(); they return pointers to the items
+    directly above and below this item on the screen (even if none of
+    the three are actually visible at the moment).
 
-  You can traverse the tree as if it were a doubly-linked list using
-  itemAbove() and itemBelow(); they return pointers to the items
-  directly above and below this item on the screen (even if none of
-  the three are actually visible at the moment).
-
-  You can also traverse it as a tree by using parent(), firstChild(), and
-  nextSibling().
+    You can also traverse it as a tree by using parent(),
+    firstChild(), and nextSibling().
 
     Example:
-  \code
-    QListViewItem * myChild = myItem->firstChild();
-    while( myChild ) {
-	doSomething( myChild );
-	myChild = myChild->nextSibling();
-    }
-  \endcode
+    \code
+	QListViewItem * myChild = myItem->firstChild();
+	while( myChild ) {
+	    doSomething( myChild );
+	    myChild = myChild->nextSibling();
+	}
+    \endcode
 
-  There is also an interator class to traverse a tree of list view items.
-  To iterate over all items of a list view, do the following:
+    There is also an interator class to traverse a tree of list view
+    items. To iterate over all items of a list view, do the following:
+    \code
+	QListViewItemIterator it( listview );
+	for ( ; it.current(); ++it )
+	    doSomething( it.current() ); // it.current() is a QListViewItem*
+    \endcode
 
-  \code
-    QListViewItemIterator it( listview );
-    for ( ; it.current(); ++it )
-      doSomething( it.current() ); // it.current() is a QListViewItem*
-  \endcode
+    Note that the order of the children will change when the sorting
+    order changes and is undefined if the items are not visible. You
+    can, however, call enforceSortOrder() at any time; QListView will
+    always call it before it needs to show an item.
 
-  Note that the order of the children will change when the sorting
-  order changes and is undefined if the items are not visible.  You
-  can, however, call enforceSortOrder() at any time; QListView will
-  always call it before it needs to show an item.
+    Many programs will need to reimplement QListViewItem. The most
+    commonly reimplemented functions are:
+    \table
+    \header \i Function \i Description
+    \row \i \l text()
+	 \i Returns the text in a column. Many subclasses will compute
+	    this on the fly.
+    \row \i \l key()
+	 \i Is used for sorting. The default key() simply calls
+	    text(), but judicious use of key can be used to sort by
+	    date, for example (as QFileDialog does).
+    \row \i \l setup()
+	 \i Is called before showing the item and whenever the font
+	    changes, for example.
+    \row \i \l activate()
+	 \i Is called whenever the user clicks on the item or presses
+	    space when the item is the currently highlighted item.
+    \endtable
 
-  Many programs will need to reimplement QListViewItem.  The most
-  commonly reimplemented functions are:
-  \list
-  \i text() returns the text in a column.  Many subclasses will
-  compute that on the fly.
-  \i key() is used for sorting.  The default key() simply calls
-  text(), but judicious use of key can be used to sort by date, for
-  example (as QFileDialog does).
-  \i setup() is called before showing the item and whenever the font
-  changes, for example.
-  \i activate() is called whenever the user clicks on the item or
-  presses space when the item is the currently highlighted item.
-  \endlist
+    Some subclasses call setExpandable(TRUE) even when they have no
+    children, and populate themselves when setup() or setOpen(TRUE) is
+    called. The \c dirview/dirview.cpp example program uses this
+    technique to start up quickly: The files and subdirectories in a
+    directory aren't inserted into the tree until they're actually
+    needed.
 
-  Some subclasses call setExpandable(TRUE) even when they have no
-  children, and populate themselves when setup() or setOpen(TRUE) is
-  called.  The dirview/dirview.cpp example program uses this
-  technique to start up quickly: The files and subdirectories in a
-  directory aren't inserted into the tree until they're actually needed.
+    \img qlistviewitems.png List View Items
 
-  \img qlistviewitems.png List View Items
-
-  \sa QCheckListItem QListView
+    \sa QCheckListItem QListView
 */
 
 /*!
@@ -388,15 +393,15 @@ static QPoint activatedP;
 
     Returns 1.
 
-  Make your derived classes return their own values for rtti(), and
-  you can distinguish between listview items. You should use values
-  greater than 1000 preferably a large random number, to allow for
-  extensions to this class.
-
+    Make your derived classes return their own values for rtti(), and
+    you can distinguish between listview items. You should use values
+    greater than 1000, preferably a large random number, to allow for
+    extensions to this class.
 */
 
 /*!
-  Constructs a new top-level list view item in the QListView \a parent.
+    Constructs a new top-level list view item in the QListView \a
+    parent.
 */
 
 QListViewItem::QListViewItem( QListView * parent )
@@ -406,8 +411,10 @@ QListViewItem::QListViewItem( QListView * parent )
 }
 
 
-/*!  Constructs a new list view item that is a child of \a parent and first
-  in the parent's list of children. */
+/*!
+    Constructs a new list view item that is a child of \a parent and
+    first in the parent's list of children.
+*/
 
 QListViewItem::QListViewItem( QListViewItem * parent )
 {
@@ -418,9 +425,10 @@ QListViewItem::QListViewItem( QListViewItem * parent )
 
 
 
-/*!  Constructs an empty list view item that is a child of \a parent
-  and is after \a after in the parent's list of children. Since \a
-  parent is a QListView the item will be a top-level item.
+/*!
+    Constructs an empty list view item that is a child of \a parent
+    and is after \a after in the parent's list of children. Since \a
+    parent is a QListView the item will be a top-level item.
 */
 
 QListViewItem::QListViewItem( QListView * parent, QListViewItem * after )
@@ -431,8 +439,10 @@ QListViewItem::QListViewItem( QListView * parent, QListViewItem * after )
 }
 
 
-/*!  Constructs an empty list view item that is a child of \a parent
-  and is after \a after in the parent's list of children. */
+/*!
+    Constructs an empty list view item that is a child of \a parent
+    and is after \a after in the parent's list of children.
+*/
 
 QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after )
 {
@@ -443,12 +453,13 @@ QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after )
 
 
 
-/*! Constructs a new list view item in the QListView \a parent,
-  \a parent, with up to eight constant strings \a label1, \a label2,
-  \a label3, \a label4, \a label5, \a label6, \a label7 and
-  \a label8 defining its column contents.
+/*!
+    Constructs a new top-level list view item in the QListView \a
+    parent, with up to eight constant strings \a label1, \a label2, \a
+    label3, \a label4, \a label5, \a label6, \a label7 and \a label8
+    defining its column contents.
 
-  \sa setText()
+    \sa setText()
 */
 
 QListViewItem::QListViewItem( QListView * parent,
@@ -475,12 +486,13 @@ QListViewItem::QListViewItem( QListView * parent,
 }
 
 
-/*!  Constructs a new list view item as a child of the QListViewItem
-  \a parent with optional constant strings \a label1, \a label2, \a
-  label3, \a label4, \a label5, \a label6, \a label7 and \a label8 as
-  column contents.
+/*!
+    Constructs a new list view item as a child of the QListViewItem \a
+    parent with optional constant strings \a label1, \a label2, \a
+    label3, \a label4, \a label5, \a label6, \a label7 and \a label8
+    as column contents.
 
-  \sa setText()
+    \sa setText()
 */
 
 QListViewItem::QListViewItem( QListViewItem * parent,
@@ -506,16 +518,17 @@ QListViewItem::QListViewItem( QListViewItem * parent,
     setText( 7, label8 );
 }
 
-/*!  Constructs a new list view item in the QListView \a parent
-  that is included after item \a after and can contain up to
-  eight column texts \a label1, \a label2, \a label3, \a label4, \a
-  label5, \a label6, \a label7 and\a label8.
+/*!
+    Constructs a new list view item in the QListView \a parent that is
+    included after item \a after and can contain up to eight column
+    texts \a label1, \a label2, \a label3, \a label4, \a label5, \a
+    label6, \a label7 and\a label8.
 
-  Note that the order is changed according to QListViewItem::key()
-  unless the list view's sorting is disabled using
-  QListView::setSorting( -1 ).
+    Note that the order is changed according to QListViewItem::key()
+    unless the list view's sorting is disabled using
+    QListView::setSorting( -1 ).
 
-  \sa setText()
+    \sa setText()
 */
 
 QListViewItem::QListViewItem( QListView * parent, QListViewItem * after,
@@ -543,17 +556,17 @@ QListViewItem::QListViewItem( QListView * parent, QListViewItem * after,
 }
 
 
-/*!  Constructs a new list view item as a child of the QListViewItem
-  \a parent. It is inserted after item \a after and
-  may contain up to eight strings \a label1, \a label2, \a label3, \a
-  label4, \a label5, \a label6, \a label7 and \a label8 as column
-  entries.
+/*!
+    Constructs a new list view item as a child of the QListViewItem \a
+    parent. It is inserted after item \a after and may contain up to
+    eight strings \a label1, \a label2, \a label3, \a label4, \a
+    label5, \a label6, \a label7 and \a label8 as column entries.
 
-  Note that the order is changed according to QListViewItem::key()
-  unless the list view's sorting is disabled using
-  QListView::setSorting( -1 ).
+    Note that the order is changed according to QListViewItem::key()
+    unless the list view's sorting is disabled using
+    QListView::setSorting( -1 ).
 
-  \sa setText()
+    \sa setText()
 */
 
 QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after,
@@ -581,10 +594,10 @@ QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after,
 }
 
 /*!
-  (Re)sorts all child items of this item using the last sorting
-  configuration (sort column and direction).
+    (Re)sorts all child items of this item using the last sorting
+    configuration (sort column and direction).
 
-  \sa enforceSortOrder()
+    \sa enforceSortOrder()
 */
 
 void QListViewItem::sort()
@@ -598,12 +611,13 @@ void QListViewItem::sort()
 
 int QListViewItem::RTTI = 0;
 
-/*! Returns 0.
+/*!
+    Returns 0.
 
-  Make your derived classes return their own values for rtti(), and
-  you can distinguish between listview items. You should use values
-  greater than 1000 preferably a large random number, to allow for
-  extensions to this class.
+    Make your derived classes return their own values for rtti(), and
+    you can distinguish between listview items. You should use values
+    greater than 1000, preferably a large random number, to allow for
+    extensions to this class.
 */
 
 int QListViewItem::rtti() const
@@ -611,7 +625,9 @@ int QListViewItem::rtti() const
     return RTTI;
 }
 
-/*!  Performs the initializations that's common to the constructors. */
+/*
+    Performs the initializations that's common to the constructors.
+*/
 
 void QListViewItem::init()
 {
@@ -641,11 +657,12 @@ void QListViewItem::init()
     mlenabled = FALSE;
 }
 
-/*! If \a b is TRUE, the item is made visible; otherwise it is hidden.
+/*!
+    If \a b is TRUE, the item is made visible; otherwise it is hidden.
 
-   If the item is not visible, itemAbove() and itemBelow() will never
-   hit this item, although you still can reach it by using e.g. the
-   QListViewItemIterator.
+    If the item is not visible, itemAbove() and itemBelow() will never
+    return this item, although you still can reach it by using e.g.
+    QListViewItemIterator.
 */
 
 void QListViewItem::setVisible( bool b )
@@ -669,9 +686,10 @@ void QListViewItem::setVisible( bool b )
 	lv->triggerUpdate();
 }
 
-/*! Returns TRUE if the item is visible; otherwise returns FALSE.
+/*!
+    Returns TRUE if the item is visible; otherwise returns FALSE.
 
-  \sa setVisible()
+    \sa setVisible()
 */
 
 bool QListViewItem::isVisible() const
@@ -679,8 +697,10 @@ bool QListViewItem::isVisible() const
     return (bool)visible;
 }
 
-/*! If \a b is TRUE, this item can be in-place renamed in the column
-  \a col by the user, otherwise it is not possible. */
+/*!
+    If \a b is TRUE, this item can be in-place renamed in the column
+    \a col by the user; otherwise it cannot be renamed in-place.
+*/
 
 void QListViewItem::setRenameEnabled( int col, bool b )
 {
@@ -700,8 +720,10 @@ void QListViewItem::setRenameEnabled( int col, bool b )
     l->allow_rename = b;
 }
 
-/*! Returns TRUE if this item can be in-place renamed in
-  column \a col; otherwise returns FALSE. */
+/*!
+    Returns TRUE if this item can be in-place renamed in column \a
+    col; otherwise returns FALSE.
+*/
 
 bool QListViewItem::renameEnabled( int col ) const
 {
@@ -721,7 +743,8 @@ bool QListViewItem::renameEnabled( int col ) const
 
 /*!
     If \a b is TRUE the item is enabled; otherwise it is disabled.
-    Disabled items are drawn grayed-out and are not accessable by the user.
+    Disabled items are drawn differently (e.g. grayed-out) and are not
+    accessible by the user.
 */
 
 void QListViewItem::setEnabled( bool b )
@@ -736,9 +759,10 @@ void QListViewItem::setEnabled( bool b )
 	lv->triggerUpdate();
 }
 
-/*! Returns TRUE if this item is enabled; otherwise returns FALSE.
+/*!
+    Returns TRUE if this item is enabled; otherwise returns FALSE.
 
-  \sa setEnabled()
+    \sa setEnabled()
 */
 
 bool QListViewItem::isEnabled() const
@@ -746,9 +770,10 @@ bool QListViewItem::isEnabled() const
     return (bool)enabled;
 }
 
-/*!  If in-place renaming of this item is enabled (see
-  renameEnabled()), this function starts renaming the item in cloumn \a col,
-  by creating and initializing an edit box.
+/*!
+    If in-place renaming of this item is enabled (see
+    renameEnabled()), this function starts renaming the item in cloumn
+    \a col, by creating and initializing an edit box.
 */
 
 void QListViewItem::startRename( int col )
@@ -806,7 +831,8 @@ void QListViewItem::startRename( int col )
     renameCol = col;
 }
 
-/*! This function is called if the user presses Enter during in-place
+/*!
+    This function is called if the user presses Enter during in-place
     renaming of the item in column \a col.
 
     \sa cancelRename()
@@ -823,8 +849,9 @@ void QListViewItem::okRename( int col )
     emit lv->itemRenamed( this, col, text( col ) );
 }
 
-/*! This function is called if the user cancels in-place renaming
-  of this item in column \a col.
+/*!
+    This function is called if the user cancels in-place renaming of
+    this item in column \a col (e.g. by pressing Esc).
 
     \sa okRename()
 */
@@ -843,8 +870,9 @@ void QListViewItem::cancelRename( int )
     }
 }
 
-/*!  Destroys the item, deleting all its children and freeing up all
-  allocated resources.
+/*!
+    Destroys the item, deleting all its children and freeing up all
+    allocated resources.
 */
 
 QListViewItem::~QListViewItem()
@@ -883,8 +911,8 @@ QListViewItem::~QListViewItem()
 
 
 /*!
-  If \a b is TRUE items may contain multiple lines of text; otherwise
-  they may only contain a single line.
+    If \a b is TRUE each of the item's columns may contain multiple
+    lines of text; otherwise they may only contain a single line.
 */
 
 void QListViewItem::setMultiLinesEnabled( bool b )
@@ -893,8 +921,8 @@ void QListViewItem::setMultiLinesEnabled( bool b )
 }
 
 /*!
-    Returns TRUE if the item can display multiple lines of text; otherwise
-    returns FALSE.
+    Returns TRUE if the item can display multiple lines of text in its
+    columns; otherwise returns FALSE.
 */
 
 bool QListViewItem::multiLinesEnabled() const
@@ -914,8 +942,9 @@ void QListViewItem::setDragEnabled( bool allow )
     allow_drag = (uint)allow;
 }
 
-/*! If \a allow is TRUE, the listview accepts drops onto the item;
-    otherwise drops are not allowed..
+/*!
+    If \a allow is TRUE, the listview accepts drops onto the item;
+    otherwise drops are not allowed.
 */
 
 void QListViewItem::setDropEnabled( bool allow )
@@ -923,9 +952,10 @@ void QListViewItem::setDropEnabled( bool allow )
     allow_drop = (uint)allow;
 }
 
-/*! Returns TRUE if this item can be dragged; otherwise returns FALSE.
+/*!
+    Returns TRUE if this item can be dragged; otherwise returns FALSE.
 
-  \sa setDragEnabled()
+    \sa setDragEnabled()
 */
 
 bool QListViewItem::dragEnabled() const
@@ -933,9 +963,10 @@ bool QListViewItem::dragEnabled() const
     return (bool)allow_drag;
 }
 
-/*! Returns TRUE if this item accepts drops; otherwise returns FALSE.
+/*!
+    Returns TRUE if this item accepts drops; otherwise returns FALSE.
 
-  \sa setDropEnabled(), acceptDrop()
+    \sa setDropEnabled(), acceptDrop()
 */
 
 bool QListViewItem::dropEnabled() const
@@ -943,11 +974,12 @@ bool QListViewItem::dropEnabled() const
     return (bool)allow_drop;
 }
 
-/*!  Returns TRUE if the item can accept drops of type QMimeSource \a mime;
-    otherwise returns FALSE.
+/*!
+    Returns TRUE if the item can accept drops of type QMimeSource \a
+    mime; otherwise returns FALSE.
 
-  The default implementation does nothing and returns FALSE. A
-  subclass must reimplement this to accept drops.
+    The default implementation does nothing and returns FALSE. A
+    subclass must reimplement this to accept drops.
 */
 
 bool QListViewItem::acceptDrop( const QMimeSource * ) const
@@ -957,11 +989,12 @@ bool QListViewItem::acceptDrop( const QMimeSource * ) const
 
 #ifndef QT_NO_DRAGANDDROP
 
-/*!  This method is called when something was dropped on the item.
-  \a e contains all the information about the drop.
+/*!
+    This method is called when something was dropped on the item. \a e
+    contains all the information about the drop.
 
-  The default implementation does nothing, subclasses may need to
-  reimplement this method.
+    The default implementation does nothing, subclasses may need to
+    reimplement this method.
 */
 
 void QListViewItem::dropped( QDropEvent *e )
@@ -971,22 +1004,24 @@ void QListViewItem::dropped( QDropEvent *e )
 
 #endif
 
-/*!  This method is called when a drag entered the item's bounding
-  rectangle.
+/*!
+    This method is called when a drag entered the item's bounding
+    rectangle.
 
-  The default implementation does nothing, subclasses may need to
-  reimplement this method.
+    The default implementation does nothing, subclasses may need to
+    reimplement this method.
 */
 
 void QListViewItem::dragEntered()
 {
 }
 
-/*!  This method is called when a drag left the item's bounding
+/*!
+    This method is called when a drag left the item's bounding
     rectangle.
 
-  The default implementation does nothing, subclasses may need to
-  reimplement this method.
+    The default implementation does nothing, subclasses may need to
+    reimplement this method.
 */
 
 void QListViewItem::dragLeft()
@@ -1041,23 +1076,25 @@ void QListViewItem::insertItem( QListViewItem * newChild )
 
 
 /*!
-  Removes \a item from this object's list of children and causes an update
-  of the screen display.  The item is not deleted.  You should normally not
-  need to call this function because QListViewItem::~QListViewItem() calls it.
+    Removes \a item from this object's list of children and causes an
+    update of the screen display. The item is not deleted. You should
+    not normally need to call this function because
+    QListViewItem::~QListViewItem() calls it.
 
-  The normal way to delete an item is \c delete.
+    The normal way to delete an item is to use \c delete.
 
-  If you need to move an item from one place in the hierarchy to
-  another you can use takeItem() to remove the item from the list view
-  and then insertItem() to put the item back in its new position.
+    If you need to move an item from one place in the hierarchy to
+    another you can use takeItem() to remove the item from the list
+    view and then insertItem() to put the item back in its new
+    position.
 
-  \warning This function leaves \a item and its children in a state
-  where most member functions are unsafe. Only a few functions work
-  correctly on an item in this state, most notably insertItem(). The
-  functions that work on detached items are explicitly documented as
-  such.
+    \warning This function leaves \a item and its children in a state
+    where most member functions are unsafe. Only a few functions work
+    correctly on an item in this state, most notably insertItem(). The
+    functions that work on detached items are explicitly documented as
+    such.
 
-  \sa QListViewItem::insertItem()
+    \sa QListViewItem::insertItem()
 */
 
 void QListViewItem::takeItem( QListViewItem * item )
@@ -1163,17 +1200,17 @@ void QListViewItem::takeItem( QListViewItem * item )
 
 
 /*!
-  \fn QString QListViewItem::key( int column, bool ascending ) const
+    \fn QString QListViewItem::key( int column, bool ascending ) const
 
-  Returns a key that can be used for sorting by column \a column.
-  The default implementation returns text().  Derived classes may
-  also incorporate the order indicated by \a ascending into this
-  key, although this is not recommended.
+    Returns a key that can be used for sorting by column \a column.
+    The default implementation returns text(). Derived classes may
+    also incorporate the order indicated by \a ascending into this
+    key, although this is not recommended.
 
     If you want to sort on non-alphabetical data, e.g. dates, numbers,
     etc., reimplement compare().
 
-  \sa compare(), sortChildItems()
+    \sa compare(), sortChildItems()
 */
 
 QString QListViewItem::key( int column, bool ) const
@@ -1182,27 +1219,29 @@ QString QListViewItem::key( int column, bool ) const
 }
 
 
-/*!  Compares this listview item to \a i using the column \a col in \a
-  ascending order. Returns -1 if this item is less than \a i, 0 if
-  they are equal and 1 if this item is greater than \a i.
+/*!
+    Compares this listview item to \a i using the column \a col in \a
+    ascending order. Returns -1 if this item is less than \a i, 0 if
+    they are equal and 1 if this item is greater than \a i.
 
-  This function is used for sorting.
+    This function is used for sorting.
 
-  The default implementation compares the item keys (key()) using
-  QString::localeAwareCompare(). A reimplementation may use different
-  values and a different comparison function. Here is a
-  reimplementation that uses plain Unicode comparison:
+    The default implementation compares the item keys (key()) using
+    QString::localeAwareCompare(). A reimplementation may use
+    different values and a different comparison function. Here is a
+    reimplementation that uses plain Unicode comparison:
 
-  \code
+    \code
     int MyListViewItem::compare( QListViewItem *i, int col,
 				 bool ascending ) const
     {
-	return key( col, ascending ).compare( i->key(col, ascending) );
+	return key( col, ascending ).compare( i->key( col, ascending) );
     }
-  \endcode
-  We don't recommend using \a ascending so your code can safely ignore it.
+    \endcode
+    We don't recommend using \a ascending so your code can safely
+    ignore it.
 
-  \sa key() QString::localeAwareCompare() QString::compare()
+    \sa key() QString::localeAwareCompare() QString::compare()
 */
 
 int QListViewItem::compare( QListViewItem *i, int col, bool ascending ) const
@@ -1211,16 +1250,16 @@ int QListViewItem::compare( QListViewItem *i, int col, bool ascending ) const
 }
 
 /*!
-    Sorts the children of this item using column \a column. This is
-    done in ascending order if \a ascending is TRUE and in descending
-    order if \a ascending is FALSE.
+    Sorts this item's children using column \a column. This is done in
+    ascending order if \a ascending is TRUE and in descending order if
+    \a ascending is FALSE.
 
-  Asks some of the children to sort their children.  (QListView and
-  QListViewItem ensure that all on-screen objects are properly sorted
-  but may avoid or defer sorting other objects in order to be more
-  responsive.)
+    Asks some of the children to sort their children. (QListView and
+    QListViewItem ensure that all on-screen objects are properly
+    sorted but may avoid or defer sorting other objects in order to be
+    more responsive.)
 
-  \sa key() compare()
+    \sa key() compare()
 */
 
 void QListViewItem::sortChildItems( int column, bool ascending )
@@ -1280,16 +1319,17 @@ void QListViewItem::sortChildItems( int column, bool ascending )
 }
 
 
-/*!  Sets this item's height to \a height pixels.  This implicitly
-  changes totalHeight(), too.
+/*!
+    Sets this item's height to \a height pixels. This implicitly
+    changes totalHeight(), too.
 
-  Note that a font change causes this height to be overwritten
-  unless you reimplement setup().
+    Note that a font change causes this height to be overwritten
+    unless you reimplement setup().
 
-  For best results in Windows style we suggest using an even number
-  of pixels.
+    For best results in Windows style we suggest using an even number
+    of pixels.
 
-  \sa height() totalHeight() isOpen();
+    \sa height() totalHeight() isOpen();
 */
 
 void QListViewItem::setHeight( int height )
@@ -1304,10 +1344,11 @@ void QListViewItem::setHeight( int height )
 }
 
 
-/*!  Invalidates the cached total height of this item, including
-  all open children.
+/*!
+    Invalidates the cached total height of this item, including all
+    open children.
 
-  \sa setHeight() height() totalHeight()
+    \sa setHeight() height() totalHeight()
 */
 
 void QListViewItem::invalidateHeight()
@@ -1320,16 +1361,16 @@ void QListViewItem::invalidateHeight()
 }
 
 
-/*!  Opens or closes an item, i.e. shows or hides an item's children.
+/*!
+    Opens or closes an item, i.e. shows or hides an item's children.
 
-  If \a o is TRUE all child items are shown initially. The
-  user can hide them by clicking the \e - icon to the left of
-  the item.
-  If \a o is FALSE, the children of this item are initially hidden.
-  The user can show them by clicking the \e + icon to the left of the
-  item.
+    If \a o is TRUE all child items are shown initially. The user can
+    hide them by clicking the <b>-</b> icon to the left of the item.
+    If \a o is FALSE, the children of this item are initially hidden.
+    The user can show them by clicking the <b>+</b> icon to the left
+    of the item.
 
-  \sa height() totalHeight() isOpen()
+    \sa height() totalHeight() isOpen()
 */
 
 void QListViewItem::setOpen( bool o )
@@ -1385,15 +1426,16 @@ void QListViewItem::setOpen( bool o )
 }
 
 
-/*!  This virtual function is called before the first time QListView
-  needs to know the height or any other graphical attribute of this
-  object, and whenever the font, GUI style, or colors of the list view
-  change.
+/*!
+    This virtual function is called before the first time QListView
+    needs to know the height or any other graphical attribute of this
+    object, and whenever the font, GUI style, or colors of the list
+    view change.
 
-  The default calls widthChanged() and sets the item's height to the
-  height of a single line of text in the list view's font.  (If you
-  use icons, multi-line text, etc., you will probably need to call
-  setHeight() yourself or reimplement it.)
+    The default calls widthChanged() and sets the item's height to the
+    height of a single line of text in the list view's font. (If you
+    use icons, multi-line text, etc., you will probably need to call
+    setHeight() yourself or reimplement it.)
 */
 
 void QListViewItem::setup()
@@ -1429,10 +1471,10 @@ void QListViewItem::setup()
 
 
 /*!
-  This virtual function is called whenever the user clicks on this
-  item or presses Space on it.
+    This virtual function is called whenever the user clicks on this
+    item or presses Space on it.
 
-  \sa activatedPos()
+    \sa activatedPos()
 */
 
 void QListViewItem::activate()
@@ -1440,22 +1482,21 @@ void QListViewItem::activate()
 }
 
 
-
 /*!
-  When called from a reimplementation of activate(), this function
-  gives information on how the item was activated. Otherwise the
-  behavior is undefined.
+    When called from a reimplementation of activate(), this function
+    gives information on how the item was activated. Otherwise the
+    behavior is undefined.
 
-  If activate() was caused by a mouse press, the function sets \a
-  pos to where the user clicked and returns TRUE; otherwise it returns
-  FALSE and does not change \a pos.
+    If activate() was caused by a mouse press, the function sets \a
+    pos to where the user clicked and returns TRUE; otherwise it
+    returns FALSE and does not change \a pos.
 
-  \a pos is relative to the top-left corner of this item.
+    \a pos is relative to the top-left corner of this item.
 
-  We recommend not using this function; it is scheduled to become
-  obsolete.
+    \warning We recommend that you ignore this function; it is
+    scheduled to become obsolete.
 
-  \sa activate()
+    \sa activate()
 */
 
 bool QListViewItem::activatedPos( QPoint &pos )
@@ -1466,26 +1507,25 @@ bool QListViewItem::activatedPos( QPoint &pos )
 }
 
 
+/*!
+    \fn bool QListViewItem::isSelectable() const
 
+    Returns TRUE if the item is selectable (as it is by default);
+    otherwise returns FALSE
 
-
-/*! \fn bool QListViewItem::isSelectable() const
-
-  Returns TRUE if the item is selectable (as it is by default);
-  otherwise returns FALSE
-
-  \sa setSelectable()
+    \sa setSelectable()
 */
 
 
-/*!  Sets this items to be selectable if \a enable is TRUE (the
-  default) or not to be selectable if \a enable is FALSE.
+/*!
+    Sets this items to be selectable if \a enable is TRUE (the
+    default) or not to be selectable if \a enable is FALSE.
 
-  The user is not able to select a non-selectable item using either
-  the keyboard or mouse.  The application programmer still can, e.g.
-  using setSelected().
+    The user is not able to select a non-selectable item using either
+    the keyboard or mouse. The application programmer still can, e.g.
+    using setSelected().
 
-  \sa isSelectable()
+    \sa isSelectable()
 */
 
 void QListViewItem::setSelectable( bool enable )
@@ -1494,27 +1534,29 @@ void QListViewItem::setSelectable( bool enable )
 }
 
 
-/*! \fn bool QListViewItem::isExpandable() const
+/*!
+    \fn bool QListViewItem::isExpandable() const
 
-  Returns TRUE if this item is expandable even when it has no
-  children; otherwise returns FALSE.
+    Returns TRUE if this item is expandable even when it has no
+    children; otherwise returns FALSE.
 */
 
-/*!  Sets this item to be expandable even if it has no children if \a
-  enable is TRUE, and to be expandable only if it has children if \a
-  enable is FALSE (the default).
+/*!
+    Sets this item to be expandable even if it has no children if \a
+    enable is TRUE, and to be expandable only if it has children if \a
+    enable is FALSE (the default).
 
-  The dirview example uses this in the canonical fashion. It checks
-  whether the directory is empty in setup() and calls
-  setExpandable(TRUE) if not; in setOpen() it reads the contents
-  of the directory and inserts items accordingly.  This strategy means
-  that dirview can display the entire file system without reading very
-  much at startup.
+    The dirview example uses this in the canonical fashion. It checks
+    whether the directory is empty in setup() and calls
+    setExpandable(TRUE) if not; in setOpen() it reads the contents of
+    the directory and inserts items accordingly. This strategy means
+    that dirview can display the entire file system without reading
+    very much at startup.
 
-  Note that root items are not expandable by the user unless
-  QListView::setRootIsDecorated() is set to TRUE.
+    Note that root items are not expandable by the user unless
+    QListView::setRootIsDecorated() is set to TRUE.
 
-  \sa setSelectable()
+    \sa setSelectable()
 */
 
 void QListViewItem::setExpandable( bool enable )
@@ -1523,12 +1565,13 @@ void QListViewItem::setExpandable( bool enable )
 }
 
 
-/*!  Makes sure that this object's children are sorted appropriately.
+/*!
+    Makes sure that this object's children are sorted appropriately.
 
-  This works only if every item from the root item down to
-  this item is already sorted.
+    This works only if every item from the root item down to this item
+    is already sorted.
 
-  \sa sortChildItems()
+    \sa sortChildItems()
 */
 
 void QListViewItem::enforceSortOrder() const
@@ -1548,21 +1591,23 @@ void QListViewItem::enforceSortOrder() const
 }
 
 
-/*! \fn bool QListViewItem::isSelected() const
+/*!
+    \fn bool QListViewItem::isSelected() const
 
-  Returns TRUE if this item is selected; otherwise returns FALSE.
+    Returns TRUE if this item is selected; otherwise returns FALSE.
 
-  \sa setSelected() QListView::setSelected() QListView::selectionChanged()
+    \sa setSelected() QListView::setSelected() QListView::selectionChanged()
 */
 
 
 /*!
     If \a s is TRUE this item is selected; otherwise it is deselected.
 
-  This function does not maintain any invariants or repaint anything --
-  QListView::setSelected() does that.
+    This function does not maintain any invariants or repaint anything
+    -- QListView::setSelected() does that.
 
-  \sa height() totalHeight() */
+    \sa height() totalHeight()
+*/
 
 void QListViewItem::setSelected( bool s )
 {
@@ -1574,15 +1619,17 @@ void QListViewItem::setSelected( bool s )
     }
 }
 
-/*!  Returns the total height of this object, including any visible
-  children.  This height is recomputed lazily and cached for as long
-  as possible.
+/*!
+    Returns the total height of this object, including any visible
+    children. This height is recomputed lazily and cached for as long
+    as possible.
 
-  Functions which can affect the total height are, setHeight() which is
-  used to set an item's height, setOpen() to show or hide an item's
-  children, and invalidateHeight() to invalidate the cached height.
+    Functions which can affect the total height are, setHeight() which
+    is used to set an item's height, setOpen() to show or hide an
+    item's children, and invalidateHeight() to invalidate the cached
+    height.
 
-  \sa height()
+    \sa height()
 */
 
 int QListViewItem::totalHeight() const
@@ -1610,11 +1657,11 @@ int QListViewItem::totalHeight() const
 }
 
 
-/*!  Returns the text in column \a column, or a
-  \link QString::operator!() null string \endlink if there
-  is no text in that column.
+/*!
+    Returns the text in column \a column, or QString::null if there is
+    no text in that column.
 
-  \sa key() paintCell()
+    \sa key() paintCell()
 */
 
 QString QListViewItem::text( int column ) const
@@ -1631,12 +1678,14 @@ QString QListViewItem::text( int column ) const
 }
 
 
-/*!  Sets the text in column \a column to \a text, if \a column is a
-  valid column number and \a text is different from the existing text.
+/*!
+    Sets the text in column \a column to \a text, if \a column is a
+    valid column number and \a text is different from the existing
+    text.
 
-  If \a text() has been reimplemented, this function may be a no-op.
+    If \a text() has been reimplemented, this function may be a no-op.
 
-  \sa text() key()
+    \sa text() key()
 */
 
 void QListViewItem::setText( int column, const QString &text )
@@ -1690,7 +1739,7 @@ void QListViewItem::setText( int column, const QString &text )
     and different from the current pixmap, and if \a column is
     non-negative.
 
-  \sa pixmap() setText()
+    \sa pixmap() setText()
 */
 
 void QListViewItem::setPixmap( int column, const QPixmap & pm )
@@ -1752,10 +1801,11 @@ void QListViewItem::setPixmap( int column, const QPixmap & pm )
 }
 
 
-/*!  Returns a pointer to the pixmap for \a column, or a null pointer
-  if there is no pixmap for \a column.
+/*!
+    Returns the pixmap for \a column, or 0 if there is no pixmap for
+    \a column.
 
-  \sa setText() setPixmap()
+    \sa setText() setPixmap()
 */
 
 const QPixmap * QListViewItem::pixmap( int column ) const
@@ -1772,29 +1822,30 @@ const QPixmap * QListViewItem::pixmap( int column ) const
 }
 
 
-/*! This virtual function paints the contents of one column of an item
-  and aligns it as described by \a align.
+/*!
+    This virtual function paints the contents of one column of an item
+    and aligns it as described by \a align.
 
-  \a p is a QPainter open on the relevant paint device.  \a p is
-  translated so (0, 0) is the top-left pixel in the cell and \a width-1,
-  height()-1 is the bottom-right pixel \e in the cell.  The other
-  properties of \a p (pen, brush, etc) are undefined.  \a cg is the
-  color group to use.  \a column is the logical column number within
-  the item that is to be painted; 0 is the column which may contain a
-  tree.
+    \a p is a QPainter open on the relevant paint device. \a p is
+    translated so (0, 0) is the top-left pixel in the cell and \a
+    width-1, height()-1 is the bottom-right pixel \e in the cell. The
+    other properties of \a p (pen, brush, etc) are undefined. \a cg is
+    the color group to use. \a column is the logical column number
+    within the item that is to be painted; 0 is the column which may
+    contain a tree.
 
-  This function may use QListView::itemMargin() for readability
-  spacing on the left and right sides of data such as text,
-  and should honor isSelected() and QListView::allColumnsShowFocus().
+    This function may use QListView::itemMargin() for readability
+    spacing on the left and right sides of data such as text, and
+    should honor isSelected() and QListView::allColumnsShowFocus().
 
-  If you reimplement this function, you should also reimplement
-  width().
+    If you reimplement this function, you should also reimplement
+    width().
 
-  The rectangle to be painted is in an undefined state when this
-  function is called, so you \e must draw on all the pixels.  The
-  painter \a p has the right font on entry.
+    The rectangle to be painted is in an undefined state when this
+    function is called, so you \e must draw on all the pixels. The
+    painter \a p has the right font on entry.
 
-  \sa paintBranches(), QListView::drawContentsOffset()
+    \sa paintBranches(), QListView::drawContentsOffset()
 */
 
 void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
@@ -1977,17 +2028,16 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 }
 
 /*!
-  Returns the number of pixels of width required to draw column \a c
-  of list view \a lv, using the metrics \a fm without cropping.
-  The list view containing this item may use
-  this information depending on the QListView::WidthMode settings
-  for the column.
+    Returns the number of pixels of width required to draw column \a c
+    of list view \a lv, using the metrics \a fm without cropping. The
+    list view containing this item may use this information depending
+    on the QListView::WidthMode settings for the column.
 
-  The default implementation returns the width of the bounding
-  rectangle of the text of column \a c.
+    The default implementation returns the width of the bounding
+    rectangle of the text of column \a c.
 
-  \sa listView() widthChanged() QListView::setColumnWidthMode()
-  QListView::itemMargin()
+    \sa listView() widthChanged() QListView::setColumnWidthMode()
+    QListView::itemMargin()
 */
 int QListViewItem::width( const QFontMetrics& fm,
 			  const QListView* lv, int c ) const
@@ -2006,12 +2056,13 @@ int QListViewItem::width( const QFontMetrics& fm,
 }
 
 
-/*!  Paints a focus indication on the rectangle \a r using painter \a p
-  and colors \a cg.
+/*!
+    Paints a focus indicator on the rectangle \a r using painter \a p
+    and colors \a cg.
 
-  \a p is already clipped.
+    \a p is already clipped.
 
-  \sa paintCell() paintBranches() QListView::setAllColumnsShowFocus()
+    \sa paintCell() paintBranches() QListView::setAllColumnsShowFocus()
 */
 
 void QListViewItem::paintFocus( QPainter *p, const QColorGroup &cg,
@@ -2025,19 +2076,20 @@ void QListViewItem::paintFocus( QPainter *p, const QColorGroup &cg,
 }
 
 
-/*! Paints a set of branches from this item to (some of) its children.
+/*!
+    Paints a set of branches from this item to (some of) its children.
 
-  Painter \a p is set up with clipping and translation so that you can
-  draw only in the rectangle you need to; \a cg is the color group to
-  use; the update rectangle is at (0, 0) and has size width \a w by
-  height \a h.  The top of the rectangle you own is at \a y (which is
-  never greater than 0 but can be outside the window system's allowed
-  coordinate range).
+    Painter \a p is set up with clipping and translation so that you
+    can draw only in the rectangle you need to; \a cg is the color
+    group to use; the update rectangle is at (0, 0) and has size width
+    \a w by height \a h. The top of the rectangle you own is at \a y
+    (which is never greater than 0 but can be outside the window
+    system's allowed coordinate range).
 
-  The update rectangle is in an undefined state when this function is
-  called; this function must draw on \e all of the pixels.
+    The update rectangle is in an undefined state when this function
+    is called; this function must draw on \e all of the pixels.
 
-  \sa paintCell(), QListView::drawContentsOffset()
+    \sa paintCell(), QListView::drawContentsOffset()
 */
 
 void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
@@ -2109,23 +2161,26 @@ void QListViewItem::ignoreDoubleClick()
 
 
 
-/*! \fn void  QListView::onItem( QListViewItem *i )
+/*!
+    \fn void  QListView::onItem( QListViewItem *i )
 
-  This signal is emitted when the user moves the mouse cursor onto the
-  item \a i, similar to the QWidget::enterEvent() function.
+    This signal is emitted when the user moves the mouse cursor onto
+    the item \a i, similar to the QWidget::enterEvent() function.
 */
 
 // ### bug here too? see qiconview.cppp onItem/onViewport
 
-/*! \fn void  QListView::onViewport()
-  This signal is emitted when the user moves the mouse cursor from an
-  item to an empty part of the list view.
+/*!
+    \fn void  QListView::onViewport()
+
+    This signal is emitted when the user moves the mouse cursor from
+    an item to an empty part of the list view.
 */
 
 /*! \enum QListView::SelectionMode
 
   This enumerated type is used by QListView to indicate how it reacts
-  to selection by the user.  It has four values:
+  to selection by the user. It has four values:
 
   \value Single  When the user selects an item, any already-selected
   item becomes unselected, and the user cannot unselect the selected
@@ -2226,7 +2281,7 @@ void QListViewItem::ignoreDoubleClick()
   automatically or not.
 
   \i \l setAllColumnsShowFocus() - sets whether items should show
-  keyboard focus using all columns or just column 0.  The default is
+  keyboard focus using all columns or just column 0. The default is
   to show focus using just column 0.
 
   \i \l setRootIsDecorated() - sets whether root items can be opened
@@ -2234,7 +2289,7 @@ void QListViewItem::ignoreDoubleClick()
   The default is FALSE.
 
   \i \l setTreeStepSize() - sets how many pixels an item's
-  children are indented relative to their parent.  The default is 20.
+  children are indented relative to their parent. The default is 20.
   This is mostly a matter of taste.
 
   \i \l setSorting() - sets whether the items should be sorted,
@@ -2256,10 +2311,10 @@ void QListViewItem::ignoreDoubleClick()
 \link QScrollView::contentsWheelEvent() contentsWheelEvent\endlink.
 
   There are also several functions for mapping between items and
-  coordinates.  itemAt() returns the item at a position on-screen,
+  coordinates. itemAt() returns the item at a position on-screen,
   itemRect() returns the rectangle an item occupies on the screen, and
   itemPos() returns the position of any item (not on-screen in the
-  list view).  firstChild() returns the item at the top of the view
+  list view). firstChild() returns the item at the top of the view
   (not necessarily on-screen) so you can iterate over the items using
   either QListViewItem::itemBelow() or a combination of
   QListViewItem::firstChild() and QListViewItem::nextSibling().
@@ -2274,12 +2329,12 @@ void QListViewItem::ignoreDoubleClick()
   Single selection, which you can change using setSelectionMode().
 
   Because QListView offers multiple selection it has to display keyboard
-  focus and selection state separately.  Therefore there are functions
+  focus and selection state separately. Therefore there are functions
   both to set the selection state of an item (setSelected()) and to
   select which item displays keyboard focus (setCurrentItem()).
 
   QListView emits two groups of signals; one group signals changes in
-  selection/focus state and one signals selection.  The first group
+  selection/focus state and one signals selection. The first group
   consists of selectionChanged() (applicable to all list views),
   selectionChanged( QListViewItem * ) (applicable only to Single
   selection list view), and currentChanged( QListViewItem * ). The
@@ -2288,7 +2343,7 @@ void QListViewItem::ignoreDoubleClick()
   QListViewItem *, const QPoint&, int ), etc.
 
   In Motif style, QListView deviates fairly strongly from the look and
-  feel of the Motif hierarchical tree view.  This is done mostly to
+  feel of the Motif hierarchical tree view. This is done mostly to
   provide a usable keyboard interface and to make the list view look
   better with a white background.
 
@@ -2356,7 +2411,7 @@ void QListViewItem::ignoreDoubleClick()
   as object name.
 
   Performance is boosted by modifying the widget flags \a f so that only
-  part of the QListViewItem children is redrawn.  This may be unsuitable
+  part of the QListViewItem children is redrawn. This may be unsuitable
   for custom QListViewItem classes, in which case \c WStaticContents and
   \c WRepaintNoErase should be cleared.
 
@@ -2783,7 +2838,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 
 /*!  Paints \a rect so that it looks like empty background using
-  painter \a p.  \a rect is is widget coordinates, ready to be fed to \a
+  painter \a p. \a rect is is widget coordinates, ready to be fed to \a
   p.
 
   The default function fills \a rect with the viewport()->backgroundBrush()
@@ -2803,7 +2858,7 @@ void QListView::paintEmptyArea( QPainter * p, const QRect & rect )
 }
 
 
-/*! Rebuilds the list of drawable QListViewItems.  This function is
+/*! Rebuilds the list of drawable QListViewItems. This function is
   const so that const functions can call it without requiring
   d->drawables to be mutable.
 */
@@ -2907,7 +2962,7 @@ void QListView::setTreeStepSize( int size )
     }
 }
 
-/*!  Inserts item \a i into the list view as a top-level item.  You do not
+/*!  Inserts item \a i into the list view as a top-level item. You do not
   need to call this unless you've called takeItem(\a i) or
   QListViewItem::takeItem(\a i) and need to reinsert \a i elsewhere.
 
@@ -3122,7 +3177,7 @@ void QListView::setColumnText( int column, const QString &label )
 /*! \overload
 
   Sets the heading of column \a column to \a iconset and \a
-  label.  The leftmost column is 0.
+  label. The leftmost column is 0.
 
   \sa columnText()
 */
@@ -3134,9 +3189,9 @@ void QListView::setColumnText( int column, const QIconSet& iconset, const QStrin
     }
 }
 
-/*! Sets the width of column \a column to \a w pixels.  Note that if the
+/*! Sets the width of column \a column to \a w pixels. Note that if the
   column has a WidthMode other than Manual, this width setting may be
-  subsequently overridden.  The leftmost column is 0.
+  subsequently overridden. The leftmost column is 0.
 
   \sa columnWidth()
 */
@@ -3174,12 +3229,12 @@ int QListView::columnWidth( int c ) const
 /*! \enum QListView::WidthMode
 
   This enum type describes how the width of a column in the view
-  changes.  The currently defined modes are:
+  changes. The currently defined modes are:
 
   \value Manual the column width does not change automatically.
 
   \value Maximum  the column is automatically sized according to the
-  widths of all items in the column.  (Note: The column never shrinks
+  widths of all items in the column. (Note: The column never shrinks
   in this case.) This means the column is always resized to the
   width of the item with the largest width in the column.
 
@@ -3188,7 +3243,7 @@ int QListView::columnWidth( int c ) const
 
 
 /*!
-  Sets column \a{c}'s width mode to \a mode.  The default depends
+  Sets column \a{c}'s width mode to \a mode. The default depends
   on whether the width argument to addColumn was positive or negative.
 
   \sa QListViewItem::width()
@@ -3244,7 +3299,7 @@ void QListView::setColumnAlignment( int column, int align )
 
 
 /*!
-  Returns the alignment of column \a column.  The default
+  Returns the alignment of column \a column. The default
   is \c AlignAuto.
 
   \sa Qt::AlignmentFlags
@@ -3391,7 +3446,7 @@ void QListView::handleSizeChange( int section, int os, int ns )
 
 
 /*!  Very smart internal slot that repaints \e only the items that need
-  to be repainted.  Don't use this directly; call repaintItem()
+  to be repainted. Don't use this directly; call repaintItem()
   instead.
 */
 
@@ -3458,7 +3513,7 @@ void QListView::viewportResizeEvent( QResizeEvent *e )
 }
 
 /*!  Triggers a size, geometry and content update during the next
-  iteration of the event loop.  Ensures that there'll be
+  iteration of the event loop. Ensures that there'll be
   just one update to avoid flicker.
 */
 
@@ -3574,9 +3629,9 @@ int QListViewItem::depth() const
 
 /*!
   Returns a pointer to the item immediately above this item on the
-  screen.  This is usually the item's closest older sibling, but it may
+  screen. This is usually the item's closest older sibling, but it may
   also be its parent or its next older sibling's youngest child, or
-  something else if anyoftheabove->height() returns 0.  Returns a null
+  something else if anyoftheabove->height() returns 0. Returns a null
   pointer if there is no item immediately above this item.
 
   This function assumes that all parents of this item are open
@@ -3612,10 +3667,10 @@ QListViewItem * QListViewItem::itemAbove()
 
 /*!
   Returns a pointer to the item immediately below this item on the
-  screen.  This is usually the item's eldest child, but it may also be
+  screen. This is usually the item's eldest child, but it may also be
   its next younger sibling, its parent's next younger sibling,
   grandparent's, etc., or something else if anyoftheabove->height()
-  returns 0.  Returns a null pointer if there is no item immediately
+  returns 0. Returns a null pointer if there is no item immediately
   below this item.
 
   This function assumes that all parents of this item are open
@@ -3708,7 +3763,7 @@ QListViewItem* QListViewItem::parent() const
 
 
 /*!
-  Returns the height of this item in pixels.  This does not include
+  Returns the height of this item in pixels. This does not include
   the height of any children; totalHeight() returns that.
 */
 int QListViewItem::height() const
@@ -3724,7 +3779,7 @@ int QListViewItem::height() const
 
 /*!
   Call this function when the value of width() may have changed
-  for column \a c.  Normally, you should call this if text(c) changes.
+  for column \a c. Normally, you should call this if text(c) changes.
   Passing -1 for \a c indicates that all columns may have changed.
   For efficiency, you should do this if more than one
   call to widthChanged() is required.
@@ -3747,7 +3802,7 @@ void QListViewItem::widthChanged( int c ) const
 /*! \fn void QListView::selectionChanged()
 
   This signal is emitted whenever the set of selected items has
-  changed (normally before the screen update).  It is available both
+  changed (normally before the screen update). It is available both
   in Single selection and Multi selection mode but is most useful
   in Multi selection mode.
 
@@ -3841,7 +3896,7 @@ void QListViewItem::widthChanged( int c ) const
   \overload
 
   This signal is emitted whenever the selected item has changed in
-  Single selection mode (normally after the screen update).  The
+  Single selection mode (normally after the screen update). The
   argument is the newly selected item.
 
   The no argument overload of this signal is more useful in Multi
@@ -3857,11 +3912,11 @@ void QListViewItem::widthChanged( int c ) const
 /*! \fn void QListView::currentChanged( QListViewItem * )
 
   This signal is emitted whenever the current item has changed
-  (normally after the screen update).  The current item is the item
+  (normally after the screen update). The current item is the item
   responsible for indicating keyboard focus.
 
   The argument is the newly current item, or 0 if the change was to
-  make no item current.  This can happen, for example, if all items in
+  make no item current. This can happen, for example, if all items in
   the list view are deleted.
 
   Note that you may not delete any QListViewItem objects in slots
@@ -4719,7 +4774,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 }
 
 
-/*!  Returns a pointer to the QListViewItem at \a viewPos.  Note
+/*!  Returns a pointer to the QListViewItem at \a viewPos. Note
   that \a viewPos is in the coordinate system of viewport(), not in
   the list view's own, much larger, coordinate system.
 
@@ -4771,7 +4826,7 @@ QListViewItem * QListView::itemAt( const QPoint & viewPos ) const
 
 
 /*!  Returns the y-coordinate of \a item in the list view's
-  coordinate system.  This function is normally much slower than
+  coordinate system. This function is normally much slower than
   itemAt() but it works for all items, whereas itemAt() normally works
   only for items on the screen.
 
@@ -4848,7 +4903,7 @@ QListView::SelectionMode QListView::selectionMode() const
 
   If the list view is in Single selection mode and \a selected is
   TRUE, the currently selected item is unselected and \a item is made
-  current.  Unlike QListViewItem::setSelected(), this function updates
+  current. Unlike QListViewItem::setSelected(), this function updates
   the list view as necessary and emits the selectionChanged() signals.
 
   \sa isSelected() setMultiSelection() isMultiSelection() setCurrentItem()
@@ -4885,7 +4940,7 @@ void QListView::setSelected( QListViewItem * item, bool selected )
 
 
 /*! Sets all items to be not selected, updates the list view as
-necessary and emits the selectionChanged() signals.  Note that for
+necessary and emits the selectionChanged() signals. Note that for
 Multi selection list views this function needs to iterate over \e all
 items.
 
@@ -4986,7 +5041,7 @@ QListViewItem * QListView::selectedItem() const
 
 
 /*!  Sets item \a i to be the current highlighted item and repaints
-  appropriately.  This highlighted item is used for keyboard
+  appropriately. This highlighted item is used for keyboard
   navigation and focus indication; it doesn't mean anything else, e.g.
   it is different from selection.
 
@@ -5059,7 +5114,7 @@ QListViewItem * QListView::currentItem() const
 
   The rectangle returned does not include any children of the
   rectangle (i.e. it uses QListViewItem::height(), rather than
-  QListViewItem::totalHeight()).  If you want the rectangle to include
+  QListViewItem::totalHeight()). If you want the rectangle to include
   children you can use something like this:
 
   \code
@@ -5068,10 +5123,10 @@ QListViewItem * QListView::currentItem() const
 				listView->viewport->height() - r.y() ) ) )
   \endcode
 
-  Note the way it avoids too-high rectangles.  totalHeight() can be
+  Note the way it avoids too-high rectangles. totalHeight() can be
   much larger than the window system's coordinate system allows.
 
-  itemRect() is comparatively slow.  It's best to call it only for
+  itemRect() is comparatively slow. It's best to call it only for
   items that are probably on-screen.
 */
 
@@ -5100,7 +5155,7 @@ QRect QListView::itemRect( const QListViewItem * i ) const
 
 /*! \fn void QListView::doubleClicked( QListViewItem *item )
 
-  This signal is emitted whenever an item is double-clicked.  It's
+  This signal is emitted whenever an item is double-clicked. It's
   emitted on the second button press, not the second button release.
   \a item is the list view item on which the user did the double-click.
 */
@@ -5108,7 +5163,7 @@ QRect QListView::itemRect( const QListViewItem * i ) const
 
 /*! \fn void QListView::returnPressed( QListViewItem * )
 
-  This signal is emitted when Enter or Return is pressed.  The
+  This signal is emitted when Enter or Return is pressed. The
   argument is the currentItem().
 */
 
@@ -5212,7 +5267,7 @@ int QListView::itemMargin() const
 /*! \fn void QListView::rightButtonClicked( QListViewItem *, const QPoint&, int )
 
   This signal is emitted when the right button is clicked (i.e. when
-  it's released).  The arguments are the relevant QListViewItem (may
+  it's released). The arguments are the relevant QListViewItem (may
   be 0), the point in global coordinates and the relevant column (or -1 if the
   click was outside the list).
 */
@@ -5220,7 +5275,7 @@ int QListView::itemMargin() const
 
 /*! \fn void QListView::rightButtonPressed (QListViewItem *, const QPoint &, int)
 
-  This signal is emitted when the right button is pressed.  Arguments
+  This signal is emitted when the right button is pressed. Arguments
   are then the relevant QListViewItem (may be 0), the point in global
   coordinates and the relevant column (or -1 if the click was outside
   the list).
@@ -5271,7 +5326,7 @@ void QListView::setPalette( const QPalette & p )
   and that it will be called for currently invisible items as soon as
   their parents are opened.
 
-  (A visible item, here, is an item whose parents are all open.  The
+  (A visible item, here, is an item whose parents are all open. The
   item may happen to be offscreen.)
 
   \sa QListViewItem::setup()
@@ -5348,7 +5403,7 @@ bool QListView::allColumnsShowFocus() const
 }
 
 
-/*!  Returns the first item in this QListView.  You can use its \link
+/*!  Returns the first item in this QListView. You can use its \link
   QListViewItem::firstChild() firstChild() \endlink and \link
   QListViewItem::nextSibling() nextSibling() \endlink functions to
   traverse the entire tree of items.
@@ -5831,7 +5886,7 @@ QSize QListView::minimumSizeHint() const
 
 
 /*!  Sets \a item to be open if \a open is TRUE and \a item is
-  expandable, and to be closed if \a open is FALSE.  Repaints
+  expandable, and to be closed if \a open is FALSE. Repaints
   accordingly.
 
   \sa QListViewItem::setOpen() QListViewItem::setExpandable()
@@ -5884,7 +5939,7 @@ void QListView::setOpen( QListViewItem * item, bool open )
 }
 
 
-/*! Identical to \a{item}->isOpen().  Provided for completeness.
+/*! Identical to \a{item}->isOpen(). Provided for completeness.
 
   \sa setOpen()
 */
@@ -5954,7 +6009,7 @@ void QListView::ensureItemVisible( const QListViewItem * i )
 */
 
 /*!  Returns a pointer to the QHeader object that manages this list
-  view's columns.  Please don't modify the header behind the list
+  view's columns. Please don't modify the header behind the list
   view's back.
 
   You may safely call QHeader::setClickEnabled(),
@@ -5985,7 +6040,7 @@ int QListView::childCount() const
 }
 
 
-/*!  Moves this item to just after \a olderSibling.  \a olderSibling
+/*!  Moves this item to just after \a olderSibling. \a olderSibling
   and this object must have the same parent.
 
   If you need to move an item in the hierarchy use takeItem() and
@@ -6062,7 +6117,7 @@ void QListView::showEvent( QShowEvent * )
 
 
 /*!  Returns the y coordinate of \e this item in the list view's
-  coordinate system.  This function is normally much slower than
+  coordinate system. This function is normally much slower than
   QListView::itemAt(), but it works for all items whereas
   QListView::itemAt() normally only works for items on the screen.
 
@@ -6279,8 +6334,8 @@ bool QListView::isRenaming() const
     traverse a hierarchical QListView.
 
   Multiple QListViewItemIterators can operate on the tree of
-  QListViewItems.  A QListView knows about all iterators operating on
-  its QListViewItems.  So when a QListViewItem gets removed all
+  QListViewItems. A QListView knows about all iterators operating on
+  its QListViewItems. So when a QListViewItem gets removed all
   iterators that point to this item are updated and point to the
   following item if possible, otherwise to a valid item before the
   current one or to 0.
@@ -6500,7 +6555,7 @@ const QListViewItemIterator QListViewItemIterator::operator--( int )
 
 /*! Sets the current item to the item \a j positions before the
   current item in the QListViewItem hierarchy. If this item is before
-  the first item, the current item is set to null.  The new current
+  the first item, the current item is set to null. The new current
   item (or null, if the new current item is null) is returned.
 */
 
