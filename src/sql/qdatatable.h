@@ -167,6 +167,7 @@ public slots:
     virtual void refresh();
     void setColumnWidth( int col, int w );
     void adjustColumn( int col );
+    void setColumnStretchable( int col, bool stretch );
 
 protected:
     virtual bool insertCurrent();

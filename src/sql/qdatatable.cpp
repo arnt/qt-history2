@@ -382,6 +382,18 @@ void QDataTable::adjustColumn( int col )
     cur->seek( oldRow );
 }
 
+/*! \reimp
+*/
+void QDataTable::setColumnStretchable( int col, bool s )
+{
+    if ( numCols() == 0 ) {
+	refresh( RefreshColumns );
+    }
+    if ( numCols() > col ) {
+	QTable::setColumnStretchable( col, s );
+    }
+}
+
 QString QDataTable::filter() const
 {
     return d->cur.filter();
