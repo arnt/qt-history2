@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#36 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -302,7 +302,8 @@ bool QWidgetStack::isMyChild( QWidget * w )
 void QWidgetStack::frameChanged()
 {
     QFrame::frameChanged();
-    setChildGeometries();
+    if ( l )
+	setChildGeometries();
 }
 
 
