@@ -13,7 +13,10 @@ UninstallDlgImpl::~UninstallDlgImpl()
 
 void UninstallDlgImpl::cleanRegistry()
 {
-    cleanRegistryHelper( "/Trolltech" );
+    cleanRegistryHelper( "/Trolltech/Qt" );
+    cleanRegistryHelper( "/Trolltech/Qt Designer" );
+    cleanRegistryHelper( "/Trolltech/Qt Assistant" );
+    cleanRegistryHelper( "/Trolltech/Qt Linguist" );
 }
 
 void UninstallDlgImpl::cleanRegistryHelper( const QString& key )
