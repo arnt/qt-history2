@@ -1,4 +1,4 @@
-# Qt image handling 
+# Qt image handling
 
 # Qt kernel module
 
@@ -11,6 +11,7 @@ HEADERS += \
 	image/qimageformatplugin.h \
 	image/qimageformatinterface_p.h \
 	image/qmovie.h \
+	image/qpaintengine_pic_p.h \
 	image/qpicture.h \
 	image/qpictureformatinterface_p.h \
 	image/qpictureformatplugin.h \
@@ -26,6 +27,7 @@ SOURCES += \
 	image/qimageformatplugin.cpp \
 	image/qimage_gui.cpp \
 	image/qmovie.cpp \
+	image/qpaintengine_pic.cpp \
 	image/qpicture.cpp \
 	image/qpictureformatplugin.cpp \
 	image/qpixmap.cpp \
@@ -77,7 +79,7 @@ mng {
 else:DEFINES += QT_NO_IMAGEIO_MNG
 
 #jpeg support..
-HEADERS += image/qjpegio.h 
+HEADERS += image/qjpegio.h
 SOURCES += image/qjpegio.cpp
 jpeg {
         system-jpeg {
@@ -158,7 +160,7 @@ png {
 		  ../3rdparty/libpng/pngwio.c \
 		  ../3rdparty/libpng/pngwrite.c \
 		  ../3rdparty/libpng/pngwtran.c \
-		  ../3rdparty/libpng/pngwutil.c 
+		  ../3rdparty/libpng/pngwutil.c
         }
 }
 else:DEFINES += QT_NO_IMAGEIO_PNG

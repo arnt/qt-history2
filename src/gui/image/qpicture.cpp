@@ -16,12 +16,14 @@
 
 #ifndef QT_NO_PICTURE
 
+#include "qdatastream.h"
+#include "qfile.h"
+#include "qimage.h"
+#include "qpaintdevicemetrics.h"
+#include "private/qpaintengine_svg_p.h"
+#include "private/qpaintengine_pic_p.h"
 #include "qpainter.h"
 #include "qpixmap.h"
-#include "qimage.h"
-#include "qfile.h"
-#include "qdatastream.h"
-#include "qpaintdevicemetrics.h"
 #include "qregion.h"
 
 /*!
@@ -75,7 +77,7 @@
 
 
 static const char  *mfhdr_tag = "QPIC";		// header tag
-static const Q_UINT16 mfhdr_maj = 5;		// major version #
+static const Q_UINT16 mfhdr_maj = 6;		// major version #
 static const Q_UINT16 mfhdr_min = 0;		// minor version #
 
 
@@ -106,6 +108,7 @@ QPicture::QPicture( int formatVersion )
     // set device type
 {
     d = new QPicturePrivate;
+    d->paintEngine = 0;
 
     if ( formatVersion == 0 )
 	qWarning( "QPicture: invalid format version 0" );
@@ -217,6 +220,17 @@ bool QPicture::load( const QString &fileName, const char *format )
 bool QPicture::load( QIODevice *dev, const char *format )
 {
     if(format) {
+#ifndef QT_NO_SVG
+	if ( qstrcmp( format, "svg" ) == 0 ) {
+	    QSVGPaintEngine svg;
+	    if ( !svg.load( dev ) )
+		return FALSE;
+	    QPainter p( this );
+	    bool b = svg.play( &p );
+	    d->brect = svg.boundingRect();
+	    return b;
+	}
+#endif
 #ifndef QT_NO_PICTUREIO
 	QPictureIO io( dev, format );
 	bool result = io.read();
@@ -224,10 +238,10 @@ bool QPicture::load( QIODevice *dev, const char *format )
 	    operator=( io.picture() );
 	} else if ( format )
 #else
-	bool result = FALSE;
+	    bool result = FALSE;
 #endif
 	{
-		qWarning( "QPicture::load: No such picture format: %s", format );
+	    qWarning( "QPicture::load: No such picture format: %s", format );
 	}
 	return result;
     }
@@ -354,12 +368,12 @@ void QPicture::setBoundingRect( const QRect &r )
 
 bool QPicture::play( QPainter *painter )
 {
-#if 0 // ### port
+// #if 0 // ### port
     if ( d->pictb.size() == 0 )			// nothing recorded
-	return TRUE;
+	return true;
 
     if ( !d->formatOk && !d->checkFormat() )
-	return FALSE;
+	return false;
 
     d->pictb.open( IO_ReadOnly );		// open buffer device
     QDataStream s;
@@ -380,10 +394,10 @@ bool QPicture::play( QPainter *painter )
     if ( !exec( painter, s, nrecords ) ) {
 	qWarning( "QPicture::play: Format error" );
 	d->pictb.close();
-	return FALSE;
+	return false;
     }
     d->pictb.close();
-#endif // 0
+// #endif // 0
     return TRUE;				// no end-command
 }
 
@@ -396,7 +410,7 @@ bool QPicture::play( QPainter *painter )
 
 bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 {
-#if 0 // ### port
+//#if 0 // ### port
 #if defined(QT_DEBUG)
     int		strm_pos;
 #endif
@@ -642,7 +656,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 	Q_ASSERT( Q_INT32(s.device()->at() - strm_pos) == len );
 #endif
     }
-#endif // 0
+// #endif // 0
     return FALSE;
 }
 
@@ -1063,7 +1077,6 @@ void QPicture::QPicturePrivate::resetFormat()
 
 bool QPicture::QPicturePrivate::checkFormat()
 {
-#if 0 // ### port
     resetFormat();
 
     // can't check anything in an empty buffer
@@ -1086,6 +1099,7 @@ bool QPicture::QPicturePrivate::checkFormat()
     int data_start = cs_start + sizeof(Q_UINT16);
     Q_UINT16 cs,ccs;
     QByteArray buf = pictb.buffer();	// pointer to data
+    qWarning("checkFormat: size: %d - data_start: %d", buf.size(), data_start);
     s >> cs;				// read checksum
     ccs = qChecksum( buf.constData() + data_start, buf.size() - data_start );
     if ( ccs != cs ) {
@@ -1123,8 +1137,14 @@ bool QPicture::QPicturePrivate::checkFormat()
     formatOk = TRUE;			// picture seems to be ok
     formatMajor = major;
     formatMinor = minor;
-#endif // 0
     return TRUE;
+}
+
+QPaintEngine *QPicture::engine() const
+{
+    if (!d->paintEngine)
+	const_cast<QPicture*>(this)->d->paintEngine = new QPicturePaintEngine(&d->pictb);
+    return d->paintEngine;
 }
 
 /*****************************************************************************
@@ -1981,7 +2001,6 @@ bool QPictureIO::write()
     }
     return d->iostat == 0;				// picture successfully written?
 }
-
 #endif //QT_NO_PICTUREIO
 
 #endif // QT_NO_PICTURE
