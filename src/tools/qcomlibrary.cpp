@@ -102,7 +102,7 @@ static bool verify( const QString& library, uint version, uint flags, const char
 		      (const char*) QFile::encodeName(library),
 		      QT_BUILD_KEY, key ? key : "<null>" );
     } else if ( (version >  QT_VERSION)  ||
-	 (QT_VERSION & 0xffff00  >  version & 0xffff00) ) {
+	 ( ( QT_VERSION & 0xffff00 ) > ( version & 0xffff00 ) ) ) {
 	if ( didLoad )
 	    qWarning( "Conflict in %s:\n Plugin uses incompatible Qt library (%d.%d.%d)!", (const char*) QFile::encodeName(library),
 		      version&0xff0000,version&0xff00,version&0xff );
@@ -134,7 +134,7 @@ void QComLibrary::createInstanceInternal()
     if ( reg.count() == 4 ) {
 	version = reg[0].toUInt(0, 16);
 	flags = reg[1].toUInt(0, 16);
-	key = reg[2].data();
+	key = reg[2].latin1();
 	
 	// check timestamp
 	if ( lastModified == reg[3] &&
