@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipbrd.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qclipbrd.cpp#12 $
 **
 ** Implementation of QClipboard class
 **
@@ -13,7 +13,7 @@
 #include "qapp.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipbrd.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipbrd.cpp#12 $");
 
 
 /*!
@@ -51,10 +51,6 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qclipbrd.cpp#11 $");
     // Copy text into the clipboard
     cb->setText( "This text can be pasted by other programs" );
   \endcode
-
-  \warning
-  It is an important GUI principle that all clipboard operations should be
-  initiated by the user.
 */
 
 
