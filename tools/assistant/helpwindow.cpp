@@ -41,15 +41,10 @@ void HelpWindow::setSource( const QString &name )
 	    j = QMIN( j, k );
 	}
 	txt.insert( j, "</td></tr></table>" );
-	QString home = QDir::homeDirPath();
-	QFile f( home + "/.designer/tmp_" +
-		 name.mid( name.find( '#' ) + 1 ) + "_" + name.mid( 2 ).left( name.mid( 2 ).find( '#' ) ) );
-	if ( !f.open( IO_WriteOnly ) )
-	    return;
-	QTextStream ts( &f );
-	ts << txt;
-	f.close();
-	QTextBrowser::setSource( home + "/.designer/tmp_" + name.mid( name.find( '#' ) + 1 ) + "_" + name.mid( 2 ));
+	QTextBrowser::setText( txt, context() );
+	QUrl u( name.mid( 2 ) );
+	if ( !u.ref().isEmpty() )
+	    scrollToAnchor( u.ref() );
     }
 }
 
