@@ -96,8 +96,8 @@ public:
     int alignment() const;
 
 #ifndef QT_NO_COMPAT
-    void cursorLeft( bool mark, int steps = 1 );
-    void cursorRight( bool mark, int steps = 1 );
+    void cursorLeft( bool mark, int steps = 1 ) { cursorForward( mark, -steps ); }
+    void cursorRight( bool mark, int steps = 1 ) { cursorForward( mark, steps ); }
 #endif
     void cursorForward( bool mark, int steps = 1 );
     void cursorBackward( bool mark, int steps = 1 );
@@ -161,7 +161,7 @@ protected:
 #endif
 
 #ifndef QT_NO_COMPAT
-    void repaintArea( int, int );
+    void repaintArea( int, int ) { update(); }
 #endif
 
 private slots:

@@ -1033,26 +1033,20 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
 }
 
 /*!
+  \fn void QLineEdit::cursorRight( bool, int )
   \obsolete
   For compatibilty with older applications only. Use cursorForward
   instead.
   \sa cursorForward()
 */
-void QLineEdit::cursorRight( bool mark, int steps )
-{
-    cursorForward( mark, steps );
-}
 
 /*!
+  \fn void QLineEdit::cursorLeft( bool, int )
   \obsolete
   For compatibilty with older applications only. Use cursorBack
   instead.
   \sa cursorBackward()
 */
-void QLineEdit::cursorLeft( bool mark, int steps )
-{
-    cursorForward( mark, -steps );
-}
 
 /*!
   Moves the cursor back one or more characters.
@@ -1611,18 +1605,13 @@ void QLineEdit::insert( const QString &newText )
 }
 
 
-/*!  Repaints all characters from \a from to \a to.  If cursorPos is
+/*!
+  \fn void QLineEdit::repaintArea( int, int )
+  \obsolete
+  Repaints all characters from \a from to \a to.  If cursorPos is
   between from and to, ensures that cursorPos is visible.
-
-  Obsolete and provided for backwards compatibilty only.
 */
-#ifndef QT_NO_COMPAT
-void QLineEdit::repaintArea( int, int )
-{
-    qObsolete( "QLineEdit", "repaintArea" );
-    update();
-}
-#endif
+
 
 /*!  \reimp */
 
