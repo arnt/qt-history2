@@ -1,8 +1,8 @@
-                   QT 0.96 BINARY DISTRIBUTION
+                   QT 0.98 BINARY DISTRIBUTION
 
 This is a precompiled library version of the Qt GUI Toolkit, version
-0.96.  To develop programs using Qt, you also need the complete source
-distribution, qt-0.96.tar.gz, which contains header files and
+0.98.  To develop programs using Qt, you also need the complete source
+distribution, qt-0.98.tar.gz, which contains header files and
 complete documentation. It is available at http://www.troll.no/dl/ or
 probably from wherever you got this archive.
 
