@@ -1078,8 +1078,7 @@ bool QOCIResult::exec()
 		    case QVariant::Time:
 		    case QVariant::Date:
 		    case QVariant::DateTime: {
-			QByteArray * ba = new QByteArray;
-			*ba = qMakeOraDate( it.data().toDateTime() );
+			QByteArray * ba = new QByteArray( qMakeOraDate( it.data().toDateTime() ) );
 			tmpStorage.append( ba );
 			r = OCIBindByName( d->sql, &hbnd, d->err,
 					   (text *) it.key().local8Bit().data(),
