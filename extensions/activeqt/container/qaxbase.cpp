@@ -1303,6 +1303,9 @@ private:
         if (type && qstrcmp(type, "HRESULT"))
             prop.first = replaceType(type);
         prop.second |= flags;
+        QVariant::Type vartype = QVariant::nameToType(prop.first);
+        if (vartype != QVariant::Invalid)
+            prop.second |= vartype << 24;
     }
     
     inline bool hasProperty(const char *name)
@@ -2627,7 +2630,6 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
         
         // map result VARIANTARG to void*
         QVariantToVoidStar(VARIANTToQVariant(arg, prop.type()), *v);
-        //### wrapComPointer(*_v, arg.vt, qObject(), prop->name());
         break;
         
     case QMetaObject::WriteProperty:
