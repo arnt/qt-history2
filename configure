@@ -566,6 +566,8 @@ fi
 MKSPEC="$relpath/mkspecs/${PLATFORM}"
 XMKSPEC="$relpath/mkspecs/${XPLATFORM}"
 
+################## need Qt/Embedded specs here ###############
+
 if [ '!' -f "$MKSPEC" ];
 then
     echo
