@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <qdir.h>
 #include <qstringlist.h>
+#if defined(Q_OS_WIN32)
+#include <qt_windows.h>
+#endif
 
 PackageSocket::PackageSocket( int socket, QObject *parent )
     : QSocket( parent )
@@ -32,14 +35,20 @@ void PackageSocket::readClient()
 	    qFatal( "couldn't open" );
 	f.writeBlock( buffer );
 
-	system( "unzip a.zip" );
-	system( "build-selfextractor.bat" );
+	f.flush();
 
+#if defined(Q_OS_WIN32)
+	SleepEx( 1000, FALSE );
+#endif	
+	system( "unzip -o a.zip" );
+	system( "build-selfextractor.bat" );
+	
 	QDir d;
 	QStringList l = d.entryList( "q*.exe" );
 
 	f.close();
 	f.setName( l[0] );
+	qDebug( l[0] );
 	if ( !f.open( IO_ReadOnly ) )
 	    qFatal( "could not open" );
 
@@ -49,12 +58,13 @@ void PackageSocket::readClient()
 	int s = ba.size();
 	writeBlock( (char*)&s, 4 );
 	writeBlock( ba.data(), s );
+	pos = -1;
     }
 }
 
 void PackageSocket::connectionClosed()
 {
-    delete this;
+    //delete this;
 }
 
 PackageServer::PackageServer( QObject *parent )
