@@ -118,8 +118,8 @@ public:
     file (and assuming that the FTP protocol is \link
     qInitNetworkProtocols() registered\endlink):
     \code
-    QUrlOperator op;
-    op.copy( QString("ftp://ftp.trolltech.com/qt/source/qt-2.1.0.tar.gz"),
+    QUrlOperator *op = new QUrlOperator();
+    op->copy( QString("ftp://ftp.trolltech.com/qt/source/qt-2.1.0.tar.gz"),
 	     "file:/tmp" );
     \endcode
 
