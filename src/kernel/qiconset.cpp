@@ -645,8 +645,10 @@ QPixmap QIconSet::pixmap( Size s, Mode m, State state ) const
 	    case Normal:
 		if ( !p->on_vlarge.pm ) {
 		    QPixmap *fallback = 0;
-		    if ( !(fallback = p->on_vsmall.pm ) )
-			fallback = new QPixmap( Large, Normal, Off );
+		    if ( !(fallback = p->on_vsmall.pm ) ) {
+			pm = p->on_vlarge.pm = new QPixmap( Large, Normal, Off );
+			break;
+		    }
 		    Q_ASSERT( fallback );
 		    i = fallback->convertToImage();
 		    i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
@@ -728,8 +730,10 @@ QPixmap QIconSet::pixmap( Size s, Mode m, State state ) const
 	    case Normal:
 		if ( !p->on_vsmall.pm ) {
 		    QPixmap *fallback = 0;
-		    if ( !( fallback = p->on_vlarge.pm ) )
-			fallback = new QPixmap( pixmap( Small, Normal, Off ) );
+		    if ( !( fallback = p->on_vlarge.pm ) ) {
+			pm = p->on_vsmall.pm = new QPixmap( pixmap( Small, Normal, Off ) );
+			break;
+		    }
 		    Q_ASSERT( fallback );
 		    i = fallback->convertToImage();
 		    i = i.smoothScale( i.width() * 2 / 3, i.height() * 2 / 3 );
