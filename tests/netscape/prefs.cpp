@@ -44,8 +44,13 @@ Preferences::Preferences(QWidget* parent, const char* name, int f) :
     QFontMetrics fm=fontMetrics();
     int w = fm.width("New Page Colors ")+selector->treeStepSize()*2;
     selector->setColumn( "Category", w );
-    selector->setColumn( "Bug", 30 ); // ### bug in QListView
-    selector->setMaximumWidth( w /*BUG*/+30 );
+#define LISTVIEW_BUG_FIXED
+#ifdef LISTVIEW_BUG_FIXED
+    selector->setMaximumWidth( w );
+#else
+    selector->setColumn( "Bug", 30 );
+    selector->setMaximumWidth( w+30 );
+#endif
     selector->setRootIsDecorated( TRUE );
     selector->setFocusPolicy( QWidget::StrongFocus );
 
