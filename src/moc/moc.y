@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#71 $
+** $Id: //depot/qt/main/src/moc/moc.y#72 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#71 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#72 $");
 
 QString rmWS( const char * );
 
@@ -894,8 +894,9 @@ int main( int argc, char **argv )
 		     (const char*)outputFile );
 	    return 1;
 	}
-    } else					// use stdout
+    } else {					// use stdout
 	out = stdout;
+    }
     init();
     yyparse();
     fclose( yyin );
@@ -938,6 +939,10 @@ QString combinePath( const char *infile, const char *outfile )
     QString b = outfile; replace(b.data(),'\\','/');
     a = a.stripWhiteSpace();
     b = b.stripWhiteSpace();
+#if !defined(UNIX)
+    a = a.lower();
+    b = b.lower();
+#endif
     QString r;
     int i = 0;
     int ncommondirs = 0;
@@ -956,7 +961,11 @@ QString combinePath( const char *infile, const char *outfile )
 	a = &a[i];
 	b = &b[i];
     } else {
+#if defined(UNIX)
 	if ( a[0] == '/' )
+#else
+	if ( (a[0] == '/') || (isalpha(a[0]) && a[1] == ':') )
+#endif
 	    return a;
 	b = &b[i];
     }
@@ -1187,7 +1196,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.5 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.6 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
