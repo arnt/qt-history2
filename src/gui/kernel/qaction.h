@@ -157,6 +157,8 @@ class Q_GUI_EXPORT QActionGroup : public QObject
     Q_DECLARE_PRIVATE(QActionGroup);
 
     Q_PROPERTY(bool exclusive READ isExclusive WRITE setExclusive)
+    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
+    Q_PROPERTY(bool visible READ isVisible WRITE setVisible)
 
 public:
     QActionGroup(QObject* parent);
