@@ -97,7 +97,7 @@ public:
     bool   operator>=( const QDate &d ) const { return jd >= d.jd; }
 
     static QDate currentDate();
-    static QDate currentDate( Qt::DateTimeSpec );
+    static QDate currentDate( Qt::TimeSpec );
 #ifndef QT_NO_DATESTRING
     static QDate fromString( const QString& s, Qt::DateFormat f = Qt::TextDate );
 #endif
@@ -154,7 +154,7 @@ public:
     bool   operator>=( const QTime &d ) const { return ds >= d.ds; }
 
     static QTime currentTime();
-    static QTime currentTime( Qt::DateTimeSpec );
+    static QTime currentTime( Qt::TimeSpec );
 #ifndef QT_NO_DATESTRING
     static QTime fromString( const QString& s, Qt::DateFormat f = Qt::TextDate );
 #endif
@@ -166,7 +166,7 @@ public:
 
 private:
     static bool currentTime( QTime * );
-    static bool currentTime( QTime *, Qt::DateTimeSpec );
+    static bool currentTime( QTime *, Qt::TimeSpec );
 
     uint   ds;
     friend class QDateTime;
@@ -197,6 +197,7 @@ public:
     void   setDate( const QDate &date ) { d = date; }
     void   setTime( const QTime &time ) { t = time; }
     void   setTime_t( uint secsSince1Jan1970UTC );
+    void   setTime_t( uint secsSince1Jan1970UTC, Qt::TimeSpec );
 #ifndef QT_NO_DATESTRING
 #ifndef QT_NO_SPRINTF
     QString toString( Qt::DateFormat f = Qt::TextDate )	const;
@@ -218,7 +219,7 @@ public:
     bool   operator>=( const QDateTime &dt ) const;
 
     static QDateTime currentDateTime();
-    static QDateTime currentDateTime( Qt::DateTimeSpec );
+    static QDateTime currentDateTime( Qt::TimeSpec );
 #ifndef QT_NO_DATESTRING
     static QDateTime fromString( const QString& s, Qt::DateFormat f = Qt::TextDate );
 #endif
