@@ -79,6 +79,7 @@ QStringList Option::projfile::project_dirs;
 
 //QMAKE_GENERATE_MAKEFILE stuff
 QString Option::mkfile::qmakespec;
+int Option::mkfile::cachefile_depth = -1;
 bool Option::mkfile::do_deps = TRUE;
 bool Option::mkfile::do_dep_heuristics = TRUE;
 bool Option::mkfile::do_preprocess = FALSE;

@@ -1134,6 +1134,14 @@ MakefileGenerator::fileFixify(QString &file) const
 {
     if(file.isEmpty())
 	return FALSE;
+    int depth = 4;
+    if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE) {
+	if(project && !project->isEmpty("QMAKE_PROJECT_DEPTH"))
+	    depth = project->first("QMAKE_PROJECT_DEPTH").toInt();
+	else if(Option::mkfile::cachefile_depth != -1)
+	    depth = Option::mkfile::cachefile_depth;
+    }
+
     QString orig_file = file;
     file = Option::fixPathToTargetOS(file);
     if(project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty()) { //relative
@@ -1144,8 +1152,7 @@ MakefileGenerator::fileFixify(QString &file) const
 	   QString(file.at(match_dir.length())) == Option::dir_sep) {
 	    file = file.right(file.length() - (match_dir.length() + 1));
 	} else {
-	    //try to make no more than five ..'s
-	    for(int i = 1; i <= 5; i++) {
+	    for(int i = 1; i <= depth; i++) {
 		int sl = match_dir.findRev(Option::dir_sep);
 		if(sl == -1)
 		    break;
@@ -1167,7 +1174,7 @@ MakefileGenerator::fileFixify(QString &file) const
 	    return FALSE;
 	file = fi.filePath();
     }
-    debug_msg(3, "Fixed %s :: to :: %s", orig_file.latin1(), file.latin1());
+    debug_msg(3, "Fixed %s :: to :: %s (%d)", orig_file.latin1(), file.latin1(), depth);
     return TRUE;
 }
 

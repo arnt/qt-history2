@@ -337,11 +337,16 @@ QMakeProject::read(QString project, QString pwd)
 
 		while(!QFile::exists((cachefile = dir + QDir::separator() + Option::mkfile::cachefile))) {
 		    dir = dir.left(dir.findRev(QDir::separator()));
-			if(dir.isEmpty() || dir.find(QDir::separator()) == -1) {
+		    if(dir.isEmpty() || dir.find(QDir::separator()) == -1) {
 			cachefile = "";
 			break;
 		    }
+		    if(Option::mkfile::cachefile_depth == -1)
+			Option::mkfile::cachefile_depth = 1;
+		    else
+			Option::mkfile::cachefile_depth++;
 		}
+
 	    }
 	    Option::mkfile::cachefile = cachefile;
 	    if(!cachefile.isEmpty()) {
