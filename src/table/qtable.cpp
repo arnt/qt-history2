@@ -34,9 +34,7 @@
 **
 **********************************************************************/
 
-// needed for qsort (Borland)
-// ### PLEASE EXPLAIN #@зг~!!! what are we supposed to understand from this???
-// ### qsort() should be in <stdlib.h>. Is it not in there? Where is it then?
+// needed for qsort (Borland), because of a std namespace problem
 #include "qplatformdefs.h"
 
 // Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
