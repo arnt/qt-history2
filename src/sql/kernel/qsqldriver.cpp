@@ -52,11 +52,14 @@ QSqlDriverPrivate::~QSqlDriverPrivate()
     \module sql
 
     This class should not be used directly. Use QSqlDatabase instead.
+
+    If you want to create your own driver you can subclass this class
+    and reimplement its pure virtual functions, and those virtual
+    functions that you need.
 */
 
 /*!
-    Default constructor. Creates a new driver with parent \a parent.
-
+    Default constructor. Creates a new driver with the given \a parent.
 */
 
 QSqlDriver::QSqlDriver(QObject * parent)
@@ -76,7 +79,7 @@ QSqlDriver::~QSqlDriver()
     \fn bool QSqlDriver::open(const QString& db, const QString& user,
     const QString& password, const QString& host, int port, const QString& connOpts)
 
-    Derived classes must reimplement this abstract virtual function in
+    Derived classes must reimplement this pure virtual function in
     order to open a database connection on database \a db, using user
     name \a user, password \a password, host \a host, port \a port and
     connection options \a connOpts.
@@ -84,18 +87,16 @@ QSqlDriver::~QSqlDriver()
     The function \e must return true on success and false on failure.
 
     \sa setOpen()
-
 */
 
 /*!
     \fn bool QSqlDriver::close()
 
-    Derived classes must reimplement this abstract virtual function in
+    Derived classes must reimplement this pure virtual function in
     order to close the database connection. Return true on success,
     false on failure.
 
-    \sa setOpen()
-
+    \sa open() setOpen()
 */
 
 /*!
@@ -104,7 +105,6 @@ QSqlDriver::~QSqlDriver()
     Creates an empty SQL result on the database. Derived classes must
     reimplement this function and return a QSqlQuery object
     appropriate for their database to the caller.
-
 */
 
 //void QSqlDriver::destroyResult(QSqlResult* r) const
@@ -136,7 +136,7 @@ bool QSqlDriver::isOpenError() const
 /*!
     \enum QSqlDriver::DriverFeature
 
-    This enum contains a list of features a driver may support. Use
+    This enum contains a list of features a driver might support. Use
     hasFeature() to query whether a feature is supported or not.
 
     \value Transactions  whether the driver supports SQL transactions
@@ -148,8 +148,8 @@ bool QSqlDriver::isOpenError() const
     \value Unicode  whether the driver supports Unicode strings if the
     database server does
     \value PreparedQueries  whether the driver supports prepared query execution
-    \value NamedPlaceholders  whether the driver supports usage of named placeholders
-    \value PositionalPlaceholders  whether the driver supports usage of positional placeholders
+    \value NamedPlaceholders  whether the driver supports the use of named placeholders
+    \value PositionalPlaceholders  whether the driver supports the use of positional placeholders
 
     More information about supported features can be found in the
     \link sql-driver.html Qt SQL driver\endlink documentation.
@@ -170,9 +170,8 @@ bool QSqlDriver::isOpenError() const
 */
 
 /*!
-    Protected function which sets the open state of the database to \a
-    o. Derived classes can use this function to report the status of
-    open().
+    This function sets the open state of the database to \a o. Derived
+    classes can use this function to report the status of open().
 
     \sa open(), setOpenError()
 */
@@ -183,10 +182,10 @@ void QSqlDriver::setOpen(bool o)
 }
 
 /*!
-    Protected function which sets the open error state of the database
-    to \a e. Derived classes can use this function to report the
-    status of open(). Note that if \a e is true the open state of the
-    database is set to closed (i.e. isOpen() returns false).
+    This function sets the open error state of the database to \a e.
+    Derived classes can use this function to report the status of
+    open(). Note that if \a e is true the open state of the database
+    is set to closed (i.e. isOpen() returns false).
 
     \sa open(), setOpenError()
 */
@@ -199,9 +198,9 @@ void QSqlDriver::setOpenError(bool e)
 }
 
 /*!
-    Protected function which derived classes can reimplement to begin
-    a transaction. If successful, return true, otherwise return false.
-    The default implementation returns false.
+    This function is called to begin a transaction. If successful,
+    return true, otherwise return false. The default implementation
+    does nothing and returns false.
 
     \sa commitTransaction(), rollbackTransaction()
 */
@@ -212,9 +211,9 @@ bool QSqlDriver::beginTransaction()
 }
 
 /*!
-    Protected function which derived classes can reimplement to commit
-    a transaction. If successful, return true, otherwise return false.
-    The default implementation returns false.
+    This function is called to commit a transaction. If successful,
+    return true, otherwise return false. The default implementation
+    does nothing and returns false.
 
     \sa beginTransaction(), rollbackTransaction()
 */
@@ -225,9 +224,9 @@ bool QSqlDriver::commitTransaction()
 }
 
 /*!
-    Protected function which derived classes can reimplement to
-    rollback a transaction. If successful, return true, otherwise
-    return false. The default implementation returns false.
+    This function is called to rollback a transaction. If successful,
+    return true, otherwise return false. The default implementation
+    does nothing and returns false.
 
     \sa beginTransaction(), commitTransaction()
 */
@@ -238,8 +237,8 @@ bool QSqlDriver::rollbackTransaction()
 }
 
 /*!
-    Protected function which allows derived classes to set the value
-    of the last error, \a e, that occurred on the database.
+    This function is used to set the value of the last error, \a e,
+    that occurred on the database.
 
     \sa lastError()
 */
@@ -260,14 +259,14 @@ QSqlError QSqlDriver::lastError() const
 }
 
 /*!
-    Returns a list of tables in the database. The default
-    implementation returns an empty list.
+    Returns a list of the names of the tables in the database. The
+    default implementation returns an empty list.
 
     The \a tableType argument describes what types of tables
     should be returned. Due to binary compatibility, the string
     contains the value of the enum QSql::TableTypes as text.
     An empty string should be treated as QSql::Tables for
-    downward compatibility.
+    backward compatibility.
 
     \sa QSql::TableType
 */
@@ -299,18 +298,6 @@ QSqlRecord QSqlDriver::record(const QString& ) const
 {
     return QSqlRecord();
 }
-
-/*! \fn QSqlRecord QSqlDriver::record(const QSqlQuery&) const
-    \obsolete use QSqlResult::record() instead
-*/
-
-/*!  \fn QSqlRecord QSqlDriver::recordInfo(const QString& tablename) const
-    \obsolete use record() instead
-*/
-
-/*! \fn QSqlRecord QSqlDriver::recordInfo(const QSqlQuery& query) const
-    \obsolete use QSqlQuery::record instead
-*/
 
 /*!
     Returns a string representation of the NULL value for the
@@ -347,11 +334,12 @@ QString QSqlDriver::nullText() const
     format and enclosed in single quotation marks. If the date/time
     data is invalid, nullText() is returned.
 
-    \i If \a field is bytearray data, and the driver can edit binary
-    fields, the value is formatted as a hexadecimal string.
+    \i If \a field is \link QByteArray bytearray\endlink data, and the
+    driver can edit binary fields, the value is formatted as a
+    hexadecimal string.
 
-    \i For any other field type toString() will be called on its value
-    and the result returned.
+    \i For any other field type, toString() is called on its value
+    and the result of this is returned.
 
     \endlist
 

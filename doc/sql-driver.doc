@@ -81,17 +81,22 @@ Auto-Detected on this system: [ mysql psql ]
 Note that on Windows, the configure script doesn't do any
 auto-detection.
 
+\omit The extra newlines are because qdoc is confused by some backslashes \endomit
 The configure script cannot detect the neccessary libraries and include
 files if they are not in the standard paths, so it may be necessary to
 specify these paths using the "-I" and "-L" switches. For example, if
 your MySQL include files are installed in \c /usr/local/mysql (or in
-\c{C:\mysql\include} on Windows), then pass the following parameter to
-configure: \c -I/usr/local/mysql (or \c{-I C:\mysql\include} for
-Windows).
+\c{C:\mysql\include}
+on Windows), then pass the following parameter to
+configure: \c -I/usr/local/mysql (or
+\c{-I C:\mysql\include}
+for Windows).
 
 On Windows the -I parameter doesn't accept spaces in
-filenames, so use the 8.3 name instead, i.e. use \c{C:\progra~1\mysql}
-instead of \c{C:\program files\mysql}.
+filenames, so use the 8.3 name instead, i.e. use
+\c{C:\progra~1\mysql}
+instead of
+\c{C:\program files\mysql}.
 
 Use the \c{-qt-sql-<driver>} parameter to build the database driver
 statically into your Qt library or \c{-plugin-sql-<driver>} to build
@@ -102,16 +107,16 @@ additional information about required libraries.
 \section1 Building the plugins manually
 
 \target QMYSQL3
-\section2 QMYSQL3 - MySQL 3.x and MySQL 4.x
+\section2 QMYSQL3 for MySQL 3.x and MySQL 4.x
 
 \keyword QMYSQL3
 
 \section3 General information
 
-MySQL 3.x doesn't support SQL transactions by default. There are some
-backends which offer this functionality. Recent versions of the MySQL
-client libraries (>3.23.34) allow you to use transactions on those
-modified servers.
+MySQL 3.x doesn't support SQL transactions by default, although there
+are some backends which offer this functionality. Recent versions of
+the MySQL client libraries (>3.23.34) allow you to use transactions on
+those modified servers.
 
 If you have a recent client library and connect to a
 transaction-enabled MySQL server, a call to the
@@ -126,8 +131,8 @@ You can find information about MySQL on \l http://www.mysql.com
 \section3 How to build the plugin on Unix/Linux
 
 You need the MySQL header files and as well as the shared library
-\c{libmysqlclient.so}. Depending on your Linux distribution you need to
-install a package which is usually called "mysql-devel".
+\c{libmysqlclient.so}. Depending on your Linux distribution you may
+need to install a package which is usually called "mysql-devel".
 
 Tell \link qmake-manual.book qmake\endlink where to find the MySQL
 header files and shared libraries (here it is assumed that MySQL is
@@ -141,7 +146,7 @@ make
 
 \section3 How to build the plugin on Windows
 
-You need to get the MySQL installation files. Run SETUP.EXE and
+You need to get the MySQL installation files. Run \c SETUP.EXE and
 choose "Custom Install". Install the "Libs & Include Files" Module.
 Build the plugin as follows (here it is assumed that MySQL is
 installed in \c{C:\MYSQL}):
@@ -153,10 +158,10 @@ nmake
 \endcode
 
 If you are not using a Microsoft compiler, replace \c nmake with \c
-make in the statement above.
+make in the line above.
 
 \target QOCI8
-\section2 QOCI8 - Oracle Call Interface (OCI)
+\section2 QOCI8 for the Oracle Call Interface (OCI)
 
 \keyword QOCI8
 
@@ -177,7 +182,7 @@ Binary Large Objects (BLOBs) can be read and written, but be aware
 that this process may require a lot of memory.
 
 Note that Oracle 9 doesn't support scrollable result sets with LOB
-columns, you have to use a forward only query to select LOB fields
+columns, you must use a forward only query to select LOB fields
 (see QSqlQuery::setForwardOnly()).
 
 Inserting BLOBs should be done using either a prepared query where the
@@ -189,7 +194,7 @@ query to do this internally (see $QTDIR/examples/sql/blob).
 All files required to build driver should ship with the standard Oracle
 Client install.
 
-Oracle library files required to build driver:
+Oracle library files required to build the driver:
 
 \list
 \i \c libclntsh.so
@@ -201,7 +206,7 @@ Tell \c qmake where to find the Oracle header files and shared
 libraries (it is assumed that the variable \c $ORACLE_HOME points to
 the directory where Oracle is installed) and run make:
 
-If you are using Oracle 8:
+For Oracle 8:
 \code
 cd $QTDIR/plugins/src/sqldrivers/oci
 qmake -o Makefile "INCLUDEPATH+=$ORACLE_HOME/rdbms/public $ORACLE_HOME/rdbms/demo" "LIBS+=-L$ORACLE_HOME/lib -lclntsh -lwtc8" oci.pro
@@ -239,6 +244,9 @@ qmake -o Makefile oci.pro
 nmake
 \endcode
 
+If you are not using a Microsoft compiler, replace \c nmake with \c
+make in the line above.
+
 When you run your application you will also need to add the \c oci.dll
 path to your \c PATH environment variable:
 
@@ -246,32 +254,29 @@ path to your \c PATH environment variable:
 set PATH=%PATH%;c:\oracle\bin
 \endcode
 
-If you are not using a Microsoft compiler, replace \c nmake with \c
-make in the statement above.
-
 \target QODBC3
-\section2 QODBC3 - Open Database Connectivity (ODBC)
+\section2 QODBC3 for Open Database Connectivity (ODBC)
 
 \keyword QODBC3
 
 \section3 General information
 
 ODBC is a general interface that allows you to connect to multiple
-DBMS using a common interface. The QODBC3 driver allows you to connect
+DBMSs using a common interface. The QODBC3 driver allows you to connect
 to an ODBC driver manager and access the available data sources. Note
 that you also need to install and configure ODBC drivers for the ODBC
 driver manager that is installed on your system. The QODBC3 plugin
-then allows you to use these data sources in your Qt project.
+then allows you to use these data sources in your Qt applications.
 
-On Windows systems after 95 an ODBC driver manager should be installed
-by default, for Unix systems there are some implementations which must
-be installed first. Note that every client that uses your application
-is required to have an ODBC driver manager installed, otherwise the
+On Windows 95 and later an ODBC driver manager should be installed by
+default. For Unix systems there are some implementations which must be
+installed first. Note that every client that uses your application is
+required to have an ODBC driver manager installed, otherwise the
 QODBC3 plugin will not work.
 
 Be aware that when connecting to an ODBC datasource you must pass in
 the name of the ODBC datasource to the QSqlDatabase::setDatabaseName()
-function: not the actual database name.
+function rather than the actual database name.
 
 The QODBC3 Plugin needs an ODBC compliant driver manager version 2.0 or
 later to work. Some ODBC drivers claim to be version 2.0 compliant,
@@ -289,11 +294,11 @@ that ODBC call tracing is turned off in the ODBC datasource manager.
 
 The QODBC3 Plugin will use the Unicode API if UNICODE is defined. On
 Windows NT based systems, this is the default. Note that the ODBC
-driver and the DBMS have to support Unicode as well.
+driver and the DBMS must also support Unicode.
 
 For the Oracle 9 ODBC driver (Windows), it is neccessary to check
 "SQL_WCHAR support" in the ODBC driver manager otherwise Oracle
-will convert all Unicode strings to local 8 bit.
+will convert all Unicode strings to local 8-bit.
 
 \section3 How to build the plugin on Unix/Linux
 
@@ -323,19 +328,19 @@ nmake
 \endcode
 
 If you are not using a Microsoft compiler, replace \c nmake with \c
-make in the statement above.
+make in the line above.
 
 \target QPSQL7
-\section2 QPSQL7 - PostgreSQL version 6 and 7
+\section2 QPSQL7 for PostgreSQL version 6 and 7
 
 \keyword QPSQL7
 
 \section3 General information
 
-The QPSQL7 driver supports both version 6 and 7 of PostgreSQL. We
-recommend compiling the plugin with a recent version of the PostgreSQL
-client library (libpq) because it is more stable and still backwards
-compatible.
+The QPSQL7 driver supports both version 6 and version 7 of PostgreSQL.
+We recommend compiling the plugin with a recent version of the
+PostgreSQL client library (libpq) because it is more stable and still
+backwards compatible.
 
 If you want to link the plugin against the libpq shipped with version
 6 we recommend a recent version like PostgreSQL 6.5.3, otherwise a
@@ -371,9 +376,9 @@ into \c OID fields.
 
 \section3 How to build the plugin on Unix/Linux
 
-Just installing the pq client library and the corresponding header
-files is not sufficient. You have to get the PostgreSQL source
-distribution and run the configure script. If you've already installed
+Just installing the \c pq client library and the corresponding header
+files is not sufficient. You must get the PostgreSQL source
+distribution and run the \c configure script. If you've already installed
 a binary distribution you don't need to build it. The source
 distribution is needed because the QPSQL7 plugin relies on a couple of
 header files that are usually not a part of the binary distribution.
@@ -400,14 +405,14 @@ qmake -o Makefile "INCLUDEPATH+=C:\psql\src\include C:\psql\src\interfaces\libpq
 nmake
 \endcode
 
-Remember to add the path to the \c{libpq.dll} library to your PATH
-environment variable so that Windows can find it. In this case that
-would be \c{C:\psql\src\interfaces\libpq\Release}. If you are not using a
-Microsoft compiler, replace \c nmake with \c make in the statement
-above.
+Remember to add the path to the \c{libpq.dll} library to your \c PATH
+environment variable so that Windows can find it. In this case the
+path would be \c{C:\psql\src\interfaces\libpq\Release}. If you are not
+using a Microsoft compiler, replace \c nmake with \c make in the
+line above.
 
 \target QTDS7
-\section2 QTDS7 - Sybase Adaptive Server and Microsoft SQL Server
+\section2 QTDS7 for Sybase Adaptive Server and Microsoft SQL Server
 
 \keyword QTDS7
 
@@ -415,16 +420,18 @@ above.
 
 Under Unix, two libraries are available which support the TDS protocol:
 
-- FreeTDS, a free implementation of the TDS protocol
+\list
+\i FreeTDS, a free implementation of the TDS protocol
   (\l{http://www.freetds.org}). Note that FreeTDS is not yet stable,
   so some functionality may not work as expected.
 
-- Sybase Open Client, available from \l{http://www.sybase.com}.
+\i Sybase Open Client, available from \l{http://www.sybase.com}.
   Note for Linux users: Get the Open Client RPM from
   \l{http://linux.sybase.com}.
+\endlist
 
 Regardless of which library you use, the shared object file
-\c{libsybdb.so} is needed. Set the SYBASE environment variable to
+\c{libsybdb.so} is needed. Set the \c SYBASE environment variable to
 point to the directory where you installed the client library and
 execute \c{qmake}:
 
@@ -446,19 +453,21 @@ qmake -o Makefile "LIBS+=NTWDBLIB.LIB" tds.pro
 nmake
 \endcode
 
-By default the Microsoft library is used on Windows, if you want to force
-the use of the Sybase Open Client, you must define
-\c Q_USE_SYBASE in \c{%QTDIR%\src\sql\drivers\tds\qsql_tds.cpp}.
+By default the Microsoft library is used on Windows, if you want to
+force the use of the Sybase Open Client, you must define \c
+Q_USE_SYBASE in \c{%QTDIR%\src\sql\drivers\tds\qsql_tds.cpp}. If you
+are not using a Microsoft compiler, replace \c nmake with \c make in
+the line above.
 
 \target QDB2
-\section2 QDB2 - IBM DB2 Driver (v7.1 or higher)
+\section2 QDB2 for IBM DB2 (v7.1 or higher)
 
 \keyword QDB2
 
 \section3 General information
 
 The Qt DB2 plugin makes it possible to access IBM DB2 databases. It
-has been tested with IBM DB2 v7.1 and 7.2. You have to install the IBM
+has been tested with IBM DB2 v7.1 and 7.2. You must install the IBM
 DB2 development client library, which contains the header and library
 files necessary for compiling the QDB2 plugin.
 
@@ -488,19 +497,20 @@ nmake
 \endcode
 
 If you are not using a Microsoft compiler, replace \c nmake
-with \c make in the statement above.
+with \c make in the line above.
 
 \target QSQLITE
-\section2 QSQLITE - SQLite Driver
+\section2 QSQLITE for SQLite
 
 \keyword QSQLITE
 
 The Qt SQLite plugin makes it possible to access SQLite databases.
-SQLite is an in-process database, meaning that it is not necessary
-to have a database server. SQLite operates on a single file, which has
-to be set as database name when opening a connection. If the file does
-not exist, SQLite will try to create it. SQLite also supports in-memory
-databases, simply pass ":memory:" as the database name.
+SQLite is an in-process database, which means that it is not necessary
+to have a database server. SQLite operates on a single file, which
+must be set as the database name when opening a connection. If the
+file does not exist, SQLite will try to create it. SQLite also
+supports in-memory databases, simply pass ":memory:" as the database
+name.
 
 SQLite has some restrictions regarding multiple users and
 multiple transactions. If you try to read/write on a resource from different
@@ -512,9 +522,9 @@ BLOBs are therefore not supported.
 
 You can find information about SQLite on \l{http://www.sqlite.org}.
 
-SQLite is shipped as third party library within Qt. It can be built by
+SQLite is shipped as a third party library within Qt. It can be built by
 passing the following parameters to the configure script:
-\c{-plugin-sql-sqlite} (as plugin) or \c{-qt-sql-sqlite} (linked
+\c{-plugin-sql-sqlite} (build as a plugin) or \c{-qt-sql-sqlite} (linked
 directly into the Qt library).
 
 If you don't want to use the SQLite library shipped with Qt, you can
@@ -528,7 +538,7 @@ make
 \endcode
 
 \target QIBASE
-\section2 QIBASE - Borland Interbase Driver
+\section2 QIBASE for Borland Interbase
 
 \keyword QIBASE
 
@@ -536,8 +546,8 @@ make
 
 The Qt Interbase plugin makes it possible to access the Interbase and
 Firebird databases. Interbase can either be used as a client/server or
-without a server operating on local files. The database file must
-exist before a connection can be established.
+without a server in which case it operates on local files. The
+database file must exist before a connection can be established.
 
 Note that Interbase requires you to specify the full path to the
 database file, no matter whether it is stored locally or on another
@@ -578,9 +588,9 @@ nmake
 \endcode
 
 If you are not using a Microsoft compiler, replace \c nmake
-with \c make in the statement above.
+with \c make in the line above.
 
-Note that \c{C:\interbase\bin} must be in the PATH.
+Note that \c{C:\interbase\bin} must be in the \c PATH.
 
 \target troubleshooting
 \section1 Troubleshooting
@@ -607,7 +617,7 @@ make sure that the following requirements are met:
     system. On Unix, run the command \c{ldd} and pass the name of the
     plugin as parameter, for example \c{ldd libqsqlmysql.so}. You will
     get a warning if any of the client libraries couldn't be found.
-    On Windows, you can use the dependency walker of Visual Studio.
+    On Windows, you can use Visual Studio's dependency walker.
 \endlist
 
 \target development
@@ -630,11 +640,11 @@ implementation.
 
 QSqlResult is an abstract base class which defines the functionality
 of a SQL database query. This includes statements such as \c{SELECT},
-\c{UPDATE}, and \c{ALTER TABLE}. QSqlResult contains functions such as
-QSqlResult::next() and QSqlResult::value(). QSqlResult is responsible
-for sending queries to the database, returning result data, etc.
-QSqlQuery forwards many of its function calls directly to QSqlResult
-which provides the concrete implementation.
+\c{UPDATE}, and \c{ALTER} \c{TABLE}. QSqlResult contains functions
+such as QSqlResult::next() and QSqlResult::value(). QSqlResult is
+responsible for sending queries to the database, returning result
+data, etc. QSqlQuery forwards many of its function calls directly to
+QSqlResult which provides the concrete implementation.
 
 QSqlDriver and QSqlResult are closely connected. When implementing a
 Qt SQL driver, both of these classes must to be subclassed and the
@@ -644,7 +654,7 @@ To implement a Qt SQL driver as a plugin (so that it is recognized and
 loaded by the Qt library at runtime), the driver must use the
 \c Q_EXPORT_PLUGIN macro. Read the \link plugins-howto.html Qt
 Plugin\endlink documentation for more information on this. You can
-also check out how this is done in the SQL plugins that is provided
+also check out how this is done in the SQL plugins that are provided
 with Qt in \c{QTDIR/plugins/src/sqldrivers} and
 \c{QTDIR/src/sql/drivers}.
 

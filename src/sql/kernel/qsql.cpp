@@ -59,7 +59,7 @@
 */
 
 /*!
-    \enum QSql::ParameterType
+    \enum QSql::ParamTypeFlags
 
     This enum is used to set the type of a bind parameter
 
@@ -68,6 +68,8 @@
     \value InOut  the bind parameter is used to put data into the
         database; it will be overwritten with output data on executing
         a query.
+    \value Binary this must be OR'd with one of the other flags if you
+    want to indicate that the data being transferred is raw binary data
 */
 
 /*!
@@ -76,13 +78,15 @@
     This enum type describes types of tables
 
     \value Tables  All the tables visible to the user
-    \value SystemTables  Internal tables used by the DBMS
+    \value SystemTables  Internal tables used by the database
     \value Views  All the views visible to the user
     \value AllTables  All of the above
 */
 
 /*!
     \fn QSql::QSql()
+
+    \internal
 
     Constructs a Qt SQL namespace class
 */

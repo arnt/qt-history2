@@ -81,18 +81,23 @@ int QSqlModel::columnCount(const QModelIndex &) const
     return d->rec.count();
 }
 
-/*! \reimp
+/*!
+    \reimp
+
     Returns the value for the specified \a item and \a role.
 
-    For items with type QModelIndex::HorizontalHeader, the name of the database field
-    will be returned. This can be overridden by setData().
+    For items with type \c QModelIndex::HorizontalHeader, the name of
+    the database field is returned. This can be overridden by
+    setData().
 
-    For items with type QModelIndex::VerticalHeader, the index of the row will be returned.
+    For items with type \c QModelIndex::VerticalHeader, the index of the
+    row is returned.
 
-    An invalid QVariant is returned if \a item is out of bounds or an error occured.
+    An invalid QVariant is returned if \a item is out of bounds or if
+    an error occured.
 
     \sa setData(), lastError()
- */
+*/
 QVariant QSqlModel::data(const QModelIndex &item, int role) const
 {
 
@@ -122,11 +127,12 @@ QVariant QSqlModel::data(const QModelIndex &item, int role) const
 
 
 /*!
-    Resets the model and sets the data provider to \a query. Note that the query
-    has to be active and may not be forwardOnly.
+    Resets the model and sets the data provider to be the given \a
+    query. Note that the query must be active and must not be
+    isForwardOnly().
 
-    \sa query(), QSqlQuery::isActive(), QSqlQuery::setForwardOnly().
- */
+    \sa query(), QSqlQuery::isActive(), QSqlQuery::setForwardOnly()
+*/
 void QSqlModel::setQuery(const QSqlQuery &query)
 {
     d->error = QSqlError();
@@ -159,14 +165,18 @@ void QSqlModel::setQuery(const QSqlQuery &query)
     emit contentsInserted(index(0, 0, 0), d->bottom);
 }
 
-/*! \reimp
-    This method can be used to set the caption for the horizontal header of a column to \a value.
+/*!
+    \reimp
 
-    returns true if \a role is QAbstractItemModel::Display and \a index is of type
-    QModelIndex::HorizontalHeader and points to a valid column, otherwise false.
+    This function is used to set the caption for the horizontal
+    header of a column to \a value.
 
-    Note that this method can not be used to modify actual values in the database since the model
-    is read-only.
+    It returns true if \a role is \c QAbstractItemModel::Display and \a
+    index is of type \c QModelIndex::HorizontalHeader and points to a
+    valid column; otherwise returns false.
+
+    Note that this function cannot be used to modify values in the
+    database since the model is read-only.
 
     \sa data()
  */
@@ -186,48 +196,52 @@ bool QSqlModel::setData(const QModelIndex &index, int role, const QVariant &valu
     Returns the QSqlQuery that is associated with this model.
 
     \sa setQuery()
- */
+*/
 const QSqlQuery QSqlModel::query() const
 {
     return d->query;
 }
 
 /*!
-    Returns information about the last error that occurred on the database. See \a QSqlError for
-    more information.
- */
+    Returns information about the last error that occurred on the
+    database.
+*/
 QSqlError QSqlModel::lastError() const
 {
     return d->error;
 }
 
 /*!
-   Protected function which allows derived classes to set the value of the last \a error that
-   occurred on the database.
+   Protected function which allows derived classes to set the value of
+   the last error that occurred on the database to \a error.
 
    \sa lastError()
- */
+*/
 void QSqlModel::setLastError(const QSqlError &error)
 {
     d->error = error;
 }
 
 /*!
-    Returns the field information about \a column or an invalid QSqlField if \a column is
-    out of bounds.
- */
+    Returns the field information about the given \a column or an
+    invalid QSqlField if \a column is out of bounds.
+*/
 QSqlField QSqlModel::field(int column) const
 {
     return d->rec.field(column);
 }
 
-/*! \reimp
-    Inserts \a count columns at position \a column. The paramter \a parent should always be
-    an invalid QModelIndex, since the model does not support parent-child relations.
+/*!
+    \reimp
 
-    To populate the newly inserted columns with data, QSqlModel::data() has to be reimplemented.
+    Inserts \a count columns into the model at position \a column. The
+    \a parent parameter must always be an invalid QModelIndex, since
+    the model does not support parent-child relationships.
+
+    To populate the newly inserted columns with data, you must
+    reimplement QSqlModel::data().
+
     Example:
-
     \code
     QVariant MyModel::data(const QModelIndex &item, int role) const
     {
@@ -238,7 +252,7 @@ QSqlField QSqlModel::field(int column) const
     }
     \endcode
 
-    Returns false if \a column is out of bounds, otherwise true.
+    Returns true if \a column is within bounds; otherwise returns false.
  */
 bool QSqlModel::insertColumn(int column, const QModelIndex &parent, int count)
 {
@@ -262,14 +276,18 @@ bool QSqlModel::insertColumn(int column, const QModelIndex &parent, int count)
     return true;
 }
 
-/*! \reimp
-    Removes \a count columns from position \a column. The paramter \a parent should always be
-    an invalid QModelIndex, since the model does not support parent-child relations.
+/*!
+    \reimp
 
-    Note that removing columns does not affect the underlying QSqlQuery, it will just hide the
-    columns.
+    Removes \a count columns from the model starting from position \a
+    column. The \a parent parameter must always be an invalid
+    QModelIndex, since the model does not support parent-child
+    relationships.
 
-    Returns true if the columns could be removed, otherwise false.
+    Note that removing columns does not affect the underlying
+    QSqlQuery, it will just hide the columns.
+
+    Returns true if the columns were removed; otherwise returns false.
  */
 bool QSqlModel::removeColumn(int column, const QModelIndex &parent, int count)
 {
@@ -286,13 +304,14 @@ bool QSqlModel::removeColumn(int column, const QModelIndex &parent, int count)
 }
 
 /*!
-    Returns the index of the value in the database result set for \a item in case the
-    row and column of an item in the model does not map to the same row and column in the
+    Returns the index of the value in the database result set for the
+    given \a item for situations where the row and column of an item
+    in the model does not map to the same row and column in the
     database result set.
 
-    Returns an invalid model index if \a item is out of bounds or if \a item does not point
-    to a value in the result set.
- */
+    Returns an invalid model index if \a item is out of bounds or if
+    \a item does not point to a value in the result set.
+*/
 QModelIndex QSqlModel::dataIndex(const QModelIndex &item) const
 {
     if (item.column() < 0 || item.column() >= d->rec.count()

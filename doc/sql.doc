@@ -65,14 +65,12 @@ This module is part of the \link commercialeditions.html Qt Enterprise Edition
 \i \l QSqlEditorFactory
 \i \l QSqlError
 \i \l QSqlField
-\i \l QSqlFieldInfo
 \i \l QSqlForm
 \row
 \i \l QSqlIndex
 \i \l QSqlPropertyMap
 \i \l QSqlQuery
 \i \l QSqlRecord
-\i \l QSqlRecordInfo
 \row
 \i \l QSqlResult
 \i \l QSqlSelectCursor
@@ -163,8 +161,8 @@ interaction is achieved either by using the QSqlQuery class and
 executing SQL commands directly or by using the higher level \l
 QSqlCursor class which composes SQL commands automatically. In
 addition to \l QSqlDatabase, \l QSqlCursor and \l QSqlQuery, the SQL
-API layer is supported by QSqlError, QSqlField, QSqlFieldInfo,
-QSqlIndex, QSqlRecord and QSqlRecordInfo.
+API layer is supported by QSqlError, QSqlField,
+QSqlIndex, and QSqlRecord.
 
 \e {Driver Layer.} This comprises three classes, \l QSqlResult, \l
 QSqlDriver and QSqlDriverFactoryInterface. This layer provides the

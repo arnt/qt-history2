@@ -356,7 +356,8 @@ QMYSQLDriver::QMYSQLDriver(QObject * parent)
 }
 
 /*!
-    Create a driver instance with an already open connection handle.
+    Create a driver instance with the open connection handle, \a con.
+    The instance's parent (owner) is \a parent.
 */
 
 QMYSQLDriver::QMYSQLDriver(MYSQL * con, QObject * parent)

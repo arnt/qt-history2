@@ -35,9 +35,12 @@ QDebug operator<<(QDebug dbg, const QSqlError &s)
     \ingroup database
     \module sql
 
-    This class is used to report database-specific errors. An error
-    description and (if appropriate) a database-specific error number
-    can be obtained using this class.
+    A QSqlError object can provide database-specific error data,
+    including the driverText() and databaseText() messages (or both
+    concatenated together as text()), and the error number() and
+    type(). The functions all have setters so that you can create and
+    return QSqlError objects from your own classes, for example from
+    your own SQL drivers.
 */
 
 /*!
@@ -82,7 +85,7 @@ QSqlError::QSqlError(const QSqlError& other)
 }
 
 /*!
-    Sets the error equal to \a other.
+    Assigns the \a other error's values to this error.
 */
 
 QSqlError& QSqlError::operator=(const QSqlError& other)
@@ -104,7 +107,9 @@ QSqlError::~QSqlError()
 
 /*!
     Returns the text of the error as reported by the driver. This may
-    contain database-specific descriptions.
+    contain database-specific descriptions; it may be empty.
+
+    \sa setDriverText() databaseText() text()
 */
 QString QSqlError::driverText() const
 {
@@ -113,6 +118,8 @@ QString QSqlError::driverText() const
 
 /*!
     Sets the driver error text to the value of \a driverText.
+
+    \sa driverText() setDatabaseText() text()
 */
 
 void QSqlError::setDriverText(const QString& driverText)
@@ -122,7 +129,9 @@ void QSqlError::setDriverText(const QString& driverText)
 
 /*!
     Returns the text of the error as reported by the database. This
-    may contain database-specific descriptions.
+    may contain database-specific descriptions; it may be empty.
+
+    \sa setDatabaseText() driverText() text()
 */
 
 QString QSqlError::databaseText() const
@@ -132,6 +141,8 @@ QString QSqlError::databaseText() const
 
 /*!
     Sets the database error text to the value of \a databaseText.
+
+    \sa databaseText() setDriverText() text()
 */
 
 void QSqlError::setDatabaseText(const QString& databaseText)
@@ -142,7 +153,7 @@ void QSqlError::setDatabaseText(const QString& databaseText)
 /*!
     Returns the error type, or -1 if the type cannot be determined.
 
-    \sa QSqlError::Type.
+    \sa setType() QSqlError::Type
 */
 
 int QSqlError::type() const
@@ -152,6 +163,8 @@ int QSqlError::type() const
 
 /*!
     Sets the error type to the value of \a type.
+
+    \sa type()
 */
 
 void QSqlError::setType(int type)
@@ -162,6 +175,8 @@ void QSqlError::setType(int type)
 /*!
     Returns the database-specific error number, or -1 if it cannot be
     determined.
+
+    \sa setNumber()
 */
 
 int QSqlError::number() const
@@ -171,6 +186,8 @@ int QSqlError::number() const
 
 /*!
     Sets the database-specific error number to \a number.
+
+    \sa number()
 */
 
 void QSqlError::setNumber(int number)
@@ -182,7 +199,7 @@ void QSqlError::setNumber(int number)
     This is a convenience function that returns databaseText() and
     driverText() concatenated into a single string.
 
-    \sa showMessage(), driverText(), databaseText()
+    \sa driverText() databaseText()
 */
 
 QString QSqlError::text() const

@@ -526,8 +526,11 @@ OraFieldInfo qMakeOraField(const QOCIPrivate* p, OCIParam* param)
 }
 
 
-/*! \internal Convert QDateTime to the internal Oracle DATE format
-  NB! It does not handle BCE dates.
+/*!
+    \internal
+
+    Convert QDateTime to the internal Oracle DATE format NB!
+    It does not handle BCE dates.
 */
 QByteArray qMakeOraDate(const QDateTime& dt)
 {
