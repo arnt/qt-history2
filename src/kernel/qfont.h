@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#53 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#54 $
 **
 ** Definition of QFont class
 **
@@ -55,7 +55,14 @@ public:
 		     Latin7, ISO_8859_7 = Latin7,
 		     Latin8, ISO_8859_8 = Latin8,
 		     Latin9, ISO_8859_9 = Latin9,
-		     KOI8R };
+		     KOI8R,
+		     Set_Ja, Set_1 = Set_Ja,
+		     Set_Ko,
+		     Set_Th_TH,
+		     Set_Zh,
+		     Set_Zh_TW, Set_N = Set_Zh_TW,
+		     Unicode,
+		    };
 
     QFont();					// default font
     QFont( const QString &family, int pointSize = 12,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qeucmapper.h#2 $
+** $Id: //depot/qt/main/src/kernel/qeucmapper.h#3 $
 **
 ** Definition of QEUCMapper class
 **
@@ -28,9 +28,10 @@
 
 class QEUCMapper : public QCodeMapper {
 public:
-    virtual int mib(int) const;
-    virtual char* fromUnicode(QString uc, int mib) const;
-    virtual QString toUnicode(const char* chars, int mib) const;
+    virtual int mib() const;
+    const char* name() const;
+    virtual char* fromUnicode(const QString& uc, int& len_in_out) const;
+    virtual QString toUnicode(const char* chars) const;
 };
 
 #endif

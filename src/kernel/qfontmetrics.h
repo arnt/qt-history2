@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#44 $
+** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#45 $
 **
 ** Definition of QFontMetrics class
 **
@@ -29,6 +29,7 @@
 #include "qrect.h"
 #endif // QT_H
 
+class QCodeMapper;
 
 class Q_EXPORT QFontMetrics
 {
@@ -82,6 +83,8 @@ private:
     HDC hdc() const;
 #elif defined(_WS_X11_)
     void *fontStruct() const;
+    void *fontSet() const;
+    const QCodeMapper *mapper() const;
     int printerAdjusted(int) const;
 #endif
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qeucmapper.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qeucmapper.cpp#4 $
 **
 ** Implementation of QEUCMapper class
 **
@@ -16446,70 +16446,56 @@ static ushort unicode_to_euc[0x10000] = {
 	};
 
 
-int QEUCMapper::mib(int i) const
+int QEUCMapper::mib() const
 {
-    static int mibs[]={63,18,0};
-    return mibs[i];
+    return 18;
 }
 
-char* QEUCMapper::fromUnicode(QString uc, int mib) const
+char* QEUCMapper::fromUnicode(const QString& uc, int& len_in_out) const
 {
-    char* result = new char[uc.length()*2+1];
+    int l = QMIN((int)uc.length(),len_in_out);
+    char* result = new char[l*2+1];
     char* cursor = result;
-    if ( mib == 18 ) {
-	for (int i=0; i<(int)uc.length(); i++) {
-	    QChar ch = uc[i];
-	    if ( !ch.row && ch.cell < 128 ) {
-		*cursor++ = ch.row;
-	    } else {
-		int u = unicode_to_euc[(ch.row<<8)|ch.cell];
-		*cursor++ = u >> 8;
-		*cursor++ = u & 0xff;
-	    }
-	}
-    } else {
-	for (int i=0; i<(int)uc.length(); i++) {
-	    QChar ch = uc[i];
-	    if ( !ch.row && ch.cell < 128 ) {
-		*cursor++ = 0x23;
-		*cursor++ = ch.row;
-	    } else {
-		int u = unicode_to_euc[(ch.row<<8)|ch.cell] & 0x7f7f;
-		*cursor++ = u >> 8;
-		*cursor++ = u & 0xff;
-	    }
+//debug("len %d",l);
+    for (int i=0; i<l; i++) {
+	QChar ch = uc[i];
+	if ( !ch.row && ch.cell < 128 ) {
+	    *cursor++ = ch.cell;
+//debug("U%02x%02x -> Euc00%02x", ch.row,ch.cell,(uchar)cursor[-1]);
+	} else {
+	    int u = unicode_to_euc[(ch.row<<8)|ch.cell];
+	    *cursor++ = u >> 8;
+	    *cursor++ = u & 0xff;
+//debug("U%02x%02x -> Euc%02x%02x", ch.row,ch.cell,(uchar)cursor[-2],(uchar)cursor[-1]);
 	}
     }
+    len_in_out = cursor - result;
+//debug(" -> len %d",len_in_out);
     return result;
 }
 
-QString QEUCMapper::toUnicode(const char* chars, int mib) const
+QString QEUCMapper::toUnicode(const char* chars) const
 {
     QString result;
-    if ( mib == 18 ) {
-	while (*chars) {
-	    uchar ch = *chars;
-	    if ( ch < 128 || !chars[1] ) {
-		result += ch;
-		chars+=1;
-	    } else {
-		uchar c2 = chars[1];
-		int i = (ch << 8) | c2;
-		ushort rc = euc_to_unicode[i];
-		result += QChar(rc&0xff,(rc>>8)&0xff);
-		chars+=2;
-	    }
-	}
-    } else {
-	while (*chars) {
-	    uchar ch = *chars;
+    while (*chars) {
+	uchar ch = *chars;
+	if ( ch < 128 || !chars[1] ) {
+	    result += ch;
+	    chars+=1;
+//debug("Euc%02x -> U00%02x", ch, ch);
+	} else {
 	    uchar c2 = chars[1];
-	    if ( !c2 ) break;
 	    int i = (ch << 8) | c2;
 	    ushort rc = euc_to_unicode[i];
 	    result += QChar(rc&0xff,(rc>>8)&0xff);
+//debug("Euc%02x%02x -> U%02x%02x", chars[0], chars[1], rc&0xff,(rc>>8)&0xff);
 	    chars+=2;
 	}
     }
     return result;
+}
+
+const char* QEUCMapper::name() const
+{
+    return "Japanese EUC";
 }

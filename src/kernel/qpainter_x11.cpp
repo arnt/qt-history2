@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#263 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#264 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -29,6 +29,7 @@
 #include "qlist.h"
 #include "qintdict.h"
 #include "qfontdata.h"
+#include "qcodemapper.h"
 #include <ctype.h>
 #include <stdlib.h>
 #define	 GC GC_QQQ
@@ -509,8 +510,10 @@ void QPainter::updateFont()
     setf(NoCache);
     if ( penRef )
 	updatePen();				// force a non-cached GC
-    XSetFont( dpy, gc, cfont.handle() );
-    mapper = cfont.d->mapper();
+    HANDLE h = cfont.handle();
+    if ( h ) {
+	XSetFont( dpy, gc, cfont.handle() );
+    }
 }
 
 
@@ -2541,13 +2544,31 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 
     XChar2b* x2b;
 
-    // ####### translate from Unicode to font charset encoding here
-    x2b = (XChar2b*)str.unicode();
+    const QCodeMapper* mapper = cfont.d->mapper();
+    if ( mapper ) {
+	// translate from Unicode to font charset encoding here
+//debug("Drawing text with mapper %s",mapper->name());
+	x2b = (XChar2b*)mapper->fromUnicode(str,len);
+    } else {
+debug("No mapper");
+	x2b = (XChar2b*)str.unicode();
+    }
 
-    if ( bg_mode == TransparentMode )
-	XDrawString16( dpy, hd, gc, x, y, x2b, len );
-    else
-	XDrawImageString16( dpy, hd, gc, x, y, x2b, len );
+    if ( !cfont.handle() ) {
+	XFontSet set = (XFontSet)cfont.d->fontSet();
+	if ( bg_mode == TransparentMode )
+	    XmbDrawString( dpy, hd, set, gc, x, y, (char*)x2b, len );
+	else
+	    XmbDrawImageString( dpy, hd, set, gc, x, y, (char*)x2b, len );
+    } else {
+	if ( bg_mode == TransparentMode )
+	    XDrawString16( dpy, hd, gc, x, y, x2b, len );
+	else
+	    XDrawImageString16( dpy, hd, gc, x, y, x2b, len );
+    }
+
+    if ( mapper )
+	delete [] x2b;
 
     if ( cfont.underline() || cfont.strikeOut() ) {
 	QFontMetrics fm = fontMetrics();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#364 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#365 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -208,7 +208,6 @@ static XIMStyle xim_style = 0;
 static XIMStyle xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
 static XFontSet xim_fixed_fontset;
 static QCodeMapper * xim_mapper = 0;
-static int	xim_mib;
 #endif
 
 timeval        *qt_wait_timer();
@@ -466,6 +465,11 @@ static struct {
     { "ISO8859-8", QFont::Latin8 },
     { "ISO8859-9", QFont::Latin9 },
     { "KOI8-R", QFont::KOI8R },
+    { "eucJP", QFont::Set_Ja },
+    { "eucKO", QFont::Set_Ko },
+    { "TACTIS", QFont::Set_Th_TH },
+    { "eucCN", QFont::Set_Zh },
+    { "eucTW", QFont::Set_Zh_TW },
     { 0, /* anything */ QFont::Latin1 }
 };
 
@@ -844,8 +848,14 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    }
 	}
 	const char* locale = XLocaleOfIM(xim);
-	xim_mib = QCodeMapper::heuristicMibFor(locale);
-	xim_mapper = QCodeMapper::mapperFor(xim_mib);
+
+	// ####### This hack is just for testing.
+	// Why does kinput2 not tell us the encoding?
+	if ( strcmp(locale,"ja_JP")==0 )
+	    locale = "ja_JP.eucJP";
+
+	int mib = QCodeMapper::heuristicMibFor(locale);
+	xim_mapper = QCodeMapper::mapperFor(mib);
     }
 #endif
 }
@@ -3399,7 +3409,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     // convert chars (8bit) to text (unicode).
     QString text;
     if ( xim_mapper )
-        text = xim_mapper->toUnicode(chars,xim_mib);
+        text = xim_mapper->toUnicode(chars);
     else
         text = chars;
 #endif

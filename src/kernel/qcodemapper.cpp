@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcodemapper.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qcodemapper.cpp#3 $
 **
 ** Implementation of QCodeMapper class
 **
@@ -919,17 +919,9 @@ QCodeMapper* QCodeMapper::mapperFor(int mib)
     QListIterator<QCodeMapper> i(all);
     QCodeMapper* result;
     while ( (result=i) ) {
-	if ( result->canConvert(mib) )
+	if ( result->mib()==mib )
 	    break;
 	++i;
     }
     return result;
-}
-
-bool QCodeMapper::canConvert(int mib) const
-{
-    int m;
-    for (int i=0; (m=this->mib(i)); i++)
-	if ( m == mib ) return TRUE;
-    return FALSE;
 }
