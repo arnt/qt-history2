@@ -115,6 +115,9 @@ QWidget *qt_mouseGrb = 0;
 int *qt_last_x = 0;
 int *qt_last_y = 0;
 
+bool qt_override_paint_on_screen = false;
+
+
 static int mouse_x_root = -1;
 static int mouse_y_root = -1;
 static int mouse_state = 0;
@@ -1573,6 +1576,8 @@ void qt_init(QApplicationPrivate *priv, int type)
             type = QApplication::GuiServer;
         } else if (arg == "-interlaced") {
             qws_screen_is_interlaced = true;
+        } else if (arg == "-paint-on-screen") {
+            qt_override_paint_on_screen = true;
         } else if (arg == "-display") {
             if (++i < argc)
                 qws_display_spec = argv[i];

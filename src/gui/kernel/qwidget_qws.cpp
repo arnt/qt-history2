@@ -56,6 +56,8 @@ extern QWidget *qt_mouseGrb;
 
 extern QRect qt_maxWindowRect;
 
+extern bool qt_override_paint_on_screen;
+
 extern void qwsUpdateActivePainters();
 
 static QWidget *keyboardGrb = 0;
@@ -738,7 +740,8 @@ void QWidget::repaint(const QRegion& rgn)
 
     QRect br = rgn.boundingRect();
     bool do_clipping = (br != QRect(0, 0, data->crect.width(), data->crect.height()));
-    bool double_buffer = (!testAttribute(Qt::WA_PaintOnScreen)
+    bool double_buffer = !qt_override_paint_on_screen &&
+                         (!testAttribute(Qt::WA_PaintOnScreen)
                           && !testAttribute(Qt::WA_NoSystemBackground)
                           && br.width()  <= QWSDoubleBuffer::MaxWidth
                           && br.height() <= QWSDoubleBuffer::MaxHeight
