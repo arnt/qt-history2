@@ -1678,7 +1678,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			    p = p->prev();
 			if ( p && p->length() > 0 ) {
 			    QTextFormat *f = p->at( p->length() - 1 )->format();
-			    if ( f ) {
+			    if ( f && !f->isAnchor() ) {
 				f = fCollection->createFormat( *f );
 				f->anchor_name = attr[ "name" ];
 				f->update();
