@@ -5212,6 +5212,10 @@ void QTable::clearSelection( bool repaint )
 
     currentSel = 0;
     selections.clear();
+
+    if ( isRowSelection( selectionMode() ) )
+	selectRow( curRow ); // the current row should always be selected in this mode
+    
     if ( needRepaint && repaint )
 	repaintContents( r, FALSE );
 
