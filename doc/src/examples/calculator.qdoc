@@ -1,0 +1,117 @@
+/*!
+    \example widgets/calculator
+    \title Calculator Example
+
+    The Calculator example shows how to build the logic of a calculator. It 
+    also shows how to create the proper functionality and look and feel using 
+    the concept of signals and slots, eventhandling, layout and color.
+
+    \image calculator-example.png Screenshot of the Calculator example
+    
+    This example also demonstrates how to reimplement and customize inherited 
+    functions.
+    
+    \section1 Calculator Class Definition
+
+    \quotefromfile widgets/calculator/calculator.h
+    \skipto class Calculator
+    \printuntil addToMemory();
+
+    The \c Calculator class provides a simple calculator widget. We subclass 
+    QDialog and implement several private slots to provide the 
+    functionality associated with pressing the calculator's buttons. 
+    QObject::eventFilter() is reimplemented to handle other user input.
+
+    \printline private:
+    \printuntil };
+
+    The logic of the calculator requires three variables \a sumSoFar,
+    \a pendingTerm and \a sumInMemory to hold the pending operands and the 
+    results of the calculations. It also requires \a pendingAdditiveOperator 
+    and \a pendingMultiplicativeOperator to hold the pending operators during
+    calculations. A boolean variable \a waitingForOperand makes sure the 
+    operands, when given by the user, are separated.
+
+    Three private functions are implemented to provide specific functionality: 
+    \c abortOperation() is needed whenever a division by zero or a squareroot 
+    operation of a negative number occur, \c calculate() performs single
+    additive and multiplicative operations and \c createButton() is used when 
+    the widget is constructed.
+
+    \section1 Button Class Definition
+
+    \quotefromfile widgets/calculator/button.h
+    \skipto class Button
+    \printuntil };
+
+    The calculator's buttons are of QToolButton type. But in order to 
+    customize their appearence, we subclass QToolButton and reimplement the 
+    \l {QToolButton::QToolButton()}{constructor} and the 
+    \l {QToolButton::sizeHint()}{sizeHint()} function.   
+
+    \section1 Button Class Implementation
+
+    \quotefromfile widgets/calculator/button.cpp
+    \skipto Button::
+    \printuntil }
+
+    The layout of the calculator widget, and the buttons' appearence, is 
+    determined by the size and \l {QSizePolicy} {sizePolicy} of its child 
+    widgets and the space available. Therefore the call to the inherited
+    QWidget::setSizePolicy() in the constructor makes sure that the button 
+    will appear in the size implied by \c sizeHint() vertically, but that it 
+    can be both shrunk and expanded horisontally. Then the text is set along 
+    with the color.
+
+    \printline QSize
+    \printuntil }
+
+    The \c sizeHint function returns an expansion of the preferred 
+    \l {Qsize} size implied by the inherited QWidget::sizeHint(). The height is
+    expanded with a constant, while the width is set to the largest of the 
+    width and heigth returned by the buttons original 
+    \l {QWidget::sizeHint}{sizeHint()}
+
+    \section1 Calculator Class Implementation
+
+    \quotefromfile widgets/calculator/calculator.cpp
+    \skipto Calculator::
+    \printto lineEdit
+
+    When the widget is constructed, all of the \c double variables and the \c
+    boolean one is initialized with their default values. Then the  window of 
+    the calculator in the form of a QLineEdit is customized:
+
+    \printline lineEdit
+    \printto QColor
+
+    The \a lineEdit is initialized with a zero. It's restricted to read only,
+    right alignment and a maximum length of 15 characters. It installs an 
+    event filter which we will come back to later. \a lineEdit 's font 
+    is enlarged by a constant, forcing the entire window of the calculator to 
+    be larger.
+
+    \printline QColor
+    \printto QGridLayout
+
+    Four different colors are defined and used in the creation of the buttons:
+    For each button the private function \c createButton() is called with a 
+    proper textlabel, the associated color and a slot to connect to the button.
+
+    \printline QGridLayout
+    \printuntil /^\}/
+
+    The widget consist of one single QGridLayout \a mainLayout which is given 
+    a fixed size preventing the user from resizing it. The size of the layout
+    is determined by the size and \l {QSizePolicy} {sizePolicy} of its child 
+    widgets and the space available. Each child widget is then added to the 
+    \a mainLayout, and finally the title of the window is set.
+
+    \printline ::eventFilter
+    \printuntil /^\}/
+
+    The \c eventFilter() function is inherited from QObject.It is 
+    reimplemented to respond to arbitrary user input apart from pushing the 
+    calculators buttons. The filter is installed on
+    
+*/

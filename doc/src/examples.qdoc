@@ -24,6 +24,7 @@
 
     \list
     \o \l{widgets/analogclock}{Analog Clock}\raisedaster
+    \o \l{widgets/calculator}{Calculator}
     \o \l{widgets/charactermap}{Character Map}\raisedaster
     \o \l{widgets/digitalclock}{Digital Clock}\raisedaster
     \o \l{widgets/groupbox}{Group Box}\raisedaster
