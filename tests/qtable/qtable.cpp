@@ -169,7 +169,7 @@ int QTableItem::alignment() const
 
 QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
     : QScrollView( parent, name, WRepaintNoErase | WNorthWestGravity ),
-      currentSelection( 0 ), sGrid( TRUE )
+      currentSelection( 0 ), sGrid( TRUE ), mRows( FALSE ), mCols( FALSE )
 {
     setResizePolicy( Manual );
     selections.setAutoDelete( TRUE );
@@ -178,11 +178,11 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
     leftHeader = new QTableHeader( numRows, this, this );
     leftHeader->setOrientation( Vertical );
     leftHeader->setTracking( TRUE );
-    leftHeader->setMovingEnabled( FALSE );
+    leftHeader->setMovingEnabled( TRUE );
     topHeader = new QTableHeader( numCols, this, this );
     topHeader->setOrientation( Horizontal );
     topHeader->setTracking( TRUE );
-    topHeader->setMovingEnabled( FALSE );
+    topHeader->setMovingEnabled( TRUE );
     setMargins( 30, fontMetrics().height() + 4, 0, 0 );
 
     // Initialize headers
@@ -211,8 +211,12 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
 	     leftHeader, SLOT( setOffset( int ) ) );
     connect( topHeader, SIGNAL( sizeChange( int, int, int ) ),
 	     this, SLOT( columnWidthChanged( int, int, int ) ) );
+    connect( topHeader, SIGNAL( indexChange( int, int, int ) ),
+	     this, SLOT( columnIndexChanged( int, int, int ) ) );
     connect( leftHeader, SIGNAL( sizeChange( int, int, int ) ),
 	     this, SLOT( rowHeightChanged( int, int, int ) ) );
+    connect( leftHeader, SIGNAL( indexChange( int, int, int ) ),
+	     this, SLOT( rowIndexChanged( int, int, int ) ) );
 
     // Initialize variables
     autoScrollTimer = new QTimer( this );
@@ -248,6 +252,26 @@ void QTable::setShowGrid( bool b )
 bool QTable::showGrid() const
 {
     return sGrid;
+}
+
+void QTable::setColsMovable( bool b )
+{
+    mCols = b;
+}
+
+bool QTable::colsMovable() const
+{
+    return mCols;
+}
+
+void QTable::setRowsMovable( bool b )
+{
+    mRows = b;
+}
+
+bool QTable::rowsMovable() const
+{
+    return mRows;
 }
 
 /*!  Draws the contents of the table on the painter \a p. This
@@ -346,7 +370,7 @@ void QTable::paintCell( QPainter* p, int row, int col, const QRect &cr, bool sel
 	p->drawLine( 0, y2, x2, y2 );
 	p->setPen( pen );
     }
-    
+
     QTableItem *item = cellContent( row, col );
     if ( item ) {
 	p->save();
@@ -870,6 +894,16 @@ void QTable::rowHeightChanged( int row, int, int )
 	editorWidget->resize( columnWidth( curCol ) - 2, rowHeight( curRow ) - 2 );
     }
     updateGeometries();
+}
+
+void QTable::columnIndexChanged( int, int, int )
+{
+    repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), FALSE );
+}
+
+void QTable::rowIndexChanged( int, int, int )
+{
+    repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), FALSE );
 }
 
 /*!  This function updates the geometries of the left and top header.
@@ -1414,7 +1448,8 @@ void QTableHeader::mousePressEvent( QMouseEvent *e )
 
 void QTableHeader::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( !mousePressed || cursor().shape() != ArrowCursor ) {
+    if ( !mousePressed || cursor().shape() != ArrowCursor || 
+	 ( ( e->state() & ControlButton ) == ControlButton && ( orientation() == Horizontal ? table->colsMovable() : table->rowsMovable() ) ) ) {
 	QHeader::mouseMoveEvent( e );
 	return;
     }

@@ -110,6 +110,11 @@ public:
 
     void setShowGrid( bool b );
     bool showGrid() const;
+
+    void setColsMovable( bool b );
+    bool colsMovable() const;
+    void setRowsMovable( bool b );
+    bool rowsMovable() const;
     
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
@@ -129,7 +134,9 @@ protected:
 protected slots:
     virtual void columnWidthChanged( int col, int os, int ns );
     virtual void rowHeightChanged( int col, int os, int ns );
-
+    virtual void columnIndexChanged( int s, int oi, int ni );
+    virtual void rowIndexChanged( int s, int oi, int ni );
+    
 signals:
     void currentChanged( int row, int col );
 
@@ -173,8 +180,8 @@ private:
     QList<SelectionRange> selections;
     SelectionRange *currentSelection;
     QTimer *autoScrollTimer;
-    bool sGrid;
-    
+    bool sGrid, mRows, mCols;
+
 };
 
 class QTableHeader : public QHeader
