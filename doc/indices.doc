@@ -160,12 +160,11 @@ Appendix
 </td>
 <td valign=top>
 \list
+  \i \link tools-list.html All Tools\endlink
   \i \link designer-manual.book  Qt Designer \endlink
   \i \link linguist-manual.book  Qt Linguist \endlink
   \i \link assistant.book  Qt Assistant \endlink
   \i \link qmake-manual.book  qmake \endlink
-  \i \link qembed.html  qembed\endlink
-  \i \link emb-qvfb.html  qvfb\endlink
 \endlist
 </td>
 <td valign=top>

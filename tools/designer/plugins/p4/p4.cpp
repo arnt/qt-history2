@@ -139,7 +139,8 @@ void P4FStat::processExited()
     if ( data().find( "clientFile" ) != -1 ) {						    // The file is somehow known
 	QStringList dfEntry = entries.grep( "depotFile" );
 	if ( dfEntry.count() ) {
-	    QStringList headActionEntry = entries.grep( "... headAction" );
+	    // We also need to explicitly check for add too!
+	    QStringList headActionEntry = entries.grep( QRegExp("(... headAction)|(... action add)") );
 	    if ( headActionEntry.count() ) {
 		QString headAction = QStringList::split( ' ', headActionEntry[0] )[2];
 		if ( headAction.stripWhiteSpace() != "delete" ) {			    // Maybe it's already deleted
@@ -332,7 +333,7 @@ bool P4Submit::execute()
 	    default:
 		break;
 	    }
-	}	
+	}
 	++it;
     }
     dialog.description->setText( "<enter description here>" );
