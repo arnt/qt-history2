@@ -110,7 +110,6 @@ public:
     QList<QObjectUserData *> userData;
 #endif
 
-    mutable const QMetaObject *polished;
     QString objectName;
 };
 

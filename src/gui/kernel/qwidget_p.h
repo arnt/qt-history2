@@ -256,6 +256,8 @@ public:
     inline QRect mapToWS(const QRect &r) const { QRect rr(r); rr.moveBy(-data.wrect.topLeft()); return rr; }
     inline QRect mapFromWS(const QRect &r) const { QRect rr(r); rr.moveBy(data.wrect.topLeft()); return rr; }
 #endif
+
+    mutable const QMetaObject *polished;
 };
 
 inline QWExtra *QWidgetPrivate::extraData() const

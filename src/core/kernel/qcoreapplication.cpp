@@ -684,11 +684,7 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 
             locker.unlock();
             // after all that work, it's time to deliver the event.
-            if (e->type() == QEvent::PolishRequest) {
-                r->ensurePolished();
-            } else {
-                QCoreApplication::sendEvent(r, e);
-            }
+            QCoreApplication::sendEvent(r, e);
             locker.relock();
 
             if (backup != postedEvents->size()) // events got posted or removed ...

@@ -159,8 +159,6 @@ public:
 
     bool isAncestorOf(const QObject *child) const;
 
-    void ensurePolished() const;
-
 signals:
     void destroyed(QObject * = 0);
 
@@ -182,7 +180,6 @@ protected:
 
     virtual void timerEvent(QTimerEvent *);
     virtual void childEvent(QChildEvent *);
-    virtual void polishEvent(QEvent *);
     virtual void customEvent(QCustomEvent *);
 
     virtual void connectNotify(const char *signal);

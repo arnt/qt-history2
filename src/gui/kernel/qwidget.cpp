@@ -70,6 +70,8 @@ QWidgetPrivate::QWidgetPrivate() :
 #elif defined(Q_WS_MAC)
         ,cg_hd(0)
 #endif
+        ,polished(0)
+
 {
     isWidget = true;
     high_attributes[0] = 0;
@@ -890,6 +892,9 @@ QWidget::~QWidget()
     destroy();                                        // platform-dependent cleanup
 
     --instanceCounter;
+
+    QEvent e(QEvent::Destroy);
+    QCoreApplication::sendEvent(this, &e);
 }
 
 int QWidget::instanceCounter = 0;  // Current number of widget instances
@@ -4562,8 +4567,12 @@ bool QWidget::event(QEvent *e)
     }
         break;
 
+    case QEvent::PolishRequest:
+        ensurePolished();
+        break;
+
     case QEvent::Polish: {
-        QObject::event(e);
+        polishEvent(e);
         qApp->polish(this);
         if (!testAttribute(Qt::WA_SetFont) && !QApplication::font(this).isCopyOf(QApplication::font()))
             d->resolveFont();
@@ -5524,6 +5533,60 @@ bool QWidget::qwsEvent(QWSEvent *)
 }
 
 #endif
+
+
+/*!
+    Ensures delayed initialization of a widget and its children.
+
+    This function will be called \e after a widget has been fully
+    created and \e before it is shown the very first time.  Children
+    will be polished after the polishEvent() handler for this widget
+    is called.
+
+    Polishing is useful for final initialization which depends on
+    having an instantiated widget. This is something a constructor
+    cannot guarantee since the initialization of the subclasses might
+    not be finished.
+
+    For widgets, this function makes sure the widget has a proper font
+    and palette and QApplication::polish() has been called.
+
+    If you need to change some settings when a widget is polished,
+    use polishEvent().
+
+    \sa polishEvent(), QApplication::polish()
+*/
+void QWidget::ensurePolished() const
+{
+    const QMetaObject *m = metaObject();
+    if (m == d->polished)
+        return;
+    d->polished = m;
+
+    QEvent e(QEvent::Polish);
+    QCoreApplication::sendEvent(const_cast<QWidget *>(this), &e);
+
+    // polish children after 'this'
+    QObject *child;
+    for (int i = 0; i < d->children.size(); ++i)
+        if ((child = d->children.at(i))->isWidgetType())
+            static_cast<QWidget*>(child)->ensurePolished();
+
+    if (d->parent) {
+        QChildEvent e(QEvent::ChildPolished, const_cast<QWidget *>(this));
+        QCoreApplication::sendEvent(d->parent, &e);
+    }
+}
+
+/*!
+    This event handler can be reimplemented in a subclass to receive
+    widget polish events.
+
+    \sa ensurePolished(), QApplication::polish()
+*/
+void QWidget::polishEvent(QEvent *)
+{
+}
 
 /*!
     \property QWidget::autoMask

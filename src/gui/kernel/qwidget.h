@@ -477,6 +477,8 @@ public:
 
     QPaintEngine *paintEngine() const;
 
+    void ensurePolished() const;
+
 protected:
     // Event handlers
     bool event(QEvent *);
@@ -513,6 +515,8 @@ protected:
 
     virtual void showEvent(QShowEvent *);
     virtual void hideEvent(QHideEvent *);
+
+    virtual void polishEvent(QEvent *);
 
 #if defined(Q_WS_MAC)
     virtual bool macEvent(EventHandlerCallRef, EventRef);

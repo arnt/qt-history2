@@ -78,7 +78,7 @@
     \value ApplicationFontChange    The default application font has changed.
     \value ApplicationPaletteChange The default application palette has changed.
     \value ChildAdded     An object gets a child, \l{QChildEvent}.
-    \value ChildPolished  An object child gets polished, \l{QChildEvent}.
+    \value ChildPolished  A widget child gets polished, \l{QChildEvent}.
     \value ChildRemoved   An object loses a child, \l{QChildEvent}.
     \value Clipboard      The clipboard contents have changed.
     \value Close          Widget was closed (permanently), \l{QCloseEvent}.
@@ -125,8 +125,8 @@
     \value OkRequest  Internal event used by Qt on some platforms.
     \value Paint  Screen update necessary, \l{QPaintEvent}.
     \value PaletteChange  Palette of the widget changed.
-    \value Polish The object is polished.
-    \value PolishRequest The object should be polished.
+    \value Polish The widget is polished.
+    \value PolishRequest The widget should be polished.
     \value QWSUpdate internal.
     \value Quit  Reserved.
     \value Reparent  Reserved.

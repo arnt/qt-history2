@@ -41,8 +41,7 @@ QObjectPrivate::QObjectPrivate()
     :
     thread(0),
     connections(0),
-    senders(0),
-    polished(0)
+    senders(0)
 {
     // QObjectData initialization
     q_ptr = 0;
@@ -284,9 +283,6 @@ QObject::QObject(QObject *parent)
     d_ptr->q_ptr = this;
     d->thread = parent ? parent->thread() : QThread::currentQThread();
     setParent(parent);
-    QEvent e(QEvent::Create);
-    QCoreApplication::sendEvent(this, &e);
-    QCoreApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
 }
 
 
@@ -302,9 +298,6 @@ QObject::QObject(QObject *parent, const char *name)
     setParent(parent);
     if (name)
         setObjectName(name);
-    QEvent e(QEvent::Create);
-    QCoreApplication::sendEvent(this, &e);
-    QCoreApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
 }
 
 /*! \internal
@@ -323,9 +316,6 @@ QObject::QObject(QObjectPrivate &dd, QObject *parent)
         // no events sent here, this is done at the end of the QWidget constructor
     } else {
         setParent(parent);
-        QEvent e(QEvent::Create);
-        QCoreApplication::sendEvent(this, &e);
-        QCoreApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
     }
 }
 
@@ -358,9 +348,6 @@ QObject::~QObject()
         return;
     }
     d->wasDeleted = true;
-
-    QEvent e(QEvent::Destroy);
-    QCoreApplication::sendEvent(this, &e);
 
     d->blockSig = 0; // unblock signals so we always emit destroyed()
     emit destroyed(this);
@@ -611,10 +598,6 @@ bool QObject::event(QEvent *e)
         childEvent((QChildEvent*)e);
         return true;
 
-    case QEvent::Polish:
-        polishEvent(e);
-        return true;
-
     case QEvent::DeferredDelete:
         delete this;
         return true;
@@ -688,7 +671,7 @@ void QObject::timerEvent(QTimerEvent *)
     child is not yet fully constructed, in the \c ChildRemoved case it
     might have been destructed already).
 
-    \c QEvent::ChildPolished events are sent to objects when children
+    \c QEvent::ChildPolished events are sent to widgets when children
     are polished, or polished children added. If you receive a child
     polished event, the child's construction typically is completed.
 
@@ -708,56 +691,6 @@ void QObject::childEvent(QChildEvent *)
 {
 }
 
-/*!
-    Ensures delayed initialization of an object and its children.
-
-    This function will be called \e after an object has been fully
-    created and \e before it is shown the very first time.  Children
-    will be polished after the polishEvent() handler for this object
-    is called.
-
-    Polishing is useful for final initialization which depends on
-    having an instantiated object. This is something a constructor
-    cannot guarantee since the initialization of the subclasses might
-    not be finished.
-
-    For widgets, this function makes sure the widget has a proper font
-    and palette and QApplication::polish() has been called.
-
-    If you need to change some settings when an object is polished,
-    use polishEvent().
-
-    \sa polishEvent(), QApplication::polish()
-*/
-void QObject::ensurePolished() const
-{
-    const QMetaObject *m = metaObject();
-    if (m == d->polished)
-        return;
-    d->polished = m;
-
-    QEvent e(QEvent::Polish);
-    QCoreApplication::sendEvent(const_cast<QObject *>(this), &e);
-
-    // polish children after 'this'
-    for (int i = 0; i < d->children.size(); ++i)
-	d->children.at(i)->ensurePolished();
-
-    if (d->parent) {
-        QChildEvent e(QEvent::ChildPolished, const_cast<QObject *>(this));
-        QCoreApplication::sendEvent(d->parent, &e);
-    }
-}
-
-/*!
-    This event handler can be reimplemented in a subclass to receive
-    object polish events.
-
-    \sa event(), ensurePolished(), QApplication::polish()
-*/
-void QObject::polishEvent(QEvent *)
-{
-}
 
 /*!
     This event handler can be reimplemented in a subclass to receive
@@ -1185,16 +1118,17 @@ void QObject::setParent_helper(QObject *parent)
         d->thread = 0;
         d->parent->d->children.append(this);
         if (!d->isWidget) {
-            const QMetaObject *polished = d->polished;
             QChildEvent e(QEvent::ChildAdded, this);
             QCoreApplication::sendEvent(d->parent, &e);
-            if (polished) {
-                QChildEvent e(QEvent::ChildPolished, this);
-                QCoreApplication::sendEvent(d->parent, &e);
-            }
+#ifdef QT_COMPAT
+            QChildEvent ei(QEvent::ChildInserted, this);
+            QCoreApplication::sendEvent(d->parent, &ei);
+#endif
         }
 #ifdef QT_COMPAT
-        QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, this));
+        else {
+            QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, this));
+        }
 #endif
     } else {
         // keep the same thread id as the (former) parent when

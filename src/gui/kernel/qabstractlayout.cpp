@@ -996,7 +996,7 @@ void QLayout::childEvent(QChildEvent *e)
 int QLayout::totalHeightForWidth(int w) const
 {
     if (d->topLevel)
-        parent()->ensurePolished();
+        parentWidget()->ensurePolished();
     int side=0, top=0;
     if (d->topLevel) {
         QWidgetPrivate *wd = parentWidget()->d;
@@ -1017,7 +1017,7 @@ int QLayout::totalHeightForWidth(int w) const
 QSize QLayout::totalMinimumSize() const
 {
     if (d->topLevel)
-        parent()->ensurePolished();
+        parentWidget()->ensurePolished();
     int side=0, top=0;
     if (d->topLevel) {
         QWidgetPrivate *wd = parentWidget()->d;
@@ -1039,7 +1039,7 @@ QSize QLayout::totalMinimumSize() const
 QSize QLayout::totalSizeHint() const
 {
     if (d->topLevel)
-        parent()->ensurePolished();
+        parentWidget()->ensurePolished();
     int side=0, top=0;
     if (d->topLevel) {
         QWidgetPrivate *wd = parentWidget()->d;
@@ -1063,7 +1063,7 @@ QSize QLayout::totalSizeHint() const
 QSize QLayout::totalMaximumSize() const
 {
     if (d->topLevel)
-        parent()->ensurePolished();
+        parentWidget()->ensurePolished();
     int side=0, top=0;
     if (d->topLevel) {
         QWidgetPrivate *wd = parentWidget()->d;

@@ -28,8 +28,8 @@ public:
         Paint = 12,                             // paint widget
         Move = 13,                              // move widget
         Resize = 14,                            // resize widget
-        Create = 15,                            // after object creation
-        Destroy = 16,                           // during object destruction
+        Create = 15,                            // after widget creation
+        Destroy = 16,                           // during widget destruction
         Show = 17,                              // widget is shown
         Hide = 18,                              // widget is hidden
         Close = 19,                             // request to close widget
@@ -68,8 +68,8 @@ public:
 #endif
         ChildRemoved = 71,                      // deleted child widget
         ShowWindowRequest = 73,                 // widget's window should be mapped
-        PolishRequest = 74,                     // object should be polished
-        Polish = 75,                            // object is polished
+        PolishRequest = 74,                     // widget should be polished
+        Polish = 75,                            // widget is polished
         LayoutRequest = 76,                     // widget should be relayouted
         UpdateRequest = 77,                     // widget should be repainted
 #ifdef Q_WS_QWS
