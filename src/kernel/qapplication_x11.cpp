@@ -920,7 +920,6 @@ bool QApplication::x11_apply_settings()
     // read new QStyle
     extern bool qt_explicit_app_style; // defined in qapplication.cpp
     QString stylename = settings.readEntry( "/qt/style" );
-    qDebug( "read style '%s' - explicit %d", stylename.latin1(), qt_explicit_app_style );
     if ( !stylename.isEmpty() && !qt_explicit_app_style ) {
 	QApplication::setStyle( stylename );
 	// took the style from the user settings, so mark the explicit flag FALSE
