@@ -1335,7 +1335,10 @@ protected:
 				  const QMemArray<int> &selectionEnds, const QColorGroup &cg, bool rightToLeft  );
 
 private:
-
+    QMap<int, QTextParagSelection> &selections() const;
+    QPtrVector<QStyleSheetItem> &styleSheetItemsVec() const;
+    QPtrList<QTextCustomItem> &floatingItems() const;
+        
     QMap<int, QTextParagLineStart*> lineStarts;
     int invalid;
     QRect r;
@@ -1352,17 +1355,17 @@ private:
     uint breakable : 1;
     uint isBr : 1;
     uint movedDown : 1;
-    QMap<int, QTextParagSelection> selections;
+    QMap<int, QTextParagSelection> *mSelections;
     int state, id;
     QTextString *str;
     int align;
-    QPtrVector<QStyleSheetItem> styleSheetItemsVec;
+    QPtrVector<QStyleSheetItem> *mStyleSheetItemsVec;
     QStyleSheetItem::ListStyle listS;
     int numSubParag;
     int tm, bm, lm, rm, flm;
     QTextFormat *defFormat;
 #ifndef QT_NO_TEXTCUSTOMITEM
-    QPtrList<QTextCustomItem> floatingItems;
+    QPtrList<QTextCustomItem> *mFloatingItems;
     QTextTableCell *tc;
     int numCustomItems;
 #endif
@@ -2029,7 +2032,7 @@ inline QTextParag *QTextParag::next() const
 
 inline bool QTextParag::hasAnySelection() const
 {
-    return !selections.isEmpty();
+    return mSelections ? !selections().isEmpty() : FALSE;
 }
 
 inline void QTextParag::setEndState( int s )
@@ -2108,12 +2111,12 @@ inline QTextFormat *QTextParag::paragFormat() const
 #ifndef QT_NO_TEXTCUSTOMITEM
 inline void QTextParag::registerFloatingItem( QTextCustomItem *i )
 {
-    floatingItems.append( i );
+    floatingItems().append( i );
 }
 
 inline void QTextParag::unregisterFloatingItem( QTextCustomItem *i )
 {
-    floatingItems.removeRef( i );
+    floatingItems().removeRef( i );
 }
 
 inline void QTextParag::addCustomItem()

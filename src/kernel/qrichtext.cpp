@@ -3513,9 +3513,7 @@ int QTextString::width( int idx ) const
 	     w = c->customItem()->width;
      } else
 #endif
-       if ( c->type == QTextStringChar::Mark ) {
-	 return 0;
-     } else {
+     {
 	 int r = c->c.row();
 	 if( r < 0x06 || r > 0x1f )
 	     w = c->format()->width( c->c );
@@ -3576,11 +3574,12 @@ QTextStringChar *QTextStringChar::clone() const
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool updateIds )
-    : invalid( 0 ), p( pr ), n( nx ), doc( d ), align( 0 ), listS( QStyleSheetItem::ListDisc ),
-      numSubParag( -1 ), tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), flm( -1 ),
-#ifndef QT_NO_TEXTCUSTOMITEM
-      tc( 0 ), numCustomItems( 0 ),
-#endif
+    : invalid( 0 ), p( pr ), n( nx ), doc( d ), mSelections( 0 ), align( 0 ), 
+      mStyleSheetItemsVec( 0 ), listS( QStyleSheetItem::ListDisc ),
+      numSubParag( -1 ), tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), flm( -1 ), 
+#ifndef QT_NO_TEXTCUSTOMITEM      
+      mFloatingItems( 0 ), tc( 0 ), numCustomItems( 0 ), 
+#endif      
       pFormatter( 0 ), tArray( 0 ), tabStopWidth( 0 ),
       eData( 0 ), pntr( 0 ), commandHistory( 0 )
 {
@@ -3668,6 +3667,9 @@ QTextParag::~QTextParag()
     QMap<int, QTextParagLineStart*>::Iterator it = lineStarts.begin();
     for ( ; it != lineStarts.end(); ++it )
 	delete *it;
+    if ( mSelections ) delete mSelections;
+    if ( mFloatingItems ) delete mFloatingItems;
+    if ( mStyleSheetItemsVec ) delete mStyleSheetItemsVec;
 }
 
 void QTextParag::setNext( QTextParag *s )
@@ -3691,8 +3693,10 @@ void QTextParag::invalidate( int chr )
     else
 	invalid = QMIN( invalid, chr );
 #ifndef QT_NO_TEXTCUSTOMITEM
-    for ( QTextCustomItem *i = floatingItems.first(); i; i = floatingItems.next() )
-	i->ypos = -1;
+    if ( mFloatingItems ) {
+	for ( QTextCustomItem *i = mFloatingItems->first(); i; i = mFloatingItems->next() )
+	    i->ypos = -1;
+    }
 #endif
     lm = rm = bm = tm = flm = -1;
 }
@@ -3794,8 +3798,10 @@ void QTextParag::move( int &dy )
     changed = TRUE;
     r.moveBy( 0, dy );
 #ifndef QT_NO_TEXTCUSTOMITEM
-    for ( QTextCustomItem *i = floatingItems.first(); i; i = floatingItems.next() )
-	i->ypos += dy;
+    if ( mFloatingItems ) {
+	for ( QTextCustomItem *i = mFloatingItems->first(); i; i = mFloatingItems->next() )
+	    i->ypos += dy;
+    }
 #endif
     if ( p )
 	p->lastInFrame = TRUE;
@@ -3836,8 +3842,8 @@ void QTextParag::format( int start, bool doMove )
  formatAgain:
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-    if ( doc ) {
-	for ( QTextCustomItem *i = floatingItems.first(); i; i = floatingItems.next() ) {
+    if ( doc && mFloatingItems ) {
+	for ( QTextCustomItem *i = mFloatingItems->first(); i; i = mFloatingItems->next() ) {
 	    i->ypos = r.y();
 	    if ( i->placement() == QTextCustomItem::PlaceRight )
 		i->xpos = r.x() + r.width() - i->width;
@@ -4195,12 +4201,6 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    if ( paintStart <= paintEnd ) {
 		// ### temporary hack until I get the new placement/shaping stuff working
 		int x = startX;
-		if ( lastType == QTextStringChar::Mark && i > 0 ) {
-		    if ( !lastDirection )
-			x += str->at(i - 1).d.mark->xoff;
-		    else if ( i > 1 )
-			x -= str->at(i - 1).d.mark->xoff + str->width( i - 2 );
-		}
 		if ( ( alignment() & Qt::AlignJustify ) == Qt::AlignJustify && paintEnd != -1 &&
 		     at( paintEnd )->c.isSpace() ) {
 		    int add = str->at(paintEnd).x - str->at(paintEnd-1).x - str->width(paintEnd-1);
@@ -4280,14 +4280,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		    break;
 	    }
 	}
-	// ### temporary hack until I get the new placement/shaping stuff working
 	int x = startX;
-	if ( lastType == QTextStringChar::Mark && i > 0 ) {
-	    if ( !lastDirection )
-		x += str->at(i - 1).d.mark->xoff;
-	    else if ( i > 1 )
-		x -= str->at(i - 1).d.mark->xoff + str->width( i - 2 );
-	}
 	drawParagString( painter, qstr, paintStart, paintEnd-paintStart+1, x, lastY,
 			 lastBaseLine, bw, h, drawSelections,
 			 lastFormat, i, selectionStarts, selectionEnds, cg, lastDirection );
@@ -4484,7 +4477,7 @@ void QTextParag::drawLabel( QPainter* p, int x, int y, int w, int h, int base, c
 
 void QTextParag::setStyleSheetItems( const QPtrVector<QStyleSheetItem> &vec )
 {
-    styleSheetItemsVec = vec;
+    styleSheetItemsVec() = vec;
     invalidate( 0 );
     lm = rm = tm = bm = flm = -1;
     numSubParag = -1;
@@ -4496,34 +4489,34 @@ void QTextParag::setList( bool b, int listStyle )
 	return;
 
     if ( !style() ) {
-	styleSheetItemsVec.resize( 2 );
-	styleSheetItemsVec.insert( 0, doc->styleSheet()->item( "html" ) );
-	styleSheetItemsVec.insert( 1, doc->styleSheet()->item( "p" ) );
+	styleSheetItemsVec().resize( 2 );
+	mStyleSheetItemsVec->insert( 0, doc->styleSheet()->item( "html" ) );
+	mStyleSheetItemsVec->insert( 1, doc->styleSheet()->item( "p" ) );
     }
 
     if ( b ) {
 	if ( style()->displayMode() != QStyleSheetItem::DisplayListItem || this->listStyle() != listStyle ) {
-	    styleSheetItemsVec.remove( styleSheetItemsVec.size() - 1 );
-	    QStyleSheetItem *item = styleSheetItemsVec[ styleSheetItemsVec.size() - 2 ];
+	    styleSheetItemsVec().remove( styleSheetItemsVec().size() - 1 );
+	    QStyleSheetItem *item = (*mStyleSheetItemsVec)[ mStyleSheetItemsVec->size() - 2 ];
 	    if ( item )
-		styleSheetItemsVec.remove( styleSheetItemsVec.size() - 2 );
-	    styleSheetItemsVec.insert( styleSheetItemsVec.size() - 2,
+		mStyleSheetItemsVec->remove( mStyleSheetItemsVec->size() - 2 );
+	    mStyleSheetItemsVec->insert( mStyleSheetItemsVec->size() - 2,
 				       listStyle == QStyleSheetItem::ListDisc || listStyle == QStyleSheetItem::ListCircle
 				       || listStyle == QStyleSheetItem::ListSquare ?
 				       doc->styleSheet()->item( "ul" ) : doc->styleSheet()->item( "ol" ) );
-	    styleSheetItemsVec.insert( styleSheetItemsVec.size() - 1, doc->styleSheet()->item( "li" ) );
+	    mStyleSheetItemsVec->insert( mStyleSheetItemsVec->size() - 1, doc->styleSheet()->item( "li" ) );
 	    setListStyle( (QStyleSheetItem::ListStyle)listStyle );
 	} else {
 	    return;
 	}
     } else {
 	if ( style()->displayMode() != QStyleSheetItem::DisplayBlock ) {
-	    styleSheetItemsVec.remove( styleSheetItemsVec.size() - 1 );
-	    if ( styleSheetItemsVec.size() >= 2 ) {
-		styleSheetItemsVec.remove( styleSheetItemsVec.size() - 2 );
-		styleSheetItemsVec.resize( styleSheetItemsVec.size() - 2 );
+	    styleSheetItemsVec().remove( styleSheetItemsVec().size() - 1 );
+	    if ( mStyleSheetItemsVec->size() >= 2 ) {
+		mStyleSheetItemsVec->remove( mStyleSheetItemsVec->size() - 2 );
+		mStyleSheetItemsVec->resize( mStyleSheetItemsVec->size() - 2 );
 	    } else {
-		styleSheetItemsVec.resize( styleSheetItemsVec.size() - 1 );
+		mStyleSheetItemsVec->resize( mStyleSheetItemsVec->size() - 1 );
 	    }
 	} else {
 	    return;
@@ -4550,9 +4543,9 @@ void QTextParag::incDepth()
 	return;
     if ( style()->displayMode() != QStyleSheetItem::DisplayListItem )
 	return;
-    styleSheetItemsVec.resize( styleSheetItemsVec.size() + 1 );
-    styleSheetItemsVec.insert( styleSheetItemsVec.size() - 1, styleSheetItemsVec[ styleSheetItemsVec.size() - 2 ] );
-    styleSheetItemsVec.insert( styleSheetItemsVec.size() - 2,
+    styleSheetItemsVec().resize( styleSheetItemsVec().size() + 1 );
+    mStyleSheetItemsVec->insert( mStyleSheetItemsVec->size() - 1, (*mStyleSheetItemsVec)[ mStyleSheetItemsVec->size() - 2 ] );
+    mStyleSheetItemsVec->insert( mStyleSheetItemsVec->size() - 2,
 			       listStyle() == QStyleSheetItem::ListDisc || listStyle() == QStyleSheetItem::ListCircle ||
 			       listStyle() == QStyleSheetItem::ListSquare ?
 			       doc->styleSheet()->item( "ul" ) : doc->styleSheet()->item( "ol" ) );
@@ -4571,21 +4564,23 @@ void QTextParag::decDepth()
     QStyleSheetItem *lastList = 0;
     int lastIndex = 0;
     int i;
-    for ( i = 0; i < (int)styleSheetItemsVec.size(); ++i ) {
-	QStyleSheetItem *item = styleSheetItemsVec[ i ];
-	if ( item->name() == "ol" || item->name() == "ul" ) {
-	    lastList = item;
-	    lastIndex = i;
-	    numLists++;
+    if ( mStyleSheetItemsVec ) {
+	for ( i = 0; i < (int)mStyleSheetItemsVec->size(); ++i ) {
+	    QStyleSheetItem *item = (*mStyleSheetItemsVec)[ i ];
+	    if ( item->name() == "ol" || item->name() == "ul" ) {
+		lastList = item;
+		lastIndex = i;
+		numLists++;
+	    }
 	}
     }
 
     if ( !lastList )
 	return;
-    styleSheetItemsVec.remove( lastIndex );
-    for ( i = lastIndex; i < (int)styleSheetItemsVec.size() - 1; ++i )
-	styleSheetItemsVec.insert( i, styleSheetItemsVec[ i + 1 ] );
-    styleSheetItemsVec.resize( styleSheetItemsVec.size() - 1 );
+    styleSheetItemsVec().remove( lastIndex );
+    for ( i = lastIndex; i < (int)mStyleSheetItemsVec->size() - 1; ++i )
+	mStyleSheetItemsVec->insert( i, (*mStyleSheetItemsVec)[ i + 1 ] );
+    mStyleSheetItemsVec->resize( mStyleSheetItemsVec->size() - 1 );
     if ( numLists == 1 )
 	setList( FALSE, -1 );
     invalidate( 0 );
@@ -4597,10 +4592,12 @@ int QTextParag::listDepth() const
 {
     int numLists = 0;
     int i;
-    for ( i = 0; i < (int)styleSheetItemsVec.size(); ++i ) {
-	QStyleSheetItem *item = styleSheetItemsVec[ i ];
-	if ( item->name() == "ol" || item->name() == "ul" )
-	    numLists++;
+    if ( mStyleSheetItemsVec ) {
+	for ( i = 0; i < (int)mStyleSheetItemsVec->size(); ++i ) {
+	    QStyleSheetItem *item = (*mStyleSheetItemsVec)[ i ];
+	    if ( item->name() == "ol" || item->name() == "ul" )
+		numLists++;
+	}
     }
     return numLists - 1;
 }
@@ -4749,18 +4746,19 @@ int QTextParag::topMargin() const
     int m = 0;
     if ( item->margin( QStyleSheetItem::MarginTop ) != QStyleSheetItem::Undefined )
 	m = item->margin( QStyleSheetItem::MarginTop );
-    QStyleSheetItem *it = 0;
-    QStyleSheetItem *p = prev() ? prev()->style() : 0;
-    for ( int i = (int)styleSheetItemsVec.size() - 2 ; i >= 0; --i ) {
-	it = styleSheetItemsVec[ i ];
-	if ( it != p )
-	    break;
-	int mar = it->margin( QStyleSheetItem::MarginTop );
-	m += (mar != QStyleSheetItem::Undefined) ? mar : 0;
-	if ( it->displayMode() != QStyleSheetItem::DisplayInline )
-	    break;
+    if ( mStyleSheetItemsVec ) {
+	QStyleSheetItem *it = 0;
+	QStyleSheetItem *p = prev() ? prev()->style() : 0;
+	for ( int i = (int)mStyleSheetItemsVec->size() - 2 ; i >= 0; --i ) {
+	    it = (*mStyleSheetItemsVec)[ i ];
+	    if ( it != p )
+		break;
+	    int mar = it->margin( QStyleSheetItem::MarginTop );
+	    m += (mar != QStyleSheetItem::Undefined) ? mar : 0;
+	    if ( it->displayMode() != QStyleSheetItem::DisplayInline )
+		break;
+	}
     }
-
     m = scale( m, painter() );
 
     ( (QTextParag*)this )->tm = m;
@@ -4780,18 +4778,19 @@ int QTextParag::bottomMargin() const
     int m = 0;
     if ( item->margin( QStyleSheetItem::MarginBottom ) != QStyleSheetItem::Undefined )
 	m = item->margin( QStyleSheetItem::MarginBottom );
-    QStyleSheetItem *it = 0;
-    QStyleSheetItem *n = next() ? next()->style() : 0;
-    for ( int i =(int)styleSheetItemsVec.size() - 2 ; i >= 0; --i ) {
-	it = styleSheetItemsVec[ i ];
-	if ( it != n )
-	    break;
-	int mar = it->margin( QStyleSheetItem::MarginBottom );
-	m += mar != QStyleSheetItem::Undefined ? mar : 0;
-	if ( it->displayMode() != QStyleSheetItem::DisplayInline )
-	    break;
+    if ( mStyleSheetItemsVec ) {
+	QStyleSheetItem *it = 0;
+	QStyleSheetItem *n = next() ? next()->style() : 0;
+	for ( int i =(int)mStyleSheetItemsVec->size() - 2 ; i >= 0; --i ) {
+	    it = (*mStyleSheetItemsVec)[ i ];
+	    if ( it != n )
+		break;
+	    int mar = it->margin( QStyleSheetItem::MarginBottom );
+	    m += mar != QStyleSheetItem::Undefined ? mar : 0;
+	    if ( it->displayMode() != QStyleSheetItem::DisplayInline )
+		break;
+	}
     }
-
     m = scale ( m, painter() );
 
     ( (QTextParag*)this )->bm = m;
@@ -4808,20 +4807,22 @@ int QTextParag::leftMargin() const
 	return 0;
     }
     int m = 0;
-    for ( int i = 0; i < (int)styleSheetItemsVec.size(); ++i ) {
-	item = styleSheetItemsVec[ i ];
-	int mar = item->margin( QStyleSheetItem::MarginLeft );
-	m += mar != QStyleSheetItem::Undefined ? mar : 0;
-	if ( item->name() == "ol" || item->name() == "ul" ) {
-	    defFormat->setPainter( 0 );
-	    m += defFormat->width( '1' ) +
-		 defFormat->width( '2' ) +
-		 defFormat->width( '3' ) +
-		 defFormat->width( '.' );
-	    defFormat->setPainter( painter() );
+    if ( mStyleSheetItemsVec ) {
+	for ( int i = 0; i < (int)mStyleSheetItemsVec->size(); ++i ) {
+	    item = (*mStyleSheetItemsVec)[ i ];
+	    int mar = item->margin( QStyleSheetItem::MarginLeft );
+	    m += mar != QStyleSheetItem::Undefined ? mar : 0;
+	    if ( item->name() == "ol" || item->name() == "ul" ) {
+		defFormat->setPainter( 0 );
+		m += defFormat->width( '1' ) +
+		     defFormat->width( '2' ) +
+		     defFormat->width( '3' ) +
+		     defFormat->width( '.' );
+		defFormat->setPainter( painter() );
+	    }
 	}
     }
-
+    
     m = scale ( m, painter() );
 
     ( (QTextParag*)this )->lm = m;
@@ -4838,12 +4839,14 @@ int QTextParag::firstLineMargin() const
 	return 0;
     }
     int m = 0;
-    for ( int i = 0; i < (int)styleSheetItemsVec.size(); ++i ) {
-	item = styleSheetItemsVec[ i ];
-	int mar = item->margin( QStyleSheetItem::MarginFirstLine );
-	m += mar != QStyleSheetItem::Undefined ? mar : 0;
+    if ( mStyleSheetItemsVec ) {
+	for ( int i = 0; i < (int)mStyleSheetItemsVec->size(); ++i ) {
+	    item = (*mStyleSheetItemsVec)[ i ];
+	    int mar = item->margin( QStyleSheetItem::MarginFirstLine );
+	    m += mar != QStyleSheetItem::Undefined ? mar : 0;
+	}
     }
-
+    
     m = scale( m, painter() );
 
     ( (QTextParag*)this )->flm = m;
@@ -4860,12 +4863,13 @@ int QTextParag::rightMargin() const
 	return 0;
     }
     int m = 0;
-    for ( int i = 0; i < (int)styleSheetItemsVec.size(); ++i ) {
-	item = styleSheetItemsVec[ i ];
-	int mar = item->margin( QStyleSheetItem::MarginRight );
-	m += mar != QStyleSheetItem::Undefined ? mar : 0;
+    if ( mStyleSheetItemsVec ) {
+	for ( int i = 0; i < (int)mStyleSheetItemsVec->size(); ++i ) {
+	    item = (*mStyleSheetItemsVec)[ i ];
+	    int mar = item->margin( QStyleSheetItem::MarginRight );
+	    m += mar != QStyleSheetItem::Undefined ? mar : 0;
+	}
     }
-
     m = scale( m, painter() );
 
     ( (QTextParag*)this )->rm = m;
