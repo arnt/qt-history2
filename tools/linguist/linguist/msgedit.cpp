@@ -590,12 +590,12 @@ void MessageEditor::resizeEvent( QResizeEvent * )
     sw->resize( sv->viewport()->width(), sw->height() );
 }
 
-QListView * MessageEditor::sourceTextList()
+QListView * MessageEditor::sourceTextList() const
 {
     return srcTextList;
 }
 
-QListView * MessageEditor::phraseList()
+QListView * MessageEditor::phraseList() const
 {
     return phraseLv;
 }

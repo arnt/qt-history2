@@ -2249,3 +2249,18 @@ void TrWindow::focusPhraseList()
 {
     plv->setFocus();
 }
+
+void TrWindow::menuAboutToShow()
+{
+    QPopupMenu * menu = (QPopupMenu*) sender();
+    QMainWindow::menuAboutToShow(); // set up the default menu first
+    
+    QDockWindow * sourceDock = (QDockWindow *) slv->parent();
+    QDockWindow * phraseDock = (QDockWindow *) plv->parent()->parent();
+    int id = menu->insertItem( "Source text", sourceDock,
+			       SLOT( toggleVisible() ), 0, -1, 1 );
+    menu->setItemChecked( id, sourceDock->isVisible() );
+    id = menu->insertItem( "Phrases", phraseDock, SLOT( toggleVisible() ),
+			   0, -1, 2 );
+    menu->setItemChecked( id, phraseDock->isVisible() );
+}

@@ -144,8 +144,8 @@ class MessageEditor : public QWidget
 public:
     MessageEditor( MetaTranslator * t, QWidget * parent = 0,
 		   const char * name = 0 );
-    QListView * sourceTextList();
-    QListView * phraseList();
+    QListView * sourceTextList() const;
+    QListView * phraseList() const;
     
     void showNothing();
     void showContext( const QString& context, bool finished );
