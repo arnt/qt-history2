@@ -115,9 +115,6 @@ private:
 };
 
 
-//Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QPixmap &);
-//Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPixmap &);
-
 class QDataStream;
 
 class Q_CORE_EXPORT QMetaType {
