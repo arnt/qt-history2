@@ -727,7 +727,6 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    unknown = TRUE;
 	}
     }
-
     if ( unknown ) {				// unknown key
 	e->ignore();
 	return;
@@ -896,9 +895,9 @@ bool QLineEdit::event( QEvent * e )
 */
 	    case Key_C:
 	    case Key_V:
-	    case Key_X:	    
+	    case Key_X:	
 	    case Key_Y:
-	    case Key_Z:	    
+	    case Key_Z:	
 	    case Key_Left:
 	    case Key_Right:
 #if defined (_WS_WIN_)
@@ -1018,7 +1017,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !d->mousePressed ) {
 	if ( !isReadOnly() && dragEnabled() ) {
-	    if ( d->parag->hasSelection( QTextDocument::Standard ) &&
+	    if ( hasSelectedText() &&
 		 inSelection( e->pos().x() + d->offset - frameWidth() - margin() - 1, d->parag ) )
 		setCursor( arrowCursor );
 	    else
@@ -1258,6 +1257,8 @@ void QLineEdit::backspace()
 	d->undoRedoInfo.text.prepend( QString( d->cursor->parag()->at( d->cursor->index() )->c ) );
 	d->undoRedoInfo.index = d->cursor->index();
 	d->cursor->remove();
+	d->cursor->checkIndex();
+	
     }
     d->selectionStart = d->cursor->index();
     setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
@@ -1744,32 +1745,27 @@ void QLineEdit::insert( const QString &newText )
 	if ( t[i] < ' ' )  // unprintable/linefeed becomes space
 	    t[i] = ' ';
 
-    if ( !d->validator ) {
-	if( hasSelectedText() )
-	    removeSelectedText();
-	d->cursor->insert( t, FALSE );
-	emit textChanged( text() );
-    } else {
-	QString text = d->parag->string()->toString();
-	text.remove( text.length() - 1, 1 );
-	int cp = d->cursor->index();
-	if ( hasSelectedText() ) {
-	    text.remove( d->parag->selectionStart(0), d->parag->selectionEnd(0) - d->parag->selectionStart( 0 ) );
-	    cp = d->parag->selectionStart(0);
-	}
-	text.insert( cp, t );
-	cp = QMIN( cp+t.length(), (uint)maxLength() );
-	blinkOn();
-	validateAndSet( text, cp, cp, cp );
+    QString text = d->parag->string()->toString();
+    text.remove( text.length() - 1, 1 );
+    int cp = d->cursor->index();
+    if ( hasSelectedText() ) {
+	text.remove( d->parag->selectionStart(0),
+		     d->parag->selectionEnd(0) - d->parag->selectionStart( 0 ) );
+	cp = d->parag->selectionStart(0);
     }
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
-#endif
+    text.insert( cp, t );
+    cp = QMIN( cp+t.length(), (uint)maxLength() );
+    blinkOn();
+    validateAndSet( text, cp, cp, cp );
     update();
     d->selectionStart = d->cursor->index();
     d->undoRedoInfo.text += t;
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
+#endif
     if ( hasFocus() )
-	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
+	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0,
+			   d->cursor->parag()->rect().height(), TRUE );
 }
 
 
