@@ -1366,14 +1366,15 @@ void QPrinter::reinit()
 	    DEVMODE* dm = (DEVMODE*)GlobalLock( hdevmode );
 	    if ( dm ) {
 		writeDevmode( dm );
-		hdcTmp = CreateDC( L"WINSPOOL", dm->dmDeviceName, 0, dm );
+		qt_winTchar( printer_name, true );		
+		hdcTmp = CreateDC( L"WINSPOOL", printer_name.ucs2(), 0, dm ); 
 		GlobalUnlock( hdevmode );
 	    }
 	} , {
 	    DEVMODEA* dm = (DEVMODEA*)GlobalLock( hdevmode );
 	    if ( dm ) {
 		writeDevmodeA( dm );
-		hdcTmp = CreateDCA( "WINSPOOL", (LPCSTR)dm->dmDeviceName, 0, dm );
+		hdcTmp = CreateDCA( "WINSPOOL", printer_name.latin1(), 0, dm );
 		GlobalUnlock( hdevmode );
 	    }
 	} );
