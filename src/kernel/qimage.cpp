@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#157 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#158 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#157 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#158 $");
 
 
 /*!
@@ -3614,16 +3614,12 @@ public:
     QImageDecoder *decoder;
     int framecount;
 
-    bool changed(const QRect&) { return TRUE; }
-    bool end() { return FALSE; }
-    bool frameDone()
-    {
-	framecount++;
-	return FALSE; // STOP!
-    }
-    bool setLooping(int) { return TRUE; }
-    bool setFramePeriod(int) { return TRUE; }
-    bool setSize(int, int) { return TRUE; }
+    void changed(const QRect&) { }
+    void end() { }
+    void frameDone() { framecount++; }
+    void setLooping(int) { }
+    void setFramePeriod(int) { }
+    void setSize(int, int) { }
 };
 
 static void read_async_image( QImageIO *iio )

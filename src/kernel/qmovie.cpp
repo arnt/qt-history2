@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#32 $
 **
 ** Implementation of movie classes
 **
@@ -92,13 +92,13 @@ public: // for QMovie
     void showChanges();
 
     // This as QImageConsumer
-    bool changed(const QRect& rect);
-    bool end();
-    bool frameDone();
+    void changed(const QRect& rect);
+    void end();
+    void frameDone();
     void restartTimer();
-    bool setLooping(int l);
-    bool setFramePeriod(int milliseconds);
-    bool setSize(int w, int h);
+    void setLooping(int l);
+    void setFramePeriod(int milliseconds);
+    void setSize(int w, int h);
 
     // This as QDataSink
     int readyToReceive();
@@ -291,19 +291,17 @@ void QMoviePrivate::showChanges()
 }
 
 // QMoviePrivate as QImageConsumer
-bool QMoviePrivate::changed(const QRect& rect)
+void QMoviePrivate::changed(const QRect& rect)
 {
     if (!frametimer->isActive()) frametimer->start(0);
     changed_area = changed_area.unite(rect);
-    return TRUE;
 }
 
-bool QMoviePrivate::end()
+void QMoviePrivate::end()
 {
-    return TRUE; // Not that it will do anything.
 }
 
-bool QMoviePrivate::frameDone()
+void QMoviePrivate::frameDone()
 {
     if (stepping > 0) {
 	stepping--;
@@ -318,7 +316,6 @@ bool QMoviePrivate::frameDone()
     showChanges();
     emit dataStatus(QMovie::EndOfFrame);
     framenumber++;
-    return FALSE;
 }
 
 void QMoviePrivate::restartTimer()
@@ -334,7 +331,7 @@ void QMoviePrivate::restartTimer()
     }
 }
 
-bool QMoviePrivate::setLooping(int nloops)
+void QMoviePrivate::setLooping(int nloops)
 {
     if (loop == -1) { // Only if we don't already know how many loops!
 	if (source->rewindable()) {
@@ -345,25 +342,21 @@ bool QMoviePrivate::setLooping(int nloops)
 	    loop = -2;
 	}
     }
-
-    return TRUE;
 }
 
-bool QMoviePrivate::setFramePeriod(int milliseconds)
+void QMoviePrivate::setFramePeriod(int milliseconds)
 {
     // Animation:  only show complete frame
     frameperiod = milliseconds;
     if (stepping<0 && frameperiod >= 0) restartTimer();
-    return TRUE;
 }
 
-bool QMoviePrivate::setSize(int w, int h)
+void QMoviePrivate::setSize(int w, int h)
 {
     if (mypixmap.width() != w || mypixmap.height() != h) {
 	mypixmap.resize(w, h);
 	emit sizeChanged(QSize(w, h));
     }
-    return TRUE;
 }
 
 
@@ -832,7 +825,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Sep 4 15:31:20 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.31 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.32 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

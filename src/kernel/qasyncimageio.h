@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#14 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#15 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -26,12 +26,12 @@
 
 class QImageConsumer {
 public:
-    virtual bool changed(const QRect&)=0;
-    virtual bool end()=0;
-    virtual bool frameDone()=0;
-    virtual bool setLooping(int)=0;
-    virtual bool setFramePeriod(int)=0;
-    virtual bool setSize(int, int)=0;
+    virtual void changed(const QRect&)=0;
+    virtual void end()=0;
+    virtual void frameDone()=0;
+    virtual void setLooping(int)=0;
+    virtual void setFramePeriod(int)=0;
+    virtual void setSize(int, int)=0;
 };
 
 class QImageFormatDecoder {

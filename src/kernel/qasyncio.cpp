@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#7 $
 **
 ** Implementation of asynchronous I/O classes
 **
@@ -14,11 +14,15 @@
 #include "qtimer.h"
 #include <stdlib.h>
 
-/*UNDOCUMENTED INTERNAL CLASS
-
+/*!
   \class QAsyncIO qasyncio.h
   \brief Encapsulates I/O asynchronicity.
-  \internal
+
+  The Qt classes for asynchronous input/output provide a simple
+  mechanism to allow large files or slow datasources to be processed
+  without using large amounts of memory, or blocking the user interface.
+
+  This facility is used in Qt to drive animated images.  See QAsyncImageIO.
 */
 
 
@@ -53,14 +57,13 @@ void QAsyncIO::ready()
   \class QDataSink qasyncio.h
   \brief A QDataSink is an asynchronous consumer of data.
 
-  \internal
-
   A data sink is an object which receives data from some source in an
   asynchronous manner.  This means that at some time not determined by
   the data sink, blocks of data are given to it from processing.  The
-  data sink is able to limit the maximum size of such blocks.
+  data sink is able to limit the maximum size of such blocks which it
+  is currently able to process.
 
-  \sa QDataSource, QDataPump
+  \sa QAsyncIO, QDataSource, QDataPump
 */
 
 /*!
@@ -84,7 +87,7 @@ void QDataSink::maybeReady()
 
   This function is called to provide data for the data sink.  The count
   will be no more than the amount indicated by the most recent call to
-  readyToReceive().
+  readyToReceive().  The sink must use all the provided data.
 */
 
 /*!
@@ -99,14 +102,13 @@ void QDataSink::maybeReady()
   \class QDataSource qasyncio.h
   \brief A QDataSource is an asynchronous producer of data.
 
-  \internal
-
   A data source is an object which provides data from some source in an
   asynchronous manner.  This means that at some time not determined by
   the data source, blocks of data will be taken from it for processing.
-  The data source is able to limit the maximum size of such blocks.
+  The data source is able to limit the maximum size of such blocks which
+  it is currently able to provide.
 
-  \sa QDataSink, QDataPump
+  \sa QAsyncIO, QDataSink, QDataPump
 */
 
 /*!
@@ -119,7 +121,7 @@ void QDataSink::maybeReady()
 
 /*!
   This should be called whenever readyToSend() might have become non-zero.
-  It is merely calls QAsyncIO::ready() if readyToReceive() is non-zero.
+  It is merely calls QAsyncIO::ready() if readyToSend() is non-zero.
 */
 void QDataSource::maybeReady()
 {
@@ -129,11 +131,17 @@ void QDataSource::maybeReady()
 /*!
   \fn void QDataSource::sendTo(QDataSink*, int count)
 
-  Send the given amount of data to the given sink.
+  This function is called to extract data from the source, by sending
+  it to the given data sink.  The count will be no more than the amount
+  indicated by the most recent call to readyToSend().  The source must
+  use all the provided data, and the sink will be prepared to accept at
+  least this much data.  
 */
 
 /*!
   This function should return TRUE if the data source can be rewound.
+
+  The default returns FALSE.
 */
 bool QDataSource::rewindable() const
 {
@@ -149,7 +157,8 @@ bool QDataSource::rewindable() const
 
   For example, a network connection may choose to utilize a disk cache
   of input only if rewinding is enabled before the first buffer-full of
-  data is discarded.
+  data is discarded, returning FALSE in rewindable() if that first buffer
+  is discarded.
 */
 void QDataSource::enableRewind(bool)
 {
@@ -169,7 +178,7 @@ void QDataSource::rewind()
   \class QIODeviceSource qasyncio.h
   \brief A QIODeviceSource is a QDataSource that draws data from a QIODevice
 
-  \internal
+  This class encapsulates retrieving data from a QIODevice (such as a QFile).
 */
 
 /*!
@@ -253,7 +262,16 @@ void QIODeviceSource::rewind()
   \class QDataPump qasyncio.h
   \brief Moves data from a QDataSource to a QDataSink during event processing.
 
-  \internal
+  For a QDataSource to provide data to a QDataSink, a controller must exist
+  to examine the QDataSource::readyToSend() and QDataSink::readyToReceive()
+  methods and respond to the QASyncIO::activate() signal of the source and
+  sink.  One very useful way to do this is interleaved with other event
+  processing.  QDataPump provides this - create a pipe between a source
+  and a sink, and data will be moved during subsequent event processing.
+
+  Note that each source can only provide data to one sink and each sink
+  can only receive data from one source (although it is quite possible
+  to write a multiplexing sink that is multiple sources).
 */
 
 /*!
@@ -292,6 +310,8 @@ void QDataPump::tryToPump()
 	    sink->eof();
 	    return;
 	}
+	if (!supply)
+	    return;
 	source->sendTo(sink, QMIN(supply, demand));
     } while (1);
 

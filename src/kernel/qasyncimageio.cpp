@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#30 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -18,43 +18,39 @@
   \class QImageConsumer qasyncimageio.h
   \brief An abstraction used by QImageDecoder.
   
-  \internal
-
   \ingroup images
 
   A QImageConsumer consumes information about changes to the
   QImage maintained by a QImageDecoder.  It represents the
-  decoder's view of the obhect which uses the image it produces.
-  Each method of QImageConsumer returns a bool which should be
-  TRUE if the decoder should continue decoding.
+  a view of the image which the decoder produces.
 
   \sa QImageDecoder
 */
 
 /*!
-  \fn bool QImageConsumer::changed(const QRect&)
+  \fn void QImageConsumer::changed(const QRect&)
 
   Called when the given area of the image has changed.
 */
 
 /*!
-  \fn bool QImageConsumer::end()
+  \fn void QImageConsumer::end()
 
   Called when all data of all frames has been decoded and revealed
   as changed().
 */
 
 /*!
-  \fn bool QImageConsumer::frameDone()
+  \fn void QImageConsumer::frameDone()
 
   Called when a frame of an animated image has ended and been revealed
-  as changed().  If the consumer returns TRUE, the decoder will not make
+  as changed().  The decoder will not make
   any further changes to the image until the next call to
   QImageFormatDecoder::decode().
 */
 
 /*!
-  \fn bool QImageConsumer::setLooping(int n)
+  \fn void QImageConsumer::setLooping(int n)
 
   Called to indicate that the sequence of frames in the image
   should be repeated \a n times, including the sequence during
@@ -75,7 +71,7 @@
 */
 
 /*!
-  \fn bool QImageConsumer::setFramePeriod(int milliseconds)
+  \fn void QImageConsumer::setFramePeriod(int milliseconds)
 
   Notes that the frame about to be decoded should not be displayed until
   the given number of \a milliseconds after the time that this function
@@ -86,7 +82,7 @@
 */
 
 /*!
-  \fn bool QImageConsumer::setSize(int, int)
+  \fn void QImageConsumer::setSize(int, int)
 
   This function is called as soon as the size of the image has
   been determined.
@@ -396,7 +392,7 @@ const char* QGIFDecoderFactory::formatName() const
 void QGIFDecoder::disposePrevious( QImage& img, QImageConsumer* consumer )
 {
     if ( out_of_bounds ) // flush anything that survived
-	digress = !consumer->changed(QRect(0,0,swidth,sheight));
+	consumer->changed(QRect(0,0,swidth,sheight));
 
     // Handle disposal of previous image before processing next one
 
@@ -425,11 +421,8 @@ void QGIFDecoder::disposePrevious( QImage& img, QImageConsumer* consumer )
 	    uchar** line = img.jumpTable();
 	    fillRect(img, l, t, r-l+1, b-t+1, line[0][0]);
 	}
-	if (consumer) {
-	    bool d = !consumer->changed(QRect(l, t,
-					      r-l+1, b-t+1));
-	    digress = digress || d;
-	}
+	if (consumer)
+	    consumer->changed(QRect(l, t, r-l+1, b-t+1));
 	break;
       case RestoreImage: {
 	uchar** line = img.jumpTable();
@@ -439,11 +432,7 @@ void QGIFDecoder::disposePrevious( QImage& img, QImageConsumer* consumer )
 		backingstore.scanLine(ln-t),
 		r-l+1);
 	}
-	if (consumer) {
-	    bool d = !consumer->changed(QRect(l, t,
-					      r-l+1, b-t+1));
-	    digress = digress || d;
-	}
+	consumer->changed(QRect(l, t, r-l+1, b-t+1));
       }
     }
     disposal = NoDisposal; // Until an extension says otherwise.
@@ -536,9 +525,11 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		state=ExtensionLabel;
 		break;
 	      case ';':
-		if ( out_of_bounds ) // flush anything that survived
-		    digress = !consumer->changed(QRect(0,0,swidth,sheight));
-		if (consumer) digress = !consumer->end();
+		if (consumer) {
+		    if ( out_of_bounds ) // flush anything that survived
+			consumer->changed(QRect(0,0,swidth,sheight));
+		    consumer->end();
+		}
 		state=Done;
 		break;
 	      default:
@@ -562,7 +553,7 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 
 		if (img.isNull()) {
 		    img.create(swidth, sheight, 8, gcmap ? gncols : 256);
-		    if (consumer) digress = !consumer->setSize(swidth, sheight);
+		    if (consumer) consumer->setSize(swidth, sheight);
 		}
 		img.setAlphaBuffer(trans >= 0);
 		line = img.jumpTable();
@@ -607,10 +598,10 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 			// Not full-size image - erase with bg or transparent
 			if ( bgcol>=0 ) {
 			    fillRect(img, 0, 0, swidth, sheight, bgcol);
-			    if (consumer) digress = !consumer->changed(QRect(0,0,swidth,sheight));
+			    if (consumer) consumer->changed(QRect(0,0,swidth,sheight));
 			} else if ( trans > 0 ) {
 			    fillRect(img, 0, 0, swidth, sheight, trans);
-			    if (consumer) digress = !consumer->changed(QRect(0,0,swidth,sheight));
+			    if (consumer) consumer->changed(QRect(0,0,swidth,sheight));
 			}
 		    }
 		}
@@ -685,7 +676,10 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 	    if (expectcount) {
 		state=ImageDataBlock;
 	    } else {
-		if (consumer) digress = !consumer->frameDone();
+		if (consumer) {
+		    consumer->frameDone();
+		    digress = TRUE;
+		}
 
 		state=Introducer;
 	    }
@@ -921,8 +915,8 @@ void QGIFDecoder::nextY(QImage& img, QImageConsumer* consumer)
     switch (interlace) {
       case 0:
 	// Non-interlaced
-	if (consumer && !out_of_bounds) digress =
-	    !consumer->changed(QRect(left, y, right-left+1, 1));
+	if (consumer && !out_of_bounds)
+	    consumer->changed(QRect(left, y, right-left+1, 1));
 	y++;
 	break;
       case 1:
@@ -931,8 +925,8 @@ void QGIFDecoder::nextY(QImage& img, QImageConsumer* consumer)
 	    my = QMIN(7, bottom-y);
 	    for (i=1; i<=my; i++)
 	        memcpy(img.scanLine(y+i), img.scanLine(y), img.width());
-	    if (consumer && !out_of_bounds) digress =
-	        !consumer->changed(QRect(left, y, right-left+1, my+1));
+	    if (consumer && !out_of_bounds)
+	        consumer->changed(QRect(left, y, right-left+1, my+1));
 	    y+=8;
 	    if (y>bottom) { interlace++; y=4; }
 	} break;
@@ -942,8 +936,8 @@ void QGIFDecoder::nextY(QImage& img, QImageConsumer* consumer)
 	    my = QMIN(3, bottom-y);
 	    for (i=1; i<=my; i++)
 	        memcpy(img.scanLine(y+i), img.scanLine(y), img.width());
-    	    if (consumer && !out_of_bounds) digress =
-	        !consumer->changed(QRect(left, y, right-left+1, my+1));
+    	    if (consumer && !out_of_bounds)
+	        consumer->changed(QRect(left, y, right-left+1, my+1));
 	    y+=8;
 	    if (y>bottom) { interlace++; y=2; }
 	} break;
@@ -952,14 +946,14 @@ void QGIFDecoder::nextY(QImage& img, QImageConsumer* consumer)
 	    my = QMIN(1, bottom-y);
 	    for (int i=1; i<=my; i++)
 	        memcpy(img.scanLine(y+i), img.scanLine(y), img.width());
-	    if (consumer && !out_of_bounds) digress =
-	        !consumer->changed(QRect(left, y, right-left+1, my+1));
+	    if (consumer && !out_of_bounds)
+	        consumer->changed(QRect(left, y, right-left+1, my+1));
 	    y+=4;
 	    if (y>bottom) { interlace++; y=1; }
 	} break;
       case 4:
-	if (consumer && !out_of_bounds) digress =
-	    !consumer->changed(QRect(left, y, right-left+1, 1));
+	if (consumer && !out_of_bounds)
+	    consumer->changed(QRect(left, y, right-left+1, 1));
 	y+=2;
     }
 
