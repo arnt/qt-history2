@@ -591,6 +591,19 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 
     QApplication::sendPostedEvents();
 
+    if ( flags & ExcludeUserInput ) {
+	while ( winPeekMessage(&msg,0,0,0,PM_NOREMOVE) ) {
+	    if ( (msg.message >= WM_KEYFIRST &&
+		 msg.message <= WM_KEYLAST) ||
+		 (msg.message >= WM_MOUSEFIRST &&
+		 msg.message <= WM_MOUSELAST) ) {
+		winPeekMessage(&msg,0,0,0,PM_REMOVE);
+		continue;
+	    }
+	    break;
+	}
+    }
+
     bool canWait = d->exitloop || d->quitnow ? FALSE : (flags & WaitForMore);
 
     if ( canWait ) {				// can wait if necessary
