@@ -2784,14 +2784,14 @@ bool QApplicationPrivate::qt_mac_apply_settings()
             QApplication::addLibraryPath(*it++);
     }
 
-    QString defaultcodec = settings.value(QLatin1String("defaultCodec"), QLatin1String("none"));
+    QString defaultcodec = settings.value(QLatin1String("defaultCodec"), QVariant(QLatin1String("none"))).toString();
     if(defaultcodec != QLatin1String("none")) {
         QTextCodec *codec = QTextCodec::codecForName(defaultcodec.latin1());
         if(codec)
             qApp->setDefaultCodec(codec);
     }
 
-    qt_resolve_symlinks = settings.value(QLatin1String("resolveSymlinks"), true);
+    qt_resolve_symlinks = settings.value(QLatin1String("resolveSymlinks"), true).toBool();
 
     if(qt_is_gui_used) {
         QString str;
@@ -2837,7 +2837,7 @@ bool QApplicationPrivate::qt_mac_apply_settings()
         QApplication::setWheelScrollLines(num);
 
         QString colorspec = settings.value(QLatin1String("colorSpec"),
-                                            QLatin1String("default")).toString();
+                                            QVariant(QLatin1String("default"))).toString();
         if (colorspec == QLatin1String("normal"))
             QApplication::setColorSpec(QApplication::NormalColor);
         else if (colorspec == QLatin1String("custom"))
