@@ -1,9 +1,16 @@
-@SysInclude { book }
+@Include { triple.lout }
 @Book
-    @InitialFont { Palatino Base 11p }
-    @InitialSpace { tex }
+    @Title { Qt's Graphical Tools }
+    @Edition { Second Edition }
+    @Publisher { Trolltech AS }
 //
-# TODO Add Parts; add Assistant manual; add Linguist manual
+# TODO Set page size
+@Include { assistant-1.lout }
+@Include { assistant-2.lout }
+@Include { assistant-3.lout }
+@Include { assistant-4.lout }
+@Include { assistant-5.lout }
+@Include { assistant-6.lout }
 @Include { designer-manual-1.lout }
 @Include { designer-manual-2.lout }
 @Include { designer-manual-3.lout }
@@ -20,3 +27,7 @@
 @Include { designer-manual-14.lout }
 @Include { designer-manual-15.lout }
 @Include { designer-manual-16.lout }
+@Include { linguist-manual-1.lout }
+@Include { linguist-manual-2.lout }
+@Include { linguist-manual-3.lout }
+@Include { linguist-manual-4.lout }
