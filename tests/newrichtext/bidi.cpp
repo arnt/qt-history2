@@ -41,13 +41,13 @@ struct BidiControl {
 
     void embed( int level, bool override = FALSE ) {
 	if ( ctx[cCtx].level < 61 && cCtx < 61 ) {
-	    ++cCtx;
+	    (void) ++cCtx;
 	    ctx[cCtx].level = level;
 	    ctx[cCtx].override = override;
 	}
     }
     void pdf() {
-	if ( cCtx ) --cCtx;
+	if ( cCtx ) (void) --cCtx;
     }
 
     uchar level() const {
