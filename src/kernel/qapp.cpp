@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#44 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#43 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#44 $";
 #endif
 
 
@@ -819,14 +819,14 @@ Here is this week's top ten Qt questions:
 
 */
 
-/*! \example wheel.cpp
+/*! \example wheel/wheel.cpp
 
   <h1>Color Wheel</h1>
 
   This example draws a color wheel.  It shows how to use color, world
   transformation and QPainter. */
 
-/*! \example connect.cpp
+/*! \example connect/connect.cpp
 
   <h1>A graphical hello world</h1>
 
@@ -835,7 +835,7 @@ Here is this week's top ten Qt questions:
   features.  Run the program, click the button, move the mouse,
   release the button, and watch the lines get drawn. */
 
-/*! \example cursor.cpp
+/*! \example cursor/cursor.cpp
 
   <h1>Cursors</h1>
 
