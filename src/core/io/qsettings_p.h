@@ -165,18 +165,6 @@ public:
                                                 QString &result);
     static QStringList splitArgs(const QString &s, int idx);
 
-protected:
-    QStack<QSettingsGroup> groupStack;
-    QString groupPrefix;
-    int spec;
-    bool fallbacks;
-    bool pendingChanges;
-    QSettings::Status status;
-};
-
-class QConfFileSettingsPrivate : public QSettingsPrivate
-{
-public:
     /*
     The numeric values of these enums define their search order. For example,
     F_User | F_Organization is searched before F_Global |
@@ -189,6 +177,18 @@ public:
        F_Global = 0x2,
        NumConfFiles = 4
     };
+protected:
+    QStack<QSettingsGroup> groupStack;
+    QString groupPrefix;
+    int spec;
+    bool fallbacks;
+    bool pendingChanges;
+    QSettings::Status status;
+};
+
+class QConfFileSettingsPrivate : public QSettingsPrivate
+{
+public:
     QConfFileSettingsPrivate(Qt::SettingsFormat format, Qt::SettingsScope scope,
                              const QString &organization, const QString &application);
     QConfFileSettingsPrivate(const QString &fileName, Qt::SettingsFormat format);
