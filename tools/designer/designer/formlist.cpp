@@ -123,19 +123,19 @@ QColor FormListItem::backgroundColor()
 void FormListItem::updateBackColor()
 {
     if ( listView()->firstChild() == this ) {
-	backColor = backColor1;
+	backColor = *backColor1;
 	return;
     }
 
     QListViewItemIterator it( this );
     --it;
     if ( it.current() ) {
-	if ( ( ( FormListItem*)it.current() )->backColor == backColor1 )
-	    backColor = backColor2;
+	if ( ( ( FormListItem*)it.current() )->backColor == *backColor1 )
+	    backColor = *backColor2;
 	else
-	    backColor = backColor1;
+	    backColor = *backColor1;
     } else {
-	backColor == backColor1;
+	backColor == *backColor1;
     }
 }
 
@@ -144,6 +144,8 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
 		 WStyle_Tool | WStyle_MinMax | WStyle_SysMenu ), mainWindow( mw ),
 	project( pro )
 {
+    init_colors();
+
     header()->setMovingEnabled( FALSE );
     header()->setStretchEnabled( TRUE );
     header()->hide();
@@ -151,7 +153,8 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
     setResizePolicy( QScrollView::Manual );
     setIcon( PixmapChooser::loadPixmap( "logo" ) );
     QPalette p( palette() );
-    p.setColor( QColorGroup::Base, QColor( backColor2 ) );
+    p.setColor( QColorGroup::Base, QColor( *backColor2 ) );
+    (void)*selectedBack; // hack
     setPalette( p );
     addColumn( tr( "Form" ) );
     addColumn( tr( "Filename" ) );

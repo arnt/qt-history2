@@ -82,6 +82,7 @@
 #include "database.h"
 #endif
 
+#define NO_STATIC_COLORS
 #include <globaldefs.h>
 
 FormWindow *find_formwindow( QWidget *w )

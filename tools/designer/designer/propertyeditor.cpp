@@ -143,22 +143,22 @@ void PropertyItem::toggle()
 void PropertyItem::updateBackColor()
 {
     if ( itemAbove() && this != listview->firstChild() ) {
-	if ( ( ( PropertyItem*)itemAbove() )->backColor == backColor1 )
-	    backColor = backColor2;
+	if ( ( ( PropertyItem*)itemAbove() )->backColor == *backColor1 )
+	    backColor = *backColor2;
 	else
-	    backColor = backColor1;
+	    backColor = *backColor1;
     } else {
-	backColor = backColor1;
+	backColor = *backColor1;
     }
     if ( listview->firstChild() == this )
-	backColor = backColor1;
+	backColor = *backColor1;
 }
 
 QColor PropertyItem::backgroundColor()
 {
     updateBackColor();
     if ( (QListViewItem*)this == listview->currentItem() )
-	return selectedBack;
+	return *selectedBack;
     return backColor;
 }
 
@@ -2231,6 +2231,8 @@ void PropertyCursorItem::setValue()
 PropertyList::PropertyList( PropertyEditor *e )
     : QListView( e ), editor( e )
 {
+    init_colors();
+
     header()->setMovingEnabled( FALSE );
     header()->setStretchEnabled( TRUE );
     setResizePolicy( QScrollView::Manual );
@@ -2620,7 +2622,7 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
 
 void PropertyList::paintEmptyArea( QPainter *p, const QRect &r )
 {
-    p->fillRect( r, backColor2 );
+    p->fillRect( r, *backColor2 );
 }
 
 void PropertyList::setCurrentItem( QListViewItem *i )

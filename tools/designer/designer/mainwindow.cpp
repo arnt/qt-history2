@@ -23,6 +23,7 @@
 
 #include "mainwindow.h"
 #include "defs.h"
+#include "globaldefs.h"
 #include "formwindow.h"
 #include "widgetdatabase.h"
 #include "widgetfactory.h"
@@ -111,6 +112,8 @@ MainWindow::MainWindow( bool asClient )
       docPath( "$QTDIR/doc/html" ), fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
       previewing( FALSE ), databaseAutoEdit( FALSE )
 {
+    init_colors();
+
     desInterface = new DesignerInterfaceImpl( this );
     desInterface->addRef();
     inDebugMode = FALSE;

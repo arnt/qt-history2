@@ -26,8 +26,20 @@
 #define BOXLAYOUT_DEFAULT_MARGIN 11
 #define BOXLAYOUT_DEFAULT_SPACING 6
 
-static QColor backColor1( 236, 245, 255 );
-static QColor backColor2( 250, 250, 250 );
-static QColor selectedBack( 221, 221, 221 );
+#ifndef NO_STATIC_COLORS
+static QColor *backColor1 = 0;
+static QColor *backColor2 = 0;
+static QColor *selectedBack = 0;
+
+static void init_colors()
+{
+    if ( backColor1 )
+	return;
+    backColor1 = new QColor( 236, 245, 255 );
+    backColor2 = new QColor( 250, 250, 250 );
+    selectedBack = new QColor( 221, 221, 221 );
+}
+
+#endif
 
 #endif

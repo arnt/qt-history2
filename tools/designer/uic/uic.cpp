@@ -29,6 +29,7 @@
 #include <qdatetime.h>
 #include <widgetdatabase.h>
 #include <domtool.h>
+#define NO_STATIC_COLORS
 #include <globaldefs.h>
 #include <qregexp.h>
 #include <zlib.h>

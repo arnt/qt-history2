@@ -109,19 +109,19 @@ QColor HierarchyItem::backgroundColor()
 void HierarchyItem::updateBackColor()
 {
     if ( listView()->firstChild() == this ) {
-	backColor = backColor1;
+	backColor = *backColor1;
 	return;
     }
 
     QListViewItemIterator it( this );
     --it;
     if ( it.current() ) {
-	if ( ( ( HierarchyItem*)it.current() )->backColor == backColor1 )
-	    backColor = backColor2;
+	if ( ( ( HierarchyItem*)it.current() )->backColor == *backColor1 )
+	    backColor = *backColor2;
 	else
-	    backColor = backColor1;
+	    backColor = *backColor1;
     } else {
-	backColor == backColor1;
+	backColor = *backColor1;
     }
 }
 
@@ -159,6 +159,8 @@ void HierarchyItem::cancelRename( int col )
 HierarchyList::HierarchyList( QWidget *parent, FormWindow *fw, bool doConnects )
     : QListView( parent ), formWindow( fw )
 {
+    init_colors();
+
     header()->setMovingEnabled( FALSE );
     header()->setStretchEnabled( TRUE );
     normalMenu = 0;
@@ -167,7 +169,8 @@ HierarchyList::HierarchyList( QWidget *parent, FormWindow *fw, bool doConnects )
     addColumn( tr( "Class" ) );
     setRootIsDecorated( TRUE );
     QPalette p( palette() );
-    p.setColor( QColorGroup::Base, QColor( backColor2 ) );
+    p.setColor( QColorGroup::Base, QColor( *backColor2 ) );
+    (void)*selectedBack; // hack
     setPalette( p );
     disconnect( header(), SIGNAL( sectionClicked( int ) ),
 		this, SLOT( changeSortColumn( int ) ) );

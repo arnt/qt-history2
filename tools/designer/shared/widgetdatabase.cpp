@@ -27,6 +27,7 @@
 #include "../integration/kdevelop/kdewidgets.h"
 
 #include <qapplication.h>
+#define NO_STATIC_COLORS
 #include <globaldefs.h>
 #include <qptrstrlist.h>
 #include <qdict.h>
