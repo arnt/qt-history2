@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#44 $
 **
 ** Implementation of QFileDialog class
 **
@@ -43,13 +43,7 @@ struct QUrlPrivate
   \class QUrl qurl.h
 
   The QUrl class is provided for a easy working with URLs.
-  It does all parsing, decoding, encoding and so on. Also
-  methodes like listing directories, copying URLs, removing
-  URLs, renaming URLs and some more are implemented. These
-  funcktions work by default only for the local filesystem,
-  for other network protocols, an implementation of the
-  required protocol has to be registered. For more information
-  about this, see the QNetworkProtocol documentation.
+  It does all parsing, decoding, encoding and so on.
 
   Mention that URL has some restrictions regarding the path
   encoding. URL works intern with the decoded path and
@@ -62,12 +56,16 @@ struct QUrlPrivate
   Since path is internally always encoded you may NOT use
   "%00" in the path while this is ok for the query.
 
-  \sa QNetworkProtocol::QNetworkProtocol()
+  If you want to use an URL to work on a hirachical filesystem
+  (locally or remote) the class QUrlOperator, which is derived
+  fro QUrl, may be of interest.
+  
+  \sa QUrlOperator::QUrlOperator()
 */
 
 
 /*!
-  Constructs an empty, malformed URL.
+  Constructs an empty, invalid URL.
 */
 
 QUrl::QUrl()
@@ -81,10 +79,10 @@ QUrl::QUrl()
   Constructs and URL using \a url and parses this string.
 
   \a url is considered to be encoded. You can pass strings like
-  "/home/weis", in this case the protocol "file" is assumed.
+  "/home/qt", in this case the protocol "file" is assumed.
   This is dangerous since even this simple path is assumed to be
-  encoded. For example "/home/Torben%20Weis" will be decoded to
-  "/home/Torben Weis". This means: If you have a usual UNIX like
+  encoded. For example "/home/Troll%20Tech" will be decoded to
+  "/home/Troll Tech". This means: If you have a usual UNIX like
   path, you have to use \link encode first before you pass it to URL.
 */
 
@@ -98,7 +96,7 @@ QUrl::QUrl( const QString& url )
 }
 
 /*!
-  Copy constructor.
+  Copy constructor. Copies the data or \url.
 */
 
 QUrl::QUrl( const QUrl& url )
@@ -121,7 +119,8 @@ bool QUrl::isRelativeUrl( const QString &url )
 
 /*!
   Constructs and URL taking \a url as base and \a relUrl_ as
-  relative URL to \a url.
+  relative URL to \a url. If \a relUrl_ is not relative,
+  \a relUrl_ is taken as new URL.
 */
 
 QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
@@ -203,7 +202,7 @@ void QUrl::setUser( const QString& user )
 }
 
 /*!
-  Returns TRUE, of the URL contains an username,
+  Returns TRUE, if the URL contains an username,
   else FALSE;
 */
 
@@ -231,7 +230,7 @@ void QUrl::setPass( const QString& pass )
 }
 
 /*!
-  Returns TRUE, of the URL contains an password,
+  Returns TRUE, if the URL contains a password,
   else FALSE;
 */
 
@@ -259,7 +258,7 @@ void QUrl::setHost( const QString& host )
 }
 
 /*!
-  Returns TRUE, of the URL contains an hostname,
+  Returns TRUE, if the URL contains a hostname,
   else FALSE;
 */
 
@@ -296,7 +295,7 @@ void QUrl::setPath( const QString& path )
 }
 
 /*!
-  Returns TRUE, of the URL contains a path,
+  Returns TRUE, if the URL contains a path,
   else FALSE.
 */
 
@@ -362,7 +361,8 @@ bool QUrl::isValid() const
 }
 
 /*!
-  Resets all values if the URL to its default values.
+  Resets all values if the URL to its default values
+  and invalidates it.
 */
 
 void QUrl::reset()
@@ -572,13 +572,14 @@ bool QUrl::parse( const QString& url )
 }
 
 /*!
-  Assign operator.
+  Assign operator. Parses \a url and assigns the resulting
+  data to this class.
 
   \a url is considered to be encoded. You can pass strings like
-  "/home/weis", in this case the protocol "file" is assumed.
+  "/home/qt", in this case the protocol "file" is assumed.
   This is dangerous since even this simple path is assumed to be
-  encoded. For example "/home/Torben%20Weis" will be decoded to
-  "/home/Torben Weis". This means: If you have a usual UNIX like
+  encoded. For example "/home/Troll%20Tech" will be decoded to
+  "/home/Troll Tech". This means: If you have a usual UNIX like
   path, you have to use \link encode first before you pass it to URL.
 */
 
@@ -591,7 +592,7 @@ QUrl& QUrl::operator=( const QString& url )
 }
 
 /*!
-  Assign operator.
+  Assign operator. Assigns the data of \a url to this class.
 */
 
 QUrl& QUrl::operator=( const QUrl& url )
@@ -624,7 +625,8 @@ bool QUrl::operator==( const QUrl& url ) const
 }
 
 /*!
-  Compares this URL with \a url.
+  Compares this URL with \a url. \a url is parsed
+  first.
 */
 
 bool QUrl::operator==( const QString& url ) const
@@ -697,7 +699,10 @@ void QUrl::setEncodedPathAndQuery( const QString& path )
 }
 
 /*!
-  Returns the path of the URL.
+  Returns the path of the URL. If \a correct is TRUE,
+  the path is cleaned (dealing with too many or few 
+  slashes, etc). Else exactly the path which was parsed
+  or set is returned.
 */
 
 QString QUrl::path( bool correct ) const
@@ -792,7 +797,7 @@ QString QUrl::dirPath() const
 }
 
 /*!
-  Encodes the strung \a url.
+  Encodes the string \a url.
 */
 
 void QUrl::encode( QString& url )
@@ -822,9 +827,6 @@ void QUrl::encode( QString& url )
 
     url = newUrl;
 }
-
-/*!
-*/
 
 static ushort hex2int( ushort c )
 {
@@ -868,7 +870,7 @@ void QUrl::decode( QString& url )
   Composes a string of the URL and returns it. If \a encodedPath
   is TRUE, the path in the returned string will be encoded. If
   \a forcePrependProtocol is TRUE the file:/ protocol is also
-  prepended if no network protocols are reguistered.
+  prepended if no remote network protocols are registered.
 */
 
 QString QUrl::toString( bool encodedPath, bool forcePrependProtocol ) const
@@ -878,7 +880,7 @@ QString QUrl::toString( bool encodedPath, bool forcePrependProtocol ) const
 	encode( p );
 
     if ( isLocalFile() ) {
-	if ( !forcePrependProtocol && ( !qNetworkProtocolRegister || 
+	if ( !forcePrependProtocol && ( !qNetworkProtocolRegister ||
 					qNetworkProtocolRegister->count() == 0 ||
 					QNetworkProtocol::hasOnlyLocalFileSystem() ) )
 	    res = p;
@@ -899,7 +901,7 @@ QString QUrl::toString( bool encodedPath, bool forcePrependProtocol ) const
 	res += p;
     }
 
-    if ( qNetworkProtocolRegister && qNetworkProtocolRegister->count() > 0 && 
+    if ( qNetworkProtocolRegister && qNetworkProtocolRegister->count() > 0 &&
 	 !QNetworkProtocol::hasOnlyLocalFileSystem() ) {
 	if ( !d->refEncoded.isEmpty() )
 	    res += "#" + d->refEncoded;
