@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.29 1999/03/04 12:49:24 warwick Exp $
+** $Id: porting.doc,v 1.30 1999/03/18 01:37:57 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -29,56 +29,81 @@
 
 <h1 align=center> Porting to Qt 2.0 </h1><br clear="all">
 
-<h2>How to port code using Qt 1.x to use Qt 2.0</h2>
+The Qt 2.x series is not binary compatible with the 1.x series.
+This means programs compiled for Qt 1.x must be recompiled to work
+with Qt 2.0.  Qt 2.0 is also not completely <em>source</em> compatible
+with 1.x, however all places where there is an incompatibility cause
+compiler errors (rather than mysterious results), or guiding run-time
+messages.  The result is that Qt 2.0 includes many additional features,
+discards obsolete functionality that is easily converted to use the new
+features, and that porting an application from Qt 1.x to Qt 2.0 is
+a simple task well worth the amount of effort required.
+
+
+To port code using Qt 1.x to use Qt 2.0:
 
 <ul>
- <li> Briefly read the notes below to get an idea of what to expect.
+ <li> Briefly read the porting notes below to get an idea of what to expect.
  <li> Be sure your code compiles on all your target platforms with Qt 1.x.
  <li> Recompile with Qt 2.0.  For each error, search below for related
-	identifiers (eg. function names, class names).  Changes in Qt 2.0 are
-	arranged so that almost all prolem code will cause compile-time
-	errors when compiled with Qt 2.0.
+	identifiers (eg. function names, class names).
 </ul>
 
-<p> To take full advantage of the new Internationalization
-functionality in Qt 2.0, the following steps are required:
-
-    <ul>
-     <li> Start converting all uses of "const char*" in parameters to
-            "const QString&" - this can often be done mechanically, eg.
-            using Perl.  Convert uses of char[] for temporary string
-            building to QString (much software already uses QString for
-            this purpose as it offers many more facilities).  
-     <li> Put a breakpoint in QString::ascii() to catch places where
-	    Unicode information is being converted to ASCII (loosing
-	    information if your user in not using Latin1).  Qt has
-	    a small number of calls to this - ignore those.
-     <li> Convert all <em>user-visible</em> strings to be calls to
-	    QObject::tr().  Note that a few strings, in particular
-	    object/widget names are <em>programmer-space</em> strings -
-	    translating these is pointless.  As your application matures,
-	    start producing translation files for other languages.
-     <li> See the Qt \link i18n.html Internationalization page\endlink 
-	    for more tips.
-    </ul>
 
 
-<h2>Notes</h2>
 
+<hr>
 
-<h3>Namespace</h3>
+<h2 align=center>The Porting Notes</h2>
 
-<p> Qt 2.0 is much more namespace-clean than 1.x, relying far less on
+<multicol cols=3>
+<ul>
+ <li><b><a href=#Namespace>Namespace</a></b>
+ <li><b><a href=#Virtual>Virtual Functions</a></b>
+ <li><b><a href=#Collection>Collection classes</a></b>
+ <li><b><a href=#QApplication>QApplication</a></b>
+ <li><b><a href=#QColor>QColor</a></b>
+ <li><b><a href=#QRegion>QRegion</a></b>
+ <li><b><a href=#QWidget>QWidget</a></b>
+ <li><b><a href=#QLabel>QLabel</a></b>
+ <li><b><a href=#QDialog>QDialog</a></b>
+ <li><b><a href=#QString>QString</a></b>
+ <li><b><a href=#QLayout>QLayout</a></b>
+ <li><b><a href=#QMultiLineEdit>QMultiLineEdit</a></b>
+ <li><b><a href=#QClipboard>QClipboard</a></b>
+ <li><b><a href=#QDropSite>QDropSite</a></b>
+ <li><b><a href=#QTextStream>QTextStream</a></b>
+ <li><b><a href=#QPainter>QPainter</a></b>
+ <li><b><a href=#QPixmap>QPixmap</a></b>
+ <li><b><a href=#QMenuData>QMenuData</a></b>
+ <li><b><a href=#QMenuData>QPopupMenu</a></b>
+ <li><b><a href=#QValidator>QValidator</a></b>
+ <li><b><a href=#QValidator>QLineEdit</a></b>
+ <li><b><a href=#QValidator>QComboBox</a></b>
+ <li><b><a href=#QValidator>QSpinBox</a></b>
+ <li><b><a href=#QFontMetrics>QFontMetrics</a></b>
+ <li><b><a href=#QWindow>QWindow</a></b>
+ <li><b><a href=#QEvent>QEvent</a></b>
+</ul>
+</multicol>
+
+<hr>
+
+<h3><a name=Namespace>Namespace</a></h3>
+
+<p> Qt 2.0 is totally namespace-clean, unlike 1.x. Qt now uses very few
 global identifiers. Identifiers like <code>red, blue, LeftButton,
 AlignRight, Key_Up, Key_Down, NoBrush</code> etc. are now part of a
-special class <code>Qt</code> (qnamespace.h), which is inherited by
-most Qt classes.  This means that in any code you have that is
+special class <code>Qt</code> (defined in qnamespace.h),
+which is inherited by
+most Qt classes.  Member functions of classes that inherit from QWidget,
+etc. are totally unaffected, but code that is
 <em>not</em> in functions of classes inherited from <code>Qt</code>,
 you must qualify these identifiers like this: <code>Qt::red,
 Qt::LeftButton, Qt::AlignRight</code>, etc.
 
 <p>The <code>qt/bin/qt20fix</code> script helps to fix the code that
-needs adaption. Most code does not need any change.
+needs adaption, though most code does not need changing.
 
 Compiling with -DQT1COMPATIBILITY will help you get going with Qt 2.0
 - it allows all the old "dirty namespace" identifiers from Qt 1.x to
@@ -86,116 +111,238 @@ continue working.  Without it, you'll get compile errors that can
 easily be fixed by searching this page for the clean identifiers.
 
 
-<h3>Virtual Functions</h3>
+<h3><a name=Virtual>Virtual Functions</a></h3>
 
-<p> The following virtual functions have changed signature in Qt 2.0.
+<p> Some virtual functions have changed signature in Qt 2.0.
 If you override them in derived classes, you must change the signature
 of your functions accordingly.
 
-[can we provide assistance in the code for this?]
-[GENERATE THE LIST]
-Easy for const char* -> QString - there are about 20 in total.
+<!-- warwick can check for additions to this with his qt-2-report -->
+<ul>
+ <li>QWidget::setStyle(GUIStyle)
+ <li>QListView::addColumn(const char *, int)
+ <li>QListView::setColumnText(int, const char *)
+ <li>QListViewItem::setText(int, const char *)
+ <li>QMultiLineEdit::insertLine(const char *, int)
+ <li>QMultiLineEdit::insertAt(const char *, int, int)
+ <li>QSpinBox::setPrefix(const char *)
+ <li>QSpinBox::setSuffix(const char *)
+ <li>QToolButton::setTextLabel(const char *, bool)
+ <li>QDoubleValidator::validate(QString &, int &)
+    (now QDoubleValidator::validate(QString &, int &) <em>const</em>)
+ <li>QIntValidator::validate(QString &, int &)
+    (now <em>const</em>)
+ <li>QValidator::fixup(QString &)
+    (now <em>const</em>)
+ <li>QSlider::paintSlider(QPainter *, const QRect &)
+    (now paintSlider(QPainter*, <em>const QColorGroup&,</em> const QRect&))
+</ul>
+
+This is one class of changes that are
+not detected by the compiler,
+so you should mechanically search for each of
+these function names in your header files, eg.
+
+\code
+egrep -w 'setStyle|addColumn|setColumnText|setText...' *.h
+\endcode
+
+Of course, you'll get a few false positives (eg. if you have a setText
+function that is not in a subclass of QListViewItem).
 
 
-<h3>Collection classes</h3>
+<h3><a name=Collection>Collection classes</a></h3>
 
 <p> The macro-based Qt collection classes are obsolete; use the
-template-based classes instead. I.e. the Q_DECLARE macro and
-qgeneric.h are obsolete. Replace e.g. Q_DECLARE(QCache,QPixmap) with
-QCache<QPixmap>.
+template-based classes instead. Simply remove includes of qgeneric.h and
+replace e.g. Q_DECLARE(QCache,QPixmap) with QCache<QPixmap>.
 
 <p> The GCI global typedef is replaced by QCollection::Item.  Only if you
 make your own subclasses of the undocumented generic collection classes
-will you have GCI in you code.  This change is to avoid collisions with
-other namespaces.
+will you have GCI in you code.
+This change has been made to avoid collisions with other namespaces.
 
 <p> The GCF global typedef is removed (it was not used in Qt).
 
-<h3>QApplication</h3>
 
+<h3><a name=QApplication>QApplication</a></h3>
+
+<h4>QApplication::setColorSpec()</h4>
+<p>
+PrivateColor and TrueColor are obsolete.  Use ManyColor instead.
+
+
+<h3><a name=QColor>QColor</a></h3>
 
 <p>
-QApplication::setColorSpec()
-PrivateColor and TrueColor are obsolete.  Use ManyColor.
-
-
-<h3>QColor</h3>
-
-<p>
-All colors (red, white, blue, black, color0, etc.) are in the Qt namespace.
+All colors
+(
+color0,
+color1,
+black,
+white,
+darkGray,
+gray,
+lightGray,
+red,
+green,
+blue,
+cyan,
+magenta,
+yellow,
+darkRed,
+darkGreen,
+darkBlue,
+darkCyan,
+darkMagenta,
+and
+darkYellow
+)
+are in the Qt namespace.
 In members of classes that inherit the Qt namespace-class (eg. QWidget
-subclasses), you can use the unqualified names as usual, but in global
+subclasses), you can use the unqualified names as before, but in global
 functions (eg. main()), you need to qualify them:  Qt::red, Qt::white, etc.
 
-<h3>QRegion</h3>
 
+<h3><a name=QRegion>QRegion</a></h3>
 
 <p>
 QDataStream &operator<<( QDataStream &s, const QRegion &r )
 QRegion data files now write in a more efficient form.  The new form
 cannot be read by Qt 1.x, but Qt 2.0 can still read old 1.x data.
+#### CHECK about datastream versioning
 
 
-<h3>QWidget</h3>
+<h3><a name=QWidget>QWidget</a></h3>
 
-
+<h4>QWidget::recreate()</h4>
 <p>
-QWidget::recreate()
 This function is now called reparent().
 
+<h4>QWidget::setAcceptFocus(bool)</h4>
 <p>
-paintEvent(0) crashes.
-Never pass 0 as the argument to paintEvent().
-
-<p> 
-Some repaint problems might occur with subclasses on QFrame,
- QPushButton, and QComboBox, which now use WResizeNoErase to improve
- resize repainting.  Be sure to call the resizeEvent() of your base
- class if your derive a widget subclass.  The quickest fix is to add:
- \code
-   resizeEvent(QResizeEvent* e)
-   {
-       repaint( rect() );
-   }
- \endcode
+This function is removed.
+Calls like QWidget::setAcceptFocus(TRUE) should be replaced by 
+    QWidget::setFocusPolicy(StrongFocus), and
+calls like QWidget::setAcceptFocus(FALSE) should be replaced by 
+    QWidget::setFocusPolicy(NoFocus).
+Additional policies are TabFocus and ClickFocus.
 
 
-<h3>QLabel</h3>
-
-
+<h4>QWidget::paintEvent()</h4>
 <p>
-QLabel::setMovie()
-No longer changes the text.
+paintEvent(0) is not permitted - subclasses need not check for
+a null event, and might crash.
+Never pass 0 as the argument to paintEvent().  You probably
+just want repaint() or update() instead.
 
-<h3>QDialog</h3>
+
+<h3><a name=QLabel>QLabel</a></h3>
+
+<h4>QLabel::setMovie()</h4>
+<p>
+Previously, setting a movie on a label cleared the value of text().
+Now it doesn't.  If you somehow used QLabel::text() to detect if a
+movie was set, you might have trouble.  This is unlikely.
+
+
+<h3><a name=QDialog>QDialog</a></h3>
 
 <p> The semantics of the parent pointer changed for non-modal dialogs:
 In Qt-2.x, dialogs are always toplevel windows. The parent, however,
-takes the ownership of the dialog, i.e. he will delete the dialog on
-destruction time. Furthermore, the window system will be able to tell
+takes the ownership of the dialog, i.e. it will delete the dialog at
+destruction. Furthermore, the window system will be able to tell
 that both the dialog and the parent belong together. Some X11 window
 managers will for instance provide a common taskbar entry in that
-case. To sum it up: If the dialog belongs to a toplevel main window
+case.
+
+<p>
+If the dialog belongs to a toplevel main window
 of your application, pass this main window as parent to the dialog's
 constructor. Old code (with 0 pointer) will still run. Old code that
 included QDialogs as simple widget will no longer work (but was broken
-anyway).
+anyway). If you think you might be doing this, put a breakpoint in
+QDialog::QDialog() conditional on parent not being 0.
 
-<p>
 
-<h3>QString</h3>
+<h3><a name=QString>QString</a></h3>
 
 QString has undergone major changes internally, and although it is highly
 backward compatible, it is worth studying in detail when porting to Qt 2.0.
-The Qt 1.x QString class has been renamed to QCString in Qt 2.0.
+The Qt 1.x QString class has been renamed to QCString in Qt 2.0, though if
+you use that you will incur a performance penalty since all Qt functions
+that took const char* now take const QString&.
+
+<p>
+To take full advantage of the new Internationalization
+functionality in Qt 2.0, the following steps are required:
+
+    <ul>
+     <li> Start converting all uses of "const char*" in parameters to
+            "const QString&" - this can often be done mechanically, eg.
+            using Perl.  Convert usage of char[] for temporary string
+            building to QString (much software already uses QString for
+            this purpose as it offers many more facilities).  
+	    ##### shoudl we provide a script?
+     <li> Put a breakpoint in QString::ascii() to catch places where
+	    Unicode information is being converted to ASCII (loosing
+	    information if your user in not using Latin1).  Qt has
+	    a small number of calls to this - ignore those.
+     <li> See the Qt \link i18n.html Internationalization page\endlink 
+	    for information about the full process of internationalizing
+	    your software.
+    </ul>
+
+<p>
+Points to note about the new QString are:
 
 <dl compact>
 <dt><b>Unicode</b></dt>
 <dd>
-Now uses Unicode.  data() is obsolete - you cannot directly access the
+ Qt now uses Unicode throughout.
+ data() now returns a <em>const</em> reference to an ASCII version
+ of the string - you cannot directly access the
  string as an array of bytes, because it isn't one.  Often, ascii() is
  what you want rather than data(), or just leave it to convert to
- const char* automatically.  data() is only used now to aide porting to Qt 2.0
+ const char* automatically.  data() is only used now to aide porting to Qt 2.0,
+ and ideally you'll only need ascii() or implicit conversion when interfacing
+ to facilities that do not have Unicode support.
+
+<dt><b>Automatic-expanding</b></dt>
+<dd>
+A big advantage of the new QString is that it automatically expands
+when you write to an indexed position.
+
+<dt><b>Use QString</b></dt>
+<dd>
+Try to always use QString.  If you <em>must</em>, use QCString which is the
+old implementation from Qt 1.x.
+
+<dt><b>Unicode vs. ASCII</b></dt>
+<dd>
+Every conversion to and from ASCII is wasted time, so try to use QString
+ as much as possible rather than const char*.  This also ensures you have
+ full 16-bit support.
+
+<dt><b>Convestion to ASCII</b></dt>
+<dd>
+The return value from operator const char*() is transient - don't expect
+ it to remain valid while you make deep function calls.
+ It is valid for as long as you don't modify or destroy the QString.
+
+<dt><b>QString is simpler</b></dt>
+<dd>
+Expect your code to become simpler with the new QString, especially
+ places where you have used a char* to wander over the string rather
+ than using indexes into the string.
+
+<dt><b>Some hacks don't work</b></dt>
+<dd>
+This hack:
+  use_sub_string( &my_string[index] )
+ should be replaced by:
+  use_sub_string( my_string.mid(index) )
+
 <dt><b>QString(int) is private</b></dt>
 <dd>
 The QString constructor taking an integer is now private.  This function
@@ -204,113 +351,100 @@ automatically.  99% of cases can simple be changed to use the
 default constructor, QString().
 <p>
 In Qt 1.x the constructor was used in two ways:  accidentally,
-by attempting to convert a char to a QString (the char converts to int!!) -
+by attempting to convert a char to a QString (the char converts to int!) -
 giving strange bugs, and as a way to make a QString big enough prior to
-calling QString::sprintf().  Now in Qt 2.0, the accidental bug case is
+calling QString::sprintf().  In Qt 2.0, the accidental bug case is
 prevented (you will get a compilation error) and QString::sprintf has
 been made safe - you no longer need to pre-allocate space (though for
 other reasons, sprintf is still a poor choice - eg. it doesn't pass Unicode).
 The only remaining common case is conversion of 0 (NULL) to QString, which
 would usually give expected results in Qt 1.x.  For Qt 2.0 the correct
 syntax is to use QString::null, though this is rarely required since
-the default constructor, QString(), creates a null string, but you will
+the default constructor, QString(), creates a null string. You will
 need to change "const QString& param = 0" default constructors and
 "return 0" in functions returning a QString.
+
 <dt><b>Signals and Slots</b></dt>
 <dd>
 Many signal/slots have changed from const char* to QString.  You will
  get run-time errors when you try to QObject::connect() to the old
- signals and slots.
+ signals and slots, usually with a message indicating the const QString&
+ replacement signal/slot.
+
 <dt><b>Optimize with Q2HELPER</b></dt>
 <dd>
 In qt/src/tools/qstring.cpp there is a Q2HELPER - define it for some
- extra debugging/optimizing features (don't leave it it - it kills performance).
+extra debugging/optimizing features (don't leave it it - it kills performance).
+You'll get an extra function, qt_qstring_stats(), which will print a
+summary of how much your application is doing Unicode and ASCII
+back-and-forth conversions.
+
 <dt><b>QString::detach() is obsolete and removed</b></dt>
 <dd>
-QString is always shared.  Remove calls to QString::detach().
-<dt><b>QString::resize(size) is obsolete and removed</b></dt>
+Since QString is now always shared, this function does nothing.
+Remove calls to QString::detach().
+
+<dt><b>QString::resize(int size) is obsolete and removed</b></dt>
 <dd>
 Code using this to truncate a string should use truncate(size-1).
 Code using qstr.resize(0) should use qstr = QString::null.
 Code calling resize(n) prior to using operator[] up to n just remove
 the resize(n) completely.
+
 <dt><b>QString::size() is obsolete and removed</b></dt>
 <dd>
-must be replaced by length()+1.
+Calls to this function must be replaced by length()+1.
+
 <dt><b>QString::setStr(const char*) is removed</b></dt>
-<dd>Understand why you were using this.  If you just meant assignment, use that.  Otherwise,
-you are probably using QString as an array of bytes, in which case use QByteArray or
-QCString instead.
+<dd>Try to understand why you were using this.
+If you just meant assignment, use that.  Otherwise,
+you are probably using QString as an array of bytes, in which case use
+QByteArray or QCString instead.
+
 <dt><b>QString is not an array of bytes</b></dt>
 <dd>
 Code that uses QString as an array of bytes should use QByteArray
- or char[].  THEN convert that to a QString if needed.
+or a char[], <em>then</em> convert that to a QString if needed.
+
 <dt><b>"string = 0"</b></dt>
 <dd>
-Assigning 0 to a QString should be assigning the empty string QString()
-<dt><b>Automatic-expanding</b></dt>
-<dd>
-A big advantage of the new QString is that it automatically expands
- when you write to an indexed position.
-<dt><b>Use QString</b></dt>
-<dd>
-Try to always use QString.  If you MUST, use QCString which is the
- implementation used in Qt 1.x.
-<dt><b>Unicode vs. ASCII</b></dt>
-<dd>
-Every conversion to and from ascii is wasted time, so try to use QString
- as much as possible rather than const char*.  This also ensures you have
- full 16-bit support. [should we have a warning feature/copy count?]
-<dt><b>Convestion to ASCII</b></dt>
-<dd>
-The return value from operator const char*() is transient - don't expect
- it to remain valid while you make deep function calls.  The value is
- in Latin1 characters.
-<dt><b>QString is simpler</b></dt>
-<dd>
-Expect your code to become simpler with the new QString, especially
- places where you have used a char* to wander over the string rather
- than using indexes into the string.
-<dt><b>Some hacks don't work</b></dt>
-<dd>
-This hack:
-  use_sub_string( &my_string[index] )
- should be replaced by:
-  use_sub_string( my_string.mid(index) )
+Assigning 0 to a QString should be assigning the null string,
+ie. string = QString::null.
+
 <dt><b>System functions</b></dt>
 <dd>
 You may find yourself needing ascii() for passing to the operating system
  or other libraries, and be tempted to use QCString to save the conversion,
- but you are better off using unicode throughout, then when the operating
- system supports unicode, you'll be prepared.
+ but you are better off using Unicode throughout, then when the operating
+ system supports Unicode, you'll be prepared. Some Unix operating systems
+ are now beginning to have basic Unicode support, and Qt will be tracking
+ these improvements as they become more widespread.
+
 <dt><b>Bugs removed</b></dt>
 <dd>
 toShort() returns 0 (and sets *ok to false) on error.
-toUInt() now works for big valid uints
-insert() now works into the same string
+toUInt() now works for big valid unsigned integers.
+insert() now works into the same string.
+
 <dt><b>NULL pointers</b></dt>
 <dd>
 When converting "const char*" usage to QString in order to make your
- application fully unicode-aware, use QString::null for the null value
- where you would have used 0 with char pointers.  0 will usually work,
- but it wastes memory (more allocations are done).
-<dt><b>How to be Unicode-clean</b></dt>
-<dd>
-When converting, set a breakpoint in QString::ascii() to catch places where
- you are losing Unicode information.
+ application fully Unicode-aware, use QString::null for the null value
+ where you would have used 0 with char pointers.
+
 <dt><b>QString is not null terminated</b></dt>
 <dd>
 This means that inserting a 0-character
- in the middle of the string does NOT change the length().  ie.
+ in the middle of the string does <em>not</em> change the length().  ie.
  \code
    QString s = "fred";
    s[1] = '\0';
-     s.length() == 4
-     s == "f\0ed";
-     s.ascii() == "f";
+     // s.length() == 4
+     // s == "f\0ed"
+     // s.ascii() == "f"
    s[1] = 'r';
-     s == "fred";
-     s.ascii() == "fred";
+     // s == "fred"
+     // s.ascii() == "fred"
  \endcode
  Especially look out for this type of code:
  \code
@@ -319,12 +453,16 @@ This means that inserting a 0-character
    s[1] = 0;
  \endcode
  This creates a string 2 characters long.
- To find these problems while converting, ASSERT(strlen(d->ascii)==d->len)
-  inside QString::ascii().
+ To find these problems while converting, you might like to
+ add ASSERT(strlen(d->ascii)==d->len) inside QString::ascii().
+
 <dt><b>QString or STL string?</b></dt>
 <dd>
 <p>
-STL string is not Unicode, and though it is possible to convert between STL string to QString, it is less efficient than using QString throughout.
+STL string is not Unicode.  This is the same mistake made over and over
+in the history of C - only when non-8-bit characters are <em>the norm</em>
+do programmers find them usable. Though it is possible to convert between
+STL string to QString, it is less efficient than using QString throughout.
 For example, when using:
 <pre>
     QLabel::setText( const QString& )
@@ -356,119 +494,219 @@ like this:
 At this point, in Qt 2.0, the tr() does a very fast dictionary lookup
 through memory-mapped message files, returning some Unicode QString for
 the appropriate language (the default being to just make a QString out
-of the text, of course - you're not FORCED to use any of these features),
-and that SAME memory mapped Unicode will be passed though the system.
-All occurrences of the translation of "Okay" will be shared.
+of the text, of course - you're not <em>forced</em> to use any of these
+features), and that <em>same</em> memory mapped Unicode will be passed
+though the system.  All occurrences of the translation of "Okay" will
+be shared.  
 
 </dl>
 
 
-<h3>QLayout</h3>
+<h3><a name=QLayout>QLayout</a></h3>
 
 <p> Resize(0,0) or resize(1,1) will no longer work magically. Remove
-all such calls. The default size of toplevel widgets will be
+all such calls. The default size of toplevel widgets will be their
 sizeHint().
 
 <p> The class QGManager is removed. Subclasses of QLayout need to be rewritten
 to use the new, much simpler API.
 
 <p> For typical layouts, all use of setMinimumSize() and setFixedSize()
-can be removed.  Activate() is no longer necessary.
-
-<h3>QMultiLineEdit</h3>
-
+can be removed.  activate() is no longer necessary.
 
 <p>
-QMultiLineEdit::textWidth(QString*)
-changed to QMultiLineEdit::textWidth(const QString&)
- Should be no problem.
+You might like to look at the QGrid, QVBox, and QHBox widgets - they offer
+a simple way to build nested widget structures.
 
 
-<h3>QClipboard</h3>
-
+<h3><a name=QMultiLineEdit>QMultiLineEdit</a></h3>
 
 <p>
-QClipboard::pixmap() now returns a QPixmap, not a QPixmap*.
+The protected function QMultiLineEdit::textWidth(QString*)
+changed to QMultiLineEdit::textWidth(const QString&).
+This is unlikely to be a problem, and you'll get a compile error
+if you called it.
 
 
-<h3>QDropSite</h3>
+<h3><a name=QClipboard>QClipboard</a></h3>
 
+<p>
+QClipboard::pixmap() now returns a QPixmap, not a QPixmap*.  The pixmap
+will be \link QPixmap::isNull() null\endlink if no pixmap is on the
+clipboard.  QClipboard now offers powerful MIME-based types on the
+clipboard, just like drag-and-drop (in fact, you can reuse most of your
+drag-and-drop code with clipboard operations).
+
+
+<h3><a name=QDropSite>QDropSite</a></h3>
 
 <P>
-QDropSite is obsolete.  If you passed anything other than <tt>this</tt>
-to the constructor for QDropSite, your code will not work.  If you passed
-the viewport() of a QListView, simply override the viewportDragMoveEvent(),
-etc.  functions rather than QListView's dragMoveEvent() etc.  For other
+QDropSite is obsolete.  If you simply passed <tt>this</tt>, just remove
+the inheritance of QDropSite and call setAcceptDrops(TRUE) in the class
+constructor.
+If you passed something other than <tt>this</tt>,
+your code will not work.  A common case is passing
+the viewport() of a QListView, in which case,
+override the viewportDragMoveEvent(), etc.
+functions rather than QListView's dragMoveEvent() etc.  For other
 cases, you will need to use an event filter to act on the drag/drop events
 of another widget (as is the usual way to intercept foreign events).
 
 
-<h3>QTextStream</h3>
+<h3><a name=QTextStream>QTextStream</a></h3>
 
 <p>
 operator&lt;&lt;(QTextStream&, QChar&) does not skip whitespace.
 operator&lt;&lt;(QTextStream&, char&) does, as was the case with Qt 1.x.
+This is for backward compatibility.
 
 
-<h3>QPainter</h3>
+<h3><a name=QPainter>QPainter</a></h3>
 
-<p> The GrayText painter flag has been removed. Use setPen(
-palette().disabled().foreground() ) instead.
+<p> The GrayText painter flag has been removed. Use
+setPen( palette().disabled().foreground() ) instead.
 
-<p> The RasterOp enum is now part of the Qt namespace class.
+
+<p> The RasterOp enum
+(CopyROP,
+        OrROP,
+        XorROP,
+        NotAndROP,
+        EraseROP,
+        NotCopyROP,
+        NotOrROP,
+        NotXorROP,
+        AndROP, NotEraseROP,
+        NotROP,
+        ClearROP,
+        SetROP,
+        NopROP,
+        AndNotROP,
+        OrNotROP,
+        NandROP,
+        NorROP, LastROP
+) is now part of the Qt namespace class, so if you
+use it outside a member function, you'll need to prefix with Qt::.
  
 
-<h3>QPixmap</h3>
+<h3><a name=QPixmap>QPixmap</a></h3>
 
 QPixmap::convertToImage() with bitmaps now guarantees that color0 pixels
 become color(0) in the resulting QImage.  If you worked around the lack of
-this, you many need to simplify your code.  The symptom will be inverted
-bitmaps (eg. inside-out masks).
+this, you many be able to simplify your code.  If you made assumptions
+about the previous undefined behavior, the symptom will be inverted
+bitmaps (eg. "inside-out" masks).
+
 <p>
 QPixmap::optimize(TRUE) is replaced by
 QPixmap::setOptimization(QPixmap::NormalOptim)
-and QPixmap::setOptimization(QPixmap::BestOptim).
+or QPixmap::setOptimization(QPixmap::BestOptim) - see the documentation
+to choose which is best for your application.  NormalOptim is most like
+the Qt 1.x "TRUE" optimization.
 
 
-<h3>QMenuData / QPopupMenu</h3>
+<h3><a name=QMenuData>QMenuData / QPopupMenu</a></h3>
 
-In 1.4x, new menu items have been assigned either an application
+In 1.x, new menu items were assigned either an application-wide
 unique id or an id equal to the index of the item, depending on the
-insertItem(...) function you have been using. In 2.0 this confusing
-situation has been cleaned up: generated identifiers are always unique
-within the entire application. If your code depends on generated ids
-equal to the item's index, a quick fix is to use QMenuData::indexOf(
-int id) in the handling function instead. You may as well pass
+insertItem(...) function used.
+In 2.0 this confusing
+situation has been cleaned up: generated identifiers are always
+unique
+across the entire application.
+
+If your code depends on generated ids
+being equal to the item's index, a quick fix is to use QMenuData::indexOf(
+int id) in the handling function instead. You may alternatively pass
 QMenuData::count() as identifier when you insert the items.
 
-<h3>QValidator (QLineEdit, QComboBox, QSpinBox) </h3>
+
+<h3><a name=QValidator>QValidator (QLineEdit, QComboBox, QSpinBox) </a></h3>
 
 QValidator::validate(...) and QValidator::fixup( QString & ) are const
 functions now. In case your subclass reimplements validate as
 non-const you'll get a compile error (validate was pure virtual).
 
 XXX::setValidator(...) now takes a const pointer to a QValidator,
-XXX::validator() returns a const pointer, resp.. This is correct since
+XXX::validator() returns a const pointer. This is correct since
 the widgets don't take the ownership of the validator (a validator is
 a QObject on its own, with its own parent), so changing the state of
 such an object or deleting it is very likely a bug.
 
-<h3>QWindow</h3>
+
+<h3><a name=QFontMetrics>QFontMetrics</a></h3>
+
+boundingRect(char) is replaced by boundingRect(QChar), but since
+char auto-converts to QChar, you're not likely to run into problems
+with this.
+
+
+<h3><a name=QWindow>QWindow</a></h3>
 
 This class (which was just QWidget under a different name) has been
-removed.  If you used it, do a global search-and-replace or the word
-"QWindow" by "QWidget".  
+removed.  If you used it, do a global search-and-replace of the word
+"QWindow" with "QWidget".  
 
-<h3>QEvent</h3>
+
+<h3><a name=QEvent>QEvent</a></h3>
 
 <p> The global #define macros in qevent.h have been replaced by an
-enum in QEvent.  Use e.g. QEvent::Paint instead of Event_Paint.
+enum in QEvent.  Use e.g. QEvent::Paint instead of Event_Paint. Same
+for all of:
+Event_None,
+Event_Timer,
+Event_MouseButtonPress,
+Event_MouseButtonRelease,
+Event_MouseButtonDblClick,
+Event_MouseMove,
+Event_KeyPress,
+Event_KeyRelease,
+Event_FocusIn,
+Event_FocusOut,
+Event_Enter,
+Event_Leave,
+Event_Paint,
+Event_Move,
+Event_Resize,
+Event_Create,
+Event_Destroy,
+Event_Show,
+Event_Hide,
+Event_Close,
+Event_Quit,
+Event_Accel,
+Event_Clipboard,
+Event_SockAct,
+Event_DragEnter,
+Event_DragMove,
+Event_DragLeave,
+Event_Drop,
+Event_DragResponse,
+Event_ChildInserted,
+Event_ChildRemoved,
+Event_LayoutHint,
+Event_ActivateControl,
+Event_DeactivateControl,
+and
+Event_User.
 
 <p> The Q_*_EVENT macros in qevent.h have been deleted.  Use an
-explicit cast instead.
+explicit cast instead. The macros were:
+Q_TIMER_EVENT,
+Q_MOUSE_EVENT,
+Q_KEY_EVENT,
+Q_FOCUS_EVENT,
+Q_PAINT_EVENT,
+Q_MOVE_EVENT,
+Q_RESIZE_EVENT,
+Q_CLOSE_EVENT,
+Q_SHOW_EVENT,
+Q_HIDE_EVENT,
+and
+Q_CUSTOM_EVENT.
 
 <p> QChildEvents are now sent for all QObjects, not just QWidgets.
-You may need to add extra checking if you use QChildEvent without
+You may need to add extra checking if you use a QChildEvent without
 much testing of its values.
 
 */
