@@ -17,7 +17,7 @@
 #endif // QT_H
 
 
-class Q_EXPORT QHostAddress
+class QHostAddress
 {
 public:
     QHostAddress();

@@ -33,7 +33,7 @@
 
 struct QLineDialogPrivate;
 
-class QLineDialog : public QDialog
+class Q_EXPORT QLineDialog : public QDialog
 {
     Q_OBJECT
 public:

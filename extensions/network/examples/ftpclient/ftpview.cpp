@@ -106,7 +106,7 @@ QString FtpViewItem::text( int c ) const
     return "????";
 }
 
-QPixmap *FtpViewItem::pixmap( int c ) const
+const QPixmap *FtpViewItem::pixmap( int c ) const
 {
     if ( !folderIcon )
 	folderIcon = new QPixmap( closed_xpm );

@@ -5,4 +5,4 @@ SOURCES		= main.cpp \
 		  nntp.cpp view.cpp
 TARGET		= networkprotocol
 unix:LIBS	= -lqnetwork
-win32:LIBS	= $(QTDIR)/qnetwork.lib
+win32:LIBS	= $(QTDIR)/lib/qnetwork.lib

@@ -22,7 +22,7 @@ public:
     
     QString key( int c, bool ) const;
     QString text( int c ) const;
-    QPixmap* pixmap( int c ) const;
+    const QPixmap* pixmap( int c ) const;
     
     QUrlInfo entryInfo() {
 	return info;
