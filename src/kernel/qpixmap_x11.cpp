@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#20 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#20 $";
 #endif
 
 
@@ -73,7 +73,7 @@ An object that is destroyed decrements the reference count.
 If the reference count reaches zero, then the destructor deletes
 the data block.
 
-It is much more expensive to make a deep copy.  A deep copy requires that
+It is much more expensive to make a deep copy.	A deep copy requires that
 all data is copied.
 
 The advantages of data sharing is that objects can easily be assigned,
@@ -118,21 +118,9 @@ static int highest_bit( ulong v )
 {
     int i;
     ulong b = (uint)1 << 31;			// get pos of highest set bit
-    for ( i=31; ((b & v) == 0) && i>=0;  i-- )
+    for ( i=31; ((b & v) == 0) && i>=0;	 i-- )
 	b >>= 1;
     return i;
-}
-
-
-static int lowest_bit( ulong v )
-{
-    int i = 0;					// get pos of lowest set bit v
-    ulong b = 1;
-    while (!(b & v) && (i<32)) {
-	b <<= 1;
-	i++;
-    }
-    return (b & v) ? i : -1; // returns -1 on error
 }
 
 
@@ -525,9 +513,9 @@ QImage QPixmap::convertToImage() const
 	uint red_mask	 = visual->red_mask;
 	uint green_mask	 = visual->green_mask;
 	uint blue_mask	 = visual->blue_mask;
-	int  red_shift	 = lowest_bit( red_mask );
-	int  green_shift = lowest_bit( green_mask );
-	int  blue_shift	 = lowest_bit( blue_mask );
+	int  red_shift	 = highest_bit( red_mask )   - 7;
+	int  green_shift = highest_bit( green_mask ) - 7;
+	int  blue_shift	 = highest_bit( blue_mask )  - 7;
 	int  r, g, b;
 
 	uchar *dst = image.bits();
@@ -737,9 +725,9 @@ bool QPixmap::convertFromImage( const QImage &img )
 	uint  red_mask	  = visual->red_mask;
 	uint  green_mask  = visual->green_mask;
 	uint  blue_mask	  = visual->blue_mask;
-	int   red_shift	  = lowest_bit( red_mask );
-	int   green_shift = lowest_bit( green_mask );
-	int   blue_shift  = lowest_bit( blue_mask );
+	int   red_shift	  = highest_bit( red_mask )   - 7;
+	int   green_shift = highest_bit( green_mask ) - 7;
+	int   blue_shift  = highest_bit( blue_mask )  - 7;
 	int   r, g, b;
 
 	if ( d8 ) {				// setup pixel translation
@@ -1042,7 +1030,7 @@ do not support such complex features.
 Example of how to manually draw a rotated text at (100,200) in a widget:
 \code
   QWidget  w;				\/ our widget
-  char    *str = "Trolls R Qt";		\/ text to be drawn
+  char	  *str = "Trolls R Qt";		\/ text to be drawn
   QFont	   f( "Charter", 24 );		\/ use Charter 24pt font
   QFontMetrics fm( f );			\/ get font metrics
   QRect	   r = fm.boundingRect( str );	\/ get text rectangle
@@ -1119,12 +1107,15 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
 	QPointArray a( QRect(0,0,ws,hs) );
 	a = mat.map( a );
 	QRect r = a.boundingRect();
+	r.fixup();
 	h = r.height();
 	w = r.width();
     }
     else {					// no rotation/shearing
 	h = d2i_round( mat.m22()*hs );
 	w = d2i_round( mat.m11()*ws );
+	h = QABS( h );
+	w = QABS( w );
     }
     bool invertible;
     mat = mat.invert( &invertible );		// invert matrix
