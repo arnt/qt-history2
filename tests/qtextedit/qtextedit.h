@@ -93,6 +93,8 @@ public:
 
     QString documentTitle() const;
 
+    void scrollToAnchor( const QString& name );
+
 public slots:
     virtual void undo();
     virtual void redo();
@@ -218,8 +220,8 @@ private:
     void repaintChanged();
     void updateCurrentFormat();
     void handleReadOnlyKeyEvent( QKeyEvent *e );
-    void makeFocusVisible();
-    
+    void makeParagVisible( QTextParag *p );
+
 private:
     QTextDocument *doc;
     QTextCursor *cursor;

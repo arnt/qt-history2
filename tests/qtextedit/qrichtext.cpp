@@ -898,7 +898,7 @@ QTextDocument::QTextDocument( QTextDocument *p )
     filename = QString::null;
     pages = FALSE;
     focusIndicator.parag = 0;
-    
+
     sheet_ = QStyleSheet::defaultSheet();
     factory_ = QMimeSourceFactory::defaultFactory();
     contxt = QString::null;
@@ -2121,7 +2121,7 @@ bool QTextDocument::focusNextPrevChild( bool next )
 	focusIndicator.parag->setChanged( TRUE );
     }
     focusIndicator.href = QString::null;
-    
+
     if ( next ) {
 	QTextParag *p = focusIndicator.parag;
 	int index = focusIndicator.start + focusIndicator.len;
@@ -2173,7 +2173,7 @@ bool QTextDocument::focusNextPrevChild( bool next )
 		index = p->length() - 1;
 	}
     }
-    
+
     return FALSE;
 }
 
@@ -2777,7 +2777,7 @@ void QTextParag::drawParagBuffer( QPainter &painter, const QString &buffer, int 
 	painter.drawLine( startX, lastY + baseLine + 1, startX + bw, lastY + baseLine + 1 );
 	painter.restore();
     }
-    
+
     i -= buffer.length();
     if ( lastFormat->isAnchor() &&
 	 doc->focusIndicator.parag == this &&
@@ -2785,7 +2785,7 @@ void QTextParag::drawParagBuffer( QPainter &painter, const QString &buffer, int 
   	 doc->focusIndicator.start + doc->focusIndicator.len <= i + (int)buffer.length() ) {
 	painter.drawWinFocusRect( QRect( startX, lastY, bw, h ) );
     }
-    
+
 }
 
 void QTextParag::drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg )

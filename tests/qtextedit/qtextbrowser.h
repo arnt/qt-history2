@@ -63,9 +63,6 @@ public:
 
     void setText( const QString& contents, const QString& context=QString::null );
 
-    void scrollToAnchor(const QString& name);
-
-
 public slots:
     virtual void setSource(const QString& name);
     virtual void backward();

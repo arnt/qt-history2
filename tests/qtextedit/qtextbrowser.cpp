@@ -458,39 +458,6 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
 
 
 
-/*!
-  Scrolls the browser so that the part of the document named
-  \a name is at the top of the view (or as close to the top
-  as the size of the document allows).
-*/
-void QTextBrowser::scrollToAnchor(const QString& name)
-{
-#if 0 // ##############
-    if ( name.isEmpty() )
-	return;
-
-    d->curmark = name;
-
-    QRichTextIterator it( richText() );
-    do {
-	if ( it.format()->anchorName() == name ) {
-	    QTextParagraph* b = it.outmostParagraph();
-	    if ( b->dirty ) { // QTextView layouts delayed in the background, so this may happen
-		QRichTextFormatter tc( richText() );
-		tc.gotoParagraph( 0, &richText() );
-		tc.updateLayout();
-		resizeContents( QMAX( richText().flow()->widthUsed-1, visibleWidth() ),
-				richText().flow()->height );
-	    }
-	    QRect r = it.lineGeometry();
-	    setContentsPos( contentsX(), r.top() );
-	    return;
-	}
-    } while ( it.right( FALSE ) );
-#endif
-}
-
-
 /*!\reimp
  */
 void QTextBrowser::showEvent( QShowEvent* e )

@@ -592,7 +592,7 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 	    viewport()->setCursor( pointingHandCursor );
 	    onLink = c.parag()->at( c.index() )->format()->anchorHref();
 	    QUrl u( doc->context(), onLink, TRUE );
-	    emit highlighted( u.toString() );
+	    emit highlighted( u.toString( FALSE, FALSE ) );
 	} else {
 	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
 	    onLink = QString::null;
@@ -624,7 +624,7 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
 
     if ( !onLink.isEmpty() && linksEnabled() ) {
 	QUrl u( doc->context(), onLink, TRUE );
-	emit linkClicked( u.toString() );
+	emit linkClicked( u.toString( FALSE, FALSE ) );
     }
     drawCursor( TRUE );
 }
@@ -1088,7 +1088,7 @@ bool QTextEdit::focusNextPrevChild( bool n )
     bool b = doc->focusNextPrevChild( n );
     if ( b ) {
 	repaintChanged();
-	makeFocusVisible();
+	makeParagVisible( doc->focusIndicator.parag );
     }
     return b;
 }
@@ -1659,7 +1659,7 @@ void QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
     case Key_Space: {
 	if ( !doc->focusIndicator.href.isEmpty() ) {
 	    QUrl u( doc->context(), doc->focusIndicator.href, TRUE );
-	    emit linkClicked( u.toString() );
+	    emit linkClicked( u.toString( FALSE, FALSE ) );
 	}
     } break;
     default:
@@ -1677,8 +1677,25 @@ QString QTextEdit::documentTitle() const
     return QString::null;
 }
 
-void QTextEdit::makeFocusVisible()
+void QTextEdit::makeParagVisible( QTextParag *p )
 {
-    int h = doc->focusIndicator.parag->rect().height();
-    ensureVisible( 0, doc->focusIndicator.parag->rect().y() + h / 2, 0, h / 2 );
+    int h = p->rect().height();
+    ensureVisible( 0, p->rect().y() + h / 2, 0, h / 2 );
+}
+
+void QTextEdit::scrollToAnchor( const QString& name )
+{
+    if ( name.isEmpty() )
+	return;
+    QTextParag *p = doc->firstParag();
+    while ( p ) {
+	for ( int i = 0; i < p->length(); ++i ) {
+	    if ( p->at( i )->format()->isAnchor() &&
+		 p->at( i )->format()->anchorName() == name ) {
+		makeParagVisible( p );
+		return;
+	    }
+	}
+	p = p->next();
+    }
 }
