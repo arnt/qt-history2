@@ -2386,35 +2386,25 @@ QString qt_winMB2QString( const char* mb, int mblen )
 */
 QString QString::fromLocal8Bit( const char* local8Bit, int len )
 {
-#ifdef QT_NO_TEXTCODEC
-    return fromLatin1( local8Bit, len );
-#else
-
     if ( !local8Bit )
 	return QString::null;
-#ifdef Q_WS_X11
-    QTextCodec* codec = QTextCodec::codecForLocale();
-    if ( len < 0 )
-	len = strlen( local8Bit );
-    return codec
-	    ? codec->toUnicode( local8Bit, len )
-	    : fromLatin1( local8Bit, len );
-#endif
-#if defined( Q_WS_MAC )
+
+#if defined(Q_OS_MACX)
     return fromUtf8(local8Bit,len);
-#endif
-// Should this be OS_WIN32?
-#ifdef Q_WS_WIN
+#elif defined(Q_OS_WIN32)
     if ( len >= 0 ) {
 	QByteArray s(local8Bit,len+1);
 	return qt_winMB2QString(s);
     }
     return qt_winMB2QString( local8Bit );
+#elif defined(Q_OS_UNIX)
+#  if !defined(QT_NO_TEXTCODEC)
+    QTextCodec *codec = QTextCodec::codecForLocale();
+    if (codec)
+	return codec->toUnicode( local8Bit, len );
+#  endif // !QT_NO_TEXTCODEC
 #endif
-#ifdef Q_WS_QWS
-    return fromUtf8(local8Bit,len);
-#endif
-#endif // QT_NO_TEXTCODEC
+    return fromLatin1( local8Bit, len );
 }
 
 /*!
@@ -3092,7 +3082,7 @@ int QString::localeAwareCompare( const QString& s ) const
     if ( isEmpty() || s.isEmpty() )
 	return compare( s );
 
-#if defined(Q_WS_WIN)
+#if defined(Q_OS_WIN32)
     int res;
     QT_WA( {
 	const TCHAR* s1 = (TCHAR*)ucs2();
@@ -3112,7 +3102,7 @@ int QString::localeAwareCompare( const QString& s ) const
     default:
 	return 0;
     }
-#elif defined(Q_WS_X11)
+#elif defined(Q_OS_UNIX)
     // declared in <string.h>
     int delta = strcoll( local8Bit(), s.local8Bit() );
     if ( delta == 0 )
