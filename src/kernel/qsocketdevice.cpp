@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#6 $
 **
 ** Implementation of QSocketDevice class
 **
@@ -41,6 +41,8 @@
 #include <errno.h>
 #endif
 
+
+#define QSOCKETDEVICE_DEBUG
 
 /*****************************************************************************
   QSocketAddress implementation
@@ -105,9 +107,37 @@ int QSocketAddress::port() const
 }
 
 
+/*!
+  Returns the IP address as a number.
+
+  For example, if the address is 127.0.0.1, the returned value is
+  2130706433 (hex: 7f000001).
+
+  \sa ip4AddrString()
+*/
+
 uint QSocketAddress::ip4Addr() const
 {
     return htonl(((struct sockaddr_in*)ptr)->sin_addr.s_addr);
+}
+
+
+/*!
+  Returns the IP address as a string.
+
+  For example, if the address is 2130706433 (hex: 7f000001), the
+  returned string is "127.0.0.1".
+
+  \sa ip4Addr()
+*/
+
+QString QSocketAddress::ip4AddrString() const
+{
+    uint i = ip4Addr();
+    QString s;
+    s.sprintf( "%d.%d.%d.%d", (i>>24) & 0xff, (i>>16) & 0xff,
+	       (i >> 8) & 0xff, i & 0xff );
+    return s;
 }
 
 
@@ -124,6 +154,9 @@ bool QSocketAddress::operator==( const QSocketAddress &a )
 static void cleanupWinSock()
 {
     WSACleanup();
+#if defined(QSOCKETDEVICE_DEBUG)
+    debug( "QSocketDevice: WinSock cleanup" );
+#endif
 }
 
 
@@ -146,6 +179,10 @@ static bool initWinSock()
 #endif
 	    return FALSE;
 	}
+#if defined(QSOCKETDEVICE_DEBUG)
+	debug( "QSocketDevice: WinSock initialization %s",
+	       (error ? "failed" : "OK") );
+#endif
     }
     return TRUE;
 }
@@ -185,7 +222,7 @@ QSocketDevice::QSocketDevice( Type type )
     ::initWinSock();
 #endif
     int s;
-    switch ( sock_type ) {			// create a socket
+    switch ( type ) {				// create a socket
 	case Stream:
 	    s = ::socket( AF_INET, SOCK_STREAM, 0 );
 	    break;

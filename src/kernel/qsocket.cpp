@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qsocket.cpp#7 $
 **
 ** Implementation of QSocket class
 **
@@ -127,6 +127,9 @@ void QSocketPrivate::reinit()
 QSocket::QSocket( QObject *parent, const char *name )
     : QObject( parent, name )
 {
+#if defined(_OS_WIN32_)
+    QSocketDevice::initWinSock();
+#endif
     d = new QSocketPrivate;
     setFlags( IO_Direct );
     setStatus( IO_Ok );
@@ -144,6 +147,9 @@ QSocket::QSocket( QObject *parent, const char *name )
 QSocket::QSocket( int socket, QObject *parent, const char *name )
     : QObject( parent, name )
 {
+#if defined(_OS_WIN32_)
+    QSocketDevice::initWinSock();
+#endif
 #if defined(QSOCKET_DEBUG)
     debug( "QSocket: Attach to socket %x", socket );
 #endif
@@ -319,21 +325,23 @@ void QSocket::connectToHost( const QString &host, int port )
 	d->state = Idle;
 #if defined(QSOCKET_DEBUG)
 	debug( "QSocket: gethostbyname failed" );
+#if defined(_WS_WIN_)
+	debug( "  winsock error code %d", WSAGetLastError() );
+#endif
 #endif
 	return;
     }
     struct in_addr *in_a = (struct in_addr *)(hp->h_addr_list[0]);
-    uint ip4addr = in_a->s_addr;
-    ip4addr = htonl(ip4addr);
+    QSocketAddress  addr( port, htonl(in_a->s_addr) );
 #if defined(QSOCKET_DEBUG)
-    debug( "QSocket: Now connect to %8x", ip4addr );
+    debug( "QSocket: Now connect to %s", addr.ip4AddrString().ascii() );
 #endif
     // Now prepare a connection
     d->state = Connecting;
     d->socket = new QSocketDevice;
     d->socket->setOption( QSocketDevice::ReuseAddress, TRUE );
     d->socket->setNonblocking( TRUE );
-    d->addr = QSocketAddress( port, ip4addr );
+    d->addr = addr;
     d->socket->connect( d->addr );
     // Create and setup read/write socket notifiers
     // The socket write notifier will fire when the connection succeeds
@@ -407,6 +415,12 @@ void QSocket::close()
     if ( d->socket ) {
 	setFlags( IO_Sequential );
 	setStatus( IO_Ok );
+	// We must disable the socket notifiers before the socket
+	// disappears
+	if ( d->rsn )
+	    d->rsn->setEnabled( FALSE );
+	if ( d->wsn )
+	    d->wsn->setEnabled( FALSE );
 	d->socket->close();
     }
     d->reinit();				// reinitialize
@@ -500,13 +514,14 @@ bool QSocket::scanNewline( QByteArray *store )
     if ( store && store->size() < 128 )
 	store->resize( 128 );
     int i = 0;					// index into 'store'
-    int nbytes = d->rsize;
     QByteArray *a = 0;
     char *p;
     int   n;
-    while ( nbytes > 0 ) {
+    while ( TRUE ) {
 	if ( !a ) {
 	    a = d->rba.first();
+	    if ( !a || a->size() == 0 )
+		return FALSE;
 	    p = a->data() + d->rindex;
 	    n = a->size() - d->rindex;
 	} else {
@@ -516,7 +531,6 @@ bool QSocket::scanNewline( QByteArray *store )
 	    p = a->data();
 	    n = a->size();
 	}
-	nbytes -= n;
 	if ( store ) {
 	    while ( n-- > 0 ) {
 		*(store->data()+i) = *p;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketdevice.h#4 $
+** $Id: //depot/qt/main/src/kernel/qsocketdevice.h#5 $
 **
 ** Definition of QSocketDevice class
 **
@@ -28,6 +28,7 @@
 
 #ifndef QT_H
 #include "qiodevice.h"
+#include "qstring.h"
 #endif // QT_H
 
 
@@ -41,8 +42,9 @@ public:
 
     QSocketAddress & operator=( const QSocketAddress & );
 
-    int		 port()    const;
-    uint	 ip4Addr() const;
+    int		 port()		 const;
+    uint	 ip4Addr()	 const;
+    QString	 ip4AddrString() const;
 
     bool	 operator==( const QSocketAddress & );
 
@@ -52,8 +54,8 @@ protected:
     void	 setData( void *, int );
 
 private:
-    char *ptr;
-    int   len;
+    char	*ptr;
+    int		 len;
 
     friend class QSocketDevice;
 };
