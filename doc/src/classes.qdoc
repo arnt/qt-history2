@@ -24,3 +24,82 @@
 
     \generatelist classes
 */
+
+/*!
+    \page modules.html
+    \startpage index.html Qt Reference Documentation
+    \nextpage qtcore.html QtCore Classes
+
+    \title Qt Classes by Module
+
+    \table
+    \row \i \l{qtcore.html}{QtCore} \i Core classes used by other modules.
+    \row \i \l{qtgui.html}{QtGui} \i Graphical User Interface components
+    \row \i \l{qtnetwork.html}{QtNetwork} \i Classes for network programming.
+    \row \i \l{qtopengl.html}{QtOpenGL} \i OpenGL support classes.
+    \row \i \l{qtsql.html}{QtSql} \i Classes for database integration using SQL.
+    \row \i \l{qtxml.html}{QtXml} \i Classes for handling XML.
+    \endtable
+
+    For a list of Qt 3 compatibility classes, see
+    \link compatclasses.html The Qt 3 Compatibility Classes \endlink.
+*/
+
+/*!
+    \page qtcore.html
+    \title QtCore Classes
+    \contentspage modules.html Qt Classes by Module
+    \previouspage modules.html Qt Classes by Module
+    \nextpage qtgui.html QtGui Classes
+
+    \generatelist {classesbymodule QtCore}
+*/
+
+/*!
+    \page qtgui.html
+    \title QtGui Classes
+    \contentspage modules.html Qt Classes by Module
+    \previouspage qtcore.html QtCore Classes
+    \nextpage qtnetwork.html QtNetwork Classes
+
+    \generatelist {classesbymodule QtGui}
+*/
+
+/*!
+    \page qtnetwork.html
+    \title QtNetwork Classes
+    \contentspage modules.html Qt Classes by Module
+    \previouspage qtgui.html QtGui Classes
+    \nextpage qtopengl.html QtOpenGL Classes
+
+    \generatelist {classesbymodule QtNetwork}
+*/
+
+/*!
+    \page qtopengl.html
+    \title QtOpenGL Classes
+    \contentspage modules.html Qt Classes by Module
+    \previouspage qtnetwork.html QtNetwork Classes
+    \nextpage qtsql.html QtSql Classes
+
+    \generatelist {classesbymodule QtOpenGL}
+*/
+
+/*!
+    \page qtsql.html
+    \title QtSql Classes
+    \contentspage modules.html Qt Classes by Module
+    \previouspage qtopengl.html QtOpenGL Classes
+    \nextpage qtxml.html QtXml Classes
+
+    \generatelist {classesbymodule QtSql}
+*/
+
+/*!
+    \page qtxml.html
+    \title QtXml Classes
+    \contentspage modules.html Qt Classes by Module
+    \previouspage qtsql.html QtSql Classes
+
+    \generatelist {classesbymodule QtXml}
+*/
