@@ -80,60 +80,72 @@ template <typename T>
 bool qGreater(const T &t1, const T &t2)
 { return t1 > t2; }
 
+
+template <typename BiIterator, typename T, typename LessThan>
+void qSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan)
+{
+    --end;
+     if(end - start < 1)
+        return;
+
+     BiIterator pivot = start + (end - start) / 2;
+
+     T pivot_val = *pivot;
+     *pivot = *end;
+     *end = pivot_val;
+
+     BiIterator low = start, high = end-1;
+
+     while(low < high ) {
+        while(low < high && lessThan(*low, pivot_val))
+            ++low;
+
+        while(high > low && lessThan(pivot_val, *high))
+            --high;
+
+        if(low < high) {
+            T tmp = *low;
+            *low = *high;
+            *high = tmp;
+            ++low;
+            --high;
+        }
+     }
+
+     if(lessThan(*low, pivot_val))
+        ++low;
+
+     *end = *low;
+     *low = pivot_val;
+
+     qSortHelper(start, low, t, lessThan);
+     qSortHelper(low+1, end+1, t, lessThan);
+}
+
+template <typename Container, typename T, typename LessThan>
+void qSortHelper(Container c, const T &t, LessThan lessThan)
+{
+    // Don't pass qLess<T> directly (workaround for MSVC)
+    bool (*qLessFunc)(const T &a, const T &b) = qLess<T>;
+    qHeapSortHelper(c.begin(), c.end(), t, qLessFunc);
+}
+
 template <typename BiIterator, typename LessThan>
-void qBubbleSort(BiIterator begin, BiIterator end, LessThan lessThan)
+void qSort(BiIterator start, BiIterator end, LessThan lessThan)
 {
-    // Goto last element;
-    BiIterator last = end;
-
-    // empty list
-    if (begin == end)
-        return;
-
-    --last;
-    // only one element ?
-    if (last == begin)
-        return;
-
-    // So we have at least two elements in here
-    while (begin != last) {
-        bool swapped = false;
-        BiIterator swapPos = begin;
-        BiIterator x = end;
-        BiIterator y = x;
-        y--;
-        do {
-            --x;
-            --y;
-            if (lessThan(*x, *y)) {
-                swapped = true;
-                qSwap(*x, *y);
-                swapPos = y;
-            }
-        } while (y != begin);
-        if (!swapped)
-            return;
-        begin = swapPos;
-        ++begin;
-    }
+    qSortHelper(start, end, *start, lessThan);
 }
 
-template <typename BiIterator, typename T>
-void qBubbleSortHelper(BiIterator begin, BiIterator end, T)
+template<typename Container>
+void qSort(Container &c)
 {
-    qBubbleSort(begin, end, qLess<T>);
+    qHeapSortHelper(c.begin(), c.end(), *c.begin());
 }
 
-template <typename BiIterator>
-void qBubbleSort(BiIterator begin, BiIterator end)
+template<typename Container, typename LessThan>
+void qSort(Container &c, LessThan lessThan)
 {
-    qBubbleSortHelper(begin, end, *begin);
-}
-
-template <typename Container>
-inline void qBubbleSort(Container &c)
-{
-    qBubbleSort(c.begin(), c.end());
+    qHeapSortHelper(c.begin(), c.end(), *c.begin(), lessThan);
 }
 
 template <typename T, typename LessThan>
