@@ -213,9 +213,16 @@ QList<QAbstractButton *>QAbstractButtonPrivate::queryButtonList() const
 {
     if (group)
         return group->d->buttonList;
-    if (q->parentWidget() && autoExclusive)
-        return qFindChildren<QAbstractButton *>(q->parentWidget());
-    return QList<QAbstractButton *>();
+    QList<QAbstractButton*>candidates;
+    if (q->parentWidget() && autoExclusive) {
+        candidates =  qFindChildren<QAbstractButton *>(q->parentWidget());
+        for (int i = candidates.count() - 1; i >= 0; --i) {
+            QAbstractButton *candidate = candidates.at(i);
+            if (!candidate->autoExclusive() || candidate->group())
+                candidates.removeAt(i);
+        }
+    }
+    return candidates;
 }
 
 QAbstractButton *QAbstractButtonPrivate::queryCheckedButton() const
@@ -644,6 +651,8 @@ void QAbstractButton::animateClick(int msec)
 {
     if (!isEnabled())
         return;
+    if (d->checkable)
+        setFocus();
     setDown(true);
     emit pressed();
     d->animateTimer.start(msec, this);

@@ -44,7 +44,7 @@ public:
     Qt::Alignment alignment() const;
     void setAlignment(int);
 
-    QSize sizeHint() const;
+    QSize minimumSizeHint() const;
 
     bool isFlat() const;
     void setFlat(bool b);

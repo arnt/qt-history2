@@ -26,7 +26,6 @@
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
-
 #include <private/qwidget_p.h>
 
 class QGroupBoxPrivate : public QWidgetPrivate
@@ -40,12 +39,9 @@ public:
     void skip();
     void init();
     void calculateFrame();
-#ifndef QT_NO_CHECKBOX
     void updateCheckBoxGeometry();
-#endif
-    QString str;
+    QString title;
     int align;
-    int lenvisible;
     int shortcutId;
 
     void fixFocus();
@@ -124,23 +120,25 @@ void QGroupBoxPrivate::init()
 {
     align = Qt::AlignAuto;
     shortcutId = 0;
-    lenvisible = 0;
     bFlat = false;
+    calculateFrame();
 }
 
 
 void QGroupBox::setTitle(const QString &title)
 {
-    if (d->str == title)                                // no change
+    if (d->title == title)                                // no change
         return;
-    d->str = title;
+    d->title = title;
     releaseShortcut(d->shortcutId);
-    d->shortcutId = grabShortcut(QKeySequence::mnemonic(title));
     if (d->checkbox) {
-        d->checkbox->setText(d->str);
-        d->updateCheckBoxGeometry();
+        d->checkbox->setText(d->title);
+        d->shortcutId = 0; // the checkbox does the shortcut for us
+    } else {
+        d->shortcutId = grabShortcut(QKeySequence::mnemonic(title));
     }
     d->calculateFrame();
+    d->updateCheckBoxGeometry();
 
     update();
     updateGeometry();
@@ -167,7 +165,7 @@ void QGroupBox::setTitle(const QString &title)
 
 QString QGroupBox::title() const
 {
-    return d->str;
+    return d->title;
 }
 
 /*!
@@ -207,7 +205,6 @@ void QGroupBox::setAlignment(int alignment)
 void QGroupBox::resizeEvent(QResizeEvent *e)
 {
     QWidget::resizeEvent(e);
-    d->calculateFrame();
     if (d->align & Qt::AlignRight || d->align & Qt::AlignCenter ||
          (QApplication::reverseLayout() && !(d->align & Qt::AlignLeft)))
         d->updateCheckBoxGeometry();
@@ -223,10 +220,10 @@ void QGroupBox::paintEvent(QPaintEvent *event)
     QRect frameRect = rect();
     frameRect.setTop(d->topMargin);
 
-    if (d->lenvisible && !isCheckable()) {        // draw title
+    if (d->title.size() && !d->checkbox) {        // draw title
         QFontMetrics fm = paint.fontMetrics();
-        int h = fm.height();
-        int tw = fm.width(d->str, d->lenvisible) + fm.width(QChar(' '));
+        int h = fm.height() + 4;
+        int tw = fm.width(d->title + QLatin1Char(' '));
         int x;
         int marg = d->bFlat ? 0 : 8;
         if (d->align & Qt::AlignHCenter)                // center alignment
@@ -249,13 +246,12 @@ void QGroupBox::paintEvent(QPaintEvent *event)
         if (!style().styleHint(QStyle::SH_UnderlineShortcut, this))
             va |= Qt::TextHideMnemonic;
         style().drawItem(&paint, r, Qt::TextShowMnemonic | Qt::AlignHCenter | va, palette(),
-                          isEnabled(), d->str, -1, testAttribute(Qt::WA_SetPalette) ? 0 : &pen);
+                          isEnabled(), d->title, -1, testAttribute(Qt::WA_SetPalette) ? 0 : &pen);
         paint.setClipRegion(event->region().subtract(r)); // clip everything but title
     } else if (d->checkbox) {
         QRect cbClip = d->checkbox->geometry();
         QFontMetrics fm = paint.fontMetrics();
-        cbClip.setX(cbClip.x() - fm.width(QChar(' ')));
-        cbClip.setWidth(cbClip.width() + fm.width(QChar(' ')));
+        cbClip.setX(cbClip.x() - fm.width(QLatin1Char(' ')));
         paint.setClipRegion(event->region().subtract(cbClip));
     }
     if (d->bFlat) {
@@ -363,39 +359,27 @@ void QGroupBoxPrivate::fixFocus()
 
 
 /*
-    Sets the right frame rect depending on the title. Also calculates
-    the visible part of the title.
+    Sets the right frame rect depending on the title.
 */
 void QGroupBoxPrivate::calculateFrame()
 {
-    lenvisible = str.length();
     int va = q->style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, q);
 
     d->topMargin = 0;
     QFontMetrics fm = q->fontMetrics();
-    if (lenvisible && !checkbox) { // do we have a label?
-        while (lenvisible) {
-            int tw = fm.width(str, lenvisible) + 4*fm.width(QChar(' '));
-            if (tw < q->width())
-                break;
-            lenvisible--;
-        }
-        if (lenvisible) { // but do we also have a visible label?
-            if(va & Qt::AlignVCenter)
-                d->topMargin = fm.height()/2;
-            else if(va & Qt::AlignTop)
-                d->topMargin = fm.ascent();
-        }
-    }
-    else if (checkbox) {
+    if (checkbox) {
+        topMargin = checkbox->sizeHint().height()/2;
+        if (va & Qt::AlignTop)
+            topMargin += fm.ascent() - fm.height()/2;
+    } else if (title.size()) {
         if(va & Qt::AlignVCenter)
-            topMargin = checkbox->height()/2;
+            d->topMargin = fm.height()/2;
         else if(va & Qt::AlignTop)
-            topMargin = fm.ascent();
+            d->topMargin = fm.ascent();
     }
 
     int marg = bFlat ? 0 : 2; // ###NEEDS TO BE A STYLE ATTRIBUTE
-    q->setContentsMargins(marg, d->topMargin + marg, marg, marg);
+    q->setContentsMargins(marg, d->topMargin + marg + 2, marg, marg);
 }
 
 
@@ -412,10 +396,18 @@ void QGroupBox::focusInEvent(QFocusEvent *)
   \reimp
 */
 
-QSize QGroupBox::sizeHint() const
+QSize QGroupBox::minimumSizeHint() const
 {
-    const_cast<QGroupBoxPrivate*>(d)->calculateFrame();
-    return QWidget::sizeHint();
+    QSize sh = QWidget::minimumSizeHint();
+    QSize m((d->bFlat ? 0 : 2*8), 0);
+    if (d->checkbox) {
+        if (!d->bFlat)
+            m.rwidth() += fontMetrics().width(QLatin1Char(' '));
+        sh = sh.expandedTo(d->checkbox->sizeHint() + m);
+    } else if (d->title.size()) {
+        sh = sh.expandedTo(QSize(fontMetrics().width(d->title + QLatin1Char(' ')), -1) + m);
+    }
+    return sh;
 }
 
 /*!
@@ -439,6 +431,7 @@ void QGroupBox::setFlat(bool b)
     if ((bool)d->bFlat == b)
         return;
     d->bFlat = b;
+    d->updateCheckBoxGeometry();
     update();
 }
 
@@ -463,7 +456,7 @@ void QGroupBox::setCheckable(bool b)
     if (b) {
         if (!d->checkbox) {
             d->checkbox = new QCheckBox(title(), this);
-            d->checkbox->setObjectName("qt_groupbox_checkbox");
+            d->checkbox->setObjectName(QLatin1String("qt_groupbox_checkbox"));
             setChecked(true);
             d->setChildrenEnabled(true);
             connect(d->checkbox, SIGNAL(toggled(bool)),
@@ -478,8 +471,9 @@ void QGroupBox::setCheckable(bool b)
         delete d->checkbox;
         d->checkbox = 0;
     }
-    d->calculateFrame();
-    update();
+    QString title = d->title;
+    d->title.clear();
+    setTitle(title); // update, including the shortcut
 }
 
 bool QGroupBox::isCheckable() const
@@ -555,7 +549,7 @@ void QGroupBox::changeEvent(QEvent *ev)
         // we are being enabled - disable children
         if (!d->checkbox->isChecked())
             d->setChildrenEnabled(false);
-    } else if(ev->type() == QEvent::FontChange) {
+    } else if(ev->type() == QEvent::FontChange || ev->type() == QEvent::StyleChange) {
         d->updateCheckBoxGeometry();
         d->calculateFrame();
     }
@@ -569,25 +563,24 @@ void QGroupBoxPrivate::updateCheckBoxGeometry()
 {
     if (d->checkbox) {
         QSize cbSize = d->checkbox->sizeHint();
-        QRect cbRect(0, 0, cbSize.width(), cbSize.height());
-        QRect frameRect = q->rect();
-        frameRect.setTop(topMargin);
-
-        int marg = bFlat ? 2 : 8;
-        marg += q->fontMetrics().width(QChar(' '));
+        QRect cbRect(QPoint(0,0), cbSize);
+        QRect rect = q->rect();
+        if (!bFlat)
+            rect.setLeft(q->fontMetrics().width(QLatin1Char(' ')));
+        int marg = bFlat ? 0 : 8;
 
         if (align & Qt::AlignHCenter) {
-            cbRect.moveCenter(frameRect.center());
+            cbRect.moveCenter(rect.center());
             cbRect.moveTop(0);
         } else if (align & Qt::AlignRight) {
-            cbRect.moveRight(frameRect.right() - marg);
+            cbRect.moveRight(rect.right() - marg);
         } else if (align & Qt::AlignLeft) {
-            cbRect.moveLeft(frameRect.left() + marg);
+            cbRect.moveLeft(rect.left() + marg);
         } else { // auto align
             if(QApplication::reverseLayout())
-                cbRect.moveRight(frameRect.right() - marg);
+                cbRect.moveRight(rect.right() - marg);
             else
-                cbRect.moveLeft(frameRect.left() + marg);
+                cbRect.moveLeft(rect.left() + marg);
         }
 
         d->checkbox->setGeometry(cbRect);
