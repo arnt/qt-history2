@@ -489,6 +489,16 @@ bool Q3ToolBar::event(QEvent * e)
              && child->parent() == this
             && QLatin1String("qt_dockwidget_internal") != child->objectName()) {
             boxLayout()->addWidget((QWidget*)child);
+            if (QToolButton *button = qt_cast<QToolButton*>(child)) {
+                if (mw) {
+                    QObject::connect(mw, SIGNAL(pixmapSizeChanged(bool)),
+                                     button, SLOT(setUsesBigPixmap(bool)));
+                    button->setUsesBigPixmap(mw->usesBigPixmaps());
+                    QObject::connect(mw, SIGNAL(usesTextLabelChanged(bool)),
+                                     child, SLOT(setUsesTextLabel(bool)));
+                    button->setUsesTextLabel(mw->usesTextLabel());
+                }
+            }
             if (isVisible()) {
                 // toolbar compatibility: we auto show widgets that
                 // are not explicitely hidden
