@@ -464,7 +464,7 @@ public:
     Open( const QVariant& id, const QVariant& name,
 	      const QString& label = QString::null )
 	: Label( id, name, label ) {}
-    QString name() const { return "ppen"; }
+    QString name() const { return "open"; }
     int exec( qdb::Environment* env )
     {
 	env->addFileDriver( p1.toInt(), p2.toString() );
