@@ -82,7 +82,7 @@ public:
     static const QSize & iconSize( Size );
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const QIconSet& ) const;
+    bool operator==( const QIconSet& ) const { return FALSE; }
 #endif
 
 private:

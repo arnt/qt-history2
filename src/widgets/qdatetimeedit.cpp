@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of date and time edit classes
 **
@@ -64,7 +64,7 @@ public:
     void setSelectionEnd( int s ) { selend = s; }
     int width() const { return selend - selstart; }
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const QNumberSection& ) const;
+    bool operator==( const QNumberSection& ) const { return FALSE; }
 #endif
 private:
     int selstart;

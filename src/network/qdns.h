@@ -95,7 +95,7 @@ public:
 	QString name;
 	Q_UINT16 priority;
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-	bool operator== ( const MailServer& ) const;
+	bool operator==( const MailServer& ) const { return FALSE; }
 #endif
     };
     QValueList<MailServer> mailServers() const;
@@ -109,7 +109,7 @@ public:
 	Q_UINT16 weight;
 	Q_UINT16 port;
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-	bool operator== ( const Server& ) const;
+	bool operator==( const Server& ) const { return FALSE; }
 #endif
     };
     QValueList<Server> servers() const;

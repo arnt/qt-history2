@@ -60,7 +60,7 @@ struct QM_EXPORT_SVG ImgElement {
     QDomElement element;
     QImage image;
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const ImgElement& ) const;
+    bool operator==( const ImgElement& ) const { return FALSE; }
 #endif
 };
 
@@ -68,7 +68,7 @@ struct QM_EXPORT_SVG PixElement {
     QDomElement element;
     QPixmap pixmap;
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const PixElement& ) const;
+    bool operator==( const PixElement& ) const { return FALSE; }
 #endif
 };
 

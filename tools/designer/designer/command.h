@@ -620,7 +620,7 @@ public:
 	QString text;
 	QPixmap pix;
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-	bool operator==( const Item & ) const;
+	bool operator==( const Item & ) const { return FALSE; }
 #endif
     };
 
@@ -646,7 +646,7 @@ public:
 	QString text;
 	QPixmap pix;
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-	bool operator==( const Item & ) const;
+	bool operator==( const Item & ) const { return FALSE; }
 #endif
     };
 
