@@ -20,7 +20,7 @@ sql {
 table {
 	HEADERS += tableeditorimpl.h
 	SOURCES += tableeditorimpl.cpp
-      FORMS += tableeditor.ui 
+	FORMS += tableeditor.ui 
 	}
 
 target.path=$$QT_INSTALL_BINPATH
