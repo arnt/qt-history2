@@ -64,6 +64,36 @@ public:
 };
 
 
+#if (QT_VERSION-0 >= 0x040000)
+#if defined(Q_CC_GNU)
+#warning "Remove QWidgetStackEventFilter"
+#endif
+#endif
+class QWidgetStackEventFilter : public QObject
+{
+    /* For binary compatibility, since we cannot implement virtual
+       functions and rely on them being called. This is what we should
+       have
+
+	bool QWidgetStack::event( QEvent* e )
+	{
+	    if ( e->type() == QEvent::LayoutHint )
+		updateGeometry(); // propgate layout hints to parent
+	    return QFrame::event( e );
+	}
+    */
+public:
+
+    QWidgetStackEventFilter( QObject *parent = 0, const char * name = 0 )
+	: QObject( parent, name ) {}
+    bool eventFilter( QObject *o, QEvent * e ) {
+	if ( e->type() == QEvent::LayoutHint && o->isWidgetType() )
+	    ((QWidget*)o)->updateGeometry();
+	return FALSE;
+    }
+};
+
+
 /*!
     \class QWidgetStack
     \brief The QWidgetStack class provides a stack of widgets of which
@@ -127,6 +157,8 @@ QWidgetStack::QWidgetStack( QWidget * parent, const char *name, WFlags f )
 void QWidgetStack::init()
 {
    d = 0;
+   QWidgetStackEventFilter *ef = new QWidgetStackEventFilter( this );
+   installEventFilter( ef );
    dict = new QIntDict<QWidget>;
    focusWidgets = 0;
    topWidget = 0;
@@ -353,18 +385,6 @@ void QWidgetStack::frameChanged()
     setChildGeometries();
 }
 
-
-
-/*!
-    \reimp
-*/
-
-bool QWidgetStack::event( QEvent* e )
-{
-    if ( e->type() == QEvent::LayoutHint )
-	updateGeometry(); // propgate layout hints to parent
-    return QFrame::event( e );
-}
 
 /*!
     \reimp
