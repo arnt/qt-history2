@@ -1407,10 +1407,12 @@ void SetupWizardImpl::showPageOptions()
 	optionsPage->sysMsvcNet->setEnabled( FALSE );
 	optionsPage->sysMsvc->setEnabled( FALSE );
 	optionsPage->sysBorland->setEnabled( FALSE );
+	optionsPage->sysOther->setEnabled( FALSE );
     } else {
 	optionsPage->sysMsvcNet->setEnabled( TRUE );
 	optionsPage->sysMsvc->setEnabled( TRUE );
 	optionsPage->sysBorland->setEnabled( FALSE );
+	optionsPage->sysOther->setEnabled( FALSE );
     }
 #else
 #  if defined(Q_OS_WIN32)
