@@ -887,12 +887,13 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
 
                 QRect pixRect = rect;
                 pixRect.setY(rect.center().y() - (pixh - 1) / 2);
-                drawItem(p, pixRect, Qt::AlignVCenter, header->palette, (header->state & Style_Enabled)
+                drawItem(p, pixRect, header->iconAlignment, header->palette,
+                         (header->state & Style_Enabled)
                          || !header->icon.isGenerated(QIcon::Small, QIcon::Disabled), pixmap);
                 rect.setLeft(rect.left() + pixw + 2);
             }
 
-            drawItem(p, rect, Qt::AlignVCenter, header->palette, header->state & Style_Enabled,
+            drawItem(p, rect, header->textAlignment, header->palette, header->state & Style_Enabled,
                      header->text, -1, &(header->palette.buttonText().color()));
         }
         break;

@@ -594,7 +594,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
 */
 
 void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
-                                    const QModelIndex &index) const
+                             const QModelIndex &index) const
 {
     QModelIndex parent = d->model->parent(index);
     QModelIndex current = parent;

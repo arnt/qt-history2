@@ -103,12 +103,15 @@ public:
 
     int section;
     QString text;
+    int textAlignment;
     QIcon icon;
+    int iconAlignment;
 
     QStyleOptionHeader();
 
     QDOC_PROPERTY(int section);
     QDOC_PROPERTY(QString text);
+    QDOC_PROPERTY(int alignment);
     QDOC_PROPERTY(QIcon icon);
 
 protected:
