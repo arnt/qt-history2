@@ -649,6 +649,7 @@ void QSpinBox::wheelEvent( QWheelEvent * e )
 void QSpinBox::valueChange()
 {
     updateDisplay();
+    selectAll();
     emit valueChanged( value() );
     emit valueChanged( currentValueText() );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
