@@ -1463,7 +1463,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	case kEventMouseDown:
 	    if(button == QMouseEvent::LeftButton && !mac_trap_context) {
 		remove_context_timer = FALSE;
-		InstallEventLoopTimer(GetMainEventLoop(), .25, 0, 
+		InstallEventLoopTimer(GetMainEventLoop(), .5, 0, 
 				      NewEventLoopTimerUPP(qt_trap_context_mouse), app, 
 				      &mac_trap_context);
 	    }
@@ -1708,7 +1708,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
     if(remove_context_timer && mac_trap_context) {
 	RemoveEventLoopTimer(mac_trap_context);
 	mac_trap_context = NULL;
-    }
+    } 
     return noErr;
 }
 
