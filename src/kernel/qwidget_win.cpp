@@ -1083,29 +1083,27 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    crect.setRect( x, y, w, h );
 	    MoveWindow( winId(), x, y, w, h, TRUE );
 	    crect.setRect( x, y, w, h );
+
+	    bool isResize = w != oldSize.width() || h != oldSize.height();
+	    if ( isVisible() ) {
+		if ( isMove && pos() != oldPos ) {
+		    QMoveEvent e( pos(), oldPos );
+		    QApplication::sendEvent( this, &e );
+		}
+		if ( isResize ) {
+		    QResizeEvent e( size(), oldSize );
+		    QApplication::sendEvent( this, &e );
+		    if ( !testWFlags( WStaticContents ) )
+			repaint( visibleRect(), !testWFlags(WResizeNoErase) );
+		}
+	    } else {
+		if ( isMove && pos() != oldPos )
+		    QApplication::postEvent( this, new QMoveEvent( pos(), oldPos ) );
+		if ( isResize )
+		    QApplication::postEvent( this, new QResizeEvent( size(), oldSize ) );
+	    }
 	}
 	clearWState( WState_ConfigPending );
-    }
-
-     bool isResize = w != oldSize.width() || h != oldSize.height();
-     if ( isVisible() ) {
-	if ( isMove && pos() != oldPos ) {
-	    QMoveEvent e( pos(), oldPos );
-	    QApplication::sendEvent( this, &e );
-	}
-	if ( isResize ) {
-	    QResizeEvent e( size(), oldSize );
-	    QApplication::sendEvent( this, &e );
-	    if ( !testWFlags( WStaticContents ) )
-		repaint( !testWFlags(WResizeNoErase) );
-	}
-    } else {
-	if ( isMove && pos() != oldPos )
-	    QApplication::postEvent( this,
-				     new QMoveEvent( pos(), oldPos ) );
-	if ( isResize )
-	    QApplication::postEvent( this,
-				     new QResizeEvent( size(), oldSize ) );
     }
 }
 
