@@ -66,6 +66,7 @@ public slots:
     virtual void backward();
     virtual void forward();
     virtual void home();
+    virtual void reload();
 
 signals:
     void backwardAvailable( bool );

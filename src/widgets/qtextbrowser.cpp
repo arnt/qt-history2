@@ -131,11 +131,11 @@ QTextBrowser::~QTextBrowser()
 }
 
 
-/*!  
+/*!
   \property QTextBrowser::source
-  \brief the name of the currently displayed document. 
-  
-  This is a null string if no document is displayed or 
+  \brief the name of the currently displayed document.
+
+  This is a null string if no document is displayed or
   the source is unknown.
 
   Setting this property uses the mimeSourceFactory to lookup the
@@ -146,7 +146,7 @@ QTextBrowser::~QTextBrowser()
   is displayed as a popup rather than as new document in the browser
   window itself. Otherwise, the document is displayed normally in the
   text browser with the text set to the contents of the named document
-  with setText(). 
+  with setText().
 
   If you are using the filesystem access capabilities of the mime
   source factory, you must ensure that the factory knows about the
@@ -163,6 +163,16 @@ QString QTextBrowser::source() const
     else
 	return d->stack.top();
 }
+
+/*! Reloads the current set source */
+
+void QTextBrowser::reload()
+{
+    QString s = d->curmain;
+    d->curmain = "";
+    setSource( s );
+}
+
 
 void QTextBrowser::setSource(const QString& name)
 {
@@ -272,8 +282,8 @@ void QTextBrowser::setSource(const QString& name)
     \fn void QTextBrowser::linkClicked( const QString& link)
 
     This signal is emitted when the user clicks a link. The \a link is
-    the value of the \c href i.e. the name of the target document. 
-    
+    the value of the \c href i.e. the name of the target document.
+
 */
 
 
