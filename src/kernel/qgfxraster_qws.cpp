@@ -25,7 +25,16 @@
 
 extern bool qws_sw_cursor;
 
+#if !defined(_OS_FREEBSD_) 
+# include <endian.h>
+# if __BYTE_ORDER == __BIG_ENDIAN
+#  define QT_QWS_REVERSE_BYTE_ENDIANNESS
+//#  define QWS_BIG_ENDIAN
+# endif
+#endif
+
 // #define QT_QWS_REVERSE_BYTE_ENDIANNESS
+
 
 // Pull this private function in from qglobal.cpp
 extern unsigned int qt_int_sqrt( unsigned int n );
@@ -742,6 +751,24 @@ void QScreenCursor::drawCursor()
 }
 
 #endif // QT_NO_QWS_CURSOR
+
+// Define this to ensure the pixels in (1 pixel wide) polyline joins are
+// only written once, i.e. XOR polyline joins work correctly.
+//#define GFX_CORRECT_POLYLINE_JOIN
+
+#ifdef GFX_CORRECT_POLYLINE_JOIN
+static QPoint *gfx_storedLineRd = 0;
+static QPoint *gfx_storedLineWr = 0;
+static bool gfx_storeLine = FALSE;
+static int gfx_storedLineRead = 0;
+static int gfx_storedLineWrite = 0;
+static int gfx_storedLineDir = 1;
+static bool gfx_noLineOverwrite = FALSE;
+static int gfx_storedLineBufferSize = 0;
+static bool gfx_doDraw = TRUE;
+#else
+static const bool gfx_storeLine = FALSE;
+#endif
 
 /*!
   \class QGfxRasterBase qgfxraster_qws.h
@@ -2650,6 +2677,15 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 	y2=y1;
 	x1=x3;
 	y1=y3;
+#ifdef GFX_CORRECT_POLYLINE_JOIN
+	if ( gfx_noLineOverwrite ) {
+	    if ( x2-x1 > QABS(y2-y1) )
+		gfx_storedLineRead -= x2-x1;
+	    else
+		gfx_storedLineRead -= QABS(y2-y1);
+	    gfx_storedLineDir = -gfx_storedLineDir;
+	}
+#endif
     }
 
     int dx=x2-x1;
@@ -2663,7 +2699,7 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 
 #ifdef QWS_EXPERIMENTAL_FASTPATH
     // Fast path
-    if ( !dashedLines ) {
+    if ( !dashedLines && !gfx_storeLine ) {
 	if ( y1 == y2 ) {
 	    if ( ncliprect == 1) {
 		if ( x1 > cliprect[0].right() || x2 < cliprect[0].left()
@@ -2699,10 +2735,11 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
     int y=y1;
 
     int d;
+    bool doDraw = TRUE;
 
     QRect cr;
     bool inside = inClip(x,y,&cr);
-    if(ax>ay && !dashedLines) {
+    if(ax>ay && !dashedLines && !gfx_storeLine ) {
 	unsigned char* l = scanLine(y);
 	d=ay-(ax >> 1);
 	int px=x;
@@ -2738,7 +2775,25 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 	for(;;) {
 	    if ( !cr.contains(x,y))
 		inside = inClip(x,y, &cr);
-	    if ( inside && (di&0x01) == 0) {
+#ifdef GFX_CORRECT_POLYLINE_JOIN
+	    if ( gfx_storeLine ) {
+		doDraw = gfx_doDraw;
+		QPoint pt( x, y );
+		if ( gfx_noLineOverwrite ) {
+		    if ( gfx_storedLineRead >= 0 && pt == gfx_storedLineRd[gfx_storedLineRead] ) {
+			// we drew this point last time.
+			doDraw = FALSE;
+		    }
+		    gfx_storedLineRead += gfx_storedLineDir;
+		    if ( gfx_storedLineRead >= gfx_storedLineBufferSize )
+			gfx_noLineOverwrite = FALSE;
+		}
+		gfx_storedLineWr[gfx_storedLineWrite++] = pt;
+		if ( gfx_storedLineWrite >= gfx_storedLineBufferSize )
+		    gfx_storeLine = FALSE;
+	    }
+#endif
+	    if ( doDraw && inside && (di&0x01) == 0) {
 		drawPointUnclipped( x, scanLine(y) );
 	    }
 	    if(x==x2) {
@@ -2765,7 +2820,25 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 	    // y is dominant so we can't optimise with hline
 	    if ( !cr.contains(x,y))
 		inside = inClip(x,y, &cr);
-	    if ( inside && (di&0x01) == 0)
+#ifdef GFX_CORRECT_POLYLINE_JOIN
+	    if ( gfx_storeLine ) {
+		doDraw = gfx_doDraw;
+		QPoint pt( x, y );
+		if ( gfx_noLineOverwrite ) {
+		    if ( gfx_storedLineRead >= 0 && pt == gfx_storedLineRd[gfx_storedLineRead] ) {
+			// we drew this point last time.
+			doDraw = FALSE;
+		    }
+		    gfx_storedLineRead += gfx_storedLineDir;
+		    if ( gfx_storedLineRead >= gfx_storedLineBufferSize )
+			gfx_noLineOverwrite = FALSE;
+		}
+		gfx_storedLineWr[gfx_storedLineWrite++] = pt;
+		if ( gfx_storedLineWrite >= gfx_storedLineBufferSize )
+		    gfx_storeLine = FALSE;
+	    }
+#endif
+	    if ( doDraw && inside && (di&0x01) == 0)
 		drawPointUnclipped( x, scanLine(y) );
 	    if(y==y2) {
 		GFX_END
@@ -4719,6 +4792,78 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
     GFX_END
 }
 
+#ifdef GFX_CORRECT_POLYLINE_JOIN
+
+static inline bool qt_inside_edge( const QPoint &p, const QRect &r, int edge )
+{
+    switch ( edge ) {
+	case 0:
+	    return p.x() > r.left();
+	case 1:
+	    return p.y() > r.top();
+	case 2:
+	    return p.x() < r.right();
+	case 3:
+	    return p.y() < r.bottom();
+    }
+
+    return FALSE;
+}
+
+static inline QPoint qt_intersect_edge( const QPoint &p1, const QPoint &p2, const QRect &r, int edge )
+{
+    int x=0, y=0;
+    int dy = p2.y() - p1.y();
+    int dx = p2.x() - p1.x();
+
+    switch ( edge ) {
+	case 0:
+	    x = r.left();
+	    y = p1.y() + dy * QABS(p1.x() - x) / QABS(dx);
+	    break;
+	case 1:
+	    y = r.top();
+	    x = p1.x() + dx * QABS(p1.y() - y) / QABS(dy);
+	    break;
+	case 2:
+	    x = r.right();
+	    y = p1.y() + dy * QABS(p1.x() - x) / QABS(dx);
+	    break;
+	case 3:
+	    y = r.bottom();
+	    x = p1.x() + dx * QABS(p1.y() - y) / QABS(dy);
+	    break;
+    }
+
+    return QPoint(x,y);
+}
+
+static bool qt_clipLine( int &x1, int &y1, int &x2, int &y2, const QRect &clip )
+{
+    if ( clip.contains(x1, y1) && clip.contains(x2, y2) )
+	return TRUE;
+
+    for ( int e = 0; e < 4; e++ ) {
+	if ( !qt_inside_edge( QPoint(x1, y1), clip, e ) &&
+		qt_inside_edge( QPoint(x2, y2), clip, e ) ) {
+	    QPoint i = qt_intersect_edge( QPoint(x1, y1), QPoint(x2, y2), clip, e );
+	    x1 = i.x();
+	    y1 = i.y();
+	} else if ( !qt_inside_edge( QPoint(x2, y2), clip, e ) &&
+		qt_inside_edge( QPoint(x1, y1), clip, e ) ) {
+	    QPoint i = qt_intersect_edge( QPoint(x1, y1), QPoint(x2, y2), clip, e );
+	    x2 = i.x();
+	    y2 = i.y();
+	} else {
+	    return FALSE;
+	}
+    }
+
+    return TRUE;
+}
+
+#endif // GFX_CORRECT_POLYLINE_JOIN
+
 /*!
 \fn void QGfxRaster<depth,type>::drawPolyline( const QPointArray &a,int index, int npoints )
 
@@ -4752,11 +4897,70 @@ void QGfxRaster<depth,type>::drawPolyline( const QPointArray &a,int index, int n
     int loopc;
     int end;
     end=(index+npoints) > (int)a.size() ? a.size() : index+npoints;
-    for(loopc=index+1;loopc<end;loopc++) {
-	    drawLine(a[loopc-1].x(),a[loopc-1].y(),
-		     a[loopc].x(),a[loopc].y());
+#ifdef GFX_CORRECT_POLYLINE_JOIN
+    if ( myrop != CopyROP && npoints > 1 ) {
+	gfx_storedLineBufferSize = QMAX(clipbounds.height(),clipbounds.width());
+	gfx_storedLineBufferSize = QMAX(gfx_storedLineBufferSize,10);
+	gfx_storedLineRd = new QPoint [gfx_storedLineBufferSize];
+	gfx_storedLineWr = new QPoint [gfx_storedLineBufferSize];
+	gfx_storeLine = TRUE;
+	gfx_storedLineWrite = 0;
+	gfx_storedLineRead = 0;
+	gfx_noLineOverwrite = FALSE;
+	if ( a[index] == a[end-1] ) {
+	    // initialize rd buffer
+	    gfx_doDraw = FALSE;
+	    int x1 = a[end-2].x();
+	    int y1 = a[end-2].y();
+	    int x2 = a[end-1].x();
+	    int y2 = a[end-1].y();
+	    QRect cr = clipbounds;
+	    cr.moveBy( -xoffs, -yoffs );
+	    qt_clipLine( x1, y1, x2, y2, cr );
+	    drawLine(x1, y1, x2, y2);
+	    gfx_storedLineDir = x1 > x2 ? 1 : -1;
+	    gfx_storedLineRead = gfx_storedLineDir > 0 ? 0 : gfx_storedLineWrite - 1;
+	    gfx_noLineOverwrite = TRUE;
+	    QPoint *tmp = gfx_storedLineWr;
+	    gfx_storedLineWr = gfx_storedLineRd;
+	    gfx_storedLineRd = tmp;
+	    gfx_doDraw = TRUE;
+	}
     }
-    // XXX beware XOR mode vertices
+    for(loopc=index+1;loopc<end;loopc++) {
+	int x1 = a[loopc-1].x();
+	int y1 = a[loopc-1].y();
+	int x2 = a[loopc].x();
+	int y2 = a[loopc].y();
+	if ( gfx_storeLine ) {
+	    QRect cr = clipbounds;
+	    cr.moveBy( -xoffs, -yoffs );
+	    qt_clipLine( x1, y1, x2, y2, cr );
+	    gfx_storedLineWrite = 0;
+	}
+	drawLine(x1, y1, x2, y2);
+	if ( gfx_storeLine ) {
+	    gfx_storedLineDir = x1 > x2 ? 1 : -1;
+	    gfx_storedLineRead = gfx_storedLineDir > 0 ? 0 : gfx_storedLineWrite - 1;
+	    gfx_noLineOverwrite = TRUE;
+	    QPoint *tmp = gfx_storedLineWr;
+	    gfx_storedLineWr = gfx_storedLineRd;
+	    gfx_storedLineRd = tmp;
+	}
+    }
+    if ( gfx_storedLineRd )
+	delete [] gfx_storedLineRd;
+    if ( gfx_storedLineWr )
+	delete [] gfx_storedLineWr;
+    gfx_storedLineRd = 0;
+    gfx_storedLineWr = 0;
+    gfx_storeLine = FALSE;
+#else
+    for(loopc=index+1;loopc<end;loopc++) {
+	drawLine(a[loopc-1].x(),a[loopc-1].y(),
+		 a[loopc].x(),a[loopc].y());
+    }
+#endif
     GFX_END
 }
 
