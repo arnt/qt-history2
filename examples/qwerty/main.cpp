@@ -25,7 +25,7 @@ int main( int argc, char **argv )
 	Editor *e = new Editor;
 	if ( i > 0 )
 	    e->load( argv[i] );
-	if ( small ) {
+	if ( isSmall ) {
 	    e->showMaximized();
 	} else {
 	    e->resize( 400, 400 );
