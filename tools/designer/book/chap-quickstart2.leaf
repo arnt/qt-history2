@@ -157,7 +157,7 @@ have an accelerator that will pass the focus to its "buddy", e.g. a
 the name of the buddy widget.
 
 \list
-\i Click the \Button{Set Buddy} toolbar button (or press \Key F5).
+\i Click the \Button{Set Buddy} toolbar button (or press \Key F12).
 Click the Enter Number label and drag the rubber band to the
 numberLineEdit; then release.
 \i Click the \Button{Set Buddy} toolbar button. Click the Convert From label
