@@ -249,6 +249,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 // connections
 //
     fixActionContext();
+    activeFormWindowChanged(core()->formWindowManager()->activeFormWindow());
 }
 
 QDesignerActions::~QDesignerActions()
