@@ -21,11 +21,15 @@ QStrList PlugApplication::queryInterfaceList() const
 
 void PlugMainWindowInterface::requestSetProperty( const QCString& p, const QVariant& v )
 {
-    if ( p == "centralWidget" ) {
+    if ( p == "centralWidget" ) { // fake a property
 	QWidget* w = QWidgetFactory::create( v.toString(), mainWindow() );
+	delete mainWindow()->centralWidget();
 	if ( w ) {
-	    delete mainWindow()->centralWidget();
 	    mainWindow()->setCentralWidget( w );
+	} else {
+	    QWidget* label = QWidgetFactory::create( "QLabel", mainWindow() );
+	    label->setProperty( "text", QString("Don't know \"%1\"").arg( v.toString() ) );
+	    mainWindow()->setCentralWidget( label );	    
 	}
     } else {
 	mainWindow()->setProperty( p, v );
@@ -34,10 +38,10 @@ void PlugMainWindowInterface::requestSetProperty( const QCString& p, const QVari
 
 void PlugMainWindowInterface::requestProperty( const QCString& p, QVariant& v )
 {
-    if ( p == "mainWindow" ) {
+    if ( p == "mainWindow" ) // fake a property (hacky and probably unsafe)
 	v = QVariant( (uint)mainWindow() );
-    }
-    v = mainWindow()->property( p );
+    else
+	v = mainWindow()->property( p );
 }
 
 PlugMainWindow* PlugMainWindowInterface::mainWindow() const
