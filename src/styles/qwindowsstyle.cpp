@@ -462,11 +462,10 @@ void QWindowsStyle::drawControl( ControlElement element,
 		break;
 
 	    QTabBar * tb = (QTabBar *) widget;
-	    QTabWidget * tw = (QTabWidget *) tb->parentWidget();
 	    bool lastIsCurrent = FALSE;
 	    bool selected = how & CStyle_Selected;
 
-	    if ( tw->tabAlignment() == AlignRight &&
+	    if ( styleHint( SH_TabBar_Alignment, tb ) == AlignRight &&
 		 tb->currentTab() == tb->indexOf(tb->count()-1) )
 		lastIsCurrent = TRUE;
 

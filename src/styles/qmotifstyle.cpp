@@ -707,13 +707,12 @@ void QMotifStyle::drawControl( ControlElement element,
 		break;
 
 	    QTabBar * tb = (QTabBar *) widget;
-	    QTabWidget * tw = (QTabWidget *) tb->parentWidget();
 	    int dfw = pixelMetric( PM_DefaultFrameWidth, tb );
 	    bool selected = how & CStyle_Selected;
 	    int o =  dfw > 1 ? 1 : 0;
 	    bool lastIsCurrent = FALSE;
 
-	    if ( tw->tabAlignment() == AlignRight &&
+	    if ( styleHint( SH_TabBar_Alignment, tb ) == AlignRight &&
 		 tb->currentTab() == tb->indexOf(tb->count()-1) )
 		lastIsCurrent = TRUE;
 

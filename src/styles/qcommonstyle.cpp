@@ -1847,7 +1847,11 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget *, void ***) const
     case SH_ScrollBar_BackgroundMode:
 	ret = QWidget::PaletteBackground;
 	break;
-
+	
+    case SH_TabBar_Alignment:
+	ret = Qt::AlignLeft;
+	break;
+	
     default:
 	ret = 0;
 	break;
