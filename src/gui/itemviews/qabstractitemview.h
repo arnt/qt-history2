@@ -204,7 +204,7 @@ protected:
     enum State {
         NoState,
         DraggingState,
-        SelectingState,
+        DragSelectingState,
         EditingState,
         OpeningState,
         ClosingState

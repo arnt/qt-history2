@@ -237,7 +237,7 @@ void QAbstractItemViewPrivate::init()
 
     \value NoState        The is the default state.
     \value DraggingState  The user is dragging items.
-    \value SelectingState The user is selecting items.
+    \value DragSelectingState The user is selecting items.
     \value EditingState   The user is editing an item in a widget editor.
     \value OpeningState   The user is opening a branch of items.
     \value ClosingState   The user is closing a branch of items.
@@ -981,25 +981,23 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         else
             emit viewportEntered(e->button(), e->modifiers());
         d->enteredItem = index;
-    } else if (state() == SelectingState) {
+    } else if (state() == DragSelectingState) {
         return; // we haven't moved over another item yet
     }
 
     if (!(e->buttons() & Qt::LeftButton))
         return; // if the left button is not pressed there is nothing more to do
 
-    if (index.isValid() && d->dragEnabled) {
-        if (state() != SelectingState) {
-            bool dragging = model()->flags(index) & QAbstractItemModel::ItemIsDragEnabled;
-            bool selected = selectionModel()->isSelected(index);
-            if (dragging && selected) {
-                setState(DraggingState);
-                return;
-            }
+    if (index.isValid() && d->dragEnabled && state() != DragSelectingState) {
+        bool dragging = model()->flags(index) & QAbstractItemModel::ItemIsDragEnabled;
+        bool selected = selectionModel()->isSelected(index);
+        if (dragging && selected) {
+            setState(DraggingState);
+            return;
         }
-        selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
     }
-    setState(SelectingState);
+    setState(DragSelectingState);
+    selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
     setSelection(QRect(topLeft, bottomRight).normalize(), selectionCommand(index, e));
 }
 
@@ -1020,10 +1018,8 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
     if (state() == EditingState && d->editors.contains(buddy))
         return;
 
-    if (state() == SelectingState) {
-        selectionModel()->select(index, selectionCommand(index, e));
-        setState(NoState);
-    }
+    selectionModel()->select(index, selectionCommand(index, e));
+    setState(NoState);
 
     if (index == d->pressedItem)
         emit clicked(index, e->button(), e->modifiers());
@@ -2119,7 +2115,7 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::extendedSelectionC
         return QItemSelectionModel::SelectCurrent|selectionBehaviorFlags();
     if (modifiers & Qt::ControlModifier)
         return QItemSelectionModel::Toggle|selectionBehaviorFlags();
-    if (state == QAbstractItemView::SelectingState)
+    if (state == QAbstractItemView::DragSelectingState)
         return QItemSelectionModel::SelectCurrent|selectionBehaviorFlags();
 
     return QItemSelectionModel::ClearAndSelect|selectionBehaviorFlags();
