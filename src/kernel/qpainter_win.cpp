@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#118 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#119 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -375,7 +375,7 @@ void QPainter::updateFont()
 	    return;
     }
     HANDLE hfont;
-    bool   ownFont = pdev->devType() == PDT_PRINTER;
+    bool   ownFont = pdev->devType() == QInternal::Printer;
     bool   killFont;
     if ( ownFont ) {
 	bool stockFont;
@@ -617,7 +617,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     if ( pdev_dict ) {				// redirected paint device?
 	pdev = pdev_dict->find( (long)pd );
 	if ( pdev ) {
-	    if ( pd->devType() == PDT_WIDGET )
+	    if ( pd->devType() == QInternal::Widget )
 		copyFrom = (QWidget *)pd;	// copy widget settings
 	} else {
 	    pdev = (QPaintDevice *)pd;
@@ -639,9 +639,9 @@ bool QPainter::begin( const QPaintDevice *pd )
     flags = IsActive;				// init flags
     int dt = pdev->devType();			// get the device type
 
-    if ( (pdev->devFlags & PDF_EXTDEV) != 0 )	// this is an extended device
+    if ( (pdev->devFlags & QInternal::ExternalDevice) != 0 )	// this is an extended device
 	setf(ExtDev);
-    else if ( dt == PDT_PIXMAP )		// device is a pixmap
+    else if ( dt == QInternal::Pixmap )		// device is a pixmap
 	((QPixmap*)pdev)->detach();		// will modify it
 
     hdc = 0;
@@ -658,14 +658,14 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    setTabArray( tabarray );
     }
 
-    pdev->devFlags |= PDF_PAINTACTIVE;		// also tell paint device
+    pdev->devFlags |= QInternal::PaintingActive;		// also tell paint device
     bro = QPoint( 0, 0 );
     if ( reinit ) {
 	bg_mode = TransparentMode;		// default background mode
 	rop = CopyROP;				// default ROP
 	wxmat.reset();				// reset world xform matrix
 	txop = txinv = 0;
-	if ( dt != PDT_WIDGET ) {
+	if ( dt != QInternal::Widget ) {
 	    QFont  defaultFont;			// default drawing tools
 	    QPen   defaultPen;
 	    QBrush defaultBrush;
@@ -678,7 +678,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     wx = wy = vx = vy = 0;			// default view origins
     ww = 0;
 
-    if ( dt == PDT_WIDGET ) {			// device is a widget
+    if ( dt == QInternal::Widget ) {			// device is a widget
 	QWidget *w = (QWidget*)pdev;
 	cfont = w->font();			// use widget font
 	cpen = QPen( w->foregroundColor() );	// use widget fg color
@@ -698,7 +698,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 		hdc = GetDC( w->winId() );
 	    w->hdc = hdc;
 	}
-    } else if ( dt == PDT_PIXMAP ) {		// device is a pixmap
+    } else if ( dt == QInternal::Pixmap ) {		// device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
 	if ( pm->isNull() ) {
 #if defined(CHECK_NULL)
@@ -717,7 +717,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    bg_col = color0;
 	    cpen.setColor( color1 );
 	}
-    } else if ( dt == PDT_PRINTER ) {		// device is a printer
+    } else if ( dt == QInternal::Printer ) {		// device is a printer
 	if ( pdev->handle() )
 	    hdc = pdev->handle();
 	flags |= (NoCache | RGBColor);
@@ -747,7 +747,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	setRasterOp( CopyROP );			// default raster operation
     }
     if ( hdc ) {				// initialize hdc
-	if ( QColor::hPal() && dt != PDT_PRINTER ) {
+	if ( QColor::hPal() && dt != QInternal::Printer ) {
 	    holdpal = SelectPalette( hdc, QColor::hPal(), TRUE );
 	    RealizePalette( hdc );
 	}
@@ -814,13 +814,13 @@ bool QPainter::end()
     if ( testf(ExtDev) )
 	pdev->cmd( PDC_END, this, 0 );
 
-    if ( pdev->devType() == PDT_WIDGET ) {
+    if ( pdev->devType() == QInternal::Widget ) {
 	if ( !((QWidget*)pdev)->testWFlags(WState_InPaintEvent) ) {
 	    QWidget *w = (QWidget*)pdev;
 	    ReleaseDC( w->winId(), hdc );
 	    w->hdc = 0;
 	}
-    } else if ( pdev->devType() == PDT_PIXMAP ) {
+    } else if ( pdev->devType() == QInternal::Pixmap ) {
 	QPixmap *pm = (QPixmap*)pdev;
 	pm->freeMemDC();
 	if ( pm->isOptimized() )
@@ -828,7 +828,7 @@ bool QPainter::end()
     }
 
     flags = 0;
-    pdev->devFlags &= ~PDF_PAINTACTIVE;
+    pdev->devFlags &= ~QInternal::PaintingActive;
     pdev = 0;
     hdc	 = 0;
     return TRUE;
@@ -1193,7 +1193,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	h++;
     }
     if ( nocolBrush ) {
-	if ( pdev->devType() == PDT_PIXMAP
+	if ( pdev->devType() == QInternal::Pixmap
 	  && ((QPixmap*)pdev)->depth()==1
 	  && bg_mode == TransparentMode )
 	{

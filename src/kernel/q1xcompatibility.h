@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/q1xcompatibility.h#2 $
+** $Id: //depot/qt/main/src/kernel/q1xcompatibility.h#3 $
 **
 ** Various macros etc. to ease porting from Qt 1.x to 2.0.  THIS FILE
 ** WILL CHANGE OR DISAPPEAR IN THE NEXT VERSION OF QT.
@@ -84,6 +84,21 @@
 #define ControlButton	QMouseEvent::ControlButton
 #define AltButton	QMouseEvent::AltButton
 #define KeyButtonMask	QMouseEvent::KeyButtonMask
+
+// Painter device types (is-A)
+
+#define PDT_UNDEF    	QInternal::UndefinedDevice
+#define PDT_WIDGET	QInternal::Widget
+#define PDT_PIXMAP	QInternal::Pixmap
+#define PDT_PRINTER    	QInternal::Printer
+#define PDT_PICTURE	QInternal::Picture
+#define PDT_SYSTEM	QInternal::System
+#define PDT_MASK	QInternal::DeviceTypeMask
+
+// Painter device flags
+
+#define PDF_EXTDEV	QInternal::ExternalDevice
+#define PDF_PAINTACTIVE QInternal::PaintingActive
 
 
 #endif // Q1XCOMPATIBILITY_H

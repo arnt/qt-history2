@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture_win.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qpicture_win.cpp#16 $
 **
 ** Implementation of QPicture class for Win32
 **
@@ -26,7 +26,7 @@
 
 
 QPicture::QPicture()
-    : QPaintDevice( PDT_PICTURE | PDF_EXTDEV )	  // set device type
+    : QPaintDevice( QInternal::Picture | QInternal::ExternalDevice )	  // set device type
 {
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#297 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#298 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -641,8 +641,8 @@ void QWidget::setIcon( const QPixmap &pixmap )
     } else {
 	createTLExtra();
     }
-    Pixmap icon_pixmap;
-    Pixmap mask_pixmap;
+    ::Pixmap icon_pixmap;
+    ::Pixmap mask_pixmap;
     QBitmap mask;
     if ( pixmap.isNull() ) {
 	icon_pixmap = 0;

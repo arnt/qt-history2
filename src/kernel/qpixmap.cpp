@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#94 $
 **
 ** Implementation of QPixmap class
 **
@@ -79,7 +79,7 @@
 */
 
 QPixmap::QPixmap()
-    : QPaintDevice( PDT_PIXMAP )
+    : QPaintDevice( QInternal::Pixmap )
 {
     init( 0, 0, 0 );
 }
@@ -100,7 +100,7 @@ QPixmap::QPixmap()
 */
 
 QPixmap::QPixmap( int w, int h, int depth )
-    : QPaintDevice( PDT_PIXMAP )
+    : QPaintDevice( QInternal::Pixmap )
 {
     init( w, h, depth );
 }
@@ -110,7 +110,7 @@ QPixmap::QPixmap( int w, int h, int depth )
 */
 
 QPixmap::QPixmap( const QSize &size, int depth )
-    : QPaintDevice( PDT_PIXMAP )
+    : QPaintDevice( QInternal::Pixmap )
 {
     init( size.width(), size.height(), depth );
 }
@@ -126,7 +126,7 @@ QPixmap::QPixmap( const QSize &size, int depth )
 
 QPixmap::QPixmap( const QString& fileName, const char *format,
 	int conversion_flags )
-    : QPaintDevice( PDT_PIXMAP )
+    : QPaintDevice( QInternal::Pixmap )
 {
     init( 0, 0, 0 );
     load( fileName, format, conversion_flags );
@@ -142,7 +142,7 @@ QPixmap::QPixmap( const QString& fileName, const char *format,
 */
 
 QPixmap::QPixmap( const QString& fileName, const char *format, ColorMode mode )
-    : QPaintDevice( PDT_PIXMAP )
+    : QPaintDevice( QInternal::Pixmap )
 {
     init( 0, 0, 0 );
     load( fileName, format, mode );
@@ -153,7 +153,7 @@ QPixmap::QPixmap( const QString& fileName, const char *format, ColorMode mode )
 */
 
 QPixmap::QPixmap( const char *xpm[] )
-    : QPaintDevice( PDT_PIXMAP )
+    : QPaintDevice( QInternal::Pixmap )
 {
     init( 0, 0, 0 );
     QImage image( xpm );

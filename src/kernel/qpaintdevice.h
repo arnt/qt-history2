@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#58 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#59 $
 **
 ** Definition of QPaintDevice class
 **
@@ -30,23 +30,6 @@
 #endif // QT_H
 
 
-// Painter device types (is-A)
-
-#define PDT_UNDEF	0x00
-#define PDT_WIDGET	0x01
-#define PDT_PIXMAP	0x02
-#define PDT_PRINTER	0x03
-#define PDT_PICTURE	0x04
-#define PDT_SYSTEM	0x05
-#define PDT_MASK	0x0f
-
-
-// Painter device flags
-
-#define PDF_EXTDEV	0x10
-#define PDF_PAINTACTIVE 0x20
-
-
 // Painter device command param (defined in qpaintdevicedefs.h)
 
 union QPDevCmdParam;
@@ -62,7 +45,6 @@ public:
     bool     paintingActive() const;
 
     // Windows:	  get device context
-    // OS/2 PM:	  get presentation space
     // X-Windows: get drawable
     HANDLE   handle()  const;
 
@@ -142,13 +124,13 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
  *****************************************************************************/
 
 inline int QPaintDevice::devType() const
-{ return devFlags & PDT_MASK; }
+{ return devFlags & QInternal::DeviceTypeMask; }
 
 inline bool QPaintDevice::isExtDev() const
-{ return (devFlags & PDF_EXTDEV) != 0; }
+{ return (devFlags & QInternal::ExternalDevice) != 0; }
 
 inline bool QPaintDevice::paintingActive() const
-{ return (devFlags & PDF_PAINTACTIVE) != 0; }
+{ return (devFlags & QInternal::PaintingActive) != 0; }
 
 #if defined(_WS_WIN_)
 inline HANDLE	QPaintDevice::handle()	const { return hdc; }

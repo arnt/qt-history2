@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#35 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -40,7 +40,7 @@
 
 
 QPrinter::QPrinter()
-    : QPaintDevice( PDT_PRINTER | PDF_EXTDEV )	  // set device type
+    : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )	  // set device type
 {
     orient      = Portrait;
     page_size   = A4;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#52 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -77,7 +77,7 @@
 */
 
 QPrinter::QPrinter()
-    : QPaintDevice( PDT_PRINTER | PDF_EXTDEV )
+    : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
 {
     pdrv = 0;
     orient = Portrait;

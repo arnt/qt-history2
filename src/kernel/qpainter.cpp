@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#162 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#163 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -1906,7 +1906,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    param[0].rect = &r;
 	    param[1].ival = tf;
 	    param[2].str = &newstr;
-	    if ( pdev->devType() != PDT_PRINTER ) {
+	    if ( pdev->devType() != QInternal::Printer ) {
 #if defined(_WS_WIN_)
 		if ( !pdev->cmd(PDC_DRAWTEXT2FRMT,this,param) || !hdc )
 #else

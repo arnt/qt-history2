@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#132 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#133 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -1102,7 +1102,7 @@ const QTextCodec *QFontMetrics::mapper() const
 int QFontMetrics::printerAdjusted(int val) const
 {
     if ( painter && painter->device() &&
-	 painter->device()->devType() == PDT_PRINTER) {
+	 painter->device()->devType() == QInternal::Printer) {
 	painter->cfont.handle();
 	int xres = painter->cfont.d->fin->xResolution();
 	return qRound((val*0.75)/(xres*1.0));

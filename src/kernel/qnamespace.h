@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#10 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#11 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -382,5 +382,20 @@ public:
 
 };
 
+
+class Q_EXPORT QInternal {
+public:
+    enum PaintDeviceFlags {
+	UndefinedDevice = 0x00,
+	Widget = 0x01,
+	Pixmap = 0x02,
+	Printer = 0x03,
+	Picture = 0x04,
+	System = 0x05,
+	DeviceTypeMask = 0x0f,
+	ExternalDevice = 0x10,
+	PaintingActive = 0x20
+    };
+};
 
 #endif // QNAMESPACE_H

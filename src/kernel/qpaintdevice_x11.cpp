@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#89 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -116,17 +116,18 @@ QPaintDevice::QPaintDevice( uint devflags )
 QPaintDevice::~QPaintDevice()
 {
 #if defined(CHECK_STATE)
-    if ( paintingActive() )
+    if ( paintingActive() ) {
 	warning( "QPaintDevice: Cannot destroy paint device that is being "
 		 "painted" );
+    }
 #endif
 }
 
 
 /*!
   \fn int QPaintDevice::devType() const
-  Returns the device type identifier: \c PDT_WIDGET, \c PDT_PIXMAP,
-  \c PDT_PRINTER, \c PDT_PICTURE or \c PDT_UNDEF.
+  Returns the device type identifier: \c QInternal::Widget, \c QInternal::Pixmap,
+  \c QInternal::Printer, \c QInternal::Picture or \c QInternal::UndefinedDevice.
 */
 
 /*!
@@ -353,7 +354,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     if ( dst->paintingActive() && dst->isExtDev() ) {
 	QPixmap *pm;				// output to picture/printer
 	bool	 tmp_pm = TRUE;
-	if ( ts == PDT_PIXMAP ) {
+	if ( ts == QInternal::Pixmap ) {
 	    pm = (QPixmap*)src;
 	    if ( sx != 0 || sy != 0 ||
 		 sw != pm->width() || sh != pm->height() || ignoreMask ) {
@@ -369,7 +370,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    } else {
 		tmp_pm = FALSE;
 	    }
-	} else if ( ts == PDT_WIDGET ) {	// bitBlt to temp pixmap
+	} else if ( ts == QInternal::Widget ) {// bitBlt to temp pixmap
 	    pm = new QPixmap( sw, sh );
 	    CHECK_PTR( pm );
 	    bitBlt( pm, 0, 0, src, sx, sy, sw, sh );
@@ -389,7 +390,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	return;
     }
 
-    if ( !(ts <= PDT_PIXMAP && td <= PDT_PIXMAP) ) {
+    if ( !(ts <= QInternal::Pixmap && td <= QInternal::Pixmap) ) {
 #if defined(CHECK_RANGE)
 	warning( "bitBlt: Cannot bitBlt to or from device" );
 #endif
@@ -422,7 +423,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     QPixmap *src_pm;
     QBitmap *mask;
 
-    if ( ts == PDT_PIXMAP ) {
+    if ( ts == QInternal::Pixmap ) {
 	src_pm = (QPixmap*)src;
 	mono_src = src_pm->depth() == 1;
 	mask = ignoreMask ? 0 : src_pm->data->mask;
@@ -431,9 +432,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	mono_src = FALSE;
 	mask = 0;
 	include_inferiors = ((QWidget*)src)->testWFlags(WPaintUnclipped);
-	graphics_exposure = td == PDT_WIDGET;
+	graphics_exposure = td == QInternal::Widget;
     }
-    if ( td == PDT_PIXMAP ) {
+    if ( td == QInternal::Pixmap ) {
 	mono_dst = ((QPixmap*)dst)->depth() == 1;
 	((QPixmap*)dst)->detach();		// changes shared pixmap
     } else {
@@ -504,7 +505,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	XGCValues gcvals;
 	ulong	  valmask = GCBackground | GCForeground | GCFillStyle |
 			    GCStipple | GCTileStipXOrigin | GCTileStipYOrigin;
-	if ( td == PDT_WIDGET ) {		// set GC colors
+	if ( td == QInternal::Widget ) {	// set GC colors
 	    QWidget *w = (QWidget *)dst;
 	    gcvals.background = w->backgroundColor().pixel();
 	    gcvals.foreground = w->foregroundColor().pixel();

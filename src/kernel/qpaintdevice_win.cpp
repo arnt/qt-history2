@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#47 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -175,7 +175,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     if ( dst->paintingActive() && dst->isExtDev() ) {
 	QPixmap *pm;				// output to picture/printer
 	bool	 tmp_pm = TRUE;
-	if ( ts == PDT_PIXMAP ) {
+	if ( ts == QInternal::Pixmap ) {
 	    pm = (QPixmap*)src;
 	    if ( sx != 0 || sy != 0 ||
 		 sw != pm->width() || sh != pm->height() ) {
@@ -185,7 +185,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    } else {
 		tmp_pm = FALSE;
 	    }
-	} else if ( ts == PDT_WIDGET ) {	// bitBlt to temp pixmap
+	} else if ( ts == QInternal::Widget ) {	// bitBlt to temp pixmap
 	    pm = new QPixmap( sw, sh );
 	    CHECK_PTR( pm );
 	    bitBlt( pm, 0, 0, src, sx, sy, sw, sh );
@@ -205,7 +205,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	return;
     }
 
-    if ( !(ts <= PDT_PIXMAP && td <= PDT_PIXMAP) ) {
+    if ( !(ts <= QInternal::Pixmap && td <= QInternal::Pixmap) ) {
 #if defined(CHECK_RANGE)
 	warning( "bitBlt: Cannot bitBlt to or from device" );
 #endif
@@ -231,7 +231,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	return;
     }
 
-    if ( td == PDT_PIXMAP )
+    if ( td == QInternal::Pixmap )
 	((QPixmap*)dst)->detach();		// changes shared pixmap
 
     HDC	 src_dc	 = src->hdc, dst_dc  = dst->hdc;
@@ -239,7 +239,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     QPixmap *src_pm;
     QBitmap *mask;
-    if ( ts == PDT_PIXMAP ) {
+    if ( ts == QInternal::Pixmap ) {
 	src_pm = (QPixmap *)src;
 	mask   = ignoreMask ? 0 : (QBitmap *)src_pm->mask();
     } else {
@@ -249,10 +249,10 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     if ( !src_dc ) {
 	switch ( ts ) {
-	    case PDT_WIDGET:
+	    case QInternal::Widget:
 		src_dc = GetDC( ((QWidget*)src)->winId() );
 		break;
-	    case PDT_PIXMAP:
+	    case QInternal::Pixmap:
 		src_dc = src_pm->allocMemDC();
 		break;
 	}
@@ -260,13 +260,13 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     }
     if ( !dst_dc ) {
 	switch ( td ) {
-	    case PDT_WIDGET:
+	    case QInternal::Widget:
 		if ( ((QWidget*)dst)->testWFlags(WPaintUnclipped) )
 		    dst_dc = GetWindowDC( ((QWidget*)dst)->winId() );
 		else
 		    dst_dc = GetDC( ((QWidget*)dst)->winId() );
 		break;
-	    case PDT_PIXMAP:
+	    case QInternal::Pixmap:
 		dst_dc = ((QPixmap*)dst)->allocMemDC();
 		break;
 	}
@@ -290,7 +290,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    bool mask_tmp = mask->handle() == 0;
 	    if ( mask_tmp )
 		mask->allocMemDC();
-	    qDrawTransparentPixmap( dst_dc, td == PDT_PIXMAP,
+	    qDrawTransparentPixmap( dst_dc, td == QInternal::Pixmap,
 				    dx, dy, src_pm, mask,
 				    sx, sy, sw, sh, &src_pm->data->maskpm );
 	    if ( src_pm->data->opt != QPixmap::BestOptim ) {
@@ -308,20 +308,20 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     }
     if ( src_tmp ) {
 	switch ( ts ) {
-	    case PDT_WIDGET:
+	    case QInternal::Widget:
 		ReleaseDC( ((QWidget*)src)->winId(), src_dc );
 		break;
-	    case PDT_PIXMAP:
+	    case QInternal::Pixmap:
 		src_pm->freeMemDC();
 		break;
 	}
     }
     if ( dst_tmp ) {
 	switch ( td ) {
-	    case PDT_WIDGET:
+	    case QInternal::Widget:
 		ReleaseDC( ((QWidget*)dst)->winId(), dst_dc );
 		break;
-	    case PDT_PIXMAP:
+	    case QInternal::Pixmap:
 		((QPixmap*)dst)->freeMemDC();
 		break;
 	}

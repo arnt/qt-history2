@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#278 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#279 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -796,7 +796,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     if ( pdev_dict ) {				// redirected paint device?
 	pdev = pdev_dict->find( (long)pd );
 	if ( pdev ) {
-	    if ( pd->devType() == PDT_WIDGET )
+	    if ( pd->devType() == QInternal::Widget )
 		copyFrom = (QWidget *)pd;	// copy widget settings
 	} else {
 	    pdev = (QPaintDevice *)pd;
@@ -818,9 +818,9 @@ bool QPainter::begin( const QPaintDevice *pd )
     flags = IsActive | DirtyFont;		// init flags
     int dt = pdev->devType();			// get the device type
 
-    if ( (pdev->devFlags & PDF_EXTDEV) != 0 )	// this is an extended device
+    if ( (pdev->devFlags & QInternal::ExternalDevice) != 0 )	// this is an extended device
 	setf(ExtDev);
-    else if ( dt == PDT_PIXMAP )		// device is a pixmap
+    else if ( dt == QInternal::Pixmap )		// device is a pixmap
 	((QPixmap*)pdev)->detach();		// will modify it
 
     dpy = pdev->dpy;				// get display variable
@@ -837,14 +837,14 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    setTabArray( tabarray );
     }
 
-    pdev->devFlags |= PDF_PAINTACTIVE;		// also tell paint device
+    pdev->devFlags |= QInternal::PaintingActive;		// also tell paint device
     bro = curPt = QPoint( 0, 0 );
     if ( reinit ) {
 	bg_mode = TransparentMode;		// default background mode
 	rop = CopyROP;				// default ROP
 	wxmat.reset();				// reset world xform matrix
 	txop = txinv = 0;
-	if ( dt != PDT_WIDGET ) {
+	if ( dt != QInternal::Widget ) {
 	    QFont  defaultFont;			// default drawing tools
 	    QPen   defaultPen;
 	    QBrush defaultBrush;
@@ -856,7 +856,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     }
     wx = wy = vx = vy = 0;			// default view origins
 
-    if ( dt == PDT_WIDGET ) {			// device is a widget
+    if ( dt == QInternal::Widget ) {			// device is a widget
 	QWidget *w = (QWidget*)pdev;
 	cfont = w->font();			// use widget font
 	cpen = QPen( w->foregroundColor() );	// use widget fg color
@@ -874,7 +874,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    XSetSubwindowMode( dpy, gc, IncludeInferiors );
 	    XSetSubwindowMode( dpy, gc_brush, IncludeInferiors );
 	}
-    } else if ( dt == PDT_PIXMAP ) {		// device is a pixmap
+    } else if ( dt == QInternal::Pixmap ) {		// device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
 	if ( pm->isNull() ) {
 #if defined(CHECK_NULL)
@@ -931,7 +931,7 @@ bool QPainter::end()				// end painting
 	QFontInfo::reset( this );
 
     //#### This should not be necessary:
-    if ( pdev->devType() == PDT_WIDGET  &&
+    if ( pdev->devType() == QInternal::Widget  &&
 	 ((QWidget*)pdev)->testWFlags(WPaintUnclipped) ) {
 	if ( gc )
 	    XSetSubwindowMode( dpy, gc, ClipByChildren );
@@ -963,7 +963,7 @@ bool QPainter::end()				// end painting
 	pdev->cmd( PDC_END, this, 0 );
 
     flags = 0;
-    pdev->devFlags &= ~PDF_PAINTACTIVE;
+    pdev->devFlags &= ~QInternal::PaintingActive;
     pdev = 0;
     dpy  = 0;
     return TRUE;
@@ -1215,7 +1215,7 @@ void QPainter::setClipRegion( const QRegion &rgn )
 	QPDevCmdParam param[1];
 	param[0].rgn = &crgn;
 	if (( !pdev->cmd(PDC_SETCLIPRGN,this,param) || !hd ) &&
-	     (pdev->devType() != PDT_PRINTER ))
+	     (pdev->devType() != QInternal::Printer ))
 	    return;
     }
     clearf( ClipOn );				// be sure to update clip rgn

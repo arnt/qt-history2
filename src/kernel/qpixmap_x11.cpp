@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#141 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#142 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -314,7 +314,7 @@ void QPixmap::deref()
 */
 
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
-    : QPaintDevice( PDT_PIXMAP )
+    : QPaintDevice( QInternal::Pixmap )
 {						// for bitmaps only
     init( 0, 0, 0 );
     if ( w <= 0 || h <= 0 )			// create null pixmap
@@ -342,7 +342,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 */
 
 QPixmap::QPixmap( const QPixmap &pixmap )
-    : QPaintDevice( PDT_PIXMAP )
+    : QPaintDevice( QInternal::Pixmap )
 {
     if ( pixmap.paintingActive() ) {		// make a deep copy
 	data = 0;

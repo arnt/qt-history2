@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#193 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#194 $
 **
 ** Definition of QWidget class
 **
@@ -207,7 +207,7 @@ public:
     bool	 isUpdatesEnabled() const;
 
 public slots:
-    virtual void	 setUpdatesEnabled( bool enable );
+    virtual void setUpdatesEnabled( bool enable );
     void	 update();
     void	 update( int x, int y, int w, int h );
     void	 update( const QRect& );

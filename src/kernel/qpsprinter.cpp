@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#83 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -1935,7 +1935,7 @@ struct QPSPrinterPrivate {
 
 
 QPSPrinter::QPSPrinter( QPrinter *prt, int fd )
-    : QPaintDevice( PDT_PRINTER | PDF_EXTDEV )
+    : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
 {
     printer = prt;
     d = new QPSPrinterPrivate( fd );

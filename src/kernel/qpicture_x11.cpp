@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture_x11.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qpicture_x11.cpp#18 $
 **
 ** Implementation of QPicture class for X11
 **
@@ -26,7 +26,7 @@
 
 
 QPicture::QPicture()
-    : QPaintDevice( PDT_PICTURE | PDF_EXTDEV )	  // set device type
+    : QPaintDevice( QInternal::Picture | QInternal::ExternalDevice )	  // set device type
 {
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#320 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#321 $
 **
 ** Implementation of QWidget class
 **
@@ -624,7 +624,7 @@ void QWidget::sendDeferredEvents()
 */
 
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
-    : QObject( parent, name ), QPaintDevice( QPaintDevice::Widget ),
+    : QObject( parent, name ), QPaintDevice( QInternal::Widget ),
       pal( parent ? parent->palette()		// use parent's palette
            : *qApp->palette() )			// use application palette
 {
