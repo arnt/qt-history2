@@ -55,9 +55,6 @@ public:
     void fill(bool val, int first, int last);
 
     inline void truncate(int pos) { if (pos < size()) resize(pos); }
-
-    inline bool ensure_constructed()
-    { return d.ensure_constructed(); }
 };
 
 QBitArray operator&(const QBitArray &, const QBitArray &);

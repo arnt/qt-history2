@@ -831,11 +831,6 @@ void QMapData::dump()
     to isEmpty().
 */
 
-/*! \fn bool QMap::ensure_constructed()
-
-    \internal
-*/
-
 /*! \fn bool QMap::sameKey(const Key &key1, const Key &key2)
 
     \internal

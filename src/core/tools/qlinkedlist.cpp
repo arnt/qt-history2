@@ -478,11 +478,6 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa append(), operator+=()
 */
 
-/*! \fn bool QLinkedList::ensure_constructed()
-
-    \internal
-*/
-
 /*! \class QLinkedList::iterator
     \brief The QLinkedList::iterator class provides an STL-style non-const iterator for QLinkedList.
 

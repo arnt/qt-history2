@@ -716,12 +716,11 @@ bool qt_nograb()                                // application no-grab option
 #endif
 }
 
-static QHash<QString, int> winclassNames;
+typedef QHash<QString, int> WinClassNameHash;
+Q_GLOBAL_STATIC(WinClassNameHash, winclassNames)
 
 const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
 {
-    winclassNames.ensure_constructed();
-
     uint style;
     bool icon;
     QString cname;
@@ -779,7 +778,7 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
     if (classExists)
         cname += QString::number((uint)QtWndProc);
 
-    if (winclassNames.contains(cname))        // already registered in our list
+    if (winclassNames()->contains(cname))        // already registered in our list
         return cname;
 
     ATOM atom;
@@ -849,15 +848,15 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
         qSystemWarning("QApplication: Registering window class failed.");
 #endif
 
-    winclassNames.insert(cname, 1);
+    winclassNames()->insert(cname, 1);
     return cname;
 }
 
 static void unregWinClasses()
 {
-    winclassNames.ensure_constructed();
-    QHash<QString, int>::ConstIterator it = winclassNames.constBegin();
-    while (it != winclassNames.constEnd()) {
+    WinClassNameHash *hash = winclassNames();
+    QHash<QString, int>::ConstIterator it = hash->constBegin();
+    while (it != hash->constEnd()) {
         QT_WA({
             UnregisterClass((TCHAR*)it.key().utf16(), (HINSTANCE)qWinAppInst());
         } , {
@@ -865,7 +864,7 @@ static void unregWinClasses()
         });
         ++it;
     }
-    winclassNames.clear();
+    hash->clear();
 }
 
 

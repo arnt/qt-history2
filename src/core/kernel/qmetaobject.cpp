@@ -1551,8 +1551,7 @@ public:
     QMetaType::LoadOperator loadOp;
 };
 
-static QVector<QCustomTypeInfo> customTypes;
-
+Q_GLOBAL_STATIC(QVector<QCustomTypeInfo>, customTypes)
 
 void QMetaType::registerStreamOperators(const char *typeName, SaveOperator saveOp,
                                         LoadOperator loadOp)
@@ -1560,7 +1559,10 @@ void QMetaType::registerStreamOperators(const char *typeName, SaveOperator saveO
     int idx = type(typeName);
     if (!idx)
         return;
-    customTypes[idx - User].setOperators(saveOp, loadOp);
+    QVector<QCustomTypeInfo> *ct = customTypes();
+    if (!ct)
+        return;
+    (*ct)[idx - User].setOperators(saveOp, loadOp);
 }
 
 /*!
@@ -1569,9 +1571,14 @@ void QMetaType::registerStreamOperators(const char *typeName, SaveOperator saveO
  */
 const char *QMetaType::typeName(int type)
 {
-    if (type >= User)
-        return isRegistered(type) ? customTypes.at(type - User).typeName.constData() : 0;
-
+    if (type >= User) {
+        if (!isRegistered(type))
+            return 0;
+        const QVector<QCustomTypeInfo> * const ct = customTypes();
+        if (!ct)
+            return 0;
+        return ct->at(type - User).typeName.constData();
+    }
     int i = 0;
     while (types[i].typeName) {
         if (types[i].type == type)
@@ -1589,22 +1596,21 @@ const char *QMetaType::typeName(int type)
 int QMetaType::registerType(const char *typeName, Destructor destructor,
                             CopyConstructor copyConstructor)
 {
+    QVector<QCustomTypeInfo> *ct = customTypes();
     static int currentIdx = User;
-    if (!typeName || !destructor || !copyConstructor)
+    if (!ct || !typeName || !destructor || !copyConstructor)
         return -1;
-
-    customTypes.ensure_constructed();
     int idx = type(typeName);
     if (idx) {
         if (idx < User) {
             qWarning("cannot re-register basic type '%s'", typeName);
             return -1;
         }
-        customTypes[idx - User].setData(copyConstructor, destructor);
+        (*ct)[idx - User].setData(copyConstructor, destructor);
     } else {
         idx = currentIdx++;
-        customTypes.resize(customTypes.count() + 1);
-        customTypes[idx - User].setData(typeName, copyConstructor, destructor);
+        ct->resize(ct->count() + 1);
+        (*ct)[idx - User].setData(typeName, copyConstructor, destructor);
     }
     return idx;
 }
@@ -1614,7 +1620,8 @@ int QMetaType::registerType(const char *typeName, Destructor destructor,
  */
 bool QMetaType::isRegistered(int type)
 {
-    return (type >= User) && (customTypes.count() > type - User);
+    const QVector<QCustomTypeInfo> * const ct = customTypes();
+    return (type >= User) && (ct && ct->count() > type - User);
 }
 
 /*!
@@ -1629,9 +1636,9 @@ int QMetaType::type(const char *typeName)
     while (types[i].typeName && strcmp(typeName, types[i].typeName))
         ++i;
     if (!types[i].type) {
-        customTypes.ensure_constructed();
-        for (int v = 0; v < customTypes.count(); ++v) {
-            if (strcmp(customTypes.at(v).typeName, typeName) == 0)
+        const QVector<QCustomTypeInfo> * const ct = customTypes();
+        for (int v = 0; ct && v < ct->count(); ++v) {
+            if (strcmp(ct->at(v).typeName, typeName) == 0)
                 return v + User;
         }
     }
@@ -1643,7 +1650,10 @@ bool QMetaType::save(QDataStream &stream, int type, const void *data)
     // FIXME - also stream simple types?
     if (!data || !isRegistered(type))
         return false;
-    QMetaType::SaveOperator saveOp = customTypes.at(type - User).saveOp;
+    const QVector<QCustomTypeInfo> * const ct = customTypes();
+    if (!ct)
+        return false;
+    QMetaType::SaveOperator saveOp = ct->at(type - User).saveOp;
     if (!saveOp)
         return false;
     saveOp(stream, data);
@@ -1655,7 +1665,10 @@ bool QMetaType::load(QDataStream &stream, int type, void *data)
     // FIXME - also stream simple types?
     if (!data || !isRegistered(type))
         return false;
-    QMetaType::LoadOperator loadOp = customTypes.at(type - User).loadOp;
+    const QVector<QCustomTypeInfo> * const ct = customTypes();
+    if (!ct)
+        return false;
+    QMetaType::LoadOperator loadOp = ct->at(type - User).loadOp;
     if (!loadOp)
         return false;
     loadOp(stream, data);
@@ -1703,11 +1716,13 @@ void *QMetaType::copy(int type, const void *data)
     case QMetaType::Void:
         return 0;
     default:
-        customTypes.ensure_constructed();
-        if (type >= User && customTypes.count() > type - User)
-            return customTypes.at(type - User).copy(data);
-        return 0;
+        {
+            const QVector<QCustomTypeInfo> * const ct = customTypes();
+            if (type >= User && (ct && ct->count() > type - User))
+                return ct->at(type - User).copy(data);
+        }
     }
+    return 0;
 }
 
 /*!
@@ -1766,9 +1781,11 @@ void QMetaType::destroy(int type, void *data)
     case QMetaType::Void:
         break;
     default:
-        customTypes.ensure_constructed();
-        if (type >= User && customTypes.count() > type - User)
-            customTypes.at(type - User).destr(data);
-        break;
+        {
+            const QVector<QCustomTypeInfo> * const ct = customTypes();
+            if (type >= User && (ct && ct->count() > type - User))
+                ct->at(type - User).destr(data);
+            break;
+        }
     }
 }

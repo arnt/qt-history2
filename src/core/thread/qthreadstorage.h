@@ -28,9 +28,6 @@ public:
 
     static void finish(void**);
     int id;
-    bool constructed;
-
-    bool ensure_constructed(void (*func)(void *));
 };
 
 #if !defined(QT_MOC_CPP)
@@ -117,9 +114,6 @@ public:
 
     inline void setLocalData(T t)
     { qThreadStorage_setLocalData(d, &t); }
-
-    inline bool ensure_constructed()
-    { return d.ensure_constructed(deleteData); }
 };
 
 #endif // QTHREADSTORAGE_H

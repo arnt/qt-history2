@@ -447,8 +447,11 @@ void qt_setMaxWindowRect(const QRect& r)
 
 // ######## move to QApplicationPrivate
 // Default application palettes and fonts (per widget type)
-QHash<QByteArray, QPalette> app_palettes;
-QHash<QByteArray, QFont> app_fonts;
+
+typedef QHash<QByteArray, QPalette> PaletteHash;
+Q_GLOBAL_STATIC(PaletteHash, app_palettes)
+typedef QHash<QByteArray, QFont> FontHash;
+Q_GLOBAL_STATIC(FontHash, app_fonts)
 
 QWidgetList *QApplication::popupWidgets = 0;        // has keyboard input focus
 
@@ -905,11 +908,11 @@ QApplication::~QApplication()
     qt_std_pal = 0;
     delete app_pal;
     app_pal = 0;
-    app_palettes.clear();
+    app_palettes()->clear();
 #endif
     delete app_font;
     app_font = 0;
-    app_fonts.clear();
+    app_fonts()->clear();
 #ifndef QT_NO_STYLE
     delete app_style;
     app_style = 0;
@@ -1412,11 +1415,12 @@ QPalette QApplication::palette()
 */
 QPalette QApplication::palette(const QWidget* w)
 {
-    if (w && app_palettes.size()) {
-        QHash<QByteArray, QPalette>::ConstIterator it = app_palettes.find(w->metaObject()->className());
-        if (it != app_palettes.constEnd())
+    PaletteHash *hash = app_palettes();
+    if (w && hash && hash->size()) {
+        QHash<QByteArray, QPalette>::ConstIterator it = hash->find(w->metaObject()->className());
+        if (it != hash->constEnd())
             return *it;
-        for (it = app_palettes.constBegin(); it != app_palettes.constEnd(); ++it) {
+        for (it = hash->constBegin(); it != hash->constEnd(); ++it) {
             if (w->qt_metacast(it.key()))
                 return it.value();
         }
@@ -1435,10 +1439,10 @@ QPalette QApplication::palette(const char *className)
 {
     if (!app_pal)
         palette();
-
-    if (className && app_palettes.size()) {
-        QHash<QByteArray, QPalette>::ConstIterator it = app_palettes.find(className);
-        if (it != app_palettes.constEnd())
+    PaletteHash *hash = app_palettes();
+    if (className && hash && hash->size()) {
+        QHash<QByteArray, QPalette>::ConstIterator it = hash->find(className);
+        if (it != hash->constEnd())
             return *it;
     }
     return *app_pal;
@@ -1467,20 +1471,20 @@ void QApplication::setPalette(const QPalette &palette, const char* className)
         qApp->style().polish(pal);        // NB: non-const reference
 #endif
     bool all = false;
+    PaletteHash *hash = app_palettes();
     if (!className) {
         if (!app_pal) {
             app_pal = new QPalette(pal);
         } else {
             *app_pal = pal;
         }
-        if (app_palettes.size()) {
+        if (hash && hash->size()) {
             all = true;
-            app_palettes.clear();
+            hash->clear();
         }
         qt_fix_tooltips();
-    } else {
-        app_palettes.ensure_constructed();
-        app_palettes.insert(className, pal);
+    } else if (hash) {
+        hash->insert(className, pal);
     }
 
     if (is_app_running && !is_app_closing) {
@@ -1505,12 +1509,13 @@ void QApplication::setPalette(const QPalette &palette, const char* className)
 
 QFont QApplication::font(const QWidget *w)
 {
-    if (w && app_fonts.size()) {
+    FontHash *hash = app_fonts();
+    if (w && hash  && hash->size()) {
         QHash<QByteArray, QFont>::ConstIterator it =
-            app_fonts.find(w->metaObject()->className());
-        if (it != app_fonts.constEnd())
+            hash->find(w->metaObject()->className());
+        if (it != hash->constEnd())
             return it.value();
-        for (it = app_fonts.begin(); it != app_fonts.end(); ++it) {
+        for (it = hash->begin(); it != hash->end(); ++it) {
             if (w->inherits(it.key()))
                 return it.value();
         }
@@ -1536,6 +1541,7 @@ QFont QApplication::font(const QWidget *w)
 void QApplication::setFont(const QFont &font, const char* className)
 {
     bool all = false;
+    FontHash *hash = app_fonts();
     if (!className) {
         qt_app_has_font = true;
         if (!app_font) {
@@ -1543,14 +1549,13 @@ void QApplication::setFont(const QFont &font, const char* className)
         } else {
             *app_font = font;
         }
-        if (app_fonts.size()) {
+        if (hash && hash->size()) {
             all = true;
-            app_fonts.clear();
+            hash->clear();
         }
         // ### qt_fix_tooltips() ?
-    } else {
-        app_fonts.ensure_constructed();
-        app_fonts.insert(className, font);
+    } else if (hash) {
+        hash->insert(className, font);
     }
     if (is_app_running && !is_app_closing) {
         QEvent e(QEvent::ApplicationFontChange);

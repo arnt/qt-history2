@@ -188,11 +188,6 @@ void QBitArray::resize(int size)
     \sa isEmpty()
 */
 
-/*! \fn bool QBitArray::ensure_constructed()
-
-    \internal
-*/
-
 /*! \fn bool QBitArray::fill(bool value, int size = -1)
 
     Sets every bit in the bit array to \a value. If \a size is

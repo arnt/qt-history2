@@ -652,11 +652,6 @@ QString::QString(QChar ch)
     Destroys the string.
 */
 
-/*! \fn bool QString::ensure_constructed()
-
-    \internal
-*/
-
 /*! \fn void QString::detach()
 
     \internal

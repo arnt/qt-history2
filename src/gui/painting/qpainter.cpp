@@ -3060,8 +3060,8 @@ struct QPaintDeviceRedirection
     Q_DUMMY_COMPARISON_OPERATOR(QPaintDeviceRedirection)
 };
 
-static QList<QPaintDeviceRedirection> redirections;
-
+typedef QList<QPaintDeviceRedirection> QPaintDeviceRedirectionList;
+Q_GLOBAL_STATIC(QPaintDeviceRedirectionList, globalRedirections)
 
 /*!
   \internal
@@ -3081,8 +3081,9 @@ void QPainter::setRedirected(const QPaintDevice *device,
                              const QPoint &offset)
 {
     Q_ASSERT(device != 0);
-    redirections.ensure_constructed();
-    redirections += QPaintDeviceRedirection(device, replacement, offset);
+    QPaintDeviceRedirectionList *redirections = globalRedirections();
+    Q_ASSERT(redirections != 0);
+    *redirections += QPaintDeviceRedirection(device, replacement, offset);
 }
 
 
@@ -3096,10 +3097,11 @@ void QPainter::setRedirected(const QPaintDevice *device,
 void QPainter::restoreRedirected(const QPaintDevice *device)
 {
     Q_ASSERT(device != 0);
-    redirections.ensure_constructed();
-    for (int i = redirections.size()-1; i >= 0; --i)
-        if (redirections.at(i) == device) {
-            redirections.removeAt(i);
+    QPaintDeviceRedirectionList *redirections = globalRedirections();
+    Q_ASSERT(redirections != 0);
+    for (int i = redirections->size()-1; i >= 0; --i)
+        if (redirections->at(i) == device) {
+            redirections->removeAt(i);
             return;
         }
 }
@@ -3114,12 +3116,13 @@ void QPainter::restoreRedirected(const QPaintDevice *device)
 QPaintDevice *QPainter::redirected(const QPaintDevice *device, QPoint *offset)
 {
     Q_ASSERT(device != 0);
-    redirections.ensure_constructed();
-    for (int i = redirections.size()-1; i >= 0; --i)
-        if (redirections.at(i) == device) {
+    QPaintDeviceRedirectionList *redirections = globalRedirections();
+    Q_ASSERT(redirections != 0);
+    for (int i = redirections->size()-1; i >= 0; --i)
+        if (redirections->at(i) == device) {
             if (offset)
-                *offset = redirections.at(i).offset;
-            return redirections.at(i).replacement;
+                *offset = redirections->at(i).offset;
+            return redirections->at(i).replacement;
         }
     return 0;
 }

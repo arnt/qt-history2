@@ -165,26 +165,28 @@ public:
     void setInputWidget(QWidget *w) { act = w; }
     QWidget *inputWidget() const { return act; }
 };
-static QHash<WindowPtr, QTSMDocumentWrapper *> qt_mac_tsm_hash;
+
+typedef QHash<WindowPtr, QTSMDocumentWrapper *> TsmHash;
+Q_GLOBAL_STATIC(TsmHash, qt_mac_tsm_hash)
+
 void qt_mac_unicode_init(QWidget *w)
 {
-    qt_mac_tsm_hash.ensure_constructed();
     WindowPtr window = qt_mac_window_for((HIViewRef)w->winId());
-    if(!qt_mac_tsm_hash.contains(window))
-        qt_mac_tsm_hash.insert(window, new QTSMDocumentWrapper());
+    TsmHash *hash = qt_mac_tsm_hash();
+    if(!hash->contains(window))
+        hash->insert(window, new QTSMDocumentWrapper());
 }
 void qt_mac_unicode_cleanup(QWidget *w)
 {
     if(w && w->isTopLevel()) {
-        qt_mac_tsm_hash.ensure_constructed();
-        delete qt_mac_tsm_hash.take(qt_mac_window_for((HIViewRef)w->winId()));
+        delete qt_mac_tsm_hash()->take(qt_mac_window_for((HIViewRef)w->winId()));
     }
 }
 static QTSMDocumentWrapper *qt_mac_get_document_id(QWidget *w)
 {
     if(!w)
         return 0;
-    return qt_mac_tsm_hash.value(qt_mac_window_for((HIViewRef)w->winId()));
+    return qt_mac_tsm_hash()->value(qt_mac_window_for((HIViewRef)w->winId()));
 }
 void qt_mac_unicode_reset_input(QWidget *w)
 {
@@ -943,8 +945,9 @@ void qt_cleanup()
         }
     }
 
-    qDeleteAll(qt_mac_tsm_hash.constBegin(), qt_mac_tsm_hash.constEnd());
-    qt_mac_tsm_hash.clear();
+    TsmHash *hash = qt_mac_tsm_hash();
+    qDeleteAll(*hash)
+    hash->clear();
 }
 
 /*****************************************************************************
@@ -1264,14 +1267,14 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
                 widget->setActiveWindow();
         }
     }
-    if(windowPart == inContent) 
+    if(windowPart == inContent)
         return !popup_close_count; //just return and let the event loop process
 
     WindowPtr window = qt_mac_window_for((HIViewRef)widget->winId());
     if(windowPart == inGoAway || windowPart == inCollapseBox ||
        windowPart == inZoomIn || windowPart == inZoomOut) {
         QMacBlockingFunction block;
-        if(!TrackBox(window, *pt, windowPart)) 
+        if(!TrackBox(window, *pt, windowPart))
             return false;
     }
 
@@ -2120,7 +2123,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #ifdef DEBUG_KEY_MAPS
                 qDebug("KeyEvent (modif): Sending %s to %s::%s: %d - %d",
                        etype == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
-                       widget ? widget->metaObject()->className() : "none", 
+                       widget ? widget->metaObject()->className() : "none",
                        widget ? widget->objectName().local8Bit() : "",
                        key, modifiers);
 #endif
@@ -2219,7 +2222,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                 if(static_cast<QApplicationPrivate*>(qApp->d_ptr)->qt_tryAccelEvent(widget, &accel_ev)) {
 #ifdef DEBUG_KEY_MAPS
                     qDebug("KeyEvent: %s::%s consumed Accel: %04x %c %s %d",
-                           widget ? widget->metaObject()->className() : "none", 
+                           widget ? widget->metaObject()->className() : "none",
                            widget ? widget->objectName().local8Bit() : "",
                            mychar, chr, mystr.latin1(), ekind == kEventRawKeyRepeat);
 #endif
@@ -2228,7 +2231,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                     if(accel_ev.isAccepted()) {
 #ifdef DEBUG_KEY_MAPS
                         qDebug("KeyEvent: %s::%s overrode Accel: %04x %c %s %d",
-                               widget ? widget->metaObject()->className() : "none", 
+                               widget ? widget->metaObject()->className() : "none",
                                widget ? widget->objectName().local8Bit() : "",
                                mychar, chr, mystr.latin1(), ekind == kEventRawKeyRepeat);
 #endif
@@ -2247,7 +2250,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #ifdef DEBUG_KEY_MAPS
                 qDebug("KeyEvent: Sending %s to %s::%s: %04x '%c' (%s) %d%s",
                        etype == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
-                       widget ? widget->metaObject()->className() : "none", 
+                       widget ? widget->metaObject()->className() : "none",
                        widget ? widget->objectName().local8Bit() : "",
                        mychar, chr, mystr.latin1(), modifiers,
                        ekind == kEventRawKeyRepeat ? " Repeat" : "");
@@ -2275,7 +2278,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                           sizeof(WindowRef), 0, &wid);
         widget = qt_mac_find_window(wid);
         if(!widget) {
-            if(ekind == kEventWindowShown) 
+            if(ekind == kEventWindowShown)
                 unhandled_dialogs.insert(wid, 1);
             else if(ekind == kEventWindowHidden)
                 unhandled_dialogs.remove(wid);

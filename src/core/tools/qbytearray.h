@@ -277,8 +277,6 @@ public:
 #endif
 #endif
 
-    bool ensure_constructed();
-
 private:
     operator QNoImplicitIntegralCast() const;
     struct Data {

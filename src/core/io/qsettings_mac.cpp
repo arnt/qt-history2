@@ -27,7 +27,7 @@
  *****************************************************************************/
 //#define DEBUG_SETTINGS_KEYS
 
-QString qt_mac_settings_base;
+Q_GLOBAL_STATIC(QString, qt_mac_settings_base)
 bool qt_verify_key(const QString &); //qsettings.cpp
 
 /*****************************************************************************
@@ -107,8 +107,7 @@ qt_mac_get_global_setting(QString key, QString ret=QString::null, QString file=Q
  *****************************************************************************/
 void qt_setSettingsBasePath(const QString &s)
 {
-    qt_mac_settings_base.ensure_constructed();
-    qt_mac_settings_base = s;
+    (*qt_mac_settings_base()) = s;
 }
 
 /*****************************************************************************
@@ -154,9 +153,8 @@ search_keys::search_keys(QString path, QString key, const char *where)
     qt_mac_unfix_key(qi);
     qi.replace('/', ".");
     qi.replace("..", ".");
-    qt_mac_settings_base.ensure_constructed();
-    if (!qt_mac_settings_base.isEmpty())
-        qi.prepend(qt_mac_settings_base);
+    if (!qt_mac_settings_base()->isEmpty())
+        qi.prepend(*qt_mac_settings_base());
 
     qt_mac_fix_key(qk);
 #ifdef DEBUG_SETTINGS_KEYS
@@ -188,9 +186,8 @@ public:
 
 QSettingsSysPrivate::QSettingsSysPrivate()
 {
-    qt_mac_settings_base.ensure_constructed();
-    if (!qt_mac_settings_base.isEmpty())
-        qt_mac_settings_base = "com.";
+    if (!qt_mac_settings_base()->isEmpty())
+        (*qt_mac_settings_base()) = "com.";
 }
 
 struct QMacSettingPerms {

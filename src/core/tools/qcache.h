@@ -72,9 +72,6 @@ public:
 
     bool remove(const Key &key);
     T *take(const Key &key);
-
-    inline bool ensure_constructed()
-    { if (!hash.ensure_constructed()) { mx = 100; return false; } return true; }
 };
 
 template <class Key, class T>

@@ -1382,8 +1382,7 @@ void QFont::setDefaultFont(const QFont &f)
  *****************************************************************************/
 
 typedef QHash<QString, QStringList> QFontSubst;
-static QFontSubst fontSubst;
-
+Q_GLOBAL_STATIC(QFontSubst, globalFontSubst)
 
 // create substitution dict
 static void initFontSubst()
@@ -1404,12 +1403,13 @@ static void initFontSubst()
         0,              0
     };
 
-    fontSubst.ensure_constructed();
-    if (!fontSubst.isEmpty())
+    QFontSubst *fontSubst = globalFontSubst();
+    Q_ASSERT(fontSubst != 0);
+    if (!fontSubst->isEmpty())
         return;
 
     for (int i=0; initTbl[i] != 0; i += 2) {
-        QStringList &list = fontSubst[QString::fromLatin1(initTbl[i])];
+        QStringList &list = (*fontSubst)[QString::fromLatin1(initTbl[i])];
         list.append(QString::fromLatin1(initTbl[i+1]));
     }
 }
@@ -1430,8 +1430,10 @@ QString QFont::substitute(const QString &familyName)
 {
     initFontSubst();
 
-    QFontSubst::Iterator it = fontSubst.find(familyName);
-    if (it != fontSubst.end() && !(*it).isEmpty())
+    QFontSubst *fontSubst = globalFontSubst();
+    Q_ASSERT(fontSubst != 0);
+    QFontSubst::Iterator it = fontSubst->find(familyName);
+    if (it != fontSubst->constEnd() && !(*it).isEmpty())
         return (*it).first();
 
     return familyName;
@@ -1451,7 +1453,9 @@ QStringList QFont::substitutes(const QString &familyName)
 {
     initFontSubst();
 
-    return fontSubst.value(familyName, QStringList());
+    QFontSubst *fontSubst = globalFontSubst();
+    Q_ASSERT(fontSubst != 0);
+    return fontSubst->value(familyName, QStringList());
 }
 
 
@@ -1466,8 +1470,9 @@ void QFont::insertSubstitution(const QString &familyName,
 {
     initFontSubst();
 
-    QStringList &list = fontSubst[familyName];
-
+    QFontSubst *fontSubst = globalFontSubst();
+    Q_ASSERT(fontSubst != 0);
+    QStringList &list = (*fontSubst)[familyName];
     if (!list.contains(substituteName))
         list.append(substituteName);
 }
@@ -1484,10 +1489,11 @@ void QFont::insertSubstitutions(const QString &familyName,
 {
     initFontSubst();
 
-    QStringList &list = fontSubst[familyName];
-
-    QStringList::ConstIterator it = substituteNames.begin();
-    while (it != substituteNames.end()) {
+    QFontSubst *fontSubst = globalFontSubst();
+    Q_ASSERT(fontSubst != 0);
+    QStringList &list = (*fontSubst)[familyName];
+    QStringList::ConstIterator it = substituteNames.constBegin();
+    while (it != substituteNames.constEnd()) {
         if (!list.contains(*it))
             list.append(*it);
         it++;
@@ -1505,7 +1511,9 @@ void QFont::removeSubstitution(const QString &familyName)
   // ### removeSubstitutionList()
     initFontSubst();
 
-    fontSubst.remove(familyName);
+    QFontSubst *fontSubst = globalFontSubst();
+    Q_ASSERT(fontSubst != 0);
+    fontSubst->remove(familyName);
 }
 
 
@@ -1518,10 +1526,12 @@ QStringList QFont::substitutions()
 {
     initFontSubst();
 
+    QFontSubst *fontSubst = globalFontSubst();
+    Q_ASSERT(fontSubst != 0);
     QStringList ret;
-    QFontSubst::Iterator it = fontSubst.begin();
+    QFontSubst::ConstIterator it = fontSubst->constBegin();
 
-    while (it != fontSubst.end()) {
+    while (it != fontSubst->constEnd()) {
         ret.append(it.key());
         ++it;
     }

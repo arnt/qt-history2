@@ -167,9 +167,6 @@ public:
     inline void operator+=(const T &t) { append(t); }
     inline QLinkedList &operator<< (const T &t) { append(t); return *this; }
 
-    inline bool ensure_constructed()
-    { if (!d) { d = &QLinkedListData::shared_null; ++d->ref; return false; } return true; }
-
 private:
     void detach_helper();
     void free(QLinkedListData*);

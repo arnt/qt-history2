@@ -41,12 +41,14 @@
 #include "qmap.h"
 #include "qt_mac.h"
 
-static QList<QMacMime*> mimes;
+typedef QList<QMacMime*> MimeList;
+Q_GLOBAL_STATIC(MimeList, globalMimeList)
 
 static void cleanup_mimes()
 {
-    while (!mimes.isEmpty())
-        delete mimes.takeFirst();
+    MimeList *mimes = globalMimeList();
+    while (!mimes->isEmpty())
+        delete mimes->takeFirst();
 }
 
 //functions
@@ -98,7 +100,7 @@ OSErr qt_mac_create_fsspec(const QString &path, FSSpec *spec); //qglobal_mac.cpp
 */
 QMacMime::QMacMime(char t) : type(t)
 {
-    mimes.append(this);
+    globalMimeList()->append(this);
 }
 
 /*!
@@ -108,7 +110,7 @@ QMacMime::QMacMime(char t) : type(t)
 QMacMime::~QMacMime()
 {
     if(!QApplication::closingDown())
-        mimes.removeAll(this);
+        globalMimeList()->removeAll(this);
 }
 
 ScrapFlavorType qt_mac_mime_type = 'CUTE';
@@ -264,9 +266,9 @@ bool openMimeRegistry(bool global, int mode, QFile &file)
             // doing it with QDir since we have to chmod anyway.
             bool success = ::mkdir(dir.local8Bit(), S_IRUSR | S_IWUSR | S_IXUSR) == 0;
             if (success)
-                success = ::chmod(dir.local8Bit(), S_IRUSR | S_IWUSR | S_IXUSR 
+                success = ::chmod(dir.local8Bit(), S_IRUSR | S_IWUSR | S_IXUSR
                                       | S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH | S_IXOTH) == 0;
-            if (!success) 
+            if (!success)
                 return false;
         }
         if (!file.exists()) {
@@ -311,9 +313,9 @@ bool QMacMimeAnyMime::loadMimeRegistry()
             }
         }
     }
- 
+
     QFileInfo fi(library_file);
-    if(!mime_registry_loaded.isNull() && mime_registry_loaded == fi.lastModified()) 
+    if(!mime_registry_loaded.isNull() && mime_registry_loaded == fi.lastModified())
         return TRUE;
     mime_registry_loaded = fi.lastModified();
     ::loadMimeRegistry(library_file, mime_registry, current_max);
@@ -595,14 +597,14 @@ QList<QByteArray> QMacMimeImage::convertFromMime(QByteArray data, const char* mi
 #if 1
     OpenCPicParams pic_params;
     pic_params.version = -2; // Version field is always -2
-    SetRect(&pic_params.srcRect, 0, 0, px.width(), px.height());    
+    SetRect(&pic_params.srcRect, 0, 0, px.width(), px.height());
     pic_params.hRes = pic_params.vRes = 0x00480000; // 72 dpi
     PicHandle pic = OpenCPicture(&pic_params);
     {
 	GWorldPtr world;
 	GetGWorld(&world, 0);
         ClipRect(&pic_params.srcRect);
-	CopyBits(GetPortBitMapForCopyBits((GWorldPtr)px.handle()), GetPortBitMapForCopyBits((GWorldPtr)world), 
+	CopyBits(GetPortBitMapForCopyBits((GWorldPtr)px.handle()), GetPortBitMapForCopyBits((GWorldPtr)world),
                  &pic_params.srcRect, &pic_params.srcRect, srcCopy, 0);
     }
 #else
@@ -810,8 +812,7 @@ QList<QByteArray> QMacMimeHFSUri::convertFromMime(QByteArray data, const char* m
 */
 void QMacMime::initialize()
 {
-    mimes.ensure_constructed();
-    if(mimes.isEmpty()) {
+    if(globalMimeList()->isEmpty()) {
         qAddPostRoutine(cleanup_mimes);
         new QMacMimeImage;
         new QMacMimeText;
@@ -833,7 +834,8 @@ QMacMime::convertor(QMacMimeType t, const char *mime, int flav)
     if(!flav)
         return 0;
 
-    for(QList<QMacMime *>::Iterator it = mimes.begin(); it != mimes.end(); ++it) {
+    MimeList *mimes = globalMimeList();
+    for(MimeList::Iterator it = mimes->begin(); it != mimes->end(); ++it) {
         if(((*it)->type & t) && (*it)->canConvert(mime,flav))
             return (*it);
     }
@@ -845,7 +847,8 @@ QMacMime::convertor(QMacMimeType t, const char *mime, int flav)
 */
 const char* QMacMime::flavorToMime(QMacMimeType t, int flav)
 {
-    for(QList<QMacMime *>::Iterator it = mimes.begin(); it != mimes.end(); ++it) {
+    MimeList *mimes = globalMimeList();
+    for(MimeList::Iterator it = mimes->begin(); it != mimes->end(); ++it) {
         if((*it)->type & t)
             return (*it)->mimeFor(flav);
     }
@@ -857,8 +860,9 @@ const char* QMacMime::flavorToMime(QMacMimeType t, int flav)
 */
 QList<QMacMime*> QMacMime::all(QMacMimeType t)
 {
-    QList<QMacMime*> ret;
-    for(QList<QMacMime *>::Iterator it = mimes.begin(); it != mimes.end(); ++it) {
+    MimeList ret;
+    MimeList *mimes = globalMimeList();
+    for(MimeList::Iterator it = mimes->begin(); it != mimes->end(); ++it) {
         if((*it)->type & t)
             ret.append((*it));
     }

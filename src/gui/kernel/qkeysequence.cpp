@@ -374,41 +374,44 @@ struct ModifKeyName {
     QString name;
 };
 
+Q_GLOBAL_STATIC(QList<ModifKeyName>, globalModifs)
+
 /*!
-    Constructs a single key from the string \str.
- */
+  Constructs a single key from the string \str.
+*/
 int QKeySequence::decodeString(const QString &str)
 {
     int ret = 0;
     QString accel = str.toLower();
 
-    static QList<ModifKeyName> modifs;
-    modifs.ensure_constructed();
-    if (modifs.isEmpty()) {
+    QList<ModifKeyName> *modifs = globalModifs();
+    if (!modifs) return ret;
+
+    if (modifs->isEmpty()) {
 #ifdef QMAC_CTRL
-        modifs << ModifKeyName(Qt::CTRL, QMAC_CTRL);
+        *modifs << ModifKeyName(Qt::CTRL, QMAC_CTRL);
 #endif
 #ifdef QMAC_ALT
-        modifs << ModifKeyName(Qt::ALT, QMAC_ALT);
+        *modifs << ModifKeyName(Qt::ALT, QMAC_ALT);
 #endif
 #ifdef QMAC_META
-        modifs << ModifKeyName(Qt::META, QMAC_META);
+        *modifs << ModifKeyName(Qt::META, QMAC_META);
 #endif
 #ifdef QMAC_SHIFT
-        modifs << ModifKeyName(Qt::SHIFT, QMAC_SHIFT);
+        *modifs << ModifKeyName(Qt::SHIFT, QMAC_SHIFT);
 #endif
-        modifs << ModifKeyName(Qt::CTRL, "ctrl+")
-               << ModifKeyName(Qt::CTRL, QShortcut::tr("Ctrl").toLower().append('+'))
-               << ModifKeyName(Qt::SHIFT, "shift+")
-               << ModifKeyName(Qt::SHIFT, QShortcut::tr("Shift").toLower().append('+'))
-               << ModifKeyName(Qt::ALT, "alt+")
-               << ModifKeyName(Qt::ALT, QShortcut::tr("Alt").toLower().append('+'))
-               << ModifKeyName(Qt::META, "meta+")
-               << ModifKeyName(Qt::ALT, QShortcut::tr("Meta").toLower().append('+'));
+        *modifs << ModifKeyName(Qt::CTRL, "ctrl+")
+                << ModifKeyName(Qt::CTRL, QShortcut::tr("Ctrl").toLower().append('+'))
+                << ModifKeyName(Qt::SHIFT, "shift+")
+                << ModifKeyName(Qt::SHIFT, QShortcut::tr("Shift").toLower().append('+'))
+                << ModifKeyName(Qt::ALT, "alt+")
+                << ModifKeyName(Qt::ALT, QShortcut::tr("Alt").toLower().append('+'))
+                << ModifKeyName(Qt::META, "meta+")
+                << ModifKeyName(Qt::ALT, QShortcut::tr("Meta").toLower().append('+'));
     }
     QString sl = accel;
-    for (int i = 0; i < modifs.size(); ++i) {
-        const ModifKeyName &mkf = modifs.at(i);
+    for (int i = 0; i < modifs->size(); ++i) {
+        const ModifKeyName &mkf = modifs->at(i);
         if (sl.contains(mkf.name)) {
             ret |= mkf.qt_key;
             accel.remove(mkf.name);

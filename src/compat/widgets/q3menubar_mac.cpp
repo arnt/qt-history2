@@ -489,14 +489,16 @@ bool Q3MenuBar::activate(MenuRef menu, short idx, bool highlight, bool by_accel)
     return false;
 }
 
-static QHash<QWidget *, Q3MenuBar *> menubars;
+typedef QHash<QWidget *, Q3MenuBar *> MenuBarHash;
+Q_GLOBAL_STATIC(MenuBarHash, globalMenubars)
+
 /*!
   \internal
   Internal function that cleans up the menubar.
 */
 void Q3MenuBar::macCreateNativeMenubar()
 {
-    menubars.ensure_constructed();
+    MenuBarHash *menubars = globalMenubars();
     macDirtyNativeMenubar();
     QWidget *p = parentWidget();
     mac_eaten_menubar = false;
@@ -507,12 +509,12 @@ void Q3MenuBar::macCreateNativeMenubar()
         mac_eaten_menubar = true;
         if(!mac_d)
             mac_d = new MacPrivate;
-    } else if(p && (menubars.isEmpty() || !menubars.find(topLevelWidget())) &&
+    } else if(p && (menubars->isEmpty() || !menubars->find(topLevelWidget())) &&
               (((p->isDialog() || ::qt_cast<QMainWindow *>(p)) && p->isTopLevel())
                || ::qt_cast<QToolBar *>(p) || topLevelWidget() == qApp->mainWidget()
                || !qApp->mainWidget())) {
         mac_eaten_menubar = true;
-        menubars.insert(topLevelWidget(), this);
+        menubars->insert(topLevelWidget(), this);
         if(!mac_d)
             mac_d = new MacPrivate;
     }
@@ -530,9 +532,10 @@ void Q3MenuBar::macCreateNativeMenubar()
 void Q3MenuBar::macRemoveNativeMenubar()
 {
     if (mac_eaten_menubar) {
-        for(QHash<QWidget *, Q3MenuBar *>::Iterator it = menubars.begin(); it != menubars.end();) {
+        MenuBarHash *menubars = globalMenubars();
+        for(MenuBarHash::Iterator it = menubars->begin(); it != menubars->end();) {
             if (*it == this)
-                it = menubars.erase(it);
+                it = menubars->erase(it);
             else
                 ++it;
         }
@@ -564,7 +567,7 @@ bool Q3MenuBar::macUpdateMenuBar()
 {
     if(qt_mac_no_native_menubar) //nothing to be done..
         return true;
-    menubars.ensure_constructed();
+    MenuBarHash *menubars = globalMenubars();
 
     Q3MenuBar *mb = 0;
     bool fall_back_to_empty = false;
@@ -584,17 +587,17 @@ bool Q3MenuBar::macUpdateMenuBar()
     if(!w) //last ditch effort
         w = qApp->mainWidget();
     if(w) {
-        mb = menubars.value(w);
+        mb = menubars->value(w);
         if(!mb && (!w->parentWidget() || w->parentWidget()->isDesktop())
            && ::qt_cast<QDockWindow *>(w)) {
             if(QWidget *area = ((QDockWindow*)w)->mainWindow()) {
                 QWidget *areaTL = area->topLevelWidget();
-                if((mb = menubars.value(areaTL)))
+                if((mb = menubars->value(areaTL)))
                     w = areaTL;
             }
         }
         while(w && /*!w->testWFlags(Qt::WShowModal) &&*/ !mb)
-            mb = menubars.value((w = w->parentWidget()));
+            mb = menubars->value((w = w->parentWidget()));
     }
     if(!w || (!w->testWFlags(Qt::WStyle_Tool) && !w->testWFlags(Qt::WType_Popup)))
         fall_back_to_empty = true;
@@ -606,7 +609,7 @@ bool Q3MenuBar::macUpdateMenuBar()
         if(!mb->mac_eaten_menubar || (!first && !mb->mac_d->dirty && (mb == activeMenuBar))) {
             if(mb->mac_d->modal != qt_modal_state()) {
                 bool qms = qt_modal_state();
-                if(!qms || (menubars.value(qApp->activeModalWidget()) != mb))
+                if(!qms || (menubars->value(qApp->activeModalWidget()) != mb))
                     qt_mac_set_modal_state(mb->mac_d->modal = qms, mb);
             }
             return mb->mac_eaten_menubar;
@@ -627,7 +630,7 @@ bool Q3MenuBar::macUpdateMenuBar()
         }
         if(mb->mac_d->modal != qt_modal_state()) {
             bool qms = qt_modal_state();
-            if(!qms || (menubars.value(qApp->activeModalWidget()) != mb))
+            if(!qms || (menubars->value(qApp->activeModalWidget()) != mb))
                 qt_mac_set_modal_state(mb->mac_d->modal = qms, mb);
         }
         return true;

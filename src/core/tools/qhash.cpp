@@ -909,11 +909,6 @@ void QHashData::free()
     to isEmpty().
 */
 
-/*! \fn bool QHash::ensure_constructed()
-
-    \internal
-*/
-
 /*! \fn bool QHash::sameKey(const Key &key1, const Key &key2)
 
     \internal

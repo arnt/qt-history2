@@ -38,7 +38,7 @@ static struct {
 
 
 QThreadStorageData::QThreadStorageData(void (*func)(void *))
-    : id(0), constructed(true)
+    : id(0)
 {
     QMutexLocker locker(::spinlock);
 
@@ -124,35 +124,6 @@ void QThreadStorageData::finish(void **tls)
     }
 
     delete [] tls;
-}
-
-bool QThreadStorageData::ensure_constructed(void (*func)(void *))
-{
-    if (! constructed) {
-        id = 0;
-        constructed = true;
-
-        QMutexLocker locker(::spinlock);
-
-        // make sure things are initialized
-        if (! thread_storage_init)
-            memset(thread_storage_usage, 0, sizeof(thread_storage_usage));
-        thread_storage_init = true;
-
-        for (; id < MAX_THREAD_STORAGE; ++id) {
-            if (!thread_storage_usage[id].used)
-                break;
-        }
-
-        Q_ASSERT(id >= 0 && id < MAX_THREAD_STORAGE);
-        thread_storage_usage[id].used = true;
-        thread_storage_usage[id].func = func;
-
-        DEBUG("QThreadStorageData: allocated id %d", id);
-
-        return false;
-    }
-    return true;
 }
 
 /*!
@@ -316,10 +287,4 @@ bool QThreadStorageData::ensure_constructed(void (*func)(void *))
     data itself.
 
     \sa localData() hasLocalData()
-*/
-
-/*!
-    \fn bool QThreadStorage::ensure_constructed()
-
-    \internal
 */

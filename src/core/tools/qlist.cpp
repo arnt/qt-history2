@@ -934,11 +934,6 @@ void **QListData::erase(void **xi)
     \sa append(), operator+=()
 */
 
-/*! \fn bool QList::ensure_constructed()
-
-    \internal
-*/
-
 /*! \class QList::iterator
     \brief The QList::iterator class provides an STL-style non-const iterator for QList and QQueue.
 

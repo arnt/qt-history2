@@ -2776,19 +2776,6 @@ QByteArray QByteArray::trimmed() const
 }
 
 /*!
-  \internal
-*/
-bool QByteArray::ensure_constructed()
-{
-    if (!d) {
-       d = &shared_null;
-       ++d->ref;
-       return false;
-    }
-    return true;
-}
-
-/*!
     Returns a byte array of size \a width that contains this byte
     array padded by the \a fill character.
 

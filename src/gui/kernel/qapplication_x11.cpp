@@ -4573,7 +4573,8 @@ static QChar keysymToUnicode(unsigned char byte3, unsigned char byte4)
 }
 #endif
 
-static QHash<int, KeySym> keyHash;
+typedef QHash<int, KeySym> KeyHash;
+Q_GLOBAL_STATIC(KeyHash, keyHash)
 
 bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QString& text, int& state,
                                            int& code, QEvent::Type &type, bool willRepeat)
@@ -4586,8 +4587,6 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
     chars.resize(513);
     QChar converted;
     KeySym key = 0;
-
-    keyHash.ensure_constructed();
 
     QWidget* tlw = topLevelWidget();
 
@@ -4634,7 +4633,7 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
             composingKeycode = 0;
         }
         if (key)
-            keyHash[keycode] = key;
+            (*keyHash())[keycode] = key;
         // all keysyms smaller than that are actally keys that can be mapped
         // to unicode chars
         if (count == 0 && key < 0xff00) {
@@ -4687,10 +4686,10 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
             chars[count] = '\0';
         tlw = 0;
     } else {
-        key = keyHash.value(keycode, 0);
+        key = keyHash()->value(keycode, 0);
         if (key)
             if(!willRepeat) // Take out key of dictionary only if this call.
-                keyHash.remove(keycode);
+                keyHash()->remove(keycode);
     }
 #endif // !QT_NO_XIM
 

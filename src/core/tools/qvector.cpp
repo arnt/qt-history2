@@ -801,11 +801,6 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     \sa append(), operator+=()
 */
 
-/*! \fn bool QVector::ensure_constructed()
-
-    \internal
-*/
-
 /*! \typedef QVector::iterator
 
     The QVector::iterator typedef provides an STL-style non-const

@@ -29,8 +29,8 @@
 #define NETWORK_OP_DELAY 1000
 
 typedef QHash<QString, QNetworkProtocolFactoryBase *> QNetworkProtocolDict;
+Q_GLOBAL_STATIC(QNetworkProtocolDict, qNetworkProtocolRegister)
 
-static QNetworkProtocolDict qNetworkProtocolRegister;
 static void registerProtocols();
 
 class QNetworkProtocolPrivate
@@ -547,8 +547,7 @@ void QNetworkProtocol::registerNetworkProtocol(const QString &protocol,
 {
     registerProtocols();
 
-    qNetworkProtocolRegister.ensure_constructed();
-    qNetworkProtocolRegister.insert(protocol, protocolFactory);
+    qNetworkProtocolRegister()->insert(protocol, protocolFactory);
 }
 
 /*!
@@ -579,7 +578,7 @@ QNetworkProtocol *QNetworkProtocol::getNetworkProtocol(const QString &protocol)
 
     registerProtocols();
 
-    QNetworkProtocolFactoryBase *factory = *qNetworkProtocolRegister.find(protocol);
+    QNetworkProtocolFactoryBase *factory = *qNetworkProtocolRegister()->find(protocol);
     if (factory)
         return factory->createObject();
 
@@ -594,11 +593,12 @@ QNetworkProtocol *QNetworkProtocol::getNetworkProtocol(const QString &protocol)
 
 bool QNetworkProtocol::hasOnlyLocalFileSystem()
 {
-    QHash<QString, QNetworkProtocolFactoryBase *>::ConstIterator it
-        = qNetworkProtocolRegister.constBegin();
-    for (; it != qNetworkProtocolRegister.constEnd(); ++it)
+    QNetworkProtocolDict *r = qNetworkProtocolRegister();
+    QNetworkProtocolDict::ConstIterator it = r->constBegin();
+    for (; it != r->constEnd(); ++it) {
         if (it.key() != "file")
             return false;
+    }
     return true;
 }
 

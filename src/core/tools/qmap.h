@@ -252,9 +252,6 @@ public:
     // STL compatibility
     inline bool empty() const { return isEmpty(); }
 
-    inline bool ensure_constructed()
-    { if (!d) { d = &QMapData::shared_null; ++d->ref; return false; } return true; }
-
 private:
     void detach_helper();
     void freeData(QMapData *d);

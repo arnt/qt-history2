@@ -3144,24 +3144,29 @@ struct QRegExpPrivate
     QRegExpPrivate() : eng(0) { captured.fill(-1, 2); }
 };
 
-#if !defined(QT_NO_REGEXP_OPTIM) || defined(QT_NO_THREAD) || defined(QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION)
-static QCache<QString, QRegExpEngine> engineCache;
+typedef QCache<QString, QRegExpEngine> EngineCache;
+#if !defined(QT_NO_REGEXP_OPTIM) || defined(QT_NO_THREAD)
+Q_GLOBAL_STATIC(EngineCache, globalEngineCache)
+#else
+typedef QThreadStorage<EngineCache *> EngineCacheTLS;
+Q_GLOBAL_STATIC(EngineCacheTLS, globalEngineCacheTLS)
 #endif
 
 static void regexpEngine(QRegExpEngine *&eng, const QString &pattern,
                          Qt::CaseSensitivity cs, bool deref)
 {
-#if !defined(QT_NO_REGEXP_OPTIM) || defined(QT_NO_THREAD) || defined(QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION)
-    engineCache.ensure_constructed();
+#if !defined(QT_NO_REGEXP_OPTIM) || defined(QT_NO_THREAD)
+    EngineCache *engineCache = globalEngineCache();
 #else
-    static QThreadStorage<QCache<QString, QRegExpEngine> > engineCaches;
-    engineCaches.ensure_constructed();
-    QCache<QString, QRegExpEngine> &engineCache = engineCaches.localData();
+    EngineCacheTLS *tls = globalEngineCacheTLS();
+    if (!tls->hasLocalData())
+        tls->setLocalData(new EngineCache);
+    EngineCache *engineCache = tls->localData();
 #endif
 
     if (!deref) {
-#if !defined(QT_NO_REGEXP_OPTIM) || defined(QT_NO_THREAD) || defined(QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION)
-        eng = engineCache.take(pattern);
+#if !defined(QT_NO_REGEXP_OPTIM) || defined(QT_NO_THREAD)
+        eng = engineCache->take(pattern);
         if (eng == 0 || eng->caseSensitivity() != cs) {
             delete eng;
         } else {
@@ -3174,9 +3179,9 @@ static void regexpEngine(QRegExpEngine *&eng, const QString &pattern,
     }
 
     if (!--eng->ref) {
-#if !defined(QT_NO_REGEXP_OPTIM) || defined(QT_NO_THREAD) || defined(QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION)
+#if !defined(QT_NO_REGEXP_OPTIM) || defined(QT_NO_THREAD)
         if (!pattern.isNull()) {
-            engineCache.insert(pattern, eng, 4 + pattern.length() / 4);
+            engineCache->insert(pattern, eng, 4 + pattern.length() / 4);
             return;
         }
 #else

@@ -134,9 +134,6 @@ public:
     inline QVector &operator<< (const T &t)
     { append(t); return *this; }
 
-    inline bool ensure_constructed()
-    { if (!p) { p = &QVectorData::shared_null; ++p->ref; return false; } return true; }
-
 private:
     void detach_helper();
     QVectorData *malloc(int alloc);
@@ -268,7 +265,7 @@ void QVector<T>::realloc(int size, int alloc)
                 new (j) T;
         }
         d->size = size;
-        return; 
+        return;
     }
 
     if (alloc != d->alloc || d->ref != 1) {

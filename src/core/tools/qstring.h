@@ -419,9 +419,6 @@ public:
     { *this = fromLatin1(str, len); return *this; }
 #endif
 
-    inline bool ensure_constructed()
-    { if (!d) { d = &shared_null; ++d->ref; return false; } return true; }
-
     bool isSimpleText() const { if (!d->clean) updateProperties(); return (bool)d->simpletext; }
     bool isRightToLeft() const { if (!d->clean) updateProperties(); return (bool)d->righttoleft; }
 
