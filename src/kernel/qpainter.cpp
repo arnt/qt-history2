@@ -1599,14 +1599,14 @@ void QPainter::map( int x, int y, int w, int h,
 	    *rw = w;  *rh = h;
 	    break;
 	case TxScale: {
-	    double tx = m11()*x + dx();
-	    double ty = m22()*y + dy();
-	    double tw = m11()*w;
-	    double th = m22()*h;
-	    *rx = tx >= 0 ? int(tx + 0.5) : int(tx - 0.5);
-	    *ry = ty >= 0 ? int(ty + 0.5) : int(ty - 0.5);
-	    *rw = tw >= 0 ? int(tw + 0.5) : int(tw - 0.5);
-	    *rh = th >= 0 ? int(th + 0.5) : int(th - 0.5);
+	    double tx1 = m11()*x + dx();
+	    double ty1 = m22()*y + dy();
+	    double tx2 = m11()*(x + w - 1) + dx();
+	    double ty2 = m22()*(y + h - 1) + dy();
+	    *rx = qRound( tx1 );
+	    *ry = qRound( ty1 );
+	    *rw = qRound( tx2 ) - *rx + 1;
+	    *rh = qRound( ty2 ) - *ry + 1;
 	    } break;
 	default:
 #if defined(QT_CHECK_STATE)
