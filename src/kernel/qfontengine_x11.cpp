@@ -1089,7 +1089,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 		gl = new FT_UInt[si->num_glyphs];
 	    for ( int i = 0; i < si->num_glyphs; i++ )
 		gl[i] = glyphs[i];
-	    XftDrawGlyphs( draw, &col, fnt, p, p, gl, si->num_glyphs );
+	    XftDrawGlyphs( draw, &col, fnt, x, y, gl, si->num_glyphs );
 	    if ( gl != g )
 		delete [] gl;
 #else
