@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#220 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#221 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#220 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#221 $");
 
 
 /*****************************************************************************
@@ -2439,10 +2439,27 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 {
     if ( !isActive() || pixmap.isNull() )
 	return;
+
+    // right/bottom
     if ( sw < 0 )
 	sw = pixmap.width()  - sx;
     if ( sh < 0 )
 	sh = pixmap.height() - sy;
+
+    // Sanity-check clipping
+    if ( sx < 0 ) {
+	x -= sx;
+	sx = 0;
+    }
+    if ( sw + sx > pixmap.width() )
+	sw = pixmap.width() - sx;
+    if ( sy < 0 ) {
+	y -= sy;
+	sy = 0;
+    }
+    if ( sh + sy > pixmap.height() )
+	sh = pixmap.height() - sy;
+
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) || txop == TxScale || txop == TxRotShear ) {
 	    if ( sx != 0 || sy != 0 ||

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#75 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#74 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#75 $");
 
 
 /*
@@ -1935,6 +1935,21 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	sw = pixmap.width() - sx;
     if ( sh < 0 )
 	sh = pixmap.height() - sy;
+
+    // Sanity-check clipping
+    if ( sx < 0 ) {
+	x -= sx;
+	sx = 0;
+    }
+    if ( sw + sx > pixmap.width() )
+	sw = pixmap.width() - sx;
+    if ( sy < 0 ) {
+	y -= sy;
+	sy = 0;
+    }
+    if ( sh + sy > pixmap.height() )
+	sh = pixmap.height() - sy;
+
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
 	    if ( !hdc && (sx != 0 || sy != 0 ||
