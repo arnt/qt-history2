@@ -410,7 +410,7 @@ void QTextCursor::place( const QPoint &pos, QTextParag *s )
     setParag( s, FALSE );
     int y = s->rect().y();
     int lines = s->lines();
-    QTextString::Char *chr = 0, *c2;
+    QTextString::Char *chr = 0;
     int index;
     int i = 0;
     int cy;
@@ -425,7 +425,6 @@ void QTextCursor::place( const QPoint &pos, QTextParag *s )
 	    break;
     }
 
-    c2 = chr;
     i = index;
     int x = s->rect().x(), last = index;
     int lastw = 0;
@@ -433,19 +432,19 @@ void QTextCursor::place( const QPoint &pos, QTextParag *s )
     int bl;
     int cw;
     while ( TRUE ) {
-	if ( c2->lineStart )
+	if ( chr->lineStart )
 	    h = s->lineHeightOfChar( i, &bl, &cy );
 	last = i;
-	cw = c2->width();
-	if ( c2->isCustom && c2->customItem()->isNested() )
+	cw = s->string()->width( i );
+	if ( chr->isCustom && chr->customItem()->isNested() )
 	    cw *= 2;
-	if ( pos.x() >= x + c2->x - lastw && pos.x() <= x + c2->x + cw / 2 &&
+	if ( pos.x() >= x + chr->x - lastw && pos.x() <= x + chr->x + cw / 2 &&
 	     pos.y() >= y + cy && pos.y() <= y + cy + h )
 	    break;
 	lastw = cw / 2;
 	i++;
 	if ( i < s->length() )
-	    c2 = s->at( i );
+	    chr = s->at( i );
 	else
 	    break;
     }
@@ -2197,6 +2196,16 @@ int QTextFormat::width( const QChar &c ) const
     return painter->fontMetrics().width( c );
 }
 
+int QTextFormat::width( const QString &str, int pos ) const
+{	
+    int w;
+    if ( !painter || !painter->isActive() ) {
+	w = fm.width( str, pos );
+    }
+    painter->setFont( fn );
+    return painter->fontMetrics().width( str, pos );
+}
+
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -2376,16 +2385,23 @@ void QTextString::Char::setCustomItem( QTextCustomItem *i )
     ( (CharData*)d )->custom = i;
 }
 
-int QTextString::Char::width() const
+int QTextString::width(int idx) const
 {
-    int w = 0;
-    if( isCustom ) {
-	if( customItem()->placement() == QTextCustomItem::PlaceInline )
-	    w = customItem()->width;
-    } else {
-	w = format()->width( c );
-    }	
-    return w;
+     int w = 0;
+     Char *c = &at( idx );
+     if( c->isCustom ) {
+	 if( c->customItem()->placement() == QTextCustomItem::PlaceInline )
+	     w = c->customItem()->width;
+     } else {
+	 int r = c->c.row();
+	 if( r < 0x06 || r > 0x1f )
+	     w = c->format()->width( c->c );
+	 else {
+	     // complex text. We need some hacks to get the right metric here
+	     w = c->format()->width( c->c ); 
+	 }
+     }	
+     return w;
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -2619,7 +2635,7 @@ void QTextParag::format( int start, bool doMove )
     QTextString::Char *c = 0;
     if ( lineStarts.count() == 1 && ( !doc || doc->flow()->isEmpty() ) && !string()->isBidi() ) {
 	c = &str->at( str->length() - 1 );
-	r.setWidth( c->x + c->format()->width( c->c ) );
+	r.setWidth( c->x + str->width( str->length() - 1 ) );
     }
 
     if ( newLinesAllowed ) {
@@ -2847,7 +2863,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    else
 		tw = 0;
 	}
-	cw = chr->width();
+	cw = string()->width( i );
 	if ( chr->c == '\t' && i < length() - 1 )
 	    cw = at( i + 1 )->x - chr->x + 1;
 	
@@ -2929,14 +2945,14 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		    buffer = QString::null;
 		    lastFormat = chr->format();
 		    lastY = cy;
-		    startX = chr->x + chr->width();
+		    startX = chr->x + string()->width( i );
 		    bw = 0;
 		} else {
    		    chr->customItem()->resize( pntr, chr->customItem()->width );
 		    buffer = QString::null;
 		    lastFormat = chr->format();
 		    lastY = cy;
-		    startX = chr->x + chr->width();
+		    startX = chr->x + string()->width( i );
 		    bw = 0;
 		}
 	    }
@@ -3348,7 +3364,7 @@ QTextParag::LineStart *QTextFormatter::formatLine( QTextParag *parag, QTextStrin
     }	
 
     if ( last >= 0 && last < string->length() )
-	line->w = string->at( last ).x + string->at( last ).format()->width( string->at( last ).c ); // #### Lars, I guess this breaks for Bidi
+	line->w = string->at( last ).x + string->width( last ); // #### Lars, I guess this breaks for Bidi
     else
 	line->w = 0;
 
@@ -3928,13 +3944,13 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QText
 		if ( first ) {
 		    first = FALSE;
 		    if ( c->c == ' ' )
-			x -= c->width();
+			x -= text->width( pos );
 		}
 		c->x = x + toAdd;
 		c->rightToLeft = TRUE;
 		int ww = 0;
 		if ( c->c.unicode() >= 32 || c->c == '\t' || c->isCustom ) {
-		    ww = c->width();
+		    ww = text->width( pos );
 		} else {
 		    ww = c->format()->width( ' ' );
 		}
@@ -3955,12 +3971,12 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QText
 		if ( first ) {
 		    first = FALSE;
 		    if ( c->c == ' ' )
-			x -= c->width();
+			x -= text->width( pos );
 		}
 		c->x = x + toAdd;
 		int ww = 0;
 		if ( c->c.unicode() >= 32 || c->c == '\t' || c->isCustom ) {
-		    ww = c->width();
+		    ww = text->width( pos );
 		} else {
 		    ww = c->format()->width( ' ' );
 		}
@@ -4087,7 +4103,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	    firstChar = c;
 	}
 	if ( c->c.unicode() >= 32 || c->isCustom ) {
-	    ww = c->width();
+	    ww = parag->string()->width( i );
 	} else if ( c->c == '\t' ) {
 	    int nx = parag->nextTab( x );
 	    if ( nx < x )
@@ -4227,7 +4243,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    lastWasNonInlineCustom = FALSE;
 	
 	if ( c->c.unicode() >= 32 || c->isCustom ) {
-	    ww = c->width();
+	    ww = string->width( i );
 	} else if ( c->c == '\t' ) {
 	    int nx = parag->nextTab( x );
 	    if ( nx < x )

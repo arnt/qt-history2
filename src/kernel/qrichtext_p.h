@@ -784,7 +784,6 @@ public:
 	uint isCustom : 1;
 	uint rightToLeft : 1;
 	int x;
-	int width() const;
 	int height() const;
 	int ascent() const;
 	int descent() const;
@@ -815,6 +814,8 @@ public:
     Char &at( int i ) const;
     int length() const;
 
+    int width( int idx ) const;
+    
     void insert( int index, const QString &s, QTextFormat *f );
     void insert( int index, Char *c );
     void truncate( int index );
@@ -1178,6 +1179,7 @@ public:
     int minLeftBearing() const;
     int minRightBearing() const;
     int width( const QChar &c ) const;
+    int width( const QString &str, int pos ) const;
     int height() const;
     int ascent() const;
     int descent() const;
@@ -1315,7 +1317,7 @@ inline int QTextCursor::x() const
     QTextString::Char *c = string->at( idx );
     int curx = c->x;
     if ( c->rightToLeft )
-	curx += c->format()->width( c->c );
+	curx += string->string()->width( idx );
     return curx;
 }
 
