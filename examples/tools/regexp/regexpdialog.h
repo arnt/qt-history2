@@ -30,7 +30,7 @@ private:
     QLabel *matchedLengthLabel;
     QLineEdit *matchedLengthEdit;
 
-    enum { MaxCaptures = 10 };
+    enum { MaxCaptures = 6 };
     QLabel *captureLabels[MaxCaptures];
     QLineEdit *captureEdits[MaxCaptures];
 };
