@@ -1521,10 +1521,10 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		axi->data = (char *) malloc(h * axi->bytes_per_line);
 
 		char *aptr = axi->data;
-		int *iptr = (int *) image.bits();
-		int max = w * h;
-		for (int i = 0; i < max; i++)
-		    *aptr++ = *iptr++ >> 24; // squirt
+		int ix, iy;
+		for (iy = 0; iy < h; iy++)
+		    for (ix = 0; ix < w; ix++)
+			*aptr++ = qAlpha(image.pixel(ix, iy));
 
 		GC gc = XCreateGC(x11Display(), data->alphapm->hd, 0, 0);
 		XPutImage(dpy, data->alphapm->hd, gc, axi, 0, 0, 0, 0, w, h);
