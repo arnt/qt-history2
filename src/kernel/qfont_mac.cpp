@@ -135,17 +135,18 @@ static QMAC_PASCAL OSStatus macFallbackChar(UniChar *, ByteCount, ByteCount *oSr
 
 const unsigned char * p_str(const QString &); //qglobal.cpp
 enum text_task { GIMME_WIDTH=0x01, GIMME_DRAW=0x02 };
-static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uchar task)
+static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uchar task, bool no_optim=FALSE)
 {
-    //latin1 optimization
+    QMacSetFontInfo fi(d);
+    if(!no_optim) //latin1 optimization
     {
 	uint is_latin = 1;
 	const QChar *chs = s.unicode() + pos;
 	for(int i = 0; i < len; i++) {
-	    if(chs[i].row()) {
+	    if(chs[i].row() || (chs[i].cell() & (1 << 7))) {
 		is_latin = 0;
 		break;
-	    }
+	    } 
 	}
 	if(is_latin) {
 	    int ret = 0;
@@ -159,7 +160,6 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uch
     }
 
     //set the grafport font
-    QMacSetFontInfo fi(d);
     FontInfo setfi; GetFontInfo(&setfi);
     OSStatus err;
 
@@ -244,9 +244,15 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uch
 }
 static inline int do_text_task( const QFontPrivate *d, const QChar &c, uchar task)
 {
-    if(task != GIMME_WIDTH || c.row())
-	return do_text_task(d, QString(c), 0, 1, task);
-    return CharWidth(c.latin1());     //latin1 optimization
+    if(c.row() || (c.cell() & (1 << 7)))
+	return do_text_task(d, QString(c), 0, 1, task, TRUE);
+    QMacSetFontInfo fi(d);
+    int ret = 0; //latin1 optimization
+    if(task & GIMME_WIDTH)
+	ret = CharWidth((char)c.cell());
+    if(task & GIMME_DRAW)
+	DrawChar((char)c.cell());
+    return ret;
 }
 
 
