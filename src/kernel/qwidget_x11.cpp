@@ -2380,9 +2380,9 @@ void QWidget::setName( const char *name )
 {
     QObject::setName( name );
     if ( isTopLevel() ) {
-	XChangeProperty(qt_xdisplay(), winId(),
-			qt_wm_window_role, XA_STRING, 8, PropModeReplace,
-			(unsigned char *)name, qstrlen( name ) );
+	XChangeProperty( x11Display(), winId(),
+			 qt_wm_window_role, XA_STRING, 8, PropModeReplace,
+			 (unsigned char *)name, qstrlen( name ) );
     }
 }
 
