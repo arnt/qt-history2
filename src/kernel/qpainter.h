@@ -56,24 +56,10 @@ public:
     QGfx * internalGfx();
 #endif
 
-    // internal, do not use
-    struct Redirection
-    {
-	Redirection():device(0), replacement(0){}
-	Redirection(QPaintDevice *device, QPaintDevice *replacement, const QPoint& offset)
-	    : device(device), replacement(replacement), offset(offset){}
-	QPaintDevice *device, *replacement;
-	QPoint offset;
-	operator QPaintDevice*() const { return replacement; }
-    };
-    // internal, do not use
-    static Redirection redirect(const Redirection &redirection);
-    // internal, do not use
-    static inline Redirection redirect(QPaintDevice *pdev, QPaintDevice *replacement,
-				const QPoint& offset = QPoint())
-	{ return redirect(Redirection(pdev, replacement, offset)); }
-    // internal do not use
-    static Redirection redirect(QPaintDevice *pdev);
+    static void setRedirected(const QPaintDevice *device, const QPaintDevice *replacement,
+				     const QPoint& offset = QPoint());
+    static const QPaintDevice *redirected(const QPaintDevice *device, QPoint *offset = 0);
+    static void restoreRedirected(const QPaintDevice *device);
 
     bool	isActive() const;
 
@@ -429,6 +415,14 @@ private:	// Disabled copy constructor and operator=
 	TxScale     = 2,
 	TxRotShear  = 3
     };
+
+#ifndef QT_NO_COMPAT
+public:
+    static inline void redirect( QPaintDevice *pdev, QPaintDevice *replacement )
+    { if (replacement) setRedirected(pdev, replacement); else restoreRedirected(pdev); }
+    static QPaintDevice *redirect( QPaintDevice *pdev )
+    { return (QPaintDevice*)redirected(pdev); }
+#endif
 };
 
 

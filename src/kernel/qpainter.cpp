@@ -783,49 +783,6 @@ void QPainter::restore()
     block_ext = FALSE;
 }
 
-
-static QMap<QPaintDevice*, QPainter::Redirection> redirections;
-
-/*! \fn void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement, const QPoint &offset )
-  \internal
-
-    Redirects all paint commands for a paint device, \a pdev, to
-    another paint device, \a replacement, unless \a replacement is 0.
-    If \a replacement is 0, the redirection for \a pdev is removed.
-
-    The optional point \a offset defines an offset within the
-    paint device.
-
-    In general, you'll probably find calling QPixmap::grabWidget() or
-    QPixmap::grabWindow() is an easier solution.
-*/
-
-/*!\internal
- */
-QPainter::Redirection QPainter::redirect(const Redirection &redirection )
-{
-    Redirection oldRedirect = redirect(redirection.device);
-    if (redirection.device) {
-	redirections.ensure_constructed();
-	if (redirection.replacement )
-	    redirections[redirection.device] = redirection;
-	else
-	    redirections.remove(redirection.device);
-    }
-    return oldRedirect;
-}
-
-/*!
-    \internal Returns the replacement for \a pdev.
-*/
-QPainter::Redirection QPainter::redirect( QPaintDevice *pdev)
-{
-    if (!pdev)
-	return Redirection();
-    redirections.ensure_constructed();
-    return redirections.value(pdev, Redirection(pdev, 0, QPoint()));
-}
-
 /*!
     Returns the font metrics for the painter, if the painter is
     active. It is not possible to obtain metrics for an inactive
@@ -3080,6 +3037,78 @@ QRect QPainter::boundingRect( const QRect &r, int flags,
 */
 
 
+struct QPaintDeviceRedirection
+{
+    QPaintDeviceRedirection():device(0), replacement(0){}
+    QPaintDeviceRedirection(const QPaintDevice *device, const QPaintDevice *replacement,
+			    const QPoint& offset)
+	: device(device), replacement(replacement), offset(offset){}
+    const QPaintDevice *device, *replacement;
+    QPoint offset;
+    bool operator==(const QPaintDevice *pdev) const { return device == pdev; }
+    Q_DUMMY_COMPARISON_OPERATOR(QPaintDeviceRedirection)
+};
+static QList<QPaintDeviceRedirection> redirections;
+
+/*!
+  \internal
+
+    Redirects all paint commands for a paint device, \a device, to
+    another paint device, \a replacement. The optional point \a offset
+    defines an offset within the replaced device. After painting you
+    must call restoreRedirected().
+
+    In general, you'll probably find calling QPixmap::grabWidget() or
+    QPixmap::grabWindow() is an easier solution.
+
+    \sa redirected()
+*/
+void QPainter::setRedirected(const QPaintDevice *device, const QPaintDevice *replacement,
+			     const QPoint& offset)
+{
+    Q_ASSERT(device != 0);
+    redirections.ensure_constructed();
+    redirections += QPaintDeviceRedirection(device, replacement, offset);
+}
+
+/*!\internal
+
+  Restores the previous redirection for \a device after a call to
+  setRedirected().
+
+  \sa redirected()
+ */
+void QPainter::restoreRedirected(const QPaintDevice *device)
+{
+    Q_ASSERT(device != 0);
+    redirections.ensure_constructed();
+    for (int i = redirections.size()-1; i > 0; --i)
+	if (redirections.at(i) == device ) {
+	    redirections.removeAt(i);
+	    return;
+	}
+}
+
+/*!
+    \internal
+
+    Returns the replacement for \a device. The optional out parameter
+    \a offset returns return the offset within the replaced device.
+*/
+const QPaintDevice *QPainter::redirected(const QPaintDevice *device, QPoint *offset)
+{
+    Q_ASSERT(device != 0);
+    redirections.ensure_constructed();
+    for (int i = redirections.size()-1; i > 0; --i)
+	if (redirections.at(i) == device ) {
+	    if (offset)
+		*offset = redirections.at(i).offset;
+	    return redirections.at(i).replacement;
+	}
+    return 0;
+}
+
+
 
 /*****************************************************************************
   QPen member functions
@@ -3907,5 +3936,4 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
     return s;
 }
 #endif // QT_NO_DATASTREAM
-
 

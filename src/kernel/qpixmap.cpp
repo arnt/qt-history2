@@ -979,51 +979,31 @@ void QPixmap::setDefaultOptimization( Optimization optimization )
 	defOptim = optimization;
 }
 
-
-// helper for next function.
-static QPixmap grabChildWidgets( QWidget * w )
+/*
+  fills \a buf with \a r in \a widget. Then blits \a buf on \a res at
+  position \a offset
+ */
+static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
+			      const QRect &r, const QPoint &offset)
 {
-    QPixmap res( w->width(), w->height() );
-    if ( res.isNull() && w->width() )
-	return res;
-    res.fill( w, QPoint( 0, 0 ) );
-    QPainter::Redirection oldRedirect = QPainter::redirect(w, &res);
-    bool dblbfr = QSharedDoubleBuffer::isDisabled();
-    QSharedDoubleBuffer::setDisabled( TRUE );
-    QPaintEvent e( w->rect(), FALSE );
-    QApplication::sendEvent( w, &e );
-    QSharedDoubleBuffer::setDisabled( dblbfr );
-    QPainter::redirect(oldRedirect);
+    buf.fill(widget, r.topLeft());
+    QPainter::setRedirected(widget, &buf, r.topLeft());
+    QPaintEvent e(r & widget->rect(), false);
+    QApplication::sendEvent(widget, &e);
+    QPainter::restoreRedirected(widget);
+    ::bitBlt(&res, offset, &buf, QRect(QPoint(), r.size()));
 
-    const QObjectList children = w->children();
-    if ( !children.isEmpty() ) {
-	QPainter p( &res );
-	for (int i = 0; i < children.size(); ++i) {
-	    QObject *child = children.at(i);
-	    if ( child->isWidgetType() &&
-		 !((QWidget *)child)->isHidden() &&
-		 ((QWidget *)child)->geometry().intersects( w->rect() ) ) {
-		// those conditions aren't quite right, it's possible
-		// to have a grandchild completely outside its
-		// grandparent, but partially inside its parent.  no
-		// point in optimizing for that.
-
-		// make sure to evaluate pos() first - who knows what
-		// the paint event(s) inside grabChildWidgets() will do.
-		QPoint childpos = ((QWidget *)child)->pos();
-		QPixmap cpm = grabChildWidgets( (QWidget *)child );
-		if ( cpm.isNull() ) {
-		    // Some child pixmap failed - abort and reset
-		    res.resize( 0, 0 );
-		    break;
-		}
-		p.drawPixmap( childpos, cpm);
-	    }
-	}
+    const QObjectList children = widget->children();
+    for (int i = 0; i < children.size(); ++i) {
+	QWidget *child = static_cast<QWidget*>(children.at(i));
+	if (!child->isWidgetType() || child->isTopLevel()
+	    || child->isHidden() || !child->geometry().intersects(r))
+	    continue;
+	QRect cr = r & child->geometry();
+	cr.moveBy(-child->pos());
+	grabWidget_helper(child, res, buf, cr, offset + child->pos());
     }
-    return res;
 }
-
 
 /*!
     Creates a pixmap and paints \a widget in it.
@@ -1059,12 +1039,13 @@ static QPixmap grabChildWidgets( QWidget * w )
     size of the widget being too large to fit in memory, an isNull()
     pixmap is returned.
 
-    \sa grabWindow() QPainter::redirect() QWidget::paintEvent()
+    \sa grabWindow() QWidget::paintEvent()
 */
 
 QPixmap QPixmap::grabWidget( QWidget * widget, int x, int y, int w, int h )
 {
-    QPixmap res;
+    QPixmap res, buf;
+
     if ( !widget )
 	return res;
 
@@ -1073,22 +1054,22 @@ QPixmap QPixmap::grabWidget( QWidget * widget, int x, int y, int w, int h )
     if ( h < 0 )
 	h = widget->height() - y;
 
-    QRect wr( x, y, w, h );
-    if ( wr == widget->rect() )
-	return grabChildWidgets( widget );
-    if ( !wr.intersects( widget->rect() ) )
+    QRect r( x, y, w, h );
+    if ( !r.intersects( widget->rect() ) )
 	return res;
 
-    res.resize( w, h );
-    if( res.isNull() )
+    res.resize(r.size());
+    buf.resize(r.size());
+    if(!res || !buf)
 	return res;
-    res.fill( widget, QPoint( w,h ) );
-    QPixmap tmp( grabChildWidgets( widget ) );
-    if( tmp.isNull() )
-	return tmp;
-    ::bitBlt( &res, 0, 0, &tmp, x, y, w, h );
+
+    bool dblbfr = QSharedDoubleBuffer::isDisabled();
+    QSharedDoubleBuffer::setDisabled(true);
+    grabWidget_helper(widget, res, buf, r, QPoint());
+    QSharedDoubleBuffer::setDisabled( dblbfr );
     return res;
 }
+
 
 /*!
     \fn QPixmap::Q_DUMMY_COMPARISON_OPERATOR( QPixmap )

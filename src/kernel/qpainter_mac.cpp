@@ -349,15 +349,12 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipp)
     //save the gworld now, we'll reset it in end()
     d->saved = new QMacSavedPortInfo;
 
-    const QWidget *redirected = 0;
-    QPainter::Redirection redirection = redirect((QPaintDevice*)pd);
-    if (redirection.replacement) {    // redirected paint device?
-	pdev = redirection.replacement;
-	redirection_offset = redirection.offset;
+    const QWidget *copyMe = 0;
+    if ((pdev = const_cast<QPaintDevice*>(redirected(pd, &redirection_offset)))) {
 	if ( pd->devType() == QInternal::Widget )
-	    redirected = (const QWidget *)pd; // copy widget settings
+	    copyMe = static_cast<const QWidget *>(pd); // copy widget settings
     } else {
-	pdev = (QPaintDevice*)pd;
+	pdev = const_cast<QPaintDevice*>(pd);
     }
 
     if(pdev->isExtDev() && pdev->paintingActive()) {
@@ -472,8 +469,8 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipp)
 
     if(ww == 0)
 	ww = wh = vw = vh = 1024;
-    if (redirected)
-	copyFrom(redirected);
+    if (copyMe)
+	copyFrom(copyMe);
     if(testf(ExtDev)) {                      // external device
 	setBackgroundColor(bg_brush);           // default background color
 	setBackgroundMode(TransparentMode);   // default background mode

@@ -1166,12 +1166,12 @@ void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
     w = parents.pop();
     for (;;) {
 	if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
-	    QPainter::Redirection oldRedirect = QPainter::redirect(w, this, offset);
+	    QPainter::setRedirected(w, this, offset);
   	    QRect rr = widget->rect();
  	    rr.moveBy(offset);
 	    QPaintEvent e(rr, true);
 	    QApplication::sendEvent(w, &e);
-	    QPainter::redirect(oldRedirect);
+	    QPainter::restoreRedirected(w);
 	}
 	if (!parents)
 	    break;
@@ -5410,7 +5410,7 @@ void QWidget::update(const QRegion &rgn)
 
 void QWidget::erase( int x, int y, int w, int h )
 {
-    if (QPainter::redirect(this))
+    if (QPainter::redirected(this))
 	return;
     if ( w < 0 )
 	w = crect.width()  - x;
@@ -5427,7 +5427,7 @@ void QWidget::erase( int x, int y, int w, int h )
 */
 void QWidget::erase( const QRegion& rgn )
 {
-    if (QPainter::redirect(this))
+    if (QPainter::redirected(this))
 	return;
     d->erase_helper(rgn);
 }

@@ -345,9 +345,13 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
 	     Qt::RasterOp rop, bool imask)
 {
-    QPaintDevice *pdev = QPainter::redirect( dst );
-    if ( pdev )
-	dst = pdev;
+    QPoint redirection_offset;
+    const QPaintDevice *redirected = QPainter::redirected(dst, &redirection_offset);
+    if (redirected) {
+	dst = const_cast<QPaintDevice*>(redirected);
+ 	dx -= redirection_offset.x();
+ 	dy -= redirection_offset.y();
+    }
 
     scaledBitBlt(dst, dx, dy, sw, sh, src, sx, sy, sw, sh, rop, imask);
 }

@@ -1002,7 +1002,7 @@ void QWidget::showMinimized()
 	    SHFullScreen( winId(), SHFS_SHOWTASKBAR | SHFS_SHOWSIPBUTTON );
 	}
 	topData()->showMode = 1;
-    } 
+    }
 
     if ( isVisible() )
 	showWindow();
@@ -1050,7 +1050,7 @@ void QWidget::showNormal()
     if ( isTopLevel() ) {
 	if ( d->topData()->normalGeometry.width() > 0 ) {
 	    int val = d->topData()->savedFlags;
-	    int style = WS_OVERLAPPED, 
+	    int style = WS_OVERLAPPED,
 		exsty = 0;
 
 	    style |= (val & WStyle_DialogBorder ? WS_POPUP : 0);
@@ -1304,12 +1304,12 @@ void QWidgetPrivate::erase_helper( const QRegion& rgn )
     w = parents.pop();
     for (;;) {
 	if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
-	    QPainter::Redirection oldRedirect = QPainter::redirect(w, q, offset);
+	    QPainter::setRedirected(w, q, offset);
   	    QRect rr = q->rect();
  	    rr.moveBy(offset);
 	    QPaintEvent e(rr, true);
 	    QApplication::sendEvent(w, &e);
-	    QPainter::redirect(oldRedirect);
+	    QPainter::restoreRedirected(w);
 	}
 	if (!parents)
 	    break;

@@ -1150,12 +1150,12 @@ void QWidgetPrivate::erase_helper( const QRegion& reg )
     w = parents.pop();
     for (;;) {
 	if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
-	    QPainter::Redirection oldRedirect = QPainter::redirect(w, q, offset);
+	    QPainter::setRedirected(w, q, offset);
   	    QRect rr = q->rect();
  	    rr.moveBy(offset);
 	    QPaintEvent e(rr, true);
 	    QApplication::sendEvent(w, &e);
-	    QPainter::redirect(oldRedirect);
+	    QPainter::restoreRedirected(w);
 	}
 	if (!parents)
 	    break;

@@ -92,9 +92,13 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     if ( src->isExtDev() )
 	return;
 
-    QPaintDevice *pdev = QPainter::redirect( dst );
-    if ( pdev )
-	dst = pdev;
+    QPoint redirection_offset;
+    const QPaintDevice *redirected = QPainter::redirected(dst, &redirection_offset);
+    if (redirected) {
+	dst = const_cast<QPaintDevice*>(redirected);
+ 	dx -= redirection_offset.x();
+ 	dy -= redirection_offset.y();
+    }
 
     int ts = src->devType();			// from device type
     int td = dst->devType();			// to device type
