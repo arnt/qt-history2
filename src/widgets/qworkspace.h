@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.h#12 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.h#13 $
 **
 ** Definition of the QWorkspace class
 **
@@ -47,10 +47,9 @@
 
 
 #if defined(Q_TEMPLATEDLL)
-/*
-  Gives moc syntax error
+// MOC_SKIP_BEGIN
 template class Q_EXPORT QList<QWorkspaceChild>;
-*/
+// MOC_SKIP_END
 #endif
 
 
