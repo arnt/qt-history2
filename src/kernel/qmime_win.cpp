@@ -282,7 +282,7 @@ const char* QWindowsMimeText::mimeFor(int cf)
     if ( cf == CF_TEXT )
 	return "text/plain";
     else if ( cf == CF_UNICODETEXT )
-	if ( qt_winver & Qt::WV_DOS_based )
+	if ( qWinVersion() & Qt::WV_DOS_based )
 	    return "text/plain;charset=utf16";
 	else
 	    return "text/plain;charset=ISO-10646-UCS-2";
@@ -602,7 +602,7 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
     int size = sizeof(DROPFILES)+2;
     QStringList::Iterator i;
     for ( i = fn.begin(); i!=fn.end(); ++i ) {
-	if ( qt_winver & Qt::WV_NT_based )
+	if ( qWinVersion() & Qt::WV_NT_based )
 	    size += (*i).length()+1;
 	else
 	    size += (*i).local8Bit().length()+1;
@@ -615,7 +615,7 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
     d->fNC = TRUE;
     char* files = ((char* )d) + d->pFiles;
 
-    if ( qt_winver & Qt::WV_NT_based ) {
+    if ( qWinVersion() & Qt::WV_NT_based ) {
 	d->fWide = sizeof(TCHAR)>1;
 	TCHAR* f = (TCHAR*)files;
 

@@ -35,6 +35,7 @@
 **
 **********************************************************************/
 
+#include "qplatformdefs.h"
 #include "qprocess.h"
 
 #ifndef QT_NO_PROCESS
@@ -42,14 +43,7 @@
 #include "qapplication.h"
 #include "qqueue.h"
 #include "qtimer.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <Windows.h>
-
-
-extern Qt::WindowsVersion qt_winver;
-
+#include "qt_windows.h"
 
 /***********************************************************************
  *
@@ -251,7 +245,7 @@ bool QProcess::start()
     // CreateProcess()
     bool success;
 #if defined(UNICODE)
-    if ( qt_winver & WV_NT_based ) {
+    if ( qWinVersion() & WV_NT_based ) {
 	STARTUPINFO startupInfo = { sizeof( STARTUPINFO ), 0, 0, 0,
 	    (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
 	    0, 0, 0,

@@ -70,7 +70,7 @@ QAuServerWindows::~QAuServerWindows()
 void QAuServerWindows::play(const QString& filename)
 {
 #ifdef UNICODE
-    if ( qt_winver == Qt::WV_NT ) {
+    if ( qWinVersion() == Qt::WV_NT ) {
 	PlaySoundW((TCHAR*)qt_winTchar(filename,TRUE),
 	    0,SND_FILENAME|SND_ASYNC);
     } else

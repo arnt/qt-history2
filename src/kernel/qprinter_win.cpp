@@ -73,7 +73,7 @@ QPrinter::QPrinter( PrinterMode m )
     hdevmode  = 0;
     hdevnames = 0;
 
-    if ( qt_winver & Qt::WV_NT_based ) {
+    if ( qWinVersion() & Qt::WV_NT_based ) {
         PRINTDLG pd;
         memset( &pd, 0, sizeof(PRINTDLG) );
         pd.lStructSize = sizeof(PRINTDLG);
@@ -124,7 +124,7 @@ bool QPrinter::newPage()
     bool success = FALSE;
     if ( hdc && state == PST_ACTIVE ) {
         bool restorePainter = FALSE;
-        if ( (qt_winver& Qt::WV_DOS_based) && painter && painter->isActive() ) {
+        if ( (qWinVersion()& Qt::WV_DOS_based) && painter && painter->isActive() ) {
             painter->save();               // EndPage/StartPage ruins the DC
             restorePainter = TRUE;
         }
@@ -134,7 +134,7 @@ bool QPrinter::newPage()
             state = PST_ABORTED;
         if ( restorePainter )
             painter->restore();
-        if ( (qt_winver& Qt::WV_DOS_based) ) {
+        if ( (qWinVersion()& Qt::WV_DOS_based) ) {
             if ( fullPage() ) {
                 QSize margs = margins();
                 OffsetViewportOrgEx( hdc, -margs.width(), -margs.height(), 0 );
@@ -502,7 +502,7 @@ bool QPrinter::setup( QWidget *parent )
         setDefaultPrinter( printerName(), hdevmode, hdevnames );
 
     // Must handle the -A and -W versions separately; they're incompatible
-    if ( qt_winver & Qt::WV_NT_based ) {
+    if ( qWinVersion() & Qt::WV_NT_based ) {
         PRINTDLG pd;
         memset( &pd, 0, sizeof(PRINTDLG) );
         pd.lStructSize = sizeof(PRINTDLG);
@@ -688,7 +688,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             if ( !hdc )
                 ok = FALSE;
         }
-        if ( qt_winver & Qt::WV_NT_based ) {
+        if ( qWinVersion() & Qt::WV_NT_based ) {
             DOCINFO di;
             memset( &di, 0, sizeof(DOCINFO) );
             di.cbSize = sizeof(DOCINFO);
