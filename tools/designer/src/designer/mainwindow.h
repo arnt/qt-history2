@@ -47,6 +47,7 @@ public:
 
 public slots:
     void newForm();
+    void showTheNewStuff();
 
 protected:
     void closeEvent(QCloseEvent *ev);
@@ -79,7 +80,6 @@ private slots:
     void readOnly(bool b);
     void onActivated(QWidget *w);
     void showDesignerHelp();
-    void showTheNewStuff();
     void aboutDesigner();
     void editMode(QAction *action);
     void editMode(int i);
@@ -117,7 +117,6 @@ private:
 #endif
     QActionGroup *m_editModeGrp;
     QMenu *m_menuWindow;
-    bool m_closeForm;
     bool m_settingsSaved;
     NewFormDialog *m_newFormDialog;
     QPointer<PreferenceDialog> m_preferenceDialog;

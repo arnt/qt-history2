@@ -70,7 +70,7 @@ MainWindow::MainWindow()
                   , Qt::WStyle_Tool
 #endif
         ),
-      m_closeForm(true), m_settingsSaved(false),
+      m_settingsSaved(false),
       m_newFormDialog(0), m_preferenceDialog(0), m_actionWindowList(0), m_actionWindowSeparator(0),
       assistant(0)
 {
@@ -137,7 +137,6 @@ void MainWindow::setupFormEditor()
 
 void MainWindow::handleClose(AbstractFormWindow *fw, bool *accept)
 {
-    m_closeForm = true;
     if (fw->isDirty()) {
         fw->raise();
         QMessageBox box(tr("Save Form?"),
@@ -161,10 +160,9 @@ void MainWindow::handleClose(AbstractFormWindow *fw, bool *accept)
             *accept = false;
             break;
         }
-        m_closeForm = *accept;
     }
 
-    if (m_formWindowManager->formWindowCount() == 1 && m_closeForm
+    if (m_formWindowManager->formWindowCount() == 1 && *accept
             && QSettings().value("newFormDialog/ShowOnStartup", true).toBool())
         QTimer::singleShot(200, this, SLOT(newForm()));  // Use timer in case we are quitting.
 }
@@ -462,7 +460,7 @@ void MainWindow::setupMenuBar()
                    );
     m_formActionList.append(act);
 
-#if 0  // Need special help page first.
+#if 1  // Need special help page first.
     menu->addSeparator();
     act = menu->addAction(tr("What's New in Designer?"), this, SLOT(showTheNewStuff()));
 #endif
@@ -597,7 +595,6 @@ bool MainWindow::saveForm(AbstractFormWindow *fw)
         ret = saveFormAs(fw);
     else
         ret =  writeOutForm(fw, fw->fileName());
-    fw->setDirty(false);
     return ret;
 }
 
@@ -616,6 +613,35 @@ bool MainWindow::saveFormAs(AbstractFormWindow *fw)
                                                     tr("Designer UI files (*.ui)"));
     if (saveFile.isEmpty())
         return false;
+    bool breakLoop = false;
+    QFileInfo fi(saveFile);
+    while (fi.exists() && !breakLoop) {
+        QFileInfo fi2(fi.absoluteFilePath());
+        QMessageBox box(tr("File already exists"),
+                tr("<b>%1 already exits.<br>Do you want to replace it?</b><br>"
+                   "A file with the same name already exists in %2."
+                   " Replacing it will overwrite its current contents.")
+                .arg(fi.baseName()).arg(fi2.baseName()),
+                QMessageBox::Information,
+                QMessageBox::Yes, QMessageBox::No| QMessageBox::Default,
+                QMessageBox::Cancel | QMessageBox::Escape, fw, Qt::WMacSheet);
+        box.setButtonText(QMessageBox::Yes, tr("Overwrite file"));
+        box.setButtonText(QMessageBox::No, tr("Choose another name"));
+        switch (box.exec()) {
+        default:
+        case QMessageBox::Cancel:
+            return false;
+        case QMessageBox::Yes:
+            breakLoop = true;
+            break;
+        case QMessageBox::No:
+            saveFile = QFileDialog::getSaveFileName(fw, tr("Save form as"),
+                                                    fileName,
+                                                    tr("Designer UI files (*.ui)"));
+            fi.setFile(saveFile);
+            break;
+        }
+    }
     fw->setFileName(saveFile);
     return writeOutForm(fw, saveFile);
 }
@@ -713,6 +739,7 @@ bool MainWindow::writeOutForm(AbstractFormWindow *fw, const QString &saveFile)
         }
     }
     addRecentFile(saveFile);
+    fw->setDirty(false);
     return true;
 }
 
@@ -737,8 +764,7 @@ void MainWindow::closeEvent(QCloseEvent *ev)
 
     if (dirtyForms.size()) {
         if (dirtyForms.size() == 1) {
-            dirtyForms.at(0)->close();
-            if (!m_closeForm) {
+            if (!dirtyForms.at(0)->close()) {
                 ev->ignore();
                 return;
             }
@@ -761,8 +787,7 @@ void MainWindow::closeEvent(QCloseEvent *ev)
                     foreach (AbstractFormWindow *fw, dirtyForms) {
                         fw->show();
                         fw->raise();
-                        fw->close();
-                        if (!m_closeForm) {
+                        if (!fw->close()) {
                             ev->ignore();
                             return;
                         }
@@ -1102,19 +1127,12 @@ void MainWindow::onActivated(QWidget *w)
 
 void MainWindow::showDesignerHelp()
 {
-//    QMessageBox::warning(0, tr("Designer Help"), tr("The Qt Designer Documentation is located in:"
-//                "\n$QTDIR/doc/html/designer-manual.html"
-//                "\n\nAutomation for showing this is under way."));
-
     showHelp("designer-manual.html");
 }
 
 void MainWindow::showTheNewStuff()
 {
-    /*QMessageBox::warning(0, tr("What's New in Designer"),
-                         tr("I should point to a page that explains"
-                            " what is new in this version of Designer."));*/
-    showHelp("designer-manual.html");
+    showHelp("qt4-designer.html");
 }
 
 void MainWindow::showHelp(const QString &url)
