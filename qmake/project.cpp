@@ -151,7 +151,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
     if(s.isEmpty()) /* blank_line */
 	return TRUE;
 
-    if(s.stripWhiteSpace().left(1) == "}") {
+    if(s.stripWhiteSpace().startsWith("}")) {
 	debug_msg(1, "Project Parser: %s:%d : Leaving block %d", parser.file.latin1(),
 		  parser.line_no, scope_block);
 	test_status = ((scope_flag & (0x01 << scope_block)) ? TestFound : TestSeek);
@@ -162,8 +162,16 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
     }
     if(!(scope_flag & (0x01 << scope_block))) {
 	/* adjust scope for each block which appears on a single line */
-	for(int i = (s.contains('{')-s.contains('}')); i; i--)
-	    scope_flag &= ~(0x01 << (++scope_block));
+	int open_brace = s.contains('{'), close_brace = s.contains('}');
+	if(open_brace >= close_brace) {
+	    for(int i = open_brace - close_brace; i; i--) 
+		scope_flag &= ~(0x01 << (++scope_block));
+	} else if(close_brace) {
+	    scope_block -= (close_brace - open_brace);
+	} else {
+	    warn_msg(WarnParser, "Possible braces mismatch %s:%d",
+		     parser.file.latin1(), parser.line_no);
+	}
 	debug_msg(1, "Project Parser: %s:%d : Ignored due to block being false.",
 		  parser.file.latin1(), parser.line_no);
 	return TRUE;
