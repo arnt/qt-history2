@@ -1,10 +1,10 @@
 TEMPLATE	= subdirs
 SUBDIRS		=  uic \
 		   uilib \
-		   designer \
-		   editor
+		   designer		   
 win32 {
     contains(DEFINES,QT_DLL):SUBDIRS += \
+		editor \
 		plugins/wizards \
 		plugins/cppeditor \
 		plugins/dlg \
@@ -12,6 +12,7 @@ win32 {
 }
 unix {
     dll:SUBDIRS	+= \
+		editor \
 		plugins/wizards \
 		plugins/cppeditor \
 		plugins/dlg \
