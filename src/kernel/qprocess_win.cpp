@@ -207,37 +207,37 @@ bool QProcess::start( QStringList *env )
 	// I guess there is no stdin stdout and stderr on Q_OS_TEMP to dup
 	// CreatePipe and DupilcateHandle aren't avaliable for Q_OS_TEMP
     HANDLE tmpStdin, tmpStdout, tmpStderr;
-    if ( !CreatePipe( &d->pipeStdin[0], &tmpStdin, &secAtt, 0 ) ) {
+    if ( (comms & Stdin) && !CreatePipe( &d->pipeStdin[0], &tmpStdin, &secAtt, 0 ) ) {
 	return FALSE;
     }
-    if ( !CreatePipe( &tmpStdout, &d->pipeStdout[1], &secAtt, 0 ) ) {
+    if ( (comms & Stdout) && !CreatePipe( &tmpStdout, &d->pipeStdout[1], &secAtt, 0 ) ) {
 	return FALSE;
     }
-    if ( !CreatePipe( &tmpStderr, &d->pipeStderr[1], &secAtt, 0 ) ) {
+    if ( (comms & Stderr) && !CreatePipe( &tmpStderr, &d->pipeStderr[1], &secAtt, 0 ) ) {
 	return FALSE;
     }
-    if ( !DuplicateHandle( GetCurrentProcess(), tmpStdin,
+    if ( (comms & Stdin) && !DuplicateHandle( GetCurrentProcess(), tmpStdin,
 		GetCurrentProcess(), &d->pipeStdin[1],
 		0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
 	return FALSE;
     }
-    if ( !DuplicateHandle( GetCurrentProcess(), tmpStdout,
+    if ( (comms & Stdout) && !DuplicateHandle( GetCurrentProcess(), tmpStdout,
 		GetCurrentProcess(), &d->pipeStdout[0],
 		0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
 	return FALSE;
     }
-    if ( !DuplicateHandle( GetCurrentProcess(), tmpStderr,
+    if ( (comms & Stderr) && !DuplicateHandle( GetCurrentProcess(), tmpStderr,
 		GetCurrentProcess(), &d->pipeStderr[0],
 		0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
 	return FALSE;
     }
-    if ( !CloseHandle( tmpStdin ) ) {
+    if ( (comms & Stdin) && !CloseHandle( tmpStdin ) ) {
 	return FALSE;
     }
-    if ( !CloseHandle( tmpStdout ) ) {
+    if ( (comms & Stdout) && !CloseHandle( tmpStdout ) ) {
 	return FALSE;
     }
-    if ( !CloseHandle( tmpStderr ) ) {
+    if ( (comms & Stderr) && !CloseHandle( tmpStderr ) ) {
 	return FALSE;
     }
 #endif
@@ -353,9 +353,12 @@ bool QProcess::start( QStringList *env )
     }
 
 #ifndef Q_OS_TEMP
-    CloseHandle( d->pipeStdin[0] );
-    CloseHandle( d->pipeStdout[1] );
-    CloseHandle( d->pipeStderr[1] );
+    if ( (comms & Stdin) != 0 )
+	CloseHandle( d->pipeStdin[0] );
+    if ( (comms & Stdout) != 0 )
+        CloseHandle( d->pipeStdout[1] );
+    if ( (comms & Stderr) != 0 )
+	CloseHandle( d->pipeStderr[1] );
 #endif
 
     if ( ioRedirection || notifyOnExit ) {
