@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#110 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#111 $
 **
 ** Implementation of QTextStream class
 **
@@ -55,15 +55,21 @@
 
   Qt provides several global functions similar to the ones in iostream:
   <ul>
-  <li> \c bin sets the QTextStream to output binary numbers
-  <li> \c oct sets the QTextStream to output octal numbers
-  <li> \c dec sets the QTextStream to output decimal numbers
-  <li> \c hex sets the QTextStream to output hexadecimal numbers
+  <li> \c bin sets the QTextStream to read/write binary numbers
+  <li> \c oct sets the QTextStream to read/write octal numbers
+  <li> \c dec sets the QTextStream to read/write decimal numbers
+  <li> \c hex sets the QTextStream to read/write hexadecimal numbers
   <li> \c endl forces a line break
   <li> \c flush forces the QIODevice to flush any buffered data
   <li> \c ws eats any available white space (on input)
   <li> \c reset resets the QTextStream to its default mode (see reset()).
   </ul>
+
+  \warning By default, QTextStream will automatically detect whether
+  integers in the stream are in decimal, octal, hexadecimal or binary
+  format when reading from the stream. In particular, a leading '0'
+  signifies octal, ie. the sequence "0100" will be interpreted as
+  64.
 
   The QTextStream class reads and writes text and it is not
   appropriate for dealing with binary data (but QDataStream is).
@@ -614,7 +620,7 @@ void QTextStream::ts_putc(int ch)
 
 bool QTextStream::ts_isdigit(QChar c)
 {
-    return c.isDigit(); 
+    return c.isDigit();
 }
 
 bool QTextStream::ts_isspace( QChar c )
@@ -850,7 +856,7 @@ ulong QTextStream::input_oct()
 	d = ch.digitValue();
     }
     if ( d == 8 || d == 9 ) {
-	while ( ts_isdigit(ch) ) 
+	while ( ts_isdigit(ch) )
 	    ch = ts_getc();
     }
     if ( ch != QEOF )
@@ -898,64 +904,71 @@ long QTextStream::input_int()
     QChar ch;
     char c;
     switch ( flags() & basefield ) {
-	case bin:
-	    val = (long)input_bin();
-	    break;
-	case oct:
-	    val = (long)input_oct();
-	    break;
-	case dec:
-	    c = ch = eat_ws();
-	    if ( ch == QEOF ) {
-		val = 0;
-	    } else {
-		if ( !(c == '-' || c == '+') )
-		    ts_ungetc( ch );
-		if ( c == '-' ) {
-		    ulong v = input_dec();
-		    if ( v ) {		// ensure that LONG_MIN can be read
-			v--;
-			val = -((long)v) - 1;
-		    } else {
-			val = 0;
-		    }
-		} else {
-		    val = (long)input_dec();
-		}
-	    }
-	    break;
-	case hex:
-	    val = (long)input_hex();
-	    break;
-	default:
+    case bin:
+	val = (long)input_bin();
+	break;
+    case oct:
+	val = (long)input_oct();
+	break;
+    case dec:
+	c = ch = eat_ws();
+	if ( ch == QEOF ) {
 	    val = 0;
-	    c = ch = eat_ws();
-	    if ( c == '0' ) {		// bin, oct or hex
-		c = ch = ts_getc();
-		if ( tolower(c) == 'x' )
-		    val = (long)input_hex();
-		else if ( tolower(c) == 'b' )
-		    val = (long)input_bin();
-		else {			// octal
-		    ts_ungetc( ch );
-		    if ( c >= '0' && c <= '7' ) {
-			val = (long)input_oct();
-		    } else {
-			val = 0;
-		    }
-		}
-	    } else if ( ts_isdigit(ch) ) {
+	} else {
+	    if ( !(c == '-' || c == '+') )
 		ts_ungetc( ch );
+	    if ( c == '-' ) {
+		ulong v = input_dec();
+		if ( v ) {		// ensure that LONG_MIN can be read
+		    v--;
+		    val = -((long)v) - 1;
+		} else {
+		    val = 0;
+		}
+	    } else {
 		val = (long)input_dec();
-	    } else if ( c == '-' || c == '+' ) {
-		val = (long)input_dec();
-		if ( c == '-' )
-		    val = -val;
 	    }
+	}
+	break;
+    case hex:
+	val = (long)input_hex();
+	break;
+    default:
+	val = 0;
+	c = ch = eat_ws();
+	if ( c == '0' ) {		// bin, oct or hex
+	    c = ch = ts_getc();
+	    if ( tolower(c) == 'x' )
+		val = (long)input_hex();
+	    else if ( tolower(c) == 'b' )
+		val = (long)input_bin();
+	    else {			// octal
+		ts_ungetc( ch );
+		if ( c >= '0' && c <= '7' ) {
+		    val = (long)input_oct();
+		} else {
+		    val = 0;
+		}
+	    }
+	} else if ( ts_isdigit(ch) ) {
+	    ts_ungetc( ch );
+	    val = (long)input_dec();
+	} else if ( c == '-' || c == '+' ) {
+	    ulong v = input_dec();
+	    if ( c == '-' ) {
+		if ( v ) {		// ensure that LONG_MIN can be read
+		    v--;
+		    val = -((long)v) - 1;
+		} else {
+		    val = 0;
+		}
+	    } else {
+		val = (long)v;
+	    }
+	}
     }
     return val;
 }
-
 
 //
 // We use a table-driven FSM to parse floating point numbers
@@ -1852,19 +1865,22 @@ QTextStream &reset( QTextStream &s )
 /*!
   Sets the encoding of this stream to \a e, where \a e is one of:
   <ul>
-  <li> \c Locale Using local file format (Latin1 if locale is not set), but autodetecting Unicode
-  on input.
-  <li> \c Unicode Using Unicode for input and output. Output will be written in the order
-  most efficient for the current platform (i.e. the order used internally in QString).
-  <li> \c Latin1  ISO-8859-1. Will not autodetect Unicode.
-  <li> \c UnicodeNetworkOrder Using network order Unicode for input and output. Useful when
-  reading Unicode data that does not start with the byte order marker.
-  <li> \c UnicodeReverse Using reverse network order Unicode for input and output. Useful when
-  reading Unicode data that does not start with the byte order marker, or writing data that should be
+  <li> \c Locale Using local file format (Latin1 if locale is not
+  set), but autodetecting Unicode(utf16) on input.
+  <li> \c Unicode Using Unicode(utf16) for input and output. Output
+  will be written in the order most efficient for the current platform
+  (i.e. the order used internally in QString).
+  <li> \c Latin1  ISO-8859-1. Will not autodetect utf16.
+  <li> \c UnicodeNetworkOrder Using network order Unicode(utf16) for
+  input and output. Useful when reading Unicode data that does not
+  start with the byte order marker.
+  <li> \c UnicodeReverse Using reverse network order Unicode(utf16)
+  for input and output. Useful when reading Unicode data that does not
+  start with the byte order marker, or writing data that should be
   read by buggy Windows applications.
-  <li> \c RawUnicode Like Unicode, but does not write the byte order marker, nor does it
-  autodetect the byte order. Only useful when writing to non-persistent storage
-  used by a single process.
+  <li> \c RawUnicode Like Unicode, but does not write the byte order
+  marker, nor does it autodetect the byte order. Only useful when
+  writing to non-persistent storage used by a single process.
   </ul>
 
   \c Locale and all Unicode encodings, except \c RawUnicode, will look
