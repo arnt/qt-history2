@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#74 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -555,7 +555,8 @@ QSize QWidgetItem::sizeHint() const
     if ( isEmpty() )
 	s =  QSize(0,0);
     else
-	s = wid->sizeHint().expandedTo( wid->minimumSize() );
+	s = wid->sizeHint().boundedTo( wid->maximumSize() )
+	    .expandedTo( wid->minimumSize() );
 
     //((QWidgetItem*)this)->cachedSizeHint = s; //mutable hack
     return s;
