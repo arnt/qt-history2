@@ -1011,7 +1011,7 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QImage &image )
     BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
     bmh->biSize           = sizeof(BITMAPINFOHEADER);
     bmh->biWidth          = w;
-    bmh->biHeight	  = -h;
+    bmh->biHeight	  = h;
     bmh->biPlanes         = 1;
     bmh->biBitCount       = d;
     bmh->biCompression    = BI_RGB;
@@ -1215,13 +1215,13 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		paint->setClipRegion( r );
 	    }
 
+	    bits = new uchar[bmh->biSizeImage];
             if ( bmh->biBitCount == 24 ) {
-		bits = new uchar[bmh->biSizeImage];
 		int height = image.height();
 		int width = image.width();
 		uchar *b = bits;
 		uint lineFill = (3*width+3)/4*4 - 3*width;
-		for( int y=0; y < height; y++ ) {
+		for( int y=image.height()-1; y >= 0 ; y-- ) {
 		    QRgb *s = (QRgb*)(image.scanLine( y ));
 		    for( int x=0; x < width; x++ ) {
 			*b++ = qBlue( *s );
@@ -1233,7 +1233,12 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		}
 
 	    } else {
-		bits = image.bits();
+		uchar *b = bits;
+		int w = (image.width()*image.depth() + 7)/8;
+		for( int y=image.height()-1; y >= 0 ; y-- ) {
+		    memcpy( b, image.scanLine( y ), w );
+		    b += w;
+		}
 	    }
 
             int rc = GetDeviceCaps(hdc,RASTERCAPS);
@@ -1253,9 +1258,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
                 DeleteObject( hbm );
                 DeleteObject( hdcPrn );
             }
-	    if ( bmh->biBitCount == 24 ) {
-                delete [] bits;
-            }
+	    delete [] bits;
             free( bmi );
 
 	    if ( paint && image.hasAlphaBuffer() )
