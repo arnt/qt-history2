@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#26 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#27 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -3831,7 +3831,7 @@ bool QDomElement::hasAttribute( const QString& name ) const
 /*!
   fnord
 */
-QString QDomElement::getAttributesNS( const QString /*namespaceURI*/, const QString& /*localName*/ ) const
+QString QDomElement::attributesNS( const QString /*namespaceURI*/, const QString& /*localName*/ ) const
 {
     return QString::null;
 }
