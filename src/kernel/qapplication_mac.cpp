@@ -1953,7 +1953,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 		QMenuBar::macUpdateMenuBar();
 #endif
-		qt_app_im.startCompose(widget); //bad mojo
 	    }
 	} else if(ekind == kEventWindowDeactivated) {
 	    if(active_window && widget == active_window)
