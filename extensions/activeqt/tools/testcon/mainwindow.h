@@ -32,8 +32,8 @@ protected slots:
     void on_actionControlProperties_triggered();
     void on_actionControlMethods_triggered();
 
-    void on_actionScriptLoad_triggered();
-    void on_actionScriptRun_triggered();
+    void on_actionScriptingLoad_triggered();
+    void on_actionScriptingRun_triggered();
 
 private:
     InvokeMethod *dlgInvoke;

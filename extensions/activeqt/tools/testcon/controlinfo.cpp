@@ -16,6 +16,10 @@ ControlInfo::ControlInfo(QWidget *parent)
 : QDialog(parent)
 {
     setupUi(this);
+
+    listInfo->setColumnCount(2);
+    listInfo->headerItem()->setText(0, "Item");
+    listInfo->headerItem()->setText(1, "Details");
 }
 
 void ControlInfo::setControl(QWidget *activex)
@@ -70,7 +74,7 @@ void ControlInfo::setControl(QWidget *activex)
 
     for (i = mo->propertyOffset(); i < mo->propertyCount(); ++i) {
 	const QMetaProperty property = mo->property(i);
-	item = new QTreeWidgetItem(item);
+	item = new QTreeWidgetItem(group);
         item->setText(0, property.name());
         item->setText(1, property.typeName());
     }

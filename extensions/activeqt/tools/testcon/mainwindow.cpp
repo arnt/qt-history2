@@ -216,7 +216,7 @@ void MainWindow::on_actionControlPixmap_triggered()
     label->show();
 }
 
-void MainWindow::on_actionScriptRun_triggered()
+void MainWindow::on_actionScriptingRun_triggered()
 {
 #ifndef QT_NO_QAXSCRIPT
     if (!scripts)
@@ -245,7 +245,7 @@ void MainWindow::on_actionScriptRun_triggered()
 #endif
 }
 
-void MainWindow::on_actionScriptLoad_triggered()
+void MainWindow::on_actionScriptingLoad_triggered()
 {
 #ifndef QT_NO_QAXSCRIPT
     QString file = QFileDialog::getOpenFileName(QString::null, QAxScriptManager::scriptFileFilter(),
