@@ -549,7 +549,6 @@ UnixMakefileGenerator::init()
 	project->variables()["VER_MIN"].append("0");
 	project->variables()["VER_PAT"].append("0");
     }
-    //project->variables()["DESTDIR_TARGET"].append("$(TARGET)");
     if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
 #if 0
 	if ( project->isActiveConfig("dll") ) {
@@ -622,10 +621,9 @@ UnixMakefileGenerator::init()
 	    project->variables()["TARGET"] = project->variables()["TARGET_x.y.z"];
         }
 	project->variables()["QMAKE_LN_SHLIB"].append("-ln -s");
-	if ( !project->variables()["DESTDIR"].isEmpty() ) {
-	    project->variables()["DESTDIR_TARGET"].append(project->variables()["DESTDIR"].first() +
-							  project->variables()["TARGET"].first());
-	}
+	project->variables()["DESTDIR_TARGET"].append("$(TARGET)");
+	if ( !project->variables()["DESTDIR"].isEmpty() ) 
+	    project->variables()["DESTDIR_TARGET"].first().prepend(project->variables()["DESTDIR"].first());
 	if(!project->variables()["QMAKE_LFLAGS_SONAME"].isEmpty())
 	    project->variables()["QMAKE_LFLAGS_SONAME"].first() += project->variables()["TARGET_x"].first();
 	if(project->variables()["QMAKE_LINK_SHLIB_CMD"].isEmpty())
