@@ -5863,8 +5863,8 @@ void QTextFormatCollection::remove( QTextFormat *f )
 }
 
 #define UPDATE( up, lo, rest ) \
-	if ( font.##lo##rest() != defFormat->fn.##lo##rest() && fm->fn.##lo##rest() == defFormat->fn.##lo##rest() ) \
-	    fm->fn.set##up##rest( font.##lo##rest() )
+	if ( font.lo##rest() != defFormat->fn.lo##rest() && fm->fn.lo##rest() == defFormat->fn.lo##rest() ) \
+	    fm->fn.set##up##rest( font.lo##rest() )
 
 void QTextFormatCollection::updateDefaultFormat( const QFont &font, const QColor &color, QStyleSheet *sheet )
 {
