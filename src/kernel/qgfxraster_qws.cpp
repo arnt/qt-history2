@@ -5682,7 +5682,7 @@ If \a on is true, blank the screen. Otherwise unblank it.
 
 /*!
 \fn QScreen::pixmapOffsetAlignment()
-Returns the value in bytes to which the start address of pixmaps held in
+Returns the value in bits to which the start address of pixmaps held in
 graphics card memory should be aligned. This is only useful for accelerated
 drivers. By default the value returned is 64 but it can be overridden
 by individual accelerated drivers.
@@ -5690,7 +5690,7 @@ by individual accelerated drivers.
 
 /*!
 \fn QScreen::pixmapLinestepAlignment()
-Returns the value in bytes to which individual scanlines of pixmaps held in
+Returns the value in bits to which individual scanlines of pixmaps held in
 graphics card memory should be aligned. This is only useful for accelerated
 drivers. By default the value returned is 64 but it can be overridden
 by individual accelerated drivers.
