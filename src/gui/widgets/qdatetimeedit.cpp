@@ -859,7 +859,12 @@ bool QDateTimeEdit::focusNextPrevChild(bool next)
 
     const QDateTimeEditPrivate::Section newSection =
         d->nextPrevSection(d->currentsection, next).section;
-    if (newSection != QDateTimeEditPrivate::NoSection) {
+    switch (newSection) {
+    case QDateTimeEditPrivate::NoSection:
+    case QDateTimeEditPrivate::FirstSection:
+    case QDateTimeEditPrivate::LastSection:
+        break;
+    default:
         d->setSelected(newSection);
         return true;
     }
