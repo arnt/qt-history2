@@ -516,7 +516,7 @@ int QSplitter::idAfter( QWidget* w ) const
 void QSplitter::moveSplitter( QCOORD p, int id )
 {
     p = adjustPos( p, id );
-
+    
     QSplitterLayoutStruct *s = data->list.at(id);
     int oldP = orient == Horizontal ? s->wid->x() : s->wid->y();
     bool upLeft;
@@ -691,11 +691,17 @@ void QSplitter::getRange( int id, int *min, int *max )
 	}
     }
     QRect r = contentsRect();
-    if ( min )
-	*min = pick(r.topLeft()) + QMAX( minB, pick(r.size())-maxA );
-    if ( max )
-	*max = pick(r.topLeft()) + QMIN( maxB, pick(r.size())-minA );
-
+    if ( orient == Horizontal && QApplication::reverseLayout() ) {
+	if ( min )
+	    *min = pick(r.topRight()) - QMIN( maxB, pick(r.size())-minA );
+	if ( max )
+	    *max = pick(r.topRight()) - QMAX( minB, pick(r.size())-maxA );
+    } else {
+	if ( min )
+	    *min = pick(r.topLeft()) + QMAX( minB, pick(r.size())-maxA );
+	if ( max )
+	    *max = pick(r.topLeft()) + QMIN( maxB, pick(r.size())-minA );
+    }
 }
 
 
