@@ -21,13 +21,17 @@ Plugin".
     you should consider when creating a custom widget for a plugin:
 	\list[1]
 	\item\p
-	Using Qt's property system will provide \qd users a direct means
-	of configuring the widget without forcing them to subclass;
+	Using Qt's property system will provide \qd users with a direct
+	means of configuring the widget through the property system.
+	(See the <ulink
+	url="http://doc.trolltech.com/properties.html">Qt
+	Properties</ulink> documentation.)
 	\P\Item
 	
 	\item\p
 	Consider making your widget's public 'set' functions into
-	public slots.
+	public slots so that you can perform signal-slot connections
+	with the widget in \qd.
 	\P\Item
 	\List1
     \P
@@ -79,7 +83,7 @@ Plugin".
 \scan /FileChooser/ 0 
 \scan /fileName/ /mode/
 </programlisting>
-	The constructor is declared in simple \class[QWidget]-style. We
+	The constructor is declared like a \class[QWidget]. We
 	declare two public functions, \fn[fileName] to return the
 	filename, and \fn[mode] to return the mode.
 	\P
@@ -131,7 +135,7 @@ Plugin".
 \scan /QPushButton/ 0
 \scan /addWidget/ 0
 </programlisting>
-	We begin by creating a a horizontal box layout
+	We begin by creating a horizontal box layout
 	(\class[QHBoxLayout]) and add a \class[QLineEdit] and a
 	\class[QPushButton] to it. 
 	\P
@@ -146,7 +150,7 @@ Plugin".
 	widget's \fn[fileNameChanged] signal. This ensures that if the
 	user changes the text in the \class[QLineEdit] this fact will be
 	propagated via the custom widget's own signal. The button's
-	\fn[clicked] signal is connected to the custome widget's
+	\fn[clicked] signal is connected to the custom widget's
 	\fn[chooseFile] slot which invokes the appropriate dialog for
 	the user to choose their file or directory.
 	\P
@@ -212,52 +216,75 @@ Plugin".
     \p
     A plugin is a software component. Plugins are not specific to \qd;
     they can be used generally to wrap any number of classes and
-    widgets which can be made available as a stand-alone component. \qd
-    provides a plugin interface which means that it can utilize any
-    plugins which are made available to it. We will demonstrate how
-    to wrap a custom widget, (the FileChooser widget we created in the
-    previous section), inside a plugin. Although we will only include
-    one widget in our plugin there is no limit to the number of widgets
-    that could be included.
+    widgets which can then be supplied within a stand-alone component.
+    \qd can load any plugins that are made available to it and also
+    provides an application interface through which plugins can access
+    its own functionality. We will demonstrate how to wrap a custom
+    widget, (the FileChooser widget we created in the previous section),
+    inside an interface implementation and how to place the interface
+    implementation inside a plugin. Although we will only include one
+    widget in our interface implementation there is no limit to the
+    number of widgets that could be included.
     \P
-<!--
+
+    <sidebar><title>Plugin Terminology</title>
+    <para>
+    \list[*]
+    \item\p
+    A \i[Plugin] is a library that is dynamically loaded by
+    applications. A plugin contains any number of interface
+    implementations and possibly other functionality.
+    \P\Item
+
+    \item\p
+    An \i[Interface Implementation] is a class that implements an
+    interface. For example an interface implementation might implement
+    the \class[WidgetInterface]. 
+    \P\Item
+
+    \item\p
+    A \i[feature] is a class that an interface implementation makes
+    available to applications. An interface implementation may provide
+    any number of features.    
+    \P\Item
+
+    \List
+
     \p
-    Plugins are different from most other Qt classes with regards memory
-    management. In Qt programming we often hand on responsibility for
-    memory management to the containing widgets and ultimately to
-    \c[qApp] itself by parenting our widgets or by calling an
-    \c[install] function. Plugins are different because they may wrap
-    components which are not built from the Qt library at all, so we
-    cannot predict what their memory handling needs will be. 
-    This means that when you get a reference to a plugin object a
-    reference count is incremented, and when you have no further
-    use for the reference \i[you] must call \fn[release]. Qt helps you 
-    avoid attempting to delete an object from a library that has been
-    unloaded by providing a cleanup handler that each plugin registers
-    with.
+    If we want to make a custom widget available to an application
+    through a plugin, i.e. make it a feature, we must create an
+    interface implementation that provides access to the custom widget
+    and create a plugin to contain the interface implementation.
     \P
--->
-    \p
-    A plugin must implement the \class[WidgetInterface]'s pure virtual
-    functions. In most cases the implementations are simple and can
-    easily be adapted from the example we present. 
-    \P
+    </para>
+    </sidebar>
     
     \p
-    Since plugins can include any number of widgets most of the plugin
-    functions take the name of the 'feature', (the particular widget
-    class we wish to access within the plugin), as their first argument
-    to distinguish which feature (custom widget) we are referring to.
+    Because an interface implementation can include any number of
+    features most of the interface functions take the name of the
+    feature, (the particular widget class we wish to access within the
+    interface), as their first argument to distinguish which feature we
+    are referring to.
     \P
 
     \p
+    In our example we wish to make a custom widget available through a
+    plugin so we must derive the interface from the
+    \class[WidgetInterface] class. We must implement all the
+    \class[WidgetInterface]'s pure virtual functions. In most cases the
+    implementations are simple and can easily be adapted from the
+    example we present. 
+    \P
+    
+    \p
     To make your own plugin it is probably easiest to start by copying
-    our \f[plugin.h] and \f[plugin.cpp] files and changing
-    'CustomWidgetInterface' to the name you wish to use for your plugin
-    class. We provide an introduction to the header file although it
-    needs no changes beyond the renaming. The implementation file
-    requires simple changes, mostly more renaming; we will review each
-    function in turn and explain what you need to do.
+    the \f[plugin.h] and \f[plugin.cpp] files and changing
+    'CustomWidgetInterface' to the name you wish to use for your
+    plugin's interface implementation class. Below we provide an
+    introduction to the header file although it needs no changes beyond
+    class renaming. The implementation file requires simple changes,
+    mostly more class renaming; we will review each function in turn and
+    explain what you need to do.
     \P
     
     \p
@@ -267,13 +294,12 @@ Plugin".
     \i[univeral unique identifiers], which we'll cover shortly.
     \P
 
-
 	<sect2><title>The \class[WidgetInterface] Class's
 	Interface</title>
 	\p
 	We have called our header file \f[plugin.h] and we've
-	called our plugin class \class[CustomWidgetInterface] since we
-	will be using our plugin to wrap our custom widgets. We present
+	called our interface class \class[CustomWidgetInterface] since we
+	will be using our interface class to wrap our custom widgets. We present
 	the entire header file to give you an impression of the
 	scope of the implementation required. Most of the
 	functions require just a few lines of code. 
@@ -286,11 +312,14 @@ Plugin".
 	    \p
 	    There are two items of private data, \c[objects] and
 	    \c[ref]. The \c[ref] item is used to store the plugin's
-	    reference count. The \c[objects] item is used by the
-	    cleanup handler, but the details are beyond the
-	    scope of this manual, see the <ulink
+	    reference count. The \c[objects] item is a guarded cleanup
+	    handler that ensures that the widgets that get instantiated
+	    by the interface implementation are deleted when the plugin
+	    is unloaded. (See the <ulink
 	    url="http://doc.trolltech.com/qplugin.html">Qt Plugin
-	    documentation</> for more information.
+	    documentation</> and the class documentation for <ulink
+	    url="http://doc.trolltech.com/qcleanuphandler.html">QCleanupHandler</>
+	    for more information.)
 	    \P
 
 	    </sect3>
@@ -299,13 +328,14 @@ Plugin".
 
 	<sect2>\title[The WidgetInterface Functions]
 	\p
-	If you create your own plugin \c[.cpp] file by copying
-	\f[plugin.cpp] and changing all occurrences of
+	Create your own plugin \c[.cpp] file by copying our
+	\f[plugin.cpp] file and changing all occurrences of
 	'CustomWidgetInterface' to the name you wish to use for your
-	plugin, most of the other changes are simply replacing the name
-	of our custom control, 'FileChooser', with the name of your
-	custom control, and possibly adding additional \c[else if]
-	clauses if you have more than one custom control in your plugin.
+	plugin's interface implementation. Most of the other changes are
+	simply replacing the name of our custom control, 'FileChooser',
+	with the name of your custom control, and possibly adding
+	additional \c[else if] clauses if you have more than one custom
+	control in your plugin.
 	\P
 
 	    <sect3><title>The Constructor</title>
@@ -315,7 +345,7 @@ Plugin".
 </programlisting>
 	    The constructor sets the plugin's reference count to zero.
 	    Simply copy ours with the class name you wish to use for
-	    your plugin.
+	    your plugin's interface implementation.
 	    \P
 
 	    <sect3><title>The Destructor</title>
@@ -325,18 +355,19 @@ Plugin".
 <programlisting>
 \scan eg/filechooser/plugin/plugin.h /~CustomWidgetInterface/ 0
 </programlisting>
-	    If you copied our \f[plugin.h], and renamed the plugin class
-	    throughout, your destructor is done.
+	    If you copied our \f[plugin.h], and renamed the plugin's
+	    interface implementation class throughout, your destructor
+	    is done.
 	    \P
 
 	    <sect3><title>\fn[queryInterface]</title>
 	    \p
 	    This is the most complicated function: but it can simply be
-	    copied into your own plugin. Change the class name to
-	    whatever class you've called your plugin.
-	    (It isn't implemented for us in the
-	    \class[WidgetInterface] class because some types of plugin
-	    need to specialise it.)
+	    copied into your own plugin's interface implementation.
+	    Change the class name to whatever class you've called your
+	    plugin's interface implementation. (It isn't implemented for
+	    us in the \class[WidgetInterface] class because some types
+	    of plugin need to specialise it.)
 <programlisting>
 \scan eg/filechooser/plugin/plugin.cpp /::queryInterface/ /^}/
 </programlisting>
@@ -374,14 +405,49 @@ Plugin".
 	    name of your plugin.
 	    \P
 
+	    <sidebar><title>Why we need \fn[addRef] and \fn[release]</title>
+	    \p
+	    Plugins are different from most other Qt classes with
+	    regards memory management. In Qt programming we often pass
+	    on responsibility for memory management to the containing
+	    widgets and ultimately to \c[qApp] itself by parenting our
+	    widgets or by calling an \c[install] function. Plugins are
+	    different because they wrap components which may not be
+	    built from the Qt library at all, so we cannot predict what
+	    their memory handling requirements are. This means that when
+	    you get a reference to a plugin object a reference count is
+	    incremented, and when you have no further use for the
+	    reference \i[you] must call \fn[release]. Qt helps you avoid
+	    attempting to delete an object from a library that has been
+	    unloaded by providing a cleanup handler that each plugin
+	    registers with.
+	    \P
+
+	    \p
+	    Since we are writing a plugin for \qd, all we need to do is
+	    provide the \fn[addRef] and \fn[release] functions. \qd (or
+	    any other application using our plugin) is responsible for
+	    calling these functions when appropriate.
+	    \P
+	    </sidebar>
+
 	    <sect3><title>The \fn[Q_EXPORT_INTERFACE] Macro</title>
 	    \p
 <programlisting>
 \scan eg/filechooser/plugin/plugin.cpp /Q_EXPORT_INTERFACE/ /^}/
 </programlisting>
-	    This function must appear \i[once] in your plugin. It should
-	    be copied with the class name changed to the name of your
-	    plugin's class. (See the <ulink
+	    This macro is the only code that identifies your module as a
+	    plugin -- all the other code simply implements the relevant
+	    interface, i.e. wraps the classes you wish to make
+	    available.
+	    \P
+
+	    \p
+	    This macro must appear \i[once] in your plugin. It should be
+	    copied with the class name changed to the name of your
+	    interface's class. If you have more than one interface class
+	    then each one must be the subject of a
+	    \fn[Q_CREATE_INSTANCE] macro. (See the <ulink
 	    url="http://doc.trolltech.com/qplugin.html">Qt Plugin
 	    documentation</> for more information on the plugin entry
 	    point.)
@@ -389,16 +455,17 @@ Plugin".
 
 	    <sect3><title>\fn[featureList]</title>
 	    \p
-	    Each widget you wrap in a plugin becomes a 'feature' that
-	    the plugin offers. There is no limit to the number of
-	    features that you may include in a plugin.
+	    Each widget you wrap in an interface implementation becomes
+	    a feature that the interface implementation offers. There
+	    is no limit to the number of features that you may include
+	    in an interface implementation.
 <programlisting>
 \scan eg/filechooser/plugin/plugin.cpp /::featureList/ /^}/
 </programlisting>
-	    For each widget class that you want to wrap in the plugin
-	    you should supply a feature name, (often the class name), by
-	    which the class can be identified. In our example we add a
-	    single feature, 'FileChooser'.
+	    For each widget class that you want to wrap in the interface
+	    implementation you should supply a feature name, (often the
+	    class name), by which the class can be identified. In our
+	    example we add a single feature, 'FileChooser'.
 	    \P
 
 	    <sect3><title>\fn[create]</title>
@@ -407,7 +474,7 @@ Plugin".
 \scan eg/filechooser/plugin/plugin.cpp /::create/ /^}/
 </programlisting>
 	    In this function we create an instance of the requested
-	    feature (widget), register it with the cleanup handler, with
+	    feature, register it with the cleanup handler, with
 	    the \c[objects.add( w )] call, and return a pointer to the
 	    widget for the caller to use. Copy this function changing
 	    the class name and the feature name and create an instance
@@ -433,11 +500,12 @@ Plugin".
 <programlisting>
 \scan eg/filechooser/plugin/plugin.cpp /::group/ /^}/
 </programlisting>
-	    We use the \fn[group] function to identify which \qd toolbar group
-	    this feature (custom widget) should be part of. If we use a
-	    name that is not in use \qd will create a new toolbar group
-	    with the given name. Copy this function changing the class
-	    name, feature name and group name to suit your own plugin.
+	    We use the \fn[group] function to identify which \qd toolbar
+	    group this feature (custom widget) should be part of. If we
+	    use a name that is not in use \qd will create a new toolbar
+	    group with the given name. Copy this function changing the
+	    class name, feature name and group name to suit your own
+	    plugin.
 	    \P
 
 	    \p
