@@ -48,12 +48,6 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role);
 
-    QStringList mimeTypes() const;
-    QMimeData *mimeData(const QModelIndexList &indexes) const;
-    bool dropMimeData(const QMimeData *data, QDrag::DropAction action,
-                      int row, const QModelIndex &parent);
-    QDrag::DropActions supportedDropActions() const;
-
     bool insertRows(int row, int count, const QModelIndex &parent);
     bool removeRows(int row, int count, const QModelIndex &parent);
 
@@ -359,35 +353,6 @@ bool QTreeModel::setHeaderData(int section, Qt::Orientation orientation,
         return true;
     }
     return false;
-}
-
-QStringList QTreeModel::mimeTypes() const
-{
-    return QAbstractItemModel::mimeTypes();
-//     QStringList types;
-//     types << "application/x-qtreemodeldatalist";
-//     return types;
-}
-
-QMimeData *QTreeModel::mimeData(const QModelIndexList &indexes) const
-{
-    // FIXME: we need some way of finding the out if we are dnd'ing internally or not
-    return QAbstractItemModel::mimeData(indexes);
-}
-
-bool QTreeModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
-                              int row, const QModelIndex &parent)
-{
-    // FIXME: just do copy for now
-    if (action == QDrag::MoveAction)
-        qWarning("QDrag::MoveAction is not supported yet");
-    return QAbstractItemModel::dropMimeData(data, action, row, parent);
-}
-
-QDrag::DropActions QTreeModel::supportedDropActions() const
-{
-    // the move action is only effective when dragging and dropping internally
-    return QDrag::CopyAction;// | QDrag::MoveAction;
 }
 
 /*!
