@@ -186,8 +186,6 @@ UnixMakefileGenerator::init()
 	else
 	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
     }
-    if ( project->isActiveConfig("x11inc") )
-	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_X11"];
     if ( extern_libs && (project->isActiveConfig("qt") || project->isActiveConfig("opengl")) ) {
 	if(configs.findIndex("x11lib") == -1)
 	    configs.append("x11lib");
@@ -200,6 +198,8 @@ UnixMakefileGenerator::init()
 	if(configs.findIndex("x11inc") == -1)
 	    configs.append("x11inc");
     }
+    if ( project->isActiveConfig("x11inc") )
+	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_X11"];
     if ( project->isActiveConfig("x11lib") ) {
 	if(!project->isEmpty("QMAKE_LIBDIR_X11"))
 	    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_X11", "-L", " -L", "");
