@@ -387,7 +387,7 @@ QPoint QDragObject::pixmapHotSpot() const
     Set the \a cursor used when dragging in mode \a m. 
     Note: X11 only allow bitmaps for cursors.
 */
-void QDragObject::setCursor(DragMode m, const QPixmap &pm)
+void QDragObject::setCursor( DragMode m, const QPixmap &cursor )
 {
     if ( d->pm_cursor == 0 ) {
 	// safe default cursors
@@ -411,7 +411,7 @@ void QDragObject::setCursor(DragMode m, const QPixmap &pm)
 
     // override default cursor
     for ( index = 0; index < qt_dnd_manager->n_cursor; index++ )
-	qt_dnd_manager->pm_cursor[index] = pm;
+	qt_dnd_manager->pm_cursor[index] = cursor;
 }
 
 /*!

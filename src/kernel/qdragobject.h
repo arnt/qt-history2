@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QDragObject
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -77,7 +77,7 @@ public:
 #ifndef QT_NO_DRAGANDDROP
     enum DragMode { DragDefault, DragCopy, DragMove, DragLink, DragCopyOrMove };
 
-    void setCursor( DragMode m, const QPixmap &pm );
+    void setCursor( DragMode m, const QPixmap &cursor );
     QPixmap *cursor( DragMode m ) const;
 protected:
     virtual bool drag(DragMode);
