@@ -264,7 +264,8 @@ QTDSResult::QTDSResult(const QTDSDriver* db)
 QTDSResult::~QTDSResult()
 {
     cleanup();
-    dbclose(d->dbproc);
+    if (d->dbproc)
+        dbclose(d->dbproc);
     errs()->remove(d->dbproc);
     delete d;
 }
