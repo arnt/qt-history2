@@ -97,7 +97,7 @@ signals:
 public:
     virtual void clear();
     bool setControl(const QString&);
-    
+
     void disableMetaObject();
     void disableClassInfo();
     void disableEventSink();
@@ -107,6 +107,7 @@ protected:
     bool initializeRemote(IUnknown** ptr);
     bool initializeLicensed(IUnknown** ptr);
     bool initializeActive(IUnknown** ptr);
+    bool initializeFromFile(IUnknown** ptr);
 
     void internalRelease();
     void connectNotify();

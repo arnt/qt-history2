@@ -12,11 +12,10 @@
 ****************************************************************************/
 
 //#define QAX_NO_CLASSINFO
-#define QT_NO_CAST_TO_ASCII
-//#define QT_NO_CAST_FROM_ASCII
 #define QT_CHECK_STATE
 
 #include "qaxobject.h"
+#include <qfile.h>
 
 #include <quuid.h>
 #include <qhash.h>
@@ -314,7 +313,7 @@ public:
             index = meta->indexOfSignal("signal(QString,int,void*)");
             Q_ASSERT(index != -1);
 
-            QString nameString(signame);
+            QString nameString = QLatin1String(signame);
             void *argv[] = {0, &nameString, &pDispParams->cArgs, &pDispParams->rgvarg};
             combase->qt_metacall(QMetaObject::InvokeMetaMember, index, argv);
         }
@@ -436,7 +435,7 @@ public:
         // emit the generic signal
         int index = meta->indexOfSignal("propertyChanged(QString)");
         if (index != -1) {
-            QString propnameString(propname);
+            QLatin1String propnameString(propname);
             void *argv[] = {0, &propnameString};
             combase->qt_metacall(QMetaObject::InvokeMetaMember, index, argv);
         }
@@ -888,6 +887,11 @@ QAxMetaObject *QAxBase::internalMetaObject() const
     ctrl->setControl("Calendar Control 9.0");
     \endcode
 
+    It is also possible to initialize the object from a file, e.g.
+    \code
+    ctrl->setControl("c:/files/file.doc");
+    \endcode
+
     If the component's UUID is used the following patterns can be used
     to initialize the control on a remote machine, to initialize a
     licensed control or to connect to a running object:
@@ -923,7 +927,7 @@ bool QAxBase::setControl(const QString &c)
     clear();
     d->ctrl = c;
     // don't waste time for DCOM requests
-    if (c.indexOf("/{") != c.length()-39 && !c.endsWith("}&")) {
+    if (c.indexOf(QLatin1String("/{")) != c.length()-39 && !c.endsWith(QLatin1String("}&"))) {
         QUuid uuid(d->ctrl);
         if (uuid.isNull()) {
             CLSID clsid;
@@ -931,14 +935,14 @@ bool QAxBase::setControl(const QString &c)
             if (res == S_OK)
                 d->ctrl = QUuid(clsid).toString();
             else {
-                QSettings controls("HKEY_LOCAL_MACHINE\\Software\\Classes\\" + c, Qt::NativeFormat);
-                d->ctrl = controls.value("/CLSID/Default").toString();
+                QSettings controls(QLatin1String("HKEY_LOCAL_MACHINE\\Software\\Classes\\") + c, Qt::NativeFormat);
+                d->ctrl = controls.value(QLatin1String("/CLSID/Default")).toString();
                 if (d->ctrl.isEmpty()) {
-                    controls.beginGroup("/CLSID");
+                    controls.beginGroup(QLatin1String("/CLSID"));
                     QStringList clsids = controls.childGroups();
                     for (QStringList::Iterator it = clsids.begin(); it != clsids.end(); ++it) {
                         QString clsid = *it;
-                        QString name = controls.value(clsid + "/Default").toString();
+                        QString name = controls.value(clsid + QLatin1String("/Default")).toString();
                         if (name == c) {
                             d->ctrl = clsid;
                             break;
@@ -1067,9 +1071,10 @@ void QAxBase::clear()
     The default implementation interprets the string returned by
     control(), and calls initializeRemote(), initializeLicensed()
     or initializeActive() if the string matches the respective
-    patterns. If no pattern is matched, or if remote or licensed
-    initialization fails, CoCreateInstance is used directly to create
-    the object.
+    patterns. If control() is the name of an existing file, 
+    initializeFromFile() is called. If no pattern is matched, or 
+    if remote or licensed initialization fails, CoCreateInstance 
+    is used directly to create the object.
 
     See the \l control property documentation for details about
     supported patterns.
@@ -1089,12 +1094,14 @@ bool QAxBase::initialize(IUnknown **ptr)
     bool res = false;
 
     const QString ctrl(d->ctrl);
-    if (ctrl.contains("/{")) // DCOM request
+    if (ctrl.contains(QLatin1String("/{"))) // DCOM request
         res = initializeRemote(ptr);
-    else if (ctrl.contains("}:")) // licensed control
+    else if (ctrl.contains(QLatin1String("}:"))) // licensed control
         res = initializeLicensed(ptr);
-    else if (ctrl.contains("}&")) // running object
+    else if (ctrl.contains(QLatin1String("}&"))) // running object
         res = initializeActive(ptr);
+    else if (QFile::exists(ctrl)) // existing file
+        res = initializeFromFile(ptr);
 
     if (!res) { // standard
         HRESULT hres = CoCreateInstance(QUuid(ctrl), 0, CLSCTX_SERVER, IID_IUnknown, (void**)ptr);
@@ -1120,7 +1127,7 @@ bool QAxBase::initialize(IUnknown **ptr)
 */
 bool QAxBase::initializeLicensed(IUnknown** ptr)
 {
-    int at = control().lastIndexOf("}:");
+    int at = control().lastIndexOf(QLatin1String("}:"));
 
     QString clsid(control().left(at));
     QString key(control().mid(at+2));
@@ -1156,7 +1163,7 @@ bool QAxBase::initializeLicensedHelper(void *f, const QString &key, IUnknown **p
 }
 
 /*!
-    Returns an active instance running on the current machine, and returns the
+    Connects to an active instance running on the current machine, and returns the
     IUnknown interface to the running object in \a ptr. This function returns true
     if successful, otherwise returns false.
 
@@ -1167,12 +1174,37 @@ bool QAxBase::initializeLicensedHelper(void *f, const QString &key, IUnknown **p
 */
 bool QAxBase::initializeActive(IUnknown** ptr)
 {
-    int at = control().lastIndexOf("}&");
+    int at = control().lastIndexOf(QLatin1String("}&"));
     QString clsid(control().left(at));
 
     GetActiveObject(QUuid(clsid), 0, ptr);
 
     return *ptr != 0;
+}
+
+/*!
+    Creates the COM object handling the filename in the control property, and
+    returns the IUnknown interface to the object in \a ptr. This function returns
+    true if successful, otherwise returns false.
+
+    This function is called by initialize() if the control string is the name of
+    an existing file.
+
+    \sa initialize
+*/
+bool QAxBase::initializeFromFile(IUnknown** ptr)
+{
+    IStorage *storage = 0;
+    ILockBytes * bytes = 0;
+    HRESULT hres = ::CreateILockBytesOnHGlobal(0, TRUE, &bytes);
+    hres = ::StgCreateDocfileOnILockBytes(bytes, STGM_SHARE_EXCLUSIVE|STGM_CREATE|STGM_READWRITE, 0, &storage);
+
+    hres = OleCreateFromFile(CLSID_NULL, control().utf16(), IID_IUnknown, OLERENDER_NONE, 0, 0, storage, (void**)ptr);
+
+    storage->Release();
+    bytes->Release();
+
+    return hres == S_OK;
 }
 
 
@@ -1197,7 +1229,7 @@ bool QAxBase::initializeActive(IUnknown** ptr)
 */
 bool QAxBase::initializeRemote(IUnknown** ptr)
 {
-    int at = control().lastIndexOf("/{");
+    int at = control().lastIndexOf(QLatin1String("/{"));
 
     QString server(control().left(at));
     QString clsid(control().mid(at+1));
@@ -1207,32 +1239,32 @@ bool QAxBase::initializeRemote(IUnknown** ptr)
     QString passwd;
     QString key;
 
-    at = server.indexOf('@');
+    at = server.indexOf(QChar::fromLatin1('@'));
     if (at != -1) {
         user = server.left(at);
         server = server.mid(at+1);
 
-        at = user.indexOf(':');
+        at = user.indexOf(QChar::fromLatin1(':'));
         if (at != -1) {
             passwd = user.mid(at+1);
             user = user.left(at);
         }
-        at = user.indexOf('/');
+        at = user.indexOf(QChar::fromLatin1('/'));
         if (at != -1) {
             domain = user.left(at);
             user = user.mid(at+1);
         }
     }
 
-    at = clsid.lastIndexOf("}:");
+    at = clsid.lastIndexOf(QLatin1String("}:"));
     if (at != -1) {
         key = clsid.mid(at+2);
         clsid = clsid.left(at);
     }
 
-    d->ctrl = server + "/" + clsid;
+    d->ctrl = server + QChar::fromLatin1('/') + clsid;
     if (!key.isEmpty())
-        d->ctrl = d->ctrl + ":" + key;
+        d->ctrl = d->ctrl + QChar::fromLatin1(':') + key;
 
     COAUTHIDENTITY authIdentity;
     authIdentity.UserLength = user.length();
@@ -1602,13 +1634,13 @@ QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMe
 }
 
 MetaObjectGenerator::MetaObjectGenerator(QAxBase *ax, QAxBasePrivate *dptr)
-: that(ax), d(dptr), disp(0), typeinfo(0), typelib(0), iidnames("HKEY_LOCAL_MACHINE\\Software\\Classes")
+: that(ax), d(dptr), disp(0), typeinfo(0), typelib(0), iidnames(QLatin1String("HKEY_LOCAL_MACHINE\\Software\\Classes"))
 {
     init();
 }
 
 MetaObjectGenerator::MetaObjectGenerator(ITypeLib *tlib, ITypeInfo *tinfo)
-: that(0), d(0), disp(0), typeinfo(tinfo), typelib(tlib), iidnames("HKEY_LOCAL_MACHINE\\Software\\Classes")
+: that(0), d(0), disp(0), typeinfo(tinfo), typelib(tlib), iidnames(QLatin1String("HKEY_LOCAL_MACHINE\\Software\\Classes"))
 {
     init();
 
@@ -1838,7 +1870,7 @@ void MetaObjectGenerator::readClassInfo()
 #ifndef QAX_NO_CLASSINFO
             // UUID
             if (d->useClassInfo && !hasClassInfo("CoClass")) {
-                QString coClassIDstr = iidnames.value("/CLSID/" + coClassID + "/Default", coClassID).toString();
+                QString coClassIDstr = iidnames.value(QLatin1String("/CLSID/") + coClassID + QLatin1String("/Default"), coClassID).toString();
                 addClassInfo("CoClass", coClassIDstr.isEmpty() ? coClassID.latin1() : coClassIDstr.latin1());
                 QByteArray version = QByteArray::number(typeattr->wMajorVerNum) + "." + QByteArray::number(typeattr->wMinorVerNum);
                 if (version != "0.0")
@@ -1852,7 +1884,7 @@ void MetaObjectGenerator::readClassInfo()
         classinfo = 0;
 
         if (d->tryCache && !coClassID.isEmpty())
-            cacheKey = QString("%1$%2$%3").arg(coClassID).arg((int)d->useEventSink).arg((int)d->useClassInfo);
+            cacheKey = QString::fromLatin1("%1$%2$%3").arg(coClassID).arg((int)d->useEventSink).arg((int)d->useClassInfo);
     }
 
     UINT index = 0;
