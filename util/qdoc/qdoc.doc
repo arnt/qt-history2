@@ -1368,7 +1368,8 @@
     <b>-S</b> disables supervisor mode.
 
    <p><li><a name="-v"></a>
-    <b>-v</b> prints the version number and exits.
+    <b>-v</b> (cf. \link #--version --version \endlink prints the
+    version number and exits.
 
    <p><li><a name="-W"></a>
     <b>-W</b> (cf. \link #--warning-level --warning-level \endlink)

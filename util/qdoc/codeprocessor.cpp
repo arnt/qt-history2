@@ -301,10 +301,10 @@ QString processCodeHtml( const QString& code, const Resolver *res,
     metaRes.setClassInheritanceMap( cinherits );
 
     /*
-      Find member function definitions and add either '<a href=...>' or
-      '<a name=...>'.
+      Find member function definitions and add either '<a href="...">'
+      or '<a name="...">'.
     */
-    QMap<QString, QMap<QString, int> > mfunctions;
+    QMap<QString, QMap<QString, QString> > mfunctions;
     QMap<int, QString> classAtOffset;
     QMap<QString, StringSet>::Iterator c = cinherits.begin();
     while ( c != cinherits.end() ) {
@@ -324,9 +324,10 @@ QString processCodeHtml( const QString& code, const Resolver *res,
 	    QString newX = metaRes.href( c.key() + QString("::") + x, x );
 	    if ( newX.length() == x.length() ) {
 		if ( localLinks && !mfunctions[c.key()].contains(x) ) {
-		    mfunctions[c.key()].insert( x, funique );
+		    mfunctions[c.key()].insert( x,
+						QString("#f%1").arg(funique) );
 		    QString aname =
-			    QString( "<a name=\"%1\"></a>" ).arg( funique );
+			    QString( "<a name=\"f%1\"></a>" ).arg( funique );
 		    t.insert( k, aname );
 		    funique++;
 		    k += aname.length();

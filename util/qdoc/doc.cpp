@@ -179,7 +179,7 @@ static void skipSpacesOrNL( const QString& in, int& pos )
 	    if ( firstNL == -1 ) {
 		firstNL = pos;
 	    } else {
-		pos = firstNL;
+		pos = firstNL + 1; // ### ???
 		break;
 	    }
 	}
@@ -847,18 +847,21 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		consume( "skipto" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walkthrough.skipto( substr, location() );
+		startPreOutput();
 		yyOut += QString( "\\skipto " ) + substr + QChar( '\n' );
 		break;
 	    case hash( 's', 8 ):
 		consume( "skipline" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walkthrough.skipline( substr, location() );
+		startPreOutput();
 		yyOut += QString( "\\skipline " ) + substr + QChar( '\n' );
 		break;
 	    case hash( 's', 9 ):
 		consume( "skipuntil" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walkthrough.skipuntil( substr, location() );
+		startPreOutput();
 		yyOut += QString( "\\skipuntil " ) + substr + QChar( '\n' );
 		break;
 	    case hash( 't', 5 ):
