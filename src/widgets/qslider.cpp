@@ -175,15 +175,6 @@ void QSlider::init()
 void QSlider::initTicks()
 {
     tickOffset = style().pixelMetric( QStyle::PM_SliderTickmarkOffset, this );
-
-//     int space = (orient == Horizontal) ? height() : width();
-//     if ( ticks == Both ) {
-// 	tickOffset = ( space - thickness() ) / 2;
-//     } else if ( ticks == Above ) {
-// 	tickOffset = space - thickness();
-//     } else {
-// 	tickOffset = 0;
-//     }
 }
 
 
