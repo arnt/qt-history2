@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#64 $
 **
 ** Implementation of QSignal class
 **
@@ -208,12 +208,17 @@ QVariant QSignal::value() const
     return val;
 }
 
+/*! \internal void signal( const QVariant & ) */
+/*! \internal void intSignal( int ) */
+
 #ifndef QT_NO_COMPAT
+/*! \obsolete */
 void QSignal::setParameter( int value )
 {
     val = value;
 }
 
+/*! \obsolete */
 int QSignal::parameter() const
 {
     return val.toInt();

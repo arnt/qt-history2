@@ -2,17 +2,15 @@
 
 #ifndef QT_NO_COMPONENT
 
-// We still have no name for the COM-like stuff here! See ###
-
 /*!
   \class QUnknownInterface qcom.h
   \brief The QUnknownInterface class is the base class for all interfaces of the Qt Component Model.
   \preliminary
   \ingroup componentmodel
 
-  All ### interfaces are derived from the QUnknownInterface. This interface provides
-  control of the object's lifetime and the ability to navigate a component implementing
-  multiple interfaces.
+  All interfaces in the component object model are derived from the QUnknownInterface. This 
+  interface provides control of the object's lifetime and the ability to navigate a component 
+  implementing multiple interfaces.
   The object's lifetime is controlled using a reference count that is increased and
   decreased using the functions addRef and release, respectively.
   The queryInterface function determines whether the component supports a specific interface.
@@ -38,9 +36,9 @@
           *iface = (...*)this;
       ...
 
-      if ( iface )
-          *iface->addRef();
-     return #####;
+      if ( *iface )
+          (*iface)->addRef();
+     return;
   }
   \endcode
 
@@ -234,7 +232,7 @@
 /*!
   \fn bool QComponentServerInterface::unregisterComponents() const
 
-  Removes the component in this server from the system registry and returns
+  Removes the components in this server from the system registry and returns
   TRUE if successful, otherwise returns FALSE.
 
   Implementations of this function should use the \link QComponentFactory::registerComponent()

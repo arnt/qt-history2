@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#713 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#714 $
 **
 ** Implementation of QWidget class
 **
@@ -3464,7 +3464,7 @@ void QWidget::show()
     in_show = FALSE;
 }
 
-
+/*! \obsolete void QWidget::iconify() */
 
 /*!
   Hides the widget.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/workspace/qworkspace.h#8 $
+** $Id: //depot/qt/main/src/workspace/qworkspace.h#9 $
 **
 ** Definition of the QWorkspace class
 **
@@ -52,7 +52,7 @@ class QWorkspacePrivate;
 class Q_EXPORT QWorkspace : public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY( bool scrollbarsEnabled READ scrollBarsEnabled WRITE setScrollBarsEnabled )
+    Q_PROPERTY( bool scrollBarsEnabled READ scrollBarsEnabled WRITE setScrollBarsEnabled )
 public:
     QWorkspace( QWidget *parent=0, const char *name=0 );
     ~QWorkspace();

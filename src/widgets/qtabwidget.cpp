@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#79 $
 **
 ** Implementation of QTabWidget class
 **
@@ -780,15 +780,17 @@ bool QTabWidget::eventFilter( QObject *o, QEvent * e)
     return FALSE;
 }
 
-/* Returns the tab page at the index \a index */
-
+/*! 
+  Returns the tab page at the index \a index
+*/
 QWidget *QTabWidget::page( int index ) const
 {
     return d->stack->widget( index );
 }
 
-/* Returns the label of the tab page at index \a index */
-
+/*! 
+  Returns the label of the tab page at index \a index 
+*/
 QString QTabWidget::label( int index ) const
 {
     return d->tabs->tabAt( index )->label;

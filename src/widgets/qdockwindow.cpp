@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdockwindow.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qdockwindow.cpp#66 $
 **
 ** Implementation of the QDockWindow class
 **
@@ -1427,7 +1427,6 @@ QSize QDockWindow::minimumSizeHint() const
 }
 
 /*!
-
   Undocks the QDockWindow from its current QDockArea, if it is
   docked, otherwise does nothing.
 
@@ -1436,7 +1435,6 @@ QSize QDockWindow::minimumSizeHint() const
   \sa dock() QDockArea::moveDockWindow(), QDockArea::removeDockWindow(),
   QMainWindow::moveDockWindow(), QMainWindow::removeDockWindow()
 */
-
 void QDockWindow::undock( QWidget *w )
 {
     if ( place() == OutsideDock && !w )
@@ -1470,6 +1468,10 @@ void QDockWindow::undock( QWidget *w )
 	show();
     }
 }
+
+/*!
+  \internal void QDockWindow::undock()
+*/
 
 void QDockWindow::removeFromDock( bool fixNewLines )
 {
@@ -1573,6 +1575,7 @@ void QDockWindow::updateSplitterVisibility( bool visible )
     }
 }
 
+/*! \reimp */
 bool QDockWindow::eventFilter( QObject *o, QEvent *e )
 {
     if ( e->type() == QEvent::KeyPress ) {
@@ -1590,8 +1593,7 @@ bool QDockWindow::eventFilter( QObject *o, QEvent *e )
     return QFrame::eventFilter( o, e );
 }
 
-
-
+/*! \reimp */
 void QDockWindow::contextMenuEvent( QContextMenuEvent *e )
 {
     QObject *o = this;

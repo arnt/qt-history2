@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#462 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#463 $
 **
 ** Implementation of QListBox widget class
 **
@@ -410,6 +410,11 @@ int QListBoxText::width( const QListBox* lb ) const
     return QMAX( w, QApplication::globalStrut().width() );
 }
 
+/*! 
+  \fn int QListBoxText::rtti() const
+  \reimp
+*/
+
 
 /*!
   \class QListBoxPixmap qlistbox.h
@@ -550,6 +555,11 @@ int QListBoxPixmap::width( const QListBox* lb ) const
     return QMAX( pm.width() + lb->fontMetrics().width( text() ) + 6,
 	    QApplication::globalStrut().width() );
 }
+
+/*! 
+  \fn int QListBoxPixmap::rtti() const
+  \reimp
+*/
 
 
 /*!
