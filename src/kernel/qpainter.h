@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#61 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#62 $
 **
 ** Definition of QPainter class
 **
@@ -247,6 +247,8 @@ protected:
     GC		gc;				// graphics context (standard)
     GC		gc_brush;			// graphics contect for brush
     QPoint	curPt;				// current point
+    char       *penKey;				// pen lookup key
+    char       *brushKey;			// brush lookup key
 #endif
     friend class QFontMetrics;
     friend class QFontInfo;
