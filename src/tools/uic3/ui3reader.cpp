@@ -287,7 +287,7 @@ QString Ui3Reader::getClassName(const QDomElement& e)
 {
     QString s = e.attribute("class");
     if (s.isEmpty() && e.tagName() == QLatin1String("toolbar"))
-        s = QLatin1String("QToolBar");
+        s = QLatin1String("Q3ToolBar");
     else if (s.isEmpty() && e.tagName() == QLatin1String("menubar"))
         s = QLatin1String("QMenuBar");
 

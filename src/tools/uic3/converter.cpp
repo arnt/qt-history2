@@ -154,7 +154,7 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
             QDomElement n2 = n.firstChild().toElement();
             while (!n2.isNull()) {
                 if (n2.tagName().toLower() == QLatin1String("toolbar")) {
-                    DomWidget *tb = createWidget(n2, QLatin1String("QToolBar"));
+                    DomWidget *tb = createWidget(n2, QLatin1String("Q3ToolBar"));
                     ui_toolbars.append(tb);
                 }
                 n2 = n2.nextSibling().toElement();
@@ -228,14 +228,17 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
 
         QString customClass = it.key();
         QString baseClass;
+
         if (customClass.endsWith("ListView"))
             baseClass = QLatin1String("Q3ListView");
         else if (customClass.endsWith("ListBox"))
-            baseClass = QLatin1String("QListBox"); // ### Q3ListBox??
+            baseClass = QLatin1String("QListBox");
         else if (customClass.endsWith("IconView"))
-            baseClass = QLatin1String("QIconView"); // ### Q3IconView??
+            baseClass = QLatin1String("QIconView");
         else if (customClass.endsWith("ComboBox"))
-            baseClass = QLatin1String("QComboBox"); // ### Q3ComboBox??
+            baseClass = QLatin1String("QComboBox");
+        else if (customClass.endsWith("ToolBar"))
+            baseClass = QLatin1String("Q3ToolBar");
 
         if (baseClass.isEmpty())
             continue;
