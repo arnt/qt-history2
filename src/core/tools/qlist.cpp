@@ -31,16 +31,15 @@ QListData::Data QListData::shared_null = { Q_ATOMIC_INIT(1), 0, 0, 0, true, { 0 
 static int grow(int size)
 {
     // dear compiler: don't optimize me out.
-    volatile int x = qAllocMore(size * sizeof(void *), sizeof(QListData::DataHeader))
-                     / sizeof(void *);
+    volatile int x = qAllocMore(size * sizeof(void *), QListData::DataHeaderSize) / sizeof(void *);
     return x;
 }
 
 QListData::Data *QListData::detach()
 {
     Q_ASSERT(d->ref != 1);
-    Data *x = static_cast<Data *>(qMalloc(sizeof(DataHeader) + d->alloc * sizeof(void *)));
-    ::memcpy(x, d, sizeof(DataHeader) + d->alloc * sizeof(void *));
+    Data *x = static_cast<Data *>(qMalloc(DataHeaderSize + d->alloc * sizeof(void *)));
+    ::memcpy(x, d, DataHeaderSize + d->alloc * sizeof(void *));
     x->alloc = d->alloc;
     x->ref = 1;
     x->sharable = true;
@@ -56,7 +55,7 @@ QListData::Data *QListData::detach()
 void QListData::realloc(int alloc)
 {
     Q_ASSERT(d->ref == 1);
-    d = static_cast<Data*>(qRealloc(d, sizeof(DataHeader)+alloc*sizeof(void*)));
+    d = static_cast<Data *>(qRealloc(d, DataHeaderSize + alloc * sizeof(void *)));
     d->alloc = alloc;
     if (!alloc)
         d->begin = d->end = 0;

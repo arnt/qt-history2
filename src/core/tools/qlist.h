@@ -19,17 +19,14 @@
 #include "qvector.h"
 
 struct Q_CORE_EXPORT QListData {
-    struct DataHeader {
-        QAtomic ref;
-        int alloc, begin, end;
-        uint sharable : 1;
-    };
     struct Data {
         QAtomic ref;
         int alloc, begin, end;
         uint sharable : 1;
         void *array[1];
     };
+    enum { DataHeaderSize = sizeof(Data) - sizeof(void *) };
+
     Data *detach();
     void realloc(int alloc);
     static Data shared_null;
