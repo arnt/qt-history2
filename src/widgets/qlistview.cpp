@@ -6655,6 +6655,11 @@ QListViewItemIterator &QListViewItemIterator::operator-=( int j )
     return *this;
 }
 
+QListViewItemIterator* QListViewItemIterator::operator*()
+{
+    return curr;    
+}
+
 /*! Returns a pointer to the current item of the iterator.
 */
 
