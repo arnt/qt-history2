@@ -1423,7 +1423,7 @@ void QIconViewItem::calcRect( const QString &text_ )
 			       ( iconView()->itemTextPos() == QIconView::Bottom ? 0 :
 			       iconRect().width() ),
 			       0xFFFFFFFF, Qt::AlignCenter | Qt::WordBreak, t ) );
-    tw = r.width();
+    tw = r.width() - fm->minLeftBearing() - fm->minRightBearing();
     th = r.height();
     if ( tw < fm->width( "X" ) )
 	tw = fm->width( "X" );
@@ -4458,6 +4458,8 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 	    while ( TRUE ) {
 		x += d->spacing + item->width();
 		if ( x > visibleWidth() && item != begin ) {
+		    h = QMAX( h, item->height() );
+		    ih = QMAX( ih, item->iconRect().height() );
 		    item = item->prev;
 		    break;
 		}
@@ -4484,6 +4486,8 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 		else
 		    item->move( item->prev->x() + item->prev->width() + d->spacing,
 				y + ih - item->iconRect().height() );
+		if ( y + h < item->y() + item->height() )
+		    h = QMAX( h, ih + item->textRect().height() ); 
 		if ( item == end )
 		    break;
 		item = item->next;
@@ -4509,6 +4513,8 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 		    x = i * d->rastX + sp * d->spacing;
 		}
 		if ( x > visibleWidth() && item != begin ) {
+		    h = QMAX( h, item->height() );
+		    ih = QMAX( ih, item->iconRect().height() );
 		    item = item->prev;
 		    break;
 		}
@@ -4551,6 +4557,8 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 			item->move( x, y + ih - item->iconRect().height() );
 		    i += r;
 		}
+		if ( y + h < item->y() + item->height() )
+		    h = QMAX( h, ih + item->textRect().height() ); 
 		if ( item == end )
 		    break;
 		item = item->next;
