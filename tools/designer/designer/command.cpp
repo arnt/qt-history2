@@ -1825,6 +1825,7 @@ void AddActionToToolBarCommand::unexecute()
 		    o->removeEventFilter( toolBar );
 		    toolBar->removeAction( (QAction*)o );
 		}
+		QObject::disconnect( o, SIGNAL( destroyed() ), toolBar, SLOT( actionRemoved() ) );
 	    }
 	}
     }
@@ -1857,6 +1858,7 @@ void AddActionToPopupCommand::execute()
 			continue;
 		    QDesignerAction *ac = (QDesignerAction*)o;
 		    popup->insertAction( index + (i++), ac );
+		    QObject::connect( o, SIGNAL( destroyed() ), popup, SLOT( actionRemoved() ) );
 		}
 	    }
 	}
@@ -1892,6 +1894,7 @@ void AddActionToPopupCommand::unexecute()
 		    o->removeEventFilter( popup );
 		    popup->removeAction( (QAction*)o );
 		}
+		QObject::disconnect( o, SIGNAL( destroyed() ), popup, SLOT( actionRemoved() ) );
 	    }
 	}
     }
