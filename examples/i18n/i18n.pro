@@ -21,3 +21,4 @@ TRANSLATIONS	= mywidget_cs.ts \
 		  mywidget_no.ts \
 		  mywidget_ru.ts \
 		  mywidget_zh.ts
+QT	+= compat
