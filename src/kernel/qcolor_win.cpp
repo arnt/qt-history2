@@ -44,7 +44,7 @@ int QColor::maxColors()
 	if ( GetDeviceCaps(hdc, RASTERCAPS) & RC_PALETTE )
 	    maxcols = GetDeviceCaps( hdc, SIZEPALETTE );
 	else
-	    maxcols = GetDeviceCaps( hdc, NUMCOLORS );
+	    maxcols = -1;
     }
     return maxcols;
 }
