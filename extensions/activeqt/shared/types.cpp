@@ -297,14 +297,14 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
 	    arg.vt = VT_ARRAY|VT_UI1;
 	    const QByteArray array = qvar.toByteArray();
 	    uint size = array.size();
-	    char *data = array.data();
+	    arg.parray = SafeArrayCreateVector( VT_UI1, 0, size );
 
-	    arg.parray = SafeArrayCreateVector( VT_UI1, 0, size );	    
-	    LONG index = 0;
-	    while ( index < size ) {
-		SafeArrayPutElement( arg.parray, &index, data );
-		++data;
-		++index;
+	    if ( size ) {
+		char *data = array.data();
+		char *dest;
+		SafeArrayAccessData( arg.parray, (void **)&dest );
+		memcpy( dest, data, size );
+		SafeArrayUnaccessData( arg.parray );
 	    }
 	}
 	break;
@@ -829,12 +829,13 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		SafeArrayGetLBound( array, 1, &lBound );
 		SafeArrayGetUBound( array, 1, &uBound );
 
-		if ( uBound != -1 )
+		if ( uBound != -1 ) {
 		    bytes.resize( uBound - lBound + 1 );
-		char *data = bytes.data();
-		for ( long i = lBound; i <= uBound; ++i ) {
-		    SafeArrayGetElement( array, &i, data );
-		    ++data;
+		    char *data = bytes.data();
+		    char *src;
+		    SafeArrayAccessData( array, (void**)&src );
+		    memcpy( data, src, bytes.size() );
+		    SafeArrayUnaccessData( array );
 		}
 	    }
 	    if ( reference )
@@ -1086,12 +1087,12 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 	    SafeArrayGetLBound( array, 1, &lBound );
 	    SafeArrayGetUBound( array, 1, &uBound );
 
-	    if ( uBound != -1 ) // non-empty array
+	    if ( uBound != -1 ) { // non-empty array
 		bytes.resize( uBound - lBound + 1 );
-	    char *data = bytes.data();
-	    for ( long i = lBound; i <= uBound; ++i ) {
-		SafeArrayGetElement( array, &i, data );
-		++data;
+		char *data = bytes.data();
+		char *src;
+		SafeArrayAccessData( array, (void**)&src );
+		memcpy( data, src, bytes.size() );
 	    }
 
 	    var = bytes;
