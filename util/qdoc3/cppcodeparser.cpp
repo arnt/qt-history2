@@ -129,7 +129,6 @@ void CppCodeParser::parseSourceFile( const Location& location,
 void CppCodeParser::doneParsingHeaderFiles( Tree *tree )
 {
     tree->resolveInheritance();
-    tree->resolveProperties();
 
     QMapIterator<QString, QString> i(sequentialIteratorClasses);
     while (i.hasNext()) {
@@ -166,6 +165,7 @@ void CppCodeParser::doneParsingSourceFiles( Tree *tree )
     tree->root()->makeUndocumentedChildrenInternal();
     tree->root()->normalizeOverloads();
     tree->fixInheritance();
+    tree->resolveProperties();
 }
 
 const FunctionNode *CppCodeParser::findFunctionNode( const QString& synopsis,

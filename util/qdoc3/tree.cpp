@@ -2,6 +2,8 @@
   tree.cpp
 */
 
+#include <QtCore>
+
 #include "node.h"
 #include "tree.h"
 
@@ -206,12 +208,15 @@ void Tree::resolveProperties()
         while (c != parent->childNodes().end()) {
 	    if ((*c)->type() == Node::Function) {
 		FunctionNode *function = static_cast<FunctionNode *>(*c);
-		if (function->name() == getterName) {
-	            property->addFunction(function, PropertyNode::Getter);
-	        } else if (function->name() == setterName) {
-	            property->addFunction(function, PropertyNode::Setter);
-	        } else if (function->name() == resetterName) {
-	            property->addFunction(function, PropertyNode::Resetter);
+                if (function->status() == property->status()
+                        && function->access() == property->access()) {
+		    if (function->name() == getterName) {
+	                property->addFunction(function, PropertyNode::Getter);
+	            } else if (function->name() == setterName) {
+	                property->addFunction(function, PropertyNode::Setter);
+	            } else if (function->name() == resetterName) {
+	                property->addFunction(function, PropertyNode::Resetter);
+                    }
                 }
 	    }
 	    ++c;
