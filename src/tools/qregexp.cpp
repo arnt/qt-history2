@@ -1178,7 +1178,8 @@ private:
 #ifndef QT_NO_REGEXP_BACKREF
     QIntDict<int> mmSleeping; // dictionary of back-reference sleepers
 #endif
-    int mmMatchedLen; // length of match or of matched string for partial match
+    int mmMatchLen; // length of match
+    int mmMatchedLen; // length of partial match
 };
 
 QRegExpEngine::QRegExpEngine( const QString& rx, bool caseSensitive )
@@ -1216,6 +1217,7 @@ QMemArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
     mmPos = pos;
     mmLen = str.length();
     mmMinimal = minimal;
+    mmMatchLen = 0;
     mmMatchedLen = 0;
 
     bool matched = FALSE;
@@ -1242,7 +1244,7 @@ QMemArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
     if ( matched ) {
 	mmCaptured.detach();
 	mmCaptured[0] = mmPos;
-	mmCaptured[1] = mmMatchedLen;
+	mmCaptured[1] = mmMatchLen;
 	for ( int j = 0; j < officialncap; j++ ) {
 	    int len = mmCapEnd[j] - mmCapBegin[j];
 	    mmCaptured[2 + 2 * j] = len > 0 ? mmPos + mmCapBegin[j] : 0;
@@ -1784,8 +1786,9 @@ bool QRegExpEngine::matchHere()
 {
     int ncur = 1, nnext = 0;
     int i = 0, j, k, m;
-    bool match = FALSE;
+    bool stop = FALSE;
 
+    mmMatchLen = -1;
     mmMatchedLen = -1;
     mmCurStack[0] = InitialState;
 
@@ -1802,9 +1805,9 @@ bool QRegExpEngine::matchHere()
     int *zzZ = 0;
 
     while ( (ncur > 0 || mmSleeping.count() > 0) && i <= mmLen - mmPos &&
-	    !match )
+	    !stop )
 #else
-    while ( ncur > 0 && i <= mmLen - mmPos && !match )
+    while ( ncur > 0 && i <= mmLen - mmPos && !stop )
 #endif
     {
 	int ch = ( i < mmLen - mmPos ) ? mmIn[mmPos + i].unicode() : 0;
@@ -1840,8 +1843,8 @@ bool QRegExpEngine::matchHere()
 			else
 			    in = ( QChar(m).lower() == QChar(ch).lower() );
 		    } else if ( next == FinalState ) {
-			mmMatchedLen = i;
-			match = mmMinimal;
+			mmMatchLen = i;
+			stop = mmMinimal;
 			in = TRUE;
 		    } else if ( (m & CharClassBit) != 0 ) {
 #ifndef QT_NO_REGEXP_CCLASS
@@ -2128,10 +2131,8 @@ bool QRegExpEngine::matchHere()
     }
 #endif
 
-    match = ( mmMatchedLen >= 0 );
-    if ( !match )
-	mmMatchedLen = i - 1;
-    return match;
+    mmMatchedLen = i - 1;
+    return ( mmMatchLen >= 0 );
 }
 
 #ifndef QT_NO_REGEXP_CCLASS
