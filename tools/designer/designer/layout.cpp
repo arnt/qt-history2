@@ -785,8 +785,9 @@ void GridLayout::buildGrid()
     QValueVector<int> y( widgets.count()*2 );
 
     // Using push_back would look nicer, but operator[] is much faster
-    int index = 0;
-    for ( QWidget* w = widgets.first(); w; w = widgets.next() ) {
+    int index  = 0;
+    QWidget* w = 0;
+    for ( w = widgets.first(); w; w = widgets.next() ) {
 	QRect widgetPos = w->geometry();
 	x[index]   = widgetPos.left();
 	x[index+1] = widgetPos.right();
