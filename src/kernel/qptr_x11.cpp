@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#195 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#196 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#195 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#196 $");
 
 
 /*****************************************************************************
@@ -3035,8 +3035,11 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
 
 /*!
+
   Returns the bounding rectangle of the aligned text that would be
-  printed with the corresponding drawText() function.
+  printed with the corresponding drawText() function (the first \e len
+  characters from \e str).  The drawing, and hence the bounding
+  rectangle, is constrained to the rectangle \e (x,y,w,h).
 
   The \e tf text formatting is the bitwise OR of the following flags:
   <ul>
@@ -3062,6 +3065,9 @@ QRect QPainter::boundingRect( int x, int y, int w, int h, int tf,
 			      const char *str, int len, char **internal )
 {
     QRect brect;
-    drawText( x, y, w, h, tf, str, len, &brect, internal );
+    if ( str && *str )
+	drawText( x, y, w, h, tf, str, len, &brect, internal );
+    else
+	brect.setRect( x,y, 0,0 );
     return brect;
 }

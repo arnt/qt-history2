@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#83 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#84 $
 **
 ** Definition of QPainter class
 **
@@ -11,6 +11,7 @@
 
 #ifndef QPAINTER_H
 #define QPAINTER_H
+
 
 #include "qpaintd.h"
 #include "qcolor.h"
@@ -482,7 +483,6 @@ inline QRect QPainter::boundingRect( const QRect &r, int tf,
     return boundingRect( r.x(), r.y(), r.width(), r.height(), tf, str, len,
 			 i );
 }
-
 
 
 #endif // QPAINTER_H
