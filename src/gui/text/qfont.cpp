@@ -99,8 +99,12 @@ bool QFontDef::exactMatch(const QFontDef &other) const
 extern HDC shared_dc;
 #endif
 
+extern bool qt_is_gui_used;
+
 int qt_defaultDpi()
 {
+    if (!qt_is_gui_used)
+        return 75;
 
     int dpi;
 #ifdef Q_WS_X11
