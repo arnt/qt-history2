@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#12 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#13 $
 **
 ** Implementation of Qt extension classes for Netscape Plugin support.
 **
@@ -467,7 +467,7 @@ extern "C" jref
 NPP_GetJavaClass(void)
 {
     if (!qNP) qNP = QNPlugin::create();
-    plugin_java_class = qNP->getJavaClass();
+    plugin_java_class = (jref)qNP->getJavaClass();
     return plugin_java_class;
 }
 
