@@ -402,6 +402,7 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
     QKeyEvent pe = *e;
     int n = -1;
     int hasShift = (e->state()&Qt::ShiftButton)?1:0;
+    bool identicalDisabled = FALSE;
     bool matchFound = FALSE;
     do {
 	accel = accels.first();
@@ -410,8 +411,8 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 	    if ( accel->enabled && correctSubWindow( w, accel ) ) {
 		item = accel->aitems.last();
 		while( item ) {
-		    if ( item->enabled ) {
-			if ( Qt::Identical == (result = match( &pe, item, tocheck )) ) {
+		    if ( Qt::Identical == (result = match( &pe, item, tocheck )) ) {
+			if ( item->enabled ) {
 			    if ( !firstaccel ) {
 				firstaccel = accel;
 				firstitem = item;
@@ -422,11 +423,13 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 			    matchFound = TRUE;
 			    if ( n > QMAX(clash,0) )
 				goto doclash;
+			} else {
+			    identicalDisabled = TRUE;
 			}
-			if ( Qt::PartialMatch == result ) {
-			    partial = tocheck;
-			    matchFound = TRUE;
-			}
+		    }
+		    if ( item->enabled && Qt::PartialMatch == result ) {
+			partial = tocheck;
+			matchFound = TRUE;
 		    }
 		    item = accel->aitems.prev();
 		}
@@ -434,7 +437,7 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 	    accel = accels.next();
 	}
 	pe = QKeyEvent( QEvent::Accel, pe.key(), pe.ascii(), pe.state()&~Qt::ShiftButton, pe.text() );
-    } while ( hasShift-- && !matchFound );
+    } while ( hasShift-- && !matchFound && !identicalDisabled );
 
 #ifndef QT_NO_STATUSBAR
     mainStatusBar = (QStatusBar*) w->topLevelWidget()->child( 0, "QStatusBar" );
