@@ -943,6 +943,7 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
 
     setDirty(QPaintEngine::DirtyPen);
     setDirty(QPaintEngine::DirtyBrush);
+    setDirty(QPaintEngine::DirtyBackground);
     d->clip_serial = gc_cache_clip_serial++;
 
     return true;
