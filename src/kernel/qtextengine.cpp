@@ -186,7 +186,7 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl
 
 	    QChar::Category category = ::category( uc );
 	    if ( uc == 0xfffcU || uc == 0x2028U ) {
-		item.analysis.bidiLevel = level;
+		item.analysis.bidiLevel = level % 2 ? level-1 : level;
 		item.analysis.script = QFont::Latin;
 		item.isObject = TRUE;
 		s = QFont::NoScript;
@@ -224,10 +224,8 @@ static void bidiItemize( QTextEngine *engine, bool rightToLeft, int mode )
     if ( mode & QTextEngine::SingleLine )
 	control.singleLine = TRUE;
 
-    QChar::Direction dir = rightToLeft ? QChar::DirR : QChar::DirL;
-
     int sor = 0;
-    int eor = 0;
+    int eor = -1;
 
     // ### should get rid of this!
     bool first = TRUE;
@@ -240,14 +238,17 @@ static void bidiItemize( QTextEngine *engine, bool rightToLeft, int mode )
     const QChar *unicode = engine->string.unicode();
     int current = 0;
 
+    QChar::Direction dir = QChar::DirON;
     BidiStatus status;
     QChar::Direction sdir = direction( *unicode );
     if ( sdir != QChar::DirL && sdir != QChar::DirR && sdir != QChar::DirEN && sdir != QChar::DirAN )
 	sdir = QChar::DirON;
     status.eor = sdir;
-    status.lastStrong = sdir;
-    status.last = sdir;
+    status.lastStrong = rightToLeft ? QChar::DirR : QChar::DirL;;
+    status.last = status.lastStrong;
     status.dir = sdir;
+
+
 
     while ( current <= length ) {
 
@@ -412,7 +413,8 @@ static void bidiItemize( QTextEngine *engine, bool rightToLeft, int mode )
 	    // weak types:
 
 	case QChar::DirNSM:
-	    // ### if @sor, set dir to dirSor
+	    if (eor == current-1)
+		eor = current;
 	    break;
 	case QChar::DirEN:
 	    // if last strong was AL change EN to AN
