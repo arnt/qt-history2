@@ -8,7 +8,6 @@ include(../qbase.pri)
 QT = core 
 !win32:!embedded:!mac:CONFIG	   += x11
 contains(QT_CONFIG, x11sm):CONFIG += x11sm
-contains(QT_CONFIG, opengl):CONFIG += opengl
 
 !contains(QT_CONFIG, cups):DEFINES += QT_NO_CUPS
 !contains(QT_CONFIG, nis):DEFINES += QT_NO_NIS
