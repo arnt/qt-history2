@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#113 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#114 $
 **
 ** Implementation of QDir class
 **
@@ -1828,6 +1828,9 @@ bool QDir::readDirEntries( const QString &nameFilter,
   win32, this returns a number of QFileInfo objects containing "C:/",
   "D:/" etc.  On other operating systems, it returns a list containing
   just one root directory (e.g. "/").
+  
+  The returned pointer is owned by Qt. Callers should \e not delete or
+  modify it.
 */
 
 const QFileInfoList * QDir::drives()
