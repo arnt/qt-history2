@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#26 $
+** $Id: //depot/qt/main/src/tools/qlist.h#27 $
 **
 ** Definition of QList template/macro class
 **
@@ -89,6 +89,8 @@ public:
     type *toFirst()	      { return (type *)QGListIterator::toFirst(); }
     type *toLast()	      { return (type *)QGListIterator::toLast(); }
     operator type *() const   { return (type *)QGListIterator::get(); }
+    type *operator*()         { return (type *)QGListIterator::get(); }
+    type *operator->()        { return (type *)QGListIterator::get(); }
     type *current()   const   { return (type *)QGListIterator::get(); }
     type *operator()()	      { return (type *)QGListIterator::operator()();}
     type *operator++()	      { return (type *)QGListIterator::operator++(); }
