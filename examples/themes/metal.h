@@ -40,20 +40,6 @@ public:
 		      const QColorGroup &cg,
 		      SFlags how = Style_Default,
 		      void **data = 0 ) const;
-    void drawComplexControl( ComplexControl cc,
-			     QPainter *p,
-			     const QWidget *widget,
-			     const QRect &r,
-			     const QColorGroup &cg,
-			     SFlags how = Style_Default,
-			     SCFlags sub = SC_All,
-			     SCFlags subActive = SC_None,
-			     void **data = 0 ) const;
-    QRect querySubControlMetrics( ComplexControl cc,
-				  const QWidget *widget,
-				  SubControl sc,
-				  void **data = 0 ) const;
-
 private:
     QPalette oldPalette;
 };

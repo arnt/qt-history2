@@ -194,7 +194,7 @@ void MetalStyle::drawPrimitive( PrimitiveElement pe, QPainter *p,
 	    QColorGroup g2;
 	    g2.setColor( QColorGroup::Light, white );
 	    g2.setColor( QColorGroup::Dark, black );
-	    if ( flags & 
+	    if ( flags &
 		 (Style_Raised | Style_Down | Style_On | Style_Sunken ) ) {
 		qDrawShadePanel( p, r, g2,
 				 flags & (Style_Sunken | Style_On | Style_Down),
@@ -239,7 +239,7 @@ void MetalStyle::drawControl( ControlElement ce, QPainter *p,
 		flags |= Style_On;
 	    } else
 		fill = cg2.brush( QColorGroup::Button );
-	    
+	
 	    if ( ! btn->isFlat() && !(flags & Style_Down) )
 		flags |= Style_Raised;
 	
@@ -311,21 +311,3 @@ void MetalStyle::drawControl( ControlElement ce, QPainter *p,
 	break;
     }
 }
-
-void MetalStyle::drawComplexControl( ComplexControl cc, QPainter *p,
-				     const QWidget *widget, const QRect &r,
-				     const QColorGroup &cg, SFlags how,
-				     SCFlags sub, SCFlags subActive,
-				     void **data ) const
-{
-    QWindowsStyle::drawComplexControl( cc, p, widget, r, cg, how, sub,
-				       subActive, data );
-}
-
-QRect MetalStyle::querySubControlMetrics( ComplexControl cc,
-					  const QWidget *widget,
-					  SubControl sc, void **data ) const
-{
-    return QWindowsStyle::querySubControlMetrics( cc, widget, sc, data );
-}
-
