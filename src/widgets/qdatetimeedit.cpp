@@ -2418,7 +2418,7 @@ QSize QTimeEdit::sizeHint() const
     int h = fm.lineSpacing() + 2;
     int w = 2 + fm.width( '9' ) * 6 + fm.width( d->ed->separator() ) * 2 +
 	d->controls->upRect().width() + fw * 4 +
-	    ((d->display&AMPM) ? fm.width( lAM? *lAM : QString::fromLatin1( "AM" ) ) +
+	    ( (d->display&AMPM) ? fm.width( ( lAM? *lAM : QString::fromLatin1( "AM" ) ) ) +
 	     4 : 0 );
 
     return QSize( w, QMAX(h + fw * 2,20) ).expandedTo( QApplication::globalStrut() );
