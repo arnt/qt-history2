@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#16 $
 **
 ** Implementation of QPrinter class
 **
@@ -13,7 +13,7 @@
 #include "qprinter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#16 $";
 #endif
 
 
@@ -73,8 +73,9 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#15 $";
       if ( prt.setup( 0 ) ) {
           QPainter p;
           p.begin( &prt );
-          p.setFont( QFont( "times", 96, QFont::Bold ) );
-          p.drawText( 10,100, "Hello world!" );
+	  p.rotate( 55 );
+          p.setFont( QFont( "times", 144, QFont::Bold ) );
+          p.drawText( 80,30, "Hello world!" );
           p.end();
       }
       return 0;
