@@ -185,6 +185,7 @@ private:
     void parseCname();
     void parsePtr();
     void parseTxt();
+    void parseNs();
 };
 
 
@@ -388,6 +389,25 @@ void QDnsAnswer::parseCname()
 }
 
 
+void QDnsAnswer::parseNs()
+{
+    QString target = readString().lower();
+    if ( !ok ) {
+#if defined(DEBUG_QDNS)
+	qDebug( "QDns: saw bad cname for for %s", label.ascii() );
+#endif
+	return;
+    }
+
+    // parse, but ignore
+
+#if defined(DEBUG_QDNS)
+    qDebug( "QDns: saw %s IN NS %s (ttl %d)", label.ascii(), 
+	    target.ascii(), ttl );
+#endif
+}
+
+
 void QDnsAnswer::parsePtr()
 {
     QString target = readString().lower();
@@ -522,10 +542,6 @@ void QDnsAnswer::parse()
 	ttl = ( answer[pp+4] << 24 ) + ( answer[pp+5] << 16 ) +
 	      ( answer[pp+6] <<  8 ) + answer[pp+7];
 	pp = pp + 10;
-#if defined(DEBUG_QDNS)
-	debug( "class %d, type %d, label %s, ttl %d",
-	       clas, type, label.isNull() ? "." : label.ascii(), ttl );
-#endif
 	if ( clas != 1 ) {
 #if defined(DEBUG_QDNS)
 	    qDebug( "DNS Manager: class $d (not internet) for %s",
@@ -557,7 +573,7 @@ void QDnsAnswer::parse()
 		parseTxt();
 		break;
 	    case 2:
-		// we ignore NS records, but quietly
+		parseNs();
 		break;
 	    default:
 		// something we don't know
@@ -1067,7 +1083,7 @@ QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 
 #if defined(DEBUG_QDNS)
 	if ( nxdomain )
-	    qDebug( "found NXDomain %s", r->label().ascii() );
+	    qDebug( "found NXDomain %s", s.ascii() );
 #endif
 
 	if ( !nxdomain ) {
