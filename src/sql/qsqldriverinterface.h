@@ -43,6 +43,7 @@
 #endif // QT_H
 
 #ifndef QT_NO_SQL
+#ifndef QT_NO_COMPONENT
 
 // {EDDD5AD5-DF3C-400c-A711-163B72FE5F61}
 Q_GUID( IID_QSqlDriverInterface, 
@@ -56,6 +57,7 @@ interface Q_EXPORT QSqlDriverInterface : public QUnknownInterface
     virtual QSqlDriver* create( const QString& name ) = 0;
 };
 
+#endif //QT_NO_COMPONENT
 #endif // QT_NO_SQL
 
 #endif // QSQLDRIVERINTERFACE_H
