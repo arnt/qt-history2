@@ -50,6 +50,7 @@ QString mkdir_p_asstring(const QString &dir)
 
 static bool createDir(QString path)
 {
+    path = Option::fixPathToLocalOS(path);
     if(QFile::exists(path))
         return true;
 
@@ -91,7 +92,7 @@ static bool createDir(QString path)
 }
 
 
-MakefileGenerator::MakefileGenerator() : 
+MakefileGenerator::MakefileGenerator() :
     init_opath_already(false), init_already(false), moc_aware(false),
     no_io(false), project(0)
 {
@@ -157,7 +158,7 @@ MakefileGenerator::initOutPaths()
 
             QString path = project->first(dirs[x]); //not to be changed any further
             path = fileFixify(path, currentDir, Option::output_dir);
-            debug_msg(3, "Fixed output_dir %s (%s) into %s", dirs[x].toLatin1().constData(), 
+            debug_msg(3, "Fixed output_dir %s (%s) into %s", dirs[x].toLatin1().constData(),
                       orig_path.toLatin1().constData(), path.toLatin1().constData());
             if(!createDir(path))
                 warn_msg(WarnLogic, "%s: Cannot access directory '%s'", dirs[x].toLatin1().constData(), path.toLatin1().constData());
@@ -225,12 +226,12 @@ MakefileGenerator::init()
 
     QMap<QString, QStringList> &v = project->variables();
     const QStringList &quc = v["QMAKE_EXTRA_COMPILERS"];
-    
+
     if(!project->isEmpty("QMAKE_SUBSTITUTES")) {
         const QStringList &subs = v["QMAKE_SUBSTITUTES"];
         for(int i = 0; i < subs.size(); ++i) {
             if(!subs.at(i).endsWith(".in")) {
-                warn_msg(WarnLogic, "Substitute '%s' does not end with '.in'", 
+                warn_msg(WarnLogic, "Substitute '%s' does not end with '.in'",
                          subs.at(i).toLatin1().constData());
                 continue;
             }
@@ -277,10 +278,10 @@ MakefileGenerator::init()
                             state.push(MET_CONDITION);
                         }
                     } else if(line.startsWith("!!ENDIF")) {
-                        if(state.isEmpty()) 
+                        if(state.isEmpty())
                             warn_msg(WarnLogic, "(%s:%d): Unexpected endif",
                                      in.fileName().toLatin1().constData(), count);
-                        else 
+                        else
                             state.pop();
                     } else if(state.isEmpty() || state.top() == IN_CONDITION) {
                         contents += project->expand(line);
@@ -294,7 +295,7 @@ MakefileGenerator::init()
                     }
                     out.close();
                     if(!out.remove()) {
-                        warn_msg(WarnLogic, "Cannot clear substitute '%s'", 
+                        warn_msg(WarnLogic, "Cannot clear substitute '%s'",
                                  out.fileName().toLatin1().constData());
                         continue;
                     }
@@ -303,19 +304,19 @@ MakefileGenerator::init()
                     v["QMAKE_INTERNAL_INCLUDED_FILES"].append(subs.at(i));
                     out.write(contents.toUtf8());
                 } else {
-                    warn_msg(WarnLogic, "Cannot open substitute for output '%s'", 
+                    warn_msg(WarnLogic, "Cannot open substitute for output '%s'",
                              out.fileName().toLatin1().constData());
                 }
             } else {
-                warn_msg(WarnLogic, "Cannot open substitute for input '%s'", 
+                warn_msg(WarnLogic, "Cannot open substitute for input '%s'",
                          in.fileName().toLatin1().constData());
             }
         }
     }
 
     QStringList paths;
-    paths << "SOURCES" << "FORMS" << "YACCSOURCES" << "INCLUDEPATH" << "HEADERS" 
-          << "HEADERS_ORIG" << "LEXSOURCES" << "QMAKE_INTERNAL_INCLUDED_FILES" 
+    paths << "SOURCES" << "FORMS" << "YACCSOURCES" << "INCLUDEPATH" << "HEADERS"
+          << "HEADERS_ORIG" << "LEXSOURCES" << "QMAKE_INTERNAL_INCLUDED_FILES"
           << "PRECOMPILED_HEADER";
     for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
         if(!v[(*it) + ".output"].isEmpty())
@@ -332,12 +333,12 @@ MakefileGenerator::init()
     }
 
     /* get deps and mocables */
-    if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT || 
+    if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT ||
         Option::mkfile::do_deps || Option::mkfile::do_mocs)
        && !noIO() && !project->isActiveConfig("no_fileio")) {
         depHeuristics.clear();
-        if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT || 
-            Option::mkfile::do_deps) && 
+        if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT ||
+            Option::mkfile::do_deps) &&
            doDepends()) {
             //dependency paths
             QStringList incDirs = v["DEPENDPATH"] + v["QMAKE_ABSOLUTE_SOURCE_PATH"];
@@ -355,17 +356,17 @@ MakefileGenerator::init()
                     cache_file = Option::fixPathToLocalOS(project->first("QMAKE_INTERNAL_CACHE_FILE"));
                 } else {
                     cache_file = ".qmake.internal.cache";
-                    if(project->isActiveConfig("build_pass")) 
+                    if(project->isActiveConfig("build_pass"))
                         cache_file += ".BUILD." + project->first("BUILD_PASS");
                 }
-                if(cache_file.indexOf(QDir::separator()) == -1) 
+                if(cache_file.indexOf(QDir::separator()) == -1)
                     cache_file.prepend(Option::output_dir + QDir::separator());
                 setCacheFile(cache_file);
             }
         }
         {
             QStringList sources;
-            sources << "OBJECTS" << "LEXSOURCES" << "YACCSOURCES" << "HEADERS" 
+            sources << "OBJECTS" << "LEXSOURCES" << "YACCSOURCES" << "HEADERS"
                     << "SOURCES" << "FORMS" << "PRECOMPILED_HEADER";
             for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
                 if(!v[(*it) + ".output"].isEmpty())
@@ -377,7 +378,7 @@ MakefileGenerator::init()
                 for(int val_it = 0; val_it < l.count(); val_it++) {
                     QString &val = l[val_it];
                     if(!val.isEmpty()) {
-                        QString file = fileFixify(val, qmake_getpwd(), 
+                        QString file = fileFixify(val, qmake_getpwd(),
                                                   Option::output_dir);
                         if (file.at(0) == '\"' && file.at(file.length() - 1) == '\"')
                             file = file.mid(1, file.length() - 2);
@@ -434,7 +435,7 @@ MakefileGenerator::init()
                             } else {
                                 debug_msg(1, "%s:%d Cannot match %s%c%s, as %s does not exist.",
                                           __FILE__, __LINE__, real_dir.toLatin1().constData(),
-                                          QDir::separator().latin1(), 
+                                          QDir::separator().latin1(),
                                           regex.toLatin1().constData(), real_dir.toLatin1().constData());
                                 warn_msg(WarnLogic, "Failure to find: %s", val.toLatin1().constData());
                             }
@@ -1038,7 +1039,7 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString
 
 void
 MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
-{    
+{
     QStringList &l = project->variables()[src];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
         QString srcMoc = Option::fixPathToTargetOS(*it, false);
@@ -2147,7 +2148,7 @@ struct FileFixifyCacheKey
         canonicalize = c;
     }
     QString toString() const {
-        return file + "--" + in_d + "--" + out_d + "--" + pwd + "--" + 
+        return file + "--" + in_d + "--" + out_d + "--" + pwd + "--" +
             QString::number(fixType) + "--" + QString::number(canonicalize);
     }
     bool operator==(const FileFixifyCacheKey &f) const
@@ -2161,7 +2162,7 @@ struct FileFixifyCacheKey
     }
 };
 
-uint qHash(const FileFixifyCacheKey &f) { 
+uint qHash(const FileFixifyCacheKey &f) {
     return (uint(f.canonicalize) |
             uint(f.fixType) |
             qHash(f.file) |
@@ -2180,7 +2181,7 @@ MakefileGenerator::fileFixify(const QString& file, const QString &out_d, const Q
 
     //remove the quotes
     QChar quote;
-    if((ret[0] == QLatin1Char('\'') || ret[0] == QLatin1Char('\"')) && 
+    if((ret[0] == QLatin1Char('\'') || ret[0] == QLatin1Char('\"')) &&
        ret[ret.length()-1] == ret[0]) {
         quote = ret[0];
         ret = ret.mid(1, ret.length() - 2);
@@ -2188,10 +2189,10 @@ MakefileGenerator::fileFixify(const QString& file, const QString &out_d, const Q
 
     //setup the cache
     static QHash<FileFixifyCacheKey, QString> *cache = 0;
-    if(!cache) 
+    if(!cache)
         cache = new QHash<FileFixifyCacheKey, QString>;
     FileFixifyCacheKey cacheKey(ret, out_d, in_d, fix, canon);
-    if(cache->contains(cacheKey)) 
+    if(cache->contains(cacheKey))
         return cache->value(cacheKey);
 
     //do the fixin'
@@ -2228,7 +2229,7 @@ MakefileGenerator::fileFixify(const QString& file, const QString &out_d, const Q
                 qfileinfo.setFile(ret);
             }
             ret = Option::fixPathToTargetOS(ret, false, canon);
-            if(canon && qfileinfo.exists() && 
+            if(canon && qfileinfo.exists() &&
                file == Option::fixPathToTargetOS(ret, true, canon))
                 ret = qfileinfo.canonicalFilePath();
             QString match_dir = Option::fixPathToTargetOS(out_dir, false, canon);
@@ -2263,7 +2264,7 @@ MakefileGenerator::fileFixify(const QString& file, const QString &out_d, const Q
                         ret = ret.right(remlen);
                         //prepend
                         for(int o = 0; o < i; o++)
-                            dot_prefix += ".." + Option::dir_sep; 
+                            dot_prefix += ".." + Option::dir_sep;
                     }
                 }
                 ret.prepend(dot_prefix);
@@ -2276,8 +2277,8 @@ MakefileGenerator::fileFixify(const QString& file, const QString &out_d, const Q
         ret = ".";
     if(!quote.isNull()) //put the quotes back
         ret = quote + ret + quote;
-    debug_msg(3, "Fixed %s :: to :: %s [%s::%s] [%s::%s]", orig_file.toLatin1().constData(), 
-              ret.toLatin1().constData(), in_d.toLatin1().constData(), out_d.toLatin1().constData(), 
+    debug_msg(3, "Fixed %s :: to :: %s [%s::%s] [%s::%s]", orig_file.toLatin1().constData(),
+              ret.toLatin1().constData(), in_d.toLatin1().constData(), out_d.toLatin1().constData(),
               pwd.toLatin1().constData(), Option::output_dir.toLatin1().constData());
     cache->insert(cacheKey, ret);
     return ret;
