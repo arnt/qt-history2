@@ -112,15 +112,15 @@ static const char *const ps_header =
 "}ie}D/di{gsave TR 1 i 1 eq{false eq{pop true 3 1 roll 4 i 4 i false 4 i 4 i\n"
 "imagemask BkCol SC imagemask}{pop false 3 1 roll imagemask}ie}{dup false ne{\n"
 "level3}{false}ie{/ma ED 8 eq{/dc[0 1]d/DeviceGray}{/dc[0 1 0 1 0 1]d\n"
-"/DeviceRGB}ie scs/im ED/mt ED/h ED/w ED/id 7 DB/ImageType 1 d/Width w d\n"
-"/Height h d/ImageMatrix mt d/DataSource im d/BitsPerComponent 8 d/Decode dc\n"
-"d DE/md 7 DB/ImageType 1 d/Width w d/Height h d/ImageMatrix mt d/DataSource\n"
-"ma d/BitsPerComponent 1 d/Decode[0 1]d DE 4 DB/ImageType 3 d/DataDict id d\n"
-"/MaskDict md d/InterleaveType 3 d end image}{pop 8 4 1 roll 8 eq{image}{QCI}\n"
+"/DeviceRGB}ie scs/im ED/mt ED/h ED/w ED/id <</ImageType 1 d/Width w d/Height\n"
+"h d/ImageMatrix mt d/DataSource im d/BitsPerComponent 8 d/Decode dc d >> d\n"
+"/md <</ImageType 1 d/Width w d/Height h d/ImageMatrix mt d/DataSource ma d\n"
+"/BitsPerComponent 1 d/Decode[0 1]d >> d <</ImageType 3 d/DataDict id d\n"
+"/MaskDict md d/InterleaveType 3 d >> image}{pop 8 4 1 roll 8 eq{image}{QCI}\n"
 "ie}ie}ie grestore}d/SetLinGrad{level3{/c2 ED/c1 ED/y2 ED/x2 ED/y1 ED/x1 ED\n"
-"/LinGrad 2 DB/PatternType 2 d/Shading 5 DB/ShadingType 2 d/ColorSpace\n"
-"[/DeviceRGB]d/Coords[x1 y1 x2 y2]d/Extend[true true]d/Function 5 DB\n"
-"/FunctionType 2 d/Domain[0 1]d/C0 c1 d/C1 c2 d/N 1 d DE end d end matrix\n"
+"/LinGrad <</PatternType 2 d/Shading <</ShadingType 2 d/ColorSpace\n"
+"[/DeviceRGB]d/Coords[x1 y1 x2 y2]d/Extend[true true]d/Function <<\n"
+"/FunctionType 2 d/Domain[0 1]d/C0 c1 d/C1 c2 d/N 1 d >> d >> d >> matrix\n"
 "makepattern d}{pop}ie/BSt 15 d}D/BF{gsave BSt 1 eq{BCol SC WFi{fill}{eofill}\n"
 "ie}if BSt 2 ge BSt 8 le and{BDArr BSt 2 sub get/sc ED BCol{1. exch sub sc\n"
 "mul 1. exch sub}forall 3 array astore SC WFi{fill}{eofill}ie}if BSt 9 ge BSt\n"
@@ -155,9 +155,9 @@ static const char *const ps_header =
 "stringwidth pop 3 -1 roll exch sub exch div exch 0 exch ashow}ie}D/AT{ty MT\n"
 "1 i dup length 2 div exch stringwidth pop 3 -1 roll exch sub exch div exch 0\n"
 "exch ashow}D/QI{/C save d pageinit/Cx 0 d/Cy 0 d/OMo false d}D/QP{C restore\n"
-"showpage}D/SPD{/setpagedevice where{1 DB 3 1 roll d end setpagedevice}{pop\n"
-"pop}ie}D/CLS{gsave NP}D/ACR{/h ED/w ED/y ED/x ED x y MT 0 h RL w 0 RL 0 h\n"
-"neg RL CP}D/CLO{grestore}D\n";
+"showpage}D/SPD{/setpagedevice where{<< 3 1 roll d >> setpagedevice}{pop pop}\n"
+"ie}D/CLS{gsave NP}D/ACR{/h ED/w ED/y ED/x ED x y MT 0 h RL w 0 RL 0 h neg RL\n"
+"CP}D/CLO{grestore}D\n";
 
 static const char * const agl =
 ".notdef\0space\0exclam\0quotedbl\0numbersign\0dollar\0percent\0ampersand\0"
@@ -845,6 +845,7 @@ public:
     float scale;
 
     bool embedFonts;
+    bool compressImages;
     QStringList fontpath;
     bool        collate;
     int         copies;
@@ -3982,11 +3983,18 @@ static const psfont MunhwaHoonMin [] = {
     { "MunhwaHoonMin-Regular-KSC-EUC-H", 0.2, 100. }
 };
 
+static const psfont BaekmukGulim [] = {
+    { "Baekmuk-Gulim-KSC-EUC-H", 0, 100. },
+    { "Baekmuk-Gulim-KSC-EUC-H", 0.2, 100. },
+    { "Baekmuk-Gulim-KSC-EUC-H", 0, 100. },
+    { "Baekmuk-Gulim-KSC-EUC-H", 0.2, 100. }
+};
+
 
 
 static const psfont * const KoreanReplacements[] = {
-    SMGothic, Munhwa, MunhwaGothic, MKai, MunhwaGungSeo, MunhwaGungSeoHeulim,
-    MunhwaHoonMin, Helvetica, 0
+    BaekmukGulim, SMGothic, Munhwa, MunhwaGothic, MKai, MunhwaGungSeo,
+    MunhwaGungSeoHeulim, MunhwaHoonMin, Helvetica, 0
 };
 
 class QPSPrintEngineFontKorean
@@ -4016,9 +4024,9 @@ QString QPSPrintEngineFontKorean::extension() const
 // Arphic Public License Big5 TrueType fonts (on Debian and CLE and others)
 static const psfont ShanHeiSun [] = {
     { "ShanHeiSun-Light-ETen-B5-H", 0, 100. },
-    { "ShanHeiSun-Light-Italic-ETen-B5-H", 0.2, 100. },
-    { "ShanHeiSun-Light-Bold-ETen-B5-H", 0, 100. },
-    { "ShanHeiSun-Light-BoldItalic-ETen-B5-H", 0.2, 100. },
+    { "ShanHeiSun-Light-ETen-B5-H", 0.2, 100. },
+    { "ShanHeiSun-Light-ETen-B5-H", 0, 100. },
+    { "ShanHeiSun-Light-ETen-B5-H", 0.2, 100. },
 };
 static const psfont ZenKai [] = {
     { "ZenKai-Medium-ETen-B5-H", 0, 100. },
@@ -4111,7 +4119,7 @@ public:
 QPSPrintEngineFontTraditionalChinese::QPSPrintEngineFontTraditionalChinese(QFontEngine* f)
     : QPSPrintEngineFontAsian(f)
 {
-    codec = QTextCodec::codecForMib(-2026); // Big5-0
+    codec = QTextCodec::codecForMib(2026); // Big5-0
     int type = getPsFontType(f);
     psname = makePSFontName(f, type);
     QString best = "[/" + psname + " 1.0 0.0]";
@@ -4527,6 +4535,7 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
 
     currentFontFile = 0;
     scale = 1.;
+    compressImages = false;
 
 #ifdef Q_WS_X11
     // append qsettings fontpath
@@ -4589,6 +4598,7 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
         if (!fp.isEmpty())
             fontpath += fp;
     }
+    compressImages = settings.readBoolEntry("/qt/postscript_compressImages", TRUE);
 #else
     embedFonts = false;
 #endif
@@ -4709,7 +4719,7 @@ static void emitBits(char *out, int & byte, int & bit,
 #include <qdatetime.h>
 #endif
 
-static QByteArray compress(const QImage & image, bool gray) {
+static QByteArray compress(const QImage & image, bool gray, bool compress) {
 #ifdef DEBUG_COMPRESS
     QTime t;
     t.start();
@@ -4744,7 +4754,7 @@ static QByteArray compress(const QImage & image, bool gray) {
                 // need to copy bit for bit...
                 bool b = (bitOrder == QImage::LittleEndian) ?
                          (*(s + (x >> 3)) >> (x & 7)) & 1 :
-                          (*(s + (x >> 3)) << (x & 7)) & 0x80 ;
+                         (*(s + (x >> 3)) << (x & 7)) & 0x80 ;
                 if (b)
                     pixel[i >> 3] ^= (0x80 >> (i & 7));
                 i++;
@@ -4790,6 +4800,19 @@ static QByteArray compress(const QImage & image, bool gray) {
 
     pixel[size] = 0;
 
+    if (!compress) {
+        QByteArray outarr(2*size+1);
+        char *data = outarr.data();
+        for (int i = 0; i < size; ++i) {
+            const char *hex = toHex(pixel[i]);
+            *(data++) = hex[0];
+            *(data++) = hex[1];
+        }
+        outarr[2*size] = 0;
+        delete [] pixel;
+        return outarr;
+    }
+
     /* this compression function emits blocks of data, where each
        block is an unquoted series of pixels, or a quote from earlier
        pixels. if the six-letter string "banana" were a six-pixel
@@ -4819,8 +4842,8 @@ static QByteArray compress(const QImage & image, bool gray) {
 
        compressed block:
        3 bits compression header
-           0-2 size of block is 1-3 bytes
-           3-7 size of block is bigger, 4-8 additional bits specifying size follow
+       0-2 size of block is 1-3 bytes
+       3-7 size of block is bigger, 4-8 additional bits specifying size follow
        0/4-8 additional size fields
        10 location of backreference
     */
@@ -4847,31 +4870,31 @@ static QByteArray compress(const QImage & image, bool gray) {
            to quote because we've already emitted something for this
            pixel, just skip. */
         if (start < index - tableSize || index >= size ||
-             emittedUntil > index)
+            emittedUntil > index)
             start = end = None;
         int attempts = 0;
         /* scan for suitable quote candidates: not too far back, and
            if we've found one that's as big as it can get, don't look
            for more */
         while(start != None && end != None &&
-               bestLength < maxQuoteLength &&
-               start >= index - tableSize &&
-               end >= index - tableSize + bestLength) {
+              bestLength < maxQuoteLength &&
+              start >= index - tableSize &&
+              end >= index - tableSize + bestLength) {
             /* scan backwards, looking for something good enough to
                try a (slow) string comparison. we maintain indexes to
                the start and the end of the quote candidate here */
             while(start != None && end != None &&
-                   (pixel[start] != pixel[index] ||
-                     pixel[end] != pixel[index+bestLength])) {
+                  (pixel[start] != pixel[index] ||
+                   pixel[end] != pixel[index+bestLength])) {
                 if (attempts++ > numAttempts) {
                     start = None;
                 } else if (pixel[end] % hashSize ==
-                            pixel[index+bestLength] % hashSize) {
+                           pixel[index+bestLength] % hashSize) {
                     /* we move the area along the end index' chain */
                     end = pastPixel[end%tableSize];
                     start = end - bestLength;
                 } else if (pixel[start] % hashSize ==
-                            pixel[index] % hashSize) {
+                           pixel[index] % hashSize) {
                     /* ... or along the start index' chain */
                     start = pastPixel[start%tableSize];
                     end = start + bestLength;
@@ -4880,9 +4903,9 @@ static QByteArray compress(const QImage & image, bool gray) {
                     /* this should never happen: both the start and
                        the end pointers ran off their tracks. */
                     qDebug("oops! %06x %06x %06x %06x %5d %5d %5d %d",
-                            pixel[start], pixel[end],
-                            pixel[index], pixel[index+bestLength],
-                            start, end, index, bestLength);
+                           pixel[start], pixel[end],
+                           pixel[index], pixel[index+bestLength],
+                           start, end, index, bestLength);
 #endif
                     /* but if it should happen, no problem. we'll just
                        say we found nothing, and the compression will
@@ -4904,8 +4927,8 @@ static QByteArray compress(const QImage & image, bool gray) {
                 /* slow string compare... */
                 int length = 0;
                 while(length < maxQuoteLength &&
-                       index+length < size &&
-                       pixel[start+length] == pixel[index+length])
+                      index+length < size &&
+                      pixel[start+length] == pixel[index+length])
                     length++;
                 /* if we've found something that overlaps the index
                    point, maybe we can move the quote point back?  if
@@ -4916,7 +4939,7 @@ static QByteArray compress(const QImage & image, bool gray) {
                     int dd = index-start;
                     int equal = true;
                     while(equal && start + length > index &&
-                           start > dd && start-dd >= index-tableSize) {
+                          start > dd && start-dd >= index-tableSize) {
                         int i = 0;
                         while(equal && i < dd) {
                             if(pixel[start+i] != pixel[start+i-dd])
@@ -4943,7 +4966,7 @@ static QByteArray compress(const QImage & image, bool gray) {
                     if (attempts > numAttempts) {
                         start = None;
                     } else if (pastPixel[start%tableSize] + bestLength <
-                                pastPixel[end%tableSize]) {
+                               pastPixel[end%tableSize]) {
                         start = pastPixel[start%tableSize];
                         end = start + bestLength;
                     } else {
@@ -4960,12 +4983,12 @@ static QByteArray compress(const QImage & image, bool gray) {
             }
         }
         /* backreferences to 1 byte of data are actually more costly than
-         emitting the data directly, 2 bytes don't save much. */
+           emitting the data directly, 2 bytes don't save much. */
         if (bestCandidate != None && bestLength < 3)
             bestCandidate = None;
         /* at this point, bestCandidate is a candidate of bestLength
-         length, or else it's None. if we have such a candidate, or
-         we're at the end, we have to emit all unquoted data. */
+           length, or else it's None. if we have such a candidate, or
+           we're at the end, we have to emit all unquoted data. */
         if (index == size || bestCandidate != None) {
             /* we need a double loop, because there's a maximum length
                on the "unquoted data" section. */
@@ -4984,12 +5007,12 @@ static QByteArray compress(const QImage & image, bool gray) {
                     out = (char *) realloc(out, outLen);
                 }
                 emitBits(out, outOffset, outBit,
-                          1, 0);
+                         1, 0);
                 emitBits(out, outOffset, outBit,
-                          quoteSize, l-1);
+                         quoteSize, l-1);
                 while(l--) {
                     emitBits(out, outOffset, outBit,
-                              8, pixel[emittedUntil]);
+                             8, pixel[emittedUntil]);
                     emittedUntil++;
                 }
             }
@@ -5009,7 +5032,7 @@ static QByteArray compress(const QImage & image, bool gray) {
                 out = (char *) realloc(out, outLen);
             }
             emitBits(out, outOffset, outBit,
-                      1, 1);
+                     1, 1);
             int l = bestLength - 3;
             const struct off_len {
                 int off;
@@ -5026,7 +5049,7 @@ static QByteArray compress(const QImage & image, bool gray) {
 
             if (l < ol_table[0].off) {
                 emitBits(out, outOffset, outBit,
-                          quoteSize, l);
+                         quoteSize, l);
             } else {
                 const off_len *ol = ol_table;
                 l -= ol->off;
@@ -5036,12 +5059,12 @@ static QByteArray compress(const QImage & image, bool gray) {
                     ol++;
                 }
                 emitBits(out, outOffset, outBit,
-                          quoteSize, ol->bits-1);
+                         quoteSize, ol->bits-1);
                 emitBits(out, outOffset, outBit,
-                          ol->bits, l);
+                         ol->bits, l);
             }
             emitBits(out, outOffset, outBit,
-                      quoteReach, index - bestCandidate - 1);
+                     quoteReach, index - bestCandidate - 1);
             emittedUntil += bestLength;
         }
         index++;
@@ -5069,14 +5092,14 @@ static QByteArray compress(const QImage & image, bool gray) {
     qDebug(" compression time %d", t.elapsed());
     qDebug("Size dist of uncompressed blocks:");
     qDebug("\t%d\t%d\t%d\t%d\t%d\t%d\n", sizeUncompressed[0], sizeUncompressed[1],
-            sizeUncompressed[2], sizeUncompressed[3], sizeUncompressed[4], sizeUncompressed[5]);
+           sizeUncompressed[2], sizeUncompressed[3], sizeUncompressed[4], sizeUncompressed[5]);
     qDebug("\t%d\t%d\t%d\t%d\t%d\n", sizeUncompressed[6], sizeUncompressed[7],
-            sizeUncompressed[8], sizeUncompressed[9], sizeUncompressed[10]);
+           sizeUncompressed[8], sizeUncompressed[9], sizeUncompressed[10]);
     qDebug("Size dist of compressed blocks:");
     qDebug("\t%d\t%d\t%d\t%d\t%d\t%d\n", sizeCompressed[0], sizeCompressed[1],
-            sizeCompressed[2], sizeCompressed[3], sizeCompressed[4], sizeCompressed[5]);
+           sizeCompressed[2], sizeCompressed[3], sizeCompressed[4], sizeCompressed[5]);
     qDebug("\t%d\t%d\t%d\t%d\t%d\n", sizeCompressed[6], sizeCompressed[7],
-            sizeCompressed[8], sizeCompressed[9], sizeCompressed[10]);
+           sizeCompressed[8], sizeCompressed[9], sizeCompressed[10]);
     qDebug("===> total compression ratio %d/%d = %f", outOffset, size, (float)outOffset/(float)size);
     qDebug("-----------------------------------------------------------");
 #endif
@@ -5170,11 +5193,17 @@ void QPSPrintEnginePrivate::drawImage(float x, float y, float w, float h,
         const char *bits;
 
         if (!mask.isNull()) {
-            out = ::compress(mask, true);
+            out = ::compress(mask, true, compressImages);
             size = (width+7)/8*height;
-            pageStream << "/mask " << size << " string uc\n";
-            ps_r7(pageStream, out, out.size());
-            pageStream << "d\n";
+            if (compressImages) {
+                pageStream << "/mask " << size << " string uc\n";
+                ps_r7( pageStream, out, out.size() );
+                pageStream << "d\n";
+            } else {
+                pageStream << "/mask currentfile " << size << " string readhexstring\n";
+                ps_r7( pageStream, out, out.size() );
+                pageStream << " pop d\n";
+            }
         }
         if (img.depth() == 1) {
             size = (width+7)/8*height;
@@ -5187,11 +5216,17 @@ void QPSPrintEnginePrivate::drawImage(float x, float y, float w, float h,
             bits = "24 ";
         }
 
-        out = ::compress(img, gray);
-        pageStream << "/sl " << size << " string uc\n";
-        ps_r7(pageStream, out, out.size());
-        pageStream << "d\n"
-                   << width << ' ' << height << "[" << scaleX << " 0 0 " << scaleY << " 0 0]sl "
+        out = ::compress(img, gray, compressImages);
+        if (compressImages) {
+            pageStream << "/sl " << size << " string uc\n";
+            ps_r7(pageStream, out, out.size());
+            pageStream << "d\n";
+        } else {
+            pageStream << "/sl currentfile " << size << " string readhexstring\n";
+            ps_r7( pageStream, out, out.size() );
+            pageStream << " pop d\n";
+        }
+        pageStream << width << ' ' << height << "[" << scaleX << " 0 0 " << scaleY << " 0 0]sl "
                    << bits << (!mask.isNull() ? "mask " : "false ")
                    << x << ' ' << y << " di\n";
     }
@@ -5365,8 +5400,12 @@ void QPSPrintEnginePrivate::flushPage(bool last)
     if (buffer &&
 //         (last || pagesInBuffer++ > -1 ||
 //           (pagesInBuffer > 4 && buffer->size() > 262144)))
-         (last || buffer->size() > 2000000))
-    {
+#ifdef Q_WS_QWS
+         (last || buffer->size() > 2000000) // embedded is usually limited in memory
+#else
+         (last || buffer->size() > 50000000)
+#endif
+        ) {
 //        qDebug("emiting header at page %d", pageCount);
         emitHeader(last);
     }

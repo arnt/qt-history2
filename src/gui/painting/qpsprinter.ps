@@ -316,7 +316,7 @@
 	/w exch def
 	% the image dict
 	/id
-	7 dict dup begin
+	<<
 	  /ImageType 1 d
 	  /Width		        w d
 	  /Height		        h d
@@ -324,10 +324,10 @@
 	  /DataSource		im d
 	  /BitsPerComponent	8 d
 	  /Decode		        dc d
-	end d
+	>> d
 	% the mask dictionary
 	/md
-	7 dict dup begin
+	<<
 	  /ImageType		1 d
 	  /Width		        w d
 	  /Height		        h d
@@ -335,14 +335,14 @@
 	  /DataSource		ma d
 	  /BitsPerComponent	1 d
 	  /Decode		        [0 1] d
-	end d
+	>> d
 	% and the combined image dict
-	4 dict dup begin
+	<<
 	  /ImageType 3 d
 	  /DataDict id d
 	  /MaskDict md d
 	  /InterleaveType 3 d
-	end 
+	>> 
 	image
       } {
 	pop % no mask or can't use it, get rid of it
@@ -369,22 +369,25 @@
     /x2 exch def
     /y1 exch def
     /x1 exch def
-    /LinGrad 2 dict dup begin
+    /LinGrad 
+    << 
       /PatternType 2 d
-      /Shading 5 dict dup begin
-	/ShadingType 2 d
+      /Shading 
+	<<
+        /ShadingType 2 d
 	/ColorSpace [/DeviceRGB] d
 	/Coords [x1 y1 x2 y2] d
 	/Extend [true true] d
-	/Function 5 dict dup begin
+	/Function 
+	  <<
 	  /FunctionType 2 d
 	  /Domain [0 1] d
 	  /C0 c1 d
 	  /C1 c2 d
 	  /N 1 d
-	end d
-      end d
-    end
+	  >> d
+	>> d
+      >>
     matrix makepattern def
   } { pop } ifelse
   /BSt 15 d
@@ -723,7 +726,7 @@
 %    key value SPD -
 /SPD {
   /setpagedevice where {
-    1 dict dup begin 3 1 roll def end
+    << 3 1 roll def >>
     setpagedevice
   } { pop pop } ifelse
 } D
