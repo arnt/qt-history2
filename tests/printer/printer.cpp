@@ -23,7 +23,7 @@ int main( int argc, char **argv )
 	p.drawRect( 10, 10, 100, 100 );
 	//	p.rotate( -90 );
 	p.drawPixmap( 10, 10, pix );
-	p.drawPixmap( 300, 10, pix );
+	p.drawImage( 300, 10, img );
 	//	p.restore();
         p.end();
     }
