@@ -516,7 +516,7 @@ void FormFile::checkTimeStamp()
 
 void FormFile::addSlotCode( MetaDataBase::Slot slot )
 {
-    if ( !hasFormCode() )
+    if ( !hasFormCode() && !codeEdited )
 	return;
     LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
     if ( !iface )
@@ -533,6 +533,7 @@ void FormFile::addSlotCode( MetaDataBase::Slot slot )
 							    slot.returnType ) +
 		       "\n" + iface->createEmptyFunction();
 	cod += body;
+	parseCode( cod );
 	functionBodies.insert( MetaDataBase::normalizeSlot( slot.slot ), iface->createEmptyFunction() );
 	MetaDataBase::setFunctionBodies( formWindow(), functionBodies, pro->language(), slot.returnType );
     }
