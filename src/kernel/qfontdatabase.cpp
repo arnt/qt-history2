@@ -872,16 +872,18 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
 	    QFont::Script override_script = script;
 	    if ( ! ( family->scripts[script] & QtFontFamily::Supported ) ) {
-		if ( family_name.isEmpty() ||
-		     !(family->scripts[QFont::Unicode] & QtFontFamily::Supported) ) {
-		    if (!(family->scripts[QFont::UnknownScript] & QtFontFamily::Supported) )
-			// family doesn't support either the specified
-			// script or the Unicode script or unknown script (ie. symbol fonts)
-			continue;
-		    else
-			override_script = QFont::UnknownScript;
-		} else {
+		// family not supported in the script we want
+		if (family_name.isEmpty()) continue;
+
+		if (family->scripts[QFont::UnknownScript] & QtFontFamily::Supported) {
+		    // try with the unknown script (for a symbol font)
+		    override_script = QFont::UnknownScript;
+		} else if (family->scripts[QFont::Unicode] & QtFontFamily::Supported) {
+		    // try with the unicode script instead
 		    override_script = QFont::Unicode;
+		} else {
+		    // family not supported by unicode/unknown scripts
+		    continue;
 		}
 	    }
 
@@ -1003,8 +1005,8 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
 	if ( fp ) {
 #if defined(Q_WS_X11)
-	    fe->fontDef.pointSize     = int( double( fe->fontDef.pixelSize ) * 720.0 /
-					     QPaintDevice::x11AppDpiY( fp->screen ) );
+	    fe->fontDef.pointSize =
+		qRound(10. * qt_pointSize(fe->fontDef.pixelSize, fp->paintdevice, fp->screen));
 #elif defined(Q_WS_WIN)
 	    fe->fontDef.pointSize     = int( double( fe->fontDef.pixelSize ) * 720.0 /
 					     GetDeviceCaps(shared_dc,LOGPIXELSY) );
@@ -1505,15 +1507,6 @@ QList<int> QFontDatabase::pointSizes( const QString &family,
     QtFontFamily *fam = d->family( familyName );
     if ( !fam ) return sizes;
 
-#if defined(Q_WS_X11)
-    const uint screen_dpi = QPaintDevice::x11AppDpiY();
-#elif defined (Q_WS_WIN)
-    const uint screen_dpi = GetDeviceCaps(shared_dc,LOGPIXELSY)
-#else
-    // embedded uses 72dpi
-    const uint screen_dpi = 72;
-#endif
-
     for ( int j = 0; j < fam->count; j++ ) {
 	QtFontFoundry *foundry = fam->foundries[j];
 	if ( foundryName.isEmpty() || ucstricmp( foundry->name, foundryName ) == 0 ) {
@@ -1528,7 +1521,11 @@ QList<int> QFontDatabase::pointSizes( const QString &family,
 		const QtFontSize *size = style->pixelSizes + l;
 
 		if (size->pixelSize != 0 && size->pixelSize != USHRT_MAX) {
-		    const uint pointSize = (size->pixelSize * 720 / screen_dpi) / 10;
+#ifdef Q_WS_X11
+		    const uint pointSize = qRound(qt_pointSize(size->pixelSize, 0, -1));
+#else
+		    const uint pointSize = size->pixelSize; // embedded uses 72dpi
+#endif
 		    if (! sizes.contains(pointSize))
 			sizes.append(pointSize);
 		}

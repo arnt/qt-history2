@@ -38,6 +38,22 @@
 #  define FD_DEBUG if (FALSE) qDebug
 #endif // QFONTDATABASE_DEBUG
 
+// from qfont_x11.cpp
+extern double qt_pointSize(double pixelSize, QPaintDevice *paintdevice, int screen);
+extern double qt_pixelSize(double pointSize, QPaintDevice *paintdevice, int screen);
+
+
+static inline void capitalize ( char *s )
+{
+    bool space = TRUE;
+    while( *s ) {
+	if ( space )
+	    *s = toupper( *s );
+	space = ( *s == ' ' );
+	++s;
+    }
+}
+
 
 // ----- begin of generated code -----
 
@@ -523,6 +539,9 @@ bool qt_fillFontDef( const QByteArray &xlfd, QFontDef *fd, int screen )
     if ( ! parseXFontName(buffer.data(), tokens) )
 	return FALSE;
 
+    capitalize(tokens[Family]);
+    capitalize(tokens[Foundry]);
+
     fd->family = QString::fromLatin1(tokens[Family]);
     QString foundry = QString::fromLatin1(tokens[Foundry]);
     if ( ! foundry.isEmpty() && foundry != QString::fromLatin1("*") )
@@ -549,12 +568,10 @@ bool qt_fillFontDef( const QByteArray &xlfd, QFontDef *fd, int screen )
     if ( r && fd->pixelSize && QPaintDevice::x11AppDpiY( screen ) &&
 	 r != QPaintDevice::x11AppDpiY( screen ) ) {
 	// calculate actual pointsize for display DPI
-	fd->pointSize = (int) ((fd->pixelSize * 720.) /
-			       QPaintDevice::x11AppDpiY( screen ) + 0.5);
+	fd->pointSize = qRound(qt_pointSize(fd->pixelSize, 0, screen) * 10.);
     } else if ( fd->pixelSize == 0 && fd->pointSize ) {
 	// calculate pixel size from pointsize/dpi
-	fd->pixelSize = ( fd->pointSize *
-				  QPaintDevice::x11AppDpiY( screen ) ) / 720;
+	fd->pixelSize = qRound(qt_pixelSize(fd->pointSize / 10., 0, screen));
     }
 
     return TRUE;
@@ -616,18 +633,6 @@ static QtFontStyle::Key getStyle( char ** tokens )
     }
 
     return key;
-}
-
-
-static inline void capitalize ( char *s )
-{
-    bool space = TRUE;
-    while( *s ) {
-	if ( space )
-	    *s = toupper( *s );
-	space = ( *s == ' ' );
-	++s;
-    }
 }
 
 
@@ -1338,11 +1343,7 @@ QFontEngine *loadEngine( QFont::Script script,
 	    size_value = MAXFONTSIZE_XFT;
 	}
 
-	if ( fp->paintdevice )
-	    size_value *= 72. / QPaintDeviceMetrics( fp->paintdevice ).logicalDpiY();
-	else if (QPaintDevice::x11AppDpiY( fp->screen ) != 75)
-	    size_value *= 72. / QPaintDevice::x11AppDpiY( fp->screen );
-
+	size_value = qt_pointSize(size_value, fp->paintdevice, fp->screen);
 	XftPatternAddDouble( pattern, XFT_SIZE, size_value );
 
 #  ifdef XFT_MATRIX

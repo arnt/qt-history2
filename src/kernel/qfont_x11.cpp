@@ -46,42 +46,49 @@
 Q_EXPORT bool qt_has_xft = FALSE;
 bool qt_use_antialiasing = FALSE;
 
-static inline float pixelSize( const QFontDef &request, QPaintDevice *paintdevice,
-			       int scr )
-{
-    float pSize;
-    if ( request.pointSize != -1 ) {
-	if ( paintdevice )
-	    pSize = request.pointSize *
-		    QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 720.;
-	else if (QPaintDevice::x11AppDpiY( scr ) == 75)
-	    pSize = request.pointSize / 10.;
-	else
-	    pSize = request.pointSize * QPaintDevice::x11AppDpiY( scr ) / 720.;
-    } else {
-	pSize = request.pixelSize;
-    }
-    return pSize;
 
+double qt_pixelSize(double pointSize, QPaintDevice *paintdevice, int scr)
+{
+    if (pointSize < 0) return -1.;
+
+    double result = pointSize;
+    if ( paintdevice )
+	result *= QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 72.;
+    else if (QPaintDevice::x11AppDpiY( scr ) != 75)
+	result *= QPaintDevice::x11AppDpiY( scr ) / 72.;
+
+    return result;
 }
 
-static inline float pointSize( const QFontDef &fd, QPaintDevice *paintdevice,
-			       int scr )
+double qt_pointSize(double pixelSize, QPaintDevice *paintdevice, int scr)
 {
-    float pSize;
-    if ( fd.pointSize == -1 ) {
-	if ( paintdevice )
-	    pSize = fd.pixelSize * 720. /
-		    QPaintDeviceMetrics( paintdevice ).logicalDpiY();
-	else if (QPaintDevice::x11AppDpiY( scr ) == 75)
-	    pSize = fd.pixelSize * 10;
-	else
-	    pSize = fd.pixelSize * 720. / QPaintDevice::x11AppDpiY( scr );
-    } else {
-	pSize = fd.pointSize;
-    }
-    return pSize;
+    if (pixelSize < 0) return -1.;
+
+    double result = pixelSize;
+    if ( paintdevice )
+	result *= 72. / QPaintDeviceMetrics( paintdevice ).logicalDpiY();
+    else if (QPaintDevice::x11AppDpiY(scr) != 75)
+	result *= 72. / QPaintDevice::x11AppDpiY( scr );
+
+    return result;
 }
+
+static inline double pixelSize( const QFontDef &request, QPaintDevice *paintdevice,
+				int scr )
+{
+    return ((request.pointSize != -1) ?
+	    qt_pixelSize(request.pointSize / 10., paintdevice, scr) :
+	    (double)request.pixelSize);
+}
+
+static inline double pointSize( const QFontDef &request, QPaintDevice *paintdevice,
+				int scr )
+{
+    return ((request.pixelSize != -1) ?
+	    qt_pointSize(request.pixelSize, paintdevice, scr) * 10.:
+	    (double)request.pointSize);
+}
+
 
 /*
   Removes wildcards from an XLFD.
@@ -313,8 +320,7 @@ void QFontPrivate::load( QFont::Script script )
 #endif // QT_CHECK_STATE
 
     QFontDef req = request;
-    int px = int( pixelSize( req, paintdevice, screen ) + .5 );
-    req.pixelSize = px;
+    req.pixelSize = qRound(pixelSize(req, paintdevice, screen));
     req.pointSize = 0;
 
     if ( ! engineData ) {
