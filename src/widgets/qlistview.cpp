@@ -632,7 +632,7 @@ bool QListViewItem::renameEnabled() const
 }
 
 /*! Sets the item to be enabled, if \a b is TRUE, else to disabled. A
-  disabled item is drawn gayed-out and not accessable by the user.
+  disabled item is drawn grayed-out and not accessable by the user.
 */
 
 void QListViewItem::setEnabled( bool b )
