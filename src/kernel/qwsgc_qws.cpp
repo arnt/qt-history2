@@ -7,27 +7,123 @@
 #include "qpixmapcache.h"
 
 
-QWSGC::QWSGC(const QPaintDevice *)
-    :mygfx(0)//, d(0), qwsData(0)
+
+
+
+/* paintevent magic to provide Windows semantics on Qt/E
+ */
+static QRegion* paintEventClipRegion = 0;
+//static QRegion* paintEventSaveRegion = 0;
+static QPaintDevice* paintEventDevice = 0;
+
+void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
 {
-	qDebug("QWSGC::QWSGC");
+    if ( !paintEventClipRegion )
+	paintEventClipRegion = new QRegion( region );
+    else
+	*paintEventClipRegion = region;
+    paintEventDevice = dev;
+
+#ifdef QWS_EXTRA_DEBUG
+    qDebug( "qt_set_paintevent_clipping" );
+    QMemArray<QRect> ar = region.rects();
+    for ( int i=0; i<int(ar.size()); i++ ) {
+	QRect r = ar[i];
+        qDebug( "   r[%d]:  %d,%d %dx%d", i,
+		r.x(), r.y(), r.width(), r.height() );
+    }
+#endif
+
+}
+
+void qt_clear_paintevent_clipping()
+{
+    delete paintEventClipRegion;
+//    delete paintEventSaveRegion;
+    paintEventClipRegion = 0;
+//    paintEventSaveRegion = 0;
+    paintEventDevice = 0;
+}
+
+
+static QList<QPainter*> *widgetPainterList = 0;
+
+void qwsUpdateActivePainters()
+{
+    /* ##############
+    if ( widgetPainterList ) {
+	for (int i = 0; i < widgetPainterList->size(); ++i) {
+	    QPainter *ptr = widgetPainterList->at(i);
+	    ptr->save();
+	    delete ptr->gfx;
+	    ptr->gfx = ptr->device()->graphicsContext();
+	    ptr->setf( QPainter::VolatileDC );
+	    ptr->restore();
+	}
+    }
+    */
+}
+
+
+void qt_draw_background( QPainter *pp, int x, int y, int w,  int h )
+{
+    QPaintDevice *pd = pp->device();
+    QWSGC *p = static_cast<QWSGC *>(pd->gc());
+// // //     XSetForeground( p->d->dpy, p->d->gc, p->d->bg_brush.color().pixel(p->d->scrn) );
+// // //     qt_draw_transformed_rect( pp, x, y, w, h, TRUE);
+// // //     XSetForeground( p->d->dpy, p->d->gc, p->d->cpen.color().pixel(p->d->scrn) );
+}
+// ########
+
+
+class QWSGCPrivate
+{
+public:
+    QWSGCPrivate() :gfx(0), pdev(0) {}
+    QGfx *gfx;
+    QPaintDevice *pdev;
+};
+
+
+
+
+
+QWSGC::QWSGC(const QPaintDevice *pdev)
+    //, qwsData(0)
+{
+
+    d = new QWSGCPrivate;
+    d->pdev = const_cast<QPaintDevice *>(pdev);
+
+
+//	qDebug("QWSGC::QWSGC");
 }
 QWSGC::~QWSGC()
 {
-	qDebug("QWSGC::~QWSGC");
+//	qDebug("QWSGC::~QWSGC");
+
+    delete d;
 }
+
+QGfx *QWSGC::gfx()
+{
+    return d->gfx;
+}
+
 
 bool QWSGC::begin(const QPaintDevice *pdev, QPainterState *ps, bool begin)
 {
-        if ( isActive() ) {                         // already active painting
+    if ( isActive() ) {                         // already active painting
          qWarning( "QWSC::begin: Painter is already active."
                    "\n\tYou must end() the painter before a second begin()" );
 	return true;
     }
 
-    Q_ASSERT(mygfx == 0);
-    mygfx = pdev->graphicsContext();
-    qDebug("QWSGC::begin %p gfx %p", this, mygfx);
+    Q_ASSERT(d->gfx == 0);
+
+    d->pdev = const_cast<QPaintDevice *>(pdev);
+    d->gfx = pdev->graphicsContext();
+///    qDebug("QWSGC::begin %p gfx %p", this, d->gfx);
     setActive(true);
 
     updatePen(ps);
@@ -38,15 +134,15 @@ bool QWSGC::begin(const QPaintDevice *pdev, QPainterState *ps, bool begin)
 }
 bool QWSGC::end(){
     setActive(false);
-    qDebug("QWSGC::end %p (gfx %p)", this, mygfx);
-    delete mygfx;
-    mygfx = 0;
+///    qDebug("QWSGC::end %p (gfx %p)", this, d->gfx);
+    delete d->gfx;
+    d->gfx = 0;
     return true;
 }
 
 void QWSGC::updatePen(QPainterState *ps)
 {
-    mygfx->setPen(ps->pen);
+    d->gfx->setPen(ps->pen);
     
 //    qDebug("QWSGC::updatePen");
 }
@@ -99,20 +195,20 @@ void QWSGC::updateBrush(QPainterState *ps)
 	dense6_pat, dense7_pat,
 	hor_pat, ver_pat, cross_pat, bdiag_pat, fdiag_pat, dcross_pat };
 
-    if ( !mygfx )
+    if ( !d->gfx )
 	return;
 
     uchar * pat=0;
     int bs=ps->brush.style();
-    int d=0;
+    int dd=0;
     if( bs>=Dense1Pattern && bs <= DiagCrossPattern ) {
 	pat=pat_tbl[ bs-Dense1Pattern ];
 	if(bs<=Dense7Pattern)
-	    d=8;
+	    dd=8;
 	else if (bs<=CrossPattern)
-	    d=24;
+	    dd=24;
 	else
-	    d=16;
+	    dd=16;
     }
     if ( bs == CustomPattern || pat ) {
         QPixmap *pm;
@@ -121,7 +217,7 @@ void QWSGC::updateBrush(QPainterState *ps)
             pm = QPixmapCache::find( key );
             bool del = FALSE;
             if ( !pm ) {                        // not already in pm dict
-		pm = new QBitmap( d, d, pat, TRUE );
+		pm = new QBitmap( dd, dd, pat, TRUE );
 		del = !QPixmapCache::insert( key, pm );
             }
 	    if ( ps->brush.d->pixmap )
@@ -132,8 +228,8 @@ void QWSGC::updateBrush(QPainterState *ps)
 	pm = ps->brush.d->pixmap;
     }
 
-    mygfx->setBrush(ps->brush);
-    mygfx->setBrushPixmap( ps->brush.d->pixmap );
+    d->gfx->setBrush(ps->brush);
+    d->gfx->setBrushPixmap( ps->brush.d->pixmap );
 }
 
 void QWSGC::updateFont(QPainterState *ps){
@@ -149,8 +245,54 @@ void QWSGC::updateXForm(QPainterState *ps)
 {
 //    qDebug("QWSGC::updateXForm");
 }
-void QWSGC::updateClipRegion(QPainterState *ps){
-    qDebug("QWSGC::updateClipRegion");
+void QWSGC::updateClipRegion(QPainterState *ps)
+{
+//    qDebug("QWSGC::updateClipRegion");
+
+    Q_ASSERT(isActive());
+    
+    bool painterClip = ps->clipEnabled;
+    bool eventClip = paintEventDevice == d->pdev && paintEventClipRegion;
+/*
+  if (enable == testf(ClipOn)
+  && ( paintEventDevice != device() || !enable
+  || !paintEventSaveRegion || paintEventSaveRegion->isNull() ) )
+  return;
+*/
+
+    if (painterClip || eventClip) {
+	QRegion crgn;
+	if (painterClip) {
+	    crgn = ps->clipRegion;
+
+	    QPainter::CoordinateMode m = ps->coordinateMode;
+#ifndef QT_NO_TRANSFORMATIONS
+	    if ( m == QPainter::CoordDevice ) {
+		//#################
+		//if (!redirection_offset.isNull())
+		//  crgn.translate(-redirection_offset);
+	    } else {
+		if (ps->VxF || ps->WxF)
+		    crgn = ps->worldMatrix * crgn;
+	    }
+#else
+	    if ( m == QPainter::CoordPainter )
+		crgn.translate( xlatex, xlatey );
+#endif
+	    if (eventClip)
+		crgn = crgn.intersect(*paintEventClipRegion);
+	} else {
+	    crgn = *paintEventClipRegion;
+	}
+	//note that gfx is already translated by redirection_offset
+	d->gfx->setClipRegion( crgn );
+    } else {
+	d->gfx->setClipping( FALSE );
+    }
+    if (painterClip)
+	setf(ClipOn);
+    else
+	clearf(ClipOn);
 }
 
 void QWSGC::setRasterOp(RasterOp r){
@@ -162,7 +304,7 @@ void QWSGC::drawLine(int x1, int y1, int x2, int y2)
     if ( !isActive() )
 	return;
 //####    if ( cpen.style() != NoPen )
-	mygfx->drawLine( x1, y1, x2, y2 );
+	d->gfx->drawLine( x1, y1, x2, y2 );
 }
 void QWSGC::drawRect(int x1, int y1, int w, int h)
 {
@@ -187,10 +329,10 @@ void QWSGC::drawRect(int x1, int y1, int w, int h)
 	{
 	    int x2 = x1 + (w-1);
 	    int y2 = y1 + (h-1);
-	    mygfx->drawLine(x1, y1, x2, y1);
-	    mygfx->drawLine(x2, y1, x2, y2);
-	    mygfx->drawLine(x1, y2, x2, y2);
-	    mygfx->drawLine(x1, y1, x1, y2);
+	    d->gfx->drawLine(x1, y1, x2, y1);
+	    d->gfx->drawLine(x2, y1, x2, y2);
+	    d->gfx->drawLine(x1, y2, x2, y2);
+	    d->gfx->drawLine(x1, y1, x1, y2);
 	    x1 += 1;
 	    y1 += 1;
 	    w -= 2;
@@ -198,13 +340,13 @@ void QWSGC::drawRect(int x1, int y1, int w, int h)
 	}
     }
 
-    mygfx->fillRect( x1, y1, w, h );
+    d->gfx->fillRect( x1, y1, w, h );
 }
 void QWSGC::drawPoint(int x, int y)
 {
     if ( !isActive() )
 	return;
-    mygfx->drawPoint(x,y);
+    d->gfx->drawPoint(x,y);
 }
 
 void QWSGC::drawPoints(const QPointArray &pa, int index, int npoints){
@@ -242,7 +384,7 @@ void QWSGC::drawLineSegments(const QPointArray &a, int index, int nlines)
 	a.point( index++, &x1, &y1 );
 	a.point( index++, &x2, &y2 );
 	//#### if ( cpen.style() != NoPen )
-	    mygfx->drawLine( x1, y1, x2, y2 );
+	    d->gfx->drawLine( x1, y1, x2, y2 );
     }
 }
 void QWSGC::drawPolyline(const QPointArray &pa, int index, int npoints)
@@ -256,7 +398,7 @@ void QWSGC::drawPolyline(const QPointArray &pa, int index, int npoints)
     if ( !isActive() || npoints < 2 || index < 0 )
 	return;
     //####### if ( cpen.style() != NoPen )
-	mygfx->drawPolyline( pa, index, npoints );
+	d->gfx->drawPolyline( pa, index, npoints );
 }
 void QWSGC::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints){
     qDebug("QWSGC::drawPolygon");
@@ -301,7 +443,7 @@ void QWSGC::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int 
 	return;
 
     //bitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, CopyROP );
-    mygfx->setSource(&pixmap);
+    d->gfx->setSource(&pixmap);
     if(sw>pixmap.width()) { // ###hanord: isn't this done above?
 	sw=pixmap.width();
     }
@@ -312,14 +454,14 @@ void QWSGC::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int 
 	QBitmap * mymask=( (QBitmap *)pixmap.mask() );
 	unsigned char * thebits=mymask->scanLine(0);
 	int ls=mymask->bytesPerLine();
-	mygfx->setAlphaType(QGfx::LittleEndianMask);
-	mygfx->setAlphaSource(thebits,ls);
+	d->gfx->setAlphaType(QGfx::LittleEndianMask);
+	d->gfx->setAlphaSource(thebits,ls);
     } else if ( pixmap.data->hasAlpha ){
-	mygfx->setAlphaType(QGfx::InlineAlpha);
+	d->gfx->setAlphaType(QGfx::InlineAlpha);
     } else {
-	mygfx->setAlphaType(QGfx::IgnoreAlpha);
+	d->gfx->setAlphaType(QGfx::IgnoreAlpha);
     }
-    mygfx->blt(x,y,sw,sh,sx,sy);
+    d->gfx->blt(x,y,sw,sh,sx,sy);
 
 }
 void QWSGC::drawTextItem(int x, int y, const QTextItem &ti, int textflags){
@@ -340,68 +482,3 @@ void QWSGC::initialize(){
 }
 
 
-
-/* paintevent magic to provide Windows semantics on Qt/E
- */
-static QRegion* paintEventClipRegion = 0;
-static QRegion* paintEventSaveRegion = 0;
-static QPaintDevice* paintEventDevice = 0;
-
-void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
-{
-    if ( !paintEventClipRegion )
-	paintEventClipRegion = new QRegion( region );
-    else
-	*paintEventClipRegion = region;
-    paintEventDevice = dev;
-
-#ifdef QWS_EXTRA_DEBUG
-    qDebug( "qt_set_paintevent_clipping" );
-    QMemArray<QRect> ar = region.rects();
-    for ( int i=0; i<int(ar.size()); i++ ) {
-	QRect r = ar[i];
-        qDebug( "   r[%d]:  %d,%d %dx%d", i,
-		r.x(), r.y(), r.width(), r.height() );
-    }
-#endif
-
-}
-
-void qt_clear_paintevent_clipping()
-{
-    delete paintEventClipRegion;
-    delete paintEventSaveRegion;
-    paintEventClipRegion = 0;
-    paintEventSaveRegion = 0;
-    paintEventDevice = 0;
-}
-
-
-static QList<QPainter*> *widgetPainterList = 0;
-
-void qwsUpdateActivePainters()
-{
-    /* ##############
-    if ( widgetPainterList ) {
-	for (int i = 0; i < widgetPainterList->size(); ++i) {
-	    QPainter *ptr = widgetPainterList->at(i);
-	    ptr->save();
-	    delete ptr->gfx;
-	    ptr->gfx = ptr->device()->graphicsContext();
-	    ptr->setf( QPainter::VolatileDC );
-	    ptr->restore();
-	}
-    }
-    */
-}
-
-
-void qt_draw_background( QPainter *pp, int x, int y, int w,  int h )
-{
-    QPaintDevice *pd = pp->device();
-    QWSGC *p = static_cast<QWSGC *>(pd->gc());
-// // //     XSetForeground( p->d->dpy, p->d->gc, p->d->bg_brush.color().pixel(p->d->scrn) );
-// // //     qt_draw_transformed_rect( pp, x, y, w, h, TRUE);
-// // //     XSetForeground( p->d->dpy, p->d->gc, p->d->cpen.color().pixel(p->d->scrn) );
-}
-// ########

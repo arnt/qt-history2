@@ -69,7 +69,7 @@ public:
     static void cleanup();
 
 
-    QGfx *gfx() { return mygfx; }
+    QGfx *gfx();
     
 protected:
     void copyQWSData(const QWSGC *);
@@ -92,10 +92,7 @@ private:
 //    friend class QPixmap;
     friend class QFontEngine;
 
-
-
-    QGfx *mygfx;
-    //QWSGCPrivate *d;
+    QWSGCPrivate *d;
     //QWSGCData *qwsData;
 
 private:
