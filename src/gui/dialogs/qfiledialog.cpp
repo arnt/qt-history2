@@ -946,12 +946,19 @@ void QFileDialog::currentChanged(const QModelIndex &current, const QModelIndex &
 void QFileDialog::fileNameChanged(const QString &text)
 {
     if (d->fileName->hasFocus() && !text.isEmpty()) {
-        QModelIndex current = d->selections->currentIndex();
-        if (!current.isValid())
-            current = d->model->index(0, 0, d->root());
-        
-        QModelIndexList indexes = d->model->match(current, QAbstractItemModel::DisplayRole,
-                                                  text, 1, QAbstractItemModel::MatchDefault
+
+        QModelIndex start;
+        QFileInfo info(text);
+        if (info.isAbsolute()) // if we have an absolute path, do completion in that directory
+            start = d->model->index(0, 0, d->model->index(info.path()));
+        else
+            start = d->selections->currentIndex();
+        if (!start.isValid())
+            start = d->model->index(0, 0, d->root());
+
+        QModelIndexList indexes = d->model->match(start, QAbstractItemModel::DisplayRole,
+                                                  info.fileName(), 1,
+                                                  QAbstractItemModel::MatchDefault
                                                   |QAbstractItemModel::MatchCase);
         int key = d->fileName->lastKeyPressed();
         if (indexes.count() <= 0) { // no matches
@@ -960,6 +967,12 @@ void QFileDialog::fileNameChanged(const QString &text)
             d->selections->setCurrentIndex(indexes.first(), QItemSelectionModel::SelectCurrent);
             QString completed = d->model->data(indexes.first(),
                                                QAbstractItemModel::DisplayRole).toString();
+            if (info.isAbsolute()) { // if we are doing completion in another directory, add the path first
+                if (info.path() == "/")
+                    completed = "/" + completed;
+                else 
+                    completed = info.path() + "/" + completed;
+            }
             int start = completed.length();
             int length = text.length() - start; // negative length
             bool block = d->fileName->blockSignals(true);
