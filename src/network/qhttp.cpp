@@ -2405,6 +2405,7 @@ void QHttpPrivate::slotReadyRead()
                 if (toDevice) {
                     toDevice->write(*arr, n);
                     delete arr;
+                    arr = 0;
                     bytesDone += n;
 #if defined(QHTTP_DEBUG)
                     qDebug("QHttp::slotReadyRead(): read %lld bytes (%lld bytes done)", n, bytesDone);
@@ -2416,6 +2417,8 @@ void QHttpPrivate::slotReadyRead()
                 } else {
                     char *ptr = rba.reserve(arr->size());
                     memcpy(ptr, arr->data(), arr->size());
+                    delete arr;
+                    arr = 0;
 #if defined(QHTTP_DEBUG)
                     qDebug("QHttp::slotReadyRead(): read %lld bytes (%lld bytes done)", n, bytesDone + q->bytesAvailable());
 #endif
