@@ -148,6 +148,10 @@ inline bool QMacSavedPortInfo::setClipRegion(const QRegion &r)
 inline bool
 QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
 {
+#if defined(QT_THREAD_SUPPORT)
+    qApp->lock();
+#endif
+    bool ret = TRUE;
     if(!pd)
 	return FALSE;
     switch(pd->devType()) {
@@ -159,21 +163,28 @@ QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
 	SetPortWindowPort((WindowPtr)pd->handle());
 	break;
     default:
-	return FALSE;
+	ret = FALSE;
+	break;
     }
-    return TRUE;
+#if defined(QT_THREAD_SUPPORT)
+    qApp->unLock();
+#endif
+    return ret;
 }
     
 
 inline void QMacSavedPortInfo::init()
 {
+#if defined(QT_THREAD_SUPPORT)
+    qApp->lock();
+#endif
     fi = NULL;
     if(mac_window_count) {
    	GetBackColor(&back);
 	GetForeColor(&fore);
 	GetGWorld(&world, &handle);
 	valid_gworld = TRUE;
-    register_self();
+	register_self();
 	fi = new QMacSavedFontInfo(world);
 	clip = NewRgn();
 	GetClip(clip);
@@ -185,10 +196,10 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
 {
     deregister_self();
     if(mac_window_count) {
-    if(valid_gworld) 
+	if(valid_gworld) 
 	    SetGWorld(world,handle); //always do this one first
-    else
-        setPaintDevice(qt_mac_safe_pdev);
+	else
+	    setPaintDevice(qt_mac_safe_pdev);
 	SetClip(clip);
 	DisposeRgn(clip);
 	SetPenState(&pen);
@@ -197,6 +208,9 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
     }
     if(fi)
 	delete fi;
+#if defined(QT_THREAD_SUPPORT)
+    qApp->unLock();
+#endif
 }
 
 //sanity checks
