@@ -2362,6 +2362,8 @@ void QListBox::updateSelection()
 			emit selectionChanged();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 		    QAccessible::updateAccessibility( viewport(), 0, QAccessible::Selection );
+#else
+		    Q_UNUSED( ind );
 #endif
 		    triggerUpdate( FALSE );
 		}
