@@ -1039,8 +1039,7 @@ void QIconViewItem::setText( const QString &text )
 	if ( QRect( view->contentsX(), view->contentsY(),
 		    view->visibleWidth(), view->visibleHeight() ).
 	     intersects( oR ) )
-	    view->repaintContents( oR.x() - 1, oR.y() - 1,
-				   oR.width() + 2, oR.height() + 2, FALSE );
+	    view->repaintContents( oR.x() - 1, oR.y() - 1, oR.width() + 2, oR.height() + 2);
     }
 }
 
@@ -1083,8 +1082,7 @@ void QIconViewItem::setPixmap( const QPixmap &icon )
 	if ( QRect( view->contentsX(), view->contentsY(),
 		    view->visibleWidth(), view->visibleHeight() ).
 	     intersects( oR ) )
-	    view->repaintContents( oR.x() - 1, oR.y() - 1,
-				   oR.width() + 2, oR.height() + 2, FALSE );
+	    view->repaintContents( oR.x() - 1, oR.y() - 1, oR.width() + 2, oR.height() + 2);
     }
 }
 
@@ -1119,8 +1117,7 @@ void QIconViewItem::setPicture( const QPicture &icon )
 	if ( QRect( view->contentsX(), view->contentsY(),
 		    view->visibleWidth(), view->visibleHeight() ).
 	     intersects( oR ) )
-	    view->repaintContents( oR.x() - 1, oR.y() - 1,
-				   oR.width() + 2, oR.height() + 2, FALSE );
+	    view->repaintContents( oR.x() - 1, oR.y() - 1, oR.width() + 2, oR.height() + 2);
     }
 }
 #endif
@@ -1179,8 +1176,7 @@ void QIconViewItem::setPixmap( const QPixmap &icon, bool recalc, bool redraw )
 		if ( QRect( view->contentsX(), view->contentsY(),
 			    view->visibleWidth(), view->visibleHeight() ).
 		     intersects( oR ) )
-		    view->repaintContents( oR.x() - 1, oR.y() - 1,
-					   oR.width() + 2, oR.height() + 2, FALSE );
+		    view->repaintContents( oR.x() - 1, oR.y() - 1, oR.width() + 2, oR.height() + 2);
 	    }
 	} else {
 	    repaint();
@@ -1775,8 +1771,8 @@ void QIconViewItem::renameItem()
     }
     QRect r = itemRect;
     setText( renameBox->text() );
-    view->repaintContents( oldRect.x() - 1, oldRect.y() - 1, oldRect.width() + 2, oldRect.height() + 2, FALSE );
-    view->repaintContents( r.x() - 1, r.y() - 1, r.width() + 2, r.height() + 2, FALSE );
+    view->repaintContents( oldRect.x() - 1, oldRect.y() - 1, oldRect.width() + 2, oldRect.height() + 2);
+    view->repaintContents( r.x() - 1, r.y() - 1, r.width() + 2, r.height() + 2);
     removeRenameBox();
 
     view->emitRenamed( this );
@@ -1793,8 +1789,8 @@ void QIconViewItem::cancelRenameItem()
 
     QRect r = itemRect;
     calcRect();
-    view->repaintContents( oldRect.x() - 1, oldRect.y() - 1, oldRect.width() + 2, oldRect.height() + 2, FALSE );
-    view->repaintContents( r.x() - 1, r.y() - 1, r.width() + 2, r.height() + 2, FALSE );
+    view->repaintContents( oldRect.x() - 1, oldRect.y() - 1, oldRect.width() + 2, oldRect.height() + 2);
+    view->repaintContents( r.x() - 1, r.y() - 1, r.width() + 2, r.height() + 2);
 
     if ( !renameBox )
 	return;
@@ -3090,7 +3086,7 @@ void QIconView::takeItem( QIconViewItem *item )
 	d->selectAnchor = d->currentItem;
 
     if ( !d->clearing )
-	repaintContents( r.x(), r.y(), r.width(), r.height(), TRUE );
+	repaintContents( r.x(), r.y(), r.width(), r.height());
 
     item->view = 0;
     item->prev = 0;
@@ -3321,7 +3317,7 @@ void QIconView::doAutoScroll()
     if ( changed ) {
 	d->drawAllBack = FALSE;
 	d->clipRegion = region;
-	repaintContents( rr, FALSE );
+	repaintContents(rr);
 	d->drawAllBack = TRUE;
     }
 
@@ -3522,7 +3518,7 @@ void QIconView::arrangeItemsInGrid( bool update )
     d->dirty = !isVisible();
     rebuildContainers();
     if ( update && ( !optimize_layout || changedLayout ) )
-	repaintContents( contentsX(), contentsY(), viewport()->width(), viewport()->height(), FALSE );
+	repaintContents( contentsX(), contentsY(), viewport()->width(), viewport()->height());
 }
 
 /*!
@@ -3565,7 +3561,7 @@ void QIconView::arrangeItemsInGrid( const QSize &grid, bool update )
     resizeContents( w, h );
     rebuildContainers();
     if ( update )
-	repaintContents( contentsX(), contentsY(), viewport()->width(), viewport()->height(), FALSE );
+	repaintContents( contentsX(), contentsY(), viewport()->width(), viewport()->height());
 }
 
 /*!
@@ -3806,7 +3802,7 @@ void QIconView::repaintItem( QIconViewItem *item )
 
     if ( QRect( contentsX(), contentsY(), visibleWidth(), visibleHeight() ).
 	 intersects( QRect( item->x() - 1, item->y() - 1, item->width() + 2, item->height() + 2 ) ) )
-	repaintContents( item->x() - 1, item->y() - 1, item->width() + 2, item->height() + 2, FALSE );
+	repaintContents( item->x() - 1, item->y() - 1, item->width() + 2, item->height() + 2);
 }
 
 /*!
@@ -4446,7 +4442,7 @@ void QIconView::contentsMousePressEventEx( QMouseEvent *e )
 		    }
 		    redraw = redraw.unite( item->rect() );
 		    viewport()->setUpdatesEnabled( TRUE );
-		    repaintContents( redraw, FALSE );
+		    repaintContents(redraw);
 		}
 		blockSignals( block );
 		viewport()->setUpdatesEnabled( TRUE );
@@ -4761,7 +4757,7 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 	int h = d->currentItem->y() + d->currentItem->height() + 1;
 
 	repaintItem( d->currentItem );
-	repaintContents( r.x(), r.y(), r.width(), r.height(), FALSE );
+	repaintContents( r.x(), r.y(), r.width(), r.height());
 
 	int dx = d->currentItem->x() - r.x();
 	int dy = d->currentItem->y() - r.y();
@@ -4777,7 +4773,7 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 	    w = qMax( w, item->x() + item->width() + 1 );
 	    h = qMax( h, item->y() + item->height() + 1 );
 	}
-	repaintContents( rr, FALSE );
+	repaintContents( rr);
 	bool fullRepaint = FALSE;
 	if ( w > contentsWidth() ||
 	     h > contentsHeight() )
@@ -4790,8 +4786,8 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 
 
 	if ( fullRepaint ) {
-	    repaintContents( oldw, 0, contentsWidth() - oldw, contentsHeight(), FALSE );
-	    repaintContents( 0, oldh, contentsWidth(), contentsHeight() - oldh, FALSE );
+	    repaintContents( oldw, 0, contentsWidth() - oldw, contentsHeight() );
+	    repaintContents( 0, oldh, contentsWidth(), contentsHeight() - oldh );
 	}
 	e->acceptAction();
     } else if ( !i && ( e->source() != viewport() || d->cleared ) ) {

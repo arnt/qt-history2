@@ -2333,25 +2333,25 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFontEngine *f, QByteArray& d)
     int offset   = getUSHORT(ptr2+10);
 
     if( platform == 1 && nameid == 0 )
-      Copyright.setLatin1(strings+offset,length);
+      Copyright = QString::fromLatin1(strings+offset,length);
 
     if( platform == 1 && nameid == 1 )
-      FamilyName.setLatin1(strings+offset,length);
+      FamilyName = QString::fromLatin1(strings+offset,length);
 
     if( platform == 1 && nameid == 2 )
-      Style.setLatin1(strings+offset,length);
+      Style = QString::fromLatin1(strings+offset,length);
 
     if( platform == 1 && nameid == 4 )
-      FullName.setLatin1(strings+offset,length);
+      FullName = QString::fromLatin1(strings+offset,length);
 
     if( platform == 1 && nameid == 5 )
-      Version.setLatin1(strings+offset,length);
+      Version = QString::fromLatin1(strings+offset,length);
 
     if( platform == 1 && nameid == 6 )
-      psname.setLatin1(strings+offset,length);
+      psname = QString::fromLatin1(strings+offset,length);
 
     if( platform == 1 && nameid == 7 )
-      Trademark.setLatin1(strings+offset,length);
+      Trademark = QString::fromLatin1(strings+offset,length);
 
   }
   psname.replace(' ', '-');

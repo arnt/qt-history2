@@ -566,7 +566,7 @@ void QColorWell::dropEvent( QDropEvent *e )
 	QColor col;
 	QColorDrag::decode( e, col );
 	values[ i ] = col.rgb();
-	repaintContents( FALSE );
+	repaintContents();
 	e->accept();
     } else {
 	e->ignore();
@@ -1356,7 +1356,7 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
 void QColorDialogPrivate::addCustom()
 {
     cusrgb[nextCust] = cs->currentColor();
-    custom->repaintContents( FALSE );
+    custom->repaintContents();
     nextCust = (nextCust+1) % 16;
 }
 

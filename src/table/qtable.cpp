@@ -3409,7 +3409,7 @@ void QTable::removeSelection( int num )
     if ( s == currentSel )
 	currentSel = 0;
     selections.remove( s );
-    repaintContents( FALSE );
+    repaintContents();
 }
 
 /*!
@@ -4263,7 +4263,7 @@ void QTable::repaintCell( int row, int col )
     QRect cg = cellGeometry( row, col );
     QRect r( QPoint( cg.x() - 2, cg.y() - 2 ),
 	     QSize( cg.width() + 4, cg.height() + 4 ) );
-    repaintContents( r, FALSE );
+    repaintContents( r );
 }
 
 void QTable::contentsToViewport2( int x, int y, int& vx, int& vy )
@@ -4309,10 +4309,10 @@ void QTable::columnWidthChanged( int col )
     resizeContents( s.width(), s.height() );
     if ( contentsWidth() < w )
 	repaintContents( s.width(), contentsY(),
-			 w - s.width() + 1, visibleHeight(), TRUE );
+			 w - s.width() + 1, visibleHeight() );
     else
 	repaintContents( w, contentsY(),
-			 s.width() - w + 1, visibleHeight(), FALSE );
+			 s.width() - w + 1, visibleHeight() );
 
     // update widgets that are affected by this change
     if ( widgets.size() )
@@ -4338,10 +4338,10 @@ void QTable::rowHeightChanged( int row )
     resizeContents( s.width(), s.height() );
     if ( contentsHeight() < h ) {
 	repaintContents( contentsX(), contentsHeight(),
-			 visibleWidth(), h - s.height() + 1, TRUE );
+			 visibleWidth(), h - s.height() + 1 );
     } else {
 	repaintContents( contentsX(), h,
-			 visibleWidth(), s.height() - h + 1, FALSE );
+			 visibleWidth(), s.height() - h + 1 );
     }
 
     // update widgets that are affected by this change
@@ -4395,7 +4395,7 @@ void QTable::columnIndexChanged( int, int fromIndex, int toIndex )
     if ( doSort && lastSortCol == fromIndex && topHeader )
 	topHeader->setSortIndicator( toIndex, topHeader->sortIndicatorOrder() );
     repaintContents( contentsX(), contentsY(),
-		     visibleWidth(), visibleHeight(), FALSE );
+		     visibleWidth(), visibleHeight() );
 }
 
 /*!
@@ -4412,7 +4412,7 @@ void QTable::columnIndexChanged( int, int fromIndex, int toIndex )
 void QTable::rowIndexChanged( int, int, int )
 {
     repaintContents( contentsX(), contentsY(),
-		     visibleWidth(), visibleHeight(), FALSE );
+		     visibleWidth(), visibleHeight() );
 }
 
 /*!
@@ -4740,10 +4740,10 @@ void QTable::finishContentsResze( bool updateBefore )
     updateGeometries();
     if ( updateBefore )
 	repaintContents( contentsX(), contentsY(),
-			 visibleWidth(), visibleHeight(), TRUE );
+			 visibleWidth(), visibleHeight() );
     else
 	repaintContents( contentsX(), contentsY(),
-			 visibleWidth(), visibleHeight(), FALSE );
+			 visibleWidth(), visibleHeight() );
 
     if ( isRowSelection( selectionMode() ) ) {
 	int r = curRow;
@@ -5150,7 +5150,7 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
 	 old.width() > SHRT_MAX || old.height() > SHRT_MAX ||
 	 cur.width() > SHRT_MAX || cur.height() > SHRT_MAX ) {
 	QRect rr = cur.unite( old );
-	repaintContents( rr, FALSE );
+	repaintContents( rr );
     } else {
 	old = QRect( contentsToViewport2( old.topLeft() ), old.size() );
 	cur = QRect( contentsToViewport2( cur.topLeft() ), cur.size() );
@@ -5162,12 +5162,12 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
 	for ( i = 0; i < (int)r3.rects().count(); ++i ) {
 	    QRect r( r3.rects()[ i ] );
 	    r = QRect( viewportToContents2( r.topLeft() ), r.size() );
-	    repaintContents( r, FALSE );
+	    repaintContents( r );
 	}
 	for ( i = 0; i < (int)r4.rects().count(); ++i ) {
 	    QRect r( r4.rects()[ i ] );
 	    r = QRect( viewportToContents2( r.topLeft() ), r.size() );
-	    repaintContents( r, FALSE );
+	    repaintContents( r );
 	}
     }
 
@@ -5229,7 +5229,7 @@ void QTable::repaintSelections()
 				    s->rightCol(), b ) );
     }
 
-    repaintContents( r, FALSE );
+    repaintContents( r );
 }
 
 /*!
@@ -5259,7 +5259,7 @@ void QTable::clearSelection( bool repaint )
     selections.clear();
 
     if ( needRepaint && repaint )
-	repaintContents( r, FALSE );
+	repaintContents( r );
 
     leftHeader->setSectionStateToAll( QTableHeader::Normal );
     leftHeader->repaint();
@@ -5461,10 +5461,10 @@ void QTable::sortColumn( int col, bool ascending, bool wholeRows )
 
     if ( !wholeRows )
 	repaintContents( columnPos( col ), contentsY(),
-			 columnWidth( col ), visibleHeight(), FALSE );
+			 columnWidth( col ), visibleHeight() );
     else
 	repaintContents( contentsX(), contentsY(),
-			 visibleWidth(), visibleHeight(), FALSE );
+			 visibleWidth(), visibleHeight() );
 
     delete [] items;
 }
@@ -5767,7 +5767,7 @@ void QTable::takeItem( QTableItem *i )
 	for ( int c = i->col(); c < right; ++c )
 	    contents[indexOf( r, c )] = 0;
     }
-    repaintContents( rect, FALSE );
+    repaintContents( rect );
     int orow = i->row();
     int ocol = i->col();
     i->setRow( -1 );
@@ -6776,7 +6776,7 @@ void QTableHeader::updateStretches()
 	resizeSection( i, qMax( 20, pd ) );
     }
     blockSignals( block );
-    table->repaintContents( FALSE );
+    table->repaintContents();
     widgetStretchTimer->start( 100, TRUE );
 }
 

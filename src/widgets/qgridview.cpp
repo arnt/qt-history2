@@ -167,9 +167,9 @@ QRect QGridView::cellGeometry( int row, int column )
 
     \sa QWidget::repaint()
 */
-void QGridView::repaintCell( int row, int column, bool erase )
+void QGridView::repaintCell( int row, int column, bool )
 {
-    repaintContents( cellGeometry( row, column ), erase );
+    repaintContents(cellGeometry( row, column ));
 }
 
 /*!

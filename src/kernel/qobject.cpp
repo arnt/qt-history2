@@ -2246,7 +2246,7 @@ void QObject::dumpObjectTree()
 void QObject::dumpObjectInfo()
 {
 #if defined(QT_DEBUG)
-    qDebug( "OBJECT %s::%s", className(), name( "unnamed" ) );
+    qDebug( "OBJECT %s::%s", className(), objectName( "unnamed" ) );
     //#### signals and slots info missing
 #endif
 }

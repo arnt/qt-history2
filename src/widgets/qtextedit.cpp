@@ -1838,7 +1838,7 @@ void QTextEdit::removeSelectedText( int selNum )
 	ensureCursorVisible();
 	lastFormatted = cursor->paragraph();
 	formatMore();
-	repaintContents( FALSE );
+	repaintContents();
 	ensureCursorVisible();
 	drawCursor( TRUE );
 	clearUndoRedo();
@@ -1856,7 +1856,7 @@ void QTextEdit::removeSelectedText( int selNum )
 	delete cursor;
 	cursor = new QTextCursor( doc );
 	drawCursor( TRUE );
-	repaintContents( TRUE );
+	repaintContents();
     }
     setModified();
     emit textChanged();
@@ -2444,7 +2444,7 @@ void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * e )
 		endIdx = ++i;
 	    }
 	    optimSetSelection( para, startIdx, para, endIdx );
-	    repaintContents( FALSE );
+	    repaintContents();
 	}
     } else
 #endif
@@ -2841,7 +2841,7 @@ void QTextEdit::doResize()
 	interval = 0;
 	formatMore();
     }
-    repaintContents( FALSE );
+    repaintContents();
 }
 
 /*! \internal */
@@ -3150,7 +3150,7 @@ void QTextEdit::undo()
 	delete cursor;
 	cursor = new QTextCursor( doc );
 	drawCursor( TRUE );
-	repaintContents( TRUE );
+	repaintContents();
     }
     emit undoAvailable( isUndoAvailable() );
     emit redoAvailable( isRedoAvailable() );
@@ -3953,7 +3953,7 @@ void QTextEdit::setSelection( int paraFrom, int indexFrom,
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
 	optimSetSelection(paraFrom, indexFrom, paraTo, indexTo);
- 	repaintContents(FALSE);
+ 	repaintContents();
 	return;
     }
 #endif
@@ -6753,7 +6753,7 @@ void QTextEdit::optimMousePressEvent( QMouseEvent * e )
     d->od->selEnd.line = d->od->selStart.line;
     d->od->selEnd.index = d->od->selStart.index;
     oldMousePos = e->pos();
-    repaintContents( FALSE );
+    repaintContents();
 }
 
 /*! \internal */
@@ -6781,7 +6781,7 @@ void QTextEdit::optimMouseReleaseEvent( QMouseEvent * e )
 	    qSwap( &d->od->selStart.index, &d->od->selEnd.index );
 	}
 	oldMousePos = e->pos();
-	repaintContents( FALSE );
+	repaintContents();
     }
     if ( mousePressed ) {
 	mousePressed = FALSE;
@@ -6854,7 +6854,7 @@ void QTextEdit::optimDoAutoScroll()
     // - redraw the whole thing otherwise calculate the rect that
     // needs drawing.
     if ( d->od->numLines * fm.lineSpacing() < viewport()->height() ) {
-	repaintContents( contentsX(), contentsY(), width(), height(), FALSE );
+	repaintContents( contentsX(), contentsY(), width(), height());
     } else {
 	int h = QABS(mousePos.y() - oldMousePos.y()) + fm.lineSpacing() * 2;
 	int y;
@@ -6867,7 +6867,7 @@ void QTextEdit::optimDoAutoScroll()
 	}
 	if ( y < 0 )
 	    y = 0;
-	repaintContents( contentsX(), y, width(), h, FALSE );
+	repaintContents(contentsX(), y, width(), h);
     }
 
     if ( !scrollTimer->isActive() && pos.y() < 0 || pos.y() > height() )
@@ -6913,7 +6913,7 @@ void QTextEdit::optimSelectAll()
     d->od->selEnd.line = d->od->numLines - 1;
     d->od->selEnd.index = d->od->lines[ LOGOFFSET(d->od->selEnd.line) ].length();
 
-    repaintContents( FALSE );
+    repaintContents();
     emit copyAvailable( optimHasSelection() );
     emit selectionChanged();
 }
@@ -6923,7 +6923,7 @@ void QTextEdit::optimRemoveSelection()
 {
     d->od->selStart.line = d->od->selEnd.line = -1;
     d->od->selStart.index = d->od->selEnd.index = -1;
-    repaintContents( FALSE );
+    repaintContents();
 }
 
 /*! \internal */
