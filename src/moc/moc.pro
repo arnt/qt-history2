@@ -13,9 +13,9 @@ win32:DEFINES  += QT_NODLL
 DESTDIR         = ../../bin
 
 
-INCLUDEPATH	 = ../core/arch/generic $$QT_BUILD_TREE/include . \
+INCLUDEPATH	 = ../corelib/arch/generic $$QT_BUILD_TREE/include . \
                    $$QT_BUILD_TREE/include/QtCore
-DEPENDPATH	+= $$INCLUDEPATH ../core/base ../core/tools ../core/io
+DEPENDPATH	+= $$INCLUDEPATH ../corelib/base ../corelib/tools ../corelib/io
 LIBS	        =
 OBJECTS_DIR	= .
 
@@ -29,40 +29,40 @@ SOURCES =  moc.cpp \
            scanner.cpp
 
 # Qt tools needed to link moc
-SOURCES	+= ../core/global/qglobal.cpp \
-	   ../core/io/qbuffer.cpp \
-	   ../core/io/qdir.cpp		\
-	   ../core/io/qfile.cpp		\
-	   ../core/io/qfileinfo.cpp	\
-	   ../core/io/qfsfileengine.cpp	\
-	   ../core/io/qiodevice.cpp	\
-	   ../core/io/qtemporaryfile.cpp \
-	   ../core/io/qtextstream.cpp \
-	   ../core/kernel/qinternal.cpp \
-	   ../core/tools/qbytearraymatcher.cpp \
-	   ../core/tools/qchar.cpp		\
-	   ../core/tools/qdatetime.cpp	\
-	   ../core/tools/qhash.cpp		\
-	   ../core/tools/qlist.cpp		\
-	   ../core/tools/qlocale.cpp \
-	   ../core/tools/qmap.cpp		\
-	   ../core/tools/qstring.cpp		\
-	   ../core/tools/qstringlist.cpp	\
-	   ../core/tools/qstringmatcher.cpp \
-	   ../core/tools/qvector.cpp          \
-           ../core/io/qbufferedfsfileengine.cpp  \
-           ../core/io/qfileengine.cpp  \
-           ../core/tools/qbytearray.cpp	\
-           ../core/tools/qunicodetables.cpp	\
-           ../core/tools/qvsnprintf.cpp 
+SOURCES	+= ../corelib/global/qglobal.cpp \
+	   ../corelib/io/qbuffer.cpp \
+	   ../corelib/io/qdir.cpp		\
+	   ../corelib/io/qfile.cpp		\
+	   ../corelib/io/qfileinfo.cpp	\
+	   ../corelib/io/qfsfileengine.cpp	\
+	   ../corelib/io/qiodevice.cpp	\
+	   ../corelib/io/qtemporaryfile.cpp \
+	   ../corelib/io/qtextstream.cpp \
+	   ../corelib/kernel/qinternal.cpp \
+	   ../corelib/tools/qbytearraymatcher.cpp \
+	   ../corelib/tools/qchar.cpp		\
+	   ../corelib/tools/qdatetime.cpp	\
+	   ../corelib/tools/qhash.cpp		\
+	   ../corelib/tools/qlist.cpp		\
+	   ../corelib/tools/qlocale.cpp \
+	   ../corelib/tools/qmap.cpp		\
+	   ../corelib/tools/qstring.cpp		\
+	   ../corelib/tools/qstringlist.cpp	\
+	   ../corelib/tools/qstringmatcher.cpp \
+	   ../corelib/tools/qvector.cpp          \
+           ../corelib/io/qbufferedfsfileengine.cpp  \
+           ../corelib/io/qfileengine.cpp  \
+           ../corelib/tools/qbytearray.cpp	\
+           ../corelib/tools/qunicodetables.cpp	\
+           ../corelib/tools/qvsnprintf.cpp 
 
-unix:SOURCES += ../core/io/qfsfileengine_unix.cpp
+unix:SOURCES += ../corelib/io/qfsfileengine_unix.cpp
 
-win32:SOURCES += ../core/io/qfsfileengine_win.cpp
+win32:SOURCES += ../corelib/io/qfsfileengine_win.cpp
 
 macx: {
    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.2 #enables weak linking for 10.2 (exported)
-   SOURCES += ../core/kernel/qcore_mac.cpp
+   SOURCES += ../corelib/kernel/qcore_mac.cpp
    LIBS += -framework CoreServices
 }
 

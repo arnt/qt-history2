@@ -2,7 +2,7 @@
 # i386 specific files
 #
 
-ARCH_CPP=$$QT_SOURCE_TREE/src/core/arch/i386
+ARCH_CPP=$$QT_SOURCE_TREE/src/corelib/arch/i386
 ARCH_H=$$ARCH_CPP/arch
 
 DEPENDPATH += $$ARCH_CPP;$$ARCH_H

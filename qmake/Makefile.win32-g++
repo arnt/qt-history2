@@ -5,7 +5,7 @@ CXX	    =	g++
 CFLAGS	    =	-c -o$@ -O \
 		-I. -Igenerators -Igenerators\unix \
 		-Igenerators\win32 -Igenerators\mac \
-		-I..\src\core\arch\generic \
+		-I..\src\corelib\arch\generic \
 		-I..\include -I ..\include\QtCore \
 		-I..\src\tools -I..\mkspecs\win32-g++ \
 		-DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT \
@@ -80,122 +80,122 @@ distclean:: clean
 .cpp.o:
 	$(CXX) $(CXXFLAGS) $<
 
-qconfig.o: ..\src\core\global\qconfig.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\global\qconfig.cpp
+qconfig.o: ..\src\corelib\global\qconfig.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\global\qconfig.cpp
 
-qsettings_win.o: ..\src\core\io\qsettings_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qsettings_win.cpp
+qsettings_win.o: ..\src\corelib\io\qsettings_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qsettings_win.cpp
 
-qsettings.o: ..\src\core\io\qsettings.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qsettings.cpp
+qsettings.o: ..\src\corelib\io\qsettings.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qsettings.cpp
 
-qvariant.o: ..\src\core\kernel\qvariant.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qvariant.cpp
+qvariant.o: ..\src\corelib\kernel\qvariant.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\kernel\qvariant.cpp
 
-qurl.o: ..\src\core\io\qurl.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qurl.cpp
+qurl.o: ..\src\corelib\io\qurl.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qurl.cpp
 
-qtextstream.o: ..\src\core\io\qtextstream.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qtextstream.cpp
+qtextstream.o: ..\src\corelib\io\qtextstream.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qtextstream.cpp
 
-qiodevice.o: ..\src\core\io\qiodevice.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qiodevice.cpp
+qiodevice.o: ..\src\corelib\io\qiodevice.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qiodevice.cpp
 
-qinternal.o: ..\src\core\kernel\qinternal.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qinternal.cpp
+qinternal.o: ..\src\corelib\kernel\qinternal.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\kernel\qinternal.cpp
 
-qlibraryinfo.o: ..\src\core\global\qlibraryinfo.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\global\qlibraryinfo.cpp
+qlibraryinfo.o: ..\src\corelib\global\qlibraryinfo.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\global\qlibraryinfo.cpp
 
-qglobal.o: ..\src\core\global\qglobal.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\global\qglobal.cpp
+qglobal.o: ..\src\corelib\global\qglobal.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\global\qglobal.cpp
 
-qhash.o: ..\src\core\tools\qhash.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qhash.cpp
+qhash.o: ..\src\corelib\tools\qhash.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qhash.cpp
 
-qbytearray.o: ..\src\core\tools\qbytearray.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qbytearray.cpp
+qbytearray.o: ..\src\corelib\tools\qbytearray.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qbytearray.cpp
 
-qvsnprintf.o: ..\src\core\tools\qvsnprintf.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qvsnprintf.cpp
+qvsnprintf.o: ..\src\corelib\tools\qvsnprintf.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qvsnprintf.cpp
 
-qbytearraymatcher.o: ..\src\core\tools\qbytearraymatcher.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qbytearraymatcher.cpp
+qbytearraymatcher.o: ..\src\corelib\tools\qbytearraymatcher.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qbytearraymatcher.cpp
 
-qchar.o: ..\src\core\tools\qchar.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qchar.cpp
+qchar.o: ..\src\corelib\tools\qchar.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qchar.cpp
 
-qstring.o: ..\src\core\tools\qstring.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qstring.cpp
+qstring.o: ..\src\corelib\tools\qstring.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qstring.cpp
 
-qstringmatcher.o: ..\src\core\tools\qstringmatcher.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qstringmatcher.cpp
+qstringmatcher.o: ..\src\corelib\tools\qstringmatcher.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qstringmatcher.cpp
 
-qlocale.o: ..\src\core\tools\qlocale.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qlocale.cpp
+qlocale.o: ..\src\corelib\tools\qlocale.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qlocale.cpp
 
-quuid.o: ..\src\core\plugin\quuid.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\plugin\quuid.cpp
+quuid.o: ..\src\corelib\plugin\quuid.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\plugin\quuid.cpp
 
-qbuffer.o: ..\src\core\io\qbuffer.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qbuffer.cpp
+qbuffer.o: ..\src\corelib\io\qbuffer.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qbuffer.cpp
 
-qlist.o: ..\src\core\tools\qlist.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qlist.cpp
+qlist.o: ..\src\corelib\tools\qlist.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qlist.cpp
 
-qlinkedlist.o: ..\src\core\tools\qlinkedlist.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qlinkedlist.cpp
+qlinkedlist.o: ..\src\corelib\tools\qlinkedlist.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qlinkedlist.cpp
 
-qfile.o: ..\src\core\io\qfile.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qfile.cpp
+qfile.o: ..\src\corelib\io\qfile.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qfile.cpp
 
-qtemporaryfile.o: ..\src\core\io\qtemporaryfile.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qtemporaryfile.cpp
+qtemporaryfile.o: ..\src\corelib\io\qtemporaryfile.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qtemporaryfile.cpp
 
-qfileengine.o: ..\src\core\io\qfileengine.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qfileengine.cpp
+qfileengine.o: ..\src\corelib\io\qfileengine.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qfileengine.cpp
 
-qfsfileengine_win.o: ..\src\core\io\qfsfileengine_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qfsfileengine_win.cpp
+qfsfileengine_win.o: ..\src\corelib\io\qfsfileengine_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qfsfileengine_win.cpp
 
-qfsfileengine.o: ..\src\core\io\qfsfileengine.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qfsfileengine.cpp
+qfsfileengine.o: ..\src\corelib\io\qfsfileengine.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qfsfileengine.cpp
 	
-qbufferedfsfileengine.o: ..\src\core\io\qbufferedfsfileengine.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qbufferedfsfileengine.cpp
+qbufferedfsfileengine.o: ..\src\corelib\io\qbufferedfsfileengine.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qbufferedfsfileengine.cpp
 
 qtextcodec.o: ..\src\codecs\qtextcodec.cpp
 	$(CXX) $(CXXFLAGS) ..\src\codecs\qtextcodec.cpp
 
-qregexp.o: ..\src\core\tools\qregexp.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qregexp.cpp
+qregexp.o: ..\src\corelib\tools\qregexp.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qregexp.cpp
 
-qvector.o: ..\src\core\tools\qvector.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qvector.cpp
+qvector.o: ..\src\corelib\tools\qvector.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qvector.cpp
 
-qbitarray.o: ..\src\core\tools\qbitarray.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qbitarray.cpp
+qbitarray.o: ..\src\corelib\tools\qbitarray.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qbitarray.cpp
 
-qdir.o: ..\src\core\io\qdir.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qdir.cpp
+qdir.o: ..\src\corelib\io\qdir.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qdir.cpp
 
-qmetatype.o: ..\src\core\kernel\qmetatype.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qmetatype.cpp
+qmetatype.o: ..\src\corelib\kernel\qmetatype.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\kernel\qmetatype.cpp
 
-qfileinfo.o: ..\src\core\io\qfileinfo.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qfileinfo.cpp
+qfileinfo.o: ..\src\corelib\io\qfileinfo.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qfileinfo.cpp
 
-qdatetime.o: ..\src\core\tools\qdatetime.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qdatetime.cpp
+qdatetime.o: ..\src\corelib\tools\qdatetime.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qdatetime.cpp
 
-qstringlist.o: ..\src\core\tools\qstringlist.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qstringlist.cpp
+qstringlist.o: ..\src\corelib\tools\qstringlist.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qstringlist.cpp
 
-qmap.o: ..\src\core\tools\qmap.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qmap.cpp
+qmap.o: ..\src\corelib\tools\qmap.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qmap.cpp
 
-qunicodetables.o: ..\src\core\tools\qunicodetables.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qunicodetables.cpp
+qunicodetables.o: ..\src\corelib\tools\qunicodetables.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qunicodetables.cpp
 
 makefile.o: generators\makefile.cpp
 	$(CXX) $(CXXFLAGS) generators\makefile.cpp

@@ -1057,11 +1057,11 @@ done
 #-------------------------------------------------------------------------------
 # generate qconfig.cpp
 #-------------------------------------------------------------------------------
-[ -d $outpath/src/core/global ] || mkdir -p $outpath/src/core/global
+[ -d $outpath/src/corelib/global ] || mkdir -p $outpath/src/corelib/global
 
 LICENSE_USER_STR=`$relpath/config.tests/unix/padstring 256 "qt_lcnsuser=$Licensee" "\\0"`
 LICENSE_PRODUCTS_STR=`$relpath/config.tests/unix/padstring 256 "qt_lcnsprod=$Products" "\\0"`
-cat > $outpath/src/core/global/qconfig.cpp.new <<EOF
+cat > $outpath/src/corelib/global/qconfig.cpp.new <<EOF
 /* Licensed */
 static const char qt_configure_licensee_str           [256] = "$LICENSE_USER_STR";
 static const char qt_configure_licensed_products_str  [256] = "$LICENSE_PRODUCTS_STR";
@@ -1071,12 +1071,12 @@ static const char qt_configure_licensed_products_str  [256] = "$LICENSE_PRODUCTS
 EOF
 
 # avoid unecessary rebuilds by copying only if qconfig.cpp has changed
-if cmp -s $outpath/src/core/global/qconfig.cpp $outpath/src/core/global/qconfig.cpp.new; then
-    rm -f $outpath/src/core/global/qconfig.cpp.new
+if cmp -s $outpath/src/corelib/global/qconfig.cpp $outpath/src/corelib/global/qconfig.cpp.new; then
+    rm -f $outpath/src/corelib/global/qconfig.cpp.new
 else
-    [ -f $outpath/src/core/global/qconfig.cpp ] && chmod +w $outpath/src/core/global/qconfig.cpp
-    mv $outpath/src/core/global/qconfig.cpp.new $outpath/src/core/global/qconfig.cpp
-    chmod -w $outpath/src/core/global/qconfig.cpp
+    [ -f $outpath/src/corelib/global/qconfig.cpp ] && chmod +w $outpath/src/corelib/global/qconfig.cpp
+    mv $outpath/src/corelib/global/qconfig.cpp.new $outpath/src/corelib/global/qconfig.cpp
+    chmod -w $outpath/src/corelib/global/qconfig.cpp
 fi
 
 #-------------------------------------------------------------------------------
@@ -1650,7 +1650,7 @@ else
     esac
 fi
 
-if [ -d "$relpath/src/core/arch/$ARCH" ]; then
+if [ -d "$relpath/src/corelib/arch/$ARCH" ]; then
     if [ "$OPT_VERBOSE" = "yes" ]; then
 	echo "    '$ARCH' is supported"
     fi
@@ -1666,19 +1666,20 @@ if [ "$OPT_VERBOSE" = "yes" ]; then
 fi
 
 # symlink the arch/$ARCH/arch/ include directory to include/QtCore/arch/
-if [ -d "$outpath/src/core/global/arch" ]; then
-    rm -f "$outpath/src/core/global/arch"
+if [ -d "$outpath/src/corelib/global/arch" ]; then
+    rm -f "$outpath/src/corelib/global/arch"
 else
-    mkdir -p "$outpath/src/core/global/"
+    mkdir -p "$outpath/src/corelib/global/"
 fi
-ln -s "$relpath/src/core/arch/$ARCH/arch" "$outpath/src/core/global/arch"
+ln -s "$relpath/src/corelib/arch/$ARCH/arch" "$outpath/src/corelib/global/arch"
 for arch in "$outpath/include/QtCore/arch" "$outpath/include/Qt/arch"; do
    if [ -d "$arch" ]; then
        rm -f "$arch"
    else
        mkdir -p `dirname $arch`
    fi
-   ln -s "$relpath/src/core/arch/$ARCH/arch" "$arch"
+   rm -f "$arch"
+   ln -s "$relpath/src/corelib/arch/$ARCH/arch" "$arch"
 done
 
 #-------------------------------------------------------------------------------
@@ -2674,7 +2675,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
     echo "Creating qmake. Please wait..."
 
     OLD_QCONFIG_H=
-    QCONFIG_H="$outpath/src/core/global/qconfig.h"
+    QCONFIG_H="$outpath/src/corelib/global/qconfig.h"
     QMAKE_QCONFIG_H="${QCONFIG_H}.qmake"
     if [ -f "$QCONFIG_H" ]; then
          OLD_QCONFIG_H=$QCONFIG_H
@@ -2685,7 +2686,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
     # when building qmake, we use #defines for the install paths,
     # however they are real functions in the library
     if [ '!' -f "$QMAKE_QCONFIG_H" ]; then
-	mkdir -p "$outpath/src/core/global"
+	mkdir -p "$outpath/src/corelib/global"
 	[ -f "$QCONFIG_H" ] && chmod +w "$QCONFIG_H"
 	echo "/* All features enabled while building qmake */" >"$QMAKE_QCONFIG_H"
     fi
@@ -3271,15 +3272,15 @@ QT_BUILD_KEY=`echo $QT_BUILD_KEY | sed -e "s,  *, ,g" -e "s,^  *,," -e "s,  *$,,
 
 case "$CFG_QCONFIG" in
 full)
-    echo "/* Everything */" >$outpath/src/core/global/qconfig.h.new
+    echo "/* Everything */" >$outpath/src/corelib/global/qconfig.h.new
     ;;
 *)
     QCONFIGFILE=qconfig-$CFG_QCONFIG.h
-    echo "/* Copied from $QCONFIGFILE */" >$outpath/src/core/global/qconfig.h.new
-    cat $relpath/src/tools/$QCONFIGFILE >>$outpath/src/core/global/qconfig.h.new
+    echo "/* Copied from $QCONFIGFILE */" >$outpath/src/corelib/global/qconfig.h.new
+    cat $relpath/src/tools/$QCONFIGFILE >>$outpath/src/corelib/global/qconfig.h.new
     ;;
 esac
-cat >> $outpath/src/core/global/qconfig.h.new <<EOF
+cat >> $outpath/src/corelib/global/qconfig.h.new <<EOF
 
 #define QT_BUILD_KEY "$QT_BUILD_KEY"
 
@@ -3290,15 +3291,15 @@ cat >> $outpath/src/core/global/qconfig.h.new <<EOF
 
 /* Compile time features */
 EOF
-[ '!' -z "$LicenseKey" ] && echo "#define QT_PRODUCT_LICENSEKEY \"$LicenseKey\"" >>$outpath/src/core/global/qconfig.h.new
+[ '!' -z "$LicenseKey" ] && echo "#define QT_PRODUCT_LICENSEKEY \"$LicenseKey\"" >>$outpath/src/corelib/global/qconfig.h.new
 
 if [ "$CFG_LARGEFILE" = "yes" ]; then
-    echo "#define QT_LARGEFILE_SUPPORT 64" >>$outpath/src/core/global/qconfig.h.new
+    echo "#define QT_LARGEFILE_SUPPORT 64" >>$outpath/src/corelib/global/qconfig.h.new
 fi
 
 $unixtests/ptrsize.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath
-echo "#define QT_POINTER_SIZE $?" >>$outpath/src/core/global/qconfig.h.new
-echo "" >>$outpath/src/core/global/qconfig.h.new
+echo "#define QT_POINTER_SIZE $?" >>$outpath/src/corelib/global/qconfig.h.new
+echo "" >>$outpath/src/corelib/global/qconfig.h.new
 
 ## find excluded styles and add this to $QCONFIG_FLAGS
 VSTYLE=no
@@ -3437,14 +3438,14 @@ if [ -n "$QCONFIG_FLAGS" ]; then
         fi
 
         if [ -z $cfgdNeg ]; then
-cat >>$outpath/src/core/global/qconfig.h.new << EOF
+cat >>$outpath/src/corelib/global/qconfig.h.new << EOF
 #ifndef $cfgd
 # define $cfg
 #endif
 
 EOF
         else
-cat >>$outpath/src/core/global/qconfig.h.new << EOF
+cat >>$outpath/src/corelib/global/qconfig.h.new << EOF
 #if defined($cfgd) && defined($cfgdNeg)
 # undef $cfgd
 #elif !defined($cfgd) && !defined($cfgdNeg)
@@ -3457,15 +3458,15 @@ EOF
 fi
 
 # avoid unecessary rebuilds by copying only if qconfig.h has changed
-if cmp -s "$outpath/src/core/global/qconfig.h" "$outpath/src/core/global/qconfig.h.new"; then
-    rm -f "$outpath/src/core/global/qconfig.h.new"
+if cmp -s "$outpath/src/corelib/global/qconfig.h" "$outpath/src/corelib/global/qconfig.h.new"; then
+    rm -f "$outpath/src/corelib/global/qconfig.h.new"
 else
-    [ -f "$outpath/src/core/global/qconfig.h" ] && chmod +w "$outpath/src/core/global/qconfig.h"
-    mv "$outpath/src/core/global/qconfig.h.new" "$outpath/src/core/global/qconfig.h"
-    chmod -w "$outpath/src/core/global/qconfig.h"
+    [ -f "$outpath/src/corelib/global/qconfig.h" ] && chmod +w "$outpath/src/corelib/global/qconfig.h"
+    mv "$outpath/src/corelib/global/qconfig.h.new" "$outpath/src/corelib/global/qconfig.h"
+    chmod -w "$outpath/src/corelib/global/qconfig.h"
     for conf in "$outpath/include/QtCore/qconfig.h" "$outpath/include/Qt/qconfig.h"; do
         if [ '!' -f "$conf" ]; then
-	    ln -s "$outpath/src/core/global/qconfig.h" "$conf"
+	    ln -s "$outpath/src/corelib/global/qconfig.h" "$conf"
         fi
     done
 fi
@@ -3648,7 +3649,7 @@ fi
 [ "$CFG_INCREMENTAL" = "yes" ] && [ '!' -z "$INCREMENTAL" ] && echo "Incremental ......... $INCREMENTAL"
 echo "Configuration ....... $QMAKE_CONFIG $QT_CONFIG"
 echo "Debug................ $CFG_DEBUG"
-echo "Qt-3 compatibility... $CFG_QT3SUPPORT"
+echo "Qt3 compatibility.... $CFG_QT3SUPPORT"
 echo "STL support ......... $CFG_STL"
 echo "PCH support ......... $CFG_PRECOMPILE"
 echo "IPv6 support ........ $CFG_IPV6"
@@ -3729,7 +3730,7 @@ fi
 if [ -f "${relpath}/projects.pro" ]; then
     mkfile="${outpath}/Makefile"
     [ -f "$mkfile" ] && chmod +w "$mkfile"
-    QTDIR="$outpath" $outpath/bin/qmake -spec "$XQMAKESPEC" "QT_PROJECTS=$QT_PROJECTS" ${relpath}/projects.pro -o $mkfile
+    QTDIR="$outpath" $outpath/bin/qmake -spec "$XQMAKESPEC" ${relpath}/projects.pro -o $mkfile
 fi
 
 # .projects      -> projects to process

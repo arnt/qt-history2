@@ -1,8 +1,8 @@
 #
-# MIPS 3/4 architecture
+# SPARC arch files
 #
 
-ARCH_CPP=$$QT_SOURCE_TREE/src/core/arch/mips
+ARCH_CPP=$$QT_SOURCE_TREE/src/corelib/arch/sparc
 ARCH_H=$$ARCH_CPP/arch
 
 DEPENDPATH += $$ARCH_CPP;$$ARCH_H

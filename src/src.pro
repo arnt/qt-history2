@@ -3,10 +3,10 @@ CONFIG += ordered
 
 # this order is important
 win32:SUBDIRS += winmain
-SUBDIRS += moc core gui sql
+SUBDIRS += moc corelib gui sql
 contains(QT_CONFIG, opengl): SUBDIRS +=  opengl
 SUBDIRS += xml network
-contains(QT_CONFIG, qt3support): SUBDIRS += compat
+contains(QT_CONFIG, qt3support): SUBDIRS += qt3support
 
 SUBDIRS += plugins
 

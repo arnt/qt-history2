@@ -12,12 +12,12 @@ OBJECTS_DIR = .
 MOC_DIR = .
 
 #guts
-VPATH += $$QT_SOURCE_TREE/src/core/global \
-         $$QT_SOURCE_TREE/src/core/tools \
-         $$QT_SOURCE_TREE/src/core/kernel \
-         $$QT_SOURCE_TREE/src/core/plugin \
-	 $$QT_SOURCE_TREE/src/core/io 
-INCPATH += $$QT_SOURCE_TREE/src/core/arch/generic \
+VPATH += $$QT_SOURCE_TREE/src/corelib/global \
+         $$QT_SOURCE_TREE/src/corelib/tools \
+         $$QT_SOURCE_TREE/src/corelib/kernel \
+         $$QT_SOURCE_TREE/src/corelib/plugin \
+	 $$QT_SOURCE_TREE/src/corelib/io 
+INCPATH += $$QT_SOURCE_TREE/src/corelib/arch/generic \
            generators generators/unix generators/win32 generators/mac \
            $$QT_SOURCE_TREE/include $$QT_SOURCE_TREE/include/QtCore \
            $$QT_SOURCE_TREE/qmake

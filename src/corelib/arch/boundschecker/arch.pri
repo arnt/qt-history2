@@ -5,7 +5,7 @@
 # be fairly fast and swaps pointers with normal C code.
 #
 
-ARCH_CPP=$$QT_SOURCE_TREE/src/core/arch/boundschecker
+ARCH_CPP=$$QT_SOURCE_TREE/src/corelib/arch/boundschecker
 ARCH_H=$$ARCH_CPP/arch
 
 DEPENDPATH += $$ARCH_CPP;$$ARCH_H

@@ -2,7 +2,7 @@
 # PowerPC arch files
 #
 
-ARCH_CPP=$$QT_SOURCE_TREE/src/core/arch/powerpc
+ARCH_CPP=$$QT_SOURCE_TREE/src/core/barch/powerpc
 ARCH_H=$$ARCH_CPP/arch
 
 DEPENDPATH += $$ARCH_CPP;$$ARCH_H
