@@ -114,6 +114,10 @@ void WriteInitialization::acceptUI(DomUI *node)
 
     output << "}\n\n";
 
+    if (m_delayedActionInitialization.isEmpty()) {
+        m_delayedInitialization += option.indent + QLatin1String("Q_UNUSED(") + varName + QLatin1String(");\n");
+    }
+
     output << "inline void " << className << "::retranslateUi(" << widgetClassName << " *" << varName << ")\n"
            << "{\n"
            << m_delayedInitialization
@@ -154,19 +158,25 @@ void WriteInitialization::acceptWidget(DomWidget *node)
 
     parentWidget = savedParentWidget;
 
-    if (uic->customWidgetsInfo()->extends(className, QLatin1String("QListBox"))) {
-        initializeListBox(node);
-    } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("QComboBox"))) {
-        initializeListBox(node);
+    if (uic->customWidgetsInfo()->extends(className, QLatin1String("QComboBox"))) {
+        initializeComboBox(node);
+    } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("QListWidget"))) {
+        initializeListWidget(node);
+    } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("QTreeWidget"))) {
+        initializeListWidget(node);
+    } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("QTableWidget"))) {
+        initializeTableWidget(node);
+    } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("Q3ListBox"))) {
+        initializeQ3ListBox(node);
     } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("Q3ListView"))) {
-        initializeListView(node);
-    } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("QIconView"))) {
-        initializeIconView(node);
-    } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("QTable"))) {
-        initializeTable(node);
-    } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("QDataTable"))) {
+        initializeQ3ListView(node);
+    } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("Q3IconView"))) {
+        initializeQ3IconView(node);
+    } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("Q3Table"))) {
+        initializeQ3Table(node);
+    } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("Q3DataTable"))) {
         initializeSqlDataTable(node);
-    } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("QDataBrowser"))) {
+    } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("Q3DataBrowser"))) {
         initializeSqlDataBrowser(node);
     }
 
@@ -242,7 +252,7 @@ void WriteInitialization::acceptWidget(DomWidget *node)
         refreshOut << option.indent << parentWidget << "->setTabText("
                    << parentWidget << "->indexOf(" << varName << "), " << trCall(title, className) << ");\n";
 
-    } else if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QWizard"))) {
+    } else if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("Q3Wizard"))) {
         output << option.indent << parentWidget << "->addPage(" << varName << ", " << trCall(title, className) << ");\n";
 
         refreshOut << option.indent << parentWidget << "->setTitle("
@@ -796,7 +806,7 @@ void WriteInitialization::acceptLayoutDefault(DomLayoutDefault *node)
         m_defaultSpacing = node->attributeSpacing();
 }
 
-void WriteInitialization::initializeListBox(DomWidget *w)
+void WriteInitialization::initializeQ3ListBox(DomWidget *w)
 {
     QString varName = driver->findOrInsertWidget(w);
     QString className = w->attributeClass();
@@ -828,7 +838,7 @@ void WriteInitialization::initializeListBox(DomWidget *w)
     }
 }
 
-void WriteInitialization::initializeIconView(DomWidget *w)
+void WriteInitialization::initializeQ3IconView(DomWidget *w)
 {
     QString varName = driver->findOrInsertWidget(w);
     QString className = w->attributeClass();
@@ -863,7 +873,7 @@ void WriteInitialization::initializeIconView(DomWidget *w)
     }
 }
 
-void WriteInitialization::initializeListView(DomWidget *w)
+void WriteInitialization::initializeQ3ListView(DomWidget *w)
 {
     QString varName = driver->findOrInsertWidget(w);
     QString className = w->attributeClass();
@@ -900,11 +910,11 @@ void WriteInitialization::initializeListView(DomWidget *w)
     if (w->elementItem().size()) {
         refreshOut << option.indent << varName << "->clear();\n";
 
-        initializeListViewItems(className, varName, w->elementItem());
+        initializeQ3ListViewItems(className, varName, w->elementItem());
     }
 }
 
-void WriteInitialization::initializeListViewItems(const QString &className, const QString &varName, const QList<DomItem *> &items)
+void WriteInitialization::initializeQ3ListViewItems(const QString &className, const QString &varName, const QList<DomItem *> &items)
 {
     if (items.isEmpty())
         return;
@@ -932,12 +942,12 @@ void WriteInitialization::initializeListViewItems(const QString &className, cons
 
         if (item->elementItem().size()) {
             refreshOut << option.indent << itemName << "->setOpen(true);\n";
-            initializeListViewItems(className, itemName, item->elementItem());
+            initializeQ3ListViewItems(className, itemName, item->elementItem());
         }
     }
 }
 
-void WriteInitialization::initializeTable(DomWidget *w)
+void WriteInitialization::initializeQ3Table(DomWidget *w)
 {
     QString varName = driver->findOrInsertWidget(w);
     QString className = w->attributeClass();
@@ -979,10 +989,10 @@ void WriteInitialization::initializeTable(DomWidget *w)
     }
 
 
-    //initializeTableItems(className, varName, w->elementItem());
+    //initializeQ3TableItems(className, varName, w->elementItem());
 }
 
-void WriteInitialization::initializeTableItems(const QString &className, const QString &varName, const QList<DomItem *> &items)
+void WriteInitialization::initializeQ3TableItems(const QString &className, const QString &varName, const QList<DomItem *> &items)
 {
     Q_UNUSED(className);
     Q_UNUSED(varName);
@@ -995,14 +1005,14 @@ QString WriteInitialization::pixCall(DomResourcePixmap *r) const
     QString s = pix;
 
     bool declaredPix = driver->containsPixmap(pix);
-    if (s.isEmpty() || uic->hasExternalPixmap() || uic->pixmapFunction().size() || !declaredPix) {
+    if (s.isEmpty() || uic->hasExternalPixmap() || !uic->pixmapFunction().isEmpty() || !declaredPix) {
         QString pixFunc = uic->pixmapFunction();
 
         if (pixFunc.isEmpty() && !s.isEmpty())
             pixFunc = QLatin1String("QString::fromUtf8");
 
         if (uic->hasExternalPixmap() || !declaredPix)
-			s = fixString(s);
+            s = fixString(s);
 
         if (pixFunc.isEmpty() && s == QLatin1String("\"\""))
             s.clear();
@@ -1016,6 +1026,89 @@ QString WriteInitialization::pixCall(DomResourcePixmap *r) const
     }
 
     return QLatin1String("icon(") + s + QLatin1String("_ID)");
+}
+
+void WriteInitialization::initializeComboBox(DomWidget *w)
+{
+    QString varName = driver->findOrInsertWidget(w);
+    QString className = w->attributeClass();
+
+    QList<DomItem*> items = w->elementItem();
+
+    if (items.isEmpty())
+        return;
+
+    for (int i=0; i<items.size(); ++i) {
+        DomItem *item = items.at(i);
+
+        QHash<QString, DomProperty*> properties = propertyMap(item->elementProperty());
+        DomProperty *text = properties.value(QLatin1String("text"));
+        DomProperty *pixmap = properties.value(QLatin1String("icon"));
+        if (!(text || pixmap))
+            continue;
+
+        refreshOut << option.indent << varName << "->insertItem(";
+
+        if (pixmap != 0) {
+            DomResourcePixmap *pix = pixmap->elementIconSet();
+            if (pix == 0)
+                pix = pixmap->elementPixmap(); // ### for q3support code!
+
+            Q_ASSERT(pix != 0);
+
+            refreshOut << pixCall(pix);
+
+            if (text)
+                refreshOut << ", ";
+        }
+
+        refreshOut << trCall(text->elementString(), className) << ");\n";
+    }
+}
+
+void WriteInitialization::initializeListWidget(DomWidget *w)
+{
+    QString varName = driver->findOrInsertWidget(w);
+    QString className = w->attributeClass();
+
+    QList<DomItem*> items = w->elementItem();
+
+    if (items.isEmpty())
+        return;
+
+    refreshOut << option.indent << varName << "->clear();\n";
+
+    // items
+    for (int i=0; i<items.size(); ++i) {
+        DomItem *item = items.at(i);
+
+        QString itemName = driver->unique(QLatin1String("__item"));
+        refreshOut << "\n";
+        refreshOut << option.indent << "QListWidgetItem *" << itemName << " = new QListWidgetItem(" << varName << ");\n";
+
+        QList<DomProperty*> properties = item->elementProperty();
+        for (int i=0; i<properties.size(); ++i) {
+            DomProperty *p = properties.at(i);
+
+            if (p->attributeName() == QLatin1String("text"))
+                refreshOut << option.indent << itemName << "->setText(" << trCall(p->elementString(), className) << ");\n";
+
+            if (p->attributeName() == QLatin1String("icon"))
+                refreshOut << option.indent << itemName << "->setIcon(" << pixCall(p->elementIconSet()) << ");\n";
+        }
+    }
+}
+
+void WriteInitialization::initializeTreeWidget(DomWidget *w)
+{
+    // ### not implemented yet
+    Q_UNUSED(w);
+}
+
+void WriteInitialization::initializeTableWidget(DomWidget *w)
+{
+    // ### not implemented yet
+    Q_UNUSED(w);
 }
 
 QString WriteInitialization::trCall(const QString &str, const QString &className) const

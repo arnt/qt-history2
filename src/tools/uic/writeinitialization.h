@@ -63,7 +63,7 @@ struct WriteInitialization : public TreeWalker
 
 //
 // signal/slot connections
-//    
+//
     void acceptConnection(DomConnection *connection);
 
 private:
@@ -83,19 +83,27 @@ private:
 // special initialization
 //
     void initializeMenu(DomWidget *w, const QString &parentWidget);
-    void initializeListBox(DomWidget *w);
-    void initializeIconView(DomWidget *w);
-    void initializeListView(DomWidget *w);
-    void initializeListViewItems(const QString &className, const QString &varName, const QList<DomItem*> &items);
-    void initializeTable(DomWidget *w);
-    void initializeTableItems(const QString &className, const QString &varName, const QList<DomItem*> &items);
+    void initializeComboBox(DomWidget *w);
+    void initializeListWidget(DomWidget *w);
+    void initializeTreeWidget(DomWidget *w);
+    void initializeTableWidget(DomWidget *w);
+
+//
+// special initialization for the Q3 support classes
+//
+    void initializeQ3ListBox(DomWidget *w);
+    void initializeQ3IconView(DomWidget *w);
+    void initializeQ3ListView(DomWidget *w);
+    void initializeQ3ListViewItems(const QString &className, const QString &varName, const QList<DomItem*> &items);
+    void initializeQ3Table(DomWidget *w);
+    void initializeQ3TableItems(const QString &className, const QString &varName, const QList<DomItem*> &items);
 
 //
 // Sql
 //
     void initializeSqlDataTable(DomWidget *w);
     void initializeSqlDataBrowser(DomWidget *w);
-    
+
 private:
     Uic *uic;
     Driver *driver;
