@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#258 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#259 $
 **
 ** Implementation of QFileDialog class
 **
@@ -583,7 +583,7 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
         setFocus();
 
     if ( e->button() != LeftButton ) {
-        QListBox::viewportMousePressEvent( e );
+	QListBox::viewportMousePressEvent( e );
 
 //          if ( e->button() == RightButton && currentItem() != -1 )
 //              filedialog->popupContextMenu( item( currentItem() ), mapToGlobal( e->pos() ) );
@@ -699,15 +699,15 @@ void QFileListBox::viewportDragMoveEvent( QDragMoveEvent *e )
 
     if ( acceptDrop( e->pos(), e->source() ) ) {
         switch ( e->action() ) {
-	    case QDropEvent::Copy:
+	case QDropEvent::Copy:
             e->acceptAction();
             break;
-	    case QDropEvent::Move:
+	case QDropEvent::Move:
             e->acceptAction();
             break;
-	    case QDropEvent::Link:
+	case QDropEvent::Link:
             break;
-	    default:
+	default:
             ;
         }
         if ( oldDragPos != e->pos() )
@@ -749,7 +749,7 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
     if ( e->action() == QDropEvent::Move )
         move = TRUE;
     else if ( e->action() == QDropEvent::Copy )
-        ;
+	       ;
     else
         supportAction = FALSE;
 
@@ -762,7 +762,7 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
         else
             e->accept();
     } else {
-       e->ignore();
+	e->ignore();
     }
 
     filedialog->rereadDir();
@@ -1041,8 +1041,8 @@ void QFileListView::viewportMouseMoveEvent( QMouseEvent *e )
     renameTimer->stop();
     if ( ( e->pos() - pressPos ).manhattanLength() > 4 && mousePressed ) {
         QListViewItem *item = currentItem() ?
-                             currentItem() :
-                             itemAt( e->pos() );
+			      currentItem() :
+			      itemAt( e->pos() );
         if ( item ) {
             QString source = filedialog->dirPath() + "/" + item->text( 0 );
             if ( QFile::exists( source ) ) {
@@ -1111,15 +1111,15 @@ void QFileListView::viewportDragMoveEvent( QDragMoveEvent *e )
         if ( oldDragPos != e->pos() )
             setCurrentDropItem( e->pos() );
         switch ( e->action() ) {
-	    case QDropEvent::Copy:
+	case QDropEvent::Copy:
             e->acceptAction();
             break;
-	    case QDropEvent::Move:
+	case QDropEvent::Move:
             e->acceptAction();
             break;
-	    case QDropEvent::Link:
+	case QDropEvent::Link:
             break;
-	    default:
+	default:
             ;
         }
     } else {
@@ -1159,7 +1159,7 @@ void QFileListView::viewportDropEvent( QDropEvent *e )
     if ( e->action() == QDropEvent::Move )
         move = TRUE;
     else if ( e->action() == QDropEvent::Copy )
-        ;
+	       ;
     else
         supportAction = FALSE;
 
@@ -1172,7 +1172,7 @@ void QFileListView::viewportDropEvent( QDropEvent *e )
         else
             e->accept();
     } else {
-       e->ignore();
+	e->ignore();
     }
 
     filedialog->rereadDir();
@@ -1370,19 +1370,19 @@ QString QFileDialogPrivate::File::text( int column ) const
             return d->special;
         }
     case 3:
-	{
-	    QDateTime epoch;
-	    epoch.setTime_t( 0 );
-	    char a[256];
-	    time_t t1 = epoch.secsTo( info.lastModified() );
-	    struct tm * t2 = ::localtime( &t1 );
-	    // use a static const char here, so that egcs will not see
-	    // the formatting string and give an incorrect warning.
-	    if ( t2 && strftime( a, 255, egcsWorkaround, t2 ) > 0 )
-		return QString::fromLatin1(a);
-	    else
-		return QString::fromLatin1("????");
-	}
+    {
+	QDateTime epoch;
+	epoch.setTime_t( 0 );
+	char a[256];
+	time_t t1 = epoch.secsTo( info.lastModified() );
+	struct tm * t2 = ::localtime( &t1 );
+	// use a static const char here, so that egcs will not see
+	// the formatting string and give an incorrect warning.
+	if ( t2 && strftime( a, 255, egcsWorkaround, t2 ) > 0 )
+	    return QString::fromLatin1(a);
+	else
+	    return QString::fromLatin1("????");
+    }
     case 4:
         if ( info.isReadable() )
             return info.isWritable() ? d->rw : d->ro;
@@ -1499,11 +1499,11 @@ void QFileDialogPrivate::MCItem::paint( QPainter * ptr )
         ptr->drawPixmap( ( h - pm->height() ) / 2, 4, *pm );
 
     /* If the listbox ever needs multiline items...
-    ptr->drawText( pm ? pm->width() + 6 : 20, ( h - fm.height() ) / 2,
-	fm.width( text() ), fm.height(), Qt::DontClip, text() );
+       ptr->drawText( pm ? pm->width() + 6 : 20, ( h - fm.height() ) / 2,
+       fm.width( text() ), fm.height(), Qt::DontClip, text() );
     */
     ptr->drawText( pm ? pm->width() + 8 : 22, (h - fm.height())/2+fm.ascent()-1,
-	    text() );
+		   text() );
 }
 
 static QStringList makeFiltersList( const QString &filter )
@@ -2121,13 +2121,13 @@ void QFileDialog::rereadDir()
         ++it;
         if ( fi->fileName() != QString::fromLatin1(".") &&
 	     fi->fileName() != QString::fromLatin1("..") ) {
-	QFileDialogPrivate::File * i = new QFileDialogPrivate::File( d, fi, files );
-	if ( mode() == ExistingFiles && fi->isDir() )
-	    i->setSelectable( FALSE );
-	QFileDialogPrivate::MCItem *i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
-	if ( mode() == ExistingFiles && fi->isDir() )
-	    i2->setSelectable( FALSE );
-	i->i = i2;	
+	    QFileDialogPrivate::File * i = new QFileDialogPrivate::File( d, fi, files );
+	    if ( mode() == ExistingFiles && fi->isDir() )
+		i->setSelectable( FALSE );
+	    QFileDialogPrivate::MCItem *i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
+	    if ( mode() == ExistingFiles && fi->isDir() )
+		i2->setSelectable( FALSE );
+	    i->i = i2;	
 	}
 
     }
@@ -2477,10 +2477,10 @@ void QFileDialog::updateGeometries()
 
     // we really should have a QSize::unite()
 #define RM r.setWidth( QMAX(r.width(),t.width()) ); \
-    r.setHeight( QMAX(r.height(),t.height()) )
+r.setHeight( QMAX(r.height(),t.height()) )
 
-        // labels first
-        r = d->pathL->sizeHint();
+    // labels first
+    r = d->pathL->sizeHint();
     t = d->fileL->sizeHint();
     RM;
     t = d->typeL->sizeHint();
@@ -2568,7 +2568,7 @@ void QFileDialog::updateFileNameEdit( QListViewItem * newItem )
             i = i->nextSibling();
         }
         okB->setText( tr( "OK" ) );
-        okB->setEnabled( ok );
+        okB->setEnabled( TRUE );
     } else if ( files->isSelected( newItem ) ) {
         QFileDialogPrivate::File * i = (QFileDialogPrivate::File *)newItem;
         trySetSelection( i->info, TRUE );
