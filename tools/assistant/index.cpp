@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 - 2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt Assistant.
 **
@@ -17,6 +17,7 @@
 ** not clear to you.
 **
 **********************************************************************/
+
 #include <qfile.h>
 #include <qdir.h>
 #include <qstringlist.h>
