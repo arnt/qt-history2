@@ -135,7 +135,7 @@ static HKEY openKey(HKEY parentHandle, REGSAM perms, const QString &rSubKey)
 
     LONG res;
     QT_WA( {
-        res = RegOpenKeyExW(parentHandle, rSubKey.utf16(),
+        res = RegOpenKeyExW(parentHandle, reinterpret_cast<const wchar_t *>(rSubKey.utf16()),
                             0, perms, &resultHandle);
     } , {
         res = RegOpenKeyExA(parentHandle, rSubKey.local8Bit(),
@@ -159,7 +159,7 @@ static HKEY createOrOpenKey(HKEY parentHandle, REGSAM perms, const QString &rSub
     // try to create it
     LONG res;
     QT_WA( {
-        res = RegCreateKeyExW(parentHandle, rSubKey.utf16(), 0, 0,
+        res = RegCreateKeyExW(parentHandle, reinterpret_cast<const wchar_t *>(rSubKey.utf16()), 0, 0,
                               REG_OPTION_NON_VOLATILE, perms, 0, &resultHandle, 0);
     } , {
         res = RegCreateKeyExA(parentHandle, rSubKey.local8Bit(), 0, 0,
@@ -264,11 +264,11 @@ static QStringList childKeysOrGroups(HKEY parentHandle, QSettingsPrivate::ChildS
             DWORD l = buff.size() / sizeof(ushort);
             if (spec == QSettingsPrivate::ChildKeys) {
                 res = RegEnumValueW(parentHandle, i,
-                                    reinterpret_cast<ushort *>(buff.data()),
+                                    reinterpret_cast<wchar_t *>(buff.data()),
                                     &l, 0, 0, 0, 0);
             } else {
                 res = RegEnumKeyExW(parentHandle, i,
-                                    reinterpret_cast<ushort *>(buff.data()),
+                                    reinterpret_cast<wchar_t *>(buff.data()),
                                     &l, 0, 0, 0, 0);
             }
             if (res == ERROR_SUCCESS)
@@ -337,7 +337,7 @@ static void deleteChildGroups(HKEY parentHandle)
         // delete group itself
         LONG res;
         QT_WA( {
-            res = RegDeleteKeyW(parentHandle, group.utf16());
+            res = RegDeleteKeyW(parentHandle, reinterpret_cast<const wchar_t *>(group.utf16()));
         }, {
             res = RegDeleteKeyA(parentHandle, group.local8Bit());
         } );
@@ -431,7 +431,7 @@ bool QWinSettingsPrivate::readKey(HKEY parentHandle, const QString &rSubKey, QCo
     DWORD dataSize;
     LONG res;
     QT_WA( {
-        res = RegQueryValueExW(handle, rSubkeyName.utf16(), 0, &dataType, 0, &dataSize);
+        res = RegQueryValueExW(handle, reinterpret_cast<const wchar_t *>(rSubkeyName.utf16()), 0, &dataType, 0, &dataSize);
     }, {
         res = RegQueryValueExA(handle, rSubkeyName.local8Bit(), 0, &dataType, 0, &dataSize);
     } );
@@ -443,7 +443,7 @@ bool QWinSettingsPrivate::readKey(HKEY parentHandle, const QString &rSubKey, QCo
     // get the value
     QByteArray data(dataSize, 0);
     QT_WA( {
-        res = RegQueryValueExW(handle, rSubkeyName.utf16(), 0, 0,
+        res = RegQueryValueExW(handle, reinterpret_cast<const wchar_t *>(rSubkeyName.utf16()), 0, 0,
                                reinterpret_cast<unsigned char*>(data.data()), &dataSize);
     }, {
         res = RegQueryValueExA(handle, rSubkeyName.local8Bit(), 0, 0,
@@ -543,7 +543,7 @@ QWinSettingsPrivate::~QWinSettingsPrivate()
         QString emptyKey;
         DWORD res;
         QT_WA( {
-            res = RegDeleteKeyW(writeHandle(), emptyKey.utf16());
+            res = RegDeleteKeyW(writeHandle(), reinterpret_cast<const wchar_t *>(emptyKey.utf16()));
         }, {
             res = RegDeleteKeyA(writeHandle(), emptyKey.local8Bit());
         } );
@@ -566,7 +566,7 @@ void QWinSettingsPrivate::remove(const QString &uKey)
     HKEY handle = openKey(writeHandle(), KEY_ALL_ACCESS, keyPath(rKey));
     if (handle != 0) {
         QT_WA( {
-            res = RegDeleteValueW(handle, keyName(rKey).utf16());
+            res = RegDeleteValueW(handle, reinterpret_cast<const wchar_t *>(keyName(rKey).utf16()));
         }, {
             res = RegDeleteValueA(handle, keyName(rKey).local8Bit());
         } );
@@ -586,7 +586,7 @@ void QWinSettingsPrivate::remove(const QString &uKey)
 
                 LONG res;
                 QT_WA( {
-                    res = RegDeleteValueW(handle, group.utf16());
+                    res = RegDeleteValueW(handle, reinterpret_cast<const wchar_t *>(group.utf16()));
                 }, {
                     res = RegDeleteValueA(handle, group.local8Bit());
                 } );
@@ -597,7 +597,7 @@ void QWinSettingsPrivate::remove(const QString &uKey)
             }
         } else {
             QT_WA( {
-                res = RegDeleteKeyW(writeHandle(), rKey.utf16());
+                res = RegDeleteKeyW(writeHandle(), reinterpret_cast<const wchar_t *>(rKey.utf16()));
             }, {
                 res = RegDeleteKeyA(writeHandle(), rKey.local8Bit());
             } );
@@ -706,7 +706,7 @@ void QWinSettingsPrivate::set(const QString &uKey, const QCoreVariant &value)
     // set the value
     LONG res;
     QT_WA( {
-        res = RegSetValueExW(handle, keyName(rKey).utf16(), 0, type,
+        res = RegSetValueExW(handle, reinterpret_cast<const wchar_t *>(keyName(rKey).utf16()), 0, type,
                              reinterpret_cast<const unsigned char*>(regValueBuff.constData()),
                              regValueBuff.size());
     }, {

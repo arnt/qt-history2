@@ -1054,7 +1054,7 @@ static bool openFile(QFile &file, QConfFile &confFile, int flags)
         QString semName = QString::fromAscii(SemNamePrefix);
         semName.append(file.fileName());
         QT_WA( {
-            confFile.semHandle = CreateSemaphoreW(0, FileLockSemMax, FileLockSemMax, semName.utf16());
+            confFile.semHandle = CreateSemaphoreW(0, FileLockSemMax, FileLockSemMax, reinterpret_cast<const wchar_t *>(semName.utf16()));
         } , {
             confFile.semHandle = CreateSemaphoreA(0, FileLockSemMax, FileLockSemMax, semName.local8Bit());
         } );
