@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#220 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#221 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1443,7 +1443,7 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
     }
     if ( !dirName.isEmpty() )
         cwd.setPath( dirName );
-    
+
     cwd.convertToAbs();
     rereadDir();
 }
@@ -2099,8 +2099,8 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 
 void QFileDialog::okClicked()
 {
-    QDir::setCurrent( cwd.absPath() );
-    
+    *workingDirectory = cwd.absPath();
+
     // if we're in multi-selection mode and something is selected,
     // accept it and be done.
     if ( mode() == ExistingFiles ) {
@@ -3084,7 +3084,7 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 
     if ( !dir.isEmpty() )
         *workingDirectory = dir;
-    
+
 #if defined(_WS_WIN_)
     if ( qApp->style() == WindowsStyle )
         return winGetOpenFileNames( filter, workingDirectory, parent, name );
