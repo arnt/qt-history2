@@ -49,6 +49,7 @@
 #include "qapplication.h"
 #include "qguardedptr.h"
 #include "qlayout.h"
+#include "qcleanuphandler.h"
 #include <ctype.h>
 
 class QMenuDataData {
@@ -172,7 +173,7 @@ static const int motifItemVMargin       = 4;    // menu item ver text margin
   Constructs a menu bar with a \e parent and a \e name.
 */
 QMenuBar::QMenuBar( QWidget *parent, const char *name )
-    : QFrame( parent, name, 0 )
+    : QFrame( parent, name, WResizeNoErase | WRepaintNoErase )
 {
 #if defined( Q_WS_MAC ) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     mac_eaten_menubar = FALSE;
@@ -904,6 +905,19 @@ QMenuBar::Separator QMenuBar::separator() const
   Event handlers
  *****************************************************************************/
 
+static QPixmap *doubleBuffer = 0;
+static QCleanupHandler<QPixmap> qmb_cleanup_pixmap;
+static QPixmap *getDoubleBuffer( int w, int h )
+{
+    if ( !doubleBuffer ) {
+	doubleBuffer = new QPixmap( w, h );
+	qmb_cleanup_pixmap.add( doubleBuffer );
+    }
+
+    else if ( w > doubleBuffer->width() || h > doubleBuffer->height() )
+	    doubleBuffer->resize( w, h );
+    return doubleBuffer;
+}
 
 /*!
   Called from QFrame::paintEvent().
@@ -911,15 +925,13 @@ QMenuBar::Separator QMenuBar::separator() const
 
 void QMenuBar::drawContents( QPainter *p )
 {
+    QRegion reg( rect() );
     QColorGroup g;
     bool e;
 
     // ### this shouldn't happen.
     if ( !irects )
         return;
-
-    // Draw the menu bar contents in the current style
-    style().drawMenuBarPanel( p, 0, 0, width(), height(), g );
 
     for ( int i=0; i<(int)mitems->count(); i++ ) {
         QMenuItem *mi = mitems->at( i );
@@ -933,13 +945,28 @@ void QMenuBar::drawContents( QPainter *p )
                     palette().inactive() ) : palette().disabled();
             else
                 g = palette().disabled();
-
-            style().drawMenuBarItem( p, r.left(), r.top(), r.width(),
+	    reg = reg.subtract( r );
+	    QPixmap *db = getDoubleBuffer( r.width(), r.height() );
+	    db->fill( this, r.x(), r.y() );
+	    QPainter pntr( db, this);
+	    pntr.setFont( p->font() );
+	    pntr.setPen( p->pen() );
+	    pntr.setBrush( p->brush() );
+            style().drawMenuBarItem( &pntr, 0, 0, r.width(),
                                      r.height(), mi, g, (i == actItem),
                                      actItemDown,
                                   ( hasFocus() || hasmouse || popupvisible ) );
+	    p->drawPixmap( r.x(), r.y(), *db, 0, 0, r.width(), r.height() );
         }
     }
+    p->save();
+    p->setClipRegion( reg );
+    p->fillRect( rect(), colorGroup().brush( QColorGroup::Background ) );
+    p->restore();
+
+    // Draw the menu bar contents in the current style
+    style().drawMenuBarPanel( p, 0, 0, width(), height(), g );
+
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
             if ( !mac_eaten_menubar ) {
 #endif
