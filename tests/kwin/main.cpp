@@ -61,8 +61,14 @@ Application::Application( int &argc, char *argv[] )
     // install X11 error handler
     XSetErrorHandler( x11ErrorHandler );
 
-    // create a workspace. TODO handle list of workspaces for MDI
-    workspace = new Workspace();
+    // create a workspace. 
+    workspaces += new Workspace();
+    initting = FALSE;
+    if ( argc > 1 ) {
+	QString s = argv[1];
+	int i = s.toInt();
+	workspaces += new Workspace( (WId ) i );
+    }
 
     syncX();
     initting = FALSE;
@@ -71,12 +77,18 @@ Application::Application( int &argc, char *argv[] )
 
 Application::~Application()
 {
-    delete workspace;
+     for ( WorkspaceList::Iterator it = workspaces.begin(); it != workspaces.end(); ++it) {
+	 delete (*it);
+     }
 }
 
 bool Application::x11EventFilter( XEvent *e )
 {
-    return workspace->workspaceEvent( e );
+     for ( WorkspaceList::Iterator it = workspaces.begin(); it != workspaces.end(); ++it) {
+	 if ( (*it)->workspaceEvent( e ) )
+	     return TRUE;
+     }
+     return FALSE;
 }
 
 

@@ -831,6 +831,8 @@ void Client::mouseMoveEvent( QMouseEvent * e)
 	shaded = FALSE;
     }
 
+    QPoint globalPos = e->globalPos() - workspace()->geometry().topLeft();
+    
     // TODO for MDI this has to be based on the parent window!
 //     QPoint p = parentWidget()->mapFromGlobal( e->globalPos() );
 
@@ -848,9 +850,9 @@ void Client::mouseMoveEvent( QMouseEvent * e)
     if ( testWState(WState_ConfigPending) )
 	return;
 
-    QPoint p = e->globalPos() + invertedMoveOffset;
+    QPoint p = globalPos + invertedMoveOffset;
 
-    QPoint pp = e->globalPos() - moveOffset;
+    QPoint pp = globalPos - moveOffset;
 
     QSize mpsize( geometry().right() - pp.x() + 1, geometry().bottom() - pp.y() + 1 );
     mpsize = adjustedSize( mpsize );

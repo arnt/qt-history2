@@ -4,6 +4,7 @@
 #include <qapplication.h>
 #include "workspace.h"
 
+typedef QValueList<Workspace*> WorkspaceList;
 class Application : public  QApplication
 {
 public:
@@ -14,7 +15,7 @@ protected:
     bool x11EventFilter( XEvent * );
 
 private:
-    Workspace* workspace; // will be list of workspaces for MDI support
+    WorkspaceList workspaces;
 };
 
 

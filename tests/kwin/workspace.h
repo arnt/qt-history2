@@ -17,6 +17,7 @@ class Workspace : public QObject
     Q_OBJECT
 public:
     Workspace();
+    Workspace( WId rootwin );
     virtual ~Workspace();
 
     virtual bool workspaceEvent( XEvent * );
@@ -54,7 +55,7 @@ public:
 
 
     void showPopup( const QPoint&, Client* );
-    
+
     void setDesktopClient( Client* );
 
 protected:
@@ -63,6 +64,7 @@ protected:
 	
 
 private:
+    void init();
     WId root;
     ClientList clients;
     ClientList stacking_order;
@@ -80,8 +82,6 @@ private:
 
     void focusToNull();
     Client* desktop_client;
-
-
 };
 
 inline WId Workspace::rootWin() const

@@ -28,7 +28,7 @@ static Client* clientFactory( Workspace *ws, WId w )
 	return c;
     }
 
-    return new StdClient( ws, w );
+    return new BeClient( ws, w );
 }
 
 Workspace::Workspace()
@@ -40,13 +40,13 @@ Workspace::Workspace()
     // select windowmanager privileges
     XSelectInput(qt_xdisplay(), root,
 		 KeyPressMask |
-		 // ButtonPressMask | ButtonReleaseMask |
 		 PropertyChangeMask |
 		 ColormapChangeMask |
 		 SubstructureRedirectMask |
 		 SubstructureNotifyMask
 		 );
 
+    init();
     control_grab = FALSE;
     tab_grab = FALSE;
     tab_box = new TabBox( this );
@@ -55,6 +55,36 @@ Workspace::Workspace()
     grabKey(XK_Tab, ControlMask);
     grabKey(XK_Tab, ControlMask | ShiftMask);
 
+}
+
+Workspace::Workspace( WId rootwin )
+{
+    qDebug("create MDI workspace for %d", rootwin );
+    root = rootwin;
+
+    // select windowmanager privileges
+    XSelectInput(qt_xdisplay(), root,
+		 KeyPressMask |
+		 PropertyChangeMask |
+		 ColormapChangeMask |
+		 SubstructureRedirectMask |
+		 SubstructureNotifyMask
+		 );
+
+    init();
+    control_grab = FALSE;
+    tab_grab = FALSE;
+    tab_box = new TabBox( this );
+    grabKey(XK_Tab, Mod1Mask);
+    grabKey(XK_Tab, Mod1Mask | ShiftMask);
+    grabKey(XK_Tab, ControlMask);
+    grabKey(XK_Tab, ControlMask | ShiftMask);
+
+}
+
+void Workspace::init() 
+{
+    tab_box = 0;
     active_client = 0;
     should_get_focus = 0;
     desktop_client = 0;
@@ -64,7 +94,7 @@ Workspace::Workspace()
     XWindowAttributes attr;
 
     XGrabServer( qt_xdisplay() );
-    XQueryTree(qt_xdisplay(), qt_xrootwin(), &dw1, &dw2, &wins, &nwins);
+    XQueryTree(qt_xdisplay(), root, &dw1, &dw2, &wins, &nwins);
     for (i = 0; i < nwins; i++) {
 	XGetWindowAttributes(qt_xdisplay(), wins[i], &attr);
 	if (attr.override_redirect )
@@ -78,17 +108,20 @@ Workspace::Workspace()
 	    c->manage( TRUE );
 	    if ( c == desktop_client )
 		setDesktopClient( c );
+	    if ( root != qt_xrootwin() ) {
+		// TODO may use QWidget:.create
+		qDebug(" create a mdi client");
+		XReparentWindow( qt_xdisplay(), c->winId(), root, 0, 0 );
+	    }
 	}
     }
     XFree((void *) wins);
     XUngrabServer( qt_xdisplay() );
-
     popup = new QPopupMenu;
     popup->insertItem("Bla");
     popup->insertItem("Bla Bla");
     popup->insertItem("Bla Bla Bla");
     popup->insertItem("Bla Bla Bla Bla");
-
 }
 
 Workspace::~Workspace()
@@ -135,6 +168,10 @@ bool Workspace::workspaceEvent( XEvent * e )
 	    c = findClient( e->xmaprequest.window );
 	    if ( !c ) {
 		c = clientFactory( this, e->xmaprequest.window );
+		if ( root != qt_xrootwin() ) {
+		    // TODO may use QWidget:.create
+		    XReparentWindow( qt_xdisplay(), c->winId(), root, 0, 0 );
+		}
 		clients.append( c );
 		if ( c != desktop_client )
 		    stacking_order.append( c );
@@ -215,7 +252,18 @@ Client* Workspace::findClient( WId w ) const
  */
 QRect Workspace::geometry() const
 {
-    return QRect( QPoint(0, 0), QApplication::desktop()->size() );
+    if ( root == qt_xrootwin() )
+	return QRect( QPoint(0, 0), QApplication::desktop()->size() );
+    else {
+	// todo caching, keep track of configure notify etc.
+	QRect r;
+	XWindowAttributes attr;
+	if (XGetWindowAttributes(qt_xdisplay(), root, &attr)){
+	    r.setRect(0, 0, attr.width, attr.height );
+	}
+	qDebug("workspace geometry = %d %d", r.width(), r.height() );
+	return r;
+    }
 }
 
 
@@ -253,6 +301,8 @@ void Workspace::freeKeyboard(bool pass){
  */
 bool Workspace::keyPress(XKeyEvent key)
 {
+    if ( root != qt_xrootwin() )
+	return FALSE;
     int kc = XKeycodeToKeysym(qt_xdisplay(), key.keycode, 0);
     int km = key.state & (ControlMask | Mod1Mask | ShiftMask);
 
@@ -348,6 +398,8 @@ bool Workspace::keyPress(XKeyEvent key)
  */
 bool Workspace::keyRelease(XKeyEvent key)
 {
+    if ( root != qt_xrootwin() )
+	return FALSE;
     int i;
     if (tab_grab){
 	XModifierKeymap* xmk = XGetModifierMapping(qt_xdisplay());
@@ -545,6 +597,10 @@ void Workspace::activateClient( Client* c)
  */
 void Workspace::requestFocus( Client* c)
 {
+    
+    //TODO will be different for non-root clients. (subclassing?)
+    
+    
     if ( c->isVisible() && !c->isShade() ) {
 	// TODO take focus protocol
 	XSetInputFocus( qt_xdisplay(), c->window(), RevertToPointerRoot, CurrentTime );
