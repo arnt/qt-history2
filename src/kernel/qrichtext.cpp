@@ -4130,7 +4130,6 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int cy = 0;
     int curx = -1, cury = 0, curh = 0;
     bool lastDirection = chr->rightToLeft;
-    QTextStringChar::Type lastType = chr->type;
 #if 0 // seems we don't need that anymore
     int tw = 0;
 #endif
@@ -4333,7 +4332,6 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	lastBaseLine = baseLine;
 	lasth = h;
 	lastDirection = chr->rightToLeft;
-	lastType = chr->type;
     }
 
     // if we are through the parag, but still have some stuff left to draw, draw it now
