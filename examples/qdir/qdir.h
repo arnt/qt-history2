@@ -55,15 +55,14 @@ private:
 
 };
 
-class PreviewWidget : public QVBox
+class PreviewWidget : public QVBox,
+		      public QFilePreview
 {
     Q_OBJECT
 
 public:
     PreviewWidget( QWidget *parent );
-
-public slots:
-    void showPreview( const QUrl &u );
+    void previewUrl( const QUrl &u );
 
 private:
     QSpinBox *sizeSpinBox;
@@ -78,23 +77,23 @@ class CustomFileDialog : public QFileDialog
 public:
     CustomFileDialog();
     ~CustomFileDialog();
-    
+
 protected:
     void showEvent( QShowEvent *e );
 
 public slots:
     void setDir2( const QString & );
-    
+
 private slots:
     void bookmarkChosen( int i );
     void goHome();
-    
+
 private:
     DirectoryView *dirView;
     QPopupMenu *bookmarkMenu;
     QStringList bookmarkList;
     int addId;
-    
+
 };
 
 #endif

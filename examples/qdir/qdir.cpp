@@ -161,7 +161,7 @@ void Preview::showPreview( const QUrl &u, int size )
 // ****************************************************************************************************
 
 PreviewWidget::PreviewWidget( QWidget *parent )
-    : QVBox( parent )
+    : QVBox( parent ), QFilePreview()
 {
     setSpacing( 5 );
     setMargin( 5 );
@@ -175,7 +175,7 @@ PreviewWidget::PreviewWidget( QWidget *parent )
     preview = new Preview( this );
 }
 
-void PreviewWidget::showPreview( const QUrl &u )
+void PreviewWidget::previewUrl( const QUrl &u )
 {
     preview->showPreview( u, sizeSpinBox->value() );
 }
@@ -199,7 +199,7 @@ CustomFileDialog::CustomFileDialog()
     QPushButton *p = new QPushButton( this );
     p->setPixmap( QPixmap( bookmarks ) );
     QToolTip::add( p, tr( "Bookmarks" ) );
-    
+
     bookmarkMenu = new QPopupMenu( this );
     connect( bookmarkMenu, SIGNAL( activated( int ) ),
 	     this, SLOT( bookmarkChosen( int ) ) );
@@ -337,9 +337,11 @@ int main( int argc, char ** argv )
 	QFileDialog fd( QString::null, filter, 0, 0, TRUE );
 	fd.setMode( mode );
 	if ( preview ) {
-	    fd.setPreviewMode( FALSE, TRUE );
-	    fd.setContentsPreviewWidget( new PreviewWidget( &fd ) );
-	    fd.setViewMode( QFileDialog::ListView | QFileDialog::PreviewContents );
+	    fd.setContentsPreviewEnabled( TRUE );
+	    PreviewWidget *pw = new PreviewWidget( &fd );
+	    fd.setContentsPreview( pw, pw );
+	    fd.setViewMode( QFileDialog::List );
+	    fd.setPreviewMode( QFileDialog::Contents );
 	}
 	fd.setCaption( caption );
 	fd.setSelection( start );

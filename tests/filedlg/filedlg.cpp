@@ -178,7 +178,7 @@ void Main::boom()
 	 "Project files (*.pro)" );
 }
 
-class Preview : public QLabel
+class Preview : public QLabel, public QFilePreview
 {
     Q_OBJECT
 
@@ -187,8 +187,7 @@ public:
 	: QLabel( parent ) {
     }
 
-public slots:
-    void showPreview( const QUrl &u ) {
+    void previewUrl( const QUrl &u ) {
 	if ( u.isLocalFile() ) {
 	    QString path = u.path();
 	    QPixmap pix( path );
@@ -196,8 +195,9 @@ public slots:
 		setText( "This is not a pixmap" );
 	    else
 		setPixmap( pix );
-	} else
+	} else {
 	    setText( "I only shoud local files!" );
+	}
     }
 
 };
@@ -205,9 +205,11 @@ public slots:
 void Main::platsch()
 {
     QFileDialog *fd = new QFileDialog( initEd->text(), filtEd->text() );
-    fd->setPreviewMode( FALSE, TRUE );
-    fd->setContentsPreviewWidget( new Preview( this ) );
-    fd->setViewMode( QFileDialog::DetailView | QFileDialog::PreviewContents );
+    fd->setContentsPreviewEnabled( TRUE );
+    Preview *p = new Preview( 0 );
+    fd->setContentsPreview( p, p );
+    fd->setViewMode( QFileDialog::Detail );
+    fd->setPreviewMode( QFileDialog::Contents );
     fd->show();
 }
 
@@ -242,7 +244,7 @@ main(int argc, char** argv)
     qInitNetworkProtocols();
 
     QFileDialog::setIconProvider( new ImageIconProvider );
-    
+
     Main m;
     m.show();
 

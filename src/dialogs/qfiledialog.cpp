@@ -873,6 +873,7 @@ struct QFileDialogPrivate {
     QSplitter *splitter;
     QUrlOperator url, oldUrl;
     QWidget *infoPreviewWidget, *contentsPreviewWidget;
+    QFilePreview *infoPreviewer, *contentsPreviewer;
     bool hadDotDot;
 
     bool ignoreNextKeyPress;
@@ -1829,8 +1830,8 @@ static QStringList makeFiltersList( const QString &filter )
   Additionally to these convenient static methods you can use one of QFileDialog's
   constructors, set a mode (see setMode()) and do more things, like adding a preview
   widget which will preview the current file or information of the current file while
-  the user does the selection (see setPreviewMode(), setInfoPreviewWidget and
-  setContentsPreviewWidget()) or add additional widgets to the filedialog then
+  the user does the selection (see setInfoPreview(), setContentsPreview(), setInfoPreviewEnabled() and
+  setContentsPreviewEnabled()) or add additional widgets to the filedialog then
   (see addWidgets(), addToolButton(), addLeftWidget() and addRightWidget()).
 
   To get the selection the user did then, see selectedFile(), selectedFiles(), selectedFilter()
@@ -1864,26 +1865,23 @@ static QStringList makeFiltersList( const QString &filter )
   This enum type describes the view mode of the filedialog.
 
   <ul>
-  <li> \c DetailView - View which shows except the filename also
+  <li> \c Detail - View which shows except the filename also
   size, date, etc. of a file in columns
-  <li> \c ListView - Simple view which shows only all filenames plus icons
-  <li> \c PreviewContents - Besides the view with the files a preview
-  widget is shown shich shows the contents of the currently selected file
-  <li> \c PreviewInfo - Besides the view with the files a preview
-  widget is shown shich shows infos of the currently selected file
-  </ul>
+  <li> \c List - Simple view which shows only all filenames plus icons
 
-  Using setViewMode() you can set the view mode of the filedialog, and
-  with viewMode() you can get the current view mode. The value which is
-  set or returned here can also be or'd together combination of these values
+  Using setViewMode() you can set this mode to the file dialog.
 */
 
 /*!
-  \fn void QFileDialog::showPreview( const QUrl &u )
-
-  This signal is emitted when a preview of the URL \a u
-  should be shown in the preview widget. Normally you don't need
-  to connect to this signal, as this is done automatically.
+  \enum QFileDialog::PreviewMode
+  <li> \c NoPreview - No preview is shown at all
+  <li> \c Contents - Besides the view with the files a preview
+  widget is shown shich shows the contents of the currently selected file
+  <li> \c Info - Besides the view with the files a preview
+  widget is shown shich shows infos of the currently selected file
+  </ul>
+  
+  Using setPreviewMode() this mode can be set to the file dialog.
 */
 
 /*!
@@ -2156,7 +2154,8 @@ void QFileDialog::init()
 
     d->infoPreviewWidget = new QWidget( d->preview );
     d->contentsPreviewWidget = new QWidget( d->preview );
-
+    d->infoPreviewer = d->contentsPreviewer = 0;
+    
     h = new QHBoxLayout( 0 );
     d->buttonLayout = h;
     d->topLevelLayout->addLayout( h );
@@ -2315,8 +2314,12 @@ void QFileDialog::changeMode( int id )
     if ( btn != d->previewContents && btn != d->previewInfo ) {
 	d->preview->hide();
     } else {
-	if ( files->currentItem() )
-	    emit showPreview( QUrlOperator( d->url, files->currentItem()->text( 0 ) ) );
+	if ( files->currentItem() ) {
+	    if ( d->infoPreviewer )
+		d->infoPreviewer->previewUrl( QUrl( d->url, files->currentItem()->text( 0 ) ) );
+	    if ( d->contentsPreviewer )
+		d->contentsPreviewer->previewUrl( QUrl( d->url, files->currentItem()->text( 0 ) ) );
+	}
 	if ( btn == d->previewInfo )
 	    d->preview->raiseWidget( d->infoPreviewWidget );
 	else
@@ -2948,8 +2951,12 @@ bool QFileDialog::trySetSelection( bool isDir, const QUrlOperator &u, bool updat
 	}
     }
 
-    if ( d->preview && d->preview->isVisible() )
- 	emit showPreview( u );
+    if ( d->preview && d->preview->isVisible() ) {
+	if ( d->infoPreviewer )
+	    d->infoPreviewer->previewUrl( u );
+	if ( d->contentsPreviewer )
+	    d->contentsPreviewer->previewUrl( u );
+    }
 
     QString old = d->currentFileName;
 
@@ -3648,31 +3655,46 @@ QFileDialog::Mode QFileDialog::mode() const
 }
 
 /*!
-  Set the viewmode of the filedialog. You can choose between
-  DetailView, ListView, PreviewContents and PreviewInfo. One
-  of the View-Flags and one of the Preview-Flags can be or'd
-  together, e.g. to set the filedialog to show a detail view
-  and the show contents preview widget, use
-     setViewMode( QFileDialog::DetailView | QFileDialog::PreviewContents );
+  Sets the viewmode of the filedialog. You can choose between
+  Detail, List.
+  
+  \sa setPreviewMode()
 */
 
-void QFileDialog::setViewMode( int m )
+void QFileDialog::setViewMode( ViewMode m )
 {
-    if ( m & DetailView ) {
+    if ( m == Detail ) {
 	d->stack->raiseWidget( files );
 	d->detailView->setOn( TRUE );
 	d->mcView->setOn( FALSE );
-    } else if ( m & ListView ) {
+    } else if ( m == List ) {
 	d->stack->raiseWidget( d->moreFiles );
 	d->detailView->setOn( FALSE );
 	d->mcView->setOn( TRUE );
     }
+}
 
-    if ( d->infoPreview && ( m & PreviewInfo ) ) {
+/*!
+  Set the preview mode of the filedialog. You can choose between
+  NoPreview, Info and Contents.
+  
+  To be able to set a preview mode other than NoPreview you need
+  to set the preview widget, and enable this preview mode.
+  
+  \sa setInfoPreviewEnabled(), setContentsPreviewEnabled(),
+  setInfoPreview(), setContentsPreview()
+*/
+
+void QFileDialog::setPreviewMode( PreviewMode m )
+{
+    if ( m == NoPreview ) {
+	d->previewInfo->setOn( FALSE );
+	d->previewContents->setOn( FALSE );
+    } else if ( m == Info && d->infoPreview ) {
 	d->previewInfo->setOn( TRUE );
 	d->previewContents->setOn( FALSE );
 	changeMode( d->modeButtons->id( d->previewInfo ) );
-    } else if ( d->contentsPreview && ( m & PreviewContents ) ) {
+    } else if ( m == Contents && d->contentsPreview ) {
 	d->previewInfo->setOn( FALSE );
 	d->previewContents->setOn( TRUE );
 	changeMode( d->modeButtons->id( d->previewContents ) );
@@ -3680,25 +3702,33 @@ void QFileDialog::setViewMode( int m )
 }
 
 /*!
-  Returns the viewmode of the filedialog. This is a value
-  of either DetailView or ListView maybe or'd together with
-  either PreviewContents or PreviewInfo.
+  Returns the viewmode of the filedialog. 
+  
+  \sa setViewMode()
 */
 
-int QFileDialog::viewMode() const
+QFileDialog::ViewMode QFileDialog::viewMode() const
 {
-    int ret = 0;
     if ( d->moreFiles->isVisible() )
-	ret = DetailView;
-    else if ( files->isVisible() )
-	ret = ListView;
+	return Detail;
+    else
+	return List;
+}
 
+/*!
+  Returns the preview mode of the filedialog. 
+  
+  \sa setPreviewMode()
+*/
+
+QFileDialog::PreviewMode QFileDialog::previewMode() const
+{
     if ( d->infoPreview && d->previewInfo->isVisible() )
-	ret = ret | PreviewInfo;
+	return Info;
     else if ( d->contentsPreview && d->previewContents->isVisible() )
-	ret = ret | PreviewContents;
+	return Contents;
 
-    return ret;
+    return NoPreview;
 }
 
 /*!  Adds 1-3 widgets to the bottom of the file dialog. \a l is the
@@ -4450,117 +4480,161 @@ void QFileDialog::itemChanged( QNetworkOperation *op )
 }
 
 /*!
-  Sets the file preview modes. If \a info is TRUE, a widget for
-  showing file information can be shown, else not.
-  If \a contents is TRUE, a widget for showing a preview of the files
-  content can be shown, else not.
+  Returns TRUE if the file dialog offers the user
+  the possibility to preview the information of
+  the currently selected file.
+
+  \sa setInfoPreviewEnabled()
 */
-
-void QFileDialog::setPreviewMode( bool info, bool contents )
-{
-    d->geometryDirty = TRUE;
-    d->infoPreview = info;
-    d->contentsPreview = contents;
-    updateGeometries();
-}
-
-/*!
-  Returns TRUE if the file dialog is allowed to show a
-  preview with file informations.
-
-  \sa setPreviewMode() setInfoPreview()
-*/
-bool QFileDialog::hasInfoPreview() const
+bool QFileDialog::isInfoPreviewEnabled() const
 {
     return d->infoPreview;
 }
 
 /*!
-  Returns TRUE if the file dialog is allowed to show a
-  preview of the files contents.
+  Returns TRUE if the file dialog offers the user
+  the possibility to preview the contents of
+  the currently selected file.
 
-  \sa setPreviewMode() setContentsPreview()
+  \sa setContentsPreviewWidget()
 */
 
-bool QFileDialog::hasContentsPreview() const
+bool QFileDialog::isContentsPreviewEnabled() const
 {
     return d->contentsPreview;
 }
 
 /*!
-  Sets the file info preview mode. If \a info is TRUE, a widget for
-  showing file information can be shown, else not.
+  Specifies if the filedialog should offer the possibility
+  to preview the information of the currently selected
+  file, if \a info is TRUE, else not. 
+  
+  \sa setInfoPreview()
 */
 
-void QFileDialog::setInfoPreview( bool info )
+void QFileDialog::setInfoPreviewEnabled( bool info )
 {
-    setPreviewMode( info, hasContentsPreview() );
+    if ( info == d->infoPreview )
+	return;
+    d->geometryDirty = TRUE;
+    d->infoPreview = info;
+    updateGeometries();
 }
 
 /*!
-  Sets the file content preview mode.
-  If \a contents is TRUE, a widget for showing a preview of the files
-  content can be shown, else not.
+  Specifies if the filedialog should offer the possibility
+  to preview the contents of the currently selected
+  file, if \a contents is TRUE, else not. 
+  
+  \sa setInfoPreview()
 */
 
-void QFileDialog::setContentsPreview( bool contents )
+void QFileDialog::setContentsPreviewEnabled( bool contents )
 {
-    setPreviewMode( hasInfoPreview(), contents );
+    if ( contents == d->contentsPreview )
+	return;
+    d->geometryDirty = TRUE;
+    d->contentsPreview = contents;
+    updateGeometries();
 }
 
 /*!
   Sets the widget which should be used for displaying information
-  of a file.
+  of a file to \a w and the preview object of that to \a preview.
 
-  This widget should implement a public slot
-
-  void showPreview( const QUrl & );
-
-  A signal of the filedialog will then be automatically connected to
-  this slot. If the user selects a file then, this signal is emitted,
-  so that the preview widget can show information of this file (url).
+  Normally as preview widget you create a class which derives from
+  a widget type class (which actually displays the preview) and
+  from QFilePreview. So you will pass here two times the same pointer
+  then.
+  
+  A implementation of a preview class could look like this:
+  
+  \code
+  class MyPreview : public QWidget, public QFilePreview
+  {
+  public:
+      MyPreview() : QWidget(), QFilePreview() {}
+      // reimplementation from QFilePreview
+      void previewUrl( const QUrl &url ) {
+          QPainter p( this );
+          p.drawThePreviewOfUrl();
+          p.end();
+      }
+  }
+  \endcode
+  
+  Later you would use this...
+  
+  \code
+  MyPreview *preview = new MyPreview;
+  fd.setInfoPreviewEnabled( TRUE );
+  fd.setInfoPreview( preview, preview );
+  \endcode
 */
 
-void QFileDialog::setInfoPreviewWidget( QWidget *w )
+void QFileDialog::setInfoPreview( QWidget *w, QFilePreview *preview )
 {
-    if ( !w )
+    if ( !w || !preview )
 	return;
 
     if ( d->infoPreviewWidget ) {
 	d->preview->removeWidget( d->infoPreviewWidget );
 	delete d->infoPreviewWidget;
     }
+    if ( d->infoPreviewer )
+	delete d->infoPreviewer;
     d->infoPreviewWidget = w;
-    connect( this, SIGNAL( showPreview( const QUrl & ) ),
-	     d->infoPreviewWidget, SLOT( showPreview( const QUrl & ) ) );
+    d->infoPreviewer = preview;
     w->recreate( d->preview, 0, QPoint( 0, 0 ) );
 }
 
 /*!
-  Sets the widget which should be used for displaying the preview
-  of a file.
+  Sets the widget which should be used for displaying the contents
+  of a file to \a w and the preview object of that to \a preview.
 
-  This widget should implement a public slot
-
-  void showPreview( const QUrl & );
-
-  A signal of the filedialog will then be automatically connected to
-  this slot. If the user selects a file then, this signal is emitted,
-  so that the preview widget can show a preview of this file (url).
+  Normally as preview widget you create a class which derives from
+  a widget type class (which actually displays the preview) and
+  from QFilePreview. So you will pass here two times the same pointer
+  then.
+  
+  A implementation of a preview class could look like this:
+  
+  \code
+  class MyPreview : public QWidget, public QFilePreview
+  {
+  public:
+      MyPreview() : QWidget(), QFilePreview() {}
+      // reimplementation from QFilePreview
+      void previewUrl( const QUrl &url ) {
+          QPainter p( this );
+          p.drawThePreviewOfUrl();
+          p.end();
+      }
+  }
+  \endcode
+  
+  Later you would use this...
+  
+  \code
+  MyPreview *preview = new MyPreview;
+  fd.setInfoPreviewEnabled( TRUE );
+  fd.setInfoPreview( preview, preview );
+  \endcode
 */
 
-void QFileDialog::setContentsPreviewWidget( QWidget *w )
+void QFileDialog::setContentsPreview( QWidget *w, QFilePreview *preview )
 {
-    if ( !w )
+    if ( !w || !preview )
 	return;
 
     if ( d->contentsPreviewWidget ) {
 	d->preview->removeWidget( d->contentsPreviewWidget );
 	delete d->contentsPreviewWidget;
     }
+    if ( d->contentsPreviewer )
+	delete d->contentsPreviewer;
     d->contentsPreviewWidget = w;
-    connect( this, SIGNAL( showPreview( const QUrl & ) ),
-	     d->contentsPreviewWidget, SLOT( showPreview( const QUrl & ) ) );
+    d->contentsPreviewer = preview;
     w->recreate( d->preview, 0, QPoint( 0, 0 ) );
 }
 
@@ -4681,6 +4755,10 @@ void QFileDialog::doMimeTypeLookup()
 	files->viewport()->repaint( r, FALSE );
 
     d->mimeTypeTimer->start( 0 );
+}
+
+QFilePreview::QFilePreview()
+{
 }
 
 #include "qfiledialog.moc"

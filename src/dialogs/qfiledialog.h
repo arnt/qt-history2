@@ -50,8 +50,16 @@ class Q_EXPORT QFileIconProvider : public QObject
     Q_OBJECT
 public:
     QFileIconProvider( QObject * parent = 0, const char* name = 0 );
-
     virtual const QPixmap * pixmap( const QFileInfo & );
+
+};
+
+class Q_EXPORT QFilePreview
+{
+public:
+    QFilePreview();
+    virtual void previewUrl( const QUrl &url ) = 0;
+
 };
 
 class Q_EXPORT QFileDialog : public QDialog
@@ -71,8 +79,8 @@ class Q_EXPORT QFileDialog : public QDialog
     // This property is broken! Since it uses int and not ViewMode.
     // We are only interested in List or Detail View.
     // Q_PROPERTY( int, "viewMode", viewMode, setViewMode )
-    Q_PROPERTY( bool, "infoPreview", hasInfoPreview, setInfoPreview )
-    Q_PROPERTY( bool, "contentsPreview", hasContentsPreview, setContentsPreview )
+    Q_PROPERTY( bool, "infoPreview", isInfoPreviewEnabled, setInfoPreviewEnabled )
+    Q_PROPERTY( bool, "contentsPreview", isContentsPreviewEnabled, setContentsPreviewEnabled )
 	
 public:
     QFileDialog( const QString& dirName, const QString& filter = QString::null,
@@ -125,23 +133,22 @@ public:
     void setMode( Mode );
     Mode mode() const;
 
-    enum ViewMode { DetailView = 1,
-		    ListView = 2,
-		    PreviewContents = 4,
-		    PreviewInfo = 8 };
-    void setViewMode( int m );
-    int viewMode() const;
-
+    enum ViewMode { Detail, List };
+    enum PreviewMode { NoPreview, Contents, Info };
+    void setViewMode( ViewMode m );
+    ViewMode viewMode() const;
+    void setPreviewMode( PreviewMode m );
+    PreviewMode previewMode() const;
+    
     bool eventFilter( QObject *, QEvent * );
 
-    void setPreviewMode( bool info, bool contents );
-    bool hasInfoPreview() const;
-    bool hasContentsPreview() const;
-    void setInfoPreview( bool );
-    void setContentsPreview( bool );
+    bool isInfoPreviewEnabled() const;
+    bool isContentsPreviewEnabled() const;
+    void setInfoPreviewEnabled( bool );
+    void setContentsPreviewEnabled( bool );
 
-    void setInfoPreviewWidget( QWidget *w );
-    void setContentsPreviewWidget( QWidget *w );
+    void setInfoPreview( QWidget *w, QFilePreview *preview );
+    void setContentsPreview( QWidget *w, QFilePreview *preview );
 
     QUrl url() const;
 
@@ -157,7 +164,6 @@ signals:
     void fileHighlighted( const QString& );
     void fileSelected( const QString& );
     void dirEntered( const QString& );
-    void showPreview( const QUrl & );
 
 protected slots:
     void detailViewSelectionChanged();
@@ -267,6 +273,5 @@ private:	// Disabled copy constructor and operator=
     QFileDialog &operator=( const QFileDialog & );
 #endif
 };
-
 
 #endif // QFILEDIALOG_H
