@@ -3648,7 +3648,6 @@ void QTextString::insert( int index, const QChar *unicode, int len, QTextFormat 
 	ch.d.format = 0;
 	ch.type = QTextStringChar::Regular;
 	ch.rightToLeft = 0;
-	ch.startOfRun = 0;
 	ch.c = unicode[i];
 	ch.setFormat( f );
     }
@@ -3762,63 +3761,47 @@ void QTextString::checkBidi() const
 {
     QTextString *that = (QTextString *)this;
     that->bidiDirty = FALSE;
+    int length = data.size();
     const QTextStringChar *start = data.data();
-    const QTextStringChar *end = start + data.size();
+    const QTextStringChar *end = start + length;
+
+    // determines the properties we need for layouting
+    QTextEngine textEngine( toString(), 0 );
+    textEngine.itemize();
+    const QCharAttributes *ca = textEngine.attributes() + length-1;
+    QTextStringChar *ch = (QTextStringChar *)end - 1;
+    QScriptItem *item = &textEngine.items[textEngine.items.size()-1];
+    unsigned char bidiLevel = item->analysis.bidiLevel;
+    if ( bidiLevel )
+	that->bidi = TRUE;
+    item++;
+    int pos = length-1;
+    while ( ch >= start ) {
+	ch->softBreak = ca->softBreak;
+	ch->whiteSpace = ca->whiteSpace;
+	ch->charStop = ca->charStop;
+	ch->wordStop = ca->wordStop;
+	ch->invalid = ca->invalid;
+	ch->bidiLevel = bidiLevel;
+	ch->rightToLeft = (bidiLevel%2);
+	if ( item->position > pos ) {
+	    --item;
+	    bidiLevel = item->analysis.bidiLevel;
+	    if ( bidiLevel )
+		that->bidi = TRUE;
+	}
+	--ch;
+	--ca;
+	--pos;
+    }
 
     if ( dir == QChar::DirR ) {
 	that->bidi = TRUE;
 	that->rightToLeft = TRUE;
     } else if ( dir == QChar::DirL ) {
 	that->rightToLeft = FALSE;
-	that->bidi = FALSE;
     } else {
-	that->rightToLeft = FALSE;
-	that->bidi = FALSE;
-
-	const QTextStringChar *c = start;
-	while ( c < end ) {
-	    QChar::Direction dir = (c++)->c.direction();
-	    if ( dir == QChar::DirL || dir == QChar::DirLRO || dir == QChar::DirLRE ) {
-		that->rightToLeft = FALSE;
-		break;
-	    } else if ( dir == QChar::DirR || dir == QChar::DirAL || dir == QChar::DirRLO ) {
-		that->rightToLeft = TRUE;
-		that->bidi = TRUE;
-		break;
-	    }
-	}
-    }
-
-    if ( !bidi ) {
-	QTextStringChar *c = (QTextStringChar *) start;
-	while ( c < end ) {
-	    if( c->c.row() > 0x04 ) {
-		that->bidi = TRUE;
-		break;
-	    }
-	    QChar::Category cat = ::category( c->c );
-	    c->softBreak = FALSE;
-	    c->whiteSpace = (cat == QChar::Separator_Space) && (c->c.unicode() != 0xa0);
-	    c->charStop = (cat != QChar::Mark_NonSpacing);
-	    c->wordStop = FALSE;
-	    c->invalid = FALSE;
-	    c++;
-	}
-    }
-
-    if ( bidi ) {
-	// complex string handling
-	QTextEngine textEngine( toString(), 0 );
-	textEngine.itemize( FALSE );
-	const QCharAttributes *ca = textEngine.attributes();
-	QTextStringChar *ch = data.data();
-	while ( ch < end ) {
-	    ch->softBreak = ca->softBreak;
-	    ch->whiteSpace = ca->whiteSpace;
-	    ch->charStop = ca->charStop;
-	    ch->wordStop = ca->wordStop;
-	    (ch++)->invalid = (ca++)->invalid;
-	}
+	that->rightToLeft = (textEngine.items[0].analysis.bidiLevel % 2);
     }
 }
 
@@ -4567,7 +4550,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 	    // we flush on link changes
 	    flush |= ( nextchr->isLink() != chr->isLink() );
 	    // we flush on start of run
-	    flush |= nextchr->startOfRun;
+	    flush |= ( nextchr->bidiLevel != chr->bidiLevel );
 	    // we flush on bidi changes
 	    flush |= ( nextchr->rightToLeft != chr->rightToLeft );
 	    // we flush before and after tabs
@@ -4580,7 +4563,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 	    flush |= nextchr->isCustom();
 	    // when painting justified, we flush on spaces
 	    if ((alignment() & Qt::AlignJustify) == Qt::AlignJustify )
-		flush |= QTextFormatter::isBreakable( str, i );
+		flush |= (chr->whiteSpace || chr->wordStop);
 	    // we flush when the string is getting too long
 	    flush |= ( i - paintStart >= 256 );
 	    // we flush when the selection state changes
@@ -5221,17 +5204,18 @@ QTextLineStart *QTextFormatter::formatLine( QTextParagraph *parag, QTextString *
 	// End at "last-1", the last space ends up with a width of 0
 	for ( int j = last-1; j >= start; --j ) {
 	    // Start at last tab, if any.
-	    if ( string->at( j ).c == '\t' ) {
+	    QTextStringChar &ch = string->at( j );
+	    if ( ch.c == '\t' ) {
 		start = j+1;
 		break;
 	    }
-	    if( isBreakable( string, j ) ) {
+	    if( ch.whiteSpace || ch.wordStop )
 		numSpaces++;
-	    }
 	}
 	int toAdd = 0;
 	for ( int k = start + 1; k <= last; ++k ) {
-	    if( isBreakable( string, k ) && numSpaces ) {
+	    QTextStringChar &ch = string->at( k );
+	    if( numSpaces && (ch.whiteSpace || ch.wordStop) ) {
 		int s = space / numSpaces;
 		toAdd += s;
 		space -= s;
@@ -5297,13 +5281,13 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
 	// End at "last-1", the last space ends up with a width of 0
 	for ( int j = last-1; j >= start; --j ) {
 	    // Start at last tab, if any.
-	    if ( text->at( j ).c == '\t' ) {
+	    QTextStringChar &ch = text->at( j );
+	    if ( ch.c == '\t' ) {
 		start = j+1;
 		break;
 	    }
-	    if( isBreakable( text, j ) ) {
+	    if( ch.whiteSpace || ch.wordStop )
 		numSpaces++;
-	    }
 	}
     }
     int toAdd = 0;
@@ -5315,25 +5299,24 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
 	    // odd level, need to reverse the string
 	    int pos = r->stop + start;
 	    while(pos >= r->start + start) {
-		QTextStringChar *c = &text->at(pos);
-		if( numSpaces && !first && isBreakable( text, pos ) ) {
+		QTextStringChar &ch = text->at(pos);
+		if( numSpaces && !first && (ch.whiteSpace || ch.wordStop) ) {
 		    int s = space / numSpaces;
 		    toAdd += s;
 		    space -= s;
 		    numSpaces--;
 		} else if ( first ) {
 		    first = FALSE;
-		    if ( c->c == ' ' )
-			x -= c->format()->width( ' ' );
+		    if ( ch.c == ' ' )
+			x -= ch.format()->width( ' ' );
 		}
-		c->x = x + toAdd;
-		c->rightToLeft = TRUE;
-		c->startOfRun = FALSE;
+		ch.x = x + toAdd;
+		ch.rightToLeft = TRUE;
 		int ww = 0;
-		if ( c->c.unicode() >= 32 || c->c == '\t' || c->c == '\n' || c->isCustom() ) {
+		if ( ch.c.unicode() >= 32 || ch.c == '\t' || ch.c == '\n' || ch.isCustom() ) {
 		    ww = text->width( pos );
 		} else {
-		    ww = c->format()->width( ' ' );
+		    ww = ch.format()->width( ' ' );
 		}
 		if ( xmax < x + toAdd + ww ) xmax = x + toAdd + ww;
 		x += ww;
@@ -5343,7 +5326,7 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
 	    int pos = r->start + start;
 	    while(pos <= r->stop + start) {
 		QTextStringChar* c = &text->at(pos);
-		if( numSpaces && !first && isBreakable( text, pos ) ) {
+		if( numSpaces && !first && (c->whiteSpace || c->wordStop) ) {
 		    int s = space / numSpaces;
 		    toAdd += s;
 		    space -= s;
@@ -5355,7 +5338,6 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
 		}
 		c->x = x + toAdd;
 		c->rightToLeft = FALSE;
-		c->startOfRun = FALSE;
 		int ww = 0;
 		if ( c->c.unicode() >= 32 || c->c == '\t' || c->isCustom() ) {
 		    ww = text->width( pos );
@@ -5367,7 +5349,6 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
 		pos++;
 	    }
 	}
-	text->at( r->start + start ).startOfRun = TRUE;
 	r = runs->next();
     }
 
@@ -5383,114 +5364,6 @@ static inline bool isAsian( uchar row ) {
     return( row > 0x2d && row < 0xfb || row == 0x11 );
 }
 
-bool QTextFormatter::isBreakable( QTextString *string, int pos )
-{
-    const QChar &c = string->at( pos ).c;
-    if ( c == QChar_linesep ||
-	 ( c.isSpace() && c.unicode() != '\n' && c.unicode() != 0x00a0U ) ||
-	 c.unicode() == 0xad ) // soft hyphen
-	return TRUE;
-    char ch = c.latin1();
-    bool asian = FALSE;
-    if ( !ch ) {
-	// not latin1, need to do more sophisticated checks for other scripts
-	uchar row = c.row();
-	if ( row == 0x0e ) {
-	    // 0e00 - 0e7f == Thai
-	    if ( c.cell() < 0x80 ) {
-#ifdef HAVE_THAI_BREAKS
-		// check for thai
-		if( string != cachedString ) {
-		    // build up string of thai chars
-		    QTextCodec *thaiCodec = QTextCodec::codecForMib(2259);
-		    if ( !thaiCache )
-			thaiCache = new QCString;
-		    if ( !thaiIt )
-			thaiIt = ThBreakIterator::createWordInstance();
-		    *thaiCache = thaiCodec->fromUnicode( s->string() );
-		}
-		thaiIt->setText(thaiCache->data());
-		for(int i = thaiIt->first(); i != thaiIt->DONE; i = thaiIt->next() ) {
-		    if( i == pos )
-			return TRUE;
-		    if( i > pos )
-			return FALSE;
-		}
-		return FALSE;
-#else
-		// if we don't have a thai line breaking lib, allow
-		// breaks everywhere except directly before punctuation.
-		return TRUE;
-#endif
-	    } else
-		return FALSE;
-	}
-	if ( row < 0x11 ) // no asian font
-	    return FALSE;
-	if ( isAsian ( row ) ) {
-	    asian = TRUE;
-	    if ( row == 0x30 ) {
-		// line breaking is forbidden after the following characters:
-		switch ( c.cell() ) {
-		case 0x08: // left angle bracket
-		case 0x0a: // double left angle bracket
-		case 0x0c: // left corner bracket
-		case 0x0e: // white left corner bracket
-		case 0x10: // left black lenticular bracket
-		    return FALSE;
-		}
-	    }
-	}
-    }
-    if ( pos < string->length() - 1 ) {
-	const QChar &c2 = string->at( pos + 1 ).c;
-	uchar row = c2.row();
-	bool asianFollows = isAsian( row );
-	if ( asian ) {
-	    if ( row == 0x30 ) {
-		// line breaking is forbidden before the following characters:
-		switch ( c2.cell() ) {
-		case 0x01: // Ideographic comma
-		case 0x02: // Ideographic full stop
-		case 0x09: // Right angle bracket
-		case 0x0b: // double right angle bracket
-		case 0x0d: // right corner bracket
-		case 0x0f: // white right corner bracket
-		case 0x11: // right black lenticular bracket
-		    return FALSE;
-		}
-	    } else if ( !row ) {
-		switch( c2.cell() ) {
-		case 0x29: // right round brace
-		case 0x7d: // right curly brace
-		case 0x5d: // right square brace
-		case 0x21: // exclamation mark
-		case 0x2c: // period
-		case 0x2e: // full stop
-		case 0x3f: // question mark
-		    return FALSE;
-		}
-	    }
-	}
-	if ( asianFollows && !c.row() ) {
-	    switch( c.cell() ) {
-	    case 0x28: // left round brace
-	    case 0x5b: // left curly brace
-	    case 0x7b: // left square brace
-		return FALSE;
-	    case 0x29: // right round brace
-	    case 0x7d: // right curly brace
-	    case 0x5d: // right square brace
-	    case 0x21: // exclamation mark
-	    case 0x2c: // period
-	    case 0x2e: // full stop
-	    case 0x3f: // question mark
-		return TRUE;
-	    }
-	}
-    }
-    return asian;
-}
 
 void QTextFormatter::insertLineStart( QTextParagraph *parag, int index, QTextLineStart *ls )
 {
@@ -5801,7 +5674,8 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 	    }
 	    c->x = x;
 	    curLeft = x;
-	    if ( i == 0 || !isBreakable( string, i - 1 ) || string->at( i - 1 ).lineStart == 0 ) {
+	    if ( i == 0 || !(string->at(i-1).whiteSpace || string->at(i-1).wordStop) ||
+		 string->at( i - 1 ).lineStart == 0 ) {
 		y += QMAX( h, QMAX( tmph, linespacing ) );
 		tmph = c->height();
 		h = tmph;
@@ -5915,7 +5789,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 		tminw = marg;
 		continue;
 	    }
-	} else if ( lineStart && isBreakable( string, i ) ) {
+	} else if ( lineStart && (string->at(i).whiteSpace ||string->at(i).wordStop) ) {
 	    if ( len <= 2 || i < len - 1 ) {
 		tmpBaseLine = QMAX( tmpBaseLine, c->ascent() );
 		tmph = QMAX( tmph, c->height() );

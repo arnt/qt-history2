@@ -101,7 +101,7 @@ class Q_EXPORT QTextStringChar
 
 public:
     // this is never called, initialize variables in QTextString::insert()!!!
-    QTextStringChar() : lineStart( 0 ), type( Regular ), startOfRun( 0 ) {d.format=0;}
+    QTextStringChar() : lineStart( 0 ), type( Regular ) {d.format=0;}
     ~QTextStringChar();
 
     struct CustomData
@@ -116,20 +116,17 @@ public:
     enum Type { Regular=0, Custom=1, Anchor=2, CustomAnchor=3 };
 
     QChar c;
-    uchar lineStart : 1;
-    uchar rightToLeft : 1;
-    uchar hasCursor : 1;
-    uchar canBreak : 1;
-    uchar /*Type*/ type : 2;
-    uchar startOfRun : 1;
-    uchar reserved1 : 1;
     // this is the same struct as in qtextengine_p.h. Don't change!
     uchar softBreak      :1;     // Potential linebreak point
     uchar whiteSpace     :1;     // A unicode whitespace character, except NBSP, ZWNBSP
     uchar charStop       :1;     // Valid cursor position (for left/right arrow)
     uchar wordStop       :1;     // Valid cursor position (for ctrl + left/right arrow)
     uchar invalid        :1;
-    uchar reserved       :3;
+
+    uchar lineStart : 1;
+    uchar /*Type*/ type : 2;
+    uchar bidiLevel       :7;
+    uchar rightToLeft : 1;
 
     int x;
     union {
@@ -1445,8 +1442,6 @@ public:
 
     int minimumWidth() const { return thisminw; }
     int widthUsed() const { return thiswused; }
-
-    static bool isBreakable( QTextString *string, int pos );
 
 protected:
     virtual QTextLineStart *formatLine( QTextParagraph *parag, QTextString *string, QTextLineStart *line, QTextStringChar *start,
