@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#280 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#281 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1447,6 +1447,14 @@ static QStringList makeFiltersList( const QString &filter )
   \fn void QFileDialog::slotIsFile()
 
   \internal
+*/
+
+/*!
+  \fn void QFileDialog::showPreview( const QUrl &u )
+  
+  This signal is emitted when a preview of the URL \a u
+  should be shown in the preview widget. Normally you don't need
+  to connect to this signal, as this is done automatically.
 */
 
 /*!

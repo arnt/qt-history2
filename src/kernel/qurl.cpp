@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#9 $
 **
 ** Implementation of QFileDialog class
 **
@@ -166,7 +166,7 @@ struct QUrlPrivate
 */
 
 /*!
-  \fn void QUrl::emitFinished(;
+  \fn void QUrl::emitFinished()
 
   Emits the signal finished(). This method is mainly
   provided for implementations of network protocols which are
