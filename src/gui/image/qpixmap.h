@@ -172,7 +172,7 @@ public:
     Q_DUMMY_COMPARISON_OPERATOR(QPixmap)
 #endif
 
-#if !defined QT_NO_COMPAT
+#if defined QT_COMPAT
     static inline QT_COMPAT QPixmap fromMimeSource(const QString &name) { return QPixmap(name); }
 #endif
 
