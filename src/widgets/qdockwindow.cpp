@@ -1476,6 +1476,7 @@ void QDockWindow::undock( QWidget *w )
 	move( -width() - 5, -height() - 5 );
 	show();
     }
+    emit placeChanged( place() );
 }
 
 /*!
@@ -1509,6 +1510,7 @@ void QDockWindow::dock()
     ( (QDockArea::DockWindowData*)dockWindowData )->
 	area->dockWindow( this, (QDockArea::DockWindowData*)dockWindowData );
     emit orientationChanged( orientation() );
+    emit placeChanged( place() );
 }
 
 /*! \reimp
