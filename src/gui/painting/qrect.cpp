@@ -16,7 +16,7 @@
 #include "qdatastream.h"
 #include "qdebug.h"
 
-QRect::RectangleMode QRect::static_rect_mode = QRect::InclusiveRectangles;
+QRect::RectangleMode QRect::static_rect_mode = QRect::ExclusiveRectangles;
 
 /*!
     \class QRect
