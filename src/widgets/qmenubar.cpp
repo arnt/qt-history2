@@ -1189,12 +1189,12 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 
     switch ( e->key() ) {
      case Key_Left:
-	dx = -1;
+	dx = QApplication::reverseLayout() ? 1 : -1;
 	break;
 
     case Key_Right:
     case Key_Tab:
-	dx = 1;
+	dx = QApplication::reverseLayout() ? -1 : 1;
 	break;
 
     case Key_Up:
