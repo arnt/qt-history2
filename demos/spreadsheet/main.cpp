@@ -59,7 +59,6 @@ QVariant SpreadSheetItem::data(int role) const
     bool isNumber = false;
     int number = t.toInt(&isNumber);
 
-    // text color
     if (role == QAbstractItemModel::TextColorRole) {
         if (!isNumber)
             return QColor(Qt::black);
@@ -68,7 +67,6 @@ QVariant SpreadSheetItem::data(int role) const
         return QColor(Qt::blue);
     }
 
-    // text alignment
     if (role == QAbstractItemModel::TextAlignmentRole)
         if (!t.isEmpty() && (t.at(0).isNumber() || t.at(0) == '-'))
             return (int)(Qt::AlignRight | Qt::AlignVCenter);
@@ -82,7 +80,6 @@ void SpreadSheetItem::setData(int role, const QVariant &value)
     if (tableWidget())
         tableWidget()->viewport()->update();
 }
-
 
 QVariant SpreadSheetItem::display() const
 {
@@ -102,7 +99,7 @@ QVariant SpreadSheetItem::display() const
     if (!start || !end)
         return "Error: Item does not exist!";
 
-    // avoid looping dependencies
+    // avoid circular dependencies
     if (isResolving)
         return QVariant();
     isResolving = true;
@@ -110,12 +107,13 @@ QVariant SpreadSheetItem::display() const
     QVariant result;
     if (op == "sum") {
         int sum = 0;
-        for (int r = tableWidget()->row(start); r <= tableWidget()->row(end); ++r)
+        for (int r = tableWidget()->row(start); r <= tableWidget()->row(end); ++r) {
             for (int c = tableWidget()->column(start); c <= tableWidget()->column(end); ++c) {
                 const QTableWidgetItem *tableItem = tableWidget()->item(r, c);
                 if (tableItem != this)
                     sum += tableItem->text().toInt();
             }
+        }
         result = sum;
     } else if (op == "+") {
         result = (start->text().toInt() + end->text().toInt());
@@ -144,13 +142,12 @@ QPoint SpreadSheetItem::convertCoords(const QString coords) const
     return QPoint(c, --r);
 }
 
-/*!
-  We subclass QTableWidget for two reasons:
-  1. We want to change the selection behavior to only select with the left mouse button
-  (so we keep the selection when opening the context menu on an item).
-  2. We want the view to use our own SpreadSheetItem when creating new items internally
-  (when the user starts editing in an empty cell).
-*/
+//   Here we subclass QTableWidget for two reasons:
+//   1. We want to change the selection behavior to only select with the left mouse button
+//   (so we keep the selection when opening the context menu on an item).
+//   2. We want the view to use our own SpreadSheetItem when creating new items internally
+//   (when the user starts editing in an empty cell).
+
 class SpreadSheetTable : public QTableWidget
 {
     Q_OBJECT
@@ -162,7 +159,6 @@ public:
                                                          const QModelIndex &index,
                                                          QEvent::Type type,
                                                          Qt::Key key) const;
-
 protected:
     QTableWidgetItem *createItem() const;
 };
@@ -247,11 +243,11 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
         table->setHorizontalHeaderItem(c, new QTableWidgetItem(character));
         table->horizontalHeaderItem(c)->setTextAlignment(Qt::AlignCenter);
     }
+
     table->setKeyTracking(true);
-
     setupContents();
-
     setCentralWidget(table);
+
     statusBar();
     connect(table, SIGNAL(currentChanged(QTableWidgetItem*, QTableWidgetItem*)),
             this, SLOT(updateStatus(QTableWidgetItem*)));
