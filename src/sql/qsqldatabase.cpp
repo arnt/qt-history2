@@ -7,6 +7,9 @@
 #ifdef QT_SQL_MYSQL
 #include "src/mysql/qsql_mysql.h"
 #endif
+#ifdef QT_SQL_ODBC
+#include "src/odbc/qsql_odbc.h"
+#endif
 
 #include "qsqlresult.h"
 #include "qsqldriver.h"
@@ -128,6 +131,10 @@ void QSqlDatabase::init( const QString& type )
 #ifdef QT_SQL_MYSQL
 	if ( type == "QMYSQL" )
 	    d->driver = new QMySQLDriver();
+#endif
+#ifdef QT_SQL_ODBC
+	if ( type == "QODBC" )
+	    d->driver = new QODBCDriver();
 #endif
     }
     if ( !d->driver ) {
