@@ -566,6 +566,9 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
     case PE_FocusRect:
 	{
 	    QRect fr = r;
+	    if (flags & Style_FocusAtBorder)
+		fr.addCoords(1, 1, -1, -1);
+
 	    QColor one, two;
 	    if (! data.isDefault()) {
 		if (qGray(data.color().rgb()) < 128) {
@@ -580,40 +583,18 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 		two = cg.mid().dark(120);
 	    }
 
-	    p->setPen(one);
-	    //  [   ]  style focus rect
+	    p->setPen(two);
 	    p->drawLine(fr.left(),      fr.top(),
-			fr.left() + 3,  fr.top());
-	    p->drawLine(fr.left(),      fr.top() + 1,
-			fr.left() + 3,  fr.top() + 1);
-	    p->drawLine(fr.left(),      fr.bottom(),
-			fr.left() + 3,  fr.bottom());
-	    p->drawLine(fr.left(),      fr.bottom() - 1,
-			fr.left() + 3,  fr.bottom() - 1);
-	    p->drawLine(fr.left(),      fr.top() + 2,
-			fr.left(),      fr.bottom() - 2);
-	    p->drawLine(fr.left() + 1,  fr.top() + 2,
-			fr.left() + 1,  fr.bottom() - 2);
+			fr.left(),      fr.bottom());
+	    p->drawLine(fr.left() + 1,  fr.top(),
+			fr.left() + 1,  fr.bottom());
 	    p->drawLine(fr.right(),     fr.top(),
-			fr.right() - 3, fr.top());
-	    p->drawLine(fr.right(),     fr.top() + 1,
-			fr.right() - 3, fr.top() + 1);
-	    p->drawLine(fr.right(),     fr.bottom(),
-			fr.right() - 3, fr.bottom());
-	    p->drawLine(fr.right(),     fr.bottom() - 1,
-			fr.right() - 3, fr.bottom() - 1);
-	    p->drawLine(fr.right(),     fr.top() + 1,
-			fr.right(),     fr.bottom() - 1);
-	    p->drawLine(fr.right() - 1, fr.top() + 1,
-			fr.right() - 1, fr.bottom() - 1);
-
-	    if (fr.width() > 16) {
-		if (flags & Style_FocusAtBorder)
-		    fr.addCoords(1, 1, -1, -1);
-		p->setPen(two);
-		p->drawLine(fr.left() + 3, fr.top(),    fr.right() - 3, fr.top());
-		p->drawLine(fr.left() + 3, fr.bottom(), fr.right() - 3, fr.bottom());
-	    }
+			fr.right(),     fr.bottom());
+	    p->drawLine(fr.right() - 1, fr.top(),
+			fr.right() - 1, fr.bottom());
+	    p->setPen(one);
+	    p->drawLine(fr.left() + 2, fr.top(),    fr.right() - 2, fr.top());
+	    p->drawLine(fr.left() + 2, fr.bottom(), fr.right() - 2, fr.bottom());
 	    break;
 	}
 
