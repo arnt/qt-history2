@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#63 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#62 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#63 $");
 
 
 /*!
@@ -212,7 +212,7 @@ void QScrollBar::setOrientation( Orientation orientation )
   valueChanged() signal whenever the slider is being dragged.  If
   tracking is disabled, the scroll bar emits the valueChanged() signal
   when the user relases the mouse button (unless the value happens to
-  be the same sa before).
+  be the same as before).
 
   \sa tracking()
 */
