@@ -406,7 +406,7 @@
   in the file qapp_xxx.cpp.
  *****************************************************************************/
 
-static const int WDictSize = 101;
+static const int WDictSize = 3733; // plenty for 15 big complex windows
 
 class QWidgetMapper : public QWidgetIntDict
 {						// maps ids -> widgets
@@ -3585,7 +3585,7 @@ bool QWidget::event( QEvent *e )
 		QFocusEvent::setReason( QFocusEvent::Tab );
 		res = focusNextPrevChild( FALSE );
 		QFocusEvent::resetReason();
-		
+
 	    } else if ( k->key() == Key_Tab ) {
 		QFocusEvent::setReason( QFocusEvent::Tab );
 		res = focusNextPrevChild( TRUE );
