@@ -1,5 +1,5 @@
 win32:TEMPLATE= app
-win32:CONFIG	+= qt warn_on release
+win32:CONFIG	+= qt warn_on release console
 unix:TEMPLATE	= app
 unix:CONFIG	= console release qtinc
 DEFINES	+= QT_NO_CODECS QT_LITE_UNICODE
