@@ -623,7 +623,6 @@ public:
     {
         for (;;) {
             char *ptrBackup = *ptr;
-            int sizeBackup = path->size();
             if (*((*ptr)++) != '/') {
                 *ptr = ptrBackup;
                 break;
@@ -928,7 +927,7 @@ void QUrlPrivate::removeDotsFromPath()
     path.clear();
     path.reserve(origPath.length());
 
-    //### 
+    //###
     const QString Dot = QLatin1String(".");
     const QString Slash = QLatin1String("/");
     const QString DotDot = QLatin1String("..");
@@ -1086,7 +1085,7 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
         that->port = __port;
         that->path = QUrl::fromPercentageEncodingThenUtf8(__path);
         that->query = QUrl::fromPercentageEncodingThenUtf8(__query).ascii();
-        that->fragment = QUrl::fromPercentageEncodingThenUtf8(__fragment);
+        that->fragment = QUrl::fromPercentageEncodingThenUtf8(__fragment).ascii();
     }
 
     that->isValid = true;
@@ -1122,8 +1121,12 @@ QByteArray QUrlPrivate::toEncoded() const
     if (!authority().isEmpty()) {
         url += "//";
 
-        if (!userInfo().isEmpty())
-            url += userInfo() + "@";
+        if (!userName.isEmpty()) {
+            url += QUrl::toUtf8ThenPercentageEncoding(userName, ":");
+            if (!password.isEmpty())
+                url += ":" + QUrl::toUtf8ThenPercentageEncoding(password, ":");
+            url += "@";
+        }
 
         // IDNA / rfc3490 describes these four delimiters used for
         // separating labels in unicode international domain
@@ -1142,8 +1145,10 @@ QByteArray QUrlPrivate::toEncoded() const
             url += codec->fromUnicode(label);
         }
 
-       if (port != -1)
-            url += ":" + QString::number(port);
+        if (port != -1) {
+            url += ":";
+            url += QString::number(port).ascii();
+        }
     }
 
     url += QUrl::toUtf8ThenPercentageEncoding(path, " \t");
@@ -1614,9 +1619,9 @@ void QUrl::setQueryItems(const QMap<QString, QString> &query)
         if (first) first = false;
         else queryTmp += d->pairDelimiter;
 
-        queryTmp += QUrl::toUtf8ThenPercentageEncoding(i.key(), alsoEncode);
+        queryTmp += QUrl::toUtf8ThenPercentageEncoding(i.key(), alsoEncode.ascii());
         queryTmp += d->valueDelimiter;
-        queryTmp += QUrl::toUtf8ThenPercentageEncoding(i.value(), alsoEncode);
+        queryTmp += QUrl::toUtf8ThenPercentageEncoding(i.value(), alsoEncode.ascii());
         ++i;
     }
 
@@ -1660,9 +1665,9 @@ void QUrl::addQueryItem(const QString &key, const QString &value)
     if (!d->query.isEmpty())
         d->query += d->pairDelimiter;
 
-    d->query += QUrl::toUtf8ThenPercentageEncoding(key, alsoEncode);
+    d->query += QUrl::toUtf8ThenPercentageEncoding(key, alsoEncode.ascii());
     d->query += d->valueDelimiter;
-    d->query += QUrl::toUtf8ThenPercentageEncoding(value, alsoEncode);
+    d->query += QUrl::toUtf8ThenPercentageEncoding(value, alsoEncode.ascii());
 }
 
 /*!
@@ -1714,7 +1719,7 @@ void QUrl::setFragment(const QString &fragment)
     detach();
     d->isValidated = false;
 
-    d->fragment = fragment;
+    d->fragment = QUrl::toUtf8ThenPercentageEncoding(fragment);
 }
 
 /*!
