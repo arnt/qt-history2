@@ -720,9 +720,9 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
     See \l Qt::Key for the list of keyboard codes. These codes are
     independent of the underlying window system.
 
-    Key code 0 means that the event is not the result of a known key
-    (e.g. it may be the result of a compose sequence or a keyboard
-    macro, or due to key event compression).
+    A value of either 0 or Key_unknown means that the event is not
+    the result of a known key (e.g. it may be the result of a compose
+    sequence or a keyboard macro, or due to key event compression).
 
     \sa QWidget::setKeyCompression()
 */
@@ -739,7 +739,10 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
 /*!
     \fn QString QKeyEvent::text() const
 
-    Returns the Unicode text that this key generated.
+    Returns the Unicode text that this key generated. The text returned
+    migth be text().isNull == TRUE, which is the case when pressing or
+    releasing modifying keys as Shift, Control, Alt and Meta. In these
+    cases key() will contain a valid value.
 
     \sa QWidget::setKeyCompression()
 */
