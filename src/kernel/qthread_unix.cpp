@@ -52,22 +52,13 @@
 #include <private/qmutexpool_p.h>
 
 #ifndef QT_H
-#if defined( QWS ) || defined( Q_WS_MACX )
-#include "qptrdict.h"
-#else
-#include "qintdict.h"
-#endif
+#  include "qptrdict.h"
 #endif // QT_H
 
 #include <errno.h>
 
-static QMutex *dictMutex = 0;
-#if defined( QWS ) || defined( Q_WS_MACX )
-static QPtrDict<QThread> *thrDict = 0;
-#else
-static QIntDict<QThread> *thrDict = 0;
-#endif
-
+static QPtrDict<QThread> *qt_thread_dict = 0;
+static QMutexPool *qt_thread_mutexpool = 0;
 
 extern "C" { static void *start_thread(void *t); }
 
@@ -81,24 +72,13 @@ public:
     QThreadPrivate()
 	: thread_id(0), finished(FALSE), running(FALSE)
     {
-	if (! dictMutex)
-	    dictMutex = new QMutex;
-	if (! thrDict) {
-#if defined( QWS ) || defined( Q_WS_MACX )
-	    thrDict = new QPtrDict<QThread>;
-#else
-	    thrDict = new QIntDict<QThread>;
-#endif
-	}
     }
 
     ~QThreadPrivate()
     {
-	dictMutex->lock();
+	QMutexLocker locker( qt_global_mutexpool->get( qt_thread_dict ) );
 	if (thread_id)
-	    thrDict->remove((Qt::HANDLE) thread_id);
-	dictMutex->unlock();
-
+	    qt_thread_dict->remove( (void *) thread_id );
 	thread_id = 0;
     }
 
@@ -124,26 +104,24 @@ public:
 
     static void internalRun(QThread *that)
     {
-	dictMutex->lock();
-	thrDict->insert(QThread::currentThread(), that);
-	dictMutex->unlock();
+	QMutexLocker locker( qt_global_mutexpool->get( qt_thread_dict ) );
+	qt_thread_dict->insert( (void *) QThread::currentThread(), that );
+
+	locker.mutex()->unlock();
 
 	that->run();
 
-	dictMutex->lock();
+	locker.mutex()->lock();
+	QThread *there = qt_thread_dict->take( (void *) QThread::currentThread() );
 
-	QThread *there = thrDict->find(QThread::currentThread());
 	if (there) {
-            QMutexLocker locker( qt_global_mutexpool->get( there->d ) );
+            QMutexLocker locker( qt_thread_mutexpool->get( there->d ) );
 
 	    there->d->running = FALSE;
 	    there->d->finished = TRUE;
 
 	    there->d->thread_done.wakeAll();
 	}
-
-	thrDict->remove(QThread::currentThread());
-	dictMutex->unlock();
     }
 };
 
@@ -179,7 +157,6 @@ public:
     QThreadPostEventPrivate();
 
     QPtrList<QThreadQtEvent> events;
-    QMutex eventmutex;
 
 public slots:
     void sendEvents();
@@ -197,14 +174,11 @@ QThreadPostEventPrivate::QThreadPostEventPrivate()
 // application mutex is already locked
 void QThreadPostEventPrivate::sendEvents()
 {
-    eventmutex.lock();
-
+    QMutexLocker locker( qt_global_mutexpool->get( this ) );
     QThreadQtEvent *qte;
     for( qte = events.first(); qte != 0; qte = events.next() )
 	qApp->postEvent( qte->receiver, qte->event );
     events.clear();
-
-    eventmutex.unlock();
 }
 
 
@@ -287,7 +261,11 @@ Qt::HANDLE QThread::currentThread()
 */
 void QThread::initialize()
 {
-    if( !qthreadposteventprivate )
+    if (! qt_thread_dict)
+	qt_thread_dict = new QPtrDict<QThread>;
+    if (! qt_thread_mutexpool)
+	qt_thread_mutexpool = new QMutexPool( FALSE );
+    if( !qthreadposteventprivate && qApp )
 	qthreadposteventprivate = new QThreadPostEventPrivate();
 }
 
@@ -297,6 +275,10 @@ void QThread::initialize()
 */
 void QThread::cleanup()
 {
+    delete qt_thread_dict;
+    qt_thread_dict = 0;
+    delete qt_thread_mutexpool;
+    qt_thread_mutexpool = 0;
     delete qthreadposteventprivate;
     qthreadposteventprivate = 0;
 }
@@ -335,10 +317,9 @@ void QThread::postEvent( QObject * receiver, QEvent * event )
     }
 #endif // QT_CHECK_STATE
 
-    qthreadposteventprivate->eventmutex.lock();
+    QMutexLocker locker( qt_global_mutexpool->get( qthreadposteventprivate ) );
     qthreadposteventprivate->events.append( new QThreadQtEvent(receiver, event) );
     qApp->wakeUpGuiThread();
-    qthreadposteventprivate->eventmutex.unlock();
 }
 
 
@@ -431,7 +412,7 @@ QThread::~QThread()
 {
 #ifdef QT_CHECK_STATE
     {
-	QMutexLocker locker( qt_global_mutexpool->get( d ) );
+	QMutexLocker locker( qt_thread_mutexpool->get( d ) );
         if( d->running && !d->finished ) {
             qWarning("QThread object destroyed while thread is still running.");
             return;
@@ -448,19 +429,17 @@ QThread::~QThread()
 */
 void QThread::exit()
 {
-    dictMutex->lock();
+    QMutexLocker locker( qt_global_mutexpool->get( qt_thread_dict ) );
+    QThread *there = qt_thread_dict->take( (void *) QThread::currentThread() );
 
-    QThread *there = thrDict->find(QThread::currentThread());
     if (there) {
-	QMutexLocker locker( qt_global_mutexpool->get( there->d ) );
+	QMutexLocker locker( qt_thread_mutexpool->get( there->d ) );
 
 	there->d->running = FALSE;
 	there->d->finished = TRUE;
 
 	there->d->thread_done.wakeAll();
     }
-
-    dictMutex->unlock();
 
     pthread_exit(0);
 }
@@ -475,7 +454,7 @@ void QThread::exit()
 */
 void QThread::start()
 {
-    QMutexLocker locker( qt_global_mutexpool->get( d ) );
+    QMutexLocker locker( qt_thread_mutexpool->get( d ) );
 
     if (d->running) {
 #ifdef QT_CHECK_STATE
@@ -507,7 +486,7 @@ void QThread::start()
 */
 bool QThread::wait(unsigned long time)
 {
-    QMutexLocker locker( qt_global_mutexpool->get( d ) );
+    QMutexLocker locker( qt_thread_mutexpool->get( d ) );
     if (d->finished || ! d->running)
 	return TRUE;
     return d->thread_done.wait( locker.mutex(), time);
@@ -519,7 +498,7 @@ bool QThread::wait(unsigned long time)
 */
 bool QThread::finished() const
 {
-    QMutexLocker locker( qt_global_mutexpool->get( d ) );
+    QMutexLocker locker( qt_thread_mutexpool->get( d ) );
     return d->finished;
 }
 
@@ -529,7 +508,7 @@ bool QThread::finished() const
 */
 bool QThread::running() const
 {
-    QMutexLocker locker( qt_global_mutexpool->get( d ) );
+    QMutexLocker locker( qt_thread_mutexpool->get( d ) );
     return d->running;
 }
 
