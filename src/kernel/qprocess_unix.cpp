@@ -813,6 +813,9 @@ void QProcess::socketRead( int fd )
 	buffer = &d->bufStdout;
     } else if ( fd == d->proc->socketStderr ) {
 	buffer = &d->bufStderr;
+    } else {
+	// this case should never happen, but just to be safe
+	return;
     }
 
     // read data
