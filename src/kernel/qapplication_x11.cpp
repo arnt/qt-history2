@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#308 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#309 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -86,7 +86,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#308 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#309 $");
 
 
 /*****************************************************************************
@@ -1981,11 +1981,19 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    break;
 
 	case UnmapNotify:			// window hidden
-	    widget->clearWFlags( WState_Visible );
+	    if ( widget->testWFlags( WState_Visible ) ) {
+		widget->clearWFlags( WState_Visible );
+		QHideEvent e(TRUE);
+		QApplication::sendEvent( widget, &e );
+	    }
 	    break;
 
 	case MapNotify:				// window shown
-	    widget->setWFlags( WState_Visible );
+	    if ( !widget->testWFlags( WState_Visible ) ) {
+		widget->setWFlags( WState_Visible );
+		QShowEvent e(TRUE);
+		QApplication::sendEvent( widget, &e );
+	    }
 	    break;
 
 	case ClientMessage:			// client message

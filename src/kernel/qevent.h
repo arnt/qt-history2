@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#49 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#50 $
 **
 ** Definition of event classes
 **
@@ -199,6 +199,32 @@ protected:
 };
 
 #define Q_CLOSE_EVENT(x)	((QCloseEvent*)x)
+
+
+class QShowEvent : public QEvent		// widget show event
+{
+public:
+    QShowEvent(bool spontaneous)
+	: QEvent(Event_Show), spont(spontaneous) {}
+    bool spontaneous() const { return spont; }
+protected:
+    bool spont;
+};
+
+#define Q_SHOW_EVENT(x)		((QShowEvent*)x)
+
+
+class QHideEvent : public QEvent		// widget hide event
+{
+public:
+    QHideEvent(bool spontaneous)
+	: QEvent(Event_Hide), spont(spontaneous) {}
+    bool spontaneous() const { return spont; }
+protected:
+    bool spont;
+};
+
+#define Q_HIDE_EVENT(x)		((QHideEvent*)x)
 
 
 // this class is rather closed at the moment.  if you need to create
