@@ -7,6 +7,10 @@
 #include "uninstallimpl.h"
 #include "../environment.h"
 
+#ifdef Q_OS_WIN32
+#include <windows.h>
+#endif
+
 QApplication* app;
 UninstallDlg* progress;
 
@@ -87,6 +91,9 @@ int main( int argc, char** argv )
 	qtEnv.append("\\bin;");
 	pathEnv.replace( qtEnv, "" );
 	QEnvironment::putEnv( "PATH", pathEnv, QEnvironment::PersistentEnv );
+	if( qWinVersion() & Qt::WV_NT_based ) {
+	    SendNotifyMessageW( HWND_BROADCAST, WM_WININICHANGE, 0, (LPARAM)qt_winTchar(QString("Environment"),true) );
+	}
 #endif
     }
 
