@@ -19,7 +19,6 @@ struct QUrlPrivate
     bool isMalformed;
     int port;
     QString nameFilter;
-    QString url;
 };
 
 /*!
@@ -49,7 +48,6 @@ QUrl::QUrl()
     d = new QUrlPrivate;
     d->isMalformed = TRUE;
     d->nameFilter = "*";
-    d->url = QString::null;
 }
 
 QUrl::QUrl( const QString& url )
@@ -59,11 +57,8 @@ QUrl::QUrl( const QString& url )
     d->protocol = "file";
     d->port = -1;
     d->nameFilter = "*";
-    d->url = url;
     
     QString tmp = url.stripWhiteSpace();
-    if ( tmp[ 0 ] == '/' )
-	tmp.prepend( "file:" );
     parse( tmp );
 }
 
@@ -77,7 +72,6 @@ QUrl::QUrl( const QUrl& url )
 QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
 {
     d = new QUrlPrivate;
-    d->url = QString( url + "/" + relUrl_ );
     QString relUrl = relUrl_.stripWhiteSpace();
 
     // relUrl starts in the root ?
@@ -119,7 +113,7 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
 
 QUrl::~QUrl()
 {
-    //delete d;
+    delete d;
 }
 
 QString QUrl::protocol() const
@@ -244,48 +238,58 @@ void QUrl::reset()
 void QUrl::parse( const QString& url )
 {
     if ( url.isEmpty() ) {
-	d->isMalformed = TRUE;
+	d->isMalformed = true;
 	return;
     }
 
-    d->isMalformed = FALSE;
+    d->isMalformed = false;
 
     QString port;
-    int start;
+    int start = 0;
     uint len = url.length();
     QChar* buf = new QChar[ len + 1 ];
     QChar* orig = buf;
     memcpy( buf, url.unicode(), len * sizeof( QChar ) );
 
     uint pos = 0;
+
     // Node 1: Accept alpha or slash
     QChar x = buf[pos++];
     if ( x == '/' )
 	goto Node9;
-    if ( !isalpha( (char)x ) )
+    if ( !isalpha( (int)x ) )
 	goto NodeErr;
-    // Node 2: Accept any amount of alphas
-    // Proceed with :// :/ or :
+
+  // Node 2: Accept any amount of alphas
+  // Proceed with :// :/ or :
     while( isalpha( buf[pos] ) && pos < len ) pos++;
     if ( pos == len )
 	goto NodeErr;
     if (buf[pos] == ':' && buf[pos+1] == '/' && buf[pos+2] == '/' ) {
-	d->protocol = QString( orig, pos );
+	d->protocol = QString( orig, pos ).lower();
 	pos += 3;
     } else if (buf[pos] == ':' && buf[pos+1] == '/' ) {
-	d->protocol = QString( orig, pos );
+	d->protocol = QString( orig, pos ).lower();
 	pos++;
 	start = pos;
 	goto Node9;
     } else if ( buf[pos] == ':' ) {
+	d->protocol = QString( orig, pos ).lower();
 	pos++;
 	goto Node11;
     } else
 	goto NodeErr;
-    //Node 3: We need at least one character here
+
+  //Node 3: We need at least one character here
     if ( pos == len )
-	goto NodeErr;
+	goto NodeOk;
+    //    goto NodeErr;
+#if 0
     start = pos++;
+#else
+    start = pos;
+#endif
+
     // Node 4: Accept any amount of characters.
     // Terminate or / or @
     while( buf[pos] != ':' && buf[pos] != '@' && buf[pos] != '/' && pos < len ) pos++;
@@ -293,6 +297,7 @@ void QUrl::parse( const QString& url )
 	d->host = QString( buf + start, pos - start );
 	goto NodeOk;
     }
+    
     x = buf[pos];
     if ( x == '@' ) {
 	d->user = QString( buf + start, pos - start );
@@ -306,10 +311,12 @@ void QUrl::parse( const QString& url )
 	goto NodeErr;
     d->user = QString( buf + start, pos - start );
     pos++;
+
     // Node 5: We need at least one character
     if ( pos == len )
 	goto NodeErr;
     start = pos++;
+
     // Node 6: Read everything until @
     while( buf[pos] != '@' && pos < len ) pos++;
     if ( pos == len ) {
@@ -317,22 +324,31 @@ void QUrl::parse( const QString& url )
 	d->host = d->user;
 	d->user = "";
 	QString tmp( buf + start, pos - start );
-	d->port = atoi( tmp.ascii() );
-	goto NodeOk;
+	char *endptr;
+	d->port = (unsigned short int)strtol(tmp.ascii(), &endptr, 10);
+	if ((pos == len) && (strlen(endptr) == 0))
+	    goto NodeOk;
+	// there is more after the digits
+	pos -= strlen(endptr);
+	start = pos++;
+	goto Node9;
     }
-    d->pass = QString( buf + start, pos - start );
+    d->pass = QString( buf + start, pos - start);
     pos++;
+
     // Node 7: We need at least one character
 Node7:
     if ( pos == len )
 	goto NodeErr;
     start = pos++;
+
     // Node 8: Read everything until / : or terminate
     while( buf[pos] != '/' && buf[pos] != ':' && pos < len ) pos++;
     if ( pos == len ) {
 	d->host = QString( buf + start, pos - start );
 	goto NodeOk;
     }
+    
     x = buf[pos];
     d->host = QString( buf + start, pos - start );
     if ( x == '/' ) {
@@ -341,19 +357,22 @@ Node7:
     } else if ( x != ':' )
 	goto NodeErr;
     pos++;
+
     // Node 8a: Accept at least one digit
     if ( pos == len )
 	goto NodeErr;
     start = pos;
     if ( !isdigit( buf[pos++] ) )
 	goto NodeErr;
-    // Node 8b: Accept any amount of digits
+
+  // Node 8b: Accept any amount of digits
     while( isdigit( buf[pos] ) && pos < len ) pos++;
     port = QString( buf + start, pos - start );
-    d->port = atoi( port.ascii() );
+    d->port = port.toUShort();
     if ( pos == len )
 	goto NodeOk;
     start = pos++;
+
     // Node 9: Accept any character and # or terminate
 Node9:
     while( buf[pos] != '#' && pos < len ) pos++;
@@ -362,45 +381,51 @@ Node9:
 	setEncodedPathAndQuery( tmp );
 	// setEncodedPathAndQuery( QString( buf + start, pos - start ) );
 	goto NodeOk;
-    } else if ( buf[pos] != '#' )
+    }
+    else if ( buf[pos] != '#' )
 	goto NodeErr;
     setEncodedPathAndQuery( QString( buf + start, pos - start ) );
     pos++;
-    // Node 10: Accept all the rest
+
+  // Node 10: Accept all the rest
     d->refEncoded = QString( buf + pos, len - pos );
     goto NodeOk;
-    // Node 11 We need at least one character
+
+  // Node 11 We need at least one character
 Node11:
     start = pos;
     if ( pos++ == len )
-	goto NodeErr;
+	goto NodeOk;
+    //    goto NodeErr;
+
     // Node 12: Accept the res
     setEncodedPathAndQuery( QString( buf + start, len - start ) );
     goto NodeOk;
+
 NodeOk:
     delete []orig;
     return;
+
 NodeErr:
-   qDebug( "Error in parsing" );
+    qDebug( "Error in parsing \"%s\"", url.ascii() );
     delete []orig;
-    d->isMalformed = TRUE;
+    d->isMalformed = true;
+
 }
 
 QUrl& QUrl::operator=( const QString& url )
 {
     reset();
  
-    d->protocol = "file";
-    d->port = -1;
-    d->nameFilter = "*";
+//     d->protocol = "file";
+//     d->port = -1;
+//     d->nameFilter = "*";
     
-    QString tmp = url.stripWhiteSpace();
-    if ( tmp[ 0 ] == '/' )
-	tmp.prepend( "file:" );
-    parse( tmp );
-    d->url = tmp;
+//     QString tmp = url.stripWhiteSpace();
+//     parse( tmp );
+//     d->url = tmp;
 
-//     parse( url );
+    parse( url );
 
     return *this;
 }
@@ -843,8 +868,6 @@ QUrl::operator QString() const
 
 bool QUrl::cdUp()
 {
-    QString tmp = d->url + "/..";
-    parse( tmp );
-    d->url = tmp;
+    addPath( ".." );
     return TRUE;
 }
