@@ -1,10 +1,16 @@
-/*
-$Id$
-*/
+/****************************************************************************
+** $Id: $
+**
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of an example program for Qt.  This example
+** program may be used, distributed and modified without limitation.
+**
+*****************************************************************************/
 
 #include "structureparser.h"
 
-#include <iostream.h>
+#include <stdio.h>
 #include <qstring.h>
  
 bool StructureParser::startDocument()
@@ -17,7 +23,7 @@ bool StructureParser::startElement( const QString&, const QString&,
                                     const QString& qName, 
                                     const QXmlAttributes& )
 {
-    cout << indent << qName << endl;
+    printf( "%s%s\n", (const char*)indent, (const char*)qName );
     indent += "    ";
     return TRUE;
 }
