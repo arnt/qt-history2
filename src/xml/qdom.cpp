@@ -789,7 +789,7 @@ QDomNodeListPrivate::QDomNodeListPrivate(QDomNodePrivate *n_impl, const QString 
 
 QDomNodeListPrivate::~QDomNodeListPrivate()
 {
-    if (node_impl && --node_impl->ref)
+    if (node_impl && !--node_impl->ref)
 	delete node_impl;
 }
 
@@ -972,7 +972,7 @@ bool QDomNodeList::operator!=(const QDomNodeList &n) const
 */
 QDomNodeList::~QDomNodeList()
 {
-    if (impl && --impl->ref)
+    if (impl && !--impl->ref)
 	delete impl;
 }
 
