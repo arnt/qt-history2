@@ -16,7 +16,7 @@ Tell qmake where to find the MySQL header files and shared libraries
 (here it is assumed that MySQL is installed in /usr/local) and run make:
 
 cd $QTDIR/plugins/src/sqldrivers/mysql
-qmake -o Makefile "INCLUDEPATH+=/usr/local/include" "LIBS+=-L/usr/local/libs -lmysqlclient" mysql.pro
+qmake -o Makefile "INCLUDEPATH+=/usr/local/include" "LIBS+=-L/usr/local/lib -lmysqlclient" mysql.pro
 make
 
 
