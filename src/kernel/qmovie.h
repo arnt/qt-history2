@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.h#4 $
+** $Id: //depot/qt/main/src/kernel/qmovie.h#5 $
 **
 ** Definition of movie classes
 **
@@ -36,6 +36,7 @@ public:
 
     bool isNull() const;
 
+    int  frameNumber() const;
     int  steps() const;
     bool paused() const;
     bool finished() const;
@@ -56,7 +57,8 @@ public:
     enum {  UnrecognizedFormat=-1,
 	    Paused=1,
 	    EndOfFrame=2,
-	    EndOfMovie=3 } Status;
+	    EndOfLoop=3,
+	    EndOfMovie=4 } Status;
     void connectStatus(QObject* receiver, const char* member);
     void disconnectStatus(QObject* receiver, const char* member=0);
 

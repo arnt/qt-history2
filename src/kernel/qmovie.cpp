@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#8 $
 **
 ** Implementation of movie classes
 **
@@ -103,6 +103,7 @@ public: // for QMovie
 
 	waitingForFrameTick = FALSE;
 	stepping = -1;
+	framenumber = 0;
 	frameperiod = -1;
 	frametimer.stop();
 	changed_area.setRect(0,0,-1,-1);
@@ -219,6 +220,7 @@ public: // for QMovie
 	}
 	showChanges();
 	emit dataStatus(QMovie::EndOfFrame);
+	framenumber++;
 	return FALSE;
     }
 
@@ -286,6 +288,8 @@ public: // for QMovie
 
     void eof()
     {
+	emit dataStatus(QMovie::EndOfLoop);
+
 	if (loop >= 0) {
 	    if (loop) {
 		loop--;
@@ -294,6 +298,7 @@ public: // for QMovie
 	    delete decoder;
 	    decoder = new QImageDecoder(this);
 	    source->rewind();
+	    framenumber = 0;
 	} else {
 	    delete decoder;
 	    decoder = 0;
@@ -341,6 +346,7 @@ public:
     uchar *buffer;
     int buf_r, buf_w, buf_usage;
 
+    int framenumber;
     int frameperiod;
     QTimer frametimer;
     int loop;
@@ -399,7 +405,9 @@ QMovie::QMovie(QIODevice* src, int bufsize)
 */
 QMovie::QMovie(QByteArray data, int bufsize)
 {
-    d = new QMoviePrivate(new QIODeviceSource(new QBuffer(data)), this, bufsize);
+    QBuffer* buffer = new QBuffer(data);
+    buffer->open(IO_ReadOnly);
+    d = new QMoviePrivate(new QIODeviceSource(buffer), this, bufsize);
 }
 
 /*!
@@ -499,6 +507,16 @@ const QPixmap& QMovie::currentFrame() const
 int QMovie::steps() const
 {
     return d->stepping;
+}
+
+/*!
+  Returns the number of times EndOfFrame has been emitted.  So before
+  any EndOfFrame has been emitted, the value will be 0,
+  within slots processing the first signal, frameNumber() will be 1, etc.
+*/
+int QMovie::frameNumber() const
+{
+    return d->framenumber;
 }
 
 /*!
@@ -643,8 +661,11 @@ void QMovie::disconnectUpdate(QObject* receiver, const char* member)
    <li> \c QMovie::UnrecognizedFormat - signalled if the input data is unrecognized.
    <li> \c QMovie::Paused - signalled when the movie is paused by a call to paused(),
 			or by after \link step() stepping \endlink pauses.
-   <li> \c QMovie::EndOfFrame - signalled at end-of-frame, after any update signals.
-   <li> \c QMovie::EndOfMovie - signalled when the movie completes and is not looping.
+   <li> \c QMovie::EndOfFrame - signalled at end-of-frame, after any update and Paused signals.
+   <li> \c QMovie::EndOfLoop - signalled at end-of-loop, after any update signals,
+				EndOfFrame, but before EndOfMovie.
+   <li> \c QMovie::EndOfMovie - signalled when the movie completes and is not about
+				 to loop.
   </ul>
 
   More status messages may be added in the future, so a general test for
@@ -679,7 +700,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Jun 26 16:21:01 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.7 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.8 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
