@@ -92,6 +92,12 @@ else
   ln -s libqt.so.$QTVER libqt.so.$QTVERMAJOR
 fi
 
+if [ "${platform}" = "x11" ]; then
+  echo "Creating arch directory"
+  cd ${DISTDIR}/qt/src
+  ${curdir}/makearch.sh
+fi
+
 echo "Finally copy the README, LICENSE etc. files"
 cd ${DISTDIR}/qt/dist
 cp [A-Z]* .. 2> /dev/null
