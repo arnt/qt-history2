@@ -1,2 +1,5 @@
 TEMPLATE    =	subdirs
-SUBDIRS	    =   imageformats accessible codecs
+
+contains(DEFINES,QT_DLL) {
+	SUBDIRS	+=   imageformats accessible codecs
+}
