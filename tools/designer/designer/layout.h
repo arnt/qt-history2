@@ -117,7 +117,8 @@ class Spacer : public QWidget
     Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
     Q_ENUMS( SizeType )
     Q_PROPERTY( SizeType sizeType READ sizeType WRITE setSizeType )
-    Q_PROPERTY( QSize sizeHint READ sizeHint WRITE setSizeHint DESIGNABLE false )
+    Q_PROPERTY( QSize sizeHint READ sizeHint WRITE setSizeHint DESIGNABLE false STORED sizeHintStored )
+    Q_OVERRIDE( QRect geometry DESIGNABLE false )
 
 private:
     enum { HSize = 6, HMask = 0x3f, VMask = HMask << HSize,
@@ -142,6 +143,8 @@ public:
     void setOrientation( Orientation o );
     void setAutoResize( bool b ) { ar = b; };
     void setSizeHint( const QSize &s ) { resize( s ); }
+    
+    bool sizeHintStored() const;
 
 protected:
     void paintEvent( QPaintEvent *e );

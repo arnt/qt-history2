@@ -973,8 +973,10 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
     changed = MetaDataBase::changedProperties( w );
     if ( w->isWidgetType() ) {
 	if ( w->inherits( "Spacer" ) ) {
-	    if ( changed.find( "sizeHint" ) == changed.end() )
+	    if ( !changed.contains( "sizeHint" ) )
 		changed << "sizeHint";
+	    if ( !changed.contains( "geometry" ) )
+		changed << "geometry";
 	}
     } else if ( w->inherits( "QLayout" ) ) { // #### should be cleaner (RS)
 	changed << "margin" << "spacing";

@@ -944,10 +944,15 @@ QSize Spacer::minimumSize() const
 
 QSize Spacer::sizeHint() const
 {
-    if ( parentWidget() && WidgetFactory::layoutType( parentWidget() ) != WidgetFactory::NoLayout &&
-	 ( sizeType() == Fixed || sizeType() == Maximum ) )
+    if ( sizeHintStored() )
 	return size();
     return QSize( 20, 20 );
+}
+
+bool Spacer::sizeHintStored() const
+{
+    return parentWidget() && WidgetFactory::layoutType( parentWidget() ) != WidgetFactory::NoLayout &&
+			     ( sizeType() == Fixed || sizeType() == Maximum );
 }
 
 Qt::Orientation Spacer::orientation() const
