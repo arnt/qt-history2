@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#89 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#88 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#89 $")
 
 
 /*----------------------------------------------------------------------------
@@ -193,20 +193,21 @@ void QWidget::destroyMapper()			// destroy widget mapper
 	return;
     register QWidget *w;
     QWidgetIntDictIt it( *((QWidgetIntDict*)mapper) );
-    w = it.current();
-    while ( w ) {				// remove child widgets first
-	if ( !w->parentObj ) {			// widget is a parent
+    while ( (w=it.current()) ) {		// remove parents widgets
+	++it;
+	if ( !w->parentObj )			// widget is a parent
 	    delete w;
-	    w = it.current();			// w will be next widget
-	}
-	else					// skip child widgets now
-	    w = ++it;
     }
-    w = it.toFirst();
+#if defined(DEBUG)
+    ASSERT( it.count() == 0 );
+#endif
+#if 0
+    w = it.toFirst();				// shouln't be any more widgets
     while ( w ) {				// delete the rest
 	delete w;
 	w = ++it;
     }
+#endif
     delete mapper;
     mapper = 0;
 }
