@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#306 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#307 $
 **
 ** Implementation of QFileDialog class
 **
@@ -2688,10 +2688,10 @@ void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint &p,
 	sortFilesBy = (int)QDir::Time;
 	sortAscending = TRUE;
 	resortDir();
-    } else if ( action == PA_SortType ) {
-	sortFilesBy = 0x16;
-	sortAscending = TRUE;
-	resortDir();
+//     } else if ( action == PA_SortType ) {
+// 	sortFilesBy = 0x16;
+// 	sortAscending = TRUE;
+// 	resortDir();
     } else if ( action == PA_SortUnsorted ) {
 	sortFilesBy = (int)QDir::Unsorted;
 	sortAscending = TRUE;
@@ -2731,10 +2731,10 @@ void QFileDialog::popupContextMenu( QListBoxItem *item, const QPoint & p )
 	sortFilesBy = (int)QDir::Time;
 	sortAscending = TRUE;
 	resortDir();
-    } else if ( action == PA_SortType ) {
-	sortFilesBy = 0x16;
-	sortAscending = TRUE;
-	resortDir();
+//     } else if ( action == PA_SortType ) {
+// 	sortFilesBy = 0x16;
+// 	sortAscending = TRUE;
+// 	resortDir();
     } else if ( action == PA_SortUnsorted ) {
 	sortFilesBy = (int)QDir::Unsorted;
 	sortAscending = TRUE;
@@ -2798,20 +2798,20 @@ void QFileDialog::popupContextMenu( const QString &filename, bool,
 	QPopupMenu m2( 0, "sort menu" );
 
 	int sname = m2.insertItem( tr( "Sort by &Name" ) );
-	int stype = m2.insertItem( tr( "Sort by &Type" ) );
+	//int stype = m2.insertItem( tr( "Sort by &Type" ) );
 	int ssize = m2.insertItem( tr( "Sort by &Size" ) );
 	int sdate = m2.insertItem( tr( "Sort by &Date" ) );
 	m2.insertSeparator();
 	int sunsorted = m2.insertItem( tr( "&Unsorted" ) );
 
-	m2.setItemEnabled( stype, FALSE );
+	//m2.setItemEnabled( stype, FALSE );
 
 	if ( sortFilesBy == (int)QDir::Name )
 	    m2.setItemChecked( sname, TRUE );
 	else if ( sortFilesBy == (int)QDir::Size )
 	    m2.setItemChecked( ssize, TRUE );
-	else if ( sortFilesBy == 0x16 )
-	    m2.setItemChecked( stype, TRUE );
+// 	else if ( sortFilesBy == 0x16 )
+// 	    m2.setItemChecked( stype, TRUE );
 	else if ( sortFilesBy == (int)QDir::Time )
 	    m2.setItemChecked( sdate, TRUE );
 	else if ( sortFilesBy == (int)QDir::Unsorted )
@@ -2833,8 +2833,8 @@ void QFileDialog::popupContextMenu( const QString &filename, bool,
 	    action = PA_Hidden;
 	else if ( res == sname )
 	    action = PA_SortName;
-	else if ( res == stype )
-	    action = PA_SortType;
+// 	else if ( res == stype )
+// 	    action = PA_SortType;
 	else if ( res == sdate )
 	    action = PA_SortDate;
 	else if ( res == ssize )
