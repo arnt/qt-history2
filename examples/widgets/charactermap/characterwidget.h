@@ -32,7 +32,7 @@ protected:
 
 private:
     QFont displayFont;
-    int currentKey;
+    int lastKey;
 };
 
 #endif

@@ -5,7 +5,7 @@
 CharacterWidget::CharacterWidget(QWidget *parent)
     : QWidget(parent)
 {
-    currentKey = -1;
+    lastKey = -1;
     setMouseTracking(true);
 }
 
@@ -39,9 +39,9 @@ void CharacterWidget::mouseMoveEvent(QMouseEvent *event)
 void CharacterWidget::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        currentKey = (event->y()/24)*32 + event->x()/24;
-        if (QChar(currentKey).category() != QChar::NoCategory)
-            emit characterSelected(QString(QChar(currentKey)));
+        lastKey = (event->y()/24)*32 + event->x()/24;
+        if (QChar(lastKey).category() != QChar::NoCategory)
+            emit characterSelected(QString(QChar(lastKey)));
         update();
     }
     else
@@ -76,7 +76,7 @@ void CharacterWidget::paintEvent(QPaintEvent *event)
             int key = row*32 + column;
             painter.setClipRect(column*24, row*24, 24, 24);
 
-            if (key == currentKey)
+            if (key == lastKey)
                 painter.fillRect(column*24, row*24, 24, 24, QBrush(Qt::red));
 
             painter.drawText(column*24 + 12 - fontMetrics.width(QChar(key))/2,
