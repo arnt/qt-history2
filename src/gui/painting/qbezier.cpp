@@ -12,9 +12,11 @@
 ****************************************************************************/
 
 #include "qbezier_p.h"
-#include <qpolygon.h>
-#include <qline.h>
 #include <qdebug.h>
+#include <qline.h>
+#include <qpolygon.h>
+
+#include <private/qnumeric_p.h>
 
 // Manhattan length between two QPointF's
 #define mlen(a, b) (qAbs(a.x() - b.x()) + qAbs(a.y() - b.y()))
@@ -63,6 +65,12 @@ void QBezier::init()
     by = 3*y1 - 6*y2 + 3*y3;
     cy = -3*y1 + 3*y2;
     dy = y1;
+
+#ifndef QT_NO_DEBUG
+    if (qIsNan(x1) || qIsNan(x2) || qIsNan(x3) || qIsNan(x4)
+        || qIsNan(y1) || qIsNan(y2) || qIsNan(y3) || qIsNan(y4))
+        qWarning("QBezier::init(): one or more of the bezier parameters is nan, results are undefined.");
+#endif
 }
 
 struct QBezierLineSegment

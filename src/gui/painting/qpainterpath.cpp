@@ -19,6 +19,7 @@
 #include <private/qfontengine_p.h>
 #include <private/qobject_p.h>
 #include <private/qtextengine_p.h>
+#include <private/qnumeric_p.h>
 
 #include <qbitmap.h>
 #include <qdebug.h>
@@ -318,6 +319,10 @@ void QPainterPath::moveTo(const QPointF &p)
 #ifdef QPP_DEBUG
     printf("QPainterPath::moveTo() (%.2f,%.2f)\n", p.x(), p.y());
 #endif
+#ifndef QT_NO_DEBUG
+    if (qIsNan(p.x()) || qIsNan(p.y()))
+        qWarning("QPainterPath::moveTo(): adding point where x or y is nan, results are undefined.");
+#endif
     ensureData();
     detach();
     Q_ASSERT(!d->elements.isEmpty());
@@ -354,6 +359,10 @@ void QPainterPath::lineTo(const QPointF &p)
 {
 #ifdef QPP_DEBUG
     printf("QPainterPath::lineTo() (%.2f,%.2f)\n", p.x(), p.y());
+#endif
+#ifndef QT_NO_DEBUG
+    if (qIsNan(p.x()) || qIsNan(p.y()))
+        qWarning("QPainterPath::lineTo(): adding point where x or y is nan, results are undefined.");
 #endif
     ensureData();
     detach();
@@ -393,6 +402,11 @@ void QPainterPath::cubicTo(const QPointF &c1, const QPointF &c2, const QPointF &
     printf("QPainterPath::cubicTo() (%.2f,%.2f), (%.2f,%.2f), (%.2f,%.2f)\n",
            c1.x(), c1.y(), c2.x(), c2.y(), e.x(), e.y());
 #endif
+#ifndef QT_NO_DEBUG
+    if (qIsNan(c1.x()) || qIsNan(c1.y()) || qIsNan(c2.x()) || qIsNan(c2.y())
+        || qIsNan(e.x()) || qIsNan(e.y()))
+        qWarning("QPainterPath::cubicTo(): adding point where x or y is nan, results are undefined.");
+#endif
     ensureData();
     detach();
 
@@ -430,6 +444,10 @@ void QPainterPath::quadTo(const QPointF &c, const QPointF &e)
 #ifdef QPP_DEBUG
     printf("QPainterPath::quadTo() (%.2f,%.2f), (%.2f,%.2f)\n",
            c.x(), c.y(), e.x(), e.y());
+#endif
+#ifndef QT_NO_DEBUG
+    if (qIsNan(c.x()) || qIsNan(c.y()) || qIsNan(e.x()) || qIsNan(e.y()))
+        qWarning("QPainterPath::quadTo(): adding point where x or y is nan, results are undefined.");
 #endif
     ensureData();
     detach();
@@ -478,6 +496,11 @@ void QPainterPath::arcTo(const QRectF &rect, qreal startAngle, qreal sweepLength
 #ifdef QPP_DEBUG
     printf("QPainterPath::arcTo() (%.2f, %.2f, %.2f, %.2f, angle=%.2f, sweep=%.2f\n",
            rect.x(), rect.y(), rect.width(), rect.height(), startAngle, sweepLength);
+#endif
+#ifndef QT_NO_DEBUG
+    if (qIsNan(rect.x()) || qIsNan(rect.y()) || qIsNan(rect.width()) || qIsNan(rect.height())
+        || qIsNan(startAngle) || qIsNan(sweepLength))
+        qWarning("QPainterPath::arcTo(): adding arc where a parameter is nan, results are undefined.");
 #endif
     ensureData();
     detach();
@@ -563,6 +586,10 @@ QPointF QPainterPath::currentPosition() const
 */
 void QPainterPath::addRect(const QRectF &r)
 {
+#ifndef QT_NO_DEBUG
+    if (qIsNan(r.x()) || qIsNan(r.y()) || qIsNan(r.width()) || qIsNan(r.height()))
+        qWarning("QPainterPath::addRect(): adding rect where a parameter is nan, results are undefined.");
+#endif
     ensureData();
     detach();
 
@@ -610,6 +637,11 @@ void QPainterPath::addPolygon(const QPolygonF &polygon)
 */
 void QPainterPath::addEllipse(const QRectF &boundingRect)
 {
+#ifndef QT_NO_DEBUG
+    if (qIsNan(boundingRect.x()) || qIsNan(boundingRect.y())
+        || qIsNan(boundingRect.width()) || qIsNan(boundingRect.height()))
+        qWarning("QPainterPath::addEllipse(): adding ellipse where a parameter is nan, results are undefined.");
+#endif
     ensureData();
     detach();
 
@@ -1164,6 +1196,7 @@ QDataStream &operator>>(QDataStream &s, QPainterPath &p)
     if (size == 0)
         return s;
 
+    p.ensureData(); // in case if p.d == 0
     if (p.d->elements.size() == 1) {
         Q_ASSERT(p.d->elements.at(0).type == QPainterPath::MoveToElement);
         p.d->elements.clear();
@@ -1176,6 +1209,10 @@ QDataStream &operator>>(QDataStream &s, QPainterPath &p)
         s >> x;
         s >> y;
         Q_ASSERT(type >= 0 && type <= 3);
+#ifndef QT_NO_DEBUG
+        if (qIsNan(x) || qIsNan(y))
+            qWarning("operator>>(): adding a nan element to path, results are undefined.");
+#endif
         QPainterPath::Element elm = { x, y, QPainterPath::ElementType(type) };
         p.d->elements.append(elm);
     }
