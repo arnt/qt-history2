@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#361 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#362 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -40,6 +40,7 @@
 #include "qpixmapcache.h"
 #include "qdatetime.h"
 #include "qkeycode.h"
+#include "qeucmapper.h"
 #include <stdlib.h>
 #include <ctype.h>
 #include <locale.h>
@@ -206,6 +207,7 @@ static XIM	xim;
 static XIMStyle xim_style = 0;
 static XIMStyle xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
 static XFontSet xim_fixed_fontset;
+static QCodeMapper * xim_mapper = 0;
 #endif
 
 timeval        *qt_wait_timer();
@@ -249,7 +251,6 @@ extern Atom qt_xdnd_selection;
 
 void qt_x11_intern_atom( const char *, Atom * );
 
-
 class QETWidget : public QWidget		// event translator widget
 {
 public:
@@ -271,6 +272,7 @@ static void close_xim()
     // Instead we get a non-critical memory leak
     // XCloseIM( xim );
     xim = 0;
+    delete xim_mapper;
 }
 
 /*****************************************************************************
@@ -589,7 +591,6 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 
 static void qt_init_internal( int *argcptr, char **argv, Display *display )
 {
-
     if ( display ) {
       // Qt part of other application	
 
@@ -805,6 +806,9 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
     }
 
     if ( xim ) {
+	// Built-in code mappers
+	new QEUCMapper;
+
 	XIMStyles *styles;
 	XGetIMValues(xim, XNQueryInputStyle, &styles, NULL, NULL);
 	for (int i = 0; i < styles->count_styles; i++) {
@@ -838,7 +842,8 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 		close_xim();
 	    }
 	}
-debug("LOCALE %s",XLocaleOfIM(xim));
+	const char* locale = XLocaleOfIM(xim);
+	xim_mapper = QCodeMapper::mapperFor(locale);
     }
 #endif
 }
@@ -3382,8 +3387,16 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    XAllowEvents( dpy, SyncKeyboard, CurrentTime );
     }
 
-    // ######### POT: convert chars (8bit) to text (unicode).
+#if defined(NO_XIM)
     QString text = chars;
+#else
+    // convert chars (8bit) to text (unicode).
+    QString text;
+    if ( xim_mapper )
+        text = xim_mapper->toUnicode(chars);
+    else
+        text = chars;
+#endif
 
     // was this the last auto-repeater?
     static uint curr_autorep = 0;
@@ -3682,3 +3695,4 @@ bool QETWidget::translateCloseEvent( const XEvent * )
 {
     return close(FALSE);
 }
+
