@@ -134,7 +134,12 @@ protected:
     void leaveEvent( QEvent * );
     void moveEvent( QMoveEvent * );
 
-    bool uses3D() const;
+    // ### Make virtual in 4.0, maybe act like QPushButton with 
+    // regards to setFlat() instead?  Andy
+    bool uses3D() const; 
+#if (QT_VERSION >= 0x040000)
+#error "Some functions need to be changed to virtual for Qt 4.0"
+#endif
 
     bool eventFilter( QObject *o, QEvent *e );
 
