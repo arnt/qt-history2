@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#336 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#337 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -116,7 +116,7 @@ static bool	app_do_modal	   = FALSE;	// modal mode
 static QWidgetList *modal_stack    = 0;		// stack of modal widgets
 static QWidget *popupButtonFocus   = 0;
 static bool	popupCloseDownMode = FALSE;
-static bool	qt_try_modal( QWidget *, MSG * );
+static bool	qt_try_modal( QWidget *, MSG *, int& ret );
 
 QWidget	       *qt_button_down = 0;		// widget got last button-down
 QWidget	       *qt_spontaneous_show	 = 0;		// widget is shown spontaneously
@@ -149,6 +149,7 @@ Q_EXPORT Qt::WindowsVersion qt_winver = Qt::WV_NT;
 
 QObject	       *qt_clipboard   = 0;
 
+extern QCursor *qt_grab_cursor();
 
 #if defined(_WS_WIN32_)
 #define __export
@@ -1297,6 +1298,7 @@ void QApplication::winFocus( QWidget *widget, bool gotFocus )
 		widget->topLevelWidget()->setFocus();
 	}
     } else {
+	active_window = 0;
 	if ( focus_widget && !inPopupMode() ) {
 	    QFocusEvent out( QEvent::FocusOut );
 	    QWidget *widget = focus_widget;
@@ -1335,9 +1337,11 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     if ( !widget )				// don't know this widget
 	goto do_default;
 
-    if ( app_do_modal )				// modal event handling
-	if ( !qt_try_modal(widget, &msg) )
-	    return 0;
+    if ( app_do_modal )	{			// modal event handling
+	int ret = 0;	
+	if ( !qt_try_modal(widget, &msg, ret ) )
+	    return ret;
+    }
 
     if ( widget->winEvent(&msg) )		// send through widget filter
 	return 0;
@@ -1611,6 +1615,7 @@ void qt_leave_modal( QWidget *widget )
 	    delete modal_stack;
 	    modal_stack = 0;
 	    QPoint p( QCursor::pos() );
+	    app_do_modal = FALSE; // necessary, we may get recursively into qt_try_modal below
 	    QWidget* w = QApplication::widgetAt( p.x(), p.y(), TRUE );
 	    if ( w ) { // send synthetic enter event
 		curWin = w->winId();
@@ -1641,7 +1646,7 @@ static bool qt_blocked_modal( QWidget *widget )
     return TRUE;
 }
 
-static bool qt_try_modal( QWidget *widget, MSG *msg )
+static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
 {
     if ( qApp->activePopupWidget() )
 	return TRUE;
@@ -1649,10 +1654,20 @@ static bool qt_try_modal( QWidget *widget, MSG *msg )
 	return TRUE;
 
     QWidget *modal=0, *top=modal_stack->getFirst();
+    int	 type  = msg->message;
 
     widget = widget->topLevelWidget();
     if ( widget->testWFlags(Qt::WType_Modal) )	// widget is modal
 	modal = widget;
+
+    if ( top && ( type == WM_ACTIVATE && LOWORD(msg->wParam) != WA_INACTIVE ) ){
+	// raise the entire application, not just the modal dialog
+	QWidget* mw = top;
+	while( mw->parentWidget() )
+	  mw = mw->parentWidget();
+	SetWindowPos( mw->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE );
+    }
+
     if ( modal == top )				// don't block event
 	return TRUE;
 
@@ -1674,21 +1689,30 @@ static bool qt_try_modal( QWidget *widget, MSG *msg )
     }
 #endif
 
-    bool block_event = FALSE;
-    int	 type  = msg->message;
 
+    bool block_event = FALSE;
     if ( type == WM_NCHITTEST ) {
-	block_event = TRUE;
+      //block_event = TRUE;
 	// QApplication::beep();
     } else if ( (type >= WM_MOUSEFIRST && type <= WM_MOUSELAST) ||
-	 (type >= WM_KEYFIRST	&& type <= WM_KEYLAST) ) {
-	block_event = TRUE;
-    }
-
-    if ( top->parentWidget() == 0 &&
-	 (msg->message == WM_ACTIVATE && LOWORD(msg->wParam) != WA_INACTIVE) ){
-	top->raise();
-	block_event = TRUE;
+	 (type >= WM_KEYFIRST	&& type <= WM_KEYLAST) || type == WM_NCMOUSEMOVE ) {
+      if ( type == WM_MOUSEMOVE || type == WM_NCMOUSEMOVE ) {
+	QCursor *c = qt_grab_cursor();
+	if ( !c )
+	    c = QApplication::overrideCursor();
+	if ( c )				// application cursor defined
+	    SetCursor( c->handle() );
+	else					// use widget cursor
+	  SetCursor( Qt::arrowCursor.handle() );
+      }
+      block_event = TRUE;
+    } else if ( type == WM_MOUSEACTIVATE ){
+      if ( !top->isActiveWindow() )
+	top->setActiveWindow();
+      else
+	QApplication::beep();
+      block_event = TRUE;
+      ret = MA_NOACTIVATEANDEAT;
     }
 
     return !block_event;
@@ -2100,7 +2124,6 @@ static int translateButtonState( int s, int type, int button )
 }
 
 
-extern QCursor *qt_grab_cursor();
 
 // In DnD, the mouse release event never appears, so the
 // mouse button state machine must be manually reset
