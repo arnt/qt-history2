@@ -1089,27 +1089,6 @@ QString QCoreApplication::translate(const char *context, const char *sourceText,
 #endif
         return QString::fromLatin1(sourceText);
 }
-
-#ifndef QT_NO_TEXTCODEC
-/*!
-    \obsolete
-
-    Sets the codec to be used for tr() calls to \a codec. Use
-    QTextCodec::setCodecForTr() instead.
-*/
-void QCoreApplication::setDefaultCodec(QTextCodec* codec)
-{
-    QTextCodec::setCodecForTr(codec);
-}
-
-/*! \obsolete
-  Returns QTextCodec::codecForTr().
-*/
-QTextCodec* QCoreApplication::defaultCodec() const
-{
-    return QTextCodec::codecForTr();
-}
-#endif //QT_NO_TEXTCODEC
 #endif //QT_NO_TRANSLATE
 
 /*!

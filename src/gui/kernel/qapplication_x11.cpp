@@ -727,7 +727,7 @@ bool QApplication::x11_apply_settings()
     if (defaultcodec != QLatin1String("none")) {
         QTextCodec *codec = QTextCodec::codecForName(defaultcodec.toLatin1());
         if (codec)
-            qApp->setDefaultCodec(codec);
+            QTextCodec::setCodecForTr(codec);
     }
 
     int w = settings.value(QLatin1String("globalStrut/width")).toInt();
@@ -1816,7 +1816,7 @@ void qt_init(QApplicationPrivate *priv, int,
             if (defaultcodec != QLatin1String("none")) {
                 QTextCodec *codec = QTextCodec::codecForName(defaultcodec.toLatin1());
                 if (codec)
-                    qApp->setDefaultCodec(codec);
+                    QTextCodec::setCodecForTr(codec);
             }
 
             settings.endGroup(); // Qt
@@ -2155,7 +2155,7 @@ void QApplication::setMainWidget(QWidget *mainWidget)
 	    && QApplicationPrivate::main_widget->testAttribute(Qt::WA_SetWindowIcon)) {
             setWindowIcon(QApplicationPrivate::main_widget->windowIcon());
 	}
-        XSetWMProperties(X11->display, QApplicationPrivate::main_widget->winId(), 0, 0, d->argv, d->argc, 0, 0, 0);
+        XSetWMProperties(X11->display, QApplicationPrivate::main_widget->winId(), 0, 0, qApp->d->argv, qApp->d->argc, 0, 0, 0);
         if (mwTitle)
             XStoreName(X11->display, QApplicationPrivate::main_widget->winId(), (char*)mwTitle);
         if (mwGeometry) {                        // parse geometry

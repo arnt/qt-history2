@@ -84,10 +84,6 @@ public:
 #endif // QT_NO_COMPONENT
 
 #ifndef QT_NO_TRANSLATION
-# ifndef QT_NO_TEXTCODEC
-    void setDefaultCodec(QTextCodec *);
-    QTextCodec *defaultCodec() const;
-# endif
     void installTranslator(QTranslator *);
     void removeTranslator(QTranslator *);
 #endif

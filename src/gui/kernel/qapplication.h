@@ -57,7 +57,7 @@ class Q_GUI_EXPORT QApplication : public QCoreApplication
     Q_PROPERTY(QPixmap windowIcon READ windowIcon WRITE setWindowIcon)
     Q_PROPERTY(int cursorFlashTime READ cursorFlashTime WRITE setCursorFlashTime)
     Q_PROPERTY(int doubleClickInterval  READ doubleClickInterval WRITE setDoubleClickInterval)
-    Q_PROPERTY(int wheelScrollLines  READ doubleClickInterval WRITE setWheelScrollLines)
+    Q_PROPERTY(int wheelScrollLines  READ wheelScrollLines WRITE setWheelScrollLines)
     Q_PROPERTY(QSize globalStrut READ globalStrut WRITE setGlobalStrut)
     Q_PROPERTY(int startDragTime  READ startDragTime WRITE setStartDragTime)
     Q_PROPERTY(int startDragDistance  READ startDragDistance WRITE setStartDragDistance)
@@ -69,8 +69,7 @@ public:
     QApplication(int &argc, char **argv, Type);
 #if defined(Q_WS_X11)
     QApplication(Display* dpy, Qt::HANDLE visual = 0, Qt::HANDLE cmap = 0);
-    QApplication(Display *dpy, int argc, char **argv,
-                  Qt::HANDLE visual = 0, Qt::HANDLE cmap= 0);
+    QApplication(Display *dpy, int argc, char **argv, Qt::HANDLE visual = 0, Qt::HANDLE cmap= 0);
 #endif
     virtual ~QApplication();
 
@@ -106,8 +105,7 @@ public:
 
 
     static QWidget *mainWidget();
-    virtual void setMainWidget(QWidget *);
-    virtual void polish(QWidget *);
+    static void setMainWidget(QWidget *);
 
     static QWidgetList allWidgets();
     static QWidgetList topLevelWidgets();
@@ -120,7 +118,9 @@ public:
     static QClipboard *clipboard();
 #endif
     static QWidget *focusWidget();
+
     static QWidget *activeWindow();
+    static void setActiveWindow(QWidget* act);
 
     static QWidget *widgetAt(int x, int y);
     static inline QWidget *widgetAt(const QPoint &p) { return widgetAt(p.x(), p.y()); }
@@ -203,7 +203,7 @@ public:
     static bool x11_apply_settings();
 #endif
 
-    int exec();
+    static int exec();
     bool notify(QObject *, QEvent *);
 
 
@@ -290,8 +290,6 @@ private:
     void closePopup(QWidget *popup);
     void openPopup(QWidget *popup);
     void setFocusWidget(QWidget *focus);
-public:
-    void setActiveWindow(QWidget* act);
 
 private:
     Q_DISABLE_COPY(QApplication)

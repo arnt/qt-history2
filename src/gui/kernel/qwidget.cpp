@@ -4512,7 +4512,8 @@ bool QWidget::event(QEvent *e)
         break;
 
     case QEvent::Polish: {
-        qApp->polish(this);
+        style()->polish(this);
+        setWState(Qt::WState_Polished);
         if (!testAttribute(Qt::WA_SetFont) && !QApplication::font(this).isCopyOf(QApplication::font()))
             d->resolveFont();
 #ifndef QT_NO_PALETTE

@@ -1596,30 +1596,6 @@ void QApplication::setWindowIcon(const QPixmap &pixmap)
     }
 }
 
-
-/*!
-  Initialization of the appearance of the widget \a w \e before it is first
-  shown.
-
-  Usually widgets call this automatically when they are polished. It
-  may be used to do some style-based central customization of widgets.
-
-  Note that you are not limited to the public functions of QWidget.
-  Instead, based on meta information like QObject::className() you are
-  able to customize any kind of widget.
-
-  \sa QStyle::polish(), setPalette(), setFont()
-*/
-
-void QApplication::polish(QWidget *w)
-{
-#ifndef QT_NO_STYLE
-    w->style()->polish(w);
-#endif
-    w->setWState(Qt::WState_Polished);
-}
-
-
 /*!
   Returns a list of the top level widgets in the application.
 
@@ -2015,8 +1991,8 @@ void QApplication::setActiveWindow(QWidget* act)
         // (re)start the timer to discard the global double buffer
         // while the application doesn't have any active windows
         if (qt_double_buffer_timer)
-            killTimer(qt_double_buffer_timer);
-        qt_double_buffer_timer = startTimer(500);
+            qApp->killTimer(qt_double_buffer_timer);
+        qt_double_buffer_timer = qApp->startTimer(500);
     }
 }
 
@@ -2589,7 +2565,7 @@ void QApplication::changeOverrideCursor(const QCursor &cursor)
 int QApplication::exec()
 {
 #ifndef QT_NO_ACCESSIBILITY
-    QAccessible::setRootObject(this);
+    QAccessible::setRootObject(qApp);
 #endif
     return QCoreApplication::exec();
 }
