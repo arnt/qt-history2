@@ -769,6 +769,8 @@ QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
 void QMenuBarPrivate::macDestroyMenuBar()
 {
     delete mac_menubar;
+    QWidget *tlw = q->topLevelWidget();
+    QMacMenuBarPrivate::menubars.remove(tlw);
     mac_menubar = 0;
 }
 
