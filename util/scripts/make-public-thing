@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#48 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#49 $
 
 $snapshotversion=200;
 $base = "/tmp/striptree-$$";
@@ -111,7 +111,7 @@ mkdir( "$base/cvs/qt", 0755 );
 mkdir( "$base/cvs/qt/html", 0755 );
 mkdir( "$base/cvs/CVSROOT", 0755 );
 
-open( SH, "| sh" );
+open( SH, "| /bin/zsh" );
 
 find( \&copyandstrip, "/local/lib/cvs/qt" );
 
@@ -143,8 +143,7 @@ cd ../..
 
 # Package Windows-only source files separately
 # REMAINING ISSUES: Borland vs. MSVC++ makefiles
-WINFILES='src/Makefile.win32-dll'
-WINFILES=\$WINFILES`find src -name '*_win*'; find include -name '*_win*'`
+WINFILES='src/Makefile.win32-dll '`find src -name '*_win*'; find include -name '*_win*'`
 rm -f \$WINZIP
 WINZIP=/local/qt/dist/qtwin$snapshotversion-`date +%Y%m%d`-snapshot.zip
 rm -f
@@ -201,10 +200,11 @@ rm -rf bugs dist doc.conf,v etc iconify listview mlined netscape nsplugin printp
 rm -rf examples/dragdrop-tricky examples/layouts examples/network
 rm -rf examples/tellme examples/xshape
 rm -rf extensions/localizer
-rm -rf extensions/*/doc.conf
+find extensions -print
+rm -f extensions/*/doc.conf,v
 rm -rf makefiles tmake
-rm -rf src/Makefile.win32-dll
-rm -rf src/*.pro
+rm -f src/Makefile.win32-dll,v
+rm -f src/*.pro,v
 # Real source should be packaged and deleted by now, but
 # this gets anything left in the Attic, etc.
 find $base/cvs/qt -name '*_win*' | xargs rm -f
