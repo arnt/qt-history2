@@ -605,7 +605,7 @@ void QMenuBar::cleanup()
 bool QMenuBar::macUpdateMenuBar()
 {
     static bool first = TRUE;
-    if(!menubars) {
+    if(!menubars && !fallbackMenuBar) {
 	if(first) {
 	    first = FALSE;
 	    ClearMenuBar();
