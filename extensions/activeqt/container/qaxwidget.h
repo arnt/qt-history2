@@ -24,7 +24,8 @@ public:
     const QMetaObject *metaObject() const;
     void* qt_metacast( const char* ) const;
     int qt_metacall(QMetaObject::Call, int, void **);
-    QObject* qObject() { return (QObject*)this; }
+    QObject* qObject() const { return (QObject*)this; }
+    const char *className() const { return "QAxWidget"; }
 
     QAxWidget( QWidget* parent = 0, const char* name = 0, WFlags f = 0 );
     QAxWidget( const QString &c, QWidget *parent = 0, const char *name = 0, WFlags f = 0 );

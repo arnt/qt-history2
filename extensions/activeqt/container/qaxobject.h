@@ -26,7 +26,8 @@ public:
     const QMetaObject *metaObject() const;
     void* qt_metacast( const char* ) const;
     int qt_metacall(QMetaObject::Call, int, void **);
-    QObject* qObject() { return (QObject*)this; }
+    QObject* qObject() const { return (QObject*)this; }
+    const char *className() const { return "QAxObject"; }
 
     QAxObject( QObject *parent = 0, const char *name = 0 );
     QAxObject( const QString &c, QObject *parent = 0, const char *name = 0 );

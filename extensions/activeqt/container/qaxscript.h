@@ -78,6 +78,7 @@ private:
 class QAxScript : public QObject
 {
     Q_OBJECT
+    Q_CLASSINFO("foo", "bar")
 
 public:
     enum FunctionFlags {

@@ -71,7 +71,8 @@ public:
     virtual bool qt_property( int, int, QVariant* );
     virtual bool qt_emit( int, QUObject* ) = 0;
 */
-    virtual QObject *qObject() = 0;
+    virtual QObject *qObject() const = 0;
+    virtual const char *className() const = 0;
 
     PropertyBag propertyBag() const;
     void setPropertyBag( const PropertyBag& );
