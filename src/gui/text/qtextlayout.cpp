@@ -75,59 +75,147 @@ bool QTextObject::isRightToLeft() const
     return (eng->items[itm].analysis.bidiLevel % 2);
 }
 
+/*!
+  \class QTextLayout
 
+  The QTextLayout class is a class to layout and paint a single
+  paragraph of text.
+
+  It offers most features expected from a modern text layouting engine
+  as Unicode compliant rendering, line breaking and handling of cursor
+  positioning. It can also produce and render device independent
+  layout, something that is important for WYSIWYG applications.
+
+  The class has a rather low level API and unless you intend to
+  implement you own text rendering for some specialized widget, you
+  probably won't need to use it directly.
+
+  QTextLayout can currently deal with plain text and rich text paragrpahs that
+  are part of a \a QTextDocument.
+
+  QTextLayout can be used to create a sequence of QTextLine's with
+  given width and position them independently on the screen. Once the
+  layouting is done, these lines can be drawn on a paint device.
+
+
+  ### Mark: an example of usage that is rather simple can be found in qpainter.cpp:qt_format_text:
+
+  layouting phase:
+
+        int leading = fontMetrics.leading();
+        int height = 0;
+        int widthUsed = 0;
+        textLayout.clearLines();
+        while (1) {
+            QTextLine l = textLayout.createLine();
+            if (!l.isValid())
+                break;
+
+            l.layout(lineWidth);
+            height += leading;
+            l.setPosition(QPoint(0, height));
+            height += l.ascent() + l.descent();
+            widthUsed = qMax(widthUsed, l.textWidth());
+        }
+
+  painting phase:
+
+        for (int i = 0; i < textLayout.numLines(); i++) {
+            QTextLine line = textLayout.lineAt(i);
+            line.draw(painter, r.x() + xoff + line.x(), r.y() + yoff);
+        }
+
+*/
+
+
+/*!
+  constructs an empty text layout
+*/
 QTextLayout::QTextLayout()
 { d = new QTextEngine(); }
 
+/*!
+  constructs a text layout to layout the string \a string.
+*/
 QTextLayout::QTextLayout(const QString& string)
 {
     d = new QTextEngine();
     d->setText(string);
 }
 
+/*!
+  constructs a text layout to layout the string \a string.
+
+  The QPainter \a p is used for all calculating metrics and lyout in device
+*/
 QTextLayout::QTextLayout(const QString& string, QPainter *p)
 {
     QFontPrivate *f = p ? (p->font().d) : QApplication::font().d;
     d = new QTextEngine((string.isNull() ? (const QString&)QString::fromLatin1("") : string), f);
 }
 
+/*!
+  constructs a text layout to layout the string \a string with the font \a fnt.
+*/
 QTextLayout::QTextLayout(const QString& string, const QFont& fnt)
 {
     d = new QTextEngine((string.isNull() ? (const QString&)QString::fromLatin1("") : string), fnt.d);
 }
 
+/*!
+  destructs the layout
+*/
 QTextLayout::~QTextLayout()
 {
     delete d;
 }
 
 // ####### go away!
+/*!
+  \internal
+*/
 void QTextLayout::setText(const QString& string, const QFont& fnt)
 {
     delete d;
     d = new QTextEngine((string.isNull() ? (const QString&)QString::fromLatin1("") : string), fnt.d);
 }
 
+/*!
+  \internal
+*/
 void QTextLayout::setFormatCollection(const QTextFormatCollection *formats)
 {
     d->setFormatCollection(formats);
 }
 
+/*!
+  Sets the text of the layout to \a string. The layout is
+  invalidated and you will have to redo it.
+*/
 void QTextLayout::setText(const QString& string)
 {
     d->setText(string);
 }
 
+/*!
+  returns the current text of the layout.
+*/
 QString QTextLayout::text() const
 {
     return d->string;
 }
 
+/*!
+  \internal
+*/
 void QTextLayout::setDocumentLayout(QAbstractTextDocumentLayout *layout)
 {
     d->setDocumentLayout(layout);
 }
 
+/*!
+  \internal
+*/
 void QTextLayout::setFormat(int from, int length, int format)
 {
     if (d->items.size() == 0)
@@ -135,12 +223,19 @@ void QTextLayout::setFormat(int from, int length, int format)
     d->setFormat(from, length, format);
 }
 
+/*!
+  \internal
+*/
 void QTextLayout::setTextFlags(int textFlags)
 {
     d->textFlags = textFlags;
 }
 
+/*!
+  Tells the layout to use design metrics for layouting.
 
+  The default value is false.
+*/
 void QTextLayout::useDesignMetrics(bool b)
 {
     d->designMetrics = b;
@@ -151,6 +246,9 @@ bool QTextLayout::usesDesignMetrics() const
     return d->designMetrics;
 }
 
+/*!
+  \internal
+*/
 void QTextLayout::setPalette(const QPalette &p, PaletteFlags f)
 {
     if (!d->pal)
@@ -160,7 +258,9 @@ void QTextLayout::setPalette(const QPalette &p, PaletteFlags f)
     d->textColorFromPalette = (f & UseTextColor);
 }
 
-
+/*!
+  \internal
+*/
 void QTextLayout::beginLayout(QTextLayout::LayoutMode m, int textFlags)
 {
     d->items.clear();
@@ -173,6 +273,9 @@ void QTextLayout::beginLayout(QTextLayout::LayoutMode m, int textFlags)
     d->textFlags = textFlags;
 }
 
+/*!
+  Returns the next valid cursor position after \a oldPos.
+*/
 int QTextLayout::nextCursorPosition(int oldPos, CursorMode mode) const
 {
 //     qDebug("looking for next cursor pos for %d", oldPos);
@@ -192,6 +295,9 @@ int QTextLayout::nextCursorPosition(int oldPos, CursorMode mode) const
     return oldPos;
 }
 
+/*!
+  Returns the first valid cursor position before \a oldPos.
+*/
 int QTextLayout::previousCursorPosition(int oldPos, CursorMode mode) const
 {
 //     qDebug("looking for previous cursor pos for %d", oldPos);
@@ -210,7 +316,19 @@ int QTextLayout::previousCursorPosition(int oldPos, CursorMode mode) const
     return oldPos;
 }
 
+/*!
+  returns true is the position \a pos is a valid cursor position.
 
+  In a Unicode context some positions in the string are not valid
+  cursor positions, becuase the position is inside a Unicode surrogate
+  or a so called grapheme cluster.
+
+  A Grapheme cluster is a sequence of several Unicode characters that
+  form one individable entity on the screen. An example in the latin
+  script is 0x41 'A' and 0x308 (Combining diaresis), that would render
+  as a 'Ä' on the screen. In indic languages every syllable forms a
+  grapheme cluster.
+*/
 bool QTextLayout::validCursorPosition(int pos) const
 {
     const QCharAttributes *attributes = d->attributes();
@@ -220,6 +338,10 @@ bool QTextLayout::validCursorPosition(int pos) const
 }
 
 
+/*!
+  clear the layout information stored in the layout, and begins a new layouting
+  process.
+*/
 void QTextLayout::clearLines()
 {
     d->lines.clear();
@@ -227,6 +349,9 @@ void QTextLayout::clearLines()
     d->boundingRect = QRect();
 }
 
+/*!
+  Creates a new text line for layouting.
+*/
 QTextLine QTextLayout::createLine()
 {
     int l = d->lines.size();
@@ -244,16 +369,25 @@ QTextLine QTextLayout::createLine()
     return QTextLine(l, d);
 }
 
+/*!
+  The number of lines contained in the layout
+*/
 int QTextLayout::numLines() const
 {
     return d->lines.size();
 }
 
+/*!
+  returns the i'th line.
+*/
 QTextLine QTextLayout::lineAt(int i) const
 {
     return QTextLine(i, d);
 }
 
+/*!
+  returns the line that contains the cursor position \a pos.
+*/
 QTextLine QTextLayout::findLine(int pos) const
 {
     for (int i = 0; i < d->lines.size(); ++i) {
@@ -282,7 +416,9 @@ void QTextLayout::setPosition(const QPoint &p)
     d->position = p;
 }
 
-
+/*!
+  The smallest rectangle that contains all lines in the layout
+*/
 QRect QTextLayout::boundingRect() const
 {
     if (!d->boundingRect.isValid()) {
@@ -300,6 +436,9 @@ QRect QTextLayout::boundingRect() const
     return d->boundingRect;
 }
 
+/*!
+  internal
+*/
 QRect QTextLayout::rect() const
 {
     QRect r = boundingRect();
@@ -307,11 +446,22 @@ QRect QTextLayout::rect() const
     return r;
 }
 
+/*!
+  The minimum width the layout would need (the width of the smallest non breakable
+  substring in the layout
+
+  This variable only contains a valid number after layouting.
+*/
 int QTextLayout::minimumWidth() const
 {
     return d->minWidth.toInt();
 }
 
+/*!
+  The maximum width the layout could expand to (basically the width of the whole text).
+
+  This variable only contains a valid number after layouting.
+*/
 int QTextLayout::maximumWidth() const
 {
     return d->maxWidth.toInt();
@@ -351,7 +501,9 @@ static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType
     return;
 }
 
-
+/*!
+  draw the whole layout.
+*/
 void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Selection *selections, int nSelections, const QRect &cr) const
 {
     Q_ASSERT(numLines() != 0);
