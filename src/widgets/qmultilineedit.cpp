@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#94 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#95 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -64,7 +64,7 @@
 
 
 
-class QMultiLineEditCommand 
+class QMultiLineEditCommand
 {
 public:
     enum Commands { Invalid, Begin, End, Insert, Delete };
@@ -73,7 +73,7 @@ public:
     virtual void redo() {};
     virtual void undo() {};
     virtual int terminator() { return 0; }
-    
+
     virtual bool merge( QMultiLineEditCommand* ) { return FALSE;}
 };
 
@@ -117,7 +117,7 @@ struct QMultiLineData
 	dnd_forcecursor(FALSE),
 	dnd_timer(0),
 	undo( TRUE ),
-	undodepth( 42 )
+	undodepth( 128 )
     {
 	undoList.setAutoDelete( TRUE );
 	redoList.setAutoDelete( TRUE );
@@ -155,8 +155,8 @@ struct QMultiLineData
 
 void QMultiLineEdit::addUndoCmd(QMultiLineEditCommand* c)
 {
-    if ( d->undoList.isEmpty() ) 
-	emit undoAvailable(TRUE); 
+    if ( d->undoList.isEmpty() )
+	emit undoAvailable(TRUE);
     else if ( c->merge( d->undoList.last() ) ) {
 	delete c;
 	return;
@@ -164,7 +164,7 @@ void QMultiLineEdit::addUndoCmd(QMultiLineEditCommand* c)
     if ( int(d->undoList.count()) >= d->undodepth )
 	d->undoList.removeFirst();
     d->undoList.append(c);
-    
+
     if ( !d->redoList.isEmpty() ) {
 	d->redoList.clear();
 	emit redoAvailable( FALSE );
@@ -173,8 +173,8 @@ void QMultiLineEdit::addUndoCmd(QMultiLineEditCommand* c)
 
 void QMultiLineEdit::addRedoCmd(QMultiLineEditCommand* c)
 {
-    if ( d->redoList.isEmpty() ) 
-	emit redoAvailable(TRUE); 
+    if ( d->redoList.isEmpty() )
+	emit redoAvailable(TRUE);
     d->redoList.append(c);
 }
 
@@ -3445,8 +3445,12 @@ public:
 	int row, col, rowEnd, colEnd;
 	mEdit->offsetToPositionInternal( mOffset, &row, &col );
 	mEdit->offsetToPositionInternal( mOffset + mStr.length(), &rowEnd, &colEnd );
-	mEdit->setCursorPosition( row, col, FALSE );
-	mEdit->setCursorPosition( rowEnd, colEnd, TRUE );
+	mEdit->markAnchorY    = row;
+	mEdit->markAnchorX    = col;
+	mEdit->setCursorPosition( rowEnd, colEnd, FALSE );
+	mEdit->markDragY    = rowEnd;
+	mEdit->markDragX    = colEnd;
+	mEdit->markIsOn = TRUE;
 	mEdit->del();  // delete the selection, protected method
     }
 
@@ -3459,8 +3463,8 @@ public:
 	mEdit->offsetToPositionInternal( mOffset+mStr.length(), &row, &col );
 	mEdit->setCursorPosition( row, col, FALSE );
     };
-    
-    bool merge( QMultiLineEditCommand* other) 
+
+    bool merge( QMultiLineEditCommand* other)
     {
 	if ( other->type() == type() ) {
 	    QDelTextCmd* o = (QDelTextCmd*) other;
@@ -3488,7 +3492,7 @@ public:
     }
 
     Commands type() { return Insert; };
-    
+
     void redo() {
 	QDelTextCmd::undo();
     }
@@ -3496,8 +3500,8 @@ public:
     void undo() {
 	QDelTextCmd::redo();
     }
-    
-    bool merge( QMultiLineEditCommand* other) 
+
+    bool merge( QMultiLineEditCommand* other)
     {
 	if ( other->type() == type() ) {
 	    QInsTextCmd* o = (QInsTextCmd*) other;
@@ -3549,8 +3553,8 @@ void QMultiLineEdit::redo()
 	macroLevel += command->terminator();
 	if ( d->redoList.isEmpty() )
 	    emit redoAvailable( FALSE );
-	if ( d->undoList.isEmpty() ) 
-	    emit undoAvailable(TRUE); 
+	if ( d->undoList.isEmpty() )
+	    emit undoAvailable(TRUE);
 	d->undoList.append( command );
     } while (macroLevel != 0);
     d->undo = before;
@@ -3676,7 +3680,7 @@ void QMultiLineEdit::del()
 
 /*!
   Sets undo enabled to \a enable
-  
+
   \sa isUndoEnabled()
 */
 void QMultiLineEdit::setUndoEnabled( bool enable )
@@ -3692,7 +3696,7 @@ void QMultiLineEdit::setUndoEnabled( bool enable )
 
 /*!
   Returns whether the multilineedit is currently undo enabled or not.
-  
+
   \sa setUndoEnabled()
  */
 bool QMultiLineEdit::isUndoEnabled() const
@@ -3703,7 +3707,7 @@ bool QMultiLineEdit::isUndoEnabled() const
 
 /*!
   Sets the maximum number of operations that can be stored on the undo stack.
-  
+
   \sa undoDepth()
  */
 void QMultiLineEdit::setUndoDepth( int depth)
@@ -3714,7 +3718,7 @@ void QMultiLineEdit::setUndoDepth( int depth)
 
 /*!
   Returns  the maximum number of operations that can be stored on the undo stack.
-  
+
   \sa setUndoDepth()
  */
 int QMultiLineEdit::undoDepth() const
