@@ -869,8 +869,6 @@ QWidget *QApplication::activeModalWidget()
 
 QApplication::~QApplication()
 {
-    qt_call_post_routines();
-
 #ifndef QT_NO_CLIPBOARD
     // flush clipboard contents
     if (qt_clipboard) {
@@ -878,6 +876,9 @@ QApplication::~QApplication()
         QApplication::sendEvent(qt_clipboard, &event);
     }
 #endif
+    
+    //### this should probable be done even later 
+    qt_call_post_routines();
 
     d->eventDispatcher->closingDown();
 

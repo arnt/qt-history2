@@ -234,7 +234,8 @@ QPixmap QMimeData::pixmap() const
             else if (data.type() == QVariant::Image)
                 return data.toImage();
         }
-    }return QPixmap();
+    }
+    return QPixmap();
 }
 
 /*!
@@ -401,6 +402,11 @@ QVariant QMimeData::retrieveData(const QString &mimetype, QVariant::Type type) c
     if (type == QVariant::Url && data.type() == QVariant::List)
         return data;
 
+    // images and pixmaps are interchangeable
+    if (type == QVariant::Pixmap && data.type() == QVariant::Image
+        || type == QVariant::Image && data.type() == QVariant::Pixmap)
+        return data;
+
     if (data.type() == QVariant::ByteArray) {
         QByteArray ba = data.toByteArray();
         // see if we can convert to the requested type
@@ -454,7 +460,7 @@ QVariant QMimeData::retrieveData(const QString &mimetype, QVariant::Type type) c
             format = "png";
         QBuffer buf(&result);
         buf.open(QBuffer::WriteOnly);
-        image.save(&buf, format.latin1());
+        image.save(&buf, format.toUpper().latin1());
         break;
     }
     case QVariant::Color:
