@@ -16,6 +16,8 @@
 #include "qapplication_p.h"
 #include "qfontdata_p.h"
 #include "qfontengine_p.h"
+#include "qpaintdevice.h"
+
 extern HDC   shared_dc;		// common dc for all fonts
 extern HFONT stock_sysfont  = 0;
 

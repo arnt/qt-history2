@@ -4270,7 +4270,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 #ifndef QT_NO_SESSIONMANAGER
 #if defined( QT_NO_SM_SUPPORT ) || defined( Q_WS_WIN ) || defined( Q_WS_MAC ) || defined( Q_WS_QWS )
 
-class QSessionManagerPrivate : public QObjectPrivate
+struct QSessionManagerPrivate : public QObjectPrivate
 {
 public:
     QStringList restartCommand;

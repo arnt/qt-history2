@@ -63,7 +63,7 @@
 class QByteArray;
 
 
-class QOffset
+class Q_EXPORT QOffset
 {
 public:
 #if defined(QT_LARGEFILE_SUPPORT)

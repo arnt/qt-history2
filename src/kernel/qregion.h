@@ -73,7 +73,7 @@ public:
     inline bool operator!=(const QRegion &r) const { return !(operator==(r)); }
 
 #if defined(Q_WS_WIN)
-    inline HRGN    handle() const { return data->rgn; }
+    inline HRGN    handle() const { return d->rgn; }
 #elif defined(Q_WS_X11)
     inline Region handle() const { if(!d->rgn) updateX11Region(); return d->rgn; }
 #elif defined(Q_WS_MAC)

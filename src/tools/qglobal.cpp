@@ -206,12 +206,14 @@ int qWinVersion()
 	    else
 		winver = Qt::WV_95;
 	    break;
+#ifdef Q_OS_TEMP
 	case VER_PLATFORM_WIN32_CE:
 	    if ( qt_cever >= 400 )
 		winver = Qt::WV_CENET;
 	    else
 		winver = Qt::WV_CE;
 	    break;
+#endif
 	default: // VER_PLATFORM_WIN32_NT
 	    if ( osver.dwMajorVersion < 5 ) {
 		winver = Qt::WV_NT;

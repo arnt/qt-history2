@@ -14,6 +14,8 @@
 #include "qeventloop_p.h"
 #include "qeventloop.h"
 #include "qapplication.h"
+#include "qwidget.h"
+#include "qevent.h"
 #include <private/qinputcontext_p.h>
 
 #if defined(QT_THREAD_SUPPORT)

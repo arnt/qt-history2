@@ -13,6 +13,8 @@
 ****************************************************************************/
 
 #include "qapplication.h"
+#include "qdesktopwidget.h"
+#include "qevent.h"
 #include "qclipboard.h"
 #include "qcursor.h"
 #include "qdatetime.h"
@@ -354,7 +356,7 @@ class QETWidget : public QWidget		// event translator widget
 public:
     void	setWFlags( WFlags f )	{ QWidget::setWFlags(f); }
     void	clearWFlags( WFlags f ) { QWidget::clearWFlags(f); }
-    QWExtra    *xtra()			{ return QWidget::extraData(); }
+    QWExtra    *xtra()			{ return d->extraData(); }
     bool	winEvent( MSG *m )	{ return QWidget::winEvent(m); }
 #if defined(Q_CC_GNU)
     void	markFrameStrutDirty()	{ fstrut_dirty = 1; }
@@ -3468,18 +3470,18 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	if ( msg.wParam != SIZE_MINIMIZED )
 	    crect = cr;
 	if ( isTopLevel() ) {			// update caption/icon text
-	    createTLExtra();
+	    d->createTLExtra();
 	    if ( msg.wParam == SIZE_MINIMIZED ) {
 		// being "hidden"
-		extra->topextra->iconic = 1;
+		d->extra->topextra->iconic = 1;
 		if ( isVisible() ) {
 		    QHideEvent e;
 		    QApplication::sendSpontaneousEvent( this, &e );
 		    hideChildren( TRUE );
 		}
-	    } else if ( extra->topextra->iconic ) {
+	    } else if ( d->extra->topextra->iconic ) {
 		// being shown
-		extra->topextra->iconic = 0;
+		d->extra->topextra->iconic = 0;
 		showChildren( TRUE );
 		QShowEvent e;
 		QApplication::sendSpontaneousEvent( this, &e );

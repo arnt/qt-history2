@@ -25,6 +25,9 @@
 #include "qcursor.h"
 #include <private/qapplication_p.h>
 #include <private/qinputcontext_p.h>
+#include "qevent.h"
+#include "qwidget.h"
+#include "qwidget_p.h"
 
 #if defined(QT_TABLET_SUPPORT)
 #define PACKETDATA  ( PK_X | PK_Y | PK_BUTTONS | PK_NORMAL_PRESSURE | \
@@ -357,14 +360,14 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
  	    crect = QRect( QPoint(pt.x, pt.y),
  			   QPoint(pt.x+cr.right, pt.y+cr.bottom) );
 
-	    QTLWExtra *top = topData();
+	    QTLWExtra *top = d->topData();
 	    top->ftop = crect.top() - fr.top;
 	    top->fleft = crect.left() - fr.left;
 	    top->fbottom = fr.bottom - crect.bottom();
 	    top->fright = fr.right - crect.right();
 	    fstrut_dirty = FALSE;
 
-	    createTLExtra();
+	    d->createTLExtra();
  	} else {
 	    crect.setCoords( cr.left, cr.top, cr.right, cr.bottom );
 	    // in case extra data already exists (eg. reparent()).  Set it.
@@ -473,7 +476,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
     setEnabled( enable );
     setFocusPolicy( fp );
     if ( !capt.isNull() ) {
-	extra->topextra->caption = QString::null;
+	d->extra->topextra->caption = QString::null;
 	setCaption( capt );
     }
     if ( showIt )
@@ -529,7 +532,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, 
     setFontSys( f );
 
     if ( QRect( x, y, width, height ) != microFocusHint() )
-	extraData()->micro_focus_hint.setRect( x, y, width, height );
+	d->extraData()->micro_focus_hint.setRect( x, y, width, height );
 }
 
 void QWidget::resetInputContext()
@@ -540,9 +543,9 @@ void QWidget::resetInputContext()
 void QWidget::setBackgroundColorDirect( const QColor &color )
 {
     bg_col = color;
-    if ( extra && extra->bg_pix ) {		// kill the background pixmap
-	delete extra->bg_pix;
-	extra->bg_pix = 0;
+    if ( d->extra && d->extra->bg_pix ) {		// kill the background pixmap
+	delete d->extra->bg_pix;
+	d->extra->bg_pix = 0;
     }
 }
 
@@ -553,19 +556,19 @@ static int allow_null_pixmaps = 0;
 void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 {
     QPixmap old;
-    if ( extra && extra->bg_pix )
-	old = *extra->bg_pix;
+    if ( d->extra && d->extra->bg_pix )
+	old = *d->extra->bg_pix;
     if ( !allow_null_pixmaps && pixmap.isNull() ) {
-	if ( extra && extra->bg_pix ) {
-	    delete extra->bg_pix;
-	    extra->bg_pix = 0;
+	if ( d->extra && d->extra->bg_pix ) {
+	    delete d->extra->bg_pix;
+	    d->extra->bg_pix = 0;
 	}
     } else {
-	if ( extra && extra->bg_pix )
-	    delete extra->bg_pix;
+	if ( d->extra && d->extra->bg_pix )
+	    delete d->extra->bg_pix;
 	else
-	    createExtra();
-	extra->bg_pix = new QPixmap( pixmap );
+	    d->createExtra();
+	d->extra->bg_pix = new QPixmap( pixmap );
     }
 }
 
@@ -583,10 +586,10 @@ extern void qt_set_cursor( QWidget *, const QCursor & ); // qapplication_win.cpp
 void QWidget::setCursor( const QCursor &cursor )
 {
     if ( cursor.handle() != arrowCursor.handle()
-	 || (extra && extra->curs) ) {
-	createExtra();
-	delete extra->curs;
-	extra->curs = new QCursor(cursor);
+	 || (d->extra && d->extra->curs) ) {
+	d->createExtra();
+	delete d->extra->curs;
+	d->extra->curs = new QCursor(cursor);
     }
     setWState( WState_OwnCursor );
     qt_set_cursor( this, QWidget::cursor() );
@@ -594,9 +597,9 @@ void QWidget::setCursor( const QCursor &cursor )
 
 void QWidget::unsetCursor()
 {
-    if ( extra ) {
-	delete extra->curs;
-	extra->curs = 0;
+    if ( d->extra ) {
+	delete d->extra->curs;
+	d->extra->curs = 0;
     }
     if ( !isTopLevel() )
 	clearWState( WState_OwnCursor );
@@ -607,7 +610,7 @@ void QWidget::setCaption( const QString &caption )
 {
     if ( QWidget::caption() == caption )
 	return; // for less flicker
-    topData()->caption = caption;
+    d->topData()->caption = caption;
 
 #if defined(QT_NON_COMMERCIAL)
     QT_NC_CAPTION
@@ -646,7 +649,7 @@ HBITMAP qt_createIconMask( const QBitmap &bitmap )
 
 void QWidget::setIcon( const QPixmap &pixmap )
 {
-    QTLWExtra* x = topData();
+    QTLWExtra* x = d->topData();
     delete x->icon;
     x->icon = 0;
     if ( x->winIcon ) {
@@ -686,7 +689,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
 
 void QWidget::setIconText( const QString &iconText )
 {
-    topData()->iconText = iconText;
+    d->topData()->iconText = iconText;
 }
 
 
@@ -861,7 +864,7 @@ void QWidget::showWindow()
 #endif
     int sm = SW_SHOW;
     if ( isTopLevel() ) {
-	switch ( topData()->showMode ) {
+	switch ( d->topData()->showMode ) {
 	case 1:
 #ifdef Q_OS_TEMP
 	    sm = SW_HIDE;
@@ -875,7 +878,7 @@ void QWidget::showWindow()
 	    sm = SW_SHOW;
 	    break;
 	}
-	topData()->showMode = 0; // reset
+	d->topData()->showMode = 0; // reset
     }
 
     if ( testWFlags(WStyle_Tool) || isPopup() )
@@ -900,9 +903,9 @@ void QWidget::hideWindow()
 void QWidget::showMinimized()
 {
     if ( isTopLevel() ) {
-	if ( topData()->fullscreen ) {
-	    reparent( 0, WType_TopLevel | (getWFlags() & 0xffff0000), topData()->normalGeometry.topLeft() );
-	    topData()->fullscreen = 0;
+	if ( d->topData()->fullscreen ) {
+	    reparent( 0, WType_TopLevel | (getWFlags() & 0xffff0000), d->topData()->normalGeometry.topLeft() );
+	    d->topData()->fullscreen = 0;
 	}
 #ifndef Q_OS_TEMP
 	if ( isVisible() )
@@ -910,7 +913,7 @@ void QWidget::showMinimized()
 	else
 #endif
 	{
-	    topData()->showMode = 1;
+	    d->topData()->showMode = 1;
 	    show();
 	}
     } else {
@@ -944,16 +947,16 @@ bool QWidget::isMaximized() const
 void QWidget::showMaximized()
 {
     if ( isTopLevel() ) {
-	if ( topData()->fullscreen ) {
-	    reparent( 0, WType_TopLevel | (getWFlags() & 0xffff0000), topData()->normalGeometry.topLeft() );
-	    topData()->fullscreen = 0;
-	} else if ( topData()->normalGeometry.width() < 0 ) {
-	    topData()->normalGeometry = geometry();
+	if ( d->topData()->fullscreen ) {
+	    reparent( 0, WType_TopLevel | (getWFlags() & 0xffff0000), d->topData()->normalGeometry.topLeft() );
+	    d->topData()->fullscreen = 0;
+	} else if ( d->topData()->normalGeometry.width() < 0 ) {
+	    d->topData()->normalGeometry = geometry();
 	}
 	if ( isVisible() )
 	    ShowWindow( winId(), SW_SHOWMAXIMIZED );
 	else {
-	    topData()->showMode = 2;
+	    d->topData()->showMode = 2;
 	    show();
 	}
     }  else
@@ -967,14 +970,14 @@ void QWidget::showMaximized()
 void QWidget::showNormal()
 {
     if ( isTopLevel() ) {
-	if ( topData()->fullscreen ) {
+	if ( d->topData()->fullscreen ) {
 	    // when reparenting, preserve some widget flags
-	    reparent( 0, topData()->savedFlags, topData()->normalGeometry.topLeft() );
-	    topData()->fullscreen = 0;
-	    QRect r = topData()->normalGeometry;
+	    reparent( 0, d->topData()->savedFlags, d->topData()->normalGeometry.topLeft() );
+	    d->topData()->fullscreen = 0;
+	    QRect r = d->topData()->normalGeometry;
 	    if ( r.width() >= 0 ) {
 		// the widget has been maximized
-		topData()->normalGeometry = QRect(0,0,-1,-1);
+		d->topData()->normalGeometry = QRect(0,0,-1,-1);
 		resize( r.size() );
 		move( r.topLeft() );
 	    }
@@ -984,8 +987,8 @@ void QWidget::showNormal()
     } else {
 	show();
     }
-    if ( extra && extra->topextra )
-	extra->topextra->fullscreen = 0;
+    if ( d->extra && d->extra->topextra )
+	d->extra->topextra->fullscreen = 0;
     QEvent e( QEvent::ShowNormal );
     QApplication::sendEvent( this, &e );
     clearWState( WState_Maximized | WState_Minimized );
@@ -1038,11 +1041,11 @@ void qWinRequestConfig( WId, int, int, int, int, int );
 
 void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 {
-    if ( extra ) {				// any size restrictions?
-	w = QMIN(w,extra->maxw);
-	h = QMIN(h,extra->maxh);
-	w = QMAX(w,extra->minw);
-	h = QMAX(h,extra->minh);
+    if ( d->extra ) {				// any size restrictions?
+	w = QMIN(w,d->extra->maxw);
+	h = QMIN(h,d->extra->maxh);
+	w = QMAX(w,d->extra->minw);
+	h = QMAX(h,d->extra->minh);
     }
     if ( w < 1 )				// invalid size
 	w = 1;
@@ -1059,7 +1062,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	setWState( WState_ConfigPending );
 	if ( isTopLevel() ) {
 	    QRect fr( frameGeometry() );
-	    if ( extra ) {
+	    if ( d->extra ) {
 		fr.setLeft( fr.left() + x - crect.left() );
 		fr.setTop( fr.top() + y - crect.top() );
 		fr.setRight( fr.right() + ( x + w - 1 ) - crect.right() );
@@ -1103,11 +1106,11 @@ void QWidget::setMinimumSize( int minw, int minh )
     if ( minw < 0 || minh < 0 )
 	qWarning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
 #endif
-    createExtra();
-    if ( extra->minw == minw && extra->minh == minh )
+    d->createExtra();
+    if ( d->extra->minw == minw && d->extra->minh == minh )
 	return;
-    extra->minw = minw;
-    extra->minh = minh;
+    d->extra->minw = minw;
+    d->extra->minh = minh;
     if ( minw > width() || minh > height() ) {
 	bool resized = testWState( WState_Resized );
 	resize( QMAX(minw,width()), QMAX(minh,height()) );
@@ -1134,11 +1137,11 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 	maxh = QMAX( maxh, 0 );
     }
 #endif
-    createExtra();
-    if ( extra->maxw == maxw && extra->maxh == maxh )
+    d->createExtra();
+    if ( d->extra->maxw == maxw && d->extra->maxh == maxh )
 	return;
-    extra->maxw = maxw;
-    extra->maxh = maxh;
+    d->extra->maxw = maxw;
+    d->extra->maxh = maxh;
     if ( maxw < width() || maxh < height() ) {
 	bool resized = testWState( WState_Resized );
 	resize( QMIN(maxw,width()), QMIN(maxh,height()) );
@@ -1150,16 +1153,16 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 
 void QWidget::setSizeIncrement( int w, int h )
 {
-    createTLExtra();
-    extra->topextra->incw = w;
-    extra->topextra->inch = h;
+    d->createTLExtra();
+    d->extra->topextra->incw = w;
+    d->extra->topextra->inch = h;
 }
 
 void QWidget::setBaseSize( int w, int h )
 {
-    createTLExtra();
-    extra->topextra->basew = w;
-    extra->topextra->baseh = h;
+    d->createTLExtra();
+    d->extra->topextra->basew = w;
+    d->extra->topextra->baseh = h;
 }
 
 
@@ -1339,22 +1342,22 @@ int QWidget::metric( int m ) const
     return val;
 }
 
-void QWidget::createSysExtra()
+void QWidgetPrivate::createSysExtra()
 {
     extra->dropTarget = 0;
 }
 
-void QWidget::deleteSysExtra()
+void QWidgetPrivate::deleteSysExtra()
 {
-    setAcceptDrops( FALSE );
+    q->setAcceptDrops( FALSE );
 }
 
-void QWidget::createTLSysExtra()
+void QWidgetPrivate::createTLSysExtra()
 {
     extra->topextra->winIcon = 0;
 }
 
-void QWidget::deleteTLSysExtra()
+void QWidgetPrivate::deleteTLSysExtra()
 {
     if ( extra->topextra->winIcon )
 	DestroyIcon( extra->topextra->winIcon );
@@ -1363,22 +1366,22 @@ void QWidget::deleteTLSysExtra()
 
 bool QWidget::acceptDrops() const
 {
-    return ( extra && extra->dropTarget );
+    return ( d->extra && d->extra->dropTarget );
 }
 
 void QWidget::setAcceptDrops( bool on )
 {
-    // Enablement is defined by extra->dropTarget != 0.
+    // Enablement is defined by d->extra->dropTarget != 0.
 
     if ( on ) {
 	// Turn on.
-	createExtra();
-	QWExtra *extra = extraData();
+	d->createExtra();
+	QWExtra *extra = d->extraData();
 	if ( !extra->dropTarget )
 	    extra->dropTarget = qt_olednd_register( this );
     } else {
 	// Turn off.
-	QWExtra *extra = extraData();
+	QWExtra *extra = d->extraData();
 	if ( extra && extra->dropTarget ) {
 	    qt_olednd_unregister(this, extra->dropTarget);
 	    extra->dropTarget = 0;
@@ -1395,8 +1398,8 @@ void QWidget::setMask( const QRegion &region )
 
     int fleft = 0, ftop = 0;
     if (isTopLevel()) {
-	ftop = topData()->ftop;
-	fleft = topData()->fleft;
+	ftop = d->topData()->ftop;
+	fleft = d->topData()->fleft;
     }
     OffsetRgn(wr, fleft, ftop );
     SetWindowRgn( winId(), wr, TRUE );
@@ -1408,8 +1411,8 @@ void QWidget::setMask( const QBitmap &bitmap )
 
     int fleft = 0, ftop = 0;
     if (isTopLevel()) {
-	ftop = topData()->ftop;
-	fleft = topData()->fleft;
+	ftop = d->topData()->ftop;
+	fleft = d->topData()->fleft;
     }
     OffsetRgn(wr, fleft, ftop );
     SetWindowRgn( winId(), wr, TRUE );
@@ -1446,7 +1449,7 @@ void QWidget::updateFrameStrut() const
     that->crect = QRect( QPoint( pt.x, pt.y ),
  			 QPoint( pt.x + cr.right, pt.y + cr.bottom ) );
 
-    QTLWExtra *top = that->topData();
+    QTLWExtra *top = that->d->topData();
     top->ftop = crect.top() - fr.top;
     top->fleft = crect.left() - fr.left;
     top->fbottom = fr.bottom - crect.bottom();

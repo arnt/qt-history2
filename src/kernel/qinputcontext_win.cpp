@@ -12,10 +12,11 @@
 
 #include "qinputcontext_p.h"
 
-#include <qfont.h>
-#include <qwidget.h>
-#include <qapplication.h>
-#include <qlibrary.h>
+#include "qfont.h"
+#include "qwidget.h"
+#include "qapplication.h"
+#include "qlibrary.h"
+#include "qevent.h"
 
 //#define Q_IME_DEBUG
 

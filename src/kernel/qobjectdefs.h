@@ -214,6 +214,6 @@ protected: \
     inline const Class##Private* d_func() const { return (const Class##Private *)d_ptr; } \
     inline Class* q_func() { return this; } \
     inline const Class* q_func() const { return this; } \
-    friend class Class##Private
+    friend struct Class##Private
 
 #endif // QOBJECTDEFS_H

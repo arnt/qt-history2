@@ -17,6 +17,7 @@
 #ifndef QT_NO_DRAGANDDROP
 
 #include "qapplication_p.h"
+#include "qevent.h"
 #include "qpainter.h"
 #include "qwidget.h"
 #include "qdragobject.h"

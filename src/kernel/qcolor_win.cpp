@@ -15,6 +15,7 @@
 #include "qcolor.h"
 #include <private/qcolor_p.h>
 #include "qapplication.h"
+#include "qwidget.h"
 #include "qt_windows.h"
 
 

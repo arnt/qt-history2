@@ -18,6 +18,8 @@
 
 #include "qapplication.h"
 #include "qapplication_p.h"
+#include "qwidget.h"
+#include "qevent.h"
 #include "qpixmap.h"
 #include "qdatetime.h"
 #include "qimage.h"
