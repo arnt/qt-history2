@@ -153,7 +153,7 @@ QMutex *QThreadPrivate::mutex() const
            system.
 
     \value HighPriority scheduled more often than NormalPriority.
-    \value HighestPriority scheduled more often then HighPriority.
+    \value HighestPriority scheduled more often than HighPriority.
 
     \value TimeCriticalPriority scheduled as often as possible.
 
