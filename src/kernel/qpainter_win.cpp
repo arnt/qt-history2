@@ -2186,7 +2186,7 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 	QPixmap tile( tw, th, pixmap.depth(), QPixmap::BestOptim );
 	qt_fill_tile( &tile, pixmap );
 	if ( mask ) {
-	    QBitmap tilemask( tw, th, (bool)FALSE, QPixmap::NormalOptim );
+	    QBitmap tilemask( tw, th, FALSE, QPixmap::NormalOptim );
 	    qt_fill_tile( &tilemask, *mask );
 	    tile.setMask( tilemask );
 	}

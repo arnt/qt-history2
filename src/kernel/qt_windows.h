@@ -44,6 +44,13 @@
 #include "qwindowdefs.h"
 
 #include <windows.h>
+#if defined(Q_CC_BOR)
+// windef.h (included by windows.h) defines FALSE and TRUE to 0 resp. 1 -- with
+// these defines, Borland Builder 6 has problems distinguishing the different
+// overloads of the QBitmap constructors.
+#undef TRUE
+#undef FALSE
+#endif
 
 // already defined when compiled with WINVER >= 0x0500
 // and we only use them in WV_2000 and WV_98

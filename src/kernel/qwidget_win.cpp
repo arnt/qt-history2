@@ -761,7 +761,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
     }
     if ( !pixmap.isNull() ) {			// valid icon
 	QPixmap pm( pixmap.size(), pixmap.depth(), QPixmap::NormalOptim );
-	QBitmap mask( pixmap.size(), (bool)FALSE, QPixmap::NormalOptim );
+	QBitmap mask( pixmap.size(), FALSE, QPixmap::NormalOptim );
 	if ( pixmap.mask() ) {
 	    pm.fill( black );			// make masked area black
 	    bitBlt( &mask, 0, 0, pixmap.mask() );
