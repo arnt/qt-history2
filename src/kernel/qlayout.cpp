@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#76 $
 **
 ** Implementation of layout classes
 **
@@ -1046,16 +1046,15 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int align )
     if ( w->parentWidget() != mainWidget() ) {
 #if defined(CHECK_STATE)
 	if ( w->parentWidget() && mainWidget() )
-	    warning( "cannot add %s/%s (child of %s/%s) to layout for %s/%s",
+	    warning( "Warning: adding %s/%s (child of %s/%s) to layout for %s/%s",
 		     w->className(), w->name(),
 		     w->parentWidget()->className(), w->parentWidget()->name(),
 		     mainWidget()->className(), mainWidget()->name() );
 	else if (  mainWidget() )
-	    warning( "cannot add %s/%s (top-level widget) to layout for %s/%s",
+	    warning( "Warning: adding %s/%s (top-level widget) to layout for %s/%s",
 		     w->className(), w->name(),
 		     mainWidget()->className(), mainWidget()->name() );
 #endif
-	return;
     }
     QWidgetItem *b = new QWidgetItem( w );
     b->setAlignment( align );
