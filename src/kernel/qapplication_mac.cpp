@@ -573,10 +573,10 @@ static EventTypeSpec events[] = {
     { kEventClassMenu, kEventMenuOpening },
     { kEventClassMenu, kEventMenuTargetItem },
 
-    { kEventClassKeyboard, kEventRawKeyModifiersChanged },
     { kEventClassTextInput, kEventTextInputUnicodeForKeyEvent },
     { kEventClassTextInput, kEventTextInputOffsetToPos },
     { kEventClassTextInput, kEventTextInputUpdateActiveInputArea },
+    { kEventClassKeyboard, kEventRawKeyModifiersChanged },
     { kEventClassKeyboard, kEventRawKeyRepeat },
     { kEventClassKeyboard, kEventRawKeyUp },
     { kEventClassKeyboard, kEventRawKeyDown },
@@ -1918,31 +1918,24 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		}
 	    }
 	} else if(ekind == kEventTextInputUnicodeForKeyEvent) {
-	    if(qt_mac_input_spot != QT_MAC_OFFTHESPOT) {
-		handled_event = FALSE;
-		break;
-	    }
-
 	    EventRef key_ev;
 	    GetEventParameter(event, kEventParamTextInputSendKeyboardEvent, typeEventRef, NULL,
 			      sizeof(key_ev), NULL, &key_ev);
+	    QString text;
+	    UInt32 unilen;
+	    if(GetEventParameter(key_ev, kEventParamKeyUnicodes, typeUnicodeText, NULL, 0, &unilen, NULL) == noErr) {
+		UniChar *unicode = (UniChar*)NewPtr(unilen);
+		GetEventParameter(key_ev, kEventParamKeyUnicodes, typeUnicodeText, NULL, unilen, NULL, unicode);
+		text = QString((QChar*)unicode, unilen / sizeof(UniChar));
+		DisposePtr((char*)unicode);
+	    }
 	    char chr;
 	    GetEventParameter(key_ev, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(chr), NULL, &chr);
-	    UInt32 keyc;
-	    GetEventParameter(key_ev, kEventParamKeyCode, typeUInt32, NULL, sizeof(keyc), NULL, &keyc);
-	    if(get_key(0, chr, keyc) == Qt::Key_unknown) {
+	    if(text.length() > 0 && (text.length() > 1 || text.at(0) != QChar(chr))) {
 		QIMEvent imstart(QEvent::IMStart, QString::null, -1);
 		QApplication::sendSpontaneousEvent(widget, &imstart);
 		if(imstart.isAccepted()) { //wants the event
 		    handled_event = TRUE;
-		    UInt32 unilen;
-		    GetEventParameter(event, kEventParamTextInputSendText, typeUnicodeText,
-				      NULL, 0, &unilen, NULL);
-		    UniChar *unicode = (UniChar*)NewPtr(unilen);
-		    GetEventParameter(event, kEventParamTextInputSendText, typeUnicodeText,
-				      NULL, unilen, NULL, unicode);
-		    QString text((QChar*)unicode, unilen / 2);
-		    DisposePtr((char*)unicode);
 		    QIMEvent imend(QEvent::IMEnd, text, 1);
 		    QApplication::sendSpontaneousEvent(widget, &imend);
 		}
@@ -2056,10 +2049,18 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	/* I don't know why the str is only filled in in RawKeyDown - but it does seem to be on X11
 	   is this a bug on X11? --Sam ### */
 	if(chr && ekind == kEventRawKeyDown) {
-	    static QTextCodec *c = NULL;
-	    if(!c)
-		c = QTextCodec::codecForName("Apple Roman");
-	    mystr = c->toUnicode(&chr, 1);
+	    UInt32 unilen;
+	    if(GetEventParameter(event, kEventParamKeyUnicodes, typeUnicodeText, NULL, 0, &unilen, NULL) == noErr) {
+		UniChar *unicode = (UniChar*)NewPtr(unilen);
+		GetEventParameter(event, kEventParamKeyUnicodes, typeUnicodeText, NULL, unilen, NULL, unicode);
+		mystr = QString((QChar*)unicode, unilen / sizeof(UniChar));
+		DisposePtr((char*)unicode);
+	    } else {
+		static QTextCodec *c = NULL;
+		if(!c)
+		    c = QTextCodec::codecForName("Apple Roman");
+		mystr = c->toUnicode(&chr, 1);
+	    }
 	}
 
 	QEvent::Type etype = (ekind == kEventRawKeyUp) ? QEvent::KeyRelease : QEvent::KeyPress;
