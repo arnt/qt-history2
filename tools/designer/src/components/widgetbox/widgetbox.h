@@ -58,7 +58,7 @@ public:
     void setViewMode(ViewMode mode);
 
 private slots:
-    void handleMousePress(const QDomElement &elt, const QRect &geometry, Qt::MouseButton button);
+    void handleMousePress(const QDomElement &elt, const QRect &geometry);
     void setViewMode(QAction *action);
 
 private:

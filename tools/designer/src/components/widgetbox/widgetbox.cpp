@@ -625,7 +625,7 @@ public:
         : QWidget(parent), m_model(model) {}
 
 signals:
-    void pressed(const QDomElement &wgt_elt, const QRect &rect, Qt::MouseButton button);
+    void pressed(const QDomElement &wgt_elt, const QRect &rect);
 
 protected:
     WidgetCollectionModel *model() const { return m_model; }
@@ -681,7 +681,7 @@ void WidgetBoxDelegate::paint(QPainter *painter,
         buttonOption.features = QStyleOptionButton::None;
         buttonOption.text = model->data(index, QAbstractItemModel::DisplayRole).toString();
         m_view->style()->drawControl(QStyle::CE_PushButton, &buttonOption, painter, m_view);
-        
+
         QStyleOption branchOption;
         static const int i = 9; // hardcoded in qcommonstyle.cpp
         QRect r = option.rect;
@@ -776,7 +776,7 @@ public:
     WidgetBoxListView(WidgetCollectionModel *model, QWidget *parent = 0);
 
 private slots:
-    void handleMousePress(const QModelIndex &index, Qt::MouseButton button);
+    void handleMousePress(const QModelIndex &index);
 };
 
 WidgetBoxListView::WidgetBoxListView(WidgetCollectionModel *model, QWidget *parent)
@@ -789,10 +789,10 @@ WidgetBoxListView::WidgetBoxListView(WidgetCollectionModel *model, QWidget *pare
 
     l->addWidget(child);
     connect(child, SIGNAL(pressed(const QModelIndex&)),
-            this, SLOT(handleMousePress(const QModelIndex&, Qt::MouseButton)));
+            this, SLOT(handleMousePress(const QModelIndex&)));
 }
 
-void WidgetBoxListView::handleMousePress(const QModelIndex &index, Qt::MouseButton button)
+void WidgetBoxListView::handleMousePress(const QModelIndex &index)
 {
     if (QTreeView *child = qt_cast<QTreeView*>(sender())) {
         if (!child->model()->parent(index).isValid()) {
@@ -806,7 +806,7 @@ void WidgetBoxListView::handleMousePress(const QModelIndex &index, Qt::MouseButt
     if (elt.isNull())
         return;
 
-    emit pressed(elt, QRect(), button);
+    emit pressed(elt, QRect());
 }
 
 class CollectionFrame : public QFrame
@@ -996,10 +996,9 @@ AbstractFormEditor *WidgetBox::core() const
     return m_core;
 }
 
-void WidgetBox::handleMousePress(const QDomElement &wgt_elt, const QRect &geometry,
-                                    Qt::MouseButton button)
+void WidgetBox::handleMousePress(const QDomElement &wgt_elt, const QRect &geometry)
 {
-    if (button == Qt::LeftButton) {
+    if (QApplication::mouseButtons() == Qt::LeftButton) {
         DomWidget *dom_widget = new DomWidget();
         dom_widget->read(wgt_elt);
         QList<AbstractDnDItem*> item_list;
@@ -1032,8 +1031,8 @@ void WidgetBox::setViewMode(ViewMode mode)
             Q_ASSERT(0); // ### not implemented yet!
     }
 
-    connect(m_view, SIGNAL(pressed(const QDomElement&, const QRect&, Qt::MouseButton)),
-            this, SLOT(handleMousePress(const QDomElement&, const QRect&, Qt::MouseButton)));
+    connect(m_view, SIGNAL(pressed(const QDomElement&, const QRect&)),
+            this, SLOT(handleMousePress(const QDomElement&, const QRect&)));
 
     layout()->addWidget(m_view);
     m_view->show();
