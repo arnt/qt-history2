@@ -829,7 +829,7 @@ bool QApplication::x11_apply_settings()
     if (! settingsstamp.isValid())
 	return FALSE;
 
-    if (! timestamp.isValid() || settingsstamp != timestamp)
+    if (! timestamp.isValid() || settingsstamp > timestamp)
 	update_timestamp = TRUE;
 
     /*
