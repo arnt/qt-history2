@@ -570,8 +570,15 @@ We can now go to the code editor (click mainform.ui.h to invoke it)
 and enter the code for editOptions(). We must also add optionsform.h,
 qradiobutton.h and qcheckbox.h to our includes in implementation.
 
-The application is complete! 
+As a final refinement well implement two functions, loadSettings() and
+saveSettings(), and add appropriate calls. We also add qsettings.h to
+our includes.
+
+Now the application is complete! 
 
 
 [EXTRA HINTS AND TIPS in sidebars, e.g. multi-select, multi-click of a
 tool for one click placement, etc.]
+[MAKE SURE that everything covered by the old tutorial is covered by
+the new; add sidebars for missing bits, e.g. deleting actions or
+whatever.]

@@ -1,0 +1,8 @@
+\title Qt Designer Manual - Test
+
+\granularity chapter
+
+\input chap-preface2.leaf
+\input chap-mainwindow2.leaf
+\input chap-dialogs2.leaf
+

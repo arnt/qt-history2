@@ -509,23 +509,24 @@
 </connections>
 <includes>
     <include location="local" impldecl="in declaration">findform.h</include>
-    <include location="local" impldecl="in implementation">optionsform.h</include>
-    <include location="local" impldecl="in implementation">qlineedit.h</include>
-    <include location="local" impldecl="in implementation">qlabel.h</include>
-    <include location="local" impldecl="in implementation">qclipboard.h</include>
-    <include location="local" impldecl="in implementation">qmessagebox.h</include>
-    <include location="local" impldecl="in implementation">qstatusbar.h</include>
-    <include location="local" impldecl="in implementation">qpainter.h</include>
-    <include location="local" impldecl="in implementation">qstring.h</include>
-    <include location="local" impldecl="in implementation">qcolor.h</include>
-    <include location="local" impldecl="in implementation">qapplication.h</include>
-    <include location="local" impldecl="in implementation">qfiledialog.h</include>
-    <include location="local" impldecl="in implementation">qfile.h</include>
-    <include location="local" impldecl="in implementation">qregexp.h</include>
-    <include location="local" impldecl="in implementation">qcolordialog.h</include>
-    <include location="local" impldecl="in implementation">colornameform.h</include>
-    <include location="local" impldecl="in implementation">qcheckbox.h</include>
+    <include location="local" impldecl="in implementation">qsettings.h</include>
     <include location="local" impldecl="in implementation">qradiobutton.h</include>
+    <include location="local" impldecl="in implementation">qcheckbox.h</include>
+    <include location="local" impldecl="in implementation">colornameform.h</include>
+    <include location="local" impldecl="in implementation">qcolordialog.h</include>
+    <include location="local" impldecl="in implementation">qregexp.h</include>
+    <include location="local" impldecl="in implementation">qfile.h</include>
+    <include location="local" impldecl="in implementation">qfiledialog.h</include>
+    <include location="local" impldecl="in implementation">qapplication.h</include>
+    <include location="local" impldecl="in implementation">qcolor.h</include>
+    <include location="local" impldecl="in implementation">qstring.h</include>
+    <include location="local" impldecl="in implementation">qpainter.h</include>
+    <include location="local" impldecl="in implementation">qstatusbar.h</include>
+    <include location="local" impldecl="in implementation">qmessagebox.h</include>
+    <include location="local" impldecl="in implementation">qclipboard.h</include>
+    <include location="local" impldecl="in implementation">qlabel.h</include>
+    <include location="local" impldecl="in implementation">qlineedit.h</include>
+    <include location="local" impldecl="in implementation">optionsform.h</include>
     <include location="local" impldecl="in implementation">mainform.ui.h</include>
 </includes>
 <forwards>
@@ -571,6 +572,8 @@
     <function type="function" returnType="bool">isWebColor( int r, int g, int b )</function>
     <function type="slot">editAdd()</function>
     <function type="slot">editOptions()</function>
+    <function type="function">loadSettings()</function>
+    <function type="function">saveSettings()</function>
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>

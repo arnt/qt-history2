@@ -1,0 +1,484 @@
+\chapter Creating a Main Window Application
+
+In this chapter and in chapter two we will create a small but complete
+Qt application. This chapter will cover the main window, and the next
+chapter covers the dialogs.
+
+The application is called \c colortool; it is used to associate names
+with colors. The application is a standard main window application
+with some custom dialogs to facilitate some of the user interaction.
+
+\section1 The Color Tool Application
+
+\img colortool1.png The Color Tool application
+
+The \c colortool application is a multiplatform application that
+allows users to create, edit and save lists of colors. Each color has
+a user defined name. 
+
+This application presents the user with a view of a set of colors and
+their names. We will provide two views (using a \Class QWidgetStack)
+which the user can switch between. The tabular view will show each
+color as a small square followed by its name and hex value. It will
+also provide the option of an indicator to show whether or not the
+color is one of the 216 standard web colors. The iconic view will show
+each color as a circular color swatch with the name of the color
+beneath.
+
+The application will read and write files in the format used by the X
+Consortium for the \File rgb.txt file. This will allow our users to
+create their own color files and to load, edit and save \File rgb.txt
+files.
+
+We will provide a simple search option so that users can quickly
+locate a color: this is particularly useful when hundreds or thousands
+of colors are shown. The search will be provided in a modeless dialog
+so that the user can search and still interact with the main form. We
+will also allow the user to add and delete colors, and to set some
+user options; providing these will require us to create modal dialogs.
+
+Finally we'll ensure that the application loads user options at start
+up and saves user options at termination. We will also include the
+view and the size and position of the main window with these options,
+so that the application will always start with the size, position and
+view it had when the user last used it.
+
+\section1 Starting and Exiting \QD
+
+\index Starting Qt Designer
+\QD is controlled in the same way as any other modern
+desktop application.
+To start \QD under Windows click the \Menu Start
+button and click \Menu {Programs|Qt X.x.x|Designer}.
+(X.x.x is the Qt version number, e.g. 3.1.0.) If you're running a Unix
+or Linux operating system you can either double click the \QD icon or enter
+\c {designer &} in an xterm.
+
+When \QD starts it shows the New/Open dialog. (If you prefer the old
+behaviour, check the "Don't show this dialog in the future" checkbox.)
+We'll just click \CANCEL to skip past it.
+
+\img qd-newopen.png New/Open Dialog
+
+\index Exiting Qt Designer
+\index Getting Help
+When you've finished using \QD click
+\Menu File|Exit; you will be prompted to save any
+unsaved changes. Help is available by pressing \Key F1 or
+from the \Menu Help menu.
+
+To get the most benefit from the tutorial chapters we recommend that you
+start \QD now and create the example applications as you read. Most of
+the work involves using \QD's menus, dialogs and editors. The code can
+be entered directly using \QD's code editor; you can cut and paste it
+from the on-line version of this manual or copy it from the example
+source code.
+
+When you start \QD, by default, you will see a menu bar and various
+toolbars at the top.
+\index Widgets and Source window!Object Explorer
+\index Object Explorer
+\index Pixmaps
+On the left is the new Toolbox. This contains buttons which you click
+to reveal a particular set of tools. On the right hand side are three
+windows, the first is the Project Overview window, the second is the
+Object Explorer and the third is the Properties/Editor Signal Handlers
+window. The Project Overview window lists the files and images
+associated with the project; to open any form (\File .ui file), or the
+code associated with it (in its (\File .ui.h file), simply single
+click it. The Object Explorer window lists the current form's widgets
+and members. The Properties/Editor window is used to view and change
+the properties of forms and widgets. We will cover the use of \QD's
+windows, dialogs, menu options and tools as we create example
+applications.
+
+\section1 Creating the Project
+
+Our \c colortool application is going to be a standard C++
+application, so we need to create a C++ project and add our files and
+code to this project.
+
+\sidebar Creating a Project
+
+\index Projects
+\index Projects!Creating New
+\index Creating Projects!Projects
+\index Pixmaps!In Projects
+\index Pixmaps!Adding to Forms
+Whenever you create a new application we \e strongly recommend that
+you create a project file and open the project rather than individual
+\index .ui 
+\File .ui files. Using a project has the advantage that
+all the forms you create for the project are available via a single
+mouse click rather than having to be loaded individually through file
+open dialogs. An additional benefit of using project files is that
+they allow you to store all your images in a single file rather than
+duplicate them in each form in which they appear. See \l{The Designer
+Approach} chapter's \l{Project management} section for detailed
+information on the benefits of using project files.
+
+Project files use the \File .pro suffix and are used by the \c qmake
+tool to create makefiles for the relevant target platforms. 
+\endsidebar
+
+Create a new project as follows:
+\list 1
+\i Click \Menu File|New to invoke the \Widget{New File} dialog. 
+\i Click "C++ Project" to create a C++ project, then click \OK to pop
+up the \Widget{Project Settings} dialog. 
+\i Click the ellipsis button to invoke the \Widget{Save As} dialog.
+Use this dialog to navigate to where you want to create the new
+project, ideally creating a new folder for it (e.g. called
+"colortool"), using the \Button{Create New Folder} toolbar button. 
+\i Enter a filename of "colortool.pro", then click \OK. The project's
+name will now be "colortool"; click \OK to close the \Widget{Project
+Settings} dialog.
+\i Click \Menu File|Save to save the project.
+\endlist
+
+\img qd-chapdialogs-creatingnewprojects.png New File dialog
+
+The \Widget{New File} dialog is used to create all the files that can
+be used in a \QD project. This includes C++ source files, an
+automatically generated \c main.cpp file, and a variety of forms based
+on pre-defined templates. (You can create your own templates too.) 
+
+For the \c colortool application we want to start with a main window
+form. When we create this form, \QD will present a wizard which we can
+use to automatically create menu and toolbar options and automatically
+create the relevant signal/slot connections. For every menu option or
+toolbar button, \QD will create a single \Class QAction (see the
+\l{Actions and Action Groups} sidebar).
+
+\sidebar Actions and Action Groups
+
+An \e action is an operation that the user initiates through the user
+interface, for example, saving a file or changing some text's font
+weight to bold.
+
+We often want the user to be able to perform an action using a variety
+of means. For example, to save a file we might want the user to be able
+to press \Key Ctrl+S, or to click the \Button Save toolbar button
+or to click the \Menu File|Save menu option. Although the means of
+invoking the action are all different, the underlying operation is the
+same and we don't want to duplicate the code that performs the
+operation. In Qt we can create an action (a \Class QAction object)
+which will call the appropriate function when the action is invoked. We
+can assign an accelerator, (e.g. \Key Ctrl+S), to an action. We
+can also add an action to a menu item and to a toolbar button.
+
+If the action has an on/off state, e.g. bold is on or off, when the user
+changes the state, for example by clicking a toolbar button, the state
+of everything associated with the action, e.g. menu items and toolbar
+buttons, are updated.
+
+Some actions should operate together like radio buttons. For example, if
+we have left align, center align and right align actions, only one
+should be 'on' at any one time. An \e {action group} (a
+\Class QActionGroup object) is used to group a set of actions together.
+If the action group's \c {exclusive} property is TRUE then only one of
+the actions in the group can be on at any one time. If the user changes
+the state of an action in an action group where \c {exclusive} is TRUE,
+everything associated with the actions in the action group, e.g. menu
+items and toolbar buttons, are updated.
+
+\index Actions and Action Groups
+\QD can create actions and action groups visually, can assign
+accelerators to them, and can associate them with menu items and toolbar
+buttons.
+
+\endsidebar
+
+\section1 Creating the Main Window
+
+\index Main Window!Creating
+\index Creating Main Windows
+\index Main Window!Wizard
+\index Wizards!Main Window
+\index Creating Menus
+\index Menus!Adding
+\index Adding!Menus
+\index Creating Toolbars
+\index Toolbars, Creating
+\index Toolbar Buttons!Adding
+\index Adding!Toolbars
+\index Adding!Actions and Action Groups
+\index Adding!Toolbar Buttons
+
+We will use the main window wizard to build a main window. The wizard
+allows us to create actions and a menu bar and a toolbar through which
+the user can invoke the actions. We will also create our own actions,
+menus and toolbar. We will add some widgets to the toolbar and add a
+main widget to the main window. 
+
+Click \Menu File|New to invoke the \Widget{New File} dialog, click
+"Main Window" to create a main window form, then click \OK. A new
+\Class QMainWindow form will be created and the \Window{Main Window
+Wizard} will pop up.
+
+\section2 Using the Main Window Wizard
+
+\list 1
+
+\i
+
+The \e {Choose available menus and toolbars} wizard page appears
+first. It presents three categories of default actions, File
+Actions, Edit Actions and Help Actions. For each category you
+can choose to have \QD create menu items, toolbar buttons and
+signal/slots connections for the relevant actions. You can
+always add or delete actions, menu items, toolbar buttons and
+connections later.
+
+\index Creating Menus
+\index Menus!Adding
+\index Creating Toolbars
+\index Toolbars, Creating
+\index Toolbar Buttons!Adding
+\index Adding!Menus
+\index Adding!Toolbars
+\index Adding!Actions and Action Groups
+\index Adding!Toolbar Buttons
+\index Signals and Slots!Connecting Actions
+
+We will accept the defaults for File Actions and for the Edit Actions,
+i.e. have menu items, toolbar buttons and the relevant connections
+created. In fact we'll be changing the Edit actions considerably later
+on, but it is still convenient to create them now. We won't have any
+Help Actions on the toolbar so uncheck the Help Action's Toolbar
+checkbox. Click \Button Next to move on to the next wizard page.
+
+\img qd-chapmainwin-mainwinwiz1.png
+\caption Main Window Wizard- Choosing menus and toolbars
+
+\i
+
+\index Creating Toolbars
+\index Toolbars, Creating
+\index Toolbar Buttons!Adding
+\index Adding!Toolbar Buttons
+\index Separator!Menu item
+\index Separator!Toolbar button
+
+The \e {Setup Toolbar} wizard page is used to populate a toolbar with
+actions from each of the default action categories. The Category
+combobox is used to select which set of actions you wish to work on.
+The Actions list box lists the actions available for the current
+category. The Toolbar listbox lists the toolbar buttons you want to
+create. The blue left and right arrow buttons are used to move actions
+into or out of the Toolbar list box. The blue up and down arrow
+buttons are used to move actions up and down within the Toolbar list
+box. Note that the '\<Separator\>' item in the Actions list box may be
+moved to the Toolbar list box as often as required and will cause a
+separator to appear in the finished toolbar.
+
+Copy the New, Open and Save Actions to the Toolbar list box. Copy a
+\<Separator\> to the Toolbar list box. Change the Category to Edit and
+copy the Cut Copy and Find actions to the Toolbar list box. Click
+\Button Next and then click \Button Finish.
+
+\img qd-chapmainwin-mainwinwiz2.png
+\caption Main Window Wizard- Setting up the toolbar
+
+\endlist
+
+If you preview the form (\Key {Ctrl+T}) the File and Edit
+menus will be available and you'll be able to drag the toolbar
+either into an independent window of its own, or to dock it to
+the left, right, bottom or top of the window. The menus and
+toolbars are not yet functional, but we will rectify this as we
+progress.
+
+\img qd-chapmainwin-mainwinwiz3.png
+\caption Previewing the Form
+
+Now that we've created the form we will need to change some of its
+properties. (See the \l{Using the Property Editor} sidebar.)
+
+\sidebar Using the Property Editor
+
+\index Using the Property Editor
+\index Properties
+The Property Editor has two columns, the Property column which lists
+property names and the Value column which lists the values. Some
+property names have a plus sign '+' in a square to their left; this
+signifies that the property name is the collective name for a set of
+related properties. Click a form or widget to make the Property Editor
+show the form or widget's properties.
+
+For example, click the \Property sizePolicy property's plus sign; you
+will see four properties appear indented below sizePolicy: hSizeType,
+vSizeType, horizontalStretch and verticalStretch. These properties are
+edited in the same way as any other properties.
+
+If you want to change the same property to the same value for a whole
+set of widgets, (e.g. to give them all a common cursor, tooltip,
+colors, etc.), \Key Click one of the widgets, then \Key Shift+Click
+the others to select them all. (Alternatively, click the first
+widget's name in Object Explorer, then \Key Shift+Click all the others
+in Object Explorer: this technique is especially useful for forms with
+lots of nested widgets and layouts.) The properties they have in
+common will be shown in the property editor, and any change made to
+one property will be made to that same property for all the selected
+widgets.
+
+\img qd-chapdialogs-propertyeditor.png
+\caption Property Editor
+
+Some properties have simple values, for example, the \Property name property
+has a text value, the \Property width property (within \Property
+minimumSize) has a numeric value. To change a text value click the
+existing text and type in your new text. To change a numeric value click
+the value and either type in a new number, or use the spin buttons to
+increase or decrease the existing number until it reaches the value you
+want. Some properties have a fixed list of values, for example the
+\Property mouseTracking property is boolean and can take the values True or
+False. The \Property cursor property also has a fixed list of values. If
+you click the cursor property or the \Property mouseTracking property the
+value will be shown in a drop down combobox; click the down arrow to see
+what values are available. Some properties have complex sets of values
+or special values; for example the \Property font property and the
+\Property iconSet property. If you click the font property an ellipsis
+button (\Button {...}) will appear; click this button and a
+\Widget{Select Font} dialog will pop up which you can use to change
+any of the font settings. Other properties have ellipsis buttons which
+lead to different dialogs depending on what settings the property can
+have. For example, if you have a lot of text to enter for a \Property
+text property you could click the ellipsis button to invoke the
+\Widget{Multi-line Edit} dialog.
+
+\index Properties!Reverting changes
+\index Properties!Initial values
+The names of properties which have changed are shown in bold. If
+you've changed a property but want to revert it to its default value
+click the property's value and then click the red 'X' button to the
+right of the value. Some properties have an \e initial value, e.g.
+'TextEdit1', but no default value; if you revert a property that has
+an initial value but no default value (by clicking the red 'X') the
+value will become empty unless the property, e.g. name, is not allowed
+to be empty.
+
+\index Undo and Redo!Properties
+\index Properties!Undo and Redo!Undo and Redo
+\index Redo!Undo and Redo
+The property editor fully supports Undo and Redo
+(\Key Ctrl+Z and \Key Ctrl+Y, also available
+from the \Menu Edit menu).
+
+\endsidebar
+
+\section2 Dealing with the Details
+
+Click the form. This will make all the form's properties appear in the
+Property Editor. Change the form's \Property name to "MainForm" and
+its \Property caption to "Color Tool".
+
+The main window wizard created a few slots and actions that are not relevant to
+our application, so we'll delete them. 
+
+\sidebar The Object Explorer
+
+\index Object Explorer
+View the Object Explorer window by clicking \Menu {Window|Views|Object
+Explorer}. The Object Explorer has two tabs, the Objects tab which
+shows the object hierarchy, and the Members tab which shows the
+members you have added to the form. Clicking the name of a widget in
+the Object tab will select the widget and show its properties in the
+Property Editor. It is easy to see and select widgets in the Object
+Explorer which is especially useful for forms that have many widgets
+or which use layouts. Multiple widgets can be selected by
+\Key{Click}ing the first one then \Key{Shift+Click}ing the others.
+
+\img qd-chapdialogs-objectexplorer.png
+\caption Object Explorer
+
+\index Code Editing
+\index Subclassing
+\index Forward declarations
+\index Includes
+\index Adding!Code
+\index Adding!Forward declarations
+\index Adding!Includes
+\index Adding!Class variables
+\index Class variables
+\index Deleting!Forward declarations
+\index Deleting!Includes
+\index Deleting!Class variables
+\index Forms!Forward declarations
+\index Forms!Class variables
+\index Forms!Code editing
+\index Forms!destructor
+\index Forms!constructor
+In the original version of \QD if you wanted to provide code for a
+form you had to subclass the form and put your code in the
+subclass. This version fully supports the subclassing
+approach, but now provides an alternative: placing your code
+directly into forms. Writing code in \QD is not quite the same
+as subclassing, for example you cannot get direct access to the
+form's constructor or destructor. If you need code to be executed
+by the constructor create a slot called 
+\index init()
+\Func{void init()}; if it exists it will be called from the constructor.
+Similarly, if you need to be executed before destruction create a
+slot called
+\index destroy()
+\Func{void destroy()}.
+You can also add your own class variables which
+will be put in the generated constructor's code, and you can add
+forward declarations and any includes you require. To add a variable
+or declaration right click the appropriate item, e.g. Class
+Variables, then click New then enter your text, e.g.
+\c {QString m_filename}. If one or more items exist
+right clicking will popup a menu that has New, Edit and Delete 
+options. If you want to enter multiple items, e.g. multiple include
+files or multiple data members, it is easiest to right click in the
+relevant section, then click Edit to invoke an Edit dialog. To edit
+code just click the name of a function to invoke the code editor. Code
+editing and creating slots are covered later.
+
+\index Subclassing
+If you subclass the form you create your own
+\index .cpp
+\File .cpp files which can contain your own
+constructor, destructor, functions, slots, declarations and variables
+as your requirements dictate. (See \l {Subclassing} for more
+information.)
+
+\endsidebar
+
+Click the Object Explorer's Members tab. Right click the filePrint()
+slot, then click Delete from the popup menu. In the same way delete
+the editUndo(), editRedo() and editPaste() slots. (Right click
+editUndo(), then click Delete, etc.) Later we'll see how to create new
+slots when we add further functionality to the application.
+
+Right click the filePrintAction action in the Action Editor, then
+click Delete Action from the popup menu. In the same way delete the
+editUndoAction, editRedoAction and editPasteAction actions.
+
+One side effect of these deletions is that the menus now have some
+redundant separators.
+
+Click the form's \Menu File menu. (Note, we're clicking our newly
+created form's \Menu File menu, not \QD's \Menu File menu!) There are
+\e two separators above the Exit menu option (the \Menu File|Print
+option was in-between until we deleted it). Right click one of these
+separators, then click Delete Separator. Don't worry if you miss and
+delete a menu option by accident: if you delete the wrong thing click
+\Menu Edit|Undo to undelete. The form's \Menu Edit menu has a
+redundant separator at the top (the undo and redo options were there).
+Delete this separator in the same way. (Click the form's \Menu Edit
+menu, right click the separator, click Delete Separator.) Again, don't
+worry if you delete a menu option by mistake, just press \Key Ctrl+Z
+to undo.
+
+Click \Menu{File|Save} to save the form as \File mainform.ui.
+
+The form can now be previewed by clicking \Menu{Preview|Preview Form}
+(or press \Key Ctrl+T).
+
+\section3 Adding Custom Actions
+
+
+
+

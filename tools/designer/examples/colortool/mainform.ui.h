@@ -13,6 +13,8 @@ const int CLIP_AS_RGB = 2;
 const int COL_NAME = 0;
 const int COL_HEX = 1;
 const int COL_WEB = 2;
+const QString WINDOWS_REGISTRY = "/QtExamples";
+const QString APP_KEY = "/ColorTool/";
 
 void MainForm::init()
 {
@@ -21,8 +23,7 @@ void MainForm::init()
 	clipboard->setSelectionMode( TRUE );
 
     findForm = 0;
-    m_clip_as = CLIP_AS_HEX;
-    m_show_web = TRUE;
+    loadSettings();
     m_filename = "";
     m_changed = FALSE;
     m_table_dirty = TRUE;
@@ -246,7 +247,7 @@ bool MainForm::okToClear()
 	    msg = "Unnamed colors ";
 	else
 	    msg = QString( "Colors '%1'\n" ).arg( m_filename );
-	msg += "has been changed.";
+	msg += QString( "has been changed." );
 	int ans = QMessageBox::information(
 			this,
 			"Color Tool -- Unsaved Changes",
@@ -261,12 +262,12 @@ bool MainForm::okToClear()
     return TRUE;
 }
 
-
-
 void MainForm::fileExit()
 {
-    if ( okToClear() )
+    if ( okToClear() ) {
+	saveSettings();
 	QApplication::exit( 0 );
+    }
 }
 
 void MainForm::editCut()
@@ -274,7 +275,7 @@ void MainForm::editCut()
     QString name;
     QWidget *visible = colorWidgetStack->visibleWidget();
     statusBar()->message( QString( "Deleting '%1'" ).arg( name ) );
-    
+
     if ( visible == tablePage && colorTable->numRows() ) {
 	int row = colorTable->currentRow();
 	name = colorTable->text( row, 0 );
@@ -352,7 +353,7 @@ void MainForm::lookfor( const QString& text )
     QString ltext = text.lower();
     QWidget *visible = colorWidgetStack->visibleWidget();
     bool found = false;
-    
+
     if ( visible == tablePage && colorTable->numRows() ) {
 	int row = colorTable->currentRow();
 	for ( int i = row + 1; i < colorTable->numRows(); ++i )
@@ -380,7 +381,7 @@ void MainForm::lookfor( const QString& text )
 	    colorIconView->setCurrentItem( start );
     }
     if ( !found ) {
-	statusBar()->message( QString( "Could not find '%1' beyond here" ).
+	statusBar()->message( QString( "Could not find '%1' after here" ).
 			      arg( text ) );
 	findForm->notfound();
     }
@@ -417,15 +418,14 @@ void MainForm::changedIconColor( QIconViewItem *item )
 void MainForm::changedColor( const QString& name )
 {
     QColor color = m_colors[name];
+    int r = color.red();
+    int g = color.green();
+    int b = color.blue();
     statusBar()->message( QString( "%1 \"%2\" (%3,%4,%5)%6" ).
 			  arg( name ).
 			  arg( color.name().upper() ).
-			  arg( color.red() ).
-			  arg( color.green() ).
-			  arg( color.blue() ).
-			  arg( isWebColor( color.red(),
-					   color.green(),
-					   color.blue() ) ? " web" : "" ) );
+			  arg( r ).arg( g ).arg( b ).
+			  arg( isWebColor( r, g, b ) ? " web" : "" ) );
 }
 
 void MainForm::aboutToShow( int )
@@ -521,10 +521,41 @@ void MainForm::editOptions()
 	    m_clip_as = CLIP_AS_NAME;
 	else if ( options->rgbRadioButton->isChecked() )
 	    m_clip_as = CLIP_AS_RGB;
-	m_table_dirty = m_show_web != 
+	m_table_dirty = m_show_web !=
 			options->webCheckBox->isChecked();
 	m_show_web = options->webCheckBox->isChecked();
 
 	populate();
     }
+}
+
+void MainForm::loadSettings()
+{
+    QSettings settings;
+    settings.insertSearchPath( QSettings::Windows, WINDOWS_REGISTRY );
+    int windowWidth = settings.readNumEntry( APP_KEY + "WindowWidth", 450 );
+    int windowHeight = settings.readNumEntry( APP_KEY + "WindowHeight", 500 );
+    int windowX = settings.readNumEntry( APP_KEY + "WindowX", 0 );
+    int windowY = settings.readNumEntry( APP_KEY + "WindowY", 0 );
+    m_clip_as = settings.readNumEntry( APP_KEY + "ClipAs", CLIP_AS_HEX );
+    m_show_web = settings.readBoolEntry( APP_KEY + "ShowWeb", TRUE );
+    if ( !settings.readBoolEntry( APP_KEY + "View", TRUE ) )
+	colorWidgetStack->raiseWidget( iconsPage );
+
+    resize( windowWidth, windowHeight );
+    move( windowX, windowY );
+}
+
+void MainForm::saveSettings()
+{
+    QSettings settings;
+    settings.insertSearchPath( QSettings::Windows, WINDOWS_REGISTRY );
+    settings.writeEntry( APP_KEY + "WindowWidth", width() );
+    settings.writeEntry( APP_KEY + "WindowHeight", height() );
+    settings.writeEntry( APP_KEY + "WindowX", x() );
+    settings.writeEntry( APP_KEY + "WindowY", y() );
+    settings.writeEntry( APP_KEY + "ClipAs", m_clip_as );
+    settings.writeEntry( APP_KEY + "ShowWeb", m_show_web );
+    settings.writeEntry( APP_KEY + "View",
+	    colorWidgetStack->visibleWidget() == tablePage );
 }
