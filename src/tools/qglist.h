@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#7 $
+** $Id: //depot/qt/main/src/tools/qglist.h#8 $
 **
 ** Definition of QGList and QGListIterator classes
 **
@@ -59,6 +59,7 @@ protected:
     void  inSort( GCI );			// add item sorted in list
     void  append( GCI );			// add item at end of list
     bool  insertAt( uint index, GCI );		// add item at i'th position
+    bool  remove( Qdnode * );			// remove one item
     bool  remove( GCI = 0 );			// remove one item (0=current)
     bool  removeFirst();			// remove first item
     bool  removeLast();				// remove last item
@@ -77,7 +78,8 @@ protected:
     uint  contains( GCI );			// get number of equal matches
 
     GCI	  at( uint index );			// access item at i'th pos
-    uint  at() const { return curIndex; }	// get current index
+    uint  at() const      { return curIndex; }	// get current index
+    Qdnode *currentNode() { return curNode;  }  // get current node
 
     GCI	  get() const;				// get current item
 
