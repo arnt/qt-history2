@@ -2785,7 +2785,7 @@ void QApplication::flushX()
   If you are doing graphical changes inside a loop that does not
   return to the event loop on asynchronous window systems like X11 or
   double buffered window systems like MacOS X, and you want to
-  visualize these changes immediately (e.g. Spash Screens), call this
+  visualize these changes immediately (e.g. Splash Screens), call this
   function.
 
   \sa flushX() sendPostedEvents() QPainter::flush()
