@@ -299,7 +299,9 @@ private:
     bool             inPopupMode() const;
     void             closePopup(QWidget *popup);
     void             openPopup(QWidget *popup);
-    void             setActiveWindow(QWidget* act);
+public:
+    void setActiveWindow(QWidget* act);
+private:
 
     // ### the next 2 friends should go away
     friend class QEventLoop;

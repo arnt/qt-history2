@@ -1940,8 +1940,8 @@ void QApplication::syncX()        {}                // do nothing
 
 /*!\internal
 
-  Sets the active window in reaction to a system event. Call this
-  from the platform specific event handlers.
+  Sets the active window in reaction to a system event. The function
+  is called from the platform specific event handlers.
 
   It sets the activeWindow() and focusWidget() attributes and sends
   proper WindowActivate/WindowDeactivate and FocusIn/FocusOut events
