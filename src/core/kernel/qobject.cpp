@@ -1224,8 +1224,9 @@ void QObject::setParent_helper(QObject *parent)
         QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, this));
 #endif
     } else {
-        const Qt::HANDLE current = QThread::currentThread();
-        if (thr != current) setThread(current);
+        // keep the same thread id as the (former) parent when
+        // reparenting to zero
+        d->thread = thr;
     }
 }
 
