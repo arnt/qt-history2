@@ -44,6 +44,7 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
     document.setContent(&in);
     QDomElement root = document.firstChild().toElement();
     if(root.tagName() != QLatin1String("RCC")) {
+        qWarning("%s is not a valid resource file.", resource.latin1());
         return false;
     }
     for(QDomElement child = root.firstChild().toElement(); !child.isNull(); 
@@ -341,5 +342,5 @@ main(int argc, char **argv)
     out_dev = 0;
 
     //done
-    return 0;
+    return write_error ? 11 : 0;
 }
