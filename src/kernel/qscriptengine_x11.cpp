@@ -1208,168 +1208,168 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Other, Other, Other, Other,
 
     // Telugu
+    Invalid, VowelMark, VowelMark, VowelMark,
+    Invalid, IndependentVowel, IndependentVowel, IndependentVowel,
+    IndependentVowel, IndependentVowel, IndependentVowel, IndependentVowel,
+    IndependentVowel, Invalid, IndependentVowel, IndependentVowel,
+
+    IndependentVowel, Invalid, IndependentVowel, IndependentVowel,
+    IndependentVowel, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Invalid, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+
+    Consonant, Consonant, Consonant, Consonant,
+    Invalid, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Unknown, Unknown,
+    Invalid, Invalid, Matra, Matra,
+
+    Matra, Matra, Matra, Matra,
+    Matra, Invalid, Matra, Matra,
+    Matra, Invalid, Matra, Matra,
+    Matra, Halant, Invalid, Invalid,
+
     Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Invalid, LengthMark, LengthMark, Invalid,
     Invalid, Invalid, Invalid, Invalid,
     Invalid, Invalid, Invalid, Invalid,
 
     Invalid, Invalid, Invalid, Invalid,
     Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
 
     // Kannada
+    Invalid, Invalid, VowelMark, VowelMark,
+    Invalid, IndependentVowel, IndependentVowel, IndependentVowel,
+    IndependentVowel, IndependentVowel, IndependentVowel, IndependentVowel,
+    IndependentVowel, Invalid, IndependentVowel, IndependentVowel,
+
+    IndependentVowel, Invalid, IndependentVowel, IndependentVowel,
+    IndependentVowel, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Invalid, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+
+    Consonant, Consonant, Consonant, Consonant,
+    Invalid, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Unknown, Unknown,
+    Invalid, Invalid, Matra, Matra,
+
+    Matra, Matra, Matra, Matra,
+    Matra, Invalid, Matra, Matra,
+    Matra, Invalid, Matra, Matra,
+    Matra, Halant, Invalid, Invalid,
+
     Invalid, Invalid, Invalid, Invalid,
+    Invalid, LengthMark, LengthMark, Invalid,
     Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Invalid, Invalid, Consonant, Invalid,
 
     Invalid, Invalid, Invalid, Invalid,
     Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
 
     // Malayalam
+    Invalid, Invalid, VowelMark, VowelMark,
+    Invalid, IndependentVowel, IndependentVowel, IndependentVowel,
+    IndependentVowel, IndependentVowel, IndependentVowel, IndependentVowel,
+    IndependentVowel, Invalid, IndependentVowel, IndependentVowel,
+
+    IndependentVowel, Invalid, IndependentVowel, IndependentVowel,
+    IndependentVowel, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Invalid, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Invalid, Unknown, Unknown,
+    Invalid, Invalid, Matra, Matra,
+
+    Matra, Matra, Matra, Matra,
+    Invalid, Invalid, Matra, Matra,
+    Matra, Invalid, Matra, Matra,
+    Matra, Halant, Invalid, Invalid,
+
     Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Invalid, Invalid, Invalid, LengthMark,
     Invalid, Invalid, Invalid, Invalid,
     Invalid, Invalid, Invalid, Invalid,
 
     Invalid, Invalid, Invalid, Invalid,
     Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
 
     // Sinhala
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Invalid, Invalid, VowelMark, VowelMark,
+    Invalid, IndependentVowel, IndependentVowel, IndependentVowel,
+    IndependentVowel, IndependentVowel, IndependentVowel, IndependentVowel,
+    IndependentVowel, IndependentVowel, IndependentVowel, IndependentVowel,
+
+    IndependentVowel, IndependentVowel, IndependentVowel, IndependentVowel,
+    IndependentVowel, IndependentVowel, IndependentVowel, Invalid,
+    Invalid, Invalid, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+
+    Consonant, Consonant, Invalid, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+    Invalid, Consonant, Invalid, Invalid,
+
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Invalid, Invalid,
+    Invalid, Invalid, Halant, Invalid,
+    Invalid, Invalid, Invalid, Matra,
+
+    Matra, Matra, Matra, Matra,
+    Matra, Invalid, Matra, Invalid,
+    Matra, Matra, Matra, Matra,
+    Matra, Matra, Matra, Matra,
 
     Invalid, Invalid, Invalid, Invalid,
     Invalid, Invalid, Invalid, Invalid,
     Invalid, Invalid, Invalid, Invalid,
     Invalid, Invalid, Invalid, Invalid,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid
+    Invalid, Invalid, Matra, Matra,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
 };
 
 static inline Form form( const QChar &ch ) {
@@ -1646,12 +1646,7 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
 
     // Telugu
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-
-    None, None, None, None,
+    None, Post, Post, Post,
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
@@ -1669,10 +1664,15 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
-    None, None, None, None,
+    None, None, Post, Above,
+
+    Above, Post, Post, Post,
+    Post, None, Above, Above,
+    Split, None, Post, Above,
+    Above, Halant, None, None,
 
     None, None, None, None,
-    None, None, None, None,
+    None, Above, Below, None,
     None, None, None, None,
     None, None, None, None,
 
@@ -1687,12 +1687,7 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
 
     // Kannada
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-
-    None, None, None, None,
+    None, None, Post, Post,
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
@@ -1710,10 +1705,15 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
-    None, None, None, None,
+    None, None, Post, Above,
+
+    Split, Post, Post, Post,
+    Post, None, Above, Split,
+    Split, None, Split, Split,
+    Above, Halant, None, None,
 
     None, None, None, None,
-    None, None, None, None,
+    None, Post, Post, None,
     None, None, None, None,
     None, None, None, None,
 
@@ -1728,12 +1728,7 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
 
     // Malayalam
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-
-    None, None, None, None,
+    None, None, Post, Post,
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
@@ -1751,10 +1746,15 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
-    None, None, None, None,
+    None, None, Post, Post,
+
+    Post, Post, Post, Post,
+    None, None, Pre, Pre,
+    Pre, None, Split, Split,
+    Split, Halant, None, None,
 
     None, None, None, None,
-    None, None, None, None,
+    None, None, None, Post,
     None, None, None, None,
     None, None, None, None,
 
@@ -1769,12 +1769,7 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
 
     // Sinhala
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-
-    None, None, None, None,
+    None, None, Post, Post,
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
@@ -1797,14 +1792,19 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
-    None, None, None, None,
+    None, None, None, Post,
+
+    Post, Post, Above, Above,
+    Below, None, Below, None,
+    Post, Pre, Split, Pre,
+    Split, Split, Split, Post,
 
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
 
-    None, None, None, None,
+    None, None, Post, Post,
     None, None, None, None,
     None, None, None, None,
     None, None, None, None
@@ -1838,13 +1838,13 @@ const uchar scriptProperties[10] = {
     // Tamil,
     HasSplit,
     // Telugu,
-    0,
+    HasSplit|MovePreToFront,
     // Kannada,
-    0,
+    HasSplit,
     // Malayalam,
-    0,
+    HasSplit,
     // Sinhala,
-    0
+    HasSplit
 };
 
 /* syllables are of the form:
@@ -1941,6 +1941,22 @@ static const unsigned short tamil_o[2]    = { 0xbc6, 0xbbe };
 static const unsigned short tamil_oo[2]   = { 0xbc7, 0xbbe };
 static const unsigned short tamil_au[2]   = { 0xbc6, 0xbd7 };
 
+static const unsigned short telugu_ai[2]   = { 0xc46, 0xc56 };
+
+static const unsigned short kannada_ii[2]   = { 0xcbf, 0xcd5 };
+static const unsigned short kannada_ee[2]   = { 0xcc6, 0xcd5 };
+static const unsigned short kannada_ai[2]   = { 0xcc6, 0xcd6 };
+static const unsigned short kannada_o[2]    = { 0xcc6, 0xcc2 };
+static const unsigned short kannada_oo[2]   = { 0xcca, 0xcd5 };
+
+static const unsigned short malayalam_o[2]   = { 0xd46, 0xd3e };
+static const unsigned short malayalam_oo[2]   = { 0xd47, 0xd3e };
+static const unsigned short malayalam_au[2]   = { 0xd46, 0xd57 };
+
+static const unsigned short sinhala_ee[2]   = { 0xdd9, 0xdca };
+static const unsigned short sinhala_o[2]   = { 0xdd9, 0xdcf };
+static const unsigned short sinhala_oo[2]   = { 0xddc, 0xdca };
+static const unsigned short sinhala_au[2]   = { 0xdd9, 0xddf };
 
 static QString indic_reorder( int script, const QString &string, int start, int end, unsigned short *featuresToApply,
 				GlyphAttributes *attributes, bool invalid )
@@ -1984,6 +2000,36 @@ static QString indic_reorder( int script, const QString &string, int start, int 
 		    split = (const QChar *)tamil_oo;
 		else if ( uc[i].unicode() == 0xbcc )
 		    split = (const QChar *)tamil_au;
+	    } else if ( script == QFont::Telugu ) {
+		if ( uc[i].unicode() == 0xc48 )
+		    split = (const QChar *)telugu_ai;
+	    } else if ( script == QFont::Kannada ) {
+		if ( uc[i].unicode() == 0xcc0 )
+		    split = (const QChar *)kannada_ii;
+		else if ( uc[i].unicode() == 0xcc7 )
+		    split = (const QChar *)kannada_ee;
+		else if ( uc[i].unicode() == 0xcc8 )
+		    split = (const QChar *)kannada_ai;
+		else if ( uc[i].unicode() == 0xcca )
+		    split = (const QChar *)kannada_o;
+		else if ( uc[i].unicode() == 0xccb )
+		    split = (const QChar *)kannada_oo;
+	    } else if ( script == QFont::Malayalam ) {
+		if ( uc[i].unicode() == 0xd4a )
+		    split = (const QChar *)malayalam_o;
+		else if ( uc[i].unicode() == 0xd4b )
+		    split = (const QChar *)malayalam_oo;
+		else if ( uc[i].unicode() == 0xd4c )
+		    split = (const QChar *)malayalam_au;
+	    } else if ( script == QFont::Sinhala ) {
+		if ( uc[i].unicode() == 0xdda )
+		    split = (const QChar *)sinhala_ee;
+		else if ( uc[i].unicode() == 0xddc )
+		    split = (const QChar *)sinhala_o;
+		else if ( uc[i].unicode() == 0xddd )
+		    split = (const QChar *)sinhala_oo;
+		else if ( uc[i].unicode() == 0xdde )
+		    split = (const QChar *)sinhala_au;
 	    }
 	    if ( split ) {
 		reordered.replace( i, 1, split, 2 );
