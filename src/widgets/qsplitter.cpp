@@ -1192,8 +1192,6 @@ QValueList<int> QSplitter::sizes() const
     return list;
 }
 
-
-
 /*!
     Sets the size parameters to the values given in \a list. If the
     splitter is horizontal, the values set the sizes from left to
@@ -1214,6 +1212,11 @@ void QSplitter::setSizes( QValueList<int> list )
     while ( s && it != list.end() ) {
 	if ( !s->isHandle ) {
 	    s->sizer = QMAX( *it, 0 );
+	    // Make sure that we reset the collapsed state.
+	    if ( s->sizer == 0 )
+		s->wid->move( -1, -1 );
+	    else
+		s->wid->move( 0, 0 );
 	    ++it;
 	}
 	s = d->list.next();
@@ -1250,7 +1253,6 @@ void QSplitter::processChildEvents()
 {
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
 }
-
 
 /*!
     \reimp
