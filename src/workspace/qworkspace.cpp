@@ -488,6 +488,8 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 	d->vbar->raise();
     if ( d->hbar )
 	d->hbar->raise();
+    if ( d->corner )
+	d->corner->raise();
 
     if ( change_focus ) {
 	if ( d->focus.find( d->active ) >=0 ) {
