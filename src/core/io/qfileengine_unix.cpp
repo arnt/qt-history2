@@ -19,13 +19,16 @@
 # include <qregexp.h>
 #endif
 
-#define d d_func()
-#define q q_func()
-
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <errno.h>
+#if !defined(QWS) && defined(Q_OS_MAC)
+# include <private/qcore_mac_p.h>
+#endif
+
+#define d d_func()
+#define q q_func()
 
 void
 QFSFileEnginePrivate::init()
@@ -314,12 +317,28 @@ QFSFileEngine::fileFlags(uint type) const
             ret |= ExeOtherPerm;
     }
     if(type & TypesMask) {
-        if((d->st.st_mode & S_IFMT) == S_IFLNK)
-            ret |= LinkType;
-        else if((d->st.st_mode & S_IFMT) == S_IFREG)
-            ret |= FileType;
-        else if((d->st.st_mode & S_IFMT) == S_IFDIR)
-            ret |= DirectoryType;
+#if !defined(QWS) && defined(Q_OS_MAC)
+        bool foundAlias = false;
+        {
+            FSRef fref;
+            if(FSPathMakeRef((const UInt8 *)QFile::encodeName(d->file).data(), &fref, NULL) == noErr) {
+                Boolean isAlias, isFolder;
+                if(FSIsAliasFile(&fref, &isAlias, &isFolder) == noErr && isAlias) {
+                    foundAlias = true;
+                    ret |= LinkType;
+                }
+            }
+        }
+        if(!foundAlias)
+#endif
+        {
+            if((d->st.st_mode & S_IFMT) == S_IFLNK)
+                ret |= LinkType;
+            else if((d->st.st_mode & S_IFMT) == S_IFREG)
+                ret |= FileType;
+            else if((d->st.st_mode & S_IFMT) == S_IFDIR)
+                ret |= DirectoryType;
+        }
     }
     if(type & FlagsMask) {
         ret |= ExistsFlag | LocalDiskFlag;
@@ -392,6 +411,22 @@ QFSFileEngine::fileName(FileName file) const
                 return QFile::decodeName(QByteArray(s));
             }
         }
+#if !defined(QWS) && defined(Q_OS_MAC)
+        {
+            FSRef fref;
+            if(FSPathMakeRef((const UInt8 *)QFile::encodeName(d->file).data(), &fref, NULL) == noErr) {
+                Boolean isAlias, isFolder;
+                if(FSResolveAliasFile(&fref, true, &isFolder, &isAlias) == noErr && isAlias) {
+                    AliasHandle alias;
+                    if(FSNewAlias(0, &fref, &alias) == noErr && alias) {
+                        CFStringRef cfstr;
+                        if(FSCopyAliasInfo(alias, 0, 0, &cfstr, 0, 0) == noErr) 
+                            return QCFString::toQString(cfstr);
+                    }
+                }
+            }
+        }
+#endif
         return QString();
     }
     return d->file;
