@@ -1522,7 +1522,10 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
 
     if (unknown && !d->readOnly) {
         QString t = e->text();
-        if (!t.isEmpty() && e->key() != Qt::Key_Delete && e->key() != Qt::Key_Backspace) {
+        if (!t.isEmpty() &&
+            e->key() != Qt::Key_Delete &&
+            e->key() != Qt::Key_Backspace &&
+            e->key() != Qt::Key_Escape) {
             insert(t);
             return;
         }
