@@ -61,6 +61,16 @@ void setupOwner()
     qAddPostRoutine( cleanup );
 }
 
+class QClipboardWatcher : public QMimeSource {
+public:
+    QClipboardWatcher();
+    bool empty() const;
+    const char* format( int n ) const;
+    QByteArray encodedData( const char* fmt ) const;
+    QByteArray getDataInFormat(Atom fmtatom) const;
+};
+
+
 
 class QClipboardData
 {
@@ -349,6 +359,9 @@ bool QClipboard::event( QEvent *e )
 	    evt.xselection.property	= None;
 	    evt.xselection.time = req->time;
 	    // ### Should we check that we own the clipboard?
+
+	    if ( !d->source() )
+		d->setSource(new QClipboardWatcher());
 	
 	    const char* fmt;
 	    QByteArray data;
@@ -373,6 +386,8 @@ bool QClipboard::event( QEvent *e )
 		Window target;
 		Atom property;
 
+		evt.xselection.property = None;
+
 		if ( multi ) {
 		    target = multi[imulti].target;
 		    property = multi[imulti].property;
@@ -383,7 +398,7 @@ bool QClipboard::event( QEvent *e )
 		}
 
 		if ( target == xa_targets ) {
-		    int n = 0;
+		    int n = 3; // 3 standard ones
 		    while (d->source()->format(n))
 			n++;
 		    data = QByteArray(n*sizeof(Atom));
@@ -392,6 +407,14 @@ bool QClipboard::event( QEvent *e )
 		    while ((fmt=d->source()->format(n))) {
 			target[n++] = *qt_xdnd_str_to_atom(fmt);
 		    }
+
+		    if ( d->source()->provides("text/plain") )
+			target[n++] = XA_STRING;
+		    if ( d->source()->provides("image/ppm") )
+			target[n++] = XA_PIXMAP;
+		    if ( d->source()->provides("image/pbm") )
+			target[n++] = XA_BITMAP;
+
 		    XChangeProperty ( dpy, req->requestor, property,
 				      xa_targets, 32,
 				      PropModeReplace,
@@ -473,16 +496,6 @@ bool QClipboard::event( QEvent *e )
 }
 
 
-
-
-class QClipboardWatcher : public QMimeSource {
-public:
-    QClipboardWatcher();
-    bool empty() const;
-    const char* format( int n ) const;
-    QByteArray encodedData( const char* fmt ) const;
-    QByteArray getDataInFormat(Atom fmtatom) const;
-};
 
 
 
