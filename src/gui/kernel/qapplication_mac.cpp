@@ -91,7 +91,7 @@ static struct {
     EventTime last_time;
     bool active;
 } qt_mac_dblclick = { false, 0, 0, -2, 0 };
-static bool qt_mac_use_scroller_time_limit = false;
+static bool qt_mac_use_qt_scroller_lines = false;
 #if defined(QT_TABLET_SUPPORT)
 static int tablet_button_state = 0;
 #endif
@@ -2644,13 +2644,13 @@ int QApplication::doubleClickInterval()
 
 void QApplication::setWheelScrollLines(int n)
 {
-    qt_mac_use_scroller_time_limit = true;
+    qt_mac_use_qt_scroller_lines = true;
     wheel_scroll_lines = n;
 }
 
 int QApplication::wheelScrollLines()
 {
-    if(!qt_mac_use_scroller_time_limit) {
+    if(!qt_mac_use_qt_scroller_lines) {
         bool ok;
         /* First worked as of 10.3.3 */
         float scroll = qt_mac_get_global_setting("com.apple.scrollwheel.scaling", 
