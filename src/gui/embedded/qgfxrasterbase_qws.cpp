@@ -55,7 +55,7 @@ struct _XRegion {
     \a w and \a h its width and height in pixels
 */
 QGfxRasterBase::QGfxRasterBase(unsigned char *b, int w, int h) :
-    cpen(Qt::black), cbrush(Qt::black), penColor(Qt::black), brushColor(Qt::black),
+    cpen(Qt::black), cbrush(Qt::black), penColor(0xff000000), brushColor(0xff000000),
     backcolor(Qt::black), buffer(b)
 {
     // Buffers should always be aligned
@@ -204,7 +204,7 @@ void QGfxRasterBase::setPen(const QPen &p)
 
 #ifndef QT_NO_QWS_REPEATER
     if (isScreenGfx) {
-        int r = penColor.red(), g = penColor.green(), b = penColor.blue();
+        int r = qRed(penColor), g = qGreen(penColor), b = qBlue(penColor);
         if(depth==32||depth==24)
             penPixel=(r << 16) | (g << 8) | b;
         else if(depth==16)
@@ -245,7 +245,7 @@ void QGfxRasterBase::setBrush(const QBrush &b)
 
 #ifndef QT_NO_QWS_REPEATER
     if (isScreenGfx) {
-        int r = brushColor.red(), g = brushColor.green(), b = brushColor.blue();
+        int r = qRed(brushColor), g = qGreen(brushColor), b = qBlue(brushColor);
         if(depth==32||depth==24)
             brushPixel=(r << 16) | (g << 8) | b;
         else if(depth==16)
