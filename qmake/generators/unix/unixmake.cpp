@@ -559,18 +559,12 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 
     QStringList links;
     QString target="$(TARGET)";
-    if(project->first("TEMPLATE") == "app") {
-        if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
-            target = project->first("QMAKE_BUNDLE_NAME");
-            bundle = true;
-        } else {
-            target = "$(QMAKE_TARGET)";
-        }
+    if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
+        target = project->first("QMAKE_BUNDLE_NAME");
+        bundle = true;
+    } else if(project->first("TEMPLATE") == "app") {
+        target = "$(QMAKE_TARGET)";
     } else if(project->first("TEMPLATE") == "lib") {
-        if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
-            target = project->first("QMAKE_BUNDLE_NAME");
-            bundle = true;
-        }
         if(project->isActiveConfig("create_prl") && !project->isActiveConfig("no_install_prl") &&
            !project->isEmpty("QMAKE_INTERNAL_PRL_FILE")) {
             QString dst_prl = project->first("QMAKE_INTERNAL_PRL_FILE");

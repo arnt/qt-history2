@@ -5,10 +5,9 @@ VERSION		= 4.0.0
 
 #load up the headers info
 unix {
+    CONFIG += qt_install_headers
     HEADERS_PRI = $$QT_BUILD_TREE/include/$$TARGET/headers.pri
     include($$HEADERS_PRI)|clear(HEADERS_PRI)
-} else {
-    HEADERS_PRI =
 }
 
 #version overriding
@@ -41,10 +40,11 @@ contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 contains(QT_CONFIG, largefile):CONFIG += largefile
 
 #mac frameworks
-mac:contains(QT_CONFIG, qt_framework) {
+mac:!static:contains(QT_CONFIG, qt_framework) {
    !debug_and_release|build_pass {
       QMAKE_FRAMEWORK_BUNDLE_NAME = $$TARGET
       CONFIG += lib_bundle qt_no_framework_direct_includes qt_framework
+      CONFIG -= qt_install_headers #no need to install these as well
       FRAMEWORK_HEADERS.version = Versions
       FRAMEWORK_HEADERS.files = $$SYNCQT.HEADER_FILES $$SYNCQT.HEADER_CLASSES
       FRAMEWORK_HEADERS.path = Headers
