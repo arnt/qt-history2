@@ -1876,8 +1876,15 @@ void *QCoreVariant::rawAccess(void *ptr, Type typ, bool deepCopy)
 
 /*! \internal
  */
-void* QCoreVariant::data()
+void* QCoreVariant::data() const
 {
+    // if you're requesting the low-level data,
+    // you probably plan something fishy, so clear the cache.
+    if (d->str_cache) {
+        reinterpret_cast<QString *>(&d->str_cache)->~QString();
+        d->str_cache = 0;
+    }
+
     switch(d->type) {
     case Int:
     case UInt:
