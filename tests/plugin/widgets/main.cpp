@@ -7,18 +7,90 @@
 
 /* XPM */
 static const char * const canvas_xpm[] ={
-"12 8 2 1",
+"32 32 50 1",
 ". c None",
-"c c #ff0000",
-".........ccc",
-"........ccc.",
-".......ccc..",
-"ccc...ccc...",
-".ccc.ccc....",
-"..ccccc.....",
-"...ccc......",
-"....c.......",
-};
+"# c #000040",
+"B c #002040",
+"N c #004000",
+"M c #004040",
+"J c #00c0c0",
+"E c #00ffff",
+"s c #202040",
+"q c #204000",
+"G c #204040",
+"I c #206040",
+"K c #20a080",
+"D c #20c0c0",
+"a c #402000",
+"t c #402040",
+"i c #404000",
+"k c #404040",
+"H c #406000",
+"z c #406040",
+"C c #40a080",
+"F c #40c0c0",
+"S c #602040",
+"r c #604000",
+"c c #606000",
+"m c #606040",
+"u c #606080",
+"h c #608040",
+"O c #802040",
+"y c #806040",
+"f c #806080",
+"n c #808000",
+"e c #808040",
+"d c #808080",
+"L c #80a040",
+"U c #a08000",
+"v c #a0a000",
+"w c #a0a040",
+"V c #a0a0a4",
+"x c #a0c040",
+"P c #c02080",
+"A c #c0c000",
+"j c #c0c040",
+"T c #c0c0c0",
+"R c #c0dcc0",
+"p c #c0e040",
+"Q c #e00080",
+"o c #e0c040",
+"l c #e0e000",
+"b c #e0e040",
+"g c #ffff00",
+"..#..a..........................",
+".bcd.......................efg..",
+"..gfdh....................cdgb..",
+"..badbeic...............jgjkb...",
+"...bdlb.amc...........e.ngkk..nn",
+"...bd.b.jopn........qrg.b.ke..nn",
+"...gmbl.bj.be.....s...g.bldb.ann",
+"...jtibab..licq...a...b.bbdb.mnn",
+"....pellg..lni.....b..lllldb.ecc",
+"....bulbb.clbvc...k.b..blbdwmvaa",
+"....bdlbllbmbe....g.blgllmd#mn..",
+"....jd..wbb.leaw.kbwjlb..mm.ei..",
+".....dlllge.lx..m.lb.llggymmni..",
+".....dbblg..bbj.j.eb.jlgbdgzna..",
+".....kllbc.bbjb.j.Al..llgdcmn...",
+"......ca..j.lia.i.Abie.aiAAmc...",
+".......bgbe.ljm.j.Alibbb..n.....",
+"......Bgbbb.l.i.jnplpblg.Ca.....",
+".....bDbbig.mji.jasegbelqala....",
+".....bEbb.g..ii.ja.bbmblFGjnH...",
+"......Dbb.e..ni.iambe.elI.avi...",
+".....gJ.bbw.kna..aa.blb.Kcb.....",
+"......Dsbblwnci....bblw.Da.va...",
+".....gI.qLegncc....abb..Fbxc....",
+".....gMDDB..vvn.......CFFe.vi...",
+".......ssNs.nnc......a.....v....",
+".....gil.OPws.......QQ.l.pei....",
+".....R.y.lbeS.......bbmb.mrc....",
+"....jakT.minU.........aVnimeia..",
+".....ci..dsa...........casm.ic..",
+".....i...k..................ci..",
+".....i...k..................ci.."};
+
 
 class ExtraWidgetsInterface : public WidgetInterface
 {
@@ -93,9 +165,12 @@ QString ExtraWidgetsInterface::iconSet( const QString& )
     return QString::null;
 }
 
-QIconSet ExtraWidgetsInterface::iconset( const QString& )
+QIconSet ExtraWidgetsInterface::iconset( const QString& description )
 {
-    return QIconSet( (const char**)canvas_xpm );
+    if ( description == "QCanvasView" )
+	return QIconSet((const char**)canvas_xpm);
+
+    return QIconSet();
 }
 
 QString ExtraWidgetsInterface::includeFile( const QString& )
