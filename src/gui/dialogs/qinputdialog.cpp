@@ -112,12 +112,9 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
     QObject::connect(ok, SIGNAL(clicked()), q, SLOT(accept()));
     QObject::connect(cancel, SIGNAL(clicked()), q, SLOT(reject()));
 
-    QSize sh = q->sizeHint().expandedTo(QSize(400, 10));
     q->setType(type);
-    int hfw = vbox->totalHeightForWidth(sh.width());
-    if (hfw < 0)
-        hfw = sh.height();
-    q->resize(sh.width(), hfw);
+
+    q->resize(q->sizeHint());
 }
 
 
