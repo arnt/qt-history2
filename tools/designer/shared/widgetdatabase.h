@@ -23,10 +23,9 @@
 
 #include <qiconset.h>
 #include <qstring.h>
-#include <qstringlist.h>
 #include <qinterfacemanager.h>
 
-class WidgetInterface;
+#include "widgetinterface.h"
 
 extern QInterfaceManager<WidgetInterface> *widgetManager();
 

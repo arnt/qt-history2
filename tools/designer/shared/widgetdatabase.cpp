@@ -23,8 +23,8 @@
 #include "../designer/pixmapchooser.h"
 #endif
 
-#include "widgetdatabase.h"
 #include "widgetinterface.h"
+#include "widgetdatabase.h"
 
 #include "../integration/kdevelop/kdewidgets.h"
 
