@@ -5564,6 +5564,9 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		tmph = QMAX( tmph, c->height() + linespace );
 	    }
 	    minw = QMAX( minw, tminw );
+	    // make sure minw is greater then rightmost text.
+	    minw = QMAX( minw, x + ww );
+
 	    tminw = marg + ww;
 	    lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
 	    h = QMAX( h, tmph );
