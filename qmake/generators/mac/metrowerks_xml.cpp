@@ -401,10 +401,10 @@ MetrowerksMakefileGenerator::findTemplate(QString file)
     return ret;
 }
 
-void
+bool
 MetrowerksMakefileGenerator::createFork(const QString &f)
 {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACX
     FSRef fref;
     FSSpec fileSpec;
     if(QFile::exists(f)) {
@@ -418,6 +418,8 @@ MetrowerksMakefileGenerator::createFork(const QString &f)
 	    }
 	}
 	FILE *o = fopen(f.latin1(), "a");
+	if(!o)
+	    return FALSE;
 	if(FSPathMakeRef((const UInt8 *)f.latin1(), &fref, NULL) == noErr) {
 	    if(FSGetCatalogInfo(&fref, kFSCatInfoNone, NULL, NULL, &fileSpec, NULL) == noErr) 
 		FSpCreateResFile(&fileSpec, 'CUTE', 'TEXT', smSystemScript);
@@ -425,10 +427,10 @@ MetrowerksMakefileGenerator::createFork(const QString &f)
 		qDebug("bogus %d", __LINE__);
 	} else 
 	    qDebug("bogus %d", __LINE__);
-	if(o)
-	    fclose(o);
+	fclose(o);
 	if(perms)
 	    chmod(f.latin1(), perms);
     }
 #endif
+    return TRUE;
 }

@@ -43,7 +43,7 @@
 
 class MetrowerksMakefileGenerator : public MakefileGenerator
 {
-    void createFork(const QString &f);
+    bool createFork(const QString &f);
 
     bool init_flag;
 
