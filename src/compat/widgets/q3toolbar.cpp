@@ -478,6 +478,7 @@ bool Q3ToolBar::event(QEvent * e)
             && QLatin1String("qt_dockwidget_internal") != child->objectName()) {
             boxLayout()->addWidget((QWidget*)child);
             if (QToolButton *button = qt_cast<QToolButton*>(child)) {
+                button->setFocusPolicy(Qt::NoFocus);
                 if (mw) {
                     QObject::connect(mw, SIGNAL(pixmapSizeChanged(bool)),
                                      button, SLOT(setUsesBigPixmap(bool)));
