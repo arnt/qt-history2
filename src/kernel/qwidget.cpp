@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#79 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#78 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#79 $")
 
 
 /*!
@@ -1103,7 +1103,7 @@ void QWidget::focusOutEvent( QFocusEvent * )
   \sa event(), repaint(), update(), QPainter, QPixmap
 */
 
-void QWidget::paintEvent( QPaintEvent * e )
+void QWidget::paintEvent( QPaintEvent * )
 {
 }
 

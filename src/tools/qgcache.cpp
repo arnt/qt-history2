@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#18 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -15,7 +15,7 @@
 #include "qdict.h"
 #include "qstring.h"				/* used for statistics */
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#18 $")
 
 
 // --------------------------------------------------------------------------
@@ -283,21 +283,21 @@ void QGCache::statistics() const
     line.fill( '*', 80 );
     debug( line );
     debug( "CACHE STATISTICS:" );
-    debug( "cache contains %d item%s, with a total cost of %d",
+    debug( "cache contains %d item%s, with a total cost of %ld",
 	   count(), count() != 1 ? "s" : "", tCost );
-    debug( "maximum cost is %d, cache is %d%% full.",
+    debug( "maximum cost is %ld, cache is %ld%% full.",
 	   mCost, (200*tCost + mCost) / (mCost*2) );
-    debug( "find() has been called %d time%s",
+    debug( "find() has been called %ld time%s",
 	   lruList->finds, lruList->finds != 1 ? "s" : "" );
-    debug( "%d of these were hits, items found had a total cost of %d.",
+    debug( "%ld of these were hits, items found had a total cost of %ld.",
 	   lruList->hits,lruList->hitCosts );
-    debug( "%d item%s %s been inserted with a total cost of %d.",
+    debug( "%ld item%s %s been inserted with a total cost of %ld.",
 	   lruList->inserts,lruList->inserts != 1 ? "s" : "",
 	   lruList->inserts != 1 ? "have" : "has", lruList->insertCosts );
-    debug( "%d item%s %s too large or had too low priority to be inserted.",
+    debug( "%ld item%s %s too large or had too low priority to be inserted.",
 	   lruList->insertMisses, lruList->insertMisses != 1 ? "s" : "",
 	   lruList->insertMisses != 1 ? "were" : "was" );
-    debug( "%d item%s %s been thrown away with a total cost of %d.",
+    debug( "%ld item%s %s been thrown away with a total cost of %ld.",
 	   lruList->dumps, lruList->dumps != 1 ? "s" : "",
 	   lruList->dumps != 1 ? "have" : "has", lruList->dumpCosts );
     debug( "Statistics from internal dictionary class:" );

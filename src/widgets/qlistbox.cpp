@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#44 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#43 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#44 $")
 
 
 declare(QListM, QLBItem);
@@ -986,7 +986,7 @@ int QListBox::itemHeight( int index ) const
   It must return the height of \e item in pixels.
  ----------------------------------------------------------------------------*/
 
-int QListBox::itemHeight( QLBItem * item )
+int QListBox::itemHeight( QLBItem * /* item */ )
 {
     warning( "QListBox::itemHeight: You must reimplement itemHeight() when you"
 	     " use item types different from LBI_String and LBI_Pixmap" );
@@ -1000,7 +1000,7 @@ int QListBox::itemHeight( QLBItem * item )
   It must return the width of \e item in pixels.
  ----------------------------------------------------------------------------*/
 
-int QListBox::itemWidth( QLBItem * item )
+int QListBox::itemWidth( QLBItem * /* item */ )
 {
     warning( "QListBox::itemWidth: You must reimplement itemWidth() when you"
 	     " use item types different from LBI_String and LBI_Pixmap" );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#122 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#123 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#122 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#123 $")
 
 
 // --------------------------------------------------------------------------
@@ -156,6 +156,8 @@ static void free_painter_gc( Display *dpy, GC gc )
 #if defined(SLOW_GC_ALLOC)
     XFreeGC( dpy, gc );
     return;
+#else
+    dpy = dpy;					// avoid compiler warning
 #endif
     register QGC *p = gc_array;
     int i = gc_array_size;
