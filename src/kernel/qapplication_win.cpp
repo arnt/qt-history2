@@ -1509,7 +1509,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	}
 	break;
 
-    default:
+    default:	
 	break;
     }
 
@@ -2229,6 +2229,9 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
 	ret = MA_NOACTIVATEANDEAT;
     }
 #endif
+    else if ( type == WM_CLOSE ) {
+	block_event = TRUE;
+    }
 
     return !block_event;
 }
