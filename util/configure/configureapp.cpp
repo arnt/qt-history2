@@ -980,9 +980,6 @@ void Configure::generateOutputVars()
     qmakeVars += QString( "style-plugins+=" ) + qmakeStylePlugins.join( " " );
     qmakeVars += QString( "imageformat-plugins+=" ) + qmakeFormatPlugins.join( " " );
 
-    if( licenseInfo[ "PRODUCTS" ].length() )
-	qmakeVars += QString( "QT_PRODUCT=" ) + licenseInfo[ "PRODUCTS" ];
-
     if( !dictionary[ "QMAKESPEC" ].length() ) {
 	cout << "QMAKESPEC must either be defined as an environment variable, or specified" << endl;
 	cout << "as an argument with -spec" << endl;
@@ -1046,6 +1043,9 @@ void Configure::generateCachefile()
 	    configStream << " rtti";
 	configStream << endl;
         configStream << "QT_CONFIG += " << qtConfig.join(" ") << endl;
+        if (licenseInfo[ "PRODUCTS" ].length())
+	    configStream << "QT_PRODUCT = " << licenseInfo["PRODUCTS"];
+
 	configFile.close();
     }
 }
