@@ -20,7 +20,7 @@ HEADERS += atom.h \
 	   plaincodemarker.h \
            qdoc.h \
 	   qscodemarker.h \
-	   quickcodeparser.h \
+	   qscodeparser.h \
            quoter.h \
 	   separator.h \
            set.h \
@@ -49,7 +49,7 @@ SOURCES += atom.cpp \
 	   pagegenerator.cpp \
 	   plaincodemarker.cpp \
 	   qscodemarker.cpp \
-	   quickcodeparser.cpp \
+	   qscodeparser.cpp \
            quoter.cpp \
 	   separator.cpp \
 	   sgmlgenerator.cpp \

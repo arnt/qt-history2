@@ -68,7 +68,6 @@ public:
 
     void makeFunctionNode( const QString& synopsis, QStringList *pathPtr,
 			   FunctionNode **funcPtr );
-    void removeAsters( Location& location, QString& text );
 };
 
 void CppCodeParserPrivate::readToken()
@@ -653,12 +652,12 @@ bool CppCodeParserPrivate::matchDocsAndStuff()
 
     while ( tok != Tok_Eoi ) {
 	if ( tok == Tok_Doc ) {
-	    QString text = lexeme();
+	    QString comment = lexeme();
 	    Location loc( location() );
 	    readToken();
 
-	    removeAsters( loc, text );
-	    Doc doc( loc, text, metaCommandsAvailable );
+	    Doc::trimCStyleComment( loc, comment );
+	    Doc doc( loc, comment, metaCommandsAvailable );
 
 	    QString command;
 	    QStringList args;
@@ -670,6 +669,7 @@ bool CppCodeParserPrivate::matchDocsAndStuff()
 		if ( topicsUsed.count() > 0 ) {
 		    command = topicsUsed.first();
 		    args = doc.metaCommandArgs( command );
+		    // ### what if topicsUsed.count() > 1 ?
 		}
 	    }
 
@@ -780,38 +780,6 @@ void CppCodeParserPrivate::makeFunctionNode( const QString& synopsis,
     tok = outerTok;
 }
 
-void CppCodeParserPrivate::removeAsters( Location& location, QString& text )
-{
-    QString cleaned;
-    Location m = location;
-    bool metAsterColumn = TRUE;
-    int asterColumn = location.columnNo() + 1;
-    int i;
-
-    for ( i = 0; i < (int) text.length(); i++ ) {
-	if ( m.columnNo() == asterColumn ) {
-	    if ( text[i] != '*' )
-		break;
-	    cleaned += ' ';
-	    metAsterColumn = TRUE;
-	} else {
-	    if ( text[i] == '\n' ) {
-		if ( !metAsterColumn )
-		    break;
-		metAsterColumn = FALSE;
-	    }
-	    cleaned += text[i];
-	}
-	m.advance( text[i] );
-    }
-    if ( cleaned.length() == text.length() )
-	text = cleaned;
-
-    for ( int i = 0; i < 3; i++ )
-	location.advance( text[i] );
-    text = text.mid( 3, text.length() - 5 );
-}
-
 CppCodeParser::CppCodeParser()
 {
     priv = new CppCodeParserPrivate;
@@ -825,7 +793,6 @@ CppCodeParser::~CppCodeParser()
 
 void CppCodeParser::initializeParser( const Config& config )
 {
-    Tokenizer::initialize( config );
     nodeTypeMap.insert( COMMAND_NAMESPACE, Node::Namespace );
     nodeTypeMap.insert( COMMAND_CLASS, Node::Class );
     nodeTypeMap.insert( COMMAND_ENUM, Node::Enum );
@@ -838,7 +805,6 @@ void CppCodeParser::initializeParser( const Config& config )
 void CppCodeParser::terminateParser()
 {
     CodeParser::terminateParser();
-    Tokenizer::terminate();
     nodeTypeMap.clear();
 }
 
@@ -850,7 +816,6 @@ QString CppCodeParser::language()
 void CppCodeParser::parseHeaderFile( const Location& location,
 				     const QString& filePath, Tree *tree )
 {
-    Location loc( filePath );
     FILE *in = fopen( QFile::encodeName(filePath), "r" );
     if ( in == 0 ) {
 	Messages::error( location,
@@ -860,7 +825,8 @@ void CppCodeParser::parseHeaderFile( const Location& location,
     }
 
     reset( tree );
-    FileTokenizer fileTokenizer( loc, in );
+    Location fileLocation( filePath );
+    FileTokenizer fileTokenizer( fileLocation, in );
     priv->tokenizer = &fileTokenizer;
     priv->readToken();
     priv->matchDeclList( tree->root() );
@@ -870,7 +836,6 @@ void CppCodeParser::parseHeaderFile( const Location& location,
 void CppCodeParser::parseSourceFile( const Location& location,
 				     const QString& filePath, Tree *tree )
 {
-    Location loc( filePath );
     FILE *in = fopen( QFile::encodeName(filePath), "r" );
     if ( in == 0 ) {
 	Messages::error( location,
@@ -880,7 +845,8 @@ void CppCodeParser::parseSourceFile( const Location& location,
     }
 
     reset( tree );
-    FileTokenizer fileTokenizer( loc, in );
+    Location fileLocation( filePath );
+    FileTokenizer fileTokenizer( fileLocation, in );
     priv->tokenizer = &fileTokenizer;
     priv->readToken();
     priv->matchDocsAndStuff();

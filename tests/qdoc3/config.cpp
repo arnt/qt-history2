@@ -179,11 +179,10 @@ void Config::reset()
 	const char *key;
 	const char *value;
     } defs[] = {
-	{ CONFIG_FORMATS, "HTML" },
 	{ CONFIG_FALSEHOODS, "0" },
-	{ CONFIG_SOURCELANGUAGE, "C++" },
+	{ CONFIG_FORMATS, "HTML" },
+	{ CONFIG_LANGUAGE, "C++" },
 	{ CONFIG_TABSIZE, "8" },
-	{ CONFIG_TARGETLANGUAGE, "C++" },
 	{ 0, 0 }
     };
     int i = 0;

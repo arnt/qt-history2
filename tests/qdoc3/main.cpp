@@ -18,8 +18,9 @@
 #include "messages.h"
 #include "plaincodemarker.h"
 #include "qscodemarker.h"
-#include "quickcodeparser.h"
+#include "qscodeparser.h"
 #include "sgmlgenerator.h"
+#include "tokenizer.h"
 #include "tree.h"
 
 static QDict<Tree> trees;
@@ -72,13 +73,14 @@ static void processQdocFile( const QString& fileName )
 
     Messages::initialize( config );
     Location::initialize( config );
+    Tokenizer::initialize( config );
     Doc::initialize( config );
     CodeMarker::initialize( config );
     CodeParser::initialize( config );
     Generator::initialize( config );
 
-    QString sourceLang = config.getString( CONFIG_SOURCELANGUAGE );
-    Tree *tree = treeForLanguage( sourceLang );
+    QString lang = config.getString( CONFIG_LANGUAGE );
+    Tree *tree = treeForLanguage( lang );
 
     QStringList fileNames = config.getStringList( CONFIG_TRANSLATORS );
     QStringList::Iterator fn = fileNames.begin();
@@ -93,11 +95,10 @@ static void processQdocFile( const QString& fileName )
 	++fn;
     }
 
-    CodeParser *codeParser = CodeParser::parserForLanguage( sourceLang );
+    CodeParser *codeParser = CodeParser::parserForLanguage( lang );
     if ( codeParser == 0 )
 	Messages::fatal( config.location(),
-			 Qdoc::tr("Unknown source language '%1'")
-			 .arg(sourceLang) );
+			 Qdoc::tr("Cannot parse language '%1'").arg(lang) );
 
     QStringList headers = config.getAllFiles( CONFIG_HEADERS, CONFIG_HEADERDIRS,
 					      "*.h" );
@@ -118,12 +119,12 @@ static void processQdocFile( const QString& fileName )
 	++s;
     }
 
-    QString targetLang = config.getString( CONFIG_TARGETLANGUAGE );
-    CodeMarker *marker = CodeMarker::markerForLanguage( targetLang );
+    CodeMarker *marker = CodeMarker::markerForLanguage( lang );
     if ( marker == 0 )
 	Messages::fatal( config.location(),
-			 Qdoc::tr("Unknown target language '%1'")
-			 .arg(targetLang) );
+			 Qdoc::tr("Cannot output documentation for"
+				  " language '%1'")
+			 .arg(lang) );
 
     Set<QString> formats = config.getStringSet( CONFIG_FORMATS );
     Set<QString>::ConstIterator f = formats.begin();
@@ -141,6 +142,7 @@ static void processQdocFile( const QString& fileName )
     CodeParser::terminate();
     CodeMarker::terminate();
     Doc::terminate();
+    Tokenizer::terminate();
     Location::terminate();
     Messages::terminate();
     QDir::setCurrent( prevCurrentDir );
@@ -153,7 +155,7 @@ int main( int argc, char **argv )
     CodeParser *cppParser = new CppCodeParser;
     parsers.append( cppParser );
     parsers.append(
-	    new QuickCodeParser(treeForLanguage(cppParser->language())) );
+	    new QsCodeParser(treeForLanguage(cppParser->language())) );
 
     markers.append( new PlainCodeMarker );
     markers.append( new CppCodeMarker );

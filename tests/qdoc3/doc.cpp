@@ -1808,3 +1808,35 @@ QString Doc::alias( const QString& english )
 	return *a;
     }
 }
+
+void Doc::trimCStyleComment( Location& location, QString& str )
+{
+    QString cleaned;
+    Location m = location;
+    bool metAsterColumn = TRUE;
+    int asterColumn = location.columnNo() + 1;
+    int i;
+
+    for ( i = 0; i < (int) str.length(); i++ ) {
+	if ( m.columnNo() == asterColumn ) {
+	    if ( str[i] != '*' )
+		break;
+	    cleaned += ' ';
+	    metAsterColumn = TRUE;
+	} else {
+	    if ( str[i] == '\n' ) {
+		if ( !metAsterColumn )
+		    break;
+		metAsterColumn = FALSE;
+	    }
+	    cleaned += str[i];
+	}
+	m.advance( str[i] );
+    }
+    if ( cleaned.length() == str.length() )
+	str = cleaned;
+
+    for ( int i = 0; i < 3; i++ )
+	location.advance( str[i] );
+    str = str.mid( 3, str.length() - 5 );
+}

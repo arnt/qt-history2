@@ -24,7 +24,7 @@ CodeMarker::~CodeMarker()
 
 void CodeMarker::initializeMarker( const Config& config )
 {
-    defaultLang = config.getString( CONFIG_TARGETLANGUAGE );
+    defaultLang = config.getString( CONFIG_LANGUAGE );
 }
 
 void CodeMarker::terminateMarker()
