@@ -26,10 +26,10 @@ void showHelp(const char *appName)
         fprintf(stderr, "%s: %s\n", appName, error);
 
     fprintf(stderr, "Usage: %s [OPTION]... <UIFILE>\n\n"
-            "  -h, --help              display this help and exit\n"
-            "  -o <file>               place the output into <file>\n"
-            "  -tr <func>              use func() for i18n\n"
-            "  -p, --no-protection     disable header protection\n"
+            "  -h, -help                 display this help and exit\n"
+            "  -o <file>                 place the output into <file>\n"
+            "  -tr <func>                use func() for i18n\n"
+            "  -p, -no-protection        disable header protection\n"
             "\n", appName);
 
 }
@@ -45,19 +45,19 @@ int main(int argc, char *argv[])
     int arg = 1;
     while (arg < argc) {
         QString opt = argv[arg];
-        if (opt == QLatin1String("-h") || opt == QLatin1String("--help")) {
+        if (opt == QLatin1String("-h") || opt == QLatin1String("-help")) {
             showHelp(argv[0]);
             return 0;
-        } else if (opt == QLatin1String("-o")) {
+        } else if (opt == QLatin1String("-o") || opt == QLatin1String("-output")) {
             ++arg;
             if (!argv[arg]) {
                 showHelp(argv[0]);
                 return -1;
             }
             driver.option().outputFile = QFile::encodeName(argv[arg]);
-        } else if (opt == QLatin1String("-p") || opt == QLatin1String("--no-protection")) {
+        } else if (opt == QLatin1String("-p") || opt == QLatin1String("-no-protection")) {
             driver.option().headerProtection = false;
-        } else if (opt == QLatin1String("-tr") || opt == QLatin1String("--translate")) {
+        } else if (opt == QLatin1String("-tr") || opt == QLatin1String("-translate")) {
             ++arg;
             if (!argv[arg]) {
                 showHelp(argv[0]);
