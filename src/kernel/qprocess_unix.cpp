@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#69 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -410,11 +410,7 @@ void QProcessPrivate::newProc( pid_t pid, QProcess *process )
  * sigchld handler callback
  *
  **********************************************************************/
-#if defined(SIGNAL_HACK)
-void qt_C_sigchldHnd()
-#else
-void qt_C_sigchldHnd( int )
-#endif
+QT_SIGNAL_RETTYPE qt_C_sigchldHnd( QT_SIGNAL_ARGS )
 {
     if ( QProcessPrivate::procManager == 0 )
 	return;
