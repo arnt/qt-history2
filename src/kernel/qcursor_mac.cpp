@@ -396,6 +396,15 @@ void QCursor::setPos( int x, int y)
     *((short *) CrsrNewCouple) = -1 ;
     ShowCursor ( ) ;
 #endif
+
+    /* I'm not too keen on doing this, but this makes it a lot easier, so I just
+       send the event back through the event system and let it get propagated correctly
+       ideally this would not really need to be faked --Sam
+    */
+    if(QWidget *grb = QWidget::mouseGrabber()) {
+	QMouseEvent me(QMouseEvent::MouseMove, QPoint(x, y), 0, 0);
+	QApplication::sendEvent(grb, &me);
+    }
 }
 
 void QCursor::update() const
