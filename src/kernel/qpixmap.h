@@ -209,6 +209,7 @@ private:
     QPixmap	copy( bool ignoreMask = FALSE ) const;
 #if defined(Q_WS_WIN)
     void initAlphaPixmap( uchar *bytes, int length, struct tagBITMAPINFO *bmi );
+    void convertToAlphaPixmap();
 #endif
     static Optimization defOptim;
     friend Q_EXPORT void bitBlt( QPaintDevice *, int, int,

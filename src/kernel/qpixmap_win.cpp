@@ -1446,6 +1446,43 @@ bool QPixmap::hasAlphaChannel() const
     return data->realAlphaBits != 0;
 }
 
+void QPixmap::convertToAlphaPixmap()
+{
+    int	  bmi_data_len = sizeof(BITMAPINFO);
+    char *bmi_data = new char[bmi_data_len];
+    memset( bmi_data, 0, bmi_data_len );
+    BITMAPINFO	     *bmi = (BITMAPINFO*)bmi_data;
+    BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
+    bmh->biSize		  = sizeof(BITMAPINFOHEADER);
+    bmh->biWidth	  = width();
+    bmh->biHeight	  = -height();			// top-down bitmap
+    bmh->biPlanes	  = 1;
+    bmh->biBitCount	  = 32;
+    bmh->biCompression	  = BI_RGB;
+    bmh->biSizeImage	  = width() * height() * 4;
+    bmh->biClrUsed	  = 0;
+    bmh->biClrImportant	  = 0;
+
+    QPixmap pm( width(), height(), -1 );
+    pm.initAlphaPixmap( 0, 0, bmi );
+
+#ifndef Q_OS_TEMP
+    GetDIBits( qt_display_dc(), DATA_HBM, 0, height(), pm.data->realAlphaBits, bmi, DIB_RGB_COLORS );
+    char *p = pm.data->realAlphaBits + 3;
+    char *pe = p + bmh->biSizeImage;
+    while ( p < pe ) {
+	*p = 0xff;
+	p += 4;
+    }
+#else
+    memcpy( pm.data->ppvBits, data->ppvBits, bmh->biSizeImage );
+#endif
+    if ( mask() )
+	pm.setMask( *mask() );
+
+    *this = pm;
+}
+
 Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 		       const QPixmap *src, int sx, int sy, int sw, int sh )
 {
@@ -1486,32 +1523,8 @@ Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 	if ( sw <= 0 || sh <= 0 )
 	    return;
 
-	if ( !dst->data->realAlphaBits ) {
-	    int	  bmi_data_len = sizeof(BITMAPINFO);
-	    char *bmi_data = new char[bmi_data_len];
-	    memset( bmi_data, 0, bmi_data_len );
-	    BITMAPINFO	     *bmi = (BITMAPINFO*)bmi_data;
-	    BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
-	    bmh->biSize		  = sizeof(BITMAPINFOHEADER);
-	    bmh->biWidth	  = dst->width();
-	    bmh->biHeight	  = -dst->height();			// top-down bitmap
-	    bmh->biPlanes	  = 1;
-	    bmh->biBitCount	  = 32;
-	    bmh->biCompression	  = BI_RGB;
-	    bmh->biSizeImage	  = dst->width() * dst->height() * 4;
-	    bmh->biClrUsed	  = 0;
-	    bmh->biClrImportant	  = 0;
-
-	    QPixmap pm( dst->width(), dst->height(), -1 );
-	    pm.initAlphaPixmap( 0, 0, bmi );
-
-#ifndef Q_OS_TEMP
-	    GetDIBits( qt_display_dc(), dst->DATA_HBM, 0, dst->height(), pm.data->realAlphaBits, bmi, DIB_RGB_COLORS );
-#else
-	    memcpy( pm.data->ppvBits, dst->data->ppvBits, bmh->biSizeImage );
-#endif
-	    *dst = pm;
-	}
+	if ( !dst->data->realAlphaBits )
+	    dst->convertToAlphaPixmap();
 
 	uchar *sBits = src->data->realAlphaBits + ( sy * src->width() + sx ) * 4;
 	uchar *dBits = dst->data->realAlphaBits + ( dy * dst->width() + dx ) * 4;
