@@ -110,6 +110,18 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr, float scr
 	    image.create( width, height, 1, 2, QImage::BigEndian );
 	    image.setColor( 1, qRgb(0,0,0) );
 	    image.setColor( 0, qRgb(255,255,255) );
+	} else if (bit_depth == 16 && png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
+	    png_set_expand(png_ptr);
+	    png_set_strip_16(png_ptr);
+	    png_set_gray_to_rgb(png_ptr);
+
+	    image.create(width, height, 32);
+	    image.setAlphaBuffer(TRUE);
+
+	    if (QImage::systemByteOrder() == QImage::BigEndian)
+		png_set_swap_alpha(png_ptr);
+
+	    png_read_update_info(png_ptr, info_ptr);
 	} else {
 	    if ( bit_depth == 16 )
 		png_set_strip_16(png_ptr);
@@ -130,15 +142,11 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr, float scr
 				       (info_ptr->trans_values.green >> 8) & 0xff,
 				       (info_ptr->trans_values.blue  >> 8) & 0xff,
 				       (info_ptr->trans_values.gray  >> 8) & 0xff);
-		if ( bit_depth > 8 ) {
-		    // transparency support disabled for now
-		} else {
-		    int g = 0;
-		    for (; g < image.numColors(); ++g) {
-			if (image.color(g) == rgb) {
-			    image.setColor(g, rgba);
-			    break;
-			}
+		int g = 0;
+		for (; g < image.numColors(); ++g) {
+		    if (image.color(g) == rgb) {
+			image.setColor(g, rgba);
+			break;
 		    }
 		}
 	    }
