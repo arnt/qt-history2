@@ -37,22 +37,25 @@ void ResultWindow::slotExec()
 	    if ( b ) {
 		switch ( browseType->id( b ) ) {
 		case 0: // SQL
-		    //		    dataGrid->setQuery( "select * from " + tableList->currentText() + ";" );
-		    sql.setQuery( "select * from " + tableList->currentText() + ";" );
-		    dataGrid->setQuery( &sql );		    
+		    //dataGrid->setQuery( "select * from " + tableList->currentText() + ";" );
+		    sql.setName( tableList->currentText() );
+		    sql.select( sql.primaryIndex() );
+		    dataGrid->setView( &sql );		    
 		    break;
 		case 1: // Rowset
-		    //		    dataGrid->setRowset( tableList->currentText() );
+		    // dataGrid->setRowset( tableList->currentText() );
 		    break;
 		case 2: // View
-		    //		    dataGrid->setView( tableList->currentText() );
+		    sql.setName( tableList->currentText() );
+		    sql.select( sql.primaryIndex() );
+		    dataGrid->setView( &sql );
 		    break;
 		}
 	    }
 	    break;
 	case 1:
-	    sql.setQuery( queryEdit->text().simplifyWhiteSpace() );
-	    dataGrid->setQuery( &sql );
+//	    sql.setView( queryEdit->text().simplifyWhiteSpace() );
+	//    dataGrid->setView( &sql );
 	    break;
 	}
     }
@@ -62,8 +65,9 @@ void ResultWindow::newSelection( const QSqlFieldList* fields )
 {
     QString cap;
     for ( uint i = 0; i < fields->count(); ++i ) {
-	QSqlField f = fields->field(i);
-	cap += f.displayLabel().leftJustify(20) + ":" + f.value().toString().rightJustify(30) + "\n";
+	const QSqlField * f  = fields->field(i);
+	cap += f->displayLabel().leftJustify(20) + ":" + 
+	       f->value().toString().rightJustify(30) + "\n";
     }
     currentRecordEdit->setText( cap );
 }
