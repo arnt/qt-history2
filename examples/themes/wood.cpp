@@ -947,11 +947,13 @@ void NorwegianWoodStyle::drawPrimitive( PrimitiveElement pe,
 	    p->fillRect( r, (flags & Style_Sunken ? QBrush( cg.dark(), *sunkenDark)
 			                     : cg.brush(QColorGroup::Light)) );
 
-	    a.setPoint( 0, x + w - 1, y + w - 1 );
-	    p->setClipRegion( QRegion( a ) - internR );
+	    // A little inversion is needed the buttons ( but not flat)
+	    if ( flags & Style_Raised || flags & Style_Sunken ) {
+		a.setPoint( 0, x + w - 1, y + w - 1 );
+		p->setClipRegion( QRegion( a ) - internR );
 	
-	    p->fillRect( r, (flags & Style_Sunken ? QBrush( cg.light(), *sunkenLight) : cg.brush( QColorGroup::Dark ) ) );
-	
+		p->fillRect( r, (flags & Style_Sunken ? QBrush( cg.light(), *sunkenLight) : cg.brush( QColorGroup::Dark ) ) );
+	    }       
 	    p->setClipRegion( internR );
 	    p->setClipping( FALSE );
 	    p->setPen( cg.foreground() );
@@ -985,6 +987,10 @@ void NorwegianWoodStyle::drawControl( ControlElement element,
 		flags |= Style_Down;
 	    if ( btn->isOn() || btn->isDown() )
 		flags |= Style_Sunken;
+	    if ( btn->isDefault() )
+		flags |= Style_Default;
+	    if ( ! btn->isFlat() && !(flags & Style_Down) )
+		flags |= Style_Raised;
 
 	    int x1, y1, x2, y2;
 	    r.coords( &x1, &y1, &x2, &y2 );
@@ -1107,14 +1113,14 @@ void NorwegianWoodStyle::drawComplexControl( ComplexControl control,
 	    const QComboBox *cmb;
 	    cmb = (const QComboBox*)widget;
 	    QBrush fill = cg.brush( QColorGroup::Button );
-	    
+	
 	    int awh, ax, ay, sh, sy, dh, ew;
 	    get_combo_parameters( subRect(SR_PushButtonContents, widget),
 				  ew, awh, ax, ay, sh, dh, sy );
-	    
+	
 	    drawPrimitive( PE_ButtonCommand, p, r, cg, Style_Default );
-	    
-	    qDrawArrow( p, DownArrow, MotifStyle, FALSE, ax, ay, awh, 
+	
+	    qDrawArrow( p, DownArrow, MotifStyle, FALSE, ax, ay, awh,
 			awh, cg, TRUE );
 	    p->setPen( cg.light() );
 	    p->drawLine( ax, sy, ax + awh - 1, sy );
@@ -1122,7 +1128,7 @@ void NorwegianWoodStyle::drawComplexControl( ComplexControl control,
 	    p->setPen( cg.dark() );
 	    p->drawLine( ax + 1, sy + sh - 1, ax + awh - 1, sy + sh - 1 );
 	    p->drawLine( ax + awh - 1, sy + 1, ax + awh - 1, sy + sh - 1 );
-	    
+	
 	    if ( !cmb->editable() ) {
 		QRect rect = querySubControlMetrics( CC_ComboBox, widget,
 						     SC_ComboBoxEditField,
@@ -1173,7 +1179,7 @@ QRect NorwegianWoodStyle::querySubControlMetrics( ComplexControl control,
 		{
 		    rect = subRect( SR_PushButtonContents, widget );
 		    int ew = get_combo_extra_width( rect.height() );
-		    rect.setRect( rect.x() + 1, rect.y() + 1, 
+		    rect.setRect( rect.x() + 1, rect.y() + 1,
 				  rect.width() - 2 - ew, rect.height() - 2 );
 		    break;
 		}
@@ -1190,7 +1196,7 @@ QRect NorwegianWoodStyle::querySubControlMetrics( ComplexControl control,
 	break;
     }
     return rect;
-	    
+	
 }
 
 int NorwegianWoodStyle::pixelMetric( PixelMetric metric,
