@@ -599,8 +599,7 @@ public:
     QString string() { return *this; }
 };
 
-Q_DECLARE_TYPEINFO(QString, Q_COMPLEX_TYPE | Q_MOVABLE_TYPE);
-Q_DECLARE_TYPEINFO_POINTER(QString *);
+Q_DECLARE_TYPEINFO(QString, Q_MOVABLE_TYPE);
 Q_DECLARE_SHARED(QString);
 
 #if defined(Q_OS_WIN32)

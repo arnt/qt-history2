@@ -40,7 +40,6 @@ tools {
 		  $$TOOLS_H/qtextstream.h \
 		  $$TOOLS_P/qunicodetables_p.h \
 		  $$TOOLS_P/qcom_p.h \
-		  $$TOOLS_P/qucom_p.h \
 		  $$TOOLS_H/quuid.h \
 		  $$TOOLS_H/qvector.h
 
@@ -96,7 +95,6 @@ tools {
 		  $$TOOLS_CPP/qstringlist.cpp \
 		  $$TOOLS_CPP/qtextstream.cpp \
 		  $$TOOLS_CPP/qunicodetables.cpp \
-		  $$TOOLS_CPP/qucom.cpp \
 		  $$TOOLS_CPP/quuid.cpp \
 		  $$TOOLS_CPP/qvector.cpp
 }

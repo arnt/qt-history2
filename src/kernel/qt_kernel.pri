@@ -4,7 +4,6 @@ kernel {
 	KERNEL_P	= kernel
 	HEADERS += $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
-		  $$KERNEL_P/qucomextra_p.h \
 		  $$KERNEL_H/qapplication.h \
 		  $$KERNEL_P/qapplication_p.h \
 		  $$KERNEL_H/qasyncimageio.h \
@@ -173,7 +172,6 @@ kernel {
 	unix:SOURCES += $$KERNEL_CPP/qprocess_unix.cpp
 
 	SOURCES += $$KERNEL_CPP/qabstractlayout.cpp \
-		  $$KERNEL_CPP/qucomextra.cpp \
 		  $$KERNEL_CPP/qaccel.cpp \
 		  $$KERNEL_CPP/qapplication.cpp \
 		  $$KERNEL_CPP/qasyncimageio.cpp \

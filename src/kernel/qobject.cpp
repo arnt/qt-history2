@@ -41,8 +41,6 @@
 #include "qobjectlist.h"
 #include "qregexp.h"
 #include "qmetaobject.h"
-#include <private/qucom_p.h>
-#include "qucomextra_p.h"
 #include "qptrvector.h"
 #include "qobjectlist.h"
 #include "qguardedptr.h"

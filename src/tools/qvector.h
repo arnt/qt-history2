@@ -55,32 +55,30 @@ class QVector
 
     QVector &fill(const T &t, int size = - 1);
 
-    int find(const T &t, int i = 0) const;
-    int findRev(const T &t, int i = -1) const;
+    int indexOf(const T &t, int from = 0) const;
+    int lastIndexOf(const T &t, int from = -1) const;
     bool contains(const T &t) const;
     int count(const T &t) const;
 
+    // stl style
     typedef T* Iterator;
     typedef const T* ConstIterator;
-
     inline Iterator begin() { detach(); return d->array; }
     inline ConstIterator begin() const { return d->array; }
     inline ConstIterator constBegin() const { return d->array; }
     inline Iterator end() { detach(); return d->array + d->size; }
     inline ConstIterator end() const { return d->array + d->size; }
     inline ConstIterator constEnd() const { return d->array + d->size; }
+    Iterator insert( Iterator pos, int n, const T& x );
+    inline Iterator insert( Iterator pos, const T& x ) { return insert(pos, 1, x); }
+    Iterator erase( Iterator first, Iterator last );
+    inline Iterator erase( Iterator pos ) { return erase(pos, pos+1); }
 
+    // more Qt
     T& first() { Q_ASSERT(!isEmpty()); return *begin(); }
     const T& first() const { Q_ASSERT(!isEmpty()); return *begin(); }
     T& last() { Q_ASSERT(!isEmpty()); return *(end()-1); }
     const T& last() const { Q_ASSERT(!isEmpty()); return *(end()-1); }
-
-    Iterator insert( Iterator pos, int n, const T& x );
-    inline Iterator insert( Iterator pos, const T& x ) { return insert(pos, 1, x); }
-
-
-    Iterator erase( Iterator first, Iterator last );
-    inline Iterator erase( Iterator pos ) { return erase(pos, pos+1); }
 
     // stl compatibility
     typedef T value_type;
@@ -362,12 +360,12 @@ QVector<T>  &QVector<T>::operator+=(const QVector &l)
 }
 
 template <typename T>
-int QVector<T>::find(const T &t, int i) const
+int QVector<T>::indexOf(const T &t, int from) const
 {
-    if (i < 0)
-	i = QMAX(i + d->size, 0);
-    if (i < d->size) {
-	T* n = d->array + i - 1;
+    if (from < 0)
+	from = QMAX(from + d->size, 0);
+    if (from < d->size) {
+	T* n = d->array + from - 1;
 	T* e = d->array + d->size;
 	while (++n != e)
 	    if (*n == t)
@@ -377,15 +375,15 @@ int QVector<T>::find(const T &t, int i) const
 }
 
 template <typename T>
-int QVector<T>::findRev(const T &t, int i) const
+int QVector<T>::lastIndexOf(const T &t, int from) const
 {
-    if (i < 0)
-	i += d->size();
-    else if (i >= d->size())
-	i = d->size()-1;
-    if (i >= 0) {
+    if (from < 0)
+	from += d->size();
+    else if (from >= d->size())
+	from = d->size()-1;
+    if (from >= 0) {
 	T* b = d->array;
-	T* n = d->array + i + 1;
+	T* n = d->array + from + 1;
 	while (n != b) {
 	    if (*--n == t)
 		return n - b;

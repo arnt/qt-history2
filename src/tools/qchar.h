@@ -319,7 +319,6 @@ inline bool operator<(int ch, QChar c) { return !(c<=ch); }
 inline bool operator>(QChar c, int ch) { return !(ch>=c); }
 inline bool operator>(int ch, QChar c) { return !(c>=ch); }
 
-Q_DECLARE_TYPEINFO(QChar, Q_COMPLEX_TYPE);
-Q_DECLARE_TYPEINFO_POINTER(QChar *);
+Q_DECLARE_TYPEINFO(QChar, Q_MOVABLE_TYPE);
 
 #endif // QCHAR

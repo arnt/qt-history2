@@ -607,7 +607,12 @@ template<class Key, class T>
 const T QMap<Key,T>::value(const Key& k) const
 {
     Node *n = findNode(k);
-    return ((n == &d->header) ? T() : n->data);
+    if ( n == &d->header) {
+	T t;
+	qInit(t);
+	return t;
+    }
+    return n->data;
 }
 
 template<class Key, class T>

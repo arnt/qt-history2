@@ -135,22 +135,23 @@ public:
 	friend class QList;
     };
 
+
+    // stl style
     inline Iterator begin() { detach(); return (Node*) p.begin(); }
     inline ConstIterator begin() const { return (Node*) p.begin(); }
     inline ConstIterator constBegin() const { return (Node*) p.begin(); }
     inline Iterator end() { detach(); return (Node*) p.end(); }
     inline ConstIterator end() const { return (Node*) p.end(); }
     inline ConstIterator constEnd() const { return (Node*) p.end(); }
-
     Iterator insert(Iterator before, const T &t);
     Iterator erase(Iterator it);
     Iterator erase(Iterator first, Iterator last);
 
+    // more Qt
     inline T& first() { Q_ASSERT(!isEmpty()); return *begin(); }
     inline const T& first() const { Q_ASSERT(!isEmpty()); return *begin(); }
     T& last() { Q_ASSERT(!isEmpty()); return *(--end()); }
     const T& last() const { Q_ASSERT(!isEmpty()); return *(--end()); }
-
     inline void removeFirst() { Q_ASSERT(!isEmpty()); erase( begin() ); }
     inline void removeLast() { Q_ASSERT(!isEmpty()); erase( --end() ); }
 
