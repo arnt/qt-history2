@@ -1319,20 +1319,26 @@ void QXmlInputSource::fetchData()
 {
     QByteArray rawData;
 
-    if (d->inputDevice != 0) {
-        if (d->inputDevice->isOpen() || d->inputDevice->open(QIODevice::ReadOnly) )
-            rawData = d->inputDevice->readAll();
-    } else if (d->inputStream != 0) {
-        if (!d->inputStream->device()->isSequential()) {
-            rawData = d->inputStream->device()->readAll();
-        } else {
-            int nread = 0;
-            const int bufsize = 512;
-            while (!d->inputStream->device()->atEnd()) {
-                rawData.resize(nread + bufsize);
-                nread += d->inputStream->device()->read(rawData.data()+nread, bufsize);
+    if (d->inputDevice || d->inputStream) {
+        QIODevice *device = d->inputDevice ? d->inputDevice : d->inputStream->device();
+        
+        if (!device) {
+            if (d->inputStream && d->inputStream->string()) {
+                QString *s = d->inputStream->string();
+                rawData = QByteArray((const char *) s->constData(), s->size() * sizeof(QChar));
             }
-            rawData.resize(nread);
+        } else if (device->isOpen() || device->open(QIODevice::ReadOnly)) {
+            if (!device->isSequential()) {
+                rawData = device->readAll();
+            } else {
+                int nread = 0;
+                const int bufsize = 512;
+                while (!device->atEnd()) {
+                    rawData.resize(nread + bufsize);
+                    nread += device->read(rawData.data()+nread, bufsize);
+                }
+                rawData.resize(nread);
+            }
         }
     }
     setData(fromRawData(rawData));
