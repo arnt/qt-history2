@@ -1344,11 +1344,14 @@ void QGLExtensions::init()
     
     QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
     if (extensions.contains("texture_rectangle"))
-	QGLExtensions::glExtensions |= QGLExtensions::TextureRectangle;
+	glExtensions |= TextureRectangle;
     if (extensions.contains("multisample"))
-	QGLExtensions::glExtensions |= QGLExtensions::SampleBuffers;
+	glExtensions |= SampleBuffers;
     if (extensions.contains("generate_mipmap"))
-	QGLExtensions::glExtensions |= QGLExtensions::GenerateMipmap;
+	glExtensions |= GenerateMipmap;
+    if (extensions.contains("texture_compression") 
+	&& extensions.contains("texture_compression_s3tc"))
+	glExtensions |= TextureCompression;
     
     wglMakeCurrent(dmy_pdc, 0);
     wglDeleteContext(dmy_rc);

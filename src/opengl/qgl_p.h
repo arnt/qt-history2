@@ -112,7 +112,8 @@ public:
     enum Extension {
 	TextureRectangle 	= 0x00000001,
 	SampleBuffers 		= 0x00000002,
-	GenerateMipmap 		= 0x00000004
+	GenerateMipmap 		= 0x00000004,
+	TextureCompression 	= 0x00000008
     };
     Q_DECLARE_FLAGS(Extensions, Extension);
     

@@ -1106,9 +1106,8 @@ GLuint QGLContext::bindTexture(const QString &fileName)
     static bool init_compression = true;
 
     if (init_compression) {
-	QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
-	if (extensions.contains("GL_ARB_texture_compression")
-	    && extensions.contains("GL_EXT_texture_compression_s3tc"))
+	// ### all this will be moved into QGLExtensions::init()
+	if (QGLExtensions::glExtensions & QGLExtensions::TextureCompression)
 	{
 	    glCompressedTexImage2DARB = (qt_glCompressedTexImage2DARB) getProcAddress("glCompressedTexImage2DARB");
 	    if (!glCompressedTexImage2DARB)
