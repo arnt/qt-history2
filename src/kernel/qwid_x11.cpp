@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#2 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#2 $";
 #endif
 
 
@@ -65,7 +65,7 @@ bool QWidget::create()				// create widget
 			      WhitePixel(dpy,screen) );
     set_id( id );				// set widget id/handle
     hd = id;					// set paint device drawable
-    devType = PDT_WIDGET;
+    setDevType( PDT_WIDGET );
 
     XSizeHints size_hints;
     if ( overlap ) {				// only top level widgets

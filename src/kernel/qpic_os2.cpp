@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpic_os2.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qpic_os2.cpp#2 $
 **
 ** Implementation of QMetaFile class for OS/2 PM
 **
@@ -15,13 +15,13 @@
 #include <os2.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpic_os2.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpic_os2.cpp#2 $";
 #endif
 
 
 QMetaFile::QMetaFile()
 {
-    devType = PDT_METAFILE;			// set device type
+    setDevType( PDT_METAFILE | PDF_EXTDEV );	// set device type
 }
 
 QMetaFile::~QMetaFile()

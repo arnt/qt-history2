@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_os2.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qwid_os2.cpp#2 $
 **
 ** Implementation of QWidget and QView classes for OS/2 PM
 **
@@ -17,7 +17,7 @@
 #include <os2.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_os2.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_os2.cpp#2 $";
 #endif
 
 
@@ -112,7 +112,7 @@ bool QWidget::create()				// create widget
     }
     ncrect = rect;
     set_id( id );				// set widget id/handle
-    devType = PDT_WIDGET;
+    setDevType( PDT_WIDGET );
 
     hps = 0;					// no drawing yet
     setCursor( arrowCursor );			// default cursor

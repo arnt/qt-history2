@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpic_win.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qpic_win.cpp#2 $
 **
 ** Implementation of QMetaFile class for Windows + NT
 **
@@ -14,13 +14,13 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpic_win.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpic_win.cpp#2 $";
 #endif
 
 
 QMetaFile::QMetaFile()
 {
-    devType = PDT_METAFILE;			// set device type
+    setDevType( PDT_METAFILE | PDF_EXTDEV );	// set device type
 }
 
 QMetaFile::~QMetaFile()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#2 $
 **
 ** Implementation of QPaintDevice class for Windows + NT
 **
@@ -13,13 +13,13 @@
 #include "qpaintd.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#2 $";
 #endif
 
 
 QPaintDevice::QPaintDevice()
 {
-    devType = PDT_UNDEF;
+    devFlags = PDT_UNDEF;
 }
 
 QPaintDevice::~QPaintDevice()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#2 $
 **
 ** Implementation of QPainter class for Windows + NT
 **
@@ -18,7 +18,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_win.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_win.cpp#2 $";
 #endif
 
 
@@ -488,7 +488,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     pdev = pdev_ov ? pdev_ov : (QPaintDevice *)pd;
     bg_col = white;				// default background color
     sx = sy = tx = ty = 0;			// default view origins
-    if ( pdev->devType == PDT_WIDGET ) {	// device is a widget
+    if ( pdev->devType() == PDT_WIDGET ) {	// device is a widget
 	QWidget *w = (QWidget*)pdev;
 	cfont = w->font();			// use widget font
 	bg_col = w->backgroundColor();		// use widget bg color
@@ -501,7 +501,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	sw = tw = w->clientSize().width();	// default view size
 	sh = th = w->clientSize().height();
     }
-    else if ( pdev->devType == PDT_PIXMAP ) {	// device is a pixmap
+    else if ( pdev->devType() == PDT_PIXMAP ) {	// device is a pixmap
 	QPixMap *pm = (QPixMap*)pdev;
 	hdc = pm->allocMemDC();
 	SelectObject( hdc, pm->hbm );
@@ -531,9 +531,9 @@ bool QPainter::end()				// end painting
 #endif
     SelectObject( hdc, GetStockObject(BLACK_PEN) );
     SelectObject( hdc, GetStockObject(WHITE_BRUSH) );
-    if ( pdev->devType == PDT_WIDGET && !pdev->hdc )
+    if ( pdev->devType() == PDT_WIDGET && !pdev->hdc )
 	ReleaseDC( ((QWidget*)pdev)->id(), hdc );
-    else if ( pdev->devType == PDT_PIXMAP )
+    else if ( pdev->devType() == PDT_PIXMAP )
 	((QPixMap*)pdev)->freeMemDC();
     isActive = 0;
     return TRUE;

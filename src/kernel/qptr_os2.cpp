@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#2 $
 **
 ** Implementation of QPainter class for OS/2 PM
 **
@@ -19,7 +19,7 @@
 #include <os2.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_os2.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_os2.cpp#2 $";
 #endif
 
 
@@ -416,7 +416,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     bg_col = white;				// default background color
     sx = sy = tx = ty = 0;			// default view origins
     bool setRGBTable = TRUE;
-    if ( pdev->devType == PDT_WIDGET ) {	// device is a widget
+    if ( pdev->devType() == PDT_WIDGET ) {	// device is a widget
 	QWidget *w = (QWidget*)pdev;
 	cfont = w->font();			// use widget font
 	bg_col = w->backgroundColor();		// use widget bg color
@@ -432,7 +432,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	sh = th = w->clientSize().height();
 	dh = w->clientSize().height() - 1;	// set device height
     }
-    else if ( pdev->devType == PDT_PIXMAP ) {	// device is a pixmap
+    else if ( pdev->devType() == PDT_PIXMAP ) {	// device is a pixmap
 	QPixMap *pm = (QPixMap*)pdev;
 	hps = pm->hps;				// draw in pixmap
 	sw = tw = pm->size().width();		// default view size
@@ -458,7 +458,7 @@ bool QPainter::end()				// end painting
 #endif
 	return FALSE;
     }
-    if ( pdev->devType == PDT_WIDGET && !pdev->hps )
+    if ( pdev->devType() == PDT_WIDGET && !pdev->hps )
 	WinReleasePS( hps );
     isActive = 0;
     return TRUE;

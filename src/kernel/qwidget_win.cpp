@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#2 $
 **
 ** Implementation of QWidget and QView classes for Windows + NT
 **
@@ -15,7 +15,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#2 $";
 #endif
 
 
@@ -112,7 +112,7 @@ bool QWidget::create()				// create widget
 			   parent->ident, NULL, qWinAppInst(), NULL );
     }
     set_id( id );				// set widget id/handle
-    devType = PDT_WIDGET;
+    setDevType( PDT_WIDGET );
 
     RECT cr, ncr;
     POINT pt;

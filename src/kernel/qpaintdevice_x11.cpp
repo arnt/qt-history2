@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#2 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -17,13 +17,13 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#2 $";
 #endif
 
 
 QPaintDevice::QPaintDevice()
 {
-    devType = PDT_UNDEF;
+    devFlags = PDT_UNDEF;
     dpy = qXDisplay();
     hd = 0;
 }

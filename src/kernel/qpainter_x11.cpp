@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#2 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#2 $";
 #endif
 
 
@@ -456,12 +456,10 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     doXForm = FALSE;				// no transformation
     doClip = FALSE;				// no clipping
     pdev = pdev_ov ? pdev_ov : (QPaintDevice *)pd;
-    if ( pdev->devType == PDT_PRINTER || pdev->devType == PDT_METAFILE )
-	extPDev = TRUE;
-    else
-	extPDev = FALSE;
+    extPDev = (pdev->devFlags & PDF_EXTDEV);
     dpy = pdev->dpy;
     hd = pdev->hd;				// get handle to drawable
+    pdev->devFlags |= PDF_PAINTACTIVE;
     if ( extPDev ) {
 	gc = 0;
 	pdev->cmd( PDC_BEGIN, 0 );
@@ -472,14 +470,14 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     bg_col = white;				// default background color
     curPt = QPoint( 0, 0 );
     sx = sy = tx = ty = 0;			// default view origins
-    if ( pdev->devType == PDT_WIDGET ) {	// device is a widget
+    if ( pdev->devType() == PDT_WIDGET ) {	// device is a widget
 	QWidget *w = (QWidget*)pdev;
 	cfont = w->font();			// use widget font
 	bg_col = w->backgroundColor();		// use widget bg color
 	sw = tw = w->clientSize().width();	// default view size
 	sh = th = w->clientSize().height();
     }
-    else if ( pdev->devType == PDT_PIXMAP ) {	// device is a pixmap
+    else if ( pdev->devType() == PDT_PIXMAP ) {	// device is a pixmap
 	QPixMap *pm = (QPixMap*)pdev;
 	sw = tw = pm->size().width();		// default view size
 	sh = th = pm->size().height();
@@ -507,6 +505,7 @@ bool QPainter::end()				// end painting
     if ( gc )
 	XFreeGC( dpy, gc );
     isActive = FALSE;
+    pdev->devFlags &= ~PDF_PAINTACTIVE;
     pdev = 0;
     return TRUE;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture_x11.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qpicture_x11.cpp#3 $
 **
 ** Implementation of QMetaFile class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture_x11.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture_x11.cpp#3 $";
 #endif
 
 
@@ -32,7 +32,7 @@ static const int    mfhdr_min = 0;		// minor version #
 
 QMetaFile::QMetaFile()
 {
-    devType = PDT_METAFILE;			// set device type
+    setDevType( PDT_METAFILE | PDF_EXTDEV );	// set device type
 }
 
 QMetaFile::~QMetaFile()
