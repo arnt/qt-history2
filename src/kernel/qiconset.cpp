@@ -614,6 +614,9 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 	    case Normal:
 		if ( !p->vsmall.pm ) {
 		    Q_ASSERT( p->vlarge.pm );
+		    if ( !p->vlarge.pm ) {
+			p->vlarge.pm = new QPixmap( iconSize( Large ) );
+		    }
 		    i = p->vlarge.pm->convertToImage();
 		    i = i.smoothScale( iconSize( Small ).width(), iconSize( Small ).height() );
 		    p->vsmall.pm = new QPixmap;
