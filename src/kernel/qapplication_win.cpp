@@ -1626,6 +1626,12 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	case WM_IME_CHAR:
 	case WM_IME_KEYDOWN:
 	case WM_CHAR: {
+	    MSG msg1;
+	    winPeekMessage(&msg1, msg.hwnd, 0, 0, PM_NOREMOVE);
+	    if ( msg1.message == WM_DEADCHAR ) {
+		result = TRUE; // consume event since there is a dead char next
+		break;
+	    }
 	    QWidget *g = QWidget::keyboardGrabber();
 	    if ( g )
 		widget = (QETWidget*)g;
