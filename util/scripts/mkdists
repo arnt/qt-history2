@@ -44,7 +44,7 @@ DO_BZIP=auto
 DO_STUFF=auto
 DO_ID=auto
 DO_DOC=auto
-SET_TYPE=auto
+TYPE=auto
 
 die()
 {
@@ -210,7 +210,7 @@ while [ -n "$1" ]; do
        LOCAL_TREE=$VAL
        ;;
    #versioning
-   type) SET_TYPE=$VAL ;;
+   type) TYPE=$VAL ;;
    branch) BRANCH=$VAL ;;
    version)
        expr "$VAL" : ".*\.\d*" >/dev/null 2>&1 || die "Can't figure out version from $VAL"
@@ -420,23 +420,25 @@ myexpr () {
 
 # fixify qglobal's version number
 qglobal="$DISTDIR/qt/src/tools/qglobal.h"
-TYPE=$SET_TYPE
 if [ "$TYPE" = "auto" ]; then
     TYPE=`grep QT_VERSION_STR $DISTDIR/qt/src/tools/qglobal.h | awk '{ print $3 }' | sed 's,["0-9.]*-*\(.*\)",\1,'`
+    if [ ! -z "$TYPE" ] && [ "$TYPE" != "snapshot" ] && ! myexpr "$TYPE" : "^beta[0-9]*$" && ! myexpr "$TYPE" : "^b[0-9]*$"; then
+	die "The TYPE is ${TYPE}, which confuses me terribly";
+    fi
 fi
-[ ! -z "$TYPE" ] && TYPE="-${TYPE}"
-if [ -z "$TYPE" ] || echo $REL_VERSION | grep $TYPE >/dev/null 2>&1; then
-    VERSION_STR="$REL_VERSION"
-else
-    VERSION_STR=${REL_VERSION}${TYPE} && [ "$TYPE" = "-snapshot" ] && VERSION_STR=`date "+${VERSION_STR}-%Y%m%d"`
+VERSION_STR="$REL_VERSION"
+if [ ! -z "$TYPE" ] && ! myexpr "$REL_VERSION" : "${TYPE}$"; then
+    if myexpr "$TYPE" : "^b[0-9]*$"; then
+	VERSION_STR=${VERSION_STR}${TYPE}
+    else
+	VERSION_STR=${VERSION_STR}-${TYPE}
+    fi
 fi
+[ "$TYPE" = "snapshot" ] && VERSION_STR=`date "+${VERSION_STR}-%Y%m%d"`
 [ "$DO_WIN" = "yes" ] && ! strings $DISTDIR/qt/dist/win/bin/moc.exe | grep "$VERSION_STR" >/dev/null 2>&1 && status "!! Warning: qt/dist/win/bin/moc.exe might not match !!"
 sed -e "s,^\(\#define  *QT_VERSION  *\)[0-9]*$,\1${BRANCH_DIGITS},g" \
     -e "s,^\(\#define  *QT_VERSION_STR  *\)\".*\"$,\1\"${VERSION_STR}\",g" $qglobal >${TMP_FILE}
 mv ${TMP_FILE} $qglobal
-if [ "$TYPE" != "-snapshot" ] && [ ! -z "$TYPE" ] && ! myexpr "$TYPE" : "^-beta[0-9]*$"; then
-    die "The qt version is ${VERSION_STR}, which confuses me terribly";
-fi
 
 #fix $Id
 if [ "x$DO_ID" = "xyes" ]; then
@@ -670,7 +672,7 @@ copy_platform_files() {
 	    sed -e "s/%YEAR%/$YEAR/g" -e "s/%VERSION%/${VERSION_STR}/g" \
 		-e "s/%VERSION_NUMBER%/${REL_VERSION}/g" -e "s,%DISTNAME%,$platname,g" \
 		-e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" $dir/$a_file >${TMP_FILE}
-	    if [ "$TYPE" = "-snapshot" ]; then
+	    if [ "$TYPE" = "snapshot" ]; then
 	      cat ${TMP_FILE} | perl -e '$crap.=<STDIN> until(eof(STDIN)); $crap =~ s/%SNAPSHOTONLY([^%]*)%/$1/g; $crap =~ s/%STABLEONLY[^%]*%//g; print $crap' >$o_dir/$o_file
 	    else
 	      cat ${TMP_FILE} | perl -e '$crap.=<STDIN> until(eof(STDIN)); $crap =~ s/%SNAPSHOTONLY([^%]*)%//g; $crap =~ s/%STABLEONLY[^%]*%/$1/g; print $crap' >$o_dir/$o_file
@@ -766,7 +768,7 @@ for plat in mac win x11 qnx6 embedded; do
 
 	status "*** Packing $edition... *****" "1"
 	PLATNAME=qt-${plat}-${edition}-${REL_VERSION}
-	[ "$TYPE" = "-snapshot" ] && PLATNAME=`date "+${PLATNAME}-snapshot-%Y%m%d"`
+	[ "$TYPE" = "snapshot" ] && PLATNAME=`date "+${PLATNAME}-snapshot-%Y%m%d"`
 	PLATDIR=$DISTDIR/$PLATNAME
 
 	#copy the tree
@@ -967,7 +969,7 @@ for plat in mac win x11 qnx6 embedded; do
 	       sed -e "s/%YEAR%/$YEAR/g" -e "s/%VERSION%/${VERSION_STR}/g" \
 		   -e "s,%DISTNAME%,$PLATNAME,g" -e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" \
 		   "$DISTDIR/qt/dist/mac/README.outside" >${TMP_FILE}
-	       if [ "$TYPE" = "-snapshot" ]; then
+	       if [ "$TYPE" = "snapshot" ]; then
 		  sed -e "s/%SNAPSHOTONLY\([^%]*\)%/\1/g" -e "s/%STABLEONLY[^%]*%//g" \
 		      ${TMP_FILE} >${create_dir}/README
 	       else
@@ -1048,7 +1050,7 @@ if [ "$DO_QMAKE" = "yes" ]; then
       #qmake stuff
       QMAKE_VERSION=`grep 'QMAKE_VERSION "' "$DISTDIR/qt/qmake/option.h" | cut -d ' ' -f3 | sed 's,",,g'`
       PLATNAME=qmake-${plat}-${QMAKE_VERSION}
-      [ "$TYPE" = "-snapshot" ] && PLATNAME=`date "+${PLATNAME}-snapshot-%Y%m%d"`
+      [ "$TYPE" = "snapshot" ] && PLATNAME=`date "+${PLATNAME}-snapshot-%Y%m%d"`
       PLATDIR=$DISTDIR/qmake/$PLATNAME
       [ -d "$PLATDIR" ] || mkdir -p $PLATDIR
       #copy qmake stuff now
@@ -1062,7 +1064,7 @@ if [ "$DO_QMAKE" = "yes" ]; then
 
       #qt stuff
       QTPLATNAME=qt-${plat}-${REL_VERSION}
-      [ "$TYPE" = "-snapshot" ] && QTPLATNAME=`date "+${QTPLATNAME}-snapshot-%Y%m%d"`
+      [ "$TYPE" = "snapshot" ] && QTPLATNAME=`date "+${QTPLATNAME}-snapshot-%Y%m%d"`
       QTPLATDIR=$PLATDIR/$QTPLATNAME
       mkdir -p "$QTPLATDIR/include"
       mkdir -p "$QTPLATDIR/src/tools"
