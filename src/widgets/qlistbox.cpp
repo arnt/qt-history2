@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#139 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#140 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#139 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#140 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -1338,18 +1338,19 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
 {
     if ( doDrag && (e->state() & (RightButton|LeftButton|MidButton)) != 0 ) {
 	int itemClicked = findItem( e->pos().y() );
-	if ( itemClicked != -1 ) {
+	if ( itemClicked >= 0 ) {
 	    if ( isTiming ) {
 		killTimer( itemList->timerId );
 		isTiming = FALSE;
 	    }
 	    if ( multiSelect ) {
-		bool s = currentItem() >= 0 ? currentItem() : TRUE;
+		bool s = currentItem() >= 0 
+			 ? isSelected( currentItem() ) : TRUE;
 		int i = QMIN( itemClicked, currentItem() );
 		if ( i < 0 )
 		    i = 0;
 		while( i <= itemClicked || i <= currentItem() ) {
-		    setSelected( i, isSelected( s ) );
+		    setSelected( i, s );
 		    i++;
 		}
 	    }
@@ -1508,11 +1509,27 @@ void QListBox::timerEvent( QTimerEvent * )
 	    int y = QMAX(currentItem(),lastRowVisible())+1;
 	    if ( y >= (int)count() )
 		y = count() - 1;
+	    if ( currentItem() >= 0 && multiSelect ) {
+		bool s = isSelected( currentItem() );
+		int i = currentItem();
+		while( i <= y ) {
+		    setSelected( i, s );
+		    i++;
+		}
+	    }
 	    ensureCurrentVisible( y );
 	}
     } else {
-	if ( topItem() != 0 ) {
+	if ( topItem() > 0 ) {
 	    setTopItem( topItem() - 1 );
+	    if ( currentItem() > 0 && multiSelect ) {
+		bool s = isSelected( currentItem() );
+		int i = currentItem();
+		while( i >= topItem() ) {
+		    setSelected( i, s );
+		    i--;
+		}
+	    }
 	    setCurrentItem( topItem() );
 	}
     }
