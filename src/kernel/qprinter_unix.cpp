@@ -50,6 +50,12 @@
 
 // NOT REVISED
 
+
+struct QPrinterPrivate 
+{
+    QSize margins;
+};
+
 /*****************************************************************************
   QPrinter member functions
  *****************************************************************************/
@@ -97,6 +103,7 @@ QPrinter::QPrinter( PrinterMode m )
     state = PST_IDLE;
     output_file = FALSE;
     to_edge     = FALSE;
+    d = 0;
     switch ( m ) {
         case ScreenResolution:
 #ifdef Q_WS_QWS
@@ -126,6 +133,7 @@ QPrinter::~QPrinter()
         (void)::wait( 0 );
         pid = 0;
     }
+    delete d;
 }
 
 
@@ -534,10 +542,28 @@ int QPrinter::metric( int m ) const
 
 QSize QPrinter::margins() const
 {
+    if ( d )
+	return d->margins;
+    
     if (orient == Portrait)
         return QSize( res/2, res/3 );
 
     return QSize( res/3, res/2 );
 }
+
+/*! 
+  Sets the printer margins to the size specified. 
+
+  This function currently only has an effect on Unix systems.
+
+  \sa margins()
+*/
+void QPrinter::setMargins( const QSize &s ) 
+{
+    if ( !d )
+	d = new QPrinterPrivate;
+    d->margins = s;
+}
+
 
 #endif

@@ -334,4 +334,8 @@ QSize QPrinter::margins() const
     return (orient == Portrait) ? QSize( 36, 22 ) : QSize( 22, 36 );
 }
 
+void QPrinter::setMargins( const QSize &/*s*/ ) 
+{
+}
+
 #endif

@@ -116,7 +116,8 @@ public:
     virtual void        setFullPage( bool );
     bool                fullPage() const;
     QSize       margins()       const;
-
+    void setMargins( const QSize &s );
+    
     int         fromPage()      const;
     int         toPage()        const;
     virtual void setFromTo( int fromPage, int toPage );

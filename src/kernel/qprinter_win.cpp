@@ -1244,6 +1244,9 @@ QSize QPrinter::margins() const
 	GetDeviceCaps( handle(), PHYSICALOFFSETY ) * res / GetDeviceCaps( hdc, LOGPIXELSY ) );
 }
 
+void QPrinter::setMargins( const QSize &/*s*/ ) 
+{
+}
 
 /*
 This private function creates a new HDC for the printer. It takes the
