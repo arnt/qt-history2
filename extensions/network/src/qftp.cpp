@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#34 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#35 $
 **
 ** Implementation of Network Extension Library
 **
@@ -84,6 +84,13 @@ void QFtp::operationRename( QNetworkOperation *op )
 
 void QFtp::operationGet( QNetworkOperation *op )
 {
+    commandSocket->writeBlock( "TYPE I\r\n", 8 );
+    commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
+}
+
+void QFtp::operationPut( QNetworkOperation *op )
+{
+    commandSocket->writeBlock( "TYPE I\r\n", 8 );
     commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
 }
 
@@ -137,7 +144,7 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 	    tmp = buffer.stripWhiteSpace();
 	return;
     }
-
+    
     QString tmp_;
 
     // permissions
@@ -158,6 +165,9 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
     } else
 	return;
 
+    if ( lst.count() > 9 && !info.isSymLink() )
+	return;
+    
     // owner
     tmp_ = lst[ 2 ];
     info.setOwner( tmp_ );
@@ -205,7 +215,7 @@ void QFtp::readyRead()
     QCString s;
     s.resize( commandSocket->bytesAvailable() );
     commandSocket->readBlock( s.data(), commandSocket->bytesAvailable() );
-    
+
     if ( !url() )
 	return;
 
@@ -329,13 +339,26 @@ void QFtp::dataConnected()
 	QString cmd = "RETR " + QUrl( operationInProgress()->arg1() ).path() + "\r\n";
 	commandSocket->writeBlock( cmd.latin1(), cmd.length() );
     } break;
+    case OpPut: { // upload file
+	if ( !operationInProgress() || operationInProgress()->arg1().isEmpty() ) {
+	    qWarning( "no filename" );
+	    break;
+	}
+	QString cmd = "STOR " + QUrl( operationInProgress()->arg1() ).path() + "\r\n";
+	commandSocket->writeBlock( cmd.latin1(), cmd.length() );
+	dataSocket->writeBlock( operationInProgress()->rawArg2(),
+				operationInProgress()->rawArg2().size() );
+	dataSocket->close();
+    } break;
     }
 }
 
 void QFtp::dataClosed()
 {
     emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
-
+    // switch back to ASCII mode
+    commandSocket->writeBlock( "TYPE A\r\n", 8 );
+    
     passiveMode = FALSE;
     emit finished( operationInProgress() );
 
@@ -368,7 +391,7 @@ void QFtp::dataReadyRead()
     QByteArray s;
     s.resize( dataSocket->bytesAvailable() );
     dataSocket->readBlock( s.data(), dataSocket->bytesAvailable() );
-
+    
     switch ( operationInProgress()->operation() ) {
     case OpListChildren: { // parse directory entry
 	QString ss = QString::fromLatin1( s.copy() );

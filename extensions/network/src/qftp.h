@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.h#17 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.h#18 $
 **
 ** Implementation of Network Extension Library
 **
@@ -50,6 +50,7 @@ protected:
     virtual void operationRemove( QNetworkOperation *op );
     virtual void operationRename( QNetworkOperation *op );
     virtual void operationGet( QNetworkOperation *op );
+    virtual void operationPut( QNetworkOperation *op );
 
     QSocket *commandSocket, *dataSocket;
     bool connectionReady, passiveMode;
