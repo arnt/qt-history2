@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#429 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#430 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2065,13 +2065,15 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if ( inPopupMode() ) // some delayed focus event to ignore
 	    break;
 	active_window = widget->topLevelWidget();
-	if (active_window && active_window->extra->topextra->embedded) {
+	if (active_window && active_window->extra &&
+	    active_window->extra->topextra &&
+	    active_window->extra->topextra->embedded) {
 	    ((XEvent*)event)->xfocus.window = active_window->extra->topextra->parentWinId;
 	    XSendEvent(appDpy, active_window->extra->topextra->parentWinId, NoEventMask, FALSE, (XEvent*)event);
 	}
 	
 	QWidget *w = widget->focusWidget();
-	while ( w->focusProxy() )
+	while ( w && w->focusProxy() )
 	    w = w->focusProxy();
 	if (w && (w->isFocusEnabled() || w->isTopLevel() ) )
 	    w->setFocus();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#346 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#347 $
 **
 ** Implementation of QWidget class
 **
@@ -1736,7 +1736,7 @@ const QColorGroup &QWidget::colorGroup() const
 
 const QPalette &QWidget::palette() const
 {
-    if ( testWState(QWS_PaletteSet) ){
+    if ( !testWState(QWS_PaletteSet) ){
 	QWidget* that = (QWidget*)this;
 	that->pal = *QApplication::palette( that );
 	that->setWState(QWS_PaletteSet);
@@ -1791,7 +1791,12 @@ void QWidget::setPalette( const QPalette &p )
 
 void QWidget::setPalette( const QPalette &p, bool fixed )
 {
-    setWState( fixed ? (QWS_PaletteSet|QWS_PaletteFixed) : QWS_PaletteSet );
+    if ( fixed ) {
+	setWState( QWS_PaletteSet|QWS_PaletteFixed );
+    } else {
+	clearWState( QWS_PaletteFixed );
+	setWState( QWS_PaletteSet );
+    }
     setPalette( p );
 }
 
@@ -1832,7 +1837,7 @@ void QWidget::paletteChange( const QPalette & )
 
 const QFont &QWidget::font() const
 {
-    if ( testWState(QWS_FontSet) ) {
+    if ( !testWState(QWS_FontSet) ) {
 	QWidget* that = (QWidget*)this;
 	that->fnt = *QApplication::font( that );
 	that->setWState( QWS_FontSet );
@@ -1896,7 +1901,12 @@ void QWidget::setFont( const QFont &font )
 
 void QWidget::setFont( const QFont &font, bool fixed )
 {
-    setWState( fixed ? (QWS_FontSet|QWS_FontFixed) : QWS_FontSet );
+    if ( fixed ) {
+	setWState( QWS_FontSet|QWS_FontFixed );
+    } else {
+	clearWState( QWS_FontFixed );
+	setWState( QWS_FontSet );
+    }
     setFont( font );
 }
 
