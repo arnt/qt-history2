@@ -14,6 +14,7 @@ HEADERS	+= helpwindow.h \
 TARGET	= assistant
 
 #DEFINES +=  QT_PALMTOPCENTER_DOCS
+DEFINES	+= QT_INTERNAL_NETWORK QT_INTERNAL_XML
 include( ../../src/qt_professional.pri )
 DESTDIR	= ../../bin
 
@@ -53,5 +54,4 @@ IMAGES	= images/appicon.png \
 	images/splash.png
 TEMPLATE	=app
 CONFIG	+= qt warn_off release
-DEFINES	+= QT_INTERNAL_NETWORK QT_INTERNAL_XML
 LANGUAGE	= C++
