@@ -913,7 +913,7 @@ void QFontEngineQPF::draw(QPaintEngine *p, int x, int y, const QTextItemInt &si)
 
 
         int mono = !(d->fm.flags & FM_SMOOTH);
-        int bpl = mono ? (myw+7)/8 : myw;
+        int bpl = glyph->metrics->linestep;
 
         if(myw != 0 && myh != 0 && bpl != 0)
             qpe->alphaPenBlt(glyph->data, bpl, mono, myx,myy,myw,myh,0,0);
