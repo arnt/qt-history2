@@ -28,7 +28,7 @@ DISTDIR=$3
 
 unset LANG
 
-x11onlysrc="kernel/qpsprn.cpp dialogs/qprndlg.cpp"
+x11onlysrc="kernel/qpsprn.cpp dialogs/qprndlg.cpp kernel/qpnpsupport.cpp"
 x11onlyhdr="kernel/qpsprn.h dialogs/qprndlg.h"
 
 unset goodparam1
