@@ -153,7 +153,7 @@ static Q4StyleOptionSpinBox getStyleOption(const QSpinWidget *spin)
     Q4StyleOptionSpinBox opt(0);
     opt.init(spin);
     opt.parts = 0;
-    opt.buttonSymbols = static_cast<QAbstractSpinBox::ButtonSymbols>(spin->buttonSymbols());
+    opt.buttonSymbols = (QAbstractSpinBox::ButtonSymbols)spin->buttonSymbols();
     opt.percentage = 0; // no way to get this information as it is in QRangeControl.
     opt.slider = false;
     opt.stepEnabled = 0;
