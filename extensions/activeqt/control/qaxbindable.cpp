@@ -18,13 +18,7 @@
 #include <qmetaobject.h>
 
 #include <qt_windows.h> //IUnknown
-
-struct IAxServerBase : public IUnknown
-{
-    virtual IUnknown *clientSite() const = 0;
-    virtual void emitPropertyChanged( const char*, long dispid = -1 ) = 0;
-    virtual bool emitRequestPropertyChange( const char*, long dispid = -1 ) = 0;
-};
+#include "../shared/types.h"
 
 /*!
     \class QAxBindable qaxbindable.h

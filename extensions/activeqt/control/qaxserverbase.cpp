@@ -33,14 +33,6 @@
 
 #include "../shared/types.h"
 
-GUID IID_IAxServerBase = { 0xbd2ec165, 0xdfc9, 0x4319, { 0x8b, 0x9b, 0x60, 0xa5, 0x74, 0x78, 0xe9, 0xe3} };
-struct IAxServerBase : public IUnknown
-{
-    virtual IUnknown *clientSite() const = 0;
-    virtual void emitPropertyChanged( const char*, long dispid = -1 ) = 0;
-    virtual bool emitRequestPropertyChange( const char*, long dispid = -1 ) = 0;
-};
-
 // in qaxservermain.cpp
 extern ITypeLib *qAxTypeLibrary;
 extern QAxFactoryInterface *qAxFactory();
@@ -171,6 +163,10 @@ public:
 
     void emitPropertyChanged( const char*, long dispid = -1 );
     bool emitRequestPropertyChange( const char*, long dispid = -1 );
+    QObject *qObject() const
+    {
+	return theObject;
+    }
     void readMetaData();
 
 // IDispatch

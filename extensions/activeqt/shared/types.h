@@ -20,6 +20,15 @@
 #include <private/qcom_p.h>
 #include <private/qucomextra_p.h>
 
+extern GUID IID_IAxServerBase;
+struct IAxServerBase : public IUnknown
+{
+    virtual IUnknown *clientSite() const = 0;
+    virtual void emitPropertyChanged( const char*, long dispid = -1 ) = 0;
+    virtual bool emitRequestPropertyChange( const char*, long dispid = -1 ) = 0;
+    virtual QObject *qObject() const = 0;
+};
+
 #define HIMETRIC_PER_INCH   2540
 #define MAP_PIX_TO_LOGHIM(x,ppli)   ( (HIMETRIC_PER_INCH*(x) + ((ppli)>>1)) / (ppli) )
 #define MAP_LOGHIM_TO_PIX(x,ppli)   ( ((ppli)*(x) + HIMETRIC_PER_INCH/2) / HIMETRIC_PER_INCH )

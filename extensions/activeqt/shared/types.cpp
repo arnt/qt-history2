@@ -23,6 +23,7 @@
 #include <qmetaobject.h>
 
 extern IDispatch *create_object_wrapper( QObject *o );
+GUID IID_IAxServerBase = { 0xbd2ec165, 0xdfc9, 0x4319, { 0x8b, 0x9b, 0x60, 0xa5, 0x74, 0x78, 0xe9, 0xe3} };
 
 IFontDisp *QFontToIFont( const QFont &font )
 {
@@ -760,7 +761,18 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		    reference = new QPixmap( qpixmap );
 		static_QUType_varptr.set( obj, reference );
 	    } else {
-		static_QUType_ptr.set( obj, disp );
+		IAxServerBase *qax = 0;
+		if (disp)
+		    disp->QueryInterface(IID_IAxServerBase, (void**)&qax);
+		if (qax) {
+		    QObject *theObject = qax->qObject();
+		    // verify that parameter expect the QObject
+		    if (theObject && !qstrcmp(theObject->className(),(const char*)param->typeExtra))
+			static_QUType_ptr.set(obj, theObject);
+		    qax->Release();
+		}
+		if (!obj->payload.ptr)
+		    static_QUType_ptr.set( obj, disp );
 	    }
 	}
 	break;
