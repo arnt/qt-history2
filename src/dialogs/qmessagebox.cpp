@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#65 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#66 $
 **
 ** Implementation of QMessageBox class
 **
@@ -291,7 +291,7 @@ static const unsigned char critical_gif_data[] = {
 
 struct QMBData {
     QMBData(QMessageBox* parent) :
-	iconLabel( parent )
+	iconLabel( parent, "icon" )
     {
     }
 
@@ -481,7 +481,7 @@ void QMessageBox::init( int button0, int button1, int button2 )
 	    mbd->pb[i] = 0;
 	} else {
 	    QString buttonName;
-	    buttonName.sprintf( "button %d", i+1 );
+	    buttonName.sprintf( "button%d", i+1 );
 	    mbd->pb[i] = new QPushButton( mb_texts[mbd->button[i]],
 					  this, buttonName );
 	    if ( mbd->defButton == i ) {
