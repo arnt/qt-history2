@@ -3029,7 +3029,7 @@ void QTextEdit::setModified( bool m )
 
 bool QTextEdit::isModified() const
 {
-    return modified;
+    return modified && isUndoAvailable();
 }
 
 void QTextEdit::setModified()
@@ -4266,7 +4266,7 @@ bool QTextEdit::isUndoRedoEnabled() const
 
 bool QTextEdit::isUndoAvailable() const
 {
-    return doc->commands()->isUndoAvailable();
+    return doc->commands()->isUndoAvailable() || undoRedoInfo.valid();
 }
 
 /*! Returns whether redo is available */
