@@ -252,11 +252,10 @@ void HelpDialog::lastWinClosed()
 
 void HelpDialog::generateNewDocu()
 {
-    QString d( QDir::homeDirPath() );
-    QDir dir( d );
-    QStringList list = dir.entryList( ".indexdb*; .titlemapdb", QDir::Files | QDir::Hidden );
-    QStringList::iterator it = list.begin();
-    for ( ; it != list.end(); ++it ) {
+    QStringList fileList;
+    fileList <<  ".indexdb" << ".indexdb.dict" << ".indexdb.doc" << ".contentdb";
+    QStringList::iterator it = fileList.begin();
+    for ( ; it != fileList.end(); ++it ) {
 	if( QFile::exists( QDir::homeDirPath() + "/" + *it ) ){
 	    QFile f( QDir::homeDirPath() + "/" + *it );
 	    f.remove();
