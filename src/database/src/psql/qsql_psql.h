@@ -46,7 +46,8 @@ public:
 			const QString & host = QString::null );
     void 		close();
     QSql		createResult() const;
-    QStringList         tables() const;        
+    QStringList         tables( const QString& user ) const;
+    QSqlIndex           primaryIndex( const QString& tablename ) const;        
 protected:
     bool    		beginTransaction();
     bool    		commitTransaction();

@@ -246,9 +246,10 @@ QSqlFieldInfoList QSqlDriver::table( const QString& name ) const
   Returns a list of tables in the database.
 */
 
-QStringList QSqlDriver::tables() const
+QStringList QSqlDriver::tables( const QString& user ) const
 {
     return QStringList();
+    Q_CONST_UNUSED( user );
 }
 
 /*!
@@ -261,7 +262,7 @@ QStringList QSqlDriver::tables() const
 QSqlIndex QSqlDriver::primaryIndex( const QString& tablename ) const
 {
     return QSqlIndex();
-    Q_CONST_UNUSED( tablename );    
+    Q_CONST_UNUSED( tablename );
 }
 
 #endif // QT_NO_SQL

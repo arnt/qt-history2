@@ -73,10 +73,10 @@ public:
     bool	transaction();
     bool	commit();
     bool	rollback();
-    QString 	databaseName();
-    QString 	userName();
-    QString 	password();
-    QString 	hostName();
+    QString 	databaseName() const;
+    QString 	userName() const;
+    QString 	password() const;
+    QString 	hostName() const;
     QSqlError   lastError() const;
     QSqlDriver* driver() const;
 private:

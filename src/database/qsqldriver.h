@@ -28,8 +28,8 @@ public:
     virtual bool    rollbackTransaction();
     virtual QSqlFieldInfoList view( const QString& sql ) const;
     virtual QSqlFieldInfoList table( const QString& name ) const;
-    virtual QStringList tables() const;
-    QSqlIndex       primaryIndex( const QString& tablename ) const;    
+    virtual QStringList tables( const QString& user ) const;
+    QSqlIndex       primaryIndex( const QString& tablename ) const;
     QSqlError	    lastError() const;
     virtual bool    open( const QString & db,
     			const QString & user = QString::null,

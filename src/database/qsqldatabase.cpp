@@ -295,7 +295,7 @@ bool QSqlDatabase::rollback()
 
 */
 
-QString QSqlDatabase::databaseName()
+QString QSqlDatabase::databaseName() const
 {
     return d->dbname;
 }
@@ -304,7 +304,7 @@ QString QSqlDatabase::databaseName()
 
 */
 
-QString QSqlDatabase::userName()
+QString QSqlDatabase::userName() const
 {
     return d->uname;
 }
@@ -313,7 +313,7 @@ QString QSqlDatabase::userName()
 
 */
 
-QString QSqlDatabase::password()
+QString QSqlDatabase::password() const
 {
     return d->pword;
 }
@@ -322,7 +322,7 @@ QString QSqlDatabase::password()
 
 */
 
-QString QSqlDatabase::hostName()
+QString QSqlDatabase::hostName() const
 {
     return d->hname;
 }
@@ -372,7 +372,7 @@ QSqlTable QSqlDatabase::table( const QString & name ) const
 
 QStringList QSqlDatabase::tables() const
 {
-    return d->driver->tables();
+    return d->driver->tables( userName() );
 }
 
 /*!

@@ -21,10 +21,10 @@ QSqlError makeError( const QString& err, int type, const QPSQLPrivate* p )
     return QSqlError("QPSQL: " + err, QString(PQerrorMessage( p->connection )), type);
 }
 
-QSqlFieldInfo makeFieldInfo( QPSQLPrivate* p, int i )
+QVariant::Type decodePSQLType( int t )
 {
-    QVariant::Type type;
-    switch ( PQftype( p->result, i ) ) {
+    QVariant::Type type = QVariant::Invalid;
+    switch ( t ) {
     case BOOLOID	:
     case INT8OID	:
     case INT2OID	:
@@ -90,7 +90,30 @@ QSqlFieldInfo makeFieldInfo( QPSQLPrivate* p, int i )
 	type = QVariant::String;
 	break;
     }
+    return type;
+}
+
+QSqlFieldInfo makeFieldInfo( QPSQLPrivate* p, int i )
+{
+    QVariant::Type type = decodePSQLType( PQftype( p->result, i ) );
     return QSqlFieldInfo( PQfname( p->result, i ), type, PQfsize( p->result, i ), 0  );
+}
+
+QSqlFieldInfo makeFieldInfo( const QSqlDriver* driver, const QString& tablename, const QString& fieldname )
+{
+    QString stmt ( "select a.atttypid, atttypmod, a.attlen "
+		   "from pg_user u, pg_class c, pg_attribute a, pg_type t "
+		   "where c.relname = %1 "
+		   "and c.attname = %2 "
+		   "and int4out(u.usesysid) = int4out(c.relowner) "
+		   "and c.oid= a.attrelid "
+		   "and a.atttypid = t.oid "
+		   "and (a.attnum > 0)");
+    QSql fi = driver->createResult();
+    fi << stmt.arg( tablename ).arg( fieldname );
+    if ( fi.next() ) 
+	return QSqlFieldInfo( fieldname, decodePSQLType(fi[0].toInt()), fi[1].toInt(), fi[2].toInt());
+    return QSqlFieldInfo();
 }
 
 QPSQLResult::QPSQLResult( const QPSQLDriver* db, const QPSQLPrivate* p )
@@ -438,12 +461,31 @@ bool QPSQLDriver::rollbackTransaction()
     return TRUE;
 }
 
-QStringList QPSQLDriver::tables() const
+QStringList QPSQLDriver::tables( const QString& user ) const
 {
     QSql t = createResult();
-    t << "select tablename from pg_tables;";
+    QString stmt( "select relname from pg_class, pg_user "
+		  "where usename like '%1" 
+		  "and relkind = 'r' "
+		  "and int4out(usesysid) = int4out(relowner) "
+		  "order by relname;" );
+    t << stmt.arg( user );
     QStringList tl;
     while ( t.next() )
 	tl.append( t[0].toString() );
     return tl;
+}
+
+QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
+{
+    QSqlIndex idx;
+    QSql i = createResult();
+    QString stmt( "select a.attname from pg_attribute a, pg_class c1,"
+		  "pg_class c2, pg_index i where c1.relname = '%1' "
+		  "and c1.oid = i.indrelid and i.indexrelid = c2.oid "
+		  "and a.attrelid = c2.oid;");
+    i << stmt.arg( tablename );
+    while ( i.next() ) 
+	idx.append ( makeFieldInfo( this, tablename,  i[0].toString() ) );
+    return idx;
 }
