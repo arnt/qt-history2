@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#40 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#41 $
 **
 ** Global functions
 **
@@ -16,7 +16,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#41 $");
 
 
 #define QT_VERSION "1.0"
@@ -157,8 +157,7 @@ void debug( const char *msg, ... )
 	vsprintf( buf, msg, ap );
 	va_end( ap );
 	(*handler)( QtDebugMsg, buf );
-    }
-    else {
+    } else {
 	vfprintf( stderr, msg, ap );
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
@@ -201,8 +200,7 @@ void warning( const char *msg, ... )
 	vsprintf( buf, msg, ap );
 	va_end( ap );
 	(*handler)( QtWarningMsg, buf );
-    }
-    else {
+    } else {
 	vfprintf( stderr, msg, ap );
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
@@ -246,8 +244,7 @@ void fatal( const char *msg, ... )
 	vsprintf( buf, msg, ap );
 	va_end( ap );
 	(*handler)( QtFatalMsg, buf );
-    }
-    else {
+    } else {
 	vfprintf( stderr, msg, ap );
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
