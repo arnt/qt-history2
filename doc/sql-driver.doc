@@ -218,13 +218,22 @@ Build the plugin as follows (here it is assumed that Oracle Client is
 installed in C:\oracle):
 
 \code
+set INCLUDE=%INCLUDE%;c:\oracle\oci\include
+set LIB=%LIB%;c:\oracle\oci\lib\msvc
 cd %QTDIR%\plugins\src\sqldrivers\oci
-qmake -o Makefile "INCLUDEPATH+=C:\oracle\oci\include" oci.pro
+qmake -o Makefile oci.pro
 nmake
 \endcode
 
-If you are not using a Microsoft compiler, replace "nmake" with "make" in the
-statement above.
+When you run your application you will also need to add the oci.dll
+path to your PATH environment variable:
+
+\code
+set PATH=%PATH%;c:\oracle\bin
+\endcode
+
+If you are not using a Microsoft compiler, replace "nmake" with "make"
+in the statement above.
 
 \target QODBC3
 \section2 QODBC3 - Open Database Connectivity (ODBC)
