@@ -149,6 +149,8 @@
 
   \value LinkVisited a text color used for already visited hyperlinks.
 
+  \value NColorRoles Internal.
+
   Note that text colors can be used for things other than just words;
   text colors are \e usually used for text, but it's quite common to use
   the text color roles for lines, icons, etc.
@@ -546,8 +548,8 @@ QPalette::QPalette( const QColor &button )
 }
 
 /*!
-  Constructs a palette from a \a button color and a background. The other colors are
-  automatically calculated, based on these colors.
+  Constructs a palette from a \a button color and a \a background. The
+  other colors are automatically calculated, based on these colors.
 */
 
 QPalette::QPalette( const QColor &button, const QColor &background )
@@ -575,7 +577,7 @@ QPalette::QPalette( const QColor &button, const QColor &background )
 }
 
 /*!
-  Constructs a palette that consists of the three color groups \e
+  Constructs a palette that consists of the three color groups \a
   active, \a disabled and \a inactive.  See QPalette for definitions
   of the color groups and QColorGroup::ColorRole for definitions of
   each color role in the three groups.
@@ -680,6 +682,7 @@ void QPalette::setBrush( ColorGroup gr, QColorGroup::ColorRole r,
 }
 
 /*!
+    \overload
   Sets the brush color used for color role \a r to \a c in all three color
   groups.
 
@@ -691,6 +694,7 @@ void QPalette::setColor( QColorGroup::ColorRole r, const QColor &c )
 }
 
 /*!
+    \overload
   Sets the brush in for color role \a r in all three color groups to \a b.
 
   \sa brush() setColor() QColorGroup::ColorRole active() inactive() disabled()
@@ -829,7 +833,7 @@ bool QPalette::operator==( const QPalette &p ) const
 #ifndef QT_NO_DATASTREAM
 /*!
   \relates QColorGroup
-  Writes a color group to the stream.
+  Writes color group, \a g to the stream \a s.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -895,7 +899,8 @@ QDataStream &operator>>( QDataStream &s, QColorGroup &g )
 
 /*!
   \relates QPalette
-  Writes a palette to the stream and returns a reference to the stream.
+  Writes the palette, \a p to the stream \a s and returns a reference
+  to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -938,7 +943,8 @@ static void readV1ColorGroup( QDataStream &s, QColorGroup &g,
 
 /*!
   \relates QPalette
-  Reads a palette from the stream and returns a reference to the stream.
+  Reads a palette from the stream, \a s into the palette \a p, and
+  returns a reference to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */

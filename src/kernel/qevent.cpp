@@ -49,7 +49,7 @@
 
   The main event loop of Qt (QApplication::exec()) fetches
   native window system events from the event queue, translates them
-  into \l{QEvent}s and sends the translated events to QObjects.
+  into QEvents and sends the translated events to QObjects.
 
   Generally, events come from the underlying window system (spontaneous()
   returns TRUE) but it is also possible to manually send events through the
@@ -127,7 +127,7 @@
   \value ShowNormal Widget should be shown normally.
   \value ShowMaximized Widget should be shown maximized.
   \value ShowMinimized Widget should be shown minimized.
-  \value ShowWindowRequest Widget's window should be mapped.
+  \value ShowWindowRequest Widget's window should be shown.
   \value DeferredDelete The object will be deleted after it has
   cleaned up. 
   \value Accel  Key press in child for shortcut key handling, \l{QKeyEvent}.
@@ -1252,8 +1252,8 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 
   These three stages are represented by three different types of
   events. The IMStartEvent, IMComposeEvent and IMEndEvent. When a new
-  input context is created, and IMStartEvent will be sent to the
-  widget and delivered to the \l QWidget::imStartEvent method. The
+  input context is created, an IMStartEvent will be sent to the
+  widget and delivered to the \l QWidget::imStartEvent() function. The
   widget can then update internal data structures to reflect this.
 
   After this, an IMComposeEvent will be send to the widget with every
@@ -1263,7 +1263,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   every key the user types, so the widget will need to store the state
   before the composition started (the state it had when it received
   the IMStartEvent). IMComposeEvents will be delivered to the
-  \l QWIdget::imComposeEvent method.
+  \l QWIdget::imComposeEvent() function.
 
   Usually, widgets try to mark the part of the text that is part of
   the current composition in a way that is visible to the user. Mostly
@@ -1273,7 +1273,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   sent to the widget. The event contains the final string the user
   selected. This string has to be accepted as the final text the user
   entered, and the intermediate composition string should be cleared.
-  These events are delivered to \l QWidget::imEndEvent.
+  These events are delivered to \l QWidget::imEndEvent().
 */
 
 /*!

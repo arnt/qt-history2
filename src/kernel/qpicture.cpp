@@ -195,8 +195,8 @@ void QPicture::setData( const char* data, uint size )
 
 
 /*!
-  Loads a picture from the file specified by \e fileName and returns TRUE
-  if successful, otherwise FALSE.
+  Loads a picture from the file specified by \a fileName and returns TRUE
+  if successful; otherwise returns FALSE.
 
   By default, the file will be interpreted as being of the native
   QPicture format. Specifying the \a format string is optional and is
@@ -283,7 +283,7 @@ bool QPicture::save( const QString &fileName, const char *format )
 
 
 /*!
-  Replays the picture using \e painter, and returns TRUE if successful or
+  Replays the picture using \a painter, and returns TRUE if successful or
   FALSE if the internal picture data is inconsistent.
 
   This function does exactly the same as QPainter::drawPicture() with
@@ -332,7 +332,7 @@ bool QPicture::play( QPainter *painter )
 /*!
   \internal
   Iterates over the internal picture data and draws the picture using
-  \e painter.
+  \a painter.
 */
 
 bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
@@ -824,7 +824,9 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
   Use the QPaintDeviceMetrics class instead.
 
   A picture has the following hard-coded values: dpi = 72,
-  numcolors=16777216 and depth=24.
+  numcolors=16777216 and depth=24. 
+  
+  \a m is the metric to get.
 */
 
 int QPicture::metric( int m ) const
@@ -925,6 +927,7 @@ void QPainter::drawPicture( int x, int y, const QPicture &pic )
 
 /*!
   \overload void QPainter::drawPicture( const QPoint &p, const QPicture &pic )
+  Draws picture \a pic at point \a p.
 */
 
 void QPainter::drawPicture( const QPoint &p, const QPicture &pic )
@@ -947,7 +950,7 @@ void QPainter::drawPicture( const QPicture &pic )
 /*!
   Assigns a
   \link shclass.html shallow copy\endlink
-  of \e p to this picture and returns a reference to this picture.
+  of \a p to this picture and returns a reference to this picture.
 */
 
 QPicture& QPicture::operator= (const QPicture& p)
@@ -1055,7 +1058,7 @@ bool QPicture::QPicturePrivate::checkFormat()
 /*!
   \relates QPicture
 
-  Writes a QPicture to the stream and returns a reference to the stream.
+  Writes picture, \a r to the stream \a s and returns a reference to the stream.
 */
 
 QDataStream &operator<<( QDataStream &s, const QPicture &r )
@@ -1069,7 +1072,8 @@ QDataStream &operator<<( QDataStream &s, const QPicture &r )
 /*!
   \relates QPicture
 
-  Reads a QPicture from the stream and returns a reference to the stream.
+  Reads a picture from the stream \a s into picture \a r and returns a
+  reference to the stream.
 */
 
 QDataStream &operator>>( QDataStream &s, QPicture &r )

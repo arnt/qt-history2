@@ -223,6 +223,7 @@ public:
 
     // Image conversion flags.  The unusual ordering is caused by
     // compatibility and default requirements.
+    // Documented in qimage.cpp
 
     enum ImageConversionFlags {
 	ColorMode_Mask		= 0x00000003,

@@ -189,18 +189,19 @@ QPixmap::QPixmap( const QImage& image )
 }
 
 /*!
-  Constructs a pixmap with \e w width, \e h height and \e depth bits per
-  pixels.
+  Constructs a pixmap with \a w width, \a h height and \a depth bits per
+  pixel. The pixmap is optimized in accordance with the \a
+  optimization value.
 
   The contents of the pixmap is uninitialized.
 
-  The \e depth can be either 1 (monochrome) or the depth of the
-  current video mode.  If \e depth is negative, then the hardware
+  The \a depth can be either 1 (monochrome) or the depth of the
+  current video mode.  If \a depth is negative, then the hardware
   depth of the current video mode will be used.
 
-  If either \e width or \e height is zero, a null pixmap is constructed.
+  If either \a w or \a h is zero, a null pixmap is constructed.
 
-  \sa isNull()
+  \sa isNull() QPixmap::Optimization
 */
 
 QPixmap::QPixmap( int w, int h, int depth, Optimization optimization )
@@ -211,6 +212,9 @@ QPixmap::QPixmap( int w, int h, int depth, Optimization optimization )
 
 /*!
   \overload QPixmap::QPixmap( const QSize &size, int depth, Optimization optimization )
+  Constructs a pixmap of size \a size, \a depth bits per pixel,
+  optimized in accordance with the \a optimization value.
+
 */
 
 QPixmap::QPixmap( const QSize &size, int depth, Optimization optimization )
@@ -221,15 +225,20 @@ QPixmap::QPixmap( const QSize &size, int depth, Optimization optimization )
 
 #ifndef QT_NO_IMAGEIO
 /*!
-  Constructs a pixmap from the file \e fileName. If the file does not
+  Constructs a pixmap from the file \a fileName. If the file does not
   exist or is of an unknown format, the pixmap becomes a null pixmap.
 
-  The parameters are passed on to load().  This means that the data in 
-  \e fileName is not compiled into the binary.  If \e fileName contains a 
-  relative path (e.g. the filename only) the relevant file has to be found 
-  relative to the runtime working directory.
+  The \a fileName, \a format and \a conversion_flags parameters are
+  passed on to load().  This means that the data in \a fileName is not
+  compiled into the binary.  If \a fileName contains a relative path
+  (e.g. the filename only) the relevant file must be found relative
+  to the runtime working directory.
 
-  \sa isNull(), load(), loadFromData(), save(), imageFormat()
+    If the image needs to be modified to fit in a lower-resolution
+    result (eg. converting from 32-bit to 8-bit), use the \a
+    conversion_flags to specify how you'd prefer this to happen.
+
+  \sa Qt::ImageConversionFlags isNull(), load(), loadFromData(), save(), imageFormat()
 */
 
 QPixmap::QPixmap( const QString& fileName, const char *format,
@@ -241,15 +250,16 @@ QPixmap::QPixmap( const QString& fileName, const char *format,
 }
 
 /*!
-  Constructs a pixmap from the file \e fileName. If the file does not
+  Constructs a pixmap from the file \a fileName. If the file does not
   exist or is of an unknown format, the pixmap becomes a null pixmap.
 
-  The parameters are passed on to load(). This means that the data
-  in \e fileName is not compiled into the binary. If \e fileName contains a 
-  relative path (e.g. the filename only) the relevant file has to be found 
-  relative to the runtime working directory.
+  The \a fileName, \a format and \a mode parameters are passed on to
+  load(). This means that the data in \a fileName is not compiled into
+  the binary. If \a fileName contains a relative path (e.g. the
+  filename only) the relevant file must be found relative to the
+  runtime working directory.
 
-  \sa isNull(), load(), loadFromData(), save(), imageFormat()
+  \sa QPixmap::ColorMode isNull(), load(), loadFromData(), save(), imageFormat()
 */
 
 QPixmap::QPixmap( const QString& fileName, const char *format, ColorMode mode )
@@ -308,7 +318,7 @@ QPixmap::QPixmap( const QByteArray & img_data )
 #endif //QT_NO_IMAGEIO
 
 /*!
-  Constructs a pixmap that is a copy of \e pixmap.
+  Constructs a pixmap that is a copy of \a pixmap.
 */
 
 QPixmap::QPixmap( const QPixmap &pixmap )
@@ -373,7 +383,7 @@ QPixmap QPixmap::copy( bool ignoreMask ) const
 
 
 /*!
-  Assigns the pixmap \e pixmap to this pixmap and returns a reference to
+  Assigns the pixmap \a pixmap to this pixmap and returns a reference to
   this pixmap.
 */
 
@@ -417,7 +427,8 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 
 
 /*!
-  Converts the image \e image to a pixmap that is assigned to this pixmap.
+    \overload
+  Converts the image \a image to a pixmap that is assigned to this pixmap.
   Returns a reference to the pixmap.
   \sa convertFromImage().
 */
@@ -483,12 +494,12 @@ QPixmap &QPixmap::operator=( const QImage &image )
 
 
 /*!
-  \fn void QPixmap::fill( const QWidget *widget, const QPoint &ofs )
+  \overload void QPixmap::fill( const QWidget *widget, const QPoint &ofs )
 
-  Fills the pixmap with the widget's background color or pixmap.
+  Fills the pixmap with the \a widget's background color or pixmap.
   If the background is empty, nothing is done.
 
-  The \e ofs point is an offset in the widget.
+  The \a ofs point is an offset in the widget.
 
   The point \a ofs is a point in the widget's coordinate system. The
   pixmap's top-left pixel will be mapped to the point \a ofs in the
@@ -520,6 +531,9 @@ QPixmap &QPixmap::operator=( const QImage &image )
 
 /*!
   \overload void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
+  Fills the pixmap with the \a widget's background color or pixmap.
+  If the background is empty, nothing is done. \a xofs, \a yofs is an
+  offset in the widget.
 */
 
 void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
@@ -561,13 +575,14 @@ void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
 
 /*!
   \overload void QPixmap::resize( const QSize &size )
+    Resizes the pixmap to size \a size.
 */
 
 /*!
-  Resizes the pixmap to \e w width and \e h height.  If either \e w
-  or \e h is 0, the pixmap becomes a null pixmap.
+  Resizes the pixmap to \a w width and \a h height.  If either \a w
+  or \a h is 0, the pixmap becomes a null pixmap.
 
-  If both \e w and \e h are greater than 0, a valid pixmap is created.
+  If both \a w and \a h are greater than 0, a valid pixmap is created.
   New pixels will be uninitialized (random) if the pixmap is expanded.
 */
 
@@ -612,8 +627,8 @@ void QPixmap::resize( int w, int h )
 /*!
   Sets a mask bitmap.
 
-  The \e mask bitmap defines the clip mask for this pixmap. Every pixel in
-  \e mask corresponds to a pixel in this pixmap. Pixel value 1 means opaque
+  The \a newmask bitmap defines the clip mask for this pixmap. Every pixel in
+  \a newmask corresponds to a pixel in this pixmap. Pixel value 1 means opaque
   and pixel value 0 means transparent. The mask must have the same size as
   this pixmap.
 
@@ -678,7 +693,10 @@ void QPixmap::setMask( const QBitmap &newmask )
   \endcode
 
   This function is slow because it involves transformation to a QImage,
-  non-trivial computations and a transformation back to QBitmap.
+  non-trivial computations and a transformation back to a QBitmap.
+
+    If \a clipTight is TRUE the mask is just large enough to cover the
+    pixels; otherwise, the mask is larger than the data pixels.
 
   \sa QImage::createHeuristicMask()
 */
@@ -692,7 +710,7 @@ QBitmap QPixmap::createHeuristicMask( bool clipTight ) const
 #endif
 #ifndef QT_NO_IMAGEIO
 /*!
-  Returns a string that specifies the image format of the file \e fileName,
+  Returns a string that specifies the image format of the file \a fileName,
   or null if the file cannot be read or if the format cannot be recognized.
 
   The QImageIO documentation lists the supported image formats.
@@ -706,15 +724,15 @@ const char* QPixmap::imageFormat( const QString &fileName )
 }
 
 /*!
-  Loads a pixmap from the file \e fileName at runtime.
+  Loads a pixmap from the file \a fileName at runtime.
   Returns TRUE if successful, or FALSE if the pixmap could not be loaded.
 
-  If \e format is specified, the loader attempts to read the pixmap using the
-  specified format. If \e format is not specified (default),
+  If \a format is specified, the loader attempts to read the pixmap using the
+  specified format. If \a format is not specified (default),
   the loader reads a few bytes from the header to guess the file format.
 
   See the convertFromImage() documentation for a description
-  of the \e conversion_flags argument.
+  of the \a conversion_flags argument.
 
   The QImageIO documentation lists the supported image formats and
   explains how to add extra formats.
@@ -736,6 +754,15 @@ bool QPixmap::load( const QString &fileName, const char *format,
 
 /*!
   \overload
+  Loads a pixmap from the file \a fileName at runtime.
+
+  If \a format is specified, the loader attempts to read the pixmap using the
+  specified format. If \a format is not specified (default),
+  the loader reads a few bytes from the header to guess the file format.
+
+    The \a mode is used to specify the color mode of the pixmap. 
+
+    \sa QPixmap::ColorMode
 */
 
 bool QPixmap::load( const QString &fileName, const char *format,
@@ -778,11 +805,11 @@ bool QPixmap::convertFromImage( const QImage &image, ColorMode mode )
 
 #ifndef QT_NO_IMAGEIO
 /*!
-  Loads a pixmap from the binary data in \e buf (\e len bytes).
+  Loads a pixmap from the binary data in \a buf (\a len bytes).
   Returns TRUE if successful, or FALSE if the pixmap could not be loaded.
 
-  If \e format is specified, the loader attempts to read the pixmap using the
-  specified format. If \e format is not specified (default),
+  If \a format is specified, the loader attempts to read the pixmap using the
+  specified format. If \a format is not specified (default),
   the loader reads a few bytes from the header to guess the file format.
 
   See the convertFromImage() documentation for a description
@@ -846,8 +873,8 @@ bool QPixmap::loadFromData( const QByteArray &buf, const char *format,
 
 
 /*!
-  Saves the pixmap to the file \e fileName using the image file format
-  \e format and a quality factor \e quality.  \e quality must be in the
+  Saves the pixmap to the file \a fileName using the image file format
+  \a format and a quality factor \a quality.  \a quality must be in the
   range [0,100] or -1.  Specify 0 to obtain small compressed files, 100
   for large uncompressed files, and -1 to use the default settings.
   Returns TRUE if successful, or FALSE if the pixmap could not be saved.
@@ -903,7 +930,7 @@ QPixmap::Optimization QPixmap::defaultOptimization()
 /*!
   Sets the default pixmap optimization.
 
-  All \e new pixmaps that are created will use this default optimization.
+  All \a new pixmaps that are created will use this default optimization.
   You may also set optimization for individual pixmaps using the
   setOptimization() function.
 
@@ -964,8 +991,8 @@ static QPixmap grabChildWidgets( QWidget * w )
   specify is painted.  The defaults are 0, 0 (top-left corner) and
   -1,-1 (which means the entire widget).
 
-  (If \e w is negative, the function copies everything to the right
-  border of the window.  If \e h is negative, the function copies
+  (If \a w is negative, the function copies everything to the right
+  border of the window.  If \a h is negative, the function copies
   everything to the bottom of the window.)
 
   If \a widget is 0, or if the rectangle defined by \a x, \a y, the
@@ -1014,7 +1041,7 @@ QPixmap QPixmap::grabWidget( QWidget * widget, int x, int y, int w, int h )
 
 /*!
   Returns the actual matrix used for transforming a pixmap with \a w
-  width and \a h height.
+  width and \a h height and matrix \a matrix.
 
   When transforming a pixmap with xForm(), the transformation matrix
   is internally adjusted to compensate for unwanted translation,
@@ -1064,7 +1091,7 @@ QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
 #if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
 /*!
   \relates QPixmap
-  Writes a pixmap to the stream as a PNG image.
+  Writes the pixmap \a pixmap to the stream \a s as a PNG image.
 
   \sa QPixmap::save()
   \link datastreamformat.html Format of the QDataStream operators \endlink
@@ -1086,7 +1113,7 @@ QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
 
 /*!
   \relates QPixmap
-  Reads a pixmap from the stream.
+  Reads a pixmap from the stream \a s into the pixmap \a pixmap.
   \sa QPixmap::load()
   \link datastreamformat.html Format of the QDataStream operators \endlink
 */

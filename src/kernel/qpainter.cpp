@@ -2131,6 +2131,12 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 /*!
   \overload void QPainter::drawImage( const QPoint &p, const QImage &i, int conversion_flags )
   Draws the image \a i at point \a p.
+
+    If the image needs to be modified to fit in a lower-resolution
+    result (eg. converting from 32-bit to 8-bit), use the \a
+    conversion_flags to specify how you'd prefer this to happen.
+
+  \sa Qt::ImageConversionFlags
 */
 void QPainter::drawImage( const QPoint & p, const QImage & i,
 			  int conversion_flags )

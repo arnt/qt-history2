@@ -182,6 +182,52 @@
 
   \value LittleEndian  PC/Alpha byte order.
 */
+/*!
+    \enum Qt::ImageConversionFlags
+
+  The conversion flag is a bitwise-OR of the following values.
+  The options marked \e (default) are the set if no other
+  values from the list are included (since the defaults are zero):
+
+    Color/Mono preference (ignored for QBitmap)
+    \value AutoColor (default) - If the image has \link
+	       QImage::depth() depth\endlink 1 and contains only
+	       black and white pixels, the pixmap becomes monochrome.
+    \value ColorOnly The pixmap is dithered/converted to the
+	       \link QPixmap::defaultDepth() native display depth\endlink.	
+    \value MonoOnly The pixmap becomes monochrome.  If necessary,
+	       it is dithered using the chosen dithering algorithm.	
+    \value ColorMode_Mask		
+
+    Dithering mode preference for RGB channels
+    \value DiffuseDither (default) - a high-quality dither.
+    \value OrderedDither a faster, more ordered dither.
+    \value ThresholdDither no dithering; closest color is used.
+    \value Dither_Mask 
+ 
+    Dithering mode preference for alpha channel
+    \value ThresholdAlphaDither (default) - no dithering.
+    \value OrderedAlphaDither a faster, more ordered dither.
+    \value DiffuseAlphaDither a high-quality dither.
+    \value NoAlpha Not supported 
+    \value AlphaDither_Mask 
+
+    Color matching versus dithering preference
+    \value PreferDither always dither 32-bit images when the image is
+			being converted to 8 bits. This is the default
+			when converting to a pixmap.
+    \value AvoidDither dither 32-bit images only if
+			the image has more than 256 colors and it is
+			being converted to 8 bits. This is the default
+			when an image is converted for the purpose of
+			saving to a file.
+
+    \value AutoDither 
+    \value DitherMode_Mask 
+
+    Using 0 as the conversion flag will set all the default options.
+*/
+
 #if defined(Q_CC_DEC) && defined(__alpha) && (__DECCXX_VER >= 50190001)
 #pragma message disable narrowptr
 #endif
@@ -581,7 +627,11 @@ QImage QImage::copy() const
   copied from position \a x, \a y in this image.
   In areas beyond this image pixels are filled with pixel 0.
 
-  \sa bitBlt()
+    If the image needs to be modified to fit in a lower-resolution
+    result (eg. converting from 32-bit to 8-bit), use the \a
+    conversion_flags to specify how you'd prefer this to happen.
+
+  \sa bitBlt() Qt::ImageConversionFlags
 */
 
 QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
@@ -1888,7 +1938,11 @@ static bool convert_32_to_16( const QImage *src, QImage *dst )
   Returns \c *this if \a depth is equal to the image depth, or a null
   image if this image cannot be converted.
 
-  \sa depth(), isNull()
+    If the image needs to be modified to fit in a lower-resolution
+    result (eg. converting from 32-bit to 8-bit), use the \a
+    conversion_flags to specify how you'd prefer this to happen.
+
+  \sa Qt::ImageConversionFlags isNull()
 */
 
 QImage QImage::convertDepth( int depth, int conversion_flags ) const
@@ -5588,6 +5642,11 @@ static void write_xpm_image( QImageIO * iio )
   pointed to by \a palette. If \a d is 1 or 8, the returned image will
   have its color table ordered the same as \a palette. 
 
+    If the image needs to be modified to fit in a lower-resolution
+    result (eg. converting from 32-bit to 8-bit), use the \a
+    conversion_flags to specify how you'd prefer this to happen.
+
+  \sa Qt::ImageConversionFlags
 */
 #ifndef QT_NO_IMAGE_TRUECOLOR
 QImage QImage::convertDepthWithPalette( int d, QRgb* palette, int palette_count, int conversion_flags ) const

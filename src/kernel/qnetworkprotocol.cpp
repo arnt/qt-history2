@@ -774,6 +774,9 @@ void QNetworkProtocol::operationGet( QNetworkOperation * )
   which describes in detail how to reimplement this method.
   You may also want to look at the example implementation in
   examples/network/networkprotocol/nntp.cpp.
+
+  \a op is the pointer to the operation object which contains all
+  information on the operation that has finished, including the state, etc.
 */
 
 void QNetworkProtocol::operationPut( QNetworkOperation * )

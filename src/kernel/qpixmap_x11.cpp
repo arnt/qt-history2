@@ -901,54 +901,11 @@ QImage QPixmap::convertToImage() const
 
 
 /*!
-  Converts an image and sets this pixmap. Returns TRUE if successful.
+  Converts an image and sets this pixmap. Returns TRUE if successful;
+  otherwise returns FALSE.
 
-  The \a conversion_flags argument is a bitwise-OR from the following choices.
-  The options marked \e (default) are the choice if no other choice from the
-  list is included (they are zero):
-
-  <dl>
-   <dt>Color/Mono preference (ignored for QBitmap):
-   <dd>
-    <ul>
-     <li> \c AutoColor (default) - If the \e image has \link
-	       QImage::depth() depth\endlink 1 and contains only
-	       black and white pixels, the pixmap becomes monochrome.
-     <li> \c ColorOnly - The pixmap is dithered/converted to the
-	       \link defaultDepth() native display depth\endlink.
-     <li> \c MonoOnly - The pixmap becomes monochrome.  If necessary,
-	       it is dithered using the chosen dithering algorithm.
-    </ul>
-   <dt>Dithering mode preference for RGB channels:
-   <dd>
-    <ul>
-     <li> \c DiffuseDither (default) - a high-quality dither.
-     <li> \c OrderedDither - a faster, more ordered dither.
-     <li> \c ThresholdDither - no dithering; closest color is used.
-    </ul>
-   <dt>Dithering mode preference for alpha channel:
-   <dd>
-    <ul>
-     <li> \c DiffuseAlphaDither - a high-quality dither.
-     <li> \c OrderedAlphaDither - a faster, more ordered dither.
-     <li> \c ThresholdAlphaDither (default) - no dithering.
-    </ul>
-   <dt>Color matching versus dithering preference:
-   <dd>
-    <ul>
-     <li> \c PreferDither - always dither 32-bit images when
-		the image
-		is being converted to 8 bits.
-		This is the default when converting to a pixmap.
-     <li> \c AvoidDither - dither 32-bit images only if
-		the image
-		has more than 256 colors and it
-		is being converted to 8 bits.
-		This is the default when an image is converted
-		for the purpose of saving to a file.
-    </ul>
-  </dl>
-
+  The \a conversion_flags argument is a bitwise-OR of the 
+  \l{Qt::ImageConversionFlags}.
   Passing 0 for \a conversion_flags gives all the default options.
 
   Note that even though a QPixmap with depth 1 behaves much like a
