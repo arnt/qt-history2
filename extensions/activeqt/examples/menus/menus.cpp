@@ -71,7 +71,7 @@ QMenus::QMenus(QWidget *parent)
     connect(action, SIGNAL(triggered()), this, SLOT(editAdvancedStyle()));
     advanced->addAction(action);
 
-    edit->addMenu("&Advanced", advanced);
+    edit->addMenu(advanced)->setText("&Advanced");
 
     edit->addSeparator();
 
@@ -94,9 +94,9 @@ QMenus::QMenus(QWidget *parent)
     help->addAction(action);
 
     if (!QAxFactory::isServer())
-        menuBar()->addMenu("&File", file);
-    menuBar()->addMenu("&Edit", edit);
-    menuBar()->addMenu("&Help", help);
+        menuBar()->addMenu(file)->setText("&File");
+    menuBar()->addMenu(edit)->setText("&Edit");
+    menuBar()->addMenu(help)->setText("&Help");
 
     editor = new QTextEdit(this);
     setCenterWidget(editor);
