@@ -1544,7 +1544,7 @@ void QPrintDialog::setPrinter( QPrinter * p, bool pickUpSettings )
 		&& p->fromPage() && p->toPage()
 		&& (p->fromPage() != p->minPage()
 		    || p->toPage() != p->maxPage());
-	if ( p->fromPage() ) {
+	if ( p->fromPage() || p->toPage() ) {
 	    setFirstPage( p->fromPage() );
 	    setLastPage( p->toPage() );
 	    d->firstPage->setValue(p->fromPage());

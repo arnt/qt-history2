@@ -672,6 +672,10 @@ void QPrinter::setMinMax( int minPage, int maxPage )
 {
     min_pg = minPage;
     max_pg = maxPage;
+    if ( from_pg == 0 || from_pg < minPage )
+	from_pg = minPage;
+    if ( to_pg == 0 || to_pg > maxPage )
+	to_pg = maxPage;
 }
 
 
