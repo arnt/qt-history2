@@ -167,6 +167,7 @@ void QFontPrivate::load( QFont::Script script )
     // load the font
     QFontEngine *engine = 0;
     double scale = 1.0; // ### TODO: fix the scale calculations
+    Q_UNUSED( scale );
 
     // list of families to try
     QStringList family_list = QStringList::split( ',', request.family );

@@ -166,6 +166,8 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRICEX *textmetric, int type, LPARAM /*p*/
     const QString foundryName;
     const bool smoothScalable = TRUE;
     const bool oblique = FALSE;
+    Q_UNUSED( script );
+    Q_UNUSED( smoothScalable );
 
     bool italic = FALSE;
     QString familyName;
@@ -409,6 +411,9 @@ QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
 			 QtFontFamily *family, QtFontFoundry *foundry,
 			 QtFontStyle *style )
 {
+    Q_UNUSED( script );
+    Q_UNUSED( foundry );
+    Q_UNUSED( style );
     // ########
     QPaintDevice *paintdevice = 0;
 
@@ -771,6 +776,8 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 #endif
 			  )
 {
+    Q_UNUSED( script );
+    Q_UNUSED( pitch );
     for ( int x = 0; x < family->count; ++x ) {
 	QtFontFoundry *foundry = family->foundries[x];
 	if ( ! foundry_name.isEmpty() &&
@@ -922,6 +929,7 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 QFontEngine *
 QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int x11Screen )
 {
+    Q_UNUSED( x11Screen );
     if ( !db )
 	initializeDb();
 

@@ -740,6 +740,8 @@ QValueList<int> QFontDatabase::pointSizes( const QString &family,
 					   const QString &style)
 {
 #ifdef Q_WS_WIN
+    Q_UNUSED( family );
+    Q_UNUSED( style );
     return standardSizes();
 #else
     bool smoothScalable = FALSE;
@@ -838,6 +840,8 @@ QValueList<int> QFontDatabase::smoothSizes( const QString &family,
 					    const QString &style)
 {
 #ifdef Q_WS_WIN
+    Q_UNUSED( family );
+    Q_UNUSED( style );
     return QFontDatabase::standardSizes();
 #else
     bool smoothScalable = FALSE;

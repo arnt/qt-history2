@@ -170,6 +170,7 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyp
 void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	   const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse )
 {
+    Q_UNUSED( p );
     HDC hdc = dc();
     unsigned int options = ETO_NUMERICSLATIN;
     if ( ttf )
@@ -221,6 +222,9 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 glyph_metrics_t QFontEngineWin::boundingBox( const glyph_t *glyphs,
 				const advance_t *advances, const offset_t *offsets, int numGlyphs )
 {
+    Q_UNUSED( glyphs );
+    Q_UNUSED( offsets );
+
     if ( numGlyphs == 0 )
 	return glyph_metrics_t();
 
@@ -240,6 +244,7 @@ glyph_metrics_t QFontEngineWin::boundingBox( glyph_t glyph )
 	SIZE s;
 	WCHAR ch = glyph;
 	BOOL res = GetTextExtentPoint32W( dc(), &ch, 1, &s );
+	Q_UNUSED( res );
 	return glyph_metrics_t( 0, -tm.a.tmAscent, s.cx, tm.a.tmHeight, s.cx, 0 );
     } else {
 	DWORD res = 0;
@@ -505,9 +510,16 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, glyph_
     return NoError;
 }
 
-void QFontEngineBox::draw( QPainter *p, int x, int y, const glyph_t * /*glyphs*/,
-			  const advance_t * /*advances*/, const offset_t * /*offsets*/, int numGlyphs, bool )
+void QFontEngineBox::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
+			  const advance_t *advances, const offset_t *offsets, int numGlyphs, bool )
 {
+    Q_UNUSED( p );
+    Q_UNUSED( x );
+    Q_UNUSED( y );
+    Q_UNUSED( glyphs );
+    Q_UNUSED( advances );
+    Q_UNUSED( offsets );
+    Q_UNUSED( numGlyphs );
 //     qDebug("QFontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, numGlyphs );
 
     // ########
