@@ -258,7 +258,7 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl, bool checkSlash )
 	    decode( rel );
 	    *this = urlTmp;
 	    setRef( QString::null );
-	    if ( checkSlash && d->cleanPath[(int)path().length()-1] != '/' ) {
+	    if ( checkSlash && path().length() != 0 && d->cleanPath[path().length()-1] != '/' ) {
 		if ( isRelativeUrl( path() ) )
 		    setEncodedPathAndQuery( rel );
 		else
