@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#8 $
+** $Id: //depot/qt/main/src/tools/qmap.h#9 $
 **
 ** Definition of QMap class
 **
@@ -411,62 +411,68 @@ template<class Key, class T>
 class QMap
 {
 public:
-  /**
-   * Typedefs
-   */
-  typedef QMapIterator< Key, T, T&, T* > Iterator;
-  typedef QMapIterator< Key, T, const T&, const T* > ConstIterator;
-  typedef T ValueType;
-  typedef QMapPrivate< Key, T > Priv;
+    /**
+     * Typedefs
+     */
+    typedef QMapIterator< Key, T, T&, T* > Iterator;
+    typedef QMapIterator< Key, T, const T&, const T* > ConstIterator;
+    typedef T ValueType;
+    typedef QMapPrivate< Key, T > Priv;
 
-  /**
-   * API
-   */
-  QMap() { sh = new QMapPrivate< Key, T >; }
-  QMap( const QMap<Key,T>& _node ) { sh = _node.sh; sh->ref(); }
-  ~QMap() { if ( sh->deref() ) delete sh; }
+    /**
+     * API
+     */
+    QMap() { sh = new QMapPrivate< Key, T >; }
+    QMap( const QMap<Key,T>& _node ) { sh = _node.sh; sh->ref(); }
+    ~QMap() { if ( sh->deref() ) delete sh; }
 
-  Iterator begin() { detach(); return sh->begin(); }
-  Iterator end() { detach(); return sh->end(); }
-  ConstIterator begin() const { return ((const Priv*)sh)->begin(); }
-  ConstIterator end() const { return ((const Priv*)sh)->end(); }
+    Iterator begin() { detach(); return sh->begin(); }
+    Iterator end() { detach(); return sh->end(); }
+    ConstIterator begin() const { return ((const Priv*)sh)->begin(); }
+    ConstIterator end() const { return ((const Priv*)sh)->end(); }
 
-  Iterator find ( const Key& k ) { detach(); return Iterator( sh->find( k ).node ); }
-  ConstIterator find ( const Key& k ) const { return sh->find( k ); }
-  T& operator[] ( const Key& k ) { detach(); return sh->find( k ).node->data; }
-  const T& operator[] ( const Key& k ) const { return sh->find( k ).data(); }
-  bool contains ( const Key& k ) const { return sh->find( k ) != ((const Priv*)sh)->end(); }
+    Iterator find ( const Key& k ) { detach(); return Iterator( sh->find( k ).node ); }
+    ConstIterator find ( const Key& k ) const { return sh->find( k ); }
+    T& operator[] ( const Key& k ) { detach(); return sh->find( k ).node->data; }
+    const T& operator[] ( const Key& k ) const { return sh->find( k ).data(); }
+    bool contains ( const Key& k ) const { return sh->find( k ) != ((const Priv*)sh)->end(); }
   
-  uint count() const { return sh->node_count; }
+    uint count() const { return sh->node_count; }
 
-  bool isEmpty() const { return sh->node_count == 0; }
+    bool isEmpty() const { return sh->node_count == 0; }
   
-  Iterator insert( const Key& key, const T& value )
-  {
-    detach();
-    Iterator it = sh->insertSingle( key );
-    it.data() = value;
-    return it;
-  }
+    Iterator insert( const Key& key, const T& value )
+    {
+        detach();
+        Iterator it = sh->insertSingle( key );
+        it.data() = value;
+        return it;
+    }
 
-  void remove( Iterator it ) { detach(); sh->remove( it ); }
-  void remove( const Key& k ) 
-  {
-    detach();
-    Iterator it = Iterator( sh->find( k ).node );
-    if ( it != end() )
-      sh->remove( it );
-  }
+    void remove( Iterator it ) { detach(); sh->remove( it ); }
+    void remove( const Key& k ) 
+    {
+        detach();
+        Iterator it = Iterator( sh->find( k ).node );
+        if ( it != end() )
+            sh->remove( it );
+    }
 
-  void clear() { if ( sh->count == 1 ) sh->clear(); else { sh->deref(); sh = new QMapPrivate<Key,T>; } }
+    Iterator replace( const Key& k, const T& v )
+    {
+	remove( k );
+	return insert( k, v );
+    }
+
+    void clear() { if ( sh->count == 1 ) sh->clear(); else { sh->deref(); sh = new QMapPrivate<Key,T>; } }
 
 protected:
-  /**
-   * Helpers
-   */
-  void detach() { if ( sh->count > 1 ) { sh->deref(); sh = new QMapPrivate<Key,T>( sh ); } }
+    /**
+     * Helpers
+     */
+    void detach() { if ( sh->count > 1 ) { sh->deref(); sh = new QMapPrivate<Key,T>( sh ); } }
   
-  Priv* sh;
+    Priv* sh;
 };
 
 template<class Key, class T>
