@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#279 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#280 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1726,9 +1726,9 @@ void QFileDialog::init()
 
     setTabOrder( d->paths, d->cdToParent );
     setTabOrder( d->cdToParent, d->newFolder );
-    setTabOrder( d->newFolder, d->detailView );
-    setTabOrder( d->detailView, d->mcView );
-    setTabOrder( d->mcView, d->moreFiles );
+    setTabOrder( d->newFolder, d->mcView );
+    setTabOrder( d->mcView, d->detailView );
+    setTabOrder( d->detailView, d->moreFiles );
     setTabOrder( d->moreFiles, files );
     setTabOrder( files, nameEdit );
     setTabOrder( nameEdit, d->types );
