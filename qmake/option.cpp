@@ -166,7 +166,12 @@ bool usage(const char *a0)
     return FALSE;
 }
 
-bool
+enum {
+    QMAKE_CMDLINE_SUCCESS,
+    QMAKE_CMDLINE_SHOW_USAGE,
+    QMAKE_CMDLINE_BAIL
+};
+int
 Option::internalParseCommandLine(int argc, char **argv, int skip)
 {
     bool before = TRUE;
@@ -217,9 +222,9 @@ Option::internalParseCommandLine(int argc, char **argv, int skip)
 	    } else if(opt == "version" || opt == "v" || opt == "-version") {
 		fprintf(stderr, "Qmake version: %s (Qt %s)\n", qmake_version(), QT_VERSION_STR);
 		fprintf(stderr, "Qmake is free software from Trolltech AS.\n");
-		return FALSE;
+		return QMAKE_CMDLINE_BAIL;
 	    } else if(opt == "h" || opt == "help") {
-		return FALSE;
+		return QMAKE_CMDLINE_SHOW_USAGE;
 	    } else if(opt == "Wall") {
 		Option::warn_level |= WarnAll;
 	    } else if(opt == "Wparser") {
@@ -248,7 +253,7 @@ Option::internalParseCommandLine(int argc, char **argv, int skip)
 			Option::mkfile::qmakespec_commandline = argv[x];
 		    } else {
 			fprintf(stderr, "***Unknown option -%s\n", opt.latin1());
-			return usage(argv[0]);
+			return QMAKE_CMDLINE_SHOW_USAGE;
 		    }
 		} else if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT) {
 		    if(opt == "nopwd") {
@@ -259,7 +264,7 @@ Option::internalParseCommandLine(int argc, char **argv, int skip)
 			Option::projfile::do_recursive = FALSE;
 		    } else {
 			fprintf(stderr, "***Unknown option -%s\n", opt.latin1());
-			return FALSE;
+			return QMAKE_CMDLINE_SHOW_USAGE;
 		    }
 		}
 	    }
@@ -288,11 +293,11 @@ Option::internalParseCommandLine(int argc, char **argv, int skip)
 			handled = FALSE;
 		}
 		if(!handled)
-		    return usage(argv[0]);
+		    return QMAKE_CMDLINE_SHOW_USAGE;
 	    }
 	}
     }
-    return TRUE;
+    return QMAKE_CMDLINE_SUCCESS;
 }
 
 
@@ -353,8 +358,11 @@ Option::parseCommandLine(int argc, char **argv)
 	}
 	free(env_argv);
     }
-    if(!internalParseCommandLine(argc, argv, 1))
-	return usage(argv[0]);
+    {
+	int ret = internalParseCommandLine(argc, argv, 1);
+	if(ret != QMAKE_CMDLINE_SUCCESS) 
+	    return ret == QMAKE_CMDLINE_SHOW_USAGE ? usage(argv[0]) : FALSE;
+    }
 
     //last chance for defaults
     if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||

@@ -124,7 +124,7 @@ struct Option
     };
 
 private:
-    static bool internalParseCommandLine(int, char **, int=0);
+    static int internalParseCommandLine(int, char **, int=0);
 };
 
 
