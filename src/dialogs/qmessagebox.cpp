@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#34 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#35 $
 **
 ** Implementation of QMessageBox class
 **
@@ -12,10 +12,10 @@
 #include "qmsgbox.h"
 #include "qlabel.h"
 #include "qpushbt.h"
-#include "qpixmap.h"
+#include "qimage.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#34 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#35 $");
 
 // Message box icons, from page 210 of the Windows style guide.
 
@@ -461,8 +461,6 @@ QMessageBox::Icon QMessageBox::icon() const
 
 void QMessageBox::setIcon( Icon icon )
 {
-    mbd->icon = icon;
-
     uint icon_size;
     const uchar *icon_data;
     switch ( icon ) {
@@ -483,9 +481,31 @@ void QMessageBox::setIcon( Icon icon )
 	    icon_data = 0;	    
     }
     QPixmap pm;
-    if ( icon_size )
-	pm.loadFromData( icon_data, icon_size );
-    setIconPixmap( pm );
+    if ( icon_size ) {
+	QImage image;
+	image.loadFromData( icon_data, icon_size );
+	if ( style() == MotifStyle ) {
+	    // All that colour looks ugly in Motif
+	    QColorGroup g = colorGroup();
+	    switch ( icon ) {
+	      case Information:
+		image.setColor( 2, 0xff000000 | g.light().rgb() );
+		image.setColor( 3, 0xff000000 | g.text().rgb() );
+		break;
+	      case Warning:
+		image.setColor( 3, 0xff000000 | g.base().rgb() );
+		break;
+	      case Critical:
+		image.setColor( 1, 0xff000000 | qRgb(0,0,0) );
+	        break;
+	      default:
+		; // Can't happen
+	    }
+	}
+	pm.convertFromImage(image);
+    }
+    setIconPixmap( pm ); // Changes icon to NoIcon (user defined)
+    mbd->icon = icon;    // NOW we set it.
 }
 
 
@@ -516,6 +536,7 @@ const QPixmap *QMessageBox::iconPixmap() const
 void QMessageBox::setIconPixmap( const QPixmap &pixmap )
 {
     mbd->iconLabel.setPixmap(pixmap);
+    mbd->icon = NoIcon;
 }
 
 
@@ -822,4 +843,13 @@ int QMessageBox::critical( QWidget *parent,
     int reply = mb->exec();
     delete mb;
     return reply;
+}
+
+void QMessageBox::setStyle( GUIStyle s )
+{
+    QWidget::setStyle( s );
+    if ( mbd->icon != NoIcon ) {
+	// Reload icon for new style
+	setIcon( mbd->icon );
+    }
 }

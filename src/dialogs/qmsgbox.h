@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.h#20 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.h#21 $
 **
 ** Definition of QMessageBox class
 **
@@ -76,6 +76,8 @@ public:
     void	setButtonText( int button, const char * );
 
     void	adjustSize();
+
+    void	setStyle( GUIStyle );
 
 protected:
     void	resizeEvent( QResizeEvent * );
