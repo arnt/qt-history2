@@ -74,6 +74,11 @@ public:
     enum	EchoMode { Normal, NoEcho, Password };
     virtual void setEchoMode( EchoMode );
     EchoMode 	echoMode() const;
+#if QT_VERSION >= 300
+#error "Make setReadOnly virtual"
+#endif
+    void setReadOnly( bool );
+    bool readOnly() const;
 
     virtual void setValidator( const QValidator * );
     const QValidator * validator() const;

@@ -60,6 +60,7 @@ struct QLineEditPrivate {
 
     bool frame;
     QLineEdit::EchoMode mode;
+    bool readonly;
     const QValidator * validator;
     QPixmap * pm;
     bool pmDirty;
@@ -445,12 +446,14 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	}
 	return;
     }
-    QString t = e->text();
-    if ( !t.isEmpty() && (!e->ascii() || e->ascii()>=32) &&
-	 e->key() != Key_Delete &&
-	 e->key() != Key_Backspace ) {
-	insert( t );
-	return;
+    if ( !d->readonly ) {
+	QString t = e->text();
+	if ( !t.isEmpty() && (!e->ascii() || e->ascii()>=32) &&
+	     e->key() != Key_Delete &&
+	     e->key() != Key_Backspace ) {
+	    insert( t );
+	    return;
+	}
     }
     bool needundo = d->needundo;
     d->needundo = TRUE;
@@ -469,8 +472,10 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    copy();
 	    break;
 	case Key_D:
-	    d->ignoreUndoWithDel = ignoreUndoWithDel;
-	    del();
+	    if ( !d->readonly ) {
+		d->ignoreUndoWithDel = ignoreUndoWithDel;
+		del();
+	    }
 	    break;
 	case Key_E:
 	    end( e->state() & ShiftButton );
@@ -479,21 +484,24 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    cursorRight( e->state() & ShiftButton );
 	    break;
 	case Key_H:
-	    d->ignoreUndoWithDel = ignoreUndoWithDel;
-	    backspace();
+	    if ( !d->readonly ) {
+		d->ignoreUndoWithDel = ignoreUndoWithDel;
+		backspace();
+	    }
 	    break;
 	case Key_K:
-	    if ( cursorPos < (int)tbuf.length() ) {
+	    if ( !d->readonly && cursorPos < (int)tbuf.length() ) {
 		QString t( tbuf );
 		t.truncate( cursorPos );
 		validateAndSet( t, cursorPos, cursorPos, cursorPos );
 	    }
 	    break;
 	case Key_V:
-	    insert( QApplication::clipboard()->text() );
+	    if ( !d->readonly )
+		insert( QApplication::clipboard()->text() );
 	    break;
 	case Key_X:
-	    if ( hasMarkedText() && echoMode() == Normal ) {
+	    if ( !d->readonly && hasMarkedText() && echoMode() == Normal ) {
 		copy();
 		del();
 	    }
@@ -509,10 +517,12 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    copy();
 #endif	
 	case Key_Z:
-	    undoInternal();
+	    if ( !d->readonly )
+		undoInternal();
 	    break;
 	case Key_Y:
-	    redoInternal();
+	    if ( !d->readonly )
+		redoInternal();
 	    break;
 	default:
 	    unknown++;
@@ -526,8 +536,10 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    cursorRight( e->state() & ShiftButton );
 	    break;
 	case Key_Backspace:
-	    d->ignoreUndoWithDel = ignoreUndoWithDel;
-	    backspace();
+	    if ( !d->readonly ) {
+		d->ignoreUndoWithDel = ignoreUndoWithDel;
+		backspace();
+	    }
 	    break;
 	case Key_Home:
 	    home( e->state() & ShiftButton );
@@ -536,18 +548,20 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    end( e->state() & ShiftButton );
 	    break;
 	case Key_Delete:
+	    if ( !d->readonly ) {
 #if defined (_WS_WIN_)
-	    if ( e->state() & ShiftButton ) {
-		cut();
-		break;
-	    }
+		if ( e->state() & ShiftButton ) {
+		    cut();
+		    break;
+		}
 #endif	
-	    d->ignoreUndoWithDel = ignoreUndoWithDel;
-	    del();
+		d->ignoreUndoWithDel = ignoreUndoWithDel;
+		del();
+	    }
 	    break;
 #if defined (_WS_WIN_)
 	case Key_Insert:
-	    if ( e->state() & ShiftButton )
+	    if ( !d->readonly && e->state() & ShiftButton )
 		paste();
 	    else
 		unknown++;
@@ -691,7 +705,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	int curYTop = d->cursorRepaintRect.y();
 	int curYBot = d->cursorRepaintRect.bottom();
 	int curXPos = d->cursorRepaintRect.x() + 2;
-	if ( cursorOn && d->cursorRepaintRect.intersects( e->rect() ) ) {
+	if ( !d->readonly && cursorOn && d->cursorRepaintRect.intersects( e->rect() ) ) {
 	    p.drawLine( curXPos, curYTop, curXPos, curYBot );
 	    if ( style() != WindowsStyle ) {
 		p.drawLine( curXPos - 2, curYTop, curXPos + 2, curYTop );
@@ -732,12 +746,12 @@ void QLineEdit::resizeEvent( QResizeEvent * )
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
     if ( e->button() == RightButton ) {
-	d->popup->setItemEnabled( d->id[ 0 ], !d->undoList.isEmpty() );
-	d->popup->setItemEnabled( d->id[ 1 ], !d->redoList.isEmpty() );
-	d->popup->setItemEnabled( d->id[ 2 ], hasMarkedText() );
+	d->popup->setItemEnabled( d->id[ 0 ], !d->readonly && !d->undoList.isEmpty() );
+	d->popup->setItemEnabled( d->id[ 1 ], !d->readonly && !d->redoList.isEmpty() );
+	d->popup->setItemEnabled( d->id[ 2 ], !d->readonly && hasMarkedText() );
 	d->popup->setItemEnabled( d->id[ 3 ], hasMarkedText() );
-	d->popup->setItemEnabled( d->id[ 4 ], (bool)QApplication::clipboard()->text().length() );
-	d->popup->setItemEnabled( d->id[ 5 ], (bool)text().length() );
+	d->popup->setItemEnabled( d->id[ 4 ], !d->readonly && (bool)QApplication::clipboard()->text().length() );
+	d->popup->setItemEnabled( d->id[ 5 ], !d->readonly && (bool)text().length() );
 	int id = d->popup->exec( e->globalPos() );
 	if ( id == d->id[ 0 ] )
 	    undoInternal();
@@ -853,7 +867,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 	copy();
 #endif
 
-    if ( e->button() == MidButton ) {
+    if ( !d->readonly && e->button() == MidButton ) {
 #if defined(_WS_X11_)
 	insert( QApplication::clipboard()->text() );
 #else
@@ -1221,8 +1235,30 @@ void QLineEdit::setEchoMode( EchoMode mode )
 
 QLineEdit::EchoMode QLineEdit::echoMode() const
 {
-    return d ? d->mode : Normal;
+    return d->mode;
 }
+
+/*!
+  Enables or disables read-only mode, where the user can cut-and-paste
+  or drag-and-drop the text, but cannot edit it.
+  They never see a cursor in this case.
+
+  \sa setEnabled(), readOnly()
+*/
+void QLineEdit::setReadOnly( bool enable )
+{
+    d->readonly = enable;
+}
+
+/*!
+  Returns the read-only mode of the line edit.
+  \sa setReadOnly()
+*/
+bool QLineEdit::readOnly() const
+{
+    return d->readonly;
+}
+
 
 
 /*!
@@ -1325,7 +1361,7 @@ void QLineEdit::clearValidator()
 */
 void QLineEdit::dragEnterEvent( QDragEnterEvent *e )
 {
-    if ( QTextDrag::canDecode(e) )
+    if ( !d->readonly && QTextDrag::canDecode(e) )
 	e->accept( rect() );
 }
 
@@ -1336,7 +1372,7 @@ void QLineEdit::dragEnterEvent( QDragEnterEvent *e )
 void QLineEdit::dropEvent( QDropEvent *e )
 {
     QString str;
-    if ( QTextDrag::decode( e, str ) ) {
+    if ( !d->readonly && QTextDrag::decode( e, str ) ) {
 	if ( !hasMarkedText() )
 	    setCursorPosition( e->pos().x() );
 	insert( str );
