@@ -105,7 +105,8 @@ void Configure::buildModulesList()
 
     licensedModules = QStringList::split( ' ', "styles tools kernel widgets dialogs iconview workspace" );
 
-    if( ( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" ) && ( dictionary[ "FORCE_PROFESSIONAL" ] != "yes" ) )
+    QString products = licenseInfo[ "PRODUCTS" ];
+    if( ( products == "qt-enterprise" || products == "qt-internal" ) && ( dictionary[ "FORCE_PROFESSIONAL" ] != "yes" ) )
 	licensedModules += QStringList::split( ' ', "network canvas table xml opengl sql" );
 
     if( dictionary[ "QMAKESPEC" ] == "wince-msvc" ) {
