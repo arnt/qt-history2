@@ -4481,15 +4481,8 @@ bool QWidget::event(QEvent *e)
         break;
 
     case QEvent::HoverEnter:
-        hoverEnterEvent((QHoverEvent*)e);
-        break;
-
     case QEvent::HoverLeave:
-        hoverLeaveEvent((QHoverEvent*)e);
-        break;
-
-    case QEvent::HoverMove:
-        hoverMoveEvent((QHoverEvent*)e);
+        update();
         break;
 
     case QEvent::Paint:
@@ -4863,53 +4856,6 @@ void QWidget::wheelEvent(QWheelEvent *e)
 }
 #endif
 
-
-/*!
-    This event handler, for event \a e, can be reimplemented in a
-    subclass to receive hover enter events for the widget.
-
-    A hover enter event is sent to the widget when the mouse enters
-    a widget with the WA_Hover attribute set.
-
-    The default implementation of this function call update() on the
-    entire widget.
-
-    \sa hoverLeaveEvent(), hoverMoveEvent(), QHoverEvent
-*/
-void QWidget::hoverEnterEvent(QHoverEvent *)
-{
-    update();
-}
-
-/*!
-    This event handler, for event \a e, can be reimplemented in a
-    subclass to receive hover leave events for the widget.
-
-    A hover leave event is sent to the widget when the mouse leaves
-    a widget with the WA_Hover attribute set.
-
-    The default implementation of this function call update() on the
-    entire widget.
-
-    \sa hoverEnterEvent(), hoverMoveEvent(), QHoverEvent
-*/
-void QWidget::hoverLeaveEvent(QHoverEvent *)
-{
-    update();
-}
-
-/*!
-    This event handler, for event \a e, can be reimplemented in a
-    subclass to receive hover move events for the widget.
-
-    A hover move event is sent to the widget when the mouse moves
-    inside a widget with the WA_Hover attribute set.
-
-    \sa hoverEnterEvent(), hoverLeaveEvent(), QHoverEvent
-*/
-void QWidget::hoverMoveEvent(QHoverEvent *)
-{
-}
 
 /*!
     This event handler, for event \a e, can be reimplemented in a
