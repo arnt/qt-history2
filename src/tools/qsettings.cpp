@@ -1377,7 +1377,7 @@ static inline QPointArray readPointArray(QSettingsNode *e)
 	if (n->tagName == "count")
 	    array.resize(n->first->data.toUInt());
 	else if (n->tagName == "point")
-	    array[i++] = readPoint(n);
+	    array[(int)i++] = readPoint(n);
 
 	n = n->next;
     }
@@ -1394,7 +1394,7 @@ static inline void writePointArray(QSettingsNode *e, const QPointArray &array)
     QSettingsNode *n = e->first;
 
     for (unsigned int i = 0; i < array.count(); i++) {
-	writePoint(n, array[i]);
+	writePoint(n, array[(int)i]);
 
 	if (! n->next)
 	    e->addChild(new QSettingsNode);
@@ -1435,7 +1435,7 @@ static inline void writeRegion(QSettingsNode *e, const QRegion &region)
     QSettingsNode *n = e->first;
 
     for (uint i = 0; i < region.rects().count(); i++) {
-	writeRect(n, region.rects()[i]);
+	writeRect(n, region.rects()[(int)i]);
 
 	if (! n->next)
 	    e->addChild(new QSettingsNode);
@@ -2202,7 +2202,7 @@ static inline QSettingsNode *load(const QString &filename)
 // key checking
 static inline bool validKey(const QString &key) {
     return (key[0] == '/' &&
-	    key[key.length() - 1] != '/' &&
+	    key[(int)key.length() - 1] != '/' &&
 	    ! key.contains("//"));
 }
 
