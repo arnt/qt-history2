@@ -2987,8 +2987,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	int scr = XRRRootToScreen( X11->display, event->xany.window );
 	QWidget *w = desktop()->screen( scr );
 	QSize oldSize( w->size() );
-	w->crect.setWidth( DisplayWidth( X11->display, scr ) );
-        w->crect.setHeight( DisplayHeight( X11->display, scr ) );
+	w->data->crect.setWidth( DisplayWidth( X11->display, scr ) );
+        w->data->crect.setHeight( DisplayHeight( X11->display, scr ) );
 	if ( w->size() != oldSize ) {
 	    QResizeEvent e( w->size(), oldSize );
 	    QApplication::sendEvent( w, &e );
@@ -4092,7 +4092,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
 
     if (event->xproperty.atom == ATOM(_KDE_NET_WM_FRAME_STRUT)) {
 	d->topData()->fleft = d->topData()->fright = d->topData()->ftop = d->topData()->fbottom = 0;
-	fstrut_dirty = 1;
+	this->data->fstrut_dirty = 1;
 
 	if (event->xproperty.state == PropertyNewValue) {
 	    e = XGetWindowProperty(X11->display, event->xproperty.window, ATOM(_KDE_NET_WM_FRAME_STRUT),
@@ -4106,7 +4106,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
 		d->topData()->fright  = strut[1];
 		d->topData()->ftop    = strut[2];
 		d->topData()->fbottom = strut[3];
-		fstrut_dirty = 0;
+		this->data->fstrut_dirty = 0;
 	    }
 	}
     } else if (event->xproperty.atom == ATOM(_NET_WM_STATE)) {
@@ -4157,7 +4157,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
     } else if (event->xproperty.atom == ATOM(WM_STATE)) {
 	// the widget frame strut should also be invalidated
 	d->topData()->fleft = d->topData()->fright = d->topData()->ftop = d->topData()->fbottom = 0;
-	fstrut_dirty = 1;
+	this->data->fstrut_dirty = 1;
 
 	if (event->xproperty.state == PropertyDelete) {
 	    // the window manager has removed the WM State property,
@@ -5192,7 +5192,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	if ( newCPos != cr.topLeft() ) { // compare with cpos (exluding frame)
 	    QPoint oldPos = geometry().topLeft();
 	    cr.moveTopLeft( newCPos );
-	    crect = cr;
+	    data->crect = cr;
 	    if ( isVisible() ) {
 		QMoveEvent e( newCPos, oldPos ); // pos (including frame), not cpos
 		QApplication::sendSpontaneousEvent( this, &e );
@@ -5203,7 +5203,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	if ( newSize != cr.size() ) { // size changed
 	    QSize oldSize = size();
 	    cr.setSize( newSize );
-	    crect = cr;
+	    data->crect = cr;
 
 	    if ( isVisible() ) {
 		QResizeEvent e( newSize, oldSize );

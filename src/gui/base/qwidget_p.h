@@ -210,6 +210,8 @@ public:
     void setWindowRole(const char *role);
 #endif
 
+    QWidgetData data;
+
     QWExtra *extra;
     QWidget *focus_next;
     QWidget *focus_child;

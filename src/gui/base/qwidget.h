@@ -56,6 +56,37 @@ class QDropEvent;
 class QShowEvent;
 class QHideEvent;
 
+class QWidgetData
+{
+public:
+    WId		 winid;
+    uint widget_state; // will go away, eventually
+    uint widget_attributes;
+    uint widget_flags;
+    uint	 focus_policy : 4;
+    uint 	 sizehint_forced :1;
+    uint 	 is_closing :1;
+    uint 	 in_show : 1;
+    uint 	 in_show_maximized : 1;
+    uint	 fstrut_dirty : 1;
+    uint	 im_enabled : 1;
+    QRect	 crect;
+#ifndef QT_NO_PALETTE
+    mutable QPalette	 pal;
+#endif
+    QFont	 fnt;
+#if defined(Q_WS_QWS)
+    QRegion	 req_region;			// Requested region
+    mutable QRegion	 paintable_region;	// Paintable region
+    mutable bool         paintable_region_dirty;// needs to be recalculated
+    mutable QRegion      alloc_region;          // Allocated region
+    mutable bool         alloc_region_dirty;    // needs to be recalculated
+    mutable int          overlapping_children;  // Handle overlapping children
+
+    int		 alloc_region_index;
+    int		 alloc_region_revision;
+#endif
+};
 
 class QWidgetPrivate;
 
@@ -589,34 +620,9 @@ private:
     void	 reparentFocusWidgets( QWidget * );
     void	 updateFrameStrut() const;
 
-    WId		 winid;
-    uint widget_state; // will go away, eventually
-    uint widget_attributes;
     bool testAttribute_helper(WidgetAttribute) const;
-    uint widget_flags;
-    uint	 focus_policy : 4;
-    uint 	 sizehint_forced :1;
-    uint 	 is_closing :1;
-    uint 	 in_show : 1;
-    uint 	 in_show_maximized : 1;
-    uint	 fstrut_dirty : 1;
-    uint	 im_enabled : 1;
-    QRect	 crect;
-#ifndef QT_NO_PALETTE
-    mutable QPalette	 pal;
-#endif
-    QFont	 fnt;
+
 #if defined(Q_WS_QWS)
-    QRegion	 req_region;			// Requested region
-    mutable QRegion	 paintable_region;	// Paintable region
-    mutable bool         paintable_region_dirty;// needs to be recalculated
-    mutable QRegion      alloc_region;          // Allocated region
-    mutable bool         alloc_region_dirty;    // needs to be recalculated
-    mutable int          overlapping_children;  // Handle overlapping children
-
-    int		 alloc_region_index;
-    int		 alloc_region_revision;
-
     void updateOverlappingChildren() const;
     void setChildrenAllocatedDirty();
     void setChildrenAllocatedDirty( const QRegion &r, const QWidget *dirty=0 );
@@ -657,6 +663,7 @@ private:	// Disabled copy constructor and operator=
 #endif
 
     Q_DECL_PRIVATE( QWidget );
+    QWidgetData *data;
 
 #ifdef QT_COMPAT
 public:
@@ -767,13 +774,13 @@ template <> inline QWidget *qt_cast<QWidget*>(const QObject *o)
 #endif
 
 inline Qt::WState QWidget::testWState( WState s ) const
-{ return QFlag(widget_state & s); }
+{ return QFlag(data->widget_state & s); }
 
 inline Qt::WFlags QWidget::testWFlags( WFlags f ) const
-{ return QFlag(widget_flags & f); }
+{ return QFlag(data->widget_flags & f); }
 
 inline WId QWidget::winId() const
-{ return winid; }
+{ return data->winid; }
 
 inline bool QWidget::isTopLevel() const
 { return testWFlags(WType_TopLevel); }
@@ -821,13 +828,13 @@ inline void QWidget::setBaseSize( const QSize &s )
 { setBaseSize(s.width(),s.height()); }
 
 inline const QFont &QWidget::font() const
-{ return fnt; }
+{ return data->fnt; }
 
 inline QFontMetrics QWidget::fontMetrics() const
-{ return QFontMetrics(fnt); }
+{ return QFontMetrics(data->fnt); }
 
 inline QFontInfo QWidget::fontInfo() const
-{ return QFontInfo(fnt); }
+{ return QFontInfo(data->fnt); }
 
 inline void QWidget::setMouseTracking(bool enable)
 { setAttribute(WA_MouseTracking, enable); }
@@ -872,22 +879,22 @@ inline QWidgetMapper *QWidget::wmapper()
 { return mapper; }
 
 inline Qt::WState QWidget::getWState() const
-{ return QFlag(widget_state); }
+{ return QFlag(data->widget_state); }
 
 inline void QWidget::setWState(WState f)
-{ widget_state |= f; }
+{ data->widget_state |= f; }
 
 inline void QWidget::clearWState(WState f)
-{ widget_state &= ~f; }
+{ data->widget_state &= ~f; }
 
 inline Qt::WFlags QWidget::getWFlags() const
-{ return QFlag(widget_flags); }
+{ return QFlag(data->widget_flags); }
 
 inline void QWidget::setWFlags(WFlags f)
-{ widget_flags |= f; }
+{ data->widget_flags |= f; }
 
 inline void QWidget::clearWFlags(WFlags f)
-{ widget_flags &= ~f; }
+{ data->widget_flags &= ~f; }
 
 inline void QWidget::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw )
 {
@@ -896,13 +903,13 @@ inline void QWidget::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::Size
 
 inline bool QWidget::isInputMethodEnabled() const
 {
-    return (bool)im_enabled;
+    return (bool)data->im_enabled;
 }
 
 inline bool QWidget::testAttribute(WidgetAttribute attribute) const
 {
     if (attribute < int(8*sizeof(uint)))
-	return widget_attributes & (1<<attribute);
+	return data->widget_attributes & (1<<attribute);
     return testAttribute_helper(attribute);
 }
 
@@ -945,7 +952,7 @@ inline void QWidget::setPaletteBackgroundPixmap(const QPixmap &pm)
 #else
 inline QT_COMPAT void QWidget::setBackgroundColor(const QColor &) {}
 #endif
-inline QT_COMPAT void QWidget::erase() { erase_helper(0, 0, crect.width(), crect.height()); }
+inline QT_COMPAT void QWidget::erase() { erase_helper(0, 0, data->crect.width(), data->crect.height()); }
 inline QT_COMPAT void QWidget::erase(const QRect &r) { erase_helper(r.x(), r.y(), r.width(), r.height()); }
 #endif
 
