@@ -419,24 +419,24 @@ static QRgb* qgl_create_rgb_palette( const PIXELFORMATDESCRIPTOR* pfd )
 	int b = qgl_rgb_palette_comp( i, pfd->cBlueBits, pfd->cBlueShift );
 	pal[i] = qRgb( r, g, b );
     }
-/*  // Not used?
-    const int syscol_indices[13] = {
-	0, 3, 24, 27, 64, 67, 88, 173, 181, 236, 247, 164, 91
+
+    const int syscol_indices[12] = {
+	3, 24, 27, 64, 67, 88, 173, 181, 236, 247, 164, 91
     };
-*/
+
     const uint syscols[20] = {
 	0x000000, 0x800000, 0x008000, 0x808000, 0x000080, 0x800080,
 	0x008080, 0xc0c0c0, 0xc0dcc0, 0xa6caf0, 0xfffbf0, 0xa0a0a4,
 	0x808080, 0xff0000, 0x00ff00, 0xffff00, 0x0000ff, 0xff00ff,
 	0x00ffff, 0xffffff
-    };
+    };	// colors #1 - #12 are not present in pal; gets added below
 
     if ( ( pfd->cColorBits == 8 )				&&
 	 ( pfd->cRedBits   == 3 ) && ( pfd->cRedShift   == 0 )	&&
 	 ( pfd->cGreenBits == 3 ) && ( pfd->cGreenShift == 3 )	&&
 	 ( pfd->cBlueBits  == 2 ) && ( pfd->cBlueShift  == 6 ) ) {
-	for ( int j = 1 ; j <= 12 ; j++ )
-	    pal[j] = QRgb( syscols[j] );
+	for ( int j = 0 ; j < 12 ; j++ )
+	    pal[syscol_indices[j]] = QRgb( syscols[j+1] );
     }
 
     return pal;
@@ -620,6 +620,7 @@ fmt. Reimplement this function in a subclass if you need a custom context.
 
 int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
 {
+    int pmDepth = deviceIsPixmap() ? ((QPixmap*)paintDevice)->depth() : 0;
     PIXELFORMATDESCRIPTOR* p = (PIXELFORMATDESCRIPTOR*)dummyPfd;
     memset( p, 0, sizeof(PIXELFORMATDESCRIPTOR) );
     p->nSize = sizeof(PIXELFORMATDESCRIPTOR);
@@ -635,10 +636,12 @@ int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
 	p->dwFlags |= PFD_STEREO;
     if ( glFormat.depth() )
 	p->cDepthBits = 32;
+    else
+	p->dwFlags |= PFD_DEPTH_DONTCARE;
     if ( glFormat.rgba() ) {
 	p->iPixelType = PFD_TYPE_RGBA;
 	if ( deviceIsPixmap() )
-	    p->cColorBits = ((QPixmap*)paintDevice)->depth();
+	    p->cColorBits = pmDepth;
 	else
 	    p->cColorBits = 32;
     } else {
@@ -661,7 +664,7 @@ int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
     // Since the GDI function ChoosePixelFormat() does not handle
     // overlay and direct-rendering requests, we must roll our own here 
 
-    bool doSearch = chosenPfi < 0;
+    bool doSearch = chosenPfi <= 0;
     PIXELFORMATDESCRIPTOR pfd;
     QGLFormat fmt;
     if ( !doSearch ) {
@@ -670,7 +673,14 @@ int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
 	fmt = pfdToQGLFormat( &pfd );
 	if ( glFormat.hasOverlay() && !fmt.hasOverlay() )
 	    doSearch = TRUE;
-	if ( !qLogEq( glFormat.directRendering(), fmt.directRendering() ) )
+	else if ( !qLogEq( glFormat.directRendering(), fmt.directRendering() ))
+	    doSearch = TRUE;
+	else if ( deviceIsPixmap() && ( !(pfd.dwFlags & PFD_DRAW_TO_BITMAP) || 
+					pfd.cColorBits != pmDepth ) )
+	    doSearch = TRUE;
+	else if ( !deviceIsPixmap() && !(pfd.dwFlags & PFD_DRAW_TO_WINDOW) )
+	    doSearch = TRUE;
+	else if ( !qLogEq( glFormat.rgba(), fmt.rgba() ) )
 	    doSearch = TRUE;
     }
 
@@ -682,7 +692,8 @@ int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
 	    DescribePixelFormat( pdc, pfi, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
 	    if ( !(pfd.dwFlags & PFD_SUPPORT_OPENGL) )
 		continue;
-	    if ( deviceIsPixmap() && !(pfd.dwFlags & PFD_DRAW_TO_BITMAP) )
+	    if ( deviceIsPixmap() && ( !(pfd.dwFlags & PFD_DRAW_TO_BITMAP) ||
+				       pfd.cColorBits != pmDepth ) )
 		continue;
 	    if ( !deviceIsPixmap() && !(pfd.dwFlags & PFD_DRAW_TO_WINDOW) )
 		continue;
@@ -692,22 +703,22 @@ int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
 		continue;
 
 	    int score = pfd.cColorBits;
-	    if ( qLogEq( glFormat.doubleBuffer(), fmt.doubleBuffer() ) )
-		score += 500;
 	    if ( qLogEq( glFormat.depth(), fmt.depth() ) )
 		score += pfd.cDepthBits;
-	    if ( qLogEq( glFormat.rgba(), fmt.rgba() ) )
-		score += 10000;
 	    if ( qLogEq( glFormat.alpha(), fmt.alpha() ) )
 		score += pfd.cAlphaBits;
 	    if ( qLogEq( glFormat.accum(), fmt.accum() ) )
 		score += pfd.cAccumBits;
 	    if ( qLogEq( glFormat.stencil(), fmt.stencil() ) )
 		score += pfd.cStencilBits;
-	    if ( qLogEq( glFormat.stereo(), fmt.stereo() ) )
+	    if ( qLogEq( glFormat.doubleBuffer(), fmt.doubleBuffer() ) )
 		score += 1000;
-	    if ( qLogEq( glFormat.directRendering(), fmt.directRendering() ) )
+	    if ( qLogEq( glFormat.stereo(), fmt.stereo() ) )
 		score += 2000;
+	    if ( qLogEq( glFormat.directRendering(), fmt.directRendering() ) )
+		score += 4000;
+	    if ( qLogEq( glFormat.rgba(), fmt.rgba() ) )
+		score += 8000;
 	    
 	    if ( score > bestScore ) {
 		bestScore = score;
@@ -715,8 +726,8 @@ int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
 	    }
 	}
 
-	if ( bestPfi >= 0 )
-	    return bestPfi;
+	if ( bestPfi > 0 )
+	    chosenPfi = bestPfi;
     }
     return chosenPfi;
 }
