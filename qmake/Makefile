@@ -23,7 +23,7 @@ CFLAGS	    =	-c -o$@ \
 		-tWR -w -w-hid -O1 \
 		-I. -Igenerators -Igenerators\unix -Igenerators\win32 -I$(QTDIR)\include -I$(QTDIR)\src\tools \
 		-I$(QTDIR)\mkspecs\win32-borland \
-		-DQT_NO_CODECS -DQT_LITE_COMPONENT -DQT_NODLL
+		-DQT_NO_TEXTCODEC -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL
 LFLAGS	    =	-L$(BCB)\lib -c -x -Gn -ap -Tpe c0x32.obj
 LIBS	    =	import32.lib cw32i.lib
 LINKQMAKE   =	ilink32 $(LFLAGS) $(OBJS) $(QTOBJS), qmake.exe,,$(LIBS)
