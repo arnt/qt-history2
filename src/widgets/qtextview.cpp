@@ -1565,11 +1565,14 @@ void QTextView::insert( const QString &text, bool indent, bool checkNewLine, boo
     int oldLen = undoRedoInfo.d->text.length();
     lastFormatted = checkNewLine && cursor->parag()->prev() ?
 		    cursor->parag()->prev() : cursor->parag();
-    int idx = cursor->index();
     QTextCursor oldCursor = *cursor;
     cursor->insert( txt, checkNewLine );
-    if ( doc->useFormatCollection() )
-	cursor->parag()->setFormat( idx, txt.length(), currentFormat, TRUE );
+    if ( doc->useFormatCollection() ) {
+	doc->setSelectionStart( QTextDocument::Temp, &oldCursor );
+	doc->setSelectionEnd( QTextDocument::Temp, cursor );
+	doc->setFormat( QTextDocument::Temp, currentFormat, QTextFormat::Format );
+	doc->removeSelection( QTextDocument::Temp );
+    }
 
     if ( indent && ( txt == "{" || txt == "}" ) )
 	cursor->indent();
