@@ -194,6 +194,7 @@ private:
     bool supportHextile;
     bool wantUpdate;
     int nibble;
+    bool sameEndian;
 };
 
 //===========================================================================
@@ -659,22 +660,23 @@ void QVNCServer::setPixelFormat()
         client->read(buf, 3); // just padding
         pixelFormat.read(client);
         qDebug("Want format: %d %d %d %d %d %d %d %d %d %d",
-            (int)pixelFormat.bitsPerPixel,
-            (int)pixelFormat.depth,
-            (int)pixelFormat.bigEndian,
-            (int)pixelFormat.trueColor,
-            (int)pixelFormat.redBits,
-            (int)pixelFormat.greenBits,
-            (int)pixelFormat.blueBits,
-            (int)pixelFormat.redShift,
-            (int)pixelFormat.greenShift,
-            (int)pixelFormat.blueShift);
+            int(pixelFormat.bitsPerPixel),
+            int(pixelFormat.depth),
+            int(pixelFormat.bigEndian),
+            int(pixelFormat.trueColor),
+            int(pixelFormat.redBits),
+            int(pixelFormat.greenBits),
+            int(pixelFormat.blueBits),
+            int(pixelFormat.redShift),
+            int(pixelFormat.greenShift),
+            int(pixelFormat.blueShift));
 
         if (pixelFormat.bitsPerPixel != 16 && pixelFormat.bitsPerPixel != 32) {
             qDebug("Cannot handle %d bpp client", pixelFormat.bitsPerPixel);
             discardClient();
         }
         handleMsg = false;
+        sameEndian = (QImage::systemByteOrder() == QImage::BigEndian) == !!pixelFormat.bigEndian;
     }
 }
 
@@ -854,9 +856,54 @@ int QVNCServer::getPixel(uchar **data)
     g >>= (8 - pixelFormat.greenBits);
     b >>= (8 - pixelFormat.blueBits);
 
-    return (r << pixelFormat.redShift) |
-           (g << pixelFormat.greenShift) |
-           (b << pixelFormat.blueShift);
+    if (sameEndian)
+        return (r << pixelFormat.redShift) |
+            (g << pixelFormat.greenShift) |
+            (b << pixelFormat.blueShift);
+
+
+    int pixel = (r << pixelFormat.redShift) |
+                (g << pixelFormat.greenShift) |
+                (b << pixelFormat.blueShift);
+
+    if ( QImage::systemByteOrder() == QImage::BigEndian ) { // server runs on a big endian system
+      if ( pixelFormat.bitsPerPixel == 16 ) {
+           if ( pixelFormat.bigEndian ) { // client expects big endian
+              pixel = ((pixel & 0x0000ffff) << 16);
+           } else { // client expects little endian
+              pixel = (((pixel & 0x0000ff00) << 8)  |
+                        ((pixel & 0x000000ff) << 24));
+           }
+       } else if ( pixelFormat.bitsPerPixel == 32 ) {
+           if ( !pixelFormat.bigEndian ) { // client expects little endian
+               pixel = (((pixel & 0xff000000) >> 24) |
+                        ((pixel & 0x00ff0000) >> 8)  |
+                        ((pixel & 0x0000ff00) << 8)  |
+                        ((pixel & 0x000000ff) << 24));
+           }
+       } else {
+          qDebug( "Cannot handle %d bpp client", pixelFormat.bitsPerPixel );
+       }
+   } else { // server runs on a little endian system
+      if ( pixelFormat.bitsPerPixel == 16 ) {
+           if ( pixelFormat.bigEndian ) { // client expects big endian
+              pixel = (((pixel & 0xff000000) >> 8) |
+                        ((pixel & 0x00ff0000) << 8));
+           }
+       } else if ( pixelFormat.bitsPerPixel == 32 ) {
+           if ( pixelFormat.bigEndian ) { // client expects big endian
+               pixel = (((pixel & 0xff000000) >> 24) |
+                        ((pixel & 0x00ff0000) >> 8)  |
+                        ((pixel & 0x0000ff00) << 8)  |
+                        ((pixel & 0x000000ff) << 24));
+           }
+       } else {
+          qDebug( "Cannot handle %d bpp client", pixelFormat.bitsPerPixel );
+       }
+   }
+
+   return pixel;
+
 }
 
 /*
@@ -1245,10 +1292,13 @@ bool QVNCScreen::connect(const QString &displaySpec)
         virtualBuffer = true;
 
     if (virtualBuffer) {
-        d = 16;
-        const char* qwssize;
-        if((qwssize=getenv("QWS_SIZE"))) {
-            sscanf(qwssize,"%dx%d",&w,&h);
+        const char *str;
+        if ((str = getenv("QWS_DEPTH")))
+            d = atoi(str);
+        if (!str || !d)
+            d = 16;
+        if((str=getenv("QWS_SIZE"))) {
+            sscanf(str,"%dx%d",&w,&h);
             dw=w;
             dh=h;
         } else {
