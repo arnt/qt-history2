@@ -1539,19 +1539,25 @@ bool QTextDocument::setSelectionEnd( int id, QTextCursor *cursor )
     QTextCursor old;
     bool hadStart = FALSE;
     bool hadEnd = FALSE;
+    bool hadStartParag = FALSE;
+    bool hadEndParag = FALSE;
     bool hadOldStart = FALSE;
     bool hadOldEnd = FALSE;
     QTextParag *lastParag = 0;
     bool leftSelection = FALSE;
     sel.swapped = FALSE;
     while ( TRUE ) {
-	if ( c.parag() == start.parag() )
+	if ( c == start )
 	    hadStart = TRUE;
-	if ( c.parag() == end.parag() )
+	if ( c == end )
 	    hadEnd = TRUE;
-	if ( c.parag() == sel.startCursor.parag() )
+	if ( c.parag() == start.parag() )
+	    hadStartParag = TRUE;
+	if ( c.parag() == end.parag() )
+	    hadEndParag = TRUE;
+	if ( c == sel.startCursor )
 	    hadOldStart = TRUE;
-	if ( c.parag() == sel.endCursor.parag() )
+	if ( c == sel.endCursor )
 	    hadOldEnd = TRUE;
 
 	if ( !sel.swapped &&
@@ -1559,8 +1565,8 @@ bool QTextDocument::setSelectionEnd( int id, QTextCursor *cursor )
 	       hadEnd && hadStart && start.parag() == end.parag() && start.index() > end.index() ) )
 	    sel.swapped = TRUE;
 	
-	if ( c == end && hadStart ||
-	     c == start && hadEnd ) {
+	if ( c == end && hadStartParag ||
+	     c == start && hadEndParag ) {
 	    QTextCursor tmp = c;
 	    tmp.restoreState();
 	    if ( tmp.parag() != c.parag() ) {
@@ -1573,7 +1579,7 @@ bool QTextDocument::setSelectionEnd( int id, QTextCursor *cursor )
 	if ( inSelection &&
 	     ( c == end && hadStart || c == start && hadEnd ) )
 	     leftSelection = TRUE;
-	else if ( !leftSelection && !inSelection && ( c.parag() == start.parag() || c.parag() == end.parag() ) )
+	else if ( !leftSelection && !inSelection && ( hadStart || hadEnd ) )
 	    inSelection = TRUE;
 	
 	bool noSelectionAnymore = hadOldStart && hadOldEnd && leftSelection && !inSelection && !c.parag()->hasSelection( id ) && c.atParagEnd();
@@ -1582,13 +1588,13 @@ bool QTextDocument::setSelectionEnd( int id, QTextCursor *cursor )
 	    if ( inSelection ) {
 		if ( c.parag() == start.parag() && start.parag() == end.parag() ) {
 		    c.parag()->setSelection( id, QMIN( start.index(), end.index() ), QMAX( start.index(), end.index() ) );
-		} else if ( c.parag() == start.parag() && !hadEnd ) {
+		} else if ( c.parag() == start.parag() && !hadEndParag ) {
 		    c.parag()->setSelection( id, start.index(), c.parag()->length() - 1 );
-		} else if ( c.parag() == end.parag() && !hadStart ) {
+		} else if ( c.parag() == end.parag() && !hadStartParag ) {
 		    c.parag()->setSelection( id, end.index(), c.parag()->length() - 1 );
-		} else if ( c.parag() == end.parag() && hadEnd ) {
+		} else if ( c.parag() == end.parag() && hadEndParag ) {
 		    c.parag()->setSelection( id, 0, end.index() );
-		} else if ( c.parag() == start.parag() && hadStart ) {
+		} else if ( c.parag() == start.parag() && hadStartParag ) {
 		    c.parag()->setSelection( id, 0, start.index() );
 		} else {
 		    c.parag()->setSelection( id, 0, c.parag()->length() - 1 );
@@ -1605,6 +1611,9 @@ bool QTextDocument::setSelectionEnd( int id, QTextCursor *cursor )
 	if ( old == c || noSelectionAnymore )
 	    break;
     }
+
+    if ( !sel.swapped )
+	sel.startCursor.parag()->setSelection( id, sel.startCursor.index(), sel.startCursor.parag()->length() - 1 );
 
     sel.startCursor = start;
     sel.endCursor = end;
