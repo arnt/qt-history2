@@ -56,17 +56,18 @@ ApplicationWindow::ApplicationWindow()
     int id;
 
     QToolBar *tb = new QToolBar( this );
-    addToolBar( tb, "Menubar", Top, FALSE );
+    addToolBar( tb, tr( "Menubar" ), Top, FALSE );
     QMenuBar *mb = new QMenuBar( tb );
     tb->setStretchableWidget( mb );
     setDockEnabled( tb, Left, FALSE );
     setDockEnabled( tb, Right, FALSE );
-    
+
     printer = new QPrinter;
     QPixmap openIcon, saveIcon, printIcon;
 
     fileTools = new QToolBar( this, "file operations" );
-
+    addToolBar( fileTools, tr( "File Operations" ), Top, TRUE );
+    
     openIcon = QPixmap( fileopen );
     QToolButton * fileOpen
 	= new QToolButton( openIcon, "Open File", QString::null,

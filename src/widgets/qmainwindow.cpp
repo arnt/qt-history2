@@ -119,7 +119,7 @@ static int size_extend( const QSize &s, Qt::Orientation o, bool swap = FALSE )
 //************************************************************************************************
 // ------------------------ QMainWindowPrivate  -----------------------
 //************************************************************************************************
-class HideDock;
+class QHideDock;
 class QToolLayout;
 class QMainWindowPrivate {
 public:
@@ -160,6 +160,7 @@ public:
 	lLeft = lRight = lTop = lBottom = 0;
 	lastTopHeight = -1;
 	movable = TRUE;
+	inMovement = FALSE;
     }
 
     ToolBar *findToolbar( QToolBar *t, QMainWindowPrivate::ToolBarDock *&dock );
@@ -222,13 +223,14 @@ public:
     QRect origPosRect;
     bool oldPosRectValid, movedEnough;
     QMainWindow::ToolBarDock oldDock, origDock;
-    HideDock *hideDock;
+    QHideDock *hideDock;
     QPoint cursorOffset;
     int lastTopHeight;
 
     bool movable;
     bool opaque;
-
+    bool inMovement;
+    
     QMap< int, bool > dockable;
 };
 
@@ -702,10 +704,10 @@ public:
 };
 
 
-class HideDock : public QWidget
+class QHideDock : public QWidget
 {
 public:
-    HideDock( QMainWindow *parent, QMainWindowPrivate *p ) : QWidget( parent ) {
+    QHideDock( QMainWindow *parent, QMainWindowPrivate *p ) : QWidget( parent ) {
 	hide();
 	setFixedHeight( style().toolBarHandleExtend() );
 	d = p;
@@ -715,7 +717,7 @@ public:
 	win = parent;
 	tip = new QHideToolTip( this );
     }
-    ~HideDock() { delete tip; }
+    ~QHideDock() { delete tip; }
 
 protected:
     void paintEvent( QPaintEvent * ) {
@@ -807,8 +809,10 @@ protected:
 	
     void mouseReleaseEvent( QMouseEvent *e ) {
 	pressed = FALSE;
-	if ( pressedHandle == -1 )
+	if ( pressedHandle == -1 ) {
+	    win->rightMouseButtonMenu( e->globalPos() );
 	    return;
+	}
 	if ( !d->hidden || d->hidden->isEmpty() )
 	    return;
 	if ( e->button() == LeftButton ) {
@@ -837,7 +841,7 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 {
     if ( !parentWidget() )
 	return;
-    HideDock *dock = (HideDock*)parentWidget();
+    QHideDock *dock = (QHideDock*)parentWidget();
 	
     if ( !dock->d->hidden || dock->d->hidden->isEmpty() )
 	return;
@@ -1255,8 +1259,9 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
     : QWidget( parent, name, f )
 {
     d = new QMainWindowPrivate;
-    d->hideDock = new HideDock( this, d );
+    d->hideDock = new QHideDock( this, d );
     d->opaque = FALSE;
+    installEventFilter( this );
 }
 
 
@@ -1995,7 +2000,12 @@ void QMainWindow::paintEvent( QPaintEvent * )
 
 bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 {
-    if ( ( e->type() == QEvent::MouseButtonPress ||
+    if ( e->type() == QEvent::MouseButtonPress &&
+	 o == this && !d->inMovement && 
+	 ( (QMouseEvent*)e )->button() == RightButton ) {
+	QMouseEvent *me = (QMouseEvent*)e;
+	rightMouseButtonMenu( me->globalPos() );
+    } else if ( ( e->type() == QEvent::MouseButtonPress ||
 	   e->type() == QEvent::MouseMove ||
 	   e->type() == QEvent::MouseButtonRelease )
 	 && o && o->inherits( "QToolBar" )  ) {
@@ -2374,9 +2384,10 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
 
 void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 {
-    if ( e->type() == QEvent::MouseButtonPress ) {
+    if ( e->type() == QEvent::MouseButtonPress && !d->inMovement ) {
 	if ( ( e->button() & RightButton ) ) {
 	    emit startMovingToolbar( t );
+	    d->inMovement = TRUE;
 	    QPopupMenu menu( this );
 	    int left = menu.insertItem( tr( "&Left" ) );
 	    menu.setItemEnabled( left, isDockEnabled( Left ) && isDockEnabled( t, Left ) );
@@ -2401,13 +2412,15 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	    else if ( res == hide )
 		moveToolBar( t,  Hidden );
 	    emit endMovingToolbar( t );
+	    d->inMovement = FALSE;
 	    return;
 	}
 	if ( ( e->button() & MidButton ) ) {
 	    return;
 	}
 	emit startMovingToolbar( t );
-
+	d->inMovement = TRUE;
+	
 	// don't allow repaints of the central widget as this may be a problem for our rects
 	if ( d->mc ) {
 	    if ( d->mc->inherits( "QScrollView" ) )
@@ -2492,6 +2505,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	}
 	
 	emit endMovingToolbar( t );
+	d->inMovement = FALSE;
 	
 	return;
     } else if ( e->type() == QMouseEvent::MouseMove ) {
@@ -2720,7 +2734,7 @@ bool QMainWindow::opaqueMoving() const
   up nicely with this method to get rid of all the unused space. If \a keepNewLines
   is TRUE, all toolbars stay in the line in which they are, else they are packed
   together as compact as possible.
-  
+
   The method only works if movable() returns TRUE.
 */
 
@@ -2746,6 +2760,58 @@ void QMainWindow::lineUpToolBars( bool keepNewLines )
 		t->nl = FALSE;
 	}
     }
-    
+
     triggerLayout();
+}
+
+void QMainWindow::rightMouseButtonMenu( const QPoint &p )
+{
+    if ( !d->movable )
+	return;
+
+    QMainWindowPrivate::ToolBarDock* docks[] = {
+	d->left, d->right, d->top, d->bottom, d->unmanaged, d->tornOff, d->hidden
+    };
+
+    QMainWindowPrivate::ToolBarDock *l = 0;
+    QIntDict<QMainWindowPrivate::ToolBar> ids;
+    bool sep;
+    QPopupMenu m;
+    m.setCheckable( TRUE );
+    for ( unsigned int i = 0; i < 7; ++i ) {
+	sep = FALSE;
+	l = docks[ i ];
+	if ( !l || l->isEmpty() )
+	    continue;
+	QMainWindowPrivate::ToolBar *t = 0;
+	for ( t = l->first(); t; t = l->next() ) {
+	    if ( !t->t->label().isEmpty() ) {
+		int id = m.insertItem( t->t->label() );
+		ids.insert( id, t );
+		if ( l != d->hidden )
+		    m.setItemChecked( id, TRUE );
+		sep = TRUE;
+	    }
+	}
+	if ( sep )
+	    m.insertSeparator();
+    }
+    int lineUp1 = m.insertItem( tr( "Line Up Toolbars (compact)" ) );
+    int lineUp2 = m.insertItem( tr( "Line Up Toolbars (normal)" ) );
+	    
+    int id = m.exec( p );
+    if ( id == lineUp1 ) {
+	lineUpToolBars( FALSE );
+    } else if ( id == lineUp2 ) {
+	lineUpToolBars( TRUE );
+    } else if ( ids.find( id ) ) {
+	QMainWindowPrivate::ToolBar *t = ids[ id ];
+	if ( m.isItemChecked( id ) ) {
+	    if ( isDockEnabled( Hidden ) && isDockEnabled( t->t, Hidden ) )
+		moveToolBar( t->t, Hidden );
+	} else {
+	    t->t->show();
+	    moveToolBar( t->t, t->oldDock, t->nl, t->oldIndex, t->extraOffset );
+	}
+    }
 }

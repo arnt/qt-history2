@@ -90,7 +90,7 @@ public:
 
     QList<QToolBar> toolBars( ToolBarDock dock ) const;
     void lineUpToolBars( bool keepNewLines = FALSE );
-    
+
 public slots:
     virtual void setRightJustification( bool );
     virtual void setUsesBigPixmaps( bool );
@@ -122,6 +122,7 @@ private:
     QMainWindowPrivate * d;
     void triggerLayout( bool deleteLayout = TRUE);
     void moveToolBar( QToolBar *, QMouseEvent * );
+    void rightMouseButtonMenu( const QPoint &p );
 
     virtual void setMenuBar( QMenuBar * );
     virtual void setStatusBar( QStatusBar * );
@@ -129,6 +130,7 @@ private:
 
     friend class QToolBar;
     friend class QMenuBar;
+    friend class QHideDock;
 };
 
 
