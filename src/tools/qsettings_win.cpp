@@ -183,7 +183,7 @@ QString QSettingsSysPrivate::validateKey( const QString &key )
     if ( newKey[0] != '\\' )
 	newKey = "\\" + newKey;
     if ( newKey[(int)newKey.length() - 1] == '\\' )
-	newKey = newKey.left( newKey.length() - 2 );
+	newKey = newKey.left( newKey.length() - 1 );
 
     return newKey;
 }
