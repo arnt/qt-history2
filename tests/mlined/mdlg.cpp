@@ -99,9 +99,7 @@ MDialog::MDialog()
     id =  mb->insertItem("Gulp");
     id =  mb->insertItem("Resp");
     id =  mb->insertItem("Hets");
-    id =  mb->insertItem("Tens");
-    id =  mb->insertItem("Tijs");
-    id =  mb->insertItem("Tufs");
+    id =  mb->insertItem("&M&M&M&M&M");
     mb->insertSeparator();
     id =  mb->insertItem("Help");
 #endif
