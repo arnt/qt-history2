@@ -1784,11 +1784,11 @@ void QLineEdit::imEndEvent( QIMEvent *e )
 /*!\reimp
 */
 
-void QLineEdit::focusInEvent( QFocusEvent* e )
+void QLineEdit::focusInEvent( QFocusEvent* )
 {
-    if ( e->reason() == QFocusEvent::Tab ||
-	 e->reason() == QFocusEvent::Backtab  ||
-	 e->reason() == QFocusEvent::Shortcut )
+    if ( QFocusEvent::reason() == QFocusEvent::Tab ||
+	 QFocusEvent::reason() == QFocusEvent::Backtab  ||
+	 QFocusEvent::reason() == QFocusEvent::Shortcut )
 	d->maskData ? d->moveCursor( d->nextMaskBlank( 0 ) ) : selectAll();
     if ( !d->cursorTimer ) {
 	int cft = QApplication::cursorFlashTime();
@@ -1802,10 +1802,10 @@ void QLineEdit::focusInEvent( QFocusEvent* e )
 /*!\reimp
 */
 
-void QLineEdit::focusOutEvent( QFocusEvent* e )
+void QLineEdit::focusOutEvent( QFocusEvent* )
 {
-    if ( e->reason() != QFocusEvent::ActiveWindow &&
-	 e->reason() != QFocusEvent::Popup )
+    if ( QFocusEvent::reason() != QFocusEvent::ActiveWindow &&
+	 QFocusEvent::reason() != QFocusEvent::Popup )
 	deselect();
     d->setCursorVisible( FALSE );
     if ( d->cursorTimer > 0 )

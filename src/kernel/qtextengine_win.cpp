@@ -606,7 +606,7 @@ void QScriptItemArray::clear()
 
 void QScriptItemArray::resize( int s )
 {
-    int alloc = (s + 8) >> 3 << 3;
+    int alloc = ((s + 8) >> 3) << 3;
     d = (QScriptItemArrayPrivate *)realloc( d, sizeof( QScriptItemArrayPrivate ) +
 		 sizeof( QScriptItem ) * alloc );
     d->alloc = alloc;

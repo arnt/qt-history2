@@ -1635,9 +1635,9 @@ QColorDrag::QColorDrag( QWidget *dragsource, const char *name )
 
 void QColorDrag::setColor( const QColor &col )
 {
-    short r = (col.red()   << 8 | col.red());
-    short g = (col.green() << 8 | col.green());
-    short b = (col.blue()  << 8 | col.blue());
+    short r = (col.red()   << 8) | col.red();
+    short g = (col.green() << 8) | col.green();
+    short b = (col.blue()  << 8) | col.blue();
 
     // make sure we transmit data in network order
     r = htons(r);
