@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qthread.cpp#8 $
 **
 ** Implementation of QThread class
 **
@@ -22,9 +22,12 @@
 *****************************************************************************/
 
 #include "qthread.h"
+
 #if defined(QTHREAD_WIN32)
 #include <windows.h>
 #include <process.h>
+#elif defined(QTHREAD_POSIX)
+#error "something in the tea does not compile."
 #endif
 
 
@@ -37,8 +40,8 @@
   Threads are concurrently executing code.
 
   All threads in an application (process) share all global variables and file
-  handles. It therefore might be necessary to avoid threads from accessing
-  the same global data at the same time. Mutexes serve this purpose.
+  handles. It therefore might be necessary to keep threads from accessing
+  the same global data at the same time; see QMutex for that.
 
   \sa QMutex
 */
@@ -242,4 +245,14 @@ void QThread::terminate( QThreadID id )
 #elif defined(QTHREAD_POSIX)
 #else
 #endif
+}
+
+
+/*!  Returns TRUE if Qt is able to deliver threading on this
+  combination of operating and window system, and FALSE if not.
+*/
+
+static bool QThread::available() const
+{
+    
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmutex.h#7 $
+** $Id: //depot/qt/main/src/kernel/qmutex.h#8 $
 **
 ** Definition of QMutex class
 **
@@ -29,6 +29,7 @@
 #include "qwindowdefs.h"
 #endif // QT_H
 
+#error "QMutexED_* is not defined anywhere."
 
 #if defined(QMutexED_POSIX)
 typedef int QMutexID;

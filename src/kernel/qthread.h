@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread.h#8 $
+** $Id: //depot/qt/main/src/kernel/qthread.h#9 $
 **
 ** Definition of QThread class
 **
@@ -30,21 +30,22 @@
 #endif // QT_H
 
 
-#if (defined(MT) || defined(REENTRANT) || defined(PTHREADS)) && defined(UNIX)
-#define QTHREAD_POSIX
-#endif
-
+// Microsoft Windows
 #if defined(_MT) && defined(_OS_WIN32_)
 #define QTHREAD_WIN32
+typedef HANDLE QThreadID;
+
+// pthreads on unix.  might need to include some more stuff?
+#elif (defined(MT) || defined(REENTRANT) || defined(PTHREADS)) && defined(UNIX)
+#define QTHREAD_POSIX
+typedef int QThreadID;
+
+// no thread support
+#else
+#define QTHREAD_NONE
+typedef int QThreadID; // so the file compiles
 #endif
 
-#if defined(_OS_WIN32_)
-typedef HANDLE QThreadID;
-#elif defined(UNIX)
-typedef int QThreadID;
-#else
-typedef int QThreadID;
-#endif
 
 const QThreadID invalidQThreadID = (QThreadID)-1;
 
@@ -57,7 +58,7 @@ public:
     QThread( QThreadID id = invalidQThreadID );
     QThread( QThreadFunction func, void *args=0, int stackSize=-1 );
     QThread( const QThread & );
-   ~QThread();
+    virtual ~QThread();
 
     QThread    &operator=( const QThread & );
 
@@ -66,11 +67,11 @@ public:
     QThreadID	id() const;
 
     int		priority() const;
-    virtual void	setPriority( int );
+    virtual void setPriority( int );
 
-    void	suspend();
-    void	resume();
-    void	terminate();
+    virtual void suspend();
+    virtual void resume();
+    virtual void terminate();
 
   // Static thread functions
     static QThread   currentThread();
@@ -83,13 +84,16 @@ public:
     static void	resume( QThreadID );
     static void	terminate( QThreadID );
 
+    static bool available() const;
+
 private:
     QThreadID	tid;
+    void * d;
 };
 
 
 inline QThread::QThread( QThreadID id )
-    : tid(id)
+    : tid(id), d(0)
 {
 }
 
@@ -97,10 +101,11 @@ inline QThread::QThread( QThreadFunction func, void *args,
 			 int stackSize )
 {
     tid = QThread::start( func, args, stackSize );
+    d = 0;
 }
 
 inline QThread::QThread( const QThread &t )
-    : tid(t.tid)
+    : tid(t.tid), d(0)
 {
 }
 
