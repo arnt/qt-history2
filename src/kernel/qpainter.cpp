@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#103 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#104 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -20,7 +20,7 @@
 #include "qdstream.h"
 #include "qwidget.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#103 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#104 $");
 
 
 /*!
@@ -960,6 +960,403 @@ void QPainter::resetXForm()
     wh = vh = pdev->metric( PDM_HEIGHT );
     wxmat = QWMatrix();
     setWorldXForm( FALSE );
+}
+
+
+const int TxNone      = 0;			// transformation codes
+const int TxTranslate = 1;			// copy in qptr_xyz.cpp
+const int TxScale     = 2;
+const int TxRotShear  = 3;
+
+
+/*!
+  \internal
+  Updates an internal integer transformation matrix.
+*/
+
+void QPainter::updateXForm()
+{
+    QWMatrix m;
+    if ( testf(VxF) ) {
+	m.translate( vx, vy );
+	m.scale( 1.0*vw/ww, 1.0*vh/wh );
+	m.translate( -wx, -wy );
+    }
+    if ( testf(WxF) ) {
+	if ( testf(VxF) )
+	    m = wxmat * m;
+	else
+	    m = wxmat;
+    }
+    wm11 = qRound((double)m.m11()*65536.0);	// make integer matrix
+    wm12 = qRound((double)m.m12()*65536.0);
+    wm21 = qRound((double)m.m21()*65536.0);
+    wm22 = qRound((double)m.m22()*65536.0);
+    wdx	 = qRound((double)m.dx() *65536.0);
+    wdy	 = qRound((double)m.dy() *65536.0);
+
+    txinv = FALSE;				// no inverted matrix
+    txop  = TxNone;
+    if ( wm12 == 0 && wm21 == 0 && wm11 >= 0 && wm22 >= 0 ) {
+	if ( wm11 == 65536 && wm22 == 65536 ) {
+	    if ( wdx != 0 || wdy != 0 )
+		txop = TxTranslate;
+	} else {
+	    txop = TxScale;
+#if defined(_WS_WIN_)
+	    setf(DirtyFont);
+#endif
+	}
+    } else {
+	txop = TxRotShear;
+#if defined(_WS_WIN_)
+	setf(DirtyFont);
+#endif
+    }
+}
+
+
+/*!
+  \internal
+  Updates an internal integer inverse transformation matrix.
+*/
+
+void QPainter::updateInvXForm()
+{
+#if defined(CHECK_STATE)
+    ASSERT( txinv == FALSE );
+#endif
+    txinv = TRUE;				// creating inverted matrix
+    bool invertible;
+    QWMatrix m;
+    if ( testf(VxF) ) {
+	m.translate( vx, vy );
+	m.scale( 1.0*vw/ww, 1.0*vh/wh );
+	m.translate( -wx, -wy );
+    }
+    if ( testf(WxF) ) {
+	if ( testf(VxF) )
+	    m = wxmat * m;
+	else
+	    m = wxmat;
+    }
+    m = m.invert( &invertible );		// invert matrix
+    im11 = qRound((double)m.m11()*65536.0);	// make integer matrix
+    im12 = qRound((double)m.m12()*65536.0);
+    im21 = qRound((double)m.m21()*65536.0);
+    im22 = qRound((double)m.m22()*65536.0);
+    idx	 = qRound((double)m.dx() *65536.0);
+    idy	 = qRound((double)m.dy() *65536.0);
+}
+
+
+/*!
+  \internal
+  Maps a point from logical coordinates to device coordinates.
+*/
+
+void QPainter::map( int x, int y, int *rx, int *ry ) const
+{
+     switch ( txop ) {
+	case TxNone:
+	    *rx = x;  *ry = y;
+	    break;
+	case TxTranslate:
+	    *rx = x + wdx/65536;
+	    *ry = y + wdy/65536;
+	    break;
+	case TxScale:
+	    *rx = wm11*x + wdx;
+	    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
+	    *ry = wm22*y + wdy;
+	    *ry = *ry > 0 ? (*ry + 32768)/65536 : (*ry - 32768)/65536;
+	    break;
+	default:
+	    *rx = wm11*x + wm21*y+wdx;
+	    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
+	    *ry = wm12*x + wm22*y+wdy;
+	    *ry = *ry > 0 ? (*ry + 32768)/65536 : (*ry - 32768)/65536;
+	    break;
+    }
+}
+
+/*!
+  \internal
+  Maps a rectangle from logical coordinates to device coordinates.
+  This internal function does not handle rotation and/or shear.
+*/
+
+void QPainter::map( int x, int y, int w, int h,
+		    int *rx, int *ry, int *rw, int *rh ) const
+{
+     switch ( txop ) {
+	case TxNone:
+	    *rx = x;  *ry = y;
+	    *rw = w;  *rh = h;
+	    break;
+	case TxTranslate:
+	    *rx = x + wdx/65536;
+	    *ry = y + wdy/65536;
+	    *rw = w;  *rh = h;
+	    break;
+	case TxScale:
+	    *rx = wm11*x + wdx;
+	    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
+	    *ry = wm22*y + wdy;
+	    *ry = *ry > 0 ? (*ry + 32768)/65536 : (*ry - 32768)/65536;
+	    *rw = wm11*w;
+	    *rw = *rw > 0 ? (*rw + 32768)/65536 : (*rw - 32768)/65536;
+	    *rh = wm22*h;
+	    *rh = *rh > 0 ? (*rh + 32768)/65536 : (*rh - 32768)/65536;
+	    break;
+	default:
+#if defined(CHECK_STATE)
+	    warning( "QPainter::map: Internal error" );
+#endif
+	    break;
+    }
+}
+
+/*!
+  \internal
+  Maps a point from device coordinates to logical coordinates.
+*/
+
+void QPainter::mapInv( int x, int y, int *rx, int *ry ) const
+{
+#if defined(CHECK_STATE)
+    if ( !txinv )
+	warning( "QPainter::mapInv: Internal error" );
+#endif
+    *rx = im11*x + im21*y+idx;
+    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
+    *ry = im12*x + im22*y+idy;
+    *ry = *ry > 0 ? (*ry + 32768)/65536 : (*ry - 32768)/65536;
+}
+
+/*!
+  \internal
+  Maps a rectangle from device coordinates to logical coordinates.
+  Cannot handle rotation and/or shear.
+*/
+
+void QPainter::mapInv( int x, int y, int w, int h,
+		       int *rx, int *ry, int *rw, int *rh ) const
+{
+#if defined(CHECK_STATE)
+    if ( !txinv || txop == TxRotShear )
+	warning( "QPainter::mapInv: Internal error" );
+#endif
+    *rx = im11*x + idx;
+    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
+    *ry = im22*y + idy;
+    *ry = *ry > 0 ? (*ry + 32768)/65536 : (*ry - 32768)/65536;
+    *rw = im11*w;
+    *rw = *rw > 0 ? (*rw + 32768)/65536 : (*rw - 32768)/65536;
+    *rh = im22*h;
+    *rh = *rh > 0 ? (*rh + 32768)/65536 : (*rh - 32768)/65536;
+}
+
+
+/*!
+  Returns the point \e pv transformed from user coordinates to device
+  coordinates.
+
+  \sa xFormDev(), QWMatrix::xForm()
+*/
+
+QPoint QPainter::xForm( const QPoint &pv ) const
+{
+    if ( txop == TxNone )
+	return pv;
+    int x=pv.x(), y=pv.y();
+    map( x, y, &x, &y );
+    return QPoint( x, y );
+}
+
+/*!
+  Returns the rectangle \e rv transformed from user coordinates to device
+  coordinates.
+
+  If world transformation is enabled and rotation or shearing has been
+  specified, then the bounding rectangle is returned.
+
+  \sa xFormDev(), QWMatrix::xForm()
+*/
+
+QRect QPainter::xForm( const QRect &rv ) const
+{
+    if ( txop == TxNone )
+	return rv;
+    if ( txop == TxRotShear ) {			// rotation/shear
+	QPointArray a( rv );
+	a = xForm( a );
+	return a.boundingRect();
+    } else {					// translation/scale
+	int x, y, w, h;
+	rv.rect( &x, &y, &w, &h );
+	map( x, y, w, h, &x, &y, &w, &h );
+	return QRect( x, y, w, h );
+    }
+}
+
+/*!
+  Returns the point array \e av transformed from user coordinates to device
+  coordinates.
+  \sa xFormDev(), QWMatrix::xForm()
+*/
+
+QPointArray QPainter::xForm( const QPointArray &av ) const
+{
+    if ( txop == TxNone )
+	return av;
+    QPointArray a = av.copy();
+    int x, y, i;
+    for ( i=0; i<(int)a.size(); i++ ) {
+	a.point( i, &x, &y );
+	map( x, y, &x, &y );
+	a.setPoint( i, x, y );
+    }
+    return a;
+}
+
+/*!
+  Returns the point array \a av transformed from user coordinates to device
+  coordinates.  The \a index is the first point in the array and \a npoints
+  denotes the number of points to be transformed.  If \a npoints is negative,
+  all points from \a av[index] until the last point in the array are
+  transformed.
+
+  The returned point array consists of the number of points that were
+  transformed.
+
+  Example:
+  \code
+    QPointArray a(10);
+    QPointArray b;
+    b = painter.xForm(a,2,4);	// b.size() == 4
+    b = painter.xForm(a,2,-1);	// b.size() == 8
+  \endcode
+
+  \sa xFormDev(), QWMatrix::xForm()
+*/
+
+QPointArray QPainter::xForm( const QPointArray &av, int index,
+			     int npoints ) const
+{
+    int lastPoint = npoints < 0 ? av.size() : index+npoints;
+    QPointArray a( lastPoint-index );
+    int x, y, i=index, j=0;
+    while ( i<lastPoint ) {
+	av.point( i++, &x, &y );
+	map( x, y, &x, &y );
+	a.setPoint( j++, x, y );
+    }
+    return a;
+}
+
+/*!
+  Returns the point \e pv transformed from device coordinates to user
+  coordinates.
+  \sa xForm(), QWMatrix::xForm()
+*/
+
+QPoint QPainter::xFormDev( const QPoint &pd ) const
+{
+    if ( txop == TxNone )
+	return pd;
+    if ( !txinv ) {
+	QPainter *that = (QPainter*)this;	// mutable
+	that->updateInvXForm();
+    }
+    int x=pd.x(), y=pd.y();
+    mapInv( x, y, &x, &y );
+    return QPoint( x, y );
+}
+
+/*!
+  Returns the rectangle \e rv transformed from device coordinates to user
+  coordinates.
+
+  If world transformation is enabled and rotation or shearing is used,
+  then the bounding rectangle is returned.
+
+  \sa xForm(), QWMatrix::xForm()
+*/
+
+QRect QPainter::xFormDev( const QRect &rd ) const
+{
+    if ( txop == TxNone )
+	return rd;
+    if ( !txinv ) {
+	QPainter *that = (QPainter*)this;	// mutable
+	that->updateInvXForm();
+    }
+    if ( txop == TxRotShear ) {			// rotation/shear
+	QPointArray a( rd );
+	a = xFormDev( a );
+	return a.boundingRect();
+    } else {					// translation/scale
+	int x, y, w, h;
+	rd.rect( &x, &y, &w, &h );
+	mapInv( x, y, w, h, &x, &y, &w, &h );
+	return QRect( x, y, w, h );
+    }
+}
+
+/*!
+  Returns the point array \e av transformed from device coordinates to user
+  coordinates.
+  \sa xForm(), QWMatrix::xForm()
+*/
+
+QPointArray QPainter::xFormDev( const QPointArray &ad ) const
+{
+    if ( txop == TxNone )
+	return ad;
+    QPointArray a = ad.copy();
+    int x, y, i;
+    for ( i=0; i<(int)a.size(); i++ ) {
+	a.point( i, &x, &y );
+	mapInv( x, y, &x, &y );
+	a.setPoint( i, x, y );
+    }
+    return a;
+}
+
+/*!
+  Returns the point array \a ad transformed from device coordinates to user
+  coordinates.  The \a index is the first point in the array and \a npoints
+  denotes the number of points to be transformed.  If \a npoints is negative,
+  all points from \a av[index] until the last point in the array are
+  transformed.
+
+  The returned point array consists of the number of points that were
+  transformed.
+
+  Example:
+  \code
+    QPointArray a(10);
+    QPointArray b;
+    b = painter.xFormDev(a,1,3);	// b.size() == 3
+    b = painter.xFormDev(a,1,-1);	// b.size() == 9
+  \endcode
+
+  \sa xForm(), QWMatrix::xForm()
+*/
+
+QPointArray QPainter::xFormDev( const QPointArray &ad, int index,
+				int npoints ) const
+{
+    int lastPoint = npoints < 0 ? ad.size() : index+npoints;
+    QPointArray a( lastPoint-index );
+    int x, y, i=index, j=0;
+    while ( i<lastPoint ) {
+	ad.point( i++, &x, &y );
+	map( x, y, &x, &y );
+	a.setPoint( j++, x, y );
+    }
+    return a;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#78 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#77 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#78 $");
 
 
 /*
@@ -262,7 +262,7 @@ static inline bool obtain_brush( void **ref, HANDLE *brush, uint pix )
  *****************************************************************************/
 
 const int TxNone      = 0;			// transformation codes
-const int TxTranslate = 1;
+const int TxTranslate = 1;			// also in qpainter.cpp
 const int TxScale     = 2;
 const int TxRotShear  = 3;
 
@@ -916,6 +916,7 @@ void QPainter::setRasterOp( RasterOp r )
     SetROP2( hdc, ropCodes[rop] );
 }
 
+
 void QPainter::setBrushOrigin( int x, int y )
 {
     if ( !isActive() ) {
@@ -964,247 +965,6 @@ void QPainter::nativeXForm( bool enable )
 	SetGraphicsMode( hdc, GM_ADVANCED );
 	ModifyWorldTransform( hdc, 0, MWT_IDENTITY );
     }
-}
-
-
-void QPainter::updateXForm()
-{
-    QWMatrix m;
-    if ( testf(VxF) ) {
-	m.translate( vx, vy );
-	m.scale( 1.0*vw/ww, 1.0*vh/wh );
-	m.translate( -wx, -wy );
-    }
-    if ( testf(WxF) ) {
-	if ( testf(VxF) )
-	    m = wxmat * m;
-	else
-	    m = wxmat;
-    }
-    wm11 = qRound((double)m.m11()*65536.0);	// make integer matrix
-    wm12 = qRound((double)m.m12()*65536.0);
-    wm21 = qRound((double)m.m21()*65536.0);
-    wm22 = qRound((double)m.m22()*65536.0);
-    wdx	 = qRound((double)m.dx() *65536.0);
-    wdy	 = qRound((double)m.dy() *65536.0);
-
-    txinv = FALSE;				// no inverted matrix
-    txop  = TxNone;
-    if ( wm12 == 0 && wm21 == 0 && wm11 >= 0 && wm22 >= 0 ) {
-	if ( wm11 == 65536 && wm22 == 65536 ) {
-	    if ( wdx != 0 || wdy != 0 )
-		txop = TxTranslate;
-	} else {
-	    txop = TxScale;
-	    setf(DirtyFont);
-	}
-    } else {
-	txop = TxRotShear;
-	setf(DirtyFont);
-    }
-}
-
-
-void QPainter::updateInvXForm()
-{
-#if defined(CHECK_STATE)
-    ASSERT( txinv == FALSE );
-#endif
-    txinv = TRUE;				// creating inverted matrix
-    bool invertible;
-    QWMatrix m;
-    if ( testf(VxF) ) {
-	m.translate( vx, vy );
-	m.scale( 1.0*vw/ww, 1.0*vh/wh );
-	m.translate( -wx, -wy );
-    }
-    if ( testf(WxF) ) {
-	if ( testf(VxF) )
-	    m = wxmat * m;
-	else
-	    m = wxmat;
-    }
-    m = m.invert( &invertible );		// invert matrix
-    im11 = qRound((double)m.m11()*65536.0);	// make integer matrix
-    im12 = qRound((double)m.m12()*65536.0);
-    im21 = qRound((double)m.m21()*65536.0);
-    im22 = qRound((double)m.m22()*65536.0);
-    idx	 = qRound((double)m.dx() *65536.0);
-    idy	 = qRound((double)m.dy() *65536.0);
-}
-
-
-void QPainter::map( int x, int y, int *rx, int *ry ) const
-{
-     switch ( txop ) {
-	case TxNone:
-	    *rx = x;  *ry = y;
-	    break;
-	case TxTranslate:
-	    *rx = x + wdx/65536;
-	    *ry = y + wdy/65536;
-	    break;
-	case TxScale:
-	    *rx = wm11*x + wdx;
-	    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
-	    *ry = wm22*y + wdy;
-	    *ry = *ry > 0 ? (*ry + 32768)/65536 : (*ry - 32768)/65536;
-	    break;
-	default:
-	    *rx = wm11*x + wm21*y+wdx;
-	    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
-	    *ry = wm12*x + wm22*y+wdy;
-	    *ry = *ry > 0 ? (*ry + 32768)/65536 : (*ry - 32768)/65536;
-	    break;
-    }
-}
-
-void QPainter::map( int x, int y, int w, int h,
-		    int *rx, int *ry, int *rw, int *rh ) const
-{
-     switch ( txop ) {
-	case TxNone:
-	    *rx = x;  *ry = y;
-	    *rw = w;  *rh = h;
-	    break;
-	case TxTranslate:
-	    *rx = x + wdx/65536;
-	    *ry = y + wdy/65536;
-	    *rw = w;  *rh = h;
-	    break;
-	case TxScale:
-	    *rx = wm11*x + wdx;
-	    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
-	    *ry = wm22*y + wdy;
-	    *ry = *ry > 0 ? (*ry + 32768)/65536 : (*ry - 32768)/65536;
-	    *rw = wm11*w;
-	    *rw = *rw > 0 ? (*rw + 32768)/65536 : (*rw - 32768)/65536;
-	    *rh = wm22*h;
-	    *rh = *rh > 0 ? (*rh + 32768)/65536 : (*rh - 32768)/65536;
-	    break;
-	default:
-#if defined(CHECK_STATE)
-	    warning( "QPainter::map: Internal error" );
-#endif
-	    break;
-    }
-}
-
-void QPainter::mapInv( int x, int y, int *rx, int *ry ) const
-{
-#if defined(CHECK_STATE)
-    if ( !txinv )
-	warning( "QPainter::mapInv: Internal error" );
-#endif
-    *rx = im11*x + im21*y+idx;
-    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
-    *ry = im12*x + im22*y+idy;
-    *ry = *ry > 0 ? (*ry + 32768)/65536 : (*ry - 32768)/65536;
-}
-
-void QPainter::mapInv( int x, int y, int w, int h,
-		       int *rx, int *ry, int *rw, int *rh ) const
-{
-#if defined(CHECK_STATE)
-    if ( !txinv || txop == TxRotShear )
-	warning( "QPainter::mapInv: Internal error" );
-#endif
-    *rx = im11*x + idx;
-    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
-    *ry = im22*y + idy;
-    *ry = *ry > 0 ? (*ry + 32768)/65536 : (*ry - 32768)/65536;
-    *rw = im11*w;
-    *rw = *rw > 0 ? (*rw + 32768)/65536 : (*rw - 32768)/65536;
-    *rh = im22*h;
-    *rh = *rh > 0 ? (*rh + 32768)/65536 : (*rh - 32768)/65536;
-}
-
-
-QPoint QPainter::xForm( const QPoint &pv ) const
-{
-    if ( txop == TxNone )
-	return pv;
-    int x=pv.x(), y=pv.y();
-    map( x, y, &x, &y );
-    return QPoint( x, y );
-}
-
-QRect QPainter::xForm( const QRect &rv ) const
-{
-    if ( txop == TxNone )
-	return rv;
-    if ( txop == TxRotShear ) {			// rotation/shear
-	QPointArray a( rv );
-	a = xForm( a );
-	return a.boundingRect();
-    } else {					// translation/scale
-	int x, y, w, h;
-	rv.rect( &x, &y, &w, &h );
-	map( x, y, w, h, &x, &y, &w, &h );
-	return QRect( x, y, w, h );
-    }
-}
-
-QPointArray QPainter::xForm( const QPointArray &av ) const
-{
-    if ( txop == TxNone )
-	return av;
-    QPointArray a = av.copy();
-    int x, y, i;
-    for ( i=0; i<(int)a.size(); i++ ) {
-	a.point( i, &x, &y );
-	map( x, y, &x, &y );
-	a.setPoint( i, x, y );
-    }
-    return a;
-}
-
-
-QPoint QPainter::xFormDev( const QPoint &pd ) const
-{
-    if ( txop == TxNone )
-	return pd;
-    if ( !txinv ) {
-	QPainter *that = (QPainter*)this;	// mutable
-	that->updateInvXForm();
-    }
-    int x=pd.x(), y=pd.y();
-    mapInv( x, y, &x, &y );
-    return QPoint( x, y );
-}
-
-QRect QPainter::xFormDev( const QRect &rd ) const
-{
-    if ( txop == TxNone )
-	return rd;
-    if ( !txinv ) {
-	QPainter *that = (QPainter*)this;	// mutable
-	that->updateInvXForm();
-    }
-    if ( txop == TxRotShear ) {			// rotation/shear
-	QPointArray a( rd );
-	a = xFormDev( a );
-	return a.boundingRect();
-    } else {					// translation/scale
-	int x, y, w, h;
-	rd.rect( &x, &y, &w, &h );
-	mapInv( x, y, w, h, &x, &y, &w, &h );
-	return QRect( x, y, w, h );
-    }
-}
-
-QPointArray QPainter::xFormDev( const QPointArray &ad ) const
-{
-    if ( txop == TxNone )
-	return ad;
-    QPointArray a = ad.copy();
-    int x, y, i;
-    for ( i=0; i<(int)a.size(); i++ ) {
-	a.point( i, &x, &y );
-	mapInv( x, y, &x, &y );
-	a.setPoint( i, x, y );
-    }
-    return a;
 }
 
 
@@ -1270,7 +1030,7 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 
 void QPainter::drawPoint( int x, int y )
 {
-    if ( !isActive() || cpen.style() == NoPen )
+    if ( !isActive() )
 	return;
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
@@ -1282,8 +1042,10 @@ void QPainter::drawPoint( int x, int y )
 	}
 	map( x, y, &x, &y );
     }
-    SetPixelV( hdc, x, y, COLOR_VALUE(cpen.data->color) );
+    if ( cpen.style() != NoPen )
+	SetPixelV( hdc, x, y, COLOR_VALUE(cpen.data->color) );
 }
+
 
 void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 {
@@ -1291,7 +1053,7 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 	npoints = a.size() - index;
     if ( index + npoints > (int)a.size() )
 	npoints = a.size() - index;
-    if ( !isActive() || npoints < 1 || index < 0 || cpen.style() == NoPen )
+    if ( !isActive() || npoints < 1 || index < 0 )
 	return;
     QPointArray pa = a;
     if ( testf(ExtDev|VxF|WxF) ) {
@@ -1305,14 +1067,22 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 	    }
 	    if ( !hdc ) return;
 	}
-	if ( txop != TxNone )
-	    pa = xForm( a );
+	if ( txop != TxNone ) {
+	    pa = xForm( a, index, npoints );
+	    if ( pa.size() != a.size() ) {
+		index = 0;
+		npoints = pa.size();
+	    }		
+	}
     }
-    for (int i=0; i<npoints; i++) {
-	SetPixelV( hdc, pa[index+i].x(), pa[index+i].y(),
-	    COLOR_VALUE(cpen.data->color) );
+    if ( cpen.style() != NoPen ) {
+	for (int i=0; i<npoints; i++) {
+	    SetPixelV( hdc, pa[index+i].x(), pa[index+i].y(),
+		       COLOR_VALUE(cpen.data->color) );
+	}
     }
 }
+
 
 void QPainter::moveTo( int x, int y )
 {
@@ -1351,7 +1121,8 @@ void QPainter::lineTo( int x, int y )
 	map( x, y, &x, &y );
     }
     LineTo( hdc, x, y );
-    SetPixelV( hdc, x, y, COLOR_VALUE(cpen.data->color) );
+    if ( cpen.style() != NoPen )
+	SetPixelV( hdc, x, y, COLOR_VALUE(cpen.data->color) );
 }
 
 
@@ -1771,8 +1542,13 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	    if ( !pdev->cmd(PDC_DRAWLINESEGS,this,param) || !hdc )
 		return;
 	}
-	if ( txop != TxNone && cpen.style() != NoPen )
-	    pa = xForm( a );
+	if ( txop != TxNone ) {
+	    pa = xForm( a, index, nlines*2 );
+	    if ( pa.size() != a.size() ) {
+		index  = 0;
+		nlines = pa.size()/2;
+	    }		
+	}
     }
 
     int	 x1, y1, x2, y2;
@@ -1827,8 +1603,13 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	    if ( !pdev->cmd(PDC_DRAWPOLYLINE,this,param) || !hdc )
 		return;
 	}
-	if ( txop != TxNone && cpen.style() != NoPen )
-	    pa = xForm( a );
+	if ( txop != TxNone ) {
+	    pa = xForm( a, index, npoints );
+	    if ( pa.size() != a.size() ) {
+		index   = 0;
+		npoints = pa.size();
+	    }		
+	}
     }
     int x1, y1, x2, y2, xsave, ysave;
     pa.point( index+npoints-2, &x1, &y1 );	// last line segment
@@ -1882,8 +1663,13 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding, int index,
 	    if ( !pdev->cmd(PDC_DRAWPOLYGON,this,param) || !hdc )
 		return;
 	}
-	if ( txop != TxNone )
-	    pa = xForm( a );
+	if ( txop != TxNone ) {
+	    pa = xForm( a, index, npoints );
+	    if ( pa.size() != a.size() ) {
+		index   = 0;
+		npoints = pa.size();
+	    }		
+	}
     }
     if ( winding )				// set to winding fill mode
 	SetPolyFillMode( hdc, WINDING );
