@@ -97,6 +97,7 @@ WidgetDatabase::WidgetDatabase()
 void WidgetDatabase::setupDataBase( int id )
 {
 #ifndef UIC
+    Q_UNUSED( id )
     if ( dbcount )
 	return;
 #else
