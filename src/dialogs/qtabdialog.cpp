@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#67 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#68 $
 **
 ** Implementation of QTabDialog class
 **
@@ -497,6 +497,7 @@ bool QTabDialog::isTabEnabled( const QString &name ) const
 		delete l;
 		return r;
 	    }
+	    l->next();
 	}
     }
     delete l;
@@ -540,6 +541,7 @@ void QTabDialog::setTabEnabled( const QString &name, bool enable )
 		delete l;
 		return;
 	    }
+	    l->next();
 	}
     }
     delete l;
