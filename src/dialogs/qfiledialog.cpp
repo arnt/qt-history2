@@ -5136,7 +5136,7 @@ QWindowsIconProvider::~QWindowsIconProvider()
 
 const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 {
-    QString ext = fi.extension().upper();
+    QString ext = fi.extension( FALSE ).upper();
     QString key = ext;
     ext.prepend( "." );
     QMap< QString, QPixmap >::Iterator it;
