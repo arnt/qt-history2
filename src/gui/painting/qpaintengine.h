@@ -213,54 +213,8 @@ private:
     friend class QWidget;
     friend class QWin32PaintEngine;
     friend class QWin32PaintEnginePrivate;
-    friend class QWrapperPaintEngine;
     friend class QMacCGContext;
 };
-
-class QWrapperPaintEngine : public QPaintEngine
-{
-public:
-    QWrapperPaintEngine(QPaintEngine *w) : QPaintEngine(w->gccaps), wrap(w) { }
-
-    virtual bool begin(QPaintDevice *pdev) { return wrap->begin(pdev); }
-    virtual bool end() { return wrap->end(); }
-
-    void updatePen(const QPen &pen);
-    void updateBrush(const QBrush &brush, const QPoint &brushOrigin);
-    void updateFont(const QFont &font);
-    void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
-    void updateXForm(const QWMatrix &matrix);
-    void updateClipRegion(const QRegion &region, bool enabled);
-
-    virtual void drawLine(const QPoint &p1, const QPoint &ps);
-    virtual void drawRect(const QRect &r);
-    virtual void drawPoint(const QPoint &p);
-    virtual void drawPoints(const QPointArray &pa, int index, int npoints = -1);
-    virtual void drawRoundRect(const QRect &r, int xRnd, int yRnd);
-    virtual void drawEllipse(const QRect &r);
-    virtual void drawArc(const QRect &r, int a, int alen);
-    virtual void drawPie(const QRect &r, int a, int alen);
-    virtual void drawChord(const QRect &r, int a, int alen);
-    virtual void drawLineSegments(const QPointArray &, int index, int nlines = -1);
-    virtual void drawPolyline(const QPointArray &pa, int index, int npoints = -1);
-    virtual void drawPolygon(const QPointArray &pa, bool winding = false, int index = 0, int npoints = -1);
-    virtual void drawConvexPolygon(const QPointArray &, int index, int npoints = -1);
-#ifndef QT_NO_BEZIER
-    virtual void drawCubicBezier(const QPointArray &, int index);
-#endif
-
-    virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
-                            Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
-    virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
-    virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
-
-    inline QPaintEngine *wrapped() const { return wrap; }
-    virtual Type type() const { return QPaintEngine::Wrapper; }
-
-private:
-    QPaintEngine *wrap;
-};
-
 
 //
 // inline functions
