@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.6 1998/08/31 21:22:07 warwick Exp $
+** $Id: porting.doc,v 1.7 1998/09/03 08:53:23 paul Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -18,7 +18,7 @@
 <h2>How</h2>
 
  - Read all the notes to get an idea of what to expect
- - Recompile.  For each error, seach below for related idetifiers
+ - Recompile.  For each error, search below for related identifiers
     (eg. function names, class names)
 
 <h2>Notes</h2>
@@ -104,6 +104,14 @@ QString is not null terminated.  This means that inserting a 0-character
  This creates a string 2 characters long.
  To find these problems while converting, ASSERT(strlen(d->ascii)==d->len)
   inside QString::ascii().
+
+<p>
+QLayout, QBoxLayout, QGridLayout
+Doesn't set minimumSize(), resize(0,0) or resize(1,1) will work unless
+QT_NO_LAYOUT_COMPAT is defined.
+The layout classes will use sizeHint() if minimumSize() is not set.
+The class QGManager is removed. Subclasses of QLayout need to be rewritten
+to use the new, much simpler API.
 
 <p>
 QMultiLineEdit::textWidth(QString*)
