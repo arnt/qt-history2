@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.h#6 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.h#7 $
 **
 ** Definition of QPopupMenu class
 **
@@ -43,6 +43,7 @@ protected:
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
+    void	keyPressEvent( QKeyEvent * );
     void	timerEvent( QTimerEvent * );
 
 slots:
@@ -65,6 +66,7 @@ private:
     void	updateSize();
 
     int		popupActive;
+    int		tabMark;
 };
 
 

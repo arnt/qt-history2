@@ -1,25 +1,26 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#9 $
 **
 ** Implementation of QButton class
 **
 ** Author  : Haavard Nord
 ** Created : 941128
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #define  INCLUDE_MENUITEM_DEF
 #include "qpopmenu.h"
 #include "qmenubar.h"
+#include "qkeycode.h"
 #include "qpainter.h"
 #include "qpntarry.h"
 #include "qscrbar.h"				// qDrawMotifArrow
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#9 $";
 #endif
 
 
@@ -69,6 +70,7 @@ static const motifItemHMargin	= 3;		// menu item hor text margin
 static const motifItemVMargin	= 8;		// menu item ver text margin
 static const motifArrowHMargin	= 6;		// arrow horizontal margin
 static const motifArrowVMargin	= 4;		// arrow horizontal margin
+static const motifTabSpacing	= 12;		// space between text and tab
 
 static char sizePopupFrame[] =
     { macPopupFrame, winPopupFrame, pmPopupFrame, motifPopupFrame };
@@ -107,6 +109,8 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     setBottomMargin( motifPopupFrame );
     setLeftMargin( motifPopupFrame );
     setRightMargin( motifPopupFrame );
+    popupActive = -1;
+    tabMark = 0;
 }
 
 
@@ -250,12 +254,12 @@ void QPopupMenu::updateSize()			// update popup size params
 {
     int height    = 0;
     int max_width = 10;
-    int tab_width = 0;
     QFontMetrics    fm( font() );
     QMenuItemListIt it( *mitems );
     register QMenuItem *mi;
     bool hasSubMenu = FALSE;
     int cellh = fm.ascent() + motifItemVMargin + 2*motifItemFrame;
+    int tab_width = 0;
 
     while ( (mi=it.current()) ) {
 	int w = 0;
@@ -273,7 +277,7 @@ void QPopupMenu::updateSize()			// update popup size params
 	    char *t = strchr( s, '\t' );
 	    if ( t ) {				// string contains tab
 		w = fm.width( s, (int)t-(int)s );
-		int tw = fm.width( t );
+		int tw = fm.width( t+1 );
 		if ( tw > tab_width )
 		    tab_width = tw;
 	    }
@@ -288,11 +292,19 @@ void QPopupMenu::updateSize()			// update popup size params
 	    max_width = w;
 	++it;
     }
+    int extra_width = 0;
+    if ( tab_width ) {
+	extra_width = tab_width + motifTabSpacing;
+	tabMark = max_width + motifTabSpacing;
+    }
+    else
+	tabMark = 0;
     max_width  += 2*motifItemHMargin + 2*motifItemFrame;
-    if ( tab_width )
-	max_width += tab_width + motifItemHMargin;
-    if ( hasSubMenu )
-	max_width += fm.ascent() + motifArrowHMargin;
+    if ( hasSubMenu ) {
+	if ( fm.ascent() + motifArrowHMargin > extra_width )
+	    extra_width = fm.ascent() + motifArrowHMargin;
+    }
+    max_width += extra_width;
     setNumRows( mitems->count() );
     resize( max_width+2*motifPopupFrame, height+2*motifPopupFrame );
     badSize = FALSE;
@@ -381,7 +393,7 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
 	if ( t ) {				// make tab effect
 	    p->drawText( x, cellh-bo, s, (int)t-(int)s );
 	    s = t + 1;
-	    x = cellw - motifItemFrame - motifItemHMargin - fm.width( s );
+	    x = tabMark;
 	}
 	p->drawText( x, cellh-bo, s );
     }
@@ -433,6 +445,7 @@ void QPopupMenu::paintEvent( QPaintEvent *e )	// paint popup menu
 
 void QPopupMenu::mousePressEvent( QMouseEvent *e )
 {
+    mouseBtDn = TRUE;				// mouse button down
     int item = itemAtPos( e->pos() );
     if ( item == -1 ) {
 	if ( !clientRect().contains( e->pos() ) && !tryMenuBar( e ) ) {
@@ -467,6 +480,7 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
 
 void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 {
+    mouseBtDn = FALSE;				// mouse button up
     int item = itemAtPos( e->pos() );
     if ( item == -1 ) {
 	if ( !clientRect().contains( e->pos() ) && tryMenuBar( e ) )
@@ -516,15 +530,103 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	    }
 	    return;
 	}
+	int lastActItem = actItem;
 	actItem = item;
 	if ( mi->popup() ) {
 	    killTimers();
 	    startTimer( 100 );			// open new popup soon
 	}
 	hidePopups();				// hide popup items
-	repaint( FALSE );
+	if ( lastActItem >= 0 )
+	    updateCell( lastActItem, 0, FALSE );
+	updateCell( actItem, 0, FALSE );
 	if ( mi->id() >= 0 )			// valid identifier
 	    emit activated( mi->id() );
+    }
+}
+
+
+void QPopupMenu::keyPressEvent( QKeyEvent *e )
+{
+    if ( mouseBtDn )				// cannot handle key event
+	return;
+
+    QMenuItem  *mi;
+    QPopupMenu *popup;
+    int d = 0;
+    bool ok_key = TRUE;
+
+    switch ( e->key() ) {
+	case Key_Up:
+	    d = -1;
+	    break;
+
+	case Key_Down:
+	    d = 1;
+	    break;
+
+	case Key_Escape:
+	    hideAllPopups();
+	    byeMenuBar();
+	    break;
+
+	case Key_Return:
+	case Key_Enter:
+	    if ( actItem < 0 )
+		break;
+	    mi = mitems->at( actItem );
+	    popup = mi->popup();
+	    if ( popup ) {
+		hidePopups();
+		killTimers();
+		startTimer( 20 );
+		popup->setFirstItemActive();
+	    }
+	    else {
+		hideAllPopups();
+		byeMenuBar();
+		if ( mi->signal() )
+		    mi->signal()->activate();
+		else
+		    emit selected( mi->id() );
+	    }
+	    break;
+
+	default:
+	    ok_key = FALSE;
+
+    }
+
+    if ( !ok_key ) {				// send to menu bar
+	register QMenuData *top = this;	// find top level
+	while ( top->parentMenu )
+	    top = top->parentMenu;
+	if ( top->isMenuBar )
+	    ((QMenuBar*)top)->tryKeyEvent( this, e );
+    }
+
+    if ( d && actItem >= 0 ) {			// highlight next/prev
+	register int i = actItem;
+	int c = mitems->count();
+	int n = c;
+	while ( n-- ) {
+	    i = i + d;
+	    if ( i == c )
+		i = 0;
+	    else if ( i < 0 )
+		i = c - 1;
+	    mi = mitems->at( i );
+	    if ( !(mi->isSeparator() || mi->isDisabled()) )
+		break;
+	}
+	if ( i != actItem ) {
+	    int lastActItem = actItem;
+	    actItem = i;
+	    if ( mi->id() >= 0 )
+		emit activated( mi->id() );
+	    updateCell( lastActItem, 0, FALSE );
+	    updateCell( actItem, 0, FALSE );
+	}
     }
 }
 

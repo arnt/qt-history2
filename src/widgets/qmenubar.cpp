@@ -1,22 +1,23 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#7 $
 **
 ** Implementation of QMenuBar class
 **
 ** Author  : Haavard Nord
 ** Created : 941209
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #define  INCLUDE_MENUITEM_DEF
 #include "qmenubar.h"
+#include "qkeycode.h"
 #include "qpainter.h"
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#7 $";
 #endif
 
 
@@ -144,6 +145,12 @@ bool QMenuBar::tryMouseEvent( QPopupMenu *popup, QMouseEvent *e )
     event( &ee );
     return TRUE;
 }
+
+void QMenuBar::tryKeyEvent( QPopupMenu *popup, QKeyEvent *e )
+{
+    event( e );
+}
+
 
 void QMenuBar::goodbye()			// set to idle state
 {
@@ -330,6 +337,7 @@ void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
 
 void QMenuBar::mousePressEvent( QMouseEvent *e )
 {
+    mouseBtDn = TRUE;				// mouse button down
     int item = itemAtPos( e->pos() );
     if ( item == -1 ) {
 	actItem = -1;
@@ -361,6 +369,7 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 
 void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 {
+    mouseBtDn = FALSE;				// mouse button up
     int item = itemAtPos( e->pos() );
     if ( actItem == -1 && item != -1 )		// ignore mouse release
 	return;
@@ -400,6 +409,71 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 	    emit activated( mi->id() );
 	if ( mi->popup() )
 	    openActPopup();
+    }
+}
+
+
+void QMenuBar::keyPressEvent( QKeyEvent *e )
+{
+    if ( actItem < 0 || mouseBtDn )		// cannot handle key event
+	return;
+
+    QMenuItem  *mi;
+    QPopupMenu *popup;
+    int d = 0;
+
+    switch ( e->key() ) {
+	case Key_Left:
+	case Key_Up:
+	    d = -1;
+	    break;
+
+	case Key_Right:
+	case Key_Down:
+	    d = 1;
+	    break;
+
+	case Key_Escape:
+	    actItem = -1;
+	    repaint( FALSE );
+	    break;
+
+	case Key_Return:
+	case Key_Enter:
+	    mi = mitems->at( actItem );
+	    popup = mi->popup();
+	    // ... what to do
+	    break;
+    }
+
+    if ( d ) {					// highlight next/prev
+	register int i = actItem;
+	int c = mitems->count();
+	int n = c;
+	while ( n-- ) {
+	    i = i + d;
+	    if ( i == c )
+		i = 0;
+	    else if ( i < 0 )
+		i = c - 1;
+	    mi = mitems->at( i );
+	    if ( !(mi->isSeparator() || mi->isDisabled()) )
+		break;
+	}
+	if ( i != actItem ) {
+	    actItem = i;
+	    repaint( FALSE );
+	    hidePopups();
+	    popup = mi->popup();
+	    if ( popup ) {
+		popup->setFirstItemActive();
+		openActPopup();
+	    }
+	    else {
+		if ( mi->id() >= 0 )
+		    emit activated( mi->id() );
+	    }
+	}
     }
 }
 

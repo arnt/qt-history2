@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#4 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#5 $
 **
 ** Definition of QMenuBar class
 **
 ** Author  : Haavard Nord
 ** Created : 941209
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -38,6 +38,7 @@ protected:
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
+    void	keyPressEvent( QKeyEvent * );
 
 slots:
     void	subActivated( int itemId );
@@ -52,6 +53,7 @@ private:
     bool	eventFilter( QObject *, QEvent * );
 
     bool	tryMouseEvent( QPopupMenu *, QMouseEvent * );
+    void	tryKeyEvent( QPopupMenu *, QKeyEvent * );
     void	goodbye();
     void	openActPopup();
     void	hidePopups();
