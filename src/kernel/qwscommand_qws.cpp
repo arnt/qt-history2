@@ -19,16 +19,46 @@
  * Functions to read/write commands on/from a socket
  *
  *********************************************************************/
+
+//#define QWSCOMMAND_DEBUG
+#ifdef QWSCOMMAND_DEBUG
+#include <stdio.h>
+
+static void hexDump( char * data, int len )
+{
+    fprintf( stderr, "(%d bytes) ", len );
+      
+    for ( int i = 0; i < len; i++ ) {
+	uint c = (uchar)data[i];
+	fprintf( stderr, "%02x %c ", c, (c >' ' && c < '~') ? c : ' ' );
+    }
+    fprintf( stderr, "\n" );
+}
+#endif
+
 #ifndef QT_NO_QWS_MULTIPROCESS
 void qws_write_command( QWSSocket *socket, int type,
 			       char *simpleData, int simpleLen, char *rawData, int rawLen )
 {
+#ifdef QWSCOMMAND_DEBUG
+    fprintf( stderr, "writing type %d\n", type );
+    fprintf( stderr, "simpleData " ); hexDump( simpleData, simpleLen );
+    fprintf( stderr, "rawData " ); hexDump( rawData, rawLen );
+#endif
     qws_write_uint( socket, type );
     qws_write_uint( socket, rawLen == -1 ? 0 : rawLen );
-    if ( simpleData && simpleLen )
+    if ( simpleData && simpleLen ) {
 	socket->writeBlock( simpleData, simpleLen );
-    if ( rawLen && rawData )
+#ifdef QWSCOMMAND_DEBUG
+	qDebug( "writing simpleLen %d", simpleLen );
+#endif
+    }
+    if ( rawLen && rawData ) {
 	socket->writeBlock( rawData, rawLen );
+#ifdef QWSCOMMAND_DEBUG
+	qDebug( "writing rawLen %d", rawLen );
+#endif
+    }
 }
 
 bool qws_read_command( QWSSocket *socket, char *&simpleData, int &simpleLen,
@@ -39,6 +69,9 @@ bool qws_read_command( QWSSocket *socket, char *&simpleData, int &simpleLen,
 	if ( socket->size() < sizeof( rawLen ) )
 	    return FALSE;
 	rawLen = qws_read_uint( socket );
+#ifdef QWSCOMMAND_DEBUG
+	fprintf( stderr, "qws_read_command rawLen %d\n", rawLen );
+#endif
     }
 
     if ( !bytesRead ) {
@@ -46,8 +79,15 @@ bool qws_read_command( QWSSocket *socket, char *&simpleData, int &simpleLen,
 	    if ( socket->size() < uint(simpleLen) )
 		return FALSE;
 	    bytesRead = socket->readBlock( simpleData, simpleLen );
+#ifdef QWSCOMMAND_DEBUG
+	    fprintf( stderr, "simpleData " );
+	    hexDump( simpleData, bytesRead );
+#endif
 	} else
 	    bytesRead = 1; // hack!
+#ifdef QWSCOMMAND_DEBUG
+	fprintf( stderr, "simpleLen %d, bytesRead %d\n", simpleLen, bytesRead );
+#endif
     }
 
     if ( bytesRead ) {
@@ -57,6 +97,11 @@ bool qws_read_command( QWSSocket *socket, char *&simpleData, int &simpleLen,
 	    return FALSE;
 	rawData = new char[ rawLen ];
 	bytesRead += socket->readBlock( rawData, rawLen );
+#ifdef QWSCOMMAND_DEBUG
+	fprintf( stderr, "rawData " );
+	hexDump( rawData, rawLen );
+	fprintf( stderr, "==== bytesRead %d\n", bytesRead );
+#endif
 	return TRUE;
     }
     return FALSE;
@@ -73,7 +118,9 @@ QWSProtocolItem::~QWSProtocolItem() { if (deleteRaw) delete [] rawDataPtr; }
 
 #ifndef QT_NO_QWS_MULTIPROCESS
 void QWSProtocolItem::write( QWSSocket *s ) {
-    //qDebug( "sending type %d", type );
+#ifdef QWSCOMMAND_DEBUG
+    qDebug( "QWSProtocolItem::write sending type %d", type );
+#endif
     qws_write_command( s, type, simpleDataPtr, simpleLen, rawDataPtr, rawLen );
 }
 
@@ -203,7 +250,7 @@ QWSCommand *QWSCommand::factory( int type )
 	break;
 #endif
     default:
-	qDebug( "QWSCommand::factory : Type error - got %08x!", type );
+	qWarning( "QWSCommand::factory : Type error - got %08x!", type );
     }
     return command;
 }
