@@ -57,8 +57,8 @@ rotated. Rotated rectangles can be drawn using QCanvasPolygon.
 \endlist
 
 The two classes \l QCanvasPixmap and \l QCanvasPixmapArray are used
-by \l QCanvasSprite to show animated and moving pixmaps on the
-canvas.
+by \l QCanvasSprite to draw animated and moving pixmaps on the
+canvas. The \l QCanvasView class is used to show a canvas's items.
 
 More specialized items can be created by inheriting from one of the
 canvas item classes. It is easiest to inherit from one of
