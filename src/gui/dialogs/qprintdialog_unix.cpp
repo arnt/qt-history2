@@ -421,11 +421,11 @@ static char *parsePrintersConf(QList<QPrinterDescription> *printers, bool *found
 {
     QFile pc(QLatin1String("/etc/printers.conf"));
     if (!pc.open(IO_ReadOnly)) {
-        if (*found)
+        if (found)
             *found = false;
         return 0;
     }
-    if (*found)
+    if (found)
         *found = true;
 
     char *line = new char[1025];
