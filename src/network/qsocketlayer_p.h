@@ -13,10 +13,10 @@
 
 #ifndef QSOCKETLAYER_P_H
 #define QSOCKETLAYER_P_H
+
 #include <qhostaddress.h>
 #include <qabstractsocket.h>
 
-class QHostAddress;
 class QSocketLayerPrivate;
 
 class QSocketLayer
