@@ -151,7 +151,7 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent )
 QAssistantClient::~QAssistantClient()
 {
     if ( proc->processState() && QProcess::Running )
-        proc->kill();
+        proc->terminate();
 
     if( dpointers ) {
         QAssistantClientPrivate *d = (*dpointers)[ this ];
@@ -198,7 +198,7 @@ void QAssistantClient::openAssistant()
     connect( proc, SIGNAL( readyReadStandardOutput() ),
         this, SLOT( readPort() ) );
     connect( proc, SIGNAL( error(QProcess::ProcessError) ),
-        this, SLOT( procError(QProcess::ProcessError) ) );                            
+        this, SLOT( procError(QProcess::ProcessError) ) );
 
     proc->start(assistantCommand, args);
 }
@@ -240,7 +240,7 @@ void QAssistantClient::closeAssistant()
 {
     if ( !opened )
         return;
-    proc->kill();
+    proc->terminate();
 }
 
 /*!
