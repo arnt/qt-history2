@@ -737,6 +737,8 @@ void QTextEdit::keyPressEvent ( QKeyEvent *e )
     e->accept();
     d->cursorOn = true;
 
+    d->ensureCursorVisible();
+
     if (updateCurrentFormat)
 	d->updateCurrentCharFormat();
 
