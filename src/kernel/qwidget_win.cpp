@@ -913,15 +913,37 @@ void QWidget::changeState_helper(WState newstate)
     bool needShow = FALSE;
     if (isTopLevel()) {
 	if ((widget_state & WState_Maximized) != (newstate & WState_Maximized)) {
-	    // change maximized state
+	    if (isVisible())
+		ShowWindow(winId(), (newstate & WState_Maximized) ? SW_MAXIMIZE : SW_SHOWNOACTIVATE);
 	}
 
 	if ((widget_state & WState_FullScreen) != (newstate & WState_FullScreen)) {
-	    // change fullscreen state
+    	    needShow = isVisible();
+
+	    if (newstate & WState_FullScreen) {
+		if ( topData()->normalGeometry.width() < 0 )
+		    topData()->normalGeometry = QRect( pos(), size() );
+		topData()->savedFlags = getWFlags();
+		reparent(0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
+			 // preserve some widget flags
+			 (getWFlags() & 0xffff0000),
+			 mapToGlobal(QPoint(0, 0)));
+		setGeometry(qApp->desktop()->screenGeometry(this));
+	    } else {
+		reparent( 0, topData()->savedFlags, QPoint(0,0) );
+		QRect r = topData()->normalGeometry;
+		if ( r.width() >= 0 ) {
+		    // the widget has been maximized
+		    topData()->normalGeometry = QRect(0,0,-1,-1);
+		    move(r.topLeft());
+		    resize(r.size());
+		}
+	    }
 	}
 
 	if ((widget_state & WState_Minimized) != (newstate & WState_Minimized)) {
-	    // change minimized state
+	    if (isVisible())
+		ShowWindow(winId(), (newstate & WState_Minimized) ? SW_MINIMIZE : SW_SHOWNOACTIVATE);
 	}
     }
 
@@ -951,108 +973,24 @@ void QWidget::hideWindow()
   \internal
   Platform-specific part of QWidget::show().
 */
-
 void QWidget::showWindow()
 {
 #if defined(QT_NON_COMMERCIAL)
     QT_NC_SHOW_WINDOW
 #endif
-    int sm = SW_SHOW;
+    int sm = SW_SHOWNORMAL;
     if ( isTopLevel() ) {
 	if (testWState(WState_Minimized))
 	    sm = SW_SHOWMINIMIZED;
 	else if (testWState(WState_Maximized))
 	    sm = SW_SHOWMAXIMIZED;
     }
-    if ( testWFlags(WStyle_Tool) || isPopup() )
+    if (testWFlags(WStyle_Tool) || isPopup())
 	sm = SW_SHOWNOACTIVATE;
 
     ShowWindow( winId(), sm );
     UpdateWindow( winId() );
 }
-
-
-#if 0
-void QWidget::showMinimized()
-{
-    if ( isTopLevel() ) {
-	if ( d->topData()->fullscreen ) {
-	    reparent( 0, d->topData()->savedFlags, d->topData()->normalGeometry.topLeft() );
-	    d->topData()->fullscreen = 0;
-	}
-	if ( isVisible() ) {
-	    ShowWindow( winId(), SW_MINIMIZE );
-	} else {
-	    d->topData()->showMode = 1;
-	    show();
-	}
-    } else {
-	show();
-    }
-    QEvent e( QEvent::ShowMinimized );
-    QApplication::sendEvent( this, &e );
-    clearWState( WState_Maximized);
-    setWState( WState_Minimized );
-}
-
-
-void QWidget::showMaximized()
-{
-    if ( isTopLevel() ) {
-	QTLWExtra *topData = d->topData();
-	if ( d->topData()->fullscreen ) {
-	    reparent( 0, topData->savedFlags, topData->normalGeometry.topLeft() );
-	    topData->fullscreen = 0;
-	} else if ( topData->normalGeometry.width() < 0 ) {
-	    topData->normalGeometry = geometry();
-	}
-	if ( isVisible() ) {
-	    ShowWindow( winId(), SW_SHOWMAXIMIZED );
-	} else {
-	    topData->showMode = 2;
-	    show();
-	}
-    }  else {
-	show();
-    }
-    QEvent e( QEvent::ShowMaximized );
-    QApplication::sendEvent( this, &e );
-    clearWState( WState_Minimized );
-    setWState( WState_Maximized );
-}
-
-
-void QWidget::showNormal()
-{
-    if ( isTopLevel() ) {
-	QTLWExtra *topData = d->topData();
-	if ( topData->fullscreen ) {
-	    // when reparenting, preserve some widget flags
-	    reparent( 0, topData->savedFlags, topData->normalGeometry.topLeft() );
-	    topData->fullscreen = 0;
-	    QRect r = topData->normalGeometry;
-	    if ( r.width() >= 0 ) {
-		// the widget has been maximized
-		topData->normalGeometry = QRect(0,0,-1,-1);
-		resize( r.size() );
-		move( r.topLeft() );
-	    }
-	}
-	show();
-	ShowWindow( winId(), SW_SHOWNORMAL );
-    } else {
-	show();
-    }
-    if ( d->extra && d->extra->topextra ) {
-	d->topData()->showMode = 0;
-	d->topData()->fullscreen = 0;
-    }
-    QEvent e( QEvent::ShowNormal );
-    QApplication::sendEvent( this, &e );
-    clearWState( WState_Maximized | WState_Minimized );
-}
-#endif // 0
-
 
 #else // Q_OS_TEMP --------------------------------------------------
 # if defined(WIN32_PLATFORM_PSPC) && (WIN32_PLATFORM_PSPC < 310)

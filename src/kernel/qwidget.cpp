@@ -1508,7 +1508,7 @@ void QWidget::setFullScreen(bool fullScreen)
 
     To return from full-screen mode, call showNormal().
 
-    Full-screen mode works fine under Windows, but has certai6n
+    Full-screen mode works fine under Windows, but has certain
     problems under X. These problems are due to limitations of the
     ICCCM protocol that specifies the communication between X11
     clients and the window manager. ICCCM simply does not understand
