@@ -50,6 +50,7 @@ public:
     ~QStyleOption();
 
     void init(const QWidget *w);
+    void init(const QStyleOption *opt);
 
     QDOC_PROPERTY(int version)
     QDOC_PROPERTY(int type)
