@@ -1158,7 +1158,6 @@ void QListViewItem::setText( int column, const QString &text )
     if ( column == (int)lsc )
 	lsc = Unsorted;
     QListView * lv = listView();
-    int oldW = lv ? lv->columnWidth( column ) : 0;
     widthChanged( column );
     if ( lv )
 	listView()->triggerUpdate();
