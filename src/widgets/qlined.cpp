@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#104 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#105 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#104 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#105 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -378,7 +378,9 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	return;
     }
     QValidator * v = validator();
-    if ( e->ascii() >= 32 && e->key() != Key_Delete ) {
+    if ( e->ascii() >= 32 &&
+	 e->key() != Key_Delete &&
+	 e->key() != Key_Backspace ) {
 	QString test( tbuf.copy() );
 	int cp = cursorPos;
 	if ( hasMarkedText() ) {
