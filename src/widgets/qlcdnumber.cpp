@@ -368,8 +368,8 @@ void QLCDNumber::setNumDigits( int numDigits )
 	digitStr.fill( ' ', ndigits );
 	points.fill( 0, ndigits );
 	digitStr[ndigits - 1] = '0';		// "0" is the default number
-    }
-    else {
+    } else {
+	bool doDisplay = ndigits == 0;
 	if ( numDigits == ndigits )		// no change
 	    return;
 	register int i;
@@ -384,8 +384,7 @@ void QLCDNumber::setNumDigits( int numDigits )
 		points.setBit( i, points.testBit(i-dif) );
 	    for ( i=0; i<dif; i++ )
 		points.clearBit( i );
-	}
-	else {					// shrink
+	} else {					// shrink
 	    dif = ndigits - numDigits;
 	    digitStr = digitStr.right( numDigits );
 	    QBitArray tmpPoints = points.copy();
@@ -394,6 +393,8 @@ void QLCDNumber::setNumDigits( int numDigits )
 		points.setBit( i, tmpPoints.testBit(i+dif) );
 	}
 	ndigits = numDigits;
+	if ( doDisplay )
+	    display( value() );
 	update();
     }
 }
