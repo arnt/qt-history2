@@ -60,12 +60,17 @@ public:
 	{ setBackgroundMode( PaletteLight ); }
 
     void setSelected( bool b ) { selected = b; update(); }
+    virtual void setIcon( const QIconSet &is ) { ic = is; }
+    QIconSet icon() const { return ic; }
+
+    QSize sizeHint() const;
 
 protected:
     void drawButton( QPainter * );
 
 private:
     bool selected;
+    QIconSet ic;
 
 };
 
@@ -143,6 +148,13 @@ public:
 };
 
 
+QSize QCategoryButton::sizeHint() const
+{
+    int ih = 0;
+    if ( !ic.isNull() )
+	ih = icon().pixmap( QIconSet::Small, QIconSet::Normal ).height() + 6;
+    return QToolButton::sizeHint().expandedTo( QSize( 0, ih ) );
+}
 
 void QCategoryButton::drawButton( QPainter *p )
 {
@@ -159,11 +171,16 @@ void QCategoryButton::drawButton( QPainter *p )
 
     int d = 20 + height() - 3;
     QRect tr, ir;
-    if ( iconSet().isNull() ) {
+    int ih = 0;
+    if ( icon().isNull() ) {
 	tr = QRect( 2, 2, width() - d - 5, height() );
     } else {
-	int iw = iconSet().pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4;
-	ir = QRect( 0, 0, iw + 2, height() );
+	int iw = icon().pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4;
+	if ( width() < 4 * iw )
+	    ih = iw = 0;
+	else
+	    ih = icon().pixmap( QIconSet::Small, QIconSet::Normal ).height();
+	ir = QRect( 0, 0, iw + 2, ih );
 	tr = QRect( ir.width() + 4, 0, width() - (ir.width() + 4) - d - 5, height() );
     }
 
@@ -186,6 +203,9 @@ void QCategoryButton::drawButton( QPainter *p )
 	p->setFont( f );
     }
 
+    if ( ih )
+	p->drawPixmap( ir.left(), (height() - ih) / 2,
+		       icon().pixmap( QIconSet::Small, QIconSet::Normal ) );
     style().drawItem( p, tr, AlignLeft | AlignVCenter | ShowPrefix, colorGroup(),
 		      isEnabled(), 0, txt );
 
@@ -252,7 +272,7 @@ void QCategoryBar::insertCategory( const QString &label, const QIconSet &iconSet
 
     button->setText( label );
     if ( !iconSet.isNull() )
-	button->setIconSet( iconSet );
+	button->setIcon( iconSet );
     button->setFixedHeight( button->sizeHint().height() );
     connect( button, SIGNAL( clicked() ), this, SLOT( buttonClicked() ) );
 
@@ -385,6 +405,7 @@ void QCategoryBar::setCurrentPage( QWidget *page )
     // #### is this needed, seems hacky
     set_background_mode( d->currentPage, PaletteLight );
     updateTabs();
+    qApp->eventLoop()->processEvents( QEventLoop::ExcludeUserInput );
     emit currentChanged( page );
 }
 
@@ -494,7 +515,7 @@ void QCategoryBar::setCategoryIconSet( QWidget *page, const QIconSet &iconSet )
 	return;
 
     c->iconSet = iconSet;
-    c->button->setIconSet( iconSet );
+    ( (QCategoryButton*)c->button )->setIcon( iconSet );
 }
 
 void QCategoryBar::setCategoryToolTip( QWidget *page, const QString &toolTip )
