@@ -154,7 +154,6 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
     bufferEdit = 0;
     header()->setMovingEnabled( FALSE );
     header()->setStretchEnabled( TRUE );
-    header()->hide();
     setSorting( -1 );
     setResizePolicy( QScrollView::Manual );
     setIcon( PixmapChooser::loadPixmap( "logo" ) );
@@ -162,8 +161,8 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
     p.setColor( QColorGroup::Base, QColor( *backColor2 ) );
     (void)*selectedBack; // hack
     setPalette( p );
-    addColumn( tr( "Form" ) );
-    addColumn( tr( "Filename" ) );
+    addColumn( tr( "Form/Source" ) );
+    addColumn( tr( "UI-File" ) );
     setAllColumnsShowFocus( TRUE );
     connect( this, SIGNAL( mouseButtonClicked( int, QListViewItem *, const QPoint &, int ) ),
 	     this, SLOT( itemClicked( int, QListViewItem * ) ) ),
