@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#118 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#119 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#118 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#119 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -640,6 +640,10 @@ void QWidget::setActiveWindow()
   This widget must enable focus setting in order to get the keyboard input
   focus, i.e. it must call setAcceptFocus(TRUE).
 
+  \warning If you call setFocus() in a function which may itself be
+  called from focusOutEvent() or focusInEvent(), you may see infinite
+  recursion.
+
   \sa hasFocus(), focusInEvent(), focusOutEvent(), setAcceptFocus(),
   QApplication::focusWidget()
  ----------------------------------------------------------------------------*/
@@ -787,6 +791,9 @@ void QWidget::update( int x, int y, int w, int h )
   calling update() many times in a row will generate a single paint
   event.
 
+  \warning If you call repaint() in a function which may itself be
+  called from paintEvent(), you may see infinite recursion.
+
   \sa update(), paintEvent(), enableUpdates(), erase()
  ----------------------------------------------------------------------------*/
 
@@ -801,7 +808,8 @@ void QWidget::update( int x, int y, int w, int h )
 
   Doing a repaint() usually is faster than doing an update(), but
   calling update() many times in a row will generate a single paint
-  event.
+  event, and can safele be used in paintEvent() and in functions
+  called by paintEvent().
 
   \sa update(), paintEvent(), enableUpdates(), erase()
  ----------------------------------------------------------------------------*/
@@ -948,6 +956,9 @@ static void do_size_hints( Display *dpy, WId ident, QWExtra *x, XSizeHints *s )
   This function is virtual, and all other overloaded move()
   implementations call it.
 
+  \warning If you call move() or setGeometry() from moveEvent(), you
+  may see infinite recursion.
+
   \sa resize(), setGeometry(), moveEvent()
  ----------------------------------------------------------------------------*/
 
@@ -984,6 +995,9 @@ void QWidget::move( int x, int y )
 
   This function is virtual, and all other overloaded resize()
   implementations call it.
+
+  \warning If you call resize() or setGeometry() from resizeEvent(),
+  you may see infinite recursion.
 
   \sa move(), setGeometry(), resizeEvent()
  ----------------------------------------------------------------------------*/
@@ -1027,6 +1041,12 @@ void QWidget::resize( int w, int h )
 
   This function is virtual, and all other overloaded setGeometry()
   implementations call it.
+
+  \warning If you call resize() or setGeometry() from resizeEvent(),
+  you may see infinite recursion.
+
+  \warning If you call move() or setGeometry() from moveEvent(), you
+  may see infinite recursion.
 
   \sa move(), resize(), moveEvent(), resizeEvent()
  ----------------------------------------------------------------------------*/
@@ -1170,6 +1190,10 @@ void QWidget::erase( int x, int y, int w, int h )
   The areas of the widget that are exposed will be erased and a
   \link paintEvent() paint event\endlink will be generated.
 
+  \warning If you call scroll() in a function which may itself be
+  called from the moveEvent() or paintEvent() of a direct child of the
+  widget being scrolled, you may see infinite recursion.
+
   \sa erase(), bitBlt()
  ----------------------------------------------------------------------------*/
 
@@ -1231,7 +1255,9 @@ void QWidget::scroll( int dx, int dy )
   The \e y position is the base line position of the text.  The text is
   drawn using the current font and the current foreground color.
 
-  We recommend using a \link QPainter painter\endlink instead.
+  This function is provided for convenience.  You will generally get
+  more flexible results and often higher speed by using a a \link
+  QPainter painter\endlink instead.
 
   \sa setFont(), foregroundColor(), QPainter::drawText()
  ----------------------------------------------------------------------------*/
