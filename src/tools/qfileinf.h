@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinf.h#7 $
+** $Id: //depot/qt/main/src/tools/qfileinf.h#8 $
 **
 ** Definition of QFileInfo class
 **
 ** Author  : Eirik Eng
 ** Created : 950628
-** 
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+**
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,79 +15,81 @@
 
 #include "qfile.h"
 #include "qdatetm.h"
-class QDir;
 
+class QDir;
 struct QFileInfoCache;
 
-class QFileInfo                            // file information class
+
+class QFileInfo				   // file information class
 {
 public:
-    enum PermissionSpec
-           { ReadUser  = 0400, WriteUser  = 0200, ExeUser  = 0100,
-             ReadGroup = 0040, WriteGroup = 0020, ExeGroup = 0010,
-             ReadOther = 0004, WriteOther = 0002, ExeOther = 0001 };
-
+    enum PermissionSpec {
+	ReadUser  = 0400, WriteUser  = 0200, ExeUser  = 0100,
+	ReadGroup = 0040, WriteGroup = 0020, ExeGroup = 0010,
+	ReadOther = 0004, WriteOther = 0002, ExeOther = 0001 };
 
     QFileInfo();
-    QFileInfo( const QFileInfo & );
+    QFileInfo( const char *file );
     QFileInfo( const QFile & );
     QFileInfo( const QDir &, const char *fileName );
-    QFileInfo( const char *relativeOrAbsFilePath );
+    QFileInfo( const QFileInfo & );
    ~QFileInfo();
 
     QFileInfo &operator=( const QFileInfo & );
 
-    bool    exists()         const;
-    void    refresh()        const;
-    void    setCaching( bool );
-    bool    caching()	     const;
+    void	setFile( const char *file );
+    void	setFile( const QFile & );
+    void	setFile( const QDir &, const char *fileName );
 
-    void setFile( const QFile & );
-    void setFile( const QDir &, const char *fileName );
-    void setFile( const char *relativeOrAbsFilePath );
+    bool	exists()	const;
+    void	refresh()	const;
+    bool	caching()	const;
+    void	setCaching( bool );
 
-    const char *filePath()   const;
-    QString fileName()       const;
-    QString absFilePath()    const;
-    QString baseName()       const;
-    QString extension()      const;
+    const char *filePath()	const;
+    QString	fileName()	const;
+    QString	absFilePath()	const;
+    QString	baseName()	const;
+    QString	extension()	const;
 
-    QString dirPath( bool absPath = FALSE )  const;
-    QDir    dir( bool absPath = FALSE )      const;
+    QString	dirPath( bool absPath = FALSE ) const;
+    QDir	dir( bool absPath = FALSE )	const;
 
-    bool    isReadable()     const;
-    bool    isWritable()     const;
-    bool    isExecutable()   const;
+    bool	isReadable()	const;
+    bool	isWritable()	const;
+    bool	isExecutable()	const;
 
-    bool    isRelative()     const;
-    bool    convertToAbs();
+    bool	isRelative()	const;
+    bool	convertToAbs();
 
-    bool    isFile()         const;
-    bool    isDir()	     const;
-    bool    isSymLink()	     const;
+    bool	isFile()	const;
+    bool	isDir()		const;
+    bool	isSymLink()	const;
 
-    const char *owner()      const;
-    uint        ownerId()    const;
-    const char *group()      const;
-    uint        groupId()    const;
+    const char *owner()		const;
+    uint	ownerId()	const;
+    const char *group()		const;
+    uint	groupId()	const;
 
-    bool permission( int permissionSpec ) const;
+    bool	permission( int permissionSpec ) const;
 
-    long        size()       const;
+    long	size()		const;
 
-    QDateTime lastModified() const;
-    QDateTime lastRead()     const;
+    QDateTime	lastModified()	const;
+    QDateTime	lastRead()	const;
 
 private:
-    void doStat() const;
-    QString fn;
+    void	doStat() const;
+    QString	fn;
     QFileInfoCache *fic;
-    bool cache;
+    bool	cache;
 };
+
 
 inline bool QFileInfo::caching() const
 {
     return cache;
 }
+
 
 #endif // QFILEINF_H

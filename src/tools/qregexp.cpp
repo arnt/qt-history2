@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#19 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#20 $
 **
 ** Implementation of QRegExp class
 **
@@ -19,7 +19,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#20 $";
 #endif
 
 
@@ -568,7 +568,7 @@ ushort *dump( ushort *p )			// DEBUG !!!
 			}
 		    }
 		}
-		debug( "\tCCL\t%s", (char *)s );
+		debug( "\tCCL\t%s", (const char *)s );
 		p += 16;
 		}
 		break;
@@ -614,7 +614,7 @@ void QRegExp::compile()
 	pattern = wc2rx(rxstring);
     else
 	pattern = rxstring;
-    char   *p = pattern;			// pattern pointer
+    char   *p = pattern.data();			// pattern pointer
     ushort *d = rxarray;			// data pointer
     ushort *prev_d = 0;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#22 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#23 $
 **
 ** Implementation of QFile class
 **
@@ -12,10 +12,9 @@
 
 #include "qfile.h"
 #include "qfiledef.h"
-#include <limits.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#23 $";
 #endif
 
 
@@ -69,8 +68,8 @@ void QFile::init()				// initialize internal data
 {
     setFlags( IO_Direct );
     setStatus( IO_Ok );
-    fh     = 0;
-    fd     = 0;
+    fh	   = 0;
+    fd	   = 0;
     length = 0;
     index  = 0;
 }
@@ -79,22 +78,18 @@ void QFile::init()				// initialize internal data
 /*----------------------------------------------------------------------------
   \fn const char *QFile::name() const
   Returns the name set by setName().
-
-  This is NOT a function that always returns a pure file name (i.e. without
-  path information).
-
-  \sa setName(), QFileInfo::fileName().  
+  \sa setName(), QFileInfo::fileName()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Sets the name of the file, the name can include an absolute directory
+  Sets the name of the file. The name can include an absolute directory
   path or it can be a name or a path relative to the current directory.
 
-  Note that if the name is relative it will NOT be associated with the current
-  directory, thus changing the current directory before doing
-  open() will change the location of the QFile.
-
   Do not call this function if the file has already been opened.
+
+  Note that if the name is relative it will not be associated with the
+  current directory, thus changing the current directory before calling
+  open() will change the location of the QFile.
 
   Example:
   \code
@@ -114,7 +109,7 @@ void QFile::setName( const char *name )
 #if defined(CHECK_STATE)
 	warning( "QFile::setName: File is open" );
 #endif
-        close();
+	close();
     }
     fn = name;
 }
@@ -122,7 +117,6 @@ void QFile::setName( const char *name )
 
 /*----------------------------------------------------------------------------
   Returns TRUE if the file exists, otherwise FALSE.
-
   \sa name()
  ----------------------------------------------------------------------------*/
 
@@ -130,7 +124,7 @@ bool QFile::exists() const
 {
     if ( fn.isEmpty() )
 	return FALSE;
-    return ACCESS( fn.data(), Q_FILE_OK ) == 0;
+    return ACCESS( fn.data(), F_OK ) == 0;
 }
 
 /*----------------------------------------------------------------------------
@@ -142,19 +136,19 @@ bool QFile::exists( const char *fileName )
 #if defined(CHECK_NULL)
     ASSERT( fileName != 0 );
 #endif
-    return ACCESS( fileName, Q_FILE_OK ) == 0;
+    return ACCESS( fileName, F_OK ) == 0;
 }
 
 
 #if defined(_OS_MAC_) || defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined(_OS_OS2_)
-#define HAS_TEXT_FILEMODE			// has translate/text filemode
+# define HAS_TEXT_FILEMODE			// has translate/text filemode
 #endif
 #if defined(O_NONBLOCK)
-#define HAS_ASYNC_FILEMODE
-#define OPEN_ASYNC O_NONBLOCK
+# define HAS_ASYNC_FILEMODE
+# define OPEN_ASYNC O_NONBLOCK
 #elif defined(O_NDELAY)
-#define HAS_ASYNC_FILEMODE
-#define OPEN_ASYNC O_NDELAY
+# define HAS_ASYNC_FILEMODE
+# define OPEN_ASYNC O_NDELAY
 #endif
 
 /*----------------------------------------------------------------------------
@@ -204,7 +198,6 @@ bool QFile::open( int m )			// open file
     }
     init();					// reset params
     setMode( m );
-    setStatus( 0 );
     if ( !(isReadable() || isWritable()) ) {
 #if defined(CHECK_RANGE)
 	warning( "QFile::open: File access not specified" );
@@ -293,13 +286,15 @@ bool QFile::open( int m )			// open file
 	else
 	    ok = FALSE;
     }
-    if ( !ok ) {
+    if ( ok )
+	setState( IO_Open );
+    else {
+	init();
 	if ( errno == EMFILE )			// no more file handles/descrs
 	    setStatus( IO_ResourceError );
 	else
 	    setStatus( IO_OpenError );
     }
-    setState( IO_Open );
     return ok;
 }
 
@@ -313,7 +308,7 @@ bool QFile::open( int m )			// open file
 
     void printError( const char *msg )
     {
-        QFile f;
+	QFile f;
 	f.open( IO_WriteOnly, stderr );
 	f.writeBlock( msg, strlen(msg) );	// write to stderr
 	f.close();
@@ -363,7 +358,7 @@ bool QFile::open( int m, int f )		// open file, using file descr
 }
 
 /*----------------------------------------------------------------------------
-  Closes an open file.  The file will be closed even if it was opened with
+  Closes an open file.	The file will be closed even if it was opened with
   an existing file handle or file descriptor.
  ----------------------------------------------------------------------------*/
 
@@ -399,14 +394,16 @@ void QFile::flush()				// flush file
 long QFile::size() const
 {
     if ( isOpen() ) {
-        return length;
+	return length;
     } else {
 	QFile f( fn );
-	long  s = 0;
+	long s;
 	if ( f.open(IO_ReadOnly) ) {
 	    s = f.size();
 	    f.close();
 	}
+	else
+	    s = 0;
 	return s;
     }
 }
@@ -422,7 +419,7 @@ long QFile::at() const
 }
 
 /*----------------------------------------------------------------------------
-  Sets the file index to \e n.  Returns TRUE if successful, otherwise FALSE.
+  Sets the file index to \e n.	Returns TRUE if successful, otherwise FALSE.
 
   Example:
   \code

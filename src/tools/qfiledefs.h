@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledefs.h#4 $
+** $Id: //depot/qt/main/src/tools/qfiledefs.h#5 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -16,18 +16,22 @@
 *****************************************************************************/
 
 #if !defined(_OS_MAC_)
-#include <sys/types.h>
-#include <sys/stat.h>
+# include <sys/types.h>
+# include <sys/stat.h>
 #endif
 #include <fcntl.h>
 #include <errno.h>
 #if defined(UNIX)
-#include <unistd.h>
+# include <dirent.h>
+# include <unistd.h>
 #endif
 #if defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined(_OS_OS2_)
-#include <io.h>
+# include <io.h>
+# include <dos.h>
+# include <direct.h>
 #endif
 #include <limits.h>
+
 
 #undef STATBUF
 #undef STAT
@@ -41,6 +45,9 @@
 #undef READ
 #undef WRITE
 #undef ACCESS
+#undef GETCWD
+#undef MKDIR
+#undef RMDIR
 #undef OPEN_RDONLY
 #undef OPEN_WRONLY
 #undef OPEN_CREAT
@@ -48,58 +55,70 @@
 #undef OPEN_APPEND
 #undef OPEN_TEXT
 
+
 #if defined(_CC_MSC_) || defined(_CC_SYM_)
-#define STATBUF	 _stat				// non-ANSI defs
-#define STAT	 _stat
-#define STAT_REG _S_IFREG
-#define STAT_DIR _S_IFDIR
-#error define STAT_MASK here
-#if defined(_S_IFLNK)
-#define STAT_LNK _S_IFLNK
-#endif
-#define OPEN	::_open
-#define CLOSE	::_close
-#define LSEEK	::_lseek
-#define READ	::_read
-#define WRITE	::_write
-#define ACCESS	::_access
-#define OPEN_RDONLY	_O_RDONLY
-#define OPEN_WRONLY	_O_WRONLY
-#define OPEN_RDWR	_O_RDWR
-#define OPEN_CREAT	_O_CREAT
-#define OPEN_TRUNC	_O_TRUNC
-#define OPEN_APPEND	_O_APPEND
-#define OPEN_TEXT	_O_TEXT
+
+# define STATBUF	struct _stat		// non-ANSI defs
+# define STAT		_stat
+# define STAT_REG	_S_IFREG
+# define STAT_DIR	_S_IFDIR
+# define STAT_MASK	_S_IFMT
+# if defined(_S_IFLNK)
+#  define STAT_LNK	_S_IFLNK
+# endif
+# define OPEN		::_open
+# define CLOSE		::_close
+# define LSEEK		::_lseek
+# define READ		::_read
+# define WRITE		::_write
+# define ACCESS		::_access
+# define GETCWD		::_getcwd
+# define MKDIR		::_mkdir
+# define RMDIR		::_rmdir
+# define OPEN_RDONLY	_O_RDONLY
+# define OPEN_WRONLY	_O_WRONLY
+# define OPEN_RDWR	_O_RDWR
+# define OPEN_CREAT	_O_CREAT
+# define OPEN_TRUNC	_O_TRUNC
+# define OPEN_APPEND	_O_APPEND
+# if defined(O_TEXT)
+#  define OPEN_TEXT	_O_TEXT
+# endif
 
 #else						// all other systems
 
-#define STATBUF	 stat
-#define STAT	 ::stat
-#define STAT_REG S_IFREG
-#define STAT_DIR S_IFDIR
-#define STAT_MASK S_IFMT
-#if defined(S_IFLNK)
-#define STAT_LNK S_IFLNK
-#endif
-#define OPEN	::open
-#define CLOSE	::close
-#define LSEEK	::lseek
-#define READ	::read
-#define WRITE	::write
-#define ACCESS	::access
-#define OPEN_RDONLY	O_RDONLY
-#define OPEN_WRONLY	O_WRONLY
-#define OPEN_RDWR	O_RDWR
-#define OPEN_CREAT	O_CREAT
-#define OPEN_TRUNC	O_TRUNC
-#define OPEN_APPEND	O_APPEND
-#if defined(O_TEXT)
-#define OPEN_TEXT	O_TEXT
-#endif
+# define STATBUF	struct stat
+# define STAT		::stat
+# define STAT_REG	S_IFREG
+# define STAT_DIR	S_IFDIR
+# define STAT_MASK	S_IFMT
+# if defined(S_IFLNK)
+#  define STAT_LNK	S_IFLNK
+# endif
+# define OPEN		::open
+# define CLOSE		::close
+# define LSEEK		::lseek
+# define READ		::read
+# define WRITE		::write
+# define ACCESS		::access
+# define GETCWD		::getcwd
+# define MKDIR		::mkdir
+# define RMDIR		::rmdir
+# define OPEN_RDONLY	O_RDONLY
+# define OPEN_WRONLY	O_WRONLY
+# define OPEN_RDWR	O_RDWR
+# define OPEN_CREAT	O_CREAT
+# define OPEN_TRUNC	O_TRUNC
+# define OPEN_APPEND	O_APPEND
+# if defined(O_TEXT)
+#  define OPEN_TEXT	O_TEXT
+# endif
 #endif
 
-#if defined(F_OK)
-#define Q_FILE_OK	F_OK
-#else
-#define Q_FILE_OK	0
+
+#if defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined(_OS_OS2_)
+# define F_OK	0
+# define X_OK	1
+# define W_OK	2
+# define R_OK	4
 #endif

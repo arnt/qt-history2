@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#29 $
+** $Id: //depot/qt/main/src/tools/qstring.h#30 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -36,7 +36,7 @@ inline uint cstrlen( const char *str )
 inline uint qstrlen( const char *str )
 { return str ? strlen(str) : 0; }
 
-#undef  strlen
+#undef	strlen
 #define strlen qstrlen
 
 inline char *cstrcpy( char *dst, const char *src )
@@ -45,7 +45,7 @@ inline char *cstrcpy( char *dst, const char *src )
 inline char *qstrcpy( char *dst, const char *src )
 { return src ? strcpy(dst, src) : 0; }
 
-#undef  strcpy
+#undef	strcpy
 #define strcpy qstrcpy
 
 char *qstrncpy( char *dst, const char *src, uint len );
@@ -56,7 +56,7 @@ inline int cstrcmp( const char *str1, const char *str2 )
 inline int qstrcmp( const char *str1, const char *str2 )
 { return (str1 && str2) ? strcmp(str1,str2) : (int)((long)str2 - (long)str1); }
 
-#undef  strcmp
+#undef	strcmp
 #define strcmp qstrcmp
 
 inline int cstrncmp( const char *str1, const char *str2, uint len )
@@ -66,15 +66,15 @@ inline int qstrncmp( const char *str1, const char *str2, uint len )
 { return (str1 && str2) ? strncmp(str1,str2,len) :
 			  (int)((long)str2 - (long)str1); }
 
-#undef  strncmp
+#undef	strncmp
 #define strncmp qstrncmp
 
 int qstricmp( const char *, const char * );
 int qstrnicmp( const char *, const char *, uint len );
 
-#undef  stricmp
-#define stricmp  qstricmp
-#undef  strnicmp
+#undef	stricmp
+#define stricmp	 qstricmp
+#undef	strnicmp
 #define strnicmp qstrnicmp
 
 
@@ -114,10 +114,8 @@ public:
     QString( const QString &s ) : QByteArray( s ) {}
     QString( const char *str );			// deep copy
 
-    QString    &operator=( const QString &s )	// shallow copy
-	{ return (QString&)assign( s ); }
-    QString    &operator=( const char *str )	// deep copy
-	{ return (QString&)duplicate( str, strlen(str)+1 ); }
+    QString    &operator=( const QString &s );	// shallow copy
+    QString    &operator=( const char *str );	// deep copy
 
     bool	isNull()	const;
     bool	isEmpty()	const;
@@ -147,11 +145,11 @@ public:
     QString	leftJustify( uint width, char fill=' ', bool trunc=FALSE)const;
     QString	rightJustify( uint width, char fill=' ',bool trunc=FALSE)const;
 
-    QString     lower() const;
-    QString     upper()	const;
+    QString	lower() const;
+    QString	upper() const;
 
-    QString     stripWhiteSpace()	const;
-    QString     simplifyWhiteSpace()	const;
+    QString	stripWhiteSpace()	const;
+    QString	simplifyWhiteSpace()	const;
 
     QString    &insert( uint index, const char * );
     QString    &insert( uint index, char );
@@ -180,22 +178,30 @@ public:
 
     bool	setExpand( uint index, char c );
 
-		operator char *()	const { return data(); }
-		operator const char *() const { return (pcchar)data(); }
-    bool	operator!()		const { return data() == 0; }
+		operator const char *() const;
     QString    &operator+=( const char *str );
     QString    &operator+=( char c );
 
-    bool	operator==( const QString &s )	const;
-    bool	operator!=( const QString &s )	const;
-    bool	operator==( const char *s ) 	const;
-    bool	operator!=( const char *s ) 	const;
-    bool	operator==( char *s ) 		const;
-    bool	operator!=( char *s ) 		const;
-    bool	operator<( const char *s )  	const;
-    bool	operator>( const char *s )  	const;
-    bool	operator<=( const char *s ) 	const;
-    bool	operator>=( const char *s ) 	const;
+    friend bool operator==( const QString &, const QString & );
+    friend bool operator==( const QString &, const char * );
+    friend bool operator==( const char *, const QString & );
+    friend bool operator!=( const QString &, const QString & );
+    friend bool operator!=( const QString &, const char * );
+    friend bool operator!=( const char *, const QString & );
+    friend bool operator<( const QString &, const char * );
+    friend bool operator<( const char *, const QString & );
+    friend bool operator<=( const QString &, const char * );
+    friend bool operator<=( const char *, const QString & );
+    friend bool operator>( const QString &, const char * );
+    friend bool operator>( const char *, const QString & );
+    friend bool operator>=( const QString &, const char * );
+    friend bool operator>=( const char *, const QString & );
+
+    friend QString operator+( const QString &, const QString & );
+    friend QString operator+( const QString &, const char * );
+    friend QString operator+( const char *, const QString & );
+    friend QString operator+( const QString &, char c2 );
+    friend QString operator+( char c1, const QString & );
 };
 
 
@@ -210,6 +216,12 @@ QDataStream &operator>>( QDataStream &, QString & );
 // --------------------------------------------------------------------------
 // QString inline functions
 //
+
+inline QString &QString::operator=( const QString &s )
+{ return (QString&)assign( s ); }
+
+inline QString &QString::operator=( const char *str )
+{ return (QString&)duplicate( str, strlen(str)+1 ); }
 
 inline bool QString::isNull() const
 { return data() == 0; }
@@ -256,40 +268,55 @@ inline QString &QString::setNum( uint n )
 inline QString &QString::setNum( float n, char f, int prec )
 { return setNum((double)n,f,prec); }
 
-inline bool QString::operator==( const QString &s ) const
-{ return strcmp(data(),s.data()) == 0; }
-
-inline bool QString::operator!=( const QString &s ) const
-{ return strcmp(data(),s.data()) != 0; }
-
-inline bool QString::operator==( const char *s ) const
-{ return strcmp(data(),s) == 0; }
-
-inline bool QString::operator!=( const char *s ) const
-{ return strcmp(data(),s) != 0; }
-
-inline bool QString::operator==( char *s ) const
-{ return strcmp(data(),s) == 0; }
-
-inline bool QString::operator!=( char *s ) const
-{ return strcmp(data(),s) != 0; }
-
-inline bool QString::operator<( const char *s )  const
-{ return strcmp(data(),s) < 0; }
-
-inline bool QString::operator>( const char *s )  const
-{ return strcmp(data(),s) > 0; }
-
-inline bool QString::operator<=( const char *s ) const
-{ return strcmp(data(),s) <= 0; }
-
-inline bool QString::operator>=( const char *s ) const
-{ return strcmp(data(),s) >= 0; }
+inline QString::operator const char *() const
+{ return (const char *)data(); }
 
 
 // --------------------------------------------------------------------------
 // QString non-member operators
 //
+
+inline bool operator==( const QString &s1, const QString &s2 )
+{ return strcmp(s1.data(),s2.data()) == 0; }
+
+inline bool operator==( const QString &s1, const char *s2 )
+{ return strcmp(s1.data(),s2) == 0; }
+
+inline bool operator==( const char *s1, const QString &s2 )
+{ return strcmp(s1,s2.data()) == 0; }
+
+inline bool operator!=( const QString &s1, const QString &s2 )
+{ return strcmp(s1.data(),s2.data()) != 0; }
+
+inline bool operator!=( const QString &s1, const char *s2 )
+{ return strcmp(s1.data(),s2) != 0; }
+
+inline bool operator!=( const char *s1, const QString &s2 )
+{ return strcmp(s1,s2.data()) != 0; }
+
+inline bool operator<( const QString &s1, const char *s2 )
+{ return strcmp(s1.data(),s2) < 0; }
+
+inline bool operator<( const char *s1, const QString &s2 )
+{ return strcmp(s1,s2.data()) < 0; }
+
+inline bool operator<=( const QString &s1, const char *s2 )
+{ return strcmp(s1.data(),s2) <= 0; }
+
+inline bool operator<=( const char *s1, const QString &s2 )
+{ return strcmp(s1,s2.data()) <= 0; }
+
+inline bool operator>( const QString &s1, const char *s2 )
+{ return strcmp(s1.data(),s2) > 0; }
+
+inline bool operator>( const char *s1, const QString &s2 )
+{ return strcmp(s1,s2.data()) > 0; }
+
+inline bool operator>=( const QString &s1, const char *s2 )
+{ return strcmp(s1.data(),s2) >= 0; }
+
+inline bool operator>=( const char *s1, const QString &s2 )
+{ return strcmp(s1,s2.data()) >= 0; }
 
 inline QString operator+( const QString &s1, const QString &s2 )
 {
@@ -308,6 +335,20 @@ inline QString operator+( const QString &s1, const char *s2 )
 inline QString operator+( const char *s1, const QString &s2 )
 {
     QString tmp( s1 );
+    tmp += s2;
+    return tmp;
+}
+
+inline QString operator+( const QString &s1, char c2 )
+{
+    QString tmp( s1.data() );
+    tmp += c2;
+    return tmp;
+}
+
+inline QString operator+( char c1, const QString &s2 )
+{
+    QString tmp( c1 );
     tmp += s2;
     return tmp;
 }

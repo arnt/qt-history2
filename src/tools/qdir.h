@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#8 $
+** $Id: //depot/qt/main/src/tools/qdir.h#9 $
 **
 ** Definition of QDir class
 **
 ** Author  : Eirik Eng
 ** Created : 950427
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,105 +16,106 @@
 #include "qstrlist.h"
 #include "qfileinf.h"
 
-typedef declare(QListM,QFileInfo) QFileInfoList;
+typedef declare(QListM,QFileInfo)	  QFileInfoList;
 typedef declare(QListIteratorM,QFileInfo) QFileInfoIterator;
+
 
 class QDir
 {
 public:
-    enum FilterSpec { Dirs          = 0x001,
-                      Files         = 0x002,
-                      Drives        = 0x004,
-                      NoSymLinks    = 0x008,
-                      All           = 0x007,
-                      TypeMask      = 0x00F,
+    enum FilterSpec { Dirs	    = 0x001,
+		      Files	    = 0x002,
+		      Drives	    = 0x004,
+		      NoSymLinks    = 0x008,
+		      All	    = 0x007,
+		      TypeMask	    = 0x00F,
 
-                      Readable      = 0x010, 
-                      Writable      = 0x020, 
-                      Executable    = 0x040,
-                      RWEMask       = 0x070,
-                      Modified      = 0x080,
-                      Hidden        = 0x100, 
-                      System        = 0x200,
-                      AccessMask    = 0x3F0,
-                      DefaultFilter = -1 };
+		      Readable	    = 0x010,
+		      Writable	    = 0x020,
+		      Executable    = 0x040,
+		      RWEMask	    = 0x070,
+		      Modified	    = 0x080,
+		      Hidden	    = 0x100,
+		      System	    = 0x200,
+		      AccessMask    = 0x3F0,
+		      DefaultFilter = -1 };
 
-    enum SortSpec   { Name        = 0x00,
-                      Time        = 0x01,
-                      Size        = 0x02,
-                      Unsorted    = 0x03,
-                      SortByMask  = 0x03,
-                      DirsFirst   = 0x04,
-                      Reversed    = 0x08,
-                      IgnoreCase  = 0x10,
-                      DefaultSort = -1 };
+    enum SortSpec   { Name	    = 0x00,
+		      Time	    = 0x01,
+		      Size	    = 0x02,
+		      Unsorted	    = 0x03,
+		      SortByMask    = 0x03,
+		      DirsFirst	    = 0x04,
+		      Reversed	    = 0x08,
+		      IgnoreCase    = 0x10,
+		      DefaultSort   = -1 };
 
     QDir();
     QDir( const char *path );
-    QDir( const char *path, const char *nameFilt, 
-          int sortSpec = Name | IgnoreCase, int filterSpec = All );
+    QDir( const char *path, const char *nameFilter,
+	  int sortSpec = Name | IgnoreCase, int filterSpec = All );
     QDir( const QDir & );
    ~QDir();
     QDir       &operator=( const QDir & );
     QDir       &operator=( const char *path );
 
-    void        setPath( const char *path );
-    const char *path()         const;
-    QString     absPath() const;
-    QString     canonicalPath()     const;
+    void	setPath( const char *path );
+    const char *path()	       const;
+    QString	absPath() const;
+    QString	canonicalPath()	    const;
 
-    QString     dirName() const;
-    QString     filePath( const char *fileName, 
-                          bool acceptAbsPath = TRUE ) const;
-    QString     absFilePath( const char *fileName,
-                              bool acceptAbsPath = TRUE ) const;
+    QString	dirName() const;
+    QString	filePath( const char *fileName,
+			  bool acceptAbsPath = TRUE ) const;
+    QString	absFilePath( const char *fileName,
+			     bool acceptAbsPath = TRUE ) const;
 
-    bool        cd( const char *dirName, bool acceptAbsPath = TRUE );
-    bool        cdUp();
+    bool	cd( const char *dirName, bool acceptAbsPath = TRUE );
+    bool	cdUp();
 
     const char *nameFilter() const;
-    void        setNameFilter( const char *nameFilter );
+    void	setNameFilter( const char *nameFilter );
     QDir::FilterSpec filter() const;
-    void        setFilter( int filterSpec );
+    void	setFilter( int filterSpec );
     QDir::SortSpec sorting() const;
-    void        setSorting( int sortSpec );
+    void	setSorting( int sortSpec );
 
-    bool        matchAllDirs() const;
-    void        setMatchAllDirs( bool );
+    bool	matchAllDirs() const;
+    void	setMatchAllDirs( bool );
 
-    const QStrList *entryList( int filterSpec = DefaultFilter, 
+    const QStrList *entryList( int filterSpec = DefaultFilter,
 			       int sortSpec   = DefaultSort  ) const;
     const QStrList *entryList( const char *nameFilter,
-			       int filterSpec = DefaultFilter, 
+			       int filterSpec = DefaultFilter,
 			       int sortSpec   = DefaultSort   ) const;
 
-    const QFileInfoList *entryInfoList( int filterSpec = DefaultFilter, 
+    const QFileInfoList *entryInfoList( int filterSpec = DefaultFilter,
 					int sortSpec   = DefaultSort  ) const;
     const QFileInfoList *entryInfoList( const char *nameFilter,
-					int filterSpec = DefaultFilter, 
+					int filterSpec = DefaultFilter,
 					int sortSpec   = DefaultSort   ) const;
 
-    bool        mkdir( const char *dirName,
-                              bool acceptAbsPath = TRUE ) const;
-    bool        rmdir( const char *dirName,
-                              bool acceptAbsPath = TRUE ) const;
+    bool	mkdir( const char *dirName,
+			      bool acceptAbsPath = TRUE ) const;
+    bool	rmdir( const char *dirName,
+			      bool acceptAbsPath = TRUE ) const;
 
-    bool        isReadable() const;
-    bool        exists()   const;
+    bool	isReadable() const;
+    bool	exists()   const;
     bool	isRoot()   const;
 
-    bool        isRelative() const;
-    void        convertToAbs();
+    bool	isRelative() const;
+    void	convertToAbs();
 
-    bool        operator==( const QDir & ) const;
-    bool        operator!=( const QDir & ) const;
+    bool	operator==( const QDir & ) const;
+    bool	operator!=( const QDir & ) const;
 
-    bool        remove( const char *fileName,
-                              bool acceptAbsPath = TRUE );
-    bool        rename( const char *name, const char *newName,
-                              bool acceptAbsPaths = TRUE  );
-    bool        exists( const char *name,
-                              bool acceptAbsPath = TRUE );
+    bool	remove( const char *fileName,
+			      bool acceptAbsPath = TRUE );
+    bool	rename( const char *name, const char *newName,
+			      bool acceptAbsPaths = TRUE  );
+    bool	exists( const char *name,
+			      bool acceptAbsPath = TRUE );
 
     static char separator();
 
@@ -132,19 +133,20 @@ public:
 
 private:
     void	init();
-    bool        readDirEntries( const QString &nameFilter,
-                                int FilterSpec = DefaultFilter, 
-                                int SortSpec   = DefaultSort  );
+    bool	readDirEntries( const QString &nameFilter,
+				int FilterSpec = DefaultFilter,
+				int SortSpec   = DefaultSort  );
 
-    QString	   dPath;
-    QStrList      *fList;
+    QString	dPath;
+    QStrList   *fList;
     QFileInfoList *fiList;
-    QString        nameFilt;
-    uint 	   dirty   : 1;
-    uint 	   allDirs : 1;
-    uint 	   filtS   : 10;
-    uint 	   sortS   : 5;
+    QString	nameFilt;
+    FilterSpec	filtS;
+    SortSpec	sortS;
+    uint	dirty	: 1;
+    uint	allDirs : 1;
 };
+
 
 inline const char *QDir::path() const
 {

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinf.cpp#7 $
+** $Id: //depot/qt/main/src/tools/qfileinf.cpp#8 $
 **
 ** Implementation of QFileInfo class
 **
 ** Author  : Eirik Eng
 ** Created : 950628
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,512 +14,569 @@
 #include "qfiledef.h"
 #include "qdatetm.h"
 #include "qdir.h"
-
-#include <pwd.h>
-#include <grp.h>
-
-
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfileinf.cpp#7 $";
+#if defined(UNIX)
+# include <pwd.h>
+# include <grp.h>
 #endif
 
-struct QFileInfoCache 
+#if defined(DEBUG)
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfileinf.cpp#8 $";
+#endif
+
+
+struct QFileInfoCache
 {
-    struct STATBUF st;
+    STATBUF st;
 };
 
-  /*! \class QFileInfo qfileinf.h
 
+/*----------------------------------------------------------------------------
+  \class QFileInfo qfileinf.h
   \brief The QFile class provides system-independent file information.
 
   \ingroup tools
 
   QFileInfo provides information about a files name and position (path) in
-  the filesystem, its access rights and whether it is a directory or a
-  symbolic link. Its size and last modified/read times are also available.
+  the file system, its access rights and whether it is a directory or a
+  symbolic link.  Its size and last modified/read times are also available.
 
   To speed up performance QFileInfo caches information about the file. Since
   files can be changed by other users or programs, or even by other parts of
-  the same program there is a function that refreshes the file information; 
+  the same program there is a function that refreshes the file information;
   refresh(). If you would rather like a QFileInfo to access the file system
   every time you request information from it, you can call the function
   setCaching( FALSE ).
-  
+
   A QFileInfo can point to a file using either a relative or an absolute
   file path. Absolute file paths begin with the directory separator
   ('/') or a drive specification (not applicable to UNIX).
   Relative file names begin with a directory name or a file name and specify
   a path relative to the current directory. An example of
-  an absolute path is the string "/tmp/quartz", a relative path might look like
+  an absolute path is the string "/tmp/quartz". A relative path might look like
   "src/fatlib". You can use the function isRelative() to check if a QFileInfo
   is using a relative or an absolute file path. You can call the function
   convertToAbs() to convert a relative QFileInfo to an absolute one.
 
   If you need to read and traverse directories, see the QDir class.
-  */
+ ----------------------------------------------------------------------------*/
 
-  /*!
-  \fn bool QFileInfo::caching() const
 
-  Returns TRUE if caching is turned on.
-
-  \sa setCaching(), refresh()
-  */
-
-  /*!
+/*----------------------------------------------------------------------------
   Constructs a new empty QFileInfo.
-  */
+ ----------------------------------------------------------------------------*/
+
 QFileInfo::QFileInfo()
 {
-    fic   = 0;
+    fic	  = 0;
     cache = TRUE;
 }
 
-  /*!
-  Constructs a new QFileInfo that is a copy of \e fi.
-  */
-QFileInfo::QFileInfo( const QFileInfo &fi )
+/*----------------------------------------------------------------------------
+  Constructs a new QFileInfo that gives information about the given file.
+  The string given can be an absolute or a relative file path.
+
+  \sa bool setFile(const char*), isRelative(), QDir::setCurrent(),
+  QDir::isRelativePath()
+ ----------------------------------------------------------------------------*/
+
+QFileInfo::QFileInfo( const char *file )
 {
-    fn = fi.fn;
-    if ( fi.fic ) {
-        fic = new QFileInfoCache;
-        *fic = *fi.fic;
-    } else {
-        fic = 0;
-    }
-    cache = fi.cache;
+    fn	  = file;
+    fic	  = 0;
+    cache = TRUE;
 }
 
-  /*!
-  Makes a copy of fi and assigns it to this QFileInfo.
-  */
-QFileInfo &QFileInfo::operator=( const QFileInfo &fi )
-{
-    fn = fi.fn;
-    if ( !fi.fic ) {
-        delete fic;
-        fic = 0;
-    } else {
-        if ( !fic )
-            fic = new QFileInfoCache;
-        *fic = *fi.fic;    
-    }
-    cache = fi.cache;
-    return *this;
-}
-
-  /*!
+/*----------------------------------------------------------------------------
   Constructs a new QFileInfo that gives information about \e file.
+
   If the file has a relative path, the QFileInfo will also have one.
 
   \sa isRelative()
-  */
+ ----------------------------------------------------------------------------*/
+
 QFileInfo::QFileInfo( const QFile &file )
 {
-    fn    = file.name();
-    fic   = 0;
+    fn	  = file.name();
+    fic	  = 0;
     cache = TRUE;
 }
 
-  /*!
+/*----------------------------------------------------------------------------
   Constructs a new QFileInfo that gives information about the file
   named \e fileName in the directory \e d.
 
   If the directory has a relative path, the QFileInfo will also have one.
 
   \sa isRelative()
-  */
+ ----------------------------------------------------------------------------*/
 
-QFileInfo::QFileInfo( const  QDir &d, const char *fileName )
+QFileInfo::QFileInfo( const QDir &d, const char *fileName )
 {
-    fn    = d.filePath( fileName );
-    fic   = 0;    
+    fn	  = d.filePath( fileName );
+    fic	  = 0;
     cache = TRUE;
 }
 
-  /*!
-  Constructs a new QFileInfo that gives information about the given file.
-  The string given can be an absolute or a relative file path. 
-  \sa bool setFile(const char*), isRelative(),
-  QDir::setCurrent, QDir::isRelativePath
-  */
-QFileInfo::QFileInfo( const char *relativeOrAbsFilePath )
+/*----------------------------------------------------------------------------
+  Constructs a new QFileInfo that is a copy of \e fi.
+ ----------------------------------------------------------------------------*/
+
+QFileInfo::QFileInfo( const QFileInfo &fi )
 {
-    fn    = relativeOrAbsFilePath;
-    fic   = 0;
-    cache = TRUE;
+    fn = fi.fn;
+    if ( fi.fic ) {
+	fic = new QFileInfoCache;
+	*fic = *fi.fic;
+    } else {
+	fic = 0;
+    }
+    cache = fi.cache;
 }
 
-  /*!
-  Destroys the QFileInfo and cleans up.
-  */
+/*----------------------------------------------------------------------------
+  Destroys the QFileInfo.
+ ----------------------------------------------------------------------------*/
+
 QFileInfo::~QFileInfo()
 {
     delete fic;
 }
 
-  /*!
-  Returns TRUE if the file pointed to exists.
-  */
-bool QFileInfo::exists() const
+
+/*----------------------------------------------------------------------------
+  Makes a copy of \e fi and assigns it to this QFileInfo.
+ ----------------------------------------------------------------------------*/
+
+QFileInfo &QFileInfo::operator=( const QFileInfo &fi )
 {
-    if ( !fn.isNull() )
-        return ( access( fn.data(), F_OK ) == 0 );
-    else
-        return FALSE;
-}
-
-  /*!
-  Refresh the information about the file, i.e. read in information from the
-  file system the next time a cached property is fetched.
-
-  \sa setCaching()
-  */
-void QFileInfo::refresh() const
-{
-    QFileInfo *This = (QFileInfo*)this;       // Mutable function
-    delete This->fic;
-    This->fic = 0;
-}
-
-  /*!
-  Sets caching of file information on or off, the default is on.
-
-  \sa refresh(), caching()
-  */
-void QFileInfo::setCaching( bool on )
-{
-    if ( cache == on )
-        return;
-    cache = on;
-    if ( cache ) {
-        delete fic;
-        fic = 0;
+    fn = fi.fn;
+    if ( !fi.fic ) {
+	delete fic;
+	fic = 0;
+    } else {
+	if ( !fic ) {
+	    fic = new QFileInfoCache;
+	    CHECK_PTR( fic );
+	}
+	*fic = *fi.fic;
     }
+    cache = fi.cache;
+    return *this;
 }
 
-  /*!
-  Sets the file to get information about.
-  If the file has a relative path, the QFileInfo will also have one.
 
-  \sa isRelative()
-  */
-void QFileInfo::setFile( const QFile &file )
-{
-    fn  = file.name();
-    delete fic;
-    fic = 0;
-}
+/*----------------------------------------------------------------------------
+  Sets the file to obtain information about.
 
-  /*!
-  Sets the file to get information about to \e fileName in the directory \e d.
-  If the directory has a relative path, the QFileInfo will also have one.
-
-  \sa isRelative()
-  */
-void QFileInfo::setFile( const  QDir &d, const char *fileName )
-{
-    fn  = d.filePath( fileName );
-    delete fic;
-    fic = 0;    
-}
-
-  /*!
-  Sets the file to get information about.
   The string given can be an absolute or a relative file path. Absolute file
   paths begin with the directory separator (e.g. '/' under UNIX) or a drive
   specification (not applicable to UNIX). Relative file names begin with a
   directory name or a file name and specify a path relative to the current
   directory.
 
+  Example:
   \code
-  #include <qdir.h>
-  #include <qfileinf.h>
+    #include <qfileinf.h>
+    #include <qdir.h>
 
-  void test() {
-      const char *absolute = "/liver/aorta";
-      const char *relative = "liver/aorta";
-      QFileInfo fi1( absolute );
-      QFileInfo fi2( relative );
-  
-      QDir::setCurrent( QDir::rootDirPath() );
-      				// fi1 and fi2 now point to the same file
+    void test()
+    {
+	const char *absolute = "/liver/aorta";
+	const char *relative = "liver/aorta";
+	QFileInfo fi1( absolute );
+	QFileInfo fi2( relative );
 
-      QDir::setCurrent( "/tmp" );
-                                // fi1 now points to "/liver/aorta",
-                                // while fi2 points to "/tmp/liver/aorta"
-  }
+	QDir::setCurrent( QDir::rootDirPath() );
+				// fi1 and fi2 now point to the same file
+
+	QDir::setCurrent( "/tmp" );
+				// fi1 now points to "/liver/aorta",
+				// while fi2 points to "/tmp/liver/aorta"
+    }
   \endcode
-  \sa isRelative(), QDir::setCurrent, QDir::isRelativePath
-  */
-void QFileInfo::setFile( const char *relativeOrAbsFilePath )
+
+  \sa isRelative(), QDir::setCurrent(), QDir::isRelativePath()
+ ----------------------------------------------------------------------------*/
+
+void QFileInfo::setFile( const char *file )
 {
-    fn = relativeOrAbsFilePath;
+    fn = file;
     delete fic;
     fic = 0;
 }
 
-  /*!
+/*----------------------------------------------------------------------------
+  Sets the file to obtain information about.
+
+  If the file has a relative path, the QFileInfo will also have one.
+
+  \sa isRelative()
+ ----------------------------------------------------------------------------*/
+
+void QFileInfo::setFile( const QFile &file )
+{
+    fn	= file.name();
+    delete fic;
+    fic = 0;
+}
+
+/*----------------------------------------------------------------------------
+  Sets the file to obains information about to \e fileName in the
+  directory \e d.
+
+  If the directory has a relative path, the QFileInfo will also have one.
+
+  \sa isRelative()
+ ----------------------------------------------------------------------------*/
+
+void QFileInfo::setFile( const	QDir &d, const char *fileName )
+{
+    fn	= d.filePath( fileName );
+    delete fic;
+    fic = 0;
+}
+
+
+/*----------------------------------------------------------------------------
+  Returns TRUE if the file pointed to exists, otherwise FALSE.
+ ----------------------------------------------------------------------------*/
+
+bool QFileInfo::exists() const
+{
+    if ( !fn.isNull() )
+	return ACCESS( fn.data(), F_OK ) == 0;
+    else
+	return FALSE;
+}
+
+/*----------------------------------------------------------------------------
+  Refresh the information about the file, i.e. read in information from the
+  file system the next time a cached property is fetched.
+
+  \sa setCaching()
+ ----------------------------------------------------------------------------*/
+
+void QFileInfo::refresh() const
+{
+    QFileInfo *This = (QFileInfo*)this;		// Mutable function
+    delete This->fic;
+    This->fic = 0;
+}
+
+/*----------------------------------------------------------------------------
+  \fn bool QFileInfo::caching() const
+  Returns TRUE if caching is enabled.
+  \sa setCaching(), refresh()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  Enables caching of file information if \e enable is TRUE, or disables it
+  if \e enable is FALSE.
+
+  When caching is enabled, QFileInfo reads the file information the first
+  time
+
+  Caching is enabled by default.
+
+  \sa refresh(), caching()
+ ----------------------------------------------------------------------------*/
+
+void QFileInfo::setCaching( bool enable )
+{
+    if ( cache == enable )
+	return;
+    cache = enable;
+    if ( cache ) {
+	delete fic;
+	fic = 0;
+    }
+}
+
+
+/*----------------------------------------------------------------------------
   Returns the name, i.e. the file name including the path (which can be
-  absolute or relative). 
- 
+  absolute or relative).
+
   \sa isRelative(), absFilePath()
-  */
+ ----------------------------------------------------------------------------*/
+
 const char * QFileInfo::filePath() const
 {
     return fn.data();
 }
 
-  /*!
-  Returns the name of the file, the file path is NOT included.
+/*----------------------------------------------------------------------------
+  Returns the name of the file, the file path is not included.
 
   Example:
   \code
      QFileInfo fi( "/tmp/abdomen.lower" );
-     QString tmp = fi.fileName();	// tmp = "abdomen.lower"
+     QString name = fi.fileName();		// name = "abdomen.lower"
   \endcode
 
   \sa isRelative(), filePath(), baseName(), extension()
-  */
+ ----------------------------------------------------------------------------*/
 
 QString QFileInfo::fileName() const
 {
     int pos = fn.findRev( QDir::separator() );
     if ( pos == -1 )
-        return fn.copy();
+	return fn.copy();
     else
-        return fn.right( fn.length() - pos - 1 );
+	return fn.right( fn.length() - pos - 1 );
 }
 
-  /*!
-  Returns the absolute path name, i.e. the file name including the
-  absolute path. If the QFileInfo is absolute (i.e. not relative) this
-  function will return the same string as filePath(). Note that this
-  function can be time-consuming under UNIX. (in the order of milliseconds
-  on a 486 DX2/66 running Linux).
- 
+/*----------------------------------------------------------------------------
+  Returns the absolute path name.
+
+  The absolute path name is the file name including the absolute path. If
+  the QFileInfo is absolute (i.e. not relative) this function will return
+  the same string as filePath().
+
+  Note that this function can be time-consuming under UNIX. (in the order
+  of milliseconds on a 486 DX2/66 running Linux).
+
   \sa isRelative(), filePath()
-  */
+ ----------------------------------------------------------------------------*/
+
 QString QFileInfo::absFilePath() const
 {
     if ( QDir::isRelativePath(fn) ) {
-        QString tmp = QDir::currentDirPath();
-        tmp.detach();
-        tmp += QDir::separator();
-        tmp += fn;
-        return tmp;
+	QString tmp = QDir::currentDirPath();
+	tmp.detach();
+	tmp += QDir::separator();
+	tmp += fn;
+	return tmp;
     } else {
-        return fn.copy();
+	return fn.copy();
     }
 }
 
-  /*!
-  Returns the base name of the file, i.e. all characters in the file name
-  up to (but not including) the first '.' character. The path is NOT included.
+/*----------------------------------------------------------------------------
+  Returns the base name of the file.
+
+  The base name consists of all characters in the file name up to (but not
+  including) the first '.' character.  The path is not included.
 
   Example:
   \code
      QFileInfo fi( "/tmp/abdomen.lower" );
-     QString tmp = fi.baseName();	// tmp = "abdomen"
+     QString base = fi.baseName();		// base = "abdomen"
   \endcode
 
   \sa fileName(), extension()
-  */
+ ----------------------------------------------------------------------------*/
 
 QString QFileInfo::baseName() const
 {
     QString tmp = fileName();
     int pos = tmp.find( '.' );
     if ( pos == -1 )
-        return tmp;
+	return tmp;
     else
-        return tmp.left( pos );
+	return tmp.left( pos );
 }
 
-  /*!
-  Returns the extension name of the file, i.e. all characters in the file name
+/*----------------------------------------------------------------------------
+  Returns the extension name of the file.
+
+  The file name extension consists of all characters in the file name
   after (but not including) the first '.' character.
 
-  For a file named "yo.tar.gz" this function will return "tar.gz".
+  For a file named "archive.tar.gz" this function will return "tar.gz".
 
   Example:
   \code
      QFileInfo fi( "/tmp/abdomen.lower" );
-     QString tmp = fi.extension();	// tmp = "lower"
+     QString ext = fi.extension();		// ext = "lower"
   \endcode
 
   \sa fileName(), baseName()
-  */
+ ----------------------------------------------------------------------------*/
 
 QString QFileInfo::extension() const
 {
-    QString tmp = fileName();
-    int pos = tmp.find( '.' );
+    QString s = fileName();
+    int pos = s.find( '.' );
     if ( pos == -1 )
-        return QString("");
+	return QString( "" );
     else
-        return tmp.right( tmp.length() - pos - 1 );
+	return s.right( s.length() - pos - 1 );
 }
 
-  /*!
-  Returns the name of the directory containing the file, i.e. the
-  directory path of
-  the file (which can be absolute or relative). If absPath is TRUE an
-  absolute path is always returned.
 
-  \sa filePath(), fileName(), isRelative()
-  */
+/*----------------------------------------------------------------------------
+  Returns the directory path of the file.
+
+  If \e absPath is TRUE an absolute path is always returned.
+
+  \sa dir(), filePath(), fileName(), isRelative()
+ ----------------------------------------------------------------------------*/
 
 QString QFileInfo::dirPath( bool absPath ) const
 {
-    QString tmp = absPath ? absFilePath() : fn;
-    int pos = tmp.findRev( QDir::separator() );
+    QString s = absPath ? absFilePath() : fn;
+    int pos = s.findRev( QDir::separator() );
     if ( pos == -1 )
-        return ".";
+	return ".";
     else
-        return tmp.left( pos );
+	return s.left( pos );
 }
 
-  /*!
-  Returns the directory that contains the file. If the QFileInfo is relative
-  and absPath is FALSE, the QDir will be relative, otherwise it will be
-  absolute.
+/*----------------------------------------------------------------------------
+  Returns the directory path of the file.
 
-  \sa filePath(), fileName(), dirPath(), isRelative()
-  */
+  If the QFileInfo is relative and \e absPath is FALSE, the QDir will be
+  relative, otherwise it will be absolute.
+
+  \sa dirPath(), filePath(), fileName(), isRelative()
+ ----------------------------------------------------------------------------*/
+
 QDir QFileInfo::dir( bool absPath ) const
 {
     return QDir( dirPath(absPath) );
 }
 
-  /*!
-  Returns TRUE if the file is readable.
 
+/*----------------------------------------------------------------------------
+  Returns TRUE if the file is readable.
   \sa isWritable(), isExecutable(), permission()
-  */
+ ----------------------------------------------------------------------------*/
+
 bool QFileInfo::isReadable() const
 {
     if ( !fn.isNull() )
-        return ( access( fn.data(), R_OK ) == 0 );
+	return ACCESS( fn.data(), R_OK ) == 0;
     else
-        return FALSE;
+	return FALSE;
 }
 
-  /*!
+/*----------------------------------------------------------------------------
   Returns TRUE if the file is writable.
-
   \sa isReadable(), isExecutable(), permission()
-  */
+ ----------------------------------------------------------------------------*/
+
 bool QFileInfo::isWritable() const
 {
     if ( !fn.isNull() )
-        return ( access( fn.data(), W_OK ) == 0 );
+	return ACCESS( fn.data(), W_OK ) == 0 ;
     else
-        return FALSE;
+	return FALSE;
 }
 
-  /*!
+/*----------------------------------------------------------------------------
   Returns TRUE if the file is executable.
-
   \sa isReadable(), isWritable(), permission()
-  */
+ ----------------------------------------------------------------------------*/
+
 bool QFileInfo::isExecutable() const
 {
     if ( !fn.isNull() )
-        return ( access( fn.data(), X_OK ) == 0 );
+	return ACCESS( fn.data(), X_OK ) == 0;
     else
-        return FALSE;
+	return FALSE;
 }
 
-  /*!
+
+/*----------------------------------------------------------------------------
   Returns TRUE if the file path name is relative to the current directory,
   FALSE if the path is absolute (e.g. under UNIX a path is relative if it
   does not start with a '/').
 
   According to Einstein this function should always return TRUE.
-  */
+ ----------------------------------------------------------------------------*/
+
 bool QFileInfo::isRelative() const
 {
-    return QDir::isRelativePath( fn.data() );    
+    return QDir::isRelativePath( fn.data() );
 }
 
-  /*!
-  Converts the file path name to an absolute path. If it is already
-  absolute nothing is done.
+/*----------------------------------------------------------------------------
+  Converts the file path name to an absolute path.
+
+  If it is already absolute nothing is done.
 
   \sa filePath(), isRelative()
-  */
+ ----------------------------------------------------------------------------*/
+
 bool QFileInfo::convertToAbs()
 {
     if ( isRelative )
-        fn = absFilePath();
-    return QDir::isRelativePath( fn.data() );    
+	fn = absFilePath();
+    return QDir::isRelativePath( fn.data() );
 }
 
-  /*!
-  Returns TRUE if we are pointing to a file or a symbolic link to a file.
 
+/*----------------------------------------------------------------------------
+  Returns TRUE if we are pointing to a file or a symbolic link to a file.
   \sa isDir(), isSymLink()
-  */
+ ----------------------------------------------------------------------------*/
+
 bool QFileInfo::isFile() const
 {
 #if defined(_OS_MAC_)
     return FALSE;
 #else
     if ( !fic || !cache )
-        doStat();
-    if ( fic )    
-        return ( fic->st.st_mode & STAT_MASK) == STAT_REG;
+	doStat();
+    if ( fic )
+	return ( fic->st.st_mode & STAT_MASK) == STAT_REG;
     else
-        return FALSE;
+	return FALSE;
 #endif
 }
 
-  /*!
+/*----------------------------------------------------------------------------
   Returns TRUE if we are pointing to a directory or a symbolic link to
   a directory.
-
   \sa isFile(), isSymLink()
-  */
+ ----------------------------------------------------------------------------*/
+
 bool QFileInfo::isDir() const
 {
 #if defined(_OS_MAC_)
     return FALSE;
 #else
     if ( !fic || !cache )
-        doStat();
-    if ( fic )    
-        return ( fic->st.st_mode & STAT_MASK) == STAT_DIR;
+	doStat();
+    if ( fic )
+	return ( fic->st.st_mode & STAT_MASK) == STAT_DIR;
     else
-        return FALSE;
+	return FALSE;
 #endif
 }
 
-  /*!
+/*----------------------------------------------------------------------------
   Returns TRUE if we are pointing to a symbolic link.
-
   \sa isFile(), isDir()
-  */
+ ----------------------------------------------------------------------------*/
+
 bool QFileInfo::isSymLink() const
 {
-#if defined(_OS_MAC_)
+#if !defined(STAT_LNK)
     return FALSE;
 #else
     if ( !fic || !cache )
-        doStat();
-    if ( fic )    
-        return ( fic->st.st_mode & STAT_MASK) == STAT_LNK;
+	doStat();
+    if ( fic )
+	return ( fic->st.st_mode & STAT_MASK) == STAT_LNK;
     else
-        return FALSE;
+	return FALSE;
 #endif
 }
 
-  /*!
-  Returns the owner of the file. On systems where files do not have owners
-  this function returns 0. Note that this function can be time-consuming
-  under UNIX. (in the order of milliseconds on a 486 DX2/66
-  running Linux).
-  */
+
+/*----------------------------------------------------------------------------
+  Returns the owner of the file.
+
+  On systems where files do not have owners this function returns 0.
+
+  Note that this function can be time-consuming under UNIX. (in the order
+  of milliseconds on a 486 DX2/66 running Linux).
+
+  \sa ownerId(), group(), groupId()
+ ----------------------------------------------------------------------------*/
+
 const char *QFileInfo::owner() const
 {
 #if defined(UNIX)
@@ -530,33 +587,39 @@ const char *QFileInfo::owner() const
 #endif
 }
 
-// Advanced programming in the UNIX environment, page 146: 65534
-// Slackware: -1 
-// Arnt: -2
+static const uint nobodyID = (uint) -2;
 
-static const uint nobodyID = (uint) -2;   
+/*----------------------------------------------------------------------------
+  Returns the id of the owner of the file.
 
-  /*!
-  Returns the id of the owner of the file. On systems where files do not
-  have owners this function returns ((uint) -2).
-  */
+  On systems where files do not have owners this function returns ((uint) -2).
+
+  \sa owner(), group(), groupId()
+ ----------------------------------------------------------------------------*/
+
 uint QFileInfo::ownerId() const
 {
 #if defined(UNIX)
     if ( !fic || !cache )
-        doStat();
-    if ( fic )    
-        return fic->st.st_uid;
+	doStat();
+    if ( fic )
+	return fic->st.st_uid;
 #endif
     return nobodyID;
 }
 
-  /*!
-  Returns the group the file belongs to. On systems where files do not have
-  groups this function returns 0. Note that this function can be
-  time-consuming under UNIX (in the order of milliseconds on a 486 DX2/66
-  running Linux).
-  */
+/*----------------------------------------------------------------------------
+  Returns the group the file belongs to.
+
+  On systems where files do not have groups this function always
+  returns 0.
+
+  Note that this function can be time-consuming under UNIX (in the order of
+  milliseconds on a 486 DX2/66 running Linux).
+
+  \sa groupId(), owner(), ownerId()
+ ----------------------------------------------------------------------------*/
+
 const char *QFileInfo::group() const
 {
 #if defined(UNIX)
@@ -567,138 +630,147 @@ const char *QFileInfo::group() const
 #endif
 }
 
-  /*!
-  Returns the id of the group the file belongs to. On systems where files do
-  not have groups this function returns ((uint) -2).
-  */
+/*----------------------------------------------------------------------------
+  Returns the id of the group the file belongs to.
+
+  On systems where files do not have groups this function always
+  returns ((uind) -2).
+
+  \sa group(), owner(), ownerId()
+ ----------------------------------------------------------------------------*/
+
 uint QFileInfo::groupId() const
 {
 #if defined(UNIX)
     if ( !fic || !cache )
-        doStat();
-    if ( fic )    
-        return fic->st.st_gid;
+	doStat();
+    if ( fic )
+	return fic->st.st_gid;
 #endif
     return nobodyID;
 }
 
-  /*!
-  Tests for file permissions, the \e permissionSpec argument can be several
-  flags of type PermissionSpec or-ed together to check for permission
-  combinations. On systems where files do not have permissions this function
-  always returns TRUE.
 
+/*----------------------------------------------------------------------------
+  Tests for file permissions.  The \e permissionSpec argument can be several
+  flags of type PermissionSpec or'ed together to check for permission
+  combinations.
+
+  On systems where files do not have permissions this function always
+  returns TRUE.
+
+  Example:
   \code
-  QFileInfo fi( "/tmp/tonsils" );
-  if ( fi.permission( QFileInfo::WriteUser | QFileInfo::ReadGroup ) )
-      warning( "Tonsils can be changed by me, and the group can read them." );
-  if ( fi.permission( QFileInfo::WriteGroup | QFileInfo::WriteOther ) )
-      warning( "Danger! Tonsils can be changed by the group or others!" );
+    QFileInfo fi( "/tmp/tonsils" );
+    if ( fi.permission( QFileInfo::WriteUser | QFileInfo::ReadGroup ) )
+	warning( "Tonsils can be changed by me, and the group can read them.");
+    if ( fi.permission( QFileInfo::WriteGroup | QFileInfo::WriteOther ) )
+	warning( "Danger! Tonsils can be changed by the group or others!" );
   \endcode
+
   \sa isReadable(), isWritable(), isExecutable()
-  */
+ ----------------------------------------------------------------------------*/
 
 bool QFileInfo::permission( int permissionSpec ) const
 {
 #if defined(UNIX)
     if ( !fic || !cache )
-        doStat();
+	doStat();
     if ( fic ) {
-        ulong mask = 0;
-        if ( permissionSpec & ReadUser)
-            mask |= S_IRUSR;
-        if ( permissionSpec & WriteUser)
-            mask |= S_IWUSR;
-        if ( permissionSpec & ExeUser)
-            mask |= S_IXUSR;
-        if ( permissionSpec & ReadGroup)
-            mask |= S_IRGRP;
-        if ( permissionSpec & WriteGroup)
-            mask |= S_IWGRP;
-        if ( permissionSpec & ExeGroup)
-            mask |= S_IXGRP;
-        if ( permissionSpec & ReadOther)
-            mask |= S_IROTH;
-        if ( permissionSpec & WriteOther)
-            mask |= S_IWOTH;
-        if ( permissionSpec & ExeOther)
-            mask |= S_IXOTH;
+	ulong mask = 0;
+	if ( permissionSpec & ReadUser)
+	    mask |= S_IRUSR;
+	if ( permissionSpec & WriteUser)
+	    mask |= S_IWUSR;
+	if ( permissionSpec & ExeUser)
+	    mask |= S_IXUSR;
+	if ( permissionSpec & ReadGroup)
+	    mask |= S_IRGRP;
+	if ( permissionSpec & WriteGroup)
+	    mask |= S_IWGRP;
+	if ( permissionSpec & ExeGroup)
+	    mask |= S_IXGRP;
+	if ( permissionSpec & ReadOther)
+	    mask |= S_IROTH;
+	if ( permissionSpec & WriteOther)
+	    mask |= S_IWOTH;
+	if ( permissionSpec & ExeOther)
+	    mask |= S_IXOTH;
 	if ( mask ) {
-           return ( fic->st.st_mode & mask) == mask;
-        } else {
+	   return (fic->st.st_mode & mask) == mask;
+	} else {
 #if defined(CHECK_NULL)
-           warning("QFileInfo::permission: permissionSpec is 0.");
+	   warning( "QFileInfo::permission: permissionSpec is 0" );
 #endif
-           return TRUE;
+	   return TRUE;
 	}
     } else {
-        return FALSE;
+	return FALSE;
     }
 #else
     return TRUE;
 #endif
 }
 
-  /*!
+
+/*----------------------------------------------------------------------------
   Returns the file size in bytes. If the file does not exist, or the size
   cannot be fetched, this function returns -1.
-  */
+ ----------------------------------------------------------------------------*/
 
 long QFileInfo::size() const
 {
     if ( !fic || !cache )
-        doStat();
+	doStat();
     if ( fic )
-        return fic->st.st_size;
+	return fic->st.st_size;
     else
-        return -1;
+	return -1;
 }
 
-  /*!
-  Returns the time and date when the file was last modified.
 
+/*----------------------------------------------------------------------------
+  Returns the date and tim when the file was last modified.
   \sa lastRead()
-  */
+ ----------------------------------------------------------------------------*/
 
 QDateTime QFileInfo::lastModified() const
 {
     QDateTime dt;
-
     if ( !fic || !cache )
-        doStat();
+	doStat();
     if ( fic )
-        dt.setTime_t( fic->st.st_mtime );
+	dt.setTime_t( fic->st.st_mtime );
     return dt;
 }
 
-  /*!
-  Returns the time and date when the file was last read (accessed). On systems
-  that do not support last read times the modification time is returned.
+/*----------------------------------------------------------------------------
+  Returns the date and time when the file was last read (accessed).
+
+  On systems that do not support last read times, the modification time is
+  returned.
 
   \sa lastModified()
-  */
+ ----------------------------------------------------------------------------*/
+
 QDateTime QFileInfo::lastRead() const
 {
     QDateTime dt;
-
     if ( !fic || !cache )
-        doStat();
+	doStat();
     if ( fic )
-        dt.setTime_t( fic->st.st_atime );
+	dt.setTime_t( fic->st.st_atime );
     return dt;
 }
 
+
 void QFileInfo::doStat() const
 {
-    QFileInfo *This = ((QFileInfo*)this);            // Mutable function
+    QFileInfo *This = ((QFileInfo*)this);	// Mutable function
     if ( !fic )
-        This->fic = new QFileInfoCache;
-    if ( STAT( fn.data(), &This->fic->st ) != 0 ) {
-        delete This->fic;
-        This->fic = 0;
+	This->fic = new QFileInfoCache;
+    if ( STAT(fn.data(), &This->fic->st) != 0 ) {
+	delete This->fic;
+	This->fic = 0;
     }
 }
-
-
-
-
