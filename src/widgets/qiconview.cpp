@@ -1048,16 +1048,21 @@ void QIconViewItem::setSelected( bool s, bool cb )
 {
     if ( view->selectionMode() != QIconView::NoSelection &&
 	 selectable && s != selected ) {
-	if ( !s )
+	if ( !s ) {
 	    selected = FALSE;
-	else {
-	    if ( view->d->selectionMode == QIconView::Single && view->d->currentItem )
-		view->d->currentItem->setSelected( FALSE );
+	} else {
+	    if ( view->d->selectionMode == QIconView::Single && view->d->currentItem ) {
+		view->d->currentItem->selected = FALSE;
+	    }
 	    if ( ( view->d->selectionMode == QIconView::Extended && !cb ) ||
-		 view->d->selectionMode == QIconView::Single )
+		 view->d->selectionMode == QIconView::Single ) {
+		bool b = view->signalsBlocked();
+		view->blockSignals( TRUE );
 		view->selectAll( FALSE );
+		view->blockSignals( b );
+	    }
+	    selected = s;
 	}
-	selected = s;
 
 	repaint();
 	if ( !view->signalsBlocked() )
@@ -2177,7 +2182,7 @@ void QIconView::slotUpdate()
 
     if ( !d->firstItem || !d->lastItem )
 	return;
-    
+
     // #### remove that ASA insertInGrid uses cached values and is efficient
     if ( d->resortItemsWhenInsert )
 	sort( d->sortDirection );
@@ -3770,6 +3775,11 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	return;
     }
 
+    if ( d->currentItem && !d->currentItem->isSelected() &&
+	 d->selectionMode == Single ) {
+	d->currentItem->setSelected( TRUE );
+    }
+    
     switch ( e->key() ) {
     case Key_Home: {
 	d->currInputString = QString::null;
@@ -3780,7 +3790,9 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	setCurrentItem( d->firstItem );
 
 	if ( d->selectionMode == Single ) {
+	    blockSignals( TRUE );
 	    item->setSelected( FALSE );
+	    blockSignals( FALSE );
 	    d->currentItem->setSelected( TRUE, TRUE );
 	} else {
 	    if ( e->state() & ShiftButton )
@@ -3796,7 +3808,9 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	setCurrentItem( d->lastItem );
 
 	if ( d->selectionMode == Single ) {
+	    blockSignals( TRUE );
 	    item->setSelected( FALSE );
+	    blockSignals( FALSE );
 	    d->currentItem->setSelected( TRUE, TRUE );
 	} else {
 	    if ( e->state() & ShiftButton )
@@ -3814,7 +3828,9 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	    setCurrentItem( d->currentItem->next );
 
 	    if ( d->selectionMode == Single ) {
+		blockSignals( TRUE );
 		item->setSelected( FALSE );
+		blockSignals( FALSE );
 		d->currentItem->setSelected( TRUE, TRUE );
 	    } else {
 		if ( e->state() & ShiftButton )
@@ -3857,8 +3873,10 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	    setCurrentItem( d->currentItem->prev );
 
 	    if ( d->selectionMode == Single ) {
-		item->setSelected( FALSE );
-		d->currentItem->setSelected( TRUE, TRUE );
+		blockSignals( TRUE );
+ 		item->setSelected( FALSE );
+		blockSignals( FALSE );
+ 		d->currentItem->setSelected( TRUE, TRUE );
 	    } else {
 		if ( e->state() & ShiftButton )
 		    d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
@@ -3919,7 +3937,9 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 		    setCurrentItem( item );
 		    item = i;
 		    if ( d->selectionMode == Single ) {
+			blockSignals( TRUE );
 			i->setSelected( FALSE );
+			blockSignals( FALSE );
 			d->currentItem->setSelected( TRUE, TRUE );
 		    } else {
 			if ( e->state() & ShiftButton )
@@ -3963,7 +3983,9 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 		    setCurrentItem( item );
 		    item = i;
 		    if ( d->selectionMode == Single ) {
+			blockSignals( TRUE );
 			i->setSelected( FALSE );
+			blockSignals( FALSE );
 			d->currentItem->setSelected( TRUE, TRUE );
 		    } else {
 			if ( e->state() & ShiftButton )
@@ -4007,8 +4029,10 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	if ( ni ) {
 	    setCurrentItem( ni );
 	    if ( d->selectionMode == Single ) {
+		blockSignals( TRUE );
 		if ( item )
 		    item->setSelected( FALSE );
+		blockSignals( FALSE );
 		d->currentItem->setSelected( TRUE, TRUE );
 	    } else {
 		if ( e->state() & ShiftButton )
@@ -4035,8 +4059,10 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	if ( ni ) {
 	    setCurrentItem( ni );
 	    if ( d->selectionMode == Single ) {
+		blockSignals( TRUE );
 		if ( item )
 		    item->setSelected( FALSE );
+		blockSignals( FALSE );
 		d->currentItem->setSelected( TRUE, TRUE );
 	    } else {
 		if ( e->state() & ShiftButton )
