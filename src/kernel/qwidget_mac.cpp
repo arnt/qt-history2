@@ -77,7 +77,7 @@ QPoint posInWindow(QWidget *w)
 static inline const Rect *mac_rect(const QRect &qr) 
 {
     static Rect r;
-    SetRect(&r, qr.left(), qr.top(), qr.right(), qr.bottom());
+    SetRect(&r, qr.left(), qr.top(), qr.right()+1, qr.bottom()+1); //qt says be inclusive!
     return &r;
 }
 static inline const Rect *mac_rect(const QPoint &qp, const QSize &qs) { return mac_rect(QRect(qp, qs)); }
