@@ -35,7 +35,8 @@ ProductList::ProductList()
     }
 
     setText( numRows() - 2, 1, "Discount" );
-    QTableItem * discount = new QTableItem( this, QTableItem::Always, "-0.00" ); 
+    QTableItem * discount = new QTableItem( this, QTableItem::Always, 
+                                            "-0.00" ); 
     setItem( numRows() - 2, 3, discount );
 
     processValueChanged( 0, 0 );
