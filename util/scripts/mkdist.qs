@@ -182,6 +182,7 @@ moduleMap["window classes"]              = new RegExp("^src/winmain");
 moduleMap["xml module"]                  = new RegExp("^src/xml");
 moduleMap["assistant application"]       = new RegExp("^tools/assistant");
 moduleMap["qtconfig application"]        = new RegExp("^tools/qtconfig");
+moduleMap["virtual framebuffer"]         = new RegExp("^tools/qvfb");
 
 /*******************************************************************************
  * Here we go
