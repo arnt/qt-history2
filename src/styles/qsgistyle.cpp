@@ -112,13 +112,6 @@ QSGIStyle::polish( QApplication* app)
     isApplicationStyle = 1;
     QMotifStyle::polish( app );
 
-    QFont f = QApplication::font();
-    f.setBold( TRUE );
-    f.setItalic( TRUE );
-    QApplication::setFont( f, TRUE, "QPopupMenu" );
-    QApplication::setFont( f, TRUE, "QMenuBar" );
-    QApplication::setFont( f, TRUE, "QComboBox" );
-
     QPalette pal = QApplication::palette();
     // check this on SGI-Boxes
     //pal.setColor( QColorGroup::Background, pal.active().midlight() );
@@ -152,7 +145,6 @@ QSGIStyle::polish( QApplication* app)
     pal.setColor( QColorGroup::Button, pal.active().background() );
     QApplication::setPalette( pal, TRUE, "QMenuBar" );
     QApplication::setPalette( pal, TRUE, "QToolBar" );
-
 }
 
 /*! \reimp
@@ -162,10 +154,6 @@ QSGIStyle::unPolish( QApplication* /* app */ )
 {
     QFont f = QApplication::font();
     QApplication::setFont( f, TRUE ); // get rid of the special fonts for special widget classes
-
-//     QApplication::setFont( f, TRUE, "QPopupMenu" );
-//     QApplication::setFont( f, TRUE, "QMenuBar" );
-//     QApplication::setFont( f, TRUE, "QComboBox" );
 }
 
 /*! \reimp
@@ -1204,17 +1192,25 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 	    }
 
 	    if ( sub & SC_ComboBoxArrow ) {
+		p->save();
 		QRect er = 
 		    QStyle::visualRect( querySubControlMetrics( CC_ComboBox, cb, SC_ComboBoxArrow ), cb );
 
 		er.addCoords( 0, 3, 0, 0 );
-		drawPrimitive( PE_ArrowDown, p, er, cg, flags, opt );
+
+		drawPrimitive( PE_ArrowDown, p, er, cg, flags | Style_Enabled, opt );
 
 		int awh, ax, ay, sh, sy, dh, ew;
 		get_combo_parameters( widget->rect(), ew, awh, ax, ay, sh, dh, sy );
 
 		QBrush arrow = cg.brush( QColorGroup::Dark );
 		p->fillRect( ax, sy-1, awh, sh, arrow );
+
+		p->restore();
+		if ( cb->hasFocus() ) {
+		    QRect re = QStyle::visualRect( subRect( SR_ComboBoxFocusRect, cb ), cb );
+		    drawPrimitive( PE_FocusRect, p, re, cg );
+		}
 	    }
 	    if ( sub & SC_ComboBoxEditField ) {
 		if ( cb->editable() ) {
@@ -1228,6 +1224,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 		}
 	    }
 #endif
+	    p->setPen(cg.buttonText());
 	    break;
 	}
 
