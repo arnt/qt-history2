@@ -473,7 +473,7 @@ QLibrary::~QLibrary()
 void QLibrary::createInstanceInternal()
 {
     if ( libfile.isEmpty() )
-	return 0;
+	return;
 
     if ( !d->pHnd ) {
 	Q_ASSERT( entry == 0 );
@@ -496,7 +496,7 @@ void QLibrary::createInstanceInternal()
 		    qDebug( "%s: QLibraryInterface::init() failed.", libfile.latin1() );
 #endif
 		    unload();
-		    return 0;
+		    return;
 		}
 
 		d->killTimer();
