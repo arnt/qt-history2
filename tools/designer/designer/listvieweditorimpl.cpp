@@ -340,6 +340,8 @@ void ListViewEditor::itemNewClicked()
     item->setText( 0, "Item" );
     itemsPreview->setCurrentItem( item );
     itemsPreview->setSelected( item, TRUE );
+    itemText->setFocus();
+    itemText->selectAll();
 }
 
 void ListViewEditor::itemNewSubClicked()

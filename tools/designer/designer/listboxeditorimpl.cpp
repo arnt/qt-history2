@@ -59,6 +59,8 @@ void ListBoxEditor::insertNewItem()
     QListBoxItem *i = new QListBoxText( preview, tr("New Item") );
     preview->setCurrentItem( i );
     preview->setSelected( i, TRUE );
+    itemText->setFocus();
+    itemText->selectAll();
 }
 
 void ListBoxEditor::deleteCurrentItem()

@@ -55,6 +55,8 @@ void IconViewEditor::insertNewItem()
     QIconViewItem *i = new QIconViewItem( preview, tr( "New Item" ) );
     preview->setCurrentItem( i );
     preview->setSelected( i, TRUE );
+    itemText->setFocus();
+    itemText->selectAll();
 }
 
 void IconViewEditor::deleteCurrentItem()
