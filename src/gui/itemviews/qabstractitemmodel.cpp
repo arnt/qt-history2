@@ -152,17 +152,50 @@ void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
     }
 }
 
+
+/*!
+  \class QPersistentModelIndex qabstractitemmodel.h
+
+  \brief The QPersistentModelIndex class is used to locate data in a data model.
+
+  \ingroup model-view
+
+  This class is ised in much the same way as the QModelIndex class.
+  The difference is that it is safe to store a QPersistentModelIndex.
+
+  \sa QModelIndex
+*/
+
+
+/*!
+  \fn QPersistentModelIndex::QPersistentModelIndex()
+
+  \internal
+*/
+
 QPersistentModelIndex::QPersistentModelIndex()
     : d(&QPersistentModelIndexData::shared_null)
 {
     ++d->ref;
 }
 
+/*!
+  \fn QPersistentModelIndex::QPersistentModelIndex(const QPersistentModelIndex &other)
+
+  Creates a new QPersistentModelIndex that is a copy of the \a other persistent  model index.
+*/
+
 QPersistentModelIndex::QPersistentModelIndex(const QPersistentModelIndex &other)
     : d(other.d)
 {
     ++d->ref;
 }
+
+/*!
+  \fn QPersistentModelIndex::QPersistentModelIndex(const QModelIndex &index, QAbstractItemModel *model)
+
+  Creates a new QPersistentModelIndex that is a copy of the \a index model index.
+*/
 
 QPersistentModelIndex::QPersistentModelIndex(const QModelIndex &index, QAbstractItemModel *model)
     : d(&QPersistentModelIndexData::shared_null)
@@ -175,6 +208,12 @@ QPersistentModelIndex::QPersistentModelIndex(const QModelIndex &index, QAbstract
     ++d->ref;
 }
 
+/*!
+    \fn QPersistentModelIndex::~QPersistentModelIndex()
+
+    \internal
+*/
+
 QPersistentModelIndex::~QPersistentModelIndex()
 {
     if (!--d->ref)
@@ -182,10 +221,22 @@ QPersistentModelIndex::~QPersistentModelIndex()
     d = 0;
 }
 
+/*!
+  \fn bool QPersistentModelIndex::operator<(const QPersistentModelIndex &other) const
+
+  Returns true if this persistent model index is smaller than the \a other persistent model index; otherwise false.
+*/
+
 bool QPersistentModelIndex::operator<(const QPersistentModelIndex &other) const
 {
     return d < other.d;
 }
+
+/*!
+  \fn bool QPersistentModelIndex::operator=(const QPersistentModelIndex &other) const
+
+  Sets the persistent model index to refer to the same model index as the \a other persistent model index.
+*/
 
 void QPersistentModelIndex::operator=(const QPersistentModelIndex &other)
 {
@@ -195,40 +246,98 @@ void QPersistentModelIndex::operator=(const QPersistentModelIndex &other)
     ++d->ref;
 }
 
+/*!
+  \fn QPersistentModelIndex::operator const QModelIndex&() const
+
+  Cast operator that returns a const QModelIndex&.
+*/
+
 QPersistentModelIndex::operator const QModelIndex&() const
 {
     return d->index;
 }
+
+
+/*!
+    \fn int QPersistentModelIndex::row() const
+
+    Returns the row this persistent model index refers to.
+*/
 
 int QPersistentModelIndex::row() const
 {
     return d->index.row();
 }
 
+/*!
+    \fn int QPersistentModelIndex::column() const
+
+    Returns the column this persistent model index refers to.
+*/
+
 int QPersistentModelIndex::column() const
 {
     return d->index.column();
 }
+
+/*!
+    \fn void *QPersistentModelIndex::data() const
+
+    \internal
+
+    Returns a \c{void} \c{*} pointer to the data located at this persistent model
+    index position.
+*/
 
 void *QPersistentModelIndex::data() const
 {
     return d->index.data();
 }
 
+
+/*!
+    \fn Type QPersistentModelIndex::type() const
+
+    Returns the \c Type of this persistent model index.
+*/
+
 QModelIndex::Type QPersistentModelIndex::type() const
 {
     return d->index.type();
 }
+
+
+/*!
+    \fn bool QPersistentModelIndex::isValid() const
+
+    Returns true if this persistent model index is valid; otherwise returns
+    false.
+*/
 
 bool QPersistentModelIndex::isValid() const
 {
     return d->index.isValid();
 }
 
+
+/*!
+    \fn bool QPersistentModelIndex::operator==(const QModelIndex &other) const
+
+    Returns true if this persistent model index refers to the same location as
+    the \a other model index; otherwise returns false.
+*/
+
 bool QPersistentModelIndex::operator==(const QModelIndex &other) const
 {
     return d->index == other;
 }
+
+/*!
+    \fn bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
+
+    Returns true if this persistent  model index does not refer to the same
+    location as the \a other model index; otherwise returns false.
+*/
 
 bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
 {
@@ -236,7 +345,7 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
 }
 
 /*!
-    \class QModelIndex qgenericitemmodel.h
+    \class QModelIndex qabstractitemmodel.h
 
     \brief The QModelIndex class is used to locate data in a data model.
 
