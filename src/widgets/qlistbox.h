@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#88 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#89 $
 **
 ** Definition of QListBox widget class
 **
@@ -247,11 +247,8 @@ public:
     virtual QString text() const;
     virtual const QPixmap *pixmap() const;
 
-    virtual int	 height() const;
-    virtual int	 width()  const;
-
-    virtual int	 height( const QListBox * ) const; // obsolete, use height() instead
-    virtual int	 width( const QListBox * )  const; // obsolete, use width() instead
+    virtual int	 height( const QListBox * ) const;
+    virtual int	 width( const QListBox * )  const;
 
     bool selected() const { return s; }
 
@@ -285,11 +282,8 @@ public:
     QListBoxText( const QString & text=QString::null );
    ~QListBoxText();
 
-    int height() const;
-    int width()  const;
-
-    int	 height( const QListBox * ) const; // obsolete, use height() instead
-    int	 width( const QListBox * )  const; // obsolete, use width() instead
+    int	 height( const QListBox * ) const;
+    int	 width( const QListBox * )  const;
 
 protected:
     void  paint( QPainter * );
@@ -311,11 +305,8 @@ public:
 
     const QPixmap *pixmap() const { return &pm; }
 
-    int height() const;
-    int width() const;
-
-    int	 height( const QListBox * ) const; // obsolete, use height() instead
-    int	 width( const QListBox * )  const; // obsolete, use width() instead
+    int	 height( const QListBox * ) const;
+    int	 width( const QListBox * )  const;
 
 protected:
     void paint( QPainter * );

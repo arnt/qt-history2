@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#261 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#262 $
 **
 ** Implementation of QListBox widget class
 **
@@ -130,8 +130,8 @@ QListBoxPrivate::~QListBoxPrivate()
 
     protected:
 	virtual void paint( QPainter * );
-	virtual int height() const;
-	virtual int width() const;
+	virtual int height( const QListBox* ) const;
+	virtual int width( const QListBox* ) const;
 	virtual const QPixmap *pixmap() { return &pm; }
 
     private:
@@ -150,14 +150,14 @@ QListBoxPrivate::~QListBoxPrivate()
 	p->drawText( pm.width() + 5, yPos, text() );
     }
 
-    int MyListBoxItem::height() const
+    int MyListBoxItem::height( const QListBox* lb ) const
     {
-	return QMAX( pm.height(), listBox()->fontMetrics().lineSpacing() + 1 );
+	return QMAX( pm.height(), lb->fontMetrics().lineSpacing() + 1 );
     }
 
-    int MyListBoxItem::width() const
+    int MyListBoxItem::width( const QListBox* lb ) const
     {
-	return pm.width() + listBox()->fontMetrics().width( text() ) + 6;
+	return pm.width() + lb->fontMetrics().width( text() ) + 6;
     }
   \endcode
 
@@ -205,61 +205,32 @@ QListBoxItem::~QListBoxItem()
 
 
 /*
-  \fn int QListBoxItem::width() const
+  \fn int QListBoxItem::width( const QListBox* lb ) const
 
-  Implement this function to return the width of your item
+  Implement this function to return the width of your item.
+  The \a lb parameter is the same as listBox() and is provided
+  for convenience and compatibility.
 
   \sa paint(), height()
 */
-int QListBoxItem::width()  const
+int QListBoxItem::width(const QListBox*)  const
 {
-    return width( listBox() ); // compatibility
+    return 0;
 }
 
 /*!
-  \fn int QListBoxItem::height() const
+  \fn int QListBoxItem::height( const QListBox* lb ) const
 
-  Implement this function to return the height of your item
-
-  \sa paint(), width()
-*/
-int QListBoxItem::height()  const
-{
-    return height( listBox() ); // compatibility
-}
-
-// To stop warnings...
-int QListBoxText::width( const QListBox * ) const { return 0; }
-int QListBoxText::height( const QListBox * ) const { return 0; }
-int QListBoxPixmap::width( const QListBox * ) const { return 0; }
-int QListBoxPixmap::height( const QListBox * ) const { return 0; }
-
-/*!\obsolete
-  \fn int QListBoxItem::width(	const QListBox * ) const
-
-  Implement this function to return the width of your item
-
-  \sa paint(), height()
-*/
-
-int QListBoxItem::width( const QListBox * )  const
-{
-    return 0;
-}
-
-/*!\obsolete
-  \fn int QListBoxItem::height( const QListBox * ) const
-
-  Implement this function to return the height of your item
+  Implement this function to return the height of your item.
+  The \a lb parameter is the same as listBox() and is provided
+  for convenience and compatibility.
 
   \sa paint(), width()
 */
-
-int QListBoxItem::height( const QListBox * ) const
+int QListBoxItem::height(const QListBox*)  const
 {
     return 0;
 }
-
 
 
 /*!
@@ -347,9 +318,9 @@ void QListBoxText::paint( QPainter *p )
   \sa paint(), width()
 */
 
-int QListBoxText::height() const
+int QListBoxText::height( const QListBox* lb ) const
 {
-    return listBox() ? listBox()->fontMetrics().lineSpacing() + 2 : 0;
+    return lb ? lb->fontMetrics().lineSpacing() + 2 : 0;
 }
 
 /*!
@@ -358,9 +329,9 @@ int QListBoxText::height() const
   \sa paint(), height()
 */
 
-int QListBoxText::width() const
+int QListBoxText::width( const QListBox* lb ) const
 {
-    return listBox() ? listBox()->fontMetrics().width( text() ) + 6 : 0;
+    return lb ? lb->fontMetrics().width( text() ) + 6 : 0;
 }
 
 
@@ -422,18 +393,18 @@ void QListBoxPixmap::paint( QPainter *p )
   \sa paint(), width()
 */
 
-int QListBoxPixmap::height() const
+int QListBoxPixmap::height( const QListBox* ) const
 {
     return pm.height();
 }
 
 /*!
-  Returns the width of the pixmap.
+  Returns the width of the pixmap, plus some margin.
 
   \sa paint(), height()
 */
 
-int QListBoxPixmap::width() const
+int QListBoxPixmap::width( const QListBox* ) const
 {
     return pm.width() + 6;
 }
@@ -1515,7 +1486,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     case Key_Prior:
     {
         int old = currentItem();
-        int i = 0;
+        int i;
         if ( numColumns() == 1 ) {
             i = currentItem() - numItemsVisible();
             i = i < 0 ? 0 : i;
@@ -2070,7 +2041,7 @@ void QListBox::doLayout() const
             int maxh = 0;
             QListBoxItem * i = d->head;
             while ( i ) {
-                int h = i->height();
+                int h = i->height(this);
                 if ( maxh < h )
                     maxh = h;
                 i = i->n;
@@ -2109,7 +2080,7 @@ void QListBox::doLayout() const
             int maxw = 0;
             QListBoxItem * i = d->head;
             while ( i ) {
-                int tw = i->width();
+                int tw = i->width(this);
                 if ( maxw < tw )
                     maxw = tw;
                 i = i->n;
@@ -2190,10 +2161,10 @@ void QListBox::tryGeometry( int rows, int columns ) const
             d->currentRow = r;
             d->currentColumn = c;
         }
-        int w = i->width();
+        int w = i->width(this);
         if ( d->columnPos[c] < w )
             d->columnPos[c] = w;
-        int h = i->height();
+        int h = i->height(this);
         if ( d->rowPos[r] < h )
             d->rowPos[r] = h;
         i = i->n;
@@ -2435,10 +2406,12 @@ int QListBox::topItem() const
     doLayout();
 
     // move rightwards to the best column
+
     int col = 0;
-    int item = 0;
     while ( col < numColumns() && d->columnPos[col] < contentsX() )
 	col++;
+
+    int item = 0;
     if ( ( col < numColumns() &&
 	   d->columnPos[col+1] <= contentsX()+visibleWidth() ) ||
 	 col == 0 ||
