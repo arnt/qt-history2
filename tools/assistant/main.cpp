@@ -87,8 +87,7 @@ void AssistantSocket::readClient()
         link = link.replace(QLatin1String("\r"), QLatin1String(""));
         QFileInfo fi(link);
         link = fi.absoluteFilePath();
-        if (!link.startsWith("file:"))
-            link = "file:" + link;
+        link = MainWindow::urlifyFileName(link);
         emit showLinkRequest( link );
     }
 }
@@ -151,8 +150,7 @@ int main( int argc, char ** argv )
             file = QString::fromUtf8(argv[1]);
             QFileInfo fi(file);
             file = fi.absoluteFilePath();
-            if (!file.startsWith("file:"))
-                file = "file:" + file;
+            file = MainWindow::urlifyFileName(file);
         }
     }
     if ( file.isEmpty() ) {
@@ -291,9 +289,9 @@ int main( int argc, char ** argv )
     else
         mw->show();
 
-    if ( !file.isEmpty() )
-        mw->showLink( file );
-    else if ( file.isEmpty() )
+    if ( !file.isEmpty() ) {
+        mw->showLink( MainWindow::urlifyFileName(file) );
+    } else if ( file.isEmpty() )
         mw->showLinks( links );
 
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );

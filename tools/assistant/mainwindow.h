@@ -37,6 +37,7 @@ public:
     HelpDialog *helpDialog() const;
 
     void setupPopupMenu(QMenu *menu);
+    static QString urlifyFileName(const QString &fileName);
 
 public slots:
     MainWindow *newWindow();
@@ -79,8 +80,7 @@ protected:
 
 private:
     void setupGoActions();
-    bool insertActionSeparator();
-    QString urlifyFileName(const QString &fileName);
+    bool insertActionSeparator();    
 
 private:
     Ui::MainWindow ui;

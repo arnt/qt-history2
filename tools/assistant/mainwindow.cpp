@@ -298,7 +298,7 @@ void MainWindow::on_actionEditFindAgainPrev_triggered()
 
 void MainWindow::on_actionGoHome_triggered()
 {
-    QString home = urlifyFileName(Config::configuration()->homePage());
+    QString home = MainWindow::urlifyFileName(Config::configuration()->homePage());
     showLink(home);
 }
 
@@ -372,7 +372,8 @@ void MainWindow::showLinkFromClient(const QString &link)
     setWindowState(windowState() & ~Qt::WindowMinimized);
     raise();
     setActiveWindow();
-    showLink(link);
+    QString l = MainWindow::urlifyFileName(link);
+    showLink(l);
     if (isMinimized())
         showNormal();
 }
@@ -397,7 +398,7 @@ void MainWindow::showLinks(const QStringList &links)
     }
 
     if (links.size() == 1) {
-        showLink(urlifyFileName(links.first()));
+        showLink(MainWindow::urlifyFileName(links.first()));
         return;
     }
 
@@ -429,7 +430,7 @@ void MainWindow::timerEvent(QTimerEvent *e)
     if (pendingLinks.size() == 0)
         killTimer(e->timerId());
 
-    win->setSource(urlifyFileName(link));
+    win->setSource(MainWindow::urlifyFileName(link));
 }
 
 void MainWindow::showQtHelp()
@@ -607,7 +608,7 @@ void MainWindow::showGoActionLink()
 
     QAction *action = (QAction*) origin;
     QString docfile = *(goActionDocFiles->find(action));
-    showLink(urlifyFileName(docfile));
+    showLink(MainWindow::urlifyFileName(docfile));
 }
 
 void MainWindow::on_actionHelpAssistant_triggered()
