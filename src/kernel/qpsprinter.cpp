@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#99 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#100 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2577,8 +2577,8 @@ static QString stripHeader( const QString & header, const char * data,
 			    int len, bool useFonts )
 {
     // first pass: find and mark all identifiers
-    QDict<void> ids( 257 );
-    ids.setAutoDelete( FALSE );
+    QDict<int> ids( 257 );
+    ids.setAutoDelete( TRUE );
 
     int i=0;
     int size = header.length();
@@ -2620,9 +2620,9 @@ static QString stripHeader( const QString & header, const char * data,
 			    char id2[10];
 			    strncpy( id2, header.ascii() + k, j-k );
 			    id2[j-k] = '\0';
-			    int offs = (int)ids.find( id2 );
+			    int * offs = ids.find( id2 );
 			    if ( offs )
-				used[k] = offs;
+				used[k] = *offs;
 			}
 		    }
 		}
@@ -2638,15 +2638,19 @@ static QString stripHeader( const QString & header, const char * data,
 		} while( j < size && l );
 	    } else if ( header[j] == 'D' && header[j+1] == '0' &&
 			!isalnum( header[j+2] ) ) {
-		ids.insert( id, (void*)(i-1) );
+		ids.insert( id, new int(i-1) );
 		used[i-1] = 0x20000000;
-		used[j] = (int)ids.find( "D0" );
+		int *tmp = ids.find( "D0" );
+		if ( tmp )
+		    used[j] = *tmp;
 		j = j+2;
 	    } else if ( header[j] == 'E' && header[j+1] == 'D' &&
 			!isalnum( header[j+2] ) ) {
-		ids.insert( id, (void*)(i-1) );
+		ids.insert( id, new int(i-1) );
 		used[i-1] = 0x20000000;
-		used[j] = (int)ids.find( "ED" );
+		int *tmp = ids.find( "ED" );
+		if ( tmp )
+		    used[j] = *tmp;
 		j = j+2;
 	    } else {
 		// handle other variables.
@@ -2662,12 +2666,12 @@ static QString stripHeader( const QString & header, const char * data,
 	    while( j < size && isspace( header[j] ) )
 		j++;
 	    if ( header[j] == 'D' && !isalnum( header[j+1] ) ) {
-		ids.insert( id, (void*)(i-1) );
+		ids.insert( id, new int(i-1) );
 		used[i-1] = 0x20000000;
 		i = j+1;
 	    } else if ( !qstrncmp( header.ascii()+j, "d", 1 ) &&
 			!isalnum( header[j+1] ) ) {
-		ids.insert( id, (void*)(i-1) );
+		ids.insert( id, new int(i-1) );
 		used[i-1] = 0x20000000;
 		i = j+1;
 	    } else {
@@ -2681,15 +2685,22 @@ static QString stripHeader( const QString & header, const char * data,
     // second pass: mark the identifiers used in the document
 
     // we know CM, QI and QP are used
-    used[(int)ids.take("CM")] = 0x10000000;
-    used[(int)ids.take("QI")] = 0x10000000;
-    used[(int)ids.take("QP")] = 0x10000000;
+    int * tmp;
+    if ( (tmp = ids.take("CM")) != 0 )
+	used[*tmp] = 0x10000000;
+    if ( (tmp = ids.take("QI")) != 0 )
+	used[*tmp] = 0x10000000;
+    if ( (tmp = ids.take("QP")) != 0 )
+	used[*tmp] = 0x10000000;
 
     // we speed this up a little by hand-hacking DF/MF/ND support
     if ( useFonts ) {
-	used[(int)ids.take("DF")] = 0x10000000;
-	used[(int)ids.take("MF")] = 0x10000000;
-	used[(int)ids.take("ND")] = 0x10000000;
+	if ( (tmp = ids.take("DF")) != 0 )
+	    used[*tmp] = 0x10000000;
+	if ( (tmp = ids.take("MF")) != 0 )
+	    used[*tmp] = 0x10000000;
+	if ( (tmp = ids.take("ND")) != 0 )
+	    used[*tmp] = 0x10000000;
     }
 
     char id[10];
@@ -2713,9 +2724,9 @@ static QString stripHeader( const QString & header, const char * data,
 		// all identifiers we care about are <9 chars long
 		strncpy( id, data + i, j );
 		id[j] = '\0';
-		int offs = (int)ids.take( id );
+		int * offs = ids.take( id );
 		if ( offs )
-		    used[offs] = 0x10000000;
+		    used[*offs] = 0x10000000;
 	    }
 	    i += j;
 	}
