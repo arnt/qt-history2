@@ -902,7 +902,7 @@ bool QHttpClient::request( const QString& hostname, int port, const QHttpRequest
 
   Call this function after the client was created or after the finished()
   signal was emitted. On other occasions the function returns FALSE to indicate
-  that it can not issue an request currently.
+  that it cannot issue an request currently.
 */
 bool QHttpClient::request( const QString& hostname, int port, const QHttpRequestHeader& header, const char* data, uint size )
 {

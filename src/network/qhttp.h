@@ -156,9 +156,6 @@ private:
 class QM_EXPORT_HTTP QHttpClient : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY( State state READ state )
-    Q_ENUMS( State )
-    //Q_PROPERTY( QIODevice* device READ device WRITE setDevice )
 
 public:
     enum State { Closed, Connecting, Sending, Reading, Alive, Idle };
