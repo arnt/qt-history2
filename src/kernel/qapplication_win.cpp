@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#480 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#481 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -3340,6 +3340,8 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	case UI_FadeMenu:
 	    if ( qt_winver == WV_98 )
 		return FALSE;
+	    if ( QColor::numBitPlanes() < 16 )
+		return FALSE;
 	    api = SPI_GETMENUFADE;
 	    break;
 	case UI_AnimateCombo:
@@ -3353,6 +3355,8 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    break;
 	case UI_FadeTooltip:
 	    if ( qt_winver == WV_98 )
+		return FALSE;
+	    if ( QColor::numBitPlanes() < 16 )
 		return FALSE;
 	    api = SPI_GETTOOLTIPFADE;
 	    break;
@@ -3370,12 +3374,16 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	case UI_AnimateMenu:
 	    return animate_menu;
 	case UI_FadeMenu:
+	    if ( QColor::numBitPlanes() < 16 )
+		return FALSE;
 	    return fade_menu;
 	case UI_AnimateCombo:
 	    return animate_combo;
 	case UI_AnimateTooltip:
 	    return animate_tooltip;
 	case UI_FadeTooltip:
+	    if ( QColor::numBitPlanes() < 16 )
+		return FALSE;
 	    return fade_tooltip;
 	default:
 	    return animate_ui;
