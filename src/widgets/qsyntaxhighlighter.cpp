@@ -40,6 +40,7 @@
 #ifndef QT_NO_SYNTAXHIGHLIGHTER
 #include "../kernel/qrichtext_p.h"
 #include "qtextedit.h"
+#include "qtimer.h"
 
 class QSyntaxHighlighterInternal : public QTextPreProcessor
 {
@@ -113,7 +114,7 @@ QSyntaxHighlighter::QSyntaxHighlighter( QTextEdit *textEdit )
 {
     textEdit->document()->setPreProcessor( new QSyntaxHighlighterInternal( this ) );
     textEdit->document()->invalidate();
-    textEdit->repaintContents( FALSE );
+    QTimer::singleShot( 0, textEdit->viewport(), SLOT( update() ) );
 }
 
 /*!
