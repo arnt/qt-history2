@@ -377,6 +377,9 @@ QSqlRecord QMYSQLDriver::record( const QString& tablename ) const
     if ( !isOpen() )
 	return fil;
     MYSQL_RES* r = mysql_list_fields( d->mysql, tablename.local8Bit().data(), 0);
+    if ( !r ) {
+	return fil;
+    }
     MYSQL_FIELD* field;
     while ( (field = mysql_fetch_field( r ))) {
 	QSqlField f ( QString( field->name ) , qDecodeMYSQLType( (int)field->type ) );
