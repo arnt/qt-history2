@@ -4826,7 +4826,10 @@ QRect QTable::rangeGeometry( int topRow, int leftCol,
 
 void QTable::activateNextCell()
 {
-    if ( !currentSel || !currentSel->isActive() ) {
+    if ( !currentSel || !currentSel->isActive() ||
+	 ( currentSel->leftCol() == currentSel->rightCol() &&
+	   currentSel->topRow() == currentSel->bottomRow() ) ) {
+	clearSelection();
 	if ( curRow < numRows() - 1 )
 	    setCurrentCell( curRow + 1, curCol );
 	else if ( curCol < numCols() - 1 )
