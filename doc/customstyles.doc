@@ -36,7 +36,7 @@
 
 \title Style overview
 
-A style in Qt implements the look & feel found in GUIs on different
+A style in Qt implements the look and feel found in GUIs on different
 platforms. For instance the Windows style used in Windows and the
 Motif style that are common on many Unix platforms.
 
