@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#102 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#101 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#102 $")
 
 
 /*----------------------------------------------------------------------------
@@ -619,14 +619,16 @@ bool QWidget::sizeIncrement( int *w, int *h ) const
 /*----------------------------------------------------------------------------
   Returns the top level widget for this widget.
 
-  A top level widget is an overlapping widget that has no parent widget.
+  A top level widget is an overlapping widget. It usually has no parent.
+  Modal \link QDialog dialog widgets\endlink are the only top level
+  widgets that can have parent widgets.
  ----------------------------------------------------------------------------*/
 
 QWidget *QWidget::topLevelWidget() const
 {
     QWidget *w = (QWidget *)this;
     QWidget *p = w->parentWidget();
-    while ( !w->testWFlags(WType_Modal) && p ) {
+    while ( !w->testWFlags(WType_Overlap) && p ) {
 	w = p;
 	p = p->parentWidget();
     }
