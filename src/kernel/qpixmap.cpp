@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#14 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#14 $";
 #endif
 
 
@@ -142,9 +142,7 @@ bool QPixmap::save( const char *fileName, const char *format ) const
 }
 
 
-/*!
-Writes a pixmap to the stream as a BMP image.
-*/
+/*! Writes a pixmap to the stream as a BMP image. \related QPixmap */
 
 QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
 {
@@ -158,9 +156,7 @@ QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
     return s;
 }
 
-/*!
-Reads a pixmap from the stream as a BMP image.
-*/
+/*! Reads a pixmap from the stream as a BMP image. \related QPixmap */
 
 QDataStream &operator>>( QDataStream &s, QPixmap &pixmap )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#15 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#16 $
 **
 ** Implementation of date and time classes
 **
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#16 $";
 #endif
 
 
@@ -347,16 +347,14 @@ void QDate::jul2greg( ulong jd, int &y, int &m, int &d )
 // QTime class member functions
 //
 
-/*!
-class QTime qdatetm.h
+/*! \class QTime qdatetm.h
 
-\brief The QTime class provides time functions 24 hours a day.
+  \brief The QTime class provides time functions 24 hours a day.
 
-The time resolution of QTime is down to a millisecond, although this
-depends on the underlying operating system. Some operating systems
-(e.g. Linux) support a one-millisecond resolution, while others
-(i.e. MS-DOS and Windows) support only a 55 millisecond resolution.
-*/
+  The time resolution of QTime is down to a millisecond, although this
+  depends on the underlying operating system. Some operating systems
+  (e.g. Linux) support a one-millisecond resolution, while others
+  (i.e. MS-DOS and Windows) support only a 55 millisecond resolution.*/
 
 /*!
 \fn QTime::QTime()
@@ -608,15 +606,13 @@ long QTime::elapsed()				// msecs since start/restart
 // QDateTime member functions
 //
 
-/*!
-class QDateTime qdatetm.h
+/*! \class QDateTime qdatetm.h
 
-\brief The QDateTime class combines QDate and QTime into a single class.
+  \brief The QDateTime class combines QDate and QTime into a single class.
 
-QDateTime provides high precision date and time functions since it
-can work with all dates since September 14. 1752, with the resolution up
-to a microsecond.
-*/
+  QDateTime provides high precision date and time functions since it
+  can work with all dates since September 14. 1752, with the resolution up
+  to a microsecond. */
 
 /*!
 \fn QDateTime::QDateTime()
@@ -778,6 +774,8 @@ QDateTime QDateTime::currentDateTime()		// get current datetime
 
 /*!
 Writes the date \e d to the stream \e s and returns a reference to \e s.
+
+\related QDate
 */
 
 QDataStream &operator<<( QDataStream &s, const QDate &d )
@@ -787,6 +785,8 @@ QDataStream &operator<<( QDataStream &s, const QDate &d )
 
 /*!
 Reads the date \e d from the stream \e s and returns a reference to \e s.
+
+\related QDate
 */
 
 QDataStream &operator>>( QDataStream &s, QDate &d )

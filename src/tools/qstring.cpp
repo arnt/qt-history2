@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#21 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#22 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#22 $";
 #endif
 
 
@@ -161,7 +161,7 @@ static void createCRC16Table()			// build CRC16 lookup table
 }
 
 /*! Returns the CRC-16 checksum of \e len bytes starting at \e data.
-The checksum is independent of byte order. */
+The checksum is independent of byte order. \related QByteArray */
 
 UINT16 qchecksum( const char *data, uint len )	// generate CRC-16 checksum
 {
