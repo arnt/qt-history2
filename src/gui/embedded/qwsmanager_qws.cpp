@@ -404,7 +404,7 @@ bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationStat
     result = dec.paint(&painter, d->managed, decorationRegion, state);
     painter.end();
 
-    d->managed->d->bltToScreen(dec.region(d->managed, d->managed->geometry()) );
+    d->managed->d->bltToScreen(dec.region(d->managed, d->managed->geometry()) & topextra->decor_allocated_region);
     d->managed->setAttribute(Qt::WA_WState_InPaintEvent, false);
     return result;
 }
