@@ -5183,7 +5183,11 @@ void QGfxRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
 
 static GFX_INLINE unsigned char *find_pointer_4( unsigned char * base,int x,int y,
 						int w, int linestep, int &astat,
-						unsigned char &ahold, bool rev )
+						unsigned char &ahold, bool rev
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+						 , bool reverse_endian
+#endif
+    )
 {
     int nbits;
     int nbytes;
@@ -5199,6 +5203,10 @@ static GFX_INLINE unsigned char *find_pointer_4( unsigned char * base,int x,int 
     unsigned char *ret = base + (y*linestep) + nbytes;
     astat = nbits;
     ahold = *ret;
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+    if ( reverse_endian )
+	ahold = (ahold & 0x0f) << 4 |  (ahold & 0xf0) >> 4;
+#endif
 
     if ( rev )
 	ahold = ahold << (nbits*4);
@@ -5435,14 +5443,26 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 		if (plot) {
 		    if ( srctype == SourceImage ) {
 			if ( srcdepth == 1) {
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+			if  ( srcbits == qt_screen->base() ) 
+				 src_little_endian =  !src_little_endian;
+#endif
 			    srcptr=find_pointer(srcbits,(x-rx)+srcoffs.x(),
 					 j+srcoffs.y(), x2-x, srclinestep,
 					 monobitcount, monobitval,
 					 !src_little_endian, reverse);
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+			if  ( srcbits == qt_screen->base() ) 
+				 src_little_endian =  !src_little_endian;
+#endif
 			} else if ( srcdepth == 4) {
 			    srcptr = find_pointer_4(srcbits,(x-rx)+srcoffs.x(),
 					 j+srcoffs.y(), x2-x, srclinestep,
-					 monobitcount, monobitval, reverse);
+					 monobitcount, monobitval, reverse
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+						    , srcbits == qt_screen->base() 
+#endif
+				);
 			} else if ( reverse )
 			    srcptr = srcline + (x2-rx+srcoffs.x())*srcdepth/8;
 			else
