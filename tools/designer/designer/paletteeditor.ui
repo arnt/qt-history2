@@ -11,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>699</width>
-            <height>395</height>
+            <width>651</width>
+            <height>418</height>
         </rect>
     </property>
     <property stdset="1">
@@ -167,7 +167,7 @@
                                     <rect>
                                         <x>11</x>
                                         <y>20</y>
-                                        <width>242</width>
+                                        <width>207</width>
                                         <height>20</height>
                                     </rect>
                                 </property>
@@ -234,7 +234,7 @@
                         </property>
                         <property stdset="1">
                             <name>title</name>
-                            <string>3D shadow &amp;effects</string>
+                            <string>3-D shadow &amp;effects</string>
                         </property>
                         <property stdset="1">
                             <name>alignment</name>
@@ -279,7 +279,7 @@
                                         </property>
                                         <property stdset="1">
                                             <name>text</name>
-                                            <string>Build &amp;from Buttoncolor</string>
+                                            <string>Build &amp;from button color</string>
                                         </property>
                                         <property stdset="1">
                                             <name>checked</name>
@@ -366,7 +366,7 @@
                                             <rect>
                                                 <x>1</x>
                                                 <y>3</y>
-                                                <width>177</width>
+                                                <width>162</width>
                                                 <height>20</height>
                                             </rect>
                                         </property>
@@ -387,7 +387,7 @@
                                         </property>
                                         <property stdset="1">
                                             <name>text</name>
-                                            <string>select Co&amp;lor:</string>
+                                            <string>Select Co&amp;lor:</string>
                                         </property>
                                         <property stdset="1">
                                             <name>minimumSize</name>
@@ -453,6 +453,10 @@
                             <string>Central color &amp;roles</string>
                         </property>
                         <property stdset="1">
+                            <name>focusPolicy</name>
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property stdset="1">
                             <name>maximumSize</name>
                             <size>
                                 <width>32767</width>
@@ -465,6 +469,14 @@
                                 <hsizetype>5</hsizetype>
                                 <vsizetype>5</vsizetype>
                             </sizepolicy>
+                        </property>
+                        <property>
+                            <name>toolTip</name>
+                            <string>Previous preview</string>
+                        </property>
+                        <property>
+                            <name>whatsThis</name>
+                            <string>&lt;b&gt;Preview.&lt;/b&gt;&lt;p&gt;You can select several previews using the next/previous-buttons to test your palette.&lt;/p&gt;</string>
                         </property>
                         <vbox>
                             <property stdset="1">
@@ -569,7 +581,7 @@
                                             <rect>
                                                 <x>1</x>
                                                 <y>3</y>
-                                                <width>37</width>
+                                                <width>20</width>
                                                 <height>20</height>
                                             </rect>
                                         </property>
@@ -590,7 +602,7 @@
                                         </property>
                                         <property stdset="1">
                                             <name>text</name>
-                                            <string>choose &amp;Pixmap:</string>
+                                            <string>Choose &amp;Pixmap:</string>
                                         </property>
                                         <property stdset="1">
                                             <name>sizePolicy</name>
@@ -642,7 +654,19 @@
                                         </property>
                                         <property stdset="1">
                                             <name>text</name>
-                                            <string>&amp;select Color:</string>
+                                            <string>&amp;Select Color:</string>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>lineWidth</name>
+                                            <number>1</number>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>midLineWidth</name>
+                                            <number>0</number>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>margin</name>
+                                            <number>0</number>
                                         </property>
                                         <property stdset="1">
                                             <name>minimumSize</name>
@@ -650,6 +674,10 @@
                                                 <width>0</width>
                                                 <height>0</height>
                                             </size>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>alignment</name>
+                                            <set>AlignVCenter|AlignLeft</set>
                                         </property>
                                         <property stdset="1">
                                             <name>sizePolicy</name>
@@ -731,8 +759,23 @@
                                     <string>&amp;Build palette from colors</string>
                                 </property>
                                 <property stdset="1">
+                                    <name>sizePolicy</name>
+                                    <sizepolicy>
+                                        <hsizetype>1</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                    </sizepolicy>
+                                </property>
+                                <property stdset="1">
+                                    <name>focusPolicy</name>
+                                    <enum>TabFocus</enum>
+                                </property>
+                                <property stdset="1">
                                     <name>checked</name>
                                     <bool>true</bool>
+                                </property>
+                                <property>
+                                    <name>scale</name>
+                                    <bool>false</bool>
                                 </property>
                                 <property>
                                     <name>toolTip</name>
@@ -753,7 +796,7 @@
                                     <rect>
                                         <x>174</x>
                                         <y>21</y>
-                                        <width>228</width>
+                                        <width>176</width>
                                         <height>20</height>
                                     </rect>
                                 </property>
@@ -765,6 +808,29 @@
                                     <name>sizeType</name>
                                     <enum>Expanding</enum>
                                 </property>
+                                <property stdset="1">
+                                    <name>sizePolicy</name>
+                                    <sizepolicy>
+                                        <hsizetype>7</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                    </sizepolicy>
+                                </property>
+                                <property stdset="1">
+                                    <name>focusPolicy</name>
+                                    <enum>NoFocus</enum>
+                                </property>
+                                <property>
+                                    <name>scale</name>
+                                    <bool>false</bool>
+                                </property>
+                                <property>
+                                    <name>toolTip</name>
+                                    <string>Choose a color</string>
+                                </property>
+                                <property>
+                                    <name>whatsThis</name>
+                                    <string>Choose a color for the selected central color role.</string>
+                                </property>
                             </spacer>
                             <widget>
                                 <class>QLabel</class>
@@ -774,7 +840,7 @@
                                 </property>
                                 <property stdset="1">
                                     <name>text</name>
-                                    <string>&amp;3D-Effects:</string>
+                                    <string>&amp;3-D Effects:</string>
                                 </property>
                                 <property stdset="1">
                                     <name>lineWidth</name>
@@ -1008,7 +1074,7 @@
                                     <rect>
                                         <x>11</x>
                                         <y>20</y>
-                                        <width>1</width>
+                                        <width>207</width>
                                         <height>20</height>
                                     </rect>
                                 </property>
@@ -1030,6 +1096,20 @@
                                 <property stdset="1">
                                     <name>text</name>
                                     <string></string>
+                                </property>
+                                <property stdset="1">
+                                    <name>minimumSize</name>
+                                    <size>
+                                        <width>0</width>
+                                        <height>0</height>
+                                    </size>
+                                </property>
+                                <property stdset="1">
+                                    <name>sizePolicy</name>
+                                    <sizepolicy>
+                                        <hsizetype>1</hsizetype>
+                                        <vsizetype>1</vsizetype>
+                                    </sizepolicy>
                                 </property>
                                 <property stdset="1">
                                     <name>pixmap</name>
@@ -1234,7 +1314,7 @@
                                             <rect>
                                                 <x>1</x>
                                                 <y>3</y>
-                                                <width>1</width>
+                                                <width>20</width>
                                                 <height>20</height>
                                             </rect>
                                         </property>
@@ -1255,7 +1335,7 @@
                                         </property>
                                         <property stdset="1">
                                             <name>text</name>
-                                            <string>choose &amp;Pixmap:</string>
+                                            <string>Choose &amp;Pixmap:</string>
                                         </property>
                                         <property stdset="1">
                                             <name>sizePolicy</name>
@@ -1307,7 +1387,7 @@
                                         </property>
                                         <property stdset="1">
                                             <name>text</name>
-                                            <string>&amp;select Color:</string>
+                                            <string>&amp;Select Color:</string>
                                         </property>
                                         <property stdset="1">
                                             <name>minimumSize</name>
@@ -1370,7 +1450,7 @@
                         </property>
                         <property stdset="1">
                             <name>title</name>
-                            <string>3D shadow &amp;effects</string>
+                            <string>3-D shadow &amp;effects</string>
                         </property>
                         <vbox>
                             <property stdset="1">
@@ -1404,7 +1484,7 @@
                                         </property>
                                         <property stdset="1">
                                             <name>text</name>
-                                            <string>Build &amp;from Buttoncolor</string>
+                                            <string>Build &amp;from button color</string>
                                         </property>
                                         <property stdset="1">
                                             <name>checked</name>
@@ -1491,7 +1571,7 @@
                                             <rect>
                                                 <x>1</x>
                                                 <y>3</y>
-                                                <width>150</width>
+                                                <width>162</width>
                                                 <height>20</height>
                                             </rect>
                                         </property>
@@ -1512,7 +1592,7 @@
                                         </property>
                                         <property stdset="1">
                                             <name>text</name>
-                                            <string>select Co&amp;lor:</string>
+                                            <string>Select Co&amp;lor:</string>
                                         </property>
                                         <property stdset="1">
                                             <name>minimumSize</name>
@@ -1657,7 +1737,7 @@
                                     <rect>
                                         <x>11</x>
                                         <y>20</y>
-                                        <width>1</width>
+                                        <width>207</width>
                                         <height>20</height>
                                     </rect>
                                 </property>
@@ -1887,7 +1967,7 @@
                                             <rect>
                                                 <x>1</x>
                                                 <y>3</y>
-                                                <width>1</width>
+                                                <width>20</width>
                                                 <height>20</height>
                                             </rect>
                                         </property>
@@ -1908,7 +1988,7 @@
                                         </property>
                                         <property stdset="1">
                                             <name>text</name>
-                                            <string>choose &amp;Pixmap:</string>
+                                            <string>Choose &amp;Pixmap:</string>
                                         </property>
                                         <property stdset="1">
                                             <name>sizePolicy</name>
@@ -1960,7 +2040,7 @@
                                         </property>
                                         <property stdset="1">
                                             <name>text</name>
-                                            <string>&amp;select Color:</string>
+                                            <string>&amp;Select Color:</string>
                                         </property>
                                         <property stdset="1">
                                             <name>minimumSize</name>
@@ -2023,7 +2103,7 @@
                         </property>
                         <property stdset="1">
                             <name>title</name>
-                            <string>3D shadow &amp;effects</string>
+                            <string>3-D shadow &amp;effects</string>
                         </property>
                         <vbox>
                             <property stdset="1">
@@ -2057,7 +2137,7 @@
                                         </property>
                                         <property stdset="1">
                                             <name>text</name>
-                                            <string>Build &amp;from Buttoncolor</string>
+                                            <string>Build &amp;from button color</string>
                                         </property>
                                         <property stdset="1">
                                             <name>checked</name>
@@ -2144,7 +2224,7 @@
                                             <rect>
                                                 <x>1</x>
                                                 <y>3</y>
-                                                <width>150</width>
+                                                <width>162</width>
                                                 <height>20</height>
                                             </rect>
                                         </property>
@@ -2165,7 +2245,7 @@
                                         </property>
                                         <property stdset="1">
                                             <name>text</name>
-                                            <string>select Co&amp;lor:</string>
+                                            <string>Select Co&amp;lor:</string>
                                         </property>
                                         <property stdset="1">
                                             <name>minimumSize</name>
@@ -2263,7 +2343,7 @@
                         <rect>
                             <x>87</x>
                             <y>5</y>
-                            <width>331</width>
+                            <width>283</width>
                             <height>20</height>
                         </rect>
                     </property>
@@ -2349,6 +2429,7 @@
             <width>40</width>
             <height>25</height>
         </sizehint>
+        <container>0</container>
         <sizepolicy>
             <hordata>5</hordata>
             <verdata>5</verdata>
@@ -2366,6 +2447,7 @@
             <width>250</width>
             <height>250</height>
         </sizehint>
+        <container>0</container>
         <sizepolicy>
             <hordata>5</hordata>
             <verdata>5</verdata>
@@ -2378,19 +2460,19 @@
 <images>
     <image>
         <name>image0</name>
-        <data format="XPM.GZ" length="1175">789c6592db52e2401086ef798a14b9a3b6901c2687b2f6425c0556405050746b2f2633138821a01c14b5f6dd377d902a21c5055ff73fddfdf7cc49cd9a0c7a56eda4b2dec84da62c35932baba6b745f1fee7efcfcf4ad509acf2277ccba9fea8545f2c65d94aa7419a023e01468974d200500186893494cd31eb252cee027a4e20086780b1af24e19c4a257cf602b34abb8463c046c3f5093b804ee429837d3f00a5322cde0226be0e682a9ba77248dc020c6439338a1376e492f811d07784561af09dcf4aca4ac228960af037a07043471bc0255b6071c106d97e1bedc7414c68c8a062bf132c25c3d860a92baa1cf1ae5232a859fc46e248134ed1911bb3b80fe8968da954bdc4fe7281ff35798f841280cf80a69c8f0e5ef2fc3cf08007e6b21b9cc1d7bca8b33d62768d3bd79abdbfee11b3bfa86f1c53f69ed618b3d90cd193dca8b917238ef04664e0d0cc0ff48a0497eaed11c5e7240e0555be23143ac1db5cd0a24241b8a346216787fcc6222a75836b6c78bec6beb7b40dd1a087b122838677754d623fe29d1f7cdf62b63c8e254a1fc54c3ad547676726d314934fb6aded7a5de6f379315d606cf9fcb25aaf37dbd75ce5f9fc6d874ff8a3286685392b147ccd73bc8f8bcb5c65590b22d9b4ddc1c7dcba6a777bfdeb41196a76877856766e6e473b2917cd3234befb3ecbfdb4371e1dcc37e90e4787333f80ea20f6b838dec1d7aefe9d56fe03b07a1256</data>
+        <data format="XPM.GZ" length="1175">789c65d24b6fda401000e03bbfc2c2375411fc583f54f510d204688040020949d5c37ad7368eb14978242455ff7b3d0f9002960ffe66676647bb3e6b18b3d1c0689cd5d61bb9c994a1e6726534f4b6283e7efff9f1b756b73ca37a856b58f56fb57ad350c67059c6f03dadbecd56cb769304386606c41ed00a1c157bc05ba0dd725c2d8037443788b1d51019ba8af808742c1126583b38103bf7899e20de2143d1521a3822ee57bb4cae7d02ba96d0947c8f944247c809d1b3140e7941f4054df50b286cdfd2c86b62c01bcd90d20f29f99d18685a2d819eed0bda2825865cbb434a9fc7d0c440d0183f89219f46fb40aced10a545cc80be23b9b34446412815f08118f29026515a74471f4c491b29664cad7260e0441ef11959d552f21571bfba6472ab05935b15c0eab63979ce94c418a914275f12b54ddc00a55b113b9f1f88ab095269aefd24c6bcba0546aef6a8768dd49a877c3b109357c498878c804a27bcef2b93575f80904a6c1e3d5f62a63c8d454a9fc4e224d527b5f338d31493cfa6a9cd6653e68b459196185bbebcaed6ebcdf62d5779be78dfe1ad7e16c5bc88cf0b054ffb027fa9cbab5c6559072259daede1efddb9eef607c39b51156af7c7582b7bb777939d9465bb0a4defbfcef2900ea693a3f966fdf1e478e647c83a8a3d95a767b03fab7fdf6bff01e3b51256</data>
     </image>
     <image>
         <name>image1</name>
-        <data format="XPM.GZ" length="1055">789c65924d6fe2400c86effc8a88dcd08a928f0989567b000ae5bbb4a795aa1e2633931202090d90865df5bf77c676d12e4404e9b19df1ebd773d7b27eaf1656ebae7138f2632a2cb1e6a5d592a7ddeefcf2faeb6fa3e90496fef9fabff9a3d18c2d61d9522937490c0a832a501c3133d88db9422c0d865e1c209e0c46bea06289c5a18ca5c1daa0ef741966b77494a394c1914127f4046677068594d46860d0edf83ee2115525d4e88364b849607068d0730207b329a922910f908d8208f10954f1ae449c19646e48229f0d762eaa0a83811b51f611345f54bd8366a6a85105c53ca293a738a04f47b5352e8b1c665fa1868009306a8e1a02897886d923464d7b6885272433780fc53ca471fe50d308adc8c1648fd3b70b6ae408f83601678476068a39d81873861b39a08d8c49c0351d459e6f707d31dd933e3ad365b86b1b8bc3081bbd612349ce28589f5e2de2126df442ecbb3718cb6f1b27b82fd6c179c764630735b7af9e4bcce637311e0b7e159342255775faeebfade57f31ad35dd64769b4b6ef3ad0d777ba7d23ccb8b6db2dfbfefcb03d8793c65795e6569fa51aef3fa0cfb28373a54554561deba075e0dee75281f8e06e7e1433d1c438fc974a64be6522e26bde578815ae68f75519116f9ad79357a9addccd67f9eda371ef497b7b17fbdfafcd9f80231a4f871</data>
+        <data format="XPM.GZ" length="1055">789c65d25f6fa2401000f0773f05913773b1202c422ef7a056ebffda3e5dd2f461d95d2aa2605129dea5dfbdbb336373a7460dbf9961665cbc6b59bf570bab75d7381cf931159658f3d26ac9d36e777e79fdf5b7d174034bbf7dfdddfcd168b62d612d8b5c99eb677d6d3ba12792c47069e83a5ea820fb88f47dcc8e80dfc563a4ef2481e19448d99e61c7f184648603e4a5d5191831863c187a2e6312e60e91818bd90930620eb67a400611666b43dfed52ab059007ae80e215910969f884ec4a2c9e1bb24e20313b4386d4ea1ec8431ad4370c3a5d164371818ca8f80f9047119e4645a441b661d70b23dc2a4772ba774de448098c438983b648eee243c9880a8b37c8b883fc300c3d4d58a3240698e5c098336c951a46bea0ec89486b2440a1b3d0ea0d29a9786f184b457c3714ecc21d504a5a3236944ad192c250058a061d91095101f59dc8f6d5eb3b66f39b188f05bf8a49a192ab3abdc8db5afe17d3f3d24d66b7b9e436dfdaf014762acdb3bcd826fbfdfbbe3cc0911c4f599e57599a7e94ebbc3ec3832f373a545545613e750ffe2a837b1dca87a3c179f8500fc73063329de992b9948b496f395ee02ef3c7baa8681779d979357a9addfcb6fef3d4be3983fef236f6ef597dfe6c7c016080f871</data>
     </image>
     <image>
         <name>image2</name>
-        <data format="XPM.GZ" length="1112">789c9d924d8f9b301086eff91568735b55bb016c02aa7a082cc7563d56aa7ab0c7d97cd919620c2ca9fadfeb99ddb43d54aad4b19178783d5f661eef932f9f3f26f78f8b3ea8708004f6ca27f766706efefaedc3f7c55d962571e77992debd5bdc6102c9b21295ac04a16384ca544008844a28a9583d109a2d2dc23de1b6a045b86364237c267c2e68114e84ab7205ab92704398ae5291ae081bc6328594d587889ff0cc716692b25526323e19086526a5cc089f382c1b614d5864852c581d1955610a45a8b91d505bc5dd5d3972954156112e09b5d085e6662f9c48c94ab26f4f98a7b9c8f9de5e18ab1c72f61d08452a8460f54cb8ced7729d137a46bd366b4dd8119679294b562da32e4dc9aae2328cde6a43782204090548c223a3812db0bae54b66236cb90c254070cd86ff97348561df87bfda3f9425995a2aa5f84d6b0d4b56e22070dedd6eb7df1f8c399e94b6dc01ec0fc7e3e914f789dd3480b3675654841881bec4ed1c2076171e3cfaeafb3e20b8e01dd8c1a37d5300c6e925cc57749b5ae3dcdbdf3e38d51ab009d0d4d0c703b60b6f4abd710ea19edd3c5e66ebd0bef9800e734cecfcc6cefdd3100bb0bfa2b5514156a6a1e99cb59e15047dd93844181b9c5be87b8a165e15b0b12670d7c1c50abaa976d6bf56101baca7505f37d635c1b976f278f38939eab9e93b87c318d3f7177cf5c1981d636c447aac8ddbde941b77f66663cd237df6de9ffdf90f1b5b9eee07182f6db4a11dd8da104654ff35073fde2f7e0212bd308d</data>
+        <data format="XPM.GZ" length="1112">789c9dd2cb8e9b301406e07d9e0225bba89a09601350d505302c5b7559a9eac23e6672b363620c0ca9faeef53949da2e2a55eab123f9e38f2f217e5e475f3e7f8cd6cf8bde0b7f8008f6c2456b3518337ffdf6e1fb62992451e8691ac5cb778be55304d1277b6e71fc12c6ab0d157222e61bd8e4c812196f6216535a13f318624a6764b2495842e99558249014c81e99c6294b69d3376291424ae9806431638cd28628183081f4489e70ce13e4852878c129ad905992f18cd291283295517a466ed32ddfa64847945bb595c80e99a739cf29d54499ab9c528b2c58c10b86344428540148400a26b8a0541241b482d215523299494a0551c9562ae409091c32e0c82351410b942aa4e22a53941e882d36e41ed966d8903b2215f215f99a6143b6442afaafff5aff485658622584a091941256948443d1cabbdd6ebf3f28753c09a9e9cdc1fe703c9e4ea19f689a0430fa4c8908082be093d08d016bbb0bbd5e7ceafade5b30de19d083b3fa9e008cd39b9fafd69495b473af7fcfb15325c1d61eea0afaf005ddf97b5295c658a866338f97591babef7340fa396c6c5ca9e7fe650807d0bf566b4262299986ba335a3b4a2cc84b69ac85b1b673037d8fabf95b023a9c09cc7530e104dd5419ed6e27083fb09a7c752db5a9bd31cde4ec634ed8a39aebbe337618c3f6fdc5dee6d8b0bb0d6b5b8b1fad43d78fe4e14e3f6aace8e29d9d736777fea3c686eee0138c9726d4d00c548df7a315ff750f7ebc5ffc04a0e5308d</data>
     </image>
     <image>
         <name>image3</name>
-        <data format="XPM.GZ" length="1052">789c9d92cb6e82401486f73cc54476a651181881345df8006dba6cd27431cc0c820a2817d1367df7ce3983a4c5c65e7e5df8e5633cf31f9d4fc9d3e33d99ceadbae14d2688487945a6b2cdf3d3f3cbdd9b35a194c03b22eee4c69a2822881d7aa11b7a803b40c1044d12c02d6024222919e00a5029c5b9002c015dc7f55d0730056494312f029c697c280b059f392acea48f436340ea509fe2c1e3d9320eb801743080af88a17e21560386806bc0055fc8059e3d21d20533751abca12e676e68f7731d17cf76881115e61af58078ff0cd08b3c61eae4805c705d1f5002faaeef9b464bc0c00b58807313c044279680e28c02d758e0c37120cd1af7f813c4a1340f1ff09bb92f7c6cd4f636320567dfe6276373133b1e1b2e4cb8547f31c94a27cdd69766b5197261b639a628d5d8e43bccfe9746f7490753d538cb9858ca6c304ddbb6cde1bc1da5d683e974b1eef8696f574cb1c79c2e4d599655d3755d3a367a96aadb7e815f0d9cfb8f813990d7b1991d8e7d96d7fe07efb7d6076378092b</data>
+        <data format="XPM.GZ" length="1052">789c9dd2dd6e823014c0f17b9ea2913bb328142a9065173ec0965d2e597651da22a880f221ba65efbe9e53241b2eeee3e805bffc0b95c6f9943c3dde93e9dcaa1bde6482889457642adb3c3f3dbfdcbd59134a097c23e24e6eacc98c08f250160aae37fada767080afc8507f90d5c01058025dc7f55dac0d32d41fa40da40e755c5c1cf7f429d60e195161580f8c8019d08b3ce12125d0777ddfc71f7c40725ff81c98021965cc2ce648cea4597c3c93e1e2137041172cf4806b245fc805d62530f00216602d907120b9002a60e8e937c4da22e33032f7ee7bca5802b7c048445232600ee4822b85e7bc030a2668920057409db8d92801267acca3c499021f35fb767e2a363763c7e3c285192ed55f4ab2d29366ebcbb2da0c7351b6394e51aa71c97738fb5f16fd3ee950aa1af7322596321b4ad3b66d73389f8e52eba174fac5bae3a773bb528a3dcee9b2946559355dd7a5e3a2f75275db1fe0d702f7fda7c03e30afe3323b1cfb595efb1fbcdf5a1f488d092b</data>
     </image>
 </images>
 <connections>
@@ -2621,6 +2703,60 @@
         <signal>clicked()</signal>
         <receiver>previewDisabled</receiver>
         <slot>nextWidget()</slot>
+    </connection>
+    <connection>
+        <sender>checkBuildActiveEffect</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>comboActiveEffect</receiver>
+        <slot>setDisabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkBuildActiveEffect</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>buttonActiveEffect</receiver>
+        <slot>setDisabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkBuildActiveEffect</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>labelActiveEffect</receiver>
+        <slot>setDisabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkBuildInactiveEffect</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>comboInactiveEffect</receiver>
+        <slot>setDisabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkBuildInactiveEffect</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>labelInactiveEffect</receiver>
+        <slot>setDisabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkBuildInactiveEffect</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>buttonInactiveEffect</receiver>
+        <slot>setDisabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkBuildDisabledEffect</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>comboDisabledEffect</receiver>
+        <slot>setDisabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkBuildDisabledEffect</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>labelDisabledEffect</receiver>
+        <slot>setDisabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkBuildDisabledEffect</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>buttonDisabledEffect</receiver>
+        <slot>setDisabled(bool)</slot>
     </connection>
     <slot access="public">apply()</slot>
     <slot access="protected">onChooseActivePixmap()</slot>

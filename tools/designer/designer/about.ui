@@ -14,12 +14,12 @@
             <x>0</x>
             <y>0</y>
             <width>492</width>
-            <height>364</height>
+            <height>368</height>
         </rect>
     </property>
     <property stdset="1">
         <name>caption</name>
-        <string>Qt GUI Designer</string>
+        <string>Qt Designer</string>
     </property>
     <property stdset="1">
         <name>sizeGripEnabled</name>
@@ -72,7 +72,7 @@
             </property>
             <property stdset="1">
                 <name>text</name>
-                <string>Version 1.0 (beta1)</string>
+                <string>Version 1.0</string>
             </property>
             <property stdset="1">
                 <name>alignment</name>
@@ -137,7 +137,7 @@ The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRAN
                     <x>236</x>
                     <y>178</y>
                     <width>20</width>
-                    <height>141</height>
+                    <height>145</height>
                 </rect>
             </property>
             <property stdset="1">

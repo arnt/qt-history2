@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: makeqtmake,v 1.3 1996/01/22 13:46:00 hanord Exp $
+# $Id: //depot/qt/2.2/examples/application/Makefile#2 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #

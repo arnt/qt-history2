@@ -1,17 +1,20 @@
 /**********************************************************************
-**   Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-**   This file is part of Qt GUI Designer.
+** This file is part of Qt Designer.
 **
-**   This file may be distributed under the terms of the GNU General
-**   Public License version 2 as published by the Free Software
-**   Foundation and appearing in the file COPYING included in the
-**   packaging of this file. If you did not get the file, send email
-**   to info@trolltech.com
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
-**   The file is provided AS IS with NO WARRANTY OF ANY KIND,
-**   INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR
-**   A PARTICULAR PURPOSE.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
 **
 **********************************************************************/
 
@@ -39,24 +42,44 @@
 #include <qmime.h>
 #include <qurl.h>
 #include <qtextstream.h>
+#include <qmessagebox.h>
 #include <stdlib.h>
+
+class TextBrowser : public QTextBrowser
+{
+public:
+    TextBrowser( QWidget *parent = 0, const char *name = 0 ) : QTextBrowser( parent, name ) {}
+
+    void setSource( const QString &name ) {
+	QUrl u( context(), name );
+	if ( !u.isLocalFile() ) {
+	    QMessageBox::information( this, tr( "Help" ), tr( "Can't load and display non-local file\n"
+							      "%1" ).arg( name ) );
+	    return;
+	}
+
+	QTextBrowser::setSource( name );
+    }
+
+};
 
 static QIconSet createIconSet( const QString &name )
 {
-    return QIconSet( PixmapChooser::loadPixmap( name, PixmapChooser::Small ),
-		     PixmapChooser::loadPixmap( name, PixmapChooser::Large ) );
+    QIconSet ic( PixmapChooser::loadPixmap( name, PixmapChooser::Small ) );
+    ic.setPixmap( PixmapChooser::loadPixmap( name, PixmapChooser::Disabled ), QIconSet::Small, QIconSet::Disabled );
+    return ic;
 }
 
 Help::Help( const QString& home, MainWindow* parent, const char *name )
 #if defined(HAVE_KDE)
-    : KMainWindow( 0, name, WType_TopLevel | WDestructiveClose ),
+    : KMainWindow( 0, name, WType_TopLevel | WDestructiveClose | WGroupLeader ),
 #else
-    : QMainWindow( 0, name, WType_TopLevel | WDestructiveClose ),
+    : QMainWindow( 0, name, WType_TopLevel | WDestructiveClose | WGroupLeader ),
 #endif
       mainWindow( parent ), helpDialog( 0 )
 {
     bookmarkMenu = 0;
-    browser = new QTextBrowser( this );
+    browser = new TextBrowser( this );
     browser->mimeSourceFactory()->setFilePath( home );
     browser->setFrameStyle( QFrame::Panel | QFrame::Sunken );
     browser->mimeSourceFactory()->addFilePath( QString( getenv( "QTDIR" ) ) + "/tools/designer/manual" );
@@ -78,7 +101,7 @@ Help::Help( const QString& home, MainWindow* parent, const char *name )
     setupGoActions();
     setupBookmarkMenu();
 
-    resize( 640,700 );
+    resize( 750,700 );
 
     setToolBarsMovable( FALSE );
 }

@@ -1,17 +1,20 @@
 /**********************************************************************
-**   Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-**   This file is part of Qt GUI Designer.
+** This file is part of Qt Designer.
 **
-**   This file may be distributed under the terms of the GNU General
-**   Public License version 2 as published by the Free Software
-**   Foundation and appearing in the file COPYING included in the
-**   packaging of this file. If you did not get the file, send email
-**   to info@trolltech.com
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
-**   The file is provided AS IS with NO WARRANTY OF ANY KIND,
-**   INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR
-**   A PARTICULAR PURPOSE.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
 **
 **********************************************************************/
 
@@ -44,6 +47,7 @@
 CustomWidgetEditor::CustomWidgetEditor( QWidget *parent, MainWindow *mw )
     : CustomWidgetEditorBase( parent, 0, TRUE ), mainWindow( mw )
 {
+    connect( helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
     checkTimer = new QTimer( this );
     connect( checkTimer, SIGNAL( timeout() ),
 	     this, SLOT( checkWidgetName() ) );
@@ -189,7 +193,7 @@ void CustomWidgetEditor::currentWidgetChanged( QListBoxItem *i )
     sizeHor->setCurrentItem( size_type_to_int( w->sizePolicy.horData() ) );
     sizeVer->setCurrentItem( size_type_to_int( w->sizePolicy.verData() ) );
     checkContainer->setChecked( w->isContainer );
-    
+
     setupSignals();
     setupSlots();
     setupProperties();
@@ -660,7 +664,7 @@ void CustomWidgetEditor::saveDescription()
     if ( fn.isEmpty() )
 	return;
 
-    if ( QFileInfo( fn ).extension() != ".cw" )
+    if ( QFileInfo( fn ).extension() != "cw" )
 	fn += ".cw";
     QFile f( fn );
     if ( !f.open( IO_WriteOnly ) )

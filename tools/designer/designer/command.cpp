@@ -1,17 +1,20 @@
 /**********************************************************************
-**   Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-**   This file is part of Qt GUI Designer.
+** This file is part of Qt Designer.
 **
-**   This file may be distributed under the terms of the GNU General
-**   Public License version 2 as published by the Free Software
-**   Foundation and appearing in the file COPYING included in the
-**   packaging of this file. If you did not get the file, send email
-**   to info@trolltech.com
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
-**   The file is provided AS IS with NO WARRANTY OF ANY KIND,
-**   INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR
-**   A PARTICULAR PURPOSE.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
 **
 **********************************************************************/
 
@@ -91,7 +94,7 @@ void CommandHistory::addCommand( Command *cmd, bool tryCompress )
     } else {
 	++current;
     }
-    
+
     emitUndoRedo();
     modified = TRUE;
     modificationChanged( modified );
@@ -247,7 +250,10 @@ void InsertCommand::execute()
 	widget->move( geometry.topLeft() );
 	widget->adjustSize();
     } else {
-	widget->setGeometry( geometry );
+	QSize s = geometry.size().expandedTo( widget->minimumSize() );
+	s = s.expandedTo( widget->minimumSizeHint() );
+	QRect r( geometry.topLeft(), s );
+	widget->setGeometry( r );
     }
     widget->show();
     formWindow()->widgets()->insert( widget, widget );
@@ -639,9 +645,11 @@ void LayoutGridCommand::unexecute()
 
 BreakLayoutCommand::BreakLayoutCommand( const QString &n, FormWindow *fw,
 					QWidget *layoutBase, const QWidgetList &wl )
-    : Command( n, fw )
+    : Command( n, fw ), lb( layoutBase )
 {
     WidgetFactory::LayoutType lay = WidgetFactory::layoutType( layoutBase );
+    spacing = MetaDataBase::spacing( layoutBase );
+    margin = MetaDataBase::margin( layoutBase );
     layout = 0;
     if ( lay == WidgetFactory::HBox )
 	layout = new HorizontalLayout( wl, layoutBase, fw, layoutBase, FALSE );
@@ -667,6 +675,8 @@ void BreakLayoutCommand::unexecute()
     formWindow()->clearSelection( FALSE );
     layout->doLayout();
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
+    MetaDataBase::setSpacing( WidgetFactory::containerOfWidget( lb ), spacing );
+    MetaDataBase::setMargin( WidgetFactory::containerOfWidget( lb ), margin );
 }
 
 // ------------------------------------------------------------

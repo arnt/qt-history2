@@ -1,17 +1,20 @@
 /**********************************************************************
-**   Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-**   This file is part of Qt GUI Designer.
+** This file is part of Qt Designer.
 **
-**   This file may be distributed under the terms of the GNU General
-**   Public License version 2 as published by the Free Software
-**   Foundation and appearing in the file COPYING included in the
-**   packaging of this file. If you did not get the file, send email
-**   to info@trolltech.com
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
-**   The file is provided AS IS with NO WARRANTY OF ANY KIND,
-**   INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR
-**   A PARTICULAR PURPOSE.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
 **
 **********************************************************************/
 
@@ -109,6 +112,7 @@ QString HelpNavigationContentsItem::link() const
 HelpDialog::HelpDialog( QWidget *parent, MainWindow *mw, Help *h )
     : HelpDialogBase( parent, 0, FALSE ), mainWindow( mw ), help( h )
 {
+    connect( buttonHelp, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
     indexDone = FALSE;
     contentsDone = FALSE;
     contentsInserted = FALSE;
@@ -579,7 +583,7 @@ void HelpDialog::insertContents()
 	if ( c == '<' ) {
 	    ++i;
 	    c = text[ i ];
-	    if ( c == 'A' ) {
+	    if ( c == 'a' ) {
 		int j = text.find( "\"", i );
 		int k = text.find( "\"", j + 1 );
 		link = text.mid( j + 1, k - j - 1 );
@@ -591,32 +595,34 @@ void HelpDialog::insertContents()
 		    i = text.length();
 		    continue;
 		}
-		Entry e;
-		e.link = link;
-		e.title = title;
-		e.depth = depth;
-		entries.append( e );
+		if ( !title.isEmpty() ) {
+		    Entry e;
+		    e.link = link;
+		    e.title = title;
+		    e.depth = depth;
+		    entries.append( e );
+		}
 	    }
-	    if ( c == 'D' ) {
+	    if ( c == 'd' ) {
 		++i;
 		c = text[ i ];
-		if ( c == 'D' )
+		if ( c == 'l' )
 		    depth++;
 	    }
 	    if ( c == '/' ) {
 		++i;
 		c = text[ i ];
-		if ( c == 'D' ) {
+		if ( c == 'd' ) {
 		    ++i;
 		    c = text[ i ];
-		    if ( c == 'D' )
+		    if ( c == 'l' )
 			depth--;
 		}
 	    }
 	}
 	++i;
     }
-    
+
     int oldDepth = -1;
     lastItem = (HelpNavigationContentsItem*)handbook;
     for ( QValueList<Entry>::Iterator it2 = entries.begin(); it2 != entries.end(); ++it2 ) {
@@ -660,7 +666,7 @@ void HelpDialog::currentContentsChanged( QListViewItem *i )
 
 void HelpDialog::showContentsTopic()
 {
-    if ( !buttonDisplay->isEnabled() )
+    if ( !buttonDisplay->isEnabled() || !listContents->currentItem()->parent() )
 	return;
     HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)listContents->currentItem();
     emit showLink( i->link(), i->text( 0 ) );

@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>300</width>
-            <height>104</height>
+            <height>106</height>
         </rect>
     </property>
     <property stdset="1">
@@ -816,6 +816,21 @@
                     <name>spacing</name>
                     <number>6</number>
                 </property>
+                <widget>
+                    <class>QPushButton</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>helpButton</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string>&amp;Help</string>
+                    </property>
+                    <property stdset="1">
+                        <name>autoDefault</name>
+                        <bool>true</bool>
+                    </property>
+                </widget>
                 <spacer>
                     <property>
                         <name>name</name>
@@ -824,9 +839,9 @@
                     <property stdset="1">
                         <name>geometry</name>
                         <rect>
-                            <x>1</x>
+                            <x>87</x>
                             <y>5</y>
-                            <width>104</width>
+                            <width>18</width>
                             <height>20</height>
                         </rect>
                     </property>

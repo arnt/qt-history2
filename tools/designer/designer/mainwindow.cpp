@@ -1,17 +1,20 @@
 /**********************************************************************
-**   Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-**   This file is part of Qt GUI Designer.
+** This file is part of Qt Designer.
 **
-**   This file may be distributed under the terms of the GNU General
-**   Public License version 2 as published by the Free Software
-**   Foundation and appearing in the file COPYING included in the
-**   packaging of this file. If you did not get the file, send email
-**   to info@trolltech.com
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
-**   The file is provided AS IS with NO WARRANTY OF ANY KIND,
-**   INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR
-**   A PARTICULAR PURPOSE.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
 **
 **********************************************************************/
 
@@ -81,6 +84,7 @@
 #include <qwhatsthis.h>
 #include <qwizard.h>
 #include <qpushbutton.h>
+#include <qdir.h>
 #include <stdlib.h>
 
 static int forms = 0;
@@ -386,8 +390,8 @@ void MainWindow::setupLayoutActions()
     connect( actionEditAdjustSize, SIGNAL( activated() ), this, SLOT( editAdjustSize() ) );
     actionEditAdjustSize->setEnabled( FALSE );
 
-    actionEditHLayout = new QAction( tr( "Lay out Horizontally" ), createIconSet("edithlayout.xpm"),
-				     tr( "Lay out &Horizontally" ), CTRL + Key_H, this, 0 );
+    actionEditHLayout = new QAction( tr( "Lay Out Horizontally" ), createIconSet("edithlayout.xpm"),
+				     tr( "Lay Out &Horizontally" ), CTRL + Key_H, this, 0 );
     actionEditHLayout->setStatusTip(tr("Lays out the selected widgets horizontally") );
     actionEditHLayout->setWhatsThis(tr("<b>Layout widgets horizontally</b>"
 				       "<p>The selected widgets will be laid out horizontally. "
@@ -395,8 +399,8 @@ void MainWindow::setupLayoutActions()
     connect( actionEditHLayout, SIGNAL( activated() ), this, SLOT( editLayoutHorizontal() ) );
     actionEditHLayout->setEnabled( FALSE );
 
-    actionEditVLayout = new QAction( tr( "Lay out Vertically" ), createIconSet("editvlayout.xpm"),
-				     tr( "Lay out &Vertically" ), CTRL + Key_L, this, 0 );
+    actionEditVLayout = new QAction( tr( "Lay Out Vertically" ), createIconSet("editvlayout.xpm"),
+				     tr( "Lay Out &Vertically" ), CTRL + Key_L, this, 0 );
     actionEditVLayout->setStatusTip(tr("Lays out the selected widgets vertically") );
     actionEditVLayout->setWhatsThis(tr("<b>Layout widgets vertically</b>"
 				       "<p>The selected widgets will be laid out vertically. "
@@ -404,8 +408,8 @@ void MainWindow::setupLayoutActions()
     connect( actionEditVLayout, SIGNAL( activated() ), this, SLOT( editLayoutVertical() ) );
     actionEditVLayout->setEnabled( FALSE );
 
-    actionEditGridLayout = new QAction( tr( "Lay out in a Grid" ), createIconSet("editgrid.xpm"),
-					tr( "Lay out in a &Grid" ), CTRL + Key_G, this, 0 );
+    actionEditGridLayout = new QAction( tr( "Lay Out in a Grid" ), createIconSet("editgrid.xpm"),
+					tr( "Lay Out in a &Grid" ), CTRL + Key_G, this, 0 );
     actionEditGridLayout->setStatusTip(tr("Lays out the selected widgets in a grid") );
     actionEditGridLayout->setWhatsThis(tr("<b>Layout widgets in a grid</b>"
 					  "<p>The selected widgets will be laid out in a grid."
@@ -904,9 +908,9 @@ void MainWindow::setupHelpActions()
     connect( actionHelpContents, SIGNAL( activated() ), this, SLOT( helpContents() ) );
 
     actionHelpManual = new QAction( tr( "Manual" ), tr( "&Manual" ), CTRL + Key_M, this, 0 );
-    actionHelpManual->setStatusTip( tr("Opens the Qt GUI Designer manual") );
+    actionHelpManual->setStatusTip( tr("Opens the Qt Designer manual") );
     actionHelpManual->setWhatsThis( tr("<b>Open the Qt Designer manual</b>"
-					 "<p>Use the Qt Designer Manual to get help about how to use the GUI Designer.</p>") );
+					 "<p>Use the Qt Designer Manual to get help about how to use the Qt Designer.</p>") );
     connect( actionHelpManual, SIGNAL( activated() ), this, SLOT( helpManual() ) );
 
     actionHelpAbout = new QAction( tr("About"), QPixmap(), tr("&About..."), 0, this, 0 );
@@ -1209,6 +1213,27 @@ void MainWindow::fileSaveAll()
     }
 }
 
+static bool inSaveAllTemp = FALSE;
+void MainWindow::saveAllTemp()
+{
+    if ( inSaveAllTemp )
+	return;
+    inSaveAllTemp = TRUE;
+    statusBar()->message( tr( "Qt Designer is crashing - saving work as good as possible..." ) );
+    QWidgetList windows = workSpace()->windowList();
+    QString baseName = QString( getenv( "HOME" ) ) + "/.designer/saved-form-";
+    int i = 1;
+    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+	if ( !w->inherits( "FormWindow" ) )
+	    continue;
+	
+	QString fn = baseName + QString::number( i++ ) + ".ui";
+	( (FormWindow*)w )->setFileName( fn );
+	( (FormWindow*)w )->save( fn );
+    }
+    inSaveAllTemp = FALSE;
+}
+
 void MainWindow::fileCreateTemplate()
 {
     CreateTemplate dia( this, 0, TRUE );
@@ -1445,6 +1470,7 @@ void MainWindow::editPreferences()
     statusBar()->message( tr( "Edit preferences..." ) );
     Preferences *dia = new Preferences( this, 0, TRUE );
     prefDia = dia;
+    connect( dia->helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
     dia->buttonColor->setEditor( StyledButton::ColorEditor );
     dia->buttonPixmap->setEditor( StyledButton::PixmapEditor );
     dia->checkBoxShowGrid->setChecked( sGrid );
@@ -1822,7 +1848,7 @@ void MainWindow::helpAbout()
 
 void MainWindow::helpAboutQt()
 {
-    QMessageBox::aboutQt( this, "Trolltech GUI Designer" );
+    QMessageBox::aboutQt( this, "Qt Designer" );
 }
 
 void MainWindow::showProperties( QWidget *w )
@@ -1992,6 +2018,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	correctGeometry( propertyEditor, workspace );
 	correctGeometry( hierarchyView, workspace );
 	correctGeometry( formList, workspace );
+	checkTempFiles();
 	return TRUE;
 	break;
     case QEvent::Wheel:
@@ -2122,6 +2149,8 @@ void MainWindow::formListHidden()
 
 void MainWindow::activeWindowChanged( QWidget *w )
 {
+    if ( !w )
+	return;
     if ( w->inherits( "FormWindow" ) ) {
 	lastActiveFormWindow = (FormWindow*)w;
 	lastActiveFormWindow->updateUndoInfo();
@@ -2533,6 +2562,12 @@ void MainWindow::selectionChanged()
     }
 }
 
+static QString fixArgs( const QString &s2 )
+{
+    QString s = s2;
+    return s.replace( QRegExp( "," ), ";" );
+}
+
 void MainWindow::writeConfig()
 {
     QString fn = QDir::homeDirPath() + "/.designerrc";
@@ -2624,10 +2659,10 @@ void MainWindow::writeConfig()
 	l << QString::number( w->sizeHint.height() );
 	l << QString::number( w->lstSignals.count() );
 	for ( QValueList<QCString>::Iterator it = w->lstSignals.begin(); it != w->lstSignals.end(); ++it )
-	    l << QString( *it );
+	    l << QString( fixArgs( *it ) );
 	l << QString::number( w->lstSlots.count() );
 	for ( QValueList<MetaDataBase::Slot>::Iterator it2 = w->lstSlots.begin(); it2 != w->lstSlots.end(); ++it2 ) {
-	    l << (*it2).slot;
+	    l << fixArgs( (*it2).slot );
 	    l << (*it2).access;
 	}
 	l << QString::number( w->lstProperties.count() );
@@ -2650,6 +2685,12 @@ void MainWindow::writeConfig()
     }
 
     config.write();
+}
+
+static QString fixArgs2( const QString &s2 )
+{
+    QString s = s2;
+    return s.replace( QRegExp( ";" ), "," );
 }
 
 void MainWindow::readConfig()
@@ -2736,14 +2777,14 @@ void MainWindow::readConfig()
 	    int numSignals = l[ c ].toInt();
 	    c++;
 	    for ( int i = 0; i < numSignals; ++i, c++ )
-		w->lstSignals.append( l[ c ].latin1() );
+		w->lstSignals.append( fixArgs2( l[ c ] ).latin1() );
 	}
 	if ( l.count() > c ) {
 	    int numSlots = l[ c ].toInt();
 	    c++;
 	    for ( int i = 0; i < numSlots; ++i ) {
 		MetaDataBase::Slot slot;
-		slot.slot = l[ c ];
+		slot.slot = fixArgs2( l[ c ] );
 		c++;
 		slot.access = l[ c ];
 		c++;
@@ -3157,4 +3198,96 @@ QStringList MainWindow::getUiFiles( const QString &profile )
     }
 
     return lst;
+}
+
+void MainWindow::checkTempFiles()
+{
+    QString baseName = QString( getenv( "HOME" ) ) + "/.designer/saved-form-";
+    if ( !QFile::exists( baseName + "1.ui" ) )
+	return;
+    QString s = QString( getenv( "HOME" ) ) + "/.designer";
+    QDir d( s );
+    d.setNameFilter( "*.ui" );
+    QStringList lst = d.entryList();
+    QApplication::restoreOverrideCursor();
+    bool load = QMessageBox::information( this, tr( "Restoring last session" ),
+					  tr( "The Qt Designer found some temporary saved files, which have been\n"
+					      "written when the Qt Designer crashed last time. Do you want to\n"
+					      "load these files?" ), tr( "&Yes" ), tr( "&No" ) ) == 0;
+    QApplication::setOverrideCursor( waitCursor );
+    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	if ( load )
+	    openFile( QString( getenv( "HOME" ) ) + "/.designer/" + *it, FALSE );
+	d.remove( *it );
+    }
+}
+
+void MainWindow::openHelpForDialog( const QString &dia )
+{
+    QString manualdir = QString( getenv( "QTDIR" ) ) + "/tools/designer/manual/book1.html";
+    QFile file( manualdir );
+    if ( !file.open( IO_ReadOnly ) )
+	return;
+    QTextStream ts( &file );
+    QString text = ts.read();
+
+    int i = text.find( dia );
+    if ( i == -1 )
+	return;
+    i = text.findRev( "href=\"", i );
+    if ( i == -1 )
+	return;
+    int end = text.find( "\"", i + 8 );
+    i += QString( "href=\"" ).length();
+    QString page = text.mid( i, end - i );
+
+    if ( !help ) {
+	help = new Help( documentationPath(), this, "help" );
+	help->setSource( page );
+	help->setUsesBigPixmaps( FALSE /*usesBigPixmaps()*/ ); // ### disbaled for now
+	help->setUsesTextLabel( usesTextLabel() );
+    }
+    help->setSource( page );
+    help->show();
+    help->raise();
+}
+
+void MainWindow::showDialogHelp()
+{
+    QWidget *w = (QWidget*)sender();
+    w = w->topLevelWidget();
+
+    // dialog classname to documentation title mapping
+    if ( w->inherits( "AboutDialog" ) )
+	openHelpForDialog( "The About Dialog" );
+    else if ( w->inherits( "ConnectionEditorBase" ) )
+	openHelpForDialog( "The Connection Editor Dialog (Edit Connections)" );
+    else if ( w->inherits( "ConnectionViewerBase" ) )
+	openHelpForDialog( "The Connection Viewer Dialog (Edit Connections)" );
+    else if ( w->inherits( "CustomWidgetEditorBase" ) )
+	openHelpForDialog( "The Edit Custom Widgets Dialog" );
+    else if ( w->inherits( "IconViewEditorBase" ) )
+	openHelpForDialog( "The Edit Icon View Dialog" );
+    else if ( w->inherits( "ListBoxEditorBase" ) )
+	openHelpForDialog( "The Edit List Box Dialog" );
+    else if ( w->inherits( "ListViewEditorBase" ) )
+	openHelpForDialog( "The Edit List View Dialog" );
+    else if ( w->inherits( "MultiLineEditorBase" ) )
+	openHelpForDialog( "The Edit Multiline Edit Dialog" );
+    else if ( w->inherits( "EditSlotsBase" ) )
+	openHelpForDialog( "The Edit Slots Dialog" );
+    else if ( w->inherits( "FormSettingsBase" ) )
+	openHelpForDialog( "The Form Settings Dialog" );
+    else if ( w->inherits( "HelpDialogBase" ) )
+	openHelpForDialog( "The Help Dialog" );
+    else if ( w->inherits( "NewFormBase" ) )
+	openHelpForDialog( "The New Form Dialog" );
+    else if ( w->inherits( "PaletteEditorBase" ) )
+	openHelpForDialog( "The Palette Editor Dialog" );
+    else if ( w->inherits( "PixmapFunction" ) )
+	openHelpForDialog( "The Pixmap Function Dialog" );
+    else if ( w->inherits( "Preferences" ) )
+	openHelpForDialog( "The Preferences Dialog" );
+    else if ( w->inherits( "TopicChooserBase" ) )
+	openHelpForDialog( "The Topic Chooser Dialog" );
 }

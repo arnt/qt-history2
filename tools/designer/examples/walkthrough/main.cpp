@@ -1,12 +1,10 @@
 /**********************************************************************
-** Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of Qt GUI Designer.
+** This file is part of an example program for Qt.  This example
+** program may be used, distributed and modified without limitation.
 **
-** See the file LICENSE included in the distribution for the usage
-** and distribution terms.
-**
-**********************************************************************/
+*****************************************************************************/
 
 #include <qapplication.h>
 #include "mydialogimpl.h"

@@ -346,6 +346,15 @@ void CCommands::addMOC( CComQIPtr<IBuildProject, &IID_IBuildProject> pProject, C
 	return;
     }
 
+    if ( !fileext.IsEmpty() && fileext[0] == 'c' ) {
+	fileToMoc = filepath + filename + ".moc";
+	mocfile = "$(InputDir)\\$(InputName).moc";
+	specialFile = TRUE;
+    } else {
+	fileToMoc = filepath + file;
+	mocfile = "$(InputDir)\\moc_$(InputName).cpp";
+    }
+
     // Add the moc step to the file
     long cCount;
     VERIFY_OK( pConfigs->get_Count(&cCount));
@@ -353,7 +362,7 @@ void CCommands::addMOC( CComQIPtr<IBuildProject, &IID_IBuildProject> pProject, C
 	CComVariant Varc = c+1;
 	CComPtr<IConfiguration> pConfig;
 	VERIFY_OK(pConfigs->Item(Varc, &pConfig));
-	VERIFY_OK(pConfig->AddCustomBuildStepToFile(CComBSTR(fileToMoc), CComBSTR(moccommand+filepath+file+" -o "+mocfile), 
+	VERIFY_OK(pConfig->AddCustomBuildStepToFile(CComBSTR(fileToMoc), CComBSTR(moccommand+"$(InputDir)\\$(InputName).h -o "+mocfile), 
 					  CComBSTR(mocfile), CComBSTR("MOCing "+file+"..."), 
 					  CComVariant(VARIANT_FALSE)));
 	m_pApplication->PrintToOutputWindow( CComBSTR("\t\tadded MOC preprocessor") );
@@ -402,10 +411,10 @@ void CCommands::addUIC( CComQIPtr<IBuildProject, &IID_IBuildProject> pProject, C
 	CComVariant Varc = c+1;
 	CComPtr<IConfiguration> pConfig;
 	VERIFY_OK(pConfigs->Item(Varc, &pConfig));
-	CComBSTR command = uiccommand+uiFile+" -o "+decFile + "\n" + 
-			   uiccommand+uiFile+" -i "+incFile+" -o "+impFile + "\n" + 
-			   moccommand+decFile+" -o "+mocFile;
-	CComBSTR output = decFile + "\n" + impFile + "\n" + mocFile;
+	CComBSTR command = uiccommand+"$(InputPath) -o $(InputDir)\\$(InputName).h\n" +
+			   uiccommand+"$(InputPath) -i $(InputDir)\\$(InputName).h -o $(InputDir)\\$(InputName).cpp\n" + 
+			   moccommand+"$(InputDir)\\$(InputName).h -o $(InputDir)\\moc_$(InputName).cpp";
+	CComBSTR output = "$(InputDir)\\$(InputName).h\n$(InputDir)\\$(InputName).cpp\n$(InputDir)\\moc_$(InputName).cpp";
 	VERIFY_OK(pConfig->AddCustomBuildStepToFile(CComBSTR(uiFile), command, output, CComBSTR("UICing "+file+"..."), CComVariant(VARIANT_FALSE)));
 	m_pApplication->PrintToOutputWindow( CComBSTR("\t\tadded UIC preprocessor step") );
     }

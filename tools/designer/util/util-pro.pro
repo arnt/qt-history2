@@ -1,16 +1,14 @@
 TEMPLATE	= lib
 CONFIG		+= qt warn_on release
 win32:CONFIG	+= static
-HEADERS	= qdom.h \
-		  qxml.h \
+HEADERS	= ../../../include/qdom.h \
+		  ../../../include/qxml.h \
 		  qprocess.h \
-		  ../../../src/workspace/qworkspace.h \
-		  ../../../src/iconview/qiconview.h
+		  ../../../include/qiconview.h
 SOURCES	= ../../../src/xml/qdom.cpp \
-		  ../../../src/xml/qxml.cpp \
+		   ../../../src/xml/qxml.cpp \
 		   qprocess.cpp \
-		   ../../../src/iconview/qiconview.cpp \
-		   ../../../src/workspace/qworkspace.cpp
+		   ../../../src/iconview/qiconview.cpp
 unix:SOURCES	+= qprocess_unix.cpp
 win32:SOURCES	+= qprocess_win.cpp
 TARGET		= qutil

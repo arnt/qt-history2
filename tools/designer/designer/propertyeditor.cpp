@@ -1,19 +1,24 @@
 /**********************************************************************
-**   Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-**   This file is part of Qt GUI Designer.
+** This file is part of Qt Designer.
 **
-**   This file may be distributed under the terms of the GNU General
-**   Public License version 2 as published by the Free Software
-**   Foundation and appearing in the file COPYING included in the
-**   packaging of this file. If you did not get the file, send email
-**   to info@trolltech.com
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
-**   The file is provided AS IS with NO WARRANTY OF ANY KIND,
-**   INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR
-**   A PARTICULAR PURPOSE.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
 **
 **********************************************************************/
+
+#include <qvariant.h> // HP-UX compiler needs this here
 
 #include "propertyeditor.h"
 #include "pixmapchooser.h"
@@ -120,6 +125,10 @@ PropertyItem::~PropertyItem()
     if ( resetButton )	
 	delete resetButton->parentWidget();
     resetButton = 0;
+}
+
+void PropertyItem::toggle()
+{
 }
 
 void PropertyItem::updateBackColor()
@@ -683,6 +692,13 @@ PropertyBoolItem::~PropertyBoolItem()
 {
     delete comb;
     comb = 0;
+}
+
+void PropertyBoolItem::toggle()
+{
+    bool b = value().toBool();
+    setValue( QVariant( !b, 0 ) );
+    setValue();
 }
 
 void PropertyBoolItem::showEditor()
@@ -2139,9 +2155,11 @@ void PropertyList::toggleOpen( QListViewItem *i )
     if ( !i )
 	return;
     PropertyItem *pi = (PropertyItem*)i;
-    if ( !pi->hasSubItems() )
-	return;
-    pi->setOpen( !pi->isOpen() );
+    if ( pi->hasSubItems() ) {
+	pi->setOpen( !pi->isOpen() );
+    } else {
+	pi->toggle();
+    }
 }
 
 bool PropertyList::eventFilter( QObject *o, QEvent *e )

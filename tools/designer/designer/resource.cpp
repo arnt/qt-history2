@@ -1,17 +1,20 @@
 /**********************************************************************
-**   Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-**   This file is part of Qt GUI Designer.
+** This file is part of Qt Designer.
 **
-**   This file may be distributed under the terms of the GNU General
-**   Public License version 2 as published by the Free Software
-**   Foundation and appearing in the file COPYING included in the
-**   packaging of this file. If you did not get the file, send email
-**   to info@trolltech.com
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
-**   The file is provided AS IS with NO WARRANTY OF ANY KIND,
-**   INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR
-**   A PARTICULAR PURPOSE.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
 **
 **********************************************************************/
 
@@ -164,6 +167,8 @@ bool Resource::load( QIODevice* dev )
 	    metaIncludes.append( inc );
 	} else if ( firstWidget.tagName() == "comment" ) {
 	    metaInfo.comment = firstWidget.firstChild().toText().data();
+	} else if ( firstWidget.tagName() == "forward" ) {
+	    metaForwards << firstWidget.firstChild().toText().data();
 	} else if ( firstWidget.tagName() == "author" ) {
 	    metaInfo.author = firstWidget.firstChild().toText().data();
 	} else if ( firstWidget.tagName() == "class" ) {
@@ -208,6 +213,7 @@ bool Resource::load( QIODevice* dev )
 
     if ( formwindow ) {
 	MetaDataBase::setIncludes( formwindow, metaIncludes );
+	MetaDataBase::setForwards( formwindow, metaForwards );
 	metaInfo.classNameChanged = metaInfo.className != QString( formwindow->name() );
 	MetaDataBase::setMetaInfo( formwindow, metaInfo );
     }
@@ -1341,7 +1347,12 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
     }	
 
     if ( !previewMode && prop == "caption" ) {
-	formwindow->setCaption( v.toCString() );
+	QCString s1 = v.toCString();
+	QString s2 = v.toString();
+	if ( !s1.isEmpty() )
+	    formwindow->setCaption( s1 );
+	else if ( !s2.isEmpty() )
+	    formwindow->setCaption( s2 );
     }
     if ( !previewMode && prop == "icon" ) {
 	formwindow->setIcon( v.toPixmap() );
@@ -1806,6 +1817,9 @@ void Resource::saveMetaInfo( QTextStream &ts, int indent )
     QValueList<MetaDataBase::Include> includes = MetaDataBase::includes( formwindow );
     for ( QValueList<MetaDataBase::Include>::Iterator it = includes.begin(); it != includes.end(); ++it )
 	ts << makeIndent( indent ) << "<include location=\"" << (*it).location << "\">" << (*it).header << "</include>" << endl;
+    QStringList forwards = MetaDataBase::forwards( formwindow );
+    for ( QStringList::Iterator it2 = forwards.begin(); it2 != forwards.end(); ++it2 )
+	ts << makeIndent( indent ) << "<forward>" << *it2 << "</forward>" << endl;
     if ( formwindow && !formwindow->savePixmapInline() )
 	ts << makeIndent( indent ) << "<pixmapfunction>" << formwindow->pixmapLoaderFunction() << "</pixmapfunction>" << endl;
 }

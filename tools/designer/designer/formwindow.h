@@ -1,17 +1,20 @@
 /**********************************************************************
-**   Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-**   This file is part of Qt GUI Designer.
+** This file is part of Qt Designer.
 **
-**   This file may be distributed under the terms of the GNU General
-**   Public License version 2 as published by the Free Software
-**   Foundation and appearing in the file COPYING included in the
-**   packaging of this file. If you did not get the file, send email
-**   to info@trolltech.com
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
-**   The file is provided AS IS with NO WARRANTY OF ANY KIND,
-**   INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR
-**   A PARTICULAR PURPOSE.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
 **
 **********************************************************************/
 
@@ -92,6 +95,7 @@ public:
     virtual void selectAll();
     virtual void updateSelection( QWidget *w );
     virtual void raiseSelection( QWidget *w );
+    virtual void repaintSelection( QWidget *w );
     virtual void clearSelection( bool changePropertyDisplay = TRUE );
     virtual void selectWidgets();
     bool isWidgetSelected( QWidget *w );
@@ -214,7 +218,7 @@ private slots:
     virtual void selectionChangedTimerDone();
     virtual void modificationChanged( bool m );
     virtual void windowsRepaintWorkaroundTimerTimeout();
-    
+
 private:
     int currTool;
     bool oldRectValid, widgetPressed, drawRubber, checkedSelectionsForMove;

@@ -1,20 +1,28 @@
 /**********************************************************************
-**   Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-**   This file is part of Qt GUI Designer.
+** This file is part of Qt Designer.
 **
-**   This file may be distributed under the terms of the GNU General
-**   Public License version 2 as published by the Free Software
-**   Foundation and appearing in the file COPYING included in the
-**   packaging of this file. If you did not get the file, send email
-**   to info@trolltech.com
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
-**   The file is provided AS IS with NO WARRANTY OF ANY KIND,
-**   INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR
-**   A PARTICULAR PURPOSE.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
 **
 **********************************************************************/
 
+#include "qapplication.h"
+#include "qlist.h"
+#include "qprocess.h"
+
+//### 3.0: remove -D_BSD from tmake and remove this AIX preprocessor stuff
 #if defined(_OS_AIX_) && defined(_BSD)
 #undef _BSD
 #endif
@@ -24,11 +32,30 @@
 #include <sys/types.h>
 #include <signal.h>
 
-#include "qapplication.h"
-#include "qlist.h"
-#include "qprocess.h"
-
 //#define QPROCESS_DEBUG
+
+#if defined(Q_C_CALLBACKS)
+extern "C" {
+#endif
+
+#if defined(_OS_OSF_)
+static void qt_C_sigchldHnd();
+#else
+static void qt_C_sigchldHnd( int );
+#endif
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
+
+#if defined(_OS_OSF_)
+void qt_C_sigchldHnd()
+#else
+void qt_C_sigchldHnd( int )
+#endif
+{
+    QProcessPrivate::sigchldHnd();
+}
 
 struct sigaction *QProcessPrivate::oldact;
 QList<QProcess> *QProcessPrivate::proclist = 0;
@@ -60,7 +87,7 @@ QProcessPrivate::QProcessPrivate( QProcess *proc ) : d( proc )
 	proclist = new QList<QProcess>;
 
 	struct sigaction act;
-	act.sa_handler = sigchldHnd;
+	act.sa_handler = qt_C_sigchldHnd;
 	sigemptyset( &(act.sa_mask) );
 	sigaddset( &(act.sa_mask), SIGCHLD );
 	act.sa_flags = SA_NOCLDSTOP;
@@ -110,11 +137,7 @@ QProcessPrivate::~QProcessPrivate()
 	::close( socketStderr[0] );
 }
 
-#if defined(_OS_OSF_)
 void QProcessPrivate::sigchldHnd()
-#else
-void QProcessPrivate::sigchldHnd( int )
-#endif
 {
     if ( !proclist )
 	return;

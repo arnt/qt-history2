@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>437</width>
-            <height>253</height>
+            <height>255</height>
         </rect>
     </property>
     <property stdset="1">
@@ -93,7 +93,7 @@
                     <class>QPushButton</class>
                     <property stdset="1">
                         <name>name</name>
-                        <cstring>buttonHelp</cstring>
+                        <cstring>helpButton</cstring>
                     </property>
                     <property stdset="1">
                         <name>text</name>
@@ -201,7 +201,7 @@
 </connections>
 <tabstops>
     <tabstop>templateView</tabstop>
-    <tabstop>buttonHelp</tabstop>
+    <tabstop>helpButton</tabstop>
     <tabstop>buttonOk</tabstop>
     <tabstop>buttonCancel</tabstop>
 </tabstops>

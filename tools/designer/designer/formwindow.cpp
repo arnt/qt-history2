@@ -1,17 +1,20 @@
 /**********************************************************************
-**   Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-**   This file is part of Qt GUI Designer.
+** This file is part of Qt Designer.
 **
-**   This file may be distributed under the terms of the GNU General
-**   Public License version 2 as published by the Free Software
-**   Foundation and appearing in the file COPYING included in the
-**   packaging of this file. If you did not get the file, send email
-**   to info@trolltech.com
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
-**   The file is provided AS IS with NO WARRANTY OF ANY KIND,
-**   INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR
-**   A PARTICULAR PURPOSE.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
 **
 **********************************************************************/
 
@@ -487,7 +490,9 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 		drawRubber = TRUE;
 		if ( !( ( e->state() && ControlButton ) || ( e->state() & ShiftButton ) ) ) {
 		    clearSelection( FALSE );
+		    QWidget *opw = propertyWidget;
 		    propertyWidget = mainContainer();
+		    repaintSelection( opw );
 		}
 		currRect = QRect( 0, 0, -1, -1 );
 		startRectDraw( mapFromGlobal( e->globalPos() ), e->globalPos(), this, Rubber );
@@ -898,13 +903,17 @@ void FormWindow::handleKeyRelease( QKeyEvent *e, QWidget * )
 void FormWindow::selectWidget( QWidget *w, bool select )
 {
     if ( isMainContainer( w ) ) {
+	QWidget *opw = propertyWidget;
 	propertyWidget = mainContainer();
+	repaintSelection( opw );
 	emitShowProperties( propertyWidget );
 	return;
     }
 
     if ( select ) {
+	QWidget *opw = propertyWidget;
 	propertyWidget = w;
+	repaintSelection( opw );
 	if ( !isPropertyShowingBlocked() )
 	    emitShowProperties( propertyWidget );
 	WidgetSelection *s = usedSelections.find( w );
@@ -930,10 +939,12 @@ void FormWindow::selectWidget( QWidget *w, bool select )
 	WidgetSelection *s = usedSelections.find( w );
 	if ( s )
 	    s->setWidget( 0 );
+	QWidget *opw = propertyWidget;
 	if ( !usedSelections.isEmpty() )
 	    propertyWidget = QPtrDictIterator<WidgetSelection>( usedSelections ).current()->widget();
 	else
 	    propertyWidget = mainContainer();
+	repaintSelection( opw );
 	if ( !isPropertyShowingBlocked() )
 	    emitShowProperties( propertyWidget );
 	emitSelectionChanged();
@@ -963,6 +974,13 @@ void FormWindow::raiseSelection( QWidget *w )
 	s->show();
 }
 
+void FormWindow::repaintSelection( QWidget *w )
+{
+    WidgetSelection *s = usedSelections.find( w );
+    if ( s )
+	s->update();
+}
+
 void FormWindow::clearSelection( bool changePropertyDisplay )
 {
     QPtrDictIterator<WidgetSelection> it( usedSelections );
@@ -971,7 +989,9 @@ void FormWindow::clearSelection( bool changePropertyDisplay )
 
     usedSelections.clear();
     if ( changePropertyDisplay ) {
+	QWidget *opw = propertyWidget;
 	propertyWidget = mainContainer();
+	repaintSelection( opw );
 	emitShowProperties( propertyWidget );
     }
     emitSelectionChanged();
@@ -1253,8 +1273,11 @@ void FormWindow::focusInEvent( QFocusEvent * )
 
 void FormWindow::focusOutEvent( QFocusEvent * )
 {
-    if ( propertyWidget && !isMainContainer( propertyWidget ) && !isWidgetSelected( propertyWidget ) )
+    if ( propertyWidget && !isMainContainer( propertyWidget ) && !isWidgetSelected( propertyWidget ) ) {
+	QWidget *opw = propertyWidget;
 	propertyWidget = mainContainer();
+	repaintSelection( opw );
+    }
 }
 
 void FormWindow::resizeEvent( QResizeEvent *e )
@@ -1297,8 +1320,11 @@ QWidget *FormWindow::designerWidget( QObject *o ) const
 
 void FormWindow::emitShowProperties( QWidget *w )
 {
-    if ( w )
+    if ( w ) {
+	QWidget *opw = propertyWidget;
 	propertyWidget = w;
+	repaintSelection( opw );
+    }
     showPropertiesTimer->stop();
     showPropertiesTimer->start( 0, TRUE );
 }
@@ -2114,8 +2140,11 @@ void FormWindow::setMainContainer( QWidget *w )
     delete layout();
     QHBoxLayout *l = new QHBoxLayout( this );
     l->addWidget( w );
-    if ( resetPropertyWidget )
+    if ( resetPropertyWidget ) {
+	QWidget *opw = propertyWidget;
 	propertyWidget = mContainer;
+	repaintSelection( opw );
+    }
 }
 
 bool FormWindow::savePixmapInline() const

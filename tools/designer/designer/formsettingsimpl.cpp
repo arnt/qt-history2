@@ -1,17 +1,20 @@
 /**********************************************************************
-**   Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-**   This file is part of Qt GUI Designer.
+** This file is part of Qt Designer.
 **
-**   This file may be distributed under the terms of the GNU General
-**   Public License version 2 as published by the Free Software
-**   Foundation and appearing in the file COPYING included in the
-**   packaging of this file. If you did not get the file, send email
-**   to info@trolltech.com
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
-**   The file is provided AS IS with NO WARRANTY OF ANY KIND,
-**   INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR
-**   A PARTICULAR PURPOSE.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
 **
 **********************************************************************/
 
@@ -20,6 +23,7 @@
 #include "metadatabase.h"
 #include "command.h"
 #include "asciivalidator.h"
+#include "mainwindow.h"
 
 #include <qmultilineedit.h>
 #include <qpushbutton.h>
@@ -29,6 +33,7 @@
 FormSettings::FormSettings( QWidget *parent, FormWindow *fw )
     : FormSettingsBase( parent, 0, TRUE ), formwindow( fw )
 {
+    connect( buttonHelp, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
     MetaDataBase::MetaInfo info = MetaDataBase::metaInfo( fw );
     if ( info.classNameChanged && !info.className.isEmpty() )
 	editClassName->setText( info.className );
@@ -44,11 +49,21 @@ FormSettings::FormSettings( QWidget *parent, FormWindow *fw )
 	item->setText( 1, (*it).location );
     }
 
+    QStringList forwards = MetaDataBase::forwards( fw );
+    for ( QStringList::Iterator it2 = forwards.begin(); it2 != forwards.end(); ++it2 ) {
+	QListViewItem *item = new QListViewItem( listForwards );
+	item->setText( 0, *it2 );
+    }
+
     buttonRemove->setEnabled( FALSE );
+    buttonRemoveForward->setEnabled( FALSE );
     editInclude->setEnabled( FALSE );
+    editForward->setEnabled( FALSE );
     comboLocation->setEnabled( FALSE );
     listIncludes->setCurrentItem( listIncludes->firstChild() );
     listIncludes->setSelected( listIncludes->firstChild(), TRUE );
+    listForwards->setCurrentItem( listForwards->firstChild() );
+    listForwards->setSelected( listForwards->firstChild(), TRUE );
     editClassName->setValidator( new AsciiValidator( editClassName ) );
     editPixmapFunction->setValidator( new AsciiValidator( QString( ":" ), editClassName ) );
 
@@ -77,6 +92,18 @@ void FormSettings::okClicked()
 	includes.append( inc );
     }
     MetaDataBase::setIncludes( formwindow, includes );
+
+    QListViewItemIterator it2( listForwards );
+    QStringList forwards;
+    for ( ; it2.current(); ++it2 ) {
+	QString s = it2.current()->text( 0 );
+	s = s.stripWhiteSpace();
+	if ( s[ (int)s.length() - 1 ] != ';' )
+	    s += ";";
+	forwards << s;
+    }
+    MetaDataBase::setForwards( formwindow, forwards );
+
     formwindow->commandHistory()->setModified( TRUE );
 
     if ( formwindow->savePixmapInline() != radioPixmapInline->isChecked() )
@@ -149,4 +176,52 @@ void FormSettings::currentIncludeChanged( QListViewItem *i )
     comboLocation->blockSignals( TRUE );
     comboLocation->setCurrentItem( i->text( 1 ) == tr( "global" ) ? 0 : 1 );
     comboLocation->blockSignals( FALSE );
+}
+
+void FormSettings::addForward()
+{
+    QListViewItem *item = new QListViewItem( listForwards );
+    item->setText( 0, "class MyClass;" );
+    listForwards->setCurrentItem( item );
+    listForwards->setSelected( item, TRUE );
+}
+
+void FormSettings::removeForward()
+{
+    QListViewItem *i = listForwards->currentItem();
+    if ( !i )
+	return;
+
+    delete i;
+    if ( listForwards->firstChild() ) {
+	listForwards->setCurrentItem( listForwards->firstChild() );
+	listForwards->setSelected( listForwards->firstChild(), TRUE );
+    }
+}
+
+void FormSettings::forwardNameChanged( const QString &txt )
+{
+    QListViewItem *i = listForwards->currentItem();
+    if ( !i )
+	return;
+    i->setText( 0, txt );
+}
+
+void FormSettings::currentForwardChanged( QListViewItem *i )
+{
+    if ( !i ) {
+	buttonRemoveForward->setEnabled( FALSE );
+	editForward->setEnabled( FALSE );
+	editForward->blockSignals( TRUE );
+	editForward->setText( "" );
+	editForward->blockSignals( FALSE );
+	return;
+    }
+
+    buttonRemoveForward->setEnabled( TRUE );
+    editForward->setEnabled( TRUE );
+
+    editForward->blockSignals( TRUE );
+    editForward->setText( i->text( 0 ) );
+    editForward->blockSignals( FALSE );
 }

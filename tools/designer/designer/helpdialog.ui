@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>504</width>
-            <height>411</height>
+            <height>415</height>
         </rect>
     </property>
     <property stdset="1">
@@ -130,7 +130,7 @@
                         </property>
                         <property stdset="1">
                             <name>text</name>
-                            <string>&amp;Look for:</string>
+                            <string>&amp;Look For:</string>
                         </property>
                         <property>
                             <name>buddy</name>
@@ -258,7 +258,7 @@
             <class>QLayoutWidget</class>
             <property stdset="1">
                 <name>name</name>
-                <cstring>Layout4</cstring>
+                <cstring>Layout18</cstring>
             </property>
             <hbox>
                 <property stdset="1">
@@ -269,6 +269,21 @@
                     <name>spacing</name>
                     <number>6</number>
                 </property>
+                <widget>
+                    <class>QPushButton</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>buttonHelp</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string>&amp;Help</string>
+                    </property>
+                    <property stdset="1">
+                        <name>autoDefault</name>
+                        <bool>true</bool>
+                    </property>
+                </widget>
                 <spacer>
                     <property>
                         <name>name</name>
@@ -277,9 +292,9 @@
                     <property stdset="1">
                         <name>geometry</name>
                         <rect>
-                            <x>1</x>
+                            <x>87</x>
                             <y>5</y>
-                            <width>308</width>
+                            <width>222</width>
                             <height>20</height>
                         </rect>
                     </property>

@@ -1,17 +1,20 @@
 /**********************************************************************
-**   Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-**   This file is part of Qt GUI Designer.
+** This file is part of Qt Designer.
 **
-**   This file may be distributed under the terms of the GNU General
-**   Public License version 2 as published by the Free Software
-**   Foundation and appearing in the file COPYING included in the
-**   packaging of this file. If you did not get the file, send email
-**   to info@trolltech.com
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
-**   The file is provided AS IS with NO WARRANTY OF ANY KIND,
-**   INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR
-**   A PARTICULAR PURPOSE.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
 **
 **********************************************************************/
 
@@ -22,6 +25,7 @@
 #include <qlistview.h>
 #include <qvariant.h>
 #include <qlist.h>
+#include <qguardedptr.h>
 
 class PropertyList;
 class PropertyEditor;
@@ -90,7 +94,9 @@ public:
     virtual QString currentItemFromObject() const;
 
     void setFocus( QWidget *w );
-    
+
+    virtual void toggle();
+
 protected:
     PropertyList *listview;
     QVariant val;
@@ -138,8 +144,8 @@ private slots:
 
 private:
     QLineEdit *lined();
-    QLineEdit *lin;
-    QHBox *box;
+    QGuardedPtr<QLineEdit> lin;
+    QGuardedPtr<QHBox> box;
     QPushButton *button;
     bool withComment, hasMultiLines, asciiOnly, accel;
 
@@ -158,13 +164,14 @@ public:
     virtual void hideEditor();
 
     virtual void setValue( const QVariant &v );
+    virtual void toggle();
 
 private slots:
     void setValue();
 
 private:
     QComboBox *combo();
-    QComboBox *comb;
+    QGuardedPtr<QComboBox> comb;
 
 };
 
@@ -188,7 +195,7 @@ private slots:
 
 private:
     QSpinBox *spinBox();
-    QSpinBox *spinBx;
+    QGuardedPtr<QSpinBox> spinBx;
     bool signedValue;
 
 };
@@ -220,7 +227,7 @@ private slots:
 
 private:
     QComboBox *combo();
-    QComboBox *comb;
+    QGuardedPtr<QComboBox> comb;
     int oldInt;
     bool editable;
     QString oldString;
@@ -250,9 +257,9 @@ private slots:
     void getFont();
 
 private:
-    QLineEdit *lined;
-    QPushButton *button;
-    QHBox *box;
+    QGuardedPtr<QLineEdit> lined;
+    QGuardedPtr<QPushButton> button;
+    QGuardedPtr<QHBox> box;
 
 };
 
@@ -280,7 +287,7 @@ public:
 
 private:
     QLineEdit *lined();
-    QLineEdit *lin;
+    QGuardedPtr<QLineEdit> lin;
     Type typ;
 
 };
@@ -312,9 +319,9 @@ private slots:
     void getColor();
 
 private:
-    QHBox *box;
-    QFrame *colorPrev;
-    QPushButton *button;
+    QGuardedPtr<QHBox> box;
+    QGuardedPtr<QFrame> colorPrev;
+    QGuardedPtr<QPushButton> button;
     bool withChildren;
 
 };
@@ -341,8 +348,8 @@ private slots:
     void getPixmap();
 
 private:
-    QHBox *box;
-    QLabel *pixPrev;
+    QGuardedPtr<QHBox> box;
+    QGuardedPtr<QLabel> pixPrev;
     QPushButton *button;
 
 };
@@ -370,7 +377,7 @@ public:
 
 private:
     QLineEdit *lined();
-    QLineEdit *lin;
+    QGuardedPtr<QLineEdit> lin;
 
 };
 
@@ -396,9 +403,9 @@ private slots:
     void getPalette();
 
 private:
-    QHBox *box;
-    QLabel *palettePrev;
-    QPushButton *button;
+    QGuardedPtr<QHBox> box;
+    QGuardedPtr<QLabel> palettePrev;
+    QGuardedPtr<QPushButton> button;
 
 };
 
@@ -422,7 +429,7 @@ private slots:
 
 private:
     QComboBox *combo();
-    QComboBox *comb;
+    QGuardedPtr<QComboBox> comb;
 
 };
 
@@ -490,7 +497,7 @@ public:
     QMetaObject* metaObjectOfCurrentProperty() const;
 
     void resetFocus();
-    
+
 signals:
     void hidden();
 

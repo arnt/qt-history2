@@ -1,17 +1,20 @@
 /**********************************************************************
-**   Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-**   This file is part of Qt GUI Designer.
+** This file is part of Qt Designer.
 **
-**   This file may be distributed under the terms of the GNU General
-**   Public License version 2 as published by the Free Software
-**   Foundation and appearing in the file COPYING included in the
-**   packaging of this file. If you did not get the file, send email
-**   to info@trolltech.com
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
-**   The file is provided AS IS with NO WARRANTY OF ANY KIND,
-**   INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR
-**   A PARTICULAR PURPOSE.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
 **
 **********************************************************************/
 
@@ -162,6 +165,12 @@ static void exitHandler( int )
     exit( -1 );
 }
 
+static void crashHandler( int )
+{
+    MainWindow::self->saveAllTemp();
+    ::exit( -1 ); 
+}
+
 #if defined(Q_C_CALLBACKS)
 }
 #endif
@@ -170,6 +179,10 @@ static void exitHandler( int )
 
 int main( int argc, char *argv[] )
 {
+    signal( SIGSEGV, crashHandler );
+
+    QApplication::setColorSpec( QApplication::ManyColor );
+	
 #if defined(HAVE_KDE)
     QDesignerApplication a( argc, argv, "Qt Designer" );
 #else
@@ -237,7 +250,7 @@ int main( int argc, char *argv[] )
 	config.setGroup( "General" );
 	showSplash = config.readBoolEntry( "SplashScreen", TRUE );
     }
-	
+
     QLabel *splash = 0;
     if ( showSplash ) {
 	splash = new QLabel( 0, "splash", Qt::WDestructiveClose | Qt::WStyle_Customize | Qt::WStyle_NoBorder );
@@ -252,7 +265,7 @@ int main( int argc, char *argv[] )
     }
 
     MainWindow *mw = new MainWindow( creatPid );
-    mw->setCaption( "Qt GUI Designer by Trolltech" );
+    mw->setCaption( "Qt Designer by Trolltech" );
 
     mw->show();
 #if defined(_WS_X11_)

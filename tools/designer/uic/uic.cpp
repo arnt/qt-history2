@@ -1,24 +1,26 @@
 /**********************************************************************
-**   Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-**   This file is part of Qt GUI Designer.
+** This file is part of Qt Designer.
 **
-**   This file may be distributed under the terms of the GNU General
-**   Public License version 2 as published by the Free Software
-**   Foundation and appearing in the file COPYING included in the
-**   packaging of this file. If you did not get the file, send email
-**   to info@trolltech.com
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
-**   The file is provided AS IS with NO WARRANTY OF ANY KIND,
-**   INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR
-**   A PARTICULAR PURPOSE.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
 **
 **********************************************************************/
 
 #include "uic.h"
 #include <qapplication.h>
 #include <qfile.h>
-#include <qfileinfo.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <qstringlist.h>
@@ -189,6 +191,7 @@ void Uic::createFormDecl( const QDomElement &e )
 
     // at first the images, we need to ensure the names are unique
     QStringList forwardDecl;
+    QStringList forwardDecl2;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "images" ) {
 	    nl = n.elementsByTagName( "image" );
@@ -279,13 +282,22 @@ void Uic::createFormDecl( const QDomElement &e )
 
     nl = e.parentNode().toElement().elementsByTagName( "forward" );
     for ( i = 0; i < (int) nl.length(); i++ )
-	forwardDecl +=nl.item(i).toElement().firstChild().toText().data();
+	forwardDecl2 << nl.item(i).toElement().firstChild().toText().data();
 
     forwardDecl = unique( forwardDecl );
     for ( it = forwardDecl.begin(); it != forwardDecl.end(); ++it ) {
 	if ( !(*it).isEmpty() && (*it) != objClass )
 	    out << "class " << *it << ";" << endl;
     }
+
+    for ( it = forwardDecl2.begin(); it != forwardDecl2.end(); ++it ) {
+	QString fd = *it;
+	fd = fd.stripWhiteSpace();
+	if ( fd[ (int)fd.length() - 1 ] != ';' )
+	    fd += ";";
+	out << fd << endl;
+    }
+
     out << endl;
     out << "class " << nameOfClass << " : public " << objClass << endl;
     out << "{ " << endl;
@@ -1987,8 +1999,7 @@ int main( int argc, char * argv[] )
     }
 
     if ( headerFile ) {
-        QFileInfo fi( headerFile );
-        out << "#include \"" << fi.fileName() << "\"" << endl << endl;
+        out << "#include \"" << headerFile << "\"" << endl << endl;
     }
 
     Uic( out, doc, !impl, subcl, trmacro ? trmacro : "tr", className );

@@ -189,23 +189,6 @@ SOURCE=.\qmsdev.h
 
 SOURCE=.\ReadMe.txt
 
-!IF  "$(CFG)" == "QMsDev - Win32 Release"
-
-# PROP Ignore_Default_Tool 1
-# Begin Custom Build - MOCing ReadMe.txt...
-InputPath=.\ReadMe.txt
-
-"C:\home\vohi\qt\designer\main\integration\QMsDev\moc_ReadMe.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	%qtdir%\bin\moc.exe C:\home\vohi\qt\designer\main\integration\QMsDev\ReadMe.txt -o C:\home\vohi\qt\designer\main\integration\QMsDev\moc_ReadMe.cpp
-
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "QMsDev - Win32 Debug"
-
-# PROP Ignore_Default_Tool 1
-
-!ENDIF 
-
 # End Source File
 # End Target
 # End Project

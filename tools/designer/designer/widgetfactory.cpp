@@ -1,17 +1,20 @@
 /**********************************************************************
-**   Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-**   This file is part of Qt GUI Designer.
+** This file is part of Qt Designer.
 **
-**   This file may be distributed under the terms of the GNU General
-**   Public License version 2 as published by the Free Software
-**   Foundation and appearing in the file COPYING included in the
-**   packaging of this file. If you did not get the file, send email
-**   to info@trolltech.com
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
-**   The file is provided AS IS with NO WARRANTY OF ANY KIND,
-**   INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR
-**   A PARTICULAR PURPOSE.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
 **
 **********************************************************************/
 
@@ -29,6 +32,8 @@
 #include "multilineeditorimpl.h"
 #include "../integration/kdevelop/kdewidgets.h"
 
+#include <qmodules.h>
+
 #include <qpixmap.h>
 #include <qpushbutton.h>
 #include <qcheckbox.h>
@@ -36,7 +41,9 @@
 #include <qgroupbox.h>
 #include <qbuttongroup.h>
 #include <qiconview.h>
+#if defined(QT_MODULE_TABLE)
 #include <qtable.h>
+#endif
 #include <qlineedit.h>
 #include <qspinbox.h>
 #include <qmultilineedit.h>
@@ -62,7 +69,6 @@
 #include <qvaluelist.h>
 
 #include <globaldefs.h>
-#include <qmodules.h>
 
 
 void QLayoutWidget::paintEvent( QPaintEvent* )
@@ -501,6 +507,7 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	    FormWindow *fw = find_formwindow( parent );
 	    QWidget *w = fw ? new QDesignerWidget( fw, tw, 0 ) : new QWidget( tw );
 	    tw->addTab( w, MainWindow::tr("Tab 1") );
+	    w = fw ? new QDesignerWidget( fw, tw, 0 ) : new QWidget( tw );
 	    MetaDataBase::addEntry( tw );
 	    tw->addTab( w, MainWindow::tr("Tab 2") );
 	    MetaDataBase::addEntry( tw );

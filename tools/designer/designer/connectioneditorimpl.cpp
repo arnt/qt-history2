@@ -1,17 +1,20 @@
 /**********************************************************************
-**   Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-**   This file is part of Qt GUI Designer.
+** This file is part of Qt Designer.
 **
-**   This file may be distributed under the terms of the GNU General
-**   Public License version 2 as published by the Free Software
-**   Foundation and appearing in the file COPYING included in the
-**   packaging of this file. If you did not get the file, send email
-**   to info@trolltech.com
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
-**   The file is provided AS IS with NO WARRANTY OF ANY KIND,
-**   INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR
-**   A PARTICULAR PURPOSE.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
 **
 **********************************************************************/
 
@@ -21,6 +24,7 @@
 #include "command.h"
 #include "widgetfactory.h"
 #include "editslotsimpl.h"
+#include "mainwindow.h"
 
 #include <qmetaobject.h>
 #include <qlistbox.h>
@@ -69,15 +73,16 @@ static const char* const ignore_slots[] = {
     0
 };
 
-ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sender, QObject* receiver, FormWindow *fw )
+ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcvr, FormWindow *fw )
     : ConnectionEditorBase( parent, 0, TRUE ), formWindow( fw )
 {
-    if ( receiver == formWindow )
-	receiver = formWindow->mainContainer();
-    if ( sender == formWindow )
-	sender = formWindow->mainContainer();
-    this->sender = sender;
-    this->receiver = receiver;
+    connect( helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
+    if ( rcvr == formWindow )
+	rcvr = formWindow->mainContainer();
+    if ( sndr == formWindow )
+	sndr = formWindow->mainContainer();
+    sender = sndr;
+    receiver = rcvr;
 
     QStrList sigs = sender->metaObject()->signalNames( TRUE );
     sigs.remove( "destroyed()" );
@@ -125,6 +130,7 @@ ConnectionEditor::~ConnectionEditor()
 void ConnectionEditor::signalChanged()
 {
     QCString signal = signalBox->currentText().latin1();
+    signal = normalizeSignalSlot( signal.data() );
     slotBox->clear();
     if ( signalBox->currentText().isEmpty() )
 	return;

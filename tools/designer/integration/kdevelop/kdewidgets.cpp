@@ -1,23 +1,27 @@
 /**********************************************************************
-**   Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-**   This file is part of Qt GUI Designer.
+** This file is part of Qt GUI Designer.
 **
-**   This file may be distributed under the terms of the GNU General
-**   Public License version 2 as published by the Free Software
-**   Foundation and appearing in the file COPYING included in the
-**   packaging of this file. If you did not get the file, send email
-**   to info@trolltech.com
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
-**   The file is provided AS IS with NO WARRANTY OF ANY KIND,
-**   INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR
-**   A PARTICULAR PURPOSE.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
 **
 **********************************************************************/
 
 #include "kdewidgets.h"
 
 #if defined(HAVE_KDE)
+#include <kcharselect.h>
 #include <kcolorbutton.h>
 #include <kcombobox.h>
 #include <kdatepik.h>
@@ -44,6 +48,16 @@ void qt_init_kde_widget_database()
     WidgetDatabase::widgetGroup( "KDE" );
 
     WidgetDatabaseRecord *r = new WidgetDatabaseRecord;
+    r->iconSet = "table.xpm";
+    r->name = "KCharSelect";
+    r->group = "KDE";
+    r->toolTip = "Character Selector";
+    r->whatsThis = "Character Selector";
+    r->includeFile = "kcharselect.h";
+    r->isContainer = FALSE;
+    WidgetDatabase::append( r );
+
+    r = new WidgetDatabaseRecord;
     r->iconSet = "pushbutton.xpm";
     r->name = "KColorButton";
     r->group = "KDE";
@@ -210,6 +224,8 @@ QWidget *qt_create_kde_widget( const QString &className, QWidget *parent, const 
 #if defined(HAVE_KDE)
     if ( className == "KColorButton" ) {
 	return new KColorButton( parent, name );
+    } else if ( className == "KCharSelect" ) {
+	return new KCharSelect( parent, name );
     } else if ( className == "KComboBox" ) {
 	return new KComboBox( parent, name );
     } else if ( className == "KDatePicker" ) {
