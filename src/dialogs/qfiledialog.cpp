@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#132 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#133 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1551,7 +1551,7 @@ bool QFileDialog::trySetSelection( const QFileInfo& info, bool updatelined )
 	if ( d->currentFileName.isNull() && info.isDir() )
 	    okB->setText(tr("Open"));
 	else
-	    okB->setText(tr("OK")); // ### Or "Save"...
+	    okB->setText( mode() == AnyFile ? tr("Save") : tr("OK"));
     } else {
 	okB->setEnabled( FALSE );
     }	
