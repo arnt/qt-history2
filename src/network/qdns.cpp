@@ -2285,6 +2285,33 @@ static QString getWindowsRegString( HKEY key, const char *subKey )
     return s;
 }
 
+static bool getDnsParamsFromRegistry( const char *path,
+	QString *domainName, QString *nameServer, QString *searchList )
+{
+    HKEY k;
+#ifdef Q_OS_TEMP
+    int r = RegOpenKeyEx( HKEY_LOCAL_MACHINE,
+	    (LPCTSTR)qt_winTchar(path,TRUE),
+	    0, KEY_READ, &k );
+#else
+    int r = RegOpenKeyExA( HKEY_LOCAL_MACHINE,
+	    path,
+	    0, KEY_READ, &k );
+#endif
+    if ( r == ERROR_SUCCESS ) {
+	*domainName = getWindowsRegString( k, "DhcpDomain" );
+	if ( domainName->isEmpty() )
+	    *domainName = getWindowsRegString( k, "Domain" );
+
+	*nameServer = getWindowsRegString( k, "DhcpNameServer" );
+	if ( nameServer->isEmpty() )
+	    *nameServer = getWindowsRegString( k, "NameServer" );
+
+	*searchList = getWindowsRegString( k, "SearchList" );
+    }
+    RegCloseKey( k );
+    return r == ERROR_SUCCESS;
+}
 
 static void doResInit()
 {
@@ -2298,7 +2325,6 @@ static void doResInit()
     domains->setAutoDelete( TRUE );
 
     QString domainName, nameServer, searchList;
-    HKEY k1, k2;
 
     bool gotNetworkParams = FALSE;
     // try the API call GetNetworkParams() first and use registry lookup only
@@ -2341,51 +2367,25 @@ static void doResInit()
 	FreeLibrary( hinstLib );
     }
     if ( !gotNetworkParams ) {
-#ifdef Q_OS_TEMP
-	int r = RegOpenKeyEx( HKEY_LOCAL_MACHINE,
-			       L"System\\CurrentControlSet\\Services\\Tcpip\\"
-			       L"Parameters",
-			       0, KEY_READ, &k1 );
-#else
-	// this is for NT
-	int r = RegOpenKeyExA( HKEY_LOCAL_MACHINE,
-			       "System\\CurrentControlSet\\Services\\Tcpip\\"
-			       "Parameters",
-			       0, KEY_READ, &k1 );
-#endif
-	if ( r == ERROR_SUCCESS ) {
-	    domainName = getWindowsRegString( k1, "Domain" );
-	    nameServer = getWindowsRegString( k1, "NameServer" );
-	    searchList = getWindowsRegString( k1, "SearchList" );
+	if ( getDnsParamsFromRegistry(
+		    "System\\CurrentControlSet\\Services\\Tcpip\\"
+		    "Parameters",
+		    &domainName, &nameServer, &searchList )) {
+	    // for NT
 	    separator = ' ';
+	} else if ( getDnsParamsFromRegistry( 
+		    "System\\CurrentControlSet\\Services\\VxD\\"
+		    "MSTCP",
+		    &domainName, &nameServer, &searchList )) {
+	    // for 95/98
+	    separator = ',';
 	} else {
-#ifdef Q_OS_TEMP
-	    int r = RegOpenKeyEx( HKEY_LOCAL_MACHINE,
-				   L"System\\CurrentControlSet\\Services\\VxD\\"
-				   L"MSTCP",
-				   0, KEY_READ, &k2 );
-#else
-	    // this is for 95/98
-	    int r = RegOpenKeyExA( HKEY_LOCAL_MACHINE,
-				   "System\\CurrentControlSet\\Services\\VxD\\"
-				   "MSTCP",
-				   0, KEY_READ, &k2 );
-#endif
-	    if ( r == ERROR_SUCCESS ) {
-		domainName = getWindowsRegString( k2, "Domain" );
-		nameServer = getWindowsRegString( k2, "NameServer" );
-		searchList = getWindowsRegString( k2, "SearchList" );
-		separator = ',';
-	    } else {
-		// Could not access the TCP/IP parameters
-		domainName = "";
-		nameServer = "127.0.0.1";
-		searchList = "";
-		separator = ' ';
-	    }
-	    RegCloseKey( k2 );
+	    // Could not access the TCP/IP parameters
+	    domainName = "";
+	    nameServer = "127.0.0.1";
+	    searchList = "";
+	    separator = ' ';
 	}
-	RegCloseKey( k1 );
     }
 
     nameServer = nameServer.simplifyWhiteSpace();
