@@ -1,4 +1,4 @@
-// $Id: application.doc,v 2.1 1999/05/25 00:01:55 agulbra Exp $
+// $Id: application.doc,v 2.2 1999/06/16 20:02:00 agulbra Exp $
 
 /*! \page simple-application.html
 
@@ -194,6 +194,8 @@ displays a success message for two seconds in the status bar.
 \until }
 
 Yes.
+
+<a name="printer"></a>
 
 \line ::print
 \until pageNo
