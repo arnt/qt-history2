@@ -414,12 +414,12 @@ QValidator::State QDoubleValidator::validate( QString & input, int & ) const
 	return Intermediate;
     bool ok = TRUE;
     double entered = input.toDouble( &ok );
+    int nume = input.contains( 'e', FALSE );
     if ( !ok ) {
 	// explicit exponent regexp
-	QRegExp expexpexp( QString::fromLatin1("e-?\\d*$"), FALSE );
+	QRegExp expexpexp( QString::fromLatin1("[Ee][+-]?\\d*$") );
 	int eeePos = expexpexp.search( input );
-	int nume = input.contains( 'e', FALSE );
-	if ( eeePos > 0 && nume < 2 ) {
+	if ( eeePos > 0 && nume == 1 ) {
 	    QString mantissa = input.left( eeePos );
 	    entered = mantissa.toDouble( &ok );
 	    if ( !ok )
@@ -432,8 +432,8 @@ QValidator::State QDoubleValidator::validate( QString & input, int & ) const
     }
 
     int i = input.find( '.' );
-    if ( i >= 0 ) {
-	// has decimal point, now count digits after that
+    if ( i >= 0 && nume == 0 ) {
+	// has decimal point (but no E), now count digits after that
 	i++;
 	int j = i;
 	while( input[j].isDigit() )

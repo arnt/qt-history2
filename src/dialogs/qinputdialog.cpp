@@ -402,38 +402,18 @@ double QInputDialog::getDouble( const QString &caption, const QString &label, do
 				double from, double to, int decimals,
 				bool *ok, QWidget *parent, const char *name )
 {
-    QInputDialog *dlg = new QInputDialog( label, parent, name ? name : "qt_inputdlg_getdbl", TRUE, LineEdit );
+    QInputDialog dlg( label, parent, name ? name : "qt_inputdlg_getdbl", TRUE, LineEdit );
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    dlg->setCaption( caption );
+    dlg.setCaption( caption );
 #endif
-    dlg->lineEdit()->setValidator( new QDoubleValidator( from, to, decimals, dlg->lineEdit() ) );
-    dlg->lineEdit()->setText( QString::number( num ) );
-	dlg->lineEdit()->selectAll();
+    dlg.lineEdit()->setValidator( new QDoubleValidator( from, to, decimals, dlg.lineEdit() ) );
+    dlg.lineEdit()->setText( QString::number( num, 'f', decimals ) );
+    dlg.lineEdit()->selectAll();
 
-    bool ok_ = FALSE;
-    double result;
-    ok_ = dlg->exec() == QDialog::Accepted;
+    bool accepted = ( dlg.exec() == QDialog::Accepted );
     if ( ok )
-	*ok = ok_;
-
-    QString editText = dlg->lineEdit()->text().lower();
-    bool isExp = editText.find('e') != -1;
-    int i = editText.find( '.' );
-
-    if ( i >= 0 ) {
-	// has decimal point, now count digits after that
-	i++;
-	int j = i;
-	while( editText[j].isDigit() || editText[j] == 'e' || editText[j] == '-' || editText[j] == '+' )
-	    j++;
-        if ( !isExp && j - i > decimals ) // if number contains an 'e' e.g. is exponential we don't truncate at all
-            editText.truncate( i + decimals );
-    }
-    result = editText.toDouble();
-
-
-    delete dlg;
-    return result;
+	*ok = accepted;
+    return dlg.lineEdit()->text().toDouble();
 }
 
 /*!
