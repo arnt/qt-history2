@@ -25,6 +25,9 @@
 #endif
 
 #ifndef QT_NO_STL
+# ifdef Q_CC_BOR
+#  include <stl/_string_fwd.h> 
+# else
 namespace std
 {
     template<typename _Alloc>
@@ -38,6 +41,7 @@ namespace std
 
     typedef basic_string<char, char_traits<char>, allocator<char> > string;
 }
+# endif
 #endif
 
 // POSIX defines truncate to truncate64
