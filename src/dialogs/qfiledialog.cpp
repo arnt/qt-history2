@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#304 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#305 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3797,10 +3797,13 @@ void QFileDialog::resortDir()
     QFileDialogPrivate::File *item = 0;
     QFileDialogPrivate::MCItem *item2 = 0;
 
+    QMap< QString, bool > selected;
     QListViewItemIterator it( files );
-    for ( i = 0; it.current(); ++it )
-	items[ i++ ] = ( ( QFileDialogPrivate::File *)it.current() )->info;
-
+    for ( i = 0; it.current(); ++it ) {
+	items[ i ] = ( ( QFileDialogPrivate::File *)it.current() )->info;
+	selected[ items[ i++ ].name() ] = it.current()->isSelected();
+    }
+    
     qsort( items, num, sizeof( QUrlInfo ), cmpInfo );
 
     files->clear();
@@ -3814,6 +3817,12 @@ void QFileDialog::resortDir()
 	    item = new QFileDialogPrivate::File( d, &items[ i ], files );
 	    item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item );
 	    item->i = item2;
+	    if ( selected[ items[ i ].name() ] ) {
+		files->setSelected( item, TRUE );
+		d->moreFiles->setSelected( item2, TRUE );
+		files->setCurrentItem( item );
+		d->moreFiles->setCurrentItem( item2 );
+	    }
 	}
 	for ( i = num - 1; i >= 0; --i ) {
 	    if ( !items[ i ].isDir() )
@@ -3821,6 +3830,12 @@ void QFileDialog::resortDir()
 	    item = new QFileDialogPrivate::File( d, &items[ i ], files );
 	    item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item );
 	    item->i = item2;
+	    if ( selected[ items[ i ].name() ] ) {
+		files->setSelected( item, TRUE );
+		d->moreFiles->setSelected( item2, TRUE );
+		files->setCurrentItem( item );
+		d->moreFiles->setCurrentItem( item2 );
+	    }
 	}
     } else {
 	for ( i = 0; i < num; ++i ) {
@@ -3829,6 +3844,12 @@ void QFileDialog::resortDir()
 	    item = new QFileDialogPrivate::File( d, &items[ i ], files );
 	    item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item );
 	    item->i = item2;
+	    if ( selected[ items[ i ].name() ] ) {
+		files->setSelected( item, TRUE );
+		d->moreFiles->setSelected( item2, TRUE );
+		files->setCurrentItem( item );
+		d->moreFiles->setCurrentItem( item2 );
+	    }
 	}
 	for ( i = 0; i < num; ++i ) {
 	    if ( items[ i ].isDir() )
@@ -3836,6 +3857,12 @@ void QFileDialog::resortDir()
 	    item = new QFileDialogPrivate::File( d, &items[ i ], files );
 	    item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item );
 	    item->i = item2;
+	    if ( selected[ items[ i ].name() ] ) {
+		files->setSelected( item, TRUE );
+		d->moreFiles->setSelected( item2, TRUE );
+		files->setCurrentItem( item );
+		d->moreFiles->setCurrentItem( item2 );
+	    }
 	}
     }
 
