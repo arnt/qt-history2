@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#497 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#498 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -3268,7 +3268,10 @@ void QApplication::setWheelScrollLines( int n )
 #ifdef SPI_SETWHEELSCROLLLINES
     if ( n < 0 )
 	n = 0;
-    SystemParametersInfo( SPI_SETWHEELSCROLLLINES, (uint)n, 0, 0 );
+    if ( qt_winver & WV_NT_based )
+	SystemParametersInfo( SPI_SETWHEELSCROLLLINES, (uint)n, 0, 0 );
+    else
+	SystemParametersInfoA( SPI_SETWHEELSCROLLLINES, (uint)n, 0, 0 );
 #else
     wheel_scroll_lines = n;
 #endif
@@ -3278,7 +3281,10 @@ int QApplication::wheelScrollLines()
 {
 #ifdef SPI_GETWHEELSCROLLLINES
     uint i = 3;
-    SystemParametersInfo( SPI_GETWHEELSCROLLLINES, sizeof( uint ), &i, 0 );
+    if ( qt_winver & WV_NT_based )
+	SystemParametersInfo( SPI_GETWHEELSCROLLLINES, sizeof( uint ), &i, 0 );
+    else
+	SystemParametersInfoA( SPI_GETWHEELSCROLLLINES, sizeof( uint ), &i, 0 );
     if ( i > INT_MAX )
 	i = INT_MAX;
     return i;
