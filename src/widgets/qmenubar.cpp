@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#100 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#101 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#100 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#101 $");
 
 
 /*!
@@ -418,7 +418,7 @@ void QMenuBar::openActPopup()
 	return;
     setWindowsAltMode( FALSE, actItem );
     QPopupMenu *popup = mitems->at(actItem)->popup();
-    if ( !popup )
+    if ( !popup || !popup->isEnabled() )
 	return;
 
     QRect  r = itemRect( actItem );
