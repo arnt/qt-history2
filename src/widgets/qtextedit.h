@@ -182,7 +182,9 @@ public:
 	ActionBackspace,
 	ActionDelete,
 	ActionReturn,
-	ActionKill
+	ActionKill,
+	ActionWordBackspace,
+	ActionWordDelete
     };
 
     enum CursorAction {

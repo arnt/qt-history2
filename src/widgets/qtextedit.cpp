@@ -1247,7 +1247,8 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 	    removeSelectedText();
 	    break;
 	}
-	doKeyboardAction( ActionDelete );
+	doKeyboardAction( e->state() & ControlButton ? ActionWordDelete
+			  : ActionDelete );
 	clearUndoRedoInfo = FALSE;
 
 	break;
@@ -1265,9 +1266,9 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 	    break;
 	}
 
-	doKeyboardAction( ActionBackspace );
+	doKeyboardAction( e->state() & ControlButton ? ActionWordBackspace
+			  : ActionBackspace );
 	clearUndoRedoInfo = FALSE;
-
 	break;
     case Key_F16: // Copy key on Sun keyboards
 	copy();
@@ -1578,8 +1579,9 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
     bool doUpdateCurrentFormat = TRUE;
 
     switch ( action ) {
+    case ActionWordDelete:
     case ActionDelete:
-	if ( !cursor->atParagEnd() ) {
+	if ( action == ActionDelete && !cursor->atParagEnd() ) {
 	    if ( undoEnabled ) {
 		checkUndoRedoInfo( UndoRedoInfo::Delete );
 		if ( !undoRedoInfo.valid() ) {
@@ -1593,14 +1595,20 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 	} else {
 	    clearUndoRedo();
 	    doc->setSelectionStart( QTextDocument::Temp, *cursor );
-	    cursor->gotoNextLetter();
+	    if ( action == ActionWordDelete && !cursor->atParagEnd() ) {
+		cursor->gotoNextWord();
+	    } else {
+		cursor->gotoNextLetter();
+	    }
 	    doc->setSelectionEnd( QTextDocument::Temp, *cursor );
 	    removeSelectedText( QTextDocument::Temp );
 	}
 	break;
+    case ActionWordBackspace:
     case ActionBackspace:
 	if ( textFormat() == Qt::RichText
-	     && (cursor->paragraph()->isListItem() || cursor->paragraph()->listDepth() )
+	     && (cursor->paragraph()->isListItem()
+		 || cursor->paragraph()->listDepth() )
 	     && cursor->index() == 0 ) {
 	    if ( undoEnabled ) {
 		clearUndoRedo();
@@ -1624,7 +1632,8 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 	    drawCursor( TRUE );
 	    return;
 	}
-	if ( !cursor->atParagStart() ) {
+
+	if ( action == ActionBackspace && !cursor->atParagStart() ) {
 	    if ( undoEnabled ) {
 		checkUndoRedoInfo( UndoRedoInfo::Delete );
 		if ( !undoRedoInfo.valid() ) {
@@ -1640,10 +1649,16 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 	    }
 	    cursor->remove();
 	    lastFormatted = cursor->paragraph();
-	} else if ( cursor->paragraph()->prev() ){
+	} else if ( cursor->paragraph()->prev()
+		    || (action == ActionWordBackspace
+		        && !cursor->atParagStart()) ) {
 	    clearUndoRedo();
 	    doc->setSelectionStart( QTextDocument::Temp, *cursor );
-	    cursor->gotoPreviousLetter();
+	    if ( action == ActionWordBackspace && !cursor->atParagStart() ) {
+		cursor->gotoPreviousWord();
+	    } else {
+		cursor->gotoPreviousLetter();
+	    }
 	    doc->setSelectionEnd( QTextDocument::Temp, *cursor );
 	    removeSelectedText( QTextDocument::Temp );
 	}
@@ -1665,15 +1680,15 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 	doUpdateCurrentFormat = FALSE;
 	break;
     case ActionKill:
-	    clearUndoRedo();
-	    doc->setSelectionStart( QTextDocument::Temp, *cursor );
-	    if ( cursor->atParagEnd() )
-		cursor->gotoNextLetter();
-	    else
-		cursor->setIndex( cursor->paragraph()->length() - 1 );
-	    doc->setSelectionEnd( QTextDocument::Temp, *cursor );
-	    removeSelectedText( QTextDocument::Temp );
-	    break;
+	clearUndoRedo();
+	doc->setSelectionStart( QTextDocument::Temp, *cursor );
+	if ( cursor->atParagEnd() )
+	    cursor->gotoNextLetter();
+	else
+	    cursor->setIndex( cursor->paragraph()->length() - 1 );
+	doc->setSelectionEnd( QTextDocument::Temp, *cursor );
+	removeSelectedText( QTextDocument::Temp );
+	break;
     }
 
     formatMore();
