@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#8 $
 **
 ** Implementation of QImage class
 **
@@ -19,7 +19,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#8 $";
 #endif
 
 
@@ -680,7 +680,7 @@ static void read_bmp_image( QImageIO *image )	// read BMP image data
     s >> bi;					// read BMP info
     if ( s.eos() )				// end of stream/file
 	return;
-#if 1
+#if 0
     debug( "biSize...........%d", bi.biSize );
     debug( "biWidth..........%d", bi.biWidth );
     debug( "biHeight.........%d", bi.biHeight );
@@ -697,7 +697,7 @@ static void read_bmp_image( QImageIO *image )	// read BMP image data
     int t = bi.biSize,   comp = bi.biCompression;
     if ( !(nbits == 1 || nbits == 4 || nbits == 8 || nbits == 24) ||
 	 bi.biPlanes != 1 || comp > BMP_RLE4 )
-	return;					// invalid BMP image
+	return;					// weird BMP image
 
     if ( t != BMP_OLD )				// jump to start of colormap
 	d->at( bi.biSize + 14 );
@@ -727,36 +727,54 @@ static void read_bmp_image( QImageIO *image )	// read BMP image data
     image->ctbl   = c;
     image->width  = w;
     image->height = h;
-    image->depth  = nbits == 24 ? 24 : 8;
+    image->depth  = nbits == 4 ? 8 : nbits;	// depth can be 1,8,24
     image->allocBits();
 
     d->at( bf.bfOffBits );			// start of image data
     ASSERT( comp == BMP_RGB );
+    if ( comp != BMP_RGB )
+	nbits = 7;				// don't read image at all
+
+    int  padlen;
+    char padbuf[8];
 
     if ( nbits == 1 ) {				// 1 bit BMP image
-	debug( "BMP: 1 bit images not yet supported" );
-    }
-    else if ( nbits == 4 ) {			// 4 bit BMP image
-	int padw = ((w+7)/8)*8;
-	for ( int i=h-1; i>=0; i-- ) {
-	    uchar *p = image->bits[i];
-	    int nybnum;
-	    uchar x;
-	    for ( int j=nybnum=0; j<padw; j++,nybnum++ ) {
-		if ( (nybnum & 1) == 0 ) {	// read next byte
-		    s >> x;
-		nybnum = 0;
-		}
-		if ( j < w ) {
-		    *p++ = x >> 4;
-		    x <<= 4;
-		}
+	setup_bitflip();
+	w = (w+7)/8;
+	padlen = ((w+3)/4)*4 - w;
+	while ( --h >= 0 ) {
+	    if ( d->readBlock((char*)image->bits[h],w) != w )
+		break;
+	    register uchar *p = image->bits[h];
+	    for ( int i=0; i<w; i++ ) {
+		*p = ~(bitflip[*p]);
+		p++;
 	    }
+	    if ( padlen )
+		d->readBlock( padbuf, padlen );
 	}
     }
+    else if ( nbits == 4 ) {			// 4 bit BMP image
+	int    buflen = ((w+7)/8)*4;
+	uchar *buf = new uchar[buflen];
+	CHECK_PTR( buf );
+	while ( --h >= 0 ) {
+	    if ( d->readBlock((char*)buf,buflen) != buflen )
+		break;
+	    register uchar *p = image->bits[h];
+	    register uchar *b = buf;
+	    for ( int i=0; i<w/2; i++ ) {	// convert nibbles to bytes
+		*p = *b >> 4;
+		*++p = *b & 15;
+		p++; b++;
+	    }
+	    if ( w & 1 )			// the last nibble
+		*p = *b >> 4;
+	}
+	delete buf;
+    }
     else if ( nbits == 8 ) {			// 8 bit BMP image
-	int  padlen = ((w+3)/4)*4 - w;
-	char padbuf[8];
+	padlen = ((w+3)/4)*4 - w;
 	while ( --h >= 0 ) {
 	    if ( d->readBlock((char *)image->bits[h],w) != w )
 		break;
@@ -765,10 +783,9 @@ static void read_bmp_image( QImageIO *image )	// read BMP image data
 	}
     }
     else if ( nbits == 24 ) {			// 24 bit BMP image
-	int  padlen = (4 - ((w*3) % 4)) & 0x03;
-	char padbuf[8];
+	padlen = (4 - ((w*3)&3)) & 3;
 	while ( --h >= 0 ) {
-	    uchar *p = image->bits[h];
+	    register uchar *p = image->bits[h];
 	    if ( d->readBlock( (char *)p,w*3) != w*3 )
 		break;
 	    for ( int i=0; i<w; i++ ) {		// swap r and b
@@ -782,7 +799,6 @@ static void read_bmp_image( QImageIO *image )	// read BMP image data
 	}
     }
     image->status = 0;				// image ok
-    debug( "BMP IMAGE OK!!!" );
 }
 
 
