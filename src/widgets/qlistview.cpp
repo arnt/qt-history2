@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#339 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#340 $
 **
 ** Implementation of QListView widget class
 **
@@ -1046,7 +1046,6 @@ void QListViewItem::setText( int column, const QString &text )
     if ( column < 0 )
 	return;
 
-
     QListViewPrivate::ItemColumnInfo * l
 	= (QListViewPrivate::ItemColumnInfo*) columns;
     if ( !l ) {
@@ -1062,15 +1061,20 @@ void QListViewItem::setText( int column, const QString &text )
 	return;
 
     l->text = text;
-    int oldW = listView()->columnWidth( column );
+    QListView * lv = listView();
+    int oldW = lv ? lv->columnWidth( column ) : 0;
     widthChanged( column );
-    if ( listView()->autoResort() && listView()->d->sortcolumn != -1 ) {
+    if ( !lv )
+	return;
+    if ( lv && lv->autoResort() && lv->d->sortcolumn != -1 ) {
  	if ( parent() )
 	    parent()->lsc = Unsorted;
-	else // ##################### FIX ME!!!!!!!!!!!!!
-	    listView()->d->r->lsc = Unsorted;
-	listView()->triggerUpdate();
-    } else if ( oldW != listView()->columnWidth( column ) )
+	lv->triggerUpdate();
+    } else if ( parent() ) {
+	// if this is part of a sub-tree that's not currently in any
+	// list view, force resort.
+	parent()->lsc = Unsorted;
+    } else if ( oldW != lv->columnWidth( column ) )
 	listView()->triggerUpdate();
     else
 	repaint();
@@ -2857,7 +2861,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	    emit rightButtonPressed( 0, viewport()->mapToGlobal( vp ), -1 );
 	    return;
 	}
-	
+
 	int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
 	emit rightButtonPressed( i, viewport()->mapToGlobal( vp ), c );
 	return;
@@ -3018,7 +3022,7 @@ void QListView::contentsMouseDoubleClickEvent( QMouseEvent * e )
     if ( !i )
 	return;
 
-    if ( !i->isOpen() ) { 
+    if ( !i->isOpen() ) {
 	if ( i->isExpandable() || i->childCount() )
 	    setOpen( i, TRUE );
     } else {
@@ -3694,7 +3698,10 @@ void QListView::refreshSorting()
     }
 }
 
-/*!
+/*NODOC This feature is completely undocumented.
+
+  And the next paragraph isn't good, either.
+
   When setting \a b to TRUE, changing the text of an item will
   resort the listview immediately. But this only works, if the
   current sortcolumn is valid, this means if you didn't set
@@ -3710,7 +3717,10 @@ void QListView::setAutoResort( bool b )
     d->autoResort = b;
 }
 
-/*!
+/*NODOC This feature is completely undocumented.
+
+  And the next paragraph isn't good, either.
+
   Returns the state of autoResorting.
 
   \sa QListView::setAutoResort()
@@ -3923,13 +3933,21 @@ void QListView::repaintItem( const QListViewItem * item ) const
   \class QCheckListItem qlistview.h
   \brief The QCheckListItem class implements checkable list view items.
 
-  There are three types of check list items: CheckBox, RadioButton and Controller.
+  There are three types of check list items: CheckBox, RadioButton and
+  Controller.
 
-
-  Checkboxes may be inserted at top level in the list view. A radio button must
-  be child of a controller.
+  Checkboxes may be inserted at top level in the list view. A radio
+  button must be child of a controller.
 */
 
+/*! \enum QCheckListItem::Type
+
+  This enum type defines the modes in which a QCheckListItem can be: <ul>
+  <li> \c RadioButton -
+  <li> \c CheckBox -
+  <li> \c Controller -
+  </ul>
+*/
 
 /* XPM */
 static const char * def_item_xpm[] = {
