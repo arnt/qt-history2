@@ -1465,7 +1465,7 @@ void QDnsSocket::answer()
 /*!
     \class QDns qdns.h
     \brief The QDns class provides asynchronous DNS lookups.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -1893,7 +1893,7 @@ QList<QHostAddress> QDns::addresses() const
 /*!
     \class QDns::MailServer
     \brief The QDns::MailServer class is  described in QDns::mailServers().
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -1949,7 +1949,7 @@ QList<QDns::MailServer> QDns::mailServers() const
 /*!
     \class QDns::Server
     \brief The QDns::Server class is described in QDns::servers().
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 

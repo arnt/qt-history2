@@ -55,7 +55,7 @@ QHostAddressPrivate::QHostAddressPrivate( Q_UINT8 *a_ ) : a(0), isIp4(FALSE)
 /*!
     \class QHostAddress qhostaddress.h
     \brief The QHostAddress class provides an IP address.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 

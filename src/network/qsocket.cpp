@@ -165,7 +165,7 @@ void QSocketPrivate::connectionClosed()
 /*!
     \class QSocket qsocket.h
     \brief The QSocket class provides a buffered TCP connection.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 

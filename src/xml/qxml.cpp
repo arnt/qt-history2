@@ -193,7 +193,7 @@ class QXmlDefaultHandlerPrivate
     \class QXmlParseException qxml.h
     \brief The QXmlParseException class is used to report errors with
     the QXmlErrorHandler interface.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -257,7 +257,7 @@ QString QXmlParseException::systemId() const
     \class QXmlLocator qxml.h
     \brief The QXmlLocator class provides the XML handler classes with
     information about the parsing position within a file.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -355,7 +355,7 @@ public:
     \class QXmlNamespaceSupport qxml.h
     \brief The QXmlNamespaceSupport class is a helper class for XML
     readers which want to include namespace support.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -618,7 +618,7 @@ void QXmlNamespaceSupport::reset()
 /*!
     \class QXmlAttributes qxml.h
     \brief The QXmlAttributes class provides XML attributes.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -863,7 +863,7 @@ void QXmlAttributes::append( const QString &qName, const QString &uri, const QSt
     \class QXmlInputSource qxml.h
     \brief The QXmlInputSource class provides the input data for the
     QXmlReader subclasses.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -1177,7 +1177,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
     \class QXmlContentHandler qxml.h
     \brief The QXmlContentHandler class provides an interface to
     report the logical content of XML data.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -1425,7 +1425,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
     \class QXmlErrorHandler qxml.h
     \brief The QXmlErrorHandler class provides an interface to report
     errors in XML data.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -1498,7 +1498,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
     \class QXmlDTDHandler qxml.h
     \brief The QXmlDTDHandler class provides an interface to report
     DTD content of XML data.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -1563,7 +1563,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
     \class QXmlEntityResolver qxml.h
     \brief The QXmlEntityResolver class provides an interface to
     resolve external entities contained in XML data.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -1617,7 +1617,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
     \class QXmlLexicalHandler qxml.h
     \brief The QXmlLexicalHandler class provides an interface to
     report the lexical content of XML data.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -1766,7 +1766,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
     \class QXmlDeclHandler qxml.h
     \brief The QXmlDeclHandler class provides an interface to report declaration
     content of XML data.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -1851,7 +1851,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
     \class QXmlDefaultHandler qxml.h
     \brief The QXmlDefaultHandler class provides a default implementation of all
     the XML handler classes.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -2295,7 +2295,7 @@ private:
     \class QXmlReader qxml.h
     \brief The QXmlReader class provides an interface for XML readers (i.e.
     parsers).
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -2514,7 +2514,7 @@ private:
     \class QXmlSimpleReader qxml.h
     \brief The QXmlSimpleReader class provides an implementation of a
     simple XML reader (parser).
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 

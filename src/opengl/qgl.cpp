@@ -31,13 +31,14 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
     \class QGL qgl.h
     \brief The QGL class is a namespace for miscellaneous identifiers
     in the Qt OpenGL module.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
     \module OpenGL
     \ingroup graphics
     \ingroup images
+
 
     Normally you can ignore this class. QGLWidget and the other
     OpenGL<sup>*</sup> module classes inherit it, so when you make your
@@ -64,7 +65,7 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
     \class QGLFormat qgl.h
     \brief The QGLFormat class specifies the display format of an OpenGL
     rendering context.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -701,7 +702,7 @@ QGLContext* QGLContext::currentCtx = 0;
 /*!
     \class QGLContext qgl.h
     \brief The QGLContext class encapsulates an OpenGL rendering context.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -1091,7 +1092,7 @@ bool QGLContext::create( const QGLContext* shareContext )
 /*!
     \class QGLWidget qgl.h
     \brief The QGLWidget class is a widget for rendering OpenGL graphics.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -2180,9 +2181,9 @@ void QGLWidget::renderText( double x, double y, double z, const QString & str, c
 
 \title Qt OpenGL 3D Graphics
 
-\if defined(commercial_edition)
-This module is part of the \link commercialeditions.html Qt Enterprise Edition
-\endlink.
+\if defined(commercial)
+This module is part of the \link commercialeditions.html Qt Enterprise
+Edition\endlink.
 \endif
 
 \section1 Introduction

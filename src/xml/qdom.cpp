@@ -596,7 +596,7 @@ QDomImplementationPrivate* QDomImplementationPrivate::clone()
     \class QDomImplementation qdom.h
     \brief The QDomImplementation class provides information about the
     features of the DOM implementation.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -896,7 +896,7 @@ uint QDomNodeListPrivate::length() const
 /*!
     \class QDomNodeList qdom.h
     \brief The QDomNodeList class is a list of QDomNode objects.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -1510,7 +1510,7 @@ void QDomNodePrivate::save( QTextStream& s, int depth, int indent ) const
 /*!
     \class QDomNode qdom.h
     \brief The QDomNode class is the base class for all the nodes in a DOM tree.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -2605,7 +2605,7 @@ bool QDomNamedNodeMapPrivate::containsNS( const QString& nsURI, const QString & 
     \class QDomNamedNodeMap qdom.h
     \brief The QDomNamedNodeMap class contains a collection of nodes
     that can be accessed by name.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -3020,7 +3020,7 @@ void QDomDocumentTypePrivate::save( QTextStream& s, int, int indent ) const
     \class QDomDocumentType qdom.h
     \brief The QDomDocumentType class is the representation of the DTD
     in the document tree.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -3219,7 +3219,7 @@ QDomNodePrivate* QDomDocumentFragmentPrivate::cloneNode( bool deep)
 /*!
     \class QDomDocumentFragment qdom.h
     \brief The QDomDocumentFragment class is a tree of QDomNodes which is not usually a complete QDomDocument.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -3385,7 +3385,7 @@ void QDomCharacterDataPrivate::appendData( const QString& arg )
 /*!
     \class QDomCharacterData qdom.h
     \brief The QDomCharacterData class represents a generic string in the DOM.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -3666,7 +3666,7 @@ void QDomAttrPrivate::save( QTextStream& s, int, int ) const
 /*!
     \class QDomAttr qdom.h
     \brief The QDomAttr class represents one attribute of a QDomElement.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -4066,7 +4066,7 @@ void QDomElementPrivate::save( QTextStream& s, int depth, int indent ) const
 /*!
     \class QDomElement qdom.h
     \brief The QDomElement class represents one element in the DOM tree.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -4627,7 +4627,7 @@ void QDomTextPrivate::save( QTextStream& s, int, int ) const
 /*!
     \class QDomText qdom.h
     \brief The QDomText class represents text data in the parsed XML document.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -4774,7 +4774,7 @@ void QDomCommentPrivate::save( QTextStream& s, int, int ) const
 /*!
     \class QDomComment qdom.h
     \brief The QDomComment class represents an XML comment.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -4909,7 +4909,7 @@ void QDomCDATASectionPrivate::save( QTextStream& s, int, int ) const
 /*!
     \class QDomCDATASection qdom.h
     \brief The QDomCDATASection class represents an XML CDATA section.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -5055,7 +5055,7 @@ void QDomNotationPrivate::save( QTextStream& s, int, int ) const
 /*!
     \class QDomNotation qdom.h
     \brief The QDomNotation class represents an XML notation.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -5267,7 +5267,7 @@ void QDomEntityPrivate::save( QTextStream& s, int, int ) const
 /*!
     \class QDomEntity qdom.h
     \brief The QDomEntity class represents an XML entity.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -5440,7 +5440,7 @@ void QDomEntityReferencePrivate::save( QTextStream& s, int, int ) const
 /*!
     \class QDomEntityReference qdom.h
     \brief The QDomEntityReference class represents an XML entity reference.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -5586,7 +5586,7 @@ void QDomProcessingInstructionPrivate::save( QTextStream& s, int, int ) const
     \class QDomProcessingInstruction qdom.h
     \brief The QDomProcessingInstruction class represents an XML processing
     instruction.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -6002,7 +6002,7 @@ void QDomDocumentPrivate::save( QTextStream& s, int, int indent ) const
 /*!
     \class QDomDocument qdom.h
     \brief The QDomDocument class represents an XML document.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
