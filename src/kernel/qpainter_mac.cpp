@@ -476,6 +476,7 @@ bool QPainter::end()				// end painting
 #endif
         return FALSE;
     }
+
     if ( testf( FontMet ) )                       // remove references to this
         QFontMetrics::reset( this );
     if ( testf( FontInf ) )                       // remove references to this
@@ -501,7 +502,13 @@ bool QPainter::end()				// end painting
 
 void QPainter::flush()
 {
+    if(!isActive())
+	return;
 
+    if ( pdev->devType() == QInternal::Widget ) 
+	QDFlushPortBuffer(GetWindowPort((WindowPtr)((QWidget *)pdev)->handle()), NULL);
+    else if( pdev->devType() == QInternal::Pixmap )
+	QDFlushPortBuffer((GWorldPtr)((QPixmap *)pdev)->handle(), NULL);
 }
 
 void QPainter::setBackgroundColor( const QColor &c )
