@@ -247,13 +247,6 @@ void QGroupBox::setTitle( const QString &title )
     }
     calculateFrame();
     setTextSpacer();
-    if ( layout() ) {
-	layout()->activate();
-	QSize s( size() );
-	QSize ms( minimumSizeHint() );
-	resize( QMAX( s.width(), ms.width() ),
-		QMAX( s.height(), ms.height() ) );
-    }
 
     update();
     updateGeometry();
