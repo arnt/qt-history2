@@ -1611,6 +1611,27 @@ bool Q3MainWindow::event(QEvent * e)
             return true;
         }
     }
+    if (e->type() == QEvent::ToolBarSwitch) {
+        // Keep compatibility with the Qt 3 main window, use the real main window
+        // or reimplement if you want proper handling.
+        int deltaH = 0;
+        Q3DockArea *area = topDock();
+        if (area->width() >= area->height()) {
+            deltaH = area->sizeHint().height();
+            if (!area->isVisible()) {
+                area->show();
+            } else {
+                area->hide();
+                deltaH = -deltaH;
+            }
+        }
+
+        if (deltaH) {
+            QApplication::sendPostedEvents(this, QEvent::LayoutRequest);
+            resize(width(), height() + deltaH);
+        }
+        return true;
+    }
     if (e->type() == QEvent::ChildRemoved && ((QChildEvent*)e)->child() == d->mc) {
         d->mc->removeEventFilter(this);
         d->mc = 0;
