@@ -1475,6 +1475,7 @@ QSelectAction::QSelectAction( const QString& text, int accel, QObject* parent, c
 {
     m_lock = FALSE;
     m_menu = 0;
+    m_edit = FALSE;
 }
 
 QSelectAction::QSelectAction( const QString& text, int accel,
@@ -1484,6 +1485,7 @@ QSelectAction::QSelectAction( const QString& text, int accel,
     m_lock = FALSE;
     m_menu = 0;
     m_current = -1;
+    m_edit = FALSE;
 }
 
 QSelectAction::QSelectAction( const QString& text, const QIconSet& pix, int accel,
@@ -1493,6 +1495,7 @@ QSelectAction::QSelectAction( const QString& text, const QIconSet& pix, int acce
     m_lock = FALSE;
     m_menu = 0;
     m_current = -1;
+    m_edit = FALSE;
 }
 
 QSelectAction::QSelectAction( const QString& text, const QIconSet& pix, int accel,
@@ -1502,6 +1505,7 @@ QSelectAction::QSelectAction( const QString& text, const QIconSet& pix, int acce
     m_lock = FALSE;
     m_menu = 0;
     m_current = -1;
+    m_edit = FALSE;
 }
 
 QSelectAction::QSelectAction( QObject* parent, const char* name )
@@ -1510,6 +1514,7 @@ QSelectAction::QSelectAction( QObject* parent, const char* name )
     m_lock = FALSE;
     m_menu = 0;
     m_current = -1;
+    m_edit = FALSE;
 }
 
 void QSelectAction::setCurrentItem( int id )
@@ -1649,7 +1654,7 @@ int QSelectAction::plug( QWidget* widget )
     else if ( widget->inherits("QToolBar") )
     {
 	QToolBar* bar = (QToolBar*)widget;
-	QComboBox* b = new QComboBox( bar );
+	QComboBox* b = new QComboBox( isEditable(), bar );
 
 	QStringList::ConstIterator it = m_list.begin();
 	for( ; it != m_list.end(); ++it )
@@ -1700,6 +1705,16 @@ void QSelectAction::clear()
 	else if ( w->inherits( "QActionWidget" ) )
 	    ((QActionWidget*)w)->updateAction( this );	
     }
+}
+
+void QSelectAction::setEditable( bool edit )
+{
+    m_edit = edit;
+}
+
+bool QSelectAction::isEditable() const
+{
+    return m_edit;
 }
 
 // ------------------------------------------------------------

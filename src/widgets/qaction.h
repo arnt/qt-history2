@@ -206,6 +206,9 @@ public:
 	     QObject* receiver, const char* slot, QObject* parent, const char* name = 0 );
     QSelectAction( QObject* parent = 0, const char* name = 0 );
 
+    void setEditable( bool );
+    bool isEditable() const;
+    
     int plug( QWidget* );
 
     virtual void setItems( const QStringList& );
@@ -225,6 +228,7 @@ signals:
     void activated( const QString& text );
 
 private:
+    bool m_edit;
     bool m_lock;
     QStringList m_list;
     QPopupMenu* m_menu;
