@@ -1717,7 +1717,7 @@ static const char *winLangCodeToIsoName(int code)
 const char* QLocalePrivate::systemLocaleName()
 {
     static QByteArray lang;
-    lang = getenv("LANG");
+    lang = qgetenv("LANG");
 
 #if !defined(QWS) && defined(Q_OS_MAC)
     if (!lang.isEmpty())
@@ -2865,9 +2865,9 @@ QLocale QLocale::system()
 {
     const char *s = 0;
 #ifdef Q_OS_UNIX
-    s = getenv("LC_NUMERIC");
+    s = qgetenv("LC_NUMERIC");
     if (s == 0)
-        s = getenv("LC_ALL");
+        s = qgetenv("LC_ALL");
     if (s == 0)
 #endif
         s = QLocalePrivate::systemLocaleName();

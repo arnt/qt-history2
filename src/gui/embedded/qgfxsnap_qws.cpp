@@ -903,7 +903,7 @@ bool QSNAPScreen::connect(
             }
         }
     const char* qwssize;
-    if ((qwssize = getenv("QWS_SIZE")) != NULL) {
+    if ((qwssize = qgetenv("QWS_SIZE")) != NULL) {
         // First try to get the resolution and color depth, and if that fails
         // just try to get the resolution without the color depth
         if (sscanf(qwssize,"%dx%dx%d",&w,&h,&d) != 3)

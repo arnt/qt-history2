@@ -235,7 +235,7 @@ QFSFileEngine::currentPath(const QString &)
 QString
 QFSFileEngine::homePath()
 {
-    QString home = QFile::decodeName(QByteArray(getenv("HOME")));
+    QString home = QFile::decodeName(QByteArray(qgetenv("HOME")));
     if(home.isNull())
         home = rootPath();
     return home;
@@ -250,7 +250,7 @@ QFSFileEngine::rootPath()
 QString
 QFSFileEngine::tempPath()
 {
-    QString temp = QFile::decodeName(QByteArray(getenv("TMPDIR")));
+    QString temp = QFile::decodeName(QByteArray(qgetenv("TMPDIR")));
     if(temp.isEmpty())
         temp = QString::fromLatin1("/tmp/");
     return temp;

@@ -1751,6 +1751,8 @@ for (QForeachMemory<sizeof(qForeachSizeofContainerHelper(container))> _container
 #define Q_DISABLE_COPY(Class)
 #endif
 
+Q_CORE_EXPORT char *qgetenv(const char *varName);
+
 #endif /* __cplusplus */
 
 #endif /* QGLOBAL_H */

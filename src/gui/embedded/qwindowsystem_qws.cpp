@@ -2439,7 +2439,7 @@ void QWSServer::closeMouse()
 */
 void QWSServer::openMouse()
 {
-    QString mice = getenv("QWS_MOUSE_PROTO");
+    QString mice = qgetenv("QWS_MOUSE_PROTO");
     if (mice.isEmpty()) {
 #if defined(QT_QWS_CASSIOPEIA)
         mice = "TPanel:/dev/tpanel";
@@ -2534,7 +2534,7 @@ void QWSServer::setKeyboardHandler(QWSKeyboardHandler* kh)
 */
 void QWSServer::openKeyboard()
 {
-    QString keyboards = getenv("QWS_KEYBOARD");
+    QString keyboards = qgetenv("QWS_KEYBOARD");
     if (keyboards.isEmpty()) {
 #if defined(QT_QWS_CASSIOPEIA)
         keyboards = "Buttons";

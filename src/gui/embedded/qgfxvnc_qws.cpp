@@ -1293,11 +1293,11 @@ bool QVNCScreen::connect(const QString &displaySpec)
 
     if (virtualBuffer) {
         const char *str;
-        if ((str = getenv("QWS_DEPTH")))
+        if ((str = qgetenv("QWS_DEPTH")))
             d = atoi(str);
         if (!str || !d)
             d = 16;
-        if((str=getenv("QWS_SIZE"))) {
+        if((str=qgetenv("QWS_SIZE"))) {
             sscanf(str,"%dx%d",&w,&h);
             dw=w;
             dh=h;

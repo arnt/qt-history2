@@ -2109,7 +2109,7 @@ QPaintEngine *QWidget::paintEngine() const
 {
     if (!qt_widget_paintengine) {
 #if !defined(QMAC_NO_COREGRAPHICS)
-        if(!getenv("QT_MAC_USE_QUICKDRAW"))
+        if(!qgetenv("QT_MAC_USE_QUICKDRAW"))
             qt_widget_paintengine = new QCoreGraphicsPaintEngine();
         else
 #endif
@@ -2119,7 +2119,7 @@ QPaintEngine *QWidget::paintEngine() const
     if (qt_widget_paintengine->isActive()) {
         QPaintEngine *engine =
 #if !defined(QMAC_NO_COREGRAPHICS)
-        !getenv("QT_MAC_USE_QUICKDRAW")
+        !qgetenv("QT_MAC_USE_QUICKDRAW")
             ? new QCoreGraphicsPaintEngine() :
 #endif
             new QQuickDrawPaintEngine();

@@ -5538,7 +5538,7 @@ QSessionManager::QSessionManager(QApplication * app, QString &id, QString& key)
     cb.shutdown_cancelled.client_data = (SmPointer) d;
 
     // avoid showing a warning message below
-    const char* session_manager = getenv("SESSION_MANAGER");
+    const char* session_manager = qgetenv("SESSION_MANAGER");
     if (!session_manager || !session_manager[0])
         return;
 

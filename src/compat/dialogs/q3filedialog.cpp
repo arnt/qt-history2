@@ -3096,7 +3096,7 @@ void Q3FileDialog::setDir(const QString & pathstr)
             user = ::getlogin();
             if (user.isEmpty())
 #endif
-                user = getenv("LOGNAME");
+                user = qgetenv("LOGNAME");
         } else
             user = dr.mid(1, i-1).local8Bit();
         dr = dr.mid(i, dr.length());

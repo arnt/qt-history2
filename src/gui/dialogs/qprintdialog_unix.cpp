@@ -1025,9 +1025,9 @@ QGroupBox *QPrintDialogUnix::setupDestination()
     // all printers hopefully known.  try to find a good default
     QString dollarPrinter;
     {
-        const char *t = getenv("PRINTER");
+        const char *t = qgetenv("PRINTER");
         if (!t || !*t)
-            t = getenv("LPDEST");
+            t = qgetenv("LPDEST");
         dollarPrinter = QLatin1String(t);
         if (!dollarPrinter.isEmpty())
             perhapsAddPrinter(&d->printers, dollarPrinter,
@@ -1289,7 +1289,7 @@ void QPrintDialogUnix::printerOrFileSelected(int id)
         d->ok->setEnabled(true);
         fileNameEditChanged(d->fileName->text());
         if (!d->fileName->isModified() && d->fileName->text().isEmpty()) {
-            QString home = QLatin1String(::getenv("HOME"));
+            QString home = QLatin1String(::qgetenv("HOME"));
             QString cur = QDir::currentPath();
             if (home.at(home.length()-1) != '/')
                 home += '/';

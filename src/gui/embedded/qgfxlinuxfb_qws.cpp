@@ -136,7 +136,7 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
     int xoff = vinfo.xoffset;
     int yoff = vinfo.yoffset;
     const char* qwssize;
-    if((qwssize=getenv("QWS_SIZE")) && sscanf(qwssize,"%dx%d",&w,&h)==2) {
+    if((qwssize=qgetenv("QWS_SIZE")) && sscanf(qwssize,"%dx%d",&w,&h)==2) {
         if ((uint)w > vinfo.xres) w = vinfo.xres;
         if ((uint)h > vinfo.yres) h = vinfo.yres;
         dw=w;
@@ -437,7 +437,7 @@ bool QLinuxFbScreen::initDevice()
 
 #ifdef __i386__
     // Now init mtrr
-    if(!getenv("QWS_NOMTRR")) {
+    if(!qgetenv("QWS_NOMTRR")) {
         int mfd=open("/proc/mtrr",O_WRONLY,0);
         // MTRR entry goes away when file is closed - i.e.
         // hopefully when QWS is killed

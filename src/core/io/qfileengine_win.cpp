@@ -552,11 +552,11 @@ QFSFileEngine::currentPath(const QString &fileName)
 QString
 QFSFileEngine::homePath()
 {
-    QString ret = QString::fromLocal8Bit(getenv("HOME"));
+    QString ret = QString::fromLocal8Bit(qgetenv("HOME"));
     if(ret.isEmpty() || !QFile::exists(ret)) {
-        ret = QString::fromLocal8Bit(getenv("USERPROFILE"));
+        ret = QString::fromLocal8Bit(qgetenv("USERPROFILE"));
         if(ret.isEmpty() || !QFile::exists(ret)) {
-            ret = QString::fromLocal8Bit(getenv("HOMEDRIVE")) + QString::fromLocal8Bit(getenv("HOMEPATH"));
+            ret = QString::fromLocal8Bit(qgetenv("HOMEDRIVE")) + QString::fromLocal8Bit(getenv("HOMEPATH"));
             if(ret.isEmpty() || !QFile::exists(ret))
                 ret = rootPath();
         }
@@ -568,7 +568,7 @@ QString
 QFSFileEngine::rootPath()
 {
 #if defined(Q_FS_FAT)
-    QString ret = QString::fromLatin1(getenv("SystemDrive"));
+    QString ret = QString::fromLatin1(qgetenv("SystemDrive"));
     if(ret.isEmpty())
         ret = "c:";
     ret += "/";

@@ -801,14 +801,14 @@ bool QProcess::start(QStringList *env)
             const char *ld_library_path = "LD_LIBRARY_PATH";
 #endif
             bool setLibraryPath = env->find(QRegExp(QLatin1Char('^') + QLatin1String(ld_library_path) + QLatin1Char('='))).empty()
-                                  && getenv(ld_library_path) != 0;
+                                  && qgetenv(ld_library_path) != 0;
             if (setLibraryPath)
                 numEntries++;
             QByteArray *envlistQ = new QByteArray[numEntries + 1];
             const char** envlist = new const char*[numEntries + 1];
             int i = 0;
             if (setLibraryPath) {
-                envlistQ[i] = QByteArray(ld_library_path) + '=' + QByteArray(getenv(ld_library_path));
+                envlistQ[i] = QByteArray(ld_library_path) + '=' + QByteArray(qgetenv(ld_library_path));
                 envlist[i] = envlistQ[i];
                 i++;
             }
@@ -820,7 +820,7 @@ bool QProcess::start(QStringList *env)
             envlist[i] = 0;
 
             // look for the executable in the search path
-            const char *path = getenv("PATH");
+            const char *path = qgetenv("PATH");
             if (_arguments.count()>0 && path != 0) {
                 QString command = _arguments[0];
                 if (!command.contains(QLatin1Char('/'))) {

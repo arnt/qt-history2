@@ -44,7 +44,7 @@ extern "C" {
 // Environment ------------------------------------------------------
 // Windows CE was no concept of environment settings, therefore we
 // just return 'root folder'.
-char *getenv(char const *) { return "\\"; }
+char *qgetenv(char const *) { return "\\"; }
 
 
 // Time -------------------------------------------------------------

@@ -716,10 +716,10 @@ static QAquaWidgetSize qt_aqua_guess_size(const QWidget *widg, QSize large, QSiz
     }
 
 #ifndef QT_NO_MAINWINDOW
-    if(qt_cast<QDockWindow *>(widg->topLevelWidget()) || getenv("QWIDGET_ALL_SMALL")) {
+    if(qt_cast<QDockWindow *>(widg->topLevelWidget()) || qgetenv("QWIDGET_ALL_SMALL")) {
         //if(small.width() != -1 || small.height() != -1)
         return QAquaSizeSmall;
-    } else if(getenv("QWIDGET_ALL_MINI")) {
+    } else if(qgetenv("QWIDGET_ALL_MINI")) {
         return QAquaSizeMini;
     }
 #endif
@@ -772,9 +772,9 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg,
     if(!widg) {
         if(insz)
             *insz = QSize();
-        if(getenv("QWIDGET_ALL_SMALL"))
+        if(qgetenv("QWIDGET_ALL_SMALL"))
             return QAquaSizeSmall;
-        if(getenv("QWIDGET_ALL_MINI"))
+        if(qgetenv("QWIDGET_ALL_MINI"))
             return QAquaSizeMini;
         return QAquaSizeUnknown;
     }
@@ -966,8 +966,8 @@ QMacStylePrivate::QMacStylePrivate(QMacStyle *style)
     : useHITheme(false), timerID(-1), progressFrame(0), aquaFocus(0), q(style)
 {
 #if !defined(QMAC_NO_COREGRAPHICS) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER && !getenv("QT_MAC_USE_APPMANAGER")
-	    && !getenv("QT_MAC_USE_QUICKDRAW"))
+    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER && !qgetenv("QT_MAC_USE_APPMANAGER")
+	    && !qgetenv("QT_MAC_USE_QUICKDRAW"))
         useHITheme = true;
 #endif
     defaultButtonStart = CFAbsoluteTimeGetCurrent();

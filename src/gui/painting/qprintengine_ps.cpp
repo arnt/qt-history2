@@ -1704,7 +1704,7 @@ QPSPrintEngineFontTTF::QPSPrintEngineFontTTF(QFontEngine *f, QByteArray& ba)
   //target_type = 42; // works with gs, faster, better quality
 
 #ifdef Q_PRINTER_USE_TYPE42
-  char* environment_preference = getenv("QT_TTFTOPS");
+  char* environment_preference = qgetenv("QT_TTFTOPS");
   if (environment_preference) {
     if (QString(environment_preference) == "42")
       target_type = 42;

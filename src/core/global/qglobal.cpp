@@ -613,7 +613,7 @@ void qWarning(const char *msg, ...)
     char buf[QT_BUFFER_LENGTH];
     va_list ap;
     va_start(ap, msg); // use variable arg list
-    bool fatalWarnings = (getenv("QT_FATAL_WARNINGS") != 0);
+    bool fatalWarnings = (qgetenv("QT_FATAL_WARNINGS") != 0);
 #if defined(QT_VSNPRINTF)
     QT_VSNPRINTF(buf, QT_BUFFER_LENGTH, msg, ap);
 #else
@@ -807,3 +807,20 @@ void qFatal(const char *msg, ...)
 #endif
 }
 
+// getenv is declared as deprecated in VS2005. This function
+// makes use of the new secure getenv function.
+char *qgetenv(const char *varName)
+{
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+	size_t requiredSize;
+	char *buffer;
+	getenv_s(&requiredSize, 0, 0, varName);	
+	buffer = (char*)qMalloc(requiredSize*sizeof(char));
+	if (!buffer)
+		return 0;
+	getenv_s(&requiredSize, buffer, &requiredSize, varName);
+	return buffer;
+#else
+	return getenv(varName);
+#endif
+}

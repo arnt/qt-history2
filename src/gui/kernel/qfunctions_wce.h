@@ -43,7 +43,7 @@ extern "C" {
 #endif
 
 // Environment ------------------------------------------------------
-char *getenv(const char *env);
+char *qgetenv(const char *env);
 
 
 // Time -------------------------------------------------------------

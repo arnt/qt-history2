@@ -133,7 +133,7 @@ int QWSKeyboardHandler::transformDirKey(int key)
     static int dir_keyrot = -1;
     if (dir_keyrot < 0) {
         // get the rotation
-        char *kerot = getenv("QWS_CURSOR_ROTATION");
+        char *kerot = qgetenv("QWS_CURSOR_ROTATION");
         if (kerot) {
             if (strcmp(kerot, "90") == 0)
                 dir_keyrot = 1;

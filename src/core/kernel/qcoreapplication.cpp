@@ -1153,7 +1153,7 @@ QString QCoreApplication::applicationFilePath()
           Otherwise, the file path has to be determined using the
           PATH environment variable.
         */
-        char *pEnv = getenv("PATH");
+        char *pEnv = qgetenv("PATH");
         QDir currentDir = QDir::current();
         QStringList paths = QString::fromLocal8Bit(pEnv).split(QLatin1String(":"));
         for (QStringList::const_iterator p = paths.constBegin(); p != paths.constEnd(); ++p) {

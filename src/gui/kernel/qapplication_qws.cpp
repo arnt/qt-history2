@@ -160,7 +160,7 @@ extern "C" void dumpmem(const char* m)
 QString qws_dataDir()
 {
     QString username = "unknown";
-    const char *logname = getenv("LOGNAME");
+    const char *logname = qgetenv("LOGNAME");
     if (logname)
         username = logname;
 
@@ -1492,7 +1492,7 @@ static bool read_bool_env_var(const char *var, bool defaultvalue)
     // returns true if env variable is set to non-zero
     // returns false if env var is set to zero
     // returns defaultvalue if env var not set
-    char *x = getenv(var);
+    char *x = qgetenv(var);
     return (x && *x) ? (strcmp(x,"0") != 0) : defaultvalue;
 }
 
@@ -1503,12 +1503,12 @@ void qt_init(QApplicationPrivate *priv, int type)
     qws_sw_cursor = read_bool_env_var("QWS_SW_CURSOR",qws_sw_cursor);
     qws_screen_is_interlaced = read_bool_env_var("QWS_INTERLACE",false);
 
-    const char *display = getenv("QWS_DISPLAY");
+    const char *display = qgetenv("QWS_DISPLAY");
     if (display)
         qws_display_spec = strdup(display); // since we setenv later!
 
-    //qws_savefonts = getenv("QWS_SAVEFONTS") != 0;
-    //qws_shared_memory = getenv("QWS_NOSHARED") == 0;
+    //qws_savefonts = qgetenv("QWS_SAVEFONTS") != 0;
+    //qws_shared_memory = qgetenv("QWS_NOSHARED") == 0;
 
     int flags = 0;
     char *p;

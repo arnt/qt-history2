@@ -1849,7 +1849,7 @@ static void qt_resolve_gdiplus()
     if (qt_resolved_gdiplus)
         return;
 
-    if (getenv("QT_FORCE_GDI")) {
+    if (qgetenv("QT_FORCE_GDI")) {
         qt_resolved_gdiplus = true;
         return;
     }

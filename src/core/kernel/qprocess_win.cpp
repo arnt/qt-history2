@@ -294,9 +294,9 @@ bool QProcess::start(QStringList *env)
         if (env != 0) {
             int pos = 0;
             // add PATH if necessary (for DLL loading)
-            char *path = getenv("PATH");
+            char *path = qgetenv("PATH");
             if (env->find(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty() && path) {
-                QString tmp = QString("PATH=%1").arg(getenv("PATH"));
+                QString tmp = QString("PATH=%1").arg(qgetenv("PATH"));
                 uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
                 envlist.resize(envlist.size() + tmpSize);
                 memcpy(envlist.data()+pos, tmp.utf16(), tmpSize);
@@ -345,9 +345,9 @@ bool QProcess::start(QStringList *env)
         if (env != 0) {
             int pos = 0;
             // add PATH if necessary (for DLL loading)
-            char *path = getenv("PATH");
+            char *path = qgetenv("PATH");
             if (env->find(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty() && path) {
-                QByteArray tmp = QString("PATH=%1").arg(getenv("PATH")).toLocal8Bit();
+                QByteArray tmp = QString("PATH=%1").arg(qgetenv("PATH")).toLocal8Bit();
                 uint tmpSize = tmp.length() + 1;
                 envlist.resize(envlist.size() + tmpSize);
                 memcpy(envlist.data()+pos, tmp.constData(), tmpSize);

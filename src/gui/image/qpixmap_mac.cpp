@@ -857,7 +857,7 @@ QPaintEngine *QPixmap::paintEngine() const
 {
     if (!data->paintEngine) {
 #if !defined(QMAC_NO_COREGRAPHICS)
-        if(!getenv("QT_MAC_USE_QUICKDRAW"))
+        if(!qgetenv("QT_MAC_USE_QUICKDRAW"))
             data->paintEngine = new QCoreGraphicsPaintEngine();
         else
 #endif
