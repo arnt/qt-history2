@@ -3260,6 +3260,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
             }
         }
         hres = disp->Invoke(dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &params, 0, &excepinfo, &argerr);
+        clearVARIANT(&arg);
         break;
 
     default:
@@ -3267,7 +3268,6 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
     }
 
     checkHRESULT(hres, &excepinfo, this, propname, argerr);
-    clearVARIANT(&arg);
     return index;
 }
 
