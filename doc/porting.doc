@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.61 1999/06/03 22:05:52 paul Exp $
+** $Id: porting.doc,v 1.62 1999/06/07 13:36:47 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -456,18 +456,20 @@ This means that inserting a 0-character
  add ASSERT(strlen(d->ascii)==d->len) inside
  \code QString::latin1()\endcode.
 
-<dt><b>QString or STL string?</b></dt>
+<dt><b>QString or Standard C++ string?</b></dt>
 <dd>
 <p>
-STL string is not Unicode.  This is the same mistake made over and over
+The Standard C++ Library string is not Unicode.  Nor is wstring defined
+to be so (for the small number of platforms where it is defined at all).
+This is the same mistake made over and over
 in the history of C - only when non-8-bit characters are <em>the norm</em>
 do programmers find them usable. Though it is possible to convert between
-STL string to QString, it is less efficient than using QString throughout.
+string and QString, it is less efficient than using QString throughout.
 For example, when using:
 \code
     QLabel::setText( const QString& )
 \endcode
-if you use STL string, like this:
+if you use string, like this:
 \code
     void myclass::dostuffwithtext( const string& str )
     {
