@@ -16,7 +16,7 @@ main(int argc, char** argv)
 {
     QApplication app( argc, argv );
 
-    qInstallMsgHandler(silent);
+//    qInstallMsgHandler(silent);
 
     QPalette pal( qtgreen, Qt::black );
     pal.setColor( QColorGroup::ButtonText, Qt::black );

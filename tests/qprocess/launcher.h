@@ -13,11 +13,13 @@ class Launcher : public QHBox {
 public:
     Launcher();
 
+private:
+    void run( const char* path, const char* cmd );
+
 private slots:
     void nextInfo();
-    void run(const char* cmd);
     void execute();
-    void executeOther(int i);
+    void executeOther( int i );
 
 private:
     QLabel* info;

@@ -8,9 +8,12 @@
 #include <qlistbox.h>
 #include <qgroupbox.h>
 
+#include <stdlib.h>
+
 #include "launcher.h"
 #include "infotext.h"
 #include "commands.h"
+#include "qprocess.h"
 
 Launcher::Launcher() : QHBox(0,0,WStyle_Tool | WStyle_Customize)
 {
@@ -48,7 +51,7 @@ Launcher::Launcher() : QHBox(0,0,WStyle_Tool | WStyle_Customize)
 
     // commands as shorthand push buttons
     for (int i=0; command[i].label; i++) {
-	pb = new QPushButton(command[i].label,vb,command[i].file);
+	pb = new QPushButton( command[i].label, vb, QString::number(i) );
 	connect( pb, SIGNAL(clicked()), this, SLOT(execute()) );
     }
 
@@ -59,8 +62,8 @@ Launcher::Launcher() : QHBox(0,0,WStyle_Tool | WStyle_Customize)
     }
     //	lb->setFont(QFont("smoothtimes",17));
     lb->setMaximumHeight(pb->height()*8);
-    connect(lb, SIGNAL(highlighted(int)), this, SLOT(executeOther(int)));
-    connect(lb, SIGNAL(selected(int)), this, SLOT(executeOther(int)));
+    connect(lb, SIGNAL(highlighted(int)), this, SLOT(executeOther(int)) );
+    connect(lb, SIGNAL(selected(int)), this, SLOT(executeOther(int)) );
 
     QHBox* hb = new QHBox(vb);
     hb->setBackgroundColor(white);
@@ -82,19 +85,28 @@ void Launcher::nextInfo()
     }
 }
 
-void Launcher::run(const char* cmd)
+void Launcher::run(const char*path, const char* cmd)
 {
-    QString c = cmd;
-    c += " 2>/dev/null >/dev/null &";
-    //	system(c.latin1());
+    QStringList list = QStringList::split( QChar(' '), cmd );
+    QString command = list.first();
+    list.remove( list.begin() );
+    QProcess proc( command, list );
+
+    QDir p( baseDir );
+    p.cd( path );
+    proc.setPath( p );
+    proc.setWorkingDirectory( p );
+
+    proc.start();
 }
 
 void Launcher::execute()
 {
-    run( sender()->name() );
+    int i = atoi( sender()->name() );
+    run( command[i].path, command[i].file );
 }
 
 void Launcher::executeOther(int i)
 {
-    run( other_command[i].file );
+    run( other_command[i].path, other_command[i].file );
 }
