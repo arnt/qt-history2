@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#15 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -27,12 +27,14 @@
 
   \ingroup realwidgets
 
-  This widget can be used to display text by calling enableInput(FALSE)
+  This widget can be used to display text by calling setReadOnly(TRUE)
 
   The default key bindings are described in keyPressEvent(); they cannot
   be customized except by inheriting the class.
 
  */
+
+static const int BORDER = 3;
 
 static const int blinkTime  = 500;		// text cursor blink time
 static const int scrollTime = 100;		// mark text scroll time
@@ -92,7 +94,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 	    setFrameStyle( QFrame::Panel | QFrame::Plain );
 	    setLineWidth( 1 );
     }
-    isInputEnabled = TRUE;
+    readOnly = FALSE;
     setAcceptFocus( TRUE );
     setCursor( ibeamCursor );
     ((QScrollBar*)verticalScrollBar())->setCursor( arrowCursor );
@@ -109,31 +111,30 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 }
 
 /*!
-  \fn bool QMultiLineEdit::inputEnabled()
+  \fn bool QMultiLineEdit::isReadOnly()
 
-  Returns TRUE if this multi line edit accepts text input. 
+  Returns FALSE if this multi line edit accepts text input. 
   Scrolling and cursor movements are accepted in any case.
 
-  \sa enableInput() QWidget::isEnabled()
+  \sa setReadOnly() QWidget::isEnabled()
  */
 
 /*!
-  If \a enable is TRUE, this multi line edit will accept text input.
+  If \a on is FALSE, this multi line edit will accept text input.
   Scrolling and cursor movements are accepted in any case.
 
   \sa inputEnabled() QWidget::setEnabled() 
 */
 
-void QMultiLineEdit::enableInput( bool enable ) 
+void QMultiLineEdit::setReadOnly( bool on ) 
 { 
-    isInputEnabled = enable; 
-    if ( enable ) {
-	setCursor( ibeamCursor );
-	setBackgroundColor( colorGroup().base() );
-    }
-    else {
+    readOnly = on; 
+    if ( on ) {
 	setCursor( arrowCursor );
 	setBackgroundColor( colorGroup().background() );
+    } else {
+	setCursor( ibeamCursor );
+	setBackgroundColor( colorGroup().base() );
     }
 }
 
@@ -205,7 +206,8 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 
     int yPos = fm.ascent() + fm.leading()/2 - 1;
     bool hasMark = FALSE;
-    int markX1, markX2;			// in x-coordinate pixels
+    int markX1, markX2;				// in x-coordinate pixels
+    markX1 = markX2 = 0;			// avoid gcc warning
     if ( markIsOn ) {
 	int markBeginX, markBeginY;
 	int markEndX, markEndY;
@@ -273,7 +275,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 			 s->data() + markX2, s->length() - markX2 );
     }
 
-    if ( row == cursorY && cursorOn && isInputEnabled ) {
+    if ( row == cursorY && cursorOn && !readOnly ) {
 	int cursorPos = QMIN( (int)s->length(), cursorX );
 	int curXPos   = BORDER +
 			fm.width( *s, cursorPos ) - 1;
@@ -310,7 +312,8 @@ int QMultiLineEdit::textWidth( int row )
     //possibilities of caching...
     QString *s = contents->at( row );
     if ( !s ) {
-	warning( "Couldn't find contents at row %d", row );
+	warning( 
+	  "QMultiLineEdit::textWidth: Couldn't find contents at row %d", row );
 	return 0;
     }
     return textWidth( s );
@@ -420,9 +423,9 @@ QString QMultiLineEdit::markedText() const
   Returns the text at line number \a row, or 0 if row is invalid.
 */
 
-const char * QMultiLineEdit::text( int row ) const
+const char * QMultiLineEdit::textLine( int line ) const
 {
-    QString *s = contents->at( row );
+    QString *s = contents->at( line );
     if ( s )
 	return *s;
     else
@@ -470,7 +473,7 @@ void QMultiLineEdit::setText( const char *s )
   The key press event handler converts a key press to some line editor
   action.
 
-  Here are the default key bindings when inputEnabled() is TRUE:
+  Here are the default key bindings when isReadOnly() is FALSE:
   <dl compact>
   <dt> Left Arrow <dd> Move the cursor one character leftwards
   <dt> Right Arrow <dd> Move the cursor one character rightwards
@@ -499,7 +502,7 @@ void QMultiLineEdit::setText( const char *s )
   </dl>
   All other keys with valid ASCII codes insert themselves into the line.
 
-  Here are the default key bindings when inputEnabled() is FALSE:
+  Here are the default key bindings when isReadOnly() is TRUE:
   <dl compact>
   <dt> Left Arrow <dd> Scrolls the table rightwards
   <dt> Right Arrow <dd> Scrolls the table rightwards
@@ -514,7 +517,7 @@ void QMultiLineEdit::setText( const char *s )
 void QMultiLineEdit::keyPressEvent( QKeyEvent *e ) 
 {
     int unknown = 0;
-    if ( !isInputEnabled ) {
+    if ( readOnly ) {
 	int pageSize = viewHeight() / cellHeight();
 
 	switch ( e->key() ) {
@@ -646,7 +649,7 @@ void QMultiLineEdit::pageDown()
 {
     int delta = cursorY - topCell();
     int pageSize = viewHeight() / cellHeight();
-    int newTopCell = QMIN( topCell() + pageSize, count() - 1 - pageSize );
+    int newTopCell = QMIN( topCell() + pageSize, numLines() - 1 - pageSize );
     if ( !curXPos )
 	curXPos = mapToView( cursorX, cursorY );
     int oldY = cursorY;
@@ -654,7 +657,7 @@ void QMultiLineEdit::pageDown()
 	cursorY = newTopCell + delta;
 	setTopCell( newTopCell );
     } else { // just move the cursor
-	cursorY = QMIN( cursorY + pageSize, count() - 1);
+	cursorY = QMIN( cursorY + pageSize, numLines() - 1);
 	makeVisible();
     }
     cursorX = mapFromView( curXPos, cursorY );
@@ -690,24 +693,27 @@ void QMultiLineEdit::pageUp()
   If \a s contains newline characters, several lines are inserted.
 */
 
-void QMultiLineEdit::insert( const char *txt, int row )
+void QMultiLineEdit::insert( const char *txt, int line )
 {
-    if ( dummy && count() == 1 && getString( 0 )->isEmpty() ) {
+    if ( dummy && numLines() == 1 && getString( 0 )->isEmpty() ) {
 	contents->remove( (uint)0 );
 	//debug ("insert: removing dummy, %d", count() );
 	dummy = FALSE;
     }
 
     QString s;
-    s.setRawData( txt, strlen(txt) + 1 );
+    if ( txt )
+	s.setRawData( txt, strlen(txt) + 1 );
+    else
+	s = "";
 
     int to = s.find( '\n' );
     if ( to < 0 ) { //just one line
-	QString *line = new QString( txt );
-	if ( row < 0 || !contents->insert( row, line ) )
-	    contents->append( line );
-	bool updt = autoUpdate() && rowIsVisible( row );
-	int w = textWidth( line );
+	QString *txtCopy = new QString( txt );
+	if ( line < 0 || !contents->insert( line, txtCopy ) )
+	    contents->append( txtCopy );
+	bool updt = autoUpdate() && rowIsVisible( line );
+	int w = textWidth( txtCopy );
 	setCellWidth( QMAX( cellWidth(), w ) );
 	setNumRows( contents->count() );
 
@@ -715,22 +721,23 @@ void QMultiLineEdit::insert( const char *txt, int row )
 	    repaint( FALSE );
     } else { //multiline
 	int from = 0;
-	if ( row < 0 || row >= count() )
-	    row = count();
+	if ( line < 0 || line >= numLines() )
+	    line = numLines();
 	while ( to > 0 ) {
-	    insert( s.mid( from, to - from ), row++ );
+	    insert( s.mid( from, to - from ), line++ );
 	    from = to + 1;
 	    to = s.find( '\n', from );
 	}
 	int lastLen = s.length() - from;
-	insert( s.right( lastLen ), row );
+	insert( s.right( lastLen ), line );
 	setNumRows( contents->count() );
 	updateCellWidth();
     }
-    if ( count() == 0 )
+    if ( numLines() == 0 )
 	insert( "" );	// belts and suspenders
     makeVisible();
-    s.resetRawData( txt, strlen(txt) + 1 );
+    if ( txt )
+	s.resetRawData( txt, strlen(txt) + 1 );
 }
 
 /*!
@@ -741,7 +748,7 @@ void QMultiLineEdit::insert( const char *txt, int row )
 
 void QMultiLineEdit::remove( int row )
 {
-    if ( row >= count()  )
+    if ( row >= numLines()  )
 	return;
     if ( cursorY >= row && cursorY > 0 )
 	cursorY--;
@@ -783,7 +790,6 @@ void QMultiLineEdit::insertChar( char c )
     int w = textWidth( s );
     setCellWidth( QMAX( cellWidth(), w ) );
     curXPos  = 0;
-    markIsOn = FALSE;
     makeVisible();
 }
 
@@ -801,10 +807,10 @@ void QMultiLineEdit::newLine()
     insert( newString, cursorY + 1 );
     cursorRight( FALSE );
     curXPos  = 0;
-    markIsOn = FALSE;
     if ( recalc )
 	updateCellWidth();
     makeVisible();
+    turnMarkOff();
 }
 
 /*!
@@ -825,8 +831,8 @@ void QMultiLineEdit::killLine()
 	updateCell( cursorY, 0, FALSE );
     }
     curXPos  = 0;
-    markIsOn = FALSE;
     makeVisible();
+    turnMarkOff();
 }
 
 /*!
@@ -865,8 +871,8 @@ void QMultiLineEdit::cursorLeft( bool mark, int steps )
 	updateCell( cursorY, 0, FALSE );
     }
     curXPos  = 0;
-    markIsOn = FALSE;
     makeVisible();
+    turnMarkOff();
 }
 
 /*!
@@ -904,8 +910,8 @@ void QMultiLineEdit::cursorRight( bool mark, int steps )
 	startTimer( blinkTime );
     }
     curXPos  = 0;
-    markIsOn = FALSE;
     makeVisible();
+    turnMarkOff();
 }
 
 /*!
@@ -938,8 +944,8 @@ void QMultiLineEdit::cursorUp( bool mark, int steps )
 	updateCell( cursorY, 0, FALSE );
 	startTimer( blinkTime );
     }
-    markIsOn = FALSE;
     makeVisible();
+    turnMarkOff();
 }
 
 /*!
@@ -972,9 +978,21 @@ void QMultiLineEdit::cursorDown( bool mark, int steps )
 	updateCell( cursorY, 0, FALSE );
 	startTimer( blinkTime );
     }
-    markIsOn = FALSE;
     makeVisible();
+    turnMarkOff();
 }
+
+
+void QMultiLineEdit::turnMarkOff()
+{
+    if ( markIsOn ) {
+	markIsOn = FALSE;
+	repaint( FALSE );
+    }
+}
+
+
+
 
 /*!
   Deletes the character on the left side of the text cursor and moves the
@@ -1013,6 +1031,8 @@ void QMultiLineEdit::del()
 	    QString *s  = getString( markAnchorY );
 	    ASSERT(s);
 	    s->remove( minMark, maxMark - minMark );
+	    cursorX  = minMark;
+	    cursorY  = markAnchorY;
 	    markIsOn    = FALSE;
 	    updateCellWidth();
 	} else { //multiline
@@ -1105,7 +1125,7 @@ void QMultiLineEdit::home( bool ) //mark
 	startTimer( blinkTime );
     }
     curXPos  = 0;
-    markIsOn = FALSE;
+    turnMarkOff();
     makeVisible();
 }
 
@@ -1136,8 +1156,8 @@ void QMultiLineEdit::end( bool ) //mark
 	updateCell( cursorY, 0, FALSE );
     }
     curXPos  = 0;
-    markIsOn = FALSE;
     makeVisible();
+    turnMarkOff();
 }
 
 /*!
@@ -1146,11 +1166,11 @@ void QMultiLineEdit::end( bool ) //mark
 
 void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 {
-    if ( !isInputEnabled )
+    if ( readOnly )
 	return;
     int newY = findRow( m->pos().y() );
     if ( newY < 0 )
-	return;
+	newY = lastRowVisible();
     newY = QMIN( (int)contents->count() - 1, newY );
     cursorX = xPosToCursorPos( *getString( newY ), fontMetrics(),
 			       m->pos().x() - BORDER + xOffset(),
@@ -1183,12 +1203,16 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 
 void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( !isInputEnabled || !dragMarking )
+    if ( readOnly || !dragMarking )
 	return;
     if ( rect().contains( e->pos() ) ) {
 	int newY = findRow( e->pos().y() );
-	if ( newY < 0 )
-	    return;
+	if ( newY < 0 ) {
+	    if ( e->pos().y() < 0 )
+		newY = topCell();
+	    else
+		newY = lastRowVisible();
+	}
 	newY = QMIN( (int)contents->count() - 1, newY );
 	int newX = xPosToCursorPos( *getString( newY ), fontMetrics(),
 				   e->pos().x() - BORDER + xOffset(),
@@ -1206,6 +1230,11 @@ void QMultiLineEdit::mouseReleaseEvent( QMouseEvent * )
 	markIsOn = FALSE;
     else
 	copyText();
+}
+
+void QMultiLineEdit::mouseDoubleClickEvent( QMouseEvent *e )
+{
+    mousePressEvent( e );
 }
 
 bool QMultiLineEdit::partiallyInvisible( int row )
@@ -1317,25 +1346,16 @@ void QMultiLineEdit::paste()
     //debug( "paste" );
     QString t = QApplication::clipboard()->text();
     if ( !t.isEmpty() ) {
-
-	/*
-	  if ( hasMarkedText() ) {
-	  tbuf.remove( minMark(), maxMark() - minMark() );
-	  cursorPos = minMark();
-	  if ( cursorPos < offset )
-	  offset = cursorPos;
-	  }
-	  */
+	if ( hasMarkedText() )
+	    del();
 	QString *s = getString( cursorY );
 	ASSERT( s );
-	/* #################
-	   uchar *p = (uchar *) t.data();
-	   while ( *p ) {		// unprintable becomes space
-	   if ( *p < 32 )
-	   *p = 32;
-	   p++;
-	   }
-	   */
+	uchar *p = (uchar *) t.data();
+	while ( *p ) {		// unprintable becomes space
+	    if ( *p < 32 && *p != '\n')
+		*p = 32;
+	    p++;
+	}
 
 	int from = 0;
 
@@ -1344,12 +1364,16 @@ void QMultiLineEdit::paste()
 	    s->insert( cursorX, t );
 	    int w = textWidth( s );
 	    setCellWidth( QMAX( cellWidth(), w ) );
+	    cursorX  = t.length();
 	} else { //multiline
 	    setAutoUpdate( FALSE );
 	    QString newString = s->mid( cursorX, s->length() );
 	    s->remove( cursorX, s->length() );
 	    *s += t.left( to );
 	    cursorY++;
+	    if ( cursorY >= numLines() ) {
+		insert( "", numLines() - 1 );
+	    }
 	    from = to + 1;
 	    while ( (to = t.find( '\n', from )) > 0 ) {
 		insert( t.mid( from, to - from ), cursorY++ );
@@ -1363,10 +1387,9 @@ void QMultiLineEdit::paste()
 	    setAutoUpdate( TRUE );
 	    repaint( FALSE );
 	}
-	curXPos  = 0;
 	markIsOn = FALSE;
     }
-
+    curXPos  = 0;
 }
 
 

@@ -1,11 +1,11 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#11 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#12 $
 **
 ** Definition of QMultiLineEdit widget class
 **
 ** Created : 961005
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 
@@ -23,16 +23,16 @@ public:
     QMultiLineEdit( QWidget *parent=0, const char *name=0 );
    ~QMultiLineEdit();
 
-    const char *text( int row ) const;
+    const char *textLine( int line ) const;
     QString text() const;
 
-    void insert( const char *s, int row = -1 );
+    void insert( const char *s, int line = -1 );
     void remove( int );
     void clear();
-    
-    int count();
 
-    bool	inputEnabled();
+    int numLines();
+
+    bool	isReadOnly();
 
     bool	atBeginning();
     bool	atEnd();
@@ -41,7 +41,7 @@ public:
 public slots:
     void	setText( const char * );
     void	selectAll();
-    void	enableInput( bool );
+    void	setReadOnly( bool );
 
 signals:
     void	textChanged();
@@ -54,7 +54,7 @@ protected:
     void	mousePressEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
-    //    void	mouseDoubleClickEvent( QMouseEvent * );
+    void	mouseDoubleClickEvent( QMouseEvent * );
     void	keyPressEvent( QKeyEvent * );
     void	focusInEvent( QFocusEvent * );
     void	focusOutEvent( QFocusEvent * );
@@ -70,12 +70,12 @@ private slots:
 
 private:
     QList<QString> *contents;
-    uint	    isInputEnabled : 1;
-    uint	    cursorOn       : 1;
-    uint	    dummy          : 1;
-    uint	    markIsOn       : 1;
-    uint	    dragScrolling  : 1;
-    uint	    dragMarking    : 1;
+    bool	    readOnly;
+    bool	    cursorOn;
+    bool	    dummy;
+    bool	    markIsOn;
+    bool	    dragScrolling ;
+    bool	    dragMarking;
 
     int		cursorX;
     int		cursorY;
@@ -84,7 +84,6 @@ private:
     int		markDragX;
     int		markDragY;
     int		curXPos;	// cell coord of cursor
-    enum { BORDER = 3 };
 
     int		mapFromView( int xPos, int row );
     int		mapToView( int xIndex, int row );
@@ -113,6 +112,7 @@ private:
     void	paste();
 
     void	newMark( int posx, int posy, bool copy=TRUE );
+    void	turnMarkOff();
     void	markWord( int posx, int posy );
     void	copyText();
 
@@ -121,7 +121,7 @@ private:	// Disabled copy constructor and operator=
     QMultiLineEdit &operator=( const QMultiLineEdit & ) { return *this; }
 };
 
-inline bool QMultiLineEdit::inputEnabled() { return isInputEnabled; }
+inline bool QMultiLineEdit::isReadOnly() { return readOnly; }
 
 inline int QMultiLineEdit::lineLength( int row ) const
 {
@@ -144,7 +144,7 @@ inline QString *QMultiLineEdit::getString( int row ) const
     return contents->at( row );
 }
 
-inline int QMultiLineEdit::count()
+inline int QMultiLineEdit::numLines()
 {
     return contents->count();
 }
