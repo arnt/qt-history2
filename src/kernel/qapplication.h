@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#90 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#91 $
 **
 ** Definition of QApplication class
 **
@@ -26,9 +26,11 @@
 
 #ifndef QT_H
 #include "qwidget.h"
+#include "qlist.h"
 #endif // QT_H
 
 class QStyle;
+class QMessageFile;
 
 
 #if defined(TrueColor)
@@ -118,6 +120,10 @@ public:
 
     static void	     beep();
 
+    void	     installMessageFile( QMessageFile * );
+    void	     removeMessageFile( QMessageFile * );
+    QString	     translate( const char * scope, const char * key ) const;
+
     static void      setWinStyleHighlightColor( const QColor & );
     static const QColor&   winStyleHighlightColor();
 
@@ -143,6 +149,7 @@ public:
 
 signals:
     void	     lastWindowClosed();
+    void	     unknownTranslation( const char *, const char * );
 
 public slots:
     void	     quit();
@@ -167,6 +174,7 @@ private:
     static QWidget  *main_widget;
     static QWidget  *focus_widget;
     static QWidget  *active_window;
+    QList<QMessageFile> * messageFiles;
 
     static QWidgetList *popupWidgets;
     bool inPopupMode() { return popupWidgets != 0; }

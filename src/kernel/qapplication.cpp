@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#159 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#160 $
 **
 ** Implementation of QApplication class
 **
@@ -31,6 +31,7 @@
 #include "qwindowsstyle.h"
 #include "qmotifstyle.h"
 #include "qplatinumstyle.h"
+#include "qmessagefile.h"
 
 /*!
   \class QApplication qapplication.h
@@ -243,6 +244,7 @@ void process_cmdline( int* argcptr, char ** argv )
 
 QApplication::QApplication( int &argc, char **argv )
 {
+    messageFiles = 0;
 #if defined(CHECK_STATE)
     if ( qApp )
 	warning( "QApplication: There should be only one application object" );
@@ -269,6 +271,46 @@ QApplication::QApplication( int &argc, char **argv )
 	builder = new QBuilder;
 	builder->show();
     }
+    // arnt was here.
+    QMessageFile * n = new QMessageFile( this );
+    n->insert( QMessageFile::hash( "QFileDialog", "Name" ), "Navn" );
+    n->insert( QMessageFile::hash( "QFileDialog", "Size" ), "Størrelse" );
+    n->insert( QMessageFile::hash( "QFileDialog", "Type" ), "Type" );
+    n->insert( QMessageFile::hash( "QFileDialog", "Directory" ), "Katalog" );
+    n->insert( QMessageFile::hash( "QFileDialog", "Date" ), "Dato" );
+    n->insert( QMessageFile::hash( "QFileDialog", "Attributes" ),
+	       "Attributter" );
+    n->insert( QMessageFile::hash( "QFileDialog", "OK" ), "Jess!" );
+    n->insert( QMessageFile::hash( "QFileDialog", "Cancel" ), "Avbryt" );
+    n->insert( QMessageFile::hash( "QFileDialog", "Look &in" ), "Se &i" );
+    n->insert( QMessageFile::hash( "QFileDialog", "File &name" ), "Fil&navn" );
+    n->insert( QMessageFile::hash( "QFileDialog", "File &type" ), "Fil&type" );
+    n->insert( QMessageFile::hash( "QFileDialog", "All files (*)" ),
+	       "Alle filer (*)" );
+    n->insert( QMessageFile::hash( "QFileDialog", "Open" ),
+	       "Åpne" );
+    n->insert( QMessageFile::hash( "QFileDialog", "Read-write" ),
+	       "Les- og skrivbar" );
+    n->insert( QMessageFile::hash( "QFileDialog", "Read-only" ),
+	       "Skrivebeskyttet" );
+    n->insert( QMessageFile::hash( "QFileDialog", "Write-only" ),
+	       "Ikke lesbar" );
+    n->insert( QMessageFile::hash( "QFileDialog", "Inaccessible" ),
+	       "Utilgjengelig" );
+    n->insert( QMessageFile::hash( "QFileDialog", "Symlink to File" ),
+	       "Symlink til fil" );
+    n->insert( QMessageFile::hash( "QFileDialog", "Symlink to Dir" ),
+	       "Symlink til katalog" );
+    n->insert( QMessageFile::hash( "QFileDialog", "Symlink to Special" ),
+	       "Symlink to spesialfil" );
+    n->insert( QMessageFile::hash( "QFileDialog", "File" ),
+	       "Fil" );
+    n->insert( QMessageFile::hash( "QFileDialog", "Dir" ),
+	       "Katalog" );
+    n->insert( QMessageFile::hash( "QFileDialog", "Special" ),
+	       "Spesialfil" );
+
+    installMessageFile( n );
 }
 
 
@@ -1043,3 +1085,84 @@ void QApplication::noteTopLevel( QWidget* tlw )
     if ( builder )
 	builder->addTopLevelWidget(tlw);
 }
+
+
+/*!  Adds \a mf to the list of message files to be used for
+  localization.  Message files are searched starting with the most
+  recently added file.
+  
+  \sa removeMessageFile() translate() QObject::tr()
+*/
+
+void QApplication::installMessageFile( QMessageFile * mf )
+{
+    if ( !messageFiles )
+	messageFiles = new QList<QMessageFile>;
+    if ( mf )
+	messageFiles->insert( 0, mf );
+}
+
+
+/*!  Removes \a mf from the list of message files used by this
+  application.  Does not, of course, delete mf.
+
+  \sa installMessageFile() translate(), QObject::tr()
+*/
+
+void QApplication::removeMessageFile( QMessageFile * mf )
+{
+    if ( !messageFiles || !mf )
+	return;
+    messageFiles->first();
+    while( messageFiles->current() && messageFiles->current() != mf )
+	messageFiles->next();
+    messageFiles->take();
+}
+
+
+/*!  Returns the best available translation for \a key in \a scope, by
+  querying the installed messages files.  The message file that was
+  installed last is asked first.
+  
+  QObject::tr() offers a more convenient way to use this functionality.
+  
+  \a scope is typically a class name (e.g. \c MyDialog) and \a is
+  either English text or a short marker text, if the output text will
+  be very long (as for help texts).
+
+  If none of the message files contain a translation for \a key in \a
+  scope, this function returns \a key.
+  
+  \sa QObject::tr() installMessageFile() removeMessageFile() QMessageFile
+*/
+
+QString QApplication::translate( const char * scope, const char * key ) const
+{
+    if ( !key )
+	return key;
+    // scope can be null, for global shite.
+
+    if ( messageFiles ) {
+	uint h = QMessageFile::hash( scope, key );
+	QListIterator<QMessageFile> it( *messageFiles );
+	QMessageFile * mf;
+	QString result;
+	while( (mf=it.current()) != 0 ) {
+	    ++it;
+	    result = mf->find( h );
+	    if ( result != QString::null )
+		return result;
+	}
+    }
+    emit qApp->unknownTranslation( scope, key ); // ooooh! exit const!
+    return key;
+}
+
+
+/*! \fn void QApplication::unknownTranslation( const char * scope, const char * key )
+  
+  This signal is emitted whenever QApplication is unable to translate
+  \a key in \a scope using the currently installed message files.
+
+  \sa QMessageFile translate() QObject::tr()
+*/
