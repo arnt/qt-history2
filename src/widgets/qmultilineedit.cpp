@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#48 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1759,7 +1759,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 
     int newX, newY;
     pixelPosToCursorPos( m->pos(), &newX, &newY );
-    if ( inMark(newX, newY) ) {
+    if ( inMark(newX, newY) && echoMode() == Normal ) {
 	// The user might be trying to drag
 	mlData->dnd_primed = TRUE;
 	mlData->dnd_timer = startTimer( 250 );
@@ -2285,13 +2285,14 @@ int QMultiLineEdit::charClass( QChar ch )
 }
 
 /*!
-  Copies the marked text to the clipboard.
+  Copies the marked text to the clipboard.  Will only copy
+  if echoMode() is Normal.
 */
 
 void QMultiLineEdit::copy() const
 {
     QString t = markedText();
-    if ( !t.isEmpty() ) {
+    if ( !t.isEmpty() && echoMode() == Normal ) {
 #if defined(_WS_X11_)
 	disconnect( QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
 #endif
