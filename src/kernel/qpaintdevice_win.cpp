@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#73 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -33,7 +33,7 @@ QPaintDevice::QPaintDevice( uint devflags )
     if ( !qApp ) {				// global constructor
 #if defined(CHECK_STATE)
 	qFatal( "QPaintDevice: Must construct a QApplication before a "
-	       "QPaintDevice" );
+		"QPaintDevice" );
 #endif
 	return;
     }
@@ -47,7 +47,7 @@ QPaintDevice::~QPaintDevice()
 #if defined(CHECK_STATE)
     if ( paintingActive() )
 	qWarning( "QPaintDevice: Cannot destroy paint device that is being "
-		 "painted.  Be sure to QPainter::end() painters!" );
+		  "painted.  Be sure to QPainter::end() painters!" );
 #endif
 }
 
@@ -121,7 +121,8 @@ static void qDrawTransparentPixmap( HDC hdc_dest, bool destIsPixmap,
     QPixmap *bs = *blackSourcePixmap;
     bool newPixmap = bs == 0;
     if ( newPixmap ) {
-	bs = new QPixmap( src_width, src_height, src_depth, QPixmap::NormalOptim );
+	bs = new QPixmap( src_width, src_height, src_depth,
+			  QPixmap::NormalOptim );
 	CHECK_PTR( bs );
 	BitBlt( bs->handle(), 0, 0, src_width, src_height,
 		hdc_src, 0, src_offset, SRCCOPY );
@@ -207,12 +208,29 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	return;
     }
 
-    if ( !(ts <= QInternal::Pixmap && td <= QInternal::Pixmap) ) {
+    switch ( ts ) {
+	case QInternal::Widget:
+	case QInternal::Pixmap:
+	case QInternal::System:			// OK, can blt from these
+	    break;
+	default:
 #if defined(CHECK_RANGE)
-	qWarning( "bitBlt: Cannot bitBlt to or from device" );
+	    qWarning( "bitBlt: Cannot bitBlt from device type %x", ts );
 #endif
-	return;
+	    return;
     }
+    switch ( td ) {
+	case QInternal::Widget:
+	case QInternal::Pixmap:
+	case QInternal::System:			// OK, can blt to these
+	    break;
+	default:
+#if defined(CHECK_RANGE)
+	    qWarning( "bitBlt: Cannot bitBlt to device type %x", td );
+#endif
+	    return;
+    }
+
     static uint ropCodes[] = {			// ROP translation table
 	SRCCOPY, SRCPAINT, SRCINVERT, 0x00220326 /* DSna */,
 	NOTSRCCOPY, MERGEPAINT, 0x00990066 /* DSnx */, SRCAND,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#103 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#104 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -100,7 +100,7 @@ QPaintDevice::QPaintDevice( uint devflags )
     if ( !qApp ) {				// global constructor
 #if defined(CHECK_STATE)
 	qFatal( "QPaintDevice: Must construct a QApplication before a "
-	       "QPaintDevice" );
+		"QPaintDevice" );
 #endif
 	return;
     }
@@ -119,7 +119,7 @@ QPaintDevice::~QPaintDevice()
 #if defined(CHECK_STATE)
     if ( paintingActive() )
 	qWarning( "QPaintDevice: Cannot destroy paint device that is being "
-		 "painted" );
+		  "painted" );
 #endif
     if ( x11Data ) {
 	delete x11Data;
@@ -521,12 +521,29 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	return;
     }
 
-    if ( !(ts <= QInternal::Pixmap && td <= QInternal::Pixmap) ) {
+    switch ( ts ) {
+	case QInternal::Widget:
+	case QInternal::Pixmap:
+	case QInternal::System:			// OK, can blt from these
+	    break;
+	default:
 #if defined(CHECK_RANGE)
-	qWarning( "bitBlt: Cannot bitBlt to or from device" );
+	    qWarning( "bitBlt: Cannot bitBlt from device type %x", ts );
 #endif
-	return;
+	    return;
     }
+    switch ( td ) {
+	case QInternal::Widget:
+	case QInternal::Pixmap:
+	case QInternal::System:			// OK, can blt to these
+	    break;
+	default:
+#if defined(CHECK_RANGE)
+	    qWarning( "bitBlt: Cannot bitBlt to device type %x", td );
+#endif
+	    return;
+    }
+
     static short ropCodes[] = {			// ROP translation table
 	GXcopy, GXor, GXxor, GXandInverted,
 	GXcopyInverted, GXorInverted, GXequiv, GXand,
