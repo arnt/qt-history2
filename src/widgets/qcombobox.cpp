@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#187 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#188 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -453,7 +453,7 @@ void QComboBox::insertStrList( const QStrList *list, int index )
 	    d->listBox->insertItem( tmp, index );
 	else
 	    d->popup->insertItem( tmp, index );
-	if ( index++ == d->current ) {
+	if ( index++ == d->current && d->current < count() ) {
 	    if ( d->ed )
 		d->ed->setText( text( d->current ) );
 	    else
@@ -496,7 +496,7 @@ void QComboBox::insertStrList( const char **strings, int numStrings, int index)
 	else
 	    d->popup->insertItem( strings[i], index );
 	i++;
-	if ( index++ == d->current ) {
+	if ( index++ == d->current && d->current < count()  ) {
 	    if ( d->ed )
 		d->ed->setText( text( d->current ) );
 	    else
@@ -525,7 +525,7 @@ void QComboBox::insertItem( const QString &t, int index )
         d->popup->insertItem( t, index );
     if ( index != cnt )
 	reIndex();
-    if ( index == d->current ) {
+    if ( index == d->current && d->current < count()  ) {
 	if ( d->ed )
 	    d->ed->setText( text( d->current ) );
 	else
@@ -623,12 +623,14 @@ void QComboBox::clear()
 
 QString QComboBox::currentText() const
 {
-    if ( d->ed ) {
+    if ( d->ed )
 	return d->ed->text();
-    } else {
+    else if ( d->current < count() )
 	return text( currentItem() );
-    }
+    else
+	return QString::null;
 }
+
 
 /*!
   Returns the text item at a given index, or
@@ -1239,9 +1241,10 @@ static int listHeight( QListBox *l, int sl )
 {
     int i;
     int sumH = 0;
-    for( i = 0 ; i < (int) l->count() && i < sl ; i++ ) {
+    i = l->count();
+    i = QMIN(i,sl);
+    while( --i >= 0 )
 	sumH += l->itemHeight( i );
-    }
     return sumH;
 }
 
