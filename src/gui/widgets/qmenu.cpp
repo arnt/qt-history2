@@ -1075,7 +1075,7 @@ void QMenu::hideTearOffMenu()
 
 
 /*!
-  Sets the currently highlighte daction to \a act.
+  Sets the currently highlighted action to \a act.
 */
 void QMenu::setActiveAction(QAction *act)
 {
