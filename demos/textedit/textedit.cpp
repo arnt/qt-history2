@@ -510,8 +510,8 @@ void TextEdit::clipboardDataChanged()
 
 void TextEdit::fontChanged(const QFont &f)
 {
-    comboFont->setCurrentText(f.family());
-    comboSize->setCurrentText(QString::number(f.pointSize()));
+    comboFont->setEditText(f.family());
+    comboSize->setEditText(QString::number(f.pointSize()));
     actionTextBold->setChecked(f.bold());
     actionTextItalic->setChecked(f.italic());
     actionTextUnderline->setChecked(f.underline());
