@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#68 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#67 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#68 $");
 
 
 /*
@@ -1254,11 +1254,15 @@ void QPainter::setClipRegion( const QRegion &rgn )
 }
 
 
-void QPainter::drawPolyInternal( const QPointArray &a )
+void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 {
     if ( nocolBrush )
 	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
-    Polygon( hdc, (POINT*)a.data(), a.size() );
+    if ( close ) {
+	Polygon( hdc, (POINT*)a.data(), a.size() );
+    } else {
+	Polyline( hdc, (POINT*)a.data(), a.size() );	
+    }
     if ( nocolBrush )
 	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
 }
@@ -1571,7 +1575,7 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 	if ( txop == TxRotShear ) {		// rotate/shear
 	    QPointArray pa;
 	    pa.makeArc( x, y, w, h, a, alen );	// arc polyline
-	    drawPolyInternal( xForm(pa) );
+	    drawPolyInternal( xForm(pa), FALSE );
 	    return;
 	}
 	map( x, y, w, h, &x, &y, &w, &h );

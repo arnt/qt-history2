@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#88 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#89 $
 **
 ** Definition of QPainter class
 **
@@ -207,7 +207,7 @@ private:
     void	map( int, int, int, int, int *, int *, int *, int * ) const;
     void	mapInv( int, int, int *, int * ) const;
     void	mapInv( int, int, int, int, int *, int *, int *, int * ) const;
-    void	drawPolyInternal( const QPointArray & );
+    void	drawPolyInternal( const QPointArray &, bool close=TRUE );
 
     enum { IsActive=0x01, ExtDev=0x02, IsStartingUp=0x04, NoCache=0x08,
 	   VxF=0x10, WxF=0x20, ClipOn=0x40, SafePolygon=0x80, MonoDev=0x100,

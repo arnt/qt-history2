@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#209 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#210 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#209 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#210 $");
 
 
 /*****************************************************************************
@@ -1562,26 +1562,29 @@ void QPainter::setClipRegion( const QRegion &rgn )
   Internal function for drawing a polygon.
 */
 
-void QPainter::drawPolyInternal( const QPointArray &a )
+void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 {
+    if ( a.size() < 2 )
+	return;
+
     int x1, y1, x2, y2;				// connect last to first point
     a.point( a.size()-1, &x1, &y1 );
     a.point( 0, &x2, &y2 );
-    bool closed = x1 == x2 && y1 == y2;
+    bool do_close = close && !(x1 == x2 && y1 == y2);
 
-    if ( cbrush.style() != NoBrush ) {		// draw filled polygon
+    if ( close && cbrush.style() != NoBrush ) {	// draw filled polygon
 	XFillPolygon( dpy, hd, gc_brush, (XPoint*)a.data(), a.size(),
 		      Nonconvex, CoordModeOrigin );
 	if ( cpen.style() == NoPen ) {		// draw fake outline
 	    XDrawLines( dpy, hd, gc_brush, (XPoint*)a.data(), a.size(),
 			CoordModeOrigin );
-	    if ( !closed )
+	    if ( do_close )
 		XDrawLine( dpy, hd, gc_brush, x1, y1, x2, y2 );
 	}
     }
     if ( cpen.style() != NoPen ) {		// draw outline
 	XDrawLines( dpy, hd, gc, (XPoint*)a.data(), a.size(), CoordModeOrigin);
-	if ( !closed )
+	if ( do_close )
 	    XDrawLine( dpy, hd, gc, x1, y1, x2, y2 );
     }
 }
@@ -2002,7 +2005,7 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 	if ( txop == TxRotShear ) {		// rotate/shear
 	    QPointArray pa;
 	    pa.makeArc( x, y, w, h, a, alen );	// arc polyline
-	    drawPolyInternal( xForm(pa) );
+	    drawPolyInternal( xForm(pa), FALSE );
 	    return;
 	}
 	map( x, y, w, h, &x, &y, &w, &h );
