@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.h#10 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.h#11 $
 **
 ** Definition of the QWorkspace class
 **
@@ -44,6 +44,15 @@
 
 #include "qworkspacechild.h"
 #include "qwidgetlist.h"
+
+
+#if defined(Q_TEMPLATEDLL)
+/*
+  Gives moc syntax error
+template class Q_EXPORT QList<QWorkspaceChild>;
+*/
+#endif
+
 
 class Q_EXPORT QWorkspace : public QWidget
 {

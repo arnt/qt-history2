@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.h#13 $
+** $Id: //depot/qt/main/src/widgets/qml.h#14 $
 **
 ** Definition of QML classes
 **
@@ -33,8 +33,18 @@
 #include "qcolor.h"
 
 
+#if defined(Q_TEMPLATEDLL)
+/*
+  Gives moc syntac error
+template class Q_EXPORT QDict<QPixmap>;
+template class Q_EXPORT QDict<QString>;
+*/
+#endif
+
+
 class QMLStyleSheet;
 class QMLStyleData;
+
 
 class Q_EXPORT QMLStyle : public Qt
 {
@@ -123,14 +133,23 @@ public:
     // TODO add nifty pixmap cache stuff
 
 private:
-    QDict<QPixmap>images;
-    QDict<QString>documents;
+    QDict<QPixmap> images;
+    QDict<QString> documents;
     QString searchPath;
     QString absoluteFilename( const QString&) const;
 };
 
+
+#if defined(Q_TEMPLATEDLL)
+/*
+  Gives moc syntax error
+template class Q_EXPORT QDict<QMLStyle>;
+*/
+#endif
+
 class QMLNode;
 class QMLContainer;
+
 
 class Q_EXPORT QMLStyleSheet : public QObject
 {
@@ -156,7 +175,7 @@ public:
 
 private:
     void init();
-    QDict <QMLStyle> styles;
+    QDict<QMLStyle> styles;
     QMLStyle* nullstyle;
 
 };
