@@ -1407,7 +1407,7 @@ void QFileDialogPrivate::setup(const QString &directory,
     QDir::Filters filters = filterForMode(fileMode);
     QDir::SortFlags sort = QDir::SortFlags(QDir::Name|QDir::IgnoreCase|QDir::DirsFirst);
     QStringList cleanedFilter = qt_clean_filter_list(nameFilter.first());
-    model = new QDirModel(QString(), cleanedFilter, filters, sort, q);
+    model = new QDirModel(cleanedFilter, filters, sort, q);
     model->setReadOnly(false);
 
     // Selections

@@ -4,7 +4,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    QDirModel *model = new QDirModel(QDir::root());
+    QDirModel *model = new QDirModel;
 
     QTreeView *tree = new QTreeView;
     tree->setModel(model);

@@ -43,12 +43,11 @@ class Q_GUI_EXPORT QDirModel : public QAbstractItemModel
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
 
 public:
-    QDirModel(const QString &path = QString::null,
-              const QStringList &nameFilters = QStringList(),
-              QDir::Filters filters = QDir::NoFilter,
-              QDir::SortFlags sort = QDir::NoSort,
+    QDirModel(const QStringList &nameFilters,
+              QDir::Filters filters,
+              QDir::SortFlags sort,
               QObject *parent = 0);
-    QDirModel(const QDir &directory, QObject *parent = 0);
+    QDirModel(QObject *parent = 0);
     ~QDirModel();
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -107,7 +106,7 @@ public:
     bool remove(const QModelIndex &index);
 
 protected:
-    QDirModel(QDirModelPrivate &, const QDir &directory, QObject *parent = 0);
+    QDirModel(QDirModelPrivate &, QObject *parent = 0);
 
 private:
     Q_DECLARE_PRIVATE(QDirModel)
