@@ -57,7 +57,7 @@ extern "C" Q_UINT32 DosQueryCurrentDisk(Q_UINT32*,Q_UINT32*);
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
 
 QStringList makeFilterList( const QString &filter );
-    
+
 void QDir::slashify( QString& n )
 {
     if ( n.isNull() )
@@ -80,11 +80,13 @@ static void QDir::slashify( QString& n)
 #endif
 
 /*!
-  Returns the canonical path, i.e. a path without symbolic links.
+  Returns the canonical path, i.e. a path without symbolic links or
+  redundant "." or ".." elements.
 
-  On systems that do not have symbolic links this function will
-  always return the same string that absPath returns.
-  If the canonical path does not exist a null string is returned.
+  On systems that do not have symbolic links this function will always
+  return the same string that absPath returns.  If the canonical path
+  does not exist (normally due to dangling symbolic links)
+  canonicalPath() returns a null string.
 
   \sa path(), absPath(), exists(), cleanDirPath(), dirName(),
       absFilePath(), QString::isNull()

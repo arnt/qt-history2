@@ -1062,7 +1062,11 @@ bool QDir::match( const QString &filter, const QString &fileName )
   any "." or ".." found in the path.
 
   Symbolic links are kept.  This function does not return the
-  canonical path.
+  canonical path, but rather the most simplified version of the input.
+  "../stuff" becomes "stuff", "stuff/../nonsense" becomes "nonsense"
+  and "\\stuff\\more\\..\\nonsense" becomes "\\stuff\\nonsense".
+
+  \sa absPath() canonicalPath()
 */
 
 QString QDir::cleanDirPath( const QString &filePath )
