@@ -5,7 +5,7 @@
 **
 ** Created : 010301
 **
-** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt TestFramework of the Qt GUI Toolkit.
 **
@@ -36,13 +36,11 @@
 **********************************************************************/
 
 #include "qtestlistbox_p.h"
-#include <stdlib.h>
-#include <qregexp.h>
 #include "qtestcontrol_p.h"
-#include <assert.h>
-#ifdef Q_OS_WIN32
+#include <qregexp.h>
+#include <stdlib.h>
 #include <limits.h>
-#endif
+#include <assert.h>
 
 /*!
   \class QTestListBox qtestlistbox.h
