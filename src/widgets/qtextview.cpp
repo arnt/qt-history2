@@ -172,7 +172,7 @@ static bool block_set_alignment = FALSE;
 */
 
 QTextView::QTextView( QWidget *parent, const char *name )
-    : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase ),
+    : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase | WResizeNoErase ),
       doc( new QTextDocument( 0 ) ), undoRedoInfo( doc )
 {
     init();
@@ -209,7 +209,6 @@ void QTextView::init()
     connect( doc, SIGNAL( minimumWidthChanged( int ) ),
 	     this, SLOT( setRealWidth( int ) ) );
 
-    drawAll = TRUE;
     mousePressed = FALSE;
     inDoubleClick = FALSE;
     modified = FALSE;
@@ -285,9 +284,7 @@ void QTextView::init()
 #endif
 }
 
-/*! \reimp */
-
-void QTextView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
+void QTextView::paintDocument( bool drawAll, QPainter *p, int cx, int cy, int cw, int ch )
 {
     bool drawCur = hasFocus() || viewport()->hasFocus();
     if ( isReadOnly() || !cursorVisible )
@@ -311,6 +308,13 @@ void QTextView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     if ( contentsHeight() < visibleHeight() && ( !doc->lastParag() || doc->lastParag()->isValid() ) && drawAll )
 	p->fillRect( 0, contentsHeight(), visibleWidth(),
 		     visibleHeight() - contentsHeight(), g.brush( QColorGroup::Base ) );
+}
+
+/*! \reimp */
+
+void QTextView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
+{
+    paintDocument( TRUE, p, cx, cy, cw, ch );
 }
 
 /*! \reimp */
@@ -1425,9 +1429,9 @@ void QTextView::checkUndoRedoInfo( UndoRedoInfo::Type t )
 
 void QTextView::repaintChanged()
 {
-    drawAll = FALSE;
-    viewport()->repaint( FALSE );
-    drawAll = TRUE;
+    QPainter p( viewport() );
+    p.translate( -contentsX(), -contentsY() );
+    paintDocument( FALSE, &p, contentsX(), contentsY(), visibleWidth(), visibleHeight() );
 }
 
 void QTextView::cut()
