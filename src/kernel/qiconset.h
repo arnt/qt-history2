@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QIconSet class
 **
 ** Created : 980318
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -80,6 +80,10 @@ public:
     // static functions
     static void setIconSize( Size, const QSize & );
     static const QSize & iconSize( Size );
+
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+    bool operator==( const QIconSet& ) const;
+#endif
 
 private:
     QIconSetPrivate * d;
