@@ -284,14 +284,14 @@ Option::parseCommandLine(int argc, char **argv)
 	//try REALLY hard to do it for them, lazy..
 	if(Option::mkfile::project_files.isEmpty()) {
 	    QString pwd = QDir::currentDirPath(), 
-		   proj = pwd + pwd.right(pwd.length() - (pwd.findRev('/') + 1)) + ".pro";
+		   proj = pwd + "/" + pwd.right(pwd.length() - (pwd.findRev('/') + 1)) + ".pro";
 	    if(QFile::exists(proj)) {
 		Option::mkfile::project_files.append(proj);
 	    } else { //last try..
 		QDir d(pwd, "*.pro");
 		if(d.count() != 1)
 		    return usage(argv[0]);
-		Option::mkfile::project_files.append(pwd + QDir::separator() + d[0]);
+		Option::mkfile::project_files.append(pwd + "/" + d[0]);
 	    }
 	}
     }
