@@ -340,7 +340,7 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
     }
 
     QInterfacePtr<QAccessibleFactoryInterface> factory = 0;
-    QMetaObject *mo = object->metaObject();
+    const QMetaObject *mo = object->metaObject();
     while ( mo ) {
 	qAccessibleManager->queryInterface( mo->className(), &factory );
 	if ( factory )
