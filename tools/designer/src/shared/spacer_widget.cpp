@@ -21,9 +21,10 @@
 #include <qdebug.h>
 
 Spacer::Spacer(QWidget *parent)
-    : QWidget(parent, Qt::WMouseNoMask),
+    : QWidget(parent),
       orient(Qt::Vertical), interactive(true), sh(20, 40)
 {
+    setAttribute(Qt::WA_MouseNoMask);
     m_formWindow = AbstractFormWindow::findFormWindow(this);
 
     setSizeType(Spacer::Expanding);

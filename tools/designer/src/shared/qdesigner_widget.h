@@ -286,8 +286,8 @@ class QT_SHARED_EXPORT Line : public QFrame
     Q_OVERRIDE(QRect frameRect DESIGNABLE false)
     Q_OVERRIDE(QRect contentsRect DESIGNABLE false)
 public:
-    Line(QWidget *parent) : QFrame(parent, Qt::WMouseNoMask)
-    { setFrameStyle(HLine | Sunken); }
+    Line(QWidget *parent) : QFrame(parent)
+    { setAttribute(Qt::WA_MouseNoMask); setFrameStyle(HLine | Sunken); }
 
     inline void setOrientation(Qt::Orientation orient)
     { setFrameShape(orient == Qt::Horizontal ? HLine : VLine); }
