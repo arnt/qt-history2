@@ -291,6 +291,10 @@ QTime qTimeFromDouble( double tm )
 
 QVariant QPSQLResult::data( int i )
 {
+    if ( i >= PQnfields( d->result ) ) {
+	qWarning( "QPSQLResult::data: column %d out of range", i );
+	return QVariant();
+    }
     int ptype = PQftype( d->result, i );
     QVariant::Type type = qDecodePSQLType( ptype );
     const QString val = ( d->isUtf8 && ptype != BYTEAOID ) ? 

@@ -1396,10 +1396,12 @@ bool QOCIResult::fetchLast()
 
 QVariant QOCIResult::data( int field )
 {
-    if ( isForwardOnly() )
+    if ( isForwardOnly() && field < (int) fs.count() )
 	return fs.value( field );
-    else
+    else if ( (int) d->rowCache.count() > at() && field < (int) d->rowCache[at()]->count() )
 	return d->rowCache[at()]->at(field)->value();
+    qWarning( "QOCIResult::data: column %d out of range", field );
+    return QVariant();
 }
 
 bool QOCIResult::isNull( int field )
@@ -1743,7 +1745,10 @@ bool QOCI9Result::fetchPrev()
 
 QVariant QOCI9Result::data( int field )
 {
-    return fs.value( field );
+    if ( field < (int) fs.count() )
+	return fs.value( field );
+    qWarning( "QOCIResult::data: column %d out of range", field );
+    return QVariant();
 }
 
 bool QOCI9Result::isNull( int field )

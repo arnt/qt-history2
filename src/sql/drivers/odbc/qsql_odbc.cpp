@@ -713,6 +713,10 @@ bool QODBCResult::fetchLast()
 
 QVariant QODBCResult::data( int field )
 {
+    if ( field >= (int) d->rInf.count() ) {
+	qWarning( "QODBCResult::data: column %d out of range", field );
+	return QVariant();
+    }
     if ( fieldCache.contains( field ) )
 	return fieldCache[ field ];
     SQLRETURN r(0);

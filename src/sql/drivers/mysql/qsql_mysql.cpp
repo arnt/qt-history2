@@ -206,8 +206,11 @@ bool QMYSQLResult::fetchFirst()
 
 QVariant QMYSQLResult::data( int field )
 {
-    if ( !isSelect() )
+    if ( !isSelect() || field >= (int) d->fieldTypes.count() ) {
+	qWarning( "QMYSQLResult::data: column %d out of range", field );
 	return QVariant();
+    }
+    
     QString val( ( d->row[field] ) );
     QVariant::Type type = qDecodeMYSQLType( d->fieldTypes[ field ] );
     switch ( type ) {
