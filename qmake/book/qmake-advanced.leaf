@@ -201,8 +201,8 @@ this point in the project file.  This is also equivalent to:
 \endcode
 
 The second notation allows you to adjoin the variable expansion to another
-value without separating by space. \e qmake will allo a variable to
-contains anything (including $(VALUE), which will be placed directly into
+value without separating by space. \e qmake will allow a variable to
+contain anything (including $(VALUE), which will be placed directly into
 the Makefile, and allow it to expand as appropriate, usually an environment
 variable). However, if you require an environment variable to be replaced
 immediately then you may use the $$() notation. For example:
