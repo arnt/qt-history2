@@ -1327,15 +1327,20 @@ void WidgetFactory::initChangedProperties( QObject *o )
 	MetaDataBase::setPropertyChanged( o, "itemIconSet", TRUE );
 	MetaDataBase::setPropertyChanged( o, "itemToolTip", TRUE );
 	MetaDataBase::setPropertyChanged( o, "itemBackgroundMode", TRUE );
-#if !defined (QT_NO_TABLE) && !defined(QT_NO_SQL)
-    } else if ( ::qt_cast<QTable*>(o) && !::qt_cast<QDataTable*>(o) ) {
-	MetaDataBase::setPropertyChanged( o, "numRows", TRUE );
-	MetaDataBase::setPropertyChanged( o, "numCols", TRUE );
-	QTable *t = (QTable*)o;
-	for ( int i = 0; i < 3; ++i ) {
-	    t->horizontalHeader()->setLabel( i, QString::number( i + 1 ) );
-	    t->verticalHeader()->setLabel( i, QString::number( i + 1 ) );
-	}
+#ifndef QT_NO_TABLE
+    } else if ( ::qt_cast<QTable*>(o) ) {
+#  ifndef QT_NO_SQL
+        if (!::qt_cast<QDataTable*>(o) )
+#  endif
+        {
+            MetaDataBase::setPropertyChanged( o, "numRows", TRUE );
+            MetaDataBase::setPropertyChanged( o, "numCols", TRUE );
+            QTable *t = (QTable*)o;
+            for ( int i = 0; i < 3; ++i ) {
+                t->horizontalHeader()->setLabel( i, QString::number( i + 1 ) );
+                t->verticalHeader()->setLabel( i, QString::number( i + 1 ) );
+            }
+        }
 #endif
     } else if ( ::qt_cast<QSplitter*>(o)  ) {
 	MetaDataBase::setPropertyChanged( o, "orientation", TRUE );

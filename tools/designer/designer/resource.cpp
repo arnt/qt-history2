@@ -1174,12 +1174,16 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	}
 	saveItem( lv->firstChild(), ts, indent - 1 );
     }
-#if !defined (QT_NO_TABLE) && !defined (QT_NO_SQL)
+#if !defined (QT_NO_TABLE)
     else if ( ::qt_cast<QTable*>(obj) ) {
 	QTable *table = (QTable*)obj;
 	int i;
 	QMap<QString, QString> columnFields = MetaDataBase::columnFields( table );
+#  ifndef QT_NO_SQL
 	bool isDataTable = ::qt_cast<QDataTable*>(table);
+#  else
+        bool isDataTable = false;
+#  endif
 	for ( i = 0; i < table->horizontalHeader()->count(); ++i ) {
 	    if ( !table->horizontalHeader()->label( i ).isNull() &&
 		 table->horizontalHeader()->label( i ).toInt() != i + 1 ||
@@ -1195,7 +1199,7 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 		    pix.append((deleteMe = new QPixmap(table->horizontalHeader()->iconSet(i)->pixmap())));
 		saveItem( l, pix, ts, indent );
                 delete deleteMe;
-		if ( ::qt_cast<QDataTable*>(table) && !columnFields.isEmpty() ) {
+		if ( isDataTable && !columnFields.isEmpty() ) {
 		    ts << makeIndent( indent ) << "<property name=\"field\">" << endl;
 		    indent++;
 		    ts << makeIndent( indent ) << "<string>" << entitize( *columnFields.find( l[ 0 ] ) ) << "</string>" << endl;
