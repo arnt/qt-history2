@@ -451,6 +451,9 @@ void ConfigureApp::generateConfigfiles()
 	outStream << endl;
 	outStream << "#define QT_PRODUCT_LICENSEE \"" << licenseInfo[ "LICENSEE" ] << "\"" << endl;
 	outStream << "#define QT_PRODUCT_LICENSE \"" << licenseInfo[ "PRODUCTS" ] << "\"" << endl;
+	if( licenseInfo[ "PRODUCTS" ] != "qt-enterprise" )
+	    outStream << "#define QT_LICENSE_PROFESSIONAL" << endl;
+
 	outFile.close();
 //	::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
     }
@@ -812,13 +815,6 @@ bool ConfigureApp::readLicense()
 {
     QFile licenseFile( qtDir + "/.qt-license" );
 
-    if( QFile::exists( qtDir + "/LICENSE.TROLL" ) ) {
-	if( dictionary[ "FORCE_PROFESSIONAL" ] == "yes" )
-	    licenseInfo[ "PRODUCTS" ]= "qt-professional";
-	else
-	    licenseInfo[ "PRODUCTS" ] = "qt-enterprise";
-	return true;
-    }
     if( licenseFile.open( IO_ReadOnly ) ) {
 	QString buffer;
 
@@ -833,6 +829,13 @@ bool ConfigureApp::readLicense()
 	    }
 	}
 	licenseFile.close();
+	return true;
+    }
+    if( QFile::exists( qtDir + "/LICENSE.TROLL" ) ) {
+	if( dictionary[ "FORCE_PROFESSIONAL" ] == "yes" )
+	    licenseInfo[ "PRODUCTS" ]= "qt-professional";
+	else
+	    licenseInfo[ "PRODUCTS" ] = "qt-enterprise";
 	return true;
     }
     return false;
