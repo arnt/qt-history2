@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: moc.doc,v 2.11 1998/04/30 13:53:32 eiriken Exp $
+** $Id: moc.doc,v 2.12 1998/09/14 11:29:22 aavit Exp $
 **
 ** Moc usage, expanded from the manual page
 **
@@ -337,5 +337,37 @@ compile-time phenomenon.  This will fail:
     };
 \endcode
 
+<h3>Signals and slots may not have template arguments</h3>
+
+Declaring signals and slots with template-type parameters will not
+work as expected, even though the moc will accept it. Connecting the
+signal to the slot in the following example, the slot will not get
+executed when the signal is emitted:
+
+\code
+   [...]
+   public slots:
+       void MyWidget::setLocation (pair<int,int> location);
+
+   [...]
+   public signals:
+       void MyObject::moved (pair<int,int> location);
+\endcode
+
+However, you can work around this limitation by explicitly typedef'ing
+the parameter types, like this:
+
+\code
+   typedef pair<int,int> IntPair;	
+   [...]
+   public slots:
+       void MyWidget::setLocation (IntPair location);
+
+   [...]
+   public signals:
+       void MyObject::moved (IntPair location);
+\endcode
+
+This will work as expected.
 
 */
