@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+** Copyright (C) 2001-2003 Trolltech AS. All rights reserved.
 **
 ** This file is part of the Active Qt integration.
 ** EDITIONS: PROFESSIONAL, ENTERPRISE
@@ -38,15 +38,17 @@
 #define ULONG_PTR DWORD
 #endif
 
-// in qaxservermain.cpp
+extern HHOOK qax_hhook;
+
+// in qaxserver.cpp
 extern ITypeLib *qAxTypeLibrary;
 extern QAxFactoryInterface *qAxFactory();
 extern unsigned long qAxLock();
 extern unsigned long qAxUnlock();
-extern void* qAxInstance;
+extern HANDLE qAxInstance;
 
+// in qaxserverdll.cpp
 extern bool qax_ownQApp;
-HHOOK qax_hhook = 0;
 
 struct QAxExceptInfo
 {

@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** Implementation of win32 ActiveX server DLL routines.
+** Implementation of win32 COM server DLL routines.
 **
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+** Copyright (C) 2001-2003 Trolltech AS. All rights reserved.
 **
 ** This file is part of the Active Qt integration.
 ** EDITIONS: PROFESSIONAL, ENTERPRISE
@@ -19,8 +19,9 @@
 #include "../shared/types.h"
 
 bool qax_ownQApp = FALSE;
+HHOOK qax_hhook = 0;
 
-// in qaxservermain.cpp
+// in qaxserver.cpp
 extern char qAxModuleFilename[MAX_PATH];
 extern bool qAxIsServer;
 extern ITypeLib *qAxTypeLibrary;
@@ -31,7 +32,6 @@ extern HANDLE qAxInstance;
 
 extern HRESULT UpdateRegistry(int bRegister);
 extern HRESULT GetClassObject( const GUID &clsid, const GUID &iid, void **ppUnk );
-extern HHOOK qax_hhook;
 
 // in qeventloop_win.cpp
 extern Q_EXPORT bool qt_win_use_simple_timers;
