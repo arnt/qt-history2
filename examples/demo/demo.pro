@@ -2,7 +2,6 @@ TEMPLATE 	= app
 CONFIG		+= qt warn_on debug
 HEADERS		= frame.h \
 		  qthumbwheel.h \
-		  graph.h \
                   display.h \
 		  textdrawing/textedit.h \
 		  textdrawing/helpwindow.h \
@@ -12,13 +11,9 @@ HEADERS		= frame.h \
 		  dnd/listview.h \
 		  i18n/i18n.h \
 		  i18n/wrapper.h \
-		  qasteroids/toplevel.h \
-		  qasteroids/view.h \
-		  qasteroids/ledmeter.h \
 		  ../aclock/aclock.h
 SOURCES		= frame.cpp \
 		  qthumbwheel.cpp \
-		  graph.cpp \
                	  display.cpp \
 		  textdrawing/textedit.cpp \
 		  textdrawing/helpwindow.cpp \
@@ -27,11 +22,19 @@ SOURCES		= frame.cpp \
 		  dnd/iconview.cpp \
 		  dnd/listview.cpp \
 		  i18n/i18n.cpp \
-		  qasteroids/toplevel.cpp \
-		  qasteroids/view.cpp \
-		  qasteroids/ledmeter.cpp \
 		  ../aclock/aclock.cpp \
 		  main.cpp
+
+canvas {
+	HEADERS += graph.h \
+		  qasteroids/toplevel.h \
+		  qasteroids/view.h \
+		  qasteroids/ledmeter.h
+	SOURCES += graph.cpp \
+		  qasteroids/toplevel.cpp \
+		  qasteroids/view.cpp \
+		  qasteroids/ledmeter.cpp
+}
 
 opengl {
 	HEADERS += opengl/glworkspace.h \

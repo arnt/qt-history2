@@ -18,10 +18,13 @@
 #include "dnd/dnd.h"
 #include "i18n/i18n.h"
 #include "widgets/widgetsbase.h"
-#include "qasteroids/toplevel.h"
 
 
 #include <qmodules.h>
+
+#if defined(QT_MODULE_CANVAS)
+#include "qasteroids/toplevel.h"
+#endif
 
 #if defined(QT_MODULE_OPENGL)
 #include "opengl/glworkspace.h"
@@ -115,10 +118,12 @@ int main( int argc, char **argv )
     tab->addTab(w, "Internationalization");
     frame.addCategory( tab, internpix, internpix_sel, "Internationalization");
 
+#if defined(QT_MODULE_CANVAS)
     tab = new QTabWidget();
     w = new KAstTopLevel(tab);
     tab->addTab(w, "Games");
     frame.addCategory( tab, joypix, joypix_sel, "Asteroids");
+#endif
 
     a.setMainWidget( &frame );
     frame.show();
