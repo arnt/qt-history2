@@ -280,7 +280,7 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 		QPoint g(widget->x(), widget->y());
 		int offx = 0, offy = 0;
 		QRegion rpm = widget->extra->mask;
-		if(widget->testWFlags(Qt::WStyle_Customize) && 
+		if(widget->testWFlags(Qt::WStyle_Customize) &&
 		   widget->testWFlags(Qt::WStyle_NoBorder)) {
 		    QPoint rpm_tl = rpm.boundingRect().topLeft();
 		    offx = rpm_tl.x();
@@ -292,7 +292,7 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 		    GetRegionBounds(rgn, &title_r);
 		    qt_mac_dispose_rgn(rgn);
 		    g.setY(g.y() + (title_r.bottom - title_r.top));
-		} 
+		}
 		rin -= QRegion(g.x() + offx, g.y() + offy, widget->width(), widget->height());
 		rpm.translate(g.x(), g.y());
 		rin += rpm;
@@ -308,7 +308,7 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 	    if(widget->extra && !widget->extra->mask.isNull()) {
 		QRegion cr = widget->extra->mask;
 		QPoint g(widget->x(), widget->y());
-		if(!widget->testWFlags(Qt::WStyle_Customize) || 
+		if(!widget->testWFlags(Qt::WStyle_Customize) ||
 		   !widget->testWFlags(Qt::WStyle_NoBorder)) {
 		    Rect title_r;
 		    RgnHandle rgn = qt_mac_get_rgn();
@@ -448,7 +448,7 @@ static bool qt_mac_is_macsheet(QWidget *w)
 #ifdef Q_WS_MACX
     if(w && w->isTopLevel() && w->testWFlags(Qt::WStyle_DialogBorder) &&
        w->parentWidget() && !w->parentWidget()->topLevelWidget()->isDesktop() &&
-       w->parentWidget()->topLevelWidget()->isVisible() && 
+       w->parentWidget()->topLevelWidget()->isVisible() &&
        (w->style().inherits("QAquaStyle") || w->style().inherits("QMacStyle")))
 	return TRUE;
 #else
@@ -637,7 +637,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	setWinId(id);
 	ReshapeCustomWindow((WindowPtr)hd);
 #ifdef Q_WS_MACX
-	if(qt_mac_is_macsheet(this)) 
+	if(qt_mac_is_macsheet(this))
 	    QMacSavedPortInfo::setAlphaTransparancy(this, 0.85);
 #endif
     } else {
@@ -1113,7 +1113,7 @@ void QWidget::showWindow()
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
 #if defined( Q_WS_MACX ) //handle transition
-	if(qt_mac_is_macsheet(this)) 
+	if(qt_mac_is_macsheet(this))
 	    TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd,
 				      kWindowSheetTransitionEffect,
 				      kWindowShowTransitionAction, NULL);
@@ -1571,7 +1571,7 @@ void QWidget::scroll( int dx, int dy)
 
 void QWidget::scroll( int dx, int dy, const QRect& r )
 {
-    if ( testWState( WState_BlockUpdates ) )
+    if ( testWState( WState_BlockUpdates ) && !children() )
 	return;
 
     bool valid_rect = r.isValid();

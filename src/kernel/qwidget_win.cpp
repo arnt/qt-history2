@@ -193,8 +193,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    clearWFlags( WStyle_ContextHelp );
     }
     if ( !desktop ) {
-	// if ( !testWFlags( WPaintUnclipped ) ) 
-	// ### Commented out for now as it causes some problems, but 
+	// if ( !testWFlags( WPaintUnclipped ) )
+	// ### Commented out for now as it causes some problems, but
 	// this should be correct anyway, so dig some more into this
 	    style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN ;
 	if ( topLevel ) {
@@ -226,7 +226,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 #  ifndef Q_OS_TEMP
 	if ( qt_winver & Qt::WV_NT_based ) {
 #  endif
-	    title = isTopLevel() ? (TCHAR*)qt_winTchar_new(QString::fromLatin1(qAppName())) : 
+	    title = isTopLevel() ? (TCHAR*)qt_winTchar_new(QString::fromLatin1(qAppName())) :
 				   (TCHAR*)qt_winTchar_new(QString::fromLatin1(name()));
 #  ifndef Q_OS_TEMP
 	} else
@@ -1339,7 +1339,7 @@ void QWidget::erase( const QRegion& rgn )
 
 void QWidget::scroll( int dx, int dy )
 {
-    if ( testWState( WState_BlockUpdates ) )
+    if ( testWState( WState_BlockUpdates ) && !children() )
 	return;
 #ifndef Q_OS_TEMP
     ScrollWindow( winId(), dx, dy, 0, 0 );

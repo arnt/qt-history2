@@ -1203,7 +1203,7 @@ void QWidget::scroll( int dx, int dy )
 
 void QWidget::scroll( int dx, int dy, const QRect& r )
 {
-    if ( testWState( WState_BlockUpdates ) )
+    if ( testWState( WState_BlockUpdates ) && !children() )
 	return;
     bool valid_rect = r.isValid();
     QRect sr = valid_rect?r:rect();
