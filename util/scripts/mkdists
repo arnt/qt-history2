@@ -28,6 +28,7 @@ DO_WIN=yes
 DO_X11=yes
 DO_MAC=yes
 DO_QWS=yes
+DO_US=yes
 #other
 DO_GZIP=auto
 DO_BZIP=auto
@@ -84,6 +85,7 @@ showhelp()
     echo "  -no-professional / -do-professional  : Toggle professional build"
     echo "  -no-enterprise   / -do-enterprise    : Toggle enterprise build"
     echo "  -no-free         / -do-free          : Toggle free build"
+    echo "  -no-us           / -do-us            : Toggle US builds"
     echo
 
     echo "Platforms:"
@@ -169,6 +171,7 @@ while [ -n "$1" ]; do
    enterprise) DO_ENTERPRISE=$VAL ;;
    free)DO_FREE=$VAL;;
    #platforms
+   us)  DO_US=$VAL  ;;
    win) DO_WIN=$VAL ;;
    x11) DO_X11=$VAL ;;
    mac) DO_MAC=$VAL ;;
@@ -541,8 +544,9 @@ public_file () {
 
 copy_platform_files() {
     dir="$DISTDIR/qt/dist/$1"
-    platform=$2
-    o_dir=$3
+    edition=$2
+    platform=$3
+    o_dir=$4
     [ ! -d $dir ] && return 1
     for a in `find $dir`; do
 	a_file=`echo $a | sed "s,$dir,,"`
@@ -559,6 +563,14 @@ copy_platform_files() {
 	elif [ "$platform" = "win" ]; then
 	    [ `basename $a` = "qmake.cache" ] && o_file=".qmake.cache"
 	fi
+	case $edition in
+	professional-US|enterprise-US)
+	   [ `basename $a` = "LICENSE" ] && continue
+	   [ `basename $a` = "LICENSE-US" ] && o_file="LICENSE"
+	   ;;
+	*) [ `basename $a` = "LICENSE-US" ] && continue ;;
+	esac
+
 	#do copy
 	final_dir=`dirname $o_dir/$o_file`
 	[ ! -d $final_dir ] && mkdir -p $final_dir
@@ -583,9 +595,11 @@ for plat in mac win x11 qws; do
     platformname=$plat
     plat2=$plat
     plat3=$plat
+    pack_US=$DO_US #do us!
     case $plat in
     mac)
 	[ "x$DO_MAC" = "xyes" ] || continue
+	pack_US=no
 	plat2=unix
 	plat3=mac9
 	;;
@@ -606,14 +620,16 @@ for plat in mac win x11 qws; do
     status "****** Packing for platform: $plat ****" "1"
 
     PLAT_RM_FILE=${TMP_FILE}-plat-${plat}
-    for edition in enterprise professional free; do
+    for edition in enterprise professional free enterprise-US professional-US; do
 	dist_for_edition=$edition
 	case $edition in
-	enterprise)
+	enterprise|enterprise-US)
+	    [ "$edition" = "us-enterprise" ] && [ "$pack_US" = "no" ] && continue
 	    [ "x$DO_ENTERPRISE" = "xyes" ] || continue
 	    dist_for_edition="commercial"
 	    ;;
-	professional)
+	professional|professional-US)
+	    [ "$edition" = "us-professional" ] && [ "$pack_US" = "no" ] && continue
 	    [ "x$DO_PROFESSIONAL" = "xyes" ] || continue
 	    dist_for_edition="commercial"
 	    ;;
@@ -657,7 +673,7 @@ for plat in mac win x11 qws; do
 		[ -d "$PLATDIR/$f" ] && rm -rf "$PLATDIR/$f"
 	    done
 	    ;;
-	professional)
+	professional-US)
 	    #Remove non-professional modules and stuff
 	    for module in SQL Table XML OpenGL Network Canvas; do
 		sed -e 's,\(<li>.*<a.*> *${module}</a>\),<!--\1-->,' $PLATDIR/doc/indices.doc >${TMP_FILE}
@@ -785,8 +801,8 @@ for plat in mac win x11 qws; do
 	#find $PLATDIR/tools/designer/manual/sgml/eg/book -name editbook.cpp | xargs rm -f
 
 	#copy the platform dist stuff
-	copy_platform_files "$platformname" $plat $PLATDIR #platform specific
-	copy_platform_files "$dist_for_edition" $plat $PLATDIR #edition specific
+	copy_platform_files "$platformname" $edition $plat $PLATDIR #platform specific
+	copy_platform_files "$dist_for_edition" $edition $plat $PLATDIR #edition specific
 
 	#remove platform specific files that don't belong
 	status "Final cleanup.."
