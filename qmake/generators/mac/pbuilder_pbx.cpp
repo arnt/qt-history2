@@ -990,8 +990,12 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << "\t\t\t\t" << "PRODUCT_NAME = " << lib << ";" << "\n";
     }
     tmp = project->variables()["QMAKE_PBX_VARS"];
-    for(QStringList::Iterator it = tmp.begin(); it != tmp.end(); ++it)
-	t << "\t\t\t\t" << (*it) << " = \"" << getenv((*it)) << "\";" << "\n";
+    for(QStringList::Iterator it = tmp.begin(); it != tmp.end(); ++it) {
+	QString var = (*it), val = getenv(var);
+	if(!val && var == "TB")
+	    val = "/usr/bin/";
+	t << "\t\t\t\t" << var << " = \"" << val << "\";" << "\n";
+    }
     t << "\t\t\t" << "};" << "\n"
       << "\t\t\t" << "conditionalBuildSettings = {" << "\n"
       << "\t\t\t" << "};" << "\n"
