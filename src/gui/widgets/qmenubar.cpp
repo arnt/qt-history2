@@ -658,9 +658,13 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
             else
                 next_action = firstAfterCurrent;
         }
-        if(next_action)
+        if(next_action) {
+            key_consumed = true;
             d->setCurrentAction(next_action, true, true);
+        }
     }
+    if(key_consumed)
+        e->accept();
 }
 
 /*!

@@ -1506,6 +1506,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
             if(next_action) {
                 d->setCurrentAction(next_action, 20, true);
                 if(!next_action->action->menu()) {
+                    key_consumed = true;
                     d->activateAction(next_action->action, QAction::Trigger);
                     d->hideUpToMenuBar();
                 }
@@ -1516,6 +1517,8 @@ void QMenu::keyPressEvent(QKeyEvent *e)
             qApp->beep();
 #endif // Q_OS_WIN32
     }
+    if(key_consumed)
+        e->accept();
 }
 
 /*!
