@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     else
         fileName = ".";
 
-    TabDialog tabdialog(0, fileName);
+    TabDialog tabdialog(fileName);
     tabdialog.show();
     app.setMainWidget(&tabdialog);
     return app.exec();

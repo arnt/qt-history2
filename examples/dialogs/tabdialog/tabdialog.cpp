@@ -2,15 +2,15 @@
 
 #include "tabdialog.h"
 
-TabDialog::TabDialog(QWidget *parent, const QString &fileName)
+TabDialog::TabDialog(const QString &fileName, QWidget *parent)
     : QDialog(parent)
 {
     QFileInfo fileInfo(fileName);
 
     tabWidget = new QTabWidget(this);
-    tabWidget->addTab(new GeneralTab(0, fileInfo), tr("General"));
-    tabWidget->addTab(new PermissionsTab(0, fileInfo), tr("Permissions"));
-    tabWidget->addTab(new ApplicationsTab(0, fileInfo), tr("Applications"));
+    tabWidget->addTab(new GeneralTab(fileInfo), tr("General"));
+    tabWidget->addTab(new PermissionsTab(fileInfo), tr("Permissions"));
+    tabWidget->addTab(new ApplicationsTab(fileInfo), tr("Applications"));
 
     QPushButton *okButton = new QPushButton(tr("OK"), this);
     QPushButton *cancelButton = new QPushButton(tr("Cancel"), this);
@@ -30,7 +30,7 @@ TabDialog::TabDialog(QWidget *parent, const QString &fileName)
     setWindowTitle(tr("Tab Dialog"));
 }
 
-GeneralTab::GeneralTab(QWidget *parent, const QFileInfo &fileInfo)
+GeneralTab::GeneralTab(const QFileInfo &fileInfo, QWidget *parent)
     : QWidget(parent)
 {
     QLabel *fileNameLabel = new QLabel(tr("File Name:"), this);
@@ -69,7 +69,7 @@ GeneralTab::GeneralTab(QWidget *parent, const QFileInfo &fileInfo)
     mainLayout->addStretch(1);
 }
 
-PermissionsTab::PermissionsTab(QWidget *parent, const QFileInfo &fileInfo)
+PermissionsTab::PermissionsTab(const QFileInfo &fileInfo, QWidget *parent)
     : QWidget(parent)
 {
     QGroupBox *permissionsGroup = new QGroupBox(tr("Permissions"), this);
@@ -113,7 +113,7 @@ PermissionsTab::PermissionsTab(QWidget *parent, const QFileInfo &fileInfo)
     mainLayout->addStretch(1);
 }
 
-ApplicationsTab::ApplicationsTab(QWidget *parent, const QFileInfo &fileInfo)
+ApplicationsTab::ApplicationsTab(const QFileInfo &fileInfo, QWidget *parent)
     : QWidget(parent)
 {
     QLabel *topLabel = new QLabel(tr("Open with:"), this);
