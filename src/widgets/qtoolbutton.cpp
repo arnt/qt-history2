@@ -48,7 +48,7 @@ public:
     QGuardedPtr<QPopupMenu> popup;
     QTimer* popupTimer;
     int delay;
-    bool autoraise;
+    bool autoraise, repeat;
     Qt::ArrowType arrow;
 };
 
@@ -737,6 +737,8 @@ void QToolButton::popupPressed()
 void QToolButton::popupTimerDone()
 {
     if ( isDown() && d->popup ) {
+	d->repeat = autoRepeat();
+	setAutoRepeat( FALSE );
 	bool horizontal = TRUE;
 	bool topLeft = TRUE;
 	if ( parentWidget() && parentWidget()->inherits("QToolBar") ) {
@@ -770,6 +772,8 @@ void QToolButton::popupTimerDone()
 	    }
 	}
 	setDown( FALSE );
+	if ( d->repeat )
+	    setAutoRepeat( TRUE );
     }
 }
 
