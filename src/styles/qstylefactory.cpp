@@ -41,6 +41,7 @@
 
 #include "qapplication.h"
 #include "qinterfacemanager.h"
+#include "qwindowsxpstyle.h"
 #include "qwindowsstyle.h"
 #include "qmotifstyle.h"
 #include "qcdestyle.h"
@@ -96,6 +97,11 @@ QStyleFactoryPrivate::~QStyleFactoryPrivate()
 QStyle *QStyleFactory::create( const QString& s )
 {
     QString style = s.lower();
+#ifndef QT_NO_STYLE_WINDOWSXP
+    if ( style == "windowsxp" )
+	return new QWindowsXPStyle;
+    else
+#endif
 #ifndef QT_NO_STYLE_WINDOWS
     if ( style == "windows" )
         return new QWindowsStyle;
