@@ -1640,7 +1640,7 @@ bool QUriDrag::decodeToUnicodeUris(const QMimeSource* e, QStringList& l)
 #ifndef QT_NO_DRAGANDDROP
 /*!
     If the source of the drag operation is a widget in this
-    application, this function returns that source, otherwise it
+    application, this function returns that source; otherwise it
     returns 0. The source of the operation is the first parameter to
     drag object subclasses.
 
