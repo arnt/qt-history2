@@ -286,6 +286,12 @@ static const char* const type_map[ntypes] =
 
 int qvariant_nameToType( const char* name )
 {
+    // compatibility... QCString is obsolete, but we should maintain //
+    // compatibility with older versions by using QByteArray in place of
+    // QCString
+    if (qstrcmp(name, "QCString") == 0) 
+	name = "QByteArray";
+
     for ( int i = 0; i < ntypes; i++ ) {
 	if ( !qstrcmp( type_map[i], name ) )
 	    return i;
@@ -3385,7 +3391,12 @@ void generateClass()		      // generate C++ source code for a class
 		    fprintf( out, "v->asLongLong()" );
 		else if ( type == "Q_ULLONG" )
 		    fprintf( out, "v->asULongLong()" );
-		else if ( isVariantType( type ) ) {
+                else if ( type == "QCString" ) {
+ 		    // compatibility... QCString is obsolete, but we
+                    // should maintain compatibility with older versions
+ 		    // by using QByteArray in place of QCString
+		    fprintf( out, "v->asByteArray()" );
+		} else if ( isVariantType( type ) ) {
 		    if ( type[0] == 'Q' )
 			type = type.mid(1);
 		    else
