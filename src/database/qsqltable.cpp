@@ -43,14 +43,14 @@ public:
 
     QSqlRowset* rowset()
     {
-	if ( mode == Rowset || mode == View ) 
+	if ( mode == Rowset || mode == View )
 	    return (QSqlRowset*)s;
 	return 0;
     }
 
     QSqlView* view()
     {
-	if ( mode == View ) 
+	if ( mode == View )
 	    return (QSqlView*)s;
 	return 0;
     }
@@ -79,7 +79,7 @@ private:
   When displaying data, QSqlTable only retrieves data for visible
   rows.  If drivers do not support the 'query size' property, rows are
   dynamically fetched from the database on an as-needed basis.  This
-  allows extremely large queries to be displayed a s quickly as
+  allows extremely large queries to be displayed as quickly as
   possible, with limited memory usage.
 
   QSqlTable also offers an API for sorting columns. See setSorting()
@@ -318,7 +318,7 @@ void QSqlTable::reset()
 int QSqlTable::indexOf( uint i )
 {
     QSqlTablePrivate::ColIndex::ConstIterator it = d->colIndex.at( i );
-    if ( it != d->colIndex.end() ) 
+    if ( it != d->colIndex.end() )
 	return *it;
     return -1;
 }
@@ -458,7 +458,7 @@ void QSqlTable::sortColumn ( int col, bool ascending,
 {
     if ( sorting() ) {
 	QSqlRowset* rset = d->rowset();
-	if ( !rset )
+	if ( !rset ) 
 	    return;
 	QSqlIndex lastSort = rset->sort();
 	QSqlIndex newSort( lastSort.tableName() );
@@ -518,7 +518,7 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 
 void QSqlTable::addColumns( const QSqlFieldList& fieldList )
 {
-    for ( uint j = 0; j < fieldList.count(); ++j ) 
+    for ( uint j = 0; j < fieldList.count(); ++j )
 	addColumn( fieldList.field(j) );
 }
 
@@ -634,8 +634,8 @@ void QSqlTable::setView( const QString& name, const QString& databaseName, bool 
 void QSqlTable::setView( const QSqlView& view, bool autoPopulate )
 {
     setUpdatesEnabled( FALSE );
-    setSorting( TRUE );
     reset();
+    setSorting( TRUE );    
     d->resetMode( QSqlTablePrivate::View );
     QSqlView* vw = d->view();
     (*vw) = view;
