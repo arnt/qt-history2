@@ -58,54 +58,8 @@
 #include <Windows.h>
 #endif
 
-class QProcess;
+class QProcessPrivate;
 
-class QProcessPrivate
-{
-private:
-    QProcessPrivate( QProcess *proc );
-    ~QProcessPrivate();
-
-    QString     command;
-    QDir        workingDir;
-    QStringList arguments;
-    QQueue<QByteArray> stdinBuf;
-
-#if defined (_WS_WIN_)
-    HANDLE pipeStdin[2];
-    HANDLE pipeStdout[2];
-    HANDLE pipeStderr[2];
-    QTimer *lookup;
-#else
-    QSocketNotifier *notifierStdin;
-    QSocketNotifier *notifierStdout;
-    QSocketNotifier *notifierStderr;
-    int socketStdin[2];
-    int socketStdout[2];
-    int socketStderr[2];
-#endif
-
-#if defined(_WS_WIN_)
-    PROCESS_INFORMATION pid;
-    uint stdinBufRead;
-#else
-    pid_t pid;
-    ssize_t stdinBufRead;
-#endif
-#if defined(_OS_UNIX_)
-    QProcess *d;
-    static struct sigaction *oldact;
-    static QList<QProcess> *proclist;
-public:
-    static void sigchldHnd();
-private:
-#endif
-    bool exitValuesCalculated;
-    int  exitStat;
-    bool exitNormal;
-
-    friend class QProcess;
-};
 
 class Q_EXPORT QProcess : public QObject
 {
@@ -152,7 +106,15 @@ public slots:
 private:
     QProcessPrivate *d;
 
+    QString     command;
+    QDir        workingDir;
+    QStringList arguments;
+
+    int  exitStat;	// exit status
+    bool exitNormal;	// normal exit?
+
 private:
+    void init();
 #if defined( _WS_WIN_ )
     QByteArray readStddev( HANDLE dev, ulong bytes = 0 );
 #endif

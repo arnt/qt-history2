@@ -45,38 +45,79 @@
 
 extern Qt::WindowsVersion qt_winver;
 
-QProcessPrivate::QProcessPrivate( QProcess *proc )
+
+/***********************************************************************
+ *
+ * QProcessPrivate
+ *
+ **********************************************************************/
+class QProcessPrivate
 {
-    stdinBufRead = 0;
-    pipeStdin[0] = 0;
-    pipeStdin[1] = 0;
-    pipeStdout[0] = 0;
-    pipeStdout[1] = 0;
-    pipeStderr[0] = 0;
-    pipeStderr[1] = 0;
+public:
+    QProcessPrivate( QProcess *proc )
+    {
+	stdinBufRead = 0;
+	pipeStdin[0] = 0;
+	pipeStdin[1] = 0;
+	pipeStdout[0] = 0;
+	pipeStdout[1] = 0;
+	pipeStderr[0] = 0;
+	pipeStderr[1] = 0;
 
-    lookup = new QTimer( proc );
-    qApp->connect( lookup, SIGNAL(timeout()),
-	    proc, SLOT(timeout()) );
+	lookup = new QTimer( proc );
+	qApp->connect( lookup, SIGNAL(timeout()),
+		proc, SLOT(timeout()) );
 
-    exitValuesCalculated = FALSE;
+	exitValuesCalculated = FALSE;
+    }
+
+    ~QProcessPrivate()
+    {
+	while ( !stdinBuf.isEmpty() ) {
+	    delete stdinBuf.dequeue();
+	}
+	if( pipeStdin[1] != 0 )
+	    CloseHandle( pipeStdin[1] );
+	if( pipeStdout[0] != 0 )
+	    CloseHandle( pipeStdout[0] );
+	if( pipeStderr[0] != 0 )
+	    CloseHandle( pipeStderr[0] );
+    }
+
+    QQueue<QByteArray> stdinBuf;
+
+    HANDLE pipeStdin[2];
+    HANDLE pipeStdout[2];
+    HANDLE pipeStderr[2];
+    QTimer *lookup;
+
+    PROCESS_INFORMATION pid;
+    uint stdinBufRead;
+
+    bool exitValuesCalculated;
+};
+
+
+/***********************************************************************
+ *
+ * QProcess
+ *
+ **********************************************************************/
+void QProcess::init()
+{
+    d = new QProcessPrivate( this );
     exitStat = 0;
     exitNormal = FALSE;
 }
 
-QProcessPrivate::~QProcessPrivate()
+/*!
+  Destructor; if the process is running, it is NOT terminated! Stdin, stdout
+  and stderr of the process are closed.
+*/
+QProcess::~QProcess()
 {
-    while ( !stdinBuf.isEmpty() ) {
-	delete stdinBuf.dequeue();
-    }
-    if( pipeStdin[1] != 0 )
-	CloseHandle( pipeStdin[1] );
-    if( pipeStdout[0] != 0 )
-	CloseHandle( pipeStdout[0] );
-    if( pipeStderr[0] != 0 )
-	CloseHandle( pipeStderr[0] );
+    delete d;
 }
-
 
 bool QProcess::start()
 {
@@ -121,8 +162,8 @@ bool QProcess::start()
 
     // construct the arguments for CreateProcess()
     QString args;
-    args = d->command.latin1();
-    for ( QStringList::Iterator it = d->arguments.begin(); it != d->arguments.end(); ++it ) {
+    args = command.latin1();
+    for ( QStringList::Iterator it = arguments.begin(); it != arguments.end(); ++it ) {
 	args += QString( " \'" ) + (*it).latin1() + QString( "\'" );
     }
 
@@ -139,7 +180,7 @@ bool QProcess::start()
 	TCHAR *commandLine = (TCHAR*)qt_winTchar_new( args );
 	success = CreateProcess( 0, commandLine,
 		0, 0, TRUE, 0, 0,
-		(TCHAR*)qt_winTchar(d->workingDir.absPath(),TRUE),
+		(TCHAR*)qt_winTchar(workingDir.absPath(),TRUE),
 		&startupInfo, &d->pid );
 	delete[] commandLine;
     } else
@@ -153,7 +194,7 @@ bool QProcess::start()
 	    d->pipeStdin[0], d->pipeStdout[1], d->pipeStderr[1] };
 	success = CreateProcessA( 0, args.local8Bit().data(),
 		0, 0, TRUE, 0, 0,
-		(const char*)d->workingDir.absPath().local8Bit(),
+		(const char*)workingDir.absPath().local8Bit(),
 		&startupInfo, &d->pid );
     }
     if  ( !success ) {
@@ -190,8 +231,8 @@ bool QProcess::isRunning()
 	    DWORD exitCode;
 	    if ( GetExitCodeProcess( d->pid.hProcess, &exitCode ) ) {
 		if ( exitCode != STILL_ACTIVE ) { // this should ever be true?
-		    d->exitNormal = TRUE;
-		    d->exitStat = exitCode;
+		    exitNormal = TRUE;
+		    exitStat = exitCode;
 		}
 	    }
 	    d->exitValuesCalculated = TRUE;
@@ -232,7 +273,7 @@ void QProcess::socketRead( int fd )
     char dummy;
     PeekNamedPipe( dev, &dummy, 1, &r, &i, 0 );
     if ( i > 0 ) {
-	QByteArray buffer=readStddev( dev, i );
+	QByteArray buffer = readStddev( dev, i );
 	int sz = buffer.size();
 	if ( sz == 0 )
 	    return;

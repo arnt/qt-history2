@@ -61,7 +61,7 @@
 QProcess::QProcess( QObject *parent, const char *name )
     : QObject( parent, name )
 {
-    d = new QProcessPrivate( this );
+    init();
 }
 
 /*!
@@ -70,7 +70,7 @@ QProcess::QProcess( QObject *parent, const char *name )
 QProcess::QProcess( const QString& com, QObject *parent, const char *name )
     : QObject( parent, name )
 {
-    d = new QProcessPrivate( this );
+    init();
     setCommand( com );
 }
 
@@ -81,27 +81,17 @@ QProcess::QProcess( const QString& com, QObject *parent, const char *name )
 QProcess::QProcess( const QString& com, const QStringList& args, QObject *parent, const char *name )
     : QObject( parent, name )
 {
-    d = new QProcessPrivate( this );
+    init();
     setCommand( com );
     setArguments( args );
 }
-
-/*!
-  Destructor; if the process is running, it is NOT terminated! Stdin, stdout
-  and stderr of the process are closed.
-*/
-QProcess::~QProcess()
-{
-    delete d;
-}
-
 
 /*!
   Sets the command that should be executed.
 */
 void QProcess::setCommand( const QString& com )
 {
-    d->command = com;
+    command = com;
 }
 
 /*!
@@ -110,7 +100,7 @@ void QProcess::setCommand( const QString& com )
 */
 void QProcess::setArguments( const QStringList& args )
 {
-    d->arguments = args;
+    arguments = args;
 }
 
 /*!
@@ -118,7 +108,7 @@ void QProcess::setArguments( const QStringList& args )
 */
 void QProcess::addArgument( const QString& arg )
 {
-    d->arguments.append( arg );
+    arguments.append( arg );
 }
 
 /*!
@@ -126,7 +116,7 @@ void QProcess::addArgument( const QString& arg )
 */
 void QProcess::setWorkingDirectory( const QDir& dir )
 {
-    d->workingDir = dir;
+    workingDir = dir;
 }
 
 
@@ -139,7 +129,7 @@ bool QProcess::normalExit()
     if ( isRunning() )
 	return FALSE;
     else
-	return d->exitNormal;
+	return exitNormal;
 }
 
 /*!
@@ -152,7 +142,7 @@ int QProcess::exitStatus()
     if ( isRunning() )
 	return 0;
     else
-	return d->exitStat;
+	return exitStat;
 }
 
 

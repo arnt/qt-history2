@@ -65,6 +65,141 @@ static void qt_C_sigchldHnd( int );
 }
 #endif
 
+
+/***********************************************************************
+ *
+ * QProcessPrivate
+ *
+ **********************************************************************/
+class QProcessPrivate
+{
+public:
+    QProcessPrivate( QProcess *proc ) : d( proc )
+    {
+#if defined(QPROCESS_DEBUG)
+	qDebug( "QProcessPrivate: Constructor" );
+#endif
+	stdinBufRead = 0;
+
+	notifierStdin = 0;
+	notifierStdout = 0;
+	notifierStderr = 0;
+
+	socketStdin[0] = 0;
+	socketStdin[1] = 0;
+	socketStdout[0] = 0;
+	socketStdout[1] = 0;
+	socketStderr[0] = 0;
+	socketStderr[1] = 0;
+
+	exitValuesCalculated = FALSE;
+
+	// install a SIGCHLD handler
+	if ( proclist == 0 ) {
+	    proclist = new QList<QProcess>;
+
+	    struct sigaction act;
+	    act.sa_handler = qt_C_sigchldHnd;
+	    sigemptyset( &(act.sa_mask) );
+	    sigaddset( &(act.sa_mask), SIGCHLD );
+	    act.sa_flags = SA_NOCLDSTOP;
+#if defined(SA_RESTART)
+	    act.sa_flags |= SA_RESTART;
+#endif
+	    if ( sigaction( SIGCHLD, &act, oldact ) != 0 )
+		qWarning( "Error installing SIGCHLD handler" );
+	}
+	proclist->append( d );
+    }
+
+    ~QProcessPrivate()
+    {
+#if defined(QPROCESS_DEBUG)
+	qDebug( "QProcessPrivate: Destructor" );
+#endif
+	// restore SIGCHLD handler
+	if ( proclist != 0 ) {
+	    proclist->remove( d );
+	    if ( proclist->count() == 0 ) {
+		delete proclist;
+		proclist = 0;
+		if ( sigaction( SIGCHLD, oldact, 0 ) != 0 )
+		    qWarning( "Error restoring SIGCHLD handler" );
+	    }
+	}
+
+	while ( !stdinBuf.isEmpty() ) {
+	    delete stdinBuf.dequeue();
+	}
+	if ( notifierStdin ) {
+	    notifierStdin->setEnabled( FALSE );
+	    delete notifierStdin;
+	}
+	if ( notifierStdout ) {
+	    notifierStdout->setEnabled( FALSE );
+	    delete notifierStdout;
+	}
+	if ( notifierStderr ) {
+	    notifierStderr->setEnabled( FALSE );
+	    delete notifierStderr;
+	}
+	if( socketStdin[1] != 0 )
+	    ::close( socketStdin[1] );
+	if( socketStdout[0] != 0 )
+	    ::close( socketStdout[0] );
+	if( socketStderr[0] != 0 )
+	    ::close( socketStderr[0] );
+    }
+
+    static void sigchldHnd()
+    {
+	if ( !proclist )
+	    return;
+	QProcess *proc;
+	for ( proc=proclist->first(); proc!=0; proc=proclist->next() ) {
+	    if ( !proc->d->exitValuesCalculated && !proc->isRunning() ) {
+#if defined(QPROCESS_DEBUG)
+		qDebug( "QProcessPrivate::sigchldHnd(): process exited" );
+#endif
+		// read pending data
+		proc->socketRead( proc->d->socketStdout[0] );
+		proc->socketRead( proc->d->socketStderr[0] );
+
+		emit proc->processExited();
+		// the slot might have deleted the last process...
+		if ( !proclist )
+		    return;
+	    }
+	}
+    }
+
+    QQueue<QByteArray> stdinBuf;
+
+    QSocketNotifier *notifierStdin;
+    QSocketNotifier *notifierStdout;
+    QSocketNotifier *notifierStderr;
+    int socketStdin[2];
+    int socketStdout[2];
+    int socketStderr[2];
+
+    pid_t pid;
+    ssize_t stdinBufRead;
+    QProcess *d;
+    static struct sigaction *oldact;
+    static QList<QProcess> *proclist;
+
+    bool exitValuesCalculated;
+};
+
+struct sigaction *QProcessPrivate::oldact = 0;
+QList<QProcess> *QProcessPrivate::proclist = 0;
+
+
+/***********************************************************************
+ *
+ * sigchld handler callback
+ *
+ **********************************************************************/
 #if defined(_OS_OSF_)
 void qt_C_sigchldHnd()
 #else
@@ -74,110 +209,30 @@ void qt_C_sigchldHnd( int )
     QProcessPrivate::sigchldHnd();
 }
 
-struct sigaction *QProcessPrivate::oldact;
-QList<QProcess> *QProcessPrivate::proclist = 0;
 
-QProcessPrivate::QProcessPrivate( QProcess *proc ) : d( proc )
+/***********************************************************************
+ *
+ * QProcess
+ *
+ **********************************************************************/
+/*!
+  Basic initialization
+*/
+void QProcess::init()
 {
-#if defined(QPROCESS_DEBUG)
-    qDebug( "QProcessPrivate: Constructor" );
-#endif
-    stdinBufRead = 0;
-
-    notifierStdin = 0;
-    notifierStdout = 0;
-    notifierStderr = 0;
-
-    socketStdin[0] = 0;
-    socketStdin[1] = 0;
-    socketStdout[0] = 0;
-    socketStdout[1] = 0;
-    socketStderr[0] = 0;
-    socketStderr[1] = 0;
-
-    exitValuesCalculated = FALSE;
+    d = new QProcessPrivate( this );
     exitStat = 0;
     exitNormal = FALSE;
-
-    // install a SIGCHLD handler
-    if ( proclist == 0 ) {
-	proclist = new QList<QProcess>;
-
-	struct sigaction act;
-	act.sa_handler = qt_C_sigchldHnd;
-	sigemptyset( &(act.sa_mask) );
-	sigaddset( &(act.sa_mask), SIGCHLD );
-	act.sa_flags = SA_NOCLDSTOP;
-#if defined(SA_RESTART)
-	act.sa_flags |= SA_RESTART;
-#endif
-	if ( sigaction( SIGCHLD, &act, oldact ) != 0 )
-	    qWarning( "Error installing SIGCHLD handler" );
-    }
-    proclist->append( d );
 }
 
-QProcessPrivate::~QProcessPrivate()
+/*!
+  Destructor; if the process is running, it is NOT terminated! Stdin, stdout
+  and stderr of the process are closed.
+*/
+QProcess::~QProcess()
 {
-#if defined(QPROCESS_DEBUG)
-    qDebug( "QProcessPrivate: Destructor" );
-#endif
-    // restore SIGCHLD handler
-    if ( proclist != 0 ) {
-	proclist->remove( d );
-	if ( proclist->count() == 0 ) {
-	    delete proclist;
-	    proclist = 0;
-	    if ( sigaction( SIGCHLD, oldact, 0 ) != 0 )
-		qWarning( "Error restoring SIGCHLD handler" );
-	}
-    }
-
-    while ( !stdinBuf.isEmpty() ) {
-	delete stdinBuf.dequeue();
-    }
-    if ( notifierStdin ) {
-	notifierStdin->setEnabled( FALSE );
-	delete notifierStdin;
-    }
-    if ( notifierStdout ) {
-	notifierStdout->setEnabled( FALSE );
-	delete notifierStdout;
-    }
-    if ( notifierStderr ) {
-	notifierStderr->setEnabled( FALSE );
-	delete notifierStderr;
-    }
-    if( socketStdin[1] != 0 )
-	::close( socketStdin[1] );
-    if( socketStdout[0] != 0 )
-	::close( socketStdout[0] );
-    if( socketStderr[0] != 0 )
-	::close( socketStderr[0] );
+    delete d;
 }
-
-void QProcessPrivate::sigchldHnd()
-{
-    if ( !proclist )
-	return;
-    QProcess *proc;
-    for ( proc=proclist->first(); proc!=0; proc=proclist->next() ) {
-	if ( !proc->d->exitValuesCalculated && !proc->isRunning() ) {
-#if defined(QPROCESS_DEBUG)
-	    qDebug( "QProcessPrivate::sigchldHnd(): process exited" );
-#endif
-	    // read pending data
-	    proc->socketRead( proc->d->socketStdout[0] );
-	    proc->socketRead( proc->d->socketStderr[0] );
-
-	    emit proc->processExited();
-	    // the slot might have deleted the last process...
-	    if ( !proclist )
-		return;
-	}
-    }
-}
-
 
 /*!
   Starts the program.
@@ -190,8 +245,8 @@ bool QProcess::start()
     qDebug( "QProcess::start()" );
 #endif
     d->exitValuesCalculated = FALSE;
-    d->exitStat = 0;
-    d->exitNormal = FALSE;
+    exitStat = 0;
+    exitNormal = FALSE;
 
     // cleanup the notifiers
     if ( d->notifierStdin ) {
@@ -222,10 +277,10 @@ bool QProcess::start()
     }
 
     // construct the arguments for exec
-    const char** arglist = new const char*[ d->arguments.count() + 2 ];
-    arglist[0] = d->command.latin1();
+    const char** arglist = new const char*[ arguments.count() + 2 ];
+    arglist[0] = command.latin1();
     int i = 1;
-    for ( QStringList::Iterator it = d->arguments.begin(); it != d->arguments.end(); ++it ) {
+    for ( QStringList::Iterator it = arguments.begin(); it != arguments.end(); ++it ) {
 	arglist[ i++ ] = (*it).latin1();
     }
     arglist[i] = 0;
@@ -241,8 +296,8 @@ bool QProcess::start()
 	::dup2( d->socketStdin[0], STDIN_FILENO );
 	::dup2( d->socketStdout[1], STDOUT_FILENO );
 	::dup2( d->socketStderr[1], STDERR_FILENO );
-	::chdir( d->workingDir.absPath().latin1() );
-	::execvp( d->command.latin1(), (char*const*)arglist ); // ### a hack
+	::chdir( workingDir.absPath().latin1() );
+	::execvp( command.latin1(), (char*const*)arglist ); // ### a hack
 	::exit( -1 );
     } else if ( d->pid == -1 ) {
 	// error forking
@@ -320,9 +375,9 @@ bool QProcess::isRunning()
 	if ( ::waitpid( d->pid, &status, WNOHANG ) == d->pid )
 	{
 	    // compute the exit values
-	    d->exitNormal = WIFEXITED( status ) != 0;
-	    if ( d->exitNormal ) {
-		d->exitStat = WEXITSTATUS( status );
+	    exitNormal = WIFEXITED( status ) != 0;
+	    if ( exitNormal ) {
+		exitStat = WEXITSTATUS( status );
 	    }
 	    d->exitValuesCalculated = TRUE;
 #if defined(QPROCESS_DEBUG)
