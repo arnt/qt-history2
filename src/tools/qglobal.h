@@ -583,6 +583,11 @@ typedef long			Q_LONG;
 typedef unsigned long		Q_ULONG;
 #endif
 
+#if !defined(QT_CLEAN_NAMESPACE)
+#define Q_INT64			Q_LONG
+#define Q_UINT64		Q_ULONG
+#endif
+
 //
 // Data stream functions is provided by many classes (defined in qdatastream.h)
 //
