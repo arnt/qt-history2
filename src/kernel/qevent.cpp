@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#8 $
 **
 ** Implementation of event classes
 **
@@ -13,7 +13,7 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#8 $";
 #endif
 
 
@@ -73,12 +73,6 @@ void QEvent::peErrMsg()				// posted event error message
 	case Event_Destroy:
 	    n = "Destroy";
 	    break;
-	case Event_Show:
-	    n = "Show";
-	    break;
-	case Event_Hide:
-	    n = "Hide";
-	    break;
 	case Event_Close:
 	    n = "Close";
 	    break;
@@ -137,7 +131,6 @@ all event types.
 \fn int QEvent::type() const
 Returns the event type.
 */
-
 
 /*!
 \class QTimerEvent qevent.h
