@@ -16,77 +16,79 @@
 
 #ifndef QT_NO_MOVIE
 
+#include <QtCore/qobject.h>
+
+class QByteArray;
 class QColor;
 class QIODevice;
-class QMoviePrivate;
-class QObject;
-class QObject;
+class QImage;
 class QPixmap;
 class QRect;
-class QWidget;
-class QImage;
-class QString;
+class QSize;
 
-#include <QtCore/qglobal.h>
-
-class Q_GUI_EXPORT QMovie {
+class QMoviePrivate;
+class Q_GUI_EXPORT QMovie : public QObject
+{
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QMovie)
 public:
-    QMovie();
-    explicit QMovie(int bufsize);
-    explicit QMovie(QIODevice*, int bufsize=1024);
-    explicit QMovie(const QString &fileName, int bufsize=1024);
-    QMovie(const QMovie&);
+    enum MovieState {
+        NotRunning,
+        Paused,
+        Running
+    };
+
+    QMovie(QObject *parent = 0);
+    explicit QMovie(QIODevice *device, const QByteArray &format = QByteArray(), QObject *parent = 0);
+    explicit QMovie(const QString &fileName, const QByteArray &format = QByteArray(), QObject *parent = 0);
     ~QMovie();
 
-    QMovie& operator=(const QMovie&);
+    void setDevice(QIODevice *device);
+    QIODevice *device() const;
 
-    int pushSpace() const;
-    void pushData(const uchar* data, int length);
+    void setFileName(const QString &fileName);
+    QString fileName() const;
 
-    const QColor& backgroundColor() const;
-    void setBackgroundColor(const QColor&);
+    void setBackgroundColor(const QColor &color);
+    QColor backgroundColor() const;
 
-    const QRect& getValidRect() const;
-    const QPixmap& framePixmap() const;
-    const QImage& frameImage() const;
+    MovieState state() const;
 
-    bool isNull() const;
+    QRect frameRect() const;
+    QImage frameImage() const;
+    QPixmap framePixmap() const;
 
-    int  frameNumber() const;
-    int  steps() const;
-    bool paused() const;
-    bool finished() const;
-    bool running() const;
+    bool isValid() const;
+    bool isRunning() const;
 
-    void unpause();
+    int loopCount() const;
+    int frameCount() const;
+    int nextFrameDelay() const;
+    int currentFrameNumber() const;
+
+    void setPaused(bool paused);
+    bool isPaused() const;
+
+    void setSpeed(int percentSpeed);
+    int speed() const;
+
+signals:
+    void started();
+    void resized(const QSize &size);
+    void updated(const QRect &rect);
+    void stateChanged(MovieState state);
+    void error();
+    void finished();
+
+public slots:
+    void start();
     void pause();
-    void step();
-    void step(int);
-    void restart();
+    void unpause();
+    void stop();
 
-    int  speed() const;
-    void setSpeed(int);
-
-    void connectResize(QObject* receiver, const char *member);
-    void disconnectResize(QObject* receiver, const char *member=0);
-
-    void connectUpdate(QObject* receiver, const char *member);
-    void disconnectUpdate(QObject* receiver, const char *member=0);
-
-#ifdef Q_WS_QWS
-    // Temporary hack
-    void setDisplayWidget(QWidget * w);
-#endif
-
-    enum Status { SourceEmpty=-2,
-                  UnrecognizedFormat=-1,
-                  Paused=1,
-                  EndOfFrame=2,
-                  EndOfLoop=3,
-                  EndOfMovie=4,
-                  SpeedChanged=5 };
-    void connectStatus(QObject* receiver, const char *member);
-    void disconnectStatus(QObject* receiver, const char *member=0);
+private:
+    Q_DISABLE_COPY(QMovie)
+    Q_PRIVATE_SLOT(d, void loadNextFrame())
 };
 
 #endif // QT_NO_MOVIE

@@ -759,6 +759,16 @@ int QImageIO::loopCount() const
 }
 
 /*!
+    Returns true if there is a new frame available for loading;
+    otherwise returns false.
+*/
+bool QImageIO::hasNextFrame() const
+{
+    // ### implement
+    return true;
+}
+
+/*!
     Returns the type of error that occurred as a result of load() or
     save() returning false.
 

@@ -11,169 +11,290 @@
 **
 ****************************************************************************/
 
+/*! \class QMovie
+
+    \brief The QMovie class is a convenience class for playing movies
+    with QImageIO.
+
+    \ingroup multimedia
+    \module gui
+
+
+   \sa QLabel, QImageIO
+*/
+
 #include "qmovie.h"
 
-// Notice: This class has an empty implementation. It is currently
-// being refactored.
-
-#include <qcolor.h>
 #include <qimage.h>
-#include <qrect.h>
+#include <qimageio.h>
 #include <qpixmap.h>
+#include <qrect.h>
+#include <qtimer.h>
+#include <private/qobject_p.h>
 
-QMovie::QMovie()
+class QMoviePrivate : public QObjectPrivate
 {
+    Q_DECLARE_PUBLIC(QMovie)
+public:
+    QMoviePrivate(QMovie *qq);
+
+    // private slots
+    void loadNextFrame();
+
+    QImageIO *io;
+    int speed;
+    QMovie::MovieState movieState;
+    QRect frameRect;
+    QImage frameImage;
+    QPixmap framePixmap;
+    QColor backgroundColor;
+
+    QTimer nextFrameTimer;
+};
+
+QMoviePrivate::QMoviePrivate(QMovie *qq)
+{
+    Q_Q(QMovie);
+    q = qq;
+
+    io = 0;
+    movieState = QMovie::NotRunning;
+    nextFrameTimer.setSingleShot(true);
 }
 
-QMovie::QMovie(int /* bufsize */)
+void QMoviePrivate::loadNextFrame()
 {
+    Q_Q(QMovie);
+    if (io->hasNextFrame()) {
+        if (io->load()) {
+            if (movieState == QMovie::NotRunning) {
+                movieState = QMovie::Running;
+                emit q->stateChanged(movieState);
+                emit q->started();
+            }
+
+            frameImage = io->image();
+            framePixmap = frameImage;
+            if (frameRect.size() != frameImage.rect().size()) {
+                frameRect = frameImage.rect();
+                emit q->resized(frameRect.size());
+            }
+
+            emit q->updated(frameRect);
+
+            nextFrameTimer.start(io->nextFrameDelay());
+        } else {
+            emit q->error();
+            if (movieState != QMovie::NotRunning) {
+                movieState = QMovie::NotRunning;
+                emit q->stateChanged(movieState);
+                emit q->finished();
+            }
+        }
+        return;
+    }
+
+    movieState = QMovie::NotRunning;
+    emit q->stateChanged(movieState);
+    emit q->finished();
 }
 
-QMovie::QMovie(QIODevice *, int /* bufsize */)
+QMovie::QMovie(QObject *parent)
+    : QObject(*new QMoviePrivate(this), parent)
 {
+    Q_D(QMovie);
+    d->io = new QImageIO;
 }
 
-QMovie::QMovie(const QString & /* fileName */, int /* bufsize */)
+QMovie::QMovie(QIODevice *device, const QByteArray &format, QObject *parent)
+    : QObject(*new QMoviePrivate(this), parent)
 {
+    Q_D(QMovie);
+    d->io = new QImageIO(device, format);
 }
 
-QMovie::QMovie(const QMovie &)
+QMovie::QMovie(const QString &fileName, const QByteArray &format, QObject *parent)
+    : QObject(*new QMoviePrivate(this), parent)
 {
+    Q_D(QMovie);
+    d->io = new QImageIO(fileName, format);
 }
 
 QMovie::~QMovie()
 {
+    Q_D(QMovie);
+    delete d->io;
 }
 
-QMovie& QMovie::operator=(const QMovie &)
+void QMovie::setDevice(QIODevice *device)
 {
-    static QMovie NIL;
-    return NIL;
+    Q_D(QMovie);
+    d->io->setDevice(device);
 }
 
-int QMovie::pushSpace() const
+QIODevice *QMovie::device() const
 {
-    return 0;
+    Q_D(const QMovie);
+    return d->io->device();
 }
 
-void QMovie::pushData(const uchar * /* data */, int /* length */)
+void QMovie::setFileName(const QString &fileName)
 {
+    Q_D(QMovie);
+    d->io->setFileName(fileName);
 }
 
-const QColor& QMovie::backgroundColor() const
+QString QMovie::fileName() const
 {
-    static QColor NIL;
-    return NIL;
+    Q_D(const QMovie);
+    return d->io->fileName();
 }
 
-void QMovie::setBackgroundColor(const QColor &)
+void QMovie::setBackgroundColor(const QColor &color)
 {
+    Q_D(QMovie);
+    d->backgroundColor = color;
 }
 
-const QRect& QMovie::getValidRect() const
+QColor QMovie::backgroundColor() const
 {
-    static QRect NIL;
-    return NIL;
+    Q_D(const QMovie);
+    return d->backgroundColor;
 }
 
-const QPixmap& QMovie::framePixmap() const
+QMovie::MovieState QMovie::state() const
 {
-    static QPixmap NIL;
-    return NIL;
+    Q_D(const QMovie);
+    return d->movieState;
 }
 
-const QImage& QMovie::frameImage() const
+QRect QMovie::frameRect() const
 {
-    static QImage NIL;
-    return NIL;
+    Q_D(const QMovie);
+    return d->frameRect;
 }
 
-bool QMovie::isNull() const
+QPixmap QMovie::framePixmap() const
 {
-    return false;
+    Q_D(const QMovie);
+    return d->framePixmap;
 }
 
-int  QMovie::frameNumber() const
+QImage QMovie::frameImage() const
 {
-    return 0;
+    Q_D(const QMovie);
+    return d->frameImage;
 }
 
-int  QMovie::steps() const
+bool QMovie::isValid() const
 {
-    return 0;
+    Q_D(const QMovie);
+    return d->io->hasNextFrame();
 }
 
-bool QMovie::paused() const
+bool QMovie::isRunning() const
 {
-    return false;
+    Q_D(const QMovie);
+    return d->movieState == Running;
 }
 
-bool QMovie::finished() const
+int QMovie::frameCount() const
 {
-    return false;
+    Q_D(const QMovie);
+    return d->io->frameCount();
 }
 
-bool QMovie::running() const
+int QMovie::nextFrameDelay() const
 {
-    return false;
+    Q_D(const QMovie);
+    return d->io->nextFrameDelay();
 }
 
-void QMovie::unpause()
+int QMovie::currentFrameNumber() const
 {
+    Q_D(const QMovie);
+    return d->io->currentFrameNumber();
+}
+
+int QMovie::loopCount() const
+{
+    Q_D(const QMovie);
+    return d->io->loopCount();
+}
+
+void QMovie::setPaused(bool paused)
+{
+    if (paused)
+        pause();
+    else
+        unpause();
+}
+
+bool QMovie::isPaused() const
+{
+    Q_D(const QMovie);
+    return d->movieState == Paused;
+}
+
+void QMovie::setSpeed(int percentSpeed)
+{
+    Q_D(QMovie);
+    d->speed = percentSpeed;
+}
+
+int QMovie::speed() const
+{
+    Q_D(const QMovie);
+    return d->speed;
+}
+
+void QMovie::start()
+{
+    Q_D(QMovie);
+    if (d->movieState == Running) {
+        qWarning("QMovie::start() called when state is Running");
+        return;
+    }
+
+    connect(&d->nextFrameTimer, SIGNAL(timeout()), this, SLOT(loadNextFrame()));
+    d->loadNextFrame();
 }
 
 void QMovie::pause()
 {
+    Q_D(QMovie);
+    if (d->movieState == NotRunning) {
+        qWarning("QMovie::pause() called when state is NotRunning");
+        return;
+    }
+    emit stateChanged(Paused);
+    d->movieState = Paused;
+    d->nextFrameTimer.stop();
 }
 
-void QMovie::step()
+void QMovie::unpause()
 {
+    Q_D(QMovie);
+    if (d->movieState == Running) {
+        qWarning("QMovie::unpause() called when state is NotRunning");
+        return;
+    }
+    emit stateChanged(Running);
+    d->movieState = Running;
+    d->nextFrameTimer.start(d->io->nextFrameDelay());
 }
 
-void QMovie::step(int)
+void QMovie::stop()
 {
+    Q_D(QMovie);
+    if (d->movieState == NotRunning) {
+        qWarning("QMovie::stop() called when state is NotRunning");
+        return;
+    }
+    emit stateChanged(NotRunning);
+    d->movieState = NotRunning;
+    d->nextFrameTimer.stop();
 }
 
-void QMovie::restart()
-{
-}
-
-int  QMovie::speed() const
-{
-    return 0;
-}
-
-void QMovie::setSpeed(int)
-{
-}
-
-void QMovie::connectResize(QObject * /* receiver */, const char * /* member */)
-{
-}
-
-void QMovie::disconnectResize(QObject * /* receiver */, const char * /* member */)
-{
-}
-
-void QMovie::connectUpdate(QObject * /* receiver */, const char * /* member */)
-{
-}
-
-void QMovie::disconnectUpdate(QObject * /* receiver */, const char * /* member */)
-{
-}
-
-#ifdef Q_WS_QWS
-// Temporary hack
-void QMovie::setDisplayWidget(QWidget * /* w */)
-{
-}
-#endif
-
-void QMovie::connectStatus(QObject * /* receiver */, const char * /* member */)
-{
-}
-
-void QMovie::disconnectStatus(QObject * /* receiver */, const char * /* member */)
-{
-}
+#define d d_func()
+#include "moc_qmovie.cpp"

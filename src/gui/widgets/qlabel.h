@@ -44,7 +44,7 @@ public:
     const QPicture *picture() const;
 #endif
 #ifndef QT_NO_MOVIE
-    const QMovie *movie() const;
+    QMovie *movie() const;
 #endif
 
     Qt::TextFormat textFormat() const;
@@ -81,7 +81,7 @@ public slots:
     void setPicture(const QPicture &);
 #endif
 #ifndef QT_NO_MOVIE
-    void setMovie(const QMovie &);
+    void setMovie(QMovie *movie);
 #endif
     void setNum(int);
     void setNum(double);

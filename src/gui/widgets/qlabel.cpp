@@ -962,7 +962,7 @@ QWidget * QLabel::buddy() const
 #ifndef QT_NO_MOVIE
 void QLabelPrivate::movieUpdated(const QRect& rect)
 {
-    if (lmovie && !lmovie->isNull()) {
+    if (lmovie && lmovie->isValid()) {
         QRect r = q->contentsRect();
         r = q->style()->itemPixmapRect(r, align, lmovie->framePixmap());
         r.translate(rect.x(), rect.y());
@@ -990,16 +990,18 @@ void QLabelPrivate::movieResized(const QSize& size)
     \sa movie(), setBuddy()
 */
 
-void QLabel::setMovie(const QMovie& movie)
+void QLabel::setMovie(QMovie *movie)
 {
     d->clearContents();
 
-    d->lmovie = new QMovie(movie);
-        d->lmovie->connectResize(this, SLOT(movieResized(QSize)));
-        d->lmovie->connectUpdate(this, SLOT(movieUpdated(QRect)));
+    d->lmovie = movie;
+    connect(movie, SIGNAL(resized(QSize)), this, SLOT(movieResized(QSize)));
+    connect(movie, SIGNAL(updated(QRect)), this, SLOT(movieUpdated(QRect)));
 
-    if (!d->lmovie->running())        // Assume that if the movie is running,
-        d->updateLabel();        // resize/update signals will come soon enough
+    // Assume that if the movie is running,
+    // resize/update signals will come soon enough
+    if (!movie->isRunning())
+        d->updateLabel();
 }
 
 #endif // QT_NO_MOVIE
@@ -1032,12 +1034,7 @@ void QLabelPrivate::clearContents()
     q->releaseShortcut(shortcutId);
     shortcutId = 0;
 #ifndef QT_NO_MOVIE
-    if (d->lmovie) {
-        d->lmovie->disconnectResize(q, SLOT(movieResized(QSize)));
-        d->lmovie->disconnectUpdate(q, SLOT(movieUpdated(QRect)));
-        delete d->lmovie;
-        d->lmovie = 0;
-    }
+    d->lmovie = 0;
 #endif
 }
 
@@ -1051,7 +1048,7 @@ void QLabelPrivate::clearContents()
     \sa setMovie()
 */
 
-const QMovie* QLabel::movie() const
+QMovie *QLabel::movie() const
 {
     return d->lmovie;
 }

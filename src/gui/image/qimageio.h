@@ -76,6 +76,7 @@ public:
     int nextFrameDelay() const;
     int currentFrameNumber() const;
     int loopCount() const;
+    bool hasNextFrame() const;
 
     enum ImageFormatError {
         UnknownError,
