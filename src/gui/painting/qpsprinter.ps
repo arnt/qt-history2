@@ -746,10 +746,8 @@
   } { pop pop } ifelse
 } D
 
-/CLSTART {                           % clipping start
+/CLS {
   gsave
-  /clipTmp matrix CM d             % save current matrix
-  defM SM                          % Page default matrix
   NP
 } D
 
@@ -760,12 +758,6 @@
   w 0 RL
   0 h neg RL
   CP
-} D
-
-/CLEND {                             % clipping end
-  clip
-  NP
-  clipTmp SM                       % restore the current matrix
 } D
 
 /CLO {                               % clipping off

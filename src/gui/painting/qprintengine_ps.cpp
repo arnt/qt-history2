@@ -159,9 +159,8 @@ static const char *const ps_header =
 "1 i dup length 2 div exch stringwidth pop 3 -1 roll exch sub exch div exch 0\n"
 "exch ashow}D/QI{/C save d pageinit/Cx 0 d/Cy 0 d/OMo false d}D/QP{C restore\n"
 "showpage}D/SPD{/setpagedevice where{1 DB 3 1 roll d end setpagedevice}{pop\n"
-"pop}ie}D/CLSTART{gsave/clipTmp matrix CM d defM SM NP}D/ACR{/h ED/w ED/y ED\n"
-"/x ED x y MT 0 h RL w 0 RL 0 h neg RL CP}D/CLEND{clip NP clipTmp SM}D/CLO{\n"
-"grestore}D\n";
+"pop}ie}D/CLS{gsave NP}D/ACR{/h ED/w ED/y ED/x ED x y MT 0 h RL w 0 RL 0 h\n"
+"neg RL CP}D/CLO{grestore}D\n";
 
 static const char * const agl =
 ".notdef\0space\0exclam\0quotedbl\0numbersign\0dollar\0percent\0ampersand\0"
@@ -1067,11 +1066,6 @@ static void emitPSFontNameList(QTextStream &s, const QString &psname, const QStr
     s << "\n] d\n";
 }
 
-static inline float pointSize(QFontEngine *fe, float scale)
-{
-    return (fe->ascent() + fe->descent()).toDouble()/scale;
-}
-
 
 // ========================== FONT CLASSES  ===============
 
@@ -1216,13 +1210,13 @@ QString QPSPrintEngineFontPrivate::defineFont(QTextStream &stream, const QString
     if (ptr->buffer) {
         ++ptr->headerFontNumber;
         ptr->fontStream << "/F" << ptr->headerFontNumber << " "
-                      << pointSize(fe, ptr->scale) << fontName << " DF\n";
+                      << fe->fontDef.pixelSize << fontName << " DF\n";
         fontName.sprintf("F%d", ptr->headerFontNumber);
         ptr->headerFontNames.insert(key, fontName);
     } else {
         ++ptr->pageFontNumber;
         stream << "/F" << ptr->pageFontNumber << " "
-               << pointSize(fe, ptr->scale) << fontName << " DF\n";
+               << fe->fontDef.pixelSize << fontName << " DF\n";
         fontName.sprintf("F%d", ptr->pageFontNumber);
         ptr->pageFontNames.insert(key, fontName);
     }
@@ -3745,7 +3739,7 @@ QString QPSPrintEngineFontAsian::defineFont(QTextStream &stream, const QString &
         }
         fontName2.sprintf("F%d", ++d->headerFontNumber);
         d->fontStream << "/" << fontName2 << " "
-                      << pointSize(fe, d->scale) << "/" << fontName << " DF\n";
+                      << fe->fontDef.pixelSize << "/" << fontName << " DF\n";
         d->headerFontNames.insert(key, fontName2);
     } else {
         if (!tmp.isNull()) {
@@ -3757,7 +3751,7 @@ QString QPSPrintEngineFontAsian::defineFont(QTextStream &stream, const QString &
         }
         fontName2.sprintf("F%d", ++d->pageFontNumber);
         stream << "/" << fontName2 << " "
-               << pointSize(fe, d->scale) << "/" << fontName << " DF\n";
+               << fe->fontDef.pixelSize << "/" << fontName << " DF\n";
         d->pageFontNames.insert(key, fontName2);
     }
     return fontName2;
@@ -4623,7 +4617,7 @@ void QPSPrintEnginePrivate::setFont(QFontEngine *fe)
 
     QString key = ff.xfontname;
 
-    key += '/' + toString(fe->ascent().value());
+    key += '/' + toString(fe->fontDef.pixelSize);
     QString tmp;
     if (!buffer)
         tmp = pageFontNames.value(key, QString::null);
@@ -5671,14 +5665,14 @@ void QPSPrintEngine::updateClipRegion(const QRegion &region, bool clipEnabled)
     if (clipEnabled) {
         QVector<QRect> rects = region.rects();
         int i;
-        d->pageStream<< "CLSTART\n";           // start clipping
+        d->pageStream<< "CLS\n";           // start clipping
         for(i = 0 ; i < rects.size() ; i++) {
             putRect(d->pageStream, rects[i]);
             d->pageStream << "ACR\n";          // add clip rect
             if (d->pageCount == 1)
                 d->boundingBox = d->boundingBox.unite(rects[i]);
         }
-        d->pageStream << "CLEND\n";            // end clipping
+        d->pageStream << "clip\n";            // end clipping
         d->clipOn = true;
     }
 #if 0
@@ -5918,6 +5912,7 @@ bool QPSPrintEngine::newPage()
     d->savedImage = 0;
     d->textY = 0;
 
+    d->currentSet = 0; // reset current font
     setDirty(AllDirty);
     d->pageFontNumber = d->headerFontNumber;
 
