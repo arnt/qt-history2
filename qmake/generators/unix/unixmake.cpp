@@ -95,7 +95,7 @@ UnixMakefileGenerator::init()
     } else if(!project->isEmpty("QMAKE_APP_FLAG") || project->isActiveConfig("dll")) {
         configs.removeAll("staticlib");
     }
-    if(!project->isEmpty("QMAKE_INCREMENTAL"))
+    if(!project->isEmpty("QMAKE_INCREMENTAL") && !project->isActiveConfig("plugin"))
         project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_INCREMENTAL"];
     else if(!project->isEmpty("QMAKE_LFLAGS_PREBIND") &&
             !project->variables()["QMAKE_LIB_FLAG"].isEmpty() &&
