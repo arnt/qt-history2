@@ -142,16 +142,19 @@ MakefileGenerator::initOutPaths()
             break;
         if(!v[dirs[x]].isEmpty()) {
             const QString orig_path = v[dirs[x]].first();
+
+            QString &pathRef = v[dirs[x]].first();
+            pathRef = fileFixify(pathRef, Option::output_dir, Option::output_dir);
+            
 #ifdef Q_WS_WIN
             // We don't want to add a separator for DLLDESTDIR on Windows
             if(!(dirs[x] == "DLLDESTDIR"))
 #endif
             {
-                QString &path = v[dirs[x]].first();
-                path = fileFixify(path, Option::output_dir, Option::output_dir);
-                if(path.right(Option::dir_sep.length()) != Option::dir_sep)
-                    path += Option::dir_sep;
+                if(pathRef.right(Option::dir_sep.length()) != Option::dir_sep)
+                    pathRef += Option::dir_sep;
             }
+
             if(noIO())
                 continue;
 
