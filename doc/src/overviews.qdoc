@@ -94,7 +94,7 @@
     \o \l{qtmac-as-native.html}{Qt/Mac is Mac OS X Native}
     \o \l{mac-differences.html}{Qt/Mac-Specific Issues}
     \o \l{qt3to4.html}{qt3to4 - The Qt 3 to 4 Porting Tool}
-    \o \l{richtext.html}{Rich Text Document Structure}
+    \o \l{richtext.html}{Rich Text Processing}
     \o \l{emb-running.html}{Running Qt/Embedded Applications}
     \o \l{sql-driver.html}{SQL Database Drivers}
     \o \l{sql.html}{SQL Module}
