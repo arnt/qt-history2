@@ -38,7 +38,8 @@ QTextCursorPrivate::QTextCursorPrivate(const QTextCursorPrivate &rhs)
 
 QTextCursorPrivate::~QTextCursorPrivate()
 {
-    pieceTable->removeCursor(this);
+    if (pieceTable)
+        pieceTable->removeCursor(this);
 }
 
 void QTextCursorPrivate::adjustPosition(int positionOfChange, int charsAddedOrRemoved, UndoCommand::Operation op)
@@ -529,7 +530,7 @@ QTextCursor::~QTextCursor()
  */
 bool QTextCursor::isNull() const
 {
-    return !d;
+    return !d || !d->pieceTable;
 }
 
 /*!
@@ -540,7 +541,7 @@ bool QTextCursor::isNull() const
 */
 void QTextCursor::setPosition(int pos, MoveMode m)
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return;
     d->setPosition(pos);
     if (m == MoveAnchor) {
@@ -558,7 +559,7 @@ void QTextCursor::setPosition(int pos, MoveMode m)
 */
 int QTextCursor::position() const
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return -1;
     return d->position;
 }
@@ -573,7 +574,7 @@ int QTextCursor::position() const
 */
 int QTextCursor::anchor() const
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return -1;
     return d->anchor;
 }
@@ -589,7 +590,7 @@ int QTextCursor::anchor() const
 */
 bool QTextCursor::movePosition(MoveOperation op, MoveMode mode, int n)
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return false;
     switch (op) {
         case Start:
@@ -636,7 +637,7 @@ void QTextCursor::insertText(const QString &text)
 */
 void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
 {
-    if (!d || text.isEmpty())
+    if (!d || !d->pieceTable || text.isEmpty())
         return;
 
     Q_ASSERT(format.isValid());
@@ -667,8 +668,9 @@ void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
 
     \sa deletePreviousChar() hasSelection() clearSelection()
 */
-void QTextCursor::deleteChar() {
-    if (!d)
+void QTextCursor::deleteChar()
+{
+    if (!d || !d->pieceTable)
         return;
 
     if (d->position == d->anchor) {
@@ -689,7 +691,7 @@ void QTextCursor::deleteChar() {
 */
 void QTextCursor::deletePreviousChar()
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return;
 
     if (d->position == d->anchor) {
@@ -731,7 +733,7 @@ void QTextCursor::clearSelection()
 */
 void QTextCursor::removeSelectedText()
 {
-    if (!d || d->position == d->anchor)
+    if (!d || !d->pieceTable || d->position == d->anchor)
         return;
 
     d->remove();
@@ -746,7 +748,7 @@ void QTextCursor::removeSelectedText()
 */
 int QTextCursor::selectionStart() const
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return -1;
     return qMin(d->position, d->adjusted_anchor);
 }
@@ -759,7 +761,7 @@ int QTextCursor::selectionStart() const
 */
 int QTextCursor::selectionEnd() const
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return -1;
     return qMax(d->position, d->adjusted_anchor);
 }
@@ -791,7 +793,7 @@ QTextBlockIterator QTextCursor::block() const
  */
 QTextBlockFormat QTextCursor::blockFormat() const
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return QTextBlockFormat();
 
     return d->block().blockFormat();
@@ -805,7 +807,7 @@ QTextBlockFormat QTextCursor::blockFormat() const
 */
 void QTextCursor::setBlockFormat(const QTextBlockFormat &format)
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return;
 
     int pos1 = d->position;
@@ -828,7 +830,7 @@ void QTextCursor::setBlockFormat(const QTextBlockFormat &format)
 */
 void QTextCursor::mergeBlockFormat(const QTextBlockFormat &modifier)
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return;
 
     int pos1 = d->position;
@@ -851,7 +853,7 @@ void QTextCursor::mergeBlockFormat(const QTextBlockFormat &modifier)
  */
 QTextCharFormat QTextCursor::charFormat() const
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return QTextCharFormat();
 
     int pos = d->position - 1;
@@ -880,7 +882,7 @@ QTextCharFormat QTextCursor::charFormat() const
 */
 void QTextCursor::setCharFormat(const QTextCharFormat &format)
 {
-    if (!d || d->position == d->anchor)
+    if (!d || !d->pieceTable || d->position == d->anchor)
         return;
 
     int pos1 = d->position;
@@ -902,7 +904,7 @@ void QTextCursor::setCharFormat(const QTextCharFormat &format)
 */
 void QTextCursor::mergeCharFormat(const QTextCharFormat &modifier)
 {
-    if (!d || d->position == d->anchor)
+    if (!d || !d->pieceTable || d->position == d->anchor)
         return;
 
     int pos1 = d->position;
@@ -923,7 +925,7 @@ void QTextCursor::mergeCharFormat(const QTextCharFormat &modifier)
 */
 bool QTextCursor::atBlockStart() const
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return false;
 
     return d->position == d->block().position();
@@ -937,7 +939,7 @@ bool QTextCursor::atBlockStart() const
 */
 bool QTextCursor::atEnd() const
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return false;
 
     return d->position == d->pieceTable->length() - 1;
@@ -951,7 +953,7 @@ bool QTextCursor::atEnd() const
 */
 void QTextCursor::insertBlock()
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return;
 
     d->insertBlock(blockFormat(), charFormat());
@@ -967,7 +969,7 @@ void QTextCursor::insertBlock()
 */
 void QTextCursor::insertBlock(const QTextBlockFormat &format)
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return;
 
     d->pieceTable->beginEditBlock();
@@ -1012,7 +1014,7 @@ QTextList *QTextCursor::insertList(int style)
  */
 QTextList *QTextCursor::createList(const QTextListFormat &format)
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return 0;
 
     QTextList *list = static_cast<QTextList *>(d->pieceTable->createObject(format));
@@ -1045,7 +1047,7 @@ QTextList *QTextCursor::createList(int style)
  */
 QTextList *QTextCursor::currentList() const
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return 0;
 
     QTextBlockFormat b = blockFormat();
@@ -1059,7 +1061,7 @@ QTextList *QTextCursor::currentList() const
 */
 int QTextCursor::listItemNumber() const
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return -1;
     QTextList *l = currentList();
     if (!l)
@@ -1074,7 +1076,7 @@ int QTextCursor::listItemNumber() const
 */
 QString QTextCursor::listItemText() const
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return QString();
 
     QTextList *l = currentList();
@@ -1108,7 +1110,7 @@ QTextTable *QTextCursor::insertTable(int rows, int cols)
 */
 QTextTable *QTextCursor::insertTable(int rows, int cols, const QTextTableFormat &format)
 {
-    if(!d)
+    if(!d || !d->pieceTable)
         return 0;
 
     int pos = d->position;
@@ -1126,7 +1128,7 @@ QTextTable *QTextCursor::insertTable(int rows, int cols, const QTextTableFormat 
 */
 QTextTable *QTextCursor::currentTable() const
 {
-    if(!d)
+    if(!d || !d->pieceTable)
         return 0;
 
     return d->tableAt(d->position);
@@ -1143,7 +1145,7 @@ QTextTable *QTextCursor::currentTable() const
 */
 QTextFrame *QTextCursor::insertFrame(const QTextFrameFormat &format)
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return 0;
 
     return d->pieceTable->insertFrame(selectionStart(), selectionEnd(), format);
@@ -1157,7 +1159,7 @@ QTextFrame *QTextCursor::insertFrame(const QTextFrameFormat &format)
 */
 QTextFrame *QTextCursor::currentFrame() const
 {
-    if(!d)
+    if(!d || !d->pieceTable)
         return 0;
 
     return d->pieceTable->frameAt(d->position);
@@ -1169,7 +1171,7 @@ QTextFrame *QTextCursor::currentFrame() const
 */
 void QTextCursor::insertFragment(const QTextDocumentFragment &fragment)
 {
-    if (!d || fragment.isEmpty())
+    if (!d || !d->pieceTable || fragment.isEmpty())
         return;
 
     d->pieceTable->beginEditBlock();
@@ -1304,7 +1306,7 @@ bool QTextCursor::operator>(const QTextCursor &rhs) const
  */
 void QTextCursor::beginEditBlock()
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return;
 
     d->pieceTable->beginEditBlock();
@@ -1320,7 +1322,7 @@ void QTextCursor::beginEditBlock()
 
 void QTextCursor::endEditBlock()
 {
-    if (!d)
+    if (!d || !d->pieceTable)
         return;
 
     d->pieceTable->endEditBlock();
