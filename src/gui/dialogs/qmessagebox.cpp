@@ -566,7 +566,8 @@ void QMessageBox::init(int button0, int button1, int button2)
 
     }
     label = new QLabel(this);
-    label->setAlignment(Qt::AlignAuto|Qt::TextExpandTabs);
+    label->setAlignment(Qt::AlignTop);
+    label->setWordWrap(true);
 
     if ((button2 && !button1) || (button1 && !button0)) {
         qWarning("QMessageBox: Inconsistent button parameters");

@@ -456,7 +456,7 @@ void QLabel::setAlignment(Qt::Alignment alignment)
 #ifdef QT_COMPAT
 void QLabel::setAlignment(int alignment)
 {
-    d->align = alignment & ~(Qt::AlignVertical_Mask|Qt::AlignHorizontal_Mask);
+    d->align = alignment & ~(Qt::AlignVertical_Mask|Qt::AlignHorizontal_Mask|Qt::TextWordWrap);
 #ifndef QT_NO_ACCEL
     if (d->lbuddy)
         d->align |= Qt::TextShowMnemonic;
@@ -551,7 +551,6 @@ void QLabel::setMargin(int margin)
     Returns the size that will be used if the width of the label is \a
     w. If \a w is -1, the sizeHint() is returned.
 */
-
 QSize QLabelPrivate::sizeForWidth(int w) const
 {
     QSize contentsMargin = q->contentsMarginSize();
@@ -599,15 +598,15 @@ QSize QLabelPrivate::sizeForWidth(int w) const
     else if (doc) {
         QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(doc->documentLayout());
         Q_ASSERT(layout);
-        int oldW = layout->pageSize().width();
         if (d->align & Qt::TextWordWrap) {
-            if (w < 0)
-                layout->adjustSize();
-            else
+            if (w > 0)
                 layout->setPageSize(QSize(w-hextra, INT_MAX));
+            else
+                layout->adjustSize();
+        } else {
+            layout->setPageSize(QSize(0, 100000));
         }
         br = QRect(QPoint(0, 0), layout->sizeUsed());
-        layout->setPageSize(QSize(oldW, INT_MAX));
     }
 #endif
     else {
@@ -878,6 +877,10 @@ void QLabelPrivate::updateLabel()
 #endif
         )
         shortcutId = q->grabShortcut(QKeySequence::mnemonic(ltext));
+
+    if (d->doc)
+        qt_cast<QTextDocumentLayout *>(d->doc->documentLayout())
+            ->setBlockTextFlags(wordWrap? 0 : Qt::TextSingleLine);
 
     q->updateGeometry();
     q->update(q->contentsRect());
