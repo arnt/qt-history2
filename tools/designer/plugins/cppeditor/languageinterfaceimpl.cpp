@@ -195,3 +195,14 @@ void LanguageInterfaceImpl::setDefinitionEntries( const QString &definition, con
     }
     iface->release();
 }
+
+QString LanguageInterfaceImpl::createArguments( const QStringList &args )
+{
+    QString s;
+    for ( QStringList::ConstIterator it = args.begin(); it != args.end(); ++it ) {
+	if ( it != args.begin() )
+	    s += ",";
+	s += *it;
+    }
+    return s;
+}

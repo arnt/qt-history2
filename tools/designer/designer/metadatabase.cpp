@@ -1144,11 +1144,12 @@ bool MetaDataBase::setEventFunction( QObject *o, QObject *form, const QString &e
 
     QString fName = function + "(";
     if ( ed.name != "<none>" ) {
-	for ( QStringList::Iterator it = ed.args.begin(); it != ed.args.end(); ++it ) {
-	    if ( it != ed.args.begin() )
-		fName += ",";
-	    fName += *it;
-	}
+	QStringList args;
+	for ( QStringList::Iterator it = ed.args.begin(); it != ed.args.end(); ++it )
+	    args << *it;
+	LanguageInterface *iface = languageInterface( langList[ 0 ] ); // #### get real language
+	if ( iface )
+	    fName += iface->createArguments( args );
     }
     fName += ")";
     fName = normalizeSlot( fName );
