@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#357 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#358 $
 **
 ** Implementation of the internal Qt classes dealing with rich text
 **
@@ -1435,6 +1435,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
     QString doc = text;
     int depth = 0;
     bool hasNewPar = TRUE;
+    QStyleSheetItem::ListStyle curListStyle;
     while ( pos < int( doc.length() ) ) {
 	if (hasPrefix(doc, pos, '<' ) ){
 	    if (!hasPrefix(doc, pos+1, QChar('/'))) {
@@ -1460,8 +1461,30 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			curtag = tags.pop();
 			depth--;
 		    }
+		    if ( nstyle->name() == "ol" ) {
+			curListStyle = nstyle->listStyle();
+			QMap<QString, QString>::Iterator it = attr.find( "type" );
+			if ( it != attr.end() ) {
+			    QString sl = *it;
+			    if ( sl == "1" ) {
+				curListStyle = QStyleSheetItem::ListDecimal;
+			    } else if ( sl == "a" ) {
+				curListStyle =  QStyleSheetItem::ListLowerAlpha;
+			    } else if ( sl == "A" ) {
+				curListStyle = QStyleSheetItem::ListUpperAlpha;
+			    } else {
+				sl = sl.lower();
+				if ( sl == "square" )
+				    curListStyle = QStyleSheetItem::ListSquare;
+				else if ( sl == "disc" )
+				curListStyle = QStyleSheetItem::ListDisc;
+				else if ( sl == "circle" )
+				    curListStyle = QStyleSheetItem::ListCircle;
+			    }
+			}
+		    }
 		}
-
+		
 		QTextCustomItem* custom =  0;
 		// some well-known empty tags
 		if ( tagname == "br" ) {
@@ -1511,12 +1534,16 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			if ( nstyle->displayMode() != QStyleSheetItem::DisplayInline )
 			    NEWPAROPEN(nstyle);
 			if ( nstyle->displayMode() == QStyleSheetItem::DisplayListItem )
-			    curpar->setListStyle( curtag.style->listStyle() );
+			    curpar->setListStyle( curListStyle );
 			curtag.style = nstyle;
 			curtag.wsm = nstyle->whiteSpaceMode();
 			curtag.format = curtag.format.makeTextFormat( nstyle, attr );
 			if ( nstyle->displayMode() != QStyleSheetItem::DisplayInline )
 			    curpar->setFormat( &curtag.format );
+			if ( nstyle->name() == "li" ) {
+			    if ( attr.find( "value" ) != attr.end() )
+				curpar->setListValue( (*attr.find( "value" )).toInt() );
+			}
 		    }
 		    curtag.name = tagname;
 		    if ( curtag.name == "a" && attr.find( "name" ) != attr.end() && doc[ pos] == '<' )	// hack to be sure
@@ -2982,6 +3009,7 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
       tabArray( 0 ), tabStopWidth( 0 ), eData( 0 ), pntr( 0 )
 {
     visible = TRUE;
+    list_val = -1;
     newLinesAllowed = FALSE;
     splittedInside = FALSE;
     lastInFrame = FALSE;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext_p.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qrichtext_p.cpp#12 $
 **
 ** Implementation of the internal Qt classes dealing with rich text
 **
@@ -581,6 +581,8 @@ QStyleSheetItem *QTextParag::style() const
 
 int QTextParag::numberOfSubParagraph() const
 {
+    if ( list_val != -1 )
+	return list_val;
     if ( numSubParag != -1 )
 	return numSubParag;
     int n = 0;

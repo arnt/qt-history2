@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext_p.h#152 $
+** $Id: //depot/qt/main/src/kernel/qrichtext_p.h#153 $
 **
 ** Definition of internal rich text classes
 **
@@ -1057,6 +1057,8 @@ public:
 
     void setListStyle( QStyleSheetItem::ListStyle ls );
     QStyleSheetItem::ListStyle listStyle() const;
+    void setListValue( int v ) { list_val = v; }
+    int listValue() const { return list_val; }
 
     void setList( bool b, int listStyle );
     void incDepth();
@@ -1231,6 +1233,7 @@ private:
     QTextParagData *eData;
     QPainter *pntr;
     QTextCommandHistory *commandHistory;
+    int list_val;
 
 };
 
