@@ -15,6 +15,7 @@ public:
     QStyle *create( const QString& );
 
     bool init();
+    void cleanup();
     bool canUnload() const;
 
 private:
@@ -75,6 +76,11 @@ QStyle* MotifStyle::create( const QString& s )
 bool MotifStyle::init()
 { 
     return TRUE;
+}
+
+void MotifStyle::cleanup() 
+{
+    delete style;
 }
 
 bool MotifStyle::canUnload() const
