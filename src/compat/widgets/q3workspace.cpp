@@ -972,7 +972,7 @@ void Q3WorkspacePrivate::showWindow(QWidget* w)
 {
     if (w->isMinimized() && w->testWFlags(Qt::WStyle_Minimize) && !w->testWFlags(Qt::WStyle_Tool))
         minimizeWindow(w);
-    else if (d->maxWindow && w->testWFlags(Qt::WStyle_Maximize) && !w->testWFlags(Qt::WStyle_Tool))
+    else if ((d->maxWindow && w->testWFlags(Qt::WStyle_Maximize) && !w->testWFlags(Qt::WStyle_Tool)) || w->isMaximized())
         maximizeWindow(w);
     else if (!w->testWFlags(Qt::WStyle_Tool))
         normalizeWindow(w);
@@ -1387,6 +1387,9 @@ void Q3WorkspacePrivate::hideChild(Q3WorkspaceChild *c)
     bool updatesEnabled = q->isUpdatesEnabled();
     q->setUpdatesEnabled(false);
     focus.removeAll(c);
+    QRect restore;
+    if (d->maxWindow == c)
+        restore = maxRestore;
     if (active == c) {
         q->setFocus();
         q->activatePreviousWindow();
@@ -1398,6 +1401,8 @@ void Q3WorkspacePrivate::hideChild(Q3WorkspaceChild *c)
         maxWindow = 0;
     }
     c->hide();
+    if (!restore.isEmpty())
+        c->setGeometry(restore);
     q->setUpdatesEnabled(updatesEnabled);
 }
 
