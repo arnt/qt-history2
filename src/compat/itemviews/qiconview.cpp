@@ -3423,7 +3423,7 @@ void QIconView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 /*!
     \overload
 
-    Arranges all the items in the grid given by gridX() and gridY().
+    Arranges all the items in the grid specified by gridX() and gridY().
 
     Even if sorting() is enabled, the items are not sorted by this
     function. If you want to sort or rearrange the items, use

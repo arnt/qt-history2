@@ -1883,7 +1883,7 @@ class QCanvasItemExtra {
     Use QCanvasSprite or your own subclass of QCanvasSprite to create canvas
     items which are animated, i.e. which change over time.
 
-    The size of a canvas item is given by boundingRect(). Use
+    The size of a canvas item is specified by boundingRect(). Use
     boundingRectAdvanced() to see what the size of the canvas item will be
     \e after the next advance(1) call.
 
@@ -2473,8 +2473,9 @@ static bool collision_double_dispatch(const QCanvasSprite* s1,
     create the effect of animation.
 
     The current frame can be set with setFrame() or with move(). The
-    number of frames available is given by frameCount(). The bounding
-    rectangle of the current frame is returned by boundingRect().
+    number of frames available is specified by frameCount(). The
+    bounding rectangle of the current frame is returned by
+    boundingRect().
 
     The current frame's image can be retrieved with image(); use
     imageAdvanced() to retrieve the image for the frame that will be

@@ -69,10 +69,10 @@
     so it is practical to pass QPixmap objects by value.
 
     You can retrieve the width(), height(), depth() and size() of a
-    pixmap. The enclosing rectangle is given by rect(). Pixmaps can be
-    filled with fill() and resized with resize(). You can create and
-    set a mask with createHeuristicMask() and setMask(). Use
-    selfMask() to see if the pixmap is identical to its mask.
+    pixmap. The enclosing rectangle can be determined with rect().
+    Pixmaps can be filled with fill() and resized with resize(). You
+    can create and set a mask with createHeuristicMask() and setMask().
+    Use selfMask() to see if the pixmap is identical to its mask.
 
     In addition to loading a pixmap from file using load() you can
     also loadFromData(). You can control optimization with

@@ -1713,7 +1713,7 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
   Despite the different actual character heights, the heights of the
   bounding rectangles of "Yes" and "yes" are the same.
 
-  The bounding rectangle given by this function is somewhat larger
+  The bounding rectangle returned by this function is somewhat larger
   than that calculated by the simpler boundingRect() function.  This
   function uses the \link minLeftBearing() maximum left \endlink and
   \link minRightBearing() right \endlink font bearings as is necessary

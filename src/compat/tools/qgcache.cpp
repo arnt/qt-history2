@@ -220,7 +220,7 @@ inline QCDict::~QCDict()
 
 /*!
   Constructs a cache.
-  The maximum cost of the cache is given by \a maxCost and the size by \a
+  The maximum cost of the cache is specified by \a maxCost and the size by \a
   size. The key type is \a kt which may be \c StringKey, \c AsciiKey,
   \c IntKey or \c PtrKey. The case-sensitivity of lookups is set with
   \a caseSensitive. Keys are copied if \a copyKeys is true.

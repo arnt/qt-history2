@@ -31,12 +31,12 @@
 
     A region can be created from a rectangle, an ellipse, a polygon or
     a bitmap. Complex regions may be created by combining simple
-    regions using unite(), intersect(), subtract() or eor() (exclusive
+    regions using unite(), intersect(), subtract(), or eor() (exclusive
     or). You can move a region using translate().
 
     You can test whether a region isNull(), isEmpty() or if it
-    contains() a QPoint or QRect. The bounding rectangle is given by
-    boundingRect().
+    contains() a QPoint or QRect. The bounding rectangle can be found
+    with boundingRect().
 
     The function rects() gives a decomposition of the region into
     rectangles.

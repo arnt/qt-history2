@@ -925,8 +925,8 @@ QMetaMember::Access QMetaMember::access() const
     \ingroup objectmodel
 
     Use name() for the enumerator's name. The enumerator's keys (names
-    of each enumerated item) are returned by key(); the number of keys
-    is given by keyCount(). isFlag() returns whether the enumerator is
+    of each enumerated item) are returned by key(); use keyCount() to find
+    the number of keys. isFlag() returns whether the enumerator is
     meant to be used as a flag, meaning that its values can be combined
     using the OR operator.
 

@@ -1260,7 +1260,7 @@ QString QFontDatabase::styleString(const QFont &f)
     call isBitmapScalable(), isSmoothlyScalable(), isScalable() and
     isFixedPitch().
 
-    A text version of a style is given by styleString().
+    Use the styleString() to obtain a text version of a style.
 
     The QFontDatabase class also supports some static functions, for
     example, standardSizes(). You can retrieve the Unicode 3.0

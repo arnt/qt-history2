@@ -568,7 +568,7 @@ QTextImageFormat QTextFormat::toImageFormat() const
 }
 
 /*!
-    Returns the value of the property given by \a propertyId; if the
+    Returns the value of the property specified by \a propertyId; if the
     property isn't of \c QTextFormat::Bool type the \a defaultValue is
     returned instead.
 
@@ -583,8 +583,8 @@ bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
 }
 
 /*!
-    Returns the value of the property given by \a propertyId; if the
-    property isn't of \c QTextFormat::Integer type the \a defaultValue is
+    Returns the value of the property specified by \a propertyId; if the
+    property is not of \c QTextFormat::Integer type the \a defaultValue is
     returned instead.
 
     \sa setProperty() boolProperty() floatProperty() stringProperty() PropertyType
@@ -598,7 +598,7 @@ int QTextFormat::intProperty(int propertyId, int defaultValue) const
 }
 
 /*!
-    Returns the value of the property given by \a propertyId; if the
+    Returns the value of the property specified by \a propertyId; if the
     property isn't of \c QTextFormat::Float type the \a defaultValue is
     returned instead.
 

@@ -505,8 +505,8 @@ QRect QGenericTableView::selectionViewportRect(const QItemSelection &selection) 
 
 /*!
     This slot is called whenever rows are added or deleted. The
-    previous number of rows is given by \a oldCount, and the new
-    number of rows is given by \a newCount.
+    previous number of rows is specified by \a oldCount, and the new
+    number of rows is specified by \a newCount.
 */
 
 void QGenericTableView::rowCountChanged(int, int)
@@ -517,8 +517,8 @@ void QGenericTableView::rowCountChanged(int, int)
 
 /*!
     This slot is called whenever columns are added or deleted. The
-    previous number of columns is given by \a oldCount, and the new
-    number of columns is given by \a newCount.
+    previous number of columns is specified by \a oldCount, and the new
+    number of columns is specified by \a newCount.
 */
 
 void QGenericTableView::columnCountChanged(int, int)
@@ -798,7 +798,7 @@ void QGenericTableView::ensureItemVisible(const QModelIndex &item)
 
 /*!
     This slot is called to change the height of the given \a row. The
-    old height is given by \a oldHeight, and the new height by \a
+    old height is specified by \a oldHeight, and the new height by \a
     newHeight.
 
     \sa columnWidthChanged()
@@ -814,7 +814,7 @@ void QGenericTableView::rowHeightChanged(int row, int, int)
 
 /*!
     This slot is called to change the width of the given \a column.
-    The old width is given by \a oldWidth, and the new width by \a
+    The old width is specified by \a oldWidth, and the new width by \a
     newWidth.
 
     \sa rowHeightChanged()
@@ -832,7 +832,7 @@ void QGenericTableView::columnWidthChanged(int column, int, int)
 
 /*!
     This slot is called to change the index of the given \a row in the
-    table view. The old index is given by \a oldIndex, and the new
+    table view. The old index is specified by \a oldIndex, and the new
     index by \a newIndex.
 
     \sa columnIndexChanged()
@@ -850,7 +850,7 @@ void QGenericTableView::rowIndexChanged(int, int oldIndex, int newIndex)
 
 /*!
     This slot is called to change the index of the given \a column in
-    the table view. The old index is given by \a oldIndex, and
+    the table view. The old index is specified by \a oldIndex, and
     the new index by \a newIndex.
 
     \sa rowIndexChanged()

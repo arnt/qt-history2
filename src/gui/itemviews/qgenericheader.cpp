@@ -92,12 +92,11 @@ static const int default_height = 30;
     mouse clicks. A header also emits sectionCountChanged() and
     sectionAutoResize().
 
-    There are two ways of identifying a section, by its ID (given by
-    section() and sectionAt()), or by its index position (given by
-    index() and indexAt(), and which can change if a section is
-    moved).
+    You can identify a section by its ID, using the section() and sectionAt()
+    functions, or by its index position, using the index() and indexAt()
+    functions. Note that the index can change if a section is moved.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink.
+    \sa \link model-view-programming.html Model/View Programming\endlink
 */
 
 /*!
@@ -111,8 +110,7 @@ static const int default_height = 30;
 */
 
 /*!
-    \fn void QGenericHeader::setSelection(const QRect &rect,
-    QItemSelectionModel::SelectionFlags flags)
+    \fn void QGenericHeader::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags flags)
 
     Selects the items in the given \a rect in accordance with the \a
     flags.
@@ -124,7 +122,7 @@ static const int default_height = 30;
     \fn void QGenericHeader::sectionIndexChanged(int section, int oldIndex, int newIndex);
 
     This signal is emitted when a section is moved. The section's
-    number is given by \a section, the old index position by \a
+    number is specified by \a section, the old index position by \a
     oldIndex, and the new index position by \a newIndex.
 */
 
@@ -132,7 +130,7 @@ static const int default_height = 30;
     \fn void QGenericHeader::sectionSizeChanged(int section, int oldSize, int newSize);
 
     This signal is emitted when a section is resized. The section's
-    number is given by \a section, the old size by \a oldSize and the
+    number is specified by \a section, the old size by \a oldSize, and the
     new size by \a newSize.
 */
 
@@ -140,22 +138,22 @@ static const int default_height = 30;
     \fn void QGenericHeader::sectionClicked(int section, Qt::ButtonState state);
 
     This signal is emitted when a section is clicked. The section's
-    number is given by \a section and the button by \a state.
+    number is specified by \a section, and the button by \a state.
 */
 
 /*!
     \fn void QGenericHeader::sectionCountChanged(int oldCount, int newCount);
 
-    This signal is emitted when the number of sections changes, i.e.
-    when sections are added or deleted. The original count is given by
-    \a oldCount and the new count by \a newCount.
+    This signal is emitted when the number of sections changes; i.e.
+    when sections are added or deleted. The original count is specified by
+    \a oldCount, and the new count by \a newCount.
 */
 
 /*!
     \fn void QGenericHeader::sectionHandleDoubleClicked(int section, Qt::ButtonState state);
 
     This signal is emitted when a section is double-clicked. The
-    section's number is given by \a section and the button by \a
+    section's number is specified by \a section, and the button by \a
     state.
 */
 
@@ -163,7 +161,7 @@ static const int default_height = 30;
     \fn void QGenericHeader::sectionAutoResize(int section, ResizeMode mode);
 
     This signal is emitted when a section is automatically resized.
-    The section's number is given by \a section and the resize mode by
+    The section's number is specified by \a section, and the resize mode by
     \a mode.
 */
 
@@ -407,7 +405,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
 
 /*!
     Paints the section using the given \a painter with the \a option
-    and model index \a index.
+    and model \a index.
 
     You normally would not need to use this function.
 */
@@ -818,7 +816,7 @@ void QGenericHeader::mouseDoubleClickEvent(QMouseEvent *e)
 
 /*!
     Moves the section at index position \a from to occupy index
-    positino \a to.
+    position \a to.
 */
 
 void QGenericHeader::moveSection(int from, int to)
@@ -1253,7 +1251,7 @@ int QGenericHeader::stretchSectionCount() const
 /*!
     Sets the sort indicator for the given \a section in the direction
     specified by \a order, and removes the sort indicator from any
-    other section that showed it.
+    other section that was showing it.
 
     \sa sortIndicatorSection() sortIndicatorOrder()
 */

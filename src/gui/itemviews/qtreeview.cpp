@@ -113,7 +113,7 @@ void QTreeModel::setColumnText(int column, const QString &text)
 }
 
 /*!
-  Sets the icon set for the \a column to the icon set given by
+  Sets the icon set for the \a column to the icon set specified by
   \a iconSet.*/
 
 void QTreeModel::setColumnIconSet(int column, const QIconSet &iconSet)
@@ -372,8 +372,8 @@ QTreeViewItem::QTreeViewItem()
 /*!
   \fn QTreeViewItem::QTreeViewItem(QTreeView *view)
 
-  Constructs a tree view item and inserts it into the tree view
-  given by \a view.*/
+  Constructs a tree view item and inserts it into the tree \a view.
+*/
 
 QTreeViewItem::QTreeViewItem(QTreeView *v)
     : par(0), view(v), c(0), edit(true), select(true)
@@ -434,7 +434,7 @@ QVariant QTreeViewItem::data(int column, int role) const
 }
 
 /*!
-  Sets the data for the item given by the \a column and \a role to
+  Sets the data for the item specified by the \a column and \a role to
   that referred to by the \a value.
 
   Returns true if successful; otherwise returns false.*/
@@ -530,7 +530,7 @@ void QTreeView::setColumnText(int column, const QString &text)
 }
 
 /*!
-  Sets the icon set for the \a column to that given by \a iconSet.*/
+  Sets the icon set for the \a column to that specified by \a iconSet.*/
 
 void QTreeView::setColumnIconSet(int column, const QIconSet &iconSet)
 {

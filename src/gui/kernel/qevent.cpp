@@ -148,7 +148,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, int button, int state)
 
     The \a position is the mouse cursor's position relative to the
     receiving widget. The cursor's position in global coordinates
-    is given by \a globalPos.
+    is specified by \a globalPos.
     The \a button that caused the event is given as a value from
     the \l Qt::ButtonState enum. If the event \a type is
     \c MouseMove, the appropriate button for this event is
@@ -333,8 +333,8 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Qt::Orientatio
     Constructs a wheel event object.
 
     The \a position provides the location of the mouse cursor
-    within the widget. The position in global coordinates is given by
-    \a globalPos. \a delta contains the rotation distance, \a state
+    within the widget. The position in global coordinates is specified
+    by \a globalPos. \a delta contains the rotation distance, \a state
     holds the keyboard modifier flags at the time of the event, and
     \a orient holds the wheel's orientation.
 
@@ -971,14 +971,14 @@ void QFocusEvent::resetReason()
     \fn QPaintEvent::QPaintEvent(const QRegion &paintRegion)
 
     Constructs a paint event object with the region that needs to
-    be updated. The region is given by \a paintRegion.
+    be updated. The region is specified by \a paintRegion.
 */
 
 /*!
     \fn QPaintEvent::QPaintEvent(const QRect &paintRect)
 
     Constructs a paint event object with the rectangle that needs
-    to be updated. The region is given by \a paintRect.
+    to be updated. The region is specified by \a paintRect.
 */
 
 /*!

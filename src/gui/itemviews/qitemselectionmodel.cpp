@@ -50,9 +50,9 @@ QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) cons
 */
 
 /*!
-    Constructs an item selection for the given \a model that extends from the
-    top-left model item, given by the \a topLeft index, to the bottom-right
-    item, given by \a bottomRight.*/
+    Constructs an item selection for the \a model that extends from the
+    top-left model item, specified by the \a topLeft index, to the
+    bottom-right item, specified by \a bottomRight.*/
 
 QItemSelection::QItemSelection(const QModelIndex &topLeft, const QModelIndex &bottomRight,
                                const QAbstractItemModel *model)
@@ -62,8 +62,8 @@ QItemSelection::QItemSelection(const QModelIndex &topLeft, const QModelIndex &bo
 
 /*!
     Selects the range in the \a model that extends from the top-left model
-    item, given by the \a topLeft index, to the bottom-right item, given by
-    \a bottomRight.*/
+    item, specified by the \a topLeft index, to the bottom-right item,
+    specified by \a bottomRight.*/
 
 void QItemSelection::select(const QModelIndex &topLeft, const QModelIndex &bottomRight,
                             const QAbstractItemModel *model)

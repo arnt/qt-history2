@@ -1058,7 +1058,7 @@ void QFileDialog::setCurrentDir(const QString &path)
 
     This creates the default context menu for the file list. The
     context menu is passed in \a menu and the index into the
-    underlying model-view in \a index.
+    underlying model in \a index.
 */
 
 void QFileDialog::populateContextMenu(QMenu *menu, const QModelIndex &index) const

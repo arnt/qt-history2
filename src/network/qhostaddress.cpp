@@ -208,7 +208,7 @@ static bool parseIp4(const QString& address, Q_UINT32 *addr)
     \overload
 
     Sets the IPv4 or IPv6 address specified by the string
-    representation given by \a address (e.g. "127.0.0.1").
+    representation specified by \a address (e.g. "127.0.0.1").
     Returns true and sets the address if the address was successfully
     parsed; otherwise returns false.
 */

@@ -1003,7 +1003,7 @@ int QNPInstance::writeReady(QNPStream*)
     Called when incoming data is available for processing by the
     instance. The instance \e must consume at least the amount that it
     returned in the most recent call to writeReady(), but it may
-    consume up to the amount given by \a len. \a buffer is the data
+    consume up to the amount specified by \a len. \a buffer is the data
     available for consumption. The \a offset argument is merely an
     informational value indicating the total amount of data that has
     been consumed in prior calls.

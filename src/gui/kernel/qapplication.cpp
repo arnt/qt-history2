@@ -389,7 +389,7 @@ void qt_setMaxWindowRect(const QRect& r)
     destructor. This function is normally used to add cleanup routines
     for program-wide functionality.
 
-    The function given by \a ptr should take no arguments and should
+    The function specified by \a ptr should take no arguments and should
     return nothing. For example:
 
     \code

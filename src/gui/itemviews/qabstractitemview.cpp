@@ -217,23 +217,24 @@ void QAbstractItemViewPrivate::init()
     \fn void QAbstractItemView::rootChanged(const QModelIndex &old, const QModelIndex &root)
 
     This signal is emitted when the model's root index changes. The
-    previous index is given by \a old, and the new root index is given
-    by \a root.
+    previous index is specified by \a old, and the new root index is
+    specified by \a root.
 */
 
 /*!
   \fn void QAbstractItemView::onItem(const QModelIndex &index, int button)
 
-  This signal is emitted when the cursor is positioned on the item given by \a index.
-  The button state is given by \a button (see \l{Qt::ButtonState}).
+  This signal is emitted when the cursor is positioned on the item
+  specified by \a index.
+  The button state is specified by \a button (see \l{Qt::ButtonState}).
 */
 
 /*!
     \fn void QAbstractItemView::pressed(const QModelIndex &index, int button)
 
     This signal is emitted when a mouse button is pressed. The button
-    is given by \a button (see \l{Qt::ButtonState}), and the item the
-    mouse was pressed on is given by \a index (which may be invalid if
+    is specified by \a button (see \l{Qt::ButtonState}), and the item the
+    mouse was pressed on is specified by \a index (which may be invalid if
     the mouse was not pressed on an item).
 */
 
@@ -241,8 +242,8 @@ void QAbstractItemViewPrivate::init()
     \fn void QAbstractItemView::clicked(const QModelIndex &index, int button)
 
     This signal is emitted when a mouse button is clicked. The button
-    is given by \a button (see \l{Qt::ButtonState}), and the item the
-    mouse was clicked on is given by \a index (which may be invalid if
+    is specified by \a button (see \l{Qt::ButtonState}), and the item the
+    mouse was clicked on is specified by \a index (which may be invalid if
     the mouse was not clicked on an item).
 */
 
@@ -250,8 +251,8 @@ void QAbstractItemViewPrivate::init()
     \fn void QAbstractItemView::doubleClicked(const QModelIndex &index, int button)
 
     This signal is emitted when a mouse button is double-clicked. The
-    button is given by \a button (see \l{Qt::ButtonState}), and the
-    item the mouse was double-clicked on is given by \a index (which
+    button is specified by \a button (see \l{Qt::ButtonState}), and the
+    item the mouse was double-clicked on is specified by \a index (which
     may be invalid if the mouse was not double-clicked on an item).
 */
 
@@ -259,21 +260,21 @@ void QAbstractItemViewPrivate::init()
     \fn void QAbstractItemView::returnPressed(const QModelIndex &index)
 
     This signal is emitted when Return (or Enter) is pressed. The item
-    that the key press was made on is given by \a index.
+    to be acted on by the key press is specified by \a index.
 */
 
 /*!
     \fn void QAbstractItemView::spacePressed(const QModelIndex &index)
 
-    This signal is emitted when Space is pressed. The item that the
-    key press was made on is given by \a index.
+    This signal is emitted when Space is pressed. The item to be acted on
+    by the key press is specified by \a index.
 */
 
 /*!
     \fn void QAbstractItemView::deletePressed(const QModelIndex &index)
 
     This signal is emitted when the Delete key is pressed. The item
-    that the key press was made on is given by \a index.
+    to be acted on by the key press is specified by \a index.
 */
 
 /*!
@@ -282,7 +283,7 @@ void QAbstractItemViewPrivate::init()
     This signal is emitted when the context menu is invoked. The \a
     menu is an empty menu; if you populate it with actions it will be
     popped up for the user. The current item when the contex menu
-    event occurred is given by \a index.
+    event occurred is specified by \a index.
 */
 
 /*!
@@ -1399,7 +1400,7 @@ void QAbstractItemView::rowsRemoved(const QModelIndex &, int, int)
 
 /*!
     This slot  is called when the selection is changed. The previous
-    selection (which may be empty), is given by \a deselected, and the
+    selection (which may be empty), is specified by \a deselected, and the
     new selection by \a selected.
 */
 void QAbstractItemView::selectionChanged(const QItemSelection &deselected,
@@ -1412,8 +1413,8 @@ void QAbstractItemView::selectionChanged(const QItemSelection &deselected,
 
 /*!
     This slot is called when a new item becomes the current item.
-    The previous current item is given by \a old, and the new current
-    item by \a current.
+    The previous current item is specified by the \a old index, and the new
+    item by the \a current index.
 
     If you want to know about changes to items see the
     dataChanged() signal.

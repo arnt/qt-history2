@@ -273,7 +273,7 @@ void QFrame::setFrameStyle(int style)
     \brief the line width
 
     Note that the \e total line width for \c HLine and \c VLine is
-    given by frameWidth(), not lineWidth().
+    specified by frameWidth(), not lineWidth().
 
     The default value is 1.
 

@@ -2429,8 +2429,10 @@ int QDateTime::secsTo(const QDateTime &other) const
 }
 
 /*!
-  Returns a datetime containing the date and time of this datetime,
-  but configured to use the time specification given by \a spec.
+  \fn QDateTime QDateTime::toTimeSpec(Qt::TimeSpec specification) const
+
+  Returns a copy of this datetime configured to use the given time
+  \a specification.
 */
 
 QDateTime QDateTime::toTimeSpec(Qt::TimeSpec spec) const

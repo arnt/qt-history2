@@ -700,10 +700,11 @@ void QAction::activate(ActionEvent event)
 */
 
 /*!
-    \fn void QAction::checked()
+    \fn void QAction::checked(bool state)
 
     This signal is emitted when an action is activated by the user
-    which causes the isChecked() status to change.
+    which causes the isChecked() status to change. The new \a state
+    of the action is given.
 
     Connect to this signal for checkable actions.
 
@@ -713,8 +714,8 @@ void QAction::activate(ActionEvent event)
 /*!
     \fn void QAction::hovered()
 
-    This signal is emitted when an action is highlighted by the user,
-    e.g. when the user pauses with the cursor over a menu option or a
+    This signal is emitted when an action is highlighted by the user;
+    for example, when the user pauses with the cursor over a menu option,
     toolbar button, or presses an action's shortcut key combination.
 
     \sa QAction::activate()
@@ -727,6 +728,15 @@ void QAction::activate(ActionEvent event)
     are only interested in actions in a given widget, you can
     watch for QWidget::actionEvent() sent with an
     QEvent::ActionChanged.
+
+    \sa QWidget::actionEvent()
+*/
+
+/*!
+    \fn void QAction::deleted()
+    \internal
+
+    This signal is emitted when an action has been deleted.
 
     \sa QWidget::actionEvent()
 */
@@ -1024,6 +1034,29 @@ void QActionGroup::childEvent(QChildEvent* e)
     }
     QObject::childEvent(e);
 }
+
+/*!
+    \fn void QActionGroup::triggered()
+
+    This signal is emitted when an action in the action group is activated
+    by the user; for example, when the user clicks a menu option, toolbar
+    button, or presses an action's shortcut key combination.
+
+    Connect to this signal for command actions. 
+
+    \sa QAction::activate(), QAction::checked()
+*/
+
+/*!
+    \fn void QActionGroup::hovered()
+
+    This signal is emitted when an action in the action group is highlighted
+    by the user; for example, when the user pauses with the cursor over a
+    menu option, toolbar button, or presses an action's shortcut key
+    combination.
+
+    \sa QAction::activate()
+*/
 
 #include "moc_qaction.cpp"
 

@@ -290,7 +290,7 @@ void QGenericTreeView::showColumn(int column)
 /*!
   \fn void QGenericTreeView::open(const QModelIndex &index)
 
-  Opens the model item given by the \a index.
+  Opens the model item specified by the \a index.
 */
 
 void QGenericTreeView::open(const QModelIndex &item)
@@ -307,7 +307,7 @@ void QGenericTreeView::open(const QModelIndex &item)
 /*!
   \fn void QGenericTreeView::close(const QModelIndex &index)
 
-  Closes the model item given by the \a index.
+  Closes the model item specified by the \a index.
 */
 
 void QGenericTreeView::close(const QModelIndex &item)
@@ -359,8 +359,8 @@ QRect QGenericTreeView::itemViewportRect(const QModelIndex &index) const
 }
 
 /*!
-  Scroll the contents of the tree view until the model item \a index is
-  visible.
+  Scroll the contents of the tree view until the given model item \a index
+  is visible.
 */
 
 void QGenericTreeView::ensureItemVisible(const QModelIndex &index)
@@ -535,7 +535,7 @@ void QGenericTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &op
 /*!
   Draws the branches in the tree view on the same row as the model item
   \a index, using the \a painter given. Only the branches within the
-  rectangle given by \a rect are drawn.
+  rectangle specified by \a rect are drawn.
 
 */
 
@@ -942,8 +942,8 @@ void QGenericTreeView::resizeColumnToContents(int column, bool checkHeader)
 /*!
     \fn void QGenericTreeView::columnWidthChanged(int column, int oldSize, int newSize)
 
-  Changes the \a column's width from the size given by \a oldSize to the
-  size given by \a newSize.
+  Changes the \a column's width from the size specified by \a oldSize to
+  the size specified by \a newSize.
 */
 
 void QGenericTreeView::columnWidthChanged(int column, int, int)

@@ -106,7 +106,7 @@ QAbstractItemDelegate::~QAbstractItemDelegate()
     \fn QSize QAbstractItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option, const QAbstractItemModel *model, const QModelIndex &index) const = 0
 
     This pure abstract function must be reimplemented if you want to
-    provide custom rendering. The font metrics are given by \a
+    provide custom rendering. The font metrics are specified by \a
     fontMetrics, the options by \a option, the model by \a model, and the
     model item by \a index.
 
@@ -129,8 +129,8 @@ QAbstractItemDelegate::EditorType QAbstractItemDelegate::editorType(const QAbstr
 /*!
     Returns the editor to be used for editing the data item at the
     given \a index in the \a model. The action that caused the edit is
-    given by \a action; see \c BeginEditAction. The editor's parent
-    widget is given by \a parent, and the item options by \a option.
+    specified by \a action; see \c BeginEditAction. The editor's parent
+    widget is specified by \a parent, and the item options by \a option.
     Ownership is kept by the delegate. Subsequent calls to this
     function with the same arguments are not guaranteed to return
     the same editor object.
@@ -151,7 +151,7 @@ QWidget *QAbstractItemDelegate::editor(BeginEditAction, QWidget *, const QStyleO
 /*!
     Notifies the delegate that the given \a editor is no longer in use
     for the item at the given \a index in the \a model.
-    The way the edit was completed is given by \a action;
+    The way the edit was completed is specified by \a action;
     see \c EndEditAction. Typically the delegate should destroy the
     editor at this point.
 

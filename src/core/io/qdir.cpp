@@ -1063,7 +1063,7 @@ QDir::mkdir(const QString &dirName, Recursion recurse, bool acceptAbsPath) const
 }
 
 /*!
-    Removes the directory given by \a dirName.
+    Removes the directory specified by \a dirName.
 
     If \a recurse is \c Recursive then subdirectories along the path
     to \a dirName will be removed if they are empty. If \a recurse is

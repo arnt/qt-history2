@@ -330,7 +330,7 @@ QFile::exists() const
 }
 
 /*!
-    Returns true if the file given by \a fileName exists; otherwise
+    Returns true if the file specified by \a fileName exists; otherwise
     returns false.
 */
 

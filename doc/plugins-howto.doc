@@ -51,7 +51,7 @@ run, Qt will first treat the application's executable directory as the
 Files\MyApp} and has a style plugin, Qt will look in \c{C:\Program
 Files\MyApp\styles}. (See \l{QApplication::applicationDirPath()} for
 how to find out where the application's executable is.) Qt will also
-look in the directory given by \c{qInstallPathPlugins()}. If you want
+look in the directory specified by \c{qInstallPathPlugins()}. If you want
 Qt to look in additional places you can add as many paths as you need
 with calls to \c{QApplication::addLibraryPath()}. And if you want to
 set your own path or paths you can use
@@ -202,7 +202,7 @@ The build key contains the following information:
 
 \i Optionally, an extra string may be specified on the configure
    script command line.
- 
+
    \e {Rationale:}
    When distributing binaries of the Qt library with an
    application, this provides a way for developers to write

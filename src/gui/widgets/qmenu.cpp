@@ -717,7 +717,7 @@ QAction *QMenu::addAction(const QIconSet &icon, const QString &text, const QObje
 
 /*!
     This convenience function creates a new action with some \a
-    text, and a submenu given by \a menu. The function adds the newly
+    text, and a submenu specified by \a menu. The function adds the newly
     created action to the menu's list of actions, and returns it.
      \sa QWidget::addAction()
 */
@@ -733,7 +733,7 @@ QAction *QMenu::addMenu(const QString &text, QMenu *menu)
     \overload
 
     This convenience function creates a new action with an \a icon,
-    some \a text, and a submenu given by \a menu. The function adds
+    some \a text, and a submenu specified by \a menu. The function adds
     the newly created action to the menu's list of actions, and
     returns it.
 
@@ -1177,7 +1177,7 @@ QAction *QMenu::exec(const QPoint &p, QAction *action)
 
     Executes this menu synchronously.
 
-    The menu's actions are given by the list of \a actions. The menu
+    The menu's actions are specified by the list of \a actions. The menu
     will pop up so that the specified action, \a at, appears at global
     position \a pos. If \a at is not specified then the menu appears
     at position \a pos.

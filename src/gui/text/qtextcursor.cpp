@@ -783,7 +783,7 @@ bool QTextCursor::hasSelection() const
     otherwise returns false.
 
     Complex selections are ones that span at least two rows of cells
-    in a table; their extent is given by selectedTableCells().
+    in a table; their extent is specified by selectedTableCells().
 */
 bool QTextCursor::hasComplexSelection() const
 {
