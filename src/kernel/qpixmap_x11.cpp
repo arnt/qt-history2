@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#147 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#148 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -209,9 +209,9 @@ static uint *blue_scale_table  = 0;
 
 static void cleanup_scale_tables()
 {
-    delete red_scale_table;
-    delete green_scale_table;
-    delete blue_scale_table;
+    delete[] red_scale_table;
+    delete[] green_scale_table;
+    delete[] blue_scale_table;
 }
 
 /*
