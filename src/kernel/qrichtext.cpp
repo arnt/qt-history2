@@ -5051,7 +5051,7 @@ void QTextFlow::updateHeight( QTextCustomItem *i )
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
-    : QTextCustomItem( p ), currCell( -1 ), painter( 0 )
+    : QTextCustomItem( p ), painter( 0 ), currCell( -1 )
 {
     cells.setAutoDelete( TRUE );
 #if defined(PARSER_DEBUG)
@@ -5075,7 +5075,7 @@ QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
 	    border = attr["border"].toInt();
     }
     us_b = border;
-    
+
     if ( border )
 	cellspacing += 2;
     outerborder = cellspacing + border;
@@ -5160,7 +5160,7 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
     lastY = y;
 
     painter = p;
-    
+
     for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
 	if ( cx < 0 && cy < 0 ||
 	     QRect( cx, cy, cw, ch ).intersects( QRect( x + outerborder + cell->geometry().x(),
