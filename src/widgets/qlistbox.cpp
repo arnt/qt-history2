@@ -21,13 +21,12 @@
 #include "qlistbox.h"
 #ifndef QT_NO_LISTBOX
 #include "qevent.h"
-#include "qmemarray.h"
+#include "qvector.h"
 #include "qfontmetrics.h"
 #include "qpainter.h"
 #include "qstrlist.h"
 #include "qpixmap.h"
 #include "qapplication.h"
-#include "qptrdict.h"
 #include "qtimer.h"
 #include "qstringlist.h"
 #include "qstyle.h"
@@ -70,8 +69,8 @@ public:
     int cacheIndex;
     QListBoxItem * current, *highlighted, *tmpCurrent;
 
-    QMemArray<int> columnPos;
-    QMemArray<int> rowPos;
+    QVector<int> columnPos;
+    QVector<int> rowPos;
     int rowPosCache;
     int columnPosOne;
 
@@ -120,7 +119,6 @@ public:
     uint inMenuMode :1;
 
     QRect *rubber;
-    QPtrDict<bool> selectable;
 
     struct SortableItem {
 	QListBoxItem *item;
@@ -435,41 +433,22 @@ const QPixmap *QListBoxItem::pixmap() const
     return 0;
 }
 
-/*!
+/*! \fn void QListBoxItem::setSelectable( bool b )
+
     If \a b is TRUE (the default) then this item can be selected by
     the user; otherwise this item cannot be selected by the user.
 
     \sa isSelectable()
 */
 
-void QListBoxItem::setSelectable( bool b )
-{
-    if ( !listBox() )
-	return;
-    bool *sel = listBox()->d->selectable.find( this );
-    if ( !sel )
-	listBox()->d->selectable.insert( this, new bool( b ) );
-    else
-	listBox()->d->selectable.replace( this, new bool( b ) );
-}
+/*! \fn bool QListBoxItem::isSelectable() const
 
-/*!
     Returns TRUE if this item is selectable (the default); otherwise
     returns FALSE.
 
     \sa setSelectable()
 */
 
-bool QListBoxItem::isSelectable() const
-{
-    if ( !listBox() )
-	return TRUE;
-    bool *sel = listBox()->d->selectable.find( ( (QListBoxItem*)this ) );
-    if ( !sel )
-	return TRUE;
-    else
-	return *sel;
-}
 
 /*!
     \fn void QListBoxItem::setText( const QString &text )
@@ -973,7 +952,6 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     d->selectAnchor = 0;
     d->select = FALSE;
     d->rubber = 0;
-    d->selectable.setAutoDelete( TRUE );
 
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
@@ -1588,7 +1566,6 @@ void QListBox::clear()
     d->mousePressColumn = -1;
     d->mouseMoveRow = -1;
     d->mouseMoveColumn = -1;
-    d->selectable.clear();
     clearSelection();
     blockSignals( blocked );
     triggerUpdate( TRUE );

@@ -499,12 +499,12 @@ protected:
 private:
     void init();
     ToggleState internalState() const;
-    void setStoredState( ToggleState newState, void *key );
-    ToggleState storedState( void *key ) const;
+    void setStoredState( ToggleState newState, QCheckListItem *key );
+    ToggleState storedState( QCheckListItem *key ) const;
     void stateChange( ToggleState s );
-    void restoreState( void *key, int depth = 0 );
+    void restoreState( QCheckListItem *key, int depth = 0 );
     void updateController( bool update = TRUE , bool store = FALSE );
-    void updateStoredState( void *key );
+    void updateStoredState( QCheckListItem *key );
     void setState( ToggleState s, bool update, bool store );
     void setCurrentState( ToggleState s );
 
@@ -560,14 +560,11 @@ public:
     QListViewItem* operator*();
     QListViewItem *current() const;
 
-protected:
+private:
     QListViewItem *curr;
     QListView *listView;
+    int flags;
 
-private:
-    QListViewItemIteratorPrivate* d() const;
-    void init( int flags );
-    void addToListView();
     void currentRemoved();
     bool matchesFlags( const QListViewItem* ) const;
     bool testPair( QListViewItemIterator::IteratorFlag, QListViewItemIterator::IteratorFlag, bool ) const;

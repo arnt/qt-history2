@@ -19,9 +19,6 @@
 #include "qheader.h"
 #include "qpainter.h"
 #include "qcursor.h"
-#include "qptrstack.h"
-#include "qptrlist.h"
-#include "qstrlist.h"
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qcleanuphandler.h"
@@ -34,11 +31,8 @@
 #include "qpainter.h"
 #include "qpixmapcache.h"
 #include "qpopupmenu.h"
-#include "qptrdict.h"
-#include "qptrlist.h"
-#include "qptrstack.h"
-#include "qptrvector.h"
-#include "qstrlist.h"
+#include "qhash.h"
+#include "qstack.h"
 #include "qstyle.h"
 #include "qtimer.h"
 #include "qtl.h"
@@ -53,17 +47,6 @@ const int Unsorted = 16383;
 
 static QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
 
-struct QListViewItemIteratorPrivate
-{
-    QListViewItemIteratorPrivate( uint f ) : flags( f )
-	{
-	    // nothing yet
-	}
-
-    uint flags;
-};
-
-static QPtrDict<QListViewItemIteratorPrivate> *qt_iteratorprivate_dict = 0;
 
 struct QListViewPrivate
 {
@@ -82,23 +65,14 @@ struct QListViewPrivate
 	QListView * lv;
     };
 
-    // for the stack used in drawContentsOffset()
-    class Pending {
-    public:
-	Pending( int level, int ypos, QListViewItem * item)
-	    : l(level), y(ypos), i(item) {};
-
-	int l; // level of this item; root is -1 or 0
-	int y; // level of this item in the tree
-	QListViewItem * i; // the item itself
-    };
-
     // to remember what's on screen
     class DrawableItem {
     public:
-	DrawableItem( Pending * pi ) { y = pi->y; l = pi->l; i = pi->i; };
-	int y;
+	DrawableItem() {}
+	DrawableItem( int level, int ypos, QListViewItem * item)
+	    : l(level), y(ypos), i(item) {};
 	int l;
+	int y;
 	QListViewItem * i;
     };
 
@@ -174,11 +148,11 @@ struct QListViewPrivate
 
     // the list of drawables, and the range drawables covers entirely
     // (it may also include a few items above topPixel)
-    QPtrList<DrawableItem> * drawables;
+    QList<DrawableItem> drawables;
     int topPixel;
     int bottomPixel;
 
-    QPtrDict<void> * dirtyItems;
+    QList<const QListViewItem *> dirtyItems;
 
     QListView::SelectionMode selectionMode;
 
@@ -186,7 +160,7 @@ struct QListViewPrivate
     struct Column {
 	QListView::WidthMode wmode;
     };
-    QPtrVector<Column> column;
+    QVector<Column> column;
 
     // suggested height for the items
     int fontMetricsHeight;
@@ -199,7 +173,7 @@ struct QListViewPrivate
     QTime currentPrefixTime;
 
     // holds a list of iterators
-    QPtrList<QListViewItemIterator> *iterators;
+    QList<QListViewItemIterator *> iterators;
     QListViewItem *pressedItem, *selectAnchor;
 
     QTimer *scrollTimer;
@@ -244,6 +218,8 @@ struct QListViewPrivate
     int pressedColumn;
     QListView::ResizeMode resizeMode;
 };
+
+Q_DECLARE_TYPEINFO(QListViewPrivate::DrawableItem, Q_PRIMITIVE_TYPE);
 
 #ifndef QT_NO_TOOLTIP
 class QListViewToolTip : public QToolTip
@@ -988,13 +964,10 @@ QListViewItem::~QListViewItem()
 	}
 	if ( lv->d->oldFocusItem == this )
 	    lv->d->oldFocusItem = 0;
-	if ( lv->d->iterators ) {
-	    QListViewItemIterator *i = lv->d->iterators->first();
-	    while ( i ) {
-		if ( i->current() == this )
-		    i->currentRemoved();
-		i = lv->d->iterators->next();
-	    }
+	for (int j = 0; j < lv->d->iterators.size(); ++j) {
+	    QListViewItemIterator *i = lv->d->iterators.at(j);
+	    if ( i->current() == this )
+		i->currentRemoved();
 	}
     }
 
@@ -1224,30 +1197,24 @@ void QListViewItem::takeItem( QListViewItem * item )
 	if ( lv->d->oldFocusItem == this )
 	    lv->d->oldFocusItem = 0;
 
-	if ( lv->d->iterators ) {
-	    QListViewItemIterator *i = lv->d->iterators->first();
-	    while ( i ) {
-		if ( i->current() == item )
-		    i->currentRemoved();
-		i = lv->d->iterators->next();
-	    }
+	for (int j = 0; j < lv->d->iterators.size(); ++j) {
+	    QListViewItemIterator *i = lv->d->iterators.at(j);
+	    if ( i->current() == item )
+		i->currentRemoved();
 	}
 
 	invalidateHeight();
 
-	if ( lv->d && lv->d->drawables ) {
-	    delete lv->d->drawables;
-	    lv->d->drawables = 0;
-	}
+	if ( lv->d && !lv->d->drawables.isEmpty() )
+	    lv->d->drawables.clear();
 
-	if ( lv->d->dirtyItems ) {
+	if ( !lv->d->dirtyItems.isEmpty() ) {
 	    if ( item->childItem ) {
-		delete lv->d->dirtyItems;
-		lv->d->dirtyItems = 0;
+		lv->d->dirtyItems.clear();
 		lv->d->dirtyItemTimer->stop();
 		lv->triggerUpdate();
 	    } else {
-		lv->d->dirtyItems->take( (void *)item );
+		lv->d->dirtyItems.remove(item);
 	    }
 	}
 
@@ -1497,7 +1464,7 @@ void QListViewItem::setOpen( bool o )
 
     if ( !configured ) {
 	QListViewItem * l = this;
-	QPtrStack<QListViewItem> s;
+	QStack<QListViewItem *> s;
 	while( l ) {
 	    if ( l->open && l->childItem ) {
 		s.push( l->childItem );
@@ -1522,10 +1489,8 @@ void QListViewItem::setOpen( bool o )
     if ( open && lv)
 	enforceSortOrder();
 
-    if ( isVisible() && lv && lv->d && lv->d->drawables ) {
-	lv->d->drawables->clear();
+    if ( isVisible() && lv && lv->d && !lv->d->drawables.isEmpty() )
 	lv->buildDrawableList();
-    }
 
     if ( lv && this != lv->d->r ) {
 	if ( o )
@@ -1557,7 +1522,7 @@ void QListViewItem::setup()
     QListView * v = listView();
 
     int ph = 0;
-    for ( uint i = 0; i < v->d->column.size(); ++i ) {
+    for ( int i = 0; i < v->d->column.size(); ++i ) {
 	if ( pixmap( i ) )
 	    ph = qMax( ph, pixmap( i )->height() );
     }
@@ -1992,7 +1957,7 @@ void QListViewItem::paintCell( QPainter * p, const QPalette & pal,
 
     // had, but we _need_ the column info for the ellipsis thingy!!!
     if ( !columns ) {
-	for ( uint i = 0; i < lv->d->column.size(); ++i ) {
+	for ( int i = 0; i < lv->d->column.size(); ++i ) {
 	    setText( i, text( i ) );
 	}
     }
@@ -2587,8 +2552,6 @@ void QListView::init()
     d->h->installEventFilter( this );
     d->focusItem = 0;
     d->oldFocusItem = 0;
-    d->drawables = 0;
-    d->dirtyItems = 0;
     d->dirtyItemTimer = new QTimer( this );
     d->visibleTimer = new QTimer( this );
     d->renameTimer = new QTimer( this );
@@ -2602,8 +2565,6 @@ void QListView::init()
     d->h->setTracking(TRUE);
     d->buttonDown = FALSE;
     d->ignoreDoubleClick = FALSE;
-    d->column.setAutoDelete( TRUE );
-    d->iterators = 0;
     d->scrollTimer = 0;
     d->sortIndicator = FALSE;
     d->clearing = FALSE;
@@ -2753,22 +2714,14 @@ QListView::ResizeMode QListView::resizeMode() const
 
 QListView::~QListView()
 {
-    if ( d->iterators ) {
-	QListViewItemIterator *i = d->iterators->first();
-	while ( i ) {
-	    i->listView = 0;
-	    i = d->iterators->next();
-	}
-	delete d->iterators;
+    for (int j = 0; j < d->iterators.size(); ++j) {
+	QListViewItemIterator *i = d->iterators.at(j);
+	i->listView = 0;
     }
 
     d->focusItem = 0;
     delete d->r;
     d->r = 0;
-    delete d->dirtyItems;
-    d->dirtyItems = 0;
-    delete d->drawables;
-    d->drawables = 0;
     delete d->vci;
     d->vci = 0;
 #ifndef QT_NO_TOOLTIP
@@ -2796,55 +2749,48 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	return;
     }
 
-    if ( !d->drawables ||
-	 d->drawables->isEmpty() ||
+    if ( d->drawables.isEmpty() ||
 	 d->topPixel > cy ||
 	 d->bottomPixel < cy + ch - 1 ||
 	 d->r->maybeTotalHeight < 0 )
 	buildDrawableList();
 
-    if ( d->dirtyItems ) {
+    if ( !d->dirtyItems.isEmpty() ) {
 	QRect br( cx - ox, cy - oy, cw, ch );
-	QPtrDictIterator<void> it( *(d->dirtyItems) );
-	QListViewItem * i;
-	while( (i = (QListViewItem *)(it.currentKey())) != 0 ) {
-	    ++it;
-	    QRect ir = itemRect( i ).intersect( viewport()->rect() );
+	for (int i = 0; i < d->dirtyItems.size(); ++i) {
+	    const QListViewItem * item = d->dirtyItems.at(i);
+	    QRect ir = itemRect( item ).intersect( viewport()->rect() );
 	    if ( ir.isEmpty() || br.contains( ir ) )
 		// we're painting this one, or it needs no painting: forget it
-		d->dirtyItems->remove( (void *)i );
+		d->dirtyItems.removeAt(i);
 	}
-	if ( d->dirtyItems->count() ) {
+	if ( d->dirtyItems.count() ) {
 	    // there are still items left that need repainting
 	    d->dirtyItemTimer->start( 0, TRUE );
 	} else {
 	    // we're painting all items that need to be painted
-	    delete d->dirtyItems;
-	    d->dirtyItems = 0;
+	    d->dirtyItems.clear();
 	    d->dirtyItemTimer->stop();
 	}
     }
 
     p->setFont( font() );
 
-    QPtrListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
-
     QRect r;
     int fx = -1, x, fc = 0, lc = 0;
     int tx = -1;
-    QListViewPrivate::DrawableItem * current;
 
-    while ( (current = it.current()) != 0 ) {
-	++it;
-	if ( !current->i->isVisible() )
+    for (int i = 0; i < d->drawables.size(); ++i) {
+	QListViewPrivate::DrawableItem current = d->drawables.at(i);
+	if ( !current.i->isVisible() )
 	    continue;
-	int ih = current->i->height();
-	int ith = current->i->totalHeight();
+	int ih = current.i->height();
+	int ith = current.i->totalHeight();
 	int c;
 	int cs;
 
 	// need to paint current?
-	if ( ih > 0 && current->y < cy+ch && current->y+ih >= cy ) {
+	if ( ih > 0 && current.y < cy+ch && current.y+ih >= cy ) {
 	    if ( fx < 0 ) {
 		// find first interesting column, once
 		x = 0;
@@ -2878,12 +2824,12 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    if(!drawActiveSelection)
 		pal.setCurrentColorGroup(QPalette::Inactive);
 
-	    while ( c < lc && d->drawables ) {
+	    while (c < lc) {
 		int i = d->h->mapToLogical( c );
 		cs = d->h->cellSize( c );
-		r.setRect( x - ox, current->y - oy, cs, ih );
-		if ( i == 0 && current->i->parentItem )
-		    r.setLeft( r.left() + current->l * treeStepSize() );
+		r.setRect( x - ox, current.y - oy, cs, ih );
+		if ( i == 0 && current.i->parentItem )
+		    r.setLeft( r.left() + current.l * treeStepSize() );
 
 		p->save();
 		// No need to paint if the cell isn't technically visible
@@ -2894,22 +2840,22 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		    // can really reverse the listview.
 		    int align = columnAlignment( ac );
 		    if ( align == AlignAuto ) align = AlignLeft;
-			current->i->paintCell( p, pal, ac, r.width(), align );
+			current.i->paintCell( p, pal, ac, r.width(), align );
 		}
 		p->restore();
 		x += cs;
 		c++;
 	    }
 
-	    if ( current->i == d->focusItem && hasFocus() &&
+	    if ( current.i == d->focusItem && hasFocus() &&
 		 !d->allColumnsShowFocus ) {
 		p->save();
 		int cell = d->h->mapToActual( 0 );
-		QRect r( d->h->cellPos( cell ) - ox, current->y - oy, d->h->cellSize( cell ), ih );
-		if ( current->i->parentItem )
-		    r.setLeft( r.left() + current->l * treeStepSize() );
+		QRect r( d->h->cellPos( cell ) - ox, current.y - oy, d->h->cellSize( cell ), ih );
+		if ( current.i->parentItem )
+		    r.setLeft( r.left() + current.l * treeStepSize() );
 		if ( r.left() < r.right() )
-		    current->i->paintFocus( p, palette(), r );
+		    current.i->paintFocus( p, palette(), r );
 		p->restore();
 	    }
 	}
@@ -2917,28 +2863,28 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
     	const int cell = d->h->mapToActual( 0 );
 
 	// does current need focus indication?
-	if ( current->i == d->focusItem && hasFocus() &&
+	if ( current.i == d->focusItem && hasFocus() &&
 	     d->allColumnsShowFocus ) {
 	    p->save();
 	    int x = -contentsX();
 	    int w = header()->cellPos( header()->count() - 1 ) +
 		    header()->cellSize( header()->count() - 1 );
 
-	    r.setRect( x, current->y - oy, w, ih );
-	    if ( d->h->mapToActual( 0 ) == 0 || ( current->l == 0 && !rootIsDecorated() ) ) {
-		int offsetx = qMin( current->l * treeStepSize(), d->h->cellSize( cell ) );
+	    r.setRect( x, current.y - oy, w, ih );
+	    if ( d->h->mapToActual( 0 ) == 0 || ( current.l == 0 && !rootIsDecorated() ) ) {
+		int offsetx = qMin( current.l * treeStepSize(), d->h->cellSize( cell ) );
 		r.setLeft( r.left() + offsetx );
-		current->i->paintFocus( p, palette(), r );
+		current.i->paintFocus( p, palette(), r );
 	    } else {
-		int xdepth = qMin( treeStepSize() * ( current->i->depth() + ( rootIsDecorated() ? 1 : 0) )
+		int xdepth = qMin( treeStepSize() * ( current.i->depth() + ( rootIsDecorated() ? 1 : 0) )
 			     + itemMargin(), d->h->cellSize( cell ) );
 		xdepth += d->h->cellPos( cell );
 		QRect r1( r );
 		r1.setRight( d->h->cellPos( cell ) - 1 );
 		QRect r2( r );
 		r2.setLeft( xdepth - 1 );
-		current->i->paintFocus( p, palette(), r1 );
-		current->i->paintFocus( p, palette(), r2 );
+		current.i->paintFocus( p, palette(), r1 );
+		current.i->paintFocus( p, palette(), r2 );
 	    }
 	    p->restore();
 	}
@@ -2948,16 +2894,16 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 	// do any children of current need to be painted?
 	if ( ih != ith &&
-	     (current->i != d->r || d->rootIsExpandable) &&
-	     current->y + ith > cy &&
-	     current->y + ih < cy + ch &&
-	     tx + current->l * treeStepSize() < cx + cw &&
-	     tx + (current->l+1) * treeStepSize() > cx ) {
+	     (current.i != d->r || d->rootIsExpandable) &&
+	     current.y + ith > cy &&
+	     current.y + ih < cy + ch &&
+	     tx + current.l * treeStepSize() < cx + cw &&
+	     tx + (current.l+1) * treeStepSize() > cx ) {
 	    // compute the clip rectangle the safe way
 
-	    int rtop = current->y + ih;
-	    int rbottom = current->y + ith;
-	    int rleft = tx + current->l*treeStepSize();
+	    int rtop = current.y + ih;
+	    int rbottom = current.y + ith;
+	    int rleft = tx + current.l*treeStepSize();
 	    int rright = rleft + treeStepSize();
 
 	    int crtop = qMax( rtop, cy );
@@ -2971,7 +2917,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    if ( r.isValid() ) {
 		p->save();
 		p->translate( rleft-ox, crtop-oy );
-		current->i->paintBranches( p, palette(), treeStepSize(),
+		current.i->paintBranches( p, palette(), treeStepSize(),
 					   rtop - crtop, r.height() );
 		p->restore();
 	    }
@@ -3025,62 +2971,50 @@ void QListView::buildDrawableList() const
 {
     d->r->enforceSortOrder();
 
-    QPtrStack<QListViewPrivate::Pending> stack;
-    stack.push( new QListViewPrivate::Pending( ((int)d->rootIsExpandable)-1,
-					       0, d->r ) );
+    QStack<QListViewPrivate::DrawableItem> stack;
+    QListViewPrivate::DrawableItem di(((int)d->rootIsExpandable)-1, 0, d->r );
+    stack.push(di);
+
+    QListView *that = const_cast<QListView *>(this);
 
     // could mess with cy and ch in order to speed up vertical
     // scrolling
     int cy = contentsY();
-    int ch = ((QListView *)this)->visibleHeight();
+    int ch = that->visibleHeight();
     d->topPixel = cy + ch; // one below bottom
     d->bottomPixel = cy - 1; // one above top
 
-    QListViewPrivate::Pending * cur;
-
-    // used to work around lack of support for mutable
-    QPtrList<QListViewPrivate::DrawableItem> * dl;
-
-    dl = new QPtrList<QListViewPrivate::DrawableItem>;
-    dl->setAutoDelete( TRUE );
-    if ( d->drawables )
-	delete ((QListView *)this)->d->drawables;
-    ((QListView *)this)->d->drawables = dl;
+    that->d->drawables.clear();
 
     while ( !stack.isEmpty() ) {
-	cur = stack.pop();
+	QListViewPrivate::DrawableItem cur = stack.pop();
 
-	int ih = cur->i->height();
-	int ith = cur->i->totalHeight();
-
-	// if this is not true, buildDrawableList has been called recursivly
-	Q_ASSERT( dl == d->drawables );
+	int ih = cur.i->height();
+	int ith = cur.i->totalHeight();
 
 	// is this item, or its branch symbol, inside the viewport?
-	if ( cur->y + ith >= cy && cur->y < cy + ch ) {
-	    dl->append( new QListViewPrivate::DrawableItem(cur));
+	if ( cur.y + ith >= cy && cur.y < cy + ch ) {
+	    that->d->drawables.append(cur);
 	    // perhaps adjust topPixel up to this item?  may be adjusted
 	    // down again if any children are not to be painted
-	    if ( cur->y < d->topPixel )
-		d->topPixel = cur->y;
+	    if ( cur.y < d->topPixel )
+		d->topPixel = cur.y;
 	    // bottompixel is easy: the bottom item drawn contains it
-	    d->bottomPixel = cur->y + ih - 1;
+	    d->bottomPixel = cur.y + ih - 1;
 	}
 
 	// push younger sibling of cur on the stack?
-	if ( cur->y + ith < cy+ch && cur->i->siblingItem )
-	    stack.push( new QListViewPrivate::Pending(cur->l,
-						      cur->y + ith,
-						      cur->i->siblingItem));
+	if ( cur.y + ith < cy+ch && cur.i->siblingItem )
+	    stack.push( QListViewPrivate::DrawableItem(cur.l, cur.y + ith, cur.i->siblingItem));
 
 	// do any children of cur need to be painted?
-	if ( cur->i->isOpen() && cur->i->childCount() &&
-	     cur->y + ith > cy &&
-	     cur->y + ih < cy + ch ) {
-	    cur->i->enforceSortOrder();
+	if ( cur.i->isOpen() && cur.i->childCount() &&
+	     cur.y + ith > cy &&
+	     cur.y + ih < cy + ch ) {
+	    cur.i->enforceSortOrder();
 
-	    QListViewItem * c = cur->i->childItem;
-	    int y = cur->y + ih;
+	    QListViewItem * c = cur.i->childItem;
+	    int y = cur.y + ih;
 
 	    // if any of the children are not to be painted, skip them
 	    // and invalidate topPixel
@@ -3093,11 +3027,8 @@ void QListView::buildDrawableList() const
 	    // push one child on the stack, if there is at least one
 	    // needing to be painted
 	    if ( c && y < cy+ch )
-		stack.push( new QListViewPrivate::Pending( cur->l + 1,
-							   y, c ) );
+		stack.push( QListViewPrivate::DrawableItem( cur.l + 1, y, c ) );
 	}
-
-	delete cur;
     }
 }
 
@@ -3156,18 +3087,13 @@ void QListView::clear()
     blockSignals( TRUE );
     d->clearing = TRUE;
     clearSelection();
-    if ( d->iterators ) {
-	QListViewItemIterator *i = d->iterators->first();
-	while ( i ) {
+    for (int j = 0; j < d->iterators.size(); ++j) {
+	QListViewItemIterator *i = d->iterators.at(j);
 	    i->curr = 0;
-	    i = d->iterators->next();
-	}
     }
 
-    if ( d->drawables )
-	d->drawables->clear();
-    delete d->dirtyItems;
-    d->dirtyItems = 0;
+    d->drawables.clear();
+    d->dirtyItems.clear();
     d->dirtyItemTimer->stop();
 
     d->focusItem = 0;
@@ -3221,8 +3147,7 @@ int QListView::addColumn( const QString &label, int width )
 {
     int c = d->h->addLabel( label, width );
     d->column.resize( c+1 );
-    d->column.insert( c, new QListViewPrivate::Column );
-    d->column[c]->wmode = width >=0 ? Manual : Maximum;
+    d->column[c].wmode = (width >= 0 ? Manual : Maximum);
     updateGeometries();
     updateGeometry();
     return c;
@@ -3244,8 +3169,7 @@ int QListView::addColumn( const QIconSet& iconset, const QString &label, int wid
 {
     int c = d->h->addLabel( iconset, label, width );
     d->column.resize( c+1 );
-    d->column.insert( c, new QListViewPrivate::Column );
-    d->column[c]->wmode = width >=0 ? Manual : Maximum;
+    d->column[c].wmode = (width >= 0 ? Manual : Maximum);
     updateGeometries();
     updateGeometry();
     return c;
@@ -3314,13 +3238,8 @@ void QListView::removeColumn( int index )
 	}
     }
 
-    for ( int i = index; i < (int)d->column.size(); ++i ) {
-	QListViewPrivate::Column *c = d->column.take( i );
-	if ( i == index )
-	    delete c;
-	if ( i < (int)d->column.size()-1 )
-	    d->column.insert( i, d->column[ i + 1 ] );
-    }
+    for ( int i = index; i < (int)d->column.size() - 1; ++i )
+	d->column[i] = d->column[i + 1];
     d->column.resize( d->column.size() - 1 );
 
     d->h->removeLabel( index );
@@ -3428,8 +3347,8 @@ int QListView::columnWidth( int c ) const
 
 void QListView::setColumnWidthMode( int c, WidthMode mode )
 {
-    if ( c < d->h->count() )
-	 d->column[c]->wmode = mode;
+    if ( c >= 0 && c < d->h->count() )
+	 d->column[c].wmode = mode;
 }
 
 
@@ -3441,8 +3360,8 @@ void QListView::setColumnWidthMode( int c, WidthMode mode )
 
 QListView::WidthMode QListView::columnWidthMode( int c ) const
 {
-    if ( c < d->h->count() )
-	return d->column[c]->wmode;
+    if ( c >= 0 && c < d->h->count() )
+	return d->column[c].wmode;
     else
 	return Manual;
 }
@@ -3531,10 +3450,7 @@ void QListView::updateContents()
 	// Not in response to a setText/setPixmap any more.
 	return;
     }
-    if ( d->drawables ) {
-	delete d->drawables;
-	d->drawables = 0;
-    }
+    d->drawables.clear();
     viewport()->setUpdatesEnabled( FALSE );
     updateGeometries();
     viewport()->setUpdatesEnabled( TRUE );
@@ -3634,14 +3550,12 @@ void QListView::handleSizeChange( int section, int os, int ns )
 
 void QListView::updateDirtyItems()
 {
-    if ( d->timer->isActive() || !d->dirtyItems )
+    if ( d->timer->isActive() || d->dirtyItems.isEmpty() )
 	return;
     QRect ir;
-    QPtrDictIterator<void> it( *(d->dirtyItems) );
-    QListViewItem * i;
-    while( (i = (QListViewItem *)(it.currentKey())) != 0 ) {
-	++it;
-	ir = ir.unite( itemRect(i) );
+    for (int i = 0; i < d->dirtyItems.size(); ++i) {
+	const QListViewItem * item = d->dirtyItems.at(i);
+	ir = ir.unite( itemRect(item) );
     }
     if ( !ir.isEmpty() )  {		      // rectangle to be repainted
 	if ( ir.x() < 0 )
@@ -4200,12 +4114,14 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 	int x1 = vp.x() +
 		 d->h->offset() -
 		 d->h->cellPos( d->h->mapToActual( 0 ) );
-	QPtrListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
-	while( it.current() && it.current()->i != i )
-	    ++it;
+	int draw = 0;
+	for (; draw < d->drawables.size(); ++draw)
+	    if (d->drawables.at(draw).i == i)
+		break;
 
-	if ( it.current() ) {
-	    x1 -= treeStepSize() * (it.current()->l - 1);
+	if (draw < d->drawables.size()) {
+	    QListViewPrivate::DrawableItem it = d->drawables.at(draw);
+	    x1 -= treeStepSize() * (it.l - 1);
 	    QStyle::SubControl ctrl =
 		style().querySubControl( QStyle::CC_ListView,
 					 this, QPoint(x1, e->pos().y()),
@@ -4411,12 +4327,13 @@ void QListView::contentsMouseReleaseEventEx( QMouseEvent * e )
     if ( i && i == d->pressedItem && (i->isExpandable() || i->childCount()) &&
 	 !d->h->mapToLogical( d->h->cellAt( vp.x() ) ) && e->button() == LeftButton &&
 	 e->type() == style().styleHint(QStyle::SH_ListViewExpand_SelectMouseType, this)) {
-	QPtrListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
-	while( it.current() && it.current()->i != i )
-	    ++it;
-	if ( it.current() ) {
+	int draw = 0;
+	for (; draw < d->drawables.size(); ++draw)
+	    if (d->drawables.at(draw).i == i)
+		break;
+	if (draw < d->drawables.size()) {
 	    int x1 = vp.x() + d->h->offset() - d->h->cellPos( d->h->mapToActual( 0 ) ) -
-		     (treeStepSize() * (it.current()->l - 1));
+		     (treeStepSize() * (d->drawables.at(draw).l - 1));
 	    QStyle::SubControl ctrl = style().querySubControl( QStyle::CC_ListView,
 							       this, QPoint(x1, e->pos().y()),
 							       QStyleOption(i) );
@@ -5058,19 +4975,18 @@ QListViewItem * QListView::itemAt( const QPoint & viewPos ) const
     if ( viewPos.x() > contentsWidth() - contentsX() )
 	return 0;
 
-    if ( !d->drawables || d->drawables->isEmpty() )
+    if ( d->drawables.isEmpty() )
 	buildDrawableList();
 
-    QListViewPrivate::DrawableItem * c = d->drawables->first();
     int g = viewPos.y() + contentsY();
 
-    while( c && c->i && ( c->y + c->i->height() <= g ||
-			  !c->i->isVisible() ||
-			  c->i->parent() && !c->i->parent()->isVisible() ) )
-	c = d->drawables->next();
-
-    QListViewItem *i = (c && c->y <= g) ? c->i : 0;
-    return i;
+    for (int i = 0; i < d->drawables.size(); ++i) {
+	QListViewPrivate::DrawableItem c = d->drawables.at(i);
+	if (c.y + c.i->height() > g
+	    && c.i->isVisible() && (!c.i->parent() || c.i->parent()->isVisible()) )
+	    return c.y <= g ? c.i : 0;
+    }
+    return 0;
 }
 
 
@@ -5384,8 +5300,8 @@ QListViewItem * QListView::currentItem() const
 
 
 /*!
-    Returns the rectangle on the screen that item \a i occupies in
-    viewport()'s coordinates, or an invalid rectangle if \a i is 0 or
+    Returns the rectangle on the screen that item \a item occupies in
+    viewport()'s coordinates, or an invalid rectangle if \a item is 0 or
     is not currently visible.
 
     The rectangle returned does not include any children of the
@@ -5406,22 +5322,18 @@ QListViewItem * QListView::currentItem() const
     items that are probably on-screen.
 */
 
-QRect QListView::itemRect( const QListViewItem * i ) const
+QRect QListView::itemRect( const QListViewItem * item ) const
 {
-    if ( !d->drawables || d->drawables->isEmpty() )
+    if ( d->drawables.isEmpty() )
 	buildDrawableList();
 
-    QListViewPrivate::DrawableItem * c = d->drawables->first();
-
-    while( c && c->i && c->i != i )
-	c = d->drawables->next();
-
-    if ( c && c->i == i ) {
-	int y = c->y - contentsY();
-	if ( y + c->i->height() >= 0 &&
-	     y < ((QListView *)this)->visibleHeight() ) {
-	    QRect r( -contentsX(), y, d->h->width(), i->height() );
-	    return r;
+    for (int i = 0; i < d->drawables.size(); ++i) {
+	const QListViewPrivate::DrawableItem &c = d->drawables.at(i);
+	if (c.i == item) {
+	    int y = c.y - contentsY();
+	    if ( y + c.i->height() >= 0 && y < ((QListView *)this)->visibleHeight() ) {
+		return QRect( -contentsX(), y, d->h->width(), c.i->height() );;
+	    }
 	}
     }
 
@@ -5611,8 +5523,7 @@ void QListView::setItemMargin( int m )
 	return;
     d->margin = m;
     if ( isVisible() ) {
-	if ( d->drawables )
-	    d->drawables->clear();
+	d->drawables.clear();
 	triggerUpdate();
     }
 }
@@ -5732,7 +5643,7 @@ void QListView::widthChanged( const QListViewItem* item, int c )
     QFontMetrics fm = fontMetrics();
     int col = c < 0 ? 0 : c;
     while ( col == c || ( c < 0 && col < d->h->count() ) ) {
-	if ( d->column[col]->wmode == Maximum ) {
+	if ( d->column[col].wmode == Maximum ) {
 	    int w = item->width( fm, this, col );
 	    if ( showSortIndicator() ) {
 		QString title = header()->label( col );
@@ -5840,9 +5751,7 @@ void QListView::repaintItem( const QListViewItem * item ) const
     if ( !item )
 	return;
     d->dirtyItemTimer->start( 0, TRUE );
-    if ( !d->dirtyItems )
-	d->dirtyItems = new QPtrDict<void>();
-    d->dirtyItems->replace( (void *)item, (void *)item );
+    d->dirtyItems.append(item);
 }
 
 
@@ -5851,12 +5760,11 @@ struct QCheckListItemPrivate
     QCheckListItemPrivate():
 	exclusive( 0 ),
 	currentState( QCheckListItem::Off ),
-	statesDict( 0 ),
 	tristate( FALSE ) {}
 
     QCheckListItem *exclusive;
     QCheckListItem::ToggleState currentState;
-    QPtrDict<QCheckListItem::ToggleState> *statesDict;
+    QHash<QCheckListItem *, QCheckListItem::ToggleState> statesDict;
     bool tristate;
 };
 
@@ -6060,10 +5968,6 @@ void QCheckListItem::init()
 {
     d = new QCheckListItemPrivate();
     on = FALSE; // ### remove on ver 4
-    if ( myType == CheckBoxController || myType == CheckBox ) {
-	d->statesDict = new QPtrDict<ToggleState>(101);
-	d->statesDict->setAutoDelete( TRUE );
-    }
     // CheckBoxControllers by default have tristate set to TRUE
     if ( myType == CheckBoxController )
 	setTristate( TRUE );
@@ -6080,8 +5984,6 @@ QCheckListItem::~QCheckListItem()
 	 && d->exclusive->d->exclusive == this )
 	d->exclusive->turnOffChild();
     d->exclusive = 0; // so the children won't try to access us.
-    if ( d->statesDict )
-	delete d->statesDict;
     delete d;
     d = 0;
 }
@@ -6169,7 +6071,7 @@ QCheckListItem::ToggleState QCheckListItem::internalState() const
 void QCheckListItem::setState( ToggleState s )
 {
     if ( myType == CheckBoxController && state() == NoChange )
-	updateStoredState( (void*) this );
+	updateStoredState(this);
     setState( s, TRUE, TRUE );
 }
 
@@ -6192,7 +6094,7 @@ void QCheckListItem::setState( ToggleState s, bool update, bool store)
   	    ((QCheckListItem*)parent())->updateController( update, store );
     } else if ( myType == CheckBoxController ) {
 	if ( s == NoChange) {
-	    restoreState( (void*) this );
+	    restoreState(this);
 	} else {
 	    QListViewItem *item = firstChild();
 	    int childCount = 0;
@@ -6275,24 +6177,21 @@ void QCheckListItem::setCurrentState( ToggleState s )
 /*
   updates the internally stored state of this item for the parent (key)
 */
-void QCheckListItem::setStoredState( ToggleState newState, void *key )
+void QCheckListItem::setStoredState( ToggleState newState, QCheckListItem *key )
 {
     if ( myType == CheckBox || myType == CheckBoxController )
-	d->statesDict->replace( key, new ToggleState(newState) );
+	d->statesDict[key] = newState;
 }
 
 /*
   Returns the stored state for this item for the given key.
   If the key is not found it returns Off.
 */
-QCheckListItem::ToggleState QCheckListItem::storedState( void *key ) const
+QCheckListItem::ToggleState QCheckListItem::storedState( QCheckListItem *key ) const
 {
-    if ( !d->statesDict )
-	return Off;
-
-    ToggleState *foundState = d->statesDict->find( key );
-    if ( foundState )
-	return ToggleState( *foundState );
+    QHash<QCheckListItem *, QCheckListItem::ToggleState>::Iterator it = d->statesDict.find( key );
+    if (it != d->statesDict.end())
+	return it.value();
     else
 	return Off;
 }
@@ -6411,7 +6310,7 @@ void QCheckListItem::stateChange( ToggleState s )
   sets the state of the CheckBox and CheckBoxController back to
   previous stored state
 */
-void QCheckListItem::restoreState( void *key, int depth )
+void QCheckListItem::restoreState( QCheckListItem *key, int depth )
 {
     switch ( type() ) {
     case CheckBox:
@@ -6489,7 +6388,7 @@ void QCheckListItem::updateController( bool update , bool store )
     if ( internalState() != theState ) {
 	setCurrentState( theState );
 	if ( store && ( internalState() == On || internalState() == Off ) )
-	    updateStoredState( (void*) this );
+	    updateStoredState(this);
 	stateChange( state() );
 	if ( update && controller ) {
 	    controller->updateController( update, store );
@@ -6502,7 +6401,7 @@ void QCheckListItem::updateController( bool update , bool store )
 /*
   Makes all the children CheckBoxes update their storedState
 */
-void QCheckListItem::updateStoredState( void *key )
+void QCheckListItem::updateStoredState( QCheckListItem *key )
 {
     if ( myType != CheckBoxController )
 	return;
@@ -6722,7 +6621,7 @@ QSize QListView::sizeHint() const
 
     constPolish();
 
-    if ( !isVisible() && (!d->drawables || d->drawables->isEmpty()) )
+    if (!isVisible() && d->drawables.isEmpty())
 	// force the column widths to sanity, if possible
 	buildDrawableList();
 
@@ -6793,22 +6692,20 @@ void QListView::setOpen( QListViewItem * item, bool open )
 	ensureItemVisible( lastChild );
 	ensureItemVisible( item );
     }
-    if ( d->drawables )
-	d->drawables->clear();
     buildDrawableList();
 
-    QListViewPrivate::DrawableItem * c = d->drawables->first();
+    int i = 0;
+    for (; i < d->drawables.size(); ++i) {
+	const QListViewPrivate::DrawableItem &c = d->drawables.at(i);
+	if(c.i == item)
+	    break;
+    }
 
-    while( c && c->i && c->i != item )
-	c = d->drawables->next();
-
-    if ( c && c->i == item ) {
+    if (i < d->drawables.size()) {
 	d->dirtyItemTimer->start( 0, TRUE );
-	if ( !d->dirtyItems )
-	    d->dirtyItems = new QPtrDict<void>();
-	while( c && c->i ) {
-	    d->dirtyItems->insert( (void *)(c->i), (void *)(c->i) );
-	    c = d->drawables->next();
+	for (; i < d->drawables.size(); ++i) {
+	    const QListViewPrivate::DrawableItem &c = d->drawables.at(i);
+	    d->dirtyItems.append(c.i);
 	}
     }
 }
@@ -6989,10 +6886,8 @@ void QListViewItem::enforceSortOrderBackToRoot()
 */
 void QListView::showEvent( QShowEvent * )
 {
-    if ( d->drawables )
-	d->drawables->clear();
-    delete d->dirtyItems;
-    d->dirtyItems = 0;
+    d->drawables.clear();
+    d->dirtyItems.clear();
     d->dirtyItemTimer->stop();
     d->fullRepaintOnComlumnChange = TRUE;
 
@@ -7011,7 +6906,7 @@ void QListView::showEvent( QShowEvent * )
 
 int QListViewItem::itemPos() const
 {
-    QPtrStack<QListViewItem> s;
+    QStack<QListViewItem *> s;
     QListViewItem * i = (QListViewItem *)this;
     while( i ) {
 	s.push( i );
@@ -7242,9 +7137,9 @@ bool QListView::isRenaming() const
 
     The following example creates a list of all the items that have
     been selected by the user, storing pointers to the items in a
-    QPtrList:
+    QList:
     \code
-    QPtrList<QListViewItem> lst;
+    QList<QListViewItem *> lst;
     QListViewItemIterator it( myListView );
     while ( it.current() ) {
 	if ( it.current()->isSelected() )
@@ -7255,7 +7150,7 @@ bool QListView::isRenaming() const
 
     An alternative approach is to use an \c IteratorFlag:
     \code
-    QPtrList<QListViewItem> lst;
+    QList<QListViewItem *> lst;
     QListViewItemIterator it( myListView, Selected );
     while ( it.current() ) {
 	lst.append( it.current() );
@@ -7305,9 +7200,8 @@ bool QListView::isRenaming() const
 */
 
 QListViewItemIterator::QListViewItemIterator()
-    :  curr( 0 ), listView( 0 )
+    :  curr( 0 ), listView( 0 ), flags(0)
 {
-    init( 0 );
 }
 
 /*!
@@ -7316,15 +7210,14 @@ QListViewItemIterator::QListViewItemIterator()
 */
 
 QListViewItemIterator::QListViewItemIterator( QListViewItem *item )
-    :  curr( item ), listView( 0 )
+    :  curr( item ), listView( 0 ), flags(0)
 {
-    init( 0 );
-
     if ( item ) {
 	item->enforceSortOrderBackToRoot();
 	listView = item->listView();
     }
-    addToListView();
+    if ( listView )
+	listView->d->iterators.append(this);
 }
 
 /*!
@@ -7337,10 +7230,8 @@ QListViewItemIterator::QListViewItemIterator( QListViewItem *item )
 */
 
 QListViewItemIterator::QListViewItemIterator( QListViewItem *item, int iteratorFlags )
-    :  curr( item ), listView( 0 )
+    :  curr( item ), listView( 0 ), flags(iteratorFlags)
 {
-    init( iteratorFlags );
-
     // go to next matching item if the current don't match
     if ( curr && !matchesFlags( curr ) )
 	++( *this );
@@ -7349,7 +7240,8 @@ QListViewItemIterator::QListViewItemIterator( QListViewItem *item, int iteratorF
 	curr->enforceSortOrderBackToRoot();
 	listView = curr->listView();
     }
-    addToListView();
+    if ( listView )
+	listView->d->iterators.append(this);
 }
 
 
@@ -7360,11 +7252,10 @@ QListViewItemIterator::QListViewItemIterator( QListViewItem *item, int iteratorF
 */
 
 QListViewItemIterator::QListViewItemIterator( const QListViewItemIterator& it )
-    : curr( it.curr ), listView( it.listView )
+    : curr( it.curr ), listView( it.listView ), flags(0)
 {
-    init( 0 );
-
-    addToListView();
+    if ( listView )
+	listView->d->iterators.append(this);
 }
 
 /*!
@@ -7374,11 +7265,10 @@ QListViewItemIterator::QListViewItemIterator( const QListViewItemIterator& it )
 */
 
 QListViewItemIterator::QListViewItemIterator( QListView *lv )
-    : curr( lv->firstChild() ), listView( lv )
+    : curr( lv->firstChild() ), listView( lv ), flags(0)
 {
-    init( 0 );
-
-    addToListView();
+    if ( listView )
+	listView->d->iterators.append(this);
 }
 
 /*!
@@ -7390,11 +7280,10 @@ QListViewItemIterator::QListViewItemIterator( QListView *lv )
 */
 
 QListViewItemIterator::QListViewItemIterator( QListView *lv, int iteratorFlags )
-    : curr ( lv->firstChild() ), listView( lv )
+    : curr ( lv->firstChild() ), listView( lv ), flags(iteratorFlags)
 {
-    init( iteratorFlags );
-
-    addToListView();
+    if ( listView )
+	listView->d->iterators.append(this);
     if ( !matchesFlags( curr ) )
 	++( *this );
 }
@@ -7408,22 +7297,14 @@ QListViewItemIterator::QListViewItemIterator( QListView *lv, int iteratorFlags )
 
 QListViewItemIterator &QListViewItemIterator::operator=( const QListViewItemIterator &it )
 {
-    if ( listView ) {
-	if ( listView->d->iterators->removeRef( this ) ) {
-	    if ( listView->d->iterators->count() == 0 ) {
-		delete listView->d->iterators;
-		listView->d->iterators = 0;
-	    }
-	}
-    }
+    if ( listView )
+	listView->d->iterators.remove(this);
 
     listView = it.listView;
-    addToListView();
     curr = it.curr;
-
-    // sets flags to be the same as the input iterators flags
-    if ( d() && it.d() )
-	d()->flags = it.d()->flags;
+    flags = it.flags;
+    if ( listView )
+	listView->d->iterators.append(this);
 
     // go to next matching item if the current don't match
     if ( curr && !matchesFlags( curr ) )
@@ -7438,23 +7319,8 @@ QListViewItemIterator &QListViewItemIterator::operator=( const QListViewItemIter
 
 QListViewItemIterator::~QListViewItemIterator()
 {
-    if ( listView ) {
-	if ( listView->d->iterators->removeRef( this ) ) {
-	    if ( listView->d->iterators->count() == 0 ) {
-		delete listView->d->iterators;
-		listView->d->iterators = 0;
-	    }
-	}
-    }
-    // removs the d-ptr from the dict ( autodelete on), and deletes the
-    // ptrdict if it becomes empty
-    if ( qt_iteratorprivate_dict ) {
-	qt_iteratorprivate_dict->remove( this );
-	if ( qt_iteratorprivate_dict->isEmpty() ) {
-	    delete qt_iteratorprivate_dict;
-	    qt_iteratorprivate_dict = 0;
-	}
-    }
+    if ( listView )
+	if (listView->d->iterators.remove(this));
 }
 
 /*!
@@ -7636,42 +7502,6 @@ QListViewItem *QListViewItemIterator::current() const
     return curr;
 }
 
-QListViewItemIteratorPrivate* QListViewItemIterator::d() const
-{
-    return qt_iteratorprivate_dict ?
-	qt_iteratorprivate_dict->find( (void *)this ) : 0;
-}
-
-void QListViewItemIterator::init( int iteratorFlags )
-{
-    // makes new global ptrdict if it doesn't exist
-    if ( !qt_iteratorprivate_dict ) {
-	qt_iteratorprivate_dict = new QPtrDict<QListViewItemIteratorPrivate>;
-	qt_iteratorprivate_dict->setAutoDelete( TRUE );
-    }
-
-    // sets flag, or inserts new QListViewItemIteratorPrivate with flag
-    if ( d() )
-	d()->flags = iteratorFlags;
-    else
-	qt_iteratorprivate_dict->insert( this, new QListViewItemIteratorPrivate( iteratorFlags ) );
-}
-
-
-/*
-    Adds this iterator to its QListView's list of iterators.
-*/
-
-void QListViewItemIterator::addToListView()
-{
-    if ( listView ) {
-	if ( !listView->d->iterators ) {
-	    listView->d->iterators = new QPtrList<QListViewItemIterator>;
-	}
-	listView->d->iterators->append( this );
-    }
-}
-
 /*
     This function is called to notify the iterator that the current
     item has been deleted, and sets the current item point to another
@@ -7700,8 +7530,6 @@ bool QListViewItemIterator::matchesFlags( const QListViewItem *item ) const
 {
     if ( !item )
 	return FALSE;
-
-    int flags = d() ? d()->flags : 0;
 
     if ( flags == 0 )
   	return TRUE;

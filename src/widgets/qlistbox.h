@@ -311,8 +311,8 @@ public:
 
     QListBox *listBox() const;
 
-    void setSelectable( bool b );
-    bool isSelectable() const;
+    void setSelectable( bool b ) { selectable = b; }
+    bool isSelectable() const { return selectable; }
 
     QListBoxItem *next() const;
     QListBoxItem *prev() const;
@@ -327,9 +327,11 @@ protected:
 
 private:
     QString txt;
-    uint s:1;
+    uint selectable : 1;
+    uint s : 1;
     uint dirty:1;
     uint custom_highlight : 1;
+    uint unused : 28;
     int x, y;
     QListBoxItem * p, * n;
     QListBox* lbox;

@@ -19,10 +19,9 @@
 #include "qcursor.h"
 #include "qbitarray.h"
 #include "qdrawutil.h"
-#include "qmemarray.h"
+#include "qvector.h"
 #include "qpainter.h"
 #include "qpixmap.h"
-#include "qptrvector.h"
 #include "qstyle.h"
 
 class QHeaderData
@@ -31,13 +30,10 @@ public:
     QHeaderData(int n)
     {
 	count = n;
-	labels.setAutoDelete( TRUE );
-	iconsets.setAutoDelete( TRUE );
 	sizes.resize(n);
 	positions.resize(n);
 	labels.resize(n);
-	if ( int( iconsets.size() ) < n )
-	    iconsets.resize( n );
+	iconsets.resize( n );
 	i2s.resize(n);
 	s2i.resize(n);
 	clicks.resize(n);
@@ -64,16 +60,21 @@ public:
 	is_a_table_header = FALSE;
 	focusIdx = 0;
     }
+    ~QHeaderData()
+    {
+	for (int i = 0; i < iconsets.size(); ++i)
+	    delete iconsets.at(i);
+    }
 
 
-    QMemArray<QCOORD>	sizes;
+    QVector<QCOORD>	sizes;
     int height; // we abuse the heights as widths for vertical layout
     bool heightDirty;
-    QMemArray<QCOORD>	positions; // sorted by index
-    QPtrVector<QString>	labels;
-    QPtrVector<QIconSet> iconsets;
-    QMemArray<int>	        i2s;
-    QMemArray<int>	        s2i;
+    QVector<QCOORD>	positions; // sorted by index
+    QVector<QString>	labels;
+    QVector<QIconSet *> iconsets;
+    QVector<int>	        i2s;
+    QVector<int>	        s2i;
 
     QBitArray           clicks;
     QBitArray           resize;
@@ -953,10 +954,7 @@ void QHeader::setLabel( int section, const QString &s, int size )
 {
     if ( section < 0 || section >= count() )
 	return;
-    if ( s.isNull() )
-	d->labels.remove( section );
-    else
-	d->labels.insert( section, new QString( s ) );
+    d->labels[section] = s;
 
     setSectionSizeAndHeight( section, size );
 
@@ -977,10 +975,9 @@ QString QHeader::label( int section ) const
 {
     if ( section < 0 || section >= count() )
 	return QString::null;
-    if ( d->labels[ section ] )
-	return *( d->labels[ section ] );
-    else if ( qt_qheader_label_return_null_strings )
-	return QString::null;
+    QString l = d->labels.value(section);
+    if ( !l.isNull() || qt_qheader_label_return_null_strings )
+	return l;
     else
 	return QString::number( section + 1 );
 }
@@ -1030,8 +1027,10 @@ void QHeader::removeLabel( int section )
     int i;
     for ( i = section; i < n; ++i ) {
 	d->sizes[i] = d->sizes[i+1];
-	d->labels.insert( i, d->labels.take( i + 1 ) );
-	d->iconsets.insert( i, d->iconsets.take( i + 1 ) );
+	d->labels[i] = d->labels[i+1];
+	d->labels[i+1] = QString();
+	d->iconsets[i] = d->iconsets[i+1];
+	d->iconsets[i+1] = 0;
     }
 
     d->sizes.resize( n );
@@ -1078,13 +1077,13 @@ QSize QHeader::sectionSizeHint( int section, const QFontMetrics& fm ) const
     }
 
     QRect bound;
-    QString *label = d->labels[section];
-    if ( label ) {
-	int lines = label->count( '\n' ) + 1;
+    QString label = d->labels[section];
+    if ( !label.isNull() ) {
+	int lines = label.count( '\n' ) + 1;
 	bound.setHeight( fm.height() +  fm.lineSpacing() * (lines - 1) );
 	int w = 0;
 	for ( int i = 0; i < lines; ++i ) {
-	    QString s = label->section( '\n', i, i );
+	    QString s = label.section( '\n', i, i );
 	    int tmpw = fm.width( s );
 	    w = qMax( w, tmpw );
 	}
@@ -1152,7 +1151,7 @@ int QHeader::addLabel( const QString &s, int size )
     }
     int section = d->count - 1;
     if ( !d->is_a_table_header || !s.isNull() )
-	d->labels.insert( section, new QString( s ) );
+	d->labels.insert(section, s);
 
     if ( size >= 0 && s.isNull() && d->is_a_table_header ) {
 	d->sizes[section] = size;
