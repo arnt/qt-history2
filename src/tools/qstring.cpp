@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#28 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#29 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#29 $";
 #endif
 
 
@@ -304,6 +304,20 @@ QString::QString( const char *str )		// deep copy
 
 /*!  Returns the length of the string, excluding the '\0'-terminator.
   \e Void strings (null pointers) have zero length. */
+
+/*! Sets this string to length 2 and sets the first character to \e c and
+    the second to the null terminator. Returns a reference to the string. */
+
+QString &QString::operator=( char c )		// set string to c
+{
+    if ( !QByteArray::resize( 2 ) )
+	return *this;				// no memory
+
+    *(data() + 0) = c;
+    *(data() + 1) = '\0';
+
+    return *this;
+}
 
 uint QString::length() const			// length of string excl. \0
 {
@@ -1108,7 +1122,7 @@ QString& QString::operator+=( const char *str ) // append char *str to this
 
 /*! Appends \e c to this string and returns a reference to the string. */
 
-QString& QString::operator+=( char c )		// append c to this string
+QString &QString::operator+=( char c )		// append c to this string
 {
     uint len = length();
     if ( !QByteArray::resize( len + 2 ) )
