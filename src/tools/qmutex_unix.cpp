@@ -196,6 +196,7 @@ int QRealMutexPrivate::type() const
 
 #ifndef    Q_RECURSIVE_MUTEX_TYPE
 QRecursiveMutexPrivate::QRecursiveMutexPrivate()
+    : count(0), owner(0)
 {
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
@@ -216,8 +217,6 @@ QRecursiveMutexPrivate::QRecursiveMutexPrivate()
     if (ret)
 	qWarning( "Mutex init failure: %s", strerror(ret) );
 #  endif
-
-    count = 0;
 }
 
 QRecursiveMutexPrivate::~QRecursiveMutexPrivate()
