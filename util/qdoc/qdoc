@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#61 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#62 $
 #
 # this is a massive hack, written very quickly
 #
@@ -298,6 +298,8 @@ sub processdocs {
 		sprintf("%s", $3);
 	    }
 	-egsx;
+
+	$doc =~ s-((?:(?:\s)|(?:<pre>.*?</pre>))) *-$1-gs;
 
 	$brief{$url} = $1
 	    if ($doc =~ s/\s*\\brief\s+(.*?)(?:(?:\n<p>\s*)|(?:$))//s);
