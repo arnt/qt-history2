@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#16 $
 **
 ** Implementation of QProcess class
 **
@@ -174,41 +174,30 @@ int QProcess::exitStatus()
 
 
 /*!
-  fnord
+  Reads the data that the process has written to stdout. When new data was
+  written to stdout, the class emits the signal readyReadStdout().
+
+  \sa readyReadStdout() readStderr()
 */
-void QProcess::readStdout( QByteArray& buf )
+QByteArray QProcess::readStdout()
 {
-    buf = bufStdout;
+    QByteArray buf = bufStdout;
     bufStdout.resize( 0 );
+    return buf;
 }
 
 /*!
-  fnord
-*/
-void QProcess::readStdout( QString& buf )
-{
-    buf = QString::fromLocal8Bit( bufStdout, bufStdout.size() );
-    bufStdout.resize( 0 );
-}
+  Reads the data that the process has written to stderr. When new data was
+  written to stderr, the class emits the signal readyReadStderr().
 
-/*!
-  fnord
+  \sa readyReadStderr() readStdout()
 */
-void QProcess::readStderr( QByteArray& buf )
+QByteArray QProcess::readStderr()
 {
-    buf = bufStderr;
+    QByteArray buf = bufStderr;
     bufStderr.resize( 0 );
+    return buf;
 }
-
-/*!
-  fnord
-*/
-void QProcess::readStderr( QString& buf )
-{
-    buf = QString::fromLocal8Bit( bufStderr, bufStderr.size() );
-    bufStderr.resize( 0 );
-}
-
 
 /*!
   Runs the process and writes the data \a buf to stdin of the process. If all

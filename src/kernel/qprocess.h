@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.h#16 $
+** $Id: //depot/qt/main/src/kernel/qprocess.h#17 $
 **
 ** Implementation of QProcess class
 **
@@ -76,10 +76,8 @@ public:
     int exitStatus();
 
     // reading
-    void readStdout( QString& buf );
-    void readStdout( QByteArray& buf );
-    void readStderr( QString& buf );
-    void readStderr( QByteArray& buf );
+    QByteArray readStdout();
+    QByteArray readStderr();
 
 signals:
     void readyReadStdout();

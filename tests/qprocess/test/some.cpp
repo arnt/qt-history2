@@ -207,8 +207,7 @@ void Some::connectStdout( bool enable )
 
 void Some::readyReadStdout()
 {
-    QString s;
-    proc->readStdout( s );
+    QString s = proc->readStdout();
     out->setText( s.mid( 0, 1000 ) );
 
     logMessage( s );
@@ -235,8 +234,7 @@ void Some::connectStderr( bool enable )
 
 void Some::readyReadStderr()
 {
-    QString s;
-    proc->readStderr( s );
+    QString s = proc->readStderr();
     err->setText( s.mid( 0, 1000 ) );
 
     logMessage( s );
