@@ -847,24 +847,24 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
     switch ( e->type() ) {
     case QEvent::Resize:
 	if ( activated ) {
-	    QResizeEvent *r = (QResizeEvent*)e;
+	    QResizeEvent *r = (QResizeEvent *)e;
 	    int mbh = 0;
 #ifndef QT_NO_MENUBAR
 	    if ( menubar && !menubar->isHidden() && !menubar->isTopLevel() )
 		mbh = menubar->heightForWidth( r->size().width() );
 #endif
 	    int b = marginImpl ? 0 : outsideBorder;
-	    setGeometry( QRect( b, mbh + b, r->size().width() - 2*b,
-				r->size().height() - mbh - 2*b ) );
+	    setGeometry( QRect( b, mbh + b, r->size().width() - 2 * b,
+				r->size().height() - mbh - 2 * b ) );
 	} else {
 	    activate();
 	}
 	break;
     case QEvent::ChildRemoved:
 	{
-	    QChildEvent *c = (QChildEvent*)e;
+	    QChildEvent *c = (QChildEvent *)e;
 	    if ( c->child()->isWidgetType() ) {
-		QWidget *w = (QWidget*)c->child();
+		QWidget *w = (QWidget *)c->child();
 #ifndef QT_NO_MENUBAR
 		if ( w == menubar )
 		    menubar = 0;
@@ -878,13 +878,13 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	break;
     case QEvent::ChildInserted:
 	if ( topLevel && autoNewChild ) {
-	    QChildEvent *c = (QChildEvent*)e;
+	    QChildEvent *c = (QChildEvent *)e;
 	    if ( c->child()->isWidgetType() ) {
-		QWidget *w = (QWidget*)c->child();
+		QWidget *w = (QWidget *)c->child();
 		if ( !w->isTopLevel() ) {
 #ifndef QT_NO_MENUBAR
 		    if ( w->inherits( "QMenuBar" ) && ( !w->parent() || !w->parent()->inherits( "QToolBar" ) ) )
-			menubar = (QMenuBar*)w;
+			menubar = (QMenuBar *)w;
 		    else
 #endif
 			addItem( new QWidgetItem( w ) );
@@ -1145,38 +1145,30 @@ QSizePolicy::ExpandData QLayout::expanding() const
     return QSizePolicy::BothDirections;
 }
 
-static void  invalidateRecursive( QLayoutItem *lay )
+static void invalidateRecursive( QLayoutItem *lay )
 {
     lay->invalidate();
     QLayoutIterator it = lay->iterator();
     QLayoutItem *child;
-    while ( (child = it.current() ) ) {
+    while ( (child = it.current()) != 0 ) {
 	invalidateRecursive( child );
 	++it;
     }
 }
 
 /*!  Redoes the layout for mainWidget().  You should generally not
-  need to call this because it is automatically called at the most appropriate
-  times.
-
-  However, if you set up a QLayout for a visible widget without
-  resizing that widget, you will need to call this function in order to lay
-  it out.
+  need to call this because it is automatically called at the most
+  appropriate times.
 
   \sa QWidget::updateGeometry()
 */
 bool QLayout::activate()
 {
-    // Paul: If adding stuff to a QLayout for a widget causes
-    // postEvent(thatWidget, QEvent::LayoutHint), activate() becomes
-    // unnecessary in that case too.
     invalidateRecursive( this );
     if ( !topLevel )
 	return FALSE;
 
-    QWidget *mainW = mainWidget();
-    if ( !mainW ) {
+    if ( mainWidget() == 0 ) {
 #if defined( QT_CHECK_NULL )
 	qWarning( "QLayout::activate(): %s \"%s\" does not have a main widget.",
 		  QObject::className(), QObject::name() );
@@ -1190,15 +1182,16 @@ bool QLayout::activate()
     mbh = menubar && !menubar->isTopLevel() ? menubar->heightForWidth( s.width() ) : 0;
 #endif
     int b = marginImpl ? 0 : outsideBorder;
-    setGeometry( QRect( b, mbh + b,
-			s.width() - 2 * b,
-			s.height() - mbh - 2 * b ) );
-    if ( frozen )
-	mainWidget()->setFixedSize( totalSizeHint() ); //### will trigger resize
-    else if ( autoMinimum )
+    setGeometry( QRect(b, mbh + b, s.width() - 2 * b,
+		       s.height() - mbh - 2 * b) );
+    if ( frozen ) {
+	// ### will trigger resize
+	mainWidget()->setFixedSize( totalSizeHint() ); 
+    } else if ( autoMinimum ) {
 	mainWidget()->setMinimumSize( totalMinimumSize() );
+    }
 
-    //###if ( sizeHint or sizePolicy has changed )
+    // ### if sizeHint or sizePolicy has changed
     mainWidget()->updateGeometry();
     return TRUE;
 }
