@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#74 $
 **
 ** Implementation of QSlider class
 **
@@ -376,7 +376,7 @@ void QSlider::paintSlider( QPainter *p, const QColorGroup &g, const QRect &r )
     QPoint bo = p->brushOrigin();
     p->setBrushOrigin(r.topLeft());
 
-    style().drawSlider( p, r.x(), r.y(), r.width(), r.height(), g, orient, 
+    style().drawSlider( p, r.x(), r.y(), r.width(), r.height(), g, orient,
 			ticks & Above, ticks & Below );
     p->setBrushOrigin(bo);
 }
@@ -530,7 +530,7 @@ void QSlider::updateMask()
 		style().drawSliderGroove(&p, 0, tickOffset, width(), thickness(),
 					 g, mid, orient );
 	    }
-	    style().drawSliderMask( &p, sliderR.x(), sliderR.y(), 
+	    style().drawSliderMask( &p, sliderR.x(), sliderR.y(),
 				    sliderR.width(), sliderR.height(),
 				    orient, ticks & Above, ticks & Below );
 	    break;
@@ -557,7 +557,7 @@ void QSlider::updateMask()
 		else
 		    p.drawRect( tickOffset + 1, 1, thickness() - 2, height() - 2 );
 	    }
-	    style().drawSliderMask( &p, sliderR.x(), sliderR.y(), 
+	    style().drawSliderMask( &p, sliderR.x(), sliderR.y(),
 				    sliderR.width(), sliderR.height(),
 				    orient, ticks & Above, ticks & Below );
 	    break;
@@ -913,9 +913,9 @@ QSize QSlider::sizeHint() const
 QSizePolicy QSlider::sizePolicy() const
 {
     if ( orient == Horizontal )
-	return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
+	return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
     else
-	return QSizePolicy(  QSizePolicy::Fixed, QSizePolicy::Minimum );
+	return QSizePolicy(  QSizePolicy::Fixed, QSizePolicy::Expanding );
 }
 
 
