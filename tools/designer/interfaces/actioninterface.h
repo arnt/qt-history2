@@ -31,11 +31,32 @@ class QObject;
 #define IID_ActionInterface QUuid( 0xbb206e09, 0x84e5, 0x4777, 0x9f, 0xce, 0x70, 0x6b, 0xab, 0xfa, 0xb9, 0x31 )
 #endif
 
+/*! To add actions to the Qt Designer menubars and toolbars, implement
+  this interface. You habe to implement the create(), group() and
+  connectTo() functions.
+
+  You also have to implement the function featureList() (\sa
+  QFeatureListInterface) and return there all actions (names of it)
+  which this interface provides.
+*/
+
 class ActionInterface : public QFeatureListInterface
 {
 public:
-    virtual QAction* create( const QString&, QObject* parent = 0 ) = 0;
-    virtual QString group( const QString & ) const = 0;
+    /*! This functions is called to create the action with the name \a
+      name. \a parent should be used as parent of the action.
+
+      In the implementation return the QAction object for the action
+      \a name.
+    */
+    virtual QAction* create( const QString &name, QObject* parent = 0 ) = 0;
+
+    /*! In the implementation of the interface return the name of the
+      group of the action \a name.
+    */
+    virtual QString group( const QString &name ) const = 0;
+
+    /*! \internal */
     virtual void connectTo( QUnknownInterface *appInterface ) = 0;
 };
 
