@@ -1101,7 +1101,7 @@ void QWorkspace::activatePreviousWindow()
 	    activateWindow( d->focus.first()->windowWidget(), FALSE );
 	else
 	    activateWindow( 0 );
-	
+
 	return;
     }
 
@@ -1174,7 +1174,7 @@ void QWorkspace::cascade()
 	    x = 0;
 	child->setGeometry( x, y, w, h );
 	x += xoffset;
-	y += yoffset;	
+	y += yoffset;
 	child->internalRaise();
 	child->setUpdatesEnabled( TRUE );
     }
@@ -1272,6 +1272,19 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     snappedRight = FALSE;
     snappedDown = FALSE;
 
+    if (window) {
+	switch (window->focusPolicy()) {
+	case QWidget::NoFocus:
+	    window->setFocusPolicy(QWidget::ClickFocus);
+	    break;
+	case QWidget::TabFocus:
+	    window->setFocusPolicy(QWidget::StrongFocus);
+	    break;
+	default:
+	    break;
+	}
+    }
+
     if ( window && window->testWFlags( WStyle_Title ) ) {
 	titlebar = new QTitleBar( parent, window, this );
 	connect( titlebar, SIGNAL( doActivate() ),
@@ -1289,7 +1302,6 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 	connect( titlebar, SIGNAL( doShade() ),
 		 this, SLOT( showShaded() ) );
     }
-
 
     if ( window && window->testWFlags( WStyle_Tool ) ) {
 	setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
@@ -1322,14 +1334,14 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 	    titlebar->setIcon( *childWidget->icon() );
 	int th = titlebar->sizeHint().height();
 	p = QPoint( contentsRect().x(),
-		     th + TITLEBAR_SEPARATION +
-		     contentsRect().y() );
+		    th + TITLEBAR_SEPARATION +
+		    contentsRect().y() );
 	s = QSize( cs.width() + 2*frameWidth(),
 		   cs.height() + 2*frameWidth() + th +TITLEBAR_SEPARATION );
     } else {
 	p = QPoint( contentsRect().x(), contentsRect().y() );
 	s = QSize( cs.width() + 2*frameWidth(),
-		    cs.height() + 2*frameWidth() );
+		   cs.height() + 2*frameWidth() );
     }
 
     childWidget->reparent( this, p);
