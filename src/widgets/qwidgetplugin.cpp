@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QWidgetPlugin class
 **
 ** Created : 010920
 **
-** Copyright (C) 2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -68,7 +68,7 @@
     supplied with \link designer-manual.book Qt Designer\endlink.
 */
 
-class QWidgetPluginPrivate : public QWidgetFactoryInterface, QLibraryInterface
+class QWidgetPluginPrivate : public QWidgetFactoryInterface, private QLibraryInterface
 {
 public:
     QWidgetPluginPrivate( QWidgetPlugin *p )
