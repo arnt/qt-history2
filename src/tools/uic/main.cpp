@@ -29,6 +29,7 @@ void showHelp(const char *appName)
             "  -h, --help              display this help and exit\n"
             "  -o <file>               place the output into <file>\n"
             "  -tr <func>              use func() for i18n\n"
+            "  -p, --no-protection     disable header protection\n"
             "\n", appName);
 
 }
@@ -54,6 +55,8 @@ int main(int argc, char *argv[])
                 return -1;
             }
             driver.option().outputFile = QFile::encodeName(argv[arg]);
+        } else if (opt == QLatin1String("-p") || opt == QLatin1String("--no-protection")) {
+            driver.option().headerProtection = false;
         } else if (opt == QLatin1String("-tr") || opt == QLatin1String("--translate")) {
             ++arg;
             if (!argv[arg]) {

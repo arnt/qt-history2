@@ -12,7 +12,6 @@
 
 #include "ui3reader.h"
 #include "domtool.h"
-#include "blockingprocess.h"
 
 #include <qcoreapplication.h>
 #include <qfile.h>
@@ -319,9 +318,9 @@ int main(int argc, char * argv[])
         out << "#include \"" << headerFile << "\"" << endl << endl;
     }
 
-    QString uiData = QFile::encodeName(uiHeaderFile);
-    if (uiData.isEmpty())
-        uiData = QLatin1String("ui_") + QFileInfo(fileName).baseName() + QLatin1String(".h");
+    QString uiData;
+    if (uiHeaderFile)
+        uiData = QFile::encodeName(uiHeaderFile);
 
     ui3.generate(uiData, fileName, outputFile, doc, !impl, subcl, trmacro, className, nofwd);
 

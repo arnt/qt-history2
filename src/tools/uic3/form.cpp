@@ -13,6 +13,8 @@
 #include "ui3reader.h"
 #include "parser.h"
 #include "domtool.h"
+#include "blockingprocess.h"
+
 #include <qstringlist.h>
 #include <qfile.h>
 #include <qfileinfo.h>
@@ -20,37 +22,6 @@
 #include <qregexp.h>
 #include <globaldefs.h>
 #include <qdebug.h>
-
-static QByteArray unzipXPM(QString data, ulong& length)
-{
-    const int lengthOffset = 4;
-    int baSize = data.length() / 2 + lengthOffset;
-    uchar *ba = new uchar[baSize];
-    for (int i = lengthOffset; i < baSize; ++i) {
-        char h = data[2 * (i-lengthOffset)].latin1();
-        char l = data[2 * (i-lengthOffset) + 1].latin1();
-        uchar r = 0;
-        if (h <= '9')
-            r += h - '0';
-        else
-            r += h - 'a' + 10;
-        r = r << 4;
-        if (l <= '9')
-            r += l - '0';
-        else
-            r += l - 'a' + 10;
-        ba[i] = r;
-    }
-    // qUncompress() expects the first 4 bytes to be the expected length of the
-    // uncompressed data
-    ba[0] = (length & 0xff000000) >> 24;
-    ba[1] = (length & 0x00ff0000) >> 16;
-    ba[2] = (length & 0x0000ff00) >> 8;
-    ba[3] = (length & 0x000000ff);
-    QByteArray baunzip = qUncompress(ba, baSize);
-    delete[] ba;
-    return baunzip;
-}
 
 QByteArray combinePath(const char *infile, const char *outfile)
 {
@@ -107,8 +78,6 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
 
     QMap<QString, CustomInclude> customWidgetIncludes;
 
-    QString imageMembers;
-
     /*
       We are generating a few QImage members that are not strictly
       necessary in some cases. Ideally, we would use requiredImage,
@@ -122,14 +91,7 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     QStringList forwardDecl2;
     QString exportMacro;
     for (n = e; !n.isNull(); n = n.nextSibling().toElement()) {
-        if (n.tagName().toLower() == QLatin1String("images")) {
-            nl = n.elementsByTagName("image");
-            for (i = 0; i < (int) nl.length(); i++) {
-                QString img = registerObject(nl.item(i).toElement().attribute("name"));
-                registerObject(img);
-                imageMembers += QString("    QPixmap %1;\n").arg(img);
-            }
-        } else if (n.tagName().toLower() == QLatin1String("customwidgets")) {
+        if (n.tagName().toLower() == QLatin1String("customwidgets")) {
             QDomElement n2 = n.firstChild().toElement();
             while (!n2.isNull()) {
                 if (n2.tagName().toLower() == QLatin1String("customwidget")) {
@@ -172,9 +134,6 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
 
     if (uiHeaderFile.size())
         out << "#include \"" << uiHeaderFile << "\"" << endl;
-
-    if (!imageMembers.isEmpty())
-        out << "#include <qpixmap.h>" << endl;
 
     QStringList globalIncludes, localIncludes;
 
@@ -341,6 +300,18 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     }
 
     out << endl;
+
+    if (uiHeaderFile.isEmpty()) {
+        BlockingProcess p;
+        p.addArgument("uic4");
+        p.addArgument("--no-protection");
+        p.addArgument(fileName);
+        p.start();
+        if (p.err.size())
+            fprintf(stderr, "%s\n", p.err.data());
+        else if (p.out.size())
+            out << p.out;
+    }
 
     QStringList::ConstIterator ns = namespaces.begin();
     while (ns != namespaces.end()) {
@@ -574,15 +545,11 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     out << endl;
 
     // create all private stuff
-    if (!privateFuncts.isEmpty() || !privateVars.isEmpty() || !imageMembers.isEmpty()) {
+    if (!privateFuncts.isEmpty() || !privateVars.isEmpty()) {
         out << "private:" << endl;
         if (!privateVars.isEmpty()) {
             for (it = privateVars.begin(); it != privateVars.end(); ++it)
                 out << indent << *it << endl;
-            out << endl;
-        }
-        if (!imageMembers.isEmpty()) {
-            out << imageMembers;
             out << endl;
         }
         if (!privateFuncts.isEmpty())
@@ -817,21 +784,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
         out << "#include <qtoolbar.h>" << endl;
     }
 
-    // find out what images are required
-    QStringList requiredImages;
-    static const char *imgTags[] = { "pixmap", "iconset", 0 };
-    for (i = 0; imgTags[i] != 0; i++) {
-        nl = e.parentNode().toElement().elementsByTagName(imgTags[i]);
-        for (int j = 0; j < (int) nl.length(); j++) {
-            QDomNode nn = nl.item(j);
-            while (nn.parentNode() != e.parentNode())
-                nn = nn.parentNode();
-            if (nn.nodeName() != "customwidgets")
-                requiredImages += nl.item(j).firstChild().toText().data();
-        }
-    }
-
-    if (!requiredImages.isEmpty() || externPixmaps) {
+    if (externPixmaps) {
         out << "#include <qimage.h>" << endl;
         out << "#include <qpixmap.h>" << endl << endl;
     }
@@ -856,69 +809,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
     // register the object and unify its name
     objName = registerObject(objName);
 
-    QStringList images;
-    QStringList xpmImages;
-    if (pixmapLoaderFunction.isEmpty() && !externPixmaps) {
-        // create images
-        for (n = e; !n.isNull(); n = n.nextSibling().toElement()) {
-            if (n.tagName()  == "images") {
-                nl = n.elementsByTagName("image");
-                for (i = 0; i < (int) nl.length(); i++) {
-                    QString img = registerObject(nl.item(i).toElement().attribute("name"));
-                    if (!requiredImages.contains(img))
-                        continue;
-                    QDomElement tmp = nl.item(i).firstChild().toElement();
-                    if (tmp.tagName() != "data")
-                        continue;
-                    QString format = tmp.attribute("format", "PNG");
-                    QString data = tmp.firstChild().toText().data();
-                    if (format == "XPM.GZ") {
-                        xpmImages += img;
-                        ulong length = tmp.attribute("length").toULong();
-                        QByteArray baunzip = unzipXPM(data, length);
-                        length = baunzip.size();
-                        // shouldn't we test the initial 'length' against the
-                        // resulting 'length' to catch corrupt UIC files?
-                        int a = 0;
-                        int column = 0;
-                        bool inQuote = FALSE;
-                        out << "static const char* const " << img << "_data[] = { " << endl;
-                        while (baunzip[a] != '\"')
-                            a++;
-                        for (; a < (int) length; a++) {
-                            out << baunzip[a];
-                            if (baunzip[a] == '\n') {
-                                column = 0;
-                            } else if (baunzip[a] == '"') {
-                                inQuote = !inQuote;
-                            }
-
-                            if (column++ >= 511 && inQuote) {
-                                out << "\"\n\""; // be nice with MSVC & Co.
-                                column = 1;
-                            }
-                        }
-                        out << endl;
-                    } else {
-                        images += img;
-                        out << "static const unsigned char " << img << "_data[] = { " << endl;
-                        out << "    ";
-                        int a ;
-                        for (a = 0; a < (int) (data.length()/2)-1; a++) {
-                            out << "0x" << QString(data[2*a]) << QString(data[2*a+1]) << ",";
-                            if (a % 12 == 11)
-                                out << endl << "    ";
-                            else
-                                out << " ";
-                        }
-                        out << "0x" << QString(data[2*a]) << QString(data[2*a+1]) << endl;
-                        out << "};" << endl << endl;
-                    }
-                }
-            }
-        }
-        out << endl;
-    } else if (externPixmaps) {
+    if (externPixmaps) {
         pixmapLoaderFunction = "QPixmap::fromMimeSource";
     }
 
@@ -958,13 +849,6 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
         out << "    : " << objClass << "(parent, name)";
     }
 
-    // create pixmaps for all images
-    if (!xpmImages.isEmpty()) {
-        for (it = xpmImages.begin(); it != xpmImages.end(); ++it) {
-            out << "," << endl;
-            out << indent << "  " << *it << "((const char **) " << (*it) << "_data)";
-        }
-    }
     out << endl;
 
     out << "{" << endl;
@@ -977,14 +861,6 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
 
     if (isMainWindow)
         out << indent << "(void)statusBar();" << endl;
-
-    if (!images.isEmpty()) {
-        out << indent << "QImage img;" << endl;
-        for (it = images.begin(); it != images.end(); ++it) {
-            out << indent << "img.loadFromData(" << (*it) << "_data, sizeof(" << (*it) << "_data), \"PNG\");" << endl;
-            out << indent << (*it) << " = img;" << endl;
-        }
-    }
 
     // database support
     dbConnections = unique(dbConnections);
