@@ -1081,6 +1081,8 @@ void Uic::createFormImpl( const QDomElement &e )
 				}
 			    }
 			}
+			out << indent << indent << "if ( !c->isActive() )" << endl;
+			out << indent << indent << indent << c << "->refresh();" << endl;
 		    }
 		}
 	    }
