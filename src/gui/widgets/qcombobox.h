@@ -79,8 +79,8 @@ public:
     void setEditable(bool editable);
     void setLineEdit(QLineEdit *edit);
     QLineEdit *lineEdit() const;
-    void setValidator (const QValidator *v);
-    const QValidator * validator () const;
+    void setValidator(const QValidator *v);
+    const QValidator *validator() const;
 
     QAbstractItemDelegate *itemDelegate() const;
     void setItemDelegate(QAbstractItemDelegate *delegate);
@@ -97,8 +97,8 @@ public:
     QString currentText() const;
     void setCurrentText(const QString&);
 
-    QString text (int row) const;
-    QPixmap pixmap (int row) const;
+    QString text(int row) const;
+    QPixmap pixmap(int row) const;
 
     void insertStringList(const QStringList &list, int row = -1);
     void insertItem(const QString &text, int row = -1);
