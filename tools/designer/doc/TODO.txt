@@ -24,7 +24,7 @@ Support for the database classes/widgets to build database forms (Dave, Reggie)
 Dynamic creating of dialogs from XML (Reggie, Volker)
     Loading XML files and creating dialogs dynamically from that. This is exactly
     what we do in the designer when preview, so it is basically using that code
-    and getting the designer dependencies out there. Also we need to have to dynamic 
+    and getting the designer dependencies out there. Also we need to have to dynamic
     customwidget stuff ready for that, so that customwidgets can be used. Access to
     the widgets by name is available through QObject::child( const char * ).
 
@@ -51,3 +51,5 @@ Use docking windows for property editor (Reggie)
 Fake property stretchFactor for widgets in a layout (Reggie)
 
 Make it possible to also include additional include files in the generated .h files (Reggie)
+
+Make it possible to set the names of the pages in a wizard/tabwidget through the designer (Reggie)
