@@ -37,7 +37,6 @@
 
 #include "qconnection.h"
 
-// REVISED we will not include this in the external doc any more
 /*! \class QConnection qconnection.h
 
   \internal
@@ -51,9 +50,6 @@
   outside world.
 */
 
-/*!
-  \internal
-*/
 QConnection::QConnection( const QObject *object, QMember member,
 			  const char *memberName, int memberType )
 {
@@ -74,30 +70,24 @@ QConnection::QConnection( const QObject *object, QMember member,
 
 /*!
  \fn QConnection::~QConnection()
- \internal
 */
 
 /*!
   \fn bool QConnection::isConnected() const
-  \internal
 */
 
 /*!
   \fn QObject *QConnection::object() const
-  \internal
 */
 
 /*!
   \fn QMember QConnection::member() const
-  \internal
 */
 
 /*!
   \fn const char *QConnection::memberName() const
-  \internal
 */
 
 /*!
   \fn int QConnection::numArgs() const
-  \internal
 */

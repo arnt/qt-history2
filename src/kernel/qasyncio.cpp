@@ -185,7 +185,7 @@ bool QDataSource::rewindable() const
   the function should call QDataSource::enableRewind(), which aborts with
   a qFatal() error.
 
-  For example, a network connection may choose to utilize a disk cache
+  For example, a network connection may choose to use a disk cache
   of input only if rewinding is enabled before the first buffer-full of
   data is discarded, returning FALSE in rewindable() if that first buffer
   is discarded.

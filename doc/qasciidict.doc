@@ -92,7 +92,7 @@
   The dictionary in our example maps \c char* keys to \c char* items.
   Note that the mapping is case-insensitive (specified in the
   \link QAsciiDict::QAsciiDict() constructor\endlink).
-  QAsciiDict implements the \link operator[] [] operator\endlink to look up an item.
+  QAsciiDict implements \l operator[]() to look up an item.
 
   QAsciiDict is implemented by QGDict as a hash array with a fixed number of
   entries. Each array entry points to a singly linked list of buckets, in

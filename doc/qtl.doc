@@ -33,10 +33,9 @@
 **
 **********************************************************************/
 
-/*!
-\page qtl.html
+/*! \defgroup qtl
 
-\title Qt Template library
+\title Qt Template Library
 
 The Qt Template Library (QTL) is a set of templates within Qt dealing
 with containers of objects.  If a suitable STL implementation is not
@@ -54,11 +53,12 @@ iterators, containers and function objects for use in applications.
 For example, the QTL iterators can be used with STL algorithms, since
 the STL is extensible and customizable, without using inheritance.
 The STL provides a common, standard set of container classes which
-multiple 3rd party libraries can share.  For historical reasons, some
+multiple third-party libraries can share.  For historical reasons, some
 of the Qt value-based container classes contain an API which is
 non-standard.  It is recommended that the STL-style API available in
 the QTL be used instead (see the class documentation for the QTL
-containers: QMap, QValueVector, QValueList, QStringList, QValueStack).
+containers: \l QMap, \l QValueVector, \l QValueList, \l QStringList,
+\l QValueStack).
 
 Compared to the STL, the QTL contains only the most important features
 of the STL container API, has no platform differences, is often a
@@ -98,13 +98,13 @@ does not track any associated iterators. This makes certain validity
 checks, for example when removing items, impossible to perform
 automatically, however it provides extremely good performance.
 
-<a name="Iterators"></a><h2> Iterators </h2>
+<a name="Iterators"></a>
+\section1 Iterators
 
 The Qt Template Library deals with value objects, not with pointers.
 For that reason, there is no other way of iterating over containers
 other than with iterators. This is no disadvantage as the size of an
-iterator matches the size of a normal pointer - 32 or 64 bits
-depending on your CPU architecture.
+iterator matches the size of a normal pointer.
 
 To iterate over a container, use a loop like this:
 
@@ -144,7 +144,8 @@ whenever the container itself is const, such as a member variable
 inside a const function. Assigning a ConstIterator to a normal
 Iterator is not allowed as it would violate const semantics.
 
-<a name="Algorithms"></a><h2> Algorithms </h2>
+<a name="Algorithms"></a>
+\section1 Algorithms
 
 The Qt Template Library defines a number of algorithms that operate on
 its containers.  These algorithms are implemented as template
@@ -333,7 +334,7 @@ standard C++ array with qCopy():
 \endcode
 
 
-<h2> Streaming </h2>
+\section1 Streaming
 
 All mentioned containers can be serialized with the respective
 streaming operators. Here is an example.
@@ -353,5 +354,7 @@ The container can be read in again with:
 \endcode
 
 The same applies to QStringList, QValueStack and QMap.
+
+\section1 Class List
 
 */

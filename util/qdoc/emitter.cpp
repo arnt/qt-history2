@@ -104,7 +104,7 @@ void Emitter::nailDownDecls()
 void Emitter::nailDownDocs()
 {
     root.fillInDocs();
-    root.destructSymbolTables(); // ### needed?
+    root.destructSymbolTables();
     root.buildPlainSymbolTables( TRUE );
 
     /*
@@ -112,7 +112,8 @@ void Emitter::nailDownDocs()
     */
     QValueList<Decl *>::ConstIterator child = root.children().begin();
     while ( child != root.children().end() ) {
-	if ( (*child)->kind() == Decl::Class && (*child)->doc() != 0 ) {
+	if ( (*child)->kind() == Decl::Class && (*child)->doc() != 0 &&
+	     (config->isInternal() || !(*child)->internal()) ) {
 	    ClassDecl *classDecl = (ClassDecl *) *child;
 
 	    /*
@@ -250,7 +251,8 @@ void Emitter::emitHtml() const
 	    ClassDecl *classDecl = (ClassDecl *) *child;
 	    htmlFileName = config->classRefHref( classDecl->name() );
 
-	    if ( config->generateHtmlFile(htmlFileName) ) {
+	    if ( config->generateHtmlFile(htmlFileName) &&
+		 (config->isInternal() || !classDecl->internal()) ) {
 		resolver->setCurrentClass( classDecl );
 		HtmlWriter out( htmlFileName );
 		classDecl->printHtmlLong( out );

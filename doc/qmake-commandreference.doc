@@ -1047,7 +1047,7 @@ of this variable is typically handled by <em>qmake</em> or
 <dt><a name=""></a>\c QMAKE_LFLAGS_QT_DLL
 
 <dd>This variable contains link flags when building programs that
-utilize the Qt library built as a dll. The value of this variable is
+use the Qt library built as a dll. The value of this variable is
 typically handled by <em>qmake</em> or
  <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 

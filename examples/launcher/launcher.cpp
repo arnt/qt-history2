@@ -272,7 +272,7 @@ private slots:
 	to X11. You will be stunned by the beauty of anti-aliased text and alpha
 	blended pixmaps. These new features could add an additional touch of class to a
 	user interface. Forget about embedded graphics which looks more like old
-	alphanumeric terminals. Qt/Embedded can utilize hardware graphics acceleration
+	alphanumeric terminals. Qt/Embedded can use hardware graphics acceleration
 	and it is well suited for multimedia and web applications. Let Qt/Embedded
 	impress you and your customers.",
 

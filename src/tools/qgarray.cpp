@@ -54,11 +54,11 @@
 #define DONT_USE_REALLOC			// comment to use realloc()
 #endif
 
-
-// NOT REVISED
 /*!
   \class QShared qshared.h
   \brief The QShared struct is internally used for implementing shared classes.
+
+  \internal
 
   It only contains a reference count and member functions to increment and
   decrement it.
@@ -69,10 +69,11 @@
   \sa \link shclass.html Shared Classes\endlink
 */
 
-
 /*!
   \class QGArray qgarray.h
   \brief The QGArray class is an internal class for implementing the QArray class.
+
+  \internal
 
   QGArray is a strictly internal class that acts as base class for the
   QArray template array.
@@ -82,7 +83,6 @@
 
 
 /*!
-  \internal
   Constructs a null array.
 */
 
@@ -93,7 +93,6 @@ QGArray::QGArray()
 }
 
 /*!
-  \internal
   Dummy constructor; does not allocate any data.
 
   This constructor does not initialize any array data so subclasses
@@ -105,7 +104,6 @@ QGArray::QGArray( int, int )
 }
 
 /*!
-  \internal
   Constructs an array with room for \e size bytes.
 */
 
@@ -127,7 +125,6 @@ QGArray::QGArray( int size )
 }
 
 /*!
-  \internal
   Constructs a shallow copy of \e a.
 */
 
@@ -138,7 +135,6 @@ QGArray::QGArray( const QGArray &a )
 }
 
 /*!
-  \internal
   Dereferences the array data and deletes it if this was the last
   reference.
 */
@@ -155,38 +151,37 @@ QGArray::~QGArray()
 
 /*!
   \fn QGArray &QGArray::operator=( const QGArray &a )
-  \internal
+
   Assigns a shallow copy of \e a to this array and returns a reference to
   this array.  Equivalent to assign().
 */
 
 /*!
   \fn void QGArray::detach()
-  \internal
+
   Detaches this array from shared array data.
 */
 
 /*!
   \fn char *QGArray::data() const
-  \internal
+
   Returns a pointer to the actual array data.
 */
 
 /*!
   \fn uint QGArray::nrefs() const
-  \internal
+
   Returns the reference count.
 */
 
 /*!
   \fn uint QGArray::size() const
-  \internal
+
   Returns the size of the array, in bytes.
 */
 
 
 /*!
-  \internal
   Returns TRUE if this array is equal to \e a, otherwise FALSE.
   The comparison is bitwise, of course.
 */
@@ -202,7 +197,6 @@ bool QGArray::isEqual( const QGArray &a ) const
 
 
 /*!
-  \internal
   Resizes the array to \e newsize bytes.
 */
 
@@ -234,7 +228,6 @@ bool QGArray::resize( uint newsize )
 }
 
 /*!
-  \internal
   Fills the array with the repeated occurrences of \e d, which is
   \e sz bytes long.
   If \e len is specified as different from -1, then the array will be
@@ -275,7 +268,6 @@ bool QGArray::fill( const char *d, int len, uint sz )
 }
 
 /*!
-  \internal
   Shallow copy. Dereference the current array and references the data
   contained in \e a instead. Returns a reference to this array.
   \sa operator=()
@@ -294,7 +286,6 @@ QGArray &QGArray::assign( const QGArray &a )
 }
 
 /*!
-  \internal
   Shallow copy. Dereference the current array and references the
   array data \e d, which contains \e len bytes.
   Returns a reference to this array.
@@ -318,7 +309,6 @@ QGArray &QGArray::assign( const char *d, uint len )
 }
 
 /*!
-  \internal
   Deep copy. Dereference the current array and obtains a copy of the data
   contained in \e a instead. Returns a reference to this array.
   \sa assign(), operator=()
@@ -366,7 +356,6 @@ QGArray &QGArray::duplicate( const QGArray &a )
 }
 
 /*!
-  \internal
   Deep copy. Dereferences the current array and obtains a copy of the
   array data \e d instead.  Returns a reference to this array.
   \sa assign(), operator=()
@@ -401,7 +390,6 @@ QGArray &QGArray::duplicate( const char *d, uint len )
 }
 
 /*!
-  \internal
   Resizes this array to \e len bytes and copies the \e len bytes at
   address \e into it.
 
@@ -418,7 +406,7 @@ void QGArray::store( const char *d, uint len )
 
 /*!
   \fn array_data *QGArray::sharedBlock() const
-  \internal
+
   Returns a pointer to the shared array block.
 
   \warning
@@ -430,7 +418,7 @@ void QGArray::store( const char *d, uint len )
 
 /*!
   \fn void QGArray::setSharedBlock( array_data *p )
-  \internal
+
   Sets the shared array block to \e p.
 
   \warning
@@ -442,7 +430,6 @@ void QGArray::store( const char *d, uint len )
 
 
 /*!
-  \internal
   Sets raw data and returns a reference to the array.
 
   Dereferences the current array and sets the new array data to \e d and
@@ -489,7 +476,6 @@ QGArray &QGArray::setRawData( const char *d, uint len )
 }
 
 /*!
-  \internal
   Resets raw data.
 
   The arguments must be the data and length that were passed to
@@ -510,7 +496,6 @@ void QGArray::resetRawData( const char *d, uint len )
 
 
 /*!
-  \internal
   Finds the first occurrence of \e d in the array from position \e index,
   where \e sz is the size of the \e d element.
 
@@ -574,7 +559,6 @@ int QGArray::find( const char *d, uint index, uint sz ) const
 }
 
 /*!
-  \internal
   Returns the number of occurrences of \e d in the array, where \e sz is
   the size of the \e d element.
 
@@ -644,9 +628,7 @@ static int cmp_arr( const void *n1, const void *n2 )
 #endif
 
 /*!
-  \internal
-
-  Sort the array.
+  Sorts the array.
 */
 
 void QGArray::sort( uint sz )
@@ -659,8 +641,6 @@ void QGArray::sort( uint sz )
 }
 
 /*!
-  \internal
-
   Binary search; assumes sorted array
 */
 
@@ -681,12 +661,11 @@ int QGArray::bsearch( const char *d, uint sz ) const
 
 /*!
   \fn char *QGArray::at( uint index ) const
-  \internal
+
   Returns a pointer to the byte at offset \e index in the array.
 */
 
 /*!
-  \internal
   Expand the array if necessary, and copies (the first part of) its
   contents from the \e index*zx bytes at \e d.
 
@@ -710,7 +689,6 @@ bool QGArray::setExpand( uint index, const char *d, uint sz )
 
 
 /*!
-  \internal
   Prints a warning message if at() or [] is given a bad index.
 */
 
@@ -725,7 +703,6 @@ void QGArray::msg_index( uint index )
 
 
 /*!
-  \internal
   Returns a new shared array block.
 */
 
@@ -736,7 +713,6 @@ QGArray::array_data * QGArray::newData()
 
 
 /*!
-  \internal
   Deletes the shared array block.
 */
 

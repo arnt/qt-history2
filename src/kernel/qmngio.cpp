@@ -193,7 +193,7 @@ class Q_EXPORT QMNGFormatType : public QImageFormatType
 };
 
 
-/*!
+/*
   \class QMNGFormat qmngio.h
   \brief Incremental image decoder for MNG image format.
 
@@ -224,7 +224,7 @@ TODO: decide on this point.  gIFg gives disposal types, so it can be done.
   over the previous image to produce a subsequent frame.
 */
 
-/*!
+/*
   \class QMNGFormatType qasyncimageio.h
   \brief Incremental image decoder for MNG image format.
 
@@ -237,8 +237,7 @@ TODO: decide on this point.  gIFg gives disposal types, so it can be done.
   so you should have no need for such objects.
 */
 
-QImageFormat* QMNGFormatType::decoderFor(
-    const uchar* buffer, int length)
+QImageFormat* QMNGFormatType::decoderFor( const uchar* buffer, int length )
 {
     if (length < 8) return 0;
 
@@ -282,7 +281,7 @@ QMNGFormat::QMNGFormat()
     losttime = 0;
 }
 
-/*!
+/*
   Destroys a QMNGFormat.
 */
 QMNGFormat::~QMNGFormat()
@@ -342,11 +341,11 @@ static mng_bool settimer( mng_handle handle, mng_uint32  iMsecs )
     return ((QMNGFormat*)mng_get_userdata(handle))->settimer(iMsecs);
 }
 
-static mng_ptr memalloc(mng_size_t iLen)
+static mng_ptr memalloc( mng_size_t iLen )
 {
     return calloc(1,iLen);
 }
-static void memfree(mng_ptr iPtr, mng_size_t /*iLen*/)
+static void memfree( mng_ptr iPtr, mng_size_t /*iLen*/ )
 {
     free(iPtr);
 }
@@ -356,8 +355,8 @@ static void memfree(mng_ptr iPtr, mng_size_t /*iLen*/)
 
   Returns the number of bytes consumed.
 */
-int QMNGFormat::decode(QImage& img, QImageConsumer* cons,
-	const uchar* buf, int length)
+int QMNGFormat::decode( QImage& img, QImageConsumer* cons,
+			const uchar* buf, int length )
 {
     consumer = cons;
     image = &img;

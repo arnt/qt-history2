@@ -133,7 +133,7 @@ animateTimeout() slot is called.
 
 Here is an outline of a slightly longer example that combines object
 communication via signals and slots with a QTimer object. It
-demonstrates how to utilize timers to perform intensive calculations
+demonstrates how to use timers to perform intensive calculations
 in a single-threaded application without blocking the user interface.
 
   \code

@@ -278,7 +278,7 @@ classes. \endlink
 
 /*! \defgroup io
 
-\title I/O Classes
+\title Input/Output Classes
 
 These classes are used to handle input and output to and from external
 devices, files etc., as well as manipulating files and directories.
@@ -471,7 +471,6 @@ event handling, access to system settings, internationalization, etc.
 These classes are useful classes not fitting into any other category.
 
 */
-
 
 /*! \defgroup walkthroughs
 

@@ -21,7 +21,7 @@ QDocMainWindow::QDocMainWindow( QWidget* parent, const char* name ) : QMainWindo
     connect( classList, SIGNAL(doubleClicked(QListViewItem*)), this, SLOT(activateEditor(QListViewItem*)) );
     classList->show();
     qtdirenv = getenv( "QTDIR" );
-    waitText = new QLabel( "Currently QDocing", this, "wait", WType_Modal | WStyle_Customize | WStyle_NormalBorder );
+    waitText = new QLabel( "Currently qdocing", this, "wait", WType_Modal | WStyle_Customize | WStyle_NormalBorder );
     waitText->setCaption( "qdoc GUI - Waiting" );
     waitText->setFont( QFont("times", 36) );
     waitText->setAlignment( AlignCenter );
@@ -32,16 +32,16 @@ QDocMainWindow::QDocMainWindow( QWidget* parent, const char* name ) : QMainWindo
 void QDocMainWindow::init()
 {
     proc = new QProcess( this );
-    QDir e( qtdirenv + "/util/qdoc");
+    QDir e( qtdirenv + "/util/qdoc" );
     proc->setWorkingDirectory( e );
     proc->addArgument( qtdirenv + "/util/qdoc/qdoc" );
     proc->addArgument( "-Wall" );
     proc->addArgument( "-W4" );
 
-    connect( proc, SIGNAL(readyReadStderr()), this, SLOT(readOutput()));
-    connect( proc, SIGNAL(processExited()), this, SLOT(finished()));
+    connect( proc, SIGNAL(readyReadStderr()), this, SLOT(readOutput()) );
+    connect( proc, SIGNAL(processExited()), this, SLOT(finished()) );
     if ( !proc->start() )
-	qDebug("Sommat happened");
+	qDebug( "Sommat happened" );
 }
 
 void QDocMainWindow::readOutput()
@@ -71,6 +71,15 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
 	    QRegExp rxp( "(\\d+)" );
 	    int foundpos = rxp.search( itemtext, 5 );
 	    if ( foundpos != -1 ) {
+		// yes!
+		if ( QDir::home().dirName() == QString("jasmin") ) {
+		    QProcess *p4 = new QProcess( this );
+		    p4->addArgument( QString("p4") );
+		    p4->addArgument( QString("edit") );
+		    p4->addArgument( filename );
+		    p4->start();
+		}
+
 		QString linenumber = rxp.cap( 0 );
 		procedit = new QProcess( this );
 		procedit->addArgument( editText );

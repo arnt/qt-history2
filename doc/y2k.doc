@@ -46,20 +46,21 @@ This document certifies that the API provided by Qt and the
 implementation of Qt are both Year 2000 Compliant, and that the use of
 underlying APIs by Qt does not have any known problems.
 
-<h2 align="center">The API Provided by Qt</h2>
+\section1 The API Provided by Qt
 
-Several parts of Qt deal with dates and times:<ul>
-<li>\l QDate - provides date management
-<li>\l QDateTime - provides date/time management
-<li>\l QTime - provides time management (within a date)
-<li>\l QTimer - provides delayed or regular execution of code.
-</ul>
+Several parts of Qt deal with dates and times:
+\list
+\i \l QDate - provides date management
+\i \l QDateTime - provides date/time management
+\i \l QTime - provides time management (within a date)
+\i \l QTimer - provides delayed or regular execution of code.
+\endlist
 
 All of these classes' external APIs are Year 2000 Compliant: QDate and
 QDateTime offer only four-digit years as output, QTime and QTimer do
 not deal with years or leap days at all.
 
-<h2 align="center">Implementation Issues in Qt</h2>
+\section1 Implementation Issues in Qt
 
 All date/time calculation and storage in Qt uses number of days,
 seconds or milliseconds, and is thus Year 2000 Compliant.
@@ -77,9 +78,10 @@ January 1, 2001 and March 1, 2001.
 Qt has been verified to be robust in case of time/date errors (such as
 time warps) in the underlying operating system.
 
-<h2 align="center">Use of System APIs</h2>
+\section1 Use of System APIs
 
 It is of course impossible for Trolltech to ensure that both of the
 window systems and all of the operating systems on which Qt runs are
-Year 2000 Compliant.  However, Qt does not use any APIs that are known
-to have any Year 2000-related bugs, or seem at risk to have any.  */
+Year 2000 Compliant. However, Qt does not use any APIs that are known
+to have any Year 2000-related bugs, or seem at risk to have any.
+*/

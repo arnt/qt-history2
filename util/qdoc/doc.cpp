@@ -1539,7 +1539,7 @@ void Doc::setClassList( const QMap<QString, QString>& classList )
 
     /*
       Why is here the best place to build the mega regular expression?
-      ### Donno.
+      Donno.
     */
     if ( !config->autoHrefs() )
 	return;

@@ -44,12 +44,14 @@
   \class QLNode qglist.h
   \brief The QLNode class is an internal class for the QList template collection.
 
+  \internal
+
   QLNode is a doubly-linked list node. It has three pointers:
-  <ol>
-  <li> Pointer to the previous node.
-  <li> Pointer to the next node.
-  <li> Pointer to the actual data.
-  </ol>
+  \list 1
+  \i Pointer to the previous node.
+  \i Pointer to the next node.
+  \i Pointer to the actual data.
+  \endlist
 
   It might sometimes be practical to have direct access to the list nodes
   in a QList, but it is seldom required.
@@ -69,6 +71,8 @@
 /*!
   \class QGList qglist.h
   \brief The QGList class is an internal class for implementing Qt collection classes.
+
+  \internal
 
   QGList is a strictly internal class that acts as a base class for
   several collection classes; QList, QQueue and QStack.
@@ -156,7 +160,6 @@ QDataStream &QGList::write( QDataStream &s, QPtrCollection::Item ) const
  *****************************************************************************/
 
 /*!
-  \internal
   Constructs an empty list.
 */
 
@@ -169,7 +172,6 @@ QGList::QGList()
 }
 
 /*!
-  \internal
   Constructs a copy of \e list.
 */
 
@@ -188,7 +190,6 @@ QGList::QGList( const QGList & list )
 }
 
 /*!
-  \internal
   Removes all items from the list and destroys the list.
 */
 
@@ -213,7 +214,6 @@ QGList::~QGList()
 
 
 /*!
-  \internal
   Assigns \e list to this list.
 */
 
@@ -260,13 +260,12 @@ bool QGList::operator==( const QGList &list ) const
 
 /*!
   \fn uint QGList::count() const
-  \internal
+
   Returns the number of items in the list.
 */
 
 
 /*!
-  \internal
   Returns the node at position \e index.  Sets this node to current.
 */
 
@@ -318,7 +317,6 @@ QLNode *QGList::locate( uint index )
 
 
 /*!
-  \internal
   Inserts an item at its sorted position in the list.
 */
 
@@ -335,7 +333,6 @@ void QGList::inSort( QPtrCollection::Item d )
 
 
 /*!
-  \internal
   Inserts an item at the start of the list.
 */
 
@@ -355,7 +352,6 @@ void QGList::prepend( QPtrCollection::Item d )
 
 
 /*!
-  \internal
   Inserts an item at the end of the list.
 */
 
@@ -375,7 +371,6 @@ void QGList::append( QPtrCollection::Item d )
 
 
 /*!
-  \internal
   Inserts an item at position \e index in the list.
 */
 
@@ -405,7 +400,6 @@ bool QGList::insertAt( uint index, QPtrCollection::Item d )
 
 
 /*!
-  \internal
   Relinks node \e n and makes it the first node in the list.
 */
 
@@ -427,7 +421,6 @@ void QGList::relinkNode( QLNode *n )
 
 
 /*!
-  \internal
   Unlinks the current list node and returns a pointer to this node.
 */
 
@@ -472,7 +465,6 @@ QLNode *QGList::unlink()
 
 
 /*!
-  \internal
   Removes the node \e n from the list.
 */
 
@@ -495,7 +487,6 @@ bool QGList::removeNode( QLNode *n )
 }
 
 /*!
-  \internal
   Removes the item \e d from the list.	Uses compareItems() to find the item.
 */
 
@@ -514,7 +505,6 @@ bool QGList::remove( QPtrCollection::Item d )
 }
 
 /*!
-  \internal
   Removes the item \e d from the list.
 */
 
@@ -534,18 +524,17 @@ bool QGList::removeRef( QPtrCollection::Item d )
 
 /*!
   \fn bool QGList::removeFirst()
-  \internal
+
   Removes the first item in the list.
 */
 
 /*!
   \fn bool QGList::removeLast()
-  \internal
+
   Removes the last item in the list.
 */
 
 /*!
-  \internal
   Removes the item at position \e index from the list.
 */
 
@@ -563,7 +552,6 @@ bool QGList::removeAt( uint index )
 
 
 /*!
-  \internal
   Takes the node \e n out of the list.
 */
 
@@ -586,7 +574,6 @@ QPtrCollection::Item QGList::takeNode( QLNode *n )
 }
 
 /*!
-  \internal
   Takes the current item out of the list.
 */
 
@@ -599,7 +586,6 @@ QPtrCollection::Item QGList::take()
 }
 
 /*!
-  \internal
   Takes the item at position \e index out of the list.
 */
 
@@ -614,7 +600,6 @@ QPtrCollection::Item QGList::takeAt( uint index )
 }
 
 /*!
-  \internal
   Takes the first item out of the list.
 */
 
@@ -628,7 +613,6 @@ QPtrCollection::Item QGList::takeFirst()
 }
 
 /*!
-  \internal
   Takes the last item out of the list.
 */
 
@@ -643,7 +627,6 @@ QPtrCollection::Item QGList::takeLast()
 
 
 /*!
-  \internal
   Removes all items from the list.
 */
 
@@ -674,7 +657,6 @@ void QGList::clear()
 
 
 /*!
-  \internal
   Finds an item in the list.
 */
 
@@ -699,7 +681,6 @@ int QGList::findRef( QPtrCollection::Item d, bool fromStart )
 }
 
 /*!
-  \internal
   Finds an item in the list.  Uses compareItems().
 */
 
@@ -725,7 +706,6 @@ int QGList::find( QPtrCollection::Item d, bool fromStart )
 
 
 /*!
-  \internal
   Counts the number an item occurs in the list.
 */
 
@@ -742,7 +722,6 @@ uint QGList::containsRef( QPtrCollection::Item d ) const
 }
 
 /*!
-  \internal
   Counts the number an item occurs in the list.	 Uses compareItems().
 */
 
@@ -762,43 +741,42 @@ uint QGList::contains( QPtrCollection::Item d ) const
 
 /*!
   \fn QPtrCollection::Item QGList::at( uint index )
-  \internal
+
   Sets the item at position \e index to the current item.
 */
 
 /*!
   \fn int QGList::at() const
-  \internal
+
   Returns the current index.
 */
 
 /*!
   \fn QLNode *QGList::currentNode() const
-  \internal
+
   Returns the current node.
 */
 
 /*!
   \fn QPtrCollection::Item QGList::get() const
-  \internal
+
   Returns the current item.
 */
 
 /*!
   \fn QPtrCollection::Item QGList::cfirst() const
-  \internal
+
   Returns the first item in the list.
 */
 
 /*!
   \fn QPtrCollection::Item QGList::clast() const
-  \internal
+
   Returns the last item in the list.
 */
 
 
 /*!
-  \internal
   Returns the first list item.	Sets this to current.
 */
 
@@ -812,7 +790,6 @@ QPtrCollection::Item QGList::first()
 }
 
 /*!
-  \internal
   Returns the last list item.  Sets this to current.
 */
 
@@ -826,7 +803,6 @@ QPtrCollection::Item QGList::last()
 }
 
 /*!
-  \internal
   Returns the next list item (after current).  Sets this to current.
 */
 
@@ -845,7 +821,6 @@ QPtrCollection::Item QGList::next()
 }
 
 /*!
-  \internal
   Returns the previous list item (before current).  Sets this to current.
 */
 
@@ -865,7 +840,6 @@ QPtrCollection::Item QGList::prev()
 
 
 /*!
-  \internal
   Converts the list to a vector.
 */
 
@@ -983,7 +957,6 @@ QDataStream &operator<<( QDataStream &s, const QGList &list )
 }
 
 /*!
-  \internal
   Reads a list from the stream \e s.
 */
 
@@ -1016,7 +989,6 @@ QDataStream &QGList::read( QDataStream &s )
 }
 
 /*!
-  \internal
   Writes the list to the stream \e s.
 */
 
@@ -1040,6 +1012,8 @@ QDataStream &QGList::write( QDataStream &s ) const
 /*!
   \class QGListIterator qglist.h
   \brief The QGListIterator class is an internal class for implementing QPtrListIterator.
+
+  \internal
 
   QGListIterator is a strictly internal class that does the heavy work for
   QPtrListIterator.

@@ -114,7 +114,7 @@
   If you want to abort the print job, abort() will make a best effort.
   It may cancel the entire job or just some of it.
 
-  \internal Need a function to setup() without a dialog (ie. use defaults).
+  \omit Need a function to setup() without a dialog (ie. use defaults).
 */
 
 /*! \enum QPrinter::PrinterMode

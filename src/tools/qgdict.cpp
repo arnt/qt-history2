@@ -41,11 +41,11 @@
 #include "qdatastream.h"
 #include <ctype.h>
 
-
-// NOT REVISED
 /*!
   \class QGDict qgdict.h
   \brief The QGDict class is an internal class for implementing QDict template classes.
+
+  \internal
 
   QGDict is a strictly internal class that acts as a base class for the
   \link collection.html collection classes\endlink QDict and QIntDict.
@@ -59,8 +59,8 @@
   Normally, you do not have to reimplement any of these functions.
 */
 
-static const int op_find    = 0;
-static const int op_insert  = 1;
+static const int op_find = 0;
+static const int op_insert = 1;
 static const int op_replace = 2;
 
 
@@ -69,7 +69,7 @@ class QGDItList : public QPtrList<QGDictIterator>
 public:
     QGDItList() : QPtrList<QGDictIterator>() {}
     QGDItList( const QGDItList &list ) : QPtrList<QGDictIterator>(list) {}
-   ~QGDItList() { clear(); }
+    ~QGDItList() { clear(); }
     QGDItList &operator=(const QGDItList &list)
 	{ return (QGDItList&)QPtrList<QGDictIterator>::operator=(list); }
 };
@@ -80,7 +80,6 @@ public:
  *****************************************************************************/
 
 /*!
-  \internal
   Returns the hash key for \e key, when key is a string.
 */
 
@@ -116,7 +115,6 @@ int QGDict::hashKeyString( const QString &key )
 }
 
 /*!
-  \internal
   Returns the hash key for \a key, which is a C string.
 */
 
@@ -186,7 +184,6 @@ QDataStream& QGDict::write( QDataStream &s, QPtrCollection::Item ) const
  *****************************************************************************/
 
 /*!
-  \internal
   Constructs a dictionary.
 */
 
@@ -223,7 +220,6 @@ void QGDict::init( uint len, KeyType kt, bool caseSensitive, bool copyKeys )
 
 
 /*!
-  \internal
   Constructs a copy of \e dict.
 */
 
@@ -253,7 +249,6 @@ QGDict::QGDict( const QGDict & dict )
 
 
 /*!
-  \internal
   Removes all items from the dictionary and destroys it.
 */
 
@@ -273,7 +268,6 @@ QGDict::~QGDict()
 
 
 /*!
-  \internal
   Assigns \e dict to this dictionary.
 */
 
@@ -301,53 +295,20 @@ QGDict &QGDict::operator=( const QGDict &dict )
     return *this;
 }
 
-
-/*! \fn QPtrCollection::Item QGDictIterator::get() const
-
-  \internal
-*/
-
-
-/*! \fn QString QGDictIterator::getKeyString() const
-
-  \internal
-*/
-
-
-/*! \fn const char * QGDictIterator::getKeyAscii() const
-
-  \internal
-*/
-
-
-/*! \fn void * QGDictIterator::getKeyPtr() const
-
-  \internal
-*/
-
-
-/*! \fn long QGDictIterator::getKeyInt() const
-
-  \internal
-*/
-
-
 /*!
   \fn uint QGDict::count() const
-  \internal
+
   Returns the number of items in the dictionary.
 */
 
 /*!
   \fn uint QGDict::size() const
-  \internal
+
   Returns the size of the hash array.
 */
 
-
 /*!
-  \internal
-  The do-it-all function; op is one of op_find, op_insert, op_replace
+  The do-it-all function; op is one of op_find, op_insert, op_replace.
 */
 
 QPtrCollection::Item QGDict::look_string( const QString &key, QPtrCollection::Item d,
@@ -390,9 +351,6 @@ QPtrCollection::Item QGDict::look_string( const QString &key, QPtrCollection::It
     return n->getData();
 }
 
-
-/*!  \internal */
-
 QPtrCollection::Item QGDict::look_ascii( const char *key, QPtrCollection::Item d, int op )
 {
     QAsciiBucket *n;
@@ -429,9 +387,6 @@ QPtrCollection::Item QGDict::look_ascii( const char *key, QPtrCollection::Item d
     return n->getData();
 }
 
-
-/*!  \internal */
-
 QPtrCollection::Item QGDict::look_int( long key, QPtrCollection::Item d, int op )
 {
     QIntBucket *n;
@@ -459,9 +414,6 @@ QPtrCollection::Item QGDict::look_int( long key, QPtrCollection::Item d, int op 
     numItems++;
     return n->getData();
 }
-
-
-/*!  \internal */
 
 QPtrCollection::Item QGDict::look_ptr( void *key, QPtrCollection::Item d, int op )
 {
@@ -493,7 +445,6 @@ QPtrCollection::Item QGDict::look_ptr( void *key, QPtrCollection::Item d, int op
 
 
 /*!
-  \internal
   Changes the size of the hashtable.
   The contents of the dictionary are preserved,
   but all iterators on the dictionary become invalid.
@@ -576,7 +527,6 @@ void QGDict::resize( uint newsize )
 }
 
 /*!
-  \internal
   Unlinks the bucket with the specified key (and specified data pointer,
   if it is set).
 */
@@ -697,8 +647,7 @@ QPtrBucket *QGDict::unlink_ptr( void *key, QPtrCollection::Item d )
 
 
 /*!
-  \internal
-  Removes the item with the specified key.  If item is non-null,
+  Removes the item with the specified key.  If item is nonnull,
   the remove will match the \a item as well (used to remove an
   item when several items have the same key).
 */
@@ -715,9 +664,6 @@ bool QGDict::remove_string( const QString &key, QPtrCollection::Item item )
     }
 }
 
-
-/*!  \internal */
-
 bool QGDict::remove_ascii( const char *key, QPtrCollection::Item item )
 {
     QAsciiBucket *n = unlink_ascii( key, item );
@@ -730,9 +676,6 @@ bool QGDict::remove_ascii( const char *key, QPtrCollection::Item item )
     return n != 0;
 }
 
-
-/*!  \internal */
-
 bool QGDict::remove_int( long key, QPtrCollection::Item item )
 {
     QIntBucket *n = unlink_int( key, item );
@@ -743,9 +686,6 @@ bool QGDict::remove_int( long key, QPtrCollection::Item item )
     return n != 0;
 }
 
-
-/*!  \internal */
-
 bool QGDict::remove_ptr( void *key, QPtrCollection::Item item )
 {
     QPtrBucket *n = unlink_ptr( key, item );
@@ -755,9 +695,6 @@ bool QGDict::remove_ptr( void *key, QPtrCollection::Item item )
     }
     return n != 0;
 }
-
-
-/*!  \internal */
 
 QPtrCollection::Item QGDict::take_string( const QString &key )
 {
@@ -771,9 +708,6 @@ QPtrCollection::Item QGDict::take_string( const QString &key )
     }
     return d;
 }
-
-
-/*!  \internal */
 
 QPtrCollection::Item QGDict::take_ascii( const char *key )
 {
@@ -790,9 +724,6 @@ QPtrCollection::Item QGDict::take_ascii( const char *key )
     return d;
 }
 
-
-/*!  \internal */
-
 QPtrCollection::Item QGDict::take_int( long key )
 {
     QIntBucket *n = unlink_int( key );
@@ -805,9 +736,6 @@ QPtrCollection::Item QGDict::take_int( long key )
     }
     return d;
 }
-
-
-/*!  \internal */
 
 QPtrCollection::Item QGDict::take_ptr( void *key )
 {
@@ -822,12 +750,9 @@ QPtrCollection::Item QGDict::take_ptr( void *key )
     return d;
 }
 
-
 /*!
-  \internal
   Removes all items from the dictionary.
 */
-
 void QGDict::clear()
 {
     if ( !numItems )
@@ -895,12 +820,9 @@ void QGDict::clear()
     }
 }
 
-
 /*!
-  \internal
   Outputs debug statistics.
 */
-
 void QGDict::statistics() const
 {
 #if defined(QT_DEBUG)
@@ -964,7 +886,6 @@ QDataStream &operator<<( QDataStream &s, const QGDict &dict )
 #endif
 
 /*!
-  \internal
   Reads a dictionary from the stream \e s.
 */
 
@@ -1021,7 +942,6 @@ QDataStream &QGDict::read( QDataStream &s )
 }
 
 /*!
-  \internal
   Writes the dictionary to the stream \e s.
 */
 
@@ -1063,12 +983,13 @@ QDataStream& QGDict::write( QDataStream &s ) const
   \class QGDictIterator qgdict.h
   \brief An internal class for implementing QDictIterator and QIntDictIterator.
 
+  \internal
+
   QGDictIterator is a strictly internal class that does the heavy work for
   QDictIterator and QIntDictIterator.
 */
 
 /*!
-  \internal
   Constructs an iterator that operates on the dictionary \e d.
 */
 
@@ -1084,7 +1005,6 @@ QGDictIterator::QGDictIterator( const QGDict &d )
 }
 
 /*!
-  \internal
   Constructs a copy of the iterator \e it.
 */
 
@@ -1098,7 +1018,6 @@ QGDictIterator::QGDictIterator( const QGDictIterator &it )
 }
 
 /*!
-  \internal
   Assigns a copy of the iterator \e it and returns a reference to this
   iterator.
 */
@@ -1116,7 +1035,6 @@ QGDictIterator &QGDictIterator::operator=( const QGDictIterator &it )
 }
 
 /*!
-  \internal
   Destroys the iterator.
 */
 
@@ -1128,7 +1046,6 @@ QGDictIterator::~QGDictIterator()
 
 
 /*!
-  \internal
   Sets the iterator to point to the first item in the dictionary.
 */
 
@@ -1155,7 +1072,6 @@ QPtrCollection::Item QGDictIterator::toFirst()
 
 
 /*!
-  \internal
   Moves to the next item (postfix).
 */
 
@@ -1175,7 +1091,6 @@ QPtrCollection::Item QGDictIterator::operator()()
 }
 
 /*!
-  \internal
   Moves to the next item (prefix).
 */
 
@@ -1206,7 +1121,6 @@ QPtrCollection::Item QGDictIterator::operator++()
 }
 
 /*!
-  \internal
   Moves \e jumps positions forward.
 */
 

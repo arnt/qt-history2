@@ -2258,7 +2258,7 @@ void QListViewPrivate::Root::setup()
 
   <img src=qlistview-m.png> <img src=qlistview-w.png>
 
-  \internal
+  \omit
 
   need to say stuff about the mouse and keyboard interface.
 */

@@ -40,12 +40,12 @@
 #include "qdict.h"
 #include "qstring.h"
 
-
-// NOT REVISED
 /*!
   \class QGCache qgcache.h
+  \brief The QGCache class is an internal class for implementing QCache
+  template classes.
 
-  \brief The QGCache class is an internal class for implementing QCache template classes.
+  \internal
 
   QGCache is a strictly internal class that acts as a base class for the
   \link collection.html collection classes\endlink QCache and QIntCache.
@@ -227,7 +227,6 @@ public:
  *****************************************************************************/
 
 /*!
-  \internal
   Constructs a cache.
 */
 
@@ -256,7 +255,6 @@ QGCache::QGCache( int maxCost, uint size, KeyType kt, bool caseSensitive,
 }
 
 /*!
-  \internal
   Cannot copy a cache.
 */
 
@@ -269,19 +267,17 @@ QGCache::QGCache( const QGCache & )
 }
 
 /*!
-  \internal
   Removes all items from the cache and destroys it.
 */
 
 QGCache::~QGCache()
 {
-    clear();					// delete everything first
+    clear();
     delete dict;
     delete lruList;
 }
 
 /*!
-  \internal
   Cannot assign a cache.
 */
 
@@ -290,36 +286,35 @@ QGCache &QGCache::operator=( const QGCache & )
 #if defined(QT_CHECK_NULL)
     qFatal( "QGCache::operator=: Cannot copy a cache" );
 #endif
-    return *this;				// satisfy the compiler
+    return *this;
 }
 
 
 /*!
   \fn uint QGCache::count() const
-  \internal
+
   Returns the number of items in the cache.
 */
 
 /*!
   \fn uint QGCache::size() const
-  \internal
+
   Returns the size of the hash array.
 */
 
 /*!
   \fn int QGCache::maxCost() const
-  \internal
+
   Returns the maximum cache cost.
 */
 
 /*!
   \fn int QGCache::totalCost() const
-  \internal
+
   Returns the total cache cost.
 */
 
 /*!
-  \internal
   Sets the maximum cache cost.
 */
 
@@ -334,7 +329,6 @@ void QGCache::setMaxCost( int maxCost )
 
 
 /*!
-  \internal
   Inserts an item into the cache.
 
   \warning If this function returns FALSE, you must delete \a data
@@ -374,9 +368,6 @@ bool QGCache::insert_string( const QString &key, QPtrCollection::Item data,
     return TRUE;
 }
 
-
-/*! \internal */
-
 bool QGCache::insert_other( const char *key, QPtrCollection::Item data,
 			    int cost, int priority)
 {
@@ -413,7 +404,6 @@ bool QGCache::insert_other( const char *key, QPtrCollection::Item data,
 
 
 /*!
-  \internal
   Removes an item from the cache.
 */
 
@@ -425,9 +415,6 @@ bool QGCache::remove_string( const QString &key )
     return d != 0;
 }
 
-
-/*! \internal */
-
 bool QGCache::remove_other( const char *key )
 {
     Item d = take_other( key );
@@ -438,7 +425,6 @@ bool QGCache::remove_other( const char *key )
 
 
 /*!
-  \internal
   Takes an item out of the cache (no delete).
 */
 
@@ -459,7 +445,6 @@ QPtrCollection::Item QGCache::take_string( const QString &key )
 }
 
 /*!
-  \internal
   Takes an item out of the cache (no delete).
 */
 
@@ -486,7 +471,6 @@ QPtrCollection::Item QGCache::take_other( const char *key )
 
 
 /*!
-  \internal
   Clears the cache.
 */
 
@@ -518,7 +502,6 @@ void QGCache::clear()
 
 
 /*!
-  \internal
   Finds an item in the cache.
 */
 
@@ -542,7 +525,6 @@ QPtrCollection::Item QGCache::find_string( const QString &key, bool ref ) const
 
 
 /*!
-  \internal
   Finds an item in the cache.
 */
 
@@ -567,7 +549,6 @@ QPtrCollection::Item QGCache::find_other( const char *key, bool ref ) const
 
 
 /*!
-  \internal
   Allocates cache space for one or more items.
 */
 
@@ -621,7 +602,6 @@ bool QGCache::makeRoomFor( int cost, int priority )
 
 
 /*!
-  \internal
   Outputs debug statistics.
 */
 
@@ -662,15 +642,16 @@ void QGCache::statistics() const
 
 /*!
   \class QGCacheIterator qgcache.h
+  \brief An internal class for implementing QCacheIterator and
+  QIntCacheIterator.
 
-  \brief An internal class for implementing QCacheIterator and QIntCacheIterator.
+  \internal
 
   QGCacheIterator is a strictly internal class that does the heavy work for
   QCacheIterator and QIntCacheIterator.
 */
 
 /*!
-  \internal
   Constructs an iterator that operates on the cache \e c.
 */
 
@@ -683,7 +664,6 @@ QGCacheIterator::QGCacheIterator( const QGCache &c )
 }
 
 /*!
-  \internal
   Constructs an iterator that operates on the same cache as \e ci.
 */
 
@@ -696,7 +676,6 @@ QGCacheIterator::QGCacheIterator( const QGCacheIterator &ci )
 }
 
 /*!
-  \internal
   Destroys the iterator.
 */
 
@@ -706,7 +685,6 @@ QGCacheIterator::~QGCacheIterator()
 }
 
 /*!
-  \internal
   Assigns the iterator \e ci to this cache iterator.
 */
 
@@ -717,7 +695,6 @@ QGCacheIterator &QGCacheIterator::operator=( const QGCacheIterator &ci )
 }
 
 /*!
-  \internal
   Returns the number of items in the cache.
 */
 
@@ -727,7 +704,6 @@ uint QGCacheIterator::count() const
 }
 
 /*!
-  \internal
   Returns TRUE if the iterator points to the first item.
 */
 
@@ -737,7 +713,6 @@ bool  QGCacheIterator::atFirst() const
 }
 
 /*!
-  \internal
   Returns TRUE if the iterator points to the last item.
 */
 
@@ -747,7 +722,6 @@ bool QGCacheIterator::atLast() const
 }
 
 /*!
-  \internal
   Sets the list iterator to point to the first item in the cache.
 */
 
@@ -758,7 +732,6 @@ QPtrCollection::Item QGCacheIterator::toFirst()
 }
 
 /*!
-  \internal
   Sets the list iterator to point to the last item in the cache.
 */
 
@@ -769,7 +742,6 @@ QPtrCollection::Item QGCacheIterator::toLast()
 }
 
 /*!
-  \internal
   Returns the current item.
 */
 
@@ -780,7 +752,6 @@ QPtrCollection::Item QGCacheIterator::get() const
 }
 
 /*!
-  \internal
   Returns the key of the current item.
 */
 
@@ -791,7 +762,6 @@ QString QGCacheIterator::getKeyString() const
 }
 
 /*!
-  \internal
   Returns the key of the current item, as a \0-terminated C string.
 */
 
@@ -802,7 +772,6 @@ const char *QGCacheIterator::getKeyAscii() const
 }
 
 /*!
-  \internal
   Returns the key of the current item, as a long.
 */
 
@@ -813,7 +782,6 @@ long QGCacheIterator::getKeyInt() const
 }
 
 /*!
-  \internal
   Moves to the next item (postfix).
 */
 
@@ -824,7 +792,6 @@ QPtrCollection::Item QGCacheIterator::operator()()
 }
 
 /*!
-  \internal
   Moves to the next item (prefix).
 */
 
@@ -835,7 +802,6 @@ QPtrCollection::Item QGCacheIterator::operator++()
 }
 
 /*!
-  \internal
   Moves \e jumps positions forward.
 */
 
@@ -846,7 +812,6 @@ QPtrCollection::Item QGCacheIterator::operator+=( uint jump )
 }
 
 /*!
-  \internal
   Moves to the previous item (prefix).
 */
 
@@ -857,7 +822,6 @@ QPtrCollection::Item QGCacheIterator::operator--()
 }
 
 /*!
-  \internal
   Moves \e jumps positions backward.
 */
 

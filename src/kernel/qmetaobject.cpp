@@ -38,8 +38,6 @@
 #include "qmetaobject.h"
 #include "qasciidict.h"
 
-// NOT REVISED
-
 /*!
   \class QMetaData qmetaobject.h
 
