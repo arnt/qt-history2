@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdict.h#5 $
+** $Id: //depot/qt/main/src/tools/qdict.h#6 $
 **
 ** Definition of QDict template/macro class
 **
@@ -71,7 +71,9 @@ public:									      \
     type *toFirst()	      { return (type *)QGDictIterator::toFirst(); }   \
     operator type *() const   { return (type *)QGDictIterator::get(); }	      \
     type *current()   const   { return (type *)QGDictIterator::get(); }	      \
-    type *operator()()	      { return (type *)QGDictIterator::operator()();} \
+    const char *currentKey() const					      \
+    			      { return (const char*)QGDictIterator::getKey();}\
+    type *operator()()	      { return (type *)QGDictIterator::operator()(); }\
     type *operator++()	      { return (type *)QGDictIterator::operator++(); }\
     type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}\
 }
@@ -123,7 +125,9 @@ public:
     type *toFirst()	      { return (type *)QGDictIterator::toFirst(); }
     operator type *() const   { return (type *)QGDictIterator::get(); }
     type *current()   const   { return (type *)QGDictIterator::get(); }
-    type *operator()()	      { return (type *)QGDictIterator::operator()();}
+    const char *currentKey() const
+    			      { return (const char*)QGDictIterator::getKey();}
+    type *operator()()	      { return (type *)QGDictIterator::operator()(); }
     type *operator++()	      { return (type *)QGDictIterator::operator++(); }
     type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}
 };
