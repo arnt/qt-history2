@@ -480,7 +480,7 @@ QString QDate::shortMonthName( int month )
 {
 #if defined(QT_CHECK_RANGE)
     if ( month < 1 || month > 12 ) {
-	qWarning( "QDate::shortMonthName: Parameter out ouf range." );
+	qWarning( "QDate::shortMonthName: Parameter out ouf range" );
 	month = 1;
     }
 #endif
@@ -526,7 +526,7 @@ QString QDate::longMonthName( int month )
 {
 #if defined(QT_CHECK_RANGE)
     if ( month < 1 || month > 12 ) {
-	qWarning( "QDate::longMonthName: Parameter out ouf range." );
+	qWarning( "QDate::longMonthName: Parameter out ouf range" );
 	month = 1;
     }
 #endif
@@ -580,7 +580,7 @@ QString QDate::shortDayName( int weekday )
 {
 #if defined(QT_CHECK_RANGE)
     if ( weekday < 1 || weekday > 7 ) {
-	qWarning( "QDate::shortDayName: Parameter out of range." );
+	qWarning( "QDate::shortDayName: Parameter out of range" );
 	weekday = 1;
     }
 #endif
@@ -628,7 +628,7 @@ QString QDate::longDayName( int weekday )
 {
 #if defined(QT_CHECK_RANGE)
     if ( weekday < 1 || weekday > 7 ) {
-	qWarning( "QDate::longDayName: Parameter out of range." );
+	qWarning( "QDate::longDayName: Parameter out of range" );
 	weekday = 1;
     }
 #endif
@@ -896,7 +896,7 @@ QDate QDate::addYears( int nyears ) const
     y += nyears;
 
     QDate tmp(y,m,1);
-    
+
     if( d > tmp.daysInMonth() )
 	d = tmp.daysInMonth();
 
@@ -1034,9 +1034,11 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 {
     if ( ( s.isEmpty() ) || ( f == Qt::LocalDate ) ) {
 #if defined(QT_CHECK_RANGE)
-	qWarning( "QDate::fromString: Parameter out of range." );
+	qWarning( "QDate::fromString: Parameter out of range" );
 #endif
-	return QDate();
+	QDate d;
+	d.jd = 0;
+	return d;
     }
     switch ( f ) {
     case Qt::ISODate:
@@ -1081,8 +1083,10 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 	    }
 #if defined(QT_CHECK_RANGE)
 	    if ( month < 1 || month > 12 ) {
-		qWarning( "QDate::fromString: Parameter out of range." );
-		month = 1;
+		qWarning( "QDate::fromString: Parameter out of range" );
+		QDate d;
+		d.jd = 0;
+		return d;
 	    }
 #endif
 	    int day = s.mid( dayPos, 2 ).stripWhiteSpace().toInt();
@@ -1613,9 +1617,11 @@ QTime QTime::fromString( const QString& s, Qt::DateFormat f )
 {
     if ( ( s.isEmpty() ) || ( f == Qt::LocalDate ) ) {
 #if defined(QT_CHECK_RANGE)
-	qWarning( "QTime::fromString: Parameter out of range." );
+	qWarning( "QTime::fromString: Parameter out of range" );
 #endif
-	return QTime();
+	QTime t;
+	t.ds = MSECS_PER_DAY;
+	return t;
     }
 
     int hour( s.mid( 0, 2 ).toInt() );
@@ -2392,7 +2398,9 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QDateTime::fromString: Parameter out of range" );
 #endif
-	return QDateTime();
+	QDateTime d;
+	d.date().jd = 0;
+	return d;
     }
     if ( f == Qt::ISODate ) {
 	return QDateTime( QDate::fromString( s.mid(0,10), Qt::ISODate ),
@@ -2420,8 +2428,10 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 	}
 #if defined(QT_CHECK_RANGE)
 	if ( month < 1 || month > 12 ) {
-	    qWarning( "QDateTime::fromString: Parameter out of range." );
-	    month = 1;
+	    qWarning( "QDateTime::fromString: Parameter out of range" );
+	    QDateTime d;
+	    d.date().jd = 0;
+	    return d;
 	}
 #endif
 	int day = s.mid( 8, 2 ).simplifyWhiteSpace().toInt();
