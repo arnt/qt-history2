@@ -2,7 +2,7 @@
     \page resources.html
     \title The Qt Resource System
 
-    Qt's resource system is a platform-independent mechanism for
+    The Qt resource system is a platform-independent mechanism for
     storing binary files in the application's executable. This is
     useful if your application always needs a certain set of files
     (icons, translation files, etc.) and you don't want to run the
@@ -46,6 +46,11 @@
     rcc manually or add build rules to your build system.
 
     \image resources.png Building resources into an application
+
+    Currently, Qt always stores the data directly in the executable,
+    even on Windows and Mac OS X, where the operating system provides
+    native support for resources. This might change in a future Qt
+    release.
 
     By default, resources are accessible in the application under the
     same name as they have in the source tree, with a \c :/ prefix.
