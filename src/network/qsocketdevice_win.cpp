@@ -120,7 +120,7 @@ void QSocketDevice::initFd( Family *family )
 #if !defined (QT_NO_IPV6)
 	SOCKADDR_STORAGE ss;
 	SOCKLEN_T sslen = sizeof( ss );
-	if ( getsockname(fd, (struct sockaddr *)&ss, &sslen) == 0 ) { 
+	if ( getsockname(fd, (struct sockaddr *)&ss, &sslen) == 0 ) {
 	    switch ( ss.ss_family ) {
 		case AF_INET:
 		    *family = Ipv4;
@@ -153,7 +153,7 @@ int QSocketDevice::createNewSocket( )
     } else {
 	s = ::socket( AF_INET, t==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
     }
-#else 
+#else
     int s = ::socket( AF_INET, t==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
 #endif
     if ( s == INVALID_SOCKET ) {
@@ -542,6 +542,7 @@ int QSocketDevice::accept()
     SOCKADDR_STORAGE a;
 #else
     struct sockaddr a;
+#endif
     SOCKLEN_T l = sizeof(struct sockaddr);
     bool done;
     int s;
