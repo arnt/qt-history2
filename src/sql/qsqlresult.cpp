@@ -252,10 +252,10 @@ QSqlError QSqlResult::lastError() const
 
 /*! \fn bool QSqlResult::fetch( int i )
 
-    Positions the result to a random index \a i.  This method is only
-    called if the result is in an active state.  Derived classes must
-    override this method and position the result to the index \a i,
-    and call setAt() with an appropriate value.  Return TRUE to
+    Positions the result to an arbitrary index \a i.  This method is
+    only called if the result is in an active state.  Derived classes
+    must override this method and position the result to the index \a
+    i, and call setAt() with an appropriate value.  Return TRUE to
     indicate success, FALSE for failure.
 
 */

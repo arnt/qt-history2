@@ -230,8 +230,9 @@ following code:
 SQL statements can also be executed directly from an open database
 connection.  These statements are sent to the QSqlDatabase::exec()
 function, which returns a QSqlQuery object.  Queries can also be
-created independant of any database connection (these queries will use
-the application default connection in this case).  For example:
+created without explicitly specifying a database connection (these
+queries will use the application default connection in this case).
+For example:
 
 \code
     QSqlDatabase* db = QSqlDatabase::database();
@@ -393,7 +394,7 @@ records based upon an index:
     QStringList fields = QStringList() << "name" << "deptno";
     QSqlIndex nameIndex = emp.index( fields ); // create an index based on fields
     emp.select( nameIndex );                   // selects all records sorted by nameIndex
-    while ( emp.next ) {
+    while ( emp.next() ) {
         ...;
     }
 

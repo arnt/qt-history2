@@ -413,7 +413,7 @@ TeamEditor::TeamEditor( QWidget * parent, const char * name )
     playerTable->setCursor( &playerCursor );
     playerTable->setSorting( TRUE );
 
-    player2teamTable->setCursor( &player2teamView );
+    player2teamTable->setCursor( &player2teamView ); // auto populates columns
     player2teamTable->setReadOnly( TRUE );
     player2teamTable->setSorting( TRUE );
 

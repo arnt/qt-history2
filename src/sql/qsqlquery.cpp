@@ -79,7 +79,7 @@ QSqlResultShared::~QSqlResultShared()
     </ul>
 
     These methods allow the programmer to move forward, backward or
-    randomly through the records returned by the query.  Once an
+    arbitrarily through the records returned by the query.  Once an
     active result object is positioned on a valid record, data can be
     retrieved using value().  All data is tranferred from the SQL
     backend using QVariant.
@@ -262,9 +262,9 @@ const QSqlResult* QSqlQuery::result() const
     return d->sqlResult;
 }
 
-/*! Positions the result to the random position \a i.  Note that the
-    result must be in an active state and isSelect() must return TRUE
-    before calling this method.
+/*! Positions the result to the position \a i.  Note that the result
+    must be in an active state and isSelect() must return TRUE before
+    calling this method.
 
     The following rules apply:
 
@@ -308,7 +308,7 @@ bool QSqlQuery::seek( int i, bool relative )
     beforeSeek();
     checkDetach();
     int actualIdx;
-    if ( !relative ) { // random seek
+    if ( !relative ) { // arbitrary seek
 	if ( i < 0 ) {
 	    d->sqlResult->setAt( QSqlResult::BeforeFirst );
 	    afterSeek();

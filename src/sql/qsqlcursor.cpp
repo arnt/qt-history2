@@ -385,7 +385,9 @@ bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
     return exec( str );
 }
 
-/*!  Selects all fields in the cursor from the database.  The order in
+/*!  \overload
+
+  Selects all fields in the cursor from the database.  The order in
   which the rows are returned is undefined.  The cursor is initially
   positioned to an invalid row.  To move to a valid row, use seek(),
   first(), last(), prev() or next().
@@ -739,7 +741,7 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
     QString str = "update " + name();
     str += " set " + toString( &d->editBuffer, QString::null, "=", "," );
     if ( filter.length() )
- 	str+= " where " + filter;
+	str+= " where " + filter;
     str += ";";
     if ( invalidate )
 	QSqlRecord::operator=( d->editBuffer );
@@ -797,7 +799,7 @@ int QSqlCursor::del( const QString & filter, bool invalidate )
     if( k == 0 ) return 0;
     QString str = "delete from " + name();
     if ( filter.length() )
- 	str+= " where " + filter;
+	str+= " where " + filter;
     str += ";";
     if ( invalidate )
 	clearValues();
@@ -899,4 +901,3 @@ QVariant QSqlCursor::value( const QString& name ) const
 }
 
 #endif
-

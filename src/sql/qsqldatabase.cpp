@@ -130,7 +130,7 @@ QSqlDatabase* QSqlDatabaseManager::database( const QString& name, bool open )
 	qWarning("Warning: QSqlDatabaseManager unable to find database " + name );
 	return 0;
     }
-    
+
     QSqlDatabaseManager* sqlConnection = instance();
     QSqlDatabase* db = sqlConnection->dbDict.find( name );
     if ( db && !db->isOpen() && open ) {
@@ -145,13 +145,13 @@ QSqlDatabase* QSqlDatabaseManager::database( const QString& name, bool open )
 
 /*! Returns TRUE if the list of database connections contains \a name,
   otherwise FALSE is returned.
-  
+
  */
 
 bool QSqlDatabaseManager::contains( const QString& name )
 {
-   QSqlDatabaseManager* sqlConnection = instance();    
-   QSqlDatabase* db = sqlConnection->dbDict.find( name );   
+   QSqlDatabaseManager* sqlConnection = instance();
+   QSqlDatabase* db = sqlConnection->dbDict.find( name );
    if ( db )
        return TRUE;
    return FALSE;
@@ -216,7 +216,7 @@ public:
     bool    hasQuerySizeSupport() const { return FALSE;} ;
     bool    canEditBinaryFields() const { return FALSE;} ;
     bool    open( const QString & ,
-    			const QString & ,
+			const QString & ,
 			const QString & ,
 			const QString &  ) {
 				return FALSE;
@@ -259,7 +259,10 @@ public:
 
 /*!  Adds a database to the list of database connections.  The
   database is referred to by \name.  A pointer to the newly added
-  database is returned.
+  database is returned.  This pointer is owned by QSqlDatabase and
+  will be deleted on program exit or when removeDatabase() is called.
+
+  \sa removeDatabase()
 
 */
 QSqlDatabase* QSqlDatabase::addDatabase( const QString& type, const QString& name )
@@ -271,7 +274,8 @@ QSqlDatabase* QSqlDatabase::addDatabase( const QString& type, const QString& nam
   must have been previously added with database().  If \a open is TRUE
   (the default) and the database was not previously opened, it is
   opened now.  If \name does not exist in the list of database, 0 is
-  returned.
+  returned.  The pointer returned is owned by QSqlDatabase and should
+  not be deleted.
 
 */
 
@@ -321,7 +325,7 @@ QStringList QSqlDatabase::drivers()
 
 /*! Returns TRUE if the list of database connections contains \a name,
   otherwise FALSE is returned.
-  
+
  */
 
 bool QSqlDatabase::contains( const QString& name )
