@@ -75,6 +75,7 @@ void ConnectionDialog::init()
     connectionsTable->setColumnStretchable( 1, TRUE );
     connectionsTable->setColumnStretchable( 2, TRUE );
     connectionsTable->setColumnStretchable( 3, TRUE );
+    buttonEditSlots->setEnabled( FALSE );
 
     if ( !invalidConnection ) {
 	invalidConnection = new QPixmap( invalid_connection );
@@ -143,6 +144,9 @@ ConnectionContainer *ConnectionDialog::addConnection( QObject *sender, QObject *
     si->setSlot( sl );
     re->setSlot( sl );
     sl->setSlot( sl );
+
+    connect( re, SIGNAL( currentReceiverChanged( QObject * ) ),
+	     this, SLOT( updateEditSlotsButton() ) );
 
     ConnectionContainer *c = new ConnectionContainer( this, se, si, re, sl, row );
     connections.append( c );
@@ -274,4 +278,17 @@ void ConnectionDialog::setDefault( QObject *sender, QObject *receiver )
 {
     defaultSender = sender;
     defaultReceiver = receiver;
+}
+
+void ConnectionDialog::updateEditSlotsButton()
+{
+    if ( connectionsTable->currentRow() < 0 ||
+	 connectionsTable->currentRow() > (int)connections.count() - 1 )
+	return;
+    ConnectionContainer *c = connections.at( connectionsTable->currentRow() );
+    if ( !c || !c->receiverItem() )
+	return;
+    buttonEditSlots->setEnabled( c->receiverItem()->currentText() ==
+				 QString( MainWindow::self->formWindow()->
+					  mainContainer()->name() ) );
 }

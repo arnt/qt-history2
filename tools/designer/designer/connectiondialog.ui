@@ -132,7 +132,7 @@
         </spacer>
         <widget class="QPushButton" row="3" column="1">
             <property name="name">
-                <cstring>PushButton5</cstring>
+                <cstring>buttonEditSlots</cstring>
             </property>
             <property name="text">
                 <string>Edit Slots...</string>
@@ -166,10 +166,16 @@
         <slot>deleteClicked()</slot>
     </connection>
     <connection>
-        <sender>PushButton5</sender>
+        <sender>buttonEditSlots</sender>
         <signal>clicked()</signal>
         <receiver>ConnectionDialog</receiver>
         <slot>editSlots()</slot>
+    </connection>
+    <connection>
+        <sender>connectionsTable</sender>
+        <signal>currentChanged(int,int)</signal>
+        <receiver>ConnectionDialog</receiver>
+        <slot>updateEditSlotsButton()</slot>
     </connection>
 </connections>
 <includes>
@@ -193,7 +199,8 @@
     <slot access="">cancelClicked()</slot>
     <slot access="">deleteClicked()</slot>
     <slot access="">editSlots()</slot>
-    <slot>setDefault( QObject * sender, QObject * receiver )</slot>
+    <slot access="">setDefault( QObject * sender, QObject * receiver )</slot>
+    <slot>updateEditSlotsButton()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
