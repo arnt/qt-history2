@@ -73,11 +73,15 @@ unsigned int __stdcall QThreadPrivate::start(void *arg)
 {
     TlsSetValue(qt_current_thread_tls_index, arg);
 
+    QThread::setTerminationEnabled(true);
+
     QThread *thr = reinterpret_cast<QThread *>(arg);
     QThreadData::setCurrent(&thr->d->data);
 
     emit thr->started();
+    QThread::setTerminationEnabled(true);
     thr->run();
+
     finish(arg);
     return 0;
 }
@@ -218,12 +222,15 @@ void QThread::start(Priority priority)
     }
 }
 
-
 void QThread::terminate()
 {
     QMutexLocker locker(d->mutex());
     if (!d->running)
         return;
+    if (!d->terminationEnabled) {
+        d->terminatePending = true;
+        return;
+    }
     TerminateThread(d->handle, 0);
     d->terminated = true;
     QThreadPrivate::finish(this, false);
@@ -265,4 +272,19 @@ bool QThread::wait(unsigned long time)
     }
 
     return ret;
+}
+
+void QThread::setTerminationEnabled(bool enabled)
+{
+    QThread *thr = currentQThread();
+    Q_ASSERT_X(thr != 0, "QThread::setTerminationEnabled()", 
+               "Current thread was not started with QThread.");
+    QMutexLocker locker(thr->d->mutex());
+    thr->d->terminationEnabled = enabled;
+    if (enabled && thr->d->terminatePending) {
+        thr->d->terminated = true;
+        QThreadPrivate::finish(thr, false);
+        locker.unlock(); // don't leave the mutex locked!
+        _endthreadex(0);
+    }
 }

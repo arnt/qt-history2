@@ -88,6 +88,7 @@ public:
     HANDLE handle;
     unsigned int id;
     int waiters;
+    bool terminationEnabled, terminatePending;
 
     static unsigned int __stdcall start(void *);
     static void finish(void *, bool lockAnyway=true);
