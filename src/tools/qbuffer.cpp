@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#14 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#15 $
 **
 ** Implementation of QBuffer class
 **
@@ -13,7 +13,7 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#14 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#15 $")
 
 /*! \class QBuffer qbuffer.h
 
@@ -267,9 +267,11 @@ int QBuffer::ungetch( int ch )			// put back char
 	return -1;
     }
 #endif
-     if ( index )
-	index--;
-    else
-	ch = -1;
+    if ( ch != -1 ) {
+	if ( index )
+	    index--;
+	else
+	    ch = -1;
+    }
     return ch;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#28 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#29 $
 **
 ** Implementation of QFile class
 **
@@ -13,7 +13,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#28 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#29 $")
 
 
 /*----------------------------------------------------------------------------
@@ -683,6 +683,8 @@ int QFile::ungetch( int ch )
 	return EOF;
     }
 #endif
+    if ( ch == EOF )				// cannot unget EOF
+	return ch;
     if ( isRaw() ) {				// raw file (very inefficient)
 	char buf[1];
 	at( index-1 );
