@@ -201,8 +201,8 @@ public:
 struct QComboData
 {
     QComboData( QComboBox *cb ): usingLBox( FALSE ), pop( 0 ), lBox( 0 ), combo( cb )
-    { 
-	duplicatesEnabled = TRUE; 
+    {
+	duplicatesEnabled = TRUE;
 	cb->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
     }
     ~QComboData()
@@ -240,6 +240,8 @@ struct QComboData
 
     QLineEdit * ed;  // /bin/ed rules!
     QTimer *showTimer;
+    
+    QSize sizeHint;
 
 private:
     bool	usingLBox;
@@ -902,6 +904,9 @@ void QComboBox::setAutoResize( bool enable )
 */
 QSize QComboBox::sizeHint() const
 {
+    if ( isVisibleTo(0) && d->sizeHint.isValid() )
+	return d->sizeHint;
+    
     constPolish();
     int i, w, h;
     QString tmp;
@@ -942,7 +947,8 @@ QSize QComboBox::sizeHint() const
 	sh = 5 + 5 + maxH;
     }
 
-    return QSize( sw, sh ).expandedTo( QApplication::globalStrut() );
+    d->sizeHint = QSize( sw, sh ).expandedTo( QApplication::globalStrut() );
+    return d->sizeHint;
 }
 
 

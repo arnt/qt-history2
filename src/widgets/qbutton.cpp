@@ -368,10 +368,8 @@ void QButton::setText( const QString &text )
 
     setAccel( QAccel::shortcutKey( btext ) );
 
-    if ( isVisible() ) {
-	update();
-	updateGeometry();
-    }
+    update();
+    updateGeometry();
 }
 
 
@@ -416,10 +414,8 @@ void QButton::setPixmap( const QPixmap &pixmap )
     setAccel( 0 );
     if ( autoMask() )
 	updateMask();
-    if ( isVisible() ) {
-	update();
-	updateGeometry();
-    }
+    update();
+    updateGeometry();
 }
 
 

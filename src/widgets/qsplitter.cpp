@@ -525,7 +525,7 @@ void QSplitter::moveBefore( int pos, int id, bool upLeft )
     if ( !s )
 	return;
     QWidget *w = s->wid;
-    if ( w->testWState(WState_ForceHide) ) {
+    if ( w->isHidden() ) {
 	moveBefore( pos, id-1, upLeft );
     } else if ( s->isSplitter ) {
 	int dd = s->sizer;
@@ -561,7 +561,7 @@ void QSplitter::moveAfter( int pos, int id, bool upLeft )
     if ( !s )
 	return;
     QWidget *w = s->wid;
-    if ( w->testWState(WState_ForceHide) ) {
+    if ( w->isHidden() ) {
 	moveAfter( pos, id+1, upLeft );
     } else if ( pick( w->pos() ) == pos ) {
 	//No need to do anything if it's already there.
@@ -658,7 +658,7 @@ void QSplitter::doResize()
     for ( i = 0; i< n; i++ ) {
 	a[i].init();
 	QSplitterLayoutStruct *s = data->list.at(i);
-	if ( s->wid->testWState(WState_ForceHide) ) {
+	if ( s->wid->isHidden() ) {
 	    a[i].stretch = 0;
 	    a[i].sizeHint = a[i].minimumSize = 0;
 	    a[i].maximumSize = 0;
@@ -716,11 +716,11 @@ void QSplitter::recalc( bool update )
 	if ( !s->isSplitter ) {
 	    QSplitterLayoutStruct *p = (i > 0) ? p = data->list.at( i-1 ) : 0;
 	    if ( p && p->isSplitter )
-		if ( first || s->wid->testWState(WState_ForceHide) )
+		if ( first || s->wid->isHidden() )
 		    p->wid->hide(); //may trigger new recalc
 		else
 		    p->wid->show(); //may trigger new recalc
-	    if ( !s->wid->testWState(WState_ForceHide) )
+	    if ( !s->wid->isHidden() )
 		first = FALSE;
 	}
     }
@@ -728,7 +728,7 @@ void QSplitter::recalc( bool update )
     bool empty=TRUE;
     for ( int j = 0; j< n; j++ ) {
 	QSplitterLayoutStruct *s = data->list.at(j);
-	if ( !s->wid->testWState(WState_ForceHide) ) {
+	if ( !s->wid->isHidden() ) {
 	    empty = FALSE;
 	    if ( s->isSplitter ) {
 		minl += s->sizer;
@@ -909,7 +909,7 @@ QSize QSplitter::sizeHint() const
 	while( (o=it.current()) != 0 ) {
 	    ++it;
 	    if ( o->isWidgetType() &&
-		 !((QWidget*)o)->testWState(WState_ForceHide) ) {
+		 !((QWidget*)o)->isHidden() ) {
 		QSize s = ((QWidget*)o)->sizeHint();
 		if ( s.isValid() ) {
 		    l += pick( s );
@@ -939,7 +939,7 @@ QSize QSplitter::minimumSizeHint() const
 	while( (o=it.current()) != 0 ) {
 	    ++it;
 	    if ( o->isWidgetType() &&
-		 !((QWidget*)o)->testWState(WState_ForceHide) ) {
+		 !((QWidget*)o)->isHidden() ) {
 		QSize s = minSize((QWidget*)o);
 		if ( s.isValid() ) {
 		    l += pick( s );

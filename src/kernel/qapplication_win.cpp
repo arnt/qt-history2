@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#378 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#379 $
 **
 ** Implementation of Win32 startup routines and event handling
 **

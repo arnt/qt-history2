@@ -104,39 +104,6 @@ public:
     bool usingStandardSizes;
 };
 
-/*
-  Tweak layout.
- */
-
-class QExpandingLineEdit : public QLineEdit
-{
-public:
-    QExpandingLineEdit( QWidget *parent, const char *name, bool fixedHeight )
-	: QLineEdit( parent, name ) { f = fixedHeight; }
-    QSizePolicy sizePolicy() const
-    {
-	    return QSizePolicy( QSizePolicy::Expanding,
-				f ? QSizePolicy::Fixed :
-				    QSizePolicy::Expanding  );
-    }
-    QSize sizeHint() const { QSize sz = QLineEdit::sizeHint();
-                             sz.setWidth( 20 );
-			     return sz;
-                           }
-    bool f;
-};
-
-class QExpandingComboBox : public QComboBox
-{
-public:
-    QExpandingComboBox( bool b, QWidget *parent, const char *name=0 )
-	: QComboBox( b, parent, name ) {}
-    QSizePolicy sizePolicy() const
-	{
-	    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
-	}
-};
-
 
 /*!
   Constructs a default font dialog. Use setFont() for setting
@@ -152,7 +119,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     setSizeGripEnabled( TRUE );
     d = new QFontDialogPrivate;
     // grid
-    d->familyEdit = new QExpandingLineEdit( this, "font family I", TRUE );
+    d->familyEdit = new QLineEdit( this, "font family I" );
     d->familyEdit->setFocusPolicy( StrongFocus );
     d->familyList = new QListBox( this, "font family II" );
     d->familyList->viewport()->setFocusProxy( d->familyEdit );
@@ -161,7 +128,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 	= new QLabel( d->familyEdit, tr("&Font"), this, "family accelerator" );
     d->familyAccel->setIndent( 2 );
 
-    d->styleEdit = new QExpandingLineEdit( this, "font style I", TRUE );
+    d->styleEdit = new QLineEdit( this, "font style I" );
     d->styleEdit->setFocusPolicy( StrongFocus );
     d->styleList = new QListBox( this, "font style II" );
     d->styleList->viewport()->setFocusProxy( d->styleEdit );
@@ -169,7 +136,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 	= new QLabel( d->styleEdit, tr("Font st&yle"), this, "style accelerator" );
     d->styleAccel->setIndent( 2 );
 
-    d->sizeEdit = new QExpandingLineEdit( this, "font size I", TRUE );
+    d->sizeEdit = new QLineEdit( this, "font size I" );
     d->sizeEdit->setFocusPolicy( StrongFocus );
     d->sizeList = new QListBox( this, "font size II" );
     d->sizeList->viewport()->setFocusProxy( d->sizeEdit );
@@ -193,7 +160,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 #endif
 
     d->sample = new QHGroupBox( tr("Sample"), this, "sample text" );
-    d->sampleEdit = new QExpandingLineEdit( d->sample, "r/w sample text", FALSE );
+    d->sampleEdit = new QLineEdit( d->sample, "r/w sample text" );
     d->sampleEdit->setFixedHeight( 75 );
 
     // Note that the sample text is *not* translated with tr(), as the
@@ -202,7 +169,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 
     d->sampleEdit->setAlignment( AlignCenter );
 
-    d->scriptCombo = new QExpandingComboBox( TRUE, this, "font encoding" );
+    d->scriptCombo = new QComboBox( TRUE, this, "font encoding" );
     d->scriptCombo->setFocusPolicy( StrongFocus );
 
     d->scriptAccel

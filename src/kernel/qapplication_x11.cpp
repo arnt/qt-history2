@@ -2541,7 +2541,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case MapNotify:				// window shown
 	if ( widget->isTopLevel() && !widget->isVisible()
-	     && !widget->testWState( WState_ForceHide ) ) {
+	     && !widget->isHidden() ) {
 	    widget->setWState( WState_Visible );
 	    widget->sendShowEventsToChildren( TRUE );
 	    QShowEvent e( TRUE );

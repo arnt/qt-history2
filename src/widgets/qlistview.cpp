@@ -184,6 +184,7 @@ struct QListViewPrivate
     bool makeCurrentVisibleOnUpdate;
     bool pressedSelected;
 
+    QSize sizeHint;
 };
 
 // these should probably be in QListViewPrivate, for future thread safety
@@ -2548,7 +2549,7 @@ void QListView::updateGeometries()
 	 tw < d->h->offset() + d->h->width() )
 	horizontalScrollBar()->setValue( tw - QListView::d->h->width() );
     resizeContents( tw, th );
-    if ( d->h->testWState( WState_ForceHide ) ) {
+    if ( d->h->isHidden() ) {
 	setMargins( 0, 0, 0, 0 );
     } else {
 	QSize hs( d->h->sizeHint() );
@@ -3134,7 +3135,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     }
     i->activate();
     activatedByClick = FALSE;
-    
+
     if ( i != d->focusItem )
 	setCurrentItem( i );
     else
@@ -4770,6 +4771,9 @@ void QCheckListItem::paintBranches( QPainter * p, const QColorGroup & cg,
 */
 QSize QListView::sizeHint() const
 {
+    if ( isVisibleTo(0) && d->sizeHint.isValid() )
+	return d->sizeHint;
+
     //    This is as wide as QHeader::sizeHint() recommends and tall
     //    enough for perhaps 10 items.
 
@@ -4796,7 +4800,8 @@ QSize QListView::sizeHint() const
     else if ( s.width() *3 < s.height() )
 	s.setHeight( s.width() * 3 );
 
-    return s;
+    d->sizeHint = s;
+    return d->sizeHint;
 }
 
 
@@ -4890,7 +4895,7 @@ bool QListView::rootIsDecorated() const
 
 
 /*!  Ensures that \a i is made visible, scrolling the list view
-  vertically as required and opens (expands)also all parent items if they 
+  vertically as required and opens (expands)also all parent items if they
   hide their children.
 
   \sa itemRect() QScrollView::ensureVisible()
@@ -4900,13 +4905,13 @@ void QListView::ensureItemVisible( const QListViewItem * i )
 {
     if ( !i )
 	return;
-    
+
     QListViewItem *parent = i->parent();
     while ( parent ) {
 	parent->setOpen( TRUE );
 	parent = parent->parent();
     }
-    
+
     if ( d->r->maybeTotalHeight < 0 )
 	updateGeometries();
     int y = itemPos( i );

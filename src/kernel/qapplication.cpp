@@ -1416,7 +1416,7 @@ void QApplication::closeAllWindows()
     bool did_close = TRUE;
     QWidget* w = list->first();
     while ( did_close && w ) {
-	if ( !w->testWState( WState_ForceHide ) ) {
+	if ( !w->isHidden() ) {
 	    did_close = w->close();
 	    delete list;
 	    list = QApplication::topLevelWidgets();
@@ -2445,7 +2445,7 @@ void QApplication::commitData( QSessionManager& sm  )
 	bool cancelled = FALSE;
 	QWidget* w = list->first();
 	while ( !cancelled && w ) {
-	    if ( !w->testWState( WState_ForceHide ) ) {
+	    if ( !w->isHidden() ) {
 		QCloseEvent e;
 		sendEvent( w, &e );
 		cancelled = !e.isAccepted();

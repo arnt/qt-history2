@@ -583,6 +583,12 @@ void QLabel::resizeEvent( QResizeEvent* e )
 {
     resizeEventCalled = TRUE;
     QFrame::resizeEvent( e );
+
+    // optimize for standard labels
+    if ( frameShape() == NoFrame && (align & WordBreak) == 0 && !doc &&
+	 ( e->oldSize().width() == e->size().width() || (align & AlignLeft ) == AlignLeft )
+	 && ( e->oldSize().height() == e->size().height() || (align & AlignTop ) == AlignTop ) )
+	return;
     
     QRect cr = contentsRect();
     if ( !lpixmap ||  !cr.isValid() ||
@@ -592,7 +598,7 @@ void QLabel::resizeEvent( QResizeEvent* e )
 	erase();
 	return;
     }
-    
+
     // don't we all love QFrame? Reduce pixmap flicker
     QRegion reg = QRect( QPoint(0, 0), e->size() );
     reg = reg.subtract( cr );
@@ -610,9 +616,9 @@ void QLabel::resizeEvent( QResizeEvent* e )
 	else if ( (align & Qt::AlignHCenter) == Qt::AlignHCenter )
 	    x += cr.width()/2 - w/2;
 	if ( x > cr.x() )
-	    reg = reg.unite( QRect( cr.x(), cr.y(), x - cr.x(), cr.height() ) ); 
+	    reg = reg.unite( QRect( cr.x(), cr.y(), x - cr.x(), cr.height() ) );
 	if ( y > cr.y() )
-	    reg = reg.unite( QRect( cr.x(), cr.y(), cr.width(), y - cr.y() ) ); 
+	    reg = reg.unite( QRect( cr.x(), cr.y(), cr.width(), y - cr.y() ) );
 
 	if ( x + w < cr.right() )
 	    reg = reg.unite( QRect( x + w, cr.y(),  cr.right() - x - w, cr.height() ) );
@@ -631,10 +637,10 @@ void QLabel::resizeEvent( QResizeEvent* e )
 void QLabel::drawContents( QPainter *p )
 {
     QRect cr = contentsRect();
-    
+
     if ( !resizeEventCalled )
 	erase( cr );  //### binary compatibility, remove 3.0
-    
+
     int m = indent();
     if ( m < 0 ) {
 	if ( frameWidth() > 0 )
@@ -696,7 +702,7 @@ void QLabel::drawContents( QPainter *p )
 		d->img = new QImage( lpixmap->convertToImage() );
 	    if ( !d->pix )
 		d->pix = new QPixmap;
-	    if ( d->pix->size() != cr.size() ) 
+	    if ( d->pix->size() != cr.size() )
 		d->pix->convertFromImage( d->img->smoothScale( cr.width(), cr.height() ) );
 	    pix = d->pix;
 	}
@@ -779,7 +785,7 @@ void QLabel::drawContentsMask( QPainter *p )
 	    d->img = new QImage( lpixmap->convertToImage() );
 	if ( !d->pix )
 	    d->pix = new QPixmap;
-	if ( d->pix->size() != cr.size() ) 
+	if ( d->pix->size() != cr.size() )
 	    d->pix->convertFromImage( d->img->smoothScale( cr.width(), cr.height() ) );
 	pix = d->pix;
     }
@@ -833,10 +839,8 @@ void QLabel::updateLabel( QSize oldSizeHint )
 	adjustSize();
     }
     else {
-	if ( isVisible() ) {
-	    update();
-	    updateGeometry();
-	}
+	update();
+	updateGeometry();
 	if ( autoMask() )
 	    updateMask();
     }

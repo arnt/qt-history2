@@ -520,7 +520,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 	     || d->icons.contains( w ) )
 	    return; 	    // nothing to do
 
-	bool hasBeenHidden = w->testWState( WState_ForceHide );
+	bool hasBeenHidden = w->isHidden();
 	QWorkspaceChild* child = new QWorkspaceChild( w, this );
 	child->installEventFilter( this );
 	connect( child, SIGNAL( popupOperationMenu( const QPoint& ) ),
@@ -777,7 +777,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
     switch ( e->type() ) {
     case QEvent::Hide:
     case QEvent::HideToParent:
-	if ( d->maxWindow == o && d->maxWindow->testWState(WState_ForceHide)) {
+	if ( d->maxWindow == o && d->maxWindow->isHidden() ) {
 	    d->maxWindow->setGeometry( d->maxRestore );
 	    d->maxWindow = 0;
 	    hideMaximizeControls();
@@ -891,7 +891,7 @@ void QWorkspace::closeActiveWindow()
 
     activateNextWindow();
 
-    if (d->active && isMax && !d->active->testWState( WState_ForceHide ))
+    if (d->active && isMax && !d->active->isHidden() ) 
 	d->active->showMaximized();
 }
 
@@ -1055,7 +1055,7 @@ void QWorkspace::cascade()
     int y = 0;
 
     for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
-	if ( c->windowWidget()->testWState( WState_ForceHide ) )
+	if ( c->windowWidget()->isHidden() )
 	    continue;
 	c->showNormal();
 	c->setGeometry( x, y, w, h );
@@ -1077,7 +1077,7 @@ void QWorkspace::tile()
     int n = 0;
     QWorkspaceChild* c;
     for ( c = d->windows.first(); c; c = d->windows.next() ) {
-	if ( !c->windowWidget()->testWState( WState_ForceHide ) )
+	if ( !c->windowWidget()->isHidden() )
 	    n++;
     }
 
@@ -1097,7 +1097,7 @@ void QWorkspace::tile()
     int w = width() / cols;
     int h = height() / rows;
     for ( c = d->windows.first(); c; c = d->windows.next() ) {
-	if ( c->windowWidget()->testWState( WState_ForceHide ) )
+	if ( c->windowWidget()->isHidden() )
 	    continue;
 	c->showNormal();
 	used[row*cols+col] = TRUE;

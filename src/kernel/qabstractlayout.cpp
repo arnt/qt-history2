@@ -400,7 +400,7 @@ void QWidgetItem::setGeometry( const QRect &r )
     else if ( !(align & Qt::AlignTop) )
 	y = y + ( r.height() - s.height() ) / 2;
 
-    if ( !wid->testWState( QWidget::WState_ForceHide ) )
+    if ( !wid->isHidden() )
 	wid->setGeometry( x, y, s.width(), s.height() );
 }
 
@@ -576,7 +576,7 @@ bool QSpacerItem::isEmpty() const
 */
 bool QWidgetItem::isEmpty() const
 {
-    return wid->testWState( QWidget::WState_ForceHide );
+    return wid->isHidden();
 }
 
 
@@ -952,7 +952,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 {
     if ( !enabled )
 	return FALSE; // nothing we can do, should do or want to do
-    
+
     if ( o == this && e->type() == QEvent::ChildRemoved ) {
 	//we cannot implement childEvent() or event() because of
 	//###binary compatibility.
@@ -979,7 +979,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	    QResizeEvent *r = (QResizeEvent*)e;
 	    int mbh = 0;
 #if QT_FEATURE_WIDGETS
-	    if ( menubar && !menubar->testWState(WState_ForceHide) )
+	    if ( menubar && !menubar->isHidden() )
 		mbh = menubar->heightForWidth( r->size().width() );
 #endif
 	    int b = marginImpl ? 0 : outsideBorder;
@@ -1662,7 +1662,7 @@ QGLayoutIterator::~QGLayoutIterator()
 
 /*!
   Sets the resize mode to \a mode.
-  
+
   The default mode is \c Minimum for top level widgets, and \c FreeResize
   for all others.
 
@@ -1792,14 +1792,14 @@ QRect QLayout::alignmentRect( const QRect &r ) const
 
 
 
-/*!  
+/*!
   Enables this layout if \a enable is TRUE, otherwise disables it.
-  
+
   An enabled layout adjusts dynamically to changes, a disabled layout
   acts as if it was not existing.
-  
+
   By default, all layouts are enabled.
-  
+
   \sa isEnabled()
  */
 void QLayout::setEnabled( bool enable)
@@ -1810,7 +1810,7 @@ void QLayout::setEnabled( bool enable)
 
 /*!
   Returns whether or not this layout is enabled.
-  
+
   \sa setEnabled()
  */
 bool QLayout::isEnabled() const

@@ -891,7 +891,7 @@ static QPixmap grabChildWidgets( QWidget * w )
 	while( (child=it.current()) != 0 ) {
 	    ++it;
 	    if ( child->isWidgetType() &&
-		 !((QWidget *)child)->testWState( Qt::WState_ForceHide ) &&
+		 !((QWidget *)child)->isVisible() &&
 		 ((QWidget *)child)->geometry().intersects( w->rect() ) ) {
 		// those conditions aren't quite right, it's possible
 		// to have a grandchild completely outside its

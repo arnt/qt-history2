@@ -797,7 +797,7 @@ void QFrame::drawContentsMask( QPainter* p)
 {
     int type  = fstyle & MShape;
     if ( type == HLine || type == VLine )
-	return; 
+	return;
     QBrush oldBrush = p->brush();
 
     p->fillRect( contentsRect(), QBrush( color1 ) );

@@ -205,10 +205,9 @@ void QGroupBox::setTitle( const QString &title )
 	resize( QMAX( s.width(), ms.width() ),
 		QMAX( s.height(), ms.height() ) );
     }
-    if ( isVisible() ) {
-	update();
-	updateGeometry();
-    }
+    
+    update();
+    updateGeometry();
 }
 
 /*!

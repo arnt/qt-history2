@@ -316,10 +316,8 @@ void QPushButton::setAutoDefault( bool enable )
     if ( (bool)autoDefButton == enable )
 	return;
     autoDefButton = enable;
-    if ( isVisible() ) {
-	update();
-	updateGeometry();
-    }
+    update();
+    updateGeometry();
 }
 
 
@@ -583,10 +581,8 @@ void QPushButton::setIsMenuButton( bool enable )
     if ( (bool)hasMenuArrow == enable )
 	return;
     hasMenuArrow = enable ? 1 : 0;
-    if ( isVisible() ) {
-	update();
-	updateGeometry();
-    }
+    update();
+    updateGeometry();
 }
 
 
@@ -636,10 +632,8 @@ void QPushButton::setIconSet( const QIconSet& icon )
     else
 	::d( this )->iconset = new QIconSet( icon );
 
-    if ( isVisible() ) {
-	update();
-	updateGeometry();
-    }
+    update();
+    updateGeometry();
 }
 
 

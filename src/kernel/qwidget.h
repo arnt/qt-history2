@@ -97,8 +97,8 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( bool focus READ hasFocus )
     Q_PROPERTY( bool updatesEnabled READ isUpdatesEnabled WRITE setUpdatesEnabled DESIGNABLE false )
     Q_PROPERTY( bool visible READ isVisible )
-    Q_PROPERTY( bool visibleToTLW READ isVisibleToTLW )
     Q_PROPERTY( QRect visibleRect READ visibleRect )
+    Q_PROPERTY( bool hidden READ isHidden )
     Q_PROPERTY( bool minimized READ isMinimized )
     Q_PROPERTY( QSize sizeHint READ sizeHint )
     Q_PROPERTY( QSize minimumSizeHint READ minimumSizeHint )
@@ -326,8 +326,9 @@ public:
     virtual bool	close( bool alsoDelete );
     bool		isVisible()	const;
     bool		isVisibleTo(QWidget*) const;
-    bool		isVisibleToTLW() const;
+    bool		isVisibleToTLW() const; // obsolete
     QRect		visibleRect() const;
+    bool 		isHidden() const;
     bool		isMinimized() const;
 
     virtual QSize	sizeHint() const;
@@ -688,6 +689,9 @@ inline bool QWidget::close()
 
 inline bool QWidget::isVisible() const
 { return testWState(WState_Visible); }
+
+inline bool QWidget::isHidden() const
+{ return testWState(WState_ForceHide); }
 
 inline void QWidget::move( const QPoint &p )
 { move( p.x(), p.y() ); }
