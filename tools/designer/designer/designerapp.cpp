@@ -28,11 +28,26 @@
 #include <qdir.h>
 #include <qsettings.h>
 #include <qlabel.h>
+#include <qpainter.h>
 
 #ifdef Q_WS_WIN
 #include <qt_windows.h>
 #include <process.h>
 #endif
+
+static QLabel *splash = 0;
+
+void set_splash_status( const QString &txt )
+{
+    if ( !splash )
+	return;
+    splash->repaint( FALSE );
+    QApplication::flushX();
+    QPainter p( splash );
+    p.setPen( Qt::white );
+    p.drawText( 5, splash->fontMetrics().height(), txt );
+    QApplication::flushX();
+}
 
 #if defined(HAVE_KDE)
 DesignerApplication::DesignerApplication( int &argc, char **argv, const QCString &rAppName )
@@ -70,7 +85,6 @@ QLabel *DesignerApplication::showSplash()
     mainRect.setHeight( config.readNumEntry( keybase + "Geometries/MainwindowHeight", 500 ) );
     screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( mainRect.center() ) );
 
-    QLabel *splash = 0;
     if ( show ) {
 	splash = new QLabel( 0, "splash", Qt::WDestructiveClose | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WX11BypassWM);
 	splash->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
@@ -81,6 +95,7 @@ QLabel *DesignerApplication::showSplash()
 	splash->show();
 	splash->repaint( FALSE );
 	QApplication::flushX();
+	set_splash_status( "Initializing..." );
     }
 
     return splash;

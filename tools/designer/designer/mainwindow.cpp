@@ -87,6 +87,7 @@ extern QMap<QWidget*, QString> *qwf_forms;
 extern QString *qwf_language;
 extern bool qwf_execute_code;
 extern bool qwf_stays_on_top;
+extern void set_splash_status( const QString &txt );
 static bool tbSettingsRead = FALSE;
 
 MainWindow *MainWindow::self = 0;
@@ -127,6 +128,7 @@ MainWindow::MainWindow( bool asClient )
     connect( updateSlotsTimer, SIGNAL( timeout() ),
 	     this, SLOT( doSlotsChanged() ) );
 
+    set_splash_status( "Loading Plugins..." );
     setupPluginManagers();
 
     qApp->setMainWidget( this );
@@ -147,6 +149,7 @@ MainWindow::MainWindow( bool asClient )
     statusBar()->clear();
     statusBar()->addWidget( new QLabel("Ready", statusBar()), 1 );
 
+    set_splash_status( "Setting up GUI..." );
     setupMDI();
     setupMenuBar();
 
@@ -195,6 +198,7 @@ MainWindow::MainWindow( bool asClient )
     breakLayout = FALSE;
     backPix = TRUE;
 
+    set_splash_status( "Loading User Settings..." );
     readConfig();
 
     // hack to make WidgetFactory happy (so it knows QWidget and QDialog for resetting properties)
@@ -213,6 +217,7 @@ MainWindow::MainWindow( bool asClient )
     actionEditor->parentWidget()->hide();
 
     statusBar()->setSizeGripEnabled( TRUE );
+    set_splash_status( "Initialization Done." );
 }
 
 MainWindow::~MainWindow()
