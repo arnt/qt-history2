@@ -577,7 +577,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 
 		if ( extName.isEmpty() )
 		    warning( 2, location(),
-			     "Expected module name after '\\extension'" );
+			     "Expected extension name after '\\extension'" );
 		else
 		    setKindHasToBe( Doc::Class, command );
 		break;
@@ -590,6 +590,9 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			     "Expected function prototype after '\\fn'" );
 		else
 		    setKind( Doc::Fn, command );
+		break;
+	    case hash( 'f', 5 ):
+		consume( "fnord" );
 		break;
 	    case hash( 'h', 6 ):
 		consume( "header" );
@@ -715,8 +718,9 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 				      " and will probably be removed in a"
 				      " future version of %2. We strongly"
 				      " advise against using it in new"
-				      " code.\n" ).arg( what(kindIs) )
-						  .arg( config->moduleShort() );
+				      " code.\n" )
+			     .arg( what(kindIs) )
+			     .arg( config->product() );
 		    metNL = TRUE;
 		} else {
 		    consume( "overload" );
@@ -1112,6 +1116,10 @@ QString Doc::href( const QString& name, const QString& text )
 	t = name;
     if ( y.length() == t.length() ) {
 	QString k = keywordLinks[t];
+	// remove the mark of the plural
+	if ( k.isEmpty() && t.right(1) == QChar('s') )
+	   k = keywordLinks[t.left(t.length() - 1)]; 
+
 	if ( !k.isEmpty() )
 	    return QString( "<a href=\"%1\">%2</a>" ).arg( k ).arg( t );
     }
@@ -1381,7 +1389,7 @@ QString Doc::htmlAnnotatedClassList()
     while ( s != stringl.end() ) {
 	c = clist.find( *s );
 	html += QString( "<tr bgcolor=#f0f0f0>" );
-	html += QString( "<td><b>%1</a></b>" ).arg( href(c.key()) );
+	html += QString( "<td><b>%1</b>" ).arg( href(c.key()) );
 	if ( !(*c).isEmpty() )
 	    html += QString( "<td>" ) + *c;
 	html += QString( "\n" );
@@ -1797,7 +1805,8 @@ QString Doc::finalHtml() const
 		    end++;
 		QString t = yyIn.mid( begin, end - begin );
 
-		if ( clist.contains(t) && t != config->moduleShort() &&
+		// we don't 'Qt' to links to the Qt class
+		if ( clist.contains(t) && t != config->product() &&
 		     offsetOK(&offsetMap, yyOut.length(), t) )
 		    t = href( t );
 		yyOut += t;
@@ -1843,11 +1852,10 @@ QString Doc::finalHtml() const
     /*
       Complain before it's too late.
     */
-    if ( !q.isEmpty() ) {
+    if ( !q.isEmpty() )
 	warning( 1, location(), "Ignored '\\mustquote' (fix qdoc)" );
-    } else if ( !kwords.isEmpty() ) {
+    else if ( !kwords.isEmpty() )
 	warning( 1, location(), "Ignored '\\keyword' (fix qdoc)" );
-    }
 
     return yyOut;
 }

@@ -90,11 +90,10 @@ static void setPattern( QRegExp *rx, const QString& pattern, bool plus )
 }
 
 Config::Config( int argc, char **argv )
-    : maxSim( 16 ), maxAll( 64 ), wlevel( 2 ), bas( "" ), modshort( "" ),
-      modlong( "" ), co( "" ), vers( "" ), verssym( "" ), posth( "" ),
-      foot( "" ), addr( "" ), styl( "" ), falsesym( QChar('0') ),
-      internal( FALSE ), autoh( TRUE ), super( FALSE ), dotHtml( ".html" ),
-      membersDotHtml( "-members.html" )
+    : maxSim( 16 ), maxAll( 64 ), wlevel( 2 ), bas( "" ), prod( "" ), co( "" ),
+      vers( "" ), verssym( "" ), posth( "" ), foot( "" ), addr( "" ),
+      styl( "" ), falsesym( QChar('0') ), internal( FALSE ), autoh( TRUE ),
+      super( FALSE ), dotHtml( ".html" ), membersDotHtml( "-members.html" )
 {
     QString confFilePath( "./qdoc.conf" );
     int i;
@@ -169,16 +168,14 @@ Config::Config( int argc, char **argv )
 	    maxSim = singleton( key, val ).toInt();
 	} else if ( key == QString("MAXWARNINGS") ) {
 	    maxAll = singleton( key, val ).toInt();
-	} else if ( key == QString("MODULELONG") ) {
-	    modlong = val.join( QChar(' ') );
-	} else if ( key == QString("MODULESHORT") ) {
-	    modshort = val.join( QChar(' ') );
 	} else if ( key == QString("ONLY") ) {
 	    onlyfn.setPattern( val.join(QChar('|')) );
 	} else if ( key == QString("OUTPUTDIR") ) {
 	    outputdir = singleton( key, val );
 	} else if ( key == QString("POSTHEADER") ) {
 	    posth = val.join( QChar(' ') );
+	} else if ( key == QString("PRODUCT") ) {
+	    prod = val.join( QChar(' ') );
 	} else if ( key == QString("SOURCEDIRS") ) {
 	    sourcedirs = val;
 	} else if ( key == QString("STYLE") ) {

@@ -15,10 +15,10 @@
 class HtmlWriter
 {
 public:
-    static void setStyle( const QString& style );
-    static void setPostHeader( const QString& html );
-    static void setAddress( const QString& html );
-    static const QMap<QString, StringSet>& titleMap();
+    static void setStyle( const QString& style ) { styl = style; }
+    static void setPostHeader( const QString& html ) { posth = html; }
+    static void setAddress( const QString& html ) { addr = html; }
+    static const QMap<QString, StringSet>& titleMap() { return tmap; }
 
     HtmlWriter( const QString& fileName );
     ~HtmlWriter();
@@ -42,8 +42,6 @@ private:
     HtmlWriter& operator=( const HtmlWriter& );
 #endif
 
-    static void initStatic();
-
     void flushHead();
 
     FILE *out;
@@ -54,10 +52,10 @@ private:
     bool headFlushed;
     bool footFlushed;
 
-    static QMap<QString, StringSet> *tmap;
-    static QString *styl;
-    static QString *posth;
-    static QString *addr;
+    static QMap<QString, StringSet> tmap;
+    static QString styl;
+    static QString posth;
+    static QString addr;
 };
 
 #endif

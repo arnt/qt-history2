@@ -620,7 +620,7 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
     out.setTitle( name() + QString(" Class") );
     out.setHeading( name() + QString(" Class Reference") );
     if ( classDoc() != 0 && !classDoc()->module().isEmpty() )
-	out.setSubHeading( QString("[ <a href=\"%1.html\">%2 module</a> ]")
+	out.setSubHeading( QString("[<a href=\"%1.html\">%2 module</a>]")
 			   .arg(classDoc()->module())
 			   .arg(classDoc()->module()) );
 
@@ -630,7 +630,8 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 	out.puts( "\n" );
 	if ( !classDoc()->extension().isEmpty() )
 	    out.printfMeta( "<p>This class is part of the"
-			    " <b>Qt %s Extension.</b>\n",
+			    " <b>%s %s Extension</b>.\n",
+			    config->product().latin1(),
 			    classDoc()->extension().latin1() );
     }
 

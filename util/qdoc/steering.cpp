@@ -45,7 +45,7 @@ static void emitHtmlHeaderFile( const QString& headerFilePath,
 
     out.setTitle( headerFileName + QString(" Include File") );
     out.setHeading( headerFileName );
-    out.printfMeta( "<p>This is the verbatim text of the %s include file.  It"
+    out.printfMeta( "<p>This is the verbatim text of the %s include file. It"
 		   " is provided only for illustration; the copyright remains"
 		   " with %s.\n", headerFileName.latin1(),
 		   config->company().latin1() );

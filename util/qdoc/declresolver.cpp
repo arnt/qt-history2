@@ -81,7 +81,7 @@ void DeclResolver::warnChangedSinceLastRun( const Location& loc,
 		 html.length() == 1 ? "" : "s" );
     } else if ( !(*chk).isSame(html) ) {
 	int delta = html.length() - (*chk).length();
-	warning( 0, loc, "Modified documentation at %s%s (%+d byte%s)",
+	warning( 0, loc, "Editorial changes at %s%s (%+d byte%s)",
 		 config->base().latin1(), link.latin1(), delta,
 		 abs(delta) == 1 ? "" : "s" );
     }

@@ -29,8 +29,7 @@ public:
     const QString& outputDir() const { return outputdir; }
 
     const QString& base() const { return bas; }
-    const QString& moduleShort() const { return modshort; }
-    const QString& moduleLong() const { return modlong; }
+    const QString& product() const { return prod; }
     const QString& company() const { return co; }
     const QString& version() const { return vers; }
     const QString& versionSymbol() const { return verssym; }
@@ -70,8 +69,7 @@ private:
     int maxAll;
     int wlevel;
     QString bas;
-    QString modshort;
-    QString modlong;
+    QString prod;
     QString co;
     QString vers;
     QString verssym;

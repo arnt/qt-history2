@@ -11,40 +11,14 @@
 #include "htmlwriter.h"
 #include "messages.h"
 
-QMap<QString, StringSet> *HtmlWriter::tmap = 0;
-QString *HtmlWriter::styl = 0;
-QString *HtmlWriter::posth = 0;
-QString *HtmlWriter::addr = 0;
-
-void HtmlWriter::setStyle( const QString& style )
-{
-    initStatic();
-    *styl = style;
-}
-
-void HtmlWriter::setPostHeader( const QString& html )
-{
-    initStatic();
-    *posth = html;
-}
-
-void HtmlWriter::setAddress( const QString& html )
-{
-    initStatic();
-    *addr = html;
-}
-
-const QMap<QString, StringSet>& HtmlWriter::titleMap()
-{
-    initStatic();
-    return *tmap;
-}
+QMap<QString, StringSet> HtmlWriter::tmap;
+QString HtmlWriter::styl;
+QString HtmlWriter::posth;
+QString HtmlWriter::addr;
 
 HtmlWriter::HtmlWriter( const QString& fileName )
     : fn( fileName ), headFlushed( FALSE ), footFlushed( FALSE )
 {
-    initStatic();
-
     QString file = config->outputDir() + QChar( '/' ) + fileName;
     out = fopen( QFile::encodeName(file), "w" );
     if ( out == 0 ) {
@@ -57,8 +31,8 @@ HtmlWriter::~HtmlWriter()
 {
     if ( out != 0 ) {
 	enterFooter();
-	if ( !(*addr).isEmpty() )
-	    putsMeta( addr->latin1() );
+	if ( !addr.isEmpty() )
+	    putsMeta( addr.latin1() );
 	putsMeta( "</body>\n</html>\n" );
 	fclose( out );
     }
@@ -126,16 +100,6 @@ void HtmlWriter::printFnord()
 	      "fnord</a>" );
 }
 
-void HtmlWriter::initStatic()
-{
-    if ( tmap == 0 ) {
-	tmap = new QMap<QString, StringSet>;
-	styl = new QString;
-	posth = new QString;
-	addr = new QString;
-    }
-}
-
 void HtmlWriter::flushHead()
 {
     if ( headFlushed )
@@ -157,16 +121,16 @@ void HtmlWriter::flushHead()
 	puts( t.latin1() );
 	putsMeta( "</title>\n" );
     }
-    (*tmap)[t].insert( fn );
-    if ( !styl->isEmpty() ) {
+    tmap[t].insert( fn );
+    if ( !styl.isEmpty() ) {
 	putsMeta( "<style type=\"text/css\"><!--\n" );
-	putsMeta( styl->latin1() );
+	putsMeta( styl.latin1() );
 	putsMeta( "\n--></style>\n" );
     }
     putsMeta( "</head>\n<body bgcolor=#fff8f8>\n" );
 
-    if ( !(*posth).isEmpty() )
-	putsMeta( posth->latin1() );
+    if ( !posth.isEmpty() )
+	putsMeta( posth.latin1() );
 
     putsMeta( "<h1 align=center>" );
 
