@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 1.1 1995/08/02 14:31:06 agulbra Exp $
+** $Id: examples.doc,v 1.2 1995/08/13 23:25:03 agulbra Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 1.1 1995/08/02 14:31:06 agulbra Exp $";
+static char ident[] = "$Id: examples.doc,v 1.2 1995/08/13 23:25:03 agulbra Exp $";
 #endif
 
 /*! \example wheel/wheel.cpp
@@ -32,4 +32,20 @@ static char ident[] = "$Id: examples.doc,v 1.1 1995/08/02 14:31:06 agulbra Exp $
   <h1>Cursors</h1>
 
   This example shows how to do tricks with the mouse cursor.
+*/
+
+/*! \example qmag/qmag.cpp
+
+<h1>QMag</h1>
+
+This is a simple magnifier-type program.  It shows how one can do
+some quite low-level operations portably using Qt.
+
+<p>
+
+Run it, click in the magnifier window, then click where you want to
+magnify.  Two combo boxes let you select amplification and refresh
+frequency, and a text label tells you the color of the pixel the
+cursor is on.
+
 */
