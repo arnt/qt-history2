@@ -955,6 +955,8 @@ void QTextLine::layout(int width, LineWidthUnit unit)
         width = INT_MAX >> 6;
     }
 
+    eng->boundingRect = QRect();
+
     QScriptLine &line = eng->lines[i];
     line.width = width;
     line.length = 0;

@@ -14,7 +14,7 @@
 
 #include <qdebug.h>
 
-// #define LAYOUT_DEBUG
+//#define LAYOUT_DEBUG
 
 #ifdef LAYOUT_DEBUG
 #define LDEBUG qDebug()
@@ -49,10 +49,12 @@ public:
 };
 
 struct LayoutStruct {
+    LayoutStruct() : maxWidthUsed(0) {}
     QTextFrame *frame;
     int x_left;
     int x_right;
     int y;
+    int maxWidthUsed;
 };
 
 class QTextTableData : public QTextFrameData
@@ -140,14 +142,13 @@ public:
 #endif
 
     QTextDocumentLayoutPrivate()
-        : widthUsed(0), fixedColumnWidth(-1)
+        : fixedColumnWidth(-1)
     { }
 
     QSize pageSize;
     bool pagedLayout;
     mutable QTextBlock currentBlock;
 
-    int widthUsed;
     int blockTextFlags;
 #ifdef LAYOUT_DEBUG
     mutable QString debug_indent;
@@ -193,7 +194,8 @@ QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPoint &point, int 
 {
     QTextFrameData *fd = data(frame);
 
-    LDEBUG << "checking frame" << frame->firstPosition() << "point=" << point;
+    LDEBUG << "checking frame" << frame->firstPosition() << "point=" << point
+           << "boundingRect" << fd->boundingRect;
     if (!fd->boundingRect.contains(point) && frame != q->document()->rootFrame()) {
         if (point.y() < fd->boundingRect.top()) {
             *position = frame->firstPosition() - 1;
@@ -242,9 +244,10 @@ QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPoint &point, int 
 QTextDocumentLayoutPrivate::HitPoint
 QTextDocumentLayoutPrivate::hitTest(QTextBlock bl, const QPoint &point, int *position) const
 {
-    LDEBUG << "    checking block" << bl.position() << "point=" << point;
     const QTextLayout *tl = bl.layout();
     QRect textrect = tl->rect();
+    LDEBUG << "    checking block" << bl.position() << "point=" << point
+           << "    tlrect" << textrect;
     if (!textrect.contains(point)) {
         *position = bl.position();
         if (point.y() < textrect.top()) {
@@ -549,7 +552,6 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
 
 void QTextDocumentLayoutPrivate::relayoutDocument()
 {
-    widthUsed = 0;
     const QTextDocument *doc = q->document();
     q->documentChange(0, 0, doc->docHandle()->length());
 }
@@ -694,6 +696,10 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
     if (table)
         setTableWidths(table);
 
+    // needed for child frames with a minimum width that is
+    // more than what we can offer
+    int newContentsWidth = fd->contentsWidth;
+
     // layout child frames
     QList<QTextFrame *> children = f->childFrames();
     for (int i = 0; i < children.size(); ++i) {
@@ -709,8 +715,11 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
             } else {
                 fd->layoutedFrames.removeAll(c);
             }
+            newContentsWidth = qMax(newContentsWidth, cd->boundingRect.width());
         }
     }
+    fd->contentsWidth = newContentsWidth;
+
     // #### for now
     fullLayout = true;
 
@@ -725,6 +734,7 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
     layoutStruct.x_left = margin + fd->padding;
     layoutStruct.x_right = margin + fd->contentsWidth - fd->padding;
     layoutStruct.y = margin + fd->padding; // #### fix for !fullLayout
+    layoutStruct.maxWidthUsed = 0;
 
     // layout regular contents and position non absolute positioned child frames
     if (!fullLayout) {
@@ -758,6 +768,8 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
 
     layoutFlow(it, &layoutStruct);
 
+    fd->contentsWidth = qMax(fd->contentsWidth, layoutStruct.maxWidthUsed);
+
     int height = fd->contentsHeight == -1
                  ? layoutStruct.y + margin + fd->padding
                  : fd->contentsHeight + 2*margin;
@@ -784,6 +796,9 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
                     cd->boundingRect.moveTopLeft(QPoint(left, layoutStruct->y));
                 else
                     cd->boundingRect.moveTopRight(QPoint(right, layoutStruct->y));
+
+                layoutStruct->maxWidthUsed = qMax(layoutStruct->maxWidthUsed, cd->boundingRect.right());
+
                 fd->layoutedFrames.append(c);
             }
         } else {
@@ -804,8 +819,8 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
 //     tl->enableKerning(true);
     tl->clearLines();
 
-    int cy = layoutStruct->y;
     layoutStruct->y += blockFormat.topMargin();
+    int cy = layoutStruct->y;
 
     //QTextFrameData *fd = data(layoutStruct->frame);
 
@@ -835,7 +850,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
         left = qMax(left, l);
         right = qMax(right, r);
 
-        if (d->fixedColumnWidth == -1 && line.width() > right-left) {
+        if (d->fixedColumnWidth == -1 && line.textWidth() > right-left) {
             // float has been added in the meantime, redo
             line.layout(right-left);
 //             qDebug() << "    redo: left=" << left << " right=" << right;
@@ -843,13 +858,13 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
                 // lines min width more than what we have
                 findY(layoutStruct, line.textWidth());
                 floatMargins(layoutStruct, &left, &right);
-                line.layout(right-left);
+                line.layout(line.textWidth());
             }
         }
 
         line.setPosition(QPoint(left - layoutStruct->x_left, layoutStruct->y - cy));
         layoutStruct->y += line.ascent() + line.descent() + 1;
-        widthUsed = qMax(widthUsed, left + line.textWidth());
+        layoutStruct->maxWidthUsed = qMax(layoutStruct->maxWidthUsed, left + line.textWidth());
     }
     if (tl->numLines() == 0) {
         QTextCharFormat fmt = bl.charFormat();
@@ -1086,10 +1101,9 @@ QSize QTextDocumentLayout::pageSize() const
     return d->pageSize;
 }
 
-
 int QTextDocumentLayout::widthUsed() const
 {
-    return d->widthUsed;
+    return data(q->document()->rootFrame())->boundingRect.width();
 }
 
 // Pull this private function in from qglobal.cpp
