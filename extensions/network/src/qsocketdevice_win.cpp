@@ -175,27 +175,28 @@ int QSocketDevice::option( Option opt ) const
 	if ( r != SOCKET_ERROR )
 	    return v;
 	if ( !e ) {
-	    switch( WSAGetLastError() ) {
+            QSocketDevice *that = (QSocketDevice*)this; // mutable function
+ 	    switch( WSAGetLastError() ) {
 		// rms
 		case WSANOTINITIALISED:
-		    e = Impossible;
+		    that->e = Impossible;
 		    break;
 		case WSAENETDOWN:
-		    e = NetworkFailure;
+		    that->e = NetworkFailure;
 		    break;
 		case WSAEFAULT:
 		case WSAEINVAL:
 		case WSAENOPROTOOPT:
-		    e = Bug;
+		    that->e = Bug;
 		    break;
 		case WSAEINPROGRESS:
-		    e = NoResources;
+		    that->e = NoResources;
 		    break;
 		case WSAENOTSOCK:
-		    e = Impossible;
+		    that->e = Impossible;
 		    break;
 		default:
-		    e = UnknownError;
+		    that->e = UnknownError;
 		    break;
 	    }
 	}
