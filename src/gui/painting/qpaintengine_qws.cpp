@@ -492,10 +492,11 @@ void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QR
     if ((w != sw || h != sh) && (sx != 0 || sy != 0))
         qDebug("QWSPaintEngine::drawPixmap offset stretch not implemented");
 
+    QPixmap no_mask;
     if (hasAlpha && hasMask) {
         // convert the mask to alpha 0, since gfx doesn't yet support both mask and alpha
         QImage img = pixmap.toImage();
-        QPixmap no_mask = img;
+        no_mask = img;
         d->gfx->setSource(&no_mask);
         hasMask = false;
     } else {
