@@ -1835,6 +1835,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		if(wheel_delta) {
 		    QWheelEvent qwe( plocal, p, wheel_delta, state | keys);
 		    QApplication::sendSpontaneousEvent( widget, &qwe);
+		    if(!qwe.isAccepted() && focus_widget && focus_widget != widget) {
+			QWheelEvent qwe2( focus_widget->mapFromGlobal( p ), p, 
+					  wheel_delta, state | keys );
+			QApplication::sendSpontaneousEvent( focus_widget, &qwe2 );
+		    }
 		} else {
 #ifdef QMAC_SPEAK_TO_ME
 		    if(etype == QMouseEvent::MouseButtonDblClick && (keys & Qt::AltButton)) {
