@@ -962,9 +962,9 @@ void QWidget::erase( const QRegion& reg )
 	yoff = y();
     }
 
-    qt_set_paintevent_clipping( this, reg );
     QPainter p;
     p.begin(this);
+    p.setClipRegion(reg);
     if ( extra && extra->bg_pix ) {
 	if ( !extra->bg_pix->isNull() ) {
 	    QPoint point(xoff%extra->bg_pix->width(), yoff%extra->bg_pix->height());
@@ -974,7 +974,6 @@ void QWidget::erase( const QRegion& reg )
 	p.fillRect(rr, bg_col);
     }
     p.end();
-    qt_clear_paintevent_clipping( this );
 }
 
 
