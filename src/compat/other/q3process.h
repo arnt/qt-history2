@@ -129,7 +129,7 @@ private:
     void init();
     void reset();
 #if defined(Q_OS_WIN32)
-    uint readStddev( HANDLE dev, char *buf, uint bytes );
+    uint readStddev( Qt::HANDLE dev, char *buf, uint bytes );
 #endif
     QMembuf* membufStdout();
     QMembuf* membufStderr();
