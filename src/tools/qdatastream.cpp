@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.cpp#35 $
+** $Id: //depot/qt/main/src/tools/qdatastream.cpp#36 $
 **
 ** Implementation of QDataStream class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatastream.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatastream.cpp#36 $");
 
 
 /*!
@@ -149,7 +149,8 @@ QDataStream::QDataStream( QByteArray a, int mode )
 /*!
   Destroys the data stream.
 
-  The destructor will not affect the current IO device.
+  The destructor will not affect the current IO device, unless it
+  is an internal IO device processing a QByteArray passed in the constructor.
 */
 
 QDataStream::~QDataStream()
