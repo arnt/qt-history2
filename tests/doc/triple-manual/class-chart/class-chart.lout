@@ -206,7 +206,7 @@ Copyright @CopyRight 2002-2004 Trolltech AS. All Rights Reserved.}}
 		  @Cell margin{0c} iv{ctr} U }
     {
 	@Rowc
-	    A { The Essential Qt 3.3{@Sup @Register} Class Hierarchy }
+	    A { The Essential Qt{@Sup @Register} 3.3 Class Hierarchy }
 	@Rowd
 	    A { QT:: @QtNode Qt }
 	    D { L:: @XNode{} } 
