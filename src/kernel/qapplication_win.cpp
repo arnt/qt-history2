@@ -3716,7 +3716,9 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	    if ( rec ) {
 		// it is already down (so it is auto-repeating)
 		if ( code < Key_Shift || code > Key_ScrollLock ) {
-		    if ( code == Key_Tab && state == ShiftButton )
+		    // map shift+tab to shift+backtab, QAccel knows about it
+		    // and will handle it
+		    if ( code == Key_Tab && ( state & ShiftButton ) == ShiftButton )
 			code = Key_BackTab;
 		    k0 = sendKeyEvent( QEvent::KeyRelease, code, rec->ascii,
 				       state, grab, rec->text, TRUE);
