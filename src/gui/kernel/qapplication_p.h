@@ -151,7 +151,7 @@ public:
                && qt_dispatchAccelEvent;
     }
 #endif
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if !defined(Q_WS_MAC)
     static QInputContext *inputContext;
 #endif
 

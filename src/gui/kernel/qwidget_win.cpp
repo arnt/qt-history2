@@ -30,7 +30,7 @@
 #include <qdebug.h>
 
 #include <private/qapplication_p.h>
-#include <private/qinputcontext_p.h>
+#include <private/qwininputcontext_p.h>
 #include <private/qpaintengine_raster_p.h>
 #include <private/qpaintengine_win_p.h>
 
@@ -383,8 +383,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         DestroyWindow(destroyw);
     }
 
-    d->setFont_sys();
-    QInputContext::enable(q, data.im_enabled & q->isEnabled());
+    QWinInputContext::enable(q, q->testAttribute(Qt::WA_InputMethodEnabled) & q->isEnabled());
 }
 
 
@@ -517,19 +516,6 @@ QPoint QWidget::mapFromGlobal(const QPoint &pos) const
     p.y = pos.y();
     ScreenToClient(winId(), &p);
     return d->mapFromWS(QPoint(p.x, p.y));
-}
-
-
-void QWidgetPrivate::setFont_sys(QFont *f)
-{
-    QInputContext::setFont(q, (f ? *f : q->font()));
-}
-
-void QWidget::resetInputContext()
-{
-    if (!hasFocus())
-        return;
-    QInputContext::accept();
 }
 
 void QWidgetPrivate::updateSystemBackground() {}

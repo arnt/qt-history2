@@ -36,7 +36,7 @@ class QStyle;
 class QEventLoop;
 class QIcon;
 template <typename T> class QList;
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if !defined(Q_WS_MAC)
 class QInputContext;
 #endif
 #if defined(Q_WS_QWS)
@@ -204,7 +204,7 @@ public:
     virtual void commitData(QSessionManager& sm);
     virtual void saveState(QSessionManager& sm);
 #endif
-#if defined(Q_WS_X11) || defined (Q_WS_QWS)
+#if !defined(Q_WS_MAC)
     void setInputContext(QInputContext *);
     QInputContext *inputContext() const;
 #endif

@@ -166,7 +166,6 @@ public:
     void lower_sys();
     void stackUnder_sys(QWidget *);
 
-    void setFont_sys(QFont *f = 0);
     void setFont_helper(const QFont &);
     void resolveFont();
 
@@ -195,7 +194,7 @@ public:
     bool compositeEvent(QEvent *e);
     void setWindowIcon_sys();
 
-#if (defined(Q_WS_X11) || defined(Q_WS_QWS))
+#if !defined(Q_WS_MAC)
     void focusInputContext();
     void unfocusInputContext();
 #endif
@@ -265,7 +264,7 @@ public:
 #ifndef QT_NO_LAYOUT
     QLayout *layout;
 #endif
-#if (defined(Q_WS_X11) || defined(Q_WS_QWS)) && !defined(QT_NO_IM)
+#if !defined(Q_WS_MAC) && !defined(QT_NO_IM)
     QPointer<QInputContext> ic;
 #endif
     static QWidgetMapper *mapper;

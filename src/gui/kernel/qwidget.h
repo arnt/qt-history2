@@ -482,9 +482,9 @@ public:
 
     void ensurePolished() const;
 
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if !defined(Q_WS_MAC)
     QInputContext *inputContext();
-    void setInputContext(const QString &);
+    void setInputContext(QInputContext *);
 #endif
 
 signals:

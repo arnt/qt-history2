@@ -32,8 +32,15 @@
 #include "qcoreapplication.h"
 #include "qinputcontext.h"
 #include "qinputcontextplugin.h"
+
+#ifdef Q_WS_X11
 #include "private/qt_x11_p.h"
 #include "qximinputcontext_p.h"
+#endif
+#ifdef Q_WS_WIN
+#include "qwininputcontext_p.h"
+#endif
+
 #include "private/qfactoryloader_p.h"
 #include "qmutex.h"
 
@@ -54,6 +61,11 @@ QInputContext *QInputContextFactory::create( const QString& key, QObject *parent
 #if defined(Q_WS_X11) && !defined(QT_NO_XIM)
     if (key == QLatin1String("xim")) {
         result = new QXIMInputContext;
+    }
+#endif
+#if defined(Q_WS_WIN) && !defined(QT_NO_XIM)
+    if (key == QLatin1String("win")) {
+        result = new QWinInputContext;
     }
 #endif
 #ifndef QT_NO_COMPONENT
@@ -79,6 +91,9 @@ QStringList QInputContextFactory::keys()
 #if defined(Q_WS_X11) && !defined(QT_NO_XIM)
     result << QLatin1String("xim");
 #endif
+#if defined(Q_WS_WIN) && !defined(QT_NO_XIM)
+    result << QLatin1String("win");
+#endif
 #ifndef QT_NO_COMPONENT
     result += loader()->keys();
 #endif // QT_NO_COMPONENT
@@ -91,6 +106,10 @@ QStringList QInputContextFactory::languages( const QString &key )
     QStringList result;
 #if defined(Q_WS_X11) && !defined(QT_NO_XIM)
     if (key == QLatin1String("xim"))
+        return QStringList(QString());
+#endif
+#if defined(Q_WS_WIN) && !defined(QT_NO_XIM)
+    if (key == QLatin1String("win"))
         return QStringList(QString());
 #endif
 #ifndef QT_NO_COMPONENT
@@ -123,6 +142,10 @@ QString QInputContextFactory::description( const QString &key )
 #if defined(Q_WS_X11) && !defined(QT_NO_XIM)
     if (key == QLatin1String("xim"))
         return QInputContext::tr( "XIM input method" );
+#endif
+#if defined(Q_WS_WIN) && !defined(QT_NO_XIM)
+    if (key == QLatin1String("win"))
+        return QInputContext::tr( "Windows input method" );
 #endif
 #ifndef QT_NO_COMPONENT
     if (QInputContextFactoryInterface *factory =

@@ -34,13 +34,9 @@
 #endif
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
-#include "qinputcontext_p.h"
 #endif
 #ifdef Q_WS_MAC
 # include "qt_mac_p.h"
-#endif
-#if defined(Q_WS_X11)
-#include "qinputcontext.h"
 #endif
 #if defined(Q_WS_QWS)
 #include "qwsmanager_qws.h"
@@ -50,6 +46,14 @@
 #include "qtooltip.h"
 #include "qwhatsthis.h"
 #include "qdebug.h"
+
+#ifndef Q_WS_MAC
+#include "qinputcontext.h"
+#endif
+#ifdef Q_WS_WIN
+#include <private/qwininputcontext_p.h>
+#endif
+
 #if defined(Q_WS_X11)
 #include <private/qpaintengine_x11_p.h>
 #include "qx11info_x11.h"
@@ -88,6 +92,117 @@ QWidgetPrivate::~QWidgetPrivate()
     if (extra)
         deleteExtra();
 }
+
+#ifndef Q_WS_MAC
+/*!
+    \internal
+    This is an internal function, you should never call this.
+
+    This function is called to remove focus from associated input
+    context.
+
+    \sa QInputContext::unsetFocus()
+ */
+void QWidgetPrivate::unfocusInputContext()
+{
+#ifndef QT_NO_IM
+    Q_Q(QWidget);
+    QInputContext *qic = q->inputContext();
+    if ( qic ) {
+	qic->setFocusWidget( 0 );
+    }
+#endif // QT_NO_IM
+}
+
+/*!
+    \internal
+    This is an internal function, you should never call this.
+
+    This function is called to focus associated input context. The
+    code intends to eliminate duplicate focus for the context even if
+    the context is shared between widgets
+
+    \sa QInputContext::setFocus()
+ */
+void QWidgetPrivate::focusInputContext()
+{
+#ifndef QT_NO_IM
+    Q_Q(QWidget);
+    QInputContext *qic = q->inputContext();
+    if (qic) {
+	if(qic->focusWidget() != q)
+	    qic->setFocusWidget(q);
+    }
+#endif // QT_NO_IM
+}
+
+/*!
+    This function returns the QInputContext for this widget. By
+    default the input context is inherited from the widgets
+    parent. For toplevels it is inherited from QApplication.
+
+    You can override this and set a special input context for this
+    widget by using the setInputContext() method.
+
+    \sa setInputContext()
+*/
+QInputContext *QWidget::inputContext()
+{
+    Q_D(QWidget);
+    if (!testAttribute(Qt::WA_InputMethodEnabled))
+        return 0;
+
+    if (d->ic)
+        return d->ic;
+    return qApp->inputContext();
+}
+
+/*!
+  This function sets the input context \a context
+  on this widget.
+
+  \sa inputContext()
+*/
+void QWidget::setInputContext(QInputContext *context)
+{
+    Q_D(QWidget);
+    if (!testAttribute(Qt::WA_InputMethodEnabled))
+        return;
+    if (d->ic)
+	delete d->ic;
+    d->ic = context;
+}
+
+
+/*!
+    This function is called when text widgets need to be neutral state to
+    execute text operations properly. See qlineedit.cpp and qtextedit.cpp as
+    example.
+
+    Ordinary reset that along with changing focus to another widget,
+    moving the cursor, etc, is implicitly handled via
+    unfocusInputContext() because whether reset or not when such
+    situation is a responsibility of input methods. So we delegate the
+    responsibility to the input context via unfocusInputContext(). See
+    'Preedit preservation' section of the class description of
+    QInputContext for further information.
+
+    \sa QInputContext, unfocusInputContext(), QInputContext::unsetFocus()
+*/
+void QWidget::resetInputContext()
+{
+    if (!hasFocus())
+        return;
+#ifndef QT_NO_IM
+    Q_Q(QWidget);
+    QInputContext *qic = q->inputContext();
+    if( qic )
+	qic->reset();
+#endif // QT_NO_IM
+}
+
+
+#endif
 
 /*!
     \class QWidget qwidget.h
@@ -1712,7 +1827,7 @@ void QWidgetPrivate::setEnabled_helper(bool enable)
     }
 #endif
 #ifdef Q_WS_WIN
-    QInputContext::enable(q, data.im_enabled && enable);
+    QWinInputContext::enable(q, q->testAttribute(Qt::WA_InputMethodEnabled) && enable);
 #endif
     QEvent e(QEvent::EnabledChange);
     QApplication::sendEvent(q, &e);
@@ -2671,8 +2786,6 @@ void QWidgetPrivate::setFont_helper(const QFont &font)
             continue;
         w->d_func()->resolveFont();
     }
-    if (q->hasFocus())
-        setFont_sys();
     QEvent e(QEvent::FontChange);
     QApplication::sendEvent(q, &e);
 #ifdef QT3_SUPPORT
@@ -3032,20 +3145,16 @@ void QWidget::setFocus(Qt::FocusReason reason)
 	    // unfocusInputContext(). See 'Preedit preservation' section of
 	    // QInputContext.
             if (prev != f) {
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if !defined(Q_WS_MAC)
 		prev->d_func()->unfocusInputContext();
 #else
 		prev->resetInputContext();
 #endif
 	    }
         }
-#if defined(Q_WS_WIN)
-        else {
-            QInputContext::endComposition();
-        }
-#endif
+
         QApplication::setFocusWidget(f, reason);
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if !defined(Q_WS_MAC)
         f->d_func()->focusInputContext();
 #endif
 
@@ -4381,7 +4490,6 @@ bool QWidget::event(QEvent *e)
 
     case QEvent::FocusIn:
         focusInEvent((QFocusEvent*)e);
-        d->setFont_sys();
         break;
 
     case QEvent::FocusOut:

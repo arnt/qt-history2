@@ -96,8 +96,6 @@ static bool servermaxrect=false; // set to true once.
 extern QApplication::Type qt_appType;
 extern void qwsUpdateActivePainters();
 
-QInputContext *QApplicationPrivate::inputContext;
-
 //these used to be environment variables, they are initialized from
 //environment variables in
 
@@ -262,23 +260,6 @@ void QApplicationPrivate::createEventDispatcher()
                        ? new QEventDispatcherQWS(q)
                        : new QEventDispatcherUNIX(q));
 }
-
-
-
-// IM stuff
-
-void QApplication::setInputContext(QInputContext *ic)
-{
-    if (d->inputContext)
-        delete d->inputContext;
-    d->inputContext = ic;
-}
-
-QInputContext *QApplication::inputContext() const
-{
-    return d->inputContext;
-}
-
 
 // Single-process stuff. This should maybe move into qwindowsystem_qws.cpp
 

@@ -903,11 +903,6 @@ QPoint QWidget::mapFromGlobal(const QPoint &pos) const
     return d->mapFromWS(QPoint(x, y));
 }
 
-void QWidgetPrivate::setFont_sys(QFont *)
-{
-    // Nothing
-}
-
 void QWidgetPrivate::updateSystemBackground()
 {
     QBrush brush = q->palette().brush(q->backgroundRole());
@@ -2624,112 +2619,6 @@ void QWidgetPrivate::updateFrameStrut() const
     }
 
    data.fstrut_dirty = 0;
-}
-
-/*!
-    This function returns the QInputContext for this widget. By
-    default the input context is inherited from the widgets
-    parent. For toplevels it is inherited from QApplication.
-
-    You can override this and set a special input context for this
-    widget by using the setInputContext() method.
-
-    \sa setInputContext()
-*/
-QInputContext *QWidget::inputContext()
-{
-    if (!testAttribute(Qt::WA_InputMethodEnabled))
-        return 0;
-
-    if (d->ic)
-        return d->ic;
-    return qApp->inputContext();
-}
-
-
-/*!
-  This function sets an input context specified by \a
-  identifierName on this widget.
-
-  \sa inputContext()
-*/
-void QWidget::setInputContext( const QString& identifierName )
-{
-    if (!testAttribute(Qt::WA_InputMethodEnabled))
-        return;
-    if (d->ic)
-	delete d->ic;
-    // an input context that has the identifierName is generated.
-    d->ic = QInputContextFactory::create(identifierName, this);
-}
-
-
-/*!
-    This function is called when text widgets need to be neutral state to
-    execute text operations properly. See qlineedit.cpp and qtextedit.cpp as
-    example.
-
-    Ordinary reset that along with changing focus to another widget,
-    moving the cursor, etc, is implicitly handled via
-    unfocusInputContext() because whether reset or not when such
-    situation is a responsibility of input methods. So we delegate the
-    responsibility to the input context via unfocusInputContext(). See
-    'Preedit preservation' section of the class description of
-    QInputContext for further information.
-
-    \sa QInputContext, unfocusInputContext(), QInputContext::unsetFocus()
-*/
-void QWidget::resetInputContext()
-{
-    if (!hasFocus())
-        return;
-#ifndef QT_NO_IM
-    QInputContext *qic = q->inputContext();
-    if( qic )
-	qic->reset();
-#endif // QT_NO_IM
-}
-
-
-/*!
-    \internal
-    This is an internal function, you should never call this.
-
-    This function is called to focus associated input context. The
-    code intends to eliminate duplicate focus for the context even if
-    the context is shared between widgets
-
-    \sa QInputContext::setFocus()
- */
-void QWidgetPrivate::focusInputContext()
-{
-#ifndef QT_NO_IM
-    QInputContext *qic = q->inputContext();
-    if (qic) {
-	if(qic->focusWidget() != q)
-	    qic->setFocusWidget(q);
-    }
-#endif // QT_NO_IM
-}
-
-
-/*!
-    \internal
-    This is an internal function, you should never call this.
-
-    This function is called to remove focus from associated input
-    context.
-
-    \sa QInputContext::unsetFocus()
- */
-void QWidgetPrivate::unfocusInputContext()
-{
-#ifndef QT_NO_IM
-    QInputContext *qic = q->inputContext();
-    if ( qic ) {
-	qic->setFocusWidget( 0 );
-    }
-#endif // QT_NO_IM
 }
 
 void QWidget::setWindowOpacity(qreal)

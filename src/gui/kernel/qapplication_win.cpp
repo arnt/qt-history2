@@ -36,6 +36,8 @@
 #include "qnc_win.h"
 #endif
 
+#include <private/qwininputcontext_p.h>
+
 #include <private/qpaintengine_win_p.h>
 #include <private/qcursor_p.h>
 
@@ -59,7 +61,6 @@ extern IAccessible *qt_createWindowsAccessible(QAccessibleInterface *object);
 #define q q_func()
 
 #include "private/qinternal_p.h"
-#include "private/qinputcontext_p.h"
 
 #include <windowsx.h>
 #include <limits.h>
@@ -638,7 +639,7 @@ void qt_init(QApplicationPrivate *priv, int)
         WM95_MOUSEWHEEL = RegisterWindowMessageA("MSWHEEL_ROLLMSG");
     });
     initWinTabFunctions();
-    QInputContext::init();
+    QApplicationPrivate::inputContext = new QWinInputContext(0);
 }
 
 /*****************************************************************************
@@ -659,7 +660,8 @@ void qt_cleanup()
         displayDC = 0;
     }
 
-    QInputContext::shutdown();
+    delete QApplicationPrivate::inputContext;
+    QApplicationPrivate::inputContext = 0;
 
 #ifndef Q_OS_TEMP
   // Deinitialize OLE/COM
@@ -1840,15 +1842,21 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             break;
 #endif
 
-        case WM_IME_STARTCOMPOSITION:
-            result = QInputContext::startComposition();
-            break;
+        case WM_IME_STARTCOMPOSITION: 
         case WM_IME_ENDCOMPOSITION:
-            result = QInputContext::endComposition();
+        case WM_IME_COMPOSITION: {
+            QWidget *fw = qApp->focusWidget();
+            QWinInputContext *im = fw ? qobject_cast<QWinInputContext *>(fw->inputContext()) : 0;
+            if (fw && im) {
+                if(message == WM_IME_STARTCOMPOSITION)
+                    result = im->startComposition();
+                else if (message == WM_IME_ENDCOMPOSITION)
+                    result = im->endComposition();
+                else if (message == WM_IME_COMPOSITION)
+                    result = im->composition(lParam);
+            }
             break;
-        case WM_IME_COMPOSITION:
-            result = QInputContext::composition(lParam);
-            break;
+        }
 
 #ifndef Q_OS_TEMP
         case WM_CHANGECBCHAIN:
@@ -2026,7 +2034,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         RETURN(false);
 
 do_default:
-    RETURN(QInputContext::DefWindowProc(hwnd,message,wParam,lParam))
+    RETURN(QWinInputContext::DefWindowProc(hwnd,message,wParam,lParam))
 }
 
 

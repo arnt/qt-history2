@@ -445,11 +445,6 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height,
 }
 #endif
 
-
-void QWidgetPrivate::setFont_sys(QFont *)
-{
-}
-
 void QWidgetPrivate::updateSystemBackground() {}
 
 #ifndef QT_NO_CURSOR
@@ -1646,43 +1641,6 @@ int QWidget::qwsBytesPerLine() const
 {
     return qt_screen->linestep();
 }
-
-//copied from qwidget_x11.cpp
-void QWidgetPrivate::focusInputContext()
-{
-#ifndef QT_NO_IM
-    QInputContext *qic = q->inputContext();
-    if (qic) {
-	if(qic->focusWidget() != q)
-	    qic->setFocusWidget(q);
-    }
-#endif // QT_NO_IM
-}
-
-//copied from qwidget_x11.cpp
-void QWidgetPrivate::unfocusInputContext()
-{
-#ifndef QT_NO_IM
-    QInputContext *qic = q->inputContext();
-    if ( qic ) {
-	qic->setFocusWidget( 0 );
-    }
-#endif // QT_NO_IM
-}
-
-
-//copied from qwidget_x11.cpp
-QInputContext *QWidget::inputContext()
-{
-    if (!testAttribute(Qt::WA_InputMethodEnabled))
-        return 0;
-
-    if (d->ic)
-        return d->ic;
-    return qApp->inputContext();
-}
-
-
 
 void QWidget::resetInputContext()
 {

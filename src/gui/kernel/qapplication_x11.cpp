@@ -235,8 +235,6 @@ static const char * x11_atomnames = {
 
 Q_GUI_EXPORT QX11Data *qt_x11Data = 0;
 
-QInputContext *QApplicationPrivate::inputContext;
-
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
@@ -393,34 +391,6 @@ void QApplicationPrivate::createEventDispatcher()
     eventDispatcher = (q->type() != QApplication::Tty
                        ? new QEventDispatcherX11(q)
                        : new QEventDispatcherUNIX(q));
-}
-
-
-// ************************************************************************
-// Input Method support
-// ************************************************************************
-
-/*!
-    This function replaces all QInputContext instances in the
-    application. The function's argument is the identifier name of
-    the newly selected input method.
-*/
-void QApplication::setInputContext(QInputContext *inputContext)
-{
-    if (d->inputContext)
-        delete d->inputContext;
-    d->inputContext = inputContext;
-}
-
-QInputContext *QApplication::inputContext() const
-{
-    if (!X11)
-        return 0;
-    if (!d->inputContext) {
-        QApplication *that = const_cast<QApplication *>(this);
-        that->d->inputContext = QInputContextFactory::create(X11->default_im, that);
-    }
-    return d->inputContext;
 }
 
 /*****************************************************************************

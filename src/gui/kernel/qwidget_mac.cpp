@@ -1223,10 +1223,6 @@ QPoint QWidget::mapFromGlobal(const QPoint &pos) const
     return d->mapFromWS(QPoint((int)hi_pos.x, (int)hi_pos.y));
 }
 
-void QWidgetPrivate::setFont_sys(QFont *)
-{
-}
-
 void QWidgetPrivate::updateSystemBackground()
 {
 }

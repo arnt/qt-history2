@@ -37,17 +37,20 @@
 #include "qdnd_p.h"
 #include "qdebug.h"
 
+#ifndef Q_WS_MAC
+#include "qinputcontext.h"
+#endif
+
 #include <qthread.h>
 #include <private/qthread_p.h>
 
-#ifdef Q_WS_WIN
-#include "qinputcontext_p.h"
-#endif
 #include <private/qfont_p.h>
 
 #include <stdlib.h>
 
 extern void qt_call_post_routines();
+
+
 
 #include "qapplication_p.h"
 #include "qwidget_p.h"
@@ -59,6 +62,8 @@ static QString *qt_style_override = 0;
 
 QApplication::Type qt_appType=QApplication::Tty;
 QApplicationPrivate *QApplicationPrivate::self = 0;
+
+QInputContext *QApplicationPrivate::inputContext;
 
 bool QApplicationPrivate::quitOnLastWindowClosed = true;
 
@@ -1998,9 +2003,7 @@ void QApplication::setActiveWindow(QWidget* act)
 
     // then focus events
     if (!QApplicationPrivate::active_window && QApplicationPrivate::focus_widget) {
-#ifdef Q_WS_WIN
-        QInputContext::accept(focusWidget());
-#elif defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if !defined(Q_WS_MAC)
 	focusWidget()->d->unfocusInputContext();
 #endif
         setFocusWidget(0, Qt::ActiveWindowFocusReason);
@@ -3650,5 +3653,37 @@ void QApplicationPrivate::emitLastWindowClosed()
         emit qApp->lastWindowClosed();
     }
 }
+
+
+// ************************************************************************
+// Input Method support
+// ************************************************************************
+
+#ifndef Q_WS_MAC
+/*!
+    This function replaces all QInputContext instances in the
+    application. The function's argument is the identifier name of
+    the newly selected input method.
+*/
+void QApplication::setInputContext(QInputContext *inputContext)
+{
+    if (d->inputContext)
+        delete d->inputContext;
+    d->inputContext = inputContext;
+}
+
+QInputContext *QApplication::inputContext() const
+{
+#ifdef Q_WS_X11
+    if (!X11)
+        return 0;
+    if (!d->inputContext) {
+        QApplication *that = const_cast<QApplication *>(this);
+        that->d->inputContext = QInputContextFactory::create(X11->default_im, that);
+    }
+#endif
+    return d->inputContext;
+}
+#endif
 
 #include "moc_qapplication.cpp"

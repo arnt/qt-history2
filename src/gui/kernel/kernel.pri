@@ -62,14 +62,12 @@ SOURCES += \
 
 
 win32 {
-	HEADERS += kernel/qinputcontext_p.h
 	SOURCES += \
 		kernel/qapplication_win.cpp \
 		kernel/qclipboard_win.cpp \
 		kernel/qcursor_win.cpp \
 		kernel/qdesktopwidget_win.cpp \
 		kernel/qdnd_win.cpp \
-		kernel/qinputcontext_win.cpp \
 		kernel/qmime_win.cpp \
 		kernel/qsound_win.cpp \
 		kernel/qwidget_win.cpp \
@@ -79,8 +77,7 @@ win32 {
 unix:x11 {
 	HEADERS += \
 		kernel/qeventdispatcher_x11_p.h \
-		kernel/qx11info_x11.h \
-		kernel/qinputcontext.h
+		kernel/qx11info_x11.h 
 
 	SOURCES += \
 		kernel/qapplication_x11.cpp \
@@ -89,7 +86,6 @@ unix:x11 {
 		kernel/qdnd_x11.cpp \
 		kernel/qdesktopwidget_x11.cpp \
 		kernel/qeventdispatcher_x11.cpp \
-		kernel/qinputcontext.cpp \
 		kernel/qmotifdnd_x11.cpp \
 		kernel/qsound_x11.cpp \
 		kernel/qwidget_x11.cpp \
@@ -99,8 +95,7 @@ unix:x11 {
 
 embedded {
 	HEADERS += \
-		kernel/qeventdispatcher_qws_p.h \
-		kernel/qinputcontext.h
+		kernel/qeventdispatcher_qws_p.h 
 
 	SOURCES += \
 		kernel/qapplication_qws.cpp \
@@ -109,7 +104,6 @@ embedded {
 		kernel/qdesktopwidget_qws.cpp \
 		kernel/qdnd_qws.cpp \
 		kernel/qeventdispatcher_qws.cpp \
-		kernel/qinputcontext.cpp \
 		kernel/qsound_qws.cpp \
 		kernel/qwidget_qws.cpp
 
@@ -131,8 +125,7 @@ embedded {
 		kernel/qdesktopwidget_mac.cpp \
 		kernel/qwidget_mac.cpp
         HEADERS += \
-                kernel/qeventdispatcher_mac_p.h \
-		kernel/qinputcontext_p.h
+                kernel/qeventdispatcher_mac_p.h 
 }
 
 wince-* {
