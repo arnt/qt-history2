@@ -88,7 +88,7 @@ kernel {
 		  $$KERNEL_H/qwindowdefs.h \
 		  $$KERNEL_H/qwmatrix.h \
 		  $$KERNEL_H/qvariant.h \
-		  $$KERNEL_H/qrichtext_p.h \
+		  kernel/qrichtext_p.h \
 		  $$KERNEL_H/qsimplerichtext.h 
 
 
