@@ -96,3 +96,60 @@ checkout:
 	/bin/true	# tell make it worked
 
 #######	Meta classes
+
+mbasic.cpp: qbasic.h
+	$(QTDIR)/bin/moc qbasic.h -o mbasic.cpp
+
+mbttngrp.cpp: qbttngrp.h
+	$(QTDIR)/bin/moc qbttngrp.h -o mbttngrp.cpp
+
+mbutton.cpp: qbutton.h
+	$(QTDIR)/bin/moc qbutton.h -o mbutton.cpp
+
+mchkbox.cpp: qchkbox.h
+	$(QTDIR)/bin/moc qchkbox.h -o mchkbox.cpp
+
+mcombo.cpp: qcombo.h
+	$(QTDIR)/bin/moc qcombo.h -o mcombo.cpp
+
+mframe.cpp: qframe.h
+	$(QTDIR)/bin/moc qframe.h -o mframe.cpp
+
+mgeom.cpp: qgeom.h
+	$(QTDIR)/bin/moc qgeom.h -o mgeom.cpp
+
+mgrpbox.cpp: qgrpbox.h
+	$(QTDIR)/bin/moc qgrpbox.h -o mgrpbox.cpp
+
+mlabel.cpp: qlabel.h
+	$(QTDIR)/bin/moc qlabel.h -o mlabel.cpp
+
+mlcdnum.cpp: qlcdnum.h
+	$(QTDIR)/bin/moc qlcdnum.h -o mlcdnum.cpp
+
+mlined.cpp: qlined.h
+	$(QTDIR)/bin/moc qlined.h -o mlined.cpp
+
+mlistbox.cpp: qlistbox.h
+	$(QTDIR)/bin/moc qlistbox.h -o mlistbox.cpp
+
+mmenubar.cpp: qmenubar.h
+	$(QTDIR)/bin/moc qmenubar.h -o mmenubar.cpp
+
+mpopmenu.cpp: qpopmenu.h
+	$(QTDIR)/bin/moc qpopmenu.h -o mpopmenu.cpp
+
+mpushbt.cpp: qpushbt.h
+	$(QTDIR)/bin/moc qpushbt.h -o mpushbt.cpp
+
+mradiobt.cpp: qradiobt.h
+	$(QTDIR)/bin/moc qradiobt.h -o mradiobt.cpp
+
+mscrbar.cpp: qscrbar.h
+	$(QTDIR)/bin/moc qscrbar.h -o mscrbar.cpp
+
+mtablevw.cpp: qtablevw.h
+	$(QTDIR)/bin/moc qtablevw.h -o mtablevw.cpp
+
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.
