@@ -12,14 +12,15 @@
 **
 ****************************************************************************/
 
-#include <private/qpainter_p.h>
+#include "private/qpaintengine_p.h"
 #include "qapplication.h"
 #include "qbrush.h"
 #include "qgl.h"
 #include "qmap.h"
 #include "qpaintengine_opengl.h"
 #include "qpen.h"
-#include "private/qpaintengine_p.h"
+#include "qvarlengtharray.h"
+#include <private/qpainter_p.h>
 
 class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
     Q_DECLARE_PUBLIC(QOpenGLPaintEngine);
@@ -670,14 +671,13 @@ QMap<int, GLuint> tx_cache;
 
 static void cleanup_texture_cache()
 {
-    GLuint *textures = new GLuint[tx_cache.size()];
+    QVarLengthArray<GLuint> textures(tx_cache.size());
     QMap<int, GLuint>::ConstIterator it;
     int i = 0;
     for(it = tx_cache.constBegin(); it != tx_cache.constEnd(); ++it)
         textures[i++] = *it;
     glDeleteTextures(tx_cache.size(), textures);
     tx_cache.clear();
-    delete textures;
 }
 
 static void bind_texture_from_cache(const QPixmap &pm)
