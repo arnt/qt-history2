@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#311 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#312 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -400,7 +400,7 @@ static void qt_set_windows_resources()
 
     QPalette pal( cg, dcg, cg );
     QApplication::setPalette( pal, TRUE );
-    
+
     QColor menu(colorref2qrgb(GetSysColor(COLOR_MENU)));
     QColor menuText(colorref2qrgb(GetSysColor(COLOR_MENUTEXT)));
     {
@@ -1262,6 +1262,12 @@ void QApplication::winFocus( QWidget *widget, bool gotFocus )
 	    w->setFocus();
 	else
 	    widget->focusNextPrevChild( TRUE );
+	if ( !focus_widget ) {
+	    if ( widget->focusWidget() )
+		widget->focusWidget()->setFocus();
+	    else
+		widget->topLevelWidget()->setFocus();
+	}
     } else {
 	if ( focus_widget && !inPopupMode() ) {
 	    QFocusEvent out( QEvent::FocusOut );
