@@ -2702,14 +2702,21 @@ bool QVariant::operator!=( const QVariant &v ) const
 
 
 /*! \internal
-  
+
   Reads or sets the variant type and ptr
  */
-void* QVariant::rawAccess( void* ptr, Type typ )
+void* QVariant::rawAccess( void* ptr, Type typ, bool deepCopy )
 {
     if ( ptr ) {
+	clear();
 	d->typ = typ;
 	d->value.ptr = ptr;
+	if ( deepCopy ) {
+	    QVariant::Private* p = new Private( d );
+	    d->typ = Invalid;
+	    delete d;
+	    d = p;
+	}
     }
     return d->value.ptr;
 }

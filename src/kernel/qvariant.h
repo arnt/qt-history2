@@ -290,7 +290,7 @@ private:
     Private* d;
 
 public:
-    void* rawAccess( void* ptr = 0, Type typ = Invalid );
+    void* rawAccess( void* ptr = 0, Type typ = Invalid, bool deepCopy = FALSE );
 };
 
 // down here for GCC 2.7.* compatibility

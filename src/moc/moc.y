@@ -123,7 +123,7 @@ QCString referencePlainUType( QCString ctype )
 QCString uType( QCString ctype )
 {
     if ( !validUType( ctype ) ) {
-	if ( isVariantType( ctype ) )
+	if ( isVariantType( referencePlainUType(ctype) ) )
 	    return "varptr";
 	else
 	    return "ptr";
@@ -162,8 +162,8 @@ QCString uTypeExtra( QCString ctype )
 {
     QCString typeExtra = "0";
     if ( !validUType( ctype ) ) {
-	if ( isVariantType( ctype ) )
-	    typeExtra.sprintf("qt_variant_types+%d", qvariant_nameToType( ctype ) );
+	if ( isVariantType( referencePlainUType(ctype) ) )
+	    typeExtra.sprintf("qt_variant_types+%d", qvariant_nameToType( referencePlainUType(ctype) ) );
 	else
 	    typeExtra.sprintf( "\"%s\"", ctype.data() );
 	return typeExtra;
