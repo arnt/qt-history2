@@ -176,7 +176,7 @@ public:
     inline void setDirty(DirtyFlags df) { dirtyFlag|=df; changeFlag|=df; }
     inline void unsetDirty(DirtyFlags df) { dirtyFlag &= (uint)(~df); }
 
-    bool hasCapability(Capability cap) const { return gccaps&cap; }
+    bool hasCapability(Capability cap) const { return (gccaps & cap) != 0; }
 
     inline void updateState(QPainterState *state, bool updateGC = true);
     inline QPainterState *painterState() const { return state; }
