@@ -1118,6 +1118,7 @@ void QLCDNumber::setSegmentStyle( SegmentStyle s )
 {
     fill = ( s == Flat || s == Filled );
     shadow = ( s == Outline || s == Filled );
+    update();
 }
 
 
