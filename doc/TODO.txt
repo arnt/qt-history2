@@ -106,12 +106,10 @@ QWorkspace (vohi)
 
 QTabWidget
   QWidget *page( int pos ) function like in QWizard
+  Be able to create a new line of tabs instead of showing arrows (Windows uses these all over)
 
 QPSPrinter
   convert it to use the new font stuff (QFont:CharSet is obsolete)
-
-QPrinter
-  More control about specific parameters (e.g. paper bin)
 
 QFtp (rms?)
   Support active transfers. E.g. ftp://ptgftp.nws.noaa.gov does not support
