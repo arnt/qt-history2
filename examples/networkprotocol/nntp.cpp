@@ -89,6 +89,10 @@ bool Nntp::checkConnection( QNetworkOperation * )
     if ( commandSocket->isOpen() )
 	return FALSE;
 
+    // don't call connectToHost() if we are already trying to connect
+    if ( commandSocket->state() == QSocket::Connecting )
+	return FALSE;
+
     // start connecting
     connectionReady = FALSE;
     commandSocket->connectToHost( url()->host(),
