@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#78 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#79 $
 **
 ** Implementation of QTabDialog class
 **
@@ -470,7 +470,7 @@ void QTabDialog::showPage( QWidget * w )
 }
 
 
-/*!
+/*! \obsolete
   Returns TRUE if the page with object name \a name is enabled, and
   false if it is disabled.
 
@@ -480,13 +480,29 @@ void QTabDialog::showPage( QWidget * w )
   \sa setTabEnabled(), QWidget::isEnabled()
 */
 
-bool QTabDialog::isTabEnabled( const QString &name ) const
+bool QTabDialog::isTabEnabled( const char* name ) const
 {
-    return d->tw->isTabEnabled( name );
+    if ( !name )
+	return FALSE;
+    QObjectList * l
+	= ((QTabDialog *)this)->queryList( "QWidget", name, FALSE, TRUE );
+    if ( l && l->first() ) {
+	QWidget * w;
+	while( l->current() ) {
+	    while( l->current() && !l->current()->isWidgetType() )
+		l->next();
+	    w = (QWidget *)(l->current());
+	    if ( w ) {
+		return d->tw->isTabEnabled( w );
+	    }
+	}
+    }
+    return FALSE;
 }
 
 
-/*!
+/*!\obsolete
+  
   Finds the page with object name \a name, enables/disables it
   according to the value of \a enable, and redraws the page's tab
   appropriately.
@@ -504,9 +520,23 @@ bool QTabDialog::isTabEnabled( const QString &name ) const
   \sa isTabEnabled(), QWidget::setEnabled()
 */
 
-void QTabDialog::setTabEnabled( const QString &name, bool enable )
+void QTabDialog::setTabEnabled( const char* name, bool enable )
 {
-    d->tw->setTabEnabled( name, enable );
+    if ( !name )
+	return;
+    QObjectList * l
+	= ((QTabDialog *)this)->queryList( "QWidget", name, FALSE, TRUE );
+    if ( l && l->first() ) {
+	QWidget * w;
+	while( l->current() ) {
+	    while( l->current() && !l->current()->isWidgetType() )
+		l->next();
+	    w = (QWidget *)(l->current());
+	    if ( w ) {
+		d->tw->setTabEnabled( w, enable );
+	    }
+	}
+    }
 }
 
 
@@ -525,6 +555,38 @@ void QTabDialog::setTabEnabled( const QString &name, bool enable )
 
   \sa setCancelButton() setDefaultButton() applyButtonPressed()
 */
+
+
+/*!
+  Returns TRUE if the page \a w is enabled, and
+  false if it is disabled.
+
+  \sa setTabEnabled(), QWidget::isEnabled()
+*/
+
+bool QTabDialog::isTabEnabled( QWidget* w ) const
+{
+    return d->tw->isTabEnabled( w );
+}
+
+/*!
+  Enables/disables page \a w according to the value of \a enable, and
+  redraws the page's tab appropriately.
+
+  QTabWidget uses QWidget::setEnabled() internally, rather than keep a
+  separate flag.
+
+  Note that even a disabled tab/page may be visible.  If the page is
+  visible already, QTabWidget will not hide it, and if all the pages
+  are disabled, QTabWidget will show one of them.
+
+  \sa isTabEnabled(), QWidget::setEnabled()
+*/
+
+void QTabDialog::setTabEnabled( QWidget* w, bool enable)
+{
+    d->tw->setTabEnabled( w, enable );
+}
 
 void QTabDialog::setApplyButton( const QString &text )
 {
@@ -853,4 +915,29 @@ is never 0, but if you try hard enough it can be.
 QWidget * QTabDialog::currentPage() const
 {
     return d->tw->currentPage();
+}
+
+/*!
+  Defines a new label for the tab of page \w
+ */
+void QTabDialog::changeTab( QWidget *w, const QString &label)
+{
+    d->tw->changeTab( w, label );
+}
+
+/*
+  Defines a new iconset and a new label for the tab of page \w
+ */
+void QTabDialog::changeTab( QWidget *w, const QIconSet& iconset, const QString &label)
+{
+    d->tw->changeTab( w, iconset, label );
+}
+
+/*! Removes page \a w from this stack of widgets.  Does not 
+  delete \a w. 
+  \sa showPage(), QTabWidget::removePage(), QWidgetStack::removeWidget()
+*/
+void QTabDialog::removePage( QWidget * w )
+{
+    d->tw->removePage( w );
 }
