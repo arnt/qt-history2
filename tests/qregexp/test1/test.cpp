@@ -4,10 +4,7 @@
   Test driver for regular expressions.
 */
 
-#include "../qregexp.h"
-#include "../qregexp.cpp"
-
-#include <qstringlist.h>
+#include <qregexp.h>
 #include <stdio.h>
 
 void myMessageOutput( QtMsgType type, const char *msg )
@@ -38,12 +35,12 @@ int main()
 	    qDebug( "Not valid" );
 	int pos;
 	QString ss = "";
-//qDebug( "%s", s[0].left(100).latin1() );
+
 	do {
 	    ss += s[1].isNull() ? QString::fromLatin1("") : s[1];
 	} while ( /* ss.length() > 0 && ss.length() < 100 */ FALSE );
 //	for ( int i = 0; i < 10; i++ )
-	    pos = rx.find( ss );
+	    pos = rx.search( ss );
 	printf( "%d %d", pos, rx.matchedLength() );
 
 #ifndef QT_NO_REGEXP_CAPTURE

@@ -2531,8 +2531,8 @@ void QMultiLineEdit::pasteSubType(const QCString& subtype)
 
 #if defined(_OS_WIN32_)
 	// Need to convert CRLF to NL
-	QRegExp crlf("\\r\\n");
-	t.replace( crlf, "\n" );
+	QRegExp crlf( QString::fromLatin1("\r\n") );
+	t.replace( crlf, QChar('\n') );
 #endif
 
 	for (int i=0; (uint)i<t.length(); i++) {
@@ -2746,8 +2746,8 @@ void QMultiLineEdit::copy() const
 #endif
 #if defined(_OS_WIN32_)
 	// Need to convert NL to CRLF
-	QRegExp nl("\\n");
-	t.replace( nl, "\r\n" );
+	QRegExp nl( QString::fromLatin1("\n") );
+	t.replace( nl, QString::fromLatin1("\r\n") );
 #endif
 	QApplication::clipboard()->setText( t );
 #if defined(_WS_X11_)

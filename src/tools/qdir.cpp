@@ -1026,30 +1026,30 @@ QStringList qt_makeFilterList( const QString &filter )
 }
 
 /*!
-  Returns TRUE if the \e fileName matches one of the wildcards in the list \e filters.
-  \sa QRegExp
+  Returns TRUE if the \e fileName matches one of the wildcards in the list
+  \e filters.
+
+  \sa QRegExp::match()
 */
 
 bool QDir::match( const QStringList &filters, const QString &fileName )
 {
     QStringList::ConstIterator sit = filters.begin();
-    bool matched = FALSE;
-    for ( ; sit != filters.end(); ++sit ) {
-	QRegExp regexp( *sit, FALSE, TRUE );
-	if ( regexp.match( fileName ) != -1 ) {
-	    matched = TRUE;
-	    break;
-	}
+    while ( sit != filters.end() ) {
+	QRegExp rx( *sit, FALSE, TRUE );
+	if ( rx.match(fileName) )
+	    return TRUE;
+	++sit;
     }
-
-    return matched;
+    return FALSE;
 }
 
 /*!
   Returns TRUE if the \e fileName matches the wildcard \e filter.
   \a Filter may also contain multiple wildcards separated by spaces or
   semicolons.
-  \sa QRegExp
+
+  \sa QRegExp::match()
 */
 
 bool QDir::match( const QString &filter, const QString &fileName )

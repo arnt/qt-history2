@@ -45,15 +45,13 @@ static
 QString extractFilter( const QString& rawFilter )
 {
     QString result;
-    QRegExp r( QString::fromLatin1("([a-zA-Z0-9\\.\\*\\?\\ \\+\\;\\#]*)$") );
-    int len;
-    int index = r.match( rawFilter, 0, &len );
-    if ( index >= 0 ) {
-	result = rawFilter.mid( index+1, len-2 );
-    } else {
+    QRegExp r( QString::fromLatin1("\\([a-zA-Z0-9.*? +;#]*\\)$") );
+    int index = r.search( rawFilter );
+    if ( index >= 0 )
+	result = rawFilter.mid( index + 1, r.matchedLength() - 2 );
+    else
 	result = rawFilter;
-    }
-    return result.replace(QRegExp(" "),";");
+    return result.replace( QRegExp(QString::fromLatin1(" ")), QChar(';') );
 }
 
 // Makes a list of filters from ;;-separated text.

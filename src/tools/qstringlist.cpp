@@ -35,7 +35,7 @@
 // NOT REVISED
 /*!
   \class QStringList qstringlist.h
-  \brief A list of strings.
+  \brief The QStringList class provides a list of strings.
 
   \ingroup qtl
   \ingroup tools
@@ -44,9 +44,9 @@
   QStringList is basically a QValueList of QString objects. As opposed
   to QStrList, that stores pointers to characters, QStringList deals
   with real QString objects.  It is the class of choice whenever you
-  work with unicode strings.
+  work with Unicode strings.
 
-  Like QString itself, QStringList objects are implicit shared.
+  Like QString itself, QStringList objects are implicitly shared.
   Passing them around as value-parameters is both fast and safe.
 
   Example:
@@ -62,8 +62,10 @@
 	list.sort();
 
 	// print it out
-	for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
-	    printf( "%s \n", (*it).latin1() );
+	QStringList::Iterator it = list.begin();
+	while ( it != list.end() ) {
+	    printf( "%s\n", (*it).latin1() );
+	    ++it;
 	}
   \endcode
 
@@ -108,7 +110,7 @@
 */
 void QStringList::sort()
 {
-    qHeapSort(*this);
+    qHeapSort( *this );
 }
 
 /*!
@@ -125,9 +127,10 @@ void QStringList::sort()
   \sa join()
 */
 
-QStringList QStringList::split( const QChar &sep, const QString &str, bool allowEmptyEntries )
+QStringList QStringList::split( const QChar &sep, const QString &str,
+				bool allowEmptyEntries )
 {
-    return split( QString( sep ), str, allowEmptyEntries );
+    return split( QString(sep), str, allowEmptyEntries );
 }
 
 /*!
@@ -144,7 +147,8 @@ QStringList QStringList::split( const QChar &sep, const QString &str, bool allow
   \sa join()
 */
 
-QStringList QStringList::split( const QString &sep, const QString &str, bool allowEmptyEntries )
+QStringList QStringList::split( const QString &sep, const QString &str,
+				bool allowEmptyEntries )
 {
     QStringList lst;
 
@@ -170,8 +174,8 @@ QStringList QStringList::split( const QString &sep, const QString &str, bool all
 }
 
 /*!
-  Splits the string \a str using the regular expression \a sep as separator. Returns the
-  list of strings. If \a allowEmptyEntries is TRUE, also empty
+  Splits the string \a str using the regular expression \a sep as separator.
+  Returns the list of strings. If \a allowEmptyEntries is TRUE, also empty
   entries are inserted into the list, else not. So if you have
   a string 'abc..d.e.', a list which contains 'abc', 'd', and 'e'
   would be returned if \a allowEmptyEntries is FALSE, but
@@ -183,21 +187,22 @@ QStringList QStringList::split( const QString &sep, const QString &str, bool all
   \sa join()
 */
 
-QStringList QStringList::split( const QRegExp &sep, const QString &str, bool allowEmptyEntries )
+QStringList QStringList::split( const QRegExp &sep, const QString &str,
+				bool allowEmptyEntries )
 {
+    QRegExp tep = sep;
     QStringList lst;
 
     int j = 0;
-    int len = 0;
-    int i = sep.match( str, j, &len );
+    int i = tep.search( str, j );
 
     while ( i != -1 ) {
 	if ( str.mid( j, i - j ).length() > 0 )
 	    lst << str.mid( j, i - j );
 	else if ( allowEmptyEntries )
 	    lst << QString::null;
-	j = i + len;
-	i = sep.match( str, j, &len );
+	j = i + tep.matchedLength();
+	i = tep.search( str, j );
     }
 
     int l = str.length() - 1;
@@ -219,7 +224,7 @@ QStringList QStringList::grep( const QString &str, bool cs ) const
 {
     QStringList res;
     for ( QStringList::ConstIterator it = begin(); it != end(); ++it )
-	if ( (*it).contains( str, cs ) )
+	if ( (*it).contains(str, cs) )
 	    res << *it;
 
     return res;
@@ -234,7 +239,7 @@ QStringList QStringList::grep( const QRegExp &expr ) const
 {
     QStringList res;
     for ( QStringList::ConstIterator it = begin(); it != end(); ++it )
-	if ( (*it).contains( expr ) )
+	if ( (*it).contains(expr) )
 	    res << *it;
 
     return res;

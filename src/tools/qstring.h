@@ -371,16 +371,16 @@ public:
 
     QString	copy()	const;
 
-    QString arg(long a, int fieldwidth=0, int base=10) const;
-    QString arg(ulong a, int fieldwidth=0, int base=10) const;
-    QString arg(int a, int fieldwidth=0, int base=10) const;
-    QString arg(uint a, int fieldwidth=0, int base=10) const;
-    QString arg(short a, int fieldwidth=0, int base=10) const;
-    QString arg(ushort a, int fieldwidth=0, int base=10) const;
-    QString arg(char a, int fieldwidth=0) const;
-    QString arg(QChar a, int fieldwidth=0) const;
-    QString arg(const QString& a, int fieldwidth=0) const;
-    QString arg(double a, int fieldwidth=0, char fmt='g', int prec=-1) const;
+    QString arg( long a, int fieldwidth=0, int base=10 ) const;
+    QString arg( ulong a, int fieldwidth=0, int base=10 ) const;
+    QString arg( int a, int fieldwidth=0, int base=10 ) const;
+    QString arg( uint a, int fieldwidth=0, int base=10 ) const;
+    QString arg( short a, int fieldwidth=0, int base=10 ) const;
+    QString arg( ushort a, int fieldwidth=0, int base=10 ) const;
+    QString arg( char a, int fieldwidth=0 ) const;
+    QString arg( QChar a, int fieldwidth=0 ) const;
+    QString arg( const QString& a, int fieldwidth=0 ) const;
+    QString arg( double a, int fieldwidth=0, char fmt='g', int prec=-1 ) const;
 
     QString    &sprintf( const char* format, ... )
 #if defined(_CC_GNU_) && !defined(__INSURE__)
@@ -391,6 +391,7 @@ public:
     int		find( QChar c, int index=0, bool cs=TRUE ) const;
     int		find( char c, int index=0, bool cs=TRUE ) const;
     int		find( const QString &str, int index=0, bool cs=TRUE ) const;
+    int		find( QRegExp &, int index=0 ) const;
     int		find( const QRegExp &, int index=0 ) const;
 #ifndef QT_NO_CAST_ASCII
     int		find( const char* str, int index=0 ) const;
@@ -398,6 +399,7 @@ public:
     int		findRev( QChar c, int index=-1, bool cs=TRUE) const;
     int		findRev( char c, int index=-1, bool cs=TRUE) const;
     int		findRev( const QString &str, int index=-1, bool cs=TRUE) const;
+    int		findRev( QRegExp &, int index=-1 ) const;
     int		findRev( const QRegExp &, int index=-1 ) const;
 #ifndef QT_NO_CAST_ASCII
     int		findRev( const char* str, int index=-1 ) const;
@@ -471,7 +473,7 @@ public:
 
     // Your compiler is smart enough to use the const one if it can.
     QChar at( uint i ) const
-	{ return i<d->len ? d->unicode[i] : QChar::null; }
+	{ return i < d->len ? d->unicode[i] : QChar::null; }
     QChar operator[]( int i ) const { return at((uint)i); }
     QCharRef at( uint i );
     QCharRef operator[]( int i );
@@ -541,7 +543,7 @@ private:
     static QStringData* makeSharedNull();
 
     friend class QConstString;
-    QString(QStringData* dd, bool /*dummy*/) : d(dd) { }
+    QString( QStringData* dd, bool /* dummy */ ) : d(dd) { }
 };
 
 class Q_EXPORT QCharRef {

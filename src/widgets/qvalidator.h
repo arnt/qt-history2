@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/widgets/qvalidator.h#18 $
 **
-** Definition of validator classes.
+** Definition of validator classes
 **
 ** Created : 970610
 **
@@ -30,13 +30,14 @@
 
 #ifndef QT_H
 #include "qobject.h"
+#include "qregexp.h"
 #include "qstring.h"
 #endif // QT_H
 
 #ifndef QT_NO_COMPLEXWIDGETS
 
 
-class Q_EXPORT QValidator: public QObject
+class Q_EXPORT QValidator : public QObject
 {
     Q_OBJECT
 public:
@@ -48,7 +49,7 @@ public:
     virtual State validate( QString &, int & ) const = 0;
     virtual void fixup( QString & ) const;
 
-private:	// Disabled copy constructor and operator=
+private:
 #if defined(Q_DISABLE_COPY)
     QValidator( const QValidator & );
     QValidator& operator=( const QValidator & );
@@ -56,7 +57,7 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-class Q_EXPORT QIntValidator: public QValidator
+class Q_EXPORT QIntValidator : public QValidator
 {
     Q_OBJECT
     Q_PROPERTY( int bottom READ bottom WRITE setBottom )
@@ -78,17 +79,16 @@ public:
     int top() const { return t; }
 
 private:
-    int b, t;
-
-private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QIntValidator( const QIntValidator & );
     QIntValidator& operator=( const QIntValidator & );
 #endif
+
+    int b, t;
 };
 
 
-class Q_EXPORT QDoubleValidator: public QValidator
+class Q_EXPORT QDoubleValidator : public QValidator
 {
     Q_OBJECT
     Q_PROPERTY( double bottom READ bottom WRITE setBottom )
@@ -113,14 +113,39 @@ public:
     int decimals() const { return d; }
 
 private:
-    double b, t;
-    int d;
-
-private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QDoubleValidator( const QDoubleValidator & );
     QDoubleValidator& operator=( const QDoubleValidator & );
 #endif
+
+    double b, t;
+    int d;
+};
+
+
+class Q_EXPORT QRegExpValidator : public QValidator
+{
+    Q_OBJECT
+    // Q_PROPERTY( QRegExp regExp READ regExp WRITE setRegExp )
+
+public:
+    QRegExpValidator( QWidget *parent, const char *name = 0 );
+    QRegExpValidator( const QRegExp& rx, QWidget *parent,
+		      const char *name = 0 );
+    ~QRegExpValidator();
+
+    virtual QValidator::State validate( QString& input, int& pos ) const;
+
+    void setRegExp( const QRegExp& rx );
+    const QRegExp& regExp() const { return r; }
+
+private:
+#if defined(Q_DISABLE_COPY)
+    QRegExpValidator( const QRegExpValidator& );
+    QRegExpValidator& operator=( const QRegExpValidator& );
+#endif
+
+    QRegExp r;
 };
 
 

@@ -167,12 +167,13 @@ static void parsePrintcap( QListView * printers )
 		    printerComment = printerComment.simplifyWhiteSpace();
 		}
  		// look for lprng psuedo all printers entry
- 		i = printerDesc.find( QRegExp( ": *all *=" ) );
+ 		i = printerDesc.find(
+			QRegExp(QString::fromLatin1(": *all *=")) );
  		if ( i >= 0 )
 		    printerName = "";
 		// look for signs of this being a remote printer
 		i = printerDesc.find(
-			QRegExp( QString::fromLatin1(": *rm *=") ) );
+			QRegExp(QString::fromLatin1(": *rm *=")) );
 		if ( i >= 0 ) {
 		    // point k at the end of remote host name
 		    while( printerDesc[i] != '=' )
@@ -223,7 +224,7 @@ static void parseEtcLpPrinters( QListView * printers )
 	    if ( configuration.open( IO_ReadOnly ) ) {
 		while( !configuration.atEnd() &&
 		       configuration.readLine( line, 1024 ) > 0 ) {
-		    if ( remote.match( QString::fromLatin1(line) ) == 0 ) {
+		    if ( remote.search(QString::fromLatin1(line)) == 0 ) {
 			const char * p = line;
 			while( *p != ':' )
 			    p++;
@@ -232,7 +233,8 @@ static void parseEtcLpPrinters( QListView * printers )
 			    p++;
 			printerHost = QString::fromLocal8Bit(p);
 			printerHost = printerHost.simplifyWhiteSpace();
-		    } else if ( contentType.match( QString::fromLatin1(line) ) == 0 ) {
+		    } else if ( contentType.search(QString::fromLatin1(line))
+				== 0 ) {
 			char * p = line;
 			while( *p != ':' )
 			    p++;
@@ -435,29 +437,28 @@ static void parseSpoolInterface( QListView * printers )
 	if ( !configFile.open( IO_ReadOnly ) )
 	    continue;
 
-	QCString line(1025);
+	QCString line( 1025 );
 	QString hostName;
 	QString hostPrinter;
 	QString printerType;
 
-	QRegExp typeKey(QString::fromLatin1("^TYPE="));
-	QRegExp hostKey(QString::fromLatin1("^HOSTNAME="));
-	QRegExp hostPrinterKey(QString::fromLatin1("^HOSTPRINTER="));
-	int length;
+	QRegExp typeKey( QString::fromLatin1("^TYPE=") );
+	QRegExp hostKey( QString::fromLatin1("^HOSTNAME=") );
+	QRegExp hostPrinterKey( QString::fromLatin1("^HOSTPRINTER=") );
 
 	while( !configFile.atEnd() &&
-	    (configFile.readLine( line.data(), 1024 )) > 0 ) {
+	       configFile.readLine(line.data(), 1024) > 0 ) {
 
-	    if(typeKey.match(line, 0, &length) == 0) {
-		printerType = line.mid(length, line.length()-length);
+	    if ( line.find(typeKey) == 0 ) {
+		printerType = line.mid( typeKey.matchedLength() );
 		printerType = printerType.simplifyWhiteSpace();
 	    }
-	    if(hostKey.match(line, 0, &length) == 0) {
-		hostName = line.mid(length, line.length()-length);
+	    if ( line.find(hostKey) == 0 ) {
+		hostName = line.mid( hostKey.matchedLength() );
 		hostName = hostName.simplifyWhiteSpace();
 	    }
-	    if(hostPrinterKey.match(line, 0, &length) == 0) {
-		hostPrinter = line.mid(length, line.length()-length);
+	    if ( line.find(hostPrinterKey) == 0 ) {
+		hostPrinter = line.mid( hostPrinterKey.matchedLength() );
 		hostPrinter = hostPrinter.simplifyWhiteSpace();
 	    }
 	}
@@ -838,24 +839,24 @@ QGroupBox * QPrintDialog::setupDestination()
 	QRegExp ps2( QString::fromLatin1("[^a-z]ps$") );
 	QRegExp lp1( QString::fromLatin1("[^a-z]lp[^a-z]") );
 	QRegExp lp2( QString::fromLatin1("[^a-z]lp$") );
-	if ( quality < 4 &&
-	     lvi->text( 0 ) == dollarPrinter ) {
+
+	if ( quality < 4 && lvi->text(0) == dollarPrinter ) {
 	    d->printers->setCurrentItem( (QListViewItem *)lvi );
 	    quality = 4;
 	} else if ( quality < 3 && etcLpDefault &&
-		    lvi->text( 0 ) == QString::fromLatin1(etcLpDefault) ) {
+		    lvi->text(0) == QString::fromLatin1(etcLpDefault) ) {
 	    d->printers->setCurrentItem( (QListViewItem *)lvi );
 	    quality = 3;
 	} else if ( quality < 2 &&
-		    ( lvi->text( 0 ) == QString::fromLatin1("ps") ||
-		      ps1.match( lvi->text( 2 ) ) > -1 ||
-		      ps2.match( lvi->text( 2 ) ) > -1 ) ) {
+		    ( lvi->text(0) == QString::fromLatin1("ps") ||
+		      ps1.search(lvi->text(2)) != -1 ||
+		      ps2.search(lvi->text(2)) != -1 ) ) {
 	    d->printers->setCurrentItem( (QListViewItem *)lvi );
 	    quality = 2;
 	} else if ( quality < 1 &&
-		    ( lvi->text( 0 ) == QString::fromLatin1("lp") ||
-		      lp1.match( lvi->text( 2 ) ) > -1 ||
-		      lp2.match( lvi->text( 2 ) ) > -1 ) ) {
+		    ( lvi->text(0) == QString::fromLatin1("lp") ||
+		      lp1.search(lvi->text(2)) > -1 ||
+		      lp2.search(lvi->text(2)) > -1 ) ) {
 	    d->printers->setCurrentItem( (QListViewItem *)lvi );
 	    quality = 1;
 	}

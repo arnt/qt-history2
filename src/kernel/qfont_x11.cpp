@@ -1421,14 +1421,15 @@ QCString QFont_Private::bestFamilyMember( const QString& foundry,
     }
 
     if ( bestScore < prettyGoodScore ) {
-	QRegExp alt("[,;]");
+	QRegExp alt( "[,;]" );
 	int alternator = 0;
 	int next;
 	int bias = 0;
 	while ( alternator < (int)family.length() ) {
-	    next = family.find(alt,alternator);
-	    if ( next < alternator ) next = family.length();
-	    QString fam = family.mid(alternator,next-alternator);
+	    next = family.find( alt, alternator );
+	    if ( next < alternator )
+		next = family.length();
+	    QString fam = family.mid( alternator, next-alternator );
 	    QString pattern = "-*-" + fam + "-*-*-*-*-*-*-*-*-*-*-*-*";
 	    testResult = bestMatch( pattern.latin1(), &testScore );
 	    bestScore -= bias;

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#38 $
 **
-** Implementation of validator classes.
+** Implementation of validator classes
 **
 ** Created : 970610
 **
@@ -28,7 +28,6 @@
 #include "qvalidator.h"
 #ifndef QT_NO_COMPLEXWIDGETS
 #include "qwidget.h"
-#include "qregexp.h"
 
 #include <math.h> // HUGE_VAL
 #include <limits.h> // *_MIN, *_MAX
@@ -177,7 +176,7 @@ void QValidator::fixup( QString & ) const
   QIntValidator provides a lower and an upper bound.  It does not
   provide a fixup() function.
 
-  \sa QDoubleValidator
+  \sa QDoubleValidator QRegExpValidator
 */
 
 
@@ -226,7 +225,7 @@ QIntValidator::~QIntValidator()
 QValidator::State QIntValidator::validate( QString & input, int & ) const
 {
     QRegExp empty( QString::fromLatin1("^ *-? *$") );
-    if ( empty.match( input ) >= 0 )
+    if ( empty.search(input) == 0 )
 	return QValidator::Intermediate;
     bool ok;
     long int tmp = input.toLong( &ok );
@@ -300,7 +299,7 @@ void QIntValidator::setTop( int top )
   on the number of digits after the decimal point.  It does not
   provide a fixup() function.
 
-  \sa QIntValidator
+  \sa QIntValidator QRegExpValidator
 */
 
 /*!
@@ -352,13 +351,13 @@ QDoubleValidator::~QDoubleValidator()
 QValidator::State QDoubleValidator::validate( QString & input, int & ) const
 {
     QRegExp empty( QString::fromLatin1("^ *-?\\.? *$") );
-    if ( empty.match( input ) >= 0 )
+    if ( empty.search(input) == 0 )
 	return QValidator::Intermediate;
     bool ok = TRUE;
     double tmp = input.toDouble( &ok );
     if ( !ok ) {
 	QRegExp expexpexp( QString::fromLatin1("e-?\\d*$"), FALSE );
-	int eeePos = expexpexp.match( input ); // EXPlicit EXPonent regEXP!
+	int eeePos = expexpexp.search( input ); // EXPlicit EXPonent regEXP
 	int nume = input.contains( 'e', FALSE );
 	if ( eeePos > 0 && nume < 2 ) {
 	    QString mantissa = input.left( eeePos );
@@ -461,5 +460,103 @@ void QDoubleValidator::setDecimals( int decimals )
   its decimal point.
 
   \sa bottom() top() setRange()
+*/
+
+
+/*!
+  \class QRegExpValidator qvalidator.h
+
+  \brief The QRegExpValidator class provides checking of a string against a
+  regular expression.
+
+  \ingroup misc
+
+  QRegExpValidator contains a regular expression used to determine whether an
+  input string is acceptable, intermediate or invalid.
+
+  Example:
+  \code
+    QRegExp rx( "[+-]?0*[0-9]{1,3}" );  // integers -999 to +999
+    QRegExpValidator v( rx, 0 );
+    QString s;
+    int i = 0;
+
+    s = "++";   v.validate( s, i );     // Invalid
+    s = "1234"; v.validate( s, i );     // Invalid
+    s = "-";    v.validate( s, i );     // Intermediate
+    s = "-1";   v.validate( s, i );     // Valid
+  \endcode
+
+  \sa QRegExp QIntValidator QDoubleValidator
+*/
+
+/*!
+  Constructs a validator object that accepts any string.
+*/
+
+QRegExpValidator::QRegExpValidator( QWidget *parent, const char *name )
+    : QValidator( parent, name ), r( QString::fromLatin1(".*") )
+{
+}
+
+/*!
+  Constructs a validator object which accepts all strings that match the
+  regular expression \a rx.
+*/
+
+QRegExpValidator::QRegExpValidator( const QRegExp& rx, QWidget *parent,
+				    const char *name )
+    : QValidator( parent, name ), r( rx )
+{
+}
+
+/*!
+  Destroys the validator, freeing any storage and other resources used.
+*/
+
+QRegExpValidator::~QRegExpValidator()
+{
+}
+
+/*!
+  Returns \c Acceptable if \a input is matched precisely by the regular
+  expression for this validator, \c Intermediate if it's matched partially, and
+  \c Invalid if \a input is not matched.
+
+  For example, suppose the regular expression is <b>abc</b>.  Then, input string
+  <tt>abc</tt> is \c Acceptable, <tt>ab</tt> is \c Intermediate, and
+  <tt>hab</tt> is \c Invalid.
+
+  \sa QRegExp::match()
+*/
+
+QValidator::State QRegExpValidator::validate( QString& input, int& pos ) const
+{
+    if ( ((QRegExp&) r).match(input) ) {
+	return Acceptable;
+    } else if ( ((QRegExp&) r).matchedLength() == (int) input.length() ) {
+	return Intermediate;
+    } else {
+	pos = input.length();
+	return Invalid;
+    }
+}
+
+/*!
+  Sets the regular expression used for validation to \a rx.
+
+  \sa regExp()
+*/
+
+void QRegExpValidator::setRegExp( const QRegExp& rx )
+{
+    r = rx;
+}
+
+/*! \fn const QRegExp& QRegExpValidator::regExp() const
+
+  Returns the regular expression used for validation.
+
+  \sa setRegExp()
 */
 #endif

@@ -12633,10 +12633,10 @@ QString &QString::sprintf( const char* cformat, ... )
 
     if ( !cformat || !*cformat ) {
 	// Qt 1.x compat
-	*this = QString::fromLatin1( "" );
+	*this = fromLatin1( "" );
 	return *this;
     }
-    QString format = QString::fromLatin1( cformat );
+    QString format = fromLatin1( cformat );
 
     static QRegExp *escape = 0;
     if (!escape)
@@ -12644,11 +12644,12 @@ QString &QString::sprintf( const char* cformat, ... )
 
     QString result;
     uint last = 0;
-
-    int len = 0;
     int pos;
-    while ( 1 ) {
-	pos = escape->match( format, last, &len );
+    int len = 0;
+
+    while ( TRUE ) {
+	pos = escape->search( format, last );
+	len = escape->matchedLength();
 	// Non-escaped text
 	if ( pos > (int)last )
 	    result += format.mid(last,pos-last);
@@ -12678,39 +12679,35 @@ QString &QString::sprintf( const char* cformat, ... )
 	    decimals = width = 0;
 	}
 	QString replacement;
-	if ( format[pos+len] == 's' ||
-	     format[pos+len] == 'S' ||
-	     format[pos+len] == 'c' )
+	if ( format[pos + len] == 's' || format[pos + len] == 'S' ||
+	     format[pos + len] == 'c' )
 	{
 	    bool rightjust = ( f.find('-') < 0 );
 	    // Yes, %-5s really means left adjust in sprintf
 
 	    if ( wpos < 0 ) {
-		QRegExp num( QString::fromLatin1("[0-9]+") );
-		QRegExp dot( QString::fromLatin1("\\.") );
-		int nlen;
-		int p = num.match( f, 0, &nlen );
-		int q = dot.match( f, 0 );
+		QRegExp num( fromLatin1("[0-9]+") );
+		QRegExp dot( fromLatin1("\\.") );
+		int p = num.search( f );
+		int nlen = num.matchedLength();
+		int q = dot.search( f );
 		if ( q < 0 || (p < q && p >= 0) )
 		    width = f.mid( p, nlen ).toInt();
 		if ( q >= 0 ) {
-		    p = num.match( f, q );
+		    p = num.search( f, q );
 		    // "decimals" is used to specify string truncation
 		    if ( p >= 0 )
 			decimals = f.mid( p, nlen ).toInt();
 		}
 	    }
 
-	    if ( format[pos+len] == 's' ) {
+	    if ( format[pos + len] == 's' ) {
 #ifndef QT_NO_TEXTCODEC
-		QString s = QString::fromUtf8(va_arg(ap, char*));
+		QString s = QString::fromUtf8( va_arg(ap, char*) );
 #else
-		QString s = QString::fromLatin1(va_arg(ap, char*));
+		QString s = fromLatin1( va_arg(ap, char*) );
 #endif
-		if ( decimals <= 0 )
-		    replacement = s;
-		else
-		    replacement = s.left(decimals);
+		replacement = ( decimals <= 0 ) ? s : s.left( decimals );
 	    } else {
 		int ch = va_arg(ap, int);
 		replacement = QChar((ushort)ch);
@@ -12749,14 +12746,14 @@ QString &QString::sprintf( const char* cformat, ... )
 	      } break;
 	      case 'p': {
 		void* value = va_arg(ap, void*);
-		switch (params) {
+		switch ( params ) {
 		  case 0: ::sprintf( out, in, value ); break;
 		  case 1: ::sprintf( out, in, width, value ); break;
 		  case 2: ::sprintf( out, in, width, decimals, value ); break;
 		}
 	      } break;
 	    }
-	    replacement = QString::fromLatin1(out);
+	    replacement = fromLatin1( out );
 	}
 	result += replacement;
     }
@@ -13038,21 +13035,19 @@ int QString::contains( QChar c, bool cs ) const
 */
 int QString::contains( const char* str, bool cs ) const
 {
-    return contains(QString(str),cs);
+    return contains( QString(str), cs );
 }
 
 /*!
-  \overload int QString::contains (char c, bool cs) const
+  \overload int QString::contains( char c, bool cs ) const
 */
 
 /*!
-  \overload int QString::find (char c, int index, bool cs) const
-
+  \overload int QString::find( char c, int index, bool cs ) const
 */
 
 /*!
-  \overload int QString::findRev (char c, int index, bool cs) const
-
+  \overload int QString::findRev( char c, int index, bool cs ) const
 */
 
 /*!
@@ -13111,12 +13106,12 @@ QString QString::left( uint len ) const
     if ( isEmpty() ) {
 	return QString();
     } else if ( len == 0 ) {			// ## just for 1.x compat:
-	return QString::fromLatin1("");
+	return fromLatin1( "" );
     } else if ( len > length() ) {
 	return *this;
     } else {
 	QString s( len, TRUE );
-	memcpy( s.d->unicode, d->unicode, len*sizeof(QChar) );
+	memcpy( s.d->unicode, d->unicode, len * sizeof(QChar) );
 	s.d->len = len;
 	return s;
     }
@@ -13143,7 +13138,7 @@ QString QString::right( uint len ) const
     if ( isEmpty() ) {
 	return QString();
     } else if ( len == 0 ) {			// ## just for 1.x compat:
-	return QString::fromLatin1("");
+	return fromLatin1( "" );
     } else {
 	uint l = length();
 	if ( len > l )
@@ -13178,7 +13173,7 @@ QString QString::mid( uint index, uint len ) const
     if ( isEmpty() || index >= slen ) {
 	return QString();
     } else if ( len == 0 ) {			// ## just for 1.x compat:
-	return QString::fromLatin1("");
+	return fromLatin1( "" );
     } else {
 	if ( len > slen-index )
 	    len = slen - index;
@@ -13186,7 +13181,7 @@ QString QString::mid( uint index, uint len ) const
 	    return *this;
 	register const QChar *p = unicode()+index;
 	QString s( len, TRUE );
-	memcpy( s.d->unicode, p, len*sizeof(QChar) );
+	memcpy( s.d->unicode, p, len * sizeof(QChar) );
 	s.d->len = len;
 	return s;
     }
@@ -13353,7 +13348,7 @@ QString QString::stripWhiteSpace() const
 	return *this;
 
     register const QChar *s = unicode();
-    QString result = fromLatin1("");
+    QString result = fromLatin1( "" );
 
     int start = 0;
     int end = length() - 1;
@@ -13620,11 +13615,18 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
   \sa findRev() replace() contains()
 */
 
+int QString::find( QRegExp &rx, int index ) const
+{
+    return rx.search( *this, index );
+}
+
+/*!
+  \overload
+*/
+
 int QString::find( const QRegExp &rx, int index ) const
 {
-    if ( index < 0 )
-	index += length();
-    return rx.match( *this, index );
+    return rx.search( *this, index );
 }
 
 /*!
@@ -13639,18 +13641,18 @@ int QString::find( const QRegExp &rx, int index ) const
   \sa find()
 */
 
+int QString::findRev( QRegExp &rx, int index ) const
+{
+    return rx.searchRev( *this, index );
+}
+
+/*!
+  \overload
+*/
+
 int QString::findRev( const QRegExp &rx, int index ) const
 {
-    if ( index < 0 )				// neg index ==> start from end
-	index += length();
-    if ( (uint)index > length() )		// bad index
-	return -1;
-    while( index >= 0 ) {
-	if ( rx.match( *this, index ) == index )
-	    return index;
-	index--;
-    }
-    return -1;
+    return rx.searchRev( *this, index );
 }
 
 /*!
@@ -13659,7 +13661,7 @@ int QString::findRev( const QRegExp &rx, int index ) const
   Example:
   \code
     QString s = "banana and panama";
-    QRegExp r = QRegExp("a[nm]a", TRUE, FALSE);
+    QRegExp r = QRegExp( "a[nm]a", TRUE, FALSE );
     s.contains( r );				// 4 matches
   \endcode
 
@@ -13668,14 +13670,12 @@ int QString::findRev( const QRegExp &rx, int index ) const
 
 int QString::contains( const QRegExp &rx ) const
 {
-    if ( isEmpty() )
-	return rx.match( *this ) < 0 ? 0 : 1;
     int count = 0;
     int index = -1;
     int len = length();
-    while ( index < len-1 ) {			// count overlapping matches
-	index = rx.match( *this, index+1 );
-	if ( index < 0 )
+    while ( index < len - 1 ) {			// count overlapping matches
+	index = rx.search( *this, index + 1 );
+	if ( index == -1 )
 	    break;
 	count++;
     }
@@ -13704,27 +13704,25 @@ int QString::contains( const QRegExp &rx ) const
 
 QString &QString::replace( const QRegExp &rx, const QString &str )
 {
-    if ( isEmpty() )
-	return *this;
+    QRegExp tx = rx;
     int index = 0;
     int slen  = str.length();
-    int len;
     while ( index < (int)length() ) {
-	index = rx.match( *this, index, &len, FALSE );
-	if ( index >= 0 ) {
-	    replace( index, len, str );
-	    index += slen;
-	    if ( !len )
-		break;	// Avoid infinite loop on 0-length matches, e.g. [a-z]*
-	}
-	else
+	index = tx.search( *this, index );
+	if ( index == -1 )
 	    break;
+
+	replace( index, tx.matchedLength(), str );
+	index += slen;
+
+	// avoid infinite loop on 0-length matches (e.g., [a-z]*)
+	if ( tx.matchedLength() == 0 )
+	    index++;
     }
     return *this;
 }
 
-static bool
-ok_in_base( QChar c, int base )
+static bool ok_in_base( QChar c, int base )
 {
     if ( base <= 10 )
 	return c.isDigit() && c.digitValue() < base;
@@ -14247,7 +14245,7 @@ QString& QString::operator+=( const QString &str )
 	setLength(len1+len2);
 	memcpy( d->unicode+len1, str.unicode(), sizeof(QChar)*len2 );
     } else if ( isNull() && !str.isNull() ) {	// ## just for 1.x compat:
-	*this = fromLatin1("");
+	*this = fromLatin1( "" );
     }
     return *this;
 }
@@ -14345,13 +14343,11 @@ QCString QString::utf8() const
 
   See QTextCodec for more diverse coding/decoding of Unicode strings.
 */
-QString QString::fromUtf8(const char* utf8, int len)
+QString QString::fromUtf8( const char* utf8, int len )
 {
-    static QTextCodec* codec = QTextCodec::codecForMib(106);
-    if ( len < 0 ) len = qstrlen(utf8);
-    return codec
-	    ? codec->toUnicode(utf8, len)
-	    : QString::fromLatin1(utf8, len);
+    static QTextCodec* codec = QTextCodec::codecForMib( 106 );
+    if ( len < 0 ) len = qstrlen( utf8 );
+    return codec ? codec->toUnicode( utf8, len ) : fromLatin1( utf8, len );
 }
 #endif // QT_NO_TEXTCODEC
 /*!
@@ -14361,16 +14357,16 @@ QString QString::fromUtf8(const char* utf8, int len)
   case you can explicitly create a QString from Latin-1 text using
   this function.
 */
-QString QString::fromLatin1(const char* chars, int len)
+QString QString::fromLatin1( const char* chars, int len )
 {
     uint l;
     QChar *uc;
     if ( len < 0 ) {
-	uc = internalAsciiToUnicode(chars,&l);
+	uc = internalAsciiToUnicode( chars, &l );
     } else {
-	uc = internalAsciiToUnicode(chars,&l,len);
+	uc = internalAsciiToUnicode( chars, &l, len );
     }
-    return QString(new QStringData(uc,l,l), TRUE);
+    return QString( new QStringData(uc, l, l), TRUE );
 }
 
 /*!
@@ -14439,15 +14435,15 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
     static QTextCodec* codec = QTextCodec::codecForLocale();
     if ( len < 0 ) len = qstrlen(local8Bit);
     return codec
-	    ? codec->toUnicode(local8Bit, len)
-	    : QString::fromLatin1(local8Bit,len);
+	    ? codec->toUnicode( local8Bit, len )
+	    : fromLatin1( local8Bit, len );
 #endif
 #ifdef _WS_MAC_
     static QTextCodec* codec = QTextCodec::codecForLocale();
     if ( len < 0 ) len = qstrlen(local8Bit);
     return codec
-	    ? codec->toUnicode(local8Bit, len)
-	    : QString::fromLatin1(local8Bit,len);
+	    ? codec->toUnicode( local8Bit, len )
+	    : fromLatin1( local8Bit, len );
 #endif
 // Should this be OS_WIN32?
 #ifdef _WS_WIN_

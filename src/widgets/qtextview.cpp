@@ -830,12 +830,12 @@ void QTextView::copy()
     disconnect( QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
 #endif
     QString t = selectedText();
-    QRegExp nbsp(QChar(0x00a0U));
-    t.replace( nbsp, " " );
+    QRegExp nbsp( QChar(0x00a0) );
+    t.replace( nbsp, QChar(' ') );
 #if defined(_OS_WIN32_)
     // Need to convert NL to CRLF
-    QRegExp nl("\\n");
-    t.replace( nl, "\r\n" );
+    QRegExp nl( QString::fromLatin1("\n") );
+    t.replace( nl, QString::fromLatin1("\r\n") );
 #endif
     QApplication::clipboard()->setText( t );
 #if defined(_WS_X11_)

@@ -30,53 +30,58 @@
 
 #ifndef QT_H
 #include "qstring.h"
-#endif // QT_H
+#include "qstringlist.h"
+#endif
 
+class QRegExpEngine;
+struct QRegExpPrivate;
 
 class Q_EXPORT QRegExp
 {
 public:
     QRegExp();
-    QRegExp( const QString &, bool caseSensitive=TRUE, bool wildcard=FALSE );
-    QRegExp( const QRegExp & );
-   ~QRegExp();
-    QRegExp    &operator=( const QRegExp & );
-    QRegExp    &operator=( const QString &pattern );
+    QRegExp( const QString& pattern, bool caseSensitive = TRUE,
+	     bool wildcard = FALSE, bool minimal = FALSE );
+    QRegExp( const QRegExp& rx );
+    ~QRegExp();
+    QRegExp& operator=( const QRegExp& rx );
 
-    bool	operator==( const QRegExp & )  const;
-    bool	operator!=( const QRegExp &r ) const
-					{ return !(this->operator==(r)); }
+    bool operator==( const QRegExp& rx ) const;
+    bool operator!=( const QRegExp& rx ) const { return !operator==( rx ); }
 
-    bool	isEmpty()	const	{ return rxdata == 0; }
-    bool	isValid()	const	{ return error == 0; }
+    bool isValid() const;
+    QString pattern() const;
+    void setPattern( const QString& pattern );
+    bool caseSensitive() const;
+    void setCaseSensitive( bool sensitive );
+#ifndef QT_NO_REGEXP_WILDCARD
+    bool wildcard() const;
+    void setWildcard( bool wildcard );
+#endif
+    bool minimal() const;
+    void setMinimal( bool minimal );
 
-    bool	caseSensitive() const	{ return cs; }
-    void	setCaseSensitive( bool );
-
-    bool	wildcard()	const	{ return wc; }
-    void	setWildcard( bool );
-
-    QString	pattern()	const	{ return rxstring; }
-    // ### in Qt 3.0, provide a real implementation
-    void	setPattern( const QString& pattern )
-					{ operator=( pattern ); }
-
-    int		match( const QString &str, int index=0, int *len=0,
-		       bool indexIsStart = TRUE ) const;
-    int		find( const QString& str, int index )
-					{ return match( str, index ); }
-
-protected:
-    void	compile();
-    const QChar *matchstr( uint *, const QChar *, uint, const QChar * ) const;
+    bool match( const QString& str );
+    bool match( const QString& str ) const;
+#if defined(QT_OBSOLETE)
+    int match( const QString& str, int index, int *len = 0,
+	       bool indexIsStart = TRUE );
+#endif
+    int search( const QString& str, int start = 0 );
+    int search( const QString& str, int start = 0 ) const;
+    int searchRev( const QString& str, int start = -1 );
+    int searchRev( const QString& str, int start = -1 ) const;
+    int matchedLength();
+#ifndef QT_NO_REGEXP_CAPTURE
+    QString capturedText( int subexpression = 0 );
+    QStringList capturedTexts();
+#endif
 
 private:
-    QString	rxstring;			// regular expression pattern
-    uint	*rxdata;			// compiled regexp pattern
-    int		error;				// error status
-    bool	cs;				// case sensitive
-    bool	wc;				// wildcard
-};
+    void compile( bool caseSensitive );
 
+    QRegExpEngine *eng;
+    QRegExpPrivate *priv;
+};
 
 #endif // QREGEXP_H

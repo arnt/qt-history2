@@ -2644,11 +2644,10 @@ void QFileDialog::setFilter( const QString & newFilter )
     if ( !newFilter )
 	return;
     QString f = newFilter;
-    QRegExp r( QString::fromLatin1("([a-zA-Z0-9.*? +;#]*)$") );
-    int len;
-    int index = r.match( f, 0, &len );
+    QRegExp r( QString::fromLatin1("\\([a-zA-Z0-9.*? +;#]*\\)$") );
+    int index = r.search( f );
     if ( index >= 0 )
-	f = f.mid( index+1, len-2 );
+	f = f.mid( index + 1, r.matchedLength() - 2 );
     d->url.setNameFilter( f );
     rereadDir();
 }
@@ -4598,17 +4597,15 @@ void QFileDialog::addFilter( const QString &filter )
 	return;
 
     QString f = filter;
-    QRegExp r( QString::fromLatin1("([a-zA-Z0-9.*? +;#]*)$") );
-    int len;
-    int index = r.match( f, 0, &len );
+    QRegExp r( QString::fromLatin1("\\([a-zA-Z0-9.*? +;#]*\\)$") );
+    int index = r.search( f );
     if ( index >= 0 )
-	f = f.mid( index + 1, len - 2 );
+	f = f.mid( index + 1, r.matchedLength() - 2 );
     for ( int i = 0; i < d->types->count(); ++i ) {
 	QString f2( d->types->text( i ) );
-	int len;
-	int index = r.match( f2, 0, &len );
+	int index = r.search( f2 );
 	if ( index >= 0 )
-	    f2 = f2.mid( index + 1, len - 2 );
+	    f2 = f2.mid( index + 1, r.matchedLength() - 2 );
 	if ( f2 == f ) {
 	    d->types->setCurrentItem( i );
 	    setFilter( f2 );

@@ -386,7 +386,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
   Implementation note: The QCString methods for QRegExp searching are
   implemented by converting the QCString to a QString and performing
   the search on that. This implies a deep copy of the QCString
-  data. Therefore, if you are giong to perform many QRegExp searches
+  data. Therefore, if you are going to perform many QRegExp searches
   on one and the same, large QCString, you will get better performance
   by converting the QCString to a QString yourself, and do the
   searches on that. The results will be of course be identical.
@@ -1271,7 +1271,17 @@ QCString &QCString::replace( uint index, uint len, const char *s )
   Returns the position of the next match, or -1 if \e rx was not found.
 */
 
-int QCString::find( const QRegExp &rx, int index ) const
+int QCString::find( QRegExp &rx, int index ) const
+{
+    QString d = QString::fromLatin1( data() );
+    return d.find( rx, index );
+}
+
+/*!
+  \overload
+*/
+
+int QCString::find( const QRegExp& rx, int index ) const
 {
     QString d = QString::fromLatin1( data() );
     return d.find( rx, index );
@@ -1287,7 +1297,17 @@ int QCString::find( const QRegExp &rx, int index ) const
   found.
 */
 
-int QCString::findRev( const QRegExp &rx, int index ) const
+int QCString::findRev( QRegExp &rx, int index ) const
+{
+    QString d = QString::fromLatin1( data() );
+    return d.findRev( rx, index );
+}
+
+/*!
+  \overload
+*/
+
+int QCString::findRev( const QRegExp& rx, int index ) const
 {
     QString d = QString::fromLatin1( data() );
     return d.findRev( rx, index );
@@ -1299,7 +1319,7 @@ int QCString::findRev( const QRegExp &rx, int index ) const
   Example:
   \code
     QString s = "banana and panama";
-    QRegExp r = QRegExp("a[nm]a", TRUE, FALSE);
+    QRegExp r = QRegExp( "a[nm]a", TRUE, FALSE );
     s.contains( r );				// 4 matches
   \endcode
 

@@ -2939,23 +2939,24 @@ static void read_async_image( QImageIO * ); // Not in table of handlers
   Misc. utility functions
  *****************************************************************************/
 #if !defined(QT_NO_IMAGEIO_XPM) || !defined(QT_NO_IMAGEIO_XBM)
-static QString fbname( const QString &fileName )	// get file basename (sort of)
+static QString fbname( const QString &fileName ) // get file basename (sort of)
 {
     QString s = fileName;
     if ( !s.isEmpty() ) {
 	int i;
-	if ( (i=s.findRev('/')) >= 0 )
-	    s = s.mid(i);
-	if ( (i=s.findRev('\\')) >= 0 )
-	    s = s.mid(i);
+	if ( (i = s.findRev('/')) >= 0 )
+	    s = s.mid( i );
+	if ( (i = s.findRev('\\')) >= 0 )
+	    s = s.mid( i );
 	QRegExp r( QString::fromLatin1("[a-zA-Z][a-zA-Z0-9_]*") );
-	int p = r.match( s, 0, &i );
-	if ( p >= 0 )
-	    s = s.mid(p);
-	s.truncate(i);
+	int p = r.search( s );
+	if ( p == -1 )
+	    s.truncate( 0 );
+	else
+	    s = s.mid( p, r.matchedLength() );
     }
     if ( s.isEmpty() )
-	s = QString::fromLatin1("dummy");
+	s = QString::fromLatin1( "dummy" );
     return s;
 }
 #endif
@@ -3422,7 +3423,7 @@ const char *QImageIO::imageFormat( QIODevice *d )
 	buf[rdlen-1] = '\0';
 	QImageHandler *p = imageHandlers->first();
 	while ( p ) {
-	    if ( p->header.match(QString::fromLatin1(buf)) != -1 )
+	    if ( p->header.search(QString::fromLatin1(buf)) != -1 )
 		// try match with headers
 	    {
 		format = p->format;
@@ -4492,17 +4493,23 @@ static void read_xbm_image( QImageIO *iio )
     int		w=-1, h=-1;
     QImage	image;
 
-    r1 = QString::fromLatin1("^#define[\x20\t]+[a-zA-Z0-9_]+[\x20\t]+");
+    r1 = QString::fromLatin1("^#define[ \t]+[a-zA-Z0-9_]+[ \t]+");
     r2 = QString::fromLatin1("[0-9]+");
     d->readLine( buf, buflen );			// "#define .._width <num>"
     QString sbuf;
     sbuf = QString::fromLatin1(buf);
-    if ( r1.match(sbuf,0,&i)==0 && r2.match(sbuf,i)==i )
+
+    if ( r1.search(sbuf) == 0 &&
+	 r2.search(sbuf, r1.matchedLength()) == r1.matchedLength() )
 	w = atoi( &buf[i] );
+
     d->readLine( buf, buflen );			// "#define .._height <num>"
     sbuf = QString::fromLatin1(buf);
-    if ( r1.match(sbuf,0,&i)==0 && r2.match(sbuf,i)==i )
+
+    if ( r1.search(sbuf) == 0 &&
+	 r2.search(sbuf, r1.matchedLength()) == r1.matchedLength() )
 	h = atoi( &buf[i] );
+
     if ( w <= 0 || w > 32767 || h <= 0 || h > 32767 )
 	return;					// format error
 
@@ -4682,8 +4689,8 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 	iio->setStatus( 1 );
 	d = iio ? iio->ioDevice() : 0;
 	d->readLine( buf.data(), buf.size() );	// "/* XPM */"
-	QRegExp r (QString::fromLatin1("/\\*.XPM.\\*/"));
-	if ( r.match(buf) < 0 )
+	QRegExp r( QString::fromLatin1("/\\*.XPM.\\*/") );
+	if ( buf.find(r) == -1 )
 	    return;					// bad magic
     } else if ( !source ) {
 	return;

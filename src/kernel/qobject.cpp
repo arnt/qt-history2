@@ -893,9 +893,9 @@ static void objSearch( QObjectList *result,
 	    ok = FALSE;
 	if ( ok ) {
 	    if ( objName )
-		ok = qstrcmp(objName,obj->name()) == 0;
+		ok = ( qstrcmp(objName,obj->name()) == 0 );
 	    else if ( rx )
-		ok = rx->match(QString::fromLatin1(obj->name())) >= 0;
+		ok = ( rx->search(QString::fromLatin1(obj->name())) != -1 );
 	}
 	if ( ok )				// match!
 	    result->append( obj );
