@@ -575,21 +575,7 @@ bool MessageEditor::eventFilter( QObject * o, QEvent * e )
 	// handle the ESC key in the list views
 	if ( e->type() == QEvent::KeyRelease && 
 	     ((QKeyEvent *) e)->key() == Key_Escape )
-		editorPage->translationMed->setFocus();
-
-#if 0
-	// be nice with people who start typing at the wrong place
-	if ( e->type() == QEvent::KeyPress ) {
-	    QKeyEvent *ke = (QKeyEvent *) e;
-	    if ( ke->key() != Key_PageUp && ke->key() != Key_PageDown &&
-		 ke->key() != Key_Up && ke->key() != Key_Down &&
-		 ke->key() != Key_Tab ) {
-		editorPage->translationMed->setFocus();
-		qApp->notify( editorPage->translationMed, e );
-		return TRUE;
-	    }
-	}
-#endif
+	    editorPage->translationMed->setFocus();
     }
     return FALSE;
 }
