@@ -2892,7 +2892,7 @@ void QWidget::setFocus()
 	    QApplication::sendEvent( this, &in );
 	}
 #if defined(Q_WS_WIN)
-	if ( !isPopup() )
+	if ( !topLevelWidget()->isPopup() )
 	    SetFocus( winId() );
 	else {
 #endif
