@@ -36,6 +36,9 @@ COM objects itself).
 Calling of COM object methods with out-parameters of type short is now 
 supported (the parameters are of type int& in the Qt wrapper), and QVariants
 used for out-parameters don't have to be initialized to the expected type.
+Calling QByteArray functions in out-of-process controls doesn't return an
+error code anymore. The control's client side is set to zero when the 
+container releases the control.
 
 Qt Designer
 -----------
@@ -57,7 +60,10 @@ Sun CC 5.0.
 ****************************************************************************
 
 - QAction
-	Added a setDislabled() slot similar to QWidget::setDisabled.
+	Added a setDislabled() slot similar to QWidget::setDisabled. Actions
+	with the "text" properties including '&' and with now "menuText" set
+	explicitly encode the '&' to "&&" so that the ampersand is visible in
+	the menu.
 
 - QListView
 	Improved alignment for text in QListViewItems. Right aligned text now
