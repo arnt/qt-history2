@@ -42,6 +42,7 @@
 #include "qplugin.h"
 #include "qdict.h"
 #include "qdir.h"
+#include "qmap.h"
 #include "qstringlist.h"
 #endif // QT_H
 
@@ -49,21 +50,8 @@
 
 class QApplicationInterface;
 
-#if 1 // internal class to provide signal functionality to QPlugInManager
-class Q_EXPORT QInterfaceManagerSignalEmitter : public QObject
-{
-    Q_OBJECT
-public:
-    QInterfaceManagerSignalEmitter() : QObject() {}
-
-signals:
-    void featureAdded( const QString& );
-    void featureRemoved( const QString& );
-};
-#endif
-
 template<class Type>
-class Q_EXPORT QInterfaceManager : public QInterfaceManagerSignalEmitter, public Type
+class Q_EXPORT QInterfaceManager : public Type
 {
 public:
     QInterfaceManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so",
@@ -72,21 +60,11 @@ public:
     {
 	// Every library is unloaded on destruction of the manager
 	libDict.setAutoDelete( TRUE );
-	plugDict.setAutoDelete( FALSE );
 	if ( !path.isEmpty() )
-	    addPlugInPath( path, filter );
+	    addLibraryPath( path, filter );
     }
 
-    ~QInterfaceManager()
-    {
-	QDictIterator<Type> it (plugDict);
-	while( it.current() ) {
-	    emit featureRemoved( it.currentKey() );
-	    ++it;
-	}
-    }
-
-    void addPlugInPath( const QString& path, const QString& filter = "*.dll; *.so" )
+    void addLibraryPath( const QString& path, const QString& filter = "*.dll; *.so" )
     {
 	if ( !QDir( path ).exists( ".", TRUE ) )
 	    return;
@@ -111,23 +89,25 @@ public:
 	bool useful = FALSE;
 
 	if ( plugin->load() ) {
-	    QStringList iFaces = plugin->interfaceList();
-	    for ( QStringList::Iterator i = iFaces.begin(); i != iFaces.end(); ++i ) {
+	    QStringList il = plugin->interfaceList();
+	    for ( QStringList::Iterator i = il.begin(); i != il.end(); ++i ) {
 		QUnknownInterface *iFace = plugin->queryInterface( *i );
 		if ( iFace && iFace->interfaceID() == interfaceID() ) {
 		    Type* typedIFace = (Type*)iFace;
 		    QStringList al = typedIFace->featureList();
 		    for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ ) {
 			useful = TRUE;
-			if ( !plugDict[*a] ) {
-			    plugDict.insert( *a, typedIFace );
-			    emit featureAdded( *a );
+			if ( !interfaceDict[*a] ) {
+			    interfaceDict.insert( *a, typedIFace );
 			}
 #ifdef CHECK_RANGE
 			else
 			    qWarning("%s: Feature %s already defined!", plugin->library().latin1(), (*a).latin1() );
 #endif
 		    }
+		    if ( useful )
+			plugDict.insert( typedIFace, plugin );
+
 		} else {
 		    delete iFace;
 		}
@@ -138,7 +118,7 @@ public:
 	    libDict.replace( plugin->library(), plugin );
 	    return plugin;
 	} else {
-//	    delete plugin;
+	    delete plugin;
 	    return 0;
 	}	
     }
@@ -148,15 +128,20 @@ public:
 	if ( file.isEmpty() )
 	    return FALSE;
 
-	Type* plugin = libDict[ file ];
+	QPlugIn* plugin = libDict[ file ];
 	if ( !plugin )
 	    return FALSE;
 
 	{
-	    QStringList al = ((QPlugIn*)plugin)->featureList();
-	    for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ ) {
-		plugDict.remove( *a );
-		signalEmitter->emit featureRemoved( *a );
+	    QStringList il = plugin->interfaceList();
+	    for ( QStringList::iterator i = il.begin(); i != il.end(); i++ ) {
+		QUnknownInterface *iFace = plugin->queryInterface( *i );
+		if ( iFace && iFace->interfaceID() == interfaceID() ) {
+		    QStringList fl = iFace->featureList();
+		    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
+			interfaceDict.remove( *f );
+		    }
+		}
 	    }
 	}
 	bool unloaded = plugin->unload();
@@ -179,37 +164,17 @@ public:
 	return defPol;
     }
 
-    Type *operator[](const QString& feature) const
+    Type *queryInterface(const QString& feature) const
     {
 	if ( feature.isEmpty() )
 	    return 0;
-	return (Type*)plugDict[feature];
+	return (Type*)interfaceDict[feature];
     }
 
-    QPlugIn* plugIn( const QString& fileName )
-    {
-	if ( fileName.isEmpty() )
-	    return 0;
-	return libDict[fileName];
-    }
-
-    QStringList libraryList()
+    QStringList featureList() const
     {
 	QStringList list;
-
-	QDictIterator<Type> it( libDict );
-	while ( it.current() ) {
-	    list << it.currentKey();
-	    ++it;
-	}
-
-	return list;
-    }
-
-    QStringList featureList()
-    {
-	QStringList list;
-	QDictIterator<Type> it (plugDict);
+	QDictIterator<Type> it (interfaceDict);
 
 	while( it.current() ) {
 	    list << it.currentKey();
@@ -219,12 +184,32 @@ public:
 	return list;
     }
 
+    QPlugIn* plugIn( const QString& fileName ) const
+    {
+	if ( fileName.isEmpty() )
+	    return 0;
+	return libDict[fileName];
+    }
+
+    QStringList libraryList() const
+    {
+	QStringList list;
+
+	QDictIterator<QPlugIn> it( libDict );
+	while ( it.current() ) {
+	    list << it.currentKey();
+	    ++it;
+	}
+
+	return list;
+    }
+/*
     bool selectFeature( const QString& feat )
     {
 	Type* iface = 0;
 	if ( !!feat )
 	    iface = queryInterface( feat );
-	QDictIterator<Type> it( libDict );
+	QDictIterator<Type> it( interfaceDict );
 
 	while ( it.current() ) {
 	    if ( it.current() == iface && ! it.current()->loaded() )
@@ -246,9 +231,10 @@ public:
 	    return iface->unload();
 	return TRUE;
     }
-
+*/
 private:
-    QDict<Type> plugDict;	    // Dict to match requested feature with plugin
+    QDict<Type> interfaceDict;	    // Dict to match requested feature with interface
+    QMap<Type*, QPlugIn*> plugDict;   // Map to match interface with plugin
     QDict<QPlugIn> libDict;	    // Dict to match library file with plugin
 
     QPlugIn::LibraryPolicy defPol;
