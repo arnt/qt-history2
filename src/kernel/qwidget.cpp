@@ -759,20 +759,15 @@ QWidget::~QWidget()
 	QApplication::main_widget = 0;
 	if (qApp)
 	    qApp->quit();
-    } else if ( isTopLevel() && !isPopup() ) {
-	    hide();
-	    if ( noMoreToplevels() && qApp )
-		emit qApp->lastWindowClosed();
     }
+    
     if ( focusWidget() == this )
 	clearFocus();
     if ( QApplication::focus_widget == this )
 	QApplication::focus_widget = 0;
 
-    if ( isTopLevel() && isVisible() && winId() )
+    if ( isTopLevel() && !isHidden() && winId() )
 	hide();
-    // ###shall we really emit lastWindowClosed? here as well?  It's
-    // ###not closed but destroyed....
 
     // A parent widget must destroy all its children before destroying itself
     if ( childObjects ) {			// delete children objects
