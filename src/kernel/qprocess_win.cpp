@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#18 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -282,7 +282,7 @@ void QProcess::socketRead( int fd )
     if ( i > 0 ) {
 	QByteArray buffer;
 	uint oldSize;
-	if ( fd == d->socketStdout[0] ) {
+	if ( fd == 1 ) {
 	    buffer = bufStdout;
 	} else {
 	    buffer = bufStderr;
