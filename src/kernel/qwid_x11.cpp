@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#57 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#56 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#57 $";
 #endif
 
 
@@ -365,6 +365,10 @@ void QWidget::setCursor( const QCursor &cursor )// set cursor
 }
 
 
+/*! Grab the mouse.  The focus will remain in the widget, even if the
+  mouse is moved outside the widget's limits. \sa releaseMouse(),
+  grabKeyboard(), releaseKeyboard(). */
+
 void QWidget::grabMouse()
 {
     if ( !testFlag(WState_MGrab) ) {
@@ -376,6 +380,12 @@ void QWidget::grabMouse()
 		      None, None, CurrentTime );
     }
 }
+
+/*! Grab the mouse and change the cursor appearance.  The cursor will
+  assume shape \e cursor (for as long as the mouse focus is grabbed)
+  and the focus will remain in the widget, even if the mouse is moved
+  outside the widget's limits. \sa releaseMouse(), grabKeyboard(),
+  releaseKeyboard(), setCursor(), QCursor. */
 
 void QWidget::grabMouse( const QCursor &cursor )
 {
@@ -389,6 +399,10 @@ void QWidget::grabMouse( const QCursor &cursor )
     }
 }
 
+/*! Release the mouse.  The focus will leave the widget when the mouse
+  moves beyond the widget's limits.  \sa grabMouse(), grabKeyboard(),
+  releaseMouse(). */
+
 void QWidget::releaseMouse()
 {
     if ( testFlag(WState_MGrab) ) {
@@ -397,6 +411,9 @@ void QWidget::releaseMouse()
     }
 }
 
+/*! Grab the keyboard focus.  This widget will receive all keyboard
+  events, no matter where the mouse cursor is.  \sa releaseKeyboard(),
+  grabMouse(), releaseMouse(). */
 
 void QWidget::grabKeyboard()
 {
@@ -407,6 +424,10 @@ void QWidget::grabKeyboard()
     }
 }
 
+/*! Release the keyboard focus.  The keyboard events will follow their
+  natural inclination (generally towards the widget the mouse is
+  pointing at). \sa grabKeyboard(), grabMouse(), releaseMouse(). */
+
 void QWidget::releaseKeyboard()
 {
     if ( testFlag(WState_KGrab) ) {
@@ -415,6 +436,9 @@ void QWidget::releaseKeyboard()
     }
 }
 
+
+/*! Does nothing at all, right now. \sa getFocus(), grabKeyboard(),
+  releaseKeyboard(). */
 
 void QWidget::setFocus()			// set keyboard focus
 {
@@ -439,11 +463,19 @@ void QWidget::setFocus()			// set keyboard focus
 */
 }
 
-QWidget *QWidget::widgetInFocus()		// get focus widget
-{
+/*! Returns a pointer to the widget which currently has the keyboard
+  focus; if the focus isn't currently in the Qt application, NULL is
+  returned.  It's not clear whether NULL may be returned even when the
+  cursor is inside the window but the in-focus widget as just been
+  destroyed. */
+
+QWidget *QWidget::widgetInFocus() // get focus widget
+{ 
     return activeWidget;
 }
 
+/*! Enable or disable updates of this widget.  If updates are
+  disabled, the widget will not receive repaint events. */
 
 bool QWidget::enableUpdates( bool enable )	// enable widget update/repaint
 {
@@ -455,11 +487,17 @@ bool QWidget::enableUpdates( bool enable )	// enable widget update/repaint
     return last;
 }
 
+/*! Update the entire widget.  If updates are enabled, of course.  The
+  default action of this is to clear the widget, so widgets that wish
+  to actually interact with the user should reimplement it.  */
+
 void QWidget::update()				// update widget
 {
     if ( !testFlag(WNoUpdates) )
 	XClearArea( dpy, ident, 0, 0, 0, 0, TRUE );
 }
+
+/*! Update part of the widget.  */
 
 void QWidget::update( int x, int y, int w, int h )
 {						// update part of widget

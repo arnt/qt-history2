@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#38 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#37 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#38 $";
 #endif
 
 /*! \class QWidget qwidget.h
@@ -368,7 +368,12 @@ bool QWidget::setMouseTracking( bool enable )
 }
 #endif // _WS_X11_
 
+/*! \fn bool QWidget::hasFocus() const
 
+  Returns TRUE if the widget (\e not one of its children) has the
+  keyboard focus.
+
+  \todo check that */
 
 
 void QWidget::setFRect( const QRect &r )	// set frect, update crect
