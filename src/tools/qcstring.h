@@ -51,24 +51,6 @@
 
 
 /*****************************************************************************
-  Fixes and workarounds for some platforms
- *****************************************************************************/
-
-#if defined(Q_OS_HPUX)
-// HP-UX has badly defined strstr() etc.
-inline char *qt_hack_strstr( const char *s1, const char *s2 )
-{ return (char *)strstr(s1, s2); }
-inline char *qt_hack_strchr( const char *s, int c )
-{ return (char *)strchr(s, c); }
-inline char *qt_hack_strrchr( const char *s, int c )
-{ return (char *)strrchr(s, c); }
-#define strstr(s1,s2)	qt_hack_strstr((s1),(s2))
-#define strchr(s,c)	qt_hack_strchr((s),(c))
-#define strrchr(s,c)	qt_hack_strrchr((s),(c))
-#endif
-
-
-/*****************************************************************************
   Safe and portable C string functions; extensions to standard string.h
  *****************************************************************************/
 
