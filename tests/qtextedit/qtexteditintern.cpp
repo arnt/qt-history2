@@ -1275,6 +1275,10 @@ void QTextEditParag::format( int start, bool doMove )
 
     r.moveTopLeft( QPoint( doc->x(), p ? p->r.y() + p->r.height() : doc->y() ) );
     r.setWidth( doc->width() );
+    QMap<int, LineStart*>::Iterator it = lineStarts.begin();
+    for ( ; it != lineStarts.end(); ++it )
+	delete *it;
+    lineStarts.clear();
     int y = doc->formatter()->format( this, start );
 
     QTextEditString::Char *c = 0;
@@ -1461,7 +1465,6 @@ int QTextEditFormatterBreakInWords::format( QTextEditParag *parag, int start )
     start = 0;
     if ( start == 0 ) {
 	c = &parag->string()->at( 0 );
-	parag->lineStartList().clear();
     }
     // #########################################
 
@@ -1528,7 +1531,6 @@ int QTextEditFormatterBreakWords::format( QTextEditParag *parag, int start )
     start = 0;
     if ( start == 0 ) {
 	c = &parag->string()->at( 0 );
-	parag->lineStartList().clear();
     }
     // #########################################
 

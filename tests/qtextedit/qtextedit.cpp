@@ -38,10 +38,9 @@ static QPixmap *bufferPixmap( const QSize &s, const QColor &fill )
 QTextEdit::QTextEdit( QWidget *parent, QTextEditDocument *d )
     : QScrollView( parent, "", WNorthWestGravity | WRepaintNoErase ), doc( d ), undoRedoInfo( d )
 {
-    setMinimumWidth( 50 );
     doc->setFormatter( new QTextEditFormatterBreakWords( d ) );
     currentFormat = doc->formatCollection()->defaultFormat();
-    
+
     viewport()->setBackgroundMode( PaletteBase );
     resizeContents( 0, doc->lastParag() ?
 		    ( doc->lastParag()->paragId() + 1 ) * doc->formatCollection()->defaultFormat()->height() : 0 );
@@ -66,7 +65,7 @@ QTextEdit::QTextEdit( QWidget *parent, QTextEditDocument *d )
     formatMore();
     viewport()->setCursor( ibeamCursor );
     viewport()->setFocusPolicy( WheelFocus );
-    
+
     completionPopup = new QVBox( this, 0, WType_Popup );
     completionPopup->setFrameStyle( QFrame::Box | QFrame::Plain );
     completionPopup->setLineWidth( 1 );
@@ -425,7 +424,7 @@ void QTextEdit::doKeyboardAction( int action )
     repaintChanged();
     ensureCursorVisible();
     drawCursor( TRUE );
-    
+
     updateCurrentFormat();
 }
 
@@ -473,7 +472,7 @@ void QTextEdit::moveCursor( int direction, bool shift, bool control )
 	    drawCursor( TRUE );
 	}
     }
-    
+
     updateCurrentFormat();
 }
 
@@ -801,7 +800,7 @@ bool QTextEdit::doCompletion()
 {
     if ( !doc->isCompletionEnabled() )
 	return FALSE;
-    
+
     int idx = cursor->index();
     if ( idx == 0 )
 	return FALSE;
@@ -906,7 +905,7 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine )
     cursor->insert( text, checkNewLine );
     if ( !doc->syntaxHighlighter() )
 	cursor->parag()->setFormat( idx, text.length(), currentFormat, TRUE );
-		    
+		
     if ( indent && text == "{" || text == "}" )
 	cursor->indent();
     formatMore();
@@ -998,7 +997,7 @@ void QTextEdit::setFormat( const QFont &font, const QColor &color )
     currentFormat = doc->formatCollection()->format( font, color );
     if ( doc->hasSelection( QTextEditDocument::Standard ) ) {
 	drawCursor( FALSE );
-	doc->setFormat( QTextEditDocument::Standard, currentFormat ); 
+	doc->setFormat( QTextEditDocument::Standard, currentFormat );
 
 	QTextEditParag *start = doc->selectionStart( QTextEditDocument::Standard );
 	QTextEditParag *end = doc->selectionEnd( QTextEditDocument::Standard );
