@@ -244,8 +244,6 @@ static QPointer<QWidget>* activeBeforePopup = 0; // focus handling with popu
 QWidget               *qt_button_down         = 0;                // widget got last button-down
 WId qt_last_cursor = 0xffffffff;  // Was -1, but WIds are unsigned
 
-extern bool qt_tryAccelEvent(QWidget*, QKeyEvent*); // def in qaccel.cpp
-
 class QWSMouseEvent;
 class QWSKeyEvent;
 
@@ -2761,11 +2759,12 @@ bool QETWidget::translateKeyEvent(const QWSKeyEvent *event, bool grab)
     }
     code = event->simpleData.keycode;
 
-#ifndef QT_NO_ACCEL
-    if (type == QEvent::KeyPress && !grab) {
+#if !defined QT_NO_COMPAT && !defined(QT_NO_ACCEL)
+    if (type == QEvent::KeyPress && !grab
+        && static_cast<QApplicationPrivate*>(qApp->d_ptr)->use_compat()) {
         // send accel events if the keyboard is not grabbed
         QKeyEvent a(type, code, state, text, autor, int(text.length()));
-        if (qt_tryAccelEvent(this, &a))
+        if (static_cast<QApplicationPrivate*>(qApp->d_ptr)->qt_tryAccelEvent(this, &a))
             return true;
     }
 #endif
