@@ -21,8 +21,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>598</width>
-            <height>409</height>
+            <width>602</width>
+            <height>407</height>
         </rect>
     </property>
     <property name="caption">
@@ -47,7 +47,7 @@
             <property name="spacing">
                 <number>6</number>
             </property>
-            <spacer row="5" column="1">
+            <spacer row="4" column="1">
                 <property name="name" stdset="0">
                     <cstring>Spacer7</cstring>
                 </property>
@@ -64,76 +64,7 @@
                     </size>
                 </property>
             </spacer>
-            <widget class="QGroupBox" row="3" column="1">
-                <property name="name">
-                    <cstring>GroupBox3</cstring>
-                </property>
-                <property name="title">
-                    <string>Help Actions</string>
-                </property>
-                <grid>
-                    <property name="margin">
-                        <number>11</number>
-                    </property>
-                    <property name="spacing">
-                        <number>6</number>
-                    </property>
-                    <widget class="QLabel" row="0" column="0" rowspan="1" colspan="3">
-                        <property name="name">
-                            <cstring>TextLabel2_2_2</cstring>
-                        </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>3</hsizetype>
-                                <vsizetype>5</vsizetype>
-                            </sizepolicy>
-                        </property>
-                        <property name="text">
-                            <string>like Contents and About, etc.</string>
-                        </property>
-                    </widget>
-                    <widget class="QCheckBox" row="1" column="0">
-                        <property name="name">
-                            <cstring>checkHelpMenu</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Menu</string>
-                        </property>
-                        <property name="checked">
-                            <bool>true</bool>
-                        </property>
-                    </widget>
-                    <spacer row="1" column="2">
-                        <property name="name" stdset="0">
-                            <cstring>Spacer6</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>20</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                    </spacer>
-                    <widget class="QCheckBox" row="1" column="1">
-                        <property name="name">
-                            <cstring>checkHelpToolbar</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Toolbar</string>
-                        </property>
-                        <property name="checked">
-                            <bool>true</bool>
-                        </property>
-                    </widget>
-                </grid>
-            </widget>
-            <widget class="QLabel" row="0" column="0" rowspan="6" colspan="1">
+            <widget class="QLabel" row="0" column="0" rowspan="5" colspan="1">
                 <property name="name">
                     <cstring>TextLabel4_2</cstring>
                 </property>
@@ -367,74 +298,19 @@
                     <string>.......A nice Pixmap here......</string>
                 </property>
             </widget>
-            <widget class="QGroupBox" row="2" column="1">
+            <widget class="QLabel" row="0" column="1">
                 <property name="name">
-                    <cstring>GroupBox2</cstring>
+                    <cstring>TextLabel1</cstring>
                 </property>
-                <property name="title">
-                    <string>Edit Actions</string>
+                <property name="font">
+                    <font>
+                        <pointsize>10</pointsize>
+                        <bold>1</bold>
+                    </font>
                 </property>
-                <grid>
-                    <property name="margin">
-                        <number>11</number>
-                    </property>
-                    <property name="spacing">
-                        <number>6</number>
-                    </property>
-                    <widget class="QCheckBox" row="1" column="1">
-                        <property name="name">
-                            <cstring>checkEditToolbar</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Toolbar</string>
-                        </property>
-                        <property name="checked">
-                            <bool>true</bool>
-                        </property>
-                    </widget>
-                    <widget class="QCheckBox" row="1" column="0">
-                        <property name="name">
-                            <cstring>checkEditMenu</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Menu</string>
-                        </property>
-                        <property name="checked">
-                            <bool>true</bool>
-                        </property>
-                    </widget>
-                    <widget class="QLabel" row="0" column="0" rowspan="1" colspan="3">
-                        <property name="name">
-                            <cstring>TextLabel2_2</cstring>
-                        </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>3</hsizetype>
-                                <vsizetype>5</vsizetype>
-                            </sizepolicy>
-                        </property>
-                        <property name="text">
-                            <string>like Cut, Copy, Paste, Undo and Redo, etc.</string>
-                        </property>
-                    </widget>
-                    <spacer row="1" column="2">
-                        <property name="name" stdset="0">
-                            <cstring>Spacer5</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>20</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                    </spacer>
-                </grid>
+                <property name="text">
+                    <string>Choose the available menus and toolbars</string>
+                </property>
             </widget>
             <widget class="QGroupBox" row="1" column="1">
                 <property name="name">
@@ -472,14 +348,6 @@
                             <bool>true</bool>
                         </property>
                     </widget>
-                    <widget class="QLabel" row="0" column="0" rowspan="1" colspan="3">
-                        <property name="name">
-                            <cstring>TextLabel2</cstring>
-                        </property>
-                        <property name="text">
-                            <string>like New, Open File, Save, Print, etc.</string>
-                        </property>
-                    </widget>
                     <spacer row="1" column="2">
                         <property name="name" stdset="0">
                             <cstring>Spacer4</cstring>
@@ -497,32 +365,186 @@
                             </size>
                         </property>
                     </spacer>
+                    <widget class="QCheckBox" row="1" column="3">
+                        <property name="name">
+                            <cstring>checkCreateConnectionsFile</cstring>
+                        </property>
+                        <property name="text">
+                            <string>&amp;Create Slots and Connections for the actions</string>
+                        </property>
+                        <property name="checked">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="0" column="0" rowspan="1" colspan="4">
+                        <property name="name">
+                            <cstring>TextLabel2</cstring>
+                        </property>
+                        <property name="text">
+                            <string>like New, Open File, Save, Print, etc.</string>
+                        </property>
+                    </widget>
                 </grid>
             </widget>
-            <widget class="QLabel" row="0" column="1">
+            <widget class="QGroupBox" row="2" column="1">
                 <property name="name">
-                    <cstring>TextLabel1</cstring>
+                    <cstring>GroupBox2</cstring>
                 </property>
-                <property name="font">
-                    <font>
-                        <pointsize>10</pointsize>
-                        <bold>1</bold>
-                    </font>
+                <property name="title">
+                    <string>Edit Actions</string>
                 </property>
-                <property name="text">
-                    <string>Choose the available menus and toolbars</string>
-                </property>
+                <grid>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QCheckBox" row="1" column="1">
+                        <property name="name">
+                            <cstring>checkEditToolbar</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Toolbar</string>
+                        </property>
+                        <property name="checked">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
+                    <widget class="QCheckBox" row="1" column="0">
+                        <property name="name">
+                            <cstring>checkEditMenu</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Menu</string>
+                        </property>
+                        <property name="checked">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
+                    <spacer row="1" column="2">
+                        <property name="name" stdset="0">
+                            <cstring>Spacer5</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QCheckBox" row="1" column="3">
+                        <property name="name">
+                            <cstring>checkCreateConnectionsEdit</cstring>
+                        </property>
+                        <property name="text">
+                            <string>&amp;Create Slots and Connections for the actions</string>
+                        </property>
+                        <property name="checked">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="0" column="0" rowspan="1" colspan="4">
+                        <property name="name">
+                            <cstring>TextLabel2_2</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>3</hsizetype>
+                                <vsizetype>5</vsizetype>
+                            </sizepolicy>
+                        </property>
+                        <property name="text">
+                            <string>like Cut, Copy, Paste, Undo and Redo, etc.</string>
+                        </property>
+                    </widget>
+                </grid>
             </widget>
-            <widget class="QCheckBox" row="4" column="1">
+            <widget class="QGroupBox" row="3" column="1">
                 <property name="name">
-                    <cstring>checkCreateConnections</cstring>
+                    <cstring>GroupBox3</cstring>
                 </property>
-                <property name="text">
-                    <string>&amp;Create Slots and Connections for the actions</string>
+                <property name="title">
+                    <string>Help Actions</string>
                 </property>
-                <property name="checked">
-                    <bool>true</bool>
-                </property>
+                <grid>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QLabel" row="0" column="0" rowspan="1" colspan="4">
+                        <property name="name">
+                            <cstring>TextLabel2_2_2</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>3</hsizetype>
+                                <vsizetype>5</vsizetype>
+                            </sizepolicy>
+                        </property>
+                        <property name="text">
+                            <string>like Contents and About, etc.</string>
+                        </property>
+                    </widget>
+                    <widget class="QCheckBox" row="1" column="0">
+                        <property name="name">
+                            <cstring>checkHelpMenu</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Menu</string>
+                        </property>
+                        <property name="checked">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
+                    <widget class="QCheckBox" row="1" column="1">
+                        <property name="name">
+                            <cstring>checkHelpToolbar</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Toolbar</string>
+                        </property>
+                        <property name="checked">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
+                    <spacer row="1" column="2">
+                        <property name="name" stdset="0">
+                            <cstring>Spacer6</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QCheckBox" row="1" column="3">
+                        <property name="name">
+                            <cstring>checkCreateConnectionsHelp</cstring>
+                        </property>
+                        <property name="text">
+                            <string>&amp;Create Slots and Connections for the actions</string>
+                        </property>
+                        <property name="checked">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
+                </grid>
             </widget>
         </grid>
     </widget>
@@ -531,7 +553,7 @@
             <cstring>toolbarsPage</cstring>
         </property>
         <attribute name="title">
-            <string>Setup Toolbars</string>
+            <string>Setup Toolbar</string>
         </attribute>
         <grid>
             <property name="name">
@@ -902,7 +924,7 @@
                     </font>
                 </property>
                 <property name="text">
-                    <string>Setup Toolbars</string>
+                    <string>Setup Toolbar</string>
                 </property>
             </widget>
             <spacer row="3" column="2">
@@ -1536,14 +1558,15 @@
 		usedActions.append( a );
 	}
     }
-    
-    if ( checkCreateConnections-&gt;isChecked() ) {
-	for ( QAction *ac = usedActions.first(); ac; ac = usedActions.next() ) {
-	    QString slot = ac-&gt;name();
-	    slot.remove( slot.length() - 6, 6 );
-	    slot += "()";
-	    dfw-&gt;addSlot( slot.latin1(), "public", dIface-&gt;currentProject()-&gt;language() );
-	    dfw-&gt;addConnection( ac, "activated()", widget, slot );
+    for ( QAction *ac = usedActions.first(); ac; ac = usedActions.next() ) {
+	if ( QString( ac-&gt;name() ).find( "file" ) != -1 &amp;&amp; checkCreateConnectionsFile-&gt;isChecked() ||
+	    QString( ac-&gt;name() ).find( "edit" ) != -1 &amp;&amp; checkCreateConnectionsEdit-&gt;isChecked() ||
+	    QString( ac-&gt;name() ).find( "help" ) != -1 &amp;&amp; checkCreateConnectionsHelp-&gt;isChecked() ) {
+		QString slot = ac-&gt;name();
+		slot.remove( slot.length() - 6, 6 );
+		slot += "()";
+		dfw-&gt;addSlot( slot.latin1(), "public", dIface-&gt;currentProject()-&gt;language() );
+		dfw-&gt;addConnection( ac, "activated()", widget, slot );
 	}
     }
     
