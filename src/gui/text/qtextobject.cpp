@@ -31,18 +31,19 @@
     \ingroup text
 
     The common grouping text objects are lists (QTextList), frames
-    (QTextFrame) and tables (QTextTable). A text object has an
+    (QTextFrame), and tables (QTextTable). A text object has an
     associated format() and document().
 
-    There are essentially two kinds of text objects: Objects used with
-    blocks (block formats) and objects used with characters (character
-    formats). The first kind are derived from QTextBlockGroup, and the
-    second kind from QTextFrame.
+    There are essentially two kinds of text objects: those that are used
+    with blocks (block formats), and those that are used with characters
+    (character formats). The first kind are derived from QTextBlockGroup,
+    and the second kind from QTextFrame.
 
-    You should rarely need to use this class directly. When creating
-    custom text objects, you will also need to reimplement
-    QTextDocument::createObject(), that acts as a factory method for
-    creating text objects.
+    You rarely need to use this class directly. When creating custom text
+    objects, you will also need to reimplement QTextDocument::createObject()
+    which acts as a factory method for creating text objects.
+
+    \sa QTextDocument
 */
 
 /*!
@@ -52,8 +53,10 @@
 */
 
 /*!
-    Creates a new QTextObject for the document, \a doc.
+    \fn QTextObject::QTextObject(QTextDocument *document)
 
+    Creates a new QTextObject for the given \a document.
+    
     \warning This function should never be called directly, but only
     from QTextDocument::createObject().
 */
@@ -91,7 +94,7 @@ QTextFormat QTextObject::format() const
 }
 
 /*!
-    Sets the text object's format to \a format.
+    Sets the text object's \a format.
 
     \sa format()
 */
@@ -102,7 +105,7 @@ void QTextObject::setFormat(const QTextFormat &format)
 }
 
 /*!
-    The object index of this object. This can be used together with
+    Returns the object index of this object. This can be used together with
     QTextFormat::setObjectIndex().
 */
 int QTextObject::objectIndex() const
