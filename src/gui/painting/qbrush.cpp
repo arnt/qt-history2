@@ -145,7 +145,7 @@ void QBrush::init(const QColor &color, Qt::BrushStyle style)
     switch(style) {
     case Qt::CustomPattern:
         d = new QTexturedBrushData;
-        static_cast<QTexturedBrushData *>(d)->pixmap = 0;
+        static_cast<QTexturedBrushData *>(d)->pixmap = QPixmap();
         break;
     case Qt::LinearGradientPattern:
         d = new QLinGradBrushData;
