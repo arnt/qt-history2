@@ -21,6 +21,7 @@
 #include <qrect.h>
 #include <qpalette.h>
 #include <qdebug.h>
+#include <qvarlengtharray.h>
 #include <limits.h>
 
 #include "qabstracttextdocumentlayout_p.h"
@@ -728,6 +729,8 @@ LayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTa
     // keep them visible
     layoutStruct.maximumWidth = qMax(layoutStruct.maximumWidth, floatMinWidth);
 
+//    qDebug() << "layoutCell done";
+
     return layoutStruct;
 }
 
@@ -842,18 +845,36 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
             }
 
         if (totalWidth > 0) {
-            int lastWidth = totalWidth;
+            QVarLengthArray<int> anySizeColumns;
+            QVarLengthArray<int> columnsWithProperMaxSize;
+            for (int i = 0; i < columns; ++i)
+                if (constraints.at(i) == QTextTableFormat::VariableLength) {
+                    if (td->maxWidths.at(i) == INT_MAX)
+                        anySizeColumns.append(i);
+                    else
+                        columnsWithProperMaxSize.append(i);
+                }
+
+            int lastTotalWidth = totalWidth;
             while (totalWidth > 0) {
-                for (int i = 0; i < columns; ++i)
-                    if (constraints.at(i) == QTextTableFormat::VariableLength) {
-                        const int colsLeft = columns - i;
-                        const int w = qMin(td->maxWidths.at(i) - td->widths.at(i), totalWidth / colsLeft);
-                        td->widths[i] += w;
-                        totalWidth -= w;
-                    }
-                if (totalWidth == lastWidth)
+                for (int k = 0; k < columnsWithProperMaxSize.count(); ++k) {
+                    const int col = columnsWithProperMaxSize[k];
+                    const int colsLeft = columnsWithProperMaxSize.count() - k;
+                    const int w = qMin(td->maxWidths.at(col) - td->widths.at(col), totalWidth / colsLeft);
+                    td->widths[col] += w;
+                    totalWidth -= w;
+                }
+                if (totalWidth == lastTotalWidth)
                     break;
-                lastWidth = totalWidth;
+                lastTotalWidth = totalWidth;
+            }
+
+            if (totalWidth > 0) {
+                const int widthPerAnySizedCol = totalWidth / anySizeColumns.count();
+                for (int k = 0; k < anySizeColumns.count(); ++k) {
+                    const int col = anySizeColumns[k];
+                    td->widths[col] += widthPerAnySizedCol;
+                }
             }
         }
     }
@@ -896,6 +917,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
             }
 
             const int width = td->cellWidth(c, cspan);
+//            qDebug() << "layoutCell for cell at row" << r << "col" << c;
             LayoutStruct layoutStruct = layoutCell(table, cell, width);
 
             td->heights[r] = qMax(td->heights.at(r), layoutStruct.y + 2*td->padding);
@@ -1193,6 +1215,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
         flags |= Qt::TextSingleLine;
     tl->setTextFlags(flags);
 
+//    qDebug() << "layoutBlock; width" << layoutStruct->x_right - layoutStruct->x_left << "(maxWidth is btw" << tl->maximumWidth() << ")";
 //    tl->useDesignMetrics(true);
 //     tl->enableKerning(true);
     tl->clearLines();
@@ -1225,6 +1248,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
         else
             line.layout(right - left);
 
+//        qDebug() << "layoutBlock; layouting line with width" << right - left << "->textWidth" << line.textWidth();
         floatMargins(layoutStruct, &left, &right);
         left = qMax(left, l);
         right = qMin(right, r);
@@ -1248,7 +1272,10 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
     layoutStruct->y += blockFormat.bottomMargin();
     // ### doesn't take floats into account. would need to do it per line. but how to retrieve then? (Simon)
     layoutStruct->minimumWidth = qMax(layoutStruct->minimumWidth, tl->minimumWidth() + blockFormat.leftMargin() + indent);
-    layoutStruct->maximumWidth = qMin(layoutStruct->maximumWidth, tl->maximumWidth() + blockFormat.leftMargin() + indent);
+
+    const int maxW = tl->maximumWidth() + blockFormat.leftMargin() + indent;
+    if (maxW > 0)
+        layoutStruct->maximumWidth = qMin(layoutStruct->maximumWidth, maxW);
 }
 
 void QTextDocumentLayoutPrivate::floatMargins(LayoutStruct *layoutStruct, int *left, int *right)
