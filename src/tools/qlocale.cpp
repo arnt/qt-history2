@@ -1672,15 +1672,15 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     country values used.
 
     An alternative method for constructing a QLocale object is by
-    specifying the unix locale name.
-    
+    specifying the Unix locale name.
+
     \code
     QLocale hebrew("he");
     QLocale swiss("de_CH");
     \endcode
-    
-    This constructor converts the unix locale name to a language/country
-    pair, it does not use the system locale database present on unix.
+
+    This constructor converts the Unix locale name to a language/country
+    pair; it does not use the system locale database present on Unix.
 
     All the methods in QLocale, with the exception of setDefaultLocale(),
     are reentrant.
@@ -2084,25 +2084,26 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 
 /*!
     Constructs a QLocale object with the specified \a unix_locale_name,
-    which has the unix locale format
+    which has the Unix locale format:
     "language[_country][.codeset][@modifier]" or "C", where:
-    
+
     \list
     \i language is a lowercase, two-letter, ISO 639 language code,
     \i territory is an uppercase, two-letter, ISO 3166 country code,
     \i and codeset and modifier are ignored.
     \endlist
-    
-    If the string violates the unix locale format, or language
-    is not a valid ISO 369 code, the "C" locale is used instead. If
-    country is not present, or is not a valid ISO 3166 code, the most 
+
+    If the string violates the Unix locale format, or language is not
+    a valid ISO 369 code, the "C" locale is used instead. If country
+    is not present, or is not a valid ISO 3166 code, the most
     appropriate country is chosen for the specified language.
 
     The language and country codes are converted to their respective
-    Langauge and Country enums. After this conversion is performed,
-    the constructor behaves exactly like QLocale(Country, Language).
+    \c Langauge and \c Country enums. After this conversion is
+    performed the constructor behaves exactly like QLocale(Country,
+    Language).
 
-    This constructor is considerably slower than QLocale(Country, Language).
+    This constructor is much slower than QLocale(Country, Language).
 
     \sa unixLocaleName()
 */
@@ -2215,11 +2216,11 @@ QLocale::Country QLocale::country() const
 }
 
 /*!
-    Returns the language and country of this locale as a unix
+    Returns the language and country of this locale as a Unix
     locale string of the form "language_country", where
-    language is a lowercase, two-letter, ISO 639 language code
-    and country is an uppercase, two-letter, ISO 3166 country code.
-    
+    language is a lowercase, two-letter ISO 639 language code,
+    and country is an uppercase, two-letter ISO 3166 country code.
+
     \sa QLocale()
 */
 
@@ -2265,7 +2266,9 @@ QString QLocale::countryToString(Country country)
 }
 
 /*!
-    Returns the short int represented by the localized string \a s.
+    Returns the short int represented by the localized string \a s, or
+    0 if the conversion failed.
+
     If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
