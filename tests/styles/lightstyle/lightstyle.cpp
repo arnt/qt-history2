@@ -1188,7 +1188,7 @@ void LightStyle::drawComplexControl( ComplexControl control,
 QRect LightStyle::querySubControlMetrics( ComplexControl control,
 					  const QWidget *widget,
 					  SubControl sc,
-					  void **data = 0 ) const
+					  void **data ) const
 {
     QRect ret;
 
@@ -1288,7 +1288,7 @@ QRect LightStyle::querySubControlMetrics( ComplexControl control,
 QStyle::SubControl LightStyle::querySubControl( ComplexControl control,
 						const QWidget *widget,
 						const QPoint &pos,
-						void **data = 0 ) const
+						void **data ) const
 {
     QStyle::SubControl ret =
 	QWindowsStyle::querySubControl(control, widget, pos, data);
