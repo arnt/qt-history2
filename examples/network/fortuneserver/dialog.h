@@ -1,8 +1,11 @@
-#ifndef DIALOG_H_INCLUDED
-#define DIALOG_H_INCLUDED
+#ifndef DIALOG_H
+#define DIALOG_H
 
-#include <QtGui>
-#include <QtNetwork>
+#include <QDialog>
+
+class QLabel;
+class QPushButton;
+class QTcpServer;
 
 class Dialog : public QDialog
 {
@@ -11,16 +14,13 @@ class Dialog : public QDialog
 public:
     Dialog(QWidget *parent = 0);
 
-public slots:
+private slots:
     void sendFortune();
 
 private:
     QLabel *statusLabel;
     QPushButton *quitButton;
-
     QTcpServer *fortuneServer;
-
-    QList<QByteArray> fortunes;
 };
 
 #endif
