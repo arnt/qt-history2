@@ -273,6 +273,7 @@ void QDesignerToolBar::buttonMouseMoveEvent( QMouseEvent *e, QObject *o )
 	reInsert();
     }
     lastIndicatorPos = QPoint( -1, -1 );
+    indicator->hide();
 }
 
 #ifndef QT_NO_DRAGANDDROP
@@ -586,6 +587,7 @@ void QDesignerMenuBar::mouseMoveEvent( QMouseEvent *e )
 	insertItem( txt, popup, -1, itm );
     }
     lastIndicatorPos = QPoint( -1, -1 );
+    indicator->hide();
     mousePressed = FALSE;
 }
 
@@ -797,6 +799,7 @@ void QDesignerPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	actionList.insert( itm, a );
 	reInsert();
     }
+    indicator->hide();
     lastIndicatorPos = QPoint( -1, -1 );
     mousePressed = FALSE;
 }

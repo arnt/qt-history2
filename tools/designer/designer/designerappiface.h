@@ -159,9 +159,12 @@ public:
     void setListViewIcon( const QPixmap & );
     void setCurrentWidget( QWidget * );
     QList<QAction> actionList() const;
+    QAction *createAction( const QString& text, const QIconSet& icon, const QString& menuText, int accel,
+			   QObject* parent, const char* name = 0, bool toggle = FALSE );
     void addAction( QAction * );
     void removeAction( QAction * );
     void preview() const;
+    void addSlot( const QCString &slot, const QString &access, const QString &language );
     void addConnection( QObject *sender, const char *signal, QObject *receiver, const char *slot );
     void setProperty( QObject *o, const char *property, const QVariant &value );
     QVariant property( QObject *o, const char *property ) const;
@@ -176,6 +179,12 @@ public:
     void setForwardDeclarations( const QStringList &lst );
     QStringList variables() const;
     void setVariables( const QStringList &lst );
+    void addMenu( const QString &text, const QString &name );
+    void addMenuAction( const QString &menu, QAction *a );
+    void addMenuSeparator( const QString &menu );
+    void addToolBar( const QString &text, const QString &name );
+    void addToolBarAction( const QString &tb, QAction *a );
+    void addToolBarSeparator( const QString &tb );
 
     void onModificationChange( QObject *receiver, const char *slot );
 

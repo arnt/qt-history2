@@ -2125,6 +2125,8 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
 
 void Resource::saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent )
 {
+    if ( !mw->child( 0, "QMenuBar" ) )
+	return;
     ts << makeIndent( indent ) << "<menubar>" << endl;
     indent++;
 

@@ -1,5 +1,18 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>MainWindowWizardBase</class>
+<include location="global" impldecl="in implementation">qdict.h</include>
+<include location="global" impldecl="in implementation">qpixmap.h</include>
+<include location="global" impldecl="in implementation">qaction.h</include>
+<include location="local" impldecl="in implementation">images.h</include>
+<include location="global" impldecl="in implementation">qiconset.h</include>
+<include location="global" impldecl="in implementation">designerinterface.h</include>
+<forward>class QWidget;</forward>
+<forward>struct QUnknownInterface;</forward>
+<forward>struct DesignerInterface;</forward>
+<forward>class DesignerFormWindow;</forward>
+<variable>QWidget *widget;</variable>
+<variable>DesignerInterface *dIface;</variable>
+<variable>DesignerFormWindow *dfw;</variable>
 <widget class="QWizard">
     <property name="name">
         <cstring>MainWindowWizardBase</cstring>
@@ -8,8 +21,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>590</width>
-            <height>423</height>
+            <width>602</width>
+            <height>415</height>
         </rect>
     </property>
     <property name="caption">
@@ -34,7 +47,7 @@
             <property name="spacing">
                 <number>6</number>
             </property>
-            <spacer row="4" column="1">
+            <spacer row="5" column="1">
                 <property name="name" stdset="0">
                     <cstring>Spacer7</cstring>
                 </property>
@@ -120,7 +133,7 @@
                     </widget>
                 </grid>
             </widget>
-            <widget class="QLabel" row="0" column="0" rowspan="5" colspan="1">
+            <widget class="QLabel" row="0" column="0" rowspan="6" colspan="1">
                 <property name="name">
                     <cstring>TextLabel4_2</cstring>
                 </property>
@@ -500,437 +513,16 @@
                     <string>Choose the available menus and toolbars</string>
                 </property>
             </widget>
-        </grid>
-    </widget>
-    <widget class="QWidget">
-        <property name="name">
-            <cstring>menuPage</cstring>
-        </property>
-        <attribute name="title">
-            <string>Setup Menus</string>
-        </attribute>
-        <grid>
-            <property name="name">
-                <cstring>unnamed</cstring>
-            </property>
-            <property name="margin">
-                <number>0</number>
-            </property>
-            <property name="spacing">
-                <number>6</number>
-            </property>
-            <widget class="QListBox" row="3" column="1" rowspan="7" colspan="1">
+            <widget class="QCheckBox" row="4" column="1">
                 <property name="name">
-                    <cstring>listMenuActions</cstring>
-                </property>
-            </widget>
-            <widget class="QLabel" row="0" column="1" rowspan="1" colspan="3">
-                <property name="name">
-                    <cstring>TextLabel1_2</cstring>
-                </property>
-                <property name="font">
-                    <font>
-                        <pointsize>10</pointsize>
-                        <bold>1</bold>
-                    </font>
+                    <cstring>checkCreateConnections</cstring>
                 </property>
                 <property name="text">
-                    <string>Setup Menus</string>
+                    <string>&amp;Create Slots and Connections for the actions</string>
                 </property>
-            </widget>
-            <spacer row="3" column="2">
-                <property name="name" stdset="0">
-                    <cstring>Spacer9</cstring>
+                <property name="checked">
+                    <bool>true</bool>
                 </property>
-                <property name="orientation">
-                    <enum>Vertical</enum>
-                </property>
-                <property name="sizeType">
-                    <enum>Expanding</enum>
-                </property>
-                <property name="sizeHint">
-                    <size>
-                        <width>20</width>
-                        <height>20</height>
-                    </size>
-                </property>
-            </spacer>
-            <widget class="QListBox" row="3" column="3" rowspan="7" colspan="1">
-                <property name="name">
-                    <cstring>listMenu</cstring>
-                </property>
-            </widget>
-            <widget class="QPushButton" row="4" column="2">
-                <property name="name">
-                    <cstring>buttonMenuAddAction</cstring>
-                </property>
-                <property name="text">
-                    <string></string>
-                </property>
-                <property name="pixmap">
-                    <pixmap>image0</pixmap>
-                </property>
-            </widget>
-            <widget class="QPushButton" row="7" column="2">
-                <property name="name">
-                    <cstring>buttonMenuActionUp</cstring>
-                </property>
-                <property name="text">
-                    <string></string>
-                </property>
-                <property name="pixmap">
-                    <pixmap>image1</pixmap>
-                </property>
-            </widget>
-            <widget class="QLabel" row="2" column="1">
-                <property name="name">
-                    <cstring>TextLabel4</cstring>
-                </property>
-                <property name="text">
-                    <string>&amp;Actions</string>
-                </property>
-                <property name="buddy" stdset="0">
-                    <cstring>listMenuActions</cstring>
-                </property>
-            </widget>
-            <widget class="QPushButton" row="8" column="2">
-                <property name="name">
-                    <cstring>buttonMenuActionDown</cstring>
-                </property>
-                <property name="text">
-                    <string></string>
-                </property>
-                <property name="pixmap">
-                    <pixmap>image2</pixmap>
-                </property>
-            </widget>
-            <widget class="QLabel" row="2" column="3">
-                <property name="name">
-                    <cstring>TextLabel4_3</cstring>
-                </property>
-                <property name="text">
-                    <string>&amp;Menu</string>
-                </property>
-                <property name="buddy" stdset="0">
-                    <cstring>listMenu</cstring>
-                </property>
-            </widget>
-            <spacer row="6" column="2">
-                <property name="name" stdset="0">
-                    <cstring>Spacer8</cstring>
-                </property>
-                <property name="orientation">
-                    <enum>Vertical</enum>
-                </property>
-                <property name="sizeType">
-                    <enum>Expanding</enum>
-                </property>
-                <property name="sizeHint">
-                    <size>
-                        <width>20</width>
-                        <height>20</height>
-                    </size>
-                </property>
-            </spacer>
-            <widget class="QPushButton" row="5" column="2">
-                <property name="name">
-                    <cstring>buttonMenuRemoveAction</cstring>
-                </property>
-                <property name="text">
-                    <string></string>
-                </property>
-                <property name="pixmap">
-                    <pixmap>image3</pixmap>
-                </property>
-            </widget>
-            <widget class="QLabel" row="0" column="0" rowspan="10" colspan="1">
-                <property name="name">
-                    <cstring>TextLabel4_2_2</cstring>
-                </property>
-                <property name="sizePolicy">
-                    <sizepolicy>
-                        <hsizetype>0</hsizetype>
-                        <vsizetype>7</vsizetype>
-                    </sizepolicy>
-                </property>
-                <property name="palette">
-                    <palette>
-                        <active>
-                            <color>
-                                <red>0</red>
-                                <green>0</green>
-                                <blue>0</blue>
-                            </color>
-                            <color>
-                                <red>228</red>
-                                <green>228</green>
-                                <blue>228</blue>
-                            </color>
-                            <color>
-                                <red>255</red>
-                                <green>255</green>
-                                <blue>255</blue>
-                            </color>
-                            <color>
-                                <red>241</red>
-                                <green>241</green>
-                                <blue>241</blue>
-                            </color>
-                            <color>
-                                <red>114</red>
-                                <green>114</green>
-                                <blue>114</blue>
-                            </color>
-                            <color>
-                                <red>152</red>
-                                <green>152</green>
-                                <blue>152</blue>
-                            </color>
-                            <color>
-                                <red>0</red>
-                                <green>0</green>
-                                <blue>0</blue>
-                            </color>
-                            <color>
-                                <red>246</red>
-                                <green>246</green>
-                                <blue>246</blue>
-                            </color>
-                            <color>
-                                <red>0</red>
-                                <green>0</green>
-                                <blue>0</blue>
-                            </color>
-                            <color>
-                                <red>255</red>
-                                <green>255</green>
-                                <blue>255</blue>
-                            </color>
-                            <color>
-                                <red>85</red>
-                                <green>170</green>
-                                <blue>0</blue>
-                            </color>
-                            <color>
-                                <red>0</red>
-                                <green>0</green>
-                                <blue>0</blue>
-                            </color>
-                            <color>
-                                <red>141</red>
-                                <green>189</green>
-                                <blue>255</blue>
-                            </color>
-                            <color>
-                                <red>0</red>
-                                <green>0</green>
-                                <blue>0</blue>
-                            </color>
-                        </active>
-                        <disabled>
-                            <color>
-                                <red>128</red>
-                                <green>128</green>
-                                <blue>128</blue>
-                            </color>
-                            <color>
-                                <red>228</red>
-                                <green>228</green>
-                                <blue>228</blue>
-                            </color>
-                            <color>
-                                <red>255</red>
-                                <green>255</green>
-                                <blue>255</blue>
-                            </color>
-                            <color>
-                                <red>255</red>
-                                <green>255</green>
-                                <blue>255</blue>
-                            </color>
-                            <color>
-                                <red>114</red>
-                                <green>114</green>
-                                <blue>114</blue>
-                            </color>
-                            <color>
-                                <red>152</red>
-                                <green>152</green>
-                                <blue>152</blue>
-                            </color>
-                            <color>
-                                <red>0</red>
-                                <green>0</green>
-                                <blue>0</blue>
-                            </color>
-                            <color>
-                                <red>246</red>
-                                <green>246</green>
-                                <blue>246</blue>
-                            </color>
-                            <color>
-                                <red>128</red>
-                                <green>128</green>
-                                <blue>128</blue>
-                            </color>
-                            <color>
-                                <red>255</red>
-                                <green>255</green>
-                                <blue>255</blue>
-                            </color>
-                            <color>
-                                <red>85</red>
-                                <green>170</green>
-                                <blue>0</blue>
-                            </color>
-                            <color>
-                                <red>0</red>
-                                <green>0</green>
-                                <blue>0</blue>
-                            </color>
-                            <color>
-                                <red>141</red>
-                                <green>189</green>
-                                <blue>255</blue>
-                            </color>
-                            <color>
-                                <red>0</red>
-                                <green>0</green>
-                                <blue>0</blue>
-                            </color>
-                        </disabled>
-                        <inactive>
-                            <color>
-                                <red>0</red>
-                                <green>0</green>
-                                <blue>0</blue>
-                            </color>
-                            <color>
-                                <red>228</red>
-                                <green>228</green>
-                                <blue>228</blue>
-                            </color>
-                            <color>
-                                <red>255</red>
-                                <green>255</green>
-                                <blue>255</blue>
-                            </color>
-                            <color>
-                                <red>255</red>
-                                <green>255</green>
-                                <blue>255</blue>
-                            </color>
-                            <color>
-                                <red>114</red>
-                                <green>114</green>
-                                <blue>114</blue>
-                            </color>
-                            <color>
-                                <red>152</red>
-                                <green>152</green>
-                                <blue>152</blue>
-                            </color>
-                            <color>
-                                <red>0</red>
-                                <green>0</green>
-                                <blue>0</blue>
-                            </color>
-                            <color>
-                                <red>246</red>
-                                <green>246</green>
-                                <blue>246</blue>
-                            </color>
-                            <color>
-                                <red>0</red>
-                                <green>0</green>
-                                <blue>0</blue>
-                            </color>
-                            <color>
-                                <red>255</red>
-                                <green>255</green>
-                                <blue>255</blue>
-                            </color>
-                            <color>
-                                <red>85</red>
-                                <green>170</green>
-                                <blue>0</blue>
-                            </color>
-                            <color>
-                                <red>0</red>
-                                <green>0</green>
-                                <blue>0</blue>
-                            </color>
-                            <color>
-                                <red>141</red>
-                                <green>189</green>
-                                <blue>255</blue>
-                            </color>
-                            <color>
-                                <red>0</red>
-                                <green>0</green>
-                                <blue>0</blue>
-                            </color>
-                        </inactive>
-                    </palette>
-                </property>
-                <property name="text">
-                    <string>.......A nice Pixmap here......</string>
-                </property>
-            </widget>
-            <spacer row="9" column="2">
-                <property name="name" stdset="0">
-                    <cstring>Spacer10</cstring>
-                </property>
-                <property name="orientation">
-                    <enum>Vertical</enum>
-                </property>
-                <property name="sizeType">
-                    <enum>Expanding</enum>
-                </property>
-                <property name="sizeHint">
-                    <size>
-                        <width>20</width>
-                        <height>20</height>
-                    </size>
-                </property>
-            </spacer>
-            <widget class="QLayoutWidget" row="1" column="1" rowspan="1" colspan="2">
-                <property name="name">
-                    <cstring>Layout20</cstring>
-                </property>
-                <hbox>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
-                    <property name="margin">
-                        <number>0</number>
-                    </property>
-                    <property name="spacing">
-                        <number>6</number>
-                    </property>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>TextLabel5</cstring>
-                        </property>
-                        <property name="text">
-                            <string>&amp;Menu</string>
-                        </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>comboMenu</cstring>
-                        </property>
-                    </widget>
-                    <widget class="QComboBox">
-                        <property name="name">
-                            <cstring>comboMenu</cstring>
-                        </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>7</hsizetype>
-                                <vsizetype>0</vsizetype>
-                            </sizepolicy>
-                        </property>
-                    </widget>
-                </hbox>
             </widget>
         </grid>
     </widget>
@@ -959,7 +551,7 @@
                     <string></string>
                 </property>
                 <property name="pixmap">
-                    <pixmap>image1</pixmap>
+                    <pixmap>image0</pixmap>
                 </property>
             </widget>
             <widget class="QLabel" row="2" column="3">
@@ -981,7 +573,7 @@
                     <string></string>
                 </property>
                 <property name="pixmap">
-                    <pixmap>image2</pixmap>
+                    <pixmap>image1</pixmap>
                 </property>
             </widget>
             <widget class="QListBox" row="3" column="1" rowspan="7" colspan="1">
@@ -1013,7 +605,7 @@
                             <cstring>TextLabel5_2</cstring>
                         </property>
                         <property name="text">
-                            <string>&amp;Toolbar</string>
+                            <string>&amp;Category</string>
                         </property>
                         <property name="buddy" stdset="0">
                             <cstring>comboToolbar</cstring>
@@ -1051,7 +643,7 @@
                     <string></string>
                 </property>
                 <property name="pixmap">
-                    <pixmap>image3</pixmap>
+                    <pixmap>image2</pixmap>
                 </property>
             </widget>
             <widget class="QLabel" row="0" column="0" rowspan="10" colspan="1">
@@ -1296,7 +888,7 @@
                     <string></string>
                 </property>
                 <property name="pixmap">
-                    <pixmap>image0</pixmap>
+                    <pixmap>image3</pixmap>
                 </property>
             </widget>
             <widget class="QLabel" row="0" column="1" rowspan="1" colspan="3">
@@ -1369,54 +961,24 @@
 </widget>
 <images>
     <image name="image0">
-        <data format="XPM.GZ" length="1175">789c65d24b6fda401000e03bbfc2c2375411fc583f54f510d204688040020949d5c37ad7368eb14978242455ff7b3d0f9002960ffe66676647bb3e6b18b3d1c0689cd5d61bb9c994a1e6726534f4b6283e7efff9f1b756b73ca37a856b58f56fb57ad350c67059c6f03dadbecd56cb769304386606c41ed00a1c157bc05ba0dd725c2d8037443788b1d51019ba8af808742c1126583b38103bf7899e20de2143d1521a3822ee57bb4cae7d02ba96d0947c8f944247c809d1b3140e7941f4054df50b286cdfd2c86b62c01bcd90d20f29f99d18685a2d819eed0bda2825865cbb434a9fc7d0c440d0183f89219f46fb40aced10a545cc80be23b9b34446412815f08118f29026515a74471f4c491b29664cad7260e0441ef11959d552f21571bfba6472ab05935b15c0eab63979ce94c418a914275f12b54ddc00a55b113b9f1f88ab095269aefd24c6bcba0546aef6a8768dd49a877c3b109357c498878c804a27bcef2b93575f80904a6c1e3d5f62a63c8d454a9fc4e224d527b5f338d31493cfa6a9cd6653e68b459196185bbebcaed6ebcdf62d5779be78dfe1ad7e16c5bc88cf0b054ffb027fa9cbab5c6559072259daede1efddb9eef607c39b51156af7c7582b7bb777939d9465bb0a4defbfcef2900ea693a3f966fdf1e478e647c83a8a3d95a767b03fab7fdf6bff01e3b51256</data>
-    </image>
-    <image name="image1">
         <data format="XPM.GZ" length="1040">789c5dcf4d73a2401006e0bbbf82726ed61609ca0c4c6ded0125dfd1985baab6f600338c280a46fc08a6f6bf2f3ddd26abc0619eb7677a9aab9ef3361d3bbdab4ebd4db673e5a83cd9383dbd5bad9adf7f7e7d76ba9e70dacfe78ed7fdd1e9ba8e72265599c17adaae99773df033cb9818225f2cc38132027887f4af8d01ee817dc935720d1c7827d648c1910f969273cd8123e4a93a21d2d95ba0ef098d631864409b6f2c13c195063e210389d55720ef0b8dd56764e021c7c8905acd2c93b66aa71a224389fffb0e14fd4062f51119d290115252ab2391c6585ab653a5f6de033294f8fbf74849175544eacc80c120e478b644267451434c90a9659a78d8aa2066585d00c33425ae80d25702b92352756ea91475ce90ba8f4c80299cb5177d58ea8c5a6d819a67b4595b66865a29602632628e3406b9011a73a26b1f96a40c575f19536dc7d959c6543e5f1466f95fd646aba22cabf5fb57c636f9a24ddaa75e52c6b6f90ea3aada2f313b7ccc1b1b1da3e128a67df09aaa1addb82963dfb3b8b7cdf18e9dcfe70e8b687f91b1fba25acf2eb2a289460f17d9a28c4c7c9e1d8ae8f1e9227b1e4feafa859d9f8de378fa8afbfefeecfc030f08f1a3</data>
     </image>
-    <image name="image2">
+    <image name="image1">
         <data format="XPM.GZ" length="1085">789c5dd0cd6ee2301000e03b4f11911b5ad1189290a8da0324a5e90f29941e2aadf6e0d84ea10d1020849ad5befb7a3cceaa29e2e06f663c33ce55cf7a9dcfacde55e758d16acd2cb6a207abc74f9b8dfcf5fbe79f4e97f896fabb8145ba3f3addbec5ac74b715704ed5d9769c01cb73e0423368f80224c190e53e70091c389e83d98366e83942679f0c43cc7e0087c4f3307b63c8b1d559337459c6810f48df137aab49436c750f748917320f78418e4cf65993fa04b33572c4313b067a039f333de80e39e238680ff4d5d2581c69d2c0c3ad8e0db1f30619127cd1dcd00c7a4452824c80a321359d73cd8c129c1b1b0acc726030a414b31299f9989d1952a4d0ccc23073819f861c973c2133d3b904aacf6ceeda9a8c12bc5b219929de21f9005900a99bf9f8e9a8a159728a5477f5d77847367719305373b1788b14668d4c9337d95b2437ef5d03b9c84df10a28fc866fc05c9522fbf0b369c6b8d0c7ffb1fc6db57effb0bfc68acd7657ee0fedba63599dea73d18a7dca525ec6ed3aa16293a81d2bf232beb1bfc578d58a416731ad641da95381b1e3f496ca939432c9f3bb7b8c450f8fb39994b18c93493a36fda2a7b9aa8ae3e4b278b69b192aa822499dc2d6cddc68b94ff697f46c7fdd255ad6f5e2dbdbfac7c3cbd8ecf7f7baf30f538f0154</data>
     </image>
-    <image name="image3">
+    <image name="image2">
         <data format="XPM.GZ" length="1055">789c65d25f6fa2401000f0773f05913773b1202c422ef7a056ebffda3e5dd2f461d95d2aa2605129dea5dfbdbb336373a7460dbf9961665cbc6b59bf570bab75d7381cf931159658f3d26ac9d36e777e79fdf5b7d174034bbf7dfdddfcd168b62d612d8b5c99eb677d6d3ba12792c47069e83a5ea820fb88f47dcc8e80dfc563a4ef2481e19448d99e61c7f184648603e4a5d5191831863c187a2e6312e60e91818bd90930620eb67a400611666b43dfed52ab059007ae80e215910969f884ec4a2c9e1bb24e20313b4386d4ea1ec8431ad4370c3a5d164371818ca8f80f9047119e4645a441b661d70b23dc2a4772ba774de448098c438983b648eee243c9880a8b37c8b883fc300c3d4d58a3240698e5c098336c951a46bea0ec89486b2440a1b3d0ea0d29a9786f184b457c3714ecc21d504a5a3236944ad192c250058a061d91095101f59dc8f6d5eb3b66f39b188f05bf8a49a192ab3abdc8db5afe17d3f3d24d66b7b9e436dfdaf014762acdb3bcd826fbfdfbbe3cc0911c4f599e57599a7e94ebbc3ec3832f373a545545613e750ffe2a837b1dca87a3c179f8500fc73063329de992b9948b496f395ee02ef3c7baa8681779d979357a9addfcb6fef3d4be3983fef236f6ef597dfe6c7c016080f871</data>
+    </image>
+    <image name="image3">
+        <data format="XPM.GZ" length="1175">789c65d24b6fda401000e03bbfc2c2375411fc583f54f510d204688040020949d5c37ad7368eb14978242455ff7b3d0f9002960ffe66676647bb3e6b18b3d1c0689cd5d61bb9c994a1e6726534f4b6283e7efff9f1b756b73ca37a856b58f56fb57ad350c67059c6f03dadbecd56cb769304386606c41ed00a1c157bc05ba0dd725c2d8037443788b1d51019ba8af808742c1126583b38103bf7899e20de2143d1521a3822ee57bb4cae7d02ba96d0947c8f944247c809d1b3140e7941f4054df50b286cdfd2c86b62c01bcd90d20f29f99d18685a2d819eed0bda2825865cbb434a9fc7d0c440d0183f89219f46fb40aced10a545cc80be23b9b34446412815f08118f29026515a74471f4c491b29664cad7260e0441ef11959d552f21571bfba6472ab05935b15c0eab63979ce94c418a914275f12b54ddc00a55b113b9f1f88ab095269aefd24c6bcba0546aef6a8768dd49a877c3b109357c498878c804a27bcef2b93575f80904a6c1e3d5f62a63c8d454a9fc4e224d527b5f338d31493cfa6a9cd6653e68b459196185bbebcaed6ebcdf62d5779be78dfe1ad7e16c5bc88cf0b054ffb027fa9cbab5c6559072259daede1efddb9eef607c39b51156af7c7582b7bb777939d9465bb0a4defbfcef2900ea693a3f966fdf1e478e647c83a8a3d95a767b03fab7fdf6bff01e3b51256</data>
     </image>
 </images>
 <connections>
     <connection>
-        <sender>comboMenu</sender>
-        <signal>activated(const QString&amp;)</signal>
-        <receiver>MainWindowWizardBase</receiver>
-        <slot>currentMenuChanged( const QString &amp; )</slot>
-    </connection>
-    <connection>
-        <sender>buttonMenuAddAction</sender>
-        <signal>clicked()</signal>
-        <receiver>MainWindowWizardBase</receiver>
-        <slot>menuAddAction()</slot>
-    </connection>
-    <connection>
-        <sender>buttonMenuRemoveAction</sender>
-        <signal>clicked()</signal>
-        <receiver>MainWindowWizardBase</receiver>
-        <slot>menuRemoveAction()</slot>
-    </connection>
-    <connection>
-        <sender>buttonMenuActionUp</sender>
-        <signal>clicked()</signal>
-        <receiver>MainWindowWizardBase</receiver>
-        <slot>menuActionUp()</slot>
-    </connection>
-    <connection>
-        <sender>buttonMenuActionDown</sender>
-        <signal>clicked()</signal>
-        <receiver>MainWindowWizardBase</receiver>
-        <slot>menuActionDown()</slot>
-    </connection>
-    <connection>
         <sender>comboToolbar</sender>
         <signal>activated(const QString&amp;)</signal>
         <receiver>MainWindowWizardBase</receiver>
-        <slot>currentToolbarChanged( const QString &amp; )</slot>
+        <slot>currentToolbarChanged(const QString&amp;)</slot>
     </connection>
     <connection>
         <sender>buttonToolbarAddAction</sender>
@@ -1446,7 +1008,7 @@
         <sender>MainWindowWizardBase</sender>
         <signal>selected(const QString&amp;)</signal>
         <receiver>MainWindowWizardBase</receiver>
-        <slot>pageSelected( const QString &amp; )</slot>
+        <slot>pageSelected(const QString&amp;)</slot>
     </connection>
     <connection>
         <sender>checkHelpMenu</sender>
@@ -1484,75 +1046,259 @@
         <receiver>MainWindowWizardBase</receiver>
         <slot>currentSettingChanged()</slot>
     </connection>
-    <slot access="protected" language="C++">currentMenuChanged( const QString &amp; )</slot>
-    <slot access="protected" language="C++">menuActionDown()</slot>
-    <slot access="protected" language="C++">menuActionUp()</slot>
-    <slot access="protected" language="C++">menuAddAction()</slot>
-    <slot access="protected" language="C++">menuRemoveAction()</slot>
+    <slot access="protected" language="C++">init()</slot>
+    <slot access="protected" language="C++">destroy()</slot>
     <slot access="protected" language="C++">currentSettingChanged()</slot>
-    <slot access="protected" language="C++">pageSelected( const QString &amp; )</slot>
+    <slot access="public" language="C++">setupToolbarPage()</slot>
     <slot access="protected" language="C++">toolbarActionDown()</slot>
     <slot access="protected" language="C++">toolbarActionUp()</slot>
     <slot access="protected" language="C++">toolbarAddAction()</slot>
     <slot access="protected" language="C++">toolbarRemoveAction()</slot>
-    <slot access="protected" language="C++">currentToolbarChanged( const QString &amp; )</slot>
+    <slot access="public" language="C++">accept()</slot>
+    <slot access="protected" language="C++">currentToolbarChanged( const QString &amp;s )</slot>
+    <slot access="public" language="C++">getPixmap( const QString &amp;n,QPixmap &amp;pix )</slot>
+    <slot access="protected" language="C++">pageSelected( const QString &amp; )</slot>
+    <slot access="public" language="C++">setAppInterface( QUnknownInterface *iface,DesignerFormWindow *fw,QWidget *w )</slot>
 </connections>
 <functions>
-    <function name="currentMenuChanged(const QString&amp;)" >{
+    <function name="init()" >{
+    dIface = 0;
+    dfw = 0;
+    widget = 0;
+    setFinishEnabled( toolbarsPage, TRUE );
+}</function>
+    <function name="destroy()" >{
     
 }</function>
     <function name="currentSettingChanged()" >{
-    setAppropriate( menuPage, checkFileMenu-&gt;isChecked() || checkEditMenu-&gt;isChecked() || checkHelpMenu-&gt;isChecked() );
     setAppropriate( toolbarsPage, checkFileToolbar-&gt;isChecked() || checkEditToolbar-&gt;isChecked() || checkHelpToolbar-&gt;isChecked() );
-    setFinishEnabled( menuPage, !appropriate( toolbarsPage ) );
-    setFinishEnabled( toolbarsPage, TRUE );
-    setFinishEnabled( menuToolbarPage, !appropriate( toolbarsPage ) &amp;&amp; !appropriate( menuPage ) );
+    setFinishEnabled( menuToolbarPage, !appropriate( toolbarsPage ) );
+    setFinishEnabled( toolbarsPage, TRUE ); 
 }</function>
-    <function name="currentToolbarChanged(const QString&amp;)" >{
-    
-}</function>
-    <function name="menuActionDown()" >{
-    
-}</function>
-    <function name="menuActionUp()" >{
-    
-}</function>
-    <function name="menuAddAction()" >{
-    
-}</function>
-    <function name="menuRemoveAction()" >{
-    
-}</function>
-    <function name="pageSelected(const QString&amp;)" >{
-    if ( currentPage() == menuPage ) {
-	comboMenu-&gt;clear();
-	if ( checkFileMenu-&gt;isChecked() )
-	    comboMenu-&gt;insertItem( tr( "File" ) );
-	if ( checkEditMenu-&gt;isChecked() ) 
-	    comboMenu-&gt;insertItem( tr( "Edit" ) ); 
-	if ( checkHelpMenu-&gt;isChecked() ) 
-	    comboMenu-&gt;insertItem( tr( "Help" ) ); 
-    } else if ( currentPage() == toolbarsPage ) {
-	comboToolbar-&gt;clear();
-	if ( checkFileToolbar-&gt;isChecked() ) 
-	    comboToolbar-&gt;insertItem( tr( "File" ) ); 
-	if ( checkEditToolbar-&gt;isChecked() )  
-	    comboToolbar-&gt;insertItem( tr( "Edit" ) );  
-	if ( checkHelpToolbar-&gt;isChecked() )  
-	    comboToolbar-&gt;insertItem( tr( "Help" ) );  
-    }
+    <function name="setupToolbarPage()" >{
+    if ( checkFileToolbar-&gt;isChecked() )  
+	comboToolbar-&gt;insertItem( tr( "File" ) );  
+    if ( checkEditToolbar-&gt;isChecked() )   
+	comboToolbar-&gt;insertItem( tr( "Edit" ) );   
+    if ( checkHelpToolbar-&gt;isChecked() )   
+	comboToolbar-&gt;insertItem( tr( "Help" ) );   
 }</function>
     <function name="toolbarActionDown()" >{
+    if ( listToolbar-&gt;currentItem() &lt; 0 || listToolbar-&gt;currentItem() &gt;= (int)listToolbar-&gt;count() - 1 )
+	return;
     
+    int next = listToolbar-&gt;currentItem() + 1;
+    QString tmp = listToolbar-&gt;text( next );
+    listToolbar-&gt;changeItem( listToolbar-&gt;text( next - 1 ), next );
+    listToolbar-&gt;changeItem( tmp, next - 1 );
+    listToolbar-&gt;setCurrentItem( next );
 }</function>
     <function name="toolbarActionUp()" >{
-    
+    if ( listToolbar-&gt;currentItem() &lt; 1 || listToolbar-&gt;currentItem() &gt; (int)listToolbar-&gt;count() - 1 ) 
+	return; 
+     
+    int prev = listToolbar-&gt;currentItem() - 1; 
+    QString tmp = listToolbar-&gt;text( prev ); 
+    listToolbar-&gt;changeItem( listToolbar-&gt;text( prev + 1 ), prev ); 
+    listToolbar-&gt;changeItem( tmp, prev + 1 ); 
+    listToolbar-&gt;setCurrentItem( prev ); 
 }</function>
     <function name="toolbarAddAction()" >{
-    
+    listToolbar-&gt;insertItem( listToolbarActions-&gt;text( listToolbarActions-&gt;currentItem() ) );
+    listToolbar-&gt;setCurrentItem( listToolbar-&gt;count() - 1 );
 }</function>
     <function name="toolbarRemoveAction()" >{
+    listToolbar-&gt;removeItem( listToolbar-&gt;currentItem() );
+}</function>
+    <function name="accept()" >{
+    if ( !dfw || !dIface || !widget ) {
+	QWizard::accept();
+	return;
+    }
     
+    QPixmap pix;
+    
+    QDict&lt;QAction&gt; actions;
+    QList&lt;QAction&gt; usedActions;
+    
+    getPixmap( "filenew", pix );
+    QAction *fileNewAction = dfw-&gt;createAction( tr( "New" ), pix, tr( "&amp;New" ), CTRL + Key_N, 0, "fileNewAction" );
+    actions.insert( tr( "New" ), fileNewAction );
+    getPixmap( "fileopen", pix ); 
+    QAction *fileOpenAction = dfw-&gt;createAction( tr( "Open" ), pix, tr( "&amp;Open..." ), CTRL + Key_O, 0, "fileOpenAction" );
+    actions.insert( tr( "Open" ), fileOpenAction ); 
+    getPixmap( "filesave", pix ); 
+    QAction *fileSaveAction = dfw-&gt;createAction( tr( "Save" ), pix, tr( "&amp;Save" ), CTRL + Key_S, 0, "fileSaveAction" );
+    actions.insert( tr( "Save" ), fileSaveAction ); 
+    QAction *fileSaveAsAction = dfw-&gt;createAction( tr( "Save As" ), QIconSet(), tr( "Save &amp;As..." ), 0, 0, "fileSaveAsAction" );
+    actions.insert( tr( "Save As" ), fileSaveAsAction ); 
+    getPixmap( "print", pix ); 
+    QAction *filePrintAction = dfw-&gt;createAction( tr( "Print" ), pix, tr( "&amp;Print..." ), CTRL + Key_P, 0, "filePrintAction" );
+    actions.insert( tr( "Print" ), filePrintAction ); 
+    QAction *fileExitAction = dfw-&gt;createAction( tr( "Exit" ), QIconSet(), tr( "E&amp;xit" ), 0, 0, "fileExitAction" ); 
+    actions.insert( tr( "Exit" ), fileExitAction ); 
+ 
+    getPixmap( "undo", pix ); 
+    QAction *editUndoAction = dfw-&gt;createAction( tr( "Undo" ), pix, tr( "&amp;Undo" ), CTRL + Key_Z, 0, "editUndoAction" ); 
+    actions.insert( tr( "Undo" ), editUndoAction ); 
+    getPixmap( "redo", pix );  
+    QAction *editRedoAction = dfw-&gt;createAction( tr( "Redo" ), pix, tr( "&amp;Redo" ), CTRL + Key_Y, 0, "editRedoAction" );  
+    actions.insert( tr( "Redo" ), editRedoAction );  
+    getPixmap( "editcut", pix );  
+    QAction *editCutAction = dfw-&gt;createAction( tr( "Cut" ), pix, tr( "&amp;Cut" ), CTRL + Key_X, 0, "editCutAction" );  
+    actions.insert( tr( "Cut" ), editCutAction );  
+    getPixmap( "editcopy", pix );  
+    QAction *editCopyAction = dfw-&gt;createAction( tr( "Copy" ), pix, tr( "C&amp;opy" ), CTRL + Key_C, 0, "editCopyAction" );  
+    actions.insert( tr( "Copy" ), editCopyAction );  
+    getPixmap( "editpaste", pix );  
+    QAction *editPasteAction = dfw-&gt;createAction( tr( "Paste" ), pix, tr( "&amp;Paste" ), CTRL + Key_V, 0, "editPasteAction" );  
+    actions.insert( tr( "Paste" ), editPasteAction );  
+    getPixmap( "searchfind", pix );  
+    QAction *editFindAction = dfw-&gt;createAction( tr( "Find" ), pix, tr( "&amp;Find..." ), CTRL + Key_F, 0, "editFindAction" );  
+    actions.insert( tr( "Find" ), editFindAction );  
+    
+    QAction *helpAboutAction = dfw-&gt;createAction( tr( "About" ), QIconSet(), tr( "&amp;About..." ), 0, 0, "helpAboutAction" );  
+    actions.insert( tr( "About" ), helpAboutAction );  
+    QAction *helpContentsAction = dfw-&gt;createAction( tr( "Contents" ), QIconSet(), tr( "&amp;Contents..." ), 0, 0, "helpContentsAction" );   
+    actions.insert( tr( "Contents" ), helpContentsAction );   
+    QAction *helpIndexAction = dfw-&gt;createAction( tr( "Index" ), QIconSet(), tr( "&amp;Index..." ), 0, 0, "helpIndexAction" );   
+    actions.insert( tr( "Index" ), helpIndexAction );   
+    
+    if ( checkFileMenu-&gt;isChecked() ) {
+	dfw-&gt;addMenu( "&amp;File", "fileMenu" );
+	dfw-&gt;addMenuAction( "fileMenu", fileNewAction );
+	dfw-&gt;addMenuAction( "fileMenu", fileOpenAction ); 
+	dfw-&gt;addMenuAction( "fileMenu", fileSaveAction ); 
+	dfw-&gt;addMenuAction( "fileMenu", fileSaveAsAction );
+	dfw-&gt;addMenuSeparator( "fileMenu" );
+	dfw-&gt;addMenuAction( "fileMenu", filePrintAction ); 
+	dfw-&gt;addMenuSeparator( "fileMenu" ); 
+	dfw-&gt;addMenuAction( "fileMenu", fileExitAction );
+	dfw-&gt;addAction( fileNewAction );
+	dfw-&gt;addAction( fileOpenAction ); 
+	dfw-&gt;addAction( fileSaveAction ); 
+	dfw-&gt;addAction( fileSaveAsAction ); 
+	dfw-&gt;addAction( filePrintAction ); 
+	dfw-&gt;addAction( fileExitAction ); 
+	usedActions.append( fileNewAction );
+	usedActions.append( fileOpenAction ); 
+	usedActions.append( fileSaveAction ); 
+	usedActions.append( fileSaveAsAction ); 
+	usedActions.append( filePrintAction ); 
+	usedActions.append( fileExitAction ); 
+    }
+ 
+    if ( checkEditMenu-&gt;isChecked() ) {
+	dfw-&gt;addMenu( "&amp;Edit", "editMenu" ); 
+	dfw-&gt;addMenuAction( "editMenu", editUndoAction ); 
+	dfw-&gt;addMenuAction( "editMenu", editRedoAction );  
+	dfw-&gt;addMenuSeparator( "editMenu" );
+	dfw-&gt;addMenuAction( "editMenu", editCutAction );  
+	dfw-&gt;addMenuAction( "editMenu", editCopyAction );  
+	dfw-&gt;addMenuAction( "editMenu", editPasteAction );  
+	dfw-&gt;addMenuSeparator( "editMenu" ); 
+	dfw-&gt;addMenuAction( "editMenu", editFindAction );  
+	dfw-&gt;addAction( editUndoAction ); 
+	dfw-&gt;addAction( editRedoAction );  
+	dfw-&gt;addAction( editCutAction );  
+	dfw-&gt;addAction( editCopyAction );  
+	dfw-&gt;addAction( editPasteAction );  
+	dfw-&gt;addAction( editFindAction );  
+	usedActions.append( editUndoAction ); 
+	usedActions.append( editRedoAction );  
+	usedActions.append( editCutAction );  
+	usedActions.append( editCopyAction );  
+	usedActions.append( editPasteAction );  
+	usedActions.append( editFindAction );  
+    }
+    
+    if ( checkHelpMenu-&gt;isChecked() ) {
+	dfw-&gt;addMenu( "&amp;Help", "helpMenu" );  
+	dfw-&gt;addMenuAction( "helpMenu", helpContentsAction );  
+	dfw-&gt;addMenuAction( "helpMenu", helpIndexAction );   
+	dfw-&gt;addMenuSeparator( "helpMenu" );
+	dfw-&gt;addMenuAction( "helpMenu", helpAboutAction );   
+	dfw-&gt;addAction( helpContentsAction );
+	dfw-&gt;addAction( helpIndexAction ); 
+	dfw-&gt;addAction( helpAboutAction ); 
+	usedActions.append( helpIndexAction );  
+	usedActions.append( helpContentsAction );   
+	usedActions.append( helpAboutAction );   
+    }
+    
+    if ( listToolbar-&gt;count() &gt; 0 ) {
+	dfw-&gt;addToolBar( "Tools", "toolBar" );
+	for ( int i = 0; i &lt; (int)listToolbar-&gt;count(); ++i ) {
+	    if ( listToolbar-&gt;text( i ) == tr( "&lt;Seperator&gt;" ) ) {
+		dfw-&gt;addToolBarSeparator( "toolBar" );
+		continue;
+	    }
+	    QAction *a = actions.find( listToolbar-&gt;text( i ) );
+	    if ( !a )
+		continue;
+	    dfw-&gt;addToolBarAction( "toolBar", a );
+	    dfw-&gt;addAction( a );
+	    if ( usedActions.findRef( a ) == -1 )
+		usedActions.append( a );
+	}
+    }
+    
+    if ( checkCreateConnections-&gt;isChecked() ) {
+	for ( QAction *ac = usedActions.first(); ac; ac = usedActions.next() ) {
+	    QString slot = ac-&gt;name();
+	    slot.remove( slot.length() - 6, 6 );
+	    slot += "()";
+	    dfw-&gt;addSlot( slot.latin1(), "public", dIface-&gt;currentProject()-&gt;language() );
+	    dfw-&gt;addConnection( ac, "activated()", widget, slot );
+	}
+    }
+    
+    QWizard::accept();
+}</function>
+    <function name="currentToolbarChanged(const QString&amp;)" >{
+    if ( s == tr( "File" ) ) {
+	listToolbarActions-&gt;clear();
+	listToolbarActions-&gt;insertItem( tr( "New" ) );
+	listToolbarActions-&gt;insertItem( tr( "Open" ) ); 
+	listToolbarActions-&gt;insertItem( tr( "Save" ) ); 
+	listToolbarActions-&gt;insertItem( tr( "Save As" ) ); 
+	listToolbarActions-&gt;insertItem( tr( "Print" ) ); 
+	listToolbarActions-&gt;insertItem( tr( "Exit" ) ); 
+    } else if ( s == tr( "Edit" ) ) {
+	listToolbarActions-&gt;clear(); 
+	listToolbarActions-&gt;insertItem( tr( "Undo" ) ); 
+	listToolbarActions-&gt;insertItem( tr( "Redo" ) );  
+	listToolbarActions-&gt;insertItem( tr( "Cut" ) );  
+	listToolbarActions-&gt;insertItem( tr( "Copy" ) );  
+	listToolbarActions-&gt;insertItem( tr( "Paste" ) );  
+	listToolbarActions-&gt;insertItem( tr( "Find" ) );  
+    } else if ( s == tr( "Help" ) ) {
+	listToolbarActions-&gt;clear();	
+	listToolbarActions-&gt;insertItem( tr( "Contents" ) );  
+	listToolbarActions-&gt;insertItem( tr( "Index" ) );  
+	listToolbarActions-&gt;insertItem( tr( "About" ) );  
+    }
+    listToolbarActions-&gt;insertItem( "&lt;Seperator&gt;" );
+}</function>
+    <function name="getPixmap(const QString&amp;,QPixmap&amp;)" >{
+    QString name = "small/" + n + ".xpm";
+    QImage img;
+    QByteArray ba = qembed_findData( name );
+    img.loadFromData( (const uchar*)ba.data(), ba.size() );
+    pix.convertFromImage( img );
+}</function>
+    <function name="pageSelected(const QString&amp;)" >{
+    if ( currentPage() == toolbarsPage ) {
+	comboToolbar-&gt;clear();
+	setupToolbarPage();
+	currentToolbarChanged( comboToolbar-&gt;text( comboToolbar-&gt;currentItem() ) );
+    }
+}</function>
+    <function name="setAppInterface(QUnknownInterface*,DesignerFormWindow*,QWidget*)" >{
+    DesignerInterface *d = (DesignerInterface*)iface-&gt;queryInterface(  IID_DesignerInterface );
+    dIface = d;
+    dfw = fw;
+    widget = w;
 }</function>
 </functions>
 <tabstops>
@@ -1562,13 +1308,6 @@
     <tabstop>checkEditToolbar</tabstop>
     <tabstop>checkHelpMenu</tabstop>
     <tabstop>checkHelpToolbar</tabstop>
-    <tabstop>comboMenu</tabstop>
-    <tabstop>listMenuActions</tabstop>
-    <tabstop>buttonMenuAddAction</tabstop>
-    <tabstop>buttonMenuRemoveAction</tabstop>
-    <tabstop>buttonMenuActionUp</tabstop>
-    <tabstop>buttonMenuActionDown</tabstop>
-    <tabstop>listMenu</tabstop>
     <tabstop>comboToolbar</tabstop>
     <tabstop>listToolbarActions</tabstop>
     <tabstop>buttonToolbarAddAction</tabstop>

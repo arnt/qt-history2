@@ -73,6 +73,7 @@ void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widg
 #endif
     if ( templ == "QMainWindow" ) {
 	MainWindowWizardBase *wizard = new MainWindowWizardBase( 0, 0, TRUE );
+	wizard->setAppInterface( aIface, fw, widget );
 	wizard->exec();
     }
 }

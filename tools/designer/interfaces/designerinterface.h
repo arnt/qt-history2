@@ -41,6 +41,7 @@ class QDockWindow;
 class QWidget;
 class QObject;
 class QAction;
+class QIconSet;
 
 /*!
 
@@ -153,9 +154,12 @@ struct DesignerFormWindow
     virtual void setListViewIcon( const QPixmap & ) = 0;
     virtual void setCurrentWidget( QWidget * ) = 0;
     virtual QList<QAction> actionList() const = 0;
+    virtual QAction *createAction( const QString& text, const QIconSet& icon, const QString& menuText, int accel,
+				   QObject* parent, const char* name = 0, bool toggle = FALSE ) = 0;
     virtual void addAction( QAction * ) = 0;
     virtual void removeAction( QAction * ) = 0;
     virtual void preview() const = 0;
+    virtual void addSlot( const QCString &slot, const QString &access, const QString &language ) = 0;
     virtual void addConnection( QObject *sender, const char *signal, QObject *receiver, const char *slot ) = 0;
     virtual void setProperty( QObject *o, const char *property, const QVariant &value ) = 0;
     virtual QVariant property( QObject *o, const char *property ) const = 0;
@@ -170,6 +174,12 @@ struct DesignerFormWindow
     virtual void setForwardDeclarations( const QStringList &lst ) = 0;
     virtual QStringList variables() const = 0;
     virtual void setVariables( const QStringList &lst ) = 0;
+    virtual void addMenu( const QString &text, const QString &name ) = 0;
+    virtual void addMenuAction( const QString &menu, QAction *a ) = 0;
+    virtual void addMenuSeparator( const QString &menu ) = 0;
+    virtual void addToolBar( const QString &text, const QString &name ) = 0;
+    virtual void addToolBarAction( const QString &tb, QAction *a ) = 0;
+    virtual void addToolBarSeparator( const QString &tb ) = 0;
 
     virtual void onModificationChange( QObject *receiver, const char *slot ) = 0;
 };

@@ -18,6 +18,9 @@
 **
 **********************************************************************/
 
+#define INCLUDE_MENUITEM_DEF
+#include <qmenubar.h>
+#include <qpopupmenu.h>
 #include "designerappiface.h"
 #include "mainwindow.h"
 #include "project.h"
@@ -530,16 +533,44 @@ QList<QAction> DesignerFormWindowImpl::actionList() const
     return QList<QAction>();
 }
 
-void DesignerFormWindowImpl::addAction( QAction * )
+QAction *DesignerFormWindowImpl::createAction( const QString& text, const QIconSet& icon, const QString& menuText, int accel,
+					       QObject* parent, const char* name, bool toggle )
 {
+    QDesignerAction *a = new QDesignerAction( parent );
+    a->setName( name );
+    a->setText( text );
+    a->setIconSet( icon );
+    a->setMenuText( menuText );
+    a->setAccel( accel );
+    a->setToggleAction( toggle );
+    return a;
 }
 
-void DesignerFormWindowImpl::removeAction( QAction * )
+void DesignerFormWindowImpl::addAction( QAction *a )
 {
+    if ( formWindow->actionList().findRef( a ) != -1 )
+	return;
+    formWindow->actionList().append( a );
+    MetaDataBase::addEntry( a );
+    setPropertyChanged( a, "name", TRUE );
+    setPropertyChanged( a, "text", TRUE );
+    setPropertyChanged( a, "menuText", TRUE );
+    setPropertyChanged( a, "accel", TRUE );
+    setPropertyChanged( a, "iconSet", TRUE );
+}
+
+void DesignerFormWindowImpl::removeAction( QAction *a )
+{
+    formWindow->actionList().removeRef( a );
 }
 
 void DesignerFormWindowImpl::preview() const
 {
+}
+
+void DesignerFormWindowImpl::addSlot( const QCString &slot, const QString &access, const QString &language )
+{
+    MetaDataBase::addSlot( formWindow, slot, access, language );
 }
 
 void DesignerFormWindowImpl::addConnection( QObject *sender, const char *signal, QObject *receiver, const char *slot )
@@ -722,6 +753,85 @@ void DesignerFormWindowImpl::onModificationChange( QObject *receiver, const char
     QObject::connect( formWindow, SIGNAL( modificationChanged( bool, FormWindow * ) ), receiver, slot );
 }
 
+void DesignerFormWindowImpl::addMenu( const QString &text, const QString &name )
+{
+    if ( !formWindow->mainContainer()->inherits( "QMainWindow" ) )
+	return;
+    QMainWindow *mw = (QMainWindow*)formWindow->mainContainer();
+    QDesignerPopupMenu *popup = new QDesignerPopupMenu( mw );
+    QString n = name;
+    formWindow->unify( popup, n, TRUE );
+    popup->setName( n );
+    if ( !mw->child( 0, "QMenuBar" ) )
+	(void)new QDesignerMenuBar( (QWidget*)mw );
+    mw->menuBar()->insertItem( text, popup );
+}
+
+void DesignerFormWindowImpl::addMenuAction( const QString &menu, QAction *a )
+{
+    if ( !formWindow->mainContainer()->inherits( "QMainWindow" ) )
+	return;
+    QMainWindow *mw = (QMainWindow*)formWindow->mainContainer();
+    if ( !mw->child( 0, "QMenuBar" ) )
+	return;
+    QDesignerPopupMenu *popup = (QDesignerPopupMenu*)mw->child( menu, "QDesignerPopupMenu" );
+    if ( !popup )
+	return;
+    a->addTo( popup );
+    popup->addAction( a );
+}
+
+void DesignerFormWindowImpl::addMenuSeparator( const QString &menu )
+{
+    if ( !formWindow->mainContainer()->inherits( "QMainWindow" ) )
+	return;
+    QMainWindow *mw = (QMainWindow*)formWindow->mainContainer();
+    if ( !mw->child( 0, "QMenuBar" ) )
+	return;
+    QDesignerPopupMenu *popup = (QDesignerPopupMenu*)mw->child( menu, "QDesignerPopupMenu" );
+    if ( !popup )
+	return;
+    QAction *a = new QSeparatorAction( 0 );
+    a->addTo( popup );
+    popup->addAction( a );
+}
+
+void DesignerFormWindowImpl::addToolBar( const QString &text, const QString &name )
+{
+    if ( !formWindow->mainContainer()->inherits( "QMainWindow" ) )
+	return;
+    QMainWindow *mw = (QMainWindow*)formWindow->mainContainer();
+    QToolBar *tb = new QDesignerToolBar( mw );
+    QString n = name;
+    formWindow->unify( tb, n, TRUE );
+    tb->setName( n );
+    mw->addToolBar( tb, text );
+}
+
+void DesignerFormWindowImpl::addToolBarAction( const QString &tbn, QAction *a )
+{
+    if ( !formWindow->mainContainer()->inherits( "QMainWindow" ) )
+	return;
+    QMainWindow *mw = (QMainWindow*)formWindow->mainContainer();
+    QDesignerToolBar *tb = (QDesignerToolBar*)mw->child( tbn, "QDesignerToolBar" );
+    if ( !tb )
+	return;
+    a->addTo( tb );
+    tb->addAction( a );
+}
+
+void DesignerFormWindowImpl::addToolBarSeparator( const QString &tbn )
+{
+    if ( !formWindow->mainContainer()->inherits( "QMainWindow" ) )
+	return;
+    QMainWindow *mw = (QMainWindow*)formWindow->mainContainer();
+    QDesignerToolBar *tb = (QDesignerToolBar*)mw->child( tbn, "QDesignerToolBar" );
+    if ( !tb )
+	return;
+    QAction *a = new QSeparatorAction( 0 );
+    a->addTo( tb );
+    tb->addAction( a );
+}
 
 
 
