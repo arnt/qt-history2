@@ -40,9 +40,11 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         startEditActions(QAbstractItemDelegate::DoubleClicked
                          |QAbstractItemDelegate::EditKeyPressed),
         inputInterval(400),
+        autoScroll(true),
         autoScrollTimer(0),
         autoScrollMargin(16),
-        autoScrollInterval(30)
+        autoScrollInterval(50),
+        autoScrollCount(0)
 {
 }
 
@@ -248,6 +250,25 @@ void QAbstractItemView::setStartEditActions(int actions)
 int QAbstractItemView::startEditActions() const
 {
     return d->startEditActions;
+}
+
+/*!
+  \property QAbstractItemView::autoScroll
+  \brief whether autoscrolling in drag move events is enabled
+
+  If this property is set to true (the default), the QAbstractItemView
+  automatically scrolls the contents of the view.
+  This works only if the viewport accepts drops. Specifying false
+  disables this autoscroll feature.
+*/
+void QAbstractItemView::setAutoScroll(bool b)
+{
+    d->autoScroll = b;
+}
+
+bool QAbstractItemView::autoScroll() const
+{
+    return d->autoScroll;
 }
 
 bool QAbstractItemView::event(QEvent *e)
@@ -540,7 +561,7 @@ void QAbstractItemView::showEvent(QShowEvent *e)
 void QAbstractItemView::timerEvent(QTimerEvent *e)
 {
     if (e->timerId() == d->autoScrollTimer)
-        autoScroll();
+        doAutoScroll();
 }
 
 bool QAbstractItemView::startEdit(const QModelIndex &index,
@@ -875,35 +896,56 @@ void QAbstractItemView::setState(State state)
     d->state = state;
 }
 
+/*!
+  internal
+*/
 void QAbstractItemView::startAutoScroll()
 {
     if (d->autoScrollTimer)
         killTimer(d->autoScrollTimer);
     d->autoScrollTimer = startTimer(d->autoScrollInterval);
+    d->autoScrollCount = 0;
 }
 
+/*!
+  internal
+*/
 void QAbstractItemView::stopAutoScroll()
 {
     killTimer(d->autoScrollTimer);
     d->autoScrollTimer = 0;
 }
 
-void QAbstractItemView::autoScroll()
-{    
-    QPoint pos = d->viewport->mapFromGlobal(QCursor::pos());
+/*!
+  internal
+*/
+void QAbstractItemView::doAutoScroll()
+{
+    if (d->autoScrollCount < qMax(verticalScrollBar()->pageStep(),
+                                  horizontalScrollBar()->pageStep()))
+        ++d->autoScrollCount;
     int margin = d->autoScrollMargin;
-    int v = verticalScrollBar()->value();
-    int h = horizontalScrollBar()->value();
+    int verticalValue = verticalScrollBar()->value();
+    int horizontalValue = horizontalScrollBar()->value();
+    
+    QPoint pos = d->viewport->mapFromGlobal(QCursor::pos());
     QRect area = d->viewport->clipRegion().boundingRect();
+
+    int delta = 0;
     if (pos.y() - area.top() < margin)
-        verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub); // scroll up
+        delta = -d->autoScrollCount;
     else if (area.bottom() - pos.y() < margin)
-        verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd); // scroll down
-    else if (pos.x() - area.left() < margin)
-        horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub); // scroll left
+        delta = d->autoScrollCount;
+    verticalScrollBar()->setValue(verticalValue + delta);
+    
+    if (pos.x() - area.left() < margin)
+        delta = -d->autoScrollCount;
     else if (area.right() - pos.x() < margin)
-        horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd); // scroll right
-    if (v == verticalScrollBar()->value() && h == horizontalScrollBar()->value())
+        delta = d->autoScrollCount;
+    horizontalScrollBar()->setValue(horizontalValue + delta);
+    
+    if (verticalValue == verticalScrollBar()->value()
+        && horizontalValue == horizontalScrollBar()->value())
         stopAutoScroll();
 }
 
@@ -1042,13 +1084,17 @@ int QAbstractItemView::selectionCommand(ButtonState state,
 bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemDelegate::StartEditAction action,
                                           const QModelIndex &index)
 {
-    bool stateOk = (state != QAbstractItemView::Editing);
-    bool actionOk = ((action == QAbstractItemDelegate::AlwaysEdit) || (action & startEditActions));
-    return model->isEditable(index) && stateOk && actionOk;
+    if (!model->isEditable(index))
+        return false;
+    if (state == QAbstractItemView::Editing)
+        return false;
+    return ((action == QAbstractItemDelegate::AlwaysEdit) || (action & startEditActions));
 }
 
 bool QAbstractItemViewPrivate::shouldAutoScroll(const QPoint &pos)
 {
+    if (!autoScroll)
+        return false;
     QRect area = viewport->clipRegion().boundingRect();
     return (pos.y() - area.top() < autoScrollMargin)
         || (area.bottom() - pos.y() < autoScrollMargin)

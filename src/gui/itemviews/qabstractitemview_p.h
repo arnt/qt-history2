@@ -50,9 +50,11 @@ public:
     QTime keyboardInputTime;
     int inputInterval;
 
+    bool autoScroll;
     int autoScrollTimer;
     int autoScrollMargin;
     int autoScrollInterval;
+    int autoScrollCount;
 };
 
 /*
