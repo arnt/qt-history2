@@ -2801,7 +2801,8 @@ static int asciiToKeycode(char a, int state)
 	if ( a >= 1 && a <= 26 )	// Ctrl+'A'..'Z'
 	    a += 'A' - 1;
     }
-    return a;
+
+    return a & 0xff;
 }
 
 static
