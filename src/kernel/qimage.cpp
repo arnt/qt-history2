@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#80 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#81 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#80 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#81 $");
 
 
 /*!
@@ -928,11 +928,10 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
   This function disregards the alpha channel.
 */
 
-QImage QImage::maskGuess() const
+QImage QImage::reasonableMask() const
 {
-    debug ( "yuck" );
     if ( depth() < 32 )
-	return convertDepth( 32 ).maskGuess();
+	return convertDepth( 32 ).reasonableMask();
 
     QImage m( width(), height(), 1, 0, QImage::LittleEndian );
     // note - need to mask out alpha channel here
