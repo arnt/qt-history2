@@ -60,14 +60,12 @@ extern bool qt_modal_state(); //qapplication_mac.cpp
 /*****************************************************************************
   QMenu utility functions
  *****************************************************************************/
-inline static QString qt_mac_no_ampersands(QString str, CFStringRef *cfstr = 0) {
+inline static QCFStringHelper qt_mac_no_ampersands(QString str) {
     for(int w = -1; (w=str.indexOf('&', w+1)) != -1;) {
         if(w < (int)str.length()-1)
             str.remove(w, 1);
     }
-    if (cfstr)
-        *cfstr = QCFStringHelper::qstring2cfstring(str);
-    return str;
+    return QCFStringHelper(str);
 }
 
 //lookup a QMacMenuAction in a menu
@@ -480,7 +478,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
 
     //string
     data.whichData |= kMenuItemDataCFString;
-    qt_mac_no_ampersands(text, &data.cfText);
+    data.cfText = CFStringCreateCopy(0, qt_mac_no_ampersands(text));
 
     //enabled
     data.whichData |= kMenuItemDataEnabled;
@@ -715,8 +713,7 @@ QMenuBarPrivate::QMacMenuBarPrivate::syncAction(QMacMenuAction *action)
         CreateNewMenu(0, 0, &submenu);
     }
     SetMenuItemHierarchicalMenu(action->menu, qt_mac_menu_find_action(action->menu, action), submenu);
-    SetMenuTitleWithCFString(submenu,
-                             QCFStringHelper(qt_mac_no_ampersands(action->action->text())));
+    SetMenuTitleWithCFString(submenu, qt_mac_no_ampersands(action->action->text()));
     if(release_submenu)
         ReleaseMenu(submenu);
 }
