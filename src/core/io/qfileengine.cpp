@@ -44,7 +44,25 @@
 #define q q_func()
 
 //************* QFileEngineHandler
+/*!
+    \class QFileEngineHandler
+    \reentrant
+
+    \brief The QFileEngineHandler class allows new filesystems to be plugged into Qt
+
+    \ingroup io
+    \mainclass
+
+    ###
+*/
+
 static QList<QFileEngineHandler*> *fileHandlers;
+
+/*!
+
+    ###
+
+ */
 QFileEngineHandler::QFileEngineHandler()
 {
     if(!fileHandlers)
@@ -52,6 +70,11 @@ QFileEngineHandler::QFileEngineHandler()
     fileHandlers->append(this);
 }
 
+/*!
+
+    ###
+
+ */
 QFileEngineHandler::~QFileEngineHandler()
 {
     fileHandlers->removeAll(this);
@@ -61,15 +84,51 @@ QFileEngineHandler::~QFileEngineHandler()
     }
 }
 
+/* 
+    \fn QFileEngine *QFileEngineHandler::createFileEngine(const QString &path)
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+
 //**************** QFileEngine
+/*!
+    \class QFileEngine
+    \reentrant
+
+    \brief The QFileEngine class provides an abstraction for filesystem information.
+
+    \ingroup io
+    \mainclass
+
+    ###
+*/
+
+/*!
+
+    ###
+
+ */
 QFileEngine::QFileEngine(QFileEnginePrivate &dd)  : QIOEngine(dd)
 {
 }
 
+/*!
+
+    ###
+
+ */
 QFileEngine::~QFileEngine()
 {
 }
 
+/*!
+
+    ###
+
+ */
 QFileEngine *QFileEngine::createFileEngine(const QString &file)
 {
     if(fileHandlers) {
@@ -80,6 +139,204 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
     }
     return new QFSFileEngine(file);
 }
+
+
+/* 
+    \fn void QFileEngine::setFileName(const QString &file)
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn bool QFileEngine::remove()
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn bool QFileEngine::rename(const QString &newName)
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+
+/* 
+    \fn int QFileEngine::handle() const
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn uchar *QFileEngine::map(Q_LONG len)
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn bool QFileEngine::mkdir(const QString &dirName, QDir::Recursion recurse) const
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn bool QFileEngine::rmdir(const QString &dirName, QDir::Recursion recurse) const
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn QStringList QFileEngine::entryList(int filterSpec, const QStringList &filters) const
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn bool QFileEngine::caseSensitive() const
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn bool QFileEngine::isRoot() const
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn bool QFileEngine::isRelativePath() const
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn uint QFileEngine::fileFlags(uint type) const
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+
+/* 
+    \fn QString QFileEngine::fileName(FileName file) const 
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn uint QFileEngine::ownerId(FileOwner) const
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn QString QFileEngine::owner(FileOwner) const
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn QDateTime QFileEngine::fileTime(FileTime time) const
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/*!
+    \enum QIOEngine::FileName
+
+    ###
+
+    \value DefaultName
+    \value BaseName
+    \value PathName
+    \value AbsoluteName
+    \value AbsolutePathName
+    \value LinkName
+    \value CanonicalName
+*/
+
+/*!
+    \enum QIOEngine::FileInfo
+
+    ###
+
+    \value ReadOwner
+    \value WriteOwner
+    \value ExeOwner
+    \value ReadUser
+    \value WriteUser
+    \value ExeUser
+    \value ReadGroup
+    \value WriteGroup
+    \value ExeGroup
+    \value ReadOther
+    \value WriteOther
+    \value ExeOther
+
+    \value Link
+    \value File
+    \value Directory
+
+    \value Hidden
+    \value Exists
+
+    \value PermsMask
+    \value TypeMask
+    \value FlagsMask
+    \value FileInfoAll
+*/
+
+/*!
+    \enum QIOEngine::FileTime
+
+    ###
+
+    \value CreationTime
+    \value ModificationTime
+    \value AccessTime
+*/
+
+/*!
+    \enum QIOEngine::FileOwner
+
+    ###
+
+    \value User
+    \value Group
+*/
+
+
+
 
 //**************** QFSFileEnginePrivate
 QFSFileEnginePrivate::QFSFileEnginePrivate() : QFileEnginePrivate()

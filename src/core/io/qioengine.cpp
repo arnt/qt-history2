@@ -19,22 +19,55 @@
 #define d d_func()
 #define q q_func()
 
+/*!
+    \class QIOEngine
+    \reentrant
+
+    \brief The QIOEngine class provies an abstraction for block reading and writing.
+
+    \ingroup io
+    \mainclass
+
+    ###
+*/
+
+
+/*!
+
+    ###
+
+ */
 QIOEngine::QIOEngine() : d_ptr(new QIOEnginePrivate)
 {
     d_ptr->q_ptr = this;
 }
 
+/*!
+
+    ###
+
+ */
 QIOEngine::QIOEngine(QIOEnginePrivate &dd) : d_ptr(&dd)
 {
     d_ptr->q_ptr = this;
 }
 
+/*!
+
+    ###
+
+ */
 QIOEngine::~QIOEngine()
 {
     delete d_ptr;
     d_ptr = 0;
 }
 
+/*!
+
+    ###
+
+ */
 Q_LONG QIOEngine::readLine(char *data, Q_LONG maxlen)
 {
     if (maxlen == 0)                                // application bug?
@@ -51,6 +84,11 @@ Q_LONG QIOEngine::readLine(char *data, Q_LONG maxlen)
     return -1;
 }
 
+/*!
+
+    ###
+
+ */
 int QIOEngine::getch()
 {
     uchar ret;
@@ -59,6 +97,11 @@ int QIOEngine::getch()
     return (int)ret;
 }
  
+/*!
+
+    ###
+
+ */
 int QIOEngine::putch(int ch)
 {
     uchar ret = ch;
@@ -67,18 +110,122 @@ int QIOEngine::putch(int ch)
     return (int)ret;
 }
 
+/*!
+
+    ###
+
+ */
 bool QIOEngine::atEnd() const
 {
     return at() == size();
 }
 
+/*!
+
+    ###
+
+ */
 QIODevice::Status QIOEngine::errorStatus() const
 {
     return QIODevice::UnspecifiedError;
 }
 
+/*!
+
+    ###
+
+ */
 QString QIOEngine::errorString() const
 {
     return QString::null;
 }
 
+
+
+/* 
+    \fn QIOEngine::Type QIOEngine::type() const
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn bool QIOEngine::open(int flags)
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn bool QIOEngine::close()
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn void QIOEngine::flush()
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn QIODevice::Offset QIOEngine::size() const
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn QIODevice::Offset QIOEngine::at() const
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn bool QIOEngine::seek(QIODevice::Offset)
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn bool QIOEngine::isSequential() const
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn Q_LONG QIOEngine::readBlock(char *data, Q_LONG maxlen)
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn Q_LONG QIOEngine::writeBlock(const char *data, Q_LONG len)
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/* 
+    \fn int QIOEngine::ungetch(int c)
+  
+    ###
+
+    This virtual function must be reimplemented by all subclasses.
+ */

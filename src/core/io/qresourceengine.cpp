@@ -51,18 +51,27 @@ protected:
     QResourceFileEnginePrivate() : offset(0), resource(0) { }
 };
 
+/*!
+  \reimp
+*/
 bool
 QResourceFileEngine::mkdir(const QString &, QDir::Recursion) const
 {
     return false;
 }
 
+/*!
+  \reimp
+*/
 bool
 QResourceFileEngine::rmdir(const QString &, QDir::Recursion) const
 {
     return false;
 }
 
+/*!
+  \reimp
+*/
 QStringList
 QResourceFileEngine::entryList(int filterSpec, const QStringList &filters) const
 {
@@ -101,12 +110,18 @@ QResourceFileEngine::entryList(int filterSpec, const QStringList &filters) const
     return ret;
 }
 
+/*!
+  \reimp
+*/
 bool
 QResourceFileEngine::caseSensitive() const
 {
     return true;
 }
 
+/*!
+  \reimp
+*/
 bool
 QResourceFileEngine::isRoot() const
 {
@@ -115,11 +130,17 @@ QResourceFileEngine::isRoot() const
     return d->resource && d->resource->parent();
 }
 
+/*!
+  \reimp
+*/
 QResourceFileEngine::QResourceFileEngine(const QString &file) : QFileEngine(*new QResourceFileEnginePrivate)
 {
     d->file = file;
 }
 
+/*!
+  \reimp
+*/
 void
 QResourceFileEngine::setFileName(const QString &file)
 {
@@ -129,6 +150,9 @@ QResourceFileEngine::setFileName(const QString &file)
     }
 }
 
+/*!
+  \reimp
+*/
 bool
 QResourceFileEngine::open(int flags)
 {
@@ -143,18 +167,27 @@ QResourceFileEngine::open(int flags)
     return true;
 }
 
+/*!
+  \reimp
+*/
 bool
 QResourceFileEngine::close()
 {
     return true;
 }
 
+/*!
+  \reimp
+*/
 void
 QResourceFileEngine::flush()
 {
 
 }
 
+/*!
+  \reimp
+*/
 Q_LONG
 QResourceFileEngine::readBlock(char *data, Q_LONG len)
 {
@@ -168,30 +201,45 @@ QResourceFileEngine::readBlock(char *data, Q_LONG len)
     return len;
 }
 
+/*!
+  \reimp
+*/
 Q_LONG
 QResourceFileEngine::writeBlock(const char *, Q_LONG)
 {
     return -1;
 }
 
+/*!
+  \reimp
+*/
 int
 QResourceFileEngine::ungetch(int)
 {
     return -1;
 }
 
+/*!
+  \reimp
+*/
 bool
 QResourceFileEngine::remove()
 {
     return false;
 }
 
+/*!
+  \reimp
+*/
 bool
 QResourceFileEngine::rename(const QString &)
 {
     return false;
 }
 
+/*!
+  \reimp
+*/
 QFile::Offset
 QResourceFileEngine::size() const
 {
@@ -200,18 +248,27 @@ QResourceFileEngine::size() const
     return d->resource->size();
 }
 
+/*!
+  \reimp
+*/
 QFile::Offset
 QResourceFileEngine::at() const
 {
     return d->offset;
 }
 
+/*!
+  \reimp
+*/
 bool
 QResourceFileEngine::atEnd() const
 {
     return d->offset == d->resource->size();
 }
 
+/*!
+  \reimp
+*/
 bool
 QResourceFileEngine::seek(QFile::Offset pos)
 {
@@ -221,24 +278,36 @@ QResourceFileEngine::seek(QFile::Offset pos)
     return true;
 }
 
+/*!
+  \reimp
+*/
 bool
 QResourceFileEngine::isSequential() const
 {
     return false;
 }
 
+/*!
+  \reimp
+*/
 int
 QResourceFileEngine::handle() const
 {
     return (int)d->resource;
 }
 
+/*!
+  \reimp
+*/
 uchar *
 QResourceFileEngine::map(Q_LONG /*len*/)
 {
     return 0;
 }
 
+/*!
+  \reimp
+*/
 uint
 QResourceFileEngine::fileFlags(uint type) const
 {
@@ -258,6 +327,9 @@ QResourceFileEngine::fileFlags(uint type) const
     return ret;
 }
 
+/*!
+  \reimp
+*/
 QString
 QResourceFileEngine::fileName(FileName file) const
 {
@@ -290,12 +362,18 @@ QResourceFileEngine::fileName(FileName file) const
 
 }
 
+/*!
+  \reimp
+*/
 bool
 QResourceFileEngine::isRelativePath() const
 {
     return false;
 }
 
+/*!
+  \reimp
+*/
 uint
 QResourceFileEngine::ownerId(FileOwner) const
 {
@@ -303,18 +381,27 @@ QResourceFileEngine::ownerId(FileOwner) const
     return nobodyID;
 }
 
+/*!
+  \reimp
+*/
 QString
 QResourceFileEngine::owner(FileOwner) const
 {
     return QString::null;
 }
 
+/*!
+  \reimp
+*/
 QDateTime
 QResourceFileEngine::fileTime(FileTime) const
 {
     return QDateTime();
 }
 
+/*!
+  \reimp
+*/
 QIOEngine::Type
 QResourceFileEngine::type() const
 {
