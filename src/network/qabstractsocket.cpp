@@ -797,8 +797,10 @@ void QAbstractSocketPrivate::canReadNotification(int)
 
     // If there is still space in the buffer, reenable the read socket
     // notifier.
-    if (!readBufferMaxSize || d->readBuffer.size() < d->readBufferMaxSize)
-        d->readSocketNotifier->setEnabled(true);
+    if (!readBufferMaxSize || d->readBuffer.size() < d->readBufferMaxSize) {
+        if (d->readSocketNotifier)
+            d->readSocketNotifier->setEnabled(true);
+    }
 
     readSocketNotifierCalled = false;
 }
@@ -1076,6 +1078,8 @@ void QAbstractSocketPrivate::connectToNextAddress()
 */
 void QAbstractSocketPrivate::testConnection()
 {
+    connectTimer.stop();
+
     if (socketLayer.socketState() == Qt::ConnectedState || socketLayer.connectToHost(host, port)) {
         state = Qt::ConnectedState;
         q->setFlags(q->flags() | QIODevice::Open | QIODevice::ReadWrite);
@@ -1575,6 +1579,10 @@ bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, Qt::SocketState 
 */
 bool QAbstractSocket::waitForReadyRead(int msecs)
 {
+#if defined (QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::waitForReadyRead()", msecs);
+#endif
+
     if (socketState() != Qt::ConnectedState && socketState() != Qt::BoundState) {
         qWarning("%s", tr("QAbstractSocket::waitForReadyRead() is only"
                           " allowed in connected state.").latin1());
@@ -1585,10 +1593,16 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
     if (!d->socketLayer.waitForRead(msecs, &timedOut) || (d->isBuffered && !d->readFromSocket())) {
         d->socketError = d->socketLayer.socketError();
         d->socketErrorString = d->socketLayer.errorString();
+#if defined (QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::waitForReadyRead() failed (%s)", d->socketErrorString.latin1());
+#endif
         emit error(d->socketError);
         return false;
     }
 
+#if defined (QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::waitForReadyRead() emitting readyRead()", msecs);
+#endif
     emit readyRead();
     return true;
 }
@@ -1704,6 +1718,9 @@ bool QAbstractSocket::seek(Q_LLONG off)
 */
 int QAbstractSocket::getch()
 {
+    if (d->readBuffer.isEmpty() && !waitForReadyRead(d->blockingTimeout))
+        return -1;
+
     return d->readBuffer.getChar();
 }
 
