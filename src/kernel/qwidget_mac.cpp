@@ -51,7 +51,7 @@
 #include "qfocusdata.h"
 #include "qabstractlayout.h"
 #include "qtextcodec.h"
-#include <stdio.h>
+#include <qstack.h>
 #include <qcursor.h>
 
 // NOT REVISED
@@ -920,6 +920,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     QSize  olds = size();
 
     QRect  r( x, y, w, h );
+    dirtyClippedRegion(FALSE);
     setCRect( r );
 
     if (!isTopLevel() && size() == olds && oldp == pos() )
@@ -1275,32 +1276,73 @@ void QWidget::propagateUpdates(int , int , int w, int h)
     }
 }
 
-void QWidget::dirtyClippedRegion(bool tell_parent)
+void QWidget::dirtyClippedRegion(bool dirty_myself)
 {
-    if(extra)
-	extra->clip_dirty = TRUE;
-    for(QWidget *widg = this; widg; widg = tell_parent ? widg->parentWidget() : NULL) {
-	if(widg->extra)
-	    widg->extra->child_dirty = TRUE;
-    }
-    QPoint widgp(posInWindow(this));
-    QRect widgr(widgp.x(), widgp.y(), width(), height());
-
-    if(QObjectList *chldn = topLevelWidget()->queryList()) {
-	QObjectListIt it( *chldn );
-	for ( QObject *obj; (obj=it.current()); ++it ) {
-	    if(obj->isWidgetType()) {
-		QWidget *w = (QWidget *)(*it);
-		if(w->topLevelWidget() == topLevelWidget() &&
-		   !w->isTopLevel() && w->isVisible() && w->extra && !w->extra->clip_dirty) {
-		    QPoint wp(posInWindow(w));
-		    if(1 || widgr.intersects(QRect(wp.x(), wp.y(), w->width(), w->height())))
+    int dirtied = 0;
+    if(dirty_myself) {
+	//dirty myself
+	if(extra) {
+	    extra->child_dirty = extra->clip_dirty = TRUE;
+	    dirtied++;
+	}
+	//when I get dirty so do my children
+	if(QObjectList *chldn = queryList()) {
+	    QObjectListIt it(*chldn);
+	    for(QObject *obj; (obj = it.current()); ++it ) {
+		if(obj->isWidgetType()) {
+		    QWidget *w = (QWidget *)(*it);
+		    if(w->topLevelWidget() == topLevelWidget() && 
+		       !w->isTopLevel() && w->isVisible() && w->extra) {
+			dirtied++;
 			w->extra->clip_dirty = TRUE;
+		    }
 		}
 	    }
 	}
-	delete chldn;
     }
+
+    //handle the rest of the widgets
+    QPoint myp(posInWindow(this));
+    QRect myr(myp.x(), myp.y(), width(), height());
+    QWidget *last = this, *w;
+    for(QWidget *widg = parentWidget(); widg; last = widg, widg = widg->parentWidget()) {
+	QPoint widgp(posInWindow(widg));
+	myr = myr.intersect(QRect(widgp.x(), widgp.y(), widg->width(), widg->height()));
+	if(widg->extra)
+	    widg->extra->child_dirty = TRUE;
+
+	if(const QObjectList *chldn = widg->children()) {
+	    for(QObjectListIt it(*chldn); it.current() && it.current() != last; ++it) {
+		if((*it)->isWidgetType()) {
+		    w = (QWidget *)(*it);
+		    if(w->topLevelWidget() == topLevelWidget() && !w->isTopLevel() && w->isVisible()) {
+			QPoint wp(posInWindow(w));
+			if(myr.intersects(QRect(wp.x(), wp.y(), w->width(), w->height()))) {
+			    if(w->extra) {
+				dirtied++;
+				w->extra->clip_dirty = TRUE;
+			    }
+			    if(QObjectList *chldn = w->queryList()) {
+				QObjectListIt it(*chldn);
+				for(QObject *obj; (obj = it.current()); ++it ) {
+				    if(obj->isWidgetType()) {
+					QWidget *w = (QWidget *)(*it);
+					if(w->topLevelWidget() == topLevelWidget() && 
+					   !w->isTopLevel() && w->isVisible() && w->extra) {
+					    dirtied++;
+					    w->extra->clip_dirty = TRUE;
+					}
+				    }
+				}
+				delete chldn;
+			    }
+			} 
+		    }
+		}
+	    }
+	}
+    }
+//    qDebug("Dirtied %d", dirtied);
 }
 
 bool QWidget::isClippedRegionDirty()
@@ -1314,12 +1356,12 @@ bool QWidget::isClippedRegionDirty()
 
 QRegion QWidget::clippedRegion(bool do_children)
 {
-    if(extra && !isClippedRegionDirty() && (!do_children || !extra->child_dirty)) {
+    createExtra();
+    if(!extra->clip_dirty && (!do_children || !extra->child_dirty)) {
 	if(!do_children)
 	    return extra->clip_sibs;
 	return extra->clip_saved;
     }
-    createExtra();
 
     QRegion mask;
     //clip out my children
