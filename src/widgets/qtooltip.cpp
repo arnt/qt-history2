@@ -466,7 +466,7 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 
 void QTipManager::showTip()
 {
-    if ( !widget || !globally_enabled )
+    if ( !widget || !globally_enabled || !widget->isActiveWindow() )
 	return;
 
     QTipManager::Tip *t = (*tips)[ widget ];
