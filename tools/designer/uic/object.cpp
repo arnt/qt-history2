@@ -426,7 +426,8 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	QString keys( e.firstChild().toText().data() );
 	QStringList lst = QStringList::split( '|', keys );
 	v = "int( ";
-	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	QStringList::Iterator it = lst.begin(); // work around EDG bug
+	for ( ; it != lst.end(); ++it ) {
 	    v += objClass + "::" + *it;
 	    if ( it != lst.fromLast() )
 		v += " | ";
