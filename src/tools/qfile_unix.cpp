@@ -243,7 +243,7 @@ bool QFile::open( int m )
 	    // non-seekable
 	    setType( IO_Sequential );
 	    length = INT_MAX;
-	    ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
+	    ioIndex  = 0;
 	} else {
 	    length = (int)st.st_size;
 	    ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
@@ -255,6 +255,7 @@ bool QFile::open( int m )
 		    ungetch(c);
 		    setType( IO_Sequential );
 		    length = INT_MAX;
+		    ioIndex  = 0;
 		}
 	    }
 	}
@@ -316,6 +317,7 @@ bool QFile::open( int m, FILE *f )
 	// non-seekable
 	setType( IO_Sequential );
 	length = INT_MAX;
+	ioIndex  = 0;
     } else {
 	length = (int)st.st_size;
 	if ( !(flags()&IO_Truncate) && length == 0 && isReadable() ) {
@@ -326,6 +328,7 @@ bool QFile::open( int m, FILE *f )
 		ungetch(c);
 		setType( IO_Sequential );
 		length = INT_MAX;
+		ioIndex  = 0;
 	    }
 	}
     }
@@ -372,6 +375,7 @@ bool QFile::open( int m, int f )
 	// non-seekable
 	setType( IO_Sequential );
 	length = INT_MAX;
+	ioIndex  = 0;
     } else {
 	length = (int)st.st_size;
 	if ( length == 0 && isReadable() ) {
@@ -382,6 +386,7 @@ bool QFile::open( int m, int f )
 		ungetch(c);
 		setType( IO_Sequential );
 		length = INT_MAX;
+		ioIndex  = 0;
 	    }
 	    resetStatus();
 	}
@@ -436,6 +441,8 @@ bool QFile::at( Offset pos )
 #endif
 	return FALSE;
     }
+    if ( isSequentialAccess() )
+	return FALSE;
     bool ok;
     if ( isRaw() ) {				// raw file
 	pos = (long int) QT_LSEEK( fd, pos, SEEK_SET );
@@ -510,7 +517,8 @@ Q_LONG QFile::readBlock( char *p, Q_ULONG len )
 	    }
 	}
     }
-    ioIndex += nread;
+    if ( !isSequentialAccess() )
+	ioIndex += nread;
     return nread;
 }
 
@@ -557,12 +565,15 @@ Q_LONG QFile::writeBlock( const char *p, Q_ULONG len )
 	    setStatus( IO_ResourceError );
 	else
 	    setStatus( IO_WriteError );
-	if ( isRaw() )				// recalc file position
-	    ioIndex = (int)QT_LSEEK( fd, 0, SEEK_CUR );
-	else
-	    ioIndex = fseek( fh, 0, SEEK_CUR );
+	if ( !isSequentialAccess() ) {
+	    if ( isRaw() )				// recalc file position
+		ioIndex = (int)QT_LSEEK( fd, 0, SEEK_CUR );
+	    else
+		ioIndex = fseek( fh, 0, SEEK_CUR );
+	}
     } else {
-	ioIndex += nwritten;
+	if ( !isSequentialAccess() )
+	    ioIndex += nwritten;
     }
     if ( ioIndex > length )			// update file length
 	length = ioIndex;

@@ -309,7 +309,8 @@ Q_LONG QFile::readLine( char *p, Q_ULONG maxlen )
 	p = fgets( p, maxlen, fh );
 	if ( p ) {
 	    nread = qstrlen( p );
-	    ioIndex += nread;
+	    if ( !isSequentialAccess() )
+		ioIndex += nread;
 	} else {
 	    nread = -1;
 	    setStatus(IO_ReadError);
@@ -385,7 +386,8 @@ int QFile::getch()
 	ch = readBlock( buf, 1 ) == 1 ? buf[0] : EOF;
     } else {					// buffered file
 	if ( (ch = getc( fh )) != EOF )
-	    ioIndex++;
+	    if ( !isSequentialAccess() )
+		ioIndex++;
 	else
 	    setStatus(IO_ReadError);
     }
@@ -418,7 +420,8 @@ int QFile::putch( int ch )
 	ch = writeBlock( buf, 1 ) == 1 ? ch : EOF;
     } else {					// buffered file
 	if ( (ch = putc( ch, fh )) != EOF ) {
-	    ioIndex++;
+	    if ( !isSequentialAccess() )
+		ioIndex++;
 	    if ( ioIndex > length )		// update file length
 		length = ioIndex;
 	} else {
@@ -470,7 +473,8 @@ int QFile::ungetch( int ch )
 	    ch = EOF;
     } else {					// buffered file
 	if ( (ch = ungetc(ch, fh)) != EOF )
-	    ioIndex--;
+	    if ( !isSequentialAccess() )
+		ioIndex--;
 	else
 	    setStatus( IO_ReadError );
     }
