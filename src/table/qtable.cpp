@@ -159,11 +159,11 @@ static bool isRowSelection( QTable::SelectionMode selMode )
 
   \module table
 
-  The selection is a rectangular set of cells.  One of the rectangle's
-  cells is called the anchor cell; this is the cell that was selected first.
-  The init() function sets the anchor and the selection rectangle
-  to exactly this cell; the expandTo() function expands the selection
-  rectangle to include additional cells.
+  The selection is a rectangular set of cells in a QTable.  One of the
+  rectangle's cells is called the anchor cell; this is the cell that
+  was selected first. The init() function sets the anchor and the
+  selection rectangle to exactly this cell; the expandTo() function
+  expands the selection rectangle to include additional cells.
 
   There are various access functions to find out about the area:
   anchorRow() and anchorCol() return the anchor's position; leftCol(),
@@ -303,7 +303,7 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
   \module table
 
   For many applications QTableItems are ideal for presenting and editing
-  the contents of table cells. In situations where you need to create
+  the contents of QTable cells. In situations where you need to create
   very large tables you may prefer an alternative approach to using
   QTableItems: see the notes on large tables.
 
@@ -352,6 +352,10 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
 
     Table items can be deleted with delete in the standard way; the
     table and cell will be updated accordingly.
+
+    \img qtableitems.png Table Items
+
+    \sa QCheckTableItem QComboTableItem
 
 */
 
@@ -916,11 +920,11 @@ bool QTableItem::isEnabled() const
 
   A QComboTableItem is a table item which looks and behaves like a
   combobox. The advantage of using QComboTableItems rather than real
-  comboboxes is that a QComboTableItem uses far less resources than a real
-  combobox. When the cell has the focus it displays a real combobox
-  which the user can interact with. When the cell does not have the
-  focus the cell \e looks like a combobox. Only text items (i.e. no
-  pixmaps) may be used in QComboTableItems.
+  comboboxes is that a QComboTableItem uses far less resources than
+  real comboboxes in \l{QTable}s. When the cell has the focus it
+  displays a real combobox which the user can interact with. When the
+  cell does not have the focus the cell \e looks like a combobox. Only
+  text items (i.e. no pixmaps) may be used in QComboTableItems.
 
   QComboTableItem items have the edit type \c WhenCurrent (see
   \l{EditType}). The QComboTableItem's list of items is provided by a
@@ -944,6 +948,10 @@ bool QTableItem::isEnabled() const
   QComboTableItems can be distinguished from \l{QTableItem}s and
   \l{QCheckTableItem}s using their Run Time Type Identification number
   (see rtti()).
+
+  \img qtableitems.png Table Items
+
+    \sa QCheckTableItem QTableItem
 */
 
 QComboBox *QComboTableItem::fakeCombo = 0;
@@ -1147,11 +1155,11 @@ int QComboTableItem::rtti() const
 
   A QCheckTableItem is a table item which looks and behaves like a
   checkbox. The advantage of using QCheckTableItems rather than real
-  checkboxes is that a QCheckTableItem uses far less resources than a real
-  checkbox. When the cell has the focus it displays a real checkbox
-  which the user can interact with. When the cell does not have the
-  focus the cell \e looks like a checkbox. Pixmaps may not be used in
-  QCheckTableItems.
+  checkboxes is that a QCheckTableItem uses far less resources than
+  real checkboxes would in a QTable. When the cell has the focus it
+  displays a real checkbox which the user can interact with. When the
+  cell does not have the focus the cell \e looks like a checkbox.
+  Pixmaps may not be used in QCheckTableItems.
 
     QCheckTableItem items have the edit type \c WhenCurrent (see
     \l{EditType}).
@@ -1166,7 +1174,9 @@ int QComboTableItem::rtti() const
   \l{QComboTableItem}s using their Run Time Type Identification (rtti)
   value.
 
-  \sa rtti() EditType
+  \img qtableitems.png Table Items
+
+  \sa rtti() EditType QComboTableItem QTableItem
 */
 
 /*! Creates a QCheckTableItem with an \l{EditType} of \c WhenCurrent
@@ -1301,17 +1311,21 @@ int QCheckTableItem::rtti() const
     table->setText( 3, 2, "A pixmap" );
     \endcode
 
-    The first line constructs the table specifying its size in rows and
-    columns. We then insert a pixmap and some text into the \e same
-    cell, with the pixmap appearing to the left of the text. By default
-    a vertical header appears at the left of the table showing row
-    numbers and a horizontal header appears at the top of the table
-    showing column numbers. (The numbers displayed start at 1, although
-    row and column numbers within QTable begin at 0.)
+    The first line constructs the table specifying its size in rows
+    and columns. We then insert a pixmap and some text into the \e
+    same \link #cells cell\endlink, with the pixmap appearing to the
+    left of the text. QTable cells can be populated with
+    \l{QTableItem}s, \l{QComboTableItem}s or by \l{QCheckTableItem}s.
+    By default a vertical header appears at the left of the table
+    showing row numbers and a horizontal header appears at the top of
+    the table showing column numbers. (The numbers displayed start at
+    1, although row and column numbers within QTable begin at 0.)
 
     If you want to use mouse tracking call setMouseTracking( TRUE ) on
     the \e viewport; (see \link qscrollview.html#allviews
     QScrollView\endlink).
+
+    \img qtableitems.png Table Items
 
     \target headers
     \section1 Headers

@@ -75,6 +75,8 @@
   To set or get the position of the mouse cursor use the static methods
   QCursor::pos() and QCursor::setPos().
 
+  \img cursors.png Cursor Shapes
+
   \sa QWidget
   \link guibooks.html#fowler GUI Design Handbook: Cursors\endlink
 */
@@ -103,6 +105,8 @@
   \value BitmapCursor
 
   ArrowCursor is the default for widgets in a normal state.
+
+  \img cursors.png Cursor Shapes
 */
 
 /*****************************************************************************

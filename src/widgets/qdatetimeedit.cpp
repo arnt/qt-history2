@@ -784,6 +784,8 @@ public:
   be taken from the systems settings. If that is impossible, it defaults
   to "-".
 
+  \img datetimewidgets.png Date Time Widgets
+
   \sa QDate QTimeEdit QDateTimeEdit
 */
 
@@ -1643,6 +1645,8 @@ public:
   hour, minute and second. You can change the separator character using
   setSeparator(), by default the separator is read from the system's settings.
 
+  \img datetimewidgets.png Date Time Widgets
+
   \sa QTime QDateEdit QDateTimeEdit
 
 */
@@ -2307,6 +2311,8 @@ public:
   sections, one each for the hour, minute and second. The character that
   separates each date section is specified with setDateSeparator();
   similarly setTimeSeparator() is used for the time sections.
+
+  \img datetimewidgets.png Date Time Widgets
 
   \sa QDateEdit QTimeEdit
 */
