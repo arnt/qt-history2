@@ -901,9 +901,9 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
                 QByteArray nspace = keys.at(n);
                 if (nspace != libName) {
                     declOut << "namespace " << nspace << " {" << endl;
-                    QList<QByteArray> classes = namespaces.value(nspace);
-                    for (int c = 0; c < classes.count(); ++c) {
-                        declOut << "    class " << classes.at(c) << ";" << endl;
+                    QList<QByteArray> classList = namespaces.value(nspace);
+                    for (int c = 0; c < classList.count(); ++c) {
+                        declOut << "    class " << classList.at(c) << ";" << endl;
                     }
                     declOut << "}" << endl << endl;
                 }
@@ -913,11 +913,11 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
         }
         generateNameSpace(declOut, namespaceObject, libName.toLatin1());
 
-        QList<QByteArray> classes = namespaces.value(libName.toLatin1());
-        if (classes.count())
+        QList<QByteArray> classList = namespaces.value(libName.toLatin1());
+        if (classList.count())
             declOut << "// forward declarations" << endl;
-        for (int c = 0; c < classes.count(); ++c)
-            declOut << "    class " << classes.at(c) << ";" << endl;
+        for (int c = 0; c < classList.count(); ++c)
+            declOut << "    class " << classList.at(c) << ";" << endl;
 
         declOut << endl;
     }
@@ -996,6 +996,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
 
     delete namespaceObject;
 
+    classesOut.flush();
     if (declFile.isOpen()) {
         if (classes.size()) {
             declOut << "// Actual coclasses" << endl;
