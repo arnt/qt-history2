@@ -4920,6 +4920,8 @@ QString QTextParagraph::richText() const
 	    s += "&lt;";
 	else if ( c->c == '>' )
 	    s += "&gt;";
+	else if ( c->c =='&' )
+	    s += "&amp;";
 #ifndef QT_NO_TEXTCUSTOMITEM
 	else if ( c->isCustom() )
 	    s += c->customItem()->richText();
