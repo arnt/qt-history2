@@ -436,7 +436,7 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
 
     if ( style() == WindowsStyle ) {
 	QRect r = rect();
-	int m = style().pixelMetric( QStyle::PM_SliderMaximumDragDistance,
+	int m = style().pixelMetric( QStyle::PM_MaximumDragDistance,
 				     this );
 	if ( m >= 0 ) {
 	    if ( orientation() == Horizontal )

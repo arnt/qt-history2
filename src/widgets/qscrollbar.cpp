@@ -662,7 +662,7 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	}
 
 	QRect r = rect();
-	int m = style().pixelMetric(QStyle::PM_ScrollBarMaximumDragDistance, this);
+	int m = style().pixelMetric(QStyle::PM_MaximumDragDistance, this);
 	if ( m >= 0 ) {
 	    if ( orientation() == Horizontal )
 		r.setRect( r.x() - m, r.y() - 2*m, r.width() + 2*m, r.height() + 4*m );

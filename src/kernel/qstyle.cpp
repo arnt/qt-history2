@@ -998,36 +998,46 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \enum QStyle::PixelMetric
 
+  This enum represents a PixelMetric.  A PixelMetric is a style dependent size
+  represented as a single pixel value.
 
-  \value PM_ButtonMargin
-  \value PM_ButtonDefaultIndicator
-  \value PM_MenuButtonIndicator
-  \value PM_ButtonShiftHorizontal
-  \value PM_ButtonShiftVertical
-
-
-  \value PM_DefaultFrameWidth
-  \value PM_SpinBoxFrameWidth
-
-
-  \value PM_ScrollBarExtent
-  \value PM_ScrollBarMaximumDragDistance
+  \value PM_ButtonMargin  amount of whitespace between pushbutton labels and the frame.
+  \value PM_ButtonDefaultIndicator  width of the default-button indicator frame.
+  \value PM_MenuButtonIndicator  width of the menu button indicator for a widget height.
+  \value PM_ButtonShiftHorizontal  horizontal contents shift of a button when the
+         button is down.
+  \value PM_ButtonShiftVertical  vertical contents shift of a button when the
+         button is down.
 
 
-  \value PM_SliderThickness  total slider thickness
-  \value PM_SliderControlThickness  thickness of the business part
+  \value PM_DefaultFrameWidth  default frame width, usually 2
+  \value PM_SpinBoxFrameWidth  frame width of a spin box.
+
+
+  \value PM_MaximumDragDistance  Some feels require the scrollbar or other sliders to
+         jump back to the original position when the mouse pointer is too far away
+         while dragging.  A value of -1 disables this behavior.
+
+
+  \value PM_ScrollBarExtent  width of a vertical scrollbar and the height of a
+         horizontal scrollbar.
+
+
+  \value PM_SliderThickness  total slider thickness.
+  \value PM_SliderControlThickness  thickness of the slider handle.
   \value PM_SliderLength
-  \value PM_SliderMaximumDragDistance
   \value PM_SliderTickmarkOffset
-  \value PM_SliderSpaceAvailable  available space for slider to move
+  \value PM_SliderSpaceAvailable  available space for slider to move.
 
 
-  \value PM_DockWindowSeparatorExtent
-  \value PM_DockWindowHandleExtent
-  \value PM_DockWindowFrameWidth
+  \value PM_DockWindowSeparatorExtent  width of a separator in a horiztonal dock window
+         and the height of a separator in a vertical dock window.
+  \value PM_DockWindowHandleExtent  width of the handle in a horizontal dock window and
+         the height of the handle in a vertical dock window.
+  \value PM_DockWindowFrameWidth  frame width of a dock window.
 
 
-  \value PM_MenuBarFrameWidth
+  \value PM_MenuBarFrameWidth  frame width of a menubar.
 
 
   \value PM_TabBarOverlap
@@ -1037,22 +1047,73 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value PM_TabBarBaseOverlap
 
 
-  \value PM_ProgressBarChunkWidth
+  \value PM_ProgressBarChunkWidth  width of a chunk in a progress bar indicator.
 
 
-  \value PM_SplitterWidth
+  \value PM_SplitterWidth  width of a splitter.
 
 
-  \value PM_IndicatorWidth
-  \value PM_IndicatorHeight
-  \value PM_ExclusiveIndicatorWidth
-  \value PM_ExclusiveIndicatorHeight
+  \value PM_IndicatorWidth  width of a check box indicator.
+  \value PM_IndicatorHeight  height of a checkbox indicator.
+  \value PM_ExclusiveIndicatorWidth  width of a radio button indicator.
+  \value PM_ExclusiveIndicatorHeight  height of a radio button indicator.
 */
 
 /*!
   \fn int QStyle::pixelMetric( PixelMetric metric, const QWidget *widget = 0 ) const;
 
-  document me!
+  Returns the pixel metric for \a metric.  The \a widget argument is a pointer to
+  a QWidget of one of its subclasses.  The widget can be cast to the appropriate type
+  based on the value of \a metric.  Note that \a widget can be zero even for
+  PixelMetrics that make use of \a widget. See the table below for the appropriate
+  \a widget casts:
+
+  <center>
+  <table cellpadding=4 cellspacing=2 border=0>
+    <tr bgcolor=#A2C511>
+      <th>PixelMetric</th>
+      <th>Widget Cast</th>
+    </tr>
+    <tr bgcolor=#d0d0d0>
+      <td valign=top>PM_SliderControlThickness</td>
+      <td valign=top>const QSlider *</td>
+    </tr>
+    <tr bgcolor=#f0f0f0>
+      <td valign=top>PM_SliderLength</td>
+      <td valign=top>const QSlider *</td>
+    </tr>
+    <tr bgcolor=#d0d0d0>
+      <td valign=top>PM_SliderTickmarkOffset</td>
+      <td valign=top>const QSlider *</td>
+    </tr>
+    <tr bgcolor=#f0f0f0>
+      <td valign=top>PM_SliderSpaceAvailable</td>
+      <td valign=top>const QSlider *</td>
+    </tr>
+    <tr bgcolor=#d0d0d0>
+      <td valign=top>PM_TabBarOverlap</td>
+      <td valign=top>const QTabBar *</td>
+    </tr>
+    <tr bgcolor=#f0f0f0>
+      <td valign=top>PM_TabBarHorizontalFrame</td>
+      <td valign=top>const QTabBar *</td>
+    </tr>
+    <tr bgcolor=#d0d0d0>
+      <td valign=top>PM_TabBarVerticalFrame</td>
+      <td valign=top>const QTabBar *</td>
+    </tr>
+    <tr bgcolor=#f0f0f0>
+      <td valign=top>PM_TabBarBaseHeight</td>
+      <td valign=top>const QTabBar *</td>
+    </tr>
+    <tr bgcolor=#d0d0d0>
+      <td valign=top>PM_TabBarBaseOverlap</td>
+      <td valign=top>const QTabBar *</td>
+    </tr>
+  </table>
+  </center>
+
+  \sa PixelMetric
 */
 
 /*!

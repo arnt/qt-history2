@@ -117,7 +117,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 				  void **data ) const
 {
     switch (op) {
-    case PO_HeaderArrow: 
+    case PO_HeaderArrow:
 	p->save();
 	if ( flags & PStyle_Down ) {
 	    QPointArray pa( 3 );
@@ -139,7 +139,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	    p->drawLine( r.x(), r.height(), r.x() + r.width() / 2, r.y() );
 	}
 	p->restore();
-	break; 
+	break;
 
     case PO_StatusBarSection:
 	qDrawShadeRect( p, r, cg, TRUE, 1, 0, 0 );
@@ -1875,8 +1875,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	ret = 16;
 	break;
 
-    case PM_SliderMaximumDragDistance:
-    case PM_ScrollBarMaximumDragDistance:
+    case PM_MaximumDragDistance:
 	ret = -1;
 	break;
 

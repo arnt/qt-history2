@@ -341,13 +341,13 @@ public:
 	PM_DefaultFrameWidth,
 	PM_SpinBoxFrameWidth,
 
+	PM_MaximumDragDistance,
+
 	PM_ScrollBarExtent,
-	PM_ScrollBarMaximumDragDistance,
 
 	PM_SliderThickness,	       	// total slider thickness
 	PM_SliderControlThickness,    	// thickness of the business part
 	PM_SliderLength,
-	PM_SliderMaximumDragDistance,
 	PM_SliderTickmarkOffset,
 	PM_SliderSpaceAvailable,	// available space for slider to move
 
