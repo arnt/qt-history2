@@ -49,35 +49,6 @@ public:
     virtual QString version() const = 0;
 };
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-template class Q_EXPORT QGuardedPtr<QObject>;
-// MOC_SKIP_END
-#endif
-
-class Q_EXPORT QApplicationComponentInterface : public QUnknownInterface
-{
-public:
-    QApplicationComponentInterface( QObject* c, QUnknownInterface *parent = 0);
-
-    QString interfaceId() const;
-
-#ifndef QT_NO_PROPERTIES
-    virtual QVariant requestProperty( const QCString& p );
-    virtual bool requestSetProperty( const QCString& p, const QVariant& v );
-#endif
-    virtual bool requestConnect( const char* signal, QObject* target, const char* slot );
-    virtual bool requestConnect( QObject *sender, const char* signal, const char* slot );
-    virtual bool requestEvents( QObject* o );
-
-protected:
-    virtual QObject* component() const { return comp; }
-    void setComponent( QObject* c ) { comp = c; }
-
-private:
-    QGuardedPtr<QObject> comp;
-};
-
 #ifndef Q_CREATE_INSTANCE
     #define Q_CREATE_INSTANCE( IMPLEMENTATION )		\
 	QUnknownInterface *i = new IMPLEMENTATION;	\
