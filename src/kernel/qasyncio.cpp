@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#5 $
 **
 ** Implementation of asynchronous I/O classes
 **
@@ -279,12 +279,11 @@ void QDataPump::kickStart()
 
 void QDataPump::tryToPump()
 {
-    int iter=1; // Only iterate once.
     int supply, demand;
     do {
 	supply = source->readyToSend();
 	demand = sink->readyToReceive();
-	if (!demand) {
+	if (demand <= 0) {
 	    return;
 	}
 	interval = 0;
@@ -294,7 +293,7 @@ void QDataPump::tryToPump()
 	    return;
 	}
 	source->sendTo(sink, QMIN(supply, demand));
-    } while (iter-- && demand > supply);
+    } while (1);
 
     timer.start(0, TRUE);
 }

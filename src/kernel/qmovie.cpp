@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#29 $
 **
 ** Implementation of movie classes
 **
@@ -367,6 +367,8 @@ bool QMoviePrivate::setSize(int w, int h)
 
 int QMoviePrivate::readyToReceive()
 {
+    // Could pre-fill buffer, but more efficient to just leave the
+    // data back at the source.
     return (waitingForFrameTick || !stepping || buf_usage || error)
 	? 0 : buf_size;
 }
@@ -825,7 +827,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Sep 4 15:31:20 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.28 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.29 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
