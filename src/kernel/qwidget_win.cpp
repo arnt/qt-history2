@@ -157,7 +157,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 #endif
     const char *title95 = 0;
     int	 style = WS_CHILD;
-    int	 exsty = 0;
+    int	 exsty = WS_EX_NOPARENTNOTIFY;
 
     if ( window ) {
 	style = GetWindowLongA( window, GWL_STYLE );
@@ -293,27 +293,15 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
 	QT_WA( {
 	    const TCHAR *cname = (TCHAR*)windowClassName.ucs2();
-	    if ( exsty )
-		id = CreateWindowEx( exsty, cname, ttitle, style,
-		    		    CW_USEDEFAULT, CW_USEDEFAULT,
-				    CW_USEDEFAULT, CW_USEDEFAULT,
-				    parentw, 0, appinst, 0 );
-	    else
-		id = CreateWindow( cname, ttitle, style,
-				    CW_USEDEFAULT, CW_USEDEFAULT,
-				    CW_USEDEFAULT, CW_USEDEFAULT,
-				    parentw, 0, appinst, 0 );
+	    id = CreateWindowEx( exsty, cname, ttitle, style,
+		    		CW_USEDEFAULT, CW_USEDEFAULT,
+				CW_USEDEFAULT, CW_USEDEFAULT,
+				parentw, 0, appinst, 0 );
 	} , {
-	    if ( exsty )
-		id = CreateWindowExA( exsty, windowClassName.latin1(), title95, style,
-				    CW_USEDEFAULT, CW_USEDEFAULT,
-				    CW_USEDEFAULT, CW_USEDEFAULT,
-				    parentw, 0, appinst, 0 );
-	    else
-		id = CreateWindowA( windowClassName.latin1(), title95, style,
-				    CW_USEDEFAULT, CW_USEDEFAULT,
-				    CW_USEDEFAULT, CW_USEDEFAULT,
-				    parentw, 0, appinst, 0 );
+	    id = CreateWindowExA( exsty, windowClassName.latin1(), title95, style,
+				CW_USEDEFAULT, CW_USEDEFAULT,
+				CW_USEDEFAULT, CW_USEDEFAULT,
+				parentw, 0, appinst, 0 );
 	} );
 
 #endif
