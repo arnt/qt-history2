@@ -444,3 +444,5 @@ INSTALLS += templates
 designertranlations.files = *.qm
 designertranlations.path = $$translations.path
 INSTALLS += designertranlations
+
+PRECOMPILED_HEADER = designer_pch.h
