@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#24 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#24 $");
 
 
 static const int motifBorder = 2;
@@ -102,12 +102,15 @@ QSlider::QSlider( int minValue, int maxValue, int step,
 
 void QSlider::init()
 {
+    extra = 0;
     timer = 0;
-    sliderVal = 0;
     sliderPos = 0;
+    sliderVal = 0;
+    clickOffset = 0;
     state = Idle;
     track = TRUE;
     ticks = NoMarks;
+    tickInt = 0;
     if ( style() == MotifStyle )
 	setBackgroundColor( colorGroup().mid() );
     setFocusPolicy( NoFocus );
@@ -861,7 +864,7 @@ void QSlider::repeatTimeout()
   Returns the relevant dimension of \a p.
 */
 
-int QSlider::goodPart( const QPoint &p )
+int QSlider::goodPart( const QPoint &p ) const
 {
     return (orient == Horizontal) ?  p.x() : p.y();
 }

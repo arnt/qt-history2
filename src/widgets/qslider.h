@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#14 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#15 $
 **
 ** Definition of QSlider class
 **
@@ -46,7 +46,7 @@ public:
     QSlider::TickState tickmarks() { return ticks; }
 
     virtual void setTickInterval( int );
-    int 	tickInterval() { return tickInt; }
+    int 	tickInterval() const { return tickInt; }
 
 public slots:
     void	setValue( int );
@@ -91,19 +91,19 @@ private:
     void	resetState();
     int		slideLength() const;
     int		available() const;
-    int		goodPart( const QPoint& );
+    int		goodPart( const QPoint& ) const;
     void	initTicks();
 
     QSliderData *extra;
     QTimer	*timer;
     QCOORD	sliderPos;
+    int		sliderVal;
     QCOORD	clickOffset;
-    QCOORD	tickOffset;
     State	state;
     bool	track;
+    QCOORD	tickOffset;
     TickState	ticks;
     int		tickInt;
-    int		sliderVal;
     Orientation orient;
 
 private:	// Disabled copy constructor and operator=
