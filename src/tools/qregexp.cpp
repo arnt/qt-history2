@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#6 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#7 $
 **
 ** Implementation of QRegExp class
 **
@@ -21,7 +21,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#7 $";
 #endif
 
 
@@ -138,49 +138,6 @@ int QRegExp::match( const char *str, int index, int *len ) const
     if ( *d == BOL )				// match from beginning of line
 	ep = matchstr( d, p, p );
     else {
-#if 0
-	if ( (*d & 0x8000) == 0 ) {		// find first char occurrence
-
-	    if ( cs ) {				// case sensitive
-		while ( *p && *p != (char)*d )
-		    p++;
-	    }
-	    else {				// case insensitive
-		while ( *p && tolower(*p) != (char)*d )
-		    p++;
-	    }
-	    if ( *p && p > str+index && *(d+1) ^ 0x8000 == 0x0fff ) {
-		d++;
-		if ( cs ) {			// case sensitive
-		    while ( *p && *p != (char)*d )
-			p++;
-		}
-		else {				// case insensitive
-		    while ( *p && tolower(*p) != (char)*d )
-			p++;
-		}		
-	    }
-	}
-#endif
-#if 0
-	if ( *d & CHR ) {			// starting with a char
-	    char *start = (char *)str + index;
-	    if ( cs ) {				// case sensitive
-		while ( 1 ) {
-		    while ( *p && *p != (char)*d )
-			p++;
-		    if ( *p && p > start && *(d+1) & CHR ) {
-			d++;
-			continue;
-		    }
-		    else
-			break;
-		}
-	    }
-	    else {				// case insensitive
-	    }
-	}
-#endif
 	if ( *d & CHR ) {
 	    if ( cs ) {				// case sensitive
 		while ( *p && *p != (char)*d )
@@ -218,7 +175,6 @@ char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
 {						// recursively match string
     register char *p = str;
     ushort *d = rxd;
-
     while ( *d ) {
 	if ( *d & CHR ) {			// match char
 	    if ( cs ) {				// case sensitive
@@ -443,9 +399,10 @@ static int char_val( char **str )		// get char value
 ushort *dump( ushort *p )			// DEBUG !!!
 {
     while ( *p != END ) {
-	if ( *p & CHR )
-	    debug( "\tCHR\t%c (%d)", *(p-1)&0xff, *(p-1)&0xff );
-	else switch ( *p++ ) {
+	if ( *p & CHR ) {
+	    debug( "\tCHR\t%c (%d)", *p&0xff, *p&0xff );
+	    p++;
+	} else switch ( *p++ ) {
 	    case BOL:
 	        debug( "\tBOL" );
 		break;
