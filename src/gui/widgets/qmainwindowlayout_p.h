@@ -50,13 +50,13 @@ class QMainWindowLayout : public QLayout
 
     QDockWindowLayout *layoutForArea(Qt::DockWindowArea area);
 
-    void addToolBar(QToolBar *toolbar, Qt::ToolBarArea area);
-    void addToolBarBlock(QToolBar *toolbar, Qt::ToolBarArea area);
+    void addToolBarBreak(Qt::ToolBarArea area);
+    void insertToolBarBreak(QToolBar *before);
 
-    void addToolBar(QToolBar *toolbar, int where, bool linebreak = false,
-                    const QPoint &offset = QPoint());
+    void addToolBar(Qt::ToolBarArea area, QToolBar *toolbar);
+    void insertToolBar(QToolBar *before, QToolBar *toolbar);
 
-    Qt::ToolBarArea toolBarArea(QToolBar *toolbar);
+    Qt::ToolBarArea toolBarArea(QToolBar *toolbar) const;
 
     // QLayout interface
     void addItem(QLayoutItem *item);
@@ -94,8 +94,6 @@ class QMainWindowLayout : public QLayout
     int locateToolBar(QToolBar *toolbar, const QPoint &mouse) const;
     void dropToolBar(QToolBar *toolbar, const QPoint &mouse, const QPoint &offset);
 
-    struct ToolBarLayoutInfo;
-    void placeToolBarInfo(const ToolBarLayoutInfo &newinfo);
     void removeToolBarInfo(QToolBar *toolbar);
 
     // dock/center-widget layout data
@@ -116,13 +114,15 @@ class QMainWindowLayout : public QLayout
 	QPoint pos;
 	QSize size;
 	QPoint offset;
-	int where;
-
-	uint linebreak : 1;
 	uint is_dummy : 1;
     };
 
-    typedef QList<ToolBarLayoutInfo> ToolBarLineInfo;
+    struct ToolBarLineInfo
+    {
+        int pos;
+        QList<ToolBarLayoutInfo> list;
+    };
+
     QList<ToolBarLineInfo> tb_layout_info, *save_tb_layout_info;
 };
 

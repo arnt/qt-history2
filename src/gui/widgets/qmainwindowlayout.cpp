@@ -207,53 +207,119 @@ QDockWindowLayout *QMainWindowLayout::layoutForArea(Qt::DockWindowArea area)
     return l;
 }
 
+void QMainWindowLayout::addToolBarBreak(Qt::ToolBarArea area)
+{
+    ToolBarLineInfo newLine;
+    newLine.pos = positionForArea(area);
+    switch (newLine.pos) {
+    case TOP:
+    case BOTTOM:
+        {
+            for (int line = 0; line < tb_layout_info.size(); ++line) {
+                ToolBarLineInfo &lineInfo = tb_layout_info[line];
+                if (lineInfo.pos == LEFT || lineInfo.pos == RIGHT) {
+                    tb_layout_info.insert(line, newLine);
+                    return;
+                }
+            }
+        }
+        // fall through intended
+    default:
+        tb_layout_info.append(newLine);
+        TBDEBUG() << "appended new line";
+        break;
+    }
+}
+
+void QMainWindowLayout::insertToolBarBreak(QToolBar *before)
+{
+    for (int line = 0; line < tb_layout_info.size(); ++line) {
+        ToolBarLineInfo &lineInfo = tb_layout_info[line];
+        for (int i = 0; i < lineInfo.list.size(); ++i) {
+            const ToolBarLayoutInfo &info = lineInfo.list.at(i);
+            if (info.item->widget() == before) {
+                ToolBarLineInfo newLine;
+                newLine.pos = lineInfo.pos;
+                for (; i < lineInfo.list.size(); ++i)
+                    newLine.list += lineInfo.list.takeAt(i);
+                tb_layout_info.insert(line + 1, newLine);
+                return;
+            }
+        }
+    }
+}
+
 /*!
     Adds \a toolbar to \a area, continuing the current line.
 */
-void QMainWindowLayout::addToolBar(QToolBar *toolbar, Qt::ToolBarArea area)
-{ addToolBar(toolbar, positionForArea(area)); }
-
-/*!
-    Adds \a toolbar to \a area on a new line.
-*/
-void QMainWindowLayout::addToolBarBlock(QToolBar *toolbar, Qt::ToolBarArea area)
-{ addToolBar(toolbar, positionForArea(area), true); }
-
-void QMainWindowLayout::addToolBar(QToolBar *toolbar, int where, bool linebreak,
-                                   const QPoint &offset)
+void QMainWindowLayout::addToolBar(Qt::ToolBarArea area, QToolBar *toolbar)
 {
-    addChildWidget(toolbar);
-
-    switch (where) {
-    case TOP:
-    case BOTTOM:
-        toolbar->setOrientation(Qt::Horizontal);
-        break;
-    case LEFT:
-    case RIGHT:
-        toolbar->setOrientation(Qt::Vertical);
-        break;
-    }
-
     removeToolBarInfo(toolbar);
 
-    ToolBarLayoutInfo newinfo;
-    newinfo.item = new QWidgetItem(toolbar);
-    newinfo.where = where;
-    newinfo.offset = offset;
-    newinfo.linebreak = linebreak;
-    newinfo.is_dummy = false;
+    POSITION pos = positionForArea(area);
+    // see if we have an existing line in the tb - append it in the last in line
+    for (int line = 0; line < tb_layout_info.size(); ++line) {
+        if (tb_layout_info.at(line).pos == pos) {
+            while (line < tb_layout_info.size() - 1 && tb_layout_info.at(line + 1).pos == pos)
+                ++line;
 
-    placeToolBarInfo(newinfo);
+            addChildWidget(toolbar);
+
+            switch (pos) {
+            case TOP:
+            case BOTTOM:
+                toolbar->setOrientation(Qt::Horizontal);
+                break;
+            case LEFT:
+            case RIGHT:
+                toolbar->setOrientation(Qt::Vertical);
+                break;
+            }
+
+            ToolBarLineInfo &lineInfo = tb_layout_info[line];
+            ToolBarLayoutInfo newinfo;
+            newinfo.item = new QWidgetItem(toolbar);
+            newinfo.is_dummy = false;
+            lineInfo.list.append(newinfo);
+            return;
+        }
+    }
+
+    // no line to continue, add one and recurse
+    addToolBarBreak(area);
+    addToolBar(area, toolbar);
 }
 
-Qt::ToolBarArea QMainWindowLayout::toolBarArea(QToolBar *toolbar)
+/*!
+    Adds \a toolbar before \a before
+*/
+void QMainWindowLayout::insertToolBar(QToolBar *before, QToolBar *toolbar)
 {
-    for (int k = 0; k < tb_layout_info.size(); ++k) {
-	for (int i = 0; i < tb_layout_info.at(k).size(); ++i) {
-	    const ToolBarLayoutInfo &info = tb_layout_info.at(k).at(i);
+    for (int line = 0; line < tb_layout_info.size(); ++line) {
+        const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
+	for (int i = 0; i < lineInfo.list.size(); ++i) {
+	    const ToolBarLayoutInfo &info = lineInfo.list.at(i);
+	    if (info.item->widget() == before) {
+                addChildWidget(toolbar);
+
+                ToolBarLayoutInfo newInfo;
+                newInfo.item = new QWidgetItem(toolbar);
+                newInfo.is_dummy = false;
+                tb_layout_info[line].list.insert(i, newInfo);
+                return;
+            }
+        }
+    }
+}
+
+Qt::ToolBarArea QMainWindowLayout::toolBarArea(QToolBar *toolbar) const
+{
+    for (int line = 0; line < tb_layout_info.size(); ++line) {
+        const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
+	for (int i = 0; i < lineInfo.list.size(); ++i) {
+	    const ToolBarLayoutInfo &info = lineInfo.list.at(i);
 	    if (info.item->widget() == toolbar)
-                return static_cast<Qt::ToolBarArea>(areaForPosition(info.where));
+                return static_cast<Qt::ToolBarArea>(areaForPosition(lineInfo.pos));
         }
     }
     Q_ASSERT_X(false, "QMainWindow::toolBarArea", "'toolbar' is not managed by this main window.");
@@ -442,10 +508,11 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 
     // calculate the width/height of the different tool bar lines -
     // the order of the bottom and right tool bars needs to reversed
-    for (int k = 0; k < tb_layout_info.size(); ++k) {
+    for (int line = 0; line < tb_layout_info.size(); ++line) {
+        const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
 	QSize tb_sz;
-        for (int i = 0; i < tb_layout_info.at(k).size(); ++i) {
-	    const ToolBarLayoutInfo &info = tb_layout_info.at(k).at(i);
+        for (int i = 0; i < lineInfo.list.size(); ++i) {
+	    const ToolBarLayoutInfo &info = lineInfo.list.at(i);
 	    QSize sh = info.item->sizeHint();
 	    if (tb_sz.width() < sh.width())
 		tb_sz.setWidth(sh.width());
@@ -453,10 +520,10 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 		tb_sz.setHeight(sh.height());
 
 	}
-	switch(tb_layout_info.at(k).at(0).where) {
+	switch(lineInfo.pos) {
 	case TOP:
 	case LEFT:
-	    rest_sz[k] = tb_sz;
+	    rest_sz[line] = tb_sz;
 	    break;
 	case BOTTOM:
 	    bottom_sz.push(tb_sz);
@@ -470,32 +537,34 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     }
 
     // calculate the rect for each tool bar line
-    for (int k = 0; k < tb_layout_info.size(); ++k) {
-	QSize tb_sz;
-	tb_rect[k] = r;
+    for (int line = 0; line < tb_layout_info.size(); ++line) {
+        const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
 
-	switch (tb_layout_info.at(k).at(0).where) {
+	QSize tb_sz;
+	tb_rect[line] = r;
+
+	switch (lineInfo.pos) {
 	case TOP:
-	    tb_sz = rest_sz[k];
-	    tb_rect[k].setBottom(tb_rect[k].top() + tb_sz.height() - 1);
-	    r.setTop(tb_rect[k].bottom() + 1);
+	    tb_sz = rest_sz[line];
+	    tb_rect[line].setBottom(tb_rect[line].top() + tb_sz.height() - 1);
+	    r.setTop(tb_rect[line].bottom() + 1);
 	    break;
 	case LEFT:
-	    tb_sz = rest_sz[k];
-	    tb_rect[k].setRight(tb_rect[k].x() + tb_sz.width() - 1);
-	    r.setLeft(tb_rect[k].right() + 1);
+	    tb_sz = rest_sz[line];
+	    tb_rect[line].setRight(tb_rect[line].x() + tb_sz.width() - 1);
+	    r.setLeft(tb_rect[line].right() + 1);
 	    break;
 	case BOTTOM:
  	    tb_sz = bottom_sz.pop();
-	    tb_rect[k].setTop(tb_rect[k].bottom() - tb_sz.height() + 1);
-	    bottom_rect.push(tb_rect[k]);
-	    r.setBottom(tb_rect[k].top() - 1);
+	    tb_rect[line].setTop(tb_rect[line].bottom() - tb_sz.height() + 1);
+	    bottom_rect.push(tb_rect[line]);
+	    r.setBottom(tb_rect[line].top() - 1);
 	    break;
 	case RIGHT:
  	    tb_sz = right_sz.pop();
-	    tb_rect[k].setLeft(tb_rect[k].right() - tb_sz.width() + 1);
-	    right_rect.push(tb_rect[k]);
-	    r.setRight(tb_rect[k].left() - 1);
+	    tb_rect[line].setLeft(tb_rect[line].right() - tb_sz.width() + 1);
+	    right_rect.push(tb_rect[line]);
+	    r.setRight(tb_rect[line].left() - 1);
 	    break;
 	default:
 	    Q_ASSERT_X(false, "QMainWindowLayout", "internal error");
@@ -503,11 +572,12 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     }
 
     // put the right and bottom rects back in correct order
-    for (int k = 0; k < tb_layout_info.size(); ++k) {
-	if (tb_layout_info.at(k).at(0).where == BOTTOM)
-	    tb_rect[k] = bottom_rect.pop();
-	else if (tb_layout_info.at(k).at(0).where == RIGHT)
-	    tb_rect[k] = right_rect.pop();
+    for (int line = 0; line < tb_layout_info.size(); ++line) {
+        const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
+	if (lineInfo.pos == BOTTOM)
+	    tb_rect[line] = bottom_rect.pop();
+	else if (lineInfo.pos == RIGHT)
+	    tb_rect[line] = right_rect.pop();
     }
 
 
@@ -516,41 +586,42 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 
     int tb_fill = 0;
     if (tb_layout_info.size() != 0) {
-	tb_fill = QApplication::style()->pixelMetric(QStyle::PM_DockWindowHandleExtent)
-		  + 16 // ## size of extension - get this from somewhere else
-		  + qt_cast<QBoxLayout *>(tb_layout_info.at(0).at(0).item->widget()->layout())->margin() * 2
-		  + qt_cast<QBoxLayout *>(tb_layout_info.at(0).at(0).item->widget()->layout())->spacing() * 3;
+	tb_fill = QApplication::style()->pixelMetric(QStyle::PM_ToolBarHandleExtent)
+                  + QApplication::style()->pixelMetric(QStyle::PM_ToolBarFrameWidth) * 2
+		  + QApplication::style()->pixelMetric(QStyle::PM_ToolBarItemSpacing) * 3
+                  + 16; // ## size of extension - get this from somewhere else
     }
 
-    for (int k = 0; k < tb_layout_info.size(); ++k) {
-	int num_tbs = tb_layout_info.at(k).size();
-	POSITION where = static_cast<POSITION>(tb_layout_info.at(k).at(0).where);
+    for (int line = 0; line < tb_layout_info.size(); ++line) {
+        ToolBarLineInfo &lineInfo = tb_layout_info[line];
+        int num_tbs = lineInfo.list.size();
+	POSITION where = static_cast<POSITION>(lineInfo.pos);
 
         for (int i = 0; i < num_tbs; ++i) {
-            ToolBarLayoutInfo &info = tb_layout_info[k][i];
- 	    set(where, info.size, pick(where, tb_rect[k].size()));
+            ToolBarLayoutInfo &info = lineInfo.list[i];
+ 	    set(where, info.size, pick(where, tb_rect[line].size()));
 
 	    // position
  	    if (i == 0) { // first tool bar can't have an offset
 		if (num_tbs > 1 && !info.size.isEmpty()
 		    && pick_perp(where, info.offset) > pick_perp(where, info.size)) {
 		    // swap if dragging it past the next one
-		    ToolBarLayoutInfo &next = tb_layout_info[k][i+1];
-		    next.pos = tb_rect[k].topLeft();
+		    ToolBarLayoutInfo &next = lineInfo.list[i+1];
+		    next.pos = tb_rect[line].topLeft();
 		    next.size.setHeight(pick_perp(where, get_min_item_sz(next.item->widget()->layout())) + tb_fill);
 		    next.offset = QPoint();
 		    if (where == LEFT || where == RIGHT)
-			info.pos = QPoint(tb_rect[k].left(), next.pos.y() + next.size.height());
+			info.pos = QPoint(tb_rect[line].left(), next.pos.y() + next.size.height());
 		    else
-			info.pos = QPoint(next.pos.x() + next.size.width(), tb_rect[k].top());
+			info.pos = QPoint(next.pos.x() + next.size.width(), tb_rect[line].top());
 		    info.offset = QPoint(); // has to be done before swapping
-		    tb_layout_info[k].swap(i, i+1);
+		    lineInfo.list.swap(i, i+1);
 		} else {
-		    info.pos = tb_rect[k].topLeft();
+		    info.pos = tb_rect[line].topLeft();
 		    info.offset = QPoint();
 		}
 	    } else {
-		ToolBarLayoutInfo &prev = tb_layout_info[k][i-1];
+		ToolBarLayoutInfo &prev = lineInfo.list[i-1];
 		QSize minSize(0, 0);
                 if(info.item->widget()->layout()->itemAt(1))
                     minSize = info.item->widget()->layout()->itemAt(1)->widget()->minimumSizeHint();
@@ -559,9 +630,9 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 		const int prev_min = pick_perp(where, get_min_item_sz(prev.item->widget()->layout())) + tb_fill;
 
 		if (where == LEFT || where == RIGHT)
-		    info.pos = QPoint(tb_rect[k].left(), cur_pt + info.offset.y());
+		    info.pos = QPoint(tb_rect[line].left(), cur_pt + info.offset.y());
 		else
-		    info.pos = QPoint(cur_pt + info.offset.x(), tb_rect[k].top());
+		    info.pos = QPoint(cur_pt + info.offset.x(), tb_rect[line].top());
 
 		if (pick_perp(where, info.offset) < 0) { // left/up motion
 		    if (pick_perp(where, prev.size) + pick_perp(where, info.offset) >= prev_min) {
@@ -574,7 +645,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 			// can't shrink - push the previous one if possible
 			bool can_push = false;
 			for (int l = i-2; l >= 0; --l) {
-			    ToolBarLayoutInfo &t = tb_layout_info[k][l];
+			    ToolBarLayoutInfo &t = lineInfo.list[l];
 			    if (pick_perp(where, t.size) + pick_perp(where, info.offset) >
 				pick_perp(where, get_min_item_sz(t.item->widget()->layout())) + tb_fill) {
 				QSize sz(0, 0);
@@ -597,7 +668,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 			    info.size += sz;
 
 			    if (pick_perp(where, info.pos) < pick_perp(where, prev.pos))
-				tb_layout_info[k].swap(i, i-1);
+				lineInfo.list.swap(i, i-1);
 			}
 		    }
 
@@ -609,7 +680,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 		    } else {
 			bool can_push = false;
 			for (int l = i+1; l < num_tbs; ++l) {
-			    ToolBarLayoutInfo &t = tb_layout_info[k][l];
+			    ToolBarLayoutInfo &t = lineInfo.list[l];
 			    if (pick_perp(where, t.size) - pick_perp(where, info.offset)
 				> pick_perp(where, get_min_item_sz(t.item->widget()->layout())) + tb_fill) {
 				QPoint pt;
@@ -627,10 +698,10 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 			    set_perp(where, sz, can_remove);
 			    info.size -= sz;
 			    if (i+1 < num_tbs) {
-				ToolBarLayoutInfo &t = tb_layout_info[k][i+1];
+				ToolBarLayoutInfo &t = lineInfo.list[i+1];
 
 				if (pick_perp(where, info.pos) + pick_perp(where, info.offset) > pick_perp(where, t.pos))
-				    tb_layout_info[k].swap(i, i+1);
+				    lineInfo.list.swap(i, i+1);
 			    }
 			}
 		    }
@@ -649,14 +720,14 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 
 	    // size
 	    if (num_tbs == 1)
-		set_perp(where, info.size, pick_perp(where, tb_rect[k].size()));
+		set_perp(where, info.size, pick_perp(where, tb_rect[line].size()));
 	    else if (i == num_tbs-1) {
-		set_perp(where, info.size, pick_perp(where, tb_rect[k].size()));
+		set_perp(where, info.size, pick_perp(where, tb_rect[line].size()));
 		if (where == LEFT || where == RIGHT) {
-		    info.size.setHeight(tb_rect[k].bottom() - info.pos.y()
+		    info.size.setHeight(tb_rect[line].bottom() - info.pos.y()
                                         + 1);
                 } else {
-		    info.size.setWidth(tb_rect[k].right() - info.pos.x()
+		    info.size.setWidth(tb_rect[line].right() - info.pos.x()
                                        + 1);
                 }
 		if (pick_perp(where, info.size) < 1)
@@ -665,13 +736,13 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 	    if (i > 0) {
 		// assumes that all tbs are positioned at the correct
 		// pos - fill in the gaps btw them
-		ToolBarLayoutInfo &prev = tb_layout_info[k][i-1];
+		ToolBarLayoutInfo &prev = lineInfo.list[i-1];
 		set_perp(where, prev.size, pick_perp(where, info.pos) - pick_perp(where, prev.pos));
 	    }
 	}
 
 	for (int i = 0; i < num_tbs; ++i) {
-	    ToolBarLayoutInfo &info = tb_layout_info[k][i];
+	    ToolBarLayoutInfo &info = lineInfo.list[i];
 	    QRect tb(info.pos, info.size);
 	    if (!tb.isEmpty() && (relayout_type == QInternal::RelayoutNormal || info.is_dummy))
 		info.item->setGeometry(tb);
@@ -912,18 +983,19 @@ QSize QMainWindowLayout::sizeHint() const
     int left = 0, right = 0, top = 0, bottom = 0;
 
     // layout toolbars
-    for (int k = 0; k < tb_layout_info.size(); ++k) {
+    for (int line = 0; line < tb_layout_info.size(); ++line) {
+        const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
         QSize sz;
         // need to get the biggest size hint for all tool bars on each line
-        for (int i = 0; i < tb_layout_info.at(k).size(); ++i) {
-            const ToolBarLayoutInfo &info = tb_layout_info.at(k).at(i);
+        for (int i = 0; i < lineInfo.list.size(); ++i) {
+            const ToolBarLayoutInfo &info = lineInfo.list.at(i);
             QSize ms = info.item->sizeHint();
 
-            if (((info.where == LEFT || info.where == RIGHT) && (ms.width() > sz.width()))
+            if (((lineInfo.pos == LEFT || lineInfo.pos == RIGHT) && (ms.width() > sz.width()))
                 || (ms.height() > sz.height()))
                 sz = ms;
         }
-        switch (tb_layout_info.at(k).at(0).where) {
+        switch (lineInfo.pos) {
         case LEFT:
             left += sz.width();
             break;
@@ -1003,18 +1075,19 @@ QSize QMainWindowLayout::minimumSize() const
     int left = 0, right = 0, top = 0, bottom = 0;
 
     // layout toolbars
-    for (int k = 0; k < tb_layout_info.size(); ++k) {
+    for (int line = 0; line < tb_layout_info.size(); ++line) {
+        const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
         QSize sz;
         // need to get the biggest min size for all tool bars on each line
-        for (int i = 0; i < tb_layout_info.at(k).size(); ++i) {
-            const ToolBarLayoutInfo &info = tb_layout_info.at(k).at(i);
+        for (int i = 0; i < lineInfo.list.size(); ++i) {
+            const ToolBarLayoutInfo &info = lineInfo.list.at(i);
             QSize ms = info.item->minimumSize();
 
-            if (((info.where == LEFT || info.where == RIGHT) && (ms.width() > sz.width()))
+            if (((lineInfo.pos == LEFT || lineInfo.pos == RIGHT) && (ms.width() > sz.width()))
                 || (ms.height() > sz.height()))
                 sz = ms;
         }
-        switch (tb_layout_info.at(k).at(0).where) {
+        switch (lineInfo.pos) {
         case LEFT:
             left += sz.width();
             break;
@@ -1494,13 +1567,16 @@ int QMainWindowLayout::locateToolBar(QToolBar *toolbar, const QPoint &mouse) con
     }
     Q_ASSERT(pos != CENTER);
 
-    for (int k = 0; k < tb_layout_info.size(); ++k) {
+    for (int line = 0; line < tb_layout_info.size(); ++line) {
+        const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
 	bool break_it = false;
-        for (int i = 0; i < tb_layout_info.at(k).size(); ++i) {
-	    const ToolBarLayoutInfo &info = tb_layout_info.at(k).at(i);
-	    if (!info.item) continue;
- 	    if (!info.item->geometry().contains(p)) continue;
-	    pos = static_cast<POSITION>(info.where);
+        for (int i = 0; i < lineInfo.list.size(); ++i) {
+	    const ToolBarLayoutInfo &info = lineInfo.list.at(i);
+	    if (!info.item)
+                continue;
+ 	    if (!info.item->geometry().contains(p))
+                continue;
+	    pos = static_cast<POSITION>(lineInfo.pos);
 	    break_it = true;
 	    break;
 	}
@@ -1519,9 +1595,10 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
 #ifdef TOOLBAR_DEBUG
 	TBDEBUG() << "###";
 	for (int l = 0; l < tb_layout_info.size(); ++l) {
-	    for (int i = 0; i < tb_layout_info.at(l).size(); ++i) {
-		ToolBarLayoutInfo &tmp = tb_layout_info[l][i];
- 		qDebug() << "bar: " << tmp.where << l << i << tmp.item->widget() << tmp.item->widget()->geometry();
+            const ToolBarLineInfo &lineInfo = tb_layout_info.at(l);
+	    for (int i = 0; i < lineInfo.list.size(); ++i) {
+		const ToolBarLayoutInfo &tmp = lineInfo.list.at(i);
+ 		qDebug() << "bar: " << lineInfo.pos << l << i << tmp.item->widget() << tmp.item->widget()->geometry();
 	    }
 	}
 #endif
@@ -1532,9 +1609,10 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
 	ToolBarLayoutInfo info;
 
 	for (l = 0; l < tb_layout_info.size(); ++l) {
+            ToolBarLineInfo &lineInfo = tb_layout_info[l];
 	    bool break_it = false;
-	    for (i = 0; i < tb_layout_info.at(l).size(); ++i) {
-		ToolBarLayoutInfo &tmp = tb_layout_info[l][i];
+	    for (i = 0; i < lineInfo.list.size(); ++i) {
+		ToolBarLayoutInfo &tmp = lineInfo.list[i];
 		if (tmp.item->widget() == toolbar) {
 		    info = tmp;
 		    tmp.offset += offset;
@@ -1542,114 +1620,81 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
 		    break;
 		}
 	    }
-	    if (break_it) break;
+	    if (break_it)
+                break;
 	}
 
 	if (pick(where, offset) < -magic_offset) { // move left/up
 	    TBDEBUG() << "left/up" << offset << l << where;
-	    if (l > 0 && tb_layout_info.at(l-1).at(0).where == where) { // is this the first line in this tb area?
-		tb_layout_info[l].removeAt(i);
-		if (tb_layout_info[l].size() == 0)
+	    if (l > 0 && tb_layout_info.at(l-1).pos == where) { // is this the first line in this tb area?
+		tb_layout_info[l].list.removeAt(i);
+		if (tb_layout_info[l].list.size() == 0)
 		    tb_layout_info.removeAt(l);
-		if (tb_layout_info.at(l-1).at(0).where == where) {
+		if (tb_layout_info.at(l-1).pos == where) {
 		    TBDEBUG() << "br 1 appending to existing" << info.item->widget() << info.item->widget()->geometry();
-		    tb_layout_info[l-1].append(info);
+		    tb_layout_info[l-1].list.append(info);
 		} else {
 		    ToolBarLineInfo line;
-		    line.append(info);
+                    line.pos = where;
+		    line.list.append(info);
 		    TBDEBUG() << "br 2 new tb_line";
 		    tb_layout_info.insert(l, line);
 		}
-	    } else if (tb_layout_info.at(l).size() > 1) {
-		tb_layout_info[l].removeAt(i);
+	    } else if (tb_layout_info.at(l).list.size() > 1) {
+		tb_layout_info[l].list.removeAt(i);
 		ToolBarLineInfo line;
-		line.append(info);
+                line.pos = where;
+		line.list.append(info);
 		tb_layout_info.insert(l, line);
 		TBDEBUG() << "br3 new tb line" << l << toolbar;
 	    }
 	} else if (pick(where, offset) > pick(where, info.size) + magic_offset) { // move right/down
 	    TBDEBUG() << "right/down" << offset;
-	    if (l < tb_layout_info.size()-1 && tb_layout_info.at(l+1).at(0).where == where) {
-		tb_layout_info[l].removeAt(i);
+	    if (l < tb_layout_info.size()-1 && tb_layout_info.at(l+1).pos == where) {
+		tb_layout_info[l].list.removeAt(i);
 
-		if (tb_layout_info.at(l).size() == 0)
+		if (tb_layout_info.at(l).list.size() == 0)
 		    tb_layout_info.removeAt(l--);
 
-		if (tb_layout_info.at(l+1).at(0).where == where) {
-		    tb_layout_info[l+1].append(info);
+		if (tb_layout_info.at(l+1).pos == where) {
+		    tb_layout_info[l+1].list.append(info);
 		    TBDEBUG() << "1. appending to exisitng";
 		} else {
 		    ToolBarLineInfo line;
-		    line.append(info);
+                    line.pos = where;
+		    line.list.append(info);
 		    tb_layout_info.insert(l, line);
 		    TBDEBUG() << "2. inserting new";
 		}
-	    } else if (tb_layout_info.at(l).size() > 1) { // can remove
-		tb_layout_info[l].removeAt(i);
+	    } else if (tb_layout_info.at(l).list.size() > 1) { // can remove
+		tb_layout_info[l].list.removeAt(i);
 		ToolBarLineInfo line;
-		line.append(info);
+                line.pos = where;
+		line.list.append(info);
 		tb_layout_info.insert(l+1, line);
 		TBDEBUG() << "3. new line";
 
 	    }
 	}
-    } else { // changed area?
-	addToolBar(toolbar, where, false, offset);
+    } else {
+        TBDEBUG() << "changed area";
+	// ### addToolBar(toolbar, where, false, offset);
+        addToolBar(areaForPosition(where), toolbar);
     }
     relayout();
 }
 
-void QMainWindowLayout::placeToolBarInfo(const ToolBarLayoutInfo &newinfo)
-{
-    if (!newinfo.linebreak) {
-	// see if we have an existing line in the tb - append it in the last in line
-	for (int k = 0; k < tb_layout_info.size(); ++k) {
-	    POSITION where = static_cast<POSITION>(tb_layout_info.at(k).at(0).where);
-	    if (where == newinfo.where) {
-		while (k < tb_layout_info.size()-1
-		       && where == tb_layout_info.at(k+1).at(0).where) ++k;
-
-		tb_layout_info[k].append(newinfo);
-		return;
-	    }
-	}
-    }
-
-    switch (newinfo.where) {
-    case TOP:
-    case BOTTOM:
-    {
-	for (int k = 0; k < tb_layout_info.size(); ++k) {
-	    POSITION where = static_cast<POSITION>(tb_layout_info.at(k).at(0).where);
- 	    if (where == LEFT || where == RIGHT) {
-		ToolBarLineInfo line;
-		line.append(newinfo);
-		tb_layout_info.insert(k, line);
-		line[0].linebreak = false;
-		return;
-	    }
-	}
-    }
-    // fall through intended
-    default:
-        ToolBarLineInfo line;
-        line.append(newinfo);
-        tb_layout_info.append(line);
-	line[0].linebreak = false;
-        break;
-    }
-}
-
 void QMainWindowLayout::removeToolBarInfo(QToolBar *toolbar)
 {
-    for (int k = 0; k < tb_layout_info.size(); ++k) {
-	for (int i = 0; i < tb_layout_info.at(k).size(); ++i) {
-	    const ToolBarLayoutInfo &info = tb_layout_info.at(k).at(i);
+    for (int line = 0; line < tb_layout_info.size(); ++line) {
+        ToolBarLineInfo &lineInfo = tb_layout_info[line];
+	for (int i = 0; i < lineInfo.list.size(); ++i) {
+	    const ToolBarLayoutInfo &info = lineInfo.list.at(i);
 	    if (info.item->widget() == toolbar) {
 		delete info.item;
-		tb_layout_info[k].removeAt(i);
-		if (tb_layout_info[k].size() == 0)
-		    tb_layout_info.removeAt(k--);
+		lineInfo.list.removeAt(i);
+		if (lineInfo.list.size() == 0)
+		    tb_layout_info.removeAt(line);
 		break;
 	    }
 	}

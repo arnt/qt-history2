@@ -53,14 +53,12 @@ public:
     void setCorner(Qt::Corner corner, Qt::DockWindowArea area);
     Qt::DockWindowArea corner(Qt::Corner corner) const;
 
-    void addToolBar(QToolBar *toolbar, Qt::ToolBarArea area = Qt::ToolBarAreaTop);
-    void insertToolBar(QToolBar *before, QToolBar *toolbar,
-                       Qt::ToolBarArea area = Qt::ToolBarAreaTop);
+    void addToolBarBreak(Qt::ToolBarArea area);
+    void insertToolBarBreak(QToolBar *before);
 
-    void addToolBarBlock(QToolBar *toolbar, Qt::ToolBarArea area = Qt::ToolBarAreaTop);
-    void insertToolBarBlock(QToolBar *before, QToolBar *toolbar,
-                            Qt::ToolBarArea area = Qt::ToolBarAreaTop);
-
+    void addToolBar(Qt::ToolBarArea area, QToolBar *toolbar);
+    void addToolBar(QToolBar *toolbar);
+    void insertToolBar(QToolBar *before, QToolBar *toolbar);
     void removeToolBar(QToolBar *toolbar);
 
     Qt::ToolBarArea toolBarArea(QToolBar *toolbar) const;
@@ -69,7 +67,6 @@ public:
     QString dockWindowState() const;
 
     virtual QMenu *createPopupMenu();
-    void contextMenuEvent(QContextMenuEvent *event);
 
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags = 0);
@@ -81,6 +78,7 @@ signals:
 
 protected:
     void childEvent(QChildEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event);
     bool event(QEvent *event);
 };
 

@@ -267,6 +267,12 @@ void QMainWindow::setCorner(Qt::Corner corner, Qt::DockWindowArea area)
 Qt::DockWindowArea QMainWindow::corner(Qt::Corner corner) const
 { return d->layout->corners[corner]; }
 
+void QMainWindow::addToolBarBreak(Qt::ToolBarArea area)
+{ d->layout->addToolBarBreak(area); }
+
+void QMainWindow::insertToolBarBreak(QToolBar *before)
+{ d->layout->insertToolBarBreak(before); }
+
 /*!
     Adds the \a toolbar into the specified \a area in this main
     window.  The \a toolbar is placed at the end of the current tool
@@ -274,21 +280,27 @@ Qt::DockWindowArea QMainWindow::corner(Qt::Corner corner) const
 
     \sa insertToolBar() addToolBarBlock() insertToolBarBlock()
 */
-void QMainWindow::addToolBar(QToolBar *toolbar, Qt::ToolBarArea area)
+void QMainWindow::addToolBar(Qt::ToolBarArea area, QToolBar *toolbar)
 {
     Q_ASSERT_X(toolbar->isDockable(area),
-               "QMainWIndow::addToolBar", "specified 'area' is not in 'allowedAreas'");
+               "QMainWIndow::addToolBar", "specified 'area' is not an allowed area");
 
     connect(this, SIGNAL(iconSizeChanged(Qt::IconSize)),
             toolbar, SLOT(setIconSize(Qt::IconSize)));
     connect(this, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
             toolbar, SLOT(setToolButtonStyle(Qt::ToolButtonStyle)));
 
-    d->layout->addToolBar(toolbar, area);
+    d->layout->addToolBar(area, toolbar);
 
     if (isVisible())
         d->layout->relayout();
 }
+
+/*! \overload
+    Equivalent of calling addToolBar(Qt::ToolBarAreaTop, \a toolbar)
+*/
+void QMainWindow::addToolBar(QToolBar *toolbar)
+{ addToolBar(Qt::ToolBarAreaTop, toolbar); }
 
 /*!
     Inserts the \a toolbar into the specified \a area in this main
@@ -296,50 +308,20 @@ void QMainWindow::addToolBar(QToolBar *toolbar, Qt::ToolBarArea area)
 
     \sa insertToolBarBlock() addToolBar() addToolBarBlock()
 */
-void QMainWindow::insertToolBar(QToolBar *before, QToolBar *toolbar, Qt::ToolBarArea area)
+void QMainWindow::insertToolBar(QToolBar *before, QToolBar *toolbar)
 {
-    Q_UNUSED(before);
-    Q_UNUSED(toolbar);
-    Q_UNUSED(area);
-    Q_ASSERT_X(false, "QMainWindow::insertToolBar", "unimplemented");
-}
-
-/*!
-    Starts a new block (i.e. a new line) of tool bars in the specified
-    \a area in this main window.  The \a toolbar is placed at the
-    beginning of the new line.
-
-    \sa addToolBar() insertToolBarBlock() insertToolBar()
-*/
-void QMainWindow::addToolBarBlock(QToolBar *toolbar, Qt::ToolBarArea area)
-{
-    Q_ASSERT_X(toolbar->isDockable(area),
-               "QMainWIndow::addToolBar", "specified 'area' is not in 'allowedAreas'");
+    Q_ASSERT_X(toolbar->isDockable(toolBarArea(before)),
+               "QMainWIndow::insertToolBar", "specified 'area' is not an allowed area");
 
     connect(this, SIGNAL(iconSizeChanged(Qt::IconSize)),
             toolbar, SLOT(setIconSize(Qt::IconSize)));
     connect(this, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
             toolbar, SLOT(setToolButtonStyle(Qt::ToolButtonStyle)));
 
-    d->layout->addToolBarBlock(toolbar, area);
+    d->layout->insertToolBar(before, toolbar);
 
     if (isVisible())
         d->layout->relayout();
-}
-
-/*!
-    Starts a new block (i.e. a new line) of tool bars in the specified
-    \a area in this main window.  The \a toolbar is placed before the
-    toolbar \a before.
-
-    \sa insertToolBar() addToolBarBlock() addToolBar()
- */
-void QMainWindow::insertToolBarBlock(QToolBar *before, QToolBar *toolbar, Qt::ToolBarArea area)
-{
-    Q_UNUSED(before);
-    Q_UNUSED(toolbar);
-    Q_UNUSED(area);
-    Q_ASSERT_X(false, "QMainWindow::insertToolBarBlock", "unimplemented");
 }
 
 /*!
