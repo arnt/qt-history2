@@ -129,9 +129,9 @@ buttons.
 
 The dialog's widgets and layouts are created with the following code:
 
-\quotefile countries/countries.cpp
-\skipuntil quote begin
-\printto quote end
+  \quotefile countries/countries.cpp
+  \skipuntil begin quote
+  \printto end quote
 
   \index Designer
   \index Qt Designer
@@ -164,6 +164,8 @@ SimpleFlow, which programmers can use and modify.
 Qt also includes \Class QSplitter, a splitter bar that end users can
 manipulate. In some design situations, \Class QSplitter may be
 preferable to a layout manager.
+
+\omit ### organizers ### \endomit
 
   \index manual layouts
 

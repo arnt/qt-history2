@@ -1,9 +1,11 @@
 \title Qt Whitepaper
 
-\input styles-and-themes.leaf
+\input widgets.leaf
 
 \omit
+\input databases.leaf
 \input signals-and-slots.leaf
+\input styles-and-themes.leaf
 \input events.leaf
 \input gui-applications.leaf
 \input layouts.leaf

@@ -47,13 +47,15 @@ The style can also be chosen programmatically, or with the \c -style
 command-line option on Unix.
 
   \index fade effect
+  \index menus
   \index scroll effect
+  \index tooltips
   \index transition effects
 
 A style is complemented by a \e theme which encapsulates the user's
 preferences for colors, fonts, sounds, etc. Qt automatically adapts
 to the computer's active theme. For example, Qt supports scroll and
-fade transitions effects for menus and tool tips on Windows.
+fade transitions effects for menus and tooltips on Windows.
 
 \section1 Style-aware Widgets
 

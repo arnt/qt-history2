@@ -1,3 +1,5 @@
+\omit ### we forgot clipboard and d'n'd ### \endomit
+
 \chapter GUI Applications
 
 Qt provides all the classes and functions necessary to create modern
@@ -154,25 +156,25 @@ almost any type, for example \Class {QComboBox}es and \Class
 Modern applications provide balloon help that explain the role of
 user-interface elements.
 
-  \index tool tips
+  \index tooltips
 
 Tool tips are small, usually yellow, rectangles that appear
 automatically when the mouse pointer hovers over a widget. Tool tips
 are often used to explain a tool button, since tool buttons are
-rarely displayed with text labels. Here's how to set the tool tip of
+rarely displayed with text labels. Here's how to set the tooltip of
 a 'Save' tool button:
 \code
     QToolTip::add( saveButton, "Save" );
 \endcode
 It is also possible to set a longer text to be displayed in the
-status bar when the tool tip is shown.
+status bar when the tooltip is shown.
 
   \index What's this?
 
-"What's this?" help is similar to tool tips, except that the user
+"What's this?" help is similar to tooltips, except that the user
 must request it, for example by pressing \Key Shift+F1 and by
 clicking a widget or menu item.  "What's this?" text is typically
-longer than tool tips. Here's how to set the "What's this?" text for
+longer than tooltips. Here's how to set the "What's this?" text for
 a 'Save' tool button:
 \code
     QWhatsThis::add( saveButton, "Saves the current file." );

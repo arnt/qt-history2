@@ -17,7 +17,7 @@ public:
 
 MyDialog::MyDialog()
 {
-    // quote start
+    // begin quote
     setCaption( "International Trader" );
 
     QVBoxLayout *buttonBox = new QVBoxLayout( 6 );
@@ -38,7 +38,7 @@ MyDialog::MyDialog()
     QVBoxLayout *topLevelBox = new QVBoxLayout( this, 6, 11 ); 
     topLevelBox->addWidget( new QLabel("Select a country", this) );
     topLevelBox->addLayout( middleBox );
-    // quote end
+    // end quote
 
     countryList->insertItem( "France" );
     countryList->insertItem( "Germany" );

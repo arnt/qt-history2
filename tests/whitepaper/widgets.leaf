@@ -1,0 +1,193 @@
+\chapter Widgets
+
+  \index controls
+  \index widgets
+
+Widgets are visual elements that are combined to create user
+interfaces. They are often called 'controls' on Windows. Buttons,
+menus, scroll bars, message boxes and application windows are
+widgets. In Qt, widgets are instances of \Class QWidget or one of its
+subclasses, and custom widgets are created by subclassing.
+
+  \img qwidget-hierarchy.png
+  \caption An extract from the \Class QWidget class hierarchy
+
+  \index child widgets
+  \index parent widgets
+
+A widget may contain any number of child widgets. Child widgets are
+shown within the parent widget's area. A widget with no visible
+parent is a top-level widget (a 'window') and usually has its own
+entry in the desktop environment's task bar. Qt imposes no arbitrary
+limitations on widgets. Any widget can be a top-level widget; any
+widget can be a child of any other widget. The position of child
+widgets within the parent's area can be set automatically using \link
+Layouts layout managers \endlink, or manually if preferred. When a
+parent widget is disabled, hidden or deleted, the action is applied
+to all its child widgets recursively.
+
+  \index HTML
+  \index rich text
+
+Developers are not confined to using a single color, font or language
+in labels, message boxes, tooltips, etc. Qt's text-rendering widgets
+can display multi-language rich text using a subset of HTML. See \l
+{Text Rendering}.
+
+\section1 A 'Hello' Example
+
+  \img hello.png Hello Qt!
+
+The complete code for a program that displays "Hello Qt!" follows:
+
+  \quotefile hello/hello.cpp
+  \skipuntil begin quote
+  \printto end quote
+
+\section1 Built-in Widgets
+
+The screenshots below present the main Qt widgets. They are shown
+using the Windows style.
+
+  \index buttons
+  \index hbox
+  \index horizontal box layout
+  \index labels
+  \index push buttons
+
+  \img qlabel-etc.png
+  \caption A \Class QLabel and a \Class QPushButton in a \Class QHBox
+
+  \index checkboxes
+  \index radio buttons
+
+  \img qradiobutton-etc.png
+  \caption Two \Class {QRadioButton}s and two \Class {QCheckBox}es in
+	   a \Class QButtonGroup
+
+  \index comboboxes
+  \index dates
+  \index line editors
+  \index multi-line editors
+  \index text editors
+  \index times
+
+  \img qdateedit-etc.png
+  \caption A \Class QDateTimeEdit, a \Class QLineEdit, a \Class
+	   QTextEdit and a \Class QComboBox in a \Class QGroupBox
+
+  \index dials
+  \index LCD
+  \index progress bars
+  \index scroll bars
+  \index sliders
+  \index spin boxes
+
+  \img qdial-etc.png
+  \caption A \Class QDial, a \Class QProgressBar, a \Class QSpinBox,
+	   a \Class QScrollBar, a \Class QLCDNumber and a \Class
+	   QSlider in a \Class QGrid
+
+  \index icon views
+  \index list boxes
+  \index list views
+  \index tables
+  \index tree views
+
+  \img qiconview-etc.png
+  \caption A \Class QIconView, a \Class QListView, a \Class QListBox
+	   and a \Class QTable in a \Class QGrid
+
+Widgets that are used to display large amounts of data (e.g. \Class
+QTable, \Class QListView and \Class QTextEdit) inherit \Class
+QScrollView and can display scroll bars automatically.
+
+More specialized widgets are presented in the appropriate sections.
+\Class QMenuBar, \Class QStatusBar, \Class QToolBar and related
+widgets are shown in \l {GUI App...}. \Class QMessageBox, \Class
+QFileDialog, \Class QTabDialog, \Class QWizard and other dialogs are
+shown in \l Dialogs. \Class QSplitter is covered in \l Layouts.
+\Class QCanvas and \Class QGLWidget are shown in \l {2D...}.
+
+The code for the screenshot that shows the \Class {QRadioButton}s and
+\Class {QCheckBox}es follows:
+
+  \quotefile widgetset/widgetset.cpp
+  \skipuntil begin quote
+  \printto end quote
+
+\section1 Custom Widgets
+
+Developers can create their own widgets and dialogs by subclassing
+\Class QWidget or one of its subclasses. To illustrate subclassing,
+we will implement a digital clock widget.
+
+  \img clock.png
+
+  \index Clock
+  \index LCD
+
+The \Class Clock widget is a LCD that displays the current time and
+updates itself automatically. Its colon separator blinks to indicate
+the passing seconds.
+
+In \File clock.h, we define \Class Clock like this:
+
+  \quotefile clock/clock.h
+  \skipto #include
+  \printuntil };
+
+  \index name (of widget)
+  \index parent widgets
+  \index timers
+
+\Class Clock inherits its LCD functionality from the \Class
+QLCDNumber widget. It has a constructor typical of widget classes,
+with optional \c parent and \c name parameters. (Testing and
+debugging are easier if \c name is set.) The \Func timerEvent()
+function is inherited from \Class QObject and is called at regular
+intervals by the system.
+
+In \File clock.cpp, we implement the functions declared in \File
+clock.h:
+
+  \quotefile clock/clock.cpp
+  \skipto #include
+  \printuntil display(
+  \printuntil }
+
+The constructor calls \Func showTime() to initialize the clock with
+the current time, and tells the system to call \Func timerEvent()
+every 1000 milliseconds to refresh the LCD display. See the \l Events
+section for details.
+
+In \Func showTime(), we call \Func QLCDNumber::display() with the
+current time. The colon is replaced by a space every other time \Func
+showTime() is called to make the colon blink.
+
+In \File main.cpp, we create a \Class Clock instance, resize it and
+show it:
+
+  \quotefile clock/main.cpp
+  \skipto #include
+  \printuntil }
+
+This example contains only one widget (the \Class Clock) and no child
+widgets. Most complex widgets are built by combining built-in widgets
+and layouts.
+
+  \index Designer
+  \index Qt Designer
+
+Even though Qt's classes are comfortable to hand code, the build
+cycle can be time consuming, especially when designing user
+interfaces. It is easiest to use \l {Qt Designer}, Qt's visual design
+tool, to develop and experiment with different user interface
+designs.
+
+Developers can also write custom widgets from scratch. For example,
+to create an analog clock, it would be necessary to draw the clock's
+face and hands in code rather than relying on functionality
+implemented in a base class. This could be achieved by reimplementing
+\Func paintEvent(). The \l 2D... section presents Qt's painting
+interfaces.

@@ -103,7 +103,8 @@ connected to signals.
 
 Here's the implementation of the slot \Func setBalance():
 \code
-    void BankAccount::setBalance( int newBalance ) {
+    void BankAccount::setBalance( int newBalance )
+    {
 	if ( newBalance != curBalance ) {
 	    curBalance = newBalance;
 	    emit balanceChanged( curBalance );
