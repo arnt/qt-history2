@@ -2101,7 +2101,8 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
     // throw away mouse events to disabled widgets
     if ( ( e->type() <= QEvent::MouseMove &&
 	 e->type() >= QEvent::MouseButtonPress ||
-	 e->type() == QEvent::Wheel ) &&
+	 e->type() == QEvent::Wheel ||
+	 e->type() == QEvent::ContextMenu ) &&
 	 ( receiver->isWidgetType() && !((QWidget *)receiver)->isEnabled() ) ) {
 	( (QMouseEvent*) e)->ignore();
 	return FALSE;
