@@ -134,7 +134,6 @@ void qDrawShadeLine(QPainter *p, int x1, int y1, int x2, int y2,
     p->setPen(oldPen);
 }
 
-
 /*!
     \relates QPainter
 
@@ -476,7 +475,6 @@ void qDrawWinPanel(QPainter *p, int x, int y, int w, int h,
                        pal.dark().color(), fill);
 }
 
-
 /*!
     \relates QPainter
 
@@ -525,110 +523,6 @@ void qDrawPlainRect(QPainter *p, int x, int y, int w, int h, const QColor &c,
     p->setPen(oldPen);
     p->setBrush(oldBrush);
 }
-
-
-QRect qItemRect(QPainter *p, Qt::GUIStyle gs,
-                int x, int y, int w, int h,
-                int flags,
-                bool enabled,
-                const QPixmap *pixmap,
-                const QString& text, int len)
-{
-    QRect result;
-
-    if (pixmap) {
-        if ((flags & Qt::AlignVCenter) == Qt::AlignVCenter)
-            y += h/2 - pixmap->height()/2;
-        else if ((flags & Qt::AlignBottom) == Qt::AlignBottom)
-            y += h - pixmap->height();
-        if ((flags & Qt::AlignRight) == Qt::AlignRight)
-            x += w - pixmap->width();
-        else if ((flags & Qt::AlignHCenter) == Qt::AlignHCenter)
-            x += w/2 - pixmap->width()/2;
-        else if ((flags & Qt::AlignLeft) != Qt::AlignLeft && QApplication::reverseLayout())
-            x += w - pixmap->width();
-        result = QRect(x, y, pixmap->width(), pixmap->height());
-    } else if (!text.isNull() && p) {
-        result = p->boundingRect(x, y, w, h, flags, text, len);
-        if (gs == Qt::WindowsStyle && !enabled) {
-            result.setWidth(result.width()+1);
-            result.setHeight(result.height()+1);
-        }
-    } else {
-        result = QRect(x, y, w, h);
-    }
-
-    return result;
-}
-
-
-void qDrawItem(QPainter *p, Qt::GUIStyle gs,
-                int x, int y, int w, int h,
-                int flags,
-                const QPalette &pal, bool enabled,
-                const QPixmap *pixmap,
-                const QString& text, int len , const QColor* penColor)
-{
-    p->setPen(penColor?*penColor:pal.foreground().color());
-    if (pixmap) {
-        QPixmap  pm(*pixmap);
-        bool clip = (flags & Qt::TextDontClip) == 0;
-        if (clip) {
-            if (pm.width() < w && pm.height() < h)
-                clip = false;
-            else
-                p->setClipRect(x, y, w, h);
-        }
-        if ((flags & Qt::AlignVCenter) == Qt::AlignVCenter)
-            y += h/2 - pm.height()/2;
-        else if ((flags & Qt::AlignBottom) == Qt::AlignBottom)
-            y += h - pm.height();
-        if ((flags & Qt::AlignRight) == Qt::AlignRight)
-            x += w - pm.width();
-        else if ((flags & Qt::AlignHCenter) == Qt::AlignHCenter)
-            x += w/2 - pm.width()/2;
-        else if (((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout()) // Qt::AlignAuto && rightToLeft
-            x += w - pm.width();
-
-        if (!enabled) {
-            if (pm.mask()) {                        // pixmap with a mask
-                if (!pm.selfMask()) {                // mask is not pixmap itself
-                    QPixmap pmm(*pm.mask());
-                    pmm.setMask(*((QBitmap *)&pmm));
-                    pm = pmm;
-                }
-            } else if (pm.depth() == 1) {        // monochrome pixmap, no mask
-                pm.setMask(*((QBitmap *)&pm));
-#ifndef QT_NO_IMAGE_HEURISTIC_MASK
-            } else {                                // color pixmap, no mask
-                QString k;
-                k.sprintf("$qt-drawitem-%x", pm.serialNumber());
-                if (!QPixmapCache::find(k, pm)) {
-                    pm = pm.createHeuristicMask();
-                    pm.setMask((QBitmap&)pm);
-                    QPixmapCache::insert(k, pm);
-                }
-#endif
-            }
-            if (gs == Qt::WindowsStyle) {
-                p->setPen(pal.light().color());
-                p->drawPixmap(x+1, y+1, pm);
-                p->setPen(pal.text().color());
-            }
-        }
-        p->drawPixmap(x, y, pm);
-        if (clip)
-            p->setClipping(false);
-    } else if (!text.isNull()) {
-        if (gs == Qt::WindowsStyle && !enabled) {
-            p->setPen(pal.light().color());
-            p->drawText(x+1, y+1, w, h, flags, text, len);
-            p->setPen(pal.text().color());
-        }
-        p->drawText(x, y, w, h, flags, text, len);
-    }
-}
-
 
 /*****************************************************************************
   Overloaded functions.
@@ -907,6 +801,41 @@ static void qDrawMotifArrow(QPainter *p, Qt::ArrowType type, bool down,
 }
 #endif
 
+#ifdef QT_COMPAT
+QRect qItemRect(QPainter *p, Qt::GUIStyle gs,
+                int x, int y, int w, int h,
+                int flags,
+                bool enabled,
+                const QPixmap *pixmap,
+                const QString& text, int len)
+{
+    QRect result;
+
+    if (pixmap) {
+        if ((flags & Qt::AlignVCenter) == Qt::AlignVCenter)
+            y += h/2 - pixmap->height()/2;
+        else if ((flags & Qt::AlignBottom) == Qt::AlignBottom)
+            y += h - pixmap->height();
+        if ((flags & Qt::AlignRight) == Qt::AlignRight)
+            x += w - pixmap->width();
+        else if ((flags & Qt::AlignHCenter) == Qt::AlignHCenter)
+            x += w/2 - pixmap->width()/2;
+        else if ((flags & Qt::AlignLeft) != Qt::AlignLeft && QApplication::reverseLayout())
+            x += w - pixmap->width();
+        result = QRect(x, y, pixmap->width(), pixmap->height());
+    } else if (!text.isNull() && p) {
+        result = p->boundingRect(x, y, w, h, flags, text, len);
+        if (gs == Qt::WindowsStyle && !enabled) {
+            result.setWidth(result.width()+1);
+            result.setHeight(result.height()+1);
+        }
+    } else {
+        result = QRect(x, y, w, h);
+    }
+
+    return result;
+}
+
 void qDrawArrow(QPainter *p, Qt::ArrowType type, Qt::GUIStyle style, bool down,
                  int x, int y, int w, int h,
                  const QPalette &pal, bool enabled)
@@ -924,4 +853,73 @@ void qDrawArrow(QPainter *p, Qt::ArrowType type, Qt::GUIStyle style, bool down,
             qWarning("qDrawArrow: Requested GUI style not supported");
     }
 }
+
+void qDrawItem(QPainter *p, Qt::GUIStyle gs,
+                int x, int y, int w, int h,
+                int flags,
+                const QPalette &pal, bool enabled,
+                const QPixmap *pixmap,
+                const QString& text, int len , const QColor* penColor)
+{
+    p->setPen(penColor?*penColor:pal.foreground().color());
+    if (pixmap) {
+        QPixmap  pm(*pixmap);
+        bool clip = (flags & Qt::TextDontClip) == 0;
+        if (clip) {
+            if (pm.width() < w && pm.height() < h)
+                clip = false;
+            else
+                p->setClipRect(x, y, w, h);
+        }
+        if ((flags & Qt::AlignVCenter) == Qt::AlignVCenter)
+            y += h/2 - pm.height()/2;
+        else if ((flags & Qt::AlignBottom) == Qt::AlignBottom)
+            y += h - pm.height();
+        if ((flags & Qt::AlignRight) == Qt::AlignRight)
+            x += w - pm.width();
+        else if ((flags & Qt::AlignHCenter) == Qt::AlignHCenter)
+            x += w/2 - pm.width()/2;
+        else if (((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout()) // Qt::AlignAuto && rightToLeft
+            x += w - pm.width();
+
+        if (!enabled) {
+            if (pm.mask()) {                        // pixmap with a mask
+                if (!pm.selfMask()) {                // mask is not pixmap itself
+                    QPixmap pmm(*pm.mask());
+                    pmm.setMask(*((QBitmap *)&pmm));
+                    pm = pmm;
+                }
+            } else if (pm.depth() == 1) {        // monochrome pixmap, no mask
+                pm.setMask(*((QBitmap *)&pm));
+#ifndef QT_NO_IMAGE_HEURISTIC_MASK
+            } else {                                // color pixmap, no mask
+                QString k;
+                k.sprintf("$qt-drawitem-%x", pm.serialNumber());
+                if (!QPixmapCache::find(k, pm)) {
+                    pm = pm.createHeuristicMask();
+                    pm.setMask((QBitmap&)pm);
+                    QPixmapCache::insert(k, pm);
+                }
+#endif
+            }
+            if (gs == Qt::WindowsStyle) {
+                p->setPen(pal.light().color());
+                p->drawPixmap(x+1, y+1, pm);
+                p->setPen(pal.text().color());
+            }
+        }
+        p->drawPixmap(x, y, pm);
+        if (clip)
+            p->setClipping(false);
+    } else if (!text.isNull()) {
+        if (gs == Qt::WindowsStyle && !enabled) {
+            p->setPen(pal.light().color());
+            p->drawText(x+1, y+1, w, h, flags, text, len);
+            p->setPen(pal.text().color());
+        }
+        p->drawText(x, y, w, h, flags, text, len);
+    }
+}
+#endif
+
 #endif //QT_NO_DRAWUTIL

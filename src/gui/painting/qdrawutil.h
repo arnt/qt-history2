@@ -82,6 +82,7 @@ Q_GUI_EXPORT void qDrawPlainRect(QPainter *p, const QRect &r, const QColor &,
                               int lineWidth = 1, const QBrush *fill = 0);
 
 
+#ifdef QT_COMPAT
 //
 // Other obsolete drawing functions.
 // Use QStyle::itemRect(), QStyle::drawItem() and QStyle::drawArrow() instead.
@@ -98,6 +99,7 @@ Q_GUI_EXPORT void qDrawItem(QPainter *p, Qt::GUIStyle gs, int x, int y, int w, i
 Q_GUI_EXPORT void qDrawArrow(QPainter *p, Qt::ArrowType type, Qt::GUIStyle style, bool down,
                           int x, int y, int w, int h,
                           const QPalette &pal, bool enabled);
+#endif
 
 #endif // QT_NO_DRAWUTIL
 #endif // QDRAWUTIL_H

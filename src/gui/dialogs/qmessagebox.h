@@ -138,8 +138,10 @@ public:
 
     QSize sizeHint() const;
 
+#ifdef QT_COMPAT
 /* OBSOLETE */
     static QPixmap standardIcon(Icon icon, Qt::GUIStyle);
+#endif
 
     static QPixmap standardIcon(Icon icon);
 

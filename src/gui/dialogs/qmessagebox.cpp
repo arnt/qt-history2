@@ -762,11 +762,13 @@ void QMessageBox::setIcon(Icon icon)
   \a style is unused.
 */
 
+#ifdef QT_COMPAT
 QPixmap QMessageBox::standardIcon(Icon icon, Qt::GUIStyle style)
 {
     Q_UNUSED(style);
     return QMessageBox::standardIcon(icon);
 }
+#endif
 
 
 /*!

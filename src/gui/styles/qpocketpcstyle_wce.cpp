@@ -809,10 +809,12 @@ int QPocketPCStyle::styleHint(StyleHint stylehint,
         ret = QEvent::MouseButtonPress;
         break;
 
+#ifdef QT_COMPAT
     // For special widget cases, use the windows behavior
     case SH_GUIStyle:
         ret = Qt::WindowsStyle;
         break;
+#endif
 
     // Scrollbars have Qt::PaletteBase as their background
     case SH_ScrollBar_BackgroundMode:

@@ -492,13 +492,15 @@ public:
         // disabled text should be etched, ala Windows
         SH_EtchDisabledText,
 
+#ifdef QT_COMPAT
         // the GUI style enum, argh!
-        SH_GUIStyle,
+        SH_GUIStyle = 1,
+#endif
 
         // ...
         // widget specific hints
         // ...
-        SH_ScrollBar_BackgroundMode, // deprecated
+        SH_ScrollBar_BackgroundMode = 2, // deprecated
         SH_ScrollBar_MiddleClickAbsolutePosition,
         SH_ScrollBar_ScrollWhenPointerLeavesControl,
 

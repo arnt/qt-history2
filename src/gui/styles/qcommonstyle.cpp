@@ -2577,9 +2577,11 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         ret = QEvent::MouseButtonPress;
         break;
 
+#ifdef QT_COMPAT
     case SH_GUIStyle:
         ret = Qt::WindowsStyle;
         break;
+#endif
 
 #ifndef QT_NO_PALETTE
     case SH_ScrollBar_BackgroundRole:

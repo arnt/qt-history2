@@ -2542,9 +2542,11 @@ int QMotifStyle::styleHint(StyleHint hint,
     int ret;
 
     switch (hint) {
+#ifdef QT_COMPAT
     case SH_GUIStyle:
         ret = Qt::MotifStyle;
         break;
+#endif
     case SH_DrawMenuBarSeparator:
         ret = true;
         break;

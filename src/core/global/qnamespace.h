@@ -381,9 +381,7 @@ public:
         HiEnglishUnit, // OBSOLETE
         TwipsUnit // OBSOLETE
     };
-#endif
 
-    // ### Qt 4: Kill this enum
     enum GUIStyle {
         MacStyle,
         WindowsStyle,
@@ -391,6 +389,7 @@ public:
         PMStyle,
         MotifStyle
     };
+#endif
 
     // documented in qevent.cpp
     enum Key {
