@@ -18,7 +18,7 @@ contains(QT_CONFIG, system-mng) {
         win32:LIBS += libmng.lib
         unix:LIBS  += -lmng
 }
-!system-mng {
+!contains(QT_CONFIG, system-mng) {
 	INCLUDEPATH += ../../../3rdparty/libmng
 	SOURCES += \
 	../../../3rdparty/libmng/libmng_callback_xs.c \
