@@ -24,7 +24,7 @@ class Canvas : public QWidget
     Q_OBJECT
 
 public:
-    Canvas( QWidget *parent = 0, const char *name = 0 );
+    Canvas( QWidget *parent = 0, const char *name = 0, WFlags fl = 0 );
 
     void setPenColor( const QColor &c )
     { 	saveColor = c;

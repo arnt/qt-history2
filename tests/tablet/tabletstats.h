@@ -35,7 +35,7 @@ class StatsCanvas : public Canvas
 {
     Q_OBJECT
 public:
-    StatsCanvas( QWidget *parent = 0, const char* name = 0 ) : Canvas( parent, name )
+    StatsCanvas( QWidget *parent = 0, const char* name = 0 ) : Canvas( parent, name, WRepaintNoErase )
     {};
     ~StatsCanvas() {};
 signals:

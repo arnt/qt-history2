@@ -57,13 +57,16 @@ void MyOrientation::newOrient( int tiltX, int tiltY )
 
 void StatsCanvas::tabletEvent( QTabletEvent *e )
 {
+    static QRect oldR( -1, -1, -1, -1);
     QPainter p;
     
     e->accept();
     r.setRect( e->x() - e->pressure() / 2, 
 	e->y() - e->pressure() / 2, e->pressure(), e->pressure() );
+    QRect tmpR = r | oldR;
+    oldR = r;
     
-    update();
+    update( tmpR );
     emit signalNewTilt( e->xTilt(), e->yTilt() );
     emit signalNewDev( e->device() );
     emit signalNewLoc( e->x(), e->y() );
@@ -76,34 +79,32 @@ void StatsCanvas::mouseMoveEvent( QMouseEvent *e )
     QWidget::mouseMoveEvent( e );
 }
 
+
 void StatsCanvas::mouseReleaseEvent( QMouseEvent *e )
 {
+    Canvas::mouseReleaseEvent( e );
     clearScreen();
-    update();
 }
 
 void StatsCanvas::paintEvent( QPaintEvent *e )
 {
-    static QRect oldR( -1, -1, -1, -1);
     QPainter p;
-    QString str = tr("Test Your Tablet Pen Here");
     p.begin( &buffer );
-    if ( !oldR.isNull() )
-	p.fillRect( oldR, colorGroup().base() );
-    p.setBrush( black );
-    p.drawEllipse( r );
-    oldR = r;
-    bitBlt( this, r.x(), r.y(), &buffer, r.x(), r.y(), r.width(), r.height() );
-    p.end();
+    p.fillRect( e->rect(), colorGroup().base() );
     
-    //Canvas::paintEvent( e );
+    // draw a circle if we have the tablet down
+    if ( mousePressed ) {
+	p.setBrush( black );
+	p.drawEllipse( r );
+    }
+    bitBlt( this, e->rect().x(), e->rect().y(), &buffer, e->rect().x(), e->rect().y(),
+	    e->rect().width(), e->rect().height() );
+    p.end();
 }
 
 TabletStats::TabletStats( QWidget *parent, const char *name )
 	: QWidget( parent, name )
 {
-    
-    
     QGridLayout *layout = new QGridLayout( this, 4, 5 );
     int row;
     QString strStart( tr("Touch The Canvas") );
