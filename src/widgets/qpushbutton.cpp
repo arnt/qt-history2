@@ -492,18 +492,19 @@ void QPushButton::drawButton( QPainter *paint )
 		erase( width() - diw, 0, diw, height() );
 	    } else if ( parentWidget() && parentWidget()->backgroundPixmap() ){
 		// pseudo tranparency
+		QPoint bo = backgroundOffset();
 		paint->drawTiledPixmap( 0, 0, width(), diw,
 					*parentWidget()->backgroundPixmap(),
-					x(), y() );
+					bo.x(), bo.y() );
 		paint->drawTiledPixmap( 0, 0, diw, height(),
 					*parentWidget()->backgroundPixmap(),
-					x(), y() );
+					bo.x(), bo.y() );
 		paint->drawTiledPixmap( 0, height()-diw, width(), diw,
 					*parentWidget()->backgroundPixmap(),
-					x(), y()+height() );
+					bo.x(), bo.y()+height() );
 		paint->drawTiledPixmap( width()-diw, 0, diw, height(),
 					*parentWidget()->backgroundPixmap(),
-					x()+width(), y() );
+					bo.x()+width(), bo.y() );
 	    } else {
 		paint->fillRect( 0, 0, width(), diw,
 				 colorGroup().brush(QColorGroup::Background) );
