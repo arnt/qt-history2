@@ -364,17 +364,19 @@ void QSlider::reallyMoveSlider( int newPos )
 */
 void QSlider::paintEvent( QPaintEvent * )
 {
-
     QPainter p( this );
-    void * data[1];
 
+    QStyle::SFlags flags = QStyle::Style_Default;
+    if (isEnabled())
+	flags |= QStyle::Style_Enabled;
+    if (hasFocus())
+	flags |= QStyle::Style_HasFocus;
+
+    void *data[1];
     data[0] = (void *) &sliderPos;
-    style().drawComplexControl( QStyle::CC_Slider, &p, this, rect(),
-				colorGroup(),
-				QStyle::Style_Default,
-				QStyle::SC_All,
-				QStyle::SC_None,
-				data );
+
+    style().drawComplexControl( QStyle::CC_Slider, &p, this, rect(), colorGroup(),
+				flags, QStyle::SC_All, QStyle::SC_None, data );
 }
 
 
