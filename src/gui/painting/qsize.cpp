@@ -507,6 +507,12 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 */
 
 /*!
+    \fn QSizeF::QSizeF(const QSize &size)
+
+    Constructs a size with floating point accuracy from the given \a size.
+*/
+
+/*!
     \fn QSizeF::QSizeF(float width, float height)
 
     Constructs a size with width \a width and height \a height.
@@ -713,8 +719,10 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
     \sa scale()
 */
 
+// ### FIXME: We have a float parameter here, but a double in
+// QSize::operator/=().
 /*!
-    \fn QSizeF &QSizeF::operator*=(double c)
+    \fn QSizeF &QSizeF::operator*=(float c)
 
     \overload
 
@@ -783,7 +791,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn const QSizeF operator*(const QSizeF &s, double c)
+    \fn const QSizeF operator*(const QSizeF &s, float c)
 
     \overload
     \relates QSizeF
@@ -813,6 +821,8 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
     \sa scale()
 */
 
+// ### FIXME: We have a float parameter here, but a double in
+// QSize::operator/=().
 /*!
     \fn QSizeF &QSizeF::operator/=(float c)
 

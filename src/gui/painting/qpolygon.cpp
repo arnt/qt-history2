@@ -76,9 +76,15 @@
 */
 
 /*!
-    \fn QPolygon::QPolygon(const QRectF &rectangle)
+    \fn QPolygon::QPolygon(const QVector<QPointF> &vector)
 
-    Constructs a closed polygon from the given \a rectangle.
+    Constructs a polygon from the given \a vector of points.
+*/
+
+/*!
+    \fn QPolygon::QPolygon(const QRectF &rect)
+
+    Constructs a closed polygon from the rectangle specified by \a rect.
 
     The point array just contains the four vertices of the rectangle in
     clockwise order starting and ending with the top-left vertex.
@@ -124,7 +130,11 @@ void QPolygon::translate(const QPointF &offset)
     Translates all points in the polygon by (\a{dx}, \a{dy}).
 */
 
+/*!
+    \fn bool QPolygon::isClosed() const
 
+    Returns true if the polygon is closed; otherwise returns false.
+*/
 
 /*!
     Returns the bounding rectangle of the polygon, or QRect(0,0,0,0) if the
