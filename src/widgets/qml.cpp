@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#7 $
 **
 ** Implementation of QML classes
 **
@@ -1921,7 +1921,7 @@ QMLStyle::ListStyle QMLBox::listStyle()
 
 
 //************************************************************************
-
+#if 0
 class QMLCursor{
 public:
     QMLCursor(QMLDocument& doc);
@@ -2460,6 +2460,7 @@ void QMLCursor::end(QPainter* p, bool select)
     calculatePosition(p);
 }
 
+#endif
 
 //************************************************************************
 
