@@ -326,6 +326,8 @@ extern QFont qt_LOGFONTtoQFont(LOGFONT& lf,bool scale);
 extern QPalette *qt_std_pal;
 extern void qt_create_std_palette();
 
+static unsigned int gui_thread=0;
+
 static void qt_set_windows_resources()
 {
     QFont menuFont;
@@ -447,6 +449,9 @@ void qt_init( int *argcptr, char **argv )
     // Detect the Windows version
     (void)QApplication::winVersion();
 
+    
+    gui_thread=GetCurrentThreadId();
+    
 #if defined(DEBUG)
     int argc = *argcptr;
     int i, j;
@@ -1221,7 +1226,7 @@ bool QApplication::processNextEvent( bool canWait )
     MSG	 msg;
 
     emit guiThreadAwake();
-    
+
     sendPostedEvents();
 
     if ( canWait ) {				// can wait if necessary
@@ -1278,7 +1283,7 @@ void QApplication::processEvents( int maxtime )
 
 void QApplication::wakeUpGuiThread()
 {
-    //###### TODO send appropriate message
+    PostThreadMessage(gui_thread,WM_USER+666,0,0);
 }
 
 
@@ -1457,7 +1462,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    curWin = 0;
 		}
 	        break;
-		
+
 	    case WM_SYSCOMMAND:
 		if ( wParam == SC_CONTEXTHELP ) {
 		    // What's This? Windows wants to do something for
@@ -1467,7 +1472,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		} else
 		    result = FALSE;
 		break;
-		
+
 	    case WM_PAINT:				// paint event
 		result = widget->translatePaintEvent( msg );
 		break;
