@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#5 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -321,7 +321,7 @@ void QSpinBox::doResize( const QSize & s )
 	QPainter p;
 	p.begin( &bm );
 	p.eraseRect( 0, 0, bm.width(), bm.height() );
-	p.setBrush( SolidPattern );
+	p.setBrush( color1 );
 	p.drawPolygon( a );
 	p.end();
 	up->setPixmap( bm );
@@ -338,7 +338,7 @@ void QSpinBox::doResize( const QSize & s )
 	QPainter p;
 	p.begin( &bm );
 	p.eraseRect( 0, 0, bm.width(), bm.height() );
-	p.setBrush( SolidPattern );
+	p.setBrush( color1 );
 	p.drawPolygon( a );
 	p.end();
 	down->setPixmap( bm );
