@@ -867,6 +867,21 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
     vHandleLeft->hide();
     setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
     setLineWidth( 2 );
+
+    QWidget *mw = parent;
+    if ( parent && parent->inherits( "QDockArea" ) ) {
+	QDockArea* da = (QDockArea*)parent;
+	if ( p == InDock )
+	    da->moveDockWindow( this );
+	mw = da->parentWidget();
+    } else if ( p == InDock ) {
+	p = OutsideDock;
+    }
+    if ( mw && mw->inherits( "QMainWindow" ) ) {
+	moveEnabled = ((QMainWindow*)mw)->dockWindowsMovable();
+	opaque = ((QMainWindow*)mw)->opaqueMoving();
+    }
+
     updateGui();
     stretchable[ Horizontal ] = FALSE;
     stretchable[ Vertical ] = FALSE;
@@ -876,12 +891,6 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
     connect( horHandle, SIGNAL( doubleClicked() ), this, SLOT( undock() ) );
     connect( this, SIGNAL( orientationChanged( Orientation ) ),
 	     this, SLOT( setOrientation( Orientation ) ) );
-
-    if ( parent && parent->inherits( "QDockArea" ) && p == InDock ) {
-	( (QDockArea*)parent )->moveDockWindow( this );
-    } else if ( p == InDock ) {
-	p = OutsideDock;
-    }
 }
 
 /*! Sets the orientation of the dock window to \a o. The orientation is
