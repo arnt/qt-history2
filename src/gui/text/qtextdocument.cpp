@@ -240,7 +240,7 @@ QTextCodec *Qt::codecForHtml(const QByteArray &ba)
     documentTitle() function.
 
     The toPlainText() and toHtml() convenience functions allow you to retrieve the
-    contents of the document as plain text and HTML. 
+    contents of the document as plain text and HTML.
     The document's text can be searched using the find() functions.
 
     Undo/redo of operations performed on the document can be controlled using
@@ -1406,6 +1406,13 @@ QString QTextDocument::toHtml(const QByteArray &encoding) const
 {
     return QTextHtmlExporter(this).toHtml(encoding);
 }
+
+QVector<QTextFormat> QTextDocument::allFormats() const
+{
+    Q_D(const QTextDocument);
+    return d->formatCollection()->formats;
+}
+
 
 /*!
   \internal

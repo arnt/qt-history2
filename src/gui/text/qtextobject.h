@@ -242,6 +242,7 @@ public:
     bool contains(int position) const;
 
     QTextCharFormat charFormat() const;
+    int charFormatIndex() const;
     QString text() const;
 
 private:

@@ -1275,6 +1275,14 @@ QTextCharFormat QTextFragment::charFormat() const
     return p->formatCollection()->charFormat(data->format);
 }
 
+int QTextFragment::charFormatIndex() const
+{
+    if (!p || !n)
+        return -1;
+    const QTextFragmentData *data = p->fragmentMap().fragment(n);
+    return data->format;
+}
+
 /*!
     Returns the text fragment's as plain text.
 

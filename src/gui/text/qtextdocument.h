@@ -33,6 +33,8 @@ class QTextCodec;
 class QUrl;
 class QVariant;
 
+template<typename T> class QVector;
+
 namespace Qt
 {
     enum HitTestAccuracy { ExactHit, FuzzyHit };
@@ -133,6 +135,8 @@ public:
         UserResource = 100
     };
     virtual QVariant loadResource(int type, const QUrl &name);
+
+    QVector<QTextFormat> allFormats() const;
 
 signals:
     void contentsChanged();
