@@ -1,5 +1,5 @@
 TEMPLATE  = lib
-CONFIG   += qt dll
+CONFIG   += qt dll plugin
 TARGET   += qtwidgets
 VERSION   = 1.0.0
 DESTDIR   = ../../../accessible
