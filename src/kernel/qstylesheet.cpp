@@ -784,6 +784,8 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	- Emphasized. As default, this is the same as \c &lt;i&gt;...&lt;/i&gt; (Italic)
     <li>\c &lt;strong&gt;...&lt;/strong&gt;
 	- Strong. As default, this is the same as \c &lt;bold&gt;...&lt;/bold&gt; (bold).
+    <li>\c &lt;i&gt;...&lt;/i&gt;
+	- Italic font style.
     <li>\c &lt;b&gt;...&lt;/b&gt;
 	- Bold font style.
     <li>\c &lt;u&gt;...&lt;/u&gt;
@@ -794,6 +796,11 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	- A smaller font size.
     <li>\c &lt;large&gt;...&lt;/large&gt;
 	- Large font size.
+    <li>\c &lt;code&gt;...&lt;/code&gt;
+	- Indicates Code. As default, this is the same as \c &lt;tt&gt;...&lt;/tt&gt; (typewriter). For
+	larger junks of code, use the block-tag \c pre.
+    <li>\c &lt;tt&gt;...&lt;/tt&gt;
+	- Typewriter font style.
     <li>\c &lt;font&gt;...&lt;/font&gt;
 	- Customizes the font size, family  and text color. The tag understands
 	the following  attributes:
@@ -808,9 +815,6 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	<li> \c face
 	- the family of the font, for example \c face=times.
 	</ul>
-    <li>\c &lt;code&gt;...&lt;/code&gt;
-	- Indicates Code. As default, this is the same as \c &lt;tt&gt;...&lt;/tt&gt; (typewriter). For
-	larger junks of code, use the block-tag \c pre.
    </ul>
 
    Special elements are:
@@ -839,18 +843,17 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	- No break. Prevents word wrap.
   </ul>
 
-  In addition, rich text supports simple HTML tables. The model is
-  simple: A table consists of a set of rows where each row contains
-  some number of cells. Cells are either data cells or header cells,
-  depending on their content. Usually a cell fills one rectangle in
-  the table grid. It may, however, also span several rows, columns or
-  both.
+  In addition, rich text supports simple HTML tables. A table consists
+  of a set of rows where each row contains some number of cells. Cells
+  are either data cells or header cells, depending on their
+  content. Usually a cell fills one rectangle in the table grid. It
+  may, however, also span several rows, columns or both.
 
  <ul>
    <li>\c &lt;table&gt;...&lt;/table&gt;
    - A table definition.
      The default table is frameless. Specify the boolean attribute
-     \c border to get a frame. Other attributes are:
+     \c border in order to get a frame. Other attributes are:
 	<ul>
 	<li>\c bgcolor
 	- The background color
@@ -865,13 +868,13 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	- Additinal space around the contents of table cells. Default is 1.
 	</ul>
    <li>\c &lt;tr&gt;...&lt;/tr&gt;
-   - A table row. Understands the attribute
+   - A table row. Can only be used within \c table. Understands the attribute
 	<ul>
 	<li>\c bgcolor
 	- The background color
 	</ul>
    <li>\c &lt;td&gt;...&lt;/td&gt;
-   - A table data cell. Understands the attributes
+   - A table data cell. Can only be used within \c tr. Understands the attributes
 	<ul>
 	<li>\c bgcolor
 	- The background color
