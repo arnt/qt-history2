@@ -117,7 +117,9 @@ void ActionEditor::deleteAction()
     while ( it.current() ) {
 	ai = (ActionItem*)it.current();
 	if ( ai->action() == currentAction || ai->actionGroup() == currentAction ) {
-	    delete currentAction;
+	    removeAction( currentAction );
+	    // Do not delete the action object itself;
+	    // it is still pointed to by a command object.
 	    currentAction = 0;
 	    delete it.current();
 	    break;
@@ -280,4 +282,27 @@ void ActionEditor::connectionsClicked()
     ConnectionDialog dlg( formWindow->mainWindow() );
     dlg.setDefault( currentAction, formWindow );
     dlg.exec();
+}
+
+void ActionEditor::removeAction( QAction *a )
+{
+    formWindow->actionList().removeRef( a );
+    
+    QValueList<MetaDataBase::Connection> conns =
+	MetaDataBase::connections( formWindow, a );
+    for ( QValueList<MetaDataBase::Connection>::Iterator it2 = conns.begin();
+	  it2 != conns.end(); ++it2 )
+	MetaDataBase::removeConnection( formWindow, (*it2).sender, (*it2).signal,
+					(*it2).receiver, (*it2).slot );
+    
+    QActionGroup *ag = (QActionGroup *)a->qt_cast( "QActionGroup" );
+    QObjectList *subActions = ( ag ? ag->queryList( "QAction" ) : 0 );
+    if ( subActions && subActions->count() ) {
+	QObjectListIt subAction( *subActions );
+	while ( subAction.current() ) {
+	    QAction *sa = (QAction*)subAction.current();
+	    ++subAction;
+	    removeAction( sa );
+	}
+    }
 }

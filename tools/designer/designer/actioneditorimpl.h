@@ -60,6 +60,7 @@ signals:
 
 private:
     void insertChildActions( ActionItem *i );
+    void removeAction( QAction *a );
 
 private:
     QAction *currentAction;
