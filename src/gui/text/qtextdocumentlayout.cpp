@@ -279,6 +279,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
 //     LDEBUG << debug_indent << "drawFrame" << frame->firstPosition() << "--" << frame->lastPosition() << "at" << offset;
 //     INC_INDENT;
 
+    QTextTable *table = qt_cast<QTextTable *>(frame);
     QPoint off = offset + fd->boundingRect.topLeft();
 
     // draw frame decoration
@@ -293,7 +294,6 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
         painter->drawRect(off.x() + fd->margin, off.y() + fd->margin, w, fd->border);
         painter->drawRect(off.x() + fd->margin + w, off.y() + fd->margin, fd->border, h);
         painter->drawRect(off.x() + fd->margin, off.y() + fd->margin + h, w + fd->border, fd->border);
-        QTextTable *table = qt_cast<QTextTable *>(frame);
         if (table) {
             QTextTableData *td = static_cast<QTextTableData *>(fd);
             int rows = table->rows();
@@ -311,15 +311,76 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
         painter->restore();
     }
 
-    QTextFrame::Iterator end = frame->end();
-    for (QTextFrame::Iterator it = frame->begin(); it != end; ++it) {
-        QTextFrame *c = it.currentFrame();
-        if (c)
-            drawFrame(off, painter, context, c);
-        else
-            drawBlock(off, painter, context, it.currentBlock());
-    }
+    if (table) {
+        int rows = table->rows();
+        int columns = table->columns();
+        QTextTableData *td = static_cast<QTextTableData *>(data(table));
 
+        int sel_row_start = -1;
+        int sel_row_end = -1;
+        int sel_col_start = -1;
+        int sel_col_end = -1;
+        if (context.cursor.hasSelection()) {
+            QTextTableCell start = table->cellAt(context.cursor.selectionStart());
+            QTextTableCell end = table->cellAt(context.cursor.selectionEnd());
+            if (start != end) {
+                sel_row_start = qMin(start.row(), end.row());
+                sel_col_start = qMin(start.column(), end.column());
+                sel_row_end = qMax(start.row() + start.rowSpan(), end.row() + end.rowSpan());
+                sel_col_end = qMax(start.column() + start.columnSpan(), end.column() + end.columnSpan());
+            }
+        }
+
+        for (int r = 0; r < rows; ++r) {
+            for (int c = 0; c < columns; ++c) {
+                QTextTableCell cell = table->cellAt(r, c);
+                int rspan = cell.rowSpan();
+                int cspan = cell.columnSpan();
+//                 if (rspan != 1) {
+//                     int cr = cell.row();
+//                     if (cr != r)
+//                         continue;
+//                 }
+//                 if (cspan != 1) {
+//                     int cc = cell.column();
+//                     if (cc != c)
+//                         continue;
+//                 }
+//                 QRect cellRect(QPoint(td->columnPositions.at(c), td->rowPositions.at(r)),
+//                                QPoint(td->columnPositions.at(c+cspan-1) + td->widths.at(c+cspan-1),
+//                                       td->rowPositions.at(r+rspan-1) + td->widths.at(r+rspan-1)));
+//                 if (!cellRect.intersects(painter->clipRegion().boundingRect()))
+//                     continue;
+
+                QAbstractTextDocumentLayout::PaintContext cell_context = context;
+                if (sel_row_start != -1) {
+                    if (r >= sel_row_start && r < sel_row_end
+                        && c >= sel_col_start && c < sel_col_end) {
+                        cell_context.cursor.setPosition(cell.firstPosition());
+                        cell_context.cursor.setPosition(cell.lastPosition(), QTextCursor::KeepAnchor);
+                    } else {
+                        cell_context.cursor.clearSelection();
+                    }
+                }
+                for (QTextFrame::Iterator it = cell.begin(); !it.atEnd(); ++it) {
+                    QTextFrame *c = it.currentFrame();
+                    if (c)
+                        drawFrame(off, painter, cell_context, c);
+                    else
+                        drawBlock(off, painter, cell_context, it.currentBlock());
+                }
+            }
+        }
+
+    } else {
+        for (QTextFrame::Iterator it = frame->begin(); !it.atEnd(); ++it) {
+            QTextFrame *c = it.currentFrame();
+            if (c)
+                drawFrame(off, painter, context, c);
+            else
+                drawBlock(off, painter, context, it.currentBlock());
+        }
+    }
 //     DEC_INDENT;
 }
 
