@@ -732,13 +732,17 @@ void QAbstractSocketPrivate::canReadNotification(int)
     qDebug("QAbstractSocketPrivate::canReadNotification()");
 #endif
 
-    // Prevent recursive calls
-    if (readSocketNotifierCalled)
-        return;
-    readSocketNotifierCalled = true;
-
     // Prevent notifier from getting fired more times
     readSocketNotifier->setEnabled(false);
+
+    // Prevent recursive calls
+    if (readSocketNotifierCalled) {
+#if defined (QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocketPrivate::canReadNotification() recursive call detected.");
+#endif
+        return;
+    }
+    readSocketNotifierCalled = true;
 
     // If buffered, read data from the socket into the read buffer
     if (isBuffered) {
@@ -755,22 +759,22 @@ void QAbstractSocketPrivate::canReadNotification(int)
         // notification, close the socket.
         int oldBufferSize = d->readBuffer.size();
         if (!d->readFromSocket()) {
-            q->close();
-            readSocketNotifierCalled = false;
 #if defined (QABSTRACTSOCKET_DEBUG)
             qDebug("QAbstractSocketPrivate::canReadNotification() closing socket");
 #endif
+            q->close();
+            readSocketNotifierCalled = false;
             return;
         }
 
         // If the buffer size is unchanged after reading from the
         // socket, close the socket.
         if (oldBufferSize == d->readBuffer.size()) {
-            q->close();
-            readSocketNotifierCalled = false;
 #if defined (QABSTRACTSOCKET_DEBUG)
             qDebug("QAbstractSocketPrivate::canReadNotification() unchanged buffer: closing socket");
 #endif
+            q->close();
+            readSocketNotifierCalled = false;
             return;
         }
     }
@@ -780,7 +784,7 @@ void QAbstractSocketPrivate::canReadNotification(int)
     // deleted to avoid a crash.
     QPointer<QAbstractSocket> that = q;
 #if defined (QABSTRACTSOCKET_DEBUG)
-            qDebug("QAbstractSocketPrivate::canReadNotification() emitting readyRead()");
+    qDebug("QAbstractSocketPrivate::canReadNotification() emitting readyRead()");
 #endif
     emit q->readyRead();
     if (!that)
@@ -788,12 +792,20 @@ void QAbstractSocketPrivate::canReadNotification(int)
 
     // If we were closed as a result of the readyRead() signal,
     // return.
-    if (state == Qt::UnconnectedState || state == Qt::ClosingState)
+    if (state == Qt::UnconnectedState || state == Qt::ClosingState) {
+#if defined (QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocketPrivate::canReadNotification() socket is closing - returning");
+#endif
+        readSocketNotifierCalled = false;
         return;
+    }
 
     // If there is still space in the buffer, reenable the read socket
     // notifier.
     if (!readBufferMaxSize || d->readBuffer.size() < d->readBufferMaxSize) {
+#if defined (QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocketPrivate::canReadNotification() expecting more data.");
+#endif
         if (d->readSocketNotifier)
             d->readSocketNotifier->setEnabled(true);
     }
@@ -1038,9 +1050,9 @@ void QAbstractSocketPrivate::connectToNextAddress()
         QTime stopWatch;
         stopWatch.start();
 
+        int timeToWait = qMin(d->blockingTimeout - connectTimeElapsed, QT_CONNECT_TIMEOUT);
         bool timedOut = false;
-        if (!socketLayer.waitForWrite(d->blockingTimeout - connectTimeElapsed,
-                                      &timedOut) && !timedOut) {
+        if (!socketLayer.waitForWrite(timeToWait, &timedOut) && !timedOut) {
             state = Qt::UnconnectedState;
             socketError = socketLayer.socketError();
             socketErrorString = socketLayer.errorString();
