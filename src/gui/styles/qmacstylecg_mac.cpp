@@ -443,6 +443,33 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
         HIThemeDrawGroupBox(qt_glb_mac_rect(r, p), &gdi, static_cast<CGContextRef>(p->handle()),
                             kHIThemeOrientationNormal);
         break; }
+    case PE_Panel:
+    case PE_PanelLineEdit:
+        if (flags & Style_Sunken) {
+            HIThemeFrameDrawInfo fdi;
+            fdi.version = qt_mac_hitheme_version;
+            fdi.state = tds;
+            
+            SInt32 frame_size;
+            if (pe == PE_PanelLineEdit) {
+                fdi.kind = kHIThemeFrameTextFieldSquare;
+                GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
+            } else {
+                fdi.kind = kHIThemeFrameListBox;
+                GetThemeMetric(kThemeMetricListBoxFrameOutset, &frame_size);
+            }
+            int lw = opt.isDefault() ? pixelMetric(PM_DefaultFrameWidth, 0) : opt.lineWidth();
+            p->fillRect(r.x(), r.y(), lw, r.height(), pal.background());
+            p->fillRect(r.right() - lw + 1, r.y(), lw, r.height(), pal.background());
+            p->fillRect(r.x(), r.y(), r.width(), lw, pal.background());
+            p->fillRect(r.x(), r.bottom() - lw + 1, r.width(), lw, pal.background());
+            const HIRect *rect = qt_glb_mac_rect(r, p, false, QRect(frame_size, frame_size,
+                                                                    frame_size * 2, frame_size * 2));
+            HIThemeDrawFrame(rect, &fdi, static_cast<CGContextRef>(p->handle()),
+                             kHIThemeOrientationNormal);
+            break;
+        }
+        // Fall through!
     default:
 	QWindowsStyle::drawPrimitive(pe, p, r, pal, flags, opt);
 	break;
