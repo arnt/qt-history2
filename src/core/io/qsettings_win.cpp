@@ -191,9 +191,9 @@ HKEY QSettingsSysPrivate::openKey(const QString &key, bool write, bool remove)
     if ((write||remove) && user) {
         QT_WA({
             if (remove)
-                res = RegOpenKeyExW(user, (TCHAR*)f.ucs2(), 0, KEY_ALL_ACCESS, &handle);
+                res = RegOpenKeyExW(user, (TCHAR*)f.utf16(), 0, KEY_ALL_ACCESS, &handle);
             else
-                res = RegOpenKeyExW(user, (TCHAR*)f.ucs2(), 0, KEY_WRITE, &handle);
+                res = RegOpenKeyExW(user, (TCHAR*)f.utf16(), 0, KEY_WRITE, &handle);
         } , {
             if (remove)
                 res = RegOpenKeyExA(user, f.local8Bit(), 0, KEY_ALL_ACCESS, &handle);
@@ -206,11 +206,11 @@ HKEY QSettingsSysPrivate::openKey(const QString &key, bool write, bool remove)
     if (res != ERROR_SUCCESS && local && d->globalScope) {
         QT_WA({
             if (write && !remove)
-                res = RegCreateKeyExW(local, (TCHAR*)f.ucs2(), 0, empty_t, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL);
+                res = RegCreateKeyExW(local, (TCHAR*)f.utf16(), 0, empty_t, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL);
             else if (!write && !remove)
-                res = RegOpenKeyExW(local, (TCHAR*)f.ucs2(), 0, KEY_READ, &handle);
+                res = RegOpenKeyExW(local, (TCHAR*)f.utf16(), 0, KEY_READ, &handle);
             else
-                res = RegOpenKeyExW(local, (TCHAR*)f.ucs2(), 0, KEY_ALL_ACCESS, &handle);
+                res = RegOpenKeyExW(local, (TCHAR*)f.utf16(), 0, KEY_ALL_ACCESS, &handle);
         } , {
             if (write && !remove)
                 res = RegCreateKeyExA(local, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL);
@@ -223,11 +223,11 @@ HKEY QSettingsSysPrivate::openKey(const QString &key, bool write, bool remove)
     if (!handle && user) {
         QT_WA({
             if (write && !remove)
-                res = RegCreateKeyExW(user, (TCHAR*)f.ucs2(), 0, empty_t, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL);
+                res = RegCreateKeyExW(user, (TCHAR*)f.utf16(), 0, empty_t, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL);
             else if (!write && !remove)
-                res = RegOpenKeyExW(user, (TCHAR*)f.ucs2(), 0, KEY_READ, &handle);
+                res = RegOpenKeyExW(user, (TCHAR*)f.utf16(), 0, KEY_READ, &handle);
             else
-                res = RegOpenKeyExW(user, (TCHAR*)f.ucs2(), 0, KEY_ALL_ACCESS, &handle);
+                res = RegOpenKeyExW(user, (TCHAR*)f.utf16(), 0, KEY_ALL_ACCESS, &handle);
         } , {
             if (write && !remove)
                 res = RegCreateKeyExA(user, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL);
@@ -262,7 +262,7 @@ bool QSettingsSysPrivate::writeKey(const QString &key, const QByteArray &value, 
 
     if (value.size()) {
         QT_WA({
-            res = RegSetValueExW(handle, e.isEmpty() ? 0 : (TCHAR*)e.ucs2(), 0, type, (const uchar*)value.data(), value.size());
+            res = RegSetValueExW(handle, e.isEmpty() ? 0 : (TCHAR*)e.utf16(), 0, type, (const uchar*)value.data(), value.size());
         } , {
             res = RegSetValueExA(handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), 0, type, (const uchar*)value.data(), value.size());
         });
@@ -282,14 +282,14 @@ HKEY QSettingsSysPrivate::readKeyHelper(HKEY root, const QString &folder, const 
     HKEY handle;
     LONG res = ERROR_ACCESS_DENIED;
     QT_WA({
-        res = RegOpenKeyExW(root, (TCHAR*)folder.ucs2(), 0, KEY_READ, &handle);
+        res = RegOpenKeyExW(root, (TCHAR*)folder.utf16(), 0, KEY_READ, &handle);
     } , {
         res = RegOpenKeyExA(root, folder.local8Bit(), 0, KEY_READ, &handle);
     });
 
     if (res == ERROR_SUCCESS) {
         QT_WA({
-            res = RegQueryValueExW(handle, entry.isEmpty() ? 0 : (TCHAR*)entry.ucs2(), NULL, NULL, NULL, &size);
+            res = RegQueryValueExW(handle, entry.isEmpty() ? 0 : (TCHAR*)entry.utf16(), NULL, NULL, NULL, &size);
         } , {
             res = RegQueryValueExA(handle, entry.isEmpty() ? (const char*)0 : (const char*)entry.local8Bit(), NULL, NULL, NULL, &size);
         });
@@ -361,7 +361,7 @@ QByteArray QSettingsSysPrivate::readKey(const QString &key, ulong &type)
 
     QByteArray result(size, '\0');
     QT_WA({
-        RegQueryValueExW(handle, e.isEmpty() ? 0 : (TCHAR*)e.ucs2(), NULL, &type, (uchar *)result.data(), &size);
+        RegQueryValueExW(handle, e.isEmpty() ? 0 : (TCHAR*)e.utf16(), NULL, &type, (uchar *)result.data(), &size);
     } , {
         RegQueryValueExA(handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), NULL, &type, (uchar *)result.data(), &size);
     });
@@ -552,7 +552,7 @@ bool QSettingsPrivate::sysRemoveEntry(const QString &key)
     if (e == "Default" || e == ".")
         e = "";
     QT_WA({
-        res = RegDeleteValueW(handle, (TCHAR*)e.ucs2());
+        res = RegDeleteValueW(handle, (TCHAR*)e.utf16());
     } , {
         res = RegDeleteValueA(handle, e.local8Bit());
     });
@@ -622,7 +622,7 @@ QStringList QSettingsPrivate::sysEntryList(const QString &key) const
         QT_WA({
             res = RegEnumValueW(handle, index, vnameT, &vnamesz, NULL, NULL, NULL, NULL);
             if (res == ERROR_SUCCESS)
-                qname = QString::fromUcs2((ushort*)vnameT);
+                qname = QString::fromUtf16((ushort*)vnameT);
         } , {
             res = RegEnumValueA(handle, index, vnameA, &vnamesz, NULL, NULL, NULL, NULL);
             if (res == ERROR_SUCCESS)
@@ -685,7 +685,7 @@ QStringList QSettingsPrivate::sysSubkeyList(const QString &key) const
         QT_WA({
             res = RegEnumKeyExW(handle, index, vnameT, &vnamesz, NULL, NULL, NULL, &lastWrite);
             if (res == ERROR_SUCCESS)
-                qname = QString::fromUcs2((ushort*)vnameT);
+                qname = QString::fromUtf16((ushort*)vnameT);
         } , {
             res = RegEnumKeyExA(handle, index, vnameA, &vnamesz, NULL, NULL, NULL, &lastWrite);
             if (res == ERROR_SUCCESS)

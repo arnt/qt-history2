@@ -468,7 +468,7 @@ void qSystemWarning(const char *msg, ...)
                            (LPTSTR)&string,
                            0,
                            NULL);
-            sys = QString::fromUcs2(string).latin1();
+            sys = QString::fromUtf16(string).latin1();
         }, {
             FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
                             NULL,
@@ -511,7 +511,7 @@ void qSystemWarning(const char *msg, ...)
         mac_default_handler(buf);
 #elif defined(Q_OS_TEMP)
         QString fstr(buf);
-        OutputDebugString((fstr + "\n").ucs2());
+        OutputDebugString((fstr + "\n").utf16());
 #else
         fprintf(stderr, "%s", buf.data());                // add newline
         if (sys.size())
@@ -779,7 +779,7 @@ void qDebug(const char *msg, ...)
         mac_default_handler(buf);
 #elif defined(Q_OS_TEMP)
         QString fstr(buf);
-        OutputDebugString((fstr + "\n").ucs2());
+        OutputDebugString((fstr + "\n").utf16());
 #else
         fprintf(stderr, "%s\n", buf);                // add newline
 #endif
@@ -812,7 +812,7 @@ void qWarning(const char *msg, ...)
 #if defined(Q_OS_TEMP) && defined(QT_DEBUG)
         QString fstr;
         fstr.sprintf("%s:%s %s %s\n", __FILE__, __LINE__, QT_VERSION_STR, buf);
-        OutputDebugString(fstr.ucs2());
+        OutputDebugString(fstr.utf16());
 #elif defined(Q_CC_MSVC) && defined(QT_DEBUG) && defined(_DEBUG) && defined(_CRT_ERROR)
         if (fatalWarnings)
             _CrtDbgReport(_CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf);

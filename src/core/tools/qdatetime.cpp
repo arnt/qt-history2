@@ -483,7 +483,7 @@ QString QDate::shortMonthName(int month)
     QT_WA({
         TCHAR buf[255];
         if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &st, mmm_t, buf, 255))
-            return QString::fromUcs2((ushort*)buf);
+            return QString::fromUtf16((ushort*)buf);
     } , {
         char buf[255];
         if (GetDateFormatA(LOCALE_USER_DEFAULT, 0, &st, "MMM", (char*)&buf, 255))
@@ -527,7 +527,7 @@ QString QDate::longMonthName(int month)
     QT_WA({
         TCHAR buf[255];
         if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &st, mmmm_t, buf, 255))
-            return QString::fromUcs2((ushort*)buf);
+            return QString::fromUtf16((ushort*)buf);
     } , {
         char buf[255];
         if (GetDateFormatA(LOCALE_USER_DEFAULT, 0, &st, "MMMM", (char*)&buf, 255))
@@ -573,7 +573,7 @@ QString QDate::shortDayName(int weekday)
     QT_WA({
         TCHAR buf[255];
         if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &st, ddd_t, buf, 255))
-            return QString::fromUcs2((ushort*)buf);
+            return QString::fromUtf16((ushort*)buf);
     } , {
         char buf[255];
         if (GetDateFormatA(LOCALE_USER_DEFAULT, 0, &st, "ddd", (char*)&buf, 255))
@@ -619,7 +619,7 @@ QString QDate::longDayName(int weekday)
     QT_WA({
         TCHAR buf[255];
         if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &st, dddd_t, buf, 255))
-            return QString::fromUcs2((ushort*)buf);
+            return QString::fromUtf16((ushort*)buf);
     } , {
         char buf[255];
         if (GetDateFormatA(LOCALE_USER_DEFAULT, 0, &st, "dddd", (char*)&buf, 255))
@@ -687,7 +687,7 @@ QString QDate::toString(Qt::DateFormat f) const
             QT_WA({
                 TCHAR buf[255];
                 if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &st, 0, buf, 255))
-                    return QString::fromUcs2((ushort*)buf);
+                    return QString::fromUtf16((ushort*)buf);
             } , {
                 char buf[255];
                 if (GetDateFormatA(LOCALE_USER_DEFAULT, 0, &st, 0, (char*)&buf, 255))
@@ -1346,7 +1346,7 @@ QString QTime::toString(Qt::DateFormat f) const
             QT_WA({
                 TCHAR buf[255];
                 if (GetTimeFormat(LOCALE_USER_DEFAULT, 0, &st, 0, buf, 255))
-                    return QString::fromUcs2((ushort*)buf);
+                    return QString::fromUtf16((ushort*)buf);
             } , {
                 char buf[255];
                 if (GetTimeFormatA(LOCALE_USER_DEFAULT, 0, &st, 0, (char*)&buf, 255))
@@ -2049,7 +2049,7 @@ QString QDateTime::toString(Qt::DateFormat f) const
         QT_WA({
             TCHAR out[255];
             GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_ILDATE, out, 255);
-            winstr = QString::fromUcs2((ushort*)out);
+            winstr = QString::fromUtf16((ushort*)out);
         } , {
             char out[255];
             GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_ILDATE, (char*)&out, 255);

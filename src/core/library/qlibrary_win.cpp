@@ -61,7 +61,7 @@ bool QLibraryPrivate::loadLibrary()
     }
     else {
         QT_WA({
-            pHnd = LoadLibraryW((TCHAR*)filename.ucs2());
+            pHnd = LoadLibraryW((TCHAR*)filename.utf16());
         } , {
             pHnd = LoadLibraryA(QFile::encodeName(filename).data());
         });

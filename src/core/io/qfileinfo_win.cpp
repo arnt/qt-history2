@@ -139,7 +139,7 @@ static QString currentDirOfDrive(char ch)
     QT_WA({
         TCHAR currentName[PATH_MAX];
         if (_wgetdcwd(toupper((uchar) ch) - 'A' + 1, currentName, PATH_MAX) >= 0) {
-            result = QString::fromUcs2((ushort*)currentName);
+            result = QString::fromUtf16((ushort*)currentName);
         }
     } , {
         char currentName[PATH_MAX];
@@ -236,15 +236,15 @@ QString QFileInfo::readLink() const
             IPersistFile *ppf;
             hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
             if (SUCCEEDED(hres))  {
-                hres = ppf->Load((LPOLESTR)d->fileName().ucs2(), STGM_READ);
+                hres = ppf->Load((LPOLESTR)d->fileName().utf16(), STGM_READ);
                 if (SUCCEEDED(hres)) {        // Resolve the link.
 
                     hres = psl->Resolve(0, SLR_ANY_MATCH);
 
                     if (SUCCEEDED(hres)) {
-                        memcpy(szGotPath, (TCHAR*)d->fileName().ucs2(), (d->fileName().length()+1)*sizeof(QChar));
+                        memcpy(szGotPath, (TCHAR*)d->fileName().utf16(), (d->fileName().length()+1)*sizeof(QChar));
                         hres = psl->GetPath(szGotPath, MAX_PATH, &wfd, SLGP_SHORTPATH);
-                        fileLinked = QString::fromUcs2((ushort*)szGotPath);
+                        fileLinked = QString::fromUtf16((ushort*)szGotPath);
                     }
                 }
                 ppf->Release();
@@ -275,7 +275,7 @@ QString QFileInfo::readLink() const
             IPersistFile *ppf;
             hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
             if (SUCCEEDED(hres))  {
-                hres = ppf->Load((LPOLESTR)d->fileName().ucs2(), STGM_READ);
+                hres = ppf->Load((LPOLESTR)d->fileName().utf16(), STGM_READ);
                 if (SUCCEEDED(hres)) {        // Resolve the link.
 
                     hres = psl->Resolve(0, SLR_ANY_MATCH);
@@ -312,7 +312,7 @@ QString QFileInfo::owner() const
         QString name;
         resolveLibs();
         if (ptrGetNamedSecurityInfoW && ptrLookupAccountSidW) {
-            if (ptrGetNamedSecurityInfoW((wchar_t*)d->fileName().ucs2(), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, &pOwner, NULL, NULL, NULL, &pSD) == ERROR_SUCCESS) {
+            if (ptrGetNamedSecurityInfoW((wchar_t*)d->fileName().utf16(), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, &pOwner, NULL, NULL, NULL, &pSD) == ERROR_SUCCESS) {
                 DWORD lowner = 0, ldomain = 0;
                 SID_NAME_USE use;
                 // First call, to determine size of the strings (with '\0').
@@ -321,7 +321,7 @@ QString QFileInfo::owner() const
                 wchar_t *domain = new wchar_t[ldomain];
                 // Second call, size is without '\0'
                 if (ptrLookupAccountSidW(NULL, pOwner, (LPWSTR)owner, &lowner, (LPWSTR)domain, &ldomain, (SID_NAME_USE*)&use)) {
-                    name = QString::fromUcs2((ushort*)owner);
+                    name = QString::fromUtf16((ushort*)owner);
                 }
                 LocalFree(pSD);
                 delete [] owner;
@@ -349,7 +349,7 @@ QString QFileInfo::group() const
         resolveLibs();
 
         if (ptrGetNamedSecurityInfoW && ptrLookupAccountSidW) {
-            if (ptrGetNamedSecurityInfoW((wchar_t*)d->fileName().ucs2(), SE_FILE_OBJECT, GROUP_SECURITY_INFORMATION, NULL, &pGroup, NULL, NULL, &pSD) == ERROR_SUCCESS) {
+            if (ptrGetNamedSecurityInfoW((wchar_t*)d->fileName().utf16(), SE_FILE_OBJECT, GROUP_SECURITY_INFORMATION, NULL, &pGroup, NULL, NULL, &pSD) == ERROR_SUCCESS) {
                 DWORD lgroup = 0, ldomain = 0;
                 SID_NAME_USE use;
                 // First call, to determine size of the strings (with '\0').
@@ -358,7 +358,7 @@ QString QFileInfo::group() const
                 wchar_t *domain = new wchar_t[ldomain];
                 // Second call, size is without '\0'
                 if (ptrLookupAccountSidW(NULL, pGroup, (LPWSTR)group, &lgroup, (LPWSTR)domain, &ldomain, (SID_NAME_USE*)&use)) {
-                    name = QString::fromUcs2((ushort*)group);
+                    name = QString::fromUtf16((ushort*)group);
                 }
                 LocalFree(pSD);
                 delete [] group;
@@ -388,7 +388,7 @@ bool QFileInfo::permission(int p) const
         resolveLibs();
 
         if (ptrGetNamedSecurityInfoW && ptrAllocateAndInitializeSid && ptrBuildTrusteeWithSidW && ptrGetEffectiveRightsFromAclW && ptrFreeSid) {
-            DWORD res = ptrGetNamedSecurityInfoW((wchar_t*)d->fileName().ucs2(), SE_FILE_OBJECT,
+            DWORD res = ptrGetNamedSecurityInfoW((wchar_t*)d->fileName().utf16(), SE_FILE_OBJECT,
                 OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
                 &pOwner, &pGroup, &pDacl, 0, &pSD);
 
@@ -451,7 +451,7 @@ bool QFileInfo::permission(int p) const
 
     QT_WA({
         if (p & (WriteOwner | WriteUser | WriteGroup | WriteOther)) {
-            DWORD attr = GetFileAttributes((TCHAR*)d->fileName().ucs2());
+            DWORD attr = GetFileAttributes((TCHAR*)d->fileName().utf16());
             if (attr & FILE_ATTRIBUTE_READONLY)
                 return false;
         }
@@ -481,7 +481,7 @@ void QFileInfoPrivate::doStat() const
 
     int r;
     QT_WA({
-        r = QT_TSTAT((TCHAR*)fn.ucs2(), (QT_STATBUF4TSTAT*)&st);
+        r = QT_TSTAT((TCHAR*)fn.utf16(), (QT_STATBUF4TSTAT*)&st);
     } , {
         r = QT_STAT(qt_win95Name(fn), &st);
     });
@@ -580,7 +580,7 @@ QString QFileInfo::fileName() const
 bool QFileInfo::isHidden() const
 {
     QT_WA({
-        return GetFileAttributesW((TCHAR*)d->fileName().ucs2()) & FILE_ATTRIBUTE_HIDDEN;
+        return GetFileAttributesW((TCHAR*)d->fileName().utf16()) & FILE_ATTRIBUTE_HIDDEN;
     } , {
         return GetFileAttributesA(d->fileName().local8Bit()) & FILE_ATTRIBUTE_HIDDEN;
     });

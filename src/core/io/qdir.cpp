@@ -378,7 +378,7 @@ QString QDir::absFilePath(const QString &fileName,
             QT_WA({
                 TCHAR buf[PATH_MAX];
                 ::_wgetdcwd(drv, buf, PATH_MAX);
-                tmp.setUnicodeCodes((ushort*)buf, ::wcslen(buf));
+                tmp.setUtf16((ushort*)buf, ::wcslen(buf));
             }, {
                 char buf[PATH_MAX];
                 ::_getdcwd(drv, buf, PATH_MAX);

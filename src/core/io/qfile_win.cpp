@@ -50,7 +50,7 @@ bool QFileInfoPrivate::access(const QString& fn, int t)
     if (fn.isEmpty())
         return false;
     QT_WA({
-        return ::_waccess((TCHAR*)fn.ucs2(), t) == 0;
+        return ::_waccess((TCHAR*)fn.utf16(), t) == 0;
     } , {
         return QT_ACCESS(qt_win95Name(fn), t) == 0;
     });
@@ -76,7 +76,7 @@ bool QFile::remove(const QString &fileName)
         return false;
     }
     QT_WA({
-        return ::_wremove((TCHAR*)fileName.ucs2()) == 0;
+        return ::_wremove((TCHAR*)fileName.utf16()) == 0;
     } , {
         return ::remove(qt_win95Name(fileName)) == 0;
     });
@@ -135,7 +135,7 @@ bool QFile::open(int m)
             oflags |= QT_OPEN_ASYNC;
 #endif
         QT_WA({
-            fd = ::_wopen((TCHAR*)fn.ucs2(), oflags, 0666);
+            fd = ::_wopen((TCHAR*)fn.utf16(), oflags, 0666);
         } , {
             fd = QT_OPEN(qt_win95Name(fn), oflags, 0666);
         });
@@ -187,7 +187,7 @@ bool QFile::open(int m)
                 tperm2[1] = perm2[1];
                 tperm2[2] = perm2[2];
                 tperm2[3] = perm2[3];
-                fh = ::_wfopen((TCHAR*)fn.ucs2(), tperm2);
+                fh = ::_wfopen((TCHAR*)fn.utf16(), tperm2);
             } , {
                 fh = fopen(qt_win95Name(fn),
                             perm2);
@@ -286,7 +286,7 @@ QIODevice::Offset QFile::size() const
         ret = QT_FSTAT(fh ? QT_FILENO(fh) : fd, &st);
     } else {
         QT_WA({
-            ret = QT_TSTAT((TCHAR*)fn.ucs2(), (QT_STATBUF4TSTAT*)&st);
+            ret = QT_TSTAT((TCHAR*)fn.utf16(), (QT_STATBUF4TSTAT*)&st);
         } , {
             ret = QT_STAT(qt_win95Name(fn), &st);
         });

@@ -1669,9 +1669,9 @@ const char* QLocalePrivate::systemLocaleName()
         QString language;
         QString sublanguage;
         if (GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME , out, 255))
-            language = QString::fromUcs2((ushort*)out);
+            language = QString::fromUtf16((ushort*)out);
         if (GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255))
-            sublanguage = QString::fromUcs2((ushort*)out).toLower();
+            sublanguage = QString::fromUtf16((ushort*)out).toLower();
         lang = language.local8Bit();
         if (sublanguage != language && !sublanguage.isEmpty()) {
             lang += '_';

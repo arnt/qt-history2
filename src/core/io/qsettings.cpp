@@ -308,7 +308,7 @@ static HANDLE openlock(const QString &name, int type)
     shareFlag |= (type & Q_LOCKWRITE) ? 0 : FILE_SHARE_WRITE;
 
     QT_WA({
-        fd = CreateFileW((TCHAR*)name.ucs2(), GENERIC_READ, shareFlag, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+        fd = CreateFileW((TCHAR*)name.utf16(), GENERIC_READ, shareFlag, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     } , {
         fd = CreateFileA(name.local8Bit(), GENERIC_READ, shareFlag, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     });
@@ -465,9 +465,9 @@ QSettingsPrivate::QSettingsPrivate(QSettings::Format format)
 #ifdef Q_OS_TEMP
         TCHAR path[MAX_PATH];
         SHGetSpecialFolderPath(0, path, CSIDL_APPDATA, false);
-        appSettings  = QString::fromUcs2(path);
+        appSettings  = QString::fromUtf16(path);
         SHGetSpecialFolderPath(0, path, CSIDL_COMMON_APPDATA, false);
-        defPath = QString::fromUcs2(path);
+        defPath = QString::fromUtf16(path);
 #else
     QLibrary library("shell32");
     library.setAutoUnload(false);
@@ -477,9 +477,9 @@ QSettingsPrivate::QSettingsPrivate(QSettings::Format format)
         if (SHGetSpecialFolderPath) {
             TCHAR path[MAX_PATH];
             SHGetSpecialFolderPath(0, path, CSIDL_APPDATA, false);
-            appSettings  = QString::fromUcs2((ushort*)path);
+            appSettings  = QString::fromUtf16((ushort*)path);
             SHGetSpecialFolderPath(0, path, CSIDL_COMMON_APPDATA, false);
-            defPath = QString::fromUcs2((ushort*)path);
+            defPath = QString::fromUtf16((ushort*)path);
         }
     } , {
         typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, char*, int, BOOL);
