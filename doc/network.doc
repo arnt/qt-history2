@@ -38,7 +38,7 @@ static char ident[] = "$Id: classes.doc,v 1.8 1999/04/28 09:53:43 aavit Exp $";
 
 Since version 2.1 Qt offers classes to make network programming
 easier and portable. Basically there are three sets of classes, first very
-basic classes like QSocket, QServerSocket, QDns, etc. which allow to work
+basic classes like \c QSocket, \c QServerSocket, \c QDns, etc. which allow to work
 in a portable way with TCP/IP sockets. Then there are classes like
 \c QNetworkProtocol, \c QNetworkOperation which provide an abstract
 layer for implementing network protocols which can be used in Qt, and
@@ -46,7 +46,7 @@ layer for implementing network protocols which can be used in Qt, and
 set of network classes are the passive ones, namely \c QUrl and \c QUrlInfo
 which do URL parsing and similar stuff.
 
-The first set of classes (QSocket, QServerSocket, QDns, QFtp, etc.) is not
+The first set of classes (\c QSocket, \c QServerSocket, \c QDns, \c QFtp, etc.) is not
 included in Qt but will be released as a seperate extension after the
 Qt 2.1 release.
 
