@@ -2533,11 +2533,6 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
 	}
 	block_event = TRUE;
 	ret = MA_NOACTIVATEANDEAT;
-    } else if ( type == WM_SETFOCUS ) {
-	if ( !top->isActiveWindow() ) {
-//	    top->setActiveWindow();
-	    winPostMessage( msg->hwnd, WM_NCACTIVATE, FALSE, 0 );
-	}
     }
 #endif
 
