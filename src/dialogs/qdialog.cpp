@@ -661,7 +661,7 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
     if ( extraw >= 10 || extrah >= 40 )
 	extraw = extrah = 0;
 
-    if ( useRelPos ) {
+    if ( useRelPos && w ) {
 	p = w->pos() + d->relPos;
     } else {
 	if ( w ) {
