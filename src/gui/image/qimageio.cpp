@@ -1155,7 +1155,7 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
                 break;
 #ifdef Q_WS_QWS
             if (pad > 0)
-                d->seek(d->at()+pad);
+                d->seek(d->pos()+pad);
 #endif
         }
         if (ncols == 2 && qGray(image.color(0)) < qGray(image.color(1)))
@@ -1316,7 +1316,7 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
                     break;
 #ifdef Q_WS_QWS
                 if (pad > 0)
-                    d->seek(d->at()+pad);
+                    d->seek(d->pos()+pad);
 #endif
             }
         }

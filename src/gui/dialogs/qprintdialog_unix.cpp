@@ -1634,7 +1634,7 @@ void QPrintDialogPrivate::init()
         ms.setHeight(460);
     q->resize(ms);
 
-    q->setPrinter(printer, true);
+    setPrinter(printer, true);
     view->setFocus();
 }
 

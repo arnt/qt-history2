@@ -219,6 +219,8 @@ void QGfxRasterBase::setPen(const QPen &p)
         penPixel = QColormap::instance().pixel(penColor) & 0x00ffffff;
 }
 
+
+QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
 /*!
     \internal
 
@@ -229,6 +231,15 @@ void QGfxRasterBase::setBrush(const QBrush &b)
 {
     cbrush = b;
     brushColor = b.color().rgba();
+
+    int brush_style = cbrush.style();
+    if (brush_style >= Qt::Dense1Pattern && brush_style <= Qt::DiagCrossPattern) {
+        QPixmap *pm = new QPixmap(qt_pixmapForBrush(brush_style, false));
+        setBrushPixmap(pm);
+    } else {
+        setBrushPixmap(&cbrush.texture());
+    }
+
     if((cbrush.style() != Qt::NoBrush) && (cbrush.style() != Qt::SolidPattern))
         patternedbrush = true;
     else

@@ -219,7 +219,7 @@ void QWidget::create(WId window, bool initializeWindow, bool /*destroyOldWindow*
             p = p->topLevelWidget();
         if (testWFlags(Qt::WStyle_DialogBorder)
              || testWFlags(Qt::WStyle_StaysOnTop)
-             || testWFlags(Qt::WStyle_Dialog)
+             || testWFlags(Qt::WType_Dialog)
              || testWFlags(Qt::WStyle_Tool)) {
             // XXX ...
         }
@@ -791,9 +791,10 @@ void QWidget::repaint(const QRegion& rgn)
         if(was_unclipped)
             setAttribute(Qt::WA_PaintUnclipped);
         p.setClipRegion(rgn);
-        if(bg.pixmap())
-            p.drawTiledPixmap(br,*bg.pixmap(), QPoint(br.x()+(offset.x()%bg.pixmap()->width()),
-                                                      br.y()+(offset.y()%bg.pixmap()->height())));
+        const QPixmap bg_pix = bg.texture();
+        if(!bg_pix.isNull())
+            p.drawTiledPixmap(br,bg_pix, QPoint(br.x()+(offset.x()%bg_pix.width()),
+                                                br.y()+(offset.y()%bg_pix.height())));
         else
             p.fillRect(br, bg.color());
         p.end();

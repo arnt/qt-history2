@@ -13,6 +13,7 @@
 
 #include "qpixmap_p.h"
 
+#include "qwidget.h"
 #include "qbitmap.h"
 #include "qcolormap.h"
 #include "qpaintdevicemetrics.h"

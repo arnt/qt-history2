@@ -307,21 +307,10 @@ void QWSPaintEngine::updatePen(const QPen &pen)
 //    qDebug("QWSPaintEngine::updatePen");
 }
 
-
-QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
-
-
 void QWSPaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin)
 {
     if (!d->gfx)
         return;
-    int bs=brush.style();
-    if (bs >= Qt::Dense1Pattern && bs <= Qt::DiagCrossPattern) {
-            QPixmap *pm = new QPixmap(qt_pixmapForBrush(bs, false));
-            d->gfx->setBrushPixmap(pm);
-    } else {
-        d->gfx->setBrushPixmap(brush.pixmap());
-    }
     d->gfx->setBrush(brush);
     d->gfx->setBrushOrigin(int(bgOrigin.x()), int(bgOrigin.y()));
 }

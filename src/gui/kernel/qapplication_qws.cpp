@@ -2641,7 +2641,7 @@ bool QETWidget::translateWheelEvent(const QWSMouseEvent *me)
         popup->close();
     QWheelEvent we(mapFromGlobal(mousePoint), mousePoint, mouse.delta,
                    Qt::MouseButtons(mouse.state & Qt::MouseButtonMask),
-                   Qt::KeyboardModifiers(mouse.state & Qt::KeyButtonMask), orient);
+                   Qt::KeyboardModifiers(mouse.state & Qt::KeyboardModifierMask), orient);
     if (QApplication::sendSpontaneousEvent(this, &we))
         return true;
 
@@ -2777,7 +2777,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int oldstate)
 
         if (popupButtonFocus) {
             QMouseEvent e(type, popupButtonFocus->mapFromGlobal(globalPos),
-                        globalPos, Qt::MouseButton(button), Qt::MouseButtons(oldstate & Qt::MouseButtonMask), Qt::KeyboardModifiers(oldstate & Qt::KeyButtonMask));
+                        globalPos, Qt::MouseButton(button), Qt::MouseButtons(oldstate & Qt::MouseButtonMask), Qt::KeyboardModifiers(oldstate & Qt::KeyboardModifierMask));
             QApplication::sendSpontaneousEvent(popupButtonFocus, & e);
             if (releaseAfter) {
                 popupButtonFocus = 0;
@@ -2785,10 +2785,10 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int oldstate)
             }
         } else if (popupChild) {
             QMouseEvent e(type, popupChild->mapFromGlobal(globalPos),
-                        globalPos, Qt::MouseButton(button), Qt::MouseButtons(oldstate & Qt::MouseButtonMask), Qt::KeyboardModifiers(oldstate & Qt::KeyButtonMask));
+                        globalPos, Qt::MouseButton(button), Qt::MouseButtons(oldstate & Qt::MouseButtonMask), Qt::KeyboardModifiers(oldstate & Qt::KeyboardModifierMask));
             QApplication::sendSpontaneousEvent(popupChild, & e);
         } else {
-            QMouseEvent e(type, pos, globalPos, Qt::MouseButton(button), Qt::MouseButtons(oldstate & Qt::MouseButtonMask), Qt::KeyboardModifiers(oldstate & Qt::KeyButtonMask));
+            QMouseEvent e(type, pos, globalPos, Qt::MouseButton(button), Qt::MouseButtons(oldstate & Qt::MouseButtonMask), Qt::KeyboardModifiers(oldstate & Qt::KeyboardModifierMask));
             QApplication::sendSpontaneousEvent(popupChild ? popupChild : popup, & e);
         }
         if (type == QEvent::MouseButtonPress && button == Qt::RightButton && (openPopupCount == oldOpenPopupCount)) {
@@ -2830,7 +2830,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int oldstate)
 
         int oldOpenPopupCount = openPopupCount;
 
-        QMouseEvent e(type, pos, globalPos, Qt::MouseButton(button), Qt::MouseButtons(oldstate & Qt::MouseButtonMask), Qt::KeyboardModifiers(oldstate & Qt::KeyButtonMask));
+        QMouseEvent e(type, pos, globalPos, Qt::MouseButton(button), Qt::MouseButtons(oldstate & Qt::MouseButtonMask), Qt::KeyboardModifiers(oldstate & Qt::KeyboardModifierMask));
 #ifndef QT_NO_QWS_MANAGER
         if (widget->isTopLevel() && widget->d->topData()->qwsManager
             && (widget->d->topData()->qwsManager->region().contains(globalPos)
