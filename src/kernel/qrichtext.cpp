@@ -4553,6 +4553,8 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	     ( wrapAtColumn() == -1 && x + ww > w ||
 	       wrapAtColumn() != -1 && col >= wrapAtColumn() ) ||
 	       parag->isNewLinesAllowed() && lastChr == '\n' ) {
+	    if ( wrapAtColumn() != -1 )
+		minw = QMAX( minw, x + ww );
 	    if ( lastBreak < 0 ) {
 		if ( lineStart ) {
 		    lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );

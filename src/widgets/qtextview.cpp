@@ -1499,7 +1499,7 @@ void QTextView::doResize()
     if ( wrapMode != WidgetWidth )
 	return;
     doc->setMinimumWidth( -1, 0 );
-    resizeContents( width() - verticalScrollBar()->width(), contentsHeight() );
+    resizeContents( visibleWidth() - verticalScrollBar()->width(), contentsHeight() );
     QScrollView::setHScrollBarMode( AlwaysOff );
     doc->setWidth( visibleWidth() );
     wrapWidth = visibleWidth();
@@ -2744,7 +2744,6 @@ QString QTextView::anchorAt( const QPoint& pos )
 
 void QTextView::setRealWidth( int w )
 {
-    w = QMAX( w, visibleWidth() - verticalScrollBar()->width() );
     resizeContents( w, contentsHeight() );
     QScrollView::setHScrollBarMode( setMode );
 }
@@ -2933,6 +2932,7 @@ void QTextView::setWrapColumnOrWidth( int value )
 	document()->formatter()->setWrapAtColumn( -1 );
 	resizeContents( wrapWidth, contentsHeight() );
 	doc->setWidth( wrapWidth );
+	doc->setMinimumWidth( wrapWidth, 0 );
 	doc->invalidate();
 	viewport()->repaint( FALSE );
 	lastFormatted = doc->firstParag();
