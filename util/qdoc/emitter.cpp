@@ -142,8 +142,10 @@ void Emitter::nailDownDocs()
 		 !classDecl->classDoc()->headers().isEmpty() )
 		hlist = reunion( hlist, classDecl->classDoc()->headers() );
 
-	    clist.insert( classDecl->name(), classDecl->whatsThis() );
-	    wmap[classDecl->whatsThis()].insert( classDecl->name() );
+	    if ( !classDecl->obsolete() ) {
+		clist.insert( classDecl->name(), classDecl->whatsThis() );
+		wmap[classDecl->whatsThis()].insert( classDecl->name() );
+	    }
 
 	    QString parent;
 
