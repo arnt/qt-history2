@@ -116,7 +116,7 @@ int main( int argc, char** argv )
 	}
     }
 
-    if( w = new SetupWizardImpl( NULL, NULL, false, WStyle_NormalBorder | Qt::WStyle_Customize | Qt::WStyle_MinMax | Qt::WStyle_SysMenu | Qt::WStyle_Title ) ) {
+    if( w = new SetupWizardImpl( NULL, NULL, false, Qt::WStyle_NormalBorder | Qt::WStyle_Customize | Qt::WStyle_MinMax | Qt::WStyle_SysMenu | Qt::WStyle_Title ) ) {
 	w->show();
 
 	app.setMainWidget( w );
