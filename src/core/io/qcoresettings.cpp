@@ -16,9 +16,6 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include "qfileinfo.h"
 #include "qmutex.h"
 
-#define d d_func()
-#define q q_func()
-
 #if defined(open)
 #undef open
 #endif
@@ -243,6 +240,9 @@ void QCoreSettingsPrivate::setStatus(QCoreSettings::Status status)
 
 void QCoreSettingsPrivate::requestUpdate()
 {
+    Q_D(QCoreSettings);
+    Q_Q(QCoreSettings);
+
     if (!d->pendingChanges) {
         QCoreApplication::postEvent(q, new QEvent(QEvent::UpdateRequest));
         d->pendingChanges = true;
@@ -1871,6 +1871,7 @@ QCoreSettings::QCoreSettings(QObject *parent)
 */
 QCoreSettings::~QCoreSettings()
 {
+    Q_D(QCoreSettings);
     if (d->pendingChanges)
         d->sync();
 }
@@ -1893,6 +1894,7 @@ QCoreSettings::QCoreSettings(QCoreSettingsPrivate *p, QObject *parent)
 */
 void QCoreSettings::clear()
 {
+    Q_D(QCoreSettings);
     d->clear();
     d->requestUpdate();
 }
@@ -1908,6 +1910,7 @@ void QCoreSettings::clear()
 */
 void QCoreSettings::sync()
 {
+    Q_D(QCoreSettings);
     d->sync();
 }
 
@@ -1922,6 +1925,7 @@ void QCoreSettings::sync()
 */
 QString QCoreSettings::fileName() const
 {
+    Q_D(const QCoreSettings);
     return d->fileName();
 }
 
@@ -1931,6 +1935,7 @@ QString QCoreSettings::fileName() const
 */
 QCoreSettings::Status QCoreSettings::status() const
 {
+    Q_D(const QCoreSettings);
     return d->status;
 }
 
@@ -1971,6 +1976,7 @@ QCoreSettings::Status QCoreSettings::status() const
 */
 void QCoreSettings::beginGroup(const QString &prefix)
 {
+    Q_D(QCoreSettings);
     d->beginGroupOrArray(QSettingsGroup(d->normalizedKey(prefix)));
 }
 
@@ -1998,6 +2004,7 @@ void QCoreSettings::beginGroup(const QString &prefix)
 */
 void QCoreSettings::endGroup()
 {
+    Q_D(QCoreSettings);
     if (d->groupStack.isEmpty()) {
         qWarning("QCoreSettings::endGroup: No matching beginGroup()");
         return;
@@ -2019,6 +2026,7 @@ void QCoreSettings::endGroup()
 */
 QString QCoreSettings::group() const
 {
+    Q_D(const QCoreSettings);
     return d->groupPrefix.left(d->groupPrefix.size() - 1);
 }
 
@@ -2054,6 +2062,7 @@ QString QCoreSettings::group() const
 */
 int QCoreSettings::beginReadArray(const QString &prefix)
 {
+    Q_D(QCoreSettings);
     d->beginGroupOrArray(QSettingsGroup(d->normalizedKey(prefix), false));
     return value("size").toInt();
 }
@@ -2104,6 +2113,7 @@ int QCoreSettings::beginReadArray(const QString &prefix)
 */
 void QCoreSettings::beginWriteArray(const QString &prefix, int size)
 {
+    Q_D(QCoreSettings);
     d->beginGroupOrArray(QSettingsGroup(d->normalizedKey(prefix), size < 0));
 
     if (size < 0)
@@ -2120,6 +2130,7 @@ void QCoreSettings::beginWriteArray(const QString &prefix, int size)
 */
 void QCoreSettings::endArray()
 {
+    Q_D(QCoreSettings);
     if (d->groupStack.isEmpty()) {
         qWarning("QCoreSettings::endArray: No matching beginArray()");
         return;
@@ -2148,6 +2159,7 @@ void QCoreSettings::endArray()
 */
 void QCoreSettings::setArrayIndex(int i)
 {
+    Q_D(QCoreSettings);
     if (d->groupStack.isEmpty() || !d->groupStack.top().isArray()) {
         qWarning("QCoreSettings::setArrayIndex: Missing beginArray()");
         return;
@@ -2189,6 +2201,7 @@ void QCoreSettings::setArrayIndex(int i)
 */
 QStringList QCoreSettings::allKeys() const
 {
+    Q_D(const QCoreSettings);
     return d->children(d->groupPrefix, QCoreSettingsPrivate::AllKeys);
 }
 
@@ -2225,6 +2238,7 @@ QStringList QCoreSettings::allKeys() const
 */
 QStringList QCoreSettings::childKeys() const
 {
+    Q_D(const QCoreSettings);
     return d->children(d->groupPrefix, QCoreSettingsPrivate::ChildKeys);
 }
 
@@ -2261,6 +2275,7 @@ QStringList QCoreSettings::childKeys() const
 */
 QStringList QCoreSettings::childGroups() const
 {
+    Q_D(const QCoreSettings);
     return d->children(d->groupPrefix, QCoreSettingsPrivate::ChildGroups);
 }
 
@@ -2275,6 +2290,7 @@ QStringList QCoreSettings::childGroups() const
 */
 bool QCoreSettings::isWritable() const
 {
+    Q_D(const QCoreSettings);
     return d->isWritable();
 }
 
@@ -2298,6 +2314,7 @@ bool QCoreSettings::isWritable() const
 */
 void QCoreSettings::setValue(const QString &key, const QCoreVariant &value)
 {
+    Q_D(QCoreSettings);
     QString k = d->actualKey(key);
     d->set(k, value);
     d->requestUpdate();
@@ -2328,6 +2345,7 @@ void QCoreSettings::setValue(const QString &key, const QCoreVariant &value)
 */
 void QCoreSettings::remove(const QString &key)
 {
+    Q_D(QCoreSettings);
     /*
         We cannot use actualKey(), because remove() supports empty
         keys. The code is also tricky because of slash handling.
@@ -2357,6 +2375,7 @@ void QCoreSettings::remove(const QString &key)
 */
 bool QCoreSettings::contains(const QString &key) const
 {
+    Q_D(const QCoreSettings);
     QString k = d->actualKey(key);
     return d->get(k, 0);
 }
@@ -2370,6 +2389,7 @@ bool QCoreSettings::contains(const QString &key) const
 */
 void QCoreSettings::setFallbacksEnabled(bool b)
 {
+    Q_D(QCoreSettings);
     d->fallbacks = !!b;
 }
 
@@ -2382,6 +2402,7 @@ void QCoreSettings::setFallbacksEnabled(bool b)
 */
 bool QCoreSettings::fallbacksEnabled() const
 {
+    Q_D(const QCoreSettings);
     return d->fallbacks;
 }
 
@@ -2390,6 +2411,7 @@ bool QCoreSettings::fallbacksEnabled() const
 */
 bool QCoreSettings::event(QEvent *event)
 {
+    Q_D(QCoreSettings);
     if (event->type() == QEvent::UpdateRequest) {
         sync();
         d->pendingChanges = false;
@@ -2419,6 +2441,7 @@ bool QCoreSettings::event(QEvent *event)
 */
 QCoreVariant QCoreSettings::value(const QString &key, const QCoreVariant &defaultValue) const
 {
+    Q_D(const QCoreSettings);
     QCoreVariant result = defaultValue;
     QString k = d->actualKey(key);
     d->get(k, &result);
