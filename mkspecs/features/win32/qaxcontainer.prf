@@ -13,6 +13,7 @@ isEmpty(QMAKE_DUMPCPP) {
 }
 
 dumpcpp_decl.commands = $$QMAKE_DUMPCPP ${QMAKE_FILE_IN} -o ${QMAKE_FILE_BASE}
+qaxcontainer_no_compat: dumpcpp_decl.commands += -no_compat
 dumpcpp_decl.output = ${QMAKE_FILE_BASE}.h
 dumpcpp_decl.input = TYPELIBS
 dumpcpp_decl.variable_out = HEADERS
