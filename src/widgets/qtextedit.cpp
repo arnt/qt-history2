@@ -83,7 +83,7 @@ class QTextEditPrivate
 {
 public:
     QTextEditPrivate()
-	:preeditStart(-1),preeditLength(-1),
+	:preeditStart(-1),preeditLength(-1),ensureCursorVisibleInShowEvent(FALSE), mouseInternalPress(FALSE),
 	ensureCursorVisibleInShowEvent(FALSE),
 	allowTabs(FALSE)
     {
@@ -95,6 +95,7 @@ public:
     int preeditLength;
     uint ensureCursorVisibleInShowEvent : 1;
     uint allowTabs : 1;
+    bool mouseInternalPress;
     QString scrollToAnchor; // used to deferr scrollToAnchor() until the show event when we are resized
     QString pressedName;
     QString onName;
@@ -850,6 +851,8 @@ void QTextEdit::init()
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( WheelFocus );
     viewport()->installEventFilter( this );
+    horizontalScrollBar()->installEventFilter( this );
+    verticalScrollBar()->installEventFilter( this );
     installEventFilter( this );
 }
 
@@ -2506,6 +2509,11 @@ bool QTextEdit::eventFilter( QObject *o, QEvent *e )
 	    blinkTimer->stop();
 	    drawCursor( FALSE );
 	}
+    } else if ( o == horizontalScrollBar() || o == verticalScrollBar() ) {
+	if ( e->type() == QEvent::MouseButtonPress )
+	    d->mouseInternalPress = TRUE;
+	else if ( e->type() == QEvent::MouseButtonRelease )
+	    d->mouseInternalPress = FALSE;
     }
 
     if ( o == this && e->type() == QEvent::PaletteChange ) {
@@ -2603,7 +2611,8 @@ void QTextEdit::insert( const QString &text, uint insertionFlags )
 	cursor->indent();
     formatMore();
     repaintChanged();
-    ensureCursorVisible();
+    if ( !d->mouseInternalPress )
+	ensureCursorVisible();
     drawCursor( TRUE );
 
     if ( undoEnabled && !isReadOnly() ) {
