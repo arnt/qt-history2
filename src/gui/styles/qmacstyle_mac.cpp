@@ -2140,15 +2140,19 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 bdi.value = kThemeButtonOff;
 
             bdi.adornment = kThemeAdornmentNone;
-
-            if (flags & (QStyle::State_Up | QStyle::State_Down)) {
-                bdi.value = kThemeButtonOn;
-                if (flags & QStyle::State_Up)
-                    bdi.adornment = kThemeAdornmentHeaderButtonSortUp;
-            } else if (bdi.kind == kThemeListHeaderButton) {
-                ir.setRight(ir.right() + 50); // Hide the direction for the list view.
+            if (bdi.kind == kThemeListHeaderButton
+                && header->selectedPosition != QStyleOptionHeader::NotAdjacent) {
+                if (header->selectedPosition == QStyleOptionHeader::PreviousIsSelected)
+                    bdi.adornment = kThemeAdornmentHeaderButtonRightNeighborSelected;
+                else if (header->selectedPosition == QStyleOptionHeader::PreviousIsSelected)
+                    bdi.adornment = kThemeAdornmentHeaderButtonLeftNeighborSelected;
             }
 
+            if (header->sortIndicator != QStyleOptionHeader::None) {
+                bdi.value = kThemeButtonOn;
+                if (header->sortIndicator == QStyleOptionHeader::SortUp)
+                    bdi.adornment = kThemeAdornmentHeaderButtonSortUp;
+            }
             if (flags & QStyle::State_HasFocus && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
                 bdi.adornment = kThemeAdornmentFocus;
             // The ListViewHeader button is only drawn one size, so draw into a pixmap and scale it
@@ -3687,8 +3691,6 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 GetThemeMetric(kThemeMetricListHeaderHeight, &headerHeight);
                 if (ir.height() > headerHeight)
                     scaleHeader = true;
-                ir.setX(ir.x() - 1);
-                ir.setWidth(ir.width() - 1);
             } else {
                 bkind = kThemeBevelButton;
                 if (p->font().bold())
@@ -3716,9 +3718,16 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             if (flags & QStyle::State_On)
                 info.value = kThemeButtonOn;
 
-            if (flags & (QStyle::State_Up | QStyle::State_Down)) {
+            if (bkind == kThemeListHeaderButton
+                && header->selectedPosition != QStyleOptionHeader::NotAdjacent) {
+                if (header->selectedPosition == QStyleOptionHeader::PreviousIsSelected)
+                    info.adornment = kThemeAdornmentHeaderButtonRightNeighborSelected;
+                else if (header->selectedPosition == QStyleOptionHeader::PreviousIsSelected)
+                    info.adornment = kThemeAdornmentHeaderButtonLeftNeighborSelected;
+            }
+            if (header->sortIndicator != QStyleOptionHeader::None) {
                 info.value = kThemeButtonOn;
-                if (flags & QStyle::State_Up)
+                if (header->sortIndicator == QStyleOptionHeader::SortUp)
                     info.adornment |= kThemeAdornmentHeaderButtonSortUp;
             } else if (bkind == kThemeListHeaderButton) {
                 ir.setRight(ir.right() + 50);

@@ -323,31 +323,33 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     case PE_FrameStatusBar:
         qDrawShadeRect(p, opt->rect, opt->palette, true, 1, 0, 0);
         break;
-    case PE_IndicatorHeaderArrow: {
-        QPen oldPen = p->pen();
-        if (opt->state & State_Up) {
-            QPolygon pa(3);
-            p->setPen(opt->palette.light().color());
-            p->drawLine(opt->rect.x() + opt->rect.width(), opt->rect.y(),
-                        opt->rect.x() + opt->rect.width() / 2, opt->rect.height());
-            p->setPen(opt->palette.dark().color());
-            pa.setPoint(0, opt->rect.x() + opt->rect.width() / 2, opt->rect.height());
-            pa.setPoint(1, opt->rect.x(), opt->rect.y());
-            pa.setPoint(2, opt->rect.x() + opt->rect.width(), opt->rect.y());
-            p->drawPolyline(pa);
-        } else if (opt->state & State_Down) {
-            QPolygon pa(3);
-            p->setPen(opt->palette.light().color());
-            pa.setPoint(0, opt->rect.x(), opt->rect.height());
-            pa.setPoint(1, opt->rect.x() + opt->rect.width(), opt->rect.height());
-            pa.setPoint(2, opt->rect.x() + opt->rect.width() / 2, opt->rect.y());
-            p->drawPolyline(pa);
-            p->setPen(opt->palette.dark().color());
-            p->drawLine(opt->rect.x(), opt->rect.height(),
-                        opt->rect.x() + opt->rect.width() / 2, opt->rect.y());
+    case PE_IndicatorHeaderArrow:
+        if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
+            QPen oldPen = p->pen();
+            if (header->sortIndicator & QStyleOptionHeader::SortUp) {
+                QPolygon pa(3);
+                p->setPen(opt->palette.light().color());
+                p->drawLine(opt->rect.x() + opt->rect.width(), opt->rect.y(),
+                            opt->rect.x() + opt->rect.width() / 2, opt->rect.height());
+                p->setPen(opt->palette.dark().color());
+                pa.setPoint(0, opt->rect.x() + opt->rect.width() / 2, opt->rect.height());
+                pa.setPoint(1, opt->rect.x(), opt->rect.y());
+                pa.setPoint(2, opt->rect.x() + opt->rect.width(), opt->rect.y());
+                p->drawPolyline(pa);
+            } else if (header->sortIndicator & QStyleOptionHeader::SortDown) {
+                QPolygon pa(3);
+                p->setPen(opt->palette.light().color());
+                pa.setPoint(0, opt->rect.x(), opt->rect.height());
+                pa.setPoint(1, opt->rect.x() + opt->rect.width(), opt->rect.height());
+                pa.setPoint(2, opt->rect.x() + opt->rect.width() / 2, opt->rect.y());
+                p->drawPolyline(pa);
+                p->setPen(opt->palette.dark().color());
+                p->drawLine(opt->rect.x(), opt->rect.height(),
+                            opt->rect.x() + opt->rect.width() / 2, opt->rect.y());
+            }
+            p->setPen(oldPen);
         }
-        p->setPen(oldPen);
-        break; }
+        break;
     case PE_FrameTabWidget:
         qDrawWinPanel(p, opt->rect, opt->palette, false, 0);
         break;
@@ -1095,7 +1097,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             QStyleOptionHeader subopt = *header;
             subopt.rect = visualRect(header->direction, header->rect, subElementRect(SE_HeaderLabel, header, widget));
             drawControl(CE_HeaderLabel, &subopt, p, widget);
-            if (header->state & (State_Up | State_Down)) {
+            if (header->sortIndicator != QStyleOptionHeader::None) {
                 subopt.rect = visualRect(header->direction, header->rect,
                                          subElementRect(SE_HeaderArrow, opt, widget));
                 drawPrimitive(PE_IndicatorHeaderArrow, &subopt, p, widget);
