@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#67 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#68 $
 **
 ** Definition of QMenuData class
 **
@@ -180,10 +180,10 @@ public:
 
 
     bool	isItemEnabled( int id ) const;
-    virtual void	setItemEnabled( int id, bool enable );
+    void	setItemEnabled( int id, bool enable );
 
     bool	isItemChecked( int id ) const;
-    virtual void	setItemChecked( int id, bool check );
+    void	setItemChecked( int id, bool check );
 
     virtual void updateItem( int id );
 
