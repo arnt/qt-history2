@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 1.8 1995/12/15 15:40:14 hanord Exp $
+** $Id: qlist.doc,v 1.9 1995/12/17 13:15:08 agulbra Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -166,7 +166,7 @@
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn QList::QList( const QList\<type\> &list )
+  \fn QList::QList( const QList<type> &list )
   Constructs copy of \e list.
 
   Each item in \e list is \link append() appended\endlink to this list.
@@ -183,7 +183,7 @@
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn QList\<type\> &QList::operator=(const QList\<type\> &list)
+  \fn QList<type> &QList::operator=(const QList<type> &list)
   Assigns \e list to this list and returns a reference to this list.
 
   This list is first cleared, then each item in \e list is
@@ -779,7 +779,7 @@
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn QListIterator::QListIterator( const QList\<type\> &list )
+  \fn QListIterator::QListIterator( const QList<type> &list )
   Constructs an iterator for \e list.  The current iterator item is
   set to point on the first item in the \e list.
  ----------------------------------------------------------------------------*/
@@ -890,6 +890,8 @@
   \brief The QStrList class provides a doubly linked list of \c char*.
 
   \ingroup predefcollection
+
+  \inherit QList
 
   This class is a QList\<char*\> instance.
   It can make deep copies of the strings that are inserted.
