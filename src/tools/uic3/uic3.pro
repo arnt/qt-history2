@@ -29,3 +29,6 @@ SOURCES += main.cpp \
 
 DEFINES -= QT_COMPAT_WARNINGS
 DEFINES += QT_COMPAT
+
+target.path=$$bins.path
+INSTALLS += target

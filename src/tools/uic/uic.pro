@@ -13,3 +13,5 @@ include(uic.pri)
 
 SOURCES += main.cpp
 
+target.path=$$bins.path
+INSTALLS += target

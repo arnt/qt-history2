@@ -7,7 +7,7 @@ build_all:CONFIG += release
 DEFINES += QT_NO_CODECS QT_NO_COMPONENT QT_NO_STL QT_NO_UNICODETABLES QT_NODLL \
            QT_BUILD_RCC QT_NO_THREAD QT_NO_QFILE_QOBJECT
 CONFIG -= qt
-QT = 
+QT =
 
 #zlib support
 contains(QT_CONFIG, zlib) {
@@ -38,8 +38,8 @@ SOURCES += \
            ../../core/tools/qstring.cpp ../../core/tools/qlist.cpp \
            ../../core/tools/qchar.cpp ../../core/tools/qlocale.cpp \
            ../../core/tools/qunicodetables.cpp ../../core/tools/qhash.cpp \
-           ../../core/tools/qregexp.cpp ../../core/tools/qvector.cpp \ 
-           ../../core/tools/qmap.cpp ../../core/tools/qstringmatcher.cpp \ 
+           ../../core/tools/qregexp.cpp ../../core/tools/qvector.cpp \
+           ../../core/tools/qmap.cpp ../../core/tools/qstringmatcher.cpp \
            ../../core/tools/qbytearraymatcher.cpp ../../core/tools/qbitarray.cpp \
            #io
            ../../core/io/qfile.cpp ../../core/io/qdir.cpp ../../core/io/qfileinfo.cpp \
@@ -59,3 +59,6 @@ mac:SOURCES += ../../core/kernel/qcore_mac.cpp
 
 #actual stuff in here
 SOURCES += main.cpp
+
+target.path=$$bins.path
+INSTALLS += target
