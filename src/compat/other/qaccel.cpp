@@ -150,7 +150,7 @@ public:
     void activateAmbiguously(QAccelItem* item);
 };
 
-class QAccelManager : public Qt {
+class QAccelManager {
 public:
     static QAccelManager* self() { return self_ptr ? self_ptr : new QAccelManager; }
     void registerAccel(QAccelPrivate* a) { accels.append(a); }
@@ -274,7 +274,7 @@ QKeySequence::SequenceMatch QAccelManager::match(QKeyEvent *e, QAccelItem* item,
 
     if (e->key() && e->key() != Qt::Key_unknown) {
         int key = e->key()  | modifier;
-        if (e->key() == Key_BackTab) {
+        if (e->key() == Qt::Key_BackTab) {
             /*
             In QApplication, we map shift+tab to shift+backtab.
             This code here reverts the mapping in a way that keeps
@@ -297,7 +297,7 @@ QKeySequence::SequenceMatch QAccelManager::match(QKeyEvent *e, QAccelItem* item,
                 return result;
         }
 
-        if (key == Key_BackTab) {
+        if (key == Qt::Key_BackTab) {
             if (e->state() & Qt::ShiftButton)
                 key |= Qt::SHIFT;
             temp.setKey(key, index);

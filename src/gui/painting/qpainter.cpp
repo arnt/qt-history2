@@ -1233,7 +1233,7 @@ void QPainter::drawRect(const QRect &r)
         qt_fill_linear_gradient(r, this, d->state->brush);
         if (d->state->pen.style() != Qt::NoPen) {
             QBrush oldBrush = d->state->brush;
-            setBrush(NoBrush);
+            setBrush(Qt::NoBrush);
             drawRect(r);
             setBrush(oldBrush);
         }
@@ -1409,7 +1409,7 @@ void QPainter::setBackgroundMode(Qt::BGMode mode)
 
     \sa setBackgroundMode() Qt::BGMode
 */
-QPainter::BGMode QPainter::backgroundMode() const
+Qt::BGMode QPainter::backgroundMode() const
 {
     return d->state->bgMode;
 }
@@ -2443,7 +2443,7 @@ QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QStrin
     if (str.isEmpty())
         brect.setRect(x,y, 0,0);
     else
-        drawText(QRect(x, y, w, h), flags | DontPrint, str, len, &brect);
+        drawText(QRect(x, y, w, h), flags | Qt::DontPrint, str, len, &brect);
     return brect;
 }
 
@@ -3215,7 +3215,7 @@ void qt_format_text(const QFont& font, const QRect &_r,
     if (text.isEmpty()) {
         height = fm.height();
         width = 0;
-        tf |= QPainter::DontPrint;
+        tf |= Qt::DontPrint;
     } else {
         int lineWidth = wordbreak ? qMax(0, r.width()) : 0x01000000;
         if(!wordbreak)
@@ -3252,7 +3252,7 @@ void qt_format_text(const QFont& font, const QRect &_r,
     if (brect)
         *brect = QRect(r.x() + xoff, r.y() + yoff, width, height);
 
-    if (!(tf & QPainter::DontPrint)) {
+    if (!(tf & Qt::DontPrint)) {
         bool restoreClipping = false;
         bool painterHasClip = false;
         QRegion painterClipRegion;

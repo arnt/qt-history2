@@ -511,8 +511,8 @@ void QDialog::keyPressEvent(QKeyEvent *e)
         case Qt::Key_Up:
         case Qt::Key_Left:
             if (focusWidget() &&
-                 (focusWidget()->focusPolicy() == QWidget::StrongFocus ||
-                   focusWidget()->focusPolicy() == QWidget::WheelFocus)) {
+                 (focusWidget()->focusPolicy() == Qt::StrongFocus ||
+                   focusWidget()->focusPolicy() == Qt::WheelFocus)) {
                 e->ignore();
                 break;
             }
@@ -525,8 +525,8 @@ void QDialog::keyPressEvent(QKeyEvent *e)
         case Qt::Key_Down:
         case Qt::Key_Right:
             if (focusWidget() &&
-                 (focusWidget()->focusPolicy() == QWidget::StrongFocus ||
-                   focusWidget()->focusPolicy() == QWidget::WheelFocus)) {
+                 (focusWidget()->focusPolicy() == Qt::StrongFocus ||
+                   focusWidget()->focusPolicy() == Qt::WheelFocus)) {
                 e->ignore();
                 break;
             }

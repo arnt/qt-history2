@@ -68,7 +68,7 @@ public:
 };
 
 
-class Q_CORE_EXPORT QObject: public Qt
+class Q_CORE_EXPORT QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString objectName READ objectName WRITE setObjectName)

@@ -826,8 +826,8 @@ void QAbstractSpinBoxPrivate::init()
     spinkeytimerinterval = q->style().styleHint(QStyle::SH_SpinBox_KeyPressAutoRepeatRate, q,
                                                 QStyleOption(), 0);
     lineEdit()->setObjectName(QString("lineedit for %1").arg(QString(q->objectName())).latin1());
-    edit->setAttribute(QWidget::WA_CompositeChild);
-    q->setAttribute(QWidget::WA_CompositeParent);
+    edit->setAttribute(Qt::WA_CompositeChild);
+    q->setAttribute(Qt::WA_CompositeParent);
     q->setFocusProxy(edit);
     if (useprivate) {
         edit->setValidator(new QSpinBoxValidator(this, q));

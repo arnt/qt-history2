@@ -285,7 +285,7 @@ void Q3ToolBarSeparator::paintEvent(QPaintEvent *)
 */
 
 Q3ToolBar::Q3ToolBar(const QString &label,
-                    Q3MainWindow * parent, Q3MainWindow::ToolBarDock dock,
+                    Q3MainWindow * parent, Qt::ToolBarDock dock,
                     bool newLine, const char * name)
     : Q3DockWindow(InDock, parent, name, 0, true)
 {
@@ -322,7 +322,7 @@ Q3ToolBar::Q3ToolBar(const QString &label, Q3MainWindow * mainWindow,
     setParent(parent);
 
     if (mainWindow)
-        mainWindow->addToolBar(this, label, Q3MainWindow::DockUnmanaged, newLine);
+        mainWindow->addToolBar(this, label, Qt::DockUnmanaged, newLine);
 }
 
 
@@ -341,7 +341,7 @@ Q3ToolBar::Q3ToolBar(Q3MainWindow * parent, const char * name)
     init();
 
     if (parent)
-        parent->addToolBar(this, QString::null, Q3MainWindow::DockTop);
+        parent->addToolBar(this, QString::null, Qt::DockTop);
 }
 
 /*!

@@ -181,7 +181,7 @@ void QToolButtonPrivate::init(bool doMainWindowConnections)
     hasArrow = false;
 
     q->setFocusPolicy(Qt::NoFocus);
-    q->setAttribute(QWidget::WA_BackgroundInherited);
+    q->setAttribute(Qt::WA_BackgroundInherited);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
     if (!doMainWindowConnections)

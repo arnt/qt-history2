@@ -28,7 +28,7 @@
 #include <limits.h>
 #include <errno.h>
 
-void 
+void
 QFSFileEnginePrivate::init()
 {
 }
@@ -45,7 +45,7 @@ QFSFileEngine::remove()
     return unlink(QFile::encodeName(d->file)) == 0;
 }
 
-bool 
+bool
 QFSFileEngine::rename(const QString &newName)
 {
     return ::rename(QFile::encodeName(d->file), QFile::encodeName(newName)) == 0;
@@ -56,9 +56,9 @@ QFSFileEngine::size() const
 {
     QT_STATBUF st;
     int ret = 0;
-    if(d->fd != -1) 
+    if(d->fd != -1)
         ret = QT_FSTAT(d->fd, &st);
-    else 
+    else
         ret = QT_STAT(QFile::encodeName(d->file), &st);
     if (ret == -1)
         return 0;
@@ -71,7 +71,7 @@ uchar
     return 0;
 }
 
-bool 
+bool
 QFSFileEngine::mkdir(const QString &name, QDir::Recursion recurse) const
 {
     QString dirName = name;
@@ -104,7 +104,7 @@ QFSFileEngine::mkdir(const QString &name, QDir::Recursion recurse) const
     return (::mkdir(QFile::encodeName(dirName), 0777) == 0);
 }
 
-bool 
+bool
 QFSFileEngine::rmdir(const QString &name, QDir::Recursion recurse) const
 {
     QString dirName = name;
@@ -128,7 +128,7 @@ QFSFileEngine::rmdir(const QString &name, QDir::Recursion recurse) const
     return ::rmdir(QFile::encodeName(dirName)) == 0;
 }
 
-QStringList 
+QStringList
 QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
 {
     const bool doDirs     = (filterSpec & QDir::Dirs) != 0;
@@ -163,8 +163,8 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
         if(!((filterSpec & QDir::AllDirs) && fi.isDir())) {
             bool matched = false;
             for(QStringList::ConstIterator sit = filters.begin(); sit != filters.end(); ++sit) {
-                QRegExp rx(*sit, QString::CaseSensitive, QRegExp::Wildcard);
-                if (rx.exactMatch(fn)) 
+                QRegExp rx(*sit, Qt::CaseSensitive, QRegExp::Wildcard);
+                if (rx.exactMatch(fn))
                     matched = true;
             }
             if(!matched)
@@ -194,19 +194,19 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
     return ret;
 }
 
-bool 
+bool
 QFSFileEngine::caseSensitive() const
 {
     return true;
 }
 
-bool 
+bool
 QFSFileEngine::isRoot() const
 {
     return d->file == QString::fromLatin1("/");
 }
 
-bool 
+bool
 QFSFileEngine::setCurrentPath(const QString &path)
 {
     int r;
@@ -214,7 +214,7 @@ QFSFileEngine::setCurrentPath(const QString &path)
     return r >= 0;
 }
 
-QString 
+QString
 QFSFileEngine::currentPath(const QString &)
 {
     QString result;
@@ -235,7 +235,7 @@ QFSFileEngine::currentPath(const QString &)
     return result;
 }
 
-QString 
+QString
 QFSFileEngine::homePath()
 {
     QString home = QFile::decodeName(QByteArray(getenv("HOME")));
@@ -274,9 +274,9 @@ QFSFileEnginePrivate::doStat() const
         QFSFileEnginePrivate *that = const_cast<QFSFileEnginePrivate*>(this);
 	that->tried_stat = true;
 	that->could_stat = true;
-        if(d->fd != -1) 
+        if(d->fd != -1)
             that->could_stat = !QT_FSTAT(d->fd, &st);
-        else 
+        else
             that->could_stat = !QT_STAT(QFile::encodeName(d->file), &st);
     }
     return could_stat;
@@ -335,7 +335,7 @@ QFSFileEngine::fileName(FileName file) const
 {
     if(file == BaseName) {
         int slash = d->file.lastIndexOf('/');
-        if (slash != -1) 
+        if (slash != -1)
             return d->file.mid(slash + 1);
     } else if(file == PathName) {
         int slash = d->file.lastIndexOf('/');
@@ -346,7 +346,7 @@ QFSFileEngine::fileName(FileName file) const
         return d->file.left(slash);
     } else if(file == AbsoluteName || file == AbsolutePathName) {
         QString ret;
-        if(!d->file.length() || d->file[0] != '/') 
+        if(!d->file.length() || d->file[0] != '/')
             ret = QDir::currentPath();
         if(!d->file.isEmpty() && d->file != ".") {
             if (!ret.isEmpty() && ret.right(1) != QString::fromLatin1("/"))
@@ -408,7 +408,7 @@ QFSFileEngine::ownerId(FileOwner own) const
 {
     static const uint nobodyID = (uint) -2;
     if(d->doStat()) {
-        if(own == User) 
+        if(own == User)
             return d->st.st_uid;
         else
             return d->st.st_gid;

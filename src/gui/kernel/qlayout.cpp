@@ -1329,12 +1329,12 @@ void QGridLayout::setOrigin(Qt::Corner c)
     Returns the corner that's used for the grid's origin, i.e. for
     position (0, 0).
 */
-QGridLayout::Corner QGridLayout::origin() const
+Qt::Corner QGridLayout::origin() const
 {
     if (d->horReversed()) {
-        return d->verReversed() ? Qt::BottomRight : Qt::TopRight;
+        return d->verReversed() ? Qt::BottomRightCorner : Qt::TopRightCorner;
     } else {
-        return d->verReversed() ? Qt::BottomLeft : Qt::TopLeft;
+        return d->verReversed() ? Qt::BottomLeftCorner : Qt::TopLeftCorner;
     }
 }
 

@@ -301,7 +301,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     }
     data->w = w;
     data->h = h;
-    data->hd = (HANDLE)XCreatePixmap(data->xinfo->display(),
+    data->hd = (Qt::HANDLE)XCreatePixmap(data->xinfo->display(),
 				     RootWindow(data->xinfo->display(),
 						data->xinfo->screen()),
 				     w, h, data->d);
@@ -373,7 +373,7 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
         flipped_bits = flip_bits(bits, ((w+7)/8)*h);
         bits = flipped_bits;
     }
-    data->hd = (HANDLE)XCreateBitmapFromData(data->xinfo->display(),
+    data->hd = (Qt::HANDLE)XCreateBitmapFromData(data->xinfo->display(),
 					     RootWindow(data->xinfo->display(), data->xinfo->screen()),
 					     (char *)bits, w, h);
 
@@ -962,8 +962,8 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
         }
 
         // make sure image.color(0) == Qt::color0 (white) and image.color(1) == Qt::color1 (black)
-        const QRgb c0 = QColor(white).rgb();
-        const QRgb c1 = QColor(black).rgb();
+        const QRgb c0 = QColor(Qt::white).rgb();
+        const QRgb c1 = QColor(Qt::black).rgb();
         if (image.color(0) == c1 && image.color(1) == c0) {
             image.invertPixels();
             image.setColor(0, c0);
@@ -1009,7 +1009,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
             bits = (char *)image.bits();
             tmp_bits = 0;
         }
-        data->hd = (HANDLE)XCreateBitmapFromData(data->xinfo->display(),
+        data->hd = (Qt::HANDLE)XCreateBitmapFromData(data->xinfo->display(),
 						 RootWindow(data->xinfo->display(), data->xinfo->screen()),
 						 bits, w, h);
 
@@ -1424,7 +1424,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
         data->hd = 0;
     }
     if (!data->hd) {                                        // create new pixmap
-        data->hd = (HANDLE)XCreatePixmap(data->xinfo->display(),
+        data->hd = (Qt::HANDLE)XCreatePixmap(data->xinfo->display(),
 					 RootWindow(data->xinfo->display(), data->xinfo->screen()),
 					 w, h, dd);
 

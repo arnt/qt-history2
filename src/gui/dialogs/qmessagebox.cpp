@@ -642,7 +642,7 @@ void QMessageBox::init(int button0, int button1, int button2)
                 mbd->pb[i]->setFocus();
             }
             mbd->pb[i]->setAutoDefault(true);
-            mbd->pb[i]->setFocusPolicy(QWidget::StrongFocus);
+            mbd->pb[i]->setFocusPolicy(Qt::StrongFocus);
             connect(mbd->pb[i], SIGNAL(clicked()), SLOT(buttonClicked()));
         }
     }
@@ -1524,7 +1524,7 @@ void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
     mb->setButtonText(0, tr("OK"));
     if (mb->mbd && mb->mbd->pb[0]) {
         mb->mbd->pb[0]->setAutoDefault(true);
-        mb->mbd->pb[0]->setFocusPolicy(QWidget::StrongFocus);
+        mb->mbd->pb[0]->setFocusPolicy(Qt::StrongFocus);
         mb->mbd->pb[0]->setDefault(true);
         mb->mbd->pb[0]->setFocus();
     }

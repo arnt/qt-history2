@@ -63,7 +63,7 @@ QCursorData::~QCursorData()
     \warning Using this function is not portable. This function is only
     available on X11 and Windows.
 */
-QCursor::QCursor(HANDLE cursor)
+QCursor::QCursor(Qt::HANDLE cursor)
 {
     if (!initialized)
         initialize();

@@ -102,7 +102,7 @@ void QSplitterHandle::setOrientation(Qt::Orientation o)
 {
     orient = o;
 #ifndef QT_NO_CURSOR
-    setCursor(o == QSplitter::Horizontal ? Qt::splitHCursor : Qt::splitVCursor);
+    setCursor(o == Qt::Horizontal ? Qt::splitHCursor : Qt::splitVCursor);
 #endif
 }
 
@@ -149,7 +149,7 @@ void QSplitterHandle::paintEvent(QPaintEvent *)
     parentWidget()->style().drawPrimitive(QStyle::PE_Splitter, &opt, &p, s);
 }
 
-class QSplitterLayoutStruct : public Qt
+class QSplitterLayoutStruct
 {
 public:
     QRect rect;
@@ -171,7 +171,7 @@ QCOORD QSplitterLayoutStruct::getSizer(Qt::Orientation orient)
         QSize s = wid->sizeHint();
         const int presizer = pick(s, orient);
         const int realsize = pick(wid->size(), orient);
-        if (!s.isValid() || (wid->testAttribute(QWidget::WA_Resized) && (realsize > presizer))) {
+        if (!s.isValid() || (wid->testAttribute(Qt::WA_Resized) && (realsize > presizer))) {
             sizer = pick(wid->size(), orient);
         } else {
             sizer = presizer;
@@ -714,7 +714,7 @@ QSplitterLayoutStruct *QSplitterPrivate::addWidget(QWidget *w, bool prepend)
     \endcode
 
     QSplitter lays out its children horizontally (side by side); you
-    can use setOrientation(QSplitter::Vertical) to lay out the
+    can use setOrientation(Qt::Vertical) to lay out the
     children vertically.
 
     By default, all widgets can be as large or as small as the user
@@ -821,7 +821,7 @@ void QSplitter::setOrientation(Qt::Orientation o)
     d->recalc(isVisible());
 }
 
-QSplitter::Orientation QSplitter::orientation() const
+Qt::Orientation QSplitter::orientation() const
 {
     return d->orient;
 }

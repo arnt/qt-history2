@@ -21,13 +21,15 @@
 #endif // QT_H
 
 
+#ifndef Q_MOC_RUN
+namespace Qt {
+#else
 class Q_CORE_EXPORT Qt {
-#ifdef Q_MOC_RUN
     Q_OBJECT
     Q_ENUMS(Orientation TextFormat BackgroundMode DateFormat ScrollBarPolicy FocusPolicy CaseSensitivity)
     Q_FLAGS(AlignmentFlags)
-#endif
 public:
+#endif
     // documented in qnamespace.doc
     enum GlobalColor {
         color0,

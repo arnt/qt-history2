@@ -264,7 +264,7 @@ void QScrollBarPrivate::init()
     invertedControls = true;
     pressedControl = QStyle::SC_None;
     pointerLeftControl = false;
-    q->setFocusPolicy(QWidget::NoFocus);
+    q->setFocusPolicy(Qt::NoFocus);
     q->setBackgroundRole((QPalette::ColorRole)
                          q->style().styleHint(QStyle::SH_ScrollBar_BackgroundRole));
     QSizePolicy sp(QSizePolicy::Minimum, QSizePolicy::Fixed);

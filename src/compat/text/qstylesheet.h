@@ -31,7 +31,7 @@ class Q3TextDocument;
 template<class Key, class T> class QMap;
 class QStyleSheetItemData;
 
-class Q_GUI_EXPORT QStyleSheetItem : public Qt
+class Q_GUI_EXPORT QStyleSheetItem
 {
 public:
     QStyleSheetItem(QStyleSheet* parent, const QString& name);

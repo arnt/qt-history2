@@ -90,7 +90,7 @@ void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTe
     handler.iface->drawObject(p, rect, format);
 
     if (selType == QTextLayout::Highlight && item.engine()->pal) {
-        QBrush brush(item.engine()->pal->highlight(), QBrush::Dense4Pattern);
+        QBrush brush(item.engine()->pal->highlight(), Qt::Dense4Pattern);
         p->fillRect(rect, brush);
     }
 }

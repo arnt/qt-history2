@@ -75,7 +75,7 @@ void QDialPrivate::init()
     eraseAreaValid = false;
     showNotches = false;
     onlyOutside = false;
-    q->setFocusPolicy(QWidget::WheelFocus);
+    q->setFocusPolicy(Qt::WheelFocus);
 }
 
 void QDialPrivate::repaintScreen(const QRect &cr)
@@ -457,7 +457,7 @@ void QDial::paintEvent(QPaintEvent *e)
 
 void QDial::mousePressEvent(QMouseEvent *e)
 {
-    if (d->maximum == d->minimum || (e->state() & MouseButtonMask) || (e->button() != LeftButton)) {
+    if (d->maximum == d->minimum || (e->state() & Qt::MouseButtonMask) || (e->button() != Qt::LeftButton)) {
         e->ignore();
         return;
     }
@@ -473,7 +473,7 @@ void QDial::mousePressEvent(QMouseEvent *e)
 
 void QDial::mouseReleaseEvent(QMouseEvent * e)
 {
-    if (e->stateAfter() & MouseButtonMask) {
+    if (e->stateAfter() & Qt::MouseButtonMask) {
         e->ignore();
         return;
     }
@@ -489,7 +489,7 @@ void QDial::mouseReleaseEvent(QMouseEvent * e)
 
 void QDial::mouseMoveEvent(QMouseEvent * e)
 {
-    if (!d->tracking || !(e->state() & LeftButton)) {
+    if (!d->tracking || !(e->state() & Qt::LeftButton)) {
         e->ignore();
         return;
     }

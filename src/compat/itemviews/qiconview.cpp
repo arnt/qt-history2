@@ -1948,7 +1948,7 @@ void QIconViewItem::paintItem(QPainter *p, const QPalette &cg)
     if (picture()) {
         QPicture *pic = picture();
         if (isSelected()) {
-            p->fillRect(pixmapRect(false), QBrush(cg.highlight(), QBrush::Dense4Pattern));
+            p->fillRect(pixmapRect(false), QBrush(cg.highlight(), Qt::Dense4Pattern));
         }
         p->drawPicture(x()-pic->boundingRect().x(), y()-pic->boundingRect().y(), *pic);
         if (isSelected()) {
@@ -1978,13 +1978,13 @@ void QIconViewItem::paintItem(QPainter *p, const QPalette &cg)
             QBitmap mask = view->mask(pix);
 
             QPainter p2(buffer);
-            p2.fillRect(pix->rect(), white);
+            p2.fillRect(pix->rect(), Qt::white);
             p2.drawPixmap(0, 0, *pix);
             p2.end();
             buffer->setMask(mask);
             p2.begin(buffer);
 #if defined(Q_WS_X11)
-            p2.fillRect(pix->rect(), QBrush(cg.highlight(), QBrush::Dense4Pattern));
+            p2.fillRect(pix->rect(), QBrush(cg.highlight(), Qt::Dense4Pattern));
 #else // in WIN32 Qt::Dense4Pattern doesn't work correctly (transparency problem), so work around it
             if (iconView()->d->drawActiveSelection) {
                 if (!qiv_selection)
@@ -2774,7 +2774,7 @@ QIconView::QIconView(QWidget *parent, const char *name, Qt::WFlags f)
 
     viewport()->setBackgroundRole(QPalette::Base);
     viewport()->setFocusProxy(this);
-    viewport()->setFocusPolicy(QWidget::WheelFocus);
+    viewport()->setFocusPolicy(Qt::WheelFocus);
 
 #if 0
     d->toolTip = new QIconViewToolTip(viewport(), this);
@@ -3676,7 +3676,7 @@ QIconViewItem *QIconView::findItem(const QString &text, ComparisonFlags compare)
 
     if (item) {
         for (; item; item = item->next) {
-            if (compare & IgnoreCase)
+            if (!(compare & CaseSensitive))
                 itmtxt = item->text().toLower();
             else
                 itmtxt = item->text();
@@ -3694,7 +3694,7 @@ QIconViewItem *QIconView::findItem(const QString &text, ComparisonFlags compare)
         if (d->currentItem && d->firstItem) {
             item = d->firstItem;
             for (; item && item != d->currentItem; item = item->next) {
-                if (compare & IgnoreCase)
+                if (!(compare & CaseSensitive))
                     itmtxt = item->text().toLower();
                 else
                     itmtxt = item->text();
@@ -4477,7 +4477,7 @@ void QIconView::contentsMousePressEventEx(QMouseEvent *e)
             d->rubber = 0;
             d->rubber = new QRect(e->x(), e->y(), 0, 0);
             d->selectedItems.clear();
-            if ((e->state() & Qt::ControlButton) == ControlButton) {
+            if ((e->state() & Qt::ControlButton) == Qt::ControlButton) {
                 for (QIconViewItem *i = firstItem(); i; i = i->nextItem())
                     if (i->isSelected())
                         d->selectedItems.insert(i, i);

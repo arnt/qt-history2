@@ -2337,7 +2337,7 @@ Q3FileDialog::Q3FileDialog(const QString& dirName, const QString & filter,
     if (!filter.isEmpty()) {
         setFilters(filter);
         if (!dirName.isEmpty()) {
-            int dotpos = dirName.indexOf(QChar('.'), 0, QString::CaseInsensitive);
+            int dotpos = dirName.indexOf(QChar('.'), 0, Qt::CaseInsensitive);
             if (dotpos != -1) {
                 for (int b=0 ; b<d->types->count() ; b++) {
                     if (d->types->text(b).contains(dirName.right(dirName.length() - dotpos))) {
@@ -2889,7 +2889,7 @@ void Q3FileDialog::setSelectedFilter(const QString& mask)
     int n;
 
     for (n = 0; n < d->types->count(); n++) {
-        if (d->types->text(n).contains(mask, QString::CaseInsensitive)) {
+        if (d->types->text(n).contains(mask, Qt::CaseInsensitive)) {
             d->types->setCurrentItem(n);
             QString f = mask;
             QRegExp r(QString::fromLatin1(qt3_file_dialog_filter_reg_exp));

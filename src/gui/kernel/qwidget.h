@@ -445,8 +445,8 @@ public:
 
     QWidget *parentWidget() const;
 
-    Qt::WState testWState(WState s) const;
-    Qt::WFlags testWFlags(WFlags f) const;
+    Qt::WState testWState(Qt::WState s) const;
+    Qt::WFlags testWFlags(Qt::WFlags f) const;
     static QWidget *find(WId);
     static QWidgetMapper *wmapper();
 
@@ -646,7 +646,7 @@ public:
     inline QT_COMPAT bool ownPalette() const { return testAttribute(Qt::WA_SetPalette); }
     inline QT_COMPAT void unsetPalette() { setPalette(QPalette()); }
     Qt::BackgroundMode QT_COMPAT backgroundMode() const;
-    void QT_COMPAT setBackgroundMode(Qt::BackgroundMode, BackgroundMode = Qt::PaletteBackground);
+    void QT_COMPAT setBackgroundMode(Qt::BackgroundMode, Qt::BackgroundMode = Qt::PaletteBackground);
     const QT_COMPAT QColor &eraseColor() const;
     void QT_COMPAT setEraseColor(const QColor &);
     const QT_COMPAT QColor &foregroundColor() const;

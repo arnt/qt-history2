@@ -24,7 +24,7 @@ struct QBrushData;
 struct QTexturedBrushData;
 struct QLinGradBrushData;
 
-class Q_GUI_EXPORT QBrush: public Qt
+class Q_GUI_EXPORT QBrush
 {
 public:
     QBrush();

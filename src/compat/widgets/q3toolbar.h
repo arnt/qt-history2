@@ -31,7 +31,7 @@ class Q_COMPAT_EXPORT Q3ToolBar: public Q3DockWindow
 
 public:
     Q3ToolBar(const QString &label,
-              Q3MainWindow *, ToolBarDock = Qt::DockTop,
+              Q3MainWindow *, Qt::ToolBarDock = Qt::DockTop,
               bool newLine = false, const char* name=0);
     Q3ToolBar(const QString &label, Q3MainWindow *, QWidget *,
               bool newLine = false, const char* name=0, Qt::WFlags f = 0);

@@ -798,7 +798,7 @@ void QWidget::setActiveWindow()
 
 void QWidget::update()
 {
-    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == WState_Visible) {
+    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible) {
         InvalidateRect(winId(), 0, false);
         setAttribute(Qt::WA_PendingUpdate);
     }
@@ -806,7 +806,7 @@ void QWidget::update()
 
 void QWidget::update(const QRegion &rgn)
 {
-    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == WState_Visible)
+    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible)
         if (!rgn.isEmpty()) {
             InvalidateRgn(winId(), rgn.handle(), false);
             setAttribute(Qt::WA_PendingUpdate);
@@ -816,7 +816,7 @@ void QWidget::update(const QRegion &rgn)
 void QWidget::update(int x, int y, int w, int h)
 {
     if (w && h &&
-         (data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == WState_Visible) {
+         (data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible) {
         RECT r;
         r.left = x;
         r.top  = y;
@@ -901,7 +901,7 @@ void QWidget::repaint(const QRegion& rgn)
     if (testWState(Qt::WState_InPaintEvent))
         qWarning("QWidget::repaint: recursive repaint detected.");
 
-    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) != WState_Visible
+    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) != Qt::WState_Visible
         || !testAttribute(Qt::WA_Mapped)
         || rgn.isEmpty())
         return;
@@ -1064,7 +1064,7 @@ void QWidget::setWindowState(uint newstate)
     }
 
     if (isTopLevel()) {
-        if ((oldstate & Qt::WindowMaximized) != (newstate & WindowMaximized)) {
+        if ((oldstate & Qt::WindowMaximized) != (newstate & Qt::WindowMaximized)) {
             if (isVisible() && !(newstate & Qt::WindowMinimized)) {
                 ShowWindow(winId(), (newstate & Qt::WindowMaximized) ? max : normal);
                 QRect r = d->topData()->normalGeometry;
@@ -1078,7 +1078,7 @@ void QWidget::setWindowState(uint newstate)
             }
         }
 
-        if ((oldstate & Qt::WindowFullScreen) != (newstate & WindowFullScreen)) {
+        if ((oldstate & Qt::WindowFullScreen) != (newstate & Qt::WindowFullScreen)) {
             if (newstate & Qt::WindowFullScreen) {
                 if (d->topData()->normalGeometry.width() < 0 && !(oldstate & Qt::WindowMaximized))
                     d->topData()->normalGeometry = QRect(pos(), size());
@@ -1118,7 +1118,7 @@ void QWidget::setWindowState(uint newstate)
             }
         }
 
-        if ((oldstate & Qt::WindowMinimized) != (newstate & WindowMinimized)) {
+        if ((oldstate & Qt::WindowMinimized) != (newstate & Qt::WindowMinimized)) {
             if (isVisible())
                 ShowWindow(winId(), (newstate & Qt::WindowMinimized) ? min :
                                     (newstate & Qt::WindowMaximized) ? max : normal);

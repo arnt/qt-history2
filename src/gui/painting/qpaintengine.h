@@ -45,7 +45,7 @@ public:
 };
 Q_DECLARE_TYPEINFO(QTextItem, Q_PRIMITIVE_TYPE);
 
-class Q_GUI_EXPORT QPaintEngine : public Qt
+class Q_GUI_EXPORT QPaintEngine
 {
     Q_DECLARE_PRIVATE(QPaintEngine)
 public:

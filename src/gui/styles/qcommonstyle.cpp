@@ -678,7 +678,7 @@ void QCommonStyle::drawControl(ControlElement element,
 
     switch (element) {
     case CE_MenuBarEmptyArea: {
-        if (!widget->testAttribute(QWidget::WA_NoSystemBackground))
+        if (!widget->testAttribute(Qt::WA_NoSystemBackground))
             p->eraseRect(r);
         break; }
     case CE_PushButton:
@@ -1322,7 +1322,7 @@ void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
 void QCommonStyle::drawControlMask(ControlElement ce, const Q4StyleOption *opt, QPainter *p,
                                    const QWidget *w) const
 {
-    QPalette pal(Qt::color1,color1,color1,color1,color1,color1,color1,color1,Qt::color0);
+    QPalette pal(Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color0);
     switch (ce) {
     case CE_PushButton:
         if (const Q4StyleOptionButton *btn = qt_cast<const Q4StyleOptionButton *>(opt)) {
@@ -1348,7 +1348,7 @@ void QCommonStyle::drawControlMask(ControlElement control,
 
     activePainter = p;
 
-    QPalette pal(Qt::color1,color1,color1,color1,color1,color1,color1,color1,Qt::color0);
+    QPalette pal(Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color0);
 
     switch (control) {
     case CE_PushButton:
@@ -2844,7 +2844,7 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
             uint ctrl = SC_TitleBarLabel;
             bool isMinimized = false;
             if (!opt.isDefault())
-                isMinimized= opt.titleBarState() & QWidget::WindowMinimized;
+                isMinimized= opt.titleBarState() & Qt::WindowMinimized;
 
             // we can do this because subcontrols were designed to be masks as well...
             while (ret == SC_None && ctrl <= SC_TitleBarUnshadeButton) {

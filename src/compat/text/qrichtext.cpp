@@ -3024,7 +3024,7 @@ Q3TextCursor *Q3TextDocument::redo(Q3TextCursor *c)
 
 bool Q3TextDocument::find(Q3TextCursor& cursor, const QString &expr, bool cs, bool wo, bool forward)
 {
-    QString::CaseSensitivity caseSensitive = cs ? QString::CaseSensitive : QString::CaseInsensitive;
+    Qt::CaseSensitivity caseSensitive = cs ? Qt::CaseSensitive : Qt::CaseInsensitive;
     removeSelection(Standard);
     Q3TextParagraph *p = 0;
     if (expr.isEmpty())
@@ -6761,7 +6761,7 @@ void QTextImage::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
     if (selected && placement() == PlaceInline && is_printer(p)) {
 #if defined(Q_WS_X11)
         p->fillRect(QRect(QPoint(x, y), pm.size()), QBrush(pal.highlight(),
-                                                                 QBrush::Dense4Pattern));
+                                                                 Qt::Dense4Pattern));
 #else // in WIN32 Qt::Dense4Pattern doesn't work correctly (transparency problem), so work around it
         if (!qrt_selection)
             qrt_createSelectionPixmap(pal);

@@ -255,7 +255,7 @@ void QWidgetStack::raiseWidget(QWidget *w)
                 // second best == first child widget in the focus chain
                 QWidget *i = fw;
                 while ((i = i->nextInFocusChain()) != fw) {
-                    if (((i->focusPolicy() & Qt::TabFocus) == TabFocus)
+                    if (((i->focusPolicy() & Qt::TabFocus) == Qt::TabFocus)
                         && !i->focusProxy() && i->isVisibleTo(w) && i->isEnabled()
                         && w->isAncestorOf(i)) {
                         p = i;

@@ -129,7 +129,7 @@ static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* d
     if (dd && !dd->isValid())
         return QString();
 
-    bool ap = (f.contains(QLatin1String("AP"), QString::CaseInsensitive));
+    bool ap = (f.contains(QLatin1String("AP"), Qt::CaseInsensitive));
 
     QString buf;
     QString frm;

@@ -6849,10 +6849,10 @@ bool QDomHandler::notationDecl(const QString & name, const QString & publicId, c
 #else
 struct QSettingsKey
 {
-    QSettingsKey(const QString &key, QString::CaseSensitivity cs)
+    QSettingsKey(const QString &key, Qt::CaseSensitivity cs)
          : realKey(key), compareKey(key)
     {
-        if (cs == QString::CaseInsensitive)
+        if (cs == Qt::CaseInsensitive)
             compareKey = compareKey.toLower();
     }
 
@@ -6944,7 +6944,7 @@ extern "C" bool qSettingsReadXmlFile(QIODevice &device, KeyMap *keys)
             continue;
         QString value = valueAttr.nodeValue();
 
-        keys->insert(QSettingsKey(key, QString::CaseSensitive), value);
+        keys->insert(QSettingsKey(key, Qt::CaseSensitive), value);
     }
 
     QDomNodeList arrayElts = root.elementsByTagName(QLatin1String("array"));
@@ -6963,7 +6963,7 @@ extern "C" bool qSettingsReadXmlFile(QIODevice &device, KeyMap *keys)
         }
 
         key += QLatin1String("size");
-        keys->insert(QSettingsKey(key, QString::CaseSensitive), itemCnt);
+        keys->insert(QSettingsKey(key, Qt::CaseSensitive), itemCnt);
     }
 
     return true;
@@ -6975,7 +6975,7 @@ static QStringList getGroupItemList(const QString &prefix, const KeyMap &keys)
     QStringList result;
 
 //     qDebug("getGroupItemList(): \"%s\"", prefix.latin1());
-    QSettingsKey thePrefix(prefix, QString::CaseSensitive);
+    QSettingsKey thePrefix(prefix, Qt::CaseSensitive);
     Q_ASSERT(prefix.endsWith(QLatin1String("/")));
     int prefLen = prefix.length();
 
@@ -7008,7 +7008,7 @@ static bool arrayItems(const QStringList &itemList, const QString &group, const 
         return false;
 
     KeyMap::const_iterator keyIter = keys.find(QSettingsKey(group + "size",
-                                               QString::CaseSensitive));
+                                               Qt::CaseSensitive));
     Q_ASSERT(keyIter != keys.constEnd());
     bool ok;
     int size = keyIter.value().toInt(&ok);
@@ -7083,7 +7083,7 @@ static void addGroupItems(QDomDocument *doc, QDomElement *parentElt, const KeyMa
             } else {
                 // insert setting
                 KeyMap::const_iterator i = keys.find(QSettingsKey(group + item,
-                                                                  QString::CaseSensitive));
+                                                                  Qt::CaseSensitive));
                 Q_ASSERT(i != keys.constEnd());
                 const QCoreVariant value = i.value();
                 QDomElement settingElt = doc->createElement(QLatin1String("setting"));

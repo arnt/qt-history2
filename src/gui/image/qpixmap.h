@@ -36,7 +36,7 @@ class QX11PaintEngine;
 #endif
 
 
-class Q_GUI_EXPORT QPixmap : public QPaintDevice, public Qt
+class Q_GUI_EXPORT QPixmap : public QPaintDevice
 {
 public:
     enum ColorMode { Auto, Color, Mono };

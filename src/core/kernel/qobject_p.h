@@ -41,7 +41,7 @@
 inline QObjectData::~QObjectData() {}
 
 
-class Q_CORE_EXPORT QObjectPrivate : public QObjectData, public Qt
+class Q_CORE_EXPORT QObjectPrivate : public QObjectData
 {
     Q_DECLARE_PUBLIC(QObject)
 

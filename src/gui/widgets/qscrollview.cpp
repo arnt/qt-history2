@@ -104,8 +104,8 @@ void QScrollViewPrivate::init()
 {
     Qt::WFlags f = q->getWFlags();
     flags = Qt::WResizeNoErase | (f&Qt::WPaintClever) | (f&Qt::WNoAutoErase) | (f&Qt::WStaticContents);
-    hbar = new QScrollBar(QScrollBar::Horizontal, q, "qt_hbar");
-    vbar = new QScrollBar(QScrollBar::Vertical, q, "qt_vbar");
+    hbar = new QScrollBar(Qt::Horizontal, q, "qt_hbar");
+    vbar = new QScrollBar(Qt::Vertical, q, "qt_vbar");
     viewport = new QViewportWidget(q, "qt_viewport", flags);
     clipped_viewport = 0;
     vx = vy = 0;
@@ -219,7 +219,7 @@ void QScrollViewPrivate::hideOrShowAll(QScrollView* sv, bool isScroll)
         // clipped_viewport still covers viewport
         if(static_bg)
             clipped_viewport->repaint();
-        else if ((!isScroll && !clipped_viewport->testAttribute(QWidget::WA_StaticContents))
+        else if ((!isScroll && !clipped_viewport->testAttribute(Qt::WA_StaticContents))
                   || static_bg)
             QApplication::postEvent(clipped_viewport, new QPaintEvent(clipped_viewport->clipRegion()));
     } else {
@@ -2125,7 +2125,7 @@ void QScrollView::resizeContents(int w, int h)
 */
 void QScrollView::updateContents(int x, int y, int w, int h)
 {
-    if (testWState(Qt::WState_Visible|Qt::WState_BlockUpdates) != WState_Visible)
+    if (testWState(Qt::WState_Visible|Qt::WState_BlockUpdates) != Qt::WState_Visible)
         return;
 
     QWidget* vp = viewport();
@@ -2212,7 +2212,7 @@ void QScrollView::repaintContents()
 */
 void QScrollView::repaintContents(int x, int y, int w, int h)
 {
-    if (testWState(Qt::WState_Visible|Qt::WState_BlockUpdates) != WState_Visible)
+    if (testWState(Qt::WState_Visible|Qt::WState_BlockUpdates) != Qt::WState_Visible)
         return;
 
     QWidget* vp = viewport();

@@ -98,7 +98,7 @@ private:        // Disabled copy constructor and operator=
 typedef QList<Q3MenuItem*> Q3MenuItemList;
 
 
-class Q_COMPAT_EXPORT Q3CustomMenuItem : public Qt
+class Q_COMPAT_EXPORT Q3CustomMenuItem
 {
 public:
     Q3CustomMenuItem();

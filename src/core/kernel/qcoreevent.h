@@ -3,7 +3,7 @@
 
 #include <qnamespace.h>
 
-class Q_CORE_EXPORT QEvent: public Qt           // event base class
+class Q_CORE_EXPORT QEvent           // event base class
 {
 public:
     enum Type {

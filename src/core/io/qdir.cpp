@@ -62,7 +62,7 @@ private:
         mutable QStringList files;
         mutable QFileInfoList fileInfos;
     } *data;
-    inline void setPath(const QString &p) 
+    inline void setPath(const QString &p)
     {
         detach();
         if(!data->fileEngine || !QDir::isRelativePath(p))
@@ -82,7 +82,7 @@ QDirPrivate::QDirPrivate(QDir *qq, const QDir *copy) : q_ptr(qq)
 #ifdef QT_COMPAT
                                                      , filterSepChar(0)
 #endif
-{ 
+{
     if(copy) {
         ++copy->d->data->ref;
         data = copy->d->data;
@@ -92,12 +92,12 @@ QDirPrivate::QDirPrivate(QDir *qq, const QDir *copy) : q_ptr(qq)
     }
 }
 
-QDirPrivate::~QDirPrivate() 
-{ 
+QDirPrivate::~QDirPrivate()
+{
     if (!--data->ref)
         delete data;
     data = 0;
-    q_ptr = 0; 
+    q_ptr = 0;
 }
 
 /* For sorting */
@@ -170,7 +170,7 @@ static int qt_cmp_si(const void *n1, const void *n2)
 }
 #endif
 
-inline void QDirPrivate::sortFileList(int sortSpec, QStringList &l, 
+inline void QDirPrivate::sortFileList(int sortSpec, QStringList &l,
                                        QStringList *names, QFileInfoList *infos) const
 {
     if(names)
@@ -203,7 +203,7 @@ inline void QDirPrivate::updateFileLists() const
 {
     if(data->listsDirty) {
         QStringList l = data->fileEngine->entryList(data->filterSpec, data->nameFilters);
-        sortFileList(data->sortSpec, l, &data->files, &data->fileInfos); 
+        sortFileList(data->sortSpec, l, &data->files, &data->fileInfos);
         data->listsDirty = 0;
     }
 }
@@ -217,7 +217,7 @@ void QDirPrivate::initFileEngine(const QString &path)
     data->fileEngine = QFileEngine::createFileEngine(path);
 }
 
-void 
+void
 QDirPrivate::detach()
 {
     if (data->ref != 1) {
@@ -420,7 +420,7 @@ QDir::QDir(const QString &path, const QString &nameFilter,
     \sa exists(), setPath(), setNameFilters(), setFilter(), setSorting()
 */
 
-QDir::QDir(const QString &path, const QStringList &nameFilters, 
+QDir::QDir(const QString &path, const QStringList &nameFilters,
              int sortSpec, int filterSpec) : d_ptr(new QDirPrivate(this))
 {
     d->setPath(path.isEmpty() ? QString::fromLatin1(".") : path);
@@ -507,7 +507,7 @@ QDir::path() const
 QString
 QDir::absolutePath() const
 {
-    if (QDir::isRelativePath(d->data->path)) 
+    if (QDir::isRelativePath(d->data->path))
         return absoluteFilePath("");
     return cleanPath(d->data->path);
 }
@@ -669,14 +669,14 @@ QDir::convertSeparators(const QString &pathName)
 bool
 QDir::cd(const QString &dirName, bool acceptAbsPath)
 {
-    if (dirName.isEmpty() || dirName == QString::fromLatin1(".")) 
+    if (dirName.isEmpty() || dirName == QString::fromLatin1("."))
         return true;
     QString newPath = d->data->path;
     if (acceptAbsPath && isAbsolutePath(dirName)) {
         newPath = cleanPath(dirName);
     } else {
         if (isRoot()) {
-            if (dirName == "..") 
+            if (dirName == "..")
                 return false;
         } else {
             newPath += '/';
@@ -696,13 +696,13 @@ QDir::cd(const QString &dirName, bool acceptAbsPath)
                       ;
             */
             if (newPath[0] == QChar('.') && newPath[1] == QChar('.') &&
-                (newPath.length() == 2 || newPath[2] == QChar('/'))) 
+                (newPath.length() == 2 || newPath[2] == QChar('/')))
                 newPath = QFileInfo(newPath).absoluteFilePath();
         }
     }
     {
         QFileInfo fi(newPath);
-        if(!fi.exists() || !fi.isDir()) 
+        if(!fi.exists() || !fi.isDir())
             return false;
     }
 
@@ -908,7 +908,7 @@ QDir::count() const
     \sa count(), entryList()
 */
 
-QString 
+QString
 QDir::operator[](int pos) const
 {
     d->updateFileLists();
@@ -954,7 +954,7 @@ QDir::entryList(int filterSpec, int sortSpec) const
     \sa entryList(), setNameFilters(), setSorting(), setFilter(), isReadable(), exists()
 */
 
-QFileInfoList 
+QFileInfoList
 QDir::entryInfoList(int filterSpec, int sortSpec) const
 {
     return entryInfoList(d->data->nameFilters, filterSpec, sortSpec);
@@ -986,7 +986,7 @@ QDir::entryList(const QStringList &nameFilters, int filterSpec, int sortSpec) co
         return d->data->files;
     }
     QStringList l = d->data->fileEngine->entryList(d->data->filterSpec, nameFilters), ret;
-    d->sortFileList(sortSpec, l, &ret, 0); 
+    d->sortFileList(sortSpec, l, &ret, 0);
     return ret;
 }
 
@@ -1019,7 +1019,7 @@ QDir::entryInfoList(const QStringList &nameFilters, int filterSpec, int sortSpec
     }
     QFileInfoList ret;
     QStringList l = d->data->fileEngine->entryList(d->data->filterSpec, nameFilters);
-    d->sortFileList(sortSpec, l, 0, &ret); 
+    d->sortFileList(sortSpec, l, 0, &ret);
     return ret;
 }
 
@@ -1145,7 +1145,7 @@ bool
 QDir::isRoot() const
 {
     if(!d->data->fileEngine)
-        return true;    
+        return true;
     return d->data->fileEngine->isRoot();
 }
 
@@ -1188,7 +1188,7 @@ QDir::makeAbsolute()
     if(!d->data->fileEngine)
         return false;
     QString absolutePath = d->data->fileEngine->fileName(QFileEngine::AbsoluteName);
-    if(QDir::isRelativePath(absolutePath)) 
+    if(QDir::isRelativePath(absolutePath))
         return false;
     d->detach();
     d->data->path = absolutePath;
@@ -1216,10 +1216,10 @@ QDir::makeAbsolute()
 
 bool QDir::operator==(const QDir &dir) const
 {
-    return dir.d->data == d->data 
-           || (d->data->path == dir.d->data->path 
-               && d->data->filterSpec == dir.d->data->filterSpec 
-               && d->data->sortSpec == dir.d->data->sortSpec 
+    return dir.d->data == d->data
+           || (d->data->path == dir.d->data->path
+               && d->data->filterSpec == dir.d->data->filterSpec
+               && d->data->sortSpec == dir.d->data->sortSpec
                && d->data->nameFilters == dir.d->data->nameFilters);
 }
 
@@ -1396,7 +1396,7 @@ QDir::setCurrent(const QString &path)
 }
 
 /*!
-    \fn QDir QDir::currentDir() 
+    \fn QDir QDir::currentDir()
     Returns the application's current directory.
 
     Use path() to access a QDir object's path.
@@ -1413,11 +1413,11 @@ QDir::setCurrent(const QString &path)
 QString
 QDir::currentPath()
 {
-    return QFSFileEngine::currentPath();    
+    return QFSFileEngine::currentPath();
 }
 
 /*!
-    \fn QDir QDir::currentDir() 
+    \fn QDir QDir::currentDir()
 
     Returns the home directory.
 
@@ -1441,14 +1441,14 @@ QDir::homePath()
 }
 
 /*!
-    \fn QDir QDir::temp() 
+    \fn QDir QDir::temp()
 
     Returns the temporary directory.
 
     \sa tempPath() drives()
 */
 
-/*! 
+/*!
   ### document
 */
 
@@ -1459,7 +1459,7 @@ QDir::tempPath()
 }
 
 /*!
-    \fn QDir QDir::root() 
+    \fn QDir QDir::root()
 
     Returns the root directory.
 
@@ -1499,8 +1499,8 @@ bool
 QDir::match(const QStringList &filters, const QString &fileName)
 {
     for(QStringList::ConstIterator sit = filters.begin(); sit != filters.end(); ++sit) {
-        QRegExp rx(*sit, d->data->fileEngine->caseSensitive() ? 
-                   QString::CaseSensitive : QString::CaseInsensitive, QRegExp::Wildcard);
+        QRegExp rx(*sit, d->data->fileEngine->caseSensitive() ?
+                   Qt::CaseSensitive : Qt::CaseInsensitive, QRegExp::Wildcard);
         if (rx.exactMatch(fileName))
             return true;
     }
@@ -1557,7 +1557,7 @@ QDir::cleanPath(const QString &in)
             bool eaten = false;
             if(i < len - 1 && p[i+1] == '.') {
                 int dotcount = 1;
-                if(i < len - 2 && p[i+2] == '.') 
+                if(i < len - 2 && p[i+2] == '.')
                     dotcount++;
                 if(i == len - dotcount - 1) {
                     if(last == -1) {
@@ -1569,7 +1569,7 @@ QDir::cleanPath(const QString &in)
                         }
                     }
                     used -= iwrite - last - 1;
-                    break; 
+                    break;
                 }
                 if(p[i+dotcount+1] == '/') {
                     if(dotcount == 2 && levels) {
@@ -1614,7 +1614,7 @@ QDir::cleanPath(const QString &in)
                 continue;
         } else if(!i && p[i] == '.') {
             int dotcount = 1;
-            if(len >= 1 && p[1] == '.') 
+            if(len >= 1 && p[1] == '.')
                 dotcount++;
             if(len >= dotcount && p[dotcount] == '/') {
                 if(dotcount == 1) {
@@ -1677,23 +1677,23 @@ static inline QChar getFilterSepChar(const QString &nameFilter)
 }
 
 QStringList QDir::entryList(const QString &nameFilter, int filterSpec, int sortSpec) const
-{ 
-    return entryList(nameFilter.split(getFilterSepChar(nameFilter)), filterSpec, sortSpec); 
+{
+    return entryList(nameFilter.split(getFilterSepChar(nameFilter)), filterSpec, sortSpec);
 }
 
 QFileInfoList QDir::entryInfoList(const QString &nameFilter, int filterSpec, int sortSpec) const
-{ 
-    return entryInfoList(nameFilter.split(getFilterSepChar(nameFilter)), filterSpec, sortSpec); 
+{
+    return entryInfoList(nameFilter.split(getFilterSepChar(nameFilter)), filterSpec, sortSpec);
 }
 
 QString QDir::nameFilter() const
-{ 
-    return nameFilters().join(QString(d->filterSepChar)); 
+{
+    return nameFilters().join(QString(d->filterSepChar));
 }
 
 void QDir::setNameFilter(const QString &nameFilter)
-{ 
-    d->filterSepChar = getFilterSepChar(nameFilter); 
-    setNameFilters(nameFilter.split(d->filterSepChar)); 
+{
+    d->filterSepChar = getFilterSepChar(nameFilter);
+    setNameFilters(nameFilter.split(d->filterSepChar));
 }
 #endif

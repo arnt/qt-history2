@@ -1156,7 +1156,7 @@ int Q3DockArea::maxSpace(int hint, Q3DockWindow *dw)
     int diff = hint - (orientation() == Qt::Horizontal ? dw->width() : dw->height());
 
     if ((orientation() == Qt::Horizontal ? w->width() : w->height()) - diff < min)
-        hint = (orientation() == Qt::Horizontal ? dw->width() : dw->height()) + (orientation() == Horizontal ? w->width() : w->height()) - min;
+        hint = (orientation() == Qt::Horizontal ? dw->width() : dw->height()) + (orientation() == Qt::Horizontal ? w->width() : w->height()) - min;
 
     diff = hint - (orientation() == Qt::Horizontal ? dw->width() : dw->height());
     if (orientation() == Qt::Horizontal)

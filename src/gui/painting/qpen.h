@@ -20,7 +20,7 @@
 #endif // QT_H
 
 
-class Q_GUI_EXPORT QPen: public Qt
+class Q_GUI_EXPORT QPen
 {
 public:
     QPen();

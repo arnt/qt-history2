@@ -501,7 +501,7 @@
     \endcode
 
     The equivalent of Perl's \c{/i} option is
-    setCaseSensitivity(QString::CaseInsensitive).
+    setCaseSensitivity(Qt::CaseInsensitive).
 
     Perl's \c{/g} option can be emulated using a \link
     #cap_in_a_loop loop \endlink.
@@ -892,12 +892,12 @@ public:
     };
 #endif
 
-    QRegExpEngine(QString::CaseSensitivity cs) { setup(cs); }
-    QRegExpEngine(const QString &rx, QString::CaseSensitivity cs);
+    QRegExpEngine(Qt::CaseSensitivity cs) { setup(cs); }
+    QRegExpEngine(const QString &rx, Qt::CaseSensitivity cs);
     ~QRegExpEngine();
 
     bool isValid() const { return valid; }
-    QString::CaseSensitivity caseSensitivity() const { return cs; }
+    Qt::CaseSensitivity caseSensitivity() const { return cs; }
     const QString &errorString() const { return yyError; }
     int numCaptures() const { return officialncap; }
     void match(const QString &str, int pos, bool minimal, bool oneTest, int caretIndex,
@@ -1004,7 +1004,7 @@ private:
 #endif
 
     enum { InitialState = 0, FinalState = 1 };
-    void setup(QString::CaseSensitivity cs);
+    void setup(Qt::CaseSensitivity cs);
     int setupState(int match);
 
     /*
@@ -1064,7 +1064,7 @@ private:
     bool trivial; // is the good-string all that needs to match?
 #endif
     bool valid; // is the regular expression valid?
-    QString::CaseSensitivity cs; // case sensitive?
+    Qt::CaseSensitivity cs; // case sensitive?
 #ifndef QT_NO_REGEXP_BACKREF
     int nbrefs; // number of back-references
 #endif
@@ -1212,7 +1212,7 @@ private:
     int mmOneTestMatchedLen; // length of partial match
 };
 
-QRegExpEngine::QRegExpEngine(const QString &rx, QString::CaseSensitivity cs)
+QRegExpEngine::QRegExpEngine(const QString &rx, Qt::CaseSensitivity cs)
 {
     setup(cs);
     valid = (parse(rx.unicode(), rx.length()) == rx.length());
@@ -1524,7 +1524,7 @@ void QRegExpEngine::dump() const
 }
 #endif
 
-void QRegExpEngine::setup(QString::CaseSensitivity caseSensitive)
+void QRegExpEngine::setup(Qt::CaseSensitivity caseSensitive)
 {
     ref = 1;
 #ifndef QT_NO_REGEXP_CAPTURE
@@ -3134,7 +3134,7 @@ struct QRegExpPrivate
     QRegExp::PatternSyntax patternSyntax;
 #endif
     bool min : 1;
-    QString::CaseSensitivity cs;
+    Qt::CaseSensitivity cs;
 #ifndef QT_NO_REGEXP_CAPTURE
     QString t; // last string passed to QRegExp::indexIn() or lastIndexIn()
     QStringList capturedCache; // what QRegExp::capturedTexts() returned last
@@ -3149,7 +3149,7 @@ static QCache<QString, QRegExpEngine> engineCache;
 #endif
 
 static void regexpEngine(QRegExpEngine *&eng, const QString &pattern,
-                         QString::CaseSensitivity cs, bool deref)
+                         Qt::CaseSensitivity cs, bool deref)
 {
 #if !defined(QT_NO_REGEXP_OPTIM) || defined(QT_NO_THREAD) || defined(QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION)
     engineCache.ensure_constructed();
@@ -3264,7 +3264,7 @@ QRegExp::QRegExp()
     priv->patternSyntax = RegExp;
 #endif
     priv->min = false;
-    priv->cs = QString::CaseSensitive;
+    priv->cs = Qt::CaseSensitive;
 }
 
 /*!
@@ -3277,7 +3277,7 @@ QRegExp::QRegExp()
 
     \sa setPattern(), setCaseSensitivity(), setPatternSyntax(), setMinimalMatching()
 */
-QRegExp::QRegExp(const QString &pattern, QString::CaseSensitivity cs, PatternSyntax syntax)
+QRegExp::QRegExp(const QString &pattern, Qt::CaseSensitivity cs, PatternSyntax syntax)
 {
     priv = new QRegExpPrivate;
     priv->pattern = pattern;
@@ -3432,12 +3432,12 @@ void QRegExp::setPattern(const QString &pattern)
 }
 
 /*!
-    Returns \c QString::CaseSensitive if the regexp is matched case
-    sensitively; otherwise returns \c QString::CaseInsensitive.
+    Returns \c Qt::CaseSensitive if the regexp is matched case
+    sensitively; otherwise returns \c Qt::CaseInsensitive.
 
     \sa setCaseSensitivity()
 */
-QString::CaseSensitivity QRegExp::caseSensitivity() const
+Qt::CaseSensitivity QRegExp::caseSensitivity() const
 {
     return priv->cs;
 }
@@ -3445,12 +3445,12 @@ QString::CaseSensitivity QRegExp::caseSensitivity() const
 /*!
     Sets case sensitive matching to \a cs.
 
-    If \a cs is \c QString::CaseSensitive, \bold{\\.txt$} matches
+    If \a cs is \c Qt::CaseSensitive, \bold{\\.txt$} matches
     \c{readme.txt} but not \c{README.TXT}.
 
     \sa caseSensitivity()
 */
-void QRegExp::setCaseSensitivity(QString::CaseSensitivity cs)
+void QRegExp::setCaseSensitivity(Qt::CaseSensitivity cs)
 {
     if ((bool)cs != (bool)priv->cs) {
         priv->cs = cs;

@@ -408,7 +408,7 @@ QValidator::State QDoubleValidator::validate(QString & input, int &) const
         return Intermediate;
     bool ok = true;
     double entered = input.toDouble(&ok);
-    int nume = input.count('e', QString::CaseInsensitive);
+    int nume = input.count('e', Qt::CaseInsensitive);
     if (!ok) {
         // explicit exponent regexp
         QRegExp expexpexp(QString::fromLatin1("[Ee][+-]?\\d*$"));

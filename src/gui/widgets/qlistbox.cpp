@@ -1815,8 +1815,8 @@ void QListBox::mousePressEventEx(QMouseEvent *e)
             break;
         case Extended:
             if (i) {
-                if (!(e->state() & QMouseEvent::ShiftButton) &&
-                     !(e->state() & QMouseEvent::ControlButton)) {
+                if (!(e->state() & Qt::ShiftButton) &&
+                     !(e->state() & Qt::ControlButton)) {
                     if (!i->isSelected()) {
                         bool b = signalsBlocked();
                         blockSignals(true);
@@ -2069,7 +2069,7 @@ void QListBox::mouseMoveEvent(QMouseEvent *e)
 
     d->scrollPos = QPoint(dx, dy);
 
-    if ((dx || dy) && !d->scrollTimer && e->state() == Qt::LeftButton && e->button() != LeftButton) {
+    if ((dx || dy) && !d->scrollTimer && e->state() == Qt::LeftButton && e->button() != Qt::LeftButton) {
         // start autoscrolling if necessary
         d->scrollTimer = new QTimer(this);
         connect(d->scrollTimer, SIGNAL(timeout()),
@@ -4055,7 +4055,7 @@ QListBoxItem *QListBox::findItem(const QString &text, ComparisonFlags compare) c
 
     QString itmtxt;
     QString comtxt = text;
-    if (compare & IgnoreCase)
+    if (!(compare & CaseSensitive))
         comtxt = text.toLower();
 
     QListBoxItem *item;
@@ -4070,7 +4070,7 @@ QListBoxItem *QListBox::findItem(const QString &text, ComparisonFlags compare) c
 
     if (item) {
         for (; item; item = item->n) {
-            if (compare & IgnoreCase)
+            if (!(compare & CaseSensitive))
                 itmtxt = item->text().toLower();
             else
                 itmtxt = item->text();
@@ -4088,7 +4088,7 @@ QListBoxItem *QListBox::findItem(const QString &text, ComparisonFlags compare) c
         if (d->current && d->head) {
             item = d->head;
             for (; item && item != d->current; item = item->n) {
-                if (compare & IgnoreCase)
+                if (!(compare & CaseSensitive))
                     itmtxt = item->text().toLower();
                 else
                     itmtxt = item->text();

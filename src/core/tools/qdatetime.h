@@ -20,7 +20,7 @@
 #include "qnamespace.h"
 #endif // QT_H
 
-class Q_CORE_EXPORT QDate : public Qt
+class Q_CORE_EXPORT QDate
 {
 public:
     QDate() { jd = 0; }
@@ -98,7 +98,7 @@ private:
 #endif
 };
 
-class Q_CORE_EXPORT QTime : public Qt
+class Q_CORE_EXPORT QTime
 {
 public:
     QTime() { ds = 0; }
@@ -158,7 +158,7 @@ private:
 
 class QDateTimePrivate;
 
-class Q_CORE_EXPORT QDateTime : public Qt
+class Q_CORE_EXPORT QDateTime
 {
 public:
     QDateTime();

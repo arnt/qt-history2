@@ -825,7 +825,7 @@ bool QMenuBar::event(QEvent *e)
             return ;
         }
 #endif
-        if(ke->key() == Qt::Key_Tab || ke->key() == Key_BackTab) {
+        if(ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_BackTab) {
             keyPressEvent(ke);
             return true;
         }

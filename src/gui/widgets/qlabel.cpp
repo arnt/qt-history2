@@ -60,7 +60,7 @@ public:
     ushort align;
     short extraMargin;
     uint scaledcontents :1;
-    QLabel::TextFormat textformat;
+    Qt::TextFormat textformat;
 #ifndef QT_NO_RICHTEXT
     QTextDocument* doc;
 #endif

@@ -1372,7 +1372,7 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
                   !(e->state() & Qt::AltButton) &&
 #endif
                   !(e->state() & Qt::MetaButton) ||
-                 (((e->state()&Qt::ControlButton) | Qt::AltButton) == (ControlButton|AltButton))) &&
+                 (((e->state()&Qt::ControlButton) | Qt::AltButton) == (Qt::ControlButton|Qt::AltButton))) &&
                  (!ascii || ascii >= 32 || e->text() == "\t")) {
                 clearUndoRedoInfo = false;
                 if (e->key() == Qt::Key_Tab) {
@@ -1394,7 +1394,7 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
                         drawCursor(true);
                         break;
                     }
-                } else if (e->key() == Key_BackTab) {
+                } else if (e->key() == Qt::Key_BackTab) {
                     if (d->tabChangesFocus) {
                         e->ignore();
                         break;
@@ -4692,10 +4692,10 @@ bool Q3TextEdit::handleReadOnlyKeyEvent(QKeyEvent *e)
     case Qt::Key_Right:
         setContentsPos(contentsX() + 10, contentsY());
         break;
-    case Key_PageUp:
+    case Qt::Key_PageUp:
         setContentsPos(contentsX(), contentsY() - visibleHeight());
         break;
-    case Key_PageDown:
+    case Qt::Key_PageDown:
         setContentsPos(contentsX(), contentsY() + visibleHeight());
         break;
     case Qt::Key_Home:
@@ -7063,9 +7063,9 @@ bool Q3TextEdit::optimFind(const QString & expr, bool cs, bool /*wo*/,
     for (i = parag; fw ? i < d->od->numLines : i >= 0; fw ? i++ : i--) {
         idx = fw
               ? d->od->lines[LOGOFFSET(i)].indexOf(expr, idx,
-                                                     cs ? QString::CaseSensitive : QString::CaseInsensitive)
+                                                     cs ? Qt::CaseSensitive : Qt::CaseInsensitive)
               : d->od->lines[LOGOFFSET(i)].lastIndexOf(expr, idx,
-                                                         cs ? QString::CaseSensitive : QString::CaseInsensitive);
+                                                         cs ? Qt::CaseSensitive : Qt::CaseInsensitive);
         if (idx != -1) {
             found = true;
             break;

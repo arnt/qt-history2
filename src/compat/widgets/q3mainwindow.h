@@ -185,23 +185,23 @@ private:        // Disabled copy constructor and operator=
 };
 
 #ifndef QT_NO_TOOLBAR
-inline void Q3MainWindow::addToolBar(Q3DockWindow *w, ToolBarDock dock, bool newLine)
+inline void Q3MainWindow::addToolBar(Q3DockWindow *w, Qt::ToolBarDock dock, bool newLine)
 {
     addDockWindow(w, dock, newLine);
 }
 
 inline void Q3MainWindow::addToolBar(Q3DockWindow *w, const QString &label,
-                              ToolBarDock dock, bool newLine)
+                              Qt::ToolBarDock dock, bool newLine)
 {
     addDockWindow(w, label, dock, newLine);
 }
 
-inline void Q3MainWindow::moveToolBar(Q3DockWindow *w, ToolBarDock dock)
+inline void Q3MainWindow::moveToolBar(Q3DockWindow *w, Qt::ToolBarDock dock)
 {
     moveDockWindow(w, dock);
 }
 
-inline void Q3MainWindow::moveToolBar(Q3DockWindow *w, ToolBarDock dock, bool nl, int index, int extraOffset)
+inline void Q3MainWindow::moveToolBar(Q3DockWindow *w, Qt::ToolBarDock dock, bool nl, int index, int extraOffset)
 {
     moveDockWindow(w, dock, nl, index, extraOffset);
 }

@@ -133,11 +133,11 @@ void QPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFl
     if (!useFontEngine) {
         // Fallback: rasterize into a pixmap and draw the pixmap
         QPixmap pm(ti.width, ti.ascent + ti.descent);
-        pm.fill(white);
+        pm.fill(Qt::white);
 
         QPainter painter;
         painter.begin(&pm);
-        painter.setPen(black);
+        painter.setPen(Qt::black);
         painter.drawTextItem(0, ti.ascent, ti, textFlags);
         painter.end();
 

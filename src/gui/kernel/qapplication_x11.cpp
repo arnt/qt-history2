@@ -3719,7 +3719,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
                 delta *= 120 * ((btn == Button4 || btn == 6) ? 1 : -1);
                 bool hor = ((btn == Button4 || btn == Button5) && (state&Qt::AltButton) ||
                              (btn == 6 || btn == 7));
-                translateWheelEvent(globalPos.x(), globalPos.y(), delta, state, (hor)?Qt::Horizontal:Vertical);
+                translateWheelEvent(globalPos.x(), globalPos.y(), delta, state, (hor)?Qt::Horizontal:Qt::Vertical);
             }
             return true;
         }
@@ -4784,7 +4784,7 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
         }
 
         if (code == Qt::Key_Tab &&
-             (state & Qt::ShiftButton) == ShiftButton) {
+             (state & Qt::ShiftButton) == Qt::ShiftButton) {
             // map shift+tab to shift+backtab, QShortcutMap knows about it
             // and will handle it.
             code = Qt::Key_Backtab;

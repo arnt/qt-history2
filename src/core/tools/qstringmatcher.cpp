@@ -1,7 +1,7 @@
 #include "qstringmatcher.h"
 #include "qunicodetables_p.h"
 
-static void bm_init_skiptable(const QChar *uc, int l, uint *skiptable, QString::CaseSensitivity cs)
+static void bm_init_skiptable(const QChar *uc, int l, uint *skiptable, Qt::CaseSensitivity cs)
 {
     int i = 0;
     register uint *st = skiptable;
@@ -9,7 +9,7 @@ static void bm_init_skiptable(const QChar *uc, int l, uint *skiptable, QString::
         *st++ = l; *st++ = l; *st++ = l; *st++ = l;
         *st++ = l; *st++ = l; *st++ = l; *st++ = l;
     }
-    if (cs == QString::CaseSensitive) {
+    if (cs == Qt::CaseSensitive) {
         while (l--) {
             skiptable[uc->cell()] = l;
             uc++;
@@ -23,7 +23,7 @@ static void bm_init_skiptable(const QChar *uc, int l, uint *skiptable, QString::
 }
 
 static inline int bm_find(const QChar *uc, uint l, int index, const QChar *puc, uint pl,
-                          const uint *skiptable, QString::CaseSensitivity cs)
+                          const uint *skiptable, Qt::CaseSensitivity cs)
 {
     if (pl == 0)
         return index > (int)l ? -1 : index;
@@ -31,7 +31,7 @@ static inline int bm_find(const QChar *uc, uint l, int index, const QChar *puc, 
 
     register const QChar *current = uc + index + pl_minus_one;
     const QChar *end = uc + l;
-    if (cs == QString::CaseSensitive) {
+    if (cs == Qt::CaseSensitive) {
         while (current < end) {
             uint skip = skiptable[current->cell()];
             if (!skip) {
@@ -84,7 +84,7 @@ QStringMatcher::QStringMatcher()
     qMemSet(q_skiptable, 0, sizeof(q_skiptable));
 }
 
-QStringMatcher::QStringMatcher(const QString &pattern, QString::CaseSensitivity cs)
+QStringMatcher::QStringMatcher(const QString &pattern, Qt::CaseSensitivity cs)
     : d_ptr(0), q_pattern(pattern), q_cs(cs)
 {
     bm_init_skiptable(pattern.unicode(), pattern.size(), q_skiptable, cs);
@@ -114,7 +114,7 @@ void QStringMatcher::setPattern(const QString &pattern)
     q_pattern = pattern;
 }
 
-void QStringMatcher::setCaseSensitivity(QString::CaseSensitivity cs)
+void QStringMatcher::setCaseSensitivity(Qt::CaseSensitivity cs)
 {
     if (cs == q_cs)
         return;

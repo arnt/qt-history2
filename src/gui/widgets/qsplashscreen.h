@@ -37,7 +37,7 @@ public:
 
 public slots:
     void message(const QString &str, int flags = Qt::AlignLeft,
-                  const QColor &color = black);
+                  const QColor &color = Qt::black);
     void clear();
 
 signals:

@@ -425,7 +425,7 @@ void Q3Header::setOrientation(Qt::Orientation orientation)
 void Q3Header::paintRect(int p, int s)
 {
     QPainter paint(this);
-    paint.setPen(QPen(black, 1, Qt::DotLine));
+    paint.setPen(QPen(Qt::black, 1, Qt::DotLine));
     if (reverse())
         paint.drawRect(p - s, 3, s, height() - 5);
     else if (orient == Qt::Horizontal)
@@ -440,7 +440,7 @@ void Q3Header::paintRect(int p, int s)
 void Q3Header::markLine(int idx)
 {
     QPainter paint(this);
-    paint.setPen(QPen(black, 1, Qt::DotLine));
+    paint.setPen(QPen(Qt::black, 1, Qt::DotLine));
     int MARKSIZE = style().pixelMetric(QStyle::PM_HeaderMarkSize);
     int p = pPos(idx);
     int x = p - MARKSIZE/2;

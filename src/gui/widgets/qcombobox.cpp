@@ -1665,7 +1665,7 @@ bool QComboBox::eventFilter(QObject *object, QEvent *event)
                 QWidget *mouseW = QApplication::widgetAt(e->globalPos());
                 if (mouseW == d->listBox()->viewport()) { //###
                     QMouseEvent m(QEvent::MouseMove, e->pos(), e->globalPos(),
-                                   Qt::LeftButton, LeftButton);
+                                   Qt::LeftButton, Qt::LeftButton);
                     QApplication::sendEvent(object, &m); //### Evil
                     return true;
                 }
@@ -1787,7 +1787,7 @@ int QComboBoxPrivate::completionIndex(const QString & prefix,
     int i = start;
     do {
         QString current = q->text(i);
-        if (current.startsWith(prefix, QString::CaseInsensitive))
+        if (current.startsWith(prefix, Qt::CaseInsensitive))
             return i;
         i++;
         if (i == count)

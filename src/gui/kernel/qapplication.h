@@ -55,9 +55,9 @@ public:
     enum Type { Tty, GuiClient, GuiServer };
     QApplication(int &argc, char **argv, Type);
 #if defined(Q_WS_X11)
-    QApplication(Display* dpy, HANDLE visual = 0, HANDLE cmap = 0);
+    QApplication(Display* dpy, Qt::HANDLE visual = 0, Qt::HANDLE cmap = 0);
     QApplication(Display *dpy, int argc, char **argv,
-                  HANDLE visual = 0, HANDLE cmap= 0);
+                  Qt::HANDLE visual = 0, Qt::HANDLE cmap= 0);
 #endif
     virtual ~QApplication();
 
@@ -138,7 +138,7 @@ public:
     static void setReverseLayout(bool b);
     static bool reverseLayout();
 
-    static Qt::Alignment horizontalAlignment(Alignment align);
+    static Qt::Alignment horizontalAlignment(Qt::Alignment align);
 
     static bool            isEffectEnabled(Qt::UIEffect);
     static void            setEffectEnabled(Qt::UIEffect, bool enable = true);

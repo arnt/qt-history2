@@ -323,9 +323,9 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
         p->setBackgroundMode(Qt::TransparentMode);
 	QColor bg_col = opt.isDefault() ? p->background().color() : opt.color();
 	if (qGray(bg_col.rgb()) < 128)
-	    p->setBrush(QBrush(white, Qt::Dense4Pattern));
+	    p->setBrush(QBrush(Qt::white, Qt::Dense4Pattern));
 	else
-	    p->setBrush(QBrush(black, Qt::Dense4Pattern));
+	    p->setBrush(QBrush(Qt::black, Qt::Dense4Pattern));
 
         p->setPen(Qt::NoPen);
         p->drawRect(r.left(),  r.top(),    r.width(), 1);          // Top
@@ -1781,9 +1781,9 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
             if (!bg_col.isValid())
                 bg_col = p->background().color();
             if (qGray(bg_col.rgb()) < 128)
-                p->setBrush(QBrush(white, Qt::Dense4Pattern));
+                p->setBrush(QBrush(Qt::white, Qt::Dense4Pattern));
             else
-                p->setBrush(QBrush(black, Qt::Dense4Pattern));
+                p->setBrush(QBrush(Qt::black, Qt::Dense4Pattern));
             p->setPen(Qt::NoPen);
             p->drawRect(r.left(), r.top(), r.width(), 1);    // Top
             p->drawRect(r.left(), r.bottom(), r.width(), 1); // Bottom

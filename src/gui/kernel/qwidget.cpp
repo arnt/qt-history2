@@ -647,30 +647,30 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
 
     Internal flags.
 
-    \value WState_AutoMask
-    \value WState_BlockUpdates
-    \value WState_CompressKeys
-    \value WState_ConfigPending
-    \value WState_Created
-    \value WState_DND
-    \value WState_ExplicitShowHide
-    \value WState_Exposed
-    \value WState_FullScreen
-    \value WState_Hidden
-    \value WState_InPaintEvent
-    \value WState_Maximized
-    \value WState_Minimized
-    \value WState_OwnSizePolicy
-    \value WState_Polished
-    \value WState_Reparented
-    \value WState_Reserved0 \e internal
-    \value WState_Reserved2 \e internal
-    \value WState_Reserved3 \e internal
-    \value WState_Reserved4 \e internal
-    \value WState_Reserve5 \e internal
-    \value WState_Reserve6 \e internal
-    \value WState_Reserved7 \e internal
-    \value WState_Visible
+    \value Qt::WState_AutoMask
+    \value Qt::WState_BlockUpdates
+    \value Qt::WState_CompressKeys
+    \value Qt::WState_ConfigPending
+    \value Qt::WState_Created
+    \value Qt::WState_DND
+    \value Qt::WState_ExplicitShowHide
+    \value Qt::WState_Exposed
+    \value Qt::WState_FullScreen
+    \value Qt::WState_Hidden
+    \value Qt::WState_InPaintEvent
+    \value Qt::WState_Maximized
+    \value Qt::WState_Minimized
+    \value Qt::WState_OwnSizePolicy
+    \value Qt::WState_Polished
+    \value Qt::WState_Reparented
+    \value Qt::WState_Reserved0 \e internal
+    \value Qt::WState_Reserved2 \e internal
+    \value Qt::WState_Reserved3 \e internal
+    \value Qt::WState_Reserved4 \e internal
+    \value Qt::WState_Reserve5 \e internal
+    \value Qt::WState_Reserve6 \e internal
+    \value Qt::WState_Reserved7 \e internal
+    \value Qt::WState_Visible
 */
 
 
@@ -685,10 +685,10 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     The states are
 
     \value WindowNoState   The window has no state set (in normal state).
-    \value WindowMinimized The window is minimized (i.e. iconified).
-    \value WindowMaximized The window is maximized with a frame around it.
-    \value WindowFullScreen The window fills the entire screen without any frame around it.
-    \value WindowActive The window is the active window, i.e. it has keyboard focus.
+    \value Qt::WindowMinimized The window is minimized (i.e. iconified).
+    \value Qt::WindowMaximized The window is maximized with a frame around it.
+    \value Qt::WindowFullScreen The window fills the entire screen without any frame around it.
+    \value Qt::WindowActive The window is the active window, i.e. it has keyboard focus.
 
 */
 
@@ -2500,7 +2500,7 @@ Qt::BackgroundMode QWidget::backgroundMode() const
     Sets the color role used for painting the widget's background to
     background mode \a m.
 */
-void QWidget::setBackgroundMode(Qt::BackgroundMode m, BackgroundMode)
+void QWidget::setBackgroundMode(Qt::BackgroundMode m, Qt::BackgroundMode)
 {
     if(m == Qt::NoBackground) {
         setAttribute(Qt::WA_NoSystemBackground, true);
@@ -3244,7 +3244,7 @@ bool QWidget::isActiveWindow() const
            tlw->parentWidget() && tlw->parentWidget()->isActiveWindow())
            return true;
         QWidget *w = qApp->activeWindow();
-        if(!testWFlags(Qt::WSubWindow) && w && w->testWFlags(WSubWindow) &&
+        if(!testWFlags(Qt::WSubWindow) && w && w->testWFlags(Qt::WSubWindow) &&
             w->parentWidget()->topLevelWidget() == tlw)
             return true;
         while(w && w->isDialog() && !w->testWFlags(Qt::WShowModal) && w->parentWidget()) {
@@ -3296,7 +3296,7 @@ bool QWidget::isActiveWindow() const
 */
 void QWidget::setTabOrder(QWidget* first, QWidget *second)
 {
-    if (!first || !second || first->focusPolicy() == Qt::NoFocus || second->focusPolicy() == NoFocus)
+    if (!first || !second || first->focusPolicy() == Qt::NoFocus || second->focusPolicy() == Qt::NoFocus)
         return;
 
     QWidget *fp = first->focusProxy();
@@ -3543,15 +3543,15 @@ QSize QWidget::contentsMarginSize() const
     This enum type defines the various policies a widget can have with
     respect to acquiring keyboard focus.
 
-    \value TabFocus  the widget accepts focus by tabbing.
-    \value ClickFocus  the widget accepts focus by clicking.
-    \value StrongFocus  the widget accepts focus by both tabbing
+    \value Qt::TabFocus  the widget accepts focus by tabbing.
+    \value Qt::ClickFocus  the widget accepts focus by clicking.
+    \value Qt::StrongFocus  the widget accepts focus by both tabbing
                         and clicking. On Mac OS X this will also
                         be indicate that the widget accepts tab focus
                         when in 'Text/List focus mode'.
-    \value WheelFocus  like StrongFocus plus the widget accepts
+    \value Qt::WheelFocus  like Qt::StrongFocus plus the widget accepts
                         focus by using the mouse wheel.
-    \value NoFocus  the widget does not accept focus.
+    \value Qt::NoFocus  the widget does not accept focus.
 
 */
 
@@ -3574,7 +3574,7 @@ QSize QWidget::contentsMarginSize() const
       keyReleaseEvent(), enabled
 */
 
-QWidget::FocusPolicy QWidget::focusPolicy() const
+Qt::FocusPolicy QWidget::focusPolicy() const
 {
     const QWidget *w = this;
     while (w->d->extra && w->d->extra->focus_proxy)
@@ -3668,7 +3668,7 @@ QSize qt_initial_size(QWidget *w) {
 
 void QWidget::show()
 {
-    if (testWState(Qt::WState_ExplicitShowHide|Qt::WState_Hidden) == WState_ExplicitShowHide)
+    if (testWState(Qt::WState_ExplicitShowHide|Qt::WState_Hidden) == Qt::WState_ExplicitShowHide)
         return;
 
     // polish if necessary
@@ -3841,7 +3841,7 @@ void QWidget::show_helper()
 
 void QWidget::hide()
 {
-    if (testWState(Qt::WState_ExplicitShowHide|Qt::WState_Hidden) == (WState_ExplicitShowHide|WState_Hidden))
+    if (testWState(Qt::WState_ExplicitShowHide|Qt::WState_Hidden) == (Qt::WState_ExplicitShowHide|Qt::WState_Hidden))
         return;
     setWState(Qt::WState_Hidden);
     if (testWState(Qt::WState_ExplicitShowHide))
@@ -4457,7 +4457,7 @@ bool QWidget::event(QEvent *e)
     case QEvent::MouseMove:
         // throw away any mouse-tracking-only mouse events
         if (!hasMouseTracking() &&
-            (((QMouseEvent*)e)->state()&QMouseEvent::MouseButtonMask) == 0)
+            (((QMouseEvent*)e)->state()&Qt::MouseButtonMask) == 0)
             break;
         mouseMoveEvent((QMouseEvent*)e);
         if (! ((QMouseEvent*)e)->isAccepted())

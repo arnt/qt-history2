@@ -1912,13 +1912,13 @@ void QLineEditPrivate::init(const QString& txt)
 #ifndef QT_NO_CURSOR
     q->setCursor(readOnly ? Qt::ArrowCursor : Qt::IbeamCursor);
 #endif
-    q->setFocusPolicy(QWidget::StrongFocus);
+    q->setFocusPolicy(Qt::StrongFocus);
     q->setInputMethodEnabled(true);
     //   Specifies that this widget can use more, but is able to survive on
     //   less, horizontal space; and is fixed vertically.
     q->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
     q->setBackgroundRole(QPalette::Base);
-    q->setAttribute(QWidget::WA_KeyCompression);
+    q->setAttribute(Qt::WA_KeyCompression);
     q->setMouseTracking(true);
     q->setAcceptDrops(true);
     text = txt;

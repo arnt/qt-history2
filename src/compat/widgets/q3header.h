@@ -178,7 +178,7 @@ private:        // Disabled copy constructor and operator=
 };
 
 
-inline Q3Header::Orientation Q3Header::orientation() const
+inline Qt::Orientation Q3Header::orientation() const
 {
     return orient;
 }

@@ -4237,13 +4237,13 @@ QPSPrintEngineFontSimplifiedChinese::QPSPrintEngineFontSimplifiedChinese(const Q
     codec = QTextCodec::codecForMib(114); // GB18030
     int type = getPsFontType(f);
     QString family = f->fontDef.family.toLower();
-    if(family.contains("kai",QString::CaseInsensitive)) {
+    if(family.contains("kai",Qt::CaseInsensitive)) {
         psname = KaiGBK2K[type].psname;
         appendReplacements(replacementList, KaiGBK2KReplacements, type);
-    } else if(family.contains("fangsong",QString::CaseInsensitive)) {
+    } else if(family.contains("fangsong",Qt::CaseInsensitive)) {
         psname = FangSongGBK2K[type].psname;
         appendReplacements(replacementList, FangSongGBK2KReplacements, type);
-    } else if(family.contains("hei",QString::CaseInsensitive)) {
+    } else if(family.contains("hei",Qt::CaseInsensitive)) {
         psname = HeiGBK2K[type].psname;
         appendReplacements(replacementList, HeiGBK2KReplacements, type);
     } else {

@@ -17,7 +17,7 @@ class QPainterState
 public:
     QPainterState() {
         bgBrush = Qt::white;
-        bgMode = QPainter::TransparentMode;
+        bgMode = Qt::TransparentMode;
         clipEnabled = false;
         WxF = false;
         VxF = false;

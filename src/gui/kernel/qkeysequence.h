@@ -35,7 +35,7 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &out, QKeySequence &ks);
 
 class QKeySequencePrivate;
 
-class Q_GUI_EXPORT QKeySequence : public Qt
+class Q_GUI_EXPORT QKeySequence
 {
 public:
     QKeySequence();

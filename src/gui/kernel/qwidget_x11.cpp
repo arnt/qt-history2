@@ -425,11 +425,11 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
                                               data->crect.left(), data->crect.top(),
                                               data->crect.width(), data->crect.height(),
                                               0,
-                                              QColor(black).pixel(d->xinfo->screen()),
-                                              QColor(white).pixel(d->xinfo->screen()));
+                                              QColor(Qt::black).pixel(d->xinfo->screen()),
+                                              QColor(Qt::white).pixel(d->xinfo->screen()));
         } else {
-            wsa.background_pixel = QColor(white).pixel(d->xinfo->screen());
-            wsa.border_pixel = QColor(black).pixel(d->xinfo->screen());
+            wsa.background_pixel = QColor(Qt::white).pixel(d->xinfo->screen());
+            wsa.border_pixel = QColor(Qt::black).pixel(d->xinfo->screen());
             wsa.colormap = d->xinfo->colormap();
             id = (WId)qt_XCreateWindow(this, dpy, parentw,
                                         data->crect.left(), data->crect.top(),
@@ -1396,7 +1396,7 @@ void QWidget::setActiveWindow()
 
 void QWidget::update()
 {
-    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == WState_Visible) {
+    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible) {
 //         d->removePendingPaintEvents(); // ### this is far too slow to go in
         d->invalidated_region = d->clipRect();
         QApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
@@ -1405,7 +1405,7 @@ void QWidget::update()
 
 void QWidget::update(const QRegion &rgn)
 {
-    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == WState_Visible) {
+    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible) {
         d->invalidated_region |= (rgn & d->clipRect());
         QApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
     }
@@ -1413,7 +1413,7 @@ void QWidget::update(const QRegion &rgn)
 
 void QWidget::update(int x, int y, int w, int h)
 {
-    if (w && h && (data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == WState_Visible) {
+    if (w && h && (data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible) {
         if (w < 0)
             w = data->crect.width()  - x;
         if (h < 0)
@@ -1503,7 +1503,7 @@ void QWidget::repaint(const QRegion& rgn)
     if (testWState(Qt::WState_InPaintEvent))
         qWarning("QWidget::repaint: recursive repaint detected.");
 
-    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) != WState_Visible
+    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) != Qt::WState_Visible
          || !testAttribute(Qt::WA_Mapped))
         return;
 
@@ -1524,8 +1524,8 @@ void QWidget::repaint(const QRegion& rgn)
                           && br.height() <= QX11DoubleBuffer::MaxHeight
                           && !QPainter::redirected(this));
 
-    HANDLE old_hd = d->hd;
-    HANDLE old_xft_hd = d->xft_hd;
+    Qt::HANDLE old_hd = d->hd;
+    Qt::HANDLE old_xft_hd = d->xft_hd;
 
     QPoint redirectionOffset;
 
@@ -1661,7 +1661,7 @@ void QWidget::setWindowState(uint newstate)
     if (isTopLevel()) {
         QTLWExtra *top = d->topData();
 
-        if ((oldstate & Qt::WindowMaximized) != (newstate & WindowMaximized)) {
+        if ((oldstate & Qt::WindowMaximized) != (newstate & Qt::WindowMaximized)) {
             if (qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))
                 && qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT))) {
                 qt_net_change_wm_state(this, (newstate & Qt::WindowMaximized),
@@ -1692,7 +1692,7 @@ void QWidget::setWindowState(uint newstate)
             }
         }
 
-        if ((oldstate & Qt::WindowFullScreen) != (newstate & WindowFullScreen)) {
+        if ((oldstate & Qt::WindowFullScreen) != (newstate & Qt::WindowFullScreen)) {
             if (qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN))) {
                 qt_net_change_wm_state(this, (newstate & Qt::WindowFullScreen),
                                        ATOM(_NET_WM_STATE_FULLSCREEN));
@@ -1734,7 +1734,7 @@ void QWidget::setWindowState(uint newstate)
             }
         }
 
-        if ((oldstate & Qt::WindowMinimized) != (newstate & WindowMinimized)) {
+        if ((oldstate & Qt::WindowMinimized) != (newstate & Qt::WindowMinimized)) {
             if (isVisible()) {
                 if (newstate & Qt::WindowMinimized) {
                     XEvent e;

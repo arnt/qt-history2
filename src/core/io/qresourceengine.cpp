@@ -31,8 +31,8 @@ class QResourceFileEngineHandler : public QFileEngineHandler
 {
 public:
     QResourceFileEngineHandler() { }
-    QFileEngine *createFileEngine(const QString &path) 
-    { 
+    QFileEngine *createFileEngine(const QString &path)
+    {
         if(path.startsWith(":/"))
             return new QResourceFileEngine(path);
         return 0;
@@ -43,7 +43,7 @@ class QResourceFileEnginePrivate : public QFileEnginePrivate
 {
 protected:
     Q_DECLARE_PUBLIC(QResourceFileEngine)
-private:   
+private:
     QString file;
     QIODevice::Offset offset;
     mutable QResource *resource;
@@ -85,7 +85,7 @@ QResourceFileEngine::entryList(int filterSpec, const QStringList &filters) const
         if(!(filterSpec & QDir::AllDirs && d->resource->isContainer())) {
             bool matched = false;
             for(QStringList::ConstIterator sit = filters.begin(); sit != filters.end(); ++sit) {
-                QRegExp rx(*sit, QString::CaseSensitive, QRegExp::Wildcard);
+                QRegExp rx(*sit, Qt::CaseSensitive, QRegExp::Wildcard);
                 if (rx.exactMatch(fn)) {
                     matched = true;
                 }
@@ -94,7 +94,7 @@ QResourceFileEngine::entryList(int filterSpec, const QStringList &filters) const
                 continue;
         }
 #endif
-        if  ((doDirs && d->resource->isContainer()) || 
+        if  ((doDirs && d->resource->isContainer()) ||
              (doFiles && !d->resource->isContainer()))
             ret.append(fn);
     }
@@ -138,7 +138,7 @@ QResourceFileEngine::open(int flags)
     }
     if ((flags & QFile::WriteOnly) == QFile::WriteOnly || (flags & QFile::Async))
         return false;
-    if(!(d->resource = qt_find_resource(d->file))) 
+    if(!(d->resource = qt_find_resource(d->file)))
        return false;
     return true;
 }
@@ -152,7 +152,7 @@ QResourceFileEngine::close()
 void
 QResourceFileEngine::flush()
 {
-    
+
 }
 
 Q_LONG
@@ -174,7 +174,7 @@ QResourceFileEngine::writeBlock(const char *, Q_LONG)
     return -1;
 }
 
-int 
+int
 QResourceFileEngine::ungetch(int)
 {
     return -1;
@@ -195,7 +195,7 @@ QResourceFileEngine::rename(const QString &)
 QFile::Offset
 QResourceFileEngine::size() const
 {
-    if(!d->resource) 
+    if(!d->resource)
 	d->resource = QResource::find(d->file);
     return d->resource->size();
 }
@@ -245,7 +245,7 @@ QResourceFileEngine::fileFlags(uint type) const
     uint ret = 0;
     if(!d->resource && !(d->resource = qt_find_resource(d->file)))
         return ret;
-    if(type & PermsMask) 
+    if(type & PermsMask)
         ret |= (ReadOwner|ReadUser|ReadGroup|ReadOther);
     if(type & TypeMask) {
         if(d->resource->isContainer())
@@ -253,7 +253,7 @@ QResourceFileEngine::fileFlags(uint type) const
         else
             ret |= File;
     }
-    if(type & FlagsMask) 
+    if(type & FlagsMask)
         ret |= Exists;
     return ret;
 }
@@ -275,7 +275,7 @@ QResourceFileEngine::fileName(FileName file) const
             return d->file;
 	int slash = d->file.lastIndexOf('/');
 	if (slash == -1) {
-	    if (d->file.at(1) == ':') 
+	    if (d->file.at(1) == ':')
 		return d->file.left(2);
 	    return QString::fromLatin1(".");
 	} else {
@@ -287,7 +287,7 @@ QResourceFileEngine::fileName(FileName file) const
 	}
     }
     return d->file;
-    
+
 }
 
 bool
@@ -315,7 +315,7 @@ QResourceFileEngine::fileTime(FileTime) const
     return QDateTime();
 }
 
-QIOEngine::Type 
+QIOEngine::Type
 QResourceFileEngine::type() const
 {
     return QIOEngine::Resource;

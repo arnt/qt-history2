@@ -43,7 +43,7 @@ class QCanvasPixmap;
 class QCanvasItemList;
 class QCanvasItemExtra;
 
-class Q_CANVAS_EXPORT QCanvasItem : public Qt
+class Q_CANVAS_EXPORT QCanvasItem
 {
 public:
     QCanvasItem(QCanvas* canvas);

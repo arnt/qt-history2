@@ -761,7 +761,7 @@ static void parseSpoolInterface(QList<QPrinterDescription> *printers)
         configFile.close();
 
         printerType = printerType.trimmed();
-        if (printerType.indexOf("postscript", 0, QString::CaseInsensitive) < 0)
+        if (printerType.indexOf("postscript", 0, Qt::CaseInsensitive) < 0)
             continue;
 
         int ii = 0;

@@ -784,16 +784,6 @@ void QTableItem::setContentFromEditor(QWidget *w)
     }
 }
 
-#if (QT_VERSION >= 0x040000)
-#  ifdef Q_CC_GNU
-#    warning "setAlignment() function needs implementation"
-#  endif
-#endif
-/*!
- */
-void QTableItem::setAlignment(int /*alignment*/)
-{
-}
 
 /*!
     The alignment function returns how the text contents of the cell
@@ -802,9 +792,6 @@ void QTableItem::setAlignment(int /*alignment*/)
 
     \sa Qt::AlignmentFlags
 */
-
-// ed: For consistency reasons a setAlignment() should be provided
-// as well.
 
 int QTableItem::alignment() const
 {
@@ -2906,7 +2893,7 @@ void QTable::paintFocus(QPainter *p, const QRect &cr)
         return;
     QRect focusRect(0, 0, cr.width(), cr.height());
     if (focusStyle() == SpreadSheet) {
-        p->setPen(QPen(black, 1));
+        p->setPen(QPen(Qt::black, 1));
         p->setBrush(Qt::NoBrush);
         p->drawRect(focusRect.x(), focusRect.y(), focusRect.width() - 1, focusRect.height() - 1);
         p->drawRect(focusRect.x() - 1, focusRect.y() - 1, focusRect.width() + 1, focusRect.height() + 1);
@@ -3531,7 +3518,7 @@ void QTable::contentsMousePressEventEx(QMouseEvent* e)
         return;
     }
 
-    if ((e->state() & Qt::ShiftButton) == ShiftButton) {
+    if ((e->state() & Qt::ShiftButton) == Qt::ShiftButton) {
         setCurrentCell(tmpRow, tmpCol, selMode == SingleRow, true);
         if (selMode != NoSelection && selMode != SingleRow) {
             if (!currentSel) {
@@ -3550,7 +3537,7 @@ void QTable::contentsMousePressEventEx(QMouseEvent* e)
             repaintSelections(&oldSelection, currentSel);
             emit selectionChanged();
         }
-    } else if ((e->state() & Qt::ControlButton) == ControlButton) {
+    } else if ((e->state() & Qt::ControlButton) == Qt::ControlButton) {
         setCurrentCell(tmpRow, tmpCol, false, true);
         if (selMode != NoSelection) {
             if (selMode == Single || selMode == SingleRow && !isSelected(tmpRow, tmpCol, false))
@@ -3665,7 +3652,7 @@ void QTable::contentsMouseMoveEvent(QMouseEvent *e)
         return;
     }
 #endif
-    if (selectionMode() == MultiRow && (e->state() & Qt::ControlButton) == ControlButton)
+    if (selectionMode() == MultiRow && (e->state() & Qt::ControlButton) == Qt::ControlButton)
         shouldClearSelection = false;
 
     if (shouldClearSelection) {
@@ -3863,7 +3850,7 @@ bool QTable::eventFilter(QObject *o, QEvent *e)
                 return true;
             }
 
-            if (ke->key() == Qt::Key_Tab || ke->key() == Key_BackTab) {
+            if (ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_BackTab) {
                 if (ke->state() & Qt::ControlButton)
                     return false;
                 if (!itm || itm->editType() == QTableItem::OnTyping)
@@ -3913,7 +3900,7 @@ bool QTable::eventFilter(QObject *o, QEvent *e)
             QObjectList l = viewport()->queryList("QWidget");
             if (l.contains(o)) {
                 QKeyEvent *ke = (QKeyEvent*)e;
-                if ((ke->state() & Qt::ControlButton) == ControlButton ||
+                if ((ke->state() & Qt::ControlButton) == Qt::ControlButton ||
                      (ke->key() != Qt::Key_Left && ke->key() != Qt::Key_Right &&
                        ke->key() != Qt::Key_Up && ke->key() != Qt::Key_Down &&
                        ke->key() != Qt::Key_Prior && ke->key() != Qt::Key_Next &&
@@ -4048,7 +4035,7 @@ void QTable::keyPressEvent(QKeyEvent* e)
     case Qt::Key_Enter: case Qt::Key_Return:
         activateNextCell();
         return;
-    case Qt::Key_Tab: case Key_BackTab:
+    case Qt::Key_Tab: case Qt::Key_BackTab:
         if ((e->key() == Qt::Key_Tab) && !(e->state() & Qt::ShiftButton)) {
             if (currentColumn() >= numCols() - 1)
                 return;
@@ -4096,7 +4083,7 @@ void QTable::keyPressEvent(QKeyEvent* e)
 
     if (navigationKey) {
         fixCell(tmpRow, tmpCol, e->key());
-        if ((e->state() & Qt::ShiftButton) == ShiftButton &&
+        if ((e->state() & Qt::ShiftButton) == Qt::ShiftButton &&
              selMode != NoSelection && selMode != SingleRow) {
             bool justCreated = false;
             setCurrentCell(tmpRow, tmpCol, false, true);
@@ -6577,7 +6564,7 @@ void QTableHeader::mousePressEvent(QMouseEvent *e)
     Q3Header::mousePressEvent(e);
     mousePressed = true;
     pressPos = real_pos(e->pos(), orientation());
-    if (!table->currentSel || (e->state() & Qt::ShiftButton) != ShiftButton)
+    if (!table->currentSel || (e->state() & Qt::ShiftButton) != Qt::ShiftButton)
         startPos = -1;
     setCaching(true);
     resizedSection = -1;
@@ -6599,7 +6586,7 @@ void QTableHeader::mouseMoveEvent(QMouseEvent *e)
 #ifndef QT_NO_CURSOR
          || cursor().shape() != Qt::ArrowCursor
 #endif
-         || ((e->state() & Qt::ControlButton) == ControlButton &&
+         || ((e->state() & Qt::ControlButton) == Qt::ControlButton &&
               (orientation() == Qt::Horizontal
              ? table->columnMovingEnabled() : table->rowMovingEnabled()))) {
         Q3Header::mouseMoveEvent(e);
@@ -6628,8 +6615,8 @@ bool QTableHeader::doSelection(QMouseEvent *e)
 
     if (startPos == -1) {
         int secAt = sectionAt(p);
-        if ((e->state() & Qt::ControlButton) != ControlButton &&
-             (e->state() & Qt::ShiftButton) != ShiftButton ||
+        if ((e->state() & Qt::ControlButton) != Qt::ControlButton &&
+             (e->state() & Qt::ShiftButton) != Qt::ShiftButton ||
              table->selectionMode() == QTable::Single ||
              table->selectionMode() == QTable::SingleRow) {
             startPos = p;

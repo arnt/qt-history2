@@ -169,7 +169,7 @@ void QWellArray::paintCell(QPainter* p, int row, int col)
         b = 3;
 
     const QPalette & g = palette();
-    p->setPen(QPen(black, 0, Qt::SolidLine));
+    p->setPen(QPen(Qt::black, 0, Qt::SolidLine));
     if (!smallStyle && row ==selRow && col == selCol &&
          style().styleHint(QStyle::SH_GUIStyle) != Qt::MotifStyle) {
         int n = 2;
@@ -186,9 +186,9 @@ void QWellArray::paintCell(QPainter* p, int row, int col)
 
     if ((row == curRow) && (col == curCol)) {
         if (smallStyle) {
-            p->setPen (white);
+            p->setPen (Qt::white);
             p->drawRect(1, 1, w-2, h-2);
-            p->setPen (black);
+            p->setPen (Qt::black);
             p->drawRect(0, 0, w, h);
             p->drawRect(2, 2, w-4, h-4);
             b = 3;
@@ -212,8 +212,8 @@ void QWellArray::paintCellContents(QPainter *p, int row, int col, const QRect &r
     if (d) {
         p->fillRect(r, d->brush[row*numCols()+col]);
     } else {
-        p->fillRect(r, white);
-        p->setPen(black);
+        p->fillRect(r, Qt::white);
+        p->setPen(Qt::black);
         p->drawLine(r.topLeft(), r.bottomRight());
         p->drawLine(r.topRight(), r.bottomLeft());
     }
@@ -822,10 +822,10 @@ void QColorPicker::drawContents(QPainter* p)
 
     p->drawPixmap(r.topLeft(), *pix);
     QPoint pt = colPt() + r.topLeft();
-    p->setPen(QPen(black));
+    p->setPen(QPen(Qt::black));
 
-    p->fillRect(pt.x()-9, pt.y(), 20, 2, black);
-    p->fillRect(pt.x(), pt.y()-9, 2, 20, black);
+    p->fillRect(pt.x()-9, pt.y(), 20, 2, Qt::black);
+    p->fillRect(pt.x(), pt.y()-9, 2, 20, Qt::black);
 
 }
 

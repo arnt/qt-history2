@@ -46,7 +46,7 @@ public:
 #endif //QT_NO_IMAGE_TEXT
 
 
-class Q_GUI_EXPORT QImage : public Qt
+class Q_GUI_EXPORT QImage
 {
 public:
     enum Endian { BigEndian, LittleEndian, IgnoreEndian };
@@ -290,7 +290,7 @@ public:
                                 const char *flags,
                                 image_io_handler read_image,
                                 image_io_handler write_image);
-    
+
 private:
     void init();
 

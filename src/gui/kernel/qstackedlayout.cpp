@@ -178,7 +178,7 @@ void QStackedLayout::setCurrentIndex(int index)
             // second best == first child widget in the focus chain
             QWidget *i = fw;
             while ((i = i->nextInFocusChain()) != fw) {
-                if (((i->focusPolicy() & Qt::TabFocus) == TabFocus)
+                if (((i->focusPolicy() & Qt::TabFocus) == Qt::TabFocus)
                     && !i->focusProxy() && i->isVisibleTo(next) && i->isEnabled()
                     && next->isAncestorOf(i)) {
                     i->setFocus();

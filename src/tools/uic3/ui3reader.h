@@ -33,7 +33,7 @@ struct Color;
 
 typedef QList<QPair<int, Color> > ColorGroup;
 
-class Ui3Reader : public Qt
+class Ui3Reader
 {
 public:
     Ui3Reader(QTextStream &stream);

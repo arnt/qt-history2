@@ -50,7 +50,7 @@ void QSliderPrivate::init()
     pressedControl = QStyle::SC_None;
     tickInterval = 0;
     tickSetting = QSlider::NoMarks;
-    q->setFocusPolicy(QWidget::TabFocus);
+    q->setFocusPolicy(Qt::TabFocus);
     QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Fixed);
     if (orientation == Qt::Vertical)
         sp.transpose();

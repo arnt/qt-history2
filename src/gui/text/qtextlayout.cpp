@@ -451,7 +451,7 @@ void QTextLayout::beginLayout(LayoutMode m, int textFlags)
     QTextEngine::Mode mode = QTextEngine::Full;
     if (m == NoBidi)
         mode = QTextEngine::NoBidi;
-    else if (m == Qt::SingleLine)
+    else if (m == QTextEngine::SingleLine)
         mode = QTextEngine::SingleLine;
     d->itemize(mode);
     d->textFlags = textFlags;
@@ -1049,7 +1049,7 @@ void QTextLine::layout(int width, BreakMode mode)
 //             qDebug("possible break at %d, chars (%d-%d) / glyphs (%d-%d): width %d, spacew=%d",
 //                    current.position + next, pos, next, logClusters[pos], logClusters[next], tmpw.value(), spacew.value());
 
-            if (line.length && tmpw.value() 
+            if (line.length && tmpw.value()
                 && (line.textWidth + tmpw > line.width || glyphCount > maxGlyphs)
                 && !(eng->textFlags & Qt::SingleLine))
                 goto found;

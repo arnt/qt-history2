@@ -687,7 +687,7 @@ bool QDataTable::eventFilter(QObject *o, QEvent *e)
         if (d->dat.mode() != QSql::None) {
             if ((ke->key() == Qt::Key_Tab) && (c < numCols() - 1) && (!isColumnReadOnly(c+1) || d->dat.mode() == QSql::Insert))
                 d->continuousEdit = true;
-            else if ((ke->key() == Key_BackTab) && (c > 0) && (!isColumnReadOnly(c-1) || d->dat.mode() == QSql::Insert))
+            else if ((ke->key() == Qt::Key_BackTab) && (c > 0) && (!isColumnReadOnly(c-1) || d->dat.mode() == QSql::Insert))
                 d->continuousEdit = true;
             else
                 d->continuousEdit = false;
@@ -1864,7 +1864,7 @@ void QDataTable::keyPressEvent(QKeyEvent* e)
     case Qt::Key_End:
     case Qt::Key_F2:
     case Qt::Key_Enter: case Qt::Key_Return:
-    case Qt::Key_Tab: case Key_BackTab:
+    case Qt::Key_Tab: case Qt::Key_BackTab:
         QTable::keyPressEvent(e);
     default:
         return;

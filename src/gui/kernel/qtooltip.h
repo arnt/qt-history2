@@ -19,7 +19,7 @@
 #include "qwidget.h"
 #endif // QT_H
 
-class Q_GUI_EXPORT QToolTip: public Qt
+class Q_GUI_EXPORT QToolTip
 {
     QToolTip();
 public:

@@ -414,10 +414,20 @@ int QMetaObject::indexOfEnumerator(const char *name) const
 {
     int i = -1;
     const QMetaObject *m = this;
+    int scope = 0;
+    const char *qualified_name = name;
+    const char *s = name;
+    while (*s  && *s != ':')
+        ++s;
+    if (*s && *(s+1)==':') {
+        scope = s - name;
+        name += scope + 2;
+    }
     while (m && i < 0) {
         for (i = priv(m->d.data)->enumeratorCount-1; i >= 0; --i) {
-            if (strcmp(name, m->d.stringdata
-                       + m->d.data[priv(m->d.data)->enumeratorData + 4*i]) == 0) {
+            if ((!scope || strncmp(qualified_name, m->d.stringdata, scope) == 0)
+                && strcmp(name, m->d.stringdata
+                          + m->d.data[priv(m->d.data)->enumeratorData + 4*i]) == 0) {
                 i += m->enumeratorOffset();
                 break;
             }

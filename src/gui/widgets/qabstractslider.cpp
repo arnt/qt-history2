@@ -610,10 +610,10 @@ void QAbstractSlider::keyPressEvent(QKeyEvent *ev)
             if (d->orientation == Qt::Vertical)
                 action = d->invertedControls ? SliderSingleStepAdd : SliderSingleStepSub;
             break;
-        case Key_PageUp:
+        case Qt::Key_PageUp:
             action = d->invertedControls ? SliderPageStepSub : SliderPageStepAdd;
             break;
-        case Key_PageDown:
+        case Qt::Key_PageDown:
             action = d->invertedControls ? SliderPageStepAdd : SliderPageStepSub;
             break;
         case Qt::Key_Home:

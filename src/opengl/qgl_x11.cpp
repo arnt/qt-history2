@@ -975,7 +975,7 @@ void QGLWidget::setContext(QGLContext *context,
 
     a.colormap = choose_cmap(x11Info()->display(), vi);        // find best colormap
     a.background_pixel = palette().color(backgroundRole()).pixel(vi->screen);
-    a.border_pixel = QColor(black).pixel(vi->screen);
+    a.border_pixel = QColor(Qt::black).pixel(vi->screen);
     Window p = RootWindow(x11Info()->display(), vi->screen);
     if (parentWidget())
         p = parentWidget()->winId();

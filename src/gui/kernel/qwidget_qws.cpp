@@ -631,19 +631,19 @@ void QWidget::setActiveWindow()
 
 void QWidget::update()
 {
-    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == WState_Visible)
+    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible)
         QApplication::postEvent(this, new QWSUpdateEvent(clipRegion()));
 }
 
 void QWidget::update(const QRegion &rgn)
 {
-     if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == WState_Visible)
+     if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible)
          QApplication::postEvent(this, new QWSUpdateEvent(rgn&clipRegion()));
 }
 
 void QWidget::update(int x, int y, int w, int h)
 {
-    if (w && h && (data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == WState_Visible) {
+    if (w && h && (data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible) {
         if (w < 0)
             w = data->crect.width()  - x;
         if (h < 0)
@@ -659,7 +659,7 @@ void QWidget::repaint(const QRegion& rgn)
     if (testWState(Qt::WState_InPaintEvent))
         qWarning("QWidget::repaint: recursive repaint detected.");
 
-    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) != WState_Visible)
+    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) != Qt::WState_Visible)
         return;
 
     if (rgn.isEmpty())

@@ -29,7 +29,7 @@ public:
     enum CaretMode { CaretAtZero, CaretAtOffset, CaretWontMatch };
 
     QRegExp();
-    explicit QRegExp(const QString &pattern, QString::CaseSensitivity cs = QString::CaseSensitive,
+    explicit QRegExp(const QString &pattern, Qt::CaseSensitivity cs = Qt::CaseSensitive,
 		     PatternSyntax syntax = RegExp);
     QRegExp(const QRegExp &rx);
     ~QRegExp();
@@ -42,12 +42,12 @@ public:
     bool isValid() const;
     QString pattern() const;
     void setPattern(const QString &pattern);
-    QString::CaseSensitivity caseSensitivity() const;
-    void setCaseSensitivity(QString::CaseSensitivity cs);
+    Qt::CaseSensitivity caseSensitivity() const;
+    void setCaseSensitivity(Qt::CaseSensitivity cs);
 #ifdef QT_COMPAT
-    inline QT_COMPAT bool caseSensitive() const { return caseSensitivity() == QString::CaseSensitive; }
+    inline QT_COMPAT bool caseSensitive() const { return caseSensitivity() == Qt::CaseSensitive; }
     inline QT_COMPAT void setCaseSensitive(bool sensitive)
-    { setCaseSensitivity(sensitive ? QString::CaseSensitive : QString::CaseInsensitive); }
+    { setCaseSensitivity(sensitive ? Qt::CaseSensitive : Qt::CaseInsensitive); }
 #endif
 #ifndef QT_NO_REGEXP_WILDCARD
     PatternSyntax patternSyntax() const;
@@ -93,7 +93,7 @@ public:
     inline QRegExp(const QString &pattern, bool cs, bool wildcard = false)
     {
         new (this)
-            QRegExp(pattern, cs ? QString::CaseSensitive : QString::CaseInsensitive,
+            QRegExp(pattern, cs ? Qt::CaseSensitive : Qt::CaseInsensitive,
                     wildcard ? Wildcard : RegExp);
     }
 #endif

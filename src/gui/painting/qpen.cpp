@@ -106,7 +106,7 @@ void QPen::init(const QColor &color, int width, uint linestyle)
 
 QPen::QPen()
 {
-    init(black, 0, Qt::SolidLine);
+    init(Qt::black, 0, Qt::SolidLine);
 }
 
 /*!
@@ -118,7 +118,7 @@ QPen::QPen()
 
 QPen::QPen(Qt::PenStyle style)
 {
-    init(black, 0, style);
+    init(Qt::black, 0, style);
 }
 
 /*!

@@ -566,11 +566,11 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     }
 
     QWidget *w = d->pdev->devType() == QInternal::Widget ? static_cast<QWidget *>(d->pdev) : 0;
-    if (w && w->testAttribute(WA_PaintUnclipped)) {  // paint direct on device
+    if (w && w->testAttribute(Qt::WA_PaintUnclipped)) {  // paint direct on device
         setf(NoCache);
         setf(UsePrivateCx);
- 	updatePen(QPen(black));
- 	updateBrush(QBrush(white), QPoint());
+ 	updatePen(QPen(Qt::black));
+ 	updateBrush(QBrush(Qt::white), QPoint());
         XSetSubwindowMode(d->dpy, d->gc, IncludeInferiors);
         XSetSubwindowMode(d->dpy, d->gc_brush, IncludeInferiors);
 #ifndef QT_NO_XFT

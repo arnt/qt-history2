@@ -91,7 +91,7 @@ QSize Q3DockWindowResizeHandle::sizeHint() const
 void Q3DockWindowResizeHandle::setOrientation(Qt::Orientation o)
 {
     orient = o;
-    if (o == Q3DockArea::Horizontal) {
+    if (o == Qt::Horizontal) {
 #ifndef QT_NO_CURSOR
         setCursor(Qt::splitVCursor);
 #endif
@@ -234,7 +234,7 @@ void Q3DockWindowResizeHandle::startLineDraw()
     QWidget *paint_on = QApplication::desktop()->screen(scr);
 #endif
     unclippedPainter = new QPainter(paint_on); // ### use setAttribute(Qt::WA_PaintUnclipped) instead
-    unclippedPainter->setPen(QPen(gray, orientation() == Qt::Horizontal ? height() : width()));
+    unclippedPainter->setPen(QPen(Qt::gray, orientation() == Qt::Horizontal ? height() : width()));
 }
 
 void Q3DockWindowResizeHandle::endLineDraw()
@@ -411,7 +411,7 @@ void Q3DockWindowHandle::mousePressEvent(QMouseEvent *e)
 {
     if (!dockWindow->dockArea)
         return;
-    ctrlDown = (e->state() & Qt::ControlButton) == ControlButton;
+    ctrlDown = (e->state() & Qt::ControlButton) == Qt::ControlButton;
     oldFocus = qApp->focusWidget();
     setFocus();
     e->ignore();
@@ -430,7 +430,7 @@ void Q3DockWindowHandle::mouseMoveEvent(QMouseEvent *e)
 {
     if (!mousePressed || e->pos() == offset)
         return;
-    ctrlDown = (e->state() & Qt::ControlButton) == ControlButton;
+    ctrlDown = (e->state() & Qt::ControlButton) == Qt::ControlButton;
     dockWindow->handleMove(e->pos() - offset, e->globalPos(), !opaque);
     if (opaque)
         dockWindow->updatePosition(e->globalPos());
@@ -580,7 +580,7 @@ void Q3DockWindowTitleBar::mousePressEvent(QMouseEvent *e)
         return;
     }
 
-    ctrlDown = (e->state() & Qt::ControlButton) == ControlButton;
+    ctrlDown = (e->state() & Qt::ControlButton) == Qt::ControlButton;
     oldFocus = qApp->focusWidget();
 // setFocus activates the window, which deactivates the main window
 // not what we want, and not required anyway on Windows
@@ -617,7 +617,7 @@ void Q3DockWindowTitleBar::mouseMoveEvent(QMouseEvent *e)
         return;
     }
 
-    ctrlDown = (e->state() & Qt::ControlButton) == ControlButton;
+    ctrlDown = (e->state() & Qt::ControlButton) == Qt::ControlButton;
     e->accept();
     dockWindow->handleMove(e->pos() - offset, e->globalPos(), !opaque);
 }
@@ -1179,7 +1179,7 @@ void Q3DockWindow::handleMove(const QPoint &pos, const QPoint &gp, bool drawRect
         if (startOrientation != Qt::Horizontal && qt_cast<Q3ToolBar*>(this))
             swapRect(currRect, Qt::Horizontal, startOffset, (Q3DockArea*)w);
         if (drawRect) {
-            unclippedPainter->setPen(QPen(gray, 3));
+            unclippedPainter->setPen(QPen(Qt::gray, 3));
             QRect dr(currRect);
 #ifdef MAC_DRAG_HACK
             dr.moveBy(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
@@ -1212,7 +1212,7 @@ void Q3DockWindow::handleMove(const QPoint &pos, const QPoint &gp, bool drawRect
         if (startOrientation != o)
             swapRect(currRect, o, startOffset, area);
         if (drawRect) {
-            unclippedPainter->setPen(QPen(gray, 1));
+            unclippedPainter->setPen(QPen(Qt::gray, 1));
             QRect dr(currRect);
 #ifdef MAC_DRAG_HACK
             dr.moveBy(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
@@ -1367,8 +1367,8 @@ void Q3DockWindow::updatePosition(const QPoint &globalPos)
         if (dockArea) {
             Q3MainWindow *mw = (Q3MainWindow*)dockArea->parentWidget();
             if (qt_cast<Q3MainWindow*>(mw) &&
-                 (!mw->isDockEnabled(Q3MainWindow::DockTornOff) ||
-                   !mw->isDockEnabled(this, Q3MainWindow::DockTornOff)))
+                 (!mw->isDockEnabled(Qt::DockTornOff) ||
+                   !mw->isDockEnabled(this, Qt::DockTornOff)))
                 return;
             delete (Q3DockArea::DockWindowData*)dockWindowData;
             dockWindowData = dockArea->dockWindowData(this);
@@ -1449,7 +1449,7 @@ void Q3DockWindow::startRectDraw(const QPoint &so, bool drawRect)
     QWidget *paint_on = QApplication::desktop()->screen(scr);
 #endif
     unclippedPainter = new QPainter(paint_on); // ### use setAttribute()
-    unclippedPainter->setPen(QPen(gray, curPlace == OutsideDock ? 3 : 1));
+    unclippedPainter->setPen(QPen(Qt::gray, curPlace == OutsideDock ? 3 : 1));
     currRect = QRect(realWidgetPos(this), size());
     if (drawRect) {
         QRect dr(currRect);

@@ -725,7 +725,7 @@ static char *aargv[] = { (char*)"unknown", 0 };
 
   This is available only on X11.
 */
-QApplication::QApplication(Display* dpy, HANDLE visual, HANDLE colormap)
+QApplication::QApplication(Display* dpy, Qt::HANDLE visual, Qt::HANDLE colormap)
     : QCoreApplication(*new QApplicationPrivate(aargc, aargv),
                          new QGuiEventLoop())
 
@@ -760,7 +760,7 @@ QApplication::QApplication(Display* dpy, HANDLE visual, HANDLE colormap)
 
 */
 QApplication::QApplication(Display *dpy, int argc, char **argv,
-                           HANDLE visual, HANDLE colormap)
+                           Qt::HANDLE visual, Qt::HANDLE colormap)
     : QCoreApplication(*new QApplicationPrivate(argc, argv),
                          new QGuiEventLoop())
 {
@@ -2632,7 +2632,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             if (e->type() == QEvent::MouseButtonPress) {
                 QWidget *fw = w;
                 while (fw) {
-                    if (fw->isEnabled() && (fw->focusPolicy() & QWidget::ClickFocus)) {
+                    if (fw->isEnabled() && (fw->focusPolicy() & Qt::ClickFocus)) {
                         QFocusEvent::setReason(QFocusEvent::Mouse);
                         fw->setFocus();
                         QFocusEvent::resetReason();
@@ -2689,7 +2689,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 
             QWidget *fw = w;
             while (fw) {
-                if (fw->isEnabled() && (fw->focusPolicy() & QWidget::WheelFocus) == QWidget::WheelFocus) {
+                if (fw->isEnabled() && (fw->focusPolicy() & Qt::WheelFocus) == Qt::WheelFocus) {
                     QFocusEvent::setReason(QFocusEvent::Mouse);
                     fw->setFocus();
                     QFocusEvent::resetReason();

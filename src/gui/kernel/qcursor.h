@@ -42,7 +42,7 @@ private:
 struct QCursorData;
 
 
-class Q_GUI_EXPORT QCursor : public Qt
+class Q_GUI_EXPORT QCursor
 {
 public:
     QCursor();
@@ -63,8 +63,8 @@ public:
     HCURSOR handle()  const;
     QCursor(HCURSOR cursor);
 #elif defined(Q_WS_X11)
-    HANDLE handle() const;
-    QCursor(HANDLE cursor);
+    Qt::HANDLE handle() const;
+    QCursor(Qt::HANDLE cursor);
     static int x11Screen();
 #elif defined(Q_WS_MAC)
     HANDLE handle() const;

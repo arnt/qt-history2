@@ -190,7 +190,7 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QItemOptions &option
                                    const QRect &rect, const QPixmap &pixmap) const
 {
     if (options.selected && !options.smallItem)
-        painter->fillRect(rect,QBrush(options.palette.highlight(), QBrush::Dense4Pattern));
+        painter->fillRect(rect,QBrush(options.palette.highlight(), Qt::Dense4Pattern));
     painter->drawPixmap(rect.topLeft(), pixmap);
 }
 

@@ -4535,9 +4535,9 @@ void Q3ListView::contentsMouseMoveEvent(QMouseEvent * e)
         i = d->startDragItem;
 
     if (!d->buttonDown ||
-         ((e->state() & Qt::LeftButton) != LeftButton &&
-           (e->state() & Qt::MidButton) != MidButton &&
-           (e->state() & Qt::RightButton) != RightButton))
+         ((e->state() & Qt::LeftButton) != Qt::LeftButton &&
+           (e->state() & Qt::MidButton) != Qt::MidButton &&
+           (e->state() & Qt::RightButton) != Qt::RightButton))
         return;
 
     if (d->pressedItem &&
@@ -7837,7 +7837,7 @@ Q3ListViewItem *Q3ListView::findItem(const QString& text, int column,
     for (int pass = 0; pass < 2; pass++) {
         while ((item = it.current()) != sentinel) {
             itmtxt = item->text(column);
-            if (compare & IgnoreCase)
+            if (!(compare & CaseSensitive))
                 itmtxt = itmtxt.toLower();
 
             if ((compare & ExactMatch)==ExactMatch && itmtxt == comtxt)

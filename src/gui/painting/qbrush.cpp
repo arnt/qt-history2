@@ -187,7 +187,7 @@ QBrush::QBrush()
         shared_default = new QBrushData;
         shared_default->ref = 1;
         shared_default->style = (Qt::BrushStyle)0;
-        shared_default->color = black;
+        shared_default->color = Qt::black;
         shared_default_cleanup.add(&shared_default);
     }
     d = shared_default;
@@ -214,7 +214,7 @@ QBrush::QBrush(const QPixmap &pixmap)
 
 QBrush::QBrush(Qt::BrushStyle style)
 {
-    init(black, style);
+    init(Qt::black, style);
 }
 
 /*!

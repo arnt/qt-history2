@@ -49,11 +49,11 @@ public:
 #endif
     QString join(const QString &sep) const;
 
-    QStringList find(const QString &str, QString::CaseSensitivity cs = QString::CaseSensitive) const;
+    QStringList find(const QString &str, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
     QStringList find(const QRegExp &rx) const;
-    QBool contains(const QString &str, QString::CaseSensitivity cs = QString::CaseSensitive) const;
+    QBool contains(const QString &str, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
 
-    QStringList &replace(const QString &before, const QString &after, QString::CaseSensitivity cs = QString::CaseSensitive);
+    QStringList &replace(const QString &before, const QString &after, Qt::CaseSensitivity cs = Qt::CaseSensitive);
     QStringList &replace(const QRegExp &rx, const QString &after);
 
     QStringList operator+(const QStringList &other) const
@@ -63,10 +63,10 @@ public:
 
 #ifdef QT_COMPAT
     inline QT_COMPAT QStringList grep(const QString &str, bool cs = true) const
-        { return find(str, cs ? QString::CaseSensitive : QString::CaseInsensitive); }
+        { return find(str, cs ? Qt::CaseSensitive : Qt::CaseInsensitive); }
     inline QT_COMPAT QStringList grep(const QRegExp &rx) const { return find(rx); }
     inline QT_COMPAT QStringList &gres(const QString &before, const QString &after, bool cs = true)
-        { return replace(before, after, cs ? QString::CaseSensitive : QString::CaseInsensitive); }
+        { return replace(before, after, cs ? Qt::CaseSensitive : Qt::CaseInsensitive); }
     inline QT_COMPAT QStringList &gres(const QRegExp &rx, const QString &after)
         { return replace(rx, after); }
     Iterator QT_COMPAT fromLast() { return (isEmpty() ? end() : --end()); }

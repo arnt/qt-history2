@@ -19,7 +19,7 @@
 #include "qpoint.h" // ### change to qwindowdefs.h?
 #endif // QT_H
 
-class Q_GUI_EXPORT QSize : public Qt
+class Q_GUI_EXPORT QSize
 {
 public:
     QSize();

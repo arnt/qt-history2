@@ -1210,7 +1210,7 @@ QString &QString::remove(int pos, int len)
     Removes every occurrence of \a str in this string. Returns a
     reference to this string.
 
-    If \a cs is QString::CaseSensitive (the default), the search is
+    If \a cs is Qt::CaseSensitive (the default), the search is
     case sensitive; otherwise the search is case insensitive.
 
     This is the same as replace(\a str, "", \a cs).
@@ -1231,13 +1231,13 @@ QString &QString::remove(const QString &str, Qt::CaseSensitivity cs)
     Removes every occurrence of the character \a ch in this string,
     and returns a reference to this string.
 
-    If \a cs is QString::CaseSensitive (the default), the search is
+    If \a cs is Qt::CaseSensitive (the default), the search is
     case sensitive; otherwise the search is case insensitive.
 
     Example:
     \code
         QString str = "Ali Baba";
-        str.remove(QChar('a'), QString::CaseInsensitive);
+        str.remove(QChar('a'), Qt::CaseInsensitive);
         // str == "li Bb"
     \endcode
 
@@ -1330,7 +1330,7 @@ QString &QString::replace(int pos, int len, QChar after)
     Replaces every occurrence of the string \a before with the string
     \a after.
 
-    If \a cs is QString::CaseSensitive (the default), the search is
+    If \a cs is Qt::CaseSensitive (the default), the search is
     case sensitive; otherwise the search is case insensitive.
 
     Example:
@@ -1443,7 +1443,7 @@ QString &QString::replace(const QString &before, const QString &after, Qt::CaseS
     Replaces every occurrence of the character \a ch in the string
     with \a after. Returns a reference to the string.
 
-    If \a cs is QString::CaseSensitive (the default), the search is
+    If \a cs is Qt::CaseSensitive (the default), the search is
     case sensitive; otherwise the search is case insensitive.
 */
 
@@ -1457,7 +1457,7 @@ QString& QString::replace(QChar ch, const QString &after, Qt::CaseSensitivity cs
     Replaces every occurrence of the character \a before with the
     character \a after. Returns a reference to the string.
 
-    If \a cs is QString::CaseSensitive (the default), the search is
+    If \a cs is Qt::CaseSensitive (the default), the search is
     case sensitive; otherwise the search is case insensitive.
 */
 QString& QString::replace(QChar before, QChar after, Qt::CaseSensitivity cs)
@@ -1773,7 +1773,7 @@ bool QString::operator>(const QLatin1String &other) const
     \a str in this string, searching forward from index position \a
     from. Returns -1 if \a str is not found.
 
-    If \a cs is QString::CaseSensitive (the default), the search is
+    If \a cs is Qt::CaseSensitive (the default), the search is
     case sensitive; otherwise the search is case insensitive.
 
     Example:
@@ -1900,7 +1900,7 @@ int QString::indexOf(QChar ch, int from, Qt::CaseSensitivity cs) const
     last character; if \a from is -2, at the next to last character
     and so on. Returns -1 if \a str is not found.
 
-    If \a cs is QString::CaseSensitive (the default), the search is
+    If \a cs is Qt::CaseSensitive (the default), the search is
     case sensitive; otherwise the search is case insensitive.
 
     Example:
@@ -2168,7 +2168,7 @@ QString& QString::replace(const QRegExp &rx, const QString &after)
     Returns the number of (potentially overlapping) occurrences of
     the string \a str in this string.
 
-    If \a cs is QString::CaseSensitive (the default), the search is
+    If \a cs is Qt::CaseSensitive (the default), the search is
     case sensitive; otherwise the search is case insensitive.
 
     \sa contains(), indexOf()
@@ -2216,13 +2216,13 @@ int QString::count(QChar ch, Qt::CaseSensitivity cs) const
     Returns true if this string contains an occurrence of the string
     \a str; otherwise returns false.
 
-    If \a cs is QString::CaseSensitive (the default), the search is
+    If \a cs is Qt::CaseSensitive (the default), the search is
     case sensitive; otherwise the search is case insensitive.
 
     Example:
     \code
         QString str = "Peter Pan";
-        str.contains("peter", QString::CaseInsensitive);    // returns true
+        str.contains("peter", Qt::CaseInsensitive);    // returns true
     \endcode
 
     \sa indexOf(), count()
@@ -2627,7 +2627,7 @@ QString QString::mid(int i, int len) const
     Returns true if the string starts with \a s; otherwise returns
     false.
 
-    If \a cs is QString::CaseSensitive (the default), the search is
+    If \a cs is Qt::CaseSensitive (the default), the search is
     case sensitive; otherwise the search is case insensitive.
 
     \code

@@ -91,7 +91,7 @@ private:
 class QIconViewToolTip;
 class QIconViewItemPrivate;
 
-class Q_COMPAT_EXPORT QIconViewItem : public Qt
+class Q_COMPAT_EXPORT QIconViewItem
 {
     friend class QIconView;
     friend class QIconViewToolTip;

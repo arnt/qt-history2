@@ -78,7 +78,7 @@ private:
     int aRow, aCol;
 };
 
-class QM_EXPORT_TABLE QTableItem : public Qt
+class QM_EXPORT_TABLE QTableItem
 {
     friend class QTable;
 
@@ -97,7 +97,6 @@ public:
     virtual void setText(const QString &t);
     QTable *table() const { return t; }
 
-    virtual void setAlignment(int);
     virtual int alignment() const;
     virtual void setWordWrap(bool b);
     bool wordWrap() const;

@@ -577,7 +577,7 @@ bool Q3DateTimeEditor::eventFilter(QObject *o, QEvent *e)
                 cw->removeLastNumber(d->focusSection());
                 return true;
             case Qt::Key_Tab:
-            case Key_BackTab: {
+            case Qt::Key_BackTab: {
                 if (ke->state() == Qt::ControlButton)
                     return false;
                 QWidget *w = this;
@@ -596,7 +596,7 @@ bool Q3DateTimeEditor::eventFilter(QObject *o, QEvent *e)
                         if (hadDateEdit && ke->key() == Qt::Key_Tab) {
                             ed->timeEdit()->setFocus();
                             return true;
-                        } else if (!hadDateEdit && ke->key() == Key_BackTab) {
+                        } else if (!hadDateEdit && ke->key() == Qt::Key_BackTab) {
                             ed->dateEdit()->setFocus();
                             return true;
                         } else {

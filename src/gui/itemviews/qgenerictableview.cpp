@@ -199,7 +199,7 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
     }
 
     bool showGrid = d->showGrid;
-    QPen gridPen = QPen(lightGray, 0, d->gridStyle);
+    QPen gridPen = QPen(Qt::lightGray, 0, d->gridStyle);
     QItemSelectionModel *sels = selectionModel();
     QGenericHeader *leftHeader = d->leftHeader;
     QGenericHeader *topHeader = d->topHeader;
@@ -247,7 +247,7 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
         painter.fillRect(bottom, options.palette.base());
     if (x < w && area.intersects(left))
         painter.fillRect(left, options.palette.base());
-    
+
     painter.end();
     painter.begin(d->viewport);
     painter.drawPixmap(area.topLeft(), d->backBuffer, area);

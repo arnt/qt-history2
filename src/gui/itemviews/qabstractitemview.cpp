@@ -837,10 +837,10 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         case Qt::Key_End:
             newCurrent = moveCursor(MoveEnd, e->state());
             break;
-        case Key_PageUp:
+        case Qt::Key_PageUp:
             newCurrent = moveCursor(MovePageUp, e->state());
             break;
-        case Key_PageDown:
+        case Qt::Key_PageDown:
             newCurrent = moveCursor(MovePageDown, e->state());
             break;
         }
@@ -850,7 +850,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
             QItemSelectionModel::SelectionFlags command = selectionCommand(e->state(),
                                                                            newCurrent,
                                                                            e->type(),
-                                                                           (Key)e->key());
+                                                                           (Qt::Key)e->key());
             if (e->state() & Qt::ShiftButton && d->selectionMode != SingleSelection) {
                 d->selectionModel->setCurrentItem(newCurrent, QItemSelectionModel::NoUpdate);
                 QRect rect(d->pressedPosition - offset, itemViewportRect(newCurrent).center());
@@ -873,8 +873,8 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Right:
     case Qt::Key_Home:
     case Qt::Key_End:
-    case Key_PageUp:
-    case Key_PageDown:
+    case Qt::Key_PageUp:
+    case Qt::Key_PageDown:
     case Qt::Key_Escape:
     case Qt::Key_Shift:
     case Qt::Key_Control:
@@ -889,7 +889,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
                                   selectionCommand(e->state(),
                                                    currentItem(),
                                                    e->type(),
-                                                   (Key)e->key()));
+                                                   (Qt::Key)e->key()));
         emit spacePressed(currentItem());
         e->accept();
         return;
@@ -970,13 +970,13 @@ bool QAbstractItemView::startEdit(const QModelIndex &index,
         if (d->shouldEdit(action, buddy))
             edit = buddy;
     }
-    
+
     if (edit.isValid()) {
         itemDelegate()->event(event, edit);
         if (d->requestEditor(action, event, edit))
             d->state = Editing;
     }
-    
+
     return d->state == Editing;
 }
 
@@ -1490,7 +1490,7 @@ void QAbstractItemView::doAutoScroll()
 QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(Qt::ButtonState state,
                                                                         const QModelIndex &index,
                                                                         QEvent::Type type,
-                                                                        Key key) const
+                                                                        Qt::Key key) const
 {
     QItemSelectionModel::SelectionFlags behavior = QItemSelectionModel::NoUpdate;
     switch (d->selectionBehavior) {
@@ -1518,8 +1518,8 @@ QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(Qt::Butt
                 || key == Qt::Key_Right
                 || key == Qt::Key_Home
                 || key == Qt::Key_End
-                || key == Key_PageUp
-                || key == Key_PageDown))
+                || key == Qt::Key_PageUp
+                || key == Qt::Key_PageDown))
             return QItemSelectionModel::NoUpdate;
 
         // Select/Deselect on Space
@@ -1586,8 +1586,8 @@ QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(Qt::Butt
             || key == Qt::Key_Right
             || key == Qt::Key_Home
             || key == Qt::Key_End
-            || key == Key_PageUp
-            || key == Key_PageDown))
+            || key == Qt::Key_PageUp
+            || key == Qt::Key_PageDown))
         return QItemSelectionModel::NoUpdate;
 
     // Toggle on Ctrl-Qt::Key_Space, Select on Space

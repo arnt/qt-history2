@@ -154,13 +154,13 @@ inline my_jpeg_source_mgr::my_jpeg_source_mgr(QImageIO* iioptr)
 
 
 static
-void scaleSize(int &reqW, int &reqH, int imgW, int imgH, QImage::ScaleMode mode)
+void scaleSize(int &reqW, int &reqH, int imgW, int imgH, Qt::ScaleMode mode)
 {
-    if (mode == QImage::ScaleFree)
+    if (mode == Qt::ScaleFree)
         return;
     int t1 = imgW * reqH;
     int t2 = reqW * imgH;
-    if ((mode == QImage::ScaleMin && (t1 > t2)) || (mode == QImage::ScaleMax && (t1 < t2)))
+    if ((mode == Qt::ScaleMin && (t1 > t2)) || (mode == Qt::ScaleMax && (t1 < t2)))
         reqH = t2 / imgW;
     else
         reqW = t1 / imgH;
@@ -197,7 +197,7 @@ void read_jpeg_image(QImageIO* iio)
         params.simplified();
         int sWidth = 0, sHeight = 0;
         char sModeStr[1024] = "";
-        QImage::ScaleMode sMode;
+        Qt::ScaleMode sMode;
 
         if (params.contains("GetHeaderInformation")) {
 
@@ -217,14 +217,14 @@ void read_jpeg_image(QImageIO* iio)
 
             QString sModeQStr(sModeStr);
             if (sModeQStr == "ScaleFree") {
-                sMode = QImage::ScaleFree;
+                sMode = Qt::ScaleFree;
             } else if (sModeQStr == "ScaleMin") {
-                sMode = QImage::ScaleMin;
+                sMode = Qt::ScaleMin;
             } else if (sModeQStr == "ScaleMax") {
-                sMode = QImage::ScaleMax;
+                sMode = Qt::ScaleMax;
             } else {
                 qDebug("read_jpeg_image: invalid scale mode \"%s\", see QImage::ScaleMode documentation", sModeStr);
-                sMode = QImage::ScaleFree;
+                sMode = Qt::ScaleFree;
             }
 
 //            qDebug("Parameters ask to scale the image to %i x %i ScaleMode: %s", sWidth, sHeight, sModeStr);

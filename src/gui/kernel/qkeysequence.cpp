@@ -458,29 +458,29 @@ QString QKeySequence::encodeString(int key)
     QString s;
 #if defined(Q_OS_MAC) && !defined(QWS)
     // On MAC the order is Meta, Alt, Shift, Control.
-    if ((key & Qt::META) == META)
+    if ((key & Qt::META) == Qt::META)
         s += QMAC_META;
-    if ((key & Qt::ALT) == ALT)
+    if ((key & Qt::ALT) == Qt::ALT)
         s += QMAC_ALT;
-    if ((key & Qt::SHIFT) == SHIFT)
+    if ((key & Qt::SHIFT) == Qt::SHIFT)
         s += QMAC_SHIFT;
-    if ((key & Qt::CTRL) == CTRL)
+    if ((key & Qt::CTRL) == Qt::CTRL)
         s += QMAC_CTRL;
 #else
     // On other systems the order is Meta, Control, Alt, Shift
-    if ((key & Qt::META) == META)
+    if ((key & Qt::META) == Qt::META)
         s += QShortcut::tr("Meta");
-    if ((key & Qt::CTRL) == CTRL) {
+    if ((key & Qt::CTRL) == Qt::CTRL) {
         if (!s.isEmpty())
             s += QShortcut::tr("+");
         s += QShortcut::tr("Ctrl");
     }
-    if ((key & Qt::ALT) == ALT) {
+    if ((key & Qt::ALT) == Qt::ALT) {
         if (!s.isEmpty())
             s += QShortcut::tr("+");
         s += QShortcut::tr("Alt");
     }
-    if ((key & Qt::SHIFT) == SHIFT) {
+    if ((key & Qt::SHIFT) == Qt::SHIFT) {
         if (!s.isEmpty())
             s += QShortcut::tr("+");
         s += QShortcut::tr("Shift");

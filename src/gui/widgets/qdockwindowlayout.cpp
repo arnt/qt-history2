@@ -1098,7 +1098,7 @@ void QDockWindowLayout::split(QDockWindow *existing, QDockWindow *with, Qt::Dock
 
     // create a nested window dock in place of the current widget
     QDockWindowLayout *nestedLayout =
-        new QDockWindowLayout(this, orientation == Qt::Horizontal ? Qt::Vertical : Horizontal);
+        new QDockWindowLayout(this, orientation == Qt::Horizontal ? Qt::Vertical : Qt::Horizontal);
     nestedLayout->setObjectName(objectName() + "_nestedLayout");
     insert(which / 2, nestedLayout).cur_size = save_size;
     invalidate();

@@ -473,7 +473,7 @@ void QTextBrowser::popupDetail(const QString& contents, const QPoint& pos)
     p.setPen(QApplication::palette().color(QPalette::Active, QPalette::Mid));
     p.setBrush(QColor(255, 255, 240));
     p.drawRect(1, 1, w-2, h-2);
-    p.setPen(black);
+    p.setPen(Qt::black);
 
     doc->draw(&p, hMargin, vMargin, r, popup->palette(), 0);
     delete doc;

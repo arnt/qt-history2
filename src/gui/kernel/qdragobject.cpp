@@ -749,8 +749,8 @@ static QTextCodec *codecForHTML(const QByteArray &ba)
             if (end == -1)
                 break;
             QString str = ba.mid(pos, end-pos);
-            if (str.contains("meta http-equiv=", QString::CaseInsensitive)) {
-                pos = str.indexOf("charset=", 0, QString::CaseInsensitive) + strlen("charset=");
+            if (str.contains("meta http-equiv=", Qt::CaseInsensitive)) {
+                pos = str.indexOf("charset=", 0, Qt::CaseInsensitive) + strlen("charset=");
                 if (pos != -1) {
                     int pos2 = ba.indexOf('\"', pos+1);
                     QByteArray cs = ba.mid(pos, pos2-pos);

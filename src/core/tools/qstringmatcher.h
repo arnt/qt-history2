@@ -26,23 +26,23 @@ class Q_CORE_EXPORT QStringMatcher
 public:
     QStringMatcher();
     explicit QStringMatcher(const QString &pattern,
-                            QString::CaseSensitivity cs = QString::CaseSensitive);
+                            Qt::CaseSensitivity cs = Qt::CaseSensitive);
     QStringMatcher(const QStringMatcher &other);
     ~QStringMatcher();
 
     QStringMatcher &operator=(const QStringMatcher &other);
 
     void setPattern(const QString &pattern);
-    void setCaseSensitivity(QString::CaseSensitivity cs);
+    void setCaseSensitivity(Qt::CaseSensitivity cs);
 
     int indexIn(const QString &str, int from = 0) const;
     inline QString pattern() const { return q_pattern; }
-    inline QString::CaseSensitivity caseSensitivity() const { return q_cs; }
+    inline Qt::CaseSensitivity caseSensitivity() const { return q_cs; }
 
 private:
     QStringMatcherPrivate *d_ptr;
     QString q_pattern;
-    QString::CaseSensitivity q_cs;
+    Qt::CaseSensitivity q_cs;
     uint q_skiptable[256];
 };
 

@@ -56,8 +56,8 @@ public:
     int y()                     const { return p.y(); }
     int globalX()               const { return g.x(); }
     int globalY()               const { return g.y(); }
-    Qt::ButtonState button()        const { return (ButtonState) b; }
-    Qt::ButtonState state()         const { return (ButtonState) s; }
+    Qt::ButtonState button()        const { return (Qt::ButtonState) b; }
+    Qt::ButtonState state()         const { return (Qt::ButtonState) s; }
     Qt::ButtonState stateAfter()    const;
 protected:
     QPoint p;
@@ -81,7 +81,7 @@ public:
     int y()                     const { return p.y(); }
     int globalX()               const { return g.x(); }
     int globalY()               const { return g.y(); }
-    Qt::ButtonState state()         const { return ButtonState(s); }
+    Qt::ButtonState state()         const { return Qt::ButtonState(s); }
     Qt::Orientation orientation()   const { return o; }
 protected:
     QPoint p;
@@ -156,7 +156,7 @@ public:
         return (txt.length() ? txt.unicode()->latin1() : 0);
     }
 #endif
-    Qt::ButtonState state()         const { return ButtonState(s); }
+    Qt::ButtonState state()         const { return Qt::ButtonState(s); }
     Qt::ButtonState stateAfter()    const;
     QString text()              const { return txt; }
     bool isAutoRepeat()         const { return autor; }
@@ -319,7 +319,7 @@ public:
     const QPoint& pos()         const { return p; }
     const QPoint& globalPos()   const { return gp; }
 
-    Qt::ButtonState state()         const   { return (ButtonState) s; }
+    Qt::ButtonState state()         const   { return (Qt::ButtonState) s; }
     Reason reason()             const { return Reason( reas ); }
 
 protected:

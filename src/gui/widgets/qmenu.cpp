@@ -1391,7 +1391,7 @@ QMenu::event(QEvent *e)
 {
     if(e->type() == QEvent::KeyPress) {
         QKeyEvent *ke = (QKeyEvent*)e;
-        if(ke->key() == Qt::Key_Tab || ke->key() == Key_BackTab) {
+        if(ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_BackTab) {
             keyPressEvent(ke);
             return true;
         }

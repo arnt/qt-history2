@@ -359,7 +359,7 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
                 for(int i = 0; i < region_rects.count(); i++)
                     qDebug("%d %d %d %d", region_rects[i].x(), region_rects[i].y(), region_rects[i].width(), region_rects[i].height());
 #endif
-                if((widget->data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == WState_Visible) {  //process the actual paint event.
+                if((widget->data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible) {  //process the actual paint event.
                     if(widget->testWState(Qt::WState_InPaintEvent))
                         qWarning("QWidget::repaint: recursive repaint detected.");
 
@@ -1428,10 +1428,10 @@ void QWidget::setWindowState(uint newstate)
     bool needShow = false;
     if(isTopLevel()) {
         WindowPtr window = qt_mac_window_for((HIViewRef)winId());
-        if((oldstate & Qt::WindowMinimized) != (newstate & WindowMinimized))
+        if((oldstate & Qt::WindowMinimized) != (newstate & Qt::WindowMinimized))
             CollapseWindow(window, (newstate & Qt::WindowMinimized) ? true : false);
 
-        if((oldstate & Qt::WindowFullScreen) != (newstate & WindowFullScreen)) {
+        if((oldstate & Qt::WindowFullScreen) != (newstate & Qt::WindowFullScreen)) {
             if(newstate & Qt::WindowFullScreen) {
                 if(QTLWExtra *tlextra = d->topData()) {
                     if(tlextra->normalGeometry.width() < 0) {
@@ -1454,7 +1454,7 @@ void QWidget::setWindowState(uint newstate)
             }
         }
 
-        if((oldstate & Qt::WindowMaximized) != (newstate & WindowMaximized)) {
+        if((oldstate & Qt::WindowMaximized) != (newstate & Qt::WindowMaximized)) {
             if(newstate & Qt::WindowMaximized) {
                 Rect bounds;
                 data->fstrut_dirty = true;

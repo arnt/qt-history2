@@ -137,8 +137,8 @@ QMetaCallEvent::~QMetaCallEvent()
 
     This type is used to signify an object's orientation.
 
-    \value Horizontal
-    \value Vertical
+    \value Qt::Horizontal
+    \value Qt::Vertical
 
     Orientation is used with QScrollBar for example.
 */

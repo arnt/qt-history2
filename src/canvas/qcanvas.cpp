@@ -585,7 +585,7 @@ void QCanvas::init(int w, int h, int chunksze, int mxclusters)
     chheight=(h+chunksize-1)/chunksize;
     chunks=new QCanvasChunk[chwidth*chheight];
     update_timer = 0;
-    bgcolor = white;
+    bgcolor = Qt::white;
     grid = 0;
     htiles = 0;
     vtiles = 0;
@@ -1069,7 +1069,7 @@ void QCanvas::drawViewArea(QCanvasView* view, QPainter* p, const QRect& vr, bool
 #else
         QPointArray a(QRect(all.x(),all.y(),all.width()+1,all.height()+1));
 #endif
-        if (view->viewport()->testAttribute(QWidget::WA_NoSystemBackground)) {
+        if (view->viewport()->testAttribute(Qt::WA_NoSystemBackground)) {
             QRect cvr = vr; cvr.moveBy(tl.x(),tl.y());
             p->setClipRegion(QRegion(cvr)-QRegion(a));
             p->fillRect(vr,view->viewport()->palette()
@@ -1659,7 +1659,7 @@ void QCanvas::drawBackground(QPainter& painter, const QRect& clip)
 void QCanvas::drawForeground(QPainter& painter, const QRect& clip)
 {
     if (debug_redraw_areas) {
-        painter.setPen(red);
+        painter.setPen(Qt::red);
         painter.setBrush(Qt::NoBrush);
         painter.drawRect(clip);
     }

@@ -669,8 +669,8 @@ void QTabBar::paintEvent(QPaintEvent *)
     for (int i = 0; i < d->tabList.count(); ++i) {
         const QTabBarPrivate::Tab *tab = &d->tabList.at(i);
         QRect r = tabRect(i);
-        p.setPen(i == d->currentIndex ? white : black);
-        p.setBrush(i == d->currentIndex ? black : white);
+        p.setPen(i == d->currentIndex ? Qt::white : Qt::black);
+        p.setBrush(i == d->currentIndex ? Qt::black : Qt::white);
         p.drawRect(r);
         p.drawText(r, Qt::AlignCenter | Qt::ShowPrefix, tab->text);
         if (i == d->currentIndex && hasFocus()) {

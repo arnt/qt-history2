@@ -159,7 +159,7 @@ QSize QGenericHeader::sizeHint() const
     QItemOptions options = viewOptions();
     int row = orientation() == Qt::Horizontal ? 0 : section(count() - 1);
     int col = orientation() == Qt::Horizontal ? section(count() - 1) : 0;
-    QModelIndex::Type type = orientation() == Horizontal
+    QModelIndex::Type type = orientation() == Qt::Horizontal
                              ? QModelIndex::HorizontalHeader
                              : QModelIndex::VerticalHeader;
     QModelIndex item = model()->index(row, col, QModelIndex(), type);

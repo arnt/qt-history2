@@ -37,7 +37,7 @@ class QMimeSource;
 class QLineEdit;
 class Q3ListViewToolTip;
 
-class Q_COMPAT_EXPORT Q3ListViewItem : public Qt
+class Q_COMPAT_EXPORT Q3ListViewItem
 {
     friend class Q3ListViewItemIterator;
     friend class Q3ListViewToolTip;

@@ -329,11 +329,11 @@ QTextCursor QTextDocument::find(const QString &_expr, int from, FindFlags option
 
     int pos = from;
 
-    QString::CaseSensitivity cs;
+    Qt::CaseSensitivity cs;
     if (options & SearchCaseSensitive)
-        cs = QString::CaseSensitive;
+        cs = Qt::CaseSensitive;
     else
-        cs = QString::CaseInsensitive;
+        cs = Qt::CaseInsensitive;
     re.setCaseSensitivity(cs);
 
     QTextBlock block = d->blocksFind(pos);

@@ -273,7 +273,7 @@ void QStringList::sort()
 /*!
     Returns a list of all the strings containing the substring \a str.
 
-    If \a cs is \l QString::CaseSensitive (the default), the string
+    If \a cs is \l Qt::CaseSensitive (the default), the string
     comparison is case sensitive; otherwise the comparison is case
     insensitive.
 
@@ -287,7 +287,7 @@ void QStringList::sort()
     \sa QString::contains()
 */
 
-QStringList QStringList::find(const QString &str, QString::CaseSensitivity cs) const
+QStringList QStringList::find(const QString &str, Qt::CaseSensitivity cs) const
 {
     QStringMatcher matcher(str, cs);
     QStringList res;
@@ -299,11 +299,11 @@ QStringList QStringList::find(const QString &str, QString::CaseSensitivity cs) c
 
 /*!
     Returns true if the list contains the string \a str.
-    Does a case insensitive search if \a cs is QString::CaseSensitive,
+    Does a case insensitive search if \a cs is Qt::CaseSensitive,
     otherwise the search will be case insensitive.
  */
 QBool QStringList::contains(const QString &str,
-                            QString::CaseSensitivity cs) const
+                            Qt::CaseSensitivity cs) const
 {
     QStringMatcher matcher(str, cs);
     for (int i = 0; i < size(); ++i) {
@@ -337,7 +337,7 @@ QStringList QStringList::find(const QRegExp &rx) const
     string list's strings, with the string \a after. Returns a
     reference to the string list.
 
-    If \a cs is \l QString::CaseSensitive (the default), the \a before
+    If \a cs is \l Qt::CaseSensitive (the default), the \a before
     string is search for case sensitively; otherwise the search is
     case insensitive.
 
@@ -351,7 +351,7 @@ QStringList QStringList::find(const QRegExp &rx) const
 
     \sa QString::replace()
 */
-QStringList &QStringList::replace(const QString &before, const QString &after, QString::CaseSensitivity cs)
+QStringList &QStringList::replace(const QString &before, const QString &after, Qt::CaseSensitivity cs)
 {
     for (int i = 0; i < size(); ++i)
         (*this)[i].replace(before, after, cs);

@@ -41,7 +41,7 @@ class QPointArray;
 class QTextItem;
 class QWMatrix;
 
-class Q_GUI_EXPORT QPainter : public Qt
+class Q_GUI_EXPORT QPainter
 {
 public:
     enum TextDirection { Auto, RTL, LTR };

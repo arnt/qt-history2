@@ -28,7 +28,7 @@ class Q_GUI_EXPORT QColorDialog : public QDialog
     Q_OBJECT
 
 public:
-    static QColor getColor(const QColor& init = white, QWidget* parent=0, const char* name=0);
+    static QColor getColor(const QColor& init = Qt::white, QWidget* parent=0, const char* name=0);
     static QRgb getRgba(QRgb, bool* ok = 0,
                          QWidget* parent=0, const char* name=0);
 

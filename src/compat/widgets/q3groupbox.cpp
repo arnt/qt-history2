@@ -525,7 +525,7 @@ void Q3GroupBox::setInsideSpacing(int s)
     slow (it does a complete layout). It is better to set the
     orientation directly in the constructor.
 */
-Q3GroupBox::Orientation Q3GroupBox::orientation() const
+Qt::Orientation Q3GroupBox::orientation() const
 {
     return d->dir;
 }
@@ -685,7 +685,7 @@ void Q3GroupBoxPrivate::fixFocus()
         QWidget * candidate = 0;
         QWidget * w = q;
         while ((w = w->nextInFocusChain()) != q) {
-            if (q->isAncestorOf(w) && (w->focusPolicy() & Qt::TabFocus) == TabFocus && w->isVisibleTo(q)) {
+            if (q->isAncestorOf(w) && (w->focusPolicy() & Qt::TabFocus) == Qt::TabFocus && w->isVisibleTo(q)) {
 #ifndef QT_NO_RADIOBUTTON
                 if (!best && qt_cast<QRadioButton*>(w) && ((QRadioButton*)w)->isChecked())
                     // we prefer a checked radio button or a widget that

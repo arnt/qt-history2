@@ -111,7 +111,7 @@ bool QViewportHelper::event(QEvent *e) {
 }
 
 QViewportPrivate::QViewportPrivate()
-    :hbar(0), vbar(0), vbarpolicy(Qt::ScrollBarAsNeeded), hbarpolicy(ScrollBarAsNeeded),
+    :hbar(0), vbar(0), vbarpolicy(Qt::ScrollBarAsNeeded), hbarpolicy(Qt::ScrollBarAsNeeded),
      viewport(0), left(0), top(0), right(0), bottom(0),
      xoffset(0), yoffset(0)
 {
@@ -120,7 +120,7 @@ QViewportPrivate::QViewportPrivate()
 
 void QViewportPrivate::init()
 {
-    q->setFocusPolicy(QWidget::WheelFocus);
+    q->setFocusPolicy(Qt::WheelFocus);
     q->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     q->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     hbar = new QScrollBar(Qt::Horizontal,  q);
@@ -509,10 +509,10 @@ void QViewport::contextMenuEvent(QContextMenuEvent *e)
 void QViewport::keyPressEvent(QKeyEvent * e)
 {
     switch (e->key()) {
-    case Key_PageUp:
+    case Qt::Key_PageUp:
         d->vbar->triggerAction(QScrollBar::SliderPageStepSub);
         break;
-    case Key_PageDown:
+    case Qt::Key_PageDown:
         d->vbar->triggerAction(QScrollBar::SliderPageStepAdd);
         break;
     case Qt::Key_Up:

@@ -179,7 +179,7 @@ union Variant
     inline Variant &createCursor(int shape) { cursor.init(shape); return *this; }
 };
 
-class DomTool : public Qt
+class DomTool
 {
 public:
     static QCoreVariant readProperty(const QDomElement& e, const QString& name, const QCoreVariant& defValue);
