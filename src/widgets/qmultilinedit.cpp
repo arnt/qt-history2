@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#56 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -388,8 +388,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 
     if ( row == cursorY && cursorOn && !readOnly ) {
 	int cursorPos = QMIN( (int)s->length(), cursorX );
-	int cXPos   = BORDER +
-			textWidthWithTabs( fm, *s, cursorPos ) - 1;
+	int cXPos   = BORDER + textWidthWithTabs( fm, *s, cursorPos ) - 1;
 	int cYPos   = 0;
 	if ( hasFocus() ) {
 	    p.drawLine( cXPos - 2, cYPos,
@@ -1020,8 +1019,6 @@ void QMultiLineEdit::insertAt( const char *txt, int line, int col )
 	setWidth( QMAX( cellWidth(), w ) );
 	if ( onLineAfter )
 	    cursorX += textLine->length();
-	if ( autoUpdate() )
-	    repaint( FALSE );
     } else {
 	int w = cellWidth();
 	QString newString = oldLine->mid( col, oldLine->length() );
@@ -1050,9 +1047,10 @@ void QMultiLineEdit::insertAt( const char *txt, int line, int col )
 	w = QMAX( textWidth( textLine ), w );
 	insertLine( newString, line );
 	setWidth( w );
-	if ( autoUpdate() )
-	    repaint( FALSE );
     }
+    if ( autoUpdate() )
+	repaint( FALSE );
+    textDirty = TRUE;
 }
 
 
@@ -1996,3 +1994,23 @@ void QMultiLineEdit::setAutoUpdate( bool enable )
     QTableView::setAutoUpdate( enable );
 }
 
+
+
+/*!
+  Returns the top center point where the cursor is drawn
+*/
+
+QPoint QMultiLineEdit::cursorPoint()
+{
+    QPoint cp( 0, 0 );
+
+    QFontMetrics fm( font() );
+    int col, row;
+    col = row = 0;
+    getCursorPosition( &row, &col );
+    const char* line = textLine( row );
+    ASSERT( line );
+    cp.setX( BORDER + textWidthWithTabs( fm, line, col ) - 1 );
+    cp.setY( (row * cellHeight()) + viewRect().y() );
+    return cp;
+}
