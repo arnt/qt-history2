@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#7 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#8 $
 **
 ** Implementation of QFileDialog class
 **
@@ -22,7 +22,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#7 $")
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#8 $")
 
 
 /*----------------------------------------------------------------------------
@@ -285,8 +285,8 @@ QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
     if ( GetOpenFileName(&ofn) )
 	result = file;
 
-    delete file;
-    delete dir;
+    delete [] file;
+    delete [] dir;
     return result;
 
 #else
