@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>554</width>
+            <width>550</width>
             <height>373</height>
         </rect>
     </property>
@@ -488,15 +488,7 @@
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QPushButton" row="2" column="1">
-                        <property name="name">
-                            <cstring>buttonDeleteRow</cstring>
-                        </property>
-                        <property name="text">
-                            <string>&amp;Delete Row</string>
-                        </property>
-                    </widget>
-                    <widget class="QPushButton" row="1" column="1">
+                    <widget class="QPushButton" row="0" column="1">
                         <property name="name">
                             <cstring>buttonNewRow</cstring>
                         </property>
@@ -504,7 +496,15 @@
                             <string>&amp;New Row</string>
                         </property>
                     </widget>
-                    <widget class="QLayoutWidget" row="0" column="1" rowspan="1" colspan="2">
+                    <widget class="QPushButton" row="1" column="1">
+                        <property name="name">
+                            <cstring>buttonDeleteRow</cstring>
+                        </property>
+                        <property name="text">
+                            <string>&amp;Delete Row</string>
+                        </property>
+                    </widget>
+                    <widget class="QLayoutWidget" row="2" column="1" rowspan="1" colspan="2">
                         <property name="name">
                             <cstring>Layout7_2</cstring>
                         </property>
