@@ -34,6 +34,12 @@ QCache/QIntCache:
   Using int/uint instead of long/ulong.
 
 
+QComboBox:
+----------
+  setStrList() obsolete, use clear() + insertStrList() instead.
+  string() obsolete, use text() instead.
+
+
 QDataStream:
 -----------
   Removed serialization of int and uint. Doesn't work anymore when
@@ -53,6 +59,17 @@ QFileInfo:
 QIODevice/QBuffer/QFile:
 ------------------------
   Using int/uint instead of long/ulong.
+
+
+QListbox:
+---------
+  string() obsolete, use text() instead.
+  stringCopy() and setStringCopy() obsolete.
+
+
+QMenuData:
+----------
+  string() obsolete, use text() instead.
 
 
 QPainter:
