@@ -357,7 +357,7 @@ void QStatusBar::reformat()
 
 /*!
     Hides the normal status indications and displays \a message for \a
-    timeout milli-seconds (if non-zero), or until clearMessage() or 
+    timeout milli-seconds (if non-zero), or until clearMessage() or
     another showMessage() is called, whichever occurs first.
 */
 void QStatusBar::showMessage(const QString &message, int timeout)
@@ -461,10 +461,18 @@ void QStatusBar::paintEvent(QPaintEvent *)
     QPainter p(this);
     QStatusBarPrivate::SBItem* item = 0;
 
+    bool rtl = layoutDirection() == Qt::RightToLeft;
+
+    int left = 6;
+    int right = width() - 12;
+
 #ifndef QT_NO_SIZEGRIP
-    int psx = (d->resizer && d->resizer->isVisible()) ? d->resizer->x() : width()-12;
-#else
-    int psx = width() - 12;
+    if (d->resizer && d->resizer->isVisible()) {
+        if (rtl)
+            left = d->resizer->x() + d->resizer->width();
+        else
+            right = d->resizer->x();
+    }
 #endif
 
     for (int i=0; i<d->items.size(); ++i) {
@@ -473,8 +481,12 @@ void QStatusBar::paintEvent(QPaintEvent *)
             break;
         if (!haveMessage || item->p)
             if (item->w->isVisible()) {
-                if (item->p && item->w->x()-1 < psx)
-                    psx = item->w->x()-1;
+                if (item->p) {
+                    if (rtl)
+                        left = qMax(left, item->w->x() + item->w->width() + 2);
+                    else
+                        right = qMin(right, item->w->x()-1);
+                }
                 QStyleOption opt(0);
                 opt.rect.setRect(item->w->x() - 1, item->w->y() - 1,
                                  item->w->width() + 2, item->w->height() + 2);
@@ -485,7 +497,7 @@ void QStatusBar::paintEvent(QPaintEvent *)
     }
     if (haveMessage) {
         p.setPen(palette().foreground().color());
-        p.drawText(6, 0, psx, height(), Qt::AlignVCenter | Qt::TextSingleLine, d->tempItem);
+        p.drawText(left, 0, right-left, height(), Qt::AlignLeading | Qt::AlignVCenter | Qt::TextSingleLine, d->tempItem);
     }
 }
 
