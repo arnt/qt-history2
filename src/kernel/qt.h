@@ -366,4 +366,9 @@
 #include <qwskeyboard_qnx6.h>
 #endif
 
+#ifdef Q_OS_QNX4
+#include <qwsmouse_qnx4.h>
+#include <qwskeyboard_qnx4.h>
+#endif
+
 #endif // QT_H
