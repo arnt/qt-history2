@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#96 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#97 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#96 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#97 $")
 
 
 /*----------------------------------------------------------------------------
@@ -1113,7 +1113,8 @@ bool QWidget::event( QEvent *e )		// receive event(),
 
     case Event_KeyPress: {
 	    QKeyEvent *k = (QKeyEvent *)e;
-#if 0
+#if 1
+	    // TAB handling has some unknown bug that nobody remembers
 	    bool res = FALSE;
 	    if ( k->key() == Key_Tab )
 		res = focusNextChild();
