@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#258 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#259 $
 **
 ** Implementation of QWidget class
 **
@@ -732,8 +732,10 @@ void QWidget::destroyMapper()
 {
     if ( !mapper )				// already gone
 	return;
-    register QWidget *w;
     QWidgetIntDictIt it( *((QWidgetIntDict*)mapper) );
+    QWidgetMapper * myMapper = mapper;
+    mapper = 0;
+    register QWidget *w;
     while ( (w=it.current()) ) {		// remove parents widgets
 	++it;
 	if ( !w->parentObj )			// widget is a parent
@@ -749,8 +751,7 @@ void QWidget::destroyMapper()
 	w->destroy( TRUE, TRUE );
     }
 #endif
-    delete mapper;
-    mapper = 0;
+    delete myMapper;
 }
 
 
@@ -2631,11 +2632,11 @@ bool QWidget::close( bool forceKill )
 bool QWidget::isVisibleTo(QWidget* ancestor) const
 {
     const QWidget * w = this;
-    while ( w && w->isVisible()
+    while ( w
+	    && w->isVisible()
 	    && !w->isTopLevel()
 	    && w->parentWidget()
-	    && w->parentWidget()!=ancestor
-	)
+	    && w->parentWidget()!=ancestor )
 	w = w->parentWidget();
     return w->isVisible();
 }
@@ -2656,7 +2657,7 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
 
 bool QWidget::isVisibleToTLW() const
 {
-    return isVisibleTo(0);
+    return isVisibleTo( 0 );
 }
 
 
