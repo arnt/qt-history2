@@ -368,7 +368,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	}else
 	    links << "$(TARGET0)" << "$(TARGET1)" << "$(TARGET2)";
     } else {
-	target = "$(TARGETA)";
+	target = "$(TARGET)";
     }
     QString src_targ = target;
     if(!destdir.isEmpty())
