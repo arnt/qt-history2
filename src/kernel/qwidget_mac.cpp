@@ -37,6 +37,7 @@
 
 #include "qt_mac.h"
 
+#include "qimage.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include "qpaintdevicemetrics.h"
@@ -415,15 +416,44 @@ void QWidget::setFontSys()
 
 void QWidget::setBackgroundColorDirect( const QColor &color )
 {
-    back_type = 1;
+    QColor old = bg_col;
     bg_col = color;
-    if ( bg_pix )
-      delete bg_pix;
-    erase( 0, 0, width(), height());
+    if ( extra && extra->bg_pix ) {		// kill the background pixmap
+	delete extra->bg_pix;
+	extra->bg_pix = 0;
+    }
+    backgroundColorChange( old );
 }
 
-void QWidget::setBackgroundPixmapDirect( const QPixmap & )
+static int allow_null_pixmaps = 0;
+
+void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 {
+    QPixmap old;
+    if ( extra && extra->bg_pix )
+	old = *extra->bg_pix;
+    if ( !allow_null_pixmaps && pixmap.isNull() ) {
+	if ( extra && extra->bg_pix ) {
+	    delete extra->bg_pix;
+	    extra->bg_pix = 0;
+	}
+    } else {
+	QPixmap pm = pixmap;
+	if (!pm.isNull()) {
+	    if ( pm.depth() == 1 && QPixmap::defaultDepth() > 1 ) {
+		pm = QPixmap( pixmap.size() );
+		bitBlt( &pm, 0, 0, &pixmap, 0, 0, pm.width(), pm.height() );
+	    }
+	}
+	if ( extra && extra->bg_pix )
+	    delete extra->bg_pix;
+	else
+	    createExtra();
+	extra->bg_pix = new QPixmap( pm );
+    }
+    if ( !allow_null_pixmaps ) {
+	backgroundPixmapChange( old );
+    }
 }
 
 void show_children( QWidget * w, int show )
@@ -478,6 +508,9 @@ void redraw_children(QWidget * w)
 */
 void QWidget::setBackgroundEmpty()
 {
+    allow_null_pixmaps++;
+    setBackgroundPixmap(QPixmap());
+    allow_null_pixmaps--;
 }
 
 
@@ -1197,26 +1230,9 @@ void QWidget::setBaseSize( int, int )
 
 void QWidget::erase( int x, int y, int w, int h )
 {
-    x--;
-    y--;
-    w += 2;
-    h += 2;
-    if ( x < 0 )
-      x = 0;
-    if ( y < 0 )
-      y = 0;
-    if ( w > width() )
-      w = width();
-    if ( h > height() )
-      h = height();
-
-    QPainter p;
-    p.begin(this);
-    if( back_type == 1) 
-	p.fillRect(x, y, w, h,bg_col);
-    else if ( back_type == 2 )
-      p.drawTiledPixmap( x, y, w, h, *bg_pix, 0, 0 );
-    p.end();
+    if ( backgroundMode() == NoBackground )
+	return;
+    erase( QRegion( x, y, w, h ) );
 }
 
 /*!
@@ -1228,14 +1244,26 @@ void QWidget::erase( int x, int y, int w, int h )
 
 void QWidget::erase( const QRegion& reg )
 {
+    QRect rr(rect()); //(reg.boundingRect());
+    int xoff = 0;
+    int yoff = 0;
+    if ( !isTopLevel() && backgroundOrigin() == QWidget::ParentOrigin ) {
+	QPoint mp(posInWindow(this));
+	xoff = mp.x();
+	yoff = mp.y();
+    }
+
     QPainter p;
-    p.setClipRegion(reg);
     p.begin(this);
-    if( back_type == 1) 
-	p.fillRect(reg.boundingRect(),bg_col);
-    else if ( back_type == 2 ) {
-	QRect br = reg.boundingRect();
-	p.drawTiledPixmap( br.x(), br.y(), br.width(), br.height(), *bg_pix, 0, 0 );
+    p.setClipRegion(reg);
+
+    if ( extra && extra->bg_pix ) {
+	if ( !extra->bg_pix->isNull() ) {
+	    QPoint point((rr.x()+xoff)%extra->bg_pix->width(), (rr.y()+yoff)%extra->bg_pix->height());
+	    p.drawTiledPixmap(rr,*extra->bg_pix, point);
+	}
+    } else {
+	p.fillRect(rr,bg_col);
     }
     p.end();
 }
