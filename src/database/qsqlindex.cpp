@@ -1,5 +1,7 @@
 #include "qsqlindex.h"
 
+#ifndef QT_NO_SQL
+
 /*!
     \class QSqlIndex qsqlindex.h
     \brief Class used for describing SQL database indexes
@@ -98,3 +100,5 @@ QString QSqlIndex::name() const
 {
     return nm;
 }
+
+#endif
