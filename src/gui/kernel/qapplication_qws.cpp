@@ -2023,7 +2023,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
         if (e->simpleData.property == 424242) {       // Clipboard
 #ifndef QT_NO_CLIPBOARD
             if (qt_clipboard) {
-                QClipboardEvent e(event);
+                QClipboardEvent e(reinterpret_cast<QEventPrivate*>(event));
                 QApplication::sendEvent(qt_clipboard, &e);
             }
 #endif
