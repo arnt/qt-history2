@@ -303,8 +303,6 @@ QString QInputDialog::getText( const QString &caption, const QString &label, QLi
 #endif
     dlg->lineEdit()->setText( text );
     dlg->lineEdit()->setEchoMode( mode );
-    if ( !text.isEmpty() )
-	dlg->lineEdit()->selectAll();
 
     bool ok_ = FALSE;
     QString result;

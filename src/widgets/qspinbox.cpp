@@ -200,6 +200,7 @@ void QSpinBox::initSpinBox()
 
     wrap = FALSE;
     edited = FALSE;
+    selreq = FALSE;
 
     validate = new QIntValidator( minValue(), maxValue(), this, "validator" );
     vi = new QLineEdit( this, "qt_spinbox_edit" );
@@ -648,8 +649,9 @@ void QSpinBox::wheelEvent( QWheelEvent * e )
 
 void QSpinBox::valueChange()
 {
+    selreq = TRUE;
     updateDisplay();
-    selectAll();
+    selreq = FALSE;
     emit valueChanged( value() );
     emit valueChanged( currentValueText() );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
@@ -710,6 +712,8 @@ const QValidator * QSpinBox::validator() const
 void QSpinBox::updateDisplay()
 {
     vi->setText( currentValueText() );
+    if ( selreq )
+	selectAll();
     vi->repaint( FALSE ); // we want an immediate repaint, might be that a widget connected to the value changed does some longer stuff which would result in a bad feedback of the spinbox
     edited = FALSE;
 

@@ -838,7 +838,7 @@ void QLineEdit::focusInEvent( QFocusEvent * e)
     Q_UNUSED(e) // I need this to get rid of a Borland warning
     d->cursorOn = FALSE;
     blinkOn();
-    if ( e->reason() == QFocusEvent::Tab || e->reason() == QFocusEvent::Backtab )
+    if ( e->reason() == QFocusEvent::Tab || e->reason() == QFocusEvent::Backtab || e->reason() == QFocusEvent::ActiveWindow )
 	selectAll();
     update();
     setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
