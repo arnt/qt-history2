@@ -315,7 +315,7 @@ QResourceFileEngine::fileTime(FileTime) const
 }
 
 QIOEngine::Type 
-QFSFileEngine::type() const
+QResourceFileEngine::type() const
 {
     return QIOEngine::Resource;
 }
