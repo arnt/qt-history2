@@ -398,6 +398,7 @@ QVariant QSettingsPrivate::stringToVariant(const QString &s)
 #else
             Q_ASSERT("QSettings: Cannot load custom types without QDataStream support");
 #endif
+#ifndef QT_NO_GEOM_VARIANT
         } else if (s.startsWith(QLatin1String("@Rect("))) {
             QStringList args = QSettingsPrivate::splitArgs(s, 5);
             if (args.size() == 4) {
@@ -419,6 +420,7 @@ QVariant QSettingsPrivate::stringToVariant(const QString &s)
             if (args.size() == 2) {
                 return QVariant(QPoint(args[0].toInt(), args[1].toInt()));
             }
+#endif
         } else if (s == QLatin1String("@Invalid()")) {
             return QVariant();
         }
