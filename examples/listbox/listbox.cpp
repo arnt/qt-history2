@@ -17,7 +17,7 @@
 #include <qlistbox.h>
 #include <qbuttongroup.h>
 #include <qlayout.h>
-
+#include <qpushbutton.h>
 
 
 ListBoxDemo::ListBoxDemo()
@@ -31,7 +31,7 @@ ListBoxDemo::ListBoxDemo()
     l = new QListBox( this );
     g->addWidget( l, 1, 1 );
     l->setFocusPolicy( QWidget::StrongFocus );
-    
+
     QVBoxLayout * v = new QVBoxLayout;
     g->addLayout( v, 1, 0 );
 
@@ -104,6 +104,14 @@ ListBoxDemo::ListBoxDemo()
     connect( cb, SIGNAL(toggled(bool)), this, SLOT(setMultiSelection(bool)) );
     v->addWidget( cb );
 
+    QPushButton *pb = new QPushButton( "Sort ascending", this );
+    connect( pb, SIGNAL( clicked() ), this, SLOT( sortAscending() ) );
+    v->addWidget( pb );
+    
+    pb = new QPushButton( "Sort descending", this );
+    connect( pb, SIGNAL( clicked() ), this, SLOT( sortDescending() ) );
+    v->addWidget( pb );
+
     v->addStretch( 100 );
 
     int i = 0;
@@ -173,4 +181,14 @@ void ListBoxDemo::setMultiSelection( bool b )
 {
     l->clearSelection();
     l->setMultiSelection( b );
+}
+
+void ListBoxDemo::sortAscending()
+{
+    l->sort( TRUE );
+}
+
+void ListBoxDemo::sortDescending()
+{
+    l->sort( FALSE );
 }

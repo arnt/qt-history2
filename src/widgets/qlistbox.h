@@ -186,6 +186,8 @@ public:
 
     QListBoxItem *firstItem() const;
 
+    void sort( bool ascending = TRUE );
+    
 public slots:
     virtual void ensureCurrentVisible();
     virtual void clearSelection();

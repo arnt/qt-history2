@@ -34,6 +34,8 @@ private slots:
     void setVariableWidth( bool );
     void setVariableHeight( bool );
     void setMultiSelection( bool );
+    void sortAscending();
+    void sortDescending();
     
 private:
     QListBox * l;

@@ -33,6 +33,8 @@
 #include "qapplication.h"
 #include "qptrdict.h"
 
+#include <stdlib.h>
+
 class QListBoxPrivate
 {
 public:
@@ -105,6 +107,10 @@ public:
 
     QRect *rubber;
     QPtrDict<bool> selectable;
+
+    struct SortableItem {
+	QListBoxItem *item;
+    };
 };
 
 
@@ -3738,3 +3744,66 @@ QListBoxItem *QListBox::firstItem() const
     return d->head;
 }
 
+static int cmpListBoxItems( const void *n1, const void *n2 )
+{
+    if ( !n1 || !n2 )
+	return 0;
+
+    QListBoxPrivate::SortableItem *i1 = (QListBoxPrivate::SortableItem *)n1;
+    QListBoxPrivate::SortableItem *i2 = (QListBoxPrivate::SortableItem *)n2;
+
+    if ( i1->item->text() < i2->item->text() )
+	return -1;
+    else if ( i1->item->text() == i2->item->text() )
+	return 0;
+    return 1;
+}
+
+void QListBox::sort( bool ascending )
+{
+    if ( count() == 0 )
+	return;
+
+    QListBoxPrivate::SortableItem *items = new QListBoxPrivate::SortableItem[ count() ];
+
+    QListBoxItem *item = d->head;
+    int i = 0;
+    for ( ; item; item = item->n )
+	items[ i++ ].item = item;
+
+    qsort( items, count(), sizeof( QListBoxPrivate::SortableItem ), cmpListBoxItems );
+
+    QListBoxItem *prev = 0;
+    item = 0;
+    if ( ascending ) {
+	for ( i = 0; i < (int)count(); ++i ) {
+	    item = items[ i ].item;
+	    if ( item ) {
+		item->p = prev;
+		if ( item->p )
+		    item->p->n = item;
+		item->n = 0;
+	    }
+	    if ( i == 0 )
+		d->head = item;
+	    prev = item;
+	}
+    } else {
+	for ( i = (int)count() - 1; i >= 0 ; --i ) {
+	    item = items[ i ].item;
+	    if ( item ) {
+		item->p = prev;
+		if ( item->p )
+		    item->p->n = item;
+		item->n = 0;
+	    }
+	    if ( i == (int)count() - 1 )
+		d->head = item;
+	    prev = item;
+	}
+    }
+
+    delete [] items;
+    d->layoutDirty = TRUE;
+    viewport()->repaint( TRUE );
+}
