@@ -1,12 +1,7 @@
 TEMPLATE = lib
 TARGET   = QAxContainer
 
-!debug_and_release|build_pass {
-   CONFIG(debug, debug|release) {
-      TARGET = $$member(TARGET, 0)d
-}
-
-CONFIG  += qt warn_on
+CONFIG  += qt warn_on staticlib
 DESTDIR  = $$QT_BUILD_TREE/lib
 
 LIBS    += -lole32 -loleaut32 -luser32 -lgdi32 -ladvapi32
