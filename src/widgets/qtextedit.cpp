@@ -4531,17 +4531,9 @@ void QTextEdit::append( const QString &text )
     cursor->gotoEnd();
     if ( cursor->index() > 0 )
 	cursor->splitAndInsertEmptyParagraph();
-    QTextCursor oldCursor2 = *cursor;
 
     if ( f == Qt::PlainText ) {
 	cursor->insert( text, TRUE );
-	if ( doc->useFormatCollection() && !doc->preProcessor() &&
-	     currentFormat != cursor->paragraph()->at( cursor->index() )->format() ) {
-	    doc->setSelectionStart( QTextDocument::Temp, oldCursor2 );
-	    doc->setSelectionEnd( QTextDocument::Temp, *cursor );
-	    doc->setFormat( QTextDocument::Temp, currentFormat, QTextFormat::Format );
-	    doc->removeSelection( QTextDocument::Temp );
-	}
     } else {
 	cursor->paragraph()->setListItem( FALSE );
 	cursor->paragraph()->setListDepth( 0 );
