@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#21 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#21 $";
 #endif
 
 
@@ -2001,46 +2001,59 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
     QFontMetrics fm( cfont );
 
-    int codelen = len + 100;
+    int codelen = len + len/2 + 4;;
     ushort *codes = (ushort *)malloc( sizeof(ushort)*codelen );
-    ushort cc;					// character code
+    ushort cc = 0;				// character code
 
-    const ENDLINE  = 0x8000;			// encoding 0x8zzz, zzz=width
+    const BEGLINE  = 0x8000;			// encoding 0x8zzz, zzz=width
     const TABSTOP  = 0x4000;			// encoding 0x4zzz, zzz=tab pos
     const PREFIX   = 0x2000;			// encoding 0x20zz, zz=char
+    const WDBITS   = 0x1fff;			// bits for width encoding
 
     register char *p = (char *)str;
     int nlines     = 0;				// number of lines
     int index      = 0;				// index for codes
+    int begline    = 0;				// index at beginning of line
     int breakindex = 0;				// index where to break
-    int breakwidth;				// width of text at breakindex
-    int bcwidth;				// width of break char
+    int breakwidth = 0;				// width of text at breakindex
+    int bcwidth	   = 0;				// width of break char
     int tabindex   = 0;				// tab array index
     int cw;					// character width
     int k = 0;					// index for p
     int tw = 0;					// text width
+    short charwidth[255];			// TO BE REMOVED LATER!!!
+    memset( charwidth, -1, 255*sizeof(short) );
+
+    bool wordbreak  = (tf & WordBreak)  == WordBreak;
+    bool expandtabs = (tf & ExpandTabs) == ExpandTabs;
+    bool singleline = (tf & SingleLine) == SingleLine;
+    bool showprefix = (tf & ShowPrefix) == ShowPrefix;
+
+#define CWIDTH(x) (charwidth[x]>=0 ? charwidth[x] : (charwidth[x]=fm.width(x)))
+
+    index++;					// first index contains BEGLINE
 
     while ( k < len ) {				// convert string to codes
 
-	if ( (tf & WordBreak) == WordBreak && isspace(*p) ) {
+	if ( wordbreak && isspace(*p) ) {
 	    breakindex = index;			// good position for word break
 	    breakwidth = tw;
-	    bcwidth = fm.width( *p );
+	    bcwidth = CWIDTH( *p );
 	}
 
 	if ( *p == '\n' ) {			// newline
-	    if ( (tf & SingleLine) == SingleLine ) {
+	    if ( singleline ) {
 		cc = ' ';			// convert newline to space
-		cw = fm.width( ' ' );
+		cw = CWIDTH( ' ' );
 	    }
 	    else {
-		cc = ENDLINE;
+		cc = BEGLINE;
 		cw = 0;
 	    }
 	}
 
 	else if ( *p == '\t' ) { 		// TAB character
-	    if ( (tf & ExpandTabs) == ExpandTabs ) {
+	    if ( expandtabs ) {
 		int tstop = 0;
 		if ( tabarray ) {
 		    debug( "TAB ARRAY NOT IMPLEMENTED" );
@@ -2051,17 +2064,16 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 		}
 		else if ( tabstops )
 		    tstop = tabstops - tw%tabstops;
-		debug( "TSTOP: %d (at %d)", cw, tw+cw );
 		cw = tstop;
 		cc = TABSTOP | (tw + cw);
 	    }
 	    else {				// convert TAB to space
 		cc = ' ';
-		cw = fm.width( ' ' );
+		cw = CWIDTH( ' ' );
 	    }
 	}
 
-	else if ( *p == '&' && (tf & ShowPrefix) == ShowPrefix ) {
+	else if ( *p == '&' && showprefix ) {
 	    cc = '&';				// assume ampersand
 	    if ( k < len-1 ) {
 		k++;
@@ -2069,69 +2081,69 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 		if ( *p != '&' && isprint(*p) )	// use prefix char
 		    cc = PREFIX | *p;
 	    }
-	    cw = fm.width( (char)(cc & 0xff) );
+	    cw = CWIDTH( (char)(cc & 0xff) );
 	}
 
 	else {					// normal character
 	    cc = *p;
-	    cw = fm.width( *p );
+	    cw = CWIDTH( *p );
 	}
 
-	if ( (tf & WordBreak) == WordBreak ) {	// break line
+	if ( wordbreak ) {			// break line
 	    if ( tw+cw > w && breakindex > 0 ) {
 		if ( index == breakindex ) {	// break at current index
-		    cc = ENDLINE;
+		    cc = BEGLINE;
 		    cw = 0;
 		}
 		else {
-		    codes[breakindex] = ENDLINE | breakwidth;
+		    codes[begline] = BEGLINE | (breakwidth & WDBITS);
+		    begline = breakindex;
+		    nlines++;
 		    tw -= breakwidth + bcwidth;
 		    breakindex = tabindex = 0;
 		}
-		nlines++;
 	    }
 	}
 
 	tw += cw;
-	if ( (cc & ENDLINE) == ENDLINE ) {
+	if ( (cc & BEGLINE) == BEGLINE ) {
+	    codes[begline] = BEGLINE | (tw & WDBITS);
+	    begline = index;
 	    nlines++;
-	    cc |= tw;
 	    tw = 0;
 	    breakindex = tabindex = 0;
 	}
 	codes[index++] = cc;
+	if ( index >= codelen ) {		// grow code array
+	    codelen += len;
+	    codes = (ushort *)realloc( codes, sizeof(ushort)*codelen );
+	}
 	k++;
 	p++;
     }
 
-    if ( (cc & ENDLINE) != ENDLINE ) {
-	codes[index++] = ENDLINE | tw;
+    if ( (cc & BEGLINE) != BEGLINE ) {		// !!!hmm, er denne sikker???
+	codes[begline] = BEGLINE | tw;
 	nlines++;
     }
-
-    // TEST
-    if ( index > codelen )
-	debug( "index out of range" );
-
-#if 1
-    free( codes );
-    return;
-#endif
-
+    else
+	debug( "QPainter::drawText: UNEXPECTED" );
+    codes[index++] = 0;
     codelen = index;
 
+#if 0
     QString s;
     QString n;
     for ( index=0; index<codelen; index++ ) {
 	cc = codes[index];
-	if ( (cc & ENDLINE) == ENDLINE ) {
-	    n.setNum( cc & 0x0fff );
-	    s += "<\\n:";
+	if ( (cc & BEGLINE) == BEGLINE ) {
+	    if ( index > 0 )
+		s += '\n';
+	    n.sprintf( "[%d]", cc & WDBITS );
 	    s += n;
-	    s += ">\n";
 	}
 	else if ( (cc & TABSTOP) == TABSTOP ) {
-	    n.setNum( cc & 0x0fff );
+	    n.setNum( cc & WDBITS );
 	    s += "<\\t:";
 	    s += n;
 	    s += ">";
@@ -2143,96 +2155,87 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	}
 	else
 	    s += (char)(cc & 0xff);
-//	n.sprintf( "[%x]", cc );
-//	s += n;
     }
-
     debug( s );
+    debug( "NLINES = %d", nlines );
+#endif
 
     int fascent  = fm.ascent();			// get font measurements
     int fdescent = fm.descent();
     int fheight  = fm.height();
     QRegion save_rgn = crgn;			// save the current region
     int xp, yp;
+    p = new char[codelen];			// buffer for printable string
 
-    free( (void *)codes );
-
-#if 0
-    short *linebreaks;				// contains line break indexes
-    short *linewidths;				// contains line widths
-    bool wordbreak  = (tf & WordBreak)  == WordBreak;
-    bool expandtabs = (tf & ExpandTabs) == ExpandTabs;
-    bool showprefix = (tf & ShowPrefix) == ShowPrefix;
-
-    if ( (tf & SingleLine) == SingleLine ) {	// just a single line
-	linebreaks = new short;
-	*linebreaks = len;
-	linewidths = new short;
-	ASSERT( nlines == 1 );
-    }
-    else {					// more than one line
-	linebreaks = new short[len+1];
-	int i = 0;
-	p = (char *)str;
-	k = 0;
-	tw = 0;
-	while ( k < len ) {			// calculate linebreaks
-	    if ( *p == '\n' )
-		linebreaks[i++] = k;
-	    else if ( wordbreak ) {		// word break
-		int cw = fm.width( *p );
-		if ( *p == '\t' && expandtabs ) {
-		}
-		else if ( *p == '&' && showprefix ) {
-		    if ( k < len ) {
-			
-		}
-		else
-		    cw = fm.width( *p );
-	    }
-	    p++;
-	}
-    }
+    if ( nlines == 1 && (codes[0] & WDBITS) < w && h > fheight )
+	tf |= DontClip;				// no need to clip
 
     if ( (tf & DontClip) == 0 )			// clip text
 	((QIntPainter*)this)->addClipRect( x, y, w, h );
 
-    if ( tf & AlignVCenter )			// vertically centered text
+    if ( (tf & AlignVCenter) == AlignVCenter )	// vertically centered text
 	yp = h/2 - nlines*fheight/2;
-    else if ( tf & AlignBottom )		// bottom aligned
+    else if ( (tf & AlignBottom) == AlignBottom)// bottom aligned
 	yp = h - nlines*fheight;
     else					// top aligned
 	yp = 0;
     yp += fascent;
-    k = len;
 
-    do {
-	p = (char *)str;
-	while ( k-- && *p && *p != '\n' )
-	    p++;
-	int linelen = (int)p - (int)str;
-	if ( tf & (AlignCenter|AlignRight) ) {
-	    tw = fm.width( str, linelen );	// get width of line
-	    if ( tf & AlignRight )		// right aligned
-		xp = w - tw;
-	    else				// centered text
-		xp = w/2 - tw/2;
+    index = 0;
+    while ( index < codelen ) {			// finally, draw the text
+
+	if ( codes[index] == 0 )		// end of text
+	    break;
+
+	tw = codes[index++] & WDBITS;		// text width
+
+	if ( tw == 0 ) {			// ignore empty line
+	    while ( codes[index] && (codes[index] & BEGLINE) != BEGLINE )
+		index++;
+	    yp += fheight;
+	    continue;
 	}
-	else					// left aligned
-	    xp = 0;
-	drawText( x+xp, y+yp, str, linelen );
+
+	if ( (tf & AlignRight) == AlignRight )
+	    xp = w - tw;			// right aligned
+	else if ( (tf & AlignCenter) == AlignCenter )
+	    xp = w/2 - tw/2;			// centered text
+	else
+	    xp = 0;				// left aligned
+
+	int bx = xp;				// base x position
+	while ( TRUE ) {
+	    ushort *ci = &codes[index];
+	    k = 0;
+	    while ( *ci && (*ci & (BEGLINE|TABSTOP)) == 0 ) {
+		if ( (*ci & PREFIX) == PREFIX ) {
+		    int xcpos = fm.width( p, k );
+		    drawLine( x+xp+xcpos, y+yp,
+			      x+xp+xcpos+CWIDTH( *ci&0xff ), y+yp );
+		}
+		p[k++] = (char)*ci++;
+		index++;
+	    }
+	    p[k] = 0;
+	    drawText( x+xp, y+yp, p, k );
+	    if ( (*ci & BEGLINE) == BEGLINE || *ci == 0 )
+		break;
+	    else if ( (*ci & TABSTOP) == TABSTOP ) {
+		xp = bx + (*ci & WDBITS);
+		index++;
+	    }
+	}
 	yp += fheight;
-	str = p+1;
-    } while ( k && *p );
+    }
 
     if ( (tf & DontClip) == 0 ) {		// restore clipping
 	((QIntPainter*)this)->restoreClipping();
 	if ( save_rgn.handle() != crgn.handle() )
 	    setClipRegion( save_rgn );
     }
-    delete linebreaks;
-#endif
 
+    delete p;
+    free( (void *)codes );
 }
 
 
