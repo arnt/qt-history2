@@ -31,7 +31,7 @@ class Q_GUI_EXPORT QAbstractButton : public QWidget
     Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
     Q_PROPERTY(bool checked READ isChecked WRITE setChecked)
     Q_PROPERTY(bool autoRepeat READ autoRepeat WRITE setAutoRepeat)
-    Q_PROPERTY(bool autoExclusive READ autoExclusive WRITE setAutoExclusive DESIGNABLE false)
+    Q_PROPERTY(bool autoExclusive READ autoExclusive WRITE setAutoExclusive)
     Q_PROPERTY(bool down READ isDown WRITE setDown DESIGNABLE false)
 
 public:

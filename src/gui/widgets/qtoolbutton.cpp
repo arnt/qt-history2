@@ -229,8 +229,9 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
     opt.init(q);
     bool down = q->isDown();
     bool checked = q->isChecked();
-    opt.text = q->text();
-    opt.icon = q->icon();
+    opt.text = text;
+    opt.icon = icon;
+    opt.iconSize = iconSize;
     opt.arrowType = arrowType;
     if (down)
         opt.state |= QStyle::State_Sunken;
@@ -262,7 +263,17 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
         opt.features |= QStyleOptionToolButton::Arrow;
     if (popupMode == QToolButton::DelayedPopup)
         opt.features |= QStyleOptionToolButton::PopupDelay;
-    opt.toolButtonStyle = q->toolButtonStyle();
+    opt.toolButtonStyle = toolButtonStyle;
+    if (icon.isNull()) {
+        if (!text.isEmpty())
+            opt.toolButtonStyle = Qt::ToolButtonTextOnly;
+        else if (opt.toolButtonStyle != Qt::ToolButtonTextOnly)
+            opt.toolButtonStyle = Qt::ToolButtonIconOnly;
+    } else {
+        if (text.isEmpty() && opt.toolButtonStyle != Qt::ToolButtonIconOnly)
+            opt.toolButtonStyle = Qt::ToolButtonIconOnly;
+    }
+
     opt.pos = q->pos();
     opt.font = q->font();
     return opt;
@@ -293,23 +304,22 @@ QSize QToolButton::sizeHint() const
     ensurePolished();
 
     int w = 0, h = 0;
+    QStyleOptionToolButton opt = d->getStyleOption();
+
     QFontMetrics fm = fontMetrics();
-    if (icon().isNull() && !text().isNull() && d->toolButtonStyle == Qt::ToolButtonIconOnly) {
-        w = fm.width(text());
-        h = fm.height();
-    } else {
+    if (opt.toolButtonStyle != Qt::ToolButtonTextOnly) {
         w = d->iconSize.width();
         h = d->iconSize.height();
     }
 
-    if (d->toolButtonStyle != Qt::ToolButtonIconOnly) {
+    if (opt.toolButtonStyle != Qt::ToolButtonIconOnly) {
         QSize textSize = fm.size(Qt::TextShowMnemonic, text());
         textSize.setWidth(textSize.width() + fm.width(' ')*2);
-        if (d->toolButtonStyle == Qt::ToolButtonTextUnderIcon) {
+        if (opt.toolButtonStyle == Qt::ToolButtonTextUnderIcon) {
             h += 4 + textSize.height();
             if (textSize.width() > w)
                 w = textSize.width();
-        } else if (d->toolButtonStyle == Qt::ToolButtonTextBesideIcon) {
+        } else if (opt.toolButtonStyle == Qt::ToolButtonTextBesideIcon) {
             w += 4 + textSize.width();
             if (textSize.height() > h)
                 h = textSize.height();
@@ -319,7 +329,6 @@ QSize QToolButton::sizeHint() const
         }
     }
 
-    QStyleOptionToolButton opt = d->getStyleOption();
     opt.rect.setHeight(h); // PM_MenuButtonIndicator depends on the height
     if (d->popupMode == MenuButtonPopup)
         w += style()->pixelMetric(QStyle::PM_MenuButtonIndicator, &opt, this);

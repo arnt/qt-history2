@@ -848,7 +848,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                         mode = QIcon::Active;
                     else
                         mode = QIcon::Normal;
-                    pm = toolbutton->icon.pixmap(toolbutton->rect.size(), mode, state);
+                    pm = toolbutton->icon.pixmap(toolbutton->rect.size().boundedTo(toolbutton->iconSize), mode, state);
 
                     if (toolbutton->toolButtonStyle != Qt::ToolButtonIconOnly) {
                         p->setFont(toolbutton->font);

@@ -5290,7 +5290,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                                                                                    : QIcon::Disabled;
                         QIcon::State iconState = (tb->state & QStyle::State_On) ? QIcon::On
                                                                                 : QIcon::Off;
-                        QPixmap pixmap = tb->icon.pixmap(tb->rect.size(), iconMode, iconState);
+                        QPixmap pixmap = tb->icon.pixmap(tb->rect.size().boundedTo(tb->iconSize), iconMode, iconState);
 
                         // Draw the text if it's needed.
                         if (tb->toolButtonStyle != Qt::ToolButtonIconOnly) {
@@ -5616,6 +5616,10 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
             sz = QSize(w, h);
         }
         break;
+    case CT_ToolButton:
+        sz.rwidth() += 10;
+        sz.rheight() += 10;
+        return sz;
     default:
         sz = QWindowsStyle::sizeFromContents(ct, opt, csz, widget);
     }
