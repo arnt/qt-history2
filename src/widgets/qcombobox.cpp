@@ -1104,6 +1104,12 @@ void QComboBox::paintEvent( QPaintEvent * )
     QPainter p( this );
     const QColorGroup & g = colorGroup();
 
+    QStyle::SFlags flags = QStyle::Style_Default;
+    if (isEnabled())
+	flags |= QStyle::Style_Enabled;
+    if (hasFocus())
+	flags |= QStyle::Style_HasFocus;
+
     if ( width() < 5 || height() < 5 ) {
 	qDrawShadePanel( &p, rect(), g, FALSE, 2,
 			 &g.brush( QColorGroup::Button ) );

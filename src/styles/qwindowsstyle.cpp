@@ -616,7 +616,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    int maxpmw = *((int *) data[2]);
 	    bool dis = ! mi->isEnabled();
 	    bool checkable = popupmenu->isCheckable();
-	    bool act = flags & Style_Selected;
+	    bool act = flags & Style_Active;
 	    int x, y, w, h;
 
 	    r.rect(&x, &y, &w, &h);

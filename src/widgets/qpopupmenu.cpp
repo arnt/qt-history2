@@ -1201,7 +1201,9 @@ void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
     if (isEnabled() && mi->isEnabled())
 	flags |= QStyle::Style_Enabled;
     if (act)
-	flags |= QStyle::Style_Selected;
+	flags |= QStyle::Style_Active;
+    if (mouseBtDn)
+	flags |= QStyle::Style_Down;
 
     void *data[3];
     data[0] = mi;
@@ -1238,10 +1240,6 @@ void QPopupMenu::drawContents( QPainter* p )
 	++it;
 	int itemh = itemHeight( mi );
 
-	flags = QStyle::Style_Default;
-	if (isEnabled() && mi->isEnabled())
-	    flags |= QStyle::Style_Enabled;
-
 	data[0] = mi;
 	data[1] = &maxPMWidth;
 	data[2] = 0;
@@ -1253,6 +1251,10 @@ void QPopupMenu::drawContents( QPainter* p )
 
 	if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
 	    if ( y < contentsRect().bottom() ) {
+		flags = QStyle::Style_Default;
+		if (isEnabled() && mi->isEnabled())
+		    flags |= QStyle::Style_Enabled;
+
 		data[0] = 0;
 		data[1] = &tab;
 		data[2] = &maxPMWidth;

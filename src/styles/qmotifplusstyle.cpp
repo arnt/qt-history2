@@ -853,7 +853,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 	    int maxpmw = *((int *) data[2]);
 	    bool dis = ! (flags & Style_Enabled);
 	    bool checkable = popupmenu->isCheckable();
-	    bool act = flags & Style_Selected;
+	    bool act = flags & Style_Active;
 	    int x, y, w, h;
 	    const QColorGroup &g = ((act && !dis) ?
 				    singleton->prelight_palette.active() : cg);
