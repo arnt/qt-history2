@@ -902,6 +902,9 @@ void QX11PaintEngine::cleanup()
 
 bool QX11PaintEngine::begin(QPaintDevice *pdev)
 {
+    if (pdev && pdev->devType() == QInternal::Pixmap)
+        static_cast<QPixmap *>(pdev)->detach(); // will modify it
+
     d->pdev = pdev;
     d->xinfo = qt_x11Info(pdev);
     d->hd = qt_x11Handle(pdev);
@@ -928,8 +931,6 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     QPixmap::x11SetDefaultScreen(d->xinfo->screen());
 
     assignf(IsActive | DirtyFont);
-    if (d->pdev->devType() == QInternal::Pixmap)         // device is a pixmap
-        static_cast<QPixmap *>(pdev)->detach(); // will modify it
 
     if (d->xinfo->depth() != QX11Info::appDepth(d->scrn)) { // non-standard depth
         setf(NoCache);
