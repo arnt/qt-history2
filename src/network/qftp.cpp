@@ -24,6 +24,7 @@
 #include "qtimer.h"
 #include "qfileinfo.h"
 #include "qhash.h"
+#include "private/qspinlock_p.h"
 
 //#define QFTPPI_DEBUG
 //#define QFTPDTP_DEBUG
@@ -219,14 +220,17 @@ public:
     } data;
     bool is_ba;
 
+    static QStaticSpinLock idCounterSpinLock;
     static int idCounter;
 };
 
+QStaticSpinLock QFtpCommand::idCounterSpinLock = 0;
 int QFtpCommand::idCounter = 0;
 
 QFtpCommand::QFtpCommand(QFtp::Command cmd, QStringList raw, const QByteArray &ba)
     : command(cmd), rawCmds(raw), is_ba(true)
 {
+    QSpinLockLocker locker(idCounterSpinLock);
     id = ++idCounter;
     data.ba = new QByteArray(ba);
 }
@@ -234,6 +238,7 @@ QFtpCommand::QFtpCommand(QFtp::Command cmd, QStringList raw, const QByteArray &b
 QFtpCommand::QFtpCommand(QFtp::Command cmd, QStringList raw, QIODevice *dev)
     : command(cmd), rawCmds(raw), is_ba(false)
 {
+    QSpinLockLocker locker(idCounterSpinLock);
     id = ++idCounter;
     data.dev = dev;
 }
@@ -434,9 +439,9 @@ bool QFtpDTP::parseDir(const QString &buffer, const QString &userName, QUrlInfo 
     QString dateStr;
     dateStr += "Sun ";
     dateStr += lst[5];
-    dateStr += ' ';
+    dateStr += QLatin1Char(' ');
     dateStr += lst[6];
-    dateStr += ' ';
+    dateStr += QLatin1Char(' ');
 
     if (lst[7].contains(":")) {
         time = QTime(lst[7].left(2).toInt(), lst[7].right(2).toInt());
