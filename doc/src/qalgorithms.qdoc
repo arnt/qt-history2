@@ -534,6 +534,16 @@
         // list: [ 68, 33, 12, 12, 6 ]
     \endcode
 
+    \warning Microsoft Visual C++ 6.0 has a bug that prevents the
+    above code snippets from compiling. To work around this bug,
+    assign the function pointer to a variable and pass that variable
+    to qHeapSort(), like this:
+
+    \code
+        bool (*lessThan)(const QString &, const QString &) = qGreater<QString>;
+        qHeapSort(vect.begin(), vect.end(), lessThan);
+    \endcode
+
     \sa qLess(), qGreater()
 */
 

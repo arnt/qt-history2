@@ -17,11 +17,13 @@
 
     This document describes porting applications from Qt 3 to Qt 4.
 
+\omit
     ### no integral conversion for containers? strings?
     ### QVector etc. are initialized to 0 by default?
     ### How to port from Qt 2.3 to Qt 4.
     ### missing sort() functions?
     ### make sure all QT_COMPAT enums are documented here and omitvalue otherwise
+\endomit
 
     If you haven't yet made the decision about porting, or are unsure
     about whether it is worth it, take a look at the \link
@@ -57,19 +59,24 @@
 
     \endlist
 
+\omit
     ### what to do with slots that aren't slots anymore
     ### what to do with virtual functions that aren't virtual anymore
     ### what to do with virtual functions that changed signature
     ### properties?
+\endomit
 
+\omit
     ### <qtl.h> -- stuff that vanished?
     ### implicit sharing
     ### uint -> int indexes
+\endomit
 
     Table of contents:
 
     \tableofcontents{4}
 
+\omit
     \section1 Header Files
 
     ### New style of headers
@@ -80,7 +87,9 @@
     \endtable
 
     ### Some headers don't include each other anymore...
+\endomit
 
+\omit
     \section1 Global Functions
 
     \table
@@ -104,14 +113,19 @@
 
     QWidget visibleRect property compat
     QWidget::BackgroundOrigin compat
+\endomit
 
+\omit
     \section1 Enum Values
 
     ###
+\endomit
 
+\omit
     \section1 Null vs. Empty
 
     ###
+\endomit
 
     \section1 Explicit Sharing
 
@@ -178,11 +192,13 @@
     same object, by calling QAccel::insertItem() multiple times. In
     Qt 4, the solution is to create multiple QShortcut objects.
 
+\omit
     \section1 QAction
 
     ###
 
     Q3Action, Q3ActionGroup
+\endomit
 
     \section1 QApplication
 
@@ -669,6 +685,7 @@
 
     See \l{SQL Module} for an overview of the new item SQL classes.
 
+\omit
     \section1 QDateEdit
 
     ###
@@ -680,6 +697,7 @@
     \section1 QDateTimeEdit
 
     ###
+\endomit
 
     \section1 QDeepCopy<T>
 
@@ -916,6 +934,7 @@
     QDns::getHostByName(), one of which is blocking, the other
     non-blocking. See the QDns class documentation for details.
 
+\omit
     \section1 QDockArea
 
     ###
@@ -927,6 +946,7 @@
     ###
 
     Q3DockWindow
+\endomit
 
     \section1 QDropSite
 
@@ -1079,9 +1099,11 @@
 
     The QGrid class has been renamed QGridWidget.
 
+\omit
     \section1 QGridView
 
     ###
+\endomit
 
     \target qgroubox.section
     \section1 QGroupBox
@@ -1118,11 +1140,13 @@
 
     The QHBox class has been renamed QHBoxWidget.
 
+\omit
     \section1 QHeader
 
     ###
 
     Q3Header
+\endomit
 
     \section1 QHttp
 
@@ -1218,11 +1242,13 @@
     been moved to the \l{Qt 3 compatibility library}. Use QDir,
     QFileInfo, or QFile instead.
 
+\omit
     \section1 QMainWindow
 
     ###
 
     Q3MainWindow
+\endomit
 
     \section1 QMemArray<T>
 
@@ -1346,9 +1372,11 @@
     functions returned a bool in Qt 3, indicating whether the array
     was successfully resized or not. In Qt 4, they return void.
 
+\omit
     \section1 QPopupMenu
 
     ###
+\endomit
 
     \section1 QPrinter
 
@@ -2078,12 +2106,14 @@
         signal.activate(5);
     \endcode
 
+\omit
     \section1 QSimpleRichText
 
     The QSimpleRichText class has been moved to the \l{Qt 3
     compatibility library}.
 
     ###
+\endomit
 
     \section1 QSlider
 
@@ -2315,19 +2345,23 @@
     For example, at() returns the string, not an iterator. See the
     \l{qvaluelist.section}{section on QValueList} for details.
 
+\omit
     \section1 QStyleSheet
 
     The QStyleSheet and QStyleSheetItem classes have been moved to
     the \l{Qt 3 compatibility library}.
 
     ###
+\endomit
 
+\omit
     \section1 QSyntaxHighlighter
 
     The QSyntaxHighlighter class has been moved to the \l{Qt 3
     compatibility library}.
 
     ###
+\endomit
 
     \section1 QTabDialog
 
@@ -2349,19 +2383,23 @@
     See \l{Model-View Programming} for an overview of the new item
     view classes.
 
+\omit
     \section1 QTextBrowser
 
     The QTextBrowser class has been moved to the \l{Qt 3
     compatibility library}.
 
     ###
+\endomit
 
+\omit
     \section1 QTextEdit
 
     The old QTextEdit has been renamed Q3TextEdit and moved to the
     \l{Qt 3 compatibility library}.
 
     To port to the new QTextEdit class, ###
+\endomit
 
     \section1 QTextOStreamIterator
 
@@ -2369,6 +2407,7 @@
     the Qt library. If you need it in your application, feel free to
     copy the source code from the Qt 3 \c <qtl.h> header file.
 
+\omit
     \section1 QTextView
 
     The QTextView class has been moved to the \l{Qt 3 compatibility
@@ -2385,6 +2424,7 @@
     ###
 
     Q3ToolBar
+\endomit
 
     \section1 QUrl
 
@@ -2525,48 +2565,21 @@
 
     The QVBox class has been renamed QVBoxWidget.
 
+\omit
     \section1 QWhatsThis
 
     ###
 
     Q3WhatsThis
+\endomit
+
 
     \section1 QWidget
 
-    The following functions are obsolete. Most will continue to work in
-    COMPAT mode, but we recommend not using them in new code.
-
-    \list
-    \i QWidget::hasMouse() - use QWidget::underMouse() instead.
-    \i QWidget::ownPalette() - use QWidget::testAttribute(QWidget::WA_SetPalette) instead.
-    \i QWidget::unsetPalette() - use QWidget::setPalette(QPalette()) instead.
-    \i QWidget::ownFont() - use QWidget::testAttribute(QWidget::WA_SetFont) instead.
-    \i QWidget::unsetFont() - use QWidget::setFont(QFont()) instead.
-    \i QWidget::colorGroup() - use QWidget::palette() instead.
-    \i QWidget::childAt(int x, int y, bool includeThis) - the \c includeThis boolean parameter is gone.
-    \i QWidget::colorGroup() const
-    \i QWidget::parentWidget(bool sameWindow) - \c sameWindow boolean parameter is gone.
-    \i QWidget::drawText() - use QPainter::drawText() instead.
-    \i QWidget::close(bool alsoDelete) - the \c alsoDelete boolean parameter is gone.
-       Use QWidget::deleteLater().
-    \i QWidget::isVisibleToTLW() const - use QWidget::isVisible()
-    \i QWidget::visibleRect() const - use QWidget::clipRegion().boundingRect()
-    \i QWidget::iconify() - use QWidget::showMinimized() instead.
-    \i QWidget::constPolish() - use QWidget::ensurePolished() instead.
-    \i QWidget::reparent() - use QWidget::setParent() instead.
-    \i QWidget::recreate() - use QWidget::setParent() instead.
-    \i QWidget::setCaption() - use QWidget::setWindowTitle() instead.
-    \i QWidget::caption() - use QWidget::windowTitle() instead.
-    \i QWidget::setIcon() - use QWidget::setWindowIcon() instead.
-    \i QWidget::icon() - use QWidget::windowIcon() instead.
-    \i QWidget::setIconText() - use QWidget::setWindowIconText() instead.
-    \i QWidget::iconText() - use QWidget::windowIconText() instead.
-    \endlist
-
     Widget background painting has been greatly improved, supporting
-    flickerfree updates and making it possible to have half transparent
-    widgets. This renders the following background handling functions
-    obsolete:
+    flickerfree updates and making it possible to have half
+    transparent widgets. This renders the following background
+    handling functions obsolete:
 
     \list
     \i QWidget::repaint(bool noErase) - the \c noErase boolean parameter is gone
@@ -2610,74 +2623,74 @@
     \list
     \i QWidget::clearFocus()
     \i QWidget::setMouseTracking()
-    \i QWidget::stackUnder( QWidget* );
-    \i QWidget::move( int x, int y );
-    \i QWidget::move( const QPoint & );
-    \i QWidget::resize( int w, int h );
-    \i QWidget::resize( const QSize & );
-    \i QWidget::setGeometry( int x, int y, int w, int h );
-    \i QWidget::setGeometry( const QRect & );
-    \i QWidget::adjustSize();
-    \i QWidget::update( int x, int y, int w, int h );
-    \i QWidget::update(const QRect&);
-    \i QWidget::repaint(bool erase);
-    \i QWidget::repaint(int x, int y, int w, int h, bool erase);
-    \i QWidget::repaint(const QRect &, bool erase);
-    \i QWidget::repaint(const QRegion &, bool erase);
-    \i QWidget::setCaption(const QString &);
-    \i QWidget::setIcon(const QPixmap &);
-    \i QWidget::setIconText(const QString &);
+    \i QWidget::stackUnder(QWidget*)
+    \i QWidget::move(int x, int y)
+    \i QWidget::move(const QPoint &)
+    \i QWidget::resize(int w, int h)
+    \i QWidget::resize(const QSize &)
+    \i QWidget::setGeometry(int x, int y, int w, int h)
+    \i QWidget::setGeometry(const QRect &)
+    \i QWidget::adjustSize()
+    \i QWidget::update(int x, int y, int w, int h)
+    \i QWidget::update(const QRect&)
+    \i QWidget::repaint(bool erase)
+    \i QWidget::repaint(int x, int y, int w, int h, bool erase)
+    \i QWidget::repaint(const QRect &, bool erase)
+    \i QWidget::repaint(const QRegion &, bool erase)
+    \i QWidget::setCaption(const QString &)
+    \i QWidget::setIcon(const QPixmap &)
+    \i QWidget::setIconText(const QString &)
     \endlist
 
     The following functions were incorrectly marked as virtual:
 
     \list
-    \i QWidget::close( bool alsoDelete );
-    \i QWidget::create( WId, bool, bool);
-    \i QWidget::destroy( bool );
-    \i QWidget::move( int x, int y );
-    \i QWidget::reparent( QWidget *parent, WFlags, const QPoint &, bool);
-    \i QWidget::resize( int w, int h );
-    \i QWidget::setAcceptDrops( bool on );
-    \i QWidget::setActiveWindow();
-    \i QWidget::setAutoMask(bool);
-    \i QWidget::setBackgroundColor( const QColor & );
-    \i QWidget::setBackgroundMode( BackgroundMode );
-    \i QWidget::setBackgroundOrigin( BackgroundOrigin );
-    \i QWidget::setBackgroundPixmap( const QPixmap & );
-    \i QWidget::setCaption( const QString &);
-    \i QWidget::setCursor( const QCursor & );
-    \i QWidget::setEnabled( bool );
-    \i QWidget::setEraseColor( const QColor & );
-    \i QWidget::setErasePixmap( const QPixmap & );
-    \i QWidget::setFocus();
-    \i QWidget::setFocusPolicy( FocusPolicy );
-    \i QWidget::setFocusProxy( QWidget * );
-    \i QWidget::setFont( const QFont & );
-    \i QWidget::setGeometry( const QRect & );
-    \i QWidget::setGeometry( int x, int y, int w, int h );
-    \i QWidget::setIcon( const QPixmap & );
-    \i QWidget::setIconText( const QString &);
-    \i QWidget::setKeyCompression(bool);
-    \i QWidget::setMask( const QBitmap & );
-    \i QWidget::setMask( const QRegion & );
-    \i QWidget::setMaximumSize( int maxw, int maxh );
-    \i QWidget::setMicroFocusHint(int x, int y, int w, int h, bool, QFont *f);
-    \i QWidget::setMinimumSize( int minw, int minh );
-    \i QWidget::setMouseTracking( bool enable );
-    \i QWidget::setPalette( const QPalette & );
-    \i QWidget::setPaletteBackgroundColor( const QColor & );
-    \i QWidget::setPaletteBackgroundPixmap( const QPixmap & );
-    \i QWidget::setSizeIncrement( int w, int h );
-    \i QWidget::setSizePolicy( QSizePolicy );
-    \i QWidget::setUpdatesEnabled( bool enable );
-    \i QWidget::setWFlags( WFlags );
-    \i QWidget::setWState( uint );
-    \i QWidget::showFullScreen();
-    \i QWidget::showMaximized();
-    \i QWidget::showMinimized();
-    \i QWidget::showNormal();
-    \i QWidget::unsetCursor();
+    \i QWidget::close(bool alsoDelete)
+    \i QWidget::create(WId, bool, bool)
+    \i QWidget::destroy(bool)
+    \i QWidget::move(int x, int y)
+    \i QWidget::reparent(QWidget *parent, WFlags, const QPoint &, bool)
+    \i QWidget::resize(int w, int h)
+    \i QWidget::setAcceptDrops(bool on)
+    \i QWidget::setActiveWindow()
+    \i QWidget::setAutoMask(bool)
+    \i QWidget::setBackgroundColor(const QColor &)
+    \i QWidget::setBackgroundMode(BackgroundMode)
+    \i QWidget::setBackgroundOrigin(BackgroundOrigin)
+    \i QWidget::setBackgroundPixmap(const QPixmap &)
+    \i QWidget::setCaption(const QString &)
+    \i QWidget::setCursor(const QCursor &)
+    \i QWidget::setEnabled(bool)
+    \i QWidget::setEraseColor(const QColor &)
+    \i QWidget::setErasePixmap(const QPixmap &)
+    \i QWidget::setFocus()
+    \i QWidget::setFocusPolicy(FocusPolicy)
+    \i QWidget::setFocusProxy(QWidget *)
+    \i QWidget::setFont(const QFont &)
+    \i QWidget::setGeometry(const QRect &)
+    \i QWidget::setGeometry(int x, int y, int w, int h)
+    \i QWidget::setIcon(const QPixmap &)
+    \i QWidget::setIconText(const QString &)
+    \i QWidget::setKeyCompression(bool)
+    \i QWidget::setMask(const QBitmap &)
+    \i QWidget::setMask(const QRegion &)
+    \i QWidget::setMaximumSize(int maxw, int maxh)
+    \i QWidget::setMicroFocusHint(int x, int y, int w, int h, bool, QFont *f)
+    \i QWidget::setMinimumSize(int minw, int minh)
+    \i QWidget::setMouseTracking(bool enable)
+    \i QWidget::setPalette(const QPalette &)
+    \i QWidget::setPaletteBackgroundColor(const QColor &)
+    \i QWidget::setPaletteBackgroundPixmap(const QPixmap &)
+    \i QWidget::setSizeIncrement(int w, int h)
+    \i QWidget::setSizePolicy(QSizePolicy)
+    \i QWidget::setUpdatesEnabled(bool enable)
+    \i QWidget::setWFlags(WFlags)
+    \i QWidget::setWState(uint)
+    \i QWidget::showFullScreen()
+    \i QWidget::showMaximized()
+    \i QWidget::showMinimized()
+    \i QWidget::showNormal()
+    \i QWidget::unsetCursor()
     \endlist
 
     \section1 QWidgetIntDict
@@ -2710,11 +2723,14 @@
     a QStackedBox with a QDialog and provide \l{QPushButton}s
     yourself.
 
-    \omit Point to the wizard example when it's ready. \endomit
+    The dialogs/simplewizard and dialogs/complexwizard examples show
+    how to create wizards without using QWizard.
 */
 
+#if 0
 /*! \page auto-delete.html
     \title What's Wrong with Auto-Delete?
 
     ###
 */
+#endif
