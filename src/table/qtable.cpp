@@ -5478,12 +5478,16 @@ void QTable::adjustColumn( int col )
     w = QMAX( w, 20 );
     for ( int i = 0; i < numRows(); ++i ) {
 	QTableItem *itm = item( i, col );
-	if ( !itm )
-	    continue;
-	if ( itm->colSpan() > 1 )
-	    w = QMAX( w, itm->sizeHint().width() / itm->colSpan() );
-	else
-	    w = QMAX( w, itm->sizeHint().width() );
+	if ( !itm ) { 
+	    QWidget *widget = cellWidget( i, col );
+	    if ( widget )
+		w = QMAX( w, widget->sizeHint().width() );
+	} else {
+	    if ( itm->colSpan() > 1 )
+		w = QMAX( w, itm->sizeHint().width() / itm->colSpan() );
+	    else
+		w = QMAX( w, itm->sizeHint().width() );
+	}
     }
     w = QMAX( w, QApplication::globalStrut().width() );
     setColumnWidth( col, w );
@@ -5504,12 +5508,16 @@ void QTable::adjustRow( int row )
 	h = QMAX( h, leftHeader->iconSet( row )->pixmap().height() );
     for ( int i = 0; i < numCols(); ++i ) {
 	QTableItem *itm = item( row, i );
-	if ( !itm )
-	    continue;
-	if ( itm->rowSpan() > 1 )
-	    h = QMAX( h, itm->sizeHint().height() / itm->rowSpan() );
-	else
-	    h = QMAX( h, itm->sizeHint().height() );
+	if ( !itm ) {
+	    QWidget *widget = cellWidget( row, i );
+	    if ( widget )
+		h = QMAX( h, widget->sizeHint().height() );
+	} else {
+	    if ( itm->rowSpan() > 1 )
+		h = QMAX( h, itm->sizeHint().height() / itm->rowSpan() );
+	    else
+		h = QMAX( h, itm->sizeHint().height() );
+	}
     }
     h = QMAX( h, QApplication::globalStrut().height() );
     setRowHeight( row, h );
