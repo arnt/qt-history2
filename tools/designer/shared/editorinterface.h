@@ -26,7 +26,7 @@ public:
     virtual void selectAll() = 0;
     virtual bool find( const QString &expr, bool cs, bool wo, bool forward ) = 0;
     virtual void indent() = 0;
-
+    virtual void scrollTo( const QString &txt ) = 0;
     virtual void splitView() = 0;
 
 };

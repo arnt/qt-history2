@@ -45,6 +45,7 @@ void SourceEditor::setForm( FormWindow *fw )
 
 void SourceEditor::setFunction( const QString &func )
 {
+    iFace->scrollTo( func );
 }
 
 void SourceEditor::closeEvent( QCloseEvent *e )
