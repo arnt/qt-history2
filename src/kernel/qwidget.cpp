@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#355 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#356 $
 **
 ** Implementation of QWidget class
 **
@@ -1410,28 +1410,28 @@ void QWidget::setBackgroundFromMode()
 	break;
       case PaletteForeground:
 	  if ( colorGroup().brush( QColorGroup::Foreground ).pixmap() )
-	      setBackgroundPixmapDirect( 
+	      setBackgroundPixmapDirect(
                     *colorGroup().brush( QColorGroup::Foreground ).pixmap() );
 	  else
 	      setBackgroundColorDirect( colorGroup().foreground() );
 	break;
       case PaletteButton:
 	  if ( colorGroup().brush( QColorGroup::Button ).pixmap() )
-	      setBackgroundPixmapDirect( 
+	      setBackgroundPixmapDirect(
                     *colorGroup().brush( QColorGroup::Button ).pixmap() );
 	  else
 	      setBackgroundColorDirect( colorGroup().button() );
 	break;
       case PaletteLight:
 	  if ( colorGroup().brush( QColorGroup::Light ).pixmap() )
-	      setBackgroundPixmapDirect( 
+	      setBackgroundPixmapDirect(
                     *colorGroup().brush( QColorGroup::Light ).pixmap() );
 	  else
 	      setBackgroundColorDirect( colorGroup().light() );
 	break;
       case PaletteMidlight:
 	  if ( colorGroup().brush( QColorGroup::Midlight ).pixmap() )
-	      setBackgroundPixmapDirect( 
+	      setBackgroundPixmapDirect(
                     *colorGroup().brush( QColorGroup::Midlight ).pixmap() );
 	  else
 	      setBackgroundColorDirect( colorGroup().midlight() );
@@ -3958,15 +3958,13 @@ void QWidget::setLayout( QLayout *l )
 /*!  This function can be reimplemented in subclasses to specify the
   default layout behaviour of that subclass.
 
-  The default implementation returns a value which means <ul>
-
-  <li> If there is a QLayout that manages this widget's children, the
-  size policy specified by that layout is used. ##### NO IT ISN'T!
-
-  <li> If there is no such QLayout, the widget can be freely resized,
+  If there is a QLayout that manages this widget's children, the size
+  policy specified by that layout is used. If there is no such
+  QLayout, the result of this function is used.
+  
+  The default implementation returns a value which means 
+  that  the widget can be freely resized,
   but prefers to be the size sizeHint() returns.
-
-  </ul>
 
   \sa sizeHint() QLayout QSizePolicy
 */
