@@ -41,6 +41,10 @@ static void *gl_pixmap_visual = 0;
 
 static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
+#ifndef APIENTRY
+#define APIENTRY
+#endif
+
 /*!
     \class QGL qgl.h
     \brief The QGL class is a namespace for miscellaneous identifiers
@@ -894,7 +898,9 @@ static int scramble(const QString &str)
 */
 GLuint QGLContext::bindTexture(const QString &fname) const
 {
-    typedef void (*qt_glCompressedTexImage2DARB) (GLenum, GLint, GLenum, GLsizei, GLsizei, GLint, GLsizei, const GLvoid *);
+    ((QGLContext *)this)->makeCurrent();
+    typedef void (APIENTRY *qt_glCompressedTexImage2DARB) (GLenum, GLint, GLenum, GLsizei,
+							   GLsizei, GLint, GLsizei, const GLvoid *);
     static qt_glCompressedTexImage2DARB glCompressedTexImage2DARB = 0;
     static bool init_compression = true;
 
