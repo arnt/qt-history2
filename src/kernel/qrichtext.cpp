@@ -1692,7 +1692,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    if ( tags.isEmpty() )
 			break;
 		    curtag = tags.pop();
-		    
+		
 		    curListStyle = listStyles.pop();
 		    depth--;
 		}
@@ -4362,7 +4362,7 @@ int QTextParag::topMargin() const
 	( (QTextParag*)this )->tm = 0;
 	return 0;
     }
-    
+
     int m = 0;
     if ( item->margin( QStyleSheetItem::MarginTop ) != QStyleSheetItem::Undefined )
 	m = item->margin( QStyleSheetItem::MarginTop );
@@ -4393,7 +4393,7 @@ int QTextParag::bottomMargin() const
 	( (QTextParag*)this )->bm = 0;
 	return 0;
     }
-    
+
     int m = 0;
     if ( item->margin( QStyleSheetItem::MarginBottom ) != QStyleSheetItem::Undefined )
 	m = item->margin( QStyleSheetItem::MarginBottom );	
@@ -4787,7 +4787,7 @@ int QTextFormatter::formatVertically( QTextDocument* doc, QTextParag* parag )
     int oldHeight = parag->rect().height();
     QMap<int, QTextParagLineStart*>& lineStarts = parag->lineStartList();
     QMap<int, QTextParagLineStart*>::Iterator it = lineStarts.begin();
-    int h = 0;
+    int h = doc->addMargins() ? parag->topMargin() : 0;
     for ( ; it != lineStarts.end() ; ++it  ) {
 	QTextParagLineStart * ls = it.data();
 	ls->y = h;
@@ -4803,6 +4803,10 @@ int QTextFormatter::formatVertically( QTextDocument* doc, QTextParag* parag )
 	}
 	h = ls->y + ls->h;
     }
+    int m = parag->bottomMargin();
+    if ( parag->next() && doc && !doc->addMargins() )
+	m = QMAX( m, parag->next()->topMargin() );
+    h += m;
     parag->setHeight( h );
     return h - oldHeight;
 }
@@ -4923,7 +4927,6 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
     if ( parag->next() && doc && !doc->addMargins() )
 	m = QMAX( m, parag->next()->topMargin() );
     parag->setFullWidth( fullWidth );
-    m = scale( m, parag->painter() );
     y += h + m;
     if ( !wrapEnabled )
 	minw = QMAX( minw, c->x + ww ); // #### Lars: Fix this for BiDi, please
