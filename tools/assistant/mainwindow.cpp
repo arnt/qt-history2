@@ -68,7 +68,7 @@ MainWindow::MainWindow()
 
     updateProfileSettings();
 
-    dw = new QDockWindow(this, Qt::DockWindowAreaLeft);
+    dw = new QDockWindow(this);
     dw->setAllowedAreas(Qt::AllDockWindowAreas);
     dw->setWindowTitle(tr("Sidebar"));
 

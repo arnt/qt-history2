@@ -18,7 +18,7 @@
 #include <qstringlist.h>
 
 class Q3Socket;
-class QProcess;
+class Q3Process;
 
 class QAssistantClient : public QObject
 {
@@ -52,7 +52,7 @@ private slots:
 
 private:
     Q3Socket *socket;
-    QProcess *proc;
+    Q3Process *proc;
     Q_UINT16 port;
     QString host, assistantCommand, pageBuffer;
     bool opened;

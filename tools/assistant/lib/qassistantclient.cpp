@@ -15,7 +15,7 @@
 
 #include <q3socket.h>
 #include <qtextstream.h>
-#include <qprocess.h>
+#include <q3process.h>
 #include <qtimer.h>
 #include <qfileinfo.h>
 #include <qmap.h>
@@ -139,7 +139,7 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent )
     connect( socket, SIGNAL( error( int ) ),
             SLOT( socketError( int ) ) );
     opened = FALSE;
-    proc = new QProcess( this );
+    proc = new Q3Process( this );
     port = 0;
     pageBuffer = "";
     connect( proc, SIGNAL( readyReadStderr() ),

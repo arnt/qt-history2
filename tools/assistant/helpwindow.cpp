@@ -23,7 +23,7 @@
 #include <qmessagebox.h>
 #include <qdir.h>
 #include <qfile.h>
-#include <qprocess.h>
+#include <q3process.h>
 #include <qmenu.h>
 #include <qaction.h>
 #include <qfileinfo.h>
@@ -94,7 +94,7 @@ void HelpWindow::setSource(const QString &name)
             if (webbrowser.isEmpty())
                 return;
         }
-        QProcess *proc = new QProcess(this);
+        Q3Process *proc = new Q3Process(this);
         proc->setCommunication(0);
         QObject::connect(proc, SIGNAL(processExited()), proc, SLOT(deleteLater()));
         proc->addArgument(webbrowser);
@@ -126,7 +126,7 @@ void HelpWindow::setSource(const QString &name)
                                           "the specified location.").arg(pdfbrowser));
             return;
         }
-        QProcess *proc = new QProcess(this);
+        Q3Process *proc = new Q3Process(this);
         proc->setCommunication(0);
         QObject::connect(proc, SIGNAL(processExited()), proc, SLOT(deleteLater()));
         proc->addArgument(pdfbrowser);
