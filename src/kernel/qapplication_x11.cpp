@@ -828,9 +828,8 @@ bool QApplication::x11_apply_settings()
 
     QString str;
     QStringList strlist;
-    int /* i, */ num;
+    int i, num;
     QPalette pal(QApplication::palette());
-    /*
     strlist = settings.readListEntry("/qt/Palette/active");
     if (strlist.count() == QColorGroup::NColorRoles) {
 	for (i = 0; i < QColorGroup::NColorRoles; i++)
@@ -854,7 +853,6 @@ bool QApplication::x11_apply_settings()
 	QApplication::setPalette(pal, TRUE);
 	*qt_std_pal = pal;
     }
-    */
 
     QFont font(QApplication::font());
     // read new font
