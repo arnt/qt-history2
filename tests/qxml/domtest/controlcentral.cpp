@@ -25,6 +25,7 @@ ControlCentral::ControlCentral() : QVBox()
     QHBox *hbox= new QHBox( this );
     QPushButton *source = new QPushButton( "Source", hbox );
     QPushButton *toString = new QPushButton( "To String", hbox );
+    QPushButton *save = new QPushButton( "Save", hbox );
 #if 0
     QPushButton *errorProt = new QPushButton( "Error Protocol", hbox );
 #endif
@@ -34,6 +35,7 @@ ControlCentral::ControlCentral() : QVBox()
 
     connect( source, SIGNAL(clicked()), this, SLOT(showSource()) );
     connect( toString, SIGNAL(clicked()), this, SLOT(showToString()) );
+    connect( save, SIGNAL(clicked()), this, SLOT(saveToFile()) );
 #if 0
     connect( errorProt, SIGNAL(clicked()), this, SLOT(showErrorProtocol()) );
 #endif
@@ -75,13 +77,6 @@ void ControlCentral::parse( const QString& filename )
     src->setTextFormat( PlainText );
     src->setText( ts.read() );
     src->setCaption( "Source for " + filename );
-
-#if 0
-    QTextView* toStr = new QTextView();
-    toStr->setTextFormat( PlainText );
-    toStr->setText( doc.toString() );
-    toStr->setCaption( "To String for " + filename );
-#endif
 
 #if 0
     QLabel *err = new QLabel( "", 0 );
@@ -135,6 +130,14 @@ void ControlCentral::showToString()
     XMLFileItem *fi = (XMLFileItem*)( lview->selectedItem() );
     if ( fi != 0 ) {
 	fi->showToString();
+    }
+}
+
+void ControlCentral::saveToFile()
+{
+    XMLFileItem *fi = (XMLFileItem*)( lview->selectedItem() );
+    if ( fi != 0 ) {
+	fi->save();
     }
 }
 

@@ -13,6 +13,7 @@ public:
     virtual ~XMLFileItem();
 
     void showToString();
+    void save();
 
 public:
     QTextView *source;

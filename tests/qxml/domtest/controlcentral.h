@@ -22,6 +22,7 @@ public slots:
     void show( QStringList* files=0 );
     void showSource();
     void showToString();
+    void saveToFile();
     void showTree();
 
 private:
