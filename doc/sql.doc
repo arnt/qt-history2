@@ -156,7 +156,6 @@ connection.
 \quotefile sql/connection.h
 \skipto QSqlDatabase
 \printuntil }
-\printline
 \caption From \l sql/connection.h
 
 First we activate the driver by calling \l QSqlDatabase::addDatabase(),
