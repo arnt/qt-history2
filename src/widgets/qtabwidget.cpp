@@ -704,7 +704,8 @@ QSize QTabWidget::sizeHint() const
     QSize s( d->stack->sizeHint() );
     QSize t( d->tabs->sizeHint().boundedTo( QSize(200,200) ) );
     return QSize( QMAX( s.width(), t.width() ),
-		  s.height() + t.height() + d->tabBase->height() );
+		  s.height() + t.height() +
+		  ( d->tabBase->isVisible() ? d->tabBase->height() : 0 ) );
 }
 
 
@@ -722,7 +723,8 @@ QSize QTabWidget::minimumSizeHint() const
     QSize s( d->stack->minimumSizeHint() );
     QSize t( d->tabs->minimumSizeHint() );
     return QSize( QMAX( s.width(), t.width() ),
-		  s.height() + t.height() + d->tabBase->height() );
+		  s.height() + t.height() +
+		  ( d->tabBase->isVisible() ? d->tabBase->height() : 0 ) );
 }
 
 /*!
