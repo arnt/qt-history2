@@ -74,6 +74,8 @@ static QStaticSpinLock spinlock = 0;
 
 typedef QHash<Qt::HANDLE, QPostEventList *> PostEventListHash;
 
+// make sure PostEventHash is initialized.
+// NB! not threadsafe, call it only after you locked the spinlock
 static PostEventListHash *postEventListHash()
 {
     static PostEventListHash hash;
