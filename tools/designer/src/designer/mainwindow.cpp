@@ -196,9 +196,7 @@ void MainWindow::windowChanged()
         enableFormActions(true);
         m_showGrid->setChecked(fw->hasFeature(AbstractFormWindow::GridFeature));
         m_readOnly->setChecked(!fw->hasFeature(AbstractFormWindow::EditFeature));
-        m_widgetEditMode->setChecked(fw->editMode() == AbstractFormWindow::WidgetEditMode);
-        m_connectionEditMode->setChecked(fw->editMode() == AbstractFormWindow::ConnectionEditMode);
-        m_tabOrderEditMode->setChecked(fw->editMode() == AbstractFormWindow::TabOrderEditMode);
+        editMode(fw->editMode());
     } else {
         //### re-enable when the bug in QAbstractItemView::reset() is fixed
         if (AbstractObjectInspector *objectInspector = core->objectInspector())
@@ -501,22 +499,30 @@ void MainWindow::editMode(int idx)
 void MainWindow::editMode(QAction *action)
 {
     if (AbstractFormWindow *fw = m_formWindowManager->activeFormWindow()) {
+        AbstractFormWindow::EditMode newMode;
+        
         if (action == m_widgetEditMode)
-            fw->setEditMode(AbstractFormWindow::WidgetEditMode);
+            newMode = AbstractFormWindow::WidgetEditMode;
         else if (action == m_connectionEditMode)
-            fw->setEditMode(AbstractFormWindow::ConnectionEditMode);
+            newMode = AbstractFormWindow::ConnectionEditMode;
         else if (action == m_tabOrderEditMode)
-            fw->setEditMode(AbstractFormWindow::TabOrderEditMode);
+            newMode = AbstractFormWindow::TabOrderEditMode;
         else
             Q_ASSERT(0);
-    }
-
-    QList<QAction*> editModeActions = m_editModeGrp->actions();
-    for (int i = 0; i < editModeActions.size(); ++i) {
-        if (editModeActions.at(i) == action) {
-            if (m_editModeSelector->currentItem() != i);
-                m_editModeSelector->setCurrentItem(i);
-            break;
+        
+        if (fw->editMode() != newMode)
+            fw->setEditMode(newMode);
+            
+        if (!action->isChecked())
+            action->setChecked(true);
+        
+        QList<QAction*> editModeActions = m_editModeGrp->actions();
+        for (int i = 0; i < editModeActions.size(); ++i) {
+            if (editModeActions.at(i) == action) {
+                if (m_editModeSelector->currentItem() != i)
+                    m_editModeSelector->setCurrentItem(i);
+                break;
+            }
         }
     }
 }
