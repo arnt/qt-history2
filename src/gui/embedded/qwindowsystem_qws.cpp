@@ -674,17 +674,16 @@ void QWSServer::initServer(int flags)
     qwsServer = this;
 
 #ifndef QT_NO_QWS_MULTIPROCESS
-    QString pipe = qws_qtePipeFilename();
-
-    if (0 /*!ssocket->ok()*/) { //########
+    if ( !ssocket->isListening()) {
         perror("Error");
-        qFatal("Failed to bind to %s", pipe.latin1());
-    } else {
-        struct linger tmp;
-        tmp.l_onoff=1;
-        tmp.l_linger=0;
-        setsockopt(ssocket->socketDescriptor(),SOL_SOCKET,SO_LINGER,(char *)&tmp,sizeof(tmp));
+        qFatal("Failed to bind to %s", qws_qtePipeFilename().toLatin1().constData());
     }
+
+    struct linger tmp;
+    tmp.l_onoff=1;
+    tmp.l_linger=0;
+    setsockopt(ssocket->socketDescriptor(),SOL_SOCKET,SO_LINGER,(char *)&tmp,sizeof(tmp));
+
 
     signal(SIGPIPE, ignoreSignal); //we get it when we read
 #endif
@@ -1377,9 +1376,9 @@ void QWSServer::sendQCopEvent(QWSClient *c, const QString &ch,
     // combine channel, message and data into one block of raw bytes
     QByteArray raw(l, 0);
     char *d = (char*)raw.data();
-    memcpy(d, ch.latin1(), event.simpleData.lchannel);
+    memcpy(d, ch.toLatin1().constData(), event.simpleData.lchannel);
     d += event.simpleData.lchannel;
-    memcpy(d, msg.latin1(), event.simpleData.lmessage);
+    memcpy(d, msg.toLatin1().constData(), event.simpleData.lmessage);
     d += event.simpleData.lmessage;
     memcpy(d, data.data(), event.simpleData.ldata);
 
@@ -2057,7 +2056,7 @@ void QWSServer::invokeRegisterChannel(QWSQCopRegisterChannelCommand *cmd,
 {
   // QCopChannel will force us to emit the newChannel signal if this channel
   // didn't already exist.
-  QCopChannel::registerChannel(cmd->channel.utf8(), client);
+  QCopChannel::registerChannel(cmd->channel, client);
 }
 
 void QWSServer::invokeQCopSend(QWSQCopSendCommand *cmd, QWSClient *client)
@@ -2763,7 +2762,7 @@ void QWSServer::startup(int flags)
 {
     if (qwsServer)
         return;
-    unlink(qws_qtePipeFilename().latin1());
+    unlink(qws_qtePipeFilename().toLatin1().constData());
     (void)new QWSServer(flags);
 }
 
@@ -2773,7 +2772,7 @@ void QWSServer::startup(int flags)
 
 void QWSServer::closedown()
 {
-    unlink(qws_qtePipeFilename().latin1());
+    unlink(qws_qtePipeFilename().toLatin1().constData());
     delete qwsServer;
     qwsServer = 0;
 }

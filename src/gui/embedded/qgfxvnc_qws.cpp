@@ -21,7 +21,7 @@
 #include "qgfxvnc_qws.h"
 #include <private/qsharedmemory_p.h>
 #include <stdlib.h>
-
+#include <qdebug.h>
 extern QString qws_qtePipeFilename();
 
 #define MAP_TILE_SIZE            16
@@ -486,7 +486,7 @@ void QVNCServer::init(uint port)
     connect(timer, SIGNAL(timeout()), this, SLOT(checkUpdate()));
     serverSocket = new QTcpServer(this);
     if (!serverSocket->listen(port))
-        qDebug("QVNCServer could not connect: %s", serverSocket->errorString().latin1());
+        qDebug() << "QVNCServer could not connect:" << serverSocket->errorString();
     else
         qDebug("QVNCServer created on port %d", port);
 

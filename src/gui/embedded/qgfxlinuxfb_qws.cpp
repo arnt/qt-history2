@@ -29,6 +29,8 @@
 #include <errno.h>
 #include <stdio.h>
 
+#include <qdebug.h>
+
 #include "qwindowsystem_qws.h"
 
 #if !defined(Q_OS_DARWIN) && !defined(Q_OS_FREEBSD) && !defined (QT_NO_QWS_LINUXFB)
@@ -103,9 +105,9 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
 
     QString dev = (m>=0) ? displaySpec.mid(m, len) : QString("/dev/fb0");
 
-    fd=open(dev.latin1(), O_RDWR);
+    fd=open(dev.toLatin1().constData(), O_RDWR);
     if (fd<0) {
-        qWarning("Can't open framebuffer device %s",dev.latin1());
+        qCritical() << "Can't open framebuffer device" << dev;
         return false;
     }
 

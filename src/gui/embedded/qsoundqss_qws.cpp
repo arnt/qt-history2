@@ -30,6 +30,7 @@
 #include <sys/ioctl.h>
 #include <sys/soundcard.h>
 
+#include <qdebug.h>
 
 #define QT_QWS_SOUND_16BIT 1 // or 0, or undefined for always 0
 #define QT_QWS_SOUND_STEREO 1 // or 0, or undefined for always 0
@@ -311,7 +312,7 @@ void QWSSoundServerPrivate::playFile(const QString& filename)
             else
                 delete f;
         } else {
-            qDebug("Failed opening \"%s\"",filename.latin1());
+            qDebug() << "Failed opening:" << filename;
         }
 }
 
@@ -485,9 +486,9 @@ void QWSSoundClient::play(const QString& filename)
 {
     QFileInfo fi(filename);
 #ifndef QT_NO_TEXTCODEC
-    QByteArray u = ("PLAY " + fi.absoluteFilePath() + "\n").utf8();
+    QByteArray u = ("PLAY " + fi.absoluteFilePath() + "\n").toUtf8();
 #else
-    QByteArray u = ("PLAY " + fi.absoluteFilePath() + "\n").latin1();
+    QByteArray u = ("PLAY " + fi.absoluteFilePath() + "\n").toLatin1();
 #endif
     write(u.data(), u.length());
 }

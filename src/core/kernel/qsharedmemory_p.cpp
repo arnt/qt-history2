@@ -84,7 +84,7 @@ QSharedMemory::QSharedMemory (int size, const QString &filename, char c)
   shmSize = size;
   shmFile = filename;
   character = c;
-  key = ftok (shmFile.latin1 (), c);
+  key = ftok (shmFile.toLatin1().constData(), c);
   idInitted = false;
 }
 

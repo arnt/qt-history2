@@ -62,6 +62,9 @@ enum { QT_TABLET_NPACKETQSIZE = 128 };
 #elif defined (Q_OS_MAC)
 extern QSysInfo::MacVersion qt_macver;
 #endif
+#if defined(Q_WS_QWS)
+class QWSManager;
+#endif
 
 extern void qt_dispatchEnterLeave(QWidget*, QWidget*);
 extern bool qt_tryModalHelper(QWidget *, QWidget ** = 0);

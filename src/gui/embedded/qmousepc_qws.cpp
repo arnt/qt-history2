@@ -557,24 +557,29 @@ void QWSPcMouseHandlerPrivate::openDevices()
 
     if (!driver.isEmpty() && driver != "Auto") {
         // Manually specified mouse
+        QByteArray dev = device.toLatin1();
         if (driver == "IntelliMouse") {
-            QString dev = device.isEmpty() ? QString("/dev/psaux") : device;
-            fd = open(dev.latin1(), O_RDWR | O_NDELAY);
+            if (dev.isEmpty())
+                dev = "/dev/psaux";
+            fd = open(dev, O_RDWR | O_NDELAY);
             if (fd >= 0)
                 sub[nsub++] = new QWSPcMouseSubHandler_intellimouse(fd);
         } else if (driver == "Microsoft") {
-            QString dev = device.isEmpty() ? QString("/dev/ttyS0") : device;
-            fd = open(dev.latin1(), O_RDWR | O_NDELAY);
+            if (dev.isEmpty())
+                dev = "/dev/ttyS0";
+            fd = open(dev, O_RDWR | O_NDELAY);
             if (fd >= 0)
                 sub[nsub++] = new QWSPcMouseSubHandler_ms(fd);
         } else if (driver == "MouseSystems") {
-            QString dev = device.isEmpty() ? QString("/dev/ttyS0") : device;
-            fd = open(dev.latin1(), O_RDWR | O_NDELAY);
+            if (dev.isEmpty())
+                dev = "/dev/ttyS0";
+            fd = open(dev, O_RDWR | O_NDELAY);
             if (fd >= 0)
                 sub[nsub++] = new QWSPcMouseSubHandler_mousesystems(fd);
         } else if (driver == "MouseMan") {
-            QString dev = device.isEmpty() ? QString("/dev/psaux") : device;
-            fd = open(dev.latin1(), O_RDWR | O_NDELAY);
+            if (dev.isEmpty())
+                dev = "/dev/psaux";
+            fd = open(dev, O_RDWR | O_NDELAY);
             if (fd >= 0)
                 sub[nsub++] = new QWSPcMouseSubHandler_mouseman(fd);
         }

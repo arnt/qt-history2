@@ -4416,9 +4416,9 @@ QScreen *qt_get_screen(int display_id, const char *spec)
     if (driver.isNull())
         qFatal("No suitable driver found");
     else if (foundDriver)
-        qFatal("%s: driver cannot connect", driver.latin1());
+        qFatal("%s: driver cannot connect", driver.toLatin1().constData());
     else
-        qFatal("%s: driver not found", driver.latin1());
+        qFatal("%s: driver not found", driver.toLatin1().constData());
 
     return 0;
 }

@@ -281,7 +281,7 @@ void QWidget::create(WId window, bool initializeWindow, bool /*destroyOldWindow*
         // declare the widget's object name as window role
 
         qt_fbdpy->addProperty(id,QT_QWS_PROPERTY_WINDOWNAME);
-        qt_fbdpy->setProperty(id,QT_QWS_PROPERTY_WINDOWNAME,0,objectName().latin1());
+        qt_fbdpy->setProperty(id,QT_QWS_PROPERTY_WINDOWNAME,0,objectName().toLatin1());
 
         // If we are session managed, inform the window manager about it
         if (d->extra && !d->extra->mask.isEmpty()) {
@@ -1324,7 +1324,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
     if (maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX) {
         qWarning("QWidget::setMaximumSize: (%s/%s) "
                 "The largest allowed size is (%d,%d)",
-                 objectName().isEmpty() ? "unnamed" : objectName().latin1(),
+                 objectName().isEmpty() ? "unnamed" : objectName().toLatin1().constData(),
                  metaObject()->className(), QWIDGETSIZE_MAX,
                 QWIDGETSIZE_MAX);
         maxw = qMin(maxw, QWIDGETSIZE_MAX);
@@ -1333,7 +1333,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
     if (maxw < 0 || maxh < 0) {
         qWarning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
                 "are not possible",
-                 objectName().isEmpty() ? "unnamed" : objectName().latin1(),
+                 objectName().isEmpty() ? "unnamed" : objectName().toLatin1().constData(),
                  metaObject()->className(), maxw, maxh);
         maxw = qMax(maxw, 0);
         maxh = qMax(maxh, 0);

@@ -252,7 +252,7 @@ QRect *QWSRegionManager::rects(int offset)
 bool QWSRegionManager::attach(const QString &filename)
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
-    key_t key = ftok(filename.latin1(), 'r');
+    key_t key = ftok(filename.toLatin1().constData(), 'r');
     if (!client) {
         int dataSize = sizeof(QWSRegionHeader)                // header
                     + sizeof(QWSRegionIndex) * QT_MAX_REGIONS // + index

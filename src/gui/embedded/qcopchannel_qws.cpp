@@ -22,6 +22,8 @@
 #include "qmap.h"
 #include "qdatastream.h"
 
+#include "qdebug.h"
+
 typedef QMap<QString, QList<QWSClient*> > QCopServerMap;
 static QCopServerMap *qcopServerMap = 0;
 
@@ -381,14 +383,14 @@ void QCopChannel::answer(QWSClient *cl, const QString& ch,
             }
             return;
         }
-        qWarning("QCopChannel: unknown internal command %s", msg.local8Bit());
+        qWarning() << "QCopChannel: unknown internal command %s" << msg;
         QWSServer::sendQCopEvent(cl, "", "bad", data);
         return;
     }
 
     QList<QWSClient*> clist = (*qcopServerMap)[ch];
     if (clist.isEmpty()) {
-        qWarning("QCopChannel: no client registered for channel %s", ch.local8Bit());
+        qWarning() << "QCopChannel: no client registered for channel %s" << ch;
         return;
     }
 

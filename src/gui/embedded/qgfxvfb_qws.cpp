@@ -51,10 +51,10 @@ private slots:
 QVFbMouseHandler::QVFbMouseHandler(int display_id)
 {
     mouseFD = -1;
-    QString mouseDev = QString(QT_VFB_MOUSE_PIPE).arg(display_id);
+    QByteArray mouseDev = QByteArray(QT_VFB_MOUSE_PIPE).replace("%1", QByteArray::number(display_id));
 
-    if ((mouseFD = open(mouseDev.local8Bit(), O_RDWR | O_NDELAY)) < 0) {
-        qDebug("Cannot open %s (%s)", mouseDev.ascii(),
+    if ((mouseFD = open(mouseDev, O_RDWR | O_NDELAY)) < 0) {
+        qDebug("Cannot open %s (%s)", mouseDev.constData(),
                 strerror(errno));
     } else {
         // Clear pending input
@@ -132,10 +132,10 @@ QVFbKeyboardHandler::QVFbKeyboardHandler(int display_id)
     kbdBufferLen = sizeof(QVFbKeyData) * 5;
     kbdBuffer = new unsigned char [kbdBufferLen];
 
-    terminalName = QString(QT_VFB_KEYBOARD_PIPE).arg(display_id);
+    QByteArray terminalName = QByteArray(QT_VFB_KEYBOARD_PIPE).replace("%1", QByteArray::number(display_id));
 
-    if ((kbdFD = open(terminalName.local8Bit(), O_RDWR | O_NDELAY)) < 0) {
-        qDebug("Cannot open %s (%s)", terminalName.latin1(),
+    if ((kbdFD = open(terminalName, O_RDWR | O_NDELAY)) < 0) {
+        qDebug("Cannot open %s (%s)", terminalName.constData(),
         strerror(errno));
     } else {
         // Clear pending input
@@ -382,7 +382,7 @@ bool QVFbScreen::connect(const QString &displaySpec)
     if (displaySpec.indexOf(":Gray") >= 0)
         grayscale = true;
 
-    key_t key = ftok(QString(QT_VFB_MOUSE_PIPE).arg(displayId).latin1(), 'b');
+    key_t key = ftok(QByteArray(QT_VFB_MOUSE_PIPE).replace("%1", QByteArray::number(displayId)), 'b');
 
     if (key == -1)
         return false;

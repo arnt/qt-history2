@@ -155,38 +155,32 @@ extern "C" void dumpmem(const char* m)
 // live.
 QString qws_dataDir()
 {
-    QString username = "unknown";
+    QByteArray username = "unknown";
     const char *logname = qgetenv("LOGNAME");
     if (logname)
         username = logname;
 
-    QString dataDir = "/tmp/qtembedded-" + username;
-    if (mkdir(dataDir.latin1(), 0700)) {
+    QByteArray dataDir = "/tmp/qtembedded-" + username;
+    if (mkdir(dataDir, 0700)) {
         if (errno != EEXIST) {
-            qFatal(QString("Cannot create Qt/Embedded data directory: %1")
-                    .arg(dataDir).latin1());
+            qFatal("Cannot create Qt/Embedded data directory: %s", dataDir.constData());
         }
     }
 
     struct stat buf;
-    if (lstat(dataDir.latin1(), &buf))
-        qFatal(QString("stat failed for Qt/Embedded data directory: %1")
-                .arg(dataDir).latin1());
+    if (lstat(dataDir, &buf))
+        qFatal("stat failed for Qt/Embedded data directory: %s", dataDir.constData());
 
     if (!S_ISDIR(buf.st_mode))
-        qFatal(QString("%1 is not a directory").arg(dataDir).latin1());
-
+        qFatal("%s is not a directory", dataDir.constData());
     if (buf.st_uid != getuid())
-        qFatal(QString("Qt/Embedded data directory is not owned by user %1")
-                .arg(getuid()).latin1());
+        qFatal("Qt/Embedded data directory is not owned by user %d", getuid());
 
     if ((buf.st_mode & 0677) != 0600)
-        qFatal(QString("Qt/Embedded data directory has incorrect permissions: %1")
-                .arg(dataDir).latin1());
-
+        qFatal("Qt/Embedded data directory has incorrect permissions: %s", dataDir.constData());
     dataDir += "/";
 
-    return dataDir;
+    return QString(dataDir);
 }
 
 // Get the filename of the pipe Qt/Embedded uses for server/client comms
@@ -519,7 +513,7 @@ void QWSDisplay::Data::init()
         if (!QWSDisplay::initLock(pipe, false))
             qFatal("Cannot get display lock");
 
-        shm = QSharedMemory(0,pipe.latin1(),'m');
+        shm = QSharedMemory(0,pipe,'m');
         if (shm.create() && shm.attach()) {
             QScreen *s = qt_get_screen(qws_display_id, qws_display_spec);
             sharedRamSize += s->memoryNeeded(qws_display_spec);
@@ -541,7 +535,7 @@ void QWSDisplay::Data::init()
 
 #ifndef QT_NO_QWS_MULTIPROCESS
 
-        shm = QSharedMemory(sharedRamSize,pipe.latin1(), 'm');
+        shm = QSharedMemory(sharedRamSize,pipe, 'm');
         if (!shm.create())
             perror("Cannot create main ram shared memory\n");
         if (!shm.attach())
@@ -1173,7 +1167,7 @@ void QWSDisplay::convertSelection(int winId, int selectionProperty, const QStrin
     // ### we need the atom/property thingy like in X here
     addProperty(winId, QT_QWS_PROPERTY_CONVERTSELECTION);
     setProperty(winId, QT_QWS_PROPERTY_CONVERTSELECTION,
-                 int(QWSPropertyManager::PropReplace), QByteArray(mimeTypes.latin1()));
+                 int(QWSPropertyManager::PropReplace), mimeTypes.toLatin1());
 #endif
     QWSConvertSelectionCommand cmd;
     cmd.simpleData.requestor = winId;

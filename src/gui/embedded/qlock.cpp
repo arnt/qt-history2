@@ -38,6 +38,7 @@ union semun {
 #include <sys/ipc.h>
 #include <string.h>
 #include <errno.h>
+#include <qdebug.h>
 
 #define MAX_LOCKS   200            // maximum simultaneous read locks
 
@@ -91,7 +92,7 @@ QLock::QLock(const QString &filename, char id, bool create)
     data = new QLockData;
     data->count = 0;
 #ifdef Q_NO_SEMAPHORE
-    data->file = QString(filename+id).local8Bit();
+    data->file = QString(filename+id).toLocal8Bit().constData();
     for(int x = 0; x < 2; x++) {
         data->id = open(data->file, O_RDWR | (x ? O_CREAT : 0), S_IRWXU);
         if(data->id != -1 || !create) {
@@ -100,7 +101,7 @@ QLock::QLock(const QString &filename, char id, bool create)
         }
     }
 #else
-    key_t semkey = ftok(filename.local8Bit(), id);
+    key_t semkey = ftok(filename.toLocal8Bit().constData(), id);
     data->id = semget(semkey,0,0);
     data->owned = create;
     if (create) {
@@ -113,9 +114,9 @@ QLock::QLock(const QString &filename, char id, bool create)
     }
 #endif
     if (data->id == -1) {
-        qWarning("Cannot %s semaphore %s \'%c\'",
-            create ? "create" : "get", filename.latin1(), id);
-        qDebug("Error %d %s\n",errno,strerror(errno));
+        qWarning() << "Cannot" << (create ? "create" : "get") << "semaphore"
+                   << filename << "'" << id << "'";
+        qDebug() << "Error" << errno << strerror(errno);
     }
 #endif
 }

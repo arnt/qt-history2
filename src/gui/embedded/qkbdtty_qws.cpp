@@ -109,7 +109,7 @@ void QWSTtyKeyboardHandler::processKeyEvent(int unicode, int keycode,
 
 QWSTtyKbPrivate::QWSTtyKbPrivate(QWSPC101KeyboardHandler *h, const QString &device) : handler(h)
 {
-    kbdFD = ::open(device.isEmpty()?"/dev/tty0":device.latin1(), O_RDWR|O_NDELAY, 0);
+    kbdFD = ::open(device.isEmpty()?"/dev/tty0":device.toLatin1().constData(), O_RDWR|O_NDELAY, 0);
 
     if (kbdFD >= 0) {
         QSocketNotifier *notifier;

@@ -74,7 +74,7 @@ void QWSSocket::connectToLocalFile(const QString &file)
     struct sockaddr_un a;
     memset(&a, 0, sizeof(a));
     a.sun_family = PF_LOCAL;
-    strncpy(a.sun_path, file.local8Bit(), sizeof(a.sun_path) - 1);
+    strncpy(a.sun_path, file.toLocal8Bit().constData(), sizeof(a.sun_path) - 1);
     int r = ::connect(s, (struct sockaddr*)&a, SUN_LEN(&a));
     if (r == 0) {
         setSocketDescriptor(s);
@@ -104,22 +104,23 @@ void QWSServerSocket::init(const QString &file)
 
 // create socket
     int s = ::socket(PF_LOCAL, SOCK_STREAM, 0);
-    unlink(file.local8Bit()); // doesn't have to succeed
+    QByteArray fn = file.toLocal8Bit();
+    unlink(fn.constData()); // doesn't have to succeed
 
     // bind socket
     struct sockaddr_un a;
     memset(&a, 0, sizeof(a));
     a.sun_family = PF_LOCAL;
-    strncpy(a.sun_path, file.local8Bit(), sizeof(a.sun_path) - 1);
+    strncpy(a.sun_path, fn.constData(), sizeof(a.sun_path) - 1);
     int r = ::bind(s, (struct sockaddr*)&a, SUN_LEN(&a));
     if (r < 0) {
-        qWarning("QWSServerSocket: could not bind to file %s", file.latin1());
+        qWarning("QWSServerSocket: could not bind to file %s", fn.constData());
         ::close(s);
         return;
     }
 
-    if (chmod(file.local8Bit(), 0600) < 0) {
-        qWarning("Could not set permissions of %s", file.latin1());
+    if (chmod(fn.constData(), 0600) < 0) {
+        qWarning("Could not set permissions of %s", fn.constData());
         ::close(s);
         return;
     }
@@ -127,9 +128,9 @@ void QWSServerSocket::init(const QString &file)
     // listen
     if (::listen(s, backlog) == 0) {
         if (!setSocketDescriptor(s))
-            qWarning( "QWSServerSocket could not set descriptor %d : %s", s, errorString().latin1());
+            qWarning( "QWSServerSocket could not set descriptor %d : %s", s, errorString().toLatin1().constData());
     } else {
-        qWarning("QWSServerSocket: could not listen to file %s", file.latin1());
+        qWarning("QWSServerSocket: could not listen to file %s", fn.constData());
         ::close(s);
     }
 }

@@ -17,7 +17,7 @@
 #include "qapplication.h"
 #include "qtextstream.h"
 #include "qfile.h"
-
+#include "qdebug.h"
 /*!
     \class QWSMouseHandler qwsmouse_qws.h
     \brief The QWSMouseHandler class is a mouse driver for Qt/Embedded.
@@ -153,7 +153,7 @@ void QWSCalibratedMouseHandler::writeCalibration()
     } else
 #endif
     {
-        qDebug("Could not save calibration: %s", calFile.latin1());
+        qDebug() << "Could not save calibration:" << calFile;
     }
 }
 
@@ -168,7 +168,7 @@ void QWSCalibratedMouseHandler::readCalibration()
     } else
 #endif
     {
-        qDebug("Could not read calibration: %s", calFile.latin1());
+        qDebug() << "Could not read calibration:" <<calFile;
     }
 }
 

@@ -22,6 +22,8 @@
 #include <stdlib.h>
 #include "private/qfactoryloader_p.h"
 #include "qmousedriverplugin_qws.h"
+#include "qdebug.h"
+
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
 
@@ -75,7 +77,7 @@ QWSMouseHandler *QMouseDriverFactory::create(const QString& key, const QString &
     if (driver == "auto" || driver == "intellimouse" ||
          driver == "microsoft" || driver == "mousesystems" ||
          driver == "mouseman" || driver.isEmpty()) {
-        qDebug("Creating mouse: %s", key.latin1());
+        qDebug() << "Creating mouse" << key;
         return new QWSPcMouseHandler(key, device);
     }
 #endif
