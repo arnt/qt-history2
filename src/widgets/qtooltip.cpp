@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#28 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,7 +15,7 @@
 #include "qpoint.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#28 $");
 
 
 // Magic value meaning an entire widget - if someone tries to insert a
@@ -83,7 +83,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.22 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.23 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -409,6 +409,7 @@ void QTipManager::showTip()
 	label = new QLabel( 0, "tool tip tip",
 			    WStyle_Customize | WStyle_NoBorder | WStyle_Tool );
 	CHECK_PTR( label );
+	connect( label, SIGNAL(destroyed()), SLOT(labelDestroyed()) );
 	label->setText( t->text );
 	QColorGroup g( black, QColor(255,255,220),
 		       QColor(96,96,96), black, black,
