@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#339 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#340 $
 **
 ** Implementation of QFileDialog class
 **
