@@ -4180,8 +4180,6 @@ void QTextEdit::zoomTo( int size )
 void QTextEdit::sync()
 {
     QTextParag *p = lastFormatted;
-    if ( !p )
-	p = doc->firstParag();
     while ( p ) {
 	p->format();
 	p = p->next();
