@@ -127,7 +127,7 @@ QInputDialog::QInputDialog( const QString &label, QWidget* parent, const char* n
 {
     if ( parent && parent->icon() &&!parent->icon()->isNull() )
 	setIcon( *parent->icon() );
-    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !parent->icon()->isNull() )
+    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
 	QDialog::setIcon( *qApp->mainWidget()->icon() );
 
     d = new QInputDialogPrivate;
