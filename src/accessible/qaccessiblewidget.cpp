@@ -16,6 +16,7 @@
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 
+#include "qapplication.h"
 #include "qtooltip.h"
 #include "qwhatsthis.h"
 #include "qwidget.h"
@@ -146,26 +147,20 @@ int QAccessibleWidget::navigate( NavDirection dir, int startControl ) const
     case NavNext:
     case NavPrevious:
 	{
-	    QWidget *parent = w->parentWidget();
+	    QAccessibleInterface *parent = 0;
+	    queryParent(&parent);
 	    if (!parent)
 		return -1;
-	    QObjectList sl = parent->queryList( "QWidget", 0, FALSE, FALSE );
-	    if (sl.isEmpty())
-		return -1;
-	    QObject *sib;
-	    int index;
-	    if ( dir == NavNext ) {
-		for (index = 0; index < sl.count()-1; ++index) {
-		    sib = sl.at(index);
-		    if ( sib == w )
-			return index+2;
-		}
+
+	    int ourIndex = parent->indexOfChild(this);
+	    int siblings = parent->childCount();
+	    parent->release();
+	    if (dir == NavNext) {
+		if (ourIndex < siblings)
+		    return ourIndex + 1;
 	    } else {
-		for (index = sl.count()-1; index > 0; --index) {
-		    sib = sl.at(index);
-		    if ( sib == w )
-			return index;
-		}
+		if (ourIndex > 1)
+		    return ourIndex - 1;
 	    }
 	    return -1;
 	}
@@ -200,6 +195,16 @@ int QAccessibleWidget::childCount() const
 }
 
 /*! \reimp */
+int QAccessibleWidget::indexOfChild(const QAccessibleInterface *child) const
+{
+    QObjectList cl = widget()->queryList( "QWidget", 0, FALSE, FALSE );
+    int index = cl.indexOf(child->object());
+    if (index != -1)
+	++index;
+    return index;
+}
+
+/*! \reimp */
 bool QAccessibleWidget::queryChild( int control, QAccessibleInterface **iface ) const
 {
     *iface = 0;
@@ -220,6 +225,10 @@ bool QAccessibleWidget::queryChild( int control, QAccessibleInterface **iface ) 
 /*! \reimp */
 bool QAccessibleWidget::queryParent( QAccessibleInterface **iface ) const
 {
+#ifndef Q_WS_WIN32
+    if (!widget()->parentWidget(TRUE))
+	return QAccessible::queryAccessibleInterface( qApp, iface );
+#endif
     return QAccessible::queryAccessibleInterface( widget()->parentWidget(), iface );
 }
 

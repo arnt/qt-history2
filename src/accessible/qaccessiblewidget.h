@@ -37,6 +37,7 @@ public:
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
+    int		indexOfChild(const QAccessibleInterface*) const;
     bool	queryChild( int control, QAccessibleInterface ** ) const;
     bool	queryParent( QAccessibleInterface ** ) const;
 

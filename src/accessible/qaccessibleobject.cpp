@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of the QAccessibleObject class.
+** Implementation of the QAccessibleObject and QAccessibleApplication classes.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -16,7 +16,8 @@
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 
-#include "qobject.h"
+#include "qapplication.h"
+#include "qwidget.h"
 
 class QAccessibleObjectPrivate
 {
@@ -25,7 +26,7 @@ public:
 };
 
 /*!
-    \class QAccessibleObject qaccessible.h
+    \class QAccessibleObject qaccessibleobject.h
     \brief The QAccessibleObject class implements parts of the
     QAccessibleInterface for QObjects.
 
@@ -80,9 +81,7 @@ QRESULT QAccessibleObject::queryInterface( const QUuid &uuid, QUnknownInterface 
 }
 
 /*!
-    Returns the QObject for which this QAccessibleInterface
-    implementation provides information. Use isValid() to make sure
-    the object pointer is safe to use.
+    \reimp
 */
 QObject *QAccessibleObject::object() const
 {
@@ -99,6 +98,190 @@ QObject *QAccessibleObject::object() const
 bool QAccessibleObject::isValid() const
 {
     return !d->object.isNull();
+}
+
+
+/*!
+    \class QAccessibleApplication qaccessibleobject.h
+    \brief The QAccessibleObject class implements parts of the
+    QAccessibleInterface for QObjects.
+
+    \ingroup misc
+
+    This class is mainly provided for convenience. All subclasses of
+    the QAccessibleInterface should use this class as the base class.
+*/
+
+QAccessibleApplication::QAccessibleApplication(QApplication *object)
+: QAccessibleObject(object)
+{
+    Q_ASSERT(object == qApp);
+}
+
+static QWidgetList topLevelWidgets()
+{
+    QWidgetList list;
+    const QWidgetList tlw(qApp->topLevelWidgets());
+    for (int i = 0; i < tlw.count(); ++i) {
+	QWidget *w = tlw.at(i);
+	if (!w->isPopup() && !w->isDesktop())
+	    list.append(w);
+    }
+
+    return list;
+}
+
+// hierarchy
+int QAccessibleApplication::childCount() const
+{
+    return topLevelWidgets().count();
+}
+
+int QAccessibleApplication::indexOfChild(const QAccessibleInterface *child) const
+{
+    if (!child->object()->isWidgetType())
+	return -1;
+
+    const QWidgetList tlw(topLevelWidgets());
+    int index = tlw.indexOf(static_cast<QWidget*>(child->object()));
+    if (index != -1)
+	++index;
+    return index;
+}
+
+bool QAccessibleApplication::queryChild( int control, QAccessibleInterface **iface ) const
+{
+    *iface = 0;
+    if (!control)
+	return FALSE;
+
+    QObject *o = 0;
+    const QWidgetList tlw(topLevelWidgets());
+    if (tlw.count() >= control)
+	o = tlw.at(control-1);
+    if (!o )
+	return FALSE;
+
+    return QAccessible::queryAccessibleInterface( o, iface );
+}
+
+bool QAccessibleApplication::queryParent( QAccessibleInterface **iface ) const
+{
+    *iface = 0;
+    return FALSE;
+}
+
+// navigation
+int QAccessibleApplication::controlAt( int x, int y ) const
+{
+    const QWidgetList tlw(topLevelWidgets());
+    for (int i = 0; i < tlw.count(); ++i) {
+	QWidget *w = tlw.at(i);
+	if (w->frameGeometry().contains(x,y))
+	    return i+1;
+    }
+    return -1;
+}
+
+QRect QAccessibleApplication::rect( int ) const
+{
+    return QRect();
+}
+
+int QAccessibleApplication::navigate( NavDirection dir, int startControl ) const
+{
+#if defined(QT_DEBUG)
+    if ( startControl )
+	qWarning( "QAccessibleApplication::navigate: This implementation does not support subelements! (ID %d unknown for %s)", startControl, object()->className() );
+#else
+    Q_UNUSED(startControl);
+#endif
+    int count = childCount();
+    switch ( dir ) {
+    case NavFirstChild:
+	return count ? 1 : -1;
+    case NavLastChild:
+	return count ? count : -1;
+    case NavFocusChild:
+	{
+	    QWidget *actw = qApp->activeWindow();
+	    if (!actw)
+		return -1;
+	    QAccessibleInterface *iface = 0;
+	    QAccessible::queryAccessibleInterface(actw, &iface);
+	    if (!iface)
+		return -1;
+	    int index = indexOfChild(iface);
+	    iface->release();
+	    return index;
+	}
+    default:
+	qWarning( "QAccessibleApplication::navigate: unhandled request" );
+	break;
+    };
+    return -1;
+}
+
+// properties and state
+QString QAccessibleApplication::text( Text t, int ) const
+{
+    switch (t) {
+    case Name:
+	if (qApp->mainWidget())
+	    return qApp->mainWidget()->caption();
+	break;
+    case Description:
+	return qApp->applicationFilePath();
+	break;
+    case DefaultAction:
+	return QApplication::tr("Activate");
+    }
+    return QString();
+}
+
+void QAccessibleApplication::setText( Text t, int, const QString &text )
+{
+}
+
+QAccessible::Role QAccessibleApplication::role( int ) const
+{
+    return Application;
+}
+
+QAccessible::State QAccessibleApplication::state( int ) const
+{
+    return Normal;
+}
+
+QMemArray<int> QAccessibleApplication::selection() const
+{
+    return QMemArray<int>();
+}
+
+// methods
+bool QAccessibleApplication::doDefaultAction( int child )
+{
+    return setFocus( child );
+}
+
+bool QAccessibleApplication::setFocus( int )
+{
+    QWidget *w = qApp->mainWidget();
+    if (!w)
+	w = topLevelWidgets().at(0);
+    if (!w)
+	return FALSE;
+    w->setActiveWindow();
+    return TRUE;
+}
+
+bool QAccessibleApplication::setSelected( int, bool, bool )
+{
+    return FALSE;
+}
+
+void QAccessibleApplication::clearSelection()
+{
 }
 
 #endif //QT_ACCESSIBILITY_SUPPORT

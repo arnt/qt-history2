@@ -17,10 +17,10 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 
 #include "qaccessiblewidget.h"
+#include "qapplication.h"
 #include "qhash.h"
 #include "qmetaobject.h"
 #include <private/qpluginmanager_p.h>
-#include "qapplication.h"
 #include <stdlib.h>
 
 #include "qwidget.h"
@@ -366,10 +366,13 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
 
     if (qt_cast<QWidget*>(object))
 	*iface = new QAccessibleWidget(object);
-/*    else if (qt_cast<QApplication*>(object))
-	*iface = new QAccessibleApplication(object);*/
+    else if (qt_cast<QApplication*>(object))
+	*iface = new QAccessibleApplication(static_cast<QApplication*>(object));
+    else
+	return QE_NOCOMPONENT;
 
-    return QE_NOCOMPONENT;
+    (*iface)->addRef();
+    return QS_OK;
 }
 
 /*!
@@ -441,6 +444,14 @@ bool QAccessible::isActive()
 */
 
 /*!
+    \fn int QAccessibleInterface::indexOfChild(const QAccessibleInterface *child) const
+
+    Returns the index of the object \a child.
+
+    \sa childCount(), queryChild()
+*/
+
+/*!
     \fn QRESULT QAccessibleInterface::queryChild( int control, QAccessibleInterface **iface ) const
 
     Sets \a iface to point to the implementation of the
@@ -451,7 +462,7 @@ bool QAccessible::isActive()
 
     All objects provide this information.
 
-    \sa childCount(), queryParent()
+    \sa childCount(), queryParent(), indexOfChild()
 */
 
 /*!

@@ -214,6 +214,7 @@ struct Q_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterf
 
     // hierarchy
     virtual int		childCount() const = 0;
+    virtual int		indexOfChild(const QAccessibleInterface *) const = 0;
     virtual bool	queryChild( int control, QAccessibleInterface** ) const = 0;
     virtual bool	queryParent( QAccessibleInterface** ) const = 0;
 
