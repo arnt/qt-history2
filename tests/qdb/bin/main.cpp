@@ -5,6 +5,10 @@
 #include <qdir.h>
 #include <qfileinfo.h>
 #include <qtextstream.h>
+#include <xdb/xbase.h>
+
+
+#include <op.h> //## remove
 
 static QString appname;
 
@@ -13,14 +17,19 @@ void usage( const QString& message = QString::null )
     if ( !message.isNull() )
 	qWarning( appname + ": " + message );
     qWarning( "Usage: " + appname + " <options> [command] ..." );
-    qWarning( " Options:" );
+    qWarning( " General Options:" );
     qWarning( " -a             Analyse and quit" );
     qWarning( " -c <commands>  Execute <commands>" );
     qWarning( " -d <dir>       Specify db directory (default:current dir)" );
     qWarning( " -e             Echo commands" );
     qWarning( " -f <file>      Read commands from file" );
-    qWarning( " -o <file>      Place output in file" );
+    qWarning( " -o <file>      Place query output in file" );
     qWarning( " -v             Verbose" );
+    qWarning( "\n Diagnostic Options:" );
+    qWarning( " -i <table>     Dump table index information to stdout and exit" );
+    qWarning( " -n <table>     Check table index integrity" );
+    qWarning( " -r <table>     Rebuild indexes for table" );
+    qWarning( " -t <table>     Dump table description to stdout and exit" );
     qWarning( "\nExit status is 0 if command(s) successful, 1 if trouble." );
 }
 
@@ -45,6 +54,10 @@ int main( int argc, char** argv )
     bool verbose = FALSE;
     bool echo = FALSE;
     bool analyse = FALSE;
+    QString tablename;
+    bool index = FALSE;
+    bool rebuildindexes = FALSE;
+    bool checkindexintegrity = FALSE;
 
     /* process all command line options, die if problem */
     for ( int i = 1; i < app.argc(); ++i ) {
@@ -65,10 +78,31 @@ int main( int argc, char** argv )
 	    if ( i+1 > app.argc()-1 )
 		die( "-f requires filename" );
 	    infilename = app.argv()[++i];
+	} else if ( arg == "-i" ) {
+	    index = TRUE;
+	    if ( i+1 > app.argc()-1 )
+		die( "-i requires table name" );
+	    tablename = app.argv()[++i];
+	} else if ( arg == "-n" ) {
+	    index = TRUE;
+	    checkindexintegrity = TRUE;
+	    if ( i+1 > app.argc()-1 )
+		die( "-n requires table name" );
+	    tablename = app.argv()[++i];
 	} else if ( arg == "-o" ) {
 	    if ( i+1 > app.argc()-1 )
 		die( "-o requires filename" );
 	    outfilename = app.argv()[++i];
+	} else if ( arg == "-r" ) {
+	    index = TRUE;
+	    rebuildindexes = TRUE;
+	    if ( i+1 > app.argc()-1 )
+		die( "-r requires table name" );
+	    tablename = app.argv()[++i];
+	} else if ( arg == "-t" ) {
+	    if ( i+1 > app.argc()-1 )
+		die( "-t requires table name" );
+	    tablename = app.argv()[++i];
 	} else if ( arg == "-v" ) {
 	    verbose = TRUE;
 	} else if ( arg == "-help" || arg == "-h" || arg == "--help" ) {
@@ -104,6 +138,58 @@ int main( int argc, char** argv )
     if ( !QDir::setCurrent( dbdirname ) )
 	die( "could not cd: " + dbdirname );
 
+    /* index stuff */
+    if ( index && tablename.length() ) {
+	if ( verbose )
+	    outstream << "index info for " + tablename << endl;
+	char buf[XB_MAX_NDX_NODE_SIZE];
+	xbShort rc;
+	xbXBase x;
+	xbDbf file( &x );
+	if( ( rc =  file.OpenDatabase( tablename ) ) != 0 )
+	    die( "could not open table " + tablename );
+	xbNdx idx( &file );
+	QFileInfo fi( tablename );
+	QString basename = fi.baseName();
+	QDir dir;
+	QStringList indexnames = dir.entryList( basename + "*.ndx", QDir::Files );
+	for ( uint i = 0; i < indexnames.count(); ++i ) {
+	    if( ( rc = idx.OpenIndex( indexnames[i] )) != XB_NO_ERROR )
+		die( "could not open index " + indexnames[i] );
+	    idx.GetExpression( buf,XB_MAX_NDX_NODE_SIZE  );
+	    QString output = indexnames[i] + ": " + buf;
+	    if ( rebuildindexes ) {
+		qDebug( "reindexing " + output );
+		if ( idx.ReIndex() != XB_NO_ERROR )
+		    output = "...FAILED";
+		else
+		    output = "...done";
+	    }
+	    if ( checkindexintegrity ) {
+		qDebug( "checking index integrity " + output );
+		if ( idx.CheckIndexIntegrity(0) != XB_NO_ERROR )
+		    output = "...FAILED";
+		else
+		    output = "...done";
+	    }
+	    qDebug( output );
+	    idx.CloseIndex();
+	}
+	return 0;
+    }
+
+    /* table description */
+    if ( tablename.length() ) {
+	xbShort rc;
+	xbXBase x;
+	xbDbf file( &x );
+	if( ( rc =  file.OpenDatabase( tablename ) ) != 0 )
+	    die( "could not open table " + tablename );
+	file.DumpHeader( 3 );
+	file.CloseDatabase();
+	return 0;
+    }
+
     /* get commands */
     if ( !commands ) {
 	if ( infilename ) {
@@ -129,8 +215,26 @@ int main( int argc, char** argv )
     QDb env;
     env.setOutput( outstream );
     if ( env.parse( commands, echo ) ) {
+
+	QString FILENAME = "test";
+
+	env.program()->append( new Push( "id" ) );
+	env.program()->append( new Push( QVariant::Int ) );
+	env.program()->append( new Push( 10 ) );
+	env.program()->append( new Push( 0 ) );
+	env.program()->append( new PushList( 4 ) );
+	env.program()->append( new Push( "name" ) );
+	env.program()->append( new Push( QVariant::String ) );
+	env.program()->append( new Push( 30 ) );
+	env.program()->append( new Push( 0 ) );
+	env.program()->append( new PushList( 4 ) );
+	env.program()->append( new PushList( 2 ) );
+	env.program()->append( new Create( FILENAME ) );
+
+
+
 	if ( analyse )
-	    outstream << env.program()->listing().join( "\n" ) ;
+	    outstream << env.program()->listing().join( "\n" ) << endl;
 	else if ( !env.execute( verbose ) )
 	    die( env.lastError() );
     } else
