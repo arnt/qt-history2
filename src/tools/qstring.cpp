@@ -106,7 +106,7 @@ static char qToLower(char c)
 }
 
 
-const QString::Null QString::null;
+const QString::Null QString::null=QString::Null();
 
 
 /*!
