@@ -172,7 +172,7 @@ QDialog::~QDialog()
 
 void QDialog::setDefault( QPushButton *pushButton )
 {
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_DIALOG
     QObjectList *list = queryList( "QPushButton" );
     ASSERT(list);
     QObjectListIt it( *list );
@@ -200,7 +200,7 @@ void QDialog::setDefault( QPushButton *pushButton )
  */
 void QDialog::hideDefault()
 {
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_DIALOG
     QObjectList *list = queryList( "QPushButton" );
     QObjectListIt it( *list );
     QPushButton *pb;
@@ -331,11 +331,11 @@ void QDialog::keyPressEvent( QKeyEvent *e )
     //   Calls reject() if Escape is pressed.  Simulates a button
     //   click for the default button if Enter is pressed.  Move focus
     //   for the arrow keys.  Ignore the rest.
-    if ( e->state() == 0 ) {
+    if ( e->state() == 0 || ( e->state() & Keypad && e->key() == Key_Enter ) ) {
 	switch ( e->key() ) {
 	case Key_Enter:
 	case Key_Return: {
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_DIALOG
 	    QObjectList *list = queryList( "QPushButton" );
 	    QObjectListIt it( *list );
 	    QPushButton *pb;
