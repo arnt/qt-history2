@@ -600,11 +600,13 @@ void Parser::matchScalarExp()
 void Parser::matchAtom()
 {
     if ( yyTok == Tok_String ) {
+	yyProg->append( new Push(yyStr) );
 	yyTok = getToken();
     } else if ( yyTok == Tok_IntNum || yyTok == Tok_ApproxNum ) {
+	yyProg->append( new Push(yyNum) );
 	yyTok = getToken();
     } else {
-	error( "Expected string or numeral instead of '%s'", yyLex );
+	error( "Expected string or numeral rather than '%s'", yyLex );
     }
 }
 
@@ -799,15 +801,18 @@ void Parser::matchDataType()
     yyProg->append( new Push(prec) );
 }
 
-void Parser::matchColumnList()
+QStringList Parser::matchColumnList()
 {
+    QStringList columns;
+
     while ( TRUE ) {
-	matchName();
+	columns.append( matchName() );
 
 	if ( yyTok != Tok_Comma )
 	    break;
 	yyTok = getToken();
     }
+    return columns;
 }
 
 void Parser::matchTableConstraintDef()
@@ -913,24 +918,46 @@ void Parser::matchInsertAtom()
 {
     if ( yyTok == Tok_null ) {
 	yyTok = getToken();
+	error( "Null not supported yet" );
     } else {
 	matchAtom();
     }
 }
 
-void Parser::matchInsertAtomList()
+void Parser::matchInsertAtomList( const QStringList& columns )
 {
+    QStringList::ConstIterator col = columns.begin();
+    int n = 0;
+
     while ( TRUE ) {
+	if ( columns.isEmpty() ) {
+	    yyProg->append( new Push(n) );
+	} else {
+	    if ( col == columns.end() ) {
+		error( "Met more values than columns" );
+	    } else {
+		yyProg->append( new Push(*col) );
+		++col;
+	    }
+	}
+
 	matchInsertAtom();
+	n++;
 
 	if ( yyTok != Tok_Comma )
 	    break;
 	yyTok = getToken();
     }
+    if ( col != columns.end() )
+	error( "Met fewer values than columns" );
+
+    yyProg->append( new PushList(n << 1) );
 }
 
 void Parser::matchInsertStatement()
 {
+    QStringList columns;
+
     yyTok = getToken();
     matchOrInsert( Tok_into, "'into'" );
 
@@ -938,14 +965,16 @@ void Parser::matchInsertStatement()
 
     if ( yyTok == Tok_LeftParen ) {
 	yyTok = getToken();
-	matchColumnList();
+	columns = matchColumnList();
 	matchOrInsert( Tok_RightParen, "')'" );
     }
 
     matchOrInsert( Tok_values, "'values'" );
     matchOrInsert( Tok_LeftParen, "'('" );
-    matchInsertAtomList();
+    matchInsertAtomList( columns );
     matchOrInsert( Tok_RightParen, "')'" );
+
+    yyProg->append( new Insert(0) );
 }
 
 void Parser::matchRollbackStatement()
@@ -1072,7 +1101,13 @@ void Parser::matchManipulativeStatement()
 
 void Parser::matchSql()
 {
-    matchManipulativeStatement();
-    if ( yyTok == Tok_Semicolon ) 
+    while ( yyTok != Tok_Eoi ) {
+	matchManipulativeStatement();
+
+	if ( yyTok != Tok_Semicolon )
+	    break;
 	yyTok = getToken();
+    }
+    if ( yyTok != Tok_Eoi )
+	error( "Unexpected '%s' where ';' was expected", yyLex );
 }

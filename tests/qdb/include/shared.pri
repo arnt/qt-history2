@@ -5,6 +5,7 @@ SOURCES	        += ../src/sqlinterpreter.cpp \
 		../src/environment.cpp \
 		../src/filedriver_xbase.cpp \
 		../src/op.cpp \
+		../src/parser.cpp \
 		../src/qdb.cpp 
 xbase {
 	XBASE_ROOT	= ../xdb-1.2.0

@@ -143,14 +143,14 @@ private:
     void matchOptWhereClause();
     void matchCommitStatement();
     void matchDataType();
-    void matchColumnList();
+    QStringList matchColumnList();
     void matchTableConstraintDef();
     void matchBaseTableElement();
     void matchBaseTableElementList();
     void matchCreateStatement();
     void matchDeleteStatement();
     void matchInsertAtom();
-    void matchInsertAtomList();
+    void matchInsertAtomList( const QStringList& columns );
     void matchInsertStatement();
     void matchRollbackStatement();
     void matchFromClause();
