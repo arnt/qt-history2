@@ -2911,7 +2911,7 @@ rm -f .projects .projects.3
 if [ `basename $0` != "config.status" ]; then
     [ -f $outpath/config.status ] && rm -f $outpath/config.status
     echo "#!/bin/sh" >$outpath/config.status
-    echo "echo yes | $relpath/$relconf $OPT_CMDLINE \$@" >>$outpath/config.status
+    echo "echo yes | $relpath/$relconf $OPT_CMDLINE \"\$@\"" >>$outpath/config.status
     chmod +x $outpath/config.status
 fi
 
