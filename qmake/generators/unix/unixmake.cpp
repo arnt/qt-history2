@@ -549,6 +549,9 @@ UnixMakefileGenerator::init()
 	if(!project->variables()["QMAKE_LFLAGS_THREAD"].isEmpty())
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_THREAD"];
     }
+    if ( project->isActiveConfig("accessibility" ) ) {
+	project->variables()["DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
+    }
     if ( project->isActiveConfig("qt") ) {
 	if(configs.findIndex("moc")) configs.append("moc");
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QT"];
