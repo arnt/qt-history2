@@ -924,8 +924,9 @@ QListWidgetItem *QListWidget::takeItem(int row)
     return d->model()->take(row);
 }
 
-/*!\property QListWidget::count
-    \brief the number of items in the list including any hidden items.
+/*!
+  \property QListWidget::count
+  \brief the number of items in the list including any hidden items.
 */
 
 int QListWidget::count() const
@@ -948,6 +949,24 @@ QListWidgetItem *QListWidget::currentItem() const
 void QListWidget::setCurrentItem(QListWidgetItem *item)
 {
     selectionModel()->setCurrentIndex(d->model()->index(item),
+                                      d->selectionMode == SingleSelection
+                                      ? QItemSelectionModel::ClearAndSelect
+                                      : QItemSelectionModel::NoUpdate);
+}
+
+/*!
+  \property QListWidget::currentRow
+  \brief the row of the current item.
+*/
+
+int QListWidget::currentRow() const
+{
+    return currentIndex().row();
+}
+
+void QListWidget::setCurrentRow(int row)
+{
+    selectionModel()->setCurrentIndex(d->model()->index(row),
                                       d->selectionMode == SingleSelection
                                       ? QItemSelectionModel::ClearAndSelect
                                       : QItemSelectionModel::NoUpdate);

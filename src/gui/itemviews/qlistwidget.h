@@ -111,6 +111,7 @@ class Q_GUI_EXPORT QListWidget : public QListView
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count)
+    Q_PROPERTY(int currentRow READ currentRow WRITE setCurrentRow)
 
     friend class QListWidgetItem;
 public:
@@ -130,6 +131,9 @@ public:
 
     QListWidgetItem *currentItem() const;
     void setCurrentItem(QListWidgetItem *item);
+
+    int currentRow() const;
+    void setCurrentRow(int row);
 
     QListWidgetItem *itemAt(const QPoint &p) const;
     inline QListWidgetItem *itemAt(int x, int y) const { return itemAt(QPoint(x, y)); }
