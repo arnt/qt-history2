@@ -186,8 +186,12 @@ void MingwMakefileGenerator::processQtConfig()
 void MingwMakefileGenerator::writeObjectsPart(QTextStream &t)
 {
     if(project->variables()["OBJECTS"].count() > var("QMAKE_LINK_OBJECT_MAX").toInt()) {
-        createLdObjectScriptFile(var("QMAKE_LINK_OBJECT_SCRIPT"), project->variables()["OBJECTS"]);
-        objectsLinkLine = var("QMAKE_LINK_OBJECT_SCRIPT");
+        QString ld_script_file = var("QMAKE_LINK_OBJECT_SCRIPT") + "." + var("TARGET");
+	if (!var("BUILD_NAME").isEmpty()) {
+	    ld_script_file += "." + var("BUILD_NAME");
+	}
+	createLdObjectScriptFile(ld_script_file, project->variables()["OBJECTS"]);
+        objectsLinkLine = ld_script_file;
     } else {
         objectsLinkLine = "$(OBJECTS)";
     }
@@ -197,8 +201,12 @@ void MingwMakefileGenerator::writeObjectsPart(QTextStream &t)
 void MingwMakefileGenerator::writeObjMocPart(QTextStream &t)
 {
     if(project->variables()["OBJMOC"].count() > var("QMAKE_LINK_OBJECT_MAX").toInt()) {
-        createLdObjectScriptFile(var("QMAKE_LINK_OBJMOC_SCRIPT"), project->variables()["OBJMOC"]);
-        objmocLinkLine = var("QMAKE_LINK_OBJMOC_SCRIPT");
+        QString ld_script_file = var("QMAKE_LINK_OBJMOC_SCRIPT") + "." + var("TARGET");
+	if (!var("BUILD_NAME").isEmpty()) {
+	    ld_script_file += "." + var("BUILD_NAME");
+	}
+	createLdObjectScriptFile(ld_script_file, project->variables()["OBJMOC"]);
+        objmocLinkLine = ld_script_file;
     } else {
         objmocLinkLine = "$(OBJMOC)";
     }
@@ -207,6 +215,7 @@ void MingwMakefileGenerator::writeObjMocPart(QTextStream &t)
 
 void MingwMakefileGenerator::writeBuildRulesPart(QTextStream &t)
 {
+    t << "first: all" << endl;
     t << "all: " << fileFixify(Option::output.fileName()) << " " << varGlue("ALL_DEPS"," "," "," ") << " $(TARGET)" << endl << endl;
     t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) $(OBJMOC) " << var("POST_TARGETDEPS");
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {

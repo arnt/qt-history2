@@ -60,10 +60,18 @@ typedef enum {
 #define QT_CLOSE		::_close
 #ifdef QT_LARGEFILE_SUPPORT
 #define QT_LSEEK		::_lseeki64
-#define QT_TSTAT		::_tstati64
+#ifndef UNICODE
+#define QT_TSTAT		::_stati64
+#else
+#define QT_TSTAT		::_wstati64
+#endif
 #else
 #define QT_LSEEK		::_lseek
-#define QT_TSTAT		::_tstat
+#ifndef UNICODE
+#define QT_TSTAT		::_stat
+#else
+#define QT_TSTAT		::_wstat
+#endif
 #endif
 #define QT_READ			::_read
 #define QT_WRITE		::_write
