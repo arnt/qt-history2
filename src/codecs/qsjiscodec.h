@@ -74,7 +74,7 @@
 
 #ifndef QT_NO_BIG_CODECS
 
-#if defined(QT_PLUGIN_CODECS_JP)
+#if defined(QT_PLUGIN)
 #define Q_EXPORT_CODECS_JP
 #else
 #define Q_EXPORT_CODECS_JP Q_EXPORT

@@ -46,7 +46,7 @@
 
 class QPalette;
 
-#if defined(QT_PLUGIN_STYLE_PLATINUM)
+#if defined(QT_PLUGIN)
 #define Q_EXPORT_STYLE_PLATINUM
 #else
 #define Q_EXPORT_STYLE_PLATINUM Q_EXPORT

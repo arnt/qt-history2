@@ -11,7 +11,6 @@ SOURCES		= ../../../../src/codecs/qgbkcodec.cpp \
 
 TARGET		= qcncodecs
 DESTDIR		= ../../../codecs
-DEFINES		+= QT_PLUGIN_CODECS_CN
 
 target.path=$$plugins.path/codecs
 isEmpty(target.path):target.path=$$QT_PREFIX/plugins/codecs

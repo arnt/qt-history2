@@ -44,7 +44,7 @@
 
 #ifndef QT_NO_STYLE_COMPACT
 
-#if defined(QT_PLUGIN_STYLE_COMPACT)
+#if defined(QT_PLUGIN)
 #define Q_EXPORT_STYLE_COMPACT
 #else
 #define Q_EXPORT_STYLE_COMPACT Q_EXPORT

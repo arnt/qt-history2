@@ -44,7 +44,7 @@
 
 #ifndef QT_NO_STYLE_WINDOWS
 
-#if defined(QT_PLUGIN_STYLE_WINDOWS)
+#if defined(QT_PLUGIN)
 #define Q_EXPORT_STYLE_WINDOWS
 #else
 #define Q_EXPORT_STYLE_WINDOWS Q_EXPORT

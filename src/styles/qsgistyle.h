@@ -48,7 +48,7 @@
 
 class QButton;
 
-#if defined(QT_PLUGIN_STYLE_SGI)
+#if defined(QT_PLUGIN)
 #define Q_EXPORT_STYLE_SGI
 #else
 #define Q_EXPORT_STYLE_SGI Q_EXPORT

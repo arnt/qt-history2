@@ -48,7 +48,7 @@
 
 #ifndef QT_NO_STYLE_AQUA
 
-#if defined(QT_PLUGIN_STYLE_AQUA)
+#if defined(QT_PLUGIN)
 #define Q_EXPORT_STYLE_AQUA
 #else
 #define Q_EXPORT_STYLE_AQUA Q_EXPORT

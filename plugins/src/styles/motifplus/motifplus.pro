@@ -1,6 +1,5 @@
 TEMPLATE	= lib
 CONFIG+= qt warn_on debug plugin
-win32:DEFINES	+= QT_DLL QT_PLUGIN_STYLE_MOTIFPLUS QT_PLUGIN_STYLE_MOTIF
 
 HEADERS		= ../../../../src/styles/qmotifstyle.h \
 		  ../../../../src/styles/qmotifplusstyle.h 

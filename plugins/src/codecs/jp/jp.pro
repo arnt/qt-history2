@@ -17,7 +17,6 @@ SOURCES		= ../../../../src/codecs/qeucjpcodec.cpp \
 
 TARGET		= qjpcodecs
 DESTDIR		= ../../../codecs
-DEFINES		+= QT_PLUGIN_CODECS_JP
 
 target.path=$$plugins.path/codecs
 isEmpty(target.path):target.path=$$QT_PREFIX/plugins/codecs

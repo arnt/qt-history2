@@ -46,7 +46,7 @@
 
 class QPalette;
 
-#if defined(QT_PLUGIN_STYLE_MAC)
+#if defined(QT_PLUGIN)
 #define Q_EXPORT_STYLE_MAC
 #else
 #define Q_EXPORT_STYLE_MAC Q_EXPORT

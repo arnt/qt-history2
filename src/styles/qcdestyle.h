@@ -45,7 +45,7 @@
 
 #ifndef QT_NO_STYLE_CDE
 
-#if defined(QT_PLUGIN_STYLE_CDE)
+#if defined(QT_PLUGIN)
 #define Q_EXPORT_STYLE_CDE
 #else
 #define Q_EXPORT_STYLE_CDE Q_EXPORT

@@ -69,7 +69,7 @@
 
 #ifndef QT_NO_BIG_CODECS
 
-#if defined(QT_PLUGIN_CODECS_KR)
+#if defined(QT_PLUGIN)
 #define Q_EXPORT_CODECS_KR
 #else
 #define Q_EXPORT_CODECS_KR Q_EXPORT

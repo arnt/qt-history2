@@ -46,7 +46,7 @@
 
 class QPalette;
 
-#if defined(QT_PLUGIN_STYLE_MOTIF)
+#if defined(QT_PLUGIN)
 #define Q_EXPORT_STYLE_MOTIF
 #else
 #define Q_EXPORT_STYLE_MOTIF Q_EXPORT
