@@ -51,13 +51,13 @@ PLATFORM_MAC=no
 PLATFORM_QWS=no
 PLATFORM_QNX=no
 
-if [ -f $relpath/src/gui/base/qapplication_mac.cpp ] && [ -d /System/Library/Frameworks/Carbon.framework ]; then
+if [ -f $relpath/src/gui/kernel/qapplication_mac.cpp ] && [ -d /System/Library/Frameworks/Carbon.framework ]; then
     # Qt/Mac
     # ~ the Carbon SDK exists
     # ~ src/gui/base/qapplication_mac.cpp is present
     # ~ this is the internal edition and Qt/Mac sources exist
     PLATFORM_MAC=maybe
-elif [ -f $relpath/src/gui/base/qapplication_qws.cpp ]; then
+elif [ -f $relpath/src/gui/kernel/qapplication_qws.cpp ]; then
     # Qt/Embedded
     # ~ src/gui/base/qapplication_qws.cpp is present
     # ~ this is the free or commercial edition
