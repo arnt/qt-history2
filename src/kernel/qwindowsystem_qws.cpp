@@ -1305,6 +1305,7 @@ void QWSServer::request_region( int wid, QRegion region )
 {
     QWSClient *serverClient = qwsServer->client[-1];
     QWSWindow* changingw = qwsServer->findWindow( wid, serverClient );
+    changingw->setNeedAck( TRUE );
     qwsServer->setWindowRegion( changingw, region );
     qwsServer->syncRegions( changingw );
     if ( qwsServer->focusw == changingw && region.isEmpty() )

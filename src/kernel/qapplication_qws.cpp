@@ -462,12 +462,14 @@ void QWSDisplayData::fillQueue()
 
 void QWSDisplayData::waitForRegionAck()
 {
-    csocket->flush();
+    if ( csocket )
+	csocket->flush();
     while ( 1 ) {
 	fillQueue();
 	if ( region_ack )
 	    break;
-	csocket->waitForMore(1000);
+	if ( csocket )
+	    csocket->waitForMore(1000);
     }
     queue.prepend(region_ack);
     region_ack = 0;
@@ -586,8 +588,8 @@ void QWSDisplay::setAltitude(int winId, int alt, bool fixed )
 	QWSServer::set_altitude( &cmd );
     } else {
 	d->sendCommand( cmd );
-	d->waitForRegionAck();
     }
+    d->waitForRegionAck();
 }
 
 void QWSDisplay::requestFocus(int winId, bool get)
@@ -622,9 +624,9 @@ void QWSDisplay::requestRegion(int winId, QRegion r)
 	cmd.simpleData.nrectangles = ra.count();
 	cmd.setData( (char *)ra.data(), ra.count() * sizeof(QRect), FALSE);
 	d->sendCommand( cmd );
-	if ( !r.isEmpty() )
-	    d->waitForRegionAck();
     }
+    if ( !r.isEmpty() )
+	d->waitForRegionAck();
 }
 
 void QWSDisplay::moveRegion( int winId, int dx, int dy )
@@ -641,8 +643,8 @@ void QWSDisplay::moveRegion( int winId, int dx, int dy )
 	QWSServer::move_region( &cmd );
     } else {
 	d->sendCommand( cmd );
-	d->waitForRegionAck();
     }
+    d->waitForRegionAck();
 }
 void QWSDisplay::destroyRegion( int winId )
 {
