@@ -3772,8 +3772,9 @@ void QPSPrintEngineFontAsian::download(QTextStream& s, bool)
     emitPSFontNameList(s, psname, replacementList);
 }
 
-void QPSPrintEngineFontAsian::drawText(QTextStream &stream, QPSPrintEnginePrivate *d,
-                                       const QPoint &p, const QTextItem &ti, int textflags)
+
+void QPSPrintEngineFontAsian::drawText(QTextStream &, QPSPrintEnginePrivate *,
+                                       const QPoint &, const QTextItem &, int)
 {
     // ###
 #if 0

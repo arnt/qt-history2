@@ -54,6 +54,10 @@
 #include "../3rdparty/dlcompat/dlfcn.h"
 #endif
 
+#if defined(__GLIBC__) && ((__GLIBC__ > 2) || ((__GLIBC__ == 2) && (__GLIBC_MINOR__ >= 3)))
+#define Q_MODERN_RES_API
+#endif
+
 //#define QDNS_DEBUG
 
 static Q_UINT16 id; // seeded started by now()
@@ -2458,11 +2462,6 @@ void Q3Dns::doSynchronousLookup()
         emit resultsReady();
     }
 }
-#endif
-
-#if defined(__GLIBC__) && ((__GLIBC__ > 2) || ((__GLIBC__ == 2) && (__GLIBC_MINOR__ >= 3)))
-#define Q_MODERN_RES_API
-#else
 #endif
 
 void Q3Dns::doResInit()
