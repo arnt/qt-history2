@@ -40,8 +40,8 @@ void paintCar( QPainter *p )			// paint a car
     if ( pixmap.load("flag.bmp") )		// load and draw image
 	p->drawPixmap( 100, 90, pixmap );
 
-    p->setBackgroundMode( Qt::OpaqueMode );		// set opaque mode
-    p->setBrush( Qt::DiagCrossPattern );		// black diagonal cross pattern
+    p->setBackgroundMode( Qt::OpaqueMode );	// set opaque mode
+    p->setBrush( Qt::DiagCrossPattern );	// black diagonal cross pattern
     p->drawEllipse( 90, 210, 80, 80 );		// back wheel
     p->setBrush( Qt::CrossPattern );		// black cross fill pattern
     p->drawEllipse( 310, 210, 80, 80 );		// front wheel
@@ -104,7 +104,7 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );		// QApplication required!
 
-    const char *fileName = "car.pic";			// default picture file name
+    const char *fileName = "car.pic";		// default picture file name
 
     if ( argc == 2 )				// use argument as file name
 	fileName = argv[1];
@@ -114,18 +114,18 @@ int main( int argc, char **argv )
 	QPainter paint;				// our painter
 
 	paint.begin( &pict );			// begin painting onto picture
-	paintCar( &paint );				// paint!
+	paintCar( &paint );			// paint!
 	paint.end();				// painting done
 
 	pict.save( fileName );			// save picture
-	QMessageBox::information(0, "Qt picture example", "Saved.  Run me again!");
+	QMessageBox::information(0, "Qt Example - Picture", "Saved.  Run me again!");
 	return 0;
     } else {
-	PictureDisplay test( fileName );		// create picture display
-	a.setMainWidget( &test);			// set main widget
+	PictureDisplay test( fileName );	// create picture display
+	a.setMainWidget( &test);		// set main widget
 	test.setCaption("Qt Example - Picture");
 	test.show();				// show it
 
-	return a.exec();				// start event loop
+	return a.exec();			// start event loop
     }
 }
