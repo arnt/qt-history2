@@ -154,10 +154,15 @@ static OPENFILENAMEA *qt_win_make_OFNA(QWidget *parent,
 
     aTitle = title.local8Bit();
     aInitDir = QDir::convertSeparators(initialDirectory).local8Bit();
-    if (initialSelection.isEmpty())
+    if (initialSelection.isEmpty()) {
         aInitSel = "";
-    else
+    } else {
         aInitSel = QDir::convertSeparators(initialSelection).local8Bit();
+	aInitSel.replace("<", "");
+	aInitSel.replace(">", "");
+	aInitSel.replace("\"", "");
+	aInitSel.replace("|", "");
+    }
     int maxLen = mode == QFileDialog::ExistingFiles ? maxMultiLen : maxNameLen;
     aInitSel.resize(maxLen + 1);                // make room for return value
     aFilter = filters.local8Bit();
@@ -220,6 +225,12 @@ static OPENFILENAME* qt_win_make_OFN(QWidget *parent,
     tFilters = filters;
     tTitle = title;
     QString initSel = QDir::convertSeparators(initialSelection);
+    if (!initSel.isEmpty()) {
+	initSel.replace("<", "");
+	initSel.replace(">", "");
+	initSel.replace("\"", "");
+	initSel.replace("|", "");
+    }
 
     int maxLen = mode == QFileDialog::ExistingFiles ? maxMultiLen : maxNameLen;
     TCHAR *tInitSel = new TCHAR[maxLen+1];
@@ -551,7 +562,6 @@ QStringList qt_win_get_open_file_names(const QString &filter,
         QEvent e(QEvent::WindowUnblocked);
         QApplication::sendEvent(parent, &e);
     }
-
     if (!result.isEmpty()) {
         *initialDirectory = fi.dirPath();    // only save the path if there is a result
         *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
