@@ -718,7 +718,7 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
         if(d->currentAction) {
             QAction *nextAction = 0;
             for(int i=0; i<(int)d->actionList.count(); i++) {
-                if(d->actionList.at(i) == d->currentAction) {
+                if(d->actionList.at(i) == (QAction*)d->currentAction) {
                     if(key == Qt::Key_Left) {
                         if(i > 0)
                             nextAction = d->actionList.at(i-1);
