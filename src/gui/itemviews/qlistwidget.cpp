@@ -225,7 +225,7 @@ void QListModel::itemChanged(QListWidgetItem *item)
     widgets.
 
     The item view convenience classes use a classic item-based interface
-    rather than a pure Model/View approach. For a more flexible list view
+    rather than a pure model/view approach. For a more flexible list view
     widget, consider using the QListView class with a standard model.
 
     List items can be automatically inserted into a list when they are

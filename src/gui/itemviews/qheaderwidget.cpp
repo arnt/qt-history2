@@ -327,7 +327,7 @@ void QHeaderWidgetPrivate::emitItemChanged(Qt::Orientation orientation, int firs
 /*!
   \class QHeaderWidget qheaderwidget.h
 
-  \brief The QHeaderWidget class provides a header for the Model/View
+  \brief The QHeaderWidget class provides a header for the model/view
   convenience view widgets.
 
   \ingroup model-view
