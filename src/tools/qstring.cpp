@@ -1901,7 +1901,7 @@ QString QString::section( const QRegExp &reg, int start, int end, int flags ) co
     sep.setCaseSensitive(!(flags & SectionCaseInsensitiveSeps));
 
     QPtrList<section_chunk> l;
-    l.setAutoDelete(TRUE);
+    l.setAutoDelete(true);
     int n = length(), m = 0, last_m = 0, last = 0, last_len = 0;
 
     while ( ( m = sep.search( *this, m ) ) != -1 ) {
@@ -3167,7 +3167,6 @@ int QString::localeAwareCompare( const QString& s ) const
     \sa ucs2()
 */
 
-
 /*!
   \fn const ushort *QString::ucs2() const
 
@@ -3560,7 +3559,7 @@ Q_LLONG QString::toLongLong(bool *ok, int base) const
 	p++;
     }
 
-    // NOTE: toULong() code is similar
+    // NOTE: toULongLong() code is similar
     if (!l || !ok_in_base(*p,base))
 	goto bye;
     while (l && ok_in_base(*p,base)) {
@@ -3618,7 +3617,7 @@ Q_ULLONG QString::toULongLong(bool *ok, int base) const
     if (*p == '+')
 	l--,p++;
 
-    // NOTE: toLong() code is similar
+    // NOTE: toLongLong() code is similar
     if (!l || !ok_in_base(*p,base))
 	goto bye;
     while (l && ok_in_base(*p,base)) {
@@ -3658,12 +3657,12 @@ bye:
     \sa number()
 */
 
-long QString::toLong( bool *ok, int base ) const
+long QString::toLong(bool *ok, int base) const
 {
-    Q_LLONG v = toLongLong( ok, base );
-    // ### <= is used because versions up to 3.1.x rejected it
-    if ( ok && *ok && (v <= LONG_MIN || v > LONG_MAX) ) {
-	*ok = false;
+    Q_LLONG v = toLongLong(ok, base);
+    if (v < LONG_MIN || v > LONG_MAX) {
+	if (ok)
+	    *ok = false;
 	v = 0;
     }
     return long(v);
@@ -3679,11 +3678,12 @@ long QString::toLong( bool *ok, int base ) const
     \sa number()
 */
 
-ulong QString::toULong( bool *ok, int base ) const
+ulong QString::toULong(bool *ok, int base) const
 {
-    Q_ULLONG v = toULongLong( ok, base );
-    if ( ok && *ok && (v > ULONG_MAX) ) {
-	*ok = false;
+    Q_ULLONG v = toULongLong(ok, base);
+    if (v > ULONG_MAX) {
+	if (ok)
+	    *ok = false;
 	v = 0;
     }
     return ulong(v);
@@ -3708,9 +3708,10 @@ ulong QString::toULong( bool *ok, int base ) const
 
 int QString::toInt(bool *ok, int base) const
 {
-    long v = toLong(ok, base);
-    if (ok && *ok && (v < INT_MIN || v > INT_MAX)) {
-	*ok = false;
+    long v = toLongLong(ok, base);
+    if (v < INT_MIN || v > INT_MAX) {
+	if (ok)
+	    *ok = false;
 	v = 0;
     }
     return (int)v;
@@ -3728,9 +3729,10 @@ int QString::toInt(bool *ok, int base) const
 
 uint QString::toUInt(bool *ok, int base) const
 {
-    ulong v = toULong(ok, base);
-    if (ok && *ok && (v > UINT_MAX)) {
-	*ok = false;
+    ulong v = toULongLong(ok, base);
+    if (v > UINT_MAX) {
+	if (ok)
+	    *ok = false;
 	v = 0;
     }
     return (uint)v;
@@ -3746,9 +3748,10 @@ uint QString::toUInt(bool *ok, int base) const
 
 short QString::toShort(bool *ok, int base) const
 {
-    long v = toLong(ok, base);
-    if (ok && *ok && (v < SHRT_MIN || v > SHRT_MAX)) {
-	*ok = false;
+    long v = toLongLong(ok, base);
+    if (v < SHRT_MIN || v > SHRT_MAX) {
+	if (ok)
+	    *ok = false;
 	v = 0;
     }
     return (short)v;
@@ -3765,9 +3768,10 @@ short QString::toShort(bool *ok, int base) const
 
 ushort QString::toUShort(bool *ok, int base) const
 {
-    ulong v = toULong(ok, base);
-    if (ok && *ok && (v > USHRT_MAX)) {
-	*ok = false;
+    ulong v = toULongLong(ok, base);
+    if (v > USHRT_MAX) {
+	if (ok)
+	    *ok = false;
 	v = 0;
     }
     return (ushort)v;
