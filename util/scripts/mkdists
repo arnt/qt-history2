@@ -211,11 +211,6 @@ while [ -n "$1" ]; do
    esac
 done
 
-#make sure everything is in order before bothering..
-[ "x$DO_DOC" = "xyes" ] && [ ! -x "$QDOC_PATH" ] && die "qdoc not found, failed (${QDOC_PATH})"
-rm -f "$TMP_FILE" && { [ -e "$TMP_FILE" ] && die "Could not remove tmp file, failed (${TMP_FILE})" ; }
-[ ! -d "$OUT_TREE" ] && { mkdir -p $OUT_TREE >/dev/null 2>&1 || die "Could not create outdir, failed (${OUT_TREE})" ; }
-
 #now decide some default value..
 if [ "$DO_DOC" = "auto" ]; then
     if [ -z "$LOCAL_TREE" ]; then
@@ -259,6 +254,20 @@ if [ "$BRANCH" = "auto" ]; then
        BRANCH=`echo "$REL_VERSION" | sed "s,\([0-9]*\.[0-9]*\).*,\1,"`
     fi
 fi
+
+#make sure everything is in order before bothering..
+if [ "x$DO_DOC" = "xyes" ]; then
+    QDOC_SRC="`dirname $QDOC_PATH`"
+    if [ -d  "$QDOC_SRC" ]; then
+    	(cd "$QDOC_SRC"; qmake; make ) || die "Cannot build qdoc (${QDOC_SRC})"
+    else
+	echo "Cannot find qdoc source, hopefully you have made sure it is up-to-date"
+    fi
+    [ ! -x "$QDOC_PATH" ] && die "qdoc not found, failed (${QDOC_PATH})"
+fi
+rm -f "$TMP_FILE" && { [ -e "$TMP_FILE" ] && die "Could not remove tmp file, failed (${TMP_FILE})" ; }
+[ ! -d "$OUT_TREE" ] && { mkdir -p $OUT_TREE >/dev/null 2>&1 || die "Could not create outdir, failed (${OUT_TREE})" ; }
+
 
 DISTDIR="${TMP_DIR}/qt-$BRANCH-$MYNAME-$$"
 
@@ -397,6 +406,7 @@ if echo $REL_VERSION | grep $TYPE >/dev/null 2>&1; then
 else
     VERSION_STR=${REL_VERSION}${TYPE} && [ "$TYPE" = "-snapshot" ] && VERSION_STR=`date "+${VERSION_STR}-%Y%m%d"`
 fi
+[ "$DO_WIN" = "yes" ] && ! strings $DISTDIR/qt/dist/win/bin/moc.exe | grep "$VERSION_STR" >/dev/null 2>&1 && status "Warning: qt/dist/win/bin/moc.exe might not match"
 sed -e "s,^\(\#define  *QT_VERSION  *\)[0-9]*$,\1${BRANCH_DIGITS},g" \
     -e "s,^\(\#define  *QT_VERSION_STR  *\)\".*\"$,\1\"${VERSION_STR}\",g" $qglobal >${TMP_FILE}
 mv ${TMP_FILE} $qglobal
