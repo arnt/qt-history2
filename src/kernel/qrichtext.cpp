@@ -767,6 +767,7 @@ bool QTextCursor::place( const QPoint &p, QTextParag *s )
 
     if ( inCustom && doc && parag()->at( curpos )->isCustom() && parag()->at( curpos )->customItem()->isNested() ) {
 	QTextDocument *oldDoc = doc;
+	pos.setX( pos.x() - parag()->at( curpos )->x );
 	gotoIntoNested( pos );
 	if ( oldDoc == doc )
 	    return TRUE;
