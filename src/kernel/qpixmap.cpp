@@ -1,4 +1,3 @@
-//depot/qt/3.0/src/kernel/qpixmap.cpp#4 - edit change 54179 (text)
 /****************************************************************************
 ** $Id: $
 **
@@ -49,115 +48,123 @@
 #include <private/qinternal_p.h>
 
 /*!
-  \class QPixmap qpixmap.h
-  \brief The QPixmap class is an off-screen, pixel-based paint device.
+    \class QPixmap qpixmap.h
+    \brief The QPixmap class is an off-screen, pixel-based paint device.
 
-  \ingroup graphics
-  \ingroup images
-  \ingroup shared
-  \mainclass
+    \ingroup graphics
+    \ingroup images
+    \ingroup shared
+    \mainclass
 
-  QPixmap is one of the two classes Qt provides for dealing with images;
-  the other is QImage.  QPixmap is designed and optimized for
-  drawing; QImage is designed and optimized for I/O and for direct
-  pixel access/manipulation.  There are (slow) functions to convert
-  between QImage and QPixmap: convertToImage() and convertFromImage().
+    QPixmap is one of the two classes Qt provides for dealing with
+    images; the other is QImage. QPixmap is designed and optimized
+    for drawing; QImage is designed and optimized for I/O and for
+    direct pixel access/manipulation. There are (slow) functions to
+    convert between QImage and QPixmap: convertToImage() and
+    convertFromImage().
 
-  One common use of the QPixmap class is to enable smooth updating of
-  widgets.  Whenever something complex needs to be drawn, you can use
-  a pixmap to obtain flicker-free drawing, like this:
+    One common use of the QPixmap class is to enable smooth updating
+    of widgets. Whenever something complex needs to be drawn, you can
+    use a pixmap to obtain flicker-free drawing, like this:
 
-  \list 1
-  \i Create a pixmap with the same size as the widget.
-  \i Fill the pixmap with the widget background color.
-  \i Paint the pixmap.
-  \i bitBlt() the pixmap contents onto the widget.
-  \endlist
+    \list 1
+    \i Create a pixmap with the same size as the widget.
+    \i Fill the pixmap with the widget background color.
+    \i Paint the pixmap.
+    \i bitBlt() the pixmap contents onto the widget.
+    \endlist
 
-  Pixel data in a pixmap is internal and is managed by the underlying
-  window system.  Pixels can be accessed only through QPainter
-  functions, through bitBlt(), and by converting the QPixmap to a
-  QImage.
+    Pixel data in a pixmap is internal and is managed by the
+    underlying window system. Pixels can be accessed only through
+    QPainter functions, through bitBlt(), and by converting the
+    QPixmap to a QImage.
 
-  You can easily display a QPixmap on the screen using
-  QLabel::setPixmap(), for example, all the QButton subclasses support
-  pixmap use.
+    You can easily display a QPixmap on the screen using
+    QLabel::setPixmap(). For example, all the QButton subclasses
+    support pixmap use.
 
-  The QPixmap class uses lazy copying, so it is practical to pass
-  QPixmap objects as arguments.
+    The QPixmap class uses \link shclass.html copy-on-write\endlink,
+    so it is practical to pass QPixmap objects by value.
 
-  You can retrieve the width(), height(), depth() and size() of a
-  pixmap. The enclosing rectangle is given by rect(). Pixmaps can be
-  filled with fill() and resized with resize(). You can create and set
-  a mask with createHeuristicMask() and setMask(). Use selfMask() to
-  see if the pixmap is identical to its mask.
+    You can retrieve the width(), height(), depth() and size() of a
+    pixmap. The enclosing rectangle is given by rect(). Pixmaps can be
+    filled with fill() and resized with resize(). You can create and
+    set a mask with createHeuristicMask() and setMask(). Use
+    selfMask() to see if the pixmap is identical to its mask.
 
-  In addition to loading a pixmap from file using load() you can also
-  loadFromData(). You can control optimization with setOptimization()
-  and obtain a transformed version of the pixmap using xForm()
+    In addition to loading a pixmap from file using load() you can
+    also loadFromData(). You can control optimization with
+    setOptimization() and obtain a transformed version of the pixmap
+    using xForm()
 
-  Note regarding Windows 95 and 98: on Windows 9x the system crashes
-  if you create more than about 1000 pixmaps, independent of the size
-  of the pixmaps or installed RAM.  Windows NT and 2000 do not have
-  this limitation.
+    Note regarding Windows 95 and 98: on Windows 9x the system crashes
+    if you create more than about 1000 pixmaps, independent of the
+    size of the pixmaps or installed RAM. Windows NT and 2000 do not
+    have this limitation.
 
-  Qt tries to work around the resource limitation.  If you set the
-  pixmap optimization to \c QPixmap::MemoryOptim and the width of your
-  pixmap is less than or equal to 128 pixels, Qt stores the pixmap in
-  a way that is very memory-efficient when there are many pixmaps.
+    Qt tries to work around the resource limitation. If you set the
+    pixmap optimization to \c QPixmap::MemoryOptim and the width of
+    your pixmap is less than or equal to 128 pixels, Qt stores the
+    pixmap in a way that is very memory-efficient when there are many
+    pixmaps.
 
-  If your application uses dozens or hundreds of pixmaps (for example on tool
-  bar buttons and in popup menus), and you plan to run it on Windows 95 or
-  Windows 98, we recommend using code like this:
+    If your application uses dozens or hundreds of pixmaps (for
+    example on tool bar buttons and in popup menus), and you plan to
+    run it on Windows 95 or Windows 98, we recommend using code like
+    this:
 
-  \code
-    QPixmap::setDefaultOptimization( QPixmap::MemoryOptim );
-    while ( ... ) {
-      // load tool bar pixmaps etc.
-      QPixmap *pixmap = new QPixmap(fileName);
-    }
-    QPixmap::setDefaultOptimization( QPixmap::NormalOptim );
-  \endcode
+    \code
+	QPixmap::setDefaultOptimization( QPixmap::MemoryOptim );
+	while ( ... ) {
+	    // load tool bar pixmaps etc.
+	    QPixmap *pixmap = new QPixmap(fileName);
+	}
+	QPixmap::setDefaultOptimization( QPixmap::NormalOptim );
+    \endcode
 
-  \sa QBitmap, QImage, QImageIO, \link shclass.html Shared Classes\endlink
+    \sa QBitmap, QImage, QImageIO, \link shclass.html Shared Classes\endlink
 */
 
-/*! \enum QPixmap::ColorMode
+/*!
+    \enum QPixmap::ColorMode
 
-  This enum type defines the color modes that exist for converting
-  QImage objects to QPixmap.  The current values are:
+    This enum type defines the color modes that exist for converting
+    QImage objects to QPixmap.
 
-  \value Auto  Select \c Color or \c Mono on a case-by-case basis.
-  \value Color Always create colored pixmaps.
-  \value Mono  Always create bitmaps.
+    \value Auto  Select \c Color or \c Mono on a case-by-case basis.
+    \value Color Always create colored pixmaps.
+    \value Mono  Always create bitmaps.
 */
 
-/*! \enum QPixmap::Optimization
+/*!
+    \enum QPixmap::Optimization
 
-  QPixmap has the choice of optimizing for speed or memory in a
-  few places; the best choice varies from pixmap to pixmap but can
-  generally be derived heuristically.  This enum type defines a number
-  of optimization modes that you can set for any pixmap to tweak the
-  speed/memory tradeoffs:
+    QPixmap has the choice of optimizing for speed or memory in a few
+    places; the best choice varies from pixmap to pixmap but can
+    generally be derived heuristically. This enum type defines a
+    number of optimization modes that you can set for any pixmap to
+    tweak the speed/memory tradeoffs:
 
-  \value DefaultOptim  Whatever QPixmap::defaultOptimization()
-  returns.  A pixmap with this optimization will have whatever the current
-  default optimization is.  If the default optimization is changed using
-  setDefaultOptimization, then this will not effect any pixmaps that have
-  already been created.
+    \value DefaultOptim  Whatever QPixmap::defaultOptimization()
+	returns. A pixmap with this optimization will have whatever
+	the current default optimization is. If the default
+	optimization is changed using setDefaultOptimization(), then
+	this will not effect any pixmaps that have already been
+	created.
 
-  \value NoOptim  No optimization (currently the same as \c MemoryOptim).
+    \value NoOptim  No optimization (currently the same as \c
+	MemoryOptim).
 
-  \value MemoryOptim  Optimize for minimal memory use.
+    \value MemoryOptim  Optimize for minimal memory use.
 
-  \value NormalOptim  Optimize for typical usage.  Often uses more
-  memory than \c MemoryOptim, and is often faster.
+    \value NormalOptim  Optimize for typical usage. Often uses more
+	memory than \c MemoryOptim, and is often faster.
 
-  \value BestOptim  Optimize for pixmaps that are drawn very often
-  and where performance is critical.  Generally uses more memory than
-  \c NormalOptim and may provide a little better speed.
+    \value BestOptim  Optimize for pixmaps that are drawn very often
+	and where performance is critical. Generally uses more memory
+	than \c NormalOptim and may provide a little more speed.
 
-  We recommend using \c DefaultOptim.
+    We recommend using \c DefaultOptim.
 
 */
 
@@ -179,8 +186,9 @@ QPixmap::QPixmap( int w, int h, int depth, bool bitmap,
 
 
 /*!
-  Constructs a null pixmap.
-  \sa isNull()
+    Constructs a null pixmap.
+
+    \sa isNull()
 */
 
 QPixmap::QPixmap()
@@ -190,9 +198,9 @@ QPixmap::QPixmap()
 }
 
 /*!
-  Constructs a pixmap from the QImage \a image.
+    Constructs a pixmap from the QImage \a image.
 
-  \sa convertFromImage()
+    \sa convertFromImage()
 */
 
 QPixmap::QPixmap( const QImage& image )
@@ -203,19 +211,19 @@ QPixmap::QPixmap( const QImage& image )
 }
 
 /*!
-  Constructs a pixmap with \a w width, \a h height and \a depth bits per
-  pixel. The pixmap is optimized in accordance with the \a
-  optimization value.
+    Constructs a pixmap with \a w width, \a h height and \a depth bits
+    per pixel. The pixmap is optimized in accordance with the \a
+    optimization value.
 
-  The contents of the pixmap is uninitialized.
+    The contents of the pixmap is uninitialized.
 
-  The \a depth can be either 1 (monochrome) or the depth of the
-  current video mode.  If \a depth is negative, then the hardware
-  depth of the current video mode will be used.
+    The \a depth can be either 1 (monochrome) or the depth of the
+    current video mode. If \a depth is negative, then the hardware
+    depth of the current video mode will be used.
 
-  If either \a w or \a h is zero, a null pixmap is constructed.
+    If either \a w or \a h is zero, a null pixmap is constructed.
 
-  \sa isNull() QPixmap::Optimization
+    \sa isNull() QPixmap::Optimization
 */
 
 QPixmap::QPixmap( int w, int h, int depth, Optimization optimization )
@@ -225,10 +233,10 @@ QPixmap::QPixmap( int w, int h, int depth, Optimization optimization )
 }
 
 /*!
-  \overload QPixmap::QPixmap( const QSize &size, int depth, Optimization optimization )
-  Constructs a pixmap of size \a size, \a depth bits per pixel,
-  optimized in accordance with the \a optimization value.
+    \overload QPixmap::QPixmap( const QSize &size, int depth, Optimization optimization )
 
+    Constructs a pixmap of size \a size, \a depth bits per pixel,
+    optimized in accordance with the \a optimization value.
 */
 
 QPixmap::QPixmap( const QSize &size, int depth, Optimization optimization )
@@ -239,20 +247,21 @@ QPixmap::QPixmap( const QSize &size, int depth, Optimization optimization )
 
 #ifndef QT_NO_IMAGEIO
 /*!
-  Constructs a pixmap from the file \a fileName. If the file does not
-  exist or is of an unknown format, the pixmap becomes a null pixmap.
+    Constructs a pixmap from the file \a fileName. If the file does
+    not exist or is of an unknown format, the pixmap becomes a null
+    pixmap.
 
-  The \a fileName, \a format and \a conversion_flags parameters are
-  passed on to load().  This means that the data in \a fileName is not
-  compiled into the binary.  If \a fileName contains a relative path
-  (e.g. the filename only) the relevant file must be found relative
-  to the runtime working directory.
+    The \a fileName, \a format and \a conversion_flags parameters are
+    passed on to load(). This means that the data in \a fileName is
+    not compiled into the binary. If \a fileName contains a relative
+    path (e.g. the filename only) the relevant file must be found
+    relative to the runtime working directory.
 
     If the image needs to be modified to fit in a lower-resolution
     result (e.g. converting from 32-bit to 8-bit), use the \a
     conversion_flags to specify how you'd prefer this to happen.
 
-  \sa Qt::ImageConversionFlags isNull(), load(), loadFromData(), save(), imageFormat()
+    \sa Qt::ImageConversionFlags isNull(), load(), loadFromData(), save(), imageFormat()
 */
 
 QPixmap::QPixmap( const QString& fileName, const char *format,
@@ -264,16 +273,17 @@ QPixmap::QPixmap( const QString& fileName, const char *format,
 }
 
 /*!
-  Constructs a pixmap from the file \a fileName. If the file does not
-  exist or is of an unknown format, the pixmap becomes a null pixmap.
+    Constructs a pixmap from the file \a fileName. If the file does
+    not exist or is of an unknown format, the pixmap becomes a null
+    pixmap.
 
-  The \a fileName, \a format and \a mode parameters are passed on to
-  load(). This means that the data in \a fileName is not compiled into
-  the binary. If \a fileName contains a relative path (e.g. the
-  filename only) the relevant file must be found relative to the
-  runtime working directory.
+    The \a fileName, \a format and \a mode parameters are passed on to
+    load(). This means that the data in \a fileName is not compiled
+    into the binary. If \a fileName contains a relative path (e.g. the
+    filename only) the relevant file must be found relative to the
+    runtime working directory.
 
-  \sa QPixmap::ColorMode isNull(), load(), loadFromData(), save(), imageFormat()
+    \sa QPixmap::ColorMode isNull(), load(), loadFromData(), save(), imageFormat()
 */
 
 QPixmap::QPixmap( const QString& fileName, const char *format, ColorMode mode )
@@ -284,27 +294,26 @@ QPixmap::QPixmap( const QString& fileName, const char *format, ColorMode mode )
 }
 
 /*!
-  Constructs a pixmap from \a xpm, which must be a valid XPM image.
+    Constructs a pixmap from \a xpm, which must be a valid XPM image.
 
-  Errors are silently ignored.
+    Errors are silently ignored.
 
-  Note that it's possible to squeeze the XPM variable a little bit by
-  using an unusual declaration:
+    Note that it's possible to squeeze the XPM variable a little bit
+    by using an unusual declaration:
 
-  \code
-    static const char * const start_xpm[]={
-        "16 15 8 1",
-        "a c #cec6bd",
-    ....
-  \endcode
+    \code
+	static const char * const start_xpm[]={
+	    "16 15 8 1",
+	    "a c #cec6bd",
+	....
+    \endcode
 
-  The extra \c const makes the entire definition read-only, which is
-  slightly more efficient (for example, when the code is in a shared library)
-  and ROMable when the application is to be stored in ROM.
+    The extra \c const makes the entire definition read-only, which is
+    slightly more efficient (for example, when the code is in a shared
+    library) and ROMable when the application is to be stored in ROM.
 
-  In order to use that sort of declaration you must cast the variable
-  back to \c{const char **} when you create the
-  QPixmap.
+    In order to use that sort of declaration you must cast the
+    variable back to \c{const char **} when you create the QPixmap.
 */
 
 QPixmap::QPixmap( const char *xpm[] )
@@ -317,10 +326,10 @@ QPixmap::QPixmap( const char *xpm[] )
 }
 
 /*!
-  Constructs a pixmaps by loading from \a img_data.
-  The data can be in any image format supported by Qt.
+    Constructs a pixmaps by loading from \a img_data. The data can be
+    in any image format supported by Qt.
 
-  \sa loadFromData()
+    \sa loadFromData()
 */
 
 QPixmap::QPixmap( const QByteArray & img_data )
@@ -332,7 +341,7 @@ QPixmap::QPixmap( const QByteArray & img_data )
 #endif //QT_NO_IMAGEIO
 
 /*!
-  Constructs a pixmap that is a copy of \a pixmap.
+    Constructs a pixmap that is a copy of \a pixmap.
 */
 
 QPixmap::QPixmap( const QPixmap &pixmap )
@@ -359,7 +368,7 @@ QPixmap::QPixmap( const QPixmap &pixmap )
 
 
 /*!
-  Destroys the pixmap.
+    Destroys the pixmap.
 */
 
 QPixmap::~QPixmap()
@@ -369,10 +378,10 @@ QPixmap::~QPixmap()
 
 
 /*!
-  Returns a
-  \link shclass.html deep copy\endlink of the pixmap using the bitBlt()
-  function to copy the pixels.
-  \sa operator=()
+    Returns a \link shclass.html deep copy\endlink of the pixmap using
+    the bitBlt() function to copy the pixels.
+
+    \sa operator=()
 */
 
 QPixmap QPixmap::copy( bool ignoreMask ) const
@@ -411,8 +420,8 @@ QPixmap QPixmap::copy( bool ignoreMask ) const
 
 
 /*!
-  Assigns the pixmap \a pixmap to this pixmap and returns a reference to
-  this pixmap.
+    Assigns the pixmap \a pixmap to this pixmap and returns a
+    reference to this pixmap.
 */
 
 QPixmap &QPixmap::operator=( const QPixmap &pixmap )
@@ -461,9 +470,11 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 
 /*!
     \overload
-  Converts the image \a image to a pixmap that is assigned to this pixmap.
-  Returns a reference to the pixmap.
-  \sa convertFromImage().
+
+    Converts the image \a image to a pixmap that is assigned to this
+    pixmap. Returns a reference to the pixmap.
+
+    \sa convertFromImage().
 */
 
 QPixmap &QPixmap::operator=( const QImage &image )
@@ -474,99 +485,109 @@ QPixmap &QPixmap::operator=( const QImage &image )
 
 
 /*!
-  \fn bool QPixmap::isQBitmap() const
-  Returns TRUE if this is a QBitmap; otherwise returns FALSE.
+    \fn bool QPixmap::isQBitmap() const
+
+    Returns TRUE if this is a QBitmap; otherwise returns FALSE.
 */
 
 /*!
-  \fn bool QPixmap::isNull() const
-  Returns TRUE if this is a null pixmap; otherwise returns FALSE.
+    \fn bool QPixmap::isNull() const
 
-  A null pixmap has zero width, zero height and no contents.
-  You cannot draw in a null pixmap or bitBlt() anything to it.
+    Returns TRUE if this is a null pixmap; otherwise returns FALSE.
 
-  Resizing an existing pixmap to (0, 0) makes a pixmap into a null
-  pixmap.
+    A null pixmap has zero width, zero height and no contents. You
+    cannot draw in a null pixmap or bitBlt() anything to it.
 
-  \sa resize()
+    Resizing an existing pixmap to (0, 0) makes a pixmap into a null
+    pixmap.
+
+    \sa resize()
 */
 
 /*!
-  \fn int QPixmap::width() const
-  Returns the width of the pixmap.
-  \sa height(), size(), rect()
+    \fn int QPixmap::width() const
+
+    Returns the width of the pixmap.
+
+    \sa height(), size(), rect()
 */
 
 /*!
-  \fn int QPixmap::height() const
-  Returns the height of the pixmap.
-  \sa width(), size(), rect()
+    \fn int QPixmap::height() const
+
+    Returns the height of the pixmap.
+
+    \sa width(), size(), rect()
 */
 
 /*!
-  \fn QSize QPixmap::size() const
-  Returns the size of the pixmap.
-  \sa width(), height(), rect()
+    \fn QSize QPixmap::size() const
+
+    Returns the size of the pixmap.
+
+    \sa width(), height(), rect()
 */
 
 /*!
-  \fn QRect QPixmap::rect() const
-  Returns the enclosing rectangle (0,0,width(),height()) of the pixmap.
-  \sa width(), height(), size()
+    \fn QRect QPixmap::rect() const
+
+    Returns the enclosing rectangle (0,0,width(),height()) of the pixmap.
+
+    \sa width(), height(), size()
 */
 
 /*!
-  \fn int QPixmap::depth() const
-  Returns the depth of the image.
+    \fn int QPixmap::depth() const
 
-  The pixmap depth is also called bits per pixel (bpp) or bit planes
-  of a pixmap.	A null pixmap has depth 0.
+    Returns the depth of the pixmap.
 
-  \sa defaultDepth(), isNull(), QImage::convertDepth()
+    The pixmap depth is also called bits per pixel (bpp) or bit planes
+    of a pixmap. A null pixmap has depth 0.
+
+    \sa defaultDepth(), isNull(), QImage::convertDepth()
 */
 
 
 /*!
-  \overload void QPixmap::fill( const QWidget *widget, const QPoint &ofs )
+    \overload void QPixmap::fill( const QWidget *widget, const QPoint &ofs )
 
-  Fills the pixmap with the \a widget's background color or pixmap.
-  If the background is empty, nothing is done.
+    Fills the pixmap with the \a widget's background color or pixmap.
+    If the background is empty, nothing is done.
 
-  The \a ofs point is an offset in the widget.
+    The \a ofs point is an offset in the widget.
 
-  The point \a ofs is a point in the widget's coordinate system. The
-  pixmap's top-left pixel will be mapped to the point \a ofs in the
-  widget. This is significant if the widget has a background pixmap;
-  otherwise the pixmap will simply be filled with the background color of
-  the widget.
+    The point \a ofs is a point in the widget's coordinate system. The
+    pixmap's top-left pixel will be mapped to the point \a ofs in the
+    widget. This is significant if the widget has a background pixmap;
+    otherwise the pixmap will simply be filled with the background
+    color of the widget.
 
-  Example:
-\code
-void CuteWidget::paintEvent( QPaintEvent *e )
-{
-QRect ur = e->rect();            // rectangle to update
+    Example:
+    \code
+    void CuteWidget::paintEvent( QPaintEvent *e )
+    {
+	QRect ur = e->rect();            // rectangle to update
+	QPixmap pix( ur.size() );        // Pixmap for double-buffering
+	pix.fill( this, ur.topLeft() );  // fill with widget background
 
-QPixmap  pix( ur.size() );       // Pixmap for double-buffering
+	QPainter p( &pix );
+	p.translate( -ur.x(), -ur.y() ); // use widget coordinate system
+					 // when drawing on pixmap
+	//    ... draw on pixmap ...
 
-pix.fill( this, ur.topLeft() );  // fill with widget background
+	p.end();
 
-QPainter p( &pix );
-p.translate( -ur.x(), -ur.y() ); // use widget coordinate system
-                                 // when drawing on pixmap
-//    ... draw on pixmap ...
-
-p.end();
-
-bitBlt( this, ur.topLeft(), &pix );
-}
-\endcode
+	bitBlt( this, ur.topLeft(), &pix );
+    }
+    \endcode
 */
 
 /*!
-  \overload void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
-  Fills the pixmap with the \a widget's background color or pixmap.
-  If the background is empty, nothing is done. \a xofs, \a yofs is an
-  offset in the widget.
+    \overload void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
+
+    Fills the pixmap with the \a widget's background color or pixmap.
+    If the background is empty, nothing is done. \a xofs, \a yofs is
+    an offset in the widget.
 */
 
 void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
@@ -593,16 +614,18 @@ void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
 
 
 /*!
-  \overload void QPixmap::resize( const QSize &size )
+    \overload void QPixmap::resize( const QSize &size )
+
     Resizes the pixmap to size \a size.
 */
 
 /*!
-  Resizes the pixmap to \a w width and \a h height.  If either \a w
-  or \a h is 0, the pixmap becomes a null pixmap.
+    Resizes the pixmap to \a w width and \a h height. If either \a w
+    or \a h is 0, the pixmap becomes a null pixmap.
 
-  If both \a w and \a h are greater than 0, a valid pixmap is created.
-  New pixels will be uninitialized (random) if the pixmap is expanded.
+    If both \a w and \a h are greater than 0, a valid pixmap is
+    created. New pixels will be uninitialized (random) if the pixmap
+    is expanded.
 */
 
 void QPixmap::resize( int w, int h )
@@ -642,34 +665,33 @@ void QPixmap::resize( int w, int h )
 
 
 /*!
-  \fn const QBitmap *QPixmap::mask() const
-  Returns the mask bitmap, or null if no mask has been set.
+    \fn const QBitmap *QPixmap::mask() const
 
-  \sa setMask(), QBitmap
+    Returns the mask bitmap, or 0 if no mask has been set.
+
+    \sa setMask(), QBitmap
 */
 
 /*!
-  Sets a mask bitmap.
+    Sets a mask bitmap.
 
-  The \a newmask bitmap defines the clip mask for this pixmap. Every pixel in
-  \a newmask corresponds to a pixel in this pixmap. Pixel value 1 means opaque
-  and pixel value 0 means transparent. The mask must have the same size as
-  this pixmap.
+    The \a newmask bitmap defines the clip mask for this pixmap. Every
+    pixel in \a newmask corresponds to a pixel in this pixmap. Pixel
+    value 1 means opaque and pixel value 0 means transparent. The mask
+    must have the same size as this pixmap.
 
-  \e NOTE: Setting the mask on a pixmap will cause any alpha channel data
-  to be cleared.  For example:
+    \warning Setting the mask on a pixmap will cause any alpha channel
+    data to be cleared. For example:
+    \code
+	QPixmap alpha( "image-with-alpha.png" );
+	QPixmap alphacopy = alpha;
+	alphacopy.setMask( alphacopy.mask() );
+    \endcode
+    Now, alpha and alphacopy are visually different.
 
-  \code
-      QPixmap alpha( "image-with-alpha.png" );
-      QPixmap alphacopy = alpha;
-      alphacopy.setMask( alphacopy.mask() );
-  \endcode
+    Setting a \link isNull() null\endlink mask resets the mask.
 
-  Now, alpha and alphacopy are visually different.
-
-  Setting a \link isNull() null\endlink mask resets the mask.
-
-  \sa mask(), createHeuristicMask(), QBitmap
+    \sa mask(), createHeuristicMask(), QBitmap
 */
 
 void QPixmap::setMask( const QBitmap &newmask )
@@ -716,31 +738,34 @@ void QPixmap::setMask( const QBitmap &newmask )
 
 
 /*!
-  \fn bool QPixmap::selfMask() const
-  Returns TRUE if the pixmap's mask is identical to the pixmap itself;
-  otherwise returns FALSE.
-  \sa mask()
+    \fn bool QPixmap::selfMask() const
+
+    Returns TRUE if the pixmap's mask is identical to the pixmap
+    itself; otherwise returns FALSE.
+
+    \sa mask()
 */
 
 #ifndef QT_NO_IMAGE_HEURISTIC_MASK
 /*!
-  Creates and returns a heuristic mask for this pixmap. It works by
-  selecting a color from one of the corners and then chipping away pixels of
-  that color, starting at all the edges.
+    Creates and returns a heuristic mask for this pixmap. It works by
+    selecting a color from one of the corners and then chipping away
+    pixels of that color, starting at all the edges.
 
-  The mask may not be perfect but it should be reasonable, so you can do
-  things such as the following:
-  \code
+    The mask may not be perfect but it should be reasonable, so you
+    can do things such as the following:
+    \code
     pm->setMask( pm->createHeuristicMask() );
-  \endcode
+    \endcode
 
-  This function is slow because it involves transformation to a QImage,
-  non-trivial computations and a transformation back to a QBitmap.
+    This function is slow because it involves transformation to a
+    QImage, non-trivial computations and a transformation back to a
+    QBitmap.
 
     If \a clipTight is TRUE the mask is just large enough to cover the
     pixels; otherwise, the mask is larger than the data pixels.
 
-  \sa QImage::createHeuristicMask()
+    \sa QImage::createHeuristicMask()
 */
 
 QBitmap QPixmap::createHeuristicMask( bool clipTight ) const
@@ -752,12 +777,13 @@ QBitmap QPixmap::createHeuristicMask( bool clipTight ) const
 #endif
 #ifndef QT_NO_IMAGEIO
 /*!
-  Returns a string that specifies the image format of the file \a fileName,
-  or null if the file cannot be read or if the format cannot be recognized.
+    Returns a string that specifies the image format of the file \a
+    fileName, or 0 if the file cannot be read or if the format cannot
+    be recognized.
 
-  The QImageIO documentation lists the supported image formats.
+    The QImageIO documentation lists the supported image formats.
 
-  \sa load(), save()
+    \sa load(), save()
 */
 
 const char* QPixmap::imageFormat( const QString &fileName )
@@ -766,20 +792,22 @@ const char* QPixmap::imageFormat( const QString &fileName )
 }
 
 /*!
-  Loads a pixmap from the file \a fileName at runtime.
-  Returns TRUE if successful, or FALSE if the pixmap could not be loaded.
+    Loads a pixmap from the file \a fileName at runtime. Returns TRUE
+    if successful; otherwise returns FALSE.
 
-  If \a format is specified, the loader attempts to read the pixmap using the
-  specified format. If \a format is not specified (default),
-  the loader reads a few bytes from the header to guess the file's format.
+    If \a format is specified, the loader attempts to read the pixmap
+    using the specified format. If \a format is not specified
+    (default), the loader reads a few bytes from the header to guess
+    the file's format.
 
-  See the convertFromImage() documentation for a description
-  of the \a conversion_flags argument.
+    See the convertFromImage() documentation for a description of the
+    \a conversion_flags argument.
 
-  The QImageIO documentation lists the supported image formats and
-  explains how to add extra formats.
+    The QImageIO documentation lists the supported image formats and
+    explains how to add extra formats.
 
-  \sa loadFromData(), save(), imageFormat(), QImage::load(), QImageIO
+    \sa loadFromData(), save(), imageFormat(), QImage::load(),
+    QImageIO
 */
 
 bool QPixmap::load( const QString &fileName, const char *format,
@@ -795,12 +823,14 @@ bool QPixmap::load( const QString &fileName, const char *format,
 }
 
 /*!
-  \overload
-  Loads a pixmap from the file \a fileName at runtime.
+    \overload
 
-  If \a format is specified, the loader attempts to read the pixmap using the
-  specified format. If \a format is not specified (default),
-  the loader reads a few bytes from the header to guess the file's format.
+    Loads a pixmap from the file \a fileName at runtime.
+
+    If \a format is specified, the loader attempts to read the pixmap
+    using the specified format. If \a format is not specified
+    (default), the loader reads a few bytes from the header to guess
+    the file's format.
 
     The \a mode is used to specify the color mode of the pixmap.
 
@@ -826,11 +856,12 @@ bool QPixmap::load( const QString &fileName, const char *format,
 #endif //QT_NO_IMAGEIO
 
 /*!
-  \overload
-  Converts \a image and sets this pixmap using color mode \a mode.
-  Returns TRUE if successful; otherwise returns FALSE.
+    \overload
 
-  \sa QPixmap::ColorMode
+    Converts \a image and sets this pixmap using color mode \a mode.
+    Returns TRUE if successful; otherwise returns FALSE.
+
+    \sa QPixmap::ColorMode
 */
 
 bool QPixmap::convertFromImage( const QImage &image, ColorMode mode )
@@ -851,20 +882,22 @@ bool QPixmap::convertFromImage( const QImage &image, ColorMode mode )
 
 #ifndef QT_NO_IMAGEIO
 /*!
-  Loads a pixmap from the binary data in \a buf (\a len bytes).
-  Returns TRUE if successful, or FALSE if the pixmap could not be loaded.
+    Loads a pixmap from the binary data in \a buf (\a len bytes).
+    Returns TRUE if successful; otherwise returns FALSE.
 
-  If \a format is specified, the loader attempts to read the pixmap using the
-  specified format. If \a format is not specified (default),
-  the loader reads a few bytes from the header to guess the file's format.
+    If \a format is specified, the loader attempts to read the pixmap
+    using the specified format. If \a format is not specified
+    (default), the loader reads a few bytes from the header to guess
+    the file's format.
 
-  See the convertFromImage() documentation for a description
-  of the \a conversion_flags argument.
+    See the convertFromImage() documentation for a description of the
+    \a conversion_flags argument.
 
-  The QImageIO documentation lists the supported image formats and
-  explains how to add extra formats.
+    The QImageIO documentation lists the supported image formats and
+    explains how to add extra formats.
 
-  \sa load(), save(), imageFormat(), QImage::loadFromData(), QImageIO
+    \sa load(), save(), imageFormat(), QImage::loadFromData(),
+    QImageIO
 */
 
 bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
@@ -886,16 +919,18 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
 }
 
 /*!
-  \overload
-  Loads a pixmap from the binary data in \a buf (\a len bytes) using
-  color mode \a mode.
-  Returns TRUE if successful, or FALSE if the pixmap could not be loaded.
+    \overload
 
-  If \a format is specified, the loader attempts to read the pixmap using the
-  specified format. If \a format is not specified (default),
-  the loader reads a few bytes from the header to guess the file's format.
+    Loads a pixmap from the binary data in \a buf (\a len bytes) using
+    color mode \a mode. Returns TRUE if successful; otherwise returns
+    FALSE.
 
-  \sa QPixmap::ColorMode
+    If \a format is specified, the loader attempts to read the pixmap
+    using the specified format. If \a format is not specified
+    (default), the loader reads a few bytes from the header to guess
+    the file's format.
+
+    \sa QPixmap::ColorMode
 */
 
 bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
@@ -916,7 +951,7 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
 }
 
 /*!
-  \overload
+    \overload
 */
 
 bool QPixmap::loadFromData( const QByteArray &buf, const char *format,
@@ -928,13 +963,15 @@ bool QPixmap::loadFromData( const QByteArray &buf, const char *format,
 
 
 /*!
-  Saves the pixmap to the file \a fileName using the image file format
-  \a format and a quality factor \a quality.  \a quality must be in the
-  range [0,100] or -1.  Specify 0 to obtain small compressed files, 100
-  for large uncompressed files, and -1 to use the default settings.
-  Returns TRUE if successful, or FALSE if the pixmap could not be saved.
+    Saves the pixmap to the file \a fileName using the image file
+    format \a format and a quality factor \a quality. \a quality must
+    be in the range [0,100] or -1. Specify 0 to obtain small
+    compressed files, 100 for large uncompressed files, and -1 to use
+    the default settings. Returns TRUE if successful; otherwise
+    returns FALSE.
 
-  \sa load(), loadFromData(), imageFormat(), QImage::save(), QImageIO
+    \sa load(), loadFromData(), imageFormat(), QImage::save(),
+    QImageIO
 */
 
 bool QPixmap::save( const QString &fileName, const char *format, int quality ) const
@@ -954,21 +991,22 @@ bool QPixmap::save( const QString &fileName, const char *format, int quality ) c
 #endif //QT_NO_IMAGEIO
 
 /*!
-  \fn int QPixmap::serialNumber() const
+    \fn int QPixmap::serialNumber() const
 
-  Returns a number that uniquely identifies the contents of this QPixmap object.
-  This means that multiple QPixmaps objects can have the same serial number
-  as long as they refer to the same contents.
+    Returns a number that uniquely identifies the contents of this
+    QPixmap object. This means that multiple QPixmap objects can have
+    the same serial number as long as they refer to the same contents.
 
-  An example of where this is useful is for caching QPixmaps.
+    An example of where this is useful is for caching QPixmaps.
 
-  \sa QPixmapCache
+    \sa QPixmapCache
 */
 
 
 /*!
-  Returns the default pixmap optimization setting.
-  \sa setDefaultOptimization(), setOptimization(), optimization()
+    Returns the default pixmap optimization setting.
+
+    \sa setDefaultOptimization(), setOptimization(), optimization()
 */
 
 QPixmap::Optimization QPixmap::defaultOptimization()
@@ -977,15 +1015,15 @@ QPixmap::Optimization QPixmap::defaultOptimization()
 }
 
 /*!
-  Sets the default pixmap optimization.
+    Sets the default pixmap optimization.
 
-  All \e new pixmaps that are created will use this default optimization.
-  You may also set optimization for individual pixmaps using the
-  setOptimization() function.
+    All \e new pixmaps that are created will use this default
+    optimization. You may also set optimization for individual pixmaps
+    using the setOptimization() function.
 
-  The initial default \a optimization setting is \c QPixmap::Normal.
+    The initial default \a optimization setting is \c QPixmap::Normal.
 
-  \sa defaultOptimization(), setOptimization(), optimization()
+    \sa defaultOptimization(), setOptimization(), optimization()
 */
 
 void QPixmap::setDefaultOptimization( Optimization optimization )
@@ -1036,36 +1074,37 @@ static QPixmap grabChildWidgets( QWidget * w )
 }
 
 
-/*!  Creates a pixmap and paints \a widget in it.
+/*!
+    Creates a pixmap and paints \a widget in it.
 
-  If the \a widget has any children, then they are also painted in the
-  appropriate positions.
+    If the \a widget has any children, then they are also painted in
+    the appropriate positions.
 
-  If you specify \a x, \a y, \a w or \a h, only the rectangle you
-  specify is painted.  The defaults are 0, 0 (top-left corner) and
-  -1,-1 (which means the entire widget).
+    If you specify \a x, \a y, \a w or \a h, only the rectangle you
+    specify is painted. The defaults are 0, 0 (top-left corner) and
+    -1,-1 (which means the entire widget).
 
-  (If \a w is negative, the function copies everything to the right
-  border of the window.  If \a h is negative, the function copies
-  everything to the bottom of the window.)
+    (If \a w is negative, the function copies everything to the right
+    border of the window. If \a h is negative, the function copies
+    everything to the bottom of the window.)
 
-  If \a widget is 0, or if the rectangle defined by \a x, \a y, the
-  modified \a w and the modified \a h does not overlap the \a
-  {widget}->rect(), this function will return a null QPixmap.
+    If \a widget is 0, or if the rectangle defined by \a x, \a y, the
+    modified \a w and the modified \a h does not overlap the \a
+    {widget}->rect(), this function will return a null QPixmap.
 
-  This function actually asks \a widget to paint itself (and its
-  children to paint themselves).  QPixmap::grabWindow() grabs pixels
-  off the screen, which is a bit faster and picks up \e exactly what's
-  on-screen.  This function works by calling paintEvent() with painter
-  redirection turned on. If there are overlaying windows, grabWindow()
-  will see them, but not this function.
+    This function actually asks \a widget to paint itself (and its
+    children to paint themselves). QPixmap::grabWindow() grabs pixels
+    off the screen, which is a bit faster and picks up \e exactly
+    what's on-screen. This function works by calling paintEvent() with
+    painter redirection turned on. If there are overlaying windows,
+    grabWindow() will see them, but not this function.
 
-  If there is overlap, it returns a pixmap of the size you want,
-  containing a rendering of \a widget.  If the rectangle you ask for
-  is a superset of \a widget, the areas outside \a widget are covered
-  with the widget's background.
+    If there is overlap, it returns a pixmap of the size you want,
+    containing a rendering of \a widget. If the rectangle you ask for
+    is a superset of \a widget, the areas outside \a widget are
+    covered with the widget's background.
 
-  \sa grabWindow() QPainter::redirect() QWidget::paintEvent()
+    \sa grabWindow() QPainter::redirect() QWidget::paintEvent()
 */
 
 QPixmap QPixmap::grabWidget( QWidget * widget, int x, int y, int w, int h )
@@ -1094,18 +1133,18 @@ QPixmap QPixmap::grabWidget( QWidget * widget, int x, int y, int w, int h )
 
 
 /*!
-  Returns the actual matrix used for transforming a pixmap with \a w
-  width and \a h height and matrix \a matrix.
+    Returns the actual matrix used for transforming a pixmap with \a w
+    width and \a h height and matrix \a matrix.
 
-  When transforming a pixmap with xForm(), the transformation matrix
-  is internally adjusted to compensate for unwanted translation,
-  i.e. xForm() returns the smallest pixmap containing all transformed
-  points of the original pixmap.
+    When transforming a pixmap with xForm(), the transformation matrix
+    is internally adjusted to compensate for unwanted translation,
+    i.e. xForm() returns the smallest pixmap containing all
+    transformed points of the original pixmap.
 
-  This function returns the modified matrix, which maps points
-  correctly from the original pixmap into the new pixmap.
+    This function returns the modified matrix, which maps points
+    correctly from the original pixmap into the new pixmap.
 
-  \sa xForm(), QWMatrix
+    \sa xForm(), QWMatrix
 */
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
 QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
@@ -1157,11 +1196,12 @@ QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
  *****************************************************************************/
 #if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
 /*!
-  \relates QPixmap
-  Writes the pixmap \a pixmap to the stream \a s as a PNG image.
+    \relates QPixmap
 
-  \sa QPixmap::save()
-  \link datastreamformat.html Format of the QDataStream operators \endlink
+    Writes the pixmap \a pixmap to the stream \a s as a PNG image.
+
+    \sa QPixmap::save()
+    \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
@@ -1179,10 +1219,12 @@ QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
 }
 
 /*!
-  \relates QPixmap
-  Reads a pixmap from the stream \a s into the pixmap \a pixmap.
-  \sa QPixmap::load()
-  \link datastreamformat.html Format of the QDataStream operators \endlink
+    \relates QPixmap
+
+    Reads a pixmap from the stream \a s into the pixmap \a pixmap.
+
+    \sa QPixmap::load()
+    \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QPixmap &pixmap )

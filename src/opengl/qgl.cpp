@@ -48,23 +48,24 @@ static QGLFormat* qgl_default_overlay_format = 0;
 static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
 
-/*! \class QGL qgl.h
+/*!
+    \class QGL qgl.h
+    \brief The QGL class is a namespace for miscellaneous identifiers
+    in the Qt OpenGL module.
+
+    \module OpenGL
     \ingroup graphics
     \ingroup images
-  \brief The QGL class is a namespace for miscellaneous identifiers
-  in the Qt OpenGL module.
 
-  \module OpenGL
+    Normally you can ignore this class. QGLWidget and the other
+    OpenGL<sup>*</sup> module classes inherit it, so when you make your
+    own QGLWidget subclass you can use the identifiers in the QGL
+    namespace without qualification.
 
-  Normally you can ignore this class. QGLWidget and the other
-  OpenGL<sup>*</sup> module classes inherit it, so when you make your
-  own QGLWidget subclass you can use the identifiers in the QGL
-  namespace without qualification.
-
-  However, you may occasionally find yourself in situations where you
-  need to refer to these identifiers from outside the QGL namespace's
-  scope, e.g. in static functions. In such cases, simply write e.g. \c
-  QGL::DoubleBuffer instead of just \c DoubleBuffer.
+    However, you may occasionally find yourself in situations where you
+    need to refer to these identifiers from outside the QGL namespace's
+    scope, e.g. in static functions. In such cases, simply write e.g. \c
+    QGL::DoubleBuffer instead of just \c DoubleBuffer.
 
     <sup>*</sup> OpenGL is a trademark of Silicon Graphics, Inc. in the
     United States and other countries.
@@ -1943,7 +1944,8 @@ OpenGL headers and libraries are installed on your system, and if so, it
 will include the Qt OpenGL module in the Qt library. (If your OpenGL
 headers or libraries are placed in a non-standard directory, you may need
 to change the SYSCONF_CXXFLAGS_OPENGL and/or SYSCONF_LFLAGS_OPENGL in the
-config file for your system).
+config file for your system). The configure script may fail to detect
+OpenGL if you do not have threading (\c{configure -thread}) enabled.
 
 When you install Qt for Windows, the Qt OpenGL module is always included.
 

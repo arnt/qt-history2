@@ -3140,8 +3140,8 @@ void QPen::init( const QColor &color, uint width, uint linestyle )
 }
 
 /*!
-  Constructs a default black solid line pen with 0 width, which
-  renders lines 1 pixel wide (fast diagonals).
+    Constructs a default black solid line pen with 0 width, which
+    renders lines 1 pixel wide (fast diagonals).
 */
 
 QPen::QPen()
@@ -3150,8 +3150,10 @@ QPen::QPen()
 }
 
 /*!
-  Constructs a black pen with 0 width (fast diagonals) and style \a style.
-  \sa setStyle()
+    Constructs a black pen with 0 width (fast diagonals) and style \a
+    style.
+
+    \sa setStyle()
 */
 
 QPen::QPen( PenStyle style )
@@ -3160,8 +3162,10 @@ QPen::QPen( PenStyle style )
 }
 
 /*!
-  Constructs a pen with the specified \a color, \a width and \a style.
-  \sa setWidth(), setStyle(), setColor()
+    Constructs a pen with the specified \a color, \a width and \a
+    style.
+
+    \sa setWidth(), setStyle(), setColor()
 */
 
 QPen::QPen( const QColor &color, uint width, PenStyle style )
@@ -3170,18 +3174,18 @@ QPen::QPen( const QColor &color, uint width, PenStyle style )
 }
 
 /*!
-  Constructs a pen with the specified color \a cl and width \a w. The pen
-  style is set to \a s, the pen cap style to \a c and the pen join
-  style to \a j.
+    Constructs a pen with the specified color \a cl and width \a w.
+    The pen style is set to \a s, the pen cap style to \a c and the
+    pen join style to \a j.
 
-  A line width of 0 will produce a 1 pixel wide line using a fast
-  algorithm for diagonals. A line width of 1 will also produce a 1
-  pixel wide line, but uses a slower more accurate algorithm for
-  diagonals. For horizontal and vertical lines a line width of 0 is
-  the same as a line width of 1. The cap and join style have no effect
-  on 0-width lines.
+    A line width of 0 will produce a 1 pixel wide line using a fast
+    algorithm for diagonals. A line width of 1 will also produce a 1
+    pixel wide line, but uses a slower more accurate algorithm for
+    diagonals. For horizontal and vertical lines a line width of 0 is
+    the same as a line width of 1. The cap and join style have no
+    effect on 0-width lines.
 
-  \sa setWidth(), setStyle(), setColor()
+    \sa setWidth(), setStyle(), setColor()
 */
 
 QPen::QPen( const QColor &cl, uint w, PenStyle s, PenCapStyle c,
@@ -3191,7 +3195,7 @@ QPen::QPen( const QColor &cl, uint w, PenStyle s, PenCapStyle c,
 }
 
 /*!
-  Constructs a pen that is a copy of \a p.
+    Constructs a pen that is a copy of \a p.
 */
 
 QPen::QPen( const QPen &p )
@@ -3201,7 +3205,7 @@ QPen::QPen( const QPen &p )
 }
 
 /*!
-  Destroys the pen.
+    Destroys the pen.
 */
 
 QPen::~QPen()
@@ -3212,12 +3216,12 @@ QPen::~QPen()
 
 
 /*!
-  Detaches from shared pen data to make sure that this pen is the only
-  one referring the data.
+    Detaches from shared pen data to make sure that this pen is the
+    only one referring the data.
 
-  If multiple pens share common data, this pen dereferences the data
-  and gets a copy of the data. Nothing is done if there is just a
-  single reference.
+    If multiple pens share common data, this pen dereferences the data
+    and gets a copy of the data. Nothing is done if there is just a
+    single reference.
 */
 
 void QPen::detach()
@@ -3228,7 +3232,7 @@ void QPen::detach()
 
 
 /*!
-  Assigns \a p to this pen and returns a reference to this pen.
+    Assigns \a p to this pen and returns a reference to this pen.
 */
 
 QPen &QPen::operator=( const QPen &p )
@@ -3242,8 +3246,7 @@ QPen &QPen::operator=( const QPen &p )
 
 
 /*!
-  Returns a
-  \link shclass.html deep copy\endlink of the pen.
+    Returns a \link shclass.html deep copy\endlink of the pen.
 */
 
 QPen QPen::copy() const
@@ -3254,20 +3257,24 @@ QPen QPen::copy() const
 
 
 /*!
-  \fn PenStyle QPen::style() const
-  Returns the pen style.
-  \sa setStyle()
+    \fn PenStyle QPen::style() const
+
+    Returns the pen style.
+
+    \sa setStyle()
 */
 
 /*!
-  Sets the pen style to \a s.
+    Sets the pen style to \a s.
 
-  See the \l Qt::PenStyle documentation for a list of all the styles.
+    See the \l Qt::PenStyle documentation for a list of all the
+    styles.
 
-  \warning On Windows 95/98 and Macintosh, the style setting (other than
-  NoPen and SolidLine) has no effect for lines with width greater than 1.
+    \warning On Windows 95/98 and Macintosh, the style setting (other
+    than \c NoPen and \c SolidLine) has no effect for lines with width
+    greater than 1.
 
-  \sa style()
+    \sa style()
 */
 
 void QPen::setStyle( PenStyle s )
@@ -3281,22 +3288,24 @@ void QPen::setStyle( PenStyle s )
 
 
 /*!
-  \fn uint QPen::width() const
-  Returns the pen width.
-  \sa setWidth()
+    \fn uint QPen::width() const
+
+    Returns the pen width.
+
+    \sa setWidth()
 */
 
 /*!
-  Sets the pen width to \a w.
+    Sets the pen width to \a w.
 
-  A line width of 0 will produce a 1 pixel wide line using a fast
-  algorithm for diagonals. A line width of 1 will also produce a 1
-  pixel wide line, but uses a slower more accurate algorithm for
-  diagonals. For horizontal and vertical lines a line width of 0 is
-  the same as a line width of 1. The cap and join style have no effect
-  on 0-width lines.
+    A line width of 0 will produce a 1 pixel wide line using a fast
+    algorithm for diagonals. A line width of 1 will also produce a 1
+    pixel wide line, but uses a slower more accurate algorithm for
+    diagonals. For horizontal and vertical lines a line width of 0 is
+    the same as a line width of 1. The cap and join style have no
+    effect on 0-width lines.
 
-  \sa width()
+    \sa width()
 */
 
 void QPen::setWidth( uint w )
@@ -3309,9 +3318,9 @@ void QPen::setWidth( uint w )
 
 
 /*!
-  Returns the pen's cap style.
+    Returns the pen's cap style.
 
-  \sa setCapStyle()
+    \sa setCapStyle()
 */
 Qt::PenCapStyle QPen::capStyle() const
 {
@@ -3319,17 +3328,18 @@ Qt::PenCapStyle QPen::capStyle() const
 }
 
 /*!
-  Sets the pen's cap style to \a c.
+    Sets the pen's cap style to \a c.
 
-  The default value is \c FlatCap. The cap style has no effect on
-  0-width pens.
+    The default value is \c FlatCap. The cap style has no effect on
+    0-width pens.
 
-  \img pen-cap-styles.png Pen Cap Styles
+    \img pen-cap-styles.png Pen Cap Styles
 
-  \warning On Windows 95/98 and Macintosh, the cap style setting has no
-  effect. Wide lines are rendered as if the cap style was \c SquareCap.
+    \warning On Windows 95/98 and Macintosh, the cap style setting has
+    no effect. Wide lines are rendered as if the cap style was \c
+    SquareCap.
 
-  \sa capStyle()
+    \sa capStyle()
 */
 
 void QPen::setCapStyle( PenCapStyle c )
@@ -3341,9 +3351,9 @@ void QPen::setCapStyle( PenCapStyle c )
 }
 
 /*!
-  Returns the pen's join style.
+    Returns the pen's join style.
 
-  \sa setJoinStyle()
+    \sa setJoinStyle()
 */
 Qt::PenJoinStyle QPen::joinStyle() const
 {
@@ -3351,18 +3361,18 @@ Qt::PenJoinStyle QPen::joinStyle() const
 }
 
 /*!
-  Sets the pen's join style to \a j.
+    Sets the pen's join style to \a j.
 
-  The default value is \c MiterJoin. The join style has no effect on
-  0-width pens.
+    The default value is \c MiterJoin. The join style has no effect on
+    0-width pens.
 
-  \img pen-join-styles.png Pen Join Styles
+    \img pen-join-styles.png Pen Join Styles
 
-  \warning On Windows 95/98 and Macintosh, the join style setting has
-  no effect. Wide lines are rendered as if the join style was \c
-  BevelJoin.
+    \warning On Windows 95/98 and Macintosh, the join style setting
+    has no effect. Wide lines are rendered as if the join style was \c
+    BevelJoin.
 
-  \sa joinStyle()
+    \sa joinStyle()
 */
 
 void QPen::setJoinStyle( PenJoinStyle j )
@@ -3374,14 +3384,17 @@ void QPen::setJoinStyle( PenJoinStyle j )
 }
 
 /*!
-  \fn const QColor &QPen::color() const
-  Returns the pen color.
-  \sa setColor()
+    \fn const QColor &QPen::color() const
+
+    Returns the pen color.
+
+    \sa setColor()
 */
 
 /*!
-  Sets the pen color to \a c.
-  \sa color()
+    Sets the pen color to \a c.
+
+    \sa color()
 */
 
 void QPen::setColor( const QColor &c )
@@ -3392,21 +3405,23 @@ void QPen::setColor( const QColor &c )
 
 
 /*!
-  \fn bool QPen::operator!=( const QPen &p ) const
+    \fn bool QPen::operator!=( const QPen &p ) const
 
-  Returns TRUE if the pen is different from \a p; otherwise returns FALSE
+    Returns TRUE if the pen is different from \a p; otherwise returns
+    FALSE.
 
-  Two pens are different if they have different styles, widths or colors.
+    Two pens are different if they have different styles, widths or
+    colors.
 
-  \sa operator==()
+    \sa operator==()
 */
 
 /*!
-  Returns TRUE if the pen is equal to \a p; otherwise returns FALSE
+    Returns TRUE if the pen is equal to \a p; otherwise returns FALSE.
 
-  Two pens are equal if they have equal styles, widths and colors.
+    Two pens are equal if they have equal styles, widths and colors.
 
-  \sa operator!=()
+    \sa operator!=()
 */
 
 bool QPen::operator==( const QPen &p ) const
@@ -3421,10 +3436,12 @@ bool QPen::operator==( const QPen &p ) const
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
 /*!
-  \relates QPen
-  Writes the pen \a p to the stream \a s and returns a reference to the stream.
+    \relates QPen
 
-  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    Writes the pen \a p to the stream \a s and returns a reference to
+    the stream.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QPen &p )
@@ -3437,11 +3454,12 @@ QDataStream &operator<<( QDataStream &s, const QPen &p )
 }
 
 /*!
-  \relates QPen
-  Reads a pen from the stream \a s into \a p and returns a reference
-  to the stream.
+    \relates QPen
 
-  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    Reads a pen from the stream \a s into \a p and returns a reference
+    to the stream.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QPen &p )
@@ -3461,46 +3479,46 @@ QDataStream &operator>>( QDataStream &s, QPen &p )
  *****************************************************************************/
 
 /*!
-  \class QBrush qbrush.h
+    \class QBrush qbrush.h
 
-  \brief The QBrush class defines the fill pattern of shapes drawn by a QPainter.
+    \brief The QBrush class defines the fill pattern of shapes drawn by a QPainter.
 
-  \ingroup graphics
-  \ingroup images
-  \ingroup shared
+    \ingroup graphics
+    \ingroup images
+    \ingroup shared
 
-  A brush has a style and a color. One of the brush styles is a custom
-  pattern, which is defined by a QPixmap.
+    A brush has a style and a color. One of the brush styles is a
+    custom pattern, which is defined by a QPixmap.
 
-  The brush style defines the fill pattern. The default brush style is \c
-  NoBrush (depends on how you construct a brush). This style tells the
-  painter to not fill shapes. The standard style for filling is called \c
-  SolidPattern.
+    The brush style defines the fill pattern. The default brush style
+    is \c NoBrush (depending on how you construct a brush). This style
+    tells the painter to not fill shapes. The standard style for
+    filling is \c SolidPattern.
 
-  The brush color defines the color of the fill pattern.
-  The QColor documentation lists the predefined colors.
+    The brush color defines the color of the fill pattern. The QColor
+    documentation lists the predefined colors.
 
-  Use the QPen class for specifying line/outline styles.
+    Use the QPen class for specifying line/outline styles.
 
-  Example:
-  \code
-    QPainter painter;
-    QBrush   brush( yellow );		// yellow solid pattern
-    painter.begin( &anyPaintDevice );	// paint something
-    painter.setBrush( brush );		// set the yellow brush
-    painter.setPen( NoPen );		// do not draw outline
-    painter.drawRect( 40,30, 200,100 ); // draw filled rectangle
-    painter.setBrush( NoBrush );	// do not fill
-    painter.setPen( black );		// set black pen, 0 pixel width
-    painter.drawRect( 10,10, 30,20 );	// draw rectangle outline
-    painter.end();			// painting done
-  \endcode
+    Example:
+    \code
+        QPainter painter;
+        QBrush   brush( yellow );           // yellow solid pattern
+        painter.begin( &anyPaintDevice );   // paint something
+        painter.setBrush( brush );          // set the yellow brush
+        painter.setPen( NoPen );            // do not draw outline
+        painter.drawRect( 40,30, 200,100 ); // draw filled rectangle
+        painter.setBrush( NoBrush );        // do not fill
+        painter.setPen( black );            // set black pen, 0 pixel width
+        painter.drawRect( 10,10, 30,20 );   // draw rectangle outline
+        painter.end();                      // painting done
+    \endcode
 
-  See the setStyle() function for a complete list of brush styles.
+    See the setStyle() function for a complete list of brush styles.
 
-  \img brush-styles.png Brush Styles
+    \img brush-styles.png Brush Styles
 
-  \sa QPainter, QPainter::setBrush(), QPainter::setBrushOrigin()
+    \sa QPainter, QPainter::setBrush(), QPainter::setBrushOrigin()
 */
 
 
@@ -3519,8 +3537,8 @@ void QBrush::init( const QColor &color, BrushStyle style )
 }
 
 /*!
-  Constructs a default black brush with the style \c NoBrush (will not fill
-  shapes).
+    Constructs a default black brush with the style \c NoBrush (will
+    not fill shapes).
 */
 
 QBrush::QBrush()
@@ -3539,8 +3557,9 @@ QBrush::QBrush()
 }
 
 /*!
-  Constructs a black brush with the style \a style.
-  \sa setStyle()
+    Constructs a black brush with the style \a style.
+
+    \sa setStyle()
 */
 
 QBrush::QBrush( BrushStyle style )
@@ -3549,8 +3568,9 @@ QBrush::QBrush( BrushStyle style )
 }
 
 /*!
-  Constructs a brush with the color \a color and the style \a style.
-  \sa setColor(), setStyle()
+    Constructs a brush with the color \a color and the style \a style.
+
+    \sa setColor(), setStyle()
 */
 
 QBrush::QBrush( const QColor &color, BrushStyle style )
@@ -3559,13 +3579,13 @@ QBrush::QBrush( const QColor &color, BrushStyle style )
 }
 
 /*!
-  Constructs a brush with the color \a color and a custom pattern
-  stored in \a pixmap.
+    Constructs a brush with the color \a color and a custom pattern
+    stored in \a pixmap.
 
-  The color will only have an effect for monochrome pixmaps, i.e.,
-  QPixmap::depth() == 1.
+    The color will only have an effect for monochrome pixmaps, i.e.
+    for QPixmap::depth() == 1.
 
-  \sa setColor(), setPixmap()
+    \sa setColor(), setPixmap()
 */
 
 QBrush::QBrush( const QColor &color, const QPixmap &pixmap )
@@ -3575,8 +3595,8 @@ QBrush::QBrush( const QColor &color, const QPixmap &pixmap )
 }
 
 /*!
-  Constructs a brush that is a
-  \link shclass.html shallow copy\endlink of \a b.
+    Constructs a brush that is a \link shclass.html shallow
+    copy\endlink of \a b.
 */
 
 QBrush::QBrush( const QBrush &b )
@@ -3586,7 +3606,7 @@ QBrush::QBrush( const QBrush &b )
 }
 
 /*!
-  Destroys the brush.
+    Destroys the brush.
 */
 
 QBrush::~QBrush()
@@ -3599,12 +3619,12 @@ QBrush::~QBrush()
 
 
 /*!
-  Detaches from shared brush data to makes sure that this brush is the only
-  one referring the data.
+    Detaches from shared brush data to make sure that this brush is
+    the only one referring the data.
 
-  If multiple brushes share common data, this pen dereferences the data
-  and gets a copy of the data. Nothing is done if there is just a single
-  reference.
+    If multiple brushes share common data, this brush dereferences the
+    data and gets a copy of the data. Nothing is done if there is just
+    a single reference.
 */
 
 void QBrush::detach()
@@ -3615,7 +3635,7 @@ void QBrush::detach()
 
 
 /*!
-  Assigns \a b to this brush and returns a reference to this brush.
+    Assigns \a b to this brush and returns a reference to this brush.
 */
 
 QBrush &QBrush::operator=( const QBrush &b )
@@ -3631,8 +3651,7 @@ QBrush &QBrush::operator=( const QBrush &b )
 
 
 /*!
-  Returns a
-  \link shclass.html deep copy\endlink of the brush.
+    Returns a \link shclass.html deep copy\endlink of the brush.
 */
 
 QBrush QBrush::copy() const
@@ -3648,38 +3667,43 @@ QBrush QBrush::copy() const
 
 
 /*!
-  \fn BrushStyle QBrush::style() const
-  Returns the brush style.
-  \sa setStyle()
+    \fn BrushStyle QBrush::style() const
+
+    Returns the brush style.
+
+    \sa setStyle()
 */
 
 /*!
-  Sets the brush style to \a s.
+    Sets the brush style to \a s.
 
-  The brush styles are:
-  \list
-  \i NoBrush  will not fill shapes (default).
-  \i SolidPattern  solid (100%) fill pattern.
-  \i Dense1Pattern  94% fill pattern.
-  \i Dense2Pattern  88% fill pattern.
-  \i Dense3Pattern  63% fill pattern.
-  \i Dense4Pattern  50% fill pattern.
-  \i Dense5Pattern  37% fill pattern.
-  \i Dense6Pattern  12% fill pattern.
-  \i Dense7Pattern  6% fill pattern.
-  \i HorPattern  horizontal lines pattern.
-  \i VerPattern  vertical lines pattern.
-  \i CrossPattern  crossing lines pattern.
-  \i BDiagPattern  diagonal lines (directed / ) pattern.
-  \i FDiagPattern  diagonal lines (directed \ ) pattern.
-  \i DiagCrossPattern  diagonal crossing lines pattern.
-  \i CustomPattern  set when a pixmap pattern is being used.
-  \endlist
+    The brush styles are:
+    \table
+    \header \i Pattern \i Meaning
+    \row \i NoBrush \i will not fill shapes (default).
+    \row \i SolidPattern  \i solid (100%) fill pattern.
+    \row \i Dense1Pattern \i11 94% fill pattern.
+    \row \i Dense2Pattern \i11 88% fill pattern.
+    \row \i Dense3Pattern \i11 63% fill pattern.
+    \row \i Dense4Pattern \i11 50% fill pattern.
+    \row \i Dense5Pattern \i11 37% fill pattern.
+    \row \i Dense6Pattern \i11 12% fill pattern.
+    \row \i Dense7Pattern \i11 6% fill pattern.
+    \row \i HorPattern \i horizontal lines pattern.
+    \row \i VerPattern \i vertical lines pattern.
+    \row \i CrossPattern \i crossing lines pattern.
+    \row \i BDiagPattern \i diagonal lines (directed /) pattern.
+    \row \i FDiagPattern \i diagonal lines (directed \) pattern.
+    \row \i DiagCrossPattern \i diagonal crossing lines pattern.
+    \row \i CustomPattern \i set when a pixmap pattern is being used.
+    \endtable
 
-On Windows, only the dense patterns are transparent.
+    On Windows, only the dense patterns are transparent.
 
+    See the \link #details Detailed Description\endlink for a picture
+    of all the styles.
 
-  \sa style()
+    \sa style()
 */
 
 void QBrush::setStyle( BrushStyle s )		// set brush style
@@ -3696,14 +3720,17 @@ void QBrush::setStyle( BrushStyle s )		// set brush style
 
 
 /*!
-  \fn const QColor &QBrush::color() const
-  Returns the brush color.
-  \sa setColor()
+    \fn const QColor &QBrush::color() const
+
+    Returns the brush color.
+
+    \sa setColor()
 */
 
 /*!
-  Sets the brush color to \a c.
-  \sa color(), setStyle()
+    Sets the brush color to \a c.
+
+    \sa color(), setStyle()
 */
 
 void QBrush::setColor( const QColor &c )
@@ -3714,21 +3741,22 @@ void QBrush::setColor( const QColor &c )
 
 
 /*!
-  \fn QPixmap *QBrush::pixmap() const
-  Returns a pointer to the custom brush pattern.
+    \fn QPixmap *QBrush::pixmap() const
 
-  A null pointer is returned if no custom brush pattern has been set.
+    Returns a pointer to the custom brush pattern, or 0 if no custom
+    brush pattern has been set.
 
-  \sa setPixmap()
+    \sa setPixmap()
 */
 
 /*!
-  Sets the brush pixmap to \a pixmap. The style is set to \c CustomPattern.
+    Sets the brush pixmap to \a pixmap. The style is set to \c
+    CustomPattern.
 
-  The current brush color will only have an effect for monochrome pixmaps,
-  i.e.	QPixmap::depth() == 1.
+    The current brush color will only have an effect for monochrome
+    pixmaps, i.e. for QPixmap::depth() == 1.
 
-  \sa pixmap(), color()
+    \sa pixmap(), color()
 */
 
 void QBrush::setPixmap( const QPixmap &pixmap )
@@ -3749,22 +3777,25 @@ void QBrush::setPixmap( const QPixmap &pixmap )
 
 
 /*!
-  \fn bool QBrush::operator!=( const QBrush &b ) const
-  Returns TRUE if the brush is different from \a b or FALSE if the brushes are
-  equal.
+    \fn bool QBrush::operator!=( const QBrush &b ) const
 
-  Two brushes are different if they have different styles, colors or pixmaps.
+    Returns TRUE if the brush is different from \a b; otherwise
+    returns FALSE.
 
-  \sa operator==()
+    Two brushes are different if they have different styles, colors or
+    pixmaps.
+
+    \sa operator==()
 */
 
 /*!
-  Returns TRUE if the brush is equal to \a b, or FALSE if the brushes are
-  different.
+    Returns TRUE if the brush is equal to \a b; otherwise returns
+    FALSE.
 
-  Two brushes are equal if they have equal styles, colors and pixmaps.
+    Two brushes are equal if they have equal styles, colors and
+    pixmaps.
 
-  \sa operator!=()
+    \sa operator!=()
 */
 
 bool QBrush::operator==( const QBrush &b ) const
@@ -3791,10 +3822,12 @@ bool QBrush::operator==( const QBrush &b ) const
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
 /*!
-  \relates QBrush
-  Writes the brush \a b to the stream \a s and returns a reference to the stream.
+    \relates QBrush
 
-  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    Writes the brush \a b to the stream \a s and returns a reference
+    to the stream.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QBrush &b )
@@ -3810,10 +3843,12 @@ QDataStream &operator<<( QDataStream &s, const QBrush &b )
 }
 
 /*!
-  \relates QBrush
-  Reads the brush \a b from the stream \a s and returns a reference to the stream.
+    \relates QBrush
 
-  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    Reads the brush \a b from the stream \a s and returns a reference
+    to the stream.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QBrush &b )

@@ -435,7 +435,7 @@ int QGbkCodec::heuristicNameMatch(const char* hint) const
     if (qstricmp (hint, "gbk-0") == 0 ||
 	qstricmp (hint, "gb18030.2000-0") == 0)
         return 13;
-    
+
     int score = 0;
     bool zh = FALSE;
     if (qstrnicmp(hint, "zh_CN", 5) == 0){
@@ -471,16 +471,19 @@ int QGbkCodec::heuristicContentMatch(const char* /*chars*/, int /*len*/) const
     return 0;
 }
 
+/*! \reimp */
 QTextDecoder* QGbkCodec::makeDecoder() const
 {
     return QGb18030Codec::makeDecoder();
 }
 
+/*! \reimp */
 QCString QGbkCodec::fromUnicode(const QString& uc, int& len_in_out) const
 {
     return QGb18030Codec::fromUnicode( uc, len_in_out );
 }
 
+/*! \reimp */
 QString QGbkCodec::toUnicode(const char* chars, int len) const
 {
     return QGb18030Codec::toUnicode( chars, len );
