@@ -2,13 +2,10 @@
 #include "qsql_psql.h"
 #include <qstringlist.h>
 
-class QPSQLDriverInterface : public QPlugInInterface, public QSqlDriverInterface
+class QPSQLDriverInterface : public QSqlDriverInterface
 {
 public:
     QPSQLDriverInterface(){}
-
-    QStringList interfaceList();
-    QUnknownInterface* queryInterface( const QString& request );
 
     QSqlDriver* create( const QString &name );
     QStringList featureList();
@@ -44,4 +41,27 @@ QStringList QPSQLDriverInterface::featureList()
     return l;
 }
 
-Q_EXPORT_INTERFACE(QSqlDriverInterface,QPSQLDriverInterface)
+class QPSQLDriverPlugIn : public QPlugInInterface
+{
+public:
+    QStringList interfaceList();
+    QUnknownInterface* queryInterface( const QString& request );
+};
+
+QStringList QPSQLDriverPlugIn::interfaceList()
+{
+    QStringList list;
+
+    list << "QPSQLDriverInterface";
+
+    return list;
+}
+
+QUnknownInterface* QPSQLDriverPlugIn::queryInterface( const QString& request )
+{
+    if ( request == "QPSQLDriverInterface" )
+	return new QPSQLDriverInterface;
+    return 0;
+}
+
+Q_EXPORT_INTERFACE(QPSQLDriverPlugIn)

@@ -2,34 +2,14 @@
 #include "qsql_oci.h"
 #include <qstringlist.h>
 
-class QOCIDriverInterface : public QPlugInInterface, public QSqlDriverInterface
+class QOCIDriverInterface : public QSqlDriverInterface
 {
 public:
     QOCIDriverInterface(){}
 
-    QStringList interfaceList();
-    QUnknownInterface* queryInterface( const QString& request );
-
     QSqlDriver* create( const QString &name );
     QStringList featureList();
 };
-
-QStringList QOCIDriverInterface::interfaceList()
-{
-    QStringList list;
-
-    list << "QOCIDriverInterface";
-
-    return list;
-}
-
-QUnknownInterface* QOCIDriverInterface::queryInterface( const QString& request )
-{
-    if ( request == "QOCIDriverInterface" )
-	return new QOCIDriverInterface;
-    return 0;
-}
-
 
 QSqlDriver* QOCIDriverInterface::create( const QString &name )
 {
@@ -48,4 +28,28 @@ QStringList QOCIDriverInterface::featureList()
     return l;
 }
 
-Q_EXPORT_INTERFACE(QSqlDriverInterface, QOCIDriverInterface)
+
+class QOCIDriverPlugIn : public QPlugInInterface
+{
+public:
+    QStringList interfaceList();
+    QUnknownInterface* queryInterface( const QString& request );
+};
+
+QStringList QOCIDriverPlugIn::interfaceList()
+{
+    QStringList list;
+
+    list << "QOCIDriverInterface";
+
+    return list;
+}
+
+QUnknownInterface* QOCIDriverPlugIn::queryInterface( const QString& request )
+{
+    if ( request == "QOCIDriverInterface" )
+	return new QOCIDriverInterface;
+    return 0;
+}
+
+Q_EXPORT_INTERFACE(QOCIDriverPlugIn)

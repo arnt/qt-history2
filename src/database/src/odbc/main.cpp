@@ -3,34 +3,14 @@
 #include <qstringlist.h>
 #include <qapplication.h>
 
-class QODBCDriverInterface : public QPlugInInterface, public QSqlDriverInterface
+class QODBCDriverInterface : public QSqlDriverInterface
 {
 public:
     QODBCDriverInterface(){}
-    ~QODBCDriverInterface(){}
-
-    QStringList interfaceList();
-    QUnknownInterface* queryInterface( const QString& request );
 
     QSqlDriver* create( const QString &name );
     QStringList featureList();
 };
-
-QStringList QODBCDriverInterface::interfaceList()
-{
-    QStringList list;
-
-    list << "QODBCDriverInterface";
-
-    return list;
-}
-
-QUnknownInterface* QODBCDriverInterface::queryInterface( const QString& request )
-{
-    if ( request == "QODBCDriverInterface" )
-	return new QODBCDriverInterface;
-    return 0;
-}
 
 QSqlDriver* QODBCDriverInterface::create( const QString &name )
 {
@@ -47,4 +27,28 @@ QStringList QODBCDriverInterface::featureList()
     return l;
 }
 
-Q_EXPORT_INTERFACE(QSqlDriverInterface, QODBCDriverInterface)
+class QODBCDriverPlugIn : public QPlugInInterface
+{
+public:
+    QStringList interfaceList();
+    QUnknownInterface* queryInterface( const QString& request );
+};
+
+QStringList QODBCDriverPlugIn::interfaceList()
+{
+    QStringList list;
+
+    list << "QODBCDriverInterface";
+
+    return list;
+}
+
+QUnknownInterface* QODBCDriverPlugIn::queryInterface( const QString& request )
+{
+    if ( request == "QODBCDriverInterface" )
+	return new QODBCDriverInterface;
+    return 0;
+}
+
+
+Q_EXPORT_INTERFACE(QODBCDriverPlugIn)

@@ -2,33 +2,14 @@
 #include "qsql_mysql.h"
 #include <qstringlist.h>
 
-class QMySQLDriverInterface : public QPlugInInterface, public QSqlDriverInterface
+class QMySQLDriverInterface : public QSqlDriverInterface
 {
 public:
     QMySQLDriverInterface(){}
 
-    QStringList interfaceList();
-    QUnknownInterface* queryInterface( const QString& request );
-
     QSqlDriver* create( const QString &name );
     QStringList featureList();    
 };
-
-QStringList QMySQLDriverInterface::interfaceList()
-{
-    QStringList list;
-
-    list << "QMySQLDriverInterface";
-
-    return list;
-}
-
-QUnknownInterface* QMySQLDriverInterface::queryInterface( const QString& request )
-{
-    if ( request == "QMySQLDriverInterface" )
-	return new QMySqlDriverInterface;
-    return 0;
-}
 
 QSqlDriver* QMySQLDriverInterface::create( const QString &name )
 {
@@ -44,4 +25,27 @@ QStringList QMySQLDriverInterface::featureList()
     return l;
 }
 
-Q_EXPORT_INTERFACE(QMySQLDriverInterface)
+class QMySQLDriverPlugIn : public QPlugInInterface
+{
+public:
+    QStringList interfaceList();
+    QUnknownInterface* queryInterface( const QString& request );
+};
+
+QStringList QMySQLDriverPlugIn::interfaceList()
+{
+    QStringList list;
+
+    list << "QMySQLDriverInterface";
+
+    return list;
+}
+
+QUnknownInterface* QMySQLDriverPlugIn::queryInterface( const QString& request )
+{
+    if ( request == "QMySQLDriverInterface" )
+	return new QMySQLDriverInterface;
+    return 0;
+}
+
+Q_EXPORT_INTERFACE(QMySQLDriverPlugIn)
