@@ -412,7 +412,7 @@ void QHideToolTip::maybeTip(const QPoint &pos)
 #endif
 
 /*!
-    \class Q3MainWindow q3mainwindow.h
+    \class Q3MainWindow
     \brief The Q3MainWindow class provides a main application window,
     with a menu bar, dock windows (e.g. for toolbars), and a status
     bar.
@@ -432,12 +432,12 @@ void QHideToolTip::maybeTip(const QPoint &pos)
     itself.
 
     \code
-    Q3MainWindow *mw = new Q3MainWindow;
-    QTextEdit *edit = new QTextEdit(mw, "editor");
-    edit->setFocus();
-    mw->setWindowTitle("Main Window");
-    mw->setCentralWidget(edit);
-    mw->show();
+        Q3MainWindow *mw = new Q3MainWindow;
+        QTextEdit *edit = new QTextEdit(mw, "editor");
+        edit->setFocus();
+        mw->setWindowTitle("Main Window");
+        mw->setCentralWidget(edit);
+        mw->show();
     \endcode
 
     Q3MainWindows may be created in their own right as shown above.
@@ -445,96 +445,6 @@ void QHideToolTip::maybeTip(const QPoint &pos)
     be added to the default menu bar, widgets can be added to the
     status bar, toolbars and dock windows can be added to any of the
     dock areas.
-
-    \quotefile application/main.cpp
-    \skipto ApplicationWindow
-    \printuntil show
-
-    In the extract above ApplicationWindow is a subclass of
-    Q3MainWindow that we must write for ourselves; this is the usual
-    approach to using Q3MainWindow. (The source for the extracts in
-    this description are taken from \l application/main.cpp, \l
-    application/application.cpp, \l action/main.cpp, and \l
-    action/application.cpp)
-
-    When subclassing we add the menu items and toolbars in the
-    subclass's constructor. If we've created a Q3MainWindow instance
-    directly we can add menu items and toolbars just as easily by
-    passing the Q3MainWindow instance as the parent instead of the \e
-    this pointer.
-
-    \quotefile application/application.cpp
-    \skipto help = new
-    \printuntil about
-
-    Here we've added a new menu with one menu item. The menu has been
-    inserted into the menu bar that Q3MainWindow provides by default
-    and which is accessible through the menuBar() function. The slot
-    will be called when the menu item is clicked.
-
-    \quotefile application/application.cpp
-    \skipto fileTools
-    \printuntil setLabel
-    \skipto QToolButton
-    \printuntil open file
-
-    This extract shows the creation of a toolbar with one toolbar
-    button. Q3MainWindow supplies four dock areas for toolbars. When a
-    toolbar is created as a child of a Q3MainWindow (or derived class)
-    instance it will be placed in a dock area (the \c Top dock area by
-    default). The slot will be called when the toolbar button is
-    clicked. Any dock window can be added to a dock area either using
-    addDockWindow(), or by creating a dock window with the Q3MainWindow
-    as the parent.
-
-    \quotefile application/application.cpp
-    \skipto editor
-    \printuntil statusBar
-
-    Having created the menus and toolbar we create an instance of the
-    large central widget, give it the focus and set it as the main
-    window's central widget. In the example we've also set the status
-    bar, accessed via the statusBar() function, to an initial message
-    which will be displayed for two seconds. Note that you can add
-    additional widgets to the status bar, for example labels, to show
-    further status information. See the QStatusBar documentation for
-    details, particularly the addWidget() function.
-
-    Often we want to synchronize a toolbar button with a menu item.
-    For example, if the user clicks a 'bold' toolbar button we want
-    the 'bold' menu item to be checked. This synchronization can be
-    achieved automatically by creating actions and adding the actions
-    to the toolbar and menu.
-
-    \quotefile action/application.cpp
-    \skipto Action * fileOpen
-    \printline
-    \skipto fileOpenAction
-    \printuntil choose
-
-    Here we create an action with an icon which will be used in any
-    menu and toolbar that the action is added to. We've also given the
-    action a menu name, '\&Open', and a keyboard shortcut. The
-    connection that we have made will be used when the user clicks
-    either the menu item \e or the toolbar button.
-
-    \quotefile action/application.cpp
-    \skipto QPopupMenu * file
-    \printuntil menuBar
-    \skipto fileOpen
-    \printline
-
-    The extract above shows the creation of a popup menu. We add the
-    menu to the Q3MainWindow's menu bar and add our action.
-
-    \quotefile action/application.cpp
-    \skipto Q3ToolBar * fileTool
-    \printuntil OpenAction
-
-    Here we create a new toolbar as a child of the Q3MainWindow and add
-    our action to the toolbar.
-
-    We'll now explore the functionality offered by Q3MainWindow.
 
     The main window will take care of the dock areas, and the geometry
     of the central widget, but all other aspects of the central widget

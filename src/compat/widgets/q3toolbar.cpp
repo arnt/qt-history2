@@ -196,7 +196,7 @@ void Q3ToolBarSeparator::paintEvent(QPaintEvent *)
 
 
 /*!
-    \class Q3ToolBar q3toolbar.h
+    \class Q3ToolBar
     \brief The Q3ToolBar class provides a movable panel containing
     widgets such as tool buttons.
 
@@ -218,14 +218,6 @@ void Q3ToolBarSeparator::paintEvent(QPaintEvent *)
     addSeparator() when you want a separator. When a toolbar is
     floated the caption used is the label given in the constructor
     call. This can be changed with setLabel().
-
-    \quotefile action/application.cpp
-    \skipto new Q3ToolBar
-    \printuntil fileSaveAction
-
-    This extract from the \l application/application.cpp example shows
-    the creation of a new toolbar as a child of a Q3MainWindow and
-    adding two QActions.
 
     You may use most widgets within a toolbar, with QToolButton and
     QComboBox being the most common.

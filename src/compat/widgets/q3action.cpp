@@ -63,30 +63,7 @@
 
     Once a Q3Action has been created it should be added to the relevant
     menu and toolbar and then connected to the slot which will perform
-    the action. For example:
-
-    \quotefile action/application.cpp
-    \skipto QPixmap(fileopen
-    \printuntil connect
-
-    We create a "File Save" action with a menu text of "&Save" and
-    \e{Ctrl+S} as the keyboard accelerator. We connect the
-    fileSaveAction's activated() signal to our own save() slot. Note
-    that at this point there is no menu or toolbar action, we'll add
-    them next:
-
-    \skipto new Q3ToolBar
-    \printline
-    \skipto fileSaveAction->addTo
-    \printline
-    \skipto new QPopupMenu
-    \printuntil insertItem
-    \skipto fileSaveAction->addTo
-    \printline
-
-    We create a toolbar and add our fileSaveAction to it. Similarly we
-    create a menu, add a top-level menu item, and add our
-    fileSaveAction.
+    the action.
 
     We recommend that actions are created as children of the window
     that they are used in. In most cases actions will be children of
@@ -1296,15 +1273,7 @@ void Q3Action::objectDestroyed()
 
     To trigger a user command depending on whether a toggle action has
     been switched on or off connect it to a slot that takes a bool to
-    indicate the state, e.g.
-
-    \quotefile action/toggleaction/toggleaction.cpp
-    \skipto MainWindow * window
-    \printline MainWindow * window
-    \skipto labelonoffaction
-    \printline labelonoffaction
-    \skipto connect
-    \printuntil setUsesTextLabel
+    indicate the state.
 
     \sa activated() setToggleAction() setOn()
 */

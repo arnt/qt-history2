@@ -2376,26 +2376,10 @@ void Q3ListViewItem::ignoreDoubleClick()
     The simplest pattern of use is to create a Q3ListView, add some
     column headers using addColumn() and create one or more
     Q3ListViewItem or QCheckListItem objects with the Q3ListView as
-    parent:
-
-    \quotefile xml/tagreader-with-features/structureparser.h
-    \skipto Q3ListView * table
-    \printline
-    \quotefile xml/tagreader-with-features/structureparser.cpp
-    \skipto addColumn
-    \printline addColumn
-    \printline
-    \skipto new Q3ListViewItem(table
-    \printline
+    parent.
 
     Further nodes can be added to the list view object (the root of the
-    tree) or as child nodes to Q3ListViewItems:
-
-    \skipto for (int i = 0 ; i < attributes.length();
-    \printuntil }
-
-    (From \link xml/tagreader-with-features/structureparser.cpp
-    xml/tagreader-with-features/structureparser.cpp\endlink)
+    tree) or as child nodes to Q3ListViewItems.
 
     The main setup functions are:
     \table

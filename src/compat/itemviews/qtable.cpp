@@ -739,10 +739,6 @@ void QTableItem::paint(QPainter *p, const QPalette &pal,
     Also note that you need to call setReplaceable(false) when creating the item.
     Otherwise a QLineEdit is used as the editor.
 
-    \quotefile table/statistics/statistics.cpp
-    \skipto createEditor
-    \printto }
-
     \sa QTable::createEditor() setContentFromEditor() setReplaceable()
 */
 
@@ -762,10 +758,6 @@ QWidget *QTableItem::createEditor() const
     If you reimplement createEditor() and return something that is not
     a QLineEdit you will almost certainly have to reimplement this
     function.
-
-    \quotefile table/statistics/statistics.cpp
-    \skipto setContentFromEditor
-    \printto }
 
     \sa QTable::setCellContentFromEditor()
 */
@@ -1751,12 +1743,6 @@ QSize QCheckTableItem::sizeHint() const
     the QCheckTableItem class. These table items look and behave just
     like the combobox or checkbox widgets but consume far less memory.
 
-    \quotefile table/small-table-demo/main.cpp
-    \skipto int j
-    \printuntil QCheckTableItem
-    In the example above we create a column of QCheckTableItems and
-    insert them into the table using setItem().
-
     QTable takes ownership of its QTableItems and will delete them
     when the table itself is destroyed. You can take ownership of a
     table item using takeItem() which you use to move a cell's
@@ -2339,10 +2325,7 @@ void QTable::updateHeaderStates()
 
     This header contains the column labels.
 
-    To modify a column label use Q3Header::setLabel(), e.g.
-    \quotefile table/statistics/statistics.cpp
-    \skipto horizontalHeader
-    \printline
+    To modify a column label use Q3Header::setLabel().
 
     \sa verticalHeader() setTopMargin() Q3Header
 */

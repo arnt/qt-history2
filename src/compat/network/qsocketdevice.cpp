@@ -118,15 +118,6 @@ QSocketDevicePrivate::~QSocketDevicePrivate()
     \value Datagram  A datagram socket (usually UDP).
 */
 
-/*! \fn Q_LONG QSocketDevice::writeBlock(const char *data, Q_LONG len)
-
-    Writes \a len bytes to the socket from \a data and returns the
-    number of bytes written. Returns -1 if an error occurred.
- */
-
-/*! \fn Q_LONG QSocketDevice::writeBlock(const QByteArray &data)
-*/
-
 /*! \fn Q_LONG QSocketDevice::writeBlock(const char *data, Q_LONG len, const QHostAddress &host, Q_UINT16 port)
 */
 
