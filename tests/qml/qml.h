@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qml/qml.h#8 $
+** $Id: //depot/qt/main/tests/qml/qml.h#9 $
 **
 ** Definition of something or other
 **
@@ -19,6 +19,7 @@
 #include <qdict.h>
 #include <qpixmap.h>
 #include <qscrollview.h>
+#include <qtimer.h>
 
 class QMLStyle {
 public:
@@ -116,7 +117,8 @@ public:
     QChar c;
 
     bool isSpace() const {return c.isSpace();}
-
+    bool isNull() const {return c == QChar::null;}
+ 
     QMLContainer* parent() const;
     QMLBox* box() const;
     QMLNode* previous() const;
@@ -143,7 +145,7 @@ public:
     int base;
     bool intersects(int xr, int yr, int wr, int hr);
     void draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
-	      QRegion& backgroundRegion, QPixmap* backgroundPixmap,
+	      QRegion& backgroundRegion, const QColorGroup& cg, QPixmap* backgroundPixmap = 0,  
 	      bool onlyDirty = FALSE, bool onlySelection = FALSE);
     QMLNode* hitTest(QMLContainer* box, QPainter* p, int obx, int oby, int xarg, int yarg);
 
@@ -193,7 +195,7 @@ public:
     ~QMLBox();
 
     void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
-	      QRegion& backgroundRegion, QPixmap* backgroundPixmap, bool onlyDirty = FALSE, bool onlySelection = FALSE);
+	      QRegion& backgroundRegion, const QColorGroup& cg, QPixmap* backgroundPixmap = 0, bool onlyDirty = FALSE, bool onlySelection = FALSE);
     void resize (QPainter* p, int newWidth);
 
     void update(QPainter* p, QMLRow* r = 0);
@@ -263,10 +265,19 @@ public:
     int rowY;
     int rowHeight;
 
-    int width() { return 2; }
+    int width() { return 1; }
 
     QMLNode *node;
     QMLContainer *nodeParent;
+    
+    bool hasSelection;
+    bool selectionDirty;
+    void clearSelection();
+    
+    QMLNode* selStart;
+    QMLContainer* selStartParent;
+    QMLNode* selEnd;
+    QMLContainer* selEndParent;
 
     void insert(QPainter* p, const QChar& c);
     void enter(QPainter* p);
@@ -304,11 +315,18 @@ protected:
 
     void showCursor();
     void hideCursor();
+    
+ private slots:
+    void cursorTimerDone();
+ 
 
 private:
     QMLDocument* doc;
     bool cursor_hidden;
     QPixmap* backgroundPixmap;
+    QTimer* cursorTimer;
+    
+    void updateSelection(int oldY=0, int newY=0);
 
 };
 
