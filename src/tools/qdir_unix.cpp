@@ -194,53 +194,53 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	fi.setFile( *this, fn );
 	if ( !match( filters, fn ) && !(allDirs && fi.isDir()) )
 	     continue;
-	     if  ( (doDirs && fi.isDir()) || (doFiles && fi.isFile()) ) {
-		 if ( noSymLinks && fi.isSymLink() )
-		     continue;
-		 if ( (filterSpec & RWEMask) != 0 )
-		     if ( (doReadable && !fi.isReadable()) ||
-			  (doWritable && !fi.isWritable()) ||
-			  (doExecable && !fi.isExecutable()) )
-			 continue;
-		 if ( !doHidden && fn[0] == '.' &&
-		      fn != QString::fromLatin1(".")
-		      && fn != QString::fromLatin1("..") )
-		     continue;
-		 fiList->append( new QFileInfo( fi ) );
-	     }
-	     }
-	if ( closedir(dir) != 0 ) {
+	if  ( (doDirs && fi.isDir()) || (doFiles && fi.isFile()) ) {
+	    if ( noSymLinks && fi.isSymLink() )
+	        continue;
+	    if ( (filterSpec & RWEMask) != 0 )
+	        if ( (doReadable && !fi.isReadable()) ||
+	             (doWritable && !fi.isWritable()) ||
+	             (doExecable && !fi.isExecutable()) )
+	            continue;
+	    if ( !doHidden && fn[0] == '.' &&
+	         fn != QString::fromLatin1(".")
+	         && fn != QString::fromLatin1("..") )
+	        continue;
+	    fiList->append( new QFileInfo( fi ) );
+	}
+    }
+    if ( closedir(dir) != 0 ) {
 #if defined(CHECK_NULL)
-	    qWarning( "QDir::readDirEntries: Cannot close the directory: %s (UTF8)",
-		      dPath.utf8().data() );
+	qWarning( "QDir::readDirEntries: Cannot close the directory: %s (UTF8)",
+		  dPath.utf8().data() );
 #endif
-	}
+    }
 
-	// Sort...
-	QDirSortItem* si= new QDirSortItem[fiList->count()];
-	QFileInfo* itm;
-	i=0;
-	for (itm = fiList->first(); itm; itm = fiList->next())
-	    si[i++].item = itm;
-	qt_cmp_si_sortSpec = sortSpec;
-	qsort( si, i, sizeof(si[0]), qt_cmp_si );
-	// put them back in the list
-	fiList->setAutoDelete( FALSE );
-	fiList->clear();
-	int j;
-	for ( j=0; j<i; j++ ) {
-	    fiList->append( si[j].item );
-	    fList->append( si[j].item->fileName() );
-	}
-	delete [] si;
-	fiList->setAutoDelete( TRUE );
+    // Sort...
+    QDirSortItem* si= new QDirSortItem[fiList->count()];
+    QFileInfo* itm;
+    i=0;
+    for (itm = fiList->first(); itm; itm = fiList->next())
+	si[i++].item = itm;
+    qt_cmp_si_sortSpec = sortSpec;
+    qsort( si, i, sizeof(si[0]), qt_cmp_si );
+    // put them back in the list
+    fiList->setAutoDelete( FALSE );
+    fiList->clear();
+    int j;
+    for ( j=0; j<i; j++ ) {
+	fiList->append( si[j].item );
+	fList->append( si[j].item->fileName() );
+    }
+    delete [] si;
+    fiList->setAutoDelete( TRUE );
 
-	if ( filterSpec == (FilterSpec)filtS && sortSpec == (SortSpec)sortS &&
-	     nameFilter == nameFilt )
-	    dirty = FALSE;
-	else
-	    dirty = TRUE;
-	return TRUE;
+    if ( filterSpec == (FilterSpec)filtS && sortSpec == (SortSpec)sortS &&
+	 nameFilter == nameFilt )
+	dirty = FALSE;
+    else
+	dirty = TRUE;
+    return TRUE;
 }
 
 const QFileInfoList * QDir::drives()
