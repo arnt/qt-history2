@@ -897,7 +897,7 @@ void QTextEdit::contentsMouseDoubleClickEvent(QMouseEvent *ev)
     }
 
     d->cursor.movePosition(QTextCursor::PreviousWord);
-    d->cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+    d->cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
     viewport()->update();
     d->selectionChanged();
 
