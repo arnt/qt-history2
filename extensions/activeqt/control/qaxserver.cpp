@@ -353,7 +353,7 @@ static const char* const type_map[][2] =
     { "QFont",		"IFontDisp*" },
     { "QPixmap",	"IPictureDisp*" },
     { "QVariant",	"VARIANT" },
-    { "QValueList<QVariant>", "SAFEARRAY(VARIANT)" },
+    { "QVariantList",	"SAFEARRAY(VARIANT)" },
     { "Q_ULLONG",	"CY" },
     { "Q_LLONG",	"CY" },
     { "QByteArray",	"SAFEARRAY(BYTE)" },
@@ -372,6 +372,8 @@ static const char* const type_map[][2] =
     { "OLE_COLOR",	"OLE_COLOR" },
     { "DATE",		"DATE" },
     { "VARIANT",	"VARIANT" },
+    { "IDispatch",	"IDispatch*" },
+    { "IUnknown",	"IUnknown*" },
     { "IDispatch*",	"IDispatch*" },
     { "IUnknown*",	"IUnknown*" },
     { 0,		0 }
@@ -392,6 +394,9 @@ static QString convertTypes( const QString &qtype, bool *ok )
     if ( enums && enums->contains( qtype ) ) {
 	*ok = TRUE;
 	return "enum " + qtype;
+    }
+    if (subtypes && subtypes->contains(qtype)) {
+	*ok = TRUE;
     }
     return qtype;
 }
@@ -531,23 +536,25 @@ static const char* const ignore_slots[] =
 
 static bool ignore( const char *test, const char *const *table )
 {
+    if (!test)
+	return true;
     int i = 0;
     while ( table[i] ) {
 	if ( !strcmp( test, table[i] ) )
-	    return TRUE;
+	    return true;
 	++i;
     }
-    return FALSE;
+    return false;
 }
 
-bool ignoreSlots( const char *test )
+bool ignoreSlots(const char *test)
 {
-    return ignore( test, ignore_slots );
+    return ignore(test, ignore_slots);
 }
 
-bool ignoreProps( const char *test )
+bool ignoreProps(const char *test)
 {
-    return ignore( test, ignore_props );
+    return ignore(test, ignore_props);
 }
 
 #define STRIPCB(x) x = x.mid( 1, x.length()-2 )
@@ -565,7 +572,9 @@ static QString prototype(const QStringList &ptypes, const QStringList &pnames, b
 	    ptype.truncate(ptype.length() - 1);
 	} else if (ptype.endsWith("**")) {
 	    out = true;
-	    ptype.truncate(ptype.length() - 2);
+	    ptype.truncate(ptype.length() - 1);
+	} else if (ptype.endsWith("*")) {
+	    ptype.truncate(ptype.length() - 1);
 	}
 	if (ptype.isEmpty()) {
 	    ok = false;
@@ -677,9 +686,9 @@ static HRESULT classIDL( QObject *o, const QMetaObject *mo, const QString &class
 	const QMetaProperty property = mo->property(i);
 /*	if (property.testFlags( QMetaProperty::Override ) )
 	    continue;*/
-	if (i <= qtProps && ignore(property.name(), ignore_props))
+	if (i <= qtProps && ignoreProps(property.name()))
 	    continue;
-	if (mo->indexOfProperty(property.name()) > i)
+	if (!property.name() || mo->indexOfProperty(property.name()) > i)
 	    continue;
 
 	bool ok = true;
@@ -708,14 +717,14 @@ static HRESULT classIDL( QObject *o, const QMetaObject *mo, const QString &class
     }
     out << endl;
     out << "\tmethods:" << endl;
-    for (i = slotoff; i < mo->slotCount(); ++i) {
+    for (i = 0; i < mo->slotCount(); ++i) {
 	const QMetaMember slot = mo->slot(i);
 	if (slot.access() != QMetaMember::Public)
 	    continue;
 
 	QString signature(slot.signature());
 	QString name(signature.left(signature.indexOf('(')));
-	if (i <= qtSlots && ignore(name.latin1(), ignore_slots))
+	if (i <= qtSlots && ignoreSlots(name.latin1()))
 	    continue;
 
 	signature = signature.mid(name.length() + 1);
@@ -728,7 +737,7 @@ static HRESULT classIDL( QObject *o, const QMetaObject *mo, const QString &class
 	}
 
 	name = renameOverloads(replaceKeyword(name));
-	if (ignore(name.latin1(), ignore_slots))
+	if (ignoreSlots(name.latin1()))
 	    continue;
 
 	bool ok = true;
@@ -976,8 +985,8 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
 	    out << "\tcoclass " << className << ";" << endl;
 	    QObject *o = qAxFactory()->createObject( className );
 	    // It's not a control class, so it is actually a subtype. Define it.
-	    if ( !o ) {
-		if ( !subtypes )
+	    if (!o) {
+		if (!subtypes)
 		    subtypes = new QStringList;
 		subtypes->append( className );
 		subtypes->append( className + "*" );
