@@ -69,9 +69,14 @@
     \value ActionAdded        A new action has been added.
     \value ActionRemoved      An action has been removed.
     \value ActivationChange   A widget's top-level window activation state has changed.
-    \value ApplicationWindowIconChange The application's icon has changed.
+    \value ApplicationActivated The application has been made available to the user.
+    \value ApplicationDeactivated The application has been suspended, and is
+                                  unavailable to the user.
     \value ApplicationFontChange    The default application font has changed.
+    \value ApplicationLayoutDirectionChange The default application layout
+                                            direction has changed.
     \value ApplicationPaletteChange The default application palette has changed.
+    \value ApplicationWindowIconChange The application's icon has changed.
     \value ChildAdded     An object gets a child, \l{QChildEvent}.
     \value ChildPolished  A widget child gets polished, \l{QChildEvent}.
     \value ChildRemoved   An object loses a child, \l{QChildEvent}.
@@ -120,10 +125,6 @@
     \value Shortcut Key press in child for shortcut key handling, \l{QKeyEvent}.
     \value ShortcutOverride  Key press in child, for overriding shortcut key handling, \l{QKeyEvent}.
     \value Show  Widget was shown on screen, \l{QShowEvent}.
-    \value ShowFullScreen  Widget should be shown full-screen (obsolete).
-    \value ShowMaximized  Widget should be shown maximized (obsolete).
-    \value ShowMinimized  Widget should be shown minimized (obsolete).
-    \value ShowNormal  Widget should be shown normally (obsolete).
     \value ShowToParent  A child widget has been shown.
     \value ShowWindowRequest  Widget's window should be shown (obsolete).
     \value SockAct  Socket activated, used to implement \l{QSocketNotifier}.
@@ -134,7 +135,7 @@
     \value TabletPress  A Wacom Tablet Press Event
     \value TabletRelease  A Wacom Tablet Release Event
     \value Timer  Regular timer events, \l{QTimerEvent}.
-    \value ToolBarSwitch The toolbar button is toggled on Mac.
+    \value ToolBarChange The toolbar button is toggled on Mac.
     \value ToolTip
     \value UpdateRequest The widget should be repainted.
     \value WhatsThis The widget should reveal What'sThis help
@@ -163,13 +164,6 @@
     \omitvalue IconDrag
     \omitvalue OkRequest
     \omitvalue Style
-    \omitvalue ChildInserted
-    \omitvalue LayoutHint
-    \omitvalue CaptionChange
-    \omitvalue IconChange
-    \omitvalue Accel
-    \omitvalue AccelAvailable
-    \omitvalue AccelOverride
 
     User events should have values between User and MaxUser inclusive.
 */

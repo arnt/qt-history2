@@ -1000,8 +1000,8 @@ void QPaintEngine::setPaintDevice(QPaintDevice *device)
 }
 
 /*!
-    Returns the engine that this engine is painting on if painting is
-    active; otherwise 0;
+    Returns the engine that this engine is painting on, if painting is
+    active; otherwise returns 0.
 */
 QPaintDevice *QPaintEngine::paintDevice() const
 {

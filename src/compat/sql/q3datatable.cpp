@@ -117,7 +117,7 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
     SQL data from a \l Q3SqlCursor in a table.
 
     If you want a to present your data in a form use QDataBrowser, or
-    for read-only forms, QDataView.
+    for read-only forms, use QDataView instead.
 
     When displaying data, Q3DataTable only retrieves data for visible
     rows. If the driver supports the 'query size' property the

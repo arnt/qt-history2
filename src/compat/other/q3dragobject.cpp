@@ -1101,6 +1101,8 @@ bool Q3UriDrag::canDecode(const QMimeSource* e)
 }
 
 /*!
+    \fn bool Q3UriDrag::decode(const QMimeSource* source, Q3StrList& list)
+
     Decodes URIs from the MIME \a source, placing the result in the \a list.
     The list is cleared before any items are inserted.
 
