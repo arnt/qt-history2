@@ -18,13 +18,7 @@
 **
 **********************************************************************/
 
-#define Q_INITGUID
 #include "designerappiface.h"
-#include "filterinterface.h"
-#include "../shared/editorinterface.h"
-#include "actioninterface.h"
-#include "widgetinterface.h"
-#undef Q_INITGUID
 
 #include "mainwindow.h"
 #include "defs.h"
@@ -3632,7 +3626,7 @@ void MainWindow::setupActionManager()
 {
     QString dir = getenv( "QTDIR" );
     dir += "/plugins";
-    QUnknownInterface *appInterface = (QUnknownInterface*)(QComponentInterface*)(new DesignerApplicationInterfaceImpl);
+    QUnknownInterface *appInterface = new DesignerApplicationInterfaceImpl;
     actionPluginManager = new QInterfaceManager<ActionInterface>( IID_ActionInterface, dir, "*.dll; *.so" );
 
     QStringList lst = actionPluginManager->featureList();

@@ -89,12 +89,13 @@ SOURCES	= command.cpp \
 		  projectsettingsimpl.cpp \
 		  dbconnectionsimpl.cpp \
 		  tableeditorimpl.cpp \
-		  sourceeditor.cpp
+		  sourceeditor.cpp \
+		  ../shared/guid.cpp
 
 TARGET	= designer
 INCLUDEPATH	= ../shared ../util ../resource ../../../src/3rdparty/zlib/
 unix:LIBS	+= -lqutil -L$(QTDIR)/lib -lqresource
-win32:LIBS	+= $(QTDIR)/lib/qutil.lib -L$(QTDIR)/qresource.lib
+win32:LIBS	+= $(QTDIR)/lib/qutil.lib $(QTDIR)/qresource.lib
 DEFINES	+= DESIGNER
 DESTDIR	= $(QTDIR)/bin
 win32-msvc:RC_FILE = designer.rc

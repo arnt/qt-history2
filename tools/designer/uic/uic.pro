@@ -9,7 +9,8 @@ HEADERS	= uic.h \
 SOURCES	= uic.cpp  \
 		  ../shared/widgetdatabase.cpp  \
 		  ../shared/domtool.cpp \
-		   ../integration/kdevelop/kdewidgets.cpp
+		  ../integration/kdevelop/kdewidgets.cpp \
+		  ../shared/guid.cpp
 
 TARGET		= uic
 INCLUDEPATH	= ../shared ../util ../../../src/3rdparty/zlib/
