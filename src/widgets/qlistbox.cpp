@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#167 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#168 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1410,6 +1410,11 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 		toggleCurrentItem();
 	}
 	e->accept();
+	break;
+    case Key_Left:
+    case Key_Right:
+	if ( bottomScrollBar() )
+	    QApplication::sendEvent( horizontalScrollBar(), e );
 	break;
     case Key_Next:
 	e->accept();
