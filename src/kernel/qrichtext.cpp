@@ -4089,7 +4089,7 @@ void QTextParag::format( int start, bool doMove )
     firstFormat = FALSE;
     changed = TRUE;
     invalid = -1;
-    string()->setTextChanged( FALSE );
+    //#####   string()->setTextChanged( FALSE );
 }
 
 int QTextParag::lineHeightOfChar( int i, int *bl, int *y ) const
