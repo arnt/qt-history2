@@ -483,8 +483,14 @@ QWSPcMouseHandler::UsageResult QWSPcMouseHandler::useDev(Dev& d)
 
 bool QWSPcMouseHandlerPrivate::sendEvent(QWSPcMouseSubHandler& h)
 {
+    static const int accel_limit = 5;
+    static const int accel = 2;
+
     if ( h.reliable() ) {
-	QPoint newPos = handler->pos() + h.takeMotion();
+	QPoint motion = h.takeMotion();
+	if ( QABS(motion.x()) > accel_limit || QABS(motion.y()) > accel_limit )
+	    motion *= accel;
+	QPoint newPos = handler->pos() + motion;
 	handler->limitToScreen( newPos );
 /*
         qDebug("%d,%d %c%c%c",
