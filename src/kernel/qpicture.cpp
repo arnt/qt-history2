@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#5 $
 **
 ** Implementation of QMetaFile class
 **
@@ -18,7 +18,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#5 $";
 #endif
 
 
@@ -103,7 +103,7 @@ bool QMetaFile::play( QPainter *painter )
     }
     if ( c !=  PDC_BEGIN ) {
 #if defined(CHECK_RANGE)
-	warning( "QMetaFile::play: Internal format error" );
+	warning( "QMetaFile::play: Format error" );
 #endif
 	mfbuf.close();
 	return FALSE;
@@ -272,8 +272,11 @@ bool QMetaFile::exec( QPainter *painter, QDataStream &s, long nrecords )
 	        s >> i_8;
 	        painter->setClipping( i_8 );
 	        break;
-	    case PDC_SETCLIPRGN:
-		debug( "QMetaFile::play: SETCLIPRGN not implemented" );
+	    case PDC_SETCLIPRGN: {
+		QRegion rgn;
+		s >> rgn;
+		painter->setClipRegion( rgn );
+	        }
 		break;
 	    default:
 #if defined(CHECK_RANGE)
@@ -390,7 +393,7 @@ bool QMetaFile::cmd( int c, QPDevCmdParam *p )
 	    s << *p[0].m << (INT8)p[1].i;
 	    break;
 	case PDC_SETCLIPRGN:
-	    debug( "QMetaFile::cmd: SETCLIPRGN not implemented" );
+	    s << *p[0].rgn;
 	    break;
 #if defined(CHECK_RANGE)
 	default:
@@ -415,5 +418,5 @@ bool QMetaFile::cmd( int c, QPDevCmdParam *p )
 
 void QPainter::drawMetaFile( const QMetaFile &mf )
 {
-    mf.play( (QPainter*)this );
+    ((QMetaFile*)&mf)->play( (QPainter*)this );
 }
