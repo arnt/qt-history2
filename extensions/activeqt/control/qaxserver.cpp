@@ -82,7 +82,7 @@ static int initCount = 0;
 
 void qAxInit()
 {
-    if (initCount)
+    if (initCount++)
 	return;
 
     InitializeCriticalSection( &qAxModuleSection );
@@ -94,8 +94,6 @@ void qAxInit()
 	libFile = libFile.left( lastDot ) + ".tlb";
 	LoadTypeLibEx( (TCHAR*)libFile.ucs2(), REGKIND_NONE, &qAxTypeLibrary );
     }
-
-    ++initCount;
 }
 
 void qAxCleanup()
