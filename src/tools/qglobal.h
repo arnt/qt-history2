@@ -761,6 +761,10 @@ class QDataStream;
 #  endif
 #endif
 
+#if !defined(Q_WS_QWS) && !defined(QT_NO_COP)
+#  define QT_NO_COP
+#endif
+
 #ifndef QT_H
 #include <qfeatures.h>
 #endif // QT_H
