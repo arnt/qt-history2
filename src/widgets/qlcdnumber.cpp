@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#69 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -160,9 +160,9 @@ static QString double2string( double num, int base, int ndigits, bool *oflow )
 }
 
 
-static char *getSegments( char ch )		// gets list of segments for ch
+static const char *getSegments( char ch )		// gets list of segments for ch
 {
-    static char segments[30][8] =
+    static const char segments[30][8] =
        { { 0, 1, 2, 4, 5, 6,99, 0},		// 0	0 / O
 	 { 2, 5,99, 0, 0, 0, 0, 0},		// 1	1
 	 { 0, 2, 3, 4, 6,99, 0, 0},		// 2	2
@@ -601,9 +601,9 @@ void QLCDNumber::setSmallDecimalPoint( bool b )
 void QLCDNumber::drawContents( QPainter *p )
 {
     if ( smallPoint )
-	drawString( digitStr, *p, &points, FALSE );
+	drawString( digitStr, *p, &points );
     else
-	drawString( digitStr, *p, 0, FALSE );
+	drawString( digitStr, *p, 0 );
 }
 
 /*!
@@ -615,7 +615,6 @@ void QLCDNumber::internalDisplay( const QString &s )
     QString buffer;
     int i;
     int len = s.length();
-    QPainter p( this );
 
     if ( !smallPoint ) {
 	if ( len >= ndigits ) {
@@ -627,7 +626,7 @@ void QLCDNumber::internalDisplay( const QString &s )
 	    for( i=0; i<len; i++ )
 		buffer[ndigits - len + i] = s[i];
 	}
-	drawString( buffer, p );
+	internalSetString(buffer,0);
    } else {
 	int  index = -1;
 	bool lastWasPoint = TRUE;
@@ -663,8 +662,10 @@ void QLCDNumber::internalDisplay( const QString &s )
 		newPoints.clearBit(i);
 	    }
 	}
-	drawString(buffer,p,&newPoints);
+	internalSetString(buffer,&newPoints);
     }
+
+    repaint();
 }
 
 /*!
@@ -672,7 +673,7 @@ void QLCDNumber::internalDisplay( const QString &s )
 */
 
 void QLCDNumber::drawString( const QString &s, QPainter &p,
-			     QBitArray *newPoints, bool newString )
+			     QBitArray *newPoints ) const
 {
     QPoint  pos;
 
@@ -686,27 +687,21 @@ void QLCDNumber::drawString( const QString &s, QPainter &p,
 
     for ( int i=0;  i<ndigits; i++ ) {
 	pos = QPoint( xOffset + xAdvance*i, yOffset );
-	if ( newString )
-	    drawDigit( pos, p, segLen, s[i], digitStr[i] );
-	else
-	    drawDigit( pos, p, segLen, s[i]);
+	drawDigit( pos, p, segLen, s[i]);
 	if ( newPoints ) {
 	    char newPoint = newPoints->testBit(i) ? '.' : ' ';
-	    if ( newString ) {
-		char oldPoint = points.testBit(i) ? '.' : ' ';
-		drawDigit( pos, p, segLen, newPoint, oldPoint );
-	    } else {
-		drawDigit( pos, p, segLen, newPoint );
-	    }
+	    drawDigit( pos, p, segLen, newPoint );
 	}
     }
-    if ( newString ) {
-	digitStr = s;
-	if ( (int)digitStr.length() > ndigits )
-	    digitStr.resize( ndigits );
-	if ( newPoints )
-	    points = *newPoints;
-    }
+}
+
+void QLCDNumber::internalSetString( const QString& s, const QBitArray* newPoints )
+{
+    digitStr = s;
+    if ( (int)digitStr.length() > ndigits )
+	digitStr.resize( ndigits );
+    if ( newPoints )
+	points = *newPoints;
 }
 
 
@@ -715,46 +710,12 @@ void QLCDNumber::drawString( const QString &s, QPainter &p,
 */
 
 void QLCDNumber::drawDigit( const QPoint &pos, QPainter &p, int segLen,
-			    char newCh, char oldCh )
+			    char ch ) const
 {
-// Draws and/or erases segments to change display of a single digit
-// from oldCh to newCh
-
-    char updates[18][2];	// can hold 2 times number of segments, only
-				// first 9 used if segment table is correct
-    int	 nErases;
-    int	 nUpdates;
-    char *segs;
-    int	 i,j;
-
-    const char erase	  = 0;
-    const char draw	  = 1;
-    const char leaveAlone = 2;
-
-    segs = getSegments(oldCh);
-    for ( nErases=0; segs[nErases] != 99; nErases++ ) {
-	updates[nErases][0] = erase;		// get segments to erase to
-	updates[nErases][1] = segs[nErases];	// remove old char
-    }
-    nUpdates = nErases;
-    segs = getSegments(newCh);
-    for(i = 0 ; segs[i] != 99 ; i++) {
-	for ( j=0;  j<nErases; j++ )
-	    if ( segs[i] == updates[j][1] ) {	// same segment ?
-		updates[j][0] = leaveAlone;	// yes, already on screen
-		break;
-	    }
-	if ( j == nErases ) {			// if not already on screen
-	    updates[nUpdates][0] = draw;
-	    updates[nUpdates][1] = segs[i];
-	    nUpdates++;
-	}
-    }
-    for ( i=0; i<nUpdates; i++ ) {
-	if ( updates[i][0] == draw )
-	    drawSegment( pos, updates[i][1], p, segLen );
-	if (updates[i][0] == erase)
-	    drawSegment( pos, updates[i][1], p, segLen, TRUE );
+    // Draws segments to change display of a single digit newCh
+    const char* segs = getSegments(ch);
+    for(int i = 0 ; segs[i] != 99 ; i++) {
+	drawSegment( pos, segs[i], p, segLen );
     }
 }
 
@@ -771,55 +732,11 @@ static void addPoint( QPointArray &a, const QPoint &p )
 */
 
 void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
-			      int segLen, bool erase )
+			      int segLen ) const
 {
     QPoint pt = pos;
     int width = segLen/5;
 
-    if ( erase ){
-	int x = pos.x();
-	int y = pos.y();
-	width+=2; //a bit much
-	QRect r;
-	switch( segmentNo ) {
-	case 0:
-	    r.setRect( x, y, segLen, width );
-	    break;
-	case 1:
-	    r.setRect( x, y,  width, segLen );
-	    break;
-	case 2:
-	    r.setRect( x + segLen - width, y, width, segLen );
-	    break;
-	case 3:
-	    r.setRect( x, y + segLen - width/2, segLen, width);
-	    break;
-	case 4:
-	    r.setRect( x, y + segLen, width, segLen );	
-	    break;
-	case 5:
-	    r.setRect( x +segLen - width, y + segLen, width, segLen );	
-	    break;
-	case 6:
-	    r.setRect( x, y + 2*segLen - width + 1, segLen, width);
-	    break;
-	case 7:
-	    if ( smallPoint )	// if smallpoint place'.' between other digits
-		r.setRect( x + segLen + width/2 , segLen*2 - width, width, width);
-	    else
-		r.setRect( x + segLen/2, segLen*2 - width, width, width);
-	    break;
-	case 8:
-	    r.setRect( x + segLen/2 - width/2 + 1 , y + segLen/2, width, width );
-	    break;
-	case 9:
-	    r.setRect( x + segLen/2 - width/2 + 1 , y + 3*segLen/2, width, width );
-	    break;
-	}
-	//p.setBrush(green); p.drawRect(r);
-	update( r );
-	return;
-    }
     QColorGroup g = colorGroup();
     QColor lightColor,darkColor,fgColor;
 

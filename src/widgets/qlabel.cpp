@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#102 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#103 $
 **
 ** Implementation of QLabel widget class
 **
@@ -489,7 +489,7 @@ QSize QLabel::sizeHint() const
 
 /*!
   Specifies that this widget may stretch horizontally and
-  vertically.
+  vertically beyond the sizeHint().
 */
 
 QSizePolicy QLabel::sizePolicy() const
