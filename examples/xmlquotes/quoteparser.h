@@ -7,6 +7,10 @@
 ** program may be used, distributed and modified without limitation.
 **
 *****************************************************************************/
+
+#ifndef QUOTEPARSER_H
+#define QUOTEPARSER_H
+
 #include <qxml.h>
 #include <qstringlist.h>
 
@@ -49,3 +53,5 @@ private:
     };
     State state;
 };
+
+#endif // QUOTEPARSER_H
