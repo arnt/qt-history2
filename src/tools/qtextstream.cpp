@@ -263,7 +263,7 @@ void QTextStream::init()
 QTextStream::QTextStream()
 {
     init();
-    setEncoding( Locale ); //###
+    setEncoding( Locale );
     reset();
     d->sourceType = QTextStreamPrivate::NotSet;
 }
@@ -275,7 +275,7 @@ QTextStream::QTextStream()
 QTextStream::QTextStream( QIODevice *iod )
 {
     init();
-    setEncoding( Locale ); //###
+    setEncoding( Locale );
     dev = iod;
     reset();
     d->sourceType = QTextStreamPrivate::IODevice;
@@ -301,7 +301,7 @@ public:
 protected:
     QString* s;
 
-private:        // Disabled copy constructor and operator=
+private:
     QStringBuffer( const QStringBuffer & );
     QStringBuffer &operator=( const QStringBuffer & );
 };
@@ -325,17 +325,17 @@ bool QStringBuffer::open( int m )
 #endif
 	return FALSE;
     }
-    if ( isOpen() ) {                           // buffer already open
+    if ( isOpen() ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QStringBuffer::open: Buffer already open" );
 #endif
 	return FALSE;
     }
     setMode( m );
-    if ( m & IO_Truncate ) {                    // truncate buffer
+    if ( m & IO_Truncate )
 	s->truncate( 0 );
-    }
-    if ( m & IO_Append ) {                      // append to end of buffer
+
+    if ( m & IO_Append ) {
 	ioIndex = s->length()*sizeof(QChar);
     } else {
 	ioIndex = 0;
@@ -394,11 +394,11 @@ Q_LONG QStringBuffer::readBlock( char *p, Q_ULONG len )
 {
 #if defined(QT_CHECK_STATE)
     Q_CHECK_PTR( p );
-    if ( !isOpen() ) {                          // buffer not open
+    if ( !isOpen() ) {
 	qWarning( "QStringBuffer::readBlock: Buffer not open" );
 	return -1;
     }
-    if ( !isReadable() ) {                      // reading not permitted
+    if ( !isReadable() ) {
 	qWarning( "QStringBuffer::readBlock: Read operation not permitted" );
 	return -1;
     }
@@ -424,11 +424,11 @@ Q_LONG QStringBuffer::writeBlock( const char *p, Q_ULONG len )
 	qWarning( "QStringBuffer::writeBlock: Null pointer error" );
 #endif
 #if defined(QT_CHECK_STATE)
-    if ( !isOpen() ) {                          // buffer not open
+    if ( !isOpen() ) {
 	qWarning( "QStringBuffer::writeBlock: Buffer not open" );
 	return -1;
     }
-    if ( !isWritable() ) {                      // writing not permitted
+    if ( !isWritable() ) {
 	qWarning( "QStringBuffer::writeBlock: Write operation not permitted" );
 	return -1;
     }
@@ -449,11 +449,11 @@ Q_LONG QStringBuffer::writeBlock( const char *p, Q_ULONG len )
 int QStringBuffer::getch()
 {
 #if defined(QT_CHECK_STATE)
-    if ( !isOpen() ) {                          // buffer not open
+    if ( !isOpen() ) {
 	qWarning( "QStringBuffer::getch: Buffer not open" );
 	return -1;
     }
-    if ( !isReadable() ) {                      // reading not permitted
+    if ( !isReadable() ) {
 	qWarning( "QStringBuffer::getch: Read operation not permitted" );
 	return -1;
     }
@@ -462,7 +462,7 @@ int QStringBuffer::getch()
 	setStatus( IO_ReadError );
 	return -1;
     }
-    return (int) *( (const char *) s->unicode() + ioIndex++ );
+    return (int)((const uchar *)s->unicode())[ioIndex++];
 }
 
 int QStringBuffer::putch( int ch )
@@ -477,11 +477,11 @@ int QStringBuffer::putch( int ch )
 int QStringBuffer::ungetch( int ch )
 {
 #if defined(QT_CHECK_STATE)
-    if ( !isOpen() ) {                          // buffer not open
+    if ( !isOpen() ) {
 	qWarning( "QStringBuffer::ungetch: Buffer not open" );
 	return -1;
     }
-    if ( !isReadable() ) {                      // reading not permitted
+    if ( !isReadable() ) {
 	qWarning( "QStringBuffer::ungetch: Read operation not permitted" );
 	return -1;
     }
@@ -646,13 +646,13 @@ void QTextStream::skipWhiteSpace()
 */
 uint QTextStream::ts_getbuf( QChar* buf, uint len )
 {
-    if( len < 1 )
+    if ( len < 1 )
 	return 0;
 
-    uint rnum=0;   // the number of QChars really read
+    uint rnum = 0;   // the number of QChars really read
 
     if ( d && d->ungetcBuf.length() ) {
-	while( rnum < len && rnum < d->ungetcBuf.length() ) {
+	while ( rnum < len && rnum < d->ungetcBuf.length() ) {
 	    *buf = d->ungetcBuf.constref( rnum );
 	    buf++;
 	    rnum++;
@@ -746,7 +746,7 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 		}
 		char b = c;
 		uint lengthBefore = s.length();
-		s  += d->decoder->toUnicode( &b, 1 );
+		s += d->decoder->toUnicode( &b, 1 );
 		if ( s.length() > lengthBefore )
 		    break; // it seems we are in sync now
 	    }
@@ -757,9 +757,10 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 		buf++;
 	    }
 	    rnum += end;
-	    if ( s.length() > i )
+	    if ( s.length() > i ) {
 		// could be = but append is clearer
 		d->ungetcBuf.append( s.mid( i ) );
+	    }
 	    if ( shortRead )
 		return rnum;
 	}
@@ -1727,19 +1728,17 @@ QString QTextStream::readLine()
     }
 #endif
     if ( readCharByChar ) {
-	// read character by character
 	const int buf_size = 256;
 	QChar c[buf_size];
 	int pos = 0;
 
 	c[pos] = ts_getc();
-	if ( c[pos] == QEOF ) {
+	if ( c[pos] == QEOF )
 	    return QString::null;
-	}
 
 	while ( c[pos] != QEOF && c[pos] != '\n' ) {
 	    if ( c[pos] == '\r' ) { // ( handle mac and dos )
-		QChar nextc =  ts_getc();
+		QChar nextc = ts_getc();
 		if ( nextc != '\n' )
 		    ts_ungetc( nextc );
 		break;
