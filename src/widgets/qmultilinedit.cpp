@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#107 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#108 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -51,6 +51,11 @@
 
   <img src=qmlined-m.gif> <img src=qmlined-w.gif>
  */
+
+struct QMultiLineData
+{
+    bool isHandlingEvent;
+};
 
 static const int BORDER = 3;
 
@@ -171,6 +176,8 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     markDragY      = 0;
     blinkTimer     = 0;
     scrollTimer    = 0;
+    mlData = new QMultiLineData;
+    mlData->isHandlingEvent = FALSE;
 }
 
 /*! \fn int QMultiLineEdit::numLines() const
@@ -269,6 +276,7 @@ void QMultiLineEdit::setReadOnly( bool on )
 QMultiLineEdit::~QMultiLineEdit()
 {
     delete contents;
+    delete mlData;
 }
 
 const int nBuffers = 3;
@@ -772,6 +780,7 @@ void QMultiLineEdit::wheelEvent( QWheelEvent *e ){
 void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 {
     textDirty = FALSE;
+    mlData->isHandlingEvent = TRUE;
     int unknown = 0;
     if ( readOnly ) {
 	int pageSize = viewHeight() / cellHeight();
@@ -800,6 +809,7 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	}
 	if ( unknown )
 	    e->ignore();
+	mlData->isHandlingEvent = FALSE;
 	return;
     }
     if ( e->ascii() >= 32 &&
@@ -808,6 +818,7 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	insertChar( e->ascii() );
 	if ( textDirty )
 	    emit textChanged();
+	mlData->isHandlingEvent = FALSE;
 	return;
     }
     if ( e->state() & QMouseEvent::ControlButton ) {
@@ -897,10 +908,10 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
     if ( textDirty )
 	emit textChanged();
 
-    if ( unknown ) {				// unknown key
+    if ( unknown )				// unknown key
 	e->ignore();
-	return;
-    }
+
+    mlData->isHandlingEvent = FALSE;
 }
 
 
@@ -1549,6 +1560,7 @@ void QMultiLineEdit::end( bool mark )
 
 void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 {
+    mlData->isHandlingEvent = TRUE;
     if ( m->button() == QMouseEvent::MidButton ) {
 	if ( hasMarkedText() ) {
 #if defined(_WS_X11_)
@@ -1584,6 +1596,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 	if ( markWasOn ) {
 	    cursorY = newY;
 	    repaint( FALSE );
+	    mlData->isHandlingEvent = FALSE;
 	    return;
 	}	
     }
@@ -1597,8 +1610,10 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 	}
 	updateCell( cursorY, 0, FALSE );		// ###
     }
-    if ( readOnly )
+    if ( readOnly ) {
+	mlData->isHandlingEvent = FALSE;
     	return;
+    }
     if ( m->button() == QMouseEvent::MidButton ) {
 #if defined(_WS_X11_)
 	paste();		// Will repaint the cursor line.
@@ -1609,6 +1624,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
     }
     if ( textDirty )
 	emit textChanged();
+    mlData->isHandlingEvent = FALSE;
 }
 
 /*!
@@ -1848,6 +1864,8 @@ void QMultiLineEdit::paste()
 	curXPos  = 0;
 	makeVisible();
     }
+    if ( textDirty && !mlData->isHandlingEvent )
+	emit textChanged();
 }
 
 
@@ -1865,6 +1883,8 @@ void QMultiLineEdit::clear()
     dummy = TRUE;
     markIsOn = FALSE;
     repaint( TRUE );
+    if ( !mlData->isHandlingEvent ) //# && not already empty
+	emit textChanged();
 }
 
 
@@ -1974,6 +1994,8 @@ void QMultiLineEdit::cut()
     if ( hasMarkedText() ) {
 	copyText();
 	del();
+	if ( textDirty && !mlData->isHandlingEvent )
+	    emit textChanged();
     }
 }
 
