@@ -1390,7 +1390,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
                     for (int g = end_glyph - 1; g >= start_glyph; --g)
                         swidth += glyphs[g].advance.x() + ((float)glyphs[g].space_18d6)/64.;
                 } else {
-                    for (int g = start; g < start_glyph; ++g)
+                    for (int g = 0; g < start_glyph; ++g)
                         soff += glyphs[g].advance.x() + ((float)glyphs[g].space_18d6)/64.;
                     for (int g = start_glyph; g < end_glyph; ++g)
                         swidth += glyphs[g].advance.x() + ((float)glyphs[g].space_18d6)/64.;
