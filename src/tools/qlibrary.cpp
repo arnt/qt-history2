@@ -55,7 +55,7 @@
 
 // KAI C++ has at the moment problems with unloading the Qt plugins. So don't
 // unload them as a workaround for now.
-#if defined(Q_CC_KAI) || defined(Q_OS_MAC)
+#if defined(Q_CC_KAI) || defined(Q_OS_MAC) || defined(Q_OS_HPUX)
 #define QT_NO_LIBRARY_UNLOAD
 #endif
 
