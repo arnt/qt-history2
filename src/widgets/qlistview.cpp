@@ -4238,7 +4238,7 @@ void QListView::doAutoScroll()
     }
 
     setCurrentItem( c );
-    d->visibleTimer->start( 0, TRUE );
+    d->visibleTimer->start( 1, TRUE );
 }
 
 /*!\reimp
