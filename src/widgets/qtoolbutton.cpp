@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#23 $
 **
 ** Implementation of QToolButton class
 **
@@ -22,7 +22,7 @@
 #include "qiconset.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#23 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -90,7 +90,8 @@ QToolButton::QToolButton( const QPixmap & pm, const char * textLabel,
     init();
     setPixmap( pm );
     setTextLabel( textLabel );
-    connect( this, SIGNAL(clicked()), receiver, slot );
+    if ( receiver && slot )
+	connect( this, SIGNAL(clicked()), receiver, slot );
     if ( parent->parentWidget() ) {
 	connect( parent->parentWidget(), SIGNAL(pixmapSizeChanged(bool)),
 		 this, SLOT(setUsesBigPixmap(bool)) );
