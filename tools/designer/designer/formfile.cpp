@@ -184,7 +184,7 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified )
 	return TRUE;
     if ( ed )
 	ed->save();
-    else if ( !cm && !ignoreModified )
+    else if ( isPackage() && !cm && !ignoreModified )
 	loadCode();
 
     if ( isModified( WFormWindow ) ) {

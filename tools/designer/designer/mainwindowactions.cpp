@@ -1500,19 +1500,19 @@ void MainWindow::fileExport( QObject *o )
     statusBar()->message( tr( "Enter a filename..." ) );
     if ( o->inherits( "SourceFile" ) ) {
 	SourceFile *sf = (SourceFile*)o;
+	sf->setPackage( TRUE );
 	if ( !sf->saveAs( TRUE ) )
 	    return;
 	QString fn = sf->fileName();
 	currentProject->setModified( TRUE );
-	sf->setPackage( TRUE );
     } else if ( o->inherits( "FormFile" ) ) {
 	FormFile *ff = (FormFile*)o;
 	ff->load();
+	ff->setPackage( TRUE );
 	if ( !ff->saveAs( TRUE ) )
 	    return;
 	QString fn = ff->fileName();
 	currentProject->setModified( TRUE );
-	ff->setPackage( TRUE );
     }
 }
 
