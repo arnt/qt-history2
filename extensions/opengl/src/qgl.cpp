@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#40 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#41 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -976,7 +976,7 @@ void QGLContext::setFormat( const QGLFormat &format )
 */
 
 /*!
-  \fn void const QGLContext* QGLContext::currentContext()
+  \fn const QGLContext* QGLContext::currentContext()
 
   Returns the current context, i.e. the context to which any OpenGL
   commands will currently be directed to. Returns 0 if no context is
