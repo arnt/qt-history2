@@ -190,6 +190,7 @@ class QXmlDefaultHandlerPrivate
 
 /*!
     \class QXmlParseException qxml.h
+    \reentrant
     \brief The QXmlParseException class is used to report errors with
     the QXmlErrorHandler interface.
 \if defined(commercial)
@@ -254,6 +255,7 @@ QString QXmlParseException::systemId() const
 
 /*!
     \class QXmlLocator qxml.h
+    \reentrant
     \brief The QXmlLocator class provides the XML handler classes with
     information about the parsing position within a file.
 \if defined(commercial)
@@ -352,6 +354,7 @@ public:
 
 /*!
     \class QXmlNamespaceSupport qxml.h
+    \reentrant
     \brief The QXmlNamespaceSupport class is a helper class for XML
     readers which want to include namespace support.
 \if defined(commercial)
@@ -616,6 +619,7 @@ void QXmlNamespaceSupport::reset()
 
 /*!
     \class QXmlAttributes qxml.h
+    \reentrant
     \brief The QXmlAttributes class provides XML attributes.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
@@ -860,6 +864,7 @@ void QXmlAttributes::append( const QString &qName, const QString &uri, const QSt
 
 /*!
     \class QXmlInputSource qxml.h
+    \reentrant
     \brief The QXmlInputSource class provides the input data for the
     QXmlReader subclasses.
 \if defined(commercial)
@@ -1174,6 +1179,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
     \class QXmlContentHandler qxml.h
+    \reentrant
     \brief The QXmlContentHandler class provides an interface to
     report the logical content of XML data.
 \if defined(commercial)
@@ -1422,6 +1428,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
     \class QXmlErrorHandler qxml.h
+    \reentrant
     \brief The QXmlErrorHandler class provides an interface to report
     errors in XML data.
 \if defined(commercial)
@@ -1495,6 +1502,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
     \class QXmlDTDHandler qxml.h
+    \reentrant
     \brief The QXmlDTDHandler class provides an interface to report
     DTD content of XML data.
 \if defined(commercial)
@@ -1560,6 +1568,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
     \class QXmlEntityResolver qxml.h
+    \reentrant
     \brief The QXmlEntityResolver class provides an interface to
     resolve external entities contained in XML data.
 \if defined(commercial)
@@ -1614,6 +1623,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
     \class QXmlLexicalHandler qxml.h
+    \reentrant
     \brief The QXmlLexicalHandler class provides an interface to
     report the lexical content of XML data.
 \if defined(commercial)
@@ -1763,6 +1773,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
     \class QXmlDeclHandler qxml.h
+    \reentrant
     \brief The QXmlDeclHandler class provides an interface to report declaration
     content of XML data.
 \if defined(commercial)
@@ -1848,6 +1859,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
     \class QXmlDefaultHandler qxml.h
+    \reentrant
     \brief The QXmlDefaultHandler class provides a default implementation of all
     the XML handler classes.
 \if defined(commercial)
@@ -2286,6 +2298,17 @@ private:
     };
     QStack<ParseState*> *parseStack;
 
+    // used in parseProlog()
+    bool xmldecl_possible;
+    bool doctype_read;
+
+    // used in parseDoctype()
+    bool startDTDwasReported;
+
+    // used in parseString()
+    signed char Done;
+
+
     // friend declarations
     friend class QXmlSimpleReader;
 };
@@ -2299,6 +2322,7 @@ private:
 
 /*!
     \class QXmlReader qxml.h
+    \reentrant
     \brief The QXmlReader class provides an interface for XML readers (i.e.
     parsers).
 \if defined(commercial)
@@ -2518,6 +2542,7 @@ private:
 
 /*!
     \class QXmlSimpleReader qxml.h
+    \reentrant
     \brief The QXmlSimpleReader class provides an implementation of a
     simple XML reader (parser).
 \if defined(commercial)
@@ -3019,9 +3044,6 @@ bool QXmlSimpleReader::parseBeginOrContinue( int state, bool incremental )
 */
 bool QXmlSimpleReader::parseProlog()
 {
-    static bool xmldecl_possible;
-    static bool doctype_read;
-
     const signed char Init             = 0;
     const signed char EatWS            = 1; // eat white spaces
     const signed char Lt               = 2; // '<' read
@@ -3057,8 +3079,8 @@ bool QXmlSimpleReader::parseProlog()
     signed char input;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
-	xmldecl_possible = TRUE;
-	doctype_read = FALSE;
+	d->xmldecl_possible = TRUE;
+	d->doctype_read = FALSE;
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
@@ -3084,11 +3106,11 @@ bool QXmlSimpleReader::parseProlog()
     for (;;) {
 	switch ( state ) {
 	    case DocType:
-		if ( doctype_read ) {
+		if ( d->doctype_read ) {
 		    reportParseError( XMLERR_MORETHANONEDOCTYPE );
 		    return FALSE;
 		} else {
-		    doctype_read = FALSE;
+		    d->doctype_read = FALSE;
 		}
 		break;
 	    case Comment:
@@ -3103,7 +3125,7 @@ bool QXmlSimpleReader::parseProlog()
 	    case PInstr:
 		// call the handler
 		if ( contentHnd ) {
-		    if ( xmldecl_possible && !d->xmlVersion.isEmpty() ) {
+		    if ( d->xmldecl_possible && !d->xmlVersion.isEmpty() ) {
 			QString value( "version = '" );
 			value += d->xmlVersion;
 			value += "'";
@@ -3129,7 +3151,7 @@ bool QXmlSimpleReader::parseProlog()
 		    }
 		}
 		// XML declaration only on first position possible
-		xmldecl_possible = FALSE;
+		d->xmldecl_possible = FALSE;
 		state = PInstrR;
 		break;
 	    case Done:
@@ -3163,7 +3185,7 @@ bool QXmlSimpleReader::parseProlog()
 	switch ( state ) {
 	    case EatWS:
 		// XML declaration only on first position possible
-		xmldecl_possible = FALSE;
+		d->xmldecl_possible = FALSE;
 		if ( !eat_ws() ) {
 		    parseFailed( &QXmlSimpleReader::parseProlog, state );
 		    return FALSE;
@@ -3174,7 +3196,7 @@ bool QXmlSimpleReader::parseProlog()
 		break;
 	    case Em:
 		// XML declaration only on first position possible
-		xmldecl_possible = FALSE;
+		d->xmldecl_possible = FALSE;
 		next();
 		break;
 	    case DocType:
@@ -3192,7 +3214,7 @@ bool QXmlSimpleReader::parseProlog()
 		break;
 	    case PInstr:
 	    case PInstrR:
-		d->parsePI_xmldecl = xmldecl_possible;
+		d->parsePI_xmldecl = d->xmldecl_possible;
 		if ( !parsePI() ) {
 		    parseFailed( &QXmlSimpleReader::parseProlog, state );
 		    return FALSE;
@@ -4250,8 +4272,6 @@ bool QXmlSimpleReader::parsePI()
 */
 bool QXmlSimpleReader::parseDoctype()
 {
-    static bool startDTDwasReported;
-
     const signed char Init             =  0;
     const signed char Doctype          =  1; // read the doctype
     const signed char Ws1              =  2; // eat_ws
@@ -4296,7 +4316,7 @@ bool QXmlSimpleReader::parseDoctype()
     signed char input;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
-	startDTDwasReported = FALSE;
+	d->startDTDwasReported = FALSE;
 	d->systemId = QString::null;
 	d->publicId = QString::null;
 	state = Init;
@@ -4327,8 +4347,8 @@ bool QXmlSimpleReader::parseDoctype()
 		d->doctype = name();
 		break;
 	    case MP:
-		if ( !startDTDwasReported && lexicalHnd  ) {
-		    startDTDwasReported = TRUE;
+		if ( !d->startDTDwasReported && lexicalHnd  ) {
+		    d->startDTDwasReported = TRUE;
 		    if ( !lexicalHnd->startDTD( d->doctype, d->publicId, d->systemId ) ) {
 			reportParseError( lexicalHnd->errorString() );
 			return FALSE;
@@ -4428,8 +4448,8 @@ bool QXmlSimpleReader::parseDoctype()
 		break;
 	    case Done:
 		if ( lexicalHnd ) {
-		    if ( !startDTDwasReported ) {
-			startDTDwasReported = TRUE;
+		    if ( !d->startDTDwasReported ) {
+			d->startDTDwasReported = TRUE;
 			if ( !lexicalHnd->startDTD( d->doctype, d->publicId, d->systemId ) ) {
 			    reportParseError( lexicalHnd->errorString() );
 			    return FALSE;
@@ -7201,8 +7221,6 @@ bool QXmlSimpleReader::processReference()
 */
 bool QXmlSimpleReader::parseString()
 {
-    static signed char Done;
-
     const signed char InpCharExpected  = 0; // the character that was expected
     const signed char InpUnknown       = 1;
 
@@ -7210,7 +7228,7 @@ bool QXmlSimpleReader::parseString()
     signed char input;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
-	Done = d->parseString_s.length();
+	d->Done = d->parseString_s.length();
 	state = 0;
     } else {
 	state = d->parseStack->top()->state;
@@ -7234,7 +7252,7 @@ bool QXmlSimpleReader::parseString()
     }
 
     for (;;) {
-	if ( state == Done ) {
+	if ( state == d->Done ) {
 	    return TRUE;
 	}
 
