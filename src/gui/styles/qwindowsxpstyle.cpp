@@ -44,6 +44,7 @@
 #include <qdrawutil.h>
 #include <qmap.h>
 #include <qevent.h>
+#include <qaction.h>
 #include <qt_windows.h>
 
 #include <uxtheme.h>
