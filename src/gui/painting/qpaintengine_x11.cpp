@@ -55,7 +55,7 @@
 #define q q_func()
 
 extern Drawable qt_x11Handle(const QPaintDevice *pd);
-extern QX11Info *qt_x11Info(const QPaintDevice *pd);
+extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
 
 // paintevent magic to provide Windows semantics on X11
 static QRegion* paintEventClipRegion = 0;
@@ -680,8 +680,9 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
 	    }
 	}
 
-	if (aet.size()%2 != 0)
-	    return;
+        Q_ASSERT(aet.size()%2 == 0);
+// 	if (aet.size()%2 != 0)
+// 	    return;
 
 	// done?
 	if (!aet.size()) {
@@ -1533,8 +1534,8 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
     int ts = src->devType();                        // from device type
     int td = dst->devType();                        // to device type
 
-    QX11Info *src_xf = qt_x11Info(src),
-	     *dst_xf = qt_x11Info(dst);
+    const QX11Info *src_xf = qt_x11Info(src),
+                   *dst_xf = qt_x11Info(dst);
 
     Q_ASSERT(src_xf != 0 && dst_xf != 0);
 

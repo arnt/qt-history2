@@ -986,7 +986,7 @@ void QPainterPathStrokerPrivate::joinPoints(const QLineF &nextLine,
         back1.x = isect.x();
         back1.y = isect.y();
     } else if (joinMethod != NoJoin) {
-        Qt::PenJoinStyle jStyle = joinStyle;
+        Qt::PenJoinStyle jStyle = type == QLineF::NoIntersection ? Qt::BevelJoin : joinStyle;
         // Actually a broken segment. Will be removed later, so minimize overhead
         if (pline.angle(bevelLine) > 90)
             jStyle = Qt::BevelJoin;

@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qline.h"
+#include <private/qnumeric_p.h>
 
 #include <math.h>
 
@@ -243,23 +244,25 @@ static bool qt_linef_intersect(float x1, float y1, float x2, float y2,
     is possible to get the actual intersection point. The intersection
     point is undefined if the lines are parallel.
 */
+
 QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPoint) const
 {
-    if (isNull() || l.isNull())
+    if (isNull() || l.isNull()
+        || qIsNan(p1.x()) || qIsNan(p1.y()) || qIsNan(p2.x()) || qIsNan(p2.y())
+        || qIsNan(l.p1.x()) || qIsNan(l.p1.y()) || qIsNan(l.p2.x()) || qIsNan(l.p2.y())
+        || qIsInf(p1.x()) || qIsInf(p1.y()) || qIsInf(p2.x()) || qIsInf(p2.y())
+        || qIsInf(l.p1.x()) || qIsInf(l.p1.y()) || qIsInf(l.p2.x()) || qIsInf(l.p2.y()))
         return NoIntersection;
-
-    // Parallell lines
-    if (vx() == l.vx() && vy() == l.vy()) {
-        return NoIntersection;
-    }
 
     QPointF isect;
     IntersectType type = qt_linef_intersect(p1.x(), p1.y(), p2.x(), p2.y(),
-                                  l.startX(), l.startY(), l.endX(), l.endY())
+                                            l.startX(), l.startY(), l.endX(), l.endY())
                          ? BoundedIntersection : UnboundedIntersection;
 
     // For special case where one of the lines are vertical
-    if (vx() == 0) {
+    if (vx() == 0 && l.vx() == 0) {
+        type = NoIntersection;
+    } else if (vx() == 0) {
         float la = l.vy() / l.vx();
         isect = QPointF(p1.x(), la * p1.x() + l.startY() - la*l.startX());
     } else if (l.vx() == 0) {
@@ -268,6 +271,9 @@ QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPo
     } else {
         float ta = vy()/vx();
         float la = l.vy()/l.vx();
+        if (ta == la) // no intersection
+            return NoIntersection;
+
         float x = ( - l.startY() + la * l.startX() + p1.y() - ta * p1.x() ) / (la - ta);
         isect = QPointF(x, ta*(x - p1.x()) + p1.y());
     }

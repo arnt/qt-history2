@@ -129,9 +129,9 @@ void TextOutline::showEvent(QShowEvent *)
         int h = height();
         int w2 = w/2, w4 = w/4, h2 = h/2, h4 = h/4;
 
-        pul = QPoint(w4-2, h4-2);
-        pur = QPoint(w2+w4, h4+4);
-        pbl = QPoint(w4, h2+h4+8);
+        pul = QPoint(w4, h4);
+        pur = QPoint(w2+w4, h4);
+        pbl = QPoint(w4, h2+h4);
         pbr = QPoint(w2+w4, h2+h4);
         updatePath();
     }

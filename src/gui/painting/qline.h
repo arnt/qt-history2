@@ -57,6 +57,7 @@ public:
     inline void moveBy(const QLineF &p);
 
     inline void operator+=(const QPointF &d);
+    inline bool operator==(const QLineF &d);
 
 private:
     QPointF p1, p2;
@@ -151,6 +152,11 @@ inline void QLineF::operator+=(const QPointF &d)
 {
     p1 += d;
     p2 += d;
+}
+
+inline bool QLineF::operator==(const QLineF &d)
+{
+    return p1 == d.p1 && p2 == d.p2;
 }
 
 #ifndef QT_NO_DEBUG
