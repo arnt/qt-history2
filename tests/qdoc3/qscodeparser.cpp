@@ -8,6 +8,10 @@
 #include "qscodeparser.h"
 #include "tree.h"
 
+#define COMMAND_FILE                Doc::alias( "file" )
+#define COMMAND_GROUP               Doc::alias( "group" )
+#define COMMAND_MODULE              Doc::alias( "module" )
+#define COMMAND_PAGE                Doc::alias( "page" )
 #define COMMAND_QUICKCLASS          Doc::alias( "quickclass" )
 #define COMMAND_QUICKFN             Doc::alias( "quickfn" )
 #define COMMAND_QUICKIFIED          Doc::alias( "quickified" )
@@ -73,8 +77,9 @@ FunctionNode *QsCodeParser::findFunctionNode( const QString& synopsis,
 
 Set<QString> QsCodeParser::topicCommands()
 {
-    return Set<QString>() << COMMAND_QUICKCLASS << COMMAND_QUICKFN
-			  << COMMAND_QUICKPROPERTY;
+    return Set<QString>() << COMMAND_FILE << COMMAND_GROUP << COMMAND_MODULE
+			  << COMMAND_PAGE << COMMAND_QUICKCLASS
+			  << COMMAND_QUICKFN << COMMAND_QUICKPROPERTY;
 }
 
 Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
@@ -83,7 +88,40 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
     ClassNode *wrapperClass = 0;
     ClassNode *qtClass = 0;
 
-    if ( command == COMMAND_QUICKCLASS ) {
+    if ( command == COMMAND_QUICKFN ) {
+	QStringList path;
+	FunctionNode *clone;
+
+	if ( makeFunctionNode(arg, &path, &clone) ) {
+	    FunctionNode *quickFunc = qsTre->findFunctionNode( path, clone );
+	    if ( quickFunc == 0 ) {
+		doc.location().warning( tr("Cannot resolve '%1' specified with"
+					   " '\\%2'")
+					.arg(arg).arg(command) );
+	    } else {
+		quickFunc->borrowParameterNames( clone );
+		setQuickDoc( quickFunc, doc );
+	    }
+	    delete clone;
+	} else {
+	    doc.location().warning( tr("Cannot resolve '%1' specified with"
+				       " '\\%2'")
+				    .arg(arg).arg(command) );
+	}
+	return 0;
+    } else if ( command == COMMAND_QUICKPROPERTY ) {
+	QStringList path = QStringList::split( ".", arg );
+	PropertyNode *quickProperty =
+		(PropertyNode *) qsTre->findNode( path, Node::Property );
+	if ( quickProperty == 0 ) {
+	    doc.location().warning( tr("Cannot resolve '%1' specified with"
+				       " '\\%2'")
+				    .arg(arg).arg(command) );
+	} else {
+	    setQuickDoc( quickProperty, doc );
+	}
+	return 0;
+    } else if ( command == COMMAND_QUICKCLASS ) {
 	QString qtClassName = "Q" + arg;
 
 	if ( (wrapperClass = tryClass("Quick" + arg + "Interface")) != 0 ) {
@@ -138,41 +176,8 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 	quickifyClass( quickClass, qtClass, wrapperClass );
 	setQuickDoc( quickClass, doc );
 	return 0;
-    } else if ( command == COMMAND_QUICKFN ) {
-	QStringList path;
-	FunctionNode *clone;
-
-	if ( makeFunctionNode(arg, &path, &clone) ) {
-	    FunctionNode *quickFunc = qsTre->findFunctionNode( path, clone );
-	    if ( quickFunc == 0 ) {
-		doc.location().warning( tr("Cannot resolve '%1' specified with"
-					   " '\\%2'")
-					.arg(arg).arg(command) );
-	    } else {
-		quickFunc->borrowParameterNames( clone );
-		setQuickDoc( quickFunc, doc );
-	    }
-	    delete clone;
-	} else {
-	    doc.location().warning( tr("Cannot resolve '%1' specified with"
-				       " '\\%2'")
-				    .arg(arg).arg(command) );
-	}
-	return 0;
-    } else if ( command == COMMAND_QUICKPROPERTY ) {
-	QStringList path = QStringList::split( ".", arg );
-	PropertyNode *quickProperty =
-		(PropertyNode *) qsTre->findNode( path, Node::Property );
-	if ( quickProperty == 0 ) {
-	    doc.location().warning( tr("Cannot resolve '%1' specified with"
-				       " '\\%2'")
-				    .arg(arg).arg(command) );
-	} else {
-	    setQuickDoc( quickProperty, doc );
-	}
-	return 0;
     } else {
-	return 0;
+	return CppCodeParser::processTopicCommand( doc, command, arg );
     }
 }
 

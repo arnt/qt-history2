@@ -120,9 +120,6 @@ static void processQdocFile( const QString& fileName )
 
     QStringList headers = config.getAllFiles( CONFIG_HEADERS, CONFIG_HEADERDIRS,
 					      "*.h" );
-    if ( headers.isEmpty() )
-	headers = config.getAllFiles( CONFIG_SOURCES, CONFIG_SOURCEDIRS,
-				      "*.h" );
     QStringList::ConstIterator h = headers.begin();
     while ( h != headers.end() ) {
 	codeParser->parseHeaderFile( config.location(), *h, tree );

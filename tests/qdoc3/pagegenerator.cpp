@@ -51,15 +51,17 @@ QTextStream& PageGenerator::out()
 void PageGenerator::generateInnerNode( const InnerNode *node,
 				       CodeMarker *marker )
 {
-    beginSubPage( node->location(), fileName(node) );
-    if ( node->type() == Node::Namespace ) {
-	generateNamespaceNode( (const NamespaceNode *) node, marker );
-    } else if ( node->type() == Node::Class ) {
-	generateClassNode( (const ClassNode *) node, marker );
-    } else if ( node->type() == Node::Fake ) {
-	generateFakeNode( (const FakeNode *) node, marker );
+    if ( node->parent() != 0 ) {
+	beginSubPage( node->location(), fileName(node) );
+	if ( node->type() == Node::Namespace ) {
+	    generateNamespaceNode( (const NamespaceNode *) node, marker );
+	} else if ( node->type() == Node::Class ) {
+	    generateClassNode( (const ClassNode *) node, marker );
+	} else if ( node->type() == Node::Fake ) {
+	    generateFakeNode( (const FakeNode *) node, marker );
+	}
+	endSubPage();
     }
-    endSubPage();
 
     NodeList::ConstIterator c = node->childNodes().begin();
     while ( c != node->childNodes().end() ) {

@@ -10,14 +10,17 @@
 class Atom
 {
 public:
-    enum Type { AbstractLeft, AbstractRight, BaseName, BriefLeft, BriefRight, C,
-		CaptionLeft, CaptionRight, Code, FootnoteLeft, FootnoteRight,
-		FormatLeft, FormatRight, GeneratedList, Image, Link, LinkNode,
-		ListLeft, ListItemNumber, ListItemLeft, ListItemRight,
-		ListRight, Nop, ParagraphLeft, ParagraphRight, QuotationLeft,
-		QuotationRight, RawFormat, RawString, SectionLeft, SectionRight,
-		SectionHeadingLeft, SectionHeadingRight, SidebarLeft,
-		SidebarRight, String, TableLeft, TableRight, TableOfContents,
+    enum Type { AbstractLeft, AbstractRight, BaseName, BriefLeft,
+		BriefRight, C, CaptionLeft, CaptionRight, Code,
+		FootnoteLeft, FootnoteRight, FormatElse, FormatEndif,
+		FormatIf, FormattingLeft, FormattingRight,
+		GeneratedList, Image, Link, LinkNode, ListLeft,
+		ListItemNumber, ListItemLeft, ListItemRight,
+		ListRight, Nop, ParagraphLeft, ParagraphRight,
+		QuotationLeft, QuotationRight, RawString,
+		SectionLeft, SectionRight, SectionHeadingLeft,
+		SectionHeadingRight, SidebarLeft, SidebarRight,
+		String, TableLeft, TableRight, TableOfContents,
 		Target, UnknownCommand, Last = UnknownCommand };
 
     Atom( Type type, const QString& string = "" )
@@ -41,20 +44,21 @@ private:
     QString str;
 };
 
-#define ATOM_FORMAT_BOLD        "bold"
-#define ATOM_FORMAT_INDEX       "index"
-#define ATOM_FORMAT_ITALIC      "italic"
-#define ATOM_FORMAT_LINK        "link"
-#define ATOM_FORMAT_SUBSCRIPT   "subscript"
-#define ATOM_FORMAT_SUPERSCRIPT "superscript"
-#define ATOM_FORMAT_TELETYPE    "teletype"
-#define ATOM_FORMAT_UNDERLINE   "underline"
+#define ATOM_FORMATTING_BOLD        "bold"
+#define ATOM_FORMATTING_INDEX       "index"
+#define ATOM_FORMATTING_ITALIC      "italic"
+#define ATOM_FORMATTING_LINK        "link"
+#define ATOM_FORMATTING_PARAMETER   "parameter"
+#define ATOM_FORMATTING_SUBSCRIPT   "subscript"
+#define ATOM_FORMATTING_SUPERSCRIPT "superscript"
+#define ATOM_FORMATTING_TELETYPE    "teletype"
+#define ATOM_FORMATTING_UNDERLINE   "underline"
 
-#define ATOM_LIST_BULLET        "bullet"
-#define ATOM_LIST_LOWERALPHA    "loweralpha"
-#define ATOM_LIST_LOWERROMAN    "lowerroman"
-#define ATOM_LIST_NUMERIC       "numeric"
-#define ATOM_LIST_UPPERALPHA    "upperalpha"
-#define ATOM_LIST_UPPERROMAN    "upperroman"
+#define ATOM_LIST_BULLET            "bullet"
+#define ATOM_LIST_LOWERALPHA        "loweralpha"
+#define ATOM_LIST_LOWERROMAN        "lowerroman"
+#define ATOM_LIST_NUMERIC           "numeric"
+#define ATOM_LIST_UPPERALPHA        "upperalpha"
+#define ATOM_LIST_UPPERROMAN        "upperroman"
 
 #endif

@@ -63,40 +63,44 @@ void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	break;
     case Atom::FootnoteRight:
 	break;
-    case Atom::FormatLeft:
-	if ( atom->string() == "bold" ) {
+    case Atom::FormatElse:
+    case Atom::FormatFi:
+    case Atom::FormatIf:
+	break;
+    case Atom::FormattingLeft:
+	if ( atom->string() == ATOM_FORMATTING_BOLD ) {
 	    out() << "<b>";
-	} else if ( atom->string() == "index" ) {
+	} else if ( atom->string() == ATOM_FORMATTING_INDEX ) {
 	    out() << "<!--";
-	} else if ( atom->string() == "italic" ) {
+	} else if ( atom->string() == ATOM_FORMATTING_ITALIC ) {
 	    out() << "<i>";
-	} else if ( atom->string() == "link" ) {
+	} else if ( atom->string() == ATOM_FORMATTING_LINK ) {
 	    if ( link.isEmpty() ) {
 		out() << "<font color=\"red\">";
 	    } else {
 		out() << "<a href=\"" << link << "\">";
 	    }
 	    inLink = TRUE;
-	} else if ( atom->string() == "parameter" ) {
+	} else if ( atom->string() == ATOM_FORMATTING_PARAMETER ) {
 	    // out() << "<u>";
-	} else if ( atom->string() == "subscript" ) {
+	} else if ( atom->string() == ATOM_FORMATTING_SUBSCRIPT ) {
 	    out() << "<sub>";
-	} else if ( atom->string() == "superscript" ) {
+	} else if ( atom->string() == ATOM_FORMATTING_SUPERSCRIPT ) {
 	    out() << "<sup>";
-	} else if ( atom->string() == "teletype" ) {
+	} else if ( atom->string() == ATOM_FORMATTING_TELETYPE ) {
 	    out() << "<tt>";
-	} else if ( atom->string() == "underlined" ) {
+	} else if ( atom->string() == ATOM_FORMATTING_UNDERLINE ) {
 	    out() << "<u>";
 	}
 	break;
-    case Atom::FormatRight:
-	if ( atom->string() == "bold" ) {
+    case Atom::FormattingRight:
+	if ( atom->string() == ATOM_FORMATTING_BOLD ) {
 	    out() << "</b>";
-	} else if ( atom->string() == "index" ) {
+	} else if ( atom->string() == ATOM_FORMATTING_INDEX ) {
 	    out() << "-->";
-	} else if ( atom->string() == "italic" ) {
+	} else if ( atom->string() == ATOM_FORMATTING_ITALIC ) {
 	    out() << "</i>";
-	} else if ( atom->string() == "link" ) {
+	} else if ( atom->string() == ATOM_FORMATTING_LINK ) {
 	    if ( inLink ) {
 		if ( link.isEmpty() ) {
 		    out() << "</font>";
@@ -104,15 +108,15 @@ void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 		    out() << "</a>";
 		}
 	    }
-	} else if ( atom->string() == "parameter" ) {
+	} else if ( atom->string() == ATOM_FORMATTING_PARAMETER ) {
 	    // out() << "</u>";
-	} else if ( atom->string() == "subscript" ) {
+	} else if ( atom->string() == ATOM_FORMATTING_SUBSCRIPT ) {
 	    out() << "</sub>";
-	} else if ( atom->string() == "superscript" ) {
+	} else if ( atom->string() == ATOM_FORMATTING_SUPERSCRIPT ) {
 	    out() << "</sup>";
-	} else if ( atom->string() == "teletype" ) {
+	} else if ( atom->string() == ATOM_FORMATTING_TELETYPE ) {
 	    out() << "</tt>";
-	} else if ( atom->string() == "underlined" ) {
+	} else if ( atom->string() == ATOM_FORMATTING_UNDERLINE ) {
 	    out() << "</u>";
 	}
 	break;
@@ -191,11 +195,8 @@ void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
     case Atom::QuotationRight:
 	out() << "</blockquote>\n";
 	break;
-    case Atom::RawFormat:
-	if ( atom->string() == "html" )
-	    out() << atom->next()->string();
-	break;
     case Atom::RawString:
+	out() << atom->string();
 	break;
     case Atom::SectionLeft:
 	break;
@@ -336,10 +337,9 @@ void HtmlGenerator::generateClassNode( const ClassNode *classe,
     generateFooter( classe );
 }
 
-void HtmlGenerator::generateFakeNode( const FakeNode * /* fake */,
-				      CodeMarker * /* marker */ )
+void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
 {
-#if 0
+/*
     NavigationBar bar;
     QString title = fake->name();
 
@@ -353,7 +353,13 @@ void HtmlGenerator::generateFakeNode( const FakeNode * /* fake */,
     generateAlsoList( fake, marker );
     generateNavigationBar( bar, fake, marker );
     generateFooter( fake );
-#endif
+*/
+
+    generateHeader( fake->name(), fake );
+    generateTitle( fake->name() );
+    generateBody( fake, marker );
+    generateAlsoList( fake, marker );
+    generateFooter( fake );
 }
 
 QString HtmlGenerator::fileBase( const Node *node )

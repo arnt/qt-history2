@@ -23,7 +23,8 @@ Config::Config( const QString& programName )
     loc = Location::null;
     lastLoc = Location::null;
     locMap.clear();
-    valueMap.clear();
+    stringValueMap.clear();
+    stringListValueMap.clear();
 }
 
 /*!
@@ -45,7 +46,8 @@ void Config::load( const QString& fileName )
 */
 void Config::setStringList( const QString& var, const QStringList& values )
 {
-    valueMap[var] = values;
+    stringValueMap[var] = values.join( " " );
+    stringListValueMap[var] = values;
 }
 
 /*!
@@ -82,7 +84,7 @@ QStringList Config::getStringList( const QString& var ) const
 {
     if ( !locMap[var].isEmpty() )
 	(Location&) lastLoc = locMap[var];
-    return valueMap[var];
+    return stringListValueMap[var];
 }
 
 QRegExp Config::getRegExp( const QString& var ) const
@@ -124,8 +126,8 @@ Set<QString> Config::subVars( const QString& var ) const
 {
     Set<QString> result;
     QString varDot = var + ".";
-    QMap<QString, QStringList>::ConstIterator v = valueMap.begin();
-    while ( v != valueMap.end() ) {
+    QMap<QString, QString>::ConstIterator v = stringValueMap.begin();
+    while ( v != stringValueMap.end() ) {
 	if ( v.key().startsWith(varDot) ) {
 	    QString subVar = v.key().mid( varDot.length() );
 	    int dot = subVar.find( '.' );
@@ -175,15 +177,16 @@ QString Config::findFile( const QStringList& files, const QStringList& dirs,
 
 void Config::load( Location location, const QString& fileName )
 {
-#define ADVANCE() \
+#define SKIP_CHAR() \
 	location.advance( text[i++] )
 #define SKIP_SPACES() \
 	while ( text[i].isSpace() && text[i] != '\n' ) \
-	    ADVANCE()
+	    SKIP_CHAR()
+#define PUT_CHAR() \
+	word += text[i]; \
+	SKIP_CHAR();
 
-    static int depth = 0;
-
-    if ( depth++ > 16 )
+    if ( location.depth() > 16 )
 	location.fatal( tr("Too many nested includes") );
 
     QFile fin( fileName );
@@ -200,22 +203,25 @@ void Config::load( Location location, const QString& fileName )
     int i = 0;
     while ( i < (int) text.length() ) {
 	if ( text[i].isSpace() ) {
-	    ADVANCE();
+	    SKIP_CHAR();
 	} else if ( text[i] == '#' ) {
 	    do {
-		ADVANCE();
+		SKIP_CHAR();
 	    } while ( text[i] != '\n' );
 	} else if ( text[i].isLetterOrNumber() ) {
 	    Location keyLoc = location;
 	    QRegExp keySyntax( "\\w+(?:\\.\\w+)*" );
 	    QString key;
 	    bool plus = FALSE;
-	    QStringList value;
+	    QString stringValue;
+	    QStringList stringListValue;
+	    QString word;
 	    bool inQuote = FALSE;
+	    bool prevWordQuoted = TRUE;
 
 	    do {
 		key += text[i];
-		ADVANCE();
+		SKIP_CHAR();
 	    } while ( text[i].isLetterOrNumber() || text[i] == '_' ||
 		      text[i] == '.' );
 
@@ -229,16 +235,16 @@ void Config::load( Location location, const QString& fileName )
 
 		if ( text[i] != '(' )
 		    location.fatal( tr("Bad include syntax") );
-		ADVANCE();
+		SKIP_CHAR();
 		SKIP_SPACES();
 		while ( !text[i].isSpace() && text[i] != '#' ) {
 		    includeFile += text[i];
-		    ADVANCE();
+		    SKIP_CHAR();
 		}
 		SKIP_SPACES();
 		if ( text[i] != ')' )
 		    location.fatal( tr("Bad include syntax") );
-		ADVANCE();
+		SKIP_CHAR();
 		SKIP_SPACES();
 		if ( text[i] != '#' && text[i] != '\n' )
 		    location.fatal( tr("Trailing garbage") );
@@ -249,41 +255,56 @@ void Config::load( Location location, const QString& fileName )
 	    } else {
 		if ( text[i] == '+' ) {
 		    plus = TRUE;
-		    ADVANCE();
+		    SKIP_CHAR();
 		}
 		if ( text[i] != '=' )
 		    location.fatal( tr("Expected '=' or '+=' after key") );
-		ADVANCE();
+		SKIP_CHAR();
 		SKIP_SPACES();
-		value.append( "" );
 
-		while ( text[i] != '#' && text[i] != '\n' ) {
+		for ( ;; ) {
 		    if ( text[i] == '\\' ) {
-			ADVANCE();
+			SKIP_CHAR();
 			if ( text[i] == '\n' ) {
-			    ADVANCE();
+			    SKIP_CHAR();
 			} else {
-			    value.last().append( text[i] );
-			    ADVANCE();
+			    PUT_CHAR();
 			}
-		    } else if ( text[i].isSpace() ) {
+		    } else if ( text[i].isSpace() || text[i] == '#' ) {
 			if ( inQuote ) {
-			    value.last().append( text[i] );
-			    ADVANCE();
+			    if ( text[i] == '\n' )
+				location.fatal( tr("Unterminated string") );
+			    PUT_CHAR();
 			} else {
-			    value.append( "" );
+			    if ( !word.isEmpty() ) {
+				if ( !stringListValue.isEmpty() )
+				    stringValue += " ";
+				stringValue += word;
+				stringListValue << word;
+				word = "";
+				prevWordQuoted = FALSE;
+			    }
+			    if ( text[i] == '\n' || text[i] == '#' )
+				break;
 			    SKIP_SPACES();
 			}
 		    } else if ( text[i] == '"' ) {
-			value.append( "" );
+			if ( inQuote ) {
+			    if ( !prevWordQuoted )
+				stringValue += " ";
+			    stringValue += word;
+			    stringListValue << word;
+			    word = "";
+			    prevWordQuoted = TRUE;
+			}
 			inQuote = !inQuote;
-			ADVANCE();
+			SKIP_CHAR();
 		    } else if ( text[i] == '$' ) {
 			QString var;
-			ADVANCE();
+			SKIP_CHAR();
 			while ( text[i].isLetterOrNumber() || text[i] == '_' ) {
 			    var += text[i];
-			    ADVANCE();
+			    SKIP_CHAR();
 			}
 			if ( !var.isEmpty() ) {
 			    char *val = getenv( var.latin1() );
@@ -292,19 +313,15 @@ void Config::load( Location location, const QString& fileName )
 						   " undefined")
 						.arg(var) );
 			    } else {
-				value.last().append( QString(val) );
+				stringValue += QString( val );
 			    }
 			}
 		    } else {
 			if ( !inQuote && text[i] == '=' )
 			    location.fatal( tr("Unexpected '='") );
-			value.last().append( text[i] );
-			ADVANCE();
+			PUT_CHAR();
 		    }
 		}
-		if ( inQuote )
-		    location.fatal( tr("Unterminated string") );
-		value.remove( "" );
 
 		if ( plus ) {
 		    if ( locMap[key].isEmpty() ) {
@@ -312,17 +329,22 @@ void Config::load( Location location, const QString& fileName )
 		    } else {
 			locMap[key].setEtc( TRUE );
 		    }
-		    valueMap[key] += value;
+		    if ( stringValueMap[key].isEmpty() ) {
+			stringValueMap[key] = stringValue;
+		    } else {
+			stringValueMap[key] += " " + stringValue;
+		    }
+		    stringListValueMap[key] += stringListValue;
 		} else {
 		    locMap[key] = keyLoc;
-		    valueMap[key] = value;
+		    stringValueMap[key] = stringValue;
+		    stringListValueMap[key] = stringListValue;
 		}
 	    }
 	} else {
 	    location.fatal( tr("Bad key syntax") );
 	}
     }
-    depth--;
 }
 
 QStringList Config::getFilesHere( const QString& dir,

@@ -145,13 +145,9 @@ void Generator::generateFakeNode( const FakeNode * /* fake */,
 void Generator::generateText( const Text& text, const Node *relative,
 			      CodeMarker *marker )
 {
-    const Atom *atom = text.firstAtom();
-    if ( atom != 0 ) {
+    if ( text.firstAtom() != 0 ) {
 	startText( relative, marker );
-	while ( atom != 0 ) {
-	    generateAtom( atom, relative, marker );
-	    atom = atom->next();
-	}
+	generateAtomList( text.firstAtom(), relative, marker, TRUE );
 	endText( relative, marker );
     }
 }
@@ -344,20 +340,25 @@ void Generator::generateStatus( const Node *node, CodeMarker *marker )
     case Node::Commendable:
 	break;
     case Node::Preliminary:
-	text << Atom::ParagraphLeft << Atom( Atom::FormatLeft, "bold" )
-	     << "This " << typeString( node )
+	text << Atom::ParagraphLeft
+	     << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "
+	     << typeString( node )
 	     << " is under development and is subject to change."
-	     << Atom( Atom::FormatRight, "bold" ) << Atom::ParagraphRight;
+	     << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD )
+	     << Atom::ParagraphRight;
 	break;
     case Node::Deprecated:
-	text << Atom::ParagraphLeft << Atom( Atom::FormatLeft, "bold" )
-	     << "This " << typeString( node ) << " is deprecated."
-	     << Atom( Atom::FormatRight, "bold" ) << Atom::ParagraphRight;
+	text << Atom::ParagraphLeft
+	     << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "
+	     << typeString( node ) << " is deprecated."
+	     << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD )
+	     << Atom::ParagraphRight;
 	break;
     case Node::Obsolete:
-	text << Atom::ParagraphLeft << Atom( Atom::FormatLeft, "bold" )
-	     << "This " << typeString( node ) << " is obsolete."
-	     << Atom( Atom::FormatRight, "bold" )
+	text << Atom::ParagraphLeft
+	     << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This " << typeString( node )
+	     << " is obsolete."
+	     << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD )
 	     << " It is provided to keep old source code working.  We strongly"
 	     << " advise against using it in new code." << Atom::ParagraphRight;
     }
@@ -382,12 +383,44 @@ void Generator::generateReimplementedFrom( const FunctionNode *func,
 	Text text;
 	text << Atom::ParagraphLeft << "Reimplemented from "
 	     << Atom( Atom::LinkNode, CodeMarker::stringForNode(from) )
-	     << Atom( Atom::FormatLeft, "link" )
+	     << Atom( Atom::FormattingLeft, ATOM_FORMATTING_LINK )
 	     << Atom( Atom::C, marker->markedUpFullName(from->parent(), func) )
-	     << Atom( Atom::FormatRight, "link" ) << "."
+	     << Atom( Atom::FormattingRight, ATOM_FORMATTING_LINK ) << "."
 	     << Atom::ParagraphRight;
 	generateText( text, func, marker );
     }
+}
+
+Atom *Generator::generateAtomList( const Atom *atom, const Node *relative,
+				   CodeMarker *marker, bool generate )
+{
+    while ( atom != 0 ) {
+	if ( atom->type() == Atom::FormatIf ) {
+	    bool rightFormat = ( atom->string() == format() );
+	    atom = generateAtomList( atom->next(), relative, marker,
+				     generate && rightFormat );
+	    if ( atom == 0 ) {
+		return 0;
+	    } else if ( atom->type() == Atom::FormatElse ) {
+		atom = generateAtomList( atom->next(), relative, marker,
+					 generate && !rightFormat );
+	    } else if ( atom->type() == Atom::FormatEndif ) {
+		if ( !rightFormat )
+		    relative->location().warning(
+			    tr("Output format '%1' not handled")
+			    .arg(format()) );
+		atom = atom->next();
+	    }
+	} else if ( atom->type() == Atom::FormatElse ||
+		    atom->type() == Atom::FormatEndif ) {
+	    return atom;
+	} else {
+	    if ( generate )
+		generateAtom( atom, relative, marker );
+	    atom = atom->next();
+	}
+    }
+    return 0;
 }
 
 void Generator::generateReimplementedBy( const FunctionNode *func,

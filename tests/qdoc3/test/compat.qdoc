@@ -4,6 +4,7 @@ alias.also		= sa
 alias.group		= ingroup
 alias.i			= e
 alias.image		= img
+alias.include		= input
 alias.inheaderfile	= headerfile
 alias.o			= i
 alias.quotefile		= realquotefile

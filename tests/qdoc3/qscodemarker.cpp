@@ -63,11 +63,12 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
             while ( p != func->parameters().end() ) {
                 if ( p != func->parameters().begin() )
                     synopsis += ", ";
-                synopsis += protect( (*p).leftType() );
+		synopsis += "var";
 		if ( !(*p).name().isEmpty() )
 		    synopsis += " <@param>" + protect( (*p).name() ) +
 				"</@param>";
-		synopsis += protect( (*p).rightType() );
+		if ( style == Detailed )
+		    synopsis += " : " + protect( (*p).leftType() );
                 ++p;
             }
             synopsis += " ";

@@ -25,6 +25,7 @@ public:
     void setEtc( bool etc ) { etcetera = etc; }
 
     bool isEmpty() const { return stk.isEmpty(); }
+    int depth() const { return stk.count(); }
     const QString& pathAndFileName() const { return stk.top().pathAndFileName; }
     QString fileName() const;
     int lineNo() const { return stk.top().lineNo; }

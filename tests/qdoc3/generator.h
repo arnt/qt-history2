@@ -62,6 +62,8 @@ protected:
     void unknownAtom( const Atom *atom );
 
 private:
+    Atom *generateAtomList( const Atom *atom, const Node *relative,
+			    CodeMarker *marker, bool generate );
     void generateStatus( const Node *node, CodeMarker *marker );
     void generateOverload( const Node *node, CodeMarker *marker );
     void generateReimplementedFrom( const FunctionNode *func,

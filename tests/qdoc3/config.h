@@ -47,7 +47,8 @@ private:
     Location loc;
     Location lastLoc;
     QMap<QString, Location> locMap;
-    QMap<QString, QStringList> valueMap;
+    QMap<QString, QStringList> stringListValueMap;
+    QMap<QString, QString> stringValueMap;
 };
 
 #define CONFIG_ALIAS                "alias"

@@ -12,13 +12,18 @@
   Atoms have a \i type and are completed by a \i string whose
   meaning depends on the \i type. For example, the string
   \quotation
-      \e italic text looks nicer than \b bold text"
+      \i italic text looks nicer than \bold bold text
   \endquotation
   is represented by the following atoms:
   \quotation
-      (FormatLeft, "italic")
-      (RawString, 
-      (FormatRight, "italic")
+      (FormattingLeft, ATOM_FORMATTING_ITALIC)
+      (String, "italic")
+      (FormattingRight, ATOM_FORMATTING_ITALIC)
+      (String, " text looks nicer than ")
+      (FormattingLeft, ATOM_FORMATTING_BOLD)
+      (String, "bold")
+      (FormattingRight, ATOM_FORMATTING_BOLD)
+      (String, " text")
   \endquotation
 
   \also Text
@@ -35,10 +40,13 @@
   \value CaptionLeft
   \value CaptionRight
   \value Code
+  \value FormatElse
+  \value FormatEndif
+  \value FormatIf
   \value FootnoteLeft
   \value FootnoteRight
-  \value FormatLeft
-  \value FormatRight
+  \value FormattingLeft
+  \value FormattingRight
   \value GeneratedList
   \value Image
   \value Link
@@ -53,7 +61,6 @@
   \value ParagraphRight
   \value QuotationLeft
   \value QuotationRight
-  \value RawFormat
   \value RawString
   \value SectionLeft
   \value SectionRight
@@ -84,8 +91,11 @@ static const struct {
     { "Code", Atom::Code },
     { "FootnoteLeft", Atom::FootnoteLeft },
     { "FootnoteRight", Atom::FootnoteRight },
-    { "FormatLeft", Atom::FormatLeft },
-    { "FormatRight", Atom::FormatRight },
+    { "FormatElse", Atom::FormatElse },
+    { "FormatEndif", Atom::FormatEndif },
+    { "FormatIf", Atom::FormatIf },
+    { "FormattingLeft", Atom::FormattingLeft },
+    { "FormattingRight", Atom::FormattingRight },
     { "GeneratedList", Atom::GeneratedList },
     { "Image", Atom::Image },
     { "Link", Atom::Link },
@@ -100,7 +110,6 @@ static const struct {
     { "ParagraphRight", Atom::ParagraphRight },
     { "QuotationLeft", Atom::QuotationLeft },
     { "QuotationRight", Atom::QuotationRight },
-    { "RawFormat", Atom::RawFormat },
     { "RawString", Atom::RawString },
     { "SectionLeft", Atom::SectionLeft },
     { "SectionRight", Atom::SectionRight },
