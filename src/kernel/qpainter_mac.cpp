@@ -311,7 +311,7 @@ void QPainter::updatePen()
 	cglinecap = kCGLineCapRound;
     CGContextSetLineCap((CGContextRef)hd, cglinecap);
     
-    CGContextSetLineWidth((CGContextRef)hd, (float)(cpen.width() < 1 ? 1 : cpen.width()));
+    CGContextSetLineWidth((CGContextRef)hd, cpen.width() < 1 ? 1 : cpen.width());
 
     const QColor &col = cpen.color();
     CGContextSetRGBStrokeColor((CGContextRef)hd, qt_mac_convert_color_to_cg(col.red()),
@@ -749,6 +749,7 @@ bool QPainter::end()				// end painting
     flags = 0;
     pdev->painters--;
     if(hd) {
+	CGContextSynchronize((CGContextRef)hd);
 	if(CFGetRetainCount(hd) == 1)
 	    CGContextFlush((CGContextRef)hd);
 	CGContextRelease((CGContextRef)hd);
@@ -1243,7 +1244,7 @@ void QPainter::drawRect(int x, int y, int w, int h)
 #ifdef USE_CORE_GRAPHICS
     CGRect mac_rect;
     d->cg_mac_rect(x, y, w, h, &mac_rect);
-    if(cbrush.style() != NoBrush)
+    if(cbrush.style() != NoBrush) 
 	CGContextFillRect((CGContextRef)hd, mac_rect);
     if(cpen.style() != NoPen) 
 	CGContextStrokeRect((CGContextRef)hd, mac_rect);
@@ -2246,7 +2247,8 @@ QPoint QPainter::pos() const
 /*!
     \internal
 */
-void QPainter::initPaintDevice(bool force, QPoint *off, QRegion *rgn) {
+void QPainter::initPaintDevice(bool force, QPoint *off, QRegion *rgn) 
+{
     bool remade_clip = false;
     if(pdev->devType() == QInternal::Printer) {
 	if(force && pdev->handle()) {

@@ -437,7 +437,7 @@ void qt_mac_clip_cg_handle(CGContextRef hd, const QRegion &rgn, const QPoint &of
 	CGRect *cg_rects = (CGRect *)malloc(sizeof(CGRect)*count);
 	for(int i = 0; i < count; i++) {
 	    const QRect &r = rects[i];
-	    cg_rects[i] = CGRectMake(r.x()+offp.x(), r.y()+offp.y(), r.width()+1, r.height()+1);
+	    cg_rects[i] = CGRectMake(r.x()+offp.x(), r.y()+offp.y(), r.width(), r.height());
 	}
 	CGContextBeginPath(hd);
 	CGContextAddRects(hd, cg_rects, count);
