@@ -24,19 +24,19 @@ HEADERS		= qarray.h	qbitarry.h	qbuffer.h	qcollect.h    \
 		  qqueue.h	qres.h		qshared.h	qstack.h      \
 		  qstring.h	qstrlist.h	qstrvec.h	qtcomm.h      \
 		  qtcpcomm.h	qtstream.h	qudpcomm.h	qvector.h     \
-		  qregexp.h
+		  qregexp.h     qgcache.h
 SOURCES		= qbitarry.cpp	qbuffer.cpp	qcollect.cpp	qdatetm.cpp   \
 		  qdstream.cpp	qfile.cpp	qgarray.cpp	qgdict.cpp    \
 		  qglist.cpp	qglobal.cpp	qgvector.cpp	qiodev.cpp    \
 		  qipcomm.cpp	qmemchk.cpp	qnpipe.cpp	qres.cpp      \
 		  qstring.cpp	qtcomm.cpp	qtcpcomm.cpp	qtstream.cpp  \
-		  qudpcomm.cpp	qregexp.cpp
+		  qudpcomm.cpp	qregexp.cpp     qgcache.cpp
 OBJECTS		= qbitarry.o	qbuffer.o	qcollect.o	qdatetm.o     \
 		  qdstream.o	qfile.o		qgarray.o	qgdict.o      \
 		  qglist.o	qglobal.o	qgvector.o	qiodev.o      \
 		  qipcomm.o	qmemchk.o	qnpipe.o	qres.o	      \
 		  qstring.o	qtcomm.o	qtcpcomm.o	qtstream.o    \
-		  qudpcomm.o	qregexp.o
+		  qudpcomm.o	qregexp.o       qgcache.o
 TARGET		= $(LIBDIR)/libqtools.a
 
 ####### Implicit rules
@@ -172,3 +172,7 @@ qregexp.o: qregexp.h qstring.h qarray.h qgarray.h qshared.h qglobal.h
 qregexp.o: qgeneric.h /usr/include/string.h /usr/include/features.h
 qregexp.o: /usr/include/sys/cdefs.h /usr/include/ctype.h
 qregexp.o: /usr/include/malloc.h
+qgcache.o: qgcache.h qcollect.h qglobal.h qlist.h qglist.h qgeneric.h qdict.h
+qgcache.o: qgdict.h qstring.h qarray.h qgarray.h qshared.h
+qgcache.o: /usr/include/string.h /usr/include/features.h
+qgcache.o: /usr/include/sys/cdefs.h
