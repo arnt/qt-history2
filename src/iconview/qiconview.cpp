@@ -748,9 +748,7 @@ void QIconDragData::setTextRect( const QRect &r )
 */
 
 QIconViewItem::QIconViewItem( QIconView *parent )
-    : view( parent ), itemText(), itemIcon( unknown_icon ),
-      prev( 0 ), next( 0 ), allow_rename( FALSE ), allow_drag( TRUE ), allow_drop( TRUE ),
-      selected( FALSE ), selectable( TRUE ), renameBox( 0 )
+    : view( parent ), itemText(), itemIcon( unknown_icon )
 {
     init();
 }
@@ -762,8 +760,7 @@ QIconViewItem::QIconViewItem( QIconView *parent )
 
 QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after )
     : view( parent ), itemText(), itemIcon( unknown_icon ),
-      prev( 0 ), next( 0 ), allow_rename( FALSE ), allow_drag( TRUE ), allow_drop( TRUE ),
-      selected( FALSE ), selectable( TRUE ), renameBox( 0 )
+      prev( 0 ), next( 0 )
 {
     init( after );
 }
@@ -774,9 +771,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after )
 */
 
 QIconViewItem::QIconViewItem( QIconView *parent, const QString &text )
-    : view( parent ), itemText( text ), itemIcon( unknown_icon ),
-      prev( 0 ), next( 0 ), allow_rename( FALSE ), allow_drag( TRUE ), allow_drop( TRUE ),
-      selected( FALSE ), selectable( TRUE ), renameBox( 0 )
+    : view( parent ), itemText( text ), itemIcon( unknown_icon )
 {
     init( 0 );
 }
@@ -789,9 +784,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, const QString &text )
 
 QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after,
 			      const QString &text )
-    : view( parent ), itemText( text ), itemIcon( unknown_icon ),
-      prev( 0 ), next( 0 ), allow_rename( FALSE ), allow_drag( TRUE ), allow_drop( TRUE ),
-      selected( FALSE ), selectable( TRUE ), renameBox( 0 )
+    : view( parent ), itemText( text ), itemIcon( unknown_icon )
 {
     init( after );
 }
@@ -803,12 +796,12 @@ QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after,
 
 QIconViewItem::QIconViewItem( QIconView *parent, const QString &text,
 			      const QPixmap &icon )
-    : view( parent ), itemText( text ), itemIcon( new QPixmap( icon ) ),
-      prev( 0 ), next( 0 ), allow_rename( FALSE ), allow_drag( TRUE ), allow_drop( TRUE ),
-      selected( FALSE ), selectable( TRUE ), renameBox( 0 )
+    : view( parent ),
+      itemText( text ), itemIcon( new QPixmap( icon ) )
 {
     init( 0 );
 }
+
 
 /*!
   Constructs an icon view item using \a text as the text and \a icon as
@@ -816,24 +809,64 @@ QIconViewItem::QIconViewItem( QIconView *parent, const QString &text,
   view item \a after.
 */
 
-QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after, const QString &text, const QPixmap &icon )
-    : view( parent ), itemText( text ), itemIcon( new QPixmap( icon ) ),
-      prev( 0 ), next( 0 ), allow_rename( FALSE ), allow_drag( TRUE ), allow_drop( TRUE ),
-      selected( FALSE ), selectable( TRUE ), renameBox( 0 )
+QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after,
+			      const QString &text, const QPixmap &icon )
+    : view( parent ), itemText( text ), itemIcon( new QPixmap( icon ) )
 {
     init( after );
 }
+
+/*!
+  Constructs an icon view item using \a text as the text and a \a icon as
+  the icon, and inserts it into the icon view \a parent.
+*/
+
+#ifndef QT_NO_PICTURE
+QIconViewItem::QIconViewItem( QIconView *parent, const QString &text,
+			      const QPicture &picture )
+    : view( parent ), itemText( text ), itemIcon( 0 )
+{
+    init( 0, new QPicture( picture ) );
+}
+
+/*!
+  Constructs an icon view item using \a text as the text and \a icon as
+  the icon, and inserts it into the icon view \a parent after the icon
+  view item \a after.
+ */
+
+QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after,
+			      const QString &text, const QPicture &picture )
+    : view( parent ), itemText( text ), itemIcon( 0 )
+{
+    init( after, new QPicture( picture ) );
+}
+#endif
 
 /*!
   This private function initializes the icon view item and inserts it
   into the icon view.
 */
 
-void QIconViewItem::init( QIconViewItem *after )
+void QIconViewItem::init( QIconViewItem *after,
+#ifndef QT_NO_PICTURE
+			  QPicture *pic
+#endif
+			  )
 {
     d = new QIconViewItemPrivate;
     d->container1 = 0;
     d->container2 = 0;
+    prev = next = 0;
+    allow_rename = FALSE;
+    allow_drag = TRUE;
+    allow_drop = TRUE;
+    selected = FALSE;
+    selectable = TRUE;
+    renameBox = 0;
+#ifndef QT_NO_PICTURE
+    itemPic = pic;
+#endif
     if ( view ) {
 	itemKey = itemText;
 	dirty = TRUE;
@@ -855,6 +888,7 @@ QIconViewItem::~QIconViewItem()
     view = 0;
     if ( itemIcon && itemIcon->serialNumber() != unknown_icon->serialNumber() )
 	delete itemIcon;
+    delete itemPic;
     delete d;
 }
 
@@ -930,6 +964,43 @@ void QIconViewItem::setPixmap( const QPixmap &icon )
 				   oR.width() + 2, oR.height() + 2, FALSE );
     }
 }
+
+/*!
+  Sets \a icon as the item's icon in the icon view. This function might be
+  a no-op if you reimplement picture().
+
+  \sa picture()
+*/
+
+#ifndef QT_NO_PICTURE
+void QIconViewItem::setPicture( const QPicture &icon )
+{
+    // clear assigned pixmap if any
+    if ( itemIcon ) {
+	if ( itemIcon == unknown_icon ) {
+	    itemIcon = 0;
+	} else {
+	    delete itemIcon;
+	    itemIcon = 0;
+	}
+    }
+    if ( itemPic )
+	delete itemPic;
+    itemPic = new QPicture( icon );
+
+    QRect oR = rect();
+    calcRect();
+    oR = oR.unite( rect() );
+
+    if ( view ) {
+	if ( QRect( view->contentsX(), view->contentsY(),
+		    view->visibleWidth(), view->visibleHeight() ).
+	     intersects( oR ) )
+	    view->repaintContents( oR.x() - 1, oR.y() - 1,
+				   oR.width() + 2, oR.height() + 2, FALSE );
+    }
+}
+#endif
 
 /*!
   Sets \a text as the text of the icon view item. If \a recalc is TRUE,
@@ -1054,7 +1125,8 @@ QString QIconViewItem::key() const
 }
 
 /*!
-  Returns the icon of the icon view item. Normally you will set the
+  Returns the icon of the icon view item if it is a pixmap, or 0 if it is a
+  picture. In the latter case use picture() instead. Normally you will set the
   pixmap of the item with setPixmap(), but sometimes it's inconvenient
   to call setText() for each item. So you can subclass QIconViewItem,
   reimplement this function and return a pointer to the item's pixmap.
@@ -1068,6 +1140,25 @@ QPixmap *QIconViewItem::pixmap() const
 {
     return itemIcon;
 }
+
+/*!
+  Returns the icon of the icon view item if it is a picture, or 0 if it is a
+  pixmap. In the latter case use pixmap() instead. Normally you will set the
+  picture of the item with setPicture(), but sometimes it's inconvenient
+  to call setText() for each item. So you can subclass QIconViewItem,
+  reimplement this function and return a pointer to the item's picture.
+  If you do this, you have to call calcRect() manually each time the
+  size of this picture changes!
+
+  \sa setPicture()
+*/
+
+#ifndef QT_NO_PICTURE
+QPicture *QIconViewItem::picture() const
+{
+    return itemPic;
+}
+#endif
 
 /*!
   Returns TRUE if the item can be renamed by the user with in-place
@@ -1561,8 +1652,14 @@ void QIconViewItem::calcRect( const QString &text_ )
     int pw = 0;
     int ph = 0;
 
-    pw = ( pixmap() ? pixmap() : unknown_icon )->width() + 2;
-    ph = ( pixmap() ? pixmap() : unknown_icon )->height() + 2;
+    if ( picture() ) {
+	QRect br = picture()->boundingRect();
+	pw = br.width() + 2;
+	ph = br.height() + 2;
+    } else {
+	pw = ( pixmap() ? pixmap() : unknown_icon )->width() + 2;
+	ph = ( pixmap() ? pixmap() : unknown_icon )->height() + 2;
+    }
 
     itemIconRect.setWidth( pw );
     itemIconRect.setHeight( ph );
@@ -1658,6 +1755,28 @@ void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg )
 
     calcTmpText();
 
+#ifndef QT_NO_PICTURE
+    if ( picture() ) {
+	QPicture *pic = picture();
+	if ( isSelected() ) {
+	    p->fillRect( pixmapRect( FALSE ), QBrush( cg.highlight(), QBrush::Dense4Pattern) );
+	}
+	p->drawPicture( x()-pic->boundingRect().x(), y()-pic->boundingRect().y(), *pic );
+	if ( isSelected() ) {
+	    p->fillRect( textRect( FALSE ), cg.highlight() );
+	    p->setPen( QPen( cg.highlightedText() ) );
+	} else if ( view->d->itemTextBrush != NoBrush )
+	    p->fillRect( textRect( FALSE ), view->d->itemTextBrush );
+
+	int align = view->itemTextPos() == QIconView::Bottom ? AlignHCenter : AlignAuto;
+	if ( view->d->wordWrapIconText )
+	    align |= WordBreak;
+	p->drawText( textRect( FALSE ), align, view->d->wordWrapIconText ? itemText : tmpText );
+	p->restore();
+	return;
+    }
+#endif
+    // ### get rid of code duplication
     if ( view->itemTextPos() == QIconView::Bottom ) {
 	int w = ( pixmap() ? pixmap() : unknown_icon )->width();
 

@@ -47,6 +47,7 @@
 #include <qfont.h> // QString->QFont conversion
 #include <qdragobject.h>
 #include <qbitmap.h>
+#include <qpicture.h>
 #endif // QT_H
 
 #include "qfeatures.h"
@@ -148,6 +149,10 @@ public:
     QIconViewItem( QIconView *parent, QIconViewItem *after, const QString &text );
     QIconViewItem( QIconView *parent, const QString &text, const QPixmap &icon );
     QIconViewItem( QIconView *parent, QIconViewItem *after, const QString &text, const QPixmap &icon );
+#ifndef QT_NO_PICTURE
+    QIconViewItem( QIconView *parent, const QString &text, const QPicture &picture );
+    QIconViewItem( QIconView *parent, QIconViewItem *after, const QString &text, const QPicture &picture );
+#endif
     virtual ~QIconViewItem();
 
     virtual void setRenameEnabled( bool allow );
@@ -156,6 +161,9 @@ public:
 
     virtual QString text() const;
     virtual QPixmap *pixmap() const;
+#ifndef QT_NO_PICTURE
+    virtual QPicture *picture() const;
+#endif
     virtual QString key() const;
 
     bool renameEnabled() const;
@@ -202,6 +210,9 @@ public:
 
     virtual void setText( const QString &text );
     virtual void setPixmap( const QPixmap &icon );
+#ifndef QT_NO_PICTURE
+    virtual void setPicture( const QPicture &icon );
+#endif
     virtual void setText( const QString &text, bool recalc, bool redraw = TRUE );
     virtual void setPixmap( const QPixmap &icon, bool recalc, bool redraw = TRUE );
     virtual void setKey( const QString &k );
@@ -222,7 +233,11 @@ protected:
     void calcTmpText();
 
 private:
-    void init( QIconViewItem *after = 0 );
+    void init( QIconViewItem *after = 0,
+#ifndef QT_NO_PICTURE
+	       QPicture *pic = 0
+#endif
+	       );
     void renameItem();
     void cancelRenameItem();
     void checkRect();
@@ -231,6 +246,9 @@ private:
     QString itemText, itemKey;
     QString tmpText;
     QPixmap *itemIcon;
+#ifndef QT_NO_PICTURE
+    QPicture *itemPic;
+#endif
     QIconViewItem *prev, *next;
     uint allow_rename : 1;
     uint allow_drag : 1;
