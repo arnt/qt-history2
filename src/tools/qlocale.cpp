@@ -3563,7 +3563,7 @@ static Bigint *diff(Bigint *a, Bigint *b)
     return c;
 }
 
-static double ulp(double x)
+static double ulp(volatile double x)
 {
     Long L;
     double a;
