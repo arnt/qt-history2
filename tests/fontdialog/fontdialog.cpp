@@ -1,11 +1,15 @@
 #include <qapplication.h>
-#include <qfontdialog.h>
+#include "qfontdialog.h"
 #include <qpushbutton.h>
 
 
 main(int argc, char** argv)
 {
     QApplication app(argc, argv);
+
+    // QFont fnt( "utopia", 8, 48, FALSE );
+    //fnt.setCharSet( QFont::ISO_8859_1 );
+    //app.setFont( fnt );
 
 #if 1
     bool ok;
