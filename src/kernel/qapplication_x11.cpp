@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#151 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#152 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -45,7 +45,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#151 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#152 $")
 
 
 /*****************************************************************************
@@ -1307,10 +1307,10 @@ int QApplication::enter_loop()
 			    a = &a1;		// typical for twm, olwm
 			a->x += a2.border_width;
 			a->y += a2.border_width;
-			widget->frect = QRect(QPoint(r->x1() - a->x,
-						     r->y1() - a->y),
-					      QPoint(r->x2() + a->x,
-						     r->y2() + a->x) );
+			widget->frect = QRect(QPoint(r->left()   - a->x,
+						     r->top()    - a->y),
+					      QPoint(r->right()  + a->x,
+						     r->bottom() + a->x) );
 		    }
 		    break;
 
