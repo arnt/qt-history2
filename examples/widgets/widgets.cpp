@@ -543,9 +543,12 @@ void WidgetView::movieStatus( int s )
 {
     switch ( s ) {
       case QMovie::SourceEmpty:
-	movielabel->setText("Could not load\n" MOVIEFILENAME );
-	movielabel->setAlignment( AlignCenter );
-	movielabel->setBackgroundColor( backgroundColor() );
+      case QMovie::UnrecognizedFormat:
+	{
+	    QPixmap pm("tt-logo.png");
+	    movielabel->setPixmap(pm);
+	    movielabel->setFixedSize(pm.size());
+	}
       break;
       default:
 	if ( movielabel->movie() )	 	// for flicker-free animation:
