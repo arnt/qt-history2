@@ -45,9 +45,9 @@
 #include "qtranslator.h"
 #include "qstrlist.h"
 #include "qstringlist.h"
-    #ifndef QT_NO_REMOTE
-    #include "qremotecontrol_p.h"
-    #endif
+#ifndef QT_NO_REMOTE
+#include "qremotecontrol_p.h"
+#endif
 #endif // QT_H
 
 class QSessionManager;
@@ -371,7 +371,7 @@ private:
 private:
     static QRemoteControlInterface *remoteControl;
 #endif // QT_NO_REMOTE
-    
+
 private: // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QApplication( const QApplication & );
