@@ -70,8 +70,6 @@ public:
         wm_stack = 0;
         gc = gc_brush = 0;
         dpy  = 0;
-        penRef = brushRef = 0;
-        clip_serial = 0;
         xinfo = 0;
         txop = QPainterPrivate::TxNone;
     }
@@ -96,11 +94,8 @@ public:
     int *tabarray;
     int tabarraylen;
 
-    void *penRef;
-    void *brushRef;
     void *ps_stack;
     void *wm_stack;
-    uint clip_serial;
     const QX11Info *xinfo;
     QPointF bg_origin;
     QPainterPrivate::TransformationCodes txop;

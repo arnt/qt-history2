@@ -42,12 +42,6 @@
 #include <private/qpaintengine_p.h>
 #include "qpaintengine_x11_p.h"
 
-// #define GC_CACHE_STAT
-#if defined(GC_CACHE_STAT)
-#include "qtextstream.h"
-#include "qbuffer.h"
-#endif
-
 #include <private/qt_x11_p.h>
 #include <private/qnumeric_p.h>
 #include <limits.h>
@@ -136,291 +130,6 @@ static inline void x11ClearClipRegion(Display *dpy, GC gc, GC gc2,
 #endif // QT_NO_XFT
 }
 
-
-/*
- * GC cache stuff
- *
- */
-
-/*****************************************************************************
-  QPainter internal GC (Graphics Context) allocator.
-
-  The GC allocator offers two functions; alloc_gc() and free_gc() that
-  reuse GC objects instead of calling XCreateGC() and XFreeGC(), which
-  are a whole lot slower.
- *****************************************************************************/
-
-struct QGC
-{
-    GC   gc;
-    char in_use;
-    bool mono;
-    int scrn;
-};
-
-const  int  gc_array_size = 256;
-static QGC  gc_array[gc_array_size];            // array of GCs
-static bool gc_array_init = false;
-
-
-static void init_gc_array()
-{
-    if (!gc_array_init) {
-        memset(gc_array, 0, gc_array_size*sizeof(QGC));
-        gc_array_init = true;
-    }
-}
-
-static void cleanup_gc_array(Display *dpy)
-{
-    register QGC *p = gc_array;
-    int i = gc_array_size;
-    if (gc_array_init) {
-        while (i--) {
-            if (p->gc)                        // destroy GC
-                XFreeGC(dpy, p->gc);
-            p++;
-        }
-        gc_array_init = false;
-    }
-}
-
-// #define DONT_USE_GC_ARRAY
-
-static GC alloc_gc(Display *dpy, int scrn, Drawable hd, bool monochrome=false,
-                    bool privateGC = false)
-{
-#if defined(DONT_USE_GC_ARRAY)
-    privateGC = true;                           // will be slower
-#endif
-    if (privateGC) {
-        GC gc = XCreateGC(dpy, hd, 0, 0);
-        XSetGraphicsExposures(dpy, gc, False);
-        return gc;
-    }
-    register QGC *p = gc_array;
-    int i = gc_array_size;
-    if (!gc_array_init)                       // not initialized
-        init_gc_array();
-    while (i--) {
-        if (!p->gc) {                         // create GC (once)
-            p->gc = XCreateGC(dpy, hd, 0, 0);
-            p->scrn = scrn;
-            XSetGraphicsExposures(dpy, p->gc, False);
-            p->in_use = false;
-            p->mono   = monochrome;
-        }
-        if (!p->in_use && p->mono == monochrome && p->scrn == scrn) {
-            p->in_use = true;                   // available/compatible GC
-            return p->gc;
-        }
-        p++;
-    }
-    qWarning("QPainter: Internal error; no available GC");
-    GC gc = XCreateGC(dpy, hd, 0, 0);
-    XSetGraphicsExposures(dpy, gc, False);
-    return gc;
-}
-
-static void free_gc(Display *dpy, GC gc, bool privateGC = false)
-{
-#if defined(DONT_USE_GC_ARRAY)
-    privateGC = true;                           // will be slower
-#endif
-    if (privateGC) {
-        Q_ASSERT(dpy != 0);
-        XFreeGC(dpy, gc);
-        return;
-    }
-    register QGC *p = gc_array;
-    int i = gc_array_size;
-    if (gc_array_init) {
-        while (i--) {
-            if (p->gc == gc) {
-                p->in_use = false;              // set available
-                XSetClipMask(dpy, gc, XNone);  // make it reusable
-                XSetFunction(dpy, gc, GXcopy);
-                XSetFillStyle(dpy, gc, FillSolid);
-                XSetTSOrigin(dpy, gc, 0, 0);
-                return;
-            }
-            p++;
-        }
-    }
-
-    // not found in gc_array
-    XFreeGC(dpy, gc);
-}
-
-
-
-/*****************************************************************************
-  QPainter internal GC (Graphics Context) cache for solid pens and
-  brushes.
-
-  The GC cache makes a significant contribution to speeding up
-  drawing.  Setting new pen and brush colors will make the painter
-  look for another GC with the same color instead of changing the
-  color value of the GC currently in use. The cache structure is
-  optimized for fast lookup.  Only solid line pens with line width 0
-  and solid brushes are cached.
-
-  In addition, stored GCs may have an implicit clipping region
-  set. This prevents any drawing outside paint events. Both
-  updatePen() and updateBrush() keep track of the validity of this
-  clipping region by storing the clip_serial number in the cache.
-
-*****************************************************************************/
-
-struct QGCC                                     // cached GC
-{
-    GC gc;
-    uint pix;
-    int count;
-    int hits;
-    uint clip_serial;
-    int scrn;
-};
-
-const  int   gc_cache_size = 29;                // multiply by 4
-static QGCC *gc_cache_buf;
-static QGCC *gc_cache[4*gc_cache_size];
-static bool  gc_cache_init;
-static uint gc_cache_clip_serial;
-
-
-static void init_gc_cache()
-{
-    if (!gc_cache_init) {
-        gc_cache_init = true;
-        gc_cache_clip_serial = 0;
-        QGCC *g = gc_cache_buf = new QGCC[4*gc_cache_size];
-        memset(g, 0, 4*gc_cache_size*sizeof(QGCC));
-        for (int i=0; i<4*gc_cache_size; i++)
-            gc_cache[i] = g++;
-    }
-}
-
-
-#if defined(GC_CACHE_STAT)
-static int g_numhits    = 0;
-static int g_numcreates = 0;
-static int g_numfaults  = 0;
-#endif
-
-
-static void cleanup_gc_cache()
-{
-    if (!gc_cache_init)
-        return;
-#if defined(GC_CACHE_STAT)
-    qDebug("Number of cache hits = %d", g_numhits);
-    qDebug("Number of cache creates = %d", g_numcreates);
-    qDebug("Number of cache faults = %d", g_numfaults);
-    for (int i=0; i<gc_cache_size; i++) {
-        QByteArray    str;
-        QBuffer     buf(&str);
-        buf.open(IO_ReadWrite);
-        QTextStream s(&buf);
-        s << i << ": ";
-        for (int j=0; j<4; j++) {
-            QGCC *g = gc_cache[i*4+j];
-            s << (g->gc ? 'X' : '-') << ',' << g->hits << ','
-              << g->count << '\t';
-        }
-        s << '\0';
-        qDebug(str);
-        buf.close();
-    }
-#endif
-    delete [] gc_cache_buf;
-    gc_cache_init = false;
-}
-
-
-static bool obtain_gc(void **ref, GC *gc, uint pix, Display *dpy, int scrn,
-                       Qt::HANDLE hd, uint painter_clip_serial)
-{
-    if (!gc_cache_init)
-        init_gc_cache();
-
-    int   k = (pix % gc_cache_size) * 4;
-    QGCC *g = gc_cache[k];
-    QGCC *prev = 0;
-
-#define NOMATCH (g->gc && (g->pix != pix || g->scrn != scrn || \
-                 (g->clip_serial > 0 && g->clip_serial != painter_clip_serial)))
-
-    if (NOMATCH) {
-        prev = g;
-        g = gc_cache[++k];
-        if (NOMATCH) {
-            prev = g;
-            g = gc_cache[++k];
-            if (NOMATCH) {
-                prev = g;
-                g = gc_cache[++k];
-                if (NOMATCH) {
-                    if (g->count == 0 && g->scrn == scrn) {    // steal this GC
-                        g->pix   = pix;
-                        g->count = 1;
-                        g->hits  = 1;
-                        g->clip_serial = 0;
-                        XSetForeground(dpy, g->gc, pix);
-                        XSetClipMask(dpy, g->gc, XNone);
-                        gc_cache[k]   = prev;
-                        gc_cache[k-1] = g;
-                        *ref = (void *)g;
-                        *gc = g->gc;
-                        return true;
-                    } else {                    // all GCs in use
-#if defined(GC_CACHE_STAT)
-                        g_numfaults++;
-#endif
-                        *ref = 0;
-                        return false;
-                    }
-                }
-            }
-        }
-    }
-
-#undef NOMATCH
-
-    *ref = (void *)g;
-
-    if (g->gc) {                              // reuse existing GC
-#if defined(GC_CACHE_STAT)
-        g_numhits++;
-#endif
-        *gc = g->gc;
-        g->count++;
-        g->hits++;
-        if (prev && g->hits > prev->hits) {   // maintain LRU order
-            gc_cache[k]   = prev;
-            gc_cache[k-1] = g;
-        }
-        return true;
-    } else {                                    // create new GC
-#if defined(GC_CACHE_STAT)
-        g_numcreates++;
-#endif
-        g->gc = alloc_gc(dpy, scrn, hd, false);
-        g->scrn = scrn;
-        g->pix = pix;
-        g->count = 1;
-        g->hits = 1;
-        g->clip_serial = 0;
-        *gc = g->gc;
-        return false;
-    }
-}
-
-static inline void release_gc(void *ref)
-{
-    ((QGCC*)ref)->count--;
-}
-
 void qt_erase_background(QPaintDevice *pd, int screen,
                          int x, int y, int w, int h,
                          const QBrush &brush, int xoff, int yoff)
@@ -435,23 +144,11 @@ void qt_erase_background(QPaintDevice *pd, int screen,
 
     Qt::HANDLE hd = qt_x11Handle(pd);
     Display *dpy = QX11Info::display();
-    GC gc;
-    void *penref = 0;
     ulong pixel = QColormap::instance(screen).pixel(brush.color());
-    bool obtained = obtain_gc(&penref, &gc, pixel, dpy, screen, hd, gc_cache_clip_serial);
-
-    if (!obtained && !penref) {
-        gc = alloc_gc(dpy, screen, hd, false);
-    } else {
-        if (penref && ((QGCC*)penref)->clip_serial) {
-            XSetClipMask(dpy, gc, XNone);
-            ((QGCC*)penref)->clip_serial = 0;
-        }
-    }
-
-    if (!obtained) {
-        XSetForeground(dpy, gc, pixel);
-    }
+    XGCValues vals;
+    vals.graphics_exposures = false;
+    vals.foreground = pixel;
+    GC gc = XCreateGC(dpy, hd, GCForeground | GCGraphicsExposures, &vals);
 
     if (brush.texture().isNull()) {
         XFillRectangle(dpy, hd, gc, x, y, w, h);
@@ -464,11 +161,7 @@ void qt_erase_background(QPaintDevice *pd, int screen,
         XSetFillStyle(dpy, gc, FillSolid);
     }
 
-    if (penref) {
-        release_gc(penref);
-    } else {
-        free_gc(dpy, gc);
-    }
+    XFreeGC(dpy, gc);
 }
 
 void qt_draw_transformed_rect(QPaintEngine *pe, int x, int y, int w,  int h, bool fill)
@@ -870,14 +563,10 @@ QX11PaintEngine::~QX11PaintEngine()
 
 void QX11PaintEngine::initialize()
 {
-    init_gc_array();
-    init_gc_cache();
 }
 
 void QX11PaintEngine::cleanup()
 {
-    cleanup_gc_cache();
-    cleanup_gc_array(QX11Info::display());
 }
 
 bool QX11PaintEngine::begin(QPaintDevice *pdev)
@@ -902,6 +591,9 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
                   "\n\tYou must end() the painter before a second begin()");
         return false;
     }
+
+    d->gc = XCreateGC(d->dpy, d->hd, 0, 0);
+    d->gc_brush = XCreateGC(d->dpy, d->hd, 0, 0);
 
     // Set up the polygon clipper. Note: This will only work in
     // polyline mode as long as we have a buffer zone, since a
@@ -954,7 +646,6 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     setDirty(QPaintEngine::DirtyPen);
     setDirty(QPaintEngine::DirtyBrush);
     setDirty(QPaintEngine::DirtyBackground);
-    d->clip_serial = gc_cache_clip_serial++;
 
     return true;
 }
@@ -962,13 +653,6 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
 bool QX11PaintEngine::end()
 {
     setActive(false);
-    if (d->pdev->devType() == QInternal::Widget
-	&& (static_cast<QWidget*>(d->pdev)->testAttribute(Qt::WA_PaintUnclipped))) {
-        if (d->gc)
-            XSetSubwindowMode(d->dpy, d->gc, ClipByChildren);
-        if (d->gc_brush)
-            XSetSubwindowMode(d->dpy, d->gc_brush, ClipByChildren);
-    }
 
 #if !defined(QT_NO_XFT)
     if (d->xft_hd) {
@@ -978,23 +662,12 @@ bool QX11PaintEngine::end()
     }
 #endif
 
-    if (d->gc_brush) { // restore brush gc
-        if (d->brushRef) {
-            release_gc(d->brushRef);
-            d->brushRef = 0;
-        } else {
-            free_gc(d->dpy, d->gc_brush, testf(UsePrivateCx));
-        }
+    if (d->gc_brush) {
+        XFreeGC(d->dpy, d->gc_brush);
         d->gc_brush = 0;
-
     }
-    if (d->gc) { // restore pen gc
-        if (d->penRef) {
-            release_gc(d->penRef);
-            d->penRef = 0;
-        } else {
-            free_gc(d->dpy, d->gc, testf(UsePrivateCx));
-        }
+    if (d->gc) {
+        XFreeGC(d->dpy, d->gc);
         d->gc = 0;
     }
 
@@ -1119,54 +792,7 @@ void QX11PaintEngine::updatePen(const QPen &pen)
 {
     d->cpen = pen;
     int ps = pen.style();
-    bool cacheIt = !testf(ClipOn|MonoDev|NoCache) &&
-                   (ps == Qt::NoPen || ps == Qt::SolidLine) &&
-                   pen.width() == 0;
-
     QColormap cmap = QColormap::instance(d->scrn);
-    bool obtained = false;
-    bool internclipok = hasClipping();
-    if (cacheIt) {
-        if (d->gc) {
-            if (d->penRef)
-                release_gc(d->penRef);
-            else
-                free_gc(d->dpy, d->gc);
-        }
-        obtained = obtain_gc(&d->penRef, &d->gc, cmap.pixel(pen.color()),
-                             d->dpy, d->scrn, d->hd, d->clip_serial);
-        if (!obtained && !d->penRef)
-            d->gc = alloc_gc(d->dpy, d->scrn, d->hd, false);
-    } else {
-        if (d->gc) {
-            if (d->penRef) {
-                release_gc(d->penRef);
-                d->penRef = 0;
-                d->gc = alloc_gc(d->dpy, d->scrn, d->hd, testf(MonoDev));
-            } else {
-                internclipok = true;
-            }
-        } else {
-            d->gc = alloc_gc(d->dpy, d->scrn, d->hd, testf(MonoDev), testf(UsePrivateCx));
-        }
-    }
-
-    if (!internclipok) {
-        if (d->pdev == paintEventDevice && paintEventClipRegion) {
-            if (d->penRef &&((QGCC*)d->penRef)->clip_serial < gc_cache_clip_serial) {
-                x11SetClipRegion(d->dpy, d->gc, 0, d->xft_hd, *paintEventClipRegion);
-                ((QGCC*)d->penRef)->clip_serial = gc_cache_clip_serial;
-            } else if (!d->penRef) {
-                x11SetClipRegion(d->dpy, d->gc, 0, d->xft_hd, *paintEventClipRegion);
-            }
-        } else if (d->penRef && ((QGCC*)d->penRef)->clip_serial) {
-            x11ClearClipRegion(d->dpy, d->gc, 0, d->xft_hd);
-            ((QGCC*)d->penRef)->clip_serial = 0;
-        }
-    }
-
-    if (obtained)
-        return;
 
     char dashes[10];                            // custom pen dashes
     int dash_len = 0;                           // length of dash list
@@ -1188,77 +814,91 @@ void QX11PaintEngine::updatePen(const QPen &pen)
     }
 
     switch(ps) {
-        case Qt::NoPen:
-        case Qt::SolidLine:
-            s = LineSolid;
-            break;
-        case Qt::DashLine:
-            dashes[0] = fudge * 3 * dot;
-            dashes[1] = fudge * dot;
-            dash_len = 2;
-            allow_zero_lw = false;
-            break;
-        case Qt::DotLine:
-            dashes[0] = dot;
-            dashes[1] = dot;
-            dash_len = 2;
-            allow_zero_lw = false;
-            break;
-        case Qt::DashDotLine:
-            dashes[0] = 3 * dot;
-            dashes[1] = fudge * dot;
-            dashes[2] = dot;
-            dashes[3] = fudge * dot;
-            dash_len = 4;
-            allow_zero_lw = false;
-            break;
-        case Qt::DashDotDotLine:
-            dashes[0] = 3 * dot;
-            dashes[1] = dot;
-            dashes[2] = dot;
-            dashes[3] = dot;
-            dashes[4] = dot;
-            dashes[5] = dot;
-            dash_len = 6;
-            allow_zero_lw = false;
+    case Qt::NoPen:
+    case Qt::SolidLine:
+        s = LineSolid;
+        break;
+    case Qt::DashLine:
+        dashes[0] = fudge * 3 * dot;
+        dashes[1] = fudge * dot;
+        dash_len = 2;
+        allow_zero_lw = false;
+        break;
+    case Qt::DotLine:
+        dashes[0] = dot;
+        dashes[1] = dot;
+        dash_len = 2;
+        allow_zero_lw = false;
+        break;
+    case Qt::DashDotLine:
+        dashes[0] = 3 * dot;
+        dashes[1] = fudge * dot;
+        dashes[2] = dot;
+        dashes[3] = fudge * dot;
+        dash_len = 4;
+        allow_zero_lw = false;
+        break;
+    case Qt::DashDotDotLine:
+        dashes[0] = 3 * dot;
+        dashes[1] = dot;
+        dashes[2] = dot;
+        dashes[3] = dot;
+        dashes[4] = dot;
+        dashes[5] = dot;
+        dash_len = 6;
+        allow_zero_lw = false;
     }
     Q_ASSERT(dash_len <= (int) sizeof(dashes));
 
     switch (pen.capStyle()) {
-        case Qt::SquareCap:
-            cp = CapProjecting;
-            break;
-        case Qt::RoundCap:
-            cp = CapRound;
-            break;
-        case Qt::FlatCap:
-        default:
-            cp = CapButt;
-            break;
+    case Qt::SquareCap:
+        cp = CapProjecting;
+        break;
+    case Qt::RoundCap:
+        cp = CapRound;
+        break;
+    case Qt::FlatCap:
+    default:
+        cp = CapButt;
+        break;
     }
     switch (pen.joinStyle()) {
-        case Qt::BevelJoin:
-            jn = JoinBevel;
-            break;
-        case Qt::RoundJoin:
-            jn = JoinRound;
-            break;
-        case Qt::MiterJoin:
-        default:
-            jn = JoinMiter;
-            break;
+    case Qt::BevelJoin:
+        jn = JoinBevel;
+        break;
+    case Qt::RoundJoin:
+        jn = JoinRound;
+        break;
+    case Qt::MiterJoin:
+    default:
+        jn = JoinMiter;
+        break;
     }
 
-    XSetForeground(d->dpy, d->gc, cmap.pixel(pen.color()));
-    XSetBackground(d->dpy, d->gc, cmap.pixel(d->bg_col));
-
-    if (dash_len) {                           // make dash list
-        XSetDashes(d->dpy, d->gc, 0, dashes, dash_len);
+    ulong mask = GCForeground | GCBackground | GCGraphicsExposures | GCLineWidth
+                 | GCLineStyle | GCCapStyle | GCJoinStyle;
+    XGCValues vals;
+    vals.graphics_exposures = false;
+    vals.foreground = cmap.pixel(pen.color());
+    vals.background = cmap.pixel(d->bg_col);
+    vals.line_width = (! allow_zero_lw && pen.width() == 0) ? 1 : pen.width();
+    vals.cap_style = cp;
+    vals.join_style = jn;
+    if (dash_len) {
         s = d->bg_mode == Qt::TransparentMode ? LineOnOffDash : LineDoubleDash;
     }
-    XSetLineAttributes(d->dpy, d->gc,
-                       (! allow_zero_lw && pen.width() == 0) ? 1 : pen.width(),
-                       s, cp, jn);
+    vals.line_style = s;
+    XChangeGC(d->dpy, d->gc, mask, &vals);
+
+    if (dash_len)
+        XSetDashes(d->dpy, d->gc, 0, dashes, dash_len);
+
+    if (!hasClipping()) { // if clipping is set the paintevent clip region is merged with the clip region
+        if (d->pdev == paintEventDevice && paintEventClipRegion)
+            x11SetClipRegion(d->dpy, d->gc, 0, d->xft_hd, *paintEventClipRegion);
+        else
+            x11ClearClipRegion(d->dpy, d->gc, 0, d->xft_hd);
+    }
 }
 
 QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
@@ -1268,62 +908,19 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
     d->cbrush = brush;
     d->bg_origin = origin;
 
-    int  bs = d->cbrush.style();
-    bool cacheIt = !testf(ClipOn|MonoDev|NoCache) &&
-                   (bs == Qt::NoBrush || bs == Qt::SolidPattern) &&
-                   origin.x() == 0 && origin.y() == 0;
-
-    QColormap cmap = QColormap::instance(d->scrn);
-    bool obtained = false;
-    bool internclipok = hasClipping();
-    if (cacheIt) {
-        if (d->gc_brush) {
-            if (d->brushRef)
-                release_gc(d->brushRef);
-            else
-                free_gc(d->dpy, d->gc_brush);
-        }
-        obtained = obtain_gc(&d->brushRef, &d->gc_brush, cmap.pixel(d->cbrush.color()),
-                             d->dpy, d->scrn, d->hd, d->clip_serial);
-        if (!obtained && !d->brushRef)
-            d->gc_brush = alloc_gc(d->dpy, d->scrn, d->hd, false);
-    } else {
-        if (d->gc_brush) {
-            if (d->brushRef) {
-                release_gc(d->brushRef);
-                d->brushRef = 0;
-                d->gc_brush = alloc_gc(d->dpy, d->scrn, d->hd, testf(MonoDev));
-            } else {
-                internclipok = true;
-            }
-        } else {
-            d->gc_brush = alloc_gc(d->dpy, d->scrn, d->hd, testf(MonoDev), testf(UsePrivateCx));
-        }
-    }
-
-    if (!internclipok) {
-        if (d->pdev == paintEventDevice && paintEventClipRegion) {
-            if (d->brushRef &&((QGCC*)d->brushRef)->clip_serial < gc_cache_clip_serial) {
-                x11SetClipRegion(d->dpy, d->gc_brush, 0, d->xft_hd, *paintEventClipRegion);
-                ((QGCC*)d->brushRef)->clip_serial = gc_cache_clip_serial;
-            } else if (!d->brushRef){
-                x11SetClipRegion(d->dpy, d->gc_brush, 0, d->xft_hd, *paintEventClipRegion);
-            }
-        } else if (d->brushRef && ((QGCC*)d->brushRef)->clip_serial) {
-            x11ClearClipRegion(d->dpy, d->gc_brush, 0, d->xft_hd);
-            ((QGCC*)d->brushRef)->clip_serial = 0;
-        }
-    }
-
-    if (obtained)
-        return;
-
-
-    XSetLineAttributes(d->dpy, d->gc_brush, 0, LineSolid, CapButt, JoinMiter);
-    XSetForeground(d->dpy, d->gc_brush, cmap.pixel(d->cbrush.color()));
-    XSetBackground(d->dpy, d->gc_brush, cmap.pixel(d->bg_col));
-
     int s  = FillSolid;
+    int  bs = d->cbrush.style();
+    QColormap cmap = QColormap::instance(d->scrn);
+    ulong mask = GCForeground | GCBackground | GCGraphicsExposures
+                 | GCLineStyle | GCCapStyle | GCJoinStyle | GCFillStyle;
+    XGCValues vals;
+    vals.graphics_exposures = false;
+    vals.foreground = cmap.pixel(d->cbrush.color());
+    vals.background = cmap.pixel(d->bg_col);
+    vals.cap_style = CapButt;
+    vals.join_style = JoinMiter;
+    vals.line_style = LineSolid;
+
     if (bs == Qt::TexturePattern || bs >= Qt::Dense1Pattern && bs <= Qt::DiagCrossPattern) {
         QPixmap pm;
         if (bs == Qt::TexturePattern)
@@ -1332,15 +929,26 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
             pm = qt_pixmapForBrush(bs, true);
         pm.x11SetScreen(d->scrn);
         if (pm.depth() == 1) {
-            XSetStipple(d->dpy, d->gc_brush, pm.handle());
+            mask |= GCStipple;
+            vals.stipple = pm.handle();
             s = d->bg_mode == Qt::TransparentMode ? FillStippled : FillOpaqueStippled;
         } else {
-            XSetTile(d->dpy, d->gc_brush, pm.handle());
+            mask |= GCTile;
+            vals.tile = pm.handle();
             s = FillTiled;
         }
-        XSetTSOrigin(d->dpy, d->gc_brush, qRound(origin.x()), qRound(origin.y()));
+        mask |= GCTileStipXOrigin | GCTileStipYOrigin;
+        vals.ts_x_origin = qRound(origin.x());
+        vals.ts_y_origin = qRound(origin.y());
     }
-    XSetFillStyle(d->dpy, d->gc_brush, s);
+    vals.fill_style = s;
+    XChangeGC(d->dpy, d->gc_brush, mask, &vals);
+    if (!hasClipping()) {
+        if (d->pdev == paintEventDevice && paintEventClipRegion)
+            x11SetClipRegion(d->dpy, d->gc_brush, 0, d->xft_hd, *paintEventClipRegion);
+        else
+            x11ClearClipRegion(d->dpy, d->gc_brush, 0, d->xft_hd);
+    }
 }
 
 void QX11PaintEngine::drawEllipse(const QRectF &rect)
@@ -1987,10 +1595,8 @@ void QX11PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
     d->bg_mode = mode;
     d->bg_brush = bgBrush;
     d->bg_col = bgBrush.color();
-    if (!d->penRef)
-        updatePen(d->cpen);                            // update pen setting
-    if (!d->brushRef)
-        updateBrush(d->cbrush, d->bg_origin);                        // update brush setting
+    updatePen(d->cpen);
+    updateBrush(d->cbrush, d->bg_origin);
 }
 
 void QX11PaintEngine::updateMatrix(const QMatrix &mtx)
@@ -2039,18 +1645,12 @@ void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperat
     }
 
     setf(ClipOn);
-    if (d->penRef)
-        updatePen(d->cpen);
-    if (d->brushRef)
-        updateBrush(d->cbrush, d->bg_origin);
     x11SetClipRegion(d->dpy, d->gc, d->gc_brush, d->xft_hd, d->crgn);
 }
 
 void QX11PaintEngine::updateFont(const QFont &)
 {
     clearf(DirtyFont);
-    if (d->penRef)
-        updatePen(d->cpen);                            // force a non-cached GC
 }
 
 Qt::HANDLE QX11PaintEngine::handle() const
