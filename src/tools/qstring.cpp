@@ -11671,6 +11671,16 @@ bool QChar::isDigit() const
     return (category() == Number_DecimalDigit);
 }
 
+
+/*!
+  Returns whether the character is a symbol (Symbol_* categories)
+*/
+bool QChar::isSymbol() const
+{
+    Category c = category();
+    return c >= Symbol_Math && c <= Symbol_Other;
+}
+
 /*!
   Returns the numeric value of the digit, or -1 if the character is not
   a digit.

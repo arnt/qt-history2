@@ -190,6 +190,7 @@ public:
     bool isNumber() const;
     bool isLetterOrNumber() const;
     bool isDigit() const;
+    bool isSymbol() const;
 
     uchar cell() const { return ((uchar) ucs & 0xff); }
     uchar row() const { return ((uchar) (ucs>>8)&0xff); }
