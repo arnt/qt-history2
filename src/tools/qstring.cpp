@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#89 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#90 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#89 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#90 $");
 
 
 /*****************************************************************************
@@ -848,9 +848,10 @@ QString QString::right( uint len ) const
 	QString empty;
 	return empty;
     } else {
-	char *p = data() + (length() - len);
-	if ( p < data() )
-	    p = data();
+	uint l = length();
+	if ( len > l )
+	    len = l;
+	char *p = data() + (l - len);
 	return QString( p );
     }
 }
