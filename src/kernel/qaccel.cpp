@@ -346,8 +346,8 @@ void QAccel::clear()
 
 
 /*!
-  Returns the key code of the accelerator item with the identifier \a id,
-  or zero if the id cannot be found.
+  Returns the key sequence of the accelerator item with the identifier \a id,
+  or an invalid sequence if the id cannot be found.
 */
 
 QKeySequence QAccel::key( int id )
