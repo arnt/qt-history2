@@ -221,7 +221,7 @@ void read_jpeg_image(QImageIO* iio)
 	params.simplifyWhiteSpace();
 	int sWidth = 0, sHeight = 0;
 	char sModeStr[1024] = "";
-	QImage::ScaleMode sMode; 
+	QImage::ScaleMode sMode;
 
 	if ( params.contains( "GetHeaderInformation" ) ) {
 
@@ -334,11 +334,11 @@ void read_jpeg_image(QImageIO* iio)
         }
 
 	if ( cinfo.density_unit == 1 ) {
-	    image.setDotsPerMeterX( 100. * cinfo.X_density / 2.54 );
-	    image.setDotsPerMeterY( 100. * cinfo.Y_density / 2.54 );
+	    image.setDotsPerMeterX( int(100. * cinfo.X_density / 2.54) );
+	    image.setDotsPerMeterY( int(100. * cinfo.Y_density / 2.54) );
 	} else if ( cinfo.density_unit == 2 ) {
-	    image.setDotsPerMeterX( 100. * cinfo.X_density );
-	    image.setDotsPerMeterY( 100. * cinfo.Y_density );
+	    image.setDotsPerMeterX( int(100. * cinfo.X_density) );
+	    image.setDotsPerMeterY( int(100. * cinfo.Y_density) );
 	}
 
 	iio->setImage(image);
