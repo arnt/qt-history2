@@ -363,17 +363,17 @@ QAbstractItemView::~QAbstractItemView()
 */
 void QAbstractItemView::setModel(QAbstractItemModel *model)
 {
-     if (d->model) {
+    if (d->model) {
         QObject::disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                             this, SLOT(dataChanged(QModelIndex,QModelIndex)));
         QObject::disconnect(d->model, SIGNAL(rowsInserted(const QModelIndex&,int,int)),
                             this, SLOT(rowsInserted(const QModelIndex&,int,int)));
         QObject::disconnect(d->model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
                             this, SLOT(rowsRemoved(const QModelIndex&,int,int)));
-
-        if (static_cast<QObject*>(d->model)->parent() == this)
-            delete d->model;
-     }
+        
+//         if (static_cast<QObject*>(d->model)->parent() == this)
+//             delete d->model;
+    }
 
      d->model = model;
 
@@ -388,11 +388,7 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
 
     setRoot(QModelIndex());
 
-    // We always set a new selection model when we get a new data model
-    if (d->selectionModel && d->selectionModel->parent() == this) {
-        delete d->selectionModel;
-        d->selectionModel = 0;
-    }
+    d->selectionModel = 0;
     setSelectionModel(new QItemSelectionModel(d->model, this));
 }
 
