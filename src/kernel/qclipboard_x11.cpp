@@ -627,12 +627,16 @@ bool QClipboard::event( QEvent *e )
 	break;
 
     case SelectionNotify:
-	// some has delivered data to us
-	if (xevent->xselection.selection == XA_PRIMARY)
-	    selectionData()->clear();
-	else
-	    clipboardData()->clear();
+	/*
+	  Something has delivered data to us, but this was not caught
+	  by QClipboardWatcher::getDataInFormat()
 
+	  Just skip the event to prevent Bad Things (tm) from
+	  happening later on...
+	*/
+#ifdef QT_CHECK_STATE
+	qWarning( "QClipboard: Unknown SelectionNotify event received" );
+#endif // QT_CHECK_STATE
 	break;
 
     case SelectionRequest:
@@ -907,7 +911,7 @@ QClipboardWatcher::QClipboardWatcher( QClipboard::Mode mode )
 
 #ifdef QT_CHECK_RANGE
     default:
-	qWarning( "QClipboardWatcher::empty: internal error!" );
+	qWarning( "QClipboardWatcher: internal error, unknown clipboard mode" );
 	break;
 #endif // QT_CHECK_RANGE
     }
@@ -927,6 +931,14 @@ bool QClipboardWatcher::empty() const
 {
     Display *dpy = owner->x11Display();
     Window win = XGetSelectionOwner( dpy, atom );
+
+#ifdef QT_CHECK_STATE
+    if( win == owner->winId()) {
+        qWarning( "QClipboardWatcher::empty: internal error, app owns the selection" );
+        return TRUE;
+    }
+#endif // QT_CHECK_STATE
+
     return win == None;
 }
 
@@ -1065,7 +1077,8 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
     XFlush( dpy );
 
     XEvent xevent;
-    if ( !qt_xclb_wait_for_event(dpy,win,SelectionNotify,&xevent,1000) )
+    if ( !qt_xclb_wait_for_event(dpy,win,SelectionNotify,&xevent,1000) ||
+	 xevent.xselection.property == None )
 	return buf;
 
     Atom   type;
@@ -1162,12 +1175,11 @@ void QClipboard::setData( QMimeSource* src, Mode mode )
     else
 	emit dataChanged();
 
-    // ### perhaps this should be QT_CHECK_RANGE ?
     if ( XGetSelectionOwner(dpy, atom) != win ) {
-#if defined(QCLIPBOARD_DEBUG)
-	qDebug( "QClipboard::setData: Cannot set X11 selection owner for %s",
-		XGetAtomName(dpy, atom));
-#endif
+#ifdef QT_CHECK_STATE
+	qWarning( "QClipboard::setData: Cannot set X11 selection owner for %s",
+		  XGetAtomName(dpy, atom));
+#endif // QT_CHECK_STATE
 	return;
     }
 
