@@ -19,22 +19,22 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 *			   Library					   *
 ****************************************************************************
 
-- QAccel
+- QAccel:
 	Corrected illegal accelerator state when using multiple
 	keysequences. (Resulted in no accelerator being triggered when
 	there's a partial match). Only triggers on enabled
 	accelerators and their enabled items. Eats all keys in a
 	keysequence, not just the first and last.
 
-- QCString
+- QCString:
 	Speed-optimized replace().
 
-- QDataStream
+- QDataStream:
 	Applies to printable data streams only: If the version number
 	of the device is less than 4, use the same streaming format
 	that was used in Qt 2.3 and earlier.
 
-- QDataTable
+- QDataTable:
 	Respect read-only columns. Make it possible to swap columns.
 
 - QDockWindow:
@@ -49,27 +49,27 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 	Windows only: Fixed QFontMetrics::boundingRect( QChar c ) to
 	work for non-TrueType fonts.
 
-- QHeader
+- QHeader:
 	Optimized the sectionSizeHint() calculation, which in turn 
 	speeds up all QHeader size/label calculations.
 
-- QIconFactory
+- QIconFactory:
 	Avoid infinite loops when recursively calling
 	QPixmap::pixmap().
 
-- QIconView
+- QIconView:
 	Fixed navigation and selection with arrow keys. Some speedups
 	when repainting.
 
-- QKeySequence
+- QKeySequence:
 	Treat Unicode characters in string defined sequences
 	correctly. So, now letters like Æ, Ø and Å should work as
 	accelerators, even through translation files.
 
-- QLayout
+- QLayout:
 	alignmentRect() respects the layout's maximum size.
 
-- QLineEdit
+- QLineEdit:
 	Added a lostFocus() signal. Double-clicking only uses spaces
 	as word bounderies for the selection now, not dots, commas,
 	etc. Support double-click+mousemove selection.
@@ -79,20 +79,20 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 	signal (this was sometimes wrong). Don't select items that are
 	not selectable.
 
-- QListView
+- QListView:
 	Shift selection in Extended mode now follows Windows
 	Shift-selection standard. Erase empty area when drawing
 	listviews without columns. Only drops on drop-enabled items
 	that accept drops.
 
-- QListViewItem
+- QListViewItem:
 	Optimized size claculation for multi-line items.
 
-- QMainWindow
+- QMainWindow:
 	Base the minimumSizeHint() on the sizeHint()s of the left hand
 	dock area (instead of the minimumSize()).
 
-- QMenuBar
+- QMenuBar:
 	Fixed broken Alt release detection. Fixed flickering. Fixed
 	empty menubars resizing properly.
 
@@ -101,29 +101,29 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 	SIGNALs from SIGNALs and disconnect()ing multiple SLOTs with
 	the same name from a SIGNAL.
 
-- QProcess
+- QProcess:
 	Unix only: Don't eat the file descriptors if a lot of
 	processes (with short runtimes) are started immediately after
 	each other.
 
-- QPSQLDriver
+- QPSQLDriver:
 	Make the driver compile with the standard PostgreSQL source
 	distribution under Windows. Better handling of network,
 	datetime and geometrical datatypes.
 
-- QRegion
+- QRegion:
 	Fixed setRects() to calculate the bounding rectangle
 	correctly.
 
-- QScrollView
+- QScrollView:
 	Doesn't reposition the view when the user is scrolling the
 	view.
 
-- QSpinBox
+- QSpinBox:
 	Fixed setValue() so that any not-yet-interpreted input is
 	ignored when setting a new value.
 
-- QString
+- QString:
 	Support QTextCodec::codecForCStrings(). Support
 	string<-->QString conversation when STL support is on.
 
@@ -131,20 +131,20 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 	Added function rehighlight(). Improved internals to be more
 	efficient (less calls to highlightParagraph() necessary).
 
-- QTable
+- QTable:
 	Fixed Tab/BackTab handling to always work. Fixed
 	setColumnLabels() and setRowLabels().
 
-- QTableItem (and subclasses)
-	Now supports global struts. (see QApplication::globalStrut()).
+- QTableItem (and subclasses):
+	Now supports global struts. (See QApplication::globalStrut().)
 
-- QTDSDriver
+- QTDSDriver:
 	Added support for binary datatypes.
 
-- QTextCodec
+- QTextCodec:
 	Added QTextCodec::codecForCStrings and QTextCodec::codecForTr.
 
-- QTextEdit
+- QTextEdit:
 	Fixed a painting error which resulted in areas of the textedit
 	not being erased correctly. Make sure repainting is done after
 	changing the underline-links setting. Renamed 'allowTabs'
@@ -153,11 +153,11 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 	quotes. Fixed a background erasing bug which messed up the
 	view.
 
-- QUrl
+- QUrl:
 	Recognize Windows drive letters not only in the form of "c:/"
 	but also in the form "c:" (without the '/').
 
-- QWidget
+- QWidget:
 	Fixed some visibility issues.
 
 ****************************************************************************
@@ -175,7 +175,7 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
   tool uses the same plugins as Qt Designer for loading other dialog
   description files.
 
-- A import filter for .kdevdlg files has been added.
+- An import filter for .kdevdlg files has been added.
 
 - Actions in the action editor are now sortable.
 
