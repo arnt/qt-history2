@@ -756,8 +756,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 #endif
 	/* Just to be extra careful we will change to the kUtilityWindowClass if the
 	   requested attributes cannot be used */
-	if((GetAvailableWindowAttributes(wclass) & wattr) != wattr) 
-	    wclass = kUtilityWindowClass;
 
 #ifdef QMAC_USE_WDEF
 	if((wclass == kPlainWindowClass && wattr == kWindowNoAttributes) || testWFlags(WStyle_Tool)) {
