@@ -6,9 +6,9 @@
 
 #include "qtextglobal.h"
 
-struct QTextInlineObjectInterface;
+class QTextInlineObjectInterface;
 
-class QTextObjectManager : public QObject, 
+class QTextObjectManager : public QObject,
 			 public QTextInlineObjectInterface
 {
     Q_OBJECT

@@ -139,8 +139,8 @@ void QTextPieceTable::removeBlocks(int pos, int length)
     if (!end.atEnd())
 	++end;
 
-    for (BlockMap::ConstIterator b = blocks.find(pos); b != end; ++b) {
-	int key = b.key();
+    for (BlockMap::ConstIterator bit = blocks.find(pos); bit != end; ++bit) {
+	int key = bit.key();
 	if (key >= pos)
 	    emit blockChanged(key, false /*removed*/);
     }
@@ -188,7 +188,7 @@ void QTextPieceTable::insertBlockSeparator(int pos, int blockFormat)
 
     truncateUndoStack();
 
-    UndoCommand c = { UndoCommand::Inserted, undoBlock != 0,
+    UndoCommand c = { UndoCommand::Inserted, (undoBlock != 0),
 		      UndoCommand::MoveCursor, blockFormat, strPos, pos, { 1 } };
 
     appendUndoItem(c);
@@ -223,7 +223,7 @@ void QTextPieceTable::insert(int pos, int strPos, int strLength, int format)
 
     truncateUndoStack();
 
-    UndoCommand c = { UndoCommand::Inserted, undoBlock != 0,
+    UndoCommand c = { UndoCommand::Inserted, (undoBlock != 0),
 		      UndoCommand::MoveCursor, format, strPos, pos, { strLength } };
 
     appendUndoItem(c);
@@ -447,7 +447,8 @@ void QTextPieceTable::undoRedo(bool undo)
 */
 void QTextPieceTable::appendUndoItem(QAbstractUndoItem *item)
 {
-    UndoCommand c = { UndoCommand::Custom, undoBlock != 0, UndoCommand::MoveCursor, 0, 0, 0, { 0 } };
+    UndoCommand c = { UndoCommand::Custom, (undoBlock != 0),
+		      UndoCommand::MoveCursor, 0, 0, 0, { 0 } };
     c.custom = item;
     appendUndoItem(c);
 }
