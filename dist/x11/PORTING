@@ -17,11 +17,11 @@ Expect problems with old CFront-based compilers.
 
 			       PATCHES
 
-Note that you may not distribute your port without our explicit
-permission.  Please send us the patches you had to make so we can add them
-to the code base; then we can support the new platform in an orderly
-manner.  (We want Qt to run on as many platforms as possible, but _not_ if
-that involves patches we don't know about floating around the net.)
+Please send us the patches you had to make so we can add them to the
+code base; then we can support the new platform in an orderly manner. 
+(We want Qt to run on as many platforms as possible, but _not_ if that
+involves incompatible patches for the same platform floating around the
+net.) 
 
 Further, we would like to have copies of all Qt-related files on
 ftp.troll.no.
