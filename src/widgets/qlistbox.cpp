@@ -3643,8 +3643,13 @@ void QListBox::doRubberSelection( const QRect &old, const QRect &rubber )
     QListBoxItem *i = d->head;
     QRect ir, pr;
     bool changed = FALSE;
+    bool alreadyFitted = FALSE;
     for ( ; i; i = i->n ) {
 	ir = itemRect( i );
+	if ( ir == QRect( 0, 0, -1, -1 ) && alreadyFitted )
+	    break;
+	if ( !alreadyFitted && ir != QRect( 0, 0, -1, -1 ) )
+	     alreadyFitted = TRUE;
 	if ( i->selected() && !ir.intersects( rubber ) && ir.intersects( old ) ) {
 	    i->s = FALSE;
 	    pr = pr.unite( ir );
