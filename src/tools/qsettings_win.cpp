@@ -380,7 +380,7 @@ bool QSettings::writeEntry( const QString &key, const QStringList &value, const 
 QStringList QSettings::readListEntry( const QString &key, const QChar &sep, bool *ok )
 {
     QString joined = readEntry( key, QString::null, ok );
-    if ( ok && *ok )
+    if ( (!ok) || ( ok && *ok ) )
 	return QStringList::split( sep, joined );
     else
 	return QStringList();
