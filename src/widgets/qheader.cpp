@@ -1358,11 +1358,15 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
 
     int arrowWidth = orient == Qt::Horizontal ? height() / 2 : width() / 2;
     int arrowHeight = fr.height() - 6;
-    int tw = p->fontMetrics().width( s ) + 16;
+    int tw = tw = p->fontMetrics().width( s ) + 16, ew = 0;
+    if( style().styleHint( QStyle::SH_Header_Arrow_Alignment, this ) & AlignRight) 
+	ew = fr.width() - tw - pw - arrowWidth - 8;
     if ( d->sortColumn == section && pw + tw + arrowWidth + 2 < fr.width() ) {
-	if( reverse() )
-	    tw = fr.width() - tw - arrowWidth;
-	style().drawPrimitive( QStyle::PO_HeaderArrow, p, QRect(fr.x() + pw + tw, 4, arrowWidth, arrowHeight),
+	if( reverse() ) {
+	    tw = fr.width() - tw;
+	    ew = fr.width() - ew - tw;
+	}
+	style().drawPrimitive( QStyle::PO_HeaderArrow, p, QRect(fr.x() + pw + tw + ew, 4, arrowWidth, arrowHeight),
 			       colorGroup(), d->sortDirection ? QStyle::PStyle_Down : QStyle::PStyle_Up);
     }
 }

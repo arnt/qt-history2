@@ -409,7 +409,8 @@ public:
 	SH_ScrollBar_BackgroundMode,
 	SH_ScrollBar_MiddleClickAbsolutePosition,
 	SH_ScrollBar_ScrollWhenPointerLeavesControl,
-	SH_TabBar_Alignment
+	SH_TabBar_Alignment,
+	SH_Header_Arrow_Alignment
     };
 
     virtual int styleHint( StyleHint stylehint,

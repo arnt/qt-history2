@@ -1641,6 +1641,9 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, void ***d) const
 {
     int ret = 0;
     switch(sh) {
+    case SH_Header_Arrow_Alignment:
+	ret = Qt::AlignRight;
+	break;
     case SH_TabBar_Alignment:
 	ret = Qt::AlignHCenter;
 	break;

@@ -2126,6 +2126,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget *, void ***) const
 	break;
 
     case SH_TabBar_Alignment:
+    case SH_Header_Arrow_Alignment:
 	ret = Qt::AlignLeft;
 	break;
 
