@@ -492,18 +492,26 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
 }
 
 /*!
-    This function is called when the document is loaded. the \a type indercates the type
-    of resurece to be loaded. For now this is only Source or Image. For each image in
-    the document loadImage is called at least once. If the \a type is Image \a name corresponds
-    to the name of the attribute of QTextImageFormat or the source attribute of the html img tag.
+    This function is called when the document is loaded. The \a type
+    indicates the type of resource to be loaded. For each image in
+    the document, this function is called once.
 
-    The default implementation tries to locate the resources by interpreting \a name as
-    a file name. If it is not an absolute path it tries to find the file in the paths
-    of the searchPaths property and in the same directory as the current source.
+    The default implementation ignores \a type and tries to locate
+    the resources by interpreting \a name as a file name. If it is
+    not an absolute path it tries to find the file in the paths of
+    the \l searchPaths property and in the same directory as the
+    current source. On success, the result is a QVariant that stores
+    a QByteArray with the contents of the file.
 
-  //### write better doc's
-    For type = HtmlResource the returned variant can be of type ByteArray or String.
-    For type = ImageResource the returned variant can be of type ByteArray, Image or Pixmap
+    If you reimplement this function, you can return other QVariant
+    types. The table below shows which variant types are supported
+    depending on the resource type:
+
+    \table
+    \header \i ResourceType  \i QVariant::Type
+    \row    \i HtmlResource  \i QString or QByteArray
+    \row    \i ImageResource \i QImage or QPixmap or QByteArray
+    \endtable
 */
 QVariant QTextBrowser::loadResource(ResourceType /*type*/, const QString &name)
 {
