@@ -155,4 +155,4 @@ include:
 	set -e ; for d in $(DIRS); do make -C $$d include ; done
 
 tags:
-	echo */*.cpp */*.h | egrep -v '_win.cpp|_os2.cpp|moc/' | etags --c++ -
+	echo */*.cpp */*.h | fmt -1 | egrep -v '_win|_os2|moc/' | etags --c++ -
