@@ -112,6 +112,12 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
   <hr>
 
+  Main:
+
+  \include action/actiongroup/tiny_editor.cpp
+
+  <hr>
+
   Header file:
 
   \include action/actiongroup/editor.h
@@ -119,14 +125,6 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
   <hr>
 
   Implementation:
-
-  \include action/actiongroup/editor.cpp
-
-  <hr>
-
-  Main:
-
-  \include action/actiongroup/tiny_editor.cpp
 
 */
 
