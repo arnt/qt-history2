@@ -5524,6 +5524,7 @@ void  QWidget::reparent( QWidget *parent, const QPoint & p,
 
 #ifdef Q_OS_TEMP
 #define SHFS_HIDETASKBAR            0x0002
+#define SHFS_SHOWSIPBUTTON          0x0004
 #define SHFS_HIDESIPBUTTON          0x0008
 extern "C" BOOL __cdecl SHFullScreen(HWND hwndRequester, DWORD dwState);
 #endif
@@ -5551,7 +5552,7 @@ void QWidget::showFullScreen()
     raise();
     show();
 #ifdef Q_OS_TEMP
-    SHFullScreen( winId(), SHFS_HIDETASKBAR | SHFS_HIDESIPBUTTON );
+    SHFullScreen( winId(), SHFS_HIDETASKBAR | (QApplication::showInputPanelButton ? SHFS_SHOWSIPBUTTON : SHFS_HIDESIPBUTTON) );
 #endif
     QEvent e( QEvent::ShowFullScreen );
     QApplication::sendEvent( this, &e );

@@ -905,6 +905,7 @@ void QWidget::hideWindow()
 #ifdef Q_OS_TEMP
 #define SHFS_SHOWTASKBAR            0x0001
 #define SHFS_SHOWSIPBUTTON          0x0004
+#define SHFS_HIDESIPBUTTON          0x0008
 extern "C" BOOL __cdecl SHFullScreen(HWND hwndRequester, DWORD dwState);
 #endif
 
@@ -915,7 +916,7 @@ void QWidget::showMinimized()
 	    reparent( 0, d->topData()->savedFlags, d->topData()->normalGeometry.topLeft() );
 	    d->topData()->fullscreen = 0;
 #ifdef Q_OS_TEMP
-	    SHFullScreen( winId(), SHFS_SHOWTASKBAR | SHFS_SHOWSIPBUTTON );
+	    SHFullScreen( winId(), SHFS_SHOWTASKBAR | (QApplication::showInputPanelButton ? SHFS_SHOWSIPBUTTON : SHFS_HIDESIPBUTTON) );
 #endif
 	}
 #ifndef Q_OS_TEMP
@@ -941,18 +942,20 @@ bool QWidget::isMinimized() const
     // true for non-toplevels that have the minimized flag, e.g. MDI children
     return
 #ifndef Q_OS_TEMP
-		IsIconic(winId()) ||
+	    IsIconic(winId()) || ( !isTopLevel() && testWState( WState_Minimized ) );
+#else
+	    testWState( WState_Minimized );
 #endif
-		( !isTopLevel() && testWState( WState_Minimized ) );
 }
 
 bool QWidget::isMaximized() const
 {
     return
 #ifndef Q_OS_TEMP
-		IsZoomed(winId()) ||
+	    IsZoomed(winId()) || ( !isTopLevel() && testWState( WState_Maximized ) );
+#else
+	    testWState( WState_Maximized );
 #endif
-		( !isTopLevel() && testWState( WState_Maximized ) );
 }
 
 void QWidget::showMaximized()
@@ -975,7 +978,7 @@ void QWidget::showMaximized()
 		      (getWFlags() & 0xffff0000), // preserve some widget flags
 		      topData()->normalGeometry.topLeft() );
 	    topData()->fullscreen = 0;
-	    SHFullScreen( winId(), SHFS_SHOWTASKBAR | SHFS_SHOWSIPBUTTON );
+	    SHFullScreen( winId(), SHFS_SHOWTASKBAR | (QApplication::showInputPanelButton ? SHFS_SHOWSIPBUTTON : SHFS_HIDESIPBUTTON) );
 	}
 #endif
 	if ( isVisible() )
@@ -1018,8 +1021,8 @@ void QWidget::showNormal()
 	    if ( exsty )
 		SetWindowLong( winId(), GWL_EXSTYLE, exsty );
 	    // flush Window style cache
+	    SHFullScreen( winId(), SHFS_SHOWTASKBAR | (QApplication::showInputPanelButton ? SHFS_SHOWSIPBUTTON : SHFS_HIDESIPBUTTON) );
 	    SetWindowPos( winId(), HWND_TOP, 0, 0, 200, 200, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED );
-	    SHFullScreen( winId(), SHFS_SHOWTASKBAR | SHFS_SHOWSIPBUTTON );
 #endif
 	    d->topData()->fullscreen = 0;
 	    QRect r = d->topData()->normalGeometry;
