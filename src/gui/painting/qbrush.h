@@ -75,7 +75,7 @@ private:
     friend class QWSPaintEngine;
 #endif
     friend class QPainter;
-    inline void detach(Qt::BrushStyle newStyle);
+    void detach(Qt::BrushStyle newStyle);
     void init(const QColor &color, Qt::BrushStyle bs);
     QBrushData *d;
     void cleanUp(QBrushData *x);
