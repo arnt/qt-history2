@@ -777,7 +777,9 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
     lcMine.lcOutOrgX = 0;
     lcMine.lcOutExtX = GetSystemMetrics( SM_CXSCREEN );
     lcMine.lcOutOrgY = 0;
-    lcMine.lcOutExtY = -GetSystemMetrics( SM_CXSCREEN );
+	// the tablet deals with coordinates as most humans do, make it follow
+	// the standard screen idea of coordinates...
+    lcMine.lcOutExtY = -GetSystemMetrics( SM_CYSCREEN );
 #endif
 }
 
@@ -3585,6 +3587,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	QWidget *w = QApplication::widgetAt( globalPos, TRUE );	
 	if ( w == NULL )
 	    w = this;
+	QPoint localPos = w->mapFromGlobal( globalPos );
 	if ( !tilt_support )
 	    tiltX = tiltY = 0;
 	else {
@@ -3607,7 +3610,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	    tiltY = -degY * ( 180 / PI );
 	}
 
-	QTabletEvent e( globalPos, globalPos, dev, prsNew, tiltX, tiltY );
+	QTabletEvent e( localPos, localPos, dev, prsNew, tiltX, tiltY );
 	sendEvent = QApplication::sendSpontaneousEvent( w, &e );
     }
     return sendEvent;
