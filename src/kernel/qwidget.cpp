@@ -723,9 +723,9 @@ QWidget::QWidget(QWidget *parent, WFlags f)
 QWidget::QWidget(QWidget *parent, const char *name, WFlags f)
     : QObject(*new QWidgetPrivate, ((parent && parent->isDesktop()) ? 0 : parent)), QPaintDevice(QInternal::Widget)
 {
+    d->init(f);
     if (name)
 	setObjectName(name);
-    d->init(f);
 }
 
 /*! \internal
