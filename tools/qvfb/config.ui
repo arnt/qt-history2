@@ -1695,8 +1695,11 @@
           <property name="objectName" >
             <string notr="true">TextLabel1</string>
           </property>
+	  <property name="wordWrap">
+		<bool>true</bool>
+	  </property>
           <property name="text" >
-            <string>&lt;p>Note that any applications using the virtual framebuffer will be terminated if you change the Size or Depth &lt;i>above&lt;/i>. You may freely modify the Gamma &lt;i>below&lt;/i>.</string>
+            <string>&lt;p&gt;Note that any applications using the virtual framebuffer will be terminated if you change the Size or Depth &lt;i&gt;above&lt;/i&gt;. You may freely modify the Gamma &lt;i&gt;below&lt;/i&gt;.</string>
           </property>
         </widget>
       </item>
