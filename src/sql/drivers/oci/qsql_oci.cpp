@@ -1858,7 +1858,7 @@ bool QOCIDriver::hasFeature( DriverFeature f ) const
 	return d->serverVersion >= 9;
     case PreparedQueries:
 	return TRUE;
-    case OracleBindingStyle:
+    case NamedPlaceholders:
 	return TRUE;
     default:
 	return FALSE;

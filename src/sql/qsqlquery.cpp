@@ -883,7 +883,7 @@ bool QSqlQuery::prepare( const QString& query )
 	// vice versa to make this db independant
 	QString q = query;
 	int i = 0, cnt = 0;
-	if ( driver()->hasFeature( QSqlDriver::OracleBindingStyle ) ) {
+	if ( driver()->hasFeature( QSqlDriver::NamedPlaceholders ) ) {
 	    QRegExp rx("'[^']*'|\\?");
 	    while ( (i = rx.search( q, i )) != -1 ) {
 		if ( rx.cap(0) == "?" ) {
@@ -892,7 +892,7 @@ bool QSqlQuery::prepare( const QString& query )
 		}
 		i += rx.matchedLength();
 	    }
-	} else if ( driver()->hasFeature( QSqlDriver::ODBCBindingStyle ) ) {
+	} else if ( driver()->hasFeature( QSqlDriver::PositionalPlaceholders ) ) {
 	    QRegExp rx("'[^']*'|:([a-zA-Z0-9_]+)");
 	    while ( (i = rx.search( q, i )) != -1 ) {
 		if ( rx.cap(1).isEmpty() ) {

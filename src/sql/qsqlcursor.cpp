@@ -973,7 +973,7 @@ int QSqlCursor::insert( bool invalidate )
     // use a prepared query if the driver supports it
     if ( driver()->hasFeature( QSqlDriver::PreparedQueries ) ) {
 	int cnt = 0;
-	bool oraStyle = driver()->hasFeature( QSqlDriver::OracleBindingStyle );
+	bool oraStyle = driver()->hasFeature( QSqlDriver::NamedPlaceholders );
 	for( int j = 0; j < k; ++j ) {
 	    QSqlField* f = d->editBuffer.field( j );
 	    if ( d->editBuffer.isGenerated( j ) ) {
@@ -1167,7 +1167,7 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
 	QString fList;
 	bool comma = FALSE;
 	int cnt = 0;
-	bool oraStyle = driver()->hasFeature( QSqlDriver::OracleBindingStyle );
+	bool oraStyle = driver()->hasFeature( QSqlDriver::NamedPlaceholders );
 	for( int j = 0; j < k; ++j ) {
 	    QSqlField* f = d->editBuffer.field( j );
 	    if ( d->editBuffer.isGenerated( j ) ) {

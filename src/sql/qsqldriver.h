@@ -66,7 +66,7 @@ class QM_EXPORT_SQL QSqlDriver : public QObject
     Q_OBJECT
 public:
     enum DriverFeature { Transactions, QuerySize, BLOB, Unicode, PreparedQueries,
-			 OracleBindingStyle, ODBCBindingStyle };
+			 NamedPlaceholders, PositionalPlaceholders };
 
     QSqlDriver( QObject * parent=0, const char * name=0 );
     ~QSqlDriver();
