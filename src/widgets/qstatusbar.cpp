@@ -292,7 +292,8 @@ void QStatusBar::reformat()
     while ( item && !item->p ) {
 	l->addWidget( item->w, item->s );
 	l->addSpacing( 4 );
-	int itemH = item->w->sizeHint().height();
+	int itemH = QMIN(item->w->sizeHint().height(),
+			 item->w->maximumHeight());
 	maxH = QMAX( maxH, itemH );
 	item = d->items.next();
     }
@@ -302,7 +303,8 @@ void QStatusBar::reformat()
     while ( item ) {
 	l->addWidget( item->w, item->s );
 	l->addSpacing( 4 );
-	int itemH = item->w->sizeHint().height();
+	int itemH = QMIN(item->w->sizeHint().height(), 
+			 item->w->maximumHeight());
 	maxH = QMAX( maxH, itemH );
 	item = d->items.next();
     }
