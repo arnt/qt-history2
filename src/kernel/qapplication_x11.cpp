@@ -282,6 +282,7 @@ Atom            qt_clipboard_sentinel   = 0;
 Atom		qt_selection_sentinel	= 0;
 Atom		qt_wm_state		= 0;
 static Atom 	qt_desktop_properties	= 0;	// Qt desktop properties
+static Atom 	qt_input_encoding 		= 0;	// Qt desktop properties
 static Atom 	qt_resource_manager	= 0;	// X11 Resource manager
 Atom 		qt_sizegrip		= 0;	// sizegrip
 Atom 		qt_wm_client_leader	= 0;
@@ -712,6 +713,37 @@ static bool qt_set_desktop_properties()
     return TRUE;
 }
 
+// read the _QT_INPUT_ENCODING property and apply the settings to
+// the application
+static void qt_set_input_encoding()
+{
+    Atom type;
+    int format;
+    ulong  nitems, after = 1;
+    const char *data;
+
+    int e = XGetWindowProperty( appDpy, appRootWin, qt_input_encoding, 0, 1024,
+				FALSE, XA_STRING, &type, &format, &nitems,
+				&after,  (unsigned char**)&data );
+    if ( e != Success || !nitems || type == None ) {
+	// Always use the locale codec, since we have no examples of non-local
+	// XIMs, and since we cannot get a sensible answer about the encoding
+	// from the XIM.
+	input_mapper = QTextCodec::codecForLocale();
+	
+    } else {
+	if ( !strcasecmp( data, "locale" ) ) 
+	    input_mapper = QTextCodec::codecForLocale();
+	else
+	    input_mapper = QTextCodec::codecForName( data );
+	// make sure we have an input codec
+	if( !input_mapper )
+	    input_mapper = QTextCodec::codecForName( "ISO 8859-1" );
+    }
+    if( data )
+	XFree( (unsigned char *) data );
+
+}
 
 // set font, foreground and background from x11 resources. The
 // arguments may override the resource settings.
@@ -1223,6 +1255,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_x11_intern_atom( "_NET_WM_CONTEXT_HELP", &qt_net_wm_context_help );
 	qt_x11_intern_atom( "RESOURCE_MANAGER", &qt_resource_manager );
 	qt_x11_intern_atom( "_QT_DESKTOP_PROPERTIES", &qt_desktop_properties );
+	qt_x11_intern_atom( "_QT_INPUT_ENCODING", &qt_input_encoding );
 	qt_x11_intern_atom( "_QT_SIZEGRIP", &qt_sizegrip );
 	qt_x11_intern_atom( "WM_CLIENT_LEADER", &qt_wm_client_leader);
 	qt_x11_intern_atom( "WINDOW_ROLE", &qt_window_role);
@@ -1299,10 +1332,8 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    QApplication::create_xim();
 #endif
 #endif
-	// Always use the locale codec, since we have no examples of non-local
-	// XIMs, and since we cannot get a sensible answer about the encoding
-	// from the XIM.
-	input_mapper = QTextCodec::codecForLocale();
+
+	qt_set_input_encoding();
 
 	// pick default character set (now that we have done setlocale stuff)
 	QFont::locale_init();
@@ -2654,12 +2685,14 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    } else if ( event->xproperty.atom == qt_selection_sentinel ) {
 		if (qt_check_selection_sentinel( event ) )
 		    emit clipboard()->dataChanged();
+	    } else if ( event->xproperty.atom == qt_input_encoding ) {
+		qt_set_input_encoding();
 	    } else if ( obey_desktop_settings ) {
 		if ( event->xproperty.atom == qt_resource_manager )
 		    qt_set_x11_resources();
 		else if ( event->xproperty.atom == qt_desktop_properties )
 		    qt_set_desktop_properties();
-	    }
+	    } 
 	} else if ( widget ) { // widget properties
 	    // nothing yet
 	}
@@ -3353,7 +3386,7 @@ static void insertTimer( const TimerInfo *ti )	// insert timer info into list
     timerList->insert( index, ti );		// inserts sorted
 #if defined(DEBUG)
     if ( dangerCount > 16 )
-	debug( "QObject: %d timers now exist for object %s::%s",
+	qDebug( "QObject: %d timers now exist for object %s::%s",
 	       dangerCount, ti->obj->className(), ti->obj->name() );
 #endif
 }
