@@ -304,12 +304,12 @@ bool QWaitCondition::wait(unsigned long time)
 
   \sa wakeOne(), wakeAll()
 */
-bool QWaitCondition::wait(QMutex *mtx, unsigned long time)
+bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
 {
-    if (! mtx)
+    if (! mutex)
 	return FALSE;
 
-    if (mtx->d->type() == Q_MUTEX_RECURSIVE) {
+    if (mutex->d->type() == Q_MUTEX_RECURSIVE) {
 #ifdef QT_CHECK_RANGE
 	qWarning("Wait condition warning: using recursive mutexes with\n"
 		 "                        wait conditions is undefined!");
@@ -326,9 +326,9 @@ bool QWaitCondition::wait(QMutex *mtx, unsigned long time)
 	ti.tv_sec = tv.tv_sec + (time / 1000);
 	ti.tv_nsec = (tv.tv_usec * 1000) + (time % 1000) * 1000000;
 
-	ret = Q_COND_TIMEDWAIT(&d->cond, &mtx->d->handle, &ti);
+	ret = Q_COND_TIMEDWAIT(&d->cond, &mutex->d->handle, &ti);
     } else
-	ret = Q_COND_WAIT(&d->cond, &mtx->d->handle);
+	ret = Q_COND_WAIT(&d->cond, &mutex->d->handle);
 
 #ifdef QT_CHECK_RANGE
     if (ret)

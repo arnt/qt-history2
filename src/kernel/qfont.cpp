@@ -896,7 +896,7 @@ void QFont::setStyleHint( StyleHint hint, StyleStrategy strategy )
 }
 
 /*! 
-  Sets a style strategy for the font.
+  Sets the style strategy for the font to \a s.
   
   \sa QFont::StyleStrategy
 */

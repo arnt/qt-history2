@@ -2080,7 +2080,7 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
 }
 
 /*!
-  Draws the pixmap \a p into the rectangle \a r. The pixmap is scaled to fit the rectangle, if
+  Draws the pixmap \a pm into the rectangle \a r. The pixmap is scaled to fit the rectangle, if
   image and rectangle size disagree.
 */
 void QPainter::drawPixmap( const QRect &r, const QPixmap &pm )
