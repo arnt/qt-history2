@@ -16,7 +16,7 @@ int main( int argc, char **argv )
     quit.resize( 75, 30 );
     quit.setFont( QFont( "Times", 18, QFont::Bold ) );
 
-    QObject::connect( &quit, SIGNAL(clicked()), qApp, SLOT(quitApp()) );
+    QObject::connect( &quit, SIGNAL(clicked()), &a, SLOT(quitApp()) );
 
     a.setMainWidget( &quit );
     quit.show();

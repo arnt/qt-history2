@@ -13,14 +13,14 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
 
     QWidget w;
-    w.setGeometry( 100, 100, 200, 120 );
+    w.resize( 200, 120 );
 
     QPushButton quit( "Quit", &w );
     quit.move( 62, 40 );
     quit.resize( 75, 30 );
     quit.setFont( QFont( "Times", 18, QFont::Bold ) );
 
-    QObject::connect( &quit, SIGNAL(clicked()), qApp, SLOT(quitApp()) );
+    QObject::connect( &quit, SIGNAL(clicked()), &a, SLOT(quitApp()) );
 
     a.setMainWidget( &w );
     w.show();

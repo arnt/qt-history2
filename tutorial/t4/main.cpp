@@ -1,5 +1,5 @@
 //
- // Qt Tutorial 4
+// Qt Tutorial 4
 //
 //
 
