@@ -213,7 +213,8 @@ bool FormFile::save( bool withMsgBox )
 
 bool FormFile::saveAs()
 {
-    QString fn = QFileDialog::getSaveFileName( pro->makeAbsolute( filename ),
+    QString f = pro->makeAbsolute( QString( formWindow()->name() ).lower() + ".ui" );
+    QString fn = QFileDialog::getSaveFileName( f,
 					       tr( "Qt User-Interface Files (*.ui)" ) + ";;" +
 					       tr( "All Files (*)" ), MainWindow::self, 0,
 					       tr( "Save form '%1' as ....").arg( name() ),
