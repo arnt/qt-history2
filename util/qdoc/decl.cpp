@@ -919,19 +919,20 @@ void ClassDecl::fillInDocsForThis()
 		if ( func->name() == (*q)->readFunction() ) {
 		    if ( func->parameters().count() == 0 ) {
 			if ( whether )
-			    html = QString( "Returns TRUE %1, otherwise returns"
-					     " FALSE" );
+			    html = QString( "Returns TRUE if %1, otherwise"
+					    " returns FALSE" )
+				   .arg( brief.mid(8) );
 			else
-			    html = QString( "Returns %1" );
+			    html = QString( "Returns " ) + brief;
 		    }
 		} else if ( func->name() == (*q)->resetFunction() ) {
 		    if ( func->parameters().count() == 0 )
-			html = QString( "Resets %1" );
+			html = QString( "Resets " ) + brief;
 		} else {
 		    if ( func->parameters().count() == 1 &&
 			 func->parameters().first().dataType().toString()
 				 .find((*q)->dataType().toString()) != -1 ) {
-			html = QString( "Sets %1" );
+			html = QString( "Sets " ) + brief;
 			if ( !func->parameters().first().name().isEmpty() )
 			    html += QString( " to " ) +
 				    func->parameters().first().name();
@@ -943,10 +944,9 @@ void ClassDecl::fillInDocsForThis()
 
 		if ( !html.isEmpty() ) {
 		    html.prepend( QString("<p>") );
-		    html += QString( ". See the <a href=\"#%2\">\"%3\"</a>"
+		    html += QString( ". See the <a href=\"#%1\">\"%2\"</a>"
 				     " property for details." );
-		    html = html.arg( brief ).arg( (*q)->ref() )
-			       .arg( (*q)->name() );
+		    html = html.arg( (*q)->ref() ).arg( (*q)->name() );
 
 		    func->setDoc( new FnDoc((*q)->location(), html,
 					    QString::null, QString::null,
