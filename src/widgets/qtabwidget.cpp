@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#26 $
 **
 ** Implementation of QTabWidget class
 **
@@ -275,8 +275,8 @@ void QTabWidget::changeTab( QWidget *w, const QString &label)
     setUpLayout();
 }
 
-/*
-  Defines a new iconset and a new label for the tab of page \a w
+/*!
+  Defines a new \a iconset and a new \a label for the tab of page \a w
  */
 void QTabWidget::changeTab( QWidget *w, const QIconSet& iconset, const QString &label)
 {
@@ -510,7 +510,7 @@ QTabWidget::TabPosition QTabWidget::tabPosition() const
   Possible values are QTabWidget::Top and QTabWidget::Bottom.
   \sa tabPosition()
  */
-void QTabWidget::setTabPosition( QTabWidget::TabPosition pos)
+void QTabWidget::setTabPosition( TabPosition pos)
 {
     if (d->pos == pos)
 	return;
