@@ -15,6 +15,7 @@
 #include "qnamespace.h"
 #include "qmutex.h"
 #include "qlist.h"
+#include "qalgorithms.h"
 #include "qt_windows.h"
 
 #define Q_MUTEX_T void*

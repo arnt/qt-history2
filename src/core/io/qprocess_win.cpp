@@ -367,7 +367,7 @@ void QProcessPrivate::startProcess()
 	success = CreateProcessA(0, args.toLocal8Bit().data(),
                                  0, 0, TRUE, 0, environment.isEmpty() ? 0 : envlist.data(),
                                  workingDirectory.isEmpty() ? 0 
-                                    : QDir::convertSeparators(workingDirectory).toLocal8Bit(), 
+                                    : QDir::convertSeparators(workingDirectory).toLocal8Bit().data(), 
                                  &startupInfo, pid);
 #endif // Q_OS_TEMP
     }
