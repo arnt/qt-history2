@@ -32,6 +32,7 @@ class Q3DockAreaLayout;
 class Q3DockWindowPrivate;
 class Q3ToolBar;
 class QWindowsXPStyle;
+class QRubberBand;
 
 class Q_COMPAT_EXPORT Q3DockWindow : public Q3Frame
 {
@@ -160,7 +161,7 @@ private:
     Q3DockWindowHandle *horHandle, *verHandle;
     Q3DockWindowTitleBar *titleBar;
     QWidget *wid;
-    QPainter *unclippedPainter;
+    QRubberBand *rubberBand;
     Q3DockArea *dockArea, *tmpDockArea;
     QRect currRect;
     Place curPlace;

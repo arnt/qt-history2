@@ -31,6 +31,7 @@
 #include "qtooltip.h"
 #include <private/q3titlebar_p.h>
 #include <private/qwidgetresizehandler_p.h>
+#include <qrubberband.h>
 
 #ifdef Q_WS_MAC
 static bool default_opaque = true;
@@ -67,7 +68,7 @@ private:
 private:
     Qt::Orientation orient;
     bool mousePressed;
-    QPainter *unclippedPainter;
+    QRubberBand *rubberBand;
     QPoint lastPos, firstPos;
     Q3DockWindow *dockWindow;
 
@@ -75,7 +76,7 @@ private:
 
 Q3DockWindowResizeHandle::Q3DockWindowResizeHandle(Qt::Orientation o, QWidget *parent,
                                                   Q3DockWindow *w, const char *)
-    : QWidget(parent, "qt_dockwidget_internal"), mousePressed(false), unclippedPainter(0), dockWindow(w)
+    : QWidget(parent, "qt_dockwidget_internal"), mousePressed(false), rubberBand(0), dockWindow(w)
 {
     setOrientation(o);
 }
@@ -235,48 +236,33 @@ void Q3DockWindowResizeHandle::paintEvent(QPaintEvent *)
 
 void Q3DockWindowResizeHandle::startLineDraw()
 {
-    if (unclippedPainter)
+    if (rubberBand)
         endLineDraw();
-#ifdef MAC_DRAG_HACK
-    QWidget *paint_on = topLevelWidget();
-#else
-    int scr = QApplication::desktop()->screenNumber(this);
-    QWidget *paint_on = QApplication::desktop()->screen(scr);
-#endif
-    unclippedPainter = new QPainter(paint_on); // ### use setAttribute(Qt::WA_PaintUnclipped) instead
-    unclippedPainter->setPen(QPen(Qt::gray, orientation() == Qt::Horizontal ? height() : width()));
+    rubberBand = new QRubberBand(QRubberBand::Line);
+    rubberBand->show();
 }
 
 void Q3DockWindowResizeHandle::endLineDraw()
 {
-    if (!unclippedPainter)
-        return;
-    delete unclippedPainter;
-    unclippedPainter = 0;
+    delete rubberBand;
+    rubberBand = 0;
 }
 
 void Q3DockWindowResizeHandle::drawLine(const QPoint &globalPos)
 {
-#ifdef MAC_DRAG_HACK
-    QPoint start = mapTo(topLevelWidget(), QPoint(0, 0));
-    QPoint starta = dockWindow->area()->mapTo(topLevelWidget(), QPoint(0, 0));
-    QPoint end = globalPos - topLevelWidget()->pos();
-#else
     QPoint start = mapToGlobal(QPoint(0, 0));
     QPoint starta = dockWindow->area()->mapToGlobal(QPoint(0, 0));
     QPoint end = globalPos;
-#endif
-
     if (orientation() == Qt::Horizontal) {
         if (orientation() == dockWindow->orientation())
-            unclippedPainter->drawLine(starta.x() , end.y(), starta.x() + dockWindow->area()->width(), end.y());
+            rubberBand->setGeometry(starta.x(), end.y(), dockWindow->area()->width(), height());
         else
-            unclippedPainter->drawLine(start.x(), end.y(), start.x() + width(), end.y());
+            rubberBand->setGeometry(start.x(), end.y(), width(), height());
     } else {
         if (orientation() == dockWindow->orientation())
-            unclippedPainter->drawLine(end.x(), starta.y(), end.x(), starta.y() + dockWindow->area()->height());
+            rubberBand->setGeometry(end.x(), starta.y(), width(), dockWindow->area()->height());
         else
-            unclippedPainter->drawLine(end.x(), start.y(), end.x(), start.y() + height());
+            rubberBand->setGeometry(end.x(), start.y(), width(), height());
     }
 }
 
@@ -966,7 +952,7 @@ public:
 void Q3DockWindow::init()
 {
     wid = 0;
-    unclippedPainter = 0;
+    rubberBand = 0;
     dockArea = 0;
     tmpDockArea = 0;
     resizeEnabled = false;
@@ -1137,25 +1123,13 @@ void Q3DockWindow::resizeEvent(QResizeEvent *e)
 
 void Q3DockWindow::swapRect(QRect &r, Qt::Orientation o, const QPoint &offset, Q3DockArea *)
 {
-    Q_UNUSED(r);
-    Q_UNUSED(o);
-    Q_UNUSED(offset);
-#if 0
-    QBoxLayout *bl = boxLayout()->createTmpCopy();
-    bl->setDirection(o == Qt::Horizontal ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom);
-    bl->activate();
-    r.setSize(bl->sizeHint());
-    bl->data = 0;
-    delete bl;
+    r.setSize(QSize(r.height(), r.width()));
     bool reverse = QApplication::reverseLayout();
     if (o == Qt::Horizontal)
         r.moveBy(-r.width()/2, 0);
     else
         r.moveBy(reverse ? - r.width() : 0, -r.height() / 2 );
     r.moveBy(offset.x(), offset.y());
-#else
-    qWarning("Can't do that anymore");
-#endif
 }
 
 QWidget *Q3DockWindow::areaAt(const QPoint &gp)
@@ -1184,16 +1158,9 @@ QWidget *Q3DockWindow::areaAt(const QPoint &gp)
 
 void Q3DockWindow::handleMove(const QPoint &pos, const QPoint &gp, bool drawRect)
 {
-    if (!unclippedPainter)
+    if (!rubberBand)
         return;
 
-    if (drawRect) {
-        QRect dr(currRect);
-#ifdef MAC_DRAG_HACK
-        dr.moveBy(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
-#endif
-        unclippedPainter->drawRect(dr);
-    }
     currRect = QRect(realWidgetPos(this), size());
     QWidget *w = areaAt(gp);
     if (titleBar->ctrlDown || horHandle->ctrlDown || verHandle->ctrlDown)
@@ -1203,12 +1170,7 @@ void Q3DockWindow::handleMove(const QPoint &pos, const QPoint &gp, bool drawRect
         if (startOrientation != Qt::Horizontal && qt_cast<Q3ToolBar*>(this))
             swapRect(currRect, Qt::Horizontal, startOffset, (Q3DockArea*)w);
         if (drawRect) {
-            unclippedPainter->setPen(QPen(Qt::gray, 3));
-            QRect dr(currRect);
-#ifdef MAC_DRAG_HACK
-            dr.moveBy(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
-#endif
-            unclippedPainter->drawRect(dr);
+            rubberBand->setGeometry(currRect);
         } else {
             QPoint mp(mapToGlobal(pos));
             if(place() == InDock) {
@@ -1236,12 +1198,7 @@ void Q3DockWindow::handleMove(const QPoint &pos, const QPoint &gp, bool drawRect
         if (startOrientation != o)
             swapRect(currRect, o, startOffset, area);
         if (drawRect) {
-            unclippedPainter->setPen(QPen(Qt::gray, 1));
-            QRect dr(currRect);
-#ifdef MAC_DRAG_HACK
-            dr.moveBy(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
-#endif
-            unclippedPainter->drawRect(dr);
+            rubberBand->setGeometry(currRect);
         }
         tmpDockArea = area;
     }
@@ -1464,41 +1421,22 @@ QWidget *Q3DockWindow::widget() const
 void Q3DockWindow::startRectDraw(const QPoint &so, bool drawRect)
 {
     state = place();
-    if (unclippedPainter)
+    if (rubberBand)
         endRectDraw(!opaque);
-#ifdef MAC_DRAG_HACK
-    QWidget *paint_on = topLevelWidget();
-#else
-    int scr = QApplication::desktop()->screenNumber(this);
-    QWidget *paint_on = QApplication::desktop()->screen(scr);
-#endif
-    unclippedPainter = new QPainter(paint_on); // ### use setAttribute()
-    unclippedPainter->setPen(QPen(Qt::gray, curPlace == OutsideDock ? 3 : 1));
+    rubberBand = new QRubberBand(QRubberBand::Rectangle);
+    rubberBand->show();
     currRect = QRect(realWidgetPos(this), size());
     if (drawRect) {
-        QRect dr(currRect);
-#ifdef MAC_DRAG_HACK
-        dr.moveBy(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
-#endif
-        unclippedPainter->drawRect(dr);
+        rubberBand->setGeometry(currRect);
     }
     startOrientation = orientation();
     startOffset = mapFromGlobal(so);
 }
 
-void Q3DockWindow::endRectDraw(bool drawRect)
+void Q3DockWindow::endRectDraw(bool)
 {
-    if (!unclippedPainter)
-        return;
-    if (drawRect) {
-        QRect dr(currRect);
-#ifdef MAC_DRAG_HACK
-        dr.moveBy(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
-#endif
-        unclippedPainter->drawRect(dr);
-    }
-    delete unclippedPainter;
-    unclippedPainter = 0;
+    delete rubberBand;
+    rubberBand = 0;
 }
 
 /*!
