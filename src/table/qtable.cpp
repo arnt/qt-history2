@@ -5481,6 +5481,7 @@ void QTable::takeItem( QTableItem *i )
     int ocol = i->col();
     i->setRow( -1 );
     i->setCol( -1 );
+    i->t = 0 ;
     i->updateEditor( orow, ocol );
 }
 
