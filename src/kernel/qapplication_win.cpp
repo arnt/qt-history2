@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#404 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#405 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2859,7 +2859,7 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
 			      bool autor )
 {
     if ( type == QEvent::KeyPress && !grab ) {	// send accel events
-	QKeyEvent aa( QEvent::AccelAvailable, code, ascii, state, text, autor );
+	QKeyEvent aa( QEvent::AccelOverride, code, ascii, state, text, autor );
 	aa.ignore();
 	QApplication::sendEvent( this, &aa );
 	if ( !aa.isAccepted() ) {
