@@ -63,15 +63,23 @@ public:
         if(!takeOwnership)
             CGContextRetain(context);
     }
-    inline QMacCGContext(const QMacCGContext &copy) {
+    inline QMacCGContext(const QMacCGContext &copy) : context(0) { *this = copy; }
+    inline ~QMacCGContext() { 
+        if(context)
+            CGContextRelease(context); 
+    }
+    inline bool isNull() const { return context; }
+    inline operator CGContextRef() { return context; }
+    inline QMacCGContext &operator=(const QMacCGContext &copy) {
+        if(context)
+            CGContextRelease(context);
         context = copy.context;
         CGContextRetain(context);
+        return *this;
     }
-    inline ~QMacCGContext() { CGContextRelease(context); }
-    bool isNull() const { return context; }
-    inline operator CGContextRef() { return context; }
     inline QMacCGContext &operator=(CGContextRef cg) {
-        CGContextRelease(context);
+        if(context)
+            CGContextRelease(context);
         context = cg;
         CGContextRetain(context); //we do not take ownership
         return *this;

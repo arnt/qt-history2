@@ -460,7 +460,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     arr++;
 
     tags[arr] = kATSUCGContextTag;
-    QMacCGContext q_ctx; //will release on scope ending
+    QMacCGContext q_ctx;
     CGContextRef ctx = 0;
     CGrafPtr ctx_port = 0; //only set if the ctx is created from a port
     if(p && p->type() == QPaintEngine::CoreGraphics) {
