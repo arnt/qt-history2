@@ -261,7 +261,7 @@ QQuickDrawPaintEngine::updateBackground(QPainterState *ps)
     Q_ASSERT(isActive());
     d->current.bg.origin = ps->bgOrigin;
     d->current.bg.mode = ps->bgMode;
-    d->current.bg.color = ps->bgBrush.color();
+    d->current.bg.brush = ps->bgBrush;
 }
 
 void
@@ -332,9 +332,9 @@ QQuickDrawPaintEngine::drawRect(const QRect &r)
 		pm = d->brush_style_pix;
 		if(d->current.bg.mode == OpaqueMode) {
 		    ::RGBColor f;
-		    f.red = d->current.bg.color.red()*256;
-		    f.green = d->current.bg.color.green()*256;
-		    f.blue = d->current.bg.color.blue()*256;
+		    f.red = d->current.bg.brush.color().red()*256;
+		    f.green = d->current.bg.brush.color().green()*256;
+		    f.blue = d->current.bg.brush.color().blue()*256;
 		    RGBForeColor(&f);
 		    PaintRect(&rect);
 		}
@@ -482,9 +482,9 @@ QQuickDrawPaintEngine::drawPolyInternal(const QPointArray &pa, bool close, bool 
 		pm = d->brush_style_pix;
 		if(d->current.bg.mode == OpaqueMode) {
 		    ::RGBColor f;
-		    f.red = d->current.bg.color.red()*256;
-		    f.green = d->current.bg.color.green()*256;
-		    f.blue = d->current.bg.color.blue()*256;
+		    f.red = d->current.bg.brush.color().red()*256;
+		    f.green = d->current.bg.brush.color().green()*256;
+		    f.blue = d->current.bg.brush.color().blue()*256;
 		    RGBForeColor(&f);
 		    PaintRgn(polyRegion);
 		}
@@ -540,9 +540,9 @@ QQuickDrawPaintEngine::drawEllipse(const QRect &r)
 		pm = d->brush_style_pix;
 		if(d->current.bg.mode == OpaqueMode) {
 		    ::RGBColor f;
-		    f.red = d->current.bg.color.red()*256;
-		    f.green = d->current.bg.color.green()*256;
-		    f.blue = d->current.bg.color.blue()*256;
+		    f.red = d->current.bg.brush.color().red()*256;
+		    f.green = d->current.bg.brush.color().green()*256;
+		    f.blue = d->current.bg.brush.color().blue()*256;
 		    RGBForeColor(&f);
 		    PaintOval(&mac_r);
 		}
@@ -1344,7 +1344,7 @@ QCoreGraphicsPaintEngine::updateBackground(QPainterState *ps)
     Q_ASSERT(isActive());
     d->current.bg.origin = ps->bgOrigin;
     d->current.bg.mode = ps->bgMode;
-    d->current.bg.color = ps->bgColor;
+    d->current.bg.brush = ps->bgBrush;
 }
 
 void

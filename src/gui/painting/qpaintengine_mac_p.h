@@ -53,7 +53,7 @@ public:
 	struct {
 	    QPoint origin;
 	    Qt::BGMode mode;
-	    QColor color;
+	    QBrush brush;
 	} bg;
     } current;
 
@@ -94,7 +94,7 @@ public:
 	struct {
 	    QPoint origin;
 	    Qt::BGMode mode;
-	    QColor color;
+	    QBrush brush;
 	} bg;
     } current;
 
