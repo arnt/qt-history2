@@ -73,6 +73,19 @@ QBidiContext::~QBidiContext()
 }
 
 static QChar *shapeBuffer = 0;
+
+struct QShapeBufferCleanup
+{
+    ~QShapeBufferCleanup() 
+    {
+	if ( shapeBuffer ) {
+	    free( (void *) shapeBuffer );
+	    shapeBuffer = 0;
+	}
+    }
+};
+
+static QShapeBufferCleanup q_sbcleaner;
 static int shapeBufSize = 0;
 
 /*
