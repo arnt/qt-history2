@@ -428,6 +428,7 @@ static const char* const type_map[][2] =
     { "Q_ULLONG",	"CY" },
     { "Q_LLONG",	"CY" },
     { "QByteArray",	"SAFEARRAY(BYTE)" },
+    { "QStringList",	"SAFEARRAY(BSTR)" },
     // Userdefined Qt datatypes
     { "QRect",		"struct QRect" },
     { "QSize",		"struct QSize" },
