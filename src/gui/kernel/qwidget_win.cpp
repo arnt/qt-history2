@@ -1079,13 +1079,14 @@ void QWidget::setWindowState(uint newstate)
 
     if (isTopLevel()) {
         if ((oldstate & Qt::WindowMaximized) != (newstate & Qt::WindowMaximized)) {
+            if (newstate & Qt::WindowMaximized && !(oldstate & Qt::WindowFullScreen))
+                d->topData()->normalGeometry = geometry();
             if (isVisible() && !(newstate & Qt::WindowMinimized)) {
                 ShowWindow(winId(), (newstate & Qt::WindowMaximized) ? max : normal);
                 QRect r = d->topData()->normalGeometry;
                 if (!(newstate & Qt::WindowMaximized) && r.width() >= 0) {
                     if (pos() != r.topLeft() || size() !=r.size()) {
                         d->topData()->normalGeometry = QRect(0,0,-1,-1);
-                        r.addCoords(d->topData()->fleft, d->topData()->ftop, d->topData()->fleft, d->topData()->ftop);
                         setGeometry(r);
                     }
                 }
@@ -1095,7 +1096,7 @@ void QWidget::setWindowState(uint newstate)
         if ((oldstate & Qt::WindowFullScreen) != (newstate & Qt::WindowFullScreen)) {
             if (newstate & Qt::WindowFullScreen) {
                 if (d->topData()->normalGeometry.width() < 0 && !(oldstate & Qt::WindowMaximized))
-                    d->topData()->normalGeometry = QRect(pos(), size());
+                    d->topData()->normalGeometry = geometry();
                 d->topData()->savedFlags = GetWindowLongA(winId(), GWL_STYLE);
                 UINT style = WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_POPUP;
                 if (isVisible())
@@ -1126,7 +1127,6 @@ void QWidget::setWindowState(uint newstate)
                 } else {
                     QRect r = d->topData()->normalGeometry;
                     d->topData()->normalGeometry = QRect(0,0,-1,-1);
-                    r.addCoords(d->topData()->fleft, d->topData()->ftop, d->topData()->fleft, d->topData()->ftop);
                     setGeometry(r);
                 }
             }

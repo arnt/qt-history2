@@ -1997,6 +1997,15 @@ QPoint QWidget::pos() const
 */
 
 /*!
+    \property QWidget::normalGeometry
+    \brief the geometry a toplevel widget has when it is not maximized or fullscreen
+
+    For child widgets this property always holds an empty rect.
+
+    \sa windowState, geometry
+*/
+
+/*!
     \property QWidget::size
     \brief the size of the widget excluding any window frame
 
@@ -2072,6 +2081,17 @@ int QWidget::width() const
 int QWidget::height() const
 {
     return data->crect.height();
+}
+
+QRect QWidget::normalGeometry() const
+{
+    if (!d->extra || !d->extra->topextra)
+        return QRect();
+
+    if (!isMaximized() && !isFullScreen())
+        return geometry();
+
+    return d->topData()->normalGeometry;
 }
 
 

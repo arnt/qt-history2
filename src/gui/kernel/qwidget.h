@@ -108,6 +108,7 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
     Q_PROPERTY(QRect geometry READ geometry WRITE setGeometry)
     Q_PROPERTY(QRect frameGeometry READ frameGeometry)
+    Q_PROPERTY(QRect normalGeometry READ normalGeometry)
     Q_PROPERTY(int x READ x)
     Q_PROPERTY(int y READ y)
     Q_PROPERTY(QPoint pos READ pos WRITE move DESIGNABLE false STORED false)
@@ -204,6 +205,8 @@ public slots:
 public:
     QRect frameGeometry() const;
     const QRect &geometry() const;
+    QRect normalGeometry() const;
+
     int x() const;
     int y() const;
     QPoint pos() const;
