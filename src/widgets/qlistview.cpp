@@ -8000,12 +8000,16 @@ void QListView::adjustColumn( int col )
     if ( d->h->iconSet( col ) )
 	w += d->h->iconSet( col )->pixmap().width();
     w = QMAX( w, 20 );
+    QFontMetrics fm( fontMetrics() );
     QListViewItemIterator it( this );
+    int rootDepth = rootIsDecorated() ? treeStepSize() : 0;
     while ( it.current() ) {
-	int iw = it.current()->width( fontMetrics(), this, col );
-	iw += itemMargin() + ( it.current()->depth() + ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() - 1;
-	w = QMAX( w, iw );
+	QListViewItem *item = it.current();
 	++it;
+	int iw = item->width( fm, this, col );
+	if ( 0 == col )
+	    iw += itemMargin() + rootDepth + item->depth()*treeStepSize() - 1;
+	w = QMAX( w, iw );
     }
     w = QMAX( w, QApplication::globalStrut().width() );
     setColumnWidth( col, w );
