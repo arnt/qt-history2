@@ -497,18 +497,18 @@ TrWindow::TrWindow()
 
     // Set up the Scope dock window
     QDockWindow * dwScope = new QDockWindow( QDockWindow::InDock, this,
-					     "scope");
+					     "context");
     dwScope->setResizeEnabled( TRUE );
     dwScope->setCloseMode( QDockWindow::Always );
-    addDockWindow( dwScope, tr("Scope"), Qt::Left );
-    dwScope->setCaption( tr("Scope") );
+    addDockWindow( dwScope, tr("Context"), Qt::Left );
+    dwScope->setCaption( tr("Context") );
     dwScope->setFixedExtentWidth( 200 );
-    lv = new QListView( dwScope, "scope list view" );
+    lv = new QListView( dwScope, "context list view" );
     lv->setShowSortIndicator( TRUE );
     lv->setAllColumnsShowFocus( TRUE );
     lv->header()->setStretchEnabled( TRUE, 1 );
     lv->addColumn( tr("Done"), 40 );
-    lv->addColumn( tr("Scope") );
+    lv->addColumn( tr("Context") );
     lv->addColumn( tr("Items"), 55 );
     lv->setColumnAlignment( 0, Qt::AlignCenter );
     lv->setColumnAlignment( 2, Qt::AlignRight );
@@ -1280,6 +1280,7 @@ void TrWindow::showNewCurrent( QListViewItem *item )
 	    me->showContext( c->fullContext(), c->finished() );
 	finishedAndNextAct->setEnabled( FALSE );
     }
+    
     deleteAct->setEnabled( messageIsShown );
     selectAllAct->setEnabled( messageIsShown );
 }
@@ -2164,19 +2165,19 @@ void TrWindow::readConfig()
     QDockWindow * dw;
     dw = (QDockWindow *) lv->parent();
     int place;
-    place = config.readNumEntry( keybase + "Geometry/ScopewindowInDock" );
-    r.setX( config.readNumEntry( keybase + "Geometry/ScopewindowX" ) );
-    r.setY( config.readNumEntry( keybase + "Geometry/ScopewindowY" ) );
+    place = config.readNumEntry( keybase + "Geometry/ContextwindowInDock" );
+    r.setX( config.readNumEntry( keybase + "Geometry/ContextwindowX" ) );
+    r.setY( config.readNumEntry( keybase + "Geometry/ContextwindowY" ) );
     r.setWidth( config.readNumEntry( keybase +
-				     "Geometry/ScopewindowWidth" ) );
+				     "Geometry/ContextwindowWidth" ) );
     r.setHeight( config.readNumEntry( keybase +
-				      "Geometry/ScopewindowHeight" ) );
+				      "Geometry/ContextwindowHeight" ) );
     if ( place == QDockWindow::OutsideDock )
 	dw->undock();
     dw->setGeometry( r );
 
     dw = (QDockWindow *) slv->parent();
-    place = config.readNumEntry( keybase + "Geometry/ScopewindowInDock" );
+    place = config.readNumEntry( keybase + "Geometry/ContextwindowInDock" );
     r.setX( config.readNumEntry( keybase + "Geometry/SourcewindowX" ) );
     r.setY( config.readNumEntry( keybase + "Geometry/SourcewindowY" ) );
     r.setWidth( config.readNumEntry( keybase +
@@ -2224,11 +2225,11 @@ void TrWindow::writeConfig()
     config.writeEntry( keybase + "Geometry/MainwindowHeight", height() );
 
     QDockWindow * dw =(QDockWindow *) lv->parent();
-    config.writeEntry( keybase + "Geometry/ScopewindowInDock", dw->place() );
-    config.writeEntry( keybase + "Geometry/ScopewindowX", dw->x() );
-    config.writeEntry( keybase + "Geometry/ScopewindowY", dw->y() );
-    config.writeEntry( keybase + "Geometry/ScopewindowWidth", dw->width() );
-    config.writeEntry( keybase + "Geometry/ScopewindowHeight", dw->height() );
+    config.writeEntry( keybase + "Geometry/ContextwindowInDock", dw->place() );
+    config.writeEntry( keybase + "Geometry/ContextwindowX", dw->x() );
+    config.writeEntry( keybase + "Geometry/ContextwindowY", dw->y() );
+    config.writeEntry( keybase + "Geometry/ContextwindowWidth", dw->width() );
+    config.writeEntry( keybase + "Geometry/ContextwindowHeight", dw->height() );
 
     dw =(QDockWindow *) slv->parent();
     config.writeEntry( keybase + "Geometry/SourcewindowInDock",
