@@ -12,8 +12,10 @@
 
 #include "proparser.h"
 
+#include <qfile.h>
 #include <qregexp.h>
 #include <qstringlist.h>
+#include <qtextstream.h>
 
 #ifdef Q_OS_UNIX
 #include <unistd.h>
@@ -25,9 +27,34 @@
 #define QT_POPEN popen
 #endif
 
+QString loadFile( const QString &fileName )
+{
+    QFile file( fileName );
+    if ( !file.open(IO_ReadOnly) ) {
+	fprintf( stderr, "error: Cannot load '%s': %s\n",
+		 file.name().latin1(),
+		 file.errorString().latin1() );
+	return QString();
+    }
+
+    QTextStream in( &file );
+    return in.read();
+}
+
 QMap<QString, QString> proFileTagMap( const QString& text )
 {
     QString t = text;
+
+    /*
+      Process include() commands.
+    */
+    QRegExp callToInclude("include\\s*\\(\\s*([^()\\s]+)\\s*\\)");
+    int i = 0;
+    while ( (i = callToInclude.search(t, i)) != -1 ) {
+	QString after = loadFile( callToInclude.cap(1) );
+	t.replace( i, callToInclude.matchedLength(), after );
+	i += after.length();
+    }
 
     /*
       Strip comments, merge lines ending with backslash, add
@@ -41,8 +68,10 @@ QMap<QString, QString> proFileTagMap( const QString& text )
     t.replace( "\n", QString(";") );
     t = t.simplifyWhiteSpace();
 
+    /*
+      Populate tagMap with 'key = value' entries.
+    */
     QMap<QString, QString> tagMap;
-
     QStringList lines = QStringList::split( QChar(';'), t );
     QStringList::Iterator line;
     for ( line = lines.begin(); line != lines.end(); ++line ) {
@@ -70,6 +99,10 @@ QMap<QString, QString> proFileTagMap( const QString& text )
 	}
     }
 
+    /*
+      Expand $$variables within the 'value' part of a 'key = value'
+      pair.
+    */
     QRegExp var( "\\$\\$[({]?([a-zA-Z0-9_]+)[)}]?" );
     QMap<QString, QString>::Iterator it;
     for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
@@ -91,6 +124,9 @@ QMap<QString, QString> proFileTagMap( const QString& text )
 	}
     }
 
+    /*
+      Execute system() calls.
+    */
     QRegExp callToSystem( "\\$\\$system\\s*\\(([^()]*)\\)" );
     for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
 	int i = 0;
