@@ -55,6 +55,13 @@ Pthreads Programming: A POSIX Standard for Better Multiprocessing (O'Reilly Nuts
 Win32 Multithreaded Programming\endlink
 \endlist
 
+\warning All GUI classes (e.g. QWidget and subclasses), OS kernel
+classes (e.g. QProcess), and networking classes, are \e not
+thread-safe. Classes which \e can be shared across threads are 
+QBuffer, QCriticalSection, QDir, QFile, QFileInfo, QIODevice,
+QLibrary (except on the Mac), QMutex, QPair, QSemaphore, QUuid and
+QWaitCondition.
+
 \section1 Enabling Thread Support
 
 When Qt is installed on Windows, thread support is an option on some

@@ -1,0 +1,21 @@
+/*!
+    \page makeqpf.html
+
+    \title makeqpf
+
+Saves QPF font files by rendering and saving fonts.
+
+\section1 Usage
+
+\code
+makeqpf [-A] [-f spec-file] [font ...]
+\endcode
+
+\list
+\i -A - Render and save all fonts in fontdir
+\i -f - File of lines: fontname character-ranges e.g. "smoothtimes 0-ff,20a0-20af"
+\i font - Font to render and save
+\endlist
+
+
+*/

@@ -200,9 +200,9 @@ support in Qt/Embedded for writing a QPF font file from any font, thus
 you can initially enable TTF and BDF formats, save QPF files for the
 fonts and sizes you need, then remove TTF and BDF support.
 
-See the \c tools/makeqpf for a tool that assists producing QPF files
-from the TTF and BDF, or just run your application with the \c -savefonts
-option.
+See \link makeqpf.html tools/makeqpf\endlink for a tool that helps
+produce QPF files from the TTF and BDF, or just run your application
+with the \c -savefonts option.
 
 \section1 Memory Requirements
 

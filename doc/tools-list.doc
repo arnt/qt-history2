@@ -18,10 +18,13 @@
     \i \link qembed.html  qembed\endlink - convert data, e.g. images, into C++ code
     \i \link emb-qvfb.html  qvfb\endlink - run and test embedded
     applications on the desktop
+    \i \link makeqpf.html makeqpf\endlink - create pre-rendered fonts
+    for embedded devices
     \i \link moc.html moc\endlink - the Meta Object Compiler
+    \i \link uic.html uic\endlink - the User Interface Compiler
 
     \omit
-    ### TODO: uic, qtconfig, inspector, makeqpf
+    ### TODO: qtconfig, inspector
     \endomit
 
     \endlist
