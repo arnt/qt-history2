@@ -2434,7 +2434,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		int ac = d->h->mapToLogical( c );
 		if ( d->useDoubleBuffer ) {
 		    QSharedDoubleBuffer buffer( TRUE, FALSE );
-		    QRect a( r.topLeft(), QSize( r.width(), current->i->height() ) );
+		    QRect a( QPoint( 0, 0 ), QSize( r.width(), current->i->height() ) );
 		    buffer.begin( p, a );
 		    if ( buffer.isBuffered() )
 			paintEmptyArea( buffer.painter(), a );
