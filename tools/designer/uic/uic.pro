@@ -14,7 +14,7 @@ SOURCES	= uic.cpp  \
 
 TARGET		= uic
 INCLUDEPATH	= ../shared ../util ../../../src/3rdparty/zlib/
-!zlib:LIBS      += -lz
+!zlib:unix:LIBS      += -lz
 
 unix:LIBS	+= -lqutil -L../lib
 win32:LIBS	+= $(QTDIR)/lib/qutil.lib
