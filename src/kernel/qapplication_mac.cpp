@@ -707,6 +707,11 @@ void qt_release_app_proc_handler()
     }
 }
 
+bool qt_sendSpontaneousEvent(QObject *obj, QEvent *event)
+{
+    return QKernelApplication::sendSpontaneousEvent(obj, event);
+}
+
 /* platform specific implementations */
 void qt_init(int* argcptr, char **argv, QApplication::Type)
 {
@@ -811,7 +816,7 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 
 	if(QApplication::app_style) {
 	    QEvent ev(QEvent::Style);
-	    QApplication::sendSpontaneousEvent(QApplication::app_style, &ev);
+	    qt_sendSpontaneousEvent(QApplication::app_style, &ev);
 	}
     }
     QApplication::qt_mac_apply_settings();

@@ -822,7 +822,6 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 
 	// we are awake, broadcast it
 	emit awake();
-	emit qApp->guiThreadAwake();
     }
     return nevents > 0;
 }
