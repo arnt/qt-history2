@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#25 $
 **
 ** Implementation of Motif-like style class
 **
@@ -233,6 +233,9 @@ QMotifStyle::drawArrow( QPainter *p, ArrowType type, bool down,
 		 int x, int y, int w, int h,
 		 const QColorGroup &g, bool /* enabled */, const QBrush * /* fill */ )
 {
+    // ### may be worth caching these as pixmaps, especially with the
+    //	    cost of rotate() for vertical arrows.
+
     QPointArray bFill;				// fill polygon
     QPointArray bTop;				// top shadow.
     QPointArray bBot;				// bottom shadow.
