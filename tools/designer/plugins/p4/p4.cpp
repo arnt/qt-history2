@@ -34,7 +34,7 @@ P4Action::~P4Action()
     delete process;
 }
 
-bool P4Action::run( const QStringList &command )
+bool P4Action::run( const QStringList &command, const QString &in )
 {
     if ( !process ) {
 	p4Data = QString::null;
@@ -43,22 +43,7 @@ bool P4Action::run( const QStringList &command )
 		 this, SLOT( internalProcessExited() ) );
     }
     process->setArguments( command );
-    return process->start();
-}
-
-bool P4Action::run( const QStringList &command, const QString &in )
-{
-    if ( run( command ) ) {
-	connect( process, SIGNAL(wroteToStdin()), this, SLOT(cmdProcessed()) );
-	process->writeToStdin( in );
-	return TRUE;
-    }
-    return FALSE;
-}
-
-void P4Action::cmdProcessed()
-{
-    process->closeStdin();
+    return process->launch( in );
 }
 
 void P4Action::updateStats()
