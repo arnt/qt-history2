@@ -1051,8 +1051,10 @@ void QCanvas::update()
     doneareas.setAutoDelete(TRUE);
 #endif
 
+    QPtrListIterator<QCanvasView> it(d->viewList);
     QCanvasView* view;
-    for ( view=d->viewList.first(); view != 0; view=d->viewList.next() ) {
+    while( (view=it.current()) != 0 ) {
+	++it;
 #ifndef QT_NO_TRANSFORMATIONS
 	QWMatrix wm = view->worldMatrix();
 #endif
