@@ -472,10 +472,12 @@ void PopupMenuEditor::insert( PopupMenuEditorItem * item, int index )
 {
     if ( index == -1 ) {
 	itemList.append( item );
-	//currentIndex = itemList.count() - 1;
+	if ( isVisible() )
+	    currentIndex = itemList.count() - 1;
     } else {
 	itemList.insert( index, item );
-	//currentIndex = index;
+	if ( isVisible() )
+	    currentIndex = index;
     }
     resizeToContents();
     if ( isVisible() && parentMenu )
@@ -634,7 +636,7 @@ void PopupMenuEditor::showLineEdit( int index )
     lineEdit->setText( i->anyAction()->menuText() );
     lineEdit->selectAll();
     lineEdit->setGeometry( borderSize + iconWidth, borderSize + currentItemYCoord(),
-			   textWidth, itemHeight - 1/* - borderSize*/ );
+			   textWidth, itemHeight - 1 );
     lineEdit->show();
     lineEdit->setFocus();
 }
@@ -879,7 +881,8 @@ void PopupMenuEditor::mouseMoveEvent( QMouseEvent * e )
 	    draggedItem = itemAt( mousePressPos.y() );
 	    if ( draggedItem == &addItem ) {
 		draggedItem = createItem();
-		draggedItem->anyAction()->setMenuText( "new item" ); // FIXME: start rename after drop
+		draggedItem->anyAction()->setMenuText( "new item" );
+                // FIXME: start rename after drop
 	    } else if ( draggedItem == &addSeparator ) {
 		draggedItem = createItem( new QSeparatorAction( 0 ) );
 		draggedItem->setSeparator( TRUE );
@@ -909,7 +912,6 @@ void PopupMenuEditor::mouseMoveEvent( QMouseEvent * e )
 		showCurrentItemMenu();
 	    } else { // item was dropped
 		hideCurrentItemMenu();
-		//FIXME: move to centralized node management
 		itemList.takeNode( node )->setVisible( TRUE );
 		resizeToContents();
 		showCurrentItemMenu();
@@ -1140,7 +1142,7 @@ int PopupMenuEditor::drawActionGroup( QPainter & p, QActionGroup * g, int x, int
 {
     int h = 0;
 
-    if ( g->usesDropDown() ) { //FIXME: if the ag is visible, it usesDropDown
+    if ( g->usesDropDown() ) {
 	h += drawAction( p, ( QAction * ) g, x, y, f );
 	style().drawPrimitive( QStyle::PE_ArrowRight, &p,
 			       QRect( width() - borderSize - arrowWidth, y,
@@ -1173,9 +1175,8 @@ void PopupMenuEditor::drawItems( QPainter & p )
     int x = 0;
     int y = borderSize;
     int w = width();
-    int h = 0;
-    int fy = 0;
-    int f = 0;
+    int flags = 0;
+    int focus= 0;
     uint c = 0;
     QColorGroup enabled = colorGroup();
     QColorGroup disabled = palette().disabled();
@@ -1183,33 +1184,33 @@ void PopupMenuEditor::drawItems( QPainter & p )
     PopupMenuEditorItem * i = itemList.first();
     while ( i ) {
 	if ( c == currentIndex )
-	    fy = y;
+	    focus = y;
 	
 	if ( i->isVisible() ) {
 
 	    if ( i->anyAction()->isEnabled() ) {
-		f = QStyle::Style_Enabled;
+		flags = QStyle::Style_Enabled;
 		p.setPen( enabled.buttonText() );
 	    } else {
-		f = QStyle::Style_Default;
+		flags = QStyle::Style_Default;
 		p.setPen( disabled.buttonText() );
 	    }
 	    
 	    if ( i->isSeparator() ) {
 		style().drawPrimitive( QStyle::PE_Separator, &p,
-				       QRect( x, y + 1, w, 1 ),
-				       colorGroup(), QStyle::Style_Sunken | f );
+				       QRect( x, y + 2, w, 1 ),
+				       colorGroup(), QStyle::Style_Sunken | flags );
 		y += separatorHeight;
 	    } else {
 		if ( i->count() ) // has sub menu
 		    style().drawPrimitive( QStyle::PE_ArrowRight, &p,
 					   QRect( w - borderSize - arrowWidth, y,
 						  arrowWidth, itemHeight ),
-					   colorGroup(), f );
+					   colorGroup(), flags );
 		if ( i->type() == PopupMenuEditorItem::Action )
-		    y += drawAction( p, i->action(), borderSize, y, f );
+		    y += drawAction( p, i->action(), borderSize, y, flags );
 		else if ( i->type() == PopupMenuEditorItem::ActionGroup )
-		    y += drawActionGroup( p, i->actionGroup(), borderSize, y, f );
+		    y += drawActionGroup( p, i->actionGroup(), borderSize, y, flags );
 	    }
 	}
 	i = itemList.next();
@@ -1218,20 +1219,18 @@ void PopupMenuEditor::drawItems( QPainter & p )
 
     p.setPen( colorGroup().dark() );
 
-    int iy = y;
+    if ( c == currentIndex )
+	focus = y;
     y += drawAction( p, addItem.action(), borderSize, y, QStyle::Style_Default );
+    c++;
 
-    int sy = y;
+    if ( c == currentIndex )
+	focus = y;
     drawAction( p, addSeparator.action(), borderSize, y, QStyle::Style_Default );
+    c++;
 
-    if ( hasFocus() && !draggedItem ) {
-	if ( fy )
-	    drawWinFocusRect( p, fy );
-	else if ( currentIndex == itemList.count() )
-	    drawWinFocusRect( p, iy );
-	else if ( currentIndex > itemList.count() )
-	    drawWinFocusRect( p, sy );
-    }
+    if ( hasFocus() && !draggedItem )
+	drawWinFocusRect( p, focus );
 }
 
 QSize PopupMenuEditor::contentsSize()
