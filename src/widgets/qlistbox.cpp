@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#254 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#255 $
 **
 ** Implementation of QListBox widget class
 **
@@ -54,7 +54,8 @@ public:
 	count( 0 ),
 	ignoreMoves( FALSE ),
 	minWidth( 0 ),
-	minHeight( 0 )
+	minHeight( 0 ),
+    init( FALSE )
 
     {}
     ~QListBoxPrivate();
@@ -98,6 +99,7 @@ public:
     // used for the sizeHint
     int minWidth;
     int minHeight;
+    bool init;
 };
 
 
@@ -2626,7 +2628,7 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
         row = 0;
         col++;
     }
-   
+
     if ( r.isEmpty() )
         return;
     p.setClipRegion( r );
@@ -2742,6 +2744,10 @@ void QListBox::resizeEvent( QResizeEvent *e )
 	repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight(), FALSE );
     }
     QScrollView::resizeEvent( e );
+    if ( !d->init && isVisible() ) {
+        ensureCurrentVisible();
+        d->init = TRUE;
+    }
 }
 
 
