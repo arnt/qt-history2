@@ -409,10 +409,10 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 		dockLine = lines.count(); // insert after the last line
 	} else { // inside the dock (we have found a dockLine)
 	    if ( point_pos( pos, orientation(), TRUE ) < point_pos( lineRect.topLeft(), orientation(), TRUE ) +
-		 size_extend( lineRect.size(), orientation(), TRUE ) / 4 ) { 	// mouse was at the very beginning of the line
+		 size_extend( lineRect.size(), orientation(), TRUE ) / 5 ) { 	// mouse was at the very beginning of the line
 		insertLine = TRUE;					// insert a new line before that with the docking widget
 	    } else if ( point_pos( pos, orientation(), TRUE ) > point_pos( lineRect.topLeft(), orientation(), TRUE ) +
-			3 * size_extend( lineRect.size(), orientation(), TRUE ) / 4 ) {	// mouse was at the very and of the line
+			4 * size_extend( lineRect.size(), orientation(), TRUE ) / 5 ) {	// mouse was at the very and of the line
 		insertLine = TRUE;						// insert a line after that with the docking widget
 		dockLine++;
 	    }
@@ -597,12 +597,12 @@ void QDockArea::dockWidget( QDockWidget *dockWidget, DockWidgetData *data )
 {
     if ( !data )
 	return;
-    
+
     dockWidget->reparent( this, QPoint( 0, 0 ), FALSE );
     dockWidget->installEventFilter( this );
     dockWidget->dockArea = this;
     dockWidget->updateGui();
-    
+
     if ( dockWidgets->isEmpty() ) {
 	dockWidgets->append( dockWidget );
     } else {
@@ -626,12 +626,12 @@ void QDockArea::dockWidget( QDockWidget *dockWidget, DockWidgetData *data )
 	} else {
 	    dockWidget->setNewLine( FALSE );
 	}
-    
+
 	dockWidgets->insert( index, dockWidget );
     }
     dockWidget->show();
     updateLayout();
     setSizePolicy( QSizePolicy( orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Minimum,
 				orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Minimum ) );
-    
+
 }
