@@ -1734,9 +1734,9 @@ bool QTime::isValid( int h, int m, int s, int ms )
 
     \code
     QTime t;
-    t.start();                     // start clock
-    ... // some lengthy task
-    qDebug( "%d\n", t.elapsed() ); // prints the number of msecs elapsed
+    t.start();
+    some_lengthy_task();
+    qDebug( "Time elapsed: %d ms", t.elapsed() );
     \endcode
 
     \sa restart(), elapsed(), currentTime()
