@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#100 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#101 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2781,7 +2781,8 @@ void QPSPrinter::emitHeader( bool finished )
     (void)((QFile *)d->realDevice)->open( IO_WriteOnly, d->fd );
     stream.setDevice( d->realDevice );
     stream << "%!PS-Adobe-1.0";
-    if ( finished && pageCount == 1 && printer->numCopies() == 1 ) {
+    if ( finished && pageCount == 1 && printer->numCopies() == 1 &&
+	 printer->fullPage() ) {
 	QPaintDeviceMetrics m( printer );
 	if ( !d->boundingBox.isValid() )
 	    d->boundingBox.setRect( 0, 0, m.width(), m.height() );
@@ -2816,28 +2817,29 @@ void QPSPrinter::emitHeader( bool finished )
     if ( !fixed_ps_header )
 	makeFixedStrings();
 
-    QString header2;
-    if ( printer->orientation() == QPrinter::Portrait ) {
-	QPaintDeviceMetrics m( printer );
-	header2.sprintf( "\n%% %d*%d mm (portrait)\n"
-			 "0 %d translate 1 -1 scale/defM matrix CM d\n",
-			 m.widthMM(), m.heightMM(),
-			 m.height() );
-    } else {
-	QPaintDeviceMetrics m( printer );
-	header2.sprintf( "\n%% %d*%d mm (landscape)\n"
-			 "90 rotate 1 -1 scale/defM matrix CM d\n",
-			 m.heightMM(), m.widthMM() );
-    }
-			
     if ( finished ) {
 	QString r( stripHeader( *fixed_ps_header,
 				d->buffer->buffer().data(),
 				d->buffer->buffer().size(),
 				d->fontBuffer->buffer().size() > 0 ) );
-	stream << "% Optimized Qt prolog\n" << r << header2;
+	stream << "% Optimized Qt prolog\n" << r << "\n";
     } else {
-	stream << "% Standard Qt prolog\n" << *fixed_ps_header << header2;
+	stream << "% Standard Qt prolog\n" << *fixed_ps_header << "\n";
+    }
+
+    if ( !printer->fullPage() )
+	stream << "% lazy-margin hack: QPrinter::setFullPage(FALSE)\n"
+	       << printer->margins().width() << " "
+	       << printer->margins().height() << " translate\n";
+    if ( printer->orientation() == QPrinter::Portrait ) {
+	QPaintDeviceMetrics m( printer );
+	stream << "% " << m.widthMM() << "*" << m.heightMM()
+	       << "mm (portrait)\n0 " << m.height()
+	       << " translate 1 -1 scale/defM matrix CM d\n";
+    } else {
+	QPaintDeviceMetrics m( printer );
+	stream << "% " << m.heightMM() << "*" << m.widthMM() 
+	       << " mm (landscape)\n90 rotate 1 -1 scale/defM matrix CM d\n";
     }
 
     if ( d->fontBuffer->buffer().size() ) {
