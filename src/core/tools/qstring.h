@@ -25,10 +25,7 @@
 #endif
 
 #ifndef QT_NO_STL
-# if defined (Q_CC_GNU) && (__GNUC__ - 0 >= 3) && !defined(Q_OS_DARWIN)
-// workaround for namespace polluting headers
-#  include <bits/stringfwd.h>
-# elif defined (Q_CC_MSVC_NET) && _MSV_VER < 1310 // Avoids nasty warning for xlocale, line 450
+# if defined (Q_CC_MSVC_NET) && _MSV_VER < 1310 // Avoids nasty warning for xlocale, line 450
 #  pragma warning (push)
 #  pragma warning (disable : 4189)
 #  include <string>
@@ -350,8 +347,8 @@ public:
     inline void push_front(const QString &s) { prepend(s); }
 
 #ifndef QT_NO_STL
-    Q_EXPLICIT QString(const std::string &s);
-    std::string toStdString() const;
+    inline Q_EXPLICIT QString(const std::string &s);
+    inline std::string toStdString() const;
 #endif
 
     // compatibility
@@ -750,6 +747,20 @@ inline const QString operator+(const QByteArray &ba, const QString &s)
 { QString t(ba); t += s; return t; }
 inline const QString operator+(const QString &s, const QByteArray &ba)
 { QString t(s); t += ba; return t; }
+#endif
+
+#ifndef QT_NO_STL
+inline std::string QString::toStdString() const
+{
+    return toAscii().data();
+}
+
+inline QString::QString(const std::string &s)
+    : d(&shared_null)
+{
+    ++d->ref;
+    *this = fromAscii(s.c_str());
+}
 #endif
 
 #ifdef QT_COMPAT

@@ -6297,19 +6297,6 @@ QDataStream &operator>>(QDataStream &in, QString &str)
 }
 #endif // QT_NO_DATASTREAM
 
-#ifndef QT_NO_STL
-std::string QString::toStdString() const
-{
-    return toAscii().data();
-}
-QString::QString(const std::string &s)
-    : d(&shared_null)
-{
-    ++d->ref;
-    *this = fromAscii(s.c_str());
-}
-#endif
-
 /*!
     \fn void QString::setLength(int nl)
 
