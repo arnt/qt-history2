@@ -518,8 +518,12 @@ OraFieldInfo qMakeOraField(const QOCIPrivate* p, OCIParam* param)
     if (colType == SQLT_BLOB)
         colLength = 0;
 
-    // colNameLen is length in bytes!!!!
+    // colNameLen is length in bytes
+#ifdef QOCI_USES_VERSION_9
     ofi.name = QString((const QChar*)colName, colNameLen / 2);
+#else
+    ofi.name = QString::fromLocal8Bit(reinterpret_cast<char *>(colName), colNameLen);
+#endif
     ofi.type = type;
     ofi.oraType = colType;
     ofi.oraFieldLength = colFieldLength;
