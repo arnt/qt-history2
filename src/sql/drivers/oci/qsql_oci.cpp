@@ -43,6 +43,7 @@
 #include <qregexp.h>
 #include <private/qsqlextension_p.h>
 #include <stdlib.h>
+#include <private/qinternal_p.h>
 
 #define QOCI_DYNAMIC_CHUNK_SIZE  255
 static const ub2 CSID_UTF8 = 871; // UTF8 not defined in Oracle 8 libraries
@@ -63,7 +64,7 @@ public:
     int		     serverVersion;
     QString          user;
 
-    int bindValues( QSqlExtension * ext, QPtrList<void> & tmpStorage )
+    int bindValues( QSqlExtension * ext, QPtrList<QVirtualDestructor> & tmpStorage )
     {
 	int r = OCI_SUCCESS;
 	if ( ext->bindMethod() == QSqlExtension::BindByName ) {
@@ -71,7 +72,7 @@ public:
 	    for ( it = ext->values.begin(); it != ext->values.end(); ++it ) {
 		OCIBind * hbnd = 0; // Oracle handles these automatically
 		sb2 * indPtr = new sb2(0);
-		tmpStorage.append( indPtr );
+		tmpStorage.append( qAutoDeleter(indPtr) );
 		if ( it.data().isNull() ) {
 		    *indPtr = -1;
 		}
@@ -100,7 +101,7 @@ public:
 		    case QVariant::Date:
 		    case QVariant::DateTime: {
 			QByteArray * ba = new QByteArray( qMakeOraDate( it.data().toDateTime() ) );
-			tmpStorage.append( ba );
+			tmpStorage.append( qAutoDeleter(ba) );
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
 					   it.key().length(),
@@ -129,7 +130,7 @@ public:
 			break;
 		    case QVariant::String: {
 			QCString * str = new QCString( it.data().asString().utf8() );
-			tmpStorage.append( str );
+			tmpStorage.append( qAutoDeleter(str) );
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
 					   it.key().length(),
@@ -169,7 +170,7 @@ public:
 		OCIBind * hbnd = 0; // Oracle handles these automatically
 		QVariant val( ext->values[ it.data() ] );
 		sb2 * indPtr = new sb2(0);
-		tmpStorage.append( indPtr );
+		tmpStorage.append( qAutoDeleter(indPtr) );
 		if ( val.isNull() ) {
 		    *indPtr = -1;
 		}
@@ -195,9 +196,8 @@ public:
 		    case QVariant::Time:
 		    case QVariant::Date:
 		    case QVariant::DateTime: {
-			QByteArray * ba = new QByteArray;
-			*ba = qMakeOraDate( val.toDateTime() );
-			tmpStorage.append( ba );
+			QByteArray * ba = new QByteArray( qMakeOraDate( val.toDateTime() ) );
+			tmpStorage.append( qAutoDeleter(ba) );
 			r = OCIBindByPos( sql, &hbnd, err,
 					  it.key() + 1,
 					  (ub1 *) ba->data(),
@@ -223,7 +223,7 @@ public:
 			break;
 		    case QVariant::String: {
 			QCString * str = new QCString( val.asString().utf8() );
-			tmpStorage.append( str );
+			tmpStorage.append( qAutoDeleter(str) );
 			r = OCIBindByPos( sql, &hbnd, err,
 					  it.key() + 1,
  					  (ub1 *) str->data(),
@@ -1261,7 +1261,7 @@ bool QOCIResult::exec()
 {
     int r = 0;
     ub2 stmtType;
-    QPtrList<void> tmpStorage;
+    QPtrList<QVirtualDestructor> tmpStorage;
     tmpStorage.setAutoDelete( TRUE );
     
     // bind placeholders

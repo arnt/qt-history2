@@ -43,6 +43,7 @@
 #endif
 #include <qdatetime.h>
 #include <private/qsqlextension_p.h>
+#include <private/qinternal_p.h>
 
 // undefine this to prevent initial check of the ODBC driver 
 #define ODBC_CHECK_DRIVER
@@ -846,7 +847,7 @@ bool QODBCResult::prepare( const QString& query )
 bool QODBCResult::exec()
 {
     SQLRETURN r;
-    QPtrList<void> tmpStorage; // holds temporary ptrs. which will be deleted on fu exit
+    QPtrList<QVirtualDestructor> tmpStorage; // holds temporary ptrs. which will be deleted on fu exit
     tmpStorage.setAutoDelete( TRUE );
   
     // bind parameters - only positional binding allowed
@@ -860,7 +861,7 @@ bool QODBCResult::exec()
 	    switch ( val.type() ) {
 		case QVariant::Date: {
 		    DATE_STRUCT * dt = new DATE_STRUCT;
-		    tmpStorage.append( dt );
+		    tmpStorage.append( qAutoDeleter(dt) );
 		    QDate qdt = val.toDate();
  		    dt->year = qdt.year();
  		    dt->month = qdt.month();
@@ -878,7 +879,7 @@ bool QODBCResult::exec()
 		    break; }
 		case QVariant::Time: {
 		    TIME_STRUCT * dt = new TIME_STRUCT;
-		    tmpStorage.append( dt );
+		    tmpStorage.append( qAutoDeleter(dt) );
 		    QTime qdt = val.toTime();
  		    dt->hour = qdt.hour();
  		    dt->minute = qdt.minute();
@@ -896,7 +897,7 @@ bool QODBCResult::exec()
 		    break; }
 		case QVariant::DateTime: {
 		    TIMESTAMP_STRUCT * dt = new TIMESTAMP_STRUCT;
- 		    tmpStorage.append( dt );
+ 		    tmpStorage.append( qAutoDeleter(dt) );
 		    QDateTime qdt = val.toDateTime();
  		    dt->year = qdt.date().year();
  		    dt->month = qdt.date().month();
@@ -918,7 +919,7 @@ bool QODBCResult::exec()
 	        case QVariant::Int: {
 		    int * v = new int;
 		    *v = val.toInt();
-		    tmpStorage.append( v );
+		    tmpStorage.append( qAutoDeleter(v) );
 		    r = SQLBindParameter( d->hStmt,
 					  para,
 					  SQL_PARAM_INPUT,
@@ -933,7 +934,7 @@ bool QODBCResult::exec()
  	        case QVariant::Double: {
 		    double * v = new double;
 		    *v = val.toDouble();
-		    tmpStorage.append( v );
+		    tmpStorage.append( qAutoDeleter(v) );
 		    r = SQLBindParameter( d->hStmt,
 					  para,
 					  SQL_PARAM_INPUT,
@@ -949,7 +950,7 @@ bool QODBCResult::exec()
 		    QByteArray ba = val.toByteArray();
 		    SQLINTEGER * len = new SQLINTEGER;
 		    *len = ba.size();
-		    tmpStorage.append( len );
+		    tmpStorage.append( qAutoDeleter(len) );
 		    r = SQLBindParameter( d->hStmt,
 					  para,
 					  SQL_PARAM_INPUT,
@@ -967,7 +968,7 @@ bool QODBCResult::exec()
 			QString * str = new QString( val.asString() );
 			str->ucs2();
 			int len = str->length()*2;
-			tmpStorage.append( str );
+			tmpStorage.append( qAutoDeleter(str) );
 			r = SQLBindParameter( d->hStmt,
 					      para,
 					      SQL_PARAM_INPUT,
@@ -984,7 +985,7 @@ bool QODBCResult::exec()
 	        default: {
 		    indicator = SQL_NTS;
 		    QCString * str = new QCString( val.asString().local8Bit() );
-		    tmpStorage.append( str );
+		    tmpStorage.append( qAutoDeleter(str) );
 		    r = SQLBindParameter( d->hStmt,
 					  para,
 					  SQL_PARAM_INPUT,

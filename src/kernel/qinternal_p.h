@@ -134,4 +134,24 @@ inline bool QSharedDoubleBuffer::isActive() const
 inline bool QSharedDoubleBuffer::isBuffered() const
 { return ( state & BufferActive ); }
 
+
+class QVirtualDestructor {
+public:
+    virtual ~QVirtualDestructor() {}
+};
+
+template <class T>
+class QAutoDeleter : public QVirtualDestructor {
+public:
+    QAutoDeleter( T* p ) : ptr( p ) {}
+    ~QAutoDeleter() { delete ptr; }
+private:
+    T* ptr;
+};
+
+template <class T>
+QAutoDeleter<T>* qAutoDeleter( T* p )
+{
+    return new QAutoDeleter<T>( p );
+}
 #endif // QINTERNAL_P_H
