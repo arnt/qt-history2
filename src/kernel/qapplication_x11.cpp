@@ -3493,7 +3493,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		// need a little bit longer, i.e. both a and x/y may
 		// contain bogus values at this point in time.
 		int count = 0;
-		while ( count < 10 && a.x == 0 && a.y == 0 && ( a.width < r.width() || a.height < r.height() ) ) {
+		while ( count < 10 && a.x == 0 && a.y == 0 &&
+			( a.width < r.width() || a.height < r.height() ) ) {
 		    count++;
 		    QApplication::syncX();
 		    qt_ignore_badwindow();
@@ -3502,10 +3503,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
 			break;
 		}
 
-		if ( x <= 4 && y <= 4 && a.width <= r.width()+8 && a.height <= r.height()+8 ) {
+		if ( x <= 4 && y <= 4 && a.width <= r.width()+8 &&
+		     a.height <= r.height()+8 ) {
 		    // multi reparenting window manager, parent is
 		    // just a shell. The 4 is for safety to support
-		    // BlackBox...
+		    // Blackbox...
 		    Window root_return, parent_return, *children_return;
 		    unsigned int nchildren;
 		    if ( XQueryTree( widget->x11Display(), parent,
@@ -3538,8 +3540,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    frect.setRect(r.left() - x, r.top() - y, a.width, a.height );
 		}
 
-		// widget->fpos = frect.topLeft();
-		// widget->topData()->fsize = frect.size();
+		// save framestrut
 		widget->setFRect(frect);
 
 		// store the parent. Useful for many things, embedding for instance.

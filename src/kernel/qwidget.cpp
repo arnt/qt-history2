@@ -2959,6 +2959,8 @@ QSize QWidget::frameSize() const
 void QWidget::setFRect( const QRect &r )
 {
     if ( extra && extra->topextra ) {
+	crect.moveTopLeft(crect.topLeft() + QPoint(fleft, ftop));
+
 	fleft   = crect.left() - r.left();
 	fright  = r.right()    - crect.right();
 	ftop    = crect.top()  - r.top();

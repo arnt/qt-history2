@@ -1457,6 +1457,7 @@ void QWidget::hideWindow()
 
 	crect.moveTopLeft( QPoint(crect.x() - fleft, crect.y() - ftop ));
 	topData()->fsize = crect.size();
+	fleft = fright = ftop = fbottom = 0;
     } else {
 	if ( winId() ) // in nsplugin, may be 0
 	    XUnmapWindow( x11Display(), winId() );
@@ -1739,7 +1740,8 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     }
 
     if ( isMove )
-	XMoveResizeWindow( dpy, winid, pos().x(), pos().y(), w, h ); // pos() is right according to ICCCM 4.1.5
+	// pos() is right according to ICCCM 4.1.5
+	XMoveResizeWindow( dpy, winid, pos().x(), pos().y(), w, h );
     else if ( isResize )
 	XResizeWindow( dpy, winid, w, h );
 
