@@ -74,7 +74,7 @@
   from scratch.
 
   The color group class can be created using three different
-  constructors or by modifying one supplied by the Qt.  The
+  constructors or by modifying one supplied by Qt.  The
   default constructor creates an all-black color group, which can then
   be modified using set functions.  There are two functions that take
   long lists of arguments (slightly different lists - beware!).  And
