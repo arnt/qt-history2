@@ -65,12 +65,11 @@ struct QMetaProperty 				// property meta data
     const char 	*type;				// type of the property
     const char*	name;				// name of the property
     QMember 	set;				// set-function or 0
-    QMember 	get;				// get-function or 0
+    QMember 	get;				// get-function or 0 ( 0 indicates an error )
     QMetaEnum	*enumType;			// the enum-type or 0
 
-    bool readable() const { return get != 0; }
     bool writeable() const { return set != 0; }
-    bool isValid() const { return !testState( UnresolvedEnum) ; }
+    bool isValid() const { return get != 0 && !testState( UnresolvedEnum) ; }
 
     bool isEnumType() const { return enumType != 0; }
     QStrList enumNames() const;			// convenience function

@@ -38,7 +38,7 @@
 #define signals protected			// signals: in class
 #define emit					// emit signal
 
-#define Q_PROPERTY( type, name, set, get )	// property
+#define Q_PROPERTY( type, name, get, set )	// property
 #define Q_CLASSINFO( name, value )		// class info
 
 /* tmake ignore Q_OBJECT */

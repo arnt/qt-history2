@@ -34,6 +34,7 @@
 #include "qvariant.h"
 #include "qpixmap.h"
 #include "qiconset.h"
+#include "qimage.h"
 
 // NOT REVISED
 /*! \class Qt qnamespace.h
@@ -2080,6 +2081,21 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     typedef void (QObject::*ProtoIconSet)( QIconSet );
     typedef void (QObject::*RProtoIconSet)( const QIconSet& );
 
+    typedef void (QObject::*ProtoIntList)( QValueList<int> );
+    typedef void (QObject::*RProtoIntList)( const QValueList<int>& );
+
+    typedef void (QObject::*ProtoDoubleList)( QValueList<double> );
+    typedef void (QObject::*RProtoDoubleList)( const QValueList<double>& );
+
+    typedef void (QObject::*ProtoImage)( QImage );
+    typedef void (QObject::*RProtoImage)( const QImage& );
+    
+    typedef void (QObject::*ProtoPoint)( QPoint );
+    typedef void (QObject::*RProtoPoint)( const QPoint& );
+
+    typedef void (QObject::*ProtoStringList)( QStringList );
+    typedef void (QObject::*RProtoStringList)( const QStringList& );
+
     QMetaObject* meta = queryMetaObject();
     if ( !meta )
 	return FALSE;
@@ -2104,6 +2120,85 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     }
 
     switch ( value.type()  ) {
+
+    case QVariant::Custom:
+    case QVariant::Invalid:
+	return FALSE;
+
+    case QVariant::Image:
+	if ( p->sspec == QMetaProperty::Class ) {
+	    ProtoImage m;
+	    m = *((ProtoImage*)&p->set);
+	    (this->*m)( value.toImage() );
+	}
+	else if ( p->sspec == QMetaProperty::Reference ) {
+	    RProtoImage m;
+	    m = *((RProtoImage*)&p->set);
+	    (this->*m)( value.toImage() );
+	}
+	else
+	    ASSERT( 0 );
+	return TRUE;
+
+    case QVariant::Point:
+	if ( p->sspec == QMetaProperty::Class ) {
+	    ProtoPoint m;
+	    m = *((ProtoPoint*)&p->set);
+	    (this->*m)( value.toPoint() );
+	}
+	else if ( p->sspec == QMetaProperty::Reference ) {
+	    RProtoPoint m;
+	    m = *((RProtoPoint*)&p->set);
+	    (this->*m)( value.toPoint() );
+	}
+	else
+	    ASSERT( 0 );
+	return TRUE;
+
+    case QVariant::DoubleList:
+	if ( p->sspec == QMetaProperty::Class ) {
+	    ProtoDoubleList m;
+	    m = *((ProtoDoubleList*)&p->set);
+	    (this->*m)( value.toDoubleList() );
+	}
+	else if ( p->sspec == QMetaProperty::Reference ) {
+	    RProtoDoubleList m;
+	    m = *((RProtoDoubleList*)&p->set);
+	    (this->*m)( value.toDoubleList() );
+	}
+	else
+	    ASSERT( 0 );
+	return TRUE;
+
+    case QVariant::IntList:
+	if ( p->sspec == QMetaProperty::Class ) {
+	    ProtoIntList m;
+	    m = *((ProtoIntList*)&p->set);
+	    (this->*m)( value.toIntList() );
+	}
+	else if ( p->sspec == QMetaProperty::Reference ) {
+	    RProtoIntList m;
+	    m = *((RProtoIntList*)&p->set);
+	    (this->*m)( value.toIntList() );
+	}
+	else
+	    ASSERT( 0 );
+	return TRUE;
+
+    case QVariant::StringList:
+	if ( p->sspec == QMetaProperty::Class ) {
+	    ProtoStringList m;
+	    m = *((ProtoStringList*)&p->set);
+	    (this->*m)( value.toStringList() );
+	}
+	else if ( p->sspec == QMetaProperty::Reference ) {
+	    RProtoStringList m;
+	    m = *((RProtoStringList*)&p->set);
+	    (this->*m)( value.toStringList() );
+	}
+	else
+	    ASSERT( 0 );
+	return TRUE;
 
     case QVariant::String:
 	if ( p->sspec == QMetaProperty::Class ) {
@@ -2391,6 +2486,26 @@ QVariant QObject::property( const char *name ) const
     typedef const QIconSet* (QObject::*PProtoIconSet)() const;
     typedef const QIconSet& (QObject::*RProtoIconSet)() const;
 
+    typedef QPoint (QObject::*ProtoPoint)() const;
+    typedef const QPoint* (QObject::*PProtoPoint)() const;
+    typedef const QPoint& (QObject::*RProtoPoint)() const;
+
+    typedef QImage (QObject::*ProtoImage)() const;
+    typedef const QImage* (QObject::*PProtoImage)() const;
+    typedef const QImage& (QObject::*RProtoImage)() const;
+
+    typedef QValueList<double> (QObject::*ProtoDoubleList)() const;
+    typedef const QValueList<double>* (QObject::*PProtoDoubleList)() const;
+    typedef const QValueList<double>& (QObject::*RProtoDoubleList)() const;
+
+    typedef QValueList<int> (QObject::*ProtoIntList)() const;
+    typedef const QValueList<int>* (QObject::*PProtoIntList)() const;
+    typedef const QValueList<int>& (QObject::*RProtoIntList)() const;
+
+    typedef QStringList (QObject::*ProtoStringList)() const;
+    typedef const QStringList* (QObject::*PProtoStringList)() const;
+    typedef const QStringList& (QObject::*RProtoStringList)() const;
+
     QMetaObject* meta = queryMetaObject();
     if ( !meta )
 	return value;
@@ -2411,9 +2526,165 @@ QVariant QObject::property( const char *name ) const
 	return value;
     }
 
+    // p->type must be a type understood by QVariant, so we can savely convert it.
     QVariant::Type type = QVariant::nameToType( p->type );
 
     switch ( type ) {
+    case QVariant::Custom:
+    case QVariant::Invalid:
+	// A real assert, since this indicates a moc bug
+	ASSERT( 0 );
+	return QVariant();
+
+    case QVariant::Image:
+	if ( p->gspec == QMetaProperty::Class ) {
+	    ProtoImage m;
+	    m = *((ProtoImage*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Reference ) {
+	    RProtoImage m;
+	    m = *((RProtoImage*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Pointer ) {
+	    PProtoImage m;
+	    m = *((PProtoImage*)&p->get);
+	    const QImage* p = (this->*m)();
+	    if ( p )
+		value.setValue( *p );
+	    else
+		value.setValue( QImage() );
+	}
+	else
+	    ASSERT( 0 );
+	return value;
+
+    case QVariant::Point:
+	if ( p->gspec == QMetaProperty::Class ) {
+	    ProtoPoint m;
+	    m = *((ProtoPoint*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Reference ) {
+	    RProtoPoint m;
+	    m = *((RProtoPoint*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Pointer ) {
+	    PProtoPoint m;
+	    m = *((PProtoPoint*)&p->get);
+	    const QPoint* p = (this->*m)();
+	    if ( p )
+		value.setValue( *p );
+	    else
+		value.setValue( QPoint() );
+	}
+	else
+	    ASSERT( 0 );
+	return value;
+
+    case QVariant::DoubleList:
+	if ( p->gspec == QMetaProperty::Class ) {
+	    ProtoDoubleList m;
+	    m = *((ProtoDoubleList*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Reference ) {
+	    RProtoDoubleList m;
+	    m = *((RProtoDoubleList*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Pointer ) {
+	    PProtoDoubleList m;
+	    m = *((PProtoDoubleList*)&p->get);
+	    const QValueList<double>* p = (this->*m)();
+	    if ( p )
+		value.setValue( *p );
+	    else
+		value.setValue( QValueList<double>() );
+	}
+	else
+	    ASSERT( 0 );
+	return value;
+
+    case QVariant::IntList:
+	if ( p->gspec == QMetaProperty::Class ) {
+	    ProtoIntList m;
+	    m = *((ProtoIntList*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Reference ) {
+	    RProtoIntList m;
+	    m = *((RProtoIntList*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Pointer ) {
+	    PProtoIntList m;
+	    m = *((PProtoIntList*)&p->get);
+	    const QValueList<int>* p = (this->*m)();
+	    if ( p )
+		value.setValue( *p );
+	    else
+		value.setValue( QValueList<int>() );
+	}
+	else
+	    ASSERT( 0 );
+	return value;
+
+    case QVariant::StringList:
+	if ( p->gspec == QMetaProperty::Class ) {
+	    ProtoStringList m;
+	    m = *((ProtoStringList*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Reference ) {
+	    RProtoStringList m;
+	    m = *((RProtoStringList*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Pointer ) {
+	    PProtoStringList m;
+	    m = *((PProtoStringList*)&p->get);
+	    const QStringList* p = (this->*m)();
+	    if ( p )
+		value.setValue( *p );
+	    else
+		value.setValue( QStringList() );
+	}
+	else
+	    ASSERT( 0 );
+	return value;
+
+    case QVariant::CString:
+	if ( p->gspec == QMetaProperty::Class ) {
+	    ProtoCString m;
+	    m = *((ProtoCString*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Reference ) {
+	    RProtoCString m;
+	    m = *((RProtoCString*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Pointer ) {
+	    PProtoCString m;
+	    m = *((PProtoCString*)&p->get);
+	    const QCString* p = (this->*m)();
+	    if ( p )
+		value.setValue( *p );
+	    else
+		value.setValue( QCString() );
+	}
+	else if ( p->gspec == QMetaProperty::ConstCharStar ) {
+	    ProtoConstCharStar m;
+	    m = *((ProtoConstCharStar*)&p->get);
+	    value.setValue( QCString( (this->*m)() ) );
+	}
+	else
+	    ASSERT( 0 );
+	return value;
+
     case QVariant::String:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoString m;
