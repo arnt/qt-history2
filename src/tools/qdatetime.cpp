@@ -964,6 +964,7 @@ int QDate::daysTo( const QDate &d ) const
 */
 
 /*!
+    \overload
     Returns the current date, as reported by the system clock.
 
     \sa QTime::currentTime(), QDateTime::currentDateTime()
@@ -975,7 +976,6 @@ QDate QDate::currentDate()
 }
 
 /*!
-  \fn QDate::currentDate( Qt::DateTimeSpec f )
   Returns the current date, as reported by the system clock, for the
   DateTimeSpec \a f. The default DateTimeSpec is LocalTime.
 
@@ -1580,7 +1580,9 @@ int QTime::msecsTo( const QTime &t ) const
 
 
 
-/*!
+/*!  
+    \overload
+
     Returns the current time as reported by the system clock.
 
     Note that the accuracy depends on the accuracy of the underlying
@@ -2352,6 +2354,8 @@ bool QDateTime::operator>=( const QDateTime &dt ) const
 }
 
 /*!
+    \overload
+    
     Returns the current datetime, as reported by the system clock.
 
     \sa QDate::currentDate(), QTime::currentTime()

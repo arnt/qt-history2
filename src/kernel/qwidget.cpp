@@ -1341,6 +1341,30 @@ void QWidget::styleChange( QStyle& /* oldStyle */ )
 */
 
 /*!
+    \property QWidget::minimized
+    \brief whether this widget is minimized (iconified)
+
+    This property is only relevant for top-level widgets.
+
+    \sa showMinimized(), visible, show(), hide(), showNormal(), maximized
+*/
+
+/*!
+    \property QWidget::maximized
+    \brief whether this widget is maximized
+
+    This property is only relevant for top-level widgets.
+
+    Note that due to limitations in some window-systems, this does not
+    always report the expected results (e.g. if the user on X11
+    maximizes the window via the window manager, Qt has no way of
+    distinguishing this from any other resize). This is expected to
+    improve as window manager protocols evolve.
+
+    \sa showMaximized(), visible, show(), hide(), showNormal(), minimized
+*/
+
+/*!
     Returns TRUE if this widget would become enabled if \a ancestor is
     enabled; otherwise returns FALSE.
 
@@ -1349,7 +1373,7 @@ void QWidget::styleChange( QStyle& /* oldStyle */ )
 
     isEnabledTo(0) is equivalent to isEnabled().
 
-    \sa setEnabled() isEnabled()
+    \sa setEnabled() enabled
 */
 
 bool QWidget::isEnabledTo( QWidget* ancestor ) const
@@ -5371,10 +5395,12 @@ void QWidget::setSizePolicy( QSizePolicy policy )
 }
 
 /*
-  \fn void QWidget::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw )
-\overload
-*/
+  \overload void QWidget::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw )
 
+  Sets the size policy of the widget to \a hor, \a ver and \a hfw.
+
+  \sa QSizePolicy::QSizePolicy()
+*/
 
 /*!
     Returns the preferred height for this widget, given the width \a
@@ -5607,27 +5633,14 @@ void QWidget::showFullScreen()
 /*!
     \property QWidget::fullScreen
     \brief whether the widget is full screen
+
+    \sa minimized, maximized
 */
 bool QWidget::isFullScreen() const
 {
     QWidget* that = (QWidget*)this;
     return isTopLevel() && that->topData()->fullscreen;
 }
-
-/*!
-    \fn bool QWidget::isMaximized() const
-
-    Returns TRUE if this widget is a top-level widget that is
-    maximized; otherwise returns FALSE.
-
-    Note that due to limitations in some window-systems, this does not
-    always report the expected results (e.g. if the user on X11
-    maximizes the window via the window manager, Qt has no way of
-    distinguishing this from any other resize). This is expected to
-    improve as window manager protocols evolve.
-
-    \sa showMaximized()
-*/
 
 /*!
     \property QWidget::ownCursor

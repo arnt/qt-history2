@@ -15231,7 +15231,7 @@ QString &QString::insert( uint index, QChar c ) // insert char
     \sa insert()
 */
 
-/*! \fn QString& QString::prepend( const QCString &s )
+/*! \fn QString& QString::prepend( const QByteArray &s )
   \overload
 
   Inserts \a s at the beginning of the string and returns a reference to the string.
@@ -16442,7 +16442,7 @@ void QString::setExpand( uint index, QChar c )
     Equivalent to operator+=().
 */
 
-/*! \fn QString& QString::append( const QCString &str )
+/*! \fn QString& QString::append( const QByteArray &str )
   \overload
 
   Appends \a str to the string and returns a reference to the result.
@@ -16524,7 +16524,7 @@ QString &QString::operator+=( char c )
 }
 
 /*!
-  \fn QString &QString::operator+=( const QCString &str )
+  \fn QString &QString::operator+=( const QByteArray &str )
   \overload
 
   Appends \a str to the string and returns a reference to the string.

@@ -395,8 +395,10 @@ void QStatusBar::clear()
     \fn QStatusBar::messageChanged( const QString &message )
 
     This signal is emitted when the temporary status messages
-    changes. \a message is the new temporary message, and is an
-    null-string when the message has been cleared.
+    changes. \a message is the new temporary message, and is a
+    null-string when the message has been removed.
+
+    \sa message(), clear()
 */
 
 /*!
