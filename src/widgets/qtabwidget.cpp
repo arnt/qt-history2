@@ -5,7 +5,7 @@
 **
 ** Created : 990318
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -479,20 +479,13 @@ void QTabWidget::setTabEnabled( QWidget* w, bool enable)
 }
 
 /*!
-   Returns TRUE if the tab close button is visible; otherwise returns FALSE.
-
-   \sa setTabCloseButtonVisible(), QWidget::isVisible()
+    \property QTabWidget::closeButtonVisible
+    \brief whether the tab close button is visible
 */
-
 bool QTabWidget::isCloseButtonVisible() const
 {
     return d->tabCloseButton->isVisible();
 }
-
-/*!
-  If \a visible is TRUE, the tab close button is visible; otherwise the tab close button is
-  visible.
-*/
 
 void QTabWidget::setCloseButtonVisible( bool visible )
 {
