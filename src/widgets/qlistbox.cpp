@@ -2463,6 +2463,8 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 		selectCurrent = TRUE;
 		d->currInputString = QString::null;
 		toggleCurrentItem();
+		if ( selectionMode() == Extended && d->current->isSelected() )
+		    emit highlighted( currentItem() );
 		if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
 		    d->selectAnchor = d->current;
 	    }
@@ -2783,10 +2785,9 @@ void QListBox::setSelected( QListBoxItem * item, bool select )
 	(bool)item->s == select || d->selectionMode == NoSelection )
 	return;
 
-    bool emitHighlighted = FALSE;
+    bool emitHighlighted = (d->current != item) ||
+			   ( item->s != (uint) select && select );
     if ( selectionMode() == Single ) {
-	emitHighlighted = (d->current != item) ||
-	    ( item->s != (uint) select && select );
 	if ( d->current != item ) {
 	    QListBoxItem *o = d->current;
 	    if ( d->current && d->current->s )
