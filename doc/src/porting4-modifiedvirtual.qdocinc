@@ -1,8 +1,8 @@
 \row \o int QAccessibleInterface::navigate(NavDirection, int) const \o int QAccessibleInterface::navigate(RelationFlag, int, QAccessibleInterface **) const
 \row \o bool QApplication::winEventFilter(MSG *) \o bool QApplication::winEventFilter(MSG *, long *)
-\row \o bool QIODevice::open(int) \o bool QIODevice::open(OpenMode)
 \row \o Function: Offset QIODevice::at() const \o Function: Q_LONGLONG QIODevice::pos() const
 \row \o bool QIODevice::at(Offset) \o bool QIODevice::seek(Q_LONGLONG)
+\row \o bool QIODevice::open(int) \o bool QIODevice::open(OpenMode)
 \row \o Q_LONG QIODevice::readBlock(char *, Q_ULONG) \o Q_LONGLONG QIODevice::readData(char *, Q_LONGLONG)
 \row \o Q_LONG QIODevice::writeBlock(const char *, Q_ULONG) \o Q_LONGLONG QIODevice::writeData(const char *, Q_LONGLONG)
 \row \o const char * QImageFormatType::formatName() const \o QByteArray QImageFormatType::formatName() const

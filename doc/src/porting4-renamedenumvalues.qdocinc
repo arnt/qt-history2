@@ -1,3 +1,9 @@
+\row \o IO_ReadOnly \o QIODevice::ReadOnly
+\row \o IO_WriteOnly \o QIODevice::WriteOnly
+\row \o IO_ReadWrite \o QIODevice::ReadWrite
+\row \o IO_Append \o QIODevice::Append
+\row \o IO_Truncate \o QIODevice::Truncate
+\row \o IO_Translate \o QIODevice::Translate
 \row \o QAccessible::Moveable \o QAccessible::Movable
 \row \o QApplication::CustomColors \o QApplication::CustomColor
 \row \o QApplication::NormalColors \o QApplication::NormalColor

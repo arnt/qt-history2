@@ -4,22 +4,22 @@
 \row \o QMemArray<int> QAccessibleInterface::selection() const \o Port to the new QAccessibleInterface API.
 \row \o bool QAccessibleInterface::setFocus(int) \o Port to the new QAccessibleInterface API.
 \row \o bool QAccessibleInterface::setSelected(int, bool, bool) \o Port to the new QAccessibleInterface API.
-\row \o bool QAction::addTo(QWidget *) \o Use Q3Action instead.
-\row \o void QAction::addedTo(QWidget *, QWidget *) \o Use Q3Action instead.
-\row \o void QAction::addedTo(int, QPopupMenu *) \o Use Q3Action instead.
-\row \o bool QAction::removeFrom(QWidget *) \o Use Q3Action instead.
-\row \o void QAction::setAccel(const QKeySequence &) \o Use Q3Action instead.
-\row \o void QAction::setEnabled(bool) \o Use Q3Action instead.
-\row \o void QAction::setIconSet(const QIcon &) \o Use Q3Action instead.
-\row \o void QAction::setMenuText(const QString &) \o Use Q3Action instead.
-\row \o void QAction::setOn(bool) \o Use Q3Action instead.
-\row \o void QAction::setStatusTip(const QString &) \o Use Q3Action instead.
-\row \o void QAction::setText(const QString &) \o Use Q3Action instead.
-\row \o void QAction::setToggleAction(bool) \o Use Q3Action instead.
-\row \o void QAction::setToolTip(const QString &) \o Use Q3Action instead.
-\row \o void QAction::setWhatsThis(const QString &) \o Use Q3Action instead.
-\row \o void QButton::drawButton(QPainter *) \o Use Q3Button instead.
-\row \o void QButton::drawButtonLabel(QPainter *) \o Use Q3Button instead.
+\row \o bool QAction::addTo(QWidget *) \o Use Q3Action instead or port to the new QAction API.
+\row \o void QAction::addedTo(QWidget *, QWidget *) \o Use Q3Action instead or port to the new QAction API.
+\row \o void QAction::addedTo(int, QPopupMenu *) \o Use Q3Action instead or port to the new QAction API.
+\row \o bool QAction::removeFrom(QWidget *) \o Use Q3Action instead or port to the new QAction API.
+\row \o void QAction::setAccel(const QKeySequence &) \o Use Q3Action instead or port to the new QAction API.
+\row \o void QAction::setEnabled(bool) \o Use Q3Action instead or port to the new QAction API.
+\row \o void QAction::setIconSet(const QIcon &) \o Use Q3Action instead or port to the new QAction API.
+\row \o void QAction::setMenuText(const QString &) \o Use Q3Action instead or port to the new QAction API.
+\row \o void QAction::setOn(bool) \o Use Q3Action instead or port to the new QAction API.
+\row \o void QAction::setStatusTip(const QString &) \o Use Q3Action instead or port to the new QAction API.
+\row \o void QAction::setText(const QString &) \o Use Q3Action instead or port to the new QAction API.
+\row \o void QAction::setToggleAction(bool) \o Use Q3Action instead or port to the new QAction API.
+\row \o void QAction::setToolTip(const QString &) \o Use Q3Action instead or port to the new QAction API.
+\row \o void QAction::setWhatsThis(const QString &) \o Use Q3Action instead or port to the new QAction API.
+\row \o void QButton::drawButton(QPainter *) \o Use Q3Button instead or reimplement QButton::paintEvent().
+\row \o void QButton::drawButtonLabel(QPainter *) \o Use Q3Button instead or reimplement QButton::paintEvent().
 \row \o void QButton::setAccel(const QKeySequence &) \o Setter.
 \row \o void QButton::setAutoRepeat(bool) \o Setter.
 \row \o void QButton::setDown(bool) \o Setter.
@@ -99,20 +99,20 @@
 \row \o void QDns::setLabel(const QString &) \o Use Q3Dns instead.
 \row \o void QDns::setLabel(const QHostAddress &) \o Use Q3Dns instead.
 \row \o void QDns::setRecordType(RecordType) \o Use Q3Dns instead.
-\row \o void QDockWindow::dock() \o Port to the new QDockWindow API.
-\row \o void QDockWindow::setCloseMode(int) \o Port to the new QDockWindow API.
-\row \o void QDockWindow::setFixedExtentHeight(int) \o Port to the new QDockWindow API.
-\row \o void QDockWindow::setFixedExtentWidth(int) \o Port to the new QDockWindow API.
-\row \o void QDockWindow::setHorizontallyStretchable(bool) \o Port to the new QDockWindow API.
-\row \o void QDockWindow::setMovingEnabled(bool) \o Port to the new QDockWindow API.
-\row \o void QDockWindow::setNewLine(bool) \o Port to the new QDockWindow API.
-\row \o void QDockWindow::setOffset(int) \o Port to the new QDockWindow API.
-\row \o void QDockWindow::setOpaqueMoving(bool) \o Port to the new QDockWindow API.
-\row \o void QDockWindow::setOrientation(Orientation) \o Port to the new QDockWindow API.
-\row \o void QDockWindow::setResizeEnabled(bool) \o Port to the new QDockWindow API.
-\row \o void QDockWindow::setVerticallyStretchable(bool) \o Port to the new QDockWindow API.
-\row \o void QDockWindow::setWidget(QWidget *) \o Port to the new QDockWindow API.
-\row \o void QDockWindow::undock() \o Port to the new QDockWindow API.
+\row \o void QDockWindow::dock() \o Use Q3DockWindow instead or port to the new QDockWindow API.
+\row \o void QDockWindow::setCloseMode(int) \o Use Q3DockWindow instead or port to the new QDockWindow API.
+\row \o void QDockWindow::setFixedExtentHeight(int) \o Use Q3DockWindow instead or port to the new QDockWindow API.
+\row \o void QDockWindow::setFixedExtentWidth(int) \o Use Q3DockWindow instead or port to the new QDockWindow API.
+\row \o void QDockWindow::setHorizontallyStretchable(bool) \o Use Q3DockWindow instead or port to the new QDockWindow API.
+\row \o void QDockWindow::setMovingEnabled(bool) \o Use Q3DockWindow instead or port to the new QDockWindow API.
+\row \o void QDockWindow::setNewLine(bool) \o Use Q3DockWindow instead or port to the new QDockWindow API.
+\row \o void QDockWindow::setOffset(int) \o Use Q3DockWindow instead or port to the new QDockWindow API.
+\row \o void QDockWindow::setOpaqueMoving(bool) \o Use Q3DockWindow instead or port to the new QDockWindow API.
+\row \o void QDockWindow::setOrientation(Orientation) \o Use Q3DockWindow instead or port to the new QDockWindow API.
+\row \o void QDockWindow::setResizeEnabled(bool) \o Use Q3DockWindow instead or port to the new QDockWindow API.
+\row \o void QDockWindow::setVerticallyStretchable(bool) \o Use Q3DockWindow instead or port to the new QDockWindow API.
+\row \o void QDockWindow::setWidget(QWidget *) \o Use Q3DockWindow instead or port to the new QDockWindow API.
+\row \o void QDockWindow::undock() \o Use Q3DockWindow instead or port to the new QDockWindow API.
 \row \o QString QDomAttr::name() const \o Value type.
 \row \o QDomElement QDomAttr::ownerElement() const \o Value type.
 \row \o void QDomAttr::setValue(const QString &) \o Value type.
@@ -198,8 +198,6 @@
 \row \o void QEventLoop::registerSocketNotifier(QSocketNotifier *) \o Port to the new QAbstractEventDispatcher API.
 \row \o void QEventLoop::unregisterSocketNotifier(QSocketNotifier *) \o Port to the new QAbstractEventDispatcher API.
 \row \o void QEventLoop::wakeUp() \o Port to the new QAbstractEventDispatcher API.
-\row \o void QFileDialog::setSelectedFilter(const QString &) \o Use Q3FileDialog.
-\row \o void QFileDialog::setSelectedFilter(int) \o Use Q3FileDialog.
 \row \o void QFrame::drawContents(QPainter *) \o Use Q3Frame or reimplement QFrame::paintEvent() instead.
 \row \o void QFrame::drawFrame(QPainter *) \o Use Q3Frame or reimplement QFrame::paintEvent() instead.
 \row \o void QFrame::frameChanged() \o Use Q3Frame or reimplement QFrame::resizeEvent() instead.
@@ -307,23 +305,23 @@
 \row \o void QPopupMenu::setId(int, int) \o Port to the new QMenu API.
 \row \o void QPopupMenu::updateItem(int) \o Port to the new QMenu API.
 \row \o int QPrinter::resolution() const \o Call QPrinter::setResolution() to change the resolution.
-\row \o void QPrinter::setColorMode(ColorMode) \o Setter.
-\row \o void QPrinter::setCreator(const QString &) \o Setter.
-\row \o void QPrinter::setDocName(const QString &) \o Setter.
-\row \o void QPrinter::setFromTo(int, int) \o Setter.
-\row \o void QPrinter::setFullPage(bool) \o Setter.
-\row \o void QPrinter::setMinMax(int, int) \o Setter.
-\row \o void QPrinter::setNumCopies(int) \o Setter.
-\row \o void QPrinter::setOrientation(Orientation) \o Setter.
-\row \o void QPrinter::setOutputFileName(const QString &) \o Setter.
-\row \o void QPrinter::setOutputToFile(bool) \o Setter.
-\row \o void QPrinter::setPageOrder(PageOrder) \o Setter.
-\row \o void QPrinter::setPageSize(PageSize) \o Setter.
-\row \o void QPrinter::setPaperSource(PaperSource) \o Setter.
-\row \o void QPrinter::setPrintProgram(const QString &) \o Setter.
-\row \o void QPrinter::setPrinterName(const QString &) \o Setter.
-\row \o void QPrinter::setPrinterSelectionOption(const QString &) \o Setter.
-\row \o void QPrinter::setResolution(int) \o Setter.
+\row \o void QPrinter::setColorMode(ColorMode) \o Subclass QPrintEngine instead.
+\row \o void QPrinter::setCreator(const QString &) \o Subclass QPrintEngine instead.
+\row \o void QPrinter::setDocName(const QString &) \o Subclass QPrintEngine instead.
+\row \o void QPrinter::setFromTo(int, int) \o Subclass QPrintEngine instead.
+\row \o void QPrinter::setFullPage(bool) \o Subclass QPrintEngine instead.
+\row \o void QPrinter::setMinMax(int, int) \o Subclass QPrintEngine instead.
+\row \o void QPrinter::setNumCopies(int) \o Subclass QPrintEngine instead.
+\row \o void QPrinter::setOrientation(Orientation) \o Subclass QPrintEngine instead.
+\row \o void QPrinter::setOutputFileName(const QString &) \o Subclass QPrintEngine instead.
+\row \o void QPrinter::setOutputToFile(bool) \o Subclass QPrintEngine instead.
+\row \o void QPrinter::setPageOrder(PageOrder) \o Subclass QPrintEngine instead.
+\row \o void QPrinter::setPageSize(PageSize) \o Subclass QPrintEngine instead.
+\row \o void QPrinter::setPaperSource(PaperSource) \o Subclass QPrintEngine instead.
+\row \o void QPrinter::setPrintProgram(const QString &) \o Subclass QPrintEngine instead.
+\row \o void QPrinter::setPrinterName(const QString &) \o Subclass QPrintEngine instead.
+\row \o void QPrinter::setPrinterSelectionOption(const QString &) \o Subclass QPrintEngine instead.
+\row \o void QPrinter::setResolution(int) \o Subclass QPrintEngine instead.
 \row \o void QProcess::addArgument(const QString &) \o Not used polymorphically in Qt.
 \row \o void QProcess::closeStdin() \o Not used polymorphically in Qt.
 \row \o bool QProcess::launch(const QByteArray & buf, QStringList *) \o Not used polymorphically in Qt.

@@ -202,6 +202,7 @@
          \omit ### Check with Sam \endomit
     \endtable
 
+    \target properties
     \section1 Properties
 
     Some properties have been renamed in Qt 4, to make Qt's API more
@@ -307,7 +308,7 @@
     \header \o Qt 3 property \o Qt 4 equivalent
     \row \o QButton::autoRepeat \o N/A
     \row \o QButton::autoResize \o N/A
-    \row \o QButton::exclusiveToggle \o Use QButton::autoExclusive instead.
+    \row \o QButton::exclusiveToggle \o See \l QButton::autoExclusive.
     \row \o QButton::pixmap \o Use QAbstractButton::icon instead.
     \row \o QButton::toggleState \o Use QCheckBox::setState() and QCheckBox::state() instead.
     \row \o QButton::toggleType \o Use QCheckBox::setTristate() instead.
@@ -401,13 +402,42 @@
     same object, by calling QAccel::insertItem() multiple times. In
     Qt 4, the solution is to create multiple QShortcut objects.
 
-\omit
+    \section1 QAccessibleInterface
+
+    The QAccessibleInterface class has undergone some API changes in
+    Qt 4, to make it more consistent with the rest of the Qt API.
+
+    If you have classes that inherit QAccessibleInterface or one of
+    its subclasses (QAccessibleObject, QAccessibleWidget, etc.), you
+    must port them the new QAccessibleInterface API.
+
+    See \l{#virtual.functions}{Virtual Functions} for a list of
+    QAccessibleInterface virtual member functions in Qt 3 that are
+    not longer virtual in Qt 4.
+
+    \target qaction.section
     \section1 QAction
 
-    ###
+    The QAction class has been redesigned in Qt 4 to integrate better
+    with the rest of the menu system. It unifies the old QMenuItem
+    class and the old QAction class into one class, avoiding
+    unnecessary data duplication and the need to learn two different
+    APIs.
 
-    Q3Action, Q3ActionGroup
-\endomit
+    The old QAction and QActionGroup classes have been renamed
+    Q3Action and Q3ActionGroup and moved to the \l{Qt 3 compatibility
+    library}. In addition, the new QAction class has compatibility
+    functions to ease transition to Qt 4.
+
+    See \l{#virtual.functions}{Virtual Functions} for a list of
+    QAction virtual member functions in Qt 3 that are not longer
+    virtual in Qt 4.
+
+    \section1 QActionGroup
+
+    The QAction class has been completely redesigned in Qt 4 to
+    integrate better with the rest of the menu system. See the
+    \l{#qaction.section}{section on QAction} for details.
 
     \section1 QApplication
 
@@ -425,7 +455,7 @@
 
         Also, QWidgetList has changed from being a typedef for
         QPtrList<QWidget> to being a typedef for QList<QWidget *>.
-        See the \l{qwidgetlist.section}{section on QWidgetList} below
+        See the \l{#qwidgetlist.section}{section on QWidgetList} below
         for details.
 
         \oldcode
@@ -485,6 +515,13 @@
     For details, read the \l{#qdict.section}{section on QDict<T>},
     mentally substituting QByteArray for QString.
 
+    \section1 QAsyncIO
+
+    The QAsyncIO class was used internally in Qt 2.x in conjunction
+    with QImageConsumer. It was obsoleted in Qt 3.0. If you use this
+    mechanism in your application, contact \l qt-bugs@trolltech.com
+    and we will try to find a satisfying substitute.
+
     \section1 QBackInsertIterator
 
     The undocumented QBackInsertIterator class has been removed from
@@ -529,6 +566,42 @@
         }
     \endcode
 
+    \table
+    \header \o Qt 3 function \o Qt 4 equivalent
+    \row \o QButton::autoResize() \o N/A
+    \row \o QButton::isExclusiveToggle() \o Use QAbstractButton::group() or QAbstractButton::autoExclusive() instead.
+    \row \o QButton::pixmap() const \o QAbstractButton::icon()
+    \row \o QButton::setAutoResize() \o N/A
+    \row \o QButton::setPixmap(const QPixmap &) \o QAbstractButton::setIcon(const QIcon &)
+    \row \o QButton::setState(ToggleState) \o See remark below
+    \row \o QButton::setToggleType(ToggleType) \o See remark below
+    \row \o QButton::state() \o See remark below
+    \row \o QButton::stateChanged(int) \o See remark below
+    \row \o QButton::toggleType() \o See remark below
+    \endtable
+
+    Remarks:
+
+    \list 1
+    \o In Qt 3, QButton had a "toggle type", which could be
+       QButton::SingleShot, QButton::Toggle, or QButton::Tristate.
+       The new QAbstractButton class doesn't support "tristate"
+       directly; this feature is implemented in QCheckBox instead.
+       The two other "toggle types" (QButton::SingleShot and
+       QButton::Toggle) are replaced by a QAbstractButton::checkable
+       property.
+    \o In Qt 3, QButton had a "toggle state", which could be
+       QButton::Off, QButton::NoChange, or QButton::On. In Qt 4, this
+       mechanism has been moved to QCheckBox.
+    \endlist
+
+    See \l{#virtual.functions}{Virtual Functions} for a list of
+    QButton virtual member functions in Qt 3 that are not longer
+    virtual in Qt 4.
+
+    See \l{#properties}{Properties} for a list of QButton properties
+    in Qt 3 that have changed in Qt 4.
+
     \section1 QButtonGroup
 
     The QButtonGroup class has been completely redesigned in Qt 4.
@@ -540,15 +613,16 @@
     Q3ButtonGroup could be used in two ways:
 
     \list 1
-    \o The button group is the parent widget of a number of buttons,
+    \o  The button group is the parent widget of a number of buttons,
         i.e. the button group is the parent argument in the button
         constructor. The buttons are assigned identifiers 0, 1, 2, etc.,
         in the order they are created. A Q3ButtonGroup can display a frame
         and a title because it inherits Q3GroupBox.
-    \o The button group is an invisible widget and the contained
-        buttons have some other parent widget. In this usage, each button
-        must be manually inserted, using Q3ButtonGroup::insert(), into the button group
-        and given an ID number.
+    \o  The button group is an invisible widget and the contained
+        buttons have some other parent widget. In this usage, each
+        button must be manually inserted, using
+        Q3ButtonGroup::insert(), into the button group and given an
+        ID number.
     \endlist
 
     Unlike Q3ButtonGroup, the new QButtonGroup doesn't inherit
@@ -559,7 +633,11 @@
     QGroupBox. In Qt 4, radio buttons with the same parent are
     automatically part of an exclusive group, so you normally don't
     need to do anything else. See also the
-    \l{qgroupbox.section}{section on QGroupBox} below.
+    \l{#qgroupbox.section}{section on QGroupBox} below.
+
+    See \l{#virtual.functions}{Virtual Functions} for a list of
+    QButtonGroup virtual member functions in Qt 3 that are not longer
+    virtual in Qt 4.
 
     \target qbytearray.section
     \section1 QByteArray
@@ -754,6 +832,14 @@
         painter.setBrush(palette().brush(QColorGroup::Background));
     \endcode
 
+    \section1 QComboBox
+
+    ###
+
+    See \l{#virtual.functions}{Virtual Functions} for a list of
+    QComboBox virtual member functions in Qt 3 that are not longer
+    virtual in Qt 4.
+
     \section1 QCString
 
     In Qt 3, QCString inherited from QByteArray. The main drawback of
@@ -872,7 +958,7 @@
     \endlist
 
     Since the old QCString class inherited from QByteArray,
-    everything that is said in the \l{qbytearray.section}{QByteArray
+    everything that is said in the \l{#qbytearray.section}{QByteArray
     section} applies for QCString as well.
 
     \section1 QDataBrowser
@@ -881,13 +967,27 @@
 
     See \l{SQL Module} for an overview of the new item SQL classes.
 
+    \section1 QDataPump
+
+    The QDataPump class was used internally in Qt 2.x in conjunction
+    with QImageConsumer. It was obsoleted in Qt 3.0. If you use this
+    mechanism in your application, contact \l qt-bugs@trolltech.com
+    and we will try to find a satisfying substitute.
+
     \section1 QDataSink
 
-    ###
+    The QDataSink class was used internally in Qt 2.x in conjunction
+    with QImageConsumer. It was obsoleted in Qt 3.0. If you use this
+    mechanism in your application, contact \l qt-bugs@trolltech.com
+    and we will try to find a satisfying substitute.
 
     \section1 QDataSource
 
-    ###
+    The QDataSource class was used internally in Qt 2.x in
+    conjunction with QImageConsumer. It was obsoleted in Qt 3.0. If
+    you use this mechanism in your application, contact \l
+    qt-bugs@trolltech.com and we will try to find a satisfying
+    substitute.
 
     \section1 QDataTable
 
@@ -902,10 +1002,13 @@
 
     See \l{SQL Module} for an overview of the new item SQL classes.
 
-\omit
     \section1 QDateEdit
 
     ###
+
+    See \l{#virtual.functions}{Virtual Functions} for a list of
+    QComboBox virtual member functions in Qt 3 that are not longer
+    virtual in Qt 4.
 
     \section1 QDateTimeEditBase
 
@@ -914,7 +1017,10 @@
     \section1 QDateTimeEdit
 
     ###
-\endomit
+
+    See \l{#virtual.functions}{Virtual Functions} for a list of
+    QComboBox virtual member functions in Qt 3 that are not longer
+    virtual in Qt 4.
 
     \section1 QDeepCopy<T>
 
@@ -936,6 +1042,23 @@
         QString str2 = str1;
         QString str3 = str2;
     \endcode
+
+    \section1 QDial
+
+    ###
+
+    See \l{#virtual.functions}{Virtual Functions} for a list of
+    QComboBox virtual member functions in Qt 3 that are not longer
+    virtual in Qt 4.
+
+    See \l{#properties}{Properties} for a list of QDial properties in
+    Qt 3 that have changed in Qt 4.
+
+    \section1 QDialog
+
+    ###
+
+    The QDialog::modal property has been renamed QDialog::isModal.
 
     \target qdict.section
     \section1 QDict<T>
@@ -1133,11 +1256,57 @@
 
     \section1 QDir
 
-    QDir::encodedEntryList has been removed.
+    The following functions used to have a boolean \c{acceptAbsPath}
+    parameter that defaulted to true:
+
+    \list
+    \i QDir::filePath()
+    \i QDir::absFilePath()
+    \i QDir::cd()
+    \i QDir::mkdir()
+    \i QDir::rmdir()
+    \i QDir::remove()
+    \i QDir::rename()
+    \i QDir::exists()
+    \endlist
+
+    In Qt 3, if \c acceptAbsPath is true, a file name starting with
+    '/' is be returned without change; if \c acceptAbsPath is false,
+    an absolute path is prepended to the file name. For example:
+
+    \table
+    \header \i Current directory   \i File name        \i \c acceptAbsPath \i File path
+    \row    \i{1,2} /home/tsmith   \i{1,2} index.html  \i true             \i /home/tsmith/index.html
+    \row                                               \i false            \i /home/tsmith/index.html
+    \row    \i{1,2} /home/tsmith   \i{1,2} /index.html \i true             \i /index.html
+    \row                                               \i false            \i /home/tsmith/index.html
+    \endtable
+
+    In Qt 4, this parameter is no longer available. If you use it
+    in your code, you can check that QDir::isRelativePath() returns
+    false instead.
+
+    \oldcode
+        QDir dir("/home/tsmith");
+        QString path = dir.filePath(fileName, false);
+    \newcode
+        QDir dir("/home/tsmith");
+        QString path;
+        if (dir.isRelativePath(fileName))
+            path = dir.filePath(fileName);
+        else
+            path = fileName;        
+    \endcode
+
+    QDir::encodedEntryList() has been removed.
 
     fileInfoList() and drives() now return a QList<QFileInfo> and not a
     QPtrList<QFileInfo> *. Code using these methods will have to be
     adapted.
+
+    See \l{#virtual.functions}{Virtual Functions} for a list of
+    QDir virtual member functions in Qt 3 that are not longer
+    virtual in Qt 4.
 
     \section1 QDns
 
@@ -1151,7 +1320,6 @@
     QDns::getHostByName(), one of which is blocking, the other
     non-blocking. See the QDns class documentation for details.
 
-\omit
     \section1 QDockArea
 
     ###
@@ -1163,7 +1331,10 @@
     ###
 
     Q3DockWindow
-\endomit
+
+    See \l{#virtual.functions}{Virtual Functions} for a list of
+    QDockWindow virtual member functions in Qt 3 that are not longer
+    virtual in Qt 4.
 
     \section1 QDropSite
 
@@ -1199,6 +1370,10 @@
     compatibility library}.
 
     See \l{SQL Module} for an overview of the new item SQL classes.
+
+    \section1 QEventLoop
+
+    ###
 
     \section1 QFileDialog
 
@@ -1281,6 +1456,10 @@
         \endcode
     \endlist
 
+    See \l{#virtual.functions}{Virtual Functions} for a list of
+    QFileDialog virtual member functions in Qt 3 that are not longer
+    virtual in Qt 4.
+
     \section1 QFrame
 
     The QFrame class has been made more lightweight in Qt 4, by
@@ -1306,19 +1485,36 @@
     class as a first step in the porting process, and later move on
     to the new QFrame class.
 
+    See \l{#virtual.functions}{Virtual Functions} for a list of
+    QFrame virtual member functions in Qt 3 that are not longer
+    virtual in Qt 4.
+
     \section1 QFtp
 
     This class no longer inherits from QNetworkProtocol. See the
     \l{#qnetworkprotocol.section}{section on QNetworkProtocol} for
     details.
 
+    \target qglayoutiterator.section
     \section1 QGLayoutIterator
 
-    ###
+    The QGLayoutIterator class no longer exists in Qt 4. This makes
+    only a difference if you implemented custom layout managers
+    (i.e., QLayout subclasses).
+
+    The new approach is much simpler: It consists in reimplementing
+    QLayout::itemAt() and QLayout::takeAt(). These functions operate
+    on indexes, eliminating the need for a layout iterator class.
 
     \section1 QGrid
 
     The QGrid class has been renamed QGridWidget.
+
+    \section1 QGridLayout
+
+    See \l{#virtual.functions}{Virtual Functions} for a list of
+    QGridLayout virtual member functions in Qt 3 that are not longer
+    virtual in Qt 4.
 
 \omit
     \section1 QGridView
@@ -1350,6 +1546,10 @@
     If you rely on some of the missing functionality in your
     application, you can use Q3GroupBox instead of QGroupBox as a
     help to porting.
+
+    See \l{#virtual.functions}{Virtual Functions} for a list of
+    QGroupBox virtual member functions in Qt 3 that are not longer
+    virtual in Qt 4.
 
     \section1 QGuardedPtr<T>
 
@@ -1428,23 +1628,132 @@
     For details, read the \l{#qdict.section}{section on QDict<T>},
     mentally substituting \c int for QString.
 
+    \target qiodevice.section
     \section1 QIODevice
 
-    Virtuals readBlock and writeBlock now accept a Q_LONG length argument
-    (rather than a Q_ULONG). All subclass will need to change as this is a
-    pure virtual function build errors will occur.
+    The QIODevice class's API has been simplified to make it easier
+    to subclass and to make it work more nicely with asynchronous
+    devices such as QTcpSocket and QProcess.
+
+    The following virtual functions have changed name or signature:
+
+    \table
+    \header \o Qt 3 function \o Comment
+    \row \o QIODevice::at() const \o Renamed QIODevice::pos().
+    \row \o QIODevice::at(Offset) \o Renamed QIODevice::seek().
+    \row \o QIODevice::open(int) \o The parameter is now of type QIODevice::OpenMode.
+    \row \o QIODevice::readBlock(char *, Q_ULONG) \o QIODevice::readData(char *, Q_LONGLONG)
+    \row \o QIODevice::writeBlock(const char *, Q_ULONG) \o QIODevice::writeData(const char *, Q_LONGLONG)
+    \endtable
+
+    The following functions are no longer virtual or don't exist anymore:
+
+    \table
+    \row \o QIODevice::getch() \o Renamed QIODevice::getChar() and implemented in terms of QIODevice::readData().
+    \row \o QIODevice::putch(int) \o Renamed QIODevice::putChar() and implemented in terms of QIODevice::writeData().
+    \row \o QIODevice::readAll() \o Implemented in terms of QIODevice::readData().
+    \row \o QIODevice::readLine(char *, Q_ULONG) \o Implemented in terms of QIODevice::readData()
+    \row \o QIODevice::ungetch(int) \o Renamed QIODevice::ungetChar() and simulated using an internal unget buffer.
+    \endtable
+
+    The \c IO_xxx flags have been revised. Most of them have been
+    elimiated, because errors are best handled by the actual
+    QIODevice subclasses than through the base classes. The file
+    access flags, such as \c IO_ReadOnly and \c IO_WriteOnly, have
+    been moved to the QIODevice class to avoid polluting the global
+    namespace. The table below shows the correspondence between the
+    Qt 3 \c IO_xxx flags and the Qt 4 API:
+
+    \table
+    \header \o Qt 3 constant \o Qt 4 equivalent
+    \row \o IO_Direct \o Use !QIODevice::isSequential() instead (notice the \e not).
+    \row \o IO_Sequential \o Use QIODevice::isSequential() instead.
+    \row \o IO_Combined \o N/A
+    \row \o IO_TypeMask \o N/A
+    \row \o IO_Raw \o N/A
+    \row \o IO_Async \o N/A
+    \row \o IO_ReadOnly \o QIODevice::ReadOnly
+    \row \o IO_WriteOnly \o QIODevice::WriteOnly
+    \row \o IO_ReadWrite \o QIODevice::ReadWrite
+    \row \o IO_Append \o QIODevice::Append
+    \row \o IO_Truncate \o QIODevice::Truncate
+    \row \o IO_Translate \o QIODevice::Translate
+    \row \o IO_ModeMask \o N/A
+    \row \o IO_Open \o Use QIODevice::isOpen() instead.
+    \row \o IO_StateMask \o N/A
+    \row \o IO_Ok \o N/A
+    \row \o IO_ReadError \o N/A
+    \row \o IO_WriteError \o N/A
+    \row \o IO_FatalError \o N/A
+    \row \o IO_ResourceError \o N/A
+    \row \o IO_OpenError \o N/A
+    \row \o IO_ConnectError \o N/A
+    \row \o IO_AbortError \o N/A
+    \row \o IO_TimeOutError \o N/A
+    \row \o IO_UnspecifiedError \o N/A
+    \endtable
 
     \section1 QIODeviceSource
 
-    ###
+    The QIODeviceSource class was used internally in Qt 2.x in
+    conjunction with QImageConsumer. It was obsoleted in Qt 3.0. If
+    you use this mechanism in your application, contact \l
+    qt-bugs@trolltech.com and we will try to find a satisfying
+    substitute.
 
     \section1 QIconFactory
 
-    ###
+    The QIconFactory class is no longer part of the Qt API. It has
+    been replaced by a "pixmap generator function" mechanism; see
+    QIcon::setPixmapGeneratorFn() for details.
 
+    \section1 QLabel
+
+    See \l{#virtual.functions}{Virtual Functions} for a list of
+    QLabel virtual member functions in Qt 3 that are not longer
+    virtual in Qt 4.
+
+    \section1 QLayout
+
+    QLayout setSupportsMargin()
+
+    See also the \l{#qlayoutiterator.section}{section on
+    QLayoutIterator} and the \l{#qglayoutiterator.section}{section on
+    QGLayoutIterator}.
+
+    \target qlayoutiterator.section
     \section1 QLayoutIterator
 
-    ###
+    The QLayoutIterator class is obsoleted in Qt 4. It is available
+    only if \c QT_COMPAT is defined. It can be replaced by the
+    QLayout::itemAt() and QLayout::takeAt() functions, which operate
+    on indexes.
+
+    \oldcode
+        QLayoutIterator it = layout()->iterator();
+        QLayoutItem *child;
+        while ((child = it.current()) != 0) {
+            if (child->widget() == myWidget) {
+                it.takeCurrent();
+                return;
+            ++it;
+        }
+    \newcode
+        int i = 0;
+        QLayoutItem *child;
+        while ((child = layout()->itemAt(i)) != 0) {
+            if (child->widget() == myWidget) {
+                layout()->takeAt(i);
+                return;
+            }
+            ++i;
+        }
+    \endcode
+
+    \section1 QLineEdit
+
+    See \l{#properties}{Properties} for a list of QLineEdit
+    properties in Qt 3 that have changed in Qt 4.
 
     \section1 QListBox
 
@@ -1534,6 +1843,13 @@
 
     \section1 QMenuData
 
+    ###
+
+    \section1 QMessageBox
+
+    The QMessageBox::iconPixmap() function used to return a "const
+    QPixmap *". In Qt 4, it returns a QPixmap.
+
     \section1 QMimeSourceFactory
 
     The QMimeSourceFactory has been moved to the \l{Qt 3
@@ -1563,7 +1879,9 @@
     children() and QueryList now return a QObjectList instead of a pointer
     to a QObjectList. See also the comments on QObjectList.
 
-    killTimers() has been removed.
+    killTimers() has been removed. ###
+
+    The QObject::name property has been renamed QObject::objectName.
 
     \section1 QObjectDictionary
 
@@ -1604,7 +1922,7 @@
 
     In Qt 3, QPointArray inherited from QMemArray<QPoint>. In Qt 4,
     it inherits from QVector<QPoint>. Everything mentioned in the
-    \l{qmemarray.section}{section on QMemArray<T>} apply for
+    \l{#qmemarray.section}{section on QMemArray<T>} apply for
     QPointArray as well.
 
     The QPointArray::setPoints() and QPointArray::putPoints()
@@ -1652,6 +1970,11 @@
     page setup / print setup -> Use QPrintDialog, QPageSetupDialog
     Compat functions: margins
     Killed -> setMargins
+
+    \section1 QProgressDialog
+
+    See \l{#properties}{Properties} for a list of QProgressDialog
+    properties in Qt 3 that have changed in Qt 4.
 
     \section1 QPtrCollection<T>
 
@@ -2245,6 +2568,11 @@
     on all the items in the container from your class destructor to
     avoid a memory leak.
 
+    \section1 QPushButton
+
+    See \l{#properties}{Properties} for a list of QPushButton
+    properties in Qt 3 that have changed in Qt 4.
+
     \section1 QRangeControl
 
     In Qt 3, various "range control" widgets (QDial, QScrollBar,
@@ -2304,6 +2632,11 @@
     \o  QRegion::rects() used to return a QMemArray<QRect>. It now returns
         a QVector<QRect>.
     \endlist
+
+    \section1 QScrollBar
+
+    See \l{#properties}{Properties} for a list of QScrollBar
+    properties in Qt 3 that have changed in Qt 4.
 
     \section1 QScrollView
 
@@ -2391,6 +2724,9 @@
     QAbstractSlider::sliderPosition() and
     QStyle::querySubControlMetrics(), respectively.
 
+    See \l{#properties}{Properties} for a list of QSlider properties
+    in Qt 3 that have changed in Qt 4.
+
     \section1 QSortedList
 
     The QSortedList<T> class has been deprecated since Qt 3.0. In Qt
@@ -2406,6 +2742,11 @@
 
     The obsolete function drawSplitter() has been removed. Use
     QStyle::drawPrimitive() to acheive similar functionality.
+
+    \section1 QSpinBox
+
+    See \l{#properties}{Properties} for a list of QSpinBox properties
+    in Qt 3 that have changed in Qt 4.
 
     \section1 QSqlCursor
 
@@ -2612,7 +2953,7 @@
 
     This change implies some API incompatibilities for QStringList.
     For example, at() returns the string, not an iterator. See the
-    \l{qvaluelist.section}{section on QValueList} for details.
+    \l{#qvaluelist.section}{section on QValueList} for details.
 
 \omit
     \section1 QStyleSheet
@@ -2632,6 +2973,11 @@
     ###
 \endomit
 
+    \section1 QTabBar
+
+    See \l{#properties}{Properties} for a list of QTabBar properties
+    in Qt 3 that have changed in Qt 4.
+
     \section1 QTabDialog
 
     The QTabDialog class is no longer part of the public Qt API. It
@@ -2641,6 +2987,11 @@
     yourself.
 
     \omit Point to the tabdialog example when the example is ready. \endomit
+
+    \section1 QTabWidget
+
+    See \l{#properties}{Properties} for a list of QTabWidget
+    properties in Qt 3 that have changed in Qt 4.
 
     \section1 QTable
 
@@ -2676,7 +3027,6 @@
     the Qt library. If you need it in your application, feel free to
     copy the source code from the Qt 3 \c <qtl.h> header file.
 
-\omit
     \section1 QTextView
 
     The QTextView class has been moved to the \l{Qt 3 compatibility
@@ -2693,7 +3043,11 @@
     ###
 
     Q3ToolBar
-\endomit
+
+    \section1 QToolButton
+
+    See \l{#properties}{Properties} for a list of QToolBar properties
+    in Qt 3 that have changed in Qt 4.
 
     \section1 QUrl
 
@@ -2962,6 +3316,9 @@
     \o QWidget::unsetCursor()
     \endlist
 
+    See \l{#properties}{Properties} for a list of QWidget properties
+    in Qt 3 that have changed in Qt 4.
+
     \section1 QWidgetIntDict
 
     The QWidgetIntDict class was a synonym for QIntDict<QWidget>. It
@@ -2978,11 +3335,13 @@
 
     \section1 QWidgetStack
 
+    ###
+
     The QWidgetStack class is no longer part of the Qt public API. It
     has been moved to the \l{Qt 3 compatibility library}.
 
-    In Qt 4 applications, you can use QStackedLayout instead to obtain
-    the same results.
+    In Qt 4 applications, you can use QStackedWidget instead to
+    obtain the same results.
 
     \section1 QWizard
 
@@ -2995,6 +3354,7 @@
     The dialogs/simplewizard and dialogs/complexwizard examples show
     how to create wizards without using QWizard.
 
+    \target virtual.functions
     \section1 Virtual Functions
 
     Virtual functions that changed their signature in Qt 4:
