@@ -291,7 +291,6 @@ void SetupWizardImpl::integratorDone()
     if( !integrator.normalExit() )
 	logOutput( "The integration process failed.\n", true );
     else {
-        logOutput( QString::null, true );
 	setNextEnabled( buildPage, true );
     
 	/*
@@ -301,9 +300,10 @@ void SetupWizardImpl::integratorDone()
 	doFinalIntegration();
 	setNextEnabled( buildPage, true );
 
-	timeCounter = 30;
-	autoContTimer.start( 1000 );
-	logOutput( "The build was successful" );
+// The automatic continue feature has been disabled
+//	timeCounter = 30;
+//	autoContTimer.start( 1000 );
+	logOutput( "The build was successful", true );
     }
 }
 
