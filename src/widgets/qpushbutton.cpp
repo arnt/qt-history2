@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#112 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#113 $
 **
 ** Implementation of QPushButton class
 **
@@ -32,7 +32,7 @@
   get keyboard focus by tabbing but not by clicking.
 
   <img src=qpushbt-m.gif> <img src=qpushbt-w.gif>
-  
+
   \sa QRadioButton QToolButton
   <a href="guibooks.html#fowler">GUI Design Handbook: Push Button</a>
 */
@@ -328,65 +328,24 @@ void QPushButton::drawButton( QPainter *paint )
 	else
 	    fill = QBrush( g.background() );
 
+	if ( defButton ) {
+	    QPointArray a;
+	    a.setPoints( 9,
+			 x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
+			 x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1 );
+	    p->setPen( black );
+	    p->drawPolyline( a );
+	    x1 += 2;
+	    y1 += 2;
+	    x2 -= 2;
+	    y2 -= 2;
+	}
+	    
 	qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, isOn() || isDown(),
 			 2, &fill );
-
-	if ( defButton ) {			// default Motif button
-	    int by1, by2, by3, by4, by5, by6;	// top to bottom
-	    int bx1, bx2, bx3, bx4;		// left to right
-
-	    by4 = (y2-y1)/2;			// arrowhead
-	    bx1 = x2 - 2 - (y2 - y1 - 4);
-	    if ( x2 - bx1 - 3*by4/2 > 10 )	// but not too far from the
-		bx1 = x2 - 3*by4/2 - 10; 	// right edge of the button
-	    by2 = by4 / 2 + 1;			// top end of arrow
-	    bx2 = bx1 + (by4-by2);
-	    by6 = by4 + (by4-by2);		// bottom end of arrow
-	    by3 = by4 - (by4-by2)/2;		// top end of stem
-	    by5 = by4 + (by4-by3);		// bottom end of stem
-	    bx3 = bx2 + (bx2-bx1) + 1;		// left side of stem
-	    bx4 = bx3 + (by5-by3) - 1;		// right side of stem
-	    by1 = by2 - 1;			// end of stem
 	
-	    if ( hasMenuArrow ) {
-		by1 -= (y2 - y1)/3;
-		by2 -= (y2 - y1)/3;
-		by3 -= (y2 - y1)/3;
-		by4 -= (y2 - y1)/3;
-	    } else {
-		by1++;
-		by2++;
-		by3++;
-		by4++;
-	    }
 
-	    QPointArray a;
-	    p->setPen( g.dark() );
-	    a.setPoints( 7,
-			 bx4, by1,
-			 bx3, by1,
-			 bx3, by3,
-			 bx2, by3,
-			 bx2, by2,
-			 bx1, by4,
-			 bx2, by6 );
-	    p->drawPolyline( a );
-
-	    p->setPen( g.light() );
-	    a.setPoints( 4,
-			 bx2, by6,
-			 bx2, by5,
-			 bx4, by5,
-			 bx4, by1+1 );
-	    p->drawPolyline( a );
-
-	    dx = (y1-y2-4)/3;			// translate button label
-
-	    if ( hasMenuArrow )
-		qDrawArrow( p, DownArrow, style(), FALSE,
-			    x2 - dx, dx, by4, y2 - by4,
-			    g, isEnabled() );
-	} else if ( hasMenuArrow ) {
+	if ( hasMenuArrow ) {
 	    dx = (y1-y2-4)/3;
 	    qDrawArrow( p, DownArrow, style(), FALSE,
 			x2 - dx, dx, y1, y2 - y1,
