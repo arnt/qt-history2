@@ -145,7 +145,7 @@ public:
     bool autoAdvance() const;
 
 signals:
-    void valueChanged( const QDate& );
+    void valueChanged( const QDate& date );
 
 protected:
     bool event( QEvent *e );
@@ -189,7 +189,7 @@ public:
     bool autoAdvance() const;
 
 signals:
-    void valueChanged( const QTime& );
+    void valueChanged( const QTime& time );
 
 protected:
     bool event( QEvent *e );
@@ -204,10 +204,10 @@ protected:
     void setHour( int h );
     void setMinute( int m );
     void setSecond( int s );
-    QString sectionText( int sec );
 
 private:
     void init();
+    QString sectionText( int sec );
     class QTimeEditPrivate;
     QTimeEditPrivate* d;
 };
@@ -236,7 +236,7 @@ public:
     bool autoAdvance() const;
 
 signals:
-    void valueChanged( const QDateTime& );
+    void valueChanged( const QDateTime& datetime );
 
 protected:
     void init();
