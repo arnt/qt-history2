@@ -1679,7 +1679,7 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
     } else {
         TBDEBUG() << "changed area";
 	// ### addToolBar(toolbar, where, false, offset);
-        addToolBar(areaForPosition(where), toolbar);
+        addToolBar(static_cast<Qt::ToolBarArea>(areaForPosition(where)), toolbar);
     }
     relayout();
 }
