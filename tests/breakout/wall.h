@@ -295,11 +295,13 @@ public slots:
     void about();
     void toggleColors();
     void togglePause();
+    void loadLevels();
     void setCurrentPlayer( Player *pl );
     void setItsBall();
+    void setMyBall();
     void brickHit( int x, int y );
 signals:
-    void lostLife();
+    //void lostLife();
     void myBall();
     void start();
 protected:
@@ -369,7 +371,7 @@ public slots:
     void sendScore( int score );
     void sendBrickHit( int x, int y );
     void sendStart();
-    //void sendDied();
+    void sendDied();
     void sendMyBall();
     void sendLevel( QStringList *levelShape );
 signals:
@@ -419,6 +421,8 @@ private:
     Remote *remote;
     bool server;
     GameMain *owner;
+    static QString lastPort;
+    static QString lastHost;
 };
 
 

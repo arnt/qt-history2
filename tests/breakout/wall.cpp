@@ -14,6 +14,7 @@
 #include <qlayout.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
+#include <qfiledialog.h>
 
 
 // game items
@@ -150,9 +151,10 @@ void Ball::advance( int phase )
 		if ( angle < 0 )
 		    angle += 2 * Pi;
 		setSpeed( angle, speed );
-		emit ballPosition( ( (double)x() + newVx ) / game->getBrickWidth(),
-		                   ( (double)y() + newVy ) / game->getBrickHeight(),
-				   angle, speed );
+	        if ( game->isMyBall() )
+		    emit ballPosition( ( (double)x() + newVx ) / game->getBrickWidth(),
+		                     ( (double)y() + newVy ) / game->getBrickHeight(),
+				       angle, speed );
 	    }  
 	    break;
 	}
@@ -218,6 +220,9 @@ void Pad::setPosition( double x )
     if ( xpos + boundingRect().width() > game->getCanvas()->width() ) 
 	xpos = game->getCanvas()->width() - boundingRect().width();
     setX( xpos );
+    if ( game->isGluedBall() && game->getBall()) {
+	game->getBall()->putOnPad();
+    }
 }
 
 void Pad::advance( int phase )
@@ -288,7 +293,7 @@ void Brick::hit()
 {
     emit score( points );
     if ( game->isMyBall() )
-	emit brickHit( boundingRect().center().x() / game->getBrickWidth(), boundingRect().center().x() / game->getBrickHeight() );
+	emit brickHit( boundingRect().center().x() / game->getBrickWidth(), boundingRect().center().y() / game->getBrickHeight() );
     delete this;
 }
 
@@ -331,7 +336,7 @@ void HardBrick::hit()
     else {
 	paintIt();
         if ( game->isMyBall() )
-	    emit brickHit( boundingRect().center().x() / game->getBrickWidth(), boundingRect().center().x() / game->getBrickHeight() );
+	    emit brickHit( boundingRect().center().x() / game->getBrickWidth(), boundingRect().center().y() / game->getBrickHeight() );
     }
 }
 
@@ -562,7 +567,7 @@ void Level::createLevel( QStringList *levelShape )
 	return;
     QStringList invLevel;
     QString emptyLine;
-    emptyLine.fill( '  ', game->getBrickCols() );
+    emptyLine.fill( '..', game->getBrickCols() );
     for ( int i = game->getBrickRows() - 1; i >= 0; --i )
 	invLevel.append( emptyLine );
     Brick *brick;
@@ -572,7 +577,6 @@ void Level::createLevel( QStringList *levelShape )
     for ( QStringList::Iterator it = level->begin(); 
 	    it != level->end() && row < game->getBrickRows() ; ++it, ++row ) {
 	QString &line = (*it);
-qDebug( "level: %s ", line.latin1() );
 	for ( int col = 0; 
 		col < QMIN( game->getBrickCols(), (int)line.length() / 2 ); ++col ) {
 	    brickType = line[2 * col].upper();
@@ -632,9 +636,6 @@ qDebug( "level: %s ", line.latin1() );
 	} //for int col
     } //for QStringList::Iterator it
 
-for ( int q=0; q < game->getBrickRows(); ++q )
-qDebug( "invlv: %s ", invLevel[ q ].latin1() );
-
     if ( game->isMyBall() ) {
 	emit levelCreated( &invLevel );
     }
@@ -647,6 +648,7 @@ Player::Player( GameMain *g, PlayerPosition pos ) :
     lives = new Lives( game, this, InitLives );
     lives->show();
     connect( lives, SIGNAL(ballLost()), game, SLOT(killBall()) );
+    connect( lives, SIGNAL(ballLost()), game, SLOT(setMyBall()) );
 
     score = new Score( game, this );
     score->show();
@@ -753,6 +755,8 @@ GameMain::GameMain( int cols, int rows, int width, int height, QWidget *parent, 
     QPopupMenu *gameMenu = new QPopupMenu( menu );
     gameMenu->insertItem( "&New Game", this, SLOT(newGame()), CTRL+Key_N );
     gameMenu->insertSeparator();
+    gameMenu->insertItem( "&Load levels", this, SLOT(loadLevels()), CTRL+Key_L );
+    gameMenu->insertSeparator();
     gameMenu->insertItem( "&Quit", qApp, SLOT(quit()), CTRL+Key_Q );
     menu->insertItem( "&Game", gameMenu );
 
@@ -826,8 +830,11 @@ void GameMain::newGame( bool multi )
 	connect( this, SIGNAL(start()), remote, SLOT(sendStart()) );
 	connect( remote, SIGNAL(start()), this, SLOT(startBall()) );
 
+	connect( player->getLives(), SIGNAL(ballLost()), remote, SLOT(sendDied()) );
+	connect( remote, SIGNAL(readDied()), this, SLOT(killBall()) );
+
 	if ( !remote->isServer() ) {
-	    currentPlayer = player;
+	    currentPlayer = player2;
 	    connect( remote, SIGNAL(readLevel(QStringList*)), level, SLOT(createLevel(QStringList*)) );
 	} else {
     	    connect( level, SIGNAL(levelCreated(QStringList*)), remote, SLOT(sendLevel(QStringList*)) );
@@ -883,7 +890,7 @@ void GameMain::killBall()
 {
     delete ball;
     ball = 0;
-    setCurrentPlayer( player );
+    //setCurrentPlayer( player );
 }
 
 void GameMain::endGame()
@@ -939,6 +946,12 @@ void GameMain::setCurrentPlayer( Player *pl )
 void GameMain::setItsBall()
 {
     currentPlayer = player2;
+}
+
+void GameMain::setMyBall()
+{
+    currentPlayer = player;
+    emit myBall();
 }
 
 void GameMain::brickHit( int x, int y )
@@ -1043,6 +1056,18 @@ void GameMain::togglePause()
     canvas->update();
 }
 
+void GameMain::loadLevels()
+{
+    QString s = QFileDialog::getOpenFileName(
+		    "", "All files (*.*)",
+                    this, "open file dialog",
+                    "Select a level file" );    
+    if ( s ) {
+	level->load( s );
+	newGame();
+    }
+}
+
 void GameMain::setGluedBall( bool glued )
 {
     gluedBall = glued;
@@ -1140,7 +1165,7 @@ void Remote::socketReadyRead()
 {
     QString line;
     while ( remoteSocket->canReadLine() ) {
-	line = remoteSocket->readLine();  
+	line = remoteSocket->readLine();
 qDebug( "Received: %s", line.latin1() );
 	if ( line.section( ',', 0, 0 ) == "score" )
 	    emit readScore( line.section( ',', 1, 1 ).toInt() );
@@ -1154,24 +1179,29 @@ qDebug( "Received: %s", line.latin1() );
 	                   game->getBrickRows() - line.section( ',', 2, 2 ).toDouble(), 
 	                   Pi + line.section( ',', 3, 3 ).toDouble(), 
 			   line.section( ',', 4, 4 ).toDouble() );
-	else if ( line.section( ',', 0, 0 ) == "myball" )
+	else if ( line.startsWith( "myball" ) )
 	    emit itsBall();
 	else if ( line.section( ',', 0, 0 ) == "brick" )
 	    emit brickHit( game->getBrickCols() - line.section( ',', 1, 1 ).toInt() - 1,
 			   game->getBrickRows() - line.section( ',', 2, 2 ).toInt() - 1);
-	else if ( line.section( ',', 0, 0 ) == "start" )
+	else if ( line.startsWith( "start" ) )
 	    emit start();
 	else if ( line.startsWith( "level" ) ) {
 	    QStringList level;
+	    bool start( FALSE );
 	    while ( remoteSocket->canReadLine() ) {
 		line = remoteSocket->readLine();  
-qDebug( "Received: %s", line.latin1() );
-		level.append( line );
 		if ( line.contains( LevelEndTag, FALSE ) )
 		    break;
+		if ( start )
+		    level.append( line );
+		if ( line.contains( LevelMultiplayerTag, FALSE ) )
+		    start = TRUE;
 	    }
 	    emit readLevel( &level );
 	}
+	else if ( line.startsWith( "died" ) )
+	    emit readDied();
     }
 }
 
@@ -1204,6 +1234,11 @@ void Remote::sendBall( double x, double y, double ang, double sp )
 void Remote::sendMyBall()
 {
     send( "myball" );
+}
+
+void Remote::sendDied()
+{
+    send( "died" );
 }
 
 void Remote::sendBrickHit( int x, int y )
@@ -1240,7 +1275,7 @@ NetworkDialog::NetworkDialog( bool srv, GameMain *parent, const char *name ) :
 	vbox->addLayout( hbox0 );
 	QLabel* l1 = new QLabel( "Host:", this );
 	hbox0->addWidget( l1 );
-	editHost = new QLineEdit( this );
+	editHost = new QLineEdit( lastHost, this );
 	hbox0->addWidget( editHost );
     }
 
@@ -1248,7 +1283,7 @@ NetworkDialog::NetworkDialog( bool srv, GameMain *parent, const char *name ) :
     vbox->addLayout( hbox1 );
     QLabel* l2 = new QLabel( "Port:", this );
     hbox1->addWidget( l2 );
-    editPort = new QLineEdit( QString::number( NetworkPort ), this );
+    editPort = new QLineEdit( lastPort, this );
     hbox1->addWidget( editPort );
 
     QHBoxLayout *hbox2 = new QHBoxLayout( 6 );
@@ -1271,10 +1306,12 @@ NetworkDialog::NetworkDialog( bool srv, GameMain *parent, const char *name ) :
 
 void NetworkDialog::tryConnect()
 {
+    lastPort = editPort->text();
     ok->hide();
     if ( server ) {
 	remote = new Remote( owner, editPort->text().toInt() );
     } else {
+        lastHost = editHost->text();
 	remote = new Remote( owner, editHost->text(), editPort->text().toInt() );
     }
     connect( remote, SIGNAL(success()), this, SLOT(accept()) );
@@ -1288,6 +1325,10 @@ void NetworkDialog::failed()
     remote = 0;
     ok->show();
 }
+
+QString NetworkDialog::lastPort = QString::number( NetworkPort );
+QString NetworkDialog::lastHost;
+
 
 Remote *NetworkDialog::makeConnection( bool srv, GameMain *parent, const char *name )
 {

@@ -4,5 +4,5 @@ HEADERS 	= wall.h
 SOURCES 	= main.cpp \
 		  wall.cpp 
 TARGET		= qtwall
-MOC_DIR 	= .moc
-OBJECTS_DIR 	= .obj
+;MOC_DIR 	= .moc
+;OBJECTS_DIR 	= .obj
