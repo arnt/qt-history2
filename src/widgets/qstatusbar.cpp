@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#23 $
 **
 ** Implementation of QStatusBar class
 **
@@ -120,10 +120,12 @@ public:
 
 
 QStatusBarPrivate::ResizeLines::ResizeLines( QWidget * parent )
-    : QWidget( parent, 0, WStyle_Sizegrip )
+    : QWidget( parent, 0)
 {
     setCursor( sizeFDiagCursor );
     setFixedSize( 13, 13 );
+    setSizeGrip( TRUE );
+    
 }
 
 
