@@ -1,6 +1,6 @@
 REQUIRES	= sql
 TEMPLATE	= lib
-CONFIG		+= qt warn_on debug plugin
+CONFIG		+= qt warn_on release plugin
 
 HEADERS		= qsql_mysql.h 
 
