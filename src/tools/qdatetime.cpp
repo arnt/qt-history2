@@ -394,19 +394,20 @@ int QDate::daysInYear() const
 }
 
 /*!
-  Computes the ISO 8601 Week Number.
+  Returns the week number (1 to 53) as defined by ISO 8601, and stores
+  the year in \a *year unless \a year is null (the default).
 
-  If it returns TRUE, then the ISO 8601 week number in \a *week and year number in
-  \a *year for this date.  Otherwise it returns FALSE, and \a *week and \a *year are
-  undefined.
+  Returns 0 if the date is invalid.
 
   ISO 8601 defines weeks that start on Monday, and the first week on the first Thursday
   on the year and an implied maximum of 53 weeks.  That's why the year is also returned.
-  (For example, 2000 January 1 has week number 52 in the year 1999.  And 2002 December 31
-  has week number 1 in the year 2003.)
+  For example, 1 January 2000 has week number 52 in the year 1999, and 31 December 2002
+  has week number 1 in the year 2003.
+
+  \sa isValid()
 */
 
-bool QDate::weekNumber( int *weekNumber, int *yearNumber ) const
+int QDate::weekNumber( int *yearNumber ) const
 {
     int weekNum,
 	yearNum,
@@ -415,8 +416,8 @@ bool QDate::weekNumber( int *weekNumber, int *yearNumber ) const
 	doy,
 	currYear;
 
-    if ( !isValid() )
-	return FALSE;
+    if ( !isValid() ) 
+	return 0;
 
     currYear = year();
     jan1WeekDay = QDate( currYear, 1, 1 ).dayOfWeek();
@@ -448,9 +449,9 @@ bool QDate::weekNumber( int *weekNumber, int *yearNumber ) const
 	if ( jan1WeekDay > 4 )
 	    weekNum--;
     }
-    *weekNumber = weekNum;
-    *yearNumber = yearNum;
-    return TRUE;
+    if ( yearNumber )
+	*yearNumber = yearNum;
+    return weekNum;
 }
 
 /*!

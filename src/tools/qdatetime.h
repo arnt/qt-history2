@@ -51,20 +51,20 @@
 class Q_EXPORT QDate
 {
 public:
-    QDate()  { jd=0; }				// set null date
-    QDate( int y, int m, int d );		// set date
+    QDate() { jd = 0; }
+    QDate( int y, int m, int d );
 
-    bool   isNull()	 const { return jd == 0; }
-    bool   isValid()	 const;			// valid date
+    bool isNull() const { return jd == 0; }
+    bool isValid() const;
 
-    int	   year()	 const;			// 1752..
-    int	   month()	 const;			// 1..12
-    int	   day()	 const;			// 1..31
-    int	   dayOfWeek()	 const;			// 1..7 (monday==1)
-    int	   dayOfYear()	 const;			// 1..365
-    int	   daysInMonth() const;			// 28..31
-    int	   daysInYear()	 const;			// 365 or 366
-    bool   weekNumber( int *weekNum, int *yearNum ) const;  // See Docs
+    int year() const;
+    int month() const;
+    int day() const;
+    int dayOfWeek() const;
+    int dayOfYear() const;
+    int daysInMonth() const;
+    int daysInYear() const;
+    int weekNumber( int *yearNum = 0 ) const;
 
 #ifndef QT_NO_TEXTDATE
 #ifndef QT_NO_COMPAT
@@ -78,7 +78,7 @@ public:
 #endif //QT_NO_TEXTDATE
 #ifndef QT_NO_TEXTSTRING
 #if !defined(QT_NO_SPRINTF)
-    QString toString( Qt::DateFormat f = Qt::TextDate )	 const;
+    QString toString( Qt::DateFormat f = Qt::TextDate ) const;
 #endif
     QString toString( const QString& format ) const;
 #endif
