@@ -72,8 +72,8 @@ public:
     inline QT_COMPAT Q_UINT32 ip4Addr() const { return toIPv4Address(); }
     inline QT_COMPAT bool isIPv4Address() const { return protocol() == Qt::IPv4Protocol
                                                       || protocol() == Qt::UnknownNetworkLayerProtocol; }
-    inline QT_COMPAT bool isIp4Addr() const { return isIPv4Address(); }
-
+    inline QT_COMPAT bool isIp4Addr() const  { return protocol() == Qt::IPv4Protocol
+                                                      || protocol() == Qt::UnknownNetworkLayerProtocol; }
     inline QT_COMPAT bool isIPv6Address() const { return protocol() == Qt::IPv6Protocol; }
 #endif
 
