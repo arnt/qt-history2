@@ -34,9 +34,7 @@
 #include "qwsregionmanager_qws.h"
 #include "qinputcontext_p.h"
 
-#ifndef Q_Q3PAINTER
 #include "qgc_qws.h"
-#endif
 
 #include "qwidget_p.h"
 #define d d_func()
@@ -143,10 +141,8 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
     if ( !window )				// always initialize
 	initializeWindow = TRUE;
 
-#ifndef Q_Q3PAINTER
     if (!deviceGC)
 	deviceGC = new QWSGC(this);
-#endif
 
     if ( popup ) {
 	setWFlags(WStyle_Tool); // a popup is a tool window
@@ -876,7 +872,7 @@ void QWidget::raise()
 	p->d->children.append( this );
     }
     if ( isTopLevel() ) {
-#ifdef QT_NO_WINDOWGROUPHINT	
+#ifdef QT_NO_WINDOWGROUPHINT
 	if ( !testWFlags( WStyle_Tool ) )
 	    setActiveWindow();
 	qwsDisplay()->setAltitude( winId(), 0 );
@@ -897,7 +893,7 @@ void QWidget::raise()
 			toraise.append(w);
 		}
 	    }
-	 
+
 	    for (int i = 0; i < toraise.size(); ++i) {
 		QWidget *w = toraise.at(i);
 

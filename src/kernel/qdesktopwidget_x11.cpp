@@ -16,10 +16,8 @@
 #include "qapplication.h"
 #include "qt_x11_p.h"
 
-#ifndef Q_Q3PAINTER
 #include "qgc_x11.h"
-#define QPaintDevice QX11GC
-#endif
+#define QPaintDevice QX11GC // fix
 
 // defined in qwidget_x11.cpp
 extern int qt_x11_create_desktop_on_screen;

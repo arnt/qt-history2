@@ -21,9 +21,7 @@
 #include "qt_windows.h"
 #include <limits.h>
 
-#ifndef Q_Q3PAINTER
 #include "qgc_win.h"
-#endif
 
 extern const uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 
@@ -115,10 +113,8 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 		  "is being used" );
     }
 
-#ifndef Q_Q3PAINTER
     Q_ASSERT(!deviceGC);
     deviceGC = new QWin32GC(this);
-#endif
 
     static int serial = 0;
     int dd = defaultDepth();
@@ -260,10 +256,8 @@ void QPixmap::deref()
 	    hdc = 0;
 	}
 	delete data;
-#ifndef Q_Q3PAINTER
 	delete deviceGC;
 	deviceGC = 0;
-#endif
     }
 }
 

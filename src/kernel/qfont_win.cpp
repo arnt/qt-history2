@@ -366,21 +366,11 @@ int QFontMetrics::width( QChar ch ) const
     QFontEngine *engine = d->engineForScript( script );
     Q_ASSERT( engine != 0 );
 
-#ifdef Q_Q3PAINTER
-    if ( qWinVersion() & Qt::WV_NT_based && painter )
-	painter->nativeXForm( TRUE );
-#endif
-
     glyph_t glyphs[8];
     advance_t advances[8];
 
     int nglyphs = 7;
     engine->stringToCMap( &ch, 1, glyphs, advances, &nglyphs, FALSE );
-
-#ifdef Q_Q3PAINTER
-    if ( qWinVersion() & Qt::WV_NT_based && painter )
-	painter->nativeXForm( FALSE );
-#endif
 
     return advances[0];
 }
@@ -391,19 +381,9 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     if ( pos < 0 || pos > (int)str.length() )
 	return 0;
 
-#ifdef Q_Q3PAINTER
-    if ( qWinVersion() & Qt::WV_NT_based && painter )
-	painter->nativeXForm( TRUE );
-#endif
-
     QTextEngine layout( str,  d );
     layout.itemize( QTextEngine::WidthOnly );
     int w = layout.width( pos, 1 );
-
-#ifdef Q_Q3PAINTER
-    if ( qWinVersion() & Qt::WV_NT_based && painter )
-	painter->nativeXForm( FALSE );
-#endif
 
     if ( (qWinVersion() & Qt::WV_NT_based) == 0 ) {
 	QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );

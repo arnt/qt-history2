@@ -51,10 +51,8 @@
 #include "qapplication_p.h"
 #include "qevent.h"
 
-#ifndef Q_Q3PAINTER
 #include "qgc_x11.h"
-#define QPaintDevice QX11GC
-#endif
+#define QPaintDevice QX11GC // ### fix
 
 #include "qt_x11_p.h"
 

@@ -247,10 +247,10 @@ private:
     friend class QBitmap;
     friend class QPaintDevice;
     friend class QPainter;
-#if defined(Q_WS_X11) && !defined(Q_Q3PAINTER)
+#if defined(Q_WS_X11)
     friend class QX11GC;
 #endif
-#if defined(Q_WS_QWS) && !defined(Q_Q3PAINTER)
+#if defined(Q_WS_QWS)
     friend class QWSGC;
 #endif
 };

@@ -35,9 +35,7 @@
 
 #include "qwidget_p.h"
 
-#ifndef Q_Q3PAINTER
 #include "qgc_qws.h"
-#endif
 
 enum WMStyle {
     Default_WMStyle = 1, /* Starting at zero stuffs up menus */
@@ -411,11 +409,7 @@ void QWSManager::paintEvent(QPaintEvent *)
     QRegion r = managed->d->topData()->decor_allocated_region;
     int rgnIdx = managed->alloc_region_index;
 
-#if !defined(Q_Q3PAINTER)
     QGfx *gfx = static_cast<QWSGC *>(painter.device()->gc())->gfx();
-#else
-    QGfx *gfx = painter.internalGfx();
-#endif
     if ( rgnIdx >= 0 ) {
 	QRegion newRegion;
 	bool changed = FALSE;

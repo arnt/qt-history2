@@ -1868,24 +1868,22 @@ QFontMetrics::QFontMetrics( const QPainter *p )
 		  "and QPainter::end()" );
 #endif
 
-#ifdef Q_Q3PAINTER
-    if ( painter->testf(QPainter::DirtyFont) )
-	painter->updateFont();
+// ### check this: Q_Q3PAINTER stuff
+//     if ( painter->testf(QPainter::DirtyFont) )
+// 	painter->updateFont();
+//     d = painter->pfont ? painter->pfont->d : painter->cfont.d;
 
-    d = painter->pfont ? painter->pfont->d : painter->cfont.d;
-#else
     d = painter->font().d;
-#endif
 
-#if defined(Q_WS_X11) && defined(Q_Q3PAINTER)
-    if ( d->screen != p->scrn ) {
-	QFontPrivate *new_d = new QFontPrivate( *d );
-	d = new_d;
-	d->screen = p->scrn;
-	d->count = 1;
-    } else
-#endif // Q_WS_X11
-	d->ref();
+// ### check this: Q_Q3PAINTER stuff
+//     if ( d->screen != p->scrn ) {
+// 	QFontPrivate *new_d = new QFontPrivate( *d );
+// 	d = new_d;
+// 	d->screen = p->scrn;
+// 	d->count = 1;
+//     } else
+
+    d->ref();
 }
 
 /*!
@@ -2589,17 +2587,16 @@ QFontInfo::QFontInfo( const QPainter *p )
 		  "and QPainter::end()" );
 #endif
 
-#ifdef Q_Q3PAINTER
-    painter->setf( QPainter::FontInf );
-    if ( painter->testf(QPainter::DirtyFont) )
-	painter->updateFont();
-    if ( painter->pfont )
-	d = painter->pfont->d;
-    else
-	d = painter->cfont.d;
-#else
+// ### check ->  #ifdef Q_Q3PAINTER
+//     painter->setf( QPainter::FontInf );
+//     if ( painter->testf(QPainter::DirtyFont) )
+// 	painter->updateFont();
+//     if ( painter->pfont )
+// 	d = painter->pfont->d;
+//     else
+// 	d = painter->cfont.d;
+// #else
     d = painter->font().d;
-#endif
     d->ref();
 }
 
@@ -3033,7 +3030,7 @@ void QFontCache::cleanupPrinterFonts()
 		    it.data()->engine->deref();
 		    it.data()->engine = 0;
 		}
-#endif		
+#endif
 		++it;
 	    } else {
 

@@ -57,9 +57,9 @@ QPrinterGC::begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped
 {
     if(!print->printerBegin())
 	return FALSE;
-    return QWrapperGC::begin(pdev, state, unclipped); 
+    return QWrapperGC::begin(pdev, state, unclipped);
 }
-bool 
+bool
 QPrinterGC::end()
 {
     if(!print->printerEnd())
@@ -128,10 +128,7 @@ QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal:
     setOptionEnabled( PrintToFile, true );
     setOptionEnabled( PrintPageRange, true );
     setPrintRange( AllPages );
-#ifndef Q_Q3PAINTER
     deviceGC = new QPrinterGC(this, deviceGC);
-#endif
-
 }
 
 QPrinter::~QPrinter()
@@ -325,7 +322,7 @@ QPrinter::printerBegin()
 	qDebug("Qt: internal: printer: two PdcBegin(s).");
 	return false;
     }
-    
+
     PMRect rect;
     OSStatus r;
 
@@ -336,7 +333,7 @@ QPrinter::printerBegin()
 	return false;
     if((r=PMGetAdjustedPageRect(pformat, &rect)) != noErr)
 	return false;
-    
+
     if(PMSessionBeginDocument(psession, psettings, pformat) != noErr) //begin the document
 	return false;
     if(PMSessionBeginPage(psession, pformat, &rect) != noErr ) //begin the page

@@ -11,11 +11,6 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
-#if defined Q_Q3PAINTER
-#error Qt 4 painter used when configured for Qt 3 painter
-#endif
-
 #include "qpaintdevice.h"
 #include "qpainter.h"
 #include "qpainter_p.h"

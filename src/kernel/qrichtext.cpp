@@ -39,9 +39,9 @@
 
 #include <stdlib.h>
 
-#if defined(Q_WS_X11) && !defined(Q_Q3PAINTER)
+#if defined(Q_WS_X11)
 #include "qgc_x11.h"
-#define QPaintDevice QX11GC
+#define QPaintDevice QX11GC // ### fix
 #endif
 
 static QTextCursor* richTextExportStart = 0;
@@ -6019,17 +6019,15 @@ QTextFormatCollection::~QTextFormatCollection()
     delete defFormat;
 }
 
-#if defined(Q_WS_X11) && !defined(Q_Q3PAINTER)
-#undef QPaintDevice
+#if defined(Q_WS_X11)
+#undef QPaintDevice // ### fix
 #endif
 void QTextFormatCollection::setPaintDevice( QPaintDevice *pd )
 {
     paintdevice = pd;
 
 #if defined(Q_WS_X11)
-#ifndef Q_Q3PAINTER
-#define QPaintDevice QX11GC
-#endif
+#define QPaintDevice QX11GC // ### fix
     int scr = ( paintdevice ) ? paintdevice->x11Screen() : QPaintDevice::x11AppScreen();
 
     defFormat->fn.x11SetScreen( scr );

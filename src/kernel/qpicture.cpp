@@ -434,16 +434,6 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		s >> p;
 		painter->drawPoint( p );
 		break;
-#ifdef Q_Q3PAINTER
-	    case PdcMoveTo:
-		s >> p;
-		painter->moveTo( p );
-		break;
-	    case PdcLineTo:
-		s >> p;
-		painter->lineTo( p );
-		break;
-#endif
 	    case PdcDrawLine:
 		s >> p1 >> p2;
 		painter->drawLine( p1, p2 );
@@ -571,26 +561,26 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		s >> brush;
 		painter->setBrush( brush );
 		break;
-#ifdef Q_Q3PAINTER
-	case PdcSetTabStops:
-		s >> i_16;
-		painter->setTabStops( i_16 );
-		break;
-	    case PdcSetTabArray:
-		s >> i_16;
-		if ( i_16 == 0 ) {
-		    painter->setTabArray( 0 );
-		} else {
-		    int *ta = new int[i_16];
-		    for ( int i=0; i<i_16; i++ ) {
-			s >> i1_16;
-			ta[i] = i1_16;
-		    }
-		    painter->setTabArray( ta );
-		    delete [] ta;
-		}
-		break;
-#endif
+// #ifdef Q_Q3PAINTER
+// 	case PdcSetTabStops:
+// 		s >> i_16;
+// 		painter->setTabStops( i_16 );
+// 		break;
+// 	    case PdcSetTabArray:
+// 		s >> i_16;
+// 		if ( i_16 == 0 ) {
+// 		    painter->setTabArray( 0 );
+// 		} else {
+// 		    int *ta = new int[i_16];
+// 		    for ( int i=0; i<i_16; i++ ) {
+// 			s >> i1_16;
+// 			ta[i] = i1_16;
+// 		    }
+// 		    painter->setTabArray( ta );
+// 		    delete [] ta;
+// 		}
+// 		break;
+// #endif
 	    case PdcSetVXform:
 		s >> i_8;
 #ifndef QT_NO_TRANSFORMATIONS
@@ -622,14 +612,14 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 #endif
 		break;
 #ifndef QT_NO_TRANSFORMATIONS
-#ifdef Q_Q3PAINTER
-	    case PdcSaveWMatrix:
-		painter->saveWorldMatrix();
-		break;
-	    case PdcRestoreWMatrix:
-		painter->restoreWorldMatrix();
-		break;
-#endif
+// #ifdef Q_Q3PAINTER
+// 	    case PdcSaveWMatrix:
+// 		painter->saveWorldMatrix();
+// 		break;
+// 	    case PdcRestoreWMatrix:
+// 		painter->restoreWorldMatrix();
+// 		break;
+// #endif
 #endif
 	    case PdcSetClip:
 		s >> i_8;
@@ -990,45 +980,45 @@ QPicture QPicture::copy() const
   QPainter member functions
  *****************************************************************************/
 
-#ifdef Q_Q3PAINTER
-/*!
-    Replays the picture \a pic translated by (\a x, \a y).
+// #ifdef Q_Q3PAINTER // ### needs to be converted to the 4.0 painter
+// /*!
+//     Replays the picture \a pic translated by (\a x, \a y).
 
-    This function does exactly the same as QPicture::play() when
-    called with (\a x, \a y) = (0, 0).
-*/
+//     This function does exactly the same as QPicture::play() when
+//     called with (\a x, \a y) = (0, 0).
+// */
 
-void QPainter::drawPicture( int x, int y, const QPicture &pic )
-{
-    save();
-    translate( x, y );
-    ((QPicture*)&pic)->play( (QPainter*)this );
-    restore();
-}
+// void QPainter::drawPicture( int x, int y, const QPicture &pic )
+// {
+//     save();
+//     translate( x, y );
+//     ((QPicture*)&pic)->play( (QPainter*)this );
+//     restore();
+// }
 
-/*!
-    \overload void QPainter::drawPicture( const QPoint &p, const QPicture &pic )
+// /*!
+//     \overload void QPainter::drawPicture( const QPoint &p, const QPicture &pic )
 
-    Draws picture \a pic at point \a p.
-*/
+//     Draws picture \a pic at point \a p.
+// */
 
-void QPainter::drawPicture( const QPoint &p, const QPicture &pic )
-{
-    drawPicture( p.x(), p.y(), pic );
-}
+// void QPainter::drawPicture( const QPoint &p, const QPicture &pic )
+// {
+//     drawPicture( p.x(), p.y(), pic );
+// }
 
-/*!
-  \obsolete
+// /*!
+//   \obsolete
 
-  Use one of the other QPainter::drawPicture() functions with a (0, 0)
-  offset instead.
-*/
+//   Use one of the other QPainter::drawPicture() functions with a (0, 0)
+//   offset instead.
+// */
 
-void QPainter::drawPicture( const QPicture &pic )
-{
-    drawPicture( 0, 0, pic );
-}
-#endif
+// void QPainter::drawPicture( const QPicture &pic )
+// {
+//     drawPicture( 0, 0, pic );
+// }
+// #endif
 /*!
     Assigns a \link shclass.html shallow copy\endlink of \a p to this
     picture and returns a reference to this picture.

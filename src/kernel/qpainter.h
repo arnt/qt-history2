@@ -12,12 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef Q4PAINTER_H
-#define Q4PAINTER_H
-
-#ifdef Q_Q3PAINTER
-#include "q3painter.h"
-#else
+#ifndef QPAINTER_H
+#define QPAINTER_H
 
 #include "qnamespace.h"
 #include "qrect.h"
@@ -433,6 +429,4 @@ inline void QPainter::map(int x, int y, int *rx, int *ry) const
     *ry = p.y();
 }
 
-#endif // #ifdef Q_Q3PAINTER
-
-#endif // #ifndef Q4PAINTER_H
+#endif // #ifndef QPAINTER_H

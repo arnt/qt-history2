@@ -433,9 +433,7 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 #elif defined(Q_WS_MAC)
 	hd = pixmap.hd;
 #endif
-#if !defined(Q_Q3PAINTER)
 	deviceGC = pixmap.deviceGC;
-#endif
     }
     return *this;
 }

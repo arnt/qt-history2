@@ -60,10 +60,8 @@
 #include <private/qunicodetables_p.h>
 #include <private/qcrashhandler_p.h>
 
-#ifndef Q_Q3PAINTER
 #include "qgc_x11.h"
-#define QPaintDevice QX11GC
-#endif
+#define QPaintDevice QX11GC // ### fix
 
 // Input method stuff - UNFINISHED
 #include "qinputcontext_p.h"
@@ -1745,17 +1743,6 @@ void qt_init( QApplicationPrivate *priv, int,
 	    }
 	}
 
-#ifdef Q_Q3PAINTER
-	// Set X paintdevice parameters for the default screen
-	QPaintDevice::x_appdepth = QPaintDevice::x_appdepth_arr[ appScreen ];
-	QPaintDevice::x_appcells = QPaintDevice::x_appcells_arr[ appScreen ];
-	QPaintDevice::x_approotwindow = QPaintDevice::x_approotwindow_arr[ appScreen ];
-	QPaintDevice::x_appcolormap = QPaintDevice::x_appcolormap_arr[ appScreen ];
-	QPaintDevice::x_appdefcolormap = QPaintDevice::x_appdefcolormap_arr[ appScreen ];
-	QPaintDevice::x_appvisual = QPaintDevice::x_appvisual_arr[ appScreen ];
-	QPaintDevice::x_appdefvisual = QPaintDevice::x_appdefvisual_arr[ appScreen ];
-#endif
-
 	// Support protocols
 	qt_xdnd_setup();
 
@@ -1781,17 +1768,10 @@ void qt_init( QApplicationPrivate *priv, int,
 	if (XRenderQueryExtension(X11->display, &xrender_eventbase, &xrender_errorbase)) {
 	    // XRender is supported, let's see if we have a PictFormat for the
 	    // default visual
-#ifndef Q_Q3PAINTER
 	    XRenderPictFormat *format =
 		XRenderFindVisualFormat(X11->display,
 					(Visual *) QX11GC::x11AppVisual(appScreen));
 	    X11->use_xrender = (format != 0) && (QX11GC::x11AppDepth(appScreen) != 8);
-#else
-	    XRenderPictFormat *format =
-		XRenderFindVisualFormat(X11->display,
-					(Visual *) QPaintDevice::x_appvisual);
-	    X11->use_xrender = (format != 0) && (QPaintDevice::x_appdepth != 8);
-#endif
 	}
 #endif // QT_NO_XRENDER
 
@@ -1869,11 +1849,7 @@ void qt_init( QApplicationPrivate *priv, int,
 	QColor::initialize();
 	QFont::initialize();
 	QCursor::initialize();
-#ifndef Q_Q3PAINTER
 	QX11GC::initialize();
-#else
- 	QPainter::initialize();
-#endif
     }
 
     if( qt_is_gui_used ) {
@@ -2163,11 +2139,7 @@ void qt_cleanup()
 
     if ( qt_is_gui_used ) {
 	QPixmapCache::clear();
-#ifndef Q_Q3PAINTER
 	QX11GC::cleanup();
-#else
-	QPainter::cleanup();
-#endif
 	QCursor::cleanup();
 	QFont::cleanup();
 	QColor::cleanup();

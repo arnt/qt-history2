@@ -203,13 +203,7 @@ QTextLayout::QTextLayout(const QString& string)
 
 QTextLayout::QTextLayout( const QString& string, QPainter *p )
 {
-    QFontPrivate *f = p ? (
-#ifdef Q_Q3PAINTER
-			   p->pfont ? p->pfont->d : p->cfont.d
-#else
-			   p->font().d
-#endif
-			   ) : QApplication::font().d;
+    QFontPrivate *f = p ? (p->font().d) : QApplication::font().d;
     d = new QTextEngine( (string.isNull() ? (const QString&)QString::fromLatin1("") : string), f );
 }
 

@@ -16,11 +16,9 @@
 
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 
-#ifndef Q_Q3PAINTER
-# include <qpainter.h>
-# include <private/qpainter_p.h>
-# include <qgc_mac.h>
-#endif
+#include <qpainter.h>
+#include <private/qpainter_p.h>
+#include <qgc_mac.h>
 #include <qmap.h>
 #include <qt_mac.h>
 class QMacStylePainter : public QPainter
@@ -32,7 +30,6 @@ public:
 };
 void QMacStylePainter::setport()
 {
-#ifndef Q_Q3PAINTER
     QQuickDrawGC *mgc = NULL;
     if(d->gc && (d->gc->type() == QAbstractGC::QuickDraw || d->gc->type() == QAbstractGC::CoreGraphics))
 	mgc = (QQuickDrawGC*)d->gc;
@@ -46,15 +43,6 @@ void QMacStylePainter::setport()
 	mgc->setupQDPort(true);
 #endif
     }
-#else
-#ifdef USE_CORE_GRAPHICS
-    QRegion rgn;
-    initPaintDevice(true, 0, &rgn);
-    QMacSavedPortInfo::setClipRegion(rgn);
-#else
-    initPaintDevice(true, 0);
-#endif
-#endif
     NormalizeThemeDrawingState();
 }
 
@@ -1030,7 +1018,7 @@ void QMacStyle::drawControl(ControlElement element,
 	if(!widget)
 	    break;
 	QPushButton *btn = (QPushButton *)widget;
-	if(btn->isFlat() && !(how & Style_Down)) 
+	if(btn->isFlat() && !(how & Style_Down))
 	    break;
 
 	d->addWidget(btn);
@@ -2267,7 +2255,7 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 }
 
 /*! \reimp */
-QPixmap QMacStyle::stylePixmap( PixmapType pixmaptype, const QPixmap &pixmap, 
+QPixmap QMacStyle::stylePixmap( PixmapType pixmaptype, const QPixmap &pixmap,
 				const QPalette &pal, const QStyleOption &opt ) const
 {
     switch(pixmaptype) {

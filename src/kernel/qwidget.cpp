@@ -1200,27 +1200,6 @@ void QPixmap::fill( const QWidget *widget, int xoff, int yoff )
 	offset -= w->pos();
     }
 }
-#ifdef Q_Q3PAINTER
-void QPainter::copyFrom(const QWidget* w)
-{
-    if (!w)
-	return;
-    cfont = w->font();
-#ifndef QT_NO_PALETTE
-    cpen = w->palette().color(w->foregroundRole());
-#endif
-    const QWidget *p = w;
-    QPoint offset;
-    while (p->d->isBackgroundInherited()) {
-	offset += p->pos();
-	p = p->parentWidget();
-    }
-    bg_origin = -offset;
-#ifndef QT_NO_PALETTE
-    bg_brush = w->palette().brush(p->d->bg_role);
-#endif
-}
-#endif
 
 /*!
   \internal

@@ -23,11 +23,7 @@
 #include "private/qcolor_p.h"
 #include "qwidget.h"
 #include "qbitarray.h"
-#ifndef Q_Q3PAINTER
-#  include "qgc_mac.h"
-#else
-#  include "qpainter.h"
-#endif
+#include "qgc_mac.h"
 #include "qpixmapcache.h"
 #include "qdatetime.h"
 #include "qtextcodec.h"
@@ -798,7 +794,7 @@ void qt_mac_event_release(QWidget *w)
 {
     if (w) {
 	// cleanup show sheet pending
-	qt_mac_event_release(w, request_showsheet_pending); 
+	qt_mac_event_release(w, request_showsheet_pending);
     }
 }
 
@@ -955,15 +951,11 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
 	QColor::initialize();
 	QFont::initialize();
 	QCursor::initialize();
-#ifndef Q_Q3PAINTER
 # ifdef USE_CORE_GRAPHICS
 	QCoreGraphicsGC::initialize();
 # else
 	QQuickDrawGC::initialize();
 # endif
-#else
- 	QPainter::initialize();
-#endif
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::initialize();
 #endif
@@ -1004,11 +996,7 @@ void qt_cleanup()
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::cleanup();
 #endif
-#ifndef Q_Q3PAINTER
 	QQuickDrawGC::cleanup();
-#else
-	QPainter::cleanup();
-#endif
 	QFont::cleanup();
 	QColor::cleanup();
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)

@@ -108,8 +108,8 @@ kernel {
 
 
 	unix:x11 {
-	      HEADERS +=  $$KERNEL_H/qgc_x11.h \ 
-			  $$KERNEL_H/qgc_x11_p.h 
+	      HEADERS +=  $$KERNEL_H/qgc_x11.h \
+			  $$KERNEL_H/qgc_x11_p.h
 	      SOURCES += $$KERNEL_CPP/qapplication_x11.cpp \
 		          $$KERNEL_CPP/qclipboard_x11.cpp \
 			  $$KERNEL_CPP/qcolor_x11.cpp \
@@ -136,7 +136,7 @@ kernel {
         !embedded:!x11:mac {
 	      HEADERS += \
 			  $$KERNEL_H/qgc_mac.h \
-			  $$KERNEL_H/qgc_mac_p.h 
+			  $$KERNEL_H/qgc_mac_p.h
 
 	      SOURCES += $$KERNEL_CPP/qapplication_mac.cpp \
 		          $$KERNEL_CPP/qclipboard_mac.cpp \
@@ -220,10 +220,10 @@ kernel {
 	unix:HEADERS   += $$KERNEL_P/qpsprinter_p.h \
 			  $$KERNEL_H/qfontdatabase.h
 
-	embedded { 
+	embedded {
 		HEADERS += \
 			$$KERNEL_H/qgc_qws.h \
-			$$KERNEL_P/qgc_qws_p.h 
+			$$KERNEL_P/qgc_qws_p.h
 
 		SOURCES += \
 			$$KERNEL_CPP/qfontengine_qws.cpp \
@@ -245,45 +245,4 @@ kernel {
 		       $$CODECS_CPP/qfonttwcodec.cpp
 	    HEADERS += $$CODECS_P/qfontcodecs_p.h
  	}
-}
-
-oldpainter {
-    DEFINES += Q_Q3PAINTER
-    #add
-    HEADERS += $$KERNEL_H/q3painter.h $$KERNEL_P/q3painter_p.h
-    SOURCES += $$KERNEL_CPP/q3painter.cpp
-    #remove
-    SOURCES -= $$KERNEL_CPP/qabstractgc.cpp \
-	       $$KERNEL_CPP/qpainter.cpp \
-	       $$KERNEL_CPP/qbrush.cpp \
-	       $$KERNEL_CPP/qpen.cpp
-    HEADERS -= $$KERNEL_P/qpainter_p.h \
-	       $$KERNEL_H/qpainter.h \
-	       $$KERNEL_H/qabstractgc.h
-    #platform
-    win32 {
-        #remove
-	SOURCES += $$KERNEL_CPP/q3painter_win.cpp
-        #add
-	SOURCES -= $$KERNEL_CPP/qgc_win.cpp
-	HEADERS -= $$KERNEL_P/qgc_win_p.h $$KERNEL_H/qgc_win.h
-    } else:x11 {
-        #remove
-	SOURCES += $$KERNEL_CPP/q3painter_x11.cpp
-        #add
-	SOURCES -= $$KERNEL_CPP/qgc_x11.cpp
-	HEADERS -= $$KERNEL_H/qgc_x11.h $$KERNEL_P/qgc_x11_p.h
-    } else:embedded {
-        #remove
-	SOURCES += $$KERNEL_CPP/q3painter_qws.cpp
-        #add
-	SOURCES -= $$KERNEL_CPP/qgc_qws.cpp
-	HEADERS -= $$KERNEL_H/qgc_qws.h $$KERNEL_P/qgc_qws_p.h
-    } else:mac {
-        #remove
-	SOURCES += $$KERNEL_CPP/q3painter_mac.cpp
-        #add
-	SOURCES -= $$KERNEL_CPP/qgc_mac.cpp
-	HEADERS -= $$KERNEL_H/qgc_mac.h #$$KERNEL_P/qgc_mac_p.h
-    }
 }

@@ -26,10 +26,8 @@
 
 #include "qguieventloop_p.h"
 #include "qt_x11_p.h"
-#ifndef Q_Q3PAINTER
 #include "qgc_x11.h"
-#define QPaintDevice QX11GC
-#endif
+#define QPaintDevice QX11GC // ### fix
 
 #define d d_func()
 #define q q_func()

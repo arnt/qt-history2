@@ -20,8 +20,7 @@
 #include "qapplication.h"
 #include "qt_x11_p.h"
 
-#ifndef Q_Q3PAINTER
-#include "qgc_x11.h"
+#include "qgc_x11.h" // ### remove the stuff below
 
 Display *QPaintDevice::x11Display() const
 { return x11Data ? x11Data->x_display : QX11GC::x11AppDisplay(); }
@@ -52,7 +51,6 @@ void *QPaintDevice::x11AppVisual(int screen)
 
 Qt::HANDLE QPaintDevice::x11AppColormap(int screen)
 { return QX11GC::x11AppDefaultColormap(screen); }
-#endif
 
 /*!
     \class QPaintDevice qpaintdevice.h
@@ -137,9 +135,7 @@ bool	 *QPaintDevice::x_appdefvisual_arr;
 */
 
 QPaintDevice::QPaintDevice( uint devflags )
-#ifndef Q_Q3PAINTER
     : deviceGC(0)
-#endif
 {
     if ( !qApp ) {				// global constructor
 	qFatal( "QPaintDevice: Must construct a QApplication before a "

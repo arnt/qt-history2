@@ -30,10 +30,7 @@ class QIODevice;
 class QString;
 class QTextItem;
 class QApplicationPrivate;
-
-#ifndef Q_Q3PAINTER
 class QAbstractGC;
-#endif
 
 #if defined(Q_WS_X11)
 struct QPaintDeviceX11Data;
@@ -85,10 +82,7 @@ public:
 #elif defined(Q_WS_QWS)
     virtual Qt::HANDLE	handle() const;
 #endif
-
-#ifndef Q_Q3PAINTER
     virtual QAbstractGC *gc() const { return deviceGC; }
-#endif
 
 #if defined(Q_WS_X11)
     Display 	   *x11Display() const;
@@ -242,10 +236,8 @@ protected:
     friend void qt_cleanup();
 #endif
 
-#ifndef Q_Q3PAINTER
 protected:
     QAbstractGC *deviceGC;
-#endif
 
 private:
 #if defined(Q_WS_X11)
@@ -320,32 +312,6 @@ inline bool QPaintDevice::paintingActive() const
 { return painters != 0; }
 
 #if defined(Q_WS_X11)
-#ifdef Q_Q3PAINTER
-inline Display *QPaintDevice::x11Display() const
-{ return x11Data ? x11Data->x_display : x_appdisplay; }
-
-inline int QPaintDevice::x11Screen() const
-{ return x11Data ? x11Data->x_screen : x_appscreen; }
-
-inline int QPaintDevice::x11Depth() const
-{ return x11Data ? x11Data->x_depth : x_appdepth; }
-
-inline int QPaintDevice::x11Cells() const
-{ return x11Data ? x11Data->x_cells : x_appcells; }
-
-inline Qt::HANDLE QPaintDevice::x11Colormap() const
-{ return x11Data ? x11Data->x_colormap : x_appcolormap; }
-
-inline bool QPaintDevice::x11DefaultColormap() const
-{ return x11Data ? x11Data->x_defcolormap : x_appdefcolormap; }
-
-inline void *QPaintDevice::x11Visual() const
-{ return x11Data ? x11Data->x_visual : x_appvisual; }
-
-inline bool QPaintDevice::x11DefaultVisual() const
-{ return x11Data ? x11Data->x_defvisual : x_appdefvisual; }
-#endif
-
 inline Display *QPaintDevice::x11AppDisplay()
 { return x_appdisplay; }
 
@@ -361,18 +327,8 @@ inline int QPaintDevice::x11AppCells( int screen )
 inline Qt::HANDLE QPaintDevice::x11AppRootWindow( int screen )
 { return x_approotwindow_arr[ screen == -1 ? x_appscreen : screen ]; }
 
-#ifdef Q_Q3PAINTER
-inline Qt::HANDLE QPaintDevice::x11AppColormap( int screen )
-{ return x_appcolormap_arr[ screen == -1 ? x_appscreen : screen ]; }
-#endif
-
 inline bool QPaintDevice::x11AppDefaultColormap( int screen )
 { return x_appdefcolormap_arr[ screen == -1 ? x_appscreen : screen ]; }
-
-#ifdef Q_Q3PAINTER
-inline void *QPaintDevice::x11AppVisual( int screen )
-{ return x_appvisual_arr[ screen == -1 ? x_appscreen : screen ]; }
-#endif
 
 inline bool QPaintDevice::x11AppDefaultVisual( int screen )
 { return x_appdefvisual_arr[ screen == -1 ? x_appscreen : screen ]; }

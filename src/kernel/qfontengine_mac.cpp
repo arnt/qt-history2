@@ -13,10 +13,8 @@
 #include <qglobal.h>
 #include <qpixmapcache.h>
 #include <qbitmap.h>
-#ifndef Q_Q3PAINTER
-# include <qgc_mac.h>
-# include <private/qpainter_p.h>
-#endif
+#include <qgc_mac.h>
+#include <private/qpainter_p.h>
 #include <private/qapplication_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qpainter_p.h>
@@ -90,13 +88,8 @@ void
 QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
 		     const QScriptItem *si, int textFlags)
 {
-#ifndef Q_Q3PAINTER
     int txop = p->d->txop;
     QWMatrix xmat = p->d->matrix;
-#else
-    int txop = p->txop;
-    QWMatrix xmat = p->xmat;
-#endif
 
     if(txop >= QPainter::TxScale) {
 	int aw = si->width, ah = si->ascent + si->descent + 1;
@@ -143,7 +136,6 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
 
     QPoint off;
     QRegion rgn;
-#ifndef Q_Q3PAINTER
     if(p->d->gc && (p->d->gc->type() == QAbstractGC::QuickDraw || p->d->gc->type() == QAbstractGC::CoreGraphics)) {
 	QQuickDrawGC *mgc = (QQuickDrawGC*)p->d->gc;
 	mgc->updateState(mgc->state);
@@ -154,14 +146,6 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
 	QMacSavedPortInfo::setClipRegion(rgn);
 #endif
     }
-#else
-    p->initPaintDevice(false, &off, &rgn);
-    if(rgn.isEmpty())
-	return;
-#ifdef USE_CORE_GRAPHICS
-    QMacSavedPortInfo::setClipRegion(rgn);
-#endif
-#endif
 
     glyph_t *glyphs = engine->glyphs(si);
     advance_t *advances = engine->advances(si);
@@ -170,13 +154,8 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
 	glyph_metrics_t br = boundingBox(glyphs, advances, offsets, si->num_glyphs);
 	p->fillRect(x+br.x, y+br.y, br.width, br.height, p->backgroundColor());
     }
-#ifndef Q_Q3PAINTER
     if(p->d->gc && p->d->gc->type() == QAbstractGC::QuickDraw)
 	((QQuickDrawGC*)p->d->gc)->setupQDFont();
-#else
-    p->updatePen();
-    p->updateFont();
-#endif
 
     x += off.x();
     y += off.y();

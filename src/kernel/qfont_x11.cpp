@@ -40,18 +40,14 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#ifndef Q_Q3PAINTER
 #include "qgc_x11.h"
-#endif
 
 #define QFONTLOADER_DEBUG
 #define QFONTLOADER_DEBUG_VERBOSE
 
 double qt_pixelSize(double pointSize, QPaintDevice *paintdevice, int scr)
 {
-#ifndef Q_Q3PAINTER
-#define QPaintDevice QX11GC
-#endif
+#define QPaintDevice QX11GC // ### fix
     if (pointSize < 0) return -1.;
 
     double result = pointSize;
@@ -62,15 +58,11 @@ double qt_pixelSize(double pointSize, QPaintDevice *paintdevice, int scr)
 
     return result;
 }
-#ifndef Q_Q3PAINTER
 #undef QPaintDevice
-#endif
 
 double qt_pointSize(double pixelSize, QPaintDevice *paintdevice, int scr)
 {
-#ifndef Q_Q3PAINTER
-#define QPaintDevice QX11GC
-#endif
+#define QPaintDevice QX11GC // ### fix
     if (pixelSize < 0) return -1.;
 
     double result = pixelSize;
@@ -82,9 +74,7 @@ double qt_pointSize(double pixelSize, QPaintDevice *paintdevice, int scr)
     return result;
 }
 
-#ifndef Q_Q3PAINTER
 #undef QPaintDevice
-#endif
 
 static inline double pixelSize( const QFontDef &request, QPaintDevice *paintdevice,
 				int scr )
@@ -102,9 +92,7 @@ static inline double pointSize( const QFontDef &request, QPaintDevice *paintdevi
 	    (double)request.pointSize);
 }
 
-#ifndef Q_Q3PAINTER
-#define QPaintDevice QX11GC
-#endif
+#define QPaintDevice QX11GC // ### fix
 
 /*
   Removes wildcards from an XLFD.

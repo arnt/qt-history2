@@ -31,9 +31,7 @@
 #include "qlibrary.h"
 #include "qdesktopwidget.h"
 
-#ifndef Q_Q3PAINTER
 #include "qgc_win.h"
-#endif
 
 #if defined(QT_TABLET_SUPPORT)
 #define PACKETDATA  ( PK_X | PK_Y | PK_BUTTONS | PK_NORMAL_PRESSURE | \
@@ -401,15 +399,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     d->setFont_syshelper();
     QInputContext::enable( this, im_enabled & isEnabled() );
 
-#ifndef Q_Q3PAINTER
     if (destroyOldWindow && deviceGC) {
 	delete deviceGC;
 	deviceGC = 0;
     }
     Q_ASSERT(!deviceGC);
     deviceGC = new QWin32GC(this);
-#endif
-
 }
 
 
@@ -436,10 +431,8 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	    DestroyWindow( winId() );
 	}
 	setWinId( 0 );
-#ifndef Q_Q3PAINTER
        delete deviceGC;
        deviceGC = 0;
-#endif
     }
 }
 

@@ -19,17 +19,12 @@
 #include "qbitmap.h"
 #include "qapplication.h"
 #include "qt_mac.h"
-
-#ifndef Q_Q3PAINTER
-# include "qgc_mac.h"
-#endif
+#include "qgc_mac.h"
 
 QPaintDevice *g_cur_paintdev = 0;
 
 QPaintDevice::QPaintDevice(uint devflags)
-#ifndef Q_Q3PAINTER
     : deviceGC(0)
-#endif
 {
     if(!qApp) {				// global constructor
 	qFatal("QPaintDevice: Must construct a QApplication before a "
@@ -40,12 +35,10 @@ QPaintDevice::QPaintDevice(uint devflags)
     painters = 0;
     hd = 0;
     cg_hd = 0;
-#ifndef Q_Q3PAINTER
 #ifdef USE_CORE_GRAPHICS
     deviceGC = new QCoreGraphicsGC(this);
 #else
     deviceGC = new QQuickDrawGC(this);
-#endif
 #endif
 }
 

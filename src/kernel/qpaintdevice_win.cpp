@@ -23,9 +23,7 @@
 
 
 QPaintDevice::QPaintDevice( uint devflags )
-#ifndef Q_Q3PAINTER
     : deviceGC(0)
-#endif
 {
     if ( !qApp ) {				// global constructor
 	qFatal( "QPaintDevice: Must construct a QApplication before a "
