@@ -452,8 +452,8 @@ int main(int argc, char** argv) {
     QApplication app(argc, argv);
     SpreadSheet sheet(100, 26);
     sheet.setWindowIcon(QPixmap(":/images/interview.png"));
-    sheet.show();
     sheet.resize(600, 400);
+    sheet.show();
     return app.exec();
 }
 
