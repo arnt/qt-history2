@@ -199,7 +199,7 @@ QWidget *QDesktopWidget::screen(int screen)
     return d->screens[screen];
 }
 
-const QRect& QDesktopWidget::availableGeometry(int screen) const
+const QRect QDesktopWidget::availableGeometry(int screen) const
 {
     if (qt_desktopwidget_workarea_dirty) {
         // the workareas are dirty, invalidate them
@@ -242,7 +242,7 @@ const QRect& QDesktopWidget::availableGeometry(int screen) const
     return d->workareas[screen];
 }
 
-const QRect& QDesktopWidget::screenGeometry(int screen) const
+const QRect QDesktopWidget::screenGeometry(int screen) const
 {
     if (screen < 0 || screen >= d->screenCount)
         screen = d->defaultScreen;

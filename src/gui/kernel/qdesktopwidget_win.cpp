@@ -27,6 +27,7 @@ public:
     ~QDesktopWidgetPrivate();
 
     static void init(QDesktopWidget *that);
+    static void cleanup();
     static int screenCount;
     static int primaryScreen;
 
@@ -184,18 +185,22 @@ void QDesktopWidgetPrivate::init(QDesktopWidget *that)
 
 QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
 {
-    if (!--refcount) {
-        screen_number = 0;
-        screenCount = 1;
-        primaryScreen = 0;
-        enumDisplayMonitors = 0;
-        getMonitorInfo = 0;
-        user32hnd = 0;
-        delete rects;
-        rects = 0;
-        delete workrects;
-        workrects = 0;
-    }
+    if (!--refcount)
+        cleanup();
+}
+
+QDesktopWidgetPrivate::cleanup()
+{
+    screen_number = 0;
+    screenCount = 1;
+    primaryScreen = 0;
+    enumDisplayMonitors = 0;
+    getMonitorInfo = 0;
+    user32hnd = 0;
+    delete rects;
+    rects = 0;
+    delete workrects;
+    workrects = 0;
 }
 
 /*
@@ -343,7 +348,7 @@ QWidget *QDesktopWidget::screen(int /*screen*/)
 
   \sa screenNumber(), screenGeometry()
 */
-const QRect& QDesktopWidget::availableGeometry(int screen) const
+const QRect QDesktopWidget::availableGeometry(int screen) const
 {
     if (QSysInfo::WindowsVersion != QSysInfo::WV_95 && QSysInfo::WindowsVersion != QSysInfo::WV_NT) {
         if (screen < 0 || screen >= d->screenCount)
@@ -356,7 +361,7 @@ const QRect& QDesktopWidget::availableGeometry(int screen) const
 }
 
 /*!
-    \fn const QRect &QDesktopWidget::availableGeometry(const QWidget *widget) const
+    \fn const QRect QDesktopWidget::availableGeometry(const QWidget *widget) const
     \overload
 
     Returns the available geometry of the screen which contains \a widget.
@@ -365,7 +370,7 @@ const QRect& QDesktopWidget::availableGeometry(int screen) const
 */
 
 /*!
-    \fn const QRect &QDesktopWidget::availableGeometry(const QPoint &p) const
+    \fn const QRect QDesktopWidget::availableGeometry(const QPoint &p) const
     \overload
 
     Returns the available geometry of the screen which contains \a p.
@@ -379,7 +384,7 @@ const QRect& QDesktopWidget::availableGeometry(int screen) const
 
     \sa screenNumber()
 */
-const QRect& QDesktopWidget::screenGeometry(int screen) const
+const QRect QDesktopWidget::screenGeometry(int screen) const
 {
     if (QSysInfo::WindowsVersion != QSysInfo::WV_95 && QSysInfo::WindowsVersion != QSysInfo::WV_NT) {
         if (screen < 0 || screen >= d->screenCount)
@@ -392,14 +397,14 @@ const QRect& QDesktopWidget::screenGeometry(int screen) const
 }
 
 /*!
-    \fn const QRect &QDesktopWidget::screenGeometry(const QWidget *widget) const
+    \fn const QRect QDesktopWidget::screenGeometry(const QWidget *widget) const
     \overload
 
     Returns the geometry of the screen which contains \a widget.
 */
 
 /*!
-    \fn const QRect &QDesktopWidget::screenGeometry(const QPoint &p) const
+    \fn const QRect QDesktopWidget::screenGeometry(const QPoint &p) const
     \overload
 
     Returns the geometry of the screen which contains \a p.
@@ -465,8 +470,8 @@ void QDesktopWidget::resizeEvent(QResizeEvent *)
     QVector<QRect> oldworkrects = *d->workrects;
     int oldscreencount = d->screenCount;
 
-    delete d;
-    d = new QDesktopWidgetPrivate(this);
+    QDesktopWidgetPrivate::cleanup();
+    QDesktopWidgetPrivate::init(this);
 
     for (int i = 0; i < qMin(oldscreencount, d->screenCount); ++i) {
         QRect oldrect = oldrects[i];

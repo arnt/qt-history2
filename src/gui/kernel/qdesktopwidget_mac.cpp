@@ -88,7 +88,7 @@ QWidget *QDesktopWidget::screen(int)
     return this;
 }
 
-const QRect& QDesktopWidget::availableGeometry(int screen) const
+const QRect QDesktopWidget::availableGeometry(int screen) const
 {
     if(screen < 0 || screen >= d->screenCount)
         screen = d->appScreen;
@@ -99,7 +99,7 @@ const QRect& QDesktopWidget::availableGeometry(int screen) const
     return const_cast<QRect &>(d->avail_rects[screen]) = QRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
 }
 
-const QRect& QDesktopWidget::screenGeometry(int screen) const
+const QRect QDesktopWidget::screenGeometry(int screen) const
 {
     if(screen < 0 || screen >= d->screenCount)
         screen = d->appScreen;
