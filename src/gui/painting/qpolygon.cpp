@@ -55,7 +55,7 @@
 /*!
     \fn QPolygon::QPolygon()
 
-    Constructs a null point array.
+    Constructs a polygon with no points.
 
     \sa QVector::isEmpty()
 */
@@ -63,26 +63,26 @@
 /*!
     \fn QPolygon::QPolygon(int size)
 
-    Constructs a point array with room for \a size points. Makes a
-    null array if \a size == 0.
+    Constructs a polygon with \a size points. Makes a polygon with no points
+    if \a size == 0.
 
     \sa QVector::isEmpty()
 */
 
 /*!
-    \fn QPolygon::QPolygon(const QPolygon &a)
+    \fn QPolygon::QPolygon(const QPolygon &other)
 
-    Constructs a copy of the point array \a a.
+    Copy constructor. Constructs a copy of the \a other polygon.
 */
 
 /*!
-    Constructs a point array from the rectangle \a r.
+    \fn QPolygon::QPolygon(const QRectF &rectangle)
 
-    If \a closed is false, then the point array just contains the
-    following four points in the listed order: r.topLeft(),
-    r.topRight(), r.bottomRight() and r.bottomLeft().
+    Constructs a closed polygon from the given \a rectangle.
 
-    If \a closed is true, then a fifth point is set to r.topLeft().
+    The point array just contains the four vertices of the rectangle in
+    clockwise order starting and ending with the top-left vertex.
+
 */
 
 QPolygon::QPolygon(const QRectF &r)
@@ -104,10 +104,10 @@ QPolygon::QPolygon(const QRectF &r)
 
 
 /*!
-    Translates all points in the array by (\a{dx}, \a{dy}).
+    Translates all points in the polygon by the given \a offset.
 */
 
-void QPolygon::translate(const QPointF &pt)
+void QPolygon::translate(const QPointF &offset)
 {
     register QPointF *p = data();
     register int i = size();
@@ -117,17 +117,18 @@ void QPolygon::translate(const QPointF &pt)
     }
 }
 
-/*! \fn void QPolygon::translate(const QPointF &offset)
+/*!
+    \fn void QPolygon::translate(float dx, float dy)
     \overload
 
-    Translates all points in the array by \a offset.
+    Translates all points in the polygon by (\a{dx}, \a{dy}).
 */
 
 
 
 /*!
-    Returns the bounding rectangle of the points in the array, or
-    QRect(0,0,0,0) if the array is empty.
+    Returns the bounding rectangle of the polygon, or QRect(0,0,0,0) if the
+    array is empty.
 */
 
 QRectF QPolygon::boundingRect() const
@@ -153,6 +154,12 @@ QRectF QPolygon::boundingRect() const
     return QRectF(QPointF(minx,miny), QPointF(maxx,maxy));
 }
 
+/*!
+    Returns the polygons vertices as a list of points.
+
+    \sa fromPointArray()
+*/
+
 QPointArray QPolygon::toPointArray() const
 {
     QPointArray pa;
@@ -161,6 +168,15 @@ QPointArray QPolygon::toPointArray() const
         pa.append(at(i).toPoint());
     return pa;
 }
+
+/*!
+    \fn QPolygon QPolygon::fromPointArray(const QPointArray &array)
+
+    Constructs a polygon from the given point \a array. The polygon will
+    not be closed.
+
+    \sa toPointArray()
+*/
 
 QPolygon QPolygon::fromPointArray(const QPointArray &a)
 {

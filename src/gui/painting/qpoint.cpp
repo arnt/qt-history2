@@ -42,7 +42,7 @@
     A QPoint can also be used as a vector. Addition and subtraction
     of QPoints are defined as for vectors (each component is added
     separately). You can divide or multiply a QPoint by an \c int or a
-    \c float. The function manhattanLength() gives an inexpensive
+    \c double. The function manhattanLength() gives an inexpensive
     approximation of the length of the QPoint interpreted as a vector.
 
     Example:
@@ -194,7 +194,7 @@
 */
 
 /*!
-    \fn QPoint &QPoint::operator*=(float c)
+    \fn QPoint &QPoint::operator*=(double c)
     \overload
 
     Multiplies this point's x and y by \a c, and returns a reference
@@ -264,7 +264,7 @@
 */
 
 /*!
-    \fn const QPoint operator*(const QPoint &p, float c)
+    \fn const QPoint operator*(const QPoint &p, double c)
     \overload
 
     \relates QPoint
@@ -277,7 +277,7 @@
 */
 
 /*!
-    \fn const QPoint operator*(float c, const QPoint &p)
+    \fn const QPoint operator*(double c, const QPoint &p)
     \overload
 
     \relates QPoint
@@ -313,7 +313,7 @@
 */
 
 /*!
-    \fn QPoint &QPoint::operator/=(float c)
+    \fn QPoint &QPoint::operator/=(double c)
     \overload
 
     Divides both x and y by \a c, and returns a reference to this
@@ -339,7 +339,7 @@
 */
 
 /*!
-    \fn const QPoint operator/(const QPoint &p, float c)
+    \fn const QPoint operator/(const QPoint &p, double c)
     \overload
 
     \relates QPoint
@@ -590,7 +590,7 @@ QDebug operator<<(QDebug d, const QPointF &p)
 */
 
 /*!
-    \fn const QPointF operator*(const QPointF &point, int factor)
+    \fn const QPointF operator*(const QPointF &point, float factor)
 
     \overload
 

@@ -29,10 +29,24 @@
     The start and end points of the line are specified using floating point
     coordinates for accuracy.
 
+    Use isNull() to determine whether the QLineF represents a valid line
+    or a null line.
+
+    The positions of the line's end points can be found with the startX(),
+    startY(), endX(), and endY() functions. The horizontal and vertical
+    components of the line are returned by the vx() and vy() functions.
+
     Convenience functions are provided for finding the lines's length(),
-    the unitVector() along the line, and whether two lines intersect().
+    the unitVector() along the line, whether two lines intersect(), and
+    the angle() between two lines. The line's length can be changed using
+    setLength().
+
+    Vector addition of two lines is supported through the use of the
+    \l{operator+=()}{+= operator}.
+
     The line can be translated along the length of another line with the
-    moveBy() function.
+    moveBy() function, and can be traversed using a parameter with the
+    pointAt() function.
 
     \sa QPointF QSizeF QRectF
 */
@@ -40,20 +54,17 @@
 /*!
     \enum QLineF::IntersectType
 
-    \value NoIntersection Indicates that the lines does not intersect,
-    e.g. they are parallel.
+    \value NoIntersection Indicates that the lines do not intersect;
+    i.e. they are parallel.
 
-    \value UnboundedIntersection Indicates that the two lines intersected,
-    but not within the range of lines. This will be the case if lines
-    are not parallel.
+    \value UnboundedIntersection The two lines intersect,
+    but not within the range defined by their lengths. This will be
+    the case if the lines are not parallel.
 
     \img qlinef-unbounded.png
 
-    \value BoundedIntersection Indicates that the two lines
-    intersected with within the the start and end points of each
-    line. This means that non-parallel lines will only intersect if
-    the intersection occurs between the start and end points of each
-    line.
+    \value BoundedIntersection The two lines intersect with each other
+    within the start and end points of each line.
 
     \img qlinef-bounded.png
 
@@ -135,9 +146,11 @@
 */
 
 /*!
-    \fn QLineF::setLength(float len)
+    \fn QLineF::setLength(float length)
 
-    Sets the length of the line to \a len.
+    Sets the \a length of the line.
+
+    \sa length()
 */
 
 /*!
@@ -158,12 +171,14 @@
 /*!
   \fn float QLineF::pointAt(float t) const
 
-  Returns the point at the parametrized position \a t, where
-  the start and end point are defined to be positions 0 and 1.
+  Returns the point at the parameterized position \a t, where
+  the start and end point are defined to be at positions t=0 and t=1.
 */
 
 /*!
     Returns the length of the line.
+
+    \sa setLength()
 */
 float QLineF::length() const
 {
@@ -221,10 +236,12 @@ static bool qt_linef_intersect(float x1, float y1, float x2, float y2,
 }
 
 /*!
-    Returns wheter this line intersects the line \a l or not. By
-    passing in a valid object to \a intersectionPoint, it is possible
-    to get the actual intersection point. The intersection point is
-    undefined if the lines are parallel.
+    \fn QLineF::IntersectType QLineF::intersect(const QLineF &other, QPointF *intersectionPoint) const
+
+    Returns a value indicating whether or not this line intersects the
+    \a other line. By passing a valid object as \a intersectionPoint, it
+    is possible to get the actual intersection point. The intersection
+    point is undefined if the lines are parallel.
 */
 QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPoint) const
 {
