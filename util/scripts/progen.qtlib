@@ -1,0 +1,202 @@
+#!/usr/bin/perl
+############################################################################
+#
+# Generates a tmake project file for the Qt library
+#
+# Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+#
+############################################################################
+
+if ( check_unix() ) {
+    $platform = "x11";
+} else {
+    $platform = "win";
+}
+
+while ( @ARGV ) {			# parse command line args
+    $_ = shift @ARGV;
+    if ( s/^-// ) {
+	if ( /^(win|x11)$/ ) {
+	    $platform = $1;
+	} elsif ( /^nobeta$/ ) {
+	    $nobeta = 1;
+	} elsif ( /^o(.*)/ ) {
+	    $outfile = ($1 eq "") ? shift @ARGV : $1;
+	} elsif ( /^t(.*)/ ) {
+	    $templatefile = ($1 eq "") ? shift @ARGV : $1;
+	    $templatefile =~ s/\.t$//i;
+	} elsif ( /lower/ ) {
+	    $tolower = 1;
+	} else {
+	    &progen_usage;
+	}
+    } else {
+	push (@makefiles, $_ );
+    }
+}
+
+$outfile eq "" || open(STDOUT,">" . $outfile) ||
+    &progen_error("Can't create \"$outfile\"");
+
+if ( ! @makefiles ) {
+    chdir( $ENV{"QTDIR"} . "/src" );
+    @makefiles = ("tools/Makefile","kernel/Makefile",
+		  "widgets/Makefile","dialogs/Makefile" );
+}
+
+foreach $m ( @makefiles ) {
+    if ( $m =~ /(^.*\/)/ ) {
+	$dirpre = $1;
+    } else {
+	$dirpre = "";
+    }
+    %v = &scan_makefile($m);
+    if ( $nobeta ) {
+	$v{"SOURCES"} = &subtract_array( $v{"SOURCES"}, $v{"BETA"} );
+	$v{"HEADERS"} = &subtract_array( $v{"HEADERS"}, $v{"BETA"} );
+    }
+    @s = sort split(/\s+/,$v{"SOURCES"});
+    @h = sort split(/\s+/,$v{"HEADERS"});
+    foreach $f ( @s ) { $f = $dirpre . $f; }
+    foreach $f ( @h ) { $f = $dirpre . $f; }
+    push(@src,@s);
+    push(@hdr,@h);
+}
+
+$qglobal_cpp = $ENV{"QTDIR"} . "/src/tools/qglobal.cpp";
+open(F, $qglobal_cpp) || die "Cannot open $qglobal_cpp";
+while ( <F> ) {
+    if ( /^\#define\s+QT_VERSION\s+\"([^\"]*)\"/ ) {
+	$qt_version = $1;
+	last;
+    }
+}
+close(F);
+($qt_version eq "") && die "Can't find the Qt version in qglobal.cpp";
+
+$headers  = join(" \\\n\t\t",sort @hdr);
+$sources  = join(" \\\n\t\t",sort @src);
+if ( $tolower ) {
+    $headers =~ tr/A-Z/a-z/;
+    $sources =~ tr/A-Z/a-z/;
+}
+$headers  = "HEADERS     =\t" . $headers;
+$sources  = "SOURCES     =\t" . $sources;
+if ( $platform ne "x11" ) {
+    $headers =~ s/_x11/_$platform/g;
+    $sources =~ s/_x11/_$platform/g;
+}
+
+($templatefile eq "") && ($templatefile = "qtlib");
+$template = "TEMPLATE    =\t" . $templatefile;
+$target   = "TARGET      =\t" . "qt";
+$version  = "VERSION     =\t" . $qt_version;
+
+print $template . "\n";
+print $headers  . "\n";
+print $sources  . "\n";
+print $target   . "\n";
+print $version  . "\n";
+exit 0;						# successfully done
+
+
+#
+# progen_usage()
+#
+# Prints a message about program usage and exits
+#
+
+sub progen_usage {
+    print STDERR "Usage:\n    progen-qtlib [options] [makefiles]\n";
+    print STDERR "Options:\n";
+    print STDERR "    -lower   Lower-case letters filenames\n";
+    print STDERR "    -n name  Specify a project name (= TARGET)\n";
+    print STDERR "    -o file  Write output to \"file\"\n";
+    print STDERR "    -t file  Specify a template file other than qtapp\n";
+    print STDERR "    -win     Generate a project file for Windows\n";
+    print STDERR "    -x11     Generate a project file for X11\n";
+    print STDERR "    -nobeta  Remove beta code\n";
+    exit 1;
+}
+
+
+#
+# progen_error(msg)
+#
+# Prints the message and exits
+#
+
+sub progen_error {
+    local($msg) = @_;
+    print STDERR "progen.qtlib error: " . $msg . "\n";
+    exit 1;
+}
+
+
+#
+# scan_makefile(file)
+#
+# Scans a project file and returns an associative array
+# of project variables with lists of values.
+#
+
+sub scan_makefile {
+    local($file) = @_;
+    local(%vars,$tag,$varstr,@v);
+
+    open(TMP,$file) || die("Can't open file \"$file\"");
+    while ( <TMP> ) {
+	s/\#.*//;				# strip comment
+	if ( /^\s*(\w+)\s*=/ ) {
+	    $tag = $1;
+	    s/^.*=\s*//;
+	}
+	if ( $tag ne "" ) {
+	    $more = ( $_ =~ s/\s*\\\s*$// );	# more if \ at end of line
+	    s/^\s+//;
+	    s/\s+$//;
+	    push( @v, split( /\s+/, $_ ) );
+	    if ( ! $more ) {
+		$varstr = join(" ",@v);
+		$vars{$tag} = $varstr;
+		$tag = "";
+		@v = ();
+	    }
+	}
+    }
+    close(TMP);
+    return %vars;
+}
+
+
+#
+# check_unix()
+#
+# Returns 1 if this is a Unix, 0 otherwise.
+#
+
+sub check_unix {
+    local($r);
+    $r = 0;
+    if ( -f "/bin/uname" ) {
+	$r = 1;
+	(-f "\\bin\\uname") && ($r = 0);
+    }
+    return $r;
+}
+
+
+#
+# From the Camel book, p.202
+#
+
+sub subtract_array {
+    local($a,$b) = @_;
+    local(%mark);
+    local(@aa,@bb,@cc);
+    @aa = split(/\s+/,$a);
+    @bb = split(/\s+/,$b);
+    grep($mark{$_}++,@bb);
+    @cc = grep(!$mark{$_},@aa);
+    return join(" ",@cc);
+}
