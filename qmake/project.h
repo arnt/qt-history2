@@ -26,6 +26,10 @@ class QMakeProperty;
 class QMakeProject
 {
     struct ScopeIterator;
+    friend struct ScopeIterator;
+    struct ScopeBlock;
+    friend struct ScopeBlock;
+
     struct ScopeBlock
     {
 	enum TestStatus { TestNone, TestFound, TestSeek };
@@ -36,7 +40,6 @@ class QMakeProject
 	uint ignore : 1, else_status : 2;
     };
 
-    friend struct ScopeIterator;
     QStack<ScopeBlock> scope_blocks;
     ScopeIterator *iterator;
 
