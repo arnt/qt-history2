@@ -84,6 +84,8 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
     QMouseEvent *e = (QMouseEvent*)ee;
     switch ( e->type() ) {
     case QEvent::MouseButtonPress: {
+	if ( !widget->rect().contains( widget->mapFromGlobal( e->globalPos() ) ) )
+	    return FALSE;
 	if ( e->button() == LeftButton ) {
 	    emit activate();
 	    bool me = isMovingEnabled();
@@ -219,7 +221,7 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
     geom = QRect( geom.topLeft(), geom.size().expandedTo( widget->minimumSize() ).expandedTo( QSize(mw,mh) ).
 		  boundedTo( childWidget->maximumSize() + QSize( 2*fw, 2*fw + extrahei +1 ) ) );
 
-    if ( geom != widget->geometry() && 
+    if ( geom != widget->geometry() &&
 	( widget->isTopLevel() || widget->parentWidget()->rect().intersects( geom ) ) )
 	widget->setGeometry( geom );
 
