@@ -2567,6 +2567,9 @@ void QPainter::drawEllipse(const QRectF &r)
 
     QRectF rect(r.normalize());
 
+    if (rect.isEmpty())
+        return;
+
     if (d->engine->emulationSpecifier) {
         if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
