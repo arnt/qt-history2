@@ -46,8 +46,6 @@ public:
     QListView(QWidget *parent = 0);
     ~QListView();
 
-    void setModel(QAbstractItemModel *model);
-
     void setMovement(Movement movement);
     Movement movement() const;
 

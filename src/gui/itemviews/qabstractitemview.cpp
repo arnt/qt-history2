@@ -388,7 +388,7 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
         QObject::connect(d->model, SIGNAL(reset()), this, SLOT(reset()));
     }
 
-    setRoot(QModelIndex::Null);
+    setRoot(QModelIndex::Null);// triggers layout
 
     d->selectionModel = 0;
     setSelectionModel(new QItemSelectionModel(d->model, this));
@@ -550,13 +550,7 @@ QModelIndex QAbstractItemView::currentItem() const
 */
 void QAbstractItemView::reset()
 {
-    setRoot(QModelIndex::Null);
-    bool block = d->selectionModel->blockSignals(true);
-    d->selectionModel->setCurrentItem(d->model->index(0, 0, root()),
-                                      QItemSelectionModel::NoUpdate);
-    d->selectionModel->blockSignals(block);
-    if (isVisible())
-        doItemsLayout();
+    setRoot(QModelIndex::Null); // does a relayout
 }
         
 /*!

@@ -365,15 +365,6 @@ QListView::~QListView()
 }
 
 /*!
-  \reimp
-*/
-void QListView::setModel(QAbstractItemModel *model)
-{
-    reset();
-    QAbstractItemView::setModel(model);
-}
-
-/*!
     \property QListView::movement
     \brief whether the items can be moved freely, are snapped to a
     grid, or cannot be moved at all.

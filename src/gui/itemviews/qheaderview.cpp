@@ -236,9 +236,6 @@ QHeaderView::~QHeaderView()
 */
 void QHeaderView::setModel(QAbstractItemModel *model)
 {
-    QAbstractItemView::setModel(model);
-    if (!model)
-        return;
     if (d->orientation == Qt::Horizontal) {
         QObject::disconnect(model, SIGNAL(columnsInserted(const QModelIndex&, int, int)),
                             this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
@@ -258,11 +255,7 @@ void QHeaderView::setModel(QAbstractItemModel *model)
         QObject::connect(model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
                          this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
     }
-
-    if (d->orientation == Qt::Horizontal)
-        initializeSections(0, d->model->columnCount(root()) - 1);
-    else
-        initializeSections(0, d->model->rowCount(root()) - 1);
+    QAbstractItemView::setModel(model);
 }
 
 /*!
