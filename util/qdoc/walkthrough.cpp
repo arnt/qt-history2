@@ -110,21 +110,28 @@ void Walkthrough::skipuntil( const QString& substr, const Location& docLoc )
 
 void Walkthrough::addANames( QString *text, const LinkMap& exampleLinkMap )
 {
+    if ( exampleLinkMap.isEmpty() ) // ### optimization
+	return;
+
     int lineNo = 1;
     int k = 0;
     LinkMap::ConstIterator links = exampleLinkMap.begin();
     while ( links != exampleLinkMap.end() ) {
 	while ( links.key() > lineNo ) {
-	    k = text->find( QChar('\n'), k ) + 1;
 	    lineNo++;
+	    k = text->find( QChar('\n'), k ) + 1;
+
+	    if ( k == 0 ) // shouldn't happen
+		return;
 	}
 
 	/*
-	  This condition should always be met, in theory. If not, the
-	  results are desastrous.
+	  This condition should always be met, in theory. If it isn't,
+	  and if we didn't test it, the results would be desastrous.
 	*/
 	if ( k < (int) text->length() && (*text)[k] != QChar('\n') ) {
 	    StringSet::ConstIterator link = (*links).begin();
+
 	    while ( link != (*links).end() ) {
 		text->insert( k, QString("<a name=\"%1\"></a>").arg(*link) );
 		++link;
@@ -182,6 +189,7 @@ QString Walkthrough::start( bool include, bool firstPass,
 
     code.replace( trailingSpacesPlusNL, QChar('\n') );
 
+    scores.clear();
     if ( firstPass ) {
 	occMap = occurrenceMap( code, resolver, QFileInfo(f).dirPath() );
 	if ( include ) {
