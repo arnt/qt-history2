@@ -199,7 +199,7 @@ regular expressions can be used for validation.
   validation @Index { Validation }
 @PP
 Widgets that are used to display large amounts of data (e.g. @Class
-QTable, @Class QListView and @Class QTextEdit) inherit @Class
+QTable, @Class QListView and @Class{QTextEdit}) inherit @Class
 QScrollView and can display scroll bars automatically.
   qlistview @Index { QListView }
   qscrollview @Index { QScrollView }
@@ -335,7 +335,7 @@ int main( int argc, char **argv )
     return app.exec();
 }
 @End @CP
-This example program contains a single widget (the @Class Clock) and
+This example program contains a single widget (the @Class{Clock}) and
 no child widgets. Complex widgets are built by combining widgets in
 layouts.
   designer @Index { Designer }

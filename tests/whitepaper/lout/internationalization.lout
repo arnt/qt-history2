@@ -131,7 +131,7 @@ installed input methods.
 @Begin
 @PP
 The editor classes for dates and times (@Class QDateEdit, @Class
-QTimeEdit and @Class QDateTimeEdit) respect the user's locale for
+QTimeEdit and @Class{QDateTimeEdit}) respect the user's locale for
 separators and ordering.
   date @Index { Date }
   locale @Index { Locale }
