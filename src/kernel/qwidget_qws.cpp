@@ -885,21 +885,22 @@ void QWidget::raise()
 	if ( !testWFlags( WStyle_Tool ) )
 	    act=this;
 	qwsDisplay()->setAltitude( winId(), 0 );
-	if ( childObjects ) {
-	    QObjectListIt it(*childObjects);
-	    QObject* o;
+
+	QObjectList childObjects =  children();
+	if ( !childObjects.isEmpty() ) {
 	    QWidgetList toraise;
-	    QWidget* w;
-	    while ((o=it.current())) {
-		if ( o->isWidgetType() ) {
-		    w = (QWidget*)o;
+	    for (int i = 0; i < childObjects.size(); ++i) {
+		QObject *obj = childObjects.at(i);
+		if ( obj->isWidgetType() ) {
+		    QWidget* w = static_cast<QWidget*>(obj);
 		    if ( w->isTopLevel() )
 			toraise.append(w);
 		}
-		++it;
 	    }
-	    QWidgetListIt wit(toraise);
-	    while ((w=wit.current())) {
+	 
+	    for (int i = 0; i < toraise.size(); ++i) {
+		QWidget *w = toraise.at(i);
+
 		if ( w->isVisible() ) {
 		    bool wastool = w->testWFlags( WStyle_Tool );
 		    w->setWFlags( WStyle_Tool ); // avoid setActiveWindow flicker
@@ -909,7 +910,6 @@ void QWidget::raise()
 			act = w;
 		    }
 		}
-		++wit;
 	    }
 	}
 	if ( act )
