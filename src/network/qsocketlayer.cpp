@@ -191,7 +191,7 @@ bool QSocketLayer::initialize(Qt::SocketType socketType, Qt::NetworkLayerProtoco
         close();
 
 #if defined(QT_NO_IPV6)
-    if (protocol == IPv6Protocol) {
+    if (protocol == Qt::IPv6Protocol) {
         d->setError(Qt::UnsupportedSocketOperationError,
                     Q_TR("Attempt to create an IPv6 socket on"
                          " a platform with no IPv6 support"));

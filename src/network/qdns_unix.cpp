@@ -67,7 +67,8 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
     if (result) {
         if (result->h_addrtype == AF_INET) {
             for (char **p = result->h_addr_list; *p != 0; p++) {
-                QHostAddress addr(ntohl(*((long *)*p)));
+                QHostAddress addr;
+                addr.setAddress(ntohl(*((long *)*p)));
                 if (!results.d->addrs.contains(addr))
                     results.d->addrs.prepend(addr);
             }

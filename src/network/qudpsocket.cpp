@@ -95,7 +95,7 @@
     Qt::NetworkLayerProtocol proto = address.protocol(); \
     if (proto == Qt::IPv6Protocol) { \
         d->socketError = Qt::UnsupportedSocketOperationError; \
-        d->socketErrorStr = tr("This platform does not support IPv6"); \
+        d->socketErrorString = tr("This platform does not support IPv6"); \
         return (a); \
     } \
     if (!d->socketLayer.isValid() || d->socketLayer.protocol() != proto) \
