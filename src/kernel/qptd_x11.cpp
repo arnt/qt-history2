@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#6 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#6 $";
 #endif
 
 
@@ -99,7 +99,7 @@ void QPaintDevice::bitBlt( int sx, int sy, int sw, int sh, QPaintDevice *dest,
 bool QPaintDevice::cmd( int, QPDevCmdParam * )
 {
 #if defined(CHECK_STATE)
-    warning( "QPaintDevice::cmd: Internal error" );
+    warning( "QPaintDevice::cmd: Device has no command interface" );
 #endif
     return FALSE;
 }
@@ -107,7 +107,6 @@ bool QPaintDevice::cmd( int, QPDevCmdParam * )
 long QPaintDevice::metric( int ) const
 {
 #if defined(CHECK_STATE)
-    warning( "QPaintDevice::metrics: Internal error" );
+    warning( "QPaintDevice::metrics: Device has no metric information" );
 #endif
-    return FALSE;
 }
