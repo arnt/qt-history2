@@ -184,7 +184,7 @@ bool QFtpPI::sendCommands( const QStringList &cmds )
     if ( !pendingCommands.isEmpty() )
 	return FALSE;
 
-    if ( !commandSocket.isOpen() || state!=Idle ) {
+    if ( commandSocket.state()!=QSocket::Connected || state!=Idle ) {
 	emit finished( Error, tr( "Not connected" ) );
 	return TRUE; // there are no pending commands
     }
@@ -210,6 +210,7 @@ void QFtpPI::connected()
 
 void QFtpPI::connectionClosed()
 {
+    commandSocket.close();
     emit connectState( QFtp::CsClosed );
 }
 
