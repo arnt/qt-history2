@@ -1,5 +1,5 @@
 #
-# qmake configuration for freebsd-g++
+# qmake configuration for macx-g++
 #
 
 MAKEFILE_GENERATOR      = UNIX
