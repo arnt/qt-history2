@@ -2536,20 +2536,25 @@ QString QLocale::countryToString(Country country)
 }
 
 /*!
-    Returns the short int represented by the localized string \a s, or
-    0 if the conversion failed.
+    Returns the short int represented by the localized string \a s,
+    using base \a base. If \a base is 0 the base is determined
+    automatically using the following rules: If the string begins with
+    "0x", it is assumed to be hexadecimal; if it begins with "0", it
+    is assumed to be octal; otherwise it is assumed to be decimal.
 
-    If \a ok is not 0, reports failure by setting
-    *ok to false and success by setting *ok to true.
+    If the conversion fails the function returns 0.
+
+    If \a *ok is not 0, reports failure by setting *ok to false and
+    success by setting *ok to true.
 
     This function ignores leading and trailing whitespace.
 
     \sa toString()
 */
 
-short QLocale::toShort(const QString &s, bool *ok) const
+short QLocale::toShort(const QString &s, bool *ok, int base) const
 {
-    Q_LONGLONG i = toLongLong(s, ok);
+    Q_LONGLONG i = toLongLong(s, ok, base);
     if (i < SHRT_MIN || i > SHRT_MAX) {
         if (ok != 0)
             *ok = false;
@@ -2560,19 +2565,24 @@ short QLocale::toShort(const QString &s, bool *ok) const
 
 /*!
     Returns the unsigned short int represented by the localized string
-    \a s, or 0 if the conversion failed.
+    \a s, using base \a base. If \a base is 0 the base is determined
+    automatically using the following rules: If the string begins with
+    "0x", it is assumed to be hexadecimal; if it begins with "0", it
+    is assumed to be octal; otherwise it is assumed to be decimal.
 
-    If \a ok is not 0, reports failure by setting
-    *ok to false and success by setting *ok to true.
+    If the conversion fails the function returns 0.
+
+    If \a *ok is not 0, reports failure by setting *ok to false and
+    success by setting *ok to true.
 
     This function ignores leading and trailing whitespace.
 
     \sa toString()
 */
 
-ushort QLocale::toUShort(const QString &s, bool *ok) const
+ushort QLocale::toUShort(const QString &s, bool *ok, int base) const
 {
-    Q_ULONGLONG i = toULongLong(s, ok);
+    Q_ULONGLONG i = toULongLong(s, ok, base);
     if (i > USHRT_MAX) {
         if (ok != 0)
             *ok = false;
@@ -2582,10 +2592,15 @@ ushort QLocale::toUShort(const QString &s, bool *ok) const
 }
 
 /*!
-    Returns the int represented by the localized string \a s, or 0 if
-    the conversion failed.
+    Returns the int represented by the localized string \a s, using
+    base \a base. If \a base is 0 the base is determined automatically
+    using the following rules: If the string begins with "0x", it is
+    assumed to be hexadecimal; if it begins with "0", it is assumed to
+    be octal; otherwise it is assumed to be decimal.
 
-    If \a ok is not 0, reports failure by setting *ok to false and
+    If the conversion fails the function returns 0.
+
+    If \a *ok is not 0, reports failure by setting *ok to false and
     success by setting *ok to true.
 
     This function ignores leading and trailing whitespace.
@@ -2593,9 +2608,9 @@ ushort QLocale::toUShort(const QString &s, bool *ok) const
     \sa toString()
 */
 
-int QLocale::toInt(const QString &s, bool *ok) const
+int QLocale::toInt(const QString &s, bool *ok, int base) const
 {
-    Q_LONGLONG i = toLongLong(s, ok);
+    Q_LONGLONG i = toLongLong(s, ok, base);
     if (i < INT_MIN || i > INT_MAX) {
         if (ok != 0)
             *ok = false;
@@ -2606,19 +2621,24 @@ int QLocale::toInt(const QString &s, bool *ok) const
 
 /*!
     Returns the unsigned int represented by the localized string \a s,
-    or 0 if the conversion failed.
+    using base \a base. If \a base is 0 the base is determined
+    automatically using the following rules: If the string begins with
+    "0x", it is assumed to be hexadecimal; if it begins with "0", it
+    is assumed to be octal; otherwise it is assumed to be decimal.
 
-    If \a ok is not 0, reports failure by setting
-    *ok to false and success by setting *ok to true.
+    If the conversion fails the function returns 0.
+
+    If \a *ok is not 0, reports failure by setting *ok to false and
+    success by setting *ok to true.
 
     This function ignores leading and trailing whitespace.
 
     \sa toString()
 */
 
-uint QLocale::toUInt(const QString &s, bool *ok) const
+uint QLocale::toUInt(const QString &s, bool *ok, int base) const
 {
-    Q_ULONGLONG i = toULongLong(s, ok);
+    Q_ULONGLONG i = toULongLong(s, ok, base);
     if (i > UINT_MAX) {
         if (ok != 0)
             *ok = false;
@@ -2628,20 +2648,25 @@ uint QLocale::toUInt(const QString &s, bool *ok) const
 }
 
 /*!
-    Returns the long int represented by the localized string \a s, or
-    0 if the conversion failed.
+    Returns the long int represented by the localized string \a s,
+    using base \a base. If \a base is 0 the base is determined
+    automatically using the following rules: If the string begins with
+    "0x", it is assumed to be hexadecimal; if it begins with "0", it
+    is assumed to be octal; otherwise it is assumed to be decimal.
 
-    If \a ok is not 0, reports failure by setting
-    *ok to false and success by setting *ok to true.
+    If the conversion fails the function returns 0.
+
+    If \a *ok is not 0, reports failure by setting *ok to false and
+    success by setting *ok to true.
 
     This function ignores leading and trailing whitespace.
 
     \sa toString()
 */
 
-Q_LONG QLocale::toLong(const QString &s, bool *ok) const
+Q_LONG QLocale::toLong(const QString &s, bool *ok, int base) const
 {
-    Q_LONGLONG i = toLongLong(s, ok);
+    Q_LONGLONG i = toLongLong(s, ok, base);
     if (i < LONG_MIN || i > LONG_MAX) {
         if (ok != 0)
             *ok = false;
@@ -2652,19 +2677,24 @@ Q_LONG QLocale::toLong(const QString &s, bool *ok) const
 
 /*!
     Returns the unsigned long int represented by the localized string
-    \a s, or 0 if the conversion failed.
+    \a s, using base \a base. If \a base is 0 the base is determined
+    automatically using the following rules: If the string begins with
+    "0x", it is assumed to be hexadecimal; if it begins with "0", it
+    is assumed to be octal; otherwise it is assumed to be decimal.
 
-    If \a ok is not 0, reports failure by setting
-    *ok to false and success by setting *ok to true.
+    If the conversion fails the function returns 0.
+
+    If \a *ok is not 0, reports failure by setting *ok to false and
+    success by setting *ok to true.
 
     This function ignores leading and trailing whitespace.
 
     \sa toString()
 */
 
-Q_ULONG QLocale::toULong(const QString &s, bool *ok) const
+Q_ULONG QLocale::toULong(const QString &s, bool *ok, int base) const
 {
-    Q_ULONGLONG i = toULongLong(s, ok);
+    Q_ULONGLONG i = toULongLong(s, ok, base);
     if (i > ULONG_MAX) {
         if (ok != 0)
             *ok = false;
@@ -2675,10 +2705,15 @@ Q_ULONG QLocale::toULong(const QString &s, bool *ok) const
 
 /*!
     Returns the long long int represented by the localized string \a
-    s, or 0 if the conversion failed.
+    s, using base \a base. If \a base is 0 the base is determined
+    automatically using the following rules: If the string begins with
+    "0x", it is assumed to be hexadecimal; if it begins with "0", it
+    is assumed to be octal; otherwise it is assumed to be decimal.
 
-    If \a ok is not 0, reports failure by setting
-    *ok to false and success by setting *ok to true.
+    If the conversion fails the function returns 0.
+
+    If \a *ok is not 0, reports failure by setting *ok to false and
+    success by setting *ok to true.
 
     This function ignores leading and trailing whitespace.
 
@@ -2686,17 +2721,23 @@ Q_ULONG QLocale::toULong(const QString &s, bool *ok) const
 */
 
 
-Q_LONGLONG QLocale::toLongLong(const QString &s, bool *ok) const
+Q_LONGLONG QLocale::toLongLong(const QString &s, bool *ok, int base) const
 {
-    return d->stringToLongLong(s, 0, ok, QLocalePrivate::ParseGroupSeparators);
+    return d->stringToLongLong(s, base, ok, QLocalePrivate::ParseGroupSeparators);
 }
 
 /*!
     Returns the unsigned long long int represented by the localized
-    string \a s, or 0 if the conversion failed.
+    string \a s, using base \a base. If \a base is 0 the base is
+    determined automatically using the following rules: If the string
+    begins with "0x", it is assumed to be hexadecimal; if it begins
+    with "0", it is assumed to be octal; otherwise it is assumed to be
+    decimal.
 
-    If \a ok is not 0, reports failure by setting
-    *ok to false and success by setting *ok to true.
+    If the conversion fails the function returns 0.
+
+    If \a *ok is not 0, reports failure by setting *ok to false and
+    success by setting *ok to true.
 
     This function ignores leading and trailing whitespace.
 
@@ -2704,9 +2745,9 @@ Q_LONGLONG QLocale::toLongLong(const QString &s, bool *ok) const
 */
 
 
-Q_ULONGLONG QLocale::toULongLong(const QString &s, bool *ok) const
+Q_ULONGLONG QLocale::toULongLong(const QString &s, bool *ok, int base) const
 {
-    return d->stringToUnsLongLong(s, 0, ok, QLocalePrivate::ParseGroupSeparators);
+    return d->stringToUnsLongLong(s, base, ok, QLocalePrivate::ParseGroupSeparators);
 }
 
 /*!

@@ -424,14 +424,14 @@ public:
     Country country() const;
     QString name() const;
 
-    short toShort(const QString &s, bool *ok = 0) const;
-    ushort toUShort(const QString &s, bool *ok = 0) const;
-    int toInt(const QString &s, bool *ok = 0) const;
-    uint toUInt(const QString &s, bool *ok = 0) const;
-    Q_LONG toLong(const QString &s, bool *ok = 0) const;
-    Q_ULONG toULong(const QString &s, bool *ok = 0) const;
-    Q_LONGLONG toLongLong(const QString &s, bool *ok = 0) const;
-    Q_ULONGLONG toULongLong(const QString &s, bool *ok = 0) const;
+    short toShort(const QString &s, bool *ok = 0, int base = 0) const;
+    ushort toUShort(const QString &s, bool *ok = 0, int base = 0) const;
+    int toInt(const QString &s, bool *ok = 0, int base = 0) const;
+    uint toUInt(const QString &s, bool *ok = 0, int base = 0) const;
+    Q_LONG toLong(const QString &s, bool *ok = 0, int base = 0) const;
+    Q_ULONG toULong(const QString &s, bool *ok = 0, int base = 0) const;
+    Q_LONGLONG toLongLong(const QString &s, bool *ok = 0, int base = 0) const;
+    Q_ULONGLONG toULongLong(const QString &s, bool *ok = 0, int base = 0) const;
     float toFloat(const QString &s, bool *ok = 0) const;
     double toDouble(const QString &s, bool *ok = 0) const;
 
