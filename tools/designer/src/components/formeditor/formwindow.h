@@ -164,6 +164,8 @@ public:
                       
     inline void emitGeometryChanged(QWidget *w) 
     { emit geometryChanged(w); }
+
+    void updateOrderIndicators();
                                              
 signals:
     void showContextMenu(QWidget *w, const QPoint &pos);
@@ -235,7 +237,6 @@ private:
 
     void showOrderIndicators();
     void hideOrderIndicators();
-    void updateOrderIndicators();
     void repositionOrderIndicators();
 
     void setCursorToAll(const QCursor &c, QWidget *start);

@@ -42,6 +42,7 @@ class Layout;
 class QToolBox;
 class QTabWidget;
 class QStackedWidget;
+struct AbstractMetaDataBaseItem;
 
 class FormEditorCommand: public QtCommand
 {
@@ -211,6 +212,29 @@ private:
     QPoint m_newPos;
     QPointer<QWidget> m_oldParentWidget;
     QPointer<QWidget> m_newParentWidget;
+};
+
+class TabOrderCommand: public FormWindowCommand
+{
+    Q_OBJECT
+public:
+    TabOrderCommand(FormWindow *formWindow);
+    
+    void init(const QList<QWidget*> &newTabOrder);
+    
+    inline QList<QWidget*> oldTabOrder() const
+    { return m_oldTabOrder; }
+    
+    inline QList<QWidget*> newTabOrder() const
+    { return m_newTabOrder; }
+    
+    virtual void redo();
+    virtual void undo();
+    
+private:
+    AbstractMetaDataBaseItem *m_widgetItem;
+    QList<QWidget*> m_oldTabOrder;
+    QList<QWidget*> m_newTabOrder;
 };
 
 class LayoutCommand: public FormWindowCommand

@@ -384,8 +384,8 @@ void FormWindow::handleMousePressEvent(QWidget *w, QMouseEvent *e)
         sizePreviewLabel->setFrameStyle(QFrame::Plain | QFrame::Box);
     }
 
-    switch (currentTool()) {
-    case PointerTool:
+    switch (editMode()) {
+    case WidgetEditMode:
         // if the dragged widget is not in a layout, raise it
         if (!w->parentWidget() || LayoutInfo::layoutType(m_core, w->parentWidget()) == LayoutInfo::NoLayout)
             w->raise();
@@ -422,7 +422,7 @@ void FormWindow::handleMousePressEvent(QWidget *w, QMouseEvent *e)
         }
         break;
 
-    case OrderTool:
+    case TabOrderEditMode:
         if (!isMainContainer(w)) { // press on a child widget
             int idx = orderedWidgets.indexOf(w);
             orderedWidgets.removeAt(idx);
@@ -439,18 +439,14 @@ void FormWindow::handleMousePressEvent(QWidget *w, QMouseEvent *e)
                 }
             }
 
-#if 0 // ### port me [command]
-            if (AbstractMetaDataBaseItem *item = core()->metaDataBase()->item(this)) {
-                QList<QWidget*> oldl = item->tabOrder();
-                TabOrderCommand *cmd = new TabOrderCommand(tr("Change Tab Order"), this, oldl, stackedWidgets);
-                commandHistory()->push(cmd);
-            }
-#endif
-            updateOrderIndicators();
+            TabOrderCommand *cmd = new TabOrderCommand(this);
+            cmd->init(stackedWidgets);
+            commandHistory()->push(cmd);
         }
         break;
 
-    case BuddyTool:
+#if 0 // ### fix me
+    case BuddyEditMode:
         if (e->button() != Qt::LeftButton)
             break;
 
@@ -468,8 +464,9 @@ void FormWindow::handleMousePressEvent(QWidget *w, QMouseEvent *e)
         startWidget = designerWidget(w);
         endWidget = startWidget;
         break;
+#endif
 
-    default: // any insert widget tool
+    default:
         break;
     }
 }
@@ -1439,12 +1436,12 @@ void FormWindow::lowerWidgets()
 
 void FormWindow::handleMouseButtonDblClickEvent(QWidget *w, QMouseEvent * /*e*/)
 {
-    switch (currentTool()) {
-    case PointerTool:
+    switch (editMode()) {
+    case WidgetEditMode:
         emit activated(w);
         break;
 
-    case OrderTool:
+    case TabOrderEditMode:
         if (!isMainContainer(w)) { // press on a child widget
             orderedWidgets.clear();
             orderedWidgets.append(w);
@@ -1459,14 +1456,9 @@ void FormWindow::handleMouseButtonDblClickEvent(QWidget *w, QMouseEvent * /*e*/)
                 }
             }
 
-#if 0 // ### port me [command]
-            if (AbstractMetaDataBaseItem *item = core()->metaDataBase()->item(this)) {
-                QList<QWidget*> oldl = item->tabOrder();
-                TabOrderCommand *cmd = new TabOrderCommand(tr("Change Tab Order"), this, oldl, stackedWidgets);
-                commandHistory()->push(cmd);
-            }
-#endif
-            updateOrderIndicators();
+            TabOrderCommand *cmd = new TabOrderCommand(this);
+            cmd->init(stackedWidgets);
+            commandHistory()->push(cmd);
         }
     break;
 

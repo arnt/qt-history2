@@ -155,6 +155,7 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
         case QEvent::Move:
             if (fw->editMode() != AbstractFormWindow::WidgetEditMode)
                 break;
+                
             if (LayoutInfo::layoutType(m_core, w->parentWidget()) != LayoutInfo::NoLayout) {
                 fw->updateSelection(w);
                 if (e->type() != QEvent::Resize)
@@ -185,32 +186,32 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
             break;
 
         case QEvent::MouseMove:
-            if (fw->editMode() != AbstractFormWindow::WidgetEditMode)
-                break;
+            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
+                return true;
             fw->handleMouseMoveEvent(w, static_cast<QMouseEvent*>(e));
             return true;
 
         case QEvent::MouseButtonPress:
-            if (fw->editMode() != AbstractFormWindow::WidgetEditMode)
-                break;
+            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
+                return true;
             fw->handleMousePressEvent(w, static_cast<QMouseEvent*>(e));
             return true;
 
         case QEvent::MouseButtonRelease:
-            if (fw->editMode() != AbstractFormWindow::WidgetEditMode)
-                break;
+            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
+                return true;
             fw->handleMouseReleaseEvent(w, static_cast<QMouseEvent*>(e));
             return true;
 
         case QEvent::MouseButtonDblClick:
-            if (fw->editMode() != AbstractFormWindow::WidgetEditMode)
-                break;
+            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
+                return true;
             fw->handleMouseButtonDblClickEvent(w, static_cast<QMouseEvent*>(e));
             return true;
 
         case QEvent::ContextMenu:
-            if (fw->editMode() != AbstractFormWindow::WidgetEditMode)
-                break;
+            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
+                return true;
             fw->handleContextMenu(w, static_cast<QContextMenuEvent*>(e));
             return true;
 

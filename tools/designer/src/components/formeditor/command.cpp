@@ -794,3 +794,34 @@ void AddStackedWidgetPageCommand::undo()
 {
     removePage();
 }
+
+// ---- TabOrderCommand ----
+TabOrderCommand::TabOrderCommand(FormWindow *formWindow)    
+    : FormWindowCommand(tr("Change Tab order"), formWindow),
+      m_widgetItem(0)
+{
+}
+
+void TabOrderCommand::init(const QList<QWidget*> &newTabOrder)
+{
+    AbstractFormEditor *core = formWindow()->core();
+    Q_ASSERT(core);
+    
+    m_widgetItem = core->metaDataBase()->item(formWindow());
+    Q_ASSERT(m_widgetItem);
+    m_oldTabOrder = m_widgetItem->tabOrder();
+    m_newTabOrder = newTabOrder;
+}
+
+void TabOrderCommand::redo()
+{
+    m_widgetItem->setTabOrder(m_newTabOrder);
+    formWindow()->updateOrderIndicators();
+}
+
+void TabOrderCommand::undo()
+{
+    m_widgetItem->setTabOrder(m_oldTabOrder);
+    formWindow()->updateOrderIndicators();
+}
+
