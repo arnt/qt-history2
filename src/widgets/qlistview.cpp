@@ -4180,12 +4180,14 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 	else if ( selectionMode() == Extended ) {
 	    bool changed = FALSE;
 	    if ( !(e->state() & (ControlButton | ShiftButton)) ) {
+		if ( !i->isSelected() ) {
 		    bool blocked = signalsBlocked();
 		    blockSignals( TRUE );
 		    clearSelection();
 		    blockSignals( blocked );
 		    i->setSelected( TRUE );
 		    changed = TRUE;
+		}
 	    } else {
 		if ( e->state() & ShiftButton )
 		    d->pressedSelected = FALSE;
