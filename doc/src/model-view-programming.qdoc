@@ -1255,28 +1255,34 @@ items.
     The item-based widgets have been given names which reflect their uses:
     \c QListWidget provides a list of items, \c QTreeWidget displays a
     multi-level tree structure, and \c QTableWidget provides a table of cell
-    items.
+    items. Each class inherits the behavior of the \c QAbstractItemView
+    class which implements common behavior for item selection and header
+    management.
 
-    \section1 QListWidget
+    \section1 List widgets
 
     Single level lists of items are typically displayed using a \c QListWidget
     and a number of \c{QListWidgetItem}s. A list widget is constructed in the
     same way as any other widget:
 
-    \quotefile snippets/qlistwidget/mainwindow.h
+    \quotefile snippets/qlistwidget-using/mainwindow.h
     \skipto QListWidget *
     \printuntil QListWidget *
+    \quotefile snippets/qlistwidget-using/mainwindow.cpp
+    \skipto listWidget = new
+    \printuntil listWidget = new
 
     List items can be added directly to the list widget when they are
     constructed:
 
-    \quotefile snippets/qlistwidget/mainwindow.cpp
+    \quotefile snippets/qlistwidget-using/mainwindow.cpp
     \skipto new QListWidgetItem(tr("Sycamore"
     \printuntil new QListWidgetItem(tr("Mahogany"
 
     They can also be constructed without a parent list widget and added to
     a list at some later time:
 
+    \quotefile snippets/qlistwidget-using/mainwindow.cpp
     \skipto QListWidgetItem *newItem
     \printuntil newItem->setText(
     \skipto listWidget->insertItem
@@ -1284,13 +1290,24 @@ items.
 
     Each item in a list can display a text label and an icon. The colors
     and font used to render the text can be changed to provide a customized
-    appearance for items. Support for tooltips, status tips, and "What's
-    This?" help is easily configured to ensure that the list is properly
+    appearance for items. Tooltips, status tips, and "What's
+    This?" help are all easily configured to ensure that the list is properly
     integrated into the application.
 
-    Lists of items can be sorted according to 
+    By default, items in a list are presented in the order of their creation.
+    Lists of items can be sorted according to the criteria given in
+    \l{Qt::SortOrder} to produce a list of items that is sorted in forward or
+    reverse alphabetical order:
 
-    \section1 QHeaderWidget
+    \quotefile snippets/qlistwidget-using/mainwindow.cpp
+    \skipto listWidget->sortItems(Qt::Ascend
+    \printuntil listWidget->sortItems(Qt::Ascend
+    \skipto listWidget->sortItems(Qt::Descend
+    \printuntil listWidget->sortItems(Qt::Descend
+
+
+
+    \section1 Headers
 
     Headers for the more sophisticated item-based widgets are provided by the
     \c QHeaderWidget class. This class is not needed for the \c QListWidget
@@ -1301,32 +1318,118 @@ items.
     of the header, each \c QHeaderWidgetItem corresponds to a column label
     (for horizontal headers) or a row label (for vertical headers).
 
-    \section1 QTreeWidget
+    \section1 Tree widgets
 
     Trees or hierarchical lists of items are provided by the \c QTreeWidget
-    \c QTreeWidgetItem classes. Tree widgets present 
+    and \c QTreeWidgetItem classes. Each item in the tree widget can have
+    child items of its own, and can display a number of columns of
+    information. Tree widgets are created just like any other widget:
+
+    \quotefile snippets/qtreewidget-using/mainwindow.h
+    \skipto QTreeWidget *
+    \printuntil QTreeWidget *
+    \quotefile snippets/qtreewidget-using/mainwindow.cpp
+    \skipto treeWidget = new
+    \printuntil treeWidget = new
 
     Before items can be added to the tree widget, the number of columns must
-    be set. For example, we could define two columns
+    be set. For example, we could define two columns, and create a header
+    to provide labels at the top of each column:
 
     \skipto treeWidget->setColumnCount
     \printuntil treeWidget->setColumnCount
-
-    The tree can have a header that contains a section for each column in
-    the widget. It is easiest to set up the labels for each section by
-    supplying a list of strings. For example, a :
-
     \printuntil treeWidget->setHeaderLabels
-    Each column can have a label.
+
+    The easiest way to set up the labels for each section is to supply a string
+    list. For more sophisticated headers, you can construct a tree item,
+    decorate it as you wish, and use that as the tree widget's header.
 
     Top-level items in the tree widget are constructed with the tree widget as
-    their parent widget, and can be :
+    their parent widget. They can be inserted in an arbitrary order, or you
+    can ensure that they are listed in a particular order by specifying the
+    previous item when constructing each item:
 
-    \skipto QTreeWidgetItem *
-    \printuntil 
+    \skipto QTreeWidgetItem *cities
+    \printuntil osloItem->setText(1
+    \skipto QTreeWidgetItem *planets
+    \printuntil QTreeWidgetItem *planets
+
+    Tree widgets deal with top-level items slightly differently to other
+    items from deeper within the tree. Items can be removed from the top
+    level of the tree by calling the tree widget's
+    \l{QTreeWidget::takeTopLevelItem()}{takeTopLevelItem()} function, but
+    items from lower levels are removed by calling their parent item's
+    \l{QTreeWidgetItem::takeChild()}{takeChild()} function.
+
+    Items are inserted in the top level of the tree with the
+    \l{QTreeWidget::insertTopLevelItem()}{insertTopLevelItem()} function.
+    At lower levels in the tree, the parent item's 
+    \l{QTreeWidgetItem::insertChild()}{insertChild()} function is used.
+
+    \section1 Table widgets
+
+    Tables of items similar to those found in spreadsheet applications
+    are constructed with the \c QTableWidget and \c QTableWidgetItem. These
+    provide a scrolling table widget with headers and items to use within it.
+
+    Tables can be created with a set number of rows and columns, or these
+    can be added to an unsized table as they are needed.
+
+    \quotefile snippets/qtablewidget-using/mainwindow.h
+    \skipto QTableWidget *
+    \printuntil QTableWidget *
+    \quotefile snippets/qtablewidget-using/mainwindow.cpp
+    \skipto tableWidget = new
+    \printuntil tableWidget = new
+
+    Items are constructed outside the table before being added to the table
+    at the required location:
+
+    \skipto QTableWidgetItem *newItem
+    \printuntil tableWidget->setItem
 
 
-    \section1 QTableWidget
 
+    \section1 Common features
+
+    The way items are selected is controlled by the widget's selection mode
+    (\l{QAbstractItemView::SelectionMode}).
+    This property controls whether the user can select one or many items and,
+    in many-item selections, whether the selection must be a continuous range
+    of items. The selection mode works in the same way for all of the
+    above widgets.
+
+    \table
+    \row
+    \i \img selection-single.png
+    \i \bold{Single item selections:}
+    Where the user needs to choose a single item from a widget, the
+    default \c SingleSelection mode is most suitable. In this mode, the
+    current item and the selected item are the same.
+    \endtable
+
+    \table
+    \row
+    \i \img selection-extended.png
+    \i \bold{Extended selections:}
+    Widgets that often require many adjacent items to be selected, such
+    as those found in spreadsheets, require the \c ExtendedSelection mode.
+    In this mode, continuous ranges of items in the widget can be selected
+    with both the mouse and the keyboard.
+    Complex selections, involving many items that are not adjacent to other
+    selected items in the widget, can also be created if modifier keys are
+    used.
+
+    If the user selects an item without using a modifier key, the existing
+    selection is cleared.
+    \endtable
+
+    \table
+    \row
+    \i \img selection-multi.png
+    \i \bold{Multi-item selections:}
+    In this mode, the user can toggle the selection state of any item in the
+    widget without changing the existing selection.
+    \endtable
 
 */

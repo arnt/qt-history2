@@ -14,14 +14,16 @@ MainWindow::MainWindow()
     QAction *insertAction = itemsMenu->addAction(tr("&Insert item"));
     removeAction = itemsMenu->addAction(tr("&Remove item"));
     removeAction->setEnabled(false);
-    QAction *ascendingAction = itemsMenu->addAction(tr("Sort in &ascending order"));
-    QAction *descendingAction = itemsMenu->addAction(tr("Sort in &descending order"));
+    itemsMenu->addSeparator();
+    ascendingAction = itemsMenu->addAction(tr("Sort in &ascending order"));
+    descendingAction = itemsMenu->addAction(tr("Sort in &descending order"));
+    autoSortAction = itemsMenu->addAction(tr("&Automatically sort items"));
+    autoSortAction->setCheckable(true);
 
     menuBar()->addMenu(fileMenu);
     menuBar()->addMenu(itemsMenu);
 
     treeWidget = new QTreeWidget(this);
-    treeWidget->setSelectionMode(QAbstractItemView::SingleSelection);
     treeWidget->setColumnCount(2);
     QStringList headers;
     headers << tr("Subject") << tr("Default");
@@ -30,6 +32,7 @@ MainWindow::MainWindow()
     connect(quitAction, SIGNAL(triggered()), this, SLOT(close()));
     connect(ascendingAction, SIGNAL(triggered()), this, SLOT(sortAscending()));
     connect(descendingAction, SIGNAL(triggered()), this, SLOT(sortDescending()));
+    connect(autoSortAction, SIGNAL(triggered()), this, SLOT(updateSortItems()));
     connect(insertAction, SIGNAL(triggered()), this, SLOT(insertItem()));
     connect(removeAction, SIGNAL(triggered()), this, SLOT(removeItem()));
     connect(treeWidget,
@@ -54,7 +57,7 @@ void MainWindow::setupTreeItems()
     (new QTreeWidgetItem(cities))->setText(0, tr("Helsinki"));
     (new QTreeWidgetItem(cities))->setText(0, tr("Copenhagen"));
 
-    QTreeWidgetItem *planets = new QTreeWidgetItem(treeWidget);
+    QTreeWidgetItem *planets = new QTreeWidgetItem(treeWidget, cities);
     planets->setText(0, tr("Planets"));
     (new QTreeWidgetItem(planets))->setText(0, tr("Mercury"));
     (new QTreeWidgetItem(planets))->setText(0, tr("Venus"));
@@ -91,8 +94,6 @@ void MainWindow::insertItem()
 
     QTreeWidgetItem *parent = treeWidget->currentItem()->parent();
     QTreeWidgetItem *newItem;
-    qDebug("Parent: %x", parent);
-
     if (parent)
         newItem = new QTreeWidgetItem(parent, treeWidget->currentItem());
     else
@@ -118,4 +119,12 @@ void MainWindow::removeItem()
 void MainWindow::updateMenus(QTreeWidgetItem *current)
 {
     removeAction->setEnabled(current != 0);
+}
+
+void MainWindow::updateSortItems()
+{
+    ascendingAction->setEnabled(!autoSortAction->isChecked());
+    descendingAction->setEnabled(!autoSortAction->isChecked());
+
+    treeWidget->setSortingEnabled(autoSortAction->isChecked());
 }

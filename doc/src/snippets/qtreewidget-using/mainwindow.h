@@ -20,10 +20,14 @@ public slots:
     void sortAscending();
     void sortDescending();
     void updateMenus(QTreeWidgetItem *current);
+    void updateSortItems();
 
 private:
     void setupTreeItems();
 
+    QAction *ascendingAction;
+    QAction *autoSortAction;
+    QAction *descendingAction;
     QAction *removeAction;
     QTreeWidget *treeWidget;
 };
