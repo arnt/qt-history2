@@ -131,7 +131,7 @@ public:
         : doc(0), cursorOn(false), readOnly(false),
           autoFormatting(QTextEdit::AutoAll), tabChangesFocus(false),
           mousePressed(false), mightStartDrag(false), wordWrap(QTextEdit::WidgetWidth), wrapColumnOrWidth(0),
-          lastSelectionState(false), textFormat(Qt::AutoText)
+          lastSelectionState(false), ignoreAutomaticScrollbarAdjustement(false), textFormat(Qt::AutoText)
     {}
 
     bool cursorMoveKeyEvent(QKeyEvent *e);
@@ -200,6 +200,8 @@ public:
     int wrapColumnOrWidth;
 
     bool lastSelectionState;
+
+    bool ignoreAutomaticScrollbarAdjustement;
 
     // Qt3 COMPAT only
     // ### non-compat'ed append needs it, too
@@ -586,6 +588,9 @@ void QTextEditPrivate::updateCurrentCharFormatAndSelection()
 
 void QTextEditPrivate::adjustScrollbars()
 {
+    if (ignoreAutomaticScrollbarAdjustement)
+        return;
+
     QAbstractTextDocumentLayout *layout = doc->documentLayout();
 
     const QSize viewportSize = viewport->size();
@@ -1410,7 +1415,41 @@ void QTextEdit::resizeEvent(QResizeEvent *)
     if (d->wordWrap == FixedPixelWidth)
         width = d->wrapColumnOrWidth;
 
+    const QSize lastUsedSize = layout->sizeUsed();
+
+    // ignore calls to adjustScrollbars caused by an emission of the
+    // usedSizeChanged() signal in the layout, as we're calling it
+    // later on our own anyway (or deliberately not) .
+    d->ignoreAutomaticScrollbarAdjustement = true;
+
     layout->setPageSize(QSize(width, INT_MAX));
+
+    d->ignoreAutomaticScrollbarAdjustement = false;
+
+    QSize usedSize = layout->sizeUsed();
+
+    // this is an obscure situation in the layout that can happen:
+    // if a character at the end of a line is the tallest one and therefore
+    // influencing the total height of the line and the line right below it
+    // is always taller though, then it can happen that if due to line breaking
+    // that tall character wraps into the lower line the document not only shrinks
+    // horizontally (causing the character to wrap in the first place) but also
+    // vertically, because the original line is now smaller and the one below kept
+    // its size. So a layout with less width _can_ take up less vertical space, too.
+    // If the wider case causes a vertical scrollbar to appear and the narrower one
+    // (narrower because the vertical scrollbar takes up horizontal space)) to disappear
+    // again then we have an endless loop, as adjustScrollBars sets new ranges on the
+    // scrollbars, the QViewport will find out about it and try to show/hide the scrollbars
+    // again. That's why we try to detect this case here and break out.
+    //
+    // (if you change this please also check the layoutingLoop() testcase in 
+    // QTextEdit's autotests)
+    if (lastUsedSize.isValid()
+        && d->vbar->isShown()
+        && d->viewport->width() < lastUsedSize.width()
+        && usedSize.height() < lastUsedSize.height()
+        && usedSize.height() <= d->viewport->height())
+        return;
 
     d->adjustScrollbars();
 }
