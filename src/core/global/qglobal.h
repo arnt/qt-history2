@@ -627,6 +627,8 @@ typedef const char *pcchar;
 #endif
 # if defined(Q_MOC_RUN)
 #   define QT_MOC_COMPAT QT_MOC_COMPAT
+#elif defined(QT3_SUPPORT)
+#   define QT_MOC_COMPAT QT3_SUPPORT
 #else
 #   define QT_MOC_COMPAT
 #endif
