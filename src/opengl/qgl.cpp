@@ -1160,9 +1160,6 @@ bool QGLContext::create( const QGLContext* shareContext )
   overlay context directly (e.g. to ask for its transparent color) by
   calling overlayContext().
 
-  QGLWidget overlay support is only currently implemented for
-  the X11 window system. The Windows implementation is experimental.
-
   On X servers in which the default visual is in an overlay plane,
   non-GL Qt windows can also be used for overlays. See the
   examples/opengl/overlay_x11 example program for details.
