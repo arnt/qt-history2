@@ -1616,6 +1616,7 @@ QVariant Parser::matchPrimaryExpr()
 	break;
     case Tok_null:
 	right = NullRep;
+	yyTok = getToken();
 	break;
     default:
 	switch ( yyTok ) {
@@ -2325,14 +2326,9 @@ void Parser::matchDropStatement()
 
 void Parser::matchInsertExpr()
 {
-    if ( yyTok == Tok_null ) {
-	yyTok = getToken();
-	error( "Null not supported yet" );
-    } else {
-	QVariant expr = matchScalarExpr();
-	resolveFieldNames( &expr );
-	emitExpr( expr );
-    }
+    QVariant expr = matchScalarExpr();
+    resolveFieldNames( &expr );
+    emitExpr( expr );
 }
 
 void Parser::matchInsertExprList( const QStringList& columns )
