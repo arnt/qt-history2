@@ -2430,10 +2430,12 @@ QPointArray QCanvasItem::chunks() const
     if (visible() && canvas()) {
 	int chunksize=canvas()->chunkSize();
 	br &= QRect(0,0,canvas()->width(),canvas()->height());
-	r.resize((br.width()/chunksize+2)*(br.height()/chunksize+2));
-	for (int j=br.top()/chunksize; j<=br.bottom()/chunksize; j++) {
-	    for (int i=br.left()/chunksize; i<=br.right()/chunksize; i++) {
-		r[n++] = QPoint(i,j);
+	if ( br.isValid() ) {
+	    r.resize((br.width()/chunksize+2)*(br.height()/chunksize+2));
+	    for (int j=br.top()/chunksize; j<=br.bottom()/chunksize; j++) {
+		for (int i=br.left()/chunksize; i<=br.right()/chunksize; i++) {
+		    r[n++] = QPoint(i,j);
+		}
 	    }
 	}
     }
