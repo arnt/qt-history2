@@ -87,7 +87,7 @@ QRegion::QRegion( bool is_null )
   Create a region based on the rectange \a r with region type \a t.
 
   If the rectangle is invalid a null region will be created.
-  
+
   \sa QRegion::RegionType
  */
 
@@ -136,11 +136,21 @@ QRegion::QRegion( const QRect &r, RegionType t )
 
 QRegion::QRegion( const QPointArray &a, bool winding )
 {
-    data = new QRegionData;
-    Q_CHECK_PTR( data );
-    data->is_null = FALSE;
-    data->rgn = XPolygonRegion( (XPoint*)a.shortPoints(), a.size(),
-				winding ? WindingRule : EvenOddRule );
+    if (a.size() > 0) {
+	data = new QRegionData;
+	Q_CHECK_PTR( data );
+	data->is_null = FALSE;
+	data->rgn = XPolygonRegion( (XPoint*)a.shortPoints(), a.size(),
+				    winding ? WindingRule : EvenOddRule );
+    } else {
+	if ( !empty_region ) {
+	    qAddPostRoutine( cleanup_empty_region );
+	    empty_region = new QRegion( TRUE );
+	    Q_CHECK_PTR( empty_region );
+	}
+	data = empty_region->data;
+	data->ref();
+    }
 }
 
 
