@@ -55,7 +55,6 @@
 // #define QFONTCACHE_DEBUG
 
 
-// REVISED: brad
 /*!
   \class QFont qfont.h
 
@@ -65,12 +64,16 @@
   \ingroup appearance
   \ingroup shared
 
-  QFont, more precisely, is a collection of attributes of a font.
+  To be precise, a QFont holds a collection of attributes for a font.
+
   When Qt needs to draw text, it will look up and load the closest
   matching installed font and draw using that.
 
+    A QFont has a font family(), a pointSize() and a weight(). The other
+    attributes include 
+    has other
   The most important attributes of a QFont are its family(),
-  pointSize(), weight() and whether it is italic() or not.  There are
+  pointSize() and weight() and whether it is italic() or not.  There are
   QFont constructors that take these attributes as arguments, as shown
   in this example:
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#604 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#605 $
 **
 ** Implementation of QFileDialog class
 **
@@ -5824,22 +5824,21 @@ void QFileDialog::goBack()
 
 /*!
   \class QFilePreview qfiledialog.h
-  \brief The QFilePreview class provides previewing in QFileDialog.
+  \brief The QFilePreview class provides file previewing in \l{QFileDialog}s.
 
   This class is an abstract base class which is used to implement
-  widgets that can display a preview of a file in the \l{QFileDialog}.
+  widgets that can display a preview of a file in a \l{QFileDialog}.
 
-  If you want to do that, you have to derive your preview widget
-  from any QWidget and from this class. Then you have to reimplement
+  You must derive your preview widget
+  from both QWidget and from this class. Then you must reimplement
   the previewUrl() method of this class, which is called by the file dialog
-  if the preview of an URL should be shown.
+  if the preview of a URL should be shown.
 
   See also QFileDialog::setPreviewMode(), QFileDialog::setContentsPreview(),
   QFileDialog::setInfoPreview(), QFileDialog::setInfoPreviewEnabled(),
   QFileDialog::setContentsPreviewEnabled().
 
-  For an example documentation of a preview widget, see
-  qt/examples/qdir/qdir.cpp.
+  For an example of a preview widget see qt/examples/qdir/qdir.cpp.
 */
 
 /*!
@@ -5855,7 +5854,7 @@ QFilePreview::QFilePreview()
 
   This method is called by QFileDialog if a preview
   for the \a url should be shown. Reimplement this
-  method to do file/URL previews.
+  method to perfom file/URL previews.
 */
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#171 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#172 $
 **
 ** Implementation of event classes
 **
@@ -731,12 +731,17 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   events.
 
   Focus events are sent to widgets when the keyboard input focus
-  changes.  This happens due to a mouse action, the Tab or Backtab keys,
-  the window system, a keyboard shortcut, or some other application-specific issue. The actual reason for a specific event is obtained by
-  reason() in the appropriate event handler.
+  changes. Focus events occur due to mouse actions, keypresses (e.g. Tab
+  or Backtab), the window system, popup menus, keyboard shortcuts or
+  other application specific reasons. The reason for a particular focus
+  event is returned by reason() in the appropriate event handler.
 
   The event handlers QWidget::focusInEvent() and QWidget::focusOutEvent()
   receive focus events.
+
+  Use setReason() to set the reason for all focus events, and
+  resetReason() to set the reason for all focus events to the reason in
+  force before the last setReason() call.
 
   \sa QWidget::setFocus(), QWidget::setFocusPolicy()
 */
@@ -756,14 +761,14 @@ QFocusEvent::Reason QFocusEvent::prev_reason = QFocusEvent::Other;
 
 /*! \enum QFocusEvent::Reason
 
-  \value Mouse  the focus change happened because of a mouse action.
-  \value Tab  the focus change happened because of a Tab press
-  \value Backtab  the focus change happened because of a Backtab press
-        (possibly including Shift/Control).
-  \value ActiveWindow  the window system made this window (in)active.
-  \value Popup  the application opened/closed a popup that grabbed/released focus.
-  \value Shortcut  the focus change happened because of a keyboard shortcut.
-  \value Other  any other reason, usually application-specific.
+  \value Mouse  The focus change happened because of a mouse action.
+  \value Tab  The focus change happened because of a Tab press
+  \value Backtab  The focus change happened because of a Backtab press
+        (possibly including Shift/Control, e.g. Shift+Tab).
+  \value ActiveWindow  The window system made this window (in)active.
+  \value Popup  The application opened/closed a popup that grabbed/released focus.
+  \value Shortcut  The focus change happened because of a keyboard shortcut.
+  \value Other  Any other reason, usually application-specific.
 
   See the keyboard focus overview for more about focus.
 */

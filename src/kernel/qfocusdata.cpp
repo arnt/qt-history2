@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfocusdata.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qfocusdata.cpp#16 $
 **
 ** Implementation of QFocusData class
 **
@@ -37,29 +37,32 @@
 
 #include "qfocusdata.h"
 
-// NOT REVISED
 /*!
   \class QFocusData qfocusdata.h
-  \brief The QFocusData class maintains the list of widgets that can take focus.
+  \brief The QFocusData class maintains the list of widgets in the focus
+  chain.
 
-  This read-only list always contains at least one widget (the
-  top-level widget, actually).  It provides a simple cursor which can
-  be reset to the current focus widget using home(), or moved to its
-  neighboring widgets using next() and prev(), and a count() of
-  widgets in the list.
+  This read-only list always contains at least one widget (i.e. the
+  top-level widget).  It provides a simple cursor which can be reset to
+  the current focus widget using home(), or moved to its neighboring
+  widgets using next() and prev(). You can also retrieve the count() of
+  the number of widgets in the list. The list is a loop, so if you keep
+  iterating, for example using next(), you will never come to the end.
 
-  Note that some widgets in the list may not accept focus.  Widgets
-  are added to the list as necessary, but not removed from it.  This
-  lets widgets change focus policy dynamically without disrupting the
-  focus chain the user sees. When a widget disables and re-enables tab
-  focus, its position in the focus chain does not change.
+  Some widgets in the list may not accept focus.  Widgets are added to
+  the list as necessary, but not removed from it.  This lets widgets
+  change focus policy dynamically without disrupting the focus chain the
+  user experiences. When a widget disables and re-enables tab focus, its
+  position in the focus chain does not change.
 
   When reimplementing QWidget::focusNextPrevChild() to provide special
-  focus flow, you will usually call QWidget::focusData() to retrieve
-  the focus data stored at the top-level widget - the focus data for
-  that hierarchy of widgets.
+  focus flow, you will usually call QWidget::focusData() to retrieve the
+  focus data stored at the top-level widget. A top-level widget's focus
+  data contains the focus list for its hierarchy of widgets.
 
-  The cursor may change at any time; this class is not thread-safe.
+  The cursor may change at any time. 
+  
+  This class is \e not thread-safe.
 
   \sa QWidget::focusNextPrevChild() QWidget::setTabOrder()
   QWidget::setFocusPolicy()
@@ -68,13 +71,13 @@
 /*!
   \fn QWidget* QFocusData::focusWidget() const
 
-  Returns the widgets in the hierarchy that currently has focus.
+  Returns the widgets in the hierarchy that are in the focus chain.
 */
 
 /*!
   \fn int QFocusData::count() const
 
-  Returns a count of the number of widgets in the hierarchy that accepts focus.
+  Returns the number of widgets in the focus chain.
 */
 
 /*!
@@ -88,9 +91,8 @@ QWidget* QFocusData::home()
 }
 
 /*!
-  Moves the cursor to the right.  Note that the focus widgets
-  are a \e loop of widgets.  If you keep calling next(), it will
-  loop without ever returning 0.
+  Moves the cursor to the next widget in the focus chain. There is \e
+  always a next widget because the list is a loop.
 */
 QWidget* QFocusData::next()
 {
@@ -101,9 +103,8 @@ QWidget* QFocusData::next()
 }
 
 /*!
-  Moves the cursor to the left.  Note that the focus widgets
-  are a \e loop of widgets.  If you keep calling prev(), it will
-  loop without ever returning 0.
+  Moves the cursor to the previous widget in the focus chain. There is \e
+  always a previous widget because the list is a loop.
 */
 QWidget* QFocusData::prev()
 {
