@@ -408,8 +408,9 @@ bool QLinuxFbScreen::initDevice()
 	free(cmap.blue);
 	free(cmap.transp);
     } else if(finfo.visual==FB_VISUAL_DIRECTCOLOR) {
-	screencols=256;
 	fb_cmap cmap;
+	ioctl(fd,FBIOGETCMAP,&cmap);
+	screencols=cmap.len;
 	cmap.start=0;
 	int rbits=0,gbits=0,bbits=0;
 	switch (vinfo.bits_per_pixel) {
