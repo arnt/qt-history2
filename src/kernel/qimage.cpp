@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#136 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#137 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#136 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#137 $");
 
 
 /*!
@@ -2469,7 +2469,7 @@ bool QImageIO::read()
     }
     iostat = 1;					// assume error
 
-    if ( h ) {
+    if ( h && h->read_image ) {
 	(*h->read_image)( this );
     } else {
 	// Format name, but no handler - must be an asychronous reader
@@ -2513,7 +2513,7 @@ bool QImageIO::write()
     if ( frmt.isEmpty() )
 	return FALSE;
     QImageHandler *h = get_image_handler( frmt );
-    if ( !h ) {
+    if ( !h || !h->write_image ) {
 #if defined(CHECK_RANGE)
 	warning( "QImageIO::write: No such image format handler: %s",
 		 format() );
