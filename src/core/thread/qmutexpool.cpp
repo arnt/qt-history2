@@ -128,4 +128,4 @@ QMutex *QMutexPool::get(const void *address)
     return mutexes[index];
 }
 
-#endif QT_NO_THREAD
+#endif // QT_NO_THREAD
