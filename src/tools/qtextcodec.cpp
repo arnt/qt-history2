@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#83 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#84 $
 **
 ** Implementation of QTextCodec class
 **
@@ -379,11 +379,16 @@ QWindowsLocalCodec::~QWindowsLocalCodec()
 
 QString QWindowsLocalCodec::toUnicode(const char* chars, int len) const
 {
-    if ( len >= 0 ) {
-	QCString s(chars,len+1);
-	return qt_winMB2QString(s);
+    if ( len == 1 && chars ) {		// Optimization; avoids allocation
+	char c[2];
+	c[0] = *chars;
+	c[1] = 0;
+	return qt_winMB2QString( c, 2 );
     }
-    return qt_winMB2QString( chars );
+    if ( len < 0 )
+	return qt_winMB2QString( chars );
+    QCString s(chars,len+1);
+    return qt_winMB2QString(s);
 }
 
 QCString QWindowsLocalCodec::fromUnicode(const QString& uc, int& lenInOut ) const
@@ -673,7 +678,7 @@ QTextEncoder* QTextCodec::makeEncoder() const
   makeDecoder().  It converts the first \a len characters of \a chars
   to Unicode.
 
-  The default implementation makes an encoder with makeDecoder() and
+  The default implementation makes a decoder with makeDecoder() and
   converts the input with that.  Note that the default makeDecoder()
   implementation makes a decoder that simply calls
   this function, hence subclasses \e must reimplement one function or
