@@ -302,12 +302,12 @@ bool QAccelManager::tryAccelEvent( QWidget* w, QKeyEvent* e )
 	QApplication::sendSpontaneousEvent( w, e );
 	if ( e->isAccepted() )
 	    return FALSE;
-	e->t = QEvent::Accel;
-	e->ignore();
-	QApplication::sendSpontaneousEvent( w, e );
-	if ( e->isAccepted() )
-	    return TRUE;
     }
+    e->t = QEvent::Accel;
+    e->ignore();
+    QApplication::sendSpontaneousEvent( w, e );
+    if ( e->isAccepted() )
+	return TRUE;
     return FALSE;
 }
 
@@ -375,7 +375,7 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 	    }
 	}
 	intermediate = partial;
-	return FALSE;
+	return ( currentState == Qt::PartialMatch );
     } else if ( n == 0 ) { // found exactly one match
 	clash = -1; // reset
 	if ( currentState == Qt::PartialMatch && mainStatusBar )
