@@ -295,21 +295,26 @@ bool QRecursiveMutexPrivate::locked()
 
 bool QRecursiveMutexPrivate::trylock()
 {
+    bool ret = TRUE;
+
     pthread_mutex_lock(&handle2);
 
-    bool ret;
-    int code = pthread_mutex_trylock(&handle);
-
-    if (code == EBUSY) {
-	ret = FALSE;
-    } else if (code) {
-#ifdef QT_CHECK_RANGE
-	qWarning("Mutex trylock failure: %s", strerror(code));
-#endif
-	ret = FALSE;
-    } else {
-	ret = TRUE;
+    if ( count > 0 && owner == (unsigned long) pthread_self() ) {
 	count++;
+    } else {
+        int code = pthread_mutex_trylock(&handle);
+
+	if (code == EBUSY) {
+	    ret = FALSE;
+	} else if (code) {
+#ifdef QT_CHECK_RANGE
+	    qWarning("Mutex trylock failure: %s", strerror(code));
+#endif
+	    ret = FALSE;
+	} else {
+	    count = 1;
+	    owner = (unsigned long) pthread_self();
+	}
     }
 
     pthread_mutex_unlock(&handle2);
