@@ -451,18 +451,19 @@ T QHash<Key, T>::take(const Key &key)
 template <class Key, class T>
 typename QHash<Key, T>::Iterator QHash<Key, T>::erase(Iterator it)
 {
-    Iterator n = it;
-    ++n;
-    Node **node = &d->buckets[it.i->h % d->numBuckets];
-    while (*node != it.i)
-	node = &node->next;
-    Node *next = node->next;
-    if (d->autoDelete==this)
+    Iterator ret = it;
+    ++ret;
+
+    Node *node = it;
+    Node **node_ptr = reinterpret_cast<Node**>(&d->buckets[node->h % d->numBuckets]);
+    while (*node_ptr != node)
+	node_ptr = &(*node_ptr)->next;
+    *node_ptr = node->next;
+    if (d->autoDelete == this)
 	qDelete(node->value);
     delete node;
-    node = next;
     d->shrink();
-    return n;
+    return ret;
 }
 
 template <class Key, class T>

@@ -122,25 +122,10 @@ public:
 	    DeleteMenu(GetMenuID(apple_menu));
 	    DisposeMenu(apple_menu);
 	}
-	if (popups) {
-	    // ### revisit when QHash gets autodelete
-	    while (!popups->isEmpty()) {
-		QHash<int, PopupBinding*>::Iterator it = popups->begin();
-		PopupBinding *trash = it.value();
-		popups->remove(it.key());
-		delete trash;
-	    }
-	}
-	if (commands) {
-	    // ### revisit when QHash gets autodelete
-	    QHash<int, CommandBinding*>::Iterator removeMe;
-	    while (!commands->isEmpty()) {
-		QHash<int, CommandBinding*>::Iterator it = commands->begin();
-		CommandBinding *trash = it.value();
-		commands->remove(it.key());
-		delete trash;
-	    }
-	}
+	if (popups)
+	    popups->clear();
+	if (commands)
+	    commands->clear();
 	if (mac_menubar) {
 	    DisposeMenuBar(mac_menubar);
 	    mac_menubar = 0;
@@ -390,6 +375,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 		    if (!activeMenuBar->mac_d->commands) {
 			activeMenuBar->mac_d->commands = new 
 			    QHash<int, QMenuBar::MacPrivate::CommandBinding*>();
+			activeMenuBar->mac_d->commands->setAutoDelete(true);
 		    }
 		    activeMenuBar->mac_d->commands->insert(cmd,
 			    new QMenuBar::MacPrivate::CommandBinding(d, index));
@@ -537,8 +523,10 @@ MenuRef QMenuBar::createMacPopup(QPopupMenu *d, bool top_level)
 	ReleaseMenu(ret);
 	ret = 0;
     } else {
-	if (!activeMenuBar->mac_d->popups)
+	if (!activeMenuBar->mac_d->popups) {
 	    activeMenuBar->mac_d->popups = new QHash<int, QMenuBar::MacPrivate::PopupBinding*>();
+	    activeMenuBar->mac_d->popups->setAutoDelete(true);
+	}
 	SetMenuID(ret, ++mid);
 #if !defined(QMAC_QMENUBAR_NO_EVENT)
 	qt_mac_install_menubar_event(ret);
@@ -680,14 +668,13 @@ void QMenuBar::macCreateNativeMenubar()
 void QMenuBar::macRemoveNativeMenubar()
 {
     if (mac_eaten_menubar && menubars) {
-	QList<QWidget*> removes;
-	for (QHash<QWidget *, QMenuBar *>::Iterator it = menubars->begin();
-		it != menubars->end(); ++it) {
-	    if (it.value() == this) 
-		removes.append(it.key());
+	QHash<QWidget *, QMenuBar *>::Iterator it = menubars->begin();
+	while (it != menubars->end()) {
+	    if (*it == this)
+		it = menubars->erase(it);
+	    else
+		++it;
 	}
-	for(QList<QWidget*>::Iterator it = removes.begin(); it != removes.end(); ++it)
-	    menubars->remove((*it));
     }
     mac_eaten_menubar = false;
     if (this == activeMenuBar) {
