@@ -603,11 +603,6 @@ bool ResultSet::sort( const QSqlIndex* index )
 	/* sort rest of fields */
 	for ( int idx = index->count()-2; idx >= 0; --idx ) {
 	    int sortField = head.position( index->field(idx)->name() );
-	    if ( sortField == -1 ) {
-		env->program().setLastError( "ResultSet: sort field not found:" +
-					     index->field(idx)->name() );
-		return FALSE;
-	    }
 	    ColumnKey subSort;
 	    for ( it = sortKey.begin();
 		  it != sortKey.end();
