@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#264 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#265 $
 **
 ** Implementation of QFileDialog class
 **
@@ -878,7 +878,7 @@ void QFileListBox::startRename( bool check )
 	      item( i )->pixmap()->width() + 5 : 25;
     int x = r.x() + bdr;
     int y = r.y() + 1;
-    int w = r.width() - bdr - 1;
+    int w = item( i )->width( this ) - bdr - 1;
     int h = r.height() - 2;
 
     lined->setFocusPolicy( StrongFocus );
@@ -2792,89 +2792,102 @@ void QFileDialog::popupContextMenu( const QString &filename, bool,
 {
     action = PA_Cancel;
 
+    bool glob = TRUE;
+    
+    if ( d->moreFiles->isVisible() ) {
+	QListBoxItem *i = d->moreFiles->item( d->moreFiles->currentItem() );
+	glob = !i || !i->selected();
+    } else
+	glob = filename.isEmpty();
+    
     QPopupMenu m( 0, "file dialog context menu" );
     m.setCheckable( TRUE );
 
-    QString okt =
-		 QFileInfo( dirPath() + "/" + filename ).isDir()
-		 ? tr( "&Open" )
-     : ( mode() == AnyFile
-	 ? tr( "&Save" )
-	 : tr( "&Open" ) );
-    int ok = m.insertItem( okt );
+    if ( !glob ) {
+	QString okt =
+		     QFileInfo( dirPath() + "/" + filename ).isDir()
+		     ? tr( "&Open" )
+	 : ( mode() == AnyFile
+	     ? tr( "&Save" )
+	     : tr( "&Open" ) );
+	int ok = m.insertItem( okt );
 
-    int reload = m.insertItem( tr( "R&eload" ) );
+	m.insertSeparator();
+	int rename = m.insertItem( tr( "&Rename" ) );
+	int del = m.insertItem( tr( "&Delete" ) );
 
-    m.insertSeparator();
-    int rename = m.insertItem( tr( "&Rename" ) );
-    int del = m.insertItem( tr( "&Delete" ) );
-    m.insertSeparator();
+	if ( filename.isEmpty() || !QFileInfo( dirPath() ).isWritable() ||
+	     filename == ".." ) {
+	    if ( filename.isEmpty() || !QFileInfo( dirPath() + "/" + filename ).isReadable() )
+		m.setItemEnabled( ok, FALSE );
+	    m.setItemEnabled( rename, FALSE );
+	    m.setItemEnabled( del, FALSE );
+	} else if ( !QFileInfo( dirPath() + "/" + filename ).isFile() )
+	    m.setItemEnabled( del, FALSE );
 
-    QPopupMenu m2( 0, "sort menu" );
+	if ( mode() == QFileDialog::ExistingFiles )
+	    m.setItemEnabled( rename, FALSE );
 
-    int sname = m2.insertItem( tr( "Sort by &Name" ) );
-    int stype = m2.insertItem( tr( "Sort by &Type" ) );
-    int ssize = m2.insertItem( tr( "Sort by &Size" ) );
-    int sdate = m2.insertItem( tr( "Sort by &Date" ) );
-    m2.insertSeparator();
-    int sunsorted = m2.insertItem( tr( "&Unsorted" ) );
+	m.move( p );
+	int res = m.exec();
 
-    m2.setItemEnabled( stype, FALSE );
+	if ( res == ok )
+	    action = PA_Open;
+	else if ( res == rename )
+	    action = PA_Rename;
+	else if ( res == del )
+	    action = PA_Delete;
+    } else {
+	int reload = m.insertItem( tr( "R&eload" ) );
 
-    if ( sortFilesBy == (int)QDir::Name )
-	m2.setItemChecked( sname, TRUE );
-    else if ( sortFilesBy == (int)QDir::Size )
-	m2.setItemChecked( ssize, TRUE );
-    else if ( sortFilesBy == 0x16 )
-	m2.setItemChecked( stype, TRUE );
-    else if ( sortFilesBy == (int)QDir::Time )
-	m2.setItemChecked( sdate, TRUE );
-    else if ( sortFilesBy == (int)QDir::Unsorted )
-	m2.setItemChecked( sunsorted, TRUE );
+	QPopupMenu m2( 0, "sort menu" );
 
-    m.insertItem( tr( "Sort" ), &m2 );
+	int sname = m2.insertItem( tr( "Sort by &Name" ) );
+	int stype = m2.insertItem( tr( "Sort by &Type" ) );
+	int ssize = m2.insertItem( tr( "Sort by &Size" ) );
+	int sdate = m2.insertItem( tr( "Sort by &Date" ) );
+	m2.insertSeparator();
+	int sunsorted = m2.insertItem( tr( "&Unsorted" ) );
 
-    m.insertSeparator();
+	m2.setItemEnabled( stype, FALSE );
 
-    int hidden = m.insertItem( tr( "Show &hidden files" ) );
-    m.setItemChecked( hidden, bShowHiddenFiles );
+	if ( sortFilesBy == (int)QDir::Name )
+	    m2.setItemChecked( sname, TRUE );
+	else if ( sortFilesBy == (int)QDir::Size )
+	    m2.setItemChecked( ssize, TRUE );
+	else if ( sortFilesBy == 0x16 )
+	    m2.setItemChecked( stype, TRUE );
+	else if ( sortFilesBy == (int)QDir::Time )
+	    m2.setItemChecked( sdate, TRUE );
+	else if ( sortFilesBy == (int)QDir::Unsorted )
+	    m2.setItemChecked( sunsorted, TRUE );
 
+	m.insertItem( tr( "Sort" ), &m2 );
 
-    if ( filename.isEmpty() || !QFileInfo( dirPath() ).isWritable() ||
-	 filename == ".." ) {
-	if ( filename.isEmpty() || !QFileInfo( dirPath() + "/" + filename ).isReadable() )
-	    m.setItemEnabled( ok, FALSE );
-	m.setItemEnabled( rename, FALSE );
-	m.setItemEnabled( del, FALSE );
-    } else if ( !QFileInfo( dirPath() + "/" + filename ).isFile() )
-	m.setItemEnabled( del, FALSE );
+	m.insertSeparator();
 
-    if ( mode() == QFileDialog::ExistingFiles )
-	m.setItemEnabled( rename, FALSE );
+	int hidden = m.insertItem( tr( "Show &hidden files" ) );
+	m.setItemChecked( hidden, bShowHiddenFiles );
 
-    m.move( p );
-    int res = m.exec();
+	m.move( p );
+	int res = m.exec();
 
-    if ( res == ok )
-	action = PA_Open;
-    else if ( res == rename )
-	action = PA_Rename;
-    else if ( res == del )
-	action = PA_Delete;
-    else if ( res == reload )
-	action = PA_Reload;
-    else if ( res == hidden )
-	action = PA_Hidden;
-    else if ( res == sname )
-	action = PA_SortName;
-    else if ( res == stype )
-	action = PA_SortType;
-    else if ( res == sdate )
-	action = PA_SortDate;
-    else if ( res == ssize )
-	action = PA_SortSize;
-    else if ( res == sunsorted )
-	action = PA_SortUnsorted;
+	if ( res == reload )
+	    action = PA_Reload;
+	else if ( res == hidden )
+	    action = PA_Hidden;
+	else if ( res == sname )
+	    action = PA_SortName;
+	else if ( res == stype )
+	    action = PA_SortType;
+	else if ( res == sdate )
+	    action = PA_SortDate;
+	else if ( res == ssize )
+	    action = PA_SortSize;
+	else if ( res == sunsorted )
+	    action = PA_SortUnsorted;
+    }
+
 }
 
 void QFileDialog::deleteFile( const QString &filename )
