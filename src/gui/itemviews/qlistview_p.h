@@ -256,7 +256,7 @@ public:
 
     QListViewItem indexToListViewItem(const QModelIndex &index) const;
     inline QModelIndex listViewItemToIndex(const QListViewItem item) const
-    { return q_func()->model()->index(itemIndex(item), 0, q_func()->root()); }
+    { return q_func()->model()->index(itemIndex(item), modelColumn, q_func()->root()); }
     int itemIndex(const QListViewItem item) const;
     static void addLeaf(QVector<int> &leaf, const QRect &area,
                         uint visited, QBinTree<QListViewItem>::Data data);
@@ -326,6 +326,8 @@ public:
 
     // used for hidden items
     QVector<int> hiddenRows;
+
+    int modelColumn;
 };
 
 #endif //QLISTVIEW_P_H
