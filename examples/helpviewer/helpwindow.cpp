@@ -164,7 +164,7 @@ void HelpWindow::textChanged()
 	setCaption( "Qt Example - Helpviewer - " + browser->context() );
     else
 	setCaption( "Qt Example - Helpviewer - " + browser->documentTitle() ) ;
-    
+
     selectedURL = browser->context();
 
     if ( !selectedURL.isEmpty() && pathCombo ) {
@@ -237,7 +237,7 @@ void HelpWindow::newWindow()
 void HelpWindow::print()
 {
 #ifndef QT_NO_PRINTER
-    QPrinter printer;//(QPrinter::HighResolution );
+    QPrinter printer;
     printer.setFullPage(TRUE);
     if ( printer.setup( this ) ) {
 	QPainter p( &printer );
@@ -248,24 +248,7 @@ void HelpWindow::print()
 	QRect body(margin*dpix/72, margin*dpiy/72,
 		   metrics.width()-margin*dpix/72*2,
 		   metrics.height()-margin*dpiy/72*2 );
-	QFont font("times", 10);
-	QStringList filePaths = browser->mimeSourceFactory()->filePath();
-	QString file;
-	QStringList::Iterator it = filePaths.begin();
-	for ( ; it != filePaths.end(); ++it ) {
-	    file = QUrl( *it, QUrl( browser->source() ).path() ).path();
-	    if ( QFile::exists( file ) )
-		break;
-	    else
-		file = QString::null;
-	}
-	if ( file.isEmpty() )
-	    return;
-	QFile f( file );
-	if ( !f.open( IO_ReadOnly ) )
-	    return;
-	QTextStream ts( &f );
-	QSimpleRichText richText( ts.read(), font, browser->context(), browser->styleSheet(),
+	QSimpleRichText richText( browser->text(), browser->font(), browser->context(), browser->styleSheet(),
 				  browser->mimeSourceFactory(), body.height() );
 	richText.setWidth( &p, body.width() );
 	QRect view( body );
@@ -274,7 +257,6 @@ void HelpWindow::print()
 	    richText.draw( &p, body.left(), body.top(), view, colorGroup() );
 	    view.moveBy( 0, body.height() );
 	    p.translate( 0 , -body.height() );
-	    p.setFont( font );
 	    p.drawText( view.right() - p.fontMetrics().width( QString::number(page) ),
 			view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page) );
 	    if ( view.top()  >= richText.height() )

@@ -446,24 +446,7 @@ void MainWindow::print()
 	QRect body( margin*dpix/72, margin*dpiy/72,
 		    metrics.width()-margin*dpix/72*2,
 		    metrics.height()-margin*dpiy/72*2 );
-	QFont font( browser->font() );
-	QStringList filePaths = browser->mimeSourceFactory()->filePath();
-	QString file;
-	QStringList::Iterator it = filePaths.begin();
-	for ( ; it != filePaths.end(); ++it ) {
-	    file = QUrl( *it, QUrl( browser->source() ).path() ).path();
-	    if ( QFile::exists( file ) )
-		break;
-	    else
-		file = QString::null;
-	}
-	if ( file.isEmpty() )
-	    return;
-	QFile f( file );
-	if ( !f.open( IO_ReadOnly ) )
-	    return;
-	QTextStream ts( &f );
-	QSimpleRichText richText( ts.read(), font, browser->context(), browser->styleSheet(),
+	QSimpleRichText richText( browser->text(), browser->font(), browser->context(), browser->styleSheet(),
 				  browser->mimeSourceFactory(), body.height(),
 				  Qt::black, FALSE );
 	richText.setWidth( &p, body.width() );
@@ -473,7 +456,6 @@ void MainWindow::print()
 	    richText.draw( &p, body.left(), body.top(), view, colorGroup() );
 	    view.moveBy( 0, body.height() );
 	    p.translate( 0 , -body.height() );
-	    p.setFont( font );
 	    p.drawText( view.right() - p.fontMetrics().width( QString::number(page) ),
 			view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page) );
 	    if ( view.top()  >= richText.height() )
