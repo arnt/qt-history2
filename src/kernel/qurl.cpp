@@ -1138,16 +1138,14 @@ QString QUrl::dirPath() const
 	return QString::null;
 
     QString s = path();
-    // ### If anything is broken with regards to the directories in QFileDialog
-    // et al, then this is probably the place to look
-//    if ( s.right( 1 ) != "/" )
-//	s += "/";
-    s = QFileInfo( s ).dirPath();
-
-//    s = QFileInfo( s ).dirPath( TRUE );
-//    if ( s[ (int)s.length() - 1 ] != '/' )
-//	s += "/";
-    return s;
+    int pos = s.findRev( '/' );
+    if ( pos == -1 ) {
+	return QString::fromLatin1(".");
+    } else {
+	if ( pos == 0 )
+	    return QString::fromLatin1( "/" );
+	return s.left( pos );
+    }
 }
 
 /*!
