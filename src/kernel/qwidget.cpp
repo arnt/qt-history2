@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#70 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#69 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#70 $";
 #endif
 
 /*!
@@ -280,8 +280,8 @@ QWidget *QWidget::find( WId id )		// find widget with id
   \fn void QWidget::destroyed()
   This signal is emitted immediately before the widget is destroyed.
 
-  All the widget's children will be destroyed before the signal is
-  emitted.
+  All the widget's children are destroyed immediately after this signal
+  is emitted.
 */
 
 
