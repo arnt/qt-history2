@@ -1173,8 +1173,7 @@ bool QPainter::end()
         delete d->engine;
     }
 
-    if (ended)
-        d->engine = 0;
+    d->engine = 0;
 
     --d->device->painters;
     return ended;
