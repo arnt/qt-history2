@@ -542,6 +542,8 @@ void FunctionList::setup()
 
 void FunctionList::refreshFunctions( bool doDelete )
 {
+    if ( !hierarchyView->formWindow() )
+	return;
     if ( doDelete ) {
 	QListViewItem *i = firstChild();
 	while ( i ) {
