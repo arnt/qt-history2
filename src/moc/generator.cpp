@@ -822,7 +822,7 @@ void Generator::generateSignal(FunctionDef *def,int index)
 
     if (def->arguments.isEmpty() && def->normalizedType.isEmpty()) {
         fprintf(out, ")\n{\n"
-                "    QMetaObject::activate(this, &staticMetaObject, %d, 0);\n"
+                "    qt_metacall(QMetaObject::InvokeMetaMember, staticMetaObject.memberOffset() + %d, 0);\n"
                 "};\n", index);
         return;
     }
@@ -849,7 +849,7 @@ void Generator::generateSignal(FunctionDef *def,int index)
         if (def->arguments.at(i).isDefault)
             ++n;
     for (i = 0; i < n; ++i)
-        fprintf(out, "    QMetaObject::activate(this, &staticMetaObject, %d, _a);\n", index + i);
+        fprintf(out, "    qt_metacall(QMetaObject::InvokeMetaMember, staticMetaObject.memberOffset() + %d, _a);\n", index + i);
     if (def->normalizedType.size())
         fprintf(out, "    return _t0;\n");
     fprintf(out, "}\n");
