@@ -62,6 +62,8 @@ public:
 
     virtual void setContext( QObjectList *toplevels, QObject *this_ );
 
+    void setEnabled( bool b ) { enabled = b; }
+
 protected:
     virtual bool continueComplete();
     virtual void showCompletion( const QStringList &lst );
@@ -75,6 +77,7 @@ protected:
     QString searchString;
     QStringList cList;
     QMap<QChar, QStringList> completionMap;
+    bool enabled;
 
 };
 

@@ -27,10 +27,13 @@
 
 ParenMatcher::ParenMatcher()
 {
+    enabled = TRUE;
 }
 
 bool ParenMatcher::match( QTextCursor *cursor )
 {
+    if ( !enabled )
+	return FALSE;
     bool ret = FALSE;
 
     QChar c( cursor->parag()->at( cursor->index() )->c );

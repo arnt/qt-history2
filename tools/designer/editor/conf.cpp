@@ -145,3 +145,50 @@ void Config::saveStyles( const QMap<QString, ConfigStyle> &styles, const QString
     settings.sync();
 }
 
+bool Config::completion( const QString &path )
+{
+    QSettings settings;
+    bool ok = FALSE;
+    bool ret = settings.readBoolEntry( path + "completion", &ok );
+    if ( ok )
+	return ret;
+    return TRUE;
+}
+
+bool Config::wordWrap( const QString &path )
+{
+    QSettings settings;
+    bool ok = FALSE;
+    bool ret = settings.readBoolEntry( path + "wordWrap", &ok );
+    if ( ok )
+	return ret;
+    return TRUE;
+}
+
+bool Config::parenMatching( const QString &path )
+{
+    QSettings settings;
+    bool ok = FALSE;
+    bool ret = settings.readBoolEntry( path + "parenMatching", &ok );
+    if ( ok )
+	return ret;
+    return TRUE;
+}
+
+void Config::setCompletion( bool b, const QString &path )
+{
+    QSettings settings;
+    settings.writeEntry( path + "completion", b );
+}
+
+void Config::setWordWrap( bool b, const QString &path )
+{
+    QSettings settings;
+    settings.writeEntry( path + "wordWrap", b );
+}
+
+void Config::setParenMatching( bool b,const QString &path )
+{
+    QSettings settings;
+    settings.writeEntry( path + "parenMatching", b );
+}

@@ -46,9 +46,13 @@ public:
 
     virtual bool match( QTextCursor *c );
 
+    void setEnabled( bool b ) { enabled = b; }
+
 private:
     bool checkOpenParen( QTextCursor *c );
     bool checkClosedParen( QTextCursor *c );
+
+    bool enabled;
 
 };
 

@@ -31,6 +31,7 @@
 
 EditorCompletion::EditorCompletion( Editor *e )
 {
+    enabled = TRUE;
     completionPopup = new QVBox( 0, 0, WType_Popup );
     completionPopup->setFrameStyle( QFrame::Box | QFrame::Plain );
     completionPopup->setLineWidth( 1 );
@@ -175,6 +176,8 @@ bool EditorCompletion::doCompletion()
 
 bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 {
+    if ( !enabled )
+	return FALSE;
     if ( o->inherits( "Editor" ) && e->type() == QEvent::KeyPress ) {
 	curEditor = (Editor*)o;
 	QKeyEvent *ke = (QKeyEvent*)e;
