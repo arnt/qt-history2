@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#21 $
 **
 ** Definition of QIconView widget class
 **
@@ -2128,6 +2128,10 @@ void QIconView::focusInEvent( QFocusEvent * )
 {
     if ( d->currentItem )
 	repaintItem( d->currentItem );
+    else {
+	d->currentItem = d->firstItem;
+	repaintItem( d->currentItem );
+    }
 }
 
 /*!
