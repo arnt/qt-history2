@@ -475,5 +475,6 @@ NmakeMakefileGenerator::init()
 	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + version + ".pdb");
 	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + version + ".ilk");
 	project->variables()["QMAKE_CLEAN"].append("vc*.pdb");
+	project->variables()["QMAKE_CLEAN"].append("vc*.idb");
     }
 }
