@@ -661,26 +661,24 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
     if ( e->key() == Key_Enter || e->key() == Key_Return ) {
 #ifdef QT_NO_VALIDATOR
 	emit returnPressed();
-	e->ignore();
 #else
 	const QValidator * v = validator();
 	QString str = text();
 	if ( !v || v->validate( str, cursorPos ) == QValidator::Acceptable ) {
 	    emit returnPressed();
-	    e->ignore();
-	} else if ( v ) {
+	} else {
 	    QString old = text();
 	    QString vstr = old;
 	    v->fixup( vstr );
 	    if ( old != vstr ) {
 		setText( vstr );
 		update();
+		if ( v->validate( vstr, cursorPos ) == QValidator::Acceptable )
+		    emit returnPressed();
 	    }
-	    if ( v->validate( vstr, cursorPos ) == QValidator::Acceptable )
-		emit returnPressed();
-	    e->ignore();
 	}
 #endif
+	e->ignore();
 	return;
     }
     if ( !d->readonly ) {
@@ -1017,8 +1015,12 @@ void QLineEdit::drawContents( QPainter *painter )
 				hasFocus() ? QSharedDoubleBuffer::Force : 0 );
     buffer.painter()->setPen( colorGroup().text() );
 
-    QBrush bg = isEnabled() ? QBrush( paletteBackgroundColor() ) :
-  			      g.brush( QColorGroup::Background);
+    QBrush bg = QBrush( paletteBackgroundColor() );
+    if ( paletteBackgroundPixmap() )
+	bg = QBrush( g.background(), *paletteBackgroundPixmap() );
+    else if ( !isEnabled() )
+	g.brush( QColorGroup::Background );
+    
     buffer.painter()->fillRect( 0, 0, width(), height(), bg );
     if ( linetop ) {
 	painter->fillRect( 0, 0, width(), linetop, bg );
