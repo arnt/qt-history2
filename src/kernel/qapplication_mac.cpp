@@ -903,6 +903,7 @@ struct key_sym
 
 static key_sym modifier_syms[] = {
 { shiftKey, MAP_KEY(Qt::ShiftButton) },
+{ rightShiftKeyBit, MAP_KEY(Qt::ShiftButton) },
 { controlKey, MAP_KEY(Qt::ControlButton) },
 { rightControlKey, MAP_KEY(Qt::ControlButton) },
 { cmdKey, MAP_KEY(Qt::ControlButton) },
@@ -932,14 +933,25 @@ static key_sym key_syms[] = {
 { kPageUpCharCode, MAP_KEY(Qt::Key_PageUp) },
 { kPageDownCharCode, MAP_KEY(Qt::Key_PageDown) },
 { kReturnCharCode, MAP_KEY(Qt::Key_Return) },
-//function keys?
+{ 32, MAP_KEY(Qt::Key_F1) },
+{ 33, MAP_KEY(Qt::Key_F2) },
+{ 34, MAP_KEY(Qt::Key_F3) },
+{ 35, MAP_KEY(Qt::Key_F4) },
+{ 36, MAP_KEY(Qt::Key_F5) },
+{ 37, MAP_KEY(Qt::Key_F6) },
+{ 38, MAP_KEY(Qt::Key_F7) },
+{ 39, MAP_KEY(Qt::Key_F8) },
+{ 40, MAP_KEY(Qt::Key_F9) },
+{ 41, MAP_KEY(Qt::Key_F10) },
+{ 42, MAP_KEY(Qt::Key_F11) },
+{ 43, MAP_KEY(Qt::Key_F12) },
 { kEscapeCharCode, MAP_KEY(Qt::Key_Escape) },
 { kLeftArrowCharCode, MAP_KEY(Qt::Key_Left) },
 { kRightArrowCharCode, MAP_KEY(Qt::Key_Right) },
 { kUpArrowCharCode, MAP_KEY(Qt::Key_Up) },
 { kDownArrowCharCode, MAP_KEY(Qt::Key_Down) },
-{ kDeleteCharCode, MAP_KEY(Qt::Key_Delete) },
 { kHelpCharCode, MAP_KEY(Qt::Key_Help) },
+{ kDeleteCharCode, MAP_KEY(Qt::Key_Delete) },
 //ascii maps, for debug
 { '-', MAP_KEY(Qt::Key_hyphen) },
 { ':', MAP_KEY(Qt::Key_Colon) },
@@ -1444,14 +1456,20 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL, sizeof(modif), NULL, &modif);
 	int modifiers = get_modifiers(modif);
 
-	char chr;
-	GetEventParameter(event, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(chr), NULL, &chr);
+	UInt32 keyc;
+	GetEventParameter(event, kEventParamKeyCode, typeUInt32, NULL, sizeof(keyc), NULL, &keyc);
+	const UInt32 state = 0L;
+	char chr = KeyTranslate((void *)GetScriptManagerVariable(smKCHRCache), 
+				(modif & shiftKey) | keyc, &state);
 	int mychar=get_key(chr);
+
+	//set ascii/unicode
 	QString mystr;
-	if(modif) 
+	if((modifiers & (Qt::ControlButton | Qt::AltButton)) || (mychar > 127 || mychar < 0))
 	    chr = 0;
-	else
+	else 
 	    mystr = QChar(chr);
+
 	QEvent::Type etype = (ekind == kEventRawKeyUp) ? QEvent::KeyRelease : QEvent::KeyPress;
 
 	if( mac_keyboard_grabber )
