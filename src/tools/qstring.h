@@ -218,71 +218,61 @@ private:
 #endif
 } Q_PACKED;
 
-inline QChar::QChar()
-{
-    ucs = 0;
+inline QChar::QChar() : ucs( 0 )
 #ifdef QT_QSTRING_UCS_4
-    grp = 0;
+    , grp( 0 )
 #endif
+{
 }
-inline QChar::QChar( char c )
-{
-    ucs = (uchar)c;
+inline QChar::QChar( char c ) : ucs( (uchar)c )
 #ifdef QT_QSTRING_UCS_4
-    grp = 0;
+    , grp( 0 )
 #endif
+{
 }
-inline QChar::QChar( uchar c )
-{
-    ucs = c;
+inline QChar::QChar( uchar c ) : ucs( c )
 #ifdef QT_QSTRING_UCS_4
-    grp = 0;
+    , grp( 0 )
 #endif
+{
 }
-inline QChar::QChar( uchar c, uchar r )
-{
-    ucs = (r << 8) | c;
+inline QChar::QChar( uchar c, uchar r ) : ucs( (r << 8) | c )
 #ifdef QT_QSTRING_UCS_4
-    grp = 0;
+    , grp( 0 )
 #endif
+{
 }
-inline QChar::QChar( const QChar& c )
-{
-    ucs = c.ucs;
+inline QChar::QChar( const QChar& c ) : ucs( c.ucs )
 #ifdef QT_QSTRING_UCS_4
-    grp = c.grp;
+   , grp( c.grp )
 #endif
+{
 }
 
-inline QChar::QChar( ushort rc )
-{
-    ucs = rc;
+inline QChar::QChar( ushort rc ) : ucs( rc )
 #ifdef QT_QSTRING_UCS_4
-    grp = 0;
+    , grp( 0 )
 #endif
-}
-inline QChar::QChar( short rc )
 {
-    ucs = (ushort) rc;
-#ifdef QT_QSTRING_UCS_4
-    grp = 0;
-#endif
 }
-inline QChar::QChar( uint rc )
+inline QChar::QChar( short rc ) : ucs( (ushort) rc )
+#ifdef QT_QSTRING_UCS_4
+    , grp( 0 )
+#endif
 {
-    ucs = (ushort ) (rc & 0xffff);
-#ifdef QT_QSTRING_UCS_4
-    grp = (ushort) ((rc >> 16) & 0xffff);
-#endif
 }
-inline QChar::QChar( int rc )
+inline QChar::QChar( uint rc ) : ucs(  (ushort ) (rc & 0xffff) )
+#ifdef QT_QSTRING_UCS_4
+    , grp( (ushort) ((rc >> 16) & 0xffff) )
+#endif
 {
-    ucs = (ushort) (rc & 0xffff);
-#ifdef QT_QSTRING_UCS_4
-    grp = (ushort) ((rc >> 16) & 0xffff);
-#endif
 }
-
+inline QChar::QChar( int rc ) : ucs( (ushort) (rc & 0xffff) )
+#ifdef QT_QSTRING_UCS_4
+    , grp( (ushort) ((rc >> 16) & 0xffff) )
+#endif
+{
+}
 
 inline bool operator==( char ch, QChar c )
 {
@@ -342,10 +332,9 @@ inline bool operator>( QChar c1, QChar c2 ) { return !(c2>=c1); }
 // internal
 struct Q_EXPORT QStringData : public QShared {
     QStringData() :
-        unicode(0), ascii(0), len(0), simpletext(1), maxl(0), dirty(0) { ref(); }
+        QShared(), unicode(0), ascii(0), len(0), simpletext(1), maxl(0), dirty(0) { ref(); }
     QStringData(QChar *u, uint l, uint m) :
-        unicode(u), ascii(0), len(l), simpletext(1), maxl(m), dirty(1) { }
-
+        QShared(), unicode(u), ascii(0), len(l), simpletext(1), maxl(m), dirty(1) { }
     ~QStringData() { if ( unicode ) delete[] ((char*)unicode);
                      if ( ascii ) delete[] ascii; }
 
@@ -371,6 +360,12 @@ struct Q_EXPORT QStringData : public QShared {
     uint maxl : 30;
 #endif
     uint dirty : 1;
+
+private:
+#if defined(Q_DISABLE_COPY)
+    QStringData( const QStringData& );
+    QStringData& operator=( const QStringData& );
+#endif
 };
 
 
@@ -737,10 +732,10 @@ inline QString QString::section( const char *in_sep, int start, int end, int fla
 #endif
 
 inline QString &QString::operator=( QChar c )
-{ return *this = QString(c); }
+{ *this = QString(c); return *this; }
 
 inline QString &QString::operator=( char c )
-{ return *this = QString(QChar(c)); }
+{ *this = QString(QChar(c)); return *this; }
 
 inline bool QString::isNull() const
 { return unicode() == 0; }

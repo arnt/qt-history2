@@ -45,7 +45,7 @@
 
 struct QShared
 {
-    QShared()		{ count = 1; }
+    QShared() : count( 1 ) { }
     void ref()		{ count++; }
     bool deref()	{ return !--count; }
     uint count;
