@@ -27,6 +27,8 @@ static inline QString constRefify( const QString& type )
 	crtype = "const QFont&";
     else if ( type == "QPixmap" )
 	crtype = "const QPixmap&";
+    else if ( type == "QValueList<QVariant>" )
+	crtype = "const QValueList<QVariant>&";
     else
 	crtype = type;
 
@@ -47,6 +49,7 @@ class QTestContainer : public QObject
     Q_PROPERTY( QDateTime datetime READ datetime WRITE setDatetime )
     Q_PROPERTY( QFont font READ font WRITE setFont )
     Q_PROPERTY( QPixmap pixmap READ pixmap WRITE setPixmap )
+    Q_PROPERTY( QValueList list READ list WRITE setList )
 
 /*
     Q_PROPERTY( short shortnumber READ shortnumber WRITE setShortnumber )
@@ -63,11 +66,12 @@ public:
 	m_real = 3.1415927;
 	m_color = red;
 	m_date = QDate( 2002, 8, 7 );
-	m_time = QDate( 10, 30, 45 );
+	m_time = QDateTime( QDate(), QTime( 10, 30, 45 ) );
 	m_datetime = QDateTime( QDate( 2001, 12, 31 ), QTime( 23, 59, 59 ) );
 	m_font = QFont( "Times New Roman", 12 );
 	m_pixmap = QPixmap( 100, 100 );
 	m_pixmap.fill( green );
+	m_list << QString("Foo") << 13 << 2.5;
 
 /*
 	m_shortnumber = 23;
@@ -174,7 +178,7 @@ public:
 	    // Call and verify set<Prop>Slot
 	    QCString setPropSlot = "set" + ftemplate + "Slot(";
 	    setPropSlot += constRefify( prop->type() ) + ")";
-	    //** if this crashes, see QStringToQUType...
+	    //** if this crashes, see QStringToQUType and VARIANTToQUObject
 	    object->dynamicCall( setPropSlot, containerValue );
 	    Q_ASSERT( object->property( prop->name() ) == containerValue );
 
@@ -220,9 +224,16 @@ public:
 	    Q_ASSERT( property( prop->name() ) == defvalue );
 	    Q_ASSERT( object->property( prop->name() ) == defvalue );
 
-	    // ### fire set<Prop>Slot signal
-	    // ### fire getAndSet<Prop>Slot signal
+	    // Set the container back to containerValue
+	    setProperty( prop->name(), containerValue );
 	}
+	// here, all properties of object and container are defvalue
+
+	emit setUnicodeSlot( m_unicode );
+	Q_ASSERT( object->property( "unicode" ).toString() == m_unicode );
+	QString unicodeSlot;
+	emit getAndSetUnicodeSlot( unicodeSlot );
+	Q_ASSERT( object->property( "unicode" ).toString() == QString() );
 
 	return 0;
     }
@@ -259,6 +270,9 @@ public:
 
     QPixmap pixmap() const { PROP(pixmap) }
     void setPixmap( QPixmap pixmap ) { SET_PROP(pixmap) }
+
+    QValueList<QVariant> list() const { PROP(list) }
+    void setList( QValueList<QVariant> list ) { SET_PROP(list) }
 
 /*
     void setShortnumber( short shortnumber ) { m_shortnumber = shortnumber; }
@@ -304,6 +318,9 @@ public slots:
     void pixmapChanged( const QPixmap &pixmap ) { m_pixmap = pixmap; }
     void pixmapRefSignal( QPixmap &pixmap ) { pixmap = m_pixmap; }
 
+    void listChanged( const QValueList<QVariant> &list ) { m_list = list; }
+    void listRefSignal( QValueList<QVariant> &list ) { list = m_list; }
+
 /*
     void shortnumberChanged( short shortnumber ) { m_shortnumber = shortnumber; }
     void shortnumberRefSignal( short &shortnumber ) { shortnumber = m_shortnumber; }
@@ -329,6 +346,7 @@ private:
     QDateTime m_datetime;
     QFont m_font;
     QPixmap m_pixmap;
+    QValueList<QVariant> m_list;
 
 /*
     short m_shortnumber;

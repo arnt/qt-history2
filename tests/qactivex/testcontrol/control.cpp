@@ -17,6 +17,7 @@
 
 #include <qdatetime.h>
 #include <qpixmap.h>
+#include <qvariant.h>
 
 #define PROP(prop) return m_##prop;
 #define SET_PROP(prop) m_##prop = prop;
@@ -39,6 +40,7 @@ class QTestControl : public QWidget, public QAxBindable
     Q_PROPERTY( QDateTime datetime READ datetime WRITE setDatetime )
     Q_PROPERTY( QFont font READ font WRITE setFont )
     Q_PROPERTY( QPixmap pixmap READ pixmap WRITE setPixmap )
+    Q_PROPERTY( QValueList list READ list WRITE setList )
     
 //  QVariant does not support short or long
 //    Q_PROPERTY( short shortnumber READ shortnumber WRITE setShortnumber )
@@ -83,6 +85,9 @@ public:
 
     QPixmap pixmap() const { PROP(pixmap) }
     void setPixmap( QPixmap pixmap ) { SET_PROP(pixmap) }
+
+    QValueList<QVariant> list() const { PROP(list) }
+    void setList( QValueList<QVariant> list ) { SET_PROP(list) }
 
 /*
     short shortnumber() const { PROP(shortnumber) }
@@ -147,6 +152,11 @@ public slots:
     QPixmap getAndSetPixmapSlot( QPixmap& pixmap ) { GET_AND_SET(pixmap, QPixmap) }
     QPixmap emitPixmapRefSignal() { EMIT_REF(pixmap, QPixmap) }
 
+    QValueList<QVariant> getListSlot() const { GET_PROP_SLOT(list) }
+    void setListSlot( QValueList<QVariant> list ) { SET_PROP_SLOT(list) }
+    QValueList<QVariant> getAndSetListSlot( QValueList<QVariant>& list ) { GET_AND_SET(list, QValueList<QVariant>) }
+    QValueList<QVariant> emitListRefSignal() { EMIT_REF(list, QValueList<QVariant>) }
+
 /*
     short getShortnumberSlot() const { GET_PROP_SLOT(shortnumber) }
     void setShortnumberSlot( short shortnumber ) { SET_PROP_SLOT(shortnumber) }
@@ -192,6 +202,9 @@ signals:
     void pixmapChanged( const QPixmap& );
     void pixmapRefSignal( QPixmap& );
 
+    void listChanged( const QValueList<QVariant>& );
+    void listRefSignal( QValueList<QVariant>& );
+
 /*
     void shortnumberChanged( short );
     void shortnumberRefSignal( short& );
@@ -211,6 +224,7 @@ private:
     QDateTime m_datetime;
     QFont m_font;
     QPixmap m_pixmap;
+    QValueList<QVariant> m_list;
 
 /*
     short m_shortnumber;
