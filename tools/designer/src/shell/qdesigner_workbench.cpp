@@ -34,6 +34,7 @@
 #include <QLabel>
 #include <QSignal>
 #include <QActionGroup>
+#include <QVariant>
 
 #include <qdebug.h>
 
