@@ -101,6 +101,8 @@ public:
     void ref() { refcount++; }
     bool deref() { refcount--; return (refcount<1); }
 
+    bool match(const QFontDef &);
+
     QDiskFont* diskfont;
     int fascent,fdescent;
     int fleftbearing,frightbearing;
@@ -206,6 +208,7 @@ public:
 
     void cache(QRenderedFont * f) { policy->cache(f); }
     void uncache(QRenderedFont * f) { policy->uncache(f); }
+    QRenderedFont * getCached(const QFontDef &);
 
 private:
 

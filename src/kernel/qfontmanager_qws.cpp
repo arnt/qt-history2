@@ -155,6 +155,19 @@ QRenderedFont::~QRenderedFont()
 {
 }
 
+bool QRenderedFont::match(const QFontDef & f)
+{
+    if(f.family.lower() != diskfont->name )
+        return false;
+    if(f.italic !=  italic)
+        return false;
+    if(f.pointSize != ptsize )
+        return false;
+    if(f.weight != weight )
+        return false;
+    return true;
+}
+
 // Triggering a whole font metrics call is bad, so right now return
 // some best guesses
 
@@ -318,6 +331,17 @@ void QFontManager::setPolicy(QCachePolicy * p)
     policy=p;
 }
 
+QRenderedFont* QFontManager::getCached(const QFontDef & f)
+{
+    QRenderedFont * it;
+    for(it=cachedfonts.first();it;it=cachedfonts.next()) {
+        if(it->match(f)) {
+            return it;
+        }
+    }
+    return 0;
+}
+
 void QDefaultCachePolicy::cache(QRenderedFont * f)
 {
     if( !qt_fontmanager->cachedfonts.findRef( f ) ) {
@@ -336,8 +360,15 @@ void QDefaultCachePolicy::uncache(QRenderedFont * f)
 */
 QRenderedFont* QDiskFont::load(const QFontDef & f)
 {
+    // First check cache
+    QRenderedFont * ret;
+    ret=qt_fontmanager->getCached(f);
+    if( ret ) {
+        ret->ref();
+        return ret;
+    }
     factory->load(this);
-    QRenderedFont * ret=factory->get(f,this);
+    ret=factory->get(f,this);
     qt_fontmanager->cache(ret);
     return ret;
 }
