@@ -869,6 +869,13 @@ void QTextView::removeSelectedText()
     if ( isReadOnly() )
         return;
 
+    QTextCursor c1 = doc->selectionStartCursor( QTextDocument::Standard );
+    QTextCursor c2 = doc->selectionEndCursor( QTextDocument::Standard );
+
+    // ### no support for editing tables yet
+    if ( c1.nestedDepth() || c2.nestedDepth() )
+	return;
+
     for ( int i = 1; i < (int)doc->numSelections(); ++i )
         doc->removeSelection( i );
 
@@ -880,8 +887,6 @@ void QTextView::removeSelectedText()
     }
     int oldLen = undoRedoInfo.d->text.length();
     undoRedoInfo.d->text = doc->selectedText( QTextDocument::Standard );
-    QTextCursor c1 = doc->selectionStartCursor( QTextDocument::Standard );
-    QTextCursor c2 = doc->selectionEndCursor( QTextDocument::Standard );
     undoRedoInfo.oldAligns.resize( undoRedoInfo.oldAligns.size() + QMAX( 0, c2.parag()->paragId() - c1.parag()->paragId() + 1 ) );
     readFormats( c1, c2, oldLen, undoRedoInfo.d->text, TRUE );
     doc->removeSelectedText( QTextDocument::Standard, cursor );
