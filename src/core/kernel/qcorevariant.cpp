@@ -794,7 +794,7 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *i = (int)d->data.shared->value.ull;
             break;
         case QCoreVariant::Double:
-            *i = (int)d->data.shared->value.d;
+            *i = qRound(d->data.shared->value.d);
             break;
         case QCoreVariant::Bool:
             *i = (int)d->data.b;
@@ -830,7 +830,7 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *u = (uint)d->data.shared->value.ull;
             break;
         case QCoreVariant::Double:
-            *u = (uint)d->data.shared->value.d;
+            *u = qRound(d->data.shared->value.d);
             break;
         case QCoreVariant::Bool:
             *u = (uint)d->data.b;
@@ -866,7 +866,7 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *l = (Q_LONGLONG)d->data.shared->value.ull;
             break;
         case QCoreVariant::Double:
-            *l = (Q_LONGLONG)d->data.shared->value.d;
+            *l = qRoundLL(d->data.shared->value.d);
             break;
         case QCoreVariant::Bool:
             *l = (Q_LONGLONG)d->data.b;
@@ -893,7 +893,7 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *l = d->data.shared->value.ull;
             break;
         case QCoreVariant::Double:
-            *l = (Q_ULONGLONG)d->data.shared->value.d;
+            *l = qRoundLL(d->data.shared->value.d);
             break;
         case QCoreVariant::Bool:
             *l = (Q_ULONGLONG)d->data.b;
