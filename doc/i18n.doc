@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.28 1999/07/10 16:29:14 warwick Exp $
+** $Id: i18n.doc,v 1.29 1999/07/13 08:37:24 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -278,6 +278,18 @@ in the following stages:
 	as this is the one the user is most likely to need for communicating
 	with other people and applications (this is the codec used by
 	local8Bit()).
+
+	Since most Unix systems do not have built-in support for converting
+	between local 8-bit encodings and Unicode, it may be necessary to
+	write your own QTextCodec subclass. Depending on the urgency, it
+	may be useful to contact Troll Tech techical support or ask on
+	the qt-interest mailinglist to see if someone else is already working
+	on supporting the encoding.  A useful interim measure can be to
+	use the QTextCodec::loadCharmapFile() function to build a data-driven
+	codec; this has a memory and speed penalty, especially with
+	dynamically loaded libraries. For details of writing your own
+	QTextCodec, see the mail QTextCodec class documentation.
+
 	</p>
  <li><b>Localization.</b>
 	<p>
