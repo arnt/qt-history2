@@ -21,6 +21,6 @@ IMAGES	= images/filenew.png \
 	images/widgetstack.png \
 	images/editraise.png
 TEMPLATE	=app
-CONFIG	+= qt warn_on release thread
+CONFIG	+= qt warn_on release
 DBFILE	= colortool.db
 LANGUAGE	= C++
