@@ -32,7 +32,6 @@
 #include <qtextedit.h>
 #include <qpalette.h>
 #include <qstring.h>
-#include <qlayout.h>
 #include <qpainter.h>
 #include <qscrollbar.h>
 #include <qheaderview.h>

@@ -20,7 +20,6 @@
 #include <qdatetime.h>
 #include <qptrqueue.h>
 #include <qptrlist.h>
-#include <qmap.h>
 
 #include "qwsproperty.h"
 #include "qwscommand.h"

@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "preprocessorcontrol.h"
 #include <QDir>
 #include <QFile>
@@ -69,7 +70,7 @@ QString IncludeFiles::quoteLookup(const QString &currentFile,
 
 /*
     Performs an #include <...> style file lookup.
-    Aboslute filesnames are checked directly.
+    Aboslute filenames are checked directly.
     Relative paths are searched for in the includepaths.
 */
 QString IncludeFiles::angleBracketLookup(const QString &includeFile) const

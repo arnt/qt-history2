@@ -29,7 +29,6 @@
 #include <abstractwidgetdatabase.h>
 #include <QWidget>
 #include "qdesigner_widget.h"
-#include "abstractformwindow.h"
 #include <QtGui/QPainter>
 #include <QtGui/QMainWindow>
 #include <QtCore/qglobal.h>

@@ -13,7 +13,6 @@
 #include <qmultilineedit.h>
 #include <qfiledialog.h>
 #include <qtabwidget.h>
-#include <qvalidator.h>
 #include <qmessagebox.h>
 #include <setupwizardimpl.h>
 #include <qtextbrowser.h>

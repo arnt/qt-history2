@@ -17,7 +17,6 @@
 #include <qdial.h>
 #include <qspinbox.h>
 #include <qscrollbar.h>
-#include <qslider.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
 

@@ -27,7 +27,6 @@
 #include <qtextedit.h>
 #include <qscrollarea.h>
 #include <QTextCharFormat>
-#include <qbitmap.h>
 
 template <typename T> class QList;
 class QSplitter;

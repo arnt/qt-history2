@@ -125,7 +125,6 @@ extern "C" {
 //
 #ifdef Q_WS_X11
 #include <X11/Xlib.h>
-#include <X11/Intrinsic.h>
 #include <X11/IntrinsicP.h> // for XtCreateWindow
 #include <X11/Shell.h>
 #include <X11/StringDefs.h>
@@ -1543,7 +1542,6 @@ void* QNPlugin::getJavaEnv() const
 
 #ifdef Q_WS_X11
 
-#include <qapplication.h>
 #include <qwidgetintdict.h>
 
 // resolve the conflict between X11's FocusIn and QEvent::FocusIn

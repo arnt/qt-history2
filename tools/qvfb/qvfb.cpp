@@ -20,7 +20,6 @@
 #include <qmenu.h>
 #include <qaction.h>
 #include <qmenubar.h>
-#include <qmenu.h>
 #include <qapplication.h>
 #include <qmessagebox.h>
 #include <qcombobox.h>
