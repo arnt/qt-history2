@@ -177,7 +177,7 @@ class Q_CORE_EXPORT QCoreVariant
 #ifdef QT_COMPAT
     inline QT_COMPAT const QByteArray toCString() const { return toByteArray(); }
     inline QT_COMPAT QByteArray &asCString() { return asByteArray(); }
-    inline QT_COMPAT QCoreVariant(bool b, int) { d = create(Bool, &b); }
+    QCoreVariant(bool, int);
 #endif
 
     void *rawAccess(void *ptr = 0, Type typ = Invalid, bool deepCopy = FALSE);
