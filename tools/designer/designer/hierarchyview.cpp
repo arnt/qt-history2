@@ -530,14 +530,13 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	    }
 	}
     } else if ( o->inherits( "QMenuBar" ) ) {
-	QObjectList *l = MainWindow::self->queryList( "QDesignerPopupMenu" );
 	QMenuBar *mb = (QMenuBar*)o;
-	for ( QObject *obj = l->last(); obj; obj = l->prev() ) {
-	    if ( !mb->findPopup( (QPopupMenu*)obj ) )
+	for ( int i = mb->count() -1; i >= 0; --i ) {
+	    QMenuItem *md = mb->findItem( mb->idAt( i ) );
+	    if ( !md || !md->popup() )
 		continue;
-	    insertObject( obj, item );
+	    insertObject( md->popup(), item );
 	}
-	delete l;
     }
 
     if ( item->firstChild() )
