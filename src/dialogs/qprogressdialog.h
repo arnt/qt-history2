@@ -46,7 +46,6 @@
 
 #ifndef QT_NO_PROGRESSDIALOG
 
-struct QProgressData;
 class QPushButton;
 class QTimer;
 
@@ -59,7 +58,7 @@ class Q_EXPORT QProgressDialog : public QDialog
     Q_PROPERTY( bool autoReset READ autoReset WRITE setAutoReset )
     Q_PROPERTY( bool autoClose READ autoClose WRITE setAutoClose )
     Q_PROPERTY( QString labelText READ labelText WRITE setLabelText )
-	
+
 public:
     QProgressDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,
 		     WFlags f=0 );
@@ -112,11 +111,12 @@ protected slots:
 
 private:
     void	   init( QWidget *creator, const QString& lbl, const QString &canc,
-		         int totstps);
+			 int totstps);
     void	   center();
     void	   layout();
     QLabel	  *label()  const;
     QProgressBar  *bar()    const;
+    struct QProgressData;
     QProgressData *d;
     QTimer	  *forceTimer;
 

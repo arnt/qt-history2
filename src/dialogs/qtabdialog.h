@@ -46,7 +46,6 @@
 #ifndef QT_NO_TABDIALOG
 
 class  QTabBar;
-struct QTabPrivate;
 class  QTab;
 
 
@@ -131,6 +130,7 @@ private:
     void setSizes();
     void setUpLayout();
 
+    struct QTabPrivate;
     QTabPrivate *d;
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

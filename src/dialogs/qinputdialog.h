@@ -46,8 +46,6 @@
 
 #ifndef QT_NO_INPUTDIALOG
 
-class QInputDialogPrivate;
-
 class QSpinBox;
 class QComboBox;
 
@@ -57,7 +55,7 @@ class Q_EXPORT QInputDialog : public QDialog
     friend class QInputDialog;
 #endif
     Q_OBJECT
-	
+
 private:
     enum Type { LineEdit, SpinBox, ComboBox, EditableComboBox };
 
@@ -92,9 +90,9 @@ private slots:
     void tryAccept();
 
 private:
+    class QInputDialogPrivate;
     QInputDialogPrivate *d;
-    // just to avoid warnings...
-    friend class QInputDialogPrivate;
+    friend class QInputDialogPrivate; /* to avoid 'has no friends' warnings... */
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

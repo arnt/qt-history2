@@ -65,7 +65,7 @@
   <img src=qfontdlg-m.png> <img src=qfontdlg-w.png>
 */
 
-class QFontDialogPrivate
+class QFontDialog::QFontDialogPrivate
 {
 public:
     QFontDialogPrivate(){};
@@ -316,9 +316,9 @@ QFontDialog::~QFontDialog()
     bool ok;
     QFont f = QFontDialog::getFont( &ok, QFont( "Times", 12 ), this );
     if ( ok ) {
-        // the user selected a valid font
+	// the user selected a valid font
     } else {
-        // the user cancelled the dialog
+	// the user cancelled the dialog
     }
   \endcode
 
@@ -350,9 +350,9 @@ QFont QFontDialog::getFont( bool *ok, const QFont &initial,
     bool ok;
     QFont f = QFontDialog::getFont( &ok, this );
     if ( ok ) {
-        // the user selected a valid font
+	// the user selected a valid font
     } else {
-        // the user cancelled the dialog
+	// the user cancelled the dialog
     }
   \endcode
 

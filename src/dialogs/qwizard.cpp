@@ -65,7 +65,7 @@
 */
 
 
-class QWizardPrivate
+class QWizard::QWizardPrivate
 {
 public:
     struct Page {
@@ -613,10 +613,10 @@ void QWizard::layOutButtonRow( QHBoxLayout * layout )
     }
 
     if ( hasHelp ) {
-        h->addSpacing( 12 );
-        h->addWidget( d->helpButton );
+	h->addSpacing( 12 );
+	h->addWidget( d->helpButton );
     } else {
-        d->helpButton->hide();
+	d->helpButton->hide();
     }
 }
 

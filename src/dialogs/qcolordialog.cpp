@@ -1276,7 +1276,7 @@ void QColorShower::setHsv( int h, int s, int v )
     showCurrentColor();
 }
 
-class QColorDialogPrivate : public QObject
+class QColorDialog::QColorDialogPrivate : public QObject
 {
 Q_OBJECT
 public:
@@ -1306,7 +1306,7 @@ private:
 };
 
 //sets all widgets to display h,s,v
-void QColorDialogPrivate::newHsv( int h, int s, int v )
+void QColorDialog::QColorDialogPrivate::newHsv( int h, int s, int v )
 {
     cs->setHsv( h, s, v );
     cp->setCol( h, s );
@@ -1314,14 +1314,14 @@ void QColorDialogPrivate::newHsv( int h, int s, int v )
 }
 
 //sets all widgets to display rgb
-void QColorDialogPrivate::setCurrentColor( QRgb rgb )
+void QColorDialog::QColorDialogPrivate::setCurrentColor( QRgb rgb )
 {
     cs->setRgb( rgb );
     newColorTypedIn( rgb );
 }
 
 //sets all widgets exept cs to display rgb
-void QColorDialogPrivate::newColorTypedIn( QRgb rgb )
+void QColorDialog::QColorDialogPrivate::newColorTypedIn( QRgb rgb )
 {
     int h, s, v;
     rgb2hsv(rgb, h, s, v );
@@ -1329,7 +1329,7 @@ void QColorDialogPrivate::newColorTypedIn( QRgb rgb )
     lp->setCol( h, s, v);
 }
 
-void QColorDialogPrivate::newCustom( int r, int c )
+void QColorDialog::QColorDialogPrivate::newCustom( int r, int c )
 {
     int i = r+2*c;
     setCurrentColor( cusrgb[i] );
@@ -1337,13 +1337,13 @@ void QColorDialogPrivate::newCustom( int r, int c )
     standard->setSelected(-1,-1);
 }
 
-void QColorDialogPrivate::newStandard( int r, int c )
+void QColorDialog::QColorDialogPrivate::newStandard( int r, int c )
 {
     setCurrentColor( stdrgb[r+c*6] );
     custom->setSelected(-1,-1);
 }
 
-QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
+QColorDialog::QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
     QObject(dialog)
 {
     compact = FALSE;
@@ -1447,7 +1447,7 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
     }
 }
 
-void QColorDialogPrivate::addCustom()
+void QColorDialog::QColorDialogPrivate::addCustom()
 {
     cusrgb[nextCust] = cs->currentColor();
     custom->repaint( FALSE ); //###

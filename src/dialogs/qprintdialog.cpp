@@ -71,7 +71,7 @@
 
 // REVISED: warwick
 
-struct QPrintDialogPrivate
+struct QPrintDialog::QPrintDialogPrivate
 {
     QPrinter * printer;
 
@@ -1023,7 +1023,7 @@ QGroupBox * QPrintDialog::setupOptions()
 }
 
 
-static void isc( QPrintDialogPrivate * d, const QString & text,
+static void isc( QPrintDialog::QPrintDialogPrivate * d, const QString & text,
 		 QPrinter::PageSize ps )
 {
     if ( d && text && ps < QPrinter::NPageSize ) {
@@ -1367,7 +1367,7 @@ void QPrintDialog::addButton( QPushButton *but )
 void QPrintDialog::fileNameEditChanged( const QString &text )
 {
     if ( d->fileName->isEnabled() )
-        d->ok->setEnabled( !text.isEmpty() );
+	d->ok->setEnabled( !text.isEmpty() );
 }
 
 #endif

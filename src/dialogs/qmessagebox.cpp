@@ -282,7 +282,7 @@ well without:
 
 \code
   QMessageBox::information( this, "Application name",
-                            "Unable to find the user preferences file.\n"
+			    "Unable to find the user preferences file.\n"
 			    "The factory default will be used instead." );
 \endcode
 
@@ -291,11 +291,11 @@ errors which can't be easily fixed:
 
 \code
   switch( QMessageBox::warning( this, "Application name",
-                                "Could not connect to the <mumble> server.\n"
-      			  "This program can't function correctly "
-      			  "without the server.\n\n",
-      			  "Try again", "Quit", 0,
-      			  0, 1 );
+				"Could not connect to the <mumble> server.\n"
+			  "This program can't function correctly "
+			  "without the server.\n\n",
+			  "Try again", "Quit", 0,
+			  0, 1 );
   case 0: // Try again or Enter
       // try again
       break;
@@ -325,7 +325,7 @@ errors which can't be easily fixed:
 
   \code
     QMessageBox::information( this, "Application name here",
-                              "Unable to find the file \"index.html\".\n"
+			      "Unable to find the file \"index.html\".\n"
 			      "The factory default will be used instead." );
   \endcode
 
@@ -342,19 +342,19 @@ errors which can't be easily fixed:
 
   \code
     switch( QMessageBox::information( this, "Application name here",
-                                      "The document contains unsaved work\n"
-                                      "Do you want to save it before exiting?",
-			              "&Save", "&Don't Save", "&Cancel",
-                                      0,      // Enter == button 0
+				      "The document contains unsaved work\n"
+				      "Do you want to save it before exiting?",
+				      "&Save", "&Don't Save", "&Cancel",
+				      0,      // Enter == button 0
 				      2 ) ) { // Escape == button 2
     case 0: // Save clicked, Alt-S or Enter pressed.
-        // save
+	// save
 	break;
     case 1: // Don't Save clicked or Alt-D pressed
-        // don't save but exit
+	// don't save but exit
 	break;
     case 2: // Cancel clicked, Alt-C or Escape pressed
-        // don't exit
+	// don't exit
 	break;
     }
   \endcode
@@ -369,17 +369,17 @@ errors which can't be easily fixed:
 
   \code
     switch( QMessageBox::warning( this, "Application name here",
-                                  "Could not save the user preferences,\n"
+				  "Could not save the user preferences,\n"
 				  "because the disk is full.  You can delete\n"
 				  "some files and press Retry, or you can\n"
 				  "abort the Save Preferences operation.",
 				  QMessageBox::Retry | QMessageBox::Default,
 				  QMessageBox::Abort | QMessageBox::Escape )) {
     case QMessageBox::Retry: // Retry or Enter
-        // try again
+	// try again
 	break;
     case QMessageBox::Abort: // Abort or Cancel
-        // abort
+	// abort
 	break;
     }
   \endcode
@@ -390,7 +390,7 @@ errors which can't be easily fixed:
 
   \code
     QMessageBox::critical( 0, "Application name here",
-                           QString("An internal error occurred. Please ") +
+			   QString("An internal error occurred. Please ") +
 			   "call technical support at 123456789 and report\n"+
 			   "these numbers:\n\n" + errorDetails +
 			   "\n\n<Application> will now exit." );
@@ -401,7 +401,7 @@ errors which can't be easily fixed:
 
   \code
      QMessageBox::about( this, "About <Application>",
-                         "<Application> is a <one-paragraph blurb>\n\n"
+			 "<Application> is a <one-paragraph blurb>\n\n"
 			 "Copyright 1951-1997 Such-and-such.  "
 			 "<License words here.>\n\n"
 			 "For technical support, call 123456789 or see\n"
@@ -424,10 +424,10 @@ errors which can't be easily fixed:
     mb.setButtonText( QMessageBox::Yes, "Save" );
     mb.setButtonText( QMessageBox::No, "Don't Save" );
     switch( mb.exec() ) {
-        case QMessageBox::Yes:
+	case QMessageBox::Yes:
 	    // save and exit
 	    break;
-        case QMessageBox::No:
+	case QMessageBox::No:
 	    // exit without saving
 	    break;
 	case QMessageBox::Cancel:
@@ -500,7 +500,7 @@ errors which can't be easily fixed:
 */
 
 
-struct QMBData {
+struct QMessageBox::QMBData {
     QMBData(QMessageBox* parent) :
 	iconLabel( parent, "icon" )
     {
@@ -599,7 +599,7 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
 		    QMessageBox::Yes | QMessageBox::Default,
 		    QMessageBox::No | QMessageBox::Escape );
     if ( mb.exec() == QMessageBox::No )
-        // try again
+	// try again
   \endcode
 
   If \a parent is 0, then the message box becomes an application-global
@@ -731,7 +731,7 @@ void QMessageBox::init( int button0, int button1, int button2 )
 	    buttonName.sprintf( "button%d", i+1 );
 	    mbd->pb[i] = new QPushButton(
 		tr(mb_texts[mbd->button[i]]),
-	        this, buttonName );
+		this, buttonName );
 	    if ( mbd->defButton == i ) {
 		mbd->pb[i]->setDefault( TRUE );
 		mbd->pb[i]->setFocus();
@@ -879,7 +879,7 @@ QPixmap QMessageBox::standardIcon( Icon icon, GUIStyle style )
 		image.setColor( 1, 0xff000000 | g.dark().rgb() );
 		image.setColor( 2, 0xff000000 | g.text().rgb() );
 		image.setColor( 3, 0xff000000 | g.base().rgb() );
-	        break;
+		break;
 	    default:
 		break; // Can't happen
 	    }
@@ -1393,7 +1393,7 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
     QPixmap pm;
     QImage logo( (const char **)qtlogo_xpm);
     if ( qGray(mb->palette().active().text().rgb()) >
-         qGray(mb->palette().active().base().rgb()) )
+	 qGray(mb->palette().active().base().rgb()) )
     {
 	// light on dark, adjust some colors
 	logo.setColor( 0,0xFFffffff);

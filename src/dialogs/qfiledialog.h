@@ -38,14 +38,12 @@
 #ifndef QFILEDIALOG_H
 #define QFILEDIALOG_H
 
-struct QFileDialogPrivate;
 class QPushButton;
 class QLabel;
 class QWidget;
 class QFileDialog;
 class QTimer;
 class QNetworkOperation;
-class QFileListView;
 class QLineEdit;
 class QListViewItem;
 class QListBoxItem;
@@ -84,7 +82,6 @@ public:
 class Q_EXPORT QFileDialog : public QDialog
 {
     friend class QFileListBox;
-    friend class QFileListView;
 
     Q_OBJECT
     Q_ENUMS( Mode ViewMode PreviewMode )
@@ -103,7 +100,7 @@ class Q_EXPORT QFileDialog : public QDialog
 
 public:
     QFileDialog( const QString& dirName, const QString& filter = QString::null,
-                 QWidget *parent=0, const char *name = 0, bool modal = FALSE );
+		 QWidget *parent=0, const char *name = 0, bool modal = FALSE );
     QFileDialog( QWidget *parent=0, const char *name = 0, bool modal = FALSE );
     ~QFileDialog();
 
@@ -120,7 +117,7 @@ public:
     static QString getExistingDirectory( const QString &dir = QString::null,
 					 QWidget *parent = 0,
 					 const char* name = 0,
-					 const QString &caption = QString::null, 
+					 const QString &caption = QString::null,
 					 bool dirOnly = TRUE );
     static QStringList getOpenFileNames( const QString &filter= QString::null,
 					 const QString &dir = QString::null,
@@ -252,28 +249,32 @@ private slots:
 
 private:
     enum PopupAction {
-        PA_Open = 0,
-        PA_Delete,
-        PA_Rename,
-        PA_SortName,
-        PA_SortSize,
-        PA_SortType,
-        PA_SortDate,
-        PA_SortUnsorted,
-        PA_Cancel,
-        PA_Reload,
-        PA_Hidden
+	PA_Open = 0,
+	PA_Delete,
+	PA_Rename,
+	PA_SortName,
+	PA_SortSize,
+	PA_SortType,
+	PA_SortDate,
+	PA_SortUnsorted,
+	PA_Cancel,
+	PA_Reload,
+	PA_Hidden
     };
 
     void init();
     bool trySetSelection( bool isDir, const QUrlOperator &, bool );
     void deleteFile( const QString &filename );
     void popupContextMenu( const QString &filename, bool withSort,
-                           PopupAction &action, const QPoint &p );
+			   PopupAction &action, const QPoint &p );
 
     QDir reserved; // was cwd
     QString fileName;
 
+    class QFileListView;
+    friend class QFileListView;
+
+    struct QFileDialogPrivate;
     QFileDialogPrivate *d;
     QFileListView  *files;
 

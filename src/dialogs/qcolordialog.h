@@ -44,8 +44,6 @@
 
 #ifndef QT_NO_COLORDIALOG
 
-class QColorDialogPrivate;
-
 class Q_EXPORT QColorDialog : public QDialog
 {
     Q_OBJECT
@@ -73,6 +71,7 @@ private:
 
     void showCustom( bool=TRUE );
 private:
+    class QColorDialogPrivate;
     QColorDialogPrivate *d;
     friend class QColorDialogPrivate;
 

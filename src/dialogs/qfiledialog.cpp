@@ -38,7 +38,7 @@
 #include "qfiledialog.h"
 
 #ifndef QT_NO_FILEDIALOG
- 
+
 #include "qlineedit.h"
 #include "qcombobox.h"
 #include "qlistview.h"
@@ -308,7 +308,7 @@ static const char* const cdtoparent_xpm[]={
 /* XPM */
 static const char* const newfolder_xpm[] = {
     "15 14 4 1",
-    " 	c None",
+    "	c None",
     ".	c #000000",
     "+	c #FFFF00",
     "@	c #FFFFFF",
@@ -540,7 +540,7 @@ class QRenameEdit : public QLineEdit
 
 public:
     QRenameEdit( QWidget *parent )
-        : QLineEdit( parent )
+	: QLineEdit( parent )
     {}
 
 protected:
@@ -604,18 +604,22 @@ private:
 };
 
 
-class QFileListView : public QListView
+class QFileDialog::QFileListView : public QListView
 {
-    friend class QFileDialog;
+    //    friend class QFileDialog;
 
     Q_OBJECT
 
-private:
+public:
     QFileListView( QWidget *parent, QFileDialog *d );
 
     void clear();
     void startRename( bool check = TRUE );
     void setSorting( int column, bool increasing = TRUE );
+
+    QRenameEdit *lined;
+    bool renaming;
+    QListViewItem *renameItem;
 
 private:
     void viewportMousePressEvent( QMouseEvent *e );
@@ -642,11 +646,8 @@ private slots:
     void contentsMoved( int, int );
 
 private:
-    QRenameEdit *lined;
     QFileDialog *filedialog;
-    bool renaming;
     QTimer* renameTimer;
-    QListViewItem *renameItem;
     QPoint pressPos, oldDragPos;
     bool mousePressed;
     int urls;
@@ -815,7 +816,7 @@ void QFDProgressDialog::setWriteLabel( const QString &s )
  *
  ************************************************************************/
 
-struct QFileDialogPrivate {
+struct QFileDialog::QFileDialogPrivate {
     ~QFileDialogPrivate();
 
     QStringList history;
@@ -958,7 +959,7 @@ struct QFileDialogPrivate {
 
 };
 
-QFileDialogPrivate::~QFileDialogPrivate()
+QFileDialog::QFileDialogPrivate::~QFileDialogPrivate()
 {
     delete modeButtons;
 }
@@ -1035,27 +1036,27 @@ void QFileListBox::keyPressEvent( QKeyEvent *e )
     QString keyPressed = ((QKeyEvent *)e)->text().lower();
     QChar keyChar = keyPressed[0];
     if ( keyChar.isLetterOrNumber() ) {
-        QListBoxItem * i = 0;
-        if ( currentItem() )
-        i = item( currentItem() );
-        else
-        i = firstItem();
-        if ( i->next() )
-        i = i->next();
-        else
-        i = firstItem();
-        while ( i != item( currentItem() ) ) {
-            QString it = text( index( i ) );
-            if ( it[0].lower() == keyChar ) {
-            clearSelection();
-            setCurrentItem( i );
-            } else {
-            if ( i->next() )
-            i = i->next();
-            else
-            i = firstItem();
-            }
-        }
+	QListBoxItem * i = 0;
+	if ( currentItem() )
+	i = item( currentItem() );
+	else
+	i = firstItem();
+	if ( i->next() )
+	i = i->next();
+	else
+	i = firstItem();
+	while ( i != item( currentItem() ) ) {
+	    QString it = text( index( i ) );
+	    if ( it[0].lower() == keyChar ) {
+	    clearSelection();
+	    setCurrentItem( i );
+	    } else {
+	    if ( i->next() )
+	    i = i->next();
+	    else
+	    i = firstItem();
+	    }
+	}
     }
     cancelRename();
     QListBox::keyPressEvent( e );
@@ -1084,9 +1085,9 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
 	wasSelected = item( i )->selected();
     QListBox::viewportMousePressEvent( e );
 
-    QFileDialogPrivate::MCItem *i1 = (QFileDialogPrivate::MCItem*)item( currentItem() );
+    QFileDialog::QFileDialogPrivate::MCItem *i1 = (QFileDialog::QFileDialogPrivate::MCItem*)item( currentItem() );
     if ( i1 )
-	mousePressed = !( (QFileDialogPrivate::File*)i1->i )->info.isDir();
+	mousePressed = !( (QFileDialog::QFileDialogPrivate::File*)i1->i )->info.isDir();
 
     if ( itemAt( e->pos() ) != item( i ) ) {
 	firstMousePressEvent = FALSE;
@@ -1215,7 +1216,7 @@ void QFileListBox::viewportDragLeaveEvent( QDragLeaveEvent * )
     setCurrentDropItem( QPoint( -1, -1 ) );
 //########
 //     if ( startDragDir != filedialog->d->url )
-// 	filedialog->setUrl( startDragUrl );
+//	filedialog->setUrl( startDragUrl );
 }
 
 void QFileListBox::viewportDropEvent( QDropEvent *e )
@@ -1372,10 +1373,10 @@ void QFileListBox::contentsMoved( int, int )
  *
  ************************************************************************/
 
-QFileListView::QFileListView( QWidget *parent, QFileDialog *dlg )
-    : QListView( parent ), filedialog( dlg ), renaming( FALSE ),
-      renameItem( 0 ), mousePressed( FALSE ),
-      firstMousePressEvent( TRUE )
+QFileDialog::QFileListView::QFileListView( QWidget *parent, QFileDialog *dlg )
+    : QListView( parent ), renaming( FALSE ), renameItem( 0 ),
+    filedialog( dlg ), mousePressed( FALSE ),
+    firstMousePressEvent( TRUE )
 {
     changeDirTimer = new QTimer( this );
     QVBox *box = new QVBox( viewport() );
@@ -1408,7 +1409,7 @@ QFileListView::QFileListView( QWidget *parent, QFileDialog *dlg )
     dragItem = 0;
 }
 
-void QFileListView::setSorting( int column, bool increasing )
+void QFileDialog::QFileListView::setSorting( int column, bool increasing )
 {
     if ( column == -1 ) {
 	QListView::setSorting( column, increasing );
@@ -1435,13 +1436,13 @@ void QFileListView::setSorting( int column, bool increasing )
     filedialog->resortDir();
 }
 
-void QFileListView::changeSortColumn2( int column )
+void QFileDialog::QFileListView::changeSortColumn2( int column )
 {
     int lcol = header()->mapToLogical( column );
     setSorting( lcol, sortcolumn == lcol ? !ascending : TRUE );
 }
 
-void QFileListView::keyPressEvent( QKeyEvent *e )
+void QFileDialog::QFileListView::keyPressEvent( QKeyEvent *e )
 {
     if ( ( e->key() == Key_Enter ||
 	   e->key() == Key_Return ) &&
@@ -1451,36 +1452,36 @@ void QFileListView::keyPressEvent( QKeyEvent *e )
     QString keyPressed = e->text().lower();
     QChar keyChar = keyPressed[0];
     if ( keyChar.isLetterOrNumber() ) {
-        QListViewItem * i = 0;
-        if ( currentItem() )
-        i = currentItem();
-        else
-        i = firstChild();
-        if ( i->nextSibling() )
-        i = i->nextSibling();
-        else
-        i = firstChild();
-        while ( i != currentItem() ) {
-            QString it = i->text(0);
-            if ( it[0].lower() == keyChar ) {
-            clearSelection();
-            ensureItemVisible( i );
-            setCurrentItem( i );
-            } else {
-            if ( i->nextSibling() )
-            i = i->nextSibling();
-            else
-            i = firstChild();
-            }
-        }
-        return;
+	QListViewItem * i = 0;
+	if ( currentItem() )
+	i = currentItem();
+	else
+	i = firstChild();
+	if ( i->nextSibling() )
+	i = i->nextSibling();
+	else
+	i = firstChild();
+	while ( i != currentItem() ) {
+	    QString it = i->text(0);
+	    if ( it[0].lower() == keyChar ) {
+	    clearSelection();
+	    ensureItemVisible( i );
+	    setCurrentItem( i );
+	    } else {
+	    if ( i->nextSibling() )
+	    i = i->nextSibling();
+	    else
+	    i = firstChild();
+	    }
+	}
+	return;
     }
 
     cancelRename();
     QListView::keyPressEvent( e );
 }
 
-void QFileListView::viewportMousePressEvent( QMouseEvent *e )
+void QFileDialog::QFileListView::viewportMousePressEvent( QMouseEvent *e )
 {
     pressPos = e->pos();
     mousePressed = FALSE;
@@ -1499,7 +1500,7 @@ void QFileListView::viewportMousePressEvent( QMouseEvent *e )
     QListViewItem *i = currentItem();
     QListView::viewportMousePressEvent( e );
 
-    QFileDialogPrivate::File *i1 = (QFileDialogPrivate::File*)currentItem();
+    QFileDialog::QFileDialogPrivate::File *i1 = (QFileDialog::QFileDialogPrivate::File*)currentItem();
     if ( i1 )
 	mousePressed = !i1->info.isDir();
 
@@ -1510,29 +1511,29 @@ void QFileListView::viewportMousePressEvent( QMouseEvent *e )
     }
 
     if ( !firstMousePressEvent && !didRename && i == currentItem() && currentItem() &&
- 	 filedialog->mode() != QFileDialog::ExistingFiles &&
+	 filedialog->mode() != QFileDialog::ExistingFiles &&
 	 QUrlInfo( filedialog->d->url, "." ).isWritable() && currentItem()->text( 0 ) != ".." ) {
- 	renameTimer->start( QApplication::doubleClickInterval(), TRUE );
- 	renameItem = currentItem();
+	renameTimer->start( QApplication::doubleClickInterval(), TRUE );
+	renameItem = currentItem();
     }
 
     firstMousePressEvent = FALSE;
 }
 
-void QFileListView::viewportMouseDoubleClickEvent( QMouseEvent *e )
+void QFileDialog::QFileListView::viewportMouseDoubleClickEvent( QMouseEvent *e )
 {
     renameTimer->stop();
     QListView::viewportMouseDoubleClickEvent( e );
 }
 
-void QFileListView::viewportMouseReleaseEvent( QMouseEvent *e )
+void QFileDialog::QFileListView::viewportMouseReleaseEvent( QMouseEvent *e )
 {
     QListView::viewportMouseReleaseEvent( e );
     mousePressed = FALSE;
     dragItem = 0;
 }
 
-void QFileListView::viewportMouseMoveEvent( QMouseEvent *e )
+void QFileDialog::QFileListView::viewportMouseMoveEvent( QMouseEvent *e )
 {
     renameTimer->stop();
     if ( !dragItem )
@@ -1558,7 +1559,7 @@ void QFileListView::viewportMouseMoveEvent( QMouseEvent *e )
 #endif
 }
 
-void QFileListView::dragObjDestroyed()
+void QFileDialog::QFileListView::dragObjDestroyed()
 {
 #ifndef QT_NO_DRAGANDDROP
     //######
@@ -1567,7 +1568,7 @@ void QFileListView::dragObjDestroyed()
 }
 
 #ifndef QT_NO_DRAGANDDROP
-void QFileListView::viewportDragEnterEvent( QDragEnterEvent *e )
+void QFileDialog::QFileListView::viewportDragEnterEvent( QDragEnterEvent *e )
 {
     startDragUrl = filedialog->d->url;
     startDragDir = filedialog->dirPath();
@@ -1593,7 +1594,7 @@ void QFileListView::viewportDragEnterEvent( QDragEnterEvent *e )
     oldDragPos = e->pos();
 }
 
-void QFileListView::viewportDragMoveEvent( QDragMoveEvent *e )
+void QFileDialog::QFileListView::viewportDragMoveEvent( QDragMoveEvent *e )
 {
     if ( acceptDrop( e->pos(), e->source() ) ) {
 	if ( oldDragPos != e->pos() )
@@ -1619,16 +1620,16 @@ void QFileListView::viewportDragMoveEvent( QDragMoveEvent *e )
     oldDragPos = e->pos();
 }
 
-void QFileListView::viewportDragLeaveEvent( QDragLeaveEvent * )
+void QFileDialog::QFileListView::viewportDragLeaveEvent( QDragLeaveEvent * )
 {
     changeDirTimer->stop();
     setCurrentDropItem( QPoint( -1, -1 ) );
 //########
 //     if ( startDragDir != filedialog->d->url )
-// 	filedialog->setUrl( startDragUrl );
+//	filedialog->setUrl( startDragUrl );
 }
 
-void QFileListView::viewportDropEvent( QDropEvent *e )
+void QFileDialog::QFileListView::viewportDropEvent( QDropEvent *e )
 {
     changeDirTimer->stop();
 
@@ -1655,7 +1656,7 @@ void QFileListView::viewportDropEvent( QDropEvent *e )
     currDropItem = 0;
 }
 
-bool QFileListView::acceptDrop( const QPoint &pnt, QWidget *source )
+bool QFileDialog::QFileListView::acceptDrop( const QPoint &pnt, QWidget *source )
 {
     QListViewItem *item = itemAt( pnt );
     if ( !item || item && !itemRect( item ).contains( pnt ) ) {
@@ -1671,7 +1672,7 @@ bool QFileListView::acceptDrop( const QPoint &pnt, QWidget *source )
     return FALSE;
 }
 
-void QFileListView::setCurrentDropItem( const QPoint &pnt )
+void QFileDialog::QFileListView::setCurrentDropItem( const QPoint &pnt )
 {
     changeDirTimer->stop();
 
@@ -1693,7 +1694,7 @@ void QFileListView::setCurrentDropItem( const QPoint &pnt )
 }
 #endif // QT_NO_DRAGANDDROP
 
-void QFileListView::changeDirDuringDrag()
+void QFileDialog::QFileListView::changeDirDuringDrag()
 {
 #ifndef QT_NO_DRAGANDDROP
     if ( !currDropItem )
@@ -1706,13 +1707,13 @@ void QFileListView::changeDirDuringDrag()
 }
 
 
-void QFileListView::doubleClickTimeout()
+void QFileDialog::QFileListView::doubleClickTimeout()
 {
     startRename();
     renameTimer->stop();
 }
 
-void QFileListView::startRename( bool check )
+void QFileDialog::QFileListView::startRename( bool check )
 {
     if ( check && ( !renameItem || renameItem != currentItem() ) )
 	return;
@@ -1739,13 +1740,13 @@ void QFileListView::startRename( bool check )
     renaming = TRUE;
 }
 
-void QFileListView::clear()
+void QFileDialog::QFileListView::clear()
 {
     cancelRename();
     QListView::clear();
 }
 
-void QFileListView::rename()
+void QFileDialog::QFileListView::rename()
 {
     if ( !lined->text().isEmpty() ) {
 	QString file = currentItem()->text( 0 );
@@ -1756,7 +1757,7 @@ void QFileListView::rename()
     cancelRename();
 }
 
-void QFileListView::cancelRename()
+void QFileDialog::QFileListView::cancelRename()
 {
     renameItem = 0;
     lined->parentWidget()->hide();
@@ -1768,7 +1769,7 @@ void QFileListView::cancelRename()
 	viewport()->setFocus();
 }
 
-void QFileListView::contentsMoved( int, int )
+void QFileDialog::QFileListView::contentsMoved( int, int )
 {
     changeDirTimer->stop();
 #ifndef QT_NO_DRAGANDDROP
@@ -1777,13 +1778,13 @@ void QFileListView::contentsMoved( int, int )
 }
 
 
-QFileDialogPrivate::File::~File()
+QFileDialog::QFileDialogPrivate::File::~File()
 {
     if ( d->pendingItems.findRef( this ) )
 	d->pendingItems.removeRef( this );
 }
 
-QString QFileDialogPrivate::File::text( int column ) const
+QString QFileDialog::QFileDialogPrivate::File::text( int column ) const
 {
     makeVariables();
 
@@ -1835,7 +1836,7 @@ QString QFileDialogPrivate::File::text( int column ) const
     return QString::fromLatin1("<--->");
 }
 
-const QPixmap * QFileDialogPrivate::File::pixmap( int column ) const
+const QPixmap * QFileDialog::QFileDialogPrivate::File::pixmap( int column ) const
 {
     if ( column ) {
 	return 0;
@@ -1855,7 +1856,7 @@ const QPixmap * QFileDialogPrivate::File::pixmap( int column ) const
     }
 }
 
-QFileDialogPrivate::MCItem::MCItem( QListBox * lb, QListViewItem * item )
+QFileDialog::QFileDialogPrivate::MCItem::MCItem( QListBox * lb, QListViewItem * item )
     : QListBoxItem()
 {
     i = item;
@@ -1863,7 +1864,7 @@ QFileDialogPrivate::MCItem::MCItem( QListBox * lb, QListViewItem * item )
 	lb->insertItem( this );
 }
 
-QFileDialogPrivate::MCItem::MCItem( QListBox * lb, QListViewItem * item, QListBoxItem *after )
+QFileDialog::QFileDialogPrivate::MCItem::MCItem( QListBox * lb, QListViewItem * item, QListBoxItem *after )
     : QListBoxItem()
 {
     i = item;
@@ -1871,19 +1872,19 @@ QFileDialogPrivate::MCItem::MCItem( QListBox * lb, QListViewItem * item, QListBo
 	lb->insertItem( this, after );
 }
 
-QString QFileDialogPrivate::MCItem::text() const
+QString QFileDialog::QFileDialogPrivate::MCItem::text() const
 {
     return i->text( 0 );
 }
 
 
-const QPixmap *QFileDialogPrivate::MCItem::pixmap() const
+const QPixmap *QFileDialog::QFileDialogPrivate::MCItem::pixmap() const
 {
     return i->pixmap( 0 );
 }
 
 
-int QFileDialogPrivate::MCItem::height( const QListBox * lb ) const
+int QFileDialog::QFileDialogPrivate::MCItem::height( const QListBox * lb ) const
 {
     if ( pixmap() )
 	return QMAX( lb->fontMetrics().height(), pixmap()->height()) + 2;
@@ -1892,7 +1893,7 @@ int QFileDialogPrivate::MCItem::height( const QListBox * lb ) const
 }
 
 
-int QFileDialogPrivate::MCItem::width( const QListBox * lb ) const
+int QFileDialog::QFileDialogPrivate::MCItem::width( const QListBox * lb ) const
 {
     QFontMetrics fm = lb->fontMetrics();
     int w = 2;
@@ -1908,7 +1909,7 @@ int QFileDialogPrivate::MCItem::width( const QListBox * lb ) const
 }
 
 
-void QFileDialogPrivate::MCItem::paint( QPainter * ptr )
+void QFileDialog::QFileDialogPrivate::MCItem::paint( QPainter * ptr )
 {
     QFontMetrics fm = ptr->fontMetrics();
 
@@ -2084,20 +2085,20 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
 
     if ( !filter.isEmpty() ) {
 	setFilters( filter );
-        if ( !dirName.isEmpty() ) {
-            int dotpos = dirName.find( QChar('.'), 0, FALSE );
-            if ( dotpos != -1 ) {
-                for ( int b=0 ; b<d->types->count() ; b++ ) {
-                    if ( d->types->text(b).contains( dirName.right( dirName.length() - dotpos ) ) ) {
-                        d->types->setCurrentItem( b );
-                        setFilter( d->types->text( b ) );
-                        return;
-                    }
-                }
-            }
-        }
+	if ( !dirName.isEmpty() ) {
+	    int dotpos = dirName.find( QChar('.'), 0, FALSE );
+	    if ( dotpos != -1 ) {
+		for ( int b=0 ; b<d->types->count() ; b++ ) {
+		    if ( d->types->text(b).contains( dirName.right( dirName.length() - dotpos ) ) ) {
+			d->types->setCurrentItem( b );
+			setFilter( d->types->text( b ) );
+			return;
+		    }
+		}
+	    }
+	}
     } else {
-        d->types->insertItem( QFileDialog::tr( "All files (*)" ) );
+	d->types->insertItem( QFileDialog::tr( "All files (*)" ) );
     }
 }
 
@@ -2132,19 +2133,19 @@ void QFileDialog::init()
     d->currListChildren = 0;
 
     connect( &d->url, SIGNAL( start( QNetworkOperation * ) ),
-             this, SLOT( urlStart( QNetworkOperation * ) ) );
+	     this, SLOT( urlStart( QNetworkOperation * ) ) );
     connect( &d->url, SIGNAL( finished( QNetworkOperation * ) ),
-             this, SLOT( urlFinished( QNetworkOperation * ) ) );
+	     this, SLOT( urlFinished( QNetworkOperation * ) ) );
     connect( &d->url, SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ),
-             this, SLOT( insertEntry( const QValueList<QUrlInfo> &, QNetworkOperation * ) ) );
+	     this, SLOT( insertEntry( const QValueList<QUrlInfo> &, QNetworkOperation * ) ) );
     connect( &d->url, SIGNAL( removed( QNetworkOperation * ) ),
-             this, SLOT( removeEntry( QNetworkOperation * ) ) );
+	     this, SLOT( removeEntry( QNetworkOperation * ) ) );
     connect( &d->url, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
-             this, SLOT( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
+	     this, SLOT( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
     connect( &d->url, SIGNAL( itemChanged( QNetworkOperation * ) ),
-             this, SLOT( itemChanged( QNetworkOperation * ) ) );
+	     this, SLOT( itemChanged( QNetworkOperation * ) ) );
     connect( &d->url, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
-             this, SLOT( dataTransferProgress( int, int, QNetworkOperation * ) ) );
+	     this, SLOT( dataTransferProgress( int, int, QNetworkOperation * ) ) );
 
     nameEdit = new QLineEdit( this, "name/filter editor" );
     nameEdit->setMaxLength( 255 ); //_POSIX_MAX_PATH
@@ -3135,11 +3136,11 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 void QFileDialog::okClicked()
 {
     QString fn( nameEdit->text() );
-    
+
 #if defined(Q_WS_WIN)
     QFileInfo fi( d->url.path() + fn );
     if ( fi.isSymLink() ) {
-        nameEdit->setText( fi.readLink() );
+	nameEdit->setText( fi.readLink() );
     }
 #endif
 
@@ -3160,12 +3161,12 @@ void QFileDialog::okClicked()
 	    d->ignoreReturn = FALSE;
 	    return;
 	}
-        QUrlInfo f( d->url, nameEdit->text() );
-        if ( f.isDir() ) {
-            d->currentFileName = d->url + f.name();
+	QUrlInfo f( d->url, nameEdit->text() );
+	if ( f.isDir() ) {
+	    d->currentFileName = d->url + f.name();
 	    accept();
 	    return;
-        }
+	}
     }
 
     // if we're in multi-selection mode and something is selected,
@@ -3190,7 +3191,7 @@ void QFileDialog::okClicked()
 
     if ( mode() == AnyFile ) {
 	QUrlInfo f( d->url, nameEdit->text() );
-        if ( !f.isDir() ) {
+	if ( !f.isDir() ) {
 	    d->currentFileName = d->url + nameEdit->text();
 	    emit fileSelected( selectedFile() );
 	    accept();
@@ -3298,12 +3299,12 @@ bool QFileDialog::trySetSelection( bool isDir, const QUrlOperator &u, bool updat
     }
 
     if ( isDir ) {
-        if ( d->preview && d->preview->isVisible() ) {
-            if ( d->infoPreviewer )
-                d->infoPreviewer->previewUrl( u );
-            if ( d->contentsPreviewer )
-                d->contentsPreviewer->previewUrl( u );
-        }
+	if ( d->preview && d->preview->isVisible() ) {
+	    if ( d->infoPreviewer )
+		d->infoPreviewer->previewUrl( u );
+	    if ( d->contentsPreviewer )
+		d->contentsPreviewer->previewUrl( u );
+	}
     }
 
     QString old = d->currentFileName;
@@ -3505,10 +3506,10 @@ void QFileDialog::listBoxSelectionChanged()
 		files->setSelected( ( (QFileDialogPrivate::MCItem *)i )->i, i->selected() );
 	}
 	if ( d->moreFiles->isSelected( i )
-        && !( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem *)i )->i )->info.isDir() ) {
+	&& !( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem *)i )->i )->info.isDir() ) {
 	    str += QString( "\"%1\" " ).arg( i->text() );
-        if ( j == 0 )
-            j = i;
+	if ( j == 0 )
+	    j = i;
     }
 	i = d->moreFiles->item( ++index );
     }
@@ -3546,14 +3547,14 @@ void QFileDialog::fileNameEditDone()
 {
     QUrlInfo f( d->url, nameEdit->text() );
     if ( mode() != ExistingFiles ) {
-        QUrlOperator u( d->url, nameEdit->text() );
-        trySetSelection( f.isDir(), u, FALSE );
-        if ( d->preview && d->preview->isVisible() ) {
-            if ( d->infoPreviewer )
-                d->infoPreviewer->previewUrl( u );
-            if ( d->contentsPreviewer )
-                d->contentsPreviewer->previewUrl( u );
-        }
+	QUrlOperator u( d->url, nameEdit->text() );
+	trySetSelection( f.isDir(), u, FALSE );
+	if ( d->preview && d->preview->isVisible() ) {
+	    if ( d->infoPreviewer )
+		d->infoPreviewer->previewUrl( u );
+	    if ( d->contentsPreviewer )
+		d->contentsPreviewer->previewUrl( u );
+	}
     }
 }
 
@@ -3574,9 +3575,9 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 #if defined(Q_WS_WIN)
     QFileInfo fi( d->url.path() + newItem->text(0) );
     if ( fi.isSymLink() ) {
-        nameEdit->setText( fi.readLink() ); 
-        okClicked();
-        return;
+	nameEdit->setText( fi.readLink() );
+	okClicked();
+	return;
     }
 #endif
 
@@ -3608,7 +3609,7 @@ void QFileDialog::selectDirectoryOrFile( QListBoxItem * newItem )
 {
     if ( !newItem )
 	return;
-    
+
     QFileDialogPrivate::MCItem * i = (QFileDialogPrivate::MCItem *)newItem;
     i->i->listView()->setSelected( i->i, i->selected() );
     selectDirectoryOrFile( i->i );
@@ -3759,8 +3760,8 @@ void QFileDialog::popupContextMenu( const QString &filename, bool,
 	    m2.setItemChecked( sname, TRUE );
 	else if ( sortFilesBy == (int)QDir::Size )
 	    m2.setItemChecked( ssize, TRUE );
-// 	else if ( sortFilesBy == 0x16 )
-// 	    m2.setItemChecked( stype, TRUE );
+//	else if ( sortFilesBy == 0x16 )
+//	    m2.setItemChecked( stype, TRUE );
 	else if ( sortFilesBy == (int)QDir::Time )
 	    m2.setItemChecked( sdate, TRUE );
 	else if ( sortFilesBy == (int)QDir::Unsorted )
@@ -3782,8 +3783,8 @@ void QFileDialog::popupContextMenu( const QString &filename, bool,
 	    action = PA_Hidden;
 	else if ( res == sname )
 	    action = PA_SortName;
-// 	else if ( res == stype )
-// 	    action = PA_SortType;
+//	else if ( res == stype )
+//	    action = PA_SortType;
 	else if ( res == sdate )
 	    action = PA_SortDate;
 	else if ( res == ssize )
@@ -3932,8 +3933,8 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     if ( u.isLocalFile() ) {
 	if ( !dir_.isEmpty() ) {
 	    QFileInfo f( u.path() );
-        if ( f.exists() )
-        if ( f.isDir() ) {
+	if ( f.exists() )
+	if ( f.isDir() ) {
 		dialog->setDir( dir_ );
 		wd = dir_;
 	    }
@@ -4006,15 +4007,15 @@ void QFileDialog::setMode( Mode newMode )
 	QUrlInfo f( d->url, "." );
 	trySetSelection( f.isDir(), d->url, TRUE );
     }
-    
+
     QString okt;
     if ( mode() == AnyFile )
-        okt = tr("Save");
+	okt = tr("Save");
     else if ( mode() == Directory || mode() == DirectoryOnly )
-        okt = tr("OK");
+	okt = tr("OK");
     else
-        okt = tr("Open");
-    
+	okt = tr("Open");
+
     okB->setText( okt );
 }
 
@@ -4921,7 +4922,7 @@ static bool isRoot( const QUrl &u )
 #if defined(Q_OS_MAC9)
      QString p = QDir::convertSeparators(u.path());
      if(p.contains(':') == 1)
-        return TRUE;
+	return TRUE;
 #elif defined(Q_OS_UNIX)
     if ( u.path() == "/" )
 	return TRUE;
@@ -5041,7 +5042,7 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	resortDir();
     } else if ( op->operation() == QNetworkProtocol::OpGet ) {
     } else if ( op->operation() == QNetworkProtocol::OpPut ) {
- 	rereadDir();
+	rereadDir();
 	if ( d->progressDia ) {
 	    d->ignoreStop = TRUE;
 	    d->progressDia->close();
@@ -5128,7 +5129,7 @@ void QFileDialog::insertEntry( const QValueList<QUrlInfo> &lst, QNetworkOperatio
 	    i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
 
 	    if ( d->mode == ExistingFiles && inf.isDir() ||
-                ( isDirectoryMode( d->mode ) && inf.isFile() ) ) {
+		( isDirectoryMode( d->mode ) && inf.isFile() ) ) {
 		i->setSelectable( FALSE );
 		i2->setSelectable( FALSE );
 	    }
@@ -5282,9 +5283,9 @@ void QFileDialog::setContentsPreviewEnabled( bool contents )
       MyPreview() : QWidget(), QFilePreview() {}
       // reimplementation from QFilePreview
       void previewUrl( const QUrl &url ) {
-          QPainter p( this );
-          p.drawThePreviewOfUrl();
-          p.end();
+	  QPainter p( this );
+	  p.drawThePreviewOfUrl();
+	  p.end();
       }
   }
   \endcode
@@ -5331,9 +5332,9 @@ void QFileDialog::setInfoPreview( QWidget *w, QFilePreview *preview )
       MyPreview() : QWidget(), QFilePreview() {}
       // reimplementation from QFilePreview
       void previewUrl( const QUrl &url ) {
-          QPainter p( this );
-          p.drawThePreviewOfUrl();
-          p.end();
+	  QPainter p( this );
+	  p.drawThePreviewOfUrl();
+	  p.end();
       }
   }
   \endcode
@@ -5390,8 +5391,8 @@ void QFileDialog::resortDir()
 	item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item, item2 );
 	item->i = item2;
 	d->pendingItems.append( item );
-	if ( d->mode == ExistingFiles && item->info.isDir() || 
-            ( isDirectoryMode( d->mode ) && item->info.isFile() ) ) {
+	if ( d->mode == ExistingFiles && item->info.isDir() ||
+	    ( isDirectoryMode( d->mode ) && item->info.isFile() ) ) {
 	    item->setSelectable( FALSE );
 	    item2->setSelectable( FALSE );
 	}

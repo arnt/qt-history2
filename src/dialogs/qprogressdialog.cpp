@@ -61,7 +61,7 @@ static const int margin_tb   = 10;
 static const int spacing     = 4;
 
 
-struct QProgressData
+struct QProgressDialog::QProgressData
 {
     QProgressData( QProgressDialog* that, QWidget* parent,
 		   const QString& labelText,
@@ -612,13 +612,13 @@ void QProgressDialog::center()
 //     QPoint p(0,0);
 //     QWidget* w;
 //     if (d->creator) {
-// 	p = d->creator->mapToGlobal( p );
-// 	w = d->creator;
+//	p = d->creator->mapToGlobal( p );
+//	w = d->creator;
 //     } else {
-// 	w = QApplication::desktop();
+//	w = QApplication::desktop();
 //     }
 //     setGeometry( p.x() + w->width()/2  - width()/2,
-// 	  p.y() + w->height()/2 - height()/2, width(), height() );
+//	  p.y() + w->height()/2 - height()/2, width(), height() );
 }
 
 
@@ -739,7 +739,7 @@ void QProgressDialog::closeEvent( QCloseEvent *e )
 /*!  If you set \a b to TRUE, the progress dialog calls reset() if
   progress() equals totalSteps(). This does not happen if you set it
   to FALSE.
-  
+
   The default is TRUE.
 
   \sa autoReset(), setAutoClose()
@@ -767,7 +767,7 @@ bool QProgressDialog::autoReset() const
   reset() is called; this does not happen otherwise.
 
   The default is TRUE.
-  
+
   \sa autoClose(), setAutoReset()
 */
 

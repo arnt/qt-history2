@@ -193,7 +193,7 @@
 
 // add comments about delete, ok and apply
 
-struct QTabPrivate
+struct QTabDialog::QTabPrivate
 {
     QTabPrivate();
 
@@ -208,7 +208,7 @@ struct QTabPrivate
     QBoxLayout * tll;
 };
 
-QTabPrivate::QTabPrivate()
+QTabDialog::QTabPrivate::QTabPrivate()
 	: tw(0),
 	  ok(0), cb(0), db(0), hb(0), ab(0),
 	  tll(0)
@@ -695,19 +695,19 @@ void QTabDialog::setTabEnabled( QWidget* w, bool enable)
 void QTabDialog::setApplyButton( const QString &text )
 {
     if ( !text && d->ab ) {
-        delete d->ab;
-        d->ab = 0;
-        setSizes();
+	delete d->ab;
+	d->ab = 0;
+	setSizes();
     } else {
-        if ( !d->ab ) {
-            d->ab = new QPushButton( this, "apply settings" );
-            connect( d->ab, SIGNAL(clicked()),
-                     this, SIGNAL(applyButtonPressed()) );
-            setUpLayout();
-        }
-        d->ab->setText( text );
-        setSizes();
-        //d->ab->show();
+	if ( !d->ab ) {
+	    d->ab = new QPushButton( this, "apply settings" );
+	    connect( d->ab, SIGNAL(clicked()),
+		     this, SIGNAL(applyButtonPressed()) );
+	    setUpLayout();
+	}
+	d->ab->setText( text );
+	setSizes();
+	//d->ab->show();
     }
 }
 
@@ -737,19 +737,19 @@ void QTabDialog::setApplyButton()
 void QTabDialog::setHelpButton( const QString &text )
 {
     if ( !text ) {
-        delete d->hb;
-        d->hb = 0;
-        setSizes();
+	delete d->hb;
+	d->hb = 0;
+	setSizes();
     } else {
-        if ( !d->hb ) {
-            d->hb = new QPushButton( this, "give help" );
-            connect( d->hb, SIGNAL(clicked()),
-                     this, SIGNAL(helpButtonPressed()) );
-            setUpLayout();
-        }
-        d->hb->setText( text );
-        setSizes();
-        //d->hb->show();
+	if ( !d->hb ) {
+	    d->hb = new QPushButton( this, "give help" );
+	    connect( d->hb, SIGNAL(clicked()),
+		     this, SIGNAL(helpButtonPressed()) );
+	    setUpLayout();
+	}
+	d->hb->setText( text );
+	setSizes();
+	//d->hb->show();
     }
 }
 
@@ -782,19 +782,19 @@ void QTabDialog::setHelpButton()
 void QTabDialog::setDefaultButton( const QString &text )
 {
     if ( !text ) {
-        delete d->db;
-        d->db = 0;
-        setSizes();
+	delete d->db;
+	d->db = 0;
+	setSizes();
     } else {
-        if ( !d->db ) {
-            d->db = new QPushButton( this, "back to default" );
-            connect( d->db, SIGNAL(clicked()),
-                     this, SIGNAL(defaultButtonPressed()) );
-            setUpLayout();
-        }
-        d->db->setText( text );
-        setSizes();
-        //d->db->show();
+	if ( !d->db ) {
+	    d->db = new QPushButton( this, "back to default" );
+	    connect( d->db, SIGNAL(clicked()),
+		     this, SIGNAL(defaultButtonPressed()) );
+	    setUpLayout();
+	}
+	d->db->setText( text );
+	setSizes();
+	//d->db->show();
     }
 }
 
@@ -829,21 +829,21 @@ void QTabDialog::setDefaultButton()
 void QTabDialog::setCancelButton( const QString &text )
 {
     if ( !text ) {
-        delete d->cb;
-        d->cb = 0;
-        setSizes();
+	delete d->cb;
+	d->cb = 0;
+	setSizes();
     } else {
-        if ( !d->cb ) {
-            d->cb = new QPushButton( this, "cancel dialog" );
-            connect( d->cb, SIGNAL(clicked()),
-                     this, SIGNAL(cancelButtonPressed()) );
-            connect( d->cb, SIGNAL(clicked()),
-                     this, SLOT(reject()) );
-            setUpLayout();
-        }
-        d->cb->setText( text );
-        setSizes();
-        //d->cb->show();
+	if ( !d->cb ) {
+	    d->cb = new QPushButton( this, "cancel dialog" );
+	    connect( d->cb, SIGNAL(clicked()),
+		     this, SIGNAL(cancelButtonPressed()) );
+	    connect( d->cb, SIGNAL(clicked()),
+		     this, SLOT(reject()) );
+	    setUpLayout();
+	}
+	d->cb->setText( text );
+	setSizes();
+	//d->cb->show();
     }
 }
 
@@ -1050,19 +1050,19 @@ void QTabDialog::paintEvent( QPaintEvent * )
 void QTabDialog::setOkButton( const QString &text )
 {
     if ( !text ) {
-        delete d->ok;
-        d->ok = 0;
-        setSizes();
+	delete d->ok;
+	d->ok = 0;
+	setSizes();
     } else {
-        if ( !d->ok ) {
-            d->ok = new QPushButton( this, "ok" );
-            connect( d->ok, SIGNAL(clicked()),
-                     this, SIGNAL(applyButtonPressed()) );
-            setUpLayout();
-        }
-        d->ok->setText( text );
-        setSizes();
-        //d->ok->show();
+	if ( !d->ok ) {
+	    d->ok = new QPushButton( this, "ok" );
+	    connect( d->ok, SIGNAL(clicked()),
+		     this, SIGNAL(applyButtonPressed()) );
+	    setUpLayout();
+	}
+	d->ok->setText( text );
+	setSizes();
+	//d->ok->show();
     }
 }
 /*!

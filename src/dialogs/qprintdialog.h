@@ -47,9 +47,6 @@
 class QGroupBox;
 
 
-struct QPrintDialogPrivate;
-
-
 class Q_EXPORT QPrintDialog : public QDialog
 {
     Q_OBJECT
@@ -80,8 +77,9 @@ private slots:
     void setLastPage( int );
 
     void fileNameEditChanged( const QString &text );
-    
+
 private:
+    struct QPrintDialogPrivate;
     QPrintDialogPrivate *d;
 
     QGroupBox * setupDestination();

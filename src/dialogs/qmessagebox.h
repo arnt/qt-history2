@@ -46,7 +46,6 @@
 
 class  QLabel;
 class  QPushButton;
-struct QMBData;
 
 class Q_EXPORT QMessageBox : public QDialog
 {
@@ -112,21 +111,21 @@ public:
 
 /* OBSOLETE */
     static int message( const QString &caption,
-			const QString& text, 
+			const QString& text,
 			const QString& buttonText=QString::null,
 			QWidget *parent=0, const char * =0 ) {
 	return QMessageBox::information( parent, caption, text,
 				     buttonText.isEmpty()
-				     ? tr("OK") : buttonText ) == 0;    
+				     ? tr("OK") : buttonText ) == 0;
     }
 
 /* OBSOLETE */
     static bool query( const QString &caption,
-		       const QString& text, 
+		       const QString& text,
 		       const QString& yesButtonText=QString::null,
 		       const QString& noButtonText=QString::null,
 		       QWidget *parent=0, const char * = 0 ) {
-        return QMessageBox::information( parent, caption, text,
+	return QMessageBox::information( parent, caption, text,
 				     yesButtonText.isEmpty()
 				     ? tr("OK") : yesButtonText,
 				     noButtonText ) == 0;
@@ -152,7 +151,7 @@ public:
     static QPixmap standardIcon( Icon icon, GUIStyle style );
 
     TextFormat textFormat() const;
-    void 	 setTextFormat( TextFormat );
+    void	 setTextFormat( TextFormat );
 
 protected:
     void	resizeEvent( QResizeEvent * );
@@ -167,6 +166,7 @@ private:
     int		indexOf( int ) const;
     void	resizeButtons();
     QLabel     *label;
+    struct      QMBData;
     QMBData    *mbd;
     void       *reserved1;
     void       *reserved2;

@@ -59,7 +59,6 @@
 
 class  QListBox;
 class  QComboBox;
-class QFontDialogPrivate;
 
 
 class Q_EXPORT QFontDialog: public QDialog
@@ -68,7 +67,7 @@ class Q_EXPORT QFontDialog: public QDialog
 
 public:
     static QFont getFont( bool *ok, const QFont &def,
-    			  QWidget *parent = 0, const char* name = 0);
+			  QWidget *parent = 0, const char* name = 0);
 
     static QFont getFont( bool *ok, QWidget *parent = 0, const char* name = 0);
 
@@ -123,6 +122,7 @@ private:
     static QFont getFont( bool *ok, const QFont *def,
 			  QWidget *parent = 0, const char* name = 0);
 
+    class QFontDialogPrivate;
     QFontDialogPrivate * d;
     friend class QFontDialogPrivate;
 

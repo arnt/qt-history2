@@ -45,8 +45,6 @@
 
 #ifndef QT_NO_WIZARD
 
-class QWizardPrivate;
-class QWizardPagePrivate;
 class QWizard;
 class QHBoxLayout;
 
@@ -54,7 +52,7 @@ class Q_EXPORT QWizard : public QDialog
 {
     Q_OBJECT
     Q_PROPERTY( QFont titleFont READ titleFont WRITE setTitleFont )
-    
+
 public:
     QWizard( QWidget *parent=0, const char *name=0, bool modal=FALSE,
 	     WFlags f=0 );
@@ -124,6 +122,8 @@ private:
     void updateButtons();
 
     void layOut();
+
+    class QWizardPrivate;
     QWizardPrivate *d;
 
 private:	// Disabled copy constructor and operator=

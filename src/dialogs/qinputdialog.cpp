@@ -49,7 +49,7 @@
 #include <qvalidator.h>
 #include <qapplication.h>
 
-class QInputDialogPrivate
+class QInputDialog::QInputDialogPrivate
 {
 public:
     friend class QInputDialog;
