@@ -1586,11 +1586,6 @@ void QWidget::hideWindow()
     qt_event_cleanup_for_widget(this);
 }
 
-void QWidget::macSetActive()
-{
-    setActiveWindow();
-}
-
 void QWidget::setWindowState(uint newstate)
 {
     uint oldstate = windowState();
