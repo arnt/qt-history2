@@ -30,8 +30,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>369</width>
-            <height>367</height>
+            <width>339</width>
+            <height>347</height>
         </rect>
     </property>
     <property name="caption">
@@ -265,7 +265,7 @@
                                 <string>Choose &amp;Pixmap:</string>
                             </property>
                             <property name="buddy" stdset="0">
-                                <cstring>buttonInactivePixmap</cstring>
+                                <cstring>buttonPixmap</cstring>
                             </property>
                         </widget>
                         <widget class="StyledButton">
@@ -274,7 +274,7 @@
                             </property>
                             <property name="sizePolicy">
                                 <sizepolicy>
-                                    <hsizetype>1</hsizetype>
+                                    <hsizetype>0</hsizetype>
                                     <vsizetype>0</vsizetype>
                                 </sizepolicy>
                             </property>
@@ -311,7 +311,7 @@
                                 <string>&amp;Select Color:</string>
                             </property>
                             <property name="buddy" stdset="0">
-                                <cstring>buttonInactiveCentral</cstring>
+                                <cstring>buttonCentral</cstring>
                             </property>
                         </widget>
                         <widget class="StyledButton">
@@ -320,7 +320,7 @@
                             </property>
                             <property name="sizePolicy">
                                 <sizepolicy>
-                                    <hsizetype>1</hsizetype>
+                                    <hsizetype>0</hsizetype>
                                     <vsizetype>0</vsizetype>
                                 </sizepolicy>
                             </property>
@@ -475,7 +475,7 @@
                                 <string>Select Co&amp;lor:</string>
                             </property>
                             <property name="buddy" stdset="0">
-                                <cstring>buttonInactiveEffect</cstring>
+                                <cstring>buttonEffect</cstring>
                             </property>
                         </widget>
                         <widget class="StyledButton">
@@ -484,7 +484,7 @@
                             </property>
                             <property name="sizePolicy">
                                 <sizepolicy>
-                                    <hsizetype>1</hsizetype>
+                                    <hsizetype>0</hsizetype>
                                     <vsizetype>0</vsizetype>
                                 </sizepolicy>
                             </property>

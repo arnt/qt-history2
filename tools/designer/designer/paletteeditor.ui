@@ -27,8 +27,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>469</width>
-            <height>492</height>
+            <width>465</width>
+            <height>490</height>
         </rect>
     </property>
     <property name="sizePolicy">
@@ -93,8 +93,8 @@
                             </property>
                             <property name="sizePolicy">
                                 <sizepolicy>
-                                    <hsizetype>1</hsizetype>
-                                    <vsizetype>0</vsizetype>
+                                    <hsizetype>7</hsizetype>
+                                    <vsizetype>1</vsizetype>
                                 </sizepolicy>
                             </property>
                             <property name="focusPolicy">
@@ -154,7 +154,7 @@
                             </property>
                             <property name="sizePolicy">
                                 <sizepolicy>
-                                    <hsizetype>1</hsizetype>
+                                    <hsizetype>0</hsizetype>
                                     <vsizetype>0</vsizetype>
                                 </sizepolicy>
                             </property>
@@ -212,7 +212,7 @@
                             </property>
                             <property name="sizePolicy">
                                 <sizepolicy>
-                                    <hsizetype>1</hsizetype>
+                                    <hsizetype>0</hsizetype>
                                     <vsizetype>0</vsizetype>
                                 </sizepolicy>
                             </property>
