@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#17 $
 **
 ** Implementation of font database class.
 **
@@ -102,10 +102,12 @@ static void populate_database(const QString& fam);
 #endif
 
 static QFont::CharSet getCharSet( const QString &name );
-static void newWinFont( void * p );
 class QtFontCharSet;
+#ifdef _WS_WIN_
+static void newWinFont( void * p );
 static void add_style( QtFontCharSet *charSet, const QString& styleName,
 		bool italic, bool lesserItalic, int weight );
+#endif
 
 class QtFontCharSet;
 class QtFontFamily;
@@ -169,9 +171,11 @@ private:
     QValueList<int> sizeList;
 
     friend void QFontDatabase::createDatabase();
+#ifdef _WS_WIN_
     friend void newWinFont( void * p );
     friend void add_style( QtFontCharSet *charSet, const QString& styleName,
 		bool italic, bool lesserItalic, int weight );
+#endif
 };
 
 class QtFontCharSet {
@@ -234,9 +238,11 @@ private:
     QStringList styleNames;
 
     friend void QFontDatabase::createDatabase();
+#ifdef _WS_WIN_
     friend void newWinFont( void * p );
     friend void add_style( QtFontCharSet *charSet, const QString& styleName,
 		bool italic, bool lesserItalic, int weight );
+#endif
 };
 
 class QtFontFamily
@@ -287,9 +293,11 @@ private:
     bool supportsLocale;
 
     friend void QFontDatabase::createDatabase();
+#ifdef _WS_WIN_
     friend void newWinFont( void * p );
     friend void add_style( QtFontCharSet *charSet, const QString& styleName,
 		bool italic, bool lesserItalic, int weight );
+#endif
 };
 
 class QtFontFoundry
@@ -314,7 +322,9 @@ private:
 	{ familyDict.insert( f->name(), f ); }
 
     friend void QFontDatabase::createDatabase();
+#ifdef _WS_WIN_
     friend void newWinFont( void * p );
+#endif
 };
 
 class QFontDatabasePrivate {
@@ -345,7 +355,9 @@ private:
 	{ foundryDict.insert( f->name(), f ); }
 
     friend void QFontDatabase::createDatabase();
+#ifdef _WS_WIN_
     friend void newWinFont( void * p );
+#endif
 };
 
 QFont QtFontStyle::font( const QString & family, int pointSize ) const
@@ -968,14 +980,6 @@ void QFontDatabase::createDatabase()
     }
 }
 
-static
-void newWinFont( void * )
-{
-}
-static
-void add_style( QtFontCharSet *, const QString&, bool, bool, int )
-{
-}
 #endif
 
 
