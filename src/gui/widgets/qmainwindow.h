@@ -34,6 +34,8 @@ template<class T> class QList;
 class Q_GUI_EXPORT QMainWindow: public QWidget
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QMainWindow);
+
     Q_PROPERTY(bool rightJustification READ rightJustification WRITE setRightJustification DESIGNABLE false)
     Q_PROPERTY(bool usesBigPixmaps READ usesBigPixmaps WRITE setUsesBigPixmaps)
     Q_PROPERTY(bool usesTextLabel READ usesTextLabel WRITE setUsesTextLabel)
@@ -116,7 +118,7 @@ public:
     bool appropriate(QDockWindow *dw) const;
 
     enum DockWindows { OnlyToolBars, NoToolBars, AllDockWindows };
-    QPopupMenu *createDockWindowMenu(DockWindows dockWindows = AllDockWindows) const;
+    virtual QPopupMenu *createDockWindowMenu(DockWindows dockWindows = AllDockWindows) const;
 
 public slots:
     virtual void setRightJustification(bool);
@@ -145,7 +147,6 @@ signals:
 protected slots:
     virtual void setUpLayout();
     virtual bool showDockMenu(const QPoint &globalPos);
-    void menuAboutToShow();
 
 protected:
     void paintEvent(QPaintEvent *);
@@ -157,9 +158,8 @@ private slots:
     void doLineUp() { lineUpDockWindows(true); }
 
 private:
-    QMainWindowPrivate * d;
     void triggerLayout(bool deleteLayout = true);
-    bool dockMainWindow(QObject *dock);
+    bool dockMainWindow(QObject *dock) const;
 
 #ifndef QT_NO_MENUBAR
     virtual void setMenuBar(QMenuBar *);

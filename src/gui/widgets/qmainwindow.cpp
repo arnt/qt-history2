@@ -39,100 +39,10 @@
 #endif
 
 class QHideDock;
-class QMainWindowLayout;
 
-class QMainWindowPrivate
-{
-public:
-    QMainWindowPrivate()
-        :  mb(0), sb(0), ttg(0), mc(0), tll(0), mwl(0), ubp(false), utl(false),
-           justify(false), movable(true), opaque(false), dockMenu(true)
-    {
-        docks.insert(Qt::DockTop, true);
-        docks.insert(Qt::DockBottom, true);
-        docks.insert(Qt::DockLeft, true);
-        docks.insert(Qt::DockRight, true);
-        docks.insert(Qt::DockMinimized, false);
-        docks.insert(Qt::DockTornOff, true);
-    }
-
-    ~QMainWindowPrivate()
-    {
-    }
-
-#ifndef QT_NO_MENUBAR
-    QMenuBar * mb;
-#else
-    QWidget * mb;
-#endif
-    QStatusBar * sb;
-    QToolTipGroup * ttg;
-
-    QWidget * mc;
-
-    QBoxLayout * tll;
-    QMainWindowLayout * mwl;
-
-    uint ubp :1;
-    uint utl :1;
-    uint justify :1;
-    uint movable :1;
-    uint opaque :1;
-    uint dockMenu :1;
-
-    QDockArea *topDock, *bottomDock, *leftDock, *rightDock;
-
-    QList<QDockWindow *> dockWindows;
-    QMap<Qt::Dock, bool> docks;
-    QStringList disabledDocks;
-    QHideDock *hideDock;
-
-    QPointer<QPopupMenu> rmbMenu, tbMenu, dwMenu;
-    QMap<QDockWindow*, bool> appropriate;
-    QMap<QPopupMenu*, QMainWindow::DockWindows> dockWindowModes;
-
-};
-
-
-/* QMainWindowLayout, respects widthForHeight layouts (like the left
-  and right docks are)
-*/
-
-class QMainWindowLayout : public QLayout
-{
-    Q_OBJECT
-
-public:
-    QMainWindowLayout(QMainWindow *mw, QLayout* parent = 0);
-    ~QMainWindowLayout() {}
-
-    void addItem(QLayoutItem *);
-    void setLeftDock(QDockArea *l);
-    void setRightDock(QDockArea *r);
-    void setCentralWidget(QWidget *w);
-    bool hasHeightForWidth() const { return false; }
-    QSize sizeHint() const;
-    QSize minimumSize() const;
-    QLayoutItem *itemAt(int) const { return 0; } //###
-    QLayoutItem *takeAt(int) { return 0; } //###
-
-    QSizePolicy::ExpandData expanding() const { return QSizePolicy::BothDirections; }
-
-protected:
-    void setGeometry(const QRect &r) {
-        QLayout::setGeometry(r);
-        layoutItems(r);
-    }
-
-private:
-    int layoutItems(const QRect&, bool testonly = false);
-    int extraPixels() const;
-
-    QDockArea *left, *right;
-    QWidget *central;
-    QMainWindow *mainWindow;
-
-};
+#include <private/qmainwindow_p.h>
+#define d d_func()
+#define q q_func()
 
 QSize QMainWindowLayout::sizeHint() const
 {
@@ -846,10 +756,10 @@ void QHideToolTip::maybeTip(const QPoint &pos)
 */
 
 QMainWindow::QMainWindow(QWidget * parent, const char * name, WFlags f)
-    : QWidget(parent, name, f)
+    : QWidget(*new QMainWindowPrivate, parent, f)
 {
+    setObjectName(name);
     setAttribute(WA_PaintOnScreen); // disable double buffering
-    d = new QMainWindowPrivate;
 #ifdef Q_WS_MAC
     d->opaque = true;
 #else
@@ -875,7 +785,6 @@ QMainWindow::QMainWindow(QWidget * parent, const char * name, WFlags f)
 QMainWindow::~QMainWindow()
 {
     delete layout();
-    delete d;
 }
 
 #ifndef QT_NO_MENUBAR
@@ -1552,7 +1461,7 @@ void QMainWindow::paintEvent(QPaintEvent *)
 }
 
 
-bool QMainWindow::dockMainWindow(QObject *dock)
+bool QMainWindow::dockMainWindow(QObject *dock) const
 {
     while (dock) {
         if (dock->parent() && dock->parent() == this)
@@ -2052,12 +1961,8 @@ void QMainWindow::setDockMenuEnabled(bool b)
 
     This function is called internally when necessary, e.g. when the
     user right clicks a dock area (providing isDockMenuEnabled()
-    returns true).
-\omit
-### Qt 4.0
-    You can reimplement this function if you wish to customize the
-    behaviour.
-\endomit
+    returns true). You can reimplement this function if you wish to
+    customize the behaviour.
 
     The menu items representing the toolbars and dock windows are
     checkable. The visible dock windows are checked and the hidden
@@ -2081,41 +1986,12 @@ void QMainWindow::setDockMenuEnabled(bool b)
 QPopupMenu *QMainWindow::createDockWindowMenu(DockWindows dockWindows) const
 {
     QObjectList l = queryList("QDockWindow");
-
     if (l.isEmpty())
         return 0;
 
     QPopupMenu *menu = new QPopupMenu((QMainWindow*)this);
     menu->setObjectName("qt_customize_menu");
     menu->setCheckable(true);
-    d->dockWindowModes.insert(menu, dockWindows);
-    connect(menu, SIGNAL(aboutToShow()), this, SLOT(menuAboutToShow()));
-    return menu;
-}
-
-/*!
-    This slot is called from the aboutToShow() signal of the default
-    dock menu of the mainwindow. The default implementation
-    initializes the menu with all dock windows and toolbars in this
-    slot.
-\omit
-### Qt 4.0
-    If you want to do small adjustments to the menu, you can do it in
-    this slot; or you can reimplement createDockWindowMenu().
-\endomit
-*/
-
-void QMainWindow::menuAboutToShow()
-{
-    QPopupMenu *menu = (QPopupMenu*)sender();
-    QMap<QPopupMenu*, DockWindows>::Iterator it = d->dockWindowModes.find(menu);
-    if (it == d->dockWindowModes.end())
-        return;
-    menu->clear();
-
-    DockWindows dockWindows = *it;
-
-    QObjectList l = queryList("QDockWindow");
 
     bool empty = true;
     if (!l.isEmpty()) {
@@ -2126,17 +2002,17 @@ void QMainWindow::menuAboutToShow()
                     continue;
                 QString label = dw->windowTitle();
                 if (!label.isEmpty()) {
-                    int id = menu->insertItem(label, dw, SLOT(toggleVisible()));
-                    menu->setItemChecked(id, dw->isVisible());
+                    QAction *act = menu->addAction(label);
+                    act->setChecked(dw->isVisible());
+                    QObject::connect(act, SIGNAL(triggered()), dw, SLOT(toggleVisible()));
                     empty = false;
                 }
             }
-            if (!empty)
-                menu->insertSeparator();
         }
-
-        empty = true;
-
+        if (!empty) {
+            menu->addSeparator();
+            empty = true;
+        }
 #ifndef QT_NO_TOOLBAR
         if (dockWindows == AllDockWindows || dockWindows == OnlyToolBars) {
             for (int i = 0; i < l.size(); ++i) {
@@ -2145,23 +2021,25 @@ void QMainWindow::menuAboutToShow()
                     continue;
                 QString label = tb->label();
                 if (!label.isEmpty()) {
-                    int id = menu->insertItem(label, tb, SLOT(toggleVisible()));
-                    menu->setItemChecked(id, tb->isVisible());
+                    QAction *act = menu->addAction(label);
+                    act->setChecked(tb->isVisible());
+                    QObject::connect(act, SIGNAL(triggered()), tb, SLOT(toggleVisible()));
                     empty = false;
                 }
             }
         }
 #endif
-
+    }
+    if (!empty) {
+        menu->addSeparator();
+        empty = true;
     }
 
-    if (!empty)
-        menu->insertSeparator();
-
     if (dockWindowsMovable())
-        menu->insertItem(tr("Line up"), this, SLOT(doLineUp()));
+        menu->addAction(tr("Line up"), this, SLOT(doLineUp()));
     if (isCustomizable())
-        menu->insertItem(tr("Customize..."), this, SLOT(customize()));
+        menu->addAction(tr("Customize..."), this, SLOT(customize()));
+    return menu;
 }
 
 /*!
@@ -2173,26 +2051,24 @@ void QMainWindow::menuAboutToShow()
     If you want a custom menu, reimplement this function. You can
     create the menu from scratch or call createDockWindowMenu() and
     modify the result.
-\omit
-### Qt 4.0
+
     The default implementation uses the dock window menu which gets
     created by createDockWindowMenu(). You can reimplement
     createDockWindowMenu() if you want to use your own specialized
     popup menu.
-\endomit
 */
 
 bool QMainWindow::showDockMenu(const QPoint &globalPos)
 {
     if (!d->dockMenu)
         return false;
-    if (!d->rmbMenu)
-        d->rmbMenu = createDockWindowMenu();
-    if (!d->rmbMenu)
-        return false;
 
-    d->rmbMenu->exec(globalPos);
-    return true;
+    if(QPopupMenu *ret = createDockWindowMenu()) {
+        ret->exec(globalPos);
+        delete ret;
+        return true;
+    }
+    return false;
 }
 
 void QMainWindow::slotPlaceChanged()
@@ -2424,20 +2300,20 @@ QTextStream &operator<<(QTextStream &ts, const QMainWindow &mainWindow)
     return ts;
 }
 
-static void loadDockArea(const QStringList &names, QDockArea *a, Qt::Dock d, QList<QDockWindow *> &l, QMainWindow *mw, QTextStream &ts)
+static void loadDockArea(const QStringList &names, QDockArea *a, Qt::Dock dl, QList<QDockWindow *> &l, QMainWindow *mw, QTextStream &ts)
 {
     for (QStringList::ConstIterator it = names.begin(); it != names.end(); ++it) {
         for (int i = 0; i < l.size(); ++i) {
             QDockWindow *dw = l.at(i);
             if (dw->windowTitle() == *it) {
-                mw->addDockWindow(dw, d);
+                mw->addDockWindow(dw, dl);
                 break;
             }
         }
     }
     if (a) {
         ts >> *a;
-    } else if (d == Qt::DockTornOff) {
+    } else if (dl == Qt::DockTornOff) {
         QString s = ts.readLine();
         enum State { Pre, Name, X, Y, Width, Height, Visible, Post };
         int state = Pre;
@@ -2521,10 +2397,10 @@ QTextStream &operator>>(QTextStream &ts, QMainWindow &mainWindow)
 
     int i = 0;
     QDockArea *areas[] = { mainWindow.topDock(), mainWindow.bottomDock(), mainWindow.rightDock(), mainWindow.leftDock() };
-    for (int d = (int)Qt::DockTop; d != (int)Qt::DockMinimized; ++d, ++i) {
+    for (int dl = (int)Qt::DockTop; dl != (int)Qt::DockMinimized; ++dl, ++i) {
         s = ts.readLine();
         names = s.split(',');
-        loadDockArea(names, areas[i], (Qt::Dock)d, l, &mainWindow, ts);
+        loadDockArea(names, areas[i], (Qt::Dock)dl, l, &mainWindow, ts);
     }
     return ts;
 }
