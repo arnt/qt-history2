@@ -327,7 +327,8 @@ New functions:
 New enums values:
 	PE_CheckListController, PE_CheckListIndicator,
 	    PE_CheckListExclusiveIndicator, PE_PanelGroupBox
-	CE_MenuBarBackground
+	CE_MenuBarEmptyArea
+	CE_DockWindowEmptyArea
 	PM_CheckListButtonSize
 	CT_TabBarTab, CT_Slider, CT_Header, CT_LineEdit
 	SH_GroupBox_TextLabelVerticalAlignment
