@@ -657,7 +657,7 @@ void QSlider::addLine()
     QRangeControl::addLine();
 }
 
-/*! \reimpl
+/*! \reimp
 */
 
 void QSlider::subtractLine()
