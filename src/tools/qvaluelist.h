@@ -193,6 +193,7 @@ public:
     if ( sh->deref() ) delete sh;
     sh = _list.sh;
     sh->ref();
+    return *this;
   }
 
   Iterator begin() { detach(); return Iterator( sh->node->next ); }
