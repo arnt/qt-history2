@@ -5605,8 +5605,12 @@ QWidget *QWidget::childAt(int x, int y) const
 void QWidget::updateGeometry()
 {
 #ifndef QT_NO_LAYOUT
-    if (!isTopLevel() && isShown() && parentWidget() && parentWidget()->d->layout)
-	parentWidget()->d->layout->update();
+    if (!isTopLevel() && isShown() && parentWidget()) {
+        if (parentWidget()->d->layout)
+            parentWidget()->d->layout->update();
+        else if (parentWidget()->isVisible())
+            QApplication::postEvent(parentWidget(), new QEvent(QEvent::LayoutRequest));
+    }
 #endif
 }
 

@@ -480,7 +480,11 @@ void QWidgetStack::childEvent( QChildEvent * e)
  */
 bool QWidgetStack::event( QEvent* e )
 {
-    if ( e->type() == QEvent::LayoutHint )
+    if (e->type() == QEvent::LayoutRequest
+#ifdef QT_COMPAT
+	|| e->type() == QEvent::LayoutHint
+#endif
+	)
 	updateGeometry(); // propgate layout hints to parent
     return QFrame::event( e );
 }
