@@ -1182,7 +1182,8 @@ void qt_set_cursor( QWidget *w, const QCursor& /* c */)
     if ( !curWin )
 	return;
     QWidget* cW = QWidget::find( curWin );
-    if ( !cW || cW->topLevelWidget() != w->topLevelWidget() )
+    if ( !cW || cW->topLevelWidget() != w->topLevelWidget() ||
+	 !cW->isVisible() || !cW->hasMouse() || cursorStack )
 	return;
 
     SetCursor( cW->cursor().handle() );
