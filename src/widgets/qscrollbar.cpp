@@ -197,6 +197,10 @@ static const int repeatTime	= 50;
 
     The \a parent and \a name arguments are sent on to the QWidget
     constructor.
+
+    The \c minValue defaults to 0, the \c maxValue to 99, with a \c
+    lineStep size of 1 and a \c pageStep size of 10, and an initial
+    \c value of 0.
 */
 
 QScrollBar::QScrollBar( QWidget *parent, const char *name )
@@ -212,6 +216,10 @@ QScrollBar::QScrollBar( QWidget *parent, const char *name )
 
     The \a parent and \a name arguments are sent on to the QWidget
     constructor.
+
+    The \c minValue defaults to 0, the \c maxValue to 99, with a \c
+    lineStep size of 1 and a \c pageStep size of 10, and an initial
+    \c value of 0.
 */
 
 QScrollBar::QScrollBar( Orientation orientation, QWidget *parent,
