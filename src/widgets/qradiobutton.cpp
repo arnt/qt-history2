@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#111 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#112 $
 **
 ** Implementation of QRadioButton class
 **
@@ -194,7 +194,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	kf |= 2;
     if ( isEnabled() )
 	kf |= 4;
-    QTextOStream(&pmkey) << "$qt_radio_" << style().className() << "_" << palette().serialNumber() << "_" << kf;
+    QTextStream(&pmkey) << "$qt_radio_" << style().className() << "_" << palette().serialNumber() << "_" << kf;
     QPixmap *pm = QPixmapCache::find( pmkey );
     if ( pm ) {					// pixmap exists
 	drawButtonLabel( p );

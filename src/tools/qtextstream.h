@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#58 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#59 $
 **
 ** Definition of QTextStream class
 **
@@ -47,6 +47,7 @@ public:
     QTextStream();
     QTextStream( QIODevice * );
     QTextStream( QString*, int mode );
+    QTextStream( QString&, int mode );		// obsolete
     QTextStream( QByteArray, int mode );
     QTextStream( FILE *, int mode );
     virtual ~QTextStream();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#114 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#115 $
 **
 ** Implementation of QTextStream class
 **
@@ -411,7 +411,7 @@ private:        // Disabled copy constructor and operator=
   Example:
   \code
     QString str;
-    QTextStream ts( str, IO_WriteOnly );
+    QTextStream ts( &str, IO_WriteOnly );
     ts << "pi = " << 3.14;			// str == "pi = 3.14..."
   \endcode
 
@@ -429,6 +429,25 @@ QTextStream::QTextStream( QString* str, int filemode )
     //        (see QStringBuffer above)
     init();
     dev = new QStringBuffer( str );
+    ((QStringBuffer *)dev)->open( filemode );
+    owndev = TRUE;
+    setEncoding(RawUnicode);
+    reset();
+}
+
+/*!
+  Note: This method is obsolete and should not be used in new code. It
+  is provided only as an aid for porting programs from Qt 1.x to Qt
+  2.x.
+
+  This constructor is equivalent to the constructor taking a QString*
+  parameter.  
+*/
+
+QTextStream::QTextStream( QString& str, int filemode )
+{
+    init();
+    dev = new QStringBuffer( &str );
     ((QStringBuffer *)dev)->open( filemode );
     owndev = TRUE;
     setEncoding(RawUnicode);
