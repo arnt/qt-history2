@@ -237,13 +237,15 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 
 	if ( eventInterfaceManager ) {
 	    EventInterface *eventInterface = (EventInterface*)eventInterfaceManager->queryInterface( "Events" );
-	    eventInterface->execute( widgetFactory->toplevel, widgetFactory->functions );
-	    for ( QMap<QObject *, EventFunction>::Iterator it = widgetFactory->eventMap.begin();
-		  it != widgetFactory->eventMap.end(); ++it ) {
-		QStringList::Iterator eit, fit;
-		for ( eit = (*it).events.begin(), fit = (*it).functions.begin(); eit != (*it).events.end(); ++eit, ++fit ) {
-		    QString func = *fit;
-		    eventInterface->setEventHandler( it.key(), *eit, func );
+	    if ( eventInterface ) {
+		eventInterface->execute( widgetFactory->toplevel, widgetFactory->functions );
+		for ( QMap<QObject *, EventFunction>::Iterator it = widgetFactory->eventMap.begin();
+		      it != widgetFactory->eventMap.end(); ++it ) {
+		    QStringList::Iterator eit, fit;
+		    for ( eit = (*it).events.begin(), fit = (*it).functions.begin(); eit != (*it).events.end(); ++eit, ++fit ) {
+			QString func = *fit;
+			eventInterface->setEventHandler( it.key(), *eit, func );
+		    }
 		}
 	    }
 	}
