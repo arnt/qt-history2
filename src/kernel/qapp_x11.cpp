@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#307 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#308 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -86,7 +86,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#307 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#308 $");
 
 
 /*****************************************************************************
@@ -419,7 +419,8 @@ static void set_local_font()
 	 !try_locale( latin9locales, lang, QFont::Latin9 ) )
 	QFont::setDefaultFont( QFont( "Helvetica", 12,
 				      QFont::Normal, FALSE, QFont::Latin1 ) );
-    delete[] lang;
+    if ( lang )				// Avoid purify complaint
+	delete[] lang;
 }
 
 

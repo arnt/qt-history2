@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#31 $
 **
 ** Implementation of movie classes
 **
@@ -171,7 +171,8 @@ QMoviePrivate::QMoviePrivate(QDataSource* src, QMovie* movie, int bufsize) :
 
 QMoviePrivate::~QMoviePrivate()
 {
-    delete [] buffer;
+    if ( buffer )				// Avoid purify complaint
+	delete [] buffer;
     delete pump;
     delete decoder;
     delete source;
@@ -187,7 +188,8 @@ bool QMoviePrivate::isNull() const
 void QMoviePrivate::init(bool fully)
 {
     buf_usage = buf_r = buf_w = 0;
-    delete [] buffer;
+    if ( buffer )				// Avoid purify complaint
+	delete [] buffer;
     buffer = fully ? new uchar[buf_size] : 0;
 
     delete decoder;
@@ -417,7 +419,8 @@ void QMoviePrivate::eof()
     } else {
 	delete decoder;
 	decoder = 0;
-	delete [] buffer;
+	if ( buffer )				// Avoid purify complaint
+	    delete [] buffer;
 	buffer = 0;
 	emit dataStatus(QMovie::EndOfMovie);
     }
@@ -829,7 +832,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Sep 4 15:31:20 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.30 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.31 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#124 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#125 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#124 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#125 $");
 
 
 // For thread-safety:
@@ -308,7 +308,8 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     }
     hd = (HANDLE)XCreateBitmapFromData( dpy, DefaultRootWindow(dpy),
 				(char *)bits, w, h );
-    delete [] flipped_bits;
+    if ( flipped_bits )				// Avoid purify complaint
+	delete [] flipped_bits;
 }
 
 /*!
@@ -1051,7 +1052,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    tmp_bits = 0;
 	}
 	hd = (HANDLE)XCreateBitmapFromData( dpy, DefaultRootWindow(dpy), bits, w, h );
-	delete [] tmp_bits;
+	if ( tmp_bits )				// Avoid purify complaint
+	    delete [] tmp_bits;
 	data->w = w;  data->h = h;  data->d = 1;
 
 	if ( image.hasAlphaBuffer() ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#71 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#70 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#71 $");
 
 
 /*****************************************************************************
@@ -367,8 +367,10 @@ void QColor::cleanup()
     if ( !color_init )
 	return;
     color_init = FALSE;
-    delete [] g_carr;
-    delete [] g_our_alloc;
+    if ( g_carr )				// Avoid purify complaint
+	delete [] g_carr;
+    if ( g_our_alloc )				// Avoid purify complaint
+	delete [] g_our_alloc;
     if ( !QPaintDevice::x_defcmap )
 	XFreeColormap( QPaintDevice::x__Display(), QPaintDevice::x_colormap );
     if ( colorDict ) {

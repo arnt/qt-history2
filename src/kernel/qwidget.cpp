@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#238 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#239 $
 **
 ** Implementation of QWidget class
 **
@@ -30,7 +30,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#238 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#239 $");
 
 
 /*!
@@ -834,8 +834,10 @@ void QWidget::createExtra()
 void QWidget::deleteExtra()
 {
     if ( extra ) {				// if exists
-	delete [] extra->caption;
-	delete [] extra->iconText;
+	if ( extra->caption )			// Avoid purify complaint.
+	    delete [] extra->caption;
+	if ( extra->iconText )			// Avoid purify complaint.
+	    delete [] extra->iconText;
 	delete extra->icon;
 #if defined(_WS_WIN_)
 	if ( extra->winIcon )

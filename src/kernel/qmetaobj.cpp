@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobj.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qmetaobj.cpp#28 $
 **
 ** Implementation of QMetaObject class
 **
@@ -13,7 +13,7 @@
 #include "qobjcoll.h"
 #include "qstrlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobj.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobj.cpp#28 $");
 
 
 /* not documented
@@ -92,8 +92,10 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 
 QMetaObject::~QMetaObject()
 {
-    delete [] slotData;				// delete arrays created in
-    delete [] signalData;			//   initMetaObject()
+    if ( slotData )				// Avoid purify complaint
+	delete [] slotData;			// delete arrays created in
+    if ( signalData )				// Avoid purify complaint
+	delete [] signalData;			//   initMetaObject()
     delete slotDict;				// delete dicts
     delete signalDict;
 }

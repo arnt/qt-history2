@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#154 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#155 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#154 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#155 $");
 
 
 /*!
@@ -1902,12 +1902,16 @@ void pnmscale(const QImage& src, QImage& dst)
 	}
     }
 
-    if ( newrows != rows )
+    if ( newrows != rows && tempxelrow )// Robust, tempxelrow might be 0 1 day
 	delete [] tempxelrow;
-    delete [] as;
-    delete [] rs;
-    delete [] gs;
-    delete [] bs;
+    if ( as )				// Avoid purify complaint
+	delete [] as;
+    if ( rs )				// Robust, rs might be 0 one day
+	delete [] rs;
+    if ( gs )				// Robust, gs might be 0 one day
+	delete [] gs;
+    if ( bs )				// Robust, bs might be 0 one day
+	delete [] bs;
 
 #undef SCALE
 #undef HALFSCALE

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#102 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -28,7 +28,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#101 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#102 $");
 
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -461,7 +461,7 @@ void QWidget::setCaption( const char *caption )
     if ( caption && extra && extra->caption &&
 	 !strcmp( extra->caption, caption ) )
 	return; // for less flicker
-    if ( extra )
+    if ( extra && extra->caption )
 	delete [] extra->caption;
     else
 	createExtra();
@@ -532,7 +532,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
 
 void QWidget::setIconText( const char *iconText )
 {
-    if ( extra )
+    if ( extra && extra->iconText )
 	delete [] extra->iconText;
     else
 	createExtra();
