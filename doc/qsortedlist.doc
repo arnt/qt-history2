@@ -1,0 +1,79 @@
+/****************************************************************************
+** $Id: qsortedlist.doc,v 1.1 1999/02/19 13:22:45 weis Exp $
+**
+** QSortedList documentation
+**
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees with valid Qt Professional Edition licenses may distribute and
+** use this file in accordance with the Qt Professional Edition License
+** provided at sale or upon request.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing, or see
+** http://www.troll.no/qpl/ for QPL licensing information.
+**
+*****************************************************************************/
+
+
+/*****************************************************************************
+  QSortedList documentation
+ *****************************************************************************/
+
+/*!
+  \class QSortedList qsortedlist.h
+  \brief The QSortedList class allows sorting of elements which implement operator<
+
+  \ingroup collection
+  \ingroup tools
+
+  If you want to sort a QList you have to reimplement the QGList::compareItems
+  method. If the elements of your list support the operator< and
+  operator== then you can use QSortedList instead. It does not force
+  you to reimplement QGList::compareItems to sort the list.
+
+  \sa QList, \link collection.html Collection Classes\endlink
+*/
+
+
+/*!
+  \fn QSortedList::QSortedList()
+  Constructs an empty list.
+*/
+
+/*!
+  \fn QSortedList::QSortedList( const QSortedList<type> &list )
+  Constructs a copy of \e list.
+
+  Each item in \e list is \link append() appended\endlink to this list.
+  Only the pointers are copied (shallow copy).
+*/
+
+/*!
+  \fn QSortedList::~QSortedList()
+  Removes all items from the list and destroys the list.
+
+  All list iterators that access this list will be reset.
+*/
+
+/*!
+  \fn QSortedList<type> &SortedQList::operator=(const QSortedList<type> &list)
+  Assigns \e list to this list and returns a reference to this list.
+
+  This list is first cleared, then each item in \e list is
+  appended to this list.  Only the pointers are copied
+  (shallow copy), unless newItem() has been reimplemented().
+*/
+
+/*!
+   \fn int QGList::compareItems( GCI item1, GCI item2 )
+   compares the two items. Therefor it uses the
+   operator< and operator== implementation of the lists
+   elements.
+*/
