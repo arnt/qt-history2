@@ -18,6 +18,8 @@ CComModule _Module;
 #include <private/qcom_p.h>
 #include <qapplication.h>
 
+static QMetaObject *tempMetaObj = 0;
+
 /*! 
     Helper functions 
 */
@@ -637,7 +639,7 @@ static inline void QVariantToQUObject( const QVariant &var, QUObject &obj )
 class QAxEventSink : public IDispatch
 {
 public:
-    QAxEventSink( QActiveX *ax ) : activex( ax ), ref( 1 ) {}
+    QAxEventSink( QComBase *com ) : combase( com ), ref( 1 ) {}
     virtual ~QAxEventSink() {}
 
     // add a connection
@@ -717,16 +719,22 @@ public:
 	if ( wFlags != DISPATCH_METHOD )
 	    return DISP_E_MEMBERNOTFOUND;
 
-	QMetaObject *meta = activex->metaObject();
+	QMetaObject *meta = combase->metaObject();
 	QString signame = sigs[dispIdMember];
 	if ( !meta || signame.isEmpty() )
 	    return DISP_E_MEMBERNOTFOUND;
 
 	// emit the signal "as is"
-	activex->signal( signame, pDispParams->cArgs, pDispParams->rgvarg );
+	int index = meta->findSignal( "signal(const QString&,int,void*)" );
+	Q_ASSERT( index != -1 );
+	QUObject o[4];
+	static_QUType_QString.set(o+1,signame);
+	static_QUType_int.set(o+2,pDispParams->cArgs);
+	static_QUType_ptr.set(o+3,pDispParams->rgvarg);
+	combase->qt_emit( index, o );
 
 	// get the signal information from the metaobject
-	int index = meta->findSignal( signame );
+	index = meta->findSignal( signame );
 	const QMetaData *signal = meta->signal( index - meta->signalOffset() );
 	if ( !signal )
 	    return DISP_E_MEMBERNOTFOUND;
@@ -746,7 +754,7 @@ public:
 	    VARIANTToQUObject( pDispParams->rgvarg[ pcount-p-1 ], objects + p + 1 );
 
 	// emit the generated signal
-	bool ret = activex->qt_emit( index, objects );
+	bool ret = combase->qt_emit( index, objects );
 
 	for ( p = 0; p < pcount; ++p ) { // update the VARIANT for references and free memory
 	    VARIANT *arg = &(pDispParams->rgvarg[ pcount-p-1 ]);
@@ -809,15 +817,16 @@ private:
     QValueList<Connection> connections;
     QMap<DISPID, QString> sigs;
 
-    QActiveX *activex;
+    QComBase *combase;
     long ref;
 };
 
 
 
 /*!
-    \class QActiveXBase qactivex.h
-    \brief The QActiveXBase class is an abstract class that provides properties and slots to initalize an ActiveX control.
+    \class QComBase qactivex.h
+    \brief The QComBase class is an abstract class that provides properties 
+	   and slots to initalize and access an COM object.
 */
 
 static HHOOK hhook = 0;
@@ -911,29 +920,31 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 }
 
 /*!
-    Creates an empty QActiveXBase widget. 
-    Use setControl() and initialize() to instantiate an ActiveX control.
+    Creates an empty QComBase widget. 
+    Use setControl() to instantiate an ActiveX control.
 */
-QActiveXBase::QActiveXBase( QWidget *parent, const char *name )
-: QWidget( parent, name ), ptr( 0 ), eventSink( 0 )
+QComBase::QComBase( IUnknown *iface )
+: ptr( iface ), eventSink( 0 ), metaobj( 0 )
 {
+    if ( ptr )
+	ptr->AddRef();
 }
 
 /*!
-    Shuts down the ActiveX control and destroys the QActiveXBase widget.
+    Shuts down the COM object and destroys the QComBase object.
 
     \sa clear()
 */
-QActiveXBase::~QActiveXBase()
+QComBase::~QComBase()
 {
     clear();
 }
 
 /*!
     \property control
-    \brief the name of the ActiveX control.
+    \brief the name of the COM object.
 */
-void QActiveXBase::setControl( const QString &c )
+void QComBase::setControl( const QString &c )
 {
     if ( c == ctrl )
 	return;
@@ -941,10 +952,10 @@ void QActiveXBase::setControl( const QString &c )
     clear();
     ctrl = c;
     if ( !!ctrl )
-	initialize();
+	initialize( &ptr );
 }
 
-QString QActiveXBase::control() const
+QString QComBase::control() const
 {
     return ctrl;
 }
@@ -952,7 +963,7 @@ QString QActiveXBase::control() const
 /*!
     Disconnects and destroys the ActiveX control.
 */
-void QActiveXBase::clear()
+void QComBase::clear()
 {
     if ( eventSink ) {
 	eventSink->unadvise();
@@ -964,7 +975,7 @@ void QActiveXBase::clear()
 	ptr->Release();
 	ptr = 0;
 
-	bool wasVisible = isVisible();
+/*	bool wasVisible = isVisible();
 	QRect geom = geometry();
 	hide();
 	destroy();
@@ -972,7 +983,7 @@ void QActiveXBase::clear()
 	setGeometry( geom );
 	if ( wasVisible )
 	    show();
-
+*/
 	_Module.Term();
 	CoUninitialize();
     }
@@ -987,187 +998,21 @@ void QActiveXBase::clear()
 	    }
 	}
     }
-}
 
-/*!
-    Initializes the ActiveX control.  
-*/
-void QActiveXBase::initialize()
-{
-    if ( ptr || control().isEmpty() )
-	return;
-    CoInitialize(0);
-    _Module.Init(0, GetModuleHandle(0) );
-
-    CAxWindow axWindow = winId();
-    ptr = 0;
-    axWindow.CreateControlEx( (unsigned short*)qt_winTchar( control(), TRUE ), 0, 0, &ptr );
-    if ( !ptr ) {
-	_Module.Term();
-	CoUninitialize();
-    }
-
-    if ( !hhook )
-	hhook = SetWindowsHookEx( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
-
-    ++hhookref;
-}
-
-/*!
-    ###
-*/
-long QActiveXBase::queryInterface( const QUuid &uuid, void **iface )
-{
-    *iface = 0;
-    if ( ptr && !uuid.isNull() )
-	return ptr->QueryInterface( uuid, iface );
-    
-    return E_NOTIMPL;
-}
-
-QVariant QActiveXBase::dynamicCall( const QCString &function, const QVariant &var1, 
-							 const QVariant &var2, 
-							 const QVariant &var3, 
-							 const QVariant &var4, 
-							 const QVariant &var5, 
-							 const QVariant &var6, 
-							 const QVariant &var7, 
-							 const QVariant &var8 )
-{
-    QUObject obj[9];
-    // obj[0] is the result
-    QVariantToQUObject( var1, obj[1] );
-    QVariantToQUObject( var2, obj[2] );
-    QVariantToQUObject( var3, obj[3] );
-    QVariantToQUObject( var4, obj[4] );
-    QVariantToQUObject( var5, obj[5] );
-    QVariantToQUObject( var6, obj[6] );
-    QVariantToQUObject( var7, obj[7] );
-    QVariantToQUObject( var8, obj[8] );
-
-    QVariant result;
-
-    const QMetaData *slot_data = 0;
-    const QUMethod *slot = 0;
-    const QMetaObject *meta = metaObject();
-    int index = 0;
-    do {
-	slot_data = meta->slot( index );
-	if ( slot_data ) {
-	    slot = slot_data->method;
-	    if ( !qstrcmp( slot->name, function ) )
-		break;
-	} else {
-	    slot = 0;
-	}
-	++index;
-    } while ( slot_data );
-
-    if ( slot ) {
-	qt_invoke( index + meta->slotOffset(), obj );
-	if ( QUType::isEqual( obj->type, &static_QUType_int ) ) {
-	    result = static_QUType_int.get( obj );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_QString ) ) {
-	    result = static_QUType_QString.get( obj );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_charstar ) ) {
-	    result = static_QUType_charstar.get( obj );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_bool ) ) {
-	    result = static_QUType_bool.get( obj );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_double ) ) {
-	    result = static_QUType_double.get( obj );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_enum ) ) {
-	    result = static_QUType_enum.get( obj );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_QVariant ) ) {
-	    result = static_QUType_QVariant.get( obj );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_idisp ) ) {
-	    //###
-	} else if ( QUType::isEqual( obj->type, &static_QUType_iface ) ) {
-	    //###
-	} else if ( QUType::isEqual( obj->type, &static_QUType_ptr ) && slot->parameters ) {
-	    const QUParameter *param = slot->parameters;
-	    const char *type = (const char*)param->typeExtra;
-	    if ( !qstrcmp( type, "int" ) ) {
-		result = *(int*)static_QUType_ptr.get( obj );
-	    } else if ( !qstrcmp( type, "QString" ) || !qstrcmp( type, "const QString&" ) ) {
-		result = *(QString*)static_QUType_ptr.get( obj );
-	    } else if ( !qstrcmp( type, "QDateTime" ) || !qstrcmp( type, "const QDateTime&" ) ) {
-		result = *(QDateTime*)static_QUType_ptr.get( obj );
-	    }
-	    //###
-	}
-    }
-#if defined(QT_CHECK_RANGE)
-    else {
-	const char *coclass = meta->classInfo( "CoClass" );
-	qWarning( "QActiveX::dynamicCall: %s: No such method in %s %s", (const char*)function, control().latin1(), 
-	    coclass ? coclass: "(unknown)" );
-    }
-#endif
-    return result;
-}
-
-/*!
-    \class QActiveX qactivex.h
-    \brief The QActiveX class provides a QWidget that wraps an ActiveX control.
-*/
-
-/*!
-    Since we create the metaobject for this class on the fly we have to make sure
-    staticMetaObject works, otherwise it's impossible to subclass QActiveX control
-    and have metadata in the subclass.
-*/
-
-static QActiveX *currentInstance = 0;
-
-/*!
-    Creates an empty QActiveX widget. To initialize a control, use \link QActiveXBase::setControl setControl \endlink.
-*/
-QActiveX::QActiveX( QWidget *parent, const char *name )
-: QActiveXBase( parent, name ), metaObj( 0 )
-{
-    currentInstance = this;
-}
-
-/*!
-    Creates an QActiveX widget and initializes the ActiveX control \a c.
-*/
-QActiveX::QActiveX( const QString &c, QWidget *parent, const char *name )
-: QActiveXBase( parent, name ), metaObj( 0 )
-{
-    setControl( c );
-    currentInstance = this;
-}
-
-/*!
-    Shuts down the ActiveX control and destroys the QActiveX widget, 
-    cleaning all allocated resources.
-*/
-QActiveX::~QActiveX()
-{
-    clear();
-}
-
-/*!
-  \reimp
-*/
-void QActiveX::clear()
-{
-    QActiveXBase::clear();
-
-    if ( metaObj ) {
+    if ( metaobj ) {
 	int i;
 	// clean up class info
-	for ( i = 0; i < metaObj->numClassInfo(); ++i ) {
-	    QClassInfo *info = (QClassInfo*)metaObj->classInfo( i );
+	for ( i = 0; i < metaobj->numClassInfo(); ++i ) {
+	    QClassInfo *info = (QClassInfo*)metaobj->classInfo( i );
 	    delete [] (char*)info->name;
 	    delete [] (char*)info->value;
 	}
-	if ( metaObj->numClassInfo() )
-	    delete [] (QClassInfo*)metaObj->classInfo( 0 );
+	if ( metaobj->numClassInfo() )
+	    delete [] (QClassInfo*)metaobj->classInfo( 0 );
 
 	// clean up slot info
-	for ( i = 0; i < metaObj->numSlots(); ++i ) {
-	    const QMetaData *slot_data = metaObj->slot( i );
+	for ( i = 0; i < metaobj->numSlots(); ++i ) {
+	    const QMetaData *slot_data = metaobj->slot( i );
 	    QUMethod *slot = (QUMethod*)slot_data->method;
 	    if ( slot ) {
 		delete [] (char*)slot->name;
@@ -1184,12 +1029,12 @@ void QActiveX::clear()
 	    }
 	    delete [] (char*)slot_data->name;
 	}
-	if ( metaObj->numSlots() )
-	    delete [] (QMetaData*)metaObj->slot( 0 );
+	if ( metaobj->numSlots() )
+	    delete [] (QMetaData*)metaobj->slot( 0 );
 
 	// clean up signal info
-	for ( i = 0; i < metaObj->numSignals(); ++i ) {
-	    const QMetaData *signal_data = metaObj->signal( i );
+	for ( i = 1; i < metaobj->numSignals(); ++i ) { // 0 is the static signal
+	    const QMetaData *signal_data = metaobj->signal( i );
 	    QUMethod *signal = (QUMethod*)signal_data->method;
 	    if ( signal ) {
 		delete [] (char*)signal->name;
@@ -1206,42 +1051,75 @@ void QActiveX::clear()
 	    }
 	    delete [] (char*)signal_data->name;
 	}
-	if ( metaObj->numSignals() )
-	    delete [] (QMetaData*)metaObj->signal( 0 );
+	if ( metaobj->numSignals() )
+	    delete [] (QMetaData*)metaobj->signal( 0 );
 
-	for ( i = 0; i < metaObj->numProperties(); ++i ) {
-	    const QMetaProperty *property = metaObj->property( i );
+	for ( i = 1; i < metaobj->numProperties(); ++i ) {
+	    const QMetaProperty *property = metaobj->property( i );
 	    delete [] (char*)property->n;
 	    delete [] (char*)property->t;
 	}
-	if ( metaObj->numProperties() )
-	    delete [] (QMetaProperty*)metaObj->property( 0 );
+	if ( metaobj->numProperties() )
+	    delete [] (QMetaProperty*)metaobj->property( 0 );
     }
-    delete metaObj;
-    metaObj = 0;
+    delete metaobj;
+    metaobj = 0;
+}
+
+/*!
+    ###
+*/
+long QComBase::queryInterface( const QUuid &uuid, void **iface )
+{
+    *iface = 0;
+    if ( ptr && !uuid.isNull() )
+	return ptr->QueryInterface( uuid, iface );
+    
+    return E_NOTIMPL;
 }
 
 /*!
     \reimp
 */
-const char *QActiveX::className() const
+QMetaObject *QComBase::metaObject() const
 {
-    return "QActiveX";
-}
+    if ( metaobj )
+	return metaobj;
+    QMetaObject* parentObject = parentMetaObject();
 
-/*!
-    \reimp
-*/
-QMetaObject *QActiveX::metaObject() const
-{
-    if ( metaObj )
-	return metaObj;
-    QMetaObject* parentObject = QActiveXBase::staticMetaObject();
+    // one signal and one property are always there
+    static const QUParameter param_signal_0[] = {
+	{ "name", &static_QUType_QString, 0, QUParameter::In },
+	{ "argc", &static_QUType_int, 0, QUParameter::In },
+	{ "argv", &static_QUType_ptr, "void", QUParameter::In }
+    };
+    static const QUMethod signal_0 = {"signal", 3, param_signal_0 };
+    static const QMetaData signal_tbl[] = {
+	{ "signal(const QString&,int,void*)", &signal_0, QMetaData::Public }
+    };
+    static const QMetaProperty props_tbl[1] = {
+ 	{ "QString","control", 259, (QMetaObject**)&tempMetaObj, 0, -1 }
+    };
 
-    if ( !ptr )
-	return parentObject;
+    if ( !ptr ) {
+	if ( tempMetaObj )
+	    return tempMetaObj;
 
-    QActiveX* that = (QActiveX*)this;
+	tempMetaObj = QMetaObject::new_metaobject(
+	    "QComBase", parentObject,
+	    0, 0,
+	    signal_tbl, 1,
+#ifndef QT_NO_PROPERTIES
+	    props_tbl, 1,
+	    0, 0,
+#endif // QT_NO_PROPERTIES
+	    0, 0 );
+
+	return tempMetaObj;
+    }
+
+    // the rest is generated from the IDispatch implementation
+    QComBase* that = (QComBase*)this; // mutable
 
     QDict<QUMethod> slotlist; // QUMethods deleted in ~QActiveX
     QDict<QUMethod< signallist; // QUMethods deleted in ~QActiveX
@@ -1251,6 +1129,8 @@ QMetaObject *QActiveX::metaObject() const
     infolist.setAutoDelete( TRUE ); // deep copied when creating metaobject
     QDict<QString> enumlist; 
     enumlist.setAutoDelete( TRUE ); // deep copied when creating metaobject
+
+    // create default signal and slots
 
     CComPtr<IDispatch> disp;
     ptr->QueryInterface( IID_IDispatch, (void**)&disp );
@@ -1354,7 +1234,7 @@ QMetaObject *QActiveX::metaObject() const
 			    if ( !prop ) {
 				prop = new QMetaProperty;
 				proplist.insert( function, prop );
-				prop->meta = (QMetaObject**)&metaObj;
+				prop->meta = (QMetaObject**)&metaobj;
 				prop->_id = -1;
 				prop->enumData = 0;
 				prop->flags = 0;
@@ -1489,7 +1369,7 @@ QMetaObject *QActiveX::metaObject() const
 		    if ( !prop ) {
 			prop = new QMetaProperty;
 			proplist.insert( variableName, prop );
-			prop->meta = (QMetaObject**)&metaObj;
+			prop->meta = (QMetaObject**)&metaobj;
 			prop->_id = -1;
 			prop->enumData = 0;
 			prop->flags = QMetaProperty::Readable | QMetaProperty::Writable;;
@@ -1739,7 +1619,12 @@ QMetaObject *QActiveX::metaObject() const
 
     // setup signal data
     index = 0;
-    QMetaData *const signal_data = signallist.count() ? new QMetaData[signallist.count()] : 0;
+    QMetaData *const signal_data = new QMetaData[signallist.count()+1];
+    if ( signal_data ) {
+	signal_data[index] = signal_tbl[index];
+	++index;
+    }
+
     QDictIterator<QUMethod> signal_it( signallist );
     while ( signal_it.current() ) {
 	QUMethod *signal = signal_it.current();
@@ -1754,7 +1639,15 @@ QMetaObject *QActiveX::metaObject() const
 
     // setup property data
     index = 0;
-    QMetaProperty *const prop_data = proplist.count() ? new QMetaProperty[proplist.count()] : 0;
+    QMetaProperty *const prop_data = new QMetaProperty[proplist.count()+1];
+    if ( prop_data ) {
+	static const QMetaProperty props_tbl[1] = {
+ 	    { "QString","control", 259, (QMetaObject**)&metaobj, 0, -1 }
+	};
+
+	prop_data[index] = props_tbl[index];
+	++index;
+    }
     QDictIterator<QMetaProperty> prop_it( proplist );
     while ( prop_it.current() ) {
 	QMetaProperty *prop = prop_it.current();
@@ -1800,194 +1693,164 @@ QMetaObject *QActiveX::metaObject() const
     }
 
     // put the metaobject together
-    that->metaObj = QMetaObject::new_metaobject( 
-	"QActiveX", parentObject, 
+    that->metaobj = QMetaObject::new_metaobject( 
+	className(), parentObject, 
 	slot_data, slotlist.count(),
-	signal_data, signallist.count(),
-	prop_data, proplist.count(),
+	signal_data, signallist.count()+1,
+	prop_data, proplist.count()+1,
 	enum_data, enumlist.count(),
 	class_info, infolist.count() );
 
-    return metaObj;
+    return metaobj;
 }
 
 /*!
     \reimp
 */
-QMetaObject *QActiveX::staticMetaObject()
-{
-    Q_ASSERT( currentInstance );
-    QMetaObject *mo = currentInstance->QActiveX::metaObject();
-    currentInstance = 0;
-    return mo;
-}
-
-/*!
-    \reimp
-*/
-void *QActiveX::qt_cast( const char *cname )
-{
-    if ( !qstrcmp( cname, "QActiveX" ) ) return this;
-    return QActiveXBase::qt_cast( cname );
-}
-
-/*!
-    \reimp
-*/
-bool QActiveX::qt_invoke( int _id, QUObject* _o )
+bool QComBase::qt_invoke( int _id, QUObject* _o )
 {
     const int index = _id - metaObject()->slotOffset();
-    if ( ptr && index >= 0 ) {
-	// get the IDispatch
-	CComPtr<IDispatch> disp;
-	ptr->QueryInterface( IID_IDispatch, (void**)&disp );
-	if ( !disp )
+    if ( !ptr || index < 0 )
+	return FALSE;
+
+    // get the IDispatch
+    CComPtr<IDispatch> disp;
+    ptr->QueryInterface( IID_IDispatch, (void**)&disp );
+    if ( !disp )
+	return FALSE;
+
+    // get the slot information
+    const QMetaData *slot_data = metaObject()->slot( index );
+    if ( !slot_data )
+	return FALSE;
+    const QUMethod *slot = slot_data->method;
+    if ( !slot )
+	return FALSE;
+
+    // Get the Dispatch ID of the method to be called
+    bool fakedslot = FALSE;
+    DISPID dispid;
+    OLECHAR *names = (unsigned short*)qt_winTchar(slot->name, TRUE );
+    disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_SYSTEM_DEFAULT, &dispid );
+    if ( dispid == DISPID_UNKNOWN ) {
+	// see if we are calling a property set function as a slot
+	if ( QString( slot->name ).left( 3 ) != "set" )
+	    return FALSE;
+	QString realname = slot->name;
+	realname = realname.right( realname.length() - 3 );
+	OLECHAR *realnames = (unsigned short*)qt_winTchar(realname, TRUE );
+	disp->GetIDsOfNames( IID_NULL, &realnames, 1, LOCALE_SYSTEM_DEFAULT, &dispid );
+	if ( dispid == DISPID_UNKNOWN )
 	    return FALSE;
 
-	// get the slot information
-	const QMetaData *slot_data = metaObj->slot( index );
-	if ( !slot_data )
-	    return FALSE;
-	const QUMethod *slot = slot_data->method;
-	if ( !slot )
-	    return FALSE;
+	fakedslot = TRUE;
+    }
 
-	// Get the Dispatch ID of the method to be called
-	bool fakedslot = FALSE;
-	DISPID dispid;
-	OLECHAR *names = (unsigned short*)qt_winTchar(slot->name, TRUE );
-	disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_SYSTEM_DEFAULT, &dispid );
-	if ( dispid == DISPID_UNKNOWN ) {
-	    // see if we are calling a property set function as a slot
-	    if ( QString( slot->name ).left( 3 ) != "set" )
-		return FALSE;
-	    QString realname = slot->name;
-	    realname = realname.right( realname.length() - 3 );
-	    OLECHAR *realnames = (unsigned short*)qt_winTchar(realname, TRUE );
-	    disp->GetIDsOfNames( IID_NULL, &realnames, 1, LOCALE_SYSTEM_DEFAULT, &dispid );
-	    if ( dispid == DISPID_UNKNOWN )
-		return FALSE;
+    // setup the parameters
+    VARIANT ret; // Invoke initializes it
+    VARIANT *pret = 0;
+    if ( slot->parameters && ( slot->parameters[0].inOut & QUParameter::Out ) ) // slot has return value
+	pret = &ret;
+    int slotcount = slot->count - ( pret ? 1 : 0 );
 
-	    fakedslot = TRUE;
-	}
-
-	// setup the parameters
-	VARIANT ret; // Invoke initializes it
-	VARIANT *pret = 0;
-	if ( slot->parameters && ( slot->parameters[0].inOut & QUParameter::Out ) ) // slot has return value
-	    pret = &ret;
-	int slotcount = slot->count - ( pret ? 1 : 0 );
-
-	VARIANT arg;
-	DISPPARAMS params;
-	params.cArgs = slotcount;
-	params.cNamedArgs = 0;
-	params.rgdispidNamedArgs = 0;
-	params.rgvarg = slot->count ? new VARIANTARG[slotcount] : 0;
-	for ( int p = 0; p < slotcount; ++p ) {
-	    QUObject *obj = _o + p + 1;
-	    // map the QUObject's type to the VARIANT. ### Maybe it would be better 
-	    // to convert the QUObject to what the VARIANT is supposed to be, since
-	    // QUType is rather powerful, and VARIANT is not...
-	    if ( QUType::isEqual( obj->type, &static_QUType_int ) ) {
+    VARIANT arg;
+    DISPPARAMS params;
+    params.cArgs = slotcount;
+    params.cNamedArgs = 0;
+    params.rgdispidNamedArgs = 0;
+    params.rgvarg = slot->count ? new VARIANTARG[slotcount] : 0;
+    for ( int p = 0; p < slotcount; ++p ) {
+	QUObject *obj = _o + p + 1;
+	// map the QUObject's type to the VARIANT. ### Maybe it would be better 
+	// to convert the QUObject to what the VARIANT is supposed to be, since
+	// QUType is rather powerful, and VARIANT is not...
+	if ( QUType::isEqual( obj->type, &static_QUType_int ) ) {
+	    arg.vt = VT_I4;
+	    arg.lVal = static_QUType_int.get( obj );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_QString ) ) {
+	    arg.vt = VT_BSTR;
+	    arg.bstrVal = QStringToBSTR( static_QUType_QString.get( obj ) );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_charstar ) ) {
+	    arg.vt = VT_BSTR;
+	    arg.bstrVal = QStringToBSTR( static_QUType_charstar.get( obj ) );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_bool ) ) {
+	    arg.vt = VT_BOOL;
+	    arg.boolVal = static_QUType_bool.get( obj );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_double ) ) {
+	    arg.vt = VT_R8;
+	    arg.dblVal = static_QUType_double.get( obj );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_enum ) ) {
+	    arg.vt = VT_I4;
+	    arg.lVal = static_QUType_enum.get( obj );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_QVariant ) ) {
+	    arg = QVariantToVARIANT( static_QUType_QVariant.get( obj ) );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_idisp ) ) {
+	    arg.vt = VT_DISPATCH;
+	    arg.pdispVal = (IDispatch*)static_QUType_ptr.get( obj );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_iface ) ) {
+	    arg.vt = VT_UNKNOWN;
+	    arg.punkVal = (IUnknown*)static_QUType_ptr.get( obj );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_ptr ) ) {
+	    const QUParameter *param = slot->parameters + p + ( pret ? 1 : 0 );
+	    const char *type = (const char*)param->typeExtra;
+	    if ( !qstrcmp( type, "int" ) ) {
 		arg.vt = VT_I4;
-		arg.lVal = static_QUType_int.get( obj );
-	    } else if ( QUType::isEqual( obj->type, &static_QUType_QString ) ) {
+		arg.lVal = *(int*)static_QUType_ptr.get( obj );
+	    } else if ( !qstrcmp( type, "QString" ) || !qstrcmp( type, "const QString&" ) ) {
 		arg.vt = VT_BSTR;
-		arg.bstrVal = QStringToBSTR( static_QUType_QString.get( obj ) );
-	    } else if ( QUType::isEqual( obj->type, &static_QUType_charstar ) ) {
-		arg.vt = VT_BSTR;
-		arg.bstrVal = QStringToBSTR( static_QUType_charstar.get( obj ) );
-	    } else if ( QUType::isEqual( obj->type, &static_QUType_bool ) ) {
-		arg.vt = VT_BOOL;
-		arg.boolVal = static_QUType_bool.get( obj );
-	    } else if ( QUType::isEqual( obj->type, &static_QUType_double ) ) {
-		arg.vt = VT_R8;
-		arg.dblVal = static_QUType_double.get( obj );
-	    } else if ( QUType::isEqual( obj->type, &static_QUType_enum ) ) {
-		arg.vt = VT_I4;
-		arg.lVal = static_QUType_enum.get( obj );
-	    } else if ( QUType::isEqual( obj->type, &static_QUType_QVariant ) ) {
-		arg = QVariantToVARIANT( static_QUType_QVariant.get( obj ) );
-	    } else if ( QUType::isEqual( obj->type, &static_QUType_idisp ) ) {
-		arg.vt = VT_DISPATCH;
-		arg.pdispVal = (IDispatch*)static_QUType_ptr.get( obj );
-	    } else if ( QUType::isEqual( obj->type, &static_QUType_iface ) ) {
-		arg.vt = VT_UNKNOWN;
-		arg.punkVal = (IUnknown*)static_QUType_ptr.get( obj );
-	    } else if ( QUType::isEqual( obj->type, &static_QUType_ptr ) ) {
-		const QUParameter *param = slot->parameters + p + ( pret ? 1 : 0 );
-		const char *type = (const char*)param->typeExtra;
-		if ( !qstrcmp( type, "int" ) ) {
-		    arg.vt = VT_I4;
-		    arg.lVal = *(int*)static_QUType_ptr.get( obj );
-		} else if ( !qstrcmp( type, "QString" ) || !qstrcmp( type, "const QString&" ) ) {
-		    arg.vt = VT_BSTR;
-		    arg.bstrVal = QStringToBSTR( *(QString*)static_QUType_ptr.get( obj ) );
-		} else if ( !qstrcmp( type, "QDateTime" ) || !qstrcmp( type, "const QDateTime&" ) ) {
-		    arg.vt = VT_DATE;
-		    arg.date = QDateTimeToDATE( *(QDateTime*)static_QUType_ptr.get( obj ) );
-		} else {
-		    arg.vt = VT_UI4;
-		    arg.ulVal = (Q_ULONG)static_QUType_ptr.get( obj );
-		}
-		//###
+		arg.bstrVal = QStringToBSTR( *(QString*)static_QUType_ptr.get( obj ) );
+	    } else if ( !qstrcmp( type, "QDateTime" ) || !qstrcmp( type, "const QDateTime&" ) ) {
+		arg.vt = VT_DATE;
+		arg.date = QDateTimeToDATE( *(QDateTime*)static_QUType_ptr.get( obj ) );
 	    } else {
-		arg.vt = VT_EMPTY;
+		arg.vt = VT_UI4;
+		arg.ulVal = (Q_ULONG)static_QUType_ptr.get( obj );
 	    }
-	    params.rgvarg[ slotcount - p - 1 ] = arg;
-	}
-	// call the method
-	UINT argerr = 0;
-	HRESULT hres;
-	if ( fakedslot && slotcount == 1 ) {
-	    hres = disp->Invoke( dispid, IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_PROPERTYPUT, &params, pret, 0, &argerr );
-	    if ( hres != S_OK ) { // fallback using the COM helper
-		hres = _com_dispatch_propput( disp, dispid, arg.vt, arg.lVal );
-	    }
+	    //###
 	} else {
-	    hres = disp->Invoke( dispid, IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_METHOD, &params, pret, 0, &argerr );	    
+	    arg.vt = VT_EMPTY;
 	}
-
-	// get return value
-	if ( pret )
-	    VARIANTToQUObject( ret, _o );
-	// clean up
-	for ( p = 0; p < slot->count; ++p ) {
-	    if ( params.rgvarg[p].vt == VT_BSTR )
-		SysFreeString( params.rgvarg[p].bstrVal );
-	}
-	delete [] params.rgvarg;
-
-	return checkHRESULT( hres );
+	params.rgvarg[ slotcount - p - 1 ] = arg;
     }
-    return QActiveXBase::qt_invoke( _id, _o );
+    // call the method
+    UINT argerr = 0;
+    HRESULT hres;
+    if ( fakedslot && slotcount == 1 ) {
+	hres = disp->Invoke( dispid, IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_PROPERTYPUT, &params, pret, 0, &argerr );
+	if ( hres != S_OK ) { // fallback using the COM helper
+	    hres = _com_dispatch_propput( disp, dispid, arg.vt, arg.lVal );
+	}
+    } else {
+	hres = disp->Invoke( dispid, IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_METHOD, &params, pret, 0, &argerr );	    
+    }
+
+    // get return value
+    if ( pret )
+	VARIANTToQUObject( ret, _o );
+    // clean up
+    for ( p = 0; p < slot->count; ++p ) {
+	if ( params.rgvarg[p].vt == VT_BSTR )
+	    SysFreeString( params.rgvarg[p].bstrVal );
+    }
+    delete [] params.rgvarg;
+
+    return checkHRESULT( hres );
 }
 
 /*!
     \reimp
 */
-bool QActiveX::qt_emit( int _id, QUObject* _o )
-{
-    const int index = _id - metaObject()->signalOffset();
-    if ( ptr && index >= 0 ) {
-	// get the list of connections
-	QConnectionList *clist = receivers( _id );
-	if ( clist ) // call the signal
-	    activate_signal( clist, _o );
-
-	return TRUE;
-    }
-    return QActiveXBase::qt_emit( _id, _o );
-}
-
-/*!
-    \reimp
-*/
-bool QActiveX::qt_property( int _id, int _f, QVariant* _v )
+bool QComBase::qt_property( int _id, int _f, QVariant* _v )
 {
     const int index = _id - metaObject()->propertyOffset();
-    if ( ptr && index >= 0 ) {
+    if ( index == 0 ) { // control property
+	switch( _f ) {
+	case 0: setControl( _v->toString() ); break;
+	case 1: *_v = control(); break;
+	default: if ( _f > 5 ) return FALSE;
+	}
+	return TRUE;
+    } else if ( ptr && index >= 0 ) {
 	// get the IDispatch
 	CComPtr<IDispatch> disp;
 	ptr->QueryInterface( IID_IDispatch, (void**)&disp );
@@ -2117,8 +1980,372 @@ bool QActiveX::qt_property( int _id, int _f, QVariant* _v )
 	} else if ( _f < 6 ) {
 	    return TRUE;
 	}
-
-	return FALSE;
     }
-    return QActiveXBase::qt_property( _id, _f, _v );
+    return FALSE;
+}
+
+/*!
+    Calls \a function and passes parameters \a var1 ... \a var8, and returns
+    the value, or an invalid variant if \a function does not return a value.
+*/
+QVariant QComBase::dynamicCall( const QCString &function, const QVariant &var1, 
+							 const QVariant &var2, 
+							 const QVariant &var3, 
+							 const QVariant &var4, 
+							 const QVariant &var5, 
+							 const QVariant &var6, 
+							 const QVariant &var7, 
+							 const QVariant &var8 )
+{
+    QUObject obj[9];
+    // obj[0] is the result
+    QVariantToQUObject( var1, obj[1] );
+    QVariantToQUObject( var2, obj[2] );
+    QVariantToQUObject( var3, obj[3] );
+    QVariantToQUObject( var4, obj[4] );
+    QVariantToQUObject( var5, obj[5] );
+    QVariantToQUObject( var6, obj[6] );
+    QVariantToQUObject( var7, obj[7] );
+    QVariantToQUObject( var8, obj[8] );
+
+    QVariant result;
+
+    const QMetaData *slot_data = 0;
+    const QUMethod *slot = 0;
+    const QMetaObject *meta = metaObject();
+    int index = 0;
+    do {
+	slot_data = meta->slot( index, TRUE );
+	if ( slot_data ) {
+	    slot = slot_data->method;
+	    if ( !qstrcmp( slot->name, function ) )
+		break;
+	} else {
+	    slot = 0;
+	}
+	++index;
+    } while ( slot_data );
+
+    if ( slot ) {
+	qt_invoke( index, obj );
+	if ( QUType::isEqual( obj->type, &static_QUType_int ) ) {
+	    result = static_QUType_int.get( obj );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_QString ) ) {
+	    result = static_QUType_QString.get( obj );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_charstar ) ) {
+	    result = static_QUType_charstar.get( obj );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_bool ) ) {
+	    result = static_QUType_bool.get( obj );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_double ) ) {
+	    result = static_QUType_double.get( obj );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_enum ) ) {
+	    result = static_QUType_enum.get( obj );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_QVariant ) ) {
+	    result = static_QUType_QVariant.get( obj );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_idisp ) ) {
+	    //###
+	} else if ( QUType::isEqual( obj->type, &static_QUType_iface ) ) {
+	    //###
+	} else if ( QUType::isEqual( obj->type, &static_QUType_ptr ) && slot->parameters ) {
+	    const QUParameter *param = slot->parameters;
+	    const char *type = (const char*)param->typeExtra;
+	    if ( !qstrcmp( type, "int" ) ) {
+		result = *(int*)static_QUType_ptr.get( obj );
+	    } else if ( !qstrcmp( type, "QString" ) || !qstrcmp( type, "const QString&" ) ) {
+		result = *(QString*)static_QUType_ptr.get( obj );
+	    } else if ( !qstrcmp( type, "QDateTime" ) || !qstrcmp( type, "const QDateTime&" ) ) {
+		result = *(QDateTime*)static_QUType_ptr.get( obj );
+	    }
+	    //###
+	}
+    }
+#if defined(QT_CHECK_RANGE)
+    else {
+	const char *coclass = meta->classInfo( "CoClass" );
+	qWarning( "QActiveX::dynamicCall: %s: No such method in %s %s", (const char*)function, control().latin1(), 
+	    coclass ? coclass: "(unknown)" );
+    }
+#endif
+    return result;
+}
+
+/*!
+    \class QComObject qactivex.h
+    \brief The QComObject class provides a QObject that wraps a COM object.
+*/
+
+/*!
+    Creates an empty COM object. To initialize the object, use \link QComBase::setControl setControl \endlink.
+*/
+QComObject::QComObject( QObject *parent, const char *name )
+: QObject( parent, name )
+{
+}
+
+/*! 
+    Creates a QComObject that wraps the COM object \a c.
+*/
+QComObject::QComObject( const QString &c, QObject *parent, const char *name )
+: QObject( parent, name )
+{
+    setControl( c );
+}
+
+/*!
+    Creates a QComObject that wraps the COM object referenced by \a iface.
+*/
+QComObject::QComObject( IUnknown *iface, QObject *parent, const char *name )
+: QObject( parent, name ), QComBase( iface )
+{
+}
+
+/*!
+    Releases the COM object and destroys the QComObject,
+    cleaning all allocated resources.
+*/
+QComObject::~QComObject()
+{
+    clear();
+}
+
+/*!
+    \reimp
+*/
+const char *QComObject::className() const
+{
+    return "QComObject";
+}
+
+/*!
+    Initializes the COM object.
+*/
+void QComObject::initialize( IUnknown **ptr )
+{
+    QUuid uuid( control() );
+    if ( *ptr || uuid.isNull() )
+	return;
+    CoInitialize( 0 );
+    _Module.Init( 0, GetModuleHandle( 0 ) );
+
+    *ptr = 0;
+    CoCreateInstance( uuid, 0, CLSCTX_ALL, IID_IUnknown, (void**)ptr );
+    if ( !ptr ) {
+	_Module.Term();
+	CoUninitialize();
+    }
+}
+
+/*!
+    \reimp
+*/
+QMetaObject *QComObject::metaObject() const
+{
+    return QComBase::metaObject();
+}
+
+/*!
+    \reimp
+*/
+QMetaObject *QComObject::parentMetaObject() const
+{
+    return QObject::staticMetaObject();
+}
+
+/*!
+    \reimp
+*/
+void *QComObject::qt_cast( const char *cname )
+{
+    if ( !qstrcmp( cname, "QComObject" ) ) return this;
+    if ( !qstrcmp( cname, "QComBase" ) ) return (QComBase*)this;
+    return QObject::qt_cast( cname );
+}
+
+
+/*!
+    \reimp
+*/
+bool QComObject::qt_invoke( int _id, QUObject *_o )
+{
+    if ( QComBase::qt_invoke( _id, _o ) )
+	return TRUE;
+    return QObject::qt_invoke( _id, _o );
+}
+
+/*!
+    \reimp
+*/
+bool QComObject::qt_emit( int _id, QUObject* _o )
+{
+    const int index = _id - metaObject()->signalOffset();
+    if ( !isNull() && index >= 0 ) {
+	// get the list of connections
+	QConnectionList *clist = receivers( _id );
+	if ( clist ) // call the signal
+	    activate_signal( clist, _o );
+
+	return TRUE;
+    }
+    return QObject::qt_emit( _id, _o );
+}
+
+/*!
+  \reimp
+*/
+bool QComObject::qt_property( int _id, int _f, QVariant *_v )
+{
+    if ( QComBase::qt_property( _id, _f, _v ) )
+	return TRUE;
+    return QObject::qt_property( _id, _f, _v );
+}
+
+
+/*!
+    \class QActiveX qactivex.h
+    \brief The QActiveX class provides a QWidget that wraps an ActiveX control.
+*/
+
+/*!
+    Since we create the metaobject for this class on the fly we have to make sure
+    staticMetaObject works, otherwise it's impossible to subclass QActiveX control
+    and have metadata in the subclass.
+*/
+
+//static QActiveX *currentInstance = 0;
+
+/*!
+    Creates an empty QActiveX widget. To initialize a control, use \link QComBase::setControl setControl \endlink.
+*/
+QActiveX::QActiveX( QWidget *parent, const char *name )
+: QWidget( parent, name )
+{
+    //currentInstance = this;
+}
+
+/*!
+    Creates an QActiveX widget and initializes the ActiveX control \a c.
+*/
+QActiveX::QActiveX( const QString &c, QWidget *parent, const char *name )
+: QWidget( parent, name )
+{
+    setControl( c );
+    //currentInstance = this;
+}
+
+/*!
+    Shuts down the ActiveX control and destroys the QActiveX widget, 
+    cleaning all allocated resources.
+*/
+QActiveX::~QActiveX()
+{
+    clear();
+}
+
+/*!
+    Initializes the ActiveX control.  
+*/
+void QActiveX::initialize( IUnknown **ptr )
+{
+    if ( *ptr || control().isEmpty() )
+	return;
+    CoInitialize( 0 );
+    _Module.Init( 0, GetModuleHandle( 0 ) );
+
+    CAxWindow axWindow = winId();
+    *ptr = 0;
+    axWindow.CreateControlEx( (unsigned short*)qt_winTchar( control(), TRUE ), 0, 0, ptr );
+    if ( !*ptr ) {
+	_Module.Term();
+	CoUninitialize();
+    }
+
+    if ( !hhook )
+	hhook = SetWindowsHookEx( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
+
+    ++hhookref;
+}
+
+/*!
+    \reimp
+*/
+const char *QActiveX::className() const
+{
+    return "QActiveX";
+}
+
+/*!
+    \reimp
+*/
+QMetaObject *QActiveX::metaObject() const
+{
+    return QComBase::metaObject();
+}
+
+/*!
+    \reimp
+*/
+QMetaObject *QActiveX::parentMetaObject() const
+{
+    return QWidget::staticMetaObject();
+}
+
+/*!
+    \reimp
+*/
+/*
+QMetaObject *QActiveX::staticMetaObject()
+{
+    Q_ASSERT( currentInstance );
+    QMetaObject *mo = currentInstance->QActiveX::metaObject();
+    currentInstance = 0;
+    return mo;
+}
+*/
+
+/*!
+    \reimp
+*/
+void *QActiveX::qt_cast( const char *cname )
+{
+    if ( !qstrcmp( cname, "QActiveX" ) ) return this;
+    if ( !qstrcmp( cname, "QComBase" ) ) return (QComBase*)this;
+    return QWidget::qt_cast( cname );
+}
+
+
+/*!
+    \reimp
+*/
+bool QActiveX::qt_invoke( int _id, QUObject *_o )
+{
+    if ( QComBase::qt_invoke( _id, _o ) )
+	return TRUE;
+    return QWidget::qt_invoke( _id, _o );
+}
+
+/*!
+    \reimp
+*/
+bool QActiveX::qt_emit( int _id, QUObject* _o )
+{
+    const int index = _id - metaObject()->signalOffset();
+    if ( !isNull() && index >= 0 ) {
+	// get the list of connections
+	QConnectionList *clist = receivers( _id );
+	if ( clist ) // call the signal
+	    activate_signal( clist, _o );
+
+	return TRUE;
+    }
+    return QWidget::qt_emit( _id, _o );
+}
+
+/*!
+  \reimp
+*/
+bool QActiveX::qt_property( int _id, int _f, QVariant *_v )
+{
+    if ( QComBase::qt_property( _id, _f, _v ) )
+	return TRUE;
+    return QWidget::qt_property( _id, _f, _v );
 }

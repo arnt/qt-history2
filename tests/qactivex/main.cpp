@@ -86,23 +86,23 @@ public slots:
 
 	QMetaObject *mo = activex->metaObject();
 	QListViewItem *item = new QListViewItem( listview, "Class Info", QString::number( mo->numClassInfo() ) );
-	for ( int i = 0; i < mo->numClassInfo(); ++i ) {
-	    const QClassInfo *info = mo->classInfo( i );
+	for ( int i = 0; i < mo->numClassInfo(TRUE ); ++i ) {
+	    const QClassInfo *info = mo->classInfo( i, TRUE );
 	    (void)new QListViewItem( item, info->name, info->value );
 	}
-	item = new QListViewItem( listview, "Signals", QString::number( mo->numSignals() ) );
-	for ( i = 0; i < mo->numSignals(); ++i ) {
-	    const QMetaData *signal = mo->signal( i );
+	item = new QListViewItem( listview, "Signals", QString::number( mo->numSignals( TRUE ) ) );
+	for ( i = 0; i < mo->numSignals(TRUE ); ++i ) {
+	    const QMetaData *signal = mo->signal( i, TRUE );
 	    (void)new QListViewItem( item, signal->name );
 	}
-	item = new QListViewItem( listview, "Slots", QString::number( mo->numSlots() ) );
-	for ( i = 0; i < mo->numSlots(); ++i ) {
-	    const QMetaData *slot = mo->slot( i );
+	item = new QListViewItem( listview, "Slots", QString::number( mo->numSlots( TRUE ) ) );
+	for ( i = 0; i < mo->numSlots(TRUE ); ++i ) {
+	    const QMetaData *slot = mo->slot( i, TRUE );
 	    (void)new QListViewItem( item, slot->name );
 	}
-	item = new QListViewItem( listview, "Properties", QString::number( mo->numProperties() ) );    
-	for ( i = 0; i < mo->numProperties(); ++i ) {
-	    const QMetaProperty *property = mo->property( i );
+	item = new QListViewItem( listview, "Properties", QString::number( mo->numProperties( TRUE ) ) );    
+	for ( i = 0; i < mo->numProperties( TRUE ); ++i ) {
+	    const QMetaProperty *property = mo->property( i, TRUE );
 	    QString value = activex->property( property->n ).toString();
 	    (void)new QListViewItem( item, QString( "%1 %2" ).arg( property->t ).arg( property->n ), value );
 	}
