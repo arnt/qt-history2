@@ -38,6 +38,7 @@
   External functions
  *****************************************************************************/
 CFStringRef qstring2cfstring(const QString &); //qglobal.cpp
+QString cfstring2qstring(CFStringRef);
 
 /*****************************************************************************
   QPrinter member functions
@@ -241,6 +242,12 @@ QPrinter::prepare(PMPrintSettings *s)
 	PMSessionSetDestination(psession, *s, kPMDestinationFile, kPMDocumentFormatPDF, outFile);
 	CFRelease(cfstring);
     }
+    QString printName = printerName();
+    if (!printName.isEmpty()) {
+        CFStringRef pname = qstring2cfstring(printName);
+        PMSessionSetCurrentPrinter(psession, pname);
+        CFRelease(pname);
+    }
     return true;
 }
 
@@ -308,12 +315,36 @@ void QPrinter::interpret(PMPrintSettings *s)
 	setNumCopies(copies);
 
     UInt32 max, min;
-    if(PMGetPageRange(*s, &min, &max) == noErr)
-	setMinMax(min-1, max-1);
+    if(PMGetPageRange(*s, &min, &max) == noErr) {
+        // This is messed up, but the problem here is that range and from/to are 
+        // slightly the same and we can get. This makes people see what they expect.
+        int newMin = min;
+        int newMax = max;
+        
+        if ((to != 0 && from != 0) || (min == 1 && max == 1)) {
+            --newMin;
+            --newMax;
+        }
+	setMinMax(newMin, newMax);
+    }
 
     PMColorMode cm;
     if(PMGetColorMode(*s, &cm) == noErr)
 	setColorMode(cm == kPMGray ? GrayScale : Color);
+    // Get the current Printer Name
+    CFIndex currPrinterIndex;
+    PMPrinter currPrinter;
+    CFArrayRef printerArray = CFArrayCreate(kCFAllocatorDefault, 0, 0, 0);
+    if (!printerArray)
+        qWarning("Qt: QPrinter::interpret problem allocating array");
+    OSStatus err = PMSessionCreatePrinterList(psession, &printerArray,
+                                              &currPrinterIndex, &currPrinter);
+    if (err != noErr)
+        qWarning("Qt: QPrinter::interpret problem creating printer list %ld", err);
+    QString newPrinter = cfstring2qstring((CFStringRef)CFArrayGetValueAtIndex(printerArray,
+                                                                              currPrinterIndex));
+    setPrinterName(newPrinter);
+    
 }
 
 void QPrinter::interpret(PMPageFormat *f)
@@ -430,14 +461,13 @@ QPrinter::printerEnd()
 
 static inline int qt_get_PDMWidth(PMPageFormat pformat, bool fullPage)
 {
-    int val;
-    if(fullPage) {
-	PMRect r;
-	if(PMGetAdjustedPaperRect(pformat, &r) == noErr)
+    int val = 0;
+    PMRect r;
+    if (fullPage) {
+	if (PMGetAdjustedPaperRect(pformat, &r) == noErr)
 	    val = (int)(r.right - r.left);
     } else {
-	PMRect r;
-	if(PMGetAdjustedPageRect(pformat, &r) == noErr)
+	if (PMGetAdjustedPageRect(pformat, &r) == noErr)
 	    val = (int)(r.right - r.left);
     }
     return val;
@@ -445,14 +475,13 @@ static inline int qt_get_PDMWidth(PMPageFormat pformat, bool fullPage)
 
 static inline int qt_get_PDMHeight(PMPageFormat pformat, bool fullPage)
 {
-    int val;
+    int val = 0;
+    PMRect r;
     if(fullPage) {
-	PMRect r;
-	if(PMGetAdjustedPaperRect(pformat, &r) == noErr)
+	if (PMGetAdjustedPaperRect(pformat, &r) == noErr)
 	    val = (int)(r.bottom - r.top);
     } else {
-	PMRect r;
-	if(PMGetAdjustedPageRect(pformat, &r) == noErr)
+	if (PMGetAdjustedPageRect(pformat, &r) == noErr)
 	    val = (int)(r.bottom - r.top);
     }
     return val;
