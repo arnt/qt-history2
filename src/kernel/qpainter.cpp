@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#67 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#66 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#67 $")
 
 
 /*----------------------------------------------------------------------------
@@ -104,6 +104,13 @@ void QPainter::setf( ushort b, bool v )
   \fn bool QPainter::isActive() const
   Returns the TRUE if the painter is active painting, i.e. begin() has
   been called and end() has not yet been called.
+  \sa QPaintDevice::paintingActive()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QPaintDevice *QPainter::device() const
+  Returns the paint device currently active for this painter, or null if
+  begin() has not been called.
   \sa QPaintDevice::paintingActive()
  ----------------------------------------------------------------------------*/
 
@@ -378,6 +385,37 @@ void QPainter::setBrush( const QColor &color )
 
 
 /*----------------------------------------------------------------------------
+  \fn const QColor &QPainter::backgroundColor() const
+  Returns the background color currently set.
+  \sa setBackgroundColor()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn BGMode QPainter::backgroundMode() const
+  Returns the background mode currently set.
+  \sa setBackgroundMode()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn RasterOp QPainter::rasterOp() const
+  Returns the raster operation currently set.
+  \sa setRasterOp()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn const QPoint &QPainter::brushOrigin() const
+  Returns the brush origin currently set.
+  \sa setBrushOrigin()
+ ----------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------
+  \fn int QPainter::tabStops() const
+  Returns the tab stop setting.
+  \sa setTabStops()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
   Set the number of pixels per tab stop to a fixed number.
 
   Tab stops are used when drawing formatted text with \c ExpandTabs set.
@@ -396,6 +434,12 @@ void QPainter::setTabStops( int ts )
 	pdev->cmd( PDC_SETTABSTOPS, this, param );
     }
 }
+
+/*----------------------------------------------------------------------------
+  \fn int *QPainter::tabArray() const
+  Returns the tab stop array currently set.
+  \sa setTabArray()
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   Set an array containing the tab stops.
@@ -433,6 +477,12 @@ void QPainter::setTabArray( int *ta )
 }
 
 
+/*----------------------------------------------------------------------------
+  \fn HANDLE QPainter::handle() const
+  Returns the platform-dependent handle used for drawing.
+ ----------------------------------------------------------------------------*/
+
+
 /*****************************************************************************
   QPainter xform settings
  *****************************************************************************/
@@ -440,7 +490,8 @@ void QPainter::setTabArray( int *ta )
 /*----------------------------------------------------------------------------
   Enables view transformations if \e enable is TRUE, or disables view
   transformations if \e enable is FALSE.
-  \sa setWindow(), setViewport(), setWorldMatrix(), setWorldXForm()
+  \sa hasViewXForm(), setWindow(), setViewport(), setWorldMatrix(),
+  setWorldXForm()
  ----------------------------------------------------------------------------*/
 
 void QPainter::setViewXForm( bool enable )
@@ -455,6 +506,12 @@ void QPainter::setViewXForm( bool enable )
     }
     updateXForm();
 }
+
+/*----------------------------------------------------------------------------
+  \fn bool QPainter::hasViewXForm() const
+  Returns TRUE if view transformation is enabled, otherwise FALSE.
+  \sa setViewXForm()
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   Returns the window rectangle.
@@ -594,6 +651,12 @@ void QPainter::setWorldXForm( bool enable )
 }
 
 /*----------------------------------------------------------------------------
+  \fn bool QPainter::hasWorldXForm() const
+  Returns TRUE if world transformation is enabled, otherwise FALSE.
+  \sa setWorldXForm()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
   Returns the world transformation matrix.
   \sa setWorldMatrix()
  ----------------------------------------------------------------------------*/
@@ -607,12 +670,12 @@ const QWMatrix &QPainter::worldMatrix() const
   Sets the world transformation matrix to \e m and enables world
   transformation.
 
-  If \e combine is TRUE, then \e m is combined with the
-  current transformation matrix, otherwise \e m will replace
-  the current transformation matrix.
+  If \e combine is TRUE, then \e m is combined with the current
+  transformation matrix, otherwise \e m will replace the current
+  transformation matrix.
 
-  World transformations are applies after the view transformations (\link
-  setWindow window\endlink and \link setViewport viewport\endlink).
+  World transformations are applied after the view transformations
+  (i.e. \link setWindow window\endlink and \link setViewport viewport\endlink).
 
   The following functions can transform the coordinate system without using
   a QWMatrix:
@@ -623,7 +686,7 @@ const QWMatrix &QPainter::worldMatrix() const
   <li>rotate()
   </ul>
 
-  They operate on the painter's \link worldMatrix internal matrix\endlink
+  They operate on the painter's \link worldMatrix world matrix\endlink
   and are implemented like this:
 
   \code
@@ -767,6 +830,18 @@ void QPainter::setViewport( const QRect &r )
 {
     setViewport( r.x(), r.y(), r.width(), r.height() );
 }
+
+/*----------------------------------------------------------------------------
+  \fn bool QPainter::hasClipping() const
+  Returns TRUE if clipping has been set, otherwise FALSE.
+  \sa setClipping()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn const QRegion &QPainter::clipRegion() const
+  Returns the clip region currently set.
+  \sa setClipRegion(), setClipRect()
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   Sets the clip region to \e (x,y,w,h) and enables clipping.

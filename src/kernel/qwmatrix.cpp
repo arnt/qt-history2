@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#8 $
 **
 ** Implementation of QWMatrix class
 **
@@ -18,7 +18,7 @@ double qsincos( double, bool calcCos );		// defined in qptr_x11.cpp
 #include <math.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#7 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#8 $")
 
 
 /*----------------------------------------------------------------------------
@@ -30,10 +30,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#7 $")
   device\endlink has the origin located at the top left position. X
   values increase to the left, and Y values increase to the bottom.
 
-  This coordinate system is default for the \link QPainter
-  painter\endlink, which renders graphics in a paint device. A
-  user-defined coordinate system can be specified by setting a QWMatrix
-  for the painter.
+  This coordinate system is default for the QPainter, which renders
+  graphics in a paint device. A user-defined coordinate system can be
+  specified by setting a QWMatrix for the painter.
 
   Example:
   \code
@@ -115,13 +114,13 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#7 $")
     m = m3 * m2 * m1;				// combine all transformations
   \endcode
 
-  QPainter has functions that \link QPainter::translate()
-  translate\endlink, \link QPainter::scale() scale\endlink, \link
-  QPainter::shear() shear\endlink and \link QPainter::rotate()
-  rotate\endlink and the coordinate system without using a QWMatrix.
-  These functions are very convenient, however, if you want to perform
-  more than one transform operation, it is more efficient to define a
-  QWMatrix and then call QPainter::setWorldMatrix().
+  \link QPainter QPainter\endlink has functions that \link
+  QPainter::translate() translate\endlink, \link QPainter::scale()
+  scale\endlink, \link QPainter::shear() shear\endlink and \link
+  QPainter::rotate() rotate\endlink the coordinate system without using a
+  QWMatrix.  These functions are very convenient, however, if you want to
+  perform more than a single transform operation, it is more efficient to
+  build a QWMatrix and call QPainter::setWorldMatrix().
 
   \sa QPainter::setWorldMatrix(), QPixmap::xForm()
  ----------------------------------------------------------------------------*/
