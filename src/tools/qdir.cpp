@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#59 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#60 $
 **
 ** Implementation of QDir class
 **
@@ -415,7 +415,7 @@ QString QDir::convertSeparators( const QString &pathName )
 {
     QString n( pathName );
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
-    for ( int i=0; i<n.length(); i++ ) {
+    for ( int i=0; i<(int)n.length(); i++ ) {
 	if ( n[i] == '/' )
 	    n[i] = '\\';
     }
