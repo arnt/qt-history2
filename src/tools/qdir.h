@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#40 $
+** $Id: //depot/qt/main/src/tools/qdir.h#41 $
 **
 ** Definition of QDir class
 **
@@ -83,9 +83,9 @@ public:
 
     virtual QString dirName() const;
     virtual QString filePath( const QString &fileName,
-			  bool acceptAbsPath = TRUE ) const;
+			      bool acceptAbsPath = TRUE ) const;
     virtual QString absFilePath( const QString &fileName,
-			     bool acceptAbsPath = TRUE ) const;
+				 bool acceptAbsPath = TRUE ) const;
 
     static QString convertSeparators( const QString &pathName );
 
@@ -105,22 +105,22 @@ public:
     uint count() const;
     QString	operator[]( int ) const;
 
-    QStrList encodedEntryList( int filterSpec = DefaultFilter,
-        		       int sortSpec   = DefaultSort  ) const;
-    QStrList encodedEntryList( const QString &nameFilter,
-        		       int filterSpec = DefaultFilter,
-        		       int sortSpec   = DefaultSort   ) const;
-    QStringList entryList( int filterSpec = DefaultFilter,
-        		       int sortSpec   = DefaultSort  ) const;
-    QStringList entryList( const QString &nameFilter,
-        		       int filterSpec = DefaultFilter,
-        		       int sortSpec   = DefaultSort   ) const;
-    
-    const QFileInfoList *entryInfoList( int filterSpec = DefaultFilter,
-        				int sortSpec   = DefaultSort  ) const;
-    const QFileInfoList *entryInfoList( const QString &nameFilter,
-					int filterSpec = DefaultFilter,
-					int sortSpec   = DefaultSort   ) const;
+    virtual QStrList encodedEntryList( int filterSpec = DefaultFilter,
+				       int sortSpec   = DefaultSort  ) const;
+    virtual QStrList encodedEntryList( const QString &nameFilter,
+				       int filterSpec = DefaultFilter,
+				       int sortSpec   = DefaultSort   ) const;
+    virtual QStringList entryList( int filterSpec = DefaultFilter,
+				   int sortSpec   = DefaultSort  ) const;
+    virtual QStringList entryList( const QString &nameFilter,
+				   int filterSpec = DefaultFilter,
+				   int sortSpec   = DefaultSort   ) const;
+
+    virtual const QFileInfoList *entryInfoList( int filterSpec = DefaultFilter,
+						int sortSpec = DefaultSort ) const;
+    virtual const QFileInfoList *entryInfoList( const QString &nameFilter,
+						int filterSpec = DefaultFilter,
+						int sortSpec = DefaultSort ) const;
 
     static const QFileInfoList *drives();
 
