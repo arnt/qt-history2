@@ -9,12 +9,11 @@ DEFINES += QT_INTERNAL_ICONVIEW
 include( ../../../src/qt_professional.pri )
 
 TARGET	= designer
+win32:TARGET = designerlib
 DEPENDPATH	+= $(QTDIR)/include
 VERSION  	= 1.0.0
 DESTDIR		= $(QTDIR)/lib
 DLLDESTDIR	= $(QTDIR)/bin
-win32:RC_FILE = designer.rc
-mac:RC_FILE = designer.icns
 
 aix-g++ {
 	QMAKE_CFLAGS += -mminimal-toc
