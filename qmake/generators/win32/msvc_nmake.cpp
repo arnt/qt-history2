@@ -121,7 +121,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << "OBJMOC	=	" << varList("OBJMOC") << endl;
     t << "DIST	=	" << varList("DISTFILES") << endl;
     t << "TARGET	=	"
-      << varGlue("TARGET",project->variables()["DESTDIR"].first(),"",project->variables()["TARGET_EXT"].first())
+      << varGlue("TARGET",project->variables()["DESTDIR"].first() + "\\","",project->variables()["TARGET_EXT"].first())
       << endl;
     t << endl;
 
