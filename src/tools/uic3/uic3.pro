@@ -18,6 +18,7 @@ SOURCES += main.cpp \
            ../uic/blockingprocess.cpp
 
 CONFIG += console
+CONFIG -= resource_fork
 QT += xml compat
 TEMPLATE = app
 INCLUDEPATH += . ../uic
