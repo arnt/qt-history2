@@ -63,8 +63,8 @@ public:
     QModelIndex itemAt(int x, int y) const;
 
 public slots:
-    void selectRow(int row, const QMouseEvent *event);
-    void selectColumn(int column, const QMouseEvent *event);
+    void selectRow(int row, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
+    void selectColumn(int column, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
     void hideRow(int row);
     void hideColumn(int column);
     void showRow(int row);

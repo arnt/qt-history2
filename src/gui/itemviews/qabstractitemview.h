@@ -151,14 +151,14 @@ protected slots:
 
 signals:
     void rootChanged(const QModelIndex &old, const QModelIndex &root);
-    void pressed(const QModelIndex &index, const QMouseEvent *event);
-    void clicked(const QModelIndex &index, const QMouseEvent *event);
-    void doubleClicked(const QModelIndex &index, const QMouseEvent *event);
-    void keyPressed(const QModelIndex &index, const QKeyEvent *event);
+    void pressed(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
+    void clicked(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
+    void doubleClicked(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
+    void keyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers);
     void returnPressed(const QModelIndex &index);
     void aboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
-    void itemEntered(const QModelIndex &index, const QMouseEvent *event);
-    void viewportEntered(const QMouseEvent *event);
+    void itemEntered(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
+    void viewportEntered(Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
 
 protected:
     QAbstractItemView(QAbstractItemViewPrivate &, QWidget *parent = 0);

@@ -1049,9 +1049,9 @@ void QFileDialog::doubleClicked(const QModelIndex &index)
     \a modifiers down, when the current item is \a index.
 */
 
-void QFileDialog::keyPressed(const QModelIndex &index, const QKeyEvent *event)
+void QFileDialog::keyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers)
 {
-    switch (event->key()) {
+    switch (key) {
     case Qt::Key_Delete:
         deletePressed(index);
         return;
@@ -1490,17 +1490,17 @@ void QFileDialogPrivate::setup(const QString &directory,
     QObject::connect(unsortedAction, SIGNAL(triggered()), q, SLOT(setUnsorted()));
     QObject::connect(showHiddenAction, SIGNAL(triggered()), q, SLOT(showHidden()));
 
-    QObject::connect(lview, SIGNAL(doubleClicked(QModelIndex,const QMouseEvent*)),
+    QObject::connect(lview, SIGNAL(doubleClicked(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
                      q, SLOT(doubleClicked(QModelIndex)));
-    QObject::connect(tview, SIGNAL(doubleClicked(QModelIndex,const QMouseEvent*)),
+    QObject::connect(tview, SIGNAL(doubleClicked(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
                      q, SLOT(doubleClicked(QModelIndex)));
     QObject::connect(selections, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
                      q, SLOT(currentChanged(QModelIndex,QModelIndex)));
-    QObject::connect(lview, SIGNAL(keyPressed(QModelIndex,const QKeyEvent*)),
-                     q, SLOT(keyPressed(QModelIndex,const QKeyEvent*)));
-    QObject::connect(tview, SIGNAL(keyPressed(QModelIndex,const QKeyEvent*)),
-                     q, SLOT(keyPressed(QModelIndex,const QKeyEvent*)));
-    QObject::connect(tview->header(), SIGNAL(sectionPressed(int,const QMouseEvent*)),
+    QObject::connect(lview, SIGNAL(keyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)),
+                     q, SLOT(keyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)));
+    QObject::connect(tview, SIGNAL(keyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)),
+                     q, SLOT(keyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)));
+    QObject::connect(tview->header(), SIGNAL(sectionPressed(int)),
                      q, SLOT(headerPressed(int)));
 
     // labels

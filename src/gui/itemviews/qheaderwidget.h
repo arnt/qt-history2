@@ -121,7 +121,7 @@ public slots:
     void clear();
 
 signals:
-    void clicked(QHeaderWidgetItem *item, const QMouseEvent *event);
+    void clicked(QHeaderWidgetItem *item, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
     void itemChanged(QHeaderWidgetItem *item);
 
 protected:
@@ -129,7 +129,7 @@ protected:
     void setup(int sections);
 
 private:
-    Q_PRIVATE_SLOT(d, void emitClicked(int section, const QMouseEvent *event))
+    Q_PRIVATE_SLOT(d, void emitClicked(int section, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))
     Q_PRIVATE_SLOT(d, void emitItemChanged(Qt::Orientation orientation, int first, int last))
 };
 

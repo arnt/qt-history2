@@ -910,7 +910,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     QRect rect(d->pressedPosition - offset, pos);
     setSelection(rect.normalize(), command);
 
-    emit pressed(index, e);
+    emit pressed(index, e->button(), e->modifiers());
     if (e->button() == Qt::LeftButton && itemWasSelected && selectionModel()->isSelected(index))
         edit(index, SelectedClicked, e);
 }
@@ -945,9 +945,9 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 
     if (d->enteredItem != index) {
         if (index.isValid())
-            emit itemEntered(index, e);
+            emit itemEntered(index, e->button(), e->modifiers());
         else
-            emit viewportEntered(e);
+            emit viewportEntered(e->button(), e->modifiers());
         d->enteredItem = persistent;
     } else if (state() == SelectingState) {
         return; // we haven't moved over another item yet
@@ -994,7 +994,7 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
         setState(NoState);
 
     if (index == d->pressedItem)
-        emit clicked(index, e);
+        emit clicked(index, e->button(), e->modifiers());
     if (e->button() == Qt::RightButton) {
         QContextMenuEvent me(QContextMenuEvent::Mouse, pos);
         QApplication::sendEvent(this, &me);
@@ -1011,7 +1011,7 @@ void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
     QModelIndex index = itemAt(e->pos());
     if (!index.isValid())
         return;
-    emit doubleClicked(index, e);
+    emit doubleClicked(index, e->button(), e->modifiers());
     edit(index, DoubleClicked, e);
 }
 
@@ -1217,7 +1217,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     }
 
     if (d->hasKeyTracking)
-        emit keyPressed(currentIndex(), e);
+        emit keyPressed(currentIndex(), static_cast<Qt::Key>(e->key()), e->modifiers());
 }
 
 /*!
@@ -1702,7 +1702,8 @@ void QAbstractItemView::selectionChanged(const QItemSelection &selected,
 */
 void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-    if (previous.isValid()) { 
+    if (previous.isValid()) {
+        // repaint the previous item; if it is not selected, this is the only place to do this
         int behavior = selectionBehavior();
         QRect rect = itemViewportRect(previous);
         if (behavior & SelectRows) {
@@ -1713,7 +1714,8 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
             rect.setTop(0);
             rect.setBottom(d->viewport->height());
         }
-        d->viewport->repaint(rect);
+        d->viewport->repaint(rect); // painting in the next paint event is too late (because of scrolling)
+        // if we are editing, commit the data and close the editor
         if (state() == EditingState) {
             QPersistentModelIndex persistent(previous, model());
             QWidget *editor = d->editors.value(persistent);

@@ -104,10 +104,10 @@ public slots:
 signals:
     void sectionMoved(int logicalIndex, int oldVisualIndex, int newVisualIndex);
     void sectionResized(int logicalIndex, int oldSize, int newSize);
-    void sectionPressed(int logicalIndex, const QMouseEvent *event);
-    void sectionClicked(int logicalIndex, const QMouseEvent *event);
+    void sectionPressed(int logicalIndex, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
+    void sectionClicked(int logicalIndex, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
     void sectionCountChanged(int oldCount, int newCount);
-    void sectionHandleDoubleClicked(int logicalIndex, const QMouseEvent *event);
+    void sectionHandleDoubleClicked(int logicalIndex);
     void sectionAutoResize(int logicalIndex, ResizeMode mode);
 
 protected slots:

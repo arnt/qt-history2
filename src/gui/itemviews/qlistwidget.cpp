@@ -541,35 +541,43 @@ class QListWidgetPrivate : public QListViewPrivate
 public:
     QListWidgetPrivate() : QListViewPrivate() {}
     inline QListModel *model() const { return ::qt_cast<QListModel*>(q_func()->model()); }
-    void emitPressed(const QModelIndex &index, const QMouseEvent *event);
-    void emitClicked(const QModelIndex &index, const QMouseEvent *event);
-    void emitDoubleClicked(const QModelIndex &index, const QMouseEvent *event);
-    void emitKeyPressed(const QModelIndex &index, const QKeyEvent *event);
+    void emitPressed(const QModelIndex &index, Qt::MouseButton button,
+                     Qt::KeyboardModifiers modifiers);
+    void emitClicked(const QModelIndex &index, Qt::MouseButton button,
+                     Qt::KeyboardModifiers modifiers);
+    void emitDoubleClicked(const QModelIndex &index, Qt::MouseButton button,
+                           Qt::KeyboardModifiers modifiers);
+    void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers);
     void emitReturnPressed(const QModelIndex &index);
     void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
-    void emitItemEntered(const QModelIndex &index, const QMouseEvent *event);
+    void emitItemEntered(const QModelIndex &index, Qt::MouseButton button,
+                         Qt::KeyboardModifiers modifiers);
     void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
     void emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 };
 
-void QListWidgetPrivate::emitPressed(const QModelIndex &index, const QMouseEvent *event)
+void QListWidgetPrivate::emitPressed(const QModelIndex &index, Qt::MouseButton button,
+                                     Qt::KeyboardModifiers modifiers)
 {
-    emit q->pressed(model()->at(index.row()), event);
+    emit q->pressed(model()->at(index.row()), button, modifiers);
 }
 
-void QListWidgetPrivate::emitClicked(const QModelIndex &index, const QMouseEvent *event)
+void QListWidgetPrivate::emitClicked(const QModelIndex &index, Qt::MouseButton button,
+                                     Qt::KeyboardModifiers modifiers)
 {
-    emit q->clicked(model()->at(index.row()), event);
+    emit q->clicked(model()->at(index.row()), button, modifiers);
 }
 
-void QListWidgetPrivate::emitDoubleClicked(const QModelIndex &index, const QMouseEvent *event)
+void QListWidgetPrivate::emitDoubleClicked(const QModelIndex &index, Qt::MouseButton button,
+                                           Qt::KeyboardModifiers modifiers)
 {
-    emit q->doubleClicked(model()->at(index.row()), event);
+    emit q->doubleClicked(model()->at(index.row()), button, modifiers);
 }
 
-void QListWidgetPrivate::emitKeyPressed(const QModelIndex &index, const QKeyEvent *event)
+void QListWidgetPrivate::emitKeyPressed(const QModelIndex &index, Qt::Key key,
+                                        Qt::KeyboardModifiers modifiers)
 {
-    emit q->keyPressed(model()->at(index.row()), event);
+    emit q->keyPressed(model()->at(index.row()), key, modifiers);
 }
 
 void QListWidgetPrivate::emitReturnPressed(const QModelIndex &index)
@@ -584,9 +592,10 @@ void QListWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const QM
     emit q->currentTextChanged(currentItem ? currentItem->text() : QString());
 }
 
-void QListWidgetPrivate::emitItemEntered(const QModelIndex &index, const QMouseEvent *event)
+void QListWidgetPrivate::emitItemEntered(const QModelIndex &index, Qt::MouseButton button,
+                                         Qt::KeyboardModifiers modifiers)
 {
-    emit q->itemEntered(model()->at(index.row()), event);
+    emit q->itemEntered(model()->at(index.row()), button, modifiers);
 }
 
 void QListWidgetPrivate::emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index)
@@ -1021,18 +1030,18 @@ void QListWidget::setModel(QAbstractItemModel *model)
 void QListWidget::setup()
 {
     setModel(new QListModel(this));
-    connect(this, SIGNAL(pressed(QModelIndex,const QMouseEvent*)),
-            SLOT(emitPressed(QModelIndex,const QMouseEvent*)));
-    connect(this, SIGNAL(clicked(QModelIndex,const QMouseEvent*)),
-            SLOT(emitClicked(QModelIndex,const QMouseEvent*)));
-    connect(this, SIGNAL(doubleClicked(QModelIndex,const QMouseEvent*)),
-            SLOT(emitDoubleClicked(QModelIndex,const QMouseEvent*)));
-    connect(this, SIGNAL(keyPressed(QModelIndex,const QKeyEvent*)),
-            SLOT(emitKeyPressed(QModelIndex,const QKeyEvent*)));
+    connect(this, SIGNAL(pressed(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
+            SLOT(emitPressed(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)));
+    connect(this, SIGNAL(clicked(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
+            SLOT(emitClicked(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)));
+    connect(this, SIGNAL(doubleClicked(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
+            SLOT(emitDoubleClicked(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)));
+    connect(this, SIGNAL(keyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)),
+            SLOT(emitKeyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)));
     connect(this, SIGNAL(returnPressed(QModelIndex)),
             SLOT(emitReturnPressed(QModelIndex)));
-    connect(this, SIGNAL(itemEntered(QModelIndex,const QMouseEvent*)),
-            SLOT(emitItemEntered(QModelIndex,const QMouseEvent*)));
+    connect(this, SIGNAL(itemEntered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
+            SLOT(emitItemEntered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)));
     connect(this, SIGNAL(aboutToShowContextMenu(QMenu*,QModelIndex)),
             SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));
     connect(selectionModel(),

@@ -161,27 +161,27 @@ QHeaderView *QTreeView::header() const
 void QTreeView::setHeader(QHeaderView *header)
 {
     if (d->header) {
-        QObject::disconnect(d->header, SIGNAL(sectionResized(int,int,int)),
-                            this, SLOT(columnResized(int,int,int)));
-        QObject::disconnect(d->header, SIGNAL(sectionMoved(int,int,int)),
-                            this, SLOT(columnMoved()));
-        QObject::disconnect(d->header, SIGNAL(sectionCountChanged(int,int)),
+        disconnect(d->header, SIGNAL(sectionResized(int,int,int)),
+                   this, SLOT(columnResized(int,int,int)));
+        disconnect(d->header, SIGNAL(sectionMoved(int,int,int)),
+                   this, SLOT(columnMoved()));
+        disconnect(d->header, SIGNAL(sectionCountChanged(int,int)),
                             this, SLOT(columnCountChanged(int,int)));
-        QObject::disconnect(d->header, SIGNAL(sectionHandleDoubleClicked(int,const QMouseEvent*)),
-                            this, SLOT(resizeColumnToContents(int)));
+        disconnect(d->header, SIGNAL(sectionHandleDoubleClicked(int)),
+                   this, SLOT(resizeColumnToContents(int)));
         delete d->header;
     }
 
     d->header = header;
 
-    QObject::connect(d->header, SIGNAL(sectionResized(int,int,int)),
-                     this, SLOT(columnResized(int,int,int)), Qt::QueuedConnection);
-    QObject::connect(d->header, SIGNAL(sectionMoved(int,int,int)),
-                     this, SLOT(columnMoved()), Qt::QueuedConnection);
-    QObject::connect(d->header, SIGNAL(sectionCountChanged(int,int)),
-                     this, SLOT(columnCountChanged(int,int)), Qt::QueuedConnection);
-    QObject::connect(d->header, SIGNAL(sectionHandleDoubleClicked(int,const QMouseEvent*)),
-                     this, SLOT(resizeColumnToContents(int)));
+    connect(d->header, SIGNAL(sectionResized(int,int,int)),
+            this, SLOT(columnResized(int,int,int)),Qt::QueuedConnection);
+    connect(d->header, SIGNAL(sectionMoved(int,int,int)),
+            this, SLOT(columnMoved()),Qt::QueuedConnection);
+    connect(d->header, SIGNAL(sectionCountChanged(int,int)),
+            this, SLOT(columnCountChanged(int,int)),Qt::QueuedConnection);
+    connect(d->header, SIGNAL(sectionHandleDoubleClicked(int)),
+            this, SLOT(resizeColumnToContents(int)));
 }
 
 /*!

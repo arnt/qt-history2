@@ -231,9 +231,10 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
                             this, SLOT(columnMoved(int,int,int)));
         QObject::disconnect(d->horizontalHeader, SIGNAL(sectionCountChanged(int,int)),
                             this, SLOT(columnCountChanged(int,int)));
-        QObject::disconnect(d->horizontalHeader, SIGNAL(sectionPressed(int,const QMouseEvent*)),
-                            this, SLOT(selectColumn(int,const QMouseEvent*)));
-        QObject::disconnect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int,const QMouseEvent*)),
+        QObject::disconnect(d->horizontalHeader,
+                            SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
+                            this, SLOT(selectColumn(int,Qt::MouseButton,Qt::KeyboardModifiers)));
+        QObject::disconnect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
                             this, SLOT(resizeColumnToContents(int)));
     }
 
@@ -245,9 +246,10 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
                      this, SLOT(columnMoved(int,int,int)), Qt::QueuedConnection);
     QObject::connect(d->horizontalHeader, SIGNAL(sectionCountChanged(int,int)),
                      this, SLOT(columnCountChanged(int,int)), Qt::QueuedConnection);
-    QObject::connect(d->horizontalHeader, SIGNAL(sectionPressed(int,const QMouseEvent*)),
-                     this, SLOT(selectColumn(int,const QMouseEvent*)));
-    QObject::connect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int,const QMouseEvent*)),
+    QObject::connect(d->horizontalHeader,
+                     SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
+                     this, SLOT(selectColumn(int,Qt::MouseButton,Qt::KeyboardModifiers)));
+    QObject::connect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
                      this, SLOT(resizeColumnToContents(int)));
 }
 
@@ -265,9 +267,10 @@ void QTableView::setVerticalHeader(QHeaderView *header)
                             this, SLOT(rowMoved(int,int,int)));
         QObject::disconnect(d->verticalHeader, SIGNAL(sectionCountChanged(int,int)),
                             this, SLOT(rowCountChanged(int,int)));
-        QObject::disconnect(d->verticalHeader, SIGNAL(sectionPressed(int,const QMouseEvent*)),
-                            this, SLOT(selectRow(int,const QMouseEvent*)));
-        QObject::disconnect(d->verticalHeader, SIGNAL(sectionHandleDoubleClicked(int,const QMouseEvent*)),
+        QObject::disconnect(d->verticalHeader,
+                            SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
+                            this, SLOT(selectRow(int,Qt::MouseButton,Qt::KeyboardModifiers)));
+        QObject::disconnect(d->verticalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
                             this, SLOT(resizeRowToContents(int)));
     }
 
@@ -279,9 +282,10 @@ void QTableView::setVerticalHeader(QHeaderView *header)
                      this, SLOT(rowMoved(int,int,int)), Qt::QueuedConnection);
     QObject::connect(d->verticalHeader, SIGNAL(sectionCountChanged(int,int)),
                      this, SLOT(rowCountChanged(int,int)), Qt::QueuedConnection);
-    QObject::connect(d->verticalHeader, SIGNAL(sectionPressed(int,const QMouseEvent*)),
-                     this, SLOT(selectRow(int,const QMouseEvent*)));
-    QObject::connect(d->verticalHeader, SIGNAL(sectionHandleDoubleClicked(int,const QMouseEvent*)),
+    QObject::connect(d->verticalHeader,
+                     SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
+                     this, SLOT(selectRow(int,Qt::MouseButton,Qt::KeyboardModifiers)));
+    QObject::connect(d->verticalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
                      this, SLOT(resizeRowToContents(int)));
 }
 
@@ -996,11 +1000,12 @@ void QTableView::columnMoved(int, int oldIndex, int newIndex)
 
     \sa selectColumn()
 */
-void QTableView::selectRow(int row, const QMouseEvent *event)
+void QTableView::selectRow(int row, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
 {
     if (row >= 0 && row < model()->rowCount(root())) {
         QModelIndex index = model()->index(row, 0, root());
-        QItemSelectionModel::SelectionFlags command = selectionCommand(index, event);
+        QMouseEvent event(QEvent::MouseButtonPress, QPoint(), button, Qt::NoButton, modifiers);
+        QItemSelectionModel::SelectionFlags command = selectionCommand(index, &event);
         if (selectionMode() == SingleSelection) {
             selectionModel()->setCurrentIndex(index, command);
         } else {
@@ -1021,11 +1026,12 @@ void QTableView::selectRow(int row, const QMouseEvent *event)
 
     \sa selectRow()
 */
-void QTableView::selectColumn(int column, const QMouseEvent *event)
+void QTableView::selectColumn(int column, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
 {
     if (column >= 0 && column < model()->columnCount(root())) {
         QModelIndex index = model()->index(0, column, root());
-        QItemSelectionModel::SelectionFlags command = selectionCommand(index, event);
+        QMouseEvent event(QEvent::MouseButtonPress, QPoint(), button, Qt::NoButton, modifiers);
+        QItemSelectionModel::SelectionFlags command = selectionCommand(index, &event);
         if (selectionMode() == SingleSelection) {
             selectionModel()->setCurrentIndex(index, command);
         } else {

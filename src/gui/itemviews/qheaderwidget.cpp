@@ -304,13 +304,14 @@ public:
     QHeaderWidgetPrivate() : QHeaderViewPrivate() {}
     inline QHeaderModel *model() const { return ::qt_cast<QHeaderModel*>(q_func()->model()); }
 
-    void emitClicked(int section, const QMouseEvent *event);
+    void emitClicked(int section, Qt::MouseButton button, Qt::KeyboarModifiers modifiers);
     void emitItemChanged(Qt::Orientation orientation, int first, int last);
 };
 
-void QHeaderWidgetPrivate::emitClicked(int section, const QMouseEvent *event)
+void QHeaderWidgetPrivate::emitClicked(int section, Qt::MouseButton button,
+                                       Qt::KeyboarModifiers modifiers)
 {
-    emit q->clicked(model()->item(section), event);
+    emit q->clicked(model()->item(section), button, modifiers);
 }
 
 void QHeaderWidgetPrivate::emitItemChanged(Qt::Orientation orientation, int first, int last)
@@ -441,8 +442,8 @@ void QHeaderWidget::setModel(QAbstractItemModel *model)
 void QHeaderWidget::setup(int sections)
 {
     setModel(new QHeaderModel(orientation(), sections, this));
-    connect(this, SIGNAL(clicked(int,const QMouseEvent*)),
-            SLOT(emitSectionClicked(int,const QMouseEvent)));
+    connect(this, SIGNAL(clicked(int,Qt::MouseButton,Qt::KeyboardModifiers)),
+            SLOT(emitSectionClicked(int,Qt::MouseButton,Qt::KeyboardModifiers)));
     connect(model(), SIGNAL(headerDataChanged(Qt::orientation,int,int)),
             SLOT(emitItemChanged(Qt::orientation,int,int)));
 }

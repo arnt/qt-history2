@@ -1148,7 +1148,7 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
         if (handle == -1) {
             d->pressed = logicalIndexAt(pos);
             updateSection(d->pressed);
-            emit sectionPressed(d->pressed, e);
+            emit sectionPressed(d->pressed, e->button(), e->modifiers());
         } else if (resizeMode(handle) == Interactive) {
             d->state = QHeaderViewPrivate::ResizeSection;
             d->lastPos = (orientation() == Qt::Horizontal ? e->x() : e->y());
@@ -1218,7 +1218,7 @@ void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
         break;
     case QHeaderViewPrivate::NoState:
         updateSection(d->pressed);
-        emit sectionClicked(logicalIndexAt(pos), e);
+        emit sectionClicked(logicalIndexAt(pos), e->button(), e->modifiers());
         break;
     case QHeaderViewPrivate::ResizeSection:
         break;
@@ -1238,7 +1238,7 @@ void QHeaderView::mouseDoubleClickEvent(QMouseEvent *e)
     int handle = d->sectionHandleAt(pos);
     while (handle > -1 && isSectionHidden(handle)) handle--;
     if (handle > -1 && resizeMode(handle) == Interactive)
-        emit sectionHandleDoubleClicked(handle, e);
+        emit sectionHandleDoubleClicked(handle);
 }
 
 /*!
