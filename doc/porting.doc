@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.5 1998/08/27 23:19:28 agulbra Exp $
+** $Id: porting.doc,v 1.6 1998/08/31 21:22:07 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -49,6 +49,8 @@ Now uses Unicode.  data() is obsolete - you cannot directly access the
  string as an array of bytes, because it isn't one.  Often, ascii() is
  what you want rather than data(), or just leave it to convert to
  const char* automatically.  data() is only used now to aide porting to Qt 2.0
+In qt/src/tools/qstring.cpp there is a Q2HELPER - define it for some
+ extra debugging features (don't leave it it - it kills performance).
 detach() is obsolete - QString is always shared.  It is now a no-op.
 size() should be replaced by length()+1.
 Code that uses QString as an array of bytes should use QByteArray
@@ -85,7 +87,23 @@ When converting, set a breakpoint in QString::ascii() to catch places where
 Many signal/slots have changed from const char* to QString.  You will
  get run-time errors when you try to QObject::connect() to the old
  signals and slots.
-
+QString is not null terminated.  This means that inserting a 0-character
+ in the middle of the string does NOT change the length().  ie.
+   QString s = "fred";
+   s[1] = '\0';
+     s.length() == 4
+     s == "f\0ed";
+     s.ascii() == "f";
+   s[1] = 'r';
+     s == "fred";
+     s.ascii() == "fred";
+ Especially look out for this type of code:
+   QString s(2);
+   s[0] = '?';
+   s[1] = 0;
+ This creates a string 2 characters long.
+ To find these problems while converting, ASSERT(strlen(d->ascii)==d->len)
+  inside QString::ascii().
 
 <p>
 QMultiLineEdit::textWidth(QString*)
@@ -105,11 +123,22 @@ Some repaint problems problems might occur with subclasses on QFrame,
 <p>
 QClipboard::pixmap() now returns a QPixmap, not a QPixmap*.
 
+<p>
+The following virtual functions have changed signature in Qt 2.0.
+If you override them, you must change your code.
+[can we provide assistance in the code for this?]
+[GENERATE THE LIST]
+Easy for const char* -> QString - there are about 20 in total.
+
 <p> The global #define macros in qevent.h have been replaced by an
 enum in QEvent.  Use e.g. QEvent::Paint instead of Event_Paint.
 
 <p> The Q_*_EVENT macros in qevent.h have been deleted.  Use an
 explicit cast instead.
+
+<p> QChildEvents are now sent for all QObjects, not just QWidgets.
+You may need to add extra checking if you use QChildEvent without
+much testing of its values.
 
 <p> The Q_DECLARE macro and qgeneric.h are obsolete.  Use real
 template instantiations instead.  (e.g. QCache<QPixmap> instead of
