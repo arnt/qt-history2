@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#27 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -91,20 +91,16 @@ public:
 
 */
 
-#if defined(_CC_GNU_)
-#warning "Matthias: Please fill in the Margin doc"
-#endif
-
 /*! \enum QStyleSheetItem::Margin
 
   <ul>
-  <li> \c MarginLeft -
-  <li> \c MarginRight -
-  <li> \c MarginTop -
-  <li> \c MarginBottom -
-  <li> \c MarginAll -
-  <li> \c MarginVertical -
-  <li> \c MarginHorizontal -
+  <li> \c MarginLeft - left margin
+  <li> \c MarginRight - right margin
+  <li> \c MarginTop - top margin
+  <li> \c MarginBottom - bottom margin
+  <li> \c MarginAll - all margins (left, right, top and bottom )
+  <li> \c MarginVertical - top and bottom margin
+  <li> \c MarginHorizontal - left and right margin
 */
 
 /*!
@@ -122,6 +118,16 @@ QStyleSheetItem::QStyleSheetItem( QStyleSheet* parent, const QString& name )
     init();
     if (parent)
 	parent->insert( this );
+}
+
+/*!
+  Copy constructor. Constructs a copy of \a other that is
+  not bound to any stylesheet.
+ */
+QStyleSheetItem::QStyleSheetItem( const QStyleSheetItem & other )
+{
+    d = new QStyleSheetItemData;
+    *d = *other.d;
 }
 
 
@@ -743,6 +749,8 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	- the logical size of the font. Logical sizes 1 to 7 are supported.
 	 The value may either be absolute, for example
 	\c size=3, or relative. In the latter case, the sizes are simply added.
+	<li> \c face
+	- the family of the font, for example \c face=times
 	</ul>
 	
     <li>\c &lt;em&gt;...&lt;/em&gt;
@@ -914,9 +922,11 @@ void QStyleSheet::init()
     style->setAlignment( AlignCenter );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("twocolumn") );
+    style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style->setNumberOfColumns( 2 );
 
-    (void) new QStyleSheetItem( this, QString::fromLatin1("multicol") );
+    style =  new QStyleSheetItem( this, QString::fromLatin1("multicol") );
+    style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     (void) new QStyleSheetItem( this, QString::fromLatin1("font") );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("ul") );

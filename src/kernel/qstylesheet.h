@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.h#11 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.h#12 $
 **
 ** Definition of the QStyleSheet class
 **
@@ -43,6 +43,7 @@ class Q_EXPORT QStyleSheetItem : public Qt
 {
 public:
     QStyleSheetItem( QStyleSheet* parent, const QString& name );
+    QStyleSheetItem( const QStyleSheetItem & );
     ~QStyleSheetItem();
 
     QString name() const;
