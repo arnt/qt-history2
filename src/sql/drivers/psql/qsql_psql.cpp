@@ -114,7 +114,9 @@ QVariant::Type qDecodePSQLType( int t )
 	type = QVariant::Date;
 	break;
     case TIMEOID	:
-	//    case TIMETZOID      : // 7.x
+#ifdef TIMETZOID // 7.x
+	case TIMETZOID  :
+#endif
 	type = QVariant::Time;
 	break;
     case TIMESTAMPOID   :
@@ -137,6 +139,9 @@ QVariant::Type qDecodePSQLType( int t )
 	type = QVariant::Rect;
 	break;
     case POLYGONOID     :
+    case LINEOID        :
+    case LSEGOID        :
+    case PATHOID        :
 	type = QVariant::PointArray;
 	break;
 	//    case ZPBITOID	: // 7.x
@@ -150,13 +155,7 @@ QVariant::Type qDecodePSQLType( int t )
     case CIDOID         :
 	//    case OIDVECTOROID   : // 7.x
     case UNKNOWNOID     :
-    case INETOID        :
-    case CIDROID        :
 	//    case TINTERVALOID   : // 7.x
-    case CIRCLEOID      :
-    case PATHOID        :
-    case LSEGOID        :
-    case LINEOID        :
 	type = QVariant::Invalid;
 	break;
     default:
@@ -166,8 +165,11 @@ QVariant::Type qDecodePSQLType( int t )
     case VARCHAROID	:
     case TEXTOID	:
     case NAMEOID	:
-    case BYTEAOID	:
+    case BYTEAOID       :
     case CASHOID        :
+    case INETOID        :
+    case CIDROID        :
+    case CIRCLEOID      :
 	type = QVariant::String;
 	break;
     }
@@ -297,6 +299,10 @@ QVariant QPSQLResult::data( int i )
 	if ( val.isEmpty() ) {
 	    return QVariant( QTime() );
 	} else {
+	    // strip the timezone
+	    int i = val.findRev( "+" );
+	    if ( i > 0 )
+		val = val.left( (uint)i );
 	    return QVariant( QTime::fromString( val, Qt::ISODate ) );
 	}
     case QVariant::DateTime:
@@ -320,7 +326,7 @@ QVariant QPSQLResult::data( int i )
 	{
 	    int pivot = val.find( "),(" );
 	    if ( pivot != -1 )
-		return QVariant( QRect( pointFromString( val.mid(0,pivot+1) ), pointFromString( val.mid(pivot+2,val.length()) ) ) );
+		return QVariant( QRect( pointFromString( val.mid(pivot+2,val.length()) ), pointFromString( val.mid(0,pivot+1) ) ) );
 	    return QVariant( QRect() );
 	}
     case QVariant::PointArray: // format '((x,y),(x1,y1),...,(xn,yn))'
@@ -910,15 +916,21 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 	    if ( field->value().toDateTime().isValid() ) {
 		QDate dt = field->value().toDateTime().date();
 		QTime tm = field->value().toDateTime().time();
-		r = "'" + QString::number(dt.year()) + "-" +
-			  QString::number(dt.month()) + "-" +
-			  QString::number(dt.day()) + " " +
+		r = "'" + QString::number( dt.year() ) + "-" +
+			  QString::number( dt.month() ) + "-" +
+			  QString::number( dt.day() ) + " " +
 			  tm.toString() + "." +
-			  QString::number(tm.msec()) + "'";
+			  QString::number( tm.msec() ) + "'";
 	    } else {
 		r = nullText();
 	    }
 	    break;
+	case QVariant::Time:
+	    if ( field->value().toTime().isValid() ) {
+		r = field->value().toTime().toString( Qt::ISODate );
+	    } else {
+		r = nullText();
+	    }
 	case QVariant::String:
 	case QVariant::CString: {
 	    // Escape '\' characters
@@ -938,6 +950,32 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 	    qWarning( "QPSQLDriver::formatValue: cannot format ByteArray." );
 #endif
 	    break;
+	case QVariant::Rect: {
+	    QRect rec = field->value().toRect();
+	    // upper right corner then lower left according to psql docs
+	    r = "'(" + QString::number( rec.right() ) +
+		"," + QString::number( rec.bottom() ) +
+		"),(" + QString::number( rec.left() ) +
+		"," + QString::number( rec.top() ) + ")'";
+	    break;
+	}
+	case QVariant::Point: {
+	    QPoint p = field->value().toPoint();
+	    r = "'(" + QString::number( p.x() ) +
+	        "," + QString::number( p.y() ) + ")'";
+	    break;
+	}
+	case QVariant::PointArray: {
+	    QPointArray pa = field->value().toPointArray();
+	    r = "' ";
+	    for ( uint i = 0; i < pa.size(); ++i ) {
+		r += "(" + QString::number( pa[i].x() ) +
+		     "," + QString::number( pa[i].y() ) + "),";
+	    }
+	    r.truncate( r.length() - 1 );
+	    r += "'";
+	    break;
+	}
 	default:
 	    r = QSqlDriver::formatValue( field );
 	    break;
