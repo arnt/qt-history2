@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#22 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#23 $
 **
 ** Implementation of QDns class.
 **
@@ -35,23 +35,20 @@
 **
 **********************************************************************/
 
-#include <qglobal.h>
-
-// Step 3)
+#include "qglobal.h"
 #if defined(Q_OS_LINUX)
-// I don't know why, I don't know how - but this is needed on Red Hat 7.0.
+// This is gory!
+// <resolv.h> includes <arpa/nameser.h>. <arpa/nameser.h> is using 'u_char'
+// and includes <sys/types.h>. Now the problem is that <sys/types.h> defines
+// 'u_char' only if __USE_BSD is defined. __USE_BSD is defined in <features.h>
+// if _BSD_SOURCE is defined.
+// Alas "qdns.h" includes "qcstring.h" which includes <string.h> which
+// includes <features.h>. So _BSD_SOURCE has to be defined before "qdns.h"...
 #  define _BSD_SOURCE
 #endif
-// Step 4)
-#ifndef Q_WS_WIN
-#include <unistd.h>
-#endif
-
-// 'u_char' and other BSD unsigned things used in <arpa> are undefined
-// on Tru64 4.0f unless...
-#if !defined(Q_OS_OSF)
-// Has to appear before "qdns.h"??? Fix me!
-# define _OSF_SOURCE
+#if defined(Q_OS_OSF)
+// Same problem here...
+#  define _OSF_SOURCE
 #endif
 
 #include "qdns.h"
@@ -1956,24 +1953,30 @@ QString QDns::canonicalName() const
 
 #if defined(Q_OS_UNIX)
 
-// include this stuff late, so any defines won't hurt.  funkily,
-// struct __res_state is part of the api.  normally not used, it says.
-// but we use it, to get various information.
+// Include this stuff late, so any defines won't hurt.  Funkily,
+// struct __res_state is part of the API.  Normally not used, it
+// says.  But we use it, to get various information.
 
+#if 0 // should be included by default... if not, please document!
 #include <sys/types.h>
-#include <netinet/in.h>
-#if defined (Q_OS_SCO) // SCO OpenServer 5.0.5
-# define class c_class
 #endif
-#include <arpa/nameser.h>
-#if defined (Q_OS_SCO)
-# undef class
+
+#if defined (Q_OS_SCO) // SCO OpenServer 5.0.5
+#  define class c_class
 #endif
 #include <resolv.h>
+#if defined (Q_OS_SCO)
+#  undef class
+#endif
+
+#if 0 // should be included by default... if not, please document!
+#include <netinet/in.h>
+#include <arpa/nameser.h>
+#endif
 
 #if defined (Q_OS_SOLARIS)
-// According to changelog 23685, this was introduced to fix a problem under
-// Solaris.
+// According to changelog 23685, this was introduced to fix a problem
+// under Solaris. Need to have a closer look at it...
 extern "C" int res_init();
 #endif
 
@@ -2235,3 +2238,4 @@ static void doResInit()
 #endif
 
 #endif
+
