@@ -2690,6 +2690,9 @@ void qt_leave_modal( QWidget* );
   except that it allows the user to specify the name of a nonexistent file
   name.
 
+  NOTE: In the windows version of Qt this static method uses the native
+  windows file dialog, and not the QFileDialog.
+  
   \sa getSaveFileName()
 */
 
@@ -2780,6 +2783,9 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
   getOpenFileName() is another convenience function, equal to this one
   except that it does not allow the user to specify the name of a
   nonexistent file name.
+
+  NOTE: In the windows version of Qt this static method uses the native
+  windows file dialog, and not the QFileDialog.
 
   \sa getOpenFileName()
 */
@@ -3526,11 +3532,15 @@ void QFileDialog::createdDirectory( const QUrlInfo &info, QNetworkOperation * )
 }
 
 
-/*!  Ask the user for the name of an existing directory, starting at
+/*! 
+  Ask the user for the name of an existing directory, starting at
   \a dir.  Returns the name of the directory the user selected.
 
   If \a dir is null, getExistingDirectory() starts wherever the
   previous file dialog left off.
+
+  NOTE: In the windows version of Qt this static method uses the native
+  windows file dialog, and not the QFileDialog.
 */
 
 QString QFileDialog::getExistingDirectory( const QString & dir,
@@ -4143,6 +4153,9 @@ void QFileDialog::modeButtonsDestroyed()
     QStringList s( QFileDialog::getOpenFileNames() );
     // do something with the files in s.
   \endcode
+
+  NOTE: In the windows version of Qt this static method uses the native
+  windows file dialog, and not the QFileDialog.
 */
 
 QStringList QFileDialog::getOpenFileNames( const QString & filter,
