@@ -1078,7 +1078,6 @@ void QComboBox::resizeEvent( QResizeEvent * e )
 {
     if ( d->ed ) {
 	d->updateLinedGeometry();
-	//d->ed->setGeometry(style().comboButtonRect( 0, 0, width(), height() ));
     }
     QWidget::resizeEvent( e );
 }
@@ -1369,16 +1368,26 @@ void QComboBox::popup()
 	d->listBox()->setCurrentItem( d->listBox()->item( d->current ) );
 	d->listBox()->blockSignals( FALSE );
 	d->listBox()->setAutoScrollBar( TRUE );
-#ifdef ANIMATED_COMBO
-	d->fullHeight = d->listBox()->height();
-	d->currHeight = 0;
-	d->listBox()->resize( d->listBox()->width(), 0 );
-	d->listBox()->show();
-	d->listBox()->setVScrollBarMode( QScrollView::AlwaysOff );
-	d->showTimer->start( 2 );
-#else
-	d->listBox()->show();
+	bool animate = FALSE;
+
+#ifdef _WS_WIN_
+	animate = QApplication::winEffectSupport( UI_AnimateCombo );
 #endif
+#ifdef ANIMATED_COMBO
+	animate = TRUE;
+#endif
+
+	if ( animate ) {
+	    d->fullHeight = d->listBox()->height();
+	    d->currHeight = 0;
+	    bool sb = d->listBox()->height() <= d->listBox()->contentsHeight();
+	    d->listBox()->resize( d->listBox()->width(), 0 );
+	    d->listBox()->show();
+	    d->listBox()->setVScrollBarMode( sb ? QScrollView::AlwaysOn : QScrollView::AlwaysOff );
+	    d->showTimer->start( 2 );
+	} else {
+	    d->listBox()->show();
+	}
     } else {
 	d->popup()->installEventFilter( this );
 	d->popup()->popup( mapToGlobal( QPoint(0,0) ), this->d->current );
@@ -1961,7 +1970,6 @@ void QComboBox::styleChange( QStyle& s )
 {
     if ( d->ed )
 	d->updateLinedGeometry();
-    //d->ed->setGeometry(style().comboButtonRect( 0, 0, width(), height() ));
     QWidget::styleChange( s );
 }
 
@@ -1977,7 +1985,7 @@ void QComboBox::showMore()
     if ( d->currHeight > d->fullHeight )
 	d->currHeight = d->fullHeight;
     d->listBox()->resize( d->listBox()->width(), d->currHeight );
-    if ( d->currHeight == d->fullHeight ) {
+    if ( d->currHeight >= d->fullHeight ) {
 	d->listBox()->setVScrollBarMode( QScrollView::Auto );
 	d->showTimer->stop();
     }
