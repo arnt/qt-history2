@@ -3291,6 +3291,31 @@ QString QString::toUpper() const
     return *this;
 }
 
+
+#ifndef Q_OS_TEMP
+#ifndef QT_LOCAL_NUMBER_CONVERSION
+void qt_fix_double(char *str)
+{
+    struct lconv *lc = localeconv();
+    const char *thousands_sep = lc->thousands_sep;
+    if (!thousands_sep)
+	thousands_sep = "";
+    const char *decimal_point = lc->decimal_point;
+    if (!decimal_point || decimal_point[0] == '\0')
+	decimal_point = ".";
+
+    if (decimal_point[0] != '.' || decimal_point[1] != '\0' || thousands_sep[0] != '\0') {
+	QCString cstr(str);
+	cstr.replace(thousands_sep, "");
+	cstr.replace(decimal_point, ".");
+	memcpy(str, cstr.data(), cstr.length()+1);
+    }
+}
+#else
+void qt_fix_double(char *) {}
+#endif
+#endif
+
 /*!
     Safely builds a formatted string from the format string \a cformat
     and an arbitrary list of arguments.
@@ -3351,8 +3376,6 @@ QString &QString::sprintf(const char * cformat, ...)
     wchar_t buffer[buffer_size];
     GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer, buffer_size );
     SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, L"." );
-#else
-    char *old_locale = setlocale(LC_NUMERIC, "C");
 #endif
 
     for (;;) {
@@ -3469,6 +3492,7 @@ QString &QString::sprintf(const char * cformat, ...)
 		    case 2:
 			::sprintf(out, in, width, decimals, value);
 		    }
+		    qt_fix_double(out);
 		}
 		break;
 	    case 'p':
@@ -3494,8 +3518,6 @@ QString &QString::sprintf(const char * cformat, ...)
 
 #ifdef Q_OS_TEMP
     SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer );
-#else
-    setlocale(LC_NUMERIC, old_locale);
 #endif
 
     va_end(ap);
@@ -3990,6 +4012,11 @@ QString &QString::setNum(double n, char f, int prec)
     *fs++ = 'l';
     *fs++ = f;
     *fs = '\0';
+#if !defined( QT_NO_SPRINTF )
+    sprintf(format, n);
+    return *this;
+#else
+    char buf[512];
 #ifdef Q_OS_TEMP
     const int buffer_size = 10;
     wchar_t buffer[buffer_size];
@@ -3997,15 +4024,11 @@ QString &QString::setNum(double n, char f, int prec)
     SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, L"." );
     ::sprintf( buf, format, n );        // snprintf is unfortunately not portable
     SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer );
-    return setLatin1(buf);
-#elif !defined( QT_NO_SPRINTF )
-    sprintf(format, n);
-    return *this;
 #else
     char buf[512];
-    char *old_locale = setlocale(LC_NUMERIC, "C");
     ::sprintf(buf, format, n);        // snprintf is unfortunately not portable
-    setlocale(LC_NUMERIC, old_locale);
+    qt_fix_double(buf);
+#endif
     return setLatin1(buf);
 #endif
 }

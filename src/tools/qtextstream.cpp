@@ -1942,6 +1942,9 @@ QTextStream &QTextStream::operator<<( float f )
     return *this << (double)f;
 }
 
+#ifndef Q_OS_TEMP
+extern void qt_fix_double(char *);
+#endif
 
 /*!
     \overload
@@ -1985,9 +1988,8 @@ QTextStream &QTextStream::operator<<( double f )
     sprintf( buf, format, f );			// convert to text
     SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer );
 #else
-    char *old_locale = setlocale(LC_NUMERIC, "C");
     sprintf( buf, format, f );			// convert to text
-    setlocale(LC_NUMERIC, old_locale);
+    qt_fix_double(buf);
 #endif
     if ( fwidth )				// padding
 	*this << (const char*)buf;
