@@ -121,7 +121,7 @@ void QAquaFocusWidget::setFocusWidget( QWidget * widget )
 	d->removeEventFilter( this );
     }
     d = NULL;
-    if(handles(widget)) {
+    if(widget && widget->parentWidget()) {
 	d = widget;
 	reparent( d->parentWidget(), pos() );
 	raise();
