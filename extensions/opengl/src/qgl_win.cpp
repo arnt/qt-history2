@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl_win.cpp#3 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl_win.cpp#4 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -315,8 +315,12 @@ void QGLContext::swapBuffers()
     if ( dc && glFormat.doubleBuffer() && !deviceIsPixmap() ) {
 	if ( glFormat.plane() )
 	    wglSwapLayerBuffers( dc, WGL_SWAP_OVERLAY1 );  //### hardcoded ol1
-	else
-	    SwapBuffers( dc );
+	else {
+	    if ( glFormat.hasOverlay() )
+		wglSwapLayerBuffers( dc, WGL_SWAP_MAIN_PLANE );
+	    else
+		SwapBuffers( dc );
+	}
     }
 }
 
