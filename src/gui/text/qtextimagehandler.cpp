@@ -23,9 +23,10 @@
 #include <qpalette.h>
 #include <qtextbrowser.h>
 
+// set by the mime source factory in Qt3Compat
 QTextImageHandler::ExternalImageLoaderFunction QTextImageHandler::externalLoader = 0;
 
-static QPixmap getPixmap(const QTextDocument *doc, const QTextImageFormat &format, QObject *layout)
+static QPixmap getPixmap(const QTextDocument *doc, const QTextImageFormat &format)
 {
     QPixmap pm;
 
@@ -42,20 +43,14 @@ static QPixmap getPixmap(const QTextDocument *doc, const QTextImageFormat &forma
         QImage img;
         const QString name = format.name();
 
-        if (QTextImageHandler::externalLoader) {
-            QString context;
-
-            // ###
-            /*
-            if ((QTextBrowser *browser = qt_cast<doc->parent()))
+        QString context;
+        if (QTextBrowser *browser = qt_cast<QTextBrowser *>(doc->parent())) {
                 context = browser->source();
-            */
-            img = QTextImageHandler::externalLoader(name, context);
-        } else if (layout && layout->parent() && layout->parent()->parent()) { // ### temporary, until Q4TextBrowser and friends are in main
-            QTextBrowser *browser = qt_cast<QTextBrowser *>(layout->parent()->parent());
-            if (browser)
                 img = browser->loadImage(name);
         }
+
+        if (img.isNull() && QTextImageHandler::externalLoader)
+            img = QTextImageHandler::externalLoader(name, context);
 
         if (img.isNull()) // try direct loading
             if (!img.load(name))
@@ -63,6 +58,7 @@ static QPixmap getPixmap(const QTextDocument *doc, const QTextImageFormat &forma
 
         if (size.isValid() && img.size() != size)
             img = img.scale(size);
+
         pm.fromImage(img);
         QPixmapCache::insert(key, pm);
     }
@@ -76,16 +72,15 @@ QTextImageHandler::QTextImageHandler(QObject *parent)
 
 QSize QTextImageHandler::intrinsicSize(const QTextDocument *doc, const QTextFormat &format)
 {
-    QTextImageFormat imageFormat = format.toImageFormat();
+    const QTextImageFormat imageFormat = format.toImageFormat();
 
-    QPixmap pixmap = getPixmap(doc, imageFormat, parent());
-    return pixmap.size();
+    return getPixmap(doc, imageFormat).size();
 }
 
 void QTextImageHandler::drawObject(QPainter *p, const QRect &rect, const QTextDocument *doc, const QTextFormat &format)
 {
-    QTextImageFormat imageFormat = format.toImageFormat();
-    QPixmap pixmap = getPixmap(doc, imageFormat, parent());
+    const QTextImageFormat imageFormat = format.toImageFormat();
+    const QPixmap pixmap = getPixmap(doc, imageFormat);
 
     p->drawPixmap(rect, pixmap);
 }
