@@ -198,7 +198,7 @@ void TextEdit::load( const QString &f )
     QByteArray array = fl.readAll();
     array.resize( array.size() +1 );
     array[ (int)array.size() - 1 ] = '\0';
-    QString text = QString::fromUtf8( array.data() );
+    QString text = ( f.find( "bidi.txt" ) != -1 ? QString::fromUtf8( array.data() ) : QString::fromLatin1( array.data() ) );
     edit->setText( text );
 
     edit->viewport()->setFocus();
