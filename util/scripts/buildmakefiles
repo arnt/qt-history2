@@ -45,14 +45,14 @@ for $p ( @projects ) {
 		if ( $is_dll ) {
 		    $m = "qtmain.mak";
 		    print STDERR "Building ${dir}$m\n";
-		    `tmake $file $tmakeargs -o $m`;
+		    `tmake $tmakeargs $file -o $m`;
 		}
 		$m = "";
 	    }
 	}
 	if ( $m ) {
 	    print STDERR "Building ${dir}$m\n";
-	    `tmake $file $tmakeargs $dllargs -o $m`;
+	    `tmake $tmakeargs $file $dllargs -o $m`;
 	}
 	chdir $qtdir;
     }
