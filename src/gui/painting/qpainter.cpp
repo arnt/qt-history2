@@ -1895,9 +1895,11 @@ void QPainter::drawPath(const QPainterPath &path)
 
     uint emulationSpecifier = d->engine->emulationSpecifier;
     QMatrix convertMatrix;
+    QPoint tmpRedir = d->redirection_offset;
     if (emulationSpecifier & QPaintEngine::CoordTransform) {
         emulationSpecifier &= ~QPaintEngine::CoordTransform;
         convertMatrix = d->state->matrix;
+        d->redirection_offset = QPoint();
     }
 
     save();
@@ -1913,7 +1915,8 @@ void QPainter::drawPath(const QPainterPath &path)
     // Fill the path...
     if (d->state->brush.style() != Qt::NoBrush) {
         QList<QPolygon> fills = path.toFillPolygons(convertMatrix);
-        QPen oldPen = d->state->pen;
+        save();
+        resetMatrix();
         setPen(Qt::NoPen);
 	d->engine->updateState(d->state);
         for (int i=0; i<fills.size(); ++i) {
@@ -1924,7 +1927,7 @@ void QPainter::drawPath(const QPainterPath &path)
                 d->engine->drawPolygon(fills.at(i), QPaintEngine::PolygonDrawMode(path.fillRule()));
             }
         }
-        setPen(oldPen);
+        restore();
     }
 
     // Draw the outline of the path...
@@ -1934,8 +1937,11 @@ void QPainter::drawPath(const QPainterPath &path)
         if (d->engine->emulationSpecifier
             && (d->engine->emulationSpecifier != QPaintEngine::CoordTransform)
             && (d->engine->hasFeature(QPaintEngine::PainterPaths)
-                || (d->engine->emulationSpecifier & QPaintEngine::LineAntialiasing))) {
-            d->draw_helper(&path, path.fillRule(), QPainterPrivate::PathShape,
+                || (d->engine->emulationSpecifier & QPaintEngine::LineAntialiasing)
+                || (d->engine->emulationSpecifier & QPaintEngine::PenWidthTransform))) {
+            QMatrix m(1, 0, 0, 1, -tmpRedir.x(), -tmpRedir.y());
+            QPainterPath redirectedPath = path * m;
+            d->draw_helper(&redirectedPath, redirectedPath.fillRule(), QPainterPrivate::PathShape,
                            QPainterPrivate::StrokeDraw, d->engine->emulationSpecifier);
         } else {
             QList<QPolygon> polygons = path.toSubpathPolygons(convertMatrix);
@@ -1945,6 +1951,7 @@ void QPainter::drawPath(const QPainterPath &path)
 	}
     }
 
+    d->redirection_offset = tmpRedir;
     restore();
 }
 
