@@ -218,8 +218,6 @@ void QWin32PrintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEna
 
 bool QWin32PrintEngine::begin(QPaintDevice *dev)
 {
-    d->forceGdi = true;
-
     if (d->reinit)
         d->hdc = ResetDC(d->hdc, d->devMode);
 
@@ -227,6 +225,9 @@ bool QWin32PrintEngine::begin(QPaintDevice *dev)
 	qWarning("QWin32PaintEngine::begin() failed...");
 	return false;
     }
+
+    d->forceGdi = true;
+
     bool ok = d->state == QPrinter::Idle;
 //     if (ok && !d->hdc) {
 // 	setup(0);
