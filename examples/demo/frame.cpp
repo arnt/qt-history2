@@ -114,7 +114,7 @@ QWidget *Frame::createCategoryPage( CategoryInterface *c )
     g->setBackgroundMode(PaletteBase);
     for ( int i = 0; i < c->numCategories(); ++i ) {
 	QToolButton *b = new QToolButton( g );
- 	b->setBackgroundMode(PaletteBase);
+	b->setBackgroundMode(PaletteBase);
 	b->setTextLabel( c->categoryName( i ) );
 	b->setIconSet( c->categoryIcon( i ) );
 	b->setAutoRaise( TRUE );
@@ -142,7 +142,7 @@ void Frame::updateTranslators()
 	qApp->installTranslator( translator );
     }
 
-    QString base = QString( qInstallPathData() ) + "/translations";
+    QString base = QDir("../../translations").absPath();
     qt_translator->load( QString( "qt_%1" ).arg( QTextCodec::locale() ), base );
     translator->load( QString( "translations/demo_%1" ).arg( QTextCodec::locale() ) );
 }
