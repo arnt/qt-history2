@@ -27,6 +27,7 @@ public:
 
     int rowCount() const;
 
+    QModelIndex index(QListWidgetItem *item) const;
     QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex::Null,
                       QModelIndex::Type type = QModelIndex::View) const;
 
@@ -89,6 +90,14 @@ QListWidgetItem *QListModel::take(int row)
 int QListModel::rowCount() const
 {
     return lst.count();
+}
+
+QModelIndex QListModel::index(QListWidgetItem *item) const
+{
+    int row = lst.indexOf(item);
+    if (row == -1)
+        return QModelIndex::Null;
+    return createIndex(row, 0, item, QModelIndex::View);
 }
 
 QModelIndex QListModel::index(int row, int column,
@@ -179,6 +188,16 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
 QListWidgetItem::~QListWidgetItem()
 {
     view->removeItem(this);
+}
+
+void QListWidgetItem::openPersistentEditor()
+{
+    view->openPersistentEditor(this);
+}
+
+void QListWidgetItem::closePersistentEditor()
+{
+    view->closePersistentEditor(this);
 }
 
 /*!
@@ -371,4 +390,16 @@ void QListWidget::removeItem(QListWidgetItem *item)
 void QListWidget::setModel(QAbstractItemModel *model)
 {
     QListView::setModel(model);
+}
+
+void QListWidget::openPersistentEditor(QListWidgetItem *item)
+{
+    QModelIndex index = d->model()->index(item);
+    QAbstractItemView::openPersistentEditor(index);
+}
+
+void QListWidget::closePersistentEditor(QListWidgetItem *item)
+{
+    QModelIndex index = d->model()->index(item);
+    QAbstractItemView::closePersistentEditor(index);
 }

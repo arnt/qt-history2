@@ -566,7 +566,7 @@ QModelIndex QAbstractItemView::currentItem() const
 */
 void QAbstractItemView::reset()
 {
-    QMap<QPersistentModelIndex, QPointer<QWidget> >::iterator it = d->editors.begin();
+    QMap<QPersistentModelIndex, QWidget*>::iterator it = d->editors.begin();
     for (; it != d->editors.end(); ++it) {
         QObject::disconnect(it.value(), SIGNAL(destroyed(QObject*)),
                             this, SLOT(editorDestroyed(QObject*)));
@@ -1101,35 +1101,17 @@ bool QAbstractItemView::edit(const QModelIndex &index,
     if (!d->shouldEdit(action, edit))
         return false;
 
-    // get editor from the map
-    QPersistentModelIndex persistent = QPersistentModelIndex(edit, model());
-    QWidget *editor = d->editors.value(persistent);
+    QWidget *editor = d->editor(edit);
+    if (!editor)
+        return false;
 
-    // if the index doesn't have an editor, get it from the delegate
-    if (!editor) {
-        QStyleOptionViewItem option = viewOptions();
-        option.rect = itemViewportRect(edit);
-        option.state |= (edit == currentItem()
-                         ? QStyle::Style_HasFocus : QStyle::Style_Default);
-        editor = itemDelegate()->editor(d->viewport, option, model(), edit);
-        if (editor) {
-            QObject::connect(editor, SIGNAL(destroyed(QObject*)),
-                             this, SLOT(editorDestroyed(QObject*)));
-            itemDelegate()->setEditorData(editor, model(), edit);
-            itemDelegate()->updateEditorGeometry(editor, option, model(), edit);
-            d->editors.insert(persistent, editor);
-        }
-    }
+    if (event && event->type() == QEvent::KeyPress && d->beginEditActions & AnyKeyPressed)
+        QApplication::sendEvent(editor, event);
+    d->state = Editing;
+    editor->show();
+    editor->setFocus();
 
-    if (editor) {
-        if (event && d->beginEditActions & AnyKeyPressed)
-            QApplication::sendEvent(editor, event);
-        d->state = Editing;
-        editor->show();
-        editor->setFocus();
-    }
-
-    return d->state == Editing;
+    return true;
 }
 
 /*!
@@ -1156,10 +1138,12 @@ void QAbstractItemView::endEdit(const QModelIndex &index, bool commit)
     if (editor && type == QAbstractItemDelegate::Widget) {
         if (commit)
             itemDelegate()->setModelData(editor, model(), index);
-        QObject::disconnect(editor, SIGNAL(destroyed(QObject*)),
-                            this, SLOT(editorDestroyed(QObject*)));
-        d->editors.remove(persistent);
-        itemDelegate()->releaseEditor(editor);
+        if (!d->persistent.contains(editor)) {
+            QObject::disconnect(editor, SIGNAL(destroyed(QObject*)),
+                                this, SLOT(editorDestroyed(QObject*)));
+            d->editors.remove(persistent);
+            itemDelegate()->releaseEditor(editor);
+        }
     }
 
     setFocus();
@@ -1171,7 +1155,7 @@ void QAbstractItemView::endEdit(const QModelIndex &index, bool commit)
 
 void QAbstractItemView::updateEditorData()
 {
-    QMap<QPersistentModelIndex, QPointer<QWidget> >::iterator it = d->editors.begin();
+    QMap<QPersistentModelIndex, QWidget*>::iterator it = d->editors.begin();
     for (; it != d->editors.end(); ++it)
         itemDelegate()->setEditorData(it.value(), model(), it.key());
 }
@@ -1182,7 +1166,7 @@ void QAbstractItemView::updateEditorData()
 void QAbstractItemView::updateEditorGeometries()
 {
     QStyleOptionViewItem option = viewOptions();
-    QMap<QPersistentModelIndex, QPointer<QWidget> >::iterator it = d->editors.begin();
+    QMap<QPersistentModelIndex, QWidget*>::iterator it = d->editors.begin();
     for (; it != d->editors.end(); ++it) {
         option.rect = itemViewportRect(it.key());
         itemDelegate()->updateEditorGeometry(it.value(), option, d->model, it.key());
@@ -1254,8 +1238,10 @@ void QAbstractItemView::commitData(QWidget *editor)
 */
 void QAbstractItemView::editorDestroyed(QObject *editor)
 {
-    QPersistentModelIndex key = d->editors.key(::qt_cast<QWidget*>(editor));
+    QWidget *w = ::qt_cast<QWidget*>(editor);
+    QPersistentModelIndex key = d->editors.key(w);
     d->editors.remove(key);
+    d->persistent.removeAll(w);
     if (d->state == Editing)
         d->state = NoState;
 }
@@ -1393,25 +1379,28 @@ int QAbstractItemView::columnSizeHint(int column) const
 }
 
 /*!
-    Sets \a editor as the persistent editor for the item at the given
-    \a index. If \a editor is 0 and no previous persistent editor has
-    been set for the \a index, the editor will be created by the
-    delegate.
+    Opens a persistent editor on the item at the given \a index.
+    If no editor exists, the delegate will create a new editor.
 */
-void QAbstractItemView::setPersistentEditor(const QModelIndex &index, bool /*enable*/)
+void QAbstractItemView::openPersistentEditor(const QModelIndex &index)
+{
+    QWidget *editor = d->editor(index);
+    if (editor)
+        d->persistent.append(editor);
+}
+
+/*!
+  Closes the persistent editor for the item at the given \a index.
+*/
+void QAbstractItemView::closePersistentEditor(const QModelIndex &index)
 {
     QPersistentModelIndex persistent(index, model());
     QWidget *editor = d->editors.value(persistent);
-    if (!editor) {
-        QStyleOptionViewItem option = viewOptions();
-        option.rect = itemViewportRect(index);
-        option.state = (index == currentItem() ? QStyle::Style_HasFocus|option.state : option.state);
-        editor = itemDelegate()->editor(d->viewport, option, model(), index);
-        itemDelegate()->setModelData(editor, model(), index);
-        itemDelegate()->updateEditorGeometry(editor, option, model(), index);
-        d->editors.insert(persistent, editor);
+    if (editor) {
+        d->persistent.removeAll(editor);
+        itemDelegate()->releaseEditor(editor);
     }
-    // FIXME: save this as persistent
+    d->editors.remove(persistent);
 }
 
 /*!
@@ -1509,7 +1498,7 @@ void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex
 {
     if (old.isValid()) {
         QModelIndex buddy = model()->buddy(old);
-        endEdit(buddy.isValid() ? buddy : old);
+        endEdit(buddy.isValid() ? buddy : old, false);
         int behavior = selectionBehavior();
         QRect rect = itemViewportRect(old);
         if (behavior & SelectRows) {
@@ -1819,4 +1808,23 @@ void QAbstractItemViewPrivate::doDelayedItemsLayout()
         QApplication::postEvent(q, new QMetaCallEvent(slot, q));
         layoutPosted = true;
     }
+}
+
+QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index)
+{
+    QPersistentModelIndex persistent = QPersistentModelIndex(index, q->model());
+    QWidget *w = editors.value(persistent);
+    if (!w) {
+        QStyleOptionViewItem option = q->viewOptions();
+        option.rect = q->itemViewportRect(index);
+        option.state |= (index == q->currentItem() ? QStyle::Style_HasFocus : QStyle::Style_Default);
+        w = q->itemDelegate()->editor(viewport, option, q->model(), index);
+        if (w) {
+            QObject::connect(w, SIGNAL(destroyed(QObject*)), q, SLOT(editorDestroyed(QObject*)));
+            q->itemDelegate()->setEditorData(w, q->model(), index);
+            q->itemDelegate()->updateEditorGeometry(w, option, q->model(), index);
+            editors.insert(persistent, w);
+        }
+    }
+    return w;
 }

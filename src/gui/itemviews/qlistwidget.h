@@ -26,6 +26,8 @@ class QListWidgetItem : public QWidgetCellItem
 public:
     QListWidgetItem(QListWidget *view);
     ~QListWidgetItem();
+    void openPersistentEditor();
+    void closePersistentEditor();
 protected:
     QListWidget *view;
 };
@@ -53,6 +55,8 @@ public:
 protected:
     void removeItem(QListWidgetItem *item);
     void setModel(QAbstractItemModel *model);
+    void openPersistentEditor(QListWidgetItem *item);
+    void closePersistentEditor(QListWidgetItem *item);
 };
 
 #endif

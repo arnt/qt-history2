@@ -102,7 +102,8 @@ public:
     virtual int rowSizeHint(int row) const;
     virtual int columnSizeHint(int column) const;
 
-    void setPersistentEditor(const QModelIndex &index, bool enable = true);
+    void openPersistentEditor(const QModelIndex &index);
+    void closePersistentEditor(const QModelIndex &index);
 
 public slots:
     virtual void reset();

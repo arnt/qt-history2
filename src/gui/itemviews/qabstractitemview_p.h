@@ -33,13 +33,16 @@ public:
     bool shouldAutoScroll(const QPoint &pos);
     void doDelayedItemsLayout();
 
+    QWidget *editor(const QModelIndex &index);
+
     mutable QAbstractItemModel *model;
     mutable QAbstractItemDelegate *delegate;
     mutable QItemSelectionModel *selectionModel;
     int selectionMode;
     int selectionBehavior;
 
-    QMap<QPersistentModelIndex, QPointer<QWidget> > editors;
+    QMap<QPersistentModelIndex, QWidget*> editors;
+    QList<QWidget*> persistent;
 
     QModelIndex pressedItem;
     Qt::ButtonState pressedState;
