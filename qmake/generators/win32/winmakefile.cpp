@@ -132,16 +132,18 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	    QString subdir = (*it)->directory;
 	    QString profile = (*it)->profile;
 	    int subLevels = subdir.count(Option::dir_sep) + 1;
-	    t << "\n\t"
-	      << "cd " << subdir << "\n\t";
+	    t << "\n\t";
+	    if (!subdir.isEmpty())
+		t << "cd " << subdir << "\n\t";
 	    int lastSlash = subdir.findRev(Option::dir_sep);
 	    if(lastSlash != -1)
 		subdir = subdir.mid( lastSlash + 1 );
 	    t << "$(QMAKE) "
 	      << ( !profile.isEmpty() ? profile : subdir + ".pro" )
 	      << " -o " << (*it)->makefile
-	      << " " << buildArgs() << "\n\t"
-	      << "@cd ..";
+	      << " " << buildArgs() << "\n\t";
+	    if (!subdir.isEmpty())
+		t << "@cd ..";
 	    for(int i = 1; i < subLevels; i++ )
 		t << Option::dir_sep << "..";
 	}
@@ -205,7 +207,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 		dep = (*dep_it);
 	    deps += " " + dep;
 	}
-	if(!project->variables()["QMAKE_NOFORCE"].isEmpty() && 
+	if(!project->variables()["QMAKE_NOFORCE"].isEmpty() &&
 	   project->variables()[(*sit) + ".CONFIG"].findIndex("phony") != -1)
 	    deps += QString(" ") + "FORCE";
 	t << "\n\n" << targ << ":" << deps << "\n\t"
@@ -253,7 +255,7 @@ Win32MakefileGenerator::findDependency(const QString &dep)
 	    QString targ = var((*it) + ".target");
 	    if(targ.isEmpty())
 		targ = (*it);
-	    if(targ.endsWith(dep)) 
+	    if(targ.endsWith(dep))
 		return targ;
 	}
     }
