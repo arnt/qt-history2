@@ -2237,10 +2237,20 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     if ( !isActive() )
 	return;
 
-    if ( len < 0 )
-	len = str.length();
-    if ( len == 0 )				// empty string
-	return;
+#ifndef Q_OS_TEMP
+    bool nat_xf = ( (qt_winver & WV_NT_based) && txop >= TxScale );
+#else
+    bool nat_xf = FALSE;
+#endif
+
+    if ( len == 0 || pos >= (int)str.length() ) // empty string
+        return;
+    if ( pos + len > (int)str.length() )
+        len = str.length() - pos;
+   
+    QFontMetrics fm( fontMetrics() );
+    QString shaped = QComplexText::shapedString( str, pos, len, dir );
+    len = shaped.length();
 
     if ( testf(DirtyFont) )
 	updateFont();
