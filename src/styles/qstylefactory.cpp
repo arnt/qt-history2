@@ -39,6 +39,7 @@
 
 #ifndef QT_NO_STYLE
 
+#include "qapplication.h"
 #include "qinterfacemanager.h"
 #include "qwindowsstyle.h"
 #include "qmotifstyle.h"
@@ -52,25 +53,40 @@
 #include <stdlib.h>
 
 #ifndef QT_NO_COMPONENT
-static QInterfaceManager<QStyleInterface> *manager = 0;
-
-static void ensureManager()
+class QStyleFactoryPrivate : public QObject
 {
-    if ( !manager ) {
-	manager = new QInterfaceManager<QStyleInterface>( IID_QStyleInterface, QString::null, "*.dll; *.so", QLibrary::Delayed, FALSE );
+public:
+    QStyleFactoryPrivate();
+    ~QStyleFactoryPrivate();
 
-        QString defpath(getenv("QTDIR"));
-        if (! defpath.isNull() && ! defpath.isEmpty()) {
-            manager->addLibraryPath(defpath + "/plugins");
-        }
+    static QInterfaceManager<QStyleInterface> *manager;
+};
 
-        QStringList paths(QApplication::libraryPaths());
-        QStringList::Iterator it = paths.begin();
-        while (it != paths.end()) {
-            manager->addLibraryPath(*it);
-            it++;
-        }
+static QStyleFactoryPrivate *instance = 0;
+QInterfaceManager<QStyleInterface> *QStyleFactoryPrivate::manager = 0;
+
+QStyleFactoryPrivate::QStyleFactoryPrivate()
+: QObject( qApp )
+{
+    manager = new QInterfaceManager<QStyleInterface>( IID_QStyleInterface, QString::null, "*.dll; *.so", QLibrary::Delayed, FALSE );
+
+    QString defpath(getenv("QTDIR"));
+    if (! defpath.isNull() && ! defpath.isEmpty()) {
+        manager->addLibraryPath(defpath + "/plugins");
     }
+
+    QStringList paths(QApplication::libraryPaths());
+    QStringList::Iterator it = paths.begin();
+    while (it != paths.end()) {
+        manager->addLibraryPath(*it);
+        it++;
+    }
+}
+
+QStyleFactoryPrivate::~QStyleFactoryPrivate()
+{
+    delete manager;
+    manager = 0;
 }
 
 #endif //QT_NO_COMPONENT
@@ -78,12 +94,16 @@ static void ensureManager()
 QStyle *QStyleFactory::create( const QString& s )
 {
 #ifndef QT_NO_COMPONENT
-    ensureManager();
+    if ( !instance )
+	instance = new QStyleFactoryPrivate;
 
-    QStyleInterface *iface = manager->queryInterface( s );
+    QStyleInterface *iface = QStyleFactoryPrivate::manager->queryInterface( s );
 
-    if ( iface )
-        return iface->create( s );
+    if ( iface ) {
+	QStyle *style = iface->create( s );
+	iface->release();
+        return style;
+    }
 #endif
 
     QString style = s.lower();
@@ -134,9 +154,10 @@ QStyle *QStyleFactory::create( const QString& s )
 QStringList QStyleFactory::styles()
 {
 #ifndef QT_NO_COMPONENT
-    ensureManager();
+    if ( !instance )
+	instance = new QStyleFactoryPrivate;
 
-    QStringList list = manager->featureList();
+    QStringList list = QStyleFactoryPrivate::manager->featureList();
 #else
     QStringList list;
 #endif //QT_NO_COMPONENT
