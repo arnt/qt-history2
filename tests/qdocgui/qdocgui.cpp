@@ -98,9 +98,9 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
 	    else
 		QMessageBox::information( this, "No editor specified", "You didn't specify an editor", QMessageBox::Ok );
 	}
-	if ( item->parent()->parent()->text(0).startsWith( "doc" ) )
+	if ( item->parent()->parent()->text(0).startsWith( "doc" ) ) {
 	    filename = qtdirenv + '/' + item->parent()->parent()->text(0) + '/' + item->parent()->text(0);
-	else if ( item->parent()->parent()->text(0).startsWith( "include" ) ) {
+	} else if ( item->parent()->parent()->text(0).startsWith( "include" ) ) {
 	    QFile f;
 	    QString fileText = item->parent()->text(0).replace(QRegExp( "\\.h$"), ".doc");
 	    f.setName(qtdirenv + "/doc/" + fileText);
@@ -121,8 +121,11 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
 		    ++i;
 		}
 	    }
-	} else
+	} else if ( item->parent()->parent()->text(0).startsWith( "designer" ) ) {
+	    filename = qtdirenv + "/tools/designer/" + item->parent()->text(0);
+	} else {
 	    filename = qtdirenv + "/src/" + item->parent()->parent()->text(0) + '/' + item->parent()->text(0);
+	}
 
 	QString itemtext = item->text(0);
 	QRegExp rxp( "(\\d+)" );
@@ -179,6 +182,8 @@ void QDocMainWindow::finished()
 	if ( !text.isEmpty() && !text.startsWith( "qdoc" ) ) {
 	    if ( text.startsWith( "src" ) )
 		text = text.right( text.length() - 4 );
+	    else if ( text.startsWith( "tools/designer" ) )
+		text = text.right( text.length() - 6 );
 	    int slashpos = text.find( '/' );
 	    int classfind = text.find( ':' );
 	    int secondcolonpos = text.find( ':', classfind + 1 );
