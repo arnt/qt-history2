@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#213 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#214 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -102,9 +102,9 @@ struct QLineEditPrivate {
 static const int scrollTime = 100;		// mark text scroll time
 
 
-static int xPosToCursorPos( const QString &t, int offset, 
+static int xPosToCursorPos( const QString &t, int offset,
 			    const QFontMetrics &fm,
-			    int xPos, int width, 
+			    int xPos, int width,
 			    QLineEdit::EchoMode emode )
 {
     if ( emode == QLineEdit::NoEcho )
@@ -786,7 +786,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 	}
     } else {
 	dragScrolling = FALSE;
-	int mousePos = offset + 
+	int mousePos = offset +
 		       xPosToCursorPos( tbuf, offset,
 					fontMetrics(),
 					e->pos().x() - margin - alignOffset,
@@ -837,7 +837,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 		 height() - 2*margin ).contains( e->pos() ) )
 	return;
 
-    int mousePos = offset + 
+    int mousePos = offset +
 		   xPosToCursorPos( tbuf, offset,
 				    fontMetrics(),
 				    e->pos().x() - margin - alignOffset,
@@ -1086,7 +1086,8 @@ void QLineEdit::copyText()
 
 
 /*!
-  Copies the marked text to the clipboard, if there is any.
+  Copies the marked text to the clipboard, if there is any. Will only copy
+  if echoMode() is Normal.
 
   \sa cut() paste()
 */
