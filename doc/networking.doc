@@ -1,14 +1,25 @@
+/****************************************************************************
+**
+** Documentation for network programming.
+**
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 /*
     This is under development; the text is intended to replace
     network.doc.
 */
 
-/*
-
-\page networking.html
+/* \page networking.html
 
 \title Network Module
-
 
 \if defined(commercial)
 This module is part of the \link commercialeditions.html Qt Enterprise Edition \endlink.
