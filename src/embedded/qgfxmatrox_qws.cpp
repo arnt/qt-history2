@@ -463,11 +463,6 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
     if(ncliprect<1)
 	return;
 
-    if((depth!=16 && depth!=32 && depth!=8) || w*h/ncliprect < 1000 ) {
-	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
-	return;
-    }
-
     bool canaccel=false;
 
     if((srcdepth==32 || srcdepth==16 || srcdepth==8) &&
