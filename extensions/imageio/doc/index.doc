@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: index.doc,v 1.10 1999/06/08 23:09:33 agulbra Exp $
+** $Id: index.doc,v 1.11 1999/06/16 20:03:43 agulbra Exp $
 **
 ** Index page
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: index.doc,v 1.10 1999/06/08 23:09:33 agulbra Exp $";
+static char ident[] = "$Id: index.doc,v 1.11 1999/06/16 20:03:43 agulbra Exp $";
 #endif
 
 /*! \page imageio.html
@@ -80,8 +80,7 @@ image formats should either call the function:
     <ul>
 	<li> Tested with <tt>libjpeg.so.6.0.1</tt>.
 	<li> See <a href="ftp://ftp.uu.net/graphics/jpeg/">ftp.uu.net</a> for the official sources.
-	<li> Zipped package available <a href="ftp://ftp.simtel.net/pub/simtelnet/msdos/graphics/jpegsr6a.zip">on Simtel</a>.
-	<li> See <a href="http://ftpsearch.lycos.com/cgi-bin/search?form=medium&query=jpegsrc.v6a.tar.gz&doit=Search&type=Case+insensitive+multiple+substrings+search&hits=200">FTP Search</a> for other sources.
+	<li> See <a href="http://ftpsearch.lycos.com">FTP Search</a> for other sources.
 	<li> See <a href="http://www.faqs.org/faqs/jpeg-faq/">the JPEG FAQ</a> for more information.
     </ul>
  </ul>
