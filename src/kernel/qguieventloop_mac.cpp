@@ -363,16 +363,10 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
 
     if(canWait && !d->zero_timer_count) {
 	emit aboutToBlock();
-#if defined(QT_THREAD_SUPPORT)
-	locker.mutex()->unlock();
-#endif
 #if defined( QMAC_USE_APPLICATION_EVENT_LOOP )
 	RunApplicationEventLoop();
 #else
 	while(CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0e20, true) == kCFRunLoopRunTimedOut);
-#endif
-#if defined(QT_THREAD_SUPPORT)
-	locker.mutex()->lock();
 #endif
 
 	// we are awake, broadcast it
