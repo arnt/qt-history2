@@ -27,6 +27,7 @@
 #include "../shared/logwindowinterface.h"
 #include "../shared/templatewizardiface.h"
 #include "../shared/eventinterface.h"
+#include "../shared/syntaxcheckinterface.h"
 #include "sourceeditor.h"
 
 #if defined(HAVE_KDE)
@@ -315,6 +316,7 @@ private:
     QInterfaceManager<EditorInterface> *editorPluginManager;
     QInterfaceManager<LogWindowInterface> *logWindowPluginManager;
     QInterfaceManager<TemplateWizardInterface> *templateWizardPluginManager;
+    QInterfaceManager<SyntaxCheckInterface> *syntaxCheckPluginManager;
     QList<SourceEditor> sourceEditors;
     bool previewing;
     QComponentInterface *appInterface;

@@ -39,6 +39,8 @@ public:
     void setFunction( const QString &func );
     void save();
 
+    static QString sourceOfForm( FormWindow *fw );
+
 protected:
     void closeEvent( QCloseEvent *e );
 

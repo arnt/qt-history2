@@ -49,8 +49,15 @@ void SourceEditor::setForm( FormWindow *fw )
     save();
     formWindow = fw;
     setCaption( tr( "Edit %1" ).arg( formWindow->name() ) );
-    QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formWindow );
-    QMap<QString, QString> bodies = MetaDataBase::functionBodies( formWindow );
+    iFace->setText( sourceOfForm( formWindow ) );
+    if ( fw->project() )
+	iFace->setContext( fw->project()->formList(), fw );
+}
+
+QString SourceEditor::sourceOfForm( FormWindow *fw )
+{
+    QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( fw );
+    QMap<QString, QString> bodies = MetaDataBase::functionBodies( fw );
     QString txt;
     for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
 	txt += "function " + QString( (*it).slot );
@@ -60,9 +67,7 @@ void SourceEditor::setForm( FormWindow *fw )
 	else
 	    txt += "\n{\n    \n}\n\n";
     }
-    iFace->setText( txt );
-    if ( fw->project() )
-	iFace->setContext( fw->project()->formList(), fw );
+    return txt;
 }
 
 void SourceEditor::setFunction( const QString &func )

@@ -146,6 +146,7 @@ MainWindow::MainWindow( bool asClient )
       docPath( "$QTDIR/doc/html" ), fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
       previewing( FALSE )
 {
+    syntaxCheckPluginManager = 0;
     appInterface = new DesignerApplicationInterfaceImpl;
     appInterface->addRef();
 
@@ -1877,8 +1878,28 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 
     if ( logWindowPluginManager ) {
 	LogWindowInterface *iface = (LogWindowInterface*)logWindowPluginManager->queryInterface( "LogWindow" );
-	if ( iface )
+	if ( iface ) {
 	    iface->logWindow( 0 )->parentWidget()->show();
+	    if ( !syntaxCheckPluginManager ) {
+		QString dir = getenv( "QTDIR" );
+		syntaxCheckPluginManager = new QInterfaceManager<SyntaxCheckInterface>( IID_SyntaxCheckInterface, dir + "/lib",
+											"*qscript*.dll; *qscript*.so" );
+	    }
+	    if ( syntaxCheckPluginManager ) {
+		SyntaxCheckInterface *siface = (SyntaxCheckInterface*)syntaxCheckPluginManager->queryInterface( "SyntaxCheck" );
+		if ( siface ) {
+		    QString error;
+		    int line;
+		    siface->checkSyntax( SourceEditor::sourceOfForm( fw ), error, line );
+		    if ( !error.isEmpty() ) {
+			iface->setError( error, line );
+			// #### highlighte line in editor
+			QApplication::restoreOverrideCursor();
+			return 0;
+		    }
+		}
+	    }
+	}
     }
 	
     QWidget *w = QWidgetFactory::create( &buffer );
