@@ -5,8 +5,7 @@
 #include <qsqlview.h>
 #include <qsqlfield.h>
 #include <qsqlindex.h>
-#include <qsqlviewtable.h>
-
+#include <qsqltable.h>
 
 // class MyDataGrid : public QSqlTable
 // {
@@ -38,11 +37,11 @@ ResultWindow::ResultWindow ( QWidget * parent=0, const char * name=0, WFlags f=0
 
 ResultWindow::~ResultWindow()
 {
-    
+
 }
 
 void ResultWindow::slotExec()
 {
-    if ( db->isOpen() ) 
-	dataGrid->setView( tableList->currentText() );
+    if ( db->isOpen() )
+	dataGrid->setRowset( tableList->currentText() );
 }
