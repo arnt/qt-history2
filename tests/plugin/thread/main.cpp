@@ -47,7 +47,7 @@ public:
     TestComponent();
     ~TestComponent();
 
-    QUnknownInterface *queryInterface( const QUuid& );
+    QRESULT queryInterface( const QUuid&, QUnknownInterface ** );
     unsigned long addRef();
     unsigned long release();
 
@@ -68,7 +68,7 @@ public:
     QString version() const { return "beta"; }
     QString author() const { return "vohi@trolltech.com"; }
 
-    QUnknownInterface *createInstance( const QUuid &, const QUuid &, QUnknownInterface *outer );
+    QRESULT createInstance( const QUuid &, const QUuid &, QUnknownInterface **, QUnknownInterface *outer );
 
     static QUuid cid;
 
@@ -96,25 +96,25 @@ TestComponent::~TestComponent()
 {
 }
 
-QUnknownInterface *TestComponent::queryInterface( const QUuid &uuid )
+QRESULT TestComponent::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 {
-    QUnknownInterface *iface = 0;
+    *iface = 0;
+
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)(ActionInterface*)this;
+	*iface = (QUnknownInterface*)(ActionInterface*)this;
     else if ( uuid == IID_QFeatureListInterface )
-	iface = (QFeatureListInterface*)this;
+	*iface = (QFeatureListInterface*)this;
     else if ( uuid == IID_ActionInterface )
-	iface = (ActionInterface*)this;
+	*iface = (ActionInterface*)this;
     else if ( uuid == IID_QLibraryInterface )
-	iface = (QLibraryInterface*)this;
+	*iface = (QLibraryInterface*)this;
     else if ( uuid == IID_QComponentServerInterface )
-	iface = (QComponentServerInterface*)this;
+	*iface = (QComponentServerInterface*)this;
     else if ( uuid == IID_QComponentFactoryInterface )
-	iface = (QComponentFactoryInterface*)this;
+	*iface = (QComponentFactoryInterface*)this;
     
-    if ( iface )
-	iface->addRef();
-    return iface;
+    if ( *iface )
+	(*iface)->addRef();
 }
 
 unsigned long TestComponent::addRef()
@@ -256,17 +256,16 @@ bool TestComponent::unregisterComponents() const
     return ok;
 }
 
-QUnknownInterface *TestComponent::createInstance( const QUuid &iid, const QUuid &cid, QUnknownInterface * )
+QRESULT TestComponent::createInstance( const QUuid &iid, const QUuid &cid, QUnknownInterface **iface, QUnknownInterface * )
 {
     if ( cid == TestComponent::cid ) {
 	TestComponent *comp = new TestComponent();
-	QUnknownInterface *iface = comp->queryInterface( iid );
+	comp->queryInterface( iid, iface );
 	if ( iface )
-	    return iface;
+	    return;
 
 	delete comp;
     }
-    return 0;
 }
 
 #include "main.moc"
