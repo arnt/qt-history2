@@ -935,10 +935,10 @@ void QTabWidget::setTabIconSet( QWidget * w, const QIconSet & iconset )
  */
 void QTabWidget::setTabToolTip( QWidget * w, const QString & tip )
 {
-    int id = d->stack->id( w );
-    if ( id < 0 )
+    int index = d->tabs->indexOf( d->stack->id( w ) );
+    if ( index < 0 )
         return;
-    d->tabs->setToolTip( id, tip );
+    d->tabs->setToolTip( index, tip );
 }
 
 /*!
@@ -947,10 +947,10 @@ void QTabWidget::setTabToolTip( QWidget * w, const QString & tip )
  */
 QString QTabWidget::tabToolTip( QWidget * w ) const
 {
-    int id = d->stack->id( w );
-    if ( id < 0 )
+    int index = d->tabs->indexOf( d->stack->id( w ) );
+    if ( index < 0 )
         return QString();
-    return d->tabs->toolTip( id );
+    return d->tabs->toolTip( index );
 }
 
 /*! Removes the tab tool tip for page \a w. If the page does not have
@@ -959,10 +959,10 @@ QString QTabWidget::tabToolTip( QWidget * w ) const
  */
 void QTabWidget::removeTabToolTip( QWidget * w )
 {
-    int id = d->stack->id( w );
-    if ( id < 0 )
+    int index = d->tabs->indexOf( d->stack->id( w ) );
+    if ( index < 0 )
         return;
-    d->tabs->removeToolTip( id );
+    d->tabs->removeToolTip( index );
 }
 
 #endif
