@@ -990,13 +990,10 @@ int QDateEdit::sectionOffsetEnd( int sec )
 }
 
 
-/*!
-
-    Sets the display order of the numbered section of the date editor to
-    \a order.
+/*! Sets the display order of the numbered section of the date editor
+    to \a order.
 
   \sa Order
-
 */
 
 void QDateEdit::setOrder( QDateEdit::Order order )
@@ -1049,17 +1046,27 @@ QDateEdit::Order QDateEdit::order() const
 void QDateEdit::stepUp()
 {
     int sec = focusSection();
+    bool accepted = FALSE;
     if ( sec == d->yearSection ) {
-	if ( !outOfRange( d->y+1, d->m, d->d ) )
+	if ( !outOfRange( d->y+1, d->m, d->d ) ) {
+	    accepted = TRUE;
 	    setYear( d->y+1 );
+	}
     } else if ( sec == d->monthSection ) {
-	if ( !outOfRange( d->y, d->m+1, d->d ) )
+	if ( !outOfRange( d->y, d->m+1, d->d ) ) {
+	    accepted = TRUE;
 	    setMonth( d->m+1 );
+	}
     } else if ( sec == d->daySection ) {
-	if ( !outOfRange( d->y, d->m, d->d+1 ) )
+	if ( !outOfRange( d->y, d->m, d->d+1 ) ) {
+	    accepted = TRUE;
 	    setDay( d->d+1 );
+	}
     }
-    d->changed = TRUE;
+    if ( accepted ) {
+	d->changed = TRUE;
+	emit valueChanged( date() );
+    }
     repaint( rect(), FALSE );
 }
 
@@ -1072,17 +1079,27 @@ void QDateEdit::stepUp()
 void QDateEdit::stepDown()
 {
     int sec = focusSection();
+    bool accepted = FALSE;
     if ( sec == d->yearSection ) {
-	if ( !outOfRange( d->y-1, d->m, d->d ) )
+	if ( !outOfRange( d->y-1, d->m, d->d ) ) {
+	    accepted = TRUE;
 	    setYear( d->y-1 );
+	}
     } else if ( sec == d->monthSection ) {
-	if ( !outOfRange( d->y, d->m-1, d->d ) )
+	if ( !outOfRange( d->y, d->m-1, d->d ) ) {
+	    accepted = TRUE;
 	    setMonth( d->m-1 );
+	}
     } else if ( sec == d->daySection ) {
-	if ( !outOfRange( d->y, d->m, d->d-1 ) )
+	if ( !outOfRange( d->y, d->m, d->d-1 ) ) {
+	    accepted = TRUE;
 	    setDay( d->d-1 );
+	}
     }
-    d->changed = TRUE;
+    if ( accepted ) {
+	d->changed = TRUE;
+	emit valueChanged( date() );
+    }
     repaint( rect(), FALSE );
 }
 
@@ -1228,11 +1245,13 @@ void QDateEdit::addNumber( int sec, int num )
 	return;
     killTimer( d->timerId );
     bool overwrite = FALSE;
+    bool accepted = FALSE;
     d->typing = TRUE;
     QString txt;
     if ( sec == d->yearSection ) {
 	txt = QString::number( d->y );
 	if ( d->overwrite || txt.length() == 4 ) {
+	    accepted = TRUE;
 	    d->y = num;
 	} else {
 	    txt += QString::number( num );
@@ -1244,9 +1263,12 @@ void QDateEdit::addNumber( int sec, int num )
 		    d->y = 8000;
 		else if ( outOfRange( val, d->m, d->d ) )
 		    txt = QString::number( d->y );
-		else
+		else {
+		    accepted = TRUE;
 		    d->y = val;
+		}
 	    } else {
+		accepted = TRUE;
 		d->y = txt.toInt();
 	    }
 	    if ( d->adv && txt.length() == 4 ) {
@@ -1256,17 +1278,20 @@ void QDateEdit::addNumber( int sec, int num )
 	}
     } else if ( sec == d->monthSection ) {
 	txt = QString::number( d->m );
-	if ( d->overwrite || txt.length() == 2 )
+	if ( d->overwrite || txt.length() == 2 ) {
+	    accepted = TRUE;
 	    d->m = num;
-	else {
+	} else {
 	    txt += QString::number( num );
 	    int temp = txt.toInt();
 	    if ( temp > 12 )
 		temp = num;
 	    if ( outOfRange( d->y, temp, d->d ) )
 		txt = QString::number( d->m );
-	    else
+	    else {
+		accepted = TRUE;
 		d->m = temp;
+	    }
 	    if ( d->adv && txt.length() == 2 ) {
 		setFocusSection( focusSection()+1 );
 		overwrite = TRUE;
@@ -1274,24 +1299,30 @@ void QDateEdit::addNumber( int sec, int num )
 	}
     } else if ( sec == d->daySection ) {
 	txt = QString::number( d->d );
-	if ( d->overwrite || txt.length() == 2 )
+	if ( d->overwrite || txt.length() == 2 ) {
+	    accepted = TRUE;
 	    d->d = num;
-	else {
+	} else {
 	    txt += QString::number( num );
 	    int temp = txt.toInt();
 	    if ( temp > 31 )
 		temp = num;
 	    if ( outOfRange( d->y, d->m, temp ) )
 		txt = QString::number( d->d );
-	    else
+	    else {
+		accepted = TRUE;
 		d->d = temp;
+	    }
 	    if ( d->adv && txt.length() == 2 ) {
 		setFocusSection( focusSection()+1 );
 		overwrite = TRUE;
 	    }
 	}
     }
-    d->changed = TRUE;
+    if ( accepted ) {
+	d->changed = TRUE;
+	emit valueChanged( date() );
+    }
     d->overwrite = overwrite;
     d->timerId = startTimer( qApp->doubleClickInterval()*4 );
     repaint( rect(), FALSE );
@@ -1721,21 +1752,31 @@ void QTimeEdit::timerEvent( QTimerEvent * )
 void QTimeEdit::stepUp()
 {
     int sec = focusSection();
+    bool accepted = FALSE;
     switch( sec ) {
     case 0:
-	if ( !outOfRange( d->h+1, d->m, d->s ) )
-	     setHour( d->h+1 );
+	if ( !outOfRange( d->h+1, d->m, d->s ) ) {
+	    accepted = TRUE;
+	    setHour( d->h+1 );
+	}
 	break;
     case 1:
-	if ( !outOfRange( d->h, d->m+1, d->s ) )
+	if ( !outOfRange( d->h, d->m+1, d->s ) ) {
+	    accepted = TRUE;
 	    setMinute( d->m+1 );
+	}
 	break;
     case 2:
-	if ( !outOfRange( d->h, d->m, d->s+1 ) )
+	if ( !outOfRange( d->h, d->m, d->s+1 ) ) {
+	    accepted = TRUE;
 	    setSecond( d->s+1 );
+	}
 	break;
     }
-    d->changed = TRUE;
+    if ( accepted ) {
+	d->changed = TRUE;
+	emit valueChanged( time() );
+    }
     repaint( rect(), FALSE );
 }
 
@@ -1747,21 +1788,31 @@ void QTimeEdit::stepUp()
 void QTimeEdit::stepDown()
 {
     int sec = focusSection();
+    bool accepted = FALSE;
     switch( sec ) {
     case 0:
-	if ( !outOfRange( d->h-1, d->m, d->s ) )
-	     setHour( d->h-1 );
+	if ( !outOfRange( d->h-1, d->m, d->s ) ) {
+	    accepted = TRUE;
+	    setHour( d->h-1 );
+	}
 	break;
     case 1:
-	if ( !outOfRange( d->h, d->m-1, d->s ) )
+	if ( !outOfRange( d->h, d->m-1, d->s ) ) {
+	    accepted = TRUE;
 	    setMinute( d->m-1 );
+	}
 	break;
     case 2:
-	if ( !outOfRange( d->h, d->m, d->s-1 ) )
+	if ( !outOfRange( d->h, d->m, d->s-1 ) ) {
+	    accepted = TRUE;
 	    setSecond( d->s-1 );
+	}
 	break;
     }
-    d->changed = TRUE;
+    if ( accepted ) {
+	d->changed = TRUE;
+	emit valueChanged( time() );
+    }
     repaint( rect(), FALSE );
 }
 
@@ -1902,13 +1953,16 @@ void QTimeEdit::addNumber( int sec, int num )
 	return;
     killTimer( d->timerId );
     bool overwrite = FALSE;
+    bool accepted = FALSE;
     d->typing = TRUE;
     QString txt;
     if ( sec == 0 ) {
 	txt = QString::number( d->h );
 	if ( d->overwrite || txt.length() == 2 ) {
-	    if ( !outOfRange( num, d->m, d->s ) )
+	    if ( !outOfRange( num, d->m, d->s ) ) {
+		accepted = TRUE;
 		d->h = num;
+	    }
 	} else {
 	    txt += QString::number( num );
 	    int temp = txt.toInt();
@@ -1916,8 +1970,10 @@ void QTimeEdit::addNumber( int sec, int num )
 		temp = num;
 	    if ( outOfRange( temp, d->m, d->s ) )
 		txt = QString::number( d->h );
-	    else
+	    else {
+		accepted = TRUE;
 		d->h = temp;
+	    }
 	    if ( d->adv && txt.length() == 2 ) {
 		setFocusSection( focusSection()+1 );
 		overwrite = TRUE;
@@ -1926,8 +1982,10 @@ void QTimeEdit::addNumber( int sec, int num )
     } else if ( sec == 1 ) {
 	txt = QString::number( d->m );
 	if ( d->overwrite || txt.length() == 2 ) {
-	    if ( !outOfRange( d->h, num, d->s ) )
+	    if ( !outOfRange( d->h, num, d->s ) ) {
+		accepted = TRUE;
 		d->m = num;
+	    }
 	} else {
 	    txt += QString::number( num );
 	    int temp = txt.toInt();
@@ -1935,8 +1993,10 @@ void QTimeEdit::addNumber( int sec, int num )
 		temp = num;
 	    if ( outOfRange( d->h, temp, d->s ) )
 		txt = QString::number( d->m );
-	    else
+	    else {
+		accepted = TRUE;
 		d->m = temp;
+	    }
 	    if ( d->adv && txt.length() == 2 ) {
 		setFocusSection( focusSection()+1 );
 		overwrite = TRUE;
@@ -1945,8 +2005,10 @@ void QTimeEdit::addNumber( int sec, int num )
     } else if ( sec == 2 ) {
 	txt = QString::number( d->s );
 	if ( d->overwrite || txt.length() == 2 ) {
-	    if ( !outOfRange( d->h, d->m, num ) )
+	    if ( !outOfRange( d->h, d->m, num ) ) {
+		accepted = TRUE;
 		d->s = num;
+	    }
 	} else {
 	    txt += QString::number( num );
 	    int temp = txt.toInt();
@@ -1954,15 +2016,19 @@ void QTimeEdit::addNumber( int sec, int num )
 		temp = num;
 	    if ( outOfRange( d->h, d->m, temp ) )
 		txt = QString::number( d->s );
-	    else
+	    else {
+		accepted = TRUE;
 		d->s = temp;
+	    }
 	    if ( d->adv && txt.length() == 2 ) {
 		setFocusSection( focusSection()+1 );
 		overwrite = TRUE;
 	    }
 	}
     }
-    d->changed = TRUE;
+    d->changed = accepted;
+    if ( accepted )
+	emit valueChanged( time() );
     d->overwrite = overwrite;
     d->timerId = startTimer( qApp->doubleClickInterval()*4 );
     repaint( rect(), FALSE );
