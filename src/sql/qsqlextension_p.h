@@ -64,7 +64,11 @@
 #define QM_EXPORT_SQL Q_EXPORT
 #endif
 
-struct Param;
+struct Param {
+    Param( const QVariant& v = QVariant(), QSql::ParameterType t = QSql::In ): value( v ), typ( t ) {}
+    QVariant value;
+    QSql::ParameterType typ;
+};
 
 #if defined(Q_TEMPLATEDLL)
 Q_TEMPLATE_EXTERN template class QM_EXPORT_SQL QMap<QString,Param>;
@@ -90,12 +94,6 @@ public:
     BindMethod bindm;
     int bindCount;
 
-    struct Param {
-	Param( const QVariant& v = QVariant(), QSql::ParameterType t = QSql::In ): value( v ), typ( t ) {}
-	QVariant value;
-	QSql::ParameterType typ;
-    };
-
     QMap<int, QString> index;
     typedef QMap<QString, Param> ValueMap;
     ValueMap values;
@@ -108,6 +106,5 @@ public:
     virtual ~QSqlDriverExtension();
     virtual bool isOpen() const = 0;
 };
-
 #endif
 #endif
