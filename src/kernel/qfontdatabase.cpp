@@ -425,7 +425,7 @@ static const unsigned short sample_chars[QFont::LastPrivateScript] =
     // Armenian,
     0x0540,
     // Georgian,
-    0x10a0,
+    0x10d0,
     // Runic,
     0x16a0,
     // Ogham,
