@@ -129,44 +129,11 @@
 	    <x>0</x><y>0</y>
 	    <width>40</width><height>200</height>
 	</rect>
-	<count>40</count>
+	<count>91</count>
 	<offset>
-	    <x>40</x><y>0</y>
+	    <x>41</x><y>0</y>
 	</offset>
     </imageset>
-</widget>
-<widget type="QSlider" name="slider2" orientation="vertical">
-    <size>
-        <width>546</width><height>146</height>
-    </size>
-    <mask>
-        <source>th_hslider.png</source>
-	<rect>
-	    <x>21</x><y>3</y>
-	    <width>546</width><height>146</height>
-	</rect>
-    </mask>
-    <image name="Groove">
-        <source>th_hslider.png</source>
-	<rect>
-	    <x>21</x><y>3</y>
-	    <width>546</width><height>146</height>
-	</rect>
-    </image>
-    <image name="Handle">
-        <source>th_hslider.png</source>
-	<rect>
-	    <x>19</x><y>156</y>
-	    <width>27</width><height>27</height>
-	</rect>
-    </image>
-    <image name="Line">
-        <source>th_hslider_mask.png</source>
-	<rect>
-	    <x>21</x><y>3</y>
-	    <width>546</width><height>146</height>
-	</rect>
-    </image>
 </widget>
 <widget type="QWidget" name="rangecontrols">
    <size><width>800</width><height>480</height></size>
@@ -205,6 +172,30 @@
    <rect>
        <x>198</x><y>40</y>
        <width>82</width><height>82</height>
+   </rect>
+   </element>
+   <element name="lcd_slider1">
+   <rect>
+       <x>420</x><y>80</y>
+       <width>82</width><height>82</height>
+   </rect>
+   </element>
+   <element name="lcd_slider2">
+   <rect>
+       <x>640</x><y>80</y>
+       <width>82</width><height>82</height>
+   </rect>
+   </element>
+   <element name="slider1">
+   <rect>
+	<x>521</x><y>80</y>
+	<width>40</width><height>200</height>
+   </rect>
+   </element>
+   <element name="slider2">
+   <rect>
+	<x>110</x><y>80</y>
+	<width>40</width><height>200</height>
    </rect>
    </element>
 </layout>

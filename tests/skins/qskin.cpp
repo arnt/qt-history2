@@ -261,6 +261,14 @@ bool QSkinStyleHandler::startElement(const QString &, const QString &,
 
 		if(atts.value("dragable") == "true")
 		    i->isDragable = TRUE;
+
+		if (atts.value("orientation") == "vertical")
+		    i->direction = Qt::Vertical;
+		else if (atts.value("orientation") == "horizontal")
+		    i->direction = Qt::Horizontal;
+		else
+		    i->direction = -1; // not set
+
 		state.push(S_Widget);
 		return TRUE;
 	    }
@@ -1300,7 +1308,8 @@ void QSkinStyle::polish( QWidget *widget )
 		line.resize(k);
 		i->line = line;
 	    }
-	    
+	    if (i->direction != -1) 
+		((QSlider *)widget)->setOrientation((Qt::Orientation)i->direction);
 	}
     }
 }
