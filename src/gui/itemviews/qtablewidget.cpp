@@ -359,6 +359,16 @@ QTableWidgetItem::QTableWidgetItem()
 {
 }
 
+QTableWidgetItem::QTableWidgetItem(const QString &text)
+    : itemFlags(QAbstractItemModel::ItemIsEditable
+                |QAbstractItemModel::ItemIsSelectable
+                |QAbstractItemModel::ItemIsCheckable
+                |QAbstractItemModel::ItemIsEnabled),
+      model(0)
+{
+    setData(QAbstractItemModel::DisplayRole, text);
+}
+
 QTableWidgetItem::~QTableWidgetItem()
 {
     if (model)
@@ -478,27 +488,23 @@ void QTableWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const Q
 
 
 /*!
-    Creates a new table view with the given \a parent. The table view
-    uses a QTableModel to hold its data.
+    Creates a new table view with the given \a parent.
 */
 QTableWidget::QTableWidget(QWidget *parent)
     : QTableView(*new QTableWidgetPrivate, parent)
 {
     setModel(new QTableModel(0, 0, this));
-    connect(this, SIGNAL(pressed(const QModelIndex&, int)),
-            SLOT(emitPressed(const QModelIndex&, int)));
-    connect(this, SIGNAL(clicked(const QModelIndex&, int)),
-            SLOT(emitClicked(const QModelIndex&, int)));
-    connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),
-            SLOT(emitDoubleClicked(const QModelIndex&, int)));
-    connect(this, SIGNAL(keyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)),
-            SLOT(emitKeyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)));
-    connect(selectionModel(),
-            SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
-            this, SLOT(emitCurrentChanged(const QModelIndex&, const QModelIndex&)));
-    connect(selectionModel(),
-            SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
-            this, SIGNAL(selectionChanged()));
+    setup();
+}
+
+/*!
+    Creates a new table view with the given \a rows and \a columns, and with the given \a parent.
+*/
+QTableWidget::QTableWidget(int rows, int columns, QWidget *parent)
+    : QTableView(*new QTableWidgetPrivate, parent)
+{
+    setModel(new QTableModel(rows, columns, this));
+    setup();
 }
 
 /*!
@@ -713,6 +719,22 @@ void QTableWidget::insertColumn(int column)
 }
 
 /*!
+  ###
+*/
+void QTableWidget::removeRow(int row)
+{
+    d->model()->removeRows(row);
+}
+
+/*!
+  ###
+*/
+void QTableWidget::removeColumn(int column)
+{
+    d->model()->removeColumns(column);
+}
+
+/*!
   Removes all items in the view.
 */
 
@@ -730,6 +752,24 @@ void QTableWidget::removeItem(QTableWidgetItem *item)
 void QTableWidget::setModel(QAbstractItemModel *model)
 {
     QTableView::setModel(model);
+}
+
+void QTableWidget::setup()
+{
+    connect(this, SIGNAL(pressed(const QModelIndex&, int)),
+            SLOT(emitPressed(const QModelIndex&, int)));
+    connect(this, SIGNAL(clicked(const QModelIndex&, int)),
+            SLOT(emitClicked(const QModelIndex&, int)));
+    connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),
+            SLOT(emitDoubleClicked(const QModelIndex&, int)));
+    connect(this, SIGNAL(keyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)),
+            SLOT(emitKeyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)));
+    connect(selectionModel(),
+            SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+            this, SLOT(emitCurrentChanged(const QModelIndex&, const QModelIndex&)));
+    connect(selectionModel(),
+            SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+            this, SIGNAL(selectionChanged()));
 }
 
 #include "moc_qtablewidget.cpp"

@@ -24,6 +24,7 @@ class Q_GUI_EXPORT QTableWidgetItem
     friend class QTableModel;
 public:
     QTableWidgetItem();
+    QTableWidgetItem(const QString &text);
     virtual ~QTableWidgetItem();
 
     inline QAbstractItemModel::ItemFlags flags() const { return itemFlags; }
@@ -103,6 +104,7 @@ class Q_GUI_EXPORT QTableWidget : public QTableView
 
 public:
     QTableWidget(QWidget *parent = 0);
+    QTableWidget(int rows, int columns, QWidget *parent = 0);
     ~QTableWidget();
 
     void setRowCount(int rows);
@@ -140,6 +142,8 @@ public:
 public slots:
     void insertRow(int row);
     void insertColumn(int column);
+    void removeRow(int row);
+    void removeColumn(int column);
     void clear();
 
 signals:
@@ -153,6 +157,7 @@ signals:
 protected:
     void removeItem(QTableWidgetItem *item);
     void setModel(QAbstractItemModel *model);
+    void setup();
 
 private:
     Q_PRIVATE_SLOT(d, void emitPressed(const QModelIndex &index, int button));
