@@ -2020,15 +2020,17 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
 
         //qmake it
         if(!subtarget->profile.isEmpty()) {
-            QString out, in = fileFixify(subtarget->directory + Option::dir_sep + subtarget->profile,
-                subtarget->directory);
+            QString directory = subtarget->directory;
+            if(!directory.isEmpty() && !directory.endsWith(Option::dir_sep))
+               directory += Option::dir_sep;
+            QString out, in = fileFixify(directory + subtarget->profile, directory);
             if(subtarget->makefile != "$(MAKEFILE)")
                 out = " -o " + subtarget->makefile;
-            if(in.startsWith(subtarget->directory + Option::dir_sep))
-                in = in.mid(subtarget->directory.length() + 1);
+            if(in.startsWith(directory))
+                in = in.mid(directory.length());
             t << mkfile << ": " << "\n\t";
             if(have_dir) {
-                t << mkdir_p_asstring(subtarget->directory)
+                t << mkdir_p_asstring(directory)
                   << cdin
                   << "$(QMAKE) " << in << buildArgs() << out
                   << cdout << endl;
@@ -2040,7 +2042,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
                 t <<  " FORCE";
             t << "\n\t";
             if(have_dir) {
-                t << mkdir_p_asstring(subtarget->directory)
+                t << mkdir_p_asstring(directory)
                   << cdin
                   << "$(QMAKE) " << in << buildArgs() << out
                   << cdout << endl;

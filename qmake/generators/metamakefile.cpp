@@ -283,7 +283,7 @@ SubdirsMetaMakefileGenerator::init()
 }
 
 bool
-SubdirsMetaMakefileGenerator::write(const QString &)
+SubdirsMetaMakefileGenerator::write(const QString &passpwd)
 {
     bool ret = true;
     const QString &oldpwd = qmake_getpwd();
@@ -298,7 +298,11 @@ SubdirsMetaMakefileGenerator::write(const QString &)
         if(i != subs.count()-1)
             printf("RECURSIVE: writing %s\n", QDir::cleanPath(Option::output_dir+"/"+
                                                               Option::output.fileName()).toLatin1().constData());
-        if(!(ret = subs.at(i)->makefile->write(qmake_getpwd())))
+
+        QString writepwd = Option::fixPathToLocalOS(qmake_getpwd());
+        if(!writepwd.startsWith(Option::fixPathToLocalOS(passpwd)))
+            writepwd = passpwd;
+        if(!(ret = subs.at(i)->makefile->write(writepwd)))
             break;
         qmake_setpwd(oldpwd);
     }
