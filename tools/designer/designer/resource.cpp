@@ -2932,7 +2932,7 @@ void Resource::savePopupMenu( PopupMenuEditor *pm, QMainWindow *mw, QTextStream 
 	    ts <<  makeIndent( indent ) << "<separator/>" << endl;
 	else
 	    ts <<  makeIndent( indent ) << "<action name=\"" << a->name() << "\"/>" << endl;
-	PopupMenuEditor *s =  i->menu();
+	PopupMenuEditor *s =  i->subMenu();
 	if ( s && s->count() ) {
 	    QString n = a->name();
 	    n.replace( "Action", "Menu" );
@@ -3024,7 +3024,7 @@ void Resource::loadPopupMenu( PopupMenuEditor *p, const QDomElement &e )
 	if ( n.tagName() == "item" ) {
 	    PopupMenuEditorItem *i = p->at( p->find( a ) );
 	    if ( i )
-		loadPopupMenu( i->menu(), n ); // load submenu
+		loadPopupMenu( i->subMenu(), n );
 	} else if ( n.tagName() == "separator" ) {
 	    a = new QSeparatorAction( 0 );
 	    p->insert( a );

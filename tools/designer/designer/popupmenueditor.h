@@ -55,7 +55,7 @@ public:
     void showMenu( int x, int y );
     void hideMenu();
     void focusOnMenu();
-    PopupMenuEditor * menu() const { return s; }
+    PopupMenuEditor * subMenu() const { return s; }
 
     int count() const;
 
@@ -101,6 +101,7 @@ public:
     void insert( QAction * action, const int index = -1 );
     void insert( QActionGroup * actionGroup, const int index = -1 );
     int find( const QAction * action );
+    int find( PopupMenuEditor * menu );
     int count();
     PopupMenuEditorItem * at( const int index );
     void exchange( const int a, const int b );
@@ -125,6 +126,8 @@ public:
     bool isCreatingAccelerator() { return ( currentField == 2 ); }
 
     QPtrList<PopupMenuEditorItem> * items() { return &itemList; }
+
+    QWidget * parentEditor() { return parentMenu; }
 
 signals:
     void inserted( QAction * );
@@ -182,7 +185,6 @@ protected:
 private:
     FormWindow * formWnd;
     QLineEdit * lineEdit;
-    QPopupMenu * popupMenu;
     QWidget * dropLine;
     QPtrList<PopupMenuEditorItem> itemList;
     PopupMenuEditorItem addItem;

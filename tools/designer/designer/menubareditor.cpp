@@ -207,11 +207,6 @@ MenuBarEditor::MenuBarEditor( FormWindow * fw, QWidget * parent, const char * na
     dropLine->hide();
 
     setMinimumHeight( fontMetrics().height() + 2 * borderSize );
-
-    popupMenu = new QPopupMenu( this, "menubar popupmenu" );
-    popupMenu->insertItem( tr("&Cut"), this, SLOT(cut()), tr("Ctrl+X") );
-    popupMenu->insertItem( tr("&Copy"), this, SLOT(copy()), tr("Ctrl+C") );
-    popupMenu->insertItem( tr("&Paste"), this, SLOT(paste()), tr("Ctrl+V") );
 }
 
 MenuBarEditor::~MenuBarEditor()
@@ -639,8 +634,6 @@ void MenuBarEditor::mousePressEvent( QMouseEvent * e )
     currentIndex = findItem( mousePressPos );
     showItem();
     update();
-    if ( e->button() == Qt::RightButton && currentIndex < count() )
-	popupMenu->popup( mapToGlobal( mousePressPos ) );
     e->accept();
 }
 
@@ -848,8 +841,7 @@ void MenuBarEditor::focusOutEvent( QFocusEvent * e )
 {
     QWidget * fw = qApp->focusWidget();
     if ( e->lostFocus() &&
-	 ( !fw || !( fw == popupMenu ||
-		     fw->inherits( "PopupMenuEditor" ) ) ) )
+	 ( !fw || !fw->inherits( "PopupMenuEditor" ) ) )
 	hideItem();
     update();
 }
@@ -874,7 +866,7 @@ void MenuBarEditor::drawItems( QPainter & p )
 	i = itemList.next();
     }
 
-    p.setPen( colorGroup().dark() );
+    p.setPen( colorGroup().link() );
     drawItem( p, &addItem, c++, pos );
     if ( !hasSeparator )
 	drawItem( p, &addSeparator, c, pos );
@@ -900,8 +892,6 @@ void MenuBarEditor::drawItem( QPainter & p,
 	    Qt::ShowPrefix | Qt::SingleLine;
 	p.drawText( pos.x() + borderSize, pos.y(), w - borderSize, itemHeight,
 		    flags, i->menuText() );
-	//QRect r( 0, pos.y(), width(), itemHeight );
-	//style().drawControl( QStyle::CE_MenuBarItem, &p, i, r );
     }
 
     if ( hasFocus() && idx == currentIndex && !draggedItem )
@@ -912,9 +902,8 @@ void MenuBarEditor::drawItem( QPainter & p,
 
 void MenuBarEditor::drawSeparator( QPainter & p, QPoint & pos )
 {
-    QColor col( "blue" ); // FIXME: find some portable way to get this color...
     p.save();
-    p.setPen( col );
+    p.setPen( colorGroup().link() );
 
     int left = pos.x();
     int top = pos.y() + 2;
@@ -926,7 +915,7 @@ void MenuBarEditor::drawSeparator( QPainter & p, QPoint & pos )
 
     p.fillRect( left, pos.y() + borderSize * 2,
 		separatorWidth - 1, itemHeight - borderSize * 4,
-		QBrush( col, Qt::Dense5Pattern ) );
+		QBrush( colorGroup().link(), Qt::Dense5Pattern ) );
 
     p.restore();
 }
@@ -934,7 +923,7 @@ void MenuBarEditor::drawSeparator( QPainter & p, QPoint & pos )
 QSize MenuBarEditor::itemSize( QPainter & p, MenuBarEditorItem * i )
 {
     if ( i->isSeparator() )
-	return QSize( separatorWidth, itemHeight ); //FIXME: itemHeight may be 0
+	return QSize( separatorWidth, itemHeight );
     QRect r = p.boundingRect( rect(), Qt::ShowPrefix, i->menuText() );
     return QSize( r.width() + borderSize * 2, r.height() + borderSize * 2 );
 }

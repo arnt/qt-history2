@@ -151,7 +151,7 @@ void PopupMenuEditorItem::init()
 
     if ( action && m && !isSeparator() ) {
 	s = new PopupMenuEditor( m->formWindow(), m );
-	QString n = "PopupMenu";
+	QString n = "PopupMenuEditor";
 	m->formWindow()->unify( s, n, TRUE );
 	s->setName( n );
 	MetaDataBase::addEntry( s );
@@ -360,11 +360,6 @@ void PopupMenuEditor::init()
 
     QObject::connect( formWnd->mainWindow()->actioneditor(), SIGNAL( removing( QAction * ) ),
 		      this, SLOT( remove( QAction * ) ) );
-
-    popupMenu = new QPopupMenu( this, "popupmenu popupmenu" );
-    popupMenu->insertItem( tr("&Cut"), this, SLOT(cut()), tr("Ctrl+X") );
-    popupMenu->insertItem( tr("&Copy"), this, SLOT(copy()), tr("Ctrl+C") );
-    popupMenu->insertItem( tr("&Paste"), this, SLOT(paste()), tr("Ctrl+V") );
 }
 
 void PopupMenuEditor::insert( PopupMenuEditorItem * item, const int index )
@@ -399,6 +394,17 @@ int PopupMenuEditor::find( const QAction * action )
     PopupMenuEditorItem * i = itemList.first();
     while ( i ) {
 	if ( i->anyAction() == action )
+	    return itemList.at();
+	i = itemList.next();
+    }
+    return -1;
+}
+
+int PopupMenuEditor::find( PopupMenuEditor * menu )
+{
+    PopupMenuEditorItem * i = itemList.first();
+    while ( i ) {
+	if ( i->subMenu() == menu )
 	    return itemList.at();
 	i = itemList.next();
     }
@@ -734,8 +740,6 @@ void PopupMenuEditor::mousePressEvent( QMouseEvent * e )
     mousePressPos = e->pos();
     setFocusAt( mousePressPos );
     update();
-    if ( e->button() == Qt::RightButton && (int)currentIndex < count() )
-	popupMenu->popup( mapToGlobal( mousePressPos ) );
     e->accept();
 }
 
@@ -979,8 +983,7 @@ void PopupMenuEditor::focusInEvent( QFocusEvent * )
 void PopupMenuEditor::focusOutEvent( QFocusEvent * )
 {
     QWidget * fw = qApp->focusWidget();
-    if ( !fw || ( !( fw == popupMenu || fw->inherits( "PopupMenuEditor" ) ) &&
-		  fw != lineEdit ) ) {
+    if ( !fw || ( !fw->inherits( "PopupMenuEditor" ) && fw != lineEdit ) ) {
 	hideSubMenu();
 	if ( fw && !fw->inherits( "MenuBarEditor" ) )
 	    hide();
@@ -1077,7 +1080,7 @@ void PopupMenuEditor::drawItems( QPainter * p ) const
     }
     
     // Draw the "add item" and "add separator" items
-    p->setPen( colorGroup().dark() );
+    p->setPen( colorGroup().link() );
     if ( idx == currentIndex )
 	focus = pos.y();
     drawAction( p, addItem.action(), pos, QStyle::Style_Default );

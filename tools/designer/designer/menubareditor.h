@@ -150,7 +150,6 @@ protected:
 private:
     FormWindow * formWnd;
     QLineEdit * lineEdit;
-    QPopupMenu * popupMenu;
     QWidget * dropLine;
     QPtrList<MenuBarEditorItem> itemList;
     MenuBarEditorItem addItem;

@@ -2104,14 +2104,21 @@ RenameActionCommand::RenameActionCommand( const QString &n,
 
 QString RenameActionCommand::mangle( QString name )
 {
-    QObject * o = menu->parent();
-    MenuBarEditor * e = ( o ? ( MenuBarEditor * ) o->child( 0, "MenuBarEditor" ) : 0 );
-    int idx = ( e ? e->findItem( menu ) : - 1 );
-    MenuBarEditorItem * i = ( idx > -1 ? e->item( idx ) : 0 );
-    QString m = ( ( !!i ) ? i->menuText() : QString("unknown") );
-    return ( m.remove( "&" ).replace( ' ', '_' ).lower() +
-	     name.remove( "&" ).replace( ' ', '_' ) +
-	     "Action" );
+    QString s;
+    QWidget * e = menu->parentEditor();
+    if ( e->inherits( "PopupMenuEditor" ) ) {
+	PopupMenuEditor * p = ( PopupMenuEditor * ) e;
+	int idx = p->find( menu );
+	PopupMenuEditorItem * i = ( idx > -1 ? p->at( idx ) : 0 );
+	s = ( i ? QString( i->anyAction()->name() ).remove( "Action" ) : QString( "" ) );
+    } else if ( e->inherits( "MenuBarEditor" ) ) {
+	MenuBarEditor * b = ( MenuBarEditor * ) e;
+	int idx = b->findItem( menu );
+	MenuBarEditorItem * i = ( idx > -1 ? b->item( idx ) : 0 );
+	s = ( i ? i->menuText().lower() : QString( "" ) );
+    }
+    return ( s.remove( "&" ).replace( ' ', '_' ) +
+	     name.remove( "&" ).replace( ' ', '_' ) + "Action" );
 }
 
 void RenameActionCommand::execute()
@@ -2339,4 +2346,3 @@ void DeleteToolBoxPageCommand::unexecute()
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
-
