@@ -759,7 +759,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     \value WState_DND
     \value WState_Reserved0
     \value WState_Reserved1
-    \value WState_Reserved2
     \value WState_CreatedHidden
     \value WState_Maximized
     \value WState_Minimized
@@ -767,6 +766,7 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     \value WState_Exposed
     \value WState_HasMouse
     \value WState_CreatedHidden
+    \value WState_OwnSizePolicy
 */
 
 

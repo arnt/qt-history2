@@ -363,6 +363,7 @@ public:
     \value UI_AnimateCombo
     \value UI_AnimateTooltip
     \value UI_FadeTooltip
+    \value UI_AnimateToolBox
 
 */
 
@@ -892,6 +893,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value CE_MenuBarEmptyArea the empty area of a QMenuBar.
     \value CE_DockWindowEmptyArea the empty area of a QDockWindow.
+
+    \value CE_ToolBoxTab the toolbox's tab area
+    \value CE_HeaderLabel
 
     \value CE_CustomBase  base value for custom ControlElements. All values above
 	    this are reserved for custom use. Therefore, custom values must be
@@ -1476,6 +1480,10 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PM_DialogButtonsButtonWidth minimum width of a button in a dialog buttons widget.
     \value PM_DialogButtonsButtonHeight minimum height of a button in a dialog buttons widget.
 
+    \value PM_HeaderMarkSize
+    \value PM_HeaderGripMargin
+    \value PM_HeaderMargin
+
     \value PM_CustomBase  base value for custom ControlElements. All
 	values above this are reserved for custom use. Therefore,
 	custom values must be greater than this value.
@@ -1710,6 +1718,13 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	values above this are reserved for custom use. Therefore,
 	custom values must be greater than this value.
 
+    \value SH_ToolBox_SelectedPageTitleBold Boldness of the selected
+    page title in a QToolBox.
+
+    \value SH_LineEdit_PasswordCharacter The QChar Unicode character
+    to be used for passwords.
+
+    \value SH_Table_GridLineColor
 
     \sa styleHint()
 */

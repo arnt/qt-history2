@@ -776,6 +776,10 @@ QGLContext::QGLContext( const QGLFormat &format, QPaintDevice *device )
     init( device );
 }
 
+/*!
+    \overload
+    \internal
+*/
 QGLContext::QGLContext( const QGLFormat &format )
     : glFormat( format ), reqFormat(format)
 {
@@ -840,6 +844,9 @@ void QGLContext::setFormat( const QGLFormat &format )
     glFormat = reqFormat = format;
 }
 
+/*!
+    \internal
+*/
 void QGLContext::setDevice( QPaintDevice *pDev )
 {
     if ( isValid() )
