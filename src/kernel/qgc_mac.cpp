@@ -279,21 +279,23 @@ void QQuickDrawGC::setRasterOp(RasterOp r)
     d->current.rop = r;
 }
 
-void
-QQuickDrawGC::drawLine(int x1, int y1, int x2, int y2)
+void QQuickDrawGC::drawLine(const QPoint &pt1, const QPoint &pt2)
 {
     Q_ASSERT(isActive());
     setupQDPort();
     if(d->clip.paintable.isEmpty())
 	return;
     setupQDPen();
-    MoveTo(x1+d->offx,y1+d->offy);
-    LineTo(x2+d->offx,y2+d->offy);
+    MoveTo(pt1.x() + d->offx, pt1.y() + d->offy);
+    LineTo(pt2.x() + d->offx, pt2.y() + d->offy);
 }
 
-void
-QQuickDrawGC::drawRect(int x, int y, int w, int h)
+void QQuickDrawGC::drawRect(const QRect &r)
 {
+    int x = r.x();
+    int y = r.y();
+    int w = r.width();
+    int h = r.height();
     Q_ASSERT(isActive());
     setupQDPort();
     if(d->clip.paintable.isEmpty())
@@ -327,14 +329,15 @@ QQuickDrawGC::drawRect(int x, int y, int w, int h)
 		QRegion clip = d->current.clip;
 
 		//create the region
-		QRegion newclip(QRect(x, y, w, h));
+		QRegion newclip(r);
 		if(clipon)
 		    newclip &= clip;
 		setClippedRegionInternal(&newclip);
 
 		//draw the brush
-		drawTiledPixmap(x, y, w, h, *pm,
-				x - d->current.bg.origin.x(), y - d->current.bg.origin.y(), true);
+		drawTiledPixmap(r, *pm,
+				QPoint(x - d->current.bg.origin.x(), y - d->current.bg.origin.y()),
+				true);
 
 		//restore the clip
 		setClippedRegionInternal(clipon ? &clip : 0);
@@ -347,8 +350,7 @@ QQuickDrawGC::drawRect(int x, int y, int w, int h)
     }
 }
 
-void
-QQuickDrawGC::drawPoint(int x, int y)
+void QQuickDrawGC::drawPoint(const QPoint &pt)
 {
     Q_ASSERT(isActive());
     if(d->current.pen.style() != NoPen) {
@@ -356,13 +358,12 @@ QQuickDrawGC::drawPoint(int x, int y)
 	if(d->clip.paintable.isEmpty())
 	    return;
 	setupQDPen();
-	MoveTo(x + d->offx, y + d->offy);
-	Line(0,1);
+	MoveTo(pt.x() + d->offx, pt.y() + d->offy);
+	Line(0, 1);
     }
 }
 
-void
-QQuickDrawGC::drawPoints(const QPointArray &pa, int index, int npoints)
+void QQuickDrawGC::drawPoints(const QPointArray &pa, int index, int npoints)
 {
     Q_ASSERT(isActive());
 
@@ -378,8 +379,7 @@ QQuickDrawGC::drawPoints(const QPointArray &pa, int index, int npoints)
     }
 }
 
-void
-QQuickDrawGC::drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, const QColor &bgColor)
+void QQuickDrawGC::drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor)
 {
     Q_ASSERT(isActive());
 
@@ -405,16 +405,20 @@ QQuickDrawGC::drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, const 
     //draw
     setupQDPen();
     if(d->current.pen.style() != NoPen)
-	drawRect(x, y, w, h);
+	drawRect(r);
 
     //restore
     d->current.rop = old_rop;
     d->current.pen = old_pen;
 }
 
-void
-QQuickDrawGC::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
+void QQuickDrawGC::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
+    int x = r.x();
+    int y = r.y();
+    int w = r.width();
+    int h = r.height();
+
     Q_ASSERT(isActive());
 
     setupQDPort();
@@ -433,8 +437,7 @@ QQuickDrawGC::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
     }
 }
 
-void
-QQuickDrawGC::drawPolyInternal(const QPointArray &pa, bool close, bool inset)
+void QQuickDrawGC::drawPolyInternal(const QPointArray &pa, bool close, bool inset)
 {
     Q_ASSERT(isActive());
 
@@ -487,8 +490,9 @@ QQuickDrawGC::drawPolyInternal(const QPointArray &pa, bool close, bool inset)
 
 		//draw the brush
 		QRect r(pa.boundingRect());
-		drawTiledPixmap(r.x(), r.y(), r.width(), r.height(), *pm,
-				r.x() - d->current.bg.origin.x(), r.y() - d->current.bg.origin.y(), true);
+		drawTiledPixmap(r, *pm,
+			QPoint(r.x() - d->current.bg.origin.x(), r.y() - d->current.bg.origin.y()),
+			true);
 
 		//restore the clip
 		setClippedRegionInternal(clipon ? &clip : 0);
@@ -502,11 +506,14 @@ QQuickDrawGC::drawPolyInternal(const QPointArray &pa, bool close, bool inset)
     qt_mac_dispose_rgn(polyRegion);
 }
 
-void
-QQuickDrawGC::drawEllipse(int x, int y, int w, int h)
+void QQuickDrawGC::drawEllipse(const QRect &rect)
 {
     Q_ASSERT(isActive());
 
+    int x = rect.x();
+    int y = rect.y();
+    int w = rect.width();
+    int h = rect.height();
     setupQDPort();
     if(d->clip.paintable.isEmpty())
 	return;
@@ -545,8 +552,9 @@ QQuickDrawGC::drawEllipse(int x, int y, int w, int h)
 		setClippedRegionInternal(&newclip);
 
 		//draw the brush
-		drawTiledPixmap(x, y, w, h, *pm,
-				x - d->current.bg.origin.x(), y - d->current.bg.origin.y(), true);
+		drawTiledPixmap(rect, *pm,
+				QPoint(x - d->current.bg.origin.x(), y - d->current.bg.origin.y()),
+				true);
 
 		//restore the clip
 		setClippedRegionInternal(clipon ? &clip : 0);
@@ -560,21 +568,19 @@ QQuickDrawGC::drawEllipse(int x, int y, int w, int h)
     }
 }
 
-void
-QQuickDrawGC::drawChord(int x, int y, int w, int h, int a, int alen)
+void QQuickDrawGC::drawChord(const QRect &r, int a, int alen)
 {
     Q_ASSERT(isActive());
 
     QPointArray pa;
-    pa.makeArc(x, y, w-1, h-1, a, alen);
+    pa.makeArc(r.x(), r.y(), r.width() - 1, r.height() - 1, a, alen);
     int n = pa.size();
     pa.resize(n + 1);
     pa.setPoint(n, pa.at(0));
     drawPolyInternal(pa);
 }
 
-void
-QQuickDrawGC::drawLineSegments(const QPointArray &pa, int index, int nlines)
+void QQuickDrawGC::drawLineSegments(const QPointArray &pa, int index, int nlines)
 {
     Q_ASSERT(isActive());
 
@@ -591,8 +597,7 @@ QQuickDrawGC::drawLineSegments(const QPointArray &pa, int index, int nlines)
     }
 }
 
-void
-QQuickDrawGC::drawPolyline(const QPointArray &pa, int index, int npoints)
+void QQuickDrawGC::drawPolyline(const QPointArray &pa, int index, int npoints)
 {
     Q_ASSERT(isActive());
     int x1, y1, x2, y2, xsave, ysave;
@@ -628,8 +633,7 @@ QQuickDrawGC::drawPolyline(const QPointArray &pa, int index, int npoints)
     KillPoly(poly);
 }
 
-void
-QQuickDrawGC::drawPolygon(const QPointArray &a, bool /*winding*/, int index, int npoints)
+void QQuickDrawGC::drawPolygon(const QPointArray &a, bool /*winding*/, int index, int npoints)
 {
     Q_ASSERT(isActive());
     QPointArray pa;
@@ -644,25 +648,28 @@ QQuickDrawGC::drawPolygon(const QPointArray &a, bool /*winding*/, int index, int
     drawPolyInternal(pa, true);
 }
 
-void
-QQuickDrawGC::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
+void QQuickDrawGC::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
 {
     // Implemented in terms of drawPolygon() [no optimization]
     drawPolygon(pa,false,index,npoints);
 }
 
 #ifndef QT_NO_BEZIER
-void
-QQuickDrawGC::drawCubicBezier(const QPointArray &pa, int index)
+void QQuickDrawGC::drawCubicBezier(const QPointArray &pa, int index)
 {
     Q_ASSERT(isActive());
     drawPolyline(pa.cubicBezier(), index);
 }
 #endif
 
-void
-QQuickDrawGC::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy, bool)
+void QQuickDrawGC::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool)
 {
+    int x = r.x();
+    int y = r.y();
+    int w = r.width();
+    int h = r.height();
+    int sx = s.x();
+    int sy = s.y();
     int yPos, xPos, drawH, drawW, yOff, xOff;
     yPos = y;
     yOff = sy;
@@ -676,7 +683,7 @@ QQuickDrawGC::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap,
 	    drawW = pixmap.width() - xOff; // Cropping first column
 	    if(xPos + drawW > x + w)    // Cropping last column
 		drawW = x + w - xPos;
-	    drawPixmap(xPos, yPos, pixmap, xOff, yOff, drawW, drawH);
+	    drawPixmap(QRect(xPos, yPos, 1, 1), pixmap, QRect(xOff, yOff, drawW, drawH));
 	    xPos += drawW;
 	    xOff = 0;
 	}
@@ -685,11 +692,13 @@ QQuickDrawGC::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap,
     }
 }
 
-void
-QQuickDrawGC::drawPie(int x, int y, int w, int h, int a, int alen)
+void QQuickDrawGC::drawPie(const QRect &r, int a, int alen)
 {
     Q_ASSERT(isActive());
-
+    int x = r.x();
+    int y = r.y();
+    int w = r.width();
+    int h = r.height();
     QPointArray pa;
     pa.makeArc(x, y, w, h, a, alen); // arc polyline
     int n = pa.size();
@@ -699,18 +708,16 @@ QQuickDrawGC::drawPie(int x, int y, int w, int h, int a, int alen)
     drawPolyInternal(pa, true, false);
 }
 
-void
-QQuickDrawGC::drawArc(int x, int y, int w, int h, int a, int alen)
+void QQuickDrawGC::drawArc(const QRect &r, int a, int alen)
 {
     Q_ASSERT(isActive());
 
     QPointArray pa;
-    pa.makeArc(x, y, w, h, a, alen); // arc polyline
+    pa.makeArc(r.x(), r.y(), r.width(), r.height(), a, alen); // arc polyline
     drawPolyline(pa);
 }
 
-void
-QQuickDrawGC::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh)
+void QQuickDrawGC::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr)
 {
     Q_ASSERT(isActive());
     if(pixmap.isNull())
@@ -723,11 +730,11 @@ QQuickDrawGC::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, in
 #ifdef USE_CORE_GRAPHICS
     QMacSavedPortInfo::setClipRegion(d->clip.paintable);
 #endif
-    unclippedBitBlt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)d->current.rop, false, false);
+    unclippedBitBlt(d->pdev, r.x(), r.y(), &pixmap, sr.x(), sr.y(), sr.width(), sr.height(),
+		    (RasterOp)d->current.rop, false, false);
 }
 
-void
-QQuickDrawGC::drawTextItem(int x, int y, const QTextItem &ti, int textflags)
+void QQuickDrawGC::drawTextItem(const QPoint &/*p*/, const QTextItem &/*ti*/, int /*textflags*/)
 {
 #if 0
     Q_ASSERT(isActive());
@@ -746,27 +753,23 @@ QQuickDrawGC::drawTextItem(int x, int y, const QTextItem &ti, int textflags)
 #endif
 }
 
-Qt::HANDLE
-QQuickDrawGC::handle() const
+Qt::HANDLE QQuickDrawGC::handle() const
 {
     return d->pdev->handle();
 }
 
-void
-QQuickDrawGC::initialize()
+void QQuickDrawGC::initialize()
 {
 }
 
-void 
-QQuickDrawGC::cleanup()
+void QQuickDrawGC::cleanup()
 {
 }
 
 /*!
     \internal
 */
-void
-QQuickDrawGC::setupQDPen()
+void QQuickDrawGC::setupQDPen()
 {
     //pen color
     ::RGBColor f;
@@ -1385,34 +1388,31 @@ QCoreGraphicsGC::updateClipRegion(QPainterState *ps)
     }
 }
 
-void 
-QCoreGraphicsGC::setRasterOp(RasterOp r)
+void QCoreGraphicsGC::setRasterOp(RasterOp r)
 {
     Q_ASSERT(isActive());
     if(r != CopyROP)
 	qDebug("Cannot support any raster ops other than Copy!");
 }
 
-void 
-QCoreGraphicsGC::drawLine(int x1, int y1, int x2, int y2)
+void QCoreGraphicsGC::drawLine(const QPoint &pt1, const QPoint &pt2)
 {
     Q_ASSERT(isActive());
 
     float cg_x, cg_y;
-    d->mac_point(x1, y1, &cg_x, &cg_y);
+    d->mac_point(pt1.x(), pt1.y(), &cg_x, &cg_y);
     CGContextMoveToPoint((CGContextRef)d->hd, cg_x, cg_y);
-    d->mac_point(x2, y2, &cg_x, &cg_y);
+    d->mac_point(pt2.x(), pt2.y(), &cg_x, &cg_y);
     CGContextAddLineToPoint((CGContextRef)d->hd, cg_x, cg_y);
     CGContextStrokePath((CGContextRef)d->hd);
 }
 
-void 
-QCoreGraphicsGC::drawRect(int x, int y, int w, int h)
+void QCoreGraphicsGC::drawRect(const QRect &r)
 {
     Q_ASSERT(isActive());
 
     CGRect mac_rect;
-    d->mac_rect(x, y, w, h, &mac_rect);
+    d->mac_rect(r.x(), r.y(), r.width(), r.height(), &mac_rect);
     CGContextBeginPath((CGContextRef)d->hd);
     CGContextAddRect((CGContextRef)d->hd, mac_rect);
     if(d->current.brush.style() != NoBrush)
@@ -1421,20 +1421,18 @@ QCoreGraphicsGC::drawRect(int x, int y, int w, int h)
 	CGContextStrokePath((CGContextRef)d->hd);
 }
 
-void 
-QCoreGraphicsGC::drawPoint(int x, int y)
+void QCoreGraphicsGC::drawPoint(const QPoint &pt)
 {
     Q_ASSERT(isActive());
 
     float cg_x, cg_y;
-    d->mac_point(x, y, &cg_x, &cg_y);
+    d->mac_point(pt.x(), pt.y(), &cg_x, &cg_y);
     CGContextMoveToPoint((CGContextRef)d->hd, cg_x, cg_y);
-    CGContextAddLineToPoint((CGContextRef)d->hd, cg_x+1, cg_y);
+    CGContextAddLineToPoint((CGContextRef)d->hd, cg_x + 1, cg_y);
     CGContextStrokePath((CGContextRef)d->hd);
 }
 
-void 
-QCoreGraphicsGC::drawPoints(const QPointArray &pa, int index, int npoints)
+void QCoreGraphicsGC::drawPoints(const QPointArray &pa, int index, int npoints)
 {
     Q_ASSERT(isActive());
 
@@ -1447,8 +1445,7 @@ QCoreGraphicsGC::drawPoints(const QPointArray &pa, int index, int npoints)
     }
 }
 
-void 
-QCoreGraphicsGC::drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, const QColor &penColor)
+void QCoreGraphicsGC::drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &penColor)
 {
     Q_ASSERT(isActive());
 
@@ -1456,7 +1453,7 @@ QCoreGraphicsGC::drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, con
     QPainterState old_state = *state;
 
     //setup
-    if(xorPaint) 
+    if(xorPaint)
 	qWarning("cannot support xor painting!");
     if(qGray(d->current.bg.color.rgb()) < 128)
 	state->pen = QPen(white);
@@ -1467,17 +1464,20 @@ QCoreGraphicsGC::drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, con
 
     //draw
     if(d->current.pen.style() != NoPen)
-	drawRect(x, y, w, h);
+	drawRect(r);
 
     //restore
     *state = old_state;
     updatePen(state);
 }
 
-void 
-QCoreGraphicsGC::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
+void QCoreGraphicsGC::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     Q_ASSERT(isActive());
+    int x = r.x();
+    int y = r.y();
+    int w = r.width();
+    int h = r.height();
 
     // I need to test how close this is to other platforms, I only rolled this without testing --Sam
     float cg_x, cg_y;
@@ -1502,17 +1502,18 @@ QCoreGraphicsGC::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
     CGPathRelease(path);
 }
 
-void 
-QCoreGraphicsGC::drawEllipse(int x, int y, int w, int h)
+void QCoreGraphicsGC::drawEllipse(const QRect &r)
 {
     Q_ASSERT(isActive());
+    int w = r.width();
+    int h = r.height();
 
     CGMutablePathRef path = CGPathCreateMutable();
     CGAffineTransform transform;
     if(w != h)
 	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
     float cg_x, cg_y;
-    d->mac_point(x, y, &cg_x, &cg_y);
+    d->mac_point(r.x(), r.y(), &cg_x, &cg_y);
     CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y + (h/2), h/2, 0, 360, false);
     CGContextBeginPath((CGContextRef)d->hd);
     CGContextAddPath((CGContextRef)d->hd, path);
@@ -1523,17 +1524,18 @@ QCoreGraphicsGC::drawEllipse(int x, int y, int w, int h)
     CGPathRelease(path);
 }
 
-void 
-QCoreGraphicsGC::drawArc(int x, int y, int w, int h, int a, int alen)
+void QCoreGraphicsGC::drawArc(const QRect &r, int a, int alen)
 {
     Q_ASSERT(isActive());
 
+    int w = r.width();
+    int h = r.height();
     CGMutablePathRef path = CGPathCreateMutable();
     CGAffineTransform transform;
     if(w != h)
 	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
     float cg_x, cg_y;
-    d->mac_point(x, y, &cg_x, &cg_y);
+    d->mac_point(r.x(), r.y(), &cg_x, &cg_y);
     float begin_radians = ((float)(a/16)+180) * (M_PI/180), end_radians = ((float)((a+alen)/16)+180) * (M_PI/180);
     CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y + (h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGContextBeginPath((CGContextRef)d->hd);
@@ -1543,17 +1545,18 @@ QCoreGraphicsGC::drawArc(int x, int y, int w, int h, int a, int alen)
     CGPathRelease(path);
 }
 
-void 
-QCoreGraphicsGC::drawPie(int x, int y, int w, int h, int a, int alen)
+void QCoreGraphicsGC::drawPie(const QRect &r, int a, int alen)
 {
     Q_ASSERT(isActive());
 
+    int w = r.width();
+    int h = r.height();
     CGMutablePathRef path = CGPathCreateMutable();
     CGAffineTransform transform;
     if(w != h)
 	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
     float cg_x, cg_y;
-    d->mac_point(x, y, &cg_x, &cg_y);
+    d->mac_point(r.x(), r.y(), &cg_x, &cg_y);
     float begin_radians = ((float)(a/16)+180) * (M_PI/180), end_radians = ((float)((a+alen)/16)+180) * (M_PI/180);
     CGPathMoveToPoint(path, 0, cg_x + (w/2), cg_y + (h/2));
     CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y + (h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
@@ -1567,8 +1570,7 @@ QCoreGraphicsGC::drawPie(int x, int y, int w, int h, int a, int alen)
     CGPathRelease(path);
 }
 
-void 
-QCoreGraphicsGC::drawPolyInternal(const QPointArray &a, bool close)
+void QCoreGraphicsGC::drawPolyInternal(const QPointArray &a, bool close)
 {
     Q_ASSERT(isActive());
 
@@ -1589,17 +1591,18 @@ QCoreGraphicsGC::drawPolyInternal(const QPointArray &a, bool close)
 	CGContextStrokePath((CGContextRef)d->hd);
 }
 
-void 
-QCoreGraphicsGC::drawChord(int x, int y, int w, int h, int a, int alen)
+void QCoreGraphicsGC::drawChord(const QRect &r, int a, int alen)
 {
     Q_ASSERT(isActive());
+    int w = r.width();
+    int h = r.height();
 
     CGMutablePathRef path = CGPathCreateMutable();
     CGAffineTransform transform;
     if(w != h)
 	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
     float cg_x, cg_y;
-    d->mac_point(x, y, &cg_x, &cg_y);
+    d->mac_point(r.x(), r.y(), &cg_x, &cg_y);
     float begin_radians = ((float)(a/16)+180) * (M_PI/180), end_radians = ((float)((a+alen)/16)+180) * (M_PI/180);
     //We draw twice because the first draw will set the point to the end of arc, and the second pass will draw the line to the first point
     CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y+(h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
@@ -1613,8 +1616,7 @@ QCoreGraphicsGC::drawChord(int x, int y, int w, int h, int a, int alen)
     CGPathRelease(path);
 }
 
-void 
-QCoreGraphicsGC::drawLineSegments(const QPointArray &pa, int index, int nlines)
+void QCoreGraphicsGC::drawLineSegments(const QPointArray &pa, int index, int nlines)
 {
     Q_ASSERT(isActive());
 
@@ -1632,8 +1634,7 @@ QCoreGraphicsGC::drawLineSegments(const QPointArray &pa, int index, int nlines)
     }
 }
 
-void 
-QCoreGraphicsGC::drawPolyline(const QPointArray &pa, int index, int npoints)
+void QCoreGraphicsGC::drawPolyline(const QPointArray &pa, int index, int npoints)
 {
     Q_ASSERT(isActive());
 
@@ -1648,8 +1649,7 @@ QCoreGraphicsGC::drawPolyline(const QPointArray &pa, int index, int npoints)
 	CGContextStrokePath((CGContextRef)d->hd);
 }
 
-void 
-QCoreGraphicsGC::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
+void QCoreGraphicsGC::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
 {
     Q_ASSERT(isActive());
 
@@ -1665,16 +1665,9 @@ QCoreGraphicsGC::drawPolygon(const QPointArray &a, bool winding, int index, int 
     drawPolyInternal(pa, true);
 }
 
-void
-QCoreGraphicsGC::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
-{
-    // Implemented in terms of drawPolygon() [no optimization]
-    drawPolygon(pa,false,index,npoints);
-}
 
 #ifndef QT_NO_BEZIER
-void 
-QCoreGraphicsGC::drawCubicBezier(const QPointArray &pa, int index)
+void QCoreGraphicsGC::drawCubicBezier(const QPointArray &pa, int index)
 {
     Q_ASSERT(isActive());
 
@@ -1691,36 +1684,18 @@ QCoreGraphicsGC::drawCubicBezier(const QPointArray &pa, int index)
 }
 #endif
 
-void 
-QCoreGraphicsGC::drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int sw, int sh)
+void QCoreGraphicsGC::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
 {
     qDebug("Must implement drawPixmap!!");
 }
 
-void 
-QCoreGraphicsGC::drawTextItem(int x, int y, const QTextItem &ti, int textflags)
+void QCoreGraphicsGC::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
 {
     qDebug("Must implement drawTextItem!!");
 }
 
-Qt::HANDLE
-QCoreGraphicsGC::handle() const
-{
-    return d->hd;
-}
-
-void
-QCoreGraphicsGC::initialize()
-{
-}
-
-void 
-QCoreGraphicsGC::cleanup()
-{
-}
-
-void 
-QCoreGraphicsGC::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy, bool optim)
+void QCoreGraphicsGC::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s,
+				      bool optim)
 {
     Q_ASSERT(isActive());
 
@@ -1742,10 +1717,10 @@ QCoreGraphicsGC::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixm
     CGContextSetFillColorSpace((CGContextRef)d->hd, cs);
     const float tmp_float = 1; //wtf?? --SAM (this seems to be necessary, but why!?!) ###
     CGContextSetFillPattern((CGContextRef)d->hd, pat, &tmp_float);
-    CGContextSetPatternPhase((CGContextRef)d->hd, CGSizeMake(-sx, -sy));
+    CGContextSetPatternPhase((CGContextRef)d->hd, CGSizeMake(-s.x(), -s.y()));
     //fill the rectangle
     CGRect mac_rect;
-    d->mac_rect(x, y, w, h, &mac_rect);
+    d->mac_rect(r.x(), r.y(), r.width(), r.height(), &mac_rect);
     CGContextFillRect((CGContextRef)d->hd, mac_rect);
     //restore the state
     CGContextRestoreGState((CGContextRef)d->hd);

@@ -42,16 +42,16 @@ public:
 
     void setRasterOp(RasterOp r);
 
-    void drawLine(int x1, int y1, int x2, int y2);
-    void drawRect(int x1, int y1, int w, int h);
-    void drawPoint(int x, int y);
+    void drawLine(const QPoint &pt1, const QPoint &pt2);
+    void drawRect(const QRect &r);
+    void drawPoint(const QPoint &p);
     void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1);
-    void drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, const QColor &penColor);
-    void drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd);
-    void drawEllipse(int x, int y, int w, int h);
-    void drawArc(int x, int y, int w, int h, int a, int alen);
-    void drawPie(int x, int y, int w, int h, int a, int alen);
-    void drawChord(int x, int y, int w, int h, int a, int alen);
+    void drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &penColor);
+    void drawRoundRect(const QRect &r, int xRnd, int yRnd);
+    void drawEllipse(const QRect &r);
+    void drawArc(const QRect &r, int a, int alen);
+    void drawPie(const QRect &r, int a, int alen);
+    void drawChord(const QRect &r, int a, int alen);
     void drawLineSegments(const QPointArray &, int index = 0, int nlines = -1);
     void drawPolyline(const QPointArray &pa, int index = 0, int npoints = -1);
     void drawPolygon(const QPointArray &pa, bool winding = false, int index = 0, int npoints =- 1);
@@ -60,9 +60,9 @@ public:
     void drawCubicBezier(const QPointArray &pa, int index = 0);
 #endif
 
-    void drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int sw, int sh);
-    void drawTextItem(int x, int y, const QTextItem &ti, int textflags);
-    void drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy, bool optim);
+    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr);
+    void drawTextItem(const QPoint &pt, const QTextItem &ti, int textflags);
+    void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
 
     virtual Qt::HANDLE handle() const;
 
@@ -113,16 +113,16 @@ public:
 
     void setRasterOp(RasterOp r);
 
-    void drawLine(int x1, int y1, int x2, int y2);
-    void drawRect(int x1, int y1, int w, int h);
-    void drawPoint(int x, int y);
+    void drawLine(const QPoint &pt1, const QPoint &pt2);
+    void drawRect(const QRect &r);
+    void drawPoint(const QPoint &pt);
     void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1);
-    void drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, const QColor &penColor);
-    void drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd);
-    void drawEllipse(int x, int y, int w, int h);
-    void drawArc(int x, int y, int w, int h, int a, int alen);
-    void drawPie(int x, int y, int w, int h, int a, int alen);
-    void drawChord(int x, int y, int w, int h, int a, int alen);
+    void drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &penColor);
+    void drawRoundRect(const QRect &r, int xRnd, int yRnd);
+    void drawEllipse(const QRect &r);
+    void drawArc(const QRect &r, int a, int alen);
+    void drawPie(const QRect &r, int a, int alen);
+    void drawChord(const QRect &r, int a, int alen);
     void drawLineSegments(const QPointArray &, int index = 0, int nlines = -1);
     void drawPolyline(const QPointArray &pa, int index = 0, int npoints = -1);
     void drawPolygon(const QPointArray &pa, bool winding = false, int index = 0, int npoints =- 1);
@@ -130,9 +130,9 @@ public:
 #ifndef QT_NO_BEZIER
     void drawCubicBezier(const QPointArray &pa, int index = 0);
 #endif
-    void drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int sw, int sh);
-    void drawTextItem(int x, int y, const QTextItem &ti, int textflags);
-    void drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy, bool optim);
+    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr);
+    void drawTextItem(const QPoint &pt, const QTextItem &ti, int textflags);
+    void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
 
     virtual Qt::HANDLE handle() const;
 
