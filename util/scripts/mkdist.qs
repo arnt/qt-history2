@@ -44,6 +44,9 @@ var checkoutRemove = [ new RegExp("^gif"),
 		       new RegExp("^pics"),
 		       new RegExp("^extensions/xt"),
 
+		       new RegExp("^src/gui/itemviews/qlistview"),
+		       new RegExp("^src/gui/itemviews/qtreeview"),
+		       new RegExp("^src/gui/itemviews/qtableview"),
 		       new RegExp("^LICENSE.TROLL"),
 		       new RegExp("^tools/designer") ];
 var checkoutKeep = [ /./ ];
