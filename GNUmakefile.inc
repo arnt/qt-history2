@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#7 $
+# $Id: //depot/qt/main/GNUmakefile.inc#8 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -44,6 +44,9 @@ static-debug: GNUmakefile.static-debug $(MORETARGETS)
 
 static-release: GNUmakefile.static-release $(MORETARGETS)
 	$(MAKE) -f GNUmakefile.static-release
+
+profile: GNUmakefile.profile $(MORETARGETS)
+	$(MAKE) -f GNUmakefile.profile
 
 gcc: gcc-debug
 
@@ -91,6 +94,17 @@ endif
 	@mkdir -p .obj/static-release
 	tmake $(PROJECT).pro -o GNUmakefile.static-release \
 	    "CONFIG+=staticlib release" "OBJECTS_DIR=.obj/static-release"
+
+GNUmakefile.profile: $(PROJECT).pro GNUmakefile
+ifeq ($(LIBTARGET),1)
+	syncqt
+endif
+	@mkdir -p .obj/profile
+	tmake $(PROJECT).pro -o GNUmakefile.profile \
+	    "CONFIG+=staticlib release" "OBJECTS_DIR=.obj/profile"
+	perl -pi \
+	    -e 's/^([CL]X*)FLAGS\s*=/$$1FLAGS=-pg /; s|-lqt|\$$(QTDIR)/lib/libqt.a|' \
+		GNUmakefile.profile
 
 GNUmakefile.gcc-debug: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
@@ -150,11 +164,11 @@ updateqt:
 	$(MAKE) -C $(QTDIR)/src update
 
 depend:
-	-rm -f GNUmakefile.*debug GNUmakefile.*release $(MOREDEP)
+	-rm -f GNUmakefile.*debug GNUmakefile.*release GNUmakefile.profile $(MOREDEP)
 
 clean: GNUmakefile.debug
 	$(MAKE) -f GNUmakefile.debug clean
-	-rm -f GNUmakefile.*debug GNUmakefile.*release $(MOREDEP) $(MORECLEAN)
+	-rm -f GNUmakefile.*debug GNUmakefile.*release GNUmakefile.profile $(MOREDEP) $(MORECLEAN)
 	-rm -f core *~
 	-rm -r -f .obj
 
