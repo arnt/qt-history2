@@ -1302,8 +1302,8 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, FillData *fill
                                  : qt_span_texturefill;
             textureFillData->init(rasterBuffer, image, brushMatrix,
                                   bilinear
-                                  ? qDrawHelper.blendTransformedBilinearTiled
-                                  : qDrawHelper.blendTransformedTiled);
+                                  ? drawHelper->blendTransformedBilinearTiled
+                                  : drawHelper->blendTransformedTiled);
         }
         break;
 
