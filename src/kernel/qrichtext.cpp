@@ -4177,7 +4177,6 @@ void QTextParag::format( int start, bool doMove )
 	return;
 
     r.moveTopLeft( QPoint( documentX(), p ? p->r.y() + p->r.height() : documentY() ) );
-    r.setWidth( documentWidth() );
     if ( p )
 	p->lastInFrame = FALSE;
 
@@ -4186,6 +4185,7 @@ void QTextParag::format( int start, bool doMove )
 
  formatAgain:
 
+    r.setWidth( documentWidth() );
 #ifndef QT_NO_TEXTCUSTOMITEM
     if ( hasdoc && mFloatingItems ) {
 	for ( QTextCustomItem *i = mFloatingItems->first(); i; i = mFloatingItems->next() ) {
@@ -4638,7 +4638,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 #ifndef QT_NO_TEXTCUSTOMITEM
 		if ( chr->customItem()->placement() == QTextCustomItem::PlaceInline ) {
 		    chr->customItem()->draw( &painter, chr->x, cy, clipx - r.x(), clipy - r.y(), clipw, cliph, cg,
-					     nSels && selectionStarts[ 0 ] <= i && selectionEnds[ 0 ] >= i );
+					     nSels && selectionStarts[ 0 ] <= i && selectionEnds[ 0 ] > i );
 		    paintStart = i+1;
 		    paintEnd = -1;
 		    formatChar = chr;
