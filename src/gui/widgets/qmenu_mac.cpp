@@ -416,8 +416,8 @@ QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction 
         else
             AppendMenuItemTextWithCFString(action->menu, 0, attr, action->command, (MenuItemIndex*)&index);
         SetMenuItemProperty(action->menu, index, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), &action);
-    } else if(!qt_modal_state()) {
-        qt_mac_command_set_enabled(action->menu, action->command, true);
+    } else {
+        qt_mac_command_set_enabled(action->menu, action->command, !qt_modal_state());
         SetMenuCommandProperty(0, action->command, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), &action);
     }
     syncAction(action);
@@ -863,7 +863,7 @@ bool QMenuBar::macUpdateMenuBar()
     if(mb) {
         if(MenuRef menu = mb->macMenu()) {
             SetRootMenu(menu);
-            if(mb != QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(qApp->activeModalWidget()))
+            if(mb != QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(qApp->activeModalWidget())) 
                 qt_mac_set_modal_state(menu, qt_modal_state());
         }
         ret = true;
