@@ -177,7 +177,7 @@ $mname = ("January", "Febrary", "March", "April", "May", "June", "July",
 	    "August", "September", "October", "November", "December")[$mon];
 
 undef $/;
-chdir "/local/qt/doc/html" || die;
+chdir $ENV{"QTDIR"} . "/doc/html" || die;
 
 open( A, "< annotated.html" ) || die;
 $_ = <A>;
@@ -202,7 +202,7 @@ foreach $url ( sort keys %name ) { #'qstring.html'
     open( F, "< $url" ) || die "can't open $url";
     $contents = <F>;
     close F;
-    open( M, "> /tmp/$manpage" ) || die "can't open /tmp/$manpage";
+    open( M, "> ../man/man3/" . $manpage ) || die "cannot open /man/man3/ " . $manpage;
     print M ".TH ", $name, " 3qt \"", $day, " ", $mname, " ", 1900+$year,
 "\" \"Troll Tech AS\" \\\" -*- nroff -*-
 .\\\" Copyright 1992-1996 Troll Tech AS.  All rights reserved.  See the
@@ -226,7 +226,7 @@ Generated automatically from the source code.
     close M;
 
     $name =~ s/$/.3qt/;
-    open( M, "> /tmp/$name" ) || die "can't open /tmp/$mame";
+    open( M, "> ../man/man3/$name" ) || die "can't open ../man/man3/$mame";
     print M ".so man3/$manpage\n";
     close M;
 }
