@@ -442,6 +442,8 @@ static QStringList split_arg_list(QString params)
     for(int x = last, parens = 0; x <= params_len; x++) {
         unicode = (params_data+x)->unicode();
         if(x == params_len) {
+            while(x && (params_data+(x-1))->unicode() == symbols[SPACE])
+                --x;
             QString mid(params_data+last, x-last);
             if(quote) {
                 if(mid[0] == quote && mid[(int)mid.length()-1] == quote)
