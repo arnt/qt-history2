@@ -539,8 +539,11 @@ void QDialog::show()
 	return;
     if ( !did_resize )
 	adjustSize();
-    if ( has_relpos || !did_move )
-	adjustPositionInternal( parentWidget() ? parentWidget() : qApp->mainWidget(), has_relpos );
+    if ( has_relpos && !did_move ) {
+	adjustPositionInternal( parentWidget() ? parentWidget() : qApp->mainWidget(), TRUE );
+    } else if ( !did_move ) {
+	adjustPositionInternal( parentWidget() ? parentWidget() : qApp->mainWidget() );
+    }
     QWidget::show();
 #ifndef QT_NO_PUSHBUTTON
     QWidget *fw = focusWidget();
@@ -553,7 +556,7 @@ void QDialog::show()
       widget in the TAB order also is a QPushButton, then we give focus to the
       main default QPushButton. This simplifies code for the developers, and
       actually catches most cases... If not, then they simply have to use
-      [widget*]->setFocus() them selfs...
+      [widget*]->setFocus() themselves...
     */
     if ( !fw || fw->focusPolicy() == NoFocus ) {
 	fd->home(); // Skip main form
@@ -695,6 +698,7 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
 	p.setY( desk.y() );
 
     move( p );
+    did_move = !useRelPos;
 }
 
 
@@ -709,10 +713,9 @@ void QDialog::hide()
 	QAccessible::updateAccessibility( this, 0, QAccessible::DialogEnd );
 #endif
 
-    if ( parentWidget() ) {
+    if ( parentWidget() && !did_move ) {
 	d->relPos = pos() - parentWidget()->topLevelWidget()->pos();
 	has_relpos = 1;
-	did_move = 0;
     }
 
     // Reimplemented to exit a modal when the dialog is hidden.
