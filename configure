@@ -1566,6 +1566,12 @@ AIX:*:00????????00)
     fi
     ARCH=i386
     ;;
+*:*:x86_64)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    64-bit AMD 80x86 (x86_64)"
+    fi
+    ARCH=x86_64
+    ;;
 *:*:ppc)
     if [ "$OPT_VERBOSE" = "yes" ]; then
 	echo "    32-bit PowerPC (powerpc)"
