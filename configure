@@ -530,7 +530,7 @@ do
     -no-remote)
 	CFG_REMOTE=no
 	;;
-    -enable-*)
+    -enable-*) #left for commandline compatibility, not documented
 	MODULE=`echo $1 | sed "s/-enable-//"`
 	if [ -n $MODULE -a -d "$relpath/src/$MODULE" ]
 	then
@@ -1295,9 +1295,8 @@ Usage:  $relconf [-prefix dir] \\
 	[-debug] [-release] [-qt-gif] [-no-gif] [-sm] [-no-sm] [-stl] [-no-st] \\
 	[-qt-zlib] [-system-zlib] [-qt-libpng] [-system-libpng] \\
 	[-no-jpeg] [-system-jpeg] [-no-thread] [-thread] \\
-	[-Istring] [-lstring] [-Lstring] [-Rstring] [-enable-<module>] \\
-	[-disable-<module>] [-with-<module setting>] [-without-<module setting>] \\
-	[-fast] [-nofast]
+	[-Istring] [-lstring] [-Lstring] [-Rstring] [-disable-<module>] \\
+	[-with-<module setting>] [-without-<module setting>] [-fast] [-nofast]
 
 Installation options:
 
@@ -1368,8 +1367,6 @@ Configure options:
     -lstring ........... Add an explicit library.
 
 
-    -enable-<module> .......... Enables a module where module is one of:
-				$AVAIL_MODULES
     -disable-<module> ......... Disables a module where module is one of:
 				$AVAIL_MODULES
 
