@@ -15,6 +15,7 @@
 #include "qpointarray.h"
 #include "qbuffer.h"
 #include "qdatastream.h"
+#include "qdebug.h"
 
 /*!
     \class QRegion
