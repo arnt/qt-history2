@@ -810,14 +810,7 @@ MakefileGenerator::writeImageObj(QTextStream &t, const QString &obj)
     if(!project->variables()["UI_DIR"].isEmpty())
 	uidir = project->first("UI_DIR");
     for(QStringList::Iterator oit = objl.begin(); oit != objl.end(); oit++) {
-	QFileInfo fi(Option::fixPathToLocalOS((*oit)));
-	QString dirName;
-	if( !uidir.isEmpty() )
-	    dirName = uidir;
-	else if(!fi.dirPath().isEmpty() && fi.dirPath() != ".")
-	    dirName = Option::fixPathToTargetOS(fi.dirPath(), FALSE) + Option::dir_sep;
-	QString src(dirName + fi.baseName() + Option::cpp_ext );
-	t << (*oit) << ": " << src;
+	t << (*oit) << ": " << project->first("QMAKE_IMAGE_FILE");
 	if ( !project->variables()["OBJECTS_DIR"].isEmpty() ||
 	     !project->variables()["UI_DIR"].isEmpty() ||
 	     project->variables()["QMAKE_RUN_CXX_IMP"].isEmpty()) {
