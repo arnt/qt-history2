@@ -81,6 +81,13 @@ then
     Edition="free"
     Licensee="Non-Commercial"
     Products="qt-free"
+# Evaluation version.
+elif [ -f $relpath/LICENSE.EVAL ]
+then
+    [ "$QWS_PLATFORM" = "maybe" ] && QWS_PLATFORM=yes
+    Edition="eval"
+    Licensee="Evaluation"
+    Products="qt-eval"
 # Internal Trolltech edition.
 # Qt/X11, Qt/Embedded, Qt/Mac
 elif [ -f $relpath/LICENSE.TROLL ]
@@ -1620,6 +1627,49 @@ then
 	    then
 		more $relpath/LICENSE.QPL
 	    fi
+	fi
+    done
+elif [ "$Edition" = "eval" ]
+then
+    while true
+    do
+	if [ "$QWS_PLATFORM" = "yes" ]
+	then
+	    echo
+	    echo "This is the Qt/Embedded Evaluation version."
+	    echo
+	elif [ "$X11_PLATFORM" = "yes" ]
+	then
+	    echo
+	    echo "This is the Qt/X11 Evaluation version."
+	    echo
+	else
+	    echo >&2
+	    echo "Internal error." >&2
+	    echo >&2
+	    exit 2
+	fi
+	echo "You are licensed to use this software under the terms of"
+	echo "the Qt EVALUATION VERSION LICENSE AGREEMENT"
+	echo
+	echo "Type '?' to view the Evaluation License."
+	echo "Type 'yes' to accept this license offer."
+	echo "Type 'no' to decline this license offer."
+	echo
+	echo "Do you accept the terms of the license?"
+	read acceptance
+	if [ "$acceptance" = "yes" ]
+	then
+	    break
+	elif [ "$acceptance" = "no" ]
+	then
+	    echo
+	    echo "You are not licensed to use this software."
+	    echo
+	    exit 0
+	elif [ "$acceptance" = "?" ]
+	then
+	    more $relpath/LICENSE.EVAL
 	fi
     done
 elif [ "$Edition" = "troll" ]
