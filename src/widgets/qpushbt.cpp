@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#55 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#54 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#55 $")
 
 
 /*----------------------------------------------------------------------------
@@ -109,6 +109,44 @@ void QPushButton::init()
     initMetaObject();
     autoDefButton = defButton = lastDown = lastDef = FALSE;
 }
+
+
+/*----------------------------------------------------------------------------
+  Switches a toggle button on if \e enable is TRUE or off if \e enable is
+  FALSE.
+  \sa isOn(), toggle(), toggled(), toggleButton()
+ ----------------------------------------------------------------------------*/
+
+void QPushButton::setOn( bool enable )
+{
+    if ( !toggleButton() )
+	return;
+    QButton::setOn( enable );
+}
+
+
+/*----------------------------------------------------------------------------
+  Toggles the state of a toggle button.
+  \sa isOn(), setOn(), toggled(), toggleButton()
+ ----------------------------------------------------------------------------*/
+
+void QPushButton::toggle()
+{
+    if ( !toggleButton() )
+	return;
+    QButton::setOn( isOn() );
+}
+
+
+/*----------------------------------------------------------------------------
+  \fn void QPushButton::setToggleButton( bool enable )
+  Makes this button a toggle button if \e enable is TRUE, or a normal
+  push button if \e enable is FALSE.
+
+  A push button is initially not a toggle button.
+
+  \sa QButton::toggleButton()
+ ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.h#17 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.h#18 $
 **
 ** Definition of QPushButton class
 **
@@ -24,9 +24,10 @@ public:
     QPushButton( QWidget *parent=0, const char *name=0 );
     QPushButton( const char *text, QWidget *parent=0, const char *name=0 );
 
+    void	setToggleButton( bool );
+
     bool	autoDefault()	const	{ return autoDefButton; }
     void	setAutoDefault( bool autoDef );
-
     bool	isDefault()	const	{ return defButton; }
     void	setDefault( bool def );
 
@@ -39,6 +40,10 @@ public:
     void	resize( const QSize & );
     void	setGeometry( int x, int y, int w, int h );
     void	setGeometry( const QRect & );
+
+public slots:
+    void	setOn( bool );
+    void	toggle();
 
 protected:
     void	drawButton( QPainter * );
