@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#14 $
+** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#15 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -16,7 +16,7 @@
 #include "qdatetm.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#15 $");
 
 
 // If the operation is expected to take this long (as predicted by
@@ -136,7 +136,8 @@ QProgressDialog::QProgressDialog( QWidget *creator, const char *name,
     connect( cancel(), SIGNAL(clicked()), this, SIGNAL(cancelled()) );
     connect( this, SIGNAL(cancelled()), this, SLOT(reset()) );
     QAccel *accel = new QAccel( this );
-    accel->insertItem( Key_Escape, cancel(), SIGNAL(clicked()) );
+    accel->connectItem( accel->insertItem(Key_Escape),
+			cancel(), SIGNAL(clicked()) );
     layout();
 }
 
@@ -175,7 +176,8 @@ QProgressDialog::QProgressDialog( const char *labelText,
     connect( cancel(), SIGNAL(clicked()), this, SIGNAL(cancelled()) );
     connect( this, SIGNAL(cancelled()), this, SLOT(reset()) );
     QAccel *accel = new QAccel( this );
-    accel->insertItem( Key_Escape, cancel(), SIGNAL(clicked()) );
+    accel->connectItem( accel->insertItem(Key_Escape),
+			cancel(), SIGNAL(clicked()) );
     layout();
 }
 
