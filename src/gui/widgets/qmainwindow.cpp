@@ -359,6 +359,8 @@ void QMainWindow::addDockWindow(Qt::DockWindowArea area, QDockWindow *dockwindow
     case Qt::DockWindowAreaBottom:
         orientation = Qt::Horizontal;
         break;
+    default:
+        break;
     }
     extendDockWindowArea(area, dockwindow, orientation);
 }

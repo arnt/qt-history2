@@ -244,6 +244,8 @@ void QMainWindowLayout::addToolBar(Qt::ToolBarArea area, QToolBar *toolbar)
             case RIGHT:
                 toolbar->setOrientation(Qt::Vertical);
                 break;
+            default:
+                break;
             }
 
             ToolBarLineInfo &lineInfo = tb_layout_info[line];
