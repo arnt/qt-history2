@@ -610,6 +610,7 @@ foreach (@modules_to_sync) {
             my @headers = findFiles("$subdir", "^[-a-z0-9_]*\\.h\$" , 0);
             foreach (@headers) {
                 my $header = "$_";
+                $header = 0 if("$header" =~ /^ui_.*.h/);
                 foreach (@ignore_headers) {
                     $header = 0 if("$header" eq "$_");
                 }
