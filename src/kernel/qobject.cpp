@@ -1786,7 +1786,7 @@ void QObject::initMetaObject()
 /*!
   The functionality of initMetaObject(), provided as a static function.
 */
-void QObject::staticMetaObject()
+QMetaObject* QObject::staticMetaObject()
 {
     if ( metaObj )
 	return metaObj;

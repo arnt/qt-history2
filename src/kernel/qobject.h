@@ -130,7 +130,7 @@ protected:
 
 
     virtual void initMetaObject();
-    static void staticMetaObject();
+    static QMetaObject* staticMetaObject();
 
     virtual void timerEvent( QTimerEvent * );
     virtual void childEvent( QChildEvent * );

@@ -1997,7 +1997,7 @@ void generateClass()		      // generate C++ source code for a class
 	          "\tbadSuperclassWarning(\"%s\",\"%s\");\n",
              (const char*)qualifiedSuperclassName(), (const char*)qualifiedSuperclassName(),
              (const char*)qualifiedClassName(), (const char*)qualifiedSuperclassName() );
-    fprintf( out, "    staticMetaObject();\n");
+    fprintf( out, "    (void)staticMetaObject();\n");
     fprintf( out, "}\n\n");
 
 //
@@ -2009,9 +2009,9 @@ void generateClass()		      // generate C++ source code for a class
 //
 // Generate staticMetaObject member function
 //
-    fprintf( out, "void %s::staticMetaObject()\n{\n", (const char*)qualifiedClassName() );
-    fprintf( out, "    if ( metaObj )\n\treturn;\n" );
-    fprintf( out, "    %s::staticMetaObject();\n", (const char*)qualifiedSuperclassName() );
+    fprintf( out, "QMetaObject* %s::staticMetaObject()\n{\n", (const char*)qualifiedClassName() );
+    fprintf( out, "    if ( metaObj )\n\treturn metaObj;\n" );
+    fprintf( out, "    %s::initMetaObject();\n", (const char*)qualifiedSuperclassName() );
 
 //
 // Build the enums array in staticMetaObject()
@@ -2071,10 +2071,10 @@ void generateClass()		      // generate C++ source code for a class
 //
     finishProps();
 
-    fprintf( out, "}\n" );
+    fprintf( out, "\treturn metaObj;\n}\n" );
 
 //
-// End of function initMetaObject()
+// End of function staticMetaObject()
 //
 
 //
