@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#11 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#12 $
 **
 ** Implementation of Network Extension Library
 **
@@ -199,25 +199,25 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 void QFtp::hostFound()
 {
     if ( url )
-	emit connectionStateChanged( HostFound, tr( "Host %1 found" ).arg( url->host() ) );
+	emit connectionStateChanged( ConHostFound, tr( "Host %1 found" ).arg( url->host() ) );
     else
-	emit connectionStateChanged( HostFound, tr( "Host found" ) );
+	emit connectionStateChanged( ConHostFound, tr( "Host found" ) );
 }
 
 void QFtp::connected()
 {
     if ( url )
-	emit connectionStateChanged( Connected, tr( "Connected to host %1" ).arg( url->host() ) );
+	emit connectionStateChanged( ConConnected, tr( "Connected to host %1" ).arg( url->host() ) );
     else
-	emit connectionStateChanged( Connected, tr( "Connected to host" ) );
+	emit connectionStateChanged( ConConnected, tr( "Connected to host" ) );
 }
 
 void QFtp::closed()
 {
     if ( url )
-	emit connectionStateChanged( Closed, tr( "Connection to %1 closed" ).arg( url->host() ) );
+	emit connectionStateChanged( ConClosed, tr( "Connection to %1 closed" ).arg( url->host() ) );
     else
-	emit connectionStateChanged( Closed, tr( "Connection closed" ) );
+	emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
 }
 
 void QFtp::readyRead()
@@ -276,12 +276,12 @@ void QFtp::readyRead()
 
 void QFtp::dataHostFound()
 {
-    emit connectionStateChanged( HostFound, tr( "Host found" ) );
+    emit connectionStateChanged( ConHostFound, tr( "Host found" ) );
 }
 
 void QFtp::dataConnected()
 {
-    emit connectionStateChanged( HostFound, tr( "Connected to host" ) );
+    emit connectionStateChanged( ConHostFound, tr( "Connected to host" ) );
 
     QString path = url->path().isEmpty() ? QString( "/" ) : url->path();
     QString cmd = "CWD " + path + "\r\n";
@@ -294,7 +294,7 @@ void QFtp::dataClosed()
     if ( url )
 	url->emitFinished( QUrl::ActListDirectory );
     emit finished( QUrl::ActListDirectory );
-    emit connectionStateChanged( Closed, tr( "Connection closed" ) );
+    emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
 }
 
 void QFtp::dataReadyRead()
