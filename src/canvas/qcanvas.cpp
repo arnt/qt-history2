@@ -3064,8 +3064,7 @@ int QCanvasSprite::bottomEdge(int ny) const
 */
 
 /*!
-    \overload
-  \fn QCanvasPixmap* QCanvasSprite::image(int f) const
+  \overload QCanvasPixmap* QCanvasSprite::image(int f) const
   Returns the image for frame \a f. Does not do any bounds checking on \a f.
 */
 
