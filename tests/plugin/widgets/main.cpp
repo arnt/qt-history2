@@ -95,13 +95,13 @@ static const char * const canvas_xpm[] ={
 class ExtraWidgetsInterface : public WidgetInterface
 {
 public:
-    ExtraWidgetsInterface( QUnknownInterface *parent, const char *name = 0 );
+    ExtraWidgetsInterface( QUnknownInterface *parent );
     ~ExtraWidgetsInterface();
 
     bool cleanup();
 
     QStringList featureList() const;
-    QWidget* create( const QString &classname, QWidget* parent = 0, const char* name = 0 );
+    QWidget* create( const QString &classname, QWidget* parent = 0, const char *name = 0 );
     QString group( const QString& );
     QString iconSet( const QString& );
     QIconSet iconset( const QString& );
@@ -113,8 +113,8 @@ public:
     QGuardedCleanupHandler<QObject> objects;
 };
 
-ExtraWidgetsInterface::ExtraWidgetsInterface( QUnknownInterface *parent, const char *name )
-: WidgetInterface( parent, name )
+ExtraWidgetsInterface::ExtraWidgetsInterface( QUnknownInterface *parent )
+: WidgetInterface( parent )
 {
 }
 
@@ -204,9 +204,9 @@ public:
 };
 
 ExtraWidgetsPlugIn::ExtraWidgetsPlugIn()
-: QComponentInterface( "ExtraWidgetsPlugIn" )
+: QComponentInterface()
 {
-    new ExtraWidgetsInterface( this, "ExtraWidgetsInterface" );
+    new ExtraWidgetsInterface( this );
 }
 
 ExtraWidgetsPlugIn::~ExtraWidgetsPlugIn()

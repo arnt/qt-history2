@@ -274,7 +274,7 @@ class P4Interface : public QObject, public ActionInterface
     Q_OBJECT
 
 public:
-    P4Interface( QUnknownInterface *parent, const char *name = 0 );
+    P4Interface( QUnknownInterface *parent );
     ~P4Interface();
 
     bool initialize();
@@ -315,8 +315,8 @@ private:
     QApplicationInterface* appInterface;
 };
 
-P4Interface::P4Interface( QUnknownInterface *parent, const char *name )
-: ActionInterface( parent, name )
+P4Interface::P4Interface( QUnknownInterface *parent )
+: ActionInterface( parent )
 {
     aware = TRUE;
     connected = FALSE;
@@ -333,11 +333,6 @@ bool P4Interface::initialize()
 
     if ( connected )
 	return TRUE;
-
-    QStringList list = appInterface->interfaceList( TRUE );
-    qDebug( "P4Interface has access to:" );
-    for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it )
-	qDebug( "\t %s", (*it).latin1() );
 
     DesignerFormListInterface *flIface = 0;
 
@@ -736,35 +731,19 @@ public:
     P4PlugIn();
     ~P4PlugIn();
 
-    bool initialize();
-    bool cleanup();
-
     QString name() const { return "P4 Integration"; }
     QString description() const { return "Integrates P4 Source Control into the Qt Designer"; }
     QString author() const { return "Trolltech"; }
 };
 
 P4PlugIn::P4PlugIn()
-: QComponentInterface( "P4PlugIn" )
+: QComponentInterface()
 {
-    new P4Interface( this, "P4 Interface" );
+    new P4Interface( this );
 }
 
 P4PlugIn::~P4PlugIn()
 {
 }
-
-bool P4PlugIn::initialize()
-{
-    qDebug( "P4PlugIn::initialize" );
-    return TRUE;
-}
-
-bool P4PlugIn::cleanup()
-{
-    qDebug( "P4PlugIn::cleanup" );
-    return TRUE;
-}
-
 
 Q_EXPORT_INTERFACE( P4PlugIn )

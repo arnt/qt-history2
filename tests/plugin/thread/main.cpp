@@ -41,7 +41,7 @@ class TestInterface : public QObject, public ActionInterface
     Q_OBJECT
 
 public:
-    TestInterface( QUnknownInterface *parent, const char *name = 0 );
+    TestInterface( QUnknownInterface *parent );
     ~TestInterface();
 
     bool initialize();
@@ -69,8 +69,8 @@ private:
     QLCDNumber* lcd;
 };
 
-TestInterface::TestInterface( QUnknownInterface *parent, const char *name )
-: ActionInterface( parent, name ), styleMapper( 0 ), thread( 0 ), dialog( 0 )
+TestInterface::TestInterface( QUnknownInterface *parent )
+: ActionInterface( parent ), styleMapper( 0 ), thread( 0 ), dialog( 0 )
 {
 }
 
@@ -282,7 +282,7 @@ public:
 };
 
 TestPlugIn::TestPlugIn()
-: QComponentInterface( "Test PlugIn" )
+: QComponentInterface()
 {
     new TestInterface( this );
 }
