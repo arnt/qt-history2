@@ -6680,20 +6680,19 @@ void QListView::setOpen( QListViewItem * item, bool open )
 	return;
 
     QListViewItem* nextParent = 0;
-    if ( open && !(item->isOpen()) )
+    if ( open )
 	nextParent = item->itemBelow();
 
     item->setOpen( open );
 
     if ( open ) {
-	QListViewItem* lastChild;
-	if ( !nextParent ) {
-	    lastChild = item;
-	    for ( int i = 0; i < item->childCount() && lastChild; ++i ) {
-		lastChild = lastChild->itemBelow();
-	    }
-	} else {
-	    lastChild = nextParent->itemAbove();
+	QListViewItem* lastChild = item;
+	QListViewItem* tmp;
+	while ( TRUE ) {
+	    tmp = lastChild->itemBelow();
+	    if ( tmp == nextParent )
+		break;
+	    lastChild = tmp;
 	}
 	ensureItemVisible( lastChild );
 	ensureItemVisible( item );
