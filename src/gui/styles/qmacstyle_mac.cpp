@@ -1187,7 +1187,7 @@ bool QMacStylePrivate::eventFilter(QObject *o, QEvent *e)
     if (o->isWidgetType() && animationFocusWidget && focusable(static_cast<QWidget *>(o))
         && ((e->type() == QEvent::FocusOut && animationFocusWidget == o)
             || (e->type() == QEvent::FocusIn && animationFocusWidget != o)))  { //restore it
-        if (static_cast<QFocusEvent *>(e)->reason() != QFocusEvent::Popup)
+        if (static_cast<QFocusEvent *>(e)->reason() != QFocusEvent::Popup) 
             setFocusWidget(0);
     }
     if (o && o->isWidgetType() && e->type() == QEvent::FocusIn) {
@@ -1723,23 +1723,22 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 mdi.state = kThemeMenuDisabled;
             if (active)
                 mdi.state |= kThemeMenuSelected;
-            HIRect contentRect;
+            QRect contentRect;
             if (mi->menuItemType == QStyleOptionMenuItem::Separator) {
                 // First arg should be &menurect, but wacky stuff happens then.
                 HIThemeDrawMenuSeparator(&itemRect, &itemRect, &mdi,
                                          cg, kHIThemeOrientationNormal);
                 break;
             } else {
+                HIRect cr;
                 HIThemeDrawMenuItem(&menuRect, &itemRect, &mdi,
-                                    cg, kHIThemeOrientationNormal, &contentRect);
+                                    cg, kHIThemeOrientationNormal, &cr);
                 if(ce == QStyle::CE_MenuEmptyArea)
                     break;
+                contentRect = qrectForHIRect(cr);
             }
-            int x, y, w, h;
-            mi->rect.getRect(&x, &y, &w, &h);
-            int xpos = x + 18;
+            int xpos = contentRect.x() + 18;
             int checkcol = maxpmw;
-            int xm = macItemFrame + maxpmw + macItemHMargin;
             if (!enabled)
                 p->setPen(mi->palette.text());
             else if (active)
@@ -1754,7 +1753,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 HIThemeTextInfo tti;
                 tti.version = qt_mac_hitheme_version;
                 tti.state = tds;
-                if (active)
+                if (active && enabled)
                     tti.state = kThemeStatePressed;
                 tti.fontID = kThemeMenuItemMarkFont;
                 tti.horizontalFlushness = kHIThemeTextHorizontalFlushLeft;
@@ -1764,18 +1763,17 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 tti.truncationMaxLines = 1;
                 QCFString checkmark = QString(QChar(kCheckUnicode));
                 int mw = checkcol + macItemFrame;
-                int mh = h - 2 * macItemFrame;
-                int xp = x;
+                int mh = contentRect.height() - 2 * macItemFrame;
+                int xp = contentRect.x();
                 xp += macItemFrame;
                 float outWidth, outHeight, outBaseline;
                 HIThemeGetTextDimensions(checkmark, 0, &tti, &outWidth, &outHeight,
                                          &outBaseline);
-                QRect r(xp, y + macItemFrame, mw, mh);
+                QRect r(xp, contentRect.y(), mw, mh);
                 r.moveBy(0, p->fontMetrics().ascent() - int(outBaseline) + 1);
                 HIRect bounds = qt_hirectForQRect(r);
                 HIThemeDrawTextBox(checkmark, &bounds, &tti,
-                                   cg,
-                                   kHIThemeOrientationNormal);
+                                   cg, kHIThemeOrientationNormal);
             }
             if (!mi->icon.isNull()) {
                 QIconSet::Mode mode = (mi->state & QStyle::Style_Enabled) ? QIconSet::Normal
@@ -1785,7 +1783,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 QPixmap pixmap = mi->icon.pixmap(QIconSet::Small, mode);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
-                QRect cr(xpos, y, checkcol, h);
+                QRect cr(xpos, contentRect.y(), checkcol, contentRect.height());
                 QRect pmr(0, 0, pixw, pixh);
                 pmr.moveCenter(cr.center());
                 p->drawPixmap(pmr.topLeft(), pixmap);
@@ -1795,21 +1793,21 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             QString s = mi->text;
             if (!s.isEmpty()) {
                 int t = s.indexOf('\t');
-                int m = 2;
                 int text_flags = Qt::AlignRight | Qt::AlignVCenter | Qt::TextHideMnemonic | Qt::TextSingleLine;
                 p->save();
                 if (t >= 0) {
                     extern QHash<QByteArray, QFont> *qt_app_fonts_hash(); // qapplication.cpp
                     p->setFont(qt_app_fonts_hash()->value("QMenuItem", p->font()));
-                    int xp = x + w - tabwidth - macRightBorder
+                    int xp = contentRect.right() - tabwidth - macRightBorder
                              - macItemHMargin - macItemFrame + 1;
-                    p->drawText(xp, y + m, tabwidth, h - 2 * m, text_flags, s.mid(t + 1));
+                    p->drawText(xp, contentRect.y(), tabwidth, contentRect.height(), text_flags, s.mid(t + 1));
                     s = s.left(t);
                 }
 
-                text_flags ^= Qt::AlignRight;
                 p->setFont(mi->font);
-                p->drawText(xpos, y + m, w - xm - tabwidth + 1, h - 2 * m, text_flags, s, t);
+                const int xm = macItemFrame + maxpmw + macItemHMargin;
+                p->drawText(xpos, contentRect.y(), contentRect.width() - xm - tabwidth + 1, contentRect.height(), 
+                            text_flags ^ Qt::AlignRight, s, t);
                 p->restore();
             }
         }
