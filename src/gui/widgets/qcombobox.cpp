@@ -34,8 +34,12 @@ ListViewContainer::ListViewContainer(QGenericListView *listView, QWidget *parent
     list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     if (style().styleHint(QStyle::SH_ComboBox_Popup))
         list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    if (style().styleHint(QStyle::SH_ComboBox_ListMouseTracking))
+    if (style().styleHint(QStyle::SH_ComboBox_ListMouseTracking) ||
+        style().styleHint(QStyle::SH_ComboBox_Popup)) {
         list->setMouseTracking(true);
+        if(list->viewport())
+            list->viewport()->setMouseTracking(true);
+    }
     list->setSelectionMode(QAbstractItemView::SingleSelection);
     list->setFrameStyle(QFrame::NoFrame);
     list->setLineWidth(0);
@@ -91,11 +95,17 @@ void ListViewContainer::updateScrollers()
                        + list->spacing();
         bool needBottom = list->verticalScrollBar()->value() < (list->verticalScrollBar()->maximum()
                                                                 - list->spacing()*2);
-        needTop ? top->show() : top->hide();
-        needBottom ? bottom->show() : bottom->hide();
-    } else {
+        if(needTop)
+            top->show();
+        else 
             top->hide();
+        if(needBottom)
+            bottom->show();
+        else
             bottom->hide();
+    } else {
+        top->hide();
+        bottom->hide();
     }
 }
 
@@ -443,9 +453,9 @@ void QComboBoxPrivate::init()
     q->setFocusPolicy(Qt::StrongFocus);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     q->setCurrentItem(0);
-    if (q->style().styleHint(QStyle::SH_ComboBox_Popup))
+    if (q->style().styleHint(QStyle::SH_ComboBox_Popup)) 
         delegate = new MenuDelegate(q);
-    else
+    else 
         delegate = new QItemDelegate(q);
     l->setItemDelegate(delegate);
     QObject::connect(container, SIGNAL(itemSelected(const QModelIndex &)),
