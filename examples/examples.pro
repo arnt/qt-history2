@@ -12,6 +12,7 @@ SUBDIRS     =	aclock \
 		dragdrop \
 		drawdemo \
 		drawlines \
+		fonts \
 		forever \
 		guithreads \
 		hello \
@@ -34,6 +35,7 @@ SUBDIRS     =	aclock \
 		qdir \
 		qfd \
 		qmag \
+		qtl \
 		qwerty \
 		rangecontrols \
 		richtext \
@@ -45,9 +47,11 @@ SUBDIRS     =	aclock \
 		splitter \
 		tabdialog \
 		tetrix \
+		textedit \
 		themes \
 		tictac \
 		tooltip \
+		tux \
 		validator \
 		widgets \
 		wizard \
