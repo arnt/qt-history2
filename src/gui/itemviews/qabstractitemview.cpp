@@ -544,7 +544,7 @@ void QAbstractItemView::setRoot(const QModelIndex &index)
 */
 QModelIndex QAbstractItemView::root() const
 {
-    return d->root;
+    return QModelIndex(d->root);
 }
 
 /*!
@@ -1072,7 +1072,7 @@ void QAbstractItemView::updateCurrentEditor()
     QMap<QPersistentModelIndex, QWidget*>::iterator it = d->persistentEditors.begin();
     for (; it != d->persistentEditors.end(); ++it) {
         options.itemRect = itemViewportRect(it.key());
-        itemDelegate()->updateEditorGeometry(it.data(), options, it.key());
+        itemDelegate()->updateEditorGeometry(it.value(), options, it.key());
     }
 }
 
