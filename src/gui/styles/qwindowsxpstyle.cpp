@@ -2393,9 +2393,9 @@ int QWindowsXPStyle::pixelMetric(PixelMetric metric,
     case PM_MDIMinimizedWidth:
         return 160;
 
-    case PM_PopupMenuFrameHorizontalExtra:
+    case PM_MenuHMargin:
         return 2;
-    case PM_PopupMenuFrameVerticalExtra:
+    case PM_MenuVMargin:
         return 2;
     case PM_SplitterWidth:
         return qMax(5, QApplication::globalStrut().width());

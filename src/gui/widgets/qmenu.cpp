@@ -77,6 +77,8 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
     QList<QMenuAction*> ret;
     QList<QAction*> items = q->actions();
     int max_column_width = 0, dh = QApplication::desktop()->height(), ncols = 1, y = 0;
+    const int hmargin = q->style().pixelMetric(QStyle::PM_MenuVMargin, q), 
+              vmargin = q->style().pixelMetric(QStyle::PM_MenuVMargin, q);
 
     //for compatability now - will have to refactor this away..
     tabWidth = maxIconWidth = 0;
@@ -128,9 +130,10 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
         if(!sz.isEmpty()) {
             max_column_width = qMax(max_column_width, sz.width());
             //wrapping
-            if(!scroll && y+sz.height() > dh - (q->style().pixelMetric(QStyle::PM_MenuDesktopFrameWidth, q) * 2)) {
+            if(!scroll && 
+               y+sz.height()+vmargin > dh - (q->style().pixelMetric(QStyle::PM_MenuDesktopFrameWidth, q) * 2)) {
                 ncols++;
-                y = 0;
+                y = vmargin;
             }
             y += sz.height();
             //append item
@@ -144,8 +147,8 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
         max_column_width += tabWidth; //finally add in the tab width
 
     //calculate position
-    int x = 0;
-    y = 0;
+    int x = hmargin;
+    y = vmargin;
     for(int i = 0; i < ret.count(); i++) {
         QMenuAction *action = ret.at(i);
         if(!scroll &&
@@ -153,8 +156,8 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
             ncols--;
             if(ncols < 0)
                 qWarning("QMenu: Column mismatch calculation. %d", ncols);
-            x += max_column_width;
-            y = 0;
+            x += max_column_width + hmargin;
+            y = vmargin;
         }
         action->rect.moveBy(x, y);                        //move
         action->rect.setWidth(max_column_width); //uniform width
@@ -651,6 +654,8 @@ QSize QMenu::sizeHint() const
         s.setWidth(s.width()+(fw*2));
         s.setHeight(s.height()+(fw*2));
     }
+    s.setWidth(s.width()+q->style().pixelMetric(QStyle::PM_MenuHMargin, q));
+    s.setHeight(s.height()+q->style().pixelMetric(QStyle::PM_MenuVMargin, q));
     return style().sizeFromContents(QStyle::CT_Menu, this, s.expandedTo(QApplication::globalStrut()));
 }
 
@@ -1477,7 +1482,9 @@ QList<QMenuAction*> Q4MenuBarPrivate::calcActionRects(int max_width) const
     }
 
     //calculate position
-    int x = 0, y = 0;
+    const int hmargin = q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q), 
+              vmargin = q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q);
+    int x = hmargin, y = vmargin;
     const bool reverse = QApplication::reverseLayout();
     const int itemSpacing = q->style().pixelMetric(QStyle::PM_MenuBarItemSpacing, q);
     for(int i = 0; i != ret.count(); i++) {
@@ -1494,10 +1501,10 @@ QList<QMenuAction*> Q4MenuBarPrivate::calcActionRects(int max_width) const
             }
             item->rect.moveLeft(left);
         } else {
-            if(x+item->rect.width() >= max_width) { //wrap
+            if(x+item->rect.width() >= max_width-vmargin) { //wrap
                 y += max_item_height;
                 separator_start -= x;
-                x = 0;
+                x = hmargin;
             } else {
                 item->rect.moveLeft(x);
             }
@@ -1967,8 +1974,9 @@ QSize Q4MenuBar::sizeHint() const
         s.setWidth(s.width()+(fw*2));
         s.setHeight(s.height()+(fw*2));
     }
-    return (style().sizeFromContents(QStyle::CT_MenuBar, this,
-                                     s.expandedTo(QApplication::globalStrut())));
+    s.setWidth(s.width()+q->style().pixelMetric(QStyle::PM_MenuBarHMargin, q));
+    s.setHeight(s.height()+q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q));
+    return (style().sizeFromContents(QStyle::CT_MenuBar, this, s.expandedTo(QApplication::globalStrut())));
 }
 
 QSize Q4MenuBar::minimumSizeHint() const
@@ -1982,8 +1990,8 @@ int Q4MenuBar::heightForWidth(int max_width) const
     int height = 0;
     for(int i = 0; i < actions.count(); ++i)
         height = qMax(height, actions[i]->rect.bottom());
-    const int fw = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q);
-    return height + (fw*2);
+    height += (q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q)*2) + q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q);
+    return style().sizeFromContents(QStyle::CT_MenuBar, this, QSize(0, height)).height(); //not pretty..
 }
 
 void Q4MenuBar::internalShortcutActivated(int id)

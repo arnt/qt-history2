@@ -536,25 +536,25 @@ void QFrame::drawFrame(QPainter *p)
 
     case PopupPanel:
     {
-        int vextra = style().pixelMetric(QStyle::PM_MenuFrameVerticalExtra, this),
-            hextra = style().pixelMetric(QStyle::PM_MenuFrameHorizontalExtra, this);
-        if(vextra > 0 || hextra > 0) {
+        int vmargin = style().pixelMetric(QStyle::PM_MenuVMargin, this),
+            hmargin = style().pixelMetric(QStyle::PM_MenuHMargin, this);
+        if(vmargin > 0 || hmargin > 0) {
             QRect fr = frameRect();
             int   fw = d->frameWidth;
-            if(vextra > 0) {
-                style().drawControl(QStyle::CE_MenuVerticalExtra, p, this,
-                                    QRect(fr.x() + fw, fr.y() + fw, fr.width() - (fw*2), vextra),
+            if(vmargin > 0) {
+                style().drawControl(QStyle::CE_MenuVMargin, p, this,
+                                    QRect(fr.x() + fw, fr.y() + fw, fr.width() - (fw*2), vmargin),
                                     pal, flags, opt);
-                style().drawControl(QStyle::CE_MenuVerticalExtra, p, this,
-                                    QRect(fr.x() + fw, fr.bottom() - fw - vextra, fr.width() - (fw*2), vextra),
+                style().drawControl(QStyle::CE_MenuVMargin, p, this,
+                                    QRect(fr.x() + fw, fr.bottom() - fw - vmargin, fr.width() - (fw*2), vmargin),
                                     pal, flags, opt);
             }
-            if(hextra > 0) {
-                style().drawControl(QStyle::CE_MenuHorizontalExtra, p, this,
-                                    QRect(fr.x() + fw, fr.y() + fw + vextra, hextra, fr.height() - (fw*2) - vextra),
+            if(hmargin > 0) {
+                style().drawControl(QStyle::CE_MenuHMargin, p, this,
+                                    QRect(fr.x() + fw, fr.y() + fw + vmargin, hmargin, fr.height() - (fw*2) - vmargin),
                                     pal, flags, opt);
-                style().drawControl(QStyle::CE_MenuHorizontalExtra, p, this,
-                                    QRect(fr.right() - fw - hextra, fr.y() + fw + vextra, hextra, fr.height() - (fw*2) - vextra),
+                style().drawControl(QStyle::CE_MenuHMargin, p, this,
+                                    QRect(fr.right() - fw - hmargin, fr.y() + fw + vmargin, hmargin, fr.height() - (fw*2) - vmargin),
                                     pal, flags, opt);
             }
         }

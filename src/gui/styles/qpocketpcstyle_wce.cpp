@@ -719,8 +719,8 @@ int QPocketPCStyle::pixelMetric(PixelMetric    pixelmetric,
         ret = PM_CHECKLISTBUTTONSIZE;
         break;
 
-    case PM_PopupMenuFrameHorizontalExtra:
-    case PM_PopupMenuFrameVerticalExtra:
+    case PM_MenuHMargin:
+    case PM_MenuVMargin:
         #define PM_POPUPMENUFRAMEHORIZONTALEXTRA 0
         #define PM_POPUPMENUFRAMEVERTICALEXTRA PM_POPUPMENUFRAMEHORIZONTALEXTRA
         ret = 0;

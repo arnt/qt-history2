@@ -878,9 +878,9 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
         style supports scrolling.
     \value CE_MenuTearoff a menu item representing the tear off section of
         a QMenu.
-    \value CE_MenuEmptyArea ###
-    \value CE_MenuVerticalExtra ###
-    \value CE_MenuHorizontalExtra ###
+    \value CE_MenuEmptyArea the area in a menu without menuitems
+    \value CE_MenuVMargin the vertical extra space on the top/bottom of a menu
+    \value CE_MenuHMargin the horizontal extra space on the left/right of a menu.
 
     \value CE_DockWindowEmptyArea the empty area of a QDockWindow.
 
@@ -1437,8 +1437,10 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \value PM_DockWindowFrameWidth  frame width of a dock window.
 
     \value PM_MenuBarFrameWidth  frame width of a menubar.
-
     \value PM_MenuBarItemSpacing  spacing between menubar items.
+    \value PM_MenuBarHMargin  spacing between menubar items and top/bottom of bar.
+    \value PM_MenuBarVMargin  spacing between menubar items and left/right of bar.
+
     \value PM_ToolBarItemSpacing  spacing between toolbar items.
 
     \value PM_TabBarTabOverlap number of pixels the tabs should overlap.
@@ -1466,8 +1468,8 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \value PM_ExclusiveIndicatorHeight  height of a radio button indicator.
 
     \value PM_MenuFrameWidth border width (applied on all sides) for a QMenu.
-    \value PM_MenuFrameHorizontalExtra additional border (used on left and right) for a QMenu.
-    \value PM_MenuFrameVerticalExtra additional border (used for bottom and top) for a QMenu.
+    \value PM_MenuHMargin additional border (used on left and right) for a QMenu.
+    \value PM_MenuVMargin additional border (used for bottom and top) for a QMenu.
     \value PM_MenuScrollerHeight height of the scroller area in a QMenu.
     \value PM_MenuScrollerHeight height of the scroller area in a QMenu.
     \value PM_MenuTearoffHeight height of a tear off area in a QMenu.

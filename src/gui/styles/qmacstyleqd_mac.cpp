@@ -701,8 +701,8 @@ void QMacStyleQD::drawControl(ControlElement element,
     case CE_Q3PopupMenuScroller:
 #endif
     case CE_MenuTearoff:
-    case CE_MenuHorizontalExtra:
-    case CE_MenuVerticalExtra:
+    case CE_MenuHMargin:
+    case CE_MenuVMargin:
     case CE_MenuScroller: {
         Rect mrect = *qt_glb_mac_rect(widget->rect(), p),
              irect = *qt_glb_mac_rect(r, p, false);
@@ -1817,7 +1817,7 @@ int QMacStyleQD::pixelMetric(PixelMetric metric, const QWidget *widget) const
             tm = kThemeMetricSmallRadioButtonWidth;
         GetThemeMetric(tm, &ret);
         break; }
-    case PM_MenuFrameVerticalExtra:
+    case PM_MenuVMargin:
         ret = 4;
         break;
     default:

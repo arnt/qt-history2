@@ -2289,6 +2289,10 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
     int ret;
 
     switch (m) {
+    case PM_MenuBarVMargin:
+    case PM_MenuBarHMargin:
+        ret = 2;
+        break;
     case PM_DialogButtonsSeparator:
         ret = 5;
         break;
@@ -2492,8 +2496,8 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 
     case PM_MenuDesktopFrameWidth:
     case PM_MenuScrollerHeight:
-    case PM_MenuFrameHorizontalExtra:
-    case PM_MenuFrameVerticalExtra:
+    case PM_MenuHMargin:
+    case PM_MenuVMargin:
         ret = 0;
         break;
 

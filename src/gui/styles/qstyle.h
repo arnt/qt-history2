@@ -289,8 +289,8 @@ public:
 
         CE_MenuItem,
         CE_MenuScroller,
-        CE_MenuVerticalExtra,
-        CE_MenuHorizontalExtra,
+        CE_MenuVMargin,
+        CE_MenuHMargin,
         CE_MenuTearoff,
         CE_MenuEmptyArea,
 
@@ -308,8 +308,8 @@ public:
         CE_Q3PopupMenuScroller,
         CE_Q3MenuBarItem,
         CE_Q3MenuBarEmptyArea,
-        CE_PopupMenuVerticalExtra = CE_MenuVerticalExtra,
-        CE_PopupMenuHorizontalExtra = CE_MenuHorizontalExtra,
+        CE_PopupMenuVerticalExtra = CE_MenuVMargin,
+        CE_PopupMenuHorizontalExtra = CE_MenuHMargin,
 #endif
 
         // do not add any values below/greater than this
@@ -495,14 +495,16 @@ public:
         PM_TitleBarHeight,
 
         PM_MenuScrollerHeight,
-        PM_MenuFrameHorizontalExtra,
-        PM_MenuFrameVerticalExtra,
+        PM_MenuHMargin,
+        PM_MenuVMargin,
         PM_MenuFrameWidth,
         PM_MenuTearoffHeight,
         PM_MenuDesktopFrameWidth,
 
         PM_MenuBarFrameWidth,
         PM_MenuBarItemSpacing,
+        PM_MenuBarVMargin,
+        PM_MenuBarHMargin,
 
         PM_IndicatorWidth,
         PM_IndicatorHeight,
@@ -529,8 +531,8 @@ public:
 #ifdef QT_COMPAT
         PM_Q3PopupMenuScrollerHeight = PM_MenuScrollerHeight,
         PM_Q3MenuBarItemSpacing = PM_MenuBarItemSpacing,
-        PM_PopupMenuFrameHorizontalExtra = PM_MenuFrameVerticalExtra,
-        PM_PopupMenuFrameVerticalExtra = PM_MenuFrameHorizontalExtra,
+        PM_PopupMenuFrameHorizontalExtra = PM_MenuHMargin,
+        PM_PopupMenuFrameVerticalExtra = PM_MenuVMargin,
 #endif
 
         // do not add any values below/greater than this
