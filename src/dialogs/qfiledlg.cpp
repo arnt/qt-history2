@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#31 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#32 $
 **
 ** Implementation of QFileDialog class
 **
@@ -27,7 +27,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#31 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#32 $");
 
 
 /*!
@@ -137,6 +137,8 @@ void QFileDialog::init()
     connect( cancelB,	SIGNAL(clicked()),	 SLOT(cancelClicked()) );
     d.setMatchAllDirs( TRUE );
     d.setSorting( d.sorting() | QDir::DirsFirst );
+
+    filterEdit->setFocus();
 }
 
 /*!

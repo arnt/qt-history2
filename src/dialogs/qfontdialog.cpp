@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#6 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#7 $
 **
 ** C++ file skeleton
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#7 $");
 
 
 struct QFontDialogPrivate
@@ -217,6 +217,8 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->familyList->installEventFilter( this );
     d->styleList->installEventFilter( this );
     d->sizeList->installEventFilter( this );
+
+    d->familyEdit->setFocus();
 }
 
 
