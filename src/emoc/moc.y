@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/emoc/moc.y#4 $
+** $Id: //depot/qt/main/src/emoc/moc.y#5 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1894,7 +1894,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 1.4 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 1.5 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2057,8 +2057,9 @@ void generateClass()		      // generate C++ source code for a class
 	if ( layout )
 	{
 	    fprintf( out, "static QObject *factory( QObject* _parent )\n{\n" );
-	    fprintf( out, "    if ( _parent == 0 ) retyrn new %s;\n");
-	    fprintf( out, "    if ( _parent->inherits( \"QLayout\" ) return new %s( (QLayout*)_parent );\n");
+	    fprintf( out, "    if ( _parent == 0 ) return new %s;\n",(const char*)className);
+	    fprintf( out, "    if ( _parent->inherits( \"QLayout\" ) ) return new %s( (QLayout*)_parent );\n",
+		     (const char*)className);
 	    fprintf( out, "    return new %s( (QWidget*)_parent );\n}\n\n", (const char*)className );
 	}
 	else
