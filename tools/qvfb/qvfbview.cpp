@@ -174,7 +174,7 @@ QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
         data = (unsigned char *)shmat( shmId, 0, 0 );
     }
 
-    if ( (int)data == -1 )
+    if ( (long)data == -1 )
         qFatal( "Cannot attach to shared memory" );
 
     hdr = (QVFbHeader *)data;
