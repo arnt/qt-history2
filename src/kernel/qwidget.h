@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#218 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#219 $
 **
 ** Definition of QWidget class
 **
@@ -269,6 +269,7 @@ public:
     void		erase( const QRect & );
     void		erase( const QRegion & );
     void		scroll( int dx, int dy );
+    void		scroll( int dx, int dy, const QRect& );
 
     void		drawText( int x, int y, const QString &);
     void		drawText( const QPoint &, const QString &);
