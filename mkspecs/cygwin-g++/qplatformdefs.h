@@ -99,5 +99,9 @@
 #define QT_VSNPRINTF		::vsnprintf
 #endif
 
+#if defined(_POSIX_THREAD_SAFE_FUNCTIONS)
+#undef _POSIX_THREAD_SAFE_FUNCTIONS
+#endif
+
 
 #endif // QPLATFORMDEFS_H
