@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#140 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#141 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1866,6 +1866,7 @@ sub classindex {
 <head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Class List</title></head>
 <body bgcolor=\"#ffffff\">
 <h1 align=center>", $module, " Class Index</h1>
+<multicol cols=3>
 <ul compact>
 ";
     open(P, "> $outputdir/annotated.html")
@@ -1886,7 +1887,7 @@ sub classindex {
 		    if ( $capt{$url} =~ /\S/ );
 	}
     }
-    print O "</ul>\n", $address;
+    print O "</multicol></ul>\n", $address;
     print P "</ul>\n", $address;
     close(O);
     close(P);
