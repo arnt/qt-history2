@@ -81,7 +81,7 @@ public:
 	docks.insert( Qt::DockBottom, TRUE );
 	docks.insert( Qt::DockLeft, TRUE );
 	docks.insert( Qt::DockRight, TRUE );
-	docks.insert( Qt::DockMinimized, TRUE );
+	docks.insert( Qt::DockMinimized, FALSE );
 	docks.insert( Qt::DockTornOff, TRUE );
     }
 
