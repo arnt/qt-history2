@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#118 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#119 $
 **
 ** Definition of QIconView widget class
 **
@@ -230,12 +230,18 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
 
 /*!
   \class QIconDragItem qiconview.h
+  
   \brief The QIconDragItem is the internal data structure of a QIconDrag
 
-
+  This class is used internally in the QIconDrag to store the data (in fact,
+  a list of QIconDragItems is used by QIconDrag). Such an item stores 
+  the data about the geometry of an item of the iconview which is dragged
+  around, so that drag shades can be drawn correctly.
+  
 */
 
 /*!
+  Constructs and empty QIconDragItem.
  */
 
 QIconDragItem::QIconDragItem()
@@ -245,6 +251,8 @@ QIconDragItem::QIconDragItem()
 }
 
 /*!
+  Constructs and QIconDragItem. \a ir is the icon rectangle and
+  \a tr the bounding rectangle of the icon text.
  */
 
 QIconDragItem::QIconDragItem( const QRect &ir, const QRect &tr )
@@ -254,6 +262,7 @@ QIconDragItem::QIconDragItem( const QRect &ir, const QRect &tr )
 }
 
 /*!
+  Destructor.
  */
 
 QIconDragItem::~QIconDragItem()
@@ -261,6 +270,8 @@ QIconDragItem::~QIconDragItem()
 }
 
 /*!
+  Returns TRUE if \a icon is smaller than this item, else
+  FALSE.
  */
 
 bool QIconDragItem::operator<( const QIconDragItem &icon ) const
@@ -269,6 +280,7 @@ bool QIconDragItem::operator<( const QIconDragItem &icon ) const
 }
 
 /*!
+  Returns TRUE if \a icon is equal to this item.
  */
 
 bool QIconDragItem::operator==( const QIconDragItem &icon ) const
@@ -277,6 +289,7 @@ bool QIconDragItem::operator==( const QIconDragItem &icon ) const
 }
 
 /*!
+  Generates a unique key which describes this item.
  */
 
 void QIconDragItem::makeKey()
@@ -288,6 +301,8 @@ void QIconDragItem::makeKey()
 }
 
 /*!
+  Returns the bounding rectangle of the text of the icon which
+  data is stored in this item.
  */
 
 QRect QIconDragItem::textRect() const
@@ -296,6 +311,8 @@ QRect QIconDragItem::textRect() const
 }
 
 /*!
+  Returns the bounding rectangle of the  icon which
+  data is stored in this item.
  */
 
 QRect QIconDragItem::iconRect() const
@@ -304,6 +321,7 @@ QRect QIconDragItem::iconRect() const
 }
 
 /*!
+  Returns the key of this item.
  */
 
 QString QIconDragItem::key() const
@@ -312,6 +330,7 @@ QString QIconDragItem::key() const
 }
 
 /*!
+  Sets \a r as the rectangle of the icon.
  */
 
 void QIconDragItem::setIconRect( const QRect &r )
@@ -320,6 +339,7 @@ void QIconDragItem::setIconRect( const QRect &r )
 }
 
 /*!
+  Sets \a r as the rectangle of the text.
  */
 
 void QIconDragItem::setTextRect( const QRect &r )
@@ -350,14 +370,14 @@ void QIconDragItem::setTextRect( const QRect &r )
   in the drag object too.
 
   An example, how to implement this, is in the QtFileIconView example.
-  
+
   \sa QFileIconView::QFileIconView()
 */
 
 /*!
-  Constructs a icon dragobject which contains a list of \a icons (list of QIconDragItems). 
+  Constructs a icon dragobject which contains a list of \a icons (list of QIconDragItems).
   \a dragSource  is the widget which started the dragand \a name the name of the object.
-  
+
   \sa QIconDragItem::QIconDragItem()
  */
 
@@ -396,9 +416,9 @@ void QIconDrag::setIcons( const QIconList &list_ )
 }
 
 /*!
-  Appends an icon drag item which should be stored in this 
+  Appends an icon drag item which should be stored in this
   dragobject.
-  
+
   \sa QIconDragItem::QIconDragItem()
 */
 
@@ -1512,10 +1532,6 @@ void QIconViewItem::setIconRect( const QRect &r )
   left to right (East). The text can be either displayed at the bottom of the icons
   or the the right of the icons.
 
-  The QIconView is designed for Drag'n'Drop, as the icons are also moved inside
-  the iconview itself using DnD. So the QIconView provides some methods for
-  extended DnD too.
-
   There can be specified different selection modes, which describe if more that one item
   can be selected and under which conditions.
 
@@ -1523,6 +1539,14 @@ void QIconViewItem::setIconRect( const QRect &r )
   provides a rubberband too.
 
   Items can also be in-place renamed.
+
+  The QIconView is designed for Drag'n'Drop, as the icons are also moved inside
+  the iconview itself using DnD. So the QIconView provides some methods for
+  extended DnD too. To use DnD correctly in the iconview, please read following
+  instructions:
+  
+  
+
 */
 
 /*! \enum QIconView::ResizeMode
