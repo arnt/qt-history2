@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#36 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -844,10 +844,10 @@ QByteArray QDropEvent::data( const char * format )
 }
 
 
-void QDragManager::startDrag( QDragObject * o )
+bool QDragManager::drag( QDragObject * o, QDragObject::DragMode )
 {
     if ( object == o )
-	return;
+	return FALSE;
 
     if ( object ) {
 	cancel();
@@ -866,4 +866,6 @@ void QDragManager::startDrag( QDragObject * o )
     XSetSelectionOwner( qt_xdisplay(), qt_xdnd_selection,
 			dragSource->topLevelWidget()->winId(),
 			qt_xdnd_source_current_time );
+
+    return FALSE;
 }

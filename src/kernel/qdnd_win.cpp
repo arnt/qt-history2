@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#17 $
 **
 ** WM_FILES implementation for Qt.
 **
@@ -648,10 +648,10 @@ QByteArray QDropEvent::data( const char * format )
 }
 
 
-void QDragManager::startDrag( QDragObject * o )
+bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 {
     if ( object == o ) {
-	return;
+	return FALSE;
     }
 
     if ( object ) {
@@ -667,15 +667,32 @@ void QDragManager::startDrag( QDragObject * o )
     for (int i=0; (fmt=object->format(i)); i++)
 	registerMimeType(fmt);
 
-    DWORD dwEffect;
+    DWORD result_effect;
     QOleDropSource *src = new QOleDropSource(dragSource);
     QOleDataObject *obj = new QOleDataObject(o);
     // This drag source only allows copying of data.
     // Move and link is not allowed.
-    HRESULT r = DoDragDrop(obj, src, DROPEFFECT_COPY, &dwEffect);     
+    DWORD allowed_effects;
+    switch (mode) {
+      case QDragObject::DragDefault:
+	allowed_effects = DROPEFFECT_MOVE|DROPEFFECT_COPY;
+	break;
+      case QDragObject::DragMove:
+	allowed_effects = DROPEFFECT_MOVE;
+	break;
+      case QDragObject::DragCopy:
+	allowed_effects = DROPEFFECT_COPY;
+	break;
+      case QDragObject::DragCopyOrMove:
+	allowed_effects = DROPEFFECT_MOVE|DROPEFFECT_COPY;
+	break;
+    }
+    HRESULT r = DoDragDrop(obj, src, DROPEFFECT_COPY, &result_effect);     
     QDragResponseEvent e( r == DRAGDROP_S_DROP );
     QApplication::sendEvent( dragSource, &e );
     obj->Release();
+
+    return result_effect==DROPEFFECT_MOVE;
 }
 
 void qt_olednd_unregister( QWidget* widget, QOleDropTarget *dst )

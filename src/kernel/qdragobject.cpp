@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#30 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -92,15 +92,71 @@ QDragObject::~QDragObject()
 /*!
   Starts a drag operation using the contents of this object.
 
-  Under X11, this function usually returns immediately.  Under Windows,
-  it does not return until the drag is complete. In either case,
-  the application should take care to prepare for events that might
-  occur during the drag \e prior to calling this function.
+  The drag will use DragDefault mode, whereby the copy or move
+  will be determined by heuristics.
+
+  Returns TRUE if the dragged data was dragged as a \e move,
+  indicating that the caller should remove the data.
+
+  It does not return until the drag is complete.
 */
-void QDragObject::startDrag()
+bool QDragObject::drag()
 {
     if ( manager )
-	manager->startDrag( this );
+	return manager->drag( this, DragDefault );
+    else
+	return FALSE;
+}
+
+
+/*!
+  Starts a drag operation using the contents of this object.
+
+  The drag will use DragMove mode.
+
+  Returns TRUE if the dragged data was successfully moved,
+  indicating that the caller should remove the data.
+
+  It does not return until the drag is complete.
+*/
+bool QDragObject::dragMove()
+{
+    if ( manager )
+	return manager->drag( this, DragMove );
+    else
+	return FALSE;
+}
+
+
+/*!
+  Starts a drag operation using the contents of this object.
+
+  The drag will use DragCopy mode.  The caller should not
+  remove the data after the drag completes.
+
+  It does not return until the drag is complete.
+*/
+void QDragObject::dragCopy()
+{
+    if ( manager )
+	manager->drag( this, DragCopy );
+}
+
+
+/*!
+  Starts a drag operation using the contents of this object.
+
+  Normally one of simpler drag(), dragMove(), or dragCopy() functions
+  would be used instead.
+
+  It does not return until the drag is complete.
+*/
+bool QDragObject::drag(DragMode mode)
+{
+    if ( manager )
+	return manager->drag( this, mode );
+    else
+	return FALSE;
 }
 
 

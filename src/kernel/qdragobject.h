@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#16 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#17 $
 **
 ** Definition of QDragObject
 **
@@ -30,13 +30,20 @@ public:
     virtual void setAutoDelete( bool );
     bool autoDelete() const;
 
-    virtual void startDrag();
+    bool drag();
+    bool dragMove();
+    void dragCopy();
 
     virtual bool provides(const char*) const;
     virtual const char * format(int) const=0;
     virtual QByteArray encodedData(const char*) const=0;
 
     QWidget * source();
+
+    enum DragMode { DragDefault, DragCopy, DragMove, DragCopyOrMove };
+
+protected:
+    virtual bool drag(DragMode);
 
 private:
     QDragData * d;
@@ -109,7 +116,7 @@ private:
 
     bool eventFilter( QObject *, QEvent * );
 
-    void startDrag( QDragObject * );
+    bool drag( QDragObject *, QDragObject::DragMode );
 
     void cancel();
     void move( const QPoint & );
