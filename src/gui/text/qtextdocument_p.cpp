@@ -396,6 +396,7 @@ int QTextDocumentPrivate::remove_block(int pos, int *blockFormat, int command, Q
     return w;
 }
 
+#if !defined(QT_NO_DEBUG)
 static bool isAncestorFrame(QTextFrame *possibleAncestor, QTextFrame *child)
 {
     while (child) {
@@ -405,6 +406,7 @@ static bool isAncestorFrame(QTextFrame *possibleAncestor, QTextFrame *child)
     }
     return false;
 }
+#endif
 
 void QTextDocumentPrivate::remove(int pos, int length, QTextUndoCommand::Operation op)
 {

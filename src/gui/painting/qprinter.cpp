@@ -1115,6 +1115,7 @@ void QPrinter::releaseDC(HDC hdc)
 QString QPrinter::printerSelectionOption() const
 {
     // ###
+    return QString();
 }
 
 /*!
@@ -1131,7 +1132,7 @@ QString QPrinter::printerSelectionOption() const
 
 void QPrinter::setPrinterSelectionOption(const QString &option)
 {
-
+    Q_UNUSED(option);
 }
 
 #endif
