@@ -63,7 +63,8 @@
 #include "qt_x11.h"
 
 #include <time.h>
-
+#include <stdlib.h>
+#include <ctype.h>
 
 #if !defined(QT_NO_XFTFREETYPE) && defined(QT_NO_XFTNAMEUNPARSE)
 // Assume XFree86 4.0.3 implementation which is missing XftInitFtLibrary and

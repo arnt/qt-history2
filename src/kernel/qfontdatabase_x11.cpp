@@ -37,6 +37,9 @@
 
 #include "qt_x11.h"
 
+#include <ctype.h>
+#include <stdlib.h>
+
 // #define QFONTDATABASE_DEBUG
 
 static QString getStyleName( char ** tokens, bool *italic, bool *lesserItalic )

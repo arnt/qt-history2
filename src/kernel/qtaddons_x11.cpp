@@ -26,6 +26,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #ifndef QT_NO_XFTFREETYPE
 #ifdef QT_NO_XFTNAMEUNPARSE

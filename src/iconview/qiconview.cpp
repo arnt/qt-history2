@@ -70,6 +70,7 @@
 #include "qstyle.h"
 
 #include <limits.h>
+#include <stdlib.h>
 
 #define RECT_EXTENSION 300
 

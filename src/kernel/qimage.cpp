@@ -54,6 +54,7 @@
 #include "qmime.h"
 #include "qdragobject.h"
 #include <ctype.h>
+#include <stdlib.h>
 
 #ifdef Q_WS_QWS
 #include "qgfx_qws.h"

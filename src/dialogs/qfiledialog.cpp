@@ -102,6 +102,7 @@
 #endif
 #include <stdlib.h>
 #include <limits.h>
+#include <ctype.h>
 
 #ifdef Q_WS_MAC
 #include "qt_mac.h"
