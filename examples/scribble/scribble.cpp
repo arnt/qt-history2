@@ -10,6 +10,7 @@
 
 #include "scribble.h"
 
+#include <qapplication.h>
 #include <qevent.h>
 #include <qpainter.h>
 #include <qtoolbar.h>
@@ -32,7 +33,9 @@ Canvas::Canvas( QWidget *parent, const char *name )
     : QWidget( parent, name, WNorthWestGravity ), pen( Qt::red, 3 ), polyline(3),
       mousePressed( FALSE ), buffer( width(), height() )
 {
-    buffer.fill( colorGroup().base() );
+
+    if ((qApp->argc() > 0) && !buffer.load(qApp->argv()[1]))
+    	buffer.fill( colorGroup().base() );
     setBackgroundMode( QWidget::PaletteBase );
     setCursor( Qt::crossCursor );
 }
