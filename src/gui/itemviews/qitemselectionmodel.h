@@ -73,6 +73,7 @@ public:
     bool contains(const QModelIndex &item, const QAbstractItemModel *model) const;
     QModelIndexList items(QAbstractItemModel *model) const;
     void merge(const QItemSelection &other, int selectionCommand);
+    static void split(const QItemSelectionRange &range, const QItemSelectionRange &other, QItemSelection *result);
 };
 
 class QItemSelectionModelPrivate;
@@ -103,10 +104,6 @@ public:
     QItemSelectionModel(QAbstractItemModel *model, QObject *parent = 0);
     virtual ~QItemSelectionModel();
 
-    virtual void select(const QModelIndex &item, int selectionCommand);
-    virtual void select(const QItemSelection &selection, int selectionCommand);
-    virtual void clear();
-
     QModelIndex currentItem() const;
     void setCurrentItem(const QModelIndex &item, int selectionCommand);
 
@@ -117,14 +114,18 @@ public:
     QAbstractItemModel *model() const;
     QModelIndexList selectedItems() const;
 
+public slots:    
+    virtual void select(const QModelIndex &item, int selectionCommand);
+    virtual void select(const QItemSelection &selection, int selectionCommand);
+    virtual void clear();
+
 signals:
     void selectionChanged(const QItemSelection &deselected, const QItemSelection &selected);
     void currentChanged(const QModelIndex &oldItem, const QModelIndex &newItem);
 
 protected:
     QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstractItemModel *model, QObject *parent = 0);
-    void emitSelectionChanged(const QItemSelection &oldSelection,
-                              const QItemSelection &newSelection);
+    void emitSelectionChanged(const QItemSelection &oldSelection, const QItemSelection &newSelection);
 };
 
 #endif

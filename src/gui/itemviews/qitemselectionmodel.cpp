@@ -4,27 +4,6 @@
 #define d d_func()
 #define q q_func()
 
-static void split(const QItemSelectionRange &range, const QItemSelectionRange &other, QItemSelection *result)
-{
-    QModelIndex parent = other.parent();
-    int top = range.top();
-    int left = range.left();
-    int bottom = range.bottom();
-    int right = range.right();
-    int other_top = other.top();
-    int other_left = other.left();
-    int other_bottom = other.bottom();
-    int other_right = other.right();
-    if (other_top > top)
-        result->append(QItemSelectionRange(parent, top, left, other_top - 1,right));
-    if (other_bottom < bottom)
-        result->append(QItemSelectionRange(parent, other_bottom + 1, left, bottom, right));
-    if (other_left > left)
-        result->append(QItemSelectionRange(parent, top, left, bottom, other_left - 1));
-    if (other_right < right)
-        result->append(QItemSelectionRange(parent, top, other_right + 1, bottom, right));
-}
-
 QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) const
 {
     QModelIndexList items;
@@ -128,6 +107,32 @@ void QItemSelection::merge(const QItemSelection &other, int selectionCommand)
     // do not add newSelection for Deselect
     if (!(selectionCommand & QItemSelectionModel::Deselect))
         operator+=(newSelection);
+}
+
+/*!
+  Splits selection range \a range using the selection range \a other, and puts the resulting selection in \a result.
+*/
+
+void QItemSelection::split(const QItemSelectionRange &range,
+                           const QItemSelectionRange &other, QItemSelection *result)
+{
+    QModelIndex parent = other.parent();
+    int top = range.top();
+    int left = range.left();
+    int bottom = range.bottom();
+    int right = range.right();
+    int other_top = other.top();
+    int other_left = other.left();
+    int other_bottom = other.bottom();
+    int other_right = other.right();
+    if (other_top > top)
+        result->append(QItemSelectionRange(parent, top, left, other_top - 1,right));
+    if (other_bottom < bottom)
+        result->append(QItemSelectionRange(parent, other_bottom + 1, left, bottom, right));
+    if (other_left > left)
+        result->append(QItemSelectionRange(parent, top, left, bottom, other_left - 1));
+    if (other_right < right)
+        result->append(QItemSelectionRange(parent, top, other_right + 1, bottom, right));
 }
 
 /*!
@@ -309,7 +314,7 @@ void QItemSelectionModel::select(const QItemSelection &selection, int selectionC
 }
 
 /*!
-  Clears the selectionmodel. Emits selectionChanged().
+  Clears the selectionmodel. Emits selectionChanged() and currentChanged().
 */
 void QItemSelectionModel::clear()
 {
@@ -320,6 +325,9 @@ void QItemSelectionModel::clear()
     d->ranges.clear();
     d->currentSelection.clear();
     emit selectionChanged(selection, QItemSelection());
+    QModelIndex old = d->currentItem;
+    d->currentItem = QModelIndex();
+    emit currentChanged(old, d->currentItem);
 }
 
 
@@ -541,7 +549,7 @@ void QItemSelectionModel::emitSelectionChanged(const QItemSelection &oldSelectio
         // split deselected
         for (int o = 0; o < deselected.count();) {
             if (deselected.at(o).intersects(intersections.at(i))) {
-                split(deselected.at(o), intersections.at(i), &deselected);
+                QItemSelection::split(deselected.at(o), intersections.at(i), &deselected);
                 deselected.removeAt(o);
             } else {
                 ++o;
@@ -550,7 +558,7 @@ void QItemSelectionModel::emitSelectionChanged(const QItemSelection &oldSelectio
         // split selected
         for (int s = 0; s < selected.count();) {
             if (selected.at(s).intersects(intersections.at(i))) {
-                split(selected.at(s), intersections.at(i), &selected);
+                QItemSelection::split(selected.at(s), intersections.at(i), &selected);
                 selected.removeAt(s);
             } else {
                 ++s;
