@@ -19,7 +19,7 @@
 #include <QByteArray>
 #include <QBuffer>
 #include <QTextStream>
-#include <QApplication>
+#include <QCoreApplication>
 #include <QLibraryInfo>
 
 #include "projectporter.h"
@@ -151,7 +151,7 @@ void usage(char **argv)
 
 int main(int argc, char**argv)
 {
-    QApplication app(argc, argv);
+    QCoreApplication app(argc, argv);
     applicationDirPath = app.applicationDirPath();
     QString defualtRulesFileName = "q3porting.xml";
 

@@ -34,7 +34,7 @@ SOURCES += port.cpp                  \
 
 OBJECTS_DIR=.obj/debug-shared
 MOC_DIR=.moc/debug-shared
-QT += xml
+QT = xml core
 
 target.path=$$[QT_INSTALL_BINS]
 INSTALLS += target
