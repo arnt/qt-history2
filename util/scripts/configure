@@ -149,6 +149,11 @@ fi
 #    esac
 #done
 
+UNAME_MACHINE=`(uname -m) 2>/dev/null` || UNAME_MACHINE=unknown
+UNAME_RELEASE=`(uname -r) 2>/dev/null` || UNAME_RELEASE=unknown
+UNAME_SYSTEM=`(uname -s) 2>/dev/null` || UNAME_SYSTEM=unknown
+UNAME_VERSION=`(uname -v) 2>/dev/null` || UNAME_VERSION=unknown
+
 if [ -z "$PLATFORM" ]
 then
     ##### Generate?  Look in configs/?
@@ -158,17 +163,71 @@ then
 	solaris-cc solaris-g++ sunos-g++ ultrix-g++ unixware-g++
 	unixware7-cc unixware7-g++"
 
-    case `uname -sr` in
-     Linux*)
+    case "$UNAME_SYSTEM:$UNAME_RELEASE" in
+     AIX*)
+        #PLATFORM=aix-g++
+	PLATFORM=aix-xlc
+	;;
+     QNX:*)
+	PLATFORM=qnx-g++
+	;;
+     GNU:*)
+	PLATFORM=gnu-g++
+	;;
+     BSD/386:*)
+	PLATFORM=bsdi-g++
+	;;
+     dgux:*)
+	PLATFORM=dgux-g++
+	;;
+     ULTRIX:*)
+	PLATFORM=ultrix-g++
+	;;
+     FreeBSD:*)
+	PLATFORM=freebsd-g++
+	;;
+     OpenBSD:*)
+	PLATFORM=openbsd-g++
+	;;
+     NetBSD:*)
+	PLATFORM=netbsd-g++
+	;;
+     IRIX64:*)
+	PLATFORM=irix-64
+	;;
+     IRIX:*)
+	#PLATFORM=irix-dcc
+	#PLATFORM=irix-g++
+	PLATFORM=irix-n32
+	#PLATFORM=irix-o32
+	;;
+     HP-UX:*)
+	#PLATFORM=hpux-acc
+	#PLATFORM=hpux-cc
+	PLATFORM=hpux-g++
+	;;
+     OSF1:*)
+	#PLATFORM=osf1-cxx
+	PLATFORM=osf1-g++
+	;;
+     Linux:*)
 	PLATFORM=linux-g++
 	;;
-     SunOS\ 5*)
+     SunOS:5*)
+	#PLATFORM=solaris-g++
 	PLATFORM=solaris-cc
 	;;
-     SunOS\ 4*)
+     SunOS:4*)
 	PLATFORM=sunos-g++
 	;;
-	# etc.
+     UNIX_SV:4.2*)
+	PLATFORM=unixware-g++
+	#PLATFORM=unixware7-cc
+	#PLATFORM=unixware7-g++
+	;;
+     *:3.2)
+	PLATFORM=sco-g++
+	;;
      *)
 	echo
 	for p in $PLATFORMS
@@ -176,12 +235,12 @@ then
 	    echo "    $0 $* -platform $p"
 	done
 	echo
-	echo "The build script currently only recognizes a small number of"
-	echo "platforms.  However, Qt is targetted at all of the above"
-	echo "platforms.  Rerun this script with a -platform option listed"
-	echo "to set the operating system / compiler combination you use."
+	echo "The build script does not currently recognize all platforms"
+	echo "supported by Qt."
+	echo "Rerun this script with a -platform option listed to"
+	echo "set the operating system / compiler combination you use."
 	echo
-	exit
+	exit 2
     esac
 fi
 
@@ -260,6 +319,16 @@ EOF
 
 
 QTDIR='$(QTDIR)'
+
+
+# Give feedback...
+
+echo
+echo "Build type:    $TARGET"
+echo "Compile flags: $QT_CXX"
+echo "Link flags:    $QT_LIBS"
+echo
+
 
 for a in `find . -name Makefile.in -print | sort` ; do
     N=`dirname $a`/Makefile
