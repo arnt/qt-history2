@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#33 $
 **
 ** Implementation of QProgressBar class
 **
@@ -132,10 +132,11 @@ void QProgressBar::reset()
 
 void QProgressBar::setTotalSteps( int totalSteps )
 {
+    bool clear = totalSteps != total_steps;
     total_steps = totalSteps;
     if ( isVisible() ) {
 	if ( setIndicator(progress_str, progress_val, total_steps) )
-	    repaint( FALSE );
+	    repaint( clear );
     }
 }
 
@@ -186,7 +187,7 @@ QSizePolicy QProgressBar::sizePolicy() const
 }
 
 /*!
-  \fn bool QProgressBar::centerIndicator() const 
+  \fn bool QProgressBar::centerIndicator() const
 
   Returns where the indicator string should be displayed if
   indicatorFollowsStyle() is TRUE.
@@ -213,11 +214,11 @@ void QProgressBar::setCenterIndicator( bool on )
 	return;
     auto_indicator   = FALSE;
     center_indicator = on;
-    repaint( FALSE );    
+    repaint( FALSE );
 }
 
 /*!
-  \fn bool QProgressBar::indicatorFollowsStyle const 
+  \fn bool QProgressBar::indicatorFollowsStyle const
 
   Returns whether the display of the indicator string should follow the
   GUI style or not.
@@ -239,7 +240,7 @@ void QProgressBar::setIndicatorFollowsStyle( bool on )
     if ( on == auto_indicator )
 	return;
     auto_indicator = on;
-    repaint( FALSE );    
+    repaint( FALSE );
 }
 
 void QProgressBar::show()
@@ -307,7 +308,7 @@ void QProgressBar::drawContents( QPainter *p )
     const int unit_height = 12;
     const QRect bar = contentsRect();
 
-    if ( style() == WindowsStyle && auto_indicator || 
+    if ( style() == WindowsStyle && auto_indicator ||
 	 !auto_indicator && !center_indicator ) {
 	// Draw nu units out of a possible u of unit_width width, each
 	// a rectangle bordered by background color, all in a sunken panel
