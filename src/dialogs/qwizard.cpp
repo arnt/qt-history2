@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#14 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#15 $
 **
 ** Implementation of something useful.
 **
@@ -563,7 +563,7 @@ void QWizard::layOut()
 
     QHBoxLayout * l;
     l = new QHBoxLayout( 6 );
-    d->v->addLayout( l );
+    d->v->addLayout( l, 0 );
     layOutTitleRow( l, d->current ? d->current->t : QString::null );
 
     if ( ! d->hbar1 ) {
@@ -574,7 +574,7 @@ void QWizard::layOut()
 
     d->v->addWidget( d->hbar1 );
 
-    d->v->addWidget( d->ws );
+    d->v->addWidget( d->ws, 10 );
 
     if ( ! d->hbar2 ) {
 	d->hbar2 = new QFrame( this, "<hr>", 0, TRUE );
