@@ -751,7 +751,10 @@ void QWizard::layOutButtonRow( QHBoxLayout * layout )
     QBoxLayout * h = new QBoxLayout( QBoxLayout::LeftToRight );
     layout->addLayout( h );
 
-    h->addWidget( d->cancelButton );
+    if ( hasHelp )
+	h->addWidget( d->helpButton );
+    else
+	d->helpButton->hide();
 
     h->addStretch( 42 );
 
@@ -786,12 +789,8 @@ void QWizard::layOutButtonRow( QHBoxLayout * layout )
 	h->addWidget( d->finishButton );
     }
 
-    if ( hasHelp ) {
-	h->addSpacing( 12 );
-	h->addWidget( d->helpButton );
-    } else {
-	d->helpButton->hide();
-    }
+    h->addSpacing( 12 );
+    h->addWidget( d->cancelButton );
 }
 
 
