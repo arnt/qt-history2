@@ -950,7 +950,7 @@ QFSFileEngine::fileName(FileName file) const
 	}
     } else if(file == AbsoluteName || file == AbsolutePathName) {
         QString ret;
-        if (d->file.length() >= 2 && d->file.at(0).isLetter() && d->file.at(1) == QLatin1Char(':'))
+        if (!isRelativePath())
             ret = d->file;
         else
             ret = QDir::cleanPath(QDir::currentPath() + QLatin1Char('/') + d->file);
