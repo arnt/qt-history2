@@ -458,17 +458,28 @@ mv ${TMP_FILE} $qglobal
 if [ "x$DO_ID" = "xyes" ]; then
     status "Marking \$Id\$..."
     for a in `find $DISTDIR/qt/`; do
-	if [ -f $a ] && [ ! -x $a ] && [ ! -L $a ] && grep '\$Id.*\$' $a >/dev/null 2>&1; then
-	    execut=444
-	    [ -x $a ] && execut=555
 
-	    mtime=`ls -l $a | awk '{ print $6,$7,$8 }'` #mtime is pretty bogus, but a quick hack..
-	    tag_ID="`echo $a | sed "s,^.*/,qt/,"`   ${VERSION_STR}   edited $mtime"
-	    sed "s,\$Id[^\\$]*\\$,\$Id: ${tag_ID} \$,g" $a >${TMP_FILE}
-	    rm -f $a
-	    mv ${TMP_FILE} $a
-	    chmod $execut $a
-	fi
+	# Use the same extension list which is elsewhere used to decide which
+	# files are binary and which are not. Skip marking Ids in binary files.
+
+	extn=`echo $a | sed "s,.*\.,,"`
+	case $extn in
+	    dll|gif|png|mng|jpg|bmp|any|pic|ppm|exe|zip|qm|ico) continue ;;
+
+	    *)
+		if [ -f $a ] && [ ! -x $a ] && [ ! -L $a ] && grep '\$Id.*\$' $a >/dev/null 2>&1; then
+		    execut=444
+		    [ -x $a ] && execut=555
+
+		    mtime=`ls -l $a | awk '{ print $6,$7,$8 }'` #mtime is pretty bogus, but a quick hack..
+		    tag_ID="`echo $a | sed "s,^.*/,qt/,"`   ${VERSION_STR}   edited $mtime"
+		    sed "s,\$Id[^\\$]*\\$,\$Id: ${tag_ID} \$,g" $a >${TMP_FILE}
+		    rm -f $a
+		    mv ${TMP_FILE} $a
+		    chmod $execut $a
+		fi
+	    ;;
+	esac
     done
 fi
 
