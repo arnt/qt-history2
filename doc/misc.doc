@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.30 1996/09/19 20:00:14 hanord Exp $
+** $Id: misc.doc,v 1.31 1996/09/23 08:46:14 paul Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.30 1996/09/19 20:00:14 hanord Exp $";
+static char ident[] = "$Id: misc.doc,v 1.31 1996/09/23 08:46:14 paul Exp $";
 #endif
 
 
@@ -72,7 +72,7 @@ A: Qt is not free for Windows.  We do however sell commercial licenses.
 <li>
 When will 1.0 be released? 
 <p>
-A: In a few weeks. It will be functionally identical to 0.99.
+A: Now!
 <p>
 <li>
 I don't want to give away my source. What do I do? 
