@@ -5,7 +5,7 @@
 **
 ** Created : 920604
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -682,8 +682,8 @@ void qSystemWarning( const char* msg, int code )
 
     \relates QApplication
 
-    If \a p is 0, a fatal messages says that the program ran out of
-    memory and exits. If \e p is not 0, nothing happens.
+    If \a p is 0, prints a warning message containing the source code file
+    name and line number, saying that the program ran out of memory.
 
     This is really a macro defined in \c qglobal.h.
 
@@ -697,7 +697,7 @@ void qSystemWarning( const char* msg, int code )
 	Q_CHECK_PTR( a );
     \endcode
 
-    \sa qFatal(), \link debug.html Debugging\endlink
+    \sa qWarning(), \link debug.html Debugging\endlink
 */
 
 
