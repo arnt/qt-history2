@@ -317,7 +317,7 @@
 */
 
 /*!
-    \fn QSet<T> &QSet::merge(const QSet<T> &other)
+    \fn QSet<T> &QSet::unite(const QSet<T> &other)
 
     Inserts all the items in the \a other set into this set.
 
@@ -330,7 +330,7 @@
     Removes any items in this set that don't exist in the \a other
     set.
 
-    \sa operator&=(), merge(), subtract()
+    \sa operator&=(), unite(), subtract()
 */
 
 /*!
@@ -338,7 +338,7 @@
 
     Removes all the items in the \a other set from this set.
 
-    \sa operator-=(), merge(), intersect()
+    \sa operator-=(), unite(), intersect()
 */
 
 /*!
@@ -367,7 +367,7 @@
     \fn QSet<T> &QSet::operator|=(const QSet<T> &other)
     \fn QSet<T> &QSet::operator+=(const QSet<T> &other)
 
-    Syntactic sugar for merge(\a other).
+    Syntactic sugar for unite(\a other).
 
     \sa operator|(), operator&=(), operator-=()
 */
@@ -394,7 +394,7 @@
 
     Returns the union of this set and \a other.
 
-    \sa merge(), operator|=(), operator&(), operator-()
+    \sa unite(), operator|=(), operator&(), operator-()
 */
 
 /*!

@@ -290,7 +290,7 @@ public:
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT iterator replace(const Key &key, const T &value) { return insert(key, value); }
 #endif
-    QMap<Key, T> &merge(const QMap<Key, T> &other);
+    QMap<Key, T> &unite(const QMap<Key, T> &other);
 
     // STL compatibility
     inline bool empty() const { return isEmpty(); }
@@ -488,7 +488,7 @@ Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::find(const Key &
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE QMap<Key, T> &QMap<Key, T>::merge(const QMap<Key, T> &other)
+Q_INLINE_TEMPLATE QMap<Key, T> &QMap<Key, T>::unite(const QMap<Key, T> &other)
 {
     QMap<Key, T> copy(other);
     const_iterator it = copy.constEnd();
@@ -812,7 +812,7 @@ public:
     { return QMap<Key, T>::insertMulti(key, value); }
 
     inline QMultiMap &operator+=(const QMultiMap &other)
-    { merge(other); return *this; }
+    { unite(other); return *this; }
     inline QMultiMap operator+(const QMultiMap &other) const
     { QMultiMap result = *this; result += other; return result; }
 

@@ -91,7 +91,7 @@ public:
     inline const_iterator insert(const T &value)
         { return static_cast<typename Hash::const_iterator>(q_hash.insert(value,
                                                                           QHashDummyValue())); }
-    QSet<T> &merge(const QSet<T> &other);
+    QSet<T> &unite(const QSet<T> &other);
     QSet<T> &intersect(const QSet<T> &other);
     QSet<T> &subtract(const QSet<T> &other);
 
@@ -100,9 +100,9 @@ public:
 
     // comfort
     inline QSet<T> &operator<<(const T &value) { insert(value); return *this; }
-    inline QSet<T> &operator|=(const QSet<T> &other) { merge(other); return *this; }
+    inline QSet<T> &operator|=(const QSet<T> &other) { unite(other); return *this; }
     inline QSet<T> &operator&=(const QSet<T> &other) { intersect(other); return *this; }
-    inline QSet<T> &operator+=(const QSet<T> &other) { merge(other); return *this; }
+    inline QSet<T> &operator+=(const QSet<T> &other) { unite(other); return *this; }
     inline QSet<T> &operator-=(const QSet<T> &other) { subtract(other); return *this; }
     inline QSet<T> operator|(const QSet<T> &other)
         { QSet<T> result = *this; result |= other; return result; }
@@ -123,7 +123,7 @@ private:
 };
 
 template <class T>
-Q_INLINE_TEMPLATE QSet<T> &QSet<T>::merge(const QSet<T> &other)
+Q_INLINE_TEMPLATE QSet<T> &QSet<T>::unite(const QSet<T> &other)
 {
     QSet<T> copy(other);
     typename QSet<T>::const_iterator i = copy.constEnd();

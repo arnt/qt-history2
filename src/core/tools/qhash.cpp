@@ -740,7 +740,7 @@ void QHashData::free()
 
     Returns a list containing all the keys in the hash, in an
     arbitrary order. Keys that occur multiple times in the hash
-    (because items were inserted with insertMulti(), or merge() was
+    (because items were inserted with insertMulti(), or unite() was
     used), also occur multiple times in the list.
 
     The order is guaranteed to be the same as that used by values().
@@ -919,7 +919,7 @@ void QHashData::free()
     \sa insert(), values()
 */
 
-/*! \fn QHash<Key, T> &QHash::merge(const QHash<Key, T> &other)
+/*! \fn QHash<Key, T> &QHash::unite(const QHash<Key, T> &other)
 
     Inserts all the items in the \a other hash into this hash. If a
     key is common to both hashes, the resulting hash will contain the

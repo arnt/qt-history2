@@ -831,7 +831,7 @@ void QMapData::dump()
     \sa insert(), values()
 */
 
-/*! \fn QMap<Key, T> &QMap::merge(const QMap<Key, T> &other)
+/*! \fn QMap<Key, T> &QMap::unite(const QMap<Key, T> &other)
 
     Inserts all the items in the \a other map into this map. If a
     key is common to both maps, the resulting map will contain the
@@ -894,7 +894,7 @@ void QMapData::dump()
     Unlike QHash, which stores its items in an arbitrary order, QMap
     stores its items ordered by key. Items that share the same key
     (because they were inserted using QMap::insertMulti(), or due to a
-    merge()) will appear consecutively, from the most recently to the
+    unite()) will appear consecutively, from the most recently to the
     least recently inserted value.
 
     Let's see a few examples of things we can do with a

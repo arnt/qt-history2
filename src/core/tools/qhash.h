@@ -325,7 +325,7 @@ public:
     const_iterator find(const Key &key) const;
     iterator insert(const Key &key, const T &value);
     iterator insertMulti(const Key &key, const T &value);
-    QHash<Key, T> &merge(const QHash<Key, T> &other);
+    QHash<Key, T> &unite(const QHash<Key, T> &other);
 
     // STL compatibility
     inline bool empty() const { return isEmpty(); }
@@ -388,7 +388,7 @@ QHash<Key, T>::createNode(uint h, const Key &key, const T &value, Node **nextNod
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE QHash<Key, T> &QHash<Key, T>::merge(const QHash<Key, T> &other)
+Q_INLINE_TEMPLATE QHash<Key, T> &QHash<Key, T>::unite(const QHash<Key, T> &other)
 {
     QHash<Key, T> copy(other);
     const_iterator it = copy.constEnd();
@@ -733,7 +733,7 @@ public:
     { return QHash<Key, T>::insertMulti(key, value); }
 
     inline QMultiHash &operator+=(const QMultiHash &other)
-    { merge(other); return *this; }
+    { unite(other); return *this; }
     inline QMultiHash operator+(const QMultiHash &other) const
     { QMultiHash result = *this; result += other; return result; }
 
