@@ -1399,8 +1399,10 @@ void PropertyPixmapItem::showEditor()
 {
     PropertyItem::showEditor();
     placeEditor( box );
-    if ( !box->isVisible() )
+    if ( !box->isVisible() ) {
 	box->show();
+	listView()->viewport()->setFocus();
+    }
 }
 
 void PropertyPixmapItem::hideEditor()
@@ -1512,8 +1514,10 @@ void PropertyColorItem::showEditor()
 {
     PropertyItem::showEditor();
     placeEditor( box );
-    if ( !box->isVisible() )
+    if ( !box->isVisible() ) {
 	box->show();
+	listView()->viewport()->setFocus();
+    }
 }
 
 void PropertyColorItem::hideEditor()
@@ -1914,8 +1918,10 @@ void PropertySizePolicyItem::showEditor()
 {
     PropertyItem::showEditor();
     placeEditor( lined() );
-    if ( !lined()->isVisible() || !lined()->hasFocus() )
+    if ( !lined()->isVisible() || !lined()->hasFocus() ) {
 	lined()->show();
+	listView()->viewport()->setFocus();
+    }
 }
 
 void PropertySizePolicyItem::hideEditor()
@@ -1980,8 +1986,10 @@ void PropertyPaletteItem::showEditor()
 {
     PropertyItem::showEditor();
     placeEditor( box );
-    if ( !box->isVisible() )
+    if ( !box->isVisible() ) {
 	box->show();
+	listView()->viewport()->setFocus();
+    }
 }
 
 void PropertyPaletteItem::hideEditor()
