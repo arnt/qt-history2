@@ -1,20 +1,11 @@
-#include <widgetinterface.h>
-#include <qobjectcleanuphandler.h>
+#include <qwidgetplugin.h>
 
-class CustomWidgetInterface : public WidgetInterface
+class CustomWidgetPlugin : public QWidgetPlugin
 {
 public:
-    CustomWidgetInterface();
-    virtual ~CustomWidgetInterface() {}
+    CustomWidgetPlugin();
 
-    // From QUnknownInterface
-    QRESULT queryInterface( const QUuid&, QUnknownInterface **iface );
-    Q_REFCOUNT;
-
-    // From QFeatureListInterface
-    QStringList featureList() const;
-
-    // From WidgetInterface
+    QStringList keys() const;
     QWidget* create( const QString &classname, QWidget* parent = 0, const char* name = 0 );
     QString group( const QString& ) const;
     QIconSet iconSet( const QString& ) const;
@@ -22,7 +13,4 @@ public:
     QString toolTip( const QString& ) const;
     QString whatsThis( const QString& ) const;
     bool isContainer( const QString& ) const;
-
-private:
-    QObjectCleanupHandler objects;
 };
