@@ -55,6 +55,9 @@ private:
     QMap<QString,QString> licenseInfo;
     QString outputLine;
 
+    void reloadCmdLine();
+    void saveCmdLine();
+
 private slots:
     virtual void readQmakeBuilderOutput();
     virtual void readQmakeBuilderError();

@@ -44,6 +44,7 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "STL" ] = "no";
     dictionary[ "ACCESSIBILITY" ] = "no";
     dictionary[ "VERSION" ] = "300";
+    dictionary[ "REDO" ] = "no";
     dictionary[ "FORCE_PROFESSIONAL" ] = QEnvironment::getEnv( "FORCE_PROFESSIONAL" );
 
     QString tmp = QEnvironment::getEnv( "QMAKESPEC" );
@@ -103,7 +104,18 @@ void ConfigureApp::buildSqlList()
 
 void ConfigureApp::parseCmdLine()
 {
-    for( QStringList::Iterator args = configCmdLine.begin(); args != configCmdLine.end(); ++args ) {
+    QStringList::Iterator args = configCmdLine.begin();
+
+    if( (*args) == "-redo" ) {
+	configCmdLine.clear();
+	dictionary[ "REDO" ] = "yes";
+	reloadCmdLine();
+	args = configCmdLine.begin();	// We've got a new command line...
+    }
+    else
+	saveCmdLine();
+
+    for( ; args != configCmdLine.end(); ++args ) {
 	if( (*args) == "-help" )
 	    dictionary[ "HELP" ] = "yes";
 	else if( (*args) == "-?" )
@@ -286,6 +298,7 @@ bool ConfigureApp::displayHelp()
 	cout << "-disable-*          Disable the specified module, where module is one of" << endl;
 	cout << "                    " << modules.join( " " ) << endl << endl;
 	cout << "-sql-*              Compile the specified SQL driver." << endl << endl;
+	cout << "-redo               Run configure with the same parameters as last time." << endl << endl;
 	return true;
     }
     return false;
@@ -839,4 +852,34 @@ bool ConfigureApp::readLicense()
 	return true;
     }
     return false;
+}
+
+void ConfigureApp::reloadCmdLine()
+{
+    if( dictionary[ "REDO" ] == "yes" ) {
+	QFile inFile( qtDir + "/configure.cache" );
+	if( inFile.open( IO_ReadOnly ) ) {
+	    QTextStream inStream( &inFile );
+	    QString buffer;
+	    inStream >> buffer;
+	    while( buffer.length() ) {
+		configCmdLine += buffer;
+		inStream >> buffer;
+	    }
+	    inFile.close();
+	}
+    }
+}
+
+void ConfigureApp::saveCmdLine()
+{
+    if( dictionary[ "REDO" ] != "yes" ) {
+	QFile outFile( qtDir + "/configure.cache" );
+	if( outFile.open( IO_WriteOnly ) ) {
+	    QTextStream outStream( &outFile );
+	    for( QStringList::Iterator it = configCmdLine.begin(); it != configCmdLine.end(); ++it )
+		outStream << (*it) << endl;
+	    outFile.close();
+	}
+    }
 }
