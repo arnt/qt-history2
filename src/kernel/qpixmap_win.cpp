@@ -749,6 +749,10 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	w = qRound( mat.m11()*ws );
 	h = QABS( h );
 	w = QABS( w );
+	// we have to create the new pixmap before we query the handle of this,
+	// as the handle might change if this is a multicell pixmap that gets 
+	// expanded by the constructor in the line below.
+	QPixmap pm( w, h, depth(), optimization() );
 	HDC dc;
 	int sy;
 	if ( data->mcp ) {
@@ -758,7 +762,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	    dc = handle();
 	    sy = 0;
 	}
-	QPixmap pm( w, h, depth(), optimization() );
 	HDC pm_dc;
 	int pm_sy;
 	if ( pm.data->mcp ) {
