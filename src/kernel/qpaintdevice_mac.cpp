@@ -122,11 +122,12 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 #endif
 	return;
     }
-    int srcoffx = 0, srcoffy = 0;
+    int srcoffx = 0, srcoffy = 0, srcdepth = 0;
     const BitMap *srcbitmap=NULL;
     const QBitmap *srcbitmask=NULL;
     if(src->devType() == QInternal::Widget) {
 	QWidget *w = (QWidget *)src;
+	srcdepth = 32; //well, not 0 anyway :)
 	srcbitmap = GetPortBitMapForCopyBits(GetWindowPort((WindowPtr)w->handle()));
 	QMacSavedPortInfo::setPaintDevice(w); //wtf?
 
@@ -146,6 +147,7 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	QPixmap *pm = (QPixmap *)src;
 	srcbitmap = GetPortBitMapForCopyBits((GWorldPtr)pm->handle());
 	srcbitmask = pm->mask();
+	srcdepth = pm->depth();
 
 	if(sw < 0)
 	    sw = pm->width();
@@ -260,7 +262,7 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
     }
 
     ::RGBColor f;
-    if(set_fore_colour) {
+    if(set_fore_colour || srcdepth > 1) {
 	f.red = f.green = f.blue = 0;
 	RGBForeColor( &f );
     }
