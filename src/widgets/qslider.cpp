@@ -50,11 +50,18 @@
 static const int thresholdTime = 300;
 static const int repeatTime = 100;
 
-static int sliderStartVal = 0; //##### class member?
+struct QSliderPrivate
+{
+    // ### move these to QSliter in Qt 4.0
+    int sliderStartVal;
+    bool defaultSizePolicy;
+
+    QSliderPrivate() : sliderStartVal( 0 ), defaultSizePolicy( TRUE ) { }
+};
 
 
 /*!
-    \class QSlider qslider.h
+    \class QSlider
     \brief The QSlider widget provides a vertical or horizontal slider.
 
     \ingroup basic
@@ -159,10 +166,14 @@ QSlider::QSlider( int minValue, int maxValue, int pageStep,
     sliderVal = value;
 }
 
+QSlider::~QSlider()
+{
+    delete d;
+}
 
 void QSlider::init()
 {
-    extra = 0;
+    d = new QSliderPrivate;
     timer = 0;
     sliderPos = 0;
     sliderVal = 0;
@@ -174,13 +185,10 @@ void QSlider::init()
     setFocusPolicy( TabFocus  );
     initTicks();
 
-    if ( orient == Horizontal )
-	setSizePolicy( QSizePolicy( QSizePolicy::Expanding,
-				    QSizePolicy::Fixed ) );
-    else
-	setSizePolicy( QSizePolicy(  QSizePolicy::Fixed,
-				     QSizePolicy::Expanding ) );
-
+    QSizePolicy sp( QSizePolicy::Expanding, QSizePolicy::Fixed );
+    if ( orient == Vertical )
+	sp.transpose();
+    QWidget::setSizePolicy( sp );
 }
 
 
@@ -339,14 +347,15 @@ void QSlider::setOrientation( Orientation orientation )
 {
     if ( orientation == orient )
 	return;
+
+    if ( d->defaultSizePolicy ) {
+	QSizePolicy sp = sizePolicy();
+	sp.transpose();
+	QWidget::setSizePolicy( sp );
+    }
+
     orient = orientation;
 
-    if ( orient == Horizontal )
-	setSizePolicy( QSizePolicy( QSizePolicy::Expanding,
-				    QSizePolicy::Fixed ) );
-    else
-	setSizePolicy( QSizePolicy(  QSizePolicy::Fixed,
-				     QSizePolicy::Expanding ) );
     rangeChange();
     update();
 }
@@ -418,7 +427,7 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 {
     int slideLength = style().pixelMetric( QStyle::PM_SliderLength, this );
     resetState();
-    sliderStartVal = sliderVal;
+    d->sliderStartVal = sliderVal;
     QRect r = sliderRect();
 
     if ( e->button() == RightButton )
@@ -482,7 +491,7 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
 	    r.setRect( r.x() - 2*m/3, r.y() - m,
 		       r.width() + 3*m, r.height() + 2*m );
 	if ( !r.contains( e->pos() ) ) {
-	    moveSlider( positionFromValue( sliderStartVal) );
+	    moveSlider( positionFromValue(d->sliderStartVal) );
 	    return;
 	}
     }
@@ -738,56 +747,18 @@ QSize QSlider::minimumSizeHint() const
     return s;
 }
 
-
-
-/*!
-    \reimp
-*/
-QSizePolicy QSlider::sizePolicy() const
+void QSlider::setSizePolicy( QSizePolicy sp )
 {
-    return QWidget::sizePolicy();
-
-    /*
-    if ( orient == Horizontal )
-	return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
-    else
-	return QSizePolicy(  QSizePolicy::Fixed, QSizePolicy::Expanding );
-    */
+    d->defaultSizePolicy = FALSE;
+    QWidget::setSizePolicy( sp );
 }
 
-
-/*
-  Returns the number of pixels to use for the business part of the
-  slider (i.e., the non-tickmark portion). The remaining space is shared
-  equally between the tickmark regions. This function and  sizeHint()
-  are closely related; if you change one you almost certainly
-  have to change the other.
-*/
-
-// style dependent stuff here! Remove when done!
-// int QSlider::thickness() const
-// {
-//     return style().pixelMetric( QStyle::PM_SliderControlThickness, this );
-//     int space = (orient == Horizontal) ? height() : width();
-//     int n = 0;
-//     if ( ticks & Above )
-// 	n++;
-//     if ( ticks & Below )
-// 	n++;
-//     if ( !n )
-// 	return space;
-
-//     int thick = 6;	// Magic constant to get 5 + 16 + 5
-//     if ( style() == WindowsStyle && ticks != Both && ticks != NoMarks ) {
-// 	thick += style().sliderLength() / 4;
-//     }
-//     space -= thick;
-//     //### the two sides may be unequal in size
-//     if ( space > 0 )
-// 	thick += ( space * 2 ) / ( n + 2 );
-//     return thick;
-// }
-
+/*! \reimp */
+QSizePolicy QSlider::sizePolicy() const
+{
+    // ### 4.0 remove this reimplementation
+    return QWidget::sizePolicy();
+}
 
 /*!
     \property QSlider::tickmarks

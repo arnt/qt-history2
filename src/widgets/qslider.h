@@ -45,7 +45,6 @@
 
 #ifndef QT_NO_SLIDER
 
-
 struct QSliderPrivate;
 
 class QTimer;
@@ -68,10 +67,11 @@ public:
     enum TickSetting { NoMarks = 0, Above = 1, Left = Above,
 		       Below = 2, Right = Below, Both = 3 };
 
-    QSlider( QWidget *parent, const char* name=0 );
-    QSlider( Orientation, QWidget *parent, const char* name=0 );
+    QSlider( QWidget *parent, const char* name = 0 );
+    QSlider( Orientation, QWidget *parent, const char* name = 0 );
     QSlider( int minValue, int maxValue, int pageStep, int value, Orientation,
-	     QWidget *parent, const char* name=0 );
+	     QWidget *parent, const char* name = 0 );
+    ~QSlider();
 
     virtual void	setOrientation( Orientation );
     Orientation orientation() const;
@@ -79,11 +79,12 @@ public:
     bool	tracking() const;
     virtual void 	setPalette( const QPalette & );
 
-    int		sliderStart() const;
-    QRect	sliderRect() const;
-    QSize	sizeHint() const;
+    int sliderStart() const;
+    QRect sliderRect() const;
+    QSize sizeHint() const;
+    void setSizePolicy( QSizePolicy sp );
     QSizePolicy sizePolicy() const;
-    QSize	minimumSizeHint() const;
+    QSize minimumSizeHint() const;
 
     virtual void setTickmarks( TickSetting );
     TickSetting tickmarks() const { return ticks; }
@@ -149,7 +150,7 @@ private:
     int		goodPart( const QPoint& ) const;
     void	initTicks();
 
-    QSliderPrivate *extra;
+    QSliderPrivate *d;
     QTimer	*timer;
     QCOORD	sliderPos;
     int		sliderVal;
