@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#199 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#200 $
 **
 ** Implementation of QApplication class
 **
@@ -353,7 +353,7 @@ void QApplication::initialize( int argc, char **argv )
 QApplication::~QApplication()
 {
     is_app_closing = TRUE;
-    QWidget::destroyMapper();			// destroy widget mapper
+    QWidget::destroyMapper();
     destroy_palettes();
     delete app_pal;
     app_pal = 0;
@@ -370,7 +370,8 @@ QApplication::~QApplication()
     winHighlightColor = 0;
     delete objectDict;
     qApp = 0;
-    QTextCodec::deleteAllCodecs();
+    //can not delete codecs until after QDict destructors
+    //QTextCodec::deleteAllCodecs();
 }
 
 
