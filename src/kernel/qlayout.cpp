@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#49 $
 **
 ** Implementation of layout classes
 **
@@ -982,7 +982,7 @@ bool QLayout::fixedHeight()
   there are eqivalent functions for rows.
 
   Each column has a minimum width and a stretch factor.  The minimum
-  width is the greatest of that set using addRowSpacing() and the
+  width is the greatest of that set using addColSpacing() and the
   minimum width of each widget in that column.  The stretch factor is
   set using setColStretch() and determines how much of the available
   space the column will get, over and above its necessary minimum.
@@ -991,7 +991,7 @@ bool QLayout::fixedHeight()
   using addWidget() or addLayout(), but you can also put widget into
   multiple cells using addMultiCellWidget().  However, if you do that,
   QGridLayout does not take the child widget's minimum size into
-  consideration (because it does not known what column the minimum
+  consideration (because it cannot know what column the minimum
   width should belong to).  Thus you must set the minimum width of
   each column using addColSpacing().
 

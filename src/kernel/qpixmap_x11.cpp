@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#130 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#131 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -1394,8 +1394,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 
 
 /*!
-  Transforms the pixmap using \e matrix, and returns the transformed
-  pixmap.
+  Returns a copy of the pixmap that is transformed using \e matrix.
 
   Qt uses this function to implement rotated text on window systems
   that do not support such complex features.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#36 $
 **
 ** Implementation of QBitmap class
 **
@@ -214,8 +214,7 @@ QBitmap &QBitmap::operator=( const QImage &image )
 
 
 /*!
-  Transforms the bitmap using \e matrix, and returns the transformed
-  bitmap.
+  Returns a copy of the bitmap that is transformed using \e matrix.
 
   This function does exactly the same as QPixmap::xForm(), except that
   it returns a QBitmap instead of a QPixmap.
