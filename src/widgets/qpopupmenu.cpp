@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#202 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#203 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -613,6 +613,21 @@ void QPopupMenu::accelDestroyed()		// accel about to be deleted
 
 void QPopupMenu::actSig( int id )
 {
+    bool sync = FALSE;
+    QPopupMenu * p = this;
+    while( p && !sync ) {
+	if ( p == syncMenu )
+	    sync = TRUE;
+	else if ( p->parentMenu->isPopupMenu )
+	    p = (QPopupMenu*)(p->parentMenu);
+	else
+	    p = 0;
+    }
+    if ( sync && qApp ) {
+	qApp->exit_loop();
+	syncMenu = 0;
+    }
+
     emit activated( id );
     emit activatedRedirect( id );
 }
@@ -1090,7 +1105,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    if ( gs == MotifStyle ) {
 		if ( act && !dis ) {			// active item frame
 		    if (style().defaultFrameWidth() > 1)
-			qDrawShadePanel( p, 0, 0, rw, cellh, g, FALSE, 
+			qDrawShadePanel( p, 0, 0, rw, cellh, g, FALSE,
 					 motifItemFrame,
 					 &g.brush( QColorGroup::Button ) );
 		    else
@@ -1124,7 +1139,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	if ( gs != MotifStyle )
 	    pw = 1;
 	if ( gs == WindowsStyle ) {
-	    QBrush fill = act? g.brush( QColorGroup::Highlight ) : 
+	    QBrush fill = act? g.brush( QColorGroup::Highlight ) :
 			       g.brush( QColorGroup::Button );
 	    if ( mi->isChecked() )
 		p->fillRect( cellw + 1, 0, rw - cellw - 1, cellh, fill);
@@ -1689,7 +1704,7 @@ int QPopupMenu::exec( const QPoint & pos, int indexAtPoint )
     syncMenuId = -1;
 
     connectModal( this, TRUE );
-    popup(pos,indexAtPoint);
+    popup( pos, indexAtPoint );
     qApp->enter_loop();
     connectModal( this, FALSE );
 
@@ -1701,9 +1716,9 @@ int QPopupMenu::exec( const QPoint & pos, int indexAtPoint )
 
 /*
   connect the popup and all its submenus to modalActivation() if
-  doConnect is true, otherwise disconnect.
+  \a doConnect is true, otherwise disconnect.
  */
-void QPopupMenu::connectModal(QPopupMenu* receiver, bool doConnect)
+void QPopupMenu::connectModal( QPopupMenu* receiver, bool doConnect )
 {
     if ( doConnect )
 	connect( this, SIGNAL(activated(int)),
@@ -1778,10 +1793,10 @@ int QPopupMenu::idAt( const QPoint& pos ) const
 
 
 /*!\fn int QPopupMenu::idAt( int index ) const
-  
+
   Returns the identifier of the menu item at position \a index in the internal
   list, or -1 if \a index is out of range.
-  
+
   \sa QMenuData::setId(), QMenuData::indexOf()
 */
 
