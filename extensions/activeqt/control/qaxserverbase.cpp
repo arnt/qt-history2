@@ -663,7 +663,8 @@ public:
 	    cd[i].pUnk->AddRef();
 	    ++it;
 	}
-	*pcFetched = i;
+	if (pcFetched)
+	    *pcFetched = i;
 	return i == cConnections ? S_OK : S_FALSE;
     }
     STDMETHOD(Skip)( ULONG cConnections )
