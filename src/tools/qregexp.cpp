@@ -124,7 +124,7 @@
 
     \section1 Introduction
 
-    Regexps are built up from expressions, quantifiers and assertions.
+    Regexps are built up from expressions, quantifiers, and assertions.
     The simplest form of expression is simply a character, e.g.
     <b>x</b> or <b>5</b>. An expression can also be a set of
     characters. For example, <b>[ABCD]</b>, will match an <b>A</b> or
@@ -915,7 +915,7 @@ public:
     bool caseSensitive() const { return cs; }
     int numCaptures() const { return officialncap; }
     QMemArray<int> match( const QString& str, int pos, bool minimal,
-			  bool oneTest );
+			  bool oneTest, int caretIndex );
     int matchedLength() const { return mmMatchedLen; }
 
     int createState( QChar ch );
@@ -1207,6 +1207,7 @@ private:
     const QString *mmStr; // a pointer to the input QString
     const QChar *mmIn; // a pointer to the input string data
     int mmPos; // the current position in the string
+    int mmCaretPos;
     int mmLen; // the length of the input string
     bool mmMinimal; // minimal matching?
     QMemArray<int> mmCaptured; // an array of pairs (start, len)
@@ -1254,13 +1255,14 @@ QRegExpEngine::~QRegExpEngine()
   for captured text. If there is no match, all pairs are (-1, -1).
 */
 QMemArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
-				     bool oneTest )
+				     bool oneTest, int caretIndex )
 {
     mmStr = &str;
     mmIn = str.unicode();
     if ( mmIn == 0 )
 	mmIn = &QChar::null;
     mmPos = pos;
+    mmCaretPos = caretIndex;
     mmLen = str.length();
     mmMinimal = minimal;
     mmMatchLen = 0;
@@ -1666,7 +1668,7 @@ bool QRegExpEngine::testAnchor( int i, int a, const int *capBegin )
 #endif
 
     if ( (a & Anchor_Caret) != 0 ) {
-	if ( mmPos + i != 0 )
+	if ( mmPos + i != mmCaretPos )
 	    return FALSE;
     }
     if ( (a & Anchor_Dollar) != 0 ) {
@@ -1675,7 +1677,8 @@ bool QRegExpEngine::testAnchor( int i, int a, const int *capBegin )
     }
 #ifndef QT_NO_REGEXP_ESCAPE
     if ( (a & (Anchor_Word | Anchor_NonWord)) != 0 ) {
-	bool before = FALSE, after = FALSE;
+	bool before = FALSE;
+	bool after = FALSE;
 	if ( mmPos + i != 0 )
 	    before = mmIn[mmPos + i - 1].isLetterOrNumber();
 	if ( mmPos + i != mmLen )
@@ -1694,8 +1697,8 @@ bool QRegExpEngine::testAnchor( int i, int a, const int *capBegin )
 					   mmLen - mmPos - i );
 	for ( j = 0; j < (int) ahead.size(); j++ ) {
 	    if ( (a & (Anchor_FirstLookahead << j)) != 0 ) {
-		catchx = ( ahead[j]->eng->match(cstr.string(), 0, TRUE,
-						TRUE)[0] == 0 );
+		catchx = ahead[j]->eng->match( cstr.string(), 0, TRUE, TRUE,
+					       mmCaretPos - mmPos - i )[0] == 0;
 		if ( catchx == ahead[j]->neg )
 		    return FALSE;
 	    }
@@ -3217,6 +3220,22 @@ static void derefEngine( QRegExpEngine *eng, const QString& pattern )
 }
 
 /*!
+    \enum QRegExp::CaretMode
+
+    The CaretMode enum defines the different meanings of the caret
+    (<b>^</b>) in a regular expression. The possible values are:
+
+    \value CaretMatchesAtZero
+	   The caret corresponds to index 0 in the searched string.
+
+    \value CaretMatchesAtStartPos
+	   The caret corresponds to the start position of the search.
+
+    \value CaretNeverMatches
+	   The caret never matches.
+*/
+
+/*!
     Constructs an empty regexp.
 
     \sa isValid() errorString()
@@ -3509,7 +3528,7 @@ bool QRegExp::exactMatch( const QString& str ) const
     priv->capturedCache.clear();
 #endif
 
-    priv->captured = eng->match( str, 0, priv->min, TRUE );
+    priv->captured = eng->match( str, 0, priv->min, TRUE, 0 );
     if ( priv->captured[1] == (int) str.length() ) {
 	return TRUE;
     } else {
@@ -3535,33 +3554,13 @@ bool QRegExp::exactMatch( const QString& str ) const
 
   Use search() and matchedLength() instead of this function.
 
-  If you really need the \a indexIsStart functionality, try this:
-
-  \code
-    QRegExp rx( "some pattern" );
-    int pos = rx.search( str.mid(index) );
-    if ( pos >= 0 )
-	pos += index;
-    int len = rx.matchedLength();
-  \endcode
-
-  Where performance is important, you can replace \c str.mid(index) by
-  \c QConstString(str.unicode() + index, str.length() - index).string(),
-  which avoids copying the character data.
-
   \sa QString::mid() QConstString
 */
 int QRegExp::match( const QString& str, int index, int *len,
 		    bool indexIsStart ) const
 {
-    int pos;
-    if ( indexIsStart ) {
-	pos = search( str.mid(index) );
-	if ( pos >= 0 )
-	    pos += index;
-    } else {
-	pos = search( str, index );
-    }
+    int pos = search( str, index, indexIsStart ? CaretMatchesAtStartPos
+				  : CaretMatchesAtZero );
     if ( len != 0 )
 	*len = matchedLength();
     return pos;
@@ -3569,12 +3568,18 @@ int QRegExp::match( const QString& str, int index, int *len,
 #endif // QT_NO_COMPAT
 
 /*!
+    \fn int QRegExp::search( const QString& str, int start,
+			     CaretMode caretMode ) const
+
     Attempts to find a match in \a str from position \a start (0 by
     default). If \a start is -1, the search starts at the last
     character; if -2, at the next to last character; etc.
 
     Returns the position of the first match, or -1 if there was no
     match.
+
+    The \a caretMode parameter can be used to instruct whether <b>^</b>
+    should match at index 0 or at index \a start.
 
     You might prefer to use QString::find(), QString::contains() or
     even QStringList::grep(). To replace matches use
@@ -3586,23 +3591,25 @@ int QRegExp::match( const QString& str, int index, int *len,
 	QRegExp rx( "\\d*\\.\\d+" );    // primitive floating point matching
 	int count = 0;
 	int pos = 0;
-	while ( pos >= 0 ) {
-	    pos = rx.search( str, pos );
-	    pos += rx.matchedLength();
+	while ( (pos = rx.search(str, pos)) != -1 ) {
 	    count++;
+	    pos += rx.matchedLength();
 	}
 	// pos will be 9, 14, 18 and finally 24; count will end up as 4
     \endcode
-    The above example is slightly subtle. When the search fails to
-    find a match, it returns -1 and matchedLength() is 0. So \c{pos +=
-    matchedLength()} will leave pos as -1 and the loop will terminate.
 
     Although const, this function sets matchedLength(),
     capturedTexts() and pos().
 
     \sa searchRev() exactMatch()
 */
+
 int QRegExp::search( const QString& str, int start ) const
+{
+    return search( str, start, CaretMatchesAtZero );
+}
+
+int QRegExp::search( const QString& str, int start, CaretMode caretMode ) const
 {
     if ( start < 0 )
 	start += str.length();
@@ -3610,17 +3617,24 @@ int QRegExp::search( const QString& str, int start ) const
     priv->t = str;
     priv->capturedCache.clear();
 #endif
-    priv->captured = eng->match( str, start, priv->min, FALSE );
+    priv->captured = eng->match( str, start, priv->min, FALSE,
+				 caretIndex(start, caretMode) );
     return priv->captured[0];
 }
 
 /*!
+    \fn int QRegExp::searchRev( const QString& str, int start,
+				CaretMode caretMode ) const
+
     Attempts to find a match backwards in \a str from position \a
     start. If \a start is -1 (the default), the search starts at the
     last character; if -2, at the next to last character; etc.
 
     Returns the position of the first match, or -1 if there was no
     match.
+
+    The \a caretMode parameter can be used to instruct whether <b>^</b>
+    should match at index 0 or at index \a start.
 
     Although const, this function sets matchedLength(),
     capturedTexts() and pos().
@@ -3630,7 +3644,15 @@ int QRegExp::search( const QString& str, int start ) const
 
     \sa search() exactMatch()
 */
+
+
 int QRegExp::searchRev( const QString& str, int start ) const
+{
+    return searchRev( str, start, CaretMatchesAtZero );
+}
+
+int QRegExp::searchRev( const QString& str, int start,
+			CaretMode caretMode ) const
 {
     if ( start < 0 )
 	start += str.length();
@@ -3645,7 +3667,8 @@ int QRegExp::searchRev( const QString& str, int start ) const
     }
 
     while ( start >= 0 ) {
-	priv->captured = eng->match( str, start, priv->min, TRUE );
+	priv->captured = eng->match( str, start, priv->min, TRUE,
+				     caretIndex(start, caretMode) );
 	if ( priv->captured[0] == start )
 	    return start;
 	start--;
@@ -3890,6 +3913,17 @@ void QRegExp::compile( bool caseSensitive )
 #endif
     priv->captured.detach();
     priv->captured.fill( -1, 2 + 2 * eng->numCaptures() );
+}
+
+int QRegExp::caretIndex( int start, CaretMode caretMode )
+{
+    if ( caretMode == CaretMatchesAtZero ) {
+	return 0;
+    } else if ( caretMode == CaretMatchesAtStartPos ) {
+	return start;
+    } else {
+	return -1;
+    }
 }
 
 #endif // QT_NO_REGEXP

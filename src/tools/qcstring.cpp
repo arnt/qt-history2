@@ -1682,16 +1682,11 @@ int QCString::contains( const QRegExp &rx ) const
     s.replace( QRegExp("a.*a"), "" );     // becomes "b"
 
     s = "banana";
-    s.replace( QRegExp("^[bn]a"), " " );  // becomes " nana"
+    s.replace( QRegExp("^[bn]a"), "X" );  // becomes "Xnana"
 
     s = "banana";
-    s.replace( QRegExp("^[bn]a"), "" );   // NOTE! becomes ""
+    s.replace( QRegExp("^[bn]a"), "" );   // becomes "nana"
     \endcode
-
-    The last example may be surprising. The semantics are that the
-    regex is applied to the string \e repeatedly, so first the leading
-    "ba" is removed, then the "na", then the final "na" leaving an
-    empty string.
 
     \warning If you want to apply this function repeatedly to the same
     string it is more efficient to convert the string to a QString and

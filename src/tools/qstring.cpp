@@ -15329,8 +15329,8 @@ QString &QString::remove( const QString & str )
 
 /*! \overload
 
-  Replaces every occurence of \a c1 with the char \a c2
-  and returns a reference to the string.
+  Replaces every occurrence of \a c1 with the char \a c2.
+  Returns a reference to the string.
 */
 QString &QString::replace( QChar c1, QChar c2 )
 {
@@ -15604,53 +15604,73 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
     int index = 0;
     int numCaptures = rx2.numCaptures();
     int al = str.length();
+    QRegExp::CaretMode caretMode = QRegExp::CaretMatchesAtZero;
 
-    if ( numCaptures ) {
-	// more complicated case....
+    if ( numCaptures > 0 ) {
 	if ( numCaptures > 9 )
 	    numCaptures = 9;
-	int capturePositions[10];
-	int i;
-	for ( i = 0; i <= numCaptures; i++ )
-	    capturePositions[i] = -1;
+
 	const QChar *uc = str.unicode();
-	bool found = FALSE;
-	for ( i = 0; i < al-1; i++ ) {
+	int numBackRefs = 0;
+
+	for ( int i = 0; i < al - 1; i++ ) {
 	    if ( uc[i] == '\\' ) {
 		int no = uc[i + 1].digitValue();
-		if ( no > 0 && no <= numCaptures ) {
-		    capturePositions[no] = i;
-		    found = TRUE;
-		}
+		if ( no > 0 && no <= numCaptures )
+		    numBackRefs++;
 	    }
 	}
-	// if we didn't find any capture position, we fall through to the simple
-	// and better optimised case.
-	if ( found ) {
+
+	/*
+	  This is the harder case where we have back-references. We
+	  don't try to optimize it.
+	*/
+	if ( numBackRefs > 0 ) {
+	    int *capturePositions = new int[numBackRefs];
+	    int *captureNumbers = new int[numBackRefs];
+	    int j = 0;
+
+	    for ( int i = 0; i < al - 1; i++ ) {
+		if ( uc[i] == '\\' ) {
+		    int no = uc[i + 1].digitValue();
+		    if ( no > 0 && no <= numCaptures ) {
+			capturePositions[j] = i;
+			captureNumbers[j] = no;
+			j++;
+		    }
+		}
+	    }
+
 	    while ( index <= (int)length() ) {
-		index = rx2.search( *this, index );
+		index = rx2.search( *this, index, caretMode );
 		if ( index == -1 )
 		    break;
 
 		QString str2 = str;
-		for ( i = 0; i <= numCaptures; i++ ) {
-		    if ( capturePositions[i] != -1 )
-			str2.replace( capturePositions[i], 2, rx2.cap(i) );
-		}
+		for ( j = numBackRefs - 1; j >= 0; j-- )
+		    str2.replace( capturePositions[j], 2,
+				  rx2.cap(captureNumbers[j]) );
 
 		replace( index, rx2.matchedLength(), str2 );
 		index += str2.length();
 
-		// avoid infinite loop on 0-length matches (e.g., [a-z]*)
-		if ( rx2.matchedLength() == 0 )
+		if ( rx2.matchedLength() == 0 ) {
+		    // avoid infinite loop on 0-length matches (e.g., [a-z]*)
 		    index++;
+		} else if ( index == 0 ) {
+		    caretMode = QRegExp::CaretNeverMatches;
+		}
 	    }
+	    delete[] capturePositions;
+	    delete[] captureNumbers;
 	    return *this;
 	}
     }
 
-    // simple case without needing to worry about captures. can be optimised.
-
+    /*
+      This is the simple and optimized case where we don't have
+      back-references.
+    */
     while ( index != -1 ) {
 	struct {
 	    int pos;
@@ -15660,7 +15680,7 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
 	uint pos = 0;
 	int adjust = 0;
 	while( pos < 2047 ) {
-	    index = rx2.search( *this, index );
+	    index = rx2.search( *this, index, caretMode );
 	    if ( index == -1 )
 		break;
 	    int ml = rx2.matchedLength();
@@ -15676,10 +15696,12 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
 	    break;
 	replacements[pos].pos = d->len;
 	uint newlen = d->len + adjust;
-	// to continue searching at the right position after we did the first round of replacements
+
+	// to continue searching at the right position after we did
+	// the first round of replacements
 	if ( index != -1 )
 	    index += adjust;
-	QChar *newuc = QT_ALLOC_QCHAR_VEC( newlen+1 );
+	QChar *newuc = QT_ALLOC_QCHAR_VEC( newlen + 1 );
 	QChar *uc = newuc;
 	int copystart = 0;
 	uint i = 0;
@@ -15693,12 +15715,14 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
 	    copystart = copyend + replacements[i].length;
 	    i++;
 	}
-	memcpy( uc, d->unicode+copystart, (d->len-copystart)*sizeof(QChar) );
+	memcpy( uc, d->unicode + copystart,
+		(d->len - copystart) * sizeof(QChar) );
 	QT_DELETE_QCHAR_VEC( d->unicode );
 	d->unicode = newuc;
 	d->len = newlen;
-	d->maxl = newlen+1;
+	d->maxl = newlen + 1;
 	d->setDirty();
+	caretMode = QRegExp::CaretNeverMatches;
     }
     return *this;
 }

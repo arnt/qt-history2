@@ -49,6 +49,9 @@ struct QRegExpPrivate;
 class Q_EXPORT QRegExp
 {
 public:
+    enum CaretMode { CaretMatchesAtZero, CaretMatchesAtStartPos,
+		     CaretNeverMatches };
+
     QRegExp();
     QRegExp( const QString& pattern, bool caseSensitive = TRUE,
 	     bool wildcard = FALSE );
@@ -77,8 +80,19 @@ public:
     int match( const QString& str, int index = 0, int *len = 0,
 	       bool indexIsStart = TRUE ) const;
 #endif
+
+#if defined(qdoc)
+    int search( const QString& str, int start = 0,
+		CaretMode caretMode = CaretMatchesAtZero ) const;
+    int searchRev( const QString& str, int start = -1,
+		   CaretMode caretMode = CaretMatchesAtZero ) const;
+#else
+    // ### Qt 4.0: reduce these four to two functions
     int search( const QString& str, int start = 0 ) const;
+    int search( const QString& str, int start, CaretMode caretMode ) const;
     int searchRev( const QString& str, int start = -1 ) const;
+    int searchRev( const QString& str, int start, CaretMode caretMode ) const;
+#endif
     int matchedLength() const;
 #ifndef QT_NO_REGEXP_CAPTURE
     int numCaptures() const;
@@ -92,6 +106,8 @@ public:
 
 private:
     void compile( bool caseSensitive );
+
+    static int caretIndex( int start, CaretMode caretMode );
 
     QRegExpEngine *eng;
     QRegExpPrivate *priv;
