@@ -2,6 +2,8 @@
 
 
 @IGNORE = qw {
+    moc_yacc.h
+    y.tab.h
     qconfig.h
     qgfxlinuxfb_qws.h
     qgfxvnc_qws.h
@@ -48,7 +50,7 @@ if ( defined($ARGV[0]) && $ARGV[0] eq "--fix" ) {
     shift;
 }
 
-@QT_HEADERS = ();
+@QT_HEADERS = ("../kernel/qrichtext_p.h", "../widgets/qtitlebar_p.h");
 @QWS_HEADERS = ();
 
 opendir(INC, $DIR)
@@ -95,11 +97,14 @@ sub do_headers
 {
     my @HEADERS = @_;
     my %FILE;
-    my %LOCAL;
+    my %LOCAL = map { ($_ => 1) } @HEADERS;
     my %DEP;
     my %HEADERS;
     H: for $h ( @HEADERS ) {
-	open HEADER, "$DIR/$h";
+	$file="$DIR/$h";
+	open HEADER, $file
+	 or open HEADER, ($file="$DIR/../src/kernel/$h")
+	 or die "Cannot read $file";
 	$content = "" if $fix;
 	$found = 0;
 	while (<HEADER>) {

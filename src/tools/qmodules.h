@@ -1,4 +1,6 @@
 // These modules are licensed to 
+#ifndef QT_H
+#endif // QT_H
 #define QT_MODULE_TOOLS
 #define QT_MODULE_KERNEL
 #define QT_MODULE_WIDGETS

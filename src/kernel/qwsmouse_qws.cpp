@@ -37,24 +37,24 @@
 #include "qwsutils_qws.h"
 #include "qwsmouse_qws.h"
 
-#include <qapplication.h>
-#include <qpointarray.h>
-#include <qtimer.h>
-#include <qfile.h>
-#include <qtextstream.h>
+#include "qapplication.h"
+#include "qpointarray.h"
+#include "qtimer.h"
+#include "qfile.h"
+#include "qtextstream.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <termios.h>
+#include "sys/ioctl.h"
+#include "sys/types.h"
+#include "sys/stat.h"
+#include "unistd.h"
+#include "fcntl.h"
+#include "errno.h"
+#include "termios.h"
 
-#include <qgfx_qws.h>
+#include "qgfx_qws.h"
 
 #ifdef QT_QWS_CASSIOPEIA
 #include <linux/tpanel.h>

@@ -34,9 +34,9 @@
 #define QMEMORYMANAGER_H
 
 #ifndef QT_H
-#include <qfontmanager_qws.h>
-#include <qstring.h>
-#include <qmap.h>
+#include "qfontmanager_qws.h"
+#include "qstring.h"
+#include "qmap.h"
 #endif // QT_H
 
 class QFontDef;

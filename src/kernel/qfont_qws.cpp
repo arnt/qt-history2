@@ -498,6 +498,11 @@ int QFontMetrics::lineSpacing() const
     return leading() + height();
 }
 
+int QFontMetrics::charWidth( const QString &str, int pos ) const
+{
+    return width(str[pos]); // no shaping here
+}
+
 int QFontMetrics::width( QChar ch ) const
 {
     return memorymanager->lockGlyphMetrics(((QFontMetrics*)this)->internal()->handle(),ch)->advance;

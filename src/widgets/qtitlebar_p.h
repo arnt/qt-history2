@@ -55,7 +55,7 @@
 #ifndef QT_H
 #include "qlabel.h"
 #include "qpixmap.h"
-#endif //QT_H
+#endif // QT_H
 
 class QWorkspace;
 class QTitleBar;

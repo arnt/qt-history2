@@ -38,19 +38,19 @@
 #include "qwsdisplay_qws.h"
 #include "qwsmouse_qws.h"
 
-#include <qapplication.h>
-#include <qsocketnotifier.h>
-#include <qpointarray.h> //cursor test code
-#include <qimage.h>
-#include <qcursor.h>
-#include <qgfx_qws.h>
-#include <qwindowdefs.h>
-#include <qlock_qws.h>
-#include <qwsregionmanager_qws.h>
-#include <qqueue.h>
-#include <qfile.h>
+#include "qapplication.h"
+#include "qsocketnotifier.h"
+#include "qpointarray.h" //cursor test code
+#include "qimage.h"
+#include "qcursor.h"
+#include "qgfx_qws.h"
+#include "qwindowdefs.h"
+#include "qlock_qws.h"
+#include "qwsregionmanager_qws.h"
+#include "qqueue.h"
+#include "qfile.h"
 
-#include <qpen.h>
+#include "qpen.h"
 
 
 #include <stdlib.h>
