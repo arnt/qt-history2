@@ -1491,7 +1491,9 @@ void QLineEdit::keyPressEvent( QKeyEvent * e )
 	const QValidator * v = d->validator;
 	if ( hasAcceptableInput() ) {
 	    emit returnPressed();
-	} else if ( v && v->validate( d->text, d->cursor ) != QValidator::Acceptable ) {
+	}
+#ifndef QT_NO_VALIDATOR
+	else if ( v && v->validate( d->text, d->cursor ) != QValidator::Acceptable ) {
 	    QString vstr = d->text;
 	    v->fixup( vstr );
 	    if ( vstr != d->text ) {
@@ -1500,6 +1502,7 @@ void QLineEdit::keyPressEvent( QKeyEvent * e )
 		    emit returnPressed();
 	    }
 	}
+#endif
 	e->ignore();
 	return;
     }
