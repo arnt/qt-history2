@@ -7,7 +7,7 @@
 ** place of a destructor.
 *****************************************************************************/
 
-// PageEditDialog includes
+// Local includes
 #include "pageeditdialog.h"
 
 // Qt includes
@@ -22,101 +22,41 @@
 
 #include <unistd.h>
 
-// X includes
-#include <X11/Intrinsic.h>
-#include <X11/StringDefs.h>
-#include <X11/Xatom.h>
-
 // Motif includes
 #include <Xm/Xm.h>
-#include <Xm/Text.h>
 
 // Demo includes
 #include "page.h"
 
 extern "C" {
-#include <Exm/TabB.h>
 #include <Xmd/Print.h>
-} // extern "C"
-
-void ReadDB(char*);
-void SaveDB(char*);
-
-extern Widget notebook, textw, labelw;
+}
 
 extern int modified;
 
 
-void MainWindow::fileNew()
+// Helper function
+static
+void AdjustPages(int startpage, int ins)
 {
-    char buf[128];
-    char *str;
-    Boolean found = False;
-    int i = 0;
+  int i;
 
-    while(! found) {
-	sprintf(buf, "untitled%d.todo", i++);
-	found = access(buf, F_OK) != 0;
-    }
+  /* ins is either +1 or -1 for insert or delete a page */
 
-    str = XtNewString(buf);
-    ReadDB(str);
-    XtFree(options.todoFile);
-    options.todoFile = str;
-
-    statusBar()->message( tr("Created new file '%1'").
-			  arg( QString::fromLocal8Bit( options.todoFile ) ) );
-
-    SetPage(0);
-}
-
-
-void MainWindow::fileOpen()
-{
-    QString filename =
-	QFileDialog::getOpenFileName( QString::null, QString::null, this );
-
-    if ( ! filename.isEmpty() ) {
-	char *str = qstrdup( filename.local8Bit() );
-	ReadDB(str);
-	XtFree(options.todoFile);
-	options.todoFile = str;
-
-	statusBar()->message( tr("Opened file '%1'").
-			      arg( QString::fromLocal8Bit( options.todoFile ) ) );
-    }
-}
-
-
-void MainWindow::fileSave()
-{
-    SaveDB(options.todoFile);
-
-    statusBar()->message( tr("Saved file '%1'").
-			  arg( QString::fromLocal8Bit( options.todoFile ) ) );
-}
-
-
-void MainWindow::fileSaveAs()
-{
-  QString filename =
-      QFileDialog::getSaveFileName( QString::null, QString::null, this );
-
-  if ( ! filename.isEmpty() ) {
-    char *str = qstrdup( filename.local8Bit() );
-    SaveDB(str);
-    XtFree(options.todoFile);
-    options.todoFile = str;
-
-    statusBar()->message( tr("Saved file '%1'").
-			  arg( QString::fromLocal8Bit( options.todoFile ) ) );
+  if (ins > 0) {
+    for(i = maxpages; i >= startpage; i--)
+      pages[i + 1] = pages[i];
+    maxpages += 1;
+  } else {
+    for(i = startpage; i <= maxpages; i++)
+      pages[i] = pages[i + 1];
+    maxpages -= 1;
   }
 }
 
-
 // Print callback called by the print dialog
-static void
-Print(Widget, char *, XmdPrintCallbackStruct *cb)
+static
+void Print(Widget, char *, XmdPrintCallbackStruct *cb)
 {
   int i;
   FILE *temp;
@@ -144,6 +84,71 @@ Print(Widget, char *, XmdPrintCallbackStruct *cb)
 
   fclose(temp);
   XmdPrintDocument("/tmp/.todoout", cb);
+}
+
+
+void MainWindow::fileNew()
+{
+    char buf[128];
+    Boolean found = False;
+    int i = 0;
+
+    while(! found) {
+	sprintf(buf, "untitled%d.todo", i++);
+	found = access(buf, F_OK) != 0;
+    }
+
+    delete [] options.todoFile;
+    options.todoFile = qstrdup( buf );
+    readDB( options.todoFile );
+
+    statusBar()->message( tr("Created new file '%1'").
+			  arg( QString::fromLocal8Bit( options.todoFile ) ) );
+
+    setPage( 0 );
+}
+
+
+void MainWindow::fileOpen()
+{
+    QString filename =
+	QFileDialog::getOpenFileName( QString::null, QString::null, this );
+
+    if ( ! filename.isEmpty() ) {
+	delete [] options.todoFile;
+	options.todoFile = qstrdup( filename.local8Bit() );
+	readDB( options.todoFile );
+
+	statusBar()->message( tr("Opened file '%1'").
+			      arg( QString::fromLocal8Bit( options.todoFile ) ) );
+
+	setPage( currentPage );
+    }
+}
+
+
+void MainWindow::fileSave()
+{
+    saveDB( options.todoFile );
+
+    statusBar()->message( tr("Saved file '%1'").
+			  arg( QString::fromLocal8Bit( options.todoFile ) ) );
+}
+
+
+void MainWindow::fileSaveAs()
+{
+    QString filename =
+	QFileDialog::getSaveFileName( QString::null, QString::null, this );
+
+    if ( ! filename.isEmpty() ) {
+	delete [] options.todoFile;
+	options.todoFile = qstrdup( filename.local8Bit() );
+	saveDB( options.todoFile );
+
+	statusBar()->message( tr("Saved file '%1'").
+			      arg( QString::fromLocal8Bit( options.todoFile ) ) );
+    }
 }
 
 
@@ -193,9 +198,6 @@ void MainWindow::selProperties()
 	return;
 
     char *temp;
-    XmString tstr;
-    Arg args[5];
-    int i;
 
     QString qstr = pedlg.titleEdit->text().simplifyWhiteSpace();
     pages[currentPage]->label = qstrdup( qstr.local8Bit().data() );
@@ -209,8 +211,6 @@ void MainWindow::selProperties()
     else {
 	XtFree(temp);
 	pages[currentPage] -> minorTab = NULL;
-	if (pages[currentPage] -> minorPB)
-	    XtUnmanageChild(pages[currentPage] -> minorPB);
     }
 
     if (pages[currentPage] -> majorTab != NULL)
@@ -222,66 +222,27 @@ void MainWindow::selProperties()
     else {
 	XtFree(temp);
 	pages[currentPage] -> majorTab = NULL;
-	if (pages[currentPage] -> majorPB)
-	    XtUnmanageChild(pages[currentPage] -> majorPB);
-    }
-
-    if (pages[currentPage] -> majorTab != NULL) {
-	if (pages[currentPage] -> majorPB == (Widget) 0) {
-	    i = 0;
-	    XtSetArg(args[i], XmNpageNumber, currentPage + 1); i++;
-	    XtSetArg(args[i], XmNnotebookChildType, XmMAJOR_TAB); i++;
-	    XtSetArg(args[i], XmNshadowThickness, 1); i++;
-	    pages[currentPage] -> majorPB =
-		ExmCreateTabButton(notebook, "atab", args, i);
-	}
-	tstr = XmStringGenerate(pages[currentPage] -> majorTab, NULL,
-				XmCHARSET_TEXT, NULL);
-	XtSetArg(args[0], ExmNcompoundString, tstr);
-	XtSetValues(pages[currentPage] -> majorPB, args, 1);
-	XtManageChild(pages[currentPage] -> majorPB);
-    }
-
-    if (pages[currentPage] -> minorTab != NULL) {
-	if (pages[currentPage] -> minorPB == (Widget) 0) {
-	    i = 0;
-	    XtSetArg(args[i], XmNpageNumber, currentPage + 1); i++;
-	    XtSetArg(args[i], XmNnotebookChildType, XmMINOR_TAB); i++;
-	    XtSetArg(args[i], XmNshadowThickness, 1); i++;
-	    pages[currentPage] -> minorPB =
-		ExmCreateTabButton(notebook, "atab", args, i);
-	}
-	tstr = XmStringGenerate(pages[currentPage] -> minorTab, NULL,
-				XmCHARSET_TEXT, NULL);
-	XtSetArg(args[0], ExmNcompoundString, tstr);
-	XtSetValues(pages[currentPage] -> minorPB, args, 1);
-	XtManageChild(pages[currentPage] -> minorPB);
     }
 
     /* Get contents before update */
-    XtFree(pages[currentPage] -> page);
-    pages[currentPage] -> page = XmTextGetString(textw);
+    delete pages[currentPage] -> page;
+    pages[currentPage] -> page = qstrdup( textedit->text().local8Bit() );
 
-    SetPage(currentPage);
+    setPage(currentPage);
 }
 
 
 void MainWindow::selNewPage()
 {
-    Arg args[2];
-
     if (modified && pages[currentPage] != NULL) {
-	if (pages[currentPage] -> page != NULL)
-	    XtFree(pages[currentPage] -> page);
-	pages[currentPage] -> page = XmTextGetString(textw);
+	delete pages[currentPage] -> page;
+	pages[currentPage] -> page = qstrdup( textedit->text().local8Bit() );
     }
     AdjustPages(currentPage, 1);
     pages[currentPage] = new Page();
-    FixPages();
-    XtSetArg(args[0], XmNcurrentPageNumber, (currentPage + 1));
-    XtSetArg(args[1], XmNlastPageNumber, (maxpages + 1));
-    XtSetValues(notebook, args, 2);
-    SetPage(currentPage);
+    spinbox->setMaxValue( maxpages + 1 );
+    spinbox->setValue( currentPage + 1 );
+    setPage(currentPage);
 }
 
 
@@ -294,8 +255,6 @@ void MainWindow::selDeletePage()
     if ( result != QMessageBox::Yes )
 	return;
 
-    Arg args[2];
-
     delete pages[currentPage];
     pages[currentPage] = 0;
 
@@ -304,16 +263,73 @@ void MainWindow::selDeletePage()
     /* If there are no more pages left,  then create a blank one */
     if (maxpages < 0) {
 	pages[0] = new Page();
-	pages[0] -> page = XtMalloc(2);
-	pages[0] -> page[0] = 0;
 	maxpages = 0;
     }
 
-    FixPages();
-    XtSetArg(args[0], XmNcurrentPageNumber, (currentPage + 1));
-    XtSetArg(args[1], XmNlastPageNumber, (maxpages + 1));
-    XtSetValues(notebook, args, 2);
-    SetPage(currentPage);
+    spinbox->setMaxValue( maxpages + 1 );
+    spinbox->setValue( currentPage + 1 );
+    setPage(currentPage);
+}
+
+
+void MainWindow::setPage( int pageNumber )
+{
+    currentPage = pageNumber;
+    if (pageNumber <= maxpages)
+	spinbox->setValue( pageNumber + 1 );
+
+    if ( pages[pageNumber] ) {
+	textedit->setText( QString::fromLocal8Bit( pages[pageNumber]->page ) );
+	textedit->setCursorPosition( pages[pageNumber]->lasttoppos,
+				     pages[pageNumber]->lastcursorpos );
+
+	QString labeltext;
+	if ( pages[pageNumber]->label ) {
+	    labeltext =
+		QString::fromLocal8Bit( pages[pageNumber]->label );
+	} else {
+	    labeltext =
+		QString::fromLocal8Bit("Page %1" ). arg( pageNumber + 1 );
+	}
+
+	if ( pages[pageNumber]->majorTab ) {
+	    labeltext +=
+		QString::fromLocal8Bit( " - " ) +
+		QString::fromLocal8Bit( pages[pageNumber]->majorTab );
+	}
+
+	if ( pages[pageNumber]->minorTab ) {
+	    labeltext +=
+		QString::fromLocal8Bit( " - " ) +
+		QString::fromLocal8Bit( pages[pageNumber]->minorTab );
+	}
+    } else {
+	textedit->clear();
+
+	QString labeltext =
+	    QString::fromLocal8Bit("Page %1 (Invalid Page)").arg( pageNumber + 1 );
+	textlabel->setText( labeltext );
+    }
+}
+
+
+void MainWindow::pageChange( int pageNumber )
+{
+    if ( modified && pages[currentPage] ) {
+	delete pages[currentPage]->page;
+	pages[currentPage]->page = qstrdup( textedit->text().local8Bit() );
+
+	textedit->getCursorPosition( &pages[currentPage]->lasttoppos,
+				     &pages[currentPage]->lastcursorpos );
+    }
+
+    setPage( pageNumber - 1 );
+}
+
+
+void MainWindow::textChanged()
+{
+    modified = 1;
 }
 
 // EOF

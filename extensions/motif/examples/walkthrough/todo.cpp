@@ -43,29 +43,19 @@ static char *rcsid = "$XConsortium: todo.c /main/6 1995/07/14 09:46:43 drk $";
 #endif
 #endif
 
-// MainWindow includes
+// Local includes
 #include "mainwindow.h"
+#include "page.h"
 
 // Qt includes
 #include <qapplication.h>
 #include <qmotif.h>
-#include <qmotifwidget.h>
 
 #include <pwd.h>
 #include <unistd.h>
 #include <stdlib.h>
 
-// Motif includes
-#include <Xm/Xm.h>
-#include <Xm/Label.h>
-#include <Xm/Notebook.h>
-#include <Xm/Text.h>
-
-#include "page.h"
-
 #define APP_CLASS "XmdTodo"
-
-void ReadDB(char*);
 
 // Global data
 Page *pages[MAXPAGES];
@@ -74,35 +64,12 @@ int maxpages = 0;
 
 Options options;
 
-Widget notebook, textw, labelw;
-
 int modified = 0;
-
-
-static void TextChanged(Widget, XtPointer, XtPointer)
-{ modified = 1; }
-
-
-static void
-PageChange(Widget, XtPointer, XmNotebookCallbackStruct *cs)
-{
-  if (modified && pages[currentPage] != NULL) {
-    if (pages[currentPage] -> page != NULL)
-      XtFree(pages[currentPage] -> page);
-    pages[currentPage] -> page = XmTextGetString(textw);
-    pages[currentPage] -> lasttoppos = XmTextGetTopCharacter(textw);
-    pages[currentPage] -> lastcursorpos = XmTextGetInsertionPosition(textw);
-  }
-
-  SetPage(cs -> page_number - 1);
-}
 
 
 int main( int argc, char **argv )
 {
-  XtAppContext context;
-  Arg args[10];
-  int n, i;
+  int i;
   char temppath[256];
 
   if (argc == 2 && strcmp(argv[1], "-help") == 0) {
@@ -115,35 +82,6 @@ int main( int argc, char **argv )
   MainWindow mainwindow;
   app.setMainWidget( &mainwindow );
 
-  context	= integrator.applicationContext();
-
-  n = 0;
-  XtSetArg(args[n], XmNcurrentPageNumber, 1); n++;
-  XtSetArg(args[n], XmNlastPageNumber, 100); n++;
-
-  QMotifWidget *center =
-      new QMotifWidget( &mainwindow, xmNotebookWidgetClass,
-			args, n, "notebook" );
-  mainwindow.setCentralWidget( center );
-  notebook = center->motifWidget();
-
-  XtAddCallback(notebook, XmNpageChangedCallback,
-		(XtCallbackProc) PageChange, NULL);
-
-  n = 0;
-  XtSetArg(args[n], XmNpageNumber, 1); n++;
-  XtSetArg(args[n], XmNeditMode, XmMULTI_LINE_EDIT); n++;
-  textw = XmCreateScrolledText(notebook, "text", args, n);
-  XtManageChild(textw);
-  XtAddCallback(textw, XmNvalueChangedCallback,
-		(XtCallbackProc) TextChanged, NULL);
-
-  n = 0;
-  XtSetArg(args[n], XmNnotebookChildType, XmSTATUS_AREA); n++;
-  XtSetArg(args[n], XmNpageNumber, 1); n++;
-  labelw = XmCreateLabel(notebook, "label", args, n);
-  XtManageChild(labelw);
-
   struct passwd *user = getpwuid(getuid());
   for (i = 0; i < MAXPAGES; i++) {
     pages[i] = NULL;
@@ -152,15 +90,16 @@ int main( int argc, char **argv )
   if (options.todoFile == NULL) {
     strcpy(temppath, user -> pw_dir);
     strcat(temppath, "/.todo");
-    options.todoFile = XtNewString(temppath);
+    options.todoFile = qstrdup( temppath );
   } else {
     /* Copy the string for consistency */
-    options.todoFile = XtNewString(options.todoFile);
+    options.todoFile = qstrdup( options.todoFile );
   }
 
-  ReadDB(options.todoFile);
-  SetPage(0);
+  mainwindow.readDB(options.todoFile);
+  mainwindow.setPage(0);
 
   mainwindow.show();
+
   return app.exec();
 }

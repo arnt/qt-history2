@@ -43,28 +43,18 @@ static char *rcsid = "$XConsortium: io.c /main/6 1995/07/14 09:46:23 drk $";
 #endif
 #endif
 
+// Local includes
+#include "mainwindow.h"
+#include "page.h"
+
 // Qt includes
 #include <qmessagebox.h>
+#include <qspinbox.h>
+#include <qtextedit.h>
 
 #include <unistd.h>
 
-// Motif includes
-#include <Xm/Xm.h>
-#include <Xm/Text.h>
-
-#include "page.h"
-
-// Demo includes
-extern "C" {
-#include <Exm/TabB.h>
-}
-
-extern Widget notebook, textw;
-
 extern int modified;
-
-void ReadDB(char*);
-void SaveDB(char*);
 
 
 /* Pages are stored pretty simply:
@@ -122,22 +112,19 @@ static void PrintWithNewLines(FILE *output, char *label)
     fprintf(output,"\n"); label ++ ;
 }
 
-void
-ReadDB(char* filename)
+void MainWindow::readDB( char *filename )
 {
   FILE *input;
   int i, number, first = 1;
   char *buffer;
   int max, current;
   char line[1024];
-  Arg args[5];
-  Widget tab;
 
   input = fopen(filename, "r");
 
   if (input == NULL && strncmp(filename,"untitled",8) != 0) {
     QString message = "Cannot access (%1) for reading";
-    QMessageBox::warning( 0, "IO Error", message.arg(filename) );
+    QMessageBox::warning( this, "IO Error", message.arg(filename) );
   }
 
   /* Destroy current pages on reread */
@@ -148,10 +135,9 @@ ReadDB(char* filename)
 
   number = 0;
 
-
   if (input != NULL) {
     max = MAXINIT;
-    buffer = (char*) XtMalloc(max);
+    buffer = new char[max];
     buffer[0] = 0; /* Reset page buffer */
     current = 0;
     pages[0] = new Page();
@@ -168,54 +154,32 @@ ReadDB(char* filename)
 		pages[number] -> page = buffer;
 		current = 0;
 		max = MAXINIT;
-		buffer = (char*) XtMalloc(max);
+		buffer = new char[max];
 		buffer[0] = 0; /* Reset page buffer */
 		number++;
 		pages[number] = new Page();
 	      }
 	      if (strlen(line) > 3) {
 		line[strlen(line) - 1] = 0; /* Remove newline */
-		pages[number] -> label = XtNewString(&line[2]);
+		pages[number] -> label = qstrdup( &line[2] );
 	      }
 	    }
 	  else if (line[1] == 'T') /* Tab */
 	    {
-	      XmString name;
 	      line[strlen(line) - 1] = 0; /* Remove newline */
 	      if (strlen(line) > 3) {
-		pages[number] -> majorTab = XtNewString(&line[2]);
+		pages[number] -> majorTab = qstrdup( &line[2] );
 		i = 0;
 		ParseNewLines(pages[number] -> majorTab);
-		name = XmStringGenerate(pages[number] -> majorTab, NULL,
-					XmCHARSET_TEXT, NULL);
-		XtSetArg(args[i], XmNnotebookChildType, XmMAJOR_TAB); i++;
-		XtSetArg(args[i], XmNpageNumber, (number + 1)); i++;
-		XtSetArg(args[i], ExmNcompoundString, name); i++;
-		XtSetArg(args[i], XmNshadowThickness, 1); i++;
-		tab = ExmCreateTabButton(notebook, "atab", args, i);
-		XtManageChild(tab);
-		pages[number] -> majorPB = tab;
-		XmStringFree(name);
 	      }
 	    }
 	  else if (line[1] == 'M') /* Minor Tab */
 	    {
-	      XmString name;
 	      line[strlen(line) - 1] = 0; /* Remove newline */
 	      if (strlen(line) > 3) {
-		pages[number] -> minorTab = XtNewString(&line[2]);
+		pages[number] -> minorTab = qstrdup( &line[2] );
 		i = 0;
 		ParseNewLines(pages[number] -> minorTab);
-		name = XmStringGenerate(pages[number] -> minorTab, NULL,
-					XmCHARSET_TEXT, NULL);
-		XtSetArg(args[i], XmNnotebookChildType, XmMINOR_TAB); i++;
-		XtSetArg(args[i], XmNpageNumber, (number + 1)); i++;
-		XtSetArg(args[i], ExmNcompoundString, name); i++;
-		XtSetArg(args[i], XmNshadowThickness, 1); i++;
-		tab = ExmCreateTabButton(notebook, "atab", args, i);
-		pages[number] -> minorPB = tab;
-		XtManageChild(tab);
-		XmStringFree(name);
 	      }
 	    }
 	  else if (line[1] == 'C') /* Cursor position */
@@ -231,8 +195,17 @@ ReadDB(char* filename)
 	{
 	  current += strlen(&line[1]);
 	  if ((current - 2) > max) {
-	    max = 2 * max;
-	    buffer=(char*) XtRealloc(buffer, max);
+	    // C++ doesn't have 'renew', so we need to create a new
+	    // buffer, copy the existing data from old to new and then
+	    // delete the old
+
+	    int newmax = 2 * max;
+	    char *b = new char[newmax];
+	    memcpy( b, buffer, max );
+
+	    delete [] buffer;
+	    buffer = b;
+	    max = newmax;
 	  }
 	  strcat(buffer, &line[1]);
 	}
@@ -243,24 +216,18 @@ ReadDB(char* filename)
   if (input == NULL) {
     number = 0;
     pages[0] = new Page();
-    pages[0] -> page = XtMalloc(2);
-    pages[0] -> page[0] = 0;
   } else {
     pages[number] -> page = buffer;
   }
 
   maxpages = number;
-
-  i = 0;
-  XtSetArg(args[i], XmNlastPageNumber, maxpages + 1); i++;
-  XtSetArg(args[i], XmNcurrentPageNumber, 1); i++;
-  XtSetValues(notebook, args, i);
+  spinbox->setMaxValue( maxpages + 1 );
+  spinbox->setValue( 1 );
 
   if (input) fclose(input);
 }
 
-void
-SaveDB(char* filename)
+void MainWindow::saveDB( char *filename )
 {
   int number;
   FILE *output;
@@ -270,7 +237,7 @@ SaveDB(char* filename)
   if (access(filename, F_OK) == 0 &&
       access(filename, W_OK) != 0) {
     QString message = "Cannot access (%1) for writing";
-    QMessageBox::warning( 0, "IO Error", message.arg(filename) );
+    QMessageBox::warning( this, "IO Error", message.arg(filename) );
     return;
   }
 
@@ -283,9 +250,8 @@ SaveDB(char* filename)
 
   /* Make sure to grab current page */
   if (modified) {
-    if (pages[currentPage] -> page != NULL)
-      XtFree(pages[currentPage] -> page);
-    pages[currentPage] -> page = XmTextGetString(textw);
+    delete pages[currentPage] -> page;
+    pages[currentPage] -> page = qstrdup( textedit->text().local8Bit() );
   }
 
   output = fopen(filename, "w");

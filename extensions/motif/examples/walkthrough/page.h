@@ -51,40 +51,23 @@ static char *rcsidpageH = "$XConsortium: page.h /main/5 1995/07/14 09:46:34 drk 
 
 struct Page {
     Page()
-	: page( 0 ),
-	  majorTab( 0 ),
-	  minorTab( 0 ),
-	  label( 0 ),
-	  minorPB( (Widget) 0 ),
-	  majorPB( (Widget) 0 ),
-	  lasttoppos( 0 ),
-	  lastcursorpos( 0 )
+	: page( 0 ), majorTab( 0 ), minorTab( 0 ),
+	  label( 0 ), lasttoppos( 0 ), lastcursorpos( 0 )
     {
     }
 
     ~Page()
     {
-	if ( page )
-	    XtFree( page );
-	if ( majorTab )
-	    XtFree( majorTab );
-	if ( minorTab )
-	    XtFree( minorTab );
-	if ( label )
-	    XtFree( label );
-
-	if ( minorPB )
-	    XtDestroyWidget( minorPB );
-	if ( majorPB )
-	    XtDestroyWidget( majorPB );
+	delete [] page;
+	delete [] majorTab;
+	delete [] minorTab;
+	delete [] label;
     }
 
     char *page;
     char *majorTab;
     char *minorTab;
     char *label;
-    Widget minorPB;
-    Widget majorPB;
     int lasttoppos;
     int lastcursorpos;
 };
@@ -93,23 +76,11 @@ extern Page *pages[];
 extern int currentPage;
 extern int maxpages;
 
-void SetPage(int);
-void AdjustPages(int, int);
-void FixPages();
-
 struct Options {
-    Options()
-	: todoFile( 0 )
-    {
-    }
+    Options() : todoFile( 0 ) { }
+    ~Options() { delete [] todoFile; }
 
-    ~Options()
-    {
-	if ( todoFile )
-	    XtFree( todoFile );
-    }
-
-    String todoFile;
+    char *todoFile;
 };
 
 extern Options options;

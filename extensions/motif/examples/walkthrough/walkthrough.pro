@@ -17,17 +17,13 @@ HEADERS += page.h \
            Exm/ExmStringP.h \
            Exm/Simple.h \
            Exm/SimpleP.h \
-           Exm/TabB.h \
-           Exm/TabBP.h \
            Xmd/Menus.h \
            Xmd/Print.h \
            Xmd/PrintP.h
-SOURCES += actions.cpp \
-           io.cpp \
+SOURCES += io.cpp \
            todo.cpp \
            Exm/CommandB.c \
            Exm/ExmString.c \
            Exm/Simple.c \
-           Exm/TabB.c \
            Xmd/Menus.c \
            Xmd/Print.c

@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>MainWindow</class>
 <widget class="QMainWindow">
     <property name="name">
@@ -15,6 +15,55 @@
     <property name="caption">
         <string>Qt Motif Extension - A Migration Walkthrough</string>
     </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
+            <number>2</number>
+        </property>
+        <widget class="QLabel" row="1" column="1">
+            <property name="name">
+                <cstring>textlabel</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>3</hsizetype>
+                    <vsizetype>5</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
+            </property>
+            <property name="frameShape">
+                <enum>NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+                <enum>Plain</enum>
+            </property>
+            <property name="alignment">
+                <set>AlignCenter</set>
+            </property>
+        </widget>
+        <widget class="QSpinBox" row="1" column="2">
+            <property name="name">
+                <cstring>spinbox</cstring>
+            </property>
+            <property name="maxValue">
+                <number>1</number>
+            </property>
+            <property name="minValue">
+                <number>1</number>
+            </property>
+        </widget>
+        <widget class="QTextEdit" row="0" column="1" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>textedit</cstring>
+            </property>
+            <property name="textFormat">
+                <enum>PlainText</enum>
+            </property>
+        </widget>
+    </grid>
 </widget>
 <menubar>
     <property name="name">
@@ -210,21 +259,6 @@
     <image name="image3">
         <data format="XPM.GZ" length="2509">789c7d944973db381085effe152af7cd35d5a1242e604dcdc189b37a899d65e2646a0e240168b32cc992bc646afefb34ba1b509671f40c9a9fde43a349507c72d0bb3c3fed1d3cd95b6f9acda4eb75e3e6a67760b7f3f9c35f7ffff1cfdefe60d0a33f637a83fddff6f62f36bdae77b6b87601704000197f98df331bef3313186e03f7b3ccf4c5ff281cc47e9798f378ca6c22835336ea1f461e48bd93c0832c325c0907b1ff3571cdfe9cb94ebc5536cad791877d9eff4ed87bf5178187fde47f101e66c2b04ccc79fc22ecbdfa2be63afab051369a7f889c4b7e1d38ef47c685709ea93f666e7253f0e620f75f34455634ecdf28d7a5f8af853ba77e1bb86cca7ec98c4be55af93e723564fe2cecbdd6e3fb5d0d93cfd753b555bf6a99d7918df899b0f7ea737f6658d5ea6f13b30f23615308233f4fa6adea3a677f229cfcbbc8ea4f95adfa26b2f8c8cf439d478659e28ed90bd75a0f5789d9c737c25da9f32d73177d682237327fa6acf5f12cb2faaf843ba77c1cb8c9a30f9858e64f849b587f9858d607e62ee5ff148e3e5a65a73c8ddc4abd3a709b2706e1b654e6eb6b6deb5acb5c09db52997fdf5dd1955dc15c305b62f15b65a79c47b6927f11d816895f2696f7cf58d896ea3f4f2cfe85b0f7ea3f6576c9ef477625f34839d63f8aac7e19d89589bdb08bf39f2596f997c2deabff96d925df293be54f817d19c47ccecc1f79f9ee84800db6aa8ed4902c36d1ff29dfa0439fe458a35fe63b56ac2f6b748fe6813b08023dc2e3fd502d2bf552efe11c76891ff2bbba4d4aff3a0fa9aea4c3b08fe6bbef6aa72b79346fe9ae78ba7f3b8d694c48d31ff354678657d4cf98e6ec469833c76b5ce032ac13f3945ee10dae71f39db6788b77788f0ff8150f69ce44f25cfb293ec3233a3e57bdc097f80a5fe31b3ca6e409e9141fe4f78a67f816cf7fd205bec3f7345a5ae503d5ff8827f2bec04fff933ec74bfc8c5f30a3b33ef5768803cd0f69f51c0b1a63ee648425777644e715f5153c43dd0cf050debf58e394561902d2dce3f0c8e0844638030877c2400b5daa3fa7f454b2ac331e2c68c082c53bc98393f73757fc26473567922435388711b4a11f186b7dae9c52e93f555e916b6082f7d08143abf547f4cd1d4c694ce8cae46842926acff89b161c78d95f6ae62aec1fd011e6ac6b589096a41569c9e7fedbe7072ddcc09ab48125ed0d09b6b0a5f98e744bfb3bd3e7eddfdff7fe0305be5c9c</data>
     </image>
-    <image name="image4">
-        <data format="XPM.GZ" length="661">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523232520022630543251d2e253d856405bffcbc54105b19c8563600020b63103711c4b530b6308470f5b082019251068344848c32b23808206494a1e23015890819653db8b81e44255c0659025d460fa70c6e3d78ec814b21b90d052422fb070540f50ebaf84196a9b5e6020008a373c8</data>
-    </image>
-    <image name="image5">
-        <data format="XPM.GZ" length="661">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523232520022630543251d2e253d856405bffcbc54103b11c8563600020b63105719c4b530b6308470f5b0027acb28278201a64c221c4084136132ca7011885c225c06c91890542256193d98a198327a386570ea49449581bb4d2f114d0624a08c230c50fd4f5cb80da04cad351700eee4866e</data>
-    </image>
-    <image name="image6">
-        <data format="XPM.GZ" length="661">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523232520022630543251d2e253d856405bffcbc54105b19c856360003103711c6b53006abc40a90649491482ac92863955146d6822ca387474619c9301419a03842825819245bd064129513b1cb242602512216994430d44bc4904984c8c1a5e032897a3019a8144c26518f800c92715864d0ec81ab4dc4701b924fb0850e8a4cad351700fe117ccc</data>
-    </image>
-    <image name="image7">
-        <data format="XPM.GZ" length="706">789c9d92cb0ac2301045f7f98aa1d915b1da82b4889fa0b814c4c54c6ad14515b42e44fc773b79d057ace04da073399c5042a21076db358491b857589d15a813de20cc1f65f9dc1f562f11c431d47b01f36022822928d85c2f479e653dcb990e5772354db82aae4996a8a2e09a734d29cd4c45ae858e3ed69b71226d3c04757ac81036b05edf1ceca0b643364387ccd7a2c69148c625453d079d936be47350239f637ec3e318ec733aa4edd8f997633374dc4d0d9d86fce1b433f60ede4bf101a375a557</data>
-    </image>
-    <image name="image8">
-        <data format="XPM.GZ" length="736">789c7d92d10a82301486ef7d8ae1ee24321561103d42d165105dcce3465d54507611d1bbb7736cbaadd93f85fd7efb183af38cedb66b96e5c9bd93dd09181ce58d65ede37c7eee0fab57929625339760453a4bd23903b6b95e14ceb999f30505abb255545801aba844d1d3c6d69eb658a186126aac12ab36e9176b5bb5a64da37108c784841e7229251f319101b8885e8837d018c2e9a6b925585a1b6a9640030ec1e63a6302c71faee38fd051434247f51f4c2bad4247936008a2b88368c23128ea50628e9e741ce23bdfcd9cf3e1bf8e3d5fe5e5cf1ff25e261ff1b8c16c</data>
-    </image>
 </images>
 <connections>
     <connection>
@@ -281,6 +315,18 @@
         <receiver>MainWindow</receiver>
         <slot>selProperties()</slot>
     </connection>
+    <connection>
+        <sender>spinbox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>MainWindow</receiver>
+        <slot>pageChange(int)</slot>
+    </connection>
+    <connection>
+        <sender>textedit</sender>
+        <signal>textChanged()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>textChanged()</slot>
+    </connection>
 </connections>
 <includes>
     <include location="local" impldecl="in implementation">mainwindow.ui.h</include>
@@ -295,6 +341,13 @@
     <slot>selProperties()</slot>
     <slot>selNewPage()</slot>
     <slot>selDeletePage()</slot>
+    <slot>pageChange( int pageNumber )</slot>
+    <slot>textChanged()</slot>
 </slots>
+<functions>
+    <function>setPage( int pageNumber )</function>
+    <function>readDB( char *filename )</function>
+    <function>saveDB( char *filename )</function>
+</functions>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
