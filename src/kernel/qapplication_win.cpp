@@ -45,6 +45,7 @@
 #include "qclipboard.h"
 #include "qwhatsthis.h" // ######## dependency
 #include "qt_windows.h"
+
 #include <windowsx.h>
 #include <limits.h>
 #include <string.h>
@@ -2100,34 +2101,33 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			break;
 		    }
 
-		    QAccessibleInterface *acc = 0;
-		    QAccessible::queryAccessibleInterface( widget, &acc );
-		    if ( !acc ) {
-			result = FALSE;
-			break;
+		    static bool oleaccChecked = FALSE;
+		    static bool oleaccPresent = FALSE;
+		    if ( !oleaccChecked ) {
+			oleaccChecked = TRUE;
+			DWORD res = SearchPathA( NULL, "oleacc.dll", NULL, 0, NULL, NULL ); // ANSI is enough
+			oleaccPresent = res != 0;
 		    }
+		    if ( oleaccPresent ) {
+			QAccessibleInterface *acc = 0;
+			QAccessible::queryAccessibleInterface( widget, &acc );
+			if ( !acc ) {
+			    result = FALSE;
+			    break;
+			}
 
-		    QEvent e( QEvent::Accessibility );
-		    QApplication::sendEvent( widget, &e );
+			QEvent e( QEvent::Accessibility );
+			QApplication::sendEvent( widget, &e );
 
-		    // and get an instance of the IAccessibile implementation
-		    IAccessible *iface = qt_createWindowsAccessible( acc );
-		    acc->release();
-		    LRESULT res = LresultFromObject( IID_IAccessible, wParam, iface );  // ref == 2
-		    iface->Release(); // the client will release the object again, and then it will destroy itself
+			// and get an instance of the IAccessibile implementation
+			IAccessible *iface = qt_createWindowsAccessible( acc );
+			acc->release();
+			LRESULT res = LresultFromObject( IID_IAccessible, wParam, iface );  // ref == 2
+			iface->Release(); // the client will release the object again, and then it will destroy itself
 
-		    if ( res > 0 )
-			RETURN(res);
-#if defined(Q_CHECK_RANGE)
-		    else if ( res == E_NOINTERFACE )
-			qDebug( "WM_GETOBJECT -> No Interface" );
-		    else if ( res == E_INVALIDARG )
-			qDebug( "WM_GETOBJECT -> Invalid Argument" );
-		    else if ( res == E_OUTOFMEMORY )
-			qDebug( "WM_GETOBJECT -> Out of Memory" );
-		    else
-			qDebug( "WM_GETOBJECT -> Unexpected error" );
-#endif
+			if ( res > 0 )
+			    RETURN(res);
+		    }
 		}
 		result = FALSE;
 		break;
