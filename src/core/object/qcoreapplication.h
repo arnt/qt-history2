@@ -176,5 +176,9 @@ Q_CORE_EXPORT void qAddPostRoutine( QtCleanUpFunction );
 Q_CORE_EXPORT void qRemovePostRoutine( QtCleanUpFunction );
 Q_CORE_EXPORT const char *qAppName();		// get application name
 
+#if defined(Q_WS_WIN) && !defined(QT_NO_DEBUG)
+Q_CORE_EXPORT QString decodeMSG(const MSG &);
+Q_CORE_EXPORT QDebug operator<<(QDebug, const MSG &);
+#endif
 
 #endif
