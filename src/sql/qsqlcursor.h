@@ -73,6 +73,8 @@ public:
 
     QVariant		value( int i ) const;
     QVariant		value( const QString& name ) const;
+    void         	setValue( int i, const QVariant& val );
+    void         	setValue( const QString& name, const QVariant& val );
     virtual QSqlIndex	primaryIndex( bool prime = TRUE ) const;
     virtual QSqlIndex	index( const QStringList& fieldNames ) const;
     QSqlIndex		index( const QString& fieldName ) const;

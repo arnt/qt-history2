@@ -1317,5 +1317,21 @@ void QSqlCursor::insert( int pos, const QSqlField& field )
     insert( pos, QSqlFieldInfo( field ) );
 }
 
+/*! \reimp */
+void QSqlCursor::setValue( int i, const QVariant& val )
+{
+#ifdef QT_DEBUG
+    qDebug("QSqlCursor::setValue(): This will not affect actual database values. See primeInsert(), primeUpdate() and primeDelete().");
+#endif
+    QSqlRecord::setValue( i, val );
+}
 
+/*! \reimp */
+void QSqlCursor::setValue( const QString& name, const QVariant& val )
+{
+#ifdef QT_DEBUG
+    qDebug("QSqlCursor::setValue(): This will not affect actual database values. See primeInsert(), primeUpdate() and primeDelete().");
+#endif
+    QSqlRecord::setValue( name, val );
+}
 #endif
