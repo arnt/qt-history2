@@ -12372,7 +12372,7 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
     char *result = a;
     while (l--) {
 	const char c = uc->latin1();
-	*a++ = (uc->unicode()>0xff) ? '?' : (char)uc->unicode();
+	*a++ = (uc->unicode() > 0xff) ? '?' : (char)uc->unicode();
 	uc++;
     }
     *a = '\0';
@@ -13924,8 +13924,10 @@ int QString::contains( QChar c, bool cs ) const
   If \a cs is TRUE then the match is case sensitive.  If \a cs is
   FALSE, then the match is case insensitive.
 */
-int QString::contains( const char* str, bool cs ) const { return
-contains( QString(str), cs ); }
+int QString::contains( const char* str, bool cs ) const
+{
+    return contains( QString(str), cs );
+}
 
 /*! \fn int QString::contains( char c, bool cs ) const
   \overload
@@ -15451,7 +15453,7 @@ QCString QString::local8Bit() const
 
   See QTextCodec for more diverse coding/decoding of Unicode strings.
 */
-QString QString::fromLocal8Bit(const char* local8Bit, int len)
+QString QString::fromLocal8Bit( const char* local8Bit, int len )
 {
 #ifdef QT_NO_TEXTCODEC
     return fromLatin1( local8Bit, len );
@@ -15873,19 +15875,18 @@ bool operator==( const QString &s1, const char *s2 )
     
     int len = s1.length();
     const QChar *uc = s1.unicode();
-    while( len ) {
-	if ( !(*s2) || uc->unicode() != *s2 ) {
-	    break;
-	}
+    while ( len ) {
+	if ( !(*s2) || uc->unicode() != (uchar) *s2 )
+	    return FALSE;
 	++uc;
 	++s2;
 	--len;
     }
-    return (len ? FALSE : (*s2) ? FALSE : TRUE);
+    return !*s2;
 }
 
 bool operator==( const char *s1, const QString &s2 )
-{ return (s2 == s1 ); }
+{ return (s2 == s1); }
 
 bool operator!=( const QString &s1, const char *s2 )
 { return !(s1==s2); }
