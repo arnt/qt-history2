@@ -184,7 +184,7 @@ protected:
     virtual void*	tryVisual( const QGLFormat& f, int bufDepth = 1 );
     virtual void*	chooseVisual();
 #elif defined(Q_WS_MAC)
-    virtual void*	chooseMacVisual();
+    virtual void*	chooseMacVisual(GDHandle);
 #endif
 
     bool		deviceIsPixmap() const;
@@ -208,6 +208,7 @@ protected:
     Q_UINT32		gpm;
 #elif defined(Q_WS_MAC)
     void*               vi;
+    void*		cx;
 #endif
 
     QGLFormat		glFormat;
@@ -311,6 +312,8 @@ private:
 #elif defined(Q_WS_X11)
     QGLOverlayWidget*	olw;
     friend class QGLOverlayWidget;
+#elif defined(Q_WS_MAC)
+    QGLContext*		olcx;
 #endif
 
 private:	// Disabled copy constructor and operator=

@@ -41,6 +41,7 @@
 #include <agl.h>
 #include <gl.h>
 
+#include <qt_mac.h>
 #include <qpixmap.h>
 #include <qapplication.h>
 #include <qintdict.h>
@@ -68,10 +69,51 @@ bool QGLFormat::hasOpenGLOverlays()
 
 bool QGLContext::chooseContext( const QGLContext* shareContext )
 {
-    vi = chooseMacVisual();
+    GDHandle dev = GetMainDevice(); //doesn't handle multiple heads, fixme!
+    vi = chooseMacVisual(dev);
     if ( !vi )
 	return FALSE;
-    return TRUE;
+
+    AGLPixelFormat fmt = (AGLPixelFormat)vi;
+    GLint res;
+    aglDescribePixelFormat( fmt, AGL_LEVEL, &res );
+    glFormat.setPlane( res );
+    aglDescribePixelFormat( fmt, AGL_DOUBLEBUFFER, &res );
+    glFormat.setDoubleBuffer( res );
+    aglDescribePixelFormat( fmt, AGL_DEPTH_SIZE, &res );
+    glFormat.setDepth( res );
+    aglDescribePixelFormat( fmt, AGL_RGBA, &res );
+    glFormat.setRgba( res );
+    aglDescribePixelFormat( fmt, AGL_ALPHA_SIZE, &res );
+    glFormat.setAlpha( res );
+    aglDescribePixelFormat( fmt, AGL_ACCUM_RED_SIZE, &res );
+    glFormat.setAccum( res );
+    aglDescribePixelFormat( fmt, AGL_STENCIL_SIZE, &res );
+    glFormat.setStencil( res );
+    aglDescribePixelFormat( fmt, AGL_STEREO, &res );
+    glFormat.setStereo( res );
+
+    if ( shareContext &&
+	 ( !shareContext->isValid() || !shareContext->cx ) ) {
+#if defined(QT_CHECK_NULL)
+	    qWarning("QGLContext::chooseContext(): Cannot share with invalid context");
+#endif
+	    shareContext = 0;
+    }
+
+    // sharing between rgba and color-index will give wrong colors
+    if ( shareContext && ( format().rgba() != shareContext->format().rgba() ) )
+	shareContext = 0;
+    AGLContext ctx = aglCreateContext(fmt, (AGLContext)shareContext->cx);
+    cx = (void *)ctx;
+    if(ctx) {
+	if(paintDevice->devType() == QInternal::Widget)
+	    aglSetDrawable(ctx, GetWindowPort((WindowPtr)paintDevice->handle()));
+	else
+	    aglSetDrawable(ctx, (CGrafPtr)paintDevice->handle());
+	return TRUE;
+    }
+    return FALSE;
 }
 
 
@@ -87,20 +129,46 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
   \sa chooseContext()
 */
 
-void *QGLContext::chooseMacVisual()
+void *QGLContext::chooseMacVisual(GDHandle device)
 {
-    return 0;
+    int pmDepth = deviceIsPixmap() ? ((QPixmap*)paintDevice)->depth() : 32;
+    GLint attribs[30], cnt=0;
+    if ( deviceIsPixmap() )
+	attribs[cnt++] = AGL_OFFSCREEN;
+    else if ( glFormat.doubleBuffer() && !deviceIsPixmap() )
+	attribs[cnt++] = AGL_DOUBLEBUFFER;
+    if ( glFormat.stereo() )
+	attribs[cnt++] = AGL_STEREO;
+    if ( glFormat.rgba() ) {
+	attribs[cnt++] = AGL_RGBA;
+	attribs[cnt++] = AGL_DEPTH_SIZE;
+	attribs[cnt++] = pmDepth;
+    } else {
+	attribs[cnt++] = AGL_DEPTH_SIZE;
+	attribs[cnt++] = 8;
+    }
+    if ( glFormat.alpha() ) {
+	attribs[cnt++] = AGL_ALPHA_SIZE;
+	attribs[cnt++] = 8;
+    }
+    if ( glFormat.stencil() ) {
+	attribs[cnt++] = AGL_STENCIL_SIZE;
+	attribs[cnt++] = 4;
+    }
+    attribs[cnt++] = AGL_ACCELERATED;
+    
+    AGLPixelFormat fmt = aglChoosePixelFormat(&device, cnt-1, attribs);
+    return fmt;
 }
 
 void QGLContext::reset()
 {
     if ( !valid )
 	return;
-//    aglDestroyContext( paintDevice->x11Display(), (AGLContext)cx );
-#if 0
+    aglDestroyContext( (AGLContext)cx );
+    cx = 0;
     if ( vi )
-	XFree( vi );
-#endif
+	aglDestroyPixelFormat((AGLPixelFormat)vi);
     vi = 0;
     crWin = FALSE;
     sharing = FALSE;
@@ -118,11 +186,18 @@ void QGLContext::makeCurrent()
 #endif
 	return;
     }
+
+    QMacSavedPortInfo::setPaintDevice(paintDevice);
+    aglSetCurrentContext((AGLContext)cx);
+    currentCtx = this;
 }
 
 void QGLContext::doneCurrent()
 {
+    if ( currentCtx != this )
+	return;
     currentCtx = 0;
+    aglSetCurrentContext(NULL);
 }
 
 
@@ -130,6 +205,7 @@ void QGLContext::swapBuffers() const
 {
     if ( !valid )
 	return;
+    aglSwapBuffers((AGLContext)cx);
 }
 
 QColor QGLContext::overlayTransparentColor() const
@@ -138,7 +214,7 @@ QColor QGLContext::overlayTransparentColor() const
 }
 
 
-uint QGLContext::colorIndex( const QColor& c ) const
+uint QGLContext::colorIndex( const QColor&) const
 {
     return 0;
 }
@@ -158,6 +234,18 @@ void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
     else
 	setContext( new QGLContext( format, this ) );
     setBackgroundMode( NoBackground );
+
+    if ( isValid() && this->format().hasOverlay() ) {
+	olcx = new QGLContext( QGLFormat::defaultOverlayFormat(), this );
+        if ( !olcx->create(shareWidget ? shareWidget->overlayContext() : 0) ) {
+	    delete olcx;
+	    olcx = 0;
+	    glcx->glFormat.setOverlay( FALSE );
+	}
+    }
+    else {
+	olcx = 0;
+    }
 }
 
 
@@ -181,25 +269,46 @@ void QGLWidget::resizeEvent( QResizeEvent * )
     makeCurrent();
     if ( !glcx->initialized() )
 	glInit();
-//    aglWaitX();
     resizeGL( width(), height() );
+    if ( olcx ) {
+	makeOverlayCurrent();
+	resizeOverlayGL( width(), height() );
+    }
 }
 
 
 
 const QGLContext* QGLWidget::overlayContext() const
 {
-    return 0;
+    return olcx;
 }
 
 
 void QGLWidget::makeOverlayCurrent()
 {
+    if ( olcx ) {
+	olcx->makeCurrent();
+	if ( !olcx->initialized() ) {
+	    initializeOverlayGL();
+	    olcx->setInitialized( TRUE );
+	}
+    }
 }
 
 
 void QGLWidget::updateOverlayGL()
 {
+    if ( olcx ) {
+	makeOverlayCurrent();
+	paintOverlayGL();
+	if ( olcx->format().doubleBuffer() ) {
+	    if ( autoSwap )
+		olcx->swapBuffers();
+	}
+	else {
+	    glFlush();
+	}
+    }
 }
 
 void QGLWidget::setContext( QGLContext *context,
@@ -245,14 +354,16 @@ void QGLWidget::setContext( QGLContext *context,
     if ( visible )
 	hide();
 
-    //blah
+    //blah? FIXME
+    if ( visible )
+	show();
     glcx->setWindowCreated( TRUE );
 }
 
 
-bool QGLWidget::renderCxPm( QPixmap* pm )
+bool QGLWidget::renderCxPm( QPixmap* )
 {
-    return TRUE;
+    return FALSE;
 }
 
 #endif

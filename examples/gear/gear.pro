@@ -5,5 +5,5 @@ HEADERS		=
 SOURCES		= gear.cpp
 TARGET		= gear
 DEPENDPATH	= ../include
-unix:LIBS		+= -lm
+!mac:unix:LIBS		+= -lm
 
