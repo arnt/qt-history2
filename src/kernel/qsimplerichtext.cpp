@@ -48,7 +48,44 @@ public:
     QFont font;
     int cachedWidth;
     bool cachedWidthWithPainter;
+    void adjustSize();
 };
+
+static uint int_sqrt(uint n)
+{
+    uint h, p= 0, q= 1, r= n;
+    Q_ASSERT( n < 1073741824U );  // UINT_MAX>>2 on 32-bits architecture
+    while ( q <= n )
+	q <<= 2;
+    while ( q != 1 ) {
+	q >>= 2;
+	h= p + q;
+	p >>= 1;
+	if ( r >= h ) {
+	    p += q;
+	    r -= h;
+	}
+    }
+    return p;
+}
+
+void QSimpleRichTextData::adjustSize() {
+    QFontMetrics fm( font );
+    int mw =  fm.width( 'x' ) * 80;
+    int w = mw;
+    doc->doLayout( 0,w );
+    if ( doc->widthUsed() != 0 ) {
+	w = int_sqrt( (5*doc->height() ) / (3*doc->widthUsed() ) );
+	doc->doLayout( 0, QMIN( w, mw) );
+
+	if ( w*3 < 5*doc->height() ) {
+	    w = int_sqrt(6*doc->height()/3*doc->widthUsed() );
+	    doc->doLayout( 0,QMIN(w, mw ) );
+	}
+    }
+    cachedWidth = doc->width();
+    cachedWidthWithPainter = FALSE;
+}
 
 /*!
   \class QSimpleRichText qsimplerichtext.h
@@ -225,6 +262,8 @@ void QSimpleRichText::setWidth( QPainter *p, int w )
 
 int QSimpleRichText::width() const
 {
+    if ( d->cachedWidth < 0 )
+	d->adjustSize();
     return d->doc->width();
 }
 
@@ -242,6 +281,8 @@ int QSimpleRichText::width() const
 
 int QSimpleRichText::widthUsed() const
 {
+    if ( d->cachedWidth < 0 )
+	d->adjustSize();
     return d->doc->widthUsed();
 }
 
@@ -252,25 +293,9 @@ int QSimpleRichText::widthUsed() const
 
 int QSimpleRichText::height() const
 {
+    if ( d->cachedWidth < 0 )
+	d->adjustSize();
     return d->doc->height();
-}
-
-static uint int_sqrt(uint n)
-{
-    uint h, p= 0, q= 1, r= n;
-    Q_ASSERT( n < 1073741824U );  // UINT_MAX>>2 on 32-bits architecture
-    while ( q <= n )
-	q <<= 2;
-    while ( q != 1 ) {
-	q >>= 2;
-	h= p + q;
-	p >>= 1;
-	if ( r >= h ) {
-	    p += q;
-	    r -= h;
-	}
-    }
-    return p;
 }
 
 /*!
@@ -281,21 +306,7 @@ static uint int_sqrt(uint n)
 
 void QSimpleRichText::adjustSize()
 {
-    QFontMetrics fm( d->font );
-    int mw =  fm.width( 'x' ) * 80;
-    int w = mw;
-    d->doc->doLayout( 0,w );
-    if ( d->doc->widthUsed() != 0 ) {
-	w = int_sqrt( (5*d->doc->height() ) / (3*d->doc->widthUsed() ) );
-	d->doc->doLayout( 0, QMIN( w, mw) );
-
-	if ( w*3 < 5*d->doc->height() ) {
-	    w = int_sqrt(6*d->doc->height()/3*d->doc->widthUsed() );
-	    d->doc->doLayout( 0,QMIN(w, mw ) );
-	}
-    }
-    d->cachedWidth = d->doc->width();
-    d->cachedWidthWithPainter = FALSE;
+    d->adjustSize();
 }
 
 /*!
@@ -314,6 +325,8 @@ void QSimpleRichText::adjustSize()
 void QSimpleRichText::draw( QPainter *p,  int x, int y, const QRect& clipRect,
 			    const QColorGroup& cg, const QBrush* paper ) const
 {
+    if ( d->cachedWidth < 0 )
+	d->adjustSize();
     QRect r = clipRect;
     if ( !r.isNull() )
 	r.moveBy( -x, -y );
@@ -365,6 +378,8 @@ QString QSimpleRichText::context() const
 
 QString QSimpleRichText::anchorAt( const QPoint& pos ) const
 {
+    if ( d->cachedWidth < 0 )
+	d->adjustSize();
     QTextCursor c( d->doc );
     c.place( pos, d->doc->firstParag() );
     return c.parag()->at( c.index() )->format()->anchorHref();
@@ -377,6 +392,8 @@ QString QSimpleRichText::anchorAt( const QPoint& pos ) const
 
 bool QSimpleRichText::inText( const QPoint& pos ) const
 {
+    if ( d->cachedWidth < 0 )
+	d->adjustSize();
     if ( pos.y()  > d->doc->height() )
 	return FALSE;
     QTextCursor c( d->doc );
@@ -391,6 +408,7 @@ void QSimpleRichText::setDefaultFont( const QFont &f )
 {
     d->font = f;
     d->doc->setDefaultFont( f );
+    d->doc->formatCollection()->defaultFormat()->setFont( f );
 }
 
 #endif //QT_NO_RICHTEXT
