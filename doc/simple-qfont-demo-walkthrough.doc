@@ -40,7 +40,7 @@ would rather count for bad design.
 The widget used in this example is a custom widget named
 \e Viewer.
 
-\walkthrough fonts/simple-qfont-demo/viewer.h
+\quotefile fonts/simple-qfont-demo/viewer.h
 \skipto include
 \printline qwidget
 \printline qfont
@@ -117,7 +117,7 @@ class variables.
 
 Now we will implement the \e Viewer class.
 
-\walkthrough fonts/simple-qfont-demo/viewer.cpp
+\quotefile fonts/simple-qfont-demo/viewer.cpp
 \skipto include
 \printuntil qlayout
 
@@ -557,7 +557,7 @@ and a height of 250 pixels.
 
 There is not much to say about the main program.
 
-\walkthrough fonts/simple-qfont-demo/simple-qfont-demo.cpp
+\quotefile fonts/simple-qfont-demo/simple-qfont-demo.cpp
 \skipto include
 \printline include
 \printuntil textViewer
@@ -565,6 +565,8 @@ There is not much to say about the main program.
 We create an instance of the \link #viewer.cpp Viewer \endlink
 class, ...
 
+\quotefile fonts/simple-qfont-demo/simple-qfont-demo.cpp
+\skipto MainWidget
 \printline MainWidget
 
 ... make it the main widget of the application object \e app, ...

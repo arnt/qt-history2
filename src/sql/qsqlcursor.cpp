@@ -106,7 +106,7 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
 
     For example:
 
-    \walkthrough sql/overview/retrieve2/main.cpp
+    \quotefile sql/overview/retrieve2/main.cpp
     \skipto QSqlCursor
     \printline QSqlCursor
     \printuntil }
@@ -133,7 +133,7 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
 
     For example:
 
-    \walkthrough sql/overview/update/main.cpp
+    \quotefile sql/overview/update/main.cpp
     \skipto prices
     \printline prices
     \printuntil update
@@ -383,7 +383,7 @@ QSqlRecord & QSqlCursor::operator=( const QSqlRecord & list )
     return QSqlRecord::operator=( list );
 }
 
-/*!  Append a copy of field \a field to the end of the cursor.  Note
+/*!  Append a copy of field \a fieldInfo to the end of the cursor.  Note
   that all references to the cursor edit buffer become invalidated.
 
 */
@@ -396,10 +396,9 @@ void QSqlCursor::append( const QSqlFieldInfo& fieldInfo )
 }
 
 /*!
-
     \overload
 
-    Insert a copy of \a field at position \a pos.  If a field already
+    Insert a copy of \a fieldInfo at position \a pos.  If a field already
   exists at \a pos, it is removed.  Note that all references to the
   cursor edit buffer become invalidated.
 */
@@ -894,7 +893,7 @@ QString QSqlCursor::toString( const QSqlIndex& i, QSqlRecord* rec, const QString
     new select() call must be made before navigating to a valid
     record.
 
-    \walkthrough sql/overview/insert2/main.cpp
+    \quotefile sql/overview/insert2/main.cpp
     \skipto prices
     \printline prices
     \printuntil insert
@@ -1029,7 +1028,7 @@ QSqlRecord* QSqlCursor::primeInsert()
   longer be navigated. A new select() call must be made before you can
   move to a valid record.  For example:
 
-  \walkthrough sql/overview/update/main.cpp
+  \quotefile sql/overview/update/main.cpp
   \skipto prices
   \printline prices
   \printuntil update
@@ -1100,7 +1099,7 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
   be navigated. A new select() call must be made before you can move
   to a valid record.  For example:
 
-    \walkthrough sql/overview/del/main.cpp
+    \quotefile sql/overview/del/main.cpp
     \skipto prices
     \printline prices
     \printuntil }

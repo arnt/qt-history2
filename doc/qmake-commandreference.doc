@@ -316,7 +316,7 @@ For example:
 <dt>\c FORMS
 
 <dd>This variable specifies the .ui files (see \link
-designer.html Qt Designer \endlink) to be processed through \e uic
+designer-manual.book Qt Designer \endlink) to be processed through \e uic
 before compiling.  All dependencies, headers and source files required
 to build these .ui files will automatically be added to the project.
 

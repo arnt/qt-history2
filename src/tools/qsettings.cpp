@@ -53,7 +53,7 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value,
     \overload
     Writes the string list entry \a value into key \a key. The \a key is
     created if it doesn't exist. Any previous value is overwritten by \a
-    value. 
+    value.
 
     If an error occurs the settings are left unchanged and FALSE is
     returned; otherwise TRUE is returned.
@@ -78,6 +78,8 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value)
 
 
 /*!
+    \overload
+
   Reads the entry specified by \a key as a string.  The \a separator is
   used to create a QStringList by calling QStringList::split(\a
   separator, entry).

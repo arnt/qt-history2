@@ -641,7 +641,8 @@ void QSqlRecord::setValue( const QString& name, const QVariant& val )
 */
 
 
-/* Constructs a QSqlRecordInfo object based on the fields in the QSqlRecord \a other.
+/*! Constructs a QSqlRecordInfo object based on the fields in the
+    QSqlRecord \a other.
 */
 QSqlRecordInfo::QSqlRecordInfo( const QSqlRecord& other )
 {

@@ -189,7 +189,7 @@ functions offer a simple means for substituting arguments:
 Once you are using tr() sufficiently, you can start producing
 translations of the user-visible text in your program.
 
-\link linguist-manual.html Qt Linguist\endlink's manual provides
+\link linguist-manual.book Qt Linguist\endlink's manual provides
 further information about Qt's translation tools, \e{Qt Linguist}, \e
 lupdate and \e lrelease.
 

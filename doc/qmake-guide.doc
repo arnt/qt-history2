@@ -225,7 +225,7 @@ which describe your software project and generate a makefile to build
 that project.  A \e {project file} will typically contain a list
 of header and source files used by your project.  For Qt-based
 projects, \e qmake will automatically generate dependencies for
-\link moc.html moc \endlink and \link designer-manual.html uic \endlink, if
+\link moc.html moc \endlink and \link designer-manual.book uic \endlink, if
 they are needed by your project.  The project file will also contain
 information about the type of project being created (for example, an
 application or a library), as well as configuration information (such

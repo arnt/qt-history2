@@ -1646,6 +1646,10 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
 
 
 
+/*!
+    Returns an image of the frame buffer. If \a withAlpha is TRUE the
+    alpha channel is included.
+*/
 QImage QGLWidget::grabFrameBuffer( bool withAlpha )
 {
 #if defined( Q_WS_MAC ) && defined( QMAC_OPENGL_DOUBLEBUFFER )
@@ -1804,7 +1808,7 @@ void QGLWidget::qglClearColor( const QColor& c ) const
   from the texture example. Most of the code is irrelevant, so we just
   quote the few lines we want:
 
-  \walkthrough opengl/texture/gltexobj.cpp
+  \quotefile opengl/texture/gltexobj.cpp
   \skipto tex1
   \printline tex1
   \printline gllogo.bmp

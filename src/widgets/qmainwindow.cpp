@@ -526,7 +526,7 @@ void QHideToolTip::maybeTip( const QPoint &pos )
     to the default menu bar, widgets can be added to the status bar,
     toolbars and dock windows can be added to any of the dock areas.
 
-    \walkthrough application/main.cpp
+    \quotefile application/main.cpp
     \skipto ApplicationWindow
     \printuntil show
 
@@ -543,7 +543,7 @@ void QHideToolTip::maybeTip( const QPoint &pos )
     passing the QMainWindow instance as the parent instead of the \e
     this pointer.
 
-    \walkthrough application/application.cpp
+    \quotefile application/application.cpp
     \skipto help = new
     \printuntil about
 
@@ -552,7 +552,7 @@ void QHideToolTip::maybeTip( const QPoint &pos )
     which is accessible through the menuBar() function. The slot will be
     called when the menu item is clicked.
 
-    \walkthrough application/application.cpp
+    \quotefile application/application.cpp
     \skipto fileTools
     \printuntil setLabel
     \skipto QToolButton
@@ -567,7 +567,7 @@ void QHideToolTip::maybeTip( const QPoint &pos )
     addDockWindow(), or by creating a dock window with the QMainWindow
     as the parent.
 
-    \walkthrough application/application.cpp
+    \quotefile application/application.cpp
     \skipto editor
     \printuntil statusBar
 
@@ -586,7 +586,7 @@ void QHideToolTip::maybeTip( const QPoint &pos )
     automatically by creating actions and adding the actions to the
     toolbar and menu.
 
-    \walkthrough action/application.cpp
+    \quotefile action/application.cpp
     \skipto QAction * fileOpen
     \printline
     \skipto fileOpenAction
@@ -598,7 +598,7 @@ void QHideToolTip::maybeTip( const QPoint &pos )
     have made will be used when the user clicks either the menu item \e
     or the toolbar button.
 
-    \walkthrough action/application.cpp
+    \quotefile action/application.cpp
     \skipto QPopupMenu * file
     \printuntil menuBar
     \skipto fileOpen
@@ -607,7 +607,7 @@ void QHideToolTip::maybeTip( const QPoint &pos )
     The extract above shows the creation of a popup menu. We add the menu
     to the QMainWindow's menu bar and add our action.
 
-    \walkthrough action/application.cpp
+    \quotefile action/application.cpp
     \skipto QToolBar * fileTool
     \printuntil OpenAction
 

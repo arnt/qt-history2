@@ -102,8 +102,6 @@
 /*! \fn QPair::QPair( const T1& t1, const T2& t2 )
 	Constructs a pair and initializes the \c first element with \a t1
 	and the \c second element with \a t2.
-
-	\sa qMakePair()
 */
 
 /*! \fn bool operator==( const QPair<T1, T2>& x, const QPair<T1, T2>& y )

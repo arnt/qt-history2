@@ -86,7 +86,7 @@
   stylesheet. This makes it possible to embed images. See
   QStyleSheet::defaultSheet() for details.
 
-  \walkthrough action/application.cpp
+  \quotefile action/application.cpp
   \skipto fileOpenText
   \printuntil setWhatsThis
 

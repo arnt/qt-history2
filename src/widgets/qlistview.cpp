@@ -2095,10 +2095,10 @@ void QListViewItem::ignoreDoubleClick()
   headers using addColumn() and create one or more QListViewItem objects
   with the QListView as parent:
 
-  \walkthrough xml/tagreader-with-features/structureparser.h
+  \quotefile xml/tagreader-with-features/structureparser.h
   \skipto QListView * table
   \printline
-  \walkthrough xml/tagreader-with-features/structureparser.cpp
+  \quotefile xml/tagreader-with-features/structureparser.cpp
   \skipto addColumn
   \printline addColumn
   \printline

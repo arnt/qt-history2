@@ -100,47 +100,48 @@ public:
 /*!
   \fn QStyleOption::QStyleOption(int, int)
 
-  Pass two integers. For example, linewidth and midlinewidth.
+  Pass two integers, \a in1 and \a in2. For example, linewidth and
+  midlinewidth.
 */
 /*!
   \fn QStyleOption::QStyleOption(int, int, int, int)
 
-  Pass four integers.
+  Pass four integers, \a in1, \a in2, \a in3 and \a in4.
 */
 /*!
   \fn QStyleOption::QStyleOption(QMenuItem*)
 
-  Pass a menu item.
+  Pass a menu item, \a m.
 */
 /*!
   \fn QStyleOption::QStyleOption(QMenuItem*, int)
 
-  Pass a menu item and an integer.
+  Pass a menu item and an integer, \a m and \a in1.
 */
 /*!
   \fn QStyleOption::QStyleOption(QMenuItem*, int, int)
 
-  Pass a menu item and two integers.
+  Pass a menu item and two integers, \a m, \a in1 and \a in2.
 */
 /*!
   \fn QStyleOption::QStyleOption(const QColor&)
 
-  Pass a color.
+  Pass a color, \a c.
 */
 /*!
   \fn QStyleOption::QStyleOption(QTab*)
 
-  Pass a QTab.
+  Pass a QTab, \a t.
 */
 /*!
   \fn QStyleOption::QStyleOption(QListViewItem*)
 
-  Pass a QListViewItem.
+  Pass a QListViewItem, \a i.
 */
 /*!
   \fn QStyleOption::QStyleOption(Qt::ArrowType)
 
-  Pass an Qt::ArrowType.
+  Pass an Qt::ArrowType, \a a.
 */
 
 /*!
@@ -817,9 +818,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
        \i12 &nbsp;
   \row \i \l Style_HasFocus \i Set if the progressbar has input focus.
 
-  \row \i13 \l CE_PopupMenuItem
-
-	    (const \l QPopupMenu *)
+  \row \i13 \l{CE_PopupMenuItem}(const \l QPopupMenu *)
        \i \l Style_Enabled \i Set if the menuitem is enabled.
        \i13 \l QStyleOption ( QMenuItem *mi, int tabwidth, int maxpmwidth )
 	    \list
@@ -837,9 +836,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
        \i \e maxpmwidth is the maximum width of the check column where
 	  checkmarks and iconsets are drawn.
 
-  \row \i14 \l CE_MenuBarItem
-
-	    (const \l QMenuBar *)
+  \row \i14 \l{CE_MenuBarItem}(const \l QMenuBar *)
        \i \l Style_Enabled \i Set if the menuitem is enabled
        \i14 \l QStyleOption ( QMenuItem *mi )
 	    \list
@@ -851,9 +848,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 			   the space bar is pressed).
   \row \i \l Style_HasFocus \i Set if the menubar has input focus.
 
-  \row \i17 \l CE_ToolButtonLabel
-
-	    (const \l QToolButton *)
+  \row \i17 \l{CE_ToolButtonLabel}(const \l QToolButton *)
        \i \l Style_Enabled \i Set if the toolbutton is enabled.
        \i17 \l QStyleOption ( \l ArrowType t )
 	    \list
@@ -1078,42 +1073,32 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	  \i Options
 	  \i Notes
 
-  \row \i12 \l CC_SpinWidget
-
-	    (const \l QSpinWidget *)
+  \row \i12 \l{CC_SpinWidget}(const \l QSpinWidget *)
        \i \l Style_Enabled \i Set if the spinwidget is enabled.
        \i12 Unused.
        \i12 &nbsp;
   \row \i \l Style_HasFocus \i Set if the spinwidget has input focus.
 
-  \row \i12 \l CC_ComboBox
-
-	    (const \l QComboBox *)
+  \row \i12 \l{CC_ComboBox}(const \l QComboBox *)
        \i \l Style_Enabled \i Set if the combobox is enabled.
        \i12 Unused.
        \i12 &nbsp;
   \row \i \l Style_HasFocus \i Set if the combobox has input focus.
 
-  \row \i12 \l CC_ScrollBar
-
-	    (const \l QScrollBar *)
+  \row \i12 \l{CC_ScrollBar}(const \l QScrollBar *)
        \i \l Style_Enabled \i Set if the scrollbar is enabled.
        \i12 Unused.
        \i12 &nbsp;
   \row \i \l Style_HasFocus \i Set if the scrollbar has input focus.
 
-  \row \i12 \l CC_Slider
-
-	    (const \l QSlider *)
+  \row \i12 \l{CC_Slider}(const \l QSlider *)
        \i \l Style_Enabled \i Set if the slider is enabled.
        \i12 Unused.
        \i12 &nbsp;
 
   \row \i \l Style_HasFocus \i Set if the slider has input focus.
 
-  \row \i16 \l CC_ToolButton
-
-	    (const \l QToolButton *)
+  \row \i16 \l{CC_ToolButton}(const \l QToolButton *)
        \i \l Style_Enabled \i Set if the toolbutton is enabled.
        \i16 \l QStyleOption ( \l ArrowType t )
 	    \list
@@ -1128,16 +1113,12 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \row \i \l Style_Raised \i Set if the button is not down, not on and doesn't
 			     contain the mouse when auto-raise is enabled.
 
-  \row \i \l CC_TitleBar
-
-	  (const \l QWidget *)
+  \row \i \l{CC_TitleBar}(const \l QWidget *)
        \i \l Style_Enabled \i Set if the titlebar is enabled.
        \i Unused.
        \i &nbsp;
 
-  \row \i \l CC_ListView
-
-	  (const \l QListView *)
+  \row \i \l{CC_ListView}(const \l QListView *)
        \i \l Style_Enabled \i Set if the titlebar is enabled.
        \i \l QStyleOption ( \l QListViewItem *item )
 	  \list
@@ -1262,6 +1243,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   \value PM_SplitterWidth  width of a splitter.
 
+  \value PM_TitleBarHeight height of the title bar.
 
   \value PM_IndicatorWidth  width of a check box indicator.
   \value PM_IndicatorHeight  height of a checkbox indicator.
@@ -1433,6 +1415,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value SH_Widget_ShareActivation turn on sharing activation with
     floating modeless dialogs.
+
+    \value SH_Workspace_FillSpaceOnMaximize the workspace should
+    maximize the client area
 
   \sa styleHint()
 */

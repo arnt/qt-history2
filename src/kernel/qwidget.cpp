@@ -2748,7 +2748,7 @@ void QWidget::setMouseTracking( bool enable )
   setFocusPolicy(), setFocus() and hasFocus() all operate on the focus
   proxy.
 
-  \sa focusProxy() setBuddy()
+  \sa focusProxy()
 */
 
 void QWidget::setFocusProxy( QWidget * w )

@@ -20,7 +20,7 @@ Walkthrough featuring QAction</A>.
 
 <h2>A tiny main program</h2>
 
-\walkthrough action/actiongroup/main.cpp
+\quotefile action/actiongroup/main.cpp
 \skipto include
 \printline include
 \printuntil }
@@ -45,7 +45,7 @@ Before implementing the \e Editor class we should think about what it
 is supposed to do. Fortunately Qt provides a full-featured rich text editor
 class, \l QTextEdit. The only thing left for us is to give it a user interface.
 
-\walkthrough action/actiongroup/editor.h
+\quotefile action/actiongroup/editor.h
 \skipto include
 \printline include
 \printuntil };
@@ -64,7 +64,7 @@ might be called from outside the class.
 
 <h2>Action!</h2>
 
-\walkthrough action/actiongroup/editor.cpp
+\quotefile action/actiongroup/editor.cpp
 
 \skipto include
 \printuntil qaction.h

@@ -45,6 +45,7 @@
 #include "qftp.h"
 #include "qhttp.h"
 
+/*! \file qnetwork.h */
 /*!
   \relates QUrlOperator
 

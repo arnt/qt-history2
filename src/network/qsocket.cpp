@@ -1001,7 +1001,7 @@ int QSocket::ungetch( int ch )
 	...
   \endcode
 
-  \sa QIODevice::setMode(), readLine()
+  \sa readLine()
 */
 
 bool QSocket::canReadLine() const

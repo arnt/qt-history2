@@ -1231,6 +1231,10 @@ void QWSServer::refresh()
 }
 
 #ifndef QT_NO_QWS_REPEATER
+/*!
+    \overload
+  Refreshes the region \a r.
+*/
 void QWSServer::refresh(QRegion & r)
 {
     exposeRegion(r);
@@ -2477,7 +2481,7 @@ bool QWSServer::screenSaverActive()
 
 /*!
     If \a activate is TRUE the screensaver is activated immediately;
-    if \a activated is FALSE the screensaver is deactivated.
+    if \a activate is FALSE the screensaver is deactivated.
 */
 void QWSServer::screenSaverActivate(bool activate)
 {

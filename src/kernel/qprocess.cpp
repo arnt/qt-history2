@@ -114,7 +114,7 @@
   uic -tr i18n small_dialog.ui
   \endcode
 
-  \walkthrough process/process.cpp
+  \quotefile process/process.cpp
 
   A code snippet for this with the QProcess class might look like this:
 

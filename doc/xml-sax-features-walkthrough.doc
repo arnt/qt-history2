@@ -63,7 +63,7 @@ namespace URIs.
 
 <h3>Setting features</h3>
 
-\walkthrough xml/tagreader-with-features/tagreader.cpp
+\quotefile xml/tagreader-with-features/tagreader.cpp
 
 Let's begin with the main program of the application. First the boring 
 part: we include all the classes we need:
@@ -199,7 +199,7 @@ the GUI's event loop.
 Let's have a brief look at the API of our handler class
 \e StructureParser:
 
-\walkthrough xml/tagreader-with-features/structureparser.h
+\quotefile xml/tagreader-with-features/structureparser.h
 \skipto include
 \printuntil QString
 
@@ -256,7 +256,7 @@ the currently used listview.
 Now that we defined the API we have to implement the 
 relevant functions.
 
-\walkthrough xml/tagreader-with-features/structureparser.cpp   
+\quotefile xml/tagreader-with-features/structureparser.cpp   
 \skipto include
 \printuntil qlistview.h
 

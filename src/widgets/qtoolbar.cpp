@@ -235,7 +235,7 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
   the label given in the constructor call. This can be changed with
   setLabel().
 
-  \walkthrough action/application.cpp
+  \quotefile action/application.cpp
   \skipto new QToolBar
   \printuntil fileSaveAction
 

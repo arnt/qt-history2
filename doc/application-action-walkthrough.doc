@@ -33,7 +33,7 @@ to use this striking concept. So let's write an
 
 <h2>The ApplicationWindow constructor with Actions</h2>
 
-\walkthrough action/application.cpp
+\quotefile action/application.cpp
 
 <a name="ApplicationWindow"></a>
 \skipto ApplicationWindow::ApplicationWindow

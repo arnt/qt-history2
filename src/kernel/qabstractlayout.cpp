@@ -1354,7 +1354,7 @@ otherwise returns FALSE.
 Returns TRUE if the widget can sensibly be wider than its sizeHint();
 otherwise returns FALSE.
 
-  \sa mayGrowVectically() mayShrinkHorizontally()
+  \sa mayGrowVertically() mayShrinkHorizontally()
 */
 
 /*! \fn bool QSizePolicy::mayGrowVertically() const

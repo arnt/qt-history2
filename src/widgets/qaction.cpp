@@ -88,7 +88,7 @@
     menu and toolbar and then connected to the slot which will perform
     the action. For example:
 
-    \walkthrough action/application.cpp
+    \quotefile action/application.cpp
     \skipto Save File
     \printuntil connect
 
@@ -961,7 +961,7 @@ void QAction::objectDestroyed()
   been switched on or off connect it to a slot that takes a bool to
   indicate the state, e.g.
 
-  \walkthrough action/toggleaction/toggleaction.cpp
+  \quotefile action/toggleaction/toggleaction.cpp
   \skipto QMainWindow * window
   \printline QMainWindow * window
   \skipto labelonoffaction
@@ -1062,7 +1062,7 @@ void QActionGroupPrivate::update( const QActionGroup* that )
 /*! \class QActionGroup qaction.h
     \ingroup basic
     \ingroup application
-  
+
   \brief The QActionGroup class groups actions together.
 
     In some situations it is useful to group actions together. For
@@ -1076,7 +1076,7 @@ void QActionGroupPrivate::update( const QActionGroup* that )
     separate menu options and toolbar buttons.
 
     Here's an example from examples/textedit:
-    \walkthrough textedit/textedit.cpp
+    \quotefile textedit/textedit.cpp
     \skipto QActionGroup
     \printuntil connect
 
@@ -1594,7 +1594,7 @@ void QActionGroup::childEvent( QChildEvent *e )
 
   The argument is the action whose state changed to "on".
 
-  \walkthrough action/actiongroup/editor.cpp
+  \quotefile action/actiongroup/editor.cpp
   \skipto QActionGroup
   \printline QActionGroup
   \skipto QObject::connect

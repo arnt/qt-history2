@@ -226,7 +226,7 @@ public:
   etc.
 
   The most common use of QTranslator is expected to be loading a
-  translator file made using \link linguist-manual.html Qt
+  translator file made using \link linguist-manual.book Qt
   Linguist\endlink, installing it using
   QApplication::installTranslator(), and using it via QObject::tr(),
   like this:
@@ -995,7 +995,7 @@ QValueList<QTranslatorMessage> QTranslator::messages() const
 
   This class is of no interest to most applications, just for
   translation tools such as
-  \link linguist-manual.html Qt Linguist\endlink. It is
+  \link linguist-manual.book Qt Linguist\endlink. It is
   provided simply to make the API complete and regular.
 
   For a QTranslator object, a lookup key is a triple (\e context, \e

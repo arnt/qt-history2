@@ -322,7 +322,7 @@ static void remove_tree( QObject* obj )
 
   The object name is some text that can be used to identify a QObject.
   It's particularly useful in conjunction with
-    \link designer-manual.html <i>Qt Designer</i>\endlink.
+    \link designer-manual.book <i>Qt Designer</i>\endlink.
   You can find an object by name (and type) using child(). To find
   several objects use queryList().
 

@@ -69,7 +69,7 @@ Let's first have a look at \e examples/main.cpp, in full ...
 
 ... and go over \e main() in detail.
 
-\walkthrough application/main.cpp
+\quotefile application/main.cpp
 \skipto argc
 \printline argc
 \printline QApplication
@@ -104,7 +104,7 @@ that QApplication returns when it leaves the event loop.
 <a name="ApplicationWindow"></a>
 <h2>The Implementation of ApplicationWindow</h2>
 
-\walkthrough application/application.cpp
+\quotefile application/application.cpp
 
 Since the implementation is quite large (almost 300 lines) we 
 won't bore you with the preliminary headerfile \e #includes. Before we 

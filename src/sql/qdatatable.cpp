@@ -1675,7 +1675,7 @@ void QDataTable::setSize( QSqlCursor* sql )
 }
 
 /*!
-    \fn virtual void QDataTable::setCursor( QSqlCursor* cursor = 0, bool autoPopulate = FALSE, bool autoDelete = FALSE )
+    \overload virtual void QDataTable::setCursor( QSqlCursor* cursor = 0, bool autoPopulate = FALSE, bool autoDelete = FALSE )
 
     \obsolete
 
