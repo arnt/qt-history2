@@ -168,7 +168,7 @@ void ConnectionEditor::signalChanged()
     int n = receiver->metaObject()->numSlots( TRUE );
     for( int i = 0; i < n; ++i ) {
 	// accept only public slots. For the form window, also accept protected slots
-	QMetaData* md =  receiver->metaObject()->slot( i, TRUE  );
+	const QMetaData* md =  receiver->metaObject()->slot( i, TRUE  );
 	if ( ( (receiver->metaObject()->slot( i, TRUE )->access == QMetaData::Public) ||
 	       ( formWindow->isMainContainer( (QWidget*)receiver ) &&
 		 receiver->metaObject()->slot(i, TRUE)->access == QMetaData::Protected) ) &&
@@ -188,7 +188,7 @@ void ConnectionEditor::signalChanged()
 		if ( checkConnectArgs( signal.data(), receiver, s ) )
 		    slotBox->insertItem( QString( (*it).slot ) );
 	    }
-	}	
+	}
     }
 
     if ( receiver->inherits( "CustomWidget" ) ) {
