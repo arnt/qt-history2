@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#170 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#171 $
 **
 ** Definition of QWidget class
 **
@@ -36,6 +36,7 @@
 #include "qstyle.h"
 #endif // QT_H
 
+class QLayout;
 
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
 {						// base class for UI objects
@@ -229,7 +230,8 @@ public slots:
 public:
     virtual QSize sizeHint() const;
     virtual void  adjustSize();
-
+    QLayout *layout() const { return lay_out; }
+    void qInternalSetLayout( QLayout *l );
     virtual void reparent( QWidget *parent, WFlags, const QPoint &,
 			   bool showIt=FALSE );
 #ifndef QT_NO_COMPAT
@@ -376,7 +378,8 @@ private:
     QWExtra	*extra;
     uint automask : 1;
 
-    QWidget	*focusChild; // ### unused now
+    QWidget	*focus_proxy; 
+    QLayout 	*lay_out;
     static void	 createMapper();
     static void	 destroyMapper();
     static QWidgetList	 *wList();

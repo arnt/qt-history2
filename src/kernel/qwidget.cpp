@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#282 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#283 $
 **
 ** Implementation of QWidget class
 **
@@ -32,6 +32,7 @@
 #include "qkeycode.h"
 #include "qapplication.h"
 #include "qbrush.h"
+#include "qlayout.h"
 #if defined(_WS_WIN_)
 #if defined(_CC_BOOL_DEF_)
 #undef	bool
@@ -616,7 +617,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     isWidget = TRUE;				// is a widget
     winid = 0;					// default attributes
     flags = f;
-    focusChild = 0;
+    focus_proxy = 0;
     extra = 0;					// no extra widget info
     automask = 0;
     if ( !deferredMoves )			// do it only once
@@ -1898,20 +1899,20 @@ void QWidget::setMouseTracking( bool enable )
 
 void QWidget::setFocusProxy( QWidget * w )
 {
-    if ( focusChild )
-	disconnect( focusChild, SIGNAL(destroyed()),
+    if ( focus_proxy )
+	disconnect( focus_proxy, SIGNAL(destroyed()),
 		    this, SLOT(focusProxyDestroyed()) );
 
     if ( w ) {
 	w->setFocusPolicy( focusPolicy() );
-	focusChild = 0;
+	focus_proxy = 0;
 	setFocusPolicy( NoFocus );
-	focusChild = w;
-	connect( focusChild, SIGNAL(destroyed()),
+	focus_proxy = w;
+	connect( focus_proxy, SIGNAL(destroyed()),
 		 this, SLOT(focusProxyDestroyed()) );
     } else {
-	QWidget * pfc = focusChild;
-	focusChild = 0;
+	QWidget * pfc = focus_proxy;
+	focus_proxy = 0;
 	if ( pfc )
 	    setFocusPolicy( pfc->focusPolicy() );
     }
@@ -1925,7 +1926,7 @@ void QWidget::setFocusProxy( QWidget * w )
 
 QWidget * QWidget::focusProxy() const
 {
-    return focusChild; // ### watch out for deletes
+    return focus_proxy; // ### watch out for deletes
 }
 
 
@@ -1935,7 +1936,7 @@ QWidget * QWidget::focusProxy() const
 
 void QWidget::focusProxyDestroyed()
 {
-    focusChild = 0;
+    focus_proxy = 0;
     setFocusPolicy( NoFocus );
 }
 
@@ -2729,13 +2730,16 @@ void QWidget::adjustSize()
   Returns a recommended size for the widget, or an invalid size if
   no size is recommended.
 
-  The default implementation returns an invalid size.
+  The default implementation returns an invalid size if there is no layout
+  for this widget, the layout's preferred size otherwise.
 
   \sa QSize::isValid(), resize(), setMinimumSize()
 */
 
 QSize QWidget::sizeHint() const
 {
+    if ( layout() )
+	return layout()->minSize();
     return QSize( -1, -1 );
 }
 
@@ -3597,3 +3601,14 @@ void QWidget::updateMask()
 {
 }
 
+
+
+/*!
+  \internal
+  Don't even think of using this function.
+*/
+
+void QWidget::qInternalSetLayout( QLayout *l )
+{
+    lay_out = l;
+}

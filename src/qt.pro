@@ -46,7 +46,6 @@ HEADERS		= $$DIALOGS_H/qbuilder.h \
 		  $$KERNEL_H/qfontdata.h \
 		  $$KERNEL_H/qfontinfo.h \
 		  $$KERNEL_H/qfontmetrics.h \
-		  $$KERNEL_H/qgmanager.h \
 		  $$KERNEL_H/qiconset.h \
 		  $$KERNEL_H/qimage.h \
 		  $$KERNEL_H/qkeycode.h \
@@ -176,7 +175,6 @@ SOURCES		= dialogs/qbuilder.cpp \
 		  kernel/qevent.cpp \
 		  kernel/qfocusdata.cpp \
 		  kernel/qfont.cpp \
-		  kernel/qgmanager.cpp \
 		  kernel/qiconset.cpp \
 		  kernel/qimage.cpp \
 		  kernel/qlayout.cpp \

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#22 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#23 $
 **
 ** Definition of layout classes
 **
@@ -25,53 +25,56 @@
 #define QLAYOUT_H
 
 #ifndef QT_H
-#include "qgmanager.h"
-#include "qlist.h"
+#include "qobject.h"
 #endif // QT_H
 
 class QMenuBar;
-
+class QWidget;
 struct QLayoutData;
-
+class QLayoutArray;
+class QLayoutBox;
 
 class Q_EXPORT QLayout : public QObject
 {
     Q_OBJECT
 public:
+    QLayout( QWidget *parent, int border=0, int autoBorder=-1,
+	     const char *name=0 );
+    QLayout( int autoBorder=-1, const char *name=0 );
     virtual ~QLayout();
-    int defaultBorder() const { return defBorder; }
+    int defaultBorder() const { return insideSpacing; }
 
     enum { unlimited = QCOORD_MAX };
 
-    virtual bool activate();
     void freeze( int w, int h );
     void freeze() { freeze( 0, 0 ); }
 
     virtual void  setMenuBar( QMenuBar *w );
 
     QWidget *mainWidget();
-
+    QMenuBar *menuBar() const { return menubar; }
+    bool isTopLevel() const { return topLevel; }
+    const QRect &geometry() { return rect; }
+#if 1	//OBSOLETE
+    bool activate() { return FALSE; }
+#endif
+    virtual bool fixedWidth();
+    virtual bool fixedHeight();
+    virtual QSize minSize() = 0;
+    //    virtual void clearCache();
+    virtual void setGeometry( const QRect& );
 protected:
-    QLayout( QWidget *parent,  int border,
-	     int autoBorder, const char *name );
-    QLayout( int autoBorder = -1, const char *name=0 );
-
-    QGManager *basicManager() { return bm; }
-    virtual QChain *mainVerticalChain() = 0;
-    virtual QChain *mainHorizontalChain() = 0;
-
-    virtual void initGM() = 0;
-    void addChildLayout( QLayout *);
-
-    static QChain *verChain( QLayout *l ) { return l->mainVerticalChain(); }
-    static QChain *horChain( QLayout *l ) { return l->mainHorizontalChain(); }
-
+    bool  eventFilter( QObject *, QEvent * );
+    virtual void paintEvent( QPaintEvent * );
+    virtual void childRemoved( QWidget * ) = 0;
+    void addChildLayout( QLayout *l );
 private:
-    QGManager * bm;
-    int defBorder;
+    int insideSpacing;
+    int outsideBorder;
     bool    topLevel;
-
+    QRect rect;
     QLayoutData *extraData;
+    QMenuBar *menubar;
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QLayout( const QLayout & );
@@ -81,7 +84,60 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-class Q_EXPORT QBoxLayout : public QLayout
+class Q_EXPORT QGridLayout : public QLayout
+{
+    Q_OBJECT
+public:
+    QGridLayout( QWidget *parent, int nRows, int nCols, int border=0,
+		 int autoBorder = -1, const char *name=0 );
+    QGridLayout( int nRows, int nCols, int autoBorder = -1,
+		 const char *name=0 );
+    ~QGridLayout();
+
+    QSize minSize();
+    
+    virtual void setRowStretch( int row, int stretch );
+    virtual void setColStretch( int col, int stretch );
+
+    int numRows() const;
+    int numCols() const;
+    bool fixedWidth();
+    bool fixedHeight();
+    //    void clearCache();
+
+    void add( QWidget*, int row, int col );
+    void add( QWidget*, int row1, int row2, int col1, int col2 );
+    void add( QLayout*, int row, int col );
+    //    void add( QSize, int row, int col );
+
+    // void setAlignment( QWidget* );
+    
+#if 1	//OBSOLETE    
+    void addWidget( QWidget *, int row, int col, int align = 0 );
+    void addMultiCellWidget( QWidget *, int fromRow, int toRow,
+			       int fromCol, int toCol, int align = 0 );
+    void addLayout( QLayout *layout, int row, int col);
+    void addRowSpacing( int row, int minsize );
+    void addColSpacing( int col, int minsize );
+    void expand( int rows, int cols );
+#endif
+protected:
+    void childRemoved( QWidget * );
+    void setGeometry( const QRect& );
+    void add( QLayoutBox*, int row, int col );
+private:
+    void init( int rows, int cols );
+    QLayoutArray *array;
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QGridLayout( const QGridLayout & );
+    QGridLayout &operator=( const QGridLayout & );
+#endif
+};
+
+
+class Q_EXPORT QBoxLayout : public QGridLayout
 {
     Q_OBJECT
 public:
@@ -96,26 +152,18 @@ public:
 
     ~QBoxLayout();
 
+    Direction direction() const { return dir; }
+
+#if 1	//OBSOLETE    
     void addSpacing( int size );
     void addStretch( int stretch = 0 );
     void addWidget( QWidget *, int stretch = 0, int alignment = AlignCenter );
     void addLayout( QLayout *layout, int stretch = 0 );
-    Direction direction() const { return (Direction)dir; }
-
     void addStrut( int );
-protected:
-    QChain *mainVerticalChain();
-    QChain *mainHorizontalChain();
-    void initGM();
-
+#endif    
 private:
-    void addB( QLayout *, int stretch );
-
-    QGManager::Direction dir;
-    QChain * parChain;
-    QChain * serChain;
-    bool    pristine;
-
+    QRect lastKnownGeom;
+    Direction dir;
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QBoxLayout( const QBoxLayout & );
@@ -152,53 +200,6 @@ public:
 };
 
 
-
-class Q_EXPORT QGridLayout : public QLayout
-{
-    Q_OBJECT
-public:
-    QGridLayout( QWidget *parent, int nRows, int nCols, int border=0,
-		 int autoBorder = -1, const char *name=0 );
-    QGridLayout( int nRows, int nCols, int autoBorder = -1,
-		 const char *name=0 );
-    ~QGridLayout();
-    void addWidget( QWidget *, int row, int col, int align = 0 );
-    void addMultiCellWidget( QWidget *, int fromRow, int toRow,
-			       int fromCol, int toCol, int align = 0 );
-    void addLayout( QLayout *layout, int row, int col);
-
-    virtual void setRowStretch( int row, int stretch );
-    virtual void setColStretch( int col, int stretch );
-    void addRowSpacing( int row, int minsize );
-    void addColSpacing( int col, int minsize );
-
-    int numRows() const { return rr; }
-    int numCols() const { return cc; }
-
-    void expand( int rows, int cols );
-
-protected:
-    QChain *mainVerticalChain() { return verChain; }
-    QChain *mainHorizontalChain() { return horChain; }
-    void initGM();
-
-private:
-    QArray<QChain*> *rows;
-    QArray<QChain*> *cols;
-
-    QChain *horChain;
-    QChain *verChain;
-    void init ( int r, int c );
-
-    int rr;
-    int cc;
-
-private:	// Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QGridLayout( const QGridLayout & );
-    QGridLayout &operator=( const QGridLayout & );
-#endif
-};
 
 
 #endif // QLAYOUT_H
