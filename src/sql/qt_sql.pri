@@ -45,7 +45,6 @@ sql {
 		SOURCES += $$SQL_CPP/src/p$$SQL_CPP/qsql_psql.cpp
 		DEFINES += QT_SQL_POSTGRES
 		unix {
-			INCLUDEPATH += /usr/include/postgresql
 			LIBS += -lpq
 		}
 	}
@@ -55,7 +54,6 @@ sql {
 		SOURCES += $$SQL_CPP/src/my$$SQL_CPP/qsql_mysql.cpp
 		DEFINES += QT_SQL_MYSQL
 		unix {
-			INCLUDEPATH += /usr/include/mysql
 			LIBS += -lmysqlclient
 		}
 	}
@@ -65,7 +63,6 @@ sql {
 		SOURCES += $$SQL_CPP/src/odbc/qsql_odbc.cpp
 		DEFINES += QT_SQL_ODBC
 		unix {
-			INCLUDEPATH += /usr/local/include
 			LIBS += -lodbc
 		}
 	}
@@ -75,7 +72,6 @@ sql {
 		SOURCES += $$SQL_CPP/src/oci/qsql_oci.cpp
 		DEFINES += QT_SQL_OCI
 		unix {
-			INCLUDEPATH += /usr/local/include
 			LIBS += -lclntsh
 		}
 	}
