@@ -95,9 +95,7 @@ platformRemove["win"] = [ new RegExp("^gif"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
 			  new RegExp("^configure"),
-			  new RegExp("^Makefile.win32-g++"),
 			  new RegExp("^LICENSE.PREVIEW"),
-			  new RegExp("^install.exe") ];
 platformKeep["win"] = [ new RegExp(".") ];
 
 platformRemove["x11"] = [ new RegExp("^gif"),
