@@ -104,7 +104,7 @@ static inline void debug_wndw_rgn(const char *where, QWidget *w, const QRegion &
     QPoint mp(posInWindow(w));
     QRect wrect(mp.x(), mp.y(), w->width(), w->height());
     qDebug("Qt: internal: %s %s %s (%s) [ %d %d %d %d ]", where, clean ? "clean" : "dirty",
-	   w->className(), w->name(), wrect.x(), wrect.y(), wrect.width(), wrect.height());
+	   w->className(), w->objectName(), wrect.x(), wrect.y(), wrect.width(), wrect.height());
     QVector<QRect> rs = r.rects();
     int offx = 0, offy = 0;
     if(translate) {
@@ -1684,7 +1684,7 @@ void QWidget::raise()
 	QRegion clp;
 	if(isVisible())
 	    clp = clippedRegion(false);
-	if(p->d->children.findIndex(this) >= 0) {
+	if(p->d->children.indexOf(this) >= 0) {
 	    p->d->children.remove(this);
 	    p->d->children.append(this);
 	}
@@ -1707,7 +1707,7 @@ void QWidget::lower()
 	QRegion clp;
 	if(isVisible())
 	    clp = clippedRegion(false);
-	if(p->d->children.findIndex(this) >= 0) {
+	if(p->d->children.indexOf(this) >= 0) {
 	    p->d->children.remove(this);
 	    p->d->children.insert(0, this);
 	}
@@ -1728,11 +1728,11 @@ void QWidget::stackUnder(QWidget *w)
     QWidget *p = parentWidget();
     if(!p || p != w->parentWidget())
 	return;
-    int loc = p->d->children.findIndex(w);
+    int loc = p->d->children.indexOf(w);
     QRegion clp;
     if(isVisible())
 	clp = clippedRegion(false);
-    if(loc >= 0 && p->d->children.findIndex(this) >= 0) {
+    if(loc >= 0 && p->d->children.indexOf(this) >= 0) {
 	p->d->children.remove(this);
 	p->d->children.insert(loc, this);
     }
@@ -1849,7 +1849,7 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
 		}
 
 		if(isMove && !no_move_blt && !isTopLevel()) {
-		    QWidget *p = parentWidget(true);
+		    QWidget *p = parentWidget();
 		    if(!p)
 			p = this;
 		    QMacSavedPortInfo pi(p, bltregion);
@@ -1906,7 +1906,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
     if(maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX) {
 	qWarning("Qt: QWidget::setMaximumSize: (%s/%s) "
 		"The largest allowed size is (%d,%d)",
-		 name("unnamed"), className(), QWIDGETSIZE_MAX,
+		 objectName("unnamed"), className(), QWIDGETSIZE_MAX,
 		QWIDGETSIZE_MAX);
 	maxw = qMin(maxw, QWIDGETSIZE_MAX);
 	maxh = qMin(maxh, QWIDGETSIZE_MAX);
@@ -1914,7 +1914,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
     if(maxw < 0 || maxh < 0) {
 	qWarning("Qt: QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
 		"are not possible",
-		name("unnamed"), className(), maxw, maxh);
+		 objectName("unnamed"), className(), maxw, maxh);
 	maxw = qMax(maxw, 0);
 	maxh = qMax(maxh, 0);
     }
@@ -2319,7 +2319,7 @@ bool QWidget::isClippedRegionDirty()
 {
     if(!d->extraData() || d->extraData()->clip_dirty)
 	return true;
-    if(/*!isTopLevel() && */(parentWidget(true) && parentWidget(true)->isClippedRegionDirty()))
+    if(!isTopLevel() && parentWidget() && parentWidget()->isClippedRegionDirty())
 	return true;
     return false;
 }
@@ -2385,7 +2385,7 @@ QRegion QWidget::clippedRegion(bool do_children)
     QPoint mp; //My position in the window (posInWindow(this))
     if(!isTopLevel() && no_children) { //short-circuit case
 	int px = x(), py = y();
-	for(QWidget *par = parentWidget(true); par; par = par->parentWidget(true)) {
+	for(QWidget *par = parentWidget(); par; par = par->parentWidget()) {
 	    if((px + width() < 0) || (py + height() < 0) ||
 	       px > par->width() || py > par->height()) {
 		extra->child_dirty = (extra->clip_dirty = false);

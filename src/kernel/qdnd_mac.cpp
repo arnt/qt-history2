@@ -556,8 +556,10 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler(DragTrackingMessage theMessage,
     QPoint globalMouse(mouse.h, mouse.v);
     QMacDndExtra *macDndExtra = (QMacDndExtra*) handlerRefCon;
     QWidget *widget = QApplication::widgetAt(globalMouse);
-    while(widget && (!widget->acceptDrops()))
-	widget = widget->parentWidget(TRUE);
+    while(widget && !widget->acceptDrops() && !widget->isTopLevel())
+	widget = widget->parentWidget();
+    if(!widget->acceptDrops())
+	widget = NULL;
     //Dispatch events
     if(widget && theMessage == kDragTrackingInWindow && widget == current_drag_widget) {
         QDragMoveEvent de(widget->mapFromGlobal(globalMouse));

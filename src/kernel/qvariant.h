@@ -73,7 +73,7 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
 #ifndef QT_NO_PALETTE
     inline QVariant(const QPalette &palette);
 #ifdef QT_COMPAT
-    inline QT_COMPAT QVariant(const QColorGroup &cg);
+    inline QVariant(const QColorGroup &cg);
 #endif // QT_COMPAT
 #endif // QT_NO_PALETTE
 #ifndef QT_NO_ICONSET
@@ -103,7 +103,7 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     inline QVariant(double d);
     inline QVariant(bool b);
 #ifdef QT_COMPAT
-    inline QT_COMPAT QVariant(bool b, int);
+    inline QVariant(bool b, int);
 #endif
 
     inline QVariant(const char *str);

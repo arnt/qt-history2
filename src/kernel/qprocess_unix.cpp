@@ -710,7 +710,7 @@ bool QProcess::start( QStringList *env )
 	QFileInfo fi(arg_bundle);
 	if(fi.exists() && fi.isDir() && arg_bundle.right(4) == ".app") {
 	    QCString exe = arg_bundle;
-	    int lslash = exe.findRev('/');
+	    int lslash = exe.lastIndexOf('/');
 	    if(lslash != -1)
 		exe = exe.mid(lslash+1);
 	    exe = QCString(arg_bundle + "/Contents/MacOS/" + exe);
@@ -766,7 +766,7 @@ bool QProcess::start( QStringList *env )
 	    const QString mac_bundle_suffix = ".app/Contents/MacOS/";
 	    if(!QFile::exists(command) && QFile::exists(command + mac_bundle_suffix)) {
 		QString exec = command;
-		int lslash = command.findRev('/');
+		int lslash = command.lastIndexOf('/');
 		if(lslash != -1)
 		    exec = command.mid(lslash+1);
 		QFileInfo fileInfo( command + mac_bundle_suffix + exec );
