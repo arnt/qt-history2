@@ -1933,6 +1933,30 @@ void QTextDocument::addSelection( int id )
     nSelections = QMAX( nSelections, id + 1 );
 }
 
+static void setSelectionEndHelper( int id, QTextDocumentSelection &sel, QTextCursor &start, QTextCursor &end )
+{
+    QTextCursor c1 = start;
+    QTextCursor c2 = end;
+    if ( sel.swapped ) {
+	c1 = end;
+	c2 = start;
+    }
+
+    c1.parag()->removeSelection( id );
+    c2.parag()->removeSelection( id );
+    if ( c1.parag() != c2.parag() ) {
+	c1.parag()->setSelection( id, c1.index(), c1.parag()->length() - 1 );
+	c2.parag()->setSelection( id, 0, c2.index() );
+    } else {
+	c1.parag()->setSelection( id, QMIN( c1.index(), c2.index() ), QMAX( c1.index(), c2.index() ) );
+    }
+
+    sel.startCursor = start;
+    sel.endCursor = end;
+    if ( sel.startCursor.parag() == sel.endCursor.parag() )
+	sel.swapped = sel.startCursor.index() > sel.endCursor.index();
+}
+
 bool QTextDocument::setSelectionEnd( int id, QTextCursor *cursor )
 {
     QMap<int, QTextDocumentSelection>::Iterator it = selections.find( id );
@@ -1950,27 +1974,7 @@ bool QTextDocument::setSelectionEnd( int id, QTextCursor *cursor )
     }
 
     if ( sel.endCursor.parag() == end.parag() ) {
-	QTextCursor c1 = start;
-	QTextCursor c2 = end;
-	if ( sel.swapped ) {
-	    c1 = end;
-	    c2 = start;
-	}
-
-	c1.parag()->removeSelection( id );
-	c2.parag()->removeSelection( id );
-	if ( c1.parag() != c2.parag() ) {
-	    c1.parag()->setSelection( id, c1.index(), c1.parag()->length() - 1 );
-	    c2.parag()->setSelection( id, 0, c2.index() );
-	} else {
-	    c1.parag()->setSelection( id, QMIN( c1.index(), c2.index() ), QMAX( c1.index(), c2.index() ) );
-	}
-
-	sel.startCursor = start;
-	sel.endCursor = end;
-	if ( sel.startCursor.parag() == sel.endCursor.parag() )
-	    sel.swapped = sel.startCursor.index() > sel.endCursor.index();
-
+	setSelectionEndHelper( id, sel, start, end );
 	return TRUE;
     }
 
@@ -2062,6 +2066,8 @@ bool QTextDocument::setSelectionEnd( int id, QTextCursor *cursor )
     sel.endCursor = end;
     if ( sel.startCursor.parag() == sel.endCursor.parag() )
 	sel.swapped = sel.startCursor.index() > sel.endCursor.index();
+
+    setSelectionEndHelper( id, sel, start, end );
 
     return TRUE;
 }
