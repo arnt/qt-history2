@@ -1674,7 +1674,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
             HIThemeDrawTabPane(&hirect, &tpdi, cg, kHIThemeOrientationNormal);
         }
         break;
-    case PE_FrameTabBarBase:
+    case QStyle::PE_FrameTabBarBase:
         break;
     default:
         q->QWindowsStyle::drawPrimitive(pe, opt, p, w);
