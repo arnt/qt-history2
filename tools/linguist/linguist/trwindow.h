@@ -64,14 +64,13 @@ protected:
     void readConfig();
     void writeConfig();
     void closeEvent( QCloseEvent * );
-        
+
 private slots:
     void doneAndNext();
     void prev();
     void next();
     void recentFileActivated( int );
     void setupRecentFilesMenu();
-    void exitApp();
     void open();
     void save();
     void saveAs();
@@ -106,7 +105,7 @@ private slots:
     void focusSourceList();
     void focusPhraseList();
     void updateClosePhraseBook();
-    
+
 private:
     typedef QPtrList<PhraseBook> PBL;
     typedef QDict<PhraseBook> PBD;

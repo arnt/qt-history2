@@ -1299,12 +1299,6 @@ void TrWindow::openFile( const QString& name )
     }
 }
 
-void TrWindow::exitApp()
-{
-    if ( maybeSave() )
-	close();
-}
-
 void TrWindow::open()
 {
     if ( maybeSave() ) {
@@ -2341,7 +2335,7 @@ void TrWindow::setupMenuBar()
 
     filep->insertSeparator();
 
-    exitAct = new Action( filep, tr("E&xit"), this, SLOT(exitApp()),
+    exitAct = new Action( filep, tr("E&xit"), this, SLOT(close()),
 			  QAccel::stringToKey(tr("Ctrl+Q")) );
     // Edit menu
     undoAct = new Action( editp, tr("&Undo"), me, SLOT(undo()),
