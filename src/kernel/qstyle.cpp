@@ -710,7 +710,7 @@ QSize QStyle::scrollBarExtent()
 /*!
   Returns the extend (height or width depending on the orientation) which a toolbar
   handle has.
-  
+
   WARNING: Because of binary compatibility this method is NOT virtual, so reimplementing
   it in Qt 2.x doesn't make sense. In the next major release this method will become virtual!
 */
@@ -727,7 +727,7 @@ int QStyle::toolBarHandleExtend() const
   \a r. \a orientation gives the orientation of the toolbar, and the handle is drawn
   \a highlighted if \a highlight is TRUE, else not. \a cg is the QColorGroup of the toolbar and
   if \a drawBorder is TRUE a border around the handle may be drawn.
-  
+
   WARNING: Because of binary compatibility this method is NOT virtual, so reimplementing
   it in Qt 2.x doesn't make sense. In the next major release this method will become virtual!
 */
@@ -766,7 +766,7 @@ void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation ori
 		}
 		p->drawPoints( a );
 		if ( drawBorder ) {
-		    p->setPen( QPen( Qt::gray ) );
+		    p->setPen( QPen( Qt::darkGray ) );
 		    p->drawLine( r.width() - 1, 0, r.width() - 1, toolBarHandleExtend() );
 		}
 	    }
@@ -792,7 +792,7 @@ void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation ori
 		}
 		p->drawPoints( a );
 		if ( drawBorder ) {
-		    p->setPen( QPen( Qt::gray ) );
+		    p->setPen( QPen( Qt::darkGray ) );
 		    p->drawLine( 0, r.height() - 1, toolBarHandleExtend(), r.height() - 1 );
 		}
 	    }
