@@ -48,7 +48,8 @@ void Main::keyPressEvent(QKeyEvent* ke)
 	    draw(p);
 	}
     } else {
-	line += ke->ascii();
+	if ( ke->ascii() )
+	    line += ke->ascii();
     }
     update();
 }
@@ -117,7 +118,10 @@ void Main::draw(QPainter& p)
 main(int argc, char** argv)
 {
     QApplication app(argc, argv);
-    app.setFont(QFont("Charter", 100, QFont::Normal, TRUE));
+    QApplication::setFont(QFont("Times",100,QFont::Normal,FALSE));
+    //QApplication::setFont(QFont("Times",100,QFont::Normal,TRUE));
+    //QApplication::setFont(QFont("System",100,QFont::Normal,TRUE));
+    //QApplication::setFont(QFont("Courier",100,QFont::Normal,TRUE));
 
     Main m;
     m.show();
