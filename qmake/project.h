@@ -22,11 +22,12 @@
 
 class QMakeProperty;
 
+struct ParsableBlock;
+struct IteratorBlock;
+struct FunctionBlock;
+
 class QMakeProject
 {
-    struct ParsableBlock;
-    struct IteratorBlock;
-    struct FunctionBlock;
     struct ScopeBlock
     {
         enum TestStatus { TestNone, TestFound, TestSeek };
@@ -37,6 +38,7 @@ class QMakeProject
         uint ignore : 1, else_status : 2;
     };
     friend struct ParsableBlock;
+    friend struct IteratorBlock;
 
     QStack<ScopeBlock> scope_blocks;
     IteratorBlock *iterator;

@@ -40,7 +40,7 @@ struct parser_info {
 } parser;
 
 //just a parsable entity
-struct QMakeProject::ParsableBlock
+struct ParsableBlock
 {
     ParsableBlock() { }
 
@@ -56,7 +56,7 @@ protected:
     bool eval(QMakeProject *p);
 };
 
-bool QMakeProject::ParsableBlock::eval(QMakeProject *p)
+bool ParsableBlock::eval(QMakeProject *p)
 {
     bool ret = true;
     for(QList<Parse>::Iterator parse_it = parser.begin(); parse_it != parser.end(); ++parse_it) {
@@ -69,7 +69,7 @@ bool QMakeProject::ParsableBlock::eval(QMakeProject *p)
 
 
 //defined functions
-struct QMakeProject::FunctionBlock : public QMakeProject::ParsableBlock
+struct FunctionBlock : public ParsableBlock
 {
     FunctionBlock() : scope_level(1), cause_return(false) { }
 
@@ -83,21 +83,21 @@ protected:
     bool eval(QMakeProject *p);
 };
 
-bool QMakeProject::FunctionBlock::exec(QMakeProject *p, const QStringList &args)
+bool FunctionBlock::exec(QMakeProject *p, const QStringList &args)
 {
     QList<QStringList> va;
     for(int i = 0; i < args.count(); i++) {
         va.append(p->variables()[QString::number(i+1)]);
         p->variables()[QString::number(i+1)] = args[i];
     }
-    bool ret = QMakeProject::ParsableBlock::eval(p);
+    bool ret = ParsableBlock::eval(p);
     for(int i = 0; i < va.count(); i++) 
         p->variables()[QString::number(i+1)] = va[i];
     return ret;
 }
 
 //loops
-struct QMakeProject::IteratorBlock : public QMakeProject::ParsableBlock
+struct IteratorBlock : public ParsableBlock
 {
     IteratorBlock() : scope_level(1), loop_forever(false), cause_break(false), cause_next(false) { }
 
@@ -120,7 +120,7 @@ struct QMakeProject::IteratorBlock : public QMakeProject::ParsableBlock
     bool exec(QMakeProject *p);
     virtual bool continueBlock() { return !cause_next && !cause_break; }
 };
-bool QMakeProject::IteratorBlock::exec(QMakeProject *p)
+bool IteratorBlock::exec(QMakeProject *p)
 {
     bool ret = true;
     QStringList::Iterator it;
@@ -156,7 +156,7 @@ bool QMakeProject::IteratorBlock::exec(QMakeProject *p)
                 break;
         }
         if(succeed) 
-            ret = QMakeProject::ParsableBlock::eval(p);
+            ret = ParsableBlock::eval(p);
         //restore the variable in the map
         if(!variable.isEmpty())
             p->variables()[variable] = va;
@@ -173,6 +173,7 @@ bool QMakeProject::IteratorBlock::exec(QMakeProject *p)
     p->function = 0;
     return ret;
 }
+
 QMakeProject::ScopeBlock::~ScopeBlock()
 {
 #if 0
