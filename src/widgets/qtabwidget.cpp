@@ -519,7 +519,7 @@ void QTabWidget::showPage( QWidget * w)
     Removes page \a w from this stack of widgets. Does not delete \a
     w.
 
-    \sa addPage(), showPage(), QWidgetStack::removeWidget()
+    \sa addTab(), showPage(), QWidgetStack::removeWidget()
 */
 void QTabWidget::removePage( QWidget * w )
 {

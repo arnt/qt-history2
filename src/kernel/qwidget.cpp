@@ -516,9 +516,9 @@ inline bool QWidgetMapper::remove( WId id )
 static QFont qt_naturalWidgetFont( QWidget* w ) {
     QFont naturalfont = QApplication::font( w );
     if ( ! w->isTopLevel() ) {
-	if ( ! naturalfont.isCopyOf( QApplication::font() ) ) 
+	if ( ! naturalfont.isCopyOf( QApplication::font() ) )
 	    naturalfont = naturalfont.resolve( w->parentWidget()->font() );
-	else 
+	else
 	    naturalfont = w->parentWidget()->font();
     }
     return naturalfont;
@@ -1582,20 +1582,26 @@ void QWidget::windowActivationChange( bool )
     const QColorGroup &acg = palette().active();
     const QColorGroup &icg = palette().inactive();
 
-    if ( acg != icg &&
-       ( acg.background() != icg.background() ||
-	 acg.base() != icg.base() ||
-	 acg.text() != icg.text() ||
-	 acg.foreground() != icg.foreground() ||
-	 acg.button() != icg.button() ||
-	 acg.buttonText() != icg.buttonText() ||
-	 acg.brightText() != icg.brightText() ||
-	 acg.dark() != icg.dark() ||
-	 acg.light() != icg.light() ||
-	 acg.mid() != icg.mid() ||
-	 acg.midlight() != icg.midlight() ||
-	 acg.shadow() != icg.shadow() ) )
+    if ( acg != icg ) {
+	BackgroundMode bm = backgroundMode();
+	QColorGroup::ColorRole role = QPalette::backgroundRoleFromMode(bm);
+	if ( bm > NoBackground  && acg.brush(role) != icg.brush(role) )
+	    setBackgroundFromMode();
+	else if ( acg.background() == icg.background() &&
+		  acg.base() == icg.base() &&
+		  acg.text() == icg.text() &&
+		  acg.foreground() == icg.foreground() &&
+		  acg.button() == icg.button() &&
+		  acg.buttonText() == icg.buttonText() &&
+		  acg.brightText() == icg.brightText() &&
+		  acg.dark() == icg.dark() &&
+		  acg.light() == icg.light() &&
+		  acg.mid() == icg.mid() &&
+		  acg.midlight() == icg.midlight() &&
+		  acg.shadow() == icg.shadow() )
+	    return;
 	update();
+    }
 #endif
 }
 
@@ -2147,7 +2153,7 @@ const QColor &QWidget::paletteForegroundColor() const
 {
 #ifndef QT_NO_PALETTE
     BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
-    return palette().color( QPalette::Active, QPalette::foregroundRoleFromMode(mode) );
+    return colorGroup().color( QPalette::foregroundRoleFromMode(mode) );
 #else
     return Qt::black;
 #endif
@@ -2285,11 +2291,12 @@ void QWidget::setBackgroundFromMode()
 	    return;
 	}
     }
-    QPixmap * p = palette().active().brush( r ).pixmap();
+    const QColorGroup &cg = colorGroup();
+    QPixmap * p = cg.brush( r ).pixmap();
     if ( p )
 	setBackgroundPixmapDirect( *p );
     else
-	setBackgroundColorDirect( palette().active().color( r ) );
+	setBackgroundColorDirect( cg.color( r ) );
 #endif
 }
 
@@ -2611,7 +2618,7 @@ const QColorGroup &QWidget::colorGroup() const
 {
     if ( !isEnabled() )
 	return palette().disabled();
-    else if ( isActiveWindow() )
+    else if ( !isVisible() || isActiveWindow() )
 	return palette().active();
     else
 	return palette().inactive();
@@ -4174,6 +4181,7 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
 
 /*!
     \property QWidget::visibleRect
+    \brief the visible rectangle
 
     \obsolete
 

@@ -966,6 +966,7 @@ static void arabic_attributes( int /*script*/, const QString &text, int from, in
 }
 
 
+// #### stil missing: identify invalid character combinations
 static void arabic_shape( int /*script*/, const QString &string, int from, int len,
 			  QTextEngine *engine, QScriptItem *si )
 {

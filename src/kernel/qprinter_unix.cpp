@@ -118,16 +118,6 @@ QPrinter::QPrinter( PrinterMode m )
     state = PST_IDLE;
     output_file = FALSE;
     to_edge     = FALSE;
-    d = 0;
-    QPrinterUnixPrivate *tmp = new QPrinterUnixPrivate;
-    margins( &(tmp->topMargin), &(tmp->leftMargin),
-	     &(tmp->bottomMargin), &(tmp->rightMargin) );
-    d = tmp;
-    d->printerOptions = 0;
-    setOptionEnabled( PrintToFile, TRUE );
-    setOptionEnabled( PrintPageRange, TRUE );
-    setPrintRange( AllPages );
-
     switch ( m ) {
 	case ScreenResolution:
 #ifdef Q_WS_QWS
@@ -143,6 +133,16 @@ QPrinter::QPrinter( PrinterMode m )
 	case HighResolution:
 	    res = 600;
     }
+
+    d = 0;
+    QPrinterUnixPrivate *tmp = new QPrinterUnixPrivate;
+    margins( &(tmp->topMargin), &(tmp->leftMargin),
+	     &(tmp->bottomMargin), &(tmp->rightMargin) );
+    d = tmp;
+    d->printerOptions = 0;
+    setOptionEnabled( PrintToFile, TRUE );
+    setOptionEnabled( PrintPageRange, TRUE );
+    setPrintRange( AllPages );
 }
 
 /*!

@@ -375,6 +375,12 @@ int QKeySequence::assign( QString keyseq )
     return n;
 }
 
+struct ModifKeyName {
+    ModifKeyName() { }
+    ModifKeyName(int q, QString n) : qt_key(q), name(n) { }
+    int qt_key;
+    QString name;
+};
 
 /*!
     Constructs a single key from the string \str.
@@ -384,55 +390,44 @@ int QKeySequence::decodeString( const QString& str )
     int ret = 0;
     QString accel = str;
 
-#if !defined(Q_WS_WIN)
-    struct {
-	int qt_key;
-	QString name;
-    } modifiers[] = {
+    QValueList<ModifKeyName> modifs;
 #ifdef QMAC_CTRL
-	{ CTRL, QMAC_CTRL },
+    modifs << ModifKeyName(CTRL, QMAC_CTRL);
 #endif
 #ifdef QMAC_ALT
-	{ ALT, QMAC_ALT },
+    modifs << ModifKeyName(ALT, QMAC_ALT);
 #endif
 #ifdef QMAC_META
-	{ META, QMAC_META },
+    modifs << ModifKeyName(META, QMAC_META);
 #endif
 #ifdef QMAC_SHIFT
-	{ SHIFT, QMAC_SHIFT },
+    modifs << ModifKeyName(SHIFT, QMAC_SHIFT);
 #endif
-	{ CTRL, "ctrl+" }, { CTRL, QAccel::tr("Ctrl").lower() + "+" },
-	{ SHIFT, "shift+" }, { SHIFT, QAccel::tr("Shift").lower() + "+" },
-	{ ALT, "alt+" }, { ALT, QAccel::tr("Alt").lower() + "+" },
-	{ META, "meta+" }, { ALT, QAccel::tr("Meta").lower() + "+" },
-	{ 0, QString::null } };
-#else
-	struct {
-	    int qt_key;
-	    const char *name;
-	} modifiers[] = {
-	    { CTRL, "ctrl+" }, 
-	    { SHIFT, "shift+" }, 
-	    { ALT, "alt+" }, 
-	    { META, "meta+" }, 
-	    { 0, 0 } };
-#endif
-    QString sl = accel.lower();
-    for(int i = 0; modifiers[i].qt_key; i++) {
-	if(sl.contains(modifiers[i].name)) {
-	    ret |= modifiers[i].qt_key;
+    modifs << ModifKeyName(CTRL, "ctrl+") << ModifKeyName(CTRL, QAccel::tr("Ctrl").lower() + "+");
+    modifs << ModifKeyName(SHIFT, "shift+") << ModifKeyName(SHIFT, QAccel::tr("Shift").lower() + "+");
+    modifs << ModifKeyName(ALT, "alt+") << ModifKeyName(ALT, QAccel::tr("Alt").lower() + "+");
+    modifs << ModifKeyName(META, "meta+") << ModifKeyName(ALT, QAccel::tr("Meta").lower() + "+");
+    {
+	QString sl = accel.lower();
+	for(QValueList<ModifKeyName>::iterator it = modifs.begin(); it != modifs.end(); ++it) {
+	    if(sl.contains((*it).name)) {
+		ret |= (*it).qt_key;
 #ifndef QT_NO_REGEXP
-	    accel.remove(QRegExp(QRegExp::escape(modifiers[i].name), FALSE));
+		accel.remove(QRegExp(QRegExp::escape((*it).name), FALSE));
 #else
-	    accel.remove(modifiers[i].name);
+		accel.remove((*it).name);
 #endif
-	    sl = accel.lower();
+		sl = accel.lower();
+	    }
 	}
     }
-
-    int p = accel.findRev("+");
-    if(p != -1)
-	accel = accel.mid(p+1);
+    {
+	int p = accel.findRev("+");
+	if(p != -1) {
+	    qWarning( "QKeySequence::decodeString: %s cannot be processed", accel.left(p).latin1() );
+	    accel = accel.mid(p+1);
+	}
+    }
 
     int fnum = 0;
     if ( accel.length() == 1 ) {

@@ -242,7 +242,7 @@ main (int argc, char **argv)
 	croak ("FT_Done_GSUB_Table", error);
     }
   else
-    fprintf (stderr, "TT_Load_GSUB_Table %d\n", error);
+    fprintf (stderr, "TT_Load_GSUB_Table %x\n", error);
 
   printf("----> GPOS <----\n");
   if (!(error = TT_Load_GPOS_Table (face, &gpos, NULL)))
@@ -253,7 +253,7 @@ main (int argc, char **argv)
 	croak ("FT_Done_GPOS_Table", error);
     }
   else
-    fprintf (stderr, "TT_Load_GPOS_Table %d\n", error);
+    fprintf (stderr, "TT_Load_GPOS_Table %x\n", error);
 
 #if 0
   select_cmap (face);

@@ -733,6 +733,13 @@ void QToolButton::setOffIconSet( const QIconSet& set )
 
 #endif
 
+/*! \property QToolButton::pixmap
+    \brief the pixmap of the button
+
+    The pixmap property has no meaning for tool buttons. Use the
+    iconSet property instead.
+*/
+
 /*!
     \property QToolButton::iconSet
     \brief the icon set providing the icon shown on the button

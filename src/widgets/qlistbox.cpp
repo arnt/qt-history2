@@ -4631,12 +4631,9 @@ void QListBox::windowActivationChange( bool oldActive )
 {
     if ( oldActive && d->scrollTimer )
 	d->scrollTimer->stop();
-
-    if ( !isVisible() )
-	return;
-
     if ( palette().active() != palette().inactive() )
 	viewport()->update();
+    QScrollView::windowActivationChange( oldActive );
 }
 
 int QListBoxItem::RTTI = 0;

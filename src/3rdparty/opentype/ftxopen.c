@@ -227,7 +227,8 @@
 
     sr = sl->ScriptRecord;
 
-    for ( n = 0; n < count; n++ )
+    n = 0;
+    for ( m = 0; m < count; m++ )
     {
       if ( ACCESS_Frame( 6L ) )
         goto Fail;
@@ -238,9 +239,11 @@
       FORGET_Frame();
 
       cur_offset = FILE_Pos();
-      if ( FILE_Seek( new_offset ) ||
+      if ( (FILE_Seek( new_offset )) ||
            ( error = Load_Script( &sr[n].Script, stream ) ) != TT_Err_Ok )
-        goto Fail;
+	  --sl->ScriptCount;
+      else
+	  n++;
       (void)FILE_Seek( cur_offset );
     }
 

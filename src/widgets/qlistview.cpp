@@ -5516,7 +5516,7 @@ Qt::SortOrder QListView::sortOrder() const
 }
 
 /*!
-  Sets the sort order for the items in the list view.
+  Sets the sort order for the items in the list view to \a order.
 
   \sa setSorting()
 */
@@ -7248,7 +7248,7 @@ QListViewItemIterator::QListViewItemIterator( QListViewItem *item )
     to point to \a item or the next matching item if \a item doesn't
     match all the flags.
 
-    \sa QListView::IteratorFlag
+    \sa QListViewItemIterator::IteratorFlag
 */
 
 QListViewItemIterator::QListViewItemIterator( QListViewItem *item, int iteratorFlags )
@@ -7301,7 +7301,7 @@ QListViewItemIterator::QListViewItemIterator( QListView *lv )
     iteratorFlags. The current iterator item is set to point on the
     first child (QListViewItem) of \a lv that matches all the flags.
 
-    \sa QListView::IteratorFlag
+    \sa QListViewItemIterator::IteratorFlag
 */
 
 QListViewItemIterator::QListViewItemIterator( QListView *lv, int iteratorFlags )
@@ -7916,19 +7916,16 @@ void QListView::windowActivationChange( bool oldActive )
 {
     if ( oldActive && d->scrollTimer )
 	d->scrollTimer->stop();
-
-    if ( !isVisible() )
-	return;
-
     if ( palette().active() != palette().inactive() )
 	viewport()->update();
+    QScrollView::windowActivationChange( oldActive );
 }
 
 /*!
     Hides the column specified at \a column.  This is a convenience function that
     calls setColumnWidth( column, 0 ).
 
-    \sa setColumnWidth
+    \sa setColumnWidth()
 */
 
 void QListView::hideColumn( int column )

@@ -60,6 +60,11 @@
 typedef QPtrStack<QWMatrix> QWMatrixStack;
 #endif
 
+// POSIX Large File Support redefines truncate -> truncate64
+#if defined(truncate)
+# undef truncate
+#endif
+
 /*!
     \class QPainter qpainter.h
     \brief The QPainter class does low-level painting e.g. on widgets.

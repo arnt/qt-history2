@@ -1855,29 +1855,6 @@ static inline char *tag_to_string( FT_ULong tag )
 #define DefaultLangSys 0xffff
 #define DefaultScript FT_MAKE_TAG( 'D', 'F', 'L', 'T' )
 
-#if 0
-struct Features {
-    FT_ULong tag;
-    unsigned short index;
-};
-
-// GPOS features are always applied. We only have to note the GSUB features that should not get
-// applied in all cases here.
-
-const Features standardFeatures[] = {
-    { FT_MAKE_TAG( 'c', 'c', 'm', 'p' ), 0x8000 },
-    { FT_MAKE_TAG( 'l', 'i', 'g', 'a' ), 0x8000 },
-    { FT_MAKE_TAG( 'c', 'l', 'i', 'g' ), 0x8000 },
-    { 0, 0 }
-};
-
-const Features tibetanFeatures[] = {
-    { FT_MAKE_TAG( 'c', 'c', 'm', 'p' ), 0x8000 },
-    { FT_MAKE_TAG( 'b', 'l', 'w', 's' ), BelowSubstFeature },
-    { FT_MAKE_TAG( 'a', 'b', 'v', 's' ), AboveSubstFeature }
-};
-#endif
-
 static const unsigned int supported_scripts [] = {
 // 	// European Alphabetic Scripts
 // 	Latin,

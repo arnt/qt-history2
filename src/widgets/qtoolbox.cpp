@@ -494,8 +494,6 @@ void QToolBox::setCurrentIndex( int index )
 }
 
 /*!
-    \overload
-
     Sets the current page to be \a page.
 */
 
@@ -795,6 +793,7 @@ Qt::BackgroundMode QToolBox::pageBackgroundMode() const
     return d->pageBackgroundMode;
 }
 
+/*! \reimp */
 void QToolBox::showEvent( QShowEvent *e )
 {
     d->updatePageBackgroundMode();

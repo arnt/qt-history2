@@ -522,10 +522,10 @@ void QPushButton::drawButton( QPainter *paint )
 					x(), y() );
 		paint->drawTiledPixmap( 0, height()-diw, width(), diw,
 					*parentWidget()->backgroundPixmap(),
-					x(), y() );
+					x(), y()+height() );
 		paint->drawTiledPixmap( width()-diw, 0, diw, height(),
 					*parentWidget()->backgroundPixmap(),
-					x(), y() );
+					x()+width(), y() );
 	    } else {
 		paint->fillRect( 0, 0, width(), diw,
 				 colorGroup().brush(QColorGroup::Background) );

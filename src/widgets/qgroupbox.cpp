@@ -166,6 +166,9 @@ QGroupBox::QGroupBox( int strips, Orientation orientation,
     setColumnLayout( strips, orientation );
 }
 
+/*!
+    Destroys the group box.
+*/
 QGroupBox::~QGroupBox()
 {
     delete d;

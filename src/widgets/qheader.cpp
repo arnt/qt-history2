@@ -1641,7 +1641,7 @@ void QHeader::setSortIndicator( int section, bool ascending )
 }
 
 /*!
-  \function void QHeader::setSortIndicator(int section, SortOrder order)
+  \fn void QHeader::setSortIndicator(int section, SortOrder order)
 
   Sets a sort indicator onto the specified \a section. The indicator's
   \a order is either Ascending or Descending.

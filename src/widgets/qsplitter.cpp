@@ -368,7 +368,7 @@ bool QSplitter::childrenCollapsible() const
 }
 
 /*!
-    Sets whether the child widget \a w is collapsible.
+    Sets whether the child widget \a w is collapsible to \a collapse.
 
     By default, children are collapsible, meaning that the user can
     resize them down to size 0, even if they have a non-zero
@@ -979,9 +979,10 @@ void QSplitter::setResizeMode( QWidget *w, ResizeMode mode )
 
 
 /*!
-    Returns TRUE if opaque resize is on; otherwise returns FALSE.
+    \property QSplitter::opaqueResize
+    \brief whether resizing is opaque
 
-    \sa setOpaqueResize()
+    Opaque resizing is off by default.
 */
 
 bool QSplitter::opaqueResize() const
@@ -989,14 +990,6 @@ bool QSplitter::opaqueResize() const
     return d->opaque;
 }
 
-
-/*!
-    If \a on is TRUE then opaque resizing is turned on; otherwise
-    opaque resizing is turned off. Opaque resizing is initially turned
-    off.
-
-    \sa opaqueResize()
-*/
 
 void QSplitter::setOpaqueResize( bool on )
 {
@@ -1223,6 +1216,11 @@ void QSplitter::setSizes( QValueList<int> list )
     doResize();
 }
 
+/*!
+    \property QSplitter::handleWidth
+    \brief the width of the splitter handle
+*/
+
 int QSplitter::handleWidth() const
 {
     if ( d->handleWidth > 0 ) {
@@ -1239,7 +1237,7 @@ void QSplitter::setHandleWidth( int width )
 }
 
 /*!
-    Gets all posted child events, ensuring that the internal state of
+    Processes all posted child events, ensuring that the internal state of
     the splitter is consistent.
 */
 

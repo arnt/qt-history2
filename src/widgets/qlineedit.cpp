@@ -624,7 +624,7 @@ void QLineEdit::setCursorPosition( int pos )
 }
 
 
-/*! \obsolete Use setText(), setCursorPosition(), hasValidInput() and setSelection() instead.
+/*! \obsolete Use setText(), setCursorPosition() and setSelection() instead.
 */
 
 bool QLineEdit::validateAndSet( const QString &newText, int newPos,
@@ -1062,7 +1062,7 @@ bool QLineEdit::hasAcceptableInput() const
     To get range control (e.g. for an IP address) use masks together
     with validators.
 
-    \sa hasValidInput(), maxLength
+    \sa maxLength
 */
 QString QLineEdit::inputMask() const
 {
@@ -2060,11 +2060,12 @@ QPopupMenu *QLineEdit::createPopupMenu()
 }
 
 /*! \reimp */
-void QLineEdit::windowActivationChange( bool )
+void QLineEdit::windowActivationChange( bool b )
 {
     //### remove me with WHighlightSelection attribute
     if ( palette().active() != palette().inactive() )
 	update();
+    QWidget::windowActivationChange( b );
 }
 
 /*! \reimp */

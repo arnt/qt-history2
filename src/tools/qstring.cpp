@@ -1695,7 +1695,7 @@ void QString::setLength( uint newLen )
     \sa reserve(), squeeze()
 */
 
-/*
+/*!
     Ensures that at least \a minCapacity characters are allocated to
     the string.
 
@@ -1719,7 +1719,7 @@ void QString::setLength( uint newLen )
     If it is not possible to allocate enough memory, the string
     remains unchanged.
 
-    \sa capacity(), squeeze(), resize()
+    \sa capacity(), squeeze(), setLength()
 */
 
 void QString::reserve( uint minCapacity )

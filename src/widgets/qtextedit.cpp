@@ -5581,12 +5581,9 @@ void QTextEdit::windowActivationChange( bool oldActive )
 {
     if ( oldActive && scrollTimer )
 	scrollTimer->stop();
-
-    if ( !isVisible() )
-	return;
-
     if ( palette().active() != palette().inactive() )
 	updateContents();
+    QScrollView::windowActivationChange( oldActive );
 }
 
 void QTextEdit::setReadOnly( bool b )
