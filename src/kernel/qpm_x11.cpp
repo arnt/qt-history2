@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#105 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#106 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#105 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#106 $");
 
 
 /*****************************************************************************
@@ -867,10 +867,11 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	int   r, g, b;
 
 	if ( d8 ) {				// setup pixel translation
+	    QRgb *ctable = image.colorTable();
 	    for ( int i=0; i<image.numColors(); i++ ) {
-		r = qRed  (image.color(i));
-		g = qGreen(image.color(i));
-		b = qBlue (image.color(i));
+		r = qRed  (ctable[i]);
+		g = qGreen(ctable[i]);
+		b = qBlue (ctable[i]);
 		r = red_shift	> 0 ? r << red_shift   : r >> -red_shift;
 		g = green_shift > 0 ? g << green_shift : g >> -green_shift;
 		b = blue_shift	> 0 ? b << blue_shift  : b >> -blue_shift;
@@ -995,11 +996,12 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	int  maxpix = 0;
 	CHECK_PTR( pixarr );
 	j = 0;
+	QRgb* ctable = image.colorTable();
 	for ( i=0; i<256; i++ ) {		// init pixel array
 	    if ( pop[i] > 0 ) {
-		px->r = qRed  ( image.color(i) );
-		px->g = qGreen( image.color(i) );
-		px->b = qBlue ( image.color(i) );
+		px->r = qRed  ( ctable[i] );
+		px->g = qGreen( ctable[i] );
+		px->b = qBlue ( ctable[i] );
 		px->use = pop[i];
 		if ( pop[i] > maxpop ) {	// select most popular entry
 		    maxpop = pop[i];

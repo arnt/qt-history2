@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#45 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#46 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -23,6 +23,8 @@ public:
 
     QImage();
     QImage( int width, int height, int depth, int numColors=0,
+	    Endian bitOrder=IgnoreEndian );
+    QImage( const QSize&, int depth, int numColors=0,
 	    Endian bitOrder=IgnoreEndian );
     QImage( const char *fileName, const char *format=0 );
     QImage( const char *xpm[] );
@@ -59,6 +61,8 @@ public:
     int		bytesPerLine()	const;
 
     bool	create( int width, int height, int depth, int numColors=0,
+			QImage::Endian bitOrder=IgnoreEndian );
+    bool	create( const QSize&, int depth, int numColors=0,
 			QImage::Endian bitOrder=IgnoreEndian );
     void	reset();
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#107 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#108 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -19,10 +19,11 @@
 #include "qlist.h"
 #include "qdict.h"
 #include "qintdict.h"
+#include "qasyncimageio.h"
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#107 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#108 $");
 
 
 /*!
@@ -157,6 +158,17 @@ QImage::QImage( int w, int h, int depth, int numColors, Endian bitOrder )
     CHECK_PTR( data );
     init();
     create( w, h, depth, numColors, bitOrder );
+}
+
+/*!
+ \overload QImage::QImage( const QSize&, int depth, int numColors, Endian bitOrder )
+*/
+QImage::QImage( const QSize& size, int depth, int numColors, Endian bitOrder )
+{
+    data = new QImageData;
+    CHECK_PTR( data );
+    init();
+    create( size, depth, numColors, bitOrder );
 }
 
 
@@ -697,6 +709,15 @@ bool QImage::create( int width, int height, int depth, int numColors,
     return TRUE;
 }
 
+/*!
+ \overload bool QImage::create( const QSize&, int depth, int numColors,
+                     QImage::Endian bitOrder )
+*/
+bool QImage::create( const QSize& size, int depth, int numColors,
+		     QImage::Endian bitOrder )
+{
+    return create(size.width(), size.height(), depth, numColors, bitOrder);
+}
 
 /*!
   \internal
@@ -735,11 +756,18 @@ void QImage::freeBits()
 // convert_32_to_8:  Converts a 32 bits depth (true color) to an 8 bit
 // image with a colormap.  If the 32 bit image has more than 256 colors,
 // we convert the red,green and blue bytes into a single byte encoded
-// as RRRGGGBB.
+// as 6 shades of each of red, green and blue.
 //
 
 Q_DECLARE(QIntDictM,char);
 Q_DECLARE(QIntDictIteratorM,char);
+
+struct RgbMap {
+    RgbMap() : rgb(0xffffffff) { }
+    bool used() const { return rgb!=0xffffffff; }
+    uchar  pix;
+    QRgb  rgb;
+};
 
 static bool convert_32_to_8( const QImage *src, QImage *dst )
 {
@@ -751,50 +779,125 @@ static bool convert_32_to_8( const QImage *src, QImage *dst )
     if ( !dst->create(src->width(), src->height(), 8, 256) )
 	return FALSE;
 
-    QIntDictM(char) cdict( 21001 );		// dict of 24-bit RGB colors
-    char *pixel=0, *pix;			// hack: use ptr as int value
+    const int tablesize = 4096; // need not be prime
+    RgbMap table[tablesize];
+    int   pix=0;
+
     for ( y=0; y<src->height(); y++ ) {		// check if <= 256 colors
 	p = (QRgb *)src->scanLine(y);
 	b = dst->scanLine(y);
 	x = src->width();
 	while ( x-- ) {
-	    if ( !(pix=cdict.find(*p & 0x00ffffff )) ) {
-		cdict.insert( *p & 0x00ffffff, (pix=++pixel) );
-		if ( cdict.count() > 256 ) {	// too many colors
-		    do_quant = TRUE;
-		    y = src->height();
+	    // Find in table...
+	    int hash = *p % tablesize;
+	    for (;;) {
+		if (table[hash].used()) {
+		    if (table[hash].rgb == *p & 0x00ffffff) {
+			// Found previous insertion - use it
+			break;
+		    } else {
+			// Keep searching...
+			if (++hash == tablesize) hash = 0;
+		    }
+		} else {
+		    // Cannot be in table
+		    if ( pix == 256 ) {		// too many colors
+			do_quant = TRUE;
+			// Break right out
+			x = 0;
+			y = src->height();
+		    } else {
+			// Insert into table at this unused position
+			dst->setColor( pix, *p );
+			table[hash].pix = pix++;
+			table[hash].rgb = *p & 0x00ffffff;
+		    }
 		    break;
 		}
 	    }
-	    *b++ = (uchar)((int)pix - 1);	// map RGB color to pixel
+	    *b++ = table[hash].pix; // May occur once incorrectly
 	    p++;
 	}
     }
-    int ncols = do_quant ? 256 : cdict.count();
+    int ncols = do_quant ? 256 : pix;
+
+    static uint bm[16][16];
+    static int init=0;
+    if (!init) {
+	// Build a Bayer Matrix for dithering
+
+	init = 1;
+	int n, i, j;
+
+	bm[0][0]=0;
+
+	for (n=1; n<16; n*=2) {
+	    for (i=0; i<n; i++) {
+		for (j=0; j<n; j++) {
+		    bm[i][j]*=4;
+		    bm[i+n][j]=bm[i][j]+2;
+		    bm[i][j+n]=bm[i][j]+3;
+		    bm[i+n][j+n]=bm[i][j]+1;
+		}
+	    }
+	}
+
+	for (i=0; i<16; i++)
+	    for (j=0; j<16; j++)
+		bm[i][j]<<=8;
+    }
+
     dst->setNumColors( ncols );
+
     if ( do_quant ) {				// quantization needed
-	for ( int i=0; i<ncols; i++ )		// build 3+3+2 color table
-	    dst->setColor( i, qRgb( ((i & 0xe0)*255 + 0x70) / 0xe0,
-				    (((i << 3) & 0xe0)*255 + 0x70) / 0xe0,
-				    (((i << 6) & 0xc0)*255 + 0x60) / 0xc0 ) );
-	for ( y=0; y<src->height(); y++ ) {
+
+#define MAX_R 5
+#define MAX_G 5
+#define MAX_B 5
+#define DITHER(p,d,m) ((uchar) ((((256 * (m) + 1)) * (p) + (d)) / 65536 ))
+#define INDEXOF(r,g,b) (((r)*(MAX_G+1)+(g))*(MAX_B+1)+(b))
+
+	int rc, gc, bc;
+
+	for ( rc=0; rc<=MAX_R; rc++ )		// build 6x6x6 color cube
+	    for ( gc=0; gc<=MAX_G; gc++ )
+		for ( bc=0; bc<=MAX_B; bc++ ) {
+		    dst->setColor( INDEXOF(rc,gc,bc),
+			qRgb( rc*255/MAX_R, gc*255/MAX_G, bc*255/MAX_B ) );
+		}
+
+	for ( y=0; y < src->height(); y++ ) {
 	    p = (QRgb *)src->scanLine(y);
 	    b = dst->scanLine(y);
 	    int x = 0;
 	    QRgb *end = p + src->width();
-	    while ( p < end ) {			// perform fast quantization
-		*b++ = (*p & 0xe0) | ((*p >> 11) & 0x1c) | ((*p >> 22) & 0x03);
+	    while ( p < end ) {			// perform quantization
+		uint d = bm[y&15][x&15];
+
+		rc =  *p        & 0xff;
+		gc = (*p >> 8)  & 0xff;
+		bc = (*p >> 16) & 0xff;
+
+		*b++ =
+		    INDEXOF(
+			DITHER(rc, d, MAX_R),
+			DITHER(gc, d, MAX_G),
+			DITHER(bc, d, MAX_B)
+		    );
+
 		p++;
 		x++;
 	    }
 	}
-    } else {					// number of colors <= 256
-	QIntDictIteratorM(char) cdictit( cdict );
-	while ( cdictit.current() ) {		// build color table
-	    dst->setColor( (int)(cdictit.current())-1, cdictit.currentKey() );
-	    ++cdictit;
-	}
+
+#undef MAX_R
+#undef MAX_G
+#undef MAX_B
+#undef DITHER
+#undef INDEXOF
+
     }
+
     return TRUE;
 }
 
@@ -1130,11 +1233,13 @@ QImage QImage::createAlphaMask( bool dither ) const
 	    mask1.setColor( 0, 0xffffff );
 	    mask1.setColor( 1, 0 );
 	    mask1.fill( 0 );
+	    uchar** mline = mask1.jumpTable();
 	    if ( depth() == 32 ) {
+		uint** line = (uint**)jumpTable();
 		for ( i=0; i<height(); i++ ) {
-		    uint  *p = (uint *)scanLine(i);
+		    uint  *p = line[i];
 		    uint  *end = p + width();
-		    uchar *m = mask1.scanLine(i);
+		    uchar *m = mline[i];
 		    int bit = 7;
 		    while ( p < end ) {
 			if ( (*p++ >> 24) & 0x80 )
@@ -1149,12 +1254,14 @@ QImage QImage::createAlphaMask( bool dither ) const
 		}
 	    } else if ( depth() == 8 ) {
 		uchar c[256];
+		QRgb* ctable = colorTable();
+		uchar** line = jumpTable();
 		for ( i=0; i<numColors(); i++ )
-		    c[i] = (color(i) >> 24) & 0x80;
+		    c[i] = (ctable[i] >> 24) & 0x80;
 		for ( i=0; i<height(); i++ ) {
-		    uchar *p = scanLine(i);
+		    uchar *p = line[i];
 		    uchar *end = p + width();
-		    uchar *m = mask1.scanLine(i);
+		    uchar *m = mline[i];
 		    int bit = 7;
 		    while ( p < end ) {
 			if ( c[*p++] )
@@ -1182,11 +1289,8 @@ QImage QImage::createAlphaMask( bool dither ) const
 		int n, i, j;
 
 		bm[0][0]=0;
-                bm[1][0]=2;
-                bm[0][1]=3;
-                bm[1][1]=1;
 
-		for (n=2; n<16; n*=2) {
+		for (n=1; n<16; n*=2) {
 		    for (i=0; i<n; i++) {
 			for (j=0; j<n; j++) {
 			    bm[i][j]*=4;
@@ -1205,11 +1309,13 @@ QImage QImage::createAlphaMask( bool dither ) const
 	    mask1.setColor( 0, 0xffffff );
 	    mask1.setColor( 1, 0 );
 	    mask1.fill( 0 );
+	    uchar** mline = mask1.jumpTable();
 	    if ( depth() == 32 ) {
+		uint** line = (uint**)jumpTable();
 		for ( i=0; i<height(); i++ ) {
-		    uint  *p = (uint *)scanLine(i);
+		    uint  *p = line[i];
 		    uint  *end = p + width();
-		    uchar *m = mask1.scanLine(i);
+		    uchar *m = mline[i];
 		    int bit = 7;
 		    int j = 0;
 		    while ( p < end ) {
@@ -1225,12 +1331,14 @@ QImage QImage::createAlphaMask( bool dither ) const
 		}
 	    } else if ( depth() == 8 ) {
 		uchar c[256];
+		QRgb* ctable = colorTable();
+		uchar** line = jumpTable();
 		for ( i=0; i<numColors(); i++ )
-		    c[i] = (color(i) >> 24);
+		    c[i] = (ctable[i] >> 24);
 		for ( i=0; i<height(); i++ ) {
-		    uchar *p = scanLine(i);
+		    uchar *p = line[i];
 		    uchar *end = p + width();
-		    uchar *m = mask1.scanLine(i);
+		    uchar *m = mline[i];
 		    int bit = 7;
 		    int j = 0;
 		    while ( p < end ) {
@@ -1251,24 +1359,28 @@ QImage QImage::createAlphaMask( bool dither ) const
       case Floyd:
 	{
 	    QImage mask8( width(), height(), 8, 256 );
+	    uchar** mline = mask8.jumpTable();
 	    for ( i=0; i<256; i++ )
 		mask8.data->ctbl[i] = qRgb(255-i,255-i,255-i);
 	    if ( depth() == 32 ) {
+		uint **line = (uint**)jumpTable();
 		for ( i=0; i<height(); i++ ) {
-		    uint  *p = (uint *)scanLine(i);
+		    uint  *p = line[i];
 		    uint  *end = p + width();
-		    uchar *m = mask8.scanLine(i);
+		    uchar *m = mline[i];
 		    while ( p < end )
 			*m++ = (uchar)(*p++ >> 24);
 		}
 	    } else if ( depth() == 8 ) {
 		uchar c[256];
+		QRgb* ctable = colorTable();
+		uchar** line = jumpTable();
 		for ( i=0; i<numColors(); i++ )
-		    c[i] = (uchar)(color(i) >> 24);
+		    c[i] = (uchar)(ctable[i] >> 24);
 		for ( i=0; i<height(); i++ ) {
-		    uchar *p = scanLine(i);
+		    uchar *p = line[i];
 		    uchar *end = p + width();
-		    uchar *m = mask8.scanLine(i);
+		    uchar *m = mline[i];
 		    while ( p < end )
 			*m++ = c[*p++];
 		}
@@ -1526,6 +1638,8 @@ static void write_xbm_image( QImageIO * );
 static void read_xpm_image( QImageIO * );
 static void write_xpm_image( QImageIO * );
 
+static void read_async_image( QImageIO * ); // Not in table of handlers
+
 /*****************************************************************************
   Misc. utility functions
  *****************************************************************************/
@@ -1589,17 +1703,23 @@ static void swapPixel01( QImage *image )	// 1-bit: swap 0 and 1 pixels
   The programmer can install new image file formats in addition to those
   that Qt implements.
 
-  Qt currently supports the following image file formats: BMP, XBM and PNM.
+  Qt currently supports the following image file formats:
+    GIF, BMP, XBM and PNM.
   The different PNM formats are: PBM (P1), PGM (P2), PPM (P3), PBMRAW (P4),
   PGMRAW (P5) and PPMRAW (P6).
+
+  Due to patent restrictions, only GIF \e reading is provided.
+  See the
+    <a href=http://www.lpf.org/Patents/Gif/Gif.html>LPF page on GIF patent</a>
+  for more information.
 
   You will normally not need to use this class, QPixmap::load(),
   QPixmap::save() and QImage contain most of the needed functionality.
 
-  \bug
-  PNM files can only be read, not written.
+  For image files which contain sequences of images, only the first is read.
+  See the QMovie for loading multiple images.
 
-  \sa QImage, QPixmap, QFile
+  \sa QImage, QPixmap, QFile, QMovie
 */
 
 /*!
@@ -1948,10 +2068,14 @@ const char *QImageIO::imageFormat( QIODevice *d )
 	init_image_handlers();
     int pos   = d->at();			// save position
     int rdlen = d->readBlock( buf, buflen );	// read a few bytes
+
+    // Try asynchronous loaders first (before we 0->1 the header),
+    // but overwrite if found in IOHandlers.
+    const char *format = QImageDecoder::formatName((uchar*)buf, rdlen);
+
     for ( int n = 0; n<rdlen; n++ )
 	if ( buf[n] == '\0' )
 	    buf[n] = '\001';
-    const char *format = 0;
     if ( d->status() == IO_Ok && rdlen > 0 ) {
 	buf[rdlen-1] = '\0';
 	QImageHandler *p = imageHandlers->first();
@@ -2020,7 +2144,7 @@ bool QImageIO::read()
     h = get_image_handler( image_format );
     if ( file.isOpen() ) {
 #if !defined(UNIX)
-	if ( h->text_mode ) {			// reopen in translated mode
+	if ( h && h->text_mode ) {		// reopen in translated mode
 	    file.close();
 	    file.open( IO_ReadOnly | IO_Translate );
 	}
@@ -2029,7 +2153,14 @@ bool QImageIO::read()
 	    file.at( 0 );			// position to start
     }
     iostat = 1;					// assume error
-    (*h->read_image)( this );
+
+    if ( h ) {
+	(*h->read_image)( this );
+    } else {
+	// Format name, but no handler - must be an asychronous reader
+	read_async_image( this );
+    }
+
     if ( file.isOpen() ) {			// image was read using file
 	file.close();
 	iodev = 0;
@@ -2743,6 +2874,62 @@ static void write_pbm_image( QImageIO *iio )
     }
 
     iio->setStatus(0);
+}
+
+class QImageIOFrameGrabber : public QImageConsumer {
+public:
+    QImageIOFrameGrabber(QImageIO *iio) : framecount(0), grabto(iio) { }
+
+    QImageDecoder *decoder;
+    int framecount;
+    QImageIO *grabto;
+
+    bool changed(const QRect&) { return TRUE; }
+    bool end() { return FALSE; }
+    bool frameDone()
+    {
+	framecount++;
+	grabto->setImage(decoder->image().copy());
+	return FALSE;
+    }
+    bool setLooping(int) { return TRUE; }
+    bool setFramePeriod(int) { return TRUE; }
+    bool setSize(int, int) { return TRUE; }
+};
+
+static void read_async_image( QImageIO *iio )
+{
+    const int buf_len = 512;
+    uchar buffer[buf_len];
+    QIODevice  *d = iio->ioDevice();
+    QImageIOFrameGrabber* consumer = new QImageIOFrameGrabber(iio);
+    QImageDecoder decoder(consumer);
+    consumer->decoder = &decoder;
+
+    for (;;) {
+	int length = d->readBlock((char*)buffer, buf_len);
+	if ( length <= 0 ) {
+	    iio->setStatus(length);
+	    break;
+	}
+	uchar* b = buffer;
+	int r = -1;
+	while (length > 0 && consumer->framecount==0) {
+	    r = decoder.decode(b, length);
+	    if ( r <= 0 ) break;
+	    b += r;
+	    length -= r;
+	}
+	if ( consumer->framecount ) {
+	    // Stop after first frame
+	    iio->setStatus(0);
+	    break;
+	}
+	if ( r <= 0 ) {
+	    iio->setStatus(r);
+	    break;
+	}
+    }
 }
 
 
