@@ -32,7 +32,7 @@ class QDockWidgetHandle : public QWidget
 public:
     QDockWidgetHandle( QDockWidget *dw );
     void updateGui();
-    
+
 protected:
     void paintEvent( QPaintEvent *e );
     void resizeEvent( QResizeEvent *e );
@@ -45,7 +45,7 @@ private:
     QPoint offset;
     bool mousePressed;
     QToolButton *closeButton;
-    
+
 };
 
 QDockWidgetHandle::QDockWidgetHandle( QDockWidget *dw )
@@ -69,7 +69,7 @@ void QDockWidgetHandle::paintEvent( QPaintEvent *e )
 	    style().drawToolBarHandle( &p, QRect( 0, 1, width() - 14, height() - 1 ),
 				       dockWidget->dockArea->orientation(), FALSE, colorGroup() );
     }
-    
+
     QWidget::paintEvent( e );
 }
 
@@ -108,15 +108,15 @@ void QDockWidgetHandle::updateGui()
 	connect( closeButton, SIGNAL( clicked() ),
 		 dockWidget, SLOT( close() ) );
     }
-    
+
     if ( dockWidget->isCloseEnabled() && dockWidget->area() )
 	closeButton->show();
     else
 	closeButton->hide();
-    
+
     if ( !dockWidget->area() )
 	return;
-    
+
     if ( dockWidget->area()->orientation() == Horizontal )
 	closeButton->move( 2, 2 );
     else
@@ -197,12 +197,12 @@ void QDockWidgetTitleBar::updateGui()
 	connect( closeButton, SIGNAL( clicked() ),
 		 dockWidget, SLOT( close() ) );
     }
-    
+
     if ( dockWidget->isCloseEnabled() )
 	closeButton->show();
     else
 	closeButton->hide();
-    
+
     closeButton->move( width() - closeButton->width(), 1 );
 }
 
@@ -238,9 +238,10 @@ void QDockWidget::handleMoveOutsideDock( const QPoint &pos, const QPoint &gp )
     unclippedPainter->drawRect( currRect );
     currRect = QRect( realWidgetPos( this ), size() );
     QWidget *w = qApp->widgetAt( gp );
+    QPoint offset( mapFromGlobal( pos ) );
+    currRect.moveBy( offset.x(), offset.y() );
     if ( !w || !w->inherits( "QDockArea" ) ) {
-	QPoint offset( mapFromGlobal( pos ) );
-	currRect.moveBy( offset.x(), offset.y() );
+	unclippedPainter->setPen( QPen( gray, 3 ) );
 	unclippedPainter->drawRect( currRect );
 	state = OutsideDock;
 	return;
@@ -248,7 +249,7 @@ void QDockWidget::handleMoveOutsideDock( const QPoint &pos, const QPoint &gp )
 
     state = InDock;
     QDockArea *area = (QDockArea*)w;
-    currRect = QRect( realWidgetPos( area ), size() );
+    unclippedPainter->setPen( QPen( gray, 1 ) );
     unclippedPainter->drawRect( currRect );
     tmpDockArea = area;
 }
@@ -347,7 +348,7 @@ bool QDockWidget::isResizeEnabled() const
 {
     return resizeEnabled;
 }
-    
+
 void QDockWidget::setCloseEnabled( bool b )
 {
     closeEnabled = b;
