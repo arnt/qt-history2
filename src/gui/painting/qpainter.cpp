@@ -287,7 +287,7 @@ void QPainterPrivate::draw_helper_stroke_pathbased(const void *data, ShapeType s
     int width = state->pen.width();
     if (state->pen.width() == 0) {
         if (state->txop != TxNone && state->pen.width() == 0) {
-            path = path * state->matrix;
+            path = path * state->worldMatrix;
             q->save();
             q->resetMatrix();
             doRestore = true;
