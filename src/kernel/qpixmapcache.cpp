@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#15 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -12,7 +12,7 @@
 #include "qpmcache.h"
 #include "qcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#15 $");
 
 
 /*!
@@ -62,7 +62,7 @@ static int cache_limit	  = 1024;		// 1024 KB cache limit
   is no such pixmap.
   <strong>
     NOTE: if valid, you should copy the pixmap immediately (this is quick
-    since QPixmaps are \link hclass.html implicitly shared\endlink), because
+    since QPixmaps are \link shclass.html implicitly shared\endlink), because
     subsequent insertions into the cache could cause the pointer to become
     invalid.  For this reason, we recommend you use
     find(const char*, QPixmap&) instead.
