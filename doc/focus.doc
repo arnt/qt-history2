@@ -119,7 +119,7 @@ click-to-focus.
 
 It's not unusual for keyboard shortcuts to move the focus.  This can
 happen implicitly by opening modal dialogs, but also explicitly using
-focus acceleraters such as are provided by \l QLabel::setBuddy(), \l
+focus accelerators such as are provided by \l QLabel::setBuddy(), \l
 QGroupBox and \l QTabBar.
 
 We advise supporting shortcut focus for all widgets that the user may
