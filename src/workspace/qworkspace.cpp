@@ -1142,6 +1142,8 @@ void QWorkspace::showWindow( QWidget* w)
 	maximizeWindow( w );
     else if ( !w->testWFlags( WStyle_Tool ) )
 	normalizeWindow( w );
+    else
+	w->parentWidget()->show();
     if ( d->maxWindow )
 	d->maxWindow->raise();
     updateWorkspace();
