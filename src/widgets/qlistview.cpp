@@ -4909,7 +4909,8 @@ void QListView::ensureItemVisible( const QListViewItem * i )
 
     QListViewItem *parent = i->parent();
     while ( parent ) {
-	parent->setOpen( TRUE );
+	if ( !parent->isOpen() )
+	    parent->setOpen( TRUE );
 	parent = parent->parent();
     }
 
