@@ -1397,7 +1397,7 @@ void QTextEdit::drawCursor( bool visible )
 {
     if ( !cursor->parag() ||
 	 !cursor->parag()->isValid() ||
-	 ( !hasFocus() && !viewport()->hasFocus() && !inDnD ) ||
+	 ( visible && !hasFocus() && !viewport()->hasFocus() && !inDnD ) ||
 	 isReadOnly() )
 	return;
 
