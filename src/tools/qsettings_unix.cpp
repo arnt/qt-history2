@@ -274,7 +274,7 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 
 	    while (value[value.length() - 1] == '\\') {
 		if (stream.atEnd()) {
-		    qDebug("QSettings: reached end of file, expected continued line");
+		    qWarning("QSettings: reached end of file, expected continued line");
 		    break;
 		}
 
@@ -323,7 +323,7 @@ QSettingsGroup QSettingsPrivate::readGroup()
     QSettingsHeading::Iterator grpit = hd.find(group);
     if (grpit == hd.end()) {
 	initSearchPaths();
-      	QStringList::Iterator it = searchPaths->begin();
+	QStringList::Iterator it = searchPaths->begin();
 	while (it != searchPaths->end()) {
 	    QString filebase = heading.lower().replace(QRegExp("\\s+"), "_");
 	    QString fn((*it++) + "/" + filebase + "rc");
@@ -338,7 +338,7 @@ QSettingsGroup QSettingsPrivate::readGroup()
 	grpit = hd.find(group);
 	if (grpit != hd.end())
 	    grp = *grpit;
-    } else
+    } else if (hd.count() != 0)
 	grp = *grpit;
 
     return grp;
@@ -357,9 +357,10 @@ void QSettingsPrivate::removeGroup(const QString &key) {
     QSettingsHeading::Iterator grpit = hd.find(group);
     if (grpit == hd.end()) {
 	initSearchPaths();
-      	QStringList::Iterator it = searchPaths->begin();
+	QStringList::Iterator it = searchPaths->begin();
 	while (it != searchPaths->end()) {
-	    QString fn((*it++) + "/" + heading + "rc");
+	    QString filebase = heading.lower().replace(QRegExp("\\s+"), "_");
+	    QString fn((*it++) + "/" + filebase + "rc");
 	    if (! hd.contains(fn + "cached")) {
 		hd.read(fn);
 		hd.insert(fn + "cached", QSettingsGroup());
@@ -373,7 +374,7 @@ void QSettingsPrivate::removeGroup(const QString &key) {
 	    found = TRUE;
 	    grp = *grpit;
 	}
-    } else {
+    } else if (hd.count() != 0) {
 	found = TRUE;
 	grp = *grpit;
     }
@@ -400,9 +401,10 @@ void QSettingsPrivate::writeGroup(const QString &key, const QString &value)
     QSettingsHeading::Iterator grpit = hd.find(group);
     if (grpit == hd.end()) {
 	initSearchPaths();
-      	QStringList::Iterator it = searchPaths->begin();
+	QStringList::Iterator it = searchPaths->begin();
 	while (it != searchPaths->end()) {
-	    QString fn((*it++) + "/" + heading + "rc");
+	    QString filebase = heading.lower().replace(QRegExp("\\s+"), "_");
+	    QString fn((*it++) + "/" + filebase + "rc");
 	    if (! hd.contains(fn + "cached")) {
 		hd.read(fn);
 		hd.insert(fn + "cached", QSettingsGroup());
@@ -414,8 +416,9 @@ void QSettingsPrivate::writeGroup(const QString &key, const QString &value)
 	grpit = hd.find(group);
 	if (grpit != hd.end())
 	    grp = *grpit;
-    } else
+    } else if (hd.count() != 0)
 	grp = *grpit;
+
 
     QString v = value;
     v.replace(QRegExp("\n"), "\\\n");
@@ -457,7 +460,7 @@ QDateTime QSettingsPrivate::modificationTime()
 
   When \a s is \e Windows, and the execution environment is Windows, the
   search path list will be used as the first subfolder of the "Software"
-  folder in the registry. 
+  folder in the registry.
 
     When reading settings the folders are searched forwards from the first
     folder (listed below) to the last, with later settings overriding
@@ -523,7 +526,7 @@ QDateTime QSettingsPrivate::modificationTime()
   spaces with underscores and add 'rc', e.g.
   <tt>/MyCompany/MyApplication/background color</tt> will be stored in
   <tt>myapplicationrc</tt> (assuming that <tt>/MyCompany</tt> is part of
-  the search path). 
+  the search path).
 
   \sa removeSearchPath()
 
@@ -580,8 +583,7 @@ QSettings::~QSettings()
 {
     sync();
 
-    if (d)
-	delete d;
+    delete d;
 }
 
 
