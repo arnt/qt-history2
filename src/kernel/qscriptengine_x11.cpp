@@ -1617,9 +1617,9 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	// can't do any shaping, copy the stuff to the script item.
 	engine->ensureSpace(len);
 
-	glyph_t *glyphs = engine->glyphs(si)+si->num_glyphs;
-	advance_t *advances = engine->advances(si)+si->num_glyphs;
-	GlyphAttributes *ga = engine->glyphAttributes(si)+si->num_glyphs;
+	glyph_t *glyphs = engine->glyphs(si);
+	advance_t *advances = engine->advances(si);
+	GlyphAttributes *ga = engine->glyphAttributes(si);
 
 	int error = si->fontEngine->stringToCMap((QChar *)reordered, len, glyphs, advances, &len,
 						 (si->analysis.bidiLevel %2));
