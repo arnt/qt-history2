@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_win.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qptd_win.cpp#7 $
 **
 ** Implementation of QPaintDevice class for Windows
 **
@@ -18,7 +18,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_win.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_win.cpp#7 $";
 #endif
 
 
@@ -64,13 +64,13 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
 	     RasterOp rop )
 {
-    if ( src->handle() == 0 ) {
+    if ( src->isExtDev() ) {
 #if defined(CHECK_NULL)
 	warning( "bitBlt: Cannot bitBlt from device" );
 #endif
 	return;
     }
-    int ts = devType();				// from device type
+    int ts = src->devType();			// from device type
     int td = dst->devType();			// to device type
 
     if ( sw <= 0 ) {				// special width
@@ -130,23 +130,24 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	return;
     }
 
-    if ( dst->handle() == 0 ) {
+    if ( dst->isExtDev() ) {
 #if defined(CHECK_NULL)
 	warning( "bitBlt: Cannot bitBlt to device" );
 #endif
 	return;
     }
 
-
-    HDC  src_dc  = src->hdc, dst_dc  = dst->hdc;
+    if ( td == PDT_PIXMAP )
+	((QPixmap*)dst)->detach();		// changes shared pixmap
+    HDC	 src_dc	 = src->hdc, dst_dc  = dst->hdc;
     bool src_tmp = FALSE,    dst_tmp = FALSE;
     if ( !src_dc ) {
 	switch ( ts ) {
 	    case PDT_WIDGET:
-		src_dc = GetDC( ((QWidget*)this)->id() );
+		src_dc = GetDC( ((QWidget*)src)->id() );
 		break;
 	    case PDT_PIXMAP:
-		src_dc = ((QPixMap*)this)->allocMemDC();
+		src_dc = ((QPixmap*)src)->allocMemDC();
 		break;
 	}
 	src_tmp = TRUE;
@@ -154,10 +155,10 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     if ( !dst_dc ) {
 	switch ( td ) {
 	    case PDT_WIDGET:
-		dst_dc = GetDC( ((QWidget*)dest)->id() );
+		dst_dc = GetDC( ((QWidget*)dst)->id() );
 		break;
 	    case PDT_PIXMAP:
-		dst_dc = ((QPixMap*)dest)->allocMemDC();
+		dst_dc = ((QPixmap*)dst)->allocMemDC();
 		break;
 	}
 	dst_tmp = TRUE;
@@ -168,10 +169,10 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     if ( src_tmp ) {
 	switch ( ts ) {
 	    case PDT_WIDGET:
-		ReleaseDC( ((QWidget*)this)->id(), src_dc );
+		ReleaseDC( ((QWidget*)src)->id(), src_dc );
 		break;
 	    case PDT_PIXMAP:
-		((QPixMap*)this)->freeMemDC();
+		((QPixmap*)src)->freeMemDC();
 		break;
 	}
     }
@@ -181,7 +182,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		ReleaseDC( ((QWidget*)dst)->id(), dst_dc );
 		break;
 	    case PDT_PIXMAP:
-		((QPixMap*)dst)->freeMemDC();
+		((QPixmap*)dst)->freeMemDC();
 		break;
 	}
     }

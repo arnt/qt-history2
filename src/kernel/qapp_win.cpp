@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#9 $
 **
-** Implementation of Windows + NT startup routines and event handling
+** Implementation of Windows startup routines and event handling
 **
 ** Author  : Haavard Nord
 ** Created : 931203
@@ -11,7 +11,7 @@
 *****************************************************************************/
 
 #include "qapp.h"
-#include "qwidget.h"
+#include "qwindow.h"
 #include "qwidcoll.h"
 #include "qpainter.h"
 #include "qpmcache.h"
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_win.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_win.cpp#9 $";
 #endif
 
 
@@ -39,16 +39,22 @@ static int	appCmdShow;			// main window show command
 static int	numZeroTimers = 0;		// number of full-speed timers
 static HWND	curWin = 0;			// current window
 static QWidget *curWidget;
+static HANDLE	displayDC = 0;			// display device context
+static QWidget *desktopWidget	= 0;		// desktop window widget
 #if defined(USE_HEARTBEAT)
 static int	heartBeat = 0;			// heatbeat timer
 #endif
 #if defined(DEBUG)
+static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
 static bool	appMemChk	= FALSE;	// memory checking (debugging)
 #endif
 
 static bool	app_do_modal	= FALSE;	// modal mode
 static int	app_loop_level	= 1;		// event loop level
 static bool	app_exit_loop	= FALSE;	// flag to exit local loop
+
+QWidgetList    *popupWidgets	= 0;		// list of popup widgets
+bool		popupCloseDownMode = FALSE;
 
 typedef void  (*VFPTR)();
 typedef void  (*VFPTR_ARG)( int, char ** );
@@ -66,22 +72,30 @@ static void	activateZeroTimers();
 
 static int translateKeyCode( int );
 
+#if defined(_WS_WIN32_)
+#define __export
+#endif
+
+extern "C" LRESULT CALLBACK __export WndProc( HWND, UINT, WORD, LONG );
+
 class QETWidget : public QWidget		// event translator widget
 {
 public:
     void setWFlags( WFlags f )		{ QWidget::setWFlags(f); }
     void clearWFlags( WFlags f )	{ QWidget::clearWFlags(f); }
-    bool translateMouseEvent( const XEvent * );
-    bool translateKeyEvent( const XEvent * );
-    bool translatePaintEvent( const XEvent * );
-    bool translateConfigEvent( const XEvent * );
-    bool translateCloseEvent( const XEvent * );
+    bool translateMouseEvent( const MSG &msg );
+    bool translateKeyEvent( const MSG &msg );
+    bool translatePaintEvent( const MSG &msg );
+    bool translateConfigEvent( const MSG &msg );
+    bool translateCloseEvent( const MSG &msg );
 };
 
 
 // --------------------------------------------------------------------------
 // WinMain() - initializes Windows and calls user's startup function main()
 //
+
+extern "C" int main( int, char ** );
 
 extern "C"
 int PASCAL WinMain( HANDLE instance, HANDLE prevInstance,
@@ -107,7 +121,7 @@ int PASCAL WinMain( HANDLE instance, HANDLE prevInstance,
 	if ( *p )
 	    *p++ = '\0';
     }
-    p = strrchr( argv[0], '\\' );    
+    p = strrchr( argv[0], '\\' );
     if ( p )
 	strcpy( appName, p+1 );
 
@@ -121,7 +135,7 @@ int PASCAL WinMain( HANDLE instance, HANDLE prevInstance,
 
     int retcode = main( argc, argv );
 
-    delete appName;
+// DONTDOIT!!!	  delete appName;
 
     return retcode;
 }
@@ -150,12 +164,12 @@ void qt_init( int *argcptr, char **argv )
 	QString arg = argv[i];
 	if ( arg == "-nograb" )
 	    appNoGrab = !appNoGrab;
-	else if ( arg == "-memchk" )
+	else if ( arg == (const char *)"-memchk" )
 	    appMemChk = !appMemChk;
-	else if ( arg == "-membuf" ) {
+	else if ( arg == (const char *)"-membuf" ) {
 	    if ( ++i < argc ) mcBufSize = atoi(argv[i]);
 	}
-	else if ( arg == "-memlog" ) {
+	else if ( arg == (const char *)"-memlog" ) {
 	    if ( ++i < argc ) mcLogFile = argv[i];
 	}
 	else
@@ -255,6 +269,62 @@ HANDLE qWinAppPrevInst()			// get Windows prev app handle
 int qWinAppCmdShow()				// get main window show command
 {
     return appCmdShow;
+}
+
+HANDLE qt_display_dc()				// get display DC
+{
+    if ( !displayDC )
+	displayDC = CreateDC( "DISPLAY", 0, 0, 0 );
+    return displayDC;
+}
+
+bool qt_nograb()				// application no-grab option
+{
+    return appNoGrab;
+}
+
+
+const char *qt_reg_winclass( int type )		// register window class
+{
+    static bool widget = FALSE;
+    static bool popup  = FALSE;
+    const char *className;
+    uint style = 0;
+    if ( type == 0 ) {
+	className = "QWidget";
+	if ( !widget ) {
+	    widget = TRUE;
+	    style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
+	}
+    }
+    else if ( type == 1 ) {
+	className = "QPopup";
+	if ( !popup ) {
+	    popup = TRUE;
+	    style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW | CS_SAVEBITS;
+	}
+    }
+    else {
+#if defined(DEBUG)
+	warning( "Qt internal error: Invalid window class type", type );
+#endif
+	className = 0;
+    }
+    if ( style != 0 ) {
+	WNDCLASS wc;
+	wc.style	 = style;
+	wc.lpfnWndProc	 = (WNDPROC)WndProc;
+	wc.cbClsExtra	 = 0;
+	wc.cbWndExtra	 = 0;
+	wc.hInstance	 = qWinAppInst();
+	wc.hIcon	 = type == 0 ? LoadIcon(0,IDI_APPLICATION) : 0;
+	wc.hCursor	 = 0;
+	wc.hbrBackground = 0;
+	wc.lpszMenuName	 = 0;
+	wc.lpszClassName = className;
+	RegisterClass( &wc );
+    }
+    return className;
 }
 
 
@@ -432,7 +502,7 @@ static void qWinProcessConfigRequests()		// perform requests in queue
 	r = configRequests->dequeue();
 	QWidget *w = QWidget::find( r->id );
 	if ( w ) {				// widget exists
-	    if ( w->testWFlags( WWin_Config ) )	// biting our tail
+	    if ( w->testWFlags( WConfigPending ) ) // biting our tail
 		return;
 	    if ( r->req == 0 )
 		w->move( r->x, r->y );
@@ -531,13 +601,33 @@ bool QApplication::winEventFilter( MSG * )	// Windows event filter
 }
 
 
+void QApplication::winFocus( QWidget *w, bool gotFocus )
+{
+    if ( gotFocus ) {
+	while ( w->parentWidget() )	// go to top level
+	    w = w->parentWidget();
+	while ( w->focusChild )		// go down focus chain
+	    w = w->focusChild;
+	if ( w != focus_widget && w->acceptFocus() ) {
+	    focus_widget = w;
+	    QFocusEvent in( Event_FocusIn );
+	    QApplication::sendEvent( w, &in );
+	}
+    }
+    else {
+	if ( focus_widget ) {
+	    QFocusEvent out( Event_FocusOut );
+	    QWidget *widget = focus_widget;
+	    focus_widget = 0;
+	    QApplication::sendEvent( widget, &out );
+	}
+    }
+}
+
+
 // --------------------------------------------------------------------------
 // WndProc() receives all messages from the main event loop
 //
-
-#if defined(_WS_WIN32_)
-#define __export
-#endif
 
 extern "C" LRESULT CALLBACK __export
 WndProc( HWND hwnd, UINT message, WORD wParam, LONG lParam )
@@ -603,6 +693,12 @@ WndProc( HWND hwnd, UINT message, WORD wParam, LONG lParam )
 	    result = widget->translateConfigEvent( msg );
 	    break;
 
+//	case WM_SETFOCUS:			// got focus
+//	case WM_KILLFOCUS:			// lost focus
+	case WM_ACTIVATE:
+	    qApp->winFocus( widget, LOWORD(wParam) == WA_INACTIVE ? 0 : 1 );
+	    break;
+
 #if defined(TEST_WINDOWS_PALETTE)
 	case WM_PALETTECHANGED:			// our window changed palette
 	    result = TRUE;
@@ -625,6 +721,13 @@ WndProc( HWND hwnd, UINT message, WORD wParam, LONG lParam )
 	    result = FALSE;
 	    break;
 
+	case WM_NCACTIVATE:
+	    if ( !wParam && popupWidgets )
+		result = TRUE;
+	    else
+		result = FALSE;
+	    break;
+
 	default:
 	    result = FALSE;			// event was not processed
 	    break;
@@ -636,6 +739,149 @@ WndProc( HWND hwnd, UINT message, WORD wParam, LONG lParam )
 	result = QApplication::sendEvent(widget, &e);
     }
     return result ? 0 : DefWindowProc(hwnd,message,wParam,lParam);
+}
+
+
+// --------------------------------------------------------------------------
+// Modal widgets; We have implemented our own modal widget mechanism
+// to get total control.
+// A modal widget without a parent becomes application-modal.
+// A modal widget with a parent becomes modal to its parent and grandparents..
+//
+// qt_enter_modal()
+//	Enters modal state and returns when the widget is hidden/closed
+//	Arguments:
+//	    QWidget *widget	A modal widget
+//
+// qt_leave_modal()
+//	Leaves modal state for a widget
+//	Arguments:
+//	    QWidget *widget	A modal widget
+//
+
+static QWidgetList *modal_stack = 0;		// stack of modal widgets
+
+
+bool qt_modal_state()				// application in modal state?
+{
+    return app_do_modal;
+}
+
+
+void qt_enter_modal( QWidget *widget )		// enter modal state
+{
+    if ( !modal_stack ) {			// create modal stack
+	modal_stack = new QWidgetList;
+	CHECK_PTR( modal_stack );
+    }
+    modal_stack->insert( widget );
+    app_do_modal = TRUE;
+    qApp->enter_loop();
+}
+
+
+void qt_leave_modal( QWidget *widget )		// leave modal state
+{
+    if ( modal_stack && modal_stack->findRef(widget) >= 0 ) {
+	modal_stack->remove();
+	if ( modal_stack->isEmpty() ) {
+	    delete modal_stack;
+	    modal_stack = 0;
+	}
+	qApp->exit_loop();
+    }
+    app_do_modal = modal_stack != 0;
+}
+
+
+static bool qt_try_modal( QWidget *widget, void * ) //XEvent *event )
+{
+    return TRUE;
+#if 0
+    bool     block_event  = FALSE;
+    bool     expose_event = FALSE;
+    QWidget *modal = 0;
+
+    switch ( event->type ) {
+	case ButtonPress:			// disallow mouse/key events
+	case ButtonRelease:
+	case MotionNotify:
+	case KeyPress:
+	case KeyRelease:
+	case ClientMessage:
+	    block_event	 = TRUE;
+	    break;
+	case Expose:
+	    expose_event = TRUE;
+	    break;
+    }
+
+    if ( widget->testWFlags(WType_Modal) )	// widget is modal
+	modal = widget;
+    else {					// widget is not modal
+	while ( widget->parentWidget() ) {	// find overlapped parent
+	    if ( widget->testWFlags(WType_Overlap) )
+		break;
+	    widget = widget->parentWidget();
+	}
+	if ( widget->testWFlags(WType_Popup) )	// popups are ok
+	    return TRUE;
+	if ( widget->testWFlags(WType_Modal) )	// is it modal?
+	    modal = widget;
+    }
+
+    ASSERT( modal_stack && modal_stack->getFirst() );
+    QWidget *top = modal_stack->getFirst();
+
+    if ( modal == top )				// don't block event
+	return TRUE;
+
+    if ( top->parentWidget() == 0 && (block_event || expose_event) )
+	XRaiseWindow( appDpy, top->id() );	// raise app-modal widget
+
+    return !block_event;
+#endif
+}
+
+
+// --------------------------------------------------------------------------
+// Popup widget mechanism
+//
+// qt_open_popup()
+//	Adds a widget to the list of popup widgets
+//	Arguments:
+//	    QWidget *widget	The popup widget to be added
+//
+// qt_close_popup()
+//	Removes a widget from the list of popup widgets
+//	Arguments:
+//	    QWidget *widget	The popup widget to be removed
+//
+
+void qt_open_popup( QWidget *popup )		// add popup widget
+{
+    if ( !popupWidgets ) {			// create list
+	popupWidgets = new QWidgetList;
+	CHECK_PTR( popupWidgets );
+    }
+    popupWidgets->append( popup );		// add to end of list
+    if ( popupWidgets->count() == 1 && !qt_nograb() ) // grab mouse/keyboard
+	SetCapture( popup->id() );
+}
+
+void qt_close_popup( QWidget *popup )		// remove popup widget
+{
+    if ( !popupWidgets )
+	return;
+    if ( popupWidgets->findRef(popup) != -1 )
+	popupWidgets->remove();
+    if ( popupWidgets->count() == 0 ) {		// this was the last popup
+	popupCloseDownMode = TRUE;		// control mouse events
+	delete popupWidgets;
+	popupWidgets = 0;
+	if ( !qt_nograb() )			// grabbing not disabled
+	    ReleaseCapture();
+    }
 }
 
 
@@ -920,19 +1166,32 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	if ( (state == 0 || !capture) && !testWFlags(WMouseTracking) )
 	    return TRUE;			// no button
     }
-    int bs = state & (LeftButton | RightButton | MidButton);
-    if ( (type == Event_MouseButtonPress ||
-	  type == Event_MouseButtonDblClick) && bs == button ) {
-	SetCapture( id() );
-	capture = TRUE;
+    if ( popupWidgets ) {			// oops, in popup mode
+	QWidget *popup = popupWidgets->last();
+	if ( popup != this ) {
+	    if ( testWFlags(WType_Popup) && rect().contains(pos) )
+		popup = this;
+	    else				// send to last popup
+		pos = popup->mapFromGlobal( mapToGlobal(pos) );
+	}
+	QMouseEvent e( type, pos, button, state );
+	QApplication::sendEvent( popup, &e );
     }
-    else
-    if ( type == Event_MouseButtonRelease && bs == 0 ) {
-	ReleaseCapture();
-	capture = FALSE;
+    else {
+	int bs = state & (LeftButton | RightButton | MidButton);
+	if ( (type == Event_MouseButtonPress ||
+	      type == Event_MouseButtonDblClick) && bs == button ) {
+	    SetCapture( id() );
+	    capture = TRUE;
+	}
+	else if ( type == Event_MouseButtonRelease && bs == 0 ) {
+	    ReleaseCapture();
+	    capture = FALSE;
+	}
+	QMouseEvent e( type, pos, button, state );
+	QApplication::sendEvent( this, &e );	// send event
     }
-    QMouseEvent e( type, pos, button, state );
-    return QApplication::sendEvent( this, &e );	// send event
+    return TRUE;
 }
 
 
@@ -1041,10 +1300,10 @@ bool QETWidget::translateKeyEvent( const MSG &msg )
 bool QETWidget::translatePaintEvent( const MSG &msg )
 {
     PAINTSTRUCT ps;
-    RECT rect;    
+    RECT rect;
     GetUpdateRect( id(), &rect, FALSE );
     QRect r( QPoint(rect.left,rect.top), QPoint(rect.right,rect.bottom) );
-    QPaintEvent e( &r );
+    QPaintEvent e( r );
     setWFlags( WState_Paint );
     hdc = BeginPaint( id(), &ps );
 #if defined(STUPID_WINDOWS_NT)
@@ -1068,40 +1327,37 @@ bool QETWidget::translatePaintEvent( const MSG &msg )
 
 bool QETWidget::translateConfigEvent( const MSG &msg )
 {
-    setWFlags( WWin_Config );			// set config flag
-    QRect r = clientGeometry();			// get widget geometry
+    setWFlags( WConfigPending );		// set config flag
+    QRect r = geometry();
     WORD a = LOWORD(msg.lParam);
     WORD b = HIWORD(msg.lParam);
     if ( msg.message == WM_SIZE ) {		// resize event
 	QSize oldSize = size();
 	QSize newSize( a, b );
-	QRect r = clientGeometry();
 	r.setSize( newSize );
 	setCRect( r );
 	QResizeEvent e( newSize, oldSize );
 	QApplication::sendEvent( this, &e );
 	if ( inherits("QWindow") ) {		// update caption/icon text
-	    QWindow *v = (QWindow *)this;
-	    if ( IsIconic(v->id()) && v->iconText() )
-		SetWindowText( v->id(), v->iconText() );
+	    QWindow *w = (QWindow *)this;
+	    if ( IsIconic(w->id()) && w->iconText() )
+		SetWindowText( w->id(), w->iconText() );
 	    else
-		SetWindowText( v->id(), v->caption() );
+		SetWindowText( w->id(), w->caption() );
 	}
 	else
 	if ( !testWFlags(WType_Overlap) )	// manual redraw
 	    update();
     }
-    else
-    if ( msg.message == WM_MOVE ) {		// move event
+    else if ( msg.message == WM_MOVE ) {	// move event
 	QPoint oldPos = pos();
 	QPoint newPos( a, b );
-	QRect  r = frameGeometry();
 	r.setTopLeft( newPos );
-	setFRect( r );
+	setCRect( r );
 	QMoveEvent e( newPos, oldPos );
 	QApplication::sendEvent( this, &e );
     }
-    clearWFlags( WWin_Config );			// clear config flag
+    clearWFlags( WConfigPending );		// clear config flag
     return TRUE;
 }
 

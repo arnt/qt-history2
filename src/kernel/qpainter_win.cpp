@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#9 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -21,25 +21,23 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#9 $";
 #endif
+
+
+static inline int d2i_round( double d )
+{
+    return d > 0 ? int(d+0.5) : int(d-0.5);
+}
 
 
 // --------------------------------------------------------------------------
 // QPainter member functions
 //
 
-/*!
-  Internal function that initializes the painter.
-*/
-
 void QPainter::initialize()
 {
 }
-
-/*!
-  Internal function that cleans up the painter.
-*/
 
 void QPainter::cleanup()
 {
@@ -104,9 +102,8 @@ QPainter::~QPainter()
 void QPainter::setFont( const QFont &font )
 {
     if ( cfont.d != font.d ) {
-	setf( DirtyFont );
 	cfont = font;
-	cfont.handle();				// load font now!
+	updateFont();
     }
 }
 
@@ -114,54 +111,59 @@ void QPainter::setFont( const QFont &font )
 void QPainter::setPen( const QPen &pen )	// set current pen
 {
     if ( cpen.data != pen.data ) {
-	if ( cpen != pen ) {
-	    setf( DirtyPen );
-	    cpen = pen;
-	}
+	cpen = pen;
+	updatePen();
     }
 }
 
 void QPainter::setPen( PenStyle style )		// set solid pen with color
 {
     QPen pen( style );
-    setPen( pen );
+    if ( cpen != pen ) {
+	cpen = pen;
+	updatePen();
+    }
 }
 
 void QPainter::setPen( const QColor &color )	// set solid pen with color
 {
     QPen pen( color );
-    cpen = pen;
-    setf( DirtyPen );
+    if ( cpen != pen ) {
+	cpen = pen;
+	updatePen();
+    }
 }
 
 
 void QPainter::setBrush( const QBrush &brush )	// set current brush
 {
     if ( cbrush.data != brush.data ) {
-	if ( cbrush != brush )
-	    setf( DirtyBrush );
 	cbrush = brush;
+	updateBrush();
     }
 }
 
 void QPainter::setBrush( BrushStyle style )	// set brush
 {
     QBrush brush( style );
-    cbrush = brush;
-    setf( DirtyBrush );
+    if ( cbrush != brush ) {
+	cbrush = brush;
+	updateBrush();
+    }
 }
 
 void QPainter::setBrush( const QColor &color )	// set solid brush width color
 {
     QBrush brush( color );
-    cbrush = brush;
-    setf( DirtyBrush );
+    if ( cbrush != brush ) {
+	cbrush = brush;
+	updateBrush();
+    }
 }
 
 
 void QPainter::updateFont()			// update after changed font
 {
-    clearf( DirtyFont );			// font becomes clean
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].font = &cfont;
@@ -174,7 +176,6 @@ void QPainter::updateFont()			// update after changed font
 
 void QPainter::updatePen()			// update after changed pen
 {
-    clearf( DirtyPen );				// pen becomes clean
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].pen = &cpen;
@@ -225,7 +226,6 @@ void QPainter::updateBrush()			// update after changed brush
     static short *dense_patterns[]
 	= { d1_pat, d2_pat, d3_pat, d4_pat, d5_pat, d6_pat, d7_pat };
 
-    clearf( DirtyBrush );			// brush becomes clean
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].brush = &cbrush;
@@ -236,10 +236,10 @@ void QPainter::updateBrush()			// update after changed brush
     HANDLE hbrush_old	   = hbrush;
     HANDLE hbrushbm_old	   = hbrushbm;
     bool   stockBrush_old  = stockBrush;
-    bool   pixmapBrush_old = pixmapBrush:
+    bool   pixmapBrush_old = pixmapBrush;
 
     int s = cbrush.style();
-    stockBrush  = FALSE;
+    stockBrush	= FALSE;
     pixmapBrush = FALSE;
     hbrushbm = 0;
 
@@ -247,17 +247,17 @@ void QPainter::updateBrush()			// update after changed brush
 	hbrush = GetStockObject( NULL_BRUSH );
 	stockBrush = TRUE;
     }
-    else if ( s == SolidBrush )	{		// create solid brush
+    else if ( s == SolidPattern ) {		// create solid brush
 	hbrush = CreateSolidBrush( cbrush.color().pixel() );
     }
     else if ( (s >= Dense1Pattern && s <= Dense7Pattern ) ||
 	      (s == CustomPattern) ) {
-	if ( data->style == CustomPattern ) {
-	    hbrushbm = cbrush.pixmap()->handle();
+	if ( s == CustomPattern ) {
+	    hbrushbm = cbrush.pixmap()->hbm();
 	    pixmapBrush = TRUE;
 	}
 	else {
-	    short *bm = dense_patterns[ bs - Dense1Pattern ];
+	    short *bm = dense_patterns[ s - Dense1Pattern ];
 	    hbrushbm = CreateBitmap( 8, 8, 1, 1, bm );
 	}
 	hbrush = CreatePatternBrush( hbrushbm );
@@ -268,25 +268,27 @@ void QPainter::updateBrush()			// update after changed brush
 		s = HS_HORIZONTAL;
 		break;
 	    case VerPattern:
-	        s = HS_VERTICAL;
-	        break;
+		s = HS_VERTICAL;
+		break;
 	    case CrossPattern:
-	        s = HS_CROSS;
-	        break;
+		s = HS_CROSS;
+		break;
 	    case BDiagPattern:
-	        s = HS_BDIAGONAL;
-	        break;
+		s = HS_BDIAGONAL;
+		break;
 	    case FDiagPattern:
-	        s = HS_FDIAGONAL;
-	        break;
+		s = HS_FDIAGONAL;
+		break;
 	    case DiagCrossPattern:
-	        s = HS_DIAGCROSS;
-	        break;
+		s = HS_DIAGCROSS;
+		break;
 	    default:
-	        s = HS_HORIZONTAL;
+		s = HS_HORIZONTAL;
 	}
 	hbrush = CreateHatchBrush( s, cbrush.color().pixel() );
     }
+
+    SelectObject( hdc, hbrush );
 
     if ( hbrush_old && !stockBrush_old )
 	DeleteObject( hbrush_old );		// delete last brush
@@ -312,7 +314,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     }
 
     bool reinit = flags != IsStartingUp;	// 2nd or 3rd etc. time called
-    flags = DirtyFont | DirtyPen | DirtyBrush;	// default flags
+    flags = 0;					// default flags
     if ( pdev_dict ) {				// redirected paint device?
 	pdev = pdev_dict->find( (long)pd );
 	if ( !pdev )				// no
@@ -325,11 +327,11 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     else if ( pdev->devType() == PDT_PIXMAP )	// device is a pixmap
 	((QPixmap*)pdev)->detach();		// will modify pixmap
 
-    hpen = hbrush = 0;
-    stockBrush = pixmapBrush = 0;
+    hpen = hbrush = hbrushbm = 0;
+    stockBrush = pixmapBrush = tmpHandle = 0;
 
+    hdc = 0;
     if ( testf(ExtDev) ) {			// external device
-	hdc = 0;
 	if ( !pdev->cmd( PDC_BEGIN, 0 ) ) {	// could not begin painting
 	    pdev = 0;
 	    return FALSE;
@@ -339,13 +341,10 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	if ( tabarray )				// update tabarray for device
 	    setTabArray( tabarray );
     }
-    else {
-	hdc = pdev->handle();
-    }
 
     setf( IsActive );				// painter becomes active
     pdev->devFlags |= PDF_PAINTACTIVE;		// also tell paint device
-    bro = curPt = QPoint( 0, 0 );
+    bro = QPoint( 0, 0 );
     if ( reinit ) {
 	bg_col = white;				// default background color
 	wxmat.reset();				// reset world xform matrix
@@ -362,11 +361,14 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	if ( reinit ) {
 	    cbrush = QBrush( NoBrush );
 	}
-	if ( !w->testWFlags(WState_Paint) ) {	// not during paint event
-	    hdc = GetDC( w->id() );
-	    w->hdc = 0;
+	if ( w->testWFlags(WState_Paint) ) {	// during paint event
+	    hdc = w->hdc;
 	}
-	if ( w->testWFlags(WPaintUnclipped) ) {	// paint direct on device
+	else {
+	    hdc = GetDC( w->id() );
+	    tmpHandle = TRUE;
+	}
+	if ( w->testWFlags(WPaintUnclipped) ) { // paint direct on device
 	    // !!!hanord todo
 	}
     }
@@ -379,9 +381,11 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	    end();
 	    return FALSE;
 	}
-	bool mono = pm->depth() == 1;		// monochrome bitmap
-	hdc = pm->allocMemDC();
-	SelectObject( hdc, pm->hbm() );
+
+	tmpHandle = pm->handle() == 0;
+	pm->freeMemDC();
+	pm->allocMemDC();
+	hdc = pm->handle();
 	ww = vw = pm->width();			// default view size
 	wh = vh = pm->height();
 	if ( reinit ) {
@@ -392,19 +396,24 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	    cpen   = defaultPen;
 	    cbrush = defaultBrush;
 	}
-	if ( mono ) {
+	if ( pm->depth() == 1 ) {		// monochrome pixmap
 	    bg_col = color0;
 	    cpen.setColor( color1 );
 	}
     }
     else
 	ww = wh = vw = vh = 1;
+    updatePen();
+    updateBrush();
+    updateFont();
     if ( QColor::hPal() ) {			// realize global palette
 	SelectPalette( hdc, QColor::hPal(), FALSE );
 	RealizePalette( hdc );
     }
-    if ( hdc )					// not ext device
+    if ( hdc ) {				// not ext device
 	SetTextAlign( hdc, TA_BASELINE );
+	SetStretchBltMode( hdc, COLORONCOLOR );
+    }
     setBackgroundColor( bg_col );		// default background color
     setBackgroundMode( TransparentMode );	// default background mode
     setRasterOp( CopyROP );			// default raster operation
@@ -414,27 +423,36 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 bool QPainter::end()				// end painting
 {
 #if defined(CHECK_STATE)
-    if ( !isActive ) {
+    if ( !isActive() ) {
 	warning( "QPainter::end: No begin()" );
 	return FALSE;
     }
 #endif
-    if ( hpen ) {
-	SelectObject( hdc, GetStockObject(BLACK_PEN) );
-	DeleteObject( hpen );
+    flags = 0;
+    pdev->devFlags &= ~PDF_PAINTACTIVE;
+
+    if ( !hdc ) {
+	pdev = 0;
+	return TRUE;
     }
+    if ( hpen )
+	DeleteObject( SelectObject(hdc, GetStockObject(BLACK_PEN)) );
     if ( hbrush && !stockBrush ) {
-	SelectObject( hdc, GetStockObject(WHITE_BRUSH) );
-	DeleteObject( hbrush );
+	DeleteObject( SelectObject(hdc, GetStockObject(WHITE_BRUSH)) );
 	if ( hbrushbm && !pixmapBrush )
 	    DeleteObject( hbrushbm );
     }
-    if ( pdev->devType() == PDT_WIDGET && !pdev->handle() )
-	ReleaseDC( ((QWidget*)pdev)->id(), hdc );
-    else if ( pdev->devType() == PDT_PIXMAP )
-	((QPixmap*)pdev)->freeMemDC();
-    clearf( IsActive );
-    pdev->devFlags &= ~PDF_PAINTACTIVE;
+    if ( pdev->devType() == PDT_WIDGET ) {
+	if ( tmpHandle )
+	    ReleaseDC( ((QWidget*)pdev)->id(), hdc );
+    }
+    else if ( pdev->devType() == PDT_PIXMAP ) {
+	QPixmap *pm = (QPixmap*)pdev;
+	pm->freeMemDC();
+	if ( !tmpHandle )
+	    pm->allocMemDC();
+    }
+    hdc	 = 0;
     pdev = 0;
     return TRUE;
 }
@@ -559,8 +577,8 @@ void QPainter::updateXForm()
 	m.eM22 = wxmat.m22();
 	m.eDx  = wxmat.dx();
 	m.eDy  = wxmat.dy();
-	setGraphicsMode( hdc, GM_ADVANCED );
-	setWorldTransform( hdc, &m );
+	SetGraphicsMode( hdc, GM_ADVANCED );
+	SetWorldTransform( hdc, &m );
 #endif
     }
     else {
@@ -572,8 +590,8 @@ void QPainter::updateXForm()
 	m.eM22 = (FLOAT)1.0;
 	m.eDx  = (FLOAT)0.0;
 	m.eDy  = (FLOAT)0.0;
-	setWorldTransform( hdc, &m );
-	setGraphicsMode( hdc, GM_COMPATIBLE );
+	SetWorldTransform( hdc, &m );
+	SetGraphicsMode( hdc, GM_COMPATIBLE );
 #endif
     }
 }
@@ -677,8 +695,8 @@ void QPainter::setClipRect( const QRect &r )	// set clip rectangle
     setClipRegion( rgn );
 }
 
-void QPainter::setRegion( const QRegion &rgn )	// set clip region
-{
+void QPainter::setClipRegion( const QRegion &rgn )
+{						// set clip region
     crgn = rgn;
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
@@ -695,16 +713,12 @@ void QPainter::drawPoint( int x, int y )	// draw a single point
 {
     if ( !isActive() || cpen.style() == NoPen )
 	return;
-    if ( testf(DirtyPen|ExtDev) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[1];
-	    QPoint p( x, y );
-	    param[0].point = &p;
-	    pdev->cmd( PDC_DRAWPOINT, param );
-	    return;
-	}
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[1];
+	QPoint p( x, y );
+	param[0].point = &p;
+	pdev->cmd( PDC_DRAWPOINT, param );
+	return;
     }
     SetPixel( hdc, x, y, cpen.color().pixel() );
 }
@@ -733,16 +747,12 @@ void QPainter::lineTo( int x, int y )		// draw line from current point
 {
     if ( !isActive() )
 	return;
-    if ( testf(DirtyPen|ExtDev) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[1];
-	    QPoint p( x, y );
-	    param[0].point = &p;
-	    pdev->cmd( PDC_LINETO, param );
-	    return;
-	}
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[1];
+	QPoint p( x, y );
+	param[0].point = &p;
+	pdev->cmd( PDC_LINETO, param );
+	return;
     }
     LineTo( hdc, x, y );
     SetPixel( hdc, x, y, cpen.color().pixel() );
@@ -753,18 +763,13 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 {						// draw line
     if ( !isActive() )
 	return;
-    if ( testf(DirtyPen|ExtDev) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[2];
-	    QPoint p1( x1, y1 ),
-		   p2( x2, y2 );
-	    param[0].point = &p1;
-	    param[1].point = &p2;
-	    pdev->cmd( PDC_DRAWLINE, param );
-	    return;
-	}
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[2];
+	QPoint p1( x1, y1 ), p2( x2, y2 );
+	param[0].point = &p1;
+	param[1].point = &p2;
+	pdev->cmd( PDC_DRAWLINE, param );
+	return;
     }
 #if defined(_WS_WIN32_)
     MoveToEx( hdc, x1, y1, 0 );
@@ -807,18 +812,12 @@ void QPainter::drawRect( int x, int y, int w, int h )
 {						// draw rectangle
     if ( !isActive() )
 	return;
-    if ( testf(DirtyPen|DirtyBrush|ExtDev) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(DirtyBrush) )
-	    updateBrush();
-	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[1];
-	    QRect r( x, y, w, h );
-	    param[0].rect = &r;
-	    pdev->cmd( PDC_DRAWRECT, param );
-	    return;
-	}
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[1];
+	QRect r( x, y, w, h );
+	param[0].rect = &r;
+	pdev->cmd( PDC_DRAWRECT, param );
+	return;
     }
     if ( w <= 0 || h <= 0 ) {
 	if ( w == 0 || h == 0 )
@@ -845,20 +844,14 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 	xRnd = 99;
     if ( yRnd >= 100 )
 	yRnd = 99;
-    if ( testf(DirtyPen|DirtyBrush|ExtDev) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(DirtyBrush) )
-	     updateBrush();
-	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[3];
-	    QRect r( x, y, w, h );
-	    param[0].rect = &r;
-	    param[1].ival = xRnd;
-	    param[2].ival = yRnd;
-	    pdev->cmd( PDC_DRAWROUNDRECT, param );
-	    return;
-	}
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[3];
+	QRect r( x, y, w, h );
+	param[0].rect = &r;
+	param[1].ival = xRnd;
+	param[2].ival = yRnd;
+	pdev->cmd( PDC_DRAWROUNDRECT, param );
+	return;
     }
     if ( w <= 0 || h <= 0 ) {
 	if ( w == 0 || h == 0 )
@@ -880,18 +873,12 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 {						// draw ellipse
     if ( !isActive() )
 	return;
-    if ( testf(DirtyPen|DirtyBrush|ExtDev) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(DirtyBrush) )
-	    updateBrush();
-	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[1];
-	    QRect r( x, y, w, h );
-	    param[0].rect = &r;
-	    pdev->cmd( PDC_DRAWELLIPSE, param );
-	    return;
-	}
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[1];
+	QRect r( x, y, w, h );
+	param[0].rect = &r;
+	pdev->cmd( PDC_DRAWELLIPSE, param );
+	return;
     }
     if ( w <= 0 || h <= 0 ) {
 	if ( w == 0 || h == 0 )
@@ -906,18 +893,14 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 {						// draw arc
     if ( !isActive() )
 	return;
-    if ( testf(DirtyPen|ExtDev) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[3];
-	    QRect r( x, y, w, h );
-	    param[0].rect = &r;
-	    param[1].ival = a;
-	    param[2].ival = alen;
-	    pdev->cmd( PDC_DRAWARC, param );
-	    return;
-	}
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[3];
+	QRect r( x, y, w, h );
+	param[0].rect = &r;
+	param[1].ival = a;
+	param[2].ival = alen;
+	pdev->cmd( PDC_DRAWARC, param );
+	return;
     }
     if ( w <= 0 || h <= 0 ) {
 	if ( w == 0 || h == 0 )
@@ -942,24 +925,18 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 }
 
 
-void QPainter::drawPie( int x, int y, int w, int h, int a1, int a2 )
+void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 {						// draw pie
     if ( !isActive() )
 	return;
-    if ( testf(DirtyPen|DirtyBrush|ExtDev) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(DirtyBrush) )
-	    updateBrush();
-	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[3];
-	    QRect r( x, y, w, h );
-	    param[0].rect = &r;
-	    param[1].ival = a;
-	    param[2].ival = alen;
-	    pdev->cmd( PDC_DRAWPIE, param );
-	    return;
-	}
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[3];
+	QRect r( x, y, w, h );
+	param[0].rect = &r;
+	param[1].ival = a;
+	param[2].ival = alen;
+	pdev->cmd( PDC_DRAWPIE, param );
+	return;
     }
     double ra1 = 1.09083078249645598-3*a;
     double ra2 = 1.09083078249645598-3*alen + ra1;
@@ -979,24 +956,18 @@ void QPainter::drawPie( int x, int y, int w, int h, int a1, int a2 )
 }
 
 
-void QPainter::drawChord( int x, int y, int w, int h, int a1, int a2 )
+void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 {						// draw chord
     if ( !isActive() )
 	return;
-    if ( testf(DirtyPen|DirtyBrush|ExtDev) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(DirtyBrush) )
-	    updateBrush();
-	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[3];
-	    QRect r( x, y, w, h );
-	    param[0].rect = &r;
-	    param[1].ival = a;
-	    param[2].ival = alen;
-	    pdev->cmd( PDC_DRAWPIE, param );
-	    return;
-	}
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[3];
+	QRect r( x, y, w, h );
+	param[0].rect = &r;
+	param[1].ival = a;
+	param[2].ival = alen;
+	pdev->cmd( PDC_DRAWPIE, param );
+	return;
     }
     double ra1 = 1.09083078249645598-3*a;
     double ra2 = 1.09083078249645598-3*alen + ra1;
@@ -1016,7 +987,7 @@ void QPainter::drawChord( int x, int y, int w, int h, int a1, int a2 )
 }
 
 
-void QPainter::drawLineSegments( const QPointArray &a )
+void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 {						// draw line segments
     if ( nlines < 0 )
 	nlines = a.size()/2 - index/2;
@@ -1024,23 +995,19 @@ void QPainter::drawLineSegments( const QPointArray &a )
 	nlines = (a.size() - index)/2;
     if ( !isActive() || nlines < 1 || index < 0 )
 	return;
-    if ( testf(DirtyPen|ExtDev) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(ExtDev) ) {
-	    QPointArray tmp;
-	    if ( nlines == (int)a.size()/2 )
-		tmp = a;
-	    else {
-		tmp.resize( nlines*2 );
-		for ( int i=0; i<nlines*2; i++ )
-		    tmp.setPoint( i, a.point(index+i) );
-	    }
-	    QPDevCmdParam param[1];
-	    param[0].ptarr = (QPointArray*)&tmp;
-	    pdev->cmd( PDC_DRAWLINESEGS, param );
-	    return;
+    if ( testf(ExtDev) ) {
+	QPointArray tmp;
+	if ( nlines == (int)a.size()/2 )
+	    tmp = a;
+	else {
+	    tmp.resize( nlines*2 );
+	    for ( int i=0; i<nlines*2; i++ )
+		tmp.setPoint( i, a.point(index+i) );
 	}
+	QPDevCmdParam param[1];
+	param[0].ptarr = (QPointArray*)&tmp;
+	pdev->cmd( PDC_DRAWLINESEGS, param );
+	return;
     }
 
     int x1, y1, x2, y2;
@@ -1076,7 +1043,7 @@ void QPainter::drawLineSegments( const QPointArray &a )
 }
 
 
-void QPainter::drawPolyline( const QPointArray &a )
+void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 {						// draw connected lines
     if ( npoints < 0 )
 	npoints = a.size() - index;
@@ -1084,23 +1051,19 @@ void QPainter::drawPolyline( const QPointArray &a )
 	npoints = a.size() - index;
     if ( !isActive() || npoints < 2 || index < 0 )
 	return;
-    if ( testf(DirtyPen|ExtDev) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(ExtDev) ) {
-	    QPointArray tmp;
-	    if ( npoints == (int)a.size() )
-		tmp = a;
-	    else {
-		tmp.resize( npoints );
-		for ( int i=0; i<npoints; i++ )
-		    tmp.setPoint( i, a.point(index+i) );
-	    }
-	    QPDevCmdParam param[1];
-	    param[0].ptarr = (QPointArray*)&tmp;
-	    pdev->cmd( PDC_DRAWPOLYLINE, param );
-	    return;
+    if ( testf(ExtDev) ) {
+	QPointArray tmp;
+	if ( npoints == (int)a.size() )
+	    tmp = a;
+	else {
+	    tmp.resize( npoints );
+	    for ( int i=0; i<npoints; i++ )
+		tmp.setPoint( i, a.point(index+i) );
 	}
+	QPDevCmdParam param[1];
+	param[0].ptarr = (QPointArray*)&tmp;
+	pdev->cmd( PDC_DRAWPOLYLINE, param );
+	return;
     }
     Polyline( hdc, (POINT*)(a.data()+index), npoints );
     if ( cpen.style() == SolidLine ) {
@@ -1110,7 +1073,8 @@ void QPainter::drawPolyline( const QPointArray &a )
 }
 
 
-void QPainter::drawPolygon( const QPointArray &a, bool winding )
+void QPainter::drawPolygon( const QPointArray &a, bool winding, int index,
+			    int npoints )
 {						// draw polygon
     if ( npoints < 0 )
 	npoints = a.size() - index;
@@ -1118,26 +1082,20 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding )
 	npoints = a.size() - index;
     if ( !isActive() || npoints < 2 || index < 0 )
 	return;
-    if ( testf(DirtyPen|DirtyBrush|ExtDev) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(DirtyBrush) )
-	    updateBrush();
-	if ( testf(ExtDev) ) {
-	    QPointArray tmp;
-	    if ( npoints == (int)a.size() )
-		tmp = a;
-	    else {
-		tmp.resize( npoints );
-		for ( int i=0; i<npoints; i++ )
-		    tmp.setPoint( i, a.point(index+i) );
-	    }
-	    QPDevCmdParam param[2];
-	    param[0].ptarr = (QPointArray*)&tmp;
-	    param[1].ival = winding;
-	    pdev->cmd( PDC_DRAWPOLYGON, param );
-	    return;
+    if ( testf(ExtDev) ) {
+	QPointArray tmp;
+	if ( npoints == (int)a.size() )
+	    tmp = a;
+	else {
+	    tmp.resize( npoints );
+	    for ( int i=0; i<npoints; i++ )
+		tmp.setPoint( i, a.point(index+i) );
 	}
+	QPDevCmdParam param[2];
+	param[0].ptarr = (QPointArray*)&tmp;
+	param[1].ival = winding;
+	pdev->cmd( PDC_DRAWPOLYGON, param );
+	return;
     }
     if ( winding )				// set to winding fill mode
 	SetPolyFillMode( hdc, WINDING );
@@ -1155,30 +1113,25 @@ void QPainter::drawBezier(  const QPointArray &a, int index, int npoints )
 	npoints = a.size() - index;
     if ( !isActive() || npoints < 2 || index < 0 )
 	return;
-    if ( testf(DirtyPen|ExtDev) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(ExtDev) ) {
-	    QPointArray tmp;
-	    if ( npoints == (int)a.size() )
-		tmp = a;
-	    else {
-		tmp.resize( npoints );
-		for ( int i=0; i<npoints; i++ )
-		    tmp.setPoint( i, a.point(index+i) );
-	    }
-	    QPDevCmdParam param[2];
-	    param[0].ptarr = (QPointArray*)&tmp;
-	    param[1].ival = winding;
-	    pdev->cmd( PDC_DRAWPOLYGON, param );
-	    return;
+    if ( testf(ExtDev) ) {
+	QPointArray tmp;
+	if ( npoints == (int)a.size() )
+	    tmp = a;
+	else {
+	    tmp.resize( npoints );
+	    for ( int i=0; i<npoints; i++ )
+		tmp.setPoint( i, a.point(index+i) );
 	}
+	QPDevCmdParam param[1];
+	param[0].ptarr = (QPointArray*)&tmp;
+	pdev->cmd( PDC_DRAWBEZIER, param );
+	return;
     }
     PolyBezier( hdc, (POINT*)(a.data()+index), npoints );
 }
 
 
-void QPainter::drawPixMap( int x, int y, const QPixmap &pixmap,
+void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 			   int sx, int sy, int sw, int sh )
 {						// draw pixmap
     if ( !isActive() || pixmap.isNull() )
@@ -1195,23 +1148,22 @@ void QPainter::drawPixMap( int x, int y, const QPixmap &pixmap,
 	    drawPixmap( x, y, tmp );
 	    return;
 	}
-	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[3];
-	    QRect  r(0,0,sw,sh);
-	    QPoint p(x,y);
-	    param[0].rect	= &r;
-	    param[1].point	= &p;
-	    param[2].pixmap = &pixmap;
-	    pdev->cmd( PDC_DRAWPIXMAP, param );
-	    return;
-	}
+	QPDevCmdParam param[3];
+	QRect  r(0,0,sw,sh);
+	QPoint p(x,y);
+	param[0].rect	= &r;
+	param[1].point	= &p;
+	param[2].pixmap = &pixmap;
+	pdev->cmd( PDC_DRAWPIXMAP, param );
+	return;
     }
-    if ( testf(DirtyPen) )			// bitmap gets pen color
-	updatePen();
-    HDC hdcmem = CreateCompatibleDC( hdc );
-    SelectObject( hdcmem, pm.hbm() );
-    BitBlt( hdc, x, y, sw, sh, hdcmem, sx, sy, SRCCOPY );
-    DeleteDC( hdcmem );
+    QPixmap *pm = (QPixmap*)&pixmap;
+    bool tmp_dc = pm->handle() == 0;
+    if ( tmp_dc )
+	pm->allocMemDC();
+    BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCCOPY );
+    if ( tmp_dc )
+	pm->freeMemDC();
 }
 
 
@@ -1224,21 +1176,15 @@ void QPainter::drawText( int x, int y, const char *str, int len )
     if ( len == 0 )				// empty string
 	return;
 
-    if ( testf(DirtyFont|DirtyPen|ExtDev) ) {
-	if ( testf(DirtyFont) )
-	    updateFont();
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[2];
-	    QPoint p( x, y );
-	    QString newstr = str;
-	    newstr.truncate( len );
-	    param[0].point = &p;
-	    param[1].str = newstr.data();
-	    pdev->cmd( PDC_DRAWTEXT, param );
-	    return;
-	}
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[2];
+	QPoint p( x, y );
+	QString newstr = str;
+	newstr.truncate( len );
+	param[0].point = &p;
+	param[1].str = newstr.data();
+	pdev->cmd( PDC_DRAWTEXT, param );
+	return;
     }
 
     TextOut( hdc, x, y, str, len );
@@ -1256,24 +1202,19 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     if ( len == 0 )				// empty string
 	return;
 
-    if ( testf(DirtyFont|DirtyPen|ExtDev) ) {
-	if ( testf(DirtyFont) )
-	    updateFont();
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(ExtDev) && (tf & DontPrint) == 0 ) {
-	    QPDevCmdParam param[3];
-	    QRect r( x, y, w, h );
-	    QString newstr = str;
-	    if ( len >= 0 )
-		newstr.truncate( len );
-	    param[0].rect = &r;
-	    param[1].ival = tf;
-	    param[2].str = newstr.data();
-	    pdev->cmd( PDC_DRAWTEXTFRMT, param );
-	    return;
-	}
+    if ( testf(ExtDev) && (tf & DontPrint) == 0 ) {
+	QPDevCmdParam param[3];
+	QRect r( x, y, w, h );
+	QString newstr = str;
+	if ( len >= 0 )
+	    newstr.truncate( len );
+	param[0].rect = &r;
+	param[1].ival = tf;
+	param[2].str = newstr.data();
+	pdev->cmd( PDC_DRAWTEXTFRMT, param );
+	return;
     }
+
     if ( w <= 0 || h <= 0 ) {
 	if ( w == 0 || h == 0 )
 	    return;
@@ -1647,9 +1588,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    setClipRegion( crgn );
 	else {					// clipping was off
 	    crgn = save_rgn;
-	    XSetClipMask( dpy, gc, None );
-	    if ( gc_brush )
-		XSetClipMask( dpy, gc_brush, None );
+	    SelectClipRgn( hdc, 0 );
 	}
     }
 
@@ -1667,4 +1606,3 @@ QRect QPainter::boundingRect( int x, int y, int w, int h, int tf,
     drawText( x, y, w, h, tf, str, len, &brect, internal );
     return brect;
 }
-

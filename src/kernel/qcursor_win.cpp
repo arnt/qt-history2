@@ -1,22 +1,24 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#5 $
 **
 ** Implementation of QCursor class for Windows
 **
 ** Author  : Haavard Nord
 ** Created : 940219
 **
-** Copyright (C) 1994 by Troll Tech as.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qcursor.h"
+#include "qbitmap.h"
 #include "qapp.h"
 #include "qimage.h"
+#include "qdstream.h"
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_win.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_win.cpp#5 $";
 #endif
 
 
@@ -152,6 +154,12 @@ QCursor::QCursor( const QBitmap &bitmap, const QBitmap &mask,
     data->hy = hotY >= 0 ? hotY : bitmap.height()/2;
 }
 
+QCursor::QCursor( const QCursor &c )
+{
+    data = c.data;
+    data->ref();
+}
+
 QCursor::~QCursor()
 {
     if ( data && data->deref() )
@@ -223,13 +231,13 @@ void QCursor::setPos( int x, int y )		// set cursor position
 }
 
 
-void QCursor::update()				// update/load cursor
+void QCursor::update() const			// update/load cursor
 {
     if ( data->hcurs )				// already loaded
 	return;
 
     char const *sh;
-    switch ( cshape ) {				// map to windows cursor
+    switch ( data->cshape ) {			// map to windows cursor
 	case ArrowCursor:
 	    sh = IDC_ARROW;
 	    break;
@@ -260,20 +268,38 @@ void QCursor::update()				// update/load cursor
 	case SizeAllCursor:
 	    sh = IDC_SIZE;
 	    break;
-        case BitmapCursor: {
+	case BitmapCursor: {
+	    int w = data->bm->width();
+	    int h = data->bm->height();
+	    int len = (w+7)/8*h;
+	    uchar *bits = new uchar[len];
+	    uchar *mask = new uchar[len];
+	    GetBitmapBits( data->bm->hbm(),  len, bits );
+	    GetBitmapBits( data->bmm->hbm(), len, mask );
+	    int i;
+	    for ( i=0; i<len; i++ )
+		bits[i] = ~bits[i];
+	    for ( i=0; i<len; i++ )
+		mask[i] = ~mask[i];
+	    data->hcurs = CreateCursor( qWinAppInst(), data->hx, data->hy,
+					w, h, bits, mask );
+	    delete bits;
+	    delete mask;
+/*
 	    QImage c, m;
-	    c = *data->bm;
+	    c = *data->bm;	GetDIBits
 	    m = *data->bmm;
 	    c = c.convertBitOrder( QImage::BigEndian );
 	    m = m.convertBitOrder( QImage::BigEndian );
 	    data->hcurs = CreateCursor( qWinAppInst(), data->hx, data->hy,
 					c.width(), c.height(),
 					c.bits(),  m.bits() );
+*/
 	    return;
 	    }
 	default:
 #if defined(CHECK_RANGE)
-	    warning( "QCursor::update: Invalid cursor shape %d", cshape );
+	    warning( "QCursor::update: Invalid cursor shape %d", data->cshape );
 #endif
 	    return;
     }

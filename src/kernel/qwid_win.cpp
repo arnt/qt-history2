@@ -1,35 +1,38 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#8 $
 **
-** Implementation of QWidget and QWindow classes for Windows + NT
+** Implementation of QWidget and QWindow classes for Windows
 **
 ** Author  : Haavard Nord
 ** Created : 931205
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qwindow.h"
-#include "qcolor.h"
+#include "qobjcoll.h"
+#include "qpaintdc.h"
+#include "qpainter.h"
+#include "qapp.h"
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_win.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_win.cpp#8 $";
 #endif
+
+
+const char *qt_reg_winclass( int type );	// defined in qapp_x11.cpp
+void	    qt_enter_modal( QWidget * );
+void	    qt_leave_modal( QWidget * );
+bool	    qt_modal_state();
+void	    qt_open_popup( QWidget * );
+void	    qt_close_popup( QWidget * );
 
 
 // --------------------------------------------------------------------------
 // QWidget member functions
 //
-
-const char *qWidgetClassName = "QWidget";
-
-#if defined(_WS_WIN32_)
-#define __export
-#endif
-
-extern "C" long CALLBACK __export WndProc( HWND, WORD, WORD, LONG );
 
 bool QWidget::create()				// create widget
 {
@@ -40,33 +43,14 @@ bool QWidget::create()				// create widget
     if ( !parentWidget() )
 	setWFlags( WType_Overlap );		// overlapping widget
 
-    static bool wc_exists = FALSE;		// window class exists?
-    if ( !wc_exists ) {				// create window class
-	WNDCLASS wc;
-	wc.style	 = CS_DBLCLKS; // | CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc	 = (WNDPROC)WndProc;
-	wc.cbClsExtra	 = 0;
-	wc.cbWndExtra	 = 0;
-	wc.hInstance	 = qWinAppInst();
-	wc.hIcon	 = LoadIcon(0,IDI_APPLICATION);
-	wc.hCursor	 = 0;
-	wc.hbrBackground = 0;
-	wc.lpszMenuName	 = 0;
-	wc.lpszClassName = qWidgetClassName;
-	RegisterClass( &wc );
-	wc_exists = TRUE;
-    }
-
     QWidget *parent = parentWidget();
-    int	   sw;					// screen width
-    int	   sh;					// screen height
     bool   overlap = testWFlags( WType_Overlap );
     bool   popup   = testWFlags( WType_Popup );
     bool   modal   = testWFlags( WType_Modal );
     bool   desktop = testWFlags( WType_Desktop );
     HANDLE parentwin = parentWidget() ? parentWidget()->id() : 0;
+    const char *wcln = qt_reg_winclass( popup ? 1 : 0 );
     WId	   id;
-
     bg_col = pal.normal().background();		// default background color
 
     if ( modal ) {				// modal windows overlap
@@ -78,36 +62,39 @@ bool QWidget::create()				// create widget
 	int sw = GetSystemMetrics( SM_CXSCREEN );
 	int sh = GetSystemMetrics( SM_CYSCREEN );
 	frect.setRect( 0, 0, sw, sh );
+	crect = frect;
 	overlap = popup = FALSE;		// force these flags off
     }
 
     char *title = 0;
-    DWORD style = overlap ? 0 : (WS_CHILD | WS_CLIPSIBLINGS);
-
-    if ( testWFlags(WType_Modal) && !testWFlags(WStyle_Title) )
-	 style |= WS_DLGFRAME;
-    if ( !testWFlags(WType_Modal) && overlap ) {
-	style |= WS_OVERLAPPEDWINDOW;
+    DWORD style = WS_CHILD | WS_CLIPSIBLINGS;
+    if ( popup )
+	style = WS_POPUP | WS_CLIPSIBLINGS;
+    else if ( modal )
+	style = WS_DLGFRAME;
+    else if ( overlap ) {
+	style = WS_OVERLAPPEDWINDOW;
 	setWFlags(WStyle_Border);
 	setWFlags(WStyle_Title);
 	setWFlags(WStyle_Close);
 	setWFlags(WStyle_Resize);
 	setWFlags(WStyle_MinMax);
     }
-    else {
-	if ( testWFlags(WStyle_Border) )
-	    style |= WS_BORDER;
-	if ( testWFlags(WStyle_Title) )
-	    style |= WS_CAPTION;
-	if ( testWFlags(WStyle_Close) )
-	    style |= WS_SYSMENU;
-	if ( testWFlags(WStyle_Resize) )
-	    style |= WS_THICKFRAME;
-	if ( testWFlags(WStyle_Minimize) )
-	    style |= WS_MINIMIZEBOX;
-	if ( testWFlags(WStyle_Maximize) )
-	    style |= WS_MAXIMIZEBOX;
-    }
+    if ( !desktop )
+	style |= WS_CLIPCHILDREN;
+    if ( testWFlags(WStyle_Border) )
+	style |= WS_BORDER;
+    if ( testWFlags(WStyle_Title) )
+	style |= WS_CAPTION;
+    if ( testWFlags(WStyle_Close) )
+	style |= WS_SYSMENU;
+    if ( testWFlags(WStyle_Resize) )
+	style |= WS_THICKFRAME;
+    if ( testWFlags(WStyle_Minimize) )
+	style |= WS_MINIMIZEBOX;
+    if ( testWFlags(WStyle_Maximize) )
+	style |= WS_MAXIMIZEBOX;
+
     if ( testWFlags(WStyle_Title) )
 	title = qAppName();
 
@@ -123,7 +110,7 @@ bool QWidget::create()				// create widget
 	    set_id( id );
     }
     else if ( overlap ) {			// create overlapped widget
-	id = CreateWindow( qWidgetClassName, title, style,
+	id = CreateWindow( wcln, title, style,
 			   CW_USEDEFAULT, CW_USEDEFAULT,
 			   CW_USEDEFAULT, CW_USEDEFAULT,
 			   parentwin, 0,
@@ -134,37 +121,37 @@ bool QWidget::create()				// create widget
 	int x, y, w, h;
 	x = y = 10;
 	w = h = 40;
-	id = CreateWindow( qWidgetClassName, title, style,
+	id = CreateWindow( wcln, title, style,
 			   x, y, w, h,
 			   parentwin, NULL, qWinAppInst(), NULL );
 	set_id( id );
     }
 
     if ( !desktop ) {
-	RECT cr, ncr;
+	RECT  fr, cr;
 	POINT pt;
+	GetWindowRect( id, &fr );		// update rects
 	GetClientRect( id, &cr );
-	GetWindowRect( id, &ncr );		// update rects
-	ncrect = QRect( QPoint(ncr.left,  ncr.top),
-			QPoint(ncr.right, ncr.bottom) );
+	frect = QRect( QPoint(fr.left,	fr.top),
+		       QPoint(fr.right, fr.bottom) );
 	pt.x = 0;
 	pt.y = 0;
 	ClientToScreen( id, &pt );
 	crect = QRect( QPoint(pt.x+cr.left,  pt.y+cr.top),
 		       QPoint(pt.x+cr.right, pt.y+cr.bottom) );
+	setCursor( arrowCursor );		// default cursor
     }
 
     hdc = 0;					// no display context
-    setCursor( arrowCursor );			// default cursor
 
     return TRUE;
 }
 
 bool QWidget::destroy()				// destroy widget
 {
-    if ( testWFlags( WState_Created ) ) {
+    if ( testWFlags(WState_Created) ) {
 	clearWFlags( WState_Created );
-	DestroyWindow( ident );
+	DestroyWindow( id() );
 	set_id( 0 );
     }
     return TRUE;
@@ -177,15 +164,14 @@ void QWidget::setBackgroundColor( const QColor &c )
     update();
 }
 
-
-QCursor QWidget::cursor() const			// get cursor
-{
-    return curs;
+void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
+{						// set background pixmap
 }
+
 
 void QWidget::setCursor( const QCursor &c )	// set cursor
 {
-    ((QCursor*)&c)->update();
+    ((QCursor*)&c)->handle();
     curs = c;
 }
 
@@ -248,8 +234,7 @@ bool QWidget::enableUpdates( bool enable )	// enable widget update/repaint
 void QWidget::update()				// update widget
 {
     if ( !testWFlags(WNoUpdates) )
-	InvalidateRect( ident, 0, TRUE );
-    return TRUE;
+	InvalidateRect( id(), 0, TRUE );
 }
 
 void QWidget::update( int x, int y, int w, int h )
@@ -286,22 +271,51 @@ void QWidget::show()				// show widget
 {
     if ( testWFlags(WState_Visible) )
 	return;
-    ShowWindow( ident, SW_SHOW );
-    UpdateWindow( ident );
+    if ( children() ) {
+	QObjectListIt it(*children());
+	register QObject *object;
+	QWidget *widget;
+	while ( it ) {				// show all widget children
+	    object = it.current();		//   (except popups)
+	    if ( object->isWidgetType() ) {
+		widget = (QWidget*)object;
+		if ( !widget->testWFlags(WExplicitHide) )
+		    widget->show();
+	    }
+	    ++it;
+	}
+    }
+    ShowWindow( id(), SW_SHOW );
+    UpdateWindow( id() );
     setWFlags( WState_Visible );
+    clearWFlags( WExplicitHide );
+    if ( testWFlags(WType_Modal) )
+	qt_enter_modal( this );
+    else if ( testWFlags(WType_Popup) )
+	qt_open_popup( this );
 }
 
 void QWidget::hide()				// hide widget
 {
-    if ( !testWFlags(WState_Visible) )
+    setWFlags( WExplicitHide );
+    if ( !testWFlags(WState_Visible) )		// not visible
 	return;
-    ShowWindow( ident, SW_HIDE );
-    clearWFlags(WState_Visible);
+    if ( qApp->focus_widget == this )
+	qApp->focus_widget = 0;			// reset focus widget
+    if ( parentWidget() && parentWidget()->focusChild == this )
+	parentWidget()->focusChild = 0;
+    if ( testWFlags(WType_Modal) )
+	qt_leave_modal( this );
+    else if ( testWFlags(WType_Popup) )
+	qt_close_popup( this );
+    ShowWindow( id(), SW_HIDE );
+    clearWFlags( WState_Visible );
 }
+
 
 void QWidget::raise()				// raise widget
 {
-    BringWindowToTop( ident );
+    BringWindowToTop( id() );
 }
 
 void QWidget::lower()				// lower widget
@@ -321,40 +335,44 @@ void qWinRequestConfig( WId, int, int, int, int, int );
 
 void QWidget::move( int x, int y )		// move widget
 {
-    if ( testWFlags(WWin_Config) )		// processing config event
-	qWinRequestConfig( ident, 0, x, y, 0, 0 );
+    if ( testWFlags(WConfigPending) )		// processing config event
+	qWinRequestConfig( id(), 0, x, y, 0, 0 );
     else {
 	if ( !testWFlags(WState_Visible) )
-	    setNCRect( QRect(x,y,ncrect.width(),ncrect.height()) );
-	setWFlags( WWin_Config );
-	MoveWindow( ident, x, y, ncrect.width(), ncrect.height(), TRUE );
-	clearWFlags( WWin_Config );
+	    setFRect( QRect(x,y,frect.width(),frect.height()) );
+	setWFlags( WConfigPending );
+	MoveWindow( id(), x, y, frect.width(), frect.height(), TRUE );
+	clearWFlags( WConfigPending );
     }
 }
 
 void QWidget::resize( int w, int h )		// resize widget
 {
-    if ( testWFlags(WWin_Config) )		// processing config event
-	qWinRequestConfig( ident, 1, 0, 0, w, h );
+    if ( testWFlags(WConfigPending) )		// processing config event
+	qWinRequestConfig( id(), 1, 0, 0, w, h );
     else {
+	int x = frect.x();
+	int y = frect.y();
+	w += frect.width()  - crect.width();
+	h += frect.height() - crect.height();
 	if ( !testWFlags(WState_Visible) )
-	    setNCRect( QRect(ncrect.left(),ncrect.top(),w,h) );
-	setWFlags( WWin_Config );
-	MoveWindow( ident, ncrect.left(), ncrect.top(), w, h, TRUE );
-	clearWFlags( WWin_Config );
+	    setFRect( QRect(x,y,w,h) );
+	setWFlags( WConfigPending );
+	MoveWindow( id(), x, y, w, h, TRUE );
+	clearWFlags( WConfigPending );
     }
 }
 
 void QWidget::setGeometry( int x, int y, int w, int h )
 {						// move and resize widget
-    if ( testWFlags(WWin_Config) )		// processing config event
-	qWinRequestConfig( ident, 2, x, y, w, h );
+    if ( testWFlags(WConfigPending) )		// processing config event
+	qWinRequestConfig( id(), 2, x, y, w, h );
     else {
 	if ( !testWFlags(WState_Visible) )
-	    setNCRect( QRect(x,y,w,h) );
-	setWFlags( WWin_Config );
-	MoveWindow( ident, x, y, w, h, TRUE );
-	clearWFlags( WWin_Config );
+	    setFRect( QRect(x,y,w,h) );
+	setWFlags( WConfigPending );
+	MoveWindow( id(), x, y, w, h, TRUE );
+	clearWFlags( WConfigPending );
     }
 }
 
@@ -378,15 +396,15 @@ void QWidget::erase()				// erase widget contents
 {
     HDC h = hdc;
     if ( !hdc )
-	h = GetDC( ident );
-    SendMessage( ident, WM_ERASEBKGND, (WPARAM)h, 0 );
+	h = GetDC( id() );
+    SendMessage( id(), WM_ERASEBKGND, (WPARAM)h, 0 );
     if ( !hdc )
-	ReleaseDC( ident, h );
+	ReleaseDC( id(), h );
 }
 
 void QWidget::scroll( int dx, int dy )		// scroll widget contents
 {
-    ScrollWindow( ident, dx, dy, 0, 0 );
+    ScrollWindow( id(), dx, dy, 0, 0 );
 }
 
 
@@ -415,7 +433,7 @@ long QWidget::metric( int m ) const		// return widget metrics
 	switch ( m ) {
 	    // !!!hanord: return widget mm width/height
 	    case PDM_WIDTHMM:
-		val = GetDeviceCaps( gdc, HORSIZE );
+		val = GetDeviceCaps( gdc, HORZSIZE );
 		break;
 	    case PDM_HEIGHTMM:
 		val = GetDeviceCaps( gdc, VERTSIZE );
@@ -436,7 +454,7 @@ long QWidget::metric( int m ) const		// return widget metrics
 #endif
 	}
 	ReleaseDC( 0, gdc );
- 
+
     }
     return val;
 }

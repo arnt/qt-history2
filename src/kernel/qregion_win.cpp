@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#5 $
 **
 ** Implementation of QRegion class for Windows
 **
@@ -16,7 +16,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion_win.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion_win.cpp#5 $";
 #endif
 
 
@@ -127,6 +127,7 @@ bool QRegion::contains( const QRect &r ) const
 void QRegion::move( int dx, int dy )
 {
     OffsetRgn( data->rgn, dx, dy );
+    QPoint p( dx, dy );
     cmd( QRGN_MOVE, &p );
 }
 
