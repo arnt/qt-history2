@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#160 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#161 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1528,6 +1528,7 @@ void QLineEdit::setCursorPosition( int newPos )
     int b, e;
     b = QMIN( newPos, cursorPos );
     e = QMAX( newPos, cursorPos );
+    d->pmDirty = TRUE;
     cursorPos = newPos;
     repaintArea( b, e );
 }
