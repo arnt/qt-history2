@@ -41,7 +41,7 @@
 #include <qdir.h>
 #include <stdlib.h>
 #include <time.h>
-#include <qdict.h>
+
 
 NmakeMakefileGenerator::NmakeMakefileGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(FALSE)
 {
@@ -81,10 +81,10 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << "CXX		=	" << var("QMAKE_CXX") << endl;
     t << "LEX		= " << var("QMAKE_LEX") << endl;
     t << "YACC		= " << var("QMAKE_YACC") << endl;
-    t << "CFLAGS	=	" << var("QMAKE_CFLAGS") << " " 
+    t << "CFLAGS	=	" << var("QMAKE_CFLAGS") << " "
       << varGlue("PRL_EXPORT_DEFINES","-D"," -D","") << " "
       <<  varGlue("DEFINES","-D"," -D","") << endl;
-    t << "CXXFLAGS	=	" << var("QMAKE_CXXFLAGS") << " " 
+    t << "CXXFLAGS	=	" << var("QMAKE_CXXFLAGS") << " "
       << varGlue("PRL_EXPORT_DEFINES","-D"," -D","") << " "
       << varGlue("DEFINES","-D"," -D","") << endl;
     t << "LEXFLAGS	=" << var("QMAKE_LEXFLAGS") << endl;
@@ -119,11 +119,11 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     else {
 	t << "LIB	=	" << var("QMAKE_LIB") << endl;
     }
-    t << "MOC		=	" << (project->isEmpty("QMAKE_MOC") ? QString("moc") : 
+    t << "MOC		=	" << (project->isEmpty("QMAKE_MOC") ? QString("moc") :
 			      Option::fixPathToTargetOS(var("QMAKE_MOC"), FALSE)) << endl;
-    t << "UIC		=	" << (project->isEmpty("QMAKE_UIC") ? QString("uic") : 
+    t << "UIC		=	" << (project->isEmpty("QMAKE_UIC") ? QString("uic") :
 			      Option::fixPathToTargetOS(var("QMAKE_UIC"), FALSE)) << endl;
-    t << "QMAKE		=	" << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : 
+    t << "QMAKE		=	" << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") :
 			      Option::fixPathToTargetOS(var("QMAKE_QMAKE"), FALSE)) << endl;
     t << "IDC		=	" << (project->isEmpty("QMAKE_IDC") ? QString("idc") :
 			      Option::fixPathToTargetOS(var("QMAKE_IDC"), FALSE)) << endl;
@@ -140,10 +140,6 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << "####### Files" << endl << endl;
     t << "HEADERS =	" << varList("HEADERS") << endl;
     t << "SOURCES =	" << varList("SOURCES") << endl;
-    if (! project->variables()["OBJECTS_DIR"].isEmpty())
-	t << "OBJECTS_DIR = " << var("OBJECTS_DIR") << endl;
-    else
-	t << "OBJECTS_DIR = ." << endl;
     t << "OBJECTS =	" << varList("OBJECTS") << endl;
     t << "FORMS =	" << varList("FORMS") << endl;
     t << "UICDECLS =	" << varList("UICDECLS") << endl;
@@ -160,51 +156,11 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << endl;
 
     t << "####### Implicit rules" << endl << endl;
-    if(!project->isActiveConfig("no_batch")) {
-	QDict<void> source_directories;
-	if(!project->isEmpty("MOC_DIR"))
-	    source_directories.insert(project->first("MOC_DIR"), (void*)1);
-	if(!project->isEmpty("UI_SOURCES_DIR"))
-	    source_directories.insert(project->first("UI_SOURCES_DIR"), (void*)1);
-	else if(!project->isEmpty("UI_DIR"))
-	    source_directories.insert(project->first("UI_DIR"), (void*)1);
-	QString srcs[] = { QString("SOURCES"), QString::null };
-	for(int x = 0; !srcs[x].isNull(); x++) {
-	    QStringList &l = project->variables()[srcs[x]];
-	    for(QStringList::Iterator sit = l.begin(); sit != l.end(); ++sit) {
-		QString sep = "\\";
-		if((*sit).find(sep) == -1)
-		    sep = "/";
-		QString dir = (*sit).section(sep, 0, -2);
-		if(!dir.isEmpty() && !source_directories[dir]) 
-		    source_directories.insert(dir, (void*)1);
-	    }
-	}
-
-	t << ".SUFFIXES: .c";
-	QStringList::Iterator cppit;
-	for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
-	    t << " " << (*cppit);
-	t << endl << endl;
-	for(QDictIterator<void> it(source_directories); it.current(); ++it) {
-	    if(it.currentKey().isEmpty())
-		continue;
-	    for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
-		t << "(" << it.currentKey() << ")" << (*cppit) << "$(OBJECTS_DIR).obj::\n\t" 
-		  << var("QMAKE_RUN_CXX_IMP") << endl << endl;
-	    t << "(" << it.currentKey() << ")" << ".c$(OBJECTS_DIR).obj::\n\t" 
-	      << var("QMAKE_RUN_CXX_IMP") << endl << endl;
-	}
-    } else {
-	t << ".SUFFIXES: .c";
-	QStringList::Iterator cppit;
-	for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
-	    t << " " << (*cppit);
-	t << endl << endl;
-	for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
-	    t << (*cppit) << ".obj:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
-	t << ".c.obj:\n\t" << var("QMAKE_RUN_CC_IMP") << endl << endl;
-    }
+    t << ".SUFFIXES: .cpp .cxx .cc .c" << endl << endl;
+    t << ".cpp.obj:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
+    t << ".cxx.obj:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
+    t << ".cc.obj:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
+    t << ".c.obj:\n\t" << var("QMAKE_RUN_CC_IMP") << endl << endl;
 
     t << "####### Build rules" << endl << endl;
     t << "all: " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
@@ -316,7 +272,7 @@ NmakeMakefileGenerator::init()
 
     bool is_qt = (project->first("TARGET") == "qt"QTDLL_POSTFIX || project->first("TARGET") == "qt-mt"QTDLL_POSTFIX);
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
-    
+
     QString targetfilename = project->variables()["TARGET"].first();
     QStringList &configs = project->variables()["CONFIG"];
     if (project->isActiveConfig("qt") && project->isActiveConfig("shared"))
@@ -337,7 +293,7 @@ NmakeMakefileGenerator::init()
 	    if ( is_qt && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() )
 		project->variables()["CONFIG"].append("dll");
 	}
-	if ( project->isActiveConfig("thread") ) 
+	if ( project->isActiveConfig("thread") )
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_THREAD_SUPPORT");
 	if ( project->isActiveConfig("accessibility" ) )
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
@@ -390,15 +346,15 @@ NmakeMakefileGenerator::init()
 	project->variables()["QMAKE_LFLAGS"].append("/NODEFAULTLIB:\"libc\"");
     }
 
-    if ( !project->variables()["QMAKE_INCDIR"].isEmpty()) 
+    if ( !project->variables()["QMAKE_INCDIR"].isEmpty())
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
-    if ( project->isActiveConfig("qt") || project->isActiveConfig("opengl") ) 
+    if ( project->isActiveConfig("qt") || project->isActiveConfig("opengl") )
 	project->variables()["CONFIG"].append("windows");
     if ( project->isActiveConfig("qt") ) {
 	project->variables()["CONFIG"].append("moc");
 	project->variables()["INCLUDEPATH"] +=	project->variables()["QMAKE_INCDIR_QT"];
 	project->variables()["QMAKE_LIBDIR"] += project->variables()["QMAKE_LIBDIR_QT"];
-	if ( !project->isActiveConfig("debug") ) 
+	if ( !project->isActiveConfig("debug") )
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_NO_DEBUG");
 	if ( is_qt && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty()) {
@@ -476,7 +432,7 @@ NmakeMakefileGenerator::init()
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_CONSOLE"];
     }
 
-    if ( project->isActiveConfig("moc") ) 
+    if ( project->isActiveConfig("moc") )
 	setMocAware(TRUE);
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     project->variables()["QMAKE_FILETAGS"] += QStringList::split(' ',
@@ -488,7 +444,7 @@ NmakeMakefileGenerator::init()
 	    (*inner) = Option::fixPathToTargetOS((*inner), FALSE);
     }
 
-    if ( !project->variables()["DEF_FILE"].isEmpty() ) 
+    if ( !project->variables()["DEF_FILE"].isEmpty() )
 	project->variables()["QMAKE_LFLAGS"].append(QString("/DEF:") + project->first("DEF_FILE"));
     if(!project->isActiveConfig("incremental"))
 	project->variables()["QMAKE_LFLAGS"].append(QString("/incremental:no"));
@@ -511,7 +467,7 @@ NmakeMakefileGenerator::init()
 	project->variables()["RES_FILE"].first().replace(".rc",".res");
 	project->variables()["TARGETDEPS"] += project->variables()["RES_FILE"];
     }
-    if ( !project->variables()["RES_FILE"].isEmpty()) 
+    if ( !project->variables()["RES_FILE"].isEmpty())
 	project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
 
     MakefileGenerator::init();
