@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#58 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#57 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#58 $";
 #endif
 
 
@@ -753,8 +753,8 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	sh = th = pm->size().height();
 	bool mono = pm->depth() == 1;		// monochrome bitmap
 	if ( mono ) {
-	    bg_col = falseColor;
-	    cpen.setColor( trueColor );
+	    bg_col = color0;
+	    cpen.setColor( color1 );
 	}
 	gc = alloc_painter_gc( dpy, hd, mono );	// create GC
 	if ( reinit ) {
@@ -2108,7 +2108,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    mat = eff_mat * mat;
 	    if ( create_new_bm ) {		// no such cached bitmap
 		QBitMap bm( w, h );		// create bitmap
-		bm.fill( falseColor );
+		bm.fill( color0 );
 		QPainter paint;
 		paint.begin( &bm );		// draw text in bitmap
 		paint.setFont( cfont );
@@ -2150,7 +2150,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		int ww = wx_bm->size().width();
 		int hh = wx_bm->size().height();
 		draw_bm = new QBitMap( ww, hh );
-		draw_bm->fill( falseColor );
+		draw_bm->fill( color0 );
 		QPainter paint;
 		paint.begin( draw_bm );
 		QRegion rgn = crgn.copy();
