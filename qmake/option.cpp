@@ -321,7 +321,7 @@ Option::init(int argc, char **argv)
         } else if (argv0.contains(QLatin1Char('/'))) { //relative PWD
             Option::qmake_abslocation = QDir::current().absoluteFilePath(argv0);
         } else { //in the PATH
-            char *pEnv = getenv("PATH");
+            char *pEnv = qgetenv("PATH");
             QDir currentDir = QDir::current();
 #ifdef Q_OS_WIN
             QStringList paths = QString::fromLocal8Bit(pEnv).split(QLatin1String(";"));
@@ -344,7 +344,7 @@ Option::init(int argc, char **argv)
         Option::qmake_mode = Option::QMAKE_GENERATE_MAKEFILE;
     }
 
-    if(const char *envflags = getenv("QMAKEFLAGS")) {
+    if(const char *envflags = qgetenv("QMAKEFLAGS")) {
         int env_argc = 0, env_size = 0, currlen=0;
         char quote = 0, **env_argv = NULL;
         for(int i = 0; envflags[i]; i++) {
@@ -396,7 +396,7 @@ Option::init(int argc, char **argv)
     if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
         Option::qmake_mode == Option::QMAKE_GENERATE_PRL) {
         if(Option::mkfile::qmakespec.isNull() || Option::mkfile::qmakespec.isEmpty())
-            Option::mkfile::qmakespec = getenv("QMAKESPEC");
+            Option::mkfile::qmakespec = qgetenv("QMAKESPEC");
 
         //try REALLY hard to do it for them, lazy..
         if(Option::mkfile::project_files.isEmpty()) {
@@ -482,7 +482,7 @@ void fixEnvVariables(QString &x)
     QRegExp reg_var("\\$\\(.*\\)");
     reg_var.setMinimal(true);
     while((rep = reg_var.indexIn(x)) != -1)
-        x.replace(rep, reg_var.matchedLength(), QString(getenv(x.mid(rep + 2, reg_var.matchedLength() - 3).latin1())));
+        x.replace(rep, reg_var.matchedLength(), QString(qgetenv(x.mid(rep + 2, reg_var.matchedLength() - 3).latin1())));
 }
 static QString fixPath(QString x)
 {

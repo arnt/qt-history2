@@ -422,7 +422,7 @@ DspMakefileGenerator::init()
         project->variables()["QMAKE_LIB_FLAG"].append("1");
 
     if(project->variables()["QMAKESPEC"].isEmpty())
-        project->variables()["QMAKESPEC"].append(getenv("QMAKESPEC"));
+        project->variables()["QMAKESPEC"].append(qgetenv("QMAKESPEC"));
 
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
 
@@ -612,7 +612,7 @@ DspMakefileGenerator::init()
         Option::fixPathToTargetOS(project->first("TARGET"));
         dest = project->first("TARGET");
         if(project->first("TARGET").startsWith("$(QTDIR)"))
-            dest.replace("$(QTDIR)", getenv("QTDIR"));
+            dest.replace("$(QTDIR)", qgetenv("QTDIR"));
         project->variables()["MSVCDSP_TARGET"].append(
             QString("/out:\"") + dest + "\"");
         if(project->isActiveConfig("dll")) {

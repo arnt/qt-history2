@@ -208,12 +208,12 @@ int
 QFSFileEnginePrivate::sysOpen(const QString &fileName, int flags)
 {
     QT_WA({
-	return ::_wopen((TCHAR*)fileName.utf16(), flags, 0666);
+	return ::_wopen((TCHAR*)fileName.utf16(), flags, _S_IREAD | _S_IWRITE);
     } , {
-	return QT_OPEN(QFSFileEnginePrivate::win95Name(fileName), flags, 0666);
+	return QT_OPEN(QFSFileEnginePrivate::win95Name(fileName), flags, _S_IREAD | _S_IWRITE);
     });
 }
-
+#include <sys/stat.h>
 bool
 QFSFileEngine::remove()
 {
@@ -556,7 +556,7 @@ QFSFileEngine::homePath()
     if(ret.isEmpty() || !QFile::exists(ret)) {
         ret = QString::fromLocal8Bit(qgetenv("USERPROFILE"));
         if(ret.isEmpty() || !QFile::exists(ret)) {
-            ret = QString::fromLocal8Bit(qgetenv("HOMEDRIVE")) + QString::fromLocal8Bit(getenv("HOMEPATH"));
+            ret = QString::fromLocal8Bit(qgetenv("HOMEDRIVE")) + QString::fromLocal8Bit(qgetenv("HOMEPATH"));
             if(ret.isEmpty() || !QFile::exists(ret))
                 ret = rootPath();
         }

@@ -813,12 +813,14 @@ char *qgetenv(const char *varName)
 {
 #if defined(_MSC_VER) && _MSC_VER >= 1400
 	size_t requiredSize;
-	char *buffer;
-	getenv_s(&requiredSize, 0, 0, varName);	
+	char *buffer = 0;
+	getenv_s(&requiredSize, buffer, 0, varName);
+    if (requiredSize == 0)
+        return 0;
 	buffer = (char*)qMalloc(requiredSize*sizeof(char));
 	if (!buffer)
 		return 0;
-	getenv_s(&requiredSize, buffer, &requiredSize, varName);
+	getenv_s(&requiredSize, buffer, requiredSize, varName);
 	return buffer;
 #else
 	return getenv(varName);

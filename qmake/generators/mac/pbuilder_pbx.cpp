@@ -1094,7 +1094,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     tmp = project->variables()["QMAKE_PBX_VARS"];
     for(int i = 0; i < tmp.count(); i++) {
-        QString var = tmp[i], val = getenv(var);
+        QString var = tmp[i], val = qgetenv(var);
         if(val.isEmpty() && var == "TB")
             val = "/usr/bin/";
         t << "\t\t\t\t" << var << " = \"" << val << "\";" << "\n";

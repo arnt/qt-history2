@@ -2213,7 +2213,7 @@ MakefileGenerator::specdir()
         return spec;
     spec = Option::mkfile::qmakespec;
 #if 0
-    if(const char *d = getenv("QTDIR")) {
+    if(const char *d = qgetenv("QTDIR")) {
         QString qdir = Option::fixPathToTargetOS(QString(d));
         if(qdir.endsWith(QString(QChar(QDir::separator()))))
             qdir.truncate(qdir.length()-1);

@@ -225,7 +225,7 @@ QStringList qmake_mkspec_paths()
 {
     QStringList ret;
     const QString concat = QDir::separator() + QString("mkspecs");
-    if(const char *qmakepath = getenv("QMAKEPATH")) {
+    if(const char *qmakepath = qgetenv("QMAKEPATH")) {
 #ifdef Q_OS_WIN
         QStringList lst = QString(qmakepath).split(';');
         for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
@@ -239,7 +239,7 @@ QStringList qmake_mkspec_paths()
             ret << ((*it) + concat);
 #endif
     }
-    if(const char *qtdir = getenv("QTDIR"))
+    if(const char *qtdir = qgetenv("QTDIR"))
         ret << (QString(qtdir) + concat);
 #ifdef QT_INSTALL_PREFIX
     ret << (QT_INSTALL_PREFIX + concat);
@@ -255,8 +255,8 @@ QStringList qmake_mkspec_paths()
 #endif
 
     // prefer $QTDIR if it is set
-    if(getenv("QTDIR"))
-        ret << getenv("QTDIR");
+    if(qgetenv("QTDIR"))
+        ret << qgetenv("QTDIR");
     ret << qInstallPathData();
     return ret;
 }
@@ -1101,7 +1101,7 @@ QMakeProject::read(uchar cmd)
     if(!Option::user_template_prefix.isEmpty())
         templ.first().prepend(Option::user_template_prefix);
 
-    QString test_version = getenv("QTESTVERSION");
+    QString test_version = qgetenv("QTESTVERSION");
     if(!test_version.isEmpty()) {
         QString s = vars["TARGET"].first();
         if(s == "qt" || s == "qt-mt" || s == "qte" || s == "qte-mt") {
@@ -1229,7 +1229,7 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
             }
             const QString mkspecs_concat = QDir::separator() + QString("mkspecs");
             QStringList feature_roots;
-            if(const char *mkspec_path = getenv("QMAKEFEATURES")) {
+            if(const char *mkspec_path = qgetenv("QMAKEFEATURES")) {
 #ifdef Q_OS_WIN
                 QStringList lst = QString(mkspec_path).split(';');
                 for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
@@ -1247,7 +1247,7 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
                     concat_it != concat.end(); ++concat_it)
                     feature_roots << (path + (*concat_it));
             }
-            if(const char *qmakepath = getenv("QMAKEPATH")) {
+            if(const char *qmakepath = qgetenv("QMAKEPATH")) {
 #ifdef Q_OS_WIN
                 QStringList lst = QString(qmakepath).split(';');
                 for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
@@ -1268,7 +1268,7 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 #endif
             }
             feature_roots << Option::mkfile::qmakespec + QDir::separator() + "features";
-            if(const char *qtdir = getenv("QTDIR")) {
+            if(const char *qtdir = qgetenv("QTDIR")) {
                 for(QStringList::Iterator concat_it = concat.begin();
                     concat_it != concat.end(); ++concat_it)
                     feature_roots << (QString(qtdir) + mkspecs_concat + (*concat_it));
@@ -1764,7 +1764,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 
         QString replacement;
         if(as_env) {
-            replacement = getenv(val);
+            replacement = qgetenv(val);
         } else if(as_prop) {
             if(prop)
                 replacement = prop->value(val);

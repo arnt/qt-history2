@@ -180,7 +180,7 @@ bool use_net2003_version()
         current_version = (path2003.isNull() ? 70 : 71);
     } else {
         // Have both, so figure out the current
-        QString paths = getenv("PATH");
+        QString paths = qgetenv("PATH");
         QStringList pathlist = paths.toLower().split(";");
 
         path2003 = path2003.toLower();
@@ -1054,7 +1054,7 @@ void VcprojGenerator::initOld()
     else if(project->first("TEMPLATE") == "vclib")
         project->variables()["QMAKE_LIB_FLAG"].append("1");
     if(project->variables()["QMAKESPEC"].isEmpty())
-        project->variables()["QMAKESPEC"].append(getenv("QMAKESPEC"));
+        project->variables()["QMAKESPEC"].append(qgetenv("QMAKESPEC"));
 
     processDllConfig();
 
@@ -1187,7 +1187,7 @@ void VcprojGenerator::initOld()
     Option::fixPathToTargetOS(project->first("TARGET"));
     dest = project->first("TARGET") + project->first("TARGET_EXT");
     if(project->first("TARGET").startsWith("$(QTDIR)"))
-        dest.replace(QRegExp("\\$\\(QTDIR\\)"), getenv("QTDIR"));
+        dest.replace(QRegExp("\\$\\(QTDIR\\)"), qgetenv("QTDIR"));
     project->variables()["MSVCPROJ_TARGET"] = QStringList(dest);
 
     // DLL COPY ------------------------------------------------------
@@ -1283,8 +1283,8 @@ QString VcprojGenerator::findTemplate(QString file)
     QString ret;
     if(!QFile::exists((ret = file)) &&
        !QFile::exists((ret = QString(Option::mkfile::qmakespec + "/" + file))) &&
-       !QFile::exists((ret = QString(getenv("QTDIR")) + "/mkspecs/win32-msvc.net/" + file)) &&
-       !QFile::exists((ret = (QString(getenv("HOME")) + "/.tmake/" + file))))
+       !QFile::exists((ret = QString(qgetenv("QTDIR")) + "/mkspecs/win32-msvc.net/" + file)) &&
+       !QFile::exists((ret = (QString(qgetenv("HOME")) + "/.tmake/" + file))))
         return "";
     debug_msg(1, "Generator: MSVC.NET: Found template \'%s\'", ret.latin1());
     return ret;

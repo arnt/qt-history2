@@ -415,7 +415,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
                 else
                         t << "MEXE";
             } else if(variable == "CODEWARRIOR_QTDIR") {
-                t << getenv("QTDIR");
+                t << qgetenv("QTDIR");
             } else if(variable == "CODEWARRIOR_CACHEMODDATES") {
                 t << "true";
             } else {
@@ -588,8 +588,8 @@ MetrowerksMakefileGenerator::findTemplate(const QString &file)
     QString ret;
     if(!QFile::exists(ret = file) &&
        !QFile::exists((ret = Option::mkfile::qmakespec + QDir::separator() + file)) &&
-       !QFile::exists((ret = QString(getenv("QTDIR")) + "/mkspecs/mac-mwerks/" + file)) &&
-       !QFile::exists((ret = (QString(getenv("HOME")) + "/.tmake/" + file))))
+       !QFile::exists((ret = QString(qgetenv("QTDIR")) + "/mkspecs/mac-mwerks/" + file)) &&
+       !QFile::exists((ret = (QString(qgetenv("HOME")) + "/.tmake/" + file))))
         return "";
     return ret;
 }
