@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#86 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#87 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -58,6 +58,11 @@ class QListM_QWidget;				// object list
 #define QWidgetList QListM_QWidget
 
 
+#if defined(_CC_BOR_) || defined(_CC_WAT_)
+#define NEEDS_QMAIN
+#endif
+
+
 // Window system setting
 
 #if defined(_OS_MAC_)
@@ -99,9 +104,6 @@ typedef uint HDC;
 #endif
 typedef struct tagMSG MSG;
 
-#if defined(_CC_BOR_)
-#define NEEDS_QMAIN
-#endif
 
 HANDLE qWinAppInst();
 HANDLE qWinAppPrevInst();
