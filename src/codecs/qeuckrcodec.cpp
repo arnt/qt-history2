@@ -82,7 +82,7 @@
 
     QTextDecoder* makeDecoder() const;
 
-    QCString fromUnicode(const QString& uc, int& len_in_out) const;
+    QCString fromUnicode(const QString& uc, int& lenInOut) const;
     QString toUnicode(const char* chars, int len) const;
 
     int heuristicContentMatch(const char* chars, int len) const;
@@ -122,9 +122,9 @@ int QEucKrCodec::mibEnum() const
   \reimp
 */
 
-QCString QEucKrCodec::fromUnicode(const QString& uc, int& len_in_out) const
+QCString QEucKrCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
-  int l = QMIN((int)uc.length(),len_in_out);
+  int l = QMIN((int)uc.length(),lenInOut);
   int rlen = l*3+1;
   QCString rstr(rlen);
   uchar* cursor = (uchar*)rstr.data();
@@ -143,8 +143,8 @@ QCString QEucKrCodec::fromUnicode(const QString& uc, int& len_in_out) const
       *cursor++ = '?';	// unknown char
     }
   }
-  len_in_out = cursor - (uchar*)rstr.data();
-  rstr.truncate(len_in_out);
+  lenInOut = cursor - (uchar*)rstr.data();
+  rstr.truncate(lenInOut);
   return rstr;
 }
 

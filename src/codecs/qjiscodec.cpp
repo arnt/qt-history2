@@ -5,7 +5,7 @@
 **
 ** Created : 990225
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -196,9 +196,9 @@ int QJisCodec::mibEnum() const
 }
 
 /*! \internal */
-QCString QJisCodec::fromUnicode(const QString& uc, int& len_in_out) const
+QCString QJisCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
-    int l = QMIN((int)uc.length(),len_in_out);
+    int l = QMIN((int)uc.length(),lenInOut);
     QCString result;
     Iso2022State state = Ascii;
     Iso2022State prev = Ascii;
@@ -253,7 +253,7 @@ QCString QJisCodec::fromUnicode(const QString& uc, int& len_in_out) const
     if (prev != Ascii) {
 	result += Esc_Ascii;
     }
-    len_in_out = result.length();
+    lenInOut = result.length();
     return result;
 }
 

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QEucJpCodec class
 **
 ** Created : 990225
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -169,9 +169,9 @@ int QEucJpCodec::mibEnum() const
 /*!
   \reimp
 */
-QCString QEucJpCodec::fromUnicode(const QString& uc, int& len_in_out) const
+QCString QEucJpCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
-    int l = QMIN((int)uc.length(),len_in_out);
+    int l = QMIN((int)uc.length(),lenInOut);
     int rlen = l*3+1;
     QCString rstr(rlen);
     uchar* cursor = (uchar*)rstr.data();
@@ -204,8 +204,8 @@ QCString QEucJpCodec::fromUnicode(const QString& uc, int& len_in_out) const
 	    *cursor++ = '?';	// unknown char
 	}
     }
-    len_in_out = cursor - (uchar*)rstr.data();
-    rstr.truncate(len_in_out);
+    lenInOut = cursor - (uchar*)rstr.data();
+    rstr.truncate(lenInOut);
     return rstr;
 }
 

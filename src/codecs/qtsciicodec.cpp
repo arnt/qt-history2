@@ -80,9 +80,9 @@ int QTsciiCodec::mibEnum() const
 }
 
 /*! \reimp */
-QCString QTsciiCodec::fromUnicode(const QString& uc, int& len_in_out) const
+QCString QTsciiCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
-    int l = QMIN((int)uc.length(), len_in_out);
+    int l = QMIN((int)uc.length(), lenInOut);
     int rlen = l+1;
     QCString rstr(rlen);
     uchar* cursor = (uchar*)rstr.data();
@@ -107,7 +107,7 @@ QCString QTsciiCodec::fromUnicode(const QString& uc, int& len_in_out) const
 	}
 	*cursor++ = j;
     }
-    len_in_out = cursor - (uchar*)rstr.data();
+    lenInOut = cursor - (uchar*)rstr.data();
     *cursor = 0;
     return rstr;
 }

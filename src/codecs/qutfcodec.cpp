@@ -5,7 +5,7 @@
 **
 ** Created : 981015
 **
-** Copyright (C) 1998-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1998-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -44,9 +44,9 @@ int QUtf8Codec::mibEnum() const
     return 106;
 }
 
-QCString QUtf8Codec::fromUnicode(const QString& uc, int& len_in_out) const
+QCString QUtf8Codec::fromUnicode(const QString& uc, int& lenInOut) const
 {
-    int l = QMIN((int)uc.length(),len_in_out);
+    int l = QMIN((int)uc.length(),lenInOut);
     int rlen = l*3+1;
     QCString rstr(rlen);
     uchar* cursor = (uchar*)rstr.data();
@@ -65,8 +65,8 @@ QCString QUtf8Codec::fromUnicode(const QString& uc, int& len_in_out) const
 	    *cursor++ = 0x80 | (ch.cell()&0x3f);
 	}
     }
-    len_in_out = cursor - (uchar*)rstr.data();
-    rstr.truncate(len_in_out);
+    lenInOut = cursor - (uchar*)rstr.data();
+    rstr.truncate(lenInOut);
     return rstr;
 }
 
@@ -204,17 +204,17 @@ public:
     {
     }
 
-    QCString fromUnicode(const QString& uc, int& len_in_out)
+    QCString fromUnicode(const QString& uc, int& lenInOut)
     {
 	if ( headerdone ) {
-	    len_in_out = uc.length()*sizeof(QChar);
-	    QCString d(len_in_out);
-	    memcpy(d.data(),uc.unicode(),len_in_out);
+	    lenInOut = uc.length()*sizeof(QChar);
+	    QCString d(lenInOut);
+	    memcpy(d.data(),uc.unicode(),lenInOut);
 	    return d;
 	} else {
 	    headerdone = TRUE;
-	    len_in_out = (1+uc.length())*sizeof(QChar);
-	    QCString d(len_in_out);
+	    lenInOut = (1+uc.length())*sizeof(QChar);
+	    QCString d(lenInOut);
 	    memcpy(d.data(),&QChar::byteOrderMark,sizeof(QChar));
 	    memcpy(d.data()+sizeof(QChar),uc.unicode(),uc.length()*sizeof(QChar));
 	    return d;
