@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#137 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#138 $
 **
 ** Implementation of QFileDialog class
 **
@@ -421,7 +421,11 @@ void QFileDialogPrivate::MCList::setFocusToPoint( const QPoint & p )
 
     QListViewItem * prev = lv->currentItem();
     if ( prev != file ) {
-	lv->setSelected( (QListViewItem *)file, TRUE );
+	bool s = TRUE;
+	if ( lv->isMultiSelection() &&
+	     ( prev ? !prev->isSelected() : file->isSelected() ) )
+	    s = FALSE;
+	lv->setSelected( (QListViewItem *)file, s );
 	lv->setCurrentItem( (QListViewItem *)file );
 	ensureVisible( col );
 	updateCell( row, col );
@@ -569,8 +573,14 @@ void QFileDialogPrivate::MCList::updateItem( QListViewItem * file )
 
 void QFileDialogPrivate::MCList::mousePressEvent( QMouseEvent * e )
 {
-    if ( e )
+    if ( e ) {
+	if ( lv->isMultiSelection() && lv->currentItem() ) {
+	    QListViewItem * i = lv->currentItem();
+	    lv->setCurrentItem( 0 );
+	    updateItem( i );
+	}
 	setFocusToPoint( e->pos() );
+    }
 }
 
 
@@ -653,6 +663,13 @@ void QFileDialogPrivate::MCList::keyPressEvent( QKeyEvent * e )
 	if ( col < numCols() - 1 )
 	    col++;
 	break;
+    case Key_Space:
+	if ( lv->isMultiSelection() && lv->currentItem() ) {
+	    QListViewItem * i = lv->currentItem();
+	    lv->setSelected( i, !i->isSelected() );
+	    updateItem( i );
+	    return;
+	}
     case Key_Enter:
 	QApplication::sendEvent( lv, e );
 	clear();
@@ -677,7 +694,10 @@ void QFileDialogPrivate::MCList::keyPressEvent( QKeyEvent * e )
     QListViewItem * prev = lv->currentItem();
     QListViewItem * file = (*items)[col * numRows() + row];
     if ( prev != file ) {
-	lv->setSelected( file, TRUE );
+	if ( lv->isMultiSelection() && e->state() && prev )
+	    lv->setSelected( file, prev->isSelected() );
+	else if ( !lv->isMultiSelection() )
+	    lv->setSelected( file, TRUE );
 	lv->setCurrentItem( file );
 	ensureVisible( col );
 	updateCell( row, col );
@@ -1916,6 +1936,7 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
 {
     if ( ke && ( ke->key() == Key_Enter ||
 		 ke->key() == Key_Return ) ) {
+	ke->ignore();
 	if ( d->paths->hasFocus() ) {
 	    ke->accept();
 	    if ( cwd.absPath() == d->paths->currentText() )
@@ -2040,7 +2061,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 	if ( i )
 	    return TRUE;
     } else if ( e->type() == QEvent::KeyPress &&
-		((QKeyEvent *)e)->key() == Key_Backspace && 
+		((QKeyEvent *)e)->key() == Key_Backspace &&
 		( o == files ||
 		  o == d->moreFiles ||
 		  o == files->viewport() ) ) {
