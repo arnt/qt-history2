@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#142 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#143 $
 **
 ** Implementation of QApplication class
 **
@@ -747,6 +747,10 @@ void QApplication::quit()
 
 bool QApplication::notify( QObject *receiver, QEvent *event )
 {
+    // no events are delivered after ~QApplication has started
+    if ( is_app_closing )
+	return FALSE;
+    
     if ( receiver == 0 ) {			// serious error
 #if defined(CHECK_NULL)
 	warning( "QApplication::notify: Unexpected null receiver" );
