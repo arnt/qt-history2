@@ -1250,7 +1250,7 @@ void QPopupMenu::drawContents( QPainter* p )
 
 		style().drawControl(QStyle::CE_PopupMenuItem, p, this,
 				    QRect(x, y, itemw, contentsRect().bottom() - y),
-				    colorGroup(), flags, QStyleOption(0,maxPMWidth));
+				    colorGroup(), flags, QStyleOption((QMenuItem*)0,maxPMWidth));
 	    }
 	    y = contentsRect().y();
 	    x +=itemw;
@@ -1266,7 +1266,7 @@ void QPopupMenu::drawContents( QPainter* p )
 
 	style().drawControl(QStyle::CE_PopupMenuItem, p, this,
 			    QRect(x, y, itemw, contentsRect().bottom() - y),
-			    colorGroup(), flags, QStyleOption(0,maxPMWidth));
+			    colorGroup(), flags, QStyleOption((QMenuItem*)0,maxPMWidth));
     }
 }
 
