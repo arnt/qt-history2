@@ -2218,13 +2218,15 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
     //handle the rest of the widgets
     const QPoint myp(posInWindow(this));
     QRect myr(myp.x(), myp.y(), width(), height());
-    QWidget *last = this, *w;
+    QWidget *last = this, *w, *parent=parentWidget();
     int px = myp.x() - x(), py = myp.y() - y();
-    for(QWidget *widg = parentWidget(); widg; last = widg, widg = widg->parentWidget()) {
+    for(QWidget *widg = parent; widg; last = widg, widg = widg->parentWidget()) {
 	if(widg->wasDeleted) //no point in dirting
 	    continue;
 	myr = myr.intersect(QRect(px, py, widg->width(), widg->height()));
 	widg->setRegionDirty(false);
+	if(widg == parent)
+	    widg->setRegionDirty(true);
 
 	QObjectList chldrn = widg->children();
 	for(int i = 0; i < chldrn.size(); i++) {
