@@ -36,10 +36,10 @@ public:
 
     void setCurrentSlot( const QString &slot );
     static void removeSlotFromCode( const QString &slot, FormWindow *formWindow );
+    void slotAdd();
 
 protected slots:
     void okClicked();
-    void slotAdd();
     void slotRemove();
     void currentItemChanged( QListViewItem * );
     void currentTextChanged( const QString &txt );

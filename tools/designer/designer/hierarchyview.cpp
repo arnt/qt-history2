@@ -600,7 +600,7 @@ void FunctionList::refreshFunctions( bool doDelete )
     if ( doDelete ) {
 	QListViewItem *i = firstChild();
 	while ( i ) {
-	    if ( ( (HierarchyItem*)i )->rtti() == HierarchyItem::FunctionParent ) {
+	    if ( i->rtti() == HierarchyItem::FunctionParent ) {
 		delete i;
 		break;
 	    }
@@ -652,7 +652,7 @@ void FunctionList::objectClicked( QListViewItem *i )
 {
     if ( !i )
 	return;
-    if ( ( (HierarchyItem*)i )->rtti() == HierarchyItem::Slot )
+    if ( i->rtti() == HierarchyItem::Slot )
 	formWindow->mainWindow()->editFunction( i->text( 0 ) );
 }
 
@@ -680,7 +680,7 @@ static HierarchyItem::Type getChildType( int type )
 
 void HierarchyList::insertEntry( QListViewItem *i, const QPixmap &pix, const QString &s )
 {
-    HierarchyItem *item = new HierarchyItem( getChildType( ( (HierarchyItem*)i )->rtti() ), i, s,
+    HierarchyItem *item = new HierarchyItem( getChildType( i->rtti() ), i, s,
 					     QString::null, QString::null );
     if ( !pix.isNull() )
 	item->setPixmap( 0, pix );
@@ -697,12 +697,21 @@ void FunctionList::contentsMouseDoubleClickEvent( QMouseEvent *e )
     QListViewItem *i = itemAt( contentsToViewport( e->pos() ) );
     if ( !i )
 	return;
-    if ( ( (HierarchyItem*)i )->rtti() == HierarchyItem::FunctionParent )
+    if ( i->rtti() == HierarchyItem::FunctionParent )
 	return;
     HierarchyItem::Type t = getChildType( i->rtti() );
     if ( (int)t == i->rtti() )
 	i = i->parent();
-    insertEntry( i );
+    if ( formWindow->project()->language() == "C++" &&
+	 ( i->rtti() == HierarchyItem::Public ||
+	   i->rtti() == HierarchyItem::Protected ||
+	   i->rtti() == HierarchyItem::Private ) ) {
+	EditSlots dlg( this, formWindow );
+	dlg.slotAdd();
+	dlg.exec();
+    } else {
+	insertEntry( i );
+    }
 }
 
 
@@ -710,10 +719,10 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 {
     if ( !i )
 	return;
-    if ( ( (HierarchyItem*)i )->rtti() == HierarchyItem::FunctionParent )
+    if ( i->rtti() == HierarchyItem::FunctionParent )
 	return;
 
-    if ( ( (HierarchyItem*)i )->rtti() == HierarchyItem::Slot ) {
+    if ( i->rtti() == HierarchyItem::Slot ) {
 	QPopupMenu menu;
 	const int PROPS = 1;
 	const int EDIT = 2;
@@ -729,7 +738,13 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	int res = menu.exec( pos );
 	popupOpen = FALSE;
 	if ( res == NEW_ITEM ) {
-	    insertEntry( i->parent() );
+	    if ( formWindow->project()->language() == "C++" ) {
+		EditSlots dlg( this, formWindow );
+		dlg.slotAdd();
+		dlg.exec();
+	    } else {
+		insertEntry( i->parent() );
+	    }
 	} else if ( res == PROPS ) {
 	    EditSlots dlg( this, formWindow );
 	    dlg.setCurrentSlot( MetaDataBase::normalizeSlot( i->text( 0 ) ) );
@@ -749,9 +764,9 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
     const int NEW_ITEM = 1;
     const int DEL_ITEM = 2;
     menu.insertItem( tr( "New" ), NEW_ITEM );
-    if ( i->parent() && ( (HierarchyItem*)i )->rtti() != HierarchyItem::Public &&
-	 ( (HierarchyItem*)i )->rtti() != HierarchyItem::Protected &&
-	 ( (HierarchyItem*)i )->rtti() != HierarchyItem::Private )
+    if ( i->parent() && i->rtti() != HierarchyItem::Public &&
+	 i->rtti() != HierarchyItem::Protected &&
+	 i->rtti() != HierarchyItem::Private )
 	menu.insertItem( tr( "Delete" ), DEL_ITEM );
     popupOpen = TRUE;
     int res = menu.exec( pos );
@@ -760,7 +775,16 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	HierarchyItem::Type t = getChildType( i->rtti() );
 	if ( (int)t == i->rtti() )
 	    i = i->parent();
-	insertEntry( i );
+	if ( formWindow->project()->language() == "C++" &&
+	     ( i->rtti() == HierarchyItem::Public ||
+	       i->rtti() == HierarchyItem::Protected ||
+	       i->rtti() == HierarchyItem::Private ) ) {
+	    EditSlots dlg( this, formWindow );
+	    dlg.slotAdd();
+	    dlg.exec();
+	} else {
+	    insertEntry( i );
+	}
     } else if ( res == DEL_ITEM ) {
 	QListViewItem *p = i->parent();
 	delete i;
@@ -779,7 +803,7 @@ void FunctionList::renamed( QListViewItem *i )
 
 void FunctionList::save( QListViewItem *p, QListViewItem *i )
 {
-    if ( i && ( (HierarchyItem*)i )->rtti() == HierarchyItem::Slot ) {
+    if ( i && i->rtti() == HierarchyItem::Slot ) {
 	if ( i->text( 0 ).isEmpty() ) {
 	    delete i;
 	    return;

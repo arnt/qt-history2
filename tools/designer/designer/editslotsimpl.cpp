@@ -182,6 +182,8 @@ void EditSlots::slotAdd()
 	i->setText( 4, tr( "No" ) );
     slotListView->setCurrentItem( i );
     slotListView->setSelected( i, TRUE );
+    slotName->setFocus();
+    slotName->selectAll();
 }
 
 void EditSlots::slotRemove()
