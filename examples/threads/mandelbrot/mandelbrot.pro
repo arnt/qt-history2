@@ -3,3 +3,5 @@ HEADERS       = mandelbrotwidget.h \
 SOURCES       = main.cpp \
                 mandelbrotwidget.cpp \
                 renderthread.cpp
+
+unix:!mac:LIBS += -lm

@@ -3,3 +3,4 @@ HEADERS       = renderarea.h \
 SOURCES       = main.cpp \
                 renderarea.cpp \
                 window.cpp
+unix:!mac:LIBS += -lm
