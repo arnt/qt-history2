@@ -132,6 +132,8 @@ public:
 signals:
     void clicked(QListWidgetItem *item, int button);
     void doubleClicked(QListWidgetItem *item, int button);
+    void returnPressed(QListWidgetItem *item);
+    void spacePressed(QListWidgetItem *item);
 
 protected:
     void removeItem(QListWidgetItem *item);
@@ -140,6 +142,8 @@ protected:
 private:
     Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, int button));
     Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, int button));
+    Q_PRIVATE_SLOT(d, void emitReturnPressed(const QModelIndex &index));
+    Q_PRIVATE_SLOT(d, void emitSpacePressed(const QModelIndex &index));
 };
 
 #endif

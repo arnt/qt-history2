@@ -475,6 +475,8 @@ public:
     inline QListModel *model() const { return ::qt_cast<QListModel*>(q_func()->model()); }
     void emitClicked(const QModelIndex &index, int button);
     void emitDoubleClicked(const QModelIndex &index, int button);
+    void emitReturnPressed(const QModelIndex &index);
+    void emitSpacePressed(const QModelIndex &index);
 };
 
 void QListWidgetPrivate::emitClicked(const QModelIndex &index, int button)
@@ -485,6 +487,16 @@ void QListWidgetPrivate::emitClicked(const QModelIndex &index, int button)
 void QListWidgetPrivate::emitDoubleClicked(const QModelIndex &index, int button)
 {
     emit q->doubleClicked(model()->at(index.row()), button);
+}
+
+void QListWidgetPrivate::emitReturnPressed(const QModelIndex &index)
+{
+    emit q->returnPressed(model()->at(index.row()));
+}
+
+void QListWidgetPrivate::emitSpacePressed(const QModelIndex &index)
+{
+    emit q->spacePressed(model()->at(index.row()));
 }
 
 #ifdef QT_COMPAT
@@ -500,6 +512,10 @@ QListWidget::QListWidget(QWidget *parent, const char* name)
             SLOT(emitClicked(const QModelIndex&, int)));
     connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),
             SLOT(emitDoubleClicked(const QModelIndex&, int)));
+    connect(this, SIGNAL(returnPressed(const QModelIndex&)),
+            SLOT(emitReturnPressed(const QModelIndex&)));
+    connect(this, SIGNAL(spacePressed(const QModelIndex&)),
+            SLOT(emitSpacePressed(const QModelIndex&)));
 }
 #endif
 
