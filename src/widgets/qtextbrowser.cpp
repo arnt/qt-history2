@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qtextbrowser.h"
-#include "../kernel/qrichtextintern.cpp"
+#include "../kernel/qrichtext_p.h"
 
 #include "qapplication.h"
 #include "qlayout.h"

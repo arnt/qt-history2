@@ -23,7 +23,7 @@
 **
 *****************************************************************************/
 
-#include "qrichtextintern.cpp"
+#include "qrichtext_p.h"
 #include "qsimplerichtext.h"
 #include "qpainter.h"
 

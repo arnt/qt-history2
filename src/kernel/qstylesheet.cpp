@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qstylesheet.h"
-#include "qrichtextintern.cpp"
+#include "qrichtext_p.h"
 #include "qapplication.h"
 #include "qlayout.h"
 #include "qpainter.h"
