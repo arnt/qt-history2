@@ -60,6 +60,7 @@
 #include "qbitmap.h"
 #include "qprogressbar.h"
 #include <limits.h>
+#include <qpixmap.h>
 #include "../widgets/qtitlebar_p.h"
 
 // NOT REVISED
@@ -102,6 +103,29 @@ QCommonStyle::~QCommonStyle()
 }
 
 
+static const char * const check_list_controller_xpm[] = {
+"16 16 4 1",
+"	c None",
+".	c #000000000000",
+"X	c #FFFFFFFF0000",
+"o	c #C71BC30BC71B",
+"                ",
+"                ",
+" ..........     ",
+" .XXXXXXXX.     ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" ..........oo   ",
+"   oooooooooo   ",
+"   oooooooooo   ",
+"                ",
+"                "};
+
 /*! \reimp */
 void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 				  QPainter *p,
@@ -113,6 +137,106 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
     activePainter = p;
 
     switch (pe) {
+    case PE_CheckListController: {
+	p->drawPixmap(r, QPixmap((const char **)check_list_controller_xpm));
+	break; }
+    case PE_CheckListExclusiveIndicator: {
+	QCheckListItem *item = opt.checkListItem();
+	QListView *lv = item->listView();
+	if(!item)
+	    return;
+	int x = r.x(), y = r.y();
+#define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
+	static const QCOORD pts1[] = {		// dark lines
+	    1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
+	static const QCOORD pts2[] = {		// black lines
+	    2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };
+	static const QCOORD pts3[] = {		// background lines
+	    2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };
+	static const QCOORD pts4[] = {		// white lines
+	    2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
+	    11,4, 10,3, 10,2 };
+	// static const QCOORD pts5[] = {		// inner fill
+	//    4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
+	//QPointArray a;
+	//	p->eraseRect( x, y, w, h );
+
+	if ( item->isEnabled() )
+	    p->setPen( cg.text() );
+	else
+	    p->setPen( QPen( lv->palette().color( QPalette::Disabled, QColorGroup::Text ) ) );
+	QPointArray a( QCOORDARRLEN(pts1), pts1 );
+	a.translate( x, y );
+	//p->setPen( cg.dark() );
+	p->drawPolyline( a );
+	a.setPoints( QCOORDARRLEN(pts2), pts2 );
+	a.translate( x, y );
+	p->drawPolyline( a );
+	a.setPoints( QCOORDARRLEN(pts3), pts3 );
+	a.translate( x, y );
+	//		p->setPen( black );
+	p->drawPolyline( a );
+	a.setPoints( QCOORDARRLEN(pts4), pts4 );
+	a.translate( x, y );
+	//			p->setPen( blue );
+	p->drawPolyline( a );
+	//		a.setPoints( QCOORDARRLEN(pts5), pts5 );
+	//		a.translate( x, y );
+	//	QColor fillColor = isDown() ? g.background() : g.base();
+	//	p->setPen( fillColor );
+	//	p->setBrush( fillColor );
+	//	p->drawPolygon( a );
+	if ( item->isOn() ) {
+	    p->setPen( NoPen );
+	    p->setBrush( cg.text() );
+	    p->drawRect( x+5, y+4, 2, 4 );
+	    p->drawRect( x+4, y+5, 4, 2 );
+	}
+	break; }
+    case PE_CheckListIndicator: {
+	QCheckListItem *item = opt.checkListItem();
+	QListView *lv = item->listView();
+	if(!item)
+	    return;
+	int x = r.x(), y = r.y(), w = r.width(), h = r.width(), marg = lv->itemMargin();
+
+	if ( item->isEnabled() )
+	    p->setPen( QPen( cg.text(), 2 ) );
+	else
+	    p->setPen( QPen( lv->palette().color( QPalette::Disabled, QColorGroup::Text ), 
+			     2 ) );
+	bool parentControl = FALSE;
+	if ( item->parent() && item->parent()->rtti() == 1  && 
+	     ((QCheckListItem*) item->parent())->type() == QCheckListItem::Controller )
+	    parentControl = TRUE;
+	if ( item->isSelected() && !lv->rootIsDecorated() && !parentControl ) {
+	    p->fillRect( 0, 0, x + marg + w + 4, item->height(),
+			 cg.brush( QColorGroup::Highlight ) );
+	    if ( item->isEnabled() )
+		p->setPen( QPen( cg.highlightedText(), 2 ) );
+	}
+	
+	p->drawRect( x+marg, y+2, w-4, h-4 );
+	/////////////////////
+	x++;
+	y++;
+	if ( item->isOn() ) {
+	    QPointArray a( 7*2 );
+	    int i, xx = x+1+marg, yy=y+5;
+	    for ( i=0; i<3; i++ ) {
+		a.setPoint( 2*i,   xx, yy );
+		a.setPoint( 2*i+1, xx, yy+2 );
+		xx++; yy++;
+	    }
+	    yy -= 2;
+	    for ( i=3; i<7; i++ ) {
+		a.setPoint( 2*i,   xx, yy );
+		a.setPoint( 2*i+1, xx, yy+2 );
+		xx++; yy--;
+	    }
+	    p->drawLineSegments( a );
+	}
+	break; }
     case PE_HeaderArrow:
 	p->save();
 	if ( flags & Style_Down ) {
@@ -1947,6 +2071,9 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
     int ret;
 
     switch (m) {
+    case PM_CheckListButtonSize:
+	ret = 16;
+	break;
     case PM_TitleBarHeight: {
 	if ( widget && widget->testWFlags( WStyle_Tool ) ) {
 	    ret = QMAX( widget->fontMetrics().lineSpacing(), 16 );
@@ -2294,7 +2421,6 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget *, const QStyleOption &,
 
     return ret;
 }
-
 
 /*! \reimp */
 QPixmap QCommonStyle::stylePixmap(StylePixmap, const QWidget *, const QStyleOption&) const

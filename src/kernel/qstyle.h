@@ -49,6 +49,7 @@ class QStylePrivate;
 class QMenuItem;
 class QTab;
 class QListViewItem;
+class QCheckListItem;
 
 class QStyleOption {
 public:
@@ -68,6 +69,7 @@ public:
     QStyleOption(const QColor& c) : def(FALSE), cl(&c) {}
     QStyleOption(QTab* t) : def(FALSE), tb(t) {}
     QStyleOption(QListViewItem* i) : def(FALSE), li(i) {}
+    QStyleOption(QCheckListItem* i) : def(FALSE), cli(i) {}
     QStyleOption(Qt::ArrowType a) : def(FALSE), i1((int)a) {}
 
     bool isDefault() const { return def; }
@@ -85,6 +87,7 @@ public:
 
     QTab* tab() const { return tb; }
 
+    QCheckListItem* checkListItem() const { return cli; }
     QListViewItem* listViewItem() const { return li; }
 
     Qt::ArrowType arrowType() const { return (Qt::ArrowType)i1; }
@@ -99,7 +102,8 @@ private:
     const QColor* cl;
     int i1, i2, i3, i4;
     int i5, i6; // reserved
-    void *p1, *p2, *p3, *p4, *p5; // reserved
+    QCheckListItem* cli;
+    void *p1, *p2, *p3, *p4; // reserved
     // (padded to 64 bytes on some architectures)
 };
 
@@ -199,6 +203,10 @@ public:
 	PE_PanelTabWidget,
 
 	PE_WindowFrame,
+
+	PE_CheckListController,
+	PE_CheckListIndicator,
+	PE_CheckListExclusiveIndicator,
 
 	// do not add any values below/greater this
 	PE_CustomBase =			0xf000000
@@ -433,6 +441,7 @@ public:
 	PM_IndicatorHeight,
 	PM_ExclusiveIndicatorWidth,
 	PM_ExclusiveIndicatorHeight,
+	PM_CheckListButtonSize,
 
 	// do not add any values below/greater than this
 	PM_CustomBase =		0xf0000000

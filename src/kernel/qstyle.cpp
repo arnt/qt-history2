@@ -657,6 +657,10 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   also QProgressBar.
 
 
+  \value PE_ListViewController controller part of a listview item
+  \value PE_ListViewIndicator checkbox part of a listview item
+  \value PE_ListViewExclusiveIndicator radiobutton part of a listview item
+
   \value PE_CustomBase  base value for custom PrimitiveElements.  All values above
          this are reserved for custom use.  Therefore, custom values must be
 	 greater than this value.
@@ -1376,6 +1380,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value PM_IndicatorHeight  height of a checkbox indicator.
   \value PM_ExclusiveIndicatorWidth  width of a radio button indicator.
   \value PM_ExclusiveIndicatorHeight  height of a radio button indicator.
+
+  \value PM_CheckListButtonSize area (width/height) of the checkbox/radiobutton in a 
+                QCheckListItem
 
 
   \value PM_CustomBase  base value for custom PixelMetrics.  All values above

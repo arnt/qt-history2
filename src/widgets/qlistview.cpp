@@ -5413,36 +5413,6 @@ void QListView::repaintItem( const QListViewItem * item ) const
   \value Controller
 */
 
-/* XPM */
-static const char * const def_item_xpm[] = {
-"16 16 4 1",
-"	c None",
-".	c #000000000000",
-"X	c #FFFFFFFF0000",
-"o	c #C71BC30BC71B",
-"                ",
-"                ",
-" ..........     ",
-" .XXXXXXXX.     ",
-" .XXXXXXXX.oo   ",
-" .XXXXXXXX.oo   ",
-" .XXXXXXXX.oo   ",
-" .XXXXXXXX.oo   ",
-" .XXXXXXXX.oo   ",
-" .XXXXXXXX.oo   ",
-" .XXXXXXXX.oo   ",
-" ..........oo   ",
-"   oooooooooo   ",
-"   oooooooooo   ",
-"                ",
-"                "};
-
-
-
-
-static QPixmap *defaultIcon = 0;
-static const int BoxSize = 16;
-
 /*!
   Constructs a checkable item with parent \a parent, text \a text and type
   \a tt. Note that a RadioButton must be the child of a Controller,
@@ -5535,12 +5505,6 @@ QCheckListItem::QCheckListItem( QListViewItem *parent, const QString &text,
 void QCheckListItem::init()
 {
     on = FALSE;
-    if ( !defaultIcon )
-	defaultIcon = new QPixmap( (const char **)def_item_xpm );
-    if ( myType == Controller ) {
-	if ( !pixmap(0) )
-	    setPixmap( 0, *defaultIcon );
-    }
     exclusive = 0;
 }
 
@@ -5591,19 +5555,20 @@ void QCheckListItem::activate()
 	return;
 
     QPoint pos;
+    int boxsize = lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, lv);
     if ( activatedPos( pos ) ) {
 	//ignore clicks outside the box
 	QRect r;
 	if ( parent() && parent()->rtti() == 1  && 
 	     ((QCheckListItem*) parent())->type() == Controller )
-	    r.setRect( 0, 2, BoxSize-3, BoxSize-3 );
+	    r.setRect( 0, 2, boxsize, boxsize-3 );
 	else
-	    r.setRect( 3, 2, BoxSize-3, BoxSize-3 );
+	    r.setRect( 3, 2, boxsize-3, boxsize-3 );
 	// columns might have been swapped
 	r.moveBy( lv->header()->sectionPos( 0 ), 0 );
 	if ( lv && lv->columnAlignment( 0 ) == AlignCenter ) {
 	    QFontMetrics fm( lv->font() );
-	    r.moveBy( (lv->columnWidth( 0 ) - (BoxSize + fm.width( text() ))) / 2, 0 );
+	    r.moveBy( (lv->columnWidth( 0 ) - (boxsize + fm.width( text() ))) / 2, 0 );
 	}
 	if ( !r.contains( pos ) )
 	    return;
@@ -5662,7 +5627,8 @@ void QCheckListItem::setup()
 {
     QListViewItem::setup();
     int h = height();
-    h = QMAX( BoxSize, h );
+    h = QMAX( listView()->style().pixelMetric(QStyle::PM_CheckListButtonSize, listView()), 
+	      h );
     h = QMAX( h, QApplication::globalStrut().height() );
     setHeight( h );
 }
@@ -5679,7 +5645,7 @@ int QCheckListItem::width( const QFontMetrics& fm, const QListView* lv, int colu
 	if ( myType == Controller && pixmap( 0 ) ) {
 	    //	     r += 0;
 	} else {
-	    r += BoxSize + 4;
+	    r +=  lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, lv) + 4;
 	}
     }
     return QMAX( r, QApplication::globalStrut().width() );
@@ -5715,146 +5681,51 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
     int marg = lv->itemMargin();
     int r = marg;
 
-    bool winStyle = lv->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle;
+    int boxsize = lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, lv);
     QFontMetrics fm( lv->fontMetrics() );
 
+    bool parentControl = FALSE;
+    if ( parent() && parent()->rtti() == 1  && 
+	 ((QCheckListItem*) parent())->type() == Controller )
+	parentControl = TRUE;
+
     if ( myType == Controller ) {
-	if ( !pixmap( 0 ) )
-	    r += BoxSize + 4;
+	int x = 0;
+	if(!parentControl)
+	    x += 3;
+	lv->style().drawPrimitive(QStyle::PE_CheckListController, p,
+				  QRect(x, 0, boxsize, 
+					fm.height() + 2 + marg),
+				  cg, QStyle::Style_Default, QStyleOption(this));
+	r += boxsize + 4;
     } else {
 	Q_ASSERT( lv ); //###
 	//	QFontMetrics fm( lv->font() );
 	//	int d = fm.height();
-	bool parentControl = FALSE;
-	if ( parent() && parent()->rtti() == 1  && 
-	     ((QCheckListItem*) parent())->type() == Controller )
-	    parentControl = TRUE;
 	int x = 0;
 	if ( !parentControl )
 	    x += 3;
 	if ( align == AlignCenter )
-	    x = (width - BoxSize - fm.width(text()))/2;
-	int y = (fm.height() + 2 + lv->itemMargin() - BoxSize) / 2;
+	    x = (width - boxsize - fm.width(text()))/2;
+	int y = (fm.height() + 2 + marg - boxsize) / 2;
 	//	p->setPen( QPen( cg.text(), winStyle ? 2 : 1 ) );
 	if ( myType == CheckBox ) {
-	    if ( isEnabled() )
-		p->setPen( QPen( cg.text(), 2 ) );
-	    else
-		p->setPen( QPen( lv->palette().color( QPalette::Disabled, QColorGroup::Text ), 2 ) );
-	    if ( isSelected() && !lv->rootIsDecorated() && !parentControl ) {
-		p->fillRect( 0, 0, x + marg + BoxSize + 4, height(),
-			     cg.brush( QColorGroup::Highlight ) );
-		if ( isEnabled() )
-		    p->setPen( QPen( cg.highlightedText(), 2 ) );
-	    }
-
-	    p->drawRect( x+marg, y+2, BoxSize-4, BoxSize-4 );
-	    /////////////////////
-	    x++;
-	    y++;
-	    if ( on ) {
-		QPointArray a( 7*2 );
-		int i, xx, yy;
-		xx = x+1+marg;
-		yy = y+5;
-		for ( i=0; i<3; i++ ) {
-		    a.setPoint( 2*i,   xx, yy );
-		    a.setPoint( 2*i+1, xx, yy+2 );
-		    xx++; yy++;
-		}
-		yy -= 2;
-		for ( i=3; i<7; i++ ) {
-		    a.setPoint( 2*i,   xx, yy );
-		    a.setPoint( 2*i+1, xx, yy+2 );
-		    xx++; yy--;
-		}
-		p->drawLineSegments( a );
-	    }
-	    ////////////////////////
+	    lv->style().drawPrimitive(QStyle::PE_CheckListIndicator, p,
+				      QRect(x, y, boxsize, 
+					    fm.height() + 2 + marg),
+				      cg, QStyle::Style_Default, QStyleOption(this));
 	} else { //radio button look
-	    if ( winStyle ) {
-#define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
-
-		static const QCOORD pts1[] = {		// dark lines
-		    1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
-		static const QCOORD pts2[] = {		// black lines
-		    2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };
-		static const QCOORD pts3[] = {		// background lines
-		    2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };
-		static const QCOORD pts4[] = {		// white lines
-		    2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
-		    11,4, 10,3, 10,2 };
-		// static const QCOORD pts5[] = {		// inner fill
-		//    4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
-		//QPointArray a;
-		//	p->eraseRect( x, y, w, h );
-
-		if ( isEnabled() )
-		    p->setPen( cg.text() );
-		else
-		    p->setPen( QPen( listView()->palette().color( QPalette::Disabled, QColorGroup::Text ) ) );
-		QPointArray a( QCOORDARRLEN(pts1), pts1 );
-		a.translate( x, y );
-		//p->setPen( cg.dark() );
-		p->drawPolyline( a );
-		a.setPoints( QCOORDARRLEN(pts2), pts2 );
-		a.translate( x, y );
-		p->drawPolyline( a );
-		a.setPoints( QCOORDARRLEN(pts3), pts3 );
-		a.translate( x, y );
-		//		p->setPen( black );
-		p->drawPolyline( a );
-		a.setPoints( QCOORDARRLEN(pts4), pts4 );
-		a.translate( x, y );
-		//			p->setPen( blue );
-		p->drawPolyline( a );
-		//		a.setPoints( QCOORDARRLEN(pts5), pts5 );
-		//		a.translate( x, y );
-		//	QColor fillColor = isDown() ? g.background() : g.base();
-		//	p->setPen( fillColor );
-		//	p->setBrush( fillColor );
-		//	p->drawPolygon( a );
-		if ( on     ) {
-		    p->setPen( NoPen );
-		    p->setBrush( cg.text() );
-		    p->drawRect( x+5, y+4, 2, 4 );
-		    p->drawRect( x+4, y+5, 4, 2 );
-		}
-
-	    } else { //motif
-		if ( isEnabled() )
-		    p->setPen( QPen( cg.text() ) );
-		else
-		    p->setPen( QPen( listView()->palette().color( QPalette::Disabled, QColorGroup::Text ) ) );
-		QPointArray a;
-		int cx = BoxSize/2 - 1;
-		int cy = ( fm.height() + 2 + lv->itemMargin() )/2;
-		int e = BoxSize/2 - 1;
-		for ( int i = 0; i < 3; i++ ) { //penWidth 2 doesn't quite work
-		    a.setPoints( 4, cx-e, cy, cx, cy-e,  cx+e, cy,  cx, cy+e );
-		    p->drawPolygon( a );
-		    e--;
-		}
-		if ( on ) {
-		    if ( isEnabled() )
-			p->setPen( QPen( cg.text()) );
-		    else
-			p->setPen( QPen( listView()->palette().color( QPalette::Disabled, QColorGroup::Text ) ) );
-		    QBrush   saveBrush = p->brush();
-		    p->setBrush( cg.text() );
-		    e = e - 2;
-		    a.setPoints( 4, cx-e, cy, cx, cy-e,  cx+e, cy,  cx, cy+e );
-		    p->drawPolygon( a );
-		    p->setBrush( saveBrush );
-		}
-	    }
+	    lv->style().drawPrimitive(QStyle::PE_CheckListExclusiveIndicator,
+					      p, QRect(x, y, boxsize, 
+						       fm.height() + 2 + marg),
+					      cg, QStyle::Style_Default, QStyleOption(this));
 	}
-	r += BoxSize + 4;
+	r += boxsize + 4;
     }
 
     if ( align == AlignCenter ) {
 	QFontMetrics fm( lv->font() );
-	r += (width - BoxSize - fm.width(text()))/2;
+	r += (width - boxsize - fm.width(text()))/2;
         // the text should not be centered when we have a centered checkbox
 	align &= ~AlignCenter;
     }
@@ -5886,14 +5757,15 @@ void QCheckListItem::paintFocus( QPainter *p, const QColorGroup & cg,
 	 (lv->rootIsDecorated() || myType == RadioButton ||
 	  (myType == CheckBox && parentControl) ) ) {
 	QRect rect;
+	int boxsize = lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, lv);
 	if ( lv->columnAlignment(0) == AlignCenter ) {
 	    QFontMetrics fm( lv->font() );
-	    int bx = (lv->columnWidth(0) - (BoxSize + fm.width(text())))/2 + BoxSize;
+	    int bx = (lv->columnWidth(0) - (boxsize + fm.width(text())))/2 + boxsize;
 	    if ( bx < 0 ) bx = 0;
 	    rect.setRect( r.x() + bx + 5, r.y(), r.width() - bx - 5,
 			  r.height() );
 	} else
-	    rect.setRect( r.x() + BoxSize + 5, r.y(), r.width() - BoxSize - 5,
+	    rect.setRect( r.x() + boxsize + 5, r.y(), r.width() - boxsize - 5,
 			  r.height() );
 	QListViewItem::paintFocus(p, cg, rect);
     } else {

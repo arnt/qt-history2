@@ -207,6 +207,40 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 				 const QStyleOption& opt ) const
 {
     switch( pe ) {
+    case PE_CheckListExclusiveIndicator: {
+	QCheckListItem *item = opt.checkListItem();
+	QListView *lv = item->listView();
+	if(!item)
+	    return;
+
+	if ( item->isEnabled() )
+	    p->setPen( QPen( cg.text() ) );
+	else
+	    p->setPen( QPen( lv->palette().color( QPalette::Disabled, QColorGroup::Text ) ) );
+	QPointArray a;
+
+	int cx = r.width()/2 - 1;
+	int cy = r.height()/2;
+	int e = r.width()/2 - 1;
+	for ( int i = 0; i < 3; i++ ) { //penWidth 2 doesn't quite work
+	    a.setPoints( 4, cx-e, cy, cx, cy-e,  cx+e, cy,  cx, cy+e );
+	    p->drawPolygon( a );
+	    e--;
+	}
+	if ( item->isOn() ) {
+	    if ( item->isEnabled() )
+		p->setPen( QPen( cg.text()) );
+	    else
+		p->setPen( QPen( item->listView()->palette().color( QPalette::Disabled, 
+								    QColorGroup::Text ) ) );
+	    QBrush saveBrush = p->brush();
+	    p->setBrush( cg.text() );
+	    e = e - 2;
+	    a.setPoints( 4, cx-e, cy, cx, cy-e,  cx+e, cy,  cx, cy+e );
+	    p->drawPolygon( a );
+	    p->setBrush( saveBrush );
+	}
+	break; }
     case PE_ButtonCommand:
     case PE_ButtonBevel:
     case PE_ButtonTool:
