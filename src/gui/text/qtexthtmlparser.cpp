@@ -309,52 +309,59 @@ static QChar resolveEntity(const QString &entity)
     return e->code;
 }
 
-static const struct QTextHtmlElement { const char *name; Q_UINT16 code; } elements[Html_NumElements+1]= {
-    { "a", Html_a },
-    { "b", Html_b },
-    { "big", Html_big },
-    { "body", Html_body },
-    { "blockquote", Html_blockquote },
-    { "br", Html_br },
-    { "center", Html_center },
-    { "code", Html_code },
-    { "dd", Html_dd },
-    { "div", Html_div },
-    { "dl", Html_dl },
-    { "dt", Html_dt },
-    { "em", Html_em },
-    { "font", Html_font },
-    { "h1", Html_h1 },
-    { "h2", Html_h2 },
-    { "h3", Html_h3 },
-    { "h4", Html_h4 },
-    { "h5", Html_h5 },
-    { "h6", Html_h6 },
-    { "head", Html_head },
-    { "hr", Html_hr },
-    { "html", Html_html },
-    { "i", Html_i },
-    { "img", Html_img },
-    { "li", Html_li },
-    { "nobr", Html_nobr },
-    { "ol", Html_ol },
-    { "p", Html_p },
-    { "pre", Html_pre },
-    { "qt", Html_qt },
-    { "s", Html_s },
-    { "small", Html_small },
-    { "span", Html_span },
-    { "strong", Html_strong },
-    { "sub", Html_sub },
-    { "sup", Html_sup },
-    { "table", Html_table },
-    { "td", Html_td },
-    { "th", Html_th },
-    { "tr", Html_tr },
-    { "tt", Html_tt },
-    { "u", Html_u },
-    { "ul", Html_ul },
-    { 0,  0 }
+// the displayMode value is according to the what are blocks in the piecetable, not
+// what the w3c defines.
+static const struct QTextHtmlElement
+{ 
+    const char *name;
+    int id; 
+    enum DisplayMode { DisplayBlock, DisplayInline, DisplayNone } displayMode;
+} elements[Html_NumElements+1]= {
+    { "a", Html_a, QTextHtmlElement::DisplayInline },
+    { "b", Html_b, QTextHtmlElement::DisplayInline },
+    { "big", Html_big, QTextHtmlElement::DisplayInline },
+    { "body", Html_body, QTextHtmlElement::DisplayInline },
+    { "blockquote", Html_blockquote, QTextHtmlElement::DisplayBlock },
+    { "br", Html_br, QTextHtmlElement::DisplayInline },
+    { "center", Html_center, QTextHtmlElement::DisplayBlock },
+    { "code", Html_code, QTextHtmlElement::DisplayInline },
+    { "dd", Html_dd, QTextHtmlElement::DisplayBlock },
+    { "div", Html_div, QTextHtmlElement::DisplayBlock },
+    { "dl", Html_dl, QTextHtmlElement::DisplayBlock },
+    { "dt", Html_dt, QTextHtmlElement::DisplayBlock },
+    { "em", Html_em, QTextHtmlElement::DisplayInline },
+    { "font", Html_font, QTextHtmlElement::DisplayInline },
+    { "h1", Html_h1, QTextHtmlElement::DisplayBlock },
+    { "h2", Html_h2, QTextHtmlElement::DisplayBlock },
+    { "h3", Html_h3, QTextHtmlElement::DisplayBlock },
+    { "h4", Html_h4, QTextHtmlElement::DisplayBlock },
+    { "h5", Html_h5, QTextHtmlElement::DisplayBlock },
+    { "h6", Html_h6, QTextHtmlElement::DisplayBlock },
+    { "head", Html_head, QTextHtmlElement::DisplayNone },
+    { "hr", Html_hr, QTextHtmlElement::DisplayInline },
+    { "html", Html_html, QTextHtmlElement::DisplayInline },
+    { "i", Html_i, QTextHtmlElement::DisplayInline },
+    { "img", Html_img, QTextHtmlElement::DisplayInline },
+    { "li", Html_li, QTextHtmlElement::DisplayBlock },
+    { "nobr", Html_nobr, QTextHtmlElement::DisplayInline },
+    { "ol", Html_ol, QTextHtmlElement::DisplayBlock },
+    { "p", Html_p, QTextHtmlElement::DisplayBlock },
+    { "pre", Html_pre, QTextHtmlElement::DisplayBlock },
+    { "qt", Html_qt, QTextHtmlElement::DisplayBlock },
+    { "s", Html_s, QTextHtmlElement::DisplayInline },
+    { "small", Html_small, QTextHtmlElement::DisplayInline },
+    { "span", Html_span, QTextHtmlElement::DisplayInline },
+    { "strong", Html_strong, QTextHtmlElement::DisplayInline },
+    { "sub", Html_sub, QTextHtmlElement::DisplayInline },
+    { "sup", Html_sup, QTextHtmlElement::DisplayInline },
+    { "table", Html_table, QTextHtmlElement::DisplayBlock },
+    { "td", Html_td, QTextHtmlElement::DisplayBlock },
+    { "th", Html_th, QTextHtmlElement::DisplayBlock },
+    { "tr", Html_tr, QTextHtmlElement::DisplayBlock },
+    { "tt", Html_tt, QTextHtmlElement::DisplayInline },
+    { "u", Html_u, QTextHtmlElement::DisplayInline },
+    { "ul", Html_ul, QTextHtmlElement::DisplayBlock },
+    { 0, 0, QTextHtmlElement::DisplayNone }
 };
 
 
@@ -368,15 +375,20 @@ static bool operator<(const QTextHtmlElement &e, const QString &str)
     return QLatin1String(e.name) < str;
 }
 
-int QTextHtmlParser::lookupElement(const QString &element)
+static const QTextHtmlElement *lookupElement(const QString &element)
 {
     QString elem = element.toLower();
     const QTextHtmlElement *start = &elements[0];
     const QTextHtmlElement *end = &elements[Html_NumElements];
-    const QTextHtmlElement *e = qBinaryFind(start, end, elem);
+    return qBinaryFind(start, end, elem);
+}
+
+int QTextHtmlParser::lookupElement(const QString &element)
+{
+    const QTextHtmlElement *e = ::lookupElement(element);
     if (!e->name)
         return -1;
-    return e->code;
+    return e->id;
 }
 
 static int scaleFontPointSize(int fontPointSize, int logicalFontSize, int logicalFontSizeStep = 0)
@@ -825,18 +837,18 @@ void QTextHtmlParser::parseTag()
     if (!node->style)
         node->style = QStyleSheet::defaultSheet()->item("");
     Q_ASSERT(node->style != 0);
-    node->id = lookupElement(node->tag);
 
-    node->isListItem = (node->style->displayMode() == QStyleSheetItem::DisplayListItem);
+    const QTextHtmlElement *elem = ::lookupElement(node->tag);
+    if (elem->name) {
+        node->id = elem->id;
+        node->isBlock = (elem->displayMode == QTextHtmlElement::DisplayBlock);
+    } else {
+        node->id = -1;
+    }
+
+    node->isListItem = (node->id == Html_li);
     node->isListStart = (node->id == Html_ol || node->id == Html_ul);
-    if (node->isListStart)
-        node->listStyle = convertListStyle(node->style->listStyle());
     node->isTableCell = (node->id == Html_td || node->id == Html_th);
-    node->isBlock = (node->style->displayMode() != QStyleSheetItem::DisplayInline
-                     || node->id == Html_table
-                     || node->id == Html_tr
-                     || node->isTableCell);
-
 
     resolveParent();
     resolveNode();
