@@ -2283,18 +2283,31 @@ void Resource::saveImageData( const QImage &img, QTextStream &ts, int indent )
     QByteArray ba;
     QBuffer buf( ba );
     buf.open( IO_WriteOnly | IO_Translate );
-    QString format = img.depth() > 1 ? "XPM" : "XBM";
+    QString format;
+    bool compress = FALSE;
+    if (img.hasAlphaBuffer()) {
+	format = "PNG";
+    } else {
+	format = img.depth() > 1 ? "XPM" : "XBM";
+	compress = TRUE;
+    }
     QImageIO iio( &buf, format );
     iio.setImage( img );
     iio.write();
     buf.close();
-    QByteArray bazip = qCompress( ba );
-    ulong len = bazip.size();
-    ts << makeIndent( indent ) << "<data format=\"" + format + ".GZ\" length=\"" << ba.size() << "\">";
-    static const char hexchars[] = "0123456789abcdef";
-    for ( int i = 4; i < (int)len; ++i ) {
+    QByteArray bazip = ba;
+    int i = 0;
+    if (compress) {
+	bazip = qCompress( ba );
+	format += ".GZ";
 	// The first 4 bytes in qCompress() are the length of the unzipped
 	// format. The XPM.GZ format does not use these.
+	i = 4;
+    }
+    ulong len = bazip.size();
+    ts << makeIndent( indent ) << "<data format=\"" + format + "\" length=\"" << ba.size() << "\">";
+    static const char hexchars[] = "0123456789abcdef";
+    for (i; i < (int)len; ++i ) {
 	uchar s = (uchar) bazip[i];
 	ts << hexchars[s >> 4];
 	ts << hexchars[s & 0x0f];
