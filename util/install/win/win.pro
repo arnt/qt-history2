@@ -33,6 +33,11 @@ INTERFACES	= dialogs/folderdlg.ui \
 		  pages/sidedecoration.ui \
 		  pages/winintropage.ui
 
+win32 {
+    SOURCES += archive.cpp
+    HEADERS += archive.h
+}
+
 TARGET		= install
 DESTDIR		= ../../../dist/win
 INCLUDEPATH	+= $$QT_SOURCE_TREE/src/3rdparty $$QT_SOURCE_TREE/util/install/archive
