@@ -332,9 +332,23 @@ QVariant QPSQLResult::data( int i )
 	    ((QSqlDriver*)driver())->commitTransaction();
 	    return QVariant( ba );
 	}
-	char* buf;
-	buf = new char[ size ];
+	char * buf = new char[ size ];
+
+#ifdef Q_OS_WIN32
+	// ### For some reason lo_read() fails if we try to read more than
+	// ### 32760 bytes
+	char * p = buf;
+	int nread = 0;
+
+	while( size < nread ){
+		retval = lo_read( d->connection, fd, p, 32760 );
+		nread += retval;
+		p += retval;
+	}
+#else
 	retval = lo_read( d->connection, fd, buf, size );
+#endif
+
 	if (retval < 0) {
 	    qWarning( "QPSQLResult::data: unable to read large object" );
 	} else {
