@@ -993,8 +993,9 @@ static void qt_mac_clip_cg_reset(CGContextRef hd)
 
 static void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt, CGAffineTransform *orig_xform)
 {
-    CGAffineTransform old_xform = CGContextGetCTM(hd);
+    CGAffineTransform old_xform = CGAffineTransformIdentity;
     if(orig_xform) { //setup xforms
+        old_xform = CGContextGetCTM(hd);
         CGContextConcatCTM(hd, CGAffineTransformInvert(old_xform));
         CGContextConcatCTM(hd, *orig_xform);
     }
@@ -1032,13 +1033,15 @@ static void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine()
     : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate),
                             PaintEngineFeatures(CoordTransform|PenWidthTransform|PixmapTransform|PainterPaths
-                                                |PixmapScale|UsesFontEngine|LinearGradients|SolidAlphaFill))
+                                                |PixmapScale|UsesFontEngine|LinearGradients|SolidAlphaFill
+                                                |ClipTransform))
 {
 }
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr)
     : QQuickDrawPaintEngine(dptr, PaintEngineFeatures(CoordTransform|PenWidthTransform|PixmapTransform|PainterPaths
-                                                      |PixmapScale|UsesFontEngine|LinearGradients|SolidAlphaFill))
+                                                      |PixmapScale|UsesFontEngine|LinearGradients|SolidAlphaFill
+                                                      |ClipTransform))
 {
 }
 
@@ -1677,7 +1680,7 @@ void QCoreGraphicsPaintEnginePrivate::setClip(const QRegion *rgn)
                 qt_mac_clip_cg(hd, pevent->region(), &mp, &orig_xform);
         }
         if(rgn)
-            qt_mac_clip_cg(hd, *rgn, 0, &orig_xform); //already widget relative
+            qt_mac_clip_cg(hd, *rgn, 0, 0); //already widget relative
     }
 }
 
