@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#82 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#81 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#82 $");
 
 
 /*****************************************************************************
@@ -426,7 +426,19 @@ void QApplication::restoreOverrideCursor()
 	QWidget *w = QWidget::find( curWin );
 	if ( w )
 	    SetCursor( w->cursor().handle() );
+	else
+	    SetCursor( arrowCursor.handle() );
     }
+}
+
+/*
+  Internal function called from QWidget::setCursor()
+*/
+
+void qt_set_cursor( QWidget *w, QCursor *c )
+{
+    if ( w->winId() == curWin )			// set immediately
+	SetCursor( c->handle() );
 }
 
 
@@ -1483,13 +1495,6 @@ static int translateButtonState( int s )
     if ( GetKeyState(VK_MENU) < 0 )
 	bst |= AltButton;
     return bst;
-}
-
-
-void qt_set_cursor( QWidget *w, QCursor *c )
-{
-    if ( w->winId() == curWin )			// mouse in window
-	SetCursor( c->handle() );
 }
 
 
