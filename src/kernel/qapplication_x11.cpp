@@ -3981,10 +3981,11 @@ void QApplication::openPopup( QWidget *popup )
 	if ( (popupGrabOk = (r == GrabSuccess)) ) {
 	    XAllowEvents( popup->x11Display(), SyncPointer, CurrentTime );
 	}
-	if (! activeWindow()) {
+	if ( !active_window ) {
 	    QWidget *tlw = popup->topLevelWidget();
-	    if (tlw)
-		tlw->setActiveWindow();
+	    XSetInputFocus( tlw->x11Display(), tlw->winId(), RevertToNone, CurrentTime );
+	} else {
+	    XSetInputFocus( active_window->x11Display(), active_window->winId(), RevertToNone, CurrentTime );
 	}
     } else if ( popupGrabOk ) {
 	XAllowEvents(  popup->x11Display(), SyncPointer, CurrentTime );
@@ -4015,7 +4016,6 @@ void QApplication::closePopup( QWidget *popup )
 	delete popupWidgets;
 	popupWidgets = 0;
 	if ( !qt_nograb() && popupGrabOk ) {	// grabbing not disabled
-	    XUngrabKeyboard( popup->x11Display(), CurrentTime );
 	    if ( mouseButtonState != 0
 		 || popup->geometry(). contains(QPoint(mouseGlobalXPos, mouseGlobalYPos) ) )
 		{	// mouse release event or inside
