@@ -216,7 +216,7 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
 	    qvar.cast( proptype );
     }
 
-    switch ( qvar.type() ) {
+    switch ( (int)qvar.type() ) {
     case QVariant::String:
     case QVariant::CString:
 	arg.vt = VT_BSTR;
