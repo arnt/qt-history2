@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#95 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#96 $
 **
 ** Implementation of QSlider class
 **
@@ -947,37 +947,37 @@ int QSlider::thickness() const
 }
 
 /*!
-  Using \a p, draws tickmarks at a distance of \a d from the edge
+  Using \a p, draws tickmarks at a distance of \a dist from the edge
   of the widget, using \a w pixels and with an interval of \a i.
 
   Do not reimplement this function, it's mainly there for
   compatibility reasons. It simply calls
 
-  drawTicks( QPainter *p, const QColorGroup& g, int d, int w, int i ) const
+  drawTicks( QPainter *p, const QColorGroup& g, int dist, int w, int i ) const
 
   which is the right function to overload.
 
-  \sa colorGroup(), drawTicks( QPainter *p, const QColorGroup& g, int d, int w, int i ) const,
+  \sa colorGroup(), drawTicks( QPainter *p, const QColorGroup& g, int dist, int w, int i ) const,
   paintSlider
-
 */
 
-void QSlider::drawTicks( QPainter *p, int d, int w, int i ) const
+void QSlider::drawTicks( QPainter *p, int dist, int w, int i ) const
 {
-    drawTicks( p, colorGroup(), d, w, i);
+    drawTicks( p, colorGroup(), dist, w, i);
 }
 
 /*!
-  Using \a p, draws tickmarks at a distance of \a d from the edge
+  Using \a p, draws tickmarks at a distance of \a dist from the edge
   of the widget, using \a w pixels and with an interval of \a i.
 
   Setting the colorgroup is useful to reuse the code to draw a mask if
   the slider supports transparceny.
 
-\sa setAutoMask(), updateMask()
+  \sa setAutoMask(), updateMask()
 */
 
-void QSlider::drawTicks( QPainter *p, const QColorGroup& g, int d, int w, int i ) const
+void QSlider::drawTicks( QPainter *p, const QColorGroup& g, int dist, int w,
+			 int i ) const
 {
     p->setPen( g.foreground() );
     int v = minValue();
@@ -985,9 +985,9 @@ void QSlider::drawTicks( QPainter *p, const QColorGroup& g, int d, int w, int i 
     while ( v <= maxValue() + 1 ) {
 	int pos = positionFromValue( v ) + fudge;
 	if ( orient == Horizontal )
-	    p->drawLine( pos, d, pos, d + w );
+	    p->drawLine( pos, dist, pos, dist + w );
 	else
-	    p->drawLine( d, pos, d + w, pos );
+	    p->drawLine( dist, pos, dist + w, pos );
 	v += i;
     }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#34 $
 **
 ** Implementation of QRangeControl class
 **
@@ -388,11 +388,11 @@ int QRangeControl::positionFromValue( int logical_val, int span ) const
 {
     if ( maxValue() > minValue() ) {
 	uint range = maxValue() - minValue();
-	uint d = logical_val - minValue();
+	uint p = logical_val - minValue();
 	int scale = 1;
 	if ( range > uint(INT_MAX/4096) )
 	     scale = 4096*2;
-	return ( (d/scale) * span ) / (range/scale);
+	return ( (p/scale) * span ) / (range/scale);
     } else {
 	return 0;
     }
