@@ -595,14 +595,14 @@ void QGridLayoutData::setupLayoutData( int spacing )
     for ( i = 0; i < cc; i++ )
 	colData[i].init( cStretch[i], cSpacing[i] );
 
-    for(int i = 0; i < things.size(); ++i) {
+    for(i = 0; i < things.size(); ++i) {
 	QGridBox * box = things.at(i);
 	addData( box );
 	has_hfw = has_hfw || box->item()->hasHeightForWidth();
     }
 
     if ( multi ) {
-	for(int i = 0; i < multi->size(); ++i) {
+	for(i = 0; i < multi->size(); ++i) {
 	    QGridMultiBox *mbox = multi->at(i);
 	    QGridBox *box = mbox->box();
 	    int r1 = box->row;
@@ -673,12 +673,12 @@ void QGridLayoutData::setupHfwLayoutData( int spacing )
 	rData[i] = rowData[i];
 	rData[i].minimumSize = rData[i].sizeHint = 0;
     }
-    for(int i = 0; i < things.size(); ++i) {
+    for(i = 0; i < things.size(); ++i) {
 	QGridBox * box = things.at(i);
 	addHfwData( box, colData[box->col].size );
     }
     if ( multi ) {
-	for(int i = 0; i < multi->size(); ++i) {
+	for(i = 0; i < multi->size(); ++i) {
 	    QGridMultiBox *mbox = multi->at(i);
 	    QGridBox *box = mbox->box();
 	    int r1 = box->row;
