@@ -1447,7 +1447,7 @@ void QPopupMenu::drawContents( QPainter* p )
 	y += itemh;
 	++row;
     }
-    if ( y < contentsRect().bottom() && count() ) {
+    if ( y < contentsRect().bottom() ) {
 	QRect rect(x, y, itemw, contentsRect().bottom() - y);
 	if(!p->hasClipping() || p->clipRegion().contains(rect)) {
 	    flags = QStyle::Style_Default;
