@@ -111,11 +111,10 @@ private:        // Disabled copy constructor and operator=
     QMacStyle& operator=( const QMacStyle & );
 #endif
 
-protected:
-    QStyle *correctStyle(QPainter *);
-    QStyle *correctStyle(QPaintDevice *);
-    QStyle *qd_style;
-    QStyle *cg_style;
+private:
+    QStyle *correctStyle(const QPainter *) const;
+    QStyle *correctStyle(const QPaintDevice *) const;
+    mutable QStyle *qd_style, *cg_style;
 };
 
 #endif // Q_WS_MAC

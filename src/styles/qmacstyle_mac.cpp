@@ -341,12 +341,12 @@ QMacStyle::WidgetSizePolicy QMacStyle::widgetSizePolicy( QWidget *w )
     return ret;
 }
 
-QStyle *QMacStyle::correctStyle(QPainter *p)
+QStyle *QMacStyle::correctStyle(const QPainter *p) const 
 {
     return correctStyle(p ? p->device() : 0);
 }
 
-QStyle *QMacStyle::correctStyle(QPaintDevice *pdev)
+QStyle *QMacStyle::correctStyle(const QPaintDevice *pdev) const
 {
     bool ret_cg_style = FALSE;
 #ifdef USE_CORE_GRAPHICS
