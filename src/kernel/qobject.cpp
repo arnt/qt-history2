@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#128 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#129 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#128 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#129 $");
 
 
 /*!
@@ -112,10 +112,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#128 $");
   the object that emits a signal does not need to know what the
   signals are connected to.
 
-  All Qt widgets inherit QObject and they make good use of signals and
-  slots.  A QScrollBar, for example, emits \link
-  QScrollBar::valueChanged() valueChanged()\endlink whenever the
-  scroll bar value changes.
+  All Qt widgets inherit QObject and use signals and slots.  A
+  QScrollBar, for example, emits \link QScrollBar::valueChanged()
+  valueChanged()\endlink whenever the scroll bar value changes.
 
   Meta objects are useful for doing more than connecting signals to slots.
   They also allow the programmer to obtain information about the class to
@@ -780,7 +779,7 @@ static void objSearch( QObjectList *result,
     // Sets a Courier 24 point fonts for all children in myWidget that
     // inherit QButton (i.e. QPushButton, QCheckBox, QRadioButton).
     //
-    QObjectList	 *list = myWidget->queryList( "QButton" );
+    QObjectList	*list = myWidget->queryList( "QButton" );
     QObjectListIt it( *list );		// iterate over the buttons
     QFont newFont( "Courier", 24 );
     QObject * obj;
