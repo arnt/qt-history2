@@ -113,6 +113,7 @@ private:
     QString cachedFormName;
     bool fake;
     bool pkg;
+    bool cm;
 
 };
 

@@ -51,8 +51,9 @@ static QString make_func_pretty( const QString &s )
 }
 
 FormFile::FormFile( const QString &fn, bool temp, Project *p, const char *name )
-    : QObject( 0, name ), filename( fn ), fileNameTemp( temp ), pro( p ), fw( 0 ), ed( 0 ),
-      timeStamp( 0, fn + codeExtension() ), codeEdited( FALSE ), pkg( FALSE )
+    : filename( fn ), fileNameTemp( temp ), pro( p ), fw( 0 ), ed( 0 ),
+      timeStamp( 0, fn + codeExtension() ), codeEdited( FALSE ), pkg( FALSE ),
+      cm( FALSE )
 {
     fake = qstrcmp( name, "qt_fakewindow" ) == 0;
     LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
@@ -181,7 +182,7 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified )
 	return TRUE;
     if ( ed )
 	ed->save();
-    else if ( !ignoreModified )
+    else if ( !cm && !ignoreModified )
 	loadCode();
 
     if ( isModified( WFormWindow ) ) {
@@ -211,6 +212,7 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified )
 	}
     }
 
+    cm = FALSE;
     if ( isModified( WFormCode ) && seperateSource ) {
 	if ( QFile::exists( pro->makeAbsolute( codeFile() ) ) ) {
 	    QString fn( pro->makeAbsolute( codeFile() ) );
@@ -374,7 +376,7 @@ bool FormFile::isFormWindowModified() const
 bool FormFile::isCodeModified() const
 {
     if ( !editor() )
-	return FALSE;
+	return cm;
     return editor()->isModified();
 }
 
@@ -394,10 +396,11 @@ void FormFile::setCodeModified( bool m )
     bool b = isCodeModified();
     if ( m == b )
 	return;
+    emit somethingChanged( this );
+    cm = TRUE;
     if ( !editor() )
 	return;
     editor()->setModified( m );
-    emit somethingChanged( this );
 }
 
 void FormFile::showFormWindow()

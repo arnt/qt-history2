@@ -28,6 +28,7 @@
 #include "workspace.h"
 #include "actioneditorimpl.h"
 #include "actiondnd.h"
+#include "formfile.h"
 
 #include <qfeatures.h>
 #include <qwidget.h>
@@ -1097,12 +1098,16 @@ void AddSlotCommand::execute()
 {
     MetaDataBase::addSlot( formWindow(), slot, specifier, access, language, returnType );
     formWindow()->mainWindow()->slotsChanged();
+    if ( formWindow()->formFile() )
+	formWindow()->formFile()->setModified( TRUE );
 }
 
 void AddSlotCommand::unexecute()
 {
     MetaDataBase::removeSlot( formWindow(), slot, specifier, access, language, returnType );
     formWindow()->mainWindow()->slotsChanged();
+    if ( formWindow()->formFile() )
+	formWindow()->formFile()->setModified( TRUE );
 }
 
 // ------------------------------------------------------------
@@ -1117,12 +1122,16 @@ void RemoveSlotCommand::execute()
 {
     MetaDataBase::removeSlot( formWindow(), slot, specifier, access, language, returnType );
     formWindow()->mainWindow()->slotsChanged();
+    if ( formWindow()->formFile() )
+	formWindow()->formFile()->setModified( TRUE );
 }
 
 void RemoveSlotCommand::unexecute()
 {
     MetaDataBase::addSlot( formWindow(), slot, specifier, access, language, returnType );
     formWindow()->mainWindow()->slotsChanged();
+    if ( formWindow()->formFile() )
+	formWindow()->formFile()->setModified( TRUE );
 }
 
 // ------------------------------------------------------------
