@@ -438,10 +438,27 @@ void Project::clear()
 
 void Project::addUiFile( const QString &f, FormWindow *fw )
 {
+    if ( hasUiFile( f ) )
+	return;
     uifiles << f;
     if ( fw )
 	formWindows.insert( fw, f );
     save();
+}
+
+FormWindow *Project::formWindow( const QString &filename )
+{
+    for ( QMap<FormWindow*, QString>::Iterator it = formWindows.begin();
+	  it != formWindows.end(); ++it ) {
+	if ( filename == *it )
+	    return it.key();
+    }
+    return 0;
+}
+
+bool Project::hasUiFile( const QString &filename ) const
+{
+    return uifiles.find( filename ) != uifiles.end();
 }
 
 void Project::removeUiFile( const QString &f, FormWindow *fw )

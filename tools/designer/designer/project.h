@@ -125,10 +125,12 @@ public:
     void removeUiFile( const QString &f, FormWindow *fw );
     void setUiFiles( const QStringList &lst );
     void formClosed( FormWindow *fw );
+    FormWindow *formWindow( const QString &filename );
 
     bool isValid() const;
 
     bool hasFormWindow( FormWindow* fw ) const;
+    bool hasUiFile( const QString &filename ) const;
     void setFormWindow( const QString &f, FormWindow *fw );
     void setFormWindowFileName( FormWindow *fw, const QString &f );
 

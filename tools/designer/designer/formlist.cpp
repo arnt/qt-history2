@@ -93,7 +93,6 @@ static const char* file_xpm[]={
 
 static QPixmap *folderPixmap = 0;
 static QPixmap *filePixmap = 0;
-static bool blockNewForms = FALSE;
 
 FormListItem::FormListItem( QListView *parent )
     : QListViewItem( parent ), formwindow( 0 ), sourcefile( 0 )
@@ -177,6 +176,7 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
 {
     init_colors();
 
+    blockNewForms = FALSE;
     bufferEdit = 0;
     header()->setMovingEnabled( FALSE );
     header()->setStretchEnabled( TRUE );
@@ -345,6 +345,8 @@ void FormList::addForm( FormWindow *fw )
     }
 
     QString fn = project->makeRelative( fw->fileName() );
+    if ( project->hasUiFile( fn ) )
+	return;
     FormListItem *i = new FormListItem( formsParent, fw->name(), fn, 0 );
     i->setType( FormListItem::Form );
     i->setFormWindow( fw );
@@ -658,4 +660,21 @@ void FormList::setBufferEdit( QCompletionEdit *edit )
     bufferEdit = edit;
     connect( bufferEdit, SIGNAL( chosen( const QString & ) ),
 	     this, SLOT( bufferChosen( const QString & ) ) );
+}
+
+void FormList::openForm( const QString &filename )
+{
+    QListViewItemIterator it( this );
+    while ( it.current() ) {
+	if ( it.current()->rtti() == FormListItem::Form ) {
+	    if ( it.current()->text( 1 ) == filename ) {
+		setCurrentItem( it.current() );
+		setSelected( it.current(), TRUE );
+		blockNewForms = TRUE;
+		mainWindow->openFile( project->makeAbsolute( ( (FormListItem*)it.current() )->text( 1 ) ) );
+		blockNewForms = FALSE;
+	    }
+	}
+	++it;
+    }
 }

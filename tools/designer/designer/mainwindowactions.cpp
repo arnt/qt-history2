@@ -1186,6 +1186,7 @@ void MainWindow::openFile( const QString &filename, bool validFileName )
 	return;
 
     bool makeNew = FALSE;
+    static bool blockCheck = FALSE;
 
     if ( !QFile::exists( filename ) ) {
 	makeNew = TRUE;
@@ -1198,6 +1199,19 @@ void MainWindow::openFile( const QString &filename, bool validFileName )
     if ( !makeNew ) {
 	statusBar()->message( tr( "Reading file %1...").arg( filename ) );
 	if ( QFile::exists( filename ) ) {
+	    if ( !blockCheck && currentProject->hasUiFile( currentProject->makeRelative( filename ) ) ) {
+		FormWindow *fw = currentProject->formWindow( currentProject->makeRelative( filename ) );
+		if ( fw ) {
+		    fw->setFocus();
+		    return;
+		} else {
+		    blockCheck = TRUE;
+		    // this calls MainWindow::openFile() again
+		    formList->openForm( currentProject->makeRelative( filename ) );
+		    blockCheck = FALSE;
+		    return;
+		}
+	    }
 	    QApplication::setOverrideCursor( WaitCursor );
 	    Resource resource( this );
 	    bool b = resource.load( filename ) && (FormWindow*)resource.widget();

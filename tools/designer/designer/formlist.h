@@ -93,6 +93,8 @@ public:
 
     void setBufferEdit( QCompletionEdit *edit );
 
+    void openForm( const QString &filename );
+
 public slots:
     void modificationChanged( bool m, QObject *obj );
     void modificationChanged( bool m, FormWindow *fw ) { modificationChanged( m, (QObject*)fw ); }
@@ -123,6 +125,7 @@ private:
     FormListItem *imageParent;
     FormListItem *sourceParent;
     QCompletionEdit *bufferEdit;
+    bool blockNewForms;
 
 };
 
