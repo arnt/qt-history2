@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#212 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#213 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -3866,7 +3866,7 @@ static void read_xbm_image( QImageIO *iio )
 	return;					// format error
 
     while ( TRUE ) {				// scan for data
-	if ( d->readLine(buf, buflen) == 0 )	// end of file
+	if ( d->readLine(buf, buflen) <= 0 )	// end of file
 	    return;
 	if ( strstr(buf,"0x") != 0 )		// does line contain data?
 	    break;
@@ -3894,7 +3894,7 @@ static void read_xbm_image( QImageIO *iio )
 	    }
 	    p = strstr( p, "0x" );
 	} else {				// read another line
-	    if ( !d->readLine(buf,buflen) )	// EOF ==> truncated image
+	    if ( d->readLine(buf,buflen) <= 0 )	// EOF ==> truncated image
 		break;
 	    p = strstr( buf, "0x" );
 	}
