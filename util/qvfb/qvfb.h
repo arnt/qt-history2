@@ -3,6 +3,7 @@
 #include <qmainwindow.h>
 
 class QVFbView;
+class QVFbRateDialog;
 class QPopupMenu;
 
 class QVFb: public QMainWindow
@@ -17,12 +18,14 @@ public:
 
 protected slots:
     void slotCursor();
+    void slotRateDlg();
 
 protected:
     void createMenu();
 
 protected:
     QVFbView *view;
+    QVFbRateDialog *rateDlg;
     QPopupMenu *viewMenu;
     int cursorId;
 };

@@ -14,6 +14,11 @@ public:
 		const char *name = 0, uint wflags = 0 );
     ~QVFbView();
 
+    int rate() { return refreshRate; }
+
+public slots:
+    void setRate( int );
+
 protected slots:
     void timeout();
 
@@ -36,5 +41,6 @@ private:
     QTimer *timer;
     int mouseFd;
     int keyboardFd;
+    int refreshRate;
 };
 

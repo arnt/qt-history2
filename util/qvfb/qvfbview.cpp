@@ -72,7 +72,8 @@ QVFbView::QVFbView( int w, int h, int d, QWidget *parent, const char *name,
 
     timer = new QTimer( this );
     connect( timer, SIGNAL(timeout()), this, SLOT(timeout()) );
-    timer->start( 30 );
+
+    setRate( 30 );
 }
 
 QVFbView::~QVFbView()
@@ -83,6 +84,12 @@ QVFbView::~QVFbView()
     ::close( mouseFd );
     unlink( QT_VFB_MOUSE_PIPE );
     unlink( QT_VFB_KEYBOARD_PIPE );
+}
+
+void QVFbView::setRate( int r )
+{
+    refreshRate = r;
+    timer->start( 1000/r );
 }
 
 void QVFbView::sendMouseData( const QPoint &pos, int buttons )
