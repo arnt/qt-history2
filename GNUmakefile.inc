@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#24 $
+# $Id: //depot/qt/main/GNUmakefile.inc#25 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -7,8 +7,12 @@
 #
 #############################################################################
 
+ifdef INSURE
+TMAKEINSURE="TMAKE_LINK_SHLIB=insure" "TMAKE_LINK=insure" "TMAKE_CC=insure" "TMAKE_CXX=insure"
+endif
 
 ifdef QT_EMBEDDED
+
 ifeq ($(PROJECT),qt)
 PROJECT=qt-e
 endif
@@ -20,18 +24,22 @@ QT_TARGET=release
 endif
 endif
 ifeq ($(LIBTARGET),1)
-TMAKEHACK="DESTDIR=../lib-e-$(QT_EMBEDDED)" $(TMAKEHACKEXTRA)
+TMAKEHACK=$(TMAKEINSURE) "DESTDIR=../lib-e-$(QT_EMBEDDED)" $(TMAKEHACKEXTRA)
 else
-TMAKEHACK="TMAKE_LIBDIR_QT=$(QTDIR)/lib-e-$(QT_EMBEDDED)" $(TMAKEHACKEXTRA)
+TMAKEHACK=$(TMAKEINSURE) "TMAKE_LIBDIR_QT=$(QTDIR)/lib-e-$(QT_EMBEDDED)" $(TMAKEHACKEXTRA)
 endif
 PROJOBJ=e-$(QT_EMBEDDED)/
 PROJMAK=-e-$(QT_EMBEDDED)
 TMAKEPATH=$(TMAKEDIR)/lib/qws/linux-$(QT_EMBEDDED)-g++
 export TMAKEPATH
+
 else
+
+TMAKEHACK=$(TMAKEINSURE)
 # Should do this too...
 #PROJOBJ=x11/
 #PROJMAK=-x11
+
 endif
 
 
