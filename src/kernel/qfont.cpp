@@ -427,10 +427,20 @@ void QFont::detach()
 	return;
     }
 
-    QFontPrivate *new_d = new QFontPrivate( *d );
-    if ( d->deref() )
-	delete d;
-    d = new_d;
+    QFontPrivate *old_d = d;
+    d = new QFontPrivate( *old_d );
+
+    /*
+      if this font is a copy of the application default font, set the
+      fontdef mask to zero to indicate that *nothing* has been
+      explicitly set by the programmer.
+    */
+    const QFont appfont = QApplication::font();
+    if ( old_d == appfont.d )
+	d->request.mask = 0;
+
+    if ( old_d->deref() )
+	delete old_d;
 }
 
 /*!
@@ -440,17 +450,9 @@ void QFont::detach()
 */
 QFont::QFont()
 {
-    d = new QFontPrivate;
-    d->count = 1;
-
-    d->request.resolve( QApplication::font().d->request );
-
-    /*
-      reset the font def mask. the properties are identical to the
-      default font, but nothing has been explicitly set by the
-      programmer
-    */
-    d->request.mask = 0;
+    const QFont appfont = QApplication::font();
+    d = appfont.d;
+    d->ref();
 }
 
 /*!
@@ -1171,9 +1173,21 @@ QFont QFont::resolve( const QFont &other ) const
 {
     if ( *this == other && d->request.mask == other.d->request.mask )
 	return *this;
-    QFont font;
-    font.d->request = d->request;
+
+    QFont font( *this );
+    font.detach();
+
+    /*
+      if this font is a copy of the application default font, set the
+      fontdef mask to zero to indicate that *nothing* has been
+      explicitly set by the programmer.
+    */
+    const QFont appfont = QApplication::font();
+    if ( d == appfont.d )
+	font.d->request.mask = 0;
+
     font.d->request.resolve( other.d->request );
+
     return font;
 }
 
