@@ -4378,6 +4378,13 @@ void QListView::contentsMouseDoubleClickEvent( QMouseEvent * e )
 
     QListViewItem * i = itemAt( vp );
 
+    // we emit doubleClicked when the item is null (or enabled) to be consistent with
+    // rightButtonClicked etc.
+    if ( !i || i->isEnabled() ) {
+	int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
+	emit doubleClicked( i, viewport()->mapToGlobal( vp ), c );
+    }
+
     if ( !i || !i->isEnabled() )
 	return;
 
@@ -4388,9 +4395,8 @@ void QListView::contentsMouseDoubleClickEvent( QMouseEvent * e )
 	setOpen( i, FALSE );
     }
 
-    int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
+    // we emit the 'old' obsolete doubleClicked only if the item is not null and enabled
     emit doubleClicked( i );
-    emit doubleClicked( i, viewport()->mapToGlobal( vp ), c );
 }
 
 
@@ -5279,6 +5285,8 @@ QRect QListView::itemRect( const QListViewItem * i ) const
 /*!
     \fn void QListView::doubleClicked( QListViewItem *item )
 
+    \obsolete (use doubleClicked( QListViewItem *, const QPoint&, int ))
+
     This signal is emitted whenever an item is double-clicked. It's
     emitted on the second button press, not the second button release.
     \a item is the list view item on which the user did the
@@ -5290,8 +5298,9 @@ QRect QListView::itemRect( const QListViewItem * i ) const
 
     This signal is emitted whenever an item is double-clicked. It's
     emitted on the second button press, not the second button release.
-    The arguments are the relevant QListViewItem, the point in global
-    coordinates and the relevant column.
+    The arguments are the relevant QListViewItem (may be 0), the point
+    in global coordinates and the relevant column (or -1 if the click
+    was outside the list).
 */
 
 
