@@ -86,6 +86,7 @@ private:
 // Sql
 //
     void initializeSqlDataTable(DomWidget *w);
+    void initializeSqlDataBrowser(DomWidget *w);
 
 private:
     Uic *uic;

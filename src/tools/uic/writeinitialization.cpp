@@ -135,9 +135,10 @@ void WriteInitialization::accept(DomWidget *node)
         initializeListBox(node);
     } else if (className.mid(1) == QLatin1String("ListView")) {
         initializeListView(node);
-    } else if (className == QLatin1String("QDataTable")
-            || className == QLatin1String("QDataBrowser")) {
+    } else if (className == QLatin1String("QDataTable")) {
         initializeSqlDataTable(node);
+    } else if (className == QLatin1String("QDataBrowser")) {
+        initializeSqlDataBrowser(node);
     }
 
     writeProperties(varName, className, node->elementProperty());
@@ -913,4 +914,45 @@ void WriteInitialization::initializeSqlDataTable(DomWidget *w)
     output << option.indent << option.indent << varName << "->refresh(QDataTable::RefreshAll);\n";
     output << option.indent << "}\n";
 }
+
+void WriteInitialization::initializeSqlDataBrowser(DomWidget *w)
+{
+    QHash<QString, DomProperty*> properties = propertyMap(w->elementProperty());
+
+    DomProperty *frameworkCode = properties.value("frameworkCode", 0);
+    if (frameworkCode && toBool(frameworkCode->elementBool()) == false)
+        return;
+
+    QString connection;
+    QString table;
+    QString field;
+
+    DomProperty *db = properties.value("database", 0);
+    if (db && db->elementStringList()) {
+        QStringList info = db->elementStringList()->elementString();
+        connection = info.size() > 0 ? info.at(0) : QString();
+        table = info.size() > 1 ? info.at(1) : QString();
+        field = info.size() > 2 ? info.at(2) : QString();
+    }
+
+    if (table.isEmpty() || connection.isEmpty()) {
+        fprintf(stderr, "invalid database connection\n");
+        return;
+    }
+
+    QString varName = driver->findOrInsertWidget(w);
+
+    output << option.indent << "if (!" << varName << "->sqlCursor()) {\n";
+
+    output << option.indent << option.indent << varName << "->setSqlCursor(";
+
+    if (connection == QLatin1String("(default)")) {
+        output << "new QSqlCursor(" << fixString(table) << "), true);\n";
+    } else {
+        output << "new QSqlCursor(" << fixString(table) << ", true, " << connection << "Connection" << "), false, true);\n";
+    }
+    output << option.indent << option.indent << varName << "->refresh();\n";
+    output << option.indent << "}\n";
+}
+
 
