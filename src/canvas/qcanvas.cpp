@@ -4236,7 +4236,6 @@ void QCanvasText::moveBy(double dx, double dy)
 */
 void QCanvasText::draw(QPainter& painter)
 {
-    QRect clip = painter.clipRegion().boundingRect();
     painter.setFont(fnt);
     painter.setPen(col);
     painter.drawText(brect, flags, txt);
