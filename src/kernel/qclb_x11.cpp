@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclb_x11.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qclb_x11.cpp#21 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_x11.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_x11.cpp#21 $");
 
 
 /*****************************************************************************
@@ -238,10 +238,10 @@ static bool readProperty( Display *dpy, Window win, Atom property,
     XFree( (char*)data );
 
     int  offset = 0;
-    bool ok = buffer->resize( bytes_left+1 );
+    bool ok = buffer->resize( (int)bytes_left+1 );
 
     if ( ok ) {					// could allocate buffer
-	buffer->at(bytes_left) = '\0';		// zero-terminate (for text)
+	buffer->at((uint)bytes_left) = '\0';		// zero-terminate (for text)
 	while ( bytes_left ) {			// more to read...
 	    r = XGetWindowProperty( dpy, win, property, offset/4, maxsize/4,
 				    FALSE, AnyPropertyType, type, format,

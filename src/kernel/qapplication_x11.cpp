@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#303 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#304 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -86,7 +86,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#303 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#304 $");
 
 
 /*****************************************************************************
@@ -1180,7 +1180,7 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
     if ( !target || target == appRootWin )
 	return 0;
     QWidget *w, *c;
-    w = QWidget::find( target );
+    w = QWidget::find( (WId)target );
     if ( child && w ) {
 	c = findChildWidget( w, w->mapFromParent(QPoint(lx,ly)) );
 	if ( c )
@@ -1190,7 +1190,7 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
     if ( !qt_wm_state )
 	return w;
     target = qt_x11_findClientWindow( target, qt_wm_state, TRUE );
-    c = QWidget::find( target );
+    c = QWidget::find( (WId)target );
     if ( !c ) {
 	if ( !w ) {
 	    // Perhaps the widgets at (x,y) is inside a foreign application?
@@ -1837,7 +1837,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     if ( x11EventFilter(event) )		// send through app filter
 	return 1;
 
-    QETWidget *widget = (QETWidget*)QWidget::find( event->xany.window );
+    QETWidget *widget = (QETWidget*)QWidget::find( (WId)event->xany.window );
 
     if ( wPRmapper ) {				// just did a widget recreate?
 	if ( widget == 0 ) {			// not in std widget mapper
@@ -2006,7 +2006,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
 	case ReparentNotify:			// window manager reparents
 	    if ( event->xreparent.parent != appRootWin
-	      && !QWidget::find(event->xreparent.parent) )
+	      && !QWidget::find((WId)event->xreparent.parent) )
 	    {
 		XWindowAttributes a1, a2;
 		while ( XCheckTypedWindowEvent( widget->x11Display(),
@@ -2802,7 +2802,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		XAllowEvents( dpy, SyncPointer, CurrentTime );
 	} else {				// left popup mode
 	    if ( type != Event_MouseButtonRelease && state != 0 &&
-		 QWidget::find(mouseActWindow) ) {
+		 QWidget::find((WId)mouseActWindow) ) {
 		manualGrab = TRUE;		// need to manually grab
 		XGrabPointer( dpy, mouseActWindow, FALSE,
 			      (uint)(ButtonPressMask | ButtonReleaseMask |
@@ -2989,7 +2989,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     // commentary in X11/keysymdef says that X codes match ASCII, so it
     // is safe to use the locale functions to process X codes
     if ( key < 256 ) {
-	code = isprint(key) ? toupper(key) : 0; // upper-case key, if known
+	code = isprint((int)key) ? toupper((int)key) : 0; // upper-case key, if known
     } else if ( key >= XK_F1 && key <= XK_F35 ) {
 	code = Key_F1 + ((int)key - XK_F1);	// function keys
     } else if ( key >= XK_KP_0 && key <= XK_KP_9){
@@ -2998,7 +2998,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	int i = 0;				// any other keys
 	while ( KeyTbl[i] ) {
 	    if ( key == KeyTbl[i] ) {
-		code = KeyTbl[i+1];
+		code = (int)KeyTbl[i+1];
 		break;
 	    }
 	    i += 2;

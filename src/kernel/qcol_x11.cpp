@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#70 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#69 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#70 $");
 
 
 /*****************************************************************************
@@ -262,7 +262,7 @@ void QColor::initialize()
     QPaintDevice::x_screen    = scr;
     QPaintDevice::x_depth     = depth;
     QPaintDevice::x_cells     = ncols;
-    QPaintDevice::x_colormap  = cmap;
+    QPaintDevice::x_colormap  = (uint)cmap;
     QPaintDevice::x_defcmap   = defCmap;
     QPaintDevice::x_visual    = g_vis;
     QPaintDevice::x_defvisual = defVis;
@@ -287,8 +287,8 @@ void QColor::initialize()
     ((QColor*)(&black))->rgbVal = qRgb( 0, 0, 0 );
     ((QColor*)(&white))->rgbVal = qRgb( 255, 255, 255 );
     if ( defVis && defCmap ) {
-	((QColor*)(&black))->pix = BlackPixel( dpy, scr );
-	((QColor*)(&white))->pix = WhitePixel( dpy, scr );
+	((QColor*)(&black))->pix = (uint)BlackPixel( dpy, scr );
+	((QColor*)(&white))->pix = (uint)WhitePixel( dpy, scr );
     } else {
 	((QColor*)(&black))->alloc();
 	((QColor*)(&white))->alloc();
@@ -311,7 +311,7 @@ void QColor::initialize()
 	    // 3:3:3
 	    col_div_r = col_div_g = col_div_b = (255/(3-1));
 	    break;
-	  default:
+	  default: {
 	    // 2:3:1 proportions, solved numerically
 	    if ( qt_ncols_option > 255 ) qt_ncols_option = 255;
 	    if ( qt_ncols_option < 1 ) qt_ncols_option = 1;
@@ -331,6 +331,7 @@ void QColor::initialize()
 	    col_div_r = (255/(nr-1));
 	    col_div_g = (255/(ng-1));
 	    col_div_b = (255/(nb-1));
+	  }
 	}
     }
 
@@ -401,7 +402,7 @@ uint QColor::alloc()
     int      scr = QPaintDevice::x11Screen();
     if ( (rgbVal & RGB_INVALID) || !color_init ) {
 	rgbVal = 0;				// invalid color or state
-	pix = dpy ? BlackPixel(dpy, scr) : 0;
+	pix = dpy ? (uint)BlackPixel(dpy, scr) : 0;
 	return pix;
     }
     int r = (int)(rgbVal & 0xff);
@@ -488,16 +489,16 @@ uint QColor::alloc()
 
 	    if ( i == -1 ) {			// no nearest color?!
 		rgbVal |= RGB_INVALID;
-		pix = BlackPixel( dpy, scr );
+		pix = (uint)BlackPixel( dpy, scr );
 		return pix;
 	    }
 	    if ( g_our_alloc[i] ) {		// we've already allocated it
-		i = g_carr[i].pixel;//#### not needed
+		i = (uint)g_carr[i].pixel;//#### not needed
 	    } else {
 		// Try to allocate existing color
 		col = g_carr[i];
 		if ( XAllocColor(dpy,QPaintDevice::x11Colormap(), &col) ) {
-		    i = col.pixel;
+		    i = (uint)col.pixel;
 		    g_carr[i] = col;		// update color array
 		    if ( current_alloc_context == 0 )
 			g_our_alloc[i] = TRUE;	// only in the default context
@@ -510,7 +511,7 @@ uint QColor::alloc()
 		}
 	    }
 	    if ( !try_again ) {			// got it
-		pix = g_carr[i].pixel;		// allocated X11 color
+		pix = (uint)g_carr[i].pixel;	// allocated X11 color
 		rgbVal &= RGB_MASK;
 	    }
 	}
@@ -519,7 +520,7 @@ uint QColor::alloc()
 
     if ( try_again ) {				// no hope of allocating color
 	rgbVal |= RGB_INVALID;
-	pix = BlackPixel( dpy, scr );
+	pix = (uint)BlackPixel( dpy, scr );
 	return pix;
     }
     // All colors outside context 0 must go into the dictionary

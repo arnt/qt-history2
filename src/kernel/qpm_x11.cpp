@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#123 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#124 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#123 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#124 $");
 
 
 // For thread-safety:
@@ -255,7 +255,7 @@ void QPixmap::init( int w, int h, int d )
     }
     data->w = w;
     data->h = h;
-    hd = XCreatePixmap( dpy, DefaultRootWindow(dpy), w, h, data->d );
+    hd = (HANDLE)XCreatePixmap( dpy, DefaultRootWindow(dpy), w, h, data->d );
 }
 
 
@@ -306,7 +306,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 	flipped_bits = flip_bits( bits, ((w+7)/8)*h );
 	bits = flipped_bits;
     }
-    hd = XCreateBitmapFromData( dpy, DefaultRootWindow(dpy),
+    hd = (HANDLE)XCreateBitmapFromData( dpy, DefaultRootWindow(dpy),
 				(char *)bits, w, h );
     delete [] flipped_bits;
 }
@@ -664,9 +664,9 @@ QImage QPixmap::convertToImage() const
     bool ale = alpha.bitOrder() == QImage::LittleEndian;
 
     if ( trucol ) {				// truecolor
-	uint red_mask	 = visual->red_mask;
-	uint green_mask	 = visual->green_mask;
-	uint blue_mask	 = visual->blue_mask;
+	uint red_mask	 = (uint)visual->red_mask;
+	uint green_mask	 = (uint)visual->green_mask;
+	uint blue_mask	 = (uint)visual->blue_mask;
 	int  red_shift	 = highest_bit( red_mask )   - 7;
 	int  green_shift = highest_bit( green_mask ) - 7;
 	int  blue_shift	 = highest_bit( blue_mask )  - 7;
@@ -1050,7 +1050,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    bits = (char *)image.bits();
 	    tmp_bits = 0;
 	}
-	hd = XCreateBitmapFromData( dpy, DefaultRootWindow(dpy), bits, w, h );
+	hd = (HANDLE)XCreateBitmapFromData( dpy, DefaultRootWindow(dpy), bits, w, h );
 	delete [] tmp_bits;
 	data->w = w;  data->h = h;  data->d = 1;
 
@@ -1072,9 +1072,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     if ( trucol ) {				// truecolor display
 	QRgb  pix[256];				// pixel translation table
 	bool  d8 = d == 8;
-	uint  red_mask	  = visual->red_mask;
-	uint  green_mask  = visual->green_mask;
-	uint  blue_mask	  = visual->blue_mask;
+	uint  red_mask	  = (uint)visual->red_mask;
+	uint  green_mask  = (uint)visual->green_mask;
+	uint  blue_mask	  = (uint)visual->blue_mask;
 	int   red_shift	  = highest_bit( red_mask )   - 7;
 	int   green_shift = highest_bit( green_mask ) - 7;
 	int   blue_shift  = highest_bit( blue_mask )  - 7;
@@ -1313,7 +1313,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	hd = 0;
     }
     if ( !hd )					// create new pixmap
-	hd = XCreatePixmap( dpy, DefaultRootWindow(dpy), w, h, dd );
+	hd = (HANDLE)XCreatePixmap( dpy, DefaultRootWindow(dpy), w, h, dd );
 
     XPutImage( dpy, hd, qt_xget_readonly_gc(), xi, 0, 0, 0, 0, w, h );
     if ( data->opt == NoOptim ) {		// throw away image

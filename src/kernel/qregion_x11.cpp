@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#36 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#36 $");
 
 
 static QRegion *empty_region = 0;
@@ -359,7 +359,7 @@ struct _XRegion {
 
 QArray<QRect> QRegion::getRects() const
 {
-    QArray<QRect> a( data->rgn->numRects );
+    QArray<QRect> a( (int)data->rgn->numRects );
     BOX *r = data->rgn->rects;
     for ( int i=0; i<(int)a.size(); i++ ) {
 	// Note: the -1 are correct - see that setClipRect(r)
