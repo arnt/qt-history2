@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.h#3 $
+** $Id: //depot/qt/main/src/tools/qgarray.h#4 $
 **
 ** Definition of QGArray class
 **
 ** Author  : Haavard Nord
 ** Created : 930906
 **
-** Copyright (C) 1993 by Troll Tech as. All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -37,7 +37,7 @@ protected:
     bool	fill( const char *d, int len, uint sz );
 
     QGArray    &assign( const QGArray &a );
-    QGArray    &assign( char *d, uint len );
+    QGArray    &assign( const char *d, uint len );
     QGArray    &duplicate( const QGArray &a );
     QGArray    &duplicate( const char *d, uint len );
     void	store( const char *d, uint len );
