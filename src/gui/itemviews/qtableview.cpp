@@ -562,6 +562,9 @@ void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionF
 */
 QRect QTableView::visualRectForSelection(const QItemSelection &selection) const
 {
+    if (selection.isEmpty())
+        return QRect();
+
     int top = d->model->rowCount(rootIndex()) - 1;
     int left = d->model->columnCount(rootIndex()) - 1;
     int bottom = 0;

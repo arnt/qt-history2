@@ -1057,18 +1057,20 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
 */
 QRect QListView::visualRectForSelection(const QItemSelection &selection) const
 {
-    Q_D(const QListView);
-    // if we are updating just one, get the rect
-    if (selection.count() == 1 && selection.at(0).isValid()
-        && selection.at(0).top() == selection.at(0).bottom()) {
-        int row = selection.at(0).top();
-        int column = selection.at(0).left();
-        QModelIndex parent = selection.at(0).parent();
-        QModelIndex single = model()->index(row, column, parent);
-        return visualRect(single);
+    QRect selectionRect;
+    for (int i = 0; i<selection.count(); ++i) {
+        if (!selection.at(i).isValid())
+            continue;
+        QModelIndex tl = selection.at(i).topLeft();
+        QModelIndex br = selection.at(i).bottomRight();
+        QRect rangeRect;
+        for (int r=tl.row(); r<=br.row(); ++r)
+            for (int c=tl.column(); c<=br.column(); ++c)
+                rangeRect = rangeRect.unite(visualRect(model()->index(r, c, tl.parent())));
+        selectionRect = selectionRect.unite(rangeRect);
     }
-    // otherwise, just update the whole viewport
-    return d->viewport->rect();
+
+    return selectionRect;
 }
 
 /*!

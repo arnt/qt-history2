@@ -922,7 +922,7 @@ void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
 QRect QTreeView::visualRectForSelection(const QItemSelection &selection) const
 {
     Q_D(const QTreeView);
-    if (selection.count() <= 0 || d->viewItems.count() <= 0)
+    if (selection.isEmpty() || d->viewItems.isEmpty())
         return QRect();
 
     int top = d->viewItems.count();

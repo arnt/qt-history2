@@ -59,7 +59,10 @@ public:
         { return !operator==(other); }
 
     inline bool isValid() const
-        { return (tl.isValid() && br.isValid() && top() <= bottom() && left() <= right()); }
+    {
+        return (tl.isValid() && br.isValid() && tl.parent() == br.parent()
+                && top() <= bottom() && left() <= right());
+    }
 
     QModelIndexList indexes() const;
 
