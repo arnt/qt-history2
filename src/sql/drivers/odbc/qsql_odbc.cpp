@@ -931,7 +931,7 @@ bool QODBCResult::prepare( const QString& query )
 bool QODBCResult::exec()
 {
     SQLRETURN r;
-    QPtrList<QVirtualDestructor> tmpStorage; // holds temporary ptrs. which will be deleted on fu exit
+    QList<QVirtualDestructor*> tmpStorage; // holds temporary ptrs. which will be deleted on fu exit
     tmpStorage.setAutoDelete( TRUE );
 
     setActive( FALSE );
@@ -1124,7 +1124,7 @@ bool QODBCResult::exec()
     if ( hasOutValues() ) {
 	for ( i = 0; i < values.count(); ++i ) {    
 	
-	    SQLINTEGER* indPtr = qAutoDeleterData( (QAutoDeleter<SQLINTEGER>*)tmpStorage.getFirst() );
+	    SQLINTEGER* indPtr = qAutoDeleterData( (QAutoDeleter<SQLINTEGER>*)tmpStorage.first() );
 	    if ( !indPtr )
 		return FALSE;
 	    bool isNull = (*indPtr == SQL_NULL_DATA);
@@ -1139,37 +1139,37 @@ bool QODBCResult::exec()
 
 	    switch ( values[ i ].type() ) {
 		case QVariant::Date: {
-		    DATE_STRUCT * ds = qAutoDeleterData( (QAutoDeleter<DATE_STRUCT>*)tmpStorage.getFirst() );
+		    DATE_STRUCT * ds = qAutoDeleterData( (QAutoDeleter<DATE_STRUCT>*)tmpStorage.first() );
 		    values[i] = QVariant( QDate( ds->year, ds->month, ds->day ) );
 		    break; }
 		case QVariant::Time: {
-		    TIME_STRUCT * dt = qAutoDeleterData( (QAutoDeleter<TIME_STRUCT>*)tmpStorage.getFirst() );
+		    TIME_STRUCT * dt = qAutoDeleterData( (QAutoDeleter<TIME_STRUCT>*)tmpStorage.first() );
 		    values[i] = QVariant( QTime( dt->hour, dt->minute, dt->second ) );
 		    break; }
 		case QVariant::DateTime: {
-		    TIMESTAMP_STRUCT * dt = qAutoDeleterData( (QAutoDeleter<TIMESTAMP_STRUCT>*)tmpStorage.getFirst() );
+		    TIMESTAMP_STRUCT * dt = qAutoDeleterData( (QAutoDeleter<TIMESTAMP_STRUCT>*)tmpStorage.first() );
 		    values[i] = QVariant( QDateTime( QDate( dt->year, dt->month, dt->day ), 
 								       QTime( dt->hour, dt->minute, dt->second ) ) );
 		    break; }
 	        case QVariant::Int: {
-		    int * v = qAutoDeleterData( (QAutoDeleter<int>*)tmpStorage.getFirst() );
+		    int * v = qAutoDeleterData( (QAutoDeleter<int>*)tmpStorage.first() );
 		    values[i] = QVariant( *v );
 		    break; }
 	        case QVariant::Double: {
-		    double * v = qAutoDeleterData( (QAutoDeleter<double>*)tmpStorage.getFirst() );
+		    double * v = qAutoDeleterData( (QAutoDeleter<double>*)tmpStorage.first() );
 		    values[i] = QVariant( *v );
 		    break; }
 	        case QVariant::ByteArray:
 		    break;
 	        case QVariant::String:
 		    if ( d->unicode ) {
-			QString * str = qAutoDeleterData( (QAutoDeleter<QString>*)tmpStorage.getFirst() );
+			QString * str = qAutoDeleterData( (QAutoDeleter<QString>*)tmpStorage.first() );
 			values[i] = QVariant( *str );
 			break;
 		    }
 		    // fall through
 	        default: {
-		    QByteArray * str = qAutoDeleterData( (QAutoDeleter<QByteArray>*)tmpStorage.getFirst() );
+		    QByteArray * str = qAutoDeleterData( (QAutoDeleter<QByteArray>*)tmpStorage.first() );
 		    values[i] = QVariant( *str );
 		    break; }
 	    }
