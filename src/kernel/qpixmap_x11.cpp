@@ -139,7 +139,7 @@ static bool qt_create_mitshm_buffer( const QPaintDevice* dev, int w, int h )
     if ( ok ) {
 	xshmimg->data = (char*)shmat( xshminfo.shmid, 0, 0 );
 	xshminfo.shmaddr = xshmimg->data;
-	ok = xshminfo.shmaddr != 0;
+	ok = ( xshminfo.shmaddr != (char*)-1 );
     }
     xshminfo.readOnly = FALSE;
     if ( ok )
