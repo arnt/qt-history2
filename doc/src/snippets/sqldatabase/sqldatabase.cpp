@@ -1,6 +1,10 @@
 #include <QtSql>
 #include <QPixmap>
 
+#include <iostream>
+
+using namespace std;
+
 void QSqlDatabase_snippets()
 {
     {
@@ -38,8 +42,108 @@ void QSqlField_snippets()
     }
 }
 
+void doSomething(const QString &)
+{
+}
+
+void QSqlQuery_snippets()
+{
+    {
+    // typical loop
+    QSqlQuery query("SELECT country FROM artist");
+    while (query.next()) {
+        QString country = query.value(0).toString();
+        doSomething(country);
+    }
+    }
+
+    {
+    // field index lookup
+    QSqlQuery query("SELECT * FROM artist");
+    int fieldNo = query.record().indexOf("country");
+    while (query.next()) {
+        QString country = query.value(fieldNo).toString();
+        doSomething(country);
+    }
+    }
+
+    {
+    // named with named
+    QSqlQuery query;
+    query.prepare("INSERT INTO person (id, forename, surname) "
+                   "VALUES (:id, :forename, :surname)");
+    query.bindValue(":id", 1001);
+    query.bindValue(":forename", "Bart");
+    query.bindValue(":surname", "Simpson");
+    query.exec();
+    }
+
+    {
+    // positional with named
+    QSqlQuery query;
+    query.prepare("INSERT INTO person (id, forename, surname) "
+                   "VALUES (:id, :forename, :surname)");
+    query.bindValue(0, 1001);
+    query.bindValue(1, "Bart");
+    query.bindValue(2, "Simpson");
+    query.exec();
+    }
+
+    {
+    // positional 1
+    QSqlQuery query;
+    query.prepare("INSERT INTO person (id, forename, surname) "
+                   "VALUES (?, ?, ?)");
+    query.bindValue(0, 1001);
+    query.bindValue(1, "Bart");
+    query.bindValue(2, "Simpson");
+    query.exec();
+    }
+
+    {
+    // positional 2
+    QSqlQuery query;
+    query.prepare("INSERT INTO person (id, forename, surname) "
+                   "VALUES (?, ?, ?)");
+    query.addBindValue(1001);
+    query.addBindValue("Bart");
+    query.addBindValue("Simpson");
+    query.exec();
+    }
+
+    {
+    // stored
+    QSqlQuery query;
+    query.prepare("call AsciiToInt(?, ?)");
+    query.bindValue(0, "A");
+    query.bindValue(1, 0, QSql::Out);
+    query.exec();
+    int i = query.boundValue(1).toInt(); // i is 65
+    Q_UNUSED(i);
+    }
+
+    QSqlQuery query;
+
+    {
+    // examine with named binding
+    QMapIterator<QString, QCoreVariant> i(query.boundValues());
+    while (i.hasNext()) {
+        i.next();
+        cout << i.key().ascii() << ": " << i.value().toString().ascii() << endl;
+    }
+    }
+
+    {
+    // examine with positional binding
+    QList<QCoreVariant> list = query.boundValues().values();
+    for (int i = 0; i < list.size(); ++i)
+        cout << i << ": " << list.at(i).toString().ascii() << endl;
+    }
+}
+
 int main()
 {
     QSqlDatabase_snippets();
     QSqlField_snippets();
+    QSqlQuery_snippets();
 }
