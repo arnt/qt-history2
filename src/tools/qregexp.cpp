@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#57 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#58 $
 **
 ** Implementation of QRegExp class
 **
@@ -715,6 +715,16 @@ void QRegExp::compile()
 			    while ( start++ < stop )
 				cc[start] = 1;
 			}
+		    } else if ( *p == '\\' && *(p+1) && *(p+1) == 's' ) {
+			// white space primitive
+			cc[9] = 1;
+			cc[10] = 1;
+			cc[11] = 1;
+			cc[12] = 1;
+			cc[13] = 1;
+			cc[32] = 1;
+			p++;
+			p++;
 		    } else {			// normal char
 			cc[(prev_c=char_val(&p))] = 1;
 		    }
