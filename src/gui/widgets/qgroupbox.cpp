@@ -252,13 +252,21 @@ void QGroupBox::paintEvent(QPaintEvent *event)
         QRect r(x, 0, tw, h);
         int va = style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, &opt, this);
         if(va & Qt::AlignTop)
-            r.moveBy(0, fm.descent());
+            r.moveBy(0, -fm.descent());
         QColor pen((QRgb) style().styleHint(QStyle::SH_GroupBox_TextLabelColor, &opt, this));
         if (!style().styleHint(QStyle::SH_UnderlineShortcut, &opt, this))
             va |= Qt::TextHideMnemonic;
         style().drawItem(&paint, r, Qt::TextShowMnemonic | Qt::AlignHCenter | va, palette(),
                           isEnabled(), d->title, -1, testAttribute(Qt::WA_SetPalette) ? 0 : &pen);
-        paint.setClipRegion(event->region().subtract(r)); // clip everything but title
+
+        QBitmap bm(r.width(), r.height(), true);
+        QPainter bm_paint(&bm);
+        style().drawItem(&bm_paint, QRect(0, 0, bm.width(), bm.height()), 
+                         Qt::TextShowMnemonic | Qt::AlignHCenter | va, palette(),
+                         isEnabled(), d->title, -1, testAttribute(Qt::WA_SetPalette) ? 0 : &pen);
+        QRegion title_reg(bm);
+        title_reg.translate(r.x(), r.y());
+        paint.setClipRegion(event->region().subtract(title_reg)); // clip everything but title
     } else if (d->checkbox) {
         QRect cbClip = d->checkbox->geometry();
         QFontMetrics fm = paint.fontMetrics();
