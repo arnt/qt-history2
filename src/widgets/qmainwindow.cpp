@@ -635,7 +635,7 @@ void QHideToolTip::maybeTip( const QPoint &pos )
     whether or not the dock window menu should include a particular
     dock window. Double clicking a dock window handle (usually on the
     left-hand side of the dock window) undocks (floats) the dock
-    window. Double clicking a floating dock window's titlebar will
+    window. Double clicking a floating dock window's title bar will
     dock the floating dock window. (See also
     \l{QMainWindow::DockWindows}.)
 

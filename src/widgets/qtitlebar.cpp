@@ -492,7 +492,7 @@ void QTitleBar::mouseDoubleClickEvent( QMouseEvent *e )
 }
 
 #ifdef QT_NO_WIDGET_TOPEXTRA
-// We provide one, since titlebar is useless otherwise.
+// We provide one, since title bar is useless otherwise.
 QString QTitleBar::windowCaption() const
 {
     return d->cap;

@@ -1346,12 +1346,12 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	contain the mouse when auto-raise is enabled.
 
     \row \i \l{CC_TitleBar}(const \l QWidget *)
-	 \i \l Style_Enabled \i Set if the titlebar is enabled.
+	 \i \l Style_Enabled \i Set if the title bar is enabled.
 	 \i Unused.
 	 \i &nbsp;
 
     \row \i \l{CC_ListView}(const \l QListView *)
-	 \i \l Style_Enabled \i Set if the titlebar is enabled.
+	 \i \l Style_Enabled \i Set if the title bar is enabled.
 	 \i \l QStyleOption ( \l QListViewItem *item )
 	    \list
 	    \i opt.\link QStyleOption::listViewItem() listViewItem\endlink()
@@ -1714,7 +1714,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value SH_Workspace_FillSpaceOnMaximize the workspace should
 	maximize the client area.
 
-    \value SH_TitleBar_NoBorder the titlebar has no border
+    \value SH_TitleBar_NoBorder the title bar has no border
 
     \value SH_ScrollBar_StopMouseOverSlider stops autorepeat when
 	slider reaches mouse
@@ -1765,13 +1765,13 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     can follow some existing GUI style or guideline.
 
 
-    \value SP_TitleBarMinButton  minimize button on titlebars. For
+    \value SP_TitleBarMinButton  minimize button on title bars. For
 	example, in a QWorkspace.
-    \value SP_TitleBarMaxButton  maximize button on titlebars.
-    \value SP_TitleBarCloseButton  close button on titlebars.
-    \value SP_TitleBarNormalButton  normal (restore) button on titlebars.
-    \value SP_TitleBarShadeButton  shade button on titlebars.
-    \value SP_TitleBarUnshadeButton  unshade button on titlebars.
+    \value SP_TitleBarMaxButton  maximize button on title bars.
+    \value SP_TitleBarCloseButton  close button on title bars.
+    \value SP_TitleBarNormalButton  normal (restore) button on title bars.
+    \value SP_TitleBarShadeButton  shade button on title bars.
+    \value SP_TitleBarUnshadeButton  unshade button on title bars.
     \value SP_MessageBoxInformation the 'information' icon.
     \value SP_MessageBoxWarning the 'warning' icon.
     \value SP_MessageBoxCritical the 'critical' icon.

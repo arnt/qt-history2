@@ -52,11 +52,11 @@
   option.
 
   \printto else
-  A titlebar with controls is provided if the appropriate options
+  A title bar with controls is provided if the appropriate options
   have been checked.
 
   \printto QWidget *parent
-  If the window should not have a border it cannot have a titlebar.
+  If the window should not have a border it cannot have a title bar.
   Widgets that provide their own (e.g. themed) window decoration
   should use this flag.
 

@@ -214,7 +214,7 @@ public:
   share the parent's taskbar entry.
 
   The widget flags \a f are passed on to the QWidget constructor.
-  If, for example, you don't want a What's This button in the titlebar
+  If, for example, you don't want a What's This button in the title bar
   of the dialog, pass WStyle_Customize | WStyle_NormalBorder |
   WStyle_Title | WStyle_SysMenu in \a f.
 
@@ -294,16 +294,16 @@ void QDialog::hideDefault()
 #ifdef Q_OS_TEMP
 /*!
   \internal
-  Hides special buttons which are rather shown in the titlebar
+  Hides special buttons which are rather shown in the title bar
   on WinCE, to conserve screen space.
 */
 # include "qmessagebox.h"
 extern const char * mb_texts[]; // Defined in qmessagebox.cpp
 void QDialog::hideSpecial()
 {
-    // "OK"     buttons are hidden, and (Ok) shown on titlebar
-    // "Cancel" buttons are hidden, and (X)  shown on titlebar
-    // "Help"   buttons are hidden, and (?)  shown on titlebar
+    // "OK"     buttons are hidden, and (Ok) shown on title bar
+    // "Cancel" buttons are hidden, and (X)  shown on title bar
+    // "Help"   buttons are hidden, and (?)  shown on title bar
     bool showOK = FALSE,
 	 showX  = FALSE,
 	 showQ  = FALSE;

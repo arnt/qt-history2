@@ -487,7 +487,7 @@
 #define QT_NO_STYLE_WINDOWS
 #endif
 
-// Internal titlebar widget
+// Internal title bar widget
 #if !defined(QT_NO_TITLEBAR) && (defined(QT_NO_STYLE))
 #define QT_NO_TITLEBAR
 #endif

@@ -92,7 +92,7 @@
                 <bool>true</bool>
             </property>
             <property name="whatsThis" stdset="0">
-                <string>Select different controls you want to see in the titlebar, or turn the titlebar off. Popup windows should not have a titlebar.</string>
+                <string>Select different controls you want to see in the title bar, or turn the title bar off. Popup windows should not have a title bar.</string>
             </property>
             <vbox>
                 <property name="name">
@@ -256,7 +256,7 @@
                         <string>A tool window</string>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Makes the window a tool window. Tool windows often have a smaller titlebar and decoration, and don't activate automtically when displayed. Tool windows often cannot have their own taskbar entry.</string>
+                        <string>Makes the window a tool window. Tool windows often have a smaller title bar and decoration, and don't activate automtically when displayed. Tool windows often cannot have their own taskbar entry.</string>
                     </property>
                 </widget>
                 <widget class="QCheckBox">

@@ -1351,7 +1351,7 @@ void QFocusEvent::resetReason()
 
     Close events are sent to widgets that the user wants to close,
     usually by choosing "Close" from the window menu, or by clicking
-    the `X' titlebar button. They are also sent when you call
+    the `X' title bar button. They are also sent when you call
     QWidget::close() to close a widget programmatically.
 
     Close events contain a flag that indicates whether the receiver

@@ -619,7 +619,7 @@ public:
 	// bool - supports popup menu comboboxes
 	SH_ComboBox_Popup,
 
-	// bool - titlebar has no border
+	// bool - title bar has no border
 	SH_TitleBar_NoBorder,
 
 	// bool - stop scrollbar at mouse

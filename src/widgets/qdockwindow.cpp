@@ -697,7 +697,7 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
     window will be docked. If the user drags the dock area outside any
     dock areas the dock window will be undocked (floated) and will
     become a top level window. Double clicking a floating dock
-    window's titlebar will dock the dock window to the last dock area
+    window's title bar will dock the dock window to the last dock area
     it was docked in. Double clicking a docked dock window's handle
     will undock (float) the dock window.
     \omit
