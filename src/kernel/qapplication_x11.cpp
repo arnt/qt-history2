@@ -730,9 +730,9 @@ static void qt_set_input_encoding()
 	// XIMs, and since we cannot get a sensible answer about the encoding
 	// from the XIM.
 	input_mapper = QTextCodec::codecForLocale();
-	
+
     } else {
-	if ( !strcasecmp( data, "locale" ) ) 
+	if ( !strcasecmp( data, "locale" ) )
 	    input_mapper = QTextCodec::codecForLocale();
 	else
 	    input_mapper = QTextCodec::codecForName( data );
@@ -2381,6 +2381,17 @@ int QApplication::exec()
 
     enter_loop();
 
+    if ( !loop_level ) {
+	QWidgetList *list = qApp->topLevelWidgets();
+	QWidgetListIt it(*list);
+	QWidget * w;
+	while( (w=it.current()) != 0 ) {
+	    ++it;
+	    if ( w->testWFlags( WDestructiveClose ) )
+		delete w;
+	}
+    }
+
     return quit_code;
 }
 
@@ -2692,7 +2703,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    qt_set_x11_resources();
 		else if ( event->xproperty.atom == qt_desktop_properties )
 		    qt_set_desktop_properties();
-	    } 
+	    }
 	} else if ( widget ) { // widget properties
 	    // nothing yet
 	}

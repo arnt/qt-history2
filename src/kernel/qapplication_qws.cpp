@@ -280,7 +280,7 @@ class QWSDisplayData {
 public:
     QWSDisplayData( QObject* parent, bool singleProcess = FALSE )
     {
-#ifndef QT_NO_QWS_MULTIPROCESS	
+#ifndef QT_NO_QWS_MULTIPROCESS
 	if ( singleProcess )
 	    csocket = 0;
 	else
@@ -362,7 +362,7 @@ public:
 	if  ( csocket )
 	    cmd.write( csocket );
 	else
-#endif	
+#endif
 	    qt_server_enqueue( &cmd );
     }
 
@@ -460,7 +460,7 @@ void QWSDisplayData::init()
 	sharedRamSize = qwsSharedRamSize;
 
 #ifndef QT_NO_QWS_MULTIPROCESS
-	
+
 	key_t memkey = ftok( pipe.latin1(), 'm' );
 	int ramid=shmget(memkey,sharedRamSize,IPC_CREAT|0666);
 	if(ramid<0) {
@@ -472,7 +472,7 @@ void QWSDisplayData::init()
 	}
 #else
 	sharedRam=(uchar *)malloc(sharedRamSize);
-#endif	
+#endif
 	// Need to zero index count at end of block, might as well zero
 	// the rest too
 	memset(sharedRam,0,sharedRamSize);
@@ -600,7 +600,7 @@ void QWSDisplayData::fillQueue()
 	    } else {
 		queue.append(e);
 	    }
-#ifndef QT_NO_COP	
+#ifndef QT_NO_COP
 	} else if ( e->type == QWSEvent::QCopMessage ) {
 	    QWSQCopMessageEvent *pe = (QWSQCopMessageEvent*)e;
 	    if ( pe->simpleData.is_response ) {
@@ -608,7 +608,7 @@ void QWSDisplayData::fillQueue()
 	    } else {
 		queue.append(e);
 	    }
-#endif	
+#endif
 	} else {
 	    queue.append(e);
 	}
@@ -1864,6 +1864,17 @@ int QApplication::exec()
 
     enter_loop();
 
+    if ( !loop_level ) {
+	QWidgetList *list = qApp->topLevelWidgets();
+	QWidgetListIt it(*list);
+	QWidget * w;
+	while( (w=it.current()) != 0 ) {
+	    ++it;
+	    if ( w->testWFlags( WDestructiveClose ) )
+		delete w;
+	}
+    }
+
     return quit_code;
 }
 
@@ -2411,7 +2422,7 @@ void QApplication::closePopup( QWidget *popup )
 	popupWidgets = 0;
 	if ( popupGrabOk ) {	// grabbing not disabled
 	    	QPaintDevice::qwsDisplay()->grabMouse(popup,FALSE);
-	
+
 	    // XXX ungrab keyboard
 	}
 	active_window = (*activeBeforePopup);
@@ -3030,11 +3041,11 @@ bool QETWidget::translateKeyEvent( const QWSKeyEvent *event, bool grab )
 	if ( a.isAccepted() )
 	    return TRUE;
     }
-    
-    
+
+
     //###### TODO lacks AccelOverride functionality, see qapplication_x11 for details
-    
-    
+
+
     return qt_propagateKeyEvent( this, &e );
 }
 

@@ -66,6 +66,18 @@ int QApplication::exec()
     quit_now=FALSE;
     quit_code=0;
     enter_loop();
+
+    if ( !loop_level ) {
+	QWidgetList *list = qApp->topLevelWidgets();
+	QWidgetListIt it(*list);
+	QWidget * w;
+	while( (w=it.current()) != 0 ) {
+	    ++it;
+	    if ( w->testWFlags( WDestructiveClose ) )
+		delete w;
+	}
+    }
+
     return quit_code;
 }
 

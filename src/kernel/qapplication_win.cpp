@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#417 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#418 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1267,6 +1267,18 @@ int QApplication::exec()
     qApp->unlock();
 #endif
     enter_loop();
+
+    if ( !loop_level ) {
+	QWidgetList *list = qApp->topLevelWidgets();
+	QWidgetListIt it(*list);
+	QWidget * w;
+	while( (w=it.current()) != 0 ) {
+	    ++it;
+	    if ( w->testWFlags( WDestructiveClose ) )
+		delete w;
+	}
+    }
+    
     return quit_code;
 }
 
@@ -1538,7 +1550,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		}
 	    }
 	    widget->translateMouseEvent( msg );	// mouse event
-	} else if ( message == WM95_MOUSEWHEEL ) { 
+	} else if ( message == WM95_MOUSEWHEEL ) {
 	    result = widget->translateWheelEvent( msg );
 	} else
 	    switch ( message ) {
@@ -1829,7 +1841,7 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
 	    modal = qt_modal_stack->next();
 	    if ( p == groupLeader ) unrelated = FALSE;
 	}
-	
+
 	if ( unrelated )
 	    return TRUE;		// don't block event
     }
@@ -2312,7 +2324,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	pos.ry() = (short)curPos.y;
     } else {
 	GetCursorPos( &gpos );
-	pos = mapFromGlobal( QPoint(gpos.x, gpos.y) );	
+	pos = mapFromGlobal( QPoint(gpos.x, gpos.y) );
 
 	if ( type == QEvent::MouseButtonPress ) {	// mouse button pressed
 	    // Magic for masked widgets
