@@ -5,29 +5,26 @@
 ####### Directories
 
 BASEDIR =	$(QTDIR)
-INCDIR	=	$(BASEDIR)/include
-LIBDIR	=	$(BASEDIR)/lib
+INCDIR	=	../tools
+LIBDIR	=	$(BASEDIR)\lib
 
 ####### Compiler
 
 CFLAGS	=	-O2
 CC	=	gcc
 
-# $Source: /tmp/cvs/qt/src/moc/Makefile,v $
-#
-
-# More defines
+####### Lex and yacc
 
 LEX	=	flex
 YACC	=	yacc -d
 
 ####### Files
 
-SOURCES =	moc.l moc.y moc.cpp
+SOURCES =	moc.l		moc.y
 LEXOUT	=	lex.yy.c
 YACCOUT =	y.tab.c
 YACCHDR =	y.tab.h
-TMPCPP	=	moc.cpp
+TMPCPP	=	moc_gen.cpp
 TOOLOBJ =	qbuffer.o	\
 		qcollect.o	\
 		qdatetm.o	\
@@ -39,34 +36,31 @@ TOOLOBJ =	qbuffer.o	\
 		qgvector.o	\
 		qiodev.o	\
 		qstring.o
-OBJECTS =	moc.o
+OBJECTS =	moc_gen.o
 TARGET	=	moc
 
 ####### Implicit rules
 
-.SUFFIXES:
-.SUFFIXES: .cpp $(SUFFIXES)
+.SUFFIXES: .cpp
 
 .cpp.o:
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $<
+	$(CC) -c $(CFLAGS) -I. -I$(INCDIR) $<
 
 ####### Build rules
 
-all: $(SOURCES) $(TARGET)
+all: $(TARGET)
 
 $(TARGET): $(OBJECTS) $(TOOLOBJ)
 	$(CC) $(OBJECTS) $(TOOLOBJ) -o $(TARGET)
-
-include:
 
 depend:
 	makedepend -I$(INCDIR) $(SOURCES) 2> /dev/null
 
 clean:
-	rm -f *.o *.bak *.BAK *~ *% #*
-	rm -f $(TARGET) $(YACCOUT) $(YACCHDR)
+	-rm -f *.o *.bak *~ *% #*
+	-rm -f $(TARGET) $(YACCOUT) $(YACCHDR)
 
-####### Lex/yacc etc.
+####### Process lex/yacc files
 
 $(LEXOUT): moc.l
 	$(LEX) moc.l
@@ -75,40 +69,40 @@ $(TMPCPP): moc.y $(LEXOUT)
 	$(YACC) moc.y
 	mv $(YACCOUT) $(TMPCPP)
 
-####### Tools needed for moc
+####### External files used by the moc
 
 qbuffer.o: ../tools/qbuffer.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qbuffer.cpp -o qbuffer.o
+	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
 qcollect.o: ../tools/qcollect.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qcollect.cpp -o qcollect.o
+	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
 qdatetm.o: ../tools/qdatetm.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qdatetm.cpp -o qdatetm.o
+	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
 qdstream.o: ../tools/qdstream.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qdstream.cpp -o qdstream.o
+	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
 qgarray.o: ../tools/qgarray.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qgarray.cpp -o qgarray.o
+	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
 qgdict.o: ../tools/qgdict.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qgdict.cpp -o qgdict.o
+	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
 qglist.o: ../tools/qglist.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qglist.cpp -o qglist.o
+	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
 qglobal.o: ../tools/qglobal.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qglobal.cpp -o qglobal.o
+	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
 qgvector.o: ../tools/qgvector.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qgvector.cpp -o qgvector.o
+	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
 qiodev.o: ../tools/qiodev.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qiodev.cpp -o qiodev.o
+	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
 qstring.o: ../tools/qstring.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qstring.cpp -o qstring.o
+	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
