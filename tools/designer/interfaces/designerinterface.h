@@ -71,6 +71,7 @@ struct DesignerInterface : public QUnknownInterface
 struct DesignerProject
 {
     virtual QList<DesignerFormWindow> formList() const = 0;
+    virtual QStringList formNames() const = 0;
     virtual QObjectList *preview( QWidget *mainWidget ) = 0;
     virtual void addForm( DesignerFormWindow * ) = 0;
     virtual void removeForm( DesignerFormWindow * ) = 0;
@@ -113,6 +114,8 @@ struct DesignerDatabase
 
 struct DesignerFormWindow
 {
+    virtual QString name() const = 0;
+    virtual void setName( const QString &n ) = 0;
     virtual QString fileName() const = 0;
     virtual void setFileName( const QString & ) = 0;
     virtual void save() const = 0;

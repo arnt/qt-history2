@@ -120,6 +120,8 @@ public:
 
     DesignerProject *iFace();
 
+    QString formName( const QString &uifile );
+
 private:
     void parse();
     void clear();

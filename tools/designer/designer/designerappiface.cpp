@@ -91,7 +91,7 @@ void DesignerInterfaceImpl::showStatusMessage( const QString &text, int ms ) con
     }
     if ( ms )
 	mainWindow->statusBar()->message( text, ms );
-    else 
+    else
 	mainWindow->statusBar()->message( text );
 }
 
@@ -134,7 +134,17 @@ DesignerProjectImpl::DesignerProjectImpl( Project *pr )
 
 QList<DesignerFormWindow> DesignerProjectImpl::formList() const
 {
+
     return QList<DesignerFormWindow>();
+}
+
+QStringList DesignerProjectImpl::formNames() const
+{
+    QStringList lst = project->uiFiles();
+    QStringList l;
+    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it )
+	l << project->formName( *it );
+    return l;
 }
 
 QObjectList *DesignerProjectImpl::preview( QWidget *mainWidget )
@@ -310,6 +320,16 @@ void DesignerDatabaseImpl::setTables( const QStringList & )
 DesignerFormWindowImpl::DesignerFormWindowImpl( FormWindow *fw )
     : formWindow( fw )
 {
+}
+
+QString DesignerFormWindowImpl::name() const
+{
+    return formWindow->name();
+ }
+
+void DesignerFormWindowImpl::setName( const QString &n )
+{
+    formWindow->setName( n );
 }
 
 QString DesignerFormWindowImpl::fileName() const

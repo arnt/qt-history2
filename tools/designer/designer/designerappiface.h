@@ -62,6 +62,7 @@ public:
     DesignerProjectImpl( Project *pr );
 
     QList<DesignerFormWindow> formList() const;
+    QStringList formNames() const;
     QObjectList *preview( QWidget *mainWidget );
     void addForm( DesignerFormWindow * );
     void removeForm( DesignerFormWindow * );
@@ -117,6 +118,8 @@ class DesignerFormWindowImpl: public DesignerFormWindow
 public:
     DesignerFormWindowImpl( FormWindow *fw );
 
+    QString name() const;
+    void setName( const QString &n );
     QString fileName() const;
     void setFileName( const QString & );
     void save() const;
