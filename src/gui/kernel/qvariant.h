@@ -35,7 +35,6 @@ class QPolygon;
 class QRegion;
 class QBitmap;
 class QCursor;
-class QObject;
 class QStringList;
 class QSizePolicy;
 class QKeySequence;
@@ -109,7 +108,6 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     inline QVariant(const QDate &date);
     inline QVariant(const QTime &time);
     inline QVariant(const QDateTime &datetime);
-    inline QVariant(QObject *object);
 #ifndef QT_NO_TEMPLATE_VARIANT
     inline QVariant(const QList<QCoreVariant> &list);
     inline QVariant(const QMap<QString,QCoreVariant> &map);
@@ -207,7 +205,6 @@ inline QVariant::QVariant(const QUrl &url): QCoreVariant(url) {}
 inline QVariant::QVariant(const QDate &date) : QCoreVariant(date) {}
 inline QVariant::QVariant(const QTime &time) : QCoreVariant(time) {}
 inline QVariant::QVariant(const QDateTime &datetime) : QCoreVariant(datetime) {}
-inline QVariant::QVariant(QObject *object) : QCoreVariant(object) {}
 #ifndef QT_NO_TEMPLATE_VARIANT
 inline QVariant::QVariant(const QList<QCoreVariant> &list) : QCoreVariant(list) {}
 inline QVariant::QVariant(const QMap<QString, QCoreVariant> &map) : QCoreVariant(map) {}

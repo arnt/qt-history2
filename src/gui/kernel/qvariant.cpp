@@ -643,14 +643,6 @@ const QVariant::Handler qt_gui_variant_handler = {
 */
 
 /*!
-    \fn QVariant::QVariant(QObject *object)
-
-    \internal
-
-    Constructs a variant that stores the given \a object.
-*/
-
-/*!
     \fn QVariant::QVariant(int typeOrUserType, const void *v);
 
     \internal
