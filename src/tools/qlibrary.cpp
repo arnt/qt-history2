@@ -326,14 +326,19 @@ QString QLibrary::library() const
     if ( filename.find( ".dylib" ) == -1 )
 	filename += ".dylib";
 #else
-    if ( filename.find( ".so" ) == -1 ) {
+#ifndef Q_OS_HPUX
+    QString filter = ".so";
+#else
+    QString filter = ".sl";
+#endif
+    if ( filename.find(filter) == -1 ) {
 	const int x = filename.findRev( "/" );
 	if ( x != -1 ) {
 	    QString path = filename.left( x + 1 );
 	    QString file = filename.right( filename.length() - x - 1 );
-	    filename = QString( "%1lib%2.so" ).arg( path ).arg( file );
+	    filename = QString( "%1lib%2.%3" ).arg( path ).arg( file ).arg( filter );
 	} else {
-	    filename = QString( "lib%1.so" ).arg( filename );
+	    filename = QString( "lib%1.%2" ).arg( filename ).arg( filter );
 	}
     }
 #endif
