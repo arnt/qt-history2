@@ -736,7 +736,8 @@ LayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTa
 
     // ### speed up
     // layout out child frames in that cell first
-    foreach (QTextFrame *frame, t->childFrames()) {
+    for (int i = 0; i < t->childFrames().size(); ++i){
+        QTextFrame *frame = t->childFrames().at(i);
         if (isFrameInCell(cell, frame)) {
             QTextFrameData *cd = data(frame);
             if (cd->sizeDirty)
@@ -756,8 +757,8 @@ LayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTa
     // layoutFlow with regards to the cell height (layoutStruct->y), so for a safety measure we
     // do that here. For example with <td><img align="right" src="..." />blah</td>
     // when the image happens to be higher than the text
-    foreach (QTextFrame *frame, floats)
-        layoutStruct.y = qMax(layoutStruct.y, data(frame)->size.height());
+    for (int i = 0; i < floats.size(); ++i)
+        layoutStruct.y = qMax(layoutStruct.y, data(floats.at(i))->size.height());
 
     // constraint the maximumWidth by the minimum width of the fixed size floats, to
     // keep them visible
@@ -772,11 +773,13 @@ LayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTa
 void QTextDocumentLayoutPrivate::setCellPosition(QTextTable *t, const QTextTableCell &cell, const QPoint &pos)
 {
     // #### don't we add the offset twice here????
-    foreach (QTextFrame *frame, t->childFrames())
+    for (int i = 0; i < t->childFrames().size(); ++i) {
+        QTextFrame *frame = t->childFrames().at(i);
         if (isFrameInCell(cell, frame)) {
             QTextFrameData *cd = data(frame);
             cd->position += pos;
         }
+    }
 
     for (QTextFrame::Iterator it = cell.begin(); !it.atEnd(); ++it) {
         if (QTextFrame *c = it.currentFrame()) {
@@ -1365,8 +1368,8 @@ void QTextDocumentLayoutPrivate::floatMargins(int y, const LayoutStruct *layoutS
     *left = layoutStruct->x_left;
     *right = layoutStruct->x_right;
     QTextFrameData *lfd = data(layoutStruct->frame);
-    foreach (QTextFrame *f, lfd->floats) {
-        QTextFrameData *fd = data(f);
+    for (int i = 0; i < lfd->floats.size(); ++i) {
+        QTextFrameData *fd = data(lfd->floats.at(i));
         if (!fd->layoutDirty) {
             if (fd->position.y() <= y && fd->position.y() + fd->size.height() > y) {
 //                 qDebug() << "adjusting with float" << f << fd->position.x()<< fd->size.width();
@@ -1396,10 +1399,9 @@ int QTextDocumentLayoutPrivate::findY(int yFrom, const LayoutStruct *layoutStruc
         // move float down until we find enough space
         int newY = INT_MAX;
         QTextFrameData *lfd = data(layoutStruct->frame);
-        foreach (QTextFrame *f, lfd->floats) {
-            QTextFrameData *fd = data(f);
+        for (int i = 0; i < lfd->floats.size(); ++i) {
+            QTextFrameData *fd = data(lfd->floats.at(i));
             if (!fd->layoutDirty) {
-                QTextFrameData *fd = data(f);
                 if (fd->position.y() <= yFrom && fd->position.y() + fd->size.height() > yFrom)
                     newY = qMin(newY, fd->position.y() + fd->size.height());
             }
