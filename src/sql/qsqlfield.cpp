@@ -188,9 +188,7 @@ void QSqlField::setValue( const QVariant& value )
 	setNull( FALSE );
 }
 
-/*! \fn void QSqlField::clear()
-
-  Clears the value of the field.  If the field is read-only, nothing
+/*!  Clears the value of the field.  If the field is read-only, nothing
   happens.  If \a nullify is TRUE (the default), the field is
   set to NULL.
 */
