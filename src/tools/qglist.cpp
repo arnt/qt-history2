@@ -534,14 +534,12 @@ bool QGList::removeNode( QLNode *n )
 
 bool QGList::remove( QPtrCollection::Item d )
 {
-    if ( d ) {					// find the item
-	if ( find(d) == -1 )
-	    return FALSE;
-    }
-    QLNode *n = unlink();			// unlink node
+    if ( find(d) == -1 )
+	return FALSE;
+    QLNode *n = unlink();
     if ( !n )
 	return FALSE;
-    deleteItem( n->data );			// deallocate this node
+    deleteItem( n->data );
     delete n;
     return TRUE;
 }
@@ -552,14 +550,12 @@ bool QGList::remove( QPtrCollection::Item d )
 
 bool QGList::removeRef( QPtrCollection::Item d )
 {
-    if ( d ) {					// find the item
-	if ( findRef(d) == -1 )
-	    return FALSE;
-    }
-    QLNode *n = unlink();			// unlink node
+    if ( findRef(d) == -1 )
+	return FALSE;
+    QLNode *n = unlink();
     if ( !n )
 	return FALSE;
-    deleteItem( n->data );			// deallocate this node
+    deleteItem( n->data );
     delete n;
     return TRUE;
 }
