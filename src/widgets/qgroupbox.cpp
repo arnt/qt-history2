@@ -44,10 +44,6 @@
   (i.e. child widgets) are logically related.  QPrintDialog is a good
   example; each of its three panes is one group box.
 
-  By default, the group's setFont() and setPalette() functions do not
-  change the appearance of the widgets it contains, but you can use
-  setFontPropagation() and setPalettePropagation() to change that.
-
   Qt also provides a more specialized group box, QButtonGroup, that is
   very useful for organizing buttons in a group.
 

@@ -63,10 +63,6 @@
   using the insert() function with an identifer.
   </ol>
 
-  By default, the button group's setFont() and setPalette() functions
-  do not change the appearance of the buttons, but you can use
-  setFontPropagation() and setPalettePropagation() to change that.
-
   <img src=qbttngrp-m.png> <img src=qbttngrp-w.png>
 
   \sa QButton, QPushButton, QCheckBox, QRadioButton
@@ -151,8 +147,6 @@ QButtonGroup::QButtonGroup( int strips, Orientation orientation,
 
 void QButtonGroup::init()
 {
-    setFontPropagation( NoChildren );
-    setPalettePropagation( NoChildren );
     buttons = new QButtonList;
     CHECK_PTR( buttons );
     buttons->setAutoDelete( TRUE );
