@@ -3,10 +3,10 @@
 # specific stuff for nmake
 #
 CFLAGS	    =	/c /Fo$@ \
-		/W3 /Zi /nologo /GX /O1 \
+		/W3 /nologo /O1 \
 		/I. /Igenerators /Igenerators\unix /Igenerators\win32  /I$(QTDIR)\include /I$(QTDIR)\src\tools \
 		/I$(QTDIR)\mkspecs\win32-msvc \
-		/DQT_NO_CODECS /DQT_LITE_COMPONENT /DQT_NODLL
+		/DQT_NO_CODECS /DQT_LITE_COMPONENT /DQT_NODLL /DQT_NO_STL
 LFLAGS	    =	/DEBUG
 LIBS	    =	ole32.lib
 LINKQMAKE   =	link $(LFLAGS) /OUT:qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
