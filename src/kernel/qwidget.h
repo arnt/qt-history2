@@ -384,7 +384,11 @@ public:
     void 		setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = FALSE );
     virtual int heightForWidth(int) const;
 
+// ### move together with other slots in Qt 4.0
+public slots:
     virtual void  	adjustSize();
+
+public:
 #ifndef QT_NO_LAYOUT
     QLayout *		layout() const { return lay_out; }
 #endif
