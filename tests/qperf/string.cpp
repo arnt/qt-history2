@@ -43,7 +43,6 @@ static int string_pass_charptr()
     return i;    
 }
 
-
 static int string_length()
 {
     int i;
@@ -54,7 +53,6 @@ static int string_length()
     }
     return i;    
 }
-
 
 static int string_lower()
 {
@@ -67,7 +65,6 @@ static int string_lower()
     return i;    
 }
 
-
 static int string_upper()
 {
     int i;
@@ -78,7 +75,6 @@ static int string_upper()
     }
     return i;    
 }
-
 
 static int string_simplify_ws()
 {
@@ -91,7 +87,6 @@ static int string_simplify_ws()
     return i;    
 }
 
-
 static int string_find()
 {
     int i;
@@ -103,7 +98,6 @@ static int string_find()
     return i;    
 }
 
-
 static int string_contains()
 {
     int i;
@@ -114,7 +108,6 @@ static int string_contains()
     }
     return i;    
 }
-
 
 static int string_to_int()
 {
@@ -128,13 +121,22 @@ static int string_to_int()
     return i;    
 }
 
-
 static int string_set_int()
 {
     int i;
     QString s;
     for ( i=0; i<1000; i++ ) {
 	s.setNum(-33246);
+    }
+    return i;    
+}
+
+static int string_set_int_sprintf()
+{
+    int i;
+    QString s;
+    for ( i=0; i<1000; i++ ) {
+	s.sprintf("%d",-33246);
     }
     return i;    
 }
@@ -152,4 +154,5 @@ QPERF_BEGIN(string,"QString tests")
     QPERF(string_contains,"Count number of times substring occurrs")
     QPERF(string_to_int,"Convert string to integer")
     QPERF(string_set_int,"Convert integer to string")
+    QPERF(string_set_int_sprintf,"Convert integer to string using sprintf")
 QPERF_END(string)

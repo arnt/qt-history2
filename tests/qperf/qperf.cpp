@@ -52,7 +52,17 @@ QString qperf_imageExt()
 }
 
 
-typedef QList<QPerfEntry>	  QPerfList;
+class QPerfList : public QList<QPerfEntry>
+{
+public:
+    QPerfList() {}
+   ~QPerfList() { clear(); }
+protected:
+    int	  compareItems( Item s1, Item s2 )
+	{ return strcmp(((QPerfEntry*)s1)->funcName,
+			((QPerfEntry*)s2)->funcName); }
+};
+
 typedef QListIterator<QPerfEntry> QPerfListIt;
 typedef QDict<QPerfEntry>	  QPerfDict;
 typedef QDictIterator<QPerfEntry> QPerfDictIt;
@@ -139,7 +149,7 @@ void usage()
 {
     qDebug( "qperf [options] <tests>" );
     // print options
-    qDebug( "  Options:" );
+    qDebug( "\nOptions:" );
     qDebug( "    -db                       Set/toggle double buffering" );
     qDebug( "    -i  <iterations>          Set max # iterations (approx)" );
     qDebug( "    -if <image format>        Set image format for saving images" );
@@ -151,13 +161,17 @@ void usage()
     qDebug( "    -w  <95|98|nt>            Set Windows version" );
     qDebug( "    -xf <xform type>          Set painter transformation:" );
     qDebug( "                                none, translate, scale, rotate" );
-    qDebug( "  Tests:" );
+    qDebug( "Tests:" );
     QPerfEntry *t;
+    perf_list->sort();
     QPerfListIt it(*perf_list);
     while ( (t=it.current()) ) {
 	++it;
 	while ( t->funcName ) {
-	    qDebug( "    %-25s %s", t->funcName, t->description );
+	    if ( t->group )
+		qDebug( "  %-27s %s", t->funcName, t->description );
+	    else
+		qDebug( "    %-25s %s", t->funcName, t->description );
 	    ++t;
 	}
     }

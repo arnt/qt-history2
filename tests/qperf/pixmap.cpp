@@ -126,8 +126,10 @@ static int pixmap_bitblt( QPixmap *pm, int w, int h, int numIter=1000 )
 {
     int i;
     QPainter *p = qperf_painter();
+    QPaintDevice *pd = qperf_paintDevice();
     for ( i=0; i<numIter; i++ ) {
-	p->drawPixmap( qrnd(640-w), qrnd(480-h), *pm );
+	bitBlt( pd, qrnd(640-w), qrnd(480-h), pm );
+	//p->drawPixmap( qrnd(640-w), qrnd(480-h), *pm );
     }
     return i;
 }
