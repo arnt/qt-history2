@@ -15,7 +15,7 @@ public:
     QString	text(Text t, int child) const;
     int		state(int child) const;
 
-    int		defaultAction(int child) const;
+    int		numActions(int child) const;
     QString	actionText(int action, Text text, int child) const;
     bool	doAction(int action, int child);
 
@@ -28,6 +28,12 @@ class QAccessibleToolButton : public QAccessibleButton
 public:
     QAccessibleToolButton(QWidget *w, Role role);
 
+    enum ToolButtonElements {
+	ToolButtonSelf	= 0,
+	ButtonExecute,
+	ButtonDropMenu
+    };
+
     Role	role(int child) const;
     int		state(int child) const;
 
@@ -36,8 +42,7 @@ public:
 
     QString	text(Text t, int child) const;
 
-    int		actionCount(int child) const;
-    int		defaultAction(int child) const;
+    int		numActions(int child) const;
     QString	actionText(int action, Text text, int child) const;
     bool	doAction(int action, int child);
 

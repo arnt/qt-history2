@@ -5,6 +5,7 @@
 #include <qtabbar.h>
 #include <qcombobox.h>
 #include <qlineedit.h>
+#include <qlistbox.h>
 #include <private/qtitlebar_p.h>
 #include <qstyle.h>
 #include <qtooltip.h>
@@ -36,7 +37,7 @@ QHeader *QAccessibleHeader::header() const
 /*! \reimp */
 QRect QAccessibleHeader::rect(int child) const
 {
-    QPoint zero = header()->mapToGlobal(QPoint (0,0));
+    QPoint zero = header()->mapToGlobal(QPoint(0, 0));
     QRect sect = header()->sectionRect(child - 1);
     return QRect(sect.x() + zero.x(), sect.y() + zero.y(), sect.width(), sect.height());
 }
@@ -121,7 +122,7 @@ QButton *QAccessibleTabBar::button(int child) const
 	return qt_cast<QButton*>(tabBar()->child("qt_left_btn"));
     if (child - tabBar()->count() == 2)
 	return qt_cast<QButton*>(tabBar()->child("qt_right_btn"));
-    Q_ASSERT(FALSE);
+    Q_ASSERT(false);
     return 0;
 }
 
@@ -218,33 +219,33 @@ int QAccessibleTabBar::state(int child) const
 bool QAccessibleTabBar::doAction(int action, int child)
 {
     if (!child)
-	return FALSE;
+	return false;
 
     if (child > tabBar()->count()) {
 	QButton *bt = button(child);
 	if (!bt->isEnabled())
-	    return FALSE;
+	    return false;
 	bt->animateClick();
-	return TRUE;
+	return true;
     }
     QTab *tab = tabBar()->tabAt(child - 1);
     if (!tab || !tab->isEnabled())
-	return FALSE;
+	return false;
     tabBar()->setCurrentTab(tab);
-    return TRUE;
+    return true;
 }
 
 /*! \reimp */
 bool QAccessibleTabBar::setSelected(int child, bool on, bool extend)
 {
     if (!child || !on || extend || child > tabBar()->count())
-	return FALSE;
+	return false;
 
     QTab *tab = tabBar()->tabAt(child - 1);
     if (!tab || !tab->isEnabled())
-	return FALSE;
+	return false;
     tabBar()->setCurrentTab(tab);
-    return TRUE;
+    return true;
 }
 
 /*! \reimp */
@@ -286,7 +287,7 @@ QRect QAccessibleComboBox::rect(int child) const
     QRect r;
 
     switch(child) {
-    case 1:
+    case CurrentText:
 	if (comboBox()->editable()) {
 	    tp = comboBox()->lineEdit()->mapToGlobal(QPoint(0,0));
 	    r = comboBox()->lineEdit()->rect();
@@ -295,7 +296,7 @@ QRect QAccessibleComboBox::rect(int child) const
 	    r = comboBox()->style().querySubControlMetrics(QStyle::CC_ComboBox, comboBox(), QStyle::SC_ComboBoxEditField);
 	}
 	break;
-    case 2:
+    case OpenList:
 	tp = comboBox()->mapToGlobal(QPoint(0,0));
 	r = comboBox()->style().querySubControlMetrics(QStyle::CC_ComboBox, comboBox(), QStyle::SC_ComboBoxArrow);
 	break;
@@ -309,11 +310,17 @@ QRect QAccessibleComboBox::rect(int child) const
 int QAccessibleComboBox::navigate(Relation rel, int entry, QAccessibleInterface **target) const
 {
     *target = 0;
-    if (entry) switch (rel) {
+    if (entry > ComboBoxSelf) switch (rel) {
+    case Child:
+	if (entry < PopupList)
+	    return entry;
+	if (entry == PopupList)
+	    return QAccessible::queryAccessibleInterface(comboBox()->listBox(), target) ? 0 : -1;
+	break;
     case QAccessible::Left:
-	return entry > 1 ? entry - 1 : -1;
+	return entry == OpenList ? CurrentText : -1;
     case QAccessible::Right:
-	return entry < childCount() ? entry + 1 : -1;
+	return entry == CurrentText ? OpenList : -1;
     case QAccessible::Up:
 	return -1;
     case QAccessible::Down:
@@ -327,7 +334,7 @@ int QAccessibleComboBox::navigate(Relation rel, int entry, QAccessibleInterface 
 /*! \reimp */
 int QAccessibleComboBox::childCount() const
 {
-    return 2;
+    return comboBox()->listBox() ? PopupList : OpenList;
 }
 
 /*! \reimp */
@@ -337,14 +344,20 @@ int QAccessibleComboBox::childAt(int x, int y) const
     if (!QRect(gp.x(), gp.y(), widget()->width(), widget()->height()).contains(x, y))
 	return -1;
 
-    int ccount = childCount();
-
     // a complex control
-    for (int i = 1; i <= ccount; ++i) {
+    for (int i = 1; i < PopupList; ++i) {
 	if (rect(i).contains(x, y))
 	    return i;
     }
     return 0;
+}
+
+/*! \reimp */
+int QAccessibleComboBox::indexOfChild(const QAccessibleInterface *child) const
+{
+    if (child->object() == comboBox()->listBox())
+	return PopupList;
+    return -1;
 }
 
 /*! \reimp */
@@ -354,13 +367,13 @@ QString QAccessibleComboBox::text(Text t, int child) const
 
     switch (t) {
     case Name:
-	if (child == 2)
+	if (child == OpenList)
 	    str = QComboBox::tr("Open");
 	else
 	    str = QAccessibleWidget::text(t, 0);
 	break;
     case Accelerator:
-	if (child == 2)
+	if (child == OpenList)
 	    str = QAccel::keyToString(Key_Down);
     case Value:
 	if (comboBox()->editable())
@@ -380,16 +393,16 @@ QString QAccessibleComboBox::text(Text t, int child) const
 QAccessible::Role QAccessibleComboBox::role(int child) const
 {
     switch (child) {
-    case 0:
-	return ComboBox;
-    case 1:
+    case CurrentText:
 	if (comboBox()->editable())
 	    return EditableText;
 	return StaticText;
-    case 2:
+    case OpenList:
 	return PushButton;
-    default:
+    case PopupList:
 	return List;
+    default:
+	return ComboBox;
     }
 }
 
@@ -403,9 +416,9 @@ int QAccessibleComboBox::state(int /*child*/) const
 bool QAccessibleComboBox::doAction(int action, int child)
 {
     if (child != 2)
-	return FALSE;
+	return false;
     comboBox()->popup();
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -590,18 +603,18 @@ bool QAccessibleTitleBar::doAction(int action, int child)
 	    titleBar()->window()->showNormal();
 	else
 	    titleBar()->window()->showMinimized();
-	return TRUE;
+	return true;
     case 4:
 	if (titleBar()->window()->isMaximized())
 	    titleBar()->window()->showNormal();
 	else
 	    titleBar()->window()->showMaximized();
-	return TRUE;
+	return true;
     case 5:
 	titleBar()->window()->close();
-	return TRUE;
+	return true;
     default:
 	break;
     }
-    return FALSE;
+    return false;
 }

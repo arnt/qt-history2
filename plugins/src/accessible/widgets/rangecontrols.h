@@ -12,6 +12,13 @@ class QAccessibleSpinBox : public QAccessibleWidget
 public:
     QAccessibleSpinBox(QWidget *w);
 
+    enum SpinBoxElements {
+	SpinBoxSelf	= 0,
+	Editor,
+	ValueUp,
+	ValueDown
+    };
+
     int		childCount() const;
     QRect	rect(int child) const;
 
@@ -32,6 +39,15 @@ class QAccessibleScrollBar : public QAccessibleWidget
 public:
     QAccessibleScrollBar(QWidget *w, const QString &name = QString());
 
+    enum ScrollBarElements {
+	ScrollBarSelf	= 0,
+	LineUp,
+	PageUp,
+	Position,
+	PageDown,
+	LineDown
+    };
+
     int		childCount() const;
 
     QRect	rect(int child) const;
@@ -48,6 +64,13 @@ class QAccessibleSlider : public QAccessibleWidget
 {
 public:
     QAccessibleSlider(QWidget *w, const QString &name = QString());
+
+    enum SliderElements {
+	SliderSelf  = 0,
+	PageLeft,
+	Position,
+	PageRight
+    };
 
     int		childCount() const;
 

@@ -34,7 +34,7 @@ QSpinBox *QAccessibleSpinBox::spinBox() const
 /*! \reimp */
 int QAccessibleSpinBox::childCount() const
 {
-    return 3;
+    return ValueDown;
 }
 
 /*! \reimp */
@@ -42,14 +42,14 @@ QRect QAccessibleSpinBox::rect(int child) const
 {
     QRect rect;
     switch(child) {
-    case 1:
+    case Editor:
 	rect = widget()->rect();
 	rect.setRight(spinBox()->upRect().left());
 	break;
-    case 2:
+    case ValueUp:
 	rect = spinBox()->upRect();
 	break;
-    case 3:
+    case ValueDown:
 	rect = spinBox()->downRect();
 	break;
     default:
@@ -69,13 +69,13 @@ int QAccessibleSpinBox::navigate(Relation rel, int entry, QAccessibleInterface *
     case Child:
 	return entry <= childCount() ? entry : -1;
     case QAccessible::Left:
-	return (entry == 2 || entry == 3) ? 1 : -1;
+	return (entry == ValueUp || entry == ValueDown) ? Editor : -1;
     case QAccessible::Right:
-	return entry == 1 ? 2 : -1;
+	return entry == Editor ? ValueUp : -1;
     case QAccessible::Up:
-	return entry == 3 ? 2 : -1;
+	return entry == ValueDown ? ValueUp : -1;
     case QAccessible::Down:
-	return entry == 2 ? 3 : -1;
+	return entry == ValueUp ? ValueDown : -1;
     }
     return QAccessibleWidget::navigate(rel, entry, target);
 }
@@ -86,14 +86,14 @@ QString QAccessibleSpinBox::text(Text t, int child) const
     switch (t) {
     case Name:
 	switch (child) {
-	case 2:
+	case ValueUp:
 	    return QSpinWidget::tr("More");
-	case 3:
+	case ValueDown:
 	    return QSpinWidget::tr("Less");
 	}
 	break;
     case Value:
-	if (child < 2)
+	if (child == Editor || child == SpinBoxSelf)
 	    return spinBox()->text();
 	break;
     }
@@ -104,11 +104,10 @@ QString QAccessibleSpinBox::text(Text t, int child) const
 QAccessible::Role QAccessibleSpinBox::role(int child) const
 {
     switch(child) {
-    case 1:
+    case Editor:
 	return EditableText;
-    case 2:
-	return PushButton;
-    case 3:
+    case ValueUp:
+    case ValueDown:
 	return PushButton;
     default:
 	break;
@@ -121,11 +120,11 @@ int QAccessibleSpinBox::state(int child) const
 {
     int state = QAccessibleWidget::state(child);
     switch(child) {
-    case 2:
+    case ValueUp:
 	if (spinBox()->value() >= spinBox()->maxValue())
 	    state |= Unavailable;
 	return state;
-    case 3:
+    case ValueDown:
 	if (spinBox()->value() <= spinBox()->minValue())
 	    state |= Unavailable;
 	return state;
@@ -138,17 +137,20 @@ int QAccessibleSpinBox::state(int child) const
 /*! \reimp */
 bool QAccessibleSpinBox::doAction(int action, int child)
 {
+    if (!widget()->isEnabled())
+	return false;
+
     if (action == Press) switch(child) {
-    case 2:
+    case ValueUp:
 	if (spinBox()->value() >= spinBox()->maxValue())
-	    return FALSE;
+	    return false;
 	spinBox()->stepUp();
-	return TRUE;
-    case 3:
+	return true;
+    case ValueDown:
 	if (spinBox()->value() <= spinBox()->minValue())
-	    return FALSE;
+	    return false;
 	spinBox()->stepDown();
-	return TRUE;
+	return true;
     default:
 	break;
     }
@@ -184,25 +186,25 @@ QRect QAccessibleScrollBar::rect(int child) const
     QRect srect = scrollBar()->sliderRect();
     int sz = scrollBar()->style().pixelMetric(QStyle::PM_ScrollBarExtent, scrollBar());
     switch (child) {
-    case 1:
+    case LineUp:
 	rect = QRect(0, 0, sz, sz);
 	break;
-    case 2:
+    case PageUp:
 	if (scrollBar()->orientation() == Vertical)
 	    rect = QRect(0, sz, sz, srect.y() - sz);
 	else
 	    rect = QRect(sz, 0, srect.x() - sz, sz);
 	break;
-    case 3:
+    case Position:
 	rect = srect;
 	break;
-    case 4:
+    case PageDown:
 	if (scrollBar()->orientation() == Vertical)
 	    rect = QRect(0, srect.bottom(), sz, scrollBar()->rect().height() - srect.bottom() - sz);
 	else
 	    rect = QRect(srect.right(), 0, scrollBar()->rect().width() - srect.right() - sz, sz) ;
 	break;
-    case 5:
+    case LineDown:
 	if (scrollBar()->orientation() == Vertical)
 	    rect = QRect(0, scrollBar()->rect().height() - sz, sz, sz);
 	else
@@ -219,7 +221,7 @@ QRect QAccessibleScrollBar::rect(int child) const
 /*! \reimp */
 int QAccessibleScrollBar::childCount() const
 {
-    return 5;
+    return LineDown;
 }
 
 /*! \reimp */
@@ -227,26 +229,25 @@ QString	QAccessibleScrollBar::text(Text t, int child) const
 {
     switch (t) {
     case Value:
-	if (!child || child == 3)
+	if (!child || child == Position)
 	    return QString::number(scrollBar()->value());
 	return QString();
     case Name:
 	switch (child) {
-	case 1:
+	case LineUp:
 	    return QScrollBar::tr("Line up");
-	case 2:
+	case PageUp:
 	    return QScrollBar::tr("Page up");
-	case 3:
+	case Position:
 	    return QScrollBar::tr("Position");
-	case 4:
+	case PageDown:
 	    return QScrollBar::tr("Page down");
-	case 5:
+	case LineDown:
 	    return QScrollBar::tr("Line down");
 	}
 	break;
     default:
 	break;
-
     }
     return QAccessibleWidget::text(t, child);
 }
@@ -255,12 +256,12 @@ QString	QAccessibleScrollBar::text(Text t, int child) const
 QAccessible::Role QAccessibleScrollBar::role(int child) const
 {
     switch (child) {
-    case 1:
-    case 2:
-    case 4:
-    case 5:
+    case LineUp:
+    case PageUp:
+    case PageDown:
+    case LineDown:
 	return PushButton;
-    case 3:
+    case Position:
 	return Indicator;
     default:
 	return ScrollBar;
@@ -271,20 +272,20 @@ QAccessible::Role QAccessibleScrollBar::role(int child) const
 bool QAccessibleScrollBar::doAction(int action, int child)
 {
     if (action == Press) switch (child) {
-    case 1:
+    case LineUp:
 	scrollBar()->subtractLine();
-	return TRUE;
-    case 2:
+	return true;
+    case PageUp:
 	scrollBar()->subtractPage();
-	return TRUE;
-    case 4:
+	return true;
+    case PageDown:
 	scrollBar()->addPage();
-	return TRUE;
-    case 5:
+	return true;
+    case LineDown:
 	scrollBar()->addLine();
-	return TRUE;
+	return true;
     }
-    return FALSE;
+    return false;
 }
 
 /*!
@@ -315,16 +316,16 @@ QRect QAccessibleSlider::rect(int child) const
     QRect rect;
     QRect srect = slider()->sliderRect();
     switch (child) {
-    case 1:
+    case PageLeft:
 	if (slider()->orientation() == Vertical)
 	    rect = QRect(0, 0, slider()->width(), srect.y());
 	else
 	    rect = QRect(0, 0, srect.x(), slider()->height());
 	break;
-    case 2:
+    case Position:
 	rect = srect;
 	break;
-    case 3:
+    case PageRight:
 	if (slider()->orientation() == Vertical)
 	    rect = QRect(0, srect.y() + srect.height(), slider()->width(), slider()->height()- srect.y() - srect.height());
 	else
@@ -341,7 +342,7 @@ QRect QAccessibleSlider::rect(int child) const
 /*! \reimp */
 int QAccessibleSlider::childCount() const
 {
-    return 3;
+    return PageRight;
 }
 
 /*! \reimp */
@@ -354,12 +355,12 @@ QString	QAccessibleSlider::text(Text t, int child) const
 	return QString();
     case Name:
 	switch (child) {
-	case 1:
+	case PageLeft:
 	    return slider()->orientation() == Horizontal ? 
 		QSlider::tr("Page left") : QSlider::tr("Page up");
-	case 2:
+	case Position:
 	    return QSlider::tr("Position");
-	case 3:
+	case PageRight:
 	    return slider()->orientation() == Horizontal ? 
 		QSlider::tr("Page right") : QSlider::tr("Page down");
 	}
@@ -374,10 +375,10 @@ QString	QAccessibleSlider::text(Text t, int child) const
 QAccessible::Role QAccessibleSlider::role(int child) const
 {
     switch (child) {
-    case 1:
-    case 3:
+    case PageLeft:
+    case PageRight:
 	return PushButton;
-    case 2:
+    case Position:
 	return Indicator;
     default:
 	return Slider;
@@ -388,11 +389,11 @@ QAccessible::Role QAccessibleSlider::role(int child) const
 int QAccessibleSlider::defaultAction(int child) const
 {
     switch (child) {
-    case 0:
+    case SliderSelf:
 	return SetFocus;
-    case 1:
+    case PageLeft:
 	return Press;
-    case 3:
+    case PageRight:
 	return Press;
     }
     return NoAction;
@@ -402,19 +403,19 @@ int QAccessibleSlider::defaultAction(int child) const
 bool QAccessibleSlider::doAction(int action, int child)
 {
     switch(child) {
-    case 0:
+    case SliderSelf:
 	if (action == SetFocus) {
 	    slider()->setFocus();
 	    return true;
 	}
 	break;
-    case 1:
+    case PageLeft:
 	if (action == Press) {
 	    slider()->subtractPage();
 	    return true;
 	}
 	break;
-    case 2:
+    case Position:
 	if (action == Increase) {
 	    slider()->addLine();
 	    return true;
@@ -423,7 +424,7 @@ bool QAccessibleSlider::doAction(int action, int child)
 	    return true;
 	}
 	break;
-    case 3:
+    case PageRight:
 	if (action == Press) {
 	    slider()->addPage();
 	    return true;

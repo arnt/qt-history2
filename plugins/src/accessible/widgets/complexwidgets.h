@@ -53,8 +53,16 @@ class QAccessibleComboBox : public QAccessibleWidget
 public:
     QAccessibleComboBox(QWidget *w);
 
+    enum ComboBoxElements {
+	ComboBoxSelf	= 0,
+	CurrentText,
+	OpenList,
+	PopupList
+    };
+
     int		childCount() const;
     int		childAt(int x, int y) const;
+    int		indexOfChild(const QAccessibleInterface *child) const;
     int		navigate(Relation rel, int entry, QAccessibleInterface **target) const;
 
     QString	text(Text t, int child) const;

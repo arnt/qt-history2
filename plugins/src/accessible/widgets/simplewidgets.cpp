@@ -41,16 +41,23 @@ QButton *QAccessibleButton::button() const
 }
 
 /*! \reimp */
-int QAccessibleButton::defaultAction(int child) const
+int QAccessibleButton::numActions(int child) const
 {
-    return Press;
+    if (child)
+	return 0;
+
+    return (widget()->focusPolicy() != NoFocus) ? 2 : 1;
 }
 
 /*! \reimp */
 QString QAccessibleButton::actionText(int action, Text text, int child) const
 {
-    if (action == defaultAction(child) && text == Name) {
-	switch(role(child)) {
+    if (child)
+	return QString();
+
+    if (text == Name) switch (action) {
+    case 0: // press, checking or open
+	switch (role(0)) {
 	case ButtonMenu:
 	    return QPushButton::tr("Open");
 	case CheckBox:
@@ -65,28 +72,37 @@ QString QAccessibleButton::actionText(int action, Text text, int child) const
 	    break;
 	case RadioButton:
 	    return QRadioButton::tr("Check");
-	default:
-	    break;
 	}
+	break;
+    case 1: // focus
+	return "Set Focus";
     }
-
-    return QAccessibleWidget::actionText(action, text, child);
+    return QString();
 }
 
 /*! \reimp */
 bool QAccessibleButton::doAction(int action, int child)
 {
     if (child || !widget()->isEnabled())
-	return FALSE;
+	return false;
 
-    Role r = role(child);
-    QPushButton *pb = qt_cast<QPushButton*>(object());
-    if (pb && pb->popup())
-	pb->openPopup();
-    else
-	button()->animateClick();
-
-    return TRUE;
+    switch (action) {
+    case 0:
+	{
+	    QPushButton *pb = qt_cast<QPushButton*>(object());
+	    if (pb && pb->popup())
+		pb->openPopup();
+	    else
+		button()->animateClick();
+	}
+	return true;
+    case 1:
+	if (widget()->focusPolicy() != QWidget::NoFocus) {
+	    widget()->setFocus();
+	    return true;
+	}
+    }
+    return false;
 }
 
 /*! \reimp */
@@ -161,7 +177,7 @@ QToolButton *QAccessibleToolButton::toolButton() const
 }
 
 /*! 
-    Returns TRUE if this tool button is a split button.
+    Returns true if this tool button is a split button.
 */
 bool QAccessibleToolButton::isSplitButton() const
 {
@@ -172,9 +188,9 @@ bool QAccessibleToolButton::isSplitButton() const
 QAccessible::Role QAccessibleToolButton::role(int child) const
 {
     if (isSplitButton()) switch(child) {
-    case 1:
+    case ButtonExecute:
 	return PushButton;
-    case 2:
+    case ButtonDropMenu:
 	return ButtonMenu;
     }
     return QAccessibleButton::role(child);
@@ -186,7 +202,7 @@ int QAccessibleToolButton::state(int child) const
     int st = QAccessibleButton::state(child);
     if (toolButton()->autoRaise())
 	st |= HotTracked;
-    if (toolButton()->popup() && child != 1)
+    if (toolButton()->popup() && child != ButtonExecute)
 	st |= HasPopup;
     return st;
 }
@@ -194,7 +210,7 @@ int QAccessibleToolButton::state(int child) const
 /*! \reimp */
 int QAccessibleToolButton::childCount() const
 {
-    return isSplitButton() ? 2 : 0;
+    return isSplitButton() ? ButtonDropMenu : 0;
 }
 
 QRect QAccessibleToolButton::rect(int child) const
@@ -205,7 +221,7 @@ QRect QAccessibleToolButton::rect(int child) const
     QRect subrect = QStyle::visualRect( widget()->style().querySubControlMetrics(QStyle::CC_ToolButton, 
 	    toolButton(), QStyle::SC_ToolButtonMenu), toolButton() );
 
-    if (child == 1)
+    if (child == ButtonExecute)
 	subrect = QRect(0, 0, subrect.x(), widget()->height());
 
     QPoint ntl = widget()->mapToGlobal(subrect.topLeft());
@@ -231,49 +247,47 @@ QString QAccessibleToolButton::text(Text t, int child) const
     return qacc_stripAmp(str);
 }
 
-int QAccessibleToolButton::actionCount(int child) const
+int QAccessibleToolButton::numActions(int child) const
 {
-    if (!child)
-	return toolButton()->popup() ? 1 : 0;
-    return 0;
-}
-
-int QAccessibleToolButton::defaultAction(int child) const
-{
-    if (!child && role(child) == ButtonMenu)
-	return 1;
-    return QAccessibleButton::defaultAction(child);
+    // each subelement has one action
+    if (child)
+	return isSplitButton() ? 1 : 0;
+    int ac = widget()->focusPolicy() != QWidget::NoFocus ? 1 : 0;
+    // button itself has two actions if a menu button
+    return ac + (toolButton()->popup() ? 2 : 1);
 }
 
 QString QAccessibleToolButton::actionText(int action, Text text, int child) const
 {
-    if (text == Name) switch(role(child)) {
-    case ButtonMenu:
-	if (child == 2 || action != Press)
-	    return QToolButton::tr("Open");
-	break;
-    case ButtonDropDown:
-	switch(child) {
+    if (text == Name) switch(child) {
+    case ButtonExecute:
+	return QToolButton::tr("Press");
+    case ButtonDropMenu:
+	return QToolButton::tr("Open");
+    default:
+	switch(action) {
 	case 0:
-	    if (action != Press)
+	    return QToolButton::tr("Press");
+	case 1:
+	    if (toolButton()->popup())
 		return QToolButton::tr("Open");
-	    break;
+	    //fall through
 	case 2:
-	    return QToolButton::tr("Open");
-	    break;
+	    return "Set Focus";
 	}
-	break;
     }
-    return QAccessibleButton::actionText(action, text, child);
+    return QString();
 }
 
 bool QAccessibleToolButton::doAction(int action, int child)
 {
-    if (action == 1 || child == 2) {
+    if (!widget->isEnabled())
+	return false;
+    if (action == 1 || child == ButtonDropMenu) {
 	if(!child)
-	    toolButton()->setDown(TRUE);
+	    toolButton()->setDown(true);
 	toolButton()->openPopup();
-	return TRUE;
+	return true;
     }
     return QAccessibleButton::doAction(action, 0);
 }
