@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#5 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#6 $
 **
 ** Implementation of QFileDialog class
 **
 ** Author  : Eirik Eng
 ** Created : 950429
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -18,9 +18,12 @@
 #include "qpushbt.h"
 #include "qmsgbox.h"
 #include "qapp.h"
+#if defined(_WS_WIN_)
+#include <windows.h>
+#endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#6 $";
 #endif
 
 
@@ -110,15 +113,15 @@ void QFileDialog::init()
     filterB->resize( 50, 25 );
     cancelB->resize( 50, 25 );
 
-    connect( files, 	SIGNAL(selected(int)), 	 SLOT(fileSelected(int)) );
-    connect( files, 	SIGNAL(highlighted(int)),SLOT(fileHighlighted(int)) );
-    connect( dirs, 	SIGNAL(selected(int)), 	 SLOT(dirSelected(int)) );
-    connect( pathBox,	SIGNAL(activated(int)),  SLOT(pathSelected(int)) );
-    connect( okB, 	SIGNAL(clicked()), 	 SLOT(okClicked()) );
-    connect( nameEdit, 	SIGNAL(returnPressed()), SLOT(okClicked()) );
+    connect( files,	SIGNAL(selected(int)),	 SLOT(fileSelected(int)) );
+    connect( files,	SIGNAL(highlighted(int)),SLOT(fileHighlighted(int)) );
+    connect( dirs,	SIGNAL(selected(int)),	 SLOT(dirSelected(int)) );
+    connect( pathBox,	SIGNAL(activated(int)),	 SLOT(pathSelected(int)) );
+    connect( okB,	SIGNAL(clicked()),	 SLOT(okClicked()) );
+    connect( nameEdit,	SIGNAL(returnPressed()), SLOT(okClicked()) );
     connect( filterEdit,SIGNAL(returnPressed()), SLOT(filterClicked()) );
-    connect( filterB, 	SIGNAL(clicked()), 	 SLOT(filterClicked()) );
-    connect( cancelB, 	SIGNAL(clicked()), 	 SLOT(cancelClicked()) );
+    connect( filterB,	SIGNAL(clicked()),	 SLOT(filterClicked()) );
+    connect( cancelB,	SIGNAL(clicked()),	 SLOT(cancelClicked()) );
     d.setMatchAllDirs( TRUE );
     d.setSorting( d.sorting() | QDir::DirsFirst );
 }
@@ -228,13 +231,13 @@ void QFileDialog::rereadDir()
     dirs ->clear();
     files->clear();
 
-    const QFileInfoList  *filist = d.entryInfoList();
+    const QFileInfoList	 *filist = d.entryInfoList();
     QFileInfoListIterator it( *filist );
     QFileInfo		 *fi = it.current();
     while ( fi && fi->isDir() ) {
 	dirs->insertItem( fi->fileName().data() );
 	fi = ++it;
-    }    
+    }
     while ( fi ) {
 	files->insertItem( fi->fileName().data() );
 	fi = ++it;
@@ -258,6 +261,38 @@ void QFileDialog::rereadDir()
 QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
 				      QWidget *parent, const char *name )
 {
+#if defined(_WS_WIN_)
+
+    const int maxstrlen = 256;
+    char *dir = 0;
+    if ( !dirName || !*dirName ) {
+	dir = new char[maxstrlen];
+	GetSystemDirectory( dir, maxstrlen );
+    }
+    char *file = new char[maxstrlen];
+    file[0] = '\0';
+
+    OPENFILENAME ofn;
+    memset( &ofn, 0, sizeof(OPENFILENAME) );
+    ofn.lStructSize	= sizeof(OPENFILENAME);
+    ofn.hwndOwner	= parent ? parent->id() : 0;
+    ofn.lpstrFilter	= 0;			// not implemented
+    ofn.lpstrFile	= file;
+    ofn.nMaxFile	= maxstrlen;
+    ofn.lpstrInitialDir = dir ? dir : dirName;
+    ofn.lpstrTitle	= "Open";
+    ofn.Flags		= OFN_CREATEPROMPT;
+
+    QString result;
+    if ( GetOpenFileName(&ofn) )
+	result = file;
+
+    delete file;
+    delete dir;
+    return result;
+
+#else
+
     QFileDialog *dlg = new QFileDialog( dirName, filter, parent, name, TRUE );
     CHECK_PTR( dlg );
     dlg->setCaption( "Open" );
@@ -266,6 +301,8 @@ QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
 	result = dlg->selectedFile();
     delete dlg;
     return result;
+
+#endif
 }
 
 /*----------------------------------------------------------------------------
@@ -326,7 +363,7 @@ void QFileDialog::dirSelected( int index )
     } else {
 	QMessageBox::message( "Sorry", "Cannot open or read directory." );
 	d = tmp;
-    }	 
+    }
 }
 
 void QFileDialog::pathSelected( int index )
@@ -391,7 +428,7 @@ void QFileDialog::resizeEvent( QResizeEvent * )
 {
     int w = width();
     int h = height();
-    int   wTmp;
+    int	  wTmp;
     QRect rTmp;
 
     filterL->move( 10, 10 );
@@ -410,18 +447,18 @@ void QFileDialog::resizeEvent( QResizeEvent * )
     fileL->move( w / 2 + 5, rTmp.y() );
 
     rTmp = dirL->geometry();
-    dirs->setGeometry(10, rTmp.bottom() + 5, 
+    dirs->setGeometry(10, rTmp.bottom() + 5,
 		      w/2 - 15, h - rTmp.bottom() - 10 - 25 - 10 - 20 - 10 );
 
     rTmp = dirs->geometry();
-    files->setGeometry( rTmp.right() + 10, rTmp.y(), 
+    files->setGeometry( rTmp.right() + 10, rTmp.y(),
 			rTmp.width(), rTmp.height() );
 
     rTmp = dirs->geometry();
     nameL->move( 10, rTmp.bottom() + 10 );
 
     wTmp = nameL->width();
-    nameEdit->setGeometry( wTmp + 15, rTmp.bottom() + 10, 
+    nameEdit->setGeometry( wTmp + 15, rTmp.bottom() + 10,
 			     w - wTmp - 15 - 10, 20 );
 
     rTmp = nameEdit->geometry();
@@ -439,7 +476,7 @@ void QFileDialog::resizeEvent( QResizeEvent * )
 
 /*----------------------------------------------------------------------------
   \internal
-  Updates the path box.  Called from rereadDir().
+  Updates the path box.	 Called from rereadDir().
  ----------------------------------------------------------------------------*/
 
 void QFileDialog::updatePathBox( const char *s )
@@ -447,7 +484,7 @@ void QFileDialog::updatePathBox( const char *s )
     QStrList l;
     QString tmp;
     QString safe = s;
-    
+
     l.insert( 0, "/" );
     tmp = strtok( safe.data(), "/" );
     while ( TRUE ) {
