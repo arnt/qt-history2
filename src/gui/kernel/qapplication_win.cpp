@@ -707,30 +707,35 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
     QString cname;
     if (flags & Qt::WWinOwnDC) {
         cname = "QWidgetOwnDC";
-#ifndef Q_OS_TEMP
-        style = CS_OWNDC | CS_DBLCLKS;
-#else
         style = CS_DBLCLKS;
+#ifndef Q_OS_TEMP
+        style |= CS_OWNDC;
 #endif
         icon  = true;
     } else if ((flags & (Qt::WType_Popup|Qt::WStyle_Tool)) == 0) {
         cname = "QWidget";
         style = CS_DBLCLKS;
         icon  = true;
+    } else if ((flags & Qt::WStyle_Tool) && !(flags & Qt::WType_Popup)){
+	cname = "QTool";
+	style = CS_DBLCLKS;
+#ifndef Q_OS_TEMP
+	style |= CS_SAVEBITS;
+#endif
+#ifdef QT_WINXP_TOOLWINDOW_DROPSHADOW
+	// drop shadows on tool windows that contains an OpenGL
+	// window simply doesn't work, so disable it by default
+      	if (QSysInfo::WindowsVersion == QSysInfo::WV_XP)
+	    style |= 0x00020000;		// CS_DROPSHADOW
+#endif
+	icon  = FALSE;
     } else {
         cname = "QPopup";
-#ifndef Q_OS_TEMP
-        style = CS_DBLCLKS | CS_SAVEBITS;
-#else
         style = CS_DBLCLKS;
+#ifndef Q_OS_TEMP
+        style |= CS_SAVEBITS;
 #endif
-        if (QSysInfo::WindowsVersion == QSysInfo::WV_XP
-#ifndef QT_WINXP_TOOLWINDOW_DROPSHADOW
-             // drop shadows on tool windows that contains an OpenGL
-             // window simply doesn't work, so disable it by default
-             && !(flags & Qt::WStyle_Tool)
-#endif
-            )
+        if (QSysInfo::WindowsVersion == QSysInfo::WV_XP)
             style |= 0x00020000;                // CS_DROPSHADOW
         icon  = false;
     }
