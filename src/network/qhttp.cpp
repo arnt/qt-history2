@@ -629,7 +629,20 @@ bool QHttpReplyHeader::hasAutoContentLength() const
 
   \module network
 
-  fnord
+  This class is used in the QHttpClient class to report the header information
+  if the client requests something from the server.
+
+  This class is also used in the QHttpConnection class to receive HTTP requests
+  by a server.
+
+  HTTP requests have a method which describes the action of the request. The
+  most common requests are "GET" and "POST". In addition to the method the
+  header also includes a request-URI to specify the location for the method.
+  
+  Since this is a subclass of QHttpHeader, all functions in this class are also
+  available, especially setValue() and value().
+
+  \sa QHttpReplyHeader QHttpClient QHttpConnection
 */
 
 /*!
@@ -642,7 +655,8 @@ QHttpRequestHeader::QHttpRequestHeader()
 }
 
 /*!
-  ### args?
+  Constructs a HTTP request header for the method \a method, the request-URI 
+  \a path and the protocol-version \a version.
 */
 QHttpRequestHeader::QHttpRequestHeader( const QString& method, const QString& path, int version )
     : QHttpHeader(), m_method( method ), m_path( path ), m_version( version )
@@ -670,7 +684,10 @@ QHttpRequestHeader::QHttpRequestHeader( const QString& str )
 }
 
 /*!
-  ### args?
+  This function sets the request method to \a method, the request-URI to \a
+  path and the protocol-version to \a version.
+
+  \sa method() path() version()
 */
 void QHttpRequestHeader::setRequest( const QString& method, const QString& path, int version )
 {
@@ -681,6 +698,8 @@ void QHttpRequestHeader::setRequest( const QString& method, const QString& path,
 
 /*!
   Returns the method of the HTTP request header.
+
+  \sa path() version() setRequest()
 */
 QString QHttpRequestHeader::method() const
 {
@@ -688,7 +707,9 @@ QString QHttpRequestHeader::method() const
 }
 
 /*!
-  Returns the path of the HTTP request header.
+  Returns the request-URI of the HTTP request header.
+
+  \sa method() version() setRequest()
 */
 QString QHttpRequestHeader::path() const
 {
@@ -696,7 +717,9 @@ QString QHttpRequestHeader::path() const
 }
 
 /*!
-  Returns the version of the HTTP request header.
+  Returns the protocol-version of the HTTP request header.
+
+  \sa method() path() setRequest()
 */
 int QHttpRequestHeader::version()
 {
