@@ -1917,7 +1917,7 @@ void QApplication::setActiveWindow( QWidget* act )
 	sendSpontaneousEvent( tmp, &out );
     } else if ( active_window ) {
 	QWidget *w = active_window->focusWidget();
-	if ( w && w->focusPolicy() != QWidget::NoFocus )
+	if ( w /*&& w->focusPolicy() != QWidget::NoFocus*/ )
 	    w->setFocus();
 	else
 	    active_window->focusNextPrevChild( TRUE );
