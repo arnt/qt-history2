@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#30 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#31 $
 **
 ** Definition of QTabBar class
 **
@@ -92,12 +92,12 @@ signals:
     void  selected( int );
 
 protected:
-    virtual void paint( QPainter *, QTab *, bool ) const;
+    virtual void paint( QPainter *, QTab *, bool ) const; // ### not const
     virtual void paintLabel( QPainter*, const QRect&, QTab*, bool ) const;
 
     void focusInEvent( QFocusEvent *e );
     void focusOutEvent( QFocusEvent *e );
-    
+
     virtual QTab * selectTab( const QPoint & p ) const;
     void updateMask();
 
