@@ -749,7 +749,13 @@ MakefileGenerator::createObjectList(const QString &var)
 	dir = project->variables()["OBJECTS_DIR"].first();
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi(Option::fixPathToLocalOS((*it)));
-	ret.append((dir.isEmpty() ? fi.dirPath() + Option::dir_sep : dir) + fi.baseName() + Option::obj_ext);
+	QString dirName;
+	if ( dir.isEmpty() ) {
+	    dirName = Option::fixPathToTargetOS(fi.dirPath()) + Option::dir_sep;
+	} else {
+	    dirName = dir;
+	}
+	ret.append( dirName + fi.baseName() + Option::obj_ext);
     }
     return ret;
 }
