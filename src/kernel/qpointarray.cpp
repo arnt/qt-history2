@@ -35,10 +35,10 @@ const double Q_PI = 3.14159265358979323846;
     For convenient reading and writing of the point data use
     setPoints(), putPoints(), point(), and setPoint().
 
-    For geometry operations: boundingRect() and translate(). There is
-    also a QWMatrix::map() function for more general transformation of
-    QPointArrays. You can also create arcs and ellipses with makeArc()
-    and makeEllipse().
+    For geometry operations use boundingRect() and translate(). There
+    is also the QWMatrix::map() function for more general
+    transformations of QPointArrays. You can also create arcs and
+    ellipses with makeArc() and makeEllipse().
 
     Among others, QPointArray is used by QPainter::drawLineSegments(),
     QPainter::drawPolyline(), QPainter::drawPolygon() and
@@ -90,7 +90,7 @@ const double Q_PI = 3.14159265358979323846;
 
     Constructs a shallow copy of the point array \a a.
 
-    \sa copy()
+    \sa copy() detach()
 */
 
 /*!
@@ -142,13 +142,15 @@ QPointArray::QPointArray(int nPoints, const QCOORD *points)
 
     Equivalent to assign(a).
 
-    \sa copy()
+    \sa copy() detach()
 */
 
 /*!
     \fn QPointArray QPointArray::copy() const
 
     Creates a deep copy of the array.
+
+    \sa detach()
 */
 
 
@@ -191,8 +193,9 @@ void QPointArray::point(int index, int *x, int *y) const
 */
 
 /*!
-    \overload
     \fn void QPointArray::setPoint( uint i, const QPoint &p )
+
+    \overload
 
     Sets the point at array index \a i to \a p.
 */

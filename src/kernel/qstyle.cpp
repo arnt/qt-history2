@@ -50,8 +50,8 @@ public:
     QStyle functions to see the meaning of the arguments.
 
     When calling QStyle functions from your own widgets, you must only
-    pass either the default QStyleOption or the argument that QStyle
-    is documented to accept. For example, if the function expects
+    pass the default QStyleOption or the argument that QStyle is
+    documented to accept. For example, if the function expects
     QStyleOption(QMenuItem *, int), passing QStyleOption(QMenuItem *)
     leaves the optional integer argument uninitialized.
 
@@ -156,9 +156,9 @@ public:
 */
 
 /*!
-  \fn QStyleOption::QStyleOption( QWidget *w )
+    \fn QStyleOption::QStyleOption( QWidget *w )
 
-  Pass a QWidget, \a w.
+    Pass a QWidget, \a w.
 */
 
 /*!
@@ -361,9 +361,7 @@ public:
     \value UI_AnimateCombo
     \value UI_AnimateTooltip
     \value UI_FadeTooltip
-    \omit
-    \value UI_AnimateToolBox
-    \endomit
+    \value UI_AnimateToolBox Reserved
 */
 
 /*!
@@ -714,7 +712,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value PE_GroupBoxFrame  frame around a group box; see also
 	QGroupBox.
-    \value PE_WindowFrame  frame around a MDI or docking window
+    \value PE_WindowFrame  frame around a MDI window or a docking window
 
 
     \value PE_Separator  generic separator.
@@ -744,8 +742,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PE_CheckListExclusiveIndicator radiobutton part of a listview item
 
     \value PE_CustomBase  base value for custom PrimitiveElements.
-	All values above this are reserved for custom use.  Therefore,
-	custom values must be greater than this value.
+	All values above this are reserved for custom use. Custom
+	values must be greater than this value.
 
     \sa drawPrimitive()
 */
@@ -995,7 +993,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \row \i12 \l{CE_TabBarTab}(const \l QTabBar *)
 
- 	 and
+	 and
 
 	 \l{CE_TabBarLabel}(const \l QTabBar *)
 
@@ -1562,8 +1560,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value CT_DialogButtons
 
     \value CT_CustomBase  base value for custom ControlElements. All
-	values above this are reserved for custom use. Therefore,
-	custom values must be greater than this value.
+	values above this are reserved for custom use. Custom values
+	must be greater than this value.
 
     \sa sizeFromContents()
 */

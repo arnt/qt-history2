@@ -50,7 +50,7 @@
     status text, a whats this text and a tool tip. Most of these can
     be set in the constructor. They can also be set independently with
     setIconSet(), setText(), setMenuText(), setToolTip(),
-    setStatusTip(), setWhatsThis() and setAccel(), respectively.
+    setStatusTip(), setWhatsThis() and setAccel().
 
     An action may be a toggle action e.g. a Bold toolbar button, or a
     command action, e.g. 'Open File' to invoke an open file dialog.
@@ -622,15 +622,16 @@ QString QAction::toolTip() const
     return d->toolTip();
 }
 
-/*! \property QAction::statusTip
-  \brief the action's status tip
+/*!
+    \property QAction::statusTip
+    \brief the action's status tip
 
     The statusTip is displayed on all status bars that this action's
     toplevel parent widget provides.
 
     If no status tip is defined, the action uses the tool tip text.
 
-    There is no default tooltip text.
+    There is no default statusTip text.
 
     \sa setStatusTip() setToolTip()
 */
@@ -658,7 +659,7 @@ QString QAction::statusTip() const
     \brief the action's "What's This?" help text
 
     The whats this text is used to provide a brief description of the
-    action. The text may contain rich text (i.e. HTML tags -- see
+    action. The text may contain rich text (HTML-like tags -- see
     QStyleSheet for the list of supported tags). There is no default
     "What's This" text.
 
@@ -840,13 +841,6 @@ bool QAction::isEnabled() const
     return d->enabled;
 }
 
-/* \property QAction::visible
-  \brief whether the action is visible
-
-  Invisible actions can't be seen (or chosen) by the user. They don't
-  disappear from the menu/tool bar's item list, but are not displayed.
-*/
-
 /*!
     \property QAction::visible
     \brief whether the action can be seen (e.g. in menus and toolbars)
@@ -855,8 +849,8 @@ bool QAction::isEnabled() const
     toolbars) and chosen by the user; if \e visible is FALSE the
     action cannot be seen or chosen by the user.
 
-    Actions which are not visible are \e not just grayed out; they do
-    not appear at all.
+    Actions which are not visible are \e not grayed out; they do not
+    appear at all.
 */
 void QAction::setVisible( bool visible )
 {
@@ -1161,7 +1155,7 @@ void QAction::objectDestroyed()
     \fn void QAction::activated()
 
     This signal is emitted when an action is activated by the user,
-    i.e. when the user clicks a menu option or a toolbar button or
+    e.g. when the user clicks a menu option or a toolbar button or
     presses an action's accelerator key combination.
 
     Connect to this signal for command actions. Connect to the
@@ -1888,7 +1882,7 @@ void QActionGroup::childEvent( QChildEvent *e )
 
     The argument is the action whose state changed to "on".
 
-    \sa setExclusive(), isOn()
+    \sa setExclusive(), isOn() QAction::toggled()
 */
 
 /*! \internal
