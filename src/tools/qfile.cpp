@@ -381,7 +381,7 @@ bool QFile::open( int m )
 	if ( fd != -1 ) {			// open successful
 	    STATBUF st;
 	    FSTAT( fd, &st );
-	    if ( S_ISDIR( st.st_mode ) ) {
+	    if ( (st.st_mode&STAT_MASK) == STAT_DIR ) {
 		ok = FALSE;
 	    }
 	    else {
@@ -445,7 +445,7 @@ bool QFile::open( int m )
 	if ( fh ) {
 	    STATBUF st;
 	    FSTAT( FILENO(fh), &st );
-	    if ( S_ISDIR( st.st_mode ) ) {
+	    if ( (st.st_mode&STAT_MASK) == STAT_DIR ) {
 		ok = FALSE;
 	    }
 	    else {
