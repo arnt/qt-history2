@@ -99,11 +99,6 @@ public:
     QODBCDriver( SQLHANDLE env, SQLHANDLE con, QObject * parent=0, const char * name=0 );
     ~QODBCDriver();
     bool		hasFeature( DriverFeature f ) const;
-    bool		open( const QString & db,
-			      const QString & user = QString::null,
-			      const QString & password = QString::null,
-			      const QString & host = QString::null,
-			      int port = -1 );
     void		close();
     QSqlQuery		createQuery() const;
     QStringList		tables( const QString& user ) const;
@@ -117,7 +112,6 @@ public:
 
     QString		formatValue( const QSqlField* field,
 				     bool trimStrings ) const;
-    // ### remove me for 4.0
     bool open( const QString& db,
 	       const QString& user,
 	       const QString& password,

@@ -20,7 +20,6 @@
 #include <qapplication.h>
 #endif
 #include <qdatetime.h>
-#include <private/qsqlextension_p.h>
 #include <private/qinternal_p.h>
 #include <stdlib.h>
 
@@ -68,54 +67,6 @@ public:
 			     QString &schema, QString &table);
 };
 
-class QODBCPreparedExtension : public QSqlExtension
-{
-public:
-    QODBCPreparedExtension( QODBCResult * r )
-	: result( r ) {}
-
-    bool prepare( const QString& query )
-    {
-	return result->prepare( query );
-    }
-
-    bool exec()
-    {
-	return result->exec();
-    }
-    
-    QODBCResult * result;
-};
-
-QPtrDict<QSqlOpenExtension> *qSqlOpenExtDict();
-
-class QODBCOpenExtension : public QSqlOpenExtension
-{
-public:
-    QODBCOpenExtension( QODBCDriver *dri )
-	: QSqlOpenExtension(), driver(dri) {}
-    ~QODBCOpenExtension() {}
-
-    bool open( const QString& db,
-	       const QString& user,
-	       const QString& password,
-	       const QString& host,
-	       int port,
-	       const QString& connOpts );
-private:
-    QODBCDriver *driver;
-};
-
-bool QODBCOpenExtension::open( const QString& db,
-			       const QString& user,
-			       const QString& password,
-			       const QString& host,
-			       int port,
-			       const QString& connOpts )
-{
-    return driver->open( db, user, password, host, port, connOpts );
-}
-
 static QString qWarnODBCHandle(int handleType, SQLHANDLE handle)
 {
     SQLINTEGER nativeCode_;
@@ -149,9 +100,7 @@ static QString qODBCWarn( const QODBCPrivate* odbc)
 
 static void qSqlWarning( const QString& message, const QODBCPrivate* odbc )
 {
-#ifdef QT_CHECK_RANGE
     qWarning( "%s\tError: %s", message.local8Bit(), qODBCWarn( odbc ).local8Bit() );
-#endif
 }
 
 static QSqlError qMakeError( const QString& err, int type, const QODBCPrivate* p )
@@ -268,9 +217,7 @@ static QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& i
 	} else if ( r == SQL_NO_DATA ) {
 	    break;
 	} else {
-#ifdef QT_CHECK_RANGE
 	    qWarning( "qGetStringData: Error while fetching data (%d)", r );
-#endif
 	    fieldVal = QString::null;
 	    break;
 	}
@@ -299,10 +246,8 @@ static QByteArray qGetBinaryData( SQLHANDLE hStmt, int column, SQLINTEGER& lengt
 			&colSize,
 			&colScale,
 			&nullable );
-#ifdef QT_CHECK_RANGE
     if ( r != SQL_SUCCESS )
 	qWarning( "qGetBinaryData: Unable to describe column %d", column );
-#endif
     // SQLDescribeCol may return 0 if size cannot be determined
     if (!colSize) {
 	colSize = 255;
@@ -438,9 +383,7 @@ static QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* p, int i  )
 			&nullable);
 
     if ( r != SQL_SUCCESS ) {
-#ifdef QT_CHECK_RANGE
 	qSqlWarning( QString("qMakeField: Unable to describe column %1").arg(i), p );
-#endif
 	return QSqlFieldInfo();
     }
 #ifdef UNICODE
@@ -546,15 +489,11 @@ bool QODBCPrivate::setConnectionOptions( const QString& connOpts )
 		}
 		r = SQLSetConnectAttr( hDbc, SQL_ATTR_TRACE, (SQLPOINTER) v, 0 );
 	    }
-#ifdef QT_CHECK_RANGE
               else {
 		  qWarning( QString("QODBCDriver::open: Unknown connection attribute '%1'").arg( opt ) );
 	    }
-#endif		
 	    if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
-#ifdef QT_CHECK_RANGE
 		qSqlWarning( QString("QODBCDriver::open: Unable to set connection attribute '%1'").arg( opt ), this );
-#endif
 		return FALSE;
 	    }
 	}
@@ -604,17 +543,14 @@ QODBCResult::QODBCResult( const QODBCDriver * db, QODBCPrivate* p )
 {
     d = new QODBCPrivate();
     (*d) = (*p);
-    setExtension( new QODBCPreparedExtension( this ) );
 }
 
 QODBCResult::~QODBCResult()
 {
     if ( d->hStmt && driver()->isOpen() ) {
 	SQLRETURN r = SQLFreeHandle( SQL_HANDLE_STMT, d->hStmt );
-#ifdef QT_CHECK_RANGE
 	if ( r != SQL_SUCCESS )
 	    qSqlWarning( "QODBCDriver: Unable to free statement handle " + QString::number(r), d );
-#endif
     }
 
     delete d;
@@ -632,9 +568,7 @@ bool QODBCResult::reset ( const QString& query )
     if ( d->hStmt ) {
 	r = SQLFreeHandle( SQL_HANDLE_STMT, d->hStmt );
 	if ( r != SQL_SUCCESS ) {
-#ifdef QT_CHECK_RANGE
 	    qSqlWarning( "QODBCResult::reset: Unable to free statement handle", d );
-#endif
 	    return FALSE;
 	}
     }
@@ -642,9 +576,7 @@ bool QODBCResult::reset ( const QString& query )
 			 d->hDbc,
 			 &d->hStmt );
     if ( r != SQL_SUCCESS ) {
-#ifdef QT_CHECK_RANGE
 	qSqlWarning( "QODBCResult::reset: Unable to allocate statement handle", d );
-#endif
 	return FALSE;
     }
 
@@ -660,9 +592,7 @@ bool QODBCResult::reset ( const QString& query )
 			    SQL_IS_UINTEGER );
     }
     if ( r != SQL_SUCCESS ) {
-#ifdef QT_CHECK_RANGE
 	qSqlWarning( "QODBCResult::reset: Unable to set 'SQL_CURSOR_STATIC' as statement attribute. Please check your ODBC driver configuration", d );
-#endif
 	return FALSE;
     }
 
@@ -937,10 +867,8 @@ int QODBCResult::numRowsAffected()
     SQLRETURN r = SQLRowCount( d->hStmt, &affectedRowCount );
     if ( r == SQL_SUCCESS )
 	return affectedRowCount;
-#ifdef QT_CHECK_RANGE
     else
 	qSqlWarning( "QODBCResult::numRowsAffected: Unable to count affected rows", d );
-#endif
     return -1;
 }
 
@@ -954,9 +882,7 @@ bool QODBCResult::prepare( const QString& query )
     if ( d->hStmt ) {
 	r = SQLFreeHandle( SQL_HANDLE_STMT, d->hStmt );
 	if ( r != SQL_SUCCESS ) {
-#ifdef QT_CHECK_RANGE
 	    qSqlWarning( "QODBCResult::prepare: Unable to close statement", d );
-#endif
 	    return FALSE;
 	}
     } 
@@ -964,9 +890,7 @@ bool QODBCResult::prepare( const QString& query )
 	    		 d->hDbc,
 			 &d->hStmt );
     if ( r != SQL_SUCCESS ) {
-#ifdef QT_CHECK_RANGE
 	qSqlWarning( "QODBCResult::prepare: Unable to allocate statement handle", d );
-#endif
 	return FALSE;
     }
 
@@ -982,9 +906,7 @@ bool QODBCResult::prepare( const QString& query )
 			    SQL_IS_UINTEGER );
     }
     if ( r != SQL_SUCCESS ) {
-#ifdef QT_CHECK_RANGE
 	qSqlWarning( "QODBCResult::prepare: Unable to set 'SQL_CURSOR_STATIC' as statement attribute. Please check your ODBC driver configuration", d );
-#endif
 	return FALSE;
     }
 
@@ -1000,9 +922,7 @@ bool QODBCResult::prepare( const QString& query )
 #endif
 
     if ( r != SQL_SUCCESS ) {
-#ifdef QT_CHECK_RANGE
 	qSqlWarning( "QODBCResult::prepare: Unable to prepare statement", d );
-#endif
 	return FALSE;
     }    
     return TRUE;
@@ -1019,9 +939,7 @@ bool QODBCResult::exec()
     d->rInf.clear();
 
     if ( !d->hStmt ) {
-#ifdef QT_CHECK_RANGE
 	    qSqlWarning( "QODBCResult::exec: No statement handle available", d );
-#endif
 	    return FALSE;
     } else {
 	r = SQLFreeStmt( d->hStmt, SQL_CLOSE );
@@ -1032,170 +950,161 @@ bool QODBCResult::exec()
     }
 
     // bind parameters - only positional binding allowed
-    if ( extension()->index.count() > 0 ) {
-	QMap<int, QString>::Iterator it;
-	int para = 1;
-	QVariant val;
-	for ( it = extension()->index.begin(); it != extension()->index.end(); ++it ) {
-	    val = extension()->values[ it.data() ].value;
-	    SQLINTEGER * ind = new SQLINTEGER( SQL_NTS );
-	    tmpStorage.append( qAutoDeleter(ind) );
-	    if ( val.isNull() ) {
-		*ind = SQL_NULL_DATA;
-	    }
-	    switch ( val.type() ) {
-		case QVariant::Date: {
-		    DATE_STRUCT * dt = new DATE_STRUCT;
-		    tmpStorage.append( qAutoDeleter(dt) );
-		    QDate qdt = val.toDate();
-		    dt->year = qdt.year();
-		    dt->month = qdt.month();
-		    dt->day = qdt.day();
-		    r = SQLBindParameter( d->hStmt,
-					  para,
-					  qParamType[ (int)extension()->values[ it.data() ].typ ],
-					  SQL_C_DATE,
-					  SQL_DATE,
-					  0,
-					  0,
-					  (void *) dt,
-					  0,
-					  *ind == SQL_NULL_DATA ? ind : NULL );
-		    break; }
-		case QVariant::Time: {
-		    TIME_STRUCT * dt = new TIME_STRUCT;
-		    tmpStorage.append( qAutoDeleter(dt) );
-		    QTime qdt = val.toTime();
-		    dt->hour = qdt.hour();
-		    dt->minute = qdt.minute();
-		    dt->second = qdt.second();
-		    r = SQLBindParameter( d->hStmt,
-					  para,
-					  qParamType[ (int)extension()->values[ it.data() ].typ ],
-					  SQL_C_TIME,
-					  SQL_TIME,
-					  0,
-					  0,
-					  (void *) dt,
-					  0,
-	        			  *ind == SQL_NULL_DATA ? ind : NULL );
-		    break; }
-		case QVariant::DateTime: {
-		    TIMESTAMP_STRUCT * dt = new TIMESTAMP_STRUCT;
-		    tmpStorage.append( qAutoDeleter(dt) );
-		    QDateTime qdt = val.toDateTime();
-		    dt->year = qdt.date().year();
-		    dt->month = qdt.date().month();
-		    dt->day = qdt.date().day();
-		    dt->hour = qdt.time().hour();
-		    dt->minute = qdt.time().minute();
-		    dt->second = qdt.time().second();
-		    dt->fraction = 0;
-		    r = SQLBindParameter( d->hStmt,
-					  para,
-					  qParamType[ (int)extension()->values[ it.data() ].typ ],
-					  SQL_C_TIMESTAMP,
-					  SQL_TIMESTAMP,
-					  0,
-					  0,
-					  (void *) dt,
-					  0,
-					  *ind == SQL_NULL_DATA ? ind : NULL );
-		    break; }
-	        case QVariant::Int: {
-		    int * v = new int( val.toInt() );
-		    tmpStorage.append( qAutoDeleter(v) );
-		    r = SQLBindParameter( d->hStmt,
-					  para,
-					  qParamType[ (int)extension()->values[ it.data() ].typ ],
-					  SQL_C_SLONG,
-					  SQL_INTEGER,
-					  0,
-					  0,
-					  (void *) v,
-					  0,
-					  *ind == SQL_NULL_DATA ? ind : NULL );
-		    break; }
-	        case QVariant::Double: {
-		    double * v = new double( val.toDouble() );
-		    tmpStorage.append( qAutoDeleter(v) );
-		    r = SQLBindParameter( d->hStmt,
-					  para,
-					  qParamType[ (int)extension()->values[ it.data() ].typ ],
-					  SQL_C_DOUBLE,
-					  SQL_DOUBLE,
-					  0,
-					  0,
-					  (void *) v,
-					  0,
-					  *ind == SQL_NULL_DATA ? ind : NULL );
-		    break; }
-	        case QVariant::ByteArray: {
-		    if ( *ind != SQL_NULL_DATA ) {
-			*ind = val.asByteArray().size();
-		    }
-		    r = SQLBindParameter( d->hStmt,
-					  para,
-					  qParamType[ (int)extension()->values[ it.data() ].typ ],
-					  SQL_C_BINARY,
-					  SQL_LONGVARBINARY,
-					  val.asByteArray().size(),
-					  0,
-					  (void *) val.asByteArray().data(),
-					  val.asByteArray().size(),
-					  ind );
-		    break; }
+    QVector<QVariant>& values = boundValues();
+    int i;
+    for ( i = 0; i < values.count(); ++i ) {
+	QVariant val = values[i];
+	SQLINTEGER * ind = new SQLINTEGER( SQL_NTS );
+	tmpStorage.append( qAutoDeleter(ind) );
+	if ( val.isNull() )
+	    *ind = SQL_NULL_DATA;
+	switch ( val.type() ) {
+	    case QVariant::Date: {
+		DATE_STRUCT * dt = new DATE_STRUCT;
+		tmpStorage.append( qAutoDeleter(dt) );
+		QDate qdt = val.toDate();
+		dt->year = qdt.year();
+		dt->month = qdt.month();
+		dt->day = qdt.day();
+		r = SQLBindParameter( d->hStmt,
+				      i + 1,
+				      qParamType[ (int)bindValueType(i) ],
+				      SQL_C_DATE,
+				      SQL_DATE,
+				      0,
+				      0,
+				      (void *) dt,
+				      0,
+				      *ind == SQL_NULL_DATA ? ind : NULL );
+		break; }
+	    case QVariant::Time: {
+		TIME_STRUCT * dt = new TIME_STRUCT;
+		tmpStorage.append( qAutoDeleter(dt) );
+		QTime qdt = val.toTime();
+		dt->hour = qdt.hour();
+		dt->minute = qdt.minute();
+		dt->second = qdt.second();
+		r = SQLBindParameter( d->hStmt,
+				      i + 1,
+				      qParamType[ (int)bindValueType(i) ],
+				      SQL_C_TIME,
+				      SQL_TIME,
+				      0,
+				      0,
+				      (void *) dt,
+				      0,
+				      *ind == SQL_NULL_DATA ? ind : NULL );
+		break; }
+	    case QVariant::DateTime: {
+		TIMESTAMP_STRUCT * dt = new TIMESTAMP_STRUCT;
+		tmpStorage.append( qAutoDeleter(dt) );
+		QDateTime qdt = val.toDateTime();
+		dt->year = qdt.date().year();
+		dt->month = qdt.date().month();
+		dt->day = qdt.date().day();
+		dt->hour = qdt.time().hour();
+		dt->minute = qdt.time().minute();
+		dt->second = qdt.time().second();
+		dt->fraction = 0;
+		r = SQLBindParameter( d->hStmt,
+				      i + 1,
+				      qParamType[ (int)bindValueType(i) ],
+				      SQL_C_TIMESTAMP,
+				      SQL_TIMESTAMP,
+				      0,
+				      0,
+				      (void *) dt,
+				      0,
+				      *ind == SQL_NULL_DATA ? ind : NULL );
+		break; }
+	    case QVariant::Int: {
+		int * v = new int( val.toInt() );
+		tmpStorage.append( qAutoDeleter(v) );
+		r = SQLBindParameter( d->hStmt,
+				      i + 1,
+				      qParamType[ (int)bindValueType(i) ],
+				      SQL_C_SLONG,
+				      SQL_INTEGER,
+				      0,
+				      0,
+				      (void *) v,
+				      0,
+				      *ind == SQL_NULL_DATA ? ind : NULL );
+		break; }
+	    case QVariant::Double: {
+		double * v = new double( val.toDouble() );
+		tmpStorage.append( qAutoDeleter(v) );
+		r = SQLBindParameter( d->hStmt,
+				      i + 1,
+				      qParamType[ (int)bindValueType(i) ],
+				      SQL_C_DOUBLE,
+				      SQL_DOUBLE,
+				      0,
+				      0,
+				      (void *) v,
+				      0,
+				      *ind == SQL_NULL_DATA ? ind : NULL );
+		break; }
+	    case QVariant::ByteArray: {
+		if ( *ind != SQL_NULL_DATA ) {
+		    *ind = val.asByteArray().size();
+		}
+		r = SQLBindParameter( d->hStmt,
+				      i + 1,
+				      qParamType[ (int)bindValueType(i) ],
+				      SQL_C_BINARY,
+				      SQL_LONGVARBINARY,
+				      val.asByteArray().size(),
+				      0,
+				      (void *) val.asByteArray().data(),
+				      val.asByteArray().size(),
+				      ind );
+		break; }
 #ifndef Q_ODBC_VERSION_2
-	        case QVariant::String:
-		    if ( d->unicode ) {
-			QString * str = new QString( val.asString() );
-			str->ucs2();
-			int len = str->length()*2;
-			tmpStorage.append( qAutoDeleter(str) );
-			r = SQLBindParameter( d->hStmt,
-					      para,
-					      qParamType[ (int)extension()->values[ it.data() ].typ ],
-					      SQL_C_WCHAR,
-					      SQL_WVARCHAR,
-					      0, // god knows... don't change this!
-					      0,
-					      (void *) str->unicode(),
-					      len,
-					      ind );
-			break;
-		    }
-#endif
-		    // fall through
-	        default: {
-		    QByteArray * str = new QByteArray( val.asString().local8Bit() );
-		    tmpStorage.append( qAutoDeleter(str) );
-		    r = SQLBindParameter( d->hStmt,
-					  para,
-					  qParamType[ (int)extension()->values[ it.data() ].typ ],
-					  SQL_C_CHAR,
-					  SQL_VARCHAR,
-  					  str->length() + 1,
-					  0,
-					  (void *) str->data(),
-					  str->length() + 1,
-					  ind );
-		    break; }
+	    case QVariant::String:
+		if ( d->unicode ) {
+		QString * str = new QString( val.asString() );
+		str->ucs2();
+		int len = str->length()*2;
+		tmpStorage.append( qAutoDeleter(str) );
+		r = SQLBindParameter( d->hStmt,
+				      i + 1,
+				      qParamType[ (int)bindValueType(i) ],
+				      SQL_C_WCHAR,
+				      SQL_WVARCHAR,
+				      0, // god knows... don't change this!
+				      0,
+				      (void *) str->unicode(),
+				      len,
+				      ind );
+		break;
 	    }
-	    para++;
-	    if ( r != SQL_SUCCESS ) {
-#ifdef QT_CHECK_RANGE
-		qWarning( "QODBCResult::exec: unable to bind variable: %s", qODBCWarn( d ).local8Bit() );
 #endif
-		setLastError( qMakeError( "Unable to bind variable", QSqlError::Statement, d ) );
-		return FALSE;
-	    }
+	    // fall through
+	    default: {
+		QByteArray * str = new QByteArray( val.asString().local8Bit() );
+		tmpStorage.append( qAutoDeleter(str) );
+		r = SQLBindParameter( d->hStmt,
+				      i + 1,
+				      qParamType[ (int)bindValueType(i) ],
+				      SQL_C_CHAR,
+				      SQL_VARCHAR,
+				      str->length() + 1,
+				      0,
+				      (void *) str->data(),
+				      str->length() + 1,
+				      ind );
+		break; }
+	}
+	if ( r != SQL_SUCCESS ) {
+	    qWarning( "QODBCResult::exec: unable to bind variable: %s", qODBCWarn( d ).local8Bit() );
+	    setLastError( qMakeError( "Unable to bind variable", QSqlError::Statement, d ) );
+	    return FALSE;
 	}
     }
     r = SQLExecute( d->hStmt );
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
-#ifdef QT_CHECK_RANGE
 	qWarning( "QODBCResult::exec: Unable to execute statement: %s", qODBCWarn( d ).local8Bit() );
-#endif
 	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	return FALSE;
     }
@@ -1212,9 +1121,8 @@ bool QODBCResult::exec()
     setActive( TRUE );
     
     //get out parameters
-    if ( extension()->index.count() > 0 ) {
-	QMap<int, QString>::Iterator it;
-	for ( it = extension()->index.begin(); it != extension()->index.end(); ++it ) {
+    if ( hasOutValues() ) {
+	for ( i = 0; i < values.count(); ++i ) {    
 	
 	    SQLINTEGER* indPtr = qAutoDeleterData( (QAutoDeleter<SQLINTEGER>*)tmpStorage.getFirst() );
 	    if ( !indPtr )
@@ -1224,49 +1132,51 @@ bool QODBCResult::exec()
 
 	    if ( isNull ) {
 		QVariant v;
-		v.cast( extension()->values[ it.data() ].value.type() );
-		extension()->values[ it.data() ].value = v;
-		tmpStorage.removeFirst();
+		v.cast( values[i].type() );
+		values[ i ] = v;
+		if ( values[ i ].type() != QVariant::ByteArray )
+		    tmpStorage.removeFirst();
 		continue;
 	    }
 
-	    switch ( extension()->values[ it.data() ].value.type() ) {
+	    switch ( values[ i ].type() ) {
 		case QVariant::Date: {
 		    DATE_STRUCT * ds = qAutoDeleterData( (QAutoDeleter<DATE_STRUCT>*)tmpStorage.getFirst() );
-		    extension()->values[ it.data() ].value = QVariant( QDate( ds->year, ds->month, ds->day ) );
+		    values[i] = QVariant( QDate( ds->year, ds->month, ds->day ) );
 		    break; }
 		case QVariant::Time: {
 		    TIME_STRUCT * dt = qAutoDeleterData( (QAutoDeleter<TIME_STRUCT>*)tmpStorage.getFirst() );
-		    extension()->values[ it.data() ].value = QVariant( QTime( dt->hour, dt->minute, dt->second ) );
+		    values[i] = QVariant( QTime( dt->hour, dt->minute, dt->second ) );
 		    break; }
 		case QVariant::DateTime: {
 		    TIMESTAMP_STRUCT * dt = qAutoDeleterData( (QAutoDeleter<TIMESTAMP_STRUCT>*)tmpStorage.getFirst() );
-		    extension()->values[ it.data() ].value = QVariant( QDateTime( QDate( dt->year, dt->month, dt->day ), 
+		    values[i] = QVariant( QDateTime( QDate( dt->year, dt->month, dt->day ), 
 								       QTime( dt->hour, dt->minute, dt->second ) ) );
 		    break; }
 	        case QVariant::Int: {
 		    int * v = qAutoDeleterData( (QAutoDeleter<int>*)tmpStorage.getFirst() );
-		    extension()->values[ it.data() ].value = QVariant( *v );
+		    values[i] = QVariant( *v );
 		    break; }
 	        case QVariant::Double: {
 		    double * v = qAutoDeleterData( (QAutoDeleter<double>*)tmpStorage.getFirst() );
-		    extension()->values[ it.data() ].value = QVariant( *v );
+		    values[i] = QVariant( *v );
 		    break; }
 	        case QVariant::ByteArray:
 		    break;
 	        case QVariant::String:
 		    if ( d->unicode ) {
 			QString * str = qAutoDeleterData( (QAutoDeleter<QString>*)tmpStorage.getFirst() );
-			extension()->values[ it.data() ].value = QVariant( *str );
+			values[i] = QVariant( *str );
 			break;
 		    }
 		    // fall through
 	        default: {
 		    QByteArray * str = qAutoDeleterData( (QAutoDeleter<QByteArray>*)tmpStorage.getFirst() );
-		    extension()->values[ it.data() ].value = QVariant( *str );
+		    values[i] = QVariant( *str );
 		    break; }
 	    }
-	    tmpStorage.removeFirst();
+	    if ( values[ i ].type() != QVariant::ByteArray )
+		tmpStorage.removeFirst();
 	}
     }
         
@@ -1296,7 +1206,6 @@ QODBCDriver::QODBCDriver( SQLHANDLE env, SQLHANDLE con, QObject * parent, const 
 
 void QODBCDriver::init()
 {
-    qSqlOpenExtDict()->insert( this, new QODBCOpenExtension(this) );
     d = new QODBCPrivate();
 }
 
@@ -1304,10 +1213,6 @@ QODBCDriver::~QODBCDriver()
 {
     cleanup();
     delete d;
-    if ( !qSqlOpenExtDict()->isEmpty() ) {
-	QSqlOpenExtension *ext = qSqlOpenExtDict()->take( this );
-	delete ext;
-    }
 }
 
 bool QODBCDriver::hasFeature( DriverFeature f ) const
@@ -1343,16 +1248,6 @@ bool QODBCDriver::hasFeature( DriverFeature f ) const
     }
 }
 
-bool QODBCDriver::open( const QString&,
-			const QString&,
-			const QString&,
-			const QString&,
-			int )
-{
-    qWarning("QODBCDriver::open(): This version of open() is no longer supported." );
-    return FALSE;
-}
-
 bool QODBCDriver::open( const QString & db,
 			const QString & user,
 			const QString & password,
@@ -1367,9 +1262,7 @@ bool QODBCDriver::open( const QString & db,
 			SQL_NULL_HANDLE,
 			&d->hEnv);
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
-#ifdef QT_CHECK_RANGE
 	qSqlWarning( "QODBCDriver::open: Unable to allocate environment", d );
-#endif
 	setOpenError( TRUE );
 	return FALSE;
     }
@@ -1381,9 +1274,7 @@ bool QODBCDriver::open( const QString & db,
 		        d->hEnv,
 		        &d->hDbc);
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
-#ifdef QT_CHECK_RANGE
 	qSqlWarning( "QODBCDriver::open: Unable to allocate connection", d );
-#endif
 	setOpenError( TRUE );
 	return FALSE;
     }
@@ -1452,26 +1343,20 @@ void QODBCDriver::cleanup()
 	// Open statements/descriptors handles are automatically cleaned up by SQLDisconnect
 	if ( isOpen() ) {
 	    r = SQLDisconnect( d->hDbc );
-#ifdef QT_CHECK_RANGE
 	    if ( r != SQL_SUCCESS )
 		qSqlWarning( "QODBCDriver::disconnect: Unable to disconnect datasource", d );
-#endif
 	}
 
 	r = SQLFreeHandle( SQL_HANDLE_DBC, d->hDbc );
-#ifdef QT_CHECK_RANGE
 	if ( r != SQL_SUCCESS )
 	    qSqlWarning( "QODBCDriver::cleanup: Unable to free connection handle", d );
-#endif
 	d->hDbc = 0;
     }
 
     if ( d->hEnv ) {
 	r = SQLFreeHandle( SQL_HANDLE_ENV, d->hEnv );
-#ifdef QT_CHECK_RANGE
 	if ( r != SQL_SUCCESS )
 	    qSqlWarning( "QODBCDriver::cleanup: Unable to free environment handle", d );
-#endif
 	d->hEnv = 0;
     }
 }
@@ -1546,17 +1431,13 @@ bool QODBCPrivate::checkDriver() const
 
 	r = SQLGetFunctions( hDbc, reqFunc[ i ], &sup );
 
-#ifdef QT_CHECK_RANGE
         if ( r != SQL_SUCCESS ) {
 	    qSqlWarning( "QODBCDriver::checkDriver: Cannot get list of supported functions", this );
 	    return FALSE;
 	}
-#endif
 	if ( sup == SQL_FALSE ) {
-#ifdef QT_CHECK_RANGE
 	    qWarning ( "QODBCDriver::open: Warning - Driver doesn't support all needed functionality (%d). "
 		       "Please look at the Qt SQL Module Driver documentation for more information.", reqFunc[ i ] );
-#endif
 	    return FALSE;
 	}
     }
@@ -1566,16 +1447,12 @@ bool QODBCPrivate::checkDriver() const
 
 	r = SQLGetFunctions( hDbc, optFunc[ i ], &sup );
 
-#ifdef QT_CHECK_RANGE
         if ( r != SQL_SUCCESS ) {
 	    qSqlWarning( "QODBCDriver::checkDriver: Cannot get list of supported functions", this );
 	    return FALSE;
 	}
-#endif
 	if ( sup == SQL_FALSE ) {
-#ifdef QT_CHECK_RANGE
 	    qWarning( "QODBCDriver::checkDriver: Warning - Driver doesn't support some non-critical functions (%d)", optFunc[ i ] );
-#endif
 	    return TRUE;
 	}
     }
@@ -1606,9 +1483,7 @@ QSqlQuery QODBCDriver::createQuery() const
 bool QODBCDriver::beginTransaction()
 {
     if ( !isOpen() ) {
-#ifdef QT_CHECK_RANGE
 	qWarning(" QODBCDriver::beginTransaction: Database not open" );
-#endif
 	return FALSE;
     }
     SQLUINTEGER ac(SQL_AUTOCOMMIT_OFF);
@@ -1626,9 +1501,7 @@ bool QODBCDriver::beginTransaction()
 bool QODBCDriver::commitTransaction()
 {
     if ( !isOpen() ) {
-#ifdef QT_CHECK_RANGE
 	qWarning(" QODBCDriver::commitTransaction: Database not open" );
-#endif
 	return FALSE;
     }
     SQLRETURN r = SQLEndTran( SQL_HANDLE_DBC,
@@ -1644,9 +1517,7 @@ bool QODBCDriver::commitTransaction()
 bool QODBCDriver::rollbackTransaction()
 {
     if ( !isOpen() ) {
-#ifdef QT_CHECK_RANGE
 	qWarning(" QODBCDriver::rollbackTransaction: Database not open" );
-#endif
 	return FALSE;
     }
     SQLRETURN r = SQLEndTran( SQL_HANDLE_DBC,
@@ -1685,9 +1556,7 @@ QStringList QODBCDriver::tables( const QString& typeName ) const
 				  d->hDbc,
 				  &hStmt );
     if ( r != SQL_SUCCESS ) {
-#ifdef QT_CHECK_RANGE
 	qSqlWarning( "QODBCDriver::tables: Unable to allocate handle", d );
-#endif
 	return tl;
     }
     r = SQLSetStmtAttr( hStmt,
@@ -1719,10 +1588,8 @@ QStringList QODBCDriver::tables( const QString& typeName ) const
 #endif
 		   tableType.length() /* characters, not bytes */ );
 
-#ifdef QT_CHECK_RANGE
     if ( r != SQL_SUCCESS )
 	qSqlWarning( "QODBCDriver::tables Unable to execute table list", d );
-#endif
     r = SQLFetchScroll( hStmt,
 			SQL_FETCH_NEXT,
 			0);
@@ -1754,9 +1621,7 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 				  d->hDbc,
 				  &hStmt );
     if ( r != SQL_SUCCESS ) {
-#ifdef QT_CHECK_RANGE
 	qSqlWarning( "QODBCDriver::primaryIndex: Unable to list primary key", d );
-#endif
 	return index;
     }
     QString catalog, schema, table;
@@ -1814,9 +1679,7 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 				   SQL_NULLABLE );
 
 	    if ( r != SQL_SUCCESS ) {
-#ifdef QT_CHECK_RANGE
 		qSqlWarning( "QODBCDriver::primaryIndex: Unable to execute primary key list", d );
-#endif
 	    } else {
 		usingSpecialColumns = TRUE;
 	    }
@@ -1871,9 +1734,7 @@ QSqlRecordInfo QODBCDriver::recordInfo( const QString& tablename ) const
 				  d->hDbc,
 				  &hStmt );
     if ( r != SQL_SUCCESS ) {
-#ifdef QT_CHECK_RANGE
 	qSqlWarning( "QODBCDriver::record: Unable to allocate handle", d );
-#endif
 	return fil;
     }
     r = SQLSetStmtAttr( hStmt,
@@ -1901,10 +1762,8 @@ QSqlRecordInfo QODBCDriver::recordInfo( const QString& tablename ) const
 		     table.length(),
 		     NULL,
 		     0 );
-#ifdef QT_CHECK_RANGE
     if ( r != SQL_SUCCESS )
 	qSqlWarning( "QODBCDriver::record: Unable to execute column list", d );
-#endif
     r = SQLFetchScroll( hStmt,
 			SQL_FETCH_NEXT,
 			0);
