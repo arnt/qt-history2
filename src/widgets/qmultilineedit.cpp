@@ -366,7 +366,7 @@ void QMultiLineEdit::setCursorPosition( int line, int col, bool mark )
 {
     if ( !mark )
 	selectAll( FALSE );
-    setCursorPosition( line, col );
+    QTextEdit::setCursorPosition( line, col );
     if ( mark )
 	document()->setSelectionEnd( QTextDocument::Standard, textCursor() );
 }
