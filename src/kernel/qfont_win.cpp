@@ -316,11 +316,13 @@ void QFontPrivate::initFontInfo()
 void QFontPrivate::load()
 {
     if ( !fontCache )				// not initialized
-		return;
-	if ( !request.dirty )
-		return;
+	return;
+    if ( !request.dirty )
+	return;
 
     QString k = key();
+    if ( paintdevice )
+	k += "/" + QPaintDeviceMetrics( paintdevice ).logicalDpiY();
     QFontStruct *qfs = fontCache->find( k );
 
     if ( !qfs ) {			// font was never loaded
@@ -768,7 +770,7 @@ void *QFontMetrics::textMetric() const
     if ( painter ) {
 	return painter->textMetric();
 #ifdef Q_OS_TEMP
-	} else
+    } else
 	return d->fin->textMetricW();
 #else
 #ifdef UNICODE
