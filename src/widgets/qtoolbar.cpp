@@ -296,6 +296,10 @@ void QToolBar::show()
 }
 
 
+/*!
+  \reimp
+*/
+
 void QToolBar::hide()
 {
     if ( mw )

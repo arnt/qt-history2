@@ -98,12 +98,15 @@ public:
     QList<QToolBar> toolBars( ToolBarDock dock ) const;
     void lineUpToolBars( bool keepNewLines = FALSE );
 
+    bool isDockMenuEnabled() const;
+    
 public slots:
     virtual void setRightJustification( bool );
     virtual void setUsesBigPixmaps( bool );
     void setUsesTextLabel( bool ); // virtual 3.0
     void setToolBarsMovable( bool ); // virtual 3.0
     void setOpaqueMoving( bool ); // virtual 3.0
+    void setDockMenuEnabled( bool );
 
     void whatsThis();
 

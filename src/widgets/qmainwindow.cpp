@@ -116,6 +116,13 @@ static int size_extend( const QSize &s, Qt::Orientation o, bool swap = FALSE )
 	return s.height();
 }
 
+static QSize size_hint( QToolBar *tb )
+{
+    if ( !tb || !tb->isVisible() )
+	return QSize( 0, 0 );
+    return tb->sizeHint();
+}
+
 //************************************************************************************************
 // ------------------------ QMainWindowPrivate  -----------------------
 //************************************************************************************************
@@ -161,6 +168,7 @@ public:
 	lastTopHeight = -1;
 	movable = TRUE;
 	inMovement = FALSE;
+	dockMenu = TRUE;
     }
 
     ToolBar *findToolbar( QToolBar *t, QMainWindowPrivate::ToolBarDock *&dock );
@@ -230,7 +238,8 @@ public:
     bool movable;
     bool opaque;
     bool inMovement;
-
+    bool dockMenu;
+    
     QMap< int, bool > dockable;
 };
 
@@ -332,7 +341,7 @@ QSize QToolLayout::sizeHint() const
     QMainWindowPrivate::ToolBar *tb;
     while ( (tb=it.current()) != 0 ) {
 	++it;
-	QSize ms = tb->t->sizeHint().expandedTo(tb->t->minimumSize());
+	QSize ms = size_hint( tb->t ).expandedTo( tb->t->minimumSize() );
 	h += ms.height();
 	w = QMAX( w, ms.width() );
     }
@@ -396,7 +405,7 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
     int pos = rect_pos( r, o, TRUE );
     int lineExtend = 0;
     while ( TRUE ) {
-	QSize sh = t && t->t->isVisible() ? t->t->sizeHint() : QSize();
+	QSize sh = t ? size_hint( t->t ) : QSize();
 	int nx = e;
 	if ( t && t->extraOffset != -1 && t->extraOffset > e )
 	    nx = t->extraOffset;
@@ -416,7 +425,7 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 		    p = t2->extraOffset;
 		}
 		if ( o == Qt::Horizontal ) {
-		    int ext = t2->t->sizeHint().width();
+		    int ext = size_hint( t2->t ).width();
 		    if ( p + ext > r.width() && p == t2->extraOffset )
 			p = QMAX( p - space, r.width() - ext );
 		    if ( p > oldPos && tmp && ( tmp->t->isHorizontalStretchable() || fill ) ) {
@@ -430,7 +439,7 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 			ext = r.width() - p;
 		    g = QRect( p, pos, ext , lineExtend );
 		} else {
-		    int ext = t2->t->sizeHint().height();
+		    int ext = size_hint( t2->t ).height();
 		    if ( p + ext > r.y() + r.height() && p == t2->extraOffset )
 			p = QMAX( p - space, ( r.y() + r.height() ) - ext );
 		    if ( p > oldPos && tmp && ( tmp->t->isVerticalStretchable() || fill ) ) {
@@ -970,6 +979,10 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
     bool makeNextNl = FALSE;
     bool hadNl = FALSE;
     while ( t ) {
+	if ( !t->t->isVisible() ) {
+	    t = dl->next();
+	    continue;
+	}
 	if ( t->t == tb )
 	    hadNl = t->nl;
 	else
@@ -2769,9 +2782,13 @@ void QMainWindow::lineUpToolBars( bool keepNewLines )
     triggerLayout();
 }
 
+/*!
+  \internal
+*/
+
 void QMainWindow::rightMouseButtonMenu( const QPoint &p )
 {
-    if ( !d->movable )
+    if ( !d->movable || !d->dockMenu )
 	return;
 
     QMainWindowPrivate::ToolBarDock* docks[] = {
@@ -2819,4 +2836,30 @@ void QMainWindow::rightMouseButtonMenu( const QPoint &p )
 	    moveToolBar( t->t, t->oldDock, t->nl, t->oldIndex, t->extraOffset );
 	}
     }
+}
+
+/*!
+  Returns TRUE, if rightclicking on an empty space on a toolbar dock
+  opens a popup menu which allows lining up toolbars and hiding/showing
+  toolbars.
+  
+  \sa setDockEnabled(), lineUpToolBars()
+*/
+
+bool QMainWindow::isDockMenuEnabled() const
+{
+    return d->dockMenu;
+}
+
+/*!
+  When passing TRUE for \a b here, rightclicking on an empty space on a toolbar dock
+  opens a popup menu which allows lining up toolbars and hiding/showing
+  toolbars.
+  
+  \sa lineUpToolBars(), isDockMenuEnabled()
+*/
+
+void QMainWindow::setDockMenuEnabled( bool b )
+{
+    d->dockMenu = b;
 }
