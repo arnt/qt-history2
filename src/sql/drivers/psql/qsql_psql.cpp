@@ -847,6 +847,13 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 	    else
 		r = "FALSE";
 	    break;
+	case QVariant::ByteArray:
+#ifdef QT_CHECKRANGE
+	    // bytearrays cannot be inserted directly into postgresql
+	    qWarning( "QPSQLDriver::formatValue: cannot format ByteArray." );
+#endif
+	    return QString();
+	    break;
 	default:
 	    r = QSqlDriver::formatValue( field );
 	    break;
