@@ -42,14 +42,13 @@ public:
     void drawLines(const QLineF *lines, int lineCount);
     void drawPoints(const QPointF *p, int pointCount);
 
-    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
+    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
 
     void drawPath(const QPainterPath &path);
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
     inline void drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode)
         { QPaintEngine::drawPolygon(points, pointCount, mode); }
-    void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
-			 Qt::PixmapDrawingMode mode);
+    void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s);
     void drawImage(const QRectF &r, const QImage &image, const QRectF &sr,
                    Qt::ImageConversionFlags conversionFlags);
     void drawTextItem(const QPointF &p, const QTextItem &ti);

@@ -226,43 +226,28 @@ public:
     void drawConvexPolygon(const QPoint *points, int pointCount);
     inline void drawConvexPolygon(const QPolygon &polygon);
 
-    void drawTiledPixmap(const QRectF &rect, const QPixmap &pm, const QPointF &offset = QPointF(),
-                         Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
-    inline void drawTiledPixmap(int x, int y, int w, int h, const QPixmap &, int sx=0, int sy=0,
-			 Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
-    inline void drawTiledPixmap(const QRect &, const QPixmap &, const QPoint & = QPoint(),
-                         Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
-
+    void drawTiledPixmap(const QRectF &rect, const QPixmap &pm, const QPointF &offset = QPointF());
+    inline void drawTiledPixmap(int x, int y, int w, int h, const QPixmap &, int sx=0, int sy=0);
+    inline void drawTiledPixmap(const QRect &, const QPixmap &, const QPoint & = QPoint());
 #ifndef QT_NO_PICTURE
     void drawPicture(const QPointF &p, const QPicture &picture);
     inline void drawPicture(int x, int y, const QPicture &picture);
     inline void drawPicture(const QPoint &p, const QPicture &picture);
 #endif
 
-    void drawPixmap(const QRectF &targetRect, const QPixmap &pixmap, const QRectF &sourceRect,
-                    Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
-    inline void drawPixmap(const QRect &targetRect, const QPixmap &pixmap, const QRect &sourceRect,
-                           Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
+    void drawPixmap(const QRectF &targetRect, const QPixmap &pixmap, const QRectF &sourceRect);
+    inline void drawPixmap(const QRect &targetRect, const QPixmap &pixmap, const QRect &sourceRect);
     inline void drawPixmap(int x, int y, int w, int h, const QPixmap &pm,
-                           int sx, int sy, int sw, int sh,
-                           Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
+                           int sx, int sy, int sw, int sh);
     inline void drawPixmap(int x, int y, const QPixmap &pm,
-                           int sx, int sy, int sw, int sh,
-                           Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
-    inline void drawPixmap(const QPointF &p, const QPixmap &pm, const QRectF &sr,
-                           Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
-    inline void drawPixmap(const QPoint &p, const QPixmap &pm, const QRect &sr,
-                           Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
-    inline void drawPixmap(const QPointF &p, const QPixmap &pm,
-                           Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
-    inline void drawPixmap(const QPoint &p, const QPixmap &pm,
-                           Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
-    inline void drawPixmap(int x, int y, const QPixmap &pm,
-                           Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
-    inline void drawPixmap(const QRect &r, const QPixmap &pm,
-                           Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
-    inline void drawPixmap(int x, int y, int w, int h, const QPixmap &pm,
-                           Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
+                           int sx, int sy, int sw, int sh);
+    inline void drawPixmap(const QPointF &p, const QPixmap &pm, const QRectF &sr);
+    inline void drawPixmap(const QPoint &p, const QPixmap &pm, const QRect &sr);
+    inline void drawPixmap(const QPointF &p, const QPixmap &pm);
+    inline void drawPixmap(const QPoint &p, const QPixmap &pm);
+    inline void drawPixmap(int x, int y, const QPixmap &pm);
+    inline void drawPixmap(const QRect &r, const QPixmap &pm);
+    inline void drawPixmap(int x, int y, int w, int h, const QPixmap &pm);
 
     void drawImage(const QRectF &targetRect, const QImage &image, const QRectF &sourceRect,
                    Qt::ImageConversionFlags flags = Qt::AutoColor);
@@ -606,72 +591,66 @@ inline void QPainter::setBrushOrigin(const QPoint &p)
     setBrushOrigin(QPointF(p));
 }
 
-inline void QPainter::drawTiledPixmap(const QRect &rect, const QPixmap &pm, const QPoint &offset,
-                                      Qt::PixmapDrawingMode mode)
+inline void QPainter::drawTiledPixmap(const QRect &rect, const QPixmap &pm, const QPoint &offset)
 {
-    drawTiledPixmap(QRectF(rect), pm, QPointF(offset), mode);
+    drawTiledPixmap(QRectF(rect), pm, QPointF(offset));
 }
 
-inline void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pm, int sx, int sy,
-                                      Qt::PixmapDrawingMode mode)
+inline void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pm, int sx, int sy)
 {
-    drawTiledPixmap(QRectF(x, y, w, h), pm, QPointF(sx, sy), mode);
+    drawTiledPixmap(QRectF(x, y, w, h), pm, QPointF(sx, sy));
 }
 
-inline void QPainter::drawPixmap(const QRect &targetRect, const QPixmap &pixmap, const QRect &sourceRect,
-                                 Qt::PixmapDrawingMode mode)
+inline void QPainter::drawPixmap(const QRect &targetRect, const QPixmap &pixmap, const QRect &sourceRect)
 {
-    drawPixmap(QRectF(targetRect), pixmap, QRectF(sourceRect), mode);
+    drawPixmap(QRectF(targetRect), pixmap, QRectF(sourceRect));
 }
 
-inline void QPainter::drawPixmap(const QPointF &p, const QPixmap &pm, Qt::PixmapDrawingMode mode)
+inline void QPainter::drawPixmap(const QPointF &p, const QPixmap &pm)
 {
-    drawPixmap(QRectF(p.x(), p.y(), -1, -1), pm, QRectF(), mode);
+    drawPixmap(QRectF(p.x(), p.y(), -1, -1), pm, QRectF());
 }
 
-inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, Qt::PixmapDrawingMode mode)
+inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm)
 {
-    drawPixmap(QRectF(p.x(), p.y(), -1, -1), pm, QRectF(), mode);
+    drawPixmap(QRectF(p.x(), p.y(), -1, -1), pm, QRectF());
 }
 
-inline void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, Qt::PixmapDrawingMode mode)
+inline void QPainter::drawPixmap(const QRect &r, const QPixmap &pm)
 {
-    drawPixmap(QRectF(r), pm, QRectF(), mode);
+    drawPixmap(QRectF(r), pm, QRectF());
 }
 
-inline void QPainter::drawPixmap(int x, int y, const QPixmap &pm, Qt::PixmapDrawingMode mode)
+inline void QPainter::drawPixmap(int x, int y, const QPixmap &pm)
 {
-    drawPixmap(QRectF(x, y, -1, -1), pm, QRectF(), mode);
+    drawPixmap(QRectF(x, y, -1, -1), pm, QRectF());
 }
 
-inline void QPainter::drawPixmap(int x, int y, int w, int h, const QPixmap &pm,
-                                 Qt::PixmapDrawingMode mode)
+inline void QPainter::drawPixmap(int x, int y, int w, int h, const QPixmap &pm)
 {
-    drawPixmap(QRectF(x, y, w, h), pm, QRectF(), mode);
+    drawPixmap(QRectF(x, y, w, h), pm, QRectF());
 }
 
 inline void QPainter::drawPixmap(int x, int y, int w, int h, const QPixmap &pm,
-                                 int sx, int sy, int sw, int sh, Qt::PixmapDrawingMode mode)
+                                 int sx, int sy, int sw, int sh)
 {
-    drawPixmap(QRectF(x, y, w, h), pm, QRectF(sx, sy, sw, sh), mode);
+    drawPixmap(QRectF(x, y, w, h), pm, QRectF(sx, sy, sw, sh));
 }
 
 inline void QPainter::drawPixmap(int x, int y, const QPixmap &pm,
-                                 int sx, int sy, int sw, int sh, Qt::PixmapDrawingMode mode)
+                                 int sx, int sy, int sw, int sh)
 {
-    drawPixmap(QRectF(x, y, -1, -1), pm, QRectF(sx, sy, sw, sh), mode);
+    drawPixmap(QRectF(x, y, -1, -1), pm, QRectF(sx, sy, sw, sh));
 }
 
-inline void QPainter::drawPixmap(const QPointF &p, const QPixmap &pm, const QRectF &sr,
-                                 Qt::PixmapDrawingMode mode)
+inline void QPainter::drawPixmap(const QPointF &p, const QPixmap &pm, const QRectF &sr)
 {
-    drawPixmap(QRectF(p.x(), p.y(), -1, -1), pm, sr, mode);
+    drawPixmap(QRectF(p.x(), p.y(), -1, -1), pm, sr);
 }
 
-inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, const QRect &sr,
-                                 Qt::PixmapDrawingMode mode)
+inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, const QRect &sr)
 {
-    drawPixmap(QRectF(p.x(), p.y(), -1, -1), pm, sr, mode);
+    drawPixmap(QRectF(p.x(), p.y(), -1, -1), pm, sr);
 }
 
 inline void QPainter::drawTextItem(int x, int y, const QTextItem &ti)

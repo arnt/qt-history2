@@ -69,8 +69,8 @@ public:
 
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
 
-    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode);
-    void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s, Qt::PixmapDrawingMode);
+    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
+    void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s);
 
     Type type() const { return QPaintEngine::QuickDraw; }
     static void initialize();
@@ -123,8 +123,8 @@ public:
     void drawPath(const QPainterPath &path);
 
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
-    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
-    void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s, Qt::PixmapDrawingMode mode);
+    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
+    void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s);
 
     Type type() const { return QPaintEngine::CoreGraphics; }
 

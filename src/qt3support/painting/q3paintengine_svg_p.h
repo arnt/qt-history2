@@ -51,10 +51,8 @@ public:
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
     void drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode);
 
-    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
-                    Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
-    void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
-				 Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
+    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
+    void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s);
     void drawTextItem(const QPointF &p, const QTextItem &ti);
     void drawImage(const QRectF &r, const QImage &pm, const QRectF &sr,
                    Qt::ImageConversionFlags flags = Qt::AutoColor);

@@ -457,11 +457,10 @@ void QMacPrintEngine::drawPolygon(const QPointF *points, int pointCount, Polygon
     d->paintEngine->drawPolygon(points, pointCount, mode);
 }
 
-void QMacPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm,
-                                 const QRectF &sr, Qt::PixmapDrawingMode mode)
+void QMacPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 {
     Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawPixmap(r, pm, sr, mode);
+    d->paintEngine->drawPixmap(r, pm, sr);
 }
 
 void QMacPrintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
@@ -470,11 +469,10 @@ void QMacPrintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
     d->paintEngine->drawTextItem(p, ti);
 }
 
-void QMacPrintEngine::drawTiledPixmap(const QRectF &dr, const QPixmap &pixmap,
-                                      const QPointF &sr, Qt::PixmapDrawingMode mode)
+void QMacPrintEngine::drawTiledPixmap(const QRectF &dr, const QPixmap &pixmap, const QPointF &sr)
 {
     Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawTiledPixmap(dr, pixmap, sr, mode);
+    d->paintEngine->drawTiledPixmap(dr, pixmap, sr);
 }
 
 void QMacPrintEngine::drawPath(const QPainterPath &path)

@@ -1674,20 +1674,6 @@
 */
 
 /*!
-    \enum Qt::PixmapDrawingMode
-
-    \value ComposePixmap This mode will merge the source with the
-    destination, including the alpha channels.
-
-    \value CopyPixmap Copies the source to the destination, including
-    the mask. If the destination is not a pixmap, this operation is
-    undefined.
-
-    \value CopyPixmapNoMask Draws the source onto the destination, ignoring
-    the source mask.
-*/
-
-/*!
     \enum Qt::FillRule
 
     Specifies which method should be used to fill the paths and polygons.

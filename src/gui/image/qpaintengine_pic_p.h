@@ -52,10 +52,8 @@ public:
 
     void drawPath(const QPainterPath &path);
 
-    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
-                    Qt::PixmapDrawingMode mode);
-    void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
-			 Qt::PixmapDrawingMode mode);
+    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
+    void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s);
     void drawTextItem(const QPointF &p, const QTextItem &ti);
 
     Type type() const { return Picture; }

@@ -45,7 +45,7 @@ public:
     bool end();
     void updateClipRegion(const QRegion &clip, Qt::ClipOperation operation);
 
-    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
+    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
     void setProperty(PrintEnginePropertyKey key, const QVariant &value);
     QVariant property(PrintEnginePropertyKey key) const;
 

@@ -73,12 +73,10 @@ public:
 
     void drawEllipse(const QRectF &rect);
 
-    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
-                    Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
+    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
     void drawImage(const QRectF &r, const QImage &pm, const QRectF &sr,
-                   Qt::ImageConversionFlags flags = Qt::AutoColor);
-    void drawTiledPixmap(const QRectF &r, const QPixmap &pm, const QPointF &sr,
-                         Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
+                   Qt::ImageConversionFlags falgs = Qt::AutoColor);
+    void drawTiledPixmap(const QRectF &r, const QPixmap &pm, const QPointF &sr);
     void drawTextItem(const QPointF &p, const QTextItem &textItem);
 
     void drawLines(const QLineF *line, int lineCount);

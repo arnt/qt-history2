@@ -827,8 +827,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 }
 
 
-void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr,
-                                    Qt::PixmapDrawingMode)
+void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr)
 {
 #ifdef QT_DEBUG_DRAW
     qDebug() << " - QRasterPaintEngine::drawPixmap(), r=" << r << " sr=" << sr << " pixmap=" << pixmap.size() << "depth=" << pixmap.depth();
@@ -891,8 +890,7 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
     fillPath(path, &fillData);
 }
 
-void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &sr,
-                                         Qt::PixmapDrawingMode /*mode*/)
+void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &sr)
 {
 #ifdef QT_DEBUG_DRAW
     qDebug() << " - QRasterPaintEngine::drawTiledPixmap(), r=" << r << "pixmap=" << pixmap.size();

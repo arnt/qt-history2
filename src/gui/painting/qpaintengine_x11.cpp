@@ -1201,8 +1201,7 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
     }
 }
 
-void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &_sr,
-                                 Qt::PixmapDrawingMode mode)
+void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &_sr)
 {
     // since we can't scale pixmaps this should always hold
     // #####
@@ -1236,12 +1235,8 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRect
 #if !defined(QT_NO_XRENDER)
     ::Picture src_pict = pixmap.x11PictureHandle();
     if (X11->use_xrender && src_pict && d->picture) {
-        XRenderComposite(d->dpy, mode == Qt::ComposePixmap ? PictOpOver : PictOpSrc,
+        XRenderComposite(d->dpy, PictOpOver,
                          src_pict, 0, d->picture, sx, sy, sx, sy, x, y, sw, sh);
-        if (mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap) {
-            QPixmap *px = static_cast<QPixmap *>(d->pdev);
-            px->data->alpha = pixmap.data->alpha;
-        }
         return;
     }
 #endif
@@ -1296,15 +1291,6 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRect
         // copy or merge the mask
         if (d->pdev->devType() == QInternal::Pixmap) {
             QPixmap *pm = static_cast<QPixmap *>(d->pdev);
-            if (mode == Qt::CopyPixmap && pixmap.data->x11_mask) {
-                if (!pm->data->x11_mask)
-                    pm->data->x11_mask = XCreatePixmap(d->dpy, RootWindow(d->dpy, d->scrn), sw, sh, 1);
-                GC mono_gc = XCreateGC(d->dpy, pm->data->x11_mask, 0, 0);
-                XCopyArea(d->dpy, pixmap.data->x11_mask, pm->data->x11_mask, mono_gc, sx, sy, sw, sh, x, y);
-                XFreeGC(d->dpy, mono_gc);
-            } else if (mode == Qt::ComposePixmap) {
-                // ### fix mask merging
-            }
         }
     }
 
@@ -1400,10 +1386,9 @@ Qt::HANDLE QX11PaintEngine::handle() const
 }
 
 extern void qt_draw_tile(QPaintEngine *, qreal, qreal, qreal, qreal, const QPixmap &,
-                         qreal, qreal, Qt::PixmapDrawingMode mode);
+                         qreal, qreal);
 
-void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &p,
-				      Qt::PixmapDrawingMode mode)
+void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &p)
 {
     int x = qRound(r.x());
     int y = qRound(r.y());

@@ -366,33 +366,31 @@ void QPaintEngine::drawEllipse(const QRect &rect)
 
 /*!
     \fn void QPaintEngine::drawPixmap(const QRectF &r, const QPixmap
-    &pm, const QRectF &sr, Qt::PixmapDrawingMode mode)
+    &pm, const QRectF &sr)
 
     Reimplement this function to draw the part of the \a pm
-    specified by the \a sr rectangle in the given \a r using the given
-    drawing \a mode.
+    specified by the \a sr rectangle in the given \a r.
 */
 
 
 void qt_fill_tile(QPixmap *tile, const QPixmap &pixmap)
 {
     QPainter p(tile);
-    p.drawPixmap(0, 0, pixmap, Qt::CopyPixmap);
+    p.drawPixmap(0, 0, pixmap);
     int x = pixmap.width();
     while (x < tile->width()) {
-        p.drawPixmap(x, 0, *tile, 0, 0, x, pixmap.height(), Qt::CopyPixmap);
+        p.drawPixmap(x, 0, *tile, 0, 0, x, pixmap.height());
         x *= 2;
     }
     int y = pixmap.height();
     while (y < tile->height()) {
-        p.drawPixmap(0, y, *tile, 0, 0, tile->width(), y, Qt::CopyPixmap);
+        p.drawPixmap(0, y, *tile, 0, 0, tile->width(), y);
         y *= 2;
     }
 }
 
 void qt_draw_tile(QPaintEngine *gc, qreal x, qreal y, qreal w, qreal h,
-                  const QPixmap &pixmap, qreal xOffset, qreal yOffset,
-		  Qt::PixmapDrawingMode mode)
+                  const QPixmap &pixmap, qreal xOffset, qreal yOffset)
 {
     qreal yPos, xPos, drawH, drawW, yOff, xOff;
     yPos = y;
@@ -407,7 +405,7 @@ void qt_draw_tile(QPaintEngine *gc, qreal x, qreal y, qreal w, qreal h,
             drawW = pixmap.width() - xOff; // Cropping first column
             if (xPos + drawW > x + w)           // Cropping last column
                 drawW = x + w - xPos;
-            gc->drawPixmap(QRectF(xPos, yPos, drawW, drawH), pixmap, QRectF(xOff, yOff, drawW, drawH), mode);
+            gc->drawPixmap(QRectF(xPos, yPos, drawW, drawH), pixmap, QRectF(xOff, yOff, drawW, drawH));
             xPos += drawW;
             xOff = 0;
         }
@@ -420,11 +418,9 @@ void qt_draw_tile(QPaintEngine *gc, qreal x, qreal y, qreal w, qreal h,
 /*!
     Reimplement this function to draw the \a pixmap in the given \a
     rect, starting at the given \a p. The pixmap will be
-    drawn repeatedly until the \a rect is filled using the given
-    \a mode.
+    drawn repeatedly until the \a rect is filled.
 */
-void QPaintEngine::drawTiledPixmap(const QRectF &rect, const QPixmap &pixmap, const QPointF &p,
-                                   Qt::PixmapDrawingMode mode)
+void QPaintEngine::drawTiledPixmap(const QRectF &rect, const QPixmap &pixmap, const QPointF &p)
 {
     int sw = pixmap.width();
     int sh = pixmap.height();
@@ -446,9 +442,9 @@ void QPaintEngine::drawTiledPixmap(const QRectF &rect, const QPixmap &pixmap, co
             tile = QPixmap(tw, th, pixmap.depth());
         }
         qt_fill_tile(&tile, pixmap);
-        qt_draw_tile(this, rect.x(), rect.y(), rect.width(), rect.height(), tile, p.x(), p.y(), mode);
+        qt_draw_tile(this, rect.x(), rect.y(), rect.width(), rect.height(), tile, p.x(), p.y());
     } else {
-        qt_draw_tile(this, rect.x(), rect.y(), rect.width(), rect.height(), pixmap, p.x(), p.y(), mode);
+        qt_draw_tile(this, rect.x(), rect.y(), rect.width(), rect.height(), pixmap, p.x(), p.y());
     }
 }
 

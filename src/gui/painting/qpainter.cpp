@@ -147,8 +147,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
     pm = QPixmap::fromImage(image, Qt::OrderedDither | Qt::OrderedAlphaDither);
     engine->drawPixmap(QRectF(devMinX, devMinY, devWidth, devHeight),
                        pm,
-                       QRectF(0, 0, devWidth, devHeight),
-                       Qt::ComposePixmap);
+                       QRectF(0, 0, devWidth, devHeight));
 
     q->restore();
 }
@@ -2871,7 +2870,7 @@ void QPainter::drawConvexPolygon(const QPointF *points, int pointCount)
 
 /*!
     \fn void QPainter::drawPixmap(const QRect &targetRect, const QPixmap &pixmap,
-                                  const QRect &sourceRect, Qt::PixmapDrawingMode mode)
+                                  const QRect &sourceRect)
     \overload
 
     Draws the rectangular portion \a sourceRect of the pixmap \a pixmap
@@ -2880,7 +2879,7 @@ void QPainter::drawConvexPolygon(const QPointF *points, int pointCount)
 
 /*!
     \fn void QPainter::drawPixmap(const QPointF &p, const QPixmap &pixmap,
-                                  const QRectF &sourceRect, Qt::PixmapDrawingMode mode)
+                                  const QRectF &sourceRect)
     \overload
 
     Draws the rectangular portion \a sourceRect of the pixmap \a
@@ -2888,15 +2887,14 @@ void QPainter::drawConvexPolygon(const QPointF *points, int pointCount)
 */
 
 /*!
-    \fn void QPainter::drawPixmap(const QPointF &p, const QPixmap &pixmap,
-                                  Qt::PixmapDrawingMode mode)
+    \fn void QPainter::drawPixmap(const QPointF &p, const QPixmap &pixmap)
     \overload
 
     Draws the \a pixmap at the point \a p.
 */
 
 /*!
-    \fn void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap, Qt::PixmapDrawingMode mode)
+    \fn void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap)
 
     \overload
 
@@ -2906,7 +2904,7 @@ void QPainter::drawConvexPolygon(const QPointF *points, int pointCount)
 
 /*!
     \fn void QPainter::drawPixmap(int x, int y, int width, int height,
-    const QPixmap &pixmap, Qt::PixmapDrawingMode mode)
+    const QPixmap &pixmap)
 
     \overload
 
@@ -2917,20 +2915,18 @@ void QPainter::drawConvexPolygon(const QPointF *points, int pointCount)
 
 /*!
     \fn void QPainter::drawPixmap(int x, int y, int w, int h, const QPixmap &pm,
-                                  int sx, int sy, int sw, int sh, Qt::PixmapDrawingMode mode)
+                                  int sx, int sy, int sw, int sh)
 
     \overload
 
     Draws the rectangular portion with the origin (\a{sx}, \a{sy}),
     width \a sw and height \a sh, of the pixmap \a pm, at the point
-    (\a{x}, \a{y}), with a width of \a w and a height of \a h. If \a
-    mode is QPainter::CopyPixmap \a pm will not be masked to
-    QPixmap::mask()
+    (\a{x}, \a{y}), with a width of \a w and a height of \a h.
 */
 
 /*!
-    \fn void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh,
-                                  Qt::PixmapDrawingMode mode)
+    \fn void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap,
+                                  int sx, int sy, int sw, int sh)
 
     \overload
 
@@ -2949,8 +2945,7 @@ void QPainter::drawConvexPolygon(const QPointF *points, int pointCount)
 */
 
 /*!
-    \fn void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, const QRect &sr,
-                                  Qt::PixmapDrawingMode mode)
+    \fn void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, const QRect &sr)
     \overload
 
     Draws the rectangle \a sr of pixmap \a pm with its origin at point
@@ -2958,14 +2953,14 @@ void QPainter::drawConvexPolygon(const QPointF *points, int pointCount)
 */
 
 /*!
-    \fn void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, Qt::PixmapDrawingMode mode)
+    \fn void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm)
     \overload
 
     Draws the pixmap \a pm with its origin at point \a p.
 */
 
 /*!
-    \fn void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, Qt::PixmapDrawingMode mode)
+    \fn void QPainter::drawPixmap(const QRect &r, const QPixmap &pm)
     \overload
 
     Draws the pixmap \a pm into the rectangle \a r.
@@ -2973,25 +2968,21 @@ void QPainter::drawConvexPolygon(const QPointF *points, int pointCount)
 
 /*!
     Draws the rectanglular portion \a sr, of pixmap \a pm, into rectangle
-    \a r in the paint device. The blend mode \a mode decides how the
-    pixmap is merged with the target paint device.
+    \a r in the paint device.
 
-    \sa Qt::PixmapDrawingMode
 */
-void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
-                          Qt::PixmapDrawingMode mode)
+void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 {
 #if defined QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawPixmap(), target=[%.2f,%.2f,%.2f,%.2f], pix=[%d,%d], source=[%.2f,%.2f,%.2f,%.2f], mode=%d\n",
+        printf("QPainter::drawPixmap(), target=[%.2f,%.2f,%.2f,%.2f], pix=[%d,%d], source=[%.2f,%.2f,%.2f,%.2f]\n",
            r.x(), r.y(), r.width(), r.height(),
            pm.width(), pm.height(),
-           sr.x(), sr.y(), sr.width(), sr.height(),
-           mode);
+           sr.x(), sr.y(), sr.width(), sr.height());
 #endif
 
     Q_D(QPainter);
-    if (!isActive() || pm.isNull() || (mode == Qt::CopyPixmap && d->device->devType() != QInternal::Pixmap))
+    if (!isActive() || pm.isNull())
         return;
     d->updateState(d->state);
 
@@ -3037,7 +3028,8 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
         if(sx != 0 || sy != 0 || sw != pm.width() || sh != pm.height()) {
             source = QPixmap(qRound(sw), qRound(sh), pm.depth());
             QPainter p(&source);
-            p.drawPixmap(QRectF(0, 0, sw, sh), pm, QRectF(sx, sy, sw, sh), Qt::CopyPixmap);
+            // ### CompositionMode to Source
+            p.drawPixmap(QRectF(0, 0, sw, sh), pm, QRectF(sx, sy, sw, sh));
             p.end();
 #if defined(Q_WS_QWS)
             source.data->hasAlpha = pm.data->hasAlpha;
@@ -3058,13 +3050,13 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
         qreal dx, dy;
         mat.map(0, 0, &dx, &dy);
         d->engine->drawPixmap(QRectF(x-dx, y-dy, pmx.width(), pmx.height()), pmx,
-                              QRectF(0, 0, pmx.width(), pmx.height()), mode);
+                              QRectF(0, 0, pmx.width(), pmx.height()));
     } else {
         if (!d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
             x += qRound(d->state->matrix.dx());
             y += qRound(d->state->matrix.dy());
         }
-        d->engine->drawPixmap(QRectF(x, y, w, h), pm, QRectF(sx, sy, sw, sh), mode);
+        d->engine->drawPixmap(QRectF(x, y, w, h), pm, QRectF(sx, sy, sw, sh));
     }
 }
 
@@ -3126,7 +3118,7 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
     if (d->state->txop > QPainterPrivate::TxTranslate
          && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
         QPixmap pm = QPixmap::fromImage(image, flags);
-        drawPixmap(targetRect, pm, sourceRect, Qt::ComposePixmap);
+        drawPixmap(targetRect, pm, sourceRect);
         return;
     }
 
@@ -3436,7 +3428,7 @@ QRectF QPainter::boundingRect(const QRectF &r, const QString &text, const QTextO
 
 /*!
   \fn void QPainter::drawTiledPixmap(int x, int y, int w, int h, const
-  QPixmap &pixmap, int sx, int sy, Qt::PixmapDrawingMode mode);
+  QPixmap &pixmap, int sx, int sy);
 
     Draws a tiled \a pixmap in the specified rectangle.
 
@@ -3455,8 +3447,7 @@ QRectF QPainter::boundingRect(const QRectF &r, const QString &text, const QTextO
 */
 
 /*! \fn QPainter::drawTiledPixmap(const QRect &rect, const QPixmap &pixmap,
-                                  const QPoint &sp = QPoint(),
-                                  Qt::PixmapDrawingMode mode = Qt::ComposePixmap)
+                                  const QPoint &sp = QPoint())
     \overload
 
     Draws a tiled \a pixmap, inside rectangle \a rect with its origin
@@ -3469,8 +3460,7 @@ QRectF QPainter::boundingRect(const QRectF &r, const QString &text, const QTextO
     Draws a tiled \a pixmap, inside rectangle \a r with its origin
     at point \a sp, using the given drawing \a mode.
 */
-void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &sp,
-                               Qt::PixmapDrawingMode mode)
+void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &sp)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
@@ -3518,7 +3508,7 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
         p.setPen(pen());
         p.setBackground(background());
         p.setBackgroundMode(backgroundMode());
-        p.drawTiledPixmap(QRectF(0, 0, r.width(), r.height()), pixmap, QPointF(sx, sy), Qt::CopyPixmap);
+        p.drawTiledPixmap(QRectF(0, 0, r.width(), r.height()), pixmap, QPointF(sx, sy));
         p.end();
         if (pixmap.depth() == 1) {
             QBitmap mask(pm.width(), pm.height(), true);
@@ -3539,7 +3529,7 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
         y += qRound(d->state->matrix.dy());
     }
 
-    d->engine->drawTiledPixmap(QRectF(x, y, r.width(), r.height()), pixmap, QPointF(sx, sy), mode);
+    d->engine->drawTiledPixmap(QRectF(x, y, r.width(), r.height()), pixmap, QPointF(sx, sy));
 }
 
 
@@ -4559,7 +4549,7 @@ void QPainterState::init(QPainter *p) {
 
 #ifdef QT3_SUPPORT
 static void bitBlt_helper(QPaintDevice *dst, const QPoint &dp,
-                          const QPaintDevice *src, const QRect &sr, bool imask)
+                          const QPaintDevice *src, const QRect &sr, bool)
 {
     Q_ASSERT(dst);
     Q_ASSERT(src);
@@ -4567,10 +4557,8 @@ static void bitBlt_helper(QPaintDevice *dst, const QPoint &dp,
     if (src->devType() == QInternal::Pixmap) {
         const QPixmap *pixmap = static_cast<const QPixmap *>(src);
         QPainter pt(dst);
-        if (dst->devType() == QInternal::Pixmap)
-            pt.drawPixmap(dp, *pixmap, sr, imask ? Qt::CopyPixmapNoMask : Qt::CopyPixmap);
-        else
-            pt.drawPixmap(dp, *pixmap, sr, Qt::ComposePixmap);
+        pt.setCompositionMode(QPainter::CompositionMode_Source);
+        pt.drawPixmap(dp, *pixmap, sr);
 
     } else {
         qWarning("::bitBlt only works when source is of type pixmap");

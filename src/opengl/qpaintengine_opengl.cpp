@@ -746,8 +746,7 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
     }
 }
 
-void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
-                                    Qt::PixmapDrawingMode blend)
+void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 {
     if (pm.depth() == 1) {
 	QPixmap tpx(pm.size());
@@ -756,7 +755,7 @@ void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QR
 	p.setPen(d->cpen);
 	p.drawPixmap(0, 0, pm);
 	p.end();
-	drawPixmap(r, tpx, sr, blend);
+	drawPixmap(r, tpx, sr);
 	return;
     }
     GLenum target = QGLExtensions::glExtensions & QGLExtensions::TextureRectangle
@@ -768,8 +767,7 @@ void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QR
     drawTextureRect(pm.width(), pm.height(), r, sr, target);
 }
 
-void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, const QPointF &,
-					 Qt::PixmapDrawingMode)
+void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, const QPointF &)
 {
     dgl->makeCurrent();
     dgl->bindTexture(pm);

@@ -372,8 +372,6 @@ void QRollEffect::paintEvent(QPaintEvent*)
 
     QPainter p(this);
     p.drawPixmap(x, y, pm);
-    // ### this is how it was, but arthur can't do it
-//    p.drawPixmap(x, y, pm, 0, 0, pm.width(), pm.height(), Qt::CopyPixmapNoMask);
 }
 
 /*

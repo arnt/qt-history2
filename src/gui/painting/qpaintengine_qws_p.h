@@ -64,7 +64,7 @@ public:
     void drawEllipse(const QRectF &r);
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
 
-    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
+    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
 
     virtual Qt::HANDLE handle() const;
     inline Type type() const { return QPaintEngine::QWindowSystem; }

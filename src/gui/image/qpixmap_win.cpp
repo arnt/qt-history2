@@ -723,7 +723,10 @@ Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
     Q_ASSERT_X(dst, "::copyBlt", "Destination pixmap must be non null");
     Q_ASSERT_X(src, "::copyBlt", "Source pixmap must be non null");
 
-    QPainter p(dst);
-    p.drawPixmap(dx, dy, *src, sx, sy, sw, sh, Qt::CopyPixmap);
+    QImage image = dst->toImage();
+    QPainter p(&image);
+    p.setCompositionMode(QPainter::CompositionMode_Source);
+    p.drawImage(dx, dy, *src, sx, sy, sw, sh);
+    *dst = QPixmap::fromImage(image);
 }
 #endif

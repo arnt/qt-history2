@@ -262,8 +262,7 @@ void QPicturePaintEngine::drawPath(const QPainterPath &path)
 }
 
 // ### Stream out sr
-void QPicturePaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF & /* sr */,
-                                     Qt::PixmapDrawingMode /* mode */)
+void QPicturePaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF & /* sr */)
 {
 #ifdef QT_PICTURE_DEBUG
     qDebug() << " -> drawPixmap():" << r;
@@ -274,8 +273,7 @@ void QPicturePaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
     writeCmdLength(pos, r, false);
 }
 
-void QPicturePaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
-					  Qt::PixmapDrawingMode)
+void QPicturePaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s)
 {
 #ifdef QT_PICTURE_DEBUG
     qDebug() << " -> drawTiledPixmap():" << r << s;

@@ -3821,12 +3821,11 @@ void QPSPrintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDr
     drawPolygon(p.data(), pointCount, mode);
 }
 
-void QPSPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
-                                Qt::PixmapDrawingMode mode)
+void QPSPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 {
     QImage img = pm.toImage();
     QImage mask;
-    if (mode == Qt::ComposePixmap && pm.hasAlphaChannel())
+    if (pm.hasAlphaChannel())
         mask = pm.mask().toImage();
     d->drawImage(r.x(), r.y(), r.width(), r.height(), img.copy(sr.toRect()), mask.copy(sr.toRect()));
 }
@@ -3840,8 +3839,7 @@ void QPSPrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
         d->currentPSFont->drawText(d->pageStream, d, p, ti);
 }
 
-void QPSPrintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &p,
-                                     Qt::PixmapDrawingMode mode)
+void QPSPrintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &p)
 {
     // ### Optimise implementation!
     qreal yPos = r.y();

@@ -388,8 +388,7 @@ void Q3SVGPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polygon
     drawPolygon(poly.constData(), pointCount, mode);
 }
 
-void Q3SVGPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF & /* sr */,
-                                 Qt::PixmapDrawingMode)
+void Q3SVGPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF & /* sr */)
 {
     QDomElement e = d->doc.createElement("image");
     e.setAttribute("x", r.x());
@@ -408,7 +407,7 @@ void Q3SVGPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRec
 }
 
 void Q3SVGPaintEngine::drawTiledPixmap(const QRectF & /* r */, const QPixmap & /* pixmap */,
-                                      const QPointF & /* s */, Qt::PixmapDrawingMode)
+                                      const QPointF & /* s */)
 {
 }
 

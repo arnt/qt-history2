@@ -436,8 +436,7 @@ int QWin32PrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const
 
 void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
                                    const QPixmap &originalPixmap,
-                                   const QRectF &sr,
-                                   Qt::PixmapDrawingMode mode)
+                                   const QRectF &sr)
 {
 #if defined QT_DEBUG_DRAW
     printf(" - QWin32PrintEngine::drawPixmap(), [%.2f,%.2f,%.2f,%.2f], size=[%d,%d], "
@@ -453,13 +452,9 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
         QPixmap newPixmap(sr.size().toSize());
         newPixmap.fill(QColor(0, 0, 0, 0));
         QPainter p(&newPixmap);
-        p.drawPixmap(QPointF(0, 0), originalPixmap, sr, Qt::CopyPixmap);
+        p.drawPixmap(QPointF(0, 0), originalPixmap, sr);
         p.end();
         pixmap = newPixmap;
-    }
-
-    if (mode != Qt::ComposePixmap) {
-        pixmap.setMask(QBitmap());
     }
 
     // Turn of native transformations...

@@ -460,8 +460,7 @@ void QWSPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonD
 #endif
 }
 
-void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr,
-                                Qt::PixmapDrawingMode mode)
+void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr)
 {
     if (pixmap.isNull())
         return;
@@ -492,7 +491,7 @@ void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QR
         d->gfx->setSource(&pixmap);
     }
 
-    if(mode == Qt::ComposePixmap && hasMask) {
+    if(hasMask) {
         QBitmap mymask = pixmap.mask();
         const unsigned char * thebits = mymask.qwsScanLine(0);
         int ls = mymask.qwsBytesPerLine();
@@ -500,19 +499,17 @@ void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QR
         d->gfx->setAlphaSource(const_cast<uchar*>(thebits),ls);
     } else {
         QGfx::AlphaType alphaType = QGfx::IgnoreAlpha;
-        if (mode != Qt::CopyPixmapNoMask && mode != Qt::CopyPixmap) {
-            if (hasAlpha)
-                alphaType = QGfx::InlineAlpha;
+        if (hasAlpha)
+            alphaType = QGfx::InlineAlpha;
 #if 0 //source-over-destination blending not supported for 4.0
-            if (d->pdev->devType() == QInternal::Pixmap) {
-                QPixmap *p = static_cast<QPixmap*>(d->pdev);
-                if (p->data->hasAlpha)
-                    alphaType = QGfx::DestinationAlpha;
-            }
-#endif
+        if (d->pdev->devType() == QInternal::Pixmap) {
+            QPixmap *p = static_cast<QPixmap*>(d->pdev);
+            if (p->data->hasAlpha)
+                alphaType = QGfx::DestinationAlpha;
         }
-        d->gfx->setAlphaType(alphaType);
+#endif
     }
+    d->gfx->setAlphaType(alphaType);
     if (sw == w && sh == h)
         d->gfx->blt(x,y,sw,sh,sx,sy);
     else

@@ -1106,12 +1106,6 @@ public:
         ApplicationShortcut
     };
 
-    enum PixmapDrawingMode {
-        ComposePixmap,
-        CopyPixmap,
-        CopyPixmapNoMask // compatibility
-    };
-
     enum FillRule {
         OddEvenFill,
         WindingFill

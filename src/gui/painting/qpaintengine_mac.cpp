@@ -292,7 +292,7 @@ void QQuickDrawPaintEngine::drawRects(const QRectF *rects, int rectCount)
                     setClippedRegionInternal(&newclip);
 
                     //draw the brush
-                    drawTiledPixmap(r, pm, QPoint(r.x(), r.y()) - d->current.bg.origin, Qt::ComposePixmap);
+                    drawTiledPixmap(r, pm, QPoint(r.x(), r.y()) - d->current.bg.origin);
 
                     //restore the clip
                     setClippedRegionInternal(d->has_clipping ? &clip : 0);
@@ -367,7 +367,7 @@ QQuickDrawPaintEngine::drawEllipse(const QRectF &in_r)
                 setClippedRegionInternal(&newclip);
 
                 //draw the brush
-                drawTiledPixmap(r, pm, QPointF(r.x(), r.y()) - d->current.bg.origin, Qt::ComposePixmap);
+                drawTiledPixmap(r, pm, QPointF(r.x(), r.y()) - d->current.bg.origin);
 
                 //restore the clip
                 setClippedRegionInternal(d->has_clipping ? &clip : 0);
@@ -492,7 +492,7 @@ QQuickDrawPaintEngine::drawPolygon(const QPointF *points, int pointCount, Polygo
 
                     //draw the brush
                     QRect r(pa.boundingRect());
-                    drawTiledPixmap(r, pm, r.topLeft() - d->current.bg.origin, Qt::ComposePixmap);
+                    drawTiledPixmap(r, pm, r.topLeft() - d->current.bg.origin);
 
                     //restore the clip
                     setClippedRegionInternal(d->has_clipping ? &clip : 0);
@@ -508,8 +508,7 @@ QQuickDrawPaintEngine::drawPolygon(const QPointF *points, int pointCount, Polygo
 }
 
 void
-QQuickDrawPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &p,
-				       Qt::PixmapDrawingMode mode)
+QQuickDrawPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &p)
 {
     int yPos=qRound(r.y()), xPos, drawH, drawW, yOff=qRound(p.y()), xOff;
     int rBottom = qRound(r.y() + r.height());
@@ -535,8 +534,7 @@ QQuickDrawPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, c
 }
 
 void
-QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
-                                  Qt::PixmapDrawingMode mode)
+QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 {
     Q_ASSERT(isActive());
     if(pm.isNull())
@@ -565,7 +563,7 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRec
     //get pixmap bits
     const BitMap *srcbitmap = GetPortBitMapForCopyBits(qt_mac_qd_context(&pm));
     const BitMap *maskbits = 0;
-    if(mode == Qt::ComposePixmap && pm.macQDAlphaHandle()) {
+    if(pm.macQDAlphaHandle()) {
         maskbits = GetPortBitMapForCopyBits((GWorldPtr)pm.macQDAlphaHandle());
         if(pm.hasAlphaChannel())
             copymode = ditherCopy;
@@ -611,10 +609,6 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRec
     } else {
         CopyBits(srcbitmap, dstbitmap, &srcr, &dstr, copymode, 0);
     }
-
-    //duplicate
-    if(mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap)
-        static_cast<QPixmap*>(d->pdev)->data->macSetHasAlpha(pm.data->has_alpha);
 }
 
 void
@@ -1426,8 +1420,7 @@ QCoreGraphicsPaintEngine::drawLines(const QLineF *lines, int lineCount)
 }
 
 void
-QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
-                                     Qt::PixmapDrawingMode mode)
+QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 {
     Q_ASSERT(isActive());
     if(pm.isNull())
@@ -1461,10 +1454,6 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
 
     //restore
     CGContextRestoreGState(d->hd);
-
-    //duplicate
-    if(mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap)
-        static_cast<QPixmap*>(d->pdev)->data->macSetHasAlpha(pm.data->has_alpha);
 }
 
 void
@@ -1484,8 +1473,7 @@ QCoreGraphicsPaintEngine::handle() const
 }
 
 void
-QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
-                                          const QPointF &p, Qt::PixmapDrawingMode)
+QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap)
 {
     Q_ASSERT(isActive());
 
