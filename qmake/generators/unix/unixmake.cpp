@@ -106,6 +106,20 @@ UnixMakefileGenerator::init()
     QString compile_flag = var("QMAKE_COMPILE_FLAG");
     if(compile_flag.isEmpty())
 	compile_flag = "-c";
+    if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPH")) {
+	if(project->isActiveConfig("native_precompiled_headers")) {
+	    QString prefix_flags = project->first("QMAKE_CFLAGS_PREFIX_INCLUDE");
+	    if(prefix_flags.isEmpty())
+		prefix_flags = "-include";
+	    compile_flag += " " + prefix_flags + " " + fileFixify(project->first("PRECOMPH"));
+	} else {
+	    initOutPaths(); 	// Need to fix outdirs since we do this before init() (because we could add to SOURCES et al)
+	    QString allmoc = fileFixify(project->first("MOC_DIR") + "/allmoc.cpp", QDir::currentDirPath(), Option::output_dir);
+	    project->variables()["SOURCES"].prepend(allmoc);
+	    project->variables()["HEADERS_ORIG"] = project->variables()["HEADERS"];
+	    project->variables()["HEADERS"].clear();
+	}
+    }
     if ( project->isEmpty("QMAKE_RUN_CC") )
 	project->variables()["QMAKE_RUN_CC"].append("$(CC) " + compile_flag + " $(CFLAGS) $(INCPATH) -o $obj $src");
     if ( project->isEmpty("QMAKE_RUN_CC_IMP") )
@@ -115,13 +129,6 @@ UnixMakefileGenerator::init()
     if ( project->isEmpty("QMAKE_RUN_CXX_IMP") )
 	project->variables()["QMAKE_RUN_CXX_IMP"].append("$(CXX) " + compile_flag + " $(CXXFLAGS) $(INCPATH) -o $@ $<");
     project->variables()["QMAKE_FILETAGS"] += QStringList::split("HEADERS SOURCES TARGET DESTDIR", " ");
-    if ( doPrecompiledHeaders() && !project->isEmpty("PRECOMPH") ) {
-	initOutPaths(); 	// Need to fix MOC_DIR since we do this before init()
-	QString allmoc = fileFixify(project->first("MOC_DIR") + "/allmoc.cpp", QDir::currentDirPath(), Option::output_dir);
-	project->variables()["SOURCES"].prepend(allmoc);
-	project->variables()["HEADERS_ORIG"] = project->variables()["HEADERS"];
-	project->variables()["HEADERS"].clear();
-    }
     if( project->isActiveConfig("GNUmake") && !project->isEmpty("QMAKE_CFLAGS_DEPS"))
 	include_deps = TRUE; //do not generate deps
     if(project->isActiveConfig("compile_libtool"))
@@ -342,6 +349,30 @@ UnixMakefileGenerator::findDependency(const QString &dep)
 	}
     }
     return MakefileGenerator::findDependency(dep);
+}
+
+QStringList 
+&UnixMakefileGenerator::findDependencies(const QString &file)
+{
+    QStringList &ret = MakefileGenerator::findDependencies(file);
+    if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPH") && 
+       project->isActiveConfig("native_precompiled_headers")) {
+	if(file.endsWith(".c")) {
+	    QString precomp_h = fileFixify(project->first("PRECOMPH") + ".gch/ppc_c");
+	    if(!ret.contains(precomp_h))
+		ret += precomp_h;
+	} else {
+	    for(QStringList::Iterator it = Option::cpp_ext.begin(); it != Option::cpp_ext.end(); ++it) {
+		if(file.endsWith(*it)) {
+		    QString precomp_h = fileFixify(project->first("PRECOMPH") + ".gch/ppc_c++");
+		    if(!ret.contains(precomp_h))
+			ret += precomp_h;
+		    break;
+		}
+	    }
+	}
+    }
+    return ret;
 }
 
 bool

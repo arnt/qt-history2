@@ -798,6 +798,11 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	else
 	    t << "-$(DEL_FILE) $(OBJECTS)" << "\n\t";
     }
+    if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPH") &&
+       project->isActiveConfig("native_precompiled_headers")) {
+	QString precomph_out_dir = project->first("PRECOMPH") + ".gch" + Option::dir_sep;
+	t << "-$(DEL_FILE) " << precomph_out_dir << "ppc_c " << precomph_out_dir << "ppc_c++" << "\n\t";
+    }
     if(!project->isEmpty("IMAGES"))
 	t << varGlue("QMAKE_IMAGE_COLLECTION", "\t-$(DEL_FILE) ", " ", "") << "\n\t";
     if(src_incremental)
@@ -834,19 +839,43 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << endl << endl;
 
     if ( doPrecompiledHeaders() && !project->isEmpty("PRECOMPH") ) {
-	QString outdir = project->first("MOC_DIR");
-	QString qt_dot_h = Option::fixPathToLocalOS(project->first("PRECOMPH"));
-	t << "###### Combined headers" << endl << endl;
-	//XXX
-	t << outdir << "allmoc.cpp: " << qt_dot_h << " "
-	  << varList("HEADERS_ORIG") << "\n\t"
-	  << "echo '#include \"" << qt_dot_h << "\"' >" << outdir << "allmoc.cpp" << "\n\t"
-	  << "$(CXX) -E -DQT_MOC_CPP -DQT_NO_STL $(CXXFLAGS) $(INCPATH) >" << outdir << "allmoc.h "
-	     << outdir << "allmoc.cpp" << "\n\t"
-	  << "$(MOC) -o " << outdir << "allmoc.cpp " << outdir << "allmoc.h" << "\n\t"
-	  << "perl -pi -e 's{#include \"allmoc.h\"}{#define QT_H_CPP\\n#include \""
-	     << qt_dot_h << "\"}' " << outdir << "allmoc.cpp" << "\n\t"
-	  << "$(DEL_FILE) " << outdir << "allmoc.h" << endl << endl;
+	QString precomph = fileFixify(project->first("PRECOMPH"));
+	if(project->isActiveConfig("native_precompiled_headers")) {
+	    QString precomph_out_dir = project->first("PRECOMPH") + ".gch" + Option::dir_sep;
+	    t << "###### Prefix headers" << endl;
+	    QString comps[] = { "C", "CXX", QString::null };
+	    for(int i = 0; !comps[i].isNull(); i++) {
+		QString flags = var("QMAKE_" + comps[i] + "FLAGS_PRECOMPILE");
+		if(flags.isEmpty()) {
+		    if(comps[i] == "C")
+			flags += "-x c-header -c";
+		    else
+			flags += "-x c++-header -c";
+		}
+		flags += " $(" + comps[i] + "FLAGS)";
+
+		QString outfile = precomph_out_dir;
+		if(comps[i] == "C")
+		    outfile += "ppc_c";
+		else
+		    outfile += "ppc_c++";
+		t << outfile << ": " << precomph
+		  << "\n\t" << "test -d " << precomph_out_dir << " || mkdir -p " << precomph_out_dir 
+		  << "\n\t" << "$(CXX) " << flags << " $(INCPATH) " << precomph << " -o " << outfile << endl << endl;
+	    }
+	} else {
+	    QString outdir = project->first("MOC_DIR");
+	    t << "###### Combined headers" << endl << endl
+	      << outdir << "allmoc.cpp: " << precomph << " "
+	      << varList("HEADERS_ORIG") << "\n\t"
+	      << "echo '#include \"" << precomph << "\"' >" << outdir << "allmoc.cpp" << "\n\t"
+	      << "$(CXX) -E -DQT_MOC_CPP -DQT_NO_STL $(CXXFLAGS) $(INCPATH) >" << outdir << "allmoc.h "
+	      << outdir << "allmoc.cpp" << "\n\t"
+	      << "$(MOC) -o " << outdir << "allmoc.cpp " << outdir << "allmoc.h" << "\n\t"
+	      << "perl -pi -e 's{#include \"allmoc.h\"}{#define QT_H_CPP\\n#include \""
+	      << precomph << "\"}' " << outdir << "allmoc.cpp" << "\n\t"
+	      << "$(DEL_FILE) " << outdir << "allmoc.h" << endl << endl;
+	}
     }
 
     // user defined targets

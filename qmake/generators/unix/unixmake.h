@@ -44,6 +44,7 @@ protected:
 
     virtual bool findLibraries();
     virtual QString findDependency(const QString &);
+    virtual QStringList &findDependencies(const QString &);
     virtual void init();
 
     void writeMakeParts(QTextStream &);

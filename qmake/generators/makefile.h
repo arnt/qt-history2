@@ -65,7 +65,7 @@ protected:
 
     QString findMocSource(const QString &moc_file) const;
     QString findMocDestination(const QString &src_file) const;
-    QStringList &findDependencies(const QString &file);
+    virtual QStringList &findDependencies(const QString &file);
 
     void setNoIO(bool o);
     bool noIO() const;
