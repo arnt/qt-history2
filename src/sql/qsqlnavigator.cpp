@@ -349,7 +349,16 @@ bool QSqlNavigatorBase::findBuffer( const QSqlIndex& idx, int atHint )
 
   \module sql
 
-  This class //###
+  This class provides navigation functionality for a form.  It is used
+  by QSqlWidget and QSqlDialog to provide automatic cursor navigation
+  when editing/browsing a database cursor.
+
+  QSqlNavigator can determine boundry conditions of the cursor (i.e.,
+  whether the cursor is on the first or last record) with boundry().
+  This can be used, for example, to update widgets according to the
+  position of the navigator within the cursor.
+
+  \sa QSqlWidget QSqlDialog QSqlTable
 
 */
 
