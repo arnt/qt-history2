@@ -1611,13 +1611,13 @@ void QTextDocument::setRichTextInternal( const QString &text )
     QTextDocumentTag initag( "", sheet_->item(""), *formatCollection()->defaultFormat() );
     QTextDocumentTag curtag = initag;
     bool space = TRUE;
+    bool canMergeLi = FALSE;
 
     bool textEditMode = FALSE;
 
     const QChar* doc = text.unicode();
     int length = text.length();
     bool hasNewPar = curpar->length() <= 1;
-    QString lastClose;
     QString anchorName;
 
     // style sheet handling for margin and line spacing calculation below
@@ -1656,13 +1656,14 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			    break;
 			curtag = tags.pop();
 		    }
-		
-		    /* special handling for p and li for HTML
-		    compatibility. We do not want to embed blocks in
-		    p, and we do not want new blocks inside non-empty
-		    lis. Plus we want to merge empty lis sometimes. */
-		    if ( nstyle->displayMode() == QStyleSheetItem::DisplayBlock ) {
 
+		    /* special handling for p and li for HTML
+		       compatibility. We do not want to embed blocks in
+		       p, and we do not want new blocks inside non-empty
+		       lis. Plus we want to merge empty lis sometimes. */
+		    if( nstyle->displayMode() == QStyleSheetItem::DisplayListItem ) {
+			canMergeLi = TRUE;
+		    } else if ( nstyle->displayMode() == QStyleSheetItem::DisplayBlock ) {
 			while ( curtag.style->name() == "p" ) {
 			    if ( tags.isEmpty() )
 				break;
@@ -1681,11 +1682,12 @@ void QTextDocument::setRichTextInternal( const QString &text )
 					break;
 				    curtag = tags.pop();
 				}
-			    } else {
+			    } else if ( canMergeLi ) {
 				/* we have an empty li and a block
 				   comes along, merge them */
 				nstyle = curtag.style;
 			    }
+			    canMergeLi = FALSE;
 			}
 		    }
 		}
@@ -1923,7 +1925,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		}
 	    } else {
 		QString tagname = parseCloseTag( doc, length, pos );
-		lastClose = tagname;
 		if ( tagname.isEmpty() )
 		    continue; // nothing we could do with this, probably parse error
 		if ( !sheet_->item( tagname ) ) // ignore unknown tags
