@@ -837,22 +837,22 @@ QRect QTreeView::selectionViewportRect(const QItemSelection &selection) const
 
 void QTreeView::scrollContentsBy(int dx, int dy)
 {
-    int itemCount = d->items.count() - d->hidden.count();
-    int viewCount = d->viewport->height() / fontMetrics().height(); // FIXME: this may be the wrong height
-    int max_dy = verticalFactor() * qMin(itemCount, viewCount);
+    // guestimate the number of items in the viewport
+    int viewCount = d->viewport->height() / d->itemHeight;
+    int maxDeltaY = verticalFactor() * qMin(d->items.count(), viewCount);
 
     // no need to do a lot of work if we are going to redraw the whole thing anyway
-    if (QABS(dy) > max_dy) {
+    if (QABS(dy) > maxDeltaY) {
         verticalScrollBar()->repaint();
         d->viewport->update();
         return;
     }
 
     if (dx) {
-        int value = horizontalScrollBar()->value();
-        int section = d->header->section(value / d->horizontalFactor);
-        int left = (value % d->horizontalFactor) * d->header->sectionSize(section);
-        int offset = (left / d->horizontalFactor) + d->header->sectionPosition(section);
+        int scrollbarValue = horizontalScrollBar()->value();
+        int column = d->header->section(scrollbarValue / d->horizontalFactor);
+        int left = (scrollbarValue % d->horizontalFactor) * d->header->sectionSize(column);
+        int offset = (left / d->horizontalFactor) + d->header->sectionPosition(column);
         if (QApplication::reverseLayout()) {
             dx = offset + d->header->offset();
             d->header->setOffset(offset - d->header->length() + d->viewport->x());
@@ -860,35 +860,38 @@ void QTreeView::scrollContentsBy(int dx, int dy)
             dx = d->header->offset() - offset;
             d->header->setOffset(offset);
         }
-        horizontalScrollBar()->repaint();
+        horizontalScrollBar()->repaint(); // not really needed, but it makes the view "feel" faster
     }
 
     if (dy) {
-        int current_value = verticalScrollBar()->value();
-        int previous_value = current_value + dy; // -(-dy)
-        int current_item = current_value / d->verticalFactor; // the first visible  item on the page
-        int previous_item = previous_value / d->verticalFactor;
+        int currentScrollbarValue = verticalScrollBar()->value();
+        int previousScrollbarValue = currentScrollbarValue + dy; // -(-dy)
+        int currentViewIndex = currentScrollbarValue / d->verticalFactor; // the first visible item
+        int previousViewIndex = previousScrollbarValue / d->verticalFactor;
 
         QStyleOptionViewItem option = viewOptions();
         QAbstractItemDelegate *delegate = itemDelegate();
+        QAbstractItemModel *model = this->model();
         const QVector<QTreeViewItem> items = d->items;
-        QModelIndex current_index = items.at(current_item).index;
-        QModelIndex previous_index = items.at(previous_item).index;
+        QModelIndex currentModelIndex = items.at(currentViewIndex).index;
+        QModelIndex previousModelIndex = items.at(previousViewIndex).index;
 
-        int current_height = delegate->sizeHint(option, d->model, current_index).height();
-        int previous_height = delegate->sizeHint(option, d->model, previous_index).height();
-        int current_y = d->coordinateAt(current_value, current_height);
-        int previous_y = d->coordinateAt(previous_value, previous_height);
+        // FIXME: the item height may be wrong because this only tests the first column.
+        // We should really test the whole row, but that may be slow if you have lots of columns...
+        int currentHeight = delegate->sizeHint(option, model, currentModelIndex).height();
+        int previousHeight = delegate->sizeHint(option, model, previousModelIndex).height();
+        int currentY = d->coordinateAt(currentScrollbarValue, currentHeight);
+        int previousY = d->coordinateAt(previousScrollbarValue, previousHeight);
 
-        dy = current_y - previous_y;
-        if (current_item > previous_item)
-            for (int i = previous_item; i < current_item; ++i)
-                dy -= delegate->sizeHint(option, d->model, items.at(i).index).height();
-        else if (current_item < previous_item)
-            for (int i = previous_item; i > current_item; --i)
-                dy += delegate->sizeHint(option, d->model, items.at(i).index).height();
+        dy = currentY - previousY;
+        if (currentViewIndex > previousViewIndex)
+            for (int i = previousViewIndex; i < currentViewIndex; ++i)
+                dy -= delegate->sizeHint(option, model, items.at(i).index).height();
+        else if (currentViewIndex < previousViewIndex)
+            for (int i = previousViewIndex; i > currentViewIndex; --i)
+                dy += delegate->sizeHint(option, model, items.at(i).index).height();
 
-        verticalScrollBar()->repaint();
+        verticalScrollBar()->repaint(); // not really needed, but it makes the view "feel" faster
     }
 
     d->viewport->scroll(dx, dy);
@@ -896,7 +899,6 @@ void QTreeView::scrollContentsBy(int dx, int dy)
 
 /*!
   This slot is called whenever the items in the tree view are changed.
-
 */
 
 void QTreeView::dataChanged()
