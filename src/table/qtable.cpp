@@ -3938,7 +3938,7 @@ void QTable::setNumRows( int r )
 	    leftHeader->removeLabel( numRows() - 1 );
     }
 
-    if ( w > leftMargin() )
+    if ( leftMargin() > 0 && w > leftMargin() )
 	setLeftMargin( w );
 
     contents.setAutoDelete( FALSE );
