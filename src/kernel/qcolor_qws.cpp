@@ -156,8 +156,7 @@ uint QColor::alloc()
 	}
 	blue_mask   =0x001f;
     } else if(depth==4) {
-	// #### just a hack
-	return pix=(r^g^b)&0xf;
+	return qt_screen->alloc(r,g,b);
     } else if(depth==8) {
 	// #### just a hack
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
