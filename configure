@@ -1423,9 +1423,10 @@ elif [ "$Edition" != "troll" ]
 then
     if [ -f $HOME/.qt-license ]
     then
-	ExpiryDate=`echo $ExpiryDate | sed -e "s,-,,g"`
+	ExpiryDate=`echo $ExpiryDate | sed -e "s,-,,g" | tr -d "\n\r"`
+	[ -z "$ExpiryDate" ] && ExpiryDate="0"
 	NOW=`date +%Y%m%d`
-	if [ "$NOW" -gt "0$ExpiryDate" ]
+	if [ "$NOW" -gt "$ExpiryDate" ]
 	then
 	    echo
 	    echo "WARNING  WARNING  WARNING  WARNING"
