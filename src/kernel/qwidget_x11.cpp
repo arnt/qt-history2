@@ -71,7 +71,7 @@ static QWidget *mouseGrb    = 0;
 static QWidget *keyboardGrb = 0;
 
 extern Time qt_x_time; // defined in qapplication_x11.cpp
-
+int qt_x11_create_desktop_on_screen = -1;
 
 /*****************************************************************************
   QWidget member functions
@@ -150,33 +150,46 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	return;
     setWState( WState_Created );			// set created flag
 
-    if ( !parentWidget() )
+    if ( !parentWidget() || parentWidget()->isDesktop() )
 	setWFlags( WType_TopLevel );		// top-level widget
-
-    static int sw = -1, sh = -1;		// screen size
-
-    Display *dpy = x11Display();
-    int	     scr = x11Screen();
-
+    
     bool topLevel = testWFlags(WType_TopLevel);
     bool popup = testWFlags(WType_Popup);
     bool dialog = testWFlags(WType_Dialog);
     bool desktop = testWFlags(WType_Desktop);
-    Window root_win = qt_xrootwin(); // ## should be in paintdevice, depends on x11Display and x11Screen
     Window parentw, destroyw = 0;
     WId	   id;
 
     if ( !window )				// always initialize
 	initializeWindow = TRUE;
 
-    if ( popup ) {
+    if ( popup )
 	setWFlags(WStyle_StaysOnTop); // a popup stays on top
-    }
-
-    if ( sw < 0 ) {				// get the screen size
-	sw = DisplayWidth(dpy,scr);
-	sh = DisplayHeight(dpy,scr);
-    }
+    
+    
+    if ( desktop && 
+	 qt_x11_create_desktop_on_screen >= 0 &&
+	 qt_x11_create_desktop_on_screen != x11Screen() ) {
+	// desktop on a certain screen other than the default requested
+	QPaintDeviceX11Data* xd = getX11Data( TRUE );
+	xd->x_screen = qt_x11_create_desktop_on_screen;
+	xd->x_depth = DefaultDepth( xd->x_display, xd->x_screen );
+	setX11Data( xd );
+    } else if ( parentWidget() &&  parentWidget()->x11Screen() != x11Screen() ) {
+	// if we have a parent widget, move to its screen if necessary
+	QPaintDeviceX11Data* xd = getX11Data( TRUE );
+	xd->x_screen = parentWidget()->x11Screen();
+	xd->x_depth = parentWidget()->x11Depth();
+	setX11Data( xd );
+    } 
+    
+    //get display, screen number, root window and desktop geometry for
+    //the current screen
+    Display *dpy = x11Display();
+    int scr = x11Screen();
+    Window root_win = RootWindow( dpy, scr );
+    int sw = DisplayWidth(dpy,scr);
+    int sh = DisplayHeight(dpy,scr);
 
     if ( dialog || popup || desktop ) {		// these are top-level, too
 	topLevel = TRUE;
@@ -193,6 +206,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
     fpos = crect.topLeft();			// default frame rect
 
+    
     parentw = topLevel ? root_win : parentWidget()->winId();
 
     XSetWindowAttributes wsa;
@@ -584,7 +598,7 @@ QPoint QWidget::mapToGlobal( const QPoint &pos ) const
     int	   x, y;
     Window child;
     XTranslateCoordinates( x11Display(), winId(),
-			   QApplication::desktop()->winId(),
+			   QApplication::desktop( x11Screen() )->winId(),
 			   pos.x(), pos.y(), &x, &y, &child );
     return QPoint( x, y );
 }
@@ -598,7 +612,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 {
     int	   x, y;
     Window child;
-    XTranslateCoordinates( x11Display(), QApplication::desktop()->winId(),
+    XTranslateCoordinates( x11Display(), QApplication::desktop( x11Screen() )->winId(),
 			   winId(), pos.x(), pos.y(), &x, &y, &child );
     return QPoint( x, y );
 }
@@ -1961,7 +1975,7 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 	return;
 
     Display *dpy = x11Display();
-    GC gc = qt_xget_readonly_gc();
+    GC gc = qt_xget_readonly_gc( x11Screen(), FALSE );
     // Want expose events
     if ( w > 0 && h > 0 && !just_update ) {
 	XSetGraphicsExposures( dpy, gc, TRUE );

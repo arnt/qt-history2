@@ -1886,7 +1886,7 @@ void QComboBox::setListBox( QListBox * newListBox )
     else
 	delete d->popup();
 
-    newListBox->reparent( 0, WType_Popup, QPoint(0,0), FALSE );
+    newListBox->reparent( this, WType_Popup, QPoint(0,0), FALSE );
     d->setListBox( newListBox );
     d->listBox()->setFont( font() );
     d->listBox()->setAutoScrollBar( FALSE );
@@ -2040,7 +2040,7 @@ void QComboBox::setEditable( bool y )
 
 void QComboBox::setUpListBox()
 {
-    d->setListBox( new QListBox( 0, "in-combo", WType_Popup ) );
+    d->setListBox( new QListBox( this, "in-combo", WType_Popup ) );
     d->listBox()->setFont( font() );
     d->listBox()->setAutoScrollBar( FALSE );
     d->listBox()->setBottomScrollBar( FALSE );

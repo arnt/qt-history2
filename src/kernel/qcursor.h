@@ -102,6 +102,9 @@ public:
     static void	  initialize();
     static void	  cleanup();
 
+#if defined(Q_WS_X11)
+    static int 	  x11Screen();
+#endif    
 private:
     void	  setBitmap( const QBitmap &bitmap, const QBitmap &mask,
 				 int hotX, int hotY );

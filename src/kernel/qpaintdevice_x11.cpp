@@ -743,6 +743,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     if ( ts == QInternal::Pixmap ) {
 	src_pm = (QPixmap*)src;
+    	if ( src_pm->x11Screen() != dst->x11Screen() )
+    	    src_pm->x11SetScreen( dst->x11Screen() );
 	mono_src = src_pm->depth() == 1;
 	mask = ignoreMask ? 0 : src_pm->data->mask;
     } else {
@@ -753,6 +755,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	graphics_exposure = td == QInternal::Widget;
     }
     if ( td == QInternal::Pixmap ) {
+      	if ( dst->x11Screen() != src->x11Screen() )
+      	    ((QPixmap*)dst)->x11SetScreen( src->x11Screen() );
 	mono_dst = ((QPixmap*)dst)->depth() == 1;
 	((QPixmap*)dst)->detach();		// changes shared pixmap
     } else {
@@ -775,7 +779,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	if ( mask->data->maskgc ) {
 	    gc = (GC)mask->data->maskgc;	// we have a premade mask GC
 	} else {
-	    if ( src_pm->optimization() == QPixmap::NormalOptim ) {
+	    if ( FALSE && src_pm->optimization() == QPixmap::NormalOptim ) { // #### cache disabled
 		// Compete for the global cache
 		gc = cache_mask_gc( dpy, dst->handle(),
 				    mask->data->ser_no,
@@ -814,7 +818,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	return;
     }
 
-    gc = qt_xget_temp_gc( mono_dst );		// get a reusable GC
+    gc = qt_xget_temp_gc( dst->x11Screen(), mono_dst );		// get a reusable GC
 
     if ( rop != Qt::CopyROP )			// use non-default ROP code
 	XSetFunction( dpy, gc, ropCodes[rop] );

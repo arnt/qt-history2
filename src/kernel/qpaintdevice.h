@@ -96,7 +96,7 @@ public:
 #elif defined(Q_WS_QWS)
     Qt::HANDLE      handle() const;
 #endif
-
+    
 #if defined(Q_WS_X11)
     Display 	   *x11Display() const;
     int		    x11Screen() const;
@@ -337,6 +337,7 @@ inline void *QPaintDevice::x11AppVisual()
 
 inline bool QPaintDevice::x11AppDefaultVisual()
 { return x_appdefvisual; }
+
 #endif // Q_WS_X11
 
 

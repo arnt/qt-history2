@@ -256,6 +256,7 @@ static bool	appDoGrab	= FALSE;	// X11 grabbing override (gdb)
 #endif
 static int	appScreen;			// X11 screen number
 static Window	appRootWin;			// X11 root window
+static int	screenCount;			// X11 screen count
 static bool	app_save_rootinfo = FALSE;	// save root info
 
 static bool	app_do_modal	= FALSE;	// modal mode
@@ -265,10 +266,10 @@ static fd_set	app_readfds;			// fd set for reading
 static fd_set	app_writefds;			// fd set for writing
 static fd_set	app_exceptfds;			// fd set for exceptions
 
-static GC	app_gc_ro	= 0;		// read-only GC
-static GC	app_gc_tmp	= 0;		// temporary GC
-static GC	app_gc_ro_m	= 0;		// read-only GC (monochrome)
-static GC	app_gc_tmp_m	= 0;		// temporary GC (monochrome)
+static GC*	app_gc_ro	= 0;		// read-only GC
+static GC*	app_gc_tmp	= 0;		// temporary GC
+static GC*	app_gc_ro_m	= 0;		// read-only GC (monochrome)
+static GC*	app_gc_tmp_m	= 0;		// temporary GC (monochrome)
 Atom		qt_wm_protocols		= 0;	// window manager protocols
 Atom		qt_wm_delete_window	= 0;	// delete window protocol
 Atom 		qt_wm_take_focus	= 0;	// take focus window protocol
@@ -1211,9 +1212,10 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
     // Get X parameters
 
     if( qt_is_gui_used ) {
-	appScreen  = DefaultScreen(appDpy);
+	appScreen = DefaultScreen(appDpy);
+	screenCount = ScreenCount(appDpy);
 	appRootWin = RootWindow(appDpy,appScreen);
-
+	    
 	// Set X paintdevice parameters
 
 	Visual *vis = DefaultVisual(appDpy,appScreen);
@@ -1460,7 +1462,7 @@ void qt_cleanup()
 	XFreeColormap( QPaintDevice::x11AppDisplay(),
 		       QPaintDevice::x11AppColormap() );
 
-#define CLEANUP_GC(g) if (g) { XFreeGC(appDpy,g); g = 0; }
+#define CLEANUP_GC(g) if (g) { for (int i=0;i<screenCount;i++){if(g[i])XFreeGC(appDpy,g[i]);} delete [] g; g = 0; }
     CLEANUP_GC(app_gc_ro);
     CLEANUP_GC(app_gc_ro_m);
     CLEANUP_GC(app_gc_tmp);
@@ -1535,6 +1537,27 @@ bool qt_wstate_iconified( WId winid )
     }
     return iconic;
 }
+
+
+QWidget *QApplication::desktop( int screen )
+{
+    extern int qt_x11_create_desktop_on_screen; // defined in qwidget_x11.cpp
+    
+    static QWidget** desktopWidget = 0;
+    if ( screen < 0 || screen >= screenCount )
+	screen = appScreen;
+    
+    if ( !desktopWidget )
+	memset( (desktopWidget = new QWidget*[screenCount] ), 0, screenCount * sizeof( QWidget*) );
+    if ( !desktopWidget[screen] || // not created yet
+	 !desktopWidget[screen]->isDesktop() ) { // reparented away
+	qt_x11_create_desktop_on_screen = screen;
+	desktopWidget[screen] = new QWidget( 0, "desktop", WType_Desktop );
+	qt_x11_create_desktop_on_screen = -1;
+    }
+    return desktopWidget[screen];
+}
+
 
 /*!
   \relates QApplication
@@ -1676,23 +1699,23 @@ bool qt_nograb()				// application no-grab option
 #endif
 }
 
-static GC create_gc( bool monochrome )
+static GC create_gc( int scrn, bool monochrome )
 {
     GC gc;
     if ( monochrome ) {
-	Pixmap pm = XCreatePixmap( appDpy, appRootWin, 8, 8, 1 );
+	Pixmap pm = XCreatePixmap( appDpy, RootWindow( appDpy, scrn ), 8, 8, 1 );
 	gc = XCreateGC( appDpy, pm, 0, 0 );
 	XFreePixmap( appDpy, pm );
     } else {
 	if ( QPaintDevice::x11AppDefaultVisual() ) {
-	    gc = XCreateGC( appDpy, appRootWin, 0, 0 );
+	    gc = XCreateGC( appDpy, RootWindow( appDpy, scrn ), 0, 0 );
 	} else {
 	    Window w;
 	    XSetWindowAttributes a;
 	    a.background_pixel = Qt::black.pixel();
 	    a.border_pixel = Qt::black.pixel();
 	    a.colormap = QPaintDevice::x11AppColormap();
-	    w = XCreateWindow( appDpy, appRootWin, 0, 0, 100, 100,
+	    w = XCreateWindow( appDpy, RootWindow( appDpy, scrn ), 0, 0, 100, 100,
 			       0, QPaintDevice::x11AppDepth(), InputOutput,
 			       (Visual*)QPaintDevice::x11AppVisual(),
 			       CWBackPixel|CWBorderPixel|CWColormap, &a );
@@ -1704,32 +1727,50 @@ static GC create_gc( bool monochrome )
     return gc;
 }
 
-GC qt_xget_readonly_gc( bool monochrome )	// get read-only GC
+GC qt_xget_readonly_gc( int scrn, bool monochrome )	// get read-only GC
 {
+    if ( scrn < 0 || scrn >= screenCount ) {
+	qDebug("invalid screen %d %d", scrn, screenCount );
+	QWidget* bla = 0;
+	bla->setName("hallo");
+    }
     GC gc;
     if ( monochrome ) {
 	if ( !app_gc_ro_m )			// create GC for bitmap
-	    app_gc_ro_m = create_gc(TRUE);
-	gc = app_gc_ro_m;
+	    memset( (app_gc_ro_m = new GC[screenCount]), 0, screenCount * sizeof( GC ) );
+	if ( !app_gc_ro_m[scrn] )
+	    app_gc_ro_m[scrn] = create_gc( scrn, TRUE);
+	gc = app_gc_ro_m[scrn];
     } else {					// create standard GC
-	if ( !app_gc_ro )			// create GC for bitmap
-	    app_gc_ro = create_gc(FALSE);
-	gc = app_gc_ro;
+	if ( !app_gc_ro )
+	    memset( (app_gc_ro = new GC[screenCount]), 0, screenCount * sizeof( GC ) );
+	if ( !app_gc_ro[scrn] )
+	    app_gc_ro[scrn] = create_gc( scrn, FALSE);
+	gc = app_gc_ro[scrn];
     }
     return gc;
 }
 
-GC qt_xget_temp_gc( bool monochrome )		// get temporary GC
+GC qt_xget_temp_gc( int scrn, bool monochrome )		// get temporary GC
 {
+    if ( scrn < 0 || scrn >= screenCount ) {
+	qDebug("invalid screen (tmp) %d %d", scrn, screenCount );
+	QWidget* bla = 0;
+	bla->setName("hallo");
+    }
     GC gc;
     if ( monochrome ) {
 	if ( !app_gc_tmp_m )			// create GC for bitmap
-	    app_gc_tmp_m = create_gc(TRUE);
-	gc = app_gc_tmp_m;
+	    memset( (app_gc_tmp_m = new GC[screenCount]), 0, screenCount * sizeof( GC ) );
+	if ( !app_gc_tmp_m[scrn] )
+	    app_gc_tmp_m[scrn] = create_gc( scrn, TRUE);
+	gc = app_gc_tmp_m[scrn];
     } else {					// create standard GC
-	if ( !app_gc_tmp )			// create GC for bitmap
-	    app_gc_tmp = create_gc(FALSE);
-	gc = app_gc_tmp;
+	if ( !app_gc_tmp )
+	    memset( (app_gc_tmp = new GC[screenCount]), 0, screenCount * sizeof( GC ) );
+	if ( !app_gc_tmp[scrn] )
+	    app_gc_tmp[scrn] = create_gc( scrn, FALSE);
+	gc = app_gc_tmp[scrn];
     }
     return gc;
 }

@@ -133,7 +133,7 @@ void QCursor::cleanup()
 {
     if ( !initialized )
 	return;
-    
+
     int shape;
     for( shape = 0; shape < cursors; shape++ ) {
 	delete cursorTable[shape].data;
@@ -437,6 +437,21 @@ QPoint QCursor::pos()
     XQueryPointer( qt_xdisplay(), qt_xrootwin(), &root, &child,
 		   &root_x, &root_y, &win_x, &win_y, &buttons );
     return QPoint( root_x, root_y );
+}
+
+int QCursor::x11Screen()
+{
+    Window root;
+    Window child;
+    int root_x, root_y, win_x, win_y;
+    uint buttons;
+    Display* dpy = qt_xdisplay();
+    for ( int i = 0; i < ScreenCount( dpy ); i++ ) {
+	if ( XQueryPointer( qt_xdisplay(), RootWindow( dpy, i ), &root, &child,
+			    &root_x, &root_y, &win_x, &win_y, &buttons ) )
+	    return i;
+    }
+    return -1;
 }
 
 /*!

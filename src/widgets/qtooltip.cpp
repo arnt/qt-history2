@@ -61,7 +61,7 @@ class QTipLabel : public QLabel
 {
     Q_OBJECT
 public:
-    QTipLabel(const QString& text) : QLabel( 0, "toolTipTip",
+    QTipLabel( QWidget* parent, const QString& text) : QLabel( parent, "toolTipTip",
 	     WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM )
     {
 	setMargin(1);
@@ -468,13 +468,22 @@ void QTipManager::showTip()
     if ( t->group && !t->group->ena )
 	return;
 
-    if ( label ) {
+    if ( label 
+#if defined(Q_WS_X11)
+	 && label->x11Screen() == widget->x11Screen() 
+#endif	 
+	 ) {
 	label->setText( t->text );
 	label->adjustSize();
 	if ( t->geometry != QRect( -1, -1, -1, -1 ) )
 	    label->resize( t->geometry.size() );
     } else {
-	label = new QTipLabel(t->text);
+#if defined(Q_WS_X11)
+	delete label;
+	label = new QTipLabel( QApplication::desktop( widget->x11Screen() ), t->text);
+#else
+	label = new QTipLabel( QApplication::desktop( 0, t->text);
+#endif			       
 	if ( t->geometry != QRect( -1, -1, -1, -1 ) )
 	    label->resize( t->geometry.size() );
 	Q_CHECK_PTR( label );
@@ -657,7 +666,7 @@ void QTipManager::allowAnimation()
 
 QFont QToolTip::font()
 {
-    QTipLabel l("");
+    QTipLabel l(0,"");
     return QApplication::font( &l );
 }
 
@@ -680,7 +689,7 @@ void QToolTip::setFont( const QFont &font )
 
 QPalette QToolTip::palette()
 {
-    QTipLabel l("");
+    QTipLabel l(0,"");
     return QApplication::palette( &l );
 }
 

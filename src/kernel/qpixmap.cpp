@@ -157,7 +157,7 @@ QPixmap::Optimization QPixmap::defOptim = QPixmap::NormalOptim;
 
 /*!
   \internal
-  Private constructor which takes the bitmap flag and the optimization.
+  Private constructor which takes the bitmap flag, the optimization.and a screen.
 */
 
 QPixmap::QPixmap( int w, int h, int depth, bool bitmap,
@@ -303,7 +303,19 @@ QPixmap::QPixmap( const QPixmap &pixmap )
 	data = 0;
 	operator=( pixmap.copy() );
     } else {
-	data = pixmap.data;
+	QPixmapData* d = pixmap.data;
+#if defined(Q_WS_X11)
+	// clever multihead code: in x11SetScreen(), a copy of this
+	// pixmap may have been moved to another screen (stored in
+	// data->scrn). To avoid copying too often, we move our source
+	// to the screen in advance.
+	if ( pixmap.x11Screen() != pixmap.data->scrn ) {
+	    QPixmap* p = (QPixmap*) &pixmap;
+	    p->x11SetScreen( pixmap.data->scrn );
+	    d = p->data;
+	}
+#endif	
+	data = d;
 	data->ref();
 	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
 #if defined(Q_WS_WIN)
@@ -337,7 +349,13 @@ QPixmap::~QPixmap()
 
 QPixmap QPixmap::copy( bool ignoreMask ) const
 {
+#if defined(Q_WS_X11)
+    int old = x11SetDefaultScreen( x11Screen() );
+#endif    
     QPixmap pm( data->w, data->h, data->d, data->bitmap, data->optim );
+#if defined(Q_WS_X11)
+    x11SetDefaultScreen( old );
+#endif    
     if ( !pm.isNull() ) {			// copy the bitmap
 #if defined(Q_WS_X11)
 	pm.copyX11Data( this );
@@ -366,8 +384,13 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
     pixmap.data->ref();				// avoid 'x = x'
     deref();
     if ( pixmap.paintingActive() ) {		// make a deep copy
+#if defined(Q_WS_X11)
 	init( pixmap.width(), pixmap.height(), pixmap.depth(),
 	      pixmap.data->bitmap, pixmap.data->optim );
+#else	
+	init( pixmap.width(), pixmap.height(), pixmap.depth(),
+	      pixmap.data->bitmap, pixmap.data->optim, pixmap.x11Screen() );
+#endif	
 	data->uninit = FALSE;
 	if ( !isNull() ) {
 	    bitBlt( this, 0, 0, &pixmap, 0, 0, pixmap.width(), pixmap.height(),
@@ -378,7 +401,21 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 	}
 	pixmap.data->deref();
     } else {
-	data = pixmap.data;
+	QPixmapData* d = pixmap.data;
+#if defined(Q_WS_X11)
+	// clever multihead code: in x11SetScreen(), a copy of this
+	// pixmap may have been moved to another screen (stored in
+	// data->scrn). To avoid copying too often, we move our source
+	// to the screen in advance.
+	if ( pixmap.x11Screen() != pixmap.data->scrn ) {
+	    pixmap.data->deref();
+	    QPixmap* p = (QPixmap*) &pixmap;
+	    p->x11SetScreen( pixmap.data->scrn );
+	    d = p->data;
+	    d->ref();
+	}
+#endif	
+	data = d;
 	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
 #if defined(Q_WS_WIN)
 	hdc = pixmap.hdc;
@@ -611,6 +648,7 @@ void QPixmap::setMask( const QBitmap &newmask )
 	newmaskcopy = (QBitmap*)new QPixmap( tmp->copy( TRUE ) );
     else
 	newmaskcopy = new QBitmap( newmask );
+    newmaskcopy->x11SetScreen( x11Screen() );
     data->mask = newmaskcopy;
 }
 

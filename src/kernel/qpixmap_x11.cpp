@@ -256,6 +256,8 @@ static void build_scale_table( uint **table, uint nBits )
 	(*table)[i << valShift] = i*255/maxVal;
 }
 
+static int defaultScreen = -1;
+
 /*****************************************************************************
   QPixmap member functions
  *****************************************************************************/
@@ -268,8 +270,16 @@ static void build_scale_table( uint **table, uint nBits )
 void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 {
     static int serial = 0;
-    int dd = x11Depth();
+    
+    if ( defaultScreen >= 0 && defaultScreen != x11Screen() ) {
+	QPaintDeviceX11Data* xd = getX11Data( TRUE );
+	xd->x_screen = defaultScreen;
+	xd->x_depth = DefaultDepth( xd->x_display, xd->x_screen );
+	setX11Data( xd );
+    }
 
+    int dd = x11Depth();
+    
     if ( optim == DefaultOptim )		// use default optimization
 	optim = defOptim;
 
@@ -282,6 +292,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     data->bitmap = bitmap;
     data->ser_no = ++serial;
     data->optim	 = optim;
+    data->scrn = x11Screen();
 
     bool make_null = w == 0 || h == 0;		// create null pixmap
     if ( d == 1 )				// monocrome pixmap
@@ -298,7 +309,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     }
     data->w = w;
     data->h = h;
-    hd = (HANDLE)XCreatePixmap( x11Display(), DefaultRootWindow(x11Display()),
+    hd = (HANDLE)XCreatePixmap( x11Display(), RootWindow(x11Display(), x11Screen() ),
 				w, h, data->d );
 }
 
@@ -326,7 +337,7 @@ void QPixmap::deref()
   This constructor is protected and used by the QBitmap class.
 */
 
-QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
+QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap)
     : QPaintDevice( QInternal::Pixmap )
 {						// for bitmaps only
     init( 0, 0, 0, FALSE, defOptim );
@@ -345,7 +356,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 	bits = flipped_bits;
     }
     hd = (HANDLE)XCreateBitmapFromData( x11Display(),
-					DefaultRootWindow(x11Display()),
+					RootWindow(x11Display(), x11Screen() ),
 					(char *)bits, w, h );
     if ( flipped_bits )				// Avoid purify complaint
 	delete [] flipped_bits;
@@ -458,7 +469,7 @@ void QPixmap::fill( const QColor &fillColor )
     if ( isNull() )
 	return;
     detach();					// detach other references
-    GC gc = qt_xget_temp_gc( depth()==1 );
+    GC gc = qt_xget_temp_gc( x11Screen(), depth()==1 );
     XSetForeground( x11Display(), gc, fillColor.pixel() );
     XFillRectangle( x11Display(), hd, gc, 0, 0, width(), height() );
 }
@@ -969,7 +980,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    tmp_bits = 0;
 	}
 	hd = (HANDLE)XCreateBitmapFromData( x11Display(),
-					    DefaultRootWindow(x11Display()),
+					    RootWindow(x11Display(), x11Screen() ),
 					    bits, w, h );
 	if ( tmp_bits )				// Avoid purify complaint
 	    delete [] tmp_bits;
@@ -1358,12 +1369,13 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	XFreePixmap( dpy, hd );			// don't reuse old pixmap
 	hd = 0;
     }
-    if ( !hd )					// create new pixmap
+    if ( !hd ) {					// create new pixmap
 	hd = (HANDLE)XCreatePixmap( x11Display(),
-				    DefaultRootWindow(x11Display()),
+				    RootWindow(x11Display(), x11Screen() ),
 				    w, h, dd );
+    }
 
-    XPutImage( dpy, hd, qt_xget_readonly_gc(), xi, 0, 0, 0, 0, w, h );
+    XPutImage( dpy, hd, qt_xget_readonly_gc( x11Screen(), FALSE  ), xi, 0, 0, 0, 0, w, h );
 
     if ( data->optim != BestOptim ) {		// throw away image
 	qSafeXDestroyImage( xi );
@@ -1430,7 +1442,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
     }
     QPixmap pm( w, h );				// create new pixmap
     pm.data->uninit = FALSE;
-    GC gc = qt_xget_temp_gc( FALSE );
+    GC gc = qt_xget_temp_gc( qt_xscreen(), FALSE );
     XSetSubwindowMode( dpy, gc, IncludeInferiors );
     XCopyArea( dpy, window, pm.handle(), gc, x, y, w, h, 0, 0 );
     XSetSubwindowMode( dpy, gc, ClipByChildren );
@@ -1792,7 +1804,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	}
 	return pm;
     } else {					// color pixmap
-	GC gc = qt_xget_readonly_gc();
+	GC gc = qt_xget_readonly_gc( x11Screen(), FALSE );
 	QPixmap pm( w, h );
 	pm.data->uninit = FALSE;
 #if defined(MITSHM)
@@ -1854,3 +1866,49 @@ QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
     mat = matrix * mat;
     return mat;
 }
+
+
+int QPixmap::x11SetDefaultScreen( int screen )
+{
+    int old = defaultScreen;
+    defaultScreen = screen;
+    return old;
+}
+
+void QPixmap::x11SetScreen( int screen )
+{
+    if ( screen < 0 )
+	screen = x11AppScreen();
+    
+    if ( screen == x11Screen() )
+	return; // nothing to do
+    
+    if ( isNull() ) {
+	QPaintDeviceX11Data* xd = getX11Data( TRUE );
+	xd->x_screen = screen;
+	xd->x_depth = DefaultDepth( xd->x_display, xd->x_screen );
+	setX11Data( xd );
+	return;
+    }
+#if 0    
+    qDebug("QPixmap::x11SetScreen for %p from %d to %d. Size is %d/%d", data, x11Screen(), screen, width(), height() );
+#endif    
+
+    data->scrn = screen; // for the other copies, see "clever code" in qpixmap copy constructor and assignment operator
+    
+    QImage img = convertToImage();
+    QBitmap msk; 
+    if ( mask() )
+	msk = *mask();
+    resize(0,0);
+    QPaintDeviceX11Data* xd = getX11Data( TRUE );
+    xd->x_screen = screen;
+    xd->x_depth = DefaultDepth( xd->x_display, xd->x_screen );
+    setX11Data( xd );
+    convertFromImage( img );
+    if ( !msk.isNull() )
+	setMask( msk );
+    data->scrn = screen; // for ourselves
+}
+
+

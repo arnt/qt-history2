@@ -586,14 +586,21 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 {
     currentText = text;
 
-    // make the widget, and set it up
-    if ( !whatsThat ) {
-	whatsThat = new QWidget( 0, "automatic what's this? widget",
-				 WType_Popup );
-	whatsThat->setBackgroundMode( QWidget::NoBackground );
-	whatsThat->setPalette( QToolTip::palette(), TRUE );
-	whatsThat->installEventFilter( this );
-    }
+    // make a fresh widget, and set it up
+    delete whatsThat;
+    whatsThat = 0;
+
+    whatsThat = new QWidget( 
+#if defined(Q_WS_X11)
+			    QApplication::desktop( widget ? widget->x11Screen() : QCursor::x11Screen() ), 
+#else
+			    0,
+#endif				
+			    "automatic what's this? widget",
+			    WType_Popup );
+    whatsThat->setBackgroundMode( QWidget::NoBackground );
+    whatsThat->setPalette( QToolTip::palette(), TRUE );
+    whatsThat->installEventFilter( this );
     say_helper(widget,ppos,TRUE);
 }
 

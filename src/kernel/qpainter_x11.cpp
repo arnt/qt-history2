@@ -212,6 +212,7 @@ struct QGC
     GC	 gc;
     char in_use;
     bool mono;
+    int scrn;
 };
 
 const  int  gc_array_size = 256;
@@ -243,7 +244,7 @@ static void cleanup_gc_array( Display *dpy )
 
 // #define DONT_USE_GC_ARRAY
 
-static GC alloc_gc( Display *dpy, Drawable hd, bool monochrome=FALSE,
+static GC alloc_gc( Display *dpy, int scrn, Drawable hd, bool monochrome=FALSE,
 		    bool privateGC = FALSE )
 {
 #if defined(DONT_USE_GC_ARRAY)
@@ -261,11 +262,12 @@ static GC alloc_gc( Display *dpy, Drawable hd, bool monochrome=FALSE,
     while ( i-- ) {
 	if ( !p->gc ) {				// create GC (once)
 	    p->gc = XCreateGC( dpy, hd, 0, 0 );
+	    p->scrn = scrn;
 	    XSetGraphicsExposures( dpy, p->gc, FALSE );
 	    p->in_use = FALSE;
 	    p->mono   = monochrome;
 	}
-	if ( !p->in_use && (bool)p->mono == monochrome ) {
+	if ( !p->in_use && p->mono == monochrome && p->scrn == scrn ) {
 	    p->in_use = TRUE;			// available/compatible GC
 	    return p->gc;
 	}
@@ -332,6 +334,7 @@ struct QGCC					// cached GC
     int count;
     int hits;
     int clip_serial;
+    int scrn;
 };
 
 const  int   gc_cache_size = 29;		// multiply by 4
@@ -393,7 +396,7 @@ static void cleanup_gc_cache()
 }
 
 
-static bool obtain_gc( void **ref, GC *gc, uint pix, Display *dpy, Qt::HANDLE hd )
+static bool obtain_gc( void **ref, GC *gc, uint pix, Display *dpy, int scrn, Qt::HANDLE hd )
 {
     if ( !gc_cache_init )
 	init_gc_cache();
@@ -402,7 +405,7 @@ static bool obtain_gc( void **ref, GC *gc, uint pix, Display *dpy, Qt::HANDLE hd
     QGCC *g = gc_cache[k];
     QGCC *prev = 0;
 
-#define NOMATCH (g->gc && g->pix != pix)
+#define NOMATCH (g->gc && (g->pix != pix || g->scrn != scrn ) )
 
     if ( NOMATCH ) {
 	prev = g;
@@ -414,7 +417,7 @@ static bool obtain_gc( void **ref, GC *gc, uint pix, Display *dpy, Qt::HANDLE hd
 		prev = g;
 		g = gc_cache[++k];
 		if ( NOMATCH ) {
-		    if ( g->count == 0 ) {	// steal this GC
+		    if ( g->count == 0 && g->scrn == scrn) {	// steal this GC
 			g->pix	 = pix;
 			g->count = 1;
 			g->hits	 = 1;
@@ -456,10 +459,11 @@ static bool obtain_gc( void **ref, GC *gc, uint pix, Display *dpy, Qt::HANDLE hd
 #if defined(GC_CACHE_STAT)
 	g_numcreates++;
 #endif
-	g->gc	 = alloc_gc( dpy, hd, FALSE );
-	g->pix	 = pix;
+	g->gc = alloc_gc( dpy, scrn, hd, FALSE );
+	g->scrn = scrn;
+	g->pix = pix;
 	g->count = 1;
-	g->hits	 = 1;
+	g->hits = 1;
 	g->clip_serial = 0;
 	*gc = g->gc;
 	return FALSE;
@@ -630,20 +634,20 @@ void QPainter::updatePen()
 	    else
 		free_gc( dpy, gc );
 	}
-	obtained = obtain_gc(&penRef, &gc, cpen.color().pixel(), dpy, hd);
+	obtained = obtain_gc(&penRef, &gc, cpen.color().pixel(), dpy, scrn, hd);
 	if ( !obtained && !penRef )
-	    gc = alloc_gc( dpy, hd, FALSE );
+	    gc = alloc_gc( dpy, scrn, hd, FALSE );
     } else {
 	if ( gc ) {
 	    if ( penRef ) {
 		release_gc( penRef );
 		penRef = 0;
-		gc = alloc_gc( dpy, hd, testf(MonoDev) );
+		gc = alloc_gc( dpy, scrn, hd, testf(MonoDev) );
 	    } else {
 		internclipok = TRUE;
 	    }
 	} else {
-	    gc = alloc_gc( dpy, hd, testf(MonoDev), testf(UsePrivateCx) );
+	    gc = alloc_gc( dpy, scrn, hd, testf(MonoDev), testf(UsePrivateCx) );
 	}
     }
 
@@ -819,20 +823,20 @@ static uchar *pat_tbl[] = {
 	    else
 		free_gc( dpy, gc_brush );
 	}
-	obtained = obtain_gc(&brushRef, &gc_brush, cbrush.color().pixel(), dpy, hd);
+	obtained = obtain_gc(&brushRef, &gc_brush, cbrush.color().pixel(), dpy, scrn, hd);
 	if ( !obtained && !brushRef )
-	    gc_brush = alloc_gc( dpy, hd, FALSE );
+	    gc_brush = alloc_gc( dpy, scrn, hd, FALSE );
     } else {
 	if ( gc_brush ) {
 	    if ( brushRef ) {
 		release_gc( brushRef );
 		brushRef = 0;
-		gc_brush = alloc_gc( dpy, hd, testf(MonoDev) );
+		gc_brush = alloc_gc( dpy, scrn, hd, testf(MonoDev) );
 	    } else {
 		internclipok = TRUE;
 	    }
 	} else {
-	    gc_brush = alloc_gc( dpy, hd, testf(MonoDev), testf(UsePrivateCx));
+	    gc_brush = alloc_gc( dpy, scrn, hd, testf(MonoDev), testf(UsePrivateCx));
 	}
     }
 
@@ -941,6 +945,8 @@ bool QPainter::begin( const QPaintDevice *pd )
 	return FALSE;
     }
 
+    QPixmap::x11SetDefaultScreen( pd->x11Screen() );
+    
     QWidget *copyFrom = 0;
     if ( pdev_dict ) {				// redirected paint device?
 	pdev = pdev_dict->find( (long)pd );
@@ -974,6 +980,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	((QPixmap*)pdev)->detach();		// will modify it
 
     dpy = pdev->x11Display();			// get display variable
+    scrn = pdev->x11Screen();		// get screen variable
     hd	= pdev->handle();			// get handle to drawable
 
     if ( testf(ExtDev) ) {			// external device
@@ -2383,7 +2390,14 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 
     if ( sw <= 0 || sh <= 0 )
 	return;
+    
+     if ( pdev->x11Screen() != pixmap.x11Screen() ) {
+	 QPixmap* p = (QPixmap*) &pixmap;
+ 	p->x11SetScreen( pdev->x11Screen() );
+     }
 
+     QPixmap::x11SetDefaultScreen( pixmap.x11Screen() );
+     
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) || txop == TxScale || txop == TxRotShear ) {
 	    if ( sx != 0 || sy != 0 ||
@@ -2478,7 +2492,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 
 	QBitmap *comb = new QBitmap( sw, sh );
 	comb->detach();
-	GC cgc = qt_xget_temp_gc( TRUE );	// get temporary mono GC
+	GC cgc = qt_xget_temp_gc( pixmap.x11Screen(), TRUE );	// get temporary mono GC
 	XSetForeground( dpy, cgc, 0 );
 	XFillRectangle( dpy, comb->handle(), cgc, 0, 0, sw, sh );
 	XSetBackground( dpy, cgc, 0 );

@@ -311,8 +311,10 @@ QAsciiDict<QFont>    *QApplication::app_fonts = 0;
 
 QWidgetList *QApplication::popupWidgets = 0;	// has keyboard input focus
 
-static bool	   makeqdevel	 = FALSE;	// developer tool needed?
-static QWidget	  *desktopWidget = 0;		// root window widget
+static bool makeqdevel	 = FALSE;	// developer tool needed?
+#ifndef Q_WS_X11
+static QWidget *desktopWidget = 0;		// root window widgets
+#endif
 #ifndef QT_NO_TRANSLATION
 static QTextCodec *default_codec = 0;		// root window widget
 #endif
@@ -766,8 +768,10 @@ QWidget *QApplication::activeModalWidget()
 
 QApplication::~QApplication()
 {
+#ifndef Q_WS_X11
     delete desktopWidget;
     desktopWidget = 0;
+#endif
     is_app_closing = TRUE;
     QWidget::destroyMapper();
 #ifndef QT_NO_PALETTE
@@ -2494,18 +2498,23 @@ Q_EXPORT void qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
     int w=d->width();			// returns screen width
     int h=d->height();			// returns screen height
   \endcode
+  
+  On multi-head X11 systems, the desktop widget depends on the \a
+  screen number. When passing invalid screen numbers, the
+  application's main desktop is returned.
 */
 
+#ifndef Q_WS_X11
 QWidget *QApplication::desktop()
 {
-    if ( !desktopWidget ||			// not created yet
-	 !desktopWidget->testWFlags( WType_Desktop ) ) { // recreated away
+    if ( !desktopWidget || // not created yet
+	 !desktopWidget->isDesktop() ) { // reparented away
 	desktopWidget = new QWidget( 0, "desktop", WType_Desktop );
-	Q_CHECK_PTR( desktopWidget );
+	CHECK_PTR( desktopWidget );
     }
     return desktopWidget;
 }
-
+#endif
 
 /*!
   By default, Qt will try to get the current standard colors, fonts

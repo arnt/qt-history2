@@ -355,6 +355,7 @@ protected:
     QT_WIN_PAINTER_MEMBERS
 #elif defined(Q_WS_X11)
     Display    *dpy;				// current display
+    int 	   scrn;				// current screen
     WId		hd;				// handle to drawable
     GC		gc;				// graphics context (standard)
     GC		gc_brush;			// graphics contect for brush
@@ -362,6 +363,7 @@ protected:
 #elif defined(Q_WS_MAC)
     QRegion clippedreg;
     QMacSavedPortInfo *saved;
+    
     void initPaintDevice(bool force=FALSE);
 
     int offx, offy;
