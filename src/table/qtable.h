@@ -61,6 +61,7 @@ class QTimer;
 class QResizeEvent;
 class QComboBox;
 class QCheckBox;
+class QDragObject;
 
 struct QTablePrivate;
 struct QTableHeaderPrivate;
@@ -325,6 +326,9 @@ public slots:
     virtual void setRowReadOnly( int row, bool ro );
     virtual void setColumnReadOnly( int col, bool ro );
 
+    virtual void setDragEnabled( bool b );
+    bool dragEnabled() const;
+
 protected:
     enum EditMode { NotEditing, Editing, Replacing };
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
@@ -338,6 +342,14 @@ protected:
     void resizeEvent( QResizeEvent * );
     void showEvent( QShowEvent *e );
     void setEditMode( EditMode mode, int row, int col );
+#ifndef QT_NO_DRAGANDDROP
+    virtual void contentsDragEnterEvent( QDragEnterEvent *e );
+    virtual void contentsDragMoveEvent( QDragMoveEvent *e );
+    virtual void contentsDragLeaveEvent( QDragLeaveEvent *e );
+    virtual void contentsDropEvent( QDropEvent *e );
+    virtual QDragObject *dragObject();
+    virtual void startDrag();
+#endif
 
     virtual void paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch );
     virtual void activateNextCell();
@@ -364,6 +376,9 @@ signals:
     void pressed( int row, int col, int button, const QPoint &mousePos );
     void selectionChanged();
     void valueChanged( int row, int col );
+#ifndef QT_NO_DRAGANDDROP
+    void dropped( QDropEvent *e );
+#endif
 
 private slots:
     void doAutoScroll();
@@ -410,11 +425,17 @@ private:
     bool doSort : 1;
     bool mousePressed : 1;
     bool readOnly : 1;
+    bool shouldClearSelection : 1;
+    bool dEnabled : 1;
     SelectionMode selMode;
     int pressedRow, pressedCol;
     QTablePrivate *d;
     QIntDict<int> roRows;
     QIntDict<int> roCols;
+    int startDragRow;
+    int startDragCol;
+    QPoint dragStartPos;
+    int oldCurrentRow, oldCurrentCol;
 
 };
 

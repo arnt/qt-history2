@@ -48,6 +48,7 @@
 #include "qiconset.h"
 #include "qcombobox.h"
 #include "qcheckbox.h"
+#include "qdragobject.h"
 #include <stdlib.h>
 #include <limits.h>
 
@@ -996,7 +997,10 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
 
 void QTable::init( int rows, int cols )
 {
+    setDragAutoScroll( FALSE );
     d = 0;
+    shouldClearSelection = FALSE;
+    dEnabled = FALSE;
     roRows.setAutoDelete( TRUE );
     roCols.setAutoDelete( TRUE );
     setSorting( FALSE );
@@ -1960,6 +1964,7 @@ int QTable::currentSelection() const
 
 void QTable::contentsMousePressEvent( QMouseEvent* e )
 {
+    shouldClearSelection = FALSE;
     mousePressed = TRUE;
     if ( isEditing() )
  	endEdit( editRow, editCol, TRUE, edMode != Editing );
@@ -1970,6 +1975,14 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
     pressedCol = tmpCol;
     fixRow( tmpRow, e->pos().y() );
     fixCol( tmpCol, e->pos().x() );
+    startDragCol = -1;
+    startDragRow = -1;
+
+    if ( isSelected( tmpRow, tmpCol ) ) {
+	startDragCol = tmpCol;
+	startDragRow = tmpRow;
+	dragStartPos = e->pos();
+    }
 
     QTableItem *itm = item( pressedRow, pressedCol );
     if ( itm && !itm->isEnabled() )
@@ -2000,12 +2013,16 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
 	setCurrentCell( tmpRow, tmpCol );
     } else {
 	setCurrentCell( tmpRow, tmpCol );
-	clearSelection();
-	if ( selMode != NoSelection ) {
-	    currentSel = new QTableSelection();
-	    selections.append( currentSel );
-	    currentSel->init( tmpRow, tmpCol );
-	    emit selectionChanged();
+	if ( isSelected( tmpRow, tmpCol ) ) {
+	    shouldClearSelection = TRUE;
+	} else {
+	    clearSelection();
+	    if ( selMode != NoSelection ) {
+		currentSel = new QTableSelection();
+		selections.append( currentSel );
+		currentSel->init( tmpRow, tmpCol );
+		emit selectionChanged();
+	    }
 	}
     }
 
@@ -2053,6 +2070,25 @@ void QTable::contentsMouseMoveEvent( QMouseEvent *e )
     int tmpCol = columnAt( e->pos().x() );
     fixRow( tmpRow, e->pos().y() );
     fixCol( tmpCol, e->pos().x() );
+
+    if ( dragEnabled() && startDragRow != -1 && startDragCol != -1 ) {
+	if ( QPoint( dragStartPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
+	    mousePressed = FALSE;
+	    startDrag();
+	}
+	return;
+    }
+
+    if ( shouldClearSelection ) {
+	clearSelection();
+	if ( selMode != NoSelection ) {
+	    currentSel = new QTableSelection();
+	    selections.append( currentSel );
+	    currentSel->init( tmpRow, tmpCol );
+	    emit selectionChanged();
+	}
+	shouldClearSelection = FALSE;
+    }
 
     QPoint pos = mapFromGlobal( e->globalPos() );
     pos -= QPoint( leftHeader->width(), topHeader->height() );
@@ -2116,6 +2152,20 @@ void QTable::doAutoScroll()
 
 void QTable::contentsMouseReleaseEvent( QMouseEvent *e )
 {
+    if ( shouldClearSelection ) {
+	int tmpRow = rowAt( e->pos().y() );
+	int tmpCol = columnAt( e->pos().x() );
+	fixRow( tmpRow, e->pos().y() );
+	fixCol( tmpCol, e->pos().x() );
+	clearSelection();
+	if ( selMode != NoSelection ) {
+	    currentSel = new QTableSelection();
+	    selections.append( currentSel );
+	    currentSel->init( tmpRow, tmpCol );
+	    emit selectionChanged();
+	}
+	shouldClearSelection = FALSE;
+    }
     mousePressed = FALSE;
     autoScrollTimer->stop();
     if ( pressedRow == curRow && pressedCol == curCol )
@@ -3561,7 +3611,112 @@ void QTable::clearCellWidget( int row, int col )
     widgets.remove( indexOf( row, col ) );
 }
 
+/*! \fn void  QTable::dropped ( QDropEvent * e )
 
+  This signal is emitted, when a drop event occurred onto the table.
+
+  \a e gives you all information about the drop.
+*/
+
+/*!  If \a allow is TRUE, the table starts a drag (see dragObject())
+  when user presses and moves the mouse on a selected cell.
+*/
+
+void QTable::setDragEnabled( bool b )
+{
+    dEnabled = b;
+}
+
+/*! If \a allow is TRUE, the table supports dragging.
+
+  \sa setDragEnabled();
+ */
+
+bool QTable::dragEnabled() const
+{
+    return dEnabled;
+}
+
+#ifndef QT_NO_DRAGANDDROP
+
+/*! reimp */
+
+void QTable::contentsDragEnterEvent( QDragEnterEvent *e )
+{
+    oldCurrentRow = curRow;
+    oldCurrentCol = curCol;
+    int tmpRow = rowAt( e->pos().y() );
+    int tmpCol = columnAt( e->pos().x() );
+    fixRow( tmpRow, e->pos().y() );
+    fixCol( tmpCol, e->pos().x() );
+    setCurrentCell( tmpRow, tmpCol );
+    e->accept();
+}
+
+/*! reimp */
+
+void QTable::contentsDragMoveEvent( QDragMoveEvent *e )
+{
+    int tmpRow = rowAt( e->pos().y() );
+    int tmpCol = columnAt( e->pos().x() );
+    fixRow( tmpRow, e->pos().y() );
+    fixCol( tmpCol, e->pos().x() );
+    setCurrentCell( tmpRow, tmpCol );
+    e->accept();
+}
+
+/*! reimp */
+
+void QTable::contentsDragLeaveEvent( QDragLeaveEvent * )
+{
+    setCurrentCell( oldCurrentRow, oldCurrentCol );
+}
+
+/*! reimp */
+
+void QTable::contentsDropEvent( QDropEvent *e )
+{
+    setCurrentCell( oldCurrentRow, oldCurrentCol );
+    emit dropped( e );
+}
+
+/*! If the user presses the mouse on a selected cell and starts moving
+  and dragEnabled() is TRUE, this function is called to get a drag
+  object and a drag is started using that unless dragObject() returns
+  0.
+
+  By default this function returns 0. You should reimplement that and
+  create a QDragObject depedning on the selected items.
+*/
+
+QDragObject *QTable::dragObject()
+{
+    return 0;
+}
+
+/*! Starts a drag.
+
+  Normally you don't need to call or reimplement this function
+  yourself.
+
+  \sa dragObject();
+ */
+
+void QTable::startDrag()
+{
+    if ( startDragRow == -1 || startDragCol == -1 )
+	return;
+
+    startDragRow = startDragCol = -1;
+    mousePressed = FALSE;
+
+    QDragObject *drag = dragObject();
+    if ( !drag )
+	return;
+
+    drag->drag();
+}
+#endif
 
 
 
