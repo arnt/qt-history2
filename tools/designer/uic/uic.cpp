@@ -781,7 +781,7 @@ QString Uic::createLayoutImpl( const QDomElement &e, const QString& parentClass,
 		QString child = createSpacerImpl( n, parentClass, parent, objName );
 		if ( rowspan * colspan != 1 )
 		    out << indent << objName << "->addMultiCell( " << child << ", "
-			<< row << ", " << row + rowspan - 1 << ", " << col << ", " << col  + colspan - 1 << " );" << endl;
+			<< row << ", " << ( row + rowspan - 1 ) << ", " << col << ", " << ( col  + colspan - 1 ) << " );" << endl;
 		else
 		    out << indent << objName << "->addItem( " << child << ", "
 			<< row << ", " << col << " );" << endl;
@@ -793,7 +793,7 @@ QString Uic::createLayoutImpl( const QDomElement &e, const QString& parentClass,
 		    o = "Layout";
 		if ( rowspan * colspan != 1 )
 		    out << indent << objName << "->addMultiCell" << o << "( " << child << ", "
-			<< row << ", " << row + rowspan - 1 << ", " << col << ", " << col  + colspan - 1 << " );" << endl;
+			<< row << ", " << ( row + rowspan - 1 ) << ", " << col << ", " << ( col  + colspan - 1 ) << " );" << endl;
 		else
 		    out << indent << objName << "->add" << o << "( " << child << ", "
 			<< row << ", " << col << " );" << endl;

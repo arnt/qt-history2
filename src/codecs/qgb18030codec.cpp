@@ -8841,8 +8841,8 @@ static uint qt_Gb18030ToUnicode(const uchar *gbstr, int& len) {
 		    /* GB+81308130 - GB+8431A439 */
 		    g2u = gb18030_to_ucs_index[gb4lin >> 8];
 
-		    if ((gb4lin & 0xFF) >= g2u.tblBegin &&
-			(gb4lin & 0xFF) <= g2u.tblEnd) {
+		    if ((Q_UINT8)(gb4lin & 0xFF) >= g2u.tblBegin &&
+			(Q_UINT8)(gb4lin & 0xFF) <= g2u.tblEnd) {
 
 			uni = (uint)gb18030_4byte_to_ucs[gb4lin - g2u.tblOffset];
 		    }
@@ -8888,7 +8888,7 @@ int qt_UnicodeToGb18030(uint uni, uchar *gbchar) {
     else if (uni <= 0xD7FF || InRange(uni, 0xE766, 0xFFFF)) {
 	u2g = ucs_to_gb18030_index[uni >> 8];
 
-	if ((uni & 0xFF) >= u2g.tblBegin && (uni & 0xFF) <= u2g.tblEnd) {
+	if ((Q_UINT8)(uni & 0xFF) >= u2g.tblBegin && (Q_UINT8)(uni & 0xFF) <= u2g.tblEnd) {
 	    // Use mapping table (2-byte or 4-byte GB18030)
 	    uint tblEntry;
 

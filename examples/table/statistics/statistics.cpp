@@ -56,7 +56,7 @@ void Table::initTable()
 	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	    if ( ( *it ).contains( "moc" ) )
 		continue;
-	    all << QString( dirs[ i ] ) + "/" + *it;
+	    all << QString( dirs[ i ] ) << "/" << *it;
 	}
 	++i;
     }

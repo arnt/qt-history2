@@ -2969,7 +2969,7 @@ void MainWindow::showErrorMessage( QObject *o, int errorLine, const QString &err
     if ( o ) {
 	errorLine--; // ######
 	QValueList<uint> l;
-	l << errorLine + 1;
+	l << ( errorLine + 1 );
 	QStringList l2;
 	l2 << errorMessage;
 	QObjectList ol;

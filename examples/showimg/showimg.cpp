@@ -145,27 +145,27 @@ void ImageViewer::doOption(int item)
     int ocf = conversion_flags;
 
     if ( item == ac ) {
-	conversion_flags = conversion_flags & ~ColorMode_Mask | AutoColor;
+	conversion_flags = ( conversion_flags & ~ColorMode_Mask ) | AutoColor;
     } else if ( item == co ) {
-	conversion_flags = conversion_flags & ~ColorMode_Mask | ColorOnly;
+	conversion_flags = ( conversion_flags & ~ColorMode_Mask ) | ColorOnly;
     } else if ( item == mo ) {
-	conversion_flags = conversion_flags & ~ColorMode_Mask | MonoOnly;
+	conversion_flags = ( conversion_flags & ~ColorMode_Mask ) | MonoOnly;
     } else if ( item == fd ) {
-	conversion_flags = conversion_flags & ~Dither_Mask | DiffuseDither;
+	conversion_flags = ( conversion_flags & ~Dither_Mask ) | DiffuseDither;
     } else if ( item == bd ) {
-	conversion_flags = conversion_flags & ~Dither_Mask | OrderedDither;
+	conversion_flags = ( conversion_flags & ~Dither_Mask ) | OrderedDither;
     } else if ( item == td ) {
-	conversion_flags = conversion_flags & ~Dither_Mask | ThresholdDither;
+	conversion_flags = ( conversion_flags & ~Dither_Mask ) | ThresholdDither;
     } else if ( item == ta ) {
-	conversion_flags = conversion_flags & ~AlphaDither_Mask | ThresholdAlphaDither;
+	conversion_flags = ( conversion_flags & ~AlphaDither_Mask ) | ThresholdAlphaDither;
     } else if ( item == fa ) {
-	conversion_flags = conversion_flags & ~AlphaDither_Mask | DiffuseAlphaDither;
+	conversion_flags = ( conversion_flags & ~AlphaDither_Mask ) | DiffuseAlphaDither;
     } else if ( item == ba ) {
-	conversion_flags = conversion_flags & ~AlphaDither_Mask | OrderedAlphaDither;
+	conversion_flags = ( conversion_flags & ~AlphaDither_Mask ) | OrderedAlphaDither;
     } else if ( item == ad ) {
-	conversion_flags = conversion_flags & ~DitherMode_Mask | PreferDither;
+	conversion_flags = ( conversion_flags & ~DitherMode_Mask ) | PreferDither;
     } else if ( item == dd ) {
-	conversion_flags = conversion_flags & ~DitherMode_Mask | AvoidDither;
+	conversion_flags = ( conversion_flags & ~DitherMode_Mask ) | AvoidDither;
     }
 
     if ( ocf != conversion_flags ) {

@@ -327,7 +327,7 @@ void QInputContext::setFont( const QWidget *w, const QFont &f )
 }
 
 
-void QInputContext::setFocusHint( int x, int y, int width, int height, const QWidget *w )
+void QInputContext::setFocusHint( int x, int y, int /*width*/, int height, const QWidget *w )
 {
     COMPOSITIONFORM cf;
     // ### need X-like inputStyle config settings

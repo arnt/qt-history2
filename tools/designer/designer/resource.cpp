@@ -965,18 +965,18 @@ void Resource::saveItem( QListViewItem *i, QTextStream &ts, int indent )
 void Resource::savePixmap( const QPixmap &p, QTextStream &ts, int indent, const QString &tagname )
 {
     if ( p.isNull() ) {
-	ts << makeIndent( indent ) << "<" + tagname + "></"  + tagname + ">" << endl;
+	ts << makeIndent( indent ) << "<" << tagname << "></"  << tagname << ">" << endl;
 	return;
     }
 
     if ( formwindow && formwindow->savePixmapInline() )
-	ts << makeIndent( indent ) << "<" + tagname + ">" << saveInCollection( p ) << "</" + tagname + ">" << endl;
+	ts << makeIndent( indent ) << "<" << tagname << ">" << saveInCollection( p ) << "</" << tagname << ">" << endl;
     else if ( formwindow && formwindow->savePixmapInProject() )
-	ts << makeIndent( indent ) << "<" + tagname + ">" << MetaDataBase::pixmapKey( formwindow, p.serialNumber() )
-	   << "</" + tagname + ">" << endl;
+	ts << makeIndent( indent ) << "<" << tagname << ">" << MetaDataBase::pixmapKey( formwindow, p.serialNumber() )
+	   << "</" << tagname << ">" << endl;
     else
-	ts << makeIndent( indent ) << "<" + tagname + ">" << MetaDataBase::pixmapArgument( formwindow, p.serialNumber() )
-	   << "</" + tagname + ">" << endl;
+	ts << makeIndent( indent ) << "<" << tagname << ">" << MetaDataBase::pixmapArgument( formwindow, p.serialNumber() )
+	   << "</" << tagname << ">" << endl;
 }
 
 QPixmap Resource::loadPixmap( const QDomElement &e, const QString &/*tagname*/ )
