@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#94 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#95 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#94 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#95 $");
 
 
 /*!
@@ -2770,10 +2770,10 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
     if ( ncols > 256 )
 	return;
 
-    image.create( w, h, 8, ncols, QImage::IgnoreEndian );
+    image.create( w, h, 8, ncols );
 
-    QDict<int> colourMap( 301, TRUE );
-    colourMap.setAutoDelete( FALSE );
+    QDict<int> colorMap( 569, TRUE );
+    colorMap.setAutoDelete( FALSE );
 
     int currentColour;
     int transparentColour = -1;
@@ -2823,18 +2823,18 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 		 sscanf( blue, "%x", &b ) != 1 )
 		return; // uh...
 	    image.setColor( currentColour, qRgb( r, g, b ) );
-	    colourMap.insert( index, (int*)(currentColour+1) );
+	    colorMap.insert( index, (int*)(currentColour+1) );
 	} else if ( stricmp( buf, "none" ) == 0 ) {
 	    transparentColour = currentColour;
 	    image.setColor( transparentColour, qRgb( 255,128,64 ) );
-	    colourMap.insert( index, (int*)(transparentColour+1) );
+	    colorMap.insert( index, (int*)(transparentColour+1) );
 	} else {
 	    // symbolic colour names: die die die
 	    r = " [a-z] ";
 	    i = r.match( buf );
 	    QColor tmp( buf.mid( 2, i > -1 ? i-2 : buf.length() ) );
 	    image.setColor( currentColour, tmp.rgb() );
-	    colourMap.insert( index, (int*)(currentColour+1) );
+	    colorMap.insert( index, (int*)(currentColour+1) );
 	}
 	//	debug( "colour %d is %06x - %s",
 	//	       currentColour, image.color( currentColour ),
@@ -2845,14 +2845,27 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
     for( int y=0; y<h; y++ ) {
 	if ( !read_xpm_string( buf, d, source, index ) )
 	    return;
-	i = 0;
-
-	for ( int x=0; x<w && i<(int)buf.length(); x++ ) {
-	    int colour = (int)colourMap[ buf.mid( i, cpp ) ];
-	    if ( colour == 0 )
-		return; // bad colour
-	    *(image.scanLine(y) + x) = (char)(colour-1);
-	    i += cpp;
+	uchar *p = image.scanLine(y);
+	uchar *d = (uchar *)buf.data();
+	uchar *end = d + buf.length();
+	int x;
+	if ( cpp == 1 ) {
+	    char b[2];
+	    b[1] = '\0';
+	    for ( x=0; x<w && d<end; x++ ) {
+		b[0] = *d++;
+		*p++ = (uchar)((int)colorMap[b] - 1);
+	    }
+	} else {
+	    if ( cpp > 15 )
+		return;
+	    char b[16];
+	    b[cpp] = '\0';
+	    for ( x=0; x<w && d<end; x++ ) {
+		strncpy( b, (char *)d, cpp );
+		*p++ = (uchar)((int)colorMap[b] - 1);
+		d += cpp;
+	    }
 	}
     }
     if ( iio ) {
@@ -2906,7 +2919,7 @@ static void write_xpm_image( QImageIO * iio )
     else
 	image = iio->image();
 
-    QIntDict<int> colourMap( 301 );
+    QIntDict<int> colorMap( 301 );
 
     int w = image.width(), h = image.height(), colours=0;
     int x, y;
@@ -2918,8 +2931,8 @@ static void write_xpm_image( QImageIO * iio )
 	    QRgb colour = *(yp + x);
 	    if ( colour != (colour & RGB_MASK) )
 		colour |= ~RGB_MASK;
-	    if ( !colourMap.find( (int)colour ) )
-		colourMap.insert( (int)colour, (int*)(++colours) );
+	    if ( !colorMap.find( (int)colour ) )
+		colorMap.insert( (int)colour, (int*)(++colours) );
 	}
     }
 
@@ -2936,7 +2949,7 @@ static void write_xpm_image( QImageIO * iio )
       << "\"" << w << " " << h << " " << colours << " " << cpp << "\"";
 
     // write palette
-    QIntDictIterator<int> c( colourMap );
+    QIntDictIterator<int> c( colorMap );
     while ( c.current() ) {
 	if ( (c.currentKey() & ~RGB_MASK) != 0 )
 	    line.sprintf( "\"%s c None\"", 
@@ -2956,7 +2969,7 @@ static void write_xpm_image( QImageIO * iio )
 	QRgb * yp = (QRgb *)image.scanLine( y );
 	line.resize( cpp*w + 1 );
 	for( x=0; x<w; x++ ) {
-	    QRgb colour = (QRgb)colourMap[ *(yp + x) ];
+	    QRgb colour = (QRgb)colorMap[ *(yp + x) ];
 	    const char * chars = xpm_colour_name( cpp, (int)colour );
 	    line[ x*cpp ] = chars[0];
 	    if ( cpp == 2 )
