@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#64 $
 **
 ** Definition of QIconView widget class
 **
@@ -125,7 +125,7 @@ struct QIconViewPrivate
     bool drawDragShape;
     QMap< QString, QIconViewItem* > nameMap;
     QString currInputString;
-    bool dirty;
+    bool dirty, rearrangeEnabled;
 };
 
 /*****************************************************************************
@@ -1011,7 +1011,7 @@ void QIconViewItem::setViewMode( QIconSet::Size mode )
 
 /*!
   Returns the viewmode of the item;
-  
+
   \sa QIconView::viewMode()
 */
 
@@ -1390,7 +1390,8 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->inputTimer = new QTimer( this );
     d->currInputString = QString::null;
     d->dirty = FALSE;
-
+    d->rearrangeEnabled = TRUE;
+    
     connect ( d->adjustTimer, SIGNAL( timeout() ),
 	      this, SLOT( adjustItems() ) );
     connect ( d->updateTimer, SIGNAL( timeout() ),
@@ -2084,18 +2085,20 @@ int QIconView::maxItemTextLength() const
     return d->maxItemTextLength;
 }
 
-/*!
-  \reimp
-*/
-
 void QIconView::setRearrangeEnabled( bool b )
 {
+    d->rearrangeEnabled = b;
 }
 
 
 bool QIconView::rearrangeEnabled() const
 {
+    return d->rearrangeEnabled;
 }
+
+/*!
+  \reimp
+*/
 
 void QIconView::contentsMousePressEvent( QMouseEvent *e )
 {
@@ -2317,6 +2320,8 @@ void QIconView::contentsDropEvent( QDropEvent *e )
     QIconViewItem *i = findItem( e->pos() );
 
     if ( !i && e->source() == viewport() && d->currentItem && !d->cleared ) {
+	if ( !d->rearrangeEnabled )
+	    return;
 	QRect r = d->currentItem->rect();
 
 	d->currentItem->move( e->pos() - d->dragStart );
