@@ -19,136 +19,170 @@
         <name>caption</name>
         <string>WidgetPreview</string>
     </property>
-    <vbox>
+    <widget>
+        <class>QGroupBox</class>
         <property stdset="1">
-            <name>margin</name>
-            <number>2</number>
+            <name>name</name>
+            <cstring>GroupBox4</cstring>
         </property>
         <property stdset="1">
-            <name>spacing</name>
-            <number>6</number>
+            <name>geometry</name>
+            <rect>
+                <x>2</x>
+                <y>2</y>
+                <width>159</width>
+                <height>137</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>title</name>
+            <string>Font</string>
         </property>
         <widget>
-            <class>QGroupBox</class>
+            <class>QComboBox</class>
+            <item>
+                <property>
+                    <name>text</name>
+                    <string>Times New Roman</string>
+                </property>
+            </item>
+            <item>
+                <property>
+                    <name>text</name>
+                    <string>Courier</string>
+                </property>
+            </item>
+            <item>
+                <property>
+                    <name>text</name>
+                    <string>Helvetica</string>
+                </property>
+            </item>
             <property stdset="1">
                 <name>name</name>
-                <cstring>GroupBox4</cstring>
+                <cstring>ComboBox4</cstring>
             </property>
             <property stdset="1">
-                <name>title</name>
-                <string>Font</string>
+                <name>geometry</name>
+                <rect>
+                    <x>11</x>
+                    <y>17</y>
+                    <width>137</width>
+                    <height>22</height>
+                </rect>
             </property>
-            <vbox>
-                <property stdset="1">
-                    <name>margin</name>
-                    <number>11</number>
-                </property>
-                <property stdset="1">
-                    <name>spacing</name>
-                    <number>6</number>
-                </property>
-                <widget>
-                    <class>QComboBox</class>
-                    <item>
-                        <property>
-                            <name>text</name>
-                            <string>Times New Roman</string>
-                        </property>
-                    </item>
-                    <item>
-                        <property>
-                            <name>text</name>
-                            <string>Courier</string>
-                        </property>
-                    </item>
-                    <item>
-                        <property>
-                            <name>text</name>
-                            <string>Helvetica</string>
-                        </property>
-                    </item>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>ComboBox4</cstring>
-                    </property>
-                </widget>
-                <widget>
-                    <class>QCheckBox</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>CheckBox10</cstring>
-                    </property>
-                    <property stdset="1">
-                        <name>text</name>
-                        <string>Bold</string>
-                    </property>
-                </widget>
-                <widget>
-                    <class>QCheckBox</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>CheckBox10</cstring>
-                    </property>
-                    <property stdset="1">
-                        <name>text</name>
-                        <string>Italic</string>
-                    </property>
-                </widget>
-                <widget>
-                    <class>QCheckBox</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>CheckBox10</cstring>
-                    </property>
-                    <property stdset="1">
-                        <name>text</name>
-                        <string>Underlined</string>
-                    </property>
-                </widget>
-            </vbox>
         </widget>
         <widget>
-            <class>QLayoutWidget</class>
+            <class>QCheckBox</class>
             <property stdset="1">
                 <name>name</name>
-                <cstring>Layout4</cstring>
+                <cstring>CheckBox10</cstring>
             </property>
-            <hbox>
-                <property stdset="1">
-                    <name>margin</name>
-                    <number>0</number>
-                </property>
-                <property stdset="1">
-                    <name>spacing</name>
-                    <number>6</number>
-                </property>
-                <widget>
-                    <class>QLabel</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>Label4</cstring>
-                    </property>
-                    <property stdset="1">
-                        <name>text</name>
-                        <string>Font Size:</string>
-                    </property>
-                    <property stdset="1">
-                        <name>sizePolicy</name>
-                        <sizepolicy>
-                            <hsizetype>1</hsizetype>
-                            <vsizetype>1</vsizetype>
-                        </sizepolicy>
-                    </property>
-                </widget>
-                <widget>
-                    <class>QSpinBox</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>SpinBox4</cstring>
-                    </property>
-                </widget>
-            </hbox>
+            <property stdset="1">
+                <name>geometry</name>
+                <rect>
+                    <x>11</x>
+                    <y>45</y>
+                    <width>137</width>
+                    <height>17</height>
+                </rect>
+            </property>
+            <property stdset="1">
+                <name>text</name>
+                <string>Bold</string>
+            </property>
         </widget>
-    </vbox>
+        <widget>
+            <class>QCheckBox</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>CheckBox10</cstring>
+            </property>
+            <property stdset="1">
+                <name>geometry</name>
+                <rect>
+                    <x>11</x>
+                    <y>68</y>
+                    <width>137</width>
+                    <height>17</height>
+                </rect>
+            </property>
+            <property stdset="1">
+                <name>text</name>
+                <string>Italic</string>
+            </property>
+        </widget>
+        <widget>
+            <class>QCheckBox</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>CheckBox10</cstring>
+            </property>
+            <property stdset="1">
+                <name>geometry</name>
+                <rect>
+                    <x>11</x>
+                    <y>91</y>
+                    <width>137</width>
+                    <height>17</height>
+                </rect>
+            </property>
+            <property stdset="1">
+                <name>text</name>
+                <string>Underlined</string>
+            </property>
+        </widget>
+    </widget>
+    <widget>
+        <class>QLayoutWidget</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>Layout4</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>2</x>
+                <y>145</y>
+                <width>159</width>
+                <height>23</height>
+            </rect>
+        </property>
+        <hbox>
+            <property stdset="1">
+                <name>margin</name>
+                <number>0</number>
+            </property>
+            <property stdset="1">
+                <name>spacing</name>
+                <number>6</number>
+            </property>
+            <widget>
+                <class>QLabel</class>
+                <property stdset="1">
+                    <name>name</name>
+                    <cstring>Label4</cstring>
+                </property>
+                <property stdset="1">
+                    <name>text</name>
+                    <string>Font Size:</string>
+                </property>
+                <property stdset="1">
+                    <name>sizePolicy</name>
+                    <sizepolicy>
+                        <hsizetype>1</hsizetype>
+                        <vsizetype>1</vsizetype>
+                    </sizepolicy>
+                </property>
+            </widget>
+            <widget>
+                <class>QSpinBox</class>
+                <property stdset="1">
+                    <name>name</name>
+                    <cstring>SpinBox4</cstring>
+                </property>
+            </widget>
+        </hbox>
+    </widget>
 </widget>
 </UI>
