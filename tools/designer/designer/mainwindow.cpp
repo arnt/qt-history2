@@ -195,6 +195,7 @@ MainWindow::MainWindow( bool asClient )
     setupHierarchyView();
     setupPropertyEditor();
     setupActionEditor();
+    setupLogWindow();
 
     setupActionManager();
     setupHelpActions();
@@ -1099,6 +1100,28 @@ void MainWindow::setupPropertyEditor()
     connect( propertyEditor, SIGNAL( hidden() ),
 	     this, SLOT( propertyEditorHidden() ) );
     actionWindowPropertyEditor->setOn( TRUE );
+}
+
+void MainWindow::setupLogWindow()
+{
+    QString dir = getenv( "QTDIR" );
+    dir += "/lib";
+    logWindowPluginManager = 0;
+    logWindowPluginManager = new QInterfaceManager<LogWindowInterface>( IID_LogWindowInterface, dir, "*qscript*.dll; *qscript*.so" );
+    if ( !logWindowPluginManager )
+	return;
+    LogWindowInterface *iface = (LogWindowInterface*)logWindowPluginManager->queryInterface( "LogWindow" );
+    if ( !iface )
+	return;
+    QDockWindow *dw = new QDockWindow;
+    dw->setResizeEnabled( TRUE );
+    dw->setCloseMode( QDockWindow::Always );
+    addToolBar( dw, Qt::Bottom );
+    dw->setWidget( iface->logWindow( dw ) );
+    dw->setFixedExtentHeight( 200 );
+    dw->setCaption( tr( "Logwindow" ) );
+    dw->hide();
+    // ##### add log window menu item to window menu, etc.
 }
 
 void MainWindow::setupHierarchyView()

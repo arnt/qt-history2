@@ -24,6 +24,7 @@
 #include "metadatabase.h"
 #include "actioninterface.h" // for GCC 2.7.* compatibility
 #include "../shared/editorinterface.h"
+#include "../shared/logwindowinterface.h"
 #include "../shared/templatewizardiface.h"
 #include "../shared/eventinterface.h"
 #include "sourceeditor.h"
@@ -228,6 +229,7 @@ private:
     void setupHierarchyView();
     void setupFormList();
     void setupActionEditor();
+    void setupLogWindow();
 
     void setupActionManager();
     void setupEditor();
@@ -311,6 +313,7 @@ private:
     ActionEditor *actionEditor;
     Project *currentProject;
     QInterfaceManager<EditorInterface> *editorPluginManager;
+    QInterfaceManager<LogWindowInterface> *logWindowPluginManager;
     QInterfaceManager<TemplateWizardInterface> *templateWizardPluginManager;
     QList<SourceEditor> sourceEditors;
     bool previewing;
