@@ -1027,6 +1027,13 @@ struct Connection
     }
 };
 
+class NormalizeObject : public QObject
+{
+public:
+    NormalizeObject() : QObject() {}
+    static QCString normalizeSignalSlot( const char *signalSlot ) { return QObject::normalizeSignalSlot( signalSlot ); }
+};
+
 void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 {
     QDomElement n = e.firstChild().toElement();
@@ -1069,6 +1076,9 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 		n2 = n2.nextSibling().toElement();
 	    }
 
+	    conn.signal = NormalizeObject::normalizeSignalSlot( conn.signal );
+	    conn.slot = NormalizeObject::normalizeSignalSlot( conn.slot );
+	
 	    QObject *sender = 0, *receiver = 0;
 	    QObjectList *l = toplevel->queryList( 0, conn.sender->name(), FALSE );
 	    if ( qstrcmp( conn.sender->name(), toplevel->name() ) == 0 ) {
