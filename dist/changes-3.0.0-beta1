@@ -427,7 +427,7 @@ New functions to define the library search path for plugins
 (setLibraryPaths, ...).
 
 New functions to define reverse layout for bidirectional languages
-(setReverseLayout,...).
+(setReverseLayout, ...).
 
 All new functions:
 	bool hasPendingEvents()
@@ -1003,6 +1003,18 @@ QUnknownInterface
 QUuid
 QRegExpValidator
 QTextEdit
+
+Renamed Classes:
+
+QArray has been renamed QMemArray
+QCollection has been renamed QPtrCollection
+QList has been renamed QPtrList
+QListIterator has been renamed QPtrListIterator
+QQueue has been renamed QPtrQueue
+QStack has been renamed QPtrStack
+QVector has been renamed QPtrVector
+
+The include file names have changed accordingly (e.g., <qmemarray.h>).
 
 New Modules:
 
