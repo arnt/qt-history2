@@ -701,12 +701,12 @@ LayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTa
             layoutFrame(frame, frame->firstPosition(), frame->lastPosition(), width, -1);
             td->layoutedFrames.removeAll(frame);
             layoutStruct.minimumWidth = qMax(layoutStruct.minimumWidth, cd->boundingRect.width());
-            // we assume floats to have a fixed size
-            layoutStruct.maximumWidth = qMin(layoutStruct.maximumWidth, layoutStruct.minimumWidth);
 
             if (cd->position != QTextFrameFormat::InFlow)
                 floats.append(frame);
         }
+
+    int floatMinWidth = layoutStruct.minimumWidth;
 
     layoutFlow(cell.begin(), &layoutStruct);
 
@@ -716,6 +716,10 @@ LayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTa
     // when the image happens to be higher than the text
     foreach (QTextFrame *frame, floats)
         layoutStruct.y = qMax(layoutStruct.y, data(frame)->boundingRect.height());
+
+    // constraint the maximumWidth by the minimum width of the fixed size floats, to
+    // keep them visible
+    layoutStruct.maximumWidth = qMax(layoutStruct.maximumWidth, floatMinWidth);
 
     return layoutStruct;
 }
@@ -771,6 +775,9 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
     td->minWidths.resize(columns);
     td->minWidths.fill(0);
 
+    td->maxWidths.resize(columns);
+    td->maxWidths.fill(INT_MAX);
+
     // set fixed values, figure out total percentages used and number of
     // variable length cells
     int totalPercentage = 0;
@@ -820,16 +827,27 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
                         if (widthToDistribute <= 0)
                             break;
                     }
+                    // ### colspans
+                    td->maxWidths[i] = qMin(td->maxWidths.at(i), layoutStruct.maximumWidth);
                 }
                 td->widths[i] = td->minWidths.at(i);
                 totalWidth -= td->minWidths.at(i);
             }
 
         if (totalWidth > 0) {
-            sharedWidth = totalWidth / variableCols;
-            for (int i = 0; i < columns; ++i)
-                if (constraints.at(i) == QTextTableFormat::VariableLength)
-                    td->widths[i] += sharedWidth;
+            int lastWidth = totalWidth;
+            while (totalWidth > 0) {
+                for (int i = 0; i < columns; ++i)
+                    if (constraints.at(i) == QTextTableFormat::VariableLength) {
+                        const int colsLeft = columns - i;
+                        const int w = qMin(td->maxWidths.at(i) - td->widths.at(i), totalWidth / colsLeft);
+                        td->widths[i] += w;
+                        totalWidth -= w;
+                    }
+                if (totalWidth == lastWidth)
+                    break;
+                lastWidth = totalWidth;
+            }
         }
     }
 
@@ -935,8 +953,9 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
     }
 
     // - margin to compensate the + margin in columnPositions[0]
-    td->contentsWidth = qMax(td->contentsWidth,
-                             td->columnPositions.last() + td->widths.last() + td->padding + td->border + cellSpacing - margin);
+//    td->contentsWidth = qMax(td->contentsWidth,
+//                             td->columnPositions.last() + td->widths.last() + td->padding + td->border + cellSpacing - margin);
+    td->contentsWidth = td->columnPositions.last() + td->widths.last() + td->padding + td->border + cellSpacing - margin;
     int height = td->contentsHeight == -1
                  ? td->rowPositions.last() + td->heights.last() + td->padding + td->border + cellSpacing + margin
                  : td->contentsHeight + 2*margin;
