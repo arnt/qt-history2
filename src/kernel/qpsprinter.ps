@@ -281,12 +281,21 @@
       % store the image mask
       /ma exch d
       % select colorspace according to 8|24 bit depth and set the decode array /dc
-      8 eq {
+      dup
+      1 eq {
+	pop
 	/dc [0 1] d
 	/DeviceGray
+	/bpp 1 d
       } {
-	/dc [0 1 0 1 0 1] d
-	/DeviceRGB
+        8 eq {
+	  /dc [0 1] d
+	  /DeviceGray
+        } {
+	  /dc [0 1 0 1 0 1] d
+	  /DeviceRGB
+        } ifelse
+	/bpp 8 d
       } ifelse
       setcolorspace
       % the image data
@@ -304,7 +313,7 @@
 	/Height		        h d
 	/ImageMatrix            mt d
 	/DataSource		im d
-	/BitsPerComponent	8 d
+	/BitsPerComponent	bpp d
 	/Decode		        dc d
       end d
       % the mask dictionary
