@@ -82,10 +82,11 @@ public:
 #endif
     RowsetCache rowCache;
     int rowCacheEnd;
+    int rowCacheCurrent;
     
-    uint skipFetch: 1; // skip the next fetchNext()
-    uint skippedStatus: 1; // the status of the fetchNext() that's skipped
-    uint forwardOnly: 1;
+    uint skipFetch: 1; // skip the next fetchNext() ??
+    uint skippedStatus: 1; // the status of the fetchNext() that's skipped ??
+    uint forwardOnly: 1; // if true, then don't expand cache, loop. Otherwise expand cache.
     uint utf8: 1;
     
     QSqlRecordInfo rInf;
@@ -94,7 +95,7 @@ public:
 static const uint initial_cache_size = 128;
 
 QSQLiteResultPrivate::QSQLiteResultPrivate(QSQLiteResult* res) : p(res), access(0), currentTail(0),
-    currentMachine(0), rowCacheEnd(0), skipFetch(FALSE), skippedStatus(FALSE), forwardOnly(FALSE), utf8(FALSE)
+    currentMachine(0), rowCacheEnd(0), rowCacheCurrent(-1), skipFetch(FALSE), skippedStatus(FALSE), forwardOnly(FALSE), utf8(FALSE)
 {
     rowCache.setAutoDelete(TRUE);
     rowCache.resize(initial_cache_size);
@@ -103,6 +104,7 @@ QSQLiteResultPrivate::QSQLiteResultPrivate(QSQLiteResult* res) : p(res), access(
 /* BEWARE!! Call that only once after reset! */
 bool QSQLiteResultPrivate::isSelect()
 {
+    // XXX should be a bool to protect this.
     skippedStatus = fetchNext();
     skipFetch = TRUE;
     return !rInf.isEmpty();
@@ -136,13 +138,15 @@ void QSQLiteResultPrivate::init(const char **cnames, int numCols)
         const char* fieldName = lastDot ? lastDot + 1 : cnames[i];
         rInf.append(QSqlFieldInfo(fieldName, nameToType(cnames[i+numCols])));
     }
+    /* XXX this seems wrong, why add an empty record to the cache?
     if (forwardOnly) {
 	RowCache *r = new RowCache(numCols);
 	r->setAutoDelete(TRUE);
 	if (rowCacheEnd == rowCache.size())
 	    rowCache.resize(rowCache.size() << 1);
-	rowCache.insert(rowCacheEnd++, r);
+	rowCache.insert(rowCacheEnd++, r); // why?
     }
+    */
 }
 
 bool QSQLiteResultPrivate::fetchNext()
@@ -153,7 +157,7 @@ bool QSQLiteResultPrivate::fetchNext()
     int colNum;
     int res;
     int i;
- 
+
     if (skipFetch) {
         // already fetched
         skipFetch = FALSE;
@@ -164,8 +168,7 @@ bool QSQLiteResultPrivate::fetchNext()
         return FALSE;
 
     // keep trying while busy, wish I could implement this better.
-    while ((res = sqlite_step(currentMachine, &colNum, &fvals, &cnames)) != SQLITE_BUSY) {
-        break;
+    while ((res = sqlite_step(currentMachine, &colNum, &fvals, &cnames)) == SQLITE_BUSY) {
     }
 
     switch(res) {
@@ -183,9 +186,13 @@ bool QSQLiteResultPrivate::fetchNext()
                     else
                         values->insert(i, new QSqlVariant(QString(fvals[i])));
                 }
-                if (forwardOnly)
+                if (forwardOnly) {
+		    // e.g. not caching
+		    if (rowCacheCurrent != -1)
+			rowCache.remove(0);
                     rowCache.insert(0, values);
-                else {
+		    rowCacheCurrent = 0;
+		} else {
 		    if (rowCacheEnd == rowCache.size())
 			rowCache.resize(rowCache.size() << 1);
 		    rowCache.insert(rowCacheEnd++, values);
@@ -227,6 +234,8 @@ void QSQLiteResult::cleanup()
     d->finalize();
     d->rowCache.clear();
     d->rowCache.resize(initial_cache_size);
+    d->rowCacheEnd = 0;
+    d->rowCacheCurrent = -1;
     d->rInf.clear();
     d->currentTail = 0;
     d->currentMachine = 0;
@@ -246,11 +255,11 @@ bool QSQLiteResult::fetch(int i)
         if (at() > i || at() == QSql::AfterLast)
             return FALSE;
     } else {
-        if (i < (int)d->rowCache.count()) {
+        if (i < (int)d->rowCacheEnd) {
             setAt(i);
             return TRUE;
         } else {
-            setAt(d->rowCache.count() - 1);
+            setAt(d->rowCacheEnd - 1);
         }
     }
 
@@ -268,7 +277,7 @@ bool QSQLiteResult::fetchNext()
 {
     if (at() == QSql::AfterLast)
         return FALSE;    
-    if (!d->forwardOnly && ((int)(d->rowCache.count()-1) >=  at() + 1)) {
+    if (!d->forwardOnly && ((d->rowCacheEnd-1) >=  at() + 1)) {
         setAt(at() + 1);
         return TRUE;
     }
@@ -283,8 +292,8 @@ bool QSQLiteResult::fetchNext()
 
 bool QSQLiteResult::fetchLast()
 {
-    if (!d->forwardOnly && at() == QSql::AfterLast && d->rowCache.count() > 0) {
-        setAt(d->rowCache.count() - 1);
+    if (!d->forwardOnly && at() == QSql::AfterLast && d->rowCacheEnd > 0) {
+        setAt(d->rowCacheEnd - 1);
         return TRUE;
     }
     if (at() >= QSql::BeforeFirst) {
@@ -295,7 +304,7 @@ bool QSQLiteResult::fetchLast()
             setAt(i);
             return TRUE;
         } else {
-            return fetch(d->rowCache.count() - 1);
+            return fetch(d->rowCacheEnd - 1);
         }
     }
     return FALSE;
@@ -322,10 +331,7 @@ QSqlVariant QSQLiteResult::data(int field)
 {
     if (!isSelect() || !isValid())
         return QSqlVariant();
-    
-    if (!d->forwardOnly) {
-        QSQLiteResultPrivate::RowCache cache = *(d->rowCache.at(at()));
-    }
+   
     if (d->forwardOnly)
         return *(d->rowCache.at(0)->at(field));
     else
