@@ -462,11 +462,13 @@ bool MetaTranslator::release( const QString& filename, bool verbose,
                      || m.key().type() != MetaTranslatorMessage::Unfinished ) {
                     /*
                       Drop the comment in (context, sourceText, comment),
-                      unless (context, sourceText, "") already exists, or
+                      unless the context is empty,
+                      unless (context, sourceText, "") already exists or
                       unless we already dropped the comment of (context,
                       sourceText, comment0).
                     */
                     if ( comment.isEmpty()
+                         || context.isEmpty()
                          || contains(context, sourceText, "")
                          || !tor.findMessage(context, sourceText, "").translation()
                                 .isNull() ) {
