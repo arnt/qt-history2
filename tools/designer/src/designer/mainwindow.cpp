@@ -64,7 +64,7 @@ MainWindow::MainWindow()
       m_closeForm(true), m_settingsSaved(false),
       m_newFormDialog(0), m_preferenceDialog(0), m_actionWindowList(0), m_actionWindowSeparator(0)
 {
-    invisibleParent = new QWidget(0);
+    invisibleParent = new QWidget(0, Qt::WStyle_Tool);
     setWindowTitle(tr("Qt Designer"));
     setupFormEditor();
     setupWidgetBox();
