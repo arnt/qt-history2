@@ -71,8 +71,13 @@ public:
     void setLineWidth( int newWidth );
     int availableWidth() const;
 
+    enum Result {
+	Ok,
+	Split,
+	Error
+    };
     /* returns true if completely added */
-    bool addCurrentItem();
+    Result addCurrentItem();
 
     void endLine( int x, int y, Qt::AlignmentFlags alignment );
     void endLayout();

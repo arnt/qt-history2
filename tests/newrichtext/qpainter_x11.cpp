@@ -3127,7 +3127,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	int current = visualOrder[i] + start;
 	const QScriptItem &it = layout.items[ current ];
 	const QShapedItem *shaped = layout.shape( current );
-	int swidth = layout.width( current );
+	int swidth = it.width;
 
 	QFont::Script script = (QFont::Script)it.analysis.script;
 	QFontEngine *fe = cfont.d->engineForScript( script );

@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <malloc.h>
 
+#if 0
 // align on 8 byte boundary, this should work on all platforms
 static inline unsigned int align( unsigned int n ) {
     return (n + 7) & ~((unsigned int)7);
@@ -71,7 +72,7 @@ inline void *QTextMemory::realloc( void *ptr, size_t size )
     allocated[index] = newptr;
     return newptr;
 }
-
+#endif
 
 
 class QFontPrivate;
@@ -236,6 +237,7 @@ public:
     QScriptItemArray &operator = ( const QScriptItemArray & ) { return *this; }
 
     void resize( int s );
+    void clear();
 
     QScriptItemArrayPrivate *d;
 };
@@ -273,15 +275,15 @@ struct QShapedItem
 {
     QShapedItem()
 	: num_glyphs( 0 ), glyphs( 0 ), advances( 0 ), offsets( 0 ), logClusters( 0 ),
-	  glyphAttributes( 0 ), ascent( 0 ), descent( 0 ) {}
+	  glyphAttributes( 0 ), ownGlyphs( TRUE ) {}
+    ~QShapedItem();
     int num_glyphs;
-    glyph_t * glyphs;
+    glyph_t *glyphs;
     offset_t *advances;
     offset_t *offsets;
     unsigned short *logClusters;
     GlyphAttributes *glyphAttributes;
-    short ascent;
-    short descent;
+    bool ownGlyphs : 1;
 };
 
 struct QCharAttributes {
@@ -301,13 +303,15 @@ struct QTextEngine {
     QTextEngine( const QString &str, QFontPrivate *f );
     ~QTextEngine();
 
+    void itemize( bool doBidi = TRUE );
+
     static void bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder );
 
     void setFont( int item, QFontPrivate *f );
     QFontEngine *font( int item );
 
     const QCharAttributes *attributes();
-    const QShapedItem *shape( int item ) const;
+    QShapedItem *shape( int item ) const;
 
     // ### we need something for justification
 
@@ -316,16 +320,19 @@ struct QTextEngine {
 	Trailing
     };
 
-    int width( int item ) const;
     int width( int charFrom, int numChars ) const;
     QGlyphMetrics boundingBox( int from,  int len ) const;
-
-//    static QScriptProperties scriptProperties( int script );
 
     QScriptItemArray items;
     QString string;
     QFontPrivate *fnt;
+    int lineWidth;
+    int widthUsed;
+    int firstItemInLine;
+    int currentItem;
+#if 0
     QTextMemory memory;
+#endif
     QCharAttributes *charAttributes;
 
     int length( int item ) const {
@@ -335,7 +342,6 @@ struct QTextEngine {
 	return ( item < items.size() ? items[item].position : string.length() ) - from;
     }
 private:
-    void itemize();
     void initialize();
 
     static QScriptEngine **scriptEngines;

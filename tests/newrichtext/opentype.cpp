@@ -436,6 +436,7 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QSc
 
     QScriptEngine::calculateAdvances( item );
 
+    item->width = 0;
     if ( hasGPos ) {
 	TTO_GPOS_Data *positions = 0;
 
@@ -467,6 +468,7 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QSc
 		offsets[i].y -= advances[i-back].y;
 		back--;
 	    }
+	    item->width += advances[i].x;
 	    // 	qDebug("   ->\tadv=(%d/%d)\tpos=(%d/%d)",
 	    // 	       advances[i].x, advances[i].y, offsets[i].x, offsets[i].y );
 	}

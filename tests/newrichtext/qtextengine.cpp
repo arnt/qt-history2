@@ -11,6 +11,12 @@
 
 QScriptItemArray::~QScriptItemArray()
 {
+    clear();
+    free( d );
+}
+
+void QScriptItemArray::clear()
+{
     for ( unsigned int i = 0; i < d->size; i++ ) {
 	QScriptItem &si = d->items[i];
 	if ( si.fontEngine )
@@ -18,7 +24,7 @@ QScriptItemArray::~QScriptItemArray()
 	if ( si.shaped )
 	    delete si.shaped;
     }
-    free( d );
+    d->size = 0;
 }
 
 void QScriptItemArray::resize( int s )
@@ -52,6 +58,16 @@ void QScriptItemArray::split( int pos )
 }
 
 
+QShapedItem::~QShapedItem()
+{
+    if ( ownGlyphs ) {
+	free( glyphs );
+	free( advances );
+	free( offsets );
+	free( logClusters );
+	free( glyphAttributes );
+    }
+}
 
 QScriptEngine **QTextEngine::scriptEngines = 0;
 
@@ -82,7 +98,6 @@ QTextEngine::QTextEngine( const QString &str, QFontPrivate *f )
 {
     if ( !scriptEngines ) initialize();
     if ( fnt ) fnt->ref();
-    itemize();
 }
 
 QTextEngine::~QTextEngine()
@@ -92,7 +107,7 @@ QTextEngine::~QTextEngine()
 }
 
 
-void QTextEngine::itemize()
+void QTextEngine::itemize( bool /*doBidi*/ )
 {
     if ( !items.d ) {
 	int size = 1;
@@ -144,7 +159,7 @@ const QCharAttributes *QTextEngine::attributes()
     return charAttributes;
 }
 
-const QShapedItem *QTextEngine::shape( int item ) const
+QShapedItem *QTextEngine::shape( int item ) const
 {
     QScriptItem &si = items[item];
 
@@ -164,15 +179,6 @@ const QShapedItem *QTextEngine::shape( int item ) const
 	scriptEngines[script]->shape( string, from, len, &si );
     }
     return si.shaped;
-}
-
-int QTextEngine::width( int item ) const
-{
-    const QShapedItem *shaped = shape( item );
-    int width = 0;
-    for ( int i = 0; i < shaped->num_glyphs; i++ )
-	width += shaped->advances[i].x;
-    return width;
 }
 
 int QTextEngine::width( int from, int len ) const
@@ -264,84 +270,3 @@ QGlyphMetrics QTextEngine::boundingBox( int from,  int len ) const
     return gm;
 }
 
-
-#if 0
-bool QTextEngine::split( int item, QShapedItem &shaped, QCharAttributesArray &attrs,
-			 int width, QShapedItem *splitoff )
-{
-    if ( !shaped.d->isPositioned )
-	position( shaped );
-
-//     qDebug("QTextEngine::split: item=%d, width=%d", item, width );
-    // line breaks are always done in logical order
-    QShapedItemPrivate *d = shaped.d;
-
-    int lastBreak = 0;
-    int splitGlyph = 0;
-
-    int lastWidth = 0;
-    int w = 0;
-    int lastCluster = 0;
-    int clusterStart = 0;
-    for ( int i = 1; i <= d->length; i++ ) {
-	int newCluster = i < d->length ? d->logClusters[i] : d->num_glyphs;
-	if ( newCluster != lastCluster ) {
-	    // calculate cluster width
-	    int x = 0;
-	    for ( int j = lastCluster; j < newCluster; j++ )
-		x += d->advances[j].x;
-	    lastWidth += x;
-	    if ( w + lastWidth > width )
-		break;
-	    lastCluster = newCluster;
-	    clusterStart = i;
-	    if ( attrs[i].softBreak ) {
-		lastBreak = i;
-		splitGlyph = newCluster;
-		w += lastWidth;
-		lastWidth = 0;
-	    }
-	}
-    }
-
-    if ( lastBreak == 0 )
-	return FALSE;
-
-    // we have the break position
-    items.split( lastBreak + items[item].position );
-
-    if ( splitoff ) {
-	// split the shapedItem
-	QShapedItemPrivate *sd = splitoff->d;
-	sd->num_glyphs = d->num_glyphs - splitGlyph - 1;
-	sd->glyphs = (glyph_t *) realloc( sd->glyphs, sd->num_glyphs*sizeof(glyph_t) );
-	memcpy( sd->glyphs, d->glyphs + splitGlyph, sd->num_glyphs*sizeof(glyph_t) );
-	sd->offsets = (offset_t *) realloc( sd->offsets, sd->num_glyphs*sizeof(offset_t) );
-	sd->advances = (offset_t *) realloc( sd->advances, sd->num_glyphs*sizeof(offset_t) );
-	memcpy( sd->offsets, d->offsets + splitGlyph, sd->num_glyphs*sizeof(offset_t) );
-	memcpy( sd->advances, d->advances + splitGlyph, sd->num_glyphs*sizeof(offset_t) );
-	sd->glyphAttributes = (GlyphAttributes *) realloc( sd->glyphAttributes, sd->num_glyphs*sizeof(GlyphAttributes) );
-	memcpy( sd->glyphAttributes, d->glyphAttributes + splitGlyph, sd->num_glyphs*sizeof(GlyphAttributes) );
-	sd->from = d->from + lastBreak;
-	sd->length = d->length - lastBreak - 1;
-	sd->logClusters = (unsigned short *) realloc( sd->logClusters, sd->length*sizeof( unsigned short ) );
-	for ( int i = 0; i < sd->length; i++ )
-	    sd->logClusters[i] = d->logClusters[i+lastBreak]-splitGlyph;
-	sd->fontEngine = d->fontEngine;
-	sd->string = d->string;
-	sd->analysis = d->analysis;
-
-	// ### these are somewhat incorrect
-	sd->ascent = d->ascent;
-	sd->descent = d->descent;
-
-	sd->isShaped = TRUE;
-	sd->isPositioned = TRUE;
-    }
-
-    d->num_glyphs = splitGlyph;
-    d->length = lastBreak;
-
-    return TRUE;
-}
-#endif

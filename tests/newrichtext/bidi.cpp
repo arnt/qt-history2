@@ -34,33 +34,33 @@ struct BidiControl {
 	int unused : 1;
     };
 
-    BidiControl( bool rtl )
+    inline BidiControl( bool rtl )
 	: cCtx( 0 ) {
 	ctx[0].level = (rtl ? 1 : 0);
 	ctx[0].override = FALSE;
     }
 
-    void embed( int level, bool override = FALSE ) {
+    inline void embed( int level, bool override = FALSE ) {
 	if ( ctx[cCtx].level < 61 && cCtx < 61 ) {
 	    (void) ++cCtx;
 	    ctx[cCtx].level = level;
 	    ctx[cCtx].override = override;
 	}
     }
-    void pdf() {
+    inline void pdf() {
 	if ( cCtx ) (void) --cCtx;
     }
 
-    uchar level() const {
+    inline uchar level() const {
 	return ctx[cCtx].level;
     }
-    bool override() const {
+    inline bool override() const {
 	return ctx[cCtx].override;
     }
-    QChar::Direction basicDirection() {
+    inline QChar::Direction basicDirection() {
 	return (ctx[0].level ? QChar::DirR : QChar:: DirL );
     }
-    QChar::Direction direction() {
+    inline QChar::Direction direction() {
 	return (ctx[cCtx].level ? QChar::DirR : QChar:: DirL );
     }
 
