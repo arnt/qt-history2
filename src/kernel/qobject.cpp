@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#94 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#93 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#94 $")
 
 
 /*----------------------------------------------------------------------------
@@ -1141,7 +1141,11 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 {
 #if defined(CHECK_NULL)
     if ( sender == 0 || receiver == 0 || signal == 0 || member == 0 ) {
-	warning( "QObject::connect: Unexpected null parameter" );
+	warning( "QObject::connect: Cannot connect %s::%s to %s::%s",
+		 sender ? sender->className() : "(null)",
+		 signal ? signal+1 : "(null)",
+		 receiver ? receiver->className() : "(null)",
+		 member ? member+1 : "(null)" );
 	return FALSE;
     }
 #endif
