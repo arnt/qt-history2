@@ -877,14 +877,16 @@ int QSqlCursor::update( bool invalidate )
 /*!  \overload
 
   Updates the database with the current contents of the cursor edit
-  buffer, using the specified \a filter.  Only records which meet the
-  filter criteria are updated, otherwise all records in the table are
-  updated.  If \a invalidate is TRUE (the default), the cursor can no
-  longer be navigated. A new select() call must be made before you can
-  move to a valid record. Returns the number of records which were
-  updated.  For error information, use lastError().
+  buffer, using the specified \a filter.  Use primeUpdate() to update
+  the edit buffer with the contents of the current cursor position.
+  Only records which meet the filter criteria are updated, otherwise
+  all records in the table are updated.  If \a invalidate is TRUE (the
+  default), the cursor can no longer be navigated. A new select() call
+  must be made before you can move to a valid record. Returns the
+  number of records which were updated.  For error information, use
+  lastError().
 
-  \sa setMode() lastError()
+  \sa primeUpdate() setMode() lastError()
 */
 
 int QSqlCursor::update( const QString & filter, bool invalidate )
@@ -904,30 +906,34 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
 }
 
 /*!  Deletes the current cursor record from the database using the
-  cursor's primary index.  Only records which meet the filter criteria
-  specified by the cursor's primary index are deleted.  If the cursor
-  does not contain a primary index, or if the cursor is not positioned
-  on a valid record, no delete is performed and 0 is returned. If \a
-  invalidate is TRUE (the default), the current cursor can no longer
-  be navigated. A new select() call must be made before you can move to
-  a valid record. Returns the number of records which were deleted.  For
-  error information, use lastError(). For example:
+  cursor's primary index and the contents of the cursor edit
+  buffer. Use primeDelete() to update the edit buffer with the
+  contents of the current cursor position.  Only records which meet
+  the filter criteria specified by the cursor's primary index are
+  deleted.  If the cursor does not contain a primary index, no delete
+  is performed and 0 is returned. If \a invalidate is TRUE (the
+  default), the current cursor can no longer be navigated. A new
+  select() call must be made before you can move to a valid
+  record. Returns the number of records which were deleted.  For error
+  information, use lastError(). For example:
 
   \code
 
   QSqlCursor empCursor ( "Employee" );
   empCursor.select( "id=10");
-  if ( empCursor.next() )
+  if ( empCursor.next() ) {
+      empCursor.primeDelete();
       empCursor.del();  // delete employee #10
+  }
 
   \endcode
 
-  \sa setMode() lastError()
+  \sa primeDelete() setMode() lastError()
 */
 
 int QSqlCursor::del( bool invalidate )
 {
-    if ( !isActive() || !isValid() ||  primaryIndex().isEmpty() )
+    if ( primaryIndex().isEmpty() )
 	return 0;
     return del( toString( primaryIndex(), &d->editBuffer, d->nm, 
 			  "=", "and" ), invalidate );
