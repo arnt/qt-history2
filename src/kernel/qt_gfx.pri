@@ -146,5 +146,5 @@ zlib {
 !no-zlib:!zlib:win32:LIBS += libz.lib
 
 #use Qt gif
-gif:DEFINES += QT_BUILTIN_GIF_READER
+gif:DEFINES += QT_BUILTIN_GIF_READER=1
 
