@@ -1,5 +1,5 @@
 
-/*! \class U4rl
+/*! \class QUrl
 
     \brief The QUrl class provides a convenient interface for working
     with URLs.
