@@ -57,15 +57,15 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     t << "QMAKE =	" << var("QMAKE") << endl;
     t << "SUBDIRS	=" << varList("SUBDIRS") << endl;
 
-    t << "all: $(SUBDIRS)" << endl << endl;
+    t << "all: qmake_all $(SUBDIRS)" << endl << endl;
 
-    QStringList &sdirs = project->variables()["SUBDIRS]"];
+    QStringList &sdirs = project->variables()["SUBDIRS"];
     QStringList::Iterator sdirit;
 
     for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
 	t << (*sdirit) << ":";
-	if(project->variables()["QMAKE_NOFORCE"].isEmpty())
-	    t << " FORCE";
+//	if(project->variables()["QMAKE_NOFORCE"].isEmpty())
+//	    t << " FORCE";
 	t << "\n\t"
 	  << "cd " << (*sdirit) << "\n\t"
 	  << "$(MAKE)" << "\n\t"
