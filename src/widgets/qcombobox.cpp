@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#185 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#186 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -249,6 +249,9 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     d = new QComboData;
     if ( style() == WindowsStyle ) {
 	d->listBox           = new QListBox( 0, 0, WType_Popup );
+	d->listBox->setAutoScrollBar( FALSE );
+	d->listBox->setBottomScrollBar( FALSE );
+	d->listBox->setAutoBottomScrollBar( FALSE );
 	d->listBox->setFrameStyle( QFrame::Box | QFrame::Plain );
 	d->listBox->setLineWidth( 1 );
 	d->listBox->resize( 100, 10 );
@@ -298,6 +301,9 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
 {
     d = new QComboData;
     d->listBox = new QListBox( 0, 0, WType_Popup );
+    d->listBox->setAutoScrollBar( FALSE );
+    d->listBox->setBottomScrollBar( FALSE );
+    d->listBox->setAutoBottomScrollBar( TRUE );
     d->listBox->setFrameStyle( QFrame::Box | QFrame::Plain );
     d->listBox->setLineWidth( 1 );
     d->listBox->resize( 100, 10 );
@@ -371,6 +377,9 @@ void QComboBox::setStyle( GUIStyle s )
 	if ( !d->usingListBox ) {
 	    QPopupMenu * p = d->popup;
 	    d->listBox = new QListBox( 0, 0, WType_Popup );
+	    d->listBox->setAutoScrollBar( FALSE );
+	    d->listBox->setBottomScrollBar( FALSE );
+	    d->listBox->setAutoBottomScrollBar( FALSE );
 	    d->listBox->setFrameStyle( QFrame::Box | QFrame::Plain );
 	    d->listBox->setLineWidth( 1 );
 	    d->listBox->resize( 100, 10 );
@@ -1219,6 +1228,21 @@ void QComboBox::focusInEvent( QFocusEvent * )
     repaint( FALSE );
 }
 
+/*!
+  \internal
+   Calculates the listbox height needed to contain all items, or as
+   many as the list box is supposed to contain.
+*/
+static int listHeight( QListBox *l, int sl )
+{
+    int i;
+    int sumH = 0;
+    for( i = 0 ; i < (int) l->count() && i < sl ; i++ ) {
+	sumH += l->itemHeight( i );
+    }
+    return sumH;
+}
+
 
 /*!
   Popups the combo box popup list.
@@ -1235,7 +1259,11 @@ void QComboBox::popup()
 	                // Send all listbox events to eventFilter():
 	d->listBox->installEventFilter( this );
 	d->mouseWasInsidePopup = FALSE;
-	d->listBox->resize( width(), d->listBox->sizeHint().height() );
+	d->listBox->resize( width(),
+			    listHeight( d->listBox, d->sizeLimit ) + 2 );
+	if (d->listBox->bottomScrollBar() )
+	    d->listBox->resize( width(),
+				listHeight( d->listBox, d->sizeLimit ) + 2 + 16 ); //### hardcoded scrollbar height 16
 	QWidget *desktop = QApplication::desktop();
 	int sw = desktop->width();			// screen width
 	int sh = desktop->height();			// screen height
@@ -1260,6 +1288,7 @@ void QComboBox::popup()
 	d->listBox->blockSignals( TRUE );
 	d->listBox->setCurrentItem( d->current );
 	d->listBox->blockSignals( FALSE );
+	d->listBox->setAutoScrollBar( TRUE );
 	d->listBox->show();
     } else {
 	d->popup->installEventFilter( this );
@@ -1710,6 +1739,9 @@ void QComboBox::setListBox( QListBox * newListBox )
     d->listBox = newListBox;
     d->usingListBox = TRUE;
 
+    d->listBox->setAutoScrollBar( FALSE );
+    d->listBox->setBottomScrollBar( FALSE );
+    d->listBox->setAutoBottomScrollBar( FALSE );
     d->listBox->setFrameStyle( QFrame::Box | QFrame::Plain );
     d->listBox->setLineWidth( 1 );
     d->listBox->resize( 100, 10 );
