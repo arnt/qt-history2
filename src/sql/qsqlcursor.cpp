@@ -68,7 +68,8 @@ public:
     };
 
     QSqlCursorPrivate( const QString& name )
-	: lastAt( QSql::BeforeFirst ), nm( name ), srt( name ), md( 0 ){}
+	: lastAt( QSql::BeforeFirst ), nm( name ), srt( name ), md( 0 )
+    {}
     ~QSqlCursorPrivate(){}
 
     int               lastAt;
@@ -169,7 +170,7 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
   in the database.
 */
 
-/*!  Constructs a cursor on database \a db over table or view \a name.  
+/*!  Constructs a cursor on database \a db over table or view \a name.
 
     If \a autopopulate is TRUE (the default), the \a name of the cursor
     must correspond to an existing table or view name in the database so
@@ -1066,34 +1067,41 @@ QVariant QSqlCursor::calculateField( const QString& )
 
 */
 
+static QString qTrim( const QString& s )
+{
+    QString result = s;
+    int end = result.length() - 1;
+    while ( end && result[end].isSpace() ) // skip white space from end
+	end--;
+    result.truncate( end );
+    return result;
+}
+
 void QSqlCursor::sync()
 {
     if ( isActive() && isValid() && d->lastAt != at() ) {
 	d->lastAt = at();
-	uint i = 0, j = 0;
+	uint i = 0;
+	uint j = 0;
+	bool haveCalculatedFields = FALSE;
 	for ( ; i < count(); ++i ){
-	    QSqlField* f = field( i );
-	    if ( !isCalculated( f->name() ) ){
+	    if ( !d->fieldInfo[i].calc ){
 		QVariant v = QSqlQuery::value( j );
-		if ( d->fieldInfo[ position( f->name() ) ].trim && /* ## optimize? */
-		     ( v.type() == QVariant::String || v.type() == QVariant::CString ) ) {
-		    QString result = v.toString();
-		    int end = result.length() - 1;
-		    while ( end && result[end].isSpace() ) // skip white space from end
-			end--;
-		    result.truncate( end );
-		    v = result;
-		}
+		if ( ( v.type() == QVariant::String || v.type() == QVariant::CString ) &&
+		     d->fieldInfo[ i ].trim )
+		    v = qTrim( v.toString() );
 		QSqlRecord::setValue( i, v );
 		QSqlRecord::field( i )->setNull( QSqlQuery::isNull( j ) );
 		j++;
-	    }
+	    } else
+		haveCalculatedFields = TRUE;
 	}
-	i = 0;
-	for ( ; i < count(); ++i ){
-	    QSqlField* f = field( i );
-	    if ( isCalculated( f->name() ) )
-		QSqlRecord::setValue( i, calculateField( f->name() ) );
+	if ( haveCalculatedFields ) {
+	    i = 0;
+	    for ( ; i < count(); ++i ){
+		if ( d->fieldInfo[i].calc )
+		    QSqlRecord::setValue( i, calculateField( fieldName( i ) ) );
+	    }
 	}
     }
 }
