@@ -1092,6 +1092,23 @@ QList<QTreeWidgetItem*> QTreeWidget::selectedItems() const
 }
 
 /*!
+  Finds items that matches the \a text, using the criteria given in the \a flags.
+*/
+
+QList<QTreeWidgetItem*> QTreeWidget::findItems(const QString &text,
+                                               QAbstractItemModel::MatchFlags flags) const
+{
+    QModelIndex topLeft = d->model()->index(0, 0);
+    int role = QAbstractItemModel::DisplayRole;
+    int hits = d->model()->rowCount();
+    QModelIndexList indexes = d->model()->match(topLeft, role, text,hits, flags);
+    QList<QTreeWidgetItem*> items;
+    for (int i = 0; i < indexes.count(); ++i)
+        items << d->model()->item(indexes.at(i));
+    return items;
+}
+
+/*!
   Returns true if the \a item is in the viewport, otherwise returns false.
 */
 
@@ -1112,23 +1129,6 @@ void QTreeWidget::ensureItemVisible(const QTreeWidgetItem *item)
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item));
     QTreeView::ensureItemVisible(index);
-}
-
-/*!
-  Finds items that matches the \a text, using the criteria given in the \a flags.
-*/
-
-QList<QTreeWidgetItem*> QTreeWidget::findItems(const QString &text,
-                                               QAbstractItemModel::MatchFlags flags) const
-{
-    QModelIndex topLeft = d->model()->index(0, 0);
-    int role = QAbstractItemModel::DisplayRole;
-    int hits = d->model()->rowCount();
-    QModelIndexList indexes = d->model()->match(topLeft, role, text,hits, flags);
-    QList<QTreeWidgetItem*> items;
-    for (int i = 0; i < indexes.count(); ++i)
-        items << d->model()->item(indexes.at(i));
-    return items;
 }
 
 /*!

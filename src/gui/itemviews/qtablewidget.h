@@ -143,15 +143,15 @@ public:
     bool isSelected(const QTableWidgetItem *item) const;
     void setSelected(const QTableWidgetItem *item, bool select);
     QList<QTableWidgetItem*> selectedItems() const;
-    
-    bool isVisible(const QTableWidgetItem *item) const;
-    void ensureItemVisible(const QTableWidgetItem *item);
 
     QList<QTableWidgetItem*> findItems(const QString &text,
                                        QAbstractItemModel::MatchFlags flags
                                        = QAbstractItemModel::MatchDefault) const;
+    
+    bool isVisible(const QTableWidgetItem *item) const;
 
 public slots:
+    void ensureItemVisible(const QTableWidgetItem *item);
     void insertRow(int row);
     void insertColumn(int column);
     void removeRow(int row);

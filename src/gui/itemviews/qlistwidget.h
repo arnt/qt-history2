@@ -143,14 +143,14 @@ public:
     void setSelected(const QListWidgetItem *item, bool select);
     QList<QListWidgetItem*> selectedItems() const;
 
-    bool isVisible(const QListWidgetItem *item) const;
-    void ensureItemVisible(const QListWidgetItem *item);
-
     QList<QListWidgetItem*> findItems(const QString &text,
                                       QAbstractItemModel::MatchFlags flags
                                       = QAbstractItemModel::MatchDefault) const;
 
+    bool isVisible(const QListWidgetItem *item) const;
+
 public slots:
+    void ensureItemVisible(const QListWidgetItem *item);
     void clear();
 
 signals:

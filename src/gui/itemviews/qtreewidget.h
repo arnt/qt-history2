@@ -147,14 +147,14 @@ public:
     void setSelected(const QTreeWidgetItem *item, bool select);
     QList<QTreeWidgetItem*> selectedItems() const;
 
-    bool isVisible(const QTreeWidgetItem *item) const;
-    void ensureItemVisible(const QTreeWidgetItem *item);
-
     QList<QTreeWidgetItem*> findItems(const QString &text,
                                       QAbstractItemModel::MatchFlags flags
                                       = QAbstractItemModel::MatchDefault) const;
 
+    bool isVisible(const QTreeWidgetItem *item) const;
+
 public slots:
+    void ensureItemVisible(const QTreeWidgetItem *item);
     void clear();
 
 signals:
