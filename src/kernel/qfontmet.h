@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmet.h#30 $
+** $Id: //depot/qt/main/src/kernel/qfontmet.h#31 $
 **
 ** Definition of QFontMetrics class
 **
@@ -59,6 +59,7 @@ private:
     const QFontDef *spec() const;
 #if defined(_WS_WIN_)
     void *textMetric() const;
+    HDC hdc() const;
 #elif defined(_WS_X11_)
     void *fontStruct() const;
 #endif

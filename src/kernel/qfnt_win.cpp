@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#35 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -28,7 +28,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#34 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#35 $");
 
 
 static HANDLE stock_sysfont = 0;
@@ -498,6 +498,67 @@ int QFontMetrics::descent() const
     return TM->tmDescent;
 }
 
+bool QFontMetrics::inFont(char ch) const
+{
+    TEXTMETRIC *f = TM;
+    return (uint)ch >= f->tmFirstChar
+        && (uint)ch <= f->tmLastChar;
+}
+
+
+int QFontMetrics::leftBearing(char ch) const
+{
+    ABC abc;
+    GetCharABCWidths(hdc(),ch,ch,&abc);
+    return a.abcA;
+}
+
+
+int QFontMetrics::rightBearing(char) const
+{
+    ABC abc;
+    GetCharABCWidths(hdc(),ch,ch,&abc);
+    return a.abcC;
+}
+
+
+int QFontMetrics::leftBearing() const
+{
+    // Safely cast away const, as we cache rbearing there.
+    QFontDef* def = (QFontDef*)spec();
+
+    if ( def->lbearing < 0 ) {
+	rightBearing(); // calculates both
+    }
+
+    return def->lbearing;
+}
+
+
+int QFontMetrics::rightBearing() const
+{
+    // Safely cast away const, as we cache rbearing there.
+    QFontDef* def = (QFontDef*)spec();
+
+    if ( def->rbearing < 0 ) {
+	TEXTMETRIC *tm = TM;
+	int n = tm->tmLastChar - tm->tmFirstChar+1;
+	ABC *abc = new ABC[n];
+	GetCharABCWidths(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
+	int ml = abc[0].abcA;
+	int mr = abc[0].abcC;
+	for (int i=1; i<n; i++) {
+	    ml = QMIN(ml,abc[i].abcA);
+	    mr = QMIN(mr,abc[i].abcC);
+	}
+	def->lbearing = ml;
+	def->rbearing = mr;
+    }
+
+    return def->rbearing;
+}
+
+
 int QFontMetrics::height() const
 {
     return TM->tmHeight;
@@ -524,20 +585,7 @@ int QFontMetrics::width( const char *str, int len ) const
 	GetTextExtentPoint( u.f->dc(), str, len, &s );
 	return s.cx;
     }
-    HDC hdc;
-    if ( type() == Widget && u.w ) {
-	QFont *f = (QFont *)&u.w->font();
-	f->handle();
-	hdc = f->d->fin->dc();
-    } else if ( type() == Painter && u.p ) {
-	hdc = u.p->handle();
-    } else {
-#if defined(CHECK_NULL)
-	warning( "QFontMetrics: Invalid font metrics" );
-#endif
-	return 0;
-    }
-    GetTextExtentPoint( hdc, str, len, &s );
+    GetTextExtentPoint( hdc(), str, len, &s );
     return s.cx;
 }
 
@@ -547,27 +595,28 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
 	len = strlen( str );
     SIZE s;
     TEXTMETRIC *tm = TM;
-    if ( type() == FontInternal ) {
-	GetTextExtentPoint32( u.f->dc(), str, len, &s );
-	return QRect( 0, -tm->tmAscent, s.cx, tm->tmAscent+tm->tmDescent );
-    }
-    HDC hdc;
-    if ( !tm )
-	return QRect(0, 0, 0, 0);
-    if ( type() == Widget && u.w ) {
-	QFont *f = (QFont *)&u.w->font();
-	f->handle();
-	hdc = f->d->fin->dc();
-    } else if ( type() == Painter && u.p ) {
-	hdc = u.p->handle();
-    } else {
-#if defined(CHECK_NULL)
-	warning( "QFontMetrics: Invalid font metrics" );
-#endif
-	return QRect(0, 0, 0, 0);
-    }
-    GetTextExtentPoint32( hdc, str, len, &s );
+    GetTextExtentPoint32( hdc(), str, len, &s );
     return QRect(0, -tm->tmAscent, s.cx, tm->tmAscent+tm->tmDescent);
+}
+
+HDC QFontMetrics::hdc() const
+{
+    if ( type() == FontInternal ) {
+	return u.f->dc();
+    } else {
+	if ( type() == Widget && u.w ) {
+	    QFont *f = (QFont *)&u.w->font();
+	    f->handle();	    
+	    return f->d->fin->dc();
+	} else if ( type() == Painter && u.p ) {
+	    return u.p->handle();
+	} else {
+#if defined(CHECK_NULL)
+	    warning( "QFontMetrics: Invalid font metrics" );
+#endif
+	    return 0;
+	}
+    }
 }
 
 int QFontMetrics::maxWidth() const
