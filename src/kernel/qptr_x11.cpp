@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#125 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#126 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#125 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#126 $")
 
 
 // --------------------------------------------------------------------------
@@ -2461,7 +2461,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
     if ( len > 150 && !decode ) {		// need to alloc code array
 	codelen = len + len/2;
-	codes	= new ushort[codelen];
+	codes	= (ushort *)malloc( codelen*sizeof(ushort) );
 	code_alloc = TRUE;
     }
 
@@ -2678,7 +2678,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
     if ( (tf & DontPrint) != 0 ) {		// don't print any text
 	if ( code_alloc )
-	    delete [] codes;
+	    free( codes );
 	return;
     }
 
@@ -2815,7 +2815,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     if ( p_alloc )
 	delete [] p;
     if ( code_alloc )
-	delete [] codes;
+	free( codes );
 }
 
 
