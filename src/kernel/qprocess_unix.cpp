@@ -297,11 +297,23 @@ void QProcessManager::sigchldHnd( int fd )
 	if ( process != 0 ) {
 	    if ( !process->isRunning() ) {
 #if defined(QT_QPROCESS_DEBUG)
-		qDebug( "QProcessManager::sigchldHnd(): process exited (QProcess available)" );
+		qDebug( "QProcessManager::sigchldHnd() (PID: %d): process exited (QProcess available)", proc->pid );
 #endif
 		// read pending data
-		process->socketRead( proc->socketStdout );
-		process->socketRead( proc->socketStderr );
+		int nbytes = 0;
+		if ( ::ioctl(proc->socketStdout, QT_NREAD, (char*)&nbytes)==0 && nbytes>0 ) {
+#if defined(QT_QPROCESS_DEBUG)
+		qDebug( "QProcessManager::sigchldHnd() (PID: %d): reading %d bytes of pending data on stdout", proc->pid, nbytes );
+#endif
+		    process->socketRead( proc->socketStdout );
+		}
+		nbytes = 0;
+		if ( ::ioctl(proc->socketStderr, QT_NREAD, (char*)&nbytes)==0 && nbytes>0 ) {
+#if defined(QT_QPROCESS_DEBUG)
+		qDebug( "QProcessManager::sigchldHnd() (PID: %d): reading %d bytes of pending data on stderr", proc->pid, nbytes );
+#endif
+		    process->socketRead( proc->socketStderr );
+		}
 
 		if ( process->notifyOnExit )
 		    emit process->processExited();
@@ -312,7 +324,7 @@ void QProcessManager::sigchldHnd( int fd )
 	    int status;
 	    if ( ::waitpid( proc->pid, &status, WNOHANG ) == proc->pid ) {
 #if defined(QT_QPROCESS_DEBUG)
-		qDebug( "QProcessManager::sigchldHnd(): process exited (QProcess not available)" );
+		qDebug( "QProcessManager::sigchldHnd() (PID: %d): process exited (QProcess not available)", proc->pid );
 #endif
 		removeProc = TRUE;
 	    }
@@ -458,6 +470,8 @@ void QProcess::reset()
 QByteArray* QProcess::bufStdout()
 {
     if ( d->proc && d->proc->socketStdout ) {
+	// ### can this cause a blocking behaviour (maybe do a ioctl() to see
+	// if data is available)?
 	socketRead( d->proc->socketStdout );
     }
     return &d->bufStdout;
@@ -466,6 +480,8 @@ QByteArray* QProcess::bufStdout()
 QByteArray* QProcess::bufStderr()
 {
     if ( d->proc && d->proc->socketStderr ) {
+	// ### can this cause a blocking behaviour (maybe do a ioctl() to see
+	// if data is available)?
 	socketRead( d->proc->socketStderr );
     }
     return &d->bufStderr;
@@ -734,12 +750,12 @@ bool QProcess::isRunning() const
 	}
 	d->exitValuesCalculated = TRUE;
 #if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::isRunning(): FALSE" );
+	qDebug( "QProcess::isRunning() (PID: %d): FALSE", d->proc->pid );
 #endif
 	return FALSE;
     }
 #if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcess::isRunning(): TRUE" );
+    qDebug( "QProcess::isRunning() (PID: %d): TRUE", d->proc->pid );
 #endif
     return TRUE;
 }
