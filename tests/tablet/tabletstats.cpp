@@ -34,19 +34,31 @@ void MyOrientation::resizeEvent( QResizeEvent *e )
 void MyOrientation::newOrient( int tiltX, int tiltY )
 {
     
-    /*
-    const MY_Z = 50;	// a faux Z setting, to mess with calculations
+    const int MY_HYP = 50;	// a faux hypoteneus, to mess with calculations
     double PI = 3.14159265359;
+    static int oldX = 0, oldY = 0;
+    int tmpZ, tmpX, tmpY;
     QPainter p(this);
     p.setPen( black );
-    p.drawLine( width() / 2, 0, width() / 2, height() );
-    p.drawLine(  0, height() / 2, width(), height() / 2 );
+    
     p.setBrush( red );
-    int tmpX = MY_Z * tan( tiltX * (PI / 180 ) );
-    int tmpY = MY_Z * tan( tiltY * (PI / 180 ) );
-    p.drawLine( width() / 2, height() / 2, tmpX, tmpY );  
+    tmpZ = MY_HYP * sin( tiltX * (PI / 180) );
+
+    tmpX = tmpZ * tan( tiltX * (PI / 180) );
+    tmpY = tmpZ * tan( tiltY * (PI / 180 ) );
+
+    if (tiltX < 0) {
+	tmpX = 0 - tmpX;
+	tmpY = 0 - tmpY;
+    }
+
+    p.eraseRect( 0, 0, width(), height() );
+    p.translate( width() / 2, height() / 2 );
+    qDebug( "x: %d, y: %d", tmpX, tmpY );
+    p.drawLine( 0, 0,tmpX, tmpY );
+    oldX = tmpX;
+    oldY = tmpY;
     p.end();
-    */
 }
 
 
@@ -54,23 +66,11 @@ void StatsCanvas::tabletEvent( QTabletEvent *e )
 {
     QPainter p;
     
-    static QRect oldR( -1, -1, -1, -1 );
-    QRect r( e->x() - e->pressure() / 2, e->y() - e->pressure() / 2, e->pressure(), e->pressure() );
-    
     e->accept();
-    p.begin( &buffer );
+    r.setRect( e->x() - e->pressure() / 2, 
+	e->y() - e->pressure() / 2, e->pressure(), e->pressure() );
     
-    if ( !oldR.isNull() ) {
-	p.fillRect( oldR, colorGroup().base() );
-	bitBlt( this, oldR.x(), oldR.y(), &buffer, oldR.x(), oldR.y(),
-	    oldR.width(), oldR.height() );
-    }
-    p.setBrush( black );
-    p.drawEllipse( r );
-    oldR = r;
-    p.end();
-    
-    bitBlt( this, r.x(), r.y(), &buffer, r.x(), r.y(), r.width(), r.height() );
+    update();
     emit signalNewTilt( e->xTilt(), e->yTilt() );
     emit signalNewDev( e->device() );
     emit signalNewLoc( e->x(), e->y() );
@@ -86,26 +86,31 @@ void StatsCanvas::mouseMoveEvent( QMouseEvent *e )
 void StatsCanvas::mouseReleaseEvent( QMouseEvent *e )
 {
     clearScreen();
+    update();
 }
 
 void StatsCanvas::paintEvent( QPaintEvent *e )
 {
-    /*
+    static QRect oldR( -1, -1, -1, -1);
     QPainter p;
     QString str = tr("Test Your Tablet Pen Here");
     p.begin( &buffer );
-    int offset = p.fontMetrics().boundingRect(str).width() / 2;
-    // remove the old one...
-    p.setPen( black );
-    p.drawText( (width() / 2) - offset, height() / 2, str );
+    if ( !oldR.isNull() )
+	p.fillRect( oldR, colorGroup().base() );
+    p.setBrush( black );
+    p.drawEllipse( r );
+    oldR = r;
+    bitBlt( this, r.x(), r.y(), &buffer, r.x(), r.y(), r.width(), r.height() );
     p.end();
-    */
-    Canvas::paintEvent( e );
+    
+    //Canvas::paintEvent( e );
 }
 
 TabletStats::TabletStats( QWidget *parent, const char *name )
 	: QWidget( parent, name )
 {
+    
+    
     QGridLayout *layout = new QGridLayout( this, 4, 5 );
     int row;
     QString strStart( tr("Touch The Canvas") );

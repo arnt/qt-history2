@@ -49,6 +49,9 @@ protected:
     void mouseMoveEvent( QMouseEvent *e );
     void paintEvent( QPaintEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
+
+private:
+    QRect r;
 };
 
 class TabletStats : public QWidget
