@@ -1293,15 +1293,11 @@ void QAxServerBase::readMetaData()
 		continue;
 
 	    BSTR bstrNames = QStringToBSTR( slot->method->name );
-	    UINT cNames = 1;
 	    DISPID dispId;
-	    GetIDsOfNames( IID_NULL, (BSTR*)&bstrNames, cNames, LOCALE_USER_DEFAULT, &dispId );
-	    if ( dispId >= 0 ) {
-		for ( int p = 0; p < (int)cNames; ++ p ) {
-		    slotlist->insert( dispId, slot );
-		    SysFreeString( bstrNames );
-		}
-	    }
+	    GetIDsOfNames( IID_NULL, (BSTR*)&bstrNames, 1, LOCALE_USER_DEFAULT, &dispId );
+	    if ( dispId >= 0 )
+		slotlist->insert( dispId, slot );
+	    SysFreeString( bstrNames );
 	}
 	IConnectionPointContainer *cpoints = 0;
 	QueryInterface( IID_IConnectionPointContainer, (void**)&cpoints );
@@ -1343,16 +1339,13 @@ void QAxServerBase::readMetaData()
 			const QMetaData *signal = mo->signal( isignal, TRUE );
 
 			BSTR bstrNames = QStringToBSTR( signal->method->name );
-			UINT cNames = 1;
 			DISPID dispId;
-			eventinfo->GetIDsOfNames( (BSTR*)&bstrNames, cNames, &dispId );
-			if ( dispId >= 0 ) {
+			eventinfo->GetIDsOfNames( (BSTR*)&bstrNames, 1, &dispId );
+			if ( dispId >= 0 )
 			    signallist->insert( isignal, dispId );
-			    for ( int p = 0; p < (int)cNames; ++ p )
-				SysFreeString( bstrNames );
-			} else {
+			else
 			    signallist->insert( isignal, -1 );
-			}
+			SysFreeString( bstrNames );
 		    }
 		    eventinfo->Release();
 		}
@@ -1367,16 +1360,13 @@ void QAxServerBase::readMetaData()
 		continue;
 
 	    BSTR bstrNames = QStringToBSTR( property->name() );
-	    UINT cNames = 1;
 	    DISPID dispId;
-	    GetIDsOfNames( IID_NULL, (BSTR*)&bstrNames, cNames, LOCALE_USER_DEFAULT, &dispId );
+	    GetIDsOfNames( IID_NULL, (BSTR*)&bstrNames, 1, LOCALE_USER_DEFAULT, &dispId );
 	    if ( dispId >= 0 ) {
-		for ( int p = 0; p < (int)cNames; ++p ) {
-		    proplist->insert( dispId, property );
-		    proplist2->insert( iproperty, dispId );
-		    SysFreeString( bstrNames );
-		}
+		proplist->insert( dispId, property );
+		proplist2->insert( iproperty, dispId );
 	    }
+	    SysFreeString( bstrNames );
 	}
     }
 }
