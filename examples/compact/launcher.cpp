@@ -41,7 +41,7 @@ struct {
     { "Canvas - alpha-blending", "../canvas", "canvas", 0, 0 },
     { "Text Editor", "../qwerty", "qwerty", "unicode.txt", 0 },
     { "Scribble Editor", "../scribble", "scribble", 0, 0 },
-    { "Internationalization", "../i18n", "i18n", "jp", 0 },
+    { "Internationalization", "../i18n", "i18n", 0, 0 },
     { "Magnifier", "../qmag", "qmag", "-geometry",  "100x100" },
     { 0, 0, 0, 0, 0 }
 };
@@ -262,7 +262,7 @@ main(int argc, char** argv)
     }
 #endif
 
-    QApplication app(argc,argv, QWSServer::Server );
+    QApplication app(argc,argv, QApplication::GuiServer );
  
     qInstallMsgHandler(silent);
 
