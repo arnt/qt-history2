@@ -121,6 +121,10 @@ private:
     QSqlDatabasePrivate *d;
 };
 
+#ifndef QT_NO_DEBUG
+QM_EXPORT_SQL QDebug operator<<(QDebug, const QSqlDatabase &);
+#endif
+
 #endif // QT_NO_SQL
 #endif
 

@@ -45,6 +45,7 @@
 #include "../drivers/ibase/qsql_ibase.h"
 #endif
 
+#include "qdebug.h"
 #include "qcoreapplication.h"
 #include "qsqlresult.h"
 #include "qsqldriver.h"
@@ -1295,5 +1296,21 @@ QSqlDatabase QSqlDatabase::cloneDatabase(const QSqlDatabase &other, const QStrin
     Use record() instead.
 */
 
+#if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug dbg, const QSqlDatabase &d)
+{
+    if (!d.isValid()) {
+        dbg.nospace() << "QSqlDatabase(invalid)";
+        return dbg.space();
+    }
+
+    dbg.nospace() << "QSqlDatabase(driver=\"" << d.driverName() << "\", database=\""
+                  << d.databaseName() << "\", host=\"" << d.hostName() << "\", port=" << d.port()
+                  << ", user=\"" << d.userName() << "\", open=" << d.isOpen() << ")";
+    return dbg.space();
+}
+#endif
+#endif
 
 #endif // QT_NO_SQL
