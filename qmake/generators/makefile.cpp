@@ -1657,7 +1657,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     for(QStringList::Iterator qeui_it = qeui.begin(); qeui_it != qeui.end(); ++qeui_it)
         t << "include " << (*qeui_it) << endl;
 
-    QString ofile = Option::output.fileName();
+    QString ofile = Option::fixPathToTargetOS(Option::output.fileName());
     if(ofile.lastIndexOf(Option::dir_sep) != -1)
         ofile = ofile.right(ofile.length() - ofile.lastIndexOf(Option::dir_sep) -1);
     t << "MAKEFILE =        " << ofile << endl;
