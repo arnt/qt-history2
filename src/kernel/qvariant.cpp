@@ -1383,6 +1383,8 @@ const QString QVariant::toString() const
     if ( d->typ == DateTime )
 	return toDateTime().toString( Qt::ISODate );
 #endif
+    if ( d->typ == Bool )
+	return QString::number( toInt() );
     if ( d->typ != String )
 	return QString::null;
     return *((QString*)d->value.ptr);
