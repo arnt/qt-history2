@@ -35,6 +35,7 @@
 **
 **********************************************************************/
 
+#include <limits.h> // ### remove in 3.1
 #include "private/qlayoutengine_p.h"
 
 #ifndef QT_NO_LAYOUT

@@ -44,7 +44,8 @@
 #include "qptrlist.h"
 #include "qsizepolicy.h"
 
-#include "qlayoutengine_p.h"
+#include <limits.h> // ### remove for 3.1
+#include "qlayoutengine_p.h" // ### remove for 3.1
 
 /*
   Three internal classes related to QGridLayout: (1) QGridBox is a

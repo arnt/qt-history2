@@ -41,7 +41,8 @@
 #include "qmenubar.h"
 #include "qapplication.h"
 
-#include "qlayoutengine_p.h" //remove in 3.1
+#include <limits.h> //###remove in 3.1
+#include "qlayoutengine_p.h" //###remove in 3.1
 
 /*!
     \class QLayoutItem
