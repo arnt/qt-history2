@@ -523,7 +523,7 @@ static char *parsePrintersConf(QList<QPrinterDescription> *printers, bool *found
 extern "C" {
 #endif
 
-static int foreach(int /*status */, char * /*key */, int /*keyLen */,
+static int pd_foreach(int /*status */, char * /*key */, int /*keyLen */,
                     char *val, int valLen, char *data)
 {
     parsePrinterDesc(QString::fromLatin1(val, valLen), (QList<QPrinterDescription> *)data);
@@ -552,7 +552,7 @@ static int retrieveNisPrinters(QList<QPrinterDescription> *printers)
         if (err == 0) {
             ypall_callback cb;
             // wild cast to support K&R-style system headers
-            (WildCast &) cb.foreach = (WildCast) foreach;
+            (WildCast &) cb.foreach = (WildCast) pd_foreach;
             cb.data = (char *) printers;
             err = _ypAll(domain, printersConfByname, &cb);
         }
