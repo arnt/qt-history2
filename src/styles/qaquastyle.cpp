@@ -1947,24 +1947,26 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 	if(!w)
 	    break;
 	QScrollBar *scr = (QScrollBar *)w;
-	switch(sc) {
-	case SC_ScrollBarAddLine:
-	case SC_ScrollBarSubLine: {
-	    rect = QRect(0, 0, 16, 26);
-	    if(sc == SC_ScrollBarAddLine) {
-		int x = 0, y = 0;
-		if(scr->orientation() == Horizontal)
-		    x = scr->width() - 26;
-		else
-		    y = scr->height() - 26;
-		rect.moveTopLeft(QPoint(x, y));
-	    }
-	    if(scr->orientation() == Horizontal)
-		rect.setSize(QSize(rect.height(), rect.width()));
-	    break; }
-	default:
-	    rect = QWindowsStyle::querySubControlMetrics( control, w, sc, opt);
-	}
+	int sbextent = pixelMetric(PM_ScrollBarExtent, scr);
+	int maxlen = ((scr->orientation() == Qt::Horizontal) ?
+		      scr->width() : scr->height()) - (17 * 2) - 2;
+	int sliderlen;
+	int sliderStart = scr->sliderStart();
+
+	// calculate slider length
+	if (scr->maxValue() != scr->minValue()) {
+	    uint range = scr->maxValue() - scr->minValue();
+	    sliderlen = (scr->pageStep() * maxlen) /
+			(range + scr->pageStep());
+
+	    int slidermin = pixelMetric( PM_ScrollBarSliderMin, scr );
+	    if ( sliderlen < slidermin || range > INT_MAX / 2 )
+		sliderlen = slidermin;
+	    if ( sliderlen > maxlen )
+		sliderlen = maxlen;
+	} else
+	    sliderlen = maxlen;
+
 	if( qt_mac_scrollbar_arrows_together ) {
 	    switch(sc) {
 	    case SC_ScrollBarAddLine:
@@ -1979,36 +1981,63 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 		else
 		    rect.setRect( 0, scr->height() - (20 + 17), 16, 20 );
 		break;
-	    case SC_ScrollBarGroove:
-		if(scr->orientation() == Horizontal)
-		    rect.setX( rect.x() + 7 );
+	    case SC_ScrollBarSlider:
+		if (scr->orientation() == Qt::Horizontal)
+		    rect.setRect(sliderStart, 0, sliderlen, sbextent);
 		else
-		    rect.setY( rect.y() + 5 );
-		//fall through
-	    case SC_ScrollBarSubPage:
-		if(sc == SC_ScrollBarSubPage) {
-		    if(scr->orientation() == Horizontal)
-			rect.setWidth(rect.width() + 20);
-		    else
-			rect.setHeight(rect.height() + 20);
-		}
-		//fall through
-	    case SC_ScrollBarAddPage: {
-		int sbextent = 17;
-		if(scr->orientation() == Horizontal) {
-		    rect.moveBy( -sbextent, 0 );
-  		    if(sc == SC_ScrollBarAddPage)
-  			rect.setLeft(rect.left() + sbextent);
-		} else {
-		    rect.moveBy( 0, -sbextent );
-		    if(sc == SC_ScrollBarAddPage)
-			rect.setTop(rect.top() + sbextent);
-		}
-		break; }
-	    default:
+		    rect.setRect(0, sliderStart, sbextent, sliderlen);
+		break;
+	    case SC_ScrollBarGroove: {
+		if(scr->orientation() == Horizontal)
+		    rect.setRect( 6, 0, scr->width() - 38, scr->height());
+		else
+		    rect.setRect(0, 5, scr->width(), scr->height() - 37 );
 		break;
 	    }
+  	    case SC_ScrollBarSubPage:
+		// between top/left button and slider
+		if (scr->orientation() == Qt::Horizontal)
+		    rect.setRect(0, 0, sliderStart, sbextent);
+		else
+		    rect.setRect(0, 0, sbextent, sliderStart );
+		break;
+	    case SC_ScrollBarAddPage:
+		// between bottom/right button and slider
+		if (scr->orientation() == Qt::Horizontal)
+		    rect.setRect(sliderStart + sliderlen, 0,
+				 maxlen - sliderStart - sliderlen, sbextent);
+		else
+		    rect.setRect(0, sliderStart + sliderlen,
+				 sbextent, maxlen - sliderStart - sliderlen );
+		break;
+	    default:
+		rect = QWindowsStyle::querySubControlMetrics( control, w, sc, opt);
+	    }
+	} else {
+	    switch(sc) {
+	    case SC_ScrollBarAddLine:
+		if(scr->orientation() == Horizontal)
+		    rect.setRect( scr->width() - 26, 0, 26, 14 );
+		else
+		    rect.setRect( 0, scr->height() - 26, 14, 26 );
+		break;
+	    case SC_ScrollBarSubLine:
+		if(scr->orientation() == Horizontal)
+		    rect.setRect( 0, 0, 26, 14 );
+		else
+		    rect.setRect( 0, 0, 14, 26 );
+		break;
+	    case SC_ScrollBarGroove:
+		if (scr->orientation() == Qt::Horizontal)
+		    rect.setRect(16, 0, scr->width() - 32, scr->height());
+		else
+		    rect.setRect(0, 15, scr->width(), scr->height() - 31 ); 
+		break;
+	    default:
+		rect = QWindowsStyle::querySubControlMetrics( control, w, sc, opt);
+	    }
 	}
+
 	break; }
 #endif
 
