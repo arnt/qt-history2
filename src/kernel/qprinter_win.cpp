@@ -40,6 +40,7 @@
 #include "qt_windows.h"
 #include "qpaintdevicemetrics.h"
 #include "qapplication_p.h"
+#include "qprinter_p.h"
 
 #include <stdlib.h>
 #include <limits.h>
@@ -48,13 +49,32 @@
 #include <commdlg.h>
 #endif
 
-class QPrinterPrivate
+extern const char *qprinter_name_for_pagesize( QPrinter::PageSize ps );
+extern QPrinter::PageSize qprinter_pagesize_for_name( const QString &name );
+
+class QPrinterWinPrivate : public QPrinterPrivate
 {
 public:
     QPrinter::PrinterMode printerMode;
-    uint pageRangeEnabled;
-    QPrinter::PageRange pageRange;
 };
+
+class QPrinterPageSizeWinPrivate : public QPrinterPageSizePrivate
+{
+public:
+    int id;
+};
+
+static inline QPrinterPageSizeWinPrivate* castToWin( QPrinterPageSizePrivate *ptr )
+{
+    return (QPrinterPageSizeWinPrivate*) ptr;
+}
+
+static inline QPrinterWinPrivate* castToWin( QPrinterPrivate *ptr )
+{
+    return (QPrinterWinPrivate*) ptr;
+}
+
+#define D castToWin( d )
 
 // QPrinter states
 
@@ -69,15 +89,67 @@ public:
 #undef MM
 #endif
 
-#define MM(n) int((n * 720 + 127) / 254)
-#define IN(n) int(n * 72)
+// #define MM(n) int((n * 720 + 127) / 254)
+// #define IN(n) int(n * 72)
 
-struct PaperSize {
-    int width, height;
+#define MM(n) int( n*10 )
+#define IN(n) int( n*254 )
+
+// Used for mapping between mm and windows form resolution
+#define FORMFACTOR 100
+
+static QPrinterPageSize pageSizeForId( int dmid );
+
+typedef struct {
+    int winSizeName;
+    QPrinter::PageSize qtSizeName;
+} PageSizeToDM;
+
+typedef struct {
+    int w;
+    int h;
+} PaperSize;
+
+static PageSizeToDM dmMapping[] = {
+    { DMPAPER_LETTER,             QPrinter::Letter },
+    { DMPAPER_LETTERSMALL,        QPrinter::Letter },
+    { DMPAPER_TABLOID,            QPrinter::Tabloid },
+    { DMPAPER_LEDGER,             QPrinter::Ledger },
+    { DMPAPER_LEGAL,              QPrinter::Legal },
+    { DMPAPER_EXECUTIVE,          QPrinter::Executive },
+    { DMPAPER_A3,                 QPrinter::A3 },
+    { DMPAPER_A4,                 QPrinter::A4 },
+    { DMPAPER_A4SMALL,            QPrinter::A4 },
+    { DMPAPER_A5,                 QPrinter::A5 },
+    { DMPAPER_B4,                 QPrinter::B4 },
+    { DMPAPER_B5,                 QPrinter::B5 },
+    { DMPAPER_FOLIO,              QPrinter::Folio },
+    { DMPAPER_ENV_10,             QPrinter::Comm10E },
+    { DMPAPER_ENV_DL,             QPrinter::DLE },
+    { DMPAPER_ENV_C3,             QPrinter::C5E },
+    { DMPAPER_LETTER_EXTRA,       QPrinter::Letter },
+    { DMPAPER_LEGAL_EXTRA,        QPrinter::Legal },
+    { DMPAPER_TABLOID_EXTRA,      QPrinter::Tabloid },
+    { DMPAPER_A4_EXTRA,           QPrinter::A4},
+    { DMPAPER_LETTER_TRANSVERSE,  QPrinter::Letter},
+    { DMPAPER_A4_TRANSVERSE,      QPrinter::A4},
+    { DMPAPER_LETTER_EXTRA_TRANSVERSE,    QPrinter::Letter },
+    { DMPAPER_A_PLUS,             QPrinter::A4 },
+    { DMPAPER_B_PLUS,             QPrinter::A3 },
+    { DMPAPER_LETTER_PLUS,        QPrinter::Letter },
+    { DMPAPER_A4_PLUS,            QPrinter::A4 },
+    { DMPAPER_A5_TRANSVERSE,      QPrinter::A5 },
+    { DMPAPER_B5_TRANSVERSE,      QPrinter::B5 },
+    { DMPAPER_A3_EXTRA,           QPrinter::A3 },
+    { DMPAPER_A5_EXTRA,           QPrinter::A5 },
+    { DMPAPER_B5_EXTRA,           QPrinter::B5 },
+    { DMPAPER_A2,                 QPrinter::A2 },
+    { DMPAPER_A3_TRANSVERSE,      QPrinter::A3 },
+    { DMPAPER_A3_EXTRA_TRANSVERSE,        QPrinter::A3 },
+    { 0, QPrinter::Custom }
 };
 
-static PaperSize paperSizes[QPrinter::NPageSize] =
-{
+static PaperSize paperSizes[QPrinter::NPageSize] = {
     {  MM(210), MM(297) },      // A4
     {  MM(176), MM(250) },      // B5
     {  IN(8.5), IN(11) },       // Letter
@@ -109,6 +181,36 @@ static PaperSize paperSizes[QPrinter::NPageSize] =
     {  MM(432), MM(279) },      // Ledger
     {  MM(279), MM(432) },      // Tabloid
 };
+
+static QMap<QPrinter::PageSize,QPrinterPageSize> printerPageSizes;
+
+QPrinterPageSize qprinter_pagesize_for_pagesize( QPrinter::PageSize ps )
+{
+    QPrinterPageSize pps = printerPageSizes[ps];
+    if( pps.isValid() )
+	return pps;
+    QString name = qprinter_name_for_pagesize( ps );
+    PaperSize dim = paperSizes[ps];
+    return QPrinterPageSize::definePageSize( name, QSize( dim.w, dim.h ) );
+}
+
+static QPrinter::PageSize mapDevmodePageSize( int s )
+{
+    int i = 0;
+    while ( (dmMapping[i].winSizeName > 0) && (dmMapping[i].winSizeName != s) )
+        i++;
+    return dmMapping[i].qtSizeName;
+}
+
+static int mapPageSizeDevmode( QPrinter::PageSize s )
+{
+    int i = 0;
+ while ( (dmMapping[i].winSizeName > 0) && (dmMapping[i].qtSizeName != s) )
+	i++;
+    return dmMapping[i].winSizeName;
+}
+
+
 
 static void setDefaultPrinter(const QString &printerName, HANDLE *hmode, HANDLE *hnames);
 
@@ -151,10 +253,11 @@ static void setPrinterMapping( HDC hdc, int res )
 QPrinter::QPrinter( PrinterMode m )
 : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
 {
-    d = new QPrinterPrivate;
-    d->printerMode = m;
+    d = new QPrinterWinPrivate;
+    D->printerMode = m;
     orient      = Portrait;
     page_size   = A4;
+    D->pageSize = QPrinterPageSize::pageSize( qprinter_name_for_pagesize( A4 ) );
     page_order = FirstPageFirst;
     color_mode = GrayScale;
     ncopies     = 1;
@@ -170,8 +273,8 @@ QPrinter::QPrinter( PrinterMode m )
     doc_name = "document1";
     hdevmode  = 0;
     hdevnames = 0;
-    setPageRangeEnabled( All | Range );
-    setPageRange( All );
+    D->pageRangeEnabled = All | Range;
+    D->pageRange = All;
 
     switch ( m ) {
     case ScreenResolution:
@@ -333,100 +436,6 @@ static int mapPaperSourceDevmode( QPrinter::PaperSource s )
     return sources[i].winSourceName;
 }
 
-typedef struct
-{
-    int winSizeName;
-    QPrinter::PageSize qtSizeName;
-} PageSizeNames;
-
-static PageSizeNames names[] = {
-    { DMPAPER_LETTER,             QPrinter::Letter },
-    { DMPAPER_LETTERSMALL,        QPrinter::Letter },
-    { DMPAPER_TABLOID,            QPrinter::Tabloid },
-    { DMPAPER_LEDGER,             QPrinter::Ledger },
-    { DMPAPER_LEGAL,              QPrinter::Legal },
-    //      { DMPAPER_STATEMENT,          QPrinter:: },
-    { DMPAPER_EXECUTIVE,          QPrinter::Executive },
-    { DMPAPER_A3,                 QPrinter::A3 },
-    { DMPAPER_A4,                 QPrinter::A4 },
-    { DMPAPER_A4SMALL,            QPrinter::A4 },
-    { DMPAPER_A5,                 QPrinter::A5 },
-    { DMPAPER_B4,                 QPrinter::B4 },
-    { DMPAPER_B5,                 QPrinter::B5 },
-    { DMPAPER_FOLIO,              QPrinter::Folio },
-    //{ DMPAPER_QUARTO,           QPrinter:: },
-    //{ DMPAPER_10X14,            QPrinter:: },
-    //{ DMPAPER_11X17,            QPrinter:: },
-    //{ DMPAPER_NOTE,             QPrinter:: },
-    //{ DMPAPER_ENV_9,            QPrinter:: },
-    { DMPAPER_ENV_10,             QPrinter::Comm10E },
-    //{ DMPAPER_ENV_11,           QPrinter:: },
-    //{ DMPAPER_ENV_12,           QPrinter:: },
-    //{ DMPAPER_ENV_14,           QPrinter:: },
-    //{ DMPAPER_CSHEET,           QPrinter:: },
-    //{ DMPAPER_DSHEET,           QPrinter:: },
-    //{ DMPAPER_ESHEET,           QPrinter:: },
-    { DMPAPER_ENV_DL,             QPrinter::DLE },
-    //{ DMPAPER_ENV_C5,           QPrinter:: },
-    { DMPAPER_ENV_C3,             QPrinter::C5E },
-    //{ DMPAPER_ENV_C4,           QPrinter:: },
-    //{ DMPAPER_ENV_C6,           QPrinter:: },
-    //{ DMPAPER_ENV_C65,          QPrinter:: },
-    //{ DMPAPER_ENV_B4,           QPrinter:: },
-    //{ DMPAPER_ENV_B5,           QPrinter:: },
-    //{ DMPAPER_ENV_B6,           QPrinter:: },
-    //{ DMPAPER_ENV_ITALY,                QPrinter:: },
-    //{ DMPAPER_ENV_MONARCH,      QPrinter:: },
-    //{ DMPAPER_ENV_PERSONAL,     QPrinter:: },
-    //{ DMPAPER_FANFOLD_US,               QPrinter:: },
-    //{ DMPAPER_FANFOLD_STD_GERMAN,       QPrinter:: },
-    //{ DMPAPER_FANFOLD_LGL_GERMAN,       QPrinter:: },
-    //{ DMPAPER_ISO_B4,           QPrinter:: },
-    //{ DMPAPER_JAPANESE_POSTCARD,        QPrinter:: },
-    //{ DMPAPER_9X11,             QPrinter:: },
-    //{ DMPAPER_10X11,            QPrinter:: },
-    //{ DMPAPER_15X11,            QPrinter:: },
-    //{ DMPAPER_ENV_INVITE,               QPrinter:: },
-    //{ DMPAPER_RESERVED_48,      QPrinter:: },
-    //{ DMPAPER_RESERVED_49,      QPrinter:: },
-    { DMPAPER_LETTER_EXTRA,       QPrinter::Letter },
-    { DMPAPER_LEGAL_EXTRA,        QPrinter::Legal },
-    { DMPAPER_TABLOID_EXTRA,      QPrinter::Tabloid },
-    { DMPAPER_A4_EXTRA,           QPrinter::A4},
-    { DMPAPER_LETTER_TRANSVERSE,  QPrinter::Letter},
-    { DMPAPER_A4_TRANSVERSE,      QPrinter::A4},
-    { DMPAPER_LETTER_EXTRA_TRANSVERSE,    QPrinter::Letter },
-    { DMPAPER_A_PLUS,             QPrinter::A4 },
-    { DMPAPER_B_PLUS,             QPrinter::A3 },
-    { DMPAPER_LETTER_PLUS,        QPrinter::Letter },
-    { DMPAPER_A4_PLUS,            QPrinter::A4 },
-    { DMPAPER_A5_TRANSVERSE,      QPrinter::A5 },
-    { DMPAPER_B5_TRANSVERSE,      QPrinter::B5 },
-    { DMPAPER_A3_EXTRA,           QPrinter::A3 },
-    { DMPAPER_A5_EXTRA,           QPrinter::A5 },
-    { DMPAPER_B5_EXTRA,           QPrinter::B5 },
-    { DMPAPER_A2,                 QPrinter::A2 },
-    { DMPAPER_A3_TRANSVERSE,      QPrinter::A3 },
-    { DMPAPER_A3_EXTRA_TRANSVERSE,        QPrinter::A3 },
-    { 0, QPrinter::Custom }
-};
-
-static QPrinter::PageSize mapDevmodePageSize( int s )
-{
-    int i = 0;
-    while ( (names[i].winSizeName > 0) && (names[i].winSizeName != s) )
-        i++;
-    return names[i].qtSizeName;
-}
-
-static int mapPageSizeDevmode( QPrinter::PageSize s )
-{
-    int i = 0;
-    while ( (names[i].winSizeName > 0) && (names[i].qtSizeName != s) )
-	i++;
-    return names[i].winSizeName;
-}
-
 /*!
     Returns the Windows page size value as used by the \c DEVMODE
     struct (Windows only). Using this function is not portable.
@@ -469,11 +478,11 @@ void QPrinter::readPdlg( void* pdv )
         usercolcopies = FALSE;
 
     if ( pd->Flags & PD_PAGENUMS )
-	d->pageRange = Range;
+	D->pageRange = Range;
     else if ( pd->Flags & PD_SELECTION )
-	d->pageRange = Selection;
+	D->pageRange = Selection;
     else
-	d->pageRange = All;
+	D->pageRange = All;
 
     if ( hdc ) {
 	DeleteDC( hdc );
@@ -487,7 +496,8 @@ void QPrinter::readPdlg( void* pdv )
                 orient = Portrait;
             else
                 orient = Landscape;
-            page_size = mapDevmodePageSize( dm->dmPaperSize );
+	    D->pageSize = pageSizeForId( dm->dmPaperSize );
+	    page_size = mapDevmodePageSize( castToWin(d->pageSize.d)->id );
             paper_source = mapDevmodePaperSource( dm->dmDefaultSource );
 	    if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
 		ncopies = dm->dmCopies;
@@ -527,7 +537,7 @@ void QPrinter::readPdlg( void* pdv )
 #endif
     }
 
-    if ( d->printerMode != ScreenResolution && !res_set )
+    if ( D->printerMode != ScreenResolution && !res_set )
 	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
 
     if ( pd->hDevMode ) {
@@ -567,11 +577,11 @@ void QPrinter::readPdlgA( void* pdv )
     }
 
     if ( pd->Flags & PD_PAGENUMS )
-	d->pageRange = Range;
+	D->pageRange = Range;
     else if ( pd->Flags & PD_SELECTION )
-	d->pageRange = Selection;
+	D->pageRange = Selection;
     else
-	d->pageRange = All;
+	D->pageRange = All;
 
     hdc	= pd->hDC;
     if ( pd->hDevMode ) {
@@ -581,7 +591,8 @@ void QPrinter::readPdlgA( void* pdv )
 		orient = Portrait;
 	    else
 		orient = Landscape;
-	    page_size = mapDevmodePageSize( dm->dmPaperSize );
+	    D->pageSize = pageSizeForId( dm->dmPaperSize );
+	    page_size = mapDevmodePageSize( castToWin(d->pageSize.d)->id );
             paper_source = mapDevmodePaperSource( dm->dmDefaultSource );
             if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
 		ncopies = dm->dmCopies;
@@ -622,7 +633,7 @@ void QPrinter::readPdlgA( void* pdv )
 #endif
     }
 
-    if ( d->printerMode != ScreenResolution && !res_set )
+    if ( D->printerMode != ScreenResolution && !res_set )
 	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
 
     if ( pd->hDevMode ) {
@@ -663,7 +674,6 @@ static void setDefaultPrinterW(const QString &printerName, HANDLE *hmode, HANDLE
 	GlobalFree(pinf2);
 	return;
     }
-
 
     // There are drivers with no pDevMode structure!
     if ( pinf2->pDevMode ) {
@@ -892,14 +902,13 @@ void QPrinter::writeDevmode( HANDLE hdm )
 	else
 	    dm->dmCollate = DMCOLLATE_FALSE;
 	dm->dmDefaultSource = mapPaperSourceDevmode( paper_source );
-	int winPageSize = mapPageSizeDevmode( pageSize() );
-	if ( winPageSize != 0 ) {
-	    dm->dmPaperSize = winPageSize;
-	} else if ( pageSize() < Custom ) {
-	    dm->dmPaperSize = 0;
-	    dm->dmPaperLength = paperSizes[ pageSize() ].height;
-	    dm->dmPaperWidth = paperSizes[ pageSize() ].width;
+
+	if( d->pageSize.isValid() ) {
+	    dm->dmPaperSize = castToWin(d->pageSize.d)->id;
+	} else if( page_size<Custom ) {
+	    dm->dmPaperSize = page_size;
 	}
+
 	if ( colorMode() == Color )
 	    dm->dmColor = DMCOLOR_COLOR;
 	else
@@ -922,14 +931,18 @@ void QPrinter::writeDevmodeA( HANDLE hdm )
 	else
 	    dm->dmCollate = DMCOLLATE_FALSE;
 	dm->dmDefaultSource = mapPaperSourceDevmode( paper_source );
-	int winPageSize = mapPageSizeDevmode( pageSize() );
-	if ( winPageSize != 0 ) {
-	    dm->dmPaperSize = winPageSize;
-	} else if ( pageSize() < Custom ) {
-	    dm->dmPaperSize = 0;
-	    dm->dmPaperLength = paperSizes[ pageSize() ].height;
-	    dm->dmPaperWidth = paperSizes[ pageSize() ].width;
+
+	if( d->pageSize.isValid() ) {
+	    if( pageSize()<Custom ) {
+		dm->dmPaperSize = castToWin(d->pageSize.d)->id;
+	    } else {
+		QSize sz = d->pageSize.d->dimension;
+		dm->dmPaperSize = 0;
+		dm->dmPaperLength = sz.height() * FORMFACTOR;
+		dm->dmPaperWidth  = sz.width() * FORMFACTOR;
+	    }
 	}
+
 	if ( colorMode() == Color )
 	    dm->dmColor = DMCOLOR_COLOR;
 	else
@@ -1518,35 +1531,214 @@ void QPrinter::reinit()
     }
 }
 
-
-void QPrinter::setPageRangeEnabled( uint mask )
+void QPrinter::setPrinterPageSize( const QPrinterPageSize &pageSize )
 {
-    d->pageRangeEnabled = ( mask & ( Selection | Range ) ) | All;
-    if( !( d->pageRangeEnabled & d->pageRange ) )
-	d->pageRange = All;
-    if( ( mask & Range ) && min_pg==0 && max_pg==0 ) {
-	max_pg = 9999;
+    if( !pageSize.isValid() ) {
+#if defined QT_CHECK_RANGE
+	qWarning( "QPrinter::setPrinterPageSize(), invalid pagesize!" );
+#endif
+	return;
     }
+    d->pageSize = pageSize;
+    page_size = mapDevmodePageSize( castToWin(d->pageSize.d)->id );
+    reinit();
 }
 
-
-uint QPrinter::pageRangeEnabled() const
+QPrinterPageSize QPrinter::printerPageSize() const
 {
-    return d->pageRangeEnabled;
+    return d->pageSize;
 }
 
 
-void QPrinter::setPageRange( QPrinter::PageRange range )
+QPrinterPageSize::QPrinterPageSize()
+    : d( 0 )
 {
-    if( d->pageRangeEnabled & range )
-	d->pageRange = range;
 }
 
-
-QPrinter::PageRange QPrinter::pageRange() const
+QPrinterPageSize::QPrinterPageSize( const QString &name,
+				    const QSize &dimension )
 {
-    return d->pageRange;
+    d = new QPrinterPageSizeWinPrivate();
+    D->id = -1;
+    d->name = name;
+    d->dimension = dimension;
 }
 
+bool QPrinterPageSize::isValid() const
+{
+    return d && D->id >= 0;
+}
+
+// Windows NT, 2000 and XP implementation of page sizes.
+#if WINVER>=0x0400
+static QPrinterPageSize pageSizeForForm( const FORM_INFO_1 &form )
+{
+    QSize sz( form.Size.cx / FORMFACTOR, form.Size.cy / FORMFACTOR );
+    return QPrinterPageSize( QString::fromUcs2( form.pName ),
+			     QSize( form.Size.cx / FORMFACTOR, form.Size.cy / FORMFACTOR ) );
+}
+
+static QPrinterPageSize pageSizeForId( int dmid )
+{
+    int size = 500;
+    FORM_INFO_1 *forms;
+    forms = (FORM_INFO_1*) malloc( size * sizeof( FORM_INFO_1 ) );
+    HANDLE hPrinter;
+    QPrinterPageSize ps;
+    if( OpenPrinter( 0, &hPrinter, 0 ) ) {
+	DWORD needed;
+	DWORD returned;
+	if( EnumForms( hPrinter, 1, (LPBYTE) forms,
+		    sizeof( FORM_INFO_1 ) * size, &needed, &returned ) ) {
+	    ps = pageSizeForForm( forms[dmid-1] );
+	    castToWin(ps.d)->id = dmid;
+	} else qSystemWarning( "pageSizeForId(), failed to enumerate forms" );
+	if( !ClosePrinter( hPrinter ) )
+	    qSystemWarning( "pageSizeForId(), failed to close printer" );
+    } else qSystemWarning( "pageSizeForId(), Failed to open printer" );
+    free( forms );
+    return ps;
+}
+
+QPrinterPageSize QPrinterPageSize::pageSize( const QString &name )
+{
+    int size = 500;
+    FORM_INFO_1 *forms;
+    forms = (FORM_INFO_1*) malloc( size * sizeof( FORM_INFO_1 ) );
+    HANDLE hPrinter;
+    QPrinterPageSize ps;
+    if( OpenPrinter( 0, &hPrinter, 0 ) ) {
+	DWORD needed;
+	DWORD returned;
+	if( EnumForms( hPrinter, 1, (LPBYTE) forms,
+		    sizeof( FORM_INFO_1 ) * size, &needed, &returned ) ) {
+	    QString cmpName = name.lower();
+	    for( uint i=0; i<returned; i++ ) {
+		QString formName = QString::fromUcs2( forms[i].pName );
+		if( formName.lower() == cmpName ) {
+		    ps = pageSizeForForm( forms[i] );
+		    castToWin(ps.d)->id = i+1;
+		    break;
+		}
+	    }
+	} else qSystemWarning( "QPrinterPageSize::pageSize(), failed to enumerate forms" );
+	if( !ClosePrinter( hPrinter ) )
+	    qSystemWarning( "QPrinterPageSize::pageSize(), failed to close printer" );
+    } else qSystemWarning( "QPrinterPageSize::pageSize(), failed to open printer" );
+    free( forms );
+    return ps;
+}
+
+
+QStringList QPrinterPageSize::pageSizeNames()
+{
+    int size = 500;
+    FORM_INFO_1 *forms;
+    forms = (FORM_INFO_1*) malloc( size * sizeof( FORM_INFO_1 ) );
+    HANDLE hPrinter;
+    QStringList lst;
+    if( OpenPrinter( 0, &hPrinter, 0 ) ) {
+	DWORD needed;
+	DWORD returned;
+	if( EnumForms( hPrinter, 1, (LPBYTE) forms,
+		       sizeof( FORM_INFO_1 ) * size, &needed, &returned ) ) {
+	    for( uint i=0; i<returned; i++ )
+		lst << QString::fromUcs2( forms[i].pName );
+	} else qSystemWarning( "Failed to enumerate forms" );
+    } else qSystemWarning( "Failed to open printer" );
+    free( forms );
+    return lst;
+}
+
+QPrinterPageSize QPrinterPageSize::definePageSize( const QString &name,
+						   const QSize &dim )
+{
+    FORM_INFO_1 form = {
+	FORM_USER,
+	(LPWSTR) name.ucs2(),
+	{ dim.width() * FORMFACTOR, dim.height() * FORMFACTOR },
+	{ 0, 0, dim.width() * FORMFACTOR, dim.height() * FORMFACTOR }
+    };
+
+    HANDLE hPrinter;
+    if( !OpenPrinter( 0, &hPrinter, 0 ) ) {
+	qSystemWarning( "Failed to open printer" );
+	return QPrinterPageSize();
+    }
+
+    if( !AddForm( hPrinter, 1, (LPBYTE) &form ) ) {
+	qSystemWarning( "Failed to add form" );
+	return QPrinterPageSize();
+    }
+
+    return pageSize( name );
+}
+
+void QPrinterPageSize::undefinePageSize( const QString &name )
+{
+    HANDLE hPrinter;
+    if( !OpenPrinter( 0, &hPrinter, 0 ) ) {
+	qSystemWarning( "QPrinterPageSize::undefinePageSize(), failed to open printer" );
+	return;
+    }
+
+    if( !DeleteForm( hPrinter, (LPTSTR) name.ucs2() ) ) {
+	qSystemWarning( "QPrinterPageSize::undefinePageSize(), failed to delete form" );
+    }
+
+    if( !ClosePrinter( hPrinter ) )
+	qSystemWarning( "QPrinterPageSize::undefinePageSize(), failed to close printer" );
+}
+
+// Windows 95, 98 and ME implementation of printer page sizes.
+#else
+
+static QPrinterPageSize pageSizeForId( int dmid )
+{
+    QPrinter::PageSize ps = mapDevmodePageSize( dmid );
+    return printerPageSizeFor( ps );
+}
+
+QStringList QPrinterPageSize::pageSizeNames()
+{
+    static QStringList names;
+    if( names.isEmpty() ) {
+	names << "A4" << "B5" << "Letter" << "Legal";
+    }
+    return names;
+}
+
+static QMap<QString,QPrinterPageSize> stoneage_forms;
+
+QPrinterPageSize QPrinterPageSize::definePageSize( const QString &name,
+						   const QSize &dim )
+{
+    QPrinterPageSize ps( name, dim );
+    D->id = mapPageSizeDevmode( mapNamePageSize( name ) );
+    stoneage_forms[name] = ps;
+    return ps;
+}
+
+void QPrinterPageSize::undefinePageSize( const QString &name )
+{
+    stoneage_forms.remove( name );
+}
+
+QPrinterPageSize QPrinterPageSize::pageSize( const QString &name )
+{
+    QPrinterPageSize ps = stoneage_forms[name];
+    if( ps.isValid() )
+	return ps;
+
+    QPrinter::PageSize pageSize = mapNamePageSize( name );
+    if( pageSize!=QPrinter::Custom ) {
+	PaperSize size = paperSizes[pageSize];
+	QPrinterPageSize ps( name, QSize( size.w, size.h ) );
+	D->id = 0;
+    }
+    return ps;
+}
+
+#endif
 
 #endif // QT_NO_PRINTER

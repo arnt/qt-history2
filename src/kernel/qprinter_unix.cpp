@@ -59,6 +59,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 // NOT REVISED
 
 
+class QPrinterUnixPrivate : public QPrinter
 struct QPrinterPrivate
 {
     uint topMargin;
@@ -634,30 +635,40 @@ void QPrinter::setMargins( uint top, uint left, uint bottom, uint right )
     d->rightMargin = right;
 }
 
-void QPrinter::setPageRangeEnabled( uint mask )
+QPrinterPageSize::QPrinterPageSize( const QString &, const QSize & )
+    d( 0 )
 {
-    d->pageRangeEnabled = ( mask & ( All | Selection | Range ) );
-    if( !( d->pageRangeEnabled & d->pageRange ) )
-	d->pageRange = All;
-    if( ( mask & Range ) && min_pg==0 && max_pg==0 ) {
-	max_pg = 9999;
-    }
+    // ###
 }
 
-uint QPrinter::pageRangeEnabled() const
+bool QPrinterPageSize::isValid() const
 {
-    return d->pageRangeEnabled;
+    // ###
+    return FALSE;
 }
 
-void QPrinter::setPageRange( QPrinter::PageRange range )
+static QPrinterPageSize::QPrinterPageSize pageSize( const QString & )
 {
-    if( d->pageRangeEnabled & range )
-	d->pageRange = range;
+    // ###
+    return QPrinterPageSize();
 }
 
-QPrinter::PageRange QPrinter::pageRange() const
+static QPrinterPageSize::definePageSize( const QString &
+					 const QSize & )
 {
-    return d->pageRange;
+    // ###
+    return QPrinterPageSize();
+}
+
+static void QPrinterPageSize::undefinePageSize( const QString & )
+{
+    // ###
+}
+
+static QStringList QPrinterPageSize::pageSizeNames()
+{
+    // ###
+    return QStringList();
 }
 
 #endif

@@ -36,8 +36,29 @@
 **********************************************************************/
 
 #include "qprinter.h"
+#include "qprinter_p.h"
 
 #ifndef QT_NO_PRINTER
+
+static const char* pageSizeNames[QPrinter::NPageSize] = {
+    "A4", "B5", "Letter", "Legal", "Executive", "A0", "A1", "A2", "A3", "A5",
+    "A6", "A7", "A8", "A9", "B0", "B1", "B2", "B3", "B4", "B6", "B7", "B8",
+    "B9", "C5", "Comm10E", "Envelope DL", "Folio", "Ledger", "Tabloid"
+};
+
+QPrinter::PageSize qprinter_pagesize_for_name( const QString &name )
+{
+    for( int i=0; i<QPrinter::NPageSize; i++ ) {
+	if( pageSizeNames[i] == name )
+	    return QPrinter::PageSize( i );
+    }
+    return QPrinter::Custom;
+}
+
+const char *qprinter_name_for_pagesize( QPrinter::PageSize ps )
+{
+    return pageSizeNames[ps];
+}
 
 /*!
     \class QPrinter qprinter.h
@@ -295,51 +316,6 @@
 */
 
 /*!
-    \enum QPrinter::PageRange
-
-    This enum type is used to specify which of the page range options
-    are enabled in the print dialog. It is also used to specify which
-    of the options is selected by default when the print dialog opens.
-
-    \value All All pages are printed; on windows this cannot be disabled.
-    \value Selection Only the selection is printed.
-    \value Range From page, to page option.
-*/
-
-/*!
-  \fn void QPrinter::setPageRangeEnabled( uint mask )
-
-  Enables the page range options that should be visible in the print
-  setup dialog. \a mask is a bitmask of possible QPrinter::PageRange.
-
-  \sa QPrinter::PageRange
-*/
-
-/*!
-  \fn uint QPrinter::pageRangeEnabled() const
-
-  Returns a bitmask of QPrinter::PageRange describing which of the
-  page ranges are enabled in the print setup dialog.
-
-  \sa QPrinter::PageRange
-*/
-
-/*!
-  \fn void QPrinter::setPageRange( PageRange range )
-
-  Sets the default selected page range to be used when the print setup
-  dialog is opened to \a range. If the PageRange specified by \a range is
-  currently disabled the function does nothing.
-*/
-
-/*!
-  \fn PageRange QPrinter::pageRange() const
-
-  Returns the PageRange of the QPrinter. After the print setup dialog
-  has been opened, this function returns the value selected by the user.
-*/
-
-/*!
     \fn QString QPrinter::printerName() const
 
     Returns the printer name. This value is initially set to the name
@@ -561,11 +537,12 @@ void QPrinter::setPageSize( PageSize newPageSize )
         return;
     }
     page_size = newPageSize;
+    QPrinterPageSize pps = QPrinterPageSize::pageSize( pageSizeNames[newPageSize] );
+    d->pageSize = pps;
 #if defined(Q_WS_WIN)
     reinit();
 #endif
 }
-
 
 /*!
     Sets the page order to \a newPageOrder.
@@ -961,6 +938,171 @@ QPrinter::PaperSource QPrinter::paperSource() const
 {
     return paper_source;
 }
+
+
+/*!
+    \enum QPrinter::PageRange
+
+    This enum type is used to specify which of the page range options
+    are enabled in the print dialog. It is also used to specify which
+    of the options is selected by default when the print dialog opens.
+
+    \value All All pages are printed; on windows this cannot be disabled.
+    \value Selection Only the selection is printed.
+    \value Range From page, to page option.
+*/
+
+/*!
+  \fn void QPrinter::setPageRangeEnabled( uint mask )
+
+  Enables the page range options that should be visible in the print
+  setup dialog. \a mask is a bitmask of possible QPrinter::PageRange.
+
+  \sa QPrinter::PageRange
+*/
+
+void QPrinter::setPageRangeEnabled( uint mask )
+{
+    d->pageRangeEnabled = ( mask & ( All | Selection | Range ) );
+    if( !( d->pageRangeEnabled & d->pageRange ) )
+	d->pageRange = All;
+    if( ( mask & Range ) && min_pg==0 && max_pg==0 ) {
+	max_pg = 9999;
+    }
+}
+
+/*!
+  \fn uint QPrinter::pageRangeEnabled() const
+
+  Returns a bitmask of QPrinter::PageRange describing which of the
+  page ranges are enabled in the print setup dialog.
+
+  \sa QPrinter::PageRange
+*/
+
+uint QPrinter::pageRangeEnabled() const
+{
+    return d->pageRangeEnabled;
+}
+
+/*!
+  \fn void QPrinter::setPageRange( PageRange range )
+
+  Sets the default selected page range to be used when the print setup
+  dialog is opened to \a range. If the PageRange specified by \a range is
+  currently disabled the function does nothing.
+*/
+
+void QPrinter::setPageRange( QPrinter::PageRange range )
+{
+    if( d->pageRangeEnabled & range )
+	d->pageRange = range;
+}
+
+/*!
+  \fn PageRange QPrinter::pageRange() const
+
+  Returns the PageRange of the QPrinter. After the print setup dialog
+  has been opened, this function returns the value selected by the user.
+*/
+QPrinter::PageRange QPrinter::pageRange() const
+{
+    return d->pageRange;
+}
+
+/*!
+  \fn QPrinterPageSize::pageSize( const QString &name )
+
+  Looks up the page size that has the name \a name. The name must be a
+  fully quallified name which is matched case insensitive. If the
+  name does not match any known page size, an invalid page size is
+  returned.
+*/
+
+/*!
+  \fn QPrinterPageSize::definePageSize( const QString &name,
+                                        const QSize &size )
+
+  Defines the page size with the size \a size under name \a name. The
+  page size will be registered system wide and stored between
+  application runs. The size is specified in tens of millimeters.
+
+  (Windows only). Note that the standard windows printer dialog, that
+  is used by Qt on windows systems for calls to QPrinter::setup(),
+  only allows the user to choose between a small number of available
+  page sizes and no custom page sizes. This limitation does not apply
+  when printing without the printer dialog.
+*/
+
+/*!
+  \fn QPrinterPageSize::undefinePageSize( const QString &name )
+
+  Removes the reference to the system wide page size of name \a name.
+*/
+
+/*!
+  \fn QPrinterPageSize::isValid()
+
+  Returns wether the QPrinterPageSize is valid or not.
+*/
+
+/*!
+  \internal
+*/
+QPrinterPageSize::QPrinterPageSize( const QPrinterPageSize &ps )
+    : d( 0 )
+{
+    if( ps.d ) {
+	d = ps.d;
+	d->ref();
+    }
+}
+
+/*!
+  \internal
+*/
+QPrinterPageSize::~QPrinterPageSize()
+{
+    if( d ) {
+	d->deref();
+	if( d->count<=0 )
+	    delete d;
+    }
+}
+
+/*!
+  \internal
+*/
+QPrinterPageSize &QPrinterPageSize::operator=( const QPrinterPageSize &ps )
+{
+    if( ps.d )
+	ps.d->ref();
+
+    if( d ) {
+	d->deref();
+	if( d->count<= 0 )
+	    delete d;
+    }
+    d = ps.d;
+    return *this;
+}
+
+/*!
+  Returns the page size in tens of millimeters
+*/
+QSize QPrinterPageSize::size() const
+{
+    return d ? d->dimension : QSize();
+}
+
+/*!
+  Returns the name of the page size, such as "A4" or "Letter"
+*/
+QString QPrinterPageSize::name() const
+{
+    return d ? d->name : QString();
+}
+
 
 #endif // QT_NO_PRINTER
 

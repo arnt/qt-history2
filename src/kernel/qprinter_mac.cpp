@@ -195,7 +195,7 @@ QPrinter::prepare(PMPageFormat *f)
     PMResolution pres;
     pres.hRes = res;
     pres.vRes = res;
-    PMSetResolution(*f, &pres); 
+    PMSetResolution(*f, &pres);
     return TRUE;
 }
 
@@ -414,29 +414,40 @@ void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *right) const
 	*right = (uint)(paperr.right - pager.right);
 }
 
-void QPrinter::setPageRangeEnabled( uint mask )
+QPrinterPageSize::QPrinterPageSize( const QString &name, const QSize &size )
+    d( 0 )
 {
-    d->pageRangeEnabled = mask & (All | Selection | Range);
-    if(!(d->pageRangeEnabled & d->pageRange))
-	d->pageRange = All;
-    if((mask & Range) && !min_pg && !max_pg)
-	max_pg = 9999;
+    // ###
 }
 
-uint QPrinter::pageRangeEnabled() const
+bool QPrinterPageSize::isValid() const
 {
-    return d->pageRangeEnabled;
+    // ###
+    return FALSE;
 }
 
-void QPrinter::setPageRange(QPrinter::PageRange range)
+static QPrinterPageSize::QPrinterPageSize pageSize( const QString &name )
 {
-    if(d->pageRangeEnabled & range)
-	d->pageRange = range;
+    // ###
+    return QPrinterPageSize();
 }
 
-QPrinter::PageRange QPrinter::pageRange() const
+static QPrinterPageSize::definePageSize( const QString &name
+					 const QSize &dim )
 {
-    return d->pageRange;
+    // ###
+    return QPrinterPageSize();
+}
+
+static void QPrinterPageSize::undefinePageSize( const QString &name )
+{
+    // ###
+}
+
+static QStringList QPrinterPageSize::pageSizeNames()
+{
+    // ###
+    return QStringList();
 }
 
 #endif
