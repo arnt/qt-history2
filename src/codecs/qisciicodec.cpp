@@ -150,12 +150,13 @@ static const uchar uni_to_iscii_pairs[] = {
 };
 
 
-QCString QIsciiCodec::fromUnicode(const QString& uc, int& len_in_out) const
+QByteArray QIsciiCodec::fromUnicode(const QString& uc, int& len_in_out) const
 {
     int l = uc.length();
     if (len_in_out > 0)
 	l = QMIN(l, len_in_out);
-    QCString result(2*l); //worst case
+    QByteArray result;
+    result.reserve(2*l); //worst case
 
     const QChar *data = uc.unicode();
     uchar *ch = (uchar *)result.data();
