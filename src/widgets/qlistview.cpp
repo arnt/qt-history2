@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#38 $
 **
 ** Implementation of QListView widget class
 **
@@ -23,7 +23,7 @@
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#38 $");
 
 
 const int Unsorted = 32767;
@@ -867,9 +867,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
     QRect r;
     int l;
-    int fx, x;
+    int fx = -1, x, fc = 0, lc = 0;
     l = 0;
-    fx = -1;
     int tx = -1;
     struct QListViewPrivate::DrawableItem * current;
 
@@ -878,7 +877,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 	int ih = current->i->height();
 	int ith = current->i->totalHeight();
-	int fc = 0, lc = 0, c;
+	int c;
 	int cs;
 
 	// need to paint current?
