@@ -276,6 +276,8 @@ void QTabWidget::insertTab(QWidget *child, const QString &label, int index)
 void QTabWidget::insertTab(QWidget *child, const QIconSet& iconset, const QString &label, int index)
 {
     index = d->tabs->insertTab(index, iconset, label);
+    if (child->parentWidget() && child->parentWidget() != d->stack)
+        child->setParent(d->stack); // layout would do that for us, but might spit out a warning
     d->stack->insertWidget(index, child);
     setUpLayout();
 }

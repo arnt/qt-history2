@@ -11,9 +11,14 @@ class QStackedBoxPrivate : public QFramePrivate
 {
     Q_DECLARE_PUBLIC(QStackedBox)
 public:
+    QStackedBoxPrivate();
     QStackedLayout *layout;
+    bool blockAutoAdd;
 };
 
+QStackedBoxPrivate::QStackedBoxPrivate()
+    :blockAutoAdd(false)
+{}
 
 /*!
     \class QStackedBox qstackedbox.h
@@ -56,7 +61,10 @@ QStackedBox::~QStackedBox()
 */
 int QStackedBox::addWidget(QWidget *w)
 {
-    return d->layout->addWidget(w);
+    d->blockAutoAdd = true;
+    int index = d->layout->addWidget(w);
+    d->blockAutoAdd = false;
+    return index;
 }
 
 /*!  Inserts \a w to this box at position \a index. If \a index is
@@ -66,7 +74,10 @@ int QStackedBox::addWidget(QWidget *w)
 */
 int QStackedBox::insertWidget(int index, QWidget *w)
 {
-    return d->layout->insertWidget(index, w);
+    d->blockAutoAdd = true;
+    index = d->layout->insertWidget(index, w);
+    d->blockAutoAdd = false;
+    return index;
 }
 
 /*!
@@ -134,9 +145,13 @@ int QStackedBox::count() const
 */
 void QStackedBox::childEvent(QChildEvent *e)
 {
-    if (e->child()->isWidgetType() && e->added()) {
-        QWidget *w = static_cast<QWidget*>(e->child());
-        if (!w->isTopLevel())
-            d->layout->addWidget(w);
-    }
+    if (!e->child()->isWidgetType())
+        return;
+    QWidget *w = static_cast<QWidget*>(e->child());
+
+    if (e->added() && !d->blockAutoAdd
+        && !w->isTopLevel() && d->layout->indexOf(w) != -1)
+        d->layout->addWidget(w);
+    else if (e->removed())
+        d->layout->QLayout::removeWidget(w);
 }
