@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#150 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#151 $
 #
 # this is a massive hack, written very quickly
 #
@@ -241,7 +241,7 @@ sub processcode {
 
     s/\n\s*\n/\n<linebreak>\n/gs;
 
-    join($_, "<pre>\n", "</pre>\n");
+    join($_, "<pre>", "</pre>\n");
 }
 
 
@@ -1255,7 +1255,6 @@ sub readc {
 	    $args =~ s/([^:]):[^:].*/$1/s;
 	    if ($args =~ /^\s*(.*?)\s*\)\s*((?:const)?)\s*?$/s) {
 		$args = $1;
-		$args = " " . $args . " " if ( $args =~ /\S/ );
 		$const = $2;
 	    } else {
 		$skip = 1;
@@ -1490,21 +1489,6 @@ sub fixdefvalues {
 
 
 #
-# allow word breaks only after commas
-# does not work (html)
-#
-sub clever {
-    local ($in) = @_;
-
-    $in =~ s/\s+/&nbsp;/g;
-    $in =~ s/,&nbsp;/, /g;
-    $in;
-}
-
-
-
-
-#
 # as in 'sort weirdly keys %type'
 #
 sub weirdly {
@@ -1702,7 +1686,7 @@ sub printclass {
 		print "sex: - ", $p, " -\n";
 	    }
 	}
-	print "vold: $url - ", $important{$url}, "\n";
+#	print "vold: $url - ", $important{$url}, "\n";
     }
 
 
@@ -1774,7 +1758,7 @@ sub printclass {
 			$a =~ s/\s*\).*?$//s;
 			$a =~ s-<a href=.*?>(.*?)</a>-$1-g;
 			$_ = join("", &html($t), "<a href=\"", $u,
-				  "\"><strong>", &html($f), 
+				  "\"><strong>", &html($f),
 				  "</strong></a> (", $a, 
 				  ") ", $c);
 		    } else {
@@ -1805,6 +1789,13 @@ sub printclass {
 		$_ = "";
 	    }
 	    if (/\S/s) {
+		s/\s*([\*\&]+)\s*/ $1 /g;
+		s/\(\s*/\( /s;
+		s/\s*\)/ \)/s;
+		s/\(\s+\)/\(\)/s;
+		s/ +/ /gs; # to nbsp
+		s/, /, /gs; # from nbsp
+		s/<a /<a /gs;
 		print O $foreplay, "<li>", $_, "\n";
 		$foreplay = "";
 		$afterglow = "</ul>\n";
@@ -1837,6 +1828,7 @@ sub printclass {
 	$protection = "virtual " . $protection
 	    if ( defined($virtual{$url}) );
 	$protection =~ s/s?\s*$//;
+	$protection =~ s/ +/ /; # nbsp
 	$protection = " <code>[" . $protection . "]</code>"
 	    if ($protection ne "");
 	$_ = $def{$url};
@@ -1846,7 +1838,15 @@ sub printclass {
 	    $name =~ s/^[^\#]*\#//;
 	    print O $fnheader;
 	    $fnheader = "";
+	    s/^\s*//;
 	    s;([^\(]*\s)\b(\S+);$1<a name=\"$name\"></a>$2;s;
+	    s/\s*([\*\&]+)\s*/ $1 /g;
+	    s/\(\s*/\( /s;
+	    s/\s*\)/ \)/s;
+	    s/\(\s+\)/\(\)/s;
+	    s/ +/ /gs; # to nbsp
+	    s/, /, /gs; # from nbsp
+	    s/<a /<a /gs;
 	    print O "<h3>", $_, $protection, "</h3>\n<p>", $doc{$url};
 
 	    $p = "<p>";
