@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#14 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#15 $
 **
 ** Global functions
 **
@@ -15,23 +15,42 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#14 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#15 $")
 
 
-const char *qVersion() { return "0.93"; }
+/*----------------------------------------------------------------------------
+  Returns the Qt version number for the library, typically "1.1".
+ ----------------------------------------------------------------------------*/
 
-// --------------------------------------------------------------------------
-// System detection routines
-//
+const char *qVersion()
+{
+    return "0.93";
+}
+
+
+/*****************************************************************************
+  System detection routines
+ *****************************************************************************/
 
 static bool si_alreadyDone = FALSE;
 static int  si_wordSize;
 static bool si_bigEndian;
 
+/*----------------------------------------------------------------------------
+  Obtains information about the system.
+
+  The system's word size in bits (typically 32) is returned in \e *wordSize.
+  The \e *bigEndian is set to TRUE if this is a big-endian machine,
+  or to FALSE if this is a little-endian machine.
+
+  This function calls fatal() with a message if the computer is truely weird
+  (i.e. different endianness for 16 bit and 32 bit integers).
+ ----------------------------------------------------------------------------*/
+
 bool qSysInfo( int *wordSize, bool *bigEndian )
 {
     if ( si_alreadyDone ) {			// run it only once
-	*wordSize = si_wordSize;
+	*wordSize  = si_wordSize;
 	*bigEndian = si_bigEndian;
 	return TRUE;
     }
@@ -85,51 +104,146 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 }
 
 
-// --------------------------------------------------------------------------
-// Debug output routines
+/*****************************************************************************
+  Debug output routines
+ *****************************************************************************/
+
+static msg_handler handler = 0;			// pointer to debug handler
+
+/*----------------------------------------------------------------------------
+  Prints a debug message, or calls the message handler (if it has been
+  installed).
+
+  This function takes a format string and a stack arguments, similar to
+  the C printf() function.
+
+  Example:
+  \code
+    debug( "my window handle = %x", myWidget->id() );
+  \endcode
+
+  Under X-Windows, the text is printed to stderr.  Under Windows,
+  the text is sent to the debugger.
+
+  \warning The internal buffer is limited to 512 bytes (including the
+  0-terminator.
+
+  \sa warning(), fatal(), qInstallMsgHandler()
+ ----------------------------------------------------------------------------*/
+
+void debug( const char *msg, ... )
+{
+    char buf[512];
+    va_list ap;
+    va_start( ap, msg );			// use variable arg list
+    if ( handler ) {
+	vsprintf( buf, msg, ap );
+	va_end( ap );
+	(*handler)( QtDebugMsg, buf );
+    }
+    else {
+	vfprintf( stderr, msg, ap );
+	va_end( ap );
+	fprintf( stderr, "\n" );		// add newline
+    }
+}
+
+/*----------------------------------------------------------------------------
+  Prints a warning message, or calls the message handler (if it has been
+  installed).
+
+  This function takes a format string and a stack arguments, similar to
+  the C printf() function.
+
+  Example:
+  \code
+    void f( int c )
+    {
+        if ( c > 200 )
+            warning( "f: bad argument, c == %d", c );
+    }
+  \endcode
+
+  Under X-Windows, the text is printed to stderr.  Under Windows,
+  the text is sent to the debugger.
+
+  \warning The internal buffer is limited to 512 bytes (including the
+  0-terminator.
+
+  \sa debug(), fatal(), qInstallMsgHandler()
+ ----------------------------------------------------------------------------*/
+
+void warning( const char *msg, ... )
+{
+    char buf[512];
+    va_list ap;
+    va_start( ap, msg );			// use variable arg list
+    if ( handler ) {
+	vsprintf( buf, msg, ap );
+	va_end( ap );
+	(*handler)( QtWarningMsg, buf );
+    }
+    else {
+	vfprintf( stderr, msg, ap );
+	va_end( ap );
+	fprintf( stderr, "\n" );		// add newline
+    }
+}
+
+/*----------------------------------------------------------------------------
+  Prints a fatal error message and exits, or calls the message handler (if it
+  has been installed).
+
+  This function takes a format string and a stack arguments, similar to
+  the C printf() function.
+
+  Example:
+  \code
+    int divide( int a, int b )
+    {
+        if ( b == 0 )				// program error
+	    fatal( "divide: cannot divide by zero" );
+	return a/b;
+    }
+  \endcode
+
+  Under X-Windows, the text is printed to stderr.  Under Windows,
+  the text is sent to the debugger.
+
+  \warning The internal buffer is limited to 512 bytes (including the
+  0-terminator.
+
+  \sa debug(), warning(), qInstallMsgHandler()
+ ----------------------------------------------------------------------------*/
+
+void fatal( const char *msg, ... )
+{
+    char buf[512];
+    va_list ap;
+    va_start( ap, msg );			// use variable arg list
+    if ( handler ) {
+	vsprintf( buf, msg, ap );
+	va_end( ap );
+	(*handler)( QtFatalMsg, buf );
+    }
+    else {
+	vfprintf( stderr, msg, ap );
+	va_end( ap );
+	fprintf( stderr, "\n" );		// add newline
+#if defined(UNIX) && defined(DEBUG)
+	abort();				// trap; generates core dump
+#else
+	exit( 1 );				// goodbye cruel world
+#endif
+    }
+}
+
+
+//
+// The CHECK_PTR macro calls this function to check if an allocation went ok.
 //
 
-static dbg_handler handler = 0;			// pointer to debug handler
-
-void warning( const char *msg, ... )		// print message
-{
-    char buf[600];
-    va_list ap;
-    va_start( ap, msg );			// use variable arg list
-    if ( handler ) {
-	vsprintf( buf, msg, ap );
-	(*handler)( buf );
-    }
-    else {
-	vfprintf( stderr, msg, ap );
-	fprintf( stderr, "\n" );		// add newline
-    }
-    va_end( ap );
-}
-
-void fatal( const char *msg, ... )		// print message and exit
-{
-    char buf[600];
-    va_list ap;
-    va_start( ap, msg );			// use variable arg list
-    if ( handler ) {
-	vsprintf( buf, msg, ap );
-	(*handler)( buf );
-    }
-    else {
-	vfprintf( stderr, msg, ap );
-	fprintf( stderr, "\n" );		// add newline
-    }
-    va_end( ap );
-#if defined(UNIX) && defined(DEBUG)
-    abort();					// trap; generates core dump
-#else
-    exit( 1 );					// goodbye cruel world
-#endif
-}
-
-
-bool chk_pointer( bool c, const char *n, int l )// fatal error if c is TRUE
+bool chk_pointer( bool c, const char *n, int l )
 {
     if ( c )
 	fatal( "In file %s, line %d: Out of memory", n, l );
@@ -137,9 +251,61 @@ bool chk_pointer( bool c, const char *n, int l )// fatal error if c is TRUE
 }
 
 
-dbg_handler installDebugHandler( dbg_handler h )// install debug handler
+/*----------------------------------------------------------------------------
+  Installs a Qt message handler.  Returns a pointer to the message handler
+  previously defined.
+
+  The message handler is a function that prints out debug messages,
+  warnings and fatal error messages.  The Qt library (debug version)
+  contains hundreds of warning messages that are printed when internal
+  errors (usually invalid function arguments) occur.  If you implement
+  your own message handler, you get total control of these messages.
+
+  The default message handler prints the message to the standard output
+  under X-Windows or to the debugger under Windows.  If it is a fatal
+  message, the application aborts immediately.
+
+  Only one message handler can be defined, since this is usually done on
+  an application-wide basis to control debug output.
+
+  To restore the message handler, call \c qInstallMsgHandler(0).
+
+  Example:
+  \code
+    #include <qapp.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+
+    void myMessageOutput( QtMsgType type, const char *msg )
+    {
+        switch ( type ) {
+	    case QtDebugMsg:
+	        fprintf( stderr, "Debug: %s\n", msg );
+		break;
+	    case QtWarningMsg:
+	        fprintf( stderr, "Warning: %s\n", msg );
+		break;
+	    case QtFatalMsg:
+	        fprintf( stderr, "Fatal: %s\n", msg );
+		abort();			// dump core on purpose
+	}
+    }
+
+    int main( int argc, char **argv )
+    {
+        qInstallMsgHandler( myMessageOutput );
+	QApplication a( argc, argv );
+	...
+	return a.exec();
+    }
+  \endcode
+
+  \sa debug(), warning(), fatal()
+ ----------------------------------------------------------------------------*/
+
+msg_handler qInstallMsgHandler( msg_handler h )
 {
-    dbg_handler old = handler;
+    msg_handler old = handler;
     handler = h;
     return old;
 }
