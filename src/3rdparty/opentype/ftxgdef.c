@@ -41,6 +41,13 @@
   static void  Free_NewGlyphClasses( TTO_GDEFHeader*  gdef,
 				     FT_Memory        memory );
 
+/* GDEF glyph classes */
+
+#define UNCLASSIFIED_GLYPH  0
+#define SIMPLE_GLYPH        1
+#define LIGATURE_GLYPH      2
+#define MARK_GLYPH          3
+#define COMPONENT_GLYPH     4
 
 
   /**********************
@@ -751,6 +758,13 @@
                                         FT_UShort        glyphID,
                                         FT_UShort*       property )
   {
+    const FT_UShort class2glyphProp[5] = {
+	0,// UNCLASSIFIED_GLYPH
+	TTO_BASE_GLYPH, // SIMPLE_GLYPH        1
+	TTO_LIGATURE,// LIGATURE_GLYPH      2
+	TTO_MARK,// MARK_GLYPH          3
+	TTO_COMPONENT // COMPONENT_GLYPH     4
+    };
     FT_UShort klass, index;
 
     FT_Error  error;
@@ -783,28 +797,7 @@
     if ( error == TTO_Err_Not_Covered && gdef->NewGlyphClasses )
       klass = Get_New_Class( gdef, glyphID, index );
 
-    switch ( klass )
-    {
-    case UNCLASSIFIED_GLYPH:
-      *property = 0;
-      break;
-
-    case SIMPLE_GLYPH:
-      *property = TTO_BASE_GLYPH;
-      break;
-
-    case LIGATURE_GLYPH:
-      *property = TTO_LIGATURE;
-      break;
-
-    case MARK_GLYPH:
-      *property = TTO_MARK;
-      break;
-
-    case COMPONENT_GLYPH:
-      *property = TTO_COMPONENT;
-      break;
-    }
+    *property = class2glyphProp[klass];
 
     return TT_Err_Ok;
   }
