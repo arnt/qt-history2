@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#57 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#58 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -85,7 +85,7 @@ public:
     // Needed for binary compatibility - calls createAlphaMask(int)
     QImage	createAlphaMask( bool dither=FALSE ) const;
 #else
-    // Needed for source compatibility - calls createAlphaMask(TRUE)
+    // Needed for source compatibility - calls createAlphaMask(FALSE)
     QImage	createAlphaMask() const;
 #endif
 

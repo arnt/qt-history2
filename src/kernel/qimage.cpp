@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#156 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#157 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#156 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#157 $");
 
 
 /*!
@@ -1654,7 +1654,7 @@ QImage QImage::createAlphaMask( bool yes ) const
 */
 QImage QImage::createAlphaMask() const
 {
-    return createAlphaMask( TRUE );
+    return createAlphaMask( FALSE );
 }
 #endif
 
