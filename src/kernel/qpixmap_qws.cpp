@@ -357,7 +357,6 @@ QImage QPixmap::convertToImage() const
     int	d  = depth();
     bool mono = d == 1;
 
-
     if( d == 15 || d == 16 ) {
 #ifndef QT_NO_QWS_DEPTH_16
 	d = 32;
@@ -401,6 +400,74 @@ QImage QPixmap::convertToImage() const
 	image.setNumColors( numCols() );
 	for ( int i = 0; i < numCols(); i++ )
 	    image.setColor( i, clut()[i] );
+	if (mask()) {				// which pixels are used?
+	    QImage alpha = mask()->convertToImage();
+	    bool ale = alpha.bitOrder() == QImage::LittleEndian;
+	    register uchar *p;
+	    int  used[256];
+	    memset( used, 0, sizeof(int)*256 );
+	    for ( int i=0; i<h; i++ ) {
+		uchar* asrc = alpha.scanLine( i );
+		p = image.scanLine( i );
+		for ( int x = 0; x < w; x++ ) {
+		    if ( ale ) {
+			if (asrc[x >> 3] & (1 << (x & 7)))
+			    used[*p]++;
+		    } else {
+			if (asrc[x >> 3] & (1 << (7 -(x & 7))))
+			    used[*p]++;
+		    }
+		    ++p;
+		}
+	    }
+
+	    int trans=0;
+	    int bestn=INT_MAX;
+	    for ( int i=0; i<numCols(); i++ ) {
+		if ( used[i] < bestn ) {
+		    bestn = used[i];
+		    trans = i;
+		    if ( !bestn )
+			break;
+		}
+	    }
+
+	    image.setColor( trans, image.color(trans)&0x00ffffff );
+
+	    for ( int i=0; i<h; i++ ) {
+		uchar* asrc = alpha.scanLine( i );
+		p = image.scanLine( i );
+		for ( int x = 0; x < w; x++ ) {
+		    if ( ale ) {
+			if (!(asrc[x >> 3] & (1 << (x & 7))))
+			    *p = trans;
+		    } else {
+			if (!(asrc[x >> 3] & (1 << (7 -(x & 7)))))
+			    *p = trans;
+		    }
+		    ++p;
+		}
+	    }
+	    image.setAlphaBuffer( TRUE );
+	}
+    } else if ( d == 32 && mask() ) {
+	QImage alpha = mask()->convertToImage();
+	bool ale = alpha.bitOrder() == QImage::LittleEndian;
+	for ( int i=0; i<h; i++ ) {
+	    uchar* asrc = alpha.scanLine( i );
+	    Q_UINT32 *p = (Q_UINT32 *)image.scanLine( i );
+	    for ( int x = 0; x < w; x++ ) {
+		if ( ale ) {
+		    if (!(asrc[x >> 3] & (1 << (x & 7))))
+			*p = *p & 0x00ffffff;
+		} else {
+		    if (!(asrc[x >> 3] & (1 << (7 -(x & 7)))))
+			*p = *p & 0x00ffffff;
+		}
+		++p;
+	    }
+	}
+	image.setAlphaBuffer( TRUE );
     }
 
     image = qt_screen->mapFromDevice( image );
