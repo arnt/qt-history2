@@ -430,11 +430,10 @@ void QDataStream::setByteOrder( int bo )
 
     \list
     \i For Qt 3.0 compatibility, use \a v == 4.
-    \i For Qt 2.1.x and Qt 2.2.x compatibility, use \a v == 3.
+    \i For Qt 2.1.x, 2.2.x and 2.3.x compatibility, use \a v == 3.
     \i For Qt 2.0.x compatibility, use \a v == 2.
     \i For Qt 1.x compatibility, use \a v == 1.
     \endlist
-
 
   \sa version()
 */
