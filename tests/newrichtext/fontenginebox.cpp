@@ -36,7 +36,8 @@ FontEngineIface::Error FontEngineBox::stringToCMap( const QChar *,  int len, Gly
     return NoError;
 }
 
-void FontEngineBox::draw( QPainter *p, int x, int y, const GlyphIndex */*glyphs*/, const Offset */*offsets*/, int numGlyphs, bool )
+void FontEngineBox::draw( QPainter *p, int x, int y, const GlyphIndex */*glyphs*/,
+			  const Offset */*advances*/, const Offset */*offsets*/, int numGlyphs, bool )
 {
 //     qDebug("FontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, numGlyphs );
 
@@ -86,16 +87,7 @@ void FontEngineBox::draw( QPainter *p, int x, int y, const GlyphIndex */*glyphs*
 #endif
 }
 
-Offset FontEngineBox::advance( const GlyphIndex *, const Offset *, int numGlyphs )
-{
-    Offset advance;
-    advance.x = _size*numGlyphs;
-    advance.y = 0;
-    return advance;
-
-}
-
-QGlyphInfo FontEngineBox::boundingBox( const GlyphIndex *, const Offset *, int numGlyphs )
+QGlyphInfo FontEngineBox::boundingBox( const GlyphIndex *, const Offset *, const Offset *, int numGlyphs )
 {
     QGlyphInfo overall;
     overall.x = overall.y = 0;

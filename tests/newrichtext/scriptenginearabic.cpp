@@ -471,12 +471,11 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
 		*data = mirroredChar( *ch );
 	    else
 		*data = *ch;
-	    data++;
 	} else {
 	    uchar c = ch->cell();
 	    int pos = i + from;
 	    int shape = glyphVariantLogical( uc, pos );
-	    qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, arabicUnicodeMapping[c][shape]);
+	    qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, getShape(c, shape));
 	    // take care of lam-alef ligatures (lam right of alef)
 	    ushort map;
 	    switch ( c ) {
@@ -512,11 +511,14 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
 	    map = getShape( c, shape );
 	next:
 	    *data = map;
-	    attrs[gpos].zeroWidth = zeroWidth;
-	    attrs[gpos].mark = isMark( *ch );
-	    attrs[gpos].clusterStart = !attrs[gpos].mark;
-	    data++;
 	}
+	attrs[gpos].zeroWidth = zeroWidth;
+	attrs[gpos].mark = isMark( *ch );
+// 	if ( attrs[gpos].mark )
+// 	    qDebug("glyph %d (char %d) is mark!", gpos, i );
+	attrs[gpos].clusterStart = !attrs[gpos].mark;
+	attrs[gpos].combiningClass = combiningClass( *ch );
+	data++;
     skip:
 	ch++;
 	logClusters[i] = data - shapeBuffer;
@@ -578,13 +580,24 @@ void ScriptEngineArabic::position( ShapedItem *result )
 {
     OpenTypeIface *openType = result->d->fontEngine->openTypeIface();
 
-    if ( openType && openType->supportsScript( OpenTypeIface::Arabic ) ) {
+    if ( 0 && openType && openType->supportsScript( OpenTypeIface::Arabic ) ) {
 	openTypePosition( openType, result );
 	return;
     }
-//     free( result->d->enginePrivate );
-//     result->d->enginePrivate = 0;
+    free( result->d->enginePrivate );
+    result->d->enginePrivate = 0;
+
     ScriptEngineBasic::position( result );
+
+#if 0
+    Offset *advances = result->d->advances;
+    Offset *offsets = result->d->offsets;
+    qDebug("positioned glyphs:" );
+    for ( int i = 0; i < result->d->num_glyphs; i++) {
+	qDebug("   ->\tadv=(%d/%d)\tpos=(%d/%d)",
+	       advances[i].x, advances[i].y, offsets[i].x, offsets[i].y );
+    }
+#endif
 }
 
 void ScriptEngineArabic::openTypeShape( const OpenTypeIface *openType, ShapedItem *result )
@@ -604,8 +617,13 @@ void ScriptEngineArabic::openTypeShape( const OpenTypeIface *openType, ShapedIte
 
     heuristicSetGlyphAttributes( result );
 
-    d->offsets = (Offset *) malloc( d->num_glyphs * sizeof( Offset ) );
-    memset( d->offsets, 0, d->num_glyphs * sizeof( Offset ) );
+#if 0
+    qDebug("before shaping: glyph attributes:" );
+    for ( int i = 0; i < result->d->num_glyphs; i++) {
+	qDebug("   ->\tmark=%d",
+	       result->d->glyphAttributes[i].mark );
+    }
+#endif
 
     unsigned short fa[256];
     unsigned short *featuresToApply = fa;
@@ -628,5 +646,15 @@ void ScriptEngineArabic::openTypeShape( const OpenTypeIface *openType, ShapedIte
 
 void ScriptEngineArabic::openTypePosition( const OpenTypeIface *openType, ShapedItem *result )
 {
+    ShapedItemPrivate *d = result->d;
+    d->offsets = (Offset *) malloc( d->num_glyphs * sizeof( Offset ) );
+    memset( d->offsets, 0, d->num_glyphs * sizeof( Offset ) );
+    d->advances = (Offset *) malloc( d->num_glyphs * sizeof( Offset ) );
+    for ( int i = 0; i < d->num_glyphs; i++ ) {
+	QGlyphInfo gi = d->fontEngine->boundingBox( d->glyphs[i] );
+	d->advances[i].x = gi.xoff;
+	d->advances[i].y = gi.yoff;
+    }
+
     ((OpenTypeIface *) openType)->applyGlyphPositioning( OpenTypeIface::Arabic, result );
 }

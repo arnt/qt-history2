@@ -63,10 +63,11 @@ public:
     virtual OpenTypeIface *openTypeIface() const { return 0; }
     virtual int cmap() const = 0;
 
-    virtual void draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs, bool reverse ) = 0;
+    virtual void draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
+		       const Offset *advances, const Offset *offsets, int numGlyphs, bool reverse ) = 0;
 
-    virtual Offset advance( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs ) = 0;
-    virtual QGlyphInfo boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs ) = 0;
+    virtual QGlyphInfo boundingBox( const GlyphIndex *glyphs,
+				    const Offset *advances, const Offset *offsets, int numGlyphs ) = 0;
     virtual QGlyphInfo boundingBox( GlyphIndex glyph ) = 0;
 
     virtual int ascent() const = 0;

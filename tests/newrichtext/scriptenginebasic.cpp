@@ -19,23 +19,26 @@ static inline void positionCluster( ShapedItem *shaped, int gfrom,  int glast )
 //     qDebug("---> positionCluster: cluster from %d to %d", gfrom, glast );
 //     qDebug( "baseInfo: %d/%d (%d/%d) off=%d/%d", baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height, baseInfo.xoff, baseInfo.yoff );
 
-    int offset = f->ascent() / 10 + 1;
-//     qDebug("offset = %d", offset );
+    int size = f->ascent()/10;
+    int offsetBase = (size - 5) / 4 + QMIN( size, 5 ) + 1;
+//     qDebug("offset = %d", offsetBase );
 
     int i;
     unsigned char lastCmb = 0;
     QRect attachmentRect;
-    QPoint penpos = QPoint( baseInfo.xoff, baseInfo.yoff );
+
+    bool reverse = (shaped->d->analysis.bidiLevel % 2);
 
     for( i = 1; i <= nmarks; i++ ) {
 	GlyphIndex mark = shaped->d->glyphs[gfrom+i];
 	unsigned char cmb = shaped->d->glyphAttributes[gfrom+i].combiningClass;
+	int offset = offsetBase;
 	if ( cmb < 200 ) {
 	    // fixed position classes. We approximate by mapping to one of the others.
 	    // currently I added only the ones for arabic, hebrew and thai.
 
 	    // ### add a bit more offset to arabic, a bit hacky
-	    if ( cmb >= 27 && cmb <= 36 )
+	    if ( cmb >= 27 && cmb <= 36 && offset < 3 )
 		offset +=1;
 	    // below
 	    if ( (cmb >= 10 && cmb <= 18) ||
@@ -68,7 +71,6 @@ static inline void positionCluster( ShapedItem *shaped, int gfrom,  int glast )
 	QPoint p;
 	QGlyphInfo markInfo = f->boundingBox( mark );
 	QRect markRect( markInfo.x, markInfo.y, markInfo.width, markInfo.height );
-// 	qDebug( "markRect: %d/%d (%d/%d) offset=%d/%d", markRect.x(), markRect.y(), markRect.width(), markRect.height(), markInfo.xoff, markInfo.yoff );
 	switch( cmb ) {
 	case QChar::Combining_DoubleBelow:
 		// ### wrong in rtl context!
@@ -123,16 +125,10 @@ static inline void positionCluster( ShapedItem *shaped, int gfrom,  int glast )
 	markRect.moveBy( p.x(), p.y() );
 	attachmentRect |= markRect;
 	lastCmb = cmb;
-	shaped->d->offsets[gfrom+i].x = -penpos.x() + p.x();
-	shaped->d->offsets[gfrom+i].y = -penpos.y() + p.y();
-	penpos += QPoint( shaped->d->offsets[gfrom+i].x, shaped->d->offsets[gfrom+i].y );
-	penpos += QPoint( markInfo.xoff, markInfo.yoff );
-// 	qDebug("positionCluster penpos=%d/%d", penpos.x(), penpos.y() );
-    }
-    if ( glast < shaped->d->num_glyphs-1 ) {
-// 	qDebug("positionCluster:end penpos=%d/%d", penpos.x(), penpos.y() );
-	shaped->d->offsets[glast+1].x = -penpos.x() + baseInfo.xoff;
-	shaped->d->offsets[glast+1].y = -penpos.y() + baseInfo.yoff;
+	shaped->d->offsets[gfrom+i].x = p.x() - baseInfo.xoff;
+	shaped->d->offsets[gfrom+i].y = p.y() - baseInfo.yoff;
+	shaped->d->advances[gfrom+i].x = 0;
+	shaped->d->advances[gfrom+i].y = 0;
     }
 }
 
@@ -230,16 +226,21 @@ void ScriptEngineBasic::shape( ShapedItem *result )
     }
 
     heuristicSetGlyphAttributes( result );
-
-    d->offsets = (Offset *) malloc( d->num_glyphs * sizeof( Offset ) );
-    memset( d->offsets, 0, d->num_glyphs * sizeof( Offset ) );
-
-    // we have a simple 1 to 1 mapping from chars to glyphs, so we leave logClusters initialized to 0
 }
 
 
 void ScriptEngineBasic::position( ShapedItem *shaped )
 {
+    ShapedItemPrivate *d = shaped->d;
+    d->offsets = (Offset *) malloc( d->num_glyphs * sizeof( Offset ) );
+    memset( d->offsets, 0, d->num_glyphs * sizeof( Offset ) );
+    d->advances = (Offset *) malloc( d->num_glyphs * sizeof( Offset ) );
+    for ( int i = 0; i < d->num_glyphs; i++ ) {
+	QGlyphInfo gi = d->fontEngine->boundingBox( d->glyphs[i] );
+	d->advances[i].x = gi.xoff;
+	d->advances[i].y = gi.yoff;
+    }
+
     heuristicPositionMarks( shaped );
 }
 

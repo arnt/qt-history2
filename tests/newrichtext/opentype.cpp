@@ -219,27 +219,27 @@ void OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *sh
     qDebug("in: num_glyphs = %d", shaped->d->num_glyphs );
     for ( int i = 0; i < shaped->d->num_glyphs; i++) {
       in->string[i] = shaped->d->glyphs[i];
-      qDebug("    glyph[%d] = %x apply=%x, logcluster=%d", i, shaped->d->glyphs[i], featuresToApply[i], shaped->d->logClusters[i] );
-      in->logClusters[i] = shaped->d->logClusters[i];
+      in->logClusters[i] = i;//shaped->d->logClusters[i];
       in->properties[i] = ~featuresToApply[i];
+      qDebug("    glyph[%d] = %x apply=%x, logcluster=%d", i, shaped->d->glyphs[i], featuresToApply[i], shaped->d->logClusters[i] );
     }
     in->max_ligID = 0;
 
     TT_GSUB_Apply_String (gsub, in, out);
 
-    if ( shaped->d->num_glyphs < (int)out->length )
+    if ( shaped->d->num_glyphs < (int)out->length ) {
 	shaped->d->glyphs = ( GlyphIndex *) realloc( shaped->d->glyphs, out->length );
+	shaped->d->glyphAttributes = ( GlyphAttributes *) realloc( shaped->d->glyphAttributes, out->length );
+    }
     shaped->d->num_glyphs = out->length;
 
-    qDebug("out: num_glyphs = %d", shaped->d->num_glyphs );
+//     qDebug("out: num_glyphs = %d", shaped->d->num_glyphs );
 
-    int lastCluster = -1;
-    for ( int i = 0; i < shaped->d->num_glyphs; i++) {
+    for ( int i = shaped->d->num_glyphs; i > 0; i--) {
 	shaped->d->glyphs[i] = out->string[i];
-	qDebug("    glyph[%d] = %x", i, shaped->d->glyphs[i] );
-	shaped->d->logClusters[i] = out->logClusters[i];
-	shaped->d->glyphAttributes[i].clusterStart = (shaped->d->logClusters[i] != lastCluster);
-	// ### need to fix marks aswell!!!!
+	shaped->d->glyphAttributes[i] = shaped->d->glyphAttributes[out->logClusters[i]];
+// 	qDebug("    glyph[%d] = %x logcluster=%d", i, shaped->d->glyphs[i], shaped->d->logClusters[i] );
+	// ### need to fix logclusters aswell!!!!
     }
 
     TT_GSUB_String_Done( in );
@@ -267,15 +267,36 @@ void OpenTypeIface::applyGlyphPositioning( unsigned int script, ShapedItem *shap
     TTO_GSUB_String *in = (TTO_GSUB_String *)shaped->d->enginePrivate;
     TTO_GPOS_Data *out = 0;
 
+    bool reverse = (shaped->d->analysis.bidiLevel % 2);
     // ### is FT_LOAD_DEFAULT the right thing to do?
-    TT_GPOS_Apply_String( face, gpos, FT_LOAD_DEFAULT, in, &out, FALSE, (shaped->d->analysis.bidiLevel % 2) );
+    TT_GPOS_Apply_String( face, gpos, FT_LOAD_DEFAULT, in, &out, FALSE, reverse );
 
-    qDebug("positioned glyphs:" );
+    Offset *advances = shaped->d->advances;
+    Offset *offsets = shaped->d->offsets;
+
+//     qDebug("positioned glyphs:" );
     for ( int i = 0; i < shaped->d->num_glyphs; i++) {
-	qDebug("    %d:\tadv=(%d/%d)\tpos=(%d/%d)\tback=%d\tnew_advance=%d", i,
-	       (int)(out[i].x_advance >> 6), (int)(out[i].y_advance >> 6 ),
-	       (int)(out[i].x_pos >> 6 ), (int)(out[i].y_pos >> 6),
-	       out[i].back, out[i].new_advance );
+// 	qDebug("    %d:\tadv=(%d/%d)\tpos=(%d/%d)\tback=%d\tnew_advance=%d", i,
+// 	       (int)(out[i].x_advance >> 6), (int)(out[i].y_advance >> 6 ),
+// 	       (int)(out[i].x_pos >> 6 ), (int)(out[i].y_pos >> 6),
+// 	       out[i].back, out[i].new_advance );
+	if ( out[i].new_advance ) {
+	    advances[i].x = out[i].x_advance >> 6;
+	    advances[i].y = -out[i].y_advance >> 6;
+	} else {
+	    advances[i].x += out[i].x_advance >> 6;
+	    advances[i].y -= out[i].y_advance >> 6;
+	}
+	offsets[i].x = out[i].x_pos >> 6;
+	offsets[i].y = -(out[i].y_pos >> 6);
+	int back = out[i].back;
+	while ( back ) {
+	    offsets[i].x -= advances[i-back].x;
+	    offsets[i].y -= advances[i-back].y;
+	    back--;
+	}
+// 	qDebug("   ->\tadv=(%d/%d)\tpos=(%d/%d)",
+// 	       advances[i].x, advances[i].y, offsets[i].x, offsets[i].y );
     }
 
     TT_GSUB_String_Done( in );

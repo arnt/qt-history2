@@ -140,6 +140,7 @@ public:
     }
     int num_glyphs;
     GlyphIndex * glyphs;
+    Offset *advances;
     Offset *offsets;
     unsigned short *logClusters;
     GlyphAttributes *glyphAttributes;
@@ -160,6 +161,7 @@ public:
     const GlyphIndex *glyphs() const;
     int count() const;
     const Offset *offsets() const;
+    const Offset *advances() const { return d->advances; }
 
     ShapedItemPrivate *d;
 };

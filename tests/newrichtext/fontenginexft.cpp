@@ -86,8 +86,12 @@ FontEngineIface::Error FontEngineXft::stringToCMap( const QChar *str,  int len, 
     return NoError;
 }
 
-void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs, bool reverse )
+void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
+			   const Offset *advances, const Offset *offsets, int numGlyphs, bool reverse )
 {
+    if ( !numGlyphs )
+	return;
+
     Qt::BGMode bgmode = p->backgroundMode();
     XftDraw *draw = ((HackPaintDevice *)p->device())->xftDrawHandle();
     const QColor &bgcolor = p->backgroundColor();
@@ -101,9 +105,8 @@ void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, c
 	col.color.alpha = 0xffff;
 	col.pixel = bgcolor.pixel();
 	// ### not quite correct, should rather use the bounding box here.
-	XftDrawRect(draw, &col, x,  y - _font->ascent,
-		    advance( glyphs, offsets, numGlyphs ).x,
-		    _font->ascent + _font->descent);
+	QGlyphInfo bb = boundingBox( glyphs, advances, offsets, numGlyphs );
+	XftDrawRect(draw, &col, x+bb.x,  y + bb.y, bb.width, bb.height );
     }
 
     XftColor col;
@@ -115,9 +118,9 @@ void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, c
 #ifdef FONTENGINE_DEBUG
     p->save();
     p->setBrush( Qt::white );
-    QGlyphInfo ci = boundingBox( glyphs, offsets, numGlyphs );
+    QGlyphInfo ci = boundingBox( glyphs, advances, offsets, numGlyphs );
     p->drawRect( x + ci.x, y + ci.y, ci.width, ci.height );
-    p->drawRect( x + ci.x, y + 50 + ci.y, ci.width, ci.height );
+    p->drawRect( x + ci.x, y + 100 + ci.y, ci.width, ci.height );
 //     qDebug("bounding rect=%d %d (%d/%d)", ci.x, ci.y, ci.width, ci.height );
     p->restore();
     int xp = x;
@@ -126,34 +129,24 @@ void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, c
     if ( reverse ) {
 	int i = numGlyphs;
 	while( i-- ) {
-	    // ### might not work correctly with marks!
-	    XftDrawString16 (draw, &col, _font, x+offsets[i].x, y+offsets[i].y,
-			     (XftChar16 *) (glyphs+i), 1);
-	    Offset adv = advance( glyphs+i, offsets+i, 1 );
+	    Offset adv = advances[i];
 	    // 	    qDebug("advance = %d/%d", adv.x, adv.y );
 	    x += adv.x;
 	    y += adv.y;
+	    QGlyphInfo gi = boundingBox( glyphs[i] );
+	    XftDrawString16 (draw, &col, _font, x-offsets[i].x-gi.xoff, y+offsets[i].y-gi.yoff,
+			     (XftChar16 *) (glyphs+i), 1);
 	}
     } else {
-	int start = 0;
-	int i = 1;
+	int i = 0;
 	while ( i < numGlyphs ) {
-	    if ( offsets[i].x || offsets[i].y ) {
-		// 	    qDebug("drawing from %d to %d at (%d/%d)", start, i-1, x+offsets[start].x, y+offsets[start].y );
-		XftDrawString16 (draw, &col, _font, x+offsets[start].x, y+offsets[start].y,
-				 (XftChar16 *) (glyphs+start), i-start);
-		Offset adv = advance( glyphs+start, offsets+start, i-start );
-		// 	    qDebug("advance = %d/%d", adv.x, adv.y );
-		x += adv.x;
-		y += adv.y;
-		start = i;
-	    }
+	    XftDrawString16 (draw, &col, _font, x+offsets[i].x, y+offsets[i].y,
+			     (XftChar16 *) (glyphs+i), 1);
+	    Offset adv = advances[i];
+	    // 	    qDebug("advance = %d/%d", adv.x, adv.y );
+	    x += adv.x;
+	    y += adv.y;
 	    i++;
-	}
-	if ( start < numGlyphs ) {
-	    // 	qDebug("drawing from %d to %d at (%d/%d)", start, i-1, x+offsets[start].x, y+offsets[start].y );
-	    XftDrawString16 (draw, &col, _font, x+offsets[start].x, y+offsets[start].y,
-			     (XftChar16 *) (glyphs+start), numGlyphs - start );
 	}
     }
 #ifdef FONTENGINE_DEBUG
@@ -163,40 +156,18 @@ void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, c
     p->setPen( Qt::red );
     for ( int i = 0; i < numGlyphs; i++ ) {
 	QGlyphInfo ci = boundingBox( glyphs[i] );
-	x += offsets[i].x;
-	y += offsets[i].y;
-	p->drawRect( x + ci.x, y + 50 + ci.y, ci.width, ci.height );
-	qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offset=(%d/%d)", i, ci.x, ci.y, ci.width, ci.height,
-	       ci.xoff, ci.yoff, offsets[i].x, offsets[i].y );
-	x += ci.xoff;
-	y += ci.yoff;
+	p->drawRect( x + ci.x + offsets[i].x, y + 100 + ci.y + offsets[i].y, ci.width, ci.height );
+	qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=(%d/%d)", i, ci.x, ci.y, ci.width, ci.height,
+	       ci.xoff, ci.yoff, offsets[i].x, offsets[i].y,
+	       advances[i].x, advances[i].y);
+	x += advances[i].x;
+	y += advances[i].y;
     }
     p->restore();
 #endif
 }
 
-Offset FontEngineXft::advance( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
-{
-    Offset advance = { 0,  0 };
-
-    XGlyphInfo xgi;
-
-    for ( int i = 0; i < numGlyphs; i++ ) {
-	advance.x += offsets[i].x;
-	advance.y += offsets[i].y;
-	if ( getGlyphInfo( &xgi, _font, glyphs[i] ) ) {
-	    advance.x += xgi.xOff;
-	    advance.y += xgi.yOff;
-	} else {
-	    advance.x += ascent();
-	}
-    }
-
-    return advance;
-
-}
-
-QGlyphInfo FontEngineXft::boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
+QGlyphInfo FontEngineXft::boundingBox( const GlyphIndex *glyphs, const Offset *advances, const Offset *offsets, int numGlyphs )
 {
     XGlyphInfo xgi;
 
@@ -204,21 +175,21 @@ QGlyphInfo FontEngineXft::boundingBox( const GlyphIndex *glyphs, const Offset *o
     int ymax = 0;
     int xmax = 0;
     for (int i = 0; i < numGlyphs; i++) {
-	overall.xoff += offsets[i].x;
-	overall.yoff += offsets[i].y;
 	if ( getGlyphInfo( &xgi, _font, glyphs[i] ) ) {
-	    overall.x = QMIN( overall.x, overall.xoff - xgi.x );
-	    overall.y = QMIN( overall.y, overall.yoff - xgi.y );
-	    xmax = QMAX( xmax, overall.xoff - xgi.x + xgi.width );
-	    ymax = QMAX( ymax, overall.yoff - xgi.y + xgi.height );
-	    overall.xoff += xgi.xOff;
-	    overall.yoff -= xgi.yOff;
+	    int x = overall.xoff + offsets[i].x - xgi.x;
+	    int y = overall.yoff + offsets[i].y - xgi.y;
+	    overall.x = QMIN( overall.x, x );
+	    overall.y = QMIN( overall.y, y );
+	    xmax = QMAX( xmax, x + xgi.width );
+	    ymax = QMAX( ymax, y + xgi.height );
+	    overall.xoff += advances[i].x;
+	    overall.yoff -= advances[i].y;
 	} else {
 	    int size = ascent();
 	    overall.x = QMIN(overall.x, overall.xoff );
 	    overall.y = QMIN(overall.y, overall.yoff - size );
 	    ymax = QMAX( ymax, overall.yoff );
-	    overall.xoff += size;
+	    overall.xoff += advances[i].x;
 	    xmax = QMAX( xmax, overall.xoff );
 	}
     }

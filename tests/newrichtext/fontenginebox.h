@@ -12,10 +12,11 @@ public:
 
     Error stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs ) const;
 
-    void draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs, bool reverse );
+    void draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
+	       const Offset *advances, const Offset *offsets, int numGlyphs, bool reverse );
 
-    Offset advance( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs );
-    QGlyphInfo boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs );
+    virtual QGlyphInfo boundingBox( const GlyphIndex *glyphs,
+				    const Offset *advances, const Offset *offsets, int numGlyphs );
     QGlyphInfo boundingBox( GlyphIndex glyph );
 
     int ascent() const;

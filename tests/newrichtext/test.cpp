@@ -29,16 +29,16 @@ void MyWidget::paintEvent( QPaintEvent * )
 {
 
     QPainter p( this );
-    QFont f("Traditional Arabic");
+    QFont f("Times New Roman");
     f.setPointSize( 48 );
 //     p.setFont( f );
 //     p.drawText( 10, 60, string );
 //     f.setFamily("Times New Roman");
 //     p.setFont( f );
 //     p.drawText( 10, 120, string );
-    f.setFamily("Diwani Letter");
+    f.setFamily("Tahoma");
     p.setFont( f );
-    p.drawText( 10, 180, string );
+    p.drawText( 10, 100, string );
 //     f.setFamily("Urdu Nastaliq Unicode");
 //     p.setFont( f );
 //     p.drawText( 10, 240, string );
@@ -56,10 +56,10 @@ const char *s = "لاَْلحاسًوب";
 
 
 // Thai
-//const char *s = "ทำไมเขาถึงไม่พูด �าษาไทย";
+// const char *s = "ทำไมเขาถึงไม่พูด �าษาไทย";
 
 // Vietnamese
-// const char *s = "Tại sao họ không thể chỉ nói tiệ̣̣́ng.";
+//  const char *s = "Tại sao họ không thể chỉ nói tiệ̣̣́ng.";
 // const char *s = "ại";
 
 
