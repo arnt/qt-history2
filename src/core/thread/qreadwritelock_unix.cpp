@@ -90,7 +90,6 @@ static void report_error(int code, const char *where, const char *what)
 QReadWriteLock::QReadWriteLock()
 :d(new QReadWriteLockPrivate())
 {
-    d->maxReaders=INT_MAX;
     d->waitingReaders=0;
     report_error(pthread_mutex_init(&d->mutex, NULL), "QReadWriteLock", "mutex init");
     report_error(pthread_cond_init(&d->readerWait, NULL), "QReadWriteLock", "cv init");
@@ -121,13 +120,13 @@ void QReadWriteLock::lockForRead()
 {
     for (;;) {
         int localAccessCount(d->accessCount);
-        if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount <= d->maxReaders) {
+        if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount < INT_MAX) {
             if (d->accessCount.testAndSet(localAccessCount, localAccessCount + 1))
                 break;
         } else {
             report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::lock()", "mutex lock");
             ++d->waitingReaders;
-            if (d->waitingWriters == 0 && d->accessCount != -1 && d->accessCount <= d->maxReaders) {
+            if (d->waitingWriters == 0 && d->accessCount != -1 && d->accessCount < INT_MAX) {
                 report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::lock()", "mutex unlock");
                 continue;
             }
@@ -157,7 +156,7 @@ bool QReadWriteLock::tryLockForRead()
     bool result;
     for(;;){
         int localAccessCount(d->accessCount);
-        if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount <= d->maxReaders) {
+        if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount < INT_MAX) {
             if (d->accessCount.testAndSet(localAccessCount, localAccessCount + 1)) {
                 result=true;
                 break;

@@ -20,7 +20,6 @@
 QReadWriteLock::QReadWriteLock()
 :d(new QReadWriteLockPrivate())
 {
-    d->maxReaders = INT_MAX;
     d->accessCount = 0;
     d->waitingWriters = 0;
     d->waitingReaders = 0;
@@ -39,10 +38,10 @@ void QReadWriteLock::lockForRead()
 {
     for(;;){
         int localAccessCount(d->accessCount);
-        if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount <= d->maxReaders) {
+        if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount < INT_MAX) {
             if (q_atomic_test_and_set_int(&d->accessCount, localAccessCount, localAccessCount + 1))
                 break;
-        }else {
+        } else {
             ++d->waitingReaders;
             WaitForSingleObject(d->readerWait, INFINITE);
             --d->waitingReaders;
