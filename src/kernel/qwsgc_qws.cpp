@@ -226,14 +226,17 @@ void QWSGC::updateBrush(QPainterState *ps)
     d->gfx->setBrushPixmap( ps->brush.d->pixmap );
 }
 
-void QWSGC::updateFont(QPainterState *ps){
+void QWSGC::updateFont(QPainterState *ps)
+{
     qDebug("QWSGC::updateFont");
 }
-void QWSGC::updateRasterOp(QPainterState *ps){
+void QWSGC::updateRasterOp(QPainterState *ps)
+{
 //    qDebug("QWSGC::updateRasterOp");
         d->gfx->setRop(ps->rasterOp);
 }
-void QWSGC::updateBackground(QPainterState *ps){
+void QWSGC::updateBackground(QPainterState *ps)
+{
     qDebug("QWSGC::updateBackground");
 }
 void QWSGC::updateXForm(QPainterState */*ps*/)
@@ -290,7 +293,8 @@ void QWSGC::updateClipRegion(QPainterState *ps)
 	clearf(ClipOn);
 }
 
-void QWSGC::setRasterOp(RasterOp r){
+void QWSGC::setRasterOp(RasterOp r)
+{
     d->gfx->setRop( r );
 //    qDebug("QWSGC::setRasterOp");
 }
@@ -342,7 +346,8 @@ void QWSGC::drawPoint(int x, int y)
     d->gfx->drawPoint(x,y);
 }
 
-void QWSGC::drawPoints(const QPointArray &pa, int index, int npoints){
+void QWSGC::drawPoints(const QPointArray &pa, int index, int npoints)
+{
 //    qDebug("QWSGC::drawPoints");
     if ( npoints < 0 )
 	npoints = pa.size() - index;
@@ -404,7 +409,53 @@ void QWSGC::drawWinFocusRect(int x, int y, int w, int h, bool /*xorPaint*/, cons
 //     setBrush( old_brush );
 }
 void QWSGC::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd){
-    qDebug("QWSGC::drawRoundRect");
+    if ( !isActive() )
+	return;
+    if ( xRnd <= 0 || yRnd <= 0 ) {
+	drawRect( x, y, w, h );			// draw normal rectangle
+	return;
+    }
+    if ( xRnd >= 100 )				// fix ranges
+	xRnd = 99;
+    if ( yRnd >= 100 )
+	yRnd = 99;
+    QPointArray a;
+    if ( w <= 0 || h <= 0 )
+	fix_neg_rect( &x, &y, &w, &h );
+    w--;
+    h--;
+    int rxx = w*xRnd/200;
+    int ryy = h*yRnd/200;
+    int rxx2 = 2*rxx;
+    int ryy2 = 2*ryy;
+    int xx, yy;
+
+    // ###### WWA: this should use the new makeArc (with xmat)
+
+    a.makeEllipse( x, y, rxx2, ryy2 );
+    int s = a.size()/4;
+    int i = 0;
+    while ( i < s ) {
+	a.point( i, &xx, &yy );
+	xx += w - rxx2;
+	a.setPoint( i++, xx, yy );
+    }
+    i = 2*s;
+    while ( i < 3*s ) {
+	a.point( i, &xx, &yy );
+	yy += h - ryy2;
+	a.setPoint( i++, xx, yy );
+    }
+    while ( i < 4*s ) {
+	a.point( i, &xx, &yy );
+	xx += w - rxx2;
+	yy += h - ryy2;
+	a.setPoint( i++, xx, yy );
+    }
+    //  a = xForm(a);
+    //a.translate(-redirection_offset);
+    drawPolyInternal( a );
+//    qDebug("QWSGC::drawRoundRect");
 }
 
 
@@ -547,14 +598,18 @@ void QWSGC::drawPolygon(const QPointArray &pa, bool winding, int index, int npoi
 	    }
 	    pa.translate(-redirection_offset);
 	}
-    }
+    
 #endif
     d->gfx->drawPolygon( pa, winding, index, npoints );
 
 }
-void QWSGC::drawConvexPolygon(const QPointArray &pa, int index, int npoints){
-    qDebug("QWSGC::drawConvexPolygon");
+
+void QWSGC::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
+{
+//    qDebug("QWSGC::drawConvexPolygon");
+    drawPolygon(pa, false, index, npoints);
 }
+
 #ifndef QT_NO_BEZIER
 void QWSGC::drawCubicBezier(const QPointArray &pa, int index){
     qDebug("QWSGC::drawCubicBezier");
