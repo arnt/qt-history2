@@ -36,6 +36,7 @@
 #include "qgpluginmanager.h"
 #ifndef QT_NO_COMPONENT
 #include "qmap.h"
+#include "qdir.h"
 
 /*
   The following co-occurrence code is borrowed from Qt Linguist.

@@ -45,8 +45,6 @@
 
 #ifndef QT_NO_COMPONENT
 
-//#define QT_DEBUG_COMPONENT
-
 template<class Type>
 class Q_EXPORT QPluginManager : public QGPluginManager
 {
@@ -94,10 +92,6 @@ public:
 
 	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
 		useful = TRUE;
-#ifdef QT_DEBUG_COMPONENT
-		qDebug("Adding feature %s", (*f).latin1() );
-#endif
-		emit featureAdded( *f, plugin );
 #ifdef QT_CHECK_RANGE
 		QLibrary *old = 0;
 		if ( !(old = plugDict[*f]) )
@@ -162,7 +156,6 @@ public:
 
 	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
 		plugDict.remove( *f );
-		emit featureRemoved( *f, plugin );
 	    }
 
 	    if ( fliFace )

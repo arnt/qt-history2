@@ -23,6 +23,7 @@
 #include "widgetdatabase.h"
 #include "domtool.h"
 #include <qstringlist.h>
+#include <qfile.h>
 #define NO_STATIC_COLORS
 #include <globaldefs.h>
 #include <zlib.h>
