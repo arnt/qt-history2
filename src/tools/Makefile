@@ -76,7 +76,7 @@ showsources:
 	@echo $(SOURCES)
 
 depend:
-	makedepend -I$(INCDIR) $(SOURCES) 2> /dev/null
+	makedepend -Y$(INCDIR) $(SOURCES) 2> /dev/null
 
 clean:
 	/bin/rm -f *.o *.bak *BAK *~ *% #*
