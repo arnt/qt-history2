@@ -17,9 +17,9 @@
 #include "propertyeditor_global.h"
 
 #include <QtGui/QPalette>
-#include <QtGui/QPushButton>
+#include <QtGui/QToolButton>
 
-class QT_PROPERTYEDITOR_EXPORT PaletteEditorButton: public QPushButton
+class QT_PROPERTYEDITOR_EXPORT PaletteEditorButton: public QToolButton
 {
     Q_OBJECT
 public:

@@ -20,7 +20,7 @@
 #include <abstractpropertyeditor.h>
 
 #include <qpropertyeditor.h>
-#include <QPointer>
+#include <QtCore/QPointer>
 
 class DomProperty;
 class IPropertySheet;

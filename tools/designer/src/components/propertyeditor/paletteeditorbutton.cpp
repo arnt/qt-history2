@@ -14,10 +14,15 @@
 #include "paletteeditorbutton.h"
 #include "paletteeditor.h"
 
+#include <QtCore/qdebug.h>
+
 PaletteEditorButton::PaletteEditorButton(const QPalette &palette, QWidget *parent)
-    : QPushButton(tr("Change Palette"), parent),
+    : QToolButton(parent),
       m_palette(palette)
 {
+    setFocusPolicy(Qt::NoFocus);
+    setText(tr("Change Palette"));
+
     connect(this, SIGNAL(clicked()), this, SLOT(showPaletteEditor()));
 }
 
@@ -33,7 +38,7 @@ void PaletteEditorButton::setPalette(const QPalette &palette)
 void PaletteEditorButton::showPaletteEditor()
 {
     int result;
-    QPalette pal = PaletteEditor::getPalette(this, m_palette, &result);
+    QPalette pal = PaletteEditor::getPalette(0, m_palette, &result);
     if (result == QDialog::Accepted) {
         m_palette = pal;
         emit changed();

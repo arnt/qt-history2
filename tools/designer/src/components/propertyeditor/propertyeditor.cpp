@@ -34,7 +34,7 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QFileDialog>
 #include <QtGui/qevent.h>
-#include <QtCore/QTimer>
+
 #include <QtCore/qsignal.h>
 
 IProperty *PropertyEditor::createSpecialProperty(const QVariant &value, const QString &name)
@@ -528,10 +528,10 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
             case QVariant::KeySequence:
                 p = new KeySequenceProperty(value.toKeySequence(), pname);
                 break;
-            case QVariant::Palette:
-                p = new PaletteProperty(value.toPalette(), pname);
-                break;
 #endif
+            case QVariant::Palette:
+                p = new PaletteProperty(qvariant_cast<QPalette>(value), pname);
+                break;
             default:
                 // ### qWarning() << "property" << pname << "with type" << value.type() << "not supported yet!";
                 break;
