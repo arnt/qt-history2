@@ -196,10 +196,10 @@ buttons.
 	    examples directory, \f[qt/examples/textedit/]. Navigate to
 	    the textedit directory and select the \f[textbold.xpm] file.
 	    Click the new textbold icon in the pixmap collection then
-	    click \ok. (See <xref linkend="choose-a-pixmap-dialog">
+	    click \ok. <!-- (See <xref linkend="choose-a-pixmap-dialog">
 	    "Choose a Pixmap Dialog" and <xref
 	    linkend="the-pixmap-collection-dialog"> "Pixmap
-	    Collection Dialog".)
+	    Collection Dialog".) -->
 	    \P\Item
 	    
 	    \item\p

@@ -111,8 +111,8 @@ databases.
 	\qd can remember database connection settings in
 	<command>qmake</> project files. Create a new project, e.g.
 	click <guimenuitem>File|New Project</> and complete the Project
-	Settings dialog. (See <xref linkend="using-project-files">
-	"Using Project Files".) Next time you start \qd instead of
+	Settings dialog. <!-- (See <xref linkend="using-project-files">
+	"Using Project Files".) --> Next time you start \qd instead of
 	opening individual <literal>.ui</> files open the
 	<literal>.pro</> project file instead and \qd will
 	automatically reload the project's connection settings.  To
