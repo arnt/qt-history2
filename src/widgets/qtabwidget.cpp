@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QTabWidget class
 **
 ** Created : 990318
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -77,7 +77,7 @@
     with setTabShape(), and their margin with setMargin().
 
     If you don't call addTab() and the QTabWidget is already visible,
-    then the page you have created will not be visible. visible. Don't
+    then the page you have created will not be visible. Don't
     confuse the object name you supply to the QWidget constructor and
     the tab label you supply to addTab(). addTab() takes a name which
     indicates an accelerator and is meaningful and descriptive to the
