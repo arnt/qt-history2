@@ -19,6 +19,7 @@
 #include "rotatinggradient.h"
 #include "warpix.h"
 #ifndef QT_NO_OPENGL
+#include <qgl.h>
 #include "glpainter.h"
 #endif
 
