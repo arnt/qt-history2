@@ -162,7 +162,6 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	    int lastSlash = subdir.findRev(Option::dir_sep);
 	    if(lastSlash != -1)
 		subdir = subdir.mid( lastSlash + 1 );
-
 	    t << "$(QMAKE) "
 	      << ( !profile.isEmpty() ? profile : subdir + ".pro" )
 	      << " -o " << (*it)->makefile
@@ -213,26 +212,34 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 
 
 int
-Win32MakefileGenerator::findHighestVersion(const QString &d, const
-					   QString &stem)
+Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem)
 {
-    if(!QFile::exists(Option::fixPathToLocalOS(d)))
+    QString bd = Option::fixPathToLocalOS(d, TRUE);
+    if(!QFile::exists(bd))
 	return -1;
     if(!project->variables()["QMAKE_" + stem.upper() +
-	"_VERSION_OVERRIDE"].isEmpty())
+			     "_VERSION_OVERRIDE"].isEmpty())
 	return project->variables()["QMAKE_" + stem.upper() +
-	"_VERSION_OVERRIDE"].first().toInt();
-    QString bd = d;
-    fixEnvVariables(bd);
+				    "_VERSION_OVERRIDE"].first().toInt();
     QDir dir(bd);
     int biggest=-1;
     QStringList entries = dir.entryList();
     QRegExp regx( "(" + stem + "([0-9]*)).lib", FALSE );
     for(QStringList::Iterator it = entries.begin(); it != entries.end();
-    ++it) {
+	++it) {
 	if(regx.exactMatch((*it)))
 	    biggest = QMAX(biggest, (regx.cap(1) == stem ||
-	    regx.cap(2).isEmpty()) ? -1 : regx.cap(2).toInt());
+				     regx.cap(2).isEmpty()) ? 0 : regx.cap(2).toInt());
+    }
+    if(dir.exists(stem + Option::prl_ext)) {
+	QMakeProject proj;
+	if(proj.read(bd + stem + Option::prl_ext, QDir::currentDirPath())) {
+	    if(!proj.isEmpty("QMAKE_PRL_VERSION")) {
+		QRegExp ver_reg("^([0-9]*)\\.([0-9]*).*");
+		if(ver_reg.exactMatch(proj.first("QMAKE_PRL_VERSION"))) 
+		    biggest = QMAX(biggest, QString(ver_reg.cap(1) + ver_reg.cap(2)).toInt());
+	    }
+	}
     }
     return biggest;
 }
@@ -257,12 +264,14 @@ Win32MakefileGenerator::findLibraries(const QString &where)
             QString lib = opt.right(opt.length() - 2), out;
             if(!lib.isEmpty()) {
                 for(MakefileDependDir *mdd = dirs.first(); mdd; mdd = dirs.next() ) {
+		    QString extension;
                     int ver = findHighestVersion(mdd->local_dir, lib);
 		    if(ver > 0)
-			lib += QString::number(ver);
-		    lib += ".lib";
-		    if(QFile::exists(mdd->local_dir + Option::dir_sep + lib)) {
-			out = mdd->real_dir + Option::dir_sep + lib;
+			extension += QString::number(ver);
+		    extension += ".lib";
+		    if(QFile::exists(mdd->local_dir + Option::dir_sep + lib + Option::prl_ext) ||
+		       QFile::exists(mdd->local_dir + Option::dir_sep + lib + extension)) {
+			out = mdd->real_dir + Option::dir_sep + lib + extension;
 			break;
 		    }
                 }
@@ -278,18 +287,19 @@ Win32MakefileGenerator::findLibraries(const QString &where)
                 dir = file.left(slsh+1);
                 file = file.right(file.length() - slsh - 1);
             }
-	    if ( !(project->variables()["QMAKE_QT_DLL"].isEmpty() && (file == "qt.lib" || file == "qt-mt.lib")) ) {
+	    if ( !(project->variables()["QMAKE_QT_DLL"].isEmpty() && 
+		   (file == "qt.lib" || file == "qt-mt.lib")) ) {
 		if(file.endsWith(".lib")) {
 		    file = file.left(file.length() - 4);
 		    if(!file.at(file.length()-1).isNumber()) {
+		        QString lib_tmpl(dir + file + "%1" + ".lib");
 			int ver = findHighestVersion(dir, file);
 			if(ver != -1) {
-			    file = QString(dir + file + "%1" + ".lib");
 			    if(ver)
-				(*it) = file.arg(ver);
+				(*it) = lib_tmpl.arg(ver);
 			    else
-				(*it) = file.arg("");
-			}
+				(*it) = lib_tmpl.arg("");
+			} 
 		    }
 		}
 	    }
