@@ -733,9 +733,9 @@ void WidgetDatabase::loadWhatsThis( const QString &docPath )
 
 QInterfaceManager<WidgetInterface> *widgetManager()
 {
-    QString dir = getenv( "QTDIR" );
-    dir += "/plugins";
     if ( !widgetPluginManager ) {
+	QString dir = getenv( "QTDIR" );
+	dir += "/plugins";
 	widgetPluginManager = new QInterfaceManager<WidgetInterface>( "WidgetInterface", dir );
 	cleanup_manager.add( widgetPluginManager );
     }
