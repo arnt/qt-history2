@@ -63,7 +63,6 @@ protected:
     void updateMask();
 private:
     Q_PRIVATE_SLOT(void popupPressed())
-    friend class QDialog;
 
 public:
 #ifdef QT_COMPAT

@@ -253,23 +253,21 @@ QDialog::~QDialog()
 
 void QDialog::setDefault(QPushButton *pushButton)
 {
-#ifndef QT_NO_PUSHBUTTON
-    QObjectList list = queryList("QPushButton");
     bool hasMain = false;
-    for (int i = 0; i < list.size(); ++i) {
-        QPushButton *pb = static_cast<QPushButton *>(list.at(i));
-        if (pb->topLevelWidget() != this)
-            continue;
-        if (pb == d->mainDef)
-            hasMain = true;
-        if (pb != pushButton)
-            pb->setDefault(false);
+    QList<QPushButton*> list = qFindChildren<QPushButton*>(this);
+    for (int i=0; i<list.size(); ++i) {
+        QPushButton *pb = list.at(i);
+        if (pb->topLevelWidget() == this) {
+            if (pb == d->mainDef)
+                hasMain = true;
+            if (pb != pushButton)
+                pb->setDefault(false);
+        }
     }
     if (!pushButton && hasMain)
         d->mainDef->setDefault(true);
     if (!hasMain)
         d->mainDef = pushButton;
-#endif
 }
 
 /*!
@@ -279,10 +277,8 @@ void QDialog::setDefault(QPushButton *pushButton)
 */
 void QDialog::setMainDefault(QPushButton *pushButton)
 {
-#ifndef QT_NO_PUSHBUTTON
     d->mainDef = 0;
     setDefault(pushButton);
-#endif
 }
 
 /*!
@@ -292,13 +288,10 @@ void QDialog::setMainDefault(QPushButton *pushButton)
  */
 void QDialog::hideDefault()
 {
-#ifndef QT_NO_PUSHBUTTON
-    QObjectList list = queryList("QPushButton");
-    for (int i = 0; i < list.size(); ++i) {
-        QPushButton *pb = static_cast<QPushButton *>(list.at(i));
-        pb->setDefault(false);
+    QList<QPushButton*> list = qFindChildren<QPushButton*>(this);
+    for (int i=0; i<list.size(); ++i) {
+        list.at(i)->setDefault(false);
     }
-#endif
 }
 
 #ifdef Q_OS_TEMP
@@ -317,26 +310,20 @@ void QDialog::hideSpecial()
     bool showOK = false,
          showX  = false,
          showQ  = false;
-    QObjectList *list = queryList("QPushButton");
-    QObjectListIt it(*list);
-    QPushButton *pb;
-    while ((pb = (QPushButton*)it.current())) {
-        if (!showOK &&
-             pb->text() == qApp->translate("QMessageBox", mb_texts[QMessageBox::Ok])) {
+    QList<QPushButton*> list = qFindChildren<QPushButton*>(this);
+    for (int i=0; i<list.size(); ++i) {
+        QPushButton *pb = list.at(i);
+        if (!showOK && pb->text() == qApp->translate("QMessageBox", mb_texts[QMessageBox::Ok])) {
             pb->hide();
             showOK = true;
-        } else if (!showX &&
-                    pb->text() == qApp->translate("QMessageBox", mb_texts[QMessageBox::Cancel])) {
+        } else if (!showX && pb->text() == qApp->translate("QMessageBox", mb_texts[QMessageBox::Cancel])) {
             pb->hide();
             showX = true;
-        } else if (!showQ &&
-                    pb->text() == qApp->tr("Help")) {
+        } else if (!showQ && pb->text() == qApp->tr("Help")) {
             pb->hide();
             showQ = true;
         }
-        ++it;
     }
-    delete list;
     if (showOK || showQ) {
         DWORD ext = GetWindowLong(winId(), GWL_EXSTYLE);
         ext |= showOK ? WS_EX_CAPTIONOKBTN : 0;
@@ -500,17 +487,15 @@ void QDialog::keyPressEvent(QKeyEvent *e)
         switch (e->key()) {
         case Key_Enter:
         case Key_Return: {
-#ifndef QT_NO_PUSHBUTTON
-            QObjectList list = queryList("QPushButton");
-            for (int i = 0; i < list.size(); ++i) {
-                QPushButton *pb = static_cast<QPushButton *>(list.at(i));
+            QList<QPushButton*> list = qFindChildren<QPushButton*>(this);
+            for (int i=0; i<list.size(); ++i) {
+                QPushButton *pb = list.at(i);
                 if (pb->isDefault() && pb->isVisible()) {
                     if (pb->isEnabled())
-                        emit pb->clicked();
+                        pb->click();
                     return;
                 }
             }
-#endif
         }
         break;
         case Key_Escape:
@@ -572,27 +557,21 @@ bool QDialog::event(QEvent *e)
 {
     switch (e->type()) {
     case QEvent::OkRequest:
-    case QEvent::HelpRequest:
-        {
-            QString bName =
-                (e->type() == QEvent::OkRequest)
-                ? qApp->translate("QMessageBox", mb_texts[QMessageBox::Ok])
-                : qApp->tr("Help");
-
-            QObjectList *list = queryList("QPushButton");
-            QObjectListIt it(*list);
-            QPushButton *pb;
-            while ((pb = (QPushButton*)it.current())) {
-                if (pb->text() == bName) {
-                    delete list;
-                    if (pb->isEnabled())
-                        emit pb->clicked();
-                    return pb->isEnabled();
-                }
-                ++it;
+    case QEvent::HelpRequest: {
+        QString bName =
+            (e->type() == QEvent::OkRequest)
+            ? qApp->translate("QMessageBox", mb_texts[QMessageBox::Ok])
+            : qApp->tr("Help");
+        QList<QPushButton*> list = qFindChildren<QPushButton*>(this);
+        for (int i=0; i<list.size(); ++i) {
+            QPushButton *pb = list.at(i);
+            if (pb->text() == bName) {
+                if (pb->isEnabled())
+                    pb->click();
+                return pb->isEnabled();
             }
-            delete list;
-        }
+        } }
+    default: break;
     }
     return QWidget::event(e);
 }
@@ -637,7 +616,6 @@ void QDialog::show()
 
     QWidget::show();
     showExtension(d->doShowExtension);
-#ifndef QT_NO_PUSHBUTTON
     QWidget *fw = topLevelWidget()->focusWidget();
     if (!fw)
         fw = this;
@@ -675,7 +653,6 @@ void QDialog::show()
         QApplication::sendEvent(fw, &e);
         QFocusEvent::resetReason();
     }
-#endif
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility(this, 0, QAccessible::DialogStart);
