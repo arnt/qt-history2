@@ -178,10 +178,9 @@ public:
     QString toString() const;
 
     QTextStringChar &at( int i ) const;
-#if defined(Q_CC_MIPS)
+#if defined(Q_STRICT_INLINING_RULES)
     // This is for the IRIX MIPSpro o32 ABI - it fails, claiming the
-    // implementation to be a redefinition which is probably a
-    // compiler bug.
+    // implementation to be a redefinition.
     inline int length() const;
 #else
     int length() const;
@@ -261,10 +260,9 @@ public:
     bool operator==( const QTextCursor &c ) const;
     bool operator!=( const QTextCursor &c ) const { return !(*this == c); }
 
-#if defined(Q_CC_MIPS)
+#if defined(Q_STRICT_INLINING_RULES)
     // This is for the IRIX MIPSpro o32 ABI - it fails, claiming the
-    // implementation to be a redefinition which is probably a
-    // compiler bug.
+    // implementation to be a redefinition.
     inline QTextParagraph *paragraph() const;
 #else
     QTextParagraph *paragraph() const;
