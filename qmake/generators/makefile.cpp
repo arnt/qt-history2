@@ -2057,14 +2057,37 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
         if(subtarget->makefile != "$(MAKEFILE)")
             makefilein = " -f " + subtarget->makefile;
 
-        //actually compile
-        t << subtarget->target << ": " << mkfile;
-        if(project->isEmpty("QMAKE_NOFORCE"))
-            t <<  " FORCE";
-        t << "\n\t";
-        if(have_dir)
-            t << "cd " << subtarget->directory << " && ";
-        t << "$(MAKE)" << makefilein << endl;
+        { //actually compile
+            QString cdin, cdout;
+            if(have_dir) {
+                if(project->isActiveConfig("cd_change_global")) {
+                    cdin = "\n\tcd " + subtarget->directory + "\n\t";
+
+                    QDir pwd(Option::output_dir);
+                    QStringList in = subtarget->directory.split(Option::dir_sep), out;
+                    for(int i = 0; i < in.size(); i++) {
+                        if(in.at(i) == "..")
+                            out.prepend(fileInfo(pwd.path()).fileName());
+                        else if(in.at(i) != ".")
+                            out.prepend("..");
+                        pwd.cd(in.at(i));
+                    }
+                    cdout = "\n\t@cd " + out.join(Option::dir_sep);
+                } else {
+                    cdin = "\n\tcd " + subtarget->directory + " && ";
+                }
+            } else {
+                cdin = "\n\t";
+            }
+
+            t << subtarget->target << ": " << mkfile;
+            if(project->isEmpty("QMAKE_NOFORCE"))
+                t <<  " FORCE";
+            t << cdin
+              << "$(MAKE)" << makefilein
+              << cdout << endl;
+        }
+
         for(int suffix = 0; suffix < targetSuffixes.size(); ++suffix) {
             QString s = targetSuffixes.at(suffix);
             if(s == "install_subtargets")
