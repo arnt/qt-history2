@@ -686,6 +686,13 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 newBtn.rect = QRect(ir.right() - mbi, ir.height() - 20, mbi, ir.height() - 4);
                 drawPrimitive(PE_ArrowDown, &newBtn, p, widget);
             }
+            if (btn->state & Style_HasFocus) {
+                QStyleOptionFocusRect fropt(0);
+                fropt.state = btn->state;
+                fropt.palette = btn->palette;
+                fropt.rect = visualRect(subRect(SR_PushButtonFocusRect, btn, widget), widget);
+                drawPrimitive(PE_FocusRect, &fropt, p, widget);
+            }
         }
         break;
     case CE_PushButtonLabel:
