@@ -2075,7 +2075,6 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	    if (mi->isSeparator()) {
 		w = 10;
 		h = 2;
-		break;
 	    } else {
 		if (mi->pixmap())
 		    h = QMAX(h, mi->pixmap()->height() + 4);

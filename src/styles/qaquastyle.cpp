@@ -1065,49 +1065,38 @@ QSize QAquaStyle::sizeFromContents( ContentsType contents,
     switch(contents) {
     case CT_PopupMenuItem: {
 #ifndef QT_NO_POPUPMENU
-	QPopupMenu *popup = (QPopupMenu *) widget;
+	const QPopupMenu *popup = (const QPopupMenu *) widget;
 	bool checkable = popup->isCheckable();
 	QMenuItem *mi = (QMenuItem *) data[0];
 	int maxpmw = *((int *) data[1]);
 	int w = sz.width(), h = sz.height();
 
-	//width
-	if ( mi->pixmap() )
-	    w += mi->pixmap()->width();     // pixmap only
-
-	if ( !mi->text().isNull() ) {
-	    if ( mi->text().find('\t') >= 0 )       // string contains tab
-		w += aquaTabSpacing;
-	}
-
-	if ( maxpmw ) { // we have iconsets
-	    w += maxpmw;
-	    w += 6; // add a little extra border around the iconset
-	}
-
-	if ( checkable && maxpmw < aquaCheckMarkWidth ) {
-	    w += aquaCheckMarkWidth - maxpmw; // space for the checkmarks
-	}
-
-	if ( maxpmw > 0 || checkable ) // we have a check-column ( iconsets or checkmarks)
-	    w += aquaCheckMarkHMargin; // add space to separate the columns
-
-	w += aquaRightBorder;
-	//height
-	if( mi->isSeparator() )
+	if (mi->isSeparator()) {
+	    w = 10;
 	    h = aquaSepHeight;
-	else if ( mi->pixmap() )         // pixmap height
-	    h = mi->pixmap()->height() + 2*aquaItemFrame;
-	else                                        // text height
-	    h = popup->fontMetrics().height() + 2*aquaItemVMargin + 2*aquaItemFrame;
+	} else {
+	    if (mi->pixmap())
+		h = QMAX(h, mi->pixmap()->height() + 4);
+	    else
+		h = QMAX(h, popup->fontMetrics().height() + 8);
 
-	if ( !mi->isSeparator() && mi->iconSet() != 0 ) {
-	    h = QMAX( h, mi->iconSet()->pixmap( QIconSet::Small,
-						QIconSet::Normal ).height() + 2*aquaItemFrame );
+	    if (mi->iconSet() != 0)
+		h = QMAX(h, mi->iconSet()->pixmap(QIconSet::Small,
+						  QIconSet::Normal).height() + 4);
 	}
-	if ( mi->custom() )
-	    h = QMAX( h, mi->custom()->sizeHint().height() + 2*aquaItemVMargin +
-		      2*aquaItemFrame );
+
+	if (! mi->text().isNull()) {
+	    if (mi->text().find('\t') >= 0)
+		w += 12;
+	}
+
+	if (maxpmw)
+	    w += maxpmw + 6;
+	if (checkable && maxpmw < 20)
+	    w += 20 - maxpmw;
+	if (checkable || maxpmw > 0)
+	    w += 2;
+	w += 12;
 	sz = QSize(w, h);
 #endif
 	break; }

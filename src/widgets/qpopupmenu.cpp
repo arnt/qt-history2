@@ -857,36 +857,40 @@ void QPopupMenu::updateSize()
 	    if ( s.width()  > maxWidgetWidth )
 		maxWidgetWidth = s.width();
 	    itemHeight = s.height();
-	} else if (! mi->isSeparator()) {
-	    if ( mi->custom() ) {
-		if ( mi->custom()->fullSpan() ) {
-		    maxWidgetWidth = QMAX( maxWidgetWidth,
-					   mi->custom()->sizeHint().width() );
-		} else {
-		    QSize s ( mi->custom()->sizeHint() );
-		    w += s.width();
+	} else {
+	    if( ! mi->isSeparator() ) {
+		if ( mi->custom() ) {
+		    if ( mi->custom()->fullSpan() ) {
+			maxWidgetWidth = QMAX( maxWidgetWidth,
+					       mi->custom()->sizeHint().width() );
+		    } else {
+			QSize s ( mi->custom()->sizeHint() );
+			w += s.width();
+		    }
 		}
+
+		w += maxPMWidth;
+
+		if (! mi->text().isNull()) {
+		    QString s = mi->text();
+		    int t;
+		    if ( (t = s.find('\t')) >= 0 ) { // string contains tab
+			w += fm.width( s, t );
+			w -= s.contains('&') * fm.width('&');
+			w += s.contains("&&") * fm.width('&');
+			int tw = fm.width( s.mid(t + 1) );
+			if ( tw > tab)
+			    tab = tw;
+		    } else {
+			w += fm.width( s );
+			w -= s.contains('&') * fm.width('&');
+			w += s.contains("&&") * fm.width('&');
+		    }
+		} else if (mi->pixmap())
+		    w += mi->pixmap()->width();
+	    } else {
+		w = itemHeight = 2;
 	    }
-
-	    w += maxPMWidth;
-
-	    if (! mi->text().isNull()) {
-		QString s = mi->text();
-		int t;
-		if ( (t = s.find('\t')) >= 0 ) { // string contains tab
-		    w += fm.width( s, t );
-		    w -= s.contains('&') * fm.width('&');
-		    w += s.contains("&&") * fm.width('&');
-		    int tw = fm.width( s.mid(t + 1) );
-		    if ( tw > tab)
-			tab = tw;
-		} else {
-		    w += fm.width( s );
-		    w -= s.contains('&') * fm.width('&');
-		    w += s.contains("&&") * fm.width('&');
-		}
-	    } else if (mi->pixmap())
-		w += mi->pixmap()->width();
 
 	    void *data[2];
 	    data[0] = (void *) mi;
