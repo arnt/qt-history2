@@ -125,7 +125,7 @@ GNU		<features.h>
 
 		glibc		_GNU_SOURCE
 
-	However the above _GNU_SOURCE defines additional macros:
+	The above _GNU_SOURCE also defines these additional macros:
 
 		glibc 2.0	_POSIX_SOURCE           1
 				_POSIX_C_SOURCE	        199309L
@@ -223,7 +223,7 @@ Solaris		<sys/feature_tests.h>
 
 	The default behaviour is specified by defining:
 
-		AIX		__EXTENSIONS__
+		Solaris 	__EXTENSIONS__
 
 
 Tru64		<standards.h>
