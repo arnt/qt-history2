@@ -326,6 +326,7 @@ void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
 {
     t << "clean: compiler_clean";
     char *clean_targets[] = { "OBJECTS", "QMAKE_CLEAN", "CLEAN_FILES", 0 };
+    const int qtdirSize = replaceExtraCompilerVariables("$(QTDIR)", QString(), QString()).count();
     for(int i = 0; clean_targets[i]; ++i) {
         const QStringList &list = project->values(clean_targets[i]);
         if(project->isActiveConfig("no_delete_multiple_files")) {
@@ -335,6 +336,7 @@ void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
             QStringList cleans;
             QString del_statement;
             int del_size = 0;
+            const int commandlineLimit = 2047; // NT limit, expanded
             for(QStringList::ConstIterator it = list.begin(); it != list.end(); ++it) {
                 if(del_statement.isEmpty()) {
                     del_statement = "\n\t-$(DEL_FILE)";
@@ -342,8 +344,8 @@ void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
                 }
                 QString next_statement = " " + (*it);
 
-                int next_size = next_statement.size();
-                if(del_size+next_size > 2047) { // NT limit
+                int next_size = next_statement.size() + next_statement.count("$(QTDIR)") * qtdirSize;
+                if(del_size+next_size > commandlineLimit) {
                     cleans.append(del_statement);
                     del_statement = "\n\t-$(DEL_FILE)" + next_statement;
                     del_size = del_statement.size();

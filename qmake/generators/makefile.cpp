@@ -1703,19 +1703,28 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                                                        replaceExtraCompilerVariables(tmp_out, (*input), QString::null)));
                     } else {
                         QString del_statement;
-                        int statements = 0;
+                        int del_size = 0;
+                        const int qtdirSize = replaceExtraCompilerVariables("$(QTDIR)", QString::null, QString::null).count();
+                        const int commandlineLimit = 2047; // NT limit, expanded
                         for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
-                            if(del_statement.isNull())
+                            if(del_statement.isEmpty()) {
                                 del_statement = "-$(DEL_FILE)";
-                            del_statement += " " + replaceExtraCompilerVariables(tmp_clean, (*input),
-                                                      replaceExtraCompilerVariables(tmp_out, (*input), QString::null));
-                            ++statements;
-                            if(!(statements % 40)) {
+                                del_size = del_statement.size();
+                            }
+                            QString next_statement = " " + replaceExtraCompilerVariables(tmp_clean, (*input),
+                                                           replaceExtraCompilerVariables(tmp_out, (*input), QString::null));
+
+                            int next_size = next_statement.size() + next_statement.count("$(QTDIR)") * qtdirSize;
+                            if(del_size+next_size > commandlineLimit) {
                                 cleans.append(del_statement);
-                                statements = 0;
+                                del_statement = "-$(DEL_FILE)" + next_statement;
+                                del_size = del_statement.size();
+                            } else {
+                                del_statement += next_statement;
+                                del_size += next_size;
                             }
                         }
-                        if(statements)
+                        if(!del_statement.isEmpty())
                             cleans.append(del_statement);
                     }
                 }
