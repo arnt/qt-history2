@@ -261,6 +261,7 @@ win32:SOURCES  += kernel/qapplication_win.cpp \
 		  kernel/qpainter_win.cpp \
 		  kernel/qregion_win.cpp \
 		  kernel/qwidget_win.cpp \
+		  kernel/qole_win.c \
 		  kernel/qdnd_win.cpp
 
 unix:HEADERS   += $$DIALOGS_H/qprintdialog.h \

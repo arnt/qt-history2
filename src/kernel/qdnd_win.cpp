@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#18 $
 **
 ** WM_FILES implementation for Qt.
 **
@@ -501,8 +501,6 @@ void QDragManager::cancel()
 {
     if ( object ) {
 	beingCancelled = TRUE;
-	if ( object->autoDelete() )
-	    delete object;
 	object = 0;
     }
 
