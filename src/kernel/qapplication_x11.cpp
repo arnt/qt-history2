@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#470 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#471 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2133,23 +2133,6 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	break;
 	
     case MapNotify:				// window shown
-	if ( widget->extra &&
-	     (QWidget::BackgroundMode)widget->extra->bg_mode
-	     == QWidget::NoBackground){
-	    // nothing - the widget is already in the right state
-	} else if ( widget->extra && widget->extra->bg_pix ) {
-	    // map back to colour and clear to background colour JUST
-	    // before the paint event, minimizing flicker
-	    XSetWindowBackgroundPixmap( widget->x11Display(),
-					widget->winId(),
-					widget->extra->bg_pix->handle() );
-	    XClearWindow( widget->x11Display(), widget->winId() );
-	} else {
-	    // ditto but pixmap
-	    XSetWindowBackground( widget->x11Display(), widget->winId(),
-				  widget->bg_col.pixel() );
-	    XClearWindow( widget->x11Display(), widget->winId() );
-	}
 	if ( !widget->testWState(WState_Visible) ) {
 	    widget->setWState( WState_Visible );
 	    QShowEvent e(TRUE);

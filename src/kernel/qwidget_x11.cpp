@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#355 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#356 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1164,10 +1164,6 @@ void QWidget::showWindow()
     clearWState( WState_ForceHide );
     QShowEvent e(FALSE);
     QApplication::sendEvent( this, &e );
-    // temporarily set it to noBackground for flickerfreeness.  this
-    // will be corrected by the MapNotify handler.
-    if ( !extra || (BackgroundMode)extra->bg_mode != NoBackground )
-	XSetWindowBackgroundPixmap( x11Display(), winId(), 0 );
     XMapWindow( x11Display(), winId() );
 }
 
