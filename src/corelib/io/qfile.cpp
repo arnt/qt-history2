@@ -260,7 +260,7 @@ QFile::QFile()
 QFile::QFile(const QString &name)
     : QIODevice(*new QFilePrivate)
 {
-    d->fileName = name;
+    d_func()->fileName = name;
     unsetError();
 }
 QFile::QFile(QFilePrivate &dd)
