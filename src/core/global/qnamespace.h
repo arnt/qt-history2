@@ -1152,6 +1152,12 @@ public:
         ImCurrentSelection
     };
 
+    enum IconSize {
+        AutomaticIconSize,
+        SmallIconSize,
+        LargeIconSize
+    };
+
 #if defined(Q_WS_MAC)
     typedef void * HANDLE;
 #elif defined(Q_WS_WIN)

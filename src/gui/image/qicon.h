@@ -31,7 +31,13 @@ class QString;
 class Q_GUI_EXPORT QIcon
 {
 public:
-    enum Size { Automatic, Small, Large };
+#ifdef QT_COMPAT
+    enum Size {
+        Automatic = Qt::AutomaticIconSize,
+        Small = Qt::SmallIconSize,
+        Large = Qt::LargeIconSize
+    };
+#endif
     enum Mode { Normal, Disabled, Active };
     enum State { On, Off };
 
