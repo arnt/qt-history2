@@ -18,7 +18,6 @@
 **
 **********************************************************************/
 
-#define Q_INIT_INTERFACES
 #include "designerappiface.h"
 #include "designerapp.h"
 
