@@ -123,6 +123,7 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
 
     QPopupMenu *print = new QPopupMenu( this );
     CHECK_PTR( print );
+    print->insertTearOffHandle();
     print->insertItem( "&Print to printer", this, SLOT(printer()) );
     print->insertItem( "Print to &file", this, SLOT(file()) );
     print->insertItem( "Print to fa&x", this, SLOT(fax()) );
