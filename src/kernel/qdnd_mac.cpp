@@ -338,6 +338,12 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
 	beingCancelled = FALSE;
     }
 
+#if 0
+    /* we have to clear the button down */
+    extern QGuardedPtr<QWidget> qt_button_down; //qapplication_mac.cpp
+    qt_button_down = NULL;
+#endif
+
     object = o;
     dragSource = (QWidget *)(object->parent());
     global_src = o;
