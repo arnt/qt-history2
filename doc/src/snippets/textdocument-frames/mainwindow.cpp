@@ -88,7 +88,7 @@ void MainWindow::saveFile()
         if (writeXml(fileName))
             setWindowTitle(fileName);
         else
-            QMessageBox::warning(this, tr("Warning"),
+            QMessageBox::showWarning(this, tr("Warning"),
                 tr("Failed to save the document."), QMessageBox::Cancel,
                 QMessageBox::NoButton);
     }
