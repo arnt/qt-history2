@@ -2,6 +2,7 @@
 #include <qwidget.h>
 #include <qgl.h>
 #include <qcolormap.h>
+#include <qpushbutton.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 
@@ -166,14 +167,26 @@ int main( int argc, char ** argv )
     f.setRgba( FALSE );
     QGLFormat::setDefaultFormat( f );
     MyGl gl( 0, "mygl" );
+    MyGl gl2( 0, "mygl2" );
     app.setMainWidget( &gl );
-
+    
     // Install a custom colormap
-    QColormap * p = new QColormap( &gl );
-    p->setRgb( 0, qRgb( 255, 255, 255 ) );
-    for ( int x = 1; x < p->size(); x++ )
-	p->setRgb( x, qRgb( 0, x, x ) );
-
+    QColormap cmap1;
+    QRgb colors[256];
+    
+    for ( int i = 0; i < 256; i++ )
+  	colors[i] = qRgb( i, i, i );
+    
+    cmap1.setRgb( 0, 256, colors );
+    
+    QColormap cmap2 ( cmap1 );
+    for ( int x = 150; x < cmap2.size(); x++ )
+  	cmap2.setRgb( x, qRgb( x, x, 0 ) );
+     
+    gl.setColormap( cmap1 );
+    gl2.setColormap( cmap2 );
+    
     gl.show();
+    gl2.show();
     return app.exec();
 }
