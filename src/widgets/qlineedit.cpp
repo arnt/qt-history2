@@ -963,7 +963,10 @@ void QLineEdit::drawContents( QPainter *painter )
 	yoff = 0;
     buffer.painter()->translate( xoff, yoff );
     if ( d->mode != NoEcho )
-	parag->paint( *buffer.painter(), colorGroup(), d->cursorOn && !d->readonly ? cursor : 0, TRUE );
+	parag->paint( *buffer.painter(), colorGroup(),
+		      d->cursorOn && !d->readonly ? cursor : 0,
+		      TRUE,
+		      -xoff, 0, width(), height() );
 
     buffer.end();
 
