@@ -1189,7 +1189,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CT_HeaderSection
     \value CT_LineEdit
     \value CT_Menu
-    \value CT_Menu
+    \value CT_Q3Header
     \value CT_MenuBar
     \value CT_MenuBarItem
     \value CT_MenuItem

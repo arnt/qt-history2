@@ -2887,7 +2887,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     case CT_Menu:
     case CT_MenuBarItem:
     case CT_LineEdit:
-    case CT_Header:
+    case CT_Q3Header:
     case CT_Slider:
     case CT_ProgressBar:
     case CT_TabBarTab:
