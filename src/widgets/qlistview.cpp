@@ -4752,7 +4752,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	    bool tryFirst = TRUE;
 	    while( keyItem ) {
 		// try twice, first with the previous string and this char
-		if ( d->currentPrefixTime.msecsTo( now ) <= 1500 )
+		if ( d->currentPrefixTime.msecsTo( now ) <= 400 )
 		    input = input + e->text().lower();
 		else
 		    input = e->text().lower();

@@ -2697,8 +2697,6 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
 	     this, SLOT( adjustItems() ) );
     connect( d->updateTimer, SIGNAL( timeout() ),
 	     this, SLOT( slotUpdate() ) );
-    connect( d->inputTimer, SIGNAL( timeout() ),
-	     this, SLOT( clearInputString() ) );
     connect( d->fullRedrawTimer, SIGNAL( timeout() ),
 	     this, SLOT( updateContents() ) );
     connect( this, SIGNAL( contentsMoving( int, int ) ),
@@ -4974,7 +4972,42 @@ void QIconView::keyPressEvent( QKeyEvent *e )
     default:
 	if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() ) {
 	    selectCurrent = FALSE;
-	    findItemByName( e->text() );
+	    QIconViewItem *i = d->currentItem;
+	    if ( !i )
+		i = d->firstItem;
+	    if ( !d->inputTimer->isActive() ) {
+		d->currInputString = e->text();
+		i = i->next;
+		if ( !i )
+		    i = d->firstItem;
+		i = findItemByName( i );
+	    } else {
+		d->inputTimer->stop();
+		d->currInputString += e->text();
+		i = findItemByName( i );
+		if ( !i ) {
+		    d->currInputString = e->text();
+		    i = findItemByName( d->firstItem );
+		}
+	    }
+	    if ( i ) {
+		setCurrentItem( i );
+		if ( d->selectionMode == Extended ) {
+		    bool changed = FALSE;
+		    bool block = signalsBlocked();
+		    blockSignals( TRUE );
+		    selectAll( FALSE );
+		    blockSignals( block );
+		    if ( !i->selected && i->isSelectable() ) {
+			changed = TRUE;
+			i->selected = TRUE;
+			repaintItem( i );
+		    }
+		    if ( changed )
+			emit selectionChanged();
+		}
+	    }
+	    d->inputTimer->start( 400, TRUE );
 	} else {
 	    selectCurrent = FALSE;
 	    d->currInputString = QString::null;
@@ -5395,46 +5428,29 @@ QSize QIconView::minimumSizeHint() const
 }
 
 /*!
-    \internal
-    Clears the string which is used for setting the current item when
-    the user types something in.
-*/
-
-void QIconView::clearInputString()
-{
-    d->currInputString = QString::null;
-}
-
-/*!
   \internal
-  Finds the first item beginning with \a text and makes
-  it the current item.
+  Finds the next item after the start item beginning
+  with \a text.
 */
 
-void QIconView::findItemByName( const QString &text )
+QIconViewItem* QIconView::findItemByName( QIconViewItem *start )
 {
-    if ( d->inputTimer->isActive() )
-	d->inputTimer->stop();
-    d->inputTimer->start( 500, TRUE );
-    d->currInputString += text.lower();
-    QIconViewItem *item = findItem( d->currInputString );
-    if ( item ) {
-	setCurrentItem( item );
-	if ( d->selectionMode == Extended ) {
-	    bool changed = FALSE;
-	    bool block = signalsBlocked();
-	    blockSignals( TRUE );
-	    selectAll( FALSE );
-	    blockSignals( block );
-	    if ( !item->selected && item->isSelectable() ) {
-		changed = TRUE;
-		item->selected = TRUE;
-		repaintItem( item );
-	    }
-	    if ( changed )
-		emit selectionChanged();
-	}
-    }
+    if ( !start )
+	return 0;
+    QString match = d->currInputString.lower();
+    if ( match.length() < 1 )
+	return start;
+    QString curText;
+    QIconViewItem *i = start;
+    do {
+	curText = i->text().lower();
+	if ( curText.startsWith( match ) )
+	    return i;
+	i = i->next;
+	if ( !i )
+	    i = d->firstItem;
+    } while ( i != start );
+    return 0;
 }
 
 /*!

@@ -423,7 +423,6 @@ protected slots:
     virtual void slotUpdate();
 
 private slots:
-    void clearInputString();
     void movedContents( int dx, int dy );
 
 protected:
@@ -470,7 +469,7 @@ private:
     virtual void initDragEnter( QDropEvent *e );
 #endif
     void drawContents( QPainter* );
-    void findItemByName( const QString &text );
+    QIconViewItem* findItemByName( QIconViewItem *start );
     void handleItemChange( QIconViewItem *old, bool shift, bool control );
 
     int calcGridNum( int w, int x ) const;
