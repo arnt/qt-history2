@@ -47,7 +47,7 @@
 #include "qpaintdevicemetrics.h"
 
 #ifndef QT_NO_SVG
-#include "../xml/qsvgdevice_p.h"
+#include "private/qsvgdevice_p.h"
 #endif
 
 /*!

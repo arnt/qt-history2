@@ -28,11 +28,11 @@
 **********************************************************************/
 
 #include "qcolor.h"
-#include "qcolor_p.h"
+#include "private/qcolor_p.h"
 #include "string.h"
 #include "qpaintdevice.h"
 #include "qapplication.h"
-#include "qapplication_p.h"
+#include "private/qapplication_p.h"
 
 // NOT REVISED
 
