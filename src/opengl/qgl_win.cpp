@@ -893,7 +893,8 @@ void QGLContext::generateFontDisplayLists( const QFont & fnt, int listBase )
 	glHdc = GetDC( winId );
     }
     SelectObject( glHdc, fnt.handle() );
-    wglUseFontBitmaps( glHdc, 0, 256, listBase );
+    if ( !wglUseFontBitmaps( glHdc, 0, 256, listBase ) )
+	qWarning( "QGLContext::generateFontDisplayLists: Could not generate display lists for font '%s'", fnt.family().latin1() );
     if ( winId )
 	ReleaseDC( winId, glHdc );
 }
