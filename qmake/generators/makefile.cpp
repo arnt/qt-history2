@@ -1318,7 +1318,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 				  " \"" + fi.filePath() + "\" \"" + dst + "\"\n\t";
 			if(fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
 			    target += var("QMAKE_STRIP") + " \"" + dst + "\"\n\t";
-			uninst.append(QString("-$(DEL_FILE) -r") + " \"" + wild_var + "\"");
+			uninst.append(QString("-$(DEL_FILE) -r") + " \"" + dst + "\"");
 			continue;
 		    }
 		    QString dirstr = QDir::currentDirPath(), f = wild; 		    //wild

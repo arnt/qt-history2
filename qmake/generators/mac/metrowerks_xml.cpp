@@ -91,7 +91,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
     for(QStringList::Iterator val_it = extra_objs.begin(); 
 	val_it != extra_objs.end(); ++val_it) {
 	if((*val_it).left(2) == "-L") {
-	    QString dir((*val_it).right((*val_it).length()) - 2);
+	    QString dir((*val_it).right((*val_it).length() - 2));
 	    if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
 	       project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
 		project->variables()["INCLUDEPATH"].append(dir);
@@ -100,7 +100,8 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 			project->first("QMAKE_EXTENSION_SHLIB"));
 	    if(project->variables()["LIBRARIES"].findIndex(lib) == -1)
 		project->variables()["LIBRARIES"].append(lib);
-	} else if((*val_it) == "-framework") {
+	} else 
+	    if((*val_it) == "-framework") {
 	    ++val_it;
 	    if(val_it == extra_objs.end())
 		break;
@@ -120,319 +121,11 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 	    project->variables()["LIBRARIES"].append(lib);
 	}
     }
-    if(!project->isEmpty("DEFINES"))
-	project->variables()["CODEWARRIOR_PREFIX_HEADER"].append(project->first("TARGET") + 
-								 "_prefix.h");
-
-    QString xmlfile = findTemplate(project->first("QMAKE_XML_TEMPLATE"));
-    QFile file(xmlfile);
-    if(!file.open(IO_ReadOnly )) {
-	fprintf(stderr, "Cannot open XML file: %s\n", 
-		project->first("QMAKE_XML_TEMPLATE").latin1());
-	return FALSE;
-    }
-    QTextStream xml(&file);
-    createFork(Option::output.name());
-
-    int rep;
-    QString line;
-    while ( !xml.eof() ) {
-	line = xml.readLine();
-	while((rep = line.find(QRegExp("\\$\\$[a-zA-Z0-9_-]*"))) != -1) {
-	    QString torep = line.mid(rep, line.find(QRegExp("[^\\$a-zA-Z0-9_-]"), rep) - rep);
-	    QString variable = torep.right(torep.length()-2);
-
-	    t << line.left(rep); //output the left side
-	    line = line.right(line.length() - (rep + torep.length())); //now past the variable
-	    if(variable == "CODEWARRIOR_HEADERS" || variable == "CODEWARRIOR_SOURCES" || 
-	       variable == "CODEWARRIOR_LIBRARIES" || variable == "CODEWARRIOR_MOCS" ) {
-		QString arg=variable.right(variable.length() - variable.findRev('_') - 1);
-		if(!project->variables()[arg].isEmpty()) {
-		    QStringList &list = project->variables()[arg];
-		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-			QString flag;
-			if(project->isActiveConfig("debug")) {
-			    bool debug = TRUE;
-			    if((*it).right(5) == "mocs") {
-				debug = FALSE;
-			    } else {
-				for(QStringList::Iterator hit = Option::h_ext.begin(); hit != Option::h_ext.end(); ++hit) {
-				    if((*it).right((*hit).length()) == (*hit)) { 
-					debug = FALSE;
-					break;
-				    }
-				}
-			    }
-			    if(debug)
-				flag = "Debug";
-			}
-			t << "\t\t\t\t<FILE>" << endl
-			  << "\t\t\t\t\t<PATHTYPE>Name</PATHTYPE>" << endl
-			  << "\t\t\t\t\t<PATH>" << (*it) << "</PATH>" << endl
-			  << "\t\t\t\t\t<PATHFORMAT>MacOS</PATHFORMAT>" << endl
-			  << "\t\t\t\t\t<FILEKIND>Text</FILEKIND>" << endl
-			  << "\t\t\t\t\t<FILEFLAGS>" << flag << "</FILEFLAGS>" << endl
-			  << "\t\t\t\t</FILE>" << endl;
-		    }
-		}
-	    } else if(variable == "CODEWARRIOR_SOURCES_LINKORDER" || variable == "CODEWARRIOR_HEADERS_LINKORDER" ||
-		      variable == "CODEWARRIOR_LIBRARIES_LINKORDER" || variable == "CODEWARRIOR_MOCS_LINKORDER" ) {
-		QString arg=variable.mid(variable.find('_')+1, variable.findRev('_')-(variable.find('_')+1));
-		if(!project->variables()[arg].isEmpty()) {
-		    QStringList &list = project->variables()[arg];
-		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-			t << "\t\t\t\t<FILEREF>" << endl
-			  << "\t\t\t\t\t<PATHTYPE>Name</PATHTYPE>" << endl
-			  << "\t\t\t\t\t<PATH>" << (*it) << "</PATH>" << endl
-			  << "\t\t\t\t\t<PATHFORMAT>MacOS</PATHFORMAT>" << endl
-			  << "\t\t\t\t</FILEREF>" << endl;
-		    }
-		}
-	    } else if(variable == "CODEWARRIOR_HEADERS_GROUP" || variable == "CODEWARRIOR_SOURCES_GROUP" ||
-		      variable == "CODEWARRIOR_LIBRARIES_GROUP" || variable == "CODEWARRIOR_MOCS_GROUP" ) {
-		QString arg=variable.mid(variable.find('_')+1, variable.findRev('_')-(variable.find('_')+1));
-		if(!project->variables()[arg].isEmpty()) {
-		    QStringList &list = project->variables()[arg];
-		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-			t << "\t\t\t\t<FILEREF>" << endl
-			  << "\t\t\t\t\t<TARGETNAME>" << var("TARGET_STEM") << "</TARGETNAME>" << endl
-			  << "\t\t\t\t\t<PATHTYPE>Name</PATHTYPE>" << endl
-			  << "\t\t\t\t\t<PATH>" << (*it) << "</PATH>" << endl
-			  << "\t\t\t\t\t<PATHFORMAT>MacOS</PATHFORMAT>" << endl
-			  << "\t\t\t\t</FILEREF>" << endl;
-		    }
-		}
-	    } else if(variable == "CODEWARRIOR_FRAMEWORKS") {
-		if(!project->isEmpty("FRAMEWORKS")) {
-		    QStringList &list = project->variables()["FRAMEWORKS"];
-		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-			t << "\t\t\t\t<FRAMEWORK>" << endl
-			  << "\t\t\t\t\t<FILEREF>" << endl
-			  << "\t\t\t\t\t\t<PATHTYPE>Name</PATHTYPE>" << endl
-			  << "\t\t\t\t\t\t<PATH>" << (*it) << "</PATH>" << endl
-			  << "\t\t\t\t\t\t<PATHFORMAT>MacOS</PATHFORMAT>" << endl
-			  << "\t\t\t\t\t</FILEREF>" << endl
-			  << "\t\t\t\t</FRAMEWORK>" << endl;
-		    }
-		}
-	    } else if(variable == "CODEWARRIOR_DEPENDPATH" || variable == "CODEWARRIOR_INCLUDEPATH") {
-		QString arg=variable.right(variable.length()-variable.find('_')-1);
-		QStringList list;
-		if(arg == "INCLUDEPATH") {
-		    list = project->variables()[arg];
-		    list << Option::mkfile::qmakespec;
-		    list << QDir::current().currentDirPath();
-
-		    QStringList &l = project->variables()["QMAKE_LIBS_PATH"];
-		    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
-			QString p = (*val_it), v;
-			if(!fixifyToMacPath(p, v))
-			    continue;
-
-			t << "\t\t\t\t\t<SETTING>" << endl
-			  << "\t\t\t\t\t\t<SETTING><NAME>SearchPath</NAME>" << endl
-			  << "\t\t\t\t\t\t\t<SETTING><NAME>Path</NAME>"
-			  << "<VALUE>" << p << "</VALUE></SETTING>" << endl
-			  << "\t\t\t\t\t\t\t<SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>" << endl
-			  << "\t\t\t\t\t\t\t<SETTING><NAME>PathRoot</NAME><VALUE>CodeWarrior</VALUE></SETTING>" << endl
-			  << "\t\t\t\t\t\t</SETTING>" << endl
-			  << "\t\t\t\t\t\t<SETTING><NAME>Recursive</NAME><VALUE>true</VALUE></SETTING>" << endl
-			  << "\t\t\t\t\t\t<SETTING><NAME>HostFlags</NAME><VALUE>All</VALUE></SETTING>" << endl
-			  << "\t\t\t\t\t</SETTING>" << endl;
-		    }
-		} else {
-		    QStringList &l = project->variables()[arg];
-		    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it)
-		    {
-			//apparently tmake used colon separation...
-			QStringList damn = QStringList::split(':', (*val_it));
-			if(!damn.isEmpty())
-			    list += damn;
-			else
-			    list.append((*val_it));
-		    }
-		}
-		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-		    QString p = (*it), v, recursive = "false", framework = "false";
-		    if(p.left(11) == "recursive--") {
-			p = p.right(p.length() - 11);
-			recursive = "true";
-		    } 
-		    if(!fixifyToMacPath(p, v))
-			continue;
-		    QString frm_p = project->first("QMAKE_FRAMEWORKDIR"), frm_v;
-		    fixifyToMacPath(frm_p, frm_v);
-		    if(frm_p == p && frm_v == v) 
-			framework = "true";
-
-		    t << "\t\t\t\t\t<SETTING>" << endl
-		      << "\t\t\t\t\t\t<SETTING><NAME>SearchPath</NAME>" << endl
-		      << "\t\t\t\t\t\t\t<SETTING><NAME>Path</NAME>"
-		      << "<VALUE>" << p << "</VALUE></SETTING>" << endl
-		      << "\t\t\t\t\t\t\t<SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>" << endl
-		      << "\t\t\t\t\t\t\t<SETTING><NAME>PathRoot</NAME><VALUE>" << v << "</VALUE></SETTING>" << endl
-		      << "\t\t\t\t\t\t</SETTING>" << endl
-		      << "\t\t\t\t\t\t<SETTING><NAME>Recursive</NAME><VALUE>" << recursive << "</VALUE></SETTING>" << endl
-		      << "\t\t\t\t\t\t<SETTING><NAME>FrameworkPath</NAME><VALUE>" << framework << "</VALUE></SETTING>" << endl
-		      << "\t\t\t\t\t\t<SETTING><NAME>HostFlags</NAME><VALUE>All</VALUE></SETTING>" << endl
-		      << "\t\t\t\t\t</SETTING>" << endl;
-		}
-	    } else if(variable == "CODEWARRIOR_WARNING") {
-		t << (int)(!project->isActiveConfig("warn_off") && project->isActiveConfig("warn_on"));
-	    } else if(variable == "CODEWARRIOR_TEMPLATE") {
-		if(project->first("TEMPLATE") == "app" ) {
-		    t << "Executable";
-		} else if(project->first("TEMPLATE") == "lib") {
-		    if(project->isActiveConfig("staticlib"))
-		       t << "Library";
-		    else
-			t << "SharedLibrary";
-		}
-	    } else if(variable == "CODEWARRIOR_OUTPUT_DIR") {
-		QString outdir = "{Project}/";
-		if(!project->isEmpty("DESTDIR"))
-		    outdir = project->first("DESTDIR");
-		if(project->first("TEMPLATE") == "app" && !project->isActiveConfig("console"))
-		    outdir += var("TARGET") + ".app/Contents/MacOS/";
-		QString volume;
-		if(fixifyToMacPath(outdir, volume, FALSE)) {
-                    t << "\t\t\t<SETTING><NAME>Path</NAME><VALUE>" << outdir << "</VALUE></SETTING>" 
-		      << endl
-		      << "\t\t\t<SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>" << endl
-		      << "\t\t\t<SETTING><NAME>PathRoot</NAME><VALUE>" << volume << "</VALUE></SETTING>" 
-		      << endl;
-		}
-	    } else if(variable == "CODEWARRIOR_PACKAGER_PANEL") {
-		if(project->first("TEMPLATE") == "app" && !project->isActiveConfig("console")) {
-		    t << "\t\t<SETTING><NAME>MWMacOSPackager_UsePackager</NAME><VALUE>1</VALUE></SETTING>" << endl
-		      << "\t\t<SETTING><NAME>MWMacOSPackager_FolderToPackage</NAME>" << endl
-		      << "\t\t\t<SETTING><NAME>Path</NAME><VALUE>:" << var("TARGET") << ".app:</VALUE></SETTING>" << endl
-		      << "\t\t\t<SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>" << endl
-		      << "\t\t\t<SETTING><NAME>PathRoot</NAME><VALUE>Project</VALUE></SETTING>" << endl
-		      << "\t\t</SETTING>" << endl
-		      << "\t\t<SETTING><NAME>MWMacOSPackager_CreateClassicAlias</NAME><VALUE>0</VALUE></SETTING>" << endl
-		      << "\t\t<SETTING><NAME>MWMacOSPackager_ClassicAliasMethod</NAME><VALUE>UseTargetOutput</VALUE></SETTING>" << endl
-		      << "\t\t<SETTING><NAME>MWMacOSPackager_ClassicAliasPath</NAME><VALUE></VALUE></SETTING>" << endl
-		      << "\t\t<SETTING><NAME>MWMacOSPackager_CreatePkgInfo</NAME><VALUE>1</VALUE></SETTING>" << endl
-		      << "\t\t<SETTING><NAME>MWMacOSPackager_PkgCreatorType</NAME><VALUE>CUTE</VALUE></SETTING>" << endl
-		      << "\t\t<SETTING><NAME>MWMacOSPackager_PkgFileType</NAME><VALUE>APPL</VALUE></SETTING>" << endl;
-		}
-	    } else if(variable == "CODEWARRIOR_FILETYPE") {
-		if(project->first("TEMPLATE") == "lib")
-			t << "MYDL";
-		else
-			t << "MEXE";
-	    } else if(variable == "CODEWARRIOR_QTDIR") {
-		t << getenv("QTDIR");
-	    } else {
-		t << var(variable);
-	    }
-	}
-	t << line << endl;
-    }
-    t << endl;
-    file.close();
-
-    if(mocAware()) { 
-	QString mocs = Option::output_dir + Option::dir_sep + project->variables()["TARGET_STEM"].first() + ".mocs";
-	QFile mocfile(mocs);
-	if(!mocfile.open(IO_WriteOnly)) {
-	    fprintf(stderr, "Cannot open MOCS file: %s\n", mocs.latin1());
-	} else {
-	    createFork(mocs);
-	    QTextStream mocs(&mocfile);
-	    QStringList &list = project->variables()["SRCMOC"];
-	    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-		QString src = findMocSource((*it));
-		if(src.findRev('/') != -1)
-		    src = src.right(src.length() - src.findRev('/') - 1);
-		mocs << src << endl;
-	    }
-	    mocfile.close();
-	}
-    }
-
-    if(!project->isEmpty("CODEWARRIOR_PREFIX_HEADER")) {
-	QFile prefixfile(project->first("CODEWARRIOR_PREFIX_HEADER"));
-	if(!prefixfile.open(IO_WriteOnly)) {
-	    fprintf(stderr, "Cannot open PREFIX file: %s\n", prefixfile.name().latin1());
-	} else {
-	    createFork(project->first("CODEWARRIOR_PREFIX_HEADER"));
-	    QTextStream prefix(&prefixfile);
-	    QStringList &list = project->variables()["DEFINES"];
-	    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-		if((*it).find('=') != -1) {
-		    int x = (*it).find('=');
-		    prefix << "#define " << (*it).left(x) << " " << (*it).right((*it).length() - x - 1) << endl;
-		} else {
-		    prefix << "#define " << (*it) << endl;
-		}
-	    }
-	    prefixfile.close();
-	}
-    }
-    return TRUE;
-}
-
-
-
-void
-MetrowerksMakefileGenerator::init()
-{
-    if(init_flag)
-	return;
-    init_flag = TRUE;
-
-    if ( project->isEmpty("QMAKE_XML_TEMPLATE") ) 
-	project->variables()["QMAKE_XML_TEMPLATE"].append("mwerkstmpl.xml");
-    QStringList &configs = project->variables()["CONFIG"];
-    if(project->isActiveConfig("qt")) {
-	if(configs.findIndex("moc")) configs.append("moc");
-	if ( !( (project->first("TARGET") == "qt") || (project->first("TARGET") == "qte") ||
-		(project->first("TARGET") == "qt-mt") ) ) 
-	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
-	if(configs.findIndex("moc")) 
-	    configs.append("moc");
-	if ( !project->isActiveConfig("debug") ) {
-	    project->variables()["DEFINES"].append("QT_NO_DEBUG");
-	    project->variables()["DEFINES"].append("QT_NO_CHECK");
-	}
-    }
-
-    //version handling
-    if(project->variables()["VERSION"].isEmpty())
-	project->variables()["VERSION"].append("1.0." + 
-					       (project->isEmpty("VER_PAT") ? QString("0") : 
-						project->first("VER_PAT")) );
-    QStringList ver = QStringList::split('.',  //make sure there are three
-					 project->first("VERSION")) << "0" << "0";
-    project->variables()["VER_MAJ"].append(ver[0]);
-    project->variables()["VER_MIN"].append(ver[1]);
-    project->variables()["VER_PAT"].append(ver[2]);
-
-    if( !project->isEmpty("LIBS") )
-	project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
-    if( project->variables()["QMAKE_EXTENSION_SHLIB"].isEmpty() )
-	project->variables()["QMAKE_EXTENSION_SHLIB"].append( "dylib" );
-
-    if ( project->isActiveConfig("moc") ) {
-	project->variables()["MOCS"].append(project->variables()["TARGET"].first() + ".mocs");
-	setMocAware(TRUE);
-    }
-    MakefileGenerator::init();
-
-    if ( project->isActiveConfig("opengl") ) {
-	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_OPENGL"];
-	if ( (project->first("TARGET") == "qt") || (project->first("TARGET") == "qte") ||
-	     (project->first("TARGET") == "qt-mt") )
-	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL_QT"];
-	else 
-	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
-    }
-
     //let metrowerks find the files & set the files to the type I expect
     QDict<void> seen(293);
-    QString paths[] = { QString("SOURCES"),QString("HEADERS"),QString::null };
+    QString paths[] = { QString("SRCMOC"), QString("FORMS"), QString("UICDECLS"),
+			QString("UICIMPLS"), QString("SOURCES"),QString("HEADERS"),
+			QString::null };
     for(int y = 0; paths[y] != QString::null; y++) {
 	QStringList &l = project->variables()[paths[y]];
 	for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
@@ -476,14 +169,420 @@ MetrowerksMakefileGenerator::init()
 	    }
 	}
     }
+    //need a defines file
+    if(!project->isEmpty("DEFINES")) {
+	QString pre_pref = project->first("TARGET_STEM");
+	if(project->first("TEMPLATE") == "lib")
+	    pre_pref += project->isActiveConfig("staticlib") ? "_static" : "_shared";
+	project->variables()["CODEWARRIOR_PREFIX_HEADER"].append(pre_pref + "_prefix.h");
+    }
+
+    QString xmlfile = findTemplate(project->first("QMAKE_XML_TEMPLATE"));
+    QFile file(xmlfile);
+    if(!file.open(IO_ReadOnly )) {
+	fprintf(stderr, "Cannot open XML file: %s\n", 
+		project->first("QMAKE_XML_TEMPLATE").latin1());
+	return FALSE;
+    }
+    QTextStream xml(&file);
+    createFork(Option::output.name());
+
+    int rep;
+    QString line;
+    while ( !xml.eof() ) {
+	line = xml.readLine();
+	while((rep = line.find(QRegExp("\\$\\$[!a-zA-Z0-9_-]*"))) != -1) {
+	    QString torep = line.mid(rep, line.find(QRegExp("[^\\$!a-zA-Z0-9_-]"), rep) - rep);
+	    QString variable = torep.right(torep.length()-2);
+
+	    t << line.left(rep); //output the left side
+	    line = line.right(line.length() - (rep + torep.length())); //now past the variable
+	    if(variable == "CODEWARRIOR_HEADERS" || variable == "CODEWARRIOR_SOURCES" || 
+	       variable == "CODEWARRIOR_LIBRARIES" || variable == "CODEWARRIOR_QPREPROCESS" ||
+		variable == "CODEWARRIOR_QPREPROCESSOUT") {
+		QString outcmd=variable.right(variable.length() - variable.findRev('_') - 1);
+		QStringList args;
+		if(outcmd == "QPREPROCESS")
+		    args << "UICS" << "MOCS";
+		else if(outcmd == "QPREPROCESSOUT")
+		    args << "SRCMOC" << "UICIMPLS" << "UICDELCS";
+		else
+		    args << outcmd;
+		for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
+		    QString arg = (*arit);
+		    QString kind = "Text";
+		    if(arg == "LIBRARIES")
+			kind = "Library";
+		    if(!project->variables()[arg].isEmpty()) {
+			QStringList &list = project->variables()[arg];
+			for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+			    QString flag;
+			    if(project->isActiveConfig("debug")) {
+				bool debug = TRUE;
+				if(outcmd == "QPREPROCESS") {
+				    debug = FALSE;
+				} else {
+				    for(QStringList::Iterator hit = Option::h_ext.begin(); hit != Option::h_ext.end(); ++hit) {
+					if((*it).right((*hit).length()) == (*hit)) { 
+					    debug = FALSE;
+					    break;
+					}
+				    }
+				}
+				if(debug)
+				    flag = "Debug";
+			    }
+			    t << "\t\t\t\t<FILE>" << endl
+			      << "\t\t\t\t\t<PATHTYPE>Name</PATHTYPE>" << endl
+			      << "\t\t\t\t\t<PATH>" << (*it) << "</PATH>" << endl
+			      << "\t\t\t\t\t<PATHFORMAT>MacOS</PATHFORMAT>" << endl
+			      << "\t\t\t\t\t<FILEKIND>" << kind << "</FILEKIND>" << endl
+			      << "\t\t\t\t\t<FILEFLAGS>" << flag << "</FILEFLAGS>" << endl
+			      << "\t\t\t\t</FILE>" << endl;
+			}
+		    }
+		}
+	    } else if(variable == "CODEWARRIOR_SOURCES_LINKORDER" || 
+		      variable == "CODEWARRIOR_HEADERS_LINKORDER" ||
+		      variable == "CODEWARRIOR_LIBRARIES_LINKORDER" || 
+		      variable == "CODEWARRIOR_QPREPROCESS_LINKORDER" ||
+		      variable == "CODEWARRIOR_QPREPROCESSOUT_LINKORDER") {
+		QString outcmd=variable.mid(variable.find('_')+1, 
+					    variable.findRev('_')-(variable.find('_')+1));
+		QStringList args;
+		if(outcmd == "QPREPROCESS")
+		    args << "UICS" << "MOCS";
+		else if(outcmd == "QPREPROCESSOUT")
+		    args << "SRCMOC" << "UICIMPLS" << "UICDELCS";
+		else
+		    args << outcmd;
+		for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
+		    QString arg = (*arit);
+		    if(!project->variables()[arg].isEmpty()) {
+			QStringList &list = project->variables()[arg];
+			for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+			    t << "\t\t\t\t<FILEREF>" << endl
+			      << "\t\t\t\t\t<PATHTYPE>Name</PATHTYPE>" << endl
+			      << "\t\t\t\t\t<PATH>" << (*it) << "</PATH>" << endl
+			      << "\t\t\t\t\t<PATHFORMAT>MacOS</PATHFORMAT>" << endl
+			      << "\t\t\t\t</FILEREF>" << endl;
+			}
+		    }
+		}
+	    } else if(variable == "CODEWARRIOR_HEADERS_GROUP" || 
+		      variable == "CODEWARRIOR_SOURCES_GROUP" ||
+		      variable == "CODEWARRIOR_LIBRARIES_GROUP" || 
+		      variable == "CODEWARRIOR_QPREPROCESS_GROUP" ||
+		      variable == "CODEWARRIOR_QPREPROCESSOUT_GROUP") {
+		QString outcmd = variable.mid(variable.find('_')+1, 
+					      variable.findRev('_')-(variable.find('_')+1));
+		QStringList args;
+		if(outcmd == "QPREPROCESS")
+		    args << "UICS" << "MOCS";
+		else if(outcmd == "QPREPROCESSOUT")
+		    args << "SRCMOC" << "UICIMPLS" << "UICDELCS";
+		else
+		    args << outcmd;
+		for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
+		    QString arg = (*arit);
+		    if(!project->variables()[arg].isEmpty()) {
+			QStringList &list = project->variables()[arg];
+			for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+			    t << "\t\t\t\t<FILEREF>" << endl
+			      << "\t\t\t\t\t<TARGETNAME>" << var("TARGET_STEM") << "</TARGETNAME>" 
+			      << endl
+			      << "\t\t\t\t\t<PATHTYPE>Name</PATHTYPE>" << endl
+			      << "\t\t\t\t\t<PATH>" << (*it) << "</PATH>" << endl
+			      << "\t\t\t\t\t<PATHFORMAT>MacOS</PATHFORMAT>" << endl
+			      << "\t\t\t\t</FILEREF>" << endl;
+			}
+		    }
+		}
+	    } else if(variable == "CODEWARRIOR_FRAMEWORKS") {
+		if(!project->isEmpty("FRAMEWORKS")) {
+		    QStringList &list = project->variables()["FRAMEWORKS"];
+		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+			t << "\t\t\t\t<FRAMEWORK>" << endl
+			  << "\t\t\t\t\t<FILEREF>" << endl
+			  << "\t\t\t\t\t\t<PATHTYPE>Name</PATHTYPE>" << endl
+			  << "\t\t\t\t\t\t<PATH>" << (*it) << "</PATH>" << endl
+			  << "\t\t\t\t\t\t<PATHFORMAT>MacOS</PATHFORMAT>" << endl
+			  << "\t\t\t\t\t</FILEREF>" << endl
+			  << "\t\t\t\t</FRAMEWORK>" << endl;
+		    }
+		}
+	    } else if(variable == "CODEWARRIOR_DEPENDPATH" || variable == "CODEWARRIOR_INCLUDEPATH" ||
+		variable == "CODEWARRIOR_FRAMEWORKPATH") {	
+		QString arg=variable.right(variable.length()-variable.find('_')-1);
+		QStringList list;
+		if(arg == "INCLUDEPATH") {
+		    list = project->variables()[arg];
+		    list << Option::mkfile::qmakespec;
+		    list << QDir::current().currentDirPath();
+
+		    QStringList &l = project->variables()["QMAKE_LIBS_PATH"];
+		    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
+			QString p = (*val_it), v;
+			if(!fixifyToMacPath(p, v))
+			    continue;
+
+			t << "\t\t\t\t\t<SETTING>" << endl
+			  << "\t\t\t\t\t\t<SETTING><NAME>SearchPath</NAME>" << endl
+			  << "\t\t\t\t\t\t\t<SETTING><NAME>Path</NAME>"
+			  << "<VALUE>" << p << "</VALUE></SETTING>" << endl
+			  << "\t\t\t\t\t\t\t<SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>" << endl
+			  << "\t\t\t\t\t\t\t<SETTING><NAME>PathRoot</NAME><VALUE>CodeWarrior</VALUE></SETTING>" << endl
+			  << "\t\t\t\t\t\t</SETTING>" << endl
+			  << "\t\t\t\t\t\t<SETTING><NAME>Recursive</NAME><VALUE>true</VALUE></SETTING>" << endl
+			  << "\t\t\t\t\t\t<SETTING><NAME>HostFlags</NAME><VALUE>All</VALUE></SETTING>" << endl
+			  << "\t\t\t\t\t</SETTING>" << endl;
+		    }
+		} else if(variable == "DEPENDPATH") {
+		    QStringList &l = project->variables()[arg];
+		    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it)
+		    {
+			//apparently tmake used colon separation...
+			QStringList damn = QStringList::split(':', (*val_it));
+			if(!damn.isEmpty())
+			    list += damn;
+			else
+			    list.append((*val_it));
+		    }
+		} else {
+		    list = project->variables()[arg];
+		}
+		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+		    QString p = (*it), v, recursive = "false", framework = "false";
+		    if(p.left(11) == "recursive--") {
+			p = p.right(p.length() - 11);
+			recursive = "true";
+		    } 
+		    if(!fixifyToMacPath(p, v))
+			continue;
+		    if(arg == "FRAMEWORKPATH")
+			framework = "true";
+
+		    t << "\t\t\t\t\t<SETTING>" << endl
+		      << "\t\t\t\t\t\t<SETTING><NAME>SearchPath</NAME>" << endl
+		      << "\t\t\t\t\t\t\t<SETTING><NAME>Path</NAME>"
+		      << "<VALUE>" << p << "</VALUE></SETTING>" << endl
+		      << "\t\t\t\t\t\t\t<SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>" << endl
+		      << "\t\t\t\t\t\t\t<SETTING><NAME>PathRoot</NAME><VALUE>" << v << "</VALUE></SETTING>" << endl
+		      << "\t\t\t\t\t\t</SETTING>" << endl
+		      << "\t\t\t\t\t\t<SETTING><NAME>Recursive</NAME><VALUE>" << recursive << "</VALUE></SETTING>" << endl
+		    << "\t\t\t\t\t\t<SETTING><NAME>FrameworkPath</NAME><VALUE>" << framework << "</VALUE></SETTING>" << endl
+		    << "\t\t\t\t\t\t<SETTING><NAME>HostFlags</NAME><VALUE>All</VALUE></SETTING>" << endl
+		      << "\t\t\t\t\t</SETTING>" << endl;
+		}
+	    } else if(variable == "CODEWARRIOR_WARNING" || variable == "!CODEWARRIOR_WARNING") {
+		bool b = ((!project->isActiveConfig("warn_off")) && 
+			  project->isActiveConfig("warn_on"));
+		if(variable.left(1) == "!")
+		    b = !b;
+		t << (int)b;
+	    } else if(variable == "CODEWARRIOR_TEMPLATE") {
+		if(project->first("TEMPLATE") == "app" ) {
+		    t << "Executable";
+		} else if(project->first("TEMPLATE") == "lib") {
+		    if(project->isActiveConfig("staticlib"))
+		       t << "Library";
+		    else
+			t << "SharedLibrary";
+		}
+	    } else if(variable == "CODEWARRIOR_OUTPUT_DIR") {
+		QString outdir = "{Project}/", volume;
+		if(!project->isEmpty("DESTDIR"))
+		    outdir = project->first("DESTDIR");
+		if(project->first("TEMPLATE") == "app" && !project->isActiveConfig("console"))
+		    outdir += var("TARGET") + ".app/Contents/MacOS/";
+		if(fixifyToMacPath(outdir, volume, FALSE)) {
+                    t << "\t\t\t<SETTING><NAME>Path</NAME><VALUE>" << outdir << "</VALUE></SETTING>" 
+		      << endl
+		      << "\t\t\t<SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>" << endl
+		      << "\t\t\t<SETTING><NAME>PathRoot</NAME><VALUE>" << volume << "</VALUE></SETTING>" 
+		      << endl;
+		}
+	    } else if(variable == "CODEWARRIOR_PACKAGER_PANEL") {
+		if(project->first("TEMPLATE") == "app" && !project->isActiveConfig("console")) {
+		    QString outdir = "{Project}/", volume;
+		    if(!project->isEmpty("DESTDIR"))
+			outdir = project->first("DESTDIR");
+		    outdir += var("TARGET") + ".app";
+		    if(fixifyToMacPath(outdir, volume, FALSE)) {
+			t << "\t\t<SETTING><NAME>MWMacOSPackager_UsePackager</NAME>"
+			  << "<VALUE>1</VALUE></SETTING>" << "\n"
+			  << "\t\t<SETTING><NAME>MWMacOSPackager_FolderToPackage</NAME>" << "\n"
+			  << "\t\t\t<SETTING><NAME>Path</NAME><VALUE>" << outdir 
+			  << "</VALUE></SETTING>" << "\n"
+			  << "\t\t\t<SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>" 
+			  << "\n"
+			  << "\t\t\t<SETTING><NAME>PathRoot</NAME><VALUE>" << volume 
+			  << "</VALUE></SETTING>" << "\n"
+			  << "\t\t</SETTING>" << "\n"
+			  << "\t\t<SETTING><NAME>MWMacOSPackager_CreateClassicAlias</NAME>"
+			  << "<VALUE>0</VALUE></SETTING>" << "\n"
+			  << "\t\t<SETTING><NAME>MWMacOSPackager_ClassicAliasMethod</NAME>"
+			  << "<VALUE>UseTargetOutput</VALUE></SETTING>" << "\n"
+			  << "\t\t<SETTING><NAME>MWMacOSPackager_ClassicAliasPath</NAME>"
+			  << "<VALUE></VALUE></SETTING>" << "\n"
+			  << "\t\t<SETTING><NAME>MWMacOSPackager_CreatePkgInfo</NAME>"
+			  << "<VALUE>1</VALUE></SETTING>" << "\n"
+			  << "\t\t<SETTING><NAME>MWMacOSPackager_PkgCreatorType</NAME>" 
+			  << "<VALUE>CUTE</VALUE></SETTING>" << "\n"
+			  << "\t\t<SETTING><NAME>MWMacOSPackager_PkgFileType</NAME>" 
+			  << "<VALUE>APPL</VALUE></SETTING>" << endl;
+		    }
+		}
+	    } else if(variable == "CODEWARRIOR_FILETYPE") {
+		if(project->first("TEMPLATE") == "lib")
+			t << "MYDL";
+		else
+			t << "MEXE";
+	    } else if(variable == "CODEWARRIOR_QTDIR") {
+		t << getenv("QTDIR");
+	    } else if(variable == "CODEWARRIOR_CACHEMODDATES") {
+		t << "true";
+	    } else {
+		t << var(variable);
+	    }
+	}
+	t << line << endl;
+    }
+    t << endl;
+    file.close();
+
+    if(mocAware()) { 
+	QString mocs = project->first("MOCS");
+	QFile mocfile(mocs);
+	if(!mocfile.open(IO_WriteOnly)) {
+	    fprintf(stderr, "Cannot open MOCS file: %s\n", mocs.latin1());
+	} else {
+	    createFork(mocs);
+	    QTextStream mocs(&mocfile);
+	    QStringList &list = project->variables()["SRCMOC"];
+	    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+		QString src = findMocSource((*it));
+		if(src.findRev('/') != -1)
+		    src = src.right(src.length() - src.findRev('/') - 1);
+		mocs << src << endl;
+	    }
+	    mocfile.close();
+	}
+    }
+
+    if(!project->isEmpty("FORMS")) { 
+	QString uics = project->first("UICS");
+	QFile uicfile(uics);
+	if(!uicfile.open(IO_WriteOnly)) {
+	    fprintf(stderr, "Cannot open UICS file: %s\n", uics.latin1());
+	} else {
+	    createFork(uics);
+	    QTextStream uics(&uicfile);
+	    QStringList &list = project->variables()["FORMS"];
+	    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+		QString ui = (*it);
+		if(ui.findRev('/') != -1)
+		    ui = ui.right(ui.length() - ui.findRev('/') - 1);
+		uics << ui << endl;
+	    }
+	    uicfile.close();
+	}
+    }
+
+    if(!project->isEmpty("CODEWARRIOR_PREFIX_HEADER")) {
+	QFile prefixfile(project->first("CODEWARRIOR_PREFIX_HEADER"));
+	if(!prefixfile.open(IO_WriteOnly)) {
+	    fprintf(stderr, "Cannot open PREFIX file: %s\n", prefixfile.name().latin1());
+	} else {
+	    createFork(project->first("CODEWARRIOR_PREFIX_HEADER"));
+	    QTextStream prefix(&prefixfile);
+	    QStringList &list = project->variables()["DEFINES"];
+	    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+		if((*it).find('=') != -1) {
+		    int x = (*it).find('=');
+		    prefix << "#define " << (*it).left(x) << " " << (*it).right((*it).length() - x - 1) << endl;
+		} else {
+		    prefix << "#define " << (*it) << endl;
+		}
+	    }
+	    prefixfile.close();
+	}
+    }
+    return TRUE;
+}
+
+
+
+void
+MetrowerksMakefileGenerator::init()
+{
+    if(init_flag)
+	return;
+    init_flag = TRUE;
+
+    if ( project->isEmpty("QMAKE_XML_TEMPLATE") ) 
+	project->variables()["QMAKE_XML_TEMPLATE"].append("mwerkstmpl.xml");
+
+    QStringList &configs = project->variables()["CONFIG"];
+    if(project->isActiveConfig("qt")) {
+	if(configs.findIndex("moc")) configs.append("moc");
+	if ( !( (project->first("TARGET") == "qt") || (project->first("TARGET") == "qte") ||
+		(project->first("TARGET") == "qt-mt") ) ) 
+	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
+	if(configs.findIndex("moc")) 
+	    configs.append("moc");
+	if ( !project->isActiveConfig("debug") ) {
+	    project->variables()["DEFINES"].append("QT_NO_DEBUG");
+	    project->variables()["DEFINES"].append("QT_NO_CHECK");
+	}
+    }
+
+    //version handling
+    if(project->variables()["VERSION"].isEmpty())
+	project->variables()["VERSION"].append("1.0." + 
+					       (project->isEmpty("VER_PAT") ? QString("0") : 
+						project->first("VER_PAT")) );
+    QStringList ver = QStringList::split('.',  //make sure there are three
+					 project->first("VERSION")) << "0" << "0";
+    project->variables()["VER_MAJ"].append(ver[0]);
+    project->variables()["VER_MIN"].append(ver[1]);
+    project->variables()["VER_PAT"].append(ver[2]);
+
+    if( !project->isEmpty("LIBS") )
+	project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
+    if( project->variables()["QMAKE_EXTENSION_SHLIB"].isEmpty() )
+	project->variables()["QMAKE_EXTENSION_SHLIB"].append( "dylib" );
+
+    if ( project->isActiveConfig("moc") ) {
+	QString mocfile = project->first("TARGET");
+	if(project->first("TEMPLATE") == "lib")
+	    mocfile += project->isActiveConfig("staticlib") ? "_static" : "_shared";
+	project->variables()["MOCS"].append(mocfile + ".mocs");
+	setMocAware(TRUE);
+    }
+    if(!project->isEmpty("FORMS")) {
+	QString uicfile = project->first("TARGET");
+	if(project->first("TEMPLATE") == "lib")
+	    uicfile += project->isActiveConfig("staticlib") ? "_static" : "_shared";
+	project->variables()["UICS"].append(uicfile + ".uics");
+    }
+    if(project->isEmpty("DESTDIR"))
+	project->variables()["DESTDIR"].append(QDir::currentDirPath());
+    MakefileGenerator::init();
+
+    if ( project->isActiveConfig("opengl") ) {
+	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_OPENGL"];
+	if ( (project->first("TARGET") == "qt") || (project->first("TARGET") == "qte") ||
+	     (project->first("TARGET") == "qt-mt") )
+	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL_QT"];
+	else 
+	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
+    }
+
     if(project->isActiveConfig("qt"))
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QT"];
-    if(project->isEmpty("QMAKE_FRAMEWORKDIR"))
-	project->variables()["QMAKE_FRAMEWORKDIR"].append("/System/Library/Frameworks/");
-    QString dir = project->first("QMAKE_FRAMEWORKDIR");
-    if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
-       project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
-	project->variables()["INCLUDEPATH"].append(dir);
+    if(project->isEmpty("FRAMEWORKPATH"))
+	project->variables()["FRAMEWORKPATH"].append("/System/Library/Frameworks/");
 
     //set the target up
     project->variables()["TARGET_STEM"] = project->variables()["TARGET"];
@@ -584,6 +683,8 @@ MetrowerksMakefileGenerator::fixifyToMacPath(QString &p, QString &v, bool exists
     QString volume = st_volume;
 
     fixEnvVariables(p);
+    if(p.left(1) == "\"" && p.right(1) == "\"")
+	p = p.mid(1, p.length() - 2);
     if(p.isEmpty()) 
 	return FALSE;
     if(p.right(1) != "/")
@@ -605,7 +706,7 @@ MetrowerksMakefileGenerator::fixifyToMacPath(QString &p, QString &v, bool exists
 	    qDebug("Can't fix ::%s::", p.latin1());
     }
     p = QDir::cleanDirPath(p);
-    if(exists && !QFile::exists(p) && project->isEmpty("QMAKE_MACPATH")) 
+    if(0 && exists && !QFile::exists(p) && project->isEmpty("QMAKE_MACPATH")) 
 	return FALSE;
     if(!volume.isEmpty()) {
 	if(!project->isActiveConfig("separate_volume")) 
