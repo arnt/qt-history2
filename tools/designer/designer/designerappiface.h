@@ -40,7 +40,7 @@ public:
     void showStatusMessage( const QString & ) const;
     DesignerDock *createDock() const;
     DesignerOutputDock *outputDock() const;
-
+    void addPreferencesTab( QWidget *tab, const QString &title, QObject *receiver = 0, const char *slot = 0 );
 
     QUnknownInterface *queryInterface( const QUuid &uuid );
     ulong addRef();

@@ -127,6 +127,7 @@ public:
     TemplateWizardInterface* templateWizardInterface( const QString& className );
     QUnknownInterface* designerInterface() const { return desInterface; }
     OutputWindow *outputWindow() const { return oWindow; }
+    void addPreferencesTab( QWidget *tab, const QString &title, QObject *receiver, const char *slot );
 
 public slots:
     void showProperties( QObject *w );
@@ -266,6 +267,15 @@ private:
     void addRecentlyOpened( const QString &fn, QStringList &lst );
 
 private:
+    struct Tab
+    {
+	QWidget *w;
+	QString title;
+	QObject *receiver;
+	const char *slot;
+    };
+
+private:
     PropertyEditor *propertyEditor;
     HierarchyView *hierarchyView;
     FormList *formList;
@@ -331,6 +341,7 @@ private:
     QStringList recentlyProjects;
     QString pluginDir, libDir;
     OutputWindow *oWindow;
+    QValueList<Tab> preferenceTabs;
 
 };
 

@@ -5,13 +5,17 @@ HEADERS		= editor.h  \
 		  parenmatcher.h  \
 		  completion.h \
 		  viewmanager.h \
-		  markerwidget.h
+		  markerwidget.h \
+		  preferencesimpl.h
 
 SOURCES		= editor.cpp \
 		  parenmatcher.cpp  \
 		  completion.cpp \
 		  viewmanager.cpp \
-		  markerwidget.cpp
+		  markerwidget.cpp \
+		  preferencesimpl.cpp
+
+INTERFACES	= preferences.ui
 		
 TARGET		= editor
 DESTDIR		= $(QTDIR)/lib

@@ -1903,6 +1903,14 @@ void MainWindow::editPreferences()
     connect( dia->buttonDocPath, SIGNAL( clicked() ),
 	     this, SLOT( chooseDocPath() ) );
 
+    QValueList<Tab>::Iterator it;
+    for ( it = preferenceTabs.begin(); it != preferenceTabs.end(); ++it ) {
+	Tab t = *it;
+	dia->tabWidget->addTab( t.w, t.title );
+	if ( t.receiver )
+	    connect( dia->buttonOk, SIGNAL( clicked() ), t.receiver, t.slot );
+    }
+
     if ( dia->exec() == QDialog::Accepted ) {
 	setSnapGrid( dia->checkBoxGrid->isChecked() );
 	setShowGrid( dia->checkBoxShowGrid->isChecked() );
@@ -1924,6 +1932,12 @@ void MainWindow::editPreferences()
 	}
 	splashScreen = dia->checkBoxSplash->isChecked();
 	docPath = dia->editDocPath->text();
+    }
+    for ( it = preferenceTabs.begin(); it != preferenceTabs.end(); ++it ) {
+	Tab t = *it;
+	dia->tabWidget->removePage( t.w );
+	if ( t.receiver )
+	    disconnect( dia->buttonOk, SIGNAL( clicked() ), t.receiver, t.slot );
     }
     delete dia;
     prefDia = 0;
@@ -3941,4 +3955,14 @@ void MainWindow::setupPluginManagers()
     templateWizardPluginManager = new QInterfaceManager<TemplateWizardInterface>( IID_TemplateWizardInterface, pluginDir, "*.dll; *.so" );
     MetaDataBase::setupInterfaceManagers();
     programPluginManager = new QInterfaceManager<ProgramInterface>( IID_ProgramInterface, pluginDir, "*.dll; *.so; *.dylib" );
+}
+
+void MainWindow::addPreferencesTab( QWidget *tab, const QString &title, QObject *receiver, const char *slot )
+{
+    Tab t;
+    t.w = tab;
+    t.title = title;
+    t.receiver = receiver;
+    t.slot = slot;
+    preferenceTabs << t;
 }

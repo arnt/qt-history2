@@ -60,6 +60,7 @@ struct DesignerInterface : public QUnknownInterface
     virtual void showStatusMessage( const QString & ) const = 0;
     virtual DesignerDock *createDock() const = 0;
     virtual DesignerOutputDock *outputDock() const = 0;
+    virtual void addPreferencesTab( QWidget *tab, const QString &title, QObject *receiver = 0, const char *slot = 0 ) = 0;
 };
 
 struct DesignerProject

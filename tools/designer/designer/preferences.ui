@@ -1,5 +1,6 @@
-<!DOCTYPE UI><UI>
-<class>Preferences</class><comment>*********************************************************************
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>Preferences</class>
+<comment>*********************************************************************
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
@@ -18,662 +19,536 @@
 ** not clear to you.
 **
 *********************************************************************</comment>
-<widget>
-    <class>QDialog</class>
-    <property stdset="1">
-        <name>name</name>
+<widget class="QDialog">
+    <property name="name">
         <cstring>Preferences</cstring>
     </property>
-    <property stdset="1">
-        <name>geometry</name>
+    <property name="geometry">
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>467</width>
-            <height>331</height>
+            <width>483</width>
+            <height>379</height>
         </rect>
     </property>
-    <property stdset="1">
-        <name>caption</name>
+    <property name="caption">
         <string>Preferences</string>
     </property>
-    <property stdset="1">
-        <name>sizeGripEnabled</name>
+    <property name="sizeGripEnabled">
         <bool>true</bool>
     </property>
-    <property>
-        <name>whatsThis</name>
+    <property name="whatsThis" stdset="0">
         <string>&lt;b&gt;Preferences&lt;/b&gt;&lt;p&gt;Change the preferences of the designer application. The preferences will be saved when you exit the designer. They will be restored the next time the designer is started if &lt;b&gt;Restore last workspace&lt;/b&gt; is selected.&lt;/p&gt;</string>
     </property>
-    <grid>
-        <property stdset="1">
-            <name>margin</name>
+    <vbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
             <number>11</number>
         </property>
-        <property stdset="1">
-            <name>spacing</name>
+        <property name="spacing">
             <number>6</number>
         </property>
-        <widget row="4"  column="0"  rowspan="1"  colspan="2" >
-            <class>QLayoutWidget</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QTabWidget">
+            <property name="name">
+                <cstring>tabWidget</cstring>
+            </property>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>pageGeneral</cstring>
+                </property>
+                <attribute name="title">
+                    <string>&amp;General</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QGroupBox" row="2" column="0">
+                        <property name="name">
+                            <cstring>GroupBox5</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Ge&amp;neral</string>
+                        </property>
+                        <vbox>
+                            <property name="margin">
+                                <number>11</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QCheckBox">
+                                <property name="name">
+                                    <cstring>checkBoxWorkspace</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>&amp;Restore last workspace on startup</string>
+                                </property>
+                                <property name="checked">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Restore last workspace</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>The current workspace settings will be restored next time you start the designer if this option is checked.</string>
+                                </property>
+                            </widget>
+                            <widget class="QCheckBox">
+                                <property name="name">
+                                    <cstring>checkBoxSplash</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Show &amp;Splash Screen on startup</string>
+                                </property>
+                                <property name="checked">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Show Splashscreen</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>A splashscreen is displayed when starting the designer if this option is checked.</string>
+                                </property>
+                            </widget>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>Label3</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>&amp;Documentation Path:</string>
+                                </property>
+                                <property name="buddy" stdset="0">
+                                    <cstring>editDocPath</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>Layout6</cstring>
+                                </property>
+                                <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <property name="margin">
+                                        <number>0</number>
+                                    </property>
+                                    <property name="spacing">
+                                        <number>6</number>
+                                    </property>
+                                    <widget class="QLineEdit">
+                                        <property name="name">
+                                            <cstring>editDocPath</cstring>
+                                        </property>
+                                        <property name="whatsThis" stdset="0">
+                                            <string>&lt;b&gt;Enter the path to the documentation.&lt;/b&gt;&lt;p&gt;You may provide an $environment variable as first part of your pathname.&lt;/p&gt;</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QToolButton">
+                                        <property name="name">
+                                            <cstring>buttonDocPath</cstring>
+                                        </property>
+                                        <property name="focusPolicy">
+                                            <enum>TabFocus</enum>
+                                        </property>
+                                        <property name="text">
+                                            <string>...</string>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Select path</string>
+                                        </property>
+                                        <property name="whatsThis" stdset="0">
+                                            <string>Look for the documentation path.</string>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                        </vbox>
+                    </widget>
+                    <widget class="QGroupBox" row="2" column="1">
+                        <property name="name">
+                            <cstring>GroupBox3</cstring>
+                        </property>
+                        <property name="title">
+                            <string>&amp;Toolbars</string>
+                        </property>
+                        <vbox>
+                            <property name="margin">
+                                <number>11</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QCheckBox">
+                                <property name="name">
+                                    <cstring>checkBoxBigIcons</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Show &amp;Big Icons</string>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Big Icons</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Uses big icons in the toolbars when checked.</string>
+                                </property>
+                            </widget>
+                            <widget class="QCheckBox">
+                                <property name="name">
+                                    <cstring>checkBoxTextLabels</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Show Text Lab&amp;els</string>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Text Labels</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Shows textlabels in the toolbars when checked.</string>
+                                </property>
+                            </widget>
+                        </vbox>
+                    </widget>
+                    <widget class="QButtonGroup" row="0" column="0" rowspan="2" colspan="1">
+                        <property name="name">
+                            <cstring>ButtonGroup1</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Backgro&amp;und</string>
+                        </property>
+                        <grid>
+                            <property name="margin">
+                                <number>11</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="StyledButton" row="0" column="1">
+                                <property name="name">
+                                    <cstring>buttonColor</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>0</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                    </sizepolicy>
+                                </property>
+                                <property name="focusPolicy">
+                                    <enum>TabFocus</enum>
+                                </property>
+                                <property name="scale" stdset="0">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Choose a color</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Select a color in the colordialog.</string>
+                                </property>
+                            </widget>
+                            <widget class="QRadioButton" row="0" column="0">
+                                <property name="name">
+                                    <cstring>radioColor</cstring>
+                                </property>
+                                <property name="focusPolicy">
+                                    <enum>NoFocus</enum>
+                                </property>
+                                <property name="text">
+                                    <string>Co&amp;lor</string>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Use a background color</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Use a background color.</string>
+                                </property>
+                            </widget>
+                            <widget class="QRadioButton" row="1" column="0">
+                                <property name="name">
+                                    <cstring>radioPixmap</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>&amp;Pixmap</string>
+                                </property>
+                                <property name="checked">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Use a background pixmap</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Use a background pixmap.</string>
+                                </property>
+                            </widget>
+                            <widget class="StyledButton" row="1" column="1">
+                                <property name="name">
+                                    <cstring>buttonPixmap</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>0</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                    </sizepolicy>
+                                </property>
+                                <property name="focusPolicy">
+                                    <enum>TabFocus</enum>
+                                </property>
+                                <property name="scale" stdset="0">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Select a pixmap</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Choose a pixmap-file.</string>
+                                </property>
+                            </widget>
+                        </grid>
+                    </widget>
+                    <widget class="QCheckBox" row="0" column="1">
+                        <property name="name">
+                            <cstring>checkBoxShowGrid</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Show &amp;Grid</string>
+                        </property>
+                        <property name="checked">
+                            <bool>true</bool>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Show Grid</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>&lt;b&gt;Customize the grid appearance for all forms.&lt;/b&gt;&lt;p&gt;When &lt;b&gt;Show Grid&lt;/b&gt; is checked, all forms show a grid.&lt;/p&gt;</string>
+                        </property>
+                    </widget>
+                    <widget class="QGroupBox" row="1" column="1">
+                        <property name="name">
+                            <cstring>GroupBox1</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Gr&amp;id</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string></string>
+                        </property>
+                        <vbox>
+                            <property name="margin">
+                                <number>11</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QCheckBox">
+                                <property name="name">
+                                    <cstring>checkBoxGrid</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Sn&amp;ap to Grid</string>
+                                </property>
+                                <property name="checked">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Snap to the grid</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>&lt;b&gt;Customize the grid-settings for all forms.&lt;/b&gt;&lt;p&gt;When &lt;b&gt;Snap to Grid&lt;/b&gt; is checked, the widgets snap to the grid using the the X/Y resolution.&lt;/p&gt;</string>
+                                </property>
+                            </widget>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>Layout4</cstring>
+                                </property>
+                                <grid>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <property name="margin">
+                                        <number>0</number>
+                                    </property>
+                                    <property name="spacing">
+                                        <number>6</number>
+                                    </property>
+                                    <widget class="QSpinBox" row="0" column="1">
+                                        <property name="name">
+                                            <cstring>spinGridX</cstring>
+                                        </property>
+                                        <property name="maxValue">
+                                            <number>50</number>
+                                        </property>
+                                        <property name="minValue">
+                                            <number>5</number>
+                                        </property>
+                                        <property name="value">
+                                            <number>10</number>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Grid resolution</string>
+                                        </property>
+                                        <property name="whatsThis" stdset="0">
+                                            <string>&lt;b&gt;Customize the grid-settings for all forms.&lt;/b&gt;&lt;p&gt;When &lt;b&gt;Show Grid&lt;/b&gt; is checked, a grid is shown on all forms using the X/Y resolution.&lt;/p&gt;</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QSpinBox" row="1" column="1">
+                                        <property name="name">
+                                            <cstring>spinGridY</cstring>
+                                        </property>
+                                        <property name="maxValue">
+                                            <number>50</number>
+                                        </property>
+                                        <property name="minValue">
+                                            <number>5</number>
+                                        </property>
+                                        <property name="value">
+                                            <number>10</number>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Grid resolution</string>
+                                        </property>
+                                        <property name="whatsThis" stdset="0">
+                                            <string>&lt;b&gt;Customize the grid-settings for all forms.&lt;/b&gt;&lt;p&gt;When &lt;b&gt;Show Grid&lt;/b&gt; is checked, a grid is shown on all forms using the X/Y resolution.&lt;/p&gt;</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel" row="0" column="0">
+                                        <property name="name">
+                                            <cstring>Label1</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Grid-&amp;X:</string>
+                                        </property>
+                                        <property name="buddy" stdset="0">
+                                            <cstring>spinGridX</cstring>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel" row="1" column="0">
+                                        <property name="name">
+                                            <cstring>Label1_2</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Grid-&amp;Y:</string>
+                                        </property>
+                                        <property name="buddy" stdset="0">
+                                            <cstring>spinGridY</cstring>
+                                        </property>
+                                    </widget>
+                                </grid>
+                            </widget>
+                        </vbox>
+                    </widget>
+                    <spacer row="3" column="0">
+                        <property name="name" stdset="0">
+                            <cstring>Spacer3</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>A splashscreen is displayed when starting the designer if this option is checked.</string>
+                        </property>
+                    </spacer>
+                </grid>
+            </widget>
+        </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
                 <cstring>Layout6</cstring>
             </property>
             <hbox>
-                <property stdset="1">
-                    <name>margin</name>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
                     <number>0</number>
                 </property>
-                <property stdset="1">
-                    <name>spacing</name>
+                <property name="spacing">
                     <number>6</number>
                 </property>
-                <widget>
-                    <class>QPushButton</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QPushButton">
+                    <property name="name">
                         <cstring>helpButton</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>&amp;Help</string>
                     </property>
-                    <property stdset="1">
-                        <name>autoDefault</name>
+                    <property name="autoDefault">
                         <bool>true</bool>
                     </property>
                 </widget>
                 <spacer>
-                    <property>
-                        <name>name</name>
+                    <property name="name" stdset="0">
                         <cstring>Horizontal Spacing2</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>orientation</name>
+                    <property name="orientation">
                         <enum>Horizontal</enum>
                     </property>
-                    <property stdset="1">
-                        <name>sizeType</name>
+                    <property name="sizeType">
                         <enum>Expanding</enum>
                     </property>
-                    <property>
-                        <name>sizeHint</name>
+                    <property name="sizeHint">
                         <size>
                             <width>20</width>
                             <height>20</height>
                         </size>
                     </property>
                 </spacer>
-                <widget>
-                    <class>QPushButton</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QPushButton">
+                    <property name="name">
                         <cstring>buttonOk</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>&amp;OK</string>
                     </property>
-                    <property stdset="1">
-                        <name>autoDefault</name>
+                    <property name="autoDefault">
                         <bool>true</bool>
                     </property>
-                    <property stdset="1">
-                        <name>default</name>
+                    <property name="default">
                         <bool>true</bool>
                     </property>
-                    <property>
-                        <name>whatsThis</name>
+                    <property name="whatsThis" stdset="0">
                         <string>Close dialog and apply all changes.</string>
                     </property>
                 </widget>
-                <widget>
-                    <class>QPushButton</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QPushButton">
+                    <property name="name">
                         <cstring>buttonCancel</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>&amp;Cancel</string>
                     </property>
-                    <property stdset="1">
-                        <name>autoDefault</name>
+                    <property name="autoDefault">
                         <bool>true</bool>
                     </property>
-                    <property stdset="1">
-                        <name>default</name>
+                    <property name="default">
                         <bool>false</bool>
                     </property>
-                    <property>
-                        <name>whatsThis</name>
+                    <property name="whatsThis" stdset="0">
                         <string>Close dialog and discard all changes.</string>
                     </property>
                 </widget>
             </hbox>
         </widget>
-        <widget row="2"  column="0" >
-            <class>QGroupBox</class>
-            <property stdset="1">
-                <name>name</name>
-                <cstring>GroupBox5</cstring>
-            </property>
-            <property stdset="1">
-                <name>title</name>
-                <string>Ge&amp;neral</string>
-            </property>
-            <vbox>
-                <property stdset="1">
-                    <name>margin</name>
-                    <number>11</number>
-                </property>
-                <property stdset="1">
-                    <name>spacing</name>
-                    <number>6</number>
-                </property>
-                <widget>
-                    <class>QCheckBox</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>checkBoxWorkspace</cstring>
-                    </property>
-                    <property stdset="1">
-                        <name>text</name>
-                        <string>&amp;Restore last workspace on startup</string>
-                    </property>
-                    <property stdset="1">
-                        <name>checked</name>
-                        <bool>true</bool>
-                    </property>
-                    <property>
-                        <name>toolTip</name>
-                        <string>Restore last workspace</string>
-                    </property>
-                    <property>
-                        <name>whatsThis</name>
-                        <string>The current workspace settings will be restored next time you start the designer if this option is checked.</string>
-                    </property>
-                </widget>
-                <widget>
-                    <class>QCheckBox</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>checkBoxSplash</cstring>
-                    </property>
-                    <property stdset="1">
-                        <name>text</name>
-                        <string>Show &amp;Splash Screen on startup</string>
-                    </property>
-                    <property stdset="1">
-                        <name>checked</name>
-                        <bool>true</bool>
-                    </property>
-                    <property>
-                        <name>toolTip</name>
-                        <string>Show Splashscreen</string>
-                    </property>
-                    <property>
-                        <name>whatsThis</name>
-                        <string>A splashscreen is displayed when starting the designer if this option is checked.</string>
-                    </property>
-                </widget>
-                <widget>
-                    <class>QLabel</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>Label3</cstring>
-                    </property>
-                    <property stdset="1">
-                        <name>text</name>
-                        <string>&amp;Documentation Path:</string>
-                    </property>
-                    <property>
-                        <name>buddy</name>
-                        <cstring>editDocPath</cstring>
-                    </property>
-                </widget>
-                <widget>
-                    <class>QLayoutWidget</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>Layout6</cstring>
-                    </property>
-                    <hbox>
-                        <property stdset="1">
-                            <name>margin</name>
-                            <number>0</number>
-                        </property>
-                        <property stdset="1">
-                            <name>spacing</name>
-                            <number>6</number>
-                        </property>
-                        <widget>
-                            <class>QLineEdit</class>
-                            <property stdset="1">
-                                <name>name</name>
-                                <cstring>editDocPath</cstring>
-                            </property>
-                            <property>
-                                <name>whatsThis</name>
-                                <string>&lt;b&gt;Enter the path to the documentation.&lt;/b&gt;&lt;p&gt;You may provide an $environment variable as first part of your pathname.&lt;/p&gt;</string>
-                            </property>
-                        </widget>
-                        <widget>
-                            <class>QToolButton</class>
-                            <property stdset="1">
-                                <name>name</name>
-                                <cstring>buttonDocPath</cstring>
-                            </property>
-                            <property stdset="1">
-                                <name>text</name>
-                                <string>...</string>
-                            </property>
-                            <property stdset="1">
-                                <name>focusPolicy</name>
-                                <enum>TabFocus</enum>
-                            </property>
-                            <property>
-                                <name>toolTip</name>
-                                <string>Select path</string>
-                            </property>
-                            <property>
-                                <name>whatsThis</name>
-                                <string>Look for the documentation path.</string>
-                            </property>
-                        </widget>
-                    </hbox>
-                </widget>
-            </vbox>
-        </widget>
-        <widget row="2"  column="1" >
-            <class>QGroupBox</class>
-            <property stdset="1">
-                <name>name</name>
-                <cstring>GroupBox3</cstring>
-            </property>
-            <property stdset="1">
-                <name>title</name>
-                <string>&amp;Toolbars</string>
-            </property>
-            <vbox>
-                <property stdset="1">
-                    <name>margin</name>
-                    <number>11</number>
-                </property>
-                <property stdset="1">
-                    <name>spacing</name>
-                    <number>6</number>
-                </property>
-                <widget>
-                    <class>QCheckBox</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>checkBoxBigIcons</cstring>
-                    </property>
-                    <property stdset="1">
-                        <name>text</name>
-                        <string>Show &amp;Big Icons</string>
-                    </property>
-                    <property>
-                        <name>toolTip</name>
-                        <string>Big Icons</string>
-                    </property>
-                    <property>
-                        <name>whatsThis</name>
-                        <string>Uses big icons in the toolbars when checked.</string>
-                    </property>
-                </widget>
-                <widget>
-                    <class>QCheckBox</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>checkBoxTextLabels</cstring>
-                    </property>
-                    <property stdset="1">
-                        <name>text</name>
-                        <string>Show Text Lab&amp;els</string>
-                    </property>
-                    <property>
-                        <name>toolTip</name>
-                        <string>Text Labels</string>
-                    </property>
-                    <property>
-                        <name>whatsThis</name>
-                        <string>Shows textlabels in the toolbars when checked.</string>
-                    </property>
-                </widget>
-            </vbox>
-        </widget>
-        <widget row="0"  column="0"  rowspan="2"  colspan="1" >
-            <class>QButtonGroup</class>
-            <property stdset="1">
-                <name>name</name>
-                <cstring>ButtonGroup1</cstring>
-            </property>
-            <property stdset="1">
-                <name>title</name>
-                <string>Backgro&amp;und</string>
-            </property>
-            <grid>
-                <property stdset="1">
-                    <name>margin</name>
-                    <number>11</number>
-                </property>
-                <property stdset="1">
-                    <name>spacing</name>
-                    <number>6</number>
-                </property>
-                <widget row="0"  column="1" >
-                    <class>StyledButton</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>buttonColor</cstring>
-                    </property>
-                    <property stdset="1">
-                        <name>sizePolicy</name>
-                        <sizepolicy>
-                            <hsizetype>0</hsizetype>
-                            <vsizetype>0</vsizetype>
-                        </sizepolicy>
-                    </property>
-                    <property stdset="1">
-                        <name>enabled</name>
-                        <bool>false</bool>
-                    </property>
-                    <property stdset="1">
-                        <name>focusPolicy</name>
-                        <enum>TabFocus</enum>
-                    </property>
-                    <property>
-                        <name>scale</name>
-                        <bool>false</bool>
-                    </property>
-                    <property>
-                        <name>toolTip</name>
-                        <string>Choose a color</string>
-                    </property>
-                    <property>
-                        <name>whatsThis</name>
-                        <string>Select a color in the colordialog.</string>
-                    </property>
-                </widget>
-                <widget row="0"  column="0" >
-                    <class>QRadioButton</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>radioColor</cstring>
-                    </property>
-                    <property stdset="1">
-                        <name>text</name>
-                        <string>Co&amp;lor</string>
-                    </property>
-                    <property stdset="1">
-                        <name>focusPolicy</name>
-                        <enum>NoFocus</enum>
-                    </property>
-                    <property>
-                        <name>toolTip</name>
-                        <string>Use a background color</string>
-                    </property>
-                    <property>
-                        <name>whatsThis</name>
-                        <string>Use a background color.</string>
-                    </property>
-                </widget>
-                <widget row="1"  column="0" >
-                    <class>QRadioButton</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>radioPixmap</cstring>
-                    </property>
-                    <property stdset="1">
-                        <name>text</name>
-                        <string>&amp;Pixmap</string>
-                    </property>
-                    <property stdset="1">
-                        <name>checked</name>
-                        <bool>true</bool>
-                    </property>
-                    <property>
-                        <name>toolTip</name>
-                        <string>Use a background pixmap</string>
-                    </property>
-                    <property>
-                        <name>whatsThis</name>
-                        <string>Use a background pixmap.</string>
-                    </property>
-                </widget>
-                <widget row="1"  column="1" >
-                    <class>StyledButton</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>buttonPixmap</cstring>
-                    </property>
-                    <property stdset="1">
-                        <name>sizePolicy</name>
-                        <sizepolicy>
-                            <hsizetype>0</hsizetype>
-                            <vsizetype>0</vsizetype>
-                        </sizepolicy>
-                    </property>
-                    <property stdset="1">
-                        <name>focusPolicy</name>
-                        <enum>TabFocus</enum>
-                    </property>
-                    <property>
-                        <name>scale</name>
-                        <bool>false</bool>
-                    </property>
-                    <property>
-                        <name>toolTip</name>
-                        <string>Select a pixmap</string>
-                    </property>
-                    <property>
-                        <name>whatsThis</name>
-                        <string>Choose a pixmap-file.</string>
-                    </property>
-                </widget>
-            </grid>
-        </widget>
-        <widget row="0"  column="1" >
-            <class>QCheckBox</class>
-            <property stdset="1">
-                <name>name</name>
-                <cstring>checkBoxShowGrid</cstring>
-            </property>
-            <property stdset="1">
-                <name>text</name>
-                <string>Show &amp;Grid</string>
-            </property>
-            <property stdset="1">
-                <name>checked</name>
-                <bool>true</bool>
-            </property>
-            <property>
-                <name>toolTip</name>
-                <string>Show Grid</string>
-            </property>
-            <property>
-                <name>whatsThis</name>
-                <string>&lt;b&gt;Customize the grid appearance for all forms.&lt;/b&gt;&lt;p&gt;When &lt;b&gt;Show Grid&lt;/b&gt; is checked, all forms show a grid.&lt;/p&gt;</string>
-            </property>
-        </widget>
-        <widget row="1"  column="1" >
-            <class>QGroupBox</class>
-            <property stdset="1">
-                <name>name</name>
-                <cstring>GroupBox1</cstring>
-            </property>
-            <property stdset="1">
-                <name>title</name>
-                <string>Gr&amp;id</string>
-            </property>
-            <property>
-                <name>whatsThis</name>
-                <string></string>
-            </property>
-            <vbox>
-                <property stdset="1">
-                    <name>margin</name>
-                    <number>11</number>
-                </property>
-                <property stdset="1">
-                    <name>spacing</name>
-                    <number>6</number>
-                </property>
-                <widget>
-                    <class>QCheckBox</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>checkBoxGrid</cstring>
-                    </property>
-                    <property stdset="1">
-                        <name>text</name>
-                        <string>Sn&amp;ap to Grid</string>
-                    </property>
-                    <property stdset="1">
-                        <name>checked</name>
-                        <bool>true</bool>
-                    </property>
-                    <property>
-                        <name>toolTip</name>
-                        <string>Snap to the grid</string>
-                    </property>
-                    <property>
-                        <name>whatsThis</name>
-                        <string>&lt;b&gt;Customize the grid-settings for all forms.&lt;/b&gt;&lt;p&gt;When &lt;b&gt;Snap to Grid&lt;/b&gt; is checked, the widgets snap to the grid using the the X/Y resolution.&lt;/p&gt;</string>
-                    </property>
-                </widget>
-                <widget>
-                    <class>QLayoutWidget</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>Layout4</cstring>
-                    </property>
-                    <grid>
-                        <property stdset="1">
-                            <name>margin</name>
-                            <number>0</number>
-                        </property>
-                        <property stdset="1">
-                            <name>spacing</name>
-                            <number>6</number>
-                        </property>
-                        <widget row="0"  column="1" >
-                            <class>QSpinBox</class>
-                            <property stdset="1">
-                                <name>name</name>
-                                <cstring>spinGridX</cstring>
-                            </property>
-                            <property stdset="1">
-                                <name>minValue</name>
-                                <number>5</number>
-                            </property>
-                            <property stdset="1">
-                                <name>maxValue</name>
-                                <number>50</number>
-                            </property>
-                            <property stdset="1">
-                                <name>value</name>
-                                <number>10</number>
-                            </property>
-                            <property>
-                                <name>toolTip</name>
-                                <string>Grid resolution</string>
-                            </property>
-                            <property>
-                                <name>whatsThis</name>
-                                <string>&lt;b&gt;Customize the grid-settings for all forms.&lt;/b&gt;&lt;p&gt;When &lt;b&gt;Show Grid&lt;/b&gt; is checked, a grid is shown on all forms using the X/Y resolution.&lt;/p&gt;</string>
-                            </property>
-                        </widget>
-                        <widget row="1"  column="1" >
-                            <class>QSpinBox</class>
-                            <property stdset="1">
-                                <name>name</name>
-                                <cstring>spinGridY</cstring>
-                            </property>
-                            <property stdset="1">
-                                <name>minValue</name>
-                                <number>5</number>
-                            </property>
-                            <property stdset="1">
-                                <name>maxValue</name>
-                                <number>50</number>
-                            </property>
-                            <property stdset="1">
-                                <name>value</name>
-                                <number>10</number>
-                            </property>
-                            <property>
-                                <name>toolTip</name>
-                                <string>Grid resolution</string>
-                            </property>
-                            <property>
-                                <name>whatsThis</name>
-                                <string>&lt;b&gt;Customize the grid-settings for all forms.&lt;/b&gt;&lt;p&gt;When &lt;b&gt;Show Grid&lt;/b&gt; is checked, a grid is shown on all forms using the X/Y resolution.&lt;/p&gt;</string>
-                            </property>
-                        </widget>
-                        <widget row="0"  column="0" >
-                            <class>QLabel</class>
-                            <property stdset="1">
-                                <name>name</name>
-                                <cstring>Label1</cstring>
-                            </property>
-                            <property stdset="1">
-                                <name>text</name>
-                                <string>Grid-&amp;X:</string>
-                            </property>
-                            <property>
-                                <name>buddy</name>
-                                <cstring>spinGridX</cstring>
-                            </property>
-                        </widget>
-                        <widget row="1"  column="0" >
-                            <class>QLabel</class>
-                            <property stdset="1">
-                                <name>name</name>
-                                <cstring>Label1_2</cstring>
-                            </property>
-                            <property stdset="1">
-                                <name>text</name>
-                                <string>Grid-&amp;Y:</string>
-                            </property>
-                            <property>
-                                <name>buddy</name>
-                                <cstring>spinGridY</cstring>
-                            </property>
-                        </widget>
-                    </grid>
-                </widget>
-            </vbox>
-        </widget>
-        <spacer row="3"  column="0" >
-            <property>
-                <name>name</name>
-                <cstring>Spacer3</cstring>
-            </property>
-            <property stdset="1">
-                <name>orientation</name>
-                <enum>Vertical</enum>
-            </property>
-            <property stdset="1">
-                <name>sizeType</name>
-                <enum>Expanding</enum>
-            </property>
-            <property>
-                <name>sizeHint</name>
-                <size>
-                    <width>20</width>
-                    <height>20</height>
-                </size>
-            </property>
-            <property>
-                <name>whatsThis</name>
-                <string>A splashscreen is displayed when starting the designer if this option is checked.</string>
-            </property>
-        </spacer>
-    </grid>
+    </vbox>
 </widget>
 <customwidgets>
     <customwidget>
@@ -696,8 +571,7 @@
     </customwidget>
 </customwidgets>
 <images>
-    <image>
-        <name>image0</name>
+    <image name="image0">
         <data format="XPM.GZ" length="1112">789c9dd2cb8e9b301406e07d9e0225bba89a09601350d505302c5b7559a9eac23e6672b363620c0ca9faeef53949da2e2a55eab123f9e38f2f217e5e475f3e7f8cd6cf8bde0b7f8008f6c2456b3518337ffdf6e1fb62992451e8691ac5cb778be55304d1277b6e71fc12c6ab0d157222e61bd8e4c812196f6216535a13f318624a6764b2495842e99558249014c81e99c6294b69d3376291424ae9806431638cd28628183081f4489e70ce13e4852878c129ad905992f18cd291283295517a466ed32ddfa64847945bb595c80e99a739cf29d54499ab9c528b2c58c10b86344428540148400a26b8a0541241b482d215523299494a0551c9562ae409091c32e0c82351410b942aa4e22a53941e882d36e41ed966d8903b2215f215f99a6143b6442afaafff5aff485658622584a091941256948443d1cabbdd6ebf3f28753c09a9e9cdc1fe703c9e4ea19f689a0430fa4c8908082be093d08d016bbb0bbd5e7ceafade5b30de19d083b3fa9e008cd39b9fafd69495b473af7fcfb15325c1d61eea0afaf005ddf97b5295c658a866338f97591babef7340fa396c6c5ca9e7fe650807d0bf566b4262299986ba335a3b4a2cc84b69ac85b1b673037d8fabf95b023a9c09cc7530e104dd5419ed6e27083fb09a7c752db5a9bd31cde4ec634ed8a39aebbe337618c3f6fdc5dee6d8b0bb0d6b5b8b1fad43d78fe4e14e3f6aace8e29d9d736777fea3c686eee0138c9726d4d00c548df7a315ff750f7ebc5ffc04a0e5308d</data>
     </image>
 </images>
@@ -744,8 +618,10 @@
         <receiver>GroupBox1</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
+    <slot access="protected" language="C++">init()</slot>
 </connections>
 <tabstops>
+    <tabstop>tabWidget</tabstop>
     <tabstop>radioColor</tabstop>
     <tabstop>buttonColor</tabstop>
     <tabstop>radioPixmap</tabstop>
@@ -762,5 +638,6 @@
     <tabstop>helpButton</tabstop>
     <tabstop>buttonOk</tabstop>
     <tabstop>buttonCancel</tabstop>
+    <tabstop>checkBoxShowGrid</tabstop>
 </tabstops>
 </UI>

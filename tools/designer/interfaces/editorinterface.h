@@ -38,7 +38,7 @@ class EditorInterface : public QUnknownInterface
 {
 public:
     virtual QStringList featureList() const = 0;
-    virtual QWidget *editor( QWidget *parent ) const = 0;
+    virtual QWidget *editor( QWidget *parent, QUnknownInterface *designerIface ) = 0;
 
     virtual void setText( const QString &txt ) = 0;
     virtual QString text() const = 0;

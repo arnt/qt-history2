@@ -24,15 +24,19 @@
 #include "qrichtext_p.h"
 #include "qapplication.h"
 #include "completion.h"
+#include <preferencesimpl.h>
+#include <designerinterface.h>
 
 EditorInterfaceImpl::EditorInterfaceImpl()
     : EditorInterface(), viewManager( 0 ), ref( 0 )
 {
+    prefTab = 0;
 }
 
 EditorInterfaceImpl::~EditorInterfaceImpl()
 {
     delete viewManager;
+    delete prefTab;
 }
 
 QUnknownInterface *EditorInterfaceImpl::queryInterface( const QUuid &uuid )
@@ -62,11 +66,19 @@ unsigned long EditorInterfaceImpl::release()
     return ref;
 }
 
-QWidget *EditorInterfaceImpl::editor( QWidget *parent ) const
+QWidget *EditorInterfaceImpl::editor( QWidget *parent, QUnknownInterface *designerIface )
 {
     if ( !viewManager ) {
 	( (EditorInterfaceImpl*)this )->viewManager = new ViewManager( parent, 0 );
 	(void)new CppEditor( QString::null, viewManager, "editor" );
+	DesignerInterface *iface = (DesignerInterface*)designerIface->queryInterface( IID_DesignerInterface );
+	if ( iface ) {
+	    prefTab = new PreferencesBase( 0 );
+ 	    prefTab->hide();
+  	    iface->addPreferencesTab( prefTab, "C++ Editor" );
+	}
+	iface->release();
+	
     }
     return viewManager->currentView();
 }

@@ -132,35 +132,44 @@ QStringList LanguageInterfaceImpl::definitions() const
 
 QStringList LanguageInterfaceImpl::definitionEntries( const QString &definition, QUnknownInterface *designerIface ) const
 {
+    DesignerInterface *iface = (DesignerInterface*)designerIface->queryInterface( IID_DesignerInterface );
+    if ( !iface )
+	return QStringList();
+    DesignerFormWindow *fw = iface->currentForm();
+    if ( !fw )
+	return QStringList();
+    QStringList lst;
     if ( definition == "Includes (in Implementation)" ) {
-	if ( ( (DesignerInterface*)designerIface )->currentForm() )
-	    return ( (DesignerInterface*)designerIface )->currentForm()->implementationIncludes();
+	lst = fw->implementationIncludes();
     } else if ( definition == "Includes (in Declaration)" ) {
-	if ( ( (DesignerInterface*)designerIface )->currentForm() )
-	    return ( (DesignerInterface*)designerIface )->currentForm()->declarationIncludes();
+	lst = fw->declarationIncludes();
     } else if ( definition == "Forward Declarations" ) {
-	if ( ( (DesignerInterface*)designerIface )->currentForm() )
-	    return ( (DesignerInterface*)designerIface )->currentForm()->forwardDeclarations();
+	lst = fw->forwardDeclarations();
     } else if ( definition == "Class Variables" ) {
-	if ( ( (DesignerInterface*)designerIface )->currentForm() )
-	    return ( (DesignerInterface*)designerIface )->currentForm()->variables();
+	lst = fw->variables();
     }
-    return QStringList();
+    delete fw;
+    iface->release();
+    return lst;
 }
 
 void LanguageInterfaceImpl::setDefinitionEntries( const QString &definition, const QStringList &entries, QUnknownInterface *designerIface )
 {
+    DesignerInterface *iface = (DesignerInterface*)designerIface->queryInterface( IID_DesignerInterface );
+    if ( !iface )
+	return;
+    DesignerFormWindow *fw = iface->currentForm();
+    if ( !fw )
+	return;
     if ( definition == "Includes (in Implementation)" ) {
-	if ( ( (DesignerInterface*)designerIface )->currentForm() )
-	    ( (DesignerInterface*)designerIface )->currentForm()->setImplementationIncludes( entries );
+	fw->setImplementationIncludes( entries );
     } else if ( definition == "Includes (in Declaration)" ) {
-	if ( ( (DesignerInterface*)designerIface )->currentForm() )
-	    ( (DesignerInterface*)designerIface )->currentForm()->setDeclarationIncludes( entries );
+	fw->setDeclarationIncludes( entries );
     } else if ( definition == "Forward Declarations" ) {
-	if ( ( (DesignerInterface*)designerIface )->currentForm() )
-	    ( (DesignerInterface*)designerIface )->currentForm()->setForwardDeclarations( entries );
+	fw->setForwardDeclarations( entries );
     } else if ( definition == "Class Variables" ) {
-	if ( ( (DesignerInterface*)designerIface )->currentForm() )
-	    ( (DesignerInterface*)designerIface )->currentForm()->setVariables( entries );
+	fw->setVariables( entries );
     }
+    delete fw;
+    iface->release();
 }

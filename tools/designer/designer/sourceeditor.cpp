@@ -23,12 +23,13 @@
 #include "formwindow.h"
 #include "metadatabase.h"
 #include "project.h"
+#include "mainwindow.h"
 #include "../interfaces/languageinterface.h"
 
 SourceEditor::SourceEditor( QWidget *parent, EditorInterface *iface, LanguageInterface *liface )
     : QVBox( parent ), iFace( iface ), lIface( liface ), formWindow( 0 )
 {
-    iFace->editor( this );
+    iFace->editor( this, MainWindow::self->designerInterface() );
     resize( 600, 400 );
 }
 

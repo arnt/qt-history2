@@ -23,7 +23,9 @@
 
 #include <editorinterface.h>
 
+class Preferences;
 class ViewManager;
+class QWidget;
 
 class EditorInterfaceImpl : public EditorInterface
 {
@@ -36,7 +38,7 @@ public:
     unsigned long release();
 
     QStringList featureList() const;
-    QWidget *editor( QWidget *parent ) const;
+    QWidget *editor( QWidget *parent, QUnknownInterface *designerIface );
 
     void setText( const QString &txt );
     QString text() const;
@@ -56,6 +58,7 @@ public:
 
 private:
     ViewManager *viewManager;
+    QWidget *prefTab;
 
     unsigned long ref;
 };

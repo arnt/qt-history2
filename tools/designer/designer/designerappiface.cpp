@@ -95,6 +95,10 @@ DesignerOutputDock *DesignerInterfaceImpl::outputDock() const
     return 0;
 }
 
+void DesignerInterfaceImpl::addPreferencesTab( QWidget *tab, const QString &title, QObject *receiver, const char *slot )
+{
+    mainWindow->addPreferencesTab( tab, title, receiver, slot );
+}
 
 
 
