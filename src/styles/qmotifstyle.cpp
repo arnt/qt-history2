@@ -1676,13 +1676,16 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
 		break;
 	    }
 
-	    if ( !mi->text().isNull() ) {
-		if ( mi->text().find('\t') >= 0 )       // string contains tab
-		    w += motifTabSpacing;
-	    }
-
 	    // a little bit of border can never harm
 	    w += 2*motifItemHMargin + 2*motifItemFrame;
+
+	    if ( !mi->text().isNull() && mi->text().find('\t') >= 0 )
+		// string contains tab
+		w += motifTabSpacing;
+	    else if (mi->popup())
+		// submenu indicator needs some room if we don't have a tab column
+		w += motifArrowHMargin;
+
 	    if ( checkable && maxpmw <= 0)
 		// if we are checkable and have no iconsets, add space for a checkmark
 		w += motifCheckMarkSpace;
