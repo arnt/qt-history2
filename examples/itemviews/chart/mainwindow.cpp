@@ -19,8 +19,6 @@
 
 #include <QtGui>
 
-#include "tablemodel.h"
-//#include "barview.h"
 #include "pieview.h"
 #include "mainwindow.h"
 
@@ -37,8 +35,6 @@ MainWindow::MainWindow()
     QMenu *windowsMenu = new QMenu(tr("&Windows"), this);
     pieWindowAction = windowsMenu->addAction("&Pie Chart");
     pieWindowAction->setCheckable(true);
-
-    //centerWidget = new QSplitter(this);
 
     setupModel();
     setupViews();
@@ -60,35 +56,22 @@ MainWindow::MainWindow()
 
 void MainWindow::setupModel()
 {
-    model = new TableModel(8, 3, this);
+    model = new QStandardItemModel(8, 3, this);
 }
 
 void MainWindow::setupViews()
 {
     table = new QTableView(this);
-    //QTabWidget *charts = new QTabWidget(centerWidget);
 
     pieChart = new PieView;
     pieChart->setWindowTitle(tr("Pie Chart"));
-//    horizontalBarChart = new BarView(0, Qt::Horizontal);
-//    verticalBarChart = new BarView(0, Qt::Vertical);
-
-    //charts->addTab(pieChart, tr("Pie Chart"));
-    //charts->addTab(horizontalBarChart, tr("Bar Chart"));
-    //charts->addTab(verticalBarChart, tr("Bar Chart"));
 
     table->setModel(model);
     pieChart->setModel(model);
-//    horizontalBarChart->setModel(model);
-//    verticalBarChart->setModel(model);
 
     QItemSelectionModel *selectionModel = new QItemSelectionModel(model);
     table->setSelectionModel(selectionModel);
     pieChart->setSelectionModel(selectionModel);
-
-    //QList<int> sizes;
-    //sizes << 1 << 2;
-    //centerWidget->setSizes(sizes);
 }
 
 void MainWindow::openFile()

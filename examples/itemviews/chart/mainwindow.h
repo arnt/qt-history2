@@ -17,8 +17,6 @@
 
 class QAbstractItemModel;
 class QAbstractItemView;
-class QDockWindow;
-class QSplitter;
 class QItemSelectionModel;
 class QTableView;
 
@@ -39,11 +37,8 @@ private:
     void setupViews();
 
     QAbstractItemModel *model;
-    QAbstractItemView *horizontalBarChart;
     QAbstractItemView *pieChart;
-    QAbstractItemView *verticalBarChart;
     QAction *pieWindowAction;
-    QSplitter *centerWidget;
     QItemSelectionModel *selectionModel;
     QTableView *table;
 };

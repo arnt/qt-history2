@@ -1,7 +1,5 @@
 HEADERS     = mainwindow.h \
-              pieview.h \
-              tablemodel.h
+              pieview.h
 SOURCES     = main.cpp \
               mainwindow.cpp \
-              pieview.cpp \
-              tablemodel.cpp
+              pieview.cpp
