@@ -225,30 +225,23 @@ QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPo
     }
 
     QPointF isect;
-    IntersectType type;
+    IntersectType type = qt_linef_intersect(p1.x(), p1.y(), p2.x(), p2.y(),
+                                  l.startX(), l.startY(), l.endX(), l.endY())
+                         ? BoundedIntersection : UnboundedIntersection;
 
     // For special case where one of the lines are vertical
     if (vx() == 0) {
         float la = l.vy() / l.vx();
         isect = QPointF(p1.x(), la * p1.x() + l.startY() - la*l.startX());
-        type = qt_linef_intersect(p1.x(), p1.y(), p2.x(), p2.y(),
-                                  l.startX(), l.startY(), l.endX(), l.endY())
-               ? BoundedIntersection : UnboundedIntersection;
     } else if (l.vx() == 0) {
         float ta = vy() / vx();
         isect = QPointF(l.startX(), ta * l.startX() + startY() - ta*startX());
-        type = qt_linef_intersect(p1.x(), p1.y(), p2.x(), p2.y(),
-                                  l.startX(), l.startY(), l.endX(), l.endY())
-               ? BoundedIntersection : UnboundedIntersection;
     } else {
         float ta = vy()/vx();
         float la = l.vy()/l.vx();
         float x = ( - l.startY() + la * l.startX() + p1.y() - ta * p1.x() ) / (la - ta);
         isect = QPointF(x, ta*(x - p1.x()) + p1.y());
-        type = (x >= p1.x() && x <= p2.x() && x >= l.p1.x() && x <= l.p2.x())
-               ? BoundedIntersection : UnboundedIntersection;
     }
-
     if (intersectionPoint)
         *intersectionPoint = isect;
     return type;
