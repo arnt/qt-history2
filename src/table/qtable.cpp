@@ -573,8 +573,6 @@ QTableItem::~QTableItem()
 	table()->takeItem( this );
 }
 
-int QTableItem::RTTI = 0;
-
 /*!
     Returns the Run Time Type Identification value for this table item
     which for QTableItems is 0.
@@ -1394,8 +1392,6 @@ bool QComboTableItem::isEditable() const
     return edit;
 }
 
-int QComboTableItem::RTTI = 1;
-
 /*!
     \fn int QComboTableItem::rtti() const
 
@@ -1580,8 +1576,6 @@ bool QCheckTableItem::isChecked() const
 	return cb->isChecked();
     return checked;
 }
-
-int QCheckTableItem::RTTI = 2;
 
 /*!
     \fn int QCheckTableItem::rtti() const

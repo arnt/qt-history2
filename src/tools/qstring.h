@@ -308,10 +308,11 @@ public:
 #endif
 
     // compatibility
-    static struct Null {
+    struct Null {
 	inline bool operator==(const Null&){return true; }
 	inline bool operator!=(const Null&){return false; }
-    } null;
+    };
+    static const Null null;
     inline QString(const Null &): d(&shared_null) { ++d->ref; }
     inline QString &operator=(const Null &) { *this = QString(); return *this; }
     inline bool isNull() const { return d == &shared_null; }

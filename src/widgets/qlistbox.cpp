@@ -549,8 +549,6 @@ int QListBoxText::width( const QListBox* lb ) const
     return qMax( w, QApplication::globalStrut().width() );
 }
 
-int QListBoxText::RTTI = 1;
-
 /*!
     \fn int QListBoxText::rtti() const
 
@@ -719,8 +717,6 @@ int QListBoxPixmap::width( const QListBox* lb ) const
     return qMax( pm.width() + lb->fontMetrics().width( text() ) + 6,
 	    QApplication::globalStrut().width() );
 }
-
-int QListBoxPixmap::RTTI = 2;
 
 /*!
     \fn int QListBoxPixmap::rtti() const
@@ -4590,8 +4586,6 @@ void QListBox::changeEvent( QEvent *ev )
     }
     QScrollView::changeEvent(ev);
 }
-
-int QListBoxItem::RTTI = 0;
 
 /*!
     Returns 0.

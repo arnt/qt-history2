@@ -158,6 +158,8 @@ inline QString QCoreApplication::translate( const char *, const char *sourceText
 }
 #endif
 
+typedef void (*QtCleanUpFunction)();
+
 Q_CORE_EXPORT void qAddPostRoutine( QtCleanUpFunction );
 Q_CORE_EXPORT void qRemovePostRoutine( QtCleanUpFunction );
 Q_CORE_EXPORT const char *qAppName();		// get application name

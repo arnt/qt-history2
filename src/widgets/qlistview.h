@@ -149,8 +149,7 @@ public:
     bool isEnabled() const;
 
     virtual int rtti() const;
-    // ### Qt 4: make const or better use an enum
-    static int RTTI;
+    enum { RTTI = 0 };
 
     virtual void setMultiLinesEnabled( bool b );
     bool multiLinesEnabled() const;
@@ -489,7 +488,7 @@ public:
     void setState( ToggleState s);
 
     int rtti() const;
-    static int RTTI;
+    enum { RTTI = 1 };
 
 protected:
     void activate();

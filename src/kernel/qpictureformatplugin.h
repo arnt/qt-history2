@@ -17,11 +17,14 @@
 
 #ifndef QT_H
 #include "qgplugin.h"
-#include "qstringlist.h"
 #endif // QT_H
 
 #ifndef QT_NO_PICTUREFORMATPLUGIN
 class QPictureFormatPluginPrivate;
+class QPicture;
+class QImage;
+class QString;
+class QStringList;
 
 class Q_GUI_EXPORT QPictureFormatPlugin : public QGPlugin
 {

@@ -17,7 +17,6 @@
 
 #ifndef QT_H
 #include "qobjectdefs.h"
-#include "qwindowdefs.h"
 #include "qnamespace.h"
 #include "qstring.h"
 #include "qbytearray.h"

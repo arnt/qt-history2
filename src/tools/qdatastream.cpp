@@ -19,11 +19,6 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
-#ifndef Q_OS_TEMP
-#include <locale.h>
-#else
-#include "qt_windows.h"
-#endif
 
 /*!
     \class QDataStream qdatastream.h

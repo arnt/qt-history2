@@ -32,7 +32,6 @@
 #ifndef QT_NO_LIBRARY
 
 #ifndef QT_H
-#include "qwindowdefs.h"
 #endif // QT_H
 
 class QLibraryPrivate

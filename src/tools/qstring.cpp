@@ -39,11 +39,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
-#ifdef Q_OS_TEMP
-# include <qt_windows.h>
-#else
-# include <locale.h>
-#endif
 
 #ifndef LLONG_MAX
 #define LLONG_MAX Q_INT64_C(9223372036854775807)
@@ -111,7 +106,7 @@ static char qToLower(char c)
 }
 
 
-QString::Null QString::null;
+const QString::Null QString::null = {};
 
 
 /*!

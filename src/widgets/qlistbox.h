@@ -320,7 +320,7 @@ public:
     QListBoxItem *prev() const;
 
     virtual int rtti() const;
-    static int RTTI;
+    enum { RTTI = 0 };
 
 protected:
     virtual void paint( QPainter * ) = 0;
@@ -362,7 +362,7 @@ public:
     int	 width( const QListBox * )  const;
 
     int rtti() const;
-    static int RTTI;
+    enum { RTTI = 1 };
 
 protected:
     void  paint( QPainter * );
@@ -392,7 +392,7 @@ public:
     int	 width( const QListBox * )  const;
 
     int rtti() const;
-    static int RTTI;
+    enum { RTTI = 2 };
 
 protected:
     void paint( QPainter * );

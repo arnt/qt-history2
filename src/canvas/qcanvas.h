@@ -126,7 +126,7 @@ public:
     };
 
     virtual int rtti() const;
-    static int RTTI;
+    enum { RTTI = Rtti_Item };
 
     virtual QRect boundingRect() const=0;
     virtual QRect boundingRectAdvanced() const;
@@ -455,7 +455,7 @@ public:
 	{ return images->count(); }
 
     int rtti() const;
-    static int RTTI;
+    enum { RTTI = Rtti_Sprite };
 
     bool collidesWith( const QCanvasItem* ) const;
 
@@ -534,7 +534,7 @@ public:
     QRect boundingRect() const;
 
     int rtti() const;
-    static int RTTI;
+    enum { RTTI = Rtti_PolygonalItem };
 
 protected:
     void draw(QPainter &);
@@ -585,7 +585,7 @@ public:
     bool collidesWith( const QCanvasItem* ) const;
 
     int rtti() const;
-    static int RTTI;
+    enum { RTTI = Rtti_Rectangle };
 
 protected:
     void drawShape(QPainter &);
@@ -614,7 +614,7 @@ public:
     QPointArray areaPoints() const;
 
     int rtti() const;
-    static int RTTI;
+    enum { RTTI = Rtti_Polygon };
 
 protected:
     void drawShape(QPainter &);
@@ -633,7 +633,7 @@ public:
     bool closed() const;
 
     int rtti() const;
-    static int RTTI;
+    enum { RTTI = Rtti_Spline };
 
 private:
     void recalcPoly();
@@ -655,7 +655,7 @@ public:
 	{ return QPoint(x2,y2); }
 
     int rtti() const;
-    static int RTTI;
+    enum { RTTI = Rtti_Line };
 
     void setPen(QPen p);
     void moveBy(double dx, double dy);
@@ -693,7 +693,7 @@ public:
     bool collidesWith( const QCanvasItem* ) const;
 
     int rtti() const;
-    static int RTTI;
+    enum { RTTI = Rtti_Ellipse };
 
 protected:
     void drawShape(QPainter &);
@@ -738,7 +738,7 @@ public:
     bool collidesWith( const QCanvasItem* ) const;
 
     int rtti() const;
-    static int RTTI;
+    enum { RTTI = Rtti_Text };
 
 protected:
     virtual void draw(QPainter&);

@@ -37,7 +37,6 @@
 #endif
 
 #include "qeventloop.h"
-#include "qwindowdefs.h"
 #if defined(QT_THREAD_SUPPORT)
 #  include "qmutex.h"
 #endif

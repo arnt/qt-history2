@@ -23,9 +23,6 @@
 
 class QMutexPrivate;
 
-const int Q_MUTEX_NORMAL = 0;
-const int Q_MUTEX_RECURSIVE = 1;
-
 class Q_CORE_EXPORT QMutex
 {
     friend class QThread;

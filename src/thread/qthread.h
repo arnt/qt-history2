@@ -18,7 +18,7 @@
 #ifdef QT_THREAD_SUPPORT
 
 #ifndef QT_H
-#  include "qwindowdefs.h"
+#include <qnamespace.h>
 #endif // QT_H
 
 #include <limits.h>

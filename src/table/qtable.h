@@ -129,7 +129,7 @@ public:
     bool isEnabled() const;
 
     virtual int rtti() const;
-    static int RTTI;
+    enum { RTTI = 0 };
 
 private:
     QString txt;
@@ -166,7 +166,7 @@ public:
     virtual void setStringList( const QStringList &l );
 
     int rtti() const;
-    static int RTTI;
+    enum { RTTI = 0 };
 
     QSize sizeHint() const;
 
@@ -194,7 +194,7 @@ public:
     bool isChecked() const;
 
     int rtti() const;
-    static int RTTI;
+    enum { RTTI = 2 };
 
     QSize sizeHint() const;
 

@@ -5038,7 +5038,6 @@ void QCanvasText::removeFromChunks()
     \endcode
 */
 int QCanvasItem::rtti() const { return RTTI; }
-int QCanvasItem::RTTI = Rtti_Item;
 
 /*!
     Returns 1 (QCanvasItem::Rtti_Sprite).
@@ -5046,7 +5045,6 @@ int QCanvasItem::RTTI = Rtti_Item;
     \sa QCanvasItem::rtti()
 */
 int QCanvasSprite::rtti() const { return RTTI; }
-int QCanvasSprite::RTTI = Rtti_Sprite;
 
 /*!
     Returns 2 (QCanvasItem::Rtti_PolygonalItem).
@@ -5054,7 +5052,6 @@ int QCanvasSprite::RTTI = Rtti_Sprite;
     \sa QCanvasItem::rtti()
 */
 int QCanvasPolygonalItem::rtti() const { return RTTI; }
-int QCanvasPolygonalItem::RTTI = Rtti_PolygonalItem;
 
 /*!
     Returns 3 (QCanvasItem::Rtti_Text).
@@ -5062,7 +5059,6 @@ int QCanvasPolygonalItem::RTTI = Rtti_PolygonalItem;
     \sa QCanvasItem::rtti()
 */
 int QCanvasText::rtti() const { return Rtti_Text; }
-int QCanvasText::RTTI = Rtti_Text;
 
 /*!
     Returns 4 (QCanvasItem::Rtti_Polygon).
@@ -5070,7 +5066,6 @@ int QCanvasText::RTTI = Rtti_Text;
     \sa QCanvasItem::rtti()
 */
 int QCanvasPolygon::rtti() const { return RTTI; }
-int QCanvasPolygon::RTTI = Rtti_Polygon;
 
 /*!
     Returns 5 (QCanvasItem::Rtti_Rectangle).
@@ -5078,7 +5073,6 @@ int QCanvasPolygon::RTTI = Rtti_Polygon;
     \sa QCanvasItem::rtti()
 */
 int QCanvasRectangle::rtti() const { return RTTI; }
-int QCanvasRectangle::RTTI = Rtti_Rectangle;
 
 /*!
     Returns 6 (QCanvasItem::Rtti_Ellipse).
@@ -5086,7 +5080,6 @@ int QCanvasRectangle::RTTI = Rtti_Rectangle;
     \sa QCanvasItem::rtti()
 */
 int QCanvasEllipse::rtti() const { return RTTI; }
-int QCanvasEllipse::RTTI = Rtti_Ellipse;
 
 /*!
     Returns 7 (QCanvasItem::Rtti_Line).
@@ -5094,7 +5087,6 @@ int QCanvasEllipse::RTTI = Rtti_Ellipse;
     \sa QCanvasItem::rtti()
 */
 int QCanvasLine::rtti() const { return RTTI; }
-int QCanvasLine::RTTI = Rtti_Line;
 
 /*!
     Returns 8 (QCanvasItem::Rtti_Spline).
@@ -5102,7 +5094,6 @@ int QCanvasLine::RTTI = Rtti_Line;
     \sa QCanvasItem::rtti()
 */
 int QCanvasSpline::rtti() const { return RTTI; }
-int QCanvasSpline::RTTI = Rtti_Spline;
 
 /*!
     Constructs a QCanvasSprite which uses images from the

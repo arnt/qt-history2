@@ -782,7 +782,7 @@ void qWarning( const char *msg, ... )
     char buf[QT_BUFFER_LENGTH];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
-    static bool fatalWarnings = (getenv("QT_FATAL_WARNINGS") != 0);
+    bool fatalWarnings = (getenv("QT_FATAL_WARNINGS") != 0);
     if ( handler ) {
 #if defined(QT_VSNPRINTF)
 	QT_VSNPRINTF( buf, QT_BUFFER_LENGTH, msg, ap );

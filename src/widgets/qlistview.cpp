@@ -657,8 +657,6 @@ void QListViewItem::sort()
     listView()->triggerUpdate();
 }
 
-int QListViewItem::RTTI = 0;
-
 /*!
     Returns 0.
 
@@ -5928,8 +5926,6 @@ QCheckListItem::QCheckListItem( QListView *parent, QListViewItem *after,
     init();
 }
 
-
-int QCheckListItem::RTTI = 1;
 
 /* \reimp */
 
