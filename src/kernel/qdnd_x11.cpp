@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#89 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -784,7 +784,7 @@ void qt_handle_xdnd_drop( QWidget *, const XEvent * xe, bool passive )
 }
 
 
-void qt_handle_xdnd_finished( QWidget *w, const XEvent * xe, bool passive )
+void qt_handle_xdnd_finished( QWidget *, const XEvent * xe, bool passive )
 {
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
 
