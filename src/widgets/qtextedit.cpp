@@ -3966,6 +3966,7 @@ void QTextEdit::clear()
     cursor->setDocument( doc );
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
+    lastFormatted = 0;
     repaintContents( FALSE );
 }
 
