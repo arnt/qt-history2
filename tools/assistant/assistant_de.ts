@@ -3,18 +3,29 @@
     <name>Assistant</name>
     <message>
         <source>Welcome to the &lt;b&gt;Qt Assistant&lt;/b&gt;. Qt Assistant will give you quicker access to help and tips while using applications like Qt Designer.</source>
-        <translation>Wilkommen bei &lt;b&gt;Qt Assistant&lt;/b&gt;. Qt Assistant ermöglicht einen schnellen Zugriff der Onlinehilfe während dem Arbeiten mit Programmen wie dem Qt Designer.</translation>
+        <translation type="obsolete">Wilkommen bei &lt;b&gt;Qt Assistant&lt;/b&gt;. Qt Assistant ermöglicht einen schnellen Zugriff der Onlinehilfe während dem Arbeiten mit Programmen wie dem Qt Designer.</translation>
     </message>
     <message>
         <source>Qt Assistant</source>
+        <translation type="obsolete">Qt Assistant</translation>
+    </message>
+</context>
+<context>
+    <name>AssistantServer</name>
+    <message>
+        <source>Qt Assistant</source>
         <translation>Qt Assistant</translation>
+    </message>
+    <message>
+        <source>Failed to bind to port %1</source>
+        <translation>Kann Port %1 nicht binden</translation>
     </message>
 </context>
 <context>
     <name>FindDialog</name>
     <message>
         <source>Find Text</source>
-        <translation>Textsuche</translation>
+        <translation type="obsolete">Textsuche</translation>
     </message>
     <message>
         <source>&amp;Find:</source>
@@ -52,6 +63,26 @@
         <source>&amp;Case sensitive</source>
         <translation>Groß- und &amp;Kleinschreibung beachten</translation>
     </message>
+    <message>
+        <source>Qt Assistant - Find Text</source>
+        <translation>Qt Assistant - Textsuche</translation>
+    </message>
+    <message>
+        <source>Enter the text you are looking for.</source>
+        <translation>Geben Sie den Suchtext ein.</translation>
+    </message>
+    <message>
+        <source>Search reached end of the document</source>
+        <translation>Die Suche hat das Dokumentende erreicht</translation>
+    </message>
+    <message>
+        <source>Search reached start of the document</source>
+        <translation>Die Suche hat den Dokumentanfang erreicht</translation>
+    </message>
+    <message>
+        <source>Text not found</source>
+        <translation>Text nicht gefunden</translation>
+    </message>
 </context>
 <context>
     <name>HelpDialog</name>
@@ -65,27 +96,89 @@
     </message>
     <message>
         <source>Con&amp;tents</source>
-        <translation>Inhal&amp;t</translation>
+        <translation type="obsolete">Inhal&amp;t</translation>
     </message>
     <message>
         <source>Qt Reference Documentation</source>
-        <translation>Qt Referenzdokumentation</translation>
+        <translation type="obsolete">Qt Referenzdokumentation</translation>
     </message>
     <message>
         <source>Qt Designer Manual</source>
-        <translation>Qt Designer Handbuch</translation>
+        <translation type="obsolete">Qt Designer Handbuch</translation>
     </message>
     <message>
         <source>Qt Linguist Manual</source>
-        <translation>Qt Linguist Handbuch</translation>
+        <translation type="obsolete">Qt Linguist Handbuch</translation>
     </message>
     <message>
         <source>Qt Assistant Manual</source>
-        <translation>Qt Assistant Handbuch</translation>
+        <translation type="obsolete">Qt Assistant Handbuch</translation>
     </message>
     <message>
         <source>Qt Assistant</source>
         <translation>Qt Assistant</translation>
+    </message>
+    <message>
+        <source>Open Link in Current Window</source>
+        <translation>Öffne Linke in aktuellen Fenster</translation>
+    </message>
+    <message>
+        <source>Open Link in New Window</source>
+        <translation>Öffne Link in neuem Fenster</translation>
+    </message>
+    <message>
+        <source>Contents</source>
+        <translation>Inhalt</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Suche</translation>
+    </message>
+    <message>
+        <source>Prepare...</source>
+        <translation>Initialisiere...</translation>
+    </message>
+    <message>
+        <source>Cannot open the index file %1</source>
+        <translation>Kann Indexdatei %1 nicht öffnen</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Warnung</translation>
+    </message>
+    <message>
+        <source>Documentation file %1 does not exist!
+Skipping file.</source>
+        <translation>Dokumentation %1 existiert nicht!
+Überspringe Datei.</translation>
+    </message>
+    <message>
+        <source>Parse Error</source>
+        <translation>Syntaxfehler</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Fertig</translation>
+    </message>
+    <message>
+        <source>Indexing files...</source>
+        <translation>Indiziere Dokumentation...</translation>
+    </message>
+    <message>
+        <source>Reading dictionary...</source>
+        <translation>Lese Suchindex...</translation>
+    </message>
+    <message>
+        <source>Full Text Search</source>
+        <translation>Volltextsuche</translation>
+    </message>
+    <message>
+        <source>Using a wildcard within phrases is not allowed.</source>
+        <translation>Wildcards innerhalb von Prasen sind nicht zugelassen.</translation>
+    </message>
+    <message>
+        <source>The closing quotation mark is missing.</source>
+        <translation>Das schließende Anführungszeichen fehlt.</translation>
     </message>
 </context>
 <context>
@@ -96,11 +189,11 @@
     </message>
     <message>
         <source>&lt;b&gt;Help&lt;/b&gt;&lt;p&gt;Choose the topic you need help for from the contents list, or search the index for keywords.&lt;/p&gt;</source>
-        <translation>&lt;b&gt;Hilfe&lt;/b&gt;&lt;p&gt;Wählen Sie ein Thema vom Inhaltsverzeichnis oder suchen Sie im Index nach Schlüsselwörtern.&lt;/p&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Hilfe&lt;/b&gt;&lt;p&gt;Wählen Sie ein Thema vom Inhaltsverzeichnis oder suchen Sie im Index nach Schlüsselwörtern.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Displays help topics organized by category, index or bookmarks</source>
-        <translation>Zeigt die Hilfethemen unterteilt in Kategorien, Indizes oder Lesezeichen an</translation>
+        <translation type="obsolete">Zeigt die Hilfethemen unterteilt in Kategorien, Indizes oder Lesezeichen an</translation>
     </message>
     <message>
         <source>Con&amp;tents</source>
@@ -112,7 +205,7 @@
     </message>
     <message>
         <source>&lt;b&gt;Help topics organized by category.&lt;/b&gt;&lt;p&gt;Double-click an item to see which topics are in that category. To view a topic, select it, and then click &lt;b&gt;Display&lt;/b&gt;.&lt;/p&gt;</source>
-        <translation>&lt;b&gt;Die Hilfethemen sind nach Kategorien organisiert.&lt;/b&gt;&lt;p&gt;Ein Doppelklick auf einen Eintrag zeigt die Themen dieser Kategorie an. Um ein Thema anzuzeigen, wählen Sie es aus und drücken Sie &lt;b&gt;Anzeigen&lt;/b&gt;.&lt;/p&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Die Hilfethemen sind nach Kategorien organisiert.&lt;/b&gt;&lt;p&gt;Ein Doppelklick auf einen Eintrag zeigt die Themen dieser Kategorie an. Um ein Thema anzuzeigen, wählen Sie es aus und drücken Sie &lt;b&gt;Anzeigen&lt;/b&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&amp;Index</source>
@@ -132,11 +225,11 @@
     </message>
     <message>
         <source>&lt;b&gt;List of available help topics.&lt;/b&gt;&lt;p&gt;Double-click on an item to open up the help page for this topic. You will have to choose the right page if more than one are found.&lt;/p&gt;</source>
-        <translation>&lt;b&gt;Liste aller verfügbaren Hilfethemen.&lt;/b&gt;&lt;p&gt;Ein Doppelklick auf einen Eintrag öffnet die dazugehörige Hilfeseite. Wenn es mehrere Seiten zu einem Eintrag gibt, wählen Sie die gewünschte aus.&lt;/p&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Liste aller verfügbaren Hilfethemen.&lt;/b&gt;&lt;p&gt;Ein Doppelklick auf einen Eintrag öffnet die dazugehörige Hilfeseite. Wenn es mehrere Seiten zu einem Eintrag gibt, wählen Sie die gewünschte aus.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&amp;Bookmarks</source>
-        <translation>&amp;Lesezeichen</translation>
+        <translation>L&amp;esezeichen</translation>
     </message>
     <message>
         <source>Displays the list of bookmarks.</source>
@@ -144,7 +237,7 @@
     </message>
     <message>
         <source>&amp;New Bookmark</source>
-        <translation>&amp;Neues Lesezeichen</translation>
+        <translation type="obsolete">&amp;Neues Lesezeichen</translation>
     </message>
     <message>
         <source>Add new bookmark</source>
@@ -152,11 +245,11 @@
     </message>
     <message>
         <source>Add the current displayed page as new bookmark to the list.</source>
-        <translation>Füge die aktuelle Seite als Lesezeichen hinzu.</translation>
+        <translation type="obsolete">Füge die aktuelle Seite als Lesezeichen hinzu.</translation>
     </message>
     <message>
         <source>D&amp;elete Bookmark</source>
-        <translation>&amp;Lösche Lesezeichen</translation>
+        <translation type="obsolete">&amp;Lösche Lesezeichen</translation>
     </message>
     <message>
         <source>Delete bookmark</source>
@@ -164,18 +257,94 @@
     </message>
     <message>
         <source>Delete the selected bookmark from the list.</source>
-        <translation>Lösche markiertes Lesezeichen.</translation>
+        <translation type="obsolete">Lösche markiertes Lesezeichen.</translation>
     </message>
     <message>
         <source>Preparing...</source>
         <translation>Initialisiere...</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Help&lt;/b&gt;&lt;p&gt;Choose the topic you want help on from the contents list, or search the index for keywords.&lt;/p&gt;</source>
+        <translation>&lt;b&gt;Hilfe&lt;/b&gt;&lt;p&gt;Wählen Sie ein Hilfethema aus dem Inhalt oder suchen Sie im Index nach Schlüsselwörtern.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Displays help topics organized by category, index or bookmarks. Another tab inherits the full text search.</source>
+        <translation>Zeigt Hilfethemen organisiert nach Kategorie, Index oder Lesezeichen an. Ein weiterer Abschnitt enthält die Volltextsuche.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Help topics organized by category.&lt;/b&gt;&lt;p&gt;Double-click an item to see the topics in that category. To view a topic, just double-click it.&lt;/p&gt;</source>
+        <translation>&lt;b&gt;Hilfethemen organisiert nach Kategorie.&lt;/b&gt;&lt;p&gt;Doppelklicken Sie einen Eintrag, um die Themen dieser Kategorie zu sehen. Doppelklicken Sie ein Thema, um es angezeigt zu bekommen.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;List of available help topics.&lt;/b&gt;&lt;p&gt;Double-click on an item to open its help page. If more than one is found, you must specify which page you want.&lt;/p&gt;</source>
+        <translation>&lt;b&gt;Liste aller verfügbaren Hilfethemen.&lt;/b&gt;&lt;p&gt;Doppelklicken Sie auf einen Eintrag, um die Hilfe zu öffnen. Wenn mehr als eine Seite gefunden wurde, wählen Sie die gewünschte aus.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&amp;New</source>
+        <translation>&amp;Neu</translation>
+    </message>
+    <message>
+        <source>Add the currently displayed page as a new bookmark.</source>
+        <translation>Füge aktuelle Seite zu den Lesezeichen hinzu.</translation>
+    </message>
+    <message>
+        <source>&amp;Delete</source>
+        <translation>&amp;Löschen</translation>
+    </message>
+    <message>
+        <source>Delete the selected bookmark.</source>
+        <translation>Lösche markiertes Lesezeichen.</translation>
+    </message>
+    <message>
+        <source>&amp;Search</source>
+        <translation>&amp;Suche</translation>
+    </message>
+    <message>
+        <source>Searching f&amp;or:</source>
+        <translation>Suche &amp;nach:</translation>
+    </message>
+    <message>
+        <source>Enter searchword(s).</source>
+        <translation>Suchebegriff(e).</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Enter search word(s).&lt;/b&gt;&lt;p&gt;Enter here the word(s) you are looking for. The words may contain wildcards (*). For a sequence of words quote them.&lt;/p&gt;</source>
+        <translation>&lt;b&gt;Geben Sie Suchbegriffe ein.&lt;/b&gt;&lt;p&gt;Geben Sie hier die gesuchten Begriffen ein. Die Begriffe können Wildcards (*) enthalten. Eine Phrase muß in Anführungszeichen stehen.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Found documents&lt;/b&gt;&lt;p&gt;This list contains all found documents from the last search. The documents are ordered, i.e. the first document has the most matches.&lt;/p&gt;</source>
+        <translation>&lt;b&gt;Gefundene Dokumente&lt;/b&gt;&lt;p&gt;Diese Liste beinhaltet alle gefundenen Dokumente der letzten Suche. Die Dokumente sind nach der Häufigkeit der Treffer geordnet.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Found &amp;Documents:</source>
+        <translation>Gefundene &amp;Dokumente:</translation>
+    </message>
+    <message>
+        <source>He&amp;lp</source>
+        <translation>Hi&amp;lfe</translation>
+    </message>
+    <message>
+        <source>Display the help page.</source>
+        <translation>Zeigt die Hilfe an.</translation>
+    </message>
+    <message>
+        <source>Display the help page for the full text search.</source>
+        <translation>Zeigt die Hilfeseite für die Volltextsuche an.</translation>
+    </message>
+    <message>
+        <source>Start searching.</source>
+        <translation>Starte Suche.</translation>
+    </message>
+    <message>
+        <source>Pressing this button starts the search.</source>
+        <translation>Startet die Suche.</translation>
     </message>
 </context>
 <context>
     <name>HelpWindow</name>
     <message>
         <source>Qt Assistant by Trolltech - %1</source>
-        <translation>Qt Assistant von Trolltech - %1</translation>
+        <translation type="obsolete">Qt Assistant von Trolltech - %1</translation>
     </message>
     <message>
         <source>Help</source>
@@ -190,6 +359,18 @@
     <message>
         <source>Open Link in New Window<byte value="x9"/>Shift+LMB</source>
         <translation>Öffne Link in neuem Fenster Shift+LMB</translation>
+    </message>
+    <message>
+        <source>Currently no Web browser is selected.
+Please use the settings dialog to specify one!
+</source>
+        <translation>Es ist kein Webbrowser ausgewählt.
+Öffnen Sie bitten den &quot;Einstellungen&quot; Dialog um einen Webbrowser auszuwählen.
+</translation>
+    </message>
+    <message>
+        <source>Qt Assistant by Trolltech - %1%2</source>
+        <translation>Qt Assistant von Trolltech - %1%2</translation>
     </message>
 </context>
 <context>
@@ -308,7 +489,7 @@
     </message>
     <message>
         <source>New Window...</source>
-        <translation>Neues Fenster...</translation>
+        <translation type="obsolete">Neues Fenster...</translation>
     </message>
     <message>
         <source>Close</source>
@@ -320,16 +501,16 @@
     </message>
     <message>
         <source>Ctrl+T</source>
-        <translation>Strg+T
+        <translation>Ctrl+T
 </translation>
     </message>
     <message>
         <source>Ctrl+I</source>
-        <translation>Strg+I</translation>
+        <translation>Ctrl+I</translation>
     </message>
     <message>
         <source>Ctrl+B</source>
-        <translation>Strg+B</translation>
+        <translation>Ctrl+E</translation>
     </message>
     <message>
         <source>Qt Assistant</source>
@@ -341,18 +522,223 @@
     </message>
     <message>
         <source>Qt Reference Documentation</source>
-        <translation>Qt Referenzdokumention</translation>
+        <translation type="obsolete">Qt Referenzdokumention</translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation>&amp;Datei</translation>
+    </message>
+    <message>
+        <source>&amp;Edit</source>
+        <translation>&amp;Bearbeiten</translation>
+    </message>
+    <message>
+        <source>&amp;View</source>
+        <translation>&amp;Ansicht</translation>
+    </message>
+    <message>
+        <source>&amp;Go</source>
+        <translation>&amp;Gehe zu</translation>
+    </message>
+    <message>
+        <source>Boo&amp;kmarks</source>
+        <translation>&amp;Lesezeichen</translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation>&amp;Hilfe</translation>
+    </message>
+    <message>
+        <source>Print the currently displayed page.</source>
+        <translation>Drucke aktuelle Seite.</translation>
+    </message>
+    <message>
+        <source>Ctrl+P</source>
+        <translation>Ctrl+P</translation>
+    </message>
+    <message>
+        <source>Quit Qt Assistant.</source>
+        <translation>Beende Qt Assistant.</translation>
+    </message>
+    <message>
+        <source>Ctrl+Q</source>
+        <translation>Ctrl+Q</translation>
+    </message>
+    <message>
+        <source>Copy the selected text to the clipboard.</source>
+        <translation>Kopiere den markierten Text in die Zwischenablage.</translation>
+    </message>
+    <message>
+        <source>Ctrl+C</source>
+        <translation>Ctrl+C</translation>
+    </message>
+    <message>
+        <source>Open the Find dialog. Qt Assistant will search the currently displayed page for the text you enter.</source>
+        <translation>Öffne den Suchdialog. Qt Assistant sucht in der aktuellen Seite nach dem eingegebenen Text.</translation>
+    </message>
+    <message>
+        <source>Ctrl+F</source>
+        <translation>Ctrl+F</translation>
+    </message>
+    <message>
+        <source>Go to the home page. Qt Assistant&apos;s home page is the Qt Reference Documentation.</source>
+        <translation>Gehe zur Startseite. Qt Assistants Startseite ist die Qt Referenzdokumentation.</translation>
+    </message>
+    <message>
+        <source>Ctrl+Home</source>
+        <translation>Ctrl+Home</translation>
+    </message>
+    <message>
+        <source>Go to the previous page.</source>
+        <translation>Gehe zur vorherigen Seite.</translation>
+    </message>
+    <message>
+        <source>Alt+Left</source>
+        <translation>Alt+Left</translation>
+    </message>
+    <message>
+        <source>Go to the next page.</source>
+        <translation>Gehe zur nächsten Seite.</translation>
+    </message>
+    <message>
+        <source>Alt+Right</source>
+        <translation>Alt+Right</translation>
+    </message>
+    <message>
+        <source>Display further information about Qt Assistant.</source>
+        <translation>Zeigt weitere Informationen zu Qt Assistant an.</translation>
+    </message>
+    <message>
+        <source>Display further information about Qt.</source>
+        <translation>Zeigt weitere Informationen zu Qt an.</translation>
+    </message>
+    <message>
+        <source>Display the Qt Reference Documentation.</source>
+        <translation>Zeigt die Qt Referenzdokumentation an.</translation>
+    </message>
+    <message>
+        <source>Display the Qt Designer manual.</source>
+        <translation>Zeigt das Qt Designer Handbuch an.</translation>
+    </message>
+    <message>
+        <source>Zoom in on the document, i.e. increase the font size.</source>
+        <translation>Vergrößert die Schrift.</translation>
+    </message>
+    <message>
+        <source>Ctrl++</source>
+        <translation>Ctrl++</translation>
+    </message>
+    <message>
+        <source>Zoom out on the document, i.e. decrease the font size.</source>
+        <translation>Verkleinert die Schrift.</translation>
+    </message>
+    <message>
+        <source>Ctrl+-</source>
+        <translation>Ctrl+-</translation>
+    </message>
+    <message>
+        <source>Display the Guide to the Qt Translation Tools.</source>
+        <translation>Zeigt die Anleitung zu den Qt Übersetzungswerkzeugen an.</translation>
+    </message>
+    <message>
+        <source>Open the settings dialog.</source>
+        <translation>Öffnet den &quot;Einstellungen&quot; Dialog.</translation>
+    </message>
+    <message>
+        <source>Open a new window.</source>
+        <translation>Öffnet ein neues Fenster.</translation>
+    </message>
+    <message>
+        <source>Ctrl+N</source>
+        <translation>Ctrl+N</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation>&amp;Schließen</translation>
+    </message>
+    <message>
+        <source>Close the current window.</source>
+        <translation>Schließt das aktuelle Fenster.</translation>
+    </message>
+    <message>
+        <source>Qt Assistant Manual</source>
+        <translation>Qt Assistant Handbuch</translation>
+    </message>
+    <message>
+        <source>Display the Qt Assistant manual.</source>
+        <translation>Zeigt das Qt Assistant Handbuch an.</translation>
+    </message>
+    <message>
+        <source>F1</source>
+        <translation>F1</translation>
+    </message>
+    <message>
+        <source>Add the currently displayed page as a new bookmark.</source>
+        <translation>Füge aktuelle Seite zu den Lesezeichen hinzu.</translation>
+    </message>
+    <message>
+        <source>What&apos;s This?</source>
+        <translation>Direkthilfe</translation>
+    </message>
+    <message>
+        <source>&quot;What&apos;s This?&quot; context sensitive help.</source>
+        <translation>Kontextbezogene Direkthilfe.</translation>
+    </message>
+    <message>
+        <source>Shift+F1</source>
+        <translation>Shift+F1</translation>
+    </message>
+    <message>
+        <source>Ctrl+S</source>
+        <translation>Ctrl+S</translation>
+    </message>
+    <message>
+        <source>Initializing Qt Assistant...</source>
+        <translation>Initialisiere Qt Assistant...</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsDialog</name>
+    <message>
+        <source>all</source>
+        <translation>Alle</translation>
+    </message>
+    <message>
+        <source>Qt Assistant - Add Documentation</source>
+        <translation>Qt Assistant - Hinzufügen von Dokumentation</translation>
+    </message>
+    <message>
+        <source>Qt Assistant</source>
+        <translation>Qt Assistant</translation>
+    </message>
+    <message>
+        <source>Parse Error</source>
+        <translation>Syntaxfehler</translation>
+    </message>
+    <message>
+        <source>This item can not be deleted!</source>
+        <translation>Dieser Eintrag kann nicht gelöscht werden!</translation>
+    </message>
+    <message>
+        <source>This branch is not empty!
+Firstly, all contents have to be removed.</source>
+        <translation>Dieser Zweig ist nicht leer!
+Es müssen zuerst alle Inhalte gelöscht werden.</translation>
+    </message>
+    <message>
+        <source>Qt Assistant - Set Web Browser</source>
+        <translation>Qt Assistant - Setze Webbrowser</translation>
     </message>
 </context>
 <context>
     <name>SettingsDialogBase</name>
     <message>
         <source>Settings</source>
-        <translation>Einstellungen</translation>
+        <translation type="obsolete">Einstellungen</translation>
     </message>
     <message>
         <source>Font:</source>
-        <translation>Schriften:</translation>
+        <translation type="obsolete">Schriften:</translation>
     </message>
     <message>
         <source>Link color:</source>
@@ -360,19 +746,83 @@
     </message>
     <message>
         <source>Underline links</source>
-        <translation type="unfinished">Unterstreiche Links</translation>
+        <translation type="obsolete">Unterstreiche Links</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="obsolete">OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Abbrechen</translation>
+        <translation type="obsolete">Abbrechen</translation>
     </message>
     <message>
         <source>Fixed font:</source>
-        <translation>Nicht-proportionale Schrift:</translation>
+        <translation type="obsolete">Nicht-proportionale Schrift:</translation>
+    </message>
+    <message>
+        <source>Qt Assistant - Settings</source>
+        <translation>Qt Assistant - Einstellungen</translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation>Allgemein</translation>
+    </message>
+    <message>
+        <source>Fix&amp;ed font:</source>
+        <translation>&amp;Nicht-proportionale Schrift:</translation>
+    </message>
+    <message>
+        <source>&amp;Font:</source>
+        <translation>&amp;Schrift:</translation>
+    </message>
+    <message>
+        <source>&amp;Underline links</source>
+        <translation>&amp;Unterstreiche Links</translation>
+    </message>
+    <message>
+        <source>Web</source>
+        <translation>Web</translation>
+    </message>
+    <message>
+        <source>&amp;Web Browser Application:</source>
+        <translation>&amp;Webbrowser Anwendung.</translation>
+    </message>
+    <message>
+        <source>...</source>
+        <translation>...</translation>
+    </message>
+    <message>
+        <source>Documentation</source>
+        <translation>Dokumentation</translation>
+    </message>
+    <message>
+        <source>&amp;Delete</source>
+        <translation>&amp;Lösche</translation>
+    </message>
+    <message>
+        <source>&amp;Add...</source>
+        <translation>&amp;Hinzufügen...</translation>
+    </message>
+    <message>
+        <source>Categories</source>
+        <translation>Kategorien</translation>
+    </message>
+    <message>
+        <source>Category &amp;Name:</source>
+        <translation>Kategorie &amp;Name:</translation>
+    </message>
+    <message>
+        <source>&amp;Add</source>
+        <translation>&amp;Hinzufügen</translation>
+    </message>
+    <message>
+        <source>&amp;OK</source>
+        <translation>&amp;OK</translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation>&amp;Abbrechen</translation>
     </message>
 </context>
 <context>
