@@ -36,14 +36,13 @@ struct IAxServerBase : public IUnknown
 {
     virtual QObject *qObject() = 0;
     virtual QWidget *widget() = 0;
-    virtual void emitPropertyChanged( long dispId ) = 0;
-    virtual bool emitRequestPropertyChange( long dispId ) = 0;
-    virtual QIntDict<QMetaProperty> *propertyList() = 0;
+    virtual void emitPropertyChanged( const char*, long dispid = -1 ) = 0;
+    virtual bool emitRequestPropertyChange( const char*, long dispid = -1 ) = 0;
 };
 
 /*!
     \class QAxBindable qaxbindable.h
-    \brief The QAxBindable class provides an interface between a Qt widget and an ActiveX control.
+    \brief The QAxBindable class provides an interface between the QWidget and the ActiveX client.
 
     \module QAxServer
     \extension ActiveQt
@@ -121,16 +120,7 @@ bool QAxBindable::requestPropertyChange( const char *property )
     if ( !activex )
 	return TRUE;
 
-    DISPID dispId = -1;
-    QIntDictIterator <QMetaProperty> it( *activex->propertyList() );
-    while ( it.current() && dispId < 0 ) {
-	QMetaProperty *mp = it.current();
-	if ( !qstrcmp( property, mp->name() ) )
-	    dispId = it.currentKey();
-	++it;
-    }
-
-    return activex->emitRequestPropertyChange( dispId );
+    return activex->emitRequestPropertyChange( property );
 }
 
 /*!
@@ -147,16 +137,7 @@ void QAxBindable::propertyChanged( const char *property )
     if ( !activex )
 	return;
 
-    DISPID dispId = -1;
-    QIntDictIterator <QMetaProperty> it( *activex->propertyList() );
-    while ( it.current() && dispId < 0 ) {
-	QMetaProperty *mp = it.current();
-	if ( !qstrcmp( property, mp->name() ) )
-	    dispId = it.currentKey();
-	++it;
-    }
-
-    activex->emitPropertyChanged( dispId );
+    activex->emitPropertyChanged( property );
 }
 
 /*!
@@ -165,7 +146,7 @@ void QAxBindable::propertyChanged( const char *property )
     alternative implementations of COM interfaces. Return a new object 
     of a QAxAggregated subclass.
 
-    The default implementation returns 0.
+    The default implementation returns the null pointer.
 */
 QAxAggregated *QAxBindable::createAggregate()
 {
@@ -186,7 +167,7 @@ QAxAggregated *QAxBindable::createAggregate()
     
     Use the widget() method if you need to make calls to the QWidget implementing the 
     ActiveX control. You must not store that pointer in your subclass (unless you use
-    QGuardedPtr), as the QWidget can be destroyed by the ActivX framework at any time.
+    QGuardedPtr), as the QWidget can be destroyed by the ActiveQt framework at any time.
 */
 
 /*!
@@ -250,6 +231,9 @@ QAxAggregated::~QAxAggregated()
         return controllingUnknown()->Release();
     }
     \endcode
+
+    The QAXAGG_IUNKNOWN macro expands to that, and you can use it in the
+    class declaration of your subclass.
 */
 
 /*!
@@ -260,5 +244,5 @@ QAxAggregated::~QAxAggregated()
 
     \warning
     You must not store the returned pointer, as the QWidget can be destroyed by 
-    ActiveX at any time.
+    ActiveQt at any time.
 */
