@@ -17,8 +17,10 @@
 #include <private/qcore_mac_p.h>
 #include "qglobal.h"
 
-#if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_3)
-# define QMAC_NO_COREGRAPHICS
+#if !defined(QMAC_NO_COREGRAPHICS)
+#  if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_3)
+//#     define QMAC_NO_COREGRAPHICS
+#  endif
 #endif
 
 #include "qpainter.h"
