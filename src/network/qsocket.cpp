@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#30 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#31 $
 **
 ** Implementation of QSocket class.
 **
@@ -171,7 +171,7 @@ QSocket::QSocket( QObject *parent, const char *name )
     : QObject( parent, name )
 {
     d = new QSocketPrivate( this );
-	setSocketDevice( 0 );
+    setSocketDevice( 0 );
     setFlags( IO_Direct );
     setStatus( IO_Ok );
 }
@@ -217,18 +217,17 @@ QSocketDevice *QSocket::socketDevice()
 
 void QSocket::setSocketDevice( QSocketDevice *device )
 {
-	if ( state() != Idle )
-		close();
-	if( d->socket )
-		delete d->socket;
+    if ( state() != Idle )
+	close();
+    if( d->socket )
+	delete d->socket;
 
-    if ( !device )
-	{
-		device = new QSocketDevice( QSocketDevice::Stream );
-		device->setBlocking( FALSE );
-		device->setAddressReusable( TRUE );
-	}
-	d->socket = device;
+    if ( !device ) {
+	device = new QSocketDevice( QSocketDevice::Stream );
+	device->setBlocking( FALSE );
+	device->setAddressReusable( TRUE );
+    }
+    d->socket = device;
 }
 
 /*!
