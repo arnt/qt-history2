@@ -141,6 +141,13 @@ QTimer::~QTimer()
     FALSE.
 */
 
+/*!
+    \fn int QTimer::timerId() const
+
+    Returns the ID of the timer if the timer is running; otherwise returns
+    -1.
+*/
+
 
 /*!
     Starts the timer with a \a msec milliseconds timeout, and returns

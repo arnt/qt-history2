@@ -58,6 +58,8 @@ public:
 
     static void singleShot( int msec, QObject *receiver, const char *member );
 
+    int		timerId() const	{ return id; }
+
 signals:
     void	timeout();
 
