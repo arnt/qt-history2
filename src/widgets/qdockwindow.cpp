@@ -116,12 +116,12 @@ void QDockWindowResizeHandle::setOrientation( Qt::Orientation o )
     orient = o;
     if ( o == QDockArea::Horizontal ) {
 #ifndef QT_NO_CURSOR
-	setCursor( splitVCursor );
+	setCursor( splitHCursor );
 #endif
 	setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
     } else {
 #ifndef QT_NO_CURSOR
-	setCursor( splitHCursor );
+	setCursor( splitVCursor );
 #endif
 	setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding ) );
     }
