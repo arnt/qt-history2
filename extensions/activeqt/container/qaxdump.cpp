@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qaxbase.h"
+#include <qmetaobject.h>
 #include <quuid.h>
 #include <qt_windows.h>
 
