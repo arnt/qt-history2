@@ -19,12 +19,13 @@
 #include "private/qfactoryloader_p.h"
 #include "qmutex.h"
 
-Q_GLOBAL_STATIC_LOCKED_WITH_ARGS(QFactoryLoader, loader,
-                                 (QTextCodecFactoryInterface_iid, QCoreApplication::libraryPaths(), "/codecs"))
+Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
+    (QTextCodecFactoryInterface_iid, QCoreApplication::libraryPaths(), "/codecs"))
 
 QTextCodec *QTextCodecFactory::createForName(const QString &name)
 {
-    if (QTextCodecFactoryInterface *factory = qt_cast<QTextCodecFactoryInterface*>(loader()->instance(name)))
+    if (QTextCodecFactoryInterface *factory =
+        qt_cast<QTextCodecFactoryInterface*>(loader()->instance(name)))
         return factory->create(name);
     return 0;
 }
@@ -32,9 +33,8 @@ QTextCodec *QTextCodecFactory::createForName(const QString &name)
 QTextCodec *QTextCodecFactory::createForMib(int mib)
 {
     QString name = "MIB-" + QString::number(mib);
-    if (QTextCodecFactoryInterface *factory = qt_cast<QTextCodecFactoryInterface*>(loader()->instance(name)))
+    if (QTextCodecFactoryInterface *factory =
+        qt_cast<QTextCodecFactoryInterface*>(loader()->instance(name)))
         return factory->create(name);
     return 0;
 }
-
-

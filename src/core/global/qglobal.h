@@ -1189,18 +1189,80 @@ inline QT_COMPAT void qObsolete(const char *, const char * = 0, const char * = 0
 #endif
 
 
-#define Q_GLOBAL_STATIC(type, name) \
-static type *name() { static type this_##name; return &this_##name; }
-#define Q_GLOBAL_STATIC_WITH_ARGS(type, name, args) \
-static type *name(){ static type this_##name args; return &this_##name; }
+#if defined(QT_NO_THREAD)
 
-#define Q_GLOBAL_STATIC_LOCKED(type, name) \
-static type *static_##name() { static type this_##name; return &this_##name; } \
-static type *name() { static QStaticMutex mutex = 0; QMutexLocker locker(mutex); return static_##name(); }
+template <typename T>
+class QGlobalStatic
+{
+public:
+    T *pointer;
+    inline QGlobalStatic(T *p) : pointer(p) { }
+    inline ~QGlobalStatic() { pointer = 0; }
+};
 
-#define Q_GLOBAL_STATIC_LOCKED_WITH_ARGS(type, name, args) \
-static type *static_##name() { static type this_##name args; return &this_##name; } \
-static type *name() { static QStaticMutex mutex = 0; QMutexLocker locker(mutex); return static_##name(); }
+#define Q_GLOBAL_STATIC(TYPE, NAME)                             \
+    static TYPE *NAME()                                         \
+    {                                                           \
+        static TYPE this_##NAME;                                \
+        static QGlobalStatic<TYPE> global_##NAME(&this_##NAME); \
+        return global_##NAME.pointer;                           \
+    }
+
+#define Q_GLOBAL_STATIC_WITH_ARGS(TYPE, NAME, ARGS)             \
+    static TYPE *NAME()                                         \
+    {                                                           \
+        static TYPE this_##NAME ARGS;                           \
+        static QGlobalStatic<TYPE> global_##NAME(&this_##NAME); \
+        return global_##NAME.pointer;                           \
+    }
+
+#else
+
+template <typename T>
+class QGlobalStatic
+{
+public:
+    T *pointer;
+    bool destroyed;
+
+    inline QGlobalStatic()
+        : pointer(0), destroyed(false)
+    { }
+
+    inline ~QGlobalStatic()
+    {
+        delete pointer;
+        pointer = 0;
+        destroyed = true;
+    }
+};
+
+#define Q_GLOBAL_STATIC(TYPE, NAME)                                     \
+    static TYPE *NAME()                                                 \
+    {                                                                   \
+        static QGlobalStatic<TYPE> this_##NAME;                         \
+        if (!this_##NAME.pointer && !this_##NAME.destroyed) {           \
+            TYPE *x = new TYPE;                                         \
+            if (!q_atomic_test_and_set_ptr(&this_##NAME.pointer, 0, x)) \
+                delete x;                                               \
+        }                                                               \
+        return this_##NAME.pointer;                                   \
+    }
+
+#define Q_GLOBAL_STATIC_WITH_ARGS(TYPE, NAME, ARGS)                     \
+    static TYPE *NAME()                                                 \
+    {                                                                   \
+        static QGlobalStatic<TYPE> this_##NAME;                         \
+        if (!this_##NAME.pointer && !this_##NAME.destroyed) {           \
+            TYPE *x = new TYPE ARGS;                                    \
+            if (!q_atomic_test_and_set_ptr(&this_##NAME.pointer, 0, x)) \
+                delete x;                                               \
+        }                                                               \
+        return this_##NAME.pointer;                                     \
+    }
+
+#endif
+
 
 //
 // Install paths from configure

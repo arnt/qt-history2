@@ -12,12 +12,7 @@
 #include <qtimer.h>
 #include <qurl.h>
 
-static QDnsAgent *agent = 0;
-
-static void cleanup_agent()
-{
-    delete agent;
-}
+Q_GLOBAL_STATIC(QDnsAgent, agent)
 
 //#define QDNS_DEBUG
 
@@ -126,15 +121,6 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
 
     qRegisterMetaType<QDnsHostInfo>("QDnsHostInfo");
 
-    if (!agent) {
-        static QStaticSpinLock spinLock = 0;
-
-        QSpinLockLocker locker(spinLock);
-        if (!agent) {
-            agent = new QDnsAgent();
-            qAddPostRoutine(cleanup_agent);
-        }
-    }
 
     // Support for IDNA by first splitting the name into labels, then
     // running the punycode decoder on each part, then merging
@@ -148,6 +134,7 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
         lookup += QString::fromAscii(QUrl::toPunycode(label));
     }
 
+    QDnsAgent *agent = ::agent();
     agent->addHostName(lookup, receiver, member);
 
 #if !defined QT_NO_THREAD

@@ -38,8 +38,8 @@ QString pstring2qstring(const unsigned char *c); //qglobal.cpp
 #include "qmacstyle_mac.h"
 #endif
 
-Q_GLOBAL_STATIC_LOCKED_WITH_ARGS(QFactoryLoader, loader,
-                                 (QStyleFactoryInterface_iid, QCoreApplication::libraryPaths(), "/styles", Qt::CaseInsensitive))
+Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
+    (QStyleFactoryInterface_iid, QCoreApplication::libraryPaths(), "/styles", Qt::CaseInsensitive))
 
 /*!
     \class QStyleFactory qstylefactory.h

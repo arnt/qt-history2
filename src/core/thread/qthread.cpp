@@ -97,11 +97,12 @@ void **&QThreadPrivate::threadLocalStorage(QThread *thread)
     return thread->d->tls;
 }
 
-
-Q_GLOBAL_STATIC(QMutexPool, qt_thread_mutexpool)
-
+Q_GLOBAL_STATIC(QMutexPool, mutexpool)
 QMutex *QThreadPrivate::mutex() const
-{ return qt_thread_mutexpool()->get((void *) this); }
+{
+    QMutexPool * const pool = mutexpool();
+    return pool ? pool->get(this) : 0;
+}
 
 
 

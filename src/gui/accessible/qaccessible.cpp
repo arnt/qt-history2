@@ -297,8 +297,8 @@
     avoid unnecessary computations.
 */
 
-Q_GLOBAL_STATIC_LOCKED_WITH_ARGS(QFactoryLoader, loader,
-                                 (QAccessibleFactoryInterface_iid, QCoreApplication::libraryPaths(), "/accessible"))
+Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
+    (QAccessibleFactoryInterface_iid, QCoreApplication::libraryPaths(), "/accessible"))
 
 Q_GLOBAL_STATIC(QList<QAccessible::InterfaceFactory>, qAccessibleFactories);
 

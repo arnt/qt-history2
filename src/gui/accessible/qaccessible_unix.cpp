@@ -24,8 +24,8 @@
 
 #include <stdlib.h>
 
-Q_GLOBAL_STATIC_LOCKED_WITH_ARGS(QFactoryLoader, loader,
-   (QAccessibleBridgeFactoryInterface_iid, QCoreApplication::libraryPaths(), "/accessiblebridge"))
+Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
+    (QAccessibleBridgeFactoryInterface_iid, QCoreApplication::libraryPaths(), "/accessiblebridge"))
 
 Q_GLOBAL_STATIC(QVector<QAccessibleBridge *>, bridges)
 static bool isInit = false;
