@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qbrowser/helpwindow.cpp#11 $
+** $Id: //depot/qt/main/examples/qbrowser/helpwindow.cpp#12 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -27,11 +27,18 @@
 #include <qlineedit.h>
 #include <qobjectlist.h>
 #include <qfileinfo.h>
+#include <qfile.h>
+#include <qdatastream.h>
+
+#include <ctype.h>
 
 HelpWindow::HelpWindow( const QString& home_, const QString& _path, QWidget* parent, const char *name )
-    : QMainWindow( parent, name, WDestructiveClose ), pathCombo( 0 ), selectedURL(), 
+    : QMainWindow( parent, name, WDestructiveClose ), pathCombo( 0 ), selectedURL(),
       path( QFileInfo( home_ ).dirPath( TRUE ), "*.html *.htm" )
 {
+    readHistory();
+    readBookmarks();
+    
     fileList = path.entryList();
 
     browser = new QTextBrowser( this );
@@ -70,8 +77,27 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path, QWidget* par
     help->insertItem( tr("&About ..."), this, SLOT( about() ) );
     help->insertItem( tr("About &Qt ..."), this, SLOT( aboutQt() ) );
 
+    hist = new QPopupMenu( this );
+    QStringList::Iterator it = history.begin();
+    for ( ; it != history.end(); ++it )
+        mHistory[ hist->insertItem( *it ) ] = *it;
+    connect( hist, SIGNAL( activated( int ) ),
+             this, SLOT( histChosen( int ) ) );
+    
+    bookm = new QPopupMenu( this );
+    bookm->insertItem( tr( "Add Bookmark" ), this, SLOT( addBookmark() ) );
+    bookm->insertSeparator();
+    
+    QStringList::Iterator it2 = bookmarks.begin();
+    for ( ; it2 != bookmarks.end(); ++it2 )
+        mBookmarks[ bookm->insertItem( *it2 ) ] = *it2;
+    connect( bookm, SIGNAL( activated( int ) ),
+             this, SLOT( bookmChosen( int ) ) );
+
     menuBar()->insertItem( tr("&File"), file );
     menuBar()->insertItem( tr("&Go"), go );
+    menuBar()->insertItem( tr( "History" ), hist );
+    menuBar()->insertItem( tr( "Bookmarks" ), bookm );
     menuBar()->insertSeparator();
     menuBar()->insertItem( tr("&Help"), help );
 
@@ -82,7 +108,7 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path, QWidget* par
     connect( browser, SIGNAL( forwardAvailable( bool ) ),
              this, SLOT( setForwardAvailable( bool ) ) );
 
-
+    
     QToolBar* toolbar = new QToolBar( this );
     addToolBar( toolbar, "Toolbar");
     QToolButton* button;
@@ -108,7 +134,7 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path, QWidget* par
     QObjectList *l = queryList( "QLineEdit" );
     if ( l && l->first() )
         ( (QLineEdit*)l->first() )->installEventFilter( this );
-    
+
     browser->setFocus();
 }
 
@@ -136,7 +162,7 @@ void HelpWindow::textChanged()
         path = QDir( QFileInfo( selectedURL ).dirPath( TRUE ), "*.html *.htm" );
         fileList = path.entryList();
         bool exists = FALSE;
-        unsigned int i;
+        int i;
         for ( i = 0; i < pathCombo->count(); ++i ) {
             if ( pathCombo->text( i ) == selectedURL ) {
                 exists = TRUE;
@@ -146,6 +172,7 @@ void HelpWindow::textChanged()
         if ( !exists ) {
             pathCombo->insertItem( selectedURL, 0 );
             pathCombo->setCurrentItem( 0 );
+            mHistory[ hist->insertItem( selectedURL ) ] = selectedURL;
         } else
             pathCombo->setCurrentItem( i );
         selectedURL = QString::null;
@@ -154,6 +181,27 @@ void HelpWindow::textChanged()
 
 HelpWindow::~HelpWindow()
 {
+    history.clear();
+    QMap<int, QString>::Iterator it = mHistory.begin();
+    for ( ; it != mHistory.end(); ++it )
+        history.append( *it );
+    
+    QFile f( QDir::currentDirPath() + "/.history" );
+    f.open( IO_WriteOnly );
+    QDataStream s( &f );
+    s << history;
+    f.close();
+
+    bookmarks.clear();
+    QMap<int, QString>::Iterator it2 = mBookmarks.begin();
+    for ( ; it2 != mBookmarks.end(); ++it2 )
+        bookmarks.append( *it2 );
+    
+    QFile f2( QDir::currentDirPath() + "/.bookmarks" );
+    f2.open( IO_WriteOnly );
+    QDataStream s2( &f2 );
+    s2 << bookmarks;
+    f2.close();
 }
 
 void HelpWindow::about()
@@ -188,6 +236,16 @@ void HelpWindow::pathSelected( const QString &_path )
     browser->setSource( _path );
     path = QDir( QFileInfo( _path ).dirPath( TRUE ), "*.html *.htm" );
     fileList = path.entryList();
+    QMap<int, QString>::Iterator it = mHistory.begin();
+    bool exists = FALSE;
+    for ( ; it != mHistory.end(); ++it ) {
+        if ( *it == _path ) {
+            exists = TRUE;
+            break;
+        }
+    }
+    if ( !exists )
+        mHistory[ hist->insertItem( _path ) ] = _path;
 }
 
 bool HelpWindow::eventFilter( QObject * o, QEvent * e )
@@ -198,9 +256,9 @@ bool HelpWindow::eventFilter( QObject * o, QEvent * e )
 
     QLineEdit *lined = (QLineEdit*)l->first();
 
-    if ( ( o == pathCombo || o == lined ) && 
+    if ( ( o == pathCombo || o == lined ) &&
          e->type() == QEvent::KeyPress ) {
-        
+
         if ( isprint(((QKeyEvent *)e)->ascii()) ) {
             if ( lined->hasMarkedText() )
                 lined->del();
@@ -208,7 +266,7 @@ bool HelpWindow::eventFilter( QObject * o, QEvent * e )
             nt.remove( 0, nt.findRev( '/' ) + 1 );
             nt.truncate( lined->cursorPosition() );
             nt += (char)(((QKeyEvent *)e)->ascii());
-            
+
             QStringList::Iterator it = fileList.begin();
             while ( it != fileList.end() && (*it).left( nt.length() ) != nt )
                 ++it;
@@ -222,7 +280,47 @@ bool HelpWindow::eventFilter( QObject * o, QEvent * e )
             }
         }
     }
-    
+
     return FALSE;
 }
 
+void HelpWindow::readHistory()
+{
+    if ( QFile::exists( QDir::currentDirPath() + "/.history" ) ) {
+        QFile f( QDir::currentDirPath() + "/.history" );
+        f.open( IO_ReadOnly );
+        QDataStream s( &f );
+        s >> history;
+        f.close();
+        while ( history.count() > 20 )
+            history.remove( history.begin() );
+    }
+}
+
+void HelpWindow::readBookmarks()
+{
+    if ( QFile::exists( QDir::currentDirPath() + "/.bookmarks" ) ) {
+        QFile f( QDir::currentDirPath() + "/.bookmarks" );
+        f.open( IO_ReadOnly );
+        QDataStream s( &f );
+        s >> bookmarks;
+        f.close();
+    }
+}
+
+void HelpWindow::histChosen( int i )
+{
+    if ( mHistory.contains( i ) ) 
+        browser->setSource( mHistory[ i ] );
+}
+
+void HelpWindow::bookmChosen( int i )
+{
+    if ( mBookmarks.contains( i ) ) 
+        browser->setSource( mBookmarks[ i ] );
+}
+
+void HelpWindow::addBookmark()
+{
+    mBookmarks[ bookm->insertItem( caption() ) ] = caption();
+}

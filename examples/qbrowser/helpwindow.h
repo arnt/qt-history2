@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qbrowser/helpwindow.h#5 $
+** $Id: //depot/qt/main/examples/qbrowser/helpwindow.h#6 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -14,9 +14,11 @@
 #include <qtextbrowser.h>
 #include <qmainwindow.h>
 #include <qstringlist.h>
+#include <qmap.h>
 #include <qdir.h>
 
 class QComboBox;
+class QPopupMenu;
 
 class HelpWindow : public QMainWindow
 {
@@ -24,9 +26,6 @@ class HelpWindow : public QMainWindow
 public:
     HelpWindow( const QString& home_,  const QString& path, QWidget* parent = 0, const char *name=0 );
     ~HelpWindow();
-
-
-    void setupSlideshow( const QString& file);
 
 private slots:
     void setBackwardAvailable( bool );
@@ -39,16 +38,23 @@ private slots:
     void newWindow();
 
     void pathSelected( const QString & );
-
+    void histChosen( int );
+    void bookmChosen( int );
+    void addBookmark();
+    
 private:
     bool eventFilter( QObject * o, QEvent * e );
-
+    void readHistory();
+    void readBookmarks();
+    
     QTextBrowser* browser;
     QComboBox *pathCombo;
     int backwardId, forwardId;
     QString selectedURL;
     QDir path;
-    QStringList fileList;
+    QStringList fileList, history, bookmarks;
+    QMap<int, QString> mHistory, mBookmarks;
+    QPopupMenu *hist, *bookm;
     
 };
 
