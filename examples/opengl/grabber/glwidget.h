@@ -32,20 +32,24 @@ protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
 
+private slots:
+    void advanceGears();
+
 private:
-    GLuint makeObject();
-    void quad(GLdouble x1, GLdouble y1, GLdouble x2, GLdouble y2,
-              GLdouble x3, GLdouble y3, GLdouble x4, GLdouble y4);
-    void extrude(GLdouble x1, GLdouble y1, GLdouble x2, GLdouble y2);
+    GLuint makeGear(const GLfloat *reflectance, GLdouble innerRadius,
+                    GLdouble outerRadius, GLdouble thickness,
+                    GLdouble toothSize, GLint toothCount);
     void normalizeAngle(int *angle);
 
-    GLuint object;
+    GLuint gear1;
+    GLuint gear2;
+    GLuint gear3;
     int xRot;
     int yRot;
     int zRot;
+    int gear1Rot;
+    
     QPoint lastPos;
-    QColor trolltechGreen;
-    QColor trolltechPurple;
 };
 
 #endif

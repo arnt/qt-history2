@@ -5,22 +5,28 @@
 
 #include "glwidget.h"
 
-GLWidget::GLWidget(QWidget *parent)
+GLWidget::GLWidget(QWidget  * parent)
     : QGLWidget(parent)
 {
-    object = 0;
+    gear1 = 0;
+    gear2 = 0;
+    gear3 = 0;
     xRot = 0;
     yRot = 0;
     zRot = 0;
+    gear1Rot = 0;
 
-    trolltechGreen = QColor::fromCmykF(0.40, 0.0, 1.0, 0.0);
-    trolltechPurple = QColor::fromCmykF(0.39, 0.39, 0.0, 0.0);
+    QTimer  * timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(advanceGears()));
+    timer->start(20);
 }
 
 GLWidget::~GLWidget()
 {
     makeCurrent();
-    glDeleteLists(object, 1);
+    glDeleteLists(gear1, 1);
+    glDeleteLists(gear2, 1);
+    glDeleteLists(gear3, 1);
 }
 
 void GLWidget::setXRotation(int angle)
@@ -55,26 +61,57 @@ void GLWidget::setZRotation(int angle)
 
 void GLWidget::initializeGL()
 {
-    qglClearColor(trolltechPurple.dark());
-    object = makeObject();
-    glShadeModel(GL_FLAT);
+    static const GLfloat lightPos[4] = { 5.0, 5.0, 10.0, 1.0 };
+    static const GLfloat reflectance1[4] = { 0.8, 0.1, 0.0, 1.0 };
+    static const GLfloat reflectance2[4] = { 0.0, 0.8, 0.2, 1.0 };
+    static const GLfloat reflectance3[4] = { 0.2, 0.2, 1.0, 1.0 };
+
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+
+    gear1 = makeGear(reflectance1, 1.0, 4.0, 1.0, 0.7, 20);
+    gear2 = makeGear(reflectance2, 0.5, 2.0, 2.0, 0.7, 10);
+    gear3 = makeGear(reflectance3, 1.3, 2.0, 0.5, 0.7, 10);
+
+    glEnable(GL_NORMALIZE);
 }
 
 void GLWidget::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glLoadIdentity();
-    glTranslated(0.0, 0.0, -10.0);
+
+    glPushMatrix();
     glRotated(xRot / 16.0, 1.0, 0.0, 0.0);
     glRotated(yRot / 16.0, 0.0, 1.0, 0.0);
     glRotated(zRot / 16.0, 0.0, 0.0, 1.0);
-    glCallList(object);
+
+    glPushMatrix();
+    glTranslated(-3.0, -2.0, 0.0);
+    glRotated(gear1Rot / 16.0, 0.0, 0.0, 1.0);
+    glCallList(gear1);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslated(3.1, -2.0, 0.0);
+    glRotated(-2.0 * (gear1Rot / 16.0)-9.0, 0.0, 0.0, 1.0);
+    glCallList(gear2);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslated(-3.1, 2.2, -1.8);
+    glRotated(90.0, 1.0, 0.0, 0.0);
+    glRotated(2.0 * (gear1Rot / 16.0)-2.0, 0.0, 0.0, 1.0);
+    glCallList(gear3);
+    glPopMatrix();
+
+    glPopMatrix();
 }
 
 void GLWidget::resizeGL(int width, int height)
 {
+#if 0
     int side = qMin(width, height);
     glViewport((width - side) / 2, (height - side) / 2, side, side);
 
@@ -82,14 +119,26 @@ void GLWidget::resizeGL(int width, int height)
     glLoadIdentity();
     glOrtho(-0.5, +0.5, +0.5, -0.5, 4.0, 15.0);
     glMatrixMode(GL_MODELVIEW);
+#else
+    GLdouble w = (float) width / (float) height;
+    GLdouble h = 1.0;
+
+    glViewport(0, 0, width, height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glFrustum(-w, w, -h, h, 5.0, 60.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glTranslated(0.0, 0.0, -40.0);
+#endif
 }
 
-void GLWidget::mousePressEvent(QMouseEvent *event)
+void GLWidget::mousePressEvent(QMouseEvent  * event)
 {
     lastPos = event->pos();
 }
 
-void GLWidget::mouseMoveEvent(QMouseEvent *event)
+void GLWidget::mouseMoveEvent(QMouseEvent  * event)
 {
     int dx = event->x() - lastPos.x();
     int dy = event->y() - lastPos.y();
@@ -104,91 +153,106 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     lastPos = event->pos();
 }
 
-GLuint GLWidget::makeObject()
+void GLWidget::advanceGears()
 {
+    gear1Rot += 2 * 16;
+    updateGL();
+}
+
+GLuint GLWidget::makeGear(const GLfloat *reflectance, GLdouble innerRadius,
+                          GLdouble outerRadius, GLdouble thickness,
+                          GLdouble toothSize, GLint toothCount)
+{
+    const double Pi = 3.14159265358979323846;
+
+    GLdouble r0 = innerRadius;
+    GLdouble r1 = outerRadius - toothSize / 2.0;
+    GLdouble r2 = outerRadius + toothSize / 2.0;
+    GLdouble delta = (2.0 * Pi / toothCount) / 4.0;
+    GLdouble z = thickness / 2.0;
+
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
+    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, reflectance);
 
-    glBegin(GL_QUADS);
+    glShadeModel(GL_FLAT);
 
-    GLdouble x1 = +0.06;
-    GLdouble y1 = -0.14;
-    GLdouble x2 = +0.14;
-    GLdouble y2 = -0.06;
-    GLdouble x3 = +0.08;
-    GLdouble y3 = +0.00;
-    GLdouble x4 = +0.30;
-    GLdouble y4 = +0.22;
+    int i;
 
-    quad(x1, y1, x2, y2, y2, x2, y1, x1);
-    quad(x3, y3, x4, y4, y4, x4, y3, x3);
+    for (int j = 0; j < 2; ++j) {
+        GLdouble sign = (j == 0) ? +1.0 : -1.0;
 
-    extrude(x1, y1, x2, y2);
-    extrude(x2, y2, y2, x2);
-    extrude(y2, x2, y1, x1);
-    extrude(y1, x1, x1, y1);
-    extrude(x3, y3, x4, y4);
-    extrude(x4, y4, y4, x4);
-    extrude(y4, x4, y3, x3);
+        glNormal3d(0.0, 0.0, sign);
 
-    const double Pi = 3.14159265358979323846;
-    const int NumSectors = 200;
+        glBegin(GL_QUAD_STRIP);
+        for (i = 0; i <= toothCount; ++i) {
+            GLdouble angle = i * 2.0 * Pi / toothCount;
+	    glVertex3d(r0 * cos(angle), r0 * sin(angle), sign * z);
+	    glVertex3d(r1 * cos(angle), r1 * sin(angle), sign * z);
+	    glVertex3d(r0 * cos(angle), r0 * sin(angle), sign * z);
+	    glVertex3d(r1 * cos(angle + 3 * delta), r1 * sin(angle + 3 * delta),
+                       sign * z);
+        }
+        glEnd();
 
-    for (int i = 0; i < NumSectors; ++i) {
-        double angle1 = (i * 2 * Pi) / NumSectors;
-        GLdouble x5 = 0.30 * sin(angle1);
-        GLdouble y5 = 0.30 * cos(angle1);
-        GLdouble x6 = 0.20 * sin(angle1);
-        GLdouble y6 = 0.20 * cos(angle1);
-
-        double angle2 = ((i + 1) * 2 * Pi) / NumSectors;
-        GLdouble x7 = 0.20 * sin(angle2);
-        GLdouble y7 = 0.20 * cos(angle2);
-        GLdouble x8 = 0.30 * sin(angle2);
-        GLdouble y8 = 0.30 * cos(angle2);
-
-        quad(x5, y5, x6, y6, x7, y7, x8, y8);
-
-        extrude(x6, y6, x7, y7);
-        extrude(x8, y8, x5, y5);
+        glBegin(GL_QUADS);
+        for (i = 0; i < toothCount; ++i) {
+            GLdouble angle = i * 2.0 * Pi / toothCount;
+	    glVertex3d(r1 * cos(angle), r1 * sin(angle), sign * z);
+	    glVertex3d(r2 * cos(angle + delta), r2 * sin(angle + delta),
+                       sign * z);
+	    glVertex3d(r2 * cos(angle + 2 * delta), r2 * sin(angle + 2 * delta),
+                       sign * z);
+	    glVertex3d(r1 * cos(angle + 3 * delta), r1 * sin(angle + 3 * delta),
+                       sign * z);
+        }
+        glEnd();
     }
 
+    glBegin(GL_QUAD_STRIP);
+    for (i = 0; i < toothCount; ++i) {
+        for (int j = 0; j < 2; ++j) {
+            GLdouble s1 = r1;
+            GLdouble s2 = r2;
+            if (j == 0)
+                qSwap(s1, s2);
+
+            GLdouble angle = ((i * 2.0) + j) * Pi / toothCount;
+
+	    glNormal3d(cos(angle), sin(angle), 0.0);
+	    glVertex3d(s2 * cos(angle), s2 * sin(angle), +z);
+	    glVertex3d(s2 * cos(angle), s2 * sin(angle), -z);
+
+	    glNormal3d(s1 * sin(angle + delta) - s2 * sin(angle),
+                       s2 * cos(angle) - s1 * cos(angle + delta), 0.0);
+	    glVertex3d(s1 * cos(angle + delta), s1 * sin(angle + delta), +z);
+	    glVertex3d(s1 * cos(angle + delta), s1 * sin(angle + delta), -z);
+        }
+    }
+    glVertex3d(r1, 0.0, +z);
+    glVertex3d(r1, 0.0, -z);
+    glEnd();
+
+    glShadeModel(GL_SMOOTH);
+
+    glBegin(GL_QUAD_STRIP);
+    for (i = 0; i <= toothCount; ++i) {
+	GLdouble angle = i * 2.0 * Pi / toothCount;
+	glNormal3d(-cos(angle), -sin(angle), 0.0);
+	glVertex3d(r0 * cos(angle), r0 * sin(angle), -thickness / 2.0);
+	glVertex3d(r0 * cos(angle), r0 * sin(angle), thickness / 2.0);
+    }
     glEnd();
 
     glEndList();
+
     return list;
 }
 
-void GLWidget::quad(GLdouble x1, GLdouble y1, GLdouble x2, GLdouble y2,
-                    GLdouble x3, GLdouble y3, GLdouble x4, GLdouble y4)
+void GLWidget::normalizeAngle(int  * angle)
 {
-    qglColor(trolltechGreen);
-
-    glVertex3d(x1, y1, -0.05);
-    glVertex3d(x2, y2, -0.05);
-    glVertex3d(x3, y3, -0.05);
-    glVertex3d(x4, y4, -0.05);
-
-    glVertex3d(x4, y4, +0.05);
-    glVertex3d(x3, y3, +0.05);
-    glVertex3d(x2, y2, +0.05);
-    glVertex3d(x1, y1, +0.05);
-}
-
-void GLWidget::extrude(GLdouble x1, GLdouble y1, GLdouble x2, GLdouble y2)
-{
-    qglColor(trolltechGreen.dark(250 + int(100 * x1)));
-
-    glVertex3d(x1, y1, +0.05);
-    glVertex3d(x2, y2, +0.05);
-    glVertex3d(x2, y2, -0.05);
-    glVertex3d(x1, y1, -0.05);
-}
-
-void GLWidget::normalizeAngle(int *angle)
-{
-    while (*angle < 0)
-        *angle += 360 * 16;
-    while (*angle > 360 * 16)
-        *angle -= 360 * 16;
+    while ( * angle < 0)
+         * angle += 360 * 16;
+    while ( * angle > 360 * 16)
+         * angle -= 360 * 16;
 }
