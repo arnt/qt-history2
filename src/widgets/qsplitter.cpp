@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#19 $
 **
 **  Splitter widget
 **
@@ -251,7 +251,7 @@ void QSplitter::setOrientation( Orientation o )
 	return;
     orient = o;
     d->setOrientation( o );
-    recalc();
+    recalc( isVisible() );
 }
 
 /*!
@@ -262,16 +262,17 @@ void QSplitter::setOrientation( Orientation o )
 */
 
 
-QCOORD QSplitter::newpos() const 
+QCOORD QSplitter::newpos() const
 {
     int s = pick(contentsRect().size());
+    int p0 = pick(contentsRect().topLeft());
     int s1 = w1 ? pick(w1->size()) : 1;
     int s2 = w2 ? pick(w2->size()) : 1;
     if ( fixedWidget ) {
-	return fixedWidget == w1 ? s1 : s - s2;
+	return fixedWidget == w1 ? s1 + p0 : s - s2 - 2*bord + p0;
     } else {
-	int r = (256*s1) / (s1+s2);
-	return ( s * r) / 256;
+	float r = (1.0*s1) / (s1 + s2 + 2*bord);
+	return (QCOORD)( s * r) +  p0;
     }
 }
 
@@ -323,7 +324,7 @@ void QSplitter::childInsertEvent( QChildEvent *c )
 {
     if ( c->child() == d ||  c->child() == w1 || c->child() == w2 )
 	return;
-    
+
     if ( !w1  ) {
 	w1 = c->child();
     } else if ( !w2 ) {
@@ -333,10 +334,10 @@ void QSplitter::childInsertEvent( QChildEvent *c )
     else
 	warning( "QSplitter (%s): Error when inserting %s ( %s ), \n"
 		 "max two child widgets currently supported",
-		 name( "unnamed" ), c->child()->className(), 
+		 name( "unnamed" ), c->child()->className(),
 		 c->child()->name( "unnamed")  );
-#endif    
-    recalc();
+#endif
+    recalc( isVisible() );
 }
 
 
@@ -347,7 +348,7 @@ void QSplitter::childInsertEvent( QChildEvent *c )
 
 void QSplitter::layoutHintEvent( QEvent * )
 {
-    recalc();
+    recalc( isVisible() );
 }
 
 
@@ -429,12 +430,12 @@ void QSplitter::moveSplitter( QCOORD p )
 	w1->setGeometry( r.x(), r.y(), p - r.x(), r.height() );
 	d->setGeometry( p, r.y(), 2*bord, r.height() );
 	p += 2*bord;
-	w2->setGeometry( p, r.y(), r.width() - p, r.height() );
+	w2->setGeometry( p, r.y(), r.width() - p + r.x(), r.height() );
     } else {
 	w1->setGeometry( r.x(), r.y(), r.width(), p - r.y() );
 	d->setGeometry( r.x(), p, r.width(), 2*bord );
 	p += 2*bord;
-	w2->setGeometry( r.x(), p, r.width(), r.height() - p );
+	w2->setGeometry( r.x(), p, r.width(), r.height() - p + r.y() );
     }
 }
 
@@ -442,8 +443,7 @@ void QSplitter::moveSplitter( QCOORD p )
 
 
 /*!
-  Returns the legal position of the splitter closest to \a p, and sets the
-  chosen ratio.
+  Returns the legal position of the splitter closest to \a p.
 */
 
 int QSplitter::adjustPos( int p )
@@ -460,11 +460,11 @@ int QSplitter::adjustPos( int p )
     min = QMAX( min, p1 - pick( w2->maximumSize() ) -2*bord + 1 );
 
     QCOORD max = p1 - 1; //### no zero size widgets
-    max = QMIN( max, p1 - pick( w2->minimumSize() ) );
-    max = QMIN( max, p0 + pick( w1->maximumSize() ) -2*bord + 1 );
+    max = QMIN( max, p1 - pick( w2->minimumSize() ) -2*bord + 1 );
+    max = QMIN( max, p0 + pick( w1->maximumSize() ) );
 
-    p -= bord; // measure from prev->right
-    p = QMAX( min, QMIN( p, max - 2*bord ) );
+    //    p -= bord; // measure from w1->right
+    p = QMAX( min, QMIN( p, max ) );
 
     return p;
 }
@@ -518,29 +518,32 @@ void QSplitter::doResize()
 
 void QSplitter::recalc( bool update)
 {
+    int fi = 2*frameWidth();
     if ( !w1 || !w2 ) {
 	QRect r = contentsRect();
-	if ( w1 ) {
-	    setMaximumSize( w1->maximumSize() );
-	    setMinimumSize( w1->minimumSize() );
+	QWidget *w = w1 ? w1 : w2;
+	if ( w ) {
+	    int ww = (int)w->maximumSize().width() + fi;
+	    ww = QMIN( ww, QCOORD_MAX );
+	    int hh = (int)w->maximumSize().height() + fi;
+	    hh = QMIN( hh, QCOORD_MAX );
+	    setMaximumSize( ww, hh );
+
+	    QSize fs( fi, fi );
+	    setMinimumSize( w->minimumSize() + fs );
 	    if ( update )
-		w1->setGeometry( r.x(), r.y(), r.width(), r.height() );
-	}
-	else if ( w2 ){
-	    setMaximumSize( w2->maximumSize() );
-	    setMinimumSize( w2->minimumSize() );
-	    if ( update )
-		w2->setGeometry(r.x(), r.y(), r.width(), r.height() );
+		w->setGeometry( r.x(), r.y(), r.width(), r.height() );
 	}
 	return;
     }
 
-    int maxl = pick(w1->maximumSize()) + pick(w2->maximumSize()) + bord*2;
+    int maxl = pick(w1->maximumSize()) + pick(w2->maximumSize()) + bord*2 + fi;
     maxl = QMIN( maxl, QCOORD_MAX );
-    int minl = pick(w1->minimumSize()) + pick(w2->minimumSize()) + bord*2;
+    int minl = pick(w1->minimumSize()) + pick(w2->minimumSize()) + bord*2 + fi;
 
-    int maxt = QMIN( trans(w1->maximumSize()),trans(w2->maximumSize()) );
-    int mint = QMAX( trans(w1->minimumSize()), trans(w2->minimumSize()) );
+    int maxt = QMIN( trans(w1->maximumSize()),trans(w2->maximumSize()) ) + fi;
+    maxt = QMIN( maxt, QCOORD_MAX );
+    int mint = QMAX( trans(w1->minimumSize()), trans(w2->minimumSize()) ) + fi;
 
     if ( maxt < mint )
 	maxt = mint;
@@ -561,9 +564,9 @@ void QSplitter::recalc( bool update)
 /*!
   Sets resize mode of  \a w to \a mode.
   \a mode can be \c Stretch (the default) which means that \a w will
-  resize when the splitter resizes, or \c KeepSize which means that 
+  resize when the splitter resizes, or \c KeepSize which means that
   \a w will keep its size.
-  
+
 */
 
 void QSplitter::setResizeMode( QWidget *w, ResizeMode mode )
@@ -603,7 +606,7 @@ QWidget * QSplitter::splitterWidget()
 #if 0
 /*!
   Hides \a w if \a hide is TRUE, and updates the splitter.
-  
+
   \warning Due to a limitation in the current implementation,
   calling QWidget::hide() will not work.
 */
@@ -622,7 +625,7 @@ void QSplitter::setHidden( QWidget *w, bool hide )
     }
     if ( hide )
 	w->hide();
-    else 
+    else
 	w->show();
     recalc( TRUE );
 }
@@ -634,7 +637,7 @@ void QSplitter::setHidden( QWidget *w, bool hide )
 
 bool QSplitter::isHidden( QWidget *w ) const
 {
-    if ( w == w1 ) 
+    if ( w == w1 )
 	return !w1show;
      else if ( w == w2 )
 	return !w2show;
@@ -642,7 +645,7 @@ bool QSplitter::isHidden( QWidget *w ) const
     else
 	warning( "QSplitter::isHidden(), unknown widget" );
 #endif	
-    return FALSE; 
+    return FALSE;
 }
 #endif
 
@@ -667,11 +670,11 @@ void QSplitter::moveToFirst( QWidget *w )
     } else {
 	warning( "QSplitter (%s)::toFirst  %s ( %s ), \n"
 		 "max two widgets currently supported",
-		 name( "unnamed" ), w->className(), 
+		 name( "unnamed" ), w->className(),
 		 w->name( "unnamed")  );
-    }  
+    }
 	
-    recalc( TRUE );
+    recalc( isVisible() );
 
 }
 
@@ -696,9 +699,9 @@ void QSplitter::moveToLast( QWidget *w )
     } else {
 	warning( "QSplitter (%s)::toLast  %s ( %s ), \n"
 		 "max two widgets currently supported",
-		 name( "unnamed" ), w->className(), 
+		 name( "unnamed" ), w->className(),
 		 w->name( "unnamed")  );
-    }     
+    }
 	
-    recalc( TRUE );
+    recalc( isVisible() );
 }
