@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 #endif
 #ifndef QT_NO_OPENGL
     QGLFormat f = QGLFormat::defaultFormat();
-//    f.setSampleBuffers(true);
+    f.setSampleBuffers(true);
     f.setStencil(true);
     QGLFormat::setDefaultFormat(f);
     if (QGLFormat::hasOpenGL())

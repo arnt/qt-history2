@@ -391,6 +391,9 @@ void *QGLContext::chooseVisual()
     QGLFormat fmt = format();
     bool tryDouble = !fmt.doubleBuffer();  // Some GL impl's only have double
     bool triedDouble = false;
+    bool triedSample = false;
+    if (fmt.sampleBuffers())
+        fmt.setSampleBuffers(QGLExtensions::glExtensions & QGLExtensions::SampleBuffers);
     while(!fail && !(vis = tryVisual(fmt, bufDepths[i]))) {
         if (!fmt.rgba() && bufDepths[i] > 1) {
             i++;
@@ -428,6 +431,11 @@ void *QGLContext::chooseVisual()
         }
         if (fmt.doubleBuffer()) {
             fmt.setDoubleBuffer(false);
+            continue;
+        }
+        if (!triedSample && fmt.sampleBuffers()) {
+            fmt.setSampleBuffers(false);
+            triedSample = true;
             continue;
         }
         fail = true;
@@ -531,8 +539,7 @@ void *QGLContext::tryVisual(const QGLFormat& f, int bufDepth)
         spec[i++] = bufDepth;
     }
 
-    if (QGLExtensions::glExtensions & QGLExtensions::SampleBuffers
-        && f.sampleBuffers()) {
+    if (f.sampleBuffers()) {
         spec[i++] = GLX_SAMPLE_BUFFERS_ARB;
         spec[i++] = 1;
         spec[i++] = GLX_SAMPLES_ARB;
