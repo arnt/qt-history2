@@ -91,12 +91,13 @@ the directories where you choose to install Qt.
     information on known issues.
 
 
-5.  Installing.
+5.  Launching Qt applications from the Finder.
 
-    Once you have built Qt, it is ready to use. If
-    you want to be able to double-click on your applications in the
-    Finder, you must place the relevant libraries in a directory where
-    they can be found. We recommend making these symbolic links:
+    Once you have built Qt, it is ready to use. If Qt has been configued
+    without the -static option, then in order to be able to double-click
+    on your applications in the Finder you must place the relevant
+    libraries in a directory where they can be found. We recommend
+    making these symbolic links:
 
     ln -sf $QTDIR/lib/libqt.3.dylib /usr/lib
     ln -sf $QTDIR/lib/libqui.1.dylib /usr/lib
