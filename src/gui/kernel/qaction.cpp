@@ -125,21 +125,6 @@ QAction::QAction(QWidget* parent)
 }
 
 /*!
-    Constructs an action with some \a text and a submenu given by
-    \a menu for the \a parent action group. The action will be
-    automatically inserted into the action group.
-*/
-QAction::QAction(const QString &text, QMenu *menu, QActionGroup* parent)
-    : QObject(*(new QActionPrivate), parent)
-{
-    d->text = text;
-    d->menu = menu;
-    d->group = parent;
-    if(parent)
-        parent->addAction(this);
-}
-
-/*!
     Constructs an action with some \a text for the \a parent action
     group. The action will be automatically inserted into the
     action group.
@@ -166,18 +151,6 @@ QAction::QAction(const QIconSet &icon, const QString &text, QActionGroup* parent
     d->group = parent;
     if(parent)
         parent->addAction(this);
-}
-
-/*!
-    Constructs an action with some \a text and a submenu given by
-    \a menu for the \a parent widget. The action will \e not be
-    automatically inserted into the widget.
-*/
-QAction::QAction(const QString &text, QMenu *menu, QWidget* parent)
-    : QObject(*(new QActionPrivate), parent)
-{
-    d->text = text;
-    d->menu = menu;
 }
 
 /*!

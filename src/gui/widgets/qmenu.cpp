@@ -653,7 +653,7 @@ QMenu::~QMenu()
 */
 QAction *QMenu::addAction(const QString &text)
 {
-    QAction *ret = new QAction(text);
+    QAction *ret = new QAction(text, this);
     addAction(ret);
     return ret;
 }
@@ -669,7 +669,7 @@ QAction *QMenu::addAction(const QString &text)
 */
 QAction *QMenu::addAction(const QIconSet &icon, const QString &text)
 {
-    QAction *ret = new QAction(icon, text);
+    QAction *ret = new QAction(icon, text, this);
     addAction(ret);
     return ret;
 }
@@ -720,7 +720,8 @@ QAction *QMenu::addAction(const QIconSet &icon, const QString &text, const QObje
 */
 QAction *QMenu::addMenu(const QString &text, QMenu *menu)
 {
-    QAction *ret = new QAction(text, menu, this);
+    QAction *ret = new QAction(text, this);
+    ret->setMenu(menu);
     addAction(ret);
     return ret;
 }
@@ -737,7 +738,8 @@ QAction *QMenu::addMenu(const QString &text, QMenu *menu)
 */
 QAction *QMenu::addMenu(const QIconSet &icon, const QString &text, QMenu *menu)
 {
-    QAction *ret = new QAction(text, menu, this);
+    QAction *ret = new QAction(text, this);
+    ret->setMenu(menu);
     ret->setIcon(icon);
     addAction(ret);
     return ret;
@@ -769,7 +771,8 @@ QAction *QMenu::addSeparator()
 */
 QAction *QMenu::insertMenu(QAction *before, const QString &text, QMenu *menu)
 {
-    QAction *ret = new QAction(text, menu, this);
+    QAction *ret = new QAction(text, this);
+    ret->setMenu(menu);
     insertAction(before, ret);
     return ret;
 }
@@ -786,7 +789,8 @@ QAction *QMenu::insertMenu(QAction *before, const QString &text, QMenu *menu)
 */
 QAction *QMenu::insertMenu(QAction *before, const QIconSet &icon, const QString &text, QMenu *menu)
 {
-    QAction *ret = new QAction(text, menu, this);
+    QAction *ret = new QAction(text, this);
+    ret->setMenu(menu);
     ret->setIcon(icon);
     insertAction(before, ret);
     return ret;
