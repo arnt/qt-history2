@@ -463,7 +463,7 @@ bool QSqlTableModel::insert(const QSqlRecord &values)
             return false;
         }
     }
-    qDebug("executed: %s", d->editQuery.executedQuery().ascii());
+    qDebug("executed: %s", stmt.ascii());
     return true;
 }
 
@@ -481,10 +481,16 @@ bool QSqlTableModel::submitChanges()
     case OnRowChange:
         if (d->editBuffer.isEmpty())
             return true;
-        if (!update(d->editIndex, d->editBuffer))
-            return false;
+        if (d->insertIndex != -1) {
+            if (!insert(d->editBuffer))
+                return false;
+        } else {
+            if (!update(d->editIndex, d->editBuffer))
+                return false;
+        }
         d->clearEditBuffer();
         d->editIndex = -1;
+        d->insertIndex = -1;
         select();
         break;
     case OnManualSubmit:
