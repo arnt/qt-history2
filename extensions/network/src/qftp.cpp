@@ -33,6 +33,8 @@
 
 #define QFTP_MAX_BYTES 1024
 
+//#define QFTP_DEBUG
+
 /*!
   \class QFtp qftp.h
   \brief The QFtp class implements the FTP protocol
@@ -112,6 +114,9 @@ QFtp::~QFtp()
 void QFtp::operationListChildren( QNetworkOperation *op )
 {
     errorInListChildren = FALSE;
+#ifdef QSOCKET_DEBUG
+    qDebug( "QFtp: switch command socket to passive mode!" );
+#endif
     commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
 }
 
@@ -175,16 +180,30 @@ void QFtp::operationPut( QNetworkOperation *op )
 
 bool QFtp::checkConnection( QNetworkOperation *op )
 {
-    if ( commandSocket->isOpen() && connectionReady && !passiveMode )
+#ifdef QSOCKET_DEBUG
+    qDebug( "QFtp: checkConnection" );
+#endif
+    if ( commandSocket->isOpen() && connectionReady && !passiveMode ) {
+#ifdef QSOCKET_DEBUG
+	qDebug( "QFtp: connection ok!" );
+#endif
 	return TRUE;
+    }
 
-    if ( commandSocket->isOpen() )
+    if ( commandSocket->isOpen() ) {
+#ifdef QSOCKET_DEBUG
+	qDebug( "QFtp: command socket open but connection not ok!" );
+#endif
 	return FALSE;
+    }
 
     connectionReady = FALSE;
     commandSocket->connectToHost( url()->host(),
 				  url()->port() != -1 ? url()->port() : 21 );
 
+#ifdef QSOCKET_DEBUG
+	qDebug( "QFtp: try connecting!" );
+#endif
     return FALSE;
 }
 
@@ -386,8 +405,10 @@ void QFtp::readyRead()
     if ( !ok )
 	return;
 
-    //qDebug( "%s", s.data() );
-
+#ifdef QFTP_DEBUG
+    qDebug( "QFtp: readyRead; %s", s.data() );
+#endif
+    
     if ( s.left( 1 ) == "1" )
 	okButTryLater( code, s );
     else if ( s.left( 1 ) == "2" )
@@ -448,15 +469,28 @@ void QFtp::okGoOn( int code, const QCString &data )
 	}
     } break;
     case 220: { // expect USERNAME
+#ifdef QFTP_DEBUG
+	qDebug( "QFtp: start login porcess" );
+#endif
 	QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
 	QString cmd = "USER " + user + "\r\n";
+#ifdef QFTP_DEBUG
+	qDebug( "QFtp: write to command socket: \"%s\"", cmd.latin1() );
+#endif
+	
 	commandSocket->writeBlock( cmd, cmd.length() );
 	connectionReady = FALSE;
     } break;
     case 230: // succesfully logged in
+#ifdef QFTP_DEBUG
+	qDebug( "QFtp: connection is ready, successful logged int!" );
+#endif
 	connectionReady = TRUE;
 	break;
     case 227: { // open the data connection (passive mode)
+#ifdef QSOCKET_DEBUG
+	qDebug( "QFtp: command socket switched to passive mode, open data connection" );
+#endif
 	QCString s = data;
 	int i = s.find( "(" );
 	int i2 = s.find( ")" );
@@ -475,6 +509,9 @@ void QFtp::okGoOn( int code, const QCString &data )
 	    if ( !errorInListChildren ) {
 		operationInProgress()->setState( StInProgress );
 		dataSocket->setMode( QSocket::Ascii );
+#ifdef QSOCKET_DEBUG
+		qDebug( "QFtp: list children (command socket is passive!" );
+#endif
 		commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
 		emit start( operationInProgress() );
 		passiveMode = TRUE;
@@ -533,8 +570,14 @@ void QFtp::okButNeedMoreInfo( int code, const QCString & )
 {
     switch ( code ) {
     case 331: // expect PASSWORD
+#ifdef QFTP_DEBUG
+	qDebug( "QFtp: write password" );
+#endif
 	QString pass = url()->pass().isEmpty() ? QString( "info@troll.no" ) : url()->pass();
 	QString cmd = "PASS " + pass + "\r\n";
+#ifdef QFTP_DEBUG
+	qDebug( "QFtp: write to command socket: \"%s\"", cmd.latin1() );
+#endif
 	commandSocket->writeBlock( cmd, cmd.length() );
 	connectionReady = FALSE;
 	break;
@@ -621,12 +664,18 @@ void QFtp::dataHostFound()
 
 void QFtp::dataConnected()
 {
+#ifdef QSOCKET_DEBUG
+    qDebug( "QFtp: data socket connected" );
+#endif
     if ( !operationInProgress() )
 	return;
     switch ( operationInProgress()->operation() ) {
     case OpListChildren: { // change dir first
 	QString path = url()->path().isEmpty() ? QString( "/" ) : url()->path();
 	QString cmd = "CWD " + path + "\r\n";
+#ifdef QSOCKET_DEBUG
+	qDebug( "QFtp: list children (data socket), to command socket write \"%s\"", cmd.latin1(); );
+#endif
 	commandSocket->writeBlock( cmd.latin1(), cmd.length() );
     } break;
     case OpGet: { // retrieve file
@@ -695,6 +744,9 @@ void QFtp::dataClosed()
 
 void QFtp::dataReadyRead()
 {
+#ifdef QSOCKET_DEBUG
+    qDebug( "QFtp: read on data socket" );
+#endif
     if ( !operationInProgress() )
 	return;
 
