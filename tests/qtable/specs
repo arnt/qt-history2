@@ -77,5 +77,3 @@ Other todos:
 
 - Optimize for flicker freeness and speed (only redraw changing parts
 of selections if the user selects stuff, etc.)
-- Document that QTableItems are shared because of multicells, so don't delete, but deref()
-- Document that multicells only work with QTableItems

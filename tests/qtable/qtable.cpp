@@ -42,6 +42,23 @@
 
   By reimplementing paint(), key(), editor() and
   setContentFromEditor() you can change this.
+  
+  As it is possible to put one item multiple times into a QTable (this
+  is internally used e.g. for multicells), QTableItem is derived from
+  QShared to do reference counting. So never do a
+  
+  \code
+  QTableItem *item = .....
+  delete item;
+  \endcode
+  
+  but always do instead
+  
+  \code
+  QTableItem *item = .....
+  if ( item && item->deref() == 0 )
+      delete item;
+  \endcode
 */
 
 /*! \fn QTable *QTableItem::table() const
