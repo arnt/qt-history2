@@ -256,7 +256,7 @@ static bool block_set_alignment = FALSE;
 
     QTextEdit works on paragraphs and characters. A paragraph is a
     formatted string which is word-wrapped to fit into the width of
-    the widget. By default when reading plain text, two newlines
+    the widget. By default when reading plain text, one newline
     signify a paragraph. A document consists of zero or more
     paragraphs, indexed from 0. Characters are indexed on a
     per-paragraph basis, also indexed from 0. The words in the
