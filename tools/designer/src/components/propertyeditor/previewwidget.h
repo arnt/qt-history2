@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef PREVIEWWIDGETIMPL_H
-#define PREVIEWWIDGETIMPL_H
+#ifndef PREVIEWWIDGET_H
+#define PREVIEWWIDGET_H
 
 #include "ui_previewwidget.h"
 
@@ -30,4 +30,4 @@ private:
 	void installEventFilters(QWidget *parent);
 };
 
-#endif
+#endif // PREVIEWWIDGET_H

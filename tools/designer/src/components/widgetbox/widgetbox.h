@@ -1,11 +1,24 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef WIDGETBOX_H
 #define WIDGETBOX_H
 
-#include <QDomDocument>
-
+#include "widgetbox_global.h"
 #include "abstractwidgetbox.h"
 #include "abstractformwindowmanager.h"
-#include "widgetbox_global.h"
+
+#include <QDomDocument>
 
 class AbstractFormEditor;
 class AbstractFormWindow;
@@ -61,4 +74,4 @@ private:
     QAction *m_form_mode_action;
 };
 
-#endif
+#endif // WIDGETBOX_H

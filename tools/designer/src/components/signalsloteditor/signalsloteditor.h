@@ -1,14 +1,27 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef SIGNALSLOTEDITOR_H
 #define SIGNALSLOTEDITOR_H
 
-#include <QtXml/QDomDocument>
-#include <QtXml/QDomElement>
+#include "signalsloteditor_global.h"
 
 #include <connectionedit.h>
 #include <abstractformeditor.h>
 #include <abstractformwindow.h>
 
-#include "signalsloteditor_global.h"
+#include <QtXml/QDomDocument>
+#include <QtXml/QDomElement>
 
 class DomConnections;
 class DomConnection;
@@ -54,4 +67,4 @@ private:
     AbstractFormWindow *m_form_window;
 };
 
-#endif
+#endif // SIGNALSLOTEDITOR_H

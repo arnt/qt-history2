@@ -11,14 +11,14 @@
 **
 ****************************************************************************/
 
-#ifndef PALETTEEDITORIMPL_H
-#define PALETTEEDITORIMPL_H
+#ifndef PALETTEEDITOR_H
+#define PALETTEEDITOR_H
 
+#include "propertyeditor_global.h"
+#include "ui_paletteeditor.h"
 #include <qvariant.h>
 #include <qdialog.h>
 #include <qmap.h>
-#include "propertyeditor_global.h"
-#include "ui_paletteeditor.h"
 
 class QT_PROPERTYEDITOR_EXPORT PaletteEditor : public QDialog, public Ui::PaletteEditorBase
 {
@@ -58,4 +58,4 @@ private:
     QMap<int, QString> *snrMap;
 };
 
-#endif
+#endif // PALETTEEDITOR_H

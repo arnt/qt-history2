@@ -1,9 +1,10 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
-** This file is part of Qt Designer.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -29,7 +30,6 @@
 #include <qbitmap.h>
 #include <qsplitter.h>
 #include <qmainwindow.h>
-//#include <qalgorithms.h>
 
 bool operator<(const QPointer<QWidget> &p1, const QPointer<QWidget> &p2)
 {
@@ -914,5 +914,3 @@ void GridLayout::buildGrid()
     
     grid->simplify();
 }
-
-

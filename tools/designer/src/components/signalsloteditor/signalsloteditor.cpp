@@ -1,10 +1,18 @@
-#include <QDialog>
-#include <QListWidget>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QLabel>
-#include <qdebug.h>
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#include "signalsloteditor.h"
+#include "default_membersheet.h"
 
 #include <abstractformeditor.h>
 #include <abstractmetadatabase.h>
@@ -12,8 +20,13 @@
 #include <qextensionmanager.h>
 #include <ui4.h>
 
-#include "signalsloteditor.h"
-#include "default_membersheet.h"
+#include <QDialog>
+#include <QListWidget>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QPushButton>
+#include <QLabel>
+#include <qdebug.h>
 
 /*******************************************************************************
 ** SignalSlotDialog

@@ -52,4 +52,4 @@ signals:
 	void changed();
 };
 
-#endif
+#endif // STYLEBUTTON_H
