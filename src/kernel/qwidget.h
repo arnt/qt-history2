@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#11 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#12 $
 **
 ** Definition of QWidget class
 **
@@ -31,75 +31,76 @@ public:
     QWidget( QWidget *parent=0, const char *name=0, WFlags f=0 );
    ~QWidget();
 
-    WId	     id()		const	{ return ident; }
+    WId	    id()		const	{ return ident; }
 
   // GUI style setting
 
     GUIStyle style() const;			// get widget GUI style
-    void     setStyle( GUIStyle );		// set widget GUI style
+    void    setStyle( GUIStyle );		// set widget GUI style
 
   // Widget control functions
 
-    void     enable();				// enable events
-    void     disable();				// disable events
-    bool     isDisabled()	const	{ return testFlag(WState_Disabled); }
+    void    enable();				// enable events
+    void    disable();				// disable events
+    bool    isDisabled()	const	{ return testFlag(WState_Disabled); }
 
   // Widget coordinates (relative to its parent)
 
-    QRect    geometry()		const	{ return ncrect; }
-    QRect    clientGeometry()	const	{ return rect; }
-    QSize    clientSize()	const	{ return rect.size(); }
-    int	     clientWidth()	const	{ return rect.width(); }
-    int	     clientHeight()	const	{ return rect.height(); }
-    QRect    clientRect()	const	{ return QRect(0,0,rect.width(),
+    QRect   geometry()		const	{ return ncrect; }
+    QRect   clientGeometry()	const	{ return rect; }
+    QSize   clientSize()	const	{ return rect.size(); }
+    int	    clientWidth()	const	{ return rect.width(); }
+    int	    clientHeight()	const	{ return rect.height(); }
+    QRect   clientRect()	const	{ return QRect(0,0,rect.width(),
 						       rect.height()); }
-    void     setMinimumSize( int w, int h );
-    void     setMaximumSize( int w, int h );
-    void     setSizeIncrement( int w, int h );
+    void    setMinimumSize( int w, int h );
+    void    setMaximumSize( int w, int h );
+    void    setSizeIncrement( int w, int h );
 
   // Widget coordinate mapping
 
-    QPoint   mapToGlobal( const QPoint & )   const;
-    QPoint   mapFromGlobal( const QPoint & ) const;
-    QPoint   mapToParent( const QPoint & )   const;
-    QPoint   mapFromParent( const QPoint & ) const;
+    QPoint  mapToGlobal( const QPoint & )   const;
+    QPoint  mapFromGlobal( const QPoint & ) const;
+    QPoint  mapToParent( const QPoint & )   const;
+    QPoint  mapFromParent( const QPoint & ) const;
 
   // Widget attribute functions
 
-    bool     setMouseMoveEvents( bool );
+    bool    setMouseMoveEvents( bool );
 
-    QColor   backgroundColor() const;
-    QColor   foregroundColor() const;
+    QColor  backgroundColor() const;
+    QColor  foregroundColor() const;
     virtual void setBackgroundColor( const QColor & );
     virtual void setForegroundColor( const QColor & );
 
-    QFont    font() const;			// get/set font
-    void     setFont( const QFont & );
+    QFont   font() const;			// get/set font
+    void    setFont( const QFont & );
 
-    QCursor  cursor() const;			// get/set cursor
-    void     setCursor( const QCursor & );
+    QCursor cursor() const;			// get/set cursor
+    void    setCursor( const QCursor & );
 
   // Widget management functions
 
-    bool     update();				// update widget
-    virtual  bool show();			// show widget
-    bool     hide();				// hide widget
-    bool     isVisible() const { return testFlag(WState_Visible); }
-    bool     isActive()	 const { return testFlag(WState_Active); }
-    bool     raise();				// raise widget
-    bool     lower();				// lower widget
-    virtual bool move( int x, int y );		// move widget
-    bool     move( const QPoint & );
-    virtual bool resize( int w, int h );	// resize widget
-    bool     resize( const QSize & );
-    virtual bool changeGeometry( int x, int y, int w, int h );
-    bool     changeGeometry( const QRect & );	// move and resize
+    bool    update();				// update widget
+    virtual void show();			// show widget
+    void    hide();				// hide widget
+    bool    close( bool forceKill=FALSE );	// close widget
+    bool    isVisible()	const { return testFlag(WState_Visible); }
+    bool    isActive()	const { return testFlag(WState_Active); }
+    void    raise();				// raise widget
+    void    lower();				// lower widget
+    virtual void move( int x, int y );		// move widget
+    void    move( const QPoint & );
+    virtual void resize( int w, int h );	// resize widget
+    void    resize( const QSize & );
+    virtual void changeGeometry( int x, int y, int w, int h );
+    void    changeGeometry( const QRect & );	// move and resize
 
-    bool     erase();				// erase widget contents
-    bool     scroll( int dx, int dy );		// scroll widget contents
+    void    erase();				// erase widget contents
+    void    scroll( int dx, int dy );		// scroll widget contents
 
-    bool     drawText( int x, int y, const char * );
-    bool     drawText( const QPoint &, const char * );
+    void    drawText( int x, int y, const char * );
+    void    drawText( const QPoint &, const char * );
 
   // Widget events
 
@@ -132,40 +133,40 @@ protected:
 public:
     QWidget *parentWidget()	 const	{ return (QWidget*)QObject::parent(); }
     static QWidget *find( WId );		// find widget by identifier
-    bool     testFlag( WFlags n ) const { return (flags & n) != 0; }
+    bool    testFlag( WFlags n ) const { return (flags & n) != 0; }
 
 #if defined(_WS_X11_)
-    GC	     getGC()  const { return gc; }
+    GC	    getGC()  const { return gc; }
 #endif
 
 protected:
-    void     setFlag( WFlags n )	{ flags |= n; }
-    void     clearFlag( WFlags n )	{ flags &= ~n; }
-    void     setRect( const QRect & );		// set rect, update ncrect
-    void     setNCRect( const QRect & );	// set ncrect, update rect
-    static   ulong nWidgets();			// get number of widgets
+    void    setFlag( WFlags n )	{ flags |= n; }
+    void    clearFlag( WFlags n )	{ flags &= ~n; }
+    void    setRect( const QRect & );		// set rect, update ncrect
+    void    setNCRect( const QRect & );		// set ncrect, update rect
+    static  ulong nWidgets();			// get number of widgets
 
 #if defined(_WS_PM_)
-    int	     convertYPos( int );
-    void     reposChildren();
-    WId	     frm_wnd;
+    int	    convertYPos( int );
+    void    reposChildren();
+    WId	    frm_wnd;
 #elif defined(_WS_X11_)
-    GC	     gc;
+    GC	    gc;
 #endif
 
 private:
-    void     set_id( WId );			// set widget id
-    bool     create();				// create widget
-    bool     destroy();				// destroy widget
-    void     createExtra();			// create extra data
-    WId	     ident;				// widget identifier
-    WFlags   flags;				// widget flags
-    QRect    rect;				// widget geometry
-    QRect    ncrect;				// non-client geometry
-    QColor   bg_col;				// background color
-    QColor   fg_col;				// foreground color
-    QFont    fnt;				// widget font
-    QCursor  curs;				// widget cursor
+    void    set_id( WId );			// set widget id
+    bool    create();				// create widget
+    bool    destroy();				// destroy widget
+    void    createExtra();			// create extra data
+    WId	    ident;				// widget identifier
+    WFlags  flags;				// widget flags
+    QRect   rect;				// widget geometry
+    QRect   ncrect;				// non-client geometry
+    QColor  bg_col;				// background color
+    QColor  fg_col;				// foreground color
+    QFont   fnt;				// widget font
+    QCursor curs;				// widget cursor
     QWExtra *extra;				// extra widget data
     static void createMapper();			// create widget mapper
     static void destroyMapper();		// destroy widget mapper
@@ -173,24 +174,24 @@ private:
 };
 
 
-inline bool QWidget::move( const QPoint &p )
+inline void QWidget::move( const QPoint &p )
 {
-    return move( p.x(), p.y() );
+    move( p.x(), p.y() );
 }
 
-inline bool QWidget::resize( const QSize &s )
+inline void QWidget::resize( const QSize &s )
 {
-    return resize( s.width(), s.height());
+    resize( s.width(), s.height());
 }
 
-inline bool QWidget::changeGeometry( const QRect &r )
+inline void QWidget::changeGeometry( const QRect &r )
 {
-    return changeGeometry( r.left(), r.top(), r.width(), r.height() );
+    changeGeometry( r.left(), r.top(), r.width(), r.height() );
 }
 
-inline bool QWidget::drawText( const QPoint &p, const char *s )
+inline void QWidget::drawText( const QPoint &p, const char *s )
 {
-    return drawText( p.x(), p.y(), s );
+    drawText( p.x(), p.y(), s );
 }
 
 
