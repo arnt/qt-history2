@@ -709,7 +709,7 @@ void QWidget::setIconText( const QString &iconText )
 
 void QWidget::setAccessibilityHint( const QString &hint )
 {
-    if ( topLevel() )
+    if ( topLevelWidget() )
 	return;
 
     if ( !extra )
@@ -809,7 +809,7 @@ void QWidget::repaint( const QRegion &reg , bool erase )
 	qt_clear_paintevent_clipping( this );
 	clearWState( WState_InPaintEvent );
 
-#if 0	//When repaint is called the user probably expects a screen update?
+#if 1	//When repaint is called the user probably expects a screen update?
 	QPoint p(posInWindow(this));
 	QRegion clean(reg);
 	clean.translate(p.x(), p.y());
@@ -1107,11 +1107,11 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    RgnHandle r = NewRgn();
 		    GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, r);
 		    if(!EmptyRgn(r)) {
-			QRegion jamie(r); //the cleaned region
-			jamie.translate(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
+			QRegion dirty(r); //the dirty region
+			dirty.translate(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
 			if(isMove && !isTopLevel()) //need to be in new coords
-			    jamie.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
-			bltregion -= jamie;
+			    dirty.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
+			bltregion -= dirty;
 		    }
 		    DisposeRgn(r);
 		}
@@ -1223,14 +1223,19 @@ void QWidget::setMaximumSize( int maxw, int maxh)
 }
 
 
-void QWidget::setSizeIncrement( int, int )
+void QWidget::setSizeIncrement( int w, int h )
 {
+    createTLExtra();
+    extra->topextra->incw = w;
+    extra->topextra->inch = h;
 }
 
-void QWidget::setBaseSize( int, int )
+void QWidget::setBaseSize( int w, int h )
 {
+    createTLExtra();
+    extra->topextra->basew = w;
+    extra->topextra->baseh = h;
 }
-
 
 void QWidget::erase( int x, int y, int w, int h )
 {
@@ -1414,7 +1419,7 @@ bool QWidget::acceptDrops() const
 void QWidget::updateFrameStrut() const
 {
     QWidget *that = (QWidget *) this; //mutable
-    if( !isVisible() || isDesktop() || !fstrut_dirty) {
+    if(isDesktop() || !fstrut_dirty) {
 	that->fstrut_dirty = isVisible();
 	return;
     }
