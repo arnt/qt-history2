@@ -124,13 +124,8 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
       fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
       previewing( FALSE ), databaseAutoEdit( FALSE ), autoSaveEnabled( FALSE ), autoSaveInterval( 1800 )
 {
-#ifdef Q_WS_WIN
-    extern void qInitImages_designerlib();
-    qInitImages_designerlib();
-#else
-    extern void qInitImages_designer();
-    qInitImages_designer();
-#endif
+    extern void qInitImages_designercore();
+    qInitImages_designercore();
 
     self = this;
     setPluginDirectory( plgDir );

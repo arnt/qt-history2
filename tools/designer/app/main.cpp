@@ -179,13 +179,8 @@ int main( int argc, char *argv[] )
 	signal( SIGTERM, exitHandler );
     }
 
-#ifdef Q_WS_WIN
-    extern void qInitImages_designerlib();
-    qInitImages_designerlib();
-#else
-    extern void qInitImages_designer();
-    qInitImages_designer();
-#endif
+    extern void qInitImages_designercore();
+    qInitImages_designercore();
 
     QSplashScreen *splash = a.showSplash();
 
