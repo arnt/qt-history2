@@ -625,6 +625,7 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
 
     \value WShowModal see WType_Dialog
 
+    \omitvalue WDestructiveClose
     \omitvalue WMacDrawer
     \omitvalue WMacNoSheet
     \omitvalue WMacSheet
@@ -771,6 +772,8 @@ void QWidgetPrivate::init(Qt::WFlags f)
         q->setAttribute(Qt::WA_NoBackground);
     if (f & Qt::WStaticContents)
         q->setAttribute(Qt::WA_StaticContents);
+    if (f & Qt::WDestructiveClose)
+	q->setAttribute(Qt::WA_DeleteOnClose);
 #endif
     data.widget_state = 0;
     data.widget_flags = f;
