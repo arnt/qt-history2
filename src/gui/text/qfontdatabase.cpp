@@ -1686,6 +1686,7 @@ QString QFontDatabase::scriptName(int script)
 */
 QString QFontDatabase::scriptSample(int script)
 {
+    Q_UNUSED(script);
     QString sample = "AaBb";
 
     // ###
