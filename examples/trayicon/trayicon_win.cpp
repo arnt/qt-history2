@@ -10,8 +10,6 @@
 static uint MYWM_TASKBARCREATED = 0;
 #define MYWM_NOTIFYICON	(WM_APP+101)
 
-extern Qt::WindowsVersion qt_winver;
-
 class TrayIcon::TrayIconPrivate : public QWidget
 {
 public:
@@ -20,7 +18,7 @@ public:
     {
 	if ( !MYWM_TASKBARCREATED ) {
 #if defined(UNICODE)
-	    if ( qt_winver & Qt::WV_NT_based )
+	    if ( qWinVersion() & Qt::WV_NT_based )
 		MYWM_TASKBARCREATED = RegisterWindowMessageW( (TCHAR*)"TaskbarCreated" );
 	    else
 #endif
@@ -153,7 +151,7 @@ public:
 	default:
 	    if ( m->message == MYWM_TASKBARCREATED ) {
 		#if defined(UNICODE)
-		    if ( qt_winver & Qt::WV_NT_based )
+		    if ( qWinVersion() & Qt::WV_NT_based )
 			trayMessageW( NIM_ADD );
 		    else
 		#endif
@@ -179,7 +177,7 @@ void TrayIcon::sysInstall()
     d->hIcon = CreateIcon( qWinAppInst(), img.width(), img.height(), 1, img.depth(), 0, img.bits() );
 
 #if defined(UNICODE)
-    if ( qt_winver & Qt::WV_NT_based )
+    if ( qWinVersion() & Qt::WV_NT_based )
 	d->trayMessageW( NIM_ADD );
     else
 #endif
@@ -192,7 +190,7 @@ void TrayIcon::sysRemove()
 	return;
 
 #if defined(UNICODE)
-    if ( qt_winver & Qt::WV_NT_based )
+    if ( qWinVersion() & Qt::WV_NT_based )
 	d->trayMessageW( NIM_DELETE );
     else
 #endif
@@ -214,7 +212,7 @@ void TrayIcon::sysUpdateIcon()
     d->hIcon = CreateIcon( qWinAppInst(), img.width(), img.height(), 1, img.depth(), 0, img.bits() );
 
 #if defined(UNICODE)
-    if ( qt_winver & Qt::WV_NT_based )
+    if ( qWinVersion() & Qt::WV_NT_based )
 	d->trayMessageW( NIM_MODIFY );
     else
 #endif
@@ -227,7 +225,7 @@ void TrayIcon::sysUpdateToolTip()
 	return;
 
 #if defined(UNICODE)
-    if ( qt_winver & Qt::WV_NT_based )
+    if ( qWinVersion() & Qt::WV_NT_based )
 	d->trayMessageW( NIM_MODIFY );
     else
 #endif
