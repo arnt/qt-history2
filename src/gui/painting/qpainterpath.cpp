@@ -70,6 +70,7 @@ void qt_find_ellipse_coords(const QRectF &r, float angle, float length,
     }
 }
 
+#ifdef QPP_DEBUG
 static void qt_debug_path(const QPainterPath &path)
 {
     const char *names[] = {
@@ -86,6 +87,9 @@ static void qt_debug_path(const QPainterPath &path)
         printf(" - %s, (%.2f, %.2f)\n", names[e.type], e.x, e.y);
     }
 }
+#else
+# define qt_debug_path(x)
+#endif
 
 #if 0
 void QPainterSubpath::removeBrokenSegments()
