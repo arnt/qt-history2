@@ -35,7 +35,11 @@ public:
             path->curveTo(99,0, 50,50, 99,99);
             path->moveTo(99,99);
             path->curveTo(0,99, 50,50, 0,0);
+#ifndef Q_WS_QWS
             QFont fnt("times", 75);
+#else
+            QFont fnt("vera_sans", 75);
+#endif
             QRect r = QFontMetrics(fnt).boundingRect("Trolltech");
             path->addText(-r.center() + QPoint(50, 140), fnt, "Trolltech");
         }
@@ -46,13 +50,18 @@ public:
             delete path;
     }
 
-    void draw(QPainter *p, bool useOwnColor = true) {
+    void draw(QPainter *p, bool useSpecialColor = false) {
         if (selected)
             p->setPen(Qt::red);
         else
             p->setPen(Qt::black);
-        if (useOwnColor)
+        if (!useSpecialColor) {
             p->setBrush(color);
+        } else {
+            QColor c = color;
+            c.setAlpha(c.alpha()/2);
+            p->setBrush(c);
+        }
         switch (shape) {
         case Circle:
             p->drawEllipse(trans.x(), trans.y(), 99, 99);
@@ -132,8 +141,7 @@ void Items::paintEvent(QPaintEvent *)
     p.drawPixmap(0, 0, buffer);
 
     if (dragging) {
-        p.setBrush(QColor(120, 120, 255, 100));
-        items.last()->draw(&p, false);
+        items.last()->draw(&p, true);
     }
 }
 
