@@ -33,7 +33,7 @@ public:
 
     void	activate();
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     bool	isBlocked()	 const		{ return QObject::signalsBlocked(); }
     void	block(bool b)		{ QObject::blockSignals(b); }
 #ifndef QT_NO_VARIANT

@@ -97,7 +97,7 @@ public:
     virtual void setActive(bool yes);
     bool isActive() const
 	{ return (bool)act; }
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     bool visible() const
 	{ return (bool)vis; }
     bool selected() const

@@ -1130,7 +1130,7 @@ void QWidgetPrivate::propagatePaletteChange()
 #endif
         }
     }
-#if !defined(QT_NO_COMPAT) && !defined(QT_NO_PALETTE)
+#if defined(QT_COMPAT) && !defined(QT_NO_PALETTE)
     q->paletteChange(q->palette()); // compatibility
 #endif
 }
