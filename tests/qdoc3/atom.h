@@ -10,24 +10,23 @@
 class Atom
 {
 public:
-    enum Type { AbstractBegin, AbstractEnd, Alias, AliasArg, BriefBegin,
-		BriefEnd, C, CaptionBegin,
+    enum Type { AbstractBegin, AbstractEnd, Alias, AliasArg, BaseName,
+		BriefBegin, BriefEnd, C, CaptionBegin,
 		CaptionEnd, CitationBegin, CitationEnd, Code,
 		FootnoteBegin,
 		FootnoteEnd, FormatBegin, FormatEnd, GeneratedList,
-		Image, Index, Link, ListBegin, ListItemNumber,
+		Image, Link, LinkNode, ListBegin, ListItemNumber,
 		ListItemBegin, ListItemEnd, ListEnd, Nop, ParagraphBegin,
 		ParagraphEnd, RawFormat, RawString, SectionBegin, SectionEnd,
 		SectionHeadingBegin, SectionHeadingEnd,
 		SidebarBegin, SidebarEnd,
 		String, TableBegin, TableEnd, TableOfContents,
-		Target, TitleBegin, TitleEnd, Last = TitleEnd };
+		Target, UnknownCommand, Last = UnknownCommand };
 
     Atom( Type type, const QString& string = "" )
 	: nex( 0 ), typ( type ), str( string ) { }
     Atom( Atom *prev, Type type, const QString& string = "" )
-	: nex( 0 ), typ( type ), str( string ) { prev->nex = this; }
-    ~Atom() { delete nex; }
+	: nex( prev->nex ), typ( type ), str( string ) { prev->nex = this; }
 
     void appendChar( QChar ch ) { str += ch; }
     void appendString( const QString& string ) { str += string; }

@@ -31,10 +31,10 @@ public:
     virtual bool recognizeExtension( const QString& ext ) const = 0;
     virtual bool recognizeLanguage( const QString& lang ) const = 0;
 
-    static const CodeMarker *markerForCode( const QString& code,
-					    const QString& defaultLang );
-    static const CodeMarker *markerForFileName( const QString& fileName,
-						const QString& defaultLang );
+    static void setDefaultLanguage( const QString& lang ) { dl = lang; }
+    static QString defaultLanguage() { return dl; }
+    static const CodeMarker *markerForCode( const QString& code );
+    static const CodeMarker *markerForFileName( const QString& fileName );
     static const CodeMarker *markerForLanguage( const QString& lang );
     static const Node *nodeForString( const QString& string );
     static QString stringForNode( const Node *node );
@@ -50,6 +50,7 @@ private:
     QRegExp gt;
     QRegExp quot;
 
+    static QString dl;
     static QValueList<const CodeMarker *> markers;
 };
 

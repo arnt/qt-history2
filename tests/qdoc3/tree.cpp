@@ -92,6 +92,7 @@ void Tree::freezeInnerNode( InnerNode *node )
 		    node->type() == Node::Class ) {
 	    FunctionNode *func = (FunctionNode *) *c;
 	    ClassNode *classe = (ClassNode *) node;
+
 	    FunctionNode *source = findReimplementedFrom( func, classe );
 	    if ( source != 0 ) {
 		if ( func->virtualness() == FunctionNode::NonVirtual )
@@ -106,6 +107,17 @@ void Tree::freezeInnerNode( InnerNode *node )
 		    warning( 1, func->doc().location(),
 			     "Function does not appear to be a"
 			     " reimplementation" );
+	    }
+
+	    if ( func->isOverload() ) {
+		FunctionNode *primary =
+			node->parent()->findFunctionNode( node->name() );
+		if ( primary->isOverload() ) {
+		    warning( 1, primary->doc().location(),
+			     "All versions of '%s' are '\\overload'",
+			     (primary->name() + "()").latin1() );
+		    primary->setOverload( FALSE );
+		}
 	    }
 	} else if ( (*c)->type() == Node::Property &&
 		     node->type() == Node::Class ) {
@@ -144,7 +156,10 @@ void Tree::freezePropertyFunction( const QString& role, PropertyNode *property,
 
 	QString text;
 
-	Doc doc = Doc::propertyFunctionDoc( property->doc(), role, "" );
+	QString param;
+	if ( !func->parameters().isEmpty() )
+	    param = func->parameters().first().name();
+	Doc doc = Doc::propertyFunctionDoc( property->doc(), role, param );
 
 	if ( func->doc().isEmpty() ) {
 	    func->setDoc( doc );

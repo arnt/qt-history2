@@ -130,7 +130,8 @@ void warning( int level, const Location& loc, const char *message, ... )
     va_list ap;
 
     va_start( ap, message );
-    fprintf( stderr, "%s:%d: ", fileName.latin1(), loc.lineNum() );
+    fprintf( stderr, "%s:%d:%d: ", fileName.latin1(), loc.lineNum(),
+	     loc.columnNum() );
     vfprintf( stderr, message, ap );
     fprintf( stderr, "\n" );
     va_end( ap );

@@ -1,49 +1,64 @@
 /*
-  webgenerator.cpp
+  pagegenerator.cpp
 */
 
+#include <qfile.h>
+
 #include "messages.h"
+#include "pagegenerator.h"
 #include "tree.h"
-#include "webgenerator.h"
 
-WebGenerator::WebGenerator()
-    : outStream( &outFile )
+PageGenerator::PageGenerator()
 {
 }
 
-WebGenerator::~WebGenerator()
+PageGenerator::~PageGenerator()
 {
+    while ( !outStreamStack.isEmpty() )
+	endSubPage();
 }
 
-void WebGenerator::generateTree( const Tree *tree, const CodeMarker *marker )
+void PageGenerator::generateTree( const Tree *tree, const CodeMarker *marker )
 {
     generateInnerNode( tree->root(), marker );
 }
 
-QString WebGenerator::fileName( const Node *node )
+QString PageGenerator::fileName( const Node *node )
 {
     return fileBase( node ) + "." + fileExtension( node );
 }
 
-QTextStream& WebGenerator::out()
+void PageGenerator::beginSubPage( const QString& fileName )
 {
-    return outStream;
+    QFile *outFile = new QFile( fileName );
+    if ( !outFile->open(IO_WriteOnly) )
+	message( 0, "Cannot open output file '%s'", outFile->name().latin1() );
+    outStreamStack.push( new QTextStream(outFile) );
 }
 
-void WebGenerator::generateInnerNode( const InnerNode *node,
-				      const CodeMarker *marker )
+void PageGenerator::endSubPage()
 {
-    outFile.setName( fileName(node) );
-    if ( !outFile.open(IO_WriteOnly) ) {
-	syswarning( "Cannot open '%s' for writing", outFile.name().latin1() );
-    } else {
-	if ( node->type() == Node::Namespace ) {
-	    generateNamespaceNode( (const NamespaceNode *) node, marker );
-	} else if ( node->type() == Node::Class ) {
-	    generateClassNode( (const ClassNode *) node, marker );
-	}
-	outFile.close();
+    delete outStreamStack.top()->device();
+    delete outStreamStack.pop();
+}
+
+QTextStream& PageGenerator::out()
+{
+    return *outStreamStack.top();
+}
+
+void PageGenerator::generateInnerNode( const InnerNode *node,
+				       const CodeMarker *marker )
+{
+    beginSubPage( fileName(node) );
+    if ( node->type() == Node::Namespace ) {
+	generateNamespaceNode( (const NamespaceNode *) node, marker );
+    } else if ( node->type() == Node::Class ) {
+	generateClassNode( (const ClassNode *) node, marker );
+    } else if ( node->type() == Node::Fake ) {
+	generateFakeNode( (const FakeNode *) node, marker );
     }
+    endSubPage();
 
     NodeList::ConstIterator c = node->childNodes().begin();
     while ( c != node->childNodes().end() ) {

@@ -8,6 +8,7 @@
 #include "molecule.h"
 #include "node.h"
 #include "separator.h"
+#include "tree.h"
 
 HtmlGenerator::HtmlGenerator()
     : inLink( FALSE ), funcLeftParen( "\\S(\\()" ), amp( "&" ), lt( "<" ),
@@ -43,6 +44,8 @@ void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	break;
     case Atom::AliasArg:
 	break;
+    case Atom::BaseName:
+	break;
     case Atom::BriefBegin:
 	out() << "<p>";
 	break;
@@ -50,7 +53,13 @@ void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	out() << "</p>\n";
 	break;
     case Atom::C:
-	out() << "<code>" << protect( plainCode(atom->string()) ) << "</code>";
+	out() << "<code>";
+	if ( inLink ) {
+	    out() << protect( plainCode(atom->string()) );
+	} else {
+	    out() << highlightedCode( atom->string(), relative );
+	}
+	out() << "</code>";
 	break;
     case Atom::CaptionBegin:
 	break;
@@ -63,7 +72,8 @@ void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	out() << "</blockquote>\n";
 	break;
     case Atom::Code:
-	out() << "<pre>" << protect( plainCode(atom->string()) ) << "</pre>\n";
+	out() << "<pre>" << protect( plainCode(indent(4, atom->string())) )
+	      << "</pre>\n";
 	break;
     case Atom::FootnoteBegin:
 	break;
@@ -72,6 +82,8 @@ void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
     case Atom::FormatBegin:
 	if ( atom->string() == "bold" ) {
 	    out() << "<b>";
+	} else if ( atom->string() == "index" ) {
+	    out() << "<!--";
 	} else if ( atom->string() == "italic" ) {
 	    out() << "<i>";
 	} else if ( atom->string() == "link" ) {
@@ -96,6 +108,8 @@ void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
     case Atom::FormatEnd:
 	if ( atom->string() == "bold" ) {
 	    out() << "</b>";
+	} else if ( atom->string() == "index" ) {
+	    out() << "-->";
 	} else if ( atom->string() == "italic" ) {
 	    out() << "</i>";
 	} else if ( atom->string() == "link" ) {
@@ -135,10 +149,12 @@ void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	break;
     case Atom::Image:
 	break;
-    case Atom::Index:
-	break;
     case Atom::Link:
 	link = linkForNode( marker->resolveTarget(atom->string(), relative),
+			    relative );
+	break;
+    case Atom::LinkNode:
+	link = linkForNode( CodeMarker::nodeForString(atom->string()),
 			    relative );
 	break;
     case Atom::ListBegin:
@@ -196,10 +212,10 @@ void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
     case Atom::SectionEnd:
 	break;
     case Atom::SectionHeadingBegin:
-	out() << "<h1>";
+	out() << "<h" + QString::number( atom->string().toInt() ) + ">";
 	break;
     case Atom::SectionHeadingEnd:
-	out() << "</h1>\n";
+	out() << "</h" + QString::number( atom->string().toInt() ) + ">\n";
 	break;
     case Atom::SidebarBegin:
 	break;
@@ -228,9 +244,9 @@ void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	break;
     case Atom::Target:
 	;
-    case Atom::TitleBegin:
-	break;
-    case Atom::TitleEnd:
+    case Atom::UnknownCommand:
+	out() << "<font color=\"red\"><b><code>\\" << protect( atom->string() )
+	      << "</code></b></font>";
 	break;
     default:
 	message( 1, "HTML generator: Unknown atom type '%s'",
@@ -238,31 +254,15 @@ void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
     }
 }
 
-QString HtmlGenerator::fileBase( const Node *node )
-{
-    if ( !node->isInnerNode() )
-	node = node->parent();
-
-    QString base = node->name();
-    base.replace( QRegExp("[^A-Za-z0-9]+"), " " );
-    base = base.simplifyWhiteSpace();
-    base.replace( QRegExp(" "), "_" );
-    base = base.lower();
-    return "html/" + base;
-}
-
-QString HtmlGenerator::fileExtension( const Node * /* node */ )
-{
-    return "html";
-}
-
 void HtmlGenerator::generateNamespaceNode( const NamespaceNode *namespasse,
 					   const CodeMarker *marker )
 {
-    generateHeader( out() );
-    generateDoc( namespasse->doc(), namespasse, marker );
-    generateAlso( namespasse->doc(), namespasse, marker );
-    generateFooter( out() );
+    QString title = namespasse->name() + " Namespace Reference";
+    generateHeader( title, namespasse );
+    generateTitle( title );
+    generateBody( namespasse, marker );
+    generateAlsoList( namespasse, marker );
+    generateFooter( namespasse );
 }
 
 void HtmlGenerator::generateClassNode( const ClassNode *classe,
@@ -272,12 +272,12 @@ void HtmlGenerator::generateClassNode( const ClassNode *classe,
     QValueList<ClassSection>::ConstIterator s;
     NodeList::ConstIterator m;
 
-    generateHeader( out() );
-    out() << "<h1 align=\"center\">" << protect( classe->name() )
-	  << " Class Reference" << "</h1>\n";
+    QString title = classe->name() + " Class Reference";
+    generateHeader( title, classe );
+    generateTitle( title );
 
-    Molecule brief = classe->doc().molecule().subMolecule( Atom::BriefBegin,
-							   Atom::BriefEnd );
+    Molecule brief = classe->doc().body().subMolecule( Atom::BriefBegin,
+						       Atom::BriefEnd );
     if ( !brief.isEmpty() ) {
 	out() << "<p>";
 	generateMolecule( brief, classe, marker );
@@ -316,12 +316,13 @@ void HtmlGenerator::generateClassNode( const ClassNode *classe,
 	++s;
     }
 
-    out() << "<hr>\n";
     out() << "<a name=\"" << registerRef( "details" ) << "\"/>\n";
-    out() << "<h2>" << "Detailed Description" << "</h2>\n";
 
-    generateDoc( classe->doc(), classe, marker );
-    generateAlso( classe->doc(), classe, marker );
+    if ( !classe->doc().isEmpty() ) {
+	out() << "<hr>\n" << "<h2>" << "Detailed Description" << "</h2>\n";
+	generateBody( classe, marker );
+	generateAlsoList( classe, marker );
+    }
 
     sections = classe->detailedSections();
     s = sections.begin();
@@ -336,57 +337,124 @@ void HtmlGenerator::generateClassNode( const ClassNode *classe,
 		out() << "<a name=\"" + refForNode( *m ) + "\"/>";
 		generateSynopsis( *m, classe, marker, CodeMarker::Detailed );
 		out() << "</h3>\n";
-		generateDoc( (*m)->doc(), *m, marker );
-		generateAlso( (*m)->doc(), *m, marker );
+		generateBody( *m, marker );
+		generateAlsoList( *m, marker );
 	    }
 	    ++m;
 	}
 	++s;
     }
-    generateFooter( out() );
+    generateFooter( classe );
 }
 
-void HtmlGenerator::generateHeader( QTextStream& outStream )
+void HtmlGenerator::generateFakeNode( const FakeNode *fake,
+				      const CodeMarker *marker )
 {
-#if notyet
-    out() << "<?xml version=\"1.0\" encoding=\"UTF-8\">\n"
+    NavigationBar bar;
+    QString title = fake->name();
+
+    bar.next = SectionIterator( fake->doc() );
+    currentNavigationBar = bar;
+
+    generateHeader( title, fake );
+    generateNavigationBar( bar, fake, marker );
+    generateTitle( title );
+    generateBody( fake, marker );
+    generateAlsoList( fake, marker );
+    generateNavigationBar( bar, fake, marker );
+    generateFooter( fake );
+}
+
+QString HtmlGenerator::fileBase( const Node *node )
+{
+    if ( !node->isInnerNode() )
+	node = node->parent();
+
+    QString base = node->doc().baseName();
+    if ( base.isEmpty() ) {
+	base = node->name();
+	base.replace( QRegExp("[^A-Za-z0-9]+"), " " );
+	base = base.simplifyWhiteSpace();
+	base.replace( QRegExp(" "), "-" );
+	base = base.lower();
+    }
+    return "html/" + base;
+}
+
+QString HtmlGenerator::fileExtension( const Node * /* node */ )
+{
+    return "html";
+}
+
+void HtmlGenerator::generateHeader( const QString& title,
+				    const Node * /* node */ )
+{
+#if 0
+    out() << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 #endif
-    outStream << "<!DOCTYPE html\n"
-		 "    PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n"
-		 "    \"DTD/xhtml1-strict.dtd\">\n"
-		 "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\""
-		 " lang=\"en\">\n"
-		 "<head>\n"
-		 "    <title>"
-	      << "</title>\n"
-		 "</head>\n"
-		 "<body>\n";
+    out() << "<!DOCTYPE html\n"
+	     "    PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n"
+	     "    \"DTD/xhtml1-strict.dtd\">\n"
+	     "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\""
+	     " lang=\"en\">\n"
+	     "<head>\n"
+	     "    <title>"
+	  << protect( title )
+	  << "</title>\n"
+	     "</head>\n"
+	     "<body>\n";
 }
 
-void HtmlGenerator::generateFooter( QTextStream& outStream )
+void HtmlGenerator::generateTitle( const QString& title )
 {
-    outStream << "</body>\n"
-		 "</html>\n";
+    out() << "<h1 align=\"center\">" << protect( title ) << "</h1>\n";
+}
+
+void HtmlGenerator::generateFooter( const Node * /* node */ )
+{
+    out() << "</body>\n"
+	     "</html>\n";
+}
+
+void HtmlGenerator::generateNavigationBar( const NavigationBar& bar,
+					   const Node *node,
+					   const CodeMarker *marker )
+{
+    if ( bar.prev.begin() != 0 || bar.current.begin() != 0 ||
+	 bar.next.begin() != 0 ) {
+	out() << "<p align=\"right\">";
+	if ( bar.prev.begin() != 0 ) {
+#if 0
+	    out() << "[<a href=\"" << section.previousBaseName()
+		  << ".html\">Prev: ";
+	    generateMolecule( section.previousHeading(), node, marker );
+	    out() << "</a>]\n";
+#endif
+	}
+	if ( bar.current.begin() != 0 ) {
+	    out() << "[<a href=\"" << "home"
+		  << ".html\">Home</a>]\n";
+	}
+	if ( bar.next.begin() != 0 ) {
+	    out() << "[<a href=\"" << fileBase( node, bar.next )
+		  << ".html\">Next: ";
+	    generateMolecule( sectionHeading(bar.next.begin()), node, marker );
+	    out() << "</a>]\n";
+	}
+	out() << "</p>\n";
+    }
 }
 
 void HtmlGenerator::generateListOfAllMemberFunctions( const ClassNode *classe,
 						      const CodeMarker *marker )
 {
-    QFile outFile( fileBase(classe) + "-members." + fileExtension(classe) );
-    if ( !outFile.open(IO_WriteOnly) ) {
-	syswarning( "Cannot open '%s' for writing", outFile.name().latin1() );
-    } else {
-	QTextStream outStream( &outFile );
-	generateHeader( outStream );
-	outStream << "<h1 align=\"center\">" << "Member Function List for "
-		  << protect( classe->name() ) << "</h1>\n"
-		  << "<p>This is the complete list of member functions for "
-		  << highlightedCode( marker->markedUpFullName(classe, 0),
-				      classe )
-		  << ", including inherited functions.</p>\n";
-	generateFooter( outStream );
-	outFile.close();
-    }
+    beginSubPage( fileBase(classe) + "-members." + fileExtension(classe) );
+    generateHeader( "Member Function List for " + classe->name() );
+    out() << "<p>This is the complete list of member functions for "
+	  << highlightedCode( marker->markedUpFullName(classe, 0), classe )
+	  << ", including inherited functions.</p>\n";
+    generateFooter();
+    endSubPage();
 }
 
 void HtmlGenerator::generateSynopsis( const Node *node,
@@ -413,8 +481,8 @@ void HtmlGenerator::generateSynopsis( const Node *node,
     out() << highlightedCode( marked, relative );
 
     if ( node->type() == Node::Property ) {
-	Molecule brief = node->doc().molecule().subMolecule( Atom::BriefBegin,
-							     Atom::BriefEnd );
+	Molecule brief = node->doc().body().subMolecule( Atom::BriefBegin,
+							 Atom::BriefEnd );
 	if ( !brief.isEmpty() ) {
 	    out() << " - ";
 	    generateMolecule( brief, node, marker );
@@ -542,7 +610,28 @@ QString HtmlGenerator::highlightedCode( const QString& markedCode,
     html.replace( QRegExp("</@type>"), "</font>" );
 #endif
     html.replace( QRegExp("</?@[^>]*>"), "" );
-    return html;
+    return "<font color=\"blue\">" + html + "</font>";
+}
+
+QString HtmlGenerator::fileBase( const Node *node,
+				 const SectionIterator& section )
+{
+    QStringList::ConstIterator s = section.sectionNumber().end();
+    QStringList::ConstIterator b = section.baseNameStack().end();
+
+    QString suffix;
+    QString base = fileBase( node );
+
+    while ( s != section.sectionNumber().begin() ) {
+	--s;
+	--b;
+	if ( !(*b).isEmpty() ) {
+	    base = *b;
+	    break;
+	}
+	suffix.prepend( "-" + *s );
+    }
+    return base + suffix;
 }
 
 QString HtmlGenerator::refForNode( const Node *node )

@@ -9,6 +9,7 @@
 #include <qstringlist.h>
 #include <qvaluelist.h>
 
+#include "molecule.h"
 #include "node.h"
 
 struct BaseClass

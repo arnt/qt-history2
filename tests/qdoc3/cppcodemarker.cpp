@@ -194,6 +194,17 @@ QString CppCodeMarker::addMarkUp( const QString& protectedCode,
 				  const Node * /* relative */,
 				  const QString& /* dirPath */ ) const
 {
-    QString t = protectedCode;
-    return t;
+    QStringList lines = QStringList::split( "\n", protectedCode, TRUE );
+    QStringList::Iterator li = lines.begin();
+    while ( li != lines.end() ) {
+	QString s = *li;
+	if ( s.startsWith("#") ) {
+	    s = "<@preprocessor>" + s + "</@preprocessor>";
+	} else {
+	    ///
+	}
+	*li = s;
+	++li;
+    }
+    return lines.join( "\n" );
 }

@@ -2,6 +2,8 @@
   molecule.cpp
 */
 
+#include <qregexp.h>
+
 #include "molecule.h"
 
 Molecule::Molecule()
@@ -61,16 +63,16 @@ Molecule& Molecule::operator<<( const Molecule& molecule )
     return *this;
 }
 
-Molecule Molecule::subMolecule( const Atom *begin, const Atom *end ) const
+QString Molecule::toString() const
 {
-    Molecule molecule;
-    if ( begin != 0 ) {
-	while ( begin != end ) {
-	    molecule << *begin;
-	    begin = begin->next();
-	}
+    QString str;
+    const Atom *atom = firstAtom();
+    while ( atom != 0 ) {
+	if ( atom->type() == Atom::String )
+	    str += atom->string();
+	atom = atom->next();
     }
-    return molecule;
+    return str;
 }
 
 Molecule Molecule::subMolecule( Atom::Type before, Atom::Type after ) const
@@ -89,6 +91,32 @@ Molecule Molecule::subMolecule( Atom::Type before, Atom::Type after ) const
     if ( end == 0 )
 	begin = 0;
     return subMolecule( begin, end );
+}
+
+void Molecule::dump() const
+{
+    const Atom *atom = firstAtom();
+    while ( atom != 0 ) {
+	QString str = atom->string();
+	str.replace( QRegExp("\\\\"), "\\\\" );
+	str.replace( QRegExp("\""), "\\\"" );
+	str.replace( QRegExp("\n"), "\\n" );
+	str.replace( QRegExp("[\\x00-\\x1f?\\x7f-\\xfffff]"), "?" );
+	qDebug( "    (%s, \"%s\")", atom->typeString().latin1(), str.latin1() );
+	atom = atom->next();
+    }
+}
+
+Molecule Molecule::subMolecule( const Atom *begin, const Atom *end )
+{
+    Molecule molecule;
+    if ( begin != 0 ) {
+	while ( begin != end ) {
+	    molecule << *begin;
+	    begin = begin->next();
+	}
+    }
+    return molecule;
 }
 
 void Molecule::clear()

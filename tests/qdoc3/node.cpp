@@ -327,8 +327,8 @@ QValueList<ClassSection> ClassNode::overviewSections() const
 QValueList<ClassSection> ClassNode::detailedSections() const
 {
     ClassSection memberTypes( "Member Type Documentation" );
-    ClassSection memberFunctions( "Member Function Documentation" );
     ClassSection properties( "Property Documentation" );
+    ClassSection memberFunctions( "Member Function Documentation" );
     ClassSection relatedNonMemberFunctions(
 	    "Related Non-Member Function Documentation" );
 
@@ -354,13 +354,13 @@ QValueList<ClassSection> ClassNode::detailedSections() const
     }
 
     memberTypes.members = nodeList( typeMap );
-    memberFunctions.members = nodeList( funcMap );
     properties.members = nodeList( propertyMap );
+    memberFunctions.members = nodeList( funcMap );
 
     QValueList<ClassSection> sections;
     append( &sections, memberTypes );
-    append( &sections, memberFunctions );
     append( &sections, properties );
+    append( &sections, memberFunctions );
     append( &sections, relatedNonMemberFunctions );
     return sections;
 }
@@ -382,6 +382,11 @@ NodeList ClassNode::nodeList( const QMap<QString, Node *>& map )
 	++m;
     }
     return members;
+}
+
+FakeNode::FakeNode( InnerNode *parent, const QString& name, SubType subType )
+    : InnerNode( Fake, parent, name ), sub( subType )
+{
 }
 
 EnumNode::EnumNode( InnerNode *parent, const QString& name )

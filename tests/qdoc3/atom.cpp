@@ -5,6 +5,7 @@
 #include "atom.h"
 #include "messages.h"
 
+// ### up to date
 static const char * const typeTable[] = {
     "AbstractBegin", "AbstractEnd", "Alias", "AliasArg",
     "BriefBegin", "BriefEnd", "C", "CaptionBegin", "CaptionEnd",
@@ -16,7 +17,7 @@ static const char * const typeTable[] = {
     "SectionBegin", "SectionEnd", "SectionHeadingBegin",
     "SectionHeadingEnd", "SidebarBegin", "SidebarEnd", "String",
     "TableBegin", "TableEnd", "TableOfContents", "Target",
-    "TitleBegin", "TitleEnd", 0
+    "UnknownCommand", 0
 };
 
 QString Atom::typeString() const

@@ -8,6 +8,7 @@
 #include "mangenerator.h"
 #include "messages.h"
 #include "node.h"
+#include "tree.h"
 
 ManGenerator::ManGenerator()
 {
@@ -23,42 +24,6 @@ QString ManGenerator::formatString() const
     return "man";
 }
 
-QString ManGenerator::fileBase( const Node *node )
-{
-    if ( !node->isInnerNode() )
-	node = node->parent();
-
-    QString base = node->name();
-    base.replace( QRegExp("[^A-Za-z0-9]+"), " " );
-    base = base.simplifyWhiteSpace();
-    base.replace( QRegExp(" "), "_" );
-    return "man/" + base;
-}
-
-QString ManGenerator::fileExtension( const Node * /* node */ )
-{
-    return "3qt";
-}
-
-void ManGenerator::generateNamespaceNode( const NamespaceNode *namespasse,
-					  const CodeMarker *marker )
-{
-    generateHeader( namespasse );
-    generateDoc( namespasse->doc(), namespasse, marker );
-    generateFooter( namespasse );
-}
-
-void ManGenerator::generateClassNode( const ClassNode *classe,
-				      const CodeMarker *marker )
-{
-    generateHeader( classe );
-    out() << ".SH NAME\n"
-	  << classe->name() << "\n"
-          << ".SH SYNOPSYS\n";
-    generateDoc( classe->doc(), classe, marker );
-    generateFooter( classe );
-}
-
 void ManGenerator::generateAtom( const Atom *atom, const Node * /* relative */,
 				 const CodeMarker * /* marker */ )
 {
@@ -70,6 +35,8 @@ void ManGenerator::generateAtom( const Atom *atom, const Node * /* relative */,
     case Atom::Alias:
 	break;
     case Atom::AliasArg:
+	break;
+    case Atom::BaseName:
 	break;
     case Atom::BriefBegin:
 	break;
@@ -99,9 +66,9 @@ void ManGenerator::generateAtom( const Atom *atom, const Node * /* relative */,
 	break;
     case Atom::Image:
 	break;
-    case Atom::Index:
-	break;
     case Atom::Link:
+	break;
+    case Atom::LinkNode:
 	break;
     case Atom::ListBegin:
 	break;
@@ -149,23 +116,65 @@ void ManGenerator::generateAtom( const Atom *atom, const Node * /* relative */,
 	break;
     case Atom::Target:
 	break;
-    case Atom::TitleBegin:
-	break;
-    case Atom::TitleEnd:
+    case Atom::UnknownCommand:
 	;
     }
 }
 
-void ManGenerator::generateHeader( const InnerNode *node )
+void ManGenerator::generateNamespaceNode( const NamespaceNode *namespasse,
+					  const CodeMarker *marker )
 {
-    out() << ".TH " << protectArg( node->name() )
+    generateHeader( namespasse->name() );
+    generateBody( namespasse, marker );
+    generateFooter();
+}
+
+void ManGenerator::generateClassNode( const ClassNode *classe,
+				      const CodeMarker *marker )
+{
+    generateHeader( classe->name() );
+    out() << ".SH NAME\n"
+	  << classe->name() << "\n"
+          << ".SH SYNOPSYS\n";
+    generateBody( classe, marker );
+    generateFooter();
+}
+
+void ManGenerator::generateFakeNode( const FakeNode *fake,
+				     const CodeMarker *marker )
+{
+    generateHeader( "foo" );
+    generateBody( fake, marker );
+    generateFooter();
+}
+
+QString ManGenerator::fileBase( const Node *node )
+{
+    if ( !node->isInnerNode() )
+	node = node->parent();
+
+    QString base = node->name();
+    base.replace( QRegExp("[^A-Za-z0-9]+"), " " );
+    base = base.simplifyWhiteSpace();
+    base.replace( QRegExp(" "), "_" );
+    return "man/" + base;
+}
+
+QString ManGenerator::fileExtension( const Node * /* node */ )
+{
+    return "3qt";
+}
+
+void ManGenerator::generateHeader( const QString& name )
+{
+    out() << ".TH " << protectArg( name )
 	  << " " << protectArg( "3qt" )
 	  << " " << protectArg( date )
 	  << " " << protectArg( "Trolltech AS" )
 	  << " " << protectArg( "Qt Toolkit" ) << "\n";
 }
 
-void ManGenerator::generateFooter( const InnerNode * /* node */ )
+void ManGenerator::generateFooter()
 {
 }
 

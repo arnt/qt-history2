@@ -7,7 +7,6 @@
 
 #include "codeparser.h"
 #include "node.h"
-#include "stringset.h"
 
 class ClassNode;
 class CodeChunk;
@@ -27,10 +26,11 @@ public:
 
 protected:
     virtual StringSet topicCommands();
-    virtual Node *processTopicCommand( const QString& command,
-				       const QString& arg, const Doc& doc );
+    virtual Node *processTopicCommand( const Doc& doc, const QString& command,
+				       const QString& arg );
     virtual StringSet otherMetaCommands();
-    virtual void processOtherMetaCommand( const QString& command,
+    virtual void processOtherMetaCommand( const Location& location,
+					  const QString& command,
 					  const QString& arg, Node *node );
     Tree *tree() const { return tre; }
 

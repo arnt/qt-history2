@@ -8,11 +8,17 @@
 #include <qmap.h>
 #include <qregexp.h>
 
-#include "webgenerator.h"
+#include "pagegenerator.h"
+#include "sectioniterator.h"
 
-class QTextStream;
+struct NavigationBar
+{
+    SectionIterator prev;
+    SectionIterator current;
+    SectionIterator next;
+};
 
-class HtmlGenerator : public WebGenerator
+class HtmlGenerator : public PageGenerator
 {
 public:
     HtmlGenerator();
@@ -25,16 +31,21 @@ protected:
 				const CodeMarker *marker );
     virtual void generateAtom( const Atom *atom, const Node *relative,
 			       const CodeMarker *marker );
-    virtual QString fileBase( const Node *node );
-    virtual QString fileExtension( const Node *node );
     virtual void generateNamespaceNode( const NamespaceNode *namespasse,
 					const CodeMarker *marker );
     virtual void generateClassNode( const ClassNode *classe,
 				    const CodeMarker *marker );
+    virtual void generateFakeNode( const FakeNode *fake,
+				   const CodeMarker *marker );
+    virtual QString fileBase( const Node *node );
+    virtual QString fileExtension( const Node *node );
 
 private:
-    void generateHeader( QTextStream& outStream );
-    void generateFooter( QTextStream& outStream );
+    void generateHeader( const QString& title, const Node *node = 0 );
+    void generateTitle( const QString& title );
+    void generateFooter( const Node *node = 0 );
+    void generateNavigationBar( const NavigationBar& bar, const Node *node,
+    				const CodeMarker *marker );
     void generateListOfAllMemberFunctions( const ClassNode *classe,
 					   const CodeMarker *marker );
     void generateSynopsis( const Node *node, const InnerNode *relative,
@@ -44,9 +55,11 @@ private:
     QString registerRef( const QString& ref );
     QString protect( const QString& string );
     QString highlightedCode( const QString& markedCode, const Node *relative );
+    QString fileBase( const Node *node, const SectionIterator& section );
     QString refForNode( const Node *node );
     QString linkForNode( const Node *node, const Node *relative );
 
+    NavigationBar currentNavigationBar;
     QMap<QString, QString> refMap;
     bool inLink;
     QString link;

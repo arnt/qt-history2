@@ -23,14 +23,15 @@ StringSet QuickCodeParser::topicCommands()
     return CppCodeParser::topicCommands() << "quickclass" << "quickfn";
 }
 
-Node *QuickCodeParser::processTopicCommand( const QString& command,
-					    const QString& arg, const Doc& doc )
+Node *QuickCodeParser::processTopicCommand( const Doc& doc,
+					    const QString& command,
+					    const QString& arg )
 {
     if ( command == "quickclass" ) {
 	return 0;
     } else if ( command == "quickfn" ) {
 	return 0;
     } else {
-	return CppCodeParser::processTopicCommand( command, arg, doc );
+	return CppCodeParser::processTopicCommand( doc, command, arg );
     }
 }

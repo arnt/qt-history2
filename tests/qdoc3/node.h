@@ -18,7 +18,7 @@ class InnerNode;
 class Node
 {
 public:
-    enum Type { Namespace, Class, Enum, Typedef, Function, Property };
+    enum Type { Namespace, Class, Fake, Enum, Typedef, Function, Property };
     enum Access { Public, Protected, Private };
 
     // the order is important for inheritedStatus()
@@ -159,6 +159,19 @@ private:
 
     QValueList<RelatedClass> bas;
     QValueList<RelatedClass> der;
+};
+
+class FakeNode : public InnerNode
+{
+public:
+    enum SubType { File, Group, Module, Page };
+
+    FakeNode( InnerNode *parent, const QString& name, SubType subType );
+
+    SubType subType() const { return sub; }
+
+private:
+    SubType sub;
 };
 
 class EnumItem

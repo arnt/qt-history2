@@ -50,15 +50,12 @@ void Quoter::quoteFromFile( const QString& filePath, const QString& plainCode,
     markedLines = QStringList::split( splitPoint, markedCode, TRUE );
 
     /*
-      Add a 4-space indent to walkthrough code so that it stands out,
-      and squeeze blanks (cat -s).
+      Squeeze blanks (cat -s).
     */
     QStringList::Iterator m = markedLines.begin();
     while ( m != markedLines.end() ) {
 	(*m).replace( manyEndls, "\n" );
 	(*m).append( "\n" );
-	if ( !(*m).startsWith("\n") )
-	    (*m).prepend( "    " );
 	++m;
     }
     codeLocation = Location( filePath );

@@ -5,9 +5,9 @@
 #ifndef MANGENERATOR_H
 #define MANGENERATOR_H
 
-#include "webgenerator.h"
+#include "pagegenerator.h"
 
-class ManGenerator : public WebGenerator
+class ManGenerator : public PageGenerator
 {
 public:
     ManGenerator();
@@ -16,18 +16,20 @@ public:
     virtual QString formatString() const;
 
 protected:
-    virtual QString fileBase( const Node *node );
-    virtual QString fileExtension( const Node *node );
+    virtual void generateAtom( const Atom *atom, const Node *relative,
+			       const CodeMarker *marker );
     virtual void generateNamespaceNode( const NamespaceNode *namespasse,
 					const CodeMarker *marker );
     virtual void generateClassNode( const ClassNode *classe,
 				    const CodeMarker *marker );
+    virtual void generateFakeNode( const FakeNode *fake,
+				   const CodeMarker *marker );
+    virtual QString fileBase( const Node *node );
+    virtual QString fileExtension( const Node *node );
 
 private:
-    virtual void generateAtom( const Atom *atom, const Node *relative,
-			       const CodeMarker *marker );
-    void generateHeader( const InnerNode *node );
-    void generateFooter( const InnerNode *node );
+    void generateHeader( const QString& name );
+    void generateFooter();
     QString protectArg( const QString& str );
     QString protectTextLine( const QString& str );
 

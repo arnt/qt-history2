@@ -17,8 +17,8 @@ public:
 
 protected:
     virtual StringSet topicCommands();
-    virtual Node *processTopicCommand( const QString& command,
-				       const QString& arg, const Doc& doc );
+    virtual Node *processTopicCommand( const Doc& doc, const QString& command,
+				       const QString& arg );
 };
 
 #endif

@@ -20,13 +20,15 @@ int main( int argc, char **argv )
 
     Tree cppTree;
     CppCodeParser cppCodeParser;
-    cppCodeParser.parseHeaderFile( "include/qregexp.h", &cppTree );
-    cppCodeParser.parseSourceFile( "src/qregexp.cpp", &cppTree );
+//    cppCodeParser.parseHeaderFile( "include/qregexp.h", &cppTree );
+    cppCodeParser.parseSourceFile( "src/funny.qdoc", &cppTree );
     cppTree.freeze();
     cppCodeParser.convertTree( &cppTree );
 
+#if 0
     ManGenerator manGenerator;
     manGenerator.generateTree( &cppTree, cppCodeMarker );
+#endif
 
     HtmlGenerator htmlGenerator;
     htmlGenerator.generateTree( &cppTree, cppCodeMarker );

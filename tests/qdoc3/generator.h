@@ -8,13 +8,15 @@
 #include <qregexp.h>
 #include <qstring.h>
 
-#include "atom.h"
+#include "molecule.h"
 
 class ClassNode;
 class CodeMarker;
 class Doc;
+class FakeNode;
 class FunctionNode;
 class Molecule;
+class NamespaceNode;
 class Node;
 class Tree;
 
@@ -33,18 +35,26 @@ protected:
     virtual void endMolecule( const Node *relative, const CodeMarker *marker );
     virtual void generateAtom( const Atom *atom, const Node *relative,
 			       const CodeMarker *marker );
+    virtual void generateNamespaceNode( const NamespaceNode *namespasse,
+					const CodeMarker *marker );
+    virtual void generateClassNode( const ClassNode *classe,
+				    const CodeMarker *marker );
+    virtual void generateFakeNode( const FakeNode *fake,
+				   const CodeMarker *marker );
+
     virtual void generateMolecule( const Molecule& molecule,
 				   const Node *relative,
 				   const CodeMarker *marker );
-    virtual void generateDoc( const Doc& doc, const Node *node,
-			      const CodeMarker *marker );
-    virtual void generateAlso( const Doc& doc, const Node *node,
-			       const CodeMarker *marker );
+    virtual void generateBody( const Node *node, const CodeMarker *marker );
+    virtual void generateAlsoList( const Node *node, const CodeMarker *marker );
     virtual void generateInherits( const ClassNode *classe,
 				   const CodeMarker *marker );
     virtual void generateInheritedBy( const ClassNode *classe,
 				      const CodeMarker *marker );
+    QString indent( int level, const QString& markedCode );
     QString plainCode( const QString& markedCode );
+    QString typeString( const Node *node );
+    Molecule sectionHeading( const Atom *sectionBegin );
 
 private:
     void generateStatus( const Node *node, const CodeMarker *marker );

@@ -35,6 +35,21 @@ void Generator::generateAtom( const Atom * /* atom */,
 {
 }
 
+void Generator::generateNamespaceNode( const NamespaceNode * /* namespasse */,
+				       const CodeMarker * /* marker */ )
+{
+}
+
+void Generator::generateClassNode( const ClassNode * /* classe */,
+				   const CodeMarker * /* marker */ )
+{
+}
+
+void Generator::generateFakeNode( const FakeNode * /* fake */,
+				  const CodeMarker * /* marker */ )
+{
+}
+
 void Generator::generateMolecule( const Molecule& molecule,
 				  const Node *relative,
 				  const CodeMarker *marker )
@@ -50,8 +65,7 @@ void Generator::generateMolecule( const Molecule& molecule,
     }
 }
 
-void Generator::generateDoc( const Doc& doc, const Node *node,
-			     const CodeMarker *marker )
+void Generator::generateBody( const Node *node, const CodeMarker *marker )
 {
     if ( node->status() != Node::Approved )
 	generateStatus( node, marker );
@@ -61,7 +75,7 @@ void Generator::generateDoc( const Doc& doc, const Node *node,
 	    generateOverload( node, marker );
     }
 
-    generateMolecule( doc.molecule(), node, marker );
+    generateMolecule( node->doc().body(), node, marker );
 
     if ( node->type() == Node::Function ) {
 	const FunctionNode *func = (const FunctionNode *) node;
@@ -72,9 +86,25 @@ void Generator::generateDoc( const Doc& doc, const Node *node,
     }
 }
 
-void Generator::generateAlso( const Doc& /* doc */, const Node * /* node */,
-			      const CodeMarker * /* marker */ )
+void Generator::generateAlsoList( const Node *node, const CodeMarker *marker )
 {
+    QValueList<Molecule>::ConstIterator a;
+    int index;
+
+    if ( node->doc().alsoList() != 0 && !node->doc().alsoList()->isEmpty() ) {
+	Molecule molecule;
+	molecule << Atom::ParagraphBegin << "See also ";
+
+	a = node->doc().alsoList()->begin();
+	index = 0;
+        while ( a != node->doc().alsoList()->end() ) {
+	    molecule << *a << separator( index++,
+					 node->doc().alsoList()->count() );
+            ++a;
+        }
+        molecule << Atom::ParagraphEnd;
+	generateMolecule( molecule, node, marker );
+    }
 }
 
 void Generator::generateInherits( const ClassNode *classe,
@@ -101,6 +131,7 @@ void Generator::generateInherits( const ClassNode *classe,
 	    ++r;
 	}
 	molecule << Atom::ParagraphEnd;
+	generateMolecule( molecule, classe, marker );
     }
 }
 
@@ -127,6 +158,38 @@ void Generator::generateInheritedBy( const ClassNode *classe,
     }
 }
 
+QString Generator::indent( int level, const QString& markedCode )
+{
+    if ( level == 0 )
+	return markedCode;
+
+    QString t;
+    int column = 0;
+
+    int i = 0;
+    while ( i < (int) markedCode.length() ) {
+	if ( markedCode[i] == '<' ) {
+	    while ( i < (int) markedCode.length() ) {
+		t += markedCode[i++];
+		if ( markedCode[i - 1] == '>' )
+		    break;
+	    }
+	} else {
+	    if ( markedCode[i] == '\n' ) {
+		column = 0;
+	    } else {
+		if ( column == 0 ) {
+		    for ( int j = 0; j < level; j++ )
+			t += ' ';
+		}
+		column++;
+	    } 
+	    t += markedCode[i++];
+	}
+    }
+    return t;
+}
+
 QString Generator::plainCode( const QString& markedCode )
 {
     QString t = markedCode;
@@ -138,11 +201,71 @@ QString Generator::plainCode( const QString& markedCode )
     return t;
 }
 
+QString Generator::typeString( const Node *node )
+{
+    switch ( node->type() ) {
+    case Node::Namespace:
+	return "namespace";
+    case Node::Class:
+	return "class";
+    case Node::Fake:
+    default:
+	return "documentation";
+    case Node::Enum:
+	return "enum";
+    case Node::Typedef:
+	return "typedef";
+    case Node::Function:
+	return "function";
+    case Node::Property:
+	return "property";
+    }
+}
+
+Molecule Generator::sectionHeading( const Atom *sectionBegin )
+{
+    if ( sectionBegin != 0 ) {
+	const Atom *begin = sectionBegin;
+	while ( begin != 0 && begin->type() != Atom::SectionHeadingBegin )
+	    begin = begin->next();
+	if ( begin != 0 )
+	    begin = begin->next();
+
+	const Atom *end = begin;
+	while ( end != 0 && end->type() != Atom::SectionHeadingEnd )
+	    end = end->next();
+
+	if ( end != 0 )
+	    return Molecule::subMolecule( begin, end );
+    }
+    return Molecule();
+}
+
 void Generator::generateStatus( const Node *node, const CodeMarker *marker )
 {
     Molecule molecule;
-    molecule << Atom::ParagraphBegin << "This member is obsolete."
-	     << Atom::ParagraphEnd;
+    switch ( node->status() ) {
+    case Node::Approved:
+	break;
+    case Node::Preliminary:
+	molecule << Atom::ParagraphBegin << Atom( Atom::FormatBegin, "bold" )
+		 << "This " << typeString( node )
+		 << " is under development and is subject to change."
+		 << Atom( Atom::FormatEnd, "bold" ) << Atom::ParagraphEnd;
+	break;
+    case Node::Deprecated:
+	molecule << Atom::ParagraphBegin << Atom( Atom::FormatBegin, "bold" )
+		 << "This " << typeString( node ) << " is deprecated."
+		 << Atom( Atom::FormatEnd, "bold" ) << Atom::ParagraphEnd;
+	break;
+    case Node::Obsolete:
+	molecule << Atom::ParagraphBegin << Atom( Atom::FormatBegin, "bold" )
+		 << "This " << typeString( node ) << " is obsolete."
+		 << Atom( Atom::FormatEnd, "bold" )
+		 << " It is provided to keep old source code working.  We"
+		    " strongly advise against using it in new code."
+		 << Atom::ParagraphEnd;
+    }
     generateMolecule( molecule, node, marker );
 }
 
@@ -159,10 +282,19 @@ void Generator::generateOverload( const Node *node, const CodeMarker *marker )
 void Generator::generateReimplementedFrom( const FunctionNode *func,
 					   const CodeMarker *marker )
 {
-    Molecule molecule;
-    molecule << Atom::ParagraphBegin << "Reimplemented from "
-	     << Atom::ParagraphEnd;
-    generateMolecule( molecule, func, marker );
+    if ( func->reimplementedFrom() != 0 ) {
+	const FunctionNode *from = func->reimplementedFrom();
+	Molecule molecule;
+	molecule << Atom::ParagraphBegin << "Reimplemented from "
+		 << Atom( Atom::LinkNode, CodeMarker::stringForNode(from) )
+		 << Atom( Atom::FormatBegin, "link" )
+		 << Atom( Atom::C, marker->markedUpFullName(from->parent(),
+							    func) )
+		 << Atom( Atom::FormatEnd, "link" )
+		 << "."
+		 << Atom::ParagraphEnd;
+	generateMolecule( molecule, func, marker );
+    }
 }
 
 void Generator::generateReimplementedBy( const FunctionNode *func,

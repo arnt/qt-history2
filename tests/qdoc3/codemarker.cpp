@@ -7,6 +7,7 @@
 #include "codemarker.h"
 #include "node.h"
 
+QString CodeMarker::dl = "C++";
 QValueList<const CodeMarker *> CodeMarker::markers;
 
 CodeMarker::CodeMarker()
@@ -20,10 +21,9 @@ CodeMarker::~CodeMarker()
     markers.remove( this );
 }
 
-const CodeMarker *CodeMarker::markerForCode( const QString& code,
-					     const QString& defaultLang )
+const CodeMarker *CodeMarker::markerForCode( const QString& code )
 {
-    const CodeMarker *defaultMarker = markerForLanguage( defaultLang );
+    const CodeMarker *defaultMarker = markerForLanguage( defaultLanguage() );
     if ( defaultMarker != 0 && defaultMarker->recognizeCode(code) )
 	return defaultMarker;
 
@@ -33,18 +33,17 @@ const CodeMarker *CodeMarker::markerForCode( const QString& code,
 	    return *m;
 	++m;
     }
-    return 0;
+    return defaultMarker;
 }
 
-const CodeMarker *CodeMarker::markerForFileName( const QString& fileName,
-						 const QString& defaultLang )
+const CodeMarker *CodeMarker::markerForFileName( const QString& fileName )
 {
     QString ext;
     int k = fileName.findRev( '.' );
     if ( k != -1 )
-	ext = fileName.mid( k + 1 );
+	ext = fileName.mid( k + 1 ).lower();
 
-    const CodeMarker *defaultMarker = markerForLanguage( defaultLang );
+    const CodeMarker *defaultMarker = markerForLanguage( defaultLanguage() );
     if ( defaultMarker != 0 && defaultMarker->recognizeExtension(ext) )
 	return defaultMarker;
 
@@ -54,7 +53,7 @@ const CodeMarker *CodeMarker::markerForFileName( const QString& fileName,
 	    return *m;
 	++m;
     }
-    return 0;
+    return defaultMarker;
 }
 
 const CodeMarker *CodeMarker::markerForLanguage( const QString& lang )
@@ -123,9 +122,5 @@ QString CodeMarker::taggedNode( const Node *node ) const
 
 QString CodeMarker::linkTag( const Node *node, const QString& body ) const
 {
-    if ( node->doc().isEmpty() ) {
-	return body;
-    } else {
-	return "<@link node=\"" + stringForNode( node ) + "\">" + body + "</@link>";
-    }
+    return "<@link node=\"" + stringForNode( node ) + "\">" + body + "</@link>";
 }

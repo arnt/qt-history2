@@ -86,8 +86,9 @@ StringSet CppCodeParser::topicCommands()
 		       << "module" << "page" << "property" << "typedef";
 }
 
-Node *CppCodeParser::processTopicCommand( const QString& command,
-					  const QString& arg, const Doc& doc )
+Node *CppCodeParser::processTopicCommand( const Doc& doc,
+					  const QString& command,
+					  const QString& arg )
 {
     if ( command == "fn" ) {
 	QStringList path;
@@ -142,80 +143,53 @@ Node *CppCodeParser::processTopicCommand( const QString& command,
 	    lastPath = path;
 	}
 	return node;
+    } else if ( command == "file" ) {
+	return new FakeNode( tree()->root(), arg, FakeNode::File );
+    } else if ( command == "group" ) {
+	return new FakeNode( tree()->root(), arg, FakeNode::Group );
+    } else if ( command == "module" ) {
+	return new FakeNode( tree()->root(), arg, FakeNode::Module );
+    } else if ( command == "page" ) {
+	return new FakeNode( tree()->root(), arg, FakeNode::Page );
     } else {
-	if ( command == "file" ) {
-	    
-	} else if ( command == "group" ) {
-
-	} else if ( command == "module" ) {
-
-	} else if ( command == "page" ) {
-	    Doc pageDoc = doc;
-	    if ( pageDoc.metaCommands() != 0 ) {
-		QStringList granularities =
-			pageDoc.extractMetaCommand( "granularity" );
-		if ( !granularities.isEmpty() )
-		    ; /* graunlarities.last() */
-	    }
-	}
 	return 0;
     }
 }
 
 StringSet CppCodeParser::otherMetaCommands()
 {
-    return StringSet() << "important" << "ingroup" << "inheaderfile"
-		       << "inmodule" << "internal" << "mainclass" << "obsolete"
-		       << "overload" << "preliminary" << "reimp" << "related";
+    return commonMetaCommands() << "important" << "inheaderfile" << "overload"
+				<< "reimp" << "related";
 }
 
-void CppCodeParser::processOtherMetaCommand( const QString& command,
+void CppCodeParser::processOtherMetaCommand( const Location& location,
+					     const QString& command,
 					     const QString& arg, Node *node )
 {
     if ( command == "important" ) {
 	/* ... */
-    } else if ( command == "ingroup" ) {
-	/* ... */
     } else if ( command == "inheaderfile" ) {
-	if ( node->isInnerNode() ) {
+	if ( node != 0 && node->isInnerNode() ) {
 	    ((InnerNode *) node)->addInclude( arg );
-	} else if ( node->parent()->parent() == 0 ) {
+	} else if ( node != 0 && node->parent()->parent() == 0 ) {
 	    /* global function ... */
 	} else {
-	    warning( 1, node->doc().location(), "Ignored '\\headerfile'" );
+	    warning( 1, location, "Ignored '\\headerfile'" );
+	}
+    } else if ( command == "overload" ) {
+	if ( node != 0 && node->type() == Node::Function ) {
+	    ((FunctionNode *) node)->setOverload( TRUE );
+	} else {
+	    warning( 1, location, "Ignored '\\overload'" );
+	}
+    } else if ( command == "reimp" ) {
+	if ( node != 0 && node->type() == Node::Function ) {
+	    ((FunctionNode *) node)->setReimplementation( TRUE );
+	} else {
+	    warning( 1, location, "Ignored '\\reimp'" );
 	}
     } else {
-	if ( command == "deprecated" ) {
-	    node->setStatus( Node::Deprecated );
-	} else if ( command == "obsolete" ) {
-	    node->setStatus( Node::Obsolete );
-	} else if ( command == "overload" ) {
-	    if ( node->type() == Node::Function ) {
-		((FunctionNode *) node)->setOverload( TRUE );
-		FunctionNode *primary =
-			node->parent()->findFunctionNode( node->name() );
-		if ( primary->isOverload() ) {
-		    warning( 1, primary->doc().location(),
-			     "All versions of '%s' are '\\overload'",
-			     (primary->name() + "()").latin1() );
-		    primary->setOverload( FALSE );
-		}
-	    } else {
-		warning( 1, node->doc().location(), "Ignored '\\overload'" );
-	    }
-	} else if ( command == "private" ) {
-	    node->setAccess( Node::Private );
-	} else if ( command == "reimp" ) {
-	    if ( node->type() == Node::Function ) {
-		((FunctionNode *) node)->setReimplementation( TRUE );
-	    } else {
-		warning( 1, node->doc().location(), "Ignored '\\reimp'" );
-	    }
-	}
-
-	if ( !arg.isEmpty() )
-	    warning( 1, node->doc().location(),
-		     "Ignored garbage after '\\%1' command", command.latin1() );
+	processCommonMetaCommand( location, command, arg, node );
     }
 }
 
@@ -850,7 +824,7 @@ bool CppCodeParser::matchDocsAndStuff()
 	    } else {
 		QStringList::ConstIterator a = args.begin();
 		while ( a != args.end() ) {
-		    Node *node = processTopicCommand( command, *a, doc );
+		    Node *node = processTopicCommand( doc, command, *a );
 		    if ( node != 0 )
 			nodes.append( node );
 		    ++a;
@@ -867,7 +841,8 @@ bool CppCodeParser::matchDocsAndStuff()
 			args = nodeDoc.extractMetaCommand( *c );
 			QStringList::ConstIterator a = args.begin();
 			while ( a != args.end() ) {
-			    processOtherMetaCommand( *c, *a, *n );
+			    processOtherMetaCommand( nodeDoc.location(), *c,
+						     *a, *n );
 			    ++a;
 			}
 			++c;

@@ -24,10 +24,13 @@ public:
     Molecule& operator<<( const Molecule& molecule );
 
     bool isEmpty() const { return first == 0; }
+    QString toString() const;
     const Atom *firstAtom() const { return first; }
     const Atom *lastAtom() const { return last; }
-    Molecule subMolecule( const Atom *begin, const Atom *end = 0 ) const;
     Molecule subMolecule( Atom::Type before, Atom::Type after ) const;
+    void dump() const;
+
+    static Molecule subMolecule( const Atom *begin, const Atom *end = 0 );
 
 private:
     void clear();
