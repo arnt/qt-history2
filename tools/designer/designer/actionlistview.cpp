@@ -84,17 +84,16 @@ QDragObject *ActionListView::dragObject()
 
 void ActionListView::rmbMenu( QListViewItem *i, const QPoint &p )
 {
-    if ( !i )
-	return;
-
     QPopupMenu *popup = new QPopupMenu( this );
     popup->insertItem( tr( "New &Action" ), 0 );
     popup->insertItem( tr( "New Action &Group" ), 1 );
     popup->insertItem( tr( "New &Dropdown Action Group" ), 2 );
-    popup->insertSeparator();
-    popup->insertItem( tr( "&Connect Action..." ), 3 );
-    popup->insertSeparator();
-    popup->insertItem( tr( "Delete Action" ), 4 );
+    if ( i ) {
+	popup->insertSeparator();
+	popup->insertItem( tr( "&Connect Action..." ), 3 );
+	popup->insertSeparator();
+	popup->insertItem( tr( "Delete Action" ), 4 );
+    }
     int res = popup->exec( p );
     if ( res == 0 )
 	emit insertAction();

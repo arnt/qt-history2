@@ -113,7 +113,7 @@ void ActionEditor::deleteAction()
 
 void ActionEditor::newAction()
 {
-    ActionItem *actionParent = (ActionItem*)listActions->currentItem();
+    ActionItem *actionParent = (ActionItem*)listActions->selectedItem();
     if ( actionParent ) {
 	if ( !actionParent->actionGroup() ||
 	     !actionParent->actionGroup()->inherits( "QActionGroup" ) )
@@ -145,7 +145,7 @@ void ActionEditor::newAction()
 
 void ActionEditor::newActionGroup()
 {
-    ActionItem *actionParent = (ActionItem*)listActions->currentItem();
+    ActionItem *actionParent = (ActionItem*)listActions->selectedItem();
     if ( actionParent ) {
 	if ( !actionParent->actionGroup() ||
 	     !actionParent->actionGroup()->inherits( "QActionGroup" ) )
