@@ -85,7 +85,8 @@ protected:
         QLineEdit::keyPressEvent(e);
         // FIXME: this is a hack to avoid propagating key press events
         // to the dialog and from there to the "Ok" button
-        e->accept();
+        if (key != Qt::Key_Escape)
+            e->accept();
     }
 private:
     int key;
@@ -1049,7 +1050,7 @@ void QFileDialogPrivate::fileNameChanged(const QString &text)
         if (info.isAbsolute()) { // if we are doing completion in another directory, add the path first
             if (info.path() == "/")
                 completed = "/" + completed;
-            else 
+            else
                 completed = info.path() + "/" + completed;
         }
         int start = completed.length();
@@ -1347,11 +1348,11 @@ void QFileDialogPrivate::setup(const QString &directory,
     model->setReadOnly(false);
 
     // Selections
-    selections = new QItemSelectionModel(model);    
+    selections = new QItemSelectionModel(model);
     QObject::connect(selections,
                      SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
                      q, SLOT(selectionChanged(const QItemSelection&)));
-    
+
 
     QModelIndex current = directory.isEmpty() ? QModelIndex() : model->index(directory);
 
@@ -1691,7 +1692,7 @@ QModelIndex QFileDialogPrivate::matchName(const QString &name, const QModelIndex
     if (matches.count() <= 0)
         return QModelIndex();
     return matches.first();
-}   
+}
 
 /******************************************************************
  *
