@@ -682,35 +682,7 @@ bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     if (img.hasAlphaBuffer() &&
             (QSysInfo::WindowsVersion != QSysInfo::WV_95 &&
               QSysInfo::WindowsVersion != QSysInfo::WV_NT)) {
-        if (image.depth() == 8) {
-            const QRgb * const rgb = img.colorTable();
-            for (int i = 0, count = img.numColors(); i < count; ++i) {
-                const int alpha = qAlpha(rgb[i]);
-                if (alpha != 0 && alpha != 0xff) {
-                    hasRealAlpha = true;
-                    break;
-                }
-            }
-            if (hasRealAlpha) {
-                image = image.convertDepth(32, flags);
-                d = image.depth();
-            }
-        } else if (image.depth() == 32) {
-            int i = 0;
-            while (i<image.height() && !hasRealAlpha) {
-                uchar *p = image.scanLine(i);
-                uchar *end = p + image.bytesPerLine();
-                p += 3;
-                while (p < end) {
-                    if (*p!=0 && *p!=0xff) {
-                        hasRealAlpha = true;
-                        break;
-                    }
-                    p += 4;
-                }
-                ++i;
-            }
-        }
+        hasRealAlpha = true;
     }
 #endif
 
