@@ -34,7 +34,9 @@ standard clients, including Microsoft Office applications and .NET.
 The QAxContainer library is now static even for shared configurations of Qt,
 which simplifies depolyment and allows using of both QAxServer and 
 QAxContainer in one project (ie. an OLE automatable application that uses
-COM objects itself).
+COM objects itself). The semantic of QAxBase::setControl() has been extended
+to allow creating of COM objects on remote machines via DCOM.
+
 Calling of COM object methods with out-parameters of type short is now 
 supported (the parameters are of type int& in the Qt wrapper), and QVariants
 used for out-parameters don't have to be initialized to the expected type.
