@@ -466,7 +466,7 @@ struct OraFieldInfo
 
 QString qOraWarn( const QOCIPrivate* d )
 {
-    unsigned char   errbuf[256];
+    unsigned char   errbuf[512];
     sb4             errcode;
     OCIErrorGet((dvoid *)d->err,
 		(ub4) 1,
