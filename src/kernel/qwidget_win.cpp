@@ -507,7 +507,8 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
 QPoint QWidget::mapToGlobal( const QPoint &pos ) const
 {
     if ( !isVisible() || isMinimized() )
-	return mapTo( topLevelWidget(), pos ) + topLevelWidget()->pos();
+	return mapTo( topLevelWidget(), pos ) + topLevelWidget()->pos() +
+	(topLevelWidget()->geometry().topLeft() - topLevelWidget()->frameGeometry().topLeft());
     POINT p;
     p.x = pos.x();
     p.y = pos.y();
