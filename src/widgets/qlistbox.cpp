@@ -2308,13 +2308,22 @@ void QListBox::setSelected( QListBoxItem * item, bool select )
     if ( !item || item->s == select || d->selectionMode == NoSelection )
 	return;
 
-    if ( selectionMode() == Single ) {
+    if ( selectionMode() == Single && d->current != item ) {
 	QListBoxItem *o = d->current;
 	if ( d->current && d->current->s )
 	    d->current->s = FALSE;
 	d->current = item;
 	if ( o )
 	    updateItem( o );
+	QString tmp;
+	if ( d->current )
+	    tmp = d->current->text();
+	int tmp2 = index( d->current );
+	emit highlighted( d->current );
+	if ( !tmp.isNull() )
+	    emit highlighted( tmp );
+	emit highlighted( tmp2 );
+	emit currentChanged( d->current );
     }
 
     if ( select && !item->isSelectable() )
@@ -3666,3 +3675,33 @@ void QListBox::doRubberSelection( const QRect &old, const QRect &rubber )
 	emit selectionChanged();
     viewport()->repaint( pr, TRUE );
 }
+
+/*!
+  Returns the item which comes after this in the
+  listbox. If this is the last item, 0 is returned.
+*/
+
+QListBoxItem *QListBoxItem::next() const
+{
+    return n;
+}
+
+/*!
+  Returns the item which comes before this in the
+  listbox. If this is the first item, 0 is returned.
+*/
+
+QListBoxItem *QListBoxItem::prev() const
+{
+    return p;
+}
+
+/*!
+  Returns the first item of this listbox.
+*/
+
+QListBoxItem *QListBox::firstItem() const
+{
+    return d->head;
+}
+

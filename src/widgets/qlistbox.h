@@ -169,6 +169,8 @@ public:
 
     QRect itemRect( QListBoxItem *item ) const;
 
+    QListBoxItem *firstItem() const;
+    
 public slots:
     virtual void ensureCurrentVisible();
     virtual void clearSelection();
@@ -251,7 +253,7 @@ private:
     void updateSelection();
     void drawRubber();
     void doRubberSelection( const QRect &old, const QRect &rubber );
-    
+
     void emitChangedSignal( bool );
 
     int columnAt( int ) const;
@@ -289,6 +291,9 @@ public:
 
     void setSelectable( bool b );
     bool isSelectable() const;
+
+    QListBoxItem *next() const;
+    QListBoxItem *prev() const;
     
 protected:
     virtual void paint( QPainter * ) = 0;
