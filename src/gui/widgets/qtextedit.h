@@ -220,20 +220,13 @@ public:
     enum KeyboardAction {
         ActionBackspace,
         ActionDelete,
-        ActionReturn // ,
+        ActionReturn,
         // #### ActionKill,
-        // #### ActionWordBackspace,
-        // #### ActionWordDelete
+        ActionWordBackspace,
+        ActionWordDelete
     };
 
-    inline QT_COMPAT void doKeyboardAction(KeyboardAction action)
-    {
-        switch (action) {
-            case ActionBackspace: cursor().deletePreviousChar(); break;
-            case ActionDelete: cursor().deleteChar(); break;
-            case ActionReturn: cursor().insertBlock(); break;
-        }
-    }
+    QT_COMPAT void doKeyboardAction(KeyboardAction action);
 
     QT_COMPAT void setText(const QString &text);
     QT_COMPAT QString text() const;

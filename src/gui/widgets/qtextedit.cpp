@@ -654,6 +654,7 @@ void QTextEdit::keyPressEvent ( QKeyEvent *e )
 
     if (d->readOnly)
         return;
+
     if (e->state() & Qt::ControlButton) {
         switch( e->key() ) {
         case Key_Z:
@@ -674,6 +675,12 @@ void QTextEdit::keyPressEvent ( QKeyEvent *e )
         case Key_F18:  // Paste key on Sun keyboards
             paste();
             break;
+        case Key_Backspace:
+            d->cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
+            goto process;
+        case Key_Delete:
+            d->cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+            goto process;
         default:
             e->ignore();
             return;
@@ -681,6 +688,7 @@ void QTextEdit::keyPressEvent ( QKeyEvent *e )
         goto accept;
     }
 
+process:
     switch( e->key() ) {
     case Key_Backspace:
         if (d->cursor.currentList() && d->cursor.atBlockStart())
@@ -1220,6 +1228,23 @@ bool QTextEdit::find(const QString &exp, StringComparison flags)
 }
 
 #ifdef QT_COMPAT
+void QTextEdit::doKeyboardAction(KeyboardAction action)
+{
+    switch (action) {
+        case ActionBackspace: d->cursor.deletePreviousChar(); break;
+        case ActionDelete: d->cursor.deleteChar(); break;
+        case ActionReturn: d->cursor.insertBlock(); break;
+        case ActionWordBackspace:
+            d->cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
+            d->cursor.deletePreviousChar();
+            break;
+        case ActionWordDelete:
+            d->cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+            d->cursor.deleteChar();
+            break;
+    }
+}
+
 void QTextEdit::setText(const QString &text)
 {
     if (d->textFormat == AutoText)
