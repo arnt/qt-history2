@@ -15,6 +15,7 @@
 #include "qdesigner_propertyeditor.h"
 #include "qdesigner_workbench.h"
 
+#include <QtGui/QAction>
 #include <propertyeditor/propertyeditor.h>
 
 #include <abstractformeditor.h>
@@ -29,6 +30,7 @@ QDesignerPropertyEditor::QDesignerPropertyEditor(QDesignerWorkbench *workbench)
     setCentralWidget(widget);
 
     setWindowTitle(tr("Property Editor"));
+    action()->setShortcut(tr("Ctrl+I"));
 }
 
 QDesignerPropertyEditor::~QDesignerPropertyEditor()

@@ -35,8 +35,8 @@ View::View(QWidget *parent)
     setInitialInput(0);
 
     setAlternatingRowColors(true);
-    setOddRowColor(QColor(250, 248, 235));
-    setEvenRowColor(QColor(255, 255, 255));
+    setEvenRowColor(QColor(237, 243, 254));
+    setOddRowColor(QColor(255, 255, 255));
 
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
