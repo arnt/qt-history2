@@ -3495,7 +3495,7 @@ void QWidget::setContentsMargins(int left, int top, int right, int bottom)
 /*!
     Returns the area inside the widget's margins.
 
-    \sa setContentsMargins()
+    \sa setContentsMargins() contentsMarginSize()
 */
 QRect QWidget::contentsRect() const
 {
@@ -3503,6 +3503,18 @@ QRect QWidget::contentsRect() const
                  QPoint(data->crect.width() - 1 - d->rightmargin, data->crect.height() -1 - d->bottommargin));
 
  }
+
+/*!
+    Returns the size of the widget's margin. This is the same as
+    size() - contentsRect().size().
+
+    \sa setContentsMargins() contentsRect()
+*/
+QSize QWidget::contentsMarginSize() const
+{
+    return QSize(d->leftmargin + d->rightmargin, d->topmargin + d->bottommargin);
+}
+
 
 /*!
     \property QWidget::focusEnabled
@@ -4254,9 +4266,6 @@ void QWidget::adjustSize()
     setAttribute(WA_InvalidSize, false);
     ensurePolished();
     QSize s = sizeHint();
-    s.rwidth() += d->leftmargin + d->rightmargin;
-    s.rheight() += d->topmargin + d->bottommargin;
-
     if (isTopLevel()) {
 
 #if defined(Q_WS_X11)
@@ -4312,8 +4321,6 @@ QSize QWidget::sizeHint() const
     if (d->layout)
         return d->layout->totalSizeHint();
 #endif
-    if (d->leftmargin || d->rightmargin || d->topmargin || d->bottommargin)
-        return QSize(d->leftmargin + d->rightmargin, d->topmargin + d->bottommargin);
     return QSize(-1, -1);
 }
 

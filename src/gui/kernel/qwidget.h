@@ -274,7 +274,7 @@ public:
 
     void setMask(const QBitmap &);
     void setMask(const QRegion &);
-    QRegion mask() const; 
+    QRegion mask() const;
     void clearMask();
 
     void setWindowTitle(const QString &);
@@ -406,6 +406,7 @@ public:
 
     void setContentsMargins(int left, int top, int right, int bottom);
     QRect contentsRect() const;
+    QSize contentsMarginSize() const;
 
 public:
 #ifndef QT_NO_LAYOUT

@@ -526,6 +526,8 @@ void QLabel::setAutoResize(bool enable)
 
 QSize QLabel::sizeForWidth(int w) const
 {
+    QSize contentsMargin = contentsMarginSize();
+    w -= contentsMargin.width();
     QRect br;
     QPixmap *pix = pixmap();
 #ifndef QT_NO_PICTURE
@@ -594,7 +596,7 @@ QSize QLabel::sizeForWidth(int w) const
     int wid = br.width() + hextra;
     int hei = br.height() + vextra;
 
-    return QSize(wid, hei);
+    return QSize(wid, hei) + contentsMargin;
 }
 
 
