@@ -1364,6 +1364,15 @@ bool QObject::checkConnectArgs( const char    *signal,
     return FALSE;
 }
 
+/*!
+  Removes unused whitespaces from the signal or slot definition \a signalSlot.
+*/
+
+QCString QObject::cleanArguments( const char *signalSlot )
+{
+    return  qt_rmWS( signalSlot );
+}
+
 
 /* tmake ignore Q_OBJECT */
 /* tmake ignore Q_OBJECT */
@@ -2681,7 +2690,7 @@ QVariant QObject::property( const char *name ) const
     typedef QSizePolicy (QObject::*ProtoSizePolicy)() const;
     typedef const QSizePolicy* (QObject::*PProtoSizePolicy)() const;
     typedef const QSizePolicy& (QObject::*RProtoSizePolicy)() const;
-    
+
     QMetaObject* meta = queryMetaObject();
     if ( !meta )
 	return value;
@@ -3184,7 +3193,7 @@ QVariant QObject::property( const char *name ) const
 	}
 	return value;
     }
-    
+
     return value;
 }
 

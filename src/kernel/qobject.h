@@ -144,6 +144,7 @@ protected:
     virtual void disconnectNotify( const char *signal );
     virtual bool checkConnectArgs( const char *signal, const QObject *receiver,
 				   const char *member );
+    QCString cleanArguments( const char *signalSlot );
 
     static  void badSuperclassWarning( const char *className,
 				       const char *superclassName );
