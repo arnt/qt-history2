@@ -207,8 +207,11 @@
 	<property name="name">
 	    <cstring>actionEditFindAgain</cstring>
 	</property>
-	<property name="text">
+	<property name="menuText">
 	    <string>Find &amp;Next</string>
+	</property>
+	<property name="text">
+	    <string>Find Next</string>
 	</property>
 	<property name="accel">
 	    <string>F3</string>
@@ -218,8 +221,11 @@
 	<property name="name">
 	    <cstring>actionEditFindAgainPrev</cstring>
 	</property>
-	<property name="text">
+	<property name="menuText">
 	    <string>Find &amp;Previous</string>
+	</property>
+	<property name="text">
+	    <string>Find Previous</string>
 	</property>
 	<property name="accel">
 	    <string>Shift+F3</string>
