@@ -998,6 +998,10 @@ void QDragManager::move( const QPoint & globalPos )
 	// recreate the pixmap on the new screen...
 	delete qt_xdnd_deco;
 	qt_xdnd_deco = new QShapedPixmapWidget( screen );
+	if (!QWidget::mouseGrabber()) {
+	    updatePixmap();
+	    qt_xdnd_deco->grabMouse();
+	}
     }
     updatePixmap();
 
@@ -1522,6 +1526,9 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 
     dndCancelled = FALSE;
     qt_xdnd_dragging = TRUE;
+
+    if (!QWidget::mouseGrabber())
+	qt_xdnd_deco->grabMouse();
 
     qApp->enter_loop(); // Do the DND.
 
