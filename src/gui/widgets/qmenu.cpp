@@ -1888,7 +1888,8 @@ void QMenu::mouseMoveEvent(QMouseEvent *e)
 
     QAction *action = d->actionAt(e->pos());
     if(!action) {
-        d->setCurrentAction(0);
+        if(!rect().contains(e->pos()))
+            d->setCurrentAction(0);
         return;
     } else {
         d->mouseDown = e->buttons() & Qt::LeftButton;
