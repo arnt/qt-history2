@@ -183,7 +183,7 @@ void QTreeView::setHeader(QHeaderView *header)
                             this, SLOT(columnCountChanged(int,int)));
         disconnect(d->header, SIGNAL(sectionHandleDoubleClicked(int)),
                    this, SLOT(resizeColumnToContents(int)));
-        delete d->header;
+        d->header->setFocusProxy(0);
     }
 
     d->header = header;
@@ -196,6 +196,7 @@ void QTreeView::setHeader(QHeaderView *header)
             this, SLOT(columnCountChanged(int,int)),Qt::QueuedConnection);
     connect(d->header, SIGNAL(sectionHandleDoubleClicked(int)),
             this, SLOT(resizeColumnToContents(int)));
+    d->header->setFocusProxy(this);
 }
 
 /*!

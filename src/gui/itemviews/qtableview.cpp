@@ -238,33 +238,36 @@ QHeaderView *QTableView::verticalHeader() const
 */
 void QTableView::setHorizontalHeader(QHeaderView *header)
 {
+    Q_ASSERT(header);
     if (d->horizontalHeader) {
-        QObject::disconnect(d->horizontalHeader,SIGNAL(sectionResized(int,int,int)),
-                            this, SLOT(columnResized(int,int,int)));
-        QObject::disconnect(d->horizontalHeader, SIGNAL(sectionMoved(int,int,int)),
-                            this, SLOT(columnMoved(int,int,int)));
-        QObject::disconnect(d->horizontalHeader, SIGNAL(sectionCountChanged(int,int)),
-                            this, SLOT(columnCountChanged(int,int)));
-        QObject::disconnect(d->horizontalHeader,
-                            SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
-                            this, SLOT(selectColumn(int,Qt::MouseButton,Qt::KeyboardModifiers)));
-        QObject::disconnect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
-                            this, SLOT(resizeColumnToContents(int)));
+        disconnect(d->horizontalHeader,SIGNAL(sectionResized(int,int,int)),
+                   this, SLOT(columnResized(int,int,int)));
+        disconnect(d->horizontalHeader, SIGNAL(sectionMoved(int,int,int)),
+                   this, SLOT(columnMoved(int,int,int)));
+        disconnect(d->horizontalHeader, SIGNAL(sectionCountChanged(int,int)),
+                   this, SLOT(columnCountChanged(int,int)));
+        disconnect(d->horizontalHeader,
+                   SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
+                   this, SLOT(selectColumn(int,Qt::MouseButton,Qt::KeyboardModifiers)));
+        disconnect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
+                   this, SLOT(resizeColumnToContents(int)));
+        d->horizontalHeader->setFocusProxy(0);
     }
 
     d->horizontalHeader = header;
 
-    QObject::connect(d->horizontalHeader,SIGNAL(sectionResized(int,int,int)),
-                     this, SLOT(columnResized(int,int,int)), Qt::QueuedConnection);
-    QObject::connect(d->horizontalHeader, SIGNAL(sectionMoved(int,int,int)),
-                     this, SLOT(columnMoved(int,int,int)), Qt::QueuedConnection);
-    QObject::connect(d->horizontalHeader, SIGNAL(sectionCountChanged(int,int)),
-                     this, SLOT(columnCountChanged(int,int)), Qt::QueuedConnection);
-    QObject::connect(d->horizontalHeader,
-                     SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
-                     this, SLOT(selectColumn(int,Qt::MouseButton,Qt::KeyboardModifiers)));
-    QObject::connect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
-                     this, SLOT(resizeColumnToContents(int)));
+    connect(d->horizontalHeader,SIGNAL(sectionResized(int,int,int)),
+            this, SLOT(columnResized(int,int,int)), Qt::QueuedConnection);
+    connect(d->horizontalHeader, SIGNAL(sectionMoved(int,int,int)),
+            this, SLOT(columnMoved(int,int,int)), Qt::QueuedConnection);
+    connect(d->horizontalHeader, SIGNAL(sectionCountChanged(int,int)),
+            this, SLOT(columnCountChanged(int,int)), Qt::QueuedConnection);
+    connect(d->horizontalHeader,
+            SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
+            this, SLOT(selectColumn(int,Qt::MouseButton,Qt::KeyboardModifiers)));
+    connect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
+            this, SLOT(resizeColumnToContents(int)));
+    d->horizontalHeader->setFocusProxy(this);
 }
 
 /*!
@@ -275,32 +278,34 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
 void QTableView::setVerticalHeader(QHeaderView *header)
 {
     if (d->verticalHeader) {
-        QObject::disconnect(d->verticalHeader, SIGNAL(sectionResized(int,int,int)),
-                            this, SLOT(rowResized(int,int,int)));
-        QObject::disconnect(d->verticalHeader, SIGNAL(sectionMoved(int,int,int)),
-                            this, SLOT(rowMoved(int,int,int)));
-        QObject::disconnect(d->verticalHeader, SIGNAL(sectionCountChanged(int,int)),
-                            this, SLOT(rowCountChanged(int,int)));
-        QObject::disconnect(d->verticalHeader,
-                            SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
-                            this, SLOT(selectRow(int,Qt::MouseButton,Qt::KeyboardModifiers)));
-        QObject::disconnect(d->verticalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
-                            this, SLOT(resizeRowToContents(int)));
+        disconnect(d->verticalHeader, SIGNAL(sectionResized(int,int,int)),
+                   this, SLOT(rowResized(int,int,int)));
+        disconnect(d->verticalHeader, SIGNAL(sectionMoved(int,int,int)),
+                   this, SLOT(rowMoved(int,int,int)));
+        disconnect(d->verticalHeader, SIGNAL(sectionCountChanged(int,int)),
+                   this, SLOT(rowCountChanged(int,int)));
+        disconnect(d->verticalHeader,
+                   SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
+                   this, SLOT(selectRow(int,Qt::MouseButton,Qt::KeyboardModifiers)));
+        disconnect(d->verticalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
+                   this, SLOT(resizeRowToContents(int)));
+        d->verticalHeader->setFocusProxy(0);
     }
 
     d->verticalHeader = header;
 
-    QObject::connect(d->verticalHeader, SIGNAL(sectionResized(int,int,int)),
-                     this, SLOT(rowResized(int,int,int)), Qt::QueuedConnection);
-    QObject::connect(d->verticalHeader, SIGNAL(sectionMoved(int,int,int)),
-                     this, SLOT(rowMoved(int,int,int)), Qt::QueuedConnection);
-    QObject::connect(d->verticalHeader, SIGNAL(sectionCountChanged(int,int)),
-                     this, SLOT(rowCountChanged(int,int)), Qt::QueuedConnection);
-    QObject::connect(d->verticalHeader,
-                     SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
-                     this, SLOT(selectRow(int,Qt::MouseButton,Qt::KeyboardModifiers)));
-    QObject::connect(d->verticalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
-                     this, SLOT(resizeRowToContents(int)));
+    connect(d->verticalHeader, SIGNAL(sectionResized(int,int,int)),
+            this, SLOT(rowResized(int,int,int)), Qt::QueuedConnection);
+    connect(d->verticalHeader, SIGNAL(sectionMoved(int,int,int)),
+            this, SLOT(rowMoved(int,int,int)), Qt::QueuedConnection);
+    connect(d->verticalHeader, SIGNAL(sectionCountChanged(int,int)),
+            this, SLOT(rowCountChanged(int,int)), Qt::QueuedConnection);
+    connect(d->verticalHeader,
+            SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
+            this, SLOT(selectRow(int,Qt::MouseButton,Qt::KeyboardModifiers)));
+    connect(d->verticalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
+            this, SLOT(resizeRowToContents(int)));
+    d->verticalHeader->setFocusProxy(this);
 }
 
 /*!
