@@ -493,7 +493,10 @@ public:
         WA_CustomWhatsThis,
         WA_LayoutOnEntireRect,
         WA_OutsideWSRange,
-        WA_GrabbedShortcut
+        WA_GrabbedShortcut,
+
+        // Add new attributes above this!
+        WA_AttributeCount
     };
     void setAttribute(WidgetAttribute, bool = true);
     inline bool testAttribute(WidgetAttribute) const;

@@ -6074,6 +6074,9 @@ const QPixmap *QWidget::icon() const
  */
 void QWidget::setAttribute(WidgetAttribute attribute, bool b)
 {
+    Q_ASSERT_X(sizeof(d->high_attributes)*8 >= (WA_AttributeCount - 32),
+               "QWidget::setAttribute(WidgetAttribute, bool)",
+               "QWidgetPrivate::high_attributes[] too small to contain all attributes in WidgetAttribute");
     if (attribute < int(8*sizeof(uint))) {
         if (b)
             data->widget_attributes |= (1<<attribute);
