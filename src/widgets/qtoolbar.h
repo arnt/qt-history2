@@ -94,7 +94,7 @@ private slots:
 
 private:
     void init();
-
+    void checkForExtension( const QSize &sz );
     QToolBarPrivate * d;
     QMainWindow * mw;
     QWidget * sw;

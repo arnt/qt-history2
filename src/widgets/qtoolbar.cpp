@@ -455,6 +455,7 @@ void QToolBar::show()
     QDockWindow::show();
     if ( mw )
 	mw->triggerLayout( FALSE );
+    checkForExtension( size() );
 }
 
 
@@ -519,13 +520,14 @@ bool QToolBar::event( QEvent * e )
     //after the event filters have dealt with it:
     if ( e->type() == QEvent::ChildInserted ) {
 	QObject * child = ((QChildEvent*)e)->child();
-	if ( child && child->isWidgetType() && !((QWidget*)child)->isTopLevel() &&
-	     child->parent() == this && qstrcmp( "qt_dockwidget_internal", child->name() ) != 0 ) {
+	if ( child && child->isWidgetType() && !((QWidget*)child)->isTopLevel()
+	     && child->parent() == this
+	     && qstrcmp("qt_dockwidget_internal", child->name()) != 0 ) {
 	    boxLayout()->addWidget( (QWidget*)child );
-	    if ( isVisible() && ((QWidget*)child)->testWState( WState_CreatedHidden ) ) {
-		( (QWidget*)child )->show();
-		// We resize the toolbar in case it is too small to show all the icons
-		resize( sizeHint() );
+	    if ( isVisible() ) {
+		if ( ((QWidget*)child)->testWState( WState_CreatedHidden ) )
+		    ((QWidget*)child)->show();
+		checkForExtension( size() );
 	    }
 	}
 	if ( child && child->isWidgetType() && ((QWidget*)child) == sw )
@@ -710,11 +712,16 @@ void QToolBar::createPopup()
 
 void QToolBar::resizeEvent( QResizeEvent *e )
 {
+    checkForExtension( e->size() );
+}
+
+void QToolBar::checkForExtension( const QSize &sz )
+{
     bool tooSmall;
     if ( orientation() == Horizontal )
-	tooSmall = e->size().width() < sizeHint().width();
+	tooSmall = sz.width() < sizeHint().width();
     else
-	tooSmall = e->size().height() < sizeHint().height();
+	tooSmall = sz.height() < sizeHint().height();
 
     if ( tooSmall ) {
 	createPopup();
