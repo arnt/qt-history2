@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#294 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#295 $
 **
 ** Implementation of QWidget class
 **
@@ -1076,7 +1076,7 @@ void QWidget::setEnabled( bool enable )
   \fn void QWidget::enabledChange( bool oldEnabled )
 
   This virtual function is called from setEnabled(). \e oldEnabled is the
-  previous setting; you can get the new setting from enabled().
+  previous setting; you can get the new setting from isEnabled().
 
   Reimplement this function if your widget needs to know when it becomes
   enabled or disabled. You will almost certainly need to update the widget
@@ -3660,7 +3660,7 @@ void QWidget::setLayout( QLayout *l )
 /*!
   Reimplemented in subclasses to specify how layouts should handle this
   widget.
-  
+
   The default implementation returns the layout's size policy if there
   is a layout for this widget, otherwise it gives a widget that can be
   freely resized, but that prefers to be of the size specified by
