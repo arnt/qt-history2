@@ -35,6 +35,8 @@
 **
 **********************************************************************/
 
+#include "qplatformdefs.h"
+
 #include "qtextcodec.h"
 #ifndef QT_NO_TEXTCODEC
 
@@ -62,7 +64,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <locale.h>
+#ifdef _XOPEN_UNIX
 #include <langinfo.h>
+#endif
 
 static QPtrList<QTextCodec> * all = 0;
 static bool destroying_is_ok; // starts out as 0
@@ -580,80 +584,82 @@ QTextCodec* QTextCodec::codecForLocale()
     if ( charset )
       localeMapper = codecForName( charset );
 
-    if ( localeMapper )
-        return localeMapper;
 #endif
 
-    // Very poorly defined and followed standards causes lots of code
-    // to try to get all the cases...
+    if ( !localeMapper ) {
+        // Very poorly defined and followed standards causes lots of code
+        // to try to get all the cases...
 
-    char * lang = qstrdup( getenv("LANG") );
+        char * lang = qstrdup( getenv("LANG") );
 
 #ifdef Q_WS_X11_
-    // use LC_CTYPE if LANG is not available, as X11 uses it too, and we otherwise get inconsitencies between
-    // XmbLookupString and the Qt input mapper
-    if ( !lang || lang[0] == 0 )
-        lang = qstrdup( getenv("LC_CTYPE") );
+        // use LC_CTYPE if LANG is not available, as X11 uses it too, and we otherwise get inconsitencies between
+        // XmbLookupString and the Qt input mapper
+        if ( !lang || lang[0] == 0 )
+            lang = qstrdup( getenv("LC_CTYPE") );
 #endif
 
-    char * p = lang ? strchr( lang, '.' ) : 0;
-    if ( !p || *p != '.' ) {
-        // Some versions of setlocale return encoding, others not.
-        char *ctype = qstrdup( setlocale( LC_CTYPE, 0 ) );
-        // Some Linux distributions have broken locales which will return
-        // "C" for LC_CTYPE
-        if ( qstrcmp( ctype, "C" ) == 0 ) {
-            delete [] ctype;
-        } else {
-            if ( lang )
-                delete [] lang;
-            lang = ctype;
-            p = lang ? strchr( lang, '.' ) : 0;
+        char * p = lang ? strchr( lang, '.' ) : 0;
+        if ( !p || *p != '.' ) {
+            // Some versions of setlocale return encoding, others not.
+            char *ctype = qstrdup( setlocale( LC_CTYPE, 0 ) );
+            // Some Linux distributions have broken locales which will return
+            // "C" for LC_CTYPE
+            if ( qstrcmp( ctype, "C" ) == 0 ) {
+                delete [] ctype;
+            } else {
+                if ( lang )
+                    delete [] lang;
+                lang = ctype;
+                p = lang ? strchr( lang, '.' ) : 0;
+            }
         }
-    }
 
-    if( p && *p == '.' ) {
-        // if there is an encoding and we don't know it, we return 0
-        // User knows what they are doing.  Codecs will believe them.
-        localeMapper = codecForName( lang );
-        if ( !localeMapper ) {
-            // Use or codec disagree.
-            localeMapper = codecForName( p+1 );
+        if( p && *p == '.' ) {
+            // if there is an encoding and we don't know it, we return 0
+            // User knows what they are doing.  Codecs will believe them.
+            localeMapper = codecForName( lang );
+            if ( !localeMapper ) {
+                // Use or codec disagree.
+                localeMapper = codecForName( p+1 );
+            }
         }
+        if ( !localeMapper || !(p && *p == '.') ) {
+            // if there is none, we default to 8859-1
+            // We could perhaps default to 8859-15.
+            if ( try_locale_list( iso8859_2locales, lang ) )
+                localeMapper = codecForName( "ISO 8859-2" );
+            else if ( try_locale_list( iso8859_3locales, lang ) )
+                localeMapper = codecForName( "ISO 8859-3" );
+            else if ( try_locale_list( iso8859_4locales, lang ) )
+                localeMapper = codecForName( "ISO 8859-4" );
+            else if ( try_locale_list( iso8859_5locales, lang ) )
+                localeMapper = codecForName( "ISO 8859-5" );
+            else if ( try_locale_list( iso8859_6locales, lang ) )
+                localeMapper = codecForName( "ISO 8859-6" );
+            else if ( try_locale_list( iso8859_7locales, lang ) )
+                localeMapper = codecForName( "ISO 8859-7" );
+            else if ( try_locale_list( iso8859_8locales, lang ) )
+                localeMapper = codecForName( "ISO 8859-8-I" );
+            else if ( try_locale_list( iso8859_9locales, lang ) )
+                localeMapper = codecForName( "ISO 8859-9" );
+            else if ( try_locale_list( iso8859_15locales, lang ) )
+                localeMapper = codecForName( "ISO 8859-15" );
+            else if ( try_locale_list( tis_620locales, lang ) )
+                localeMapper = codecForName( "ISO 8859-11" );
+            else if ( try_locale_list( koi8_ulocales, lang ) )
+                localeMapper = codecForName( "KOI8-U" );
+            else if ( try_locale_list( probably_koi8_rlocales, lang ) )
+                localeMapper = ru_RU_hack( lang );
+            else if (!lang || !(localeMapper = codecForName(lang) ))
+                localeMapper = codecForName( "ISO 8859-1" );
+        }
+        delete[] lang;
     }
-    if ( !localeMapper || !(p && *p == '.') ) {
-        // if there is none, we default to 8859-1
-        // We could perhaps default to 8859-15.
-        if ( try_locale_list( iso8859_2locales, lang ) )
-            localeMapper = codecForName( "ISO 8859-2" );
-        else if ( try_locale_list( iso8859_3locales, lang ) )
-            localeMapper = codecForName( "ISO 8859-3" );
-        else if ( try_locale_list( iso8859_4locales, lang ) )
-            localeMapper = codecForName( "ISO 8859-4" );
-        else if ( try_locale_list( iso8859_5locales, lang ) )
-            localeMapper = codecForName( "ISO 8859-5" );
-        else if ( try_locale_list( iso8859_6locales, lang ) )
-            localeMapper = codecForName( "ISO 8859-6" );
-        else if ( try_locale_list( iso8859_7locales, lang ) )
-            localeMapper = codecForName( "ISO 8859-7" );
-        else if ( try_locale_list( iso8859_8locales, lang ) )
-            localeMapper = codecForName( "ISO 8859-8-I" );
-        else if ( try_locale_list( iso8859_9locales, lang ) )
-            localeMapper = codecForName( "ISO 8859-9" );
-        else if ( try_locale_list( iso8859_15locales, lang ) )
-            localeMapper = codecForName( "ISO 8859-15" );
-        else if ( try_locale_list( tis_620locales, lang ) )
-            localeMapper = codecForName( "ISO 8859-11" );
-        else if ( try_locale_list( koi8_ulocales, lang ) )
-            localeMapper = codecForName( "KOI8-U" );
-         else if ( try_locale_list( probably_koi8_rlocales, lang ) )
-            localeMapper = ru_RU_hack( lang );
-        else if (!lang || !(localeMapper = codecForName(lang) ))
-            localeMapper = codecForName( "ISO 8859-1" );
-    }
-    delete[] lang;
 #endif
 
+    if ( localeMapper && localeMapper->mibEnum() == 11 )
+        localeMapper = codecForName( "ISO 8859-8-I" );
     return localeMapper;
 }
 
