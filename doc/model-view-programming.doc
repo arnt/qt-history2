@@ -53,11 +53,12 @@ set of functionality expected by other components; this also allows
 specialized components to be written.
 For example, all item models are based on the \l QAbstractItemModel
 class. This class can be used to provide models for views that represent
-data in the form of tables and lists. However, the \l QAbstractListModel
-and \l QAbstractTableModel classes are better starting points for new list
-and table models because they provide appropriate default implementations
-of common functions. Each of these classes could be subclassed to provide
-models that support specialized kinds of lists and tables.
+data in the form of tables, lists, and trees. However, the
+\l QAbstractListModel and \l QAbstractTableModel classes are better
+starting points for new list and table models because they provide
+appropriate default implementations of common functions. Each of these
+classes could be subclassed to provide models that support specialized
+kinds of lists and tables.
 
 Complete implementations are provided for different kinds of
 view widgets based on the \l QAbstractItemView class. \l QListView
