@@ -271,10 +271,12 @@ static const int FocusModel_Other = 0;
 static const int FocusModel_PointerRoot = 1;
 static int qt_focus_model = -1;
 
+#ifndef QT_NO_XRANDR
 // TRUE if Qt is compiled w/ XRandR support and XRandR exists on the connected
 // Display
 bool	qt_use_xrandr	= FALSE;
 static int xrandr_eventbase;
+#endif
 
 // TRUE if Qt is compiled w/ XRender support and XRender exists on the connected
 // Display
