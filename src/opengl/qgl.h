@@ -212,7 +212,8 @@ protected:
     void 		generateFontDisplayLists( const QFont & fnt, int listBase );
 
     uint		colorIndex( const QColor& c ) const;
-
+    void 		setValid( bool valid );
+    
 protected:
 #if  defined(Q_WS_WIN)
     HGLRC		rc;
@@ -435,6 +436,11 @@ inline bool QGLFormat::hasOverlay() const
 inline bool QGLContext::isValid() const
 {
     return d->valid;
+}
+
+inline void QGLContext::setValid( bool valid )
+{
+    d->valid = valid;
 }
 
 inline bool QGLContext::isSharing() const
