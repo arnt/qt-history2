@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#449 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#450 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -536,40 +536,52 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
     if ( qt_set_desktop_properties() ) // qt desktop properties have priority
 	return;
 
-    Atom   type = None;
-    int	   format;
-    ulong  nitems, after = 1;
-    long offset = 0;
-    char *data;
-    QCString res;
-    while (after > 0) {
-	XGetWindowProperty( appDpy, appRootWin, qt_resource_manager,
-			    offset, 256, FALSE, AnyPropertyType,
-			    &type, &format, &nitems, &after, (unsigned char**) &data );
-	res += data;
-	offset += 256;
-	XFree(data);
-    }
-    int l = 0, r, i;
-    QCString item, key, value;
     QCString resFont, resFG, resBG;
 
     if (use_x11_resource_manager) {
+	int format;
+	ulong  nitems, after = 1;
+	QCString res;
+	long offset = 0;
+	Atom type = None;
+
+	while (after > 0) {
+	    char *data;
+	    XGetWindowProperty( appDpy, appRootWin, qt_resource_manager,
+				offset, 8192, FALSE, AnyPropertyType,
+				&type, &format, &nitems, &after, (unsigned char**) &data );
+	    res += data;
+	    offset += 8192;
+	    XFree(data);
+	}
+
+	QCString item, key, value;
+	int l = 0, r, i;
+
 	while( (unsigned) l < res.length()) {
 	    r = res.find( "\n", l );
 	    if ( r < 0 )
 		r = res.length();
-	    item = res.mid( l, r - l ).simplifyWhiteSpace();
+	    while ( isspace(res[l]) )
+		l++;
+	    if ( res[l] == '*'
+	      && (res[l+1] == 'f' || res[l+1] == 'b') )
+	    {
+		// OPTIMIZED, since we only want "*[fb].."
+
+		item = res.mid( l, r - l ).simplifyWhiteSpace();
+		i = item.find( ":" );
+		key = item.left( i ).stripWhiteSpace();
+		value = item.right( item.length() - i - 1 ).stripWhiteSpace();
+		if ( !font && key == "*font")
+		    resFont = value.copy();
+		else if  ( !fg &&  key == "*foreground" )
+		    resFG = value.copy();
+		else if ( !bg && key == "*background")
+		    resBG = value.copy();
+		// NOTE: if you add more, change the [fb] stuff above
+	    }
 	    l = r + 1;
-	    i = item.find( ":" );
-	    key = item.left( i ).stripWhiteSpace();
-	    value = item.right( item.length() - i - 1 ).stripWhiteSpace();
-	    if ( !font && key == "*font")
-		resFont = value.copy();
-	    else if  ( !fg &&  key == "*foreground" )
-		resFG = value.copy();
-	    else if ( !bg && key == "*background")
-		resBG = value.copy();
 	}
     }
 
@@ -3655,6 +3667,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     QRegion paintRegion( paintRect );
 
     if ( merging_okay ) {
+	// WARNING: this is O(number_of_events * number_of_matching_events)
 	while ( XCheckIfEvent(x11Display(),&xevent,isPaintOrScrollDoneEvent,
 			      (XPointer)&info) &&
 		!qApp->x11EventFilter(&xevent) ) // send event through filter
@@ -3671,7 +3684,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 		} else {
 		    translateScrollDoneEvent( &xevent );
 		}
-	    }
+	    } // otherwise, discard all up to last config event
 	}
     }
 
