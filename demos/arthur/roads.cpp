@@ -20,7 +20,7 @@ Roads::Roads(QWidget *parent)
     QPainterPathStroker stroker;
     stroker.setWidth(20);
     carVectors = stroker.createStroke(yellowLine).toSubpathPolygons();
-    pixmap.load("car16x32.png");
+    pixmap.load(":/res/car16x32.png");
 
 //     printf("Number of car vectors: %d\n", carVectors.size());
 //     for (int i=0; i<carVectors.size(); ++i) {

@@ -247,7 +247,7 @@ void DemoViewer::openSource(bool on)
         if (fileName.isEmpty()) {
             contents = QString("No source for widget: '%1'").arg(name);
         } else {
-            QFile f(fileName);
+            QFile f(":/res/" + fileName);
             if (!f.open(QFile::ReadOnly))
                 contents = QString("Could not open file: '%1'").arg(fileName);
             else

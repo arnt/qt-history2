@@ -4,10 +4,19 @@
    <file>qtlogo.png</file>
    <file>cubelogo.png</file>
    <file>chux.png</file>
+   <file>car16x32.png</file>
    <file>pathexample.png</file>
    <file>diagonalGradient.png</file>
    <file>alphafill.png</file>
    <file>antialiased.png</file>
    <file>text.html</file>
+   <file>introscreen.cpp</file>
+   <file>alphashade.cpp</file>
+   <file>rotatinggradient.cpp</file>
+   <file>clipping.cpp</file>
+   <file>paths.cpp</file>
+   <file>warpix.cpp</file>
+   <file>roads.cpp</file>
+   <file>glpainter.cpp</file>
 </qresource>
 </RCC>
