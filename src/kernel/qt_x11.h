@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qt_x11.h#9 $
+** $Id: //depot/qt/main/src/kernel/qt_x11.h#10 $
 **
 ** Includes X11 system header files.
 **
@@ -34,19 +34,27 @@
 
 #include "qwindowdefs.h"
 #define	 GC GC_QQQ
+
+#if defined(_XLIB_H_) // crude hack, but...
+#error "cannot include X11/Xlib.h before this file"
+#endif
+
+// the following is necessary to work around breakage in many
+// still-used versions of XFree86's Xlib.h.  *sigh*
 #define XRegisterIMInstantiateCallback qt_XRegisterIMInstantiateCallback
 #define XUnregisterIMInstantiateCallback qt_XUnregisterIMInstantiateCallback
 #define XSetIMValues qt_XSetIMValues
-
 #include <X11/Xlib.h>
+// we trust the include guard, and undef the symbols again ASAP.
+#undef XRegisterIMInstantiateCallback
+#undef XUnregisterIMInstantiateCallback
+#undef XSetIMValues
+
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 #include <X11/extensions/shape.h>
 
-#undef XRegisterIMInstantiateCallback
-#undef XUnregisterIMInstantiateCallback
-#undef XSetIMValues
 
 
 //#define QT_NO_SHAPE
@@ -84,11 +92,9 @@ typedef char *XPointer;
 #if !defined(NO_XIM) && (XlibSpecificationRelease >= 6 )
 #define USE_X11R6_XIM
 
-
-
 //######### XFree86 has wrong declarations for XRegisterIMInstantiateCallback
-//######### and XUnregisterIMInstantiateCallback
-//######### Many old X11R6 header files lack XSetIMValues
+//######### and XUnregisterIMInstantiateCallback in at least version 3.3.2.
+//######### Many old X11R6 header files lack XSetIMValues.
 //######### Therefore, we have to declare these functions ourselves.
 
 extern "C" Bool XRegisterIMInstantiateCallback(
