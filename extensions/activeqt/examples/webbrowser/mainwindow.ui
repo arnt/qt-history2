@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>812</width>
-            <height>599</height>
+            <height>605</height>
         </rect>
     </property>
     <property name="caption">
@@ -72,6 +72,10 @@
         <separator/>
         <action name="actionFileClose"/>
     </item>
+    <item text="&amp;Help" name="unnamed">
+        <action name="actionAbout"/>
+        <action name="actionAboutQt"/>
+    </item>
 </menubar>
 <toolbars>
     <toolbar dock="2">
@@ -115,6 +119,8 @@
         <action name="actionGo"/>
     </toolbar>
 </toolbars>
+<customwidgets>
+</customwidgets>
 <actions>
     <action>
         <property name="name">
@@ -227,6 +233,22 @@
         </property>
         <property name="text">
             <string>Search</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionAbout</cstring>
+        </property>
+        <property name="text">
+            <string>About</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionAboutQt</cstring>
+        </property>
+        <property name="text">
+            <string>About Qt</string>
         </property>
     </action>
 </actions>
@@ -350,6 +372,18 @@
         <receiver>MainWindow</receiver>
         <slot>newWindow()</slot>
     </connection>
+    <connection>
+        <sender>actionAbout</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>aboutSlot()</slot>
+    </connection>
+    <connection>
+        <sender>actionAboutQt</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>aboutQtSlot()</slot>
+    </connection>
 </connections>
 <forwards>
     <forward>class QProgressBar</forward>
@@ -366,6 +400,8 @@
     <slot>setCommandState( int cmd, bool on )</slot>
     <slot>navigateComplete()</slot>
     <slot>navigateBegin()</slot>
+    <slot>aboutSlot()</slot>
+    <slot>aboutQtSlot()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>
