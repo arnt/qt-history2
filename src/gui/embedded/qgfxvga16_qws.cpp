@@ -275,17 +275,6 @@ class QGfxVga16 : public QGfxRasterBase , private QPolygonScanner
         QGfxVga16(unsigned char *,int w,int h);
         virtual ~QGfxVga16();
 
-        void useBrush() {
-            pixel=gfx_screen->alloc(cbrush.color().red(),
-                                    cbrush.color().green(),
-                                    cbrush.color().blue());
-        }
-        void usePen() {
-            pixel=gfx_screen->alloc(cpen.color().red(),
-                                    cpen.color().green(),
-                                    cpen.color().blue());
-        }
-
         virtual void drawPoint(int,int);
         virtual void drawPoints(const QPointArray &,int,int);
         virtual void drawLine(int,int,int,int);
@@ -1074,10 +1063,10 @@ void QGfxVga16::buildSourceClut(QRgb * cols,int numcols)
     BEGIN_PROFILING
 
     if (!cols) {
-        useBrush();
+        pixel = brushPixel;
         srcclut[0]=pixel;
         transclut[0]=pixel;
-        usePen();
+        pixel = penPixel;
         srcclut[1]=pixel;
         transclut[1]=pixel;
         return;
@@ -1106,7 +1095,7 @@ void QGfxVga16::drawPoint(int x, int y)
     x += xoffs;
     y += yoffs;
     if (inClip(x,y)) {
-        usePen();
+        pixel = penPixel;
         VGA16_GFX_START(QRect(x,y,2,2))
         setPixel(x,y, pixel);
         VGA16_GFX_END
@@ -1120,7 +1109,7 @@ void QGfxVga16::drawPoints(const QPointArray & pa, int index, int npoints)
 
     if(cpen.style()==Qt::NoPen)
         return;
-    usePen();
+    pixel = penPixel;
     QRect cr;
     bool in = false;
 
@@ -1151,7 +1140,7 @@ void QGfxVga16::drawLine(int x1, int y1, int x2, int y2)
         return;
     }
 
-    usePen();
+    pixel = penPixel;
     x1+=xoffs;
     y1+=yoffs;
     x2+=xoffs;
@@ -1310,7 +1299,8 @@ void QGfxVga16::drawThickLine(int x1, int y1, int x2, int y2)
 
     pa[4] = pa[0];
 
-    usePen();
+    pixel = penPixel;
+
 
     VGA16_GFX_START(clipbounds)
     scan(pa, false, 0, 5);
@@ -1466,7 +1456,7 @@ void QGfxVga16::fillRect(int rx,int ry,int w,int h)
 
     if (ncliprect == 1 && cbrush.style()==Qt::SolidPattern) {
         // Fast path
-            useBrush();
+            pixel = brushPixel;
             int x1,y1,x2,y2;
             rx+=xoffs;
             ry+=yoffs;
@@ -1502,15 +1492,15 @@ void QGfxVga16::fillRect(int rx,int ry,int w,int h)
             if(opaque) {
                 setSource(cbrushpixmap);
                 setAlphaType(IgnoreAlpha);
-                useBrush();
+                pixel = brushPixel;
                 srcclut[0]=clut[pixel]; // pixel
                 QBrush tmp=cbrush;
                 cbrush=QBrush(backcolor);
-                useBrush();
+                pixel = brushPixel;
                 srcclut[1]=clut[pixel]; // pixel;
                 cbrush=tmp;
             } else {
-                useBrush();
+                pixel = brushPixel;
                 srccol=pixel;
                 srctype=SourcePen;
                 setAlphaType(LittleEndianMask);
@@ -1523,7 +1513,7 @@ void QGfxVga16::fillRect(int rx,int ry,int w,int h)
         }
         tiledBlt(rx,ry,w,h);
     } else if(cbrush.style()!=Qt::NoBrush) {
-        useBrush();
+        pixel = brushPixel;
         rx += xoffs;
         ry += yoffs;
         // Gross clip
@@ -1570,7 +1560,7 @@ void QGfxVga16::drawPolygon(const QPointArray &pa, bool winding, int index, int 
 {
     BEGIN_PROFILING
 
-    useBrush();
+    pixel = brushPixel;
     VGA16_GFX_START(clipbounds)
     if (cbrush.style()!=QBrush::NoBrush)
         scan(pa,winding,index,npoints);
@@ -1641,7 +1631,8 @@ void QGfxVga16::blt(int rx,int ry,int w,int h,int sx,int sy)
     if(srctype==SourcePen) {
         srclinestep=0;//w;
         srcdepth=0;
-        usePen();
+        pixel = penPixel;
+
     }
 
     rx += xoffs;
@@ -1791,7 +1782,7 @@ void QGfxVga16::tiledBlt(int rx,int ry,int w,int h)
 
     VGA16_GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
 
-    useBrush();
+    pixel = brushPixel;
     unsigned char * savealphabits=alphabits;
 
     int offx = brushoffs.x();
