@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#41 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#42 $
 **
 ** Definition of QFont class
 **
@@ -35,7 +35,12 @@ public:
     enum CharSet   { Latin1, ISO_8859_1 = Latin1, AnyCharSet,
 		     Latin2, ISO_8859_2 = Latin2,
 		     Latin3, ISO_8859_3 = Latin3,
-		     Latin4, ISO_8859_4 = Latin4 };
+		     Latin4, ISO_8859_4 = Latin4,
+		     Latin5, ISO_8859_5 = Latin5,
+		     Latin6, ISO_8859_6 = Latin6,
+		     Latin7, ISO_8859_7 = Latin7,
+		     Latin8, ISO_8859_8 = Latin8,
+		     Latin9, ISO_8859_9 = Latin9 };
 
     QFont();					// default font
     QFont( const char *family, int pointSize = 12,

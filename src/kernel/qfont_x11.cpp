@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#84 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#83 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#84 $");
 
 
 static const int fontFields = 14;
@@ -444,6 +444,16 @@ void QFont::initFontInfo() const
 	    f->s.charSet = QFont::Latin3;
 	else if ( strcmp( tokens[CharsetEncoding], "4" ) == 0 )
 	    f->s.charSet = QFont::Latin4;
+	else if ( strcmp( tokens[CharsetEncoding], "5" ) == 0 )
+	    f->s.charSet = QFont::Latin5;
+	else if ( strcmp( tokens[CharsetEncoding], "6" ) == 0 )
+	    f->s.charSet = QFont::Latin6;
+	else if ( strcmp( tokens[CharsetEncoding], "7" ) == 0 )
+	    f->s.charSet = QFont::Latin7;
+	else if ( strcmp( tokens[CharsetEncoding], "8" ) == 0 )
+	    f->s.charSet = QFont::Latin8;
+	else if ( strcmp( tokens[CharsetEncoding], "9" ) == 0 )
+	    f->s.charSet = QFont::Latin9;
     } else {
 	f->s.charSet = QFont::AnyCharSet;
     }
@@ -616,6 +626,36 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QString &buffer,
 	    break;
 	case Latin4:
 	    if ( strcmp( tokens[CharsetEncoding], "4" ) == 0 )
+		score |= CharSetScore;
+	    else
+		exactMatch = FALSE;
+	    break;
+	case Latin5:
+	    if ( strcmp( tokens[CharsetEncoding], "5" ) == 0 )
+		score |= CharSetScore;
+	    else
+		exactMatch = FALSE;
+	    break;
+	case Latin6:
+	    if ( strcmp( tokens[CharsetEncoding], "6" ) == 0 )
+		score |= CharSetScore;
+	    else
+		exactMatch = FALSE;
+	    break;
+	case Latin7:
+	    if ( strcmp( tokens[CharsetEncoding], "7" ) == 0 )
+		score |= CharSetScore;
+	    else
+		exactMatch = FALSE;
+	    break;
+	case Latin8:
+	    if ( strcmp( tokens[CharsetEncoding], "8" ) == 0 )
+		score |= CharSetScore;
+	    else
+		exactMatch = FALSE;
+	    break;
+	case Latin9:
+	    if ( strcmp( tokens[CharsetEncoding], "9" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
