@@ -1523,6 +1523,8 @@ void QTextDocument::setRichText( const QString &text, const QString &context )
 		s += c;
 	    }
 	    if ( !s.isEmpty() && curtag.style->displayMode() != QStyleSheetItem::DisplayNone ) {
+		if ( curpar->length() == 0 )
+		    s = s.simplifyWhiteSpace();
 		hasNewPar = FALSE;
 		int index = curpar->length() - 1;
 		if ( index < 0 )
