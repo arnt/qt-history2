@@ -645,6 +645,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     if(project->isActiveConfig("resource_fork") && !project->isEmpty("QMAKE_INFO_PLIST")) {
         //copy the plist
+        QString icon = fileFixify(var("ICON"));
         QString info_plist = project->first("QMAKE_INFO_PLIST"),
             info_plist_out = project->first("QMAKE_INFO_PLIST_OUT");
         QString destdir = project->first("DESTDIR");
@@ -652,17 +653,18 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         if(!destdir.isEmpty())
             t << "@test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
         t << "@$(DEL_FILE) " << info_plist_out << "\n\t"
-          << "@sed -e \"s,@ICON@,application.icns,g\" -e \"s,@EXECUTABLE@," << var("QMAKE_ORIG_TARGET") << ",g\" "
+          << "@sed -e \"s,@ICON@," << icon.section(Option::dir_sep, -1) 
+          << ",g\" -e \"s,@EXECUTABLE@," << var("QMAKE_ORIG_TARGET") << ",g\" "
           << "-e \"s,@TYPEINFO@," 
           << (project->isEmpty("QMAKE_PKGINFO_TYPEINFO") ? "????" : project->first("QMAKE_PKGINFO_TYPEINFO").left(4))
           << ",g\" \"" << info_plist << "\" >\"" << info_plist_out << "\"" << endl;
         //copy the icon
         if(!project->isEmpty("ICON")) {
             QString dir = project->first("DESTDIR") + "../Resources/";
-            t << dir << "application.icns: " << fileFixify(var("ICON")) << "\n\t"
+            t << dir << icon.section(Option::dir_sep, -1) << ": " << icon << "\n\t"
               << "@test -d " << dir << " || mkdir -p " << dir << "\n\t"
-              << "@$(DEL_FILE) " << dir << "application.icns" << "\n\t"
-              << "@$(COPY_FILE) " << fileFixify(var("ICON")) << " " << dir << "application.icns" << endl;
+              << "@$(DEL_FILE) " << dir << icon.section(Option::dir_sep, -1) << "\n\t"
+              << "@$(COPY_FILE) " << icon << " " << dir << endl;
         }
         //copy other data
         if(!project->isEmpty("QMAKE_BUNDLE_DATA")) {

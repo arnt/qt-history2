@@ -173,7 +173,8 @@ UnixMakefileGenerator::init()
                 project->variables()["ALL_DEPS"] += project->first("QMAKE_INFO_PLIST_OUT");
                 if(!project->isEmpty("ICON"))
                     project->variables()["ALL_DEPS"] += project->first("DESTDIR") +
-                                                        "../Resources/application.icns";
+                                                        "../Resources/" + 
+                                                        project->first("ICON").section('/', -1);
                 if(!project->isEmpty("QMAKE_BUNDLE_DATA")) {
                     const QStringList &bundle_data = project->variables()["QMAKE_BUNDLE_DATA"];
                     for(int i = 0; i < bundle_data.count(); i++) {
