@@ -4,7 +4,7 @@
 #include "qstyle.h"
 
 /*!   \class QStylePlugin qstyleplugin.h
-  \brief The QStylePlugin class provides an abstract base for custom QStyle plugins
+  \brief The QStylePlugin class provides an abstract base for custom QStyle plugins.
   \ingroup plugins
   \mainclass
 

@@ -3,7 +3,7 @@
 #include "qimage.h"
 
 /*!   \class QImageFormatPlugin qimageformatplugin.h
-  \brief The QImageFormatPlugin class provides an abstract base for custom QImageFormat plugins
+  \brief The QImageFormatPlugin class provides an abstract base for custom image format plugins.
   \ingroup plugins
   \mainclass
 

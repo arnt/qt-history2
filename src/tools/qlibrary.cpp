@@ -111,7 +111,6 @@ QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
 
 /*!
   Creates a QLibrary object for the shared library \a filename.
-  The library get's loaded if \a pol is Immediately.
 
   Note that \a filename does not need to include the (platform specific)
   file extension, so calling
@@ -130,7 +129,7 @@ QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
   If \a filename does not include a path, the library loader will look for
   the file in the platform specific search paths.
 
-  \sa unload()
+  \sa load() unload()
 */
 QLibrary::QLibrary( const QString& filename )
     : libfile( filename ), aunload( TRUE )

@@ -905,23 +905,6 @@ bool QMetaProperty::isEnumType() const
   \sa isEnumType(), enumKeys()
 */
 
-/*! \fn bool QMetaProperty::testFlags( uint f ) const
-
-  \internal
-*/
-/*! \fn void QMetaProperty::setFlags( uint f )
-
-  \internal
- */
-/*! \fn void QMetaProperty::clearFlags( uint f )
-
-  \internal
-*/
-/*! \fn void QMetaProperty::copyFlags( uint mask )
-
-  \internal
-*/
-
 
 /*!
   Returns TRUE if the property is designable for object \a o;

@@ -106,8 +106,10 @@ public:
     static QPalette palette();
     static void	    setPalette( const QPalette & );
 
+#ifndef QT_NO_COMPAT
     static void	    setEnabled( bool enable ) { setGloballyEnabled( enable ); }
     static bool	    enabled() { return isGloballyEnabled(); }
+#endif
     static void	    setGloballyEnabled( bool );
     static bool	    isGloballyEnabled();
 

@@ -742,7 +742,7 @@ QToolTip::QToolTip( QWidget * widget, QToolTipGroup * group )
 
 /*!
   Adds a tool tip to \a widget.  \a text is the text to be shown in
-  the tool tip.  QToolTip makes a deep copy of this string.
+  the tool tip.
 
   This is the most common entry point to the QToolTip class; it is
   suitable for adding tool tips to buttons, check boxes, combo boxes
@@ -762,8 +762,7 @@ void QToolTip::add( QWidget *widget, const QString &text )
   Adds a tool tip to \a widget and to tool tip group \a group.
 
   \a text is the text shown in the tool tip and \a longText is the
-  text emitted from \a group.  QToolTip makes deep copies of both
-  strings.
+  text emitted from \a group.
 
   Normally, \a longText is shown in a status bar or similar.
 */
@@ -792,8 +791,7 @@ void QToolTip::remove( QWidget * widget )
 /*!
     \overload
   Adds a tool tip to a fixed rectangle, \a rect, within \a widget.  \a
-  text is the text shown in the tool tip.  QToolTip makes a deep copy
-  of this string.
+  text is the text shown in the tool tip.
 */
 
 void QToolTip::add( QWidget * widget, const QRect & rect, const QString &text )
@@ -809,8 +807,7 @@ void QToolTip::add( QWidget * widget, const QRect & rect, const QString &text )
   group. The tooltip will disappear when the mouse leaves the \a rect.
 
   \a text is the text shown in the tool tip and \a groupText is the
-  text emitted from \a group.  QToolTip makes deep copies of both
-  strings.
+  text emitted from \a group.
 
   Normally, \a groupText is shown in a status bar or similar.
 */

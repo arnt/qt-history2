@@ -201,10 +201,11 @@ static int similarity( const QString& s1, const QString& s2 )
 }
 
 /*!
-  \internal
   \class QPluginManager qpluginmanager.h
   \brief The QPluginManager class provides basic functions to access a certain kind of functionality in libraries.
   \ingroup componentmodel
+
+  \internal
 
   A common usage of components is to extend the existing functionality in an application using plugins. The application
   defines interfaces that abstract a certain group of functionality, and a plugin provides a specialized implementation
@@ -267,11 +268,8 @@ static int similarity( const QString& s1, const QString& s2 )
   Setting the cs flag to FALSE requires that components also convert to lower case when comparing with passed strings, so this has
   to be handled with care and documented very well.
 
-  The \a pol parameter is propagated to the QLibrary object created for each library.
-
   \sa QApplication::libraryPaths()
 */
-
 
 /*!
   \overload QPluginManager::QPluginManager( const QUuid &id, const QString &file, bool cs = TRUE )
