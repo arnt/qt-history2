@@ -55,7 +55,8 @@ struct QWaitConditionPrivate {
 
 
 /*!
-    \class QWaitCondition qthread.h
+    \class QWaitCondition qwaitcondition.h
+    \threadsafe
     \brief The QWaitCondition class allows waiting/waking for conditions between threads.
 
     \ingroup thread

@@ -332,6 +332,7 @@ int QRecursiveMutexPrivate::type() const
 
 /*!
     \class QMutex qmutex.h
+    \threadsafe
     \brief The QMutex class provides access serialization between threads.
 
     \ingroup thread
@@ -484,6 +485,7 @@ bool QMutex::tryLock()
 
 /*!
   \class QMutexLocker qmutex.h
+  \threadsafe
   \brief The QMutexLocker class simplifies locking and unlocking of QMutex.
 
   \ingroup thread

@@ -43,7 +43,8 @@
 
 
 /*!
-    \class QSemaphore qthread.h
+    \class QSemaphore qsemaphore.h
+    \threadsafe
     \brief The QSemaphore class provides a robust integer semaphore.
 
     \ingroup thread

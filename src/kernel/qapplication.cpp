@@ -2682,8 +2682,7 @@ QString QApplication::translate( const char * context, const char * sourceText,
   When control returns to the main event loop, all events that are
   stored in the queue will be sent using the notify() function.
 
-  When Qt is built with thread support, this function is thread-safe,
-  and you may call it from any running thread.
+  \threadsafe
 
   \sa sendEvent(), notify()
 */
@@ -2898,8 +2897,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
   be aware that killing events may cause \a receiver to break one or
   more invariants.
 
-  When Qt is built with thread support, this function is thread-safe,
-  and you may call it from any running thread.
+  \threadsafe
 */
 
 void QApplication::removePostedEvents( QObject *receiver )
@@ -2937,8 +2935,7 @@ void QApplication::removePostedEvents( QObject *receiver )
   \warning This function can be \e really slow. Avoid using it, if
   possible.
 
-  When Qt is built with thread support, this function is thread-safe,
-  and you may call it from any running thread.
+  \threadsafe
 */
 
 void QApplication::removePostedEvent( QEvent *  event )

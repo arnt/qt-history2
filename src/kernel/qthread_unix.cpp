@@ -147,6 +147,7 @@ extern "C" {
 
 /*!
     \class QThread qthread.h
+    \threadsafe
     \brief The QThread class provides platform-independent threads.
 
     \ingroup thread
