@@ -62,12 +62,12 @@ static const bool sound_16bit=false;
 
 #ifndef QT_NO_QWS_SOUNDSERVER
 QWSSoundServerClient::QWSSoundServerClient(int s, QObject* parent) :
-    QSocket(parent)
+    QTcpSocket(parent)
 {
-    setSocket(s);
+    setSocketDescriptor(s);
     connect(this,SIGNAL(readyRead()),
         this,SLOT(tryReadCommand()));
-    connect(this,SIGNAL(connectionClosed()),
+    connect(this,SIGNAL(closed()),
         this,SLOT(destruct()));
 }
 
@@ -134,14 +134,14 @@ private:
             wavedata_remaining = -1;
             // Keep reading chunks...
             const int n = sizeof(chunk)-sizeof(chunk.data);
-            if (dev->readBlock((char*)&chunk,n) != n)
+            if (dev->read((char*)&chunk,n) != n)
                 return;
             if (qstrncmp(chunk.id,"data",4) == 0) {
                 wavedata_remaining = chunk.size;
                 out = max = sound_buffer_size;
             } else if (qstrncmp(chunk.id,"RIFF",4) == 0) {
                 char d[4];
-                if (dev->readBlock(d,4) != 4)
+                if (dev->read(d,4) != 4)
                     return;
                 if (qstrncmp(d,"WAVE",4) != 0) {
                     // skip
@@ -149,7 +149,7 @@ private:
                         return;
                 }
             } else if (qstrncmp(chunk.id,"fmt ",4) == 0) {
-                if (dev->readBlock((char*)&chunkdata,sizeof(chunkdata)) != sizeof(chunkdata))
+                if (dev->read((char*)&chunkdata,sizeof(chunkdata)) != sizeof(chunkdata))
                     return;
 #define WAVE_FORMAT_PCM 1
                 if (chunkdata.formatTag != WAVE_FORMAT_PCM) {
@@ -164,7 +164,7 @@ private:
         }
         if (wavedata_remaining >= 0) {
             if (out >= max) {
-                max = dev->readBlock((char*)data,
+                max = dev->read((char*)data,
                     (uint)qMin(sound_buffer_size,wavedata_remaining));
                 wavedata_remaining -= max;
                 out = 0;
@@ -222,12 +222,15 @@ private:
 
 #ifndef QT_NO_QWS_SOUNDSERVER
 QWSSoundServerSocket::QWSSoundServerSocket(QObject* parent, const char* name) :
-    QServerSocket(sound_port, 0, parent, name)
+    QTcpServer(parent)
 {
+    if (name)
+        setObjectName(name);
+    listen(sound_port);
 }
 
 
-void QWSSoundServerSocket::newConnection(int s)
+void QWSSoundServerSocket::incomingConnection(int s)
 {
     QWSSoundServerClient* client = new QWSSoundServerClient(s,this);
     connect(client, SIGNAL(play(QString)),
@@ -473,7 +476,7 @@ QWSSoundServer::~QWSSoundServer()
 
 #ifndef QT_NO_QWS_SOUNDSERVER
 QWSSoundClient::QWSSoundClient(QObject* parent) :
-    QSocket(parent)
+    QTcpSocket(parent)
 {
     connectToHost("localhost", sound_port);
 }
@@ -486,7 +489,7 @@ void QWSSoundClient::play(const QString& filename)
 #else
     QByteArray u = ("PLAY " + fi.absoluteFilePath() + "\n").latin1();
 #endif
-    writeBlock(u.data(), u.length());
+    write(u.data(), u.length());
 }
 #endif
 

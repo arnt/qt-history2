@@ -14,8 +14,8 @@
 #ifndef QSOUNDQSS_QWS_H
 #define QSOUNDQSS_QWS_H
 
-#include "qserversocket.h"
-#include "qsocket.h"
+#include "qtcpserver.h"
+#include "qtcpsocket.h"
 
 #ifndef QT_NO_SOUND
 
@@ -35,14 +35,14 @@ private:
 };
 
 #ifndef QT_NO_QWS_SOUNDSERVER
-class QWSSoundClient : public QSocket {
+class QWSSoundClient : public QTcpSocket {
     Q_OBJECT
 public:
     QWSSoundClient(QObject* parent=0);
     void play(const QString& filename);
 };
 
-class QWSSoundServerClient : public QSocket {
+class QWSSoundServerClient : public QTcpSocket {
     Q_OBJECT
 
 public:
@@ -57,12 +57,12 @@ private slots:
     void tryReadCommand();
 };
 
-class QWSSoundServerSocket : public QServerSocket {
+class QWSSoundServerSocket : public QTcpServer {
     Q_OBJECT
 
 public:
     QWSSoundServerSocket(QObject* parent=0, const char* name=0);
-    void newConnection(int s);
+    void incomingConnection(int s);
 
 signals:
     void playFile(const QString& filename);
