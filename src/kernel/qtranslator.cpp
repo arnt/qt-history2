@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#16 $
 **
 ** Localization database support.
 **
@@ -53,7 +53,8 @@ $ mcookie
 $
 */
 
-const uchar magic[] = { // magic number for the file.
+static const int magic_length = 16;
+static const uchar magic[magic_length] = { // magic number for the file.
     0x3c, 0xb8, 0x64, 0x18, 0xca, 0xef, 0x9c, 0x95,
     0xcd, 0x21, 0x1c, 0xbf, 0x60, 0xa1, 0xbd, 0xdd
 };
@@ -130,14 +131,14 @@ public:
 
    The scope-table contains all the scopes, as a list of simple
    C strings.  The target.scope is the offset into this list, measured
-   from [1] (ie. the first scope is at offset 3).
+   from [1] (ie. the first scope is at offset WORDSIZE).
 
    The bucket-offset offsets in hash-table are offsets into the
    hash-table.bucket data, measured from [2] (ie. the first scope is at
-   offset 3*256).
+   offset WORDSIZE*256).
 
    Each string-length is the count of CHAR16 in the corresponding
-   target - by adding up these lengths, plus 3 bytes for the scope
+   target - by adding up these lengths, plus WORDSIZE bytes for the scope
    of each target, the offset into the bucket.target data (measured
    from [2]) can be calculated.
 
@@ -148,6 +149,9 @@ public:
    This format permits very fast lookup.
 */
 
+static const int WORDSIZE = 3;
+
+// Dependendent on WORDSIZE
 static inline uint readoffset( const char * c, int o ) {
     return (((uchar)(c[o  ]) << 17) +
 	    ((uchar)(c[o+1]) << 9) +
@@ -155,6 +159,7 @@ static inline uint readoffset( const char * c, int o ) {
 }
 
 
+// Dependendent on WORDSIZE
 static inline uint readlength( const char * c, int o ) {
     return (((uchar)(c[o  ]) << 16) +
 	    ((uchar)(c[o+1]) << 8) +
@@ -162,6 +167,7 @@ static inline uint readlength( const char * c, int o ) {
 }
 
 
+// Dependendent on WORDSIZE
 static inline uint readhash( const char * c, int o, uint base ) {
     return (((uchar)(c[o  ]) << 24) +
 	    ((uchar)(c[o+1]) << 16) +
@@ -376,14 +382,14 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     }
 #endif
 
-    d->s = ((const char *) d->unmapPointer)+16; // 16 = length of magic
+    d->s = ((const char *) d->unmapPointer)+magic_length;
     int scope_table_size = readlength( d->s, 0 );
-    d->t = d->s + 3 + scope_table_size;
-    d->l = d->unmapLength - 16 - 3 - scope_table_size;
+    d->t = d->s + WORDSIZE + scope_table_size;
+    d->l = d->unmapLength - magic_length - WORDSIZE - scope_table_size;
 
     // now that we've read it and all, check that it has the right
     // magic number, and forget all about it if it doesn't.
-    if ( memcmp( (const void *)(d->unmapPointer), magic, 16 ) ) {
+    if ( memcmp( (const void *)(d->unmapPointer), magic, magic_length ) ) {
 	clear();
 	return FALSE;
     }
@@ -405,7 +411,7 @@ bool QTranslator::save( const QString & filename )
     QFile f( filename );
     if ( f.open( IO_WriteOnly ) ) {
 	// magic number
-	if ( f.writeBlock( (const char *)magic, 16 ) < 16 )
+	if ( f.writeBlock( (const char *)magic, magic_length ) < magic_length )
 	    return FALSE;
 
 	// the rest
@@ -445,31 +451,31 @@ QString QTranslator::find( uint h, const char* scope, const char* message ) cons
     const char* t = d->t;
 
     // offset we care about at any instant
-    uint o = readoffset( t, 3*(h % headertablesize) );
+    uint o = readoffset( t, WORDSIZE*(h % headertablesize) );
     // if that bucket is empty, return quickly
-    if ( o+10 >= d->l || o < 3*headertablesize )
+    if ( o+10 >= d->l || o < WORDSIZE*headertablesize )
 	return QString::null;
     // string pointer, first string pointer
     uint fsp, sp;
     fsp = sp = readoffset( s, o );
     uint base = h % headertablesize;
-    o += 3;
+    o += WORDSIZE;
     uint r;
     while ( o+5 < fsp && (r=readhash( s, o, base )) < h ) {
 	// not yet found the one we want
-	sp += 2*readlength( s, o+3 )+3;
-	o += 6;
+	sp += 2*readlength( s, o+WORDSIZE )+WORDSIZE;
+	o += 2*WORDSIZE;
     }
     if ( o+5 < fsp && r == h ) {
 	// match found - check the scope
-	int sl = readlength( s, o+3 )-3;
+	int sl = readlength( s, o+WORDSIZE )-WORDSIZE;
 	int sc = readoffset( s, sp );
-	if ( strcmp(scope, d->s + 3 + sc)!=0 ) {
+	if ( strcmp(scope, d->s + WORDSIZE + sc)!=0 ) {
 	    // bad match.
 	    return QString::null;
 	}
 	// matched - return it
-	sp += 3;
+	sp += WORDSIZE;
 	QString result;
 	// ### could use QConstString if byte order is ok, but need somewhere
 	// ###  to keep the QConstString in existence and to reuse it from.
@@ -562,6 +568,7 @@ void QTranslator::clear()
 }
 
 
+// Dependent on WORDSIZE
 static inline void writethreebytes( QByteArray & b, uint o, uint d )
 {
     b[(int)o  ] = (d&0xff0000) >> 16;
@@ -613,7 +620,7 @@ void QTranslator::squeeze()
 
     QMap<QCString,int> scope_offsets;
 
-    uint size = headertablesize * 6;
+    uint size = headertablesize * 2*WORDSIZE;
 
     QTranslatorPrivate::SortableMessage * items
 	= new QTranslatorPrivate::SortableMessage[ d->messages->count() ];
@@ -626,7 +633,7 @@ void QTranslator::squeeze()
 	    items[i].scope = it.key().scope;
 	    items[i].translation = *it;
 	    items[i].hash = it.key().hash;
-	    size += 10 + 3 + 2*it->length();
+	    size += 10 + WORDSIZE + 2*it->length();
 	    if ( !scope_offsets.contains(it.key().scope) ) {
 		scope_offsets.insert(it.key().scope, scope_table_size);
 		scope_table_size += it.key().scope.length()+1;
@@ -635,7 +642,7 @@ void QTranslator::squeeze()
 	    ++i;
 	}
     }
-    size += scope_table_size + 3;
+    size += scope_table_size + WORDSIZE;
 
     ::qsort( items, d->messages->count(),
 	     sizeof( QTranslatorPrivate::SortableMessage ), cmp );
@@ -644,13 +651,13 @@ void QTranslator::squeeze()
     b.fill( '\0' );
 
     writethreebytes( b, 0, scope_table_size );
-    uint sc = 3 + scope_table_size;
-    uint fp = sc + 3*headertablesize;
+    uint sc = WORDSIZE + scope_table_size;
+    uint fp = sc + WORDSIZE*headertablesize;
 
     {
 	QMap<QCString,int>::Iterator it = scope_offsets.begin();
 	while ( it != scope_offsets.end() ) {
-	    memcpy( b.data()+3+*it, it.key().data(), it.key().length()+1 );
+	    memcpy( b.data()+WORDSIZE+*it, it.key().data(), it.key().length()+1 );
 	    ++it;
 	}
     }
@@ -659,23 +666,23 @@ void QTranslator::squeeze()
     while( i >= 0 ) {
 	uint bucket = items[i].hash % headertablesize;
 	fp = ((fp-1) | 3)+1;
-	writeoffset( b, sc+3*bucket, fp );
+	writeoffset( b, sc+WORDSIZE*bucket, fp );
 	int j = 0;
 	while( j <= i && bucket == items[i-j].hash % headertablesize )
 	    j++;
 	if ( j ) {
-	    uint sp = fp + 4 + (6*j);
+	    uint sp = fp + 4 + (2*WORDSIZE*j);
 	    writeoffset( b, fp, sp );
-	    fp += 3;
+	    fp += WORDSIZE;
 	    QString str;
 	    while( j ) {
 		str = items[i].translation;
 		writethreebytes( b, fp, items[i].hash / headertablesize );
-		writethreebytes( b, fp+3, str.length()+3 );
-		fp += 6;
+		writethreebytes( b, fp+WORDSIZE, str.length()+WORDSIZE );
+		fp += 2*WORDSIZE;
 		uint k;
 		writethreebytes( b, sp, scope_offsets[items[i].scope] );
-		sp += 3;
+		sp += WORDSIZE;
 		for( k=0; k<str.length(); k++ ) {
 		    b[(int)sp++] = str[(int)k].row();
 		    b[(int)sp++] = str[(int)k].cell();
@@ -691,7 +698,7 @@ void QTranslator::squeeze()
     clear();
     d->byteArray = new QByteArray( b );
     d->s = b.data();
-    d->t = d->s+3+scope_table_size;
+    d->t = d->s+WORDSIZE+scope_table_size;
     d->l = b.size();
 }
 
@@ -715,28 +722,28 @@ void QTranslator::unsqueeze()
     if ( d->t && d->l ) {
 	int i;
 	for( i=0; i<headertablesize; i++ ) {
-	    uint fp = readoffset( d->t, i*3 );
-	    if ( fp+10 <= d->l && fp >= 3*headertablesize ) {
+	    uint fp = readoffset( d->t, i*WORDSIZE );
+	    if ( fp+10 <= d->l && fp >= WORDSIZE*headertablesize ) {
 		uint sp = readoffset( d->t, fp );
-		fp += 3;
+		fp += WORDSIZE;
 		uint fsp = sp;
 		while( fp+5 < fsp ) {
 		    uint h = readhash( d->t, fp, i );
-		    int sl = readlength( d->t, fp+3 );
+		    int sl = readlength( d->t, fp+WORDSIZE );
 		    QString result;
 		    int k;
 		    int sc = readlength( d->t, sp );
-		    sp += 3;
+		    sp += WORDSIZE;
 		    for( k=0; k<sl; k++ ) {
 			uchar row = d->t[sp++];
 			uchar cell = d->t[sp++];
 			result[k] = QChar( cell, row );
 		    }
 		    QTranslationDomain key;
-		    key.scope = d->s + 3 + sc;
+		    key.scope = d->s + WORDSIZE + sc;
 		    key.hash = h;
 		    messages->insert( key, result );
-		    fp += 6;
+		    fp += 2*WORDSIZE;
 		}
 	    }
 	}
