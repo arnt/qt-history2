@@ -331,17 +331,19 @@ Option::parseCommandLine(int argc, char **argv)
 		    env_argv[env_argc][currlen++] = envflags[i];
 	    }
 	}
-	if(env_argv[env_argc]) {
-	    env_argv[env_argc][currlen] = '\0';
-	    currlen = 0;
-	    env_argc++;
+	if(env_argv) {
+	    if(env_argv[env_argc]) {
+		env_argv[env_argc][currlen] = '\0';
+		currlen = 0;
+		env_argc++;
+	    }
+	    internalParseCommandLine(env_argc, env_argv);
+	    for(int i2 = 0; i2 < env_size; i2++) {
+		if(env_argv[i2])
+		    free(env_argv[i2]);
+	    }
+	    free(env_argv);
 	}
-	internalParseCommandLine(env_argc, env_argv);
-	for(int i2 = 0; i2 < env_size; i2++) {
-	    if(env_argv[i2])
-		free(env_argv[i2]);
-	}
-	free(env_argv);
     }
     {
 	int ret = internalParseCommandLine(argc, argv, 1);
