@@ -29,8 +29,8 @@
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
 class QKeySequence;
-Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QKeySequence & );
-Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QKeySequence & );
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &in, const QKeySequence &ks);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &out, QKeySequence &ks);
 #endif
 
 class QKeySequencePrivate;
@@ -39,33 +39,33 @@ class Q_GUI_EXPORT QKeySequence : public Qt
 {
 public:
     QKeySequence();
-    QKeySequence( const QString& key );
-    QKeySequence( int key );
-    QKeySequence( int k1, int k2, int k3 = 0, int k4 = 0 );
-    QKeySequence( const QKeySequence & );
+    QKeySequence(const QString &key);
+    QKeySequence(int key);
+    QKeySequence(int k1, int k2, int k3 = 0, int k4 = 0);
+    QKeySequence(const QKeySequence &ks);
     ~QKeySequence();
 
     uint count() const;
     bool isEmpty() const;
-    Qt::SequenceMatch matches( const QKeySequence & ) const;
+    Qt::SequenceMatch matches(const QKeySequence &ks) const;
 
     operator QString() const;
-    operator int () const;
-    int operator[]( uint ) const;
-    QKeySequence &operator=( const QKeySequence & );
-    bool operator==( const QKeySequence& ) const;
-    bool operator!= ( const QKeySequence& ) const;
+    operator int() const;
+    int operator[](uint i) const;
+    QKeySequence &operator=(const QKeySequence &ks);
+    bool operator==(const QKeySequence &ks) const;
+    bool operator!= (const QKeySequence &ks) const;
 
 private:
-    static int decodeString( const QString & );
-    static QString encodeString( int );
-    int assign( QString );
-    void setKey( int key, int index );
+    static int decodeString(const QString &ks);
+    static QString encodeString(int key);
+    int assign(const QString &str);
+    void setKey(int key, int index);
 
-    QKeySequencePrivate* d;
+    QKeySequencePrivate *d;
 
-    friend Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QKeySequence & );
-    friend Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QKeySequence & );
+    friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &in, const QKeySequence &ks);
+    friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &in, QKeySequence &ks);
     friend class QAccelManager;
     friend class QShortcutMap;
     friend class QShortcut;

@@ -156,11 +156,12 @@ static struct {
 };
 
 
-class QKeySequencePrivate : public QShared
+class QKeySequencePrivate
 {
 public:
     inline QKeySequencePrivate()
     {
+	ref = 1;
 	key[0] = key[1] = key[2] = key[3] =  0;
     }
     inline QKeySequencePrivate(QKeySequencePrivate *copy)
@@ -170,6 +171,7 @@ public:
 	key[2] = copy->key[2];
 	key[3] = copy->key[3];
     }
+    QAtomic ref;
     int key[4];
 };
 
@@ -205,7 +207,7 @@ QKeySequence::QKeySequence()
     Note the \c "File|Open" translator comment. It is by no means
     necessary, but it provides some context for the human translator.
 */
-QKeySequence::QKeySequence(const QString& key)
+QKeySequence::QKeySequence(const QString &key)
 {
     d = new QKeySequencePrivate();
     assign(key);
@@ -247,7 +249,7 @@ QKeySequence::QKeySequence(int k1, int k2, int k3, int k4)
 QKeySequence::QKeySequence(const QKeySequence& keysequence)
     : d(keysequence.d)
 {
-    d->ref();
+    ++d->ref;
 }
 
 
@@ -256,7 +258,7 @@ QKeySequence::QKeySequence(const QKeySequence& keysequence)
  */
 QKeySequence::~QKeySequence()
 {
-    if (d->deref())
+    if (!--d->ref)
 	delete d;
 }
 
@@ -269,15 +271,14 @@ QKeySequence::~QKeySequence()
 
 void QKeySequence::setKey(int key, int index)
 {
-    if (0 > index && 4 < index) {
-	qWarning("QKeySequence::setKey: index %u out of range", index);
-	return;
-    }
-
-    if (1 < d->count) {
-	QKeySequencePrivate *newd = new QKeySequencePrivate(d);
-	d->deref();
-	d = newd;
+    Q_ASSERT_X(index >= 0 && index < 4, "QKeySequence::setKey", "index out of range");
+    // This is the only place we detach, so no need for a function.
+    if (d->ref != 1) {
+	QKeySequencePrivate *x = new QKeySequencePrivate(d);
+	x->ref = 1;
+	x = qAtomicSetPtr(&d, x);
+	if (!--x->ref)
+	    delete x;
     }
     d->key[index] = key;
 }
@@ -288,13 +289,13 @@ void QKeySequence::setKey(int key, int index)
  */
 uint QKeySequence::count() const
 {
-    if (! d->key[0])
+    if (!d->key[0])
 	return 0;
-    if (! d->key[1])
+    if (!d->key[1])
 	return 1;
-    if (! d->key[2])
+    if (!d->key[2])
 	return 2;
-    if (! d->key[3])
+    if (!d->key[3])
 	return 3;
     return 4;
 }
@@ -316,8 +317,9 @@ bool QKeySequence::isEmpty() const
     comma, e.g. "Alt+X,Ctrl+S,Z"). Returns the number of key codes
     added.
 */
-int QKeySequence::assign(QString keyseq)
+int QKeySequence::assign(const QString &ks)
 {
+    QString keyseq = ks;
     QString part;
     int n = 0;
     int p = 0, diff = 0;
@@ -339,10 +341,10 @@ int QKeySequence::assign(QString keyseq)
 		diff = 0;
 	    }
 	}
-	part = keyseq.left(-1==p?keyseq.length():p-diff);
-	keyseq = keyseq.right(-1==p?0:keyseq.length() - (p + 1));
+	part = keyseq.left(-1 == p ? keyseq.length() : p - diff);
+	keyseq = keyseq.right(-1 == p ? 0 : keyseq.length() - (p + 1));
 	d->key[n] = decodeString(part);
-	n++;
+	++n;
     }
     return n;
 }
@@ -362,8 +364,6 @@ int QKeySequence::decodeString(const QString& str)
     int ret = 0;
     QString accel = str.toLower();
 
-    // ############ FIXME: We should not need to construct a valuelist with 20 entries for every
-    // key decode operation. There _is_ a way to do this more intelligent.
     static QList<ModifKeyName> modifs;
     modifs.ensure_constructed();
     if (modifs.isEmpty()) {
@@ -411,8 +411,8 @@ int QKeySequence::decodeString(const QString& str)
 	// Check through translation table for the correct key name
 	// ...or fall back on english table.
 	bool found = false;
-	for (int tran = 0; tran < 2; tran++) {
-	    for (int i = 0; keyname[i].name; i++) {
+	for (int tran = 0; tran < 2; ++tran) {
+	    for (int i = 0; keyname[i].name; ++i) {
 		if (tran ? accel == QAccel::tr(keyname[i].name)
 			  : accel == keyname[i].name) {
 		    ret |= keyname[i].key;
@@ -532,10 +532,9 @@ Qt::SequenceMatch QKeySequence::matches(const QKeySequence& seq) const
     // else we already know it can only be partial.
     SequenceMatch match = (userN == seqN ? Identical : PartialMatch);
 
-    for (uint i = 0; i < userN; i++) {
-	int userKey      = (*this)[i],
-	    sequenceKey  = seq[i];
-
+    for (uint i = 0; i < userN; ++i) {
+	int userKey = (*this)[i],
+	    sequenceKey = seq[i];
 	if (userKey != sequenceKey)
 	    return NoMatch;
     }
@@ -556,10 +555,8 @@ Qt::SequenceMatch QKeySequence::matches(const QKeySequence& seq) const
 */
 QKeySequence::operator QString() const
 {
-    int end = count();
-    if (!end) return QString::null;
-
     QString complete;
+    int end = count();
     int i = 0;
     while (i < end) {
 	complete += encodeString(d->key[i]);
@@ -590,10 +587,7 @@ QKeySequence::operator int () const
  */
 int QKeySequence::operator[](uint index) const
 {
-    if (index > 4) {
-	qWarning("QKeySequence::operator[]: index %u out of range", index);
-	return 0;
-    }
+    Q_ASSERT_X(index < 4, "QKeySequence::operator[]", "index out of range")
     return d->key[index];
 }
 
@@ -604,10 +598,11 @@ int QKeySequence::operator[](uint index) const
  */
 QKeySequence &QKeySequence::operator=(const QKeySequence & keysequence)
 {
-    keysequence.d->ref();
-    if (d->deref())
-	delete d;
-    d = keysequence.d;
+    QKeySequencePrivate *x = keysequence.d;
+    ++x->ref;
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+	delete x;
     return *this;
 }
 
@@ -633,8 +628,7 @@ bool QKeySequence::operator==(const QKeySequence& keysequence) const
 */
 bool QKeySequence::operator!= (const QKeySequence& keysequence) const
 {
-    QKeySequence *that = (QKeySequence*)this;
-    return !((*that) == keysequence);
+    return !(*this == keysequence);
 }
 
 
