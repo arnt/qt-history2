@@ -2663,6 +2663,9 @@ QListView::~QListView()
 void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 				    int cx, int cy, int cw, int ch )
 {
+    if ( columns() == 0 )
+	return;
+    
     if ( !d->drawables ||
 	 d->drawables->isEmpty() ||
 	 d->topPixel > cy ||
