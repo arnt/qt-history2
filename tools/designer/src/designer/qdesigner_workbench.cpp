@@ -168,18 +168,21 @@ void QDesignerWorkbench::initialize()
 
     // create the toolbars
     m_editToolBar = new QToolBar;
+    m_editToolBar->setWindowTitle(tr("Edit"));
     foreach (QAction *action, m_actionManager->editActions()->actions()) {
         if (action->icon().isNull() == false)
             m_editToolBar->addAction(action);
     }
 
     m_toolToolBar = new QToolBar;
+    m_toolToolBar->setWindowTitle(tr("Tool"));
     foreach (QAction *action, m_actionManager->toolActions()->actions()) {
         if (action->icon().isNull() == false)
             m_toolToolBar->addAction(action);
     }
 
     m_formToolBar = new QToolBar;
+    m_formToolBar->setWindowTitle(tr("Form"));
     foreach (QAction *action, m_actionManager->formActions()->actions()) {
         if (action->icon().isNull() == false)
             m_formToolBar->addAction(action);
@@ -287,6 +290,7 @@ void QDesignerWorkbench::switchToWorkspaceMode()
     mw->addToolBar(m_editToolBar);
     mw->addToolBar(m_toolToolBar);
     mw->addToolBar(m_formToolBar);
+
     qDesigner->setMainWindow(mw);
 
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
@@ -331,6 +335,8 @@ void QDesignerWorkbench::switchToTopLevelMode()
         widgetBoxWrapper->addToolBar(m_editToolBar);
         widgetBoxWrapper->addToolBar(m_toolToolBar);
         widgetBoxWrapper->addToolBar(m_formToolBar);
+
+        widgetBoxWrapper->insertToolBarBreak(m_formToolBar);
     }
 
     QDesignerSettings settings;
