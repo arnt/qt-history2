@@ -278,7 +278,7 @@ void QDialog::done( int r )
     // less useless without subclassing.
     if ( qApp->mainWidget() == this )
 	qApp->quit();
-    
+
     if ( testWFlags(WDestructiveClose) )
 	delete this;
 }
