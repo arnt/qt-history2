@@ -41,11 +41,11 @@
 #include <qdir.h>
 #include <qregexp.h>
 #include <qtextstream.h>
-#include <stdio.h>
-#include <stdlib.h>
 #ifdef Q_OS_UNIX
 # include <unistd.h>
 #endif
+#include <stdio.h>
+#include <stdlib.h>
 
 #ifdef Q_OS_WIN32
 #define QT_POPEN _popen

@@ -41,15 +41,15 @@
 #include <qfile.h>
 #include <qtextstream.h>
 #include <qregexp.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 #include <qdict.h>
 #if defined(Q_OS_UNIX)
 #include <unistd.h>
 #else
 #include <io.h>
 #endif
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
