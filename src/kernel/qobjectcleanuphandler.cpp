@@ -17,8 +17,10 @@ QObject* QObjectCleanupHandler::add( QObject* object ) {
 void QObjectCleanupHandler::remove( QObject *object ) {
     if ( !cleanupObjects )
 	return;
-    if ( cleanupObjects->findRef( object ) >= 0 )
+    if ( cleanupObjects->findRef( object ) >= 0 ) {
 	(void) cleanupObjects->take();
+	disconnect( object, SIGNAL(destroyed()), this, SLOT(objectDestroyed()) );
+    }
 }
 
 bool QObjectCleanupHandler::isEmpty() const {
