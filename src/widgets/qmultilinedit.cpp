@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#31 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -255,7 +255,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
     p.setFont( painter->font() );
     p.translate( -updateR.left(), -updateR.top() );
 
-    int yPos = fm.ascent() + fm.leading()/2 - 1;
+    int yPos = fm.leading()/2 - 1;
     bool hasMark = FALSE;
     int markX1, markX2;				// in x-coordinate pixels
     markX1 = markX2 = 0;			// avoid gcc warning
@@ -299,10 +299,12 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
     }
     if ( !hasMark ) {
 	p.setPen( g.text() );
-	p.drawText( BORDER,  yPos , *s );
+	p.drawText( BORDER,  yPos, width() - BORDER, 1000,
+		    ExpandTabs, *s );
     } else {
 	int sLength = s->length();
 	int xpos1, xpos2;
+	xpos1 = xpos2 = width(); // paranoia..
 	if ( markX1 != markX2 ) {
 	    	xpos1 =  BORDER + fm.width( s->data(), markX1 );
 		xpos2 =  xpos1 + fm.width( s->data() + markX1, 
@@ -316,14 +318,17 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 		p.fillRect( fillxpos1, 0, fillxpos2 - fillxpos1, 
 			    cellHeight(row), g.text() );
 		p.setPen( g.base() );
-		p.drawText( xpos1, yPos, s->data() + markX1, markX2 - markX1);
+		p.drawText( xpos1, yPos, xpos2 - xpos1, fm.height(),
+			    ExpandTabs, s->data() + markX1, markX2 - markX1 );
 	}
 	p.setPen( g.text() );
 	if ( markX1 != 0 )
-	    p.drawText( BORDER, yPos, *s, markX1 );
+	    p.drawText( BORDER, yPos, xpos1 - BORDER, fm.height(),
+			ExpandTabs, *s, markX1 );
 	if ( markX2 != (int)s->length() )
-	    p.drawText( BORDER + fm.width( *s, markX2 ), yPos,  // ### length
-			 s->data() + markX2, s->length() - markX2 );
+	    p.drawText( xpos2+1, yPos, width() - xpos2-1, fm.height(),
+			ExpandTabs,
+			s->data() + markX2, s->length() - markX2 );
     }
 
     if ( row == cursorY && cursorOn && !readOnly ) {
