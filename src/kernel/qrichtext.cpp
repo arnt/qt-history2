@@ -4227,7 +4227,7 @@ QTextIndent::QTextIndent()
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextFormatCollection::QTextFormatCollection()
-    : sheet( 0 )
+    : cKey( 307 ), sheet( 0 )
 {
     defFormat = new QTextFormat( QApplication::font(),
 				     QApplication::palette().color( QPalette::Active, QColorGroup::Text ) );
