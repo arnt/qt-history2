@@ -91,6 +91,7 @@ public slots:
 protected:
     virtual void insert( QWidget * widget, QSqlField * field );
     virtual void remove( QWidget * widget );
+    void clearMap();
 
 private:
     virtual void sync();

@@ -241,10 +241,7 @@ void QSqlForm::clear()
 {
     d->dirty = TRUE;
     d->fld.clear();
-    QMap< QWidget *, QSqlField * >::Iterator it;
-    for( it = d->map.begin(); it != d->map.end(); ++it ){
-	d->map.remove( it );
-    }
+    clearMap();
 }
 
 /*!
@@ -302,8 +299,8 @@ QSqlField * QSqlForm::widgetToField( QWidget * widget ) const
 
 /*!
 
-  Update the widgets in the form with values from the SQL fields they
-  are mapped to.
+  Update the widgets in the form with current values from the SQL
+  fields they are mapped to.
 
 */
 void QSqlForm::readFields()
@@ -378,13 +375,26 @@ void QSqlForm::writeField( QWidget * widget )
 void QSqlForm::sync()
 {
     if ( d->dirty ) {
-	clear();
+	clearMap();
 	if ( d->buf ) {
 	    for ( uint i = 0; i < d->fld.count(); ++i )
 		insert( d->wgt[ d->fld[ i ] ], d->buf->field( d->fld[ i ] ) );
 	}
     }
     d->dirty = FALSE;
+}
+
+/*! \internal
+
+  Clears the internal map of widget/field associations
+
+*/
+
+void QSqlForm::clearMap()
+{
+    QMap< QWidget *, QSqlField * >::Iterator it;
+    for( it = d->map.begin(); it != d->map.end(); ++it )
+	d->map.remove( it );
 }
 
 #endif // QT_NO_SQL
