@@ -89,6 +89,7 @@ void MainForm::go()
     } else {
 	startChanges( changesFrom->currentText() );
     }
+    parseDescribe( "" );
 }
 
 void MainForm::currentChanged( QListViewItem *li )
@@ -108,7 +109,7 @@ void MainForm::currentChanged( QListViewItem *li )
 void MainForm::readyReadStdout()
 {
     QString command = process.arguments()[1];
-    
+
     if ( command == "labels" ) {
 	while ( process.canReadLineStdout() ) {
 	    QString label = QStringList::split( ' ', process.readLineStdout() )[1];
