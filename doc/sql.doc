@@ -738,8 +738,9 @@ the first record.
 
 Now we create a \l QSqlForm object. For each widget that we wish to make
 data-aware we insert a pointer to the widget and the associated field
-into the \l QSqlForm. Finally we call the QSqlForm's readFields()
-function to populate the widgets with data from the database.
+name into the \l QSqlForm. Finally we set the QSqlForm's record buffer
+to the cursor's update buffer and call readFields() to populate the
+widgets with data from the database via the cursor's buffer.
 
 <h3><a name="Editing_a_Record">Editing a Record</a></h3>
 
