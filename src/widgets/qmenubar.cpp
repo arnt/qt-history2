@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#109 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#110 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#109 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#110 $");
 
 
 /*!
@@ -295,7 +295,6 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 		tlw->removeEventFilter( this );
 		tlw->installEventFilter( this );
 	    }
-	    QKeyEvent * ke = (QKeyEvent *) event;
 	    return TRUE;
 	} else if ( (event->type() == Event_KeyPress ||
 		     event->type() == Event_KeyRelease) &&
@@ -307,7 +306,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	}
     }
 
-    // watch for top-level window focus changes
+    // look for top-level window focus changes
     if ( windowsaltactive &&
 	 event->type() == Event_FocusOut &&
 	 qApp && qApp->focusWidget() != this ) {
