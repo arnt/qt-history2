@@ -1563,6 +1563,7 @@ void QTextEdit::paintEvent(QPaintEvent *ev)
     ctx.showCursor = (d->cursorOn && isEnabled());
     ctx.cursor = d->cursor;
     ctx.palette = palette();
+    ctx.textColorFromPalette = true;
     ctx.rect = r;
     ctx.imStart = d->imstart;
     ctx.imEnd = d->imend;

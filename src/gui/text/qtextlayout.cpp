@@ -758,7 +758,7 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, int cursorPos,
                     descent = si.descent;
             }
 
-            p->setPen(Qt::black);
+            p->setPen(d->pal ? d->pal->text().color() : QColor(Qt::black));
             p->drawLine(qRound(x), qRound(position.y() + sl.y + sl.ascent - ascent),
                         qRound(x), qRound(position.y() + sl.y + sl.ascent + descent));
         }
