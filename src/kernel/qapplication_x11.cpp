@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#581 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#582 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -4662,11 +4662,6 @@ void QSmSocketReceiver::socketActivated(int)
 {
     Bool reply_set;
     IceProcessMessages( SmcGetIceConnection( smcConnection ), 0, &reply_set );
-}
-
-const char *QSmSocketReceiver::className() const
-{
-    return "QSmSocketReceiver";
 }
 
 #include "qapplication_x11.moc"
