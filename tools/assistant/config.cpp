@@ -75,7 +75,7 @@ void Config::save()
     settings.writeEntry( key + "LinkUnderline", linkUnder );
     settings.writeEntry( key + "LinkColor", linkCol );
     settings.writeEntry( key + "Source", src );
-    settings.writeEntry( key + "SideBarPage", sideBarPage );
+    settings.writeEntry( key + "SideBarPage", sideBarPage() );
     settings.writeEntry( key + "GeometryX", geom.x() );
     settings.writeEntry( key + "GeometryY", geom.y() );
     settings.writeEntry( key + "GeometryWidth", geom.width() );
