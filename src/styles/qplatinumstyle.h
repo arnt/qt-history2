@@ -110,29 +110,13 @@ public:
 //     void drawPopupPanel( QPainter *p, int x, int y, int w, int h,
 // 			 const QColorGroup &,  int lineWidth = 2,
 // 			 const QBrush *fill = 0 );
-//     void drawButton( QPainter *p, int x, int y, int w, int h,
-// 		     const QColorGroup &g, bool sunken = FALSE,
-// 		     const QBrush *fill = 0 );
 //     QRect buttonRect( int x, int y, int w, int h) const;
-//     void drawBevelButton( QPainter *p, int x, int y, int w, int h,
-// 			  const QColorGroup &g, bool sunken = FALSE,
-// 			  const QBrush *fill = 0 );
-//     void drawPushButton( QPushButton* btn, QPainter *p );
-//     void drawPushButtonLabel( QPushButton* btn, QPainter *p );
 //     void getButtonShift( int &x, int &y ) const;
 
 //     void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int&) const;
 //     void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
 //     ScrollControl scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p );
 
-//     QSize indicatorSize() const;
-//     void drawIndicator( QPainter* p, int x, int y, int w, int h,  const QColorGroup &g,
-// 			int state, bool down = FALSE, bool enabled = TRUE );
-//     void drawIndicatorMask( QPainter *p, int x, int y, int w, int h, int state );
-
-//     QSize exclusiveIndicatorSize() const;
-//     void drawExclusiveIndicator( QPainter* p,  int x, int y, int w, int h, const QColorGroup &g,
-// 				 bool on, bool down = FALSE, bool enabled = TRUE );
 
 //     void drawComboButton( QPainter *p, int x, int y, int w, int h,
 // 			  const QColorGroup &g, bool sunken = FALSE,
@@ -155,9 +139,6 @@ public:
 
 //     int maximumSliderDragDistance() const;
 
-//     void drawCheckMark( QPainter *p, int x, int y, int w, int h,
-// 			     const QColorGroup &g,
-// 			     bool act, bool dis );
 //     void polishPopupMenu( QPopupMenu* );
 
 //     int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi,
@@ -167,8 +148,6 @@ public:
 //     void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
 // 			    const QPalette& pal, bool act, bool enabled,
 // 			    int x, int y, int w, int h);
-
-//     int buttonDefaultIndicatorWidth() const;
 
 protected:
 //     void drawScrollBarBackground( QPainter *p, int x, int y, int w, int h,
