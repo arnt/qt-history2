@@ -5590,10 +5590,9 @@ QMacStyle::event(QEvent *e)
                 f = 0;
         }
         if (f) {
-            if(d->focusWidget)
-                d->focusWidget->setWidget(QApplication::focusWidget());
-            else
+            if(!d->focusWidget)
                 d->focusWidget = new QFocusFrame(QApplication::focusWidget());
+            d->focusWidget->setWidget(QApplication::focusWidget());
         } else if(d->focusWidget) {
             d->focusWidget->setWidget(0);
         }

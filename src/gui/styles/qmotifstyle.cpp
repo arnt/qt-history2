@@ -2245,10 +2245,9 @@ QMotifStyle::event(QEvent *e)
 {
     if(e->type() == QEvent::FocusIn) {
         if (QApplication::focusWidget()) {
-            if(focus)
-                focus->setWidget(QApplication::focusWidget());
-            else
+            if(!focus)
                 focus = new QFocusFrame(QApplication::focusWidget());
+            focus->setWidget(QApplication::focusWidget());
         } else {
             if(focus)
                 focus->setWidget(0);
