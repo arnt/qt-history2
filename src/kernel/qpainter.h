@@ -263,10 +263,6 @@ public:
     void drawTextItem( int x,  int y, const QTextItem &ti );
     void drawTextItem( const QPoint& p, const QTextItem &ti );
 
-    //#####    void	drawText( const QPoint &, const QString &, int flags, int rotation = 0);
-
-  // Text drawing functions
-
     QRect	boundingRect( int x, int y, int w, int h, int flags,
 			      const QString&, int len = -1, QTextParag **intern=0 );
     QRect	boundingRect( const QRect &, int flags,
@@ -388,6 +384,7 @@ protected:
     QT_WIN_PAINTER_MEMBERS
 #elif defined(Q_WS_X11)
     friend class QFontEngineXLFD;
+    friend class QFontEngineXft;
     friend class QFontEngineBox;
     Display    *dpy;				// current display
     int		scrn;				// current screen

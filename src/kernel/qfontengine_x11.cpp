@@ -18,6 +18,40 @@
 // defined in qfontdatbase_x11.cpp
 extern int qt_mibForXlfd( const char * encoding );
 
+/* ### duplicated from QFontPrivate::lineWidth() */
+static int lineWidth( const QFontDef &fd )
+{
+    // ad hoc algorithm
+    int score = fd.weight * fd.pixelSize;
+    int lw = score / 700;
+
+    // looks better with thicker line for small pointsizes
+    if ( lw < 2 && score >= 1050 ) lw = 2;
+    if ( lw == 0 ) lw = 1;
+
+    return lw;
+}
+
+static void drawLines( Display *dpy, Qt::HANDLE hd, GC gc, QFontEngine *fe, int baseline, int x1,  int w )
+{
+    int lw = lineWidth( fe->fontDef );
+    if ( fe->fontDef.underline ) {
+    	int pos = ( ( lw * 2 ) + 3 ) / 6;
+	if ( !pos ) pos = 1;
+	XFillRectangle( dpy, hd, gc, x1, baseline+pos, w, lw );
+    }
+    if ( fe->fontDef.overline ) {
+	int pos = fe->ascent();
+	if ( !pos ) pos = 1;
+	XFillRectangle( dpy, hd, gc, x1, baseline-pos, w, lw );
+    }
+    if ( fe->fontDef.strikeOut ) {
+	int pos = fe->ascent()/3;
+	if ( !pos ) pos = 1;
+	XFillRectangle( dpy, hd, gc, x1, baseline-pos, w, lw );
+    }
+}
+
 QFontEngine::~QFontEngine()
 {
 }
@@ -86,6 +120,9 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const glyph_t */*glyphs*/,
 
     XDrawRectangles(dpy, hd, gc, rects, numGlyphs);
     delete [] rects;
+
+    if ( fontDef.underline || fontDef.overline || fontDef.strikeOut )
+	drawLines( dpy, hd, gc, this, y, x, numGlyphs*_size );
 
 #ifdef FONTENGINE_DEBUG
     x = xp;
@@ -336,6 +373,8 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	chars[i].byte2 = glyphs[i] & 0xff;
     }
 
+    int xpos = x;
+
     if ( reverse ) {
 	int i = numGlyphs;
 	while( i-- ) {
@@ -365,6 +404,10 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 
     if ( numGlyphs > 255 )
 	free( chars );
+
+    if ( fontDef.underline || fontDef.overline || fontDef.strikeOut )
+	drawLines( dpy, hd, gc, this, y, xpos, x-xpos );
+
 
 #ifdef FONTENGINE_DEBUG
     x = xp;
@@ -759,9 +802,9 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
     p->drawRect( x + ci.x, y + 100 + ci.y, ci.width, ci.height );
     qDebug("bounding rect=%d %d (%d/%d)", ci.x, ci.y, ci.width, ci.height );
     p->restore();
-    int xp = x;
     int yp = y;
 #endif
+    int xp = x;
     if ( reverse ) {
 	int i = numGlyphs;
 	while( i-- ) {
@@ -792,12 +835,19 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	    XftDrawString16( draw, &col, _font, x+offsets[i].x,
 			     y+offsets[i].y, (XftChar16 *) (glyphs+i), 1 );
 #endif // QT_XFT2
-	    advance_t adv = advances[i];
 	    // 	    qDebug("advance = %d/%d", adv.x, adv.y );
-	    x += adv;
+	    x += advances[i];
 	    i++;
 	}
     }
+
+    if ( fontDef.underline || fontDef.overline || fontDef.strikeOut ) {
+	Display *dpy = QPaintDevice::x11AppDisplay();
+	Qt::HANDLE hd = p->device()->handle();
+	GC gc = p->gc;
+	drawLines( dpy, hd, gc, this, y, xp, x-xp );
+    }
+
 #ifdef FONTENGINE_DEBUG
     if ( !reverse ) {
 	x = xp;

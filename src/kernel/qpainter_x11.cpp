@@ -3149,24 +3149,11 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 
 	fe->draw( this, xpos,  ypos, shaped->glyphs, shaped->advances,
 		  shaped->offsets, shaped->num_glyphs, rightToLeft );
-
-	if ( cfont.underline() || cfont.strikeOut() ) {
-	    QFontMetrics fm = fontMetrics();
-	    int lw = fm.lineWidth();
-
-	    // draw underline effect
-	    if ( cfont.underline() )
-		XFillRectangle( dpy, hd, gc, xpos, ypos+fm.underlinePos(), si.width, lw );
-
-	    // draw strikeout effect
-	    if ( cfont.strikeOut() )
-		XFillRectangle( dpy, hd, gc, xpos, ypos-fm.strikeOutPos(), si.width, lw );
-	}
     }
 }
 
 
-/*!
+/*! \internal
     Draws the text item \a ti at position \a (x, y ).
 */
 void QPainter::drawTextItem( int x,  int y, const QTextItem &ti )
@@ -3193,23 +3180,6 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti )
 
     fe->draw( this, x,  y, shaped->glyphs, shaped->advances,
 		  shaped->offsets, shaped->num_glyphs, rightToLeft );
-
-#if 0
-    // ##### use the correct font from the  item. Need some way to
-    // support qt_format_text underlining fast.
-    if ( cfont.underline() || cfont.strikeOut() ) {
-        QFontMetrics fm = fontMetrics();
-        int lw = fm.lineWidth();
-
-        // draw underline effect
-        if ( cfont.underline() )
-            XFillRectangle( dpy, hd, gc, x, y+fm.underlinePos(), si.width, lw );
-
-        // draw strikeout effect
-        if ( cfont.strikeOut() )
-            XFillRectangle( dpy, hd, gc, x, y-fm.strikeOutPos(), si.width, lw );
-    }
-#endif
 }
 
 /*!
