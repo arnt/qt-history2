@@ -388,7 +388,7 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = false)
 		       clearly the first paintable pixel is becoming 0,0 of this region, so to compensate
 		       I just force 0,0 to be on - that way I know the region is offset like I want. Of
 		       course it also means another pixel is showing that the user didn't mean to :( FIXME */
-		    if(!rpm.contains(QPoint(0, 0)))
+		    if(!rpm.contains(QPoint(0, 0)) && rpm.boundingRect().topLeft() != QPoint(0, 0))
 			rpm |= QRegion(0, 0, 1, 1);
 		    rpm.translate(x, (y + titlebar.boundingRect().height()));
 		    titlebar += rpm;
