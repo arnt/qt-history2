@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#51 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#50 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#51 $";
 #endif
 
 
@@ -1053,7 +1053,7 @@ QPoint QPainter::xForm( const QPoint &pv ) const
 {						// map point, virtual -> device
     QPoint p = pv;
     if ( testf(WxF) ) {				// world xform
-	VXFORM_P( p.rx(), p.ry() );
+	WXFORM_P( p.rx(), p.ry() );
     }
     else if ( testf(VxF) ) {			// view xform
 	VXFORM_P( p.rx(), p.ry() );
