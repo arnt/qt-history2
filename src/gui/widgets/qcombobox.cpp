@@ -1481,6 +1481,10 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         else
             popup();
         return;
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
+        e->ignore();
+        return;
     default:
         if (e->text().isEmpty() || isEditable()) {
             e->ignore();
