@@ -1579,9 +1579,9 @@ static void err_info_about_objects(const char * func,
     QString a = sender ? sender->objectName() : QString();
     QString b = receiver ? receiver->objectName() : QString();
     if (!a.isEmpty())
-        qWarning("Object::%s:  (sender name:   '%s')", func, a.local8Bit());
+        qWarning("Object::%s:  (sender name:   '%s')", func, a.toLocal8Bit().data());
     if (!b.isEmpty())
-        qWarning("Object::%s:  (receiver name: '%s')", func, b.local8Bit());
+        qWarning("Object::%s:  (receiver name: '%s')", func, b.toLocal8Bit().data());
 }
 
 #endif // !QT_NO_DEBUG
@@ -2145,11 +2145,9 @@ void QMetaObject::connectSlotsByName(QObject *o)
         bool foundIt = false;
         for(int j = 0; j < list.count(); ++j) {
             const QObject *co = list.at(j);
-            const char *objName = co->objectName().ascii();
-            int len = qstrlen(objName);
-            if (!len
-                || qstrncmp(slot + 3, objName, len)
-                || slot[len+3] != '_')
+            QByteArray objName = co->objectName().toAscii();
+            int len = objName.length();
+            if (!len || qstrncmp(slot + 3, objName.data(), len) || slot[len+3] != '_')
                 continue;
             const QMetaObject *smo = co->metaObject();
             int sigIndex = smo->indexOfMember(slot + len + 4);
@@ -2376,8 +2374,8 @@ static void dumpRecursive(int level, QObject *object)
             }
         }
 #endif
-        qDebug("%s%s::%s %s", (const char*)buf, object->metaObject()->className(), name.local8Bit(),
-               flags.latin1());
+        qDebug("%s%s::%s %s", (const char*)buf, object->metaObject()->className(), name.toLocal8Bit().data(),
+               flags.toLatin1().data());
         QObjectList children = object->children();
         if (!children.isEmpty()) {
             for (int i = 0; i < children.size(); ++i)
@@ -2416,7 +2414,7 @@ void QObject::dumpObjectInfo()
 {
 #if defined(QT_DEBUG)
     qDebug("OBJECT %s::%s", metaObject()->className(),
-           objectName().isEmpty() ? "unnamed" : objectName().local8Bit());
+           objectName().isEmpty() ? "unnamed" : objectName().toLocal8Bit().data());
     //#### signals and slots info missing
 #endif
 }

@@ -68,7 +68,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
 
 void MainWindow::actionTriggered(QAction *action)
 {
-    qDebug("action '%s' triggered", action->text().local8Bit());
+    qDebug("action '%s' triggered", action->text().toLocal8Bit().data());
 }
 
 void MainWindow::setupToolBar()

@@ -205,7 +205,7 @@ void setup_qt(QImage& image, png_structp png_ptr, png_infop info_ptr, float scre
             image.setAlphaBuffer(true);
         }
 
-        if (QImage::systemByteOrder() == QImage::BigEndian) 
+        if (QImage::systemByteOrder() == QImage::BigEndian)
             png_set_swap_alpha(png_ptr);
 
         png_read_update_info(png_ptr, info_ptr);
@@ -395,6 +395,7 @@ static void set_text(const QImage& image, png_structp png_ptr, png_infop info_pt
     if (keys.count()) {
         png_textp text_ptr = new png_text[keys.count()];
         int i=0;
+        QList<QByteArray> tlist;
         for (QList<QImageTextKeyLang>::Iterator it=keys.begin();
                 it != keys.end(); ++it)
         {
@@ -405,7 +406,8 @@ static void set_text(const QImage& image, png_structp png_ptr, png_infop info_pt
                 else
                     text_ptr[i].compression = PNG_TEXT_COMPRESSION_zTXt;
                 text_ptr[i].key = (png_charp)(*it).key.data();
-                text_ptr[i].text = (png_charp)t.latin1();
+                tlist.append(t.toLatin1());
+                text_ptr[i].text = (png_charp)tlist.last().constData();
                 //text_ptr[i].text = qstrdup(t.latin1());
                 i++;
             }

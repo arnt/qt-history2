@@ -722,7 +722,7 @@ unsigned int bestFoundry(QFont::Script script, unsigned int score, int styleStra
     Q_UNUSED(script);
     Q_UNUSED(pitch);
 
-    FM_DEBUG("  REMARK: looking for best foundry for family '%s' [%d]", family->name.latin1(), family->count);
+    FM_DEBUG("  REMARK: looking for best foundry for family '%s' [%d]", family->name.toLatin1().constData(), family->count);
 
     for (int x = 0; x < family->count; ++x) {
         QtFontFoundry *foundry = family->foundries[x];
@@ -731,7 +731,7 @@ unsigned int bestFoundry(QFont::Script script, unsigned int score, int styleStra
             continue;
 
         FM_DEBUG("          looking for matching style in foundry '%s' %d",
-                 foundry->name.isEmpty() ? "-- none --" : foundry->name.latin1(), foundry->count);
+                 foundry->name.isEmpty() ? "-- none --" : foundry->name.toLatin1().constData(), foundry->count);
 
         QtFontStyle *style = bestStyle(foundry, styleKey);
 
@@ -966,9 +966,9 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
              "    stretch: %d\n"
              "    pixelSize: %d\n"
              "    pitch: %c",
-             family_name.isEmpty() ? "-- first in script --" : family_name.latin1(),
-             foundry_name.isEmpty() ? "-- any --" : foundry_name.latin1(),
-             script, scriptName(script).latin1(),
+             family_name.isEmpty() ? "-- first in script --" : family_name.toLatin1().constData(),
+             foundry_name.isEmpty() ? "-- any --" : foundry_name.toLatin1().constData(),
+             script, scriptName(script).toLatin1().constData(),
              request.weight, request.style, request.stretch, request.pixelSize, pitch);
 
     if (qt_enable_test_font && request.family == QLatin1String("__Qt__Box__Engine__")) {
@@ -1113,8 +1113,8 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
                      "    pixelSize: %d\n"
                      "    pitch: %c\n"
                      "    encoding: %d\n",
-                     best_family->name.latin1(),
-                     best_foundry->name.isEmpty() ? "-- none --" : best_foundry->name.latin1(),
+                     best_family->name.toLatin1().constData(),
+                     best_foundry->name.isEmpty() ? "-- none --" : best_foundry->name.toLatin1().constData(),
                      best_style->key.weight, best_style->key.style,
                      best_style->key.stretch, best_size ? best_size->pixelSize : 0xffff,
 #ifdef Q_WS_X11

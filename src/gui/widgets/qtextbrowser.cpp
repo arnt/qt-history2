@@ -267,7 +267,7 @@ void QTextBrowser::setSource(const QUrl &url)
             txt = codec->toUnicode(ba);
         }
         if (txt.isEmpty())
-            qWarning("QTextBrowser: no document for %s", url.toString().latin1());
+            qWarning("QTextBrowser: no document for %s", url.toString().toLatin1().constData());
 
         if (isVisible()) {
             QString firstTag = txt.left(txt.indexOf('>') + 1);

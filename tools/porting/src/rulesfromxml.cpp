@@ -24,10 +24,10 @@ RulesFromXml::RulesFromXml(QString xmlFilePath)
 {
     QFile f(xmlFilePath);
     if(!f.open(QIODevice::ReadOnly)) {
-        qFatal("Could not find rule file %s", xmlFilePath.latin1());
+        qFatal("Could not find rule file %s", xmlFilePath.toLatin1().constData());
     }
     if(!xml.setContent(&f))
-        qFatal("Xml parsing failed! Error: %s", xml.errorString().latin1());
+        qFatal("Xml parsing failed! Error: %s", xml.errorString().toLatin1().constData());
 }
 
 QList<TokenReplacement*> RulesFromXml::getNoPreprocessPortingTokenRules()
@@ -36,7 +36,7 @@ QList<TokenReplacement*> RulesFromXml::getNoPreprocessPortingTokenRules()
         parseXml();
         isParsed=true;
     }
-    
+
     if(tokenRules.isEmpty()) {
          cout << "Warning: token rules list is empty" << endl;
     }
@@ -52,7 +52,7 @@ QStringList RulesFromXml::getHeaderList(QtVersion qtVersion)
     if(qt3Headers.isEmpty() || qt4Headers.isEmpty()) {
          cout << "Warning: headers list is empty" << endl;
     }
-    
+
     if (qtVersion==Qt3)
         return qt3Headers;
     else //Qt4
@@ -60,16 +60,16 @@ QStringList RulesFromXml::getHeaderList(QtVersion qtVersion)
 }
 
 QStringList RulesFromXml::getNeededHeaderList()
-{    
+{
     if(!isParsed) {
        parseXml();
        isParsed=true;
     }
-    
+
     if(tokenRules.isEmpty()) {
          cout << "Warning: needed Headers list is empty" << endl;
     }
-    
+
     return neededHeaders;
 }
 
@@ -78,36 +78,36 @@ void RulesFromXml::parseXml()
 {
     int ruleCount = xml["Rules"]["Count"].text().toInt();
     ++ruleCount; //Hack! compensate for off-by-one error somewhere in QtSimpleXml
-                  
+
     //parse InheritsQt first, since ScopedTokenReplacement take this list
     //as a parameter
-    for(int rule=0; rule<ruleCount; ++rule) { 
+    for(int rule=0; rule<ruleCount; ++rule) {
         QtSimpleXml &currentRule = xml["Rules"][rule];
         if(currentRule.attribute("Type")=="InheritsQt") {
             inheritsQtClass << currentRule.text();
         }
     }
-   
+
     for(int rule=0; rule<ruleCount; ++rule) {
         QtSimpleXml &currentRule = xml["Rules"][rule];
-        
+
         if(currentRule.attribute("Type")=="RenamedHeader") {
                       tokenRules.append(new IncludeTokenReplacement(
-                     currentRule["Qt3"].text().latin1(),
-                     currentRule["Qt4"].text().latin1()));
-        } 
+                     currentRule["Qt3"].text().toLatin1(),
+                     currentRule["Qt4"].text().toLatin1()));
+        }
         else if(currentRule.attribute("Type")=="RenamedClass" ||
                 currentRule.attribute("Type")=="RenamedToken" ) {
             tokenRules.append(new GenericTokenReplacement(
-                    currentRule["Qt3"].text().latin1(),
-                    currentRule["Qt4"].text().latin1()));
-        } 
+                    currentRule["Qt3"].text().toLatin1(),
+                    currentRule["Qt4"].text().toLatin1()));
+        }
         else if(currentRule.attribute("Type")=="RenamedEnumvalue" ||
                 currentRule.attribute("Type")=="RenamedType" ||
                 currentRule.attribute("Type")=="RenamedQtSymbol" ) {
             tokenRules.append(new ScopedTokenReplacement(
-                    currentRule["Qt3"].text().latin1(),
-                    currentRule["Qt4"].text().latin1(),
+                    currentRule["Qt3"].text().toLatin1(),
+                    currentRule["Qt4"].text().toLatin1(),
                     inheritsQtClass));
         }
         else if(currentRule.attribute("Type")=="NeedHeader") {
@@ -119,5 +119,5 @@ void RulesFromXml::parseXml()
         else if(currentRule.attribute("Type")=="qt4Header") {
             qt4Headers += currentRule.text();
         }
-    }    
+    }
 }

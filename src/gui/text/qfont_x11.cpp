@@ -418,7 +418,7 @@ void QFont::setRawName(const QString &name)
     extern bool qt_fillFontDef(const QByteArray &xlfd, QFontDef *fd, int dpi);
 
     if (!qt_fillFontDef(qt_fixXLFD(name.toLatin1()), &d->request, d->dpi)) {
-        qWarning("QFont::setRawName(): Invalid XLFD: \"%s\"", name.latin1());
+        qWarning("QFont::setRawName(): Invalid XLFD: \"%s\"", name.toLatin1().constData());
 
         setFamily(name);
         setRawMode(true);
@@ -499,7 +499,7 @@ static const char * const tryFonts[] = {
 static bool fontExists(const QString &fontName)
 {
     int count;
-    char **fontNames = XListFonts(QX11Info::display(), (char*)fontName.latin1(), 32768, &count);
+    char **fontNames = XListFonts(QX11Info::display(), (char*)fontName.toLatin1().constData(), 32768, &count);
     if (fontNames) XFreeFontNames(fontNames);
 
     return count != 0;

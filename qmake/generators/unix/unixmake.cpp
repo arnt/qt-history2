@@ -175,7 +175,7 @@ UnixMakefileGenerator::init()
                 project->variables()["ALL_DEPS"] += project->first("QMAKE_INFO_PLIST_OUT");
                 if(!project->isEmpty("ICON"))
                     project->variables()["ALL_DEPS"] += project->first("DESTDIR") +
-                                                        "../Resources/" + 
+                                                        "../Resources/" +
                                                         project->first("ICON").section('/', -1);
                 if(!project->isEmpty("QMAKE_BUNDLE_DATA")) {
                     const QStringList &bundle_data = project->variables()["QMAKE_BUNDLE_DATA"];
@@ -208,7 +208,7 @@ UnixMakefileGenerator::init()
             for(QStringList::Iterator objit = objs.begin(); objit != objs.end(); ++objit) {
                 if((++obj_cnt) >= max_files) {
                     if(lib_cnt) {
-                        lib.sprintf("lib%s-tmp%d.a", project->first("QMAKE_ORIG_TARGET").latin1(), lib_cnt);
+                        lib.sprintf("lib%s-tmp%d.a", project->first("QMAKE_ORIG_TARGET").toLatin1().constData(), lib_cnt);
                         ar_sublibs << lib;
                         obj_cnt = 0;
                     }
@@ -324,7 +324,7 @@ UnixMakefileGenerator::combineSetLFlags(const QStringList &list1, const QStringL
                     }
                 } else {
 #if 1
-                    remove((*it));
+                    remove((*it).toLatin1());
 #endif
                     ret.append((*it));
                 }

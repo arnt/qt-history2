@@ -39,7 +39,7 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
     QString fullInFileName = basePath + "/" + proFileName;
     QFileInfo infileInfo(fullInFileName);
     if(!infileInfo.exists()) {
-        cout<<"Could not open file: " << QDir::convertSeparators(fullInFileName).latin1() << endl;
+        cout<<"Could not open file: " << QDir::convertSeparators(fullInFileName).toLocal8Bit().constData() << endl;
         return;
     }
 
@@ -87,7 +87,7 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
 
     Logger::instance()->setFileState(fullInFileName);
     QString portedProFile = portProFile(proFileContents, proFileMap);
-    FileWriter::instance()->writeFileVerbously(fullInFileName , portedProFile.latin1());
+    FileWriter::instance()->writeFileVerbously(fullInFileName , portedProFile.toLocal8Bit().constData());
 }
 
 void ProjectPorter::portFiles(QString basePath, QStringList fileNames, FilePorter::FileType fileType)
@@ -104,7 +104,7 @@ void ProjectPorter::portFiles(QString basePath, QStringList fileNames, FilePorte
         QFileInfo fullFilePathInfo(fullFilePath);
         if(!fullFilePathInfo.exists()) {
             cout << "Could not find file:" <<
-                QDir::convertSeparators(fullFilePath).latin1() <<endl;
+                QDir::convertSeparators(fullFilePath).toLocal8Bit().constData() <<endl;
             continue;
         }
 

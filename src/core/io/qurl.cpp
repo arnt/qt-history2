@@ -1251,7 +1251,7 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
         that->host = QUrl::fromPercentEncoding(__host);
         that->port = __port;
         that->path = QUrl::fromPercentEncoding(__path);
-        that->query = QUrl::fromPercentEncoding(__query).ascii();
+        that->query = QUrl::fromPercentEncoding(__query).toAscii();
         that->fragment = QUrl::fromPercentEncoding(__fragment);
     }
 
@@ -1297,7 +1297,7 @@ QByteArray QUrlPrivate::toEncoded(QUrl::FormattingOptions options) const
     QByteArray url;
 
     if (!(options & QUrl::RemoveScheme) && !scheme.isEmpty()) {
-        url += scheme.ascii();
+        url += scheme.toAscii();
         url += ":";
     }
     QString auth = authority();
@@ -1322,13 +1322,13 @@ QByteArray QUrlPrivate::toEncoded(QUrl::FormattingOptions options) const
         for (int i = 0; i < labels.count(); ++i) {
             if (i != 0) url += '.';
 
-            QString label = QUnicodeTables::normalize(labels.at(i), QUnicodeTables::NormalizationMode_KC, QChar::Unicode_3_1);
+            QString label = QUnicodeTables::normalize(labels.at(i), QString::NormalizationForm_KC, QChar::Unicode_3_1);
             url += QUrl::toPunycode(label);
         }
 
         if (!(options & QUrl::RemovePort) && port != -1) {
             url += ":";
-            url += QString::number(port).ascii();
+            url += QString::number(port).toAscii();
         }
     }
 

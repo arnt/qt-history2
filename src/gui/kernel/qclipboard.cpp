@@ -445,12 +445,18 @@ void QClipboard::setData(QMimeSource *source, Mode mode)
 }
 #endif // QT_COMPAT
 
+class HackString : public QString
+{
+public:
+    inline const char *latin1() const { return latin1_helper(); }
+};
+
 const char* QMimeDataWrapper::format(int n) const
 {
     QStringList formats = data->formats();
     if (n < 0 || n >= formats.size())
         return 0;
-    return formats.at(n).latin1();
+    return static_cast<const HackString &>(formats.at(n)).latin1();
 }
 
 QByteArray QMimeDataWrapper::encodedData(const char *format) const
@@ -460,12 +466,12 @@ QByteArray QMimeDataWrapper::encodedData(const char *format) const
 
 QVariant QMimeSourceWrapper::retrieveData(const QString &mimetype, QVariant::Type) const
 {
-    return source->encodedData(mimetype.latin1());
+    return source->encodedData(static_cast<const HackString &>(mimetype).latin1());
 }
 
 bool QMimeSourceWrapper::hasFormat(const QString &mimetype) const
 {
-    return source->provides(mimetype.latin1());
+    return source->provides(static_cast<const HackString &>(mimetype).latin1());
 }
 
 QStringList QMimeSourceWrapper::formats() const

@@ -35,7 +35,7 @@ MetrowerksMakefileGenerator::writeMakefile(QTextStream &t)
     if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
         /* for now just dump, I need to generated an empty xml or something.. */
         fprintf(stderr, "Project file not generated because all requirements not met:\n\t%s\n",
-                var("QMAKE_FAILED_REQUIREMENTS").latin1());
+                var("QMAKE_FAILED_REQUIREMENTS").toLatin1().constData());
         return true;
     }
 
@@ -157,7 +157,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
     QFile file(xmlfile);
     if(!file.open(QIODevice::ReadOnly)) {
         fprintf(stderr, "Cannot open XML file: %s\n",
-                project->first("QMAKE_XML_TEMPLATE").latin1());
+                project->first("QMAKE_XML_TEMPLATE").toLatin1().constData());
         return false;
     }
     QTextStream xml(&file);
@@ -431,7 +431,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
         QString mocs = project->first("MOCS");
         QFile mocfile(mocs);
         if(!mocfile.open(QIODevice::WriteOnly)) {
-            fprintf(stderr, "Cannot open MOCS file: %s\n", mocs.latin1());
+            fprintf(stderr, "Cannot open MOCS file: %s\n", mocs.toLatin1().constData());
         } else {
             createFork(mocs);
             QTextStream mocs(&mocfile);
@@ -452,7 +452,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
         QString uics = project->first("UICS");
         QFile uicfile(uics);
         if(!uicfile.open(QIODevice::WriteOnly)) {
-            fprintf(stderr, "Cannot open UICS file: %s\n", uics.latin1());
+            fprintf(stderr, "Cannot open UICS file: %s\n", uics.toLatin1().constData());
         } else {
             createFork(uics);
             QTextStream uics(&uicfile);
@@ -470,7 +470,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->isEmpty("CODEWARRIOR_PREFIX_HEADER")) {
         QFile prefixfile(project->first("CODEWARRIOR_PREFIX_HEADER"));
         if(!prefixfile.open(QIODevice::WriteOnly)) {
-            fprintf(stderr, "Cannot open PREFIX file: %s\n", prefixfile.fileName().latin1());
+            fprintf(stderr, "Cannot open PREFIX file: %s\n", prefixfile.fileName().toLatin1().constData());
         } else {
             createFork(project->first("CODEWARRIOR_PREFIX_HEADER"));
             QTextStream prefix(&prefixfile);
@@ -604,7 +604,7 @@ MetrowerksMakefileGenerator::createFork(const QString &f)
         mode_t perms = 0;
         {
             struct stat s;
-            stat(f.latin1(), &s);
+            stat(f.local8Bit().constData(), &s);
             if(!(s.st_mode & S_IWUSR)) {
                 perms = s.st_mode;
                 chmod(f.latin1(), perms | S_IWUSR);

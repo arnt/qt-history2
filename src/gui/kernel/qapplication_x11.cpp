@@ -727,7 +727,7 @@ bool QApplication::x11_apply_settings()
     QString defaultcodec = settings.value(QLatin1String("defaultCodec"),
                                           QVariant(QLatin1String("none"))).toString();
     if (defaultcodec != QLatin1String("none")) {
-        QTextCodec *codec = QTextCodec::codecForName(defaultcodec.latin1());
+        QTextCodec *codec = QTextCodec::codecForName(defaultcodec.toLatin1());
         if (codec)
             qApp->setDefaultCodec(codec);
     }
@@ -1819,7 +1819,7 @@ void qt_init(QApplicationPrivate *priv, int,
             QString defaultcodec = settings.value(QLatin1String("defaultCodec"),
                                                     QVariant(QLatin1String("none"))).toString();
             if (defaultcodec != QLatin1String("none")) {
-                QTextCodec *codec = QTextCodec::codecForName(defaultcodec.latin1());
+                QTextCodec *codec = QTextCodec::codecForName(defaultcodec.toLatin1());
                 if (codec)
                     qApp->setDefaultCodec(codec);
             }
@@ -2155,7 +2155,7 @@ void QApplication::setMainWidget(QWidget *mainWidget)
          ! mainWidget->parentWidget()->isDesktop())
         qWarning("QApplication::setMainWidget(): New main widget (%s/%s) "
                   "has a parent!",
-                  mainWidget->metaObject()->className(), mainWidget->objectName().local8Bit());
+                  mainWidget->metaObject()->className(), mainWidget->objectName().toLocal8Bit().constData());
 #endif
     QApplicationPrivate::main_widget = mainWidget;
     if (QApplicationPrivate::main_widget) {                        // give WM command line
@@ -5332,22 +5332,25 @@ static void sm_setProperty(const char* name, const char* type,
 
 static void sm_setProperty(const QString& name, const QString& value)
 {
+    QByteArray v = value.toUtf8();
     SmPropValue prop;
-    prop.length = value.length();
-    prop.value = (SmPointer) value.latin1();
-    sm_setProperty(name.latin1(), SmARRAY8, 1, &prop);
+    prop.length = v.length();
+    prop.value = (SmPointer) v.constData();
+    sm_setProperty(name.toLatin1().data(), SmARRAY8, 1, &prop);
 }
 
 static void sm_setProperty(const QString& name, const QStringList& value)
 {
     SmPropValue *prop = new SmPropValue[value.count()];
     int count = 0;
+    QList<QByteArray> vl;
     for (QStringList::ConstIterator it = value.begin(); it != value.end(); ++it) {
       prop[count].length = (*it).length();
-      prop[count].value = (char*)(*it).latin1();
+      vl.append((*it).toUtf8());
+      prop[count].value = (char*)vl.last().data();
       ++count;
     }
-    sm_setProperty(name.latin1(), SmLISTofARRAY8, count, prop);
+    sm_setProperty(name.toLatin1().data(), SmLISTofARRAY8, count, prop);
     delete [] prop;
 }
 
@@ -5519,7 +5522,8 @@ QSessionManager::QSessionManager(QApplication * app, QString &id, QString& key)
     resetSmState();
     char cerror[256];
     char* myId = 0;
-    char* prevId = (char*)id.latin1(); // we know what we are doing
+    QByteArray b_id = id.toLatin1();
+    char* prevId = b_id.data();
 
     SmcCallbacks cb;
     cb.save_yourself.callback = sm_saveYourselfCallback;
@@ -5551,7 +5555,7 @@ QSessionManager::QSessionManager(QApplication * app, QString &id, QString& key)
 
     QString error = cerror;
     if (!smcConnection) {
-        qWarning("Session management error: %s", error.latin1());
+        qWarning("Session management error: %s", error.toLatin1().data());
     }
     else {
         sm_receiver = new QSmSocketReceiver(IceConnectionNumber(SmcGetIceConnection(smcConnection)));
@@ -5686,23 +5690,12 @@ QStringList QSessionManager::discardCommand() const
 
 void QSessionManager::setManagerProperty(const QString& name, const QString& value)
 {
-    SmPropValue prop;
-    prop.length = value.length();
-    prop.value = (SmPointer) value.utf8();
-    sm_setProperty(name.latin1(), SmARRAY8, 1, &prop);
+    sm_setProperty(name,  value);
 }
 
 void QSessionManager::setManagerProperty(const QString& name, const QStringList& value)
 {
-    SmPropValue *prop = new SmPropValue[value.count()];
-    int count = 0;
-    for (QStringList::ConstIterator it = value.begin(); it != value.end(); ++it) {
-      prop[count].length = (*it).length();
-      prop[count].value = (char*)(*it).utf8();
-      ++count;
-    }
-    sm_setProperty(name.latin1(), SmLISTofARRAY8, count, prop);
-    delete [] prop;
+    sm_setProperty(name, value);
 }
 
 bool QSessionManager::isPhase2() const

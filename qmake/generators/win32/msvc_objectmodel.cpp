@@ -1240,7 +1240,7 @@ bool VCLinkerTool::parseOption(const char* option)
         {
             // Split up in subsystem, and version number
             QStringList both = QString(option+11).split(",");
-            switch (elfHash(both[0].latin1())) {
+            switch (elfHash(both[0].toLatin1())) {
             case 0x8438445: // CONSOLE
                 SubSystem = subSystemConsole;
                 break;
@@ -1845,7 +1845,7 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
 							            info.file,
                                                                     out);
             dep_cmd = Option::fixPathToLocalOS(dep_cmd);
-            if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
+            if(FILE *proc = QT_POPEN(dep_cmd.toLatin1().constData(), "r")) {
 	        QString indeps;
                 while(!feof(proc)) {
                     int read_in = (int)fread(buff, 1, 255, proc);
@@ -2102,7 +2102,7 @@ void FlatNode::generateXML(XmlOutput &xml, const QString &/*tagName*/, VCProject
 
 
 // VCProject --------------------------------------------------------
-// Output all configurations (by filtername) for a file (by info) 
+// Output all configurations (by filtername) for a file (by info)
 // A filters config output is in VCFilter.outputFileConfig()
 void VCProject::outputFileConfigs(XmlOutput &xml,
 //                                  VCProjectSingleConfig::FilterTypes type

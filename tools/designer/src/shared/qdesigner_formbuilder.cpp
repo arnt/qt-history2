@@ -25,19 +25,19 @@ QDesignerFormBuilder::QDesignerFormBuilder(AbstractFormEditor *core)
     : m_core(core)
 {
     Q_ASSERT(m_core);
-    
+
     PluginManager pluginManager;
-    
+
     m_customFactory.clear();
     QStringList plugins = pluginManager.registeredPlugins();
-    
+
     foreach (QString plugin, plugins) {
         QObject *o = pluginManager.instance(plugin);
-        
+
         if (ICustomWidget *c = qt_cast<ICustomWidget*>(o)) {
             if (!c->isInitialized())
                 c->initialize(m_core);
-                
+
             m_customFactory.insert(c->name(), c);
         }
     }
@@ -50,14 +50,14 @@ QWidget *QDesignerFormBuilder::createWidget(const QString &widgetName, QWidget *
         widget->setObjectName(name);
         return widget;
     }
-    
+
     QWidget *widget = FormBuilder::createWidget(widgetName, parentWidget, name);
     if (!widget) {
-        qWarning("failed to create a widget for type %s", widgetName.latin1());
+        qWarning("failed to create a widget for type %s", widgetName.toLatin1().constData());
         widget = new QWidget(parentWidget);
         widget->setObjectName(name);
     }
-    
+
     return widget;
 }
 
@@ -65,11 +65,11 @@ bool QDesignerFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
 {
     if (FormBuilder::addItem(ui_widget, widget, parentWidget))
         return true;
-        
+
     if (IContainer *container = qt_extension<IContainer*>(m_core->extensionManager(), parentWidget)) {
         container->addWidget(widget);
         return true;
     }
-    
+
     return false;
 }

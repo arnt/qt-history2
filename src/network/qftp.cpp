@@ -1080,7 +1080,7 @@ bool QFtpPI::startNextCmd()
     qDebug("QFtpPI send: %s", currentCmd.left(currentCmd.length()-2).latin1());
 #endif
     state = Waiting;
-    commandSocket.write(currentCmd.latin1(), currentCmd.length());
+    commandSocket.write(currentCmd.toLatin1());
     commandSocket.flush();
     return true;
 }

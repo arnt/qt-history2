@@ -607,7 +607,7 @@ void Moc::generate(FILE *out)
 {
 
     QDateTime dt = QDateTime::currentDateTime();
-    QByteArray dstr = dt.toString().ascii();
+    QByteArray dstr = dt.toString().toLatin1();
     QByteArray fn = filename;
     int i = filename.length()-1;
     while (i>0 && filename[i-1] != '/' && filename[i-1] != '\\')

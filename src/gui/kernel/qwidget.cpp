@@ -2941,7 +2941,7 @@ void QWidget::setWindowRole(const QString &role)
 {
 #if defined(Q_WS_X11)
     d->topData()->role = role;
-    d->setWindowRole(role.utf8());
+    d->setWindowRole(role.toUtf8().constData());
 #else
     Q_UNUSED(role)
 #endif
@@ -2984,7 +2984,7 @@ void QWidget::setFocusProxy(QWidget * w)
 
     for (QWidget* fp  = w; fp; fp = fp->focusProxy()) {
         if (fp == this) {
-            qWarning("%s (%s): already in focus proxy chain", metaObject()->className(), objectName().local8Bit());
+            qWarning("%s (%s): already in focus proxy chain", metaObject()->className(), objectName().toLocal8Bit().constData());
             return;
         }
     }

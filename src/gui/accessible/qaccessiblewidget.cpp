@@ -238,7 +238,7 @@ public:
 */
 void QAccessibleWidget::addControllingSignal(const QString &signal)
 {
-    QByteArray s = QMetaObject::normalizedSignature(signal.ascii());
+    QByteArray s = QMetaObject::normalizedSignature(signal.toAscii());
     if (object()->metaObject()->indexOfSignal(s) < 0)
         qWarning("Signal %s unknown in %s", (const char*)s, object()->metaObject()->className());
     d->primarySignals << s;
@@ -314,7 +314,7 @@ QAccessible::Relation QAccessibleWidget::relationTo(int child,
 
     ConnectionObject *connectionObject = (ConnectionObject*)object();
     for (int sig = 0; sig < d->primarySignals.count(); ++sig) {
-        if (connectionObject->isSender(o, d->primarySignals.at(sig).ascii())) {
+        if (connectionObject->isSender(o, d->primarySignals.at(sig).toAscii())) {
             relation |= Controller;
             break;
         }
@@ -685,7 +685,7 @@ int QAccessibleWidget::navigate(RelationFlag relation, int entry,
             QObjectList allReceivers;
             ConnectionObject *connectionObject = (ConnectionObject*)object();
             for (int sig = 0; sig < d->primarySignals.count(); ++sig) {
-                QObjectList receivers = connectionObject->receiverList(d->primarySignals.at(sig).ascii());
+                QObjectList receivers = connectionObject->receiverList(d->primarySignals.at(sig).toAscii());
                 allReceivers += receivers;
             }
             if (entry <= allReceivers.size())

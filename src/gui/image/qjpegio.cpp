@@ -224,7 +224,7 @@ void read_jpeg_image(QImageIO* iio)
 
 
         } else if (params.contains("Scale")) {
-            sscanf(params.latin1(), "Scale(%i, %i, %1023s)",
+            sscanf(params.toLatin1().data(), "Scale(%i, %i, %1023s)",
                    &sWidth, &sHeight, sModeStr);
 
             QString sModeQStr(sModeStr);

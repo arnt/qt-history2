@@ -385,7 +385,7 @@ protected:
 public:
     void parseOptions(QStringList& options) {
         for (QStringList::ConstIterator it=options.begin(); (it!=options.end()); it++)
-            parseOption((*it).latin1());
+            parseOption((*it).toLatin1());
     }
 };
 
@@ -946,9 +946,9 @@ public:
 //                                         VCProjectSingleConfig::FilterTypes type,
                                          const QString &filtername);
 
-    void                    outputFileConfigs(XmlOutput &xml, 
+    void                    outputFileConfigs(XmlOutput &xml,
 //                                              VCProjectSingleConfig::FilterTypes type,
-                                              const VCFilterFile &info, 
+                                              const VCFilterFile &info,
                                               const QString &filtername);
 };
 

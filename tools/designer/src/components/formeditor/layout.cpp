@@ -839,7 +839,7 @@ void GridLayout::doLayout()
 
             w->show();
         } else {
-            qWarning("ooops, widget '%s' does not fit in layout", w->objectName().latin1());
+            qWarning("ooops, widget '%s' does not fit in layout", w->objectName().toLatin1().constData());
         }
     }
 

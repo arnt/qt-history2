@@ -47,10 +47,10 @@ void FilePorter::port(QString inBasePath, QString inFilePath, QString outBasePat
     QString fullInFileName = inBasePath + inFilePath;
     QFileInfo infileInfo(fullInFileName);
     if(!infileInfo.exists()) {
-        cout<<"Could not open file: " << fullInFileName.latin1() <<endl;
+        cout<<"Could not open file: " << fullInFileName.toLocal8Bit().constData() <<endl;
         return;
     }
-   
+
     Lexer lexer;
     FileSymbol *sym = new FileSymbol();
     sym->contents = noPreprocess(fullInFileName);
@@ -63,7 +63,7 @@ void FilePorter::port(QString inBasePath, QString inFilePath, QString outBasePat
     QByteArray portedContents = textReplacements.apply(sym->contents);
 */
     QByteArray portedContents = replaceToken.getTokenTextReplacements(sym).apply(sym->contents);
-    
+
     //This step needs to be done after the token replacements, since
     //we need to know which new class names that has been inserted in the source
     portedContents = includeAnalyse(portedContents, fileType);
@@ -97,12 +97,12 @@ QByteArray FilePorter::includeAnalyse(QByteArray fileContents, FileType /*fileTy
             QStringList subTokenList = tokenString.split(QRegExp("<|>|\""), QString::SkipEmptyParts);
             foreach(QString subToken, subTokenList) {
                 if(subToken[0] == 'Q' || subToken[0] == 'q')
-                    headers.insert(subToken.latin1(), 0);
+                    headers.insert(subToken.toLatin1(), 0);
             }
         }
         inStream->nextToken();
     }
-       
+
     //compare class and header names, find classes that lacks a
     //curresponding include directive
     QStringList neededHeaders = rulesFromXml.getNeededHeaderList();
@@ -125,9 +125,9 @@ QByteArray FilePorter::includeAnalyse(QByteArray fileContents, FileType /*fileTy
             //loop through list of headers
             foreach(QString header, neededHeaders) {
                 //compare class name with header
-                //TODO: assumes that only new-style headers are specified in the 
+                //TODO: assumes that only new-style headers are specified in the
                 //rules. This is ok for now.
-                if(header.latin1() == c.key()) {
+                if(header.toLatin1() == c.key()) {
                     needHeader=true;
                     break;
                 }
@@ -138,7 +138,7 @@ QByteArray FilePorter::includeAnalyse(QByteArray fileContents, FileType /*fileTy
             }
         }
     }
-    
+
     //insert headers in files, at the end of the first block of
     //include files
     //TODO: make this more intelligent by not inserting inside #ifdefs
@@ -161,25 +161,25 @@ QByteArray FilePorter::includeAnalyse(QByteArray fileContents, FileType /*fileTy
     }
     */
     int insertPos=0;
-    if(includeStart != false) 
+    if(includeStart != false)
         insertPos = inStream->token().position;
-    
+
     int insertCount = headersToInsert.count();
     if(insertCount>0) {
         QByteArray insertText;
         QByteArray logText;
-        
+
         insertText+="\n//Added by the Qt porting tool:\n";
         logText += "Added the following include directives: ";
-        
+
         foreach(QString headerName, headersToInsert) {
-            insertText = insertText + headerName.latin1() + "\n";
-            logText = logText + headerName.latin1() + " ";
+            insertText = insertText + headerName.toLatin1() + "\n";
+            logText = logText + headerName.toLatin1() + " ";
         }
         insertText+="\n";
-        fileContents.insert(insertPos, insertText);        
+        fileContents.insert(insertPos, insertText);
         Logger::instance()->addEntry("AddHeader", logText, QString(), 0, 0); //TODO get line/column here
     }
-    
+
     return fileContents;
 }

@@ -79,10 +79,10 @@ void WriteInitialization::acceptUI(DomUI *node)
         const Buddy &b = m_buddies.at(i);
 
         if (!m_registeredWidgets.contains(b.objName)) {
-            fprintf(stderr, "'%s' isn't a valid widget\n", b.objName.latin1());
+            fprintf(stderr, "'%s' isn't a valid widget\n", b.objName.toLatin1().data());
             continue;
         } else if (!m_registeredWidgets.contains(b.buddy)) {
-            fprintf(stderr, "'%s' isn't a valid widget\n", b.buddy.latin1());
+            fprintf(stderr, "'%s' isn't a valid widget\n", b.buddy.toLatin1().data());
             continue;
         }
 
@@ -448,7 +448,7 @@ void WriteInitialization::acceptActionRef(DomActionRef *node)
         isMenu = uic->isMenu(w->attributeClass());
     } else if (!(driver->actionByName(actionName) || isSeparator)) {
         fprintf(stderr, "Warning: action `%s' not declared\n",
-            actionName.latin1());
+            actionName.toLatin1().data());
         return;
     }
 
@@ -756,7 +756,7 @@ void WriteInitialization::acceptTabStops(DomTabStops *tabStops)
         QString name = l.at(i);
 
         if (!m_registeredWidgets.contains(name)) {
-            fprintf(stderr, "'%s' isn't a valid widget\n", name.latin1());
+            fprintf(stderr, "'%s' isn't a valid widget\n", name.toLatin1().data());
             continue;
         }
 
@@ -1133,4 +1133,3 @@ void WriteInitialization::acceptConnection(DomConnection *connection)
         << "SLOT(" << connection->elementSlot() << ")"
         << ");\n";
 }
-

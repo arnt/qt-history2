@@ -269,7 +269,7 @@ void QProcessPrivate::execChild()
     for (int i = 0; i < arguments.count(); ++i) {
         QString arg = arguments.at(i);
         argv[i + 1] = new char[arg.size() + 1];
-        memcpy(argv[i + 1], arg.local8Bit(), arg.size());
+        memcpy(argv[i + 1], arg.toLocal8Bit(), arg.size());
         argv[i + 1][arg.size()] = '\0';
     }
 
@@ -318,7 +318,7 @@ void QProcessPrivate::execChild()
         for (int j = 0; j < environment.count(); ++j) {
             QString item = environment.at(j);
             envp[j] = new char[item.size() + 1];
-            memcpy(envp[j], item.local8Bit(), item.size());
+            memcpy(envp[j], item.toLocal8Bit(), item.size());
             envp[j][item.size()] = '\0';
         }
 

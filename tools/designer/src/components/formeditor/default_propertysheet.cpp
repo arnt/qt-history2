@@ -46,7 +46,7 @@ QDesignerPropertySheet::~QDesignerPropertySheet()
 void QDesignerPropertySheet::createFakeProperty(const QString &propertyName, const QVariant &value)
 {
     // fake properties
-    int index = meta->indexOfProperty(propertyName);
+    int index = meta->indexOfProperty(propertyName.toLatin1());
     if (index != -1) {
         setVisible(index, false);
         QVariant v = value.isValid() ? value : metaProperty(index);
@@ -109,7 +109,7 @@ QVariant QDesignerPropertySheet::property(int index) const
             QString k = QString::fromLatin1(me.scope());
             k += QString::fromLatin1("::");
             k += me.key(i);
-            e.items.insert(k, me.keyToValue(k));
+            e.items.insert(k, me.keyToValue(k.toLatin1()));
         }
 
         qVariantSet(v, e, "FlagType");
@@ -121,7 +121,7 @@ QVariant QDesignerPropertySheet::property(int index) const
             QString k = QString::fromLatin1(me.scope());
             k += QString::fromLatin1("::");
             k += me.key(i);
-            e.items.insert(k, me.keyToValue(k));
+            e.items.insert(k, me.keyToValue(k.toLatin1()));
         }
 
         qVariantSet(v, e, "EnumType");
@@ -147,7 +147,7 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
             key += QLatin1String("::");
             key += QLatin1String(me.key(i));
 
-            e.items.insert(key, me.keyToValue(key));
+            e.items.insert(key, me.keyToValue(key.toLatin1()));
         }
 
         qVariantSet(v, e, "FlagType");
@@ -161,7 +161,7 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
             key += QLatin1String("::");
             key += QLatin1String(me.key(i));
 
-            e.items.insert(key, me.keyToValue(key));
+            e.items.insert(key, me.keyToValue(key.toLatin1()));
         }
 
         qVariantSet(v, e, "EnumType");

@@ -116,7 +116,7 @@ QString Driver::unique(const QString &instanceName, const QString &className)
     }
 
     if (alreadyUsed && className.size()) {
-        fprintf(stderr, "Warning: name %s is already used\n", instanceName.latin1());
+        fprintf(stderr, "Warning: name %s is already used\n", instanceName.toLatin1().data());
     }
 
     m_nameRepository.insert(name, true);

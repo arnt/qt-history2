@@ -771,7 +771,7 @@ void Q3Action::setAccel(const QKeySequence& key)
         d->accelid = d->accel->insertItem(d->key);
         d->accel->connectItem(d->accelid, this, SLOT(internalActivation()));
     } else
-        qWarning("Q3Action::setAccel() (%s) requires widget in parent chain", objectName().local8Bit());
+        qWarning("Q3Action::setAccel() (%s) requires widget in parent chain", objectName().toLocal8Bit().data());
     d->update();
 }
 
@@ -827,7 +827,7 @@ void Q3Action::activate()
     if (isToggleAction()) {
 #if defined(QT_CHECK_STATE)
         qWarning("Q3Action::%s() (%s) Toggle actions "
-                  "can not be activated", "activate", objectName().local8Bit());
+                  "can not be activated", "activate", objectName().toLocal8Bit().data());
 #endif
         return;
     }
@@ -843,7 +843,7 @@ void Q3Action::toggle()
 {
     if (!isToggleAction()) {
         qWarning("Q3Action::%s() (%s) Only toggle actions "
-                  "can be switched", "toggle", objectName().local8Bit());
+                  "can be switched", "toggle", objectName().toLocal8Bit().data());
         return;
     }
     setOn(!isOn());
@@ -865,7 +865,7 @@ void Q3Action::setOn(bool enable)
     if (!isToggleAction()) {
         if (enable)
             qWarning("Q3Action::%s() (%s) Only toggle actions "
-                      "can be switched", "setOn", objectName().local8Bit());
+                      "can be switched", "setOn", objectName().toLocal8Bit().data());
         return;
     }
     if (enable == (bool)d->on)

@@ -2331,7 +2331,7 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
     Q_ASSERT(item->length < 13);
 
     KHDEBUG("syllable from %d len %d, str='%s'", item->from, item->length,
-            item->string->mid(item->from,item->length).utf8());
+            item->string->mid(item->from,item->length).toUtf8().constData());
     int len = item->length;
 
     int i;

@@ -1105,7 +1105,7 @@ QStyle *QApplication::style()
             && (QStyleFactory::keys().isEmpty() ||
                 !(QApplicationPrivate::app_style = QStyleFactory::create(QStyleFactory::keys()[0])))
        )
-            qFatal("No %s style available!", style.latin1());
+            qFatal("No %s style available!", style.toLatin1().constData());
     }
 
     QPalette app_pal_copy (*QApplicationPrivate::app_pal);
@@ -2615,7 +2615,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                .arg(receiver->objectName())
                .arg(receiver->metaObject()->className())
                .arg(QString::number((ulong) receiver->thread(), 16))
-               .latin1());
+               .toLatin1().constData());
 
 #ifdef QT_COMPAT
     if (e->type() == QEvent::ChildRemoved && receiver->d->postedChildInsertedEvents)

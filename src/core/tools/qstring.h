@@ -207,10 +207,15 @@ public:
                       Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
     QStringList split(const QRegExp &sep, SplitBehavior behavior = KeepEmptyParts) const;
 
-    inline const char *ascii() const { return toAscii(); }
-    inline const char *latin1() const { return toLatin1(); }
-    inline const char *utf8() const { return toUtf8(); }
-    inline const char *local8Bit() const{ return toLocal8Bit(); }
+    enum NormalizationForm {
+        NormalizationForm_D,
+        NormalizationForm_C,
+        NormalizationForm_KD,
+        NormalizationForm_KC
+    };
+    QString normalize(NormalizationForm mode);
+    QString normalize(NormalizationForm mode, QChar::UnicodeVersion version);
+
     const ushort *utf16() const;
 
     QByteArray toAscii() const;
@@ -326,12 +331,6 @@ public:
     inline bool operator<=(const QByteArray &s) const { return *this <= s.constData(); }
     inline bool operator>=(const QByteArray &s) const { return *this >= s.constData(); }
 #endif
-#ifndef QT_NO_CAST_TO_ASCII
-    inline operator const char *() const { return ascii(); }
-private:
-    operator QNoImplicitBoolCast() const;
-public:
-#endif
 
     typedef QChar *iterator;
     typedef const QChar *const_iterator;
@@ -363,6 +362,10 @@ public:
     inline bool isNull() const { return d == &shared_null; }
 
 #ifdef QT_COMPAT
+    inline QT_COMPAT const char *ascii() const { return ascii_helper(); }
+    inline QT_COMPAT const char *latin1() const { return latin1_helper(); }
+    inline QT_COMPAT QByteArray utf8() const { return toUtf8(); }
+    inline QT_COMPAT QByteArray local8Bit() const{ return toLocal8Bit(); }
     inline QT_COMPAT void setLength(int nl) { resize(nl); }
     inline QT_COMPAT QString copy() const { return *this; }
     inline QT_COMPAT QString &remove(QChar c, bool cs)
@@ -422,6 +425,17 @@ public:
     { *this = fromAscii(str, len); return *this; }
     inline QT_COMPAT QString &setLatin1(const char *str, int len = -1)
     { *this = fromLatin1(str, len); return *this; }
+protected:
+    friend class QObject;
+    const char *ascii_helper() const;
+    const char *latin1_helper() const;
+public:
+#ifndef QT_NO_CAST_TO_ASCII
+    inline QT_COMPAT operator const char *() const { return ascii_helper(); }
+private:
+    QT_COMPAT operator QNoImplicitBoolCast() const;
+public:
+#endif
 #endif
 
     bool isSimpleText() const { if (!d->clean) updateProperties(); return d->simpletext; }
@@ -440,16 +454,13 @@ private:
     struct Data {
         QBasicAtomic ref;
         int alloc, size;
-        void *c;
         ushort *data;
         ushort clean : 1;
-        ushort encoding : 2;
-        ushort cache : 1;
         ushort simpletext : 1;
         ushort righttoleft : 1;
-        ushort reserved : 10;
+        ushort asciiCache : 1;
+        ushort reserved : 12;
         ushort array[1];
-        enum { Latin1, Ascii, Local8Bit, Utf8 };
     };
     static Data shared_null;
     static Data shared_empty;
@@ -580,7 +591,7 @@ public:
     inline operator QChar() const
         { return i < s.d->size ? s.d->data[i] : 0; }
     inline QCharRef &operator=(const QChar &c)
-        { if (s.d->ref != 1 || i >= s.d->size || s.d->c) s.expand(i);
+        { if (s.d->ref != 1 || i >= s.d->size) s.expand(i);
           s.d->data[i] = c.unicode();  return *this; }
 
     // An operator= for each QChar cast constructors

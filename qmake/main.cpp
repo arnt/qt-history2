@@ -57,7 +57,7 @@ int main(int argc, char **argv)
             if(!tmp_dir.isEmpty() && QFile::exists(tmp_dir))
                 dir = tmp_dir;
         }
-        if(!dir.isNull() && dir != ".") 
+        if(!dir.isNull() && dir != ".")
             Option::output_dir = dir;
         if(QDir::isRelativePath(Option::output_dir))
             Option::output_dir.prepend(oldpwd);
@@ -80,26 +80,26 @@ int main(int argc, char **argv)
            Option::qmake_mode == Option::QMAKE_GENERATE_PRL) {
             QString fn = Option::fixPathToLocalOS((*pfile));
             if(!QFile::exists(fn)) {
-                fprintf(stderr, "Cannot find file: %s.\n", fn.latin1());
+                fprintf(stderr, "Cannot find file: %s.\n", fn.toLatin1().constData());
                 exit_val = 2;
                 continue;
             }
 
             //setup pwd properly
-            debug_msg(1, "Resetting dir to: %s", oldpwd.latin1());
+            debug_msg(1, "Resetting dir to: %s", oldpwd.toLatin1().constData());
             QDir::setCurrent(oldpwd); //reset the old pwd
             int di = fn.lastIndexOf(Option::dir_sep);
             if(di != -1) {
-                debug_msg(1, "Changing dir to: %s", fn.left(di).latin1());
+                debug_msg(1, "Changing dir to: %s", fn.left(di).toLatin1().constData());
                 if(!QDir::setCurrent(fn.left(di)))
-                    fprintf(stderr, "Cannot find directory: %s\n", fn.left(di).latin1());
+                    fprintf(stderr, "Cannot find directory: %s\n", fn.left(di).toLatin1().constData());
                 fn = fn.right(fn.length() - di - 1);
             }
 
             // read project..
             if(!proj.read(fn)) {
                 fprintf(stderr, "Error processing project file: %s\n",
-                        fn == "-" ? "(stdin)" : (*pfile).latin1());
+                        fn == "-" ? "(stdin)" : (*pfile).toLatin1().constData());
                 exit_val = 3;
                 continue;
             }
@@ -109,7 +109,7 @@ int main(int argc, char **argv)
             // let Option post-process
             if(!Option::postProcessProject(&proj)) {
                 fprintf(stderr, "Error post-processing project file: %s",
-                        fn == "-" ? "(stdin)" : (*pfile).latin1());
+                        fn == "-" ? "(stdin)" : (*pfile).toLatin1().constData());
                 exit_val = 4;
                 continue;
             }
@@ -120,7 +120,7 @@ int main(int argc, char **argv)
             if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT)
                 fprintf(stderr, "Unable to generate project file.\n");
             else
-                fprintf(stderr, "Unable to generate makefile for: %s\n", (*pfile).latin1());
+                fprintf(stderr, "Unable to generate makefile for: %s\n", (*pfile).toLatin1().constData());
             exit_val = 5;
         }
         delete mkfile;

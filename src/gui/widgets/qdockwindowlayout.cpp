@@ -243,7 +243,7 @@ QLayoutItem *QDockWindowLayout::takeAt(int index)
 	    QLayoutItem *layoutitem = info.item;
 
 	    VDEBUG("QDockWindowLayout::takeAt: layoutitem '%s'",
-		   layoutitem->widget() ? layoutitem->widget()->objectName().latin1() : "dummy");
+		   layoutitem->widget() ? layoutitem->widget()->objectName().toLatin1().constData() : "dummy");
 
 	    int prev_separator = -1;
 	    for (int it = 0; it < layout_info.count(); ++it) {
@@ -257,7 +257,7 @@ QLayoutItem *QDockWindowLayout::takeAt(int index)
 		QWidget *widget = info.item->widget();
 		VDEBUG("  index %3d pos %4d size %4d %s",
 		       it, info.cur_pos, info.cur_size,
-		       widget ? widget->objectName().latin1() : "dummy");
+		       widget ? widget->objectName().toLatin1().constData() : "dummy");
 
 		// remove the item
 		layout_info.removeAt(it);
@@ -552,8 +552,8 @@ QDockWindowLayoutInfo &QDockWindowLayout::insert(int index, QLayoutItem *layouti
           index < 0 ? layout_info.count() : index,
           ((layoutitem->widget() || layoutitem->layout()) && !dummy
            ? (layoutitem->layout()
-              ? layoutitem->layout()->objectName().latin1()
-              : layoutitem->widget()->objectName().latin1())
+              ? layoutitem->layout()->objectName().toLatin1().constData()
+              : layoutitem->widget()->objectName().toLatin1().constData())
            : "dummy"));
 
     bool append = index < 0;
@@ -655,13 +655,13 @@ void QDockWindowLayout::dump()
 	    DEBUG("  index %3d pos %4d size %4d SEPARATOR", i, info.cur_pos, info.cur_size);
 	} else if (info.item->layout()) {
             DEBUG("  index %3d pos %4d size %4d %s", i, info.cur_pos, info.cur_size,
-		  info.item->layout() ? info.item->layout()->objectName().latin1() : "dummy");
+		  info.item->layout() ? info.item->layout()->objectName().toLatin1().constData() : "dummy");
             QDockWindowLayout *l = qt_cast<QDockWindowLayout *>(info.item->layout());
             Q_ASSERT(l != 0);
             l->dump();
         } else {
             DEBUG("  index %3d pos %4d size %4d %s", i, info.cur_pos, info.cur_size,
-		  info.item->widget() ? info.item->widget()->objectName().latin1() : "dummy");
+		  info.item->widget() ? info.item->widget()->objectName().toLatin1().constData() : "dummy");
 	}
     }
     DEBUG("END of dump");

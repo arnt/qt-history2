@@ -1006,7 +1006,7 @@ void QDragManager::move(const QPoint & globalPos)
             int flags = target_version << 24;
             QStringList fmts = dragPrivate()->data->formats();
             for (int i = 0; i < fmts.size(); ++i)
-                type.append(X11->xdndStringToAtom(fmts.at(i).latin1()));
+                type.append(X11->xdndStringToAtom(fmts.at(i).toLatin1().data()));
             if (type.size() > 3) {
                 XChangeProperty(X11->display,
                                 dragPrivate()->source->winId(), ATOM(XdndTypelist),
@@ -1344,8 +1344,8 @@ void QDragManager::updatePixmap()
 QVariant QDropData::retrieveData(const QString &mimetype, QVariant::Type type) const
 {
     QByteArray data = X11->motifdnd_active
-                      ? X11->motifdndObtainData(mimetype.latin1())
-                      : xdndObtainData(mimetype.latin1());
+                      ? X11->motifdndObtainData(mimetype.toLatin1().data())
+                      : xdndObtainData(mimetype.toLatin1().data());
     if (type == QVariant::String)
         return QString::fromUtf8(data);
     return data;

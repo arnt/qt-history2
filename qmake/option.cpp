@@ -146,7 +146,7 @@ bool usage(const char *a0)
             "\t-nomoc         Don't generate moc targets  [makefile mode only]\n"
             "\t-nopwd         Don't look for files in pwd [project mode only]\n"
             ,a0,
-            default_mode(a0) == Option::QMAKE_GENERATE_PROJECT  ? " (default)" : "", project_builtin_regx().latin1(),
+            default_mode(a0) == Option::QMAKE_GENERATE_PROJECT  ? " (default)" : "", project_builtin_regx().toLatin1().constData(),
             default_mode(a0) == Option::QMAKE_GENERATE_MAKEFILE ? " (default)" : "");
     return false;
 }
@@ -248,14 +248,14 @@ Option::parseCommandLine(int argc, char **argv, int skip)
                         Option::mkfile::qmakespec = argv[++x];
                         Option::mkfile::qmakespec_commandline = argv[x];
                     } else {
-                        fprintf(stderr, "***Unknown option -%s\n", opt.latin1());
+                        fprintf(stderr, "***Unknown option -%s\n", opt.toLatin1().constData());
                         return QMAKE_CMDLINE_SHOW_USAGE;
                     }
                 } else if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT) {
                     if(opt == "nopwd") {
                         Option::projfile::do_pwd = false;
                     } else {
-                        fprintf(stderr, "***Unknown option -%s\n", opt.latin1());
+                        fprintf(stderr, "***Unknown option -%s\n", opt.toLatin1().constData());
                         return QMAKE_CMDLINE_SHOW_USAGE;
                     }
                 }
@@ -414,7 +414,7 @@ Option::init(int argc, char **argv)
                 Option::mkfile::project_files.append(proj);
             } else { //last try..
                 QStringList profiles = QDir(pwd).entryList(QStringList("*" + Option::pro_ext));
-                if(profiles.count() == 1) 
+                if(profiles.count() == 1)
                     Option::mkfile::project_files.append(pwd + "/" + profiles[0]);
             }
 #ifndef QT_BUILD_QMAKE_LIBRARY
@@ -491,7 +491,7 @@ void fixEnvVariables(QString &x)
     QRegExp reg_var("\\$\\(.*\\)");
     reg_var.setMinimal(true);
     while((rep = reg_var.indexIn(x)) != -1)
-        x.replace(rep, reg_var.matchedLength(), QString(qgetenv(x.mid(rep + 2, reg_var.matchedLength() - 3).latin1())));
+        x.replace(rep, reg_var.matchedLength(), QString(qgetenv(x.mid(rep + 2, reg_var.matchedLength() - 3).toLatin1().constData())));
 }
 static QString fixPath(QString x)
 {

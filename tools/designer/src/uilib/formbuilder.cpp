@@ -71,8 +71,7 @@ QWidget *FormBuilder::createWidget(const QString &widgetName, QWidget *parentWid
     if (w) {
         w->setObjectName(name);
     } else {
-        qWarning("widget `%s' not supported",
-            widgetName.latin1());
+        qWarning("widget `%s' not supported", widgetName.toLatin1().data());
     }
 
     if (qt_cast<QDialog *>(w))
@@ -108,8 +107,7 @@ QLayout *FormBuilder::createLayout(const QString &layoutName, QObject *parent, c
     if (l) {
         l->setObjectName(name);
     } else {
-        qWarning("layout `%s' not supported",
-            layoutName.latin1());
+        qWarning("layout `%s' not supported", layoutName.toLatin1().data());
     }
 
     return l;

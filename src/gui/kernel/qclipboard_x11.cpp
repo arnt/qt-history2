@@ -637,8 +637,8 @@ static Atom send_targets_selection(QClipboardData *d, Window window, Atom proper
 
     int n = 0;
     for (n = 0; n < formats.size(); ++n) {
-        VDEBUG("    original format %s", formats.at(n).latin1());
-        atarget[n] = X11->xdndStringToAtom(formats.at(n).latin1());
+        VDEBUG("    original format %s", formats.at(n).toLatin1().data());
+        atarget[n] = X11->xdndStringToAtom(formats.at(n).toLatin1().data());
     }
 
     if (formats.contains("image/ppm"))
@@ -679,7 +679,7 @@ static Atom send_string_selection(QClipboardData *d, Atom target, Window window,
     if (target == ATOM(TEXT) || target == ATOM(COMPOUND_TEXT)) {
         // the ICCCM states that TEXT and COMPOUND_TEXT are in the
         // encoding of choice, so we choose the encoding of the locale
-        QByteArray data = d->source()->text().local8Bit();
+        QByteArray data = d->source()->text().toLocal8Bit();
         char *list[] = { data.data(), NULL };
 
         XICCEncodingStyle style =
@@ -1184,7 +1184,7 @@ QVariant QClipboardWatcher::retrieveData(const QString &fmt, QVariant::Type type
     if (fmt.isEmpty() || empty())
         return QByteArray();
 
-    DEBUG("QClipboardWatcher::data: fetching format '%s'", fmt.latin1());
+    DEBUG("QClipboardWatcher::data: fetching format '%s'", fmt.toLatin1().data());
 
     Atom fmtatom = 0;
 
@@ -1222,7 +1222,7 @@ QVariant QClipboardWatcher::retrieveData(const QString &fmt, QVariant::Type type
         } else if (fmtatom == ATOM(UTF8_STRING)) {
             result = QString::fromUtf8(data);
         }
-        qDebug("got plain text '%s'", result.utf8());
+        DEBUG("got plain text '%s'", result.toUtf8().data());
         if (type == QVariant::String)
             return result;
         return result.toUtf8();
@@ -1265,10 +1265,10 @@ QVariant QClipboardWatcher::retrieveData(const QString &fmt, QVariant::Type type
             iio.write();
             return buf.buffer();
         } else {
-            fmtatom = X11->xdndStringToAtom(fmt.latin1());
+            fmtatom = X11->xdndStringToAtom(fmt.toLatin1().data());
         }
     } else {
-        fmtatom = X11->xdndStringToAtom(fmt.latin1());
+        fmtatom = X11->xdndStringToAtom(fmt.toLatin1().data());
     }
     return getDataInFormat(fmtatom);
 }

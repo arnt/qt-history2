@@ -48,7 +48,7 @@ bool QTemporaryFileEngine::open(int)
     if(!qfilename.endsWith(QLatin1String("XXXXXX")))
         qfilename += QLatin1String(".XXXXXX");
     d->external_file = 0;
-    char *filename = strdup(qfilename.latin1());
+    char *filename = strdup(qfilename.toLocal8Bit());
 #ifdef HAS_MKSTEMP
     d->fd = mkstemp(filename);
 #else
@@ -66,7 +66,7 @@ bool QTemporaryFileEngine::open(int)
     }
 #endif
     if(d->fd != -1) {
-        d->file = QString::fromLatin1(filename); //changed now!
+        d->file = QString::fromLocal8Bit(filename); //changed now!
         free(filename);
         d->sequential = 0;
         return true;

@@ -257,7 +257,7 @@ void QToolBar::setMovable(bool movable)
 bool QToolBar::isMovable() const
 { return d->movable; }
 
-/*! 
+/*!
     \property QToolBar::allowedAreas
     \brief areas where the toolbar may be placed.
 
@@ -369,7 +369,7 @@ void QToolBar::clear()
     \sa addAction()
 */
 
-/*! 
+/*!
     \overload
 
     Creates a new action with the given \a text. This action is added to
@@ -382,7 +382,7 @@ QAction *QToolBar::addAction(const QString &text)
     return action;
 }
 
-/*!         
+/*!
     \overload
 
     Creates a new action with the given \a icon and \a text. This
@@ -395,7 +395,7 @@ QAction *QToolBar::addAction(const QIcon &icon, const QString &text)
     return action;
 }
 
-/*! 
+/*!
     \overload
 
     Creates a new action with the given \a text. This action is added to
@@ -412,7 +412,7 @@ QAction *QToolBar::addAction(const QString &text,
     return action;
 }
 
-/*! 
+/*!
     \overload
 
     Creates a new action with the icon \a icon and text \a text. This
@@ -437,7 +437,7 @@ QAction *QToolBar::addAction(const QIcon &icon, const QString &text,
     \sa addAction()
 */
 
-/*! 
+/*!
     \overload
 
     Creates a new action with the given \a text. This action is
@@ -451,7 +451,7 @@ QAction *QToolBar::insertAction(QAction *before, const QString &text)
     return action;
 }
 
-/*! 
+/*!
     \overload
 
     Creates a new action with the given \a icon and \a text. This
@@ -465,7 +465,7 @@ QAction *QToolBar::insertAction(QAction *before, const QIcon &icon, const QStrin
     return action;
 }
 
-/*! 
+/*!
     \overload
 
     Creates a new action with the given \a text. This action is inserted
@@ -483,7 +483,7 @@ QAction *QToolBar::insertAction(QAction *before, const QString &text,
     return action;
 }
 
-/*! 
+/*!
     \overload
 
     Creates a new action with the given \a icon and \a text. This
@@ -693,7 +693,7 @@ void QToolBar::childEvent(QChildEvent *event)
             }
             if (!found)
                 qWarning("QToolBar: child widget '%s::%s' not added, use QToolBar::addWidget()",
-                         widget->objectName().local8Bit(), widget->metaObject()->className());
+                         widget->objectName().toLocal8Bit().constData(), widget->metaObject()->className());
         } else
 #endif
         if (event->type() == QEvent::ChildRemoved) {

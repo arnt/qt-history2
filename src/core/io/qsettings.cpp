@@ -377,9 +377,9 @@ QCoreVariant QSettingsPrivate::stringToVariant(const QString &s)
             && s.at(s.length() - 1) == QLatin1Char(')')) {
 
         if (s.startsWith(QLatin1String("@ByteArray("))) {
-            return QCoreVariant(QByteArray(s.latin1() + 11, s.length() - 12));
+            return QCoreVariant(s.toLatin1().mid(11));
         } else if (s.startsWith(QLatin1String("@Variant("))) {
-            QByteArray a(s.latin1() + 9, s.length() - 10);
+            QByteArray a(s.toLatin1().mid(9));
             QDataStream stream(&a, QIODevice::ReadOnly);
             QCoreVariant result;
             stream >> result;

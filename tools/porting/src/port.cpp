@@ -94,7 +94,7 @@ int fileMode(QString inFile)
 {
     QFileInfo inFileInfo(inFile);
     if(!inFileInfo.exists()) {
-        cout << "Could not find file " << inFile.latin1() << endl;
+        cout << "Could not find file " << inFile.toLocal8Bit().constData() << endl;
         return 1;
     }
 
@@ -110,7 +110,7 @@ int projectMode(QString inFile)
 {
     QFileInfo inFileInfo(inFile);
     if(!inFileInfo.exists()) {
-        cout<<"Could not find file " << inFile.latin1() << endl;
+        cout<<"Could not find file " << inFile.toLocal8Bit().constData() << endl;
         return 1;
     }
 
@@ -158,11 +158,11 @@ int main(int argc, char**argv)
     rulesFileName="q3porting.xml";
     rulesFilePath=findRulesFile(rulesFileName, argv[0]);
     if (rulesFilePath.isEmpty()) {
-        cout << "Error: Could not find rules file: " << rulesFileName.latin1() << endl;
+        cout << "Error: Could not find rules file: " << rulesFileName.toLocal8Bit().constData() << endl;
         cout << "Please try setting the QTDIR environment variable" << endl;
         return 0;
     } else {
-        cout << "Using rules file: " << QDir::convertSeparators(rulesFilePath).latin1() <<endl;
+        cout << "Using rules file: " << QDir::convertSeparators(rulesFilePath).toLocal8Bit().constData() <<endl;
     }
 
 
@@ -174,7 +174,7 @@ int main(int argc, char**argv)
 
     QStringList report = Logger::instance()->cronologicalReport();
     QString logFileName =  "portinglog.txt";
-    cout << "Writing log to " << logFileName.latin1() << endl;
+    cout << "Writing log to " << logFileName.toLocal8Bit().constData() << endl;
     QByteArray logContents;
     QBuffer logBuffer(&logContents);
     logBuffer.open(QIODevice::Text | QIODevice::WriteOnly);

@@ -906,7 +906,7 @@ QTextStream &QTextStreamPrivate::write(const QChar* p, uint len)
 #endif
     if (latin1) {
         QString cstr = QString::fromRawData(p, len);
-        dev->write(cstr.latin1(), len);
+        dev->write(cstr.toLatin1());
     } else if (internalOrder) {
         if (doUnicodeHeader) {
             doUnicodeHeader = false;
@@ -1867,10 +1867,11 @@ QTextStream &QTextStream::operator<<(double f)
     *fs = '\0';
     QString num;
     num.sprintf(format, f);                        // convert to text
+    QByteArray num_l1(num.toLatin1());
     if (d->fwidth)                                // padding
-        *this << num.latin1();
+        *this << num_l1;
     else                                        // just write it
-        d->write(num.latin1(), num.length());
+        d->write(num_l1.constData(), num_l1.length());
     return *this;
 }
 
@@ -1943,7 +1944,7 @@ QTextStream &QTextStream::operator<<(const QString& s)
 {
     Q_D(QTextStream);
     if (!d->mapper && d->latin1)
-        return operator<<(s.latin1());
+        return operator<<(s.toLatin1());
     CHECK_STREAM_PRECOND(this)
     QString s1 = s;
     if (d->fwidth) {                                // field width set

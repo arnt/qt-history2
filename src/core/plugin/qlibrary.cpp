@@ -432,7 +432,7 @@ bool QLibraryPrivate::isPlugin()
     if (reg.count() == 4 &&lastModified == reg[3]) {
         qt_version = reg[0].toUInt(0, 16);
         debug = (bool)reg[1].toInt();
-        key = reg[2].latin1();
+        key = reg[2].toLatin1();
         success = qt_version != 0;
     } else {
 #if defined(Q_OS_UNIX)

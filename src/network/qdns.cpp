@@ -150,7 +150,7 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
     QStringList labels = name.split(QRegExp("[" + QString::fromUtf16(delimiters) + "]"));
     for (int i = 0; i < labels.count(); ++i) {
         if (i != 0) lookup += '.';
-        QString label = QUnicodeTables::normalize(labels.at(i), QUnicodeTables::NormalizationMode_KC, QChar::Unicode_3_1);
+        QString label = QUnicodeTables::normalize(labels.at(i), QString::NormalizationForm_KC, QChar::Unicode_3_1);
         lookup += QString::fromAscii(QUrl::toPunycode(label));
     }
 
@@ -204,7 +204,7 @@ QDnsHostInfo QDns::getHostByName(const QString &name)
     QStringList labels = name.split(QRegExp("[" + QString::fromUtf16(delimiters) + "]"));
     for (int i = 0; i < labels.count(); ++i) {
         if (i != 0) lookup += '.';
-        QString label = QUnicodeTables::normalize(labels.at(i), QUnicodeTables::NormalizationMode_KC, QChar::Unicode_3_1);
+        QString label = QUnicodeTables::normalize(labels.at(i), QString::NormalizationForm_KC, QChar::Unicode_3_1);
         lookup += QString::fromAscii(QUrl::toPunycode(label));
     }
 

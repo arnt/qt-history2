@@ -67,7 +67,7 @@ static QIcon createIconSet(const QString &name)
     QString path = QString::fromUtf8(":/trolltech/formeditor/images/") + name;
     QPixmap result(path);
     if (result.isNull())
-        qWarning("Failed to load \"%s\"", path.latin1());
+        qWarning("Failed to load \"%s\"", path.toLatin1().constData());
 
     QIcon icon;
     icon.setPixmap(result, Qt::AutomaticIconSize, QIcon::Normal);
@@ -256,7 +256,7 @@ WidgetCollectionModel::WidgetCollectionModel(AbstractFormEditor *core, QObject *
         QString name = QLatin1String(":/trolltech/widgetbox/widgetbox.xml");
         f.setFileName(name);
         if (!f.open(QIODevice::ReadOnly)) {
-            qWarning("WidgetBox: failed to open \"%s\"", name.latin1());
+            qWarning("WidgetBox: failed to open \"%s\"", name.toLatin1().constData());
             return;
         }
     }
@@ -265,7 +265,7 @@ WidgetCollectionModel::WidgetCollectionModel(AbstractFormEditor *core, QObject *
     int line, col;
     if (!m_widget_xml.setContent(&f, &error_msg, &line, &col)) {
         qWarning("WidgetBox: failed to parse \"%s\": on line %d: %s",
-                    name.latin1(), line, error_msg.latin1());
+                    name.toLatin1().constData(), line, error_msg.toLatin1().constData());
         return;
     }
 
@@ -601,7 +601,7 @@ void WidgetCollectionModel::saveToUserXmlFile()
     QString name = userWidgetXmlDir() + QLatin1String("widgetbox.xml");
     QFile f(name);
     if (!f.open(QIODevice::WriteOnly)) {
-        qWarning("WidgetBox: failed to save \"%s\"", name.latin1());
+        qWarning("WidgetBox: failed to save \"%s\"", name.toLatin1().constData());
         return;
     }
 
@@ -626,7 +626,7 @@ signals:
 protected:
     WidgetCollectionModel *model() const { return m_model; }
     virtual void contextMenuEvent (QContextMenuEvent *e);
-    
+
 
 private:
     WidgetCollectionModel *m_model;

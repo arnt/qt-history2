@@ -451,13 +451,13 @@ void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
         QWidget *source = widgetByName(parent, dom_con->elementSender());
         if (source == 0) {
             qWarning("SignalSlotEditor::fromUi(): no source widget called \"%s\"",
-                        dom_con->elementSender().latin1());
+                        dom_con->elementSender().toLatin1().constData());
             continue;
         }
         QWidget *destination = widgetByName(parent, dom_con->elementReceiver());
         if (destination == 0) {
             qWarning("SignalSlotEditor::fromUi(): no destination widget called \"%s\"",
-                        dom_con->elementReceiver().latin1());
+                        dom_con->elementReceiver().toLatin1().constData());
             continue;
         }
 

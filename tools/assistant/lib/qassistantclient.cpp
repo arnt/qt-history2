@@ -303,7 +303,7 @@ void QAssistantClient::readStdError()
     QString errmsg = proc->readAllStandardError();
 
     if (!errmsg.isEmpty())
-        emit error( tr( errmsg.simplified() ) );
+        emit error( errmsg.simplified() );
 }
 
 /*!

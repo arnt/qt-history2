@@ -36,7 +36,7 @@ inline QString fixString(const QString &str, bool encode=false)
         s.replace(QLatin1String("\r"), QLatin1String(""));
         s.replace(QLatin1String("\n"), QLatin1String("\\n\"\n\""));
     } else {
-        QByteArray utf8 = str.utf8();
+        QByteArray utf8 = str.toUtf8();
         const int l = utf8.length();
         for (int i = 0; i < l; ++i)
             s += QLatin1String("\\x") + QString::number((uchar)utf8[i], 16);

@@ -138,8 +138,8 @@ QMakeProperty::value(QString v, bool just_check)
             ret = var.toString();
             if (ok) {
                 if(!just_check)
-                    debug_msg(1, "Fell back from %s -> %s for '%s'.", version.latin1(),
-                              s.latin1(), v.latin1());
+                    debug_msg(1, "Fell back from %s -> %s for '%s'.", version.toLatin1().constData(),
+                              s.toLatin1().constData(), v.toLatin1().constData());
                 return ret;
             }
         }
@@ -181,8 +181,8 @@ QMakeProperty::exec()
                 for(QStringList::Iterator it2 = keys.begin(); it2 != keys.end(); it2++) {
                     QString ret = settings->value(keyBase(false) + s + "/" + (*it2)).toString();
                     if(s != qmake_version())
-                        fprintf(stdout, "%s/", s.latin1());
-                    fprintf(stdout, "%s:%s\n", (*it2).latin1(), ret.latin1());
+                        fprintf(stdout, "%s/", s.toLatin1().constData());
+                    fprintf(stdout, "%s:%s\n", (*it2).toLatin1().constData(), ret.toLatin1().constData());
                 }
             }
             return true;
@@ -190,12 +190,12 @@ QMakeProperty::exec()
         for(QStringList::Iterator it = Option::prop::properties.begin();
             it != Option::prop::properties.end(); it++) {
             if(Option::prop::properties.count() > 1)
-                fprintf(stdout, "%s:", (*it).latin1());
+                fprintf(stdout, "%s:", (*it).toLatin1().constData());
             if(!hasValue((*it))) {
                 ret = false;
                 fprintf(stdout, "**Unknown**\n");
             } else {
-                fprintf(stdout, "%s\n", value((*it)).latin1());
+                fprintf(stdout, "%s\n", value((*it)).toLatin1().constData());
             }
         }
     } else if(Option::qmake_mode == Option::QMAKE_SET_PROPERTY) {

@@ -1814,7 +1814,7 @@ extern QString qt_mac_get_save_file_name(const QString &start,
 static QString qt_encode_file_name(const QString &filename)
 {
     QString str;
-    QByteArray name = filename.utf8();
+    QByteArray name = filename.toUtf8();
     static const QByteArray illegal("<>#@\"&%$:,;?={}|^~[]\'`\\*");
 
     int len = name.length();

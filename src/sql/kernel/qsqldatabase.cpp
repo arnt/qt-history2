@@ -171,7 +171,7 @@ void QSqlDatabasePrivate::removeDatabase(const QString& name)
     QSqlDatabase db = dbDict().take(name);
     if (db.d->ref != 1) {
         qWarning("QSqlDatabasePrivate::removeDatabase: connection '%s' is still in use, "
-                 "all queries will cease to work.", name.local8Bit());
+                 "all queries will cease to work.", name.toLocal8Bit().data());
         db.d->disable();
     }
 }
@@ -181,7 +181,7 @@ void QSqlDatabasePrivate::addDatabase(const QSqlDatabase &db, const QString & na
     if (dbDict().contains(name)) {
         removeDatabase(name);
         qWarning("QSqlDatabasePrivate::addDatabase: duplicate connection name '%s', old "
-                 "connection removed.", name.local8Bit());
+                 "connection removed.", name.toLocal8Bit().data());
     }
     dbDict().insert(name, db);
 }
@@ -195,7 +195,7 @@ QSqlDatabase QSqlDatabasePrivate::database(const QString& name, bool open)
         db.open();
         if (!db.isOpen())
             qWarning("QSqlDatabasePrivate::database: unable to open database: %s",
-                     db.lastError().text().local8Bit());
+                     db.lastError().text().toLocal8Bit().data());
 
     }
     return db;
@@ -661,9 +661,9 @@ void QSqlDatabasePrivate::init(const QString &type)
     }
 
     if (!driver) {
-        qWarning("QSqlDatabase: %s driver not loaded", type.latin1());
+        qWarning("QSqlDatabase: %s driver not loaded", type.toLatin1().data());
         qWarning("QSqlDatabase: available drivers: %s",
-                        QSqlDatabase::drivers().join(QLatin1String(" ")).latin1());
+                        QSqlDatabase::drivers().join(QLatin1String(" ")).toLatin1().data());
         driver = shared_null()->driver;
     }
 }

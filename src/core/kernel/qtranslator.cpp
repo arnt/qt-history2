@@ -1078,14 +1078,14 @@ QTranslatorMessage::QTranslatorMessage(QDataStream & stream)
             return;
         case Tag_SourceText16: // obsolete
             stream >> str16;
-            st = str16.latin1();
+            st = str16.toLatin1();
             break;
         case Tag_Translation:
             stream >> tn;
             break;
         case Tag_Context16: // obsolete
             stream >> str16;
-            cx = str16.latin1();
+            cx = str16.toLatin1();
             break;
         case Tag_Hash:
             stream >> h;

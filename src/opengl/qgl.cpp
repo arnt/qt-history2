@@ -2746,7 +2746,7 @@ void QGLWidget::renderText(int x, int y, const QString & str, const QFont & fnt,
     glRasterPos2i(0, 0);
     glBitmap(0, 0, 0, 0, x, -y, NULL);
     glListBase(fontDisplayListBase(fnt, listBase));
-    glCallLists(str.length(), GL_UNSIGNED_BYTE, str.local8Bit());
+    glCallLists(str.length(), GL_UNSIGNED_BYTE, str.toLocal8Bit());
 
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);
@@ -2770,7 +2770,7 @@ void QGLWidget::renderText(double x, double y, double z, const QString & str, co
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glListBase(fontDisplayListBase(fnt, listBase));
-    glCallLists(str.length(), GL_UNSIGNED_BYTE, str.local8Bit());
+    glCallLists(str.length(), GL_UNSIGNED_BYTE, str.toLocal8Bit());
     glPopAttrib();
 }
 

@@ -336,7 +336,35 @@ protected:
     uint reas : 8;
 };
 
+#if 0
+class Q_GUI_EXPORT QInputMethodEvent : public QInputEvent
+{
+public:
+    enum CommandType {
 
+    };
+    QInputMethodEvent(Type type, const QString &text, int cursorPosition, int selLength = 0);
+
+    enum AttributeType {
+       UnderLineColor,
+       BackgroundColor,
+       Language,
+       RubyText
+    };
+    struct Attribute {
+        AttributeType type;
+        QVariant value;
+        int start;
+        int length;
+    };
+    void setAttribute(const Attribute &value);
+    QVariant attribute(AttributeType a) const;
+    QList<Attribute> attributes() const;
+
+private:
+    QList<Attribute> attributes;
+};
+#else
 class Q_GUI_EXPORT QInputMethodEvent : public QInputEvent
 {
 public:
@@ -352,6 +380,7 @@ private:
     int cpos;
     int selLen;
 };
+#endif
 
 #ifndef QT_NO_DRAGANDDROP
 

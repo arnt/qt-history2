@@ -2004,11 +2004,11 @@ static void write_xbm_image(QImageIO *iio)
     QString    s = fbname(iio->fileName());	// get file base name
     char *buf = new char[s.length() + 100];
 
-    sprintf(buf, "#define %s_width %d\n", s.ascii(), w);
+    sprintf(buf, "#define %s_width %d\n", s.toAscii().data(), w);
     d->write(buf, qstrlen(buf));
-    sprintf(buf, "#define %s_height %d\n", s.ascii(), h);
+    sprintf(buf, "#define %s_height %d\n", s.toAscii().data(), h);
     d->write(buf, qstrlen(buf));
-    sprintf(buf, "static char %s_bits[] = {\n ", s.ascii());
+    sprintf(buf, "static char %s_bits[] = {\n ", s.toAscii().data());
     d->write(buf, qstrlen(buf));
 
     iio->setStatus(0);

@@ -60,16 +60,16 @@ static void updateTsFiles( const MetaTranslator& fetchedTor,
         MetaTranslator tor;
         tor.load( *t );
         if ( !codec.isEmpty() )
-            tor.setCodec( codec );
+            tor.setCodec( codec.toLatin1() );
         if ( verbose )
-            fprintf( stderr, "Updating '%s'...\n", (*t).latin1() );
+            fprintf( stderr, "Updating '%s'...\n", (*t).toLatin1().data() );
         merge( &tor, &fetchedTor, verbose );
         if ( noObsolete )
             tor.stripObsoleteMessages();
         tor.stripEmptyContexts();
         if ( !tor.save(*t) )
             fprintf( stderr, "lupdate error: Cannot save '%s': %s\n",
-                     (*t).latin1(), strerror(errno) );
+                     (*t).toLatin1().constData(), strerror(errno) );
         ++t;
     }
 }
@@ -147,20 +147,19 @@ int main( int argc, char **argv )
 
                 for ( t = toks.begin(); t != toks.end(); ++t ) {
                     if ( it.key() == "HEADERS" || it.key() == "SOURCES" ) {
-                        fetchtr_cpp( *t, &fetchedTor, defaultContext, true );
+                        fetchtr_cpp( (*t).toAscii(), &fetchedTor, defaultContext.toAscii(), true );
                         metSomething = true;
                     } else if ( it.key() == "INTERFACES" ||
                                 it.key() == "FORMS" ) {
-                        fetchtr_ui( *t, &fetchedTor, defaultContext, true );
-                        fetchtr_cpp( *t + ".h", &fetchedTor, defaultContext,
-                                     false );
+                        fetchtr_ui( (*t).toAscii(), &fetchedTor, defaultContext.toAscii(), true );
+                        fetchtr_cpp( (*t).toAscii() + ".h", &fetchedTor, defaultContext.toAscii(), false );
                         metSomething = true;
                     } else if ( it.key() == "TRANSLATIONS" ) {
                         tsFileNames.append( *t );
                         metSomething = true;
                     } else if ( it.key() == "CODEC" ||
                                 it.key() == "DEFAULTCODEC" ) {
-                        codec = (*t).latin1();
+                        codec = (*t).toLatin1();
                     }
                 }
             }
@@ -199,11 +198,11 @@ int main( int argc, char **argv )
             } else {
                 QFileInfo fi(argv[i]);
                 if ( QString(argv[i]).toLower().endsWith(".ui") ) {
-                    fetchtr_ui( fi.fileName(), &fetchedTor, defaultContext, true );
-                    fetchtr_cpp( QString(fi.fileName()) + ".h", &fetchedTor,
-                                 defaultContext, false );
+                    fetchtr_ui( fi.fileName().toAscii(), &fetchedTor, defaultContext.toAscii(), true );
+                    fetchtr_cpp( fi.fileName().toAscii() + ".h", &fetchedTor,
+                                 defaultContext.toAscii(), false );
                 } else {
-                    fetchtr_cpp( fi.fileName(), &fetchedTor, defaultContext, true );
+                    fetchtr_cpp( fi.fileName().toAscii(), &fetchedTor, defaultContext.toAscii(), true );
                 }
             }
         }

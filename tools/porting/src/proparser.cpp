@@ -35,8 +35,8 @@ QString loadFile( const QString &fileName )
     QFile file( fileName );
     if ( !file.open(QIODevice::ReadOnly) ) {
         fprintf( stderr, "error: Cannot load '%s': %s\n",
-                 file.fileName().latin1(),
-                 file.errorString().latin1() );
+                 file.fileName().toLocal8Bit().constData(),
+                 file.errorString().toLatin1().constData() );
         return QString();
     }
 
@@ -49,8 +49,8 @@ QMap<QString, QString> proFileTagMap( const QString& text, QString currentPath )
     QString t = text;
     if (currentPath.isEmpty())
         currentPath = QDir::currentPath();
-    
-    
+
+
     QMap<QString, QString> tagMap;
         /*
             Strip any commments before we try to include.  We
@@ -141,7 +141,7 @@ QMap<QString, QString> proFileTagMap( const QString& text, QString currentPath )
                 */
                 QString after;
                 char buff[256];
-                FILE *proc = QT_POPEN( callToSystem.cap(1).latin1(), "r" );
+                FILE *proc = QT_POPEN( callToSystem.cap(1).toLatin1().constData(), "r" );
                 while ( proc && !feof(proc) ) {
                     int read_in = fread( buff, 1, 255, proc );
                     if ( !read_in )

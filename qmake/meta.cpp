@@ -51,7 +51,7 @@ QMakeMetaInfo::readLib(QString lib)
             vars = proj.variables();
             ret = true;
         } else {
-            warn_msg(WarnLogic, "QMakeMetaInfo: unknown file format for %s", meta_file.latin1());
+            warn_msg(WarnLogic, "QMakeMetaInfo: unknown file format for %s", meta_file.toLatin1().constData());
         }
     }
     if(ret)
@@ -90,9 +90,9 @@ QMakeMetaInfo::findLib(QString lib)
         }
     }
     if(ret.isNull())
-        debug_msg(2, "QMakeMetaInfo: Cannot find info file for %s", lib.latin1());
+        debug_msg(2, "QMakeMetaInfo: Cannot find info file for %s", lib.toLatin1().constData());
     else
-        debug_msg(2, "QMakeMetaInfo: Found info file %s for %s", ret.latin1(), lib.latin1());
+        debug_msg(2, "QMakeMetaInfo: Found info file %s for %s", ret.toLatin1().constData(), lib.toLatin1().constData());
     return ret;
 }
 
@@ -169,6 +169,6 @@ QMakeMetaInfo::readLibtoolFile(const QString &f)
 bool
 QMakeMetaInfo::readPkgCfgFile(const QString &f)
 {
-    fprintf(stderr, "Must implement reading in pkg-config files (%s)!!!\n", f.latin1());
+    fprintf(stderr, "Must implement reading in pkg-config files (%s)!!!\n", f.toLatin1().constData());
     return false;
 }

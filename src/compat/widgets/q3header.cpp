@@ -807,7 +807,7 @@ void Q3Header::mouseMoveEvent(QMouseEvent *e)
         break;
     }
     default:
-        qWarning("Q3Header::mouseMoveEvent: (%s) unknown state", objectName().local8Bit());
+        qWarning("Q3Header::mouseMoveEvent: (%s) unknown state", objectName().toLocal8Bit().data());
         break;
     }
 }

@@ -108,7 +108,7 @@ bool QphHandler::fatalError(const QXmlParseException &exception)
         QString msg;
         msg.sprintf("Parse error at line %d, column %d (%s).",
             exception.lineNumber(), exception.columnNumber(),
-            exception.message().latin1());
+            exception.message().toLatin1().constData());
         QMessageBox::information(qApp->mainWidget(),
             QObject::tr("Qt Linguist"), msg);
     }
@@ -155,10 +155,10 @@ bool PhraseBook::save(const QString &filename) const
     ConstIterator p;
     for (p = begin(); p != end(); ++p) {
         t << "<phrase>\n";
-        t << "    <source>" << protect( (*p).source().utf8() ) << "</source>\n";
-        t << "    <target>" << protect( (*p).target().utf8() ) << "</target>\n";
+        t << "    <source>" << protect( (*p).source().toUtf8() ) << "</source>\n";
+        t << "    <target>" << protect( (*p).target().toUtf8() ) << "</target>\n";
         if (!(*p).definition().isEmpty())
-            t << "    <definition>" << protect( (*p).definition().utf8())
+            t << "    <definition>" << protect( (*p).definition().toUtf8())
               << "</definition>\n";
         t << "</phrase>\n";
     }

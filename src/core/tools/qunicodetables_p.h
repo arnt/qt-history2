@@ -72,14 +72,8 @@ namespace QUnicodeTables {
     Q_CORE_EXPORT QChar::Decomposition QT_FASTCALL decompositionTag(uint ucs4);
     Q_CORE_EXPORT ushort QT_FASTCALL ligature(ushort u1, ushort u2);
 
-    enum NormalizationMode {
-        NormalizationMode_D,
-        NormalizationMode_C,
-        NormalizationMode_KD,
-        NormalizationMode_KC
-    };
-    Q_CORE_EXPORT QString normalize(const QString &str, QUnicodeTables::NormalizationMode mode);
-    Q_CORE_EXPORT QString normalize(const QString &str, QUnicodeTables::NormalizationMode mode, QChar::UnicodeVersion version);
+    Q_CORE_EXPORT QString normalize(const QString &str, QString::NormalizationForm mode);
+    Q_CORE_EXPORT QString normalize(const QString &str, QString::NormalizationForm mode, QChar::UnicodeVersion version);
 };
 
 

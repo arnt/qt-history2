@@ -117,7 +117,7 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
     if (fw && !w) {
         QDesignerCustomWidget *customWidget = new QDesignerCustomWidget(fw, parentWidget);
         customWidget->setWidgetClassName(widgetName);
-        qWarning("widget %s not found", widgetName.latin1());
+        qWarning("widget %s not found", widgetName.toLatin1().constData());
         w = customWidget;
     }
 

@@ -188,7 +188,7 @@ public:
 
 class QXmlParseExceptionPrivate
 {
-public:    
+public:
     QString msg;
     int column;
     int line;
@@ -212,13 +212,13 @@ private:
     QXmlSimpleReaderPrivate();
     ~QXmlSimpleReaderPrivate();
     void initIncrementalParsing();
- 
+
     // used to determine if elements are correctly nested
     QStack<QString> tags;
 
     // used by parseReference() and parsePEReference()
     enum EntityRecognitionContext { InContent, InAttributeValue, InEntityValue, InDTD };
-    
+
     // used for entity declarations
     struct ExternParameterEntity
     {
@@ -407,7 +407,7 @@ private:
     void unexpectedEof(ParseFunction where, int state);
     void parseFailed(ParseFunction where, int state);
     void pushParseState(ParseFunction function, int state);
-    
+
     Q_DECLARE_PUBLIC(QXmlSimpleReader)
     QXmlSimpleReader *q_ptr;
 
@@ -437,7 +437,7 @@ private:
     system identifier \a s.
 */
 
-QXmlParseException::QXmlParseException(const QString& name, int c, int l, 
+QXmlParseException::QXmlParseException(const QString& name, int c, int l,
                                         const QString& p, const QString& s)
 {
     d = new QXmlParseExceptionPrivate;
@@ -1149,7 +1149,7 @@ const QChar QXmlInputSource::EndOfDocument = QChar((ushort)0xffff);
 void QXmlInputSource::init()
 {
     d = new QXmlInputSourcePrivate;
-    
+
     d->inputDevice = 0;
     d->inputStream = 0;
 
@@ -1393,7 +1393,7 @@ QString QXmlInputSource::fromRawData(const QByteArray &data, bool beginning)
                     }
                 }
 
-                codec = QTextCodec::codecForName(encoding.latin1());
+                codec = QTextCodec::codecForName(encoding.toLatin1());
                 if (codec == 0) {
                     return input;
                 }
@@ -2459,7 +2459,7 @@ inline bool QXmlSimpleReaderPrivate::atEnd()
 
 inline void QXmlSimpleReaderPrivate::stringClear()
 {
-    stringValueLen = 0; stringArrayPos = 0; 
+    stringValueLen = 0; stringArrayPos = 0;
 }
 inline void QXmlSimpleReaderPrivate::nameClear()
 {
@@ -2849,7 +2849,7 @@ QXmlSimpleReader::QXmlSimpleReader()
     d_ptr = new QXmlSimpleReaderPrivate();
     Q_D(QXmlSimpleReader);
     d->q_ptr = this;
-    
+
     d->locator = new QXmlSimpleReaderLocator(this);
 
     d->entityRes  = 0;
@@ -2882,7 +2882,7 @@ QXmlSimpleReader::~QXmlSimpleReader()
 bool QXmlSimpleReader::feature(const QString& name, bool *ok) const
 {
     const QXmlSimpleReaderPrivate *d = d_func();
-    
+
     if (ok != 0)
         *ok = true;
     if (name == "http://xml.org/sax/features/namespaces") {
@@ -2894,7 +2894,7 @@ bool QXmlSimpleReader::feature(const QString& name, bool *ok) const
     } else if (name == "http://trolltech.com/xml/features/report-start-end-entity") {
         return d->reportEntities;
     } else {
-        qWarning("Unknown feature %s", name.latin1());
+        qWarning("Unknown feature %s", name.toLatin1().data());
         if (ok != 0)
             *ok = false;
     }
@@ -2948,7 +2948,7 @@ void QXmlSimpleReader::setFeature(const QString& name, bool enable)
     } else if (name == "http://trolltech.com/xml/features/report-start-end-entity") {
         d->reportEntities = enable;
     } else {
-        qWarning("Unknown feature %s", name.latin1());
+        qWarning("Unknown feature %s", name.toLatin1().data());
     }
 }
 
@@ -3004,7 +3004,7 @@ void QXmlSimpleReader::setEntityResolver(QXmlEntityResolver* handler)
 QXmlEntityResolver* QXmlSimpleReader::entityResolver() const
 {
     const QXmlSimpleReaderPrivate *d = d_func();
-    return d->entityRes; 
+    return d->entityRes;
 }
 
 /*!
@@ -3094,7 +3094,7 @@ void QXmlSimpleReader::setDeclHandler(QXmlDeclHandler* handler)
 QXmlDeclHandler* QXmlSimpleReader::declHandler() const
 {
     const QXmlSimpleReaderPrivate *d = d_func();
-    return d->declHnd; 
+    return d->declHnd;
 }
 
 
@@ -3143,7 +3143,7 @@ session will be started, and the previous session will be lost.
 bool QXmlSimpleReader::parse(const QXmlInputSource *input, bool incremental)
 {
     Q_D(QXmlSimpleReader);
-    
+
     d->init(input);
     if (incremental) {
         d->initIncrementalParsing();

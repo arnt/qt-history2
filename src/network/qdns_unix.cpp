@@ -40,7 +40,7 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = PF_UNSPEC;
 
-    int result = getaddrinfo(hostName.latin1(), 0, &hints, &res);
+    int result = getaddrinfo(hostName.toLatin1().constData(), 0, &hints, &res);
     if (result == 0) {
         addrinfo *node = res;
         while (node) {

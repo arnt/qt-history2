@@ -79,7 +79,7 @@ QWidget *Resource::load(QIODevice *dev, QWidget *parentWidget)
         createConnections(connections, w);
     createAuthor(ui.elementAuthor());
     createComment(ui.elementComment());
-    
+
     return w;
 }
 
@@ -386,7 +386,7 @@ void Resource::applyProperties(QObject *o, const QList<DomProperty*> &properties
     foreach (DomProperty *p, properties) {
         QVariant v = toVariant(o->metaObject(), p);
         if (!v.isNull())
-            o->setProperty(p->attributeName(), v);
+            o->setProperty(p->attributeName().toLatin1(), v);
     }
 }
 
@@ -901,7 +901,7 @@ DomProperty *Resource::createProperty(QObject *obj, const QString &pname, const 
 
         default: {
             qWarning("support for property `%s' of type `%d' not implemented yet!!",
-                pname.latin1(), v.type());
+                pname.toLatin1().data(), v.type());
         } break;
     }
 
@@ -930,7 +930,7 @@ QList<DomProperty*> Resource::computeProperties(QObject *obj)
 
     for(int i=0; i<propertyNames.size(); ++i) {
         QString pname = propertyNames.at(i);
-        QMetaProperty prop = meta->property(meta->indexOfProperty(pname));
+        QMetaProperty prop = meta->property(meta->indexOfProperty(pname.toLatin1()));
 
         if (!prop.isWritable() || !checkProperty(obj, prop.name()))
             continue;
@@ -1008,7 +1008,7 @@ void Resource::applyTabStops(QWidget *widget, DomTabStops *tabStops)
 
         QWidget *child = qFindChild<QWidget*>(widget, name);
         if (!child) {
-            qWarning("'%s' isn't a valid widget\n", name.latin1());
+            qWarning("'%s' isn't a valid widget\n", name.toLatin1().data());
             continue;
         }
 

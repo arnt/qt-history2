@@ -501,7 +501,7 @@ QVariant QMimeData::retrieveData(const QString &mimetype, QVariant::Type type) c
             format = "png";
         QBuffer buf(&result);
         buf.open(QBuffer::WriteOnly);
-        image.save(&buf, format.toUpper().latin1());
+        image.save(&buf, format.toUpper().toLatin1());
         break;
     }
     case QVariant::Color:

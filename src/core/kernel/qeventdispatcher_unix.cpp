@@ -292,7 +292,7 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
     if (dangerCount > 16)
         qDebug("QObject: %d timers now exist for object %s::%s",
                dangerCount, ti->obj->metaObject()->className(),
-               ti->obj->objectName().local8Bit());
+               ti->obj->objectName().toLocal8Bit().data());
 #endif
 }
 

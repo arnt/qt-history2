@@ -416,12 +416,12 @@ void QLCDNumber::setNumDigits(int numDigits)
     Q_D(QLCDNumber);
     if (numDigits > 99) {
         qWarning("QLCDNumber::setNumDigits: (%s) Max 99 digits allowed",
-                 objectName().local8Bit());
+                 objectName().toLocal8Bit().constData());
         numDigits = 99;
     }
     if (numDigits < 0) {
         qWarning("QLCDNumber::setNumDigits: (%s) Min 0 digits allowed",
-                 objectName().local8Bit());
+                 objectName().toLocal8Bit().constData());
         numDigits = 0;
     }
     if (d->digitStr.isNull()) {                  // from constructor
@@ -1022,7 +1022,7 @@ void QLCDNumberPrivate::drawSegment(const QPoint &pos, char segmentNo, QPainter 
         default :
             qWarning("QLCDNumber::drawSegment: (%s) Internal error."
                      "  Illegal segment id: %d\n",
-                     q->objectName().local8Bit(), segmentNo);
+                     q->objectName().toLocal8Bit().constData(), segmentNo);
         }
         // End exact copy
         p.setPen(fgColor);
@@ -1156,7 +1156,7 @@ void QLCDNumberPrivate::drawSegment(const QPoint &pos, char segmentNo, QPainter 
         default :
             qWarning("QLCDNumber::drawSegment: (%s) Internal error."
                      "  Illegal segment id: %d\n",
-                     q->objectName().local8Bit(), segmentNo);
+                     q->objectName().toLocal8Bit().constData(), segmentNo);
         }
 
 #undef LINETO

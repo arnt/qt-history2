@@ -74,7 +74,7 @@ QStringList Logger::cronologicalReport()
 {
     QStringList report;
     report<<"Porting log. Number of Entries:" + QString("%1").arg(logEntries.size());
-    
+
     foreach(LogEntry logEntry, logEntries) {
 
         report<< QString("In file ") + logEntry.file + QString(" at line ") + QString("%1").arg(logEntry.line +1) +" column "  +
@@ -85,7 +85,7 @@ QStringList Logger::cronologicalReport()
 
 void Logger::print(QStringList report)
 {
-    puts(report.join("\n").latin1());
+    puts(report.join("\n").toLatin1());
 }
 
 void Logger::writeToFile(QString fileName, QStringList report)
@@ -93,5 +93,5 @@ void Logger::writeToFile(QString fileName, QStringList report)
     QFile f(fileName);
     f.open(QFile::WriteOnly);
     QString contents = report.join("\n");
-    f.write(contents.latin1(), contents.size());
+    f.write(contents.toLatin1());
 }

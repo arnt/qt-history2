@@ -179,7 +179,7 @@ CandidateList similarTextHeuristicCandidates( const MetaTranslator *tor,
         continue;
 
     QString s = tor->toUnicode( mtm.sourceText(), mtm.utf8() );
-    CoMatrix cm( s.latin1() );
+    CoMatrix cm( s.toLatin1().constData() );
     int delta = qAbs( (int) s.length() - targetLen );
 
     /*

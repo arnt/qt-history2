@@ -518,8 +518,8 @@ static void parse( MetaTranslator *tor, const char *initialContext,
                     if ( prefix.isNull() ) {
                         context = functionContext;
                         if ( !namespaces.isEmpty() )
-                            context.prepend( (namespaces.join(QString("::")) +
-                                              QString("::")).latin1() );
+                            context.prepend( ((namespaces.join(QString("::")) +
+                                              QString("::"))).toAscii() );
                     } else {
                         context = prefix;
                     }
@@ -747,7 +747,7 @@ bool UiHandler::endElement( const QString& /* namespaceURI */,
         flush();
     } else if ( qName == QString("function") ) {
         fetchtr_inlined_cpp( (const char *) fname, accum, tor,
-                             context.latin1() );
+                             context.toLatin1() );
     } else {
         flush();
     }
@@ -765,16 +765,16 @@ bool UiHandler::fatalError( const QXmlParseException& exception )
     QString msg;
     msg.sprintf( "Parse error at line %d, column %d (%s).",
                  exception.lineNumber(), exception.columnNumber(),
-                 exception.message().latin1() );
-    fprintf( stderr, "XML error: %s\n", msg.latin1() );
+                 exception.message().toLatin1().data() );
+    fprintf( stderr, "XML error: %s\n", msg.toLatin1().data() );
     return false;
 }
 
 void UiHandler::flush()
 {
     if ( !context.isEmpty() && !source.isEmpty() )
-        tor->insert( MetaTranslatorMessage(context.utf8(), source.utf8(),
-                                           comment.utf8(), QString::null,
+        tor->insert( MetaTranslatorMessage(context.toUtf8(), source.toUtf8(),
+                                           comment.toUtf8(), QString::null,
                                            true) );
     source.truncate( 0 );
     comment.truncate( 0 );

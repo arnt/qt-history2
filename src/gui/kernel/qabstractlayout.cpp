@@ -584,8 +584,8 @@ QLayout::QLayout(QWidget *parent)
     if (parent) {
         if (parent->layout()) {
             qWarning("QLayout \"%s\" added to %s \"%s\", which already has a"
-                      " layout", QObject::objectName().local8Bit(), parent->metaObject()->className(),
-                      parent->objectName().local8Bit());
+                     " layout", QObject::objectName().toLocal8Bit().data(), parent->metaObject()->className(),
+                     parent->objectName().toLocal8Bit().data());
             parent->layout()->setParent(0);
         } else {
             d->topLevel = true;
@@ -629,8 +629,8 @@ QLayout::QLayout(QLayoutPrivate &dd, QLayout *lay, QWidget *w)
     } else if (w) {
         if (w->layout()) {
             qWarning("QLayout \"%s\" added to %s \"%s\", which already has a"
-                      " layout", QObject::objectName().local8Bit(), w->metaObject()->className(),
-                      w->objectName().local8Bit());
+                     " layout", QObject::objectName().toLocal8Bit().data(), w->metaObject()->className(),
+                     w->objectName().toLocal8Bit().data());
             w->layout()->setParent(0);
         } else {
             d->topLevel = true;
@@ -678,8 +678,8 @@ QLayout::QLayout(QWidget *parent, int margin, int spacing, const char *name)
     if (parent) {
         if (parent->layout()) {
             qWarning("QLayout \"%s\" added to %s \"%s\", which already has a"
-                      " layout", QObject::objectName().local8Bit(), parent->metaObject()->className(),
-                      parent->objectName().local8Bit());
+                      " layout", QObject::objectName().toLocal8Bit().data(), parent->metaObject()->className(),
+                      parent->objectName().toLocal8Bit().data());
             parent->layout()->setParent(0);
         } else {
             d->topLevel = true;
@@ -1312,7 +1312,7 @@ bool QLayout::activate()
     QWidget *mw = static_cast<QWidget*>(parent());
     if (mw == 0) {
         qWarning("QLayout::activate: %s \"%s\" does not have a main widget",
-                  QObject::metaObject()->className(), QObject::objectName().local8Bit());
+                  QObject::metaObject()->className(), QObject::objectName().toLocal8Bit().data());
         return false;
     }
     activateRecursiveHelper(this);

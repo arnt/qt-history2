@@ -204,7 +204,7 @@ extern "C" {
 	    data->text.remove(drawstruct->chg_first, drawstruct->chg_length);
 	    bool qt_compose_emptied = data->text.isEmpty();
 	    if (qt_compose_emptied) {
-		XIM_DEBUG("compose emptied 2 text=%s", data->text.utf8());
+		XIM_DEBUG("compose emptied 2 text=%s", data->text.toUtf8().constData());
 		// if the composition string has been emptied, we need
 		// to send an InputMethodEnd event
 		qic->sendIMEvent(QEvent::InputMethodEnd);
@@ -216,7 +216,7 @@ extern "C" {
 	}
 
         XIM_DEBUG("sending compose: '%s', cursor=%d, sellen=%d",
-                  data->text.utf8(), cursor, sellen);
+                  data->text.toUtf8().constData(), cursor, sellen);
 	qic->sendIMEvent(QEvent::InputMethodCompose, data->text, cursor, sellen);
 
 	return 0;

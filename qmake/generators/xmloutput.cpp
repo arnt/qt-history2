@@ -63,18 +63,18 @@ void XmlOutput::updateIndent()
         currentIndent.append(indent);
 }
 
-void XmlOutput::increaseIndent() 
-{ 
-    ++currentLevel; 
-    updateIndent(); 
+void XmlOutput::increaseIndent()
+{
+    ++currentLevel;
+    updateIndent();
 }
 
-void XmlOutput::decreaseIndent() 
-{ 
-    if (currentLevel) 
-        --currentLevel; 
-    updateIndent(); 
-    if (!currentLevel) 
+void XmlOutput::decreaseIndent()
+{
+    if (currentLevel)
+        --currentLevel;
+    updateIndent();
+    if (!currentLevel)
         currentState = Bare;
 }
 
@@ -224,7 +224,7 @@ void XmlOutput::closeTo(const QString &tag)
     bool cont = true;
     if (!tagStack.contains(tag) && tag != QString()) {
         //warn_msg(WarnLogic, "<%s>: Cannot close to tag <%s>, not on stack", tagStack.last().latin1(), tag.latin1());
-        qDebug("<%s>: Cannot close to tag <%s>, not on stack", tagStack.last().latin1(), tag.latin1());
+        qDebug("<%s>: Cannot close to tag <%s>, not on stack", tagStack.last().toLatin1().constData(), tag.toLatin1().constData());
         return;
     }
     int left = tagStack.count();
@@ -248,8 +248,8 @@ void XmlOutput::addDeclaration(const QString &version, const QString &encoding)
             break;
         case Tag:
         case Attribute:
-            //warn_msg(WarnLogic, "<%s>: Cannot add declaration when not in bare state", tagStack.last().latin1());
-            qDebug("<%s>: Cannot add declaration when not in bare state", tagStack.last().latin1());
+            //warn_msg(WarnLogic, "<%s>: Cannot add declaration when not in bare state", tagStack.last().toLatin1().constData());
+            qDebug("<%s>: Cannot add declaration when not in bare state", tagStack.last().toLatin1().constData());
             return;
     }
     QString outData = QString("<?xml version=\"%1\" encoding = \"%2\"?>")
@@ -269,10 +269,10 @@ void XmlOutput::addAttribute(const QString &attribute, const QString &value)
      switch(currentState) {
         case Bare:
         case Tag:
-            //warn_msg(WarnLogic, "<%s>: Cannot add attribute since tags not open", tagStack.last().latin1());
-            qDebug("<%s>: Cannot add attribute (%s) since tag's not open", 
-                   (tagStack.count() ? tagStack.last().latin1() : "Root"),
-                   attribute.latin1());
+            //warn_msg(WarnLogic, "<%s>: Cannot add attribute since tags not open", tagStack.last().toLatin1().constData());
+            qDebug("<%s>: Cannot add attribute (%s) since tag's not open",
+                   (tagStack.count() ? tagStack.last().toLatin1().constData() : "Root"),
+                   attribute.toLatin1().constData());
             return;
         case Attribute:
             break;

@@ -121,7 +121,7 @@ bool TsHandler::endElement( const QString& /* namespaceURI */,
 {
     if ( qName == QString("codec") || qName == QString("defaultcodec") ) {
         // "codec" is a pre-3.0 syntax
-        tor->setCodec( accum );
+        tor->setCodec( accum.toLatin1() );
     } else if ( qName == QString("name") ) {
         context = accum;
     } else if ( qName == QString("source") ) {
@@ -131,26 +131,26 @@ bool TsHandler::endElement( const QString& /* namespaceURI */,
             comment = accum;
         } else {
             if ( contextIsUtf8 )
-                tor->insert( MetaTranslatorMessage(context.utf8(),
+                tor->insert( MetaTranslatorMessage(context.toUtf8(),
                              ContextComment,
-                             accum.utf8(), QString::null, true,
+                             accum.toUtf8(), QString::null, true,
                              MetaTranslatorMessage::Unfinished) );
             else
-                tor->insert( MetaTranslatorMessage(context.ascii(),
+                tor->insert( MetaTranslatorMessage(context.toAscii(),
                              ContextComment,
-                             accum.ascii(), QString::null, false,
+                             accum.toAscii(), QString::null, false,
                              MetaTranslatorMessage::Unfinished) );
         }
     } else if ( qName == QString("translation") ) {
         translation = accum;
     } else if ( qName == QString("message") ) {
         if ( messageIsUtf8 )
-            tor->insert( MetaTranslatorMessage(context.utf8(), source.utf8(),
-                                               comment.utf8(), translation,
+            tor->insert( MetaTranslatorMessage(context.toUtf8(), source.toUtf8(),
+                                               comment.toUtf8(), translation,
                                                true, type) );
         else
-            tor->insert( MetaTranslatorMessage(context.ascii(), source.ascii(),
-                                               comment.ascii(), translation,
+            tor->insert( MetaTranslatorMessage(context.toAscii(), source.toAscii(),
+                                               comment.toAscii(), translation,
                                                false, type) );
         inMessage = false;
     }
@@ -171,9 +171,9 @@ bool TsHandler::fatalError( const QXmlParseException& exception )
         QString msg;
         msg.sprintf( "Parse error at line %d, column %d (%s).",
                      exception.lineNumber(), exception.columnNumber(),
-                     exception.message().latin1() );
+                     exception.message().toLatin1().data() );
         if ( qApp == 0 )
-            fprintf( stderr, "XML error: %s\n", msg.latin1() );
+            fprintf( stderr, "XML error: %s\n", msg.toLatin1().data() );
         else
             QMessageBox::information( qApp->mainWidget(),
                                       QObject::tr("Qt Linguist"), msg );
@@ -224,7 +224,7 @@ static QString evilBytes( const QByteArray& str, bool utf8 )
         return protect( str );
     } else {
         QString result;
-        QByteArray t = protect( str ).latin1();
+        QByteArray t = protect( str ).toLatin1();
         int len = (int) t.length();
         for ( int k = 0; k < len; k++ ) {
             if ( (uchar) t[k] >= 0x7f )
@@ -422,7 +422,7 @@ bool MetaTranslator::save( const QString& filename ) const
                 t << " type=\"unfinished\"";
             else if ( (*i).type() == MetaTranslatorMessage::Obsolete )
                 t << " type=\"obsolete\"";
-            t << ">" << protect( (*i).translation().utf8() )
+            t << ">" << protect( (*i).translation().toUtf8() )
               << "</translation>\n";
             t << "    </message>\n";
         }

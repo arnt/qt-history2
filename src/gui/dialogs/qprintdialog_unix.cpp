@@ -330,7 +330,7 @@ static void parseEtcLpPrinters(QList<QPrinterDescription> *printers)
         QFileInfo printer = dirs.at(i);
         if (printer.isDir()) {
             tmp.sprintf("/etc/lp/printers/%s/configuration",
-                         printer.fileName().ascii());
+                         printer.fileName().toAscii().data());
             QFile configuration(tmp);
             char *line = new char[1025];
             QString remote(QLatin1String("Remote:"));
@@ -440,7 +440,7 @@ static char *parsePrintersConf(QList<QPrinterDescription> *printers, bool *found
                         j++;
                     // that's our default printer
                     defaultPrinter =
-                        qstrdup(printerDesc.mid(i, j-i).ascii());
+                        qstrdup(printerDesc.mid(i, j-i).toAscii().data());
                     printerName = "";
                     printerDesc = "";
                 } else if (printerName == QLatin1String("_all")) {

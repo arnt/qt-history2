@@ -378,7 +378,7 @@ bool QCoreApplication::notify(QObject *receiver, QEvent *e)
                .arg(receiver->objectName())
                .arg(QLatin1String(receiver->metaObject()->className()))
                .arg(QString::number((ulong) receiver->thread(), 16))
-               .latin1());
+               .toLocal8Bit().data());
 
 #ifdef QT_COMPAT
   if (e->type() == QEvent::ChildRemoved && receiver->d->postedChildInsertedEvents)
@@ -855,7 +855,7 @@ void QCoreApplication::removePostedEvent(QEvent * event)
             qWarning("QEvent: Warning: event of type %d deleted while posted to %s %s",
                      event->type(),
                      pe.receiver ? pe.receiver->metaObject()->className() : "null",
-                     pe.receiver ? pe.receiver->objectName().local8Bit() : "object");
+                     pe.receiver ? pe.receiver->objectName().toLocal8Bit().data() : "object");
 #endif
             pe.event->posted = false;
             delete pe.event;

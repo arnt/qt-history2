@@ -617,7 +617,7 @@ static Symbols preprocess(const QByteArray &filename, const Symbols &symbols, Ma
                 fi.setFile(QString::fromLocal8Bit(Preprocessor::includes.at(j)), QString::fromLocal8Bit(include));
             if (!fi.exists())
                 continue;
-            include = fi.filePath();
+            include = fi.filePath().toLocal8Bit();
             QFile file(QString::fromLocal8Bit(include));
             if (!file.open(QFile::ReadOnly))
                 continue;

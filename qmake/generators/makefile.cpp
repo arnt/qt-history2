@@ -156,10 +156,10 @@ MakefileGenerator::initOutPaths()
 
             QString path = project->first(dirs[x]); //not to be changed any further
             path = Option::fixPathToLocalOS(fileFixify(path, currentDir, Option::output_dir));
-            debug_msg(3, "Fixed output_dir %s (%s) into %s (%s)", dirs[x].latin1(), orig_path.latin1(),
-                      v[dirs[x]].join("::").latin1(), path.latin1());
+            debug_msg(3, "Fixed output_dir %s (%s) into %s (%s)", dirs[x].toLatin1().constData(), orig_path.toLatin1().constData(),
+                      v[dirs[x]].join("::").toLatin1().constData(), path.toLatin1().constData());
             if(!createDir(path))
-                warn_msg(WarnLogic, "%s: Cannot access directory '%s'", dirs[x].latin1(), path.latin1());
+                warn_msg(WarnLogic, "%s: Cannot access directory '%s'", dirs[x].toLatin1().constData(), path.toLatin1().constData());
         }
     }
 
@@ -180,7 +180,7 @@ MakefileGenerator::initOutPaths()
                     if(path != "." &&
                        !createDir(fileFixify(path, QDir::currentPath(), Option::output_dir)))
                         warn_msg(WarnLogic, "%s: Cannot access directory '%s'",
-                                 (*it).latin1(), path.latin1());
+                                 (*it).toLatin1().constData(), path.toLatin1().constData());
                 }
             }
         }
@@ -254,7 +254,7 @@ MakefileGenerator::init()
             for(QStringList::Iterator it = incDirs.begin(); it != incDirs.end(); ++it)
                 deplist.append(QMakeLocalFileName((*it)));
             setDependencyPaths(deplist);
-            debug_msg(1, "Dependency Directories: %s", incDirs.join(" :: ").latin1());
+            debug_msg(1, "Dependency Directories: %s", incDirs.join(" :: ").toLatin1().constData());
         }
         {
             QStringList sources;
@@ -292,7 +292,7 @@ MakefileGenerator::init()
                                     val = fileFixify(dir + val);
                                     found = true;
                                     debug_msg(1, "Found file through vpath %s -> %s",
-                                              file.latin1(), val.latin1());
+                                              file.toLatin1().constData(), val.toLatin1().constData());
                                     break;
                                 }
                             }
@@ -310,8 +310,8 @@ MakefileGenerator::init()
                                 if(files.isEmpty()) {
                                     debug_msg(1, "%s:%d Failure to find %s in vpath (%s)",
                                               __FILE__, __LINE__,
-                                              val.latin1(), vpath.join("::").latin1());
-                                    warn_msg(WarnLogic, "Failure to find: %s", val.latin1());
+                                              val.toLatin1().constData(), vpath.join("::").toLatin1().constData());
+                                    warn_msg(WarnLogic, "Failure to find: %s", val.toLatin1().constData());
                                     continue;
                                 } else {
                                     for(int i = (int)files.count()-1; i >= 0; i--) {
@@ -325,10 +325,10 @@ MakefileGenerator::init()
                                 }
                             } else {
                                 debug_msg(1, "%s:%d Cannot match %s%c%s, as %s does not exist.",
-                                          __FILE__, __LINE__, real_dir.latin1(),
-                                          QDir::separator().latin1(), regex.latin1(),
-                                          real_dir.latin1());
-                                warn_msg(WarnLogic, "Failure to find: %s", val.latin1());
+                                          __FILE__, __LINE__, real_dir.toLatin1().constData(),
+                                          QDir::separator().latin1(), regex.toLatin1().constData(),
+                                          real_dir.toLatin1().constData());
+                                warn_msg(WarnLogic, "Failure to find: %s", val.toLatin1().constData());
                             }
                         }
                     }
@@ -493,7 +493,7 @@ MakefileGenerator::init()
                 srcmoc += moc;
             else if(moc.endsWith(Option::cpp_moc_ext))
                 warn_msg(WarnLogic, "File %s[%s] considered mocable but will not be linked into TARGET!",
-                         mocables[i].latin1(), moc.latin1());
+                         mocables[i].toLatin1().constData(), moc.toLatin1().constData());
             else
                 hdrmoc += moc;
         }
@@ -531,8 +531,8 @@ MakefileGenerator::init()
                         }
                         QStringList files = QDir(dir).entryList(QStringList(regex));
                         if(files.isEmpty()) {
-                            warn_msg(WarnLogic, "Dependency for [%s]: Not found %s", (*file_it).latin1(),
-                                     (*dep_it).latin1());
+                            warn_msg(WarnLogic, "Dependency for [%s]: Not found %s", (*file_it).toLatin1().constData(),
+                                     (*dep_it).toLatin1().constData());
                         } else {
                             for(int i = 0; i < files.count(); i++)
                                 out_deps.append(dir + files[i]);
@@ -574,11 +574,11 @@ MakefileGenerator::processPrlFile(QString &file)
         QString f = fileFixify(real_meta_file, QDir::currentPath(), Option::output_dir);
         if(QMakeMetaInfo::libExists(f)) {
             QMakeMetaInfo libinfo;
-            debug_msg(1, "Processing PRL file: %s", real_meta_file.latin1());
+            debug_msg(1, "Processing PRL file: %s", real_meta_file.toLatin1().constData());
             if(!libinfo.readLib(f)) {
-                fprintf(stderr, "Error processing meta file: %s\n", real_meta_file.latin1());
+                fprintf(stderr, "Error processing meta file: %s\n", real_meta_file.toLatin1().constData());
             } else if(project->isActiveConfig("no_read_prl_" + libinfo.type().toLower())) {
-                debug_msg(2, "Ignored meta file %s [%s]", real_meta_file.latin1(), libinfo.type().latin1());
+                debug_msg(2, "Ignored meta file %s [%s]", real_meta_file.toLatin1().constData(), libinfo.type().toLatin1().constData());
             } else {
                 ret = true;
                 QMap<QString, QStringList> &vars = libinfo.variables();
@@ -603,8 +603,8 @@ MakefileGenerator::processPrlFile(QString &file)
     }
     if(try_replace_file && file.isEmpty()) {
 #if 0
-        warn_msg(WarnLogic, "Found prl [%s] file with no target [%s]!", meta_file.latin1(),
-                 orig_file.latin1());
+        warn_msg(WarnLogic, "Found prl [%s] file with no target [%s]!", meta_file.toLatin1().constData(),
+                 orig_file.toLatin1().constData());
 #endif
         file = orig_file;
     }
@@ -1052,7 +1052,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
         QString pvar = (*it) + ".path";
         if(project->variables()[(*it) + ".CONFIG"].indexOf("no_path") == -1 &&
            project->variables()[pvar].isEmpty()) {
-            warn_msg(WarnLogic, "%s is not defined: install target not created\n", pvar.latin1());
+            warn_msg(WarnLogic, "%s is not defined: install target not created\n", pvar.toLatin1().constData());
             continue;
         }
 
@@ -1191,7 +1191,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
                     all_uninstalls += "uninstall_" + (*it) + " ";
             }
         }   else {
-            debug_msg(1, "no definition for install %s: install target not created",(*it).latin1());
+            debug_msg(1, "no definition for install %s: install target not created",(*it).toLatin1().constData());
         }
     }
     t << "install: " << all_installs << " " << var("INSTALLDEPS");
@@ -1410,7 +1410,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
         if(project->variables()[(*it) + ".CONFIG"].indexOf("combine") != -1) {
             if(tmp_out.indexOf("${QMAKE_") != -1) {
                 warn_msg(WarnLogic, "QMAKE_EXTRA_COMPILERS(%s) with combine has variable output.",
-                         (*it).latin1());
+                         (*it).toLatin1().constData());
                 continue;
             }
             QString inputs, deps;
@@ -1428,7 +1428,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                         QString dep_cmd = replaceExtraCompilerVariables(tmp_dep_cmd, (*input),
                                                                         tmp_out);
                         dep_cmd = Option::fixPathToLocalOS(dep_cmd);
-                        if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
+                        if(FILE *proc = QT_POPEN(dep_cmd.toLatin1().constData(), "r")) {
                             QString indeps;
                             while(!feof(proc)) {
                                 int read_in = (int)fread(buff, 1, 255, proc);
@@ -1468,7 +1468,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                     char buff[256];
                     QString dep_cmd = replaceExtraCompilerVariables(tmp_dep_cmd, (*input), out);
                     dep_cmd = Option::fixPathToLocalOS(dep_cmd);
-                    if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
+                    if(FILE *proc = QT_POPEN(dep_cmd.toLatin1().constData(), "r")) {
 	                QString indeps;
                         while(!feof(proc)) {
                             int read_in = (int)fread(buff, 1, 255, proc);
@@ -2122,8 +2122,8 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
         file = ".";
     if(!quote.isNull())
         file = quote + file + quote;
-    debug_msg(3, "Fixed %s :: to :: %s (%d) [%s::%s] [%s::%s]", orig_file.latin1(), file.latin1(), depth,
-              in_d.latin1(), out_d.latin1(), QDir::currentPath().latin1(), Option::output_dir.latin1());
+    debug_msg(3, "Fixed %s :: to :: %s (%d) [%s::%s] [%s::%s]", orig_file.toLatin1().constData(), file.toLatin1().constData(), depth,
+              in_d.toLatin1().constData(), out_d.toLatin1().constData(), QDir::currentPath().toLatin1().constData(), Option::output_dir.toLatin1().constData());
     ((MakefileGenerator*)this)->fileFixed.insert(key, file);
     return file;
 }
@@ -2145,7 +2145,7 @@ MakefileGenerator::checkMultipleDefinition(const QString &f, const QString &w)
             file2 = file2.right(file2.length() - slsh - 1);
         if(file2 == file) {
             warn_msg(WarnLogic, "Found potential symbol conflict of %s (%s) in %s",
-                     file.latin1(), (*val_it).latin1(), w.latin1());
+                     file.toLatin1().constData(), (*val_it).toLatin1().constData(), w.toLatin1().constData());
             break;
         }
     }
@@ -2164,7 +2164,7 @@ MakefileGenerator::findFileForMoc(const QMakeLocalFileName &file)
 {
     project->variables()["MOCABLES"].append(file.local());
     QMakeLocalFileName mocfile(createMocFileName(file.local()));
-    debug_msg(2, "findFileForMoc: %s considered mocable (%s)", file.local().latin1(), mocfile.local().latin1());
+    debug_msg(2, "findFileForMoc: %s considered mocable (%s)", file.local().toLatin1().constData(), mocfile.local().toLatin1().constData());
     return mocfile;
 }
 

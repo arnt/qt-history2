@@ -650,7 +650,7 @@ void MessageEditor::showMessage(const QString &text,
 
     if (doGuesses && !sourceText.isEmpty()) {
         CandidateList cl = similarTextHeuristicCandidates(tor,
-            sourceText.latin1(), MaxCandidates);
+            sourceText.toLatin1(), MaxCandidates);
         int n = 0;
         QList<Candidate>::Iterator it = cl.begin();
         while (it != cl.end()) {

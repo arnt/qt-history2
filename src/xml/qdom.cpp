@@ -2498,7 +2498,7 @@ QDomElement QDomNode::nextSiblingElement(const QString &tagName) const
     Returns the previous sibilng element with tag name \a tagName if \a tagName
     is non-empty; otherwise returns any previous sibling element.
     Returns a null element if no such sibling exists.
-    
+
     \sa firstChildElement() nextChildElement() lastChildElement()
 */
 
@@ -4089,7 +4089,7 @@ void QDomElementPrivate::save(QTextStream& s, int depth, int indent) const
         // ...
     }
     \endcode
-    
+
     For further information about the Document Object Model see
     \link http://www.w3.org/TR/REC-DOM-Level-1/ \endlink and
     \link http://www.w3.org/TR/DOM-Level-2-Core/ \endlink.
@@ -5759,7 +5759,7 @@ void QDomDocumentPrivate::save(QTextStream& s, int, int indent) const
         if (enc.isEmpty()) {
             s.setEncoding(QTextStream::UnicodeUTF8);
         } else {
-            s.setCodec(QTextCodec::codecForName(enc.latin1()));
+            s.setCodec(QTextCodec::codecForName(enc.toLatin1().data()));
         }
     } else {
         s.setEncoding(QTextStream::UnicodeUTF8);

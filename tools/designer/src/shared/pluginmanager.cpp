@@ -62,7 +62,7 @@ void PluginManager::registerPath(const QString &path)
 
     QDir dir(path);
     if (!dir.exists(QLatin1String("."))) {
-        qWarning("invalid plugin path: %s", path.latin1());
+        qWarning("invalid plugin path: %s", path.toLatin1().constData());
         return;
     }
 

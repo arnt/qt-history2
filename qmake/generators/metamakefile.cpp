@@ -108,7 +108,7 @@ MetaMakefileGenerator::write(const QString &oldpwd)
                     Option::output_dir = oldpwd;
                     if(!build->makefile->openOutput(Option::output, build->name)) {
                         fprintf(stderr, "Failure to open file: %s\n",
-                                Option::output.fileName().isEmpty() ? "(stdout)" : Option::output.fileName().latin1());
+                                Option::output.fileName().isEmpty() ? "(stdout)" : Option::output.fileName().toLatin1().constData());
                         return false;
                     }
                 }
@@ -137,7 +137,7 @@ MetaMakefileGenerator::write(const QString &oldpwd)
             QMap<QString, QStringList> &vars = project->variables();
             for(QMap<QString, QStringList>::Iterator it = vars.begin(); it != vars.end(); ++it) {
                 if(!it.key().startsWith(".") && !it.value().isEmpty())
-                    debug_msg(1, "%s === %s", it.key().latin1(), it.value().join(" :: ").latin1());
+                    debug_msg(1, "%s === %s", it.key().toLatin1().constData(), it.value().join(" :: ").toLatin1().constData());
             }
         }
     }
@@ -149,7 +149,7 @@ MakefileGenerator
 {
     if(project) {
         debug_msg(1, "Meta Generator: Parsing '%s' for build [%s].",
-                  project->projectFile().latin1(),build.latin1());
+                  project->projectFile().toLatin1().constData(),build.toLatin1().constData());
 
         //initialize the base
         QMap<QString, QStringList> basevars;
@@ -205,7 +205,7 @@ MetaMakefileGenerator::createMakefileGenerator(QMakeProject *proj)
     QString gen = proj->first("MAKEFILE_GENERATOR");
     if(gen.isEmpty()) {
         fprintf(stderr, "No generator specified in config file: %s\n",
-                proj->projectFile().latin1());
+                proj->projectFile().toLatin1().constData());
     } else if(gen == "UNIX") {
         mkfile = new UnixMakefileGenerator;
     } else if(gen == "MINGW") {
@@ -231,7 +231,7 @@ MetaMakefileGenerator::createMakefileGenerator(QMakeProject *proj)
         mkfile = new ProjectBuilderMakefileGenerator;
 #endif
     } else {
-        fprintf(stderr, "Unknown generator specified: %s\n", gen.latin1());
+        fprintf(stderr, "Unknown generator specified: %s\n", gen.toLatin1().constData());
     }
     if (mkfile)
         mkfile->setProjectFile(proj);

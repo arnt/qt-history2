@@ -41,13 +41,13 @@ struct RCCResource {
     QString prefix;
     QList<RCCFileInfo> files;
 };
-QList<RCCResource> 
+QList<RCCResource>
 listResourceFile(const QString &file)
 {
     QList<RCCResource> ret;
     QFile in(file);
     if(!in.open(QIODevice::ReadOnly)) {
-        fprintf(stderr, "Unable to open %s", file.latin1());
+        fprintf(stderr, "Unable to open %s", file.toLatin1().constData());
         return ret;
     }
     QString filePath = QFileInfo(file).path();
@@ -77,7 +77,7 @@ listResourceFile(const QString &file)
                     QString fileName(res.firstChild().toText().data());
                     QFileInfo file(filePath + fileName);
                     QString name;
-                    if(res.toElement().hasAttribute("name")) 
+                    if(res.toElement().hasAttribute("name"))
                         name = res.toElement().attribute("name");
                     if(!file.exists() || file.isDir()) {
                         bool recursive = false;
@@ -95,7 +95,7 @@ listResourceFile(const QString &file)
                         }
                         QFileInfoList subFiles = dir.entryInfoList();
                         for(int subFile = 0; subFile < subFiles.count(); subFile++) {
-                            if(subFiles[subFile].fileName() == "." 
+                            if(subFiles[subFile].fileName() == "."
                                || subFiles[subFile].fileName() == "..")
                                 continue;
                             if(!subFiles[subFile].isDir()) {
@@ -135,7 +135,7 @@ processResourceFile(const QString &file, QTextStream &out, QStringList *created)
         for(int file = 0; file < r.files.count(); file++) {
             QFile inputQFile(r.files[file].fileinfo.filePath());
             if (!inputQFile.open(QIODevice::ReadOnly)) {
-                qWarning("Could not open file '%s'", inputQFile.fileName().latin1());
+                qWarning("Could not open file '%s'", inputQFile.fileName().toLatin1().constData());
                 continue;
             }
             int compressRatio = 0;
@@ -153,8 +153,8 @@ processResourceFile(const QString &file, QTextStream &out, QStringList *created)
             const QString location = QDir::cleanPath(resource_root + "/" +
                                                      r.prefix + "/" + r.files[file].name);
             if(verbose)
-                fprintf(stderr, "Read file %s(@%s) [Compressed %d%%]", inputQFile.fileName().latin1(),
-                        location.latin1(), compressRatio);
+                fprintf(stderr, "Read file %s(@%s) [Compressed %d%%]", inputQFile.fileName().toLatin1().data(),
+                        location.toLatin1().data(), compressRatio);
 
             QByteArray resource_name;
             {
@@ -184,7 +184,7 @@ processResourceFile(const QString &file, QTextStream &out, QStringList *created)
             if(compressRatio)
                 flags |= Compressed;
             out << endl;
-            out << "//Generated from '" << inputQFile.fileName().latin1() << "'" << endl;
+            out << "//Generated from '" << inputQFile.fileName().toLatin1().data() << "'" << endl;
             out << "static uchar " << resource_name << "[] = {" << endl;
             out << "\t0x12, 0x15, 0x19, 0x78, //header" << endl;
             out << "\t0x01, //version" << endl;
@@ -231,9 +231,9 @@ processResourceFile(const QString &file, QTextStream &out, QStringList *created)
                 << resource_name << ", (" << resource_name << "))" << endl;
             if(created) {
                 QString rc = "resource_" + resource_name;
-                if(created->contains(rc)) 
+                if(created->contains(rc))
                     fprintf(stderr, "Warning: duplicate symbol %s[%s]!\n",
-                            rc.latin1(), inputQFile.fileName().latin1());
+                            rc.toLatin1().constData(), inputQFile.fileName().toLatin1().constData());
                 created->append(rc);
             }
         }
@@ -241,12 +241,12 @@ processResourceFile(const QString &file, QTextStream &out, QStringList *created)
     return true;
 }
 
-int 
+int
 showHelp(const char *argv0, const QString &error)
 {
     fprintf(stderr, "Qt resource compiler\n");
     if (!error.isEmpty())
-        fprintf(stderr, "%s: %s\n", argv0, error.latin1());
+        fprintf(stderr, "%s: %s\n", argv0, error.toLatin1().constData());
     fprintf(stderr, "Usage: %s  [options] <inputs>\n\n"
             "Options:\n"
             "\t-o file           Write output to file rather than stdout\n"
@@ -331,7 +331,7 @@ main(int argc, char **argv)
             files.append(argv[i]);
         }
     }
-    if (!files.size() || !error_msg.isEmpty() || show_help) 
+    if (!files.size() || !error_msg.isEmpty() || show_help)
         return showHelp(argv[0], error_msg);
 
     //open output
@@ -341,9 +341,9 @@ main(int argc, char **argv)
         out_dev = new QTemporaryFile;
         if(!out_dev->open(QFile::ReadWrite)) {
             delete out_dev;
-            out_dev = new QFile(output_file.utf8());
+            out_dev = new QFile(output_file);
             if(!out_dev->open(QIODevice::WriteOnly)) {
-                qWarning("%s: Could not open output file '%s'", argv[0], output_file.latin1());
+                qWarning("%s: Could not open output file '%s'", argv[0], output_file.toLocal8Bit().data());
                 return 1;
             }
         } else {
@@ -406,7 +406,7 @@ main(int argc, char **argv)
     out <<  "/****************************************************************************" << endl;
     out << "** Resource object code" << endl;
     out << "**" << endl;
-    out << "** Created: " << QDateTime::currentDateTime().toString().latin1() << endl;
+    out << "** Created: " << QDateTime::currentDateTime().toString().toLatin1().data() << endl;
     out << "**      by: The Resource Compiler for Qt version " << QT_VERSION_STR << endl;
     out << "**" << endl;
     out << "** WARNING! All changes made in this file will be lost!" << endl;

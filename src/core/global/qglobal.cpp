@@ -701,7 +701,7 @@ void qCritical(const char *msg, ...)
 }
 #ifdef QT_COMPAT
 void qSystemWarning(const char *msg, int code)
-   { qCritical("%s (%s)", msg, qt_error_string(code).local8Bit()); }
+   { qCritical("%s (%s)", msg, qt_error_string(code).toLocal8Bit().data()); }
 #endif // QT_COMPAT
 
 void qErrnoWarning(const char *msg, ...)
@@ -712,7 +712,7 @@ void qErrnoWarning(const char *msg, ...)
     qvsnprintf(buf, QT_BUFFER_LENGTH, msg, ap);
     va_end(ap);
 
-    qCritical("%s (%s)", buf, qt_error_string(-1).local8Bit());
+    qCritical("%s (%s)", buf, qt_error_string(-1).toLocal8Bit().data());
 }
 
 void qErrnoWarning(int code, const char *msg, ...)
@@ -723,7 +723,7 @@ void qErrnoWarning(int code, const char *msg, ...)
     qvsnprintf(buf, QT_BUFFER_LENGTH, msg, ap);
     va_end(ap);
 
-    qCritical("%s (%s)", buf, qt_error_string(code).local8Bit());
+    qCritical("%s (%s)", buf, qt_error_string(code).toLocal8Bit().data());
 }
 
 /*!

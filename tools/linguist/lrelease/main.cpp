@@ -54,7 +54,7 @@ static bool loadTsFile( MetaTranslator& tor, const QString& tsFileName,
     if ( !ok )
         fprintf( stderr,
                  "lrelease warning: For some reason, I cannot load '%s'\n",
-                 tsFileName.latin1() );
+                 tsFileName.toLatin1().data() );
     return ok;
 }
 
@@ -63,13 +63,13 @@ static void releaseMetaTranslator( const MetaTranslator& tor,
                                    bool ignoreUnfinished, bool trimmed )
 {
     if ( verbose )
-        fprintf( stderr, "Updating '%s'...\n", qmFileName.latin1() );
+        fprintf( stderr, "Updating '%s'...\n", qmFileName.toLatin1().constData() );
     if ( !tor.release(qmFileName, verbose, ignoreUnfinished,
                       trimmed ? QTranslator::Stripped
                                : QTranslator::Everything) )
         fprintf( stderr,
                  "lrelease warning: For some reason, I cannot save '%s'\n",
-                 qmFileName.latin1() );
+                 qmFileName.toLatin1().constData() );
 }
 
 static void releaseTsFile( const QString& tsFileName, bool verbose,

@@ -2196,7 +2196,7 @@ void QHttpPrivate::slotConnected()
 
     QString str = header.toString();
     bytesTotal = str.length();
-    socket->write(str.latin1(), bytesTotal);
+    socket->write(str.toLatin1(), bytesTotal);
 #if defined(QHTTP_DEBUG)
     qDebug("QHttp: write request header %p:\n---{\n%s}---", &header, str.latin1());
 #endif

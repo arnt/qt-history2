@@ -192,8 +192,7 @@ QFSFileEngine::entryList(QDir::Filters filters, const QStringList &filterNames) 
         }
     }
     if(closedir(dir) != 0) {
-        qWarning("QDir::readDirEntries: Cannot close the directory: %s",
-                  d->file.local8Bit());
+        qWarning("QDir::readDirEntries: Cannot close the directory: %s", d->file.toLocal8Bit().data());
     }
     return ret;
 }

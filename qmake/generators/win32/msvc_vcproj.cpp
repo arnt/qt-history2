@@ -212,7 +212,7 @@ DotNET which_dotnet_version()
     QString warnPath;
     QString paths = qgetenv("PATH");
     QStringList pathlist = paths.toLower().split(";");
-    
+
     i = installed = 0;
     for(; dotNetCombo[i].version; ++i) {
         QString productPath = readRegistryKey(HKEY_LOCAL_MACHINE, dotNetCombo[i].regKey).toLower();
@@ -299,7 +299,7 @@ bool VcprojGenerator::writeProjectMakefile()
     // Check if all requirements are fullfilled
     if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
         fprintf(stderr, "Project file not generated because all requirements not met:\n\t%s\n",
-                var("QMAKE_FAILED_REQUIREMENTS").latin1());
+                var("QMAKE_FAILED_REQUIREMENTS").toLatin1().constData());
         return true;
     }
 
@@ -351,7 +351,7 @@ QUuid VcprojGenerator::getProjectUUID(const QString &filename)
     // If none, create one based on the MD5 of absolute project path
     if(uuid.isNull() || !filename.isNull()) {
         QString abspath = filename.isNull()?project->first("QMAKE_MAKEFILE"):filename;
-        qtMD5(abspath.utf8(), (unsigned char*)(&uuid));
+        qtMD5(abspath.toUtf8(), (unsigned char*)(&uuid));
         validUUID = !uuid.isNull();
         uuid.data4[0] = (uuid.data4[0] & 0x3F) | 0x80; // UV_DCE variant
         uuid.data3 = (uuid.data3 & 0x0FFF) | (QUuid::Name<<12);
@@ -362,7 +362,7 @@ QUuid VcprojGenerator::getProjectUUID(const QString &filename)
         uuid = QUuid::createUuid();
         fprintf(stderr,
                 "qmake couldn't create a GUID based on filepath, and we couldn't\nfind a valid GUID in the .pro file (Consider adding\n'GUID = %s'  to the .pro file)\n",
-                uuid.toString().toUpper().latin1());
+                uuid.toString().toUpper().toLatin1().constData());
     }
 
     // Store GUID in variable-space
@@ -446,7 +446,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
                 QString dir = fi.path(), fn = fi.fileName();
                 if(!dir.isEmpty()) {
                     if(!QDir::setCurrent(dir))
-                        fprintf(stderr, "Cannot find directory: %s\n", dir.latin1());
+                        fprintf(stderr, "Cannot find directory: %s\n", dir.toLatin1().constData());
                 }
                 if(tmp_proj.read(fn)) {
                     if(tmp_proj.first("TEMPLATE") == "vcsubdirs") {
@@ -462,8 +462,8 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
                             for(QMap<QString, QStringList>::Iterator it = vars.begin();
                                 it != vars.end(); ++it) {
                                 if(it.key().left(1) != "." && !it.value().isEmpty())
-                                    debug_msg(1, "%s: %s === %s", fn.latin1(), it.key().latin1(),
-                                                it.value().join(" :: ").latin1());
+                                    debug_msg(1, "%s: %s === %s", fn.toLatin1().constData(), it.key().toLatin1().constData(),
+                                                it.value().join(" :: ").toLatin1().constData());
                             }
                         }
 
@@ -473,7 +473,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
                         // If file doesn't exsist, then maybe the users configuration
                         // doesn't allow it to be created. Skip to next...
                         if(!QFile::exists(QDir::currentPath() + Option::dir_sep + vcproj)) {
-                            warn_msg(WarnLogic, "Ignored (not found) '%s'", QString(QDir::currentPath() + Option::dir_sep + vcproj).latin1());
+                            warn_msg(WarnLogic, "Ignored (not found) '%s'", QString(QDir::currentPath() + Option::dir_sep + vcproj).toLatin1().constData());
                             goto nextfile; // # Dirty!
                         }
 
@@ -539,7 +539,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
                             }
                         }
 #ifdef DEBUG_SOLUTION_GEN
-                        qDebug("Deps for %20s: [%s]", newDep->target.latin1(), newDep->dependencies.join(" :: ").latin1());
+                        qDebug("Deps for %20s: [%s]", newDep->target.toLatin1().constData(), newDep->dependencies.join(" :: ").toLatin1().constData());
 #endif
                         solution_cleanup.append(newDep);
                         solution_depends.insert(newDep->target, newDep);
@@ -658,7 +658,7 @@ void VcprojGenerator::init()
                 for(QStringList::ConstIterator fit = fileList.constBegin(); fit != fileList.constEnd(); ++fit) {
                     const QString &file = (*fit);
                     if (hasBuiltinCompiler(file))
-                        warn_msg(WarnLogic, "extracompiler will override builtin compiler (%s)", file.latin1());
+                        warn_msg(WarnLogic, "extracompiler will override builtin compiler (%s)", file.toLatin1().constData());
                     extraCompilerSources[file] += *it;
                 }
             }
@@ -667,7 +667,7 @@ void VcprojGenerator::init()
 
 #if 0 // Debuging
     Q_FOREACH(QString aKey, extraCompilerSources.keys()) {
-        qDebug("Extracompilers for %s are (%s)", aKey.latin1(), extraCompilerSources.value(aKey).join(", ").latin1());
+        qDebug("Extracompilers for %s are (%s)", aKey.toLatin1().constData(), extraCompilerSources.value(aKey).join(", ").toLatin1().constData());
     }
 #endif
 
@@ -1112,9 +1112,9 @@ void VcprojGenerator::initResourceFiles()
                 for (int i = 0; i < qrc_files.count(); ++i) {
         	    char buff[256];
                     QString dep_cmd = replaceExtraCompilerVariables(rcc_dep_cmd, qrc_files.at(i),"");
-        
+
                     dep_cmd = Option::fixPathToLocalOS(dep_cmd);
-                    if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
+                    if(FILE *proc = QT_POPEN(dep_cmd.toLatin1().constData(), "r")) {
         	        QString indeps;
                         while(!feof(proc)) {
                             int read_in = (int)fread(buff, 1, 255, proc);
@@ -1422,7 +1422,7 @@ QString VcprojGenerator::findTemplate(QString file)
        !QFile::exists((ret = QString(qgetenv("QTDIR")) + "/mkspecs/win32-msvc.net/" + file)) &&
        !QFile::exists((ret = (QString(qgetenv("HOME")) + "/.tmake/" + file))))
         return "";
-    debug_msg(1, "Generator: MSVC.NET: Found template \'%s\'", ret.latin1());
+    debug_msg(1, "Generator: MSVC.NET: Found template \'%s\'", ret.toLatin1().constData());
     return ret;
 }
 
@@ -1445,6 +1445,6 @@ void VcprojGenerator::outputVariables()
 #if 0
     qDebug("Generator: MSVC.NET: List of current variables:");
     for(QMap<QString, QStringList>::ConstIterator it = project->variables().begin(); it != project->variables().end(); ++it)
-        qDebug("Generator: MSVC.NET: %s => %s", it.key().latin1(), it.data().join(" | ").latin1());
+        qDebug("Generator: MSVC.NET: %s => %s", it.key().toLatin1().constData(), it.data().join(" | ").toLatin1().constData());
 #endif
 }

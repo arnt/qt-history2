@@ -995,7 +995,7 @@ static void load(const QString &family = QString::null, int script = -1)
             if ((script == -1 && !f->xlfdLoaded) ||
                  (!f->hasXft && !(f->scripts[script] & QtFontFamily::Supported) &&
                    !(f->scripts[script] & QtFontFamily::UnSupported_Xlfd))) {
-                loadXlfds(family.latin1(), -1);
+                loadXlfds(family.toLatin1(), -1);
                 f->fullyLoaded = true;
             }
         }
@@ -1244,10 +1244,10 @@ QFontEngine *loadEngine(QFont::Script script,
         bool symbol = (family->scripts[QFont::UnknownScript] == QtFontFamily::Supported);
 
         if (!foundry->name.isEmpty())
-            FcPatternAddString(pattern, FC_FOUNDRY, (const FcChar8 *)foundry->name.utf8());
+            FcPatternAddString(pattern, FC_FOUNDRY, (const FcChar8 *)foundry->name.toUtf8().constData());
 
         if (!family->rawName.isEmpty())
-            FcPatternAddString(pattern, FC_FAMILY, (const FcChar8 *)family->rawName.utf8());
+            FcPatternAddString(pattern, FC_FAMILY, (const FcChar8 *)family->rawName.toUtf8().constData());
 
         char pitch_value = (encoding->pitch == 'c' ? FC_CHARCELL :
                              (encoding->pitch == 'm' ? FC_MONO : FC_PROPORTIONAL));
@@ -1313,9 +1313,9 @@ QFontEngine *loadEngine(QFont::Script script,
     FM_DEBUG("    using XLFD");
 
     QByteArray xlfd("-");
-    xlfd += foundry->name.isEmpty() ? "*" : foundry->name.latin1();
+    xlfd += foundry->name.isEmpty() ? QByteArray("*") : foundry->name.toLatin1();
     xlfd += "-";
-    xlfd += family->name.isEmpty() ? "*" : family->name.latin1();
+    xlfd += family->name.isEmpty() ? QByteArray("*") : family->name.toLatin1();
 
     xlfd += "-";
     xlfd += style->weightName ? style->weightName : "*";
@@ -1431,7 +1431,7 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
         QString family, foundry;
         for (QStringList::ConstIterator it = family_list.begin(); it != family_list.end(); ++it) {
             parseFontName(*it, foundry, family);
-            FcPatternAddString(pattern, FC_FAMILY, (const FcChar8 *)family.utf8());
+            FcPatternAddString(pattern, FC_FAMILY, (const FcChar8 *)family.toUtf8().constData());
         }
     }
 

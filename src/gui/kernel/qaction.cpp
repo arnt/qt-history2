@@ -249,7 +249,7 @@ QKeySequence QAction::shortcut() const
 /*!
     \property QAction::shortcutContext
     \brief the context for the action's shortcut
-    
+
     Valid values for this property can be found in \l Qt::ShortcutContext.
     The default value is Qt::ShortcutOnActiveWindow.
 */
@@ -743,7 +743,7 @@ QAction::event(QEvent *e)
                    "QAction::event",
                    "Received shortcut event from incorrect shortcut");
         if (se->isAmbiguous())
-            qWarning("QAction::eventFilter: ambiguous shortcut overload: %s", QString(se->key()).latin1());
+            qWarning("QAction::eventFilter: ambiguous shortcut overload: %s", QString(se->key()).toLatin1().constData());
         else
             activate(Trigger);
         return true;

@@ -33,8 +33,8 @@ AbstractWidgetDataBaseItem *QDesignerCustomWidget::widgetItem() const
     int index = core->widgetDataBase()->indexOfClassName(widgetClassName());
     if (index != -1)
         return core->widgetDataBase()->item(index);
-        
-    qWarning("no widget item for %s", widgetClassName().latin1());
+
+    qWarning("no widget item for %s", widgetClassName().toLatin1().constData());
     return 0;
 }
 
@@ -45,7 +45,7 @@ QString QDesignerCustomWidget::widgetClassName() const
 
 void QDesignerCustomWidget::setWidgetClassName(const QString &widgetClassName)
 {
-    m_widgetClassName = widgetClassName;    
+    m_widgetClassName = widgetClassName;
     createWidgetItem();
 }
 
@@ -62,7 +62,7 @@ bool QDesignerCustomWidget::isCompat() const
 {
     if (AbstractWidgetDataBaseItem *item = widgetItem())
         return item->isCompat();
-        
+
     return false;
 }
 
@@ -78,7 +78,7 @@ bool QDesignerCustomWidget::isContainer() const
 {
     if (AbstractWidgetDataBaseItem *item = widgetItem())
         return item->isContainer();
-        
+
     return false;
 }
 

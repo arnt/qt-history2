@@ -983,10 +983,10 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
     }
     DEBUG("oldpos %d newpos %d", oldpos, newpos);
     DEBUG("(%s)currentsection = %s (%s)oldsection = %s",
-          sectionName(currentsection).latin1(),
-          sectionName(s).latin1(),
-          sectionName(old).latin1(),
-          sectionName(oldsection).latin1());
+          sectionName(currentsection).toLatin1().constData(),
+          sectionName(s).toLatin1().constData(),
+          sectionName(old).toLatin1().constData(),
+          sectionName(oldsection).toLatin1().constData());
     if (currentsection != s) {
         QString tmp = edit->displayText();
         QCoreVariant v = getZeroVariant();
@@ -1136,7 +1136,7 @@ int QDateTimeEditPrivate::getDigit(const QCoreVariant &t, Section s) const
     case DaysSection: return t.toDate().day();
     default: break;
     }
-    qFatal("%s passed to getDigit. This should never happen", sectionName(s).latin1());
+    qFatal("%s passed to getDigit. This should never happen", sectionName(s).toLatin1().constData());
     return -1;
 }
 
@@ -1179,7 +1179,7 @@ void QDateTimeEditPrivate::setDigit(QCoreVariant *v, Section section, int newVal
     case AMPMSection:
     case AMPMLowerCaseSection: hour = (newVal == 0 ? hour % 12 : (hour % 12) + 12); break;
     default:
-        qFatal("%s passed to setDigit. This should never happen", sectionName(section).latin1());
+        qFatal("%s passed to setDigit. This should never happen", sectionName(section).toLatin1().constData());
         break;
     }
 
@@ -1355,7 +1355,7 @@ int QDateTimeEditPrivate::absoluteMax(Section s) const
     case AMPMLowerCaseSection: return 1;
     default: break;
     }
-    qFatal("%s passed to max. This should never happen", sectionName(s).latin1());
+    qFatal("%s passed to max. This should never happen", sectionName(s).toLatin1().constData());
     return -1;
 
 }
@@ -1382,7 +1382,7 @@ int QDateTimeEditPrivate::absoluteMin(Section s) const
     case AMPMLowerCaseSection: return 0;
     default: break;
     }
-    qFatal("%s passed to min. This should never happen", sectionName(s).latin1());
+    qFatal("%s passed to min. This should never happen", sectionName(s).toLatin1().constData());
     return -1;
 }
 
@@ -1456,7 +1456,7 @@ bool QDateTimeEditPrivate::addSection(QList<SectionNode> *list, Section ds, int 
     Q_ASSERT(list);
     for (int i=0; i<list->size(); ++i) {
 	if ((list->at(i).section & ~Internal) == (ds & ~Internal)) {
-            DEBUG("Could not add section %s to pos %d because it is already in the list", sectionName(ds).latin1(), pos);
+            DEBUG("Could not add section %s to pos %d because it is already in the list", sectionName(ds).toLatin1().constData(), pos);
 	    return false;
         }
     }
@@ -1629,7 +1629,7 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
 	}
     }
     if (list.isEmpty()) {
- 	DEBUG("Could not parse format. No sections in format '%s'.", newFormat.latin1());
+ 	DEBUG("Could not parse format. No sections in format '%s'.", newFormat.toLatin1().constData());
 	return false;
     }
 
@@ -1654,9 +1654,9 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
         }
     }
     separators = newSeparators;
-    DEBUG("format is [%s]", format.latin1());
-    DEBUG("escapedFormat = [%s]", escapedFormat.latin1());
-    DEBUG("separators:\n%s", separators.join("\n").latin1());
+    DEBUG("format is [%s]", format.toLatin1().constData());
+    DEBUG("escapedFormat = [%s]", escapedFormat.toLatin1().constData());
+    DEBUG("separators:\n%s", separators.join("\n").toLatin1().constData());
 
     display = newDisplay;
     last.pos = newFormat.size();
@@ -1822,7 +1822,7 @@ int QDateTimeEditPrivate::sectionSize(Section s) const
 
     case Internal:
     case TimeSectionMask:
-    case DateSectionMask: qWarning("Invalid section %s", sectionName(s).latin1());
+    case DateSectionMask: qWarning("Invalid section %s", sectionName(s).toLatin1().constData());
     }
     return -1;
 }
@@ -1912,7 +1912,7 @@ QCoreVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *
             case AMPMSection:
             case AMPMLowerCaseSection: hour = (num == 0 ? hour % 12 : (hour % 12) + 12); break;
             default:
-                qFatal("%s found in sections setDigit. This should never happen", sectionName(s).latin1());
+                qFatal("%s found in sections setDigit. This should never happen", sectionName(s).toLatin1().constData());
                 break;
             }
         }
@@ -1944,9 +1944,9 @@ QCoreVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *
     }
 
 //     DEBUG("fromString: '%s' => '%s' (%s)",
-//           text->latin1(),
+//           text->toLatin1().constData(),
 //           QCoreVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec))).
-//           toString().latin1(), stateName(state).latin1());
+//           toString().toLatin1().constData(), stateName(state).toLatin1().constData());
     return QCoreVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec)));
 }
 
@@ -2096,7 +2096,7 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
     if (diff > 0) {
         const Section s = (pos ? closestSection(*pos - 1, false) : currentsection);
         if (s == FirstSection && s == LastSection) {
-//            DEBUG("invalid because s == %s", sectionName(s).latin1());
+//            DEBUG("invalid because s == %s", sectionName(s).toLatin1().constData());
             return QValidator::Invalid;
         }
         sn = sectionNode(s);
@@ -2105,7 +2105,7 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
 
         QString sub = input->mid(sectionstart, sectionsize + diff);
         if (sub.count(QLatin1Char(' ')) < diff) {
-//            DEBUG("sub is '%s' diff is %d sub.count is %d", sub.latin1(), diff, sub.count(QLatin1Char(' ')));
+//            DEBUG("sub is '%s' diff is %d sub.count is %d", sub.toLatin1().constData(), diff, sub.count(QLatin1Char(' ')));
             return QValidator::Invalid;
         }
 
@@ -2114,7 +2114,7 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
     } else if (diff < 0) {
         const Section s = (pos ? closestSection(*pos, false) : currentsection);
         if (s == FirstSection && s == LastSection) {
-//            DEBUG(".invalid because s == %s", sectionName(s).latin1());
+//            DEBUG(".invalid because s == %s", sectionName(s).toLatin1().constData());
             return QValidator::Invalid;
         }
         sn = sectionNode(s);
@@ -2132,7 +2132,7 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
     for (int i=0; i<sections.size(); ++i) {
         sn = sections.at(i);
         if (input->mid(index, sn.pos - index) != separators.at(i)) {
-//            DEBUG("invalid because '%s' != '%s'", input->mid(index, sn.pos - index).latin1(), separators.at(i).latin1());
+//            DEBUG("invalid because '%s' != '%s'", input->mid(index, sn.pos - index).toLatin1().constData(), separators.at(i).toLatin1().constData());
             return QValidator::Invalid;
         }
         index = sn.pos + sectionSize(sn.section);
@@ -2141,8 +2141,8 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
     if (sn.pos + sectionSize(sn.section) < input->size()
         && input->mid(sn.pos + sectionSize(sn.section)) != separators.last()) {
         DEBUG("invalid because '%s' != '%s'",
-              input->mid(sn.pos + sectionSize(sn.section)).latin1(),
-              separators.last().latin1());
+              input->mid(sn.pos + sectionSize(sn.section)).toLatin1().constData(),
+              separators.last().toLatin1().constData());
         return QValidator::Invalid;
     }
 
@@ -2152,7 +2152,7 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
     } else {
         mapTextToValue(input, &state);
     }
-    DEBUG("'%s' => '%s' (%s)", input->latin1(), (!val ? "foo" : val->toString().latin1()), stateName(state).latin1());
+    DEBUG("'%s' => '%s' (%s)", input->toLatin1().constData(), (!val ? "foo" : val->toString().toLatin1().constData()), stateName(state).toLatin1().constData());
     return state;
 }
 

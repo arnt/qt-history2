@@ -669,7 +669,7 @@ bool QDesignerResource::checkProperty(QLayoutWidget *widget, const QString &prop
     if (!widget)
         return true;
 
-    return widget->QWidget::metaObject()->indexOfProperty(prop) != -1;
+    return widget->QWidget::metaObject()->indexOfProperty(prop.toLatin1()) != -1;
 }
 
 bool QDesignerResource::checkProperty(QDesignerTabWidget *widget, const QString &prop) const
@@ -677,7 +677,7 @@ bool QDesignerResource::checkProperty(QDesignerTabWidget *widget, const QString 
     if (!widget)
         return true;
 
-    return widget->QTabWidget::metaObject()->indexOfProperty(prop) != -1;
+    return widget->QTabWidget::metaObject()->indexOfProperty(prop.toLatin1()) != -1;
 }
 
 bool QDesignerResource::checkProperty(QDesignerToolBox *widget, const QString &prop) const
@@ -685,7 +685,7 @@ bool QDesignerResource::checkProperty(QDesignerToolBox *widget, const QString &p
     if (!widget)
         return true;
 
-    return widget->QToolBox::metaObject()->indexOfProperty(prop) != -1;
+    return widget->QToolBox::metaObject()->indexOfProperty(prop.toLatin1()) != -1;
 }
 
 bool QDesignerResource::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)

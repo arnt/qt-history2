@@ -351,22 +351,23 @@ void QColor::setNamedColor(const QString &name)
         return;
     }
 
+    QByteArray n = name.toLatin1();
     if (name[0] == '#') {
         QRgb rgb;
-        if (qt_get_hex_rgb(name.latin1(), &rgb)) {
+        if (qt_get_hex_rgb(n, &rgb)) {
             setRgb(rgb);
         } else {
-            qWarning("QColor::setNamedColor: could not parse color '%s'", name.latin1());
+            qWarning("QColor::setNamedColor: could not parse color '%s'", n.constData());
             invalidate();
         }
         return;
     }
 
     QRgb rgb;
-    if (qt_get_named_rgb(name.latin1(), &rgb)) {
+    if (qt_get_named_rgb(n, &rgb)) {
         setRgb(rgb);
     } else {
-        qWarning("QColor::setNamedColor: unknown color name '%s'", name.latin1());
+        qWarning("QColor::setNamedColor: unknown color name '%s'", n.constData());
         invalidate();
     }
 }

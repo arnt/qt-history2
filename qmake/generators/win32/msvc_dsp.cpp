@@ -27,7 +27,7 @@ bool DspMakefileGenerator::writeMakefile(QTextStream &t)
     if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
         /* for now just dump, I need to generated an empty dsp or something.. */
         fprintf(stderr, "Project file not generated because all requirements not met:\n\t%s\n",
-                var("QMAKE_FAILED_REQUIREMENTS").latin1());
+                var("QMAKE_FAILED_REQUIREMENTS").toLatin1().constData());
         return true;
     }
 

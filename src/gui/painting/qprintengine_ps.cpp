@@ -1161,7 +1161,7 @@ QString QPSPrintEngineFontPrivate::defineFont(QTextStream &stream, const QString
                                               const QString &key, QPSPrintEnginePrivate *ptr, int pixelSize)
 {
     QString fontName;
-    fontName.sprintf("/%s-Uni", ps.latin1());
+    fontName.sprintf("/%s-Uni", ps.toLatin1().data());
 
     if (ptr->buffer) {
         ++ptr->headerFontNumber;
@@ -5601,7 +5601,7 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
     if (d->outputToFile) {
         if (d->outputFileName.isEmpty())
             d->outputFileName = "print.ps";
-        d->fd = QT_OPEN( d->outputFileName.local8Bit(), O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
+        d->fd = QT_OPEN( d->outputFileName.toLocal8Bit().constData(), O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
 #if defined(Q_OS_WIN)
             _S_IREAD | _S_IWRITE
 #else

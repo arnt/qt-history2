@@ -40,7 +40,7 @@ QMakeLocalFileName::QMakeLocalFileName(const QString &name) : is_null(name.isNul
 
 struct SourceDependChildren;
 struct SourceFile {
-    SourceFile() : deps(0), type(QMakeSourceFileInfo::TYPE_UNKNOWN), 
+    SourceFile() : deps(0), type(QMakeSourceFileInfo::TYPE_UNKNOWN),
                    mocable(0), traversed(0), exists(1),
                    moc_checked(0), dep_checked(0), included_count(0) { }
     QMakeLocalFileName file, mocfile;
@@ -78,8 +78,8 @@ public:
 
     SourceFile *lookupMocFile(const QString &mocfile);
     SourceFile *lookupFile(const char *);
-    inline SourceFile *lookupFile(const QString &f) { return lookupFile(f.latin1()); }
-    inline SourceFile *lookupFile(const QMakeLocalFileName &f) { return lookupFile(f.local().latin1()); }
+    inline SourceFile *lookupFile(const QString &f) { return lookupFile(f.toLatin1().constData()); }
+    inline SourceFile *lookupFile(const QMakeLocalFileName &f) { return lookupFile(f.local().toLatin1().constData()); }
     void addFile(SourceFile *, const char *k=0);
 };
 SourceFiles::SourceFiles()
@@ -120,7 +120,7 @@ SourceFile *SourceFiles::lookupFile(const char *file)
 {
     int h = hash(file) % num_nodes;
     for(SourceFileNode *p = nodes[h]; p; p = p->next) {
-        if(!strcmp(p->key, file)) 
+        if(!strcmp(p->key, file))
             return p->file;
     }
     return 0;
@@ -131,7 +131,7 @@ SourceFile *SourceFiles::lookupMocFile(const QString &mocfile)
     for(register int n = 0; n < num_nodes; n++) {
         if(nodes[n]) {
             for(SourceFileNode *next = nodes[n]; next; ) {
-                if (next->file->mocable && mocfile == next->file->mocfile.local()) 
+                if (next->file->mocable && mocfile == next->file->mocfile.local())
                     return next->file;
                 next = next->next;
             }
@@ -142,8 +142,9 @@ SourceFile *SourceFiles::lookupMocFile(const QString &mocfile)
 
 void SourceFiles::addFile(SourceFile *p, const char *k)
 {
+    QByteArray ba = p->file.local().toLatin1();
     if(!k)
-        k = p->file.local();
+        k = ba;
     int h = hash(k) % num_nodes;
     SourceFileNode *pn = new SourceFileNode;
     pn->key = strdup(k);
@@ -216,7 +217,7 @@ QString QMakeSourceFileInfo::mocFile(const QString &file)
 {
     if (!files)
         return QString();
-    if(SourceFile *node = files->lookupFile(file)) 
+    if(SourceFile *node = files->lookupFile(file))
         return node->mocfile.real();
     return QString();
 }
@@ -247,7 +248,7 @@ QMakeSourceFileInfo::~QMakeSourceFileInfo()
     }
 }
 
-void QMakeSourceFileInfo::addSourceFiles(const QStringList &l, uchar seek, 
+void QMakeSourceFileInfo::addSourceFiles(const QStringList &l, uchar seek,
                                          QMakeSourceFileInfo::SourceFileType type)
 {
     if(!files)
@@ -261,7 +262,7 @@ void QMakeSourceFileInfo::addSourceFiles(const QStringList &l, uchar seek,
             files->addFile(file);
         } else {
             if(file->type != type)
-                warn_msg(WarnLogic, "%s is marked as %d, then %d!", (*it).latin1(), file->type, type);
+                warn_msg(WarnLogic, "%s is marked as %d, then %d!", (*it).toLatin1().constData(), file->type, type);
         }
         file->type = type;
 
@@ -298,7 +299,7 @@ QMakeLocalFileName QMakeSourceFileInfo::fixPathForFile(const QMakeLocalFileName 
     return f;
 }
 
-QMakeLocalFileName QMakeSourceFileInfo::findFileForDep(const QMakeLocalFileName &/*dep*/, 
+QMakeLocalFileName QMakeSourceFileInfo::findFileForDep(const QMakeLocalFileName &/*dep*/,
                                                        const QMakeLocalFileName &/*file*/)
 {
     return QMakeLocalFileName();
@@ -314,7 +315,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
     char *buffer = 0;
     int buffer_len = 0;
     {
-        int fd = open(fixPathForFile(file->file, true).local(), O_RDONLY);
+        int fd = open(fixPathForFile(file->file, true).local().toLatin1().constData(), O_RDONLY);
         if(fd == -1 || fstat(fd, &fst) || S_ISDIR(fst.st_mode))
             return false;
         buffer = getBuffer(fst.st_size);
@@ -454,7 +455,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                         try_local = false;
                         term = '>';
                     } else if(term != '"') { //wtf?
-                        continue; 
+                        continue;
                     }
                     x++;
 
@@ -477,7 +478,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                     int msg_len;
                     for(msg_len = 0; (term && *(buffer + x + msg_len) != term) && !QMAKE_EOL(*(buffer + x + msg_len)); msg_len++);
                     *(buffer + x + msg_len) = '\0';
-                    debug_msg(0, "%s:%d qmake_warning -- %s", file->file.local().latin1(), line_count, buffer+x);
+                    debug_msg(0, "%s:%d qmake_warning -- %s", file->file.local().toLatin1().constData(), line_count, buffer+x);
                 }
             }
         }
@@ -488,7 +489,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
             if(QDir::isRelativePath(lfn.real())) {
                 if(try_local) {
                     QString dir = QFileInfo(file->file.local()).path();
-                    if(QDir::isRelativePath(dir)) 
+                    if(QDir::isRelativePath(dir))
                         dir.prepend(QDir::currentPath() + "/");
                     if(!dir.endsWith("/"))
                         dir += "/";
@@ -497,11 +498,11 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                         lfn = fixPathForFile(f);
                         exists = true;
                     }
-                } 
+                }
                 if(!exists) { //path lookup
                     for(QList<QMakeLocalFileName>::Iterator it = depdirs.begin(); it != depdirs.end(); ++it) {
                         QMakeLocalFileName f((*it).real() + Option::dir_sep + lfn.real());
-                        if(!stat(f.local(), &fst) && !S_ISDIR(fst.st_mode)) {
+                        if(!stat(f.local().toLocal8Bit().constData(), &fst) && !S_ISDIR(fst.st_mode)) {
                             lfn = fixPathForFile(f);
                             exists = true;
                         }
@@ -524,13 +525,13 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                     dep->type = QMakeSourceFileInfo::TYPE_C;
                     files->addFile(dep);
                 } else if(dep->exists != exists) {//not really possible, but seems dangerous -Sam
-                    warn_msg(WarnLogic, "%s is found to exist after not existing before!", 
-                             lfn.local().latin1());
+                    warn_msg(WarnLogic, "%s is found to exist after not existing before!",
+                             lfn.local().toLatin1().constData());
                 }
                 dep->included_count++;
                 if(dep->exists) {
-                    debug_msg(5, "%s:%d Found dependency to %s", file->file.real().latin1(),
-                              line_count, dep->file.local().latin1());
+                    debug_msg(5, "%s:%d Found dependency to %s", file->file.real().toLatin1().constData(),
+                              line_count, dep->file.local().toLatin1().constData());
                     file->deps->addChild(dep);
                 }
             }
@@ -557,7 +558,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
     char *buffer = 0;
     {
         struct stat fst;
-        int fd = open(fixPathForFile(file->file, true).local(), O_RDONLY);
+        int fd = open(fixPathForFile(file->file, true).local().toLocal8Bit().constData(), O_RDONLY);
         if(fd == -1 || fstat(fd, &fst) || S_ISDIR(fst.st_mode))
             return false; //shouldn't happen
         buffer = getBuffer(fst.st_size);
@@ -567,7 +568,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
         close(fd);
     }
 
-    debug_msg(2, "findMocs: %s", file->file.local().latin1());
+    debug_msg(2, "findMocs: %s", file->file.local().toLatin1().constData());
     int line_count = 1;
     bool ignore_qobject = false, ignore_qgadget = false;
  /* qmake ignore Q_GADGET */
@@ -584,16 +585,16 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
                 } else if(*(buffer + x) == '*') { //c style comment
                     for(;x < buffer_len; x++) {
                         if(*(buffer + x) == 't' || *(buffer + x) == 'q') { //ignore
-                            if(buffer_len >= (x + 20) && 
+                            if(buffer_len >= (x + 20) &&
                                !strncmp(buffer + x + 1, "make ignore Q_OBJECT", 20)) {
                                 debug_msg(2, "Mocgen: %s:%d Found \"qmake ignore Q_OBJECT\"",
-                                          file->file.real().latin1(), line_count);
+                                          file->file.real().toLatin1().constData(), line_count);
                                 x += 20;
                                 ignore_qobject = true;
-                            } else if(buffer_len >= (x + 20) && 
+                            } else if(buffer_len >= (x + 20) &&
                                       !strncmp(buffer + x + 1, "make ignore Q_GADGET", 20)) {
                                 debug_msg(2, "Mocgen: %s:%d Found \"qmake ignore Q_GADGET\"",
-                                          file->file.real().latin1(), line_count);
+                                          file->file.real().toLatin1().constData(), line_count);
                                 x += 20;
                                 ignore_qgadget = true;
                             }
@@ -612,20 +613,20 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
 #define SYMBOL_CHAR(x) ((x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z') || \
                         (x >= '0' && x <= '9') || x == '_')
 
-        bool interesting = *(buffer+x) == 'Q' && 
-                           (!strncmp(buffer+x, "Q_OBJECT", Q_OBJECT_LEN) || 
+        bool interesting = *(buffer+x) == 'Q' &&
+                           (!strncmp(buffer+x, "Q_OBJECT", Q_OBJECT_LEN) ||
                             !strncmp(buffer+x, "Q_GADGET", Q_GADGET_LEN));
         if(interesting) {
             int len = 0;
             if(!strncmp(buffer+x, "Q_OBJECT", Q_OBJECT_LEN)) {
                 if(ignore_qobject) {
-                    debug_msg(2, "Mocgen: %s:%d Ignoring Q_OBJECT", file->file.real().latin1(), line_count);
+                    debug_msg(2, "Mocgen: %s:%d Ignoring Q_OBJECT", file->file.real().toLatin1().constData(), line_count);
                     interesting = false;
                 }
                 len=Q_OBJECT_LEN;
             } else if(!strncmp(buffer+x, "Q_GADGET", Q_GADGET_LEN)) {
                 if(ignore_qgadget) {
-                    debug_msg(2, "Mocgen: %s:%d Ignoring Q_GADGET", file->file.real().latin1(), line_count);
+                    debug_msg(2, "Mocgen: %s:%d Ignoring Q_GADGET", file->file.real().toLatin1().constData(), line_count);
                     interesting = false;
                 }
                 len=Q_GADGET_LEN;
@@ -635,7 +636,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
                 interesting = false;
             if(interesting) {
                 *(buffer+x+len) = '\0';
-                debug_msg(2, "Mocgen: %s:%d Found MOC symbol %s", file->file.real().latin1(),
+                debug_msg(2, "Mocgen: %s:%d Found MOC symbol %s", file->file.real().toLatin1().constData(),
                           line_count, buffer+x);
                 file->mocable = true;
                 file->mocfile = findFileForMoc(file->file);

@@ -192,9 +192,9 @@ public:
     inline QT_COMPAT bool isA(const char *classname) const
         { return qstrcmp(classname, metaObject()->className()) == 0; }
     inline QT_COMPAT const char *className() const { return metaObject()->className(); }
-    inline QT_COMPAT const char *name() const { return objectName().latin1(); }
+    inline QT_COMPAT const char *name() const { return objectName().latin1_helper(); }
     inline QT_COMPAT const char *name(const char *defaultName) const
-        { QString s = objectName(); return s.isEmpty()?defaultName:s.latin1(); }
+        { QString s = objectName(); return s.isEmpty()?defaultName:s.latin1_helper(); }
     inline QT_COMPAT void setName(const char *name) { setObjectName(QLatin1String(name)); }
 protected:
     inline QT_COMPAT bool checkConnectArgs(const char *signal,

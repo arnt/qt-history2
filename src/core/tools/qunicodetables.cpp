@@ -308,12 +308,12 @@ static QString canonicalOrder(const QString &str, QChar::UnicodeVersion version)
     return s;
 }
 
-QString QUnicodeTables::normalize(const QString &str, QUnicodeTables::NormalizationMode mode)
+QString QUnicodeTables::normalize(const QString &str, QString::NormalizationForm mode)
 {
     return normalize(str, mode, CURRENT_VERSION);
 }
 
-QString QUnicodeTables::normalize(const QString &str, QUnicodeTables::NormalizationMode mode, QChar::UnicodeVersion version)
+QString QUnicodeTables::normalize(const QString &str, QString::NormalizationForm mode, QChar::UnicodeVersion version)
 {
     QString s = str;
     if (version != CURRENT_VERSION) {
@@ -330,11 +330,11 @@ QString QUnicodeTables::normalize(const QString &str, QUnicodeTables::Normalizat
             }
         }
     }
-    s = decompose(s, mode < QUnicodeTables::NormalizationMode_KD, version);
+    s = decompose(s, mode < QString::NormalizationForm_KD, version);
 
     s = canonicalOrder(s, version);
 
-    if (mode == QUnicodeTables::NormalizationMode_D || mode == QUnicodeTables::NormalizationMode_KD)
+    if (mode == QString::NormalizationForm_D || mode == QString::NormalizationForm_KD)
         return s;
 
     return compose(s);

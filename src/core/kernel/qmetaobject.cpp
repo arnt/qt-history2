@@ -1165,9 +1165,9 @@ int QMetaEnum::keysToValue(const char *keys) const
     int data = mobj->d.data[handle + 3];
     for (int li = 0; li < l.size(); ++li) {
         QString trimmed = l.at(li).trimmed();
-        const char *key = trimmed.latin1();
+        QByteArray qualified_key = trimmed.toLatin1();
+        const char *key = qualified_key.constData();
         int scope = 0;
-        const char *qualified_key = key;
         const char *s = key;
         while (*s  && *s != ':')
             ++s;
@@ -1177,7 +1177,7 @@ int QMetaEnum::keysToValue(const char *keys) const
         }
         int i;
         for (i = count-1; i >= 0; --i)
-            if ((!scope || strncmp(qualified_key, mobj->d.stringdata, scope) == 0)
+            if ((!scope || strncmp(qualified_key.constData(), mobj->d.stringdata, scope) == 0)
                  && strcmp(key, mobj->d.stringdata + mobj->d.data[data + 2*i]) == 0) {
                 value |= mobj->d.data[data + 2*i + 1];
                 break;

@@ -139,7 +139,7 @@ static QString translationAttempt( const QString& oldTranslation,
             for ( k = 0; k < p; k++ ) {
                 if ( (!met[k] || pass > 0) &&
                      matchedYet[k] == (int) oldNumbers[k].length() &&
-                     numberLength(oldTranslation.latin1() + (i + 1) -
+                     numberLength(oldTranslation.toLatin1().constData() + (i + 1) -
                                   matchedYet[k]) == matchedYet[k] ) {
                     // the longer the better
                     if ( best == p || matchedYet[k] > matchedYet[best] )

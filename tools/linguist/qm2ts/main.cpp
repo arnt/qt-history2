@@ -57,7 +57,7 @@ int main( int argc, char **argv )
             g += QString( ".ts" );
 
             if ( verbose )
-                fprintf( stderr, "Generating '%s'...\n", g.latin1() );
+                fprintf( stderr, "Generating '%s'...\n", g.toLatin1().data() );
 
             MetaTranslator metator;
             int ignored = 0;
@@ -81,7 +81,7 @@ int main( int argc, char **argv )
             if ( !metator.save(g) ) {
                 fprintf( stderr,
                          "qm2ts warning: For some reason, I cannot save '%s'\n",
-                         g.latin1() );
+                         g.toLatin1().constData() );
             } else {
                 if ( verbose ) {
                     int converted = (int) metator.messages().count();

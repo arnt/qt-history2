@@ -39,7 +39,7 @@ ProjectBuilderMakefileGenerator::writeMakefile(QTextStream &t)
     if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
         /* for now just dump, I need to generated an empty xml or something.. */
         fprintf(stderr, "Project file not generated because all requirements not met:\n\t%s\n",
-                var("QMAKE_FAILED_REQUIREMENTS").latin1());
+                var("QMAKE_FAILED_REQUIREMENTS").toLatin1().constData());
         return true;
     }
 
@@ -60,7 +60,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                                     QDir::currentPath());
         QFile mkwrapf(mkwrap);
         if(mkwrapf.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            debug_msg(1, "pbuilder: Creating file: %s", mkwrap.latin1());
+            debug_msg(1, "pbuilder: Creating file: %s", mkwrap.toLatin1().constData());
             QTextStream mkwrapt(&mkwrapf);
             UnixMakefileGenerator::writeSubDirs(mkwrapt);
         }
@@ -92,7 +92,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                 QString dir = fi.path(), fn = fi.fileName();
                 if(!dir.isEmpty()) {
                     if(!QDir::setCurrent(dir))
-                        fprintf(stderr, "Cannot find directory: %s\n", dir.latin1());
+                        fprintf(stderr, "Cannot find directory: %s\n", dir.toLatin1().constData());
                 }
                 if(tmp_proj.read(fn)) {
                     if(Option::debug_level) {
@@ -100,8 +100,8 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                         for(QMap<QString, QStringList>::Iterator it = vars.begin();
                             it != vars.end(); ++it) {
                             if(it.key().left(1) != "." && !it.value().isEmpty())
-                                debug_msg(1, "%s: %s === %s", fn.latin1(), it.key().latin1(),
-                                          it.value().join(" :: ").latin1());
+                                debug_msg(1, "%s: %s === %s", fn.toLatin1().constData(), it.key().toLatin1().constData(),
+                                          it.value().join(" :: ").toLatin1().constData());
                         }
                     }
                     if(tmp_proj.first("TEMPLATE") == "subdirs") {
@@ -109,7 +109,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                     } else if(tmp_proj.first("TEMPLATE") == "app" || tmp_proj.first("TEMPLATE") == "lib") {
                         QString pbxproj = QDir::currentPath() + Option::dir_sep + tmp_proj.first("TARGET") + projectSuffix();
                         if(!QFile::exists(pbxproj)) {
-                            warn_msg(WarnLogic, "Ignored (not found) '%s'", pbxproj.latin1());
+                            warn_msg(WarnLogic, "Ignored (not found) '%s'", pbxproj.toLatin1().constData());
                             goto nextfile; // # Dirty!
                         }
                         const QString project_key = keyFor(pbxproj + "_PROJECTREF");
@@ -343,7 +343,7 @@ ProjectBuilderSources::ProjectBuilderSources(const QString &k,
         else if(k == "QMAKE_INTERNAL_INCLUDED_FILES")
             group = "Sources [qmake]";
         else
-            fprintf(stderr, "No group available for %s!\n", k.latin1());
+            fprintf(stderr, "No group available for %s!\n", k.toLatin1().constData());
     }
 }
 
@@ -387,7 +387,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         QString mkfile = pbx_dir + Option::dir_sep + "qt_makeqmake.mak";
         QFile mkf(mkfile);
         if(mkf.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            debug_msg(1, "pbuilder: Creating file: %s", mkfile.latin1());
+            debug_msg(1, "pbuilder: Creating file: %s", mkfile.toLatin1().constData());
             QTextStream mkt(&mkf);
             writeHeader(mkt);
             mkt << "QMAKE    = "        <<
@@ -559,7 +559,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         QFile mkf(mkfile);
         if(mkf.open(QIODevice::WriteOnly | QIODevice::Text)) {
             did_preprocess = true;
-            debug_msg(1, "pbuilder: Creating file: %s", mkfile.latin1());
+            debug_msg(1, "pbuilder: Creating file: %s", mkfile.toLatin1().constData());
             QTextStream mkt(&mkf);
             writeHeader(mkt);
             mkt << "MOC       = " << Option::fixPathToTargetOS(var("QMAKE_MOC")) << endl;
@@ -711,7 +711,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                                     if(!libinfo.isEmpty("QMAKE_PRL_TARGET")) {
                                         library = (*lit) + Option::dir_sep + libinfo.first("QMAKE_PRL_TARGET");
                                         debug_msg(1, "pbuilder: Found library (%s) via PRL %s (%s)",
-                                                  opt.latin1(), lib_file.latin1(), library.latin1());
+                                                  opt.toLatin1().constData(), lib_file.toLatin1().constData(), library.toLatin1().constData());
                                         remove = true;
                                     }
                                 }
@@ -724,7 +724,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                                 if(QFile::exists(tmp)) {
                                     library = tmp;
                                     debug_msg(1, "pbuilder: Found library (%s) via %s",
-                                              opt.latin1(), library.latin1());
+                                              opt.toLatin1().constData(), library.toLatin1().constData());
                                     remove = true;
                                 }
                             }
@@ -789,7 +789,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         QString mkfile = pbx_dir + Option::dir_sep + "qt_sublibs.mak";
         QFile mkf(mkfile);
         if(mkf.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            debug_msg(1, "pbuilder: Creating file: %s", mkfile.latin1());
+            debug_msg(1, "pbuilder: Creating file: %s", mkfile.toLatin1().constData());
             QTextStream mkt(&mkf);
             writeHeader(mkt);
             mkt << "SUBLIBS= ";
@@ -1154,7 +1154,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     tmp = project->variables()["QMAKE_PBX_VARS"];
     for(int i = 0; i < tmp.count(); i++) {
-        QString var = tmp[i], val = qgetenv(var);
+        QString var = tmp[i], val = qgetenv(var.toLatin1());
         if(val.isEmpty() && var == "TB")
             val = "/usr/bin/";
         t << "\t\t\t\t" << var << " = \"" << val << "\";" << "\n";
@@ -1298,7 +1298,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                                     QDir::currentPath());
         QFile mkwrapf(mkwrap);
         if(mkwrapf.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            debug_msg(1, "pbuilder: Creating file: %s", mkwrap.latin1());
+            debug_msg(1, "pbuilder: Creating file: %s", mkwrap.toLatin1().constData());
             QTextStream mkwrapt(&mkwrapf);
             writeHeader(mkwrapt);
             const char cleans[] = "mocclean preprocess_clean ";
@@ -1357,7 +1357,7 @@ ProjectBuilderMakefileGenerator::keyFor(const QString &block)
 #endif
     QString ret;
     if(!keys.contains(block)) {
-        ret = qtMD5(block.utf8()).left(24).toUpper();
+        ret = qtMD5(block.toUtf8()).left(24).toUpper();
         keys.insert(block, ret);
     } else {
         ret = keys[block];
@@ -1413,7 +1413,7 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
         }
         QFile version_file(version_plist);
         if (version_file.open(QIODevice::ReadOnly)) {
-            debug_msg(1, "pbuilder: version.plist: Reading file: %s", version_plist.latin1());
+            debug_msg(1, "pbuilder: version.plist: Reading file: %s", version_plist.toLatin1().constData());
             QTextStream plist(&version_file);
 
             bool in_dict = false;
@@ -1433,7 +1433,7 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
                 }
             }
             version_file.close();
-        } else { debug_msg(1, "pbuilder: version.plist: Failure to open %s", version_plist.latin1()); }
+        } else { debug_msg(1, "pbuilder: version.plist: Failure to open %s", version_plist.toLatin1().constData()); }
         if(version_plist.contains("Xcode")) {
             ret = "39";
         } else {

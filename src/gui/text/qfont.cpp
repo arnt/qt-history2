@@ -1710,7 +1710,7 @@ bool QFont::fromString(const QString &descrip)
     int count = l.count();
     if (!count || (count > 2 && count < 9) || count > 11) {
         qWarning("QFont::fromString: invalid description '%s'",
-                 descrip.isEmpty() ? "(empty)" : descrip.latin1());
+                 descrip.isEmpty() ? "(empty)" : descrip.toLatin1().data());
         return false;
     }
 
@@ -1770,8 +1770,7 @@ void QFont::cacheStatistics()
 QDataStream &operator<<(QDataStream &s, const QFont &font)
 {
     if (s.version() == 1) {
-        QByteArray fam(font.d->request.family.latin1());
-        s << fam;
+        s << font.d->request.family.toLatin1();
     } else {
         s << font.d->request.family;
     }

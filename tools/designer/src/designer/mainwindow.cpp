@@ -387,7 +387,7 @@ void MainWindow::setupMenuBar()
     connect(m_showGrid, SIGNAL(checked(bool)), this, SLOT(showGrid(bool)));
 
     menu->addSeparator();
-    
+
     m_editModeGrp = new QActionGroup(this);
     m_editModeGrp->setExclusive(true);
     m_widgetEditMode = menu->addAction(tr("Edit Widgets"));
@@ -405,7 +405,7 @@ void MainWindow::setupMenuBar()
     m_tabOrderEditMode->setShortcut(Qt::Key_F4);
     m_editModeGrp->addAction(m_tabOrderEditMode);
     m_formActionList.append(m_tabOrderEditMode);
-#ifdef DESIGNER_VIEW3D    
+#ifdef DESIGNER_VIEW3D
     m_view3DEditMode = menu->addAction(tr("3D View"));
     m_view3DEditMode->setCheckable(true);
     m_view3DEditMode->setShortcut(Qt::Key_F5);
@@ -512,10 +512,10 @@ void MainWindow::editMode(QAction *action)
             newMode = AbstractFormWindow::ConnectionEditMode;
         else if (action == m_tabOrderEditMode)
             newMode = AbstractFormWindow::TabOrderEditMode;
-#ifdef DESIGNER_VIEW3D        
+#ifdef DESIGNER_VIEW3D
         else if (action == m_view3DEditMode)
             newMode = AbstractFormWindow::View3DEditMode;
-#endif        
+#endif
         else
             Q_ASSERT(0);
 
@@ -830,7 +830,7 @@ void MainWindow::changeEvent(QEvent *ev)
 void MainWindow::previewForm()
 {
     if (AbstractFormWindow *fw = m_formWindowManager->activeFormWindow()) {
-        QByteArray contents = fw->contents().utf8();
+        QByteArray contents = fw->contents().toUtf8();
         QBuffer stream(&contents);
 
         QDesignerFormBuilder formBuilder(core);
