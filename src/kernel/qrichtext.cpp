@@ -4941,6 +4941,8 @@ QString QTextParagraph::richText() const
 	    s += "&gt;";
 	else if ( c->c =='&' )
 	    s += "&amp;";
+	else if ( c->c =='\"' )
+	    s += "&quot;";
 #ifndef QT_NO_TEXTCUSTOMITEM
 	else if ( c->isCustom() )
 	    s += c->customItem()->richText();
