@@ -146,6 +146,8 @@ void Editor::commentSelection()
     if ( !start || !end )
 	start = end = textCursor()->parag();
     while ( start ) {
+	if ( start == end && textCursor()->index() == 0 )
+	    break;
 	start->insert( 0, "//" );
 	if ( start == end )
 	    break;
@@ -163,6 +165,8 @@ void Editor::uncommentSelection()
     if ( !start || !end )
 	start = end = textCursor()->parag();
     while ( start ) {
+	if ( start == end && textCursor()->index() == 0 )
+	    break;
 	while ( start->at( 0 )->c == '/' )
 	    start->remove( 0, 1 );
 	if ( start == end )
