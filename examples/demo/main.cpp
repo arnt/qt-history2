@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/main.cpp#29 $
+** $Id: //depot/qt/main/examples/demo/main.cpp#30 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -17,6 +17,8 @@
 #include "textdrawing/helpwindow.h"
 #include "dnd/dnd.h"
 #include "i18n/i18n.h"
+#include "widgets/widgetsbase.h"
+
 
 #include <qmodules.h>
 
@@ -61,7 +63,7 @@ int main( int argc, char **argv )
 
     // example 1
     QTabWidget *tab = new QTabWidget();
-    QWidget *w = new QWidget( tab );
+    QWidget *w = new WidgetsBase( tab );
     tab->addTab( w, "Widget" );
     frame.addCategory( tab, widgetpix, widgetpix_sel, "Widgets" );
 
