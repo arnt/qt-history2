@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#246 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#247 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -1304,8 +1304,8 @@ void QPopupMenu::connectModal( QPopupMenu* receiver, bool doConnect )
     while ( (mi=it.current()) ) {
         ++it;
         if ( mi->popup() && mi->popup() != receiver
-	     && mi->popup()->connectModalRecursionSafety != doConnect ) //avoid circularity
-            mi->popup()->connectModal( receiver, doConnect );
+	     && (bool)(mi->popup()->connectModalRecursionSafety) != doConnect )
+            mi->popup()->connectModal( receiver, doConnect ); //avoid circular
     }
 }
 
