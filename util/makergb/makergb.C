@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/makergb/makergb.C#2 $
+** $Id: //depot/qt/main/util/makergb/makergb.C#3 $
 **
 ** makergb - Utility to generate X11 RGB color lookup function
 **
@@ -42,7 +42,7 @@ public:
 	{ clear(); }
 private:
     int compareItems( GCI c1, GCI c2 )
-	{ return strcmp(((Color*)c1)->name,((Color*)c2)->name); }
+	{ return stricmp(((Color*)c1)->name,((Color*)c2)->name); }
 };
 
 
