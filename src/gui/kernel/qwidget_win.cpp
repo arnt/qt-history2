@@ -1569,19 +1569,8 @@ void QWidget::setMask(const QRegion &region)
 
 void QWidget::setMask(const QBitmap &bitmap)
 {
-    d->createExtra();
-    if(QWExtra *extra = d->extraData())
-        extra->mask = QRegion(bitmap);
-
-    HRGN wr = qt_win_bitmapToRegion(bitmap);
-
-    int fleft = 0, ftop = 0;
-    if (isWindow()) {
-        ftop = d->topData()->ftop;
-        fleft = d->topData()->fleft;
-    }
-    OffsetRgn(wr, fleft, ftop);
-    SetWindowRgn(winId(), wr, true);
+    QRegion region(bitmap);
+    setMask(region);
 }
 
 void QWidget::clearMask()
