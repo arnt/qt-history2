@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#38 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#39 $
 **
 ** Implementation of Network Extension Library
 **
@@ -178,7 +178,7 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 
     info.setWritable( TRUE );
     info.setReadable( TRUE );
-    
+
     if ( lst.count() > 9 && QString( "dl-" ).find( tmp_[ 0 ] ) == -1 ) {
 	return;
     }
@@ -248,7 +248,7 @@ void QFtp::readyRead()
 	return;
 
     //qDebug( "%s", s.data() );
-    
+
     if ( s.left( 1 ) == "1" )
 	okButTryLater( code, s );
     else if ( s.left( 1 ) == "2" )
@@ -348,10 +348,10 @@ void QFtp::errorForNow( int code, const QCString & )
     }
 }
 
-void QFtp::errorForgetIt( int code, const QCString & )
+void QFtp::errorForgetIt( int code, const QCString &data )
 {
     switch ( code ) {
-    case 530: // Login incorrect
+    case 530: { // Login incorrect
 	close();
 	QString msg( tr( "Login Incorrect" ) );
 	QNetworkOperation *op = operationInProgress();
@@ -363,7 +363,31 @@ void QFtp::errorForgetIt( int code, const QCString & )
 	clearOperationQueue();
 	emit finished( op );
 	reinitCommandSocket();
-    break;
+    } break;
+    case 550: { // no such file or directory 
+	QString msg( data.mid( 4 ) );
+	msg = msg.simplifyWhiteSpace();
+	QNetworkOperation *op = operationInProgress();
+	if ( op ) {
+	    op->setProtocolDetail( msg );
+	    op->setState( StFailed );
+	    op->setErrorCode( ErrFileNotExisting );
+	}
+	emit finished( op );
+	reinitCommandSocket();
+    } break;
+    case 553: { // permission denied
+	QString msg( data.mid( 4 ) );
+	msg = msg.simplifyWhiteSpace();
+	QNetworkOperation *op = operationInProgress();
+	if ( op ) {
+	    op->setProtocolDetail( msg );
+	    op->setState( StFailed );
+	    op->setErrorCode( ErrPermissionDenied );
+	}
+	emit finished( op );
+	reinitCommandSocket();
+    } break;
     }
 }
 
