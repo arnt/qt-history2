@@ -152,15 +152,15 @@ int main( int argc, char **argv )
 		       strcmp(argv[1], "new") != 0 &&
 		       strcmp(argv[1], "reset") != 0) )
 	qFatal( "usage:\n"
-		"    mkcode check <key>\n"
-		"    mkcode new [-us] [-enterprise] [-unix] [-windows] [-mac]"
+		"    keygen check <key>\n"
+		"    keygen new [-us] [-enterprise] [-unix] [-windows] [-mac]"
 		" [-embedded] [-extra1] [-extra2]\n"
-		"    mkcode reset" );
+		"    keygen reset" );
 
     if ( strcmp(argv[1], "check") == 0 ) {
 	if ( argc != 3 )
 	    qFatal( "usage:\n"
-		    "    mkcode check <key>" );
+		    "    keygen check <key>" );
 
 	printf( "Unix check: %s\n",
 		textForFeatures(featuresForKeyOnUnix(QString(argv[2])))
