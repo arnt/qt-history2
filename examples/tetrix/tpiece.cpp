@@ -125,7 +125,7 @@ void TetrixPiece::initialize(int type)
  *	and I used it in my first implemented and machine-
  *	run program of any size to speak of. Imagine how hungry I
  *	was after having programmed BASIC on paper for
- *	half a year??!?!?!?!??? The first program I typed in was a
+ *	half a year?!!?!?!?!?!? The first program I typed in was a
  *	slot machine game and was made in BASIC on a SHARP
  *	PC-1211 with 1,47 KB RAM (one point four seven kilobytes) and
  *	a one-line LCD-display (I think it had 32 characters) in the
@@ -144,7 +144,7 @@ void TetrixPiece::initialize(int type)
  *	og den brukte jeg i mitt foerste implementerte og maskin-
  *	kjoerte program av nevneverdig stoerrelse. Tror du jeg var
  *	noe sulten etter aa ha programmert BASIC paa papir i et
- *	halvt aar??!?!?!?!??? Programmet jeg tasta inn foerst var et
+ *	halvt aar?!!?!?!?!?!? Programmet jeg tasta inn foerst var et
  *	"enarmet banditt" spill og ble laget i BASIC paa en SHARP
  *	PC-1211 med 1,47 KB RAM (en komma foertisju kilobyte) og
  *	et en-linjers LCD-display (tror det hadde 32 karakterer) i det
