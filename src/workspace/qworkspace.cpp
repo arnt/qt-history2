@@ -417,6 +417,8 @@ void QWorkspace::childEvent( QChildEvent * e)
 	     || d->icons.contains( w ) || w == d->vbar || w == d->hbar || w == d->corner )
 	    return;	    // nothing to do
 
+	bool wasMaximized = w->isMaximized();
+	bool wasMinimized = w->isMinimized();
 	bool hasBeenHidden = w->isHidden();
 	bool hasSize = w->testWState( WState_Resized );
 	int x = w->x();
@@ -452,7 +454,13 @@ void QWorkspace::childEvent( QChildEvent * e)
 	else if ( !isVisible() ) 	// that's a case were we don't receive a showEvent in time. Tricky.
 	    child->show();
 
-	activateWindow( w );
+	if ( wasMaximized )
+	    w->showMaximized();
+	else if ( wasMinimized )
+	    w->showMinimized();
+	else
+	    activateWindow( w );
+
 	updateWorkspace();
     } else if (e->removed() ) {
 	if ( d->windows.contains( (QWorkspaceChild*)e->child() ) ) {
