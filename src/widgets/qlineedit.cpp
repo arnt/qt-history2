@@ -2754,7 +2754,8 @@ void QLineEdit::parseMaskFields( const QString &maskFields )
     // calculate maxLen / maskData length
     d->maxLen = 0;
     QChar c = 0;
-    for ( uint i=0; i<d->inputMask.length(); i++ ) {
+    uint i;
+    for ( i=0; i<d->inputMask.length(); i++ ) {
 	c = d->inputMask.at(i);
 	if ( i > 0 && d->inputMask.at( i-1 ) == '\\' ) {
 	    d->maxLen++;
