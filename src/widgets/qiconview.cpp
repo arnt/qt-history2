@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#123 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#124 $
 **
 ** Definition of QIconView widget class
 **
@@ -1969,11 +1969,17 @@ void QIconView::removeItem( QIconViewItem *item )
     if ( !item )
 	return;
 
-    if ( item == d->firstItem )
+    QRect r = item->rect();
+    
+    if ( item == d->firstItem ) {
 	d->firstItem = d->firstItem->next;
-    else if ( item == d->lastItem )
+	if ( d->firstItem )
+	    d->firstItem->prev = 0;
+    } else if ( item == d->lastItem ) {
 	d->lastItem = d->lastItem->prev;
-    else {
+	if ( d->lastItem )
+	    d->lastItem->next = 0;
+    } else {
 	QIconViewItem *i = d->firstItem;
 	while ( i != item )
 	    i = i->next;
@@ -1984,6 +1990,8 @@ void QIconView::removeItem( QIconViewItem *item )
 	}
     }
 
+    repaintContents( r.x(), r.y(), r.width(), r.height(), TRUE );
+    
     d->count--;
 }
 
@@ -2065,10 +2073,15 @@ QIconViewItem *QIconView::currentItem() const
 
 void QIconView::setCurrentItem( QIconViewItem *item )
 {
+    QIconViewItem *old = d->currentItem;
     d->currentItem = item;
     emit currentChanged();
     emit currentChanged( d->currentItem );
     emitNewSelectionNumber();
+    
+    if ( old )
+	repaintItem( old );
+    repaintItem( d->currentItem );
 }
 
 /*!
@@ -2852,8 +2865,6 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
     if ( e->button() == LeftButton ) {
 	d->startDrag = FALSE;
 
-	QIconViewItem *oldCurrent = d->currentItem;
-	
 	if ( item && item->isSelected() &&
 	     item->textRect( FALSE ).contains( e->pos() ) ) {
 
@@ -2862,7 +2873,6 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 
 	    ensureItemVisible( item );
 	    setCurrentItem( item );
-	    repaintItem( item );
 	    item->rename();
 	    return;
 	}
@@ -2876,9 +2886,6 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 	    selectAll( FALSE );
 
 	setCurrentItem( item );
-
-	repaintItem( oldCurrent );
-	repaintItem( d->currentItem );
 
 	if ( !d->currentItem && d->selectionMode != Single ) {
 	    if ( d->rubber )
@@ -3234,8 +3241,6 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 
 	if ( d->selectionMode == Single )
 	    d->currentItem->setSelected( TRUE, TRUE );
-
-	repaintItem( d->currentItem );
 	return;
     }
 
@@ -3255,9 +3260,6 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	    if ( e->state() & ShiftButton )
 		d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
 	}
-
-	repaintItem( item );
-	repaintItem( d->currentItem );
     } break;
     case Key_End: {
 	if ( !d->lastItem )
@@ -3273,9 +3275,6 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	    if ( e->state() & ShiftButton )
 		d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
 	}
-
-	repaintItem( item );
-	repaintItem( d->currentItem );
     } break;
     case Key_Right: {	
 	QIconViewItem *item;
@@ -3305,7 +3304,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 			    item = item->next;
 		    }
 		    QIconViewItem *i = d->currentItem;
-		    d->currentItem = item;
+		    setCurrentItem( item );
 		    item = i;
 		    if ( d->selectionMode == Single ) {
 			i->setSelected( FALSE );
@@ -3318,9 +3317,6 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 		}
 	    }
 	}
-	
-	repaintItem( item );
-	repaintItem( d->currentItem );
     } break;
     case Key_Left: {
 	QIconViewItem *item;
@@ -3350,7 +3346,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 			    item = item->prev;
 		    }
 		    QIconViewItem *i = d->currentItem;
-		    d->currentItem = item;
+		    setCurrentItem( item );
 		    item = i;
 		    if ( d->selectionMode == Single ) {
 			i->setSelected( FALSE );
@@ -3363,9 +3359,6 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 		}
 	    }
 	}
-	
-	repaintItem( item );
-	repaintItem( d->currentItem );
     } break;
     case Key_Space: {
 	if ( d->selectionMode == Single )
@@ -3391,7 +3384,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 			    item = item->next;
 		    }
 		    QIconViewItem *i = d->currentItem;
-		    d->currentItem = item;
+		    setCurrentItem( item );
 		    item = i;
 		    if ( d->selectionMode == Single ) {
 			i->setSelected( FALSE );
@@ -3418,8 +3411,6 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 		    d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
 	    }
 	}
-	repaintItem( item );
-	repaintItem( d->currentItem );
     } break;
     case Key_Up: {
 	QIconViewItem *item;
@@ -3436,7 +3427,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 			    item = item->prev;
 		    }
 		    QIconViewItem *i = d->currentItem;
-		    d->currentItem = item;
+		    setCurrentItem( item );
 		    item = i;
 		    if ( d->selectionMode == Single ) {
 			i->setSelected( FALSE );
@@ -3463,9 +3454,6 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 		    d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
 	    }
 	}
-	
-	repaintItem( item );
-	repaintItem( d->currentItem );
     } break;
     case Key_Next:
 	scrollBy( 0, visibleHeight() );
@@ -3491,10 +3479,8 @@ void QIconView::focusInEvent( QFocusEvent * )
 {
     if ( d->currentItem )
 	repaintItem( d->currentItem );
-    else {
-	d->currentItem = d->firstItem;
-	repaintItem( d->currentItem );
-    }
+    else 
+	setCurrentItem( d->firstItem );
 }
 
 /*!
@@ -3886,12 +3872,8 @@ void QIconView::findItemByName( const QString text )
     d->inputTimer->start( 500, TRUE );
     d->currInputString += text;
     QIconViewItem *item = findItem( d->currInputString );
-    if ( item ) {
-	QIconViewItem *i = d->currentItem;
+    if ( item )
 	setCurrentItem( item );
-	repaintItem( i );
-	repaintItem( d->currentItem );
-    }
 }
 
 /*!
@@ -4107,9 +4089,7 @@ QIconViewItem *QIconView::rowBegin( QIconViewItem * ) const
 void QIconView::selectHighlightedItem()
 {
     if ( d->highlightedItem ) {
-	QIconViewItem *old = d->currentItem;
 	setCurrentItem( d->highlightedItem );
-	repaintItem( old );
 	d->highlightedItem->setSelected( TRUE );
     }
 }
