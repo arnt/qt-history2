@@ -27,10 +27,10 @@
         </property>
         <widget class="QTextBrowser">
             <property name="name">
-                <cstring>TextBrowser1</cstring>
+                <cstring>textBrowser</cstring>
             </property>
             <property name="text">
-                <string>&lt;p&gt;This program installs Qt.&lt;/p&gt;&lt;p&gt;It is strongly recommended that you exit all Windows programs before running this install program.&lt;/p&gt;&lt;p&gt;Click &lt;tt&gt;Cancel&lt;/tt&gt; to quit install and then close any programs you have running.&lt;/p&gt;&lt;p&gt;Click &lt;tt&gt;Next&lt;/tt&gt; to continue with the setup program.&lt;/p&gt;</string>
+                <string>&lt;p&gt;It is strongly recommended that you exit all Windows programs before running this install program.&lt;/p&gt;&lt;p&gt;Click &lt;tt&gt;Cancel&lt;/tt&gt; to quit install and then close any programs you have running.&lt;/p&gt;&lt;p&gt;Click &lt;tt&gt;Next&lt;/tt&gt; to continue with the setup program.&lt;/p&gt;</string>
             </property>
         </widget>
     </hbox>

@@ -1796,6 +1796,9 @@ void SetupWizardImpl::showPageFinish()
 			"README.txt file included in the installation folder.";
 #else
 	    finishMsg = QString( "Qt has been installed to " ) + optionsPage->installPath->text() + " and is ready to use.";
+#  if defined(QSA)
+	    finishMsg = QString( "\nQSA has been installed to " ) + optionsPageQsa->installPath->text() + " and is ready to use.";
+#  endif
 #endif
 	}
     } else {
