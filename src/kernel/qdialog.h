@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.h#9 $
+** $Id: //depot/qt/main/src/kernel/qdialog.h#10 $
 **
 ** Definition of QDialog class
 **
@@ -51,6 +51,7 @@ protected slots:
 protected:
     void	setResult( int r )	{ rescode = r; }
     void	keyPressEvent( QKeyEvent * );
+    void	closeEvent( QCloseEvent * );
 
 private:
     void	setDefault( QPushButton * );
