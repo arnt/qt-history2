@@ -47,6 +47,7 @@ class QTimer;
 
 #ifndef QT_NO_SCROLLBAR
 
+struct QScrollBarPrivate;
 
 class Q_EXPORT QScrollBar : public QWidget, public QRangeControl
 {
@@ -61,11 +62,11 @@ class Q_EXPORT QScrollBar : public QWidget, public QRangeControl
     Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
 
 public:
-    QScrollBar( QWidget *parent, const char* name=0 );
-    QScrollBar( Orientation, QWidget *parent, const char* name=0 );
-    QScrollBar( int minValue, int maxValue, int LineStep, int PageStep,
-		int value, Orientation,
-		QWidget *parent, const char* name=0 );
+    QScrollBar( QWidget *parent, const char* name = 0 );
+    QScrollBar( Orientation, QWidget *parent, const char* name = 0 );
+    QScrollBar( int minValue, int maxValue, int lineStep, int pageStep,
+		int value, Orientation, QWidget *parent, const char* name = 0 );
+    ~QScrollBar();
 
     virtual void setOrientation( Orientation );
     Orientation orientation() const;
@@ -74,7 +75,8 @@ public:
     bool	draggingSlider() const;
 
     virtual void setPalette( const QPalette & );
-    QSize	sizeHint() const;
+    virtual QSize sizeHint() const;
+    virtual void setSizePolicy( QSizePolicy sp );
 
     int	 minValue() const;
     int	 maxValue() const;
@@ -134,13 +136,13 @@ private:
     void stopAutoRepeat();
 
     int rangeValueToSliderPos( int val ) const;
-    int sliderPosToRangeValue( int  val ) const;
+    int sliderPosToRangeValue( int val ) const;
 
     void action( int control );
 
     void drawControls( uint controls, uint activeControl ) const;
     void drawControls( uint controls, uint activeControl,
-				QPainter *p ) const;
+		       QPainter *p ) const;
 
     uint pressedControl;
     bool track;
@@ -152,7 +154,7 @@ private:
     QCOORD clickOffset;
 
     QTimer * repeater;
-    void * d;
+    QScrollBarPrivate * d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

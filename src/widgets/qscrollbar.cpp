@@ -50,8 +50,15 @@
 #endif
 #include <limits.h>
 
+struct QScrollBarPrivate
+{
+    bool defaultSizePolicy;
+
+    QScrollBarPrivate() : defaultSizePolicy( TRUE ) { }
+};
+
 /*!
-    \class QScrollBar qscrollbar.h
+    \class QScrollBar
     \brief The QScrollBar widget provides a vertical or horizontal scroll bar.
 
     \ingroup basic
@@ -222,9 +229,8 @@ static const int repeatTime	= 50;
 */
 
 QScrollBar::QScrollBar( QWidget *parent, const char *name )
-    : QWidget( parent, name )
+    : QWidget( parent, name ), orient( Vertical )
 {
-    orient = Vertical;
     init();
 }
 
@@ -239,9 +245,8 @@ QScrollBar::QScrollBar( QWidget *parent, const char *name )
 
 QScrollBar::QScrollBar( Orientation orientation, QWidget *parent,
 			const char *name )
-    : QWidget( parent, name )
+    : QWidget( parent, name ), orient( orientation )
 {
-    orient = orientation;
     init();
 }
 
@@ -263,10 +268,15 @@ QScrollBar::QScrollBar( int minValue, int maxValue, int lineStep, int pageStep,
 			int value,  Orientation orientation,
 			QWidget *parent, const char *name )
     : QWidget( parent, name ),
-      QRangeControl( minValue, maxValue, lineStep, pageStep, value )
+      QRangeControl( minValue, maxValue, lineStep, pageStep, value ),
+      orient( orientation )
 {
-    orient = orientation;
     init();
+}
+
+QScrollBar::~QScrollBar()
+{
+    delete d;
 }
 
 void QScrollBar::init()
@@ -283,10 +293,10 @@ void QScrollBar::init()
     setBackgroundMode((Qt::BackgroundMode)
 		      style().styleHint(QStyle::SH_ScrollBar_BackgroundMode));
 
-    if ( orient == Horizontal )
-	setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
-    else
-	setSizePolicy( QSizePolicy(  QSizePolicy::Fixed, QSizePolicy::Minimum ) );
+    QSizePolicy sp( QSizePolicy::Minimum, QSizePolicy::Fixed );
+    if ( orient == Vertical )
+	sp.transpose();
+    QWidget::setSizePolicy( sp );
 }
 
 
@@ -303,13 +313,17 @@ void QScrollBar::setOrientation( Orientation orientation )
     if ( orientation == orient )
 	return;
 
-    QSizePolicy pol = sizePolicy();
-    setSizePolicy( QSizePolicy( pol.verData(), pol.horData() ) );
+    if ( !d || d->defaultSizePolicy ) {
+	QSizePolicy sp = sizePolicy();
+	sp.transpose();
+	QWidget::setSizePolicy( sp );
+    }
 
     orient = orientation;
 
     positionSliderFromValue();
     update();
+    updateGeometry();
 }
 
 /*!
@@ -350,9 +364,7 @@ void QScrollBar::setPalette( const QPalette &p )
 }
 
 
-/*!
-    \reimp
-*/
+/*! \reimp */
 QSize QScrollBar::sizeHint() const
 {
     constPolish();
@@ -365,6 +377,14 @@ QSize QScrollBar::sizeHint() const
     }
 }
 
+/*! \reimp */
+void QScrollBar::setSizePolicy( QSizePolicy sp )
+{
+    if ( !d )
+	d = new QScrollBarPrivate;
+    d->defaultSizePolicy = FALSE;
+    QWidget::setSizePolicy( sp );
+}
 
 /*!
   \internal
