@@ -67,8 +67,9 @@ public:
 
 QServerSocket::QServerSocket(Q_UINT16 port, int backlog,
                               QObject *parent, const char *name)
-    : QObject(parent, name)
+    : QObject(parent)
 {
+    setObjectName(name);
     d = new QServerSocketPrivate;
     init(QHostAddress(), port, backlog);
 }
@@ -90,8 +91,9 @@ QServerSocket::QServerSocket(Q_UINT16 port, int backlog,
 QServerSocket::QServerSocket(const QHostAddress & address, Q_UINT16 port,
                               int backlog,
                               QObject *parent, const char *name)
-    : QObject(parent, name)
+    : QObject(parent)
 {
+    setObjectName(name);
     d = new QServerSocketPrivate;
     init(address, port, backlog);
 }
@@ -111,8 +113,9 @@ QServerSocket::QServerSocket(const QHostAddress & address, Q_UINT16 port,
 */
 
 QServerSocket::QServerSocket(QObject *parent, const char *name)
-    : QObject(parent, name)
+    : QObject(parent)
 {
+    setObjectName(name);
     d = new QServerSocketPrivate;
 }
 
@@ -142,8 +145,8 @@ void QServerSocket::init(const QHostAddress & address, Q_UINT16 port, int backlo
     if (d->s->bind(address, port)
       && d->s->listen(backlog))
     {
-        d->n = new QSocketNotifier(d->s->socket(), QSocketNotifier::Read,
-                                    this, "accepting new connections");
+        d->n = new QSocketNotifier(d->s->socket(), QSocketNotifier::Read, this);
+        d->n->setObjectName("accepting new connections");
         connect(d->n, SIGNAL(activated(int)),
                  this, SLOT(incomingConnection(int)));
     } else {
@@ -259,8 +262,8 @@ void QServerSocket::setSocket(int socket)
     delete d;
     d = new QServerSocketPrivate;
     d->s = new QSocketDevice(socket, QSocketDevice::Stream);
-    d->n = new QSocketNotifier(d->s->socket(), QSocketNotifier::Read,
-               this, "accepting new connections");
+    d->n = new QSocketNotifier(d->s->socket(), QSocketNotifier::Read, this);
+    d->n->setObjectName("accepting new connections");
     connect(d->n, SIGNAL(activated(int)),
              this, SLOT(incomingConnection(int)));
 }

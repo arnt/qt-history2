@@ -518,8 +518,10 @@ void QSocketPrivate::internalSetSocketDevice(QSocketDevice *device)
         socket->setAddressReusable(true);
     }
 
-    rsn = new QSocketNotifier(socket->socket(), QSocketNotifier::Read, q, "read");
-    wsn = new QSocketNotifier(socket->socket(), QSocketNotifier::Write, q, "write");
+    rsn = new QSocketNotifier(socket->socket(), QSocketNotifier::Read, q);
+    rsn->setObjectName("read");
+    wsn = new QSocketNotifier(socket->socket(), QSocketNotifier::Write, q);
+    wsn->setObjectName("write");
 
     QObject::connect(rsn, SIGNAL(activated(int)), q, SLOT(sn_read()));
     rsn->setEnabled(false);
@@ -769,8 +771,9 @@ void QSocketPrivate::connectToNextAddress()
 */
 
 QSocket::QSocket(QObject *parent, const char *name)
-    : QObject(parent, name), QIODevice(*new QSocketPrivate())
+    : QObject(parent), QIODevice(*new QSocketPrivate())
 {
+    setObjectName(name);
     /*
         The d_ptr member variable is necessary because we have two
         base classes with a variable called d_ptr.

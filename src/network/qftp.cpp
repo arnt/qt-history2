@@ -272,11 +272,12 @@ QFtpCommand::~QFtpCommand()
  *
  *********************************************************************/
 QFtpDTP::QFtpDTP(QFtpPI *p, QObject *parent, const char *name) :
-    QObject(parent, name),
+    QObject(parent),
     socket(0),
     pi(p),
     callWriteData(false)
 {
+    setObjectName(name);
     listener = 0;
     clearData();
 }

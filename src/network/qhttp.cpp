@@ -1240,8 +1240,9 @@ QString QHttpRequestHeader::toString() const
     are passed on to the QNetworkProtocol constructor.
 */
 QHttp::QHttp(QObject* parent, const char* name)
-: QObject(parent, name)
+: QObject(parent)
 {
+    setObjectName(name);
     init();
 }
 
@@ -1254,8 +1255,9 @@ QHttp::QHttp(QObject* parent, const char* name)
     \sa setHost()
 */
 QHttp::QHttp(const QString &hostname, Q_UINT16 port, QObject* parent, const char* name)
-: QObject(parent, name)
+: QObject(parent)
 {
+    setObjectName(name);
     init();
 
     d->hostname = hostname;
