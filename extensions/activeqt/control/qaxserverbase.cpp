@@ -1787,7 +1787,7 @@ void QAxServerBase::updateGeometry()
 */
 void QAxServerBase::updateMask()
 {
-    if (!isWidget || !qt.widget || !qt.widget->autoMask())
+    if (!isWidget || !qt.widget || qt.widget->mask().isEmpty())
 	return;
 
     HRGN hrgn = CreateRectRgn(0,0,0,0);
@@ -4092,6 +4092,12 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
 	if (m_hWnd && o == qt.widget)
 	    ShowWindow(m_hWnd, SW_HIDE);
 	break;
+    case QEvent::FontChange:
+    case QEvent::EnabledChange:
+    case QEvent::ActivationChange:
+    case QEvent::StyleChange:
+    case QEvent::IconTextChange:
+    case QEvent::ModifiedChange:
     case QEvent::Resize:
 	updateMask();
 	break;
