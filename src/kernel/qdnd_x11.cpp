@@ -367,7 +367,7 @@ static QWidget * find_child( QWidget * tlw, QPoint & p )
 	if ( !children.isEmpty() ) {
 	    for( int i = children.size(); i > 0; ) {
 		--i;
-		QObject * o = children[i];
+		QObject * o = children.at(i);
 		if ( o->isWidgetType() &&
 		     ((QWidget*)o)->isVisible() &&
 		     ((QWidget*)o)->geometry().contains( p ) &&
