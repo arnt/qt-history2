@@ -939,26 +939,4 @@ int QDial::value() const
     return QRangeControl::value();
 }
 
-#ifndef QT_NO_ACCESSIBILITY
-
-/*! \reimp */
-QString	QDial::stateDescription() const
-{
-    return QString::number( value() );
-}
-
-/*! \reimp */
-QString	QDial::useDescription() const
-{
-    return tr( "Use the cursor keys to change the dial's value." );
-}
-
-/*! \reimp */
-QString	QDial::typeDescription() const
-{
-    return tr( "Dial" );
-}
-
-#endif
-
 #endif // QT_FEATURE_DIAL

@@ -165,12 +165,6 @@ private:
     static void macUpdatePopup(MenuRef);
 #endif
 
-#ifndef QT_NO_ACCESSIBILITY
-    QString stateDescription() const;
-    QString typeDescription() const;
-    QString useDescription() const;
-#endif
-
 private:	// Disabled copy constructor and operator=
 
 #if defined(Q_DISABLE_COPY)

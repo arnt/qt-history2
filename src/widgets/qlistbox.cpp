@@ -4094,31 +4094,6 @@ void QListBox::selectRange( QListBoxItem *from, QListBoxItem *to, bool invert, b
 	emit selectionChanged();
 }
 
-#ifndef QT_NO_ACCESSIBILITY
-
-/*! \reimp */
-QString	QListBox::stateDescription() const
-{
-    QString t = text( currentItem() );
-    if ( !!t )
-	return tr( "selected item: %1" ).arg( t );
-    return QString::null;
-}
-
-/*! \reimp */
-QString	QListBox::useDescription() const
-{
-    return tr( "Use the up and down arrow keys to change the item." );
-}
-
-/*! \reimp */
-QString	QListBox::typeDescription() const
-{
-    return tr( "listbox" );
-}
-
-#endif
-
 /*! \reimp */
 void QListBox::windowActivationChange( bool )
 {

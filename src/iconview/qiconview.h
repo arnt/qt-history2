@@ -451,12 +451,6 @@ protected:
     void styleChange( QStyle& );
     void windowActivationChange( bool );
 
-#ifndef QT_NO_ACCESSIBILITY
-    QString stateDescription() const;
-    QString typeDescription() const;
-    QString useDescription() const;
-#endif
-
 private:
     virtual void drawDragShapes( const QPoint &pnt );
 #ifndef QT_NO_DRAGANDDROP

@@ -64,12 +64,6 @@ public:
 
     QSize   sizeHint() const;
 
-#ifndef QT_NO_ACCESSIBILITY
-    QString	stateDescription() const;
-    QString	useDescription() const;
-    QString	typeDescription() const;
-#endif
-
 protected:
     void    resizeEvent( QResizeEvent* );
     void    drawButton( QPainter * );

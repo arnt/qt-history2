@@ -125,12 +125,6 @@ protected:
 
     virtual void repaintScreen( const QRect *cr = 0 );
 
-#ifndef QT_NO_ACCESSIBILITY
-    QString stateDescription() const;
-    QString typeDescription() const;
-    QString useDescription() const;
-#endif
-
 private:
     QDialPrivate * d;
 

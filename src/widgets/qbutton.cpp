@@ -944,38 +944,4 @@ bool QButton::isExclusiveToggle() const
 #endif
 }
 
-#ifndef QT_NO_ACCESSIBILITY
-
-/*! \reimp */
-QString	QButton::contentsDescription() const
-{
-    return text();
-}
-
-/*! \reimp */
-QString	QButton::stateDescription() const
-{
-    if ( isToggleButton() ) {
-	if ( isOn() )
-	    return tr( "On" );
-	else
-	    return tr( "Off" );
-    }
-    return QString::null;
-}
-
-/*! \reimp */
-QString	QButton::useDescription() const
-{
-    return tr("Press the space bar to press the button.");
-}
-
-/*! \reimp */
-QString	QButton::typeDescription() const
-{
-    return tr("button");
-}
-
-#endif
-
 #endif

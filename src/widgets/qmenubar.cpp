@@ -1360,30 +1360,4 @@ void QMenuBar::activateItemAt( int index )
         goodbye( FALSE );
 }
 
-#ifndef QT_NO_ACCESSIBILITY
-
-/*! \reimp */
-QString QMenuBar::stateDescription() const
-{
-    if ( actItem == -1 )
-        return QString::null;
-
-    QMenuItem *mi = mitems->at( actItem );
-    return mi ? tr( "selected menu item: %1" ).arg( mi->text() ) : QString::null;
-}
-
-/*! \reimp */
-QString QMenuBar::useDescription() const
-{
-    return tr( "Use the cursor keys to change the item." );
-}
-
-/*! \reimp */
-QString QMenuBar::typeDescription() const
-{
-    return tr( "Menu bar" );
-}
-
-#endif
-
 #endif // QT_NO_MENUBAR

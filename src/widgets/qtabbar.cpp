@@ -1000,32 +1000,4 @@ void QTabBar::updateArrowButtons()
     }
 }
 
-#ifndef QT_NO_ACCESSIBILITY
-
-/*! \reimp */
-QString QTabBar::stateDescription() const
-{
-    return tab(currentTab()) ? tr("current page: %1").arg( tab(currentTab())->text() ) : QString::null;
-}
-
-/*! \reimp */
-QString QTabBar::contentsDescription() const
-{
-    return QString::null;
-}
-
-/*! \reimp */
-QString QTabBar::typeDescription() const
-{
-    return tr("tab bar");
-}
-
-/*! \reimp */
-QString QTabBar::useDescription() const
-{
-    return tr("Use the cursor keys to change pages.");
-}
-
-#endif
-
 #endif

@@ -5794,26 +5794,6 @@ void QIconView::drawContents( QPainter * )
 {
 }
 
-#ifndef QT_NO_ACCESSIBILITY
-/*! \reimp */
-QString QIconView::stateDescription() const
-{
-    return currentItem() ? tr("selected item: %1").arg( currentItem()->text() ) : QString::null;
-}
-
-/*! \reimp */
-QString QIconView::typeDescription() const
-{
-    return tr("icon view");
-}
-
-/*! \reimp */
-QString QIconView::useDescription() const
-{
-    return tr("Use the cursor keys to select an item.");
-}
-#endif
-
 /*! \reimp */
 void QIconView::windowActivationChange( bool )
 {

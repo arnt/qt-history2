@@ -382,12 +382,6 @@ protected:
 
     void windowActivationChange( bool );
 
-#ifndef QT_NO_ACCESSIBILITY
-    QString stateDescription() const;
-    QString typeDescription() const;
-    QString useDescription() const;
-#endif
-
 protected slots:
     virtual void columnWidthChanged( int col );
     virtual void rowHeightChanged( int row );

@@ -1089,26 +1089,4 @@ int QSlider::value() const
     return QRangeControl::value();
 }
 
-#ifndef QT_NO_ACCESSIBILITY
-
-/*! \reimp */
-QString	QSlider::stateDescription() const
-{
-    return QString::number( value() );
-}
-
-/*! \reimp */
-QString	QSlider::useDescription() const
-{
-    return tr( "Use the cursor keys to change the value." );
-}
-
-/*! \reimp */
-QString	QSlider::typeDescription() const
-{
-    return tr( "Slider" );
-}
-
-#endif
-
 #endif

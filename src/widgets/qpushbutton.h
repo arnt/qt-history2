@@ -99,10 +99,6 @@ public:
     void setFlat( bool );
     bool isFlat() const;
 
-#ifndef QT_NO_ACCESSIBILTY
-    QString	typeDescription() const;
-#endif
-
 public slots:
     virtual void setOn( bool );
 

@@ -4719,30 +4719,6 @@ void QTable::startDrag()
 
 #endif
 
-#ifndef QT_NO_ACCESSIBILITY
-
-/*! \reimp */
-QString	QTable::stateDescription() const
-{
-    int r = currentRow();
-    int c = currentColumn();
-    return tr( "current cell: %1, %2" ).arg( r+1 ).arg( c+1 );
-}
-
-/*! \reimp */
-QString	QTable::useDescription() const
-{
-    return tr( "Use the cursor keys to change cell." );
-}
-
-/*! \reimp */
-QString	QTable::typeDescription() const
-{
-    return tr( "Table" );
-}
-
-#endif
-
 /*! \reimp */
 void QTable::windowActivationChange( bool )
 {

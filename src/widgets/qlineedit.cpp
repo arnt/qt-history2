@@ -1964,41 +1964,6 @@ bool QLineEdit::getSelection( int *start, int *end )
     return TRUE;
 }
 
-#ifndef QT_NO_ACCESSIBILITY
-
-/*! \reimp */
-QString QLineEdit::stateDescription() const
-{
-    return text();
-}
-
-/*! \reimp */
-QString QLineEdit::contentsDescription() const
-{
-    return QString::null;
-}
-
-/*! \reimp */
-QString QLineEdit::typeDescription() const
-{
-    if ( parentWidget() && parentWidget()->isA( "QSpinBox" ) )
-	return tr( "spin box" );
-    if ( parentWidget() && parentWidget()->isA( "QComboBox" ) )
-	return tr( "editable combo box" );
-
-    return tr("editable text");
-}
-
-/*! \reimp */
-QString QLineEdit::useDescription() const
-{
-    if ( parentWidget() && parentWidget()->isA( "QSpinBox" ) )
-	return tr( "Use the up and down arrow keys to change the value." );
-    if ( parentWidget() && parentWidget()->isA( "QComboBox" ) )
-	return tr( "Use the up and down arrow keys to change the value." );
-    return QString::null;
-}
-
 /*! \reimp */
 void QLineEdit::windowActivationChange( bool )
 {
@@ -2011,7 +1976,5 @@ void QLineEdit::windowActivationChange( bool )
     if ( acg != icg )
 	update();
 }
-
-#endif
 
 #endif

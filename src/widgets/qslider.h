@@ -134,12 +134,6 @@ protected:
 
     virtual int	thickness() const;
 
-#ifndef QT_NO_ACCESSIBILITY
-    QString	stateDescription() const;
-    QString	useDescription() const;
-    QString	typeDescription() const;
-#endif
-
 private slots:
     void	repeatTimeout();
 

@@ -183,13 +183,6 @@ protected:
     virtual QPopupMenu *createPopupMenu();
     void windowActivationChange( bool );
 
-#ifndef QT_NO_ACCESSIBILTY
-    QString stateDescription() const;
-    QString contentsDescription() const;
-    QString typeDescription() const;
-    QString useDescription() const;
-#endif
-
 private slots:
     void clipboardChanged();
     void blinkSlot();

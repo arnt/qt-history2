@@ -6480,38 +6480,6 @@ void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert
     }
 }
 
-#ifndef QT_NO_ACCESSIBILITY
-
-/*! \reimp */
-QString	QListView::stateDescription() const
-{
-    if ( !currentItem() )
-	return QString::null;
-
-    QString t = currentItem()->text( 0 );
-    if ( currentItem()->childCount() ) {
-	t += tr( ", item has sub items" );
-	if ( !currentItem()->isOpen() )
-	    t += tr( ". Press + to open sub items." );
-    }
-
-    return tr( "selected item: %1" ).arg( t );
-}
-
-/*! \reimp */
-QString	QListView::useDescription() const
-{
-    return tr( "Use the cursor keys to change the item." );
-}
-
-/*! \reimp */
-QString	QListView::typeDescription() const
-{
-    return tr( "listview" );
-}
-
-#endif
-
 /*!
 
   Finds the first item with the text \a text in the column \a column.
