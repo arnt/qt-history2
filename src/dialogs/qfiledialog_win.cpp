@@ -38,15 +38,16 @@
 #include "qbuffer.h"
 #include "qstringlist.h"
 
+extern const char qt_file_dialog_filter_reg_exp[]; // defined in qfiledialog.cpp
+
 const int maxNameLen = 255;
 const int maxMultiLen = 16383;
 
 // Returns the wildcard part of a filter.
-static
-QString extractFilter( const QString& rawFilter )
+static QString extractFilter( const QString& rawFilter )
 {
     QString result;
-    QRegExp r( QString::fromLatin1("\\([a-zA-Z0-9.*? +;#]*\\)$") );
+    QRegExp r( QString::fromLatin1(qt_file_dialog_filter_reg_exp) );
     int index = r.search( rawFilter );
     if ( index >= 0 )
 	result = rawFilter.mid( index + 1, r.matchedLength() - 2 );
@@ -79,8 +80,7 @@ static QStringList makeFiltersList( const QString &filter )
 }
 
 // Makes a NUL-oriented Windows filter from a Qt filter.
-static
-QString winFilter( const QString& filter )
+static QString winFilter( const QString& filter )
 {
     QStringList filterLst = makeFiltersList( filter );
     QStringList::Iterator it = filterLst.begin();
@@ -149,8 +149,7 @@ OPENFILENAMEA* makeOFNA( QWidget* parent,
 }
 
 
-static
-void cleanUpOFNA( OPENFILENAMEA** ofn )
+static void cleanUpOFNA( OPENFILENAMEA** ofn )
 {
     delete *ofn;
     *ofn = 0;
@@ -211,8 +210,7 @@ OPENFILENAME* makeOFN( QWidget* parent,
 }
 
 
-static
-void cleanUpOFN( OPENFILENAME** ofn )
+static void cleanUpOFN( OPENFILENAME** ofn )
 {
     delete *ofn;
     *ofn = 0;

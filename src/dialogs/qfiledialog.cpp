@@ -2642,6 +2642,8 @@ QString QFileDialog::dirPath() const
     return d->url.dirPath();
 }
 
+// why don't we use "\\([^\\)]*\\)$" instead?
+const char qt_file_dialog_filter_reg_exp[] = "\\([a-zA-Z0-9.*? +;#\\[\\]]*\\)$";
 
 /*!  Sets the filter spec in use to \a newFilter.
 
@@ -2663,7 +2665,7 @@ void QFileDialog::setFilter( const QString & newFilter )
     if ( !newFilter )
 	return;
     QString f = newFilter;
-    QRegExp r( QString::fromLatin1("\\([a-zA-Z0-9.*? +;#]*\\)$") );
+    QRegExp r( QString::fromLatin1(qt_file_dialog_filter_reg_exp) );
     int index = r.search( f );
     if ( index >= 0 )
 	f = f.mid( index + 1, r.matchedLength() - 2 );
@@ -4619,9 +4621,8 @@ void QFileDialog::addFilter( const QString &filter )
 {
     if ( filter.isEmpty() )
 	return;
-
     QString f = filter;
-    QRegExp r( QString::fromLatin1("\\([a-zA-Z0-9.*? +;#]*\\)$") );
+    QRegExp r( QString::fromLatin1(qt_file_dialog_filter_reg_exp) );
     int index = r.search( f );
     if ( index >= 0 )
 	f = f.mid( index + 1, r.matchedLength() - 2 );
