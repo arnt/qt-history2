@@ -236,6 +236,26 @@ QSqlQuery::QSqlQuery( const QSqlQuery& other )
 */
 QSqlQuery::QSqlQuery( const QString& query, QSqlDatabase* db )
 {
+    init( query, db );
+}
+
+/*!
+    Creates a QSqlQuery object using the database \a db. If \a db is
+    0, the application's default database is used.
+
+    \sa QSqlDatabase
+*/
+
+QSqlQuery::QSqlQuery( QSqlDatabase* db )
+{
+    init( QString::null, db );
+}
+
+/*! \internal
+*/
+
+void QSqlQuery::init( const QString& query, QSqlDatabase* db )
+{
     d = new QSqlResultShared( 0 );
     QSqlDatabase* database = db;
     if ( !database )
