@@ -114,7 +114,7 @@ public:
         InclusiveRectangles = 1
     };
 
-    static setRectangleMode(RectangleMode mode) { static_rect_mode = mode; }
+    static void setRectangleMode(RectangleMode mode) { static_rect_mode = mode; }
     static RectangleMode rectangleMode() { return static_rect_mode; }
 
 private:
