@@ -513,11 +513,11 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	return FALSE;
     }
 
+    QKeyEvent * ke = (QKeyEvent *) event;
 #ifndef QT_NO_ACCEL
     // look for Alt press and Alt-anything press
     if ( event->type() == QEvent::Accel ) {
 	QWidget * f = ((QWidget *)object)->focusWidget();
-	QKeyEvent * ke = (QKeyEvent *) event;
 	// ### this thinks alt and meta are the same
 	if ( ke->key() == Key_Alt || ke->key() == Key_Meta ) {
 	    // A new Alt press and we wait for release, eat
@@ -534,7 +534,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 		ke->accept();
 		return TRUE;
 	    // Start waiting for Alt release on focus widget
-	    } else {
+	    } else if ( ke->state() == AltButton ) {
 		waitforalt = 1;
 #if defined(Q_WS_X11)
 		QMenuData::d->aInt = qt_xfocusout_grab_counter;
@@ -560,10 +560,8 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
     // look for Alt release
     if ( ((QWidget*)object)->focusWidget() == object ||
 	 (object->parent() == 0 && ((QWidget*)object)->focusWidget() == 0) ) {
-	if ( waitforalt &&
-	     event->type() == QEvent::KeyRelease &&
-	     (((QKeyEvent *)event)->key() == Key_Alt ||
-	      ((QKeyEvent *)event)->key() == Key_Meta)
+	if ( waitforalt && event->type() == QEvent::KeyRelease &&
+	    ( ke->key() == Key_Alt || ke->key() == Key_Meta )
 #if defined(Q_WS_X11)
 		&& QMenuData::d->aInt == qt_xfocusout_grab_counter
 #endif
