@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#17 $
 **
 ** Implementation of event classes
 **
@@ -13,7 +13,7 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#17 $";
 #endif
 
 
@@ -119,8 +119,6 @@ void QEvent::peErrMsg()				// posted event error message
   The basic QEvent contains only an event type parameter. Subclasses of
   QEvent contain additional parameters that descripe the particular event.
 
-  The subclasses of QEvent are: QTimerEvent, QMouseEvent, QKeyEvent,
-  QFocusEvent, QPaintEvent, QMoveEvent, QResizeEvent and QCloseEvent.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -128,6 +126,11 @@ void QEvent::peErrMsg()				// posted event error message
   Contructs an event object with a \e type. The file qevent.h has a list of
   all event types.
  ----------------------------------------------------------------------------*/
+
+/*! \fn QEvent::~QEvent()
+
+  Deletes the event, and reports and error if the event has been \link
+  QApplication::postEvent() posted \endlink. */
 
 /*----------------------------------------------------------------------------
   \fn int QEvent::type() const
@@ -314,17 +317,6 @@ void QEvent::peErrMsg()				// posted event error message
 
   The \e type parameter must be either \e Event_FocusIn or \e Event_FocusOut.
  ----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
-  \fn bool QFocusEvent::gotFocus() const
-  Returns TRUE if the widget received the text input focus.
- ----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
-  \fn bool QFocusEvent::lostFocus() const
-  Returns TRUE if the widget lost the text input focus.
- ----------------------------------------------------------------------------*/
-
 
 /*----------------------------------------------------------------------------
   \class QPaintEvent qevent.h

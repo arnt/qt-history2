@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#43 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#42 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#43 $";
 #endif
 
 
@@ -797,7 +797,10 @@ void QPainter::drawChord( const QRect &r, int a, int alen )
     drawChord( r.x(), r.y(), r.width(), r.height(), a, alen );
 }
 
-/*!
+// overloaded because of agulbraterminalstupidity
+
+/*! \overload void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm, const QRect &sr )
+
   Overloaded drawPixmap; takes a QPoint instead of \e (x,y).
 */
 
@@ -1408,7 +1411,7 @@ void QBrush::setStyle( BrushStyle s )		// set brush style
 
 
 /*!
-  \fn const QColor &Brush::color() const
+  \fn const QColor &QBrush::color() const
   Returns the brush color.
   \sa setColor()
 */
