@@ -61,8 +61,6 @@ public:
 
 class QMacSetFontInfo : public QMacSavedFontInfo, public QMacFontInfo 
 {
-    static QDict<QMacFontInfo> *infos;
-    static void infos_cleanup() { delete infos; infos = NULL; }
 public:
     //create this for temporary font settting
     inline QMacSetFontInfo(const QFontPrivate *d) : QMacSavedFontInfo(), QMacFontInfo() { setMacFont(d, this); }
@@ -70,19 +68,12 @@ public:
     //you can use this to cause font setting, without restoring old
     static bool setMacFont(const QFontPrivate *d, QMacSetFontInfo *sfi=NULL);
 };
-QDict<QMacFontInfo> *QMacSetFontInfo::infos = NULL;
 
 inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *sfi)
 {
-    QMacFontInfo *fi = NULL;
-    const QString key = d->key();
-    if(!infos || !(fi=infos->find(key))) {
-	if(!infos) {
-	    infos = new QDict<QMacFontInfo>();
-	    infos->setAutoDelete(TRUE);
-	    qAddPostRoutine( QMacSetFontInfo::infos_cleanup );
-	}
-	infos->insert(key, fi = new QMacFontInfo());
+    QMacFontInfo *fi = d->fin->internal_fi;
+    if(!fi) {
+	d->fin->internal_fi = fi = new QMacFontInfo();
 
 	//face
 	Str255 str;
@@ -121,7 +112,7 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
     if(!sfi || fi->size() != sfi->tsize)
 	TextSize(fi->size());
     if(sfi)
-	*((QMacFontInfo*)sfi) = *fi;
+	*((QMacFontInfo*)sfi) = *(fi);
     return TRUE;
 }
 
@@ -386,10 +377,12 @@ void QFontPrivate::load()
     if(fin) 
 	fin->deref();
     fin=qfs;
+    if(!fin->info) {
+	fin->info = (FontInfo *)malloc(sizeof(FontInfo));
+	QMacSetFontInfo fi(this);
+	GetFontInfo(fin->info);
+    }
 
-    fin->info = (FontInfo *)malloc(sizeof(FontInfo));
-    QMacSetFontInfo fi(this);
-    GetFontInfo(fin->info);
     // Our 'handle' is actually a structure with the information needed to load
     // the font into the current grafport
 }
