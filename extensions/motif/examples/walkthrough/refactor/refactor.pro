@@ -3,31 +3,33 @@
 ######################################################################
 
 TEMPLATE = app
-DEPENDPATH += Exm Xmd
-INCLUDEPATH += . Exm Xmd
+DESTDIR = ..
+TARGET = walkthrough-refactor
+DEPENDPATH += ../Exm ../Xmd
+INCLUDEPATH += ..
 LIBS += -lXm -lqmotif
 
 # Input
-FORMS    = pageeditdialog.ui \
+FORMS    = ../pageeditdialog.ui \
            mainwindow.ui
 HEADERS += page.h \
-           Exm/CommandB.h \
-           Exm/CommandBP.h \
-           Exm/ExmString.h \
-           Exm/ExmStringP.h \
-           Exm/Simple.h \
-           Exm/SimpleP.h \
-           Exm/TabB.h \
-           Exm/TabBP.h \
-           Xmd/Menus.h \
-           Xmd/Print.h \
-           Xmd/PrintP.h
+           ../Exm/CommandB.h \
+           ../Exm/CommandBP.h \
+           ../Exm/ExmString.h \
+           ../Exm/ExmStringP.h \
+           ../Exm/Simple.h \
+           ../Exm/SimpleP.h \
+           ../Exm/TabB.h \
+           ../Exm/TabBP.h \
+           ../Xmd/Menus.h \
+           ../Xmd/Print.h \
+           ../Xmd/PrintP.h
 SOURCES += actions.cpp \
            io.cpp \
            todo.cpp \
-           Exm/CommandB.c \
-           Exm/ExmString.c \
-           Exm/Simple.c \
-           Exm/TabB.c \
-           Xmd/Menus.c \
-           Xmd/Print.c
+           ../Exm/CommandB.c \
+           ../Exm/ExmString.c \
+           ../Exm/Simple.c \
+           ../Exm/TabB.c \
+           ../Xmd/Menus.c \
+           ../Xmd/Print.c
