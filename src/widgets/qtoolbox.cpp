@@ -343,6 +343,8 @@ void QToolBox::insertPage( QWidget *page, const QIconSet &iconSet,
     if ( !page )
 	return;
 
+    connect(page, SIGNAL(destroyed(QObject*)), this, SLOT(pageDestroyed(QObject*)));
+
     page->setBackgroundMode( PaletteButton );
     QToolBoxPrivate::Page c;
     c.widget = page;
@@ -362,15 +364,22 @@ void QToolBox::insertPage( QWidget *page, const QIconSet &iconSet,
 	d->pageList.append( c );
 	d->layout->addWidget( c.button );
 	d->layout->addWidget( c.sv );
+	if ( count() == 1 )
+	    setCurrentPage( page );
     } else {
 	d->pageList.insert( d->pageList.at(index), c );
 	relayout();
+	if (d->currentPage) {
+	    QWidget *current = d->currentPage->widget;
+	    int oldindex = indexOf(current);
+	    if ( index <= oldindex ) {
+		d->currentPage = 0; // trigger change
+		setCurrentPage(current);
+	    }
+	}
     }
 
     c.button->show();
-
-    if ( count() == 1 )
-	setCurrentPage( page );
 
     d->updateTabs( this );
 }
@@ -438,10 +447,32 @@ void QToolBox::relayout()
 	d->layout->addWidget( (*i).button );
 	d->layout->addWidget( (*i).sv );
     }
-    QWidget *currPage = d->currentPage ? d->currentPage->widget : 0;
-    d->currentPage = 0;
-    if ( currPage )
-	setCurrentPage( currPage );
+}
+
+void QToolBox::pageDestroyed(QObject *object)
+{
+    // no verification - vtbl corrupted already
+    QWidget *page = (QWidget*)object;
+
+    QToolBoxPrivate::Page *c = d->page(page);
+    if ( !page || !c )
+	return;
+
+    d->layout->remove( c->sv );
+    d->layout->remove( c->button );
+    c->sv->deleteLater(); // page might still be a child of sv
+    delete c->button;
+
+    bool removeCurrent = c == d->currentPage;
+    d->pageList.remove( *c );
+
+    if ( !d->pageList.count() ) {
+	d->currentPage = 0;
+	emit currentChanged(-1);
+    } else if ( removeCurrent ) {
+	d->currentPage = 0;
+	setCurrentIndex(0);
+    }
 }
 
 /*!
@@ -451,26 +482,17 @@ void QToolBox::relayout()
 
 void QToolBox::removePage( QWidget *page )
 {
-    QToolBoxPrivate::Page *c = d->page( page );
-    if ( !c )
+    QToolBoxPrivate::Page *c = d->page((QWidget*)page);
+    if ( !page || !c )
 	return;
 
-    d->layout->remove( c->sv );
-    d->layout->remove( c->button );
-    page->reparent( this, QPoint(0,0) );
-    page->hide();
-    delete c->sv;
-    delete c->button;
+    disconnect(page, SIGNAL(destroyed(QObject*)), this, SLOT(pageDestroyed(QObject*)));
+    page->reparent( this, QPoint(0,0) );    
 
-    d->pageList.remove( *c );
-
-    if ( d->pageList.isEmpty() ) {
-	d->currentPage = 0;
-    } else if ( c == d->currentPage ) {
-	d->currentPage = 0;
-	setCurrentIndex( 0 );
-    }
+    // destroy internal data
+    pageDestroyed( page );
 }
+
 
 /*!
     Returns the toolbox's current page, or 0 if the toolbox is empty.
@@ -538,21 +560,21 @@ void QToolBox::activateClosestPage( QWidget *widget )
     QWidget *p = 0;
     int curIndexUp = d->pageList.findIndex( *c );
     int curIndexDown = curIndexUp;
-    while ( !p ) {
-	if ( curIndexDown < (int)d->pageList.count()-1 ) {
+    const int count = d->pageList.count();
+    while ( !p && ( curIndexUp > 0 || curIndexDown < count-1 ) ) {
+	if ( curIndexDown < count-1 ) {
 	    c = d->page(page(++curIndexDown));
 	    if ( c->button->isEnabled() ) {
 		p = c->widget;
 		break;
 	    }
-	} else if ( curIndexUp > 1 ) {
+	}
+	if ( curIndexUp > 0 ) {
 	    c = d->page(page(--curIndexUp));
 	    if ( c->button->isEnabled() ) {
 		p = c->widget;
 		break;
 	    }
-	} else {
-	    break;
 	}
     }
     if ( p )

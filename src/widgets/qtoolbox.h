@@ -73,6 +73,7 @@ signals:
 
 private slots:
     void buttonClicked();
+    void pageDestroyed(QObject*);
 
 protected:
     void showEvent( QShowEvent *e );
