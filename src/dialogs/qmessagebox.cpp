@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#87 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#88 $
 **
 ** Implementation of QMessageBox class
 **
@@ -765,28 +765,6 @@ void QMessageBox::setIconPixmap( const QPixmap &pixmap )
 {
     mbd->iconLabel.setPixmap(pixmap);
     mbd->icon = NoIcon;
-}
-
-
-/*!
-  This function will be removed in a future version of Qt.
-*/
-
-QString QMessageBox::buttonText() const
-{
-    return buttonText( Ok );
-}
-
-/*!
-  This function will be removed in a future version of Qt.
-*/
-
-void QMessageBox::setButtonText( const QString &text )
-{
-//     if ( !text.isNull() )
-// 	setButtonText( text );
-//     else
-// 	setButtonText( "OK" );
 }
 
 

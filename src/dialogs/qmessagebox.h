@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#42 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#43 $
 **
 ** Definition of QMessageBox class
 **
@@ -109,11 +109,6 @@ public:
 
     const QPixmap *iconPixmap() const;
     void	setIconPixmap( const QPixmap & );
-
-#if 1 /* OBSOLETE */
-    QString	buttonText() const;
-    void	setButtonText( const QString &);
-#endif
 
     QString	buttonText( int button ) const;
     void	setButtonText( int button, const QString &);
