@@ -6366,8 +6366,8 @@ void QTextTable::up( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, in
 QTextTableCell::QTextTableCell( QTextTable* table,
 				int row, int column,
 				const QMap<QString, QString> &attr,
-				const QStyleSheetItem* style,
-				const QTextFormat& fmt, const QString& context,
+				const QStyleSheetItem* /*style*/, // ### use them
+				const QTextFormat& /*fmt*/, const QString& context,
 				QMimeSourceFactory &factory, QStyleSheet *sheet,
 				const QString& doc)
 {
@@ -6377,8 +6377,6 @@ QTextTableCell::QTextTableCell( QTextTable* table,
 #endif
     cached_width = -1;
     cached_sizehint = -1;
-    Q_UNUSED( style ); // #### use them
-    Q_UNUSED( fmt );
 
     maxw = QWIDGETSIZE_MAX;
     minw = 0;

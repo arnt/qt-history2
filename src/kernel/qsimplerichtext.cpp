@@ -131,7 +131,7 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 				  const QString& context,  const QStyleSheet* sheet,
 				  const QMimeSourceFactory* factory, int verticalBreak,
-				  const QColor& linkColor, bool linkUnderline )
+				  const QColor& /*linkColor*/, bool linkUnderline )
 {
     d = new Data;
     d->cachedWidth = -1;
@@ -144,7 +144,6 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
     d->doc->setVerticalBreak( TRUE );
     d->doc->setStyleSheet( (QStyleSheet*)sheet );
     d->doc->setMimeSourceFactory( (QMimeSourceFactory*)factory );
-    Q_UNUSED( linkColor )
     d->doc->setUnderlineLinks( linkUnderline );
     d->doc->setText( text, context );
 }

@@ -70,7 +70,7 @@ static const char * close_xpm[] = {
 class QDockWindowResizeHandle : public QWidget
 {
 public:
-    QDockWindowResizeHandle( Qt::Orientation o, QWidget *parent, QDockWindow *w, const char* name=0 );
+    QDockWindowResizeHandle( Qt::Orientation o, QWidget *parent, QDockWindow *w, const char* /*name*/=0 );
     void setOrientation( Qt::Orientation o );
     Qt::Orientation orientation() const { return orient; }
 
