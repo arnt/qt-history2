@@ -135,4 +135,5 @@ void MarkerWidget::mousePressEvent( QMouseEvent *e )
 	p = p->next();
     }
     doRepaint();
+    emit markersChanged();
 }

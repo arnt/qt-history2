@@ -32,6 +32,8 @@ ViewManager::ViewManager( QWidget *parent, const char *name )
 {
     layout = new QHBoxLayout( this );
     markerWidget = new MarkerWidget( this );
+    connect( markerWidget, SIGNAL( markersChanged() ),
+	     this, SIGNAL( markersChanged() ) );
     markerWidget->setFixedWidth( 20 );
     dockArea = new QDockArea( Qt::Vertical, QDockArea::Normal, this );
     layout->addWidget( dockArea );

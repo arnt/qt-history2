@@ -154,6 +154,7 @@ public slots:
     void showDialogHelp();
     void showDebugStep( QObject *o, int line );
     void finishedRun( QObject *o, int errorLine, const QString &errorMessage );
+    void breakPointsChanged();
 
 signals:
     void currentToolChanged();
@@ -386,6 +387,8 @@ private:
     QGuardedPtr<ReplaceDialog> replaceDialog;
     QGuardedPtr<GotoLineDialog> gotoLineDialog;
     Project *eProject;
+    bool inDebugMode;
+    QObjectList debuggingForms;
 
 };
 

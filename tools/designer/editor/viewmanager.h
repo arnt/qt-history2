@@ -45,6 +45,8 @@ public:
     void setBreakPoints( const QValueList<int> &l );
     QValueList<int> breakPoints() const;
 
+signals:
+    void markersChanged();
 
 protected slots:
     void clearErrorMarker();

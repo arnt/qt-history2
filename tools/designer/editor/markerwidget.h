@@ -33,6 +33,9 @@ class MarkerWidget : public QWidget
 public:
     MarkerWidget( ViewManager *parent );
 
+signals:
+    void markersChanged();
+
 public slots:
     void doRepaint() { repaint( FALSE ); }
 

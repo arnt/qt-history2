@@ -167,6 +167,7 @@ MainWindow::MainWindow( bool asClient )
 {
     desInterface = new DesignerInterfaceImpl( this );
     desInterface->addRef();
+    inDebugMode = FALSE;
 
     pluginDir = getenv( "QTDIR" );
     pluginDir += "/plugins/designer";
@@ -2275,7 +2276,9 @@ QObjectList *MainWindow::previewProject()
     }
 
     QApplication::restoreOverrideCursor();
+    inDebugMode = TRUE;
 
+    debuggingForms = *l;
     return l;
 }
 
@@ -4649,6 +4652,8 @@ void MainWindow::showDebugStep( QObject *o, int line )
 
 void MainWindow::finishedRun( QObject *o, int errorLine, const QString &errorMessage )
 {
+    inDebugMode = FALSE;
+    debuggingForms.clear();
     if ( o && errorLine != -1 ) {
 	QValueList<int> l;
 	l << errorLine;
@@ -4732,6 +4737,38 @@ void MainWindow::formNameChanged( FormWindow *fw )
 	    break;
 	}
     }
+}
+
+void MainWindow::breakPointsChanged()
+{
+    if ( !inDebugMode )
+	return;
+    if ( !workSpace()->activeWindow() || !workSpace()->activeWindow()->inherits( "SourceEditor" ) )
+	return;
+    SourceEditor *e = (SourceEditor*)workSpace()->activeWindow();
+    if ( !e->form() || !e->form()->project() )
+	return;
+    if ( e->form()->project() != currentProject )
+	return;
+
+    InterpreterInterface *iiface = 0;
+    if ( interpreterPluginManager ) {
+	QString lang = currentProject->language();
+	iiface = (InterpreterInterface*)interpreterPluginManager->queryInterface( lang );
+	if ( !iiface )
+	    return;
+    }
+
+    e->saveBreakPoints();
+
+    for ( QObject *o = debuggingForms.first(); o; o = debuggingForms.next() ) {
+	if ( qstrcmp( o->name(), e->form()->name() ) == 0 ) {
+	    iiface->setBreakPoints( o, MetaDataBase::breakPoints( e->form() ) );
+	    break;
+	}
+    }
+
+    iiface->release();
 }
 
 #include "mainwindow.moc"

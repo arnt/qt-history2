@@ -299,3 +299,10 @@ void EditorInterfaceImpl::update()
 	return;
     dIface->updateFunctionList();
 }
+
+void EditorInterfaceImpl::onBreakPointChange( QObject *receiver, const char *slot )
+{
+    if ( !viewManager )
+	return;
+    connect( viewManager, SIGNAL( markersChanged() ), receiver, slot );
+}

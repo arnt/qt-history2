@@ -61,6 +61,8 @@ struct EditorInterface : public QUnknownInterface
     virtual void breakPoints( QValueList<int> &l ) const = 0;
     virtual void setBreakPoints( const QValueList<int> &l ) = 0;
 
+    virtual void onBreakPointChange( QObject *receiver, const char *slot ) = 0;
+
 };
 
 #endif
