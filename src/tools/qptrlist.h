@@ -1,7 +1,9 @@
 /****************************************************************************
+** $Id$
 **
 ** Definition of QPtrList template/macro class
 **
+** Created : 
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -104,7 +106,7 @@ private:
     void  deleteItem( QPtrCollection::Item d );
 };
 
-#if defined(Q_DELETING_VOID_UNDEFINED)
+#if 1 // all compilers ought to understand this, remove #if's before Qt 3.0
 template<> inline void QPtrList<void>::deleteItem( QPtrCollection::Item )
 {
 }

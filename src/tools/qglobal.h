@@ -220,9 +220,6 @@
 #  if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
 #    define Q_FULL_TEMPLATE_INSTANTIATION
 #  endif
-#  if __GNUC__ > 2 || __GNUC__ == 2 && __GNUC_MINOR__ >= 95
-#    define Q_DELETING_VOID_UNDEFINED
-#  endif
 #  if (defined(__arm__) || defined(__ARMEL__)) && !defined(QT_MOC_CPP)
 #    define Q_PACKED __attribute__ ((packed))
 #  endif
@@ -303,7 +300,6 @@
 // __HP_aCC was not defined in first aCC releases
 #  if defined(__HP_aCC) || __cplusplus >= 199707L
 #    define Q_CC_HPACC
-#    define Q_DELETING_VOID_UNDEFINED
 #  else
 #    define Q_CC_HP
 #    define Q_NO_BOOL_TYPE
