@@ -739,7 +739,8 @@ static void matchDocsAndStuff( Steering *steering )
 			yyLastDecl = 0;
 		    }
 		} else {
-		    warning( 3, fn->location(), "Loose doc comment" );
+		    warning( 3, fn->location(),
+			     "Can't tie this documentation to anything" );
 		}
 
 		if ( !fn->prototype().isEmpty() ) {
