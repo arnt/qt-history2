@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#47 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#46 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#47 $");
 
 
 const int sbDim = 16;
@@ -118,6 +118,11 @@ void CornerSquare::paintEvent( QPaintEvent * )
 
   Frame line shapes (QFrame::HLink and QFrame::VLine) are disallowed,
   see QFrame::setStyle().
+
+  Note that the \a f argument is \e not \link setTableFlags() table
+  flags \endlink but rather \link QWidget::QWidget() widget
+  flags. \endlink
+
 */
 
 QTableView::QTableView( QWidget *parent, const char *name, WFlags f )

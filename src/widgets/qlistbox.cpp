@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#96 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#97 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#96 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#97 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -380,6 +380,11 @@ static void cleanupListbox()
 /*!
   Constructs a list box.  The arguments are passed directly to the
   QTableView constructor.
+
+  Note that the \a f argument is \e not \link setTableFlags() table
+  flags \endlink but rather \link QWidget::QWidget() widget
+  flags. \endlink
+
 */
 
 QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
