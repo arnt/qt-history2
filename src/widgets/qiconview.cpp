@@ -558,20 +558,6 @@ void QIconDrag::IconDragItem::setTextRect( const QRect &r )
 */
 
 /*!
-  \fn void QIconViewItem::renamed ()
-
-  This signal is emitted when the item has been renamed using
-  in-place renaming.
-*/
-
-/*!
-  \fn void QIconViewItem::renamed (const QString & text)
-
-  This signal is emitted when the item has been renamed using
-  in-place renaming. \a text is the new item-text.
-*/
-
-/*!
   Constructs an iconview item with no text and a default icon, and
   inserts it into the iconview \a parent.
 */
