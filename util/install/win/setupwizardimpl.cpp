@@ -588,6 +588,9 @@ void SetupWizardImpl::initConnections()
 
 	connect( configPage->configTabs, SIGNAL(currentChanged(QWidget*)), SLOT(configPageChanged()));
     }
+    if ( buildPage ) {
+	connect( buildPage->restartBuild, SIGNAL(clicked()), this, SLOT(restartBuild()) );
+    }
 }
 
 void SetupWizardImpl::stopProcesses()
@@ -973,6 +976,7 @@ void SetupWizardImpl::makeDone()
 	logOutput( "The build process failed!\n" );
 	emit wizardPageFailed( indexOf(currentPage()) );
 	QMessageBox::critical( this, "Error", "The build process failed!\nSee the log for details." );
+	buildPage->restartBuild->setText( "Restart compile" );
 	setAppropriate( progressPage, false );
     } else {
 	// We still have some more items to do in order to finish all the
@@ -981,6 +985,8 @@ void SetupWizardImpl::makeDone()
 	    logOutput( "Doing the final integration steps..." );
 	    doFinalIntegration();
 	}
+	buildPage->restartBuild->setText( "Success" );
+	buildPage->restartBuild->setEnabled( FALSE );
 	setNextEnabled( buildPage, true );
 	logOutput( "The build was successful", true );
     }
@@ -998,6 +1004,7 @@ void SetupWizardImpl::configDone()
     if( !configure.normalExit() || ( configure.normalExit() && configure.exitStatus() ) ) {
 	logOutput( "The configure process failed.\n" );
 	emit wizardPageFailed( indexOf(currentPage()) );
+	buildPage->restartBuild->setText( "Restart configure" );
     } else
 #endif
     {
@@ -1039,6 +1046,41 @@ void SetupWizardImpl::configDone()
 		       "and registered correctly in your PATH environment." );
 	    emit wizardPageFailed( indexOf(currentPage()) );
 	    backButton()->setEnabled( TRUE );
+	} else {
+	    buildPage->restartBuild->setText( "Stop compilation" );
+	}
+    }
+}
+
+void SetupWizardImpl::restartBuild()
+{
+    if ( configure.isRunning() || 
+       (!configure.isRunning() && (!configure.normalExit() || (configure.normalExit() && configure.exitStatus()))) ) {
+	if ( configure.isRunning() ) {	// Stop configure
+	    configure.kill();
+	    buildPage->restartBuild->setText( "Restart configure" );
+	    logOutput( "\n*** Configure stopped by user...\n" );
+	    backButton()->setEnabled( TRUE );
+	} else {			// Restart configure
+	    wizardPageShowed( indexOf(currentPage()) );
+	    backButton()->setEnabled( FALSE );
+	    cleanDone();
+	    buildPage->restartBuild->setText( "Stop configure" );
+	    logOutput( "\n*** Configure restarted by user...\n" );
+	}
+    } else if ( make.isRunning() || 
+	      (!make.isRunning() && (!make.normalExit() || (make.normalExit() && make.exitStatus()))) ) {
+	if ( make.isRunning() ) {	// Stop compile
+	    make.kill();
+	    buildPage->restartBuild->setText( "Restart compile" );
+	    logOutput( "\n*** Compilation stopped by user...\n" );
+	    backButton()->setEnabled( TRUE );
+	} else {			// Restart compile
+	    wizardPageShowed( indexOf(currentPage()) );
+	    backButton()->setEnabled( FALSE );
+	    configDone();
+	    buildPage->restartBuild->setText( "Stop compile" );
+	    logOutput( "\n*** Compilation restarted by user...\n" );
 	}
     }
 }

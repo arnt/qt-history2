@@ -323,6 +323,8 @@ void SetupWizardImpl::cleanDone()
 	configure.setArguments( args );
 	// Start the configure process
 	buildPage->compileProgress->setTotalSteps( int(double(filesToCompile) * 2.6) );
+	buildPage->restartBuild->setText( "Stop configure" );
+	buildPage->restartBuild->setEnabled( TRUE );
 	if( !configure.start() ) {
 	    logOutput( "Could not start configure process" );
 	    emit wizardPageFailed( indexOf(currentPage()) );

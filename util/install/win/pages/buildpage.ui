@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>BuildPage</class>
 <widget class="QWidget">
     <property name="name">
@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>441</width>
-            <height>283</height>
+            <width>462</width>
+            <height>273</height>
         </rect>
     </property>
     <property name="caption">
@@ -27,17 +27,11 @@
         </property>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>Layout13</cstring>
+                <cstring>layout13</cstring>
             </property>
             <vbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
-                </property>
-                <property name="margin">
-                    <number>0</number>
-                </property>
-                <property name="spacing">
-                    <number>6</number>
                 </property>
                 <widget class="QTextView">
                     <property name="name">
@@ -58,16 +52,34 @@
                         <enum>NoWrap</enum>
                     </property>
                 </widget>
-                <widget class="QProgressBar">
+                <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>compileProgress</cstring>
+                        <cstring>layout12</cstring>
                     </property>
-                    <property name="progress">
-                        <number>50</number>
-                    </property>
-                    <property name="percentageVisible">
-                        <bool>false</bool>
-                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QProgressBar">
+                            <property name="name">
+                                <cstring>compileProgress</cstring>
+                            </property>
+                            <property name="progress">
+                                <number>50</number>
+                            </property>
+                            <property name="percentageVisible">
+                                <bool>false</bool>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>restartBuild</cstring>
+                            </property>
+                            <property name="text">
+                                <string>&lt;Replace&gt;</string>
+                            </property>
+                        </widget>
+                    </hbox>
                 </widget>
             </vbox>
         </widget>

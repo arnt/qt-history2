@@ -56,6 +56,7 @@ private slots:
     void cleanDone();
     void configDone();
     void makeDone();
+    void restartBuild();
     void readConfigureOutput();
     void readConfigureError();
     void readCleanerOutput();

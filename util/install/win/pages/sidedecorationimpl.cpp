@@ -139,8 +139,6 @@ void SideDecorationImpl::wizardPages( const QPtrList<Page>& li )
 
 void SideDecorationImpl::wizardPageShowed( int a )
 {
-    if ( a == activeBullet )
-	return;
     if ( activeBullet>=0 && (uint)activeBullet<bullets.count() ) {
 	if ( a < activeBullet )
 	    bullets.at(activeBullet)->clear();
