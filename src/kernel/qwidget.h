@@ -462,13 +462,6 @@ protected:
 
 #if defined(Q_WS_MAC)
     virtual bool macEvent( MSG * );		// Macintosh event
-    uint    own_id : 1; //owns the winid
-    int back_type;                              // Type of background
-
-    //mac event functions
-    void propagateUpdates();
-    friend QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef, RgnHandle, RgnHandle, void *);
-
 #elif defined(Q_WS_WIN)
     virtual bool winEvent( MSG * );		// Windows event
 #elif defined(Q_WS_X11)
@@ -547,6 +540,12 @@ private:
     void	 createInputContext();
     void	 destroyInputContext();
     void	 focusInputContext();
+#elif defined(Q_WS_MAC)
+    uint    own_id : 1; //owns the winid
+    //mac event functions
+    void propagateUpdates();
+    friend QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef, 
+						RgnHandle, RgnHandle, void *);
 #endif
     void	 resetInputContext();
 

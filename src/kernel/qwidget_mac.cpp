@@ -55,7 +55,7 @@
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 #  include <qmenubar.h>
 #endif
-#ifndef QT_NO_OPENGL
+#if !defined( QT_NO_OPENGL ) && defined( QMAC_OPENGL_DOUBLEBUFFER )
 #  include <qgl.h>
 #endif
 
@@ -72,7 +72,11 @@ static bool no_move_blt = FALSE;
 static WId serial_id = 0;
 QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
+#ifdef Q_WS_MACX 
+static bool qt_mac_noflush = FALSE;
+#endif
 int mac_window_count = 0;
+
 
 
 /*****************************************************************************
@@ -160,6 +164,10 @@ static inline const Rect *mac_rect(const QRect &qr)
 }
 static inline const Rect *mac_rect(const QPoint &qp, const QSize &qs) { return mac_rect(QRect(qp, qs)); }
 
+// Paint event clipping magic
+extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
+extern void qt_clear_paintevent_clipping( QPaintDevice *dev );
+
 enum paint_children_ops { 
     PC_None = 0x00,
     PC_Now = 0x01,
@@ -225,10 +233,6 @@ static void paint_children(QWidget * p,QRegion r, uchar ops = PC_ForceErase)
 	}
     } 
 }
-
-// Paint event clipping magic
-extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
-extern void qt_clear_paintevent_clipping( QPaintDevice *dev );
 
 static void *qt_root_win() {
      WindowPtr ret = NULL;
@@ -435,6 +439,11 @@ void qt_mac_destroy_widget(QWidget *w); //qapplication_mac.cpp
 void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 {
     deactivateWidgetCleanup();
+    if(isVisible() && !isTopLevel()) {
+	dirtyClippedRegion(TRUE);
+	dirty_wndw_rgn("destroy",this, mac_rect(posInWindow(this), geometry().size()));
+    }
+
     if ( testWState(WState_Created) ) {
 	dirtyClippedRegion(TRUE);
         clearWState( WState_Created );
@@ -544,7 +553,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 		QWidget *w = (QWidget *)obj;
 		if(((WindowPtr)w->hd) == old_hd)
 		    w->hd = hd; //all my children hd's are now mine!
-#ifndef QT_NO_OPENGL
+#if !defined( QT_NO_OPENGL ) && defined( QMAC_OPENGL_DOUBLEBUFFER )
 		if(w->inherits("QGLWidget")) 
 		    ((QGLWidget *)w)->fixReparented();
 #endif
@@ -863,7 +872,7 @@ void QWidget::repaint( const QRegion &reg , bool erase )
 	clearWState( WState_InPaintEvent );
 
 #ifdef Q_WS_MACX //When repaint is called the user probably expects a screen update?
-	if(QDIsPortBuffered(GetWindowPort((WindowPtr)hd))) {
+	if(!qt_mac_noflush && QDIsPortBuffered(GetWindowPort((WindowPtr)hd))) {
 	    QPoint p(posInWindow(this));
             QRegion clean(reg);
 	    clean.translate(p.x(), p.y());
@@ -882,13 +891,12 @@ void QWidget::showWindow()
 	    //ick, this is needed because docks are updated by it and mac paints immediatly. FIXME
 	    QApplication::sendPostedEvents(this, QEvent::LayoutHint);
 
-#ifdef Q_WS_MACX
-	    //handle transition
-	    if(qApp->style().inherits(QMAC_DEFAULT_STYLE) && 
-	       parentWidget() && testWFlags(WShowModal)) 
+#ifdef Q_WS_MACX  //handle transition
+	    if(qApp->style().inherits("QAquaStyle") && parentWidget() && testWFlags(WShowModal)) {
 		TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd,
 					  kWindowSheetTransitionEffect, 
 					  kWindowShowTransitionAction, NULL);
+	    }
 #endif
 	    //now actually show it
 	    ShowHide((WindowPtr)hd, 1);
@@ -1227,13 +1235,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
 void QWidget::setMinimumSize( int minw, int minh)
 {
-    //I'm not happy to be doing this, but apparently this helps (ie on a mainwindow, so the
-    //status bar doesn't fall of the bottom) this might need a FIXME!!!
-    if(isTopLevel() && !parentWidget() && !isPopup()) {
-	minw+=10;
-	minh+=10;
-    }
-
 #if defined(QT_CHECK_RANGE)
     if ( minw < 0 || minh < 0 )
 	qWarning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
@@ -1575,12 +1576,23 @@ void QWidget::propagateUpdates()
     RgnHandle r = NewRgn();
     GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, r);
     if(!EmptyRgn(r)) {
+#ifdef Q_WS_MACX //don't flush every widget that paints
+	qt_mac_noflush = TRUE;
+#endif
+
 	QRegion rgn(r);
 	rgn.translate(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
 	debug_wndw_rgn("*****propagatUpdates", topLevelWidget(), rgn);
 	BeginUpdate((WindowPtr)hd);
 	paint_children( this, rgn );
 	EndUpdate((WindowPtr)hd);
+
+#ifdef Q_WS_MACX //now we do a flush of the whole region
+	qt_mac_noflush = FALSE;
+	if(QDIsPortBuffered(GetWindowPort((WindowPtr)hd)))
+	    QDFlushPortBuffer(GetWindowPort((WindowPtr)hd), (RgnHandle)rgn.handle());
+#endif
+
     }
     DisposeRgn(r);
 }
