@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrid.h#12 $
+** $Id: //depot/qt/main/src/widgets/qgrid.h#13 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -22,10 +22,9 @@ class Q_EXPORT QGrid : public QFrame
     Q_OBJECT
 public:
     enum Direction { Horizontal, Vertical };
-    QGrid( int n, QWidget *parent=0, const char *name=0, WFlags f=0,
-	   bool allowLines=TRUE  );
-    QGrid( int n, Direction, QWidget *parent=0, const char *name=0, 
-	   WFlags f=0, bool allowLines=TRUE  );
+    QGrid( int n, QWidget *parent=0, const char *name=0, WFlags f=0 );
+    QGrid( int n, Direction, QWidget *parent=0, const char *name=0,
+	   WFlags f=0 );
     void setSpacing( int );
 
 protected:

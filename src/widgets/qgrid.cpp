@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrid.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qgrid.cpp#14 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -18,11 +18,12 @@
   \ingroup geomanagement
 
   The number of rows or columns is defined in the constructor. All its
-  children will be placed and sized according to their sizeHint()s.
+  children will be placed and sized according to their sizeHint() and
+  sizePolicy() return values.
 
   Use setMargin() to add space around the edge, and use addSpacing to
   add space between the widgets.
-  
+
   \sa QVBox and QHBox
  */
 
@@ -33,9 +34,8 @@
   \c Horizontal, \a n specifies the number of columns. If \a d is \c Vertical,
   \a n specifies the number of rows.
  */
-QGrid::QGrid( int n, Direction d, QWidget *parent, const char *name, WFlags f,
-	      bool allowLines )
-    :QFrame( parent, name, f, allowLines )
+QGrid::QGrid( int n, Direction d, QWidget *parent, const char *name, WFlags f )
+    :QFrame( parent, name, f )
 {
     int nCols, nRows;
     if ( d == Horizontal ) {
@@ -55,9 +55,8 @@ QGrid::QGrid( int n, Direction d, QWidget *parent, const char *name, WFlags f,
   Constructs a grid widget with parent \a parent and name \a name.
   \a n specifies the number of columns.
  */
-QGrid::QGrid( int n, QWidget *parent, const char *name, WFlags f, 
-	      bool allowLines )
-    :QFrame( parent, name, f, allowLines )
+QGrid::QGrid( int n, QWidget *parent, const char *name, WFlags f )
+    :QFrame( parent, name, f )
 {
     lay = new QGridLayout( this, -1, n, 0, 0, name );
     lay->setAutoAdd( TRUE );
