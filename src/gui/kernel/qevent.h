@@ -170,7 +170,7 @@ public:
             ignore();
     }
     inline QT_COMPAT int ascii() const
-    { return (txt.length() ? txt.unicode()->latin1() : 0); }
+    { return (txt.length() ? txt.unicode()->toLatin1() : 0); }
     inline QT_COMPAT Qt::ButtonState state() const { return Qt::ButtonState(QInputEvent::modifiers()); }
     inline QT_COMPAT Qt::ButtonState stateAfter() const { return Qt::ButtonState(modifiers()); }
 #endif

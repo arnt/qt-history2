@@ -640,8 +640,12 @@ public:
     inline void setCell(uchar cell) { QChar(*this).setCell(cell); }
     inline void setRow(uchar row) { QChar(*this).setRow(row); }
 
-    const char ascii() const { return QChar(*this).ascii(); }
-    const char latin1() const { return QChar(*this).latin1(); }
+    const char toAscii() const { return QChar(*this).toAscii(); }
+    const char toLatin1() const { return QChar(*this).toLatin1(); }
+#ifdef QT_COMPAT
+    const char latin1() const { return QChar(*this).toLatin1(); }
+    const char ascii() const { return QChar(*this).toAscii(); }
+#endif
     const ushort unicode() const { return QChar(*this).unicode(); }
 };
 inline QString::QString() : d(&shared_null) { ++d->ref; }

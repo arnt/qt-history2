@@ -796,9 +796,9 @@ void QLCDNumberPrivate::drawString(const QString &s, QPainter &p,
     for (int i=0;  i<ndigits; i++) {
         pos = QPoint(xOffset + xAdvance*i, yOffset);
         if (newString)
-            drawDigit(pos, p, segLen, s[i].latin1(), digitStr[i].latin1());
+            drawDigit(pos, p, segLen, s[i].toLatin1(), digitStr[i].toLatin1());
         else
-            drawDigit(pos, p, segLen, s[i].latin1());
+            drawDigit(pos, p, segLen, s[i].toLatin1());
         if (newPoints) {
             char newPoint = newPoints->testBit(i) ? '.' : ' ';
             if (newString) {

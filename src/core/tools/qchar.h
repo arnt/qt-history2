@@ -22,8 +22,8 @@ struct QLatin1Char
 {
 public:
     inline explicit QLatin1Char(char c) : ch(c) {}
-    inline char latin1() const { return ch; }
-    inline ushort unicode() const { return ushort(ch); }
+    inline const char toLatin1() const { return ch; }
+    inline const ushort unicode() const { return ushort(ch); }
 
 private:
     const char ch;
@@ -184,8 +184,8 @@ public:
 
     UnicodeVersion unicodeVersion() const;
 
-    const char ascii() const;
-    const char latin1() const;
+    const char toAscii() const;
+    const char toLatin1() const;
     inline const ushort unicode() const { return ucs; }
     inline ushort &unicode() { return ucs; }
 
@@ -214,6 +214,8 @@ public:
     static inline QT_COMPAT bool networkOrdered() {
         return QSysInfo::ByteOrder == QSysInfo::BigEndian;
     }
+    inline QT_COMPAT const char latin1() const { return toLatin1(); }
+    inline QT_COMPAT const char ascii() const { return toAscii(); }
 #endif
 
 private:
@@ -228,7 +230,7 @@ Q_DECLARE_TYPEINFO(QChar, Q_MOVABLE_TYPE);
 
 inline QChar::QChar() : ucs(0) {}
 
-inline const char QChar::latin1() const { return ucs > 0xff ? 0 : char(ucs); }
+inline const char QChar::toLatin1() const { return ucs > 0xff ? 0 : char(ucs); }
 inline QChar QChar::fromLatin1(char c) { return QChar(ushort(c)); }
 
 inline QChar::QChar(uchar c, uchar r) : ucs((r << 8) | c){}

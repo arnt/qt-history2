@@ -21,7 +21,7 @@
 class Q_GUI_EXPORT QSizePolicy
 {
 private:
-    enum {
+    enum SizePolicy {
         HSize = 6,
         HMask = 0x3f,
         VMask = HMask << HSize,

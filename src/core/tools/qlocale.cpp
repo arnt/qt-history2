@@ -1728,7 +1728,7 @@ static const char *winLangCodeToIsoName(int code)
 static QString winIso639LangName()
 {
     QString result;
-    
+
     // Windows returns the wrong ISO639 for some languages, we need to detect them here using
     // the language code
     QString lang_code;
@@ -1741,7 +1741,7 @@ static QString winIso639LangName()
         if (GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_ILANGUAGE, out, 255))
             lang_code = QString::fromLocal8Bit(out);
     });
-    
+
     if (!lang_code.isEmpty()) {
         const char *endptr;
         bool ok;
@@ -1756,10 +1756,10 @@ static QString winIso639LangName()
             }
         }
     }
-    
+
     if (!result.isEmpty())
         return result;
-    
+
     // not one of the problematic languages - do the usual lookup
     QT_WA({
         TCHAR out[256];
@@ -1770,7 +1770,7 @@ static QString winIso639LangName()
         if (GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, out, 255))
             result = QString::fromLocal8Bit(out);
     });
-    
+
     return result;
 }
 
@@ -1787,7 +1787,7 @@ static QString winIso3116CtryName()
         if (GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255))
             result = QString::fromLocal8Bit(out);
     });
-    
+
     return result;
 }
 
@@ -3576,9 +3576,9 @@ bool QLocalePrivate::numberToCLocale(const QString &num,
         else if (in == percent())
             out = '%';
         else if (in.unicode() >= 'A' && in.unicode() <= 'Z')
-            out = in.toLower().latin1();
+            out = in.toLower().toLatin1();
         else if (in.unicode() >= 'a' && in.unicode() <= 'z')
-            out = in.latin1();
+            out = in.toLatin1();
         else
             break;
 
@@ -5657,7 +5657,7 @@ static char *qdtoa ( double d, int mode, int ndigits, int *decpt, int *sign, cha
 #ifdef Q_OS_LINUX
     fesetenv(&envp);
 #endif
-    
+
     return s;
 }
 

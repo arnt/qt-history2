@@ -24,8 +24,8 @@ static QByteArray unzipXPM(QString data, ulong& length)
     int baSize = data.length() / 2 + lengthOffset;
     uchar *ba = new uchar[baSize];
     for (int i = lengthOffset; i < baSize; ++i) {
-        char h = data[2 * (i-lengthOffset)].latin1();
-        char l = data[2 * (i-lengthOffset) + 1].latin1();
+        char h = data[2 * (i-lengthOffset)].toLatin1();
+        char l = data[2 * (i-lengthOffset) + 1].toLatin1();
         uchar r = 0;
         if (h <= '9')
             r += h - '0';

@@ -435,7 +435,7 @@ MakefileGenerator::init()
                             } else {
                                 debug_msg(1, "%s:%d Cannot match %s%c%s, as %s does not exist.",
                                           __FILE__, __LINE__, real_dir.toLatin1().constData(),
-                                          QDir::separator().latin1(),
+                                          QDir::separator().toLatin1(),
                                           regex.toLatin1().constData(), real_dir.toLatin1().constData());
                                 warn_msg(WarnLogic, "Failure to find: %s", val.toLatin1().constData());
                             }

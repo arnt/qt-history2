@@ -103,7 +103,7 @@ static int getCharFromString()
     if ( yyInPos == (int) yyInStr.length() ) {
         return EOF;
     } else {
-        return yyInStr[yyInPos++].latin1();
+        return yyInStr[yyInPos++].toLatin1();
     }
 }
 

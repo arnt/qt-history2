@@ -3852,7 +3852,7 @@ QString QRegExp::escape(const QString &str)
     int i = 0;
 
     while (i < quoted.length()) {
-        if (strchr(meta, quoted.at(i).latin1()) != 0)
+        if (strchr(meta, quoted.at(i).toLatin1()) != 0)
             quoted.insert(i++, QLatin1Char('\\'));
         i++;
     }
