@@ -74,6 +74,7 @@ public:
     virtual int regionAt(const QWidget *w, const QPoint &point);
 
     virtual void regionClicked(QWidget *widget, int region);
+    virtual void regionDoubleClicked(QWidget *widget, int region);
     virtual void buildSysMenu(QWidget *widget, QMenu *menu);
     void menuTriggered(QWidget *widget, QAction *action);
 

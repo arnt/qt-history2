@@ -59,7 +59,7 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent *);
     virtual void mousePressEvent(QMouseEvent *);
     virtual void mouseReleaseEvent(QMouseEvent *);
-    virtual void mouseDoubleClickEvent(QMouseEvent *) {}
+    virtual void mouseDoubleClickEvent(QMouseEvent *);
     virtual void paintEvent(QPaintEvent *);
     bool repaintRegion(int region, QDecoration::DecorationState state);
 

@@ -198,6 +198,20 @@ void QDecoration::regionClicked(QWidget *widget, int reg)
     }
 }
 
+void QDecoration::regionDoubleClicked(QWidget *widget, int reg)
+{
+    switch(reg)
+    {
+        case Title: {
+            if (widget->testWState(Qt::WState_Maximized))
+                widget->showNormal();
+            else
+                widget->showMaximized();
+            break;
+        }
+    }
+}
+
 /*!
     Initiates move mode for the TLW handled by QWSManager.
 */

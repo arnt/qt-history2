@@ -193,6 +193,13 @@ void QWSManager::mouseReleaseEvent(QMouseEvent *e)
     }
 }
 
+void QWSManager::mouseDoubleClickEvent(QMouseEvent *e)
+{
+    if (e->button() == Qt::LeftButton)
+        QApplication::qwsDecoration().regionDoubleClicked(d->managed,
+            QApplication::qwsDecoration().regionAt(d->managed, e->globalPos()));
+}
+
 static inline Qt::CursorShape regionToShape(int region)
 {
     if (region == QDecoration::None)
