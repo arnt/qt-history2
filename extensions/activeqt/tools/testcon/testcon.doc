@@ -15,7 +15,13 @@
 
     Use the application to view the slots, signals and porperties 
     available through the QAxWidget class when instantiated with a 
-    certain ActiveX, and to test ActiveX controls you implement.
+    certain ActiveX, and to test ActiveX controls you implement or
+    want to use in your Qt application.
+
+    The application can load and execute script files in JavaScript, 
+    VBScript, Perl and Python to program the controls loaded. Example
+    script files using the QAxWidget2 class are available in the \c scripts
+    subdirectory.
 
     Note that the qmake project of this example includes a resource file
     \c testcon.rc with a version resource. This is required by some
