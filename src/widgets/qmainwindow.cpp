@@ -1933,7 +1933,7 @@ void QMainWindow::setUpLayout()
 	    d->hideDock->hide();
 	} else {
 	    d->hideDock->repaint( TRUE );
-	    repaint( TRUE );
+	    update();
 	}
     } else {
 	d->hideDock->hide();
@@ -2258,7 +2258,7 @@ void QMainWindow::triggerLayout( bool deleteLayout )
 		d->hideDock->hide();
 	    } else {
 		d->hideDock->repaint( TRUE );
-		repaint( TRUE );
+		update();
 	    }
 	} else {
 	    d->hideDock->hide();
