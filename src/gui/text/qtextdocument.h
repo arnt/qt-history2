@@ -88,7 +88,8 @@ public slots:
     void redo();
     void appendUndoItem(QAbstractUndoItem *);
 
-
+public:
+    const QTextDocumentPrivate *data() const;
 protected:
     virtual QTextObject *createObject(const QTextFormat &f);
 

@@ -118,7 +118,7 @@ QTextTable *QTextCursorPrivate::tableAt(int position) const
         QTextTable *table = qt_cast<QTextTable *>(frame);
         if (table)
             return table;
-        frame = frame->parent();
+        frame = frame->parentFrame();
     }
     return 0;
 }
@@ -140,12 +140,12 @@ void QTextCursorPrivate::adjustCursor()
         QTextFrame *f = f_position;
         while (f) {
             positionChain.prepend(f);
-            f = f->parent();
+            f = f->parentFrame();
         }
         f = f_anchor;
         while (f) {
             anchorChain.prepend(f);
-            f = f->parent();
+            f = f->parentFrame();
         }
         Q_ASSERT(positionChain.at(0) == anchorChain.at(0));
         int i = 1;
@@ -157,14 +157,14 @@ void QTextCursorPrivate::adjustCursor()
 
         if (position < adjusted_anchor) {
             if (i < positionChain.size())
-                position = positionChain.at(i)->startPosition() - 1;
+                position = positionChain.at(i)->firstPosition() - 1;
             if (i < anchorChain.size())
-                adjusted_anchor = anchorChain.at(i)->endPosition() + 1;
+                adjusted_anchor = anchorChain.at(i)->lastPosition() + 1;
         } else {
             if (i < positionChain.size())
-                position = positionChain.at(i)->endPosition() + 1;
+                position = positionChain.at(i)->lastPosition() + 1;
             if (i < anchorChain.size())
-                adjusted_anchor = anchorChain.at(i)->startPosition() - 1;
+                adjusted_anchor = anchorChain.at(i)->firstPosition() - 1;
         }
 
         f_position = positionChain.at(i-1);
@@ -180,11 +180,11 @@ void QTextCursorPrivate::adjustCursor()
     if (c_position != c_anchor) {
         // adjust to cell boundaries
         if (position < adjusted_anchor) {
-            position = c_position.startPosition();
-            adjusted_anchor = c_anchor.endPosition();
+            position = c_position.firstPosition();
+            adjusted_anchor = c_anchor.lastPosition();
         } else {
-            position = c_position.endPosition();
-            adjusted_anchor = c_anchor.startPosition();
+            position = c_position.lastPosition();
+            adjusted_anchor = c_anchor.firstPosition();
         }
     }
 }
@@ -252,13 +252,13 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
             QTextTable *table = qt_cast<QTextTable *>(pieceTable->frameAt(blockPosition));
             if (table) {
                 QTextTableCell cell = table->cellAt(blockPosition);
-                if (cell.startPosition() == blockPosition) {
+                if (cell.firstPosition() == blockPosition) {
                     int row = cell.row() - 1;
                     if (row >= 0) {
-                        blockPosition = table->cellAt(row, cell.column()).endPosition();
+                        blockPosition = table->cellAt(row, cell.column()).lastPosition();
                     } else {
                         // move to line above the table
-                        blockPosition = table->startPosition() - 1;
+                        blockPosition = table->firstPosition() - 1;
                     }
                     blockIt = pieceTable->blocksFind(blockPosition);
                 } else {
@@ -317,13 +317,13 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
             QTextTable *table = qt_cast<QTextTable *>(pieceTable->frameAt(blockPosition));
             if (table) {
                 QTextTableCell cell = table->cellAt(blockPosition);
-                if (cell.endPosition() == blockPosition) {
+                if (cell.lastPosition() == blockPosition) {
                     int row = cell.row() + cell.rowSpan();
                     if (row < table->rows()) {
-                        blockPosition = table->cellAt(row, cell.column()).startPosition();
+                        blockPosition = table->cellAt(row, cell.column()).firstPosition();
                     } else {
                         // move to line below the table
-                        blockPosition = table->endPosition() + 1;
+                        blockPosition = table->lastPosition() + 1;
                     }
                     blockIt = pieceTable->blocksFind(blockPosition);
                 } else {

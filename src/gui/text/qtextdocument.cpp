@@ -395,3 +395,7 @@ QTextFrame *QTextDocument::rootFrame() const
     return d->rootFrame();
 }
 
+const QTextDocumentPrivate *QTextDocument::data() const
+{
+    return d;
+}

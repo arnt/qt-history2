@@ -13,7 +13,6 @@
 #include "qtextdocument.h"
 #include <qmap.h>
 
-#include "qtextglobal_p.h"
 #include <qtextblockiterator.h>
 #endif // QT_H
 // #define QT_QMAP_DEBUG
@@ -29,6 +28,14 @@ class QTextCursorPrivate;
 class QAbstractTextDocumentLayout;
 class QTextDocument;
 class QTextFrame;
+
+#define QTextBeginningOfFrame QChar(0xfdd0)
+#define QTextEndOfFrame QChar(0xfdd1)
+
+struct QTextDocumentConfig
+{
+    QString title;
+};
 
 class QTextFragmentData : public QFragment
 {

@@ -160,7 +160,7 @@ int QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPoint &point, 
 {
     QTextFrameData *fd = data(frame);
 
-    LDEBUG << "checking frame" << frame->startPosition() << "point=" << point;
+    LDEBUG << "checking frame" << frame->firstPosition() << "point=" << point;
     if (!fd->boundingRect.contains(point) && frame != q->rootFrame()) {
         LDEBUG << "outside";
         return -1;
@@ -169,14 +169,14 @@ int QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPoint &point, 
 
     QPoint p = point - fd->boundingRect.topLeft();
 
-    QTextBlockIterator it = q->findBlock(frame->startPosition());
-    QTextBlockIterator end = q->findBlock(frame->endPosition()+1);
+    QTextBlockIterator it = q->findBlock(frame->firstPosition());
+    QTextBlockIterator end = q->findBlock(frame->lastPosition()+1);
 
-    QList<QTextFrame *> children = frame->children();
+    QList<QTextFrame *> children = frame->childFrames();
     int pos = -1;
     for (int i = 0; i < children.size(); ++i) {
         QTextFrame *c = children.at(i);
-        QTextBlockIterator s = q->findBlock(c->startPosition());
+        QTextBlockIterator s = q->findBlock(c->firstPosition());
         while (it != s) {
             pos = hitTest(it, p, accuracy);
             if (pos != -1)
@@ -186,7 +186,7 @@ int QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPoint &point, 
         pos = hitTest(c, p, accuracy);
         if (pos != -1)
             goto end;
-        it = q->findBlock(c->endPosition()+1);
+        it = q->findBlock(c->lastPosition()+1);
     }
     while (it != end) {
         pos = hitTest(it, p, accuracy);
@@ -197,8 +197,8 @@ int QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPoint &point, 
  end:
     DEC_INDENT;
     if (pos == -1 && accuracy == QText::FuzzyHit) {
-        int p = frame->endPosition();
-        QTextBlockIterator it = q->findBlock(frame->endPosition());
+        int p = frame->lastPosition();
+        QTextBlockIterator it = q->findBlock(frame->lastPosition());
         if (it == q->end())
             --it;
         QRect r = it.layout()->rect();
@@ -268,7 +268,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
     QTextFrameData *fd = data(frame);
     if (!fd->boundingRect.intersects(painter->clipRegion().boundingRect()))
         return;
-//     LDEBUG << debug_indent << "drawFrame" << frame->startPosition() << "--" << frame->endPosition() << "at" << offset;
+//     LDEBUG << debug_indent << "drawFrame" << frame->firstPosition() << "--" << frame->lastPosition() << "at" << offset;
 //     INC_INDENT;
 
     QPoint off = offset + fd->boundingRect.topLeft();
@@ -287,19 +287,19 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
         painter->restore();
     }
 
-    QTextBlockIterator it = q->findBlock(frame->startPosition());
-    QTextBlockIterator end = q->findBlock(frame->endPosition()+1);
+    QTextBlockIterator it = q->findBlock(frame->firstPosition());
+    QTextBlockIterator end = q->findBlock(frame->lastPosition()+1);
 
-    QList<QTextFrame *> children = frame->children();
+    QList<QTextFrame *> children = frame->childFrames();
     for (int i = 0; i < children.size(); ++i) {
         QTextFrame *c = children.at(i);
-        QTextBlockIterator s = q->findBlock(c->startPosition());
+        QTextBlockIterator s = q->findBlock(c->firstPosition());
         while (it != s) {
             drawBlock(off, painter, context, it);
             ++it;
         }
         drawFrame(off, painter, context, children.at(i));
-        it = q->findBlock(c->endPosition()+1);
+        it = q->findBlock(c->lastPosition()+1);
     }
     while (it != end) {
         drawBlock(off, painter, context, it);
@@ -450,14 +450,14 @@ void QTextDocumentLayoutPrivate::relayoutDocument()
 void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo)
 {
     Q_ASSERT(data(f)->dirty);
-//     qDebug("layouting frame (%d--%d)", f->startPosition(), f->endPosition());
+//     qDebug("layouting frame (%d--%d)", f->firstPosition(), f->lastPosition());
 
     QTextFrameData *fd = data(f);
     QTextFrameFormat fformat = f->format();
 
     {
         // set sizes of this frame from the format
-        QTextFrame *parent = f->parent();
+        QTextFrame *parent = f->parentFrame();
         QTextFrameData *pd = parent ? data(parent) : 0;
         fd->margin = fformat.margin();
         fd->border = fformat.border();
@@ -480,8 +480,8 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
         fd->position = fformat.position();
     }
 
-    int startPos = f->startPosition();
-    int endPos = f->endPosition();
+    int startPos = f->firstPosition();
+    int endPos = f->lastPosition();
     if (startPos > endPos) {
         // inline image
         data(f)->dirty = false;
@@ -491,7 +491,7 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
     bool fullLayout = false;
 
     // layout child frames
-    QList<QTextFrame *> children = f->children();
+    QList<QTextFrame *> children = f->childFrames();
     for (int i = 0; i < children.size(); ++i) {
         QTextFrame *c = children.at(i);
         QTextFrameData *cd = data(c);
@@ -547,8 +547,8 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
 
     for (int i = 0; i < children.size(); ++i) {
         QTextFrame *c = children.at(i);
-        int c_start = c->startPosition();
-        int c_end = c->endPosition();
+        int c_start = c->firstPosition();
+        int c_end = c->lastPosition();
 
         if (c_start > pos)
             layoutFlow(&layoutStruct, pos, c_start);
@@ -718,11 +718,11 @@ void QTextDocumentLayout::draw(QPainter *painter, const PaintContext &context)
 
 static void markFrames(QTextFrame *current, int start, int end)
 {
-    if (current->startPosition() > end || current->endPosition() < start)
+    if (current->firstPosition() > end || current->lastPosition() < start)
         return;
     data(current)->dirty = true;
-//     qDebug("    marking frame (%d--%d) as dirty", current->startPosition(), current->endPosition());
-    QList<QTextFrame *> children = current->children();
+//     qDebug("    marking frame (%d--%d) as dirty", current->firstPosition(), current->lastPosition());
+    QList<QTextFrame *> children = current->childFrames();
     for (int i = 0; i < children.size(); ++i)
         markFrames(children.at(i), start, end);
 }

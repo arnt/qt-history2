@@ -5,7 +5,7 @@
 #include <qobject.h>
 #include <qabstracttextdocumentlayout.h>
 
-#include "qtextglobal_p.h"
+#include "qtextdocument_p.h"
 #endif // QT_H
 
 class QTextImageFormat;

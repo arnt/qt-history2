@@ -30,10 +30,10 @@ public:
 
     inline bool isValid() const { return d != 0; }
 
-    QTextCursor start() const;
-    QTextCursor end() const;
-    int startPosition() const;
-    int endPosition() const;
+    QTextCursor first() const;
+    QTextCursor last() const;
+    int firstPosition() const;
+    int lastPosition() const;
 
     inline bool operator==(const QTextTableCell &other) const
     { return d == other.d && fragment == other.fragment; }

@@ -895,7 +895,7 @@ void QTextDocumentPrivate::changeObjectFormat(QTextObject *obj, int format)
     }
     QTextFrame *f = qt_cast<QTextFrame *>(obj);
     if (f)
-        documentChange(f->startPosition(), f->endPosition() - f->startPosition());
+        documentChange(f->firstPosition(), f->lastPosition() - f->firstPosition());
 
     UndoCommand c = { UndoCommand::GroupFormatChange, true, UndoCommand::MoveCursor, oldFormatIndex,
                       0, 0, { 1 } };
@@ -909,10 +909,10 @@ void QTextDocumentPrivate::changeObjectFormat(QTextObject *obj, int format)
 static QTextFrame *findChildFrame(QTextFrame *f, int pos)
 {
     // ##### use binary search
-    QList<QTextFrame *> children = f->children();
+    QList<QTextFrame *> children = f->childFrames();
     for (int i = 0; i < children.size(); ++i) {
         QTextFrame *c = children.at(i);
-        if (pos >= c->startPosition() && pos <= c->endPosition()) {
+        if (pos >= c->firstPosition() && pos <= c->lastPosition()) {
             return c;
         }
     }
@@ -987,8 +987,8 @@ void QTextDocumentPrivate::scan_frames(int pos, int charsRemoved, int charsAddde
 
 void QTextDocumentPrivate::insert_frame(QTextFrame *f)
 {
-    int start = f->startPosition();
-    int end = f->endPosition();
+    int start = f->firstPosition();
+    int end = f->lastPosition();
     QTextFrame *parent = frameAt(start-1);
     Q_ASSERT(parent == frameAt(end+1));
 
@@ -996,7 +996,7 @@ void QTextDocumentPrivate::insert_frame(QTextFrame *f)
         // iterator over the parent and move all children contained in my frame to myself
         for (int i = 0; i < parent->d->childFrames.size(); ++i) {
             QTextFrame *c = parent->d->childFrames.at(i);
-            if (start < c->startPosition() && end > c->endPosition()) {
+            if (start < c->firstPosition() && end > c->lastPosition()) {
                 parent->d->childFrames.removeAt(i);
                 f->d->childFrames.append(c);
                 c->d->parentFrame = f;
@@ -1007,7 +1007,7 @@ void QTextDocumentPrivate::insert_frame(QTextFrame *f)
     int i = 0;
     for (; i < parent->d->childFrames.size(); ++i) {
         QTextFrame *c = parent->d->childFrames.at(i);
-        if (c->startPosition() > end)
+        if (c->firstPosition() > end)
             break;
     }
     parent->d->childFrames.insert(i, f);
@@ -1054,8 +1054,8 @@ void QTextDocumentPrivate::removeFrame(QTextFrame *frame)
     if (!parent)
         return;
 
-    int start = frame->startPosition();
-    int end = frame->endPosition();
+    int start = frame->firstPosition();
+    int end = frame->lastPosition();
     Q_ASSERT(end >= start);
 
     beginEditBlock();

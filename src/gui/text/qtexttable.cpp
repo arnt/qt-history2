@@ -94,33 +94,29 @@ int QTextTableCell::columnSpan() const
 
 
 /*!
-  \fn QTextCursor QTextTableCell::start() const
-
   Returns if a QTextCursor pointing to the start of the cell.
 */
-QTextCursor QTextTableCell::start() const
+QTextCursor QTextTableCell::first() const
 {
-    return QTextCursor(d->pieceTable, startPosition());
+    return QTextCursor(d->pieceTable, firstPosition());
 }
 
 /*!
-  \fn QTextCursor QTextTableCell::end() const
-
   Returns if a QTextCursor pointing to the end of the cell.
 */
-QTextCursor QTextTableCell::end() const
+QTextCursor QTextTableCell::last() const
 {
-    return QTextCursor(d->pieceTable, endPosition());
+    return QTextCursor(d->pieceTable, lastPosition());
 }
 
 
-int QTextTableCell::startPosition() const
+int QTextTableCell::firstPosition() const
 {
     QTextDocumentPrivate *p = d->pieceTable;
     return p->fragmentMap().position(fragment) + 1;
 }
 
-int QTextTableCell::endPosition() const
+int QTextTableCell::lastPosition() const
 {
     QTextDocumentPrivate *p = d->pieceTable;
     int index = d->cells.indexOf(fragment) + 1;
