@@ -96,6 +96,10 @@ void Roads::paintEvent(QPaintEvent *)
         if (vec.dy() < 0)
             angle = 360 - angle;
 
+        // Hack to avoid the jumping of cars at for this given t value
+        if (t >= 116 && t <= 118)
+            angle = 100;
+
         p.setPen(Qt::NoPen);
         p.setBrush(Qt::red);
         p.rotate(angle-180);
