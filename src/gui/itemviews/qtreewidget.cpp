@@ -367,6 +367,7 @@ QMimeData *QTreeModel::mimeData(const QModelIndexList &indexes) const
 bool QTreeModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
                               int row, const QModelIndex &parent)
 {
+    qDebug() << "dropping data";
     // FIXME: just do copy for now
     if (action == QDrag::MoveAction)
         qWarning("QDrag::MoveAction is not supported yet");
@@ -390,19 +391,28 @@ QDrag::DropActions QTreeModel::supportedDropActions() const
 
 bool QTreeModel::insertRows(int row, const QModelIndex &parent, int count)
 {
-    Q_UNUSED(count);
-
+    QTreeWidgetItem *c = 0;
     if (parent.isValid()) {
-        QTreeWidgetItem *p =  item(parent);
-        if (p) {
-            p->children.insert(row, new QTreeWidgetItem(p));
-            emit rowsInserted(parent, row, row);
-            return true;
+        QTreeWidgetItem *p = item(parent);
+        Q_ASSERT(p);
+        for (int r = row; r < row + count; ++r) {
+            c = new QTreeWidgetItem();
+            c->view = p->view;
+            c->model = p->model;
+            c->par = p;
+            p->children.insert(r, c);
         }
-        return false;
+    } else {
+        QTreeWidget *view = ::qt_cast<QTreeWidget*>(QObject::parent());
+        for (int r = row; r < row + count; ++r) {
+            c = new QTreeWidgetItem();
+            c->view = view;
+            c->model = this;
+            c->par = 0;
+            tree.insert(r, c);
+        }
     }
-    tree.insert(row, new QTreeWidgetItem());
-    emit rowsInserted(parent, row, row);
+    emit rowsInserted(parent, row, row + count - 1);
     return true;
 }
 
