@@ -585,12 +585,12 @@ void QTabWidget::setUpLayout(bool onlyCheck)
     // move cornerwidgets
     if (d->leftCornerWidget) {
         int y = (t.height() / 2) - (d->leftCornerWidget->height() / 2);
-        int x = (reverse ? width() - lcw + y : y);
+        int x = (reverse ? width() - lcw : 0);
         d->leftCornerWidget->move(x, y + taby);
     }
     if (d->rightCornerWidget) {
         int y = (t.height() / 2) - (d->rightCornerWidget->height() / 2);
-        int x = (reverse ? y : width() - rcw + y);
+        int x = (reverse ? 0 : width() - rcw);
         d->rightCornerWidget->move(x, y + taby);
     }
     if (!onlyCheck)
