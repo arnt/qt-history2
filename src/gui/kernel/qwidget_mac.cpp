@@ -1874,8 +1874,9 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     const bool isResize = (olds != QSize(w, h));
     if(!q->isTopLevel() && !isResize && QPoint(x, y) == oldp)
         return;
-    if(isResize && q->isMaximized())
-        q->setWindowState(q->windowState() & ~Qt::WindowMaximized);
+    if(isResize && q->isMaximized()) {
+        data.window_state = data.window_state & ~Qt::WindowMaximized;
+    }
     const bool visible = q->isVisible();
     data.crect = QRect(x, y, w, h);
 
