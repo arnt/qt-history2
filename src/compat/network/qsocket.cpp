@@ -507,8 +507,11 @@ void QSocketPrivate::setSocket(int socket)
         q->close();
     }
 
+    // Reset the device, but keep the read buffer size.
+    Q_ULONG oldBufferSize = readBufferSize;
     terminate();
     init();
+    d->readBufferSize = oldBufferSize;
 
     if (socket >= 0) {
         QSocketDevice *sd = new QSocketDevice(socket, QSocketDevice::Stream);
