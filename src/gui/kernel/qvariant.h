@@ -95,6 +95,7 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     inline QVariant(const QByteArray &bytearray);
     inline QVariant(const QBitArray &bitarray);
     inline QVariant(const QString &string);
+    inline QVariant(const QLatin1String &string);
     inline QVariant(const QStringList &stringlist);
 
     inline QVariant(const QDate &date);
@@ -198,6 +199,7 @@ inline QVariant::QVariant(const char *str) : QCoreVariant(str) {}
 inline QVariant::QVariant(const QByteArray &bytearray) : QCoreVariant(bytearray) {}
 inline QVariant::QVariant(const QBitArray &bitarray) : QCoreVariant(bitarray) {}
 inline QVariant::QVariant(const QString &string) : QCoreVariant(string) {}
+inline QVariant::QVariant(const QLatin1String &string) : QCoreVariant(string) {}
 inline QVariant::QVariant(const QStringList &stringlist) : QCoreVariant(stringlist) {}
 
 inline QVariant::QVariant(const QDate &date) : QCoreVariant(date) {}

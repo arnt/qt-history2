@@ -99,6 +99,7 @@ class Q_CORE_EXPORT QCoreVariant
     QCoreVariant(const QByteArray &bytearray);
     QCoreVariant(const QBitArray &bitarray);
     QCoreVariant(const QString &string);
+    QCoreVariant(const QLatin1String &string);
     QCoreVariant(const QStringList &stringlist);
 
     QCoreVariant(const QDate &date);

@@ -50,6 +50,7 @@ public:
     inline QDebug &operator<<(double t) { stream->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(const char* t) { stream->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(const QString & t) { stream->ts << t; return maybeSpace(); }
+    inline QDebug &operator<<(const QLatin1String &t) { stream->ts << t.latin1(); return maybeSpace(); }
     inline QDebug &operator<<(const QByteArray & t) { stream->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(const void * t) { stream->ts << t; return maybeSpace(); }
     template <class T>

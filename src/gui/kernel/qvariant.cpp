@@ -902,6 +902,12 @@ const QVariant::Handler qt_gui_variant_handler = {
 */
 
 /*!
+    \fn QVariant::QVariant(const QLatin1String &val)
+
+    Constructs a new variant with a string value of \a val.
+*/
+
+/*!
     \fn QVariant::QVariant(const QStringList &val)
 
     Constructs a new variant with a string list value of \a val.

@@ -1139,6 +1139,12 @@ QCoreVariant::QCoreVariant(QDataStream &s)
 */
 
 /*!
+  \fn QCoreVariant::QCoreVariant(const QLatin1String &val)
+
+    Constructs a new variant with a string value, \a val.
+*/
+
+/*!
   \fn QCoreVariant::QCoreVariant(const char *val)
 
     Constructs a new variant with a C-string value of \a val if \a val
@@ -1146,6 +1152,7 @@ QCoreVariant::QCoreVariant(QDataStream &s)
 
     If \a val is null, the resulting variant has type Invalid.
 */
+
 
 QCoreVariant::QCoreVariant(const char *val)
 {
@@ -1266,6 +1273,8 @@ QCoreVariant::QCoreVariant(const QBitArray &val)
 { d = create(BitArray, &val); }
 QCoreVariant::QCoreVariant(const QString &val)
 { d = create(String, &val); }
+QCoreVariant::QCoreVariant(const QLatin1String &val)
+{ QString str(val); d = create(String, &str); }
 QCoreVariant::QCoreVariant(const QStringList &val)
 { d = create(StringList, &val); }
 
