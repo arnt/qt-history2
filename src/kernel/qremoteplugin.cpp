@@ -1,4 +1,7 @@
 #include "qremoteplugin.h"
+
+#ifndef QT_NO_REMOTE
+
 #include "qremoteinterface_p.h"
 #include "qobjectcleanuphandler.h"
 #include "qremoteinterface_p.h"
@@ -142,3 +145,4 @@ QRemotePlugin::~QRemotePlugin()
     // don't delete d, as this is deleted by d
 }
 
+#endif //QT_NO_REMOTE

@@ -6,6 +6,7 @@
 #include "qstringlist.h"
 #endif // QT_H
 
+#ifndef QT_NO_REMOTE
 class QRemoteInterface;
 class QRemotePluginPrivate;
 
@@ -22,5 +23,5 @@ public:
 private:
     QRemotePluginPrivate *d;
 };
-
+#endif // QT_NO_REMOTE
 #endif // QREMOTEPLUGIN_H
