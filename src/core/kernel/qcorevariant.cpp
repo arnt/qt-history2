@@ -1132,7 +1132,7 @@ void QCoreVariant::create(int type, const void *copy)
 
 QCoreVariant::~QCoreVariant()
 {
-    if (d.is_shared && !--d.data.shared->ref)
+    if (!d.is_shared || !--d.data.shared->ref)
         handler->clear(&d);
 }
 
