@@ -221,7 +221,7 @@ int main( int argc, char ** argv )
 
     if( resourceDir.isNull() )
 	resourceDir = qInstallPathTranslations();
-    if( !QFile::exists( resourceDir ) ) 
+    if( !QFile::exists( resourceDir ) )
 	fprintf( stderr, "Resource file directory '%s' does not exist!\n", resourceDir.latin1() );
 
     QTranslator translator( 0 );
@@ -234,7 +234,8 @@ int main( int argc, char ** argv )
 
     Config *conf = new Config( profileName );
     if ( !conf->validProfileName() ) {
-	qFatal( "Profile '%s' does not exist!\n", profileName.latin1() );
+	fprintf( stderr, "Profile '%s' does not exist!\n", profileName.latin1() );
+	fflush( stderr );
 	return -1;
     }
 
