@@ -662,7 +662,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
     QString cppFile(outname);
 
     ITypeLib *typelib;
-    LoadTypeLibEx(typeLibFile.utf16(), REGKIND_NONE, &typelib);
+    LoadTypeLibEx(reinterpret_cast<const wchar_t *>(typeLibFile.utf16()), REGKIND_NONE, &typelib);
     if (!typelib) {
         qWarning("dumpcpp: loading '%s' as a type library failed", typeLibFile.latin1());
         return false;
@@ -693,7 +693,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
         cppFile = libName.toLower();
 
     if (cppFile.isEmpty()) {
-        qWarning("dumpcpp: no output filename provided, and cannot deduce output filename", typeLibFile.latin1());
+        qWarning("dumpcpp: no output filename provided, and cannot deduce output filename");
         return false;
     }
 
@@ -949,8 +949,8 @@ int main(int argc, char **argv)
         // regular string and not a file - must be ProgID
         if (typeLib.at(0) != '{') {
             CLSID clsid;
-            if (CLSIDFromProgID(QString(QLatin1String(typeLib)).utf16(), &clsid) != S_OK) {
-                qWarning("dumpcpp: '%s' is not a type library and not a registered ProgID", typeLib);
+            if (CLSIDFromProgID(reinterpret_cast<const wchar_t *>(QString(QLatin1String(typeLib)).utf16()), &clsid) != S_OK) {
+                qWarning("dumpcpp: '%s' is not a type library and not a registered ProgID", typeLib.constData());
                 return -2;
             }
             QUuid uuid(clsid);
@@ -990,12 +990,12 @@ int main(int argc, char **argv)
     }
 
     if (!QFile::exists(typeLib)) {
-        qWarning("dumpcpp: type library '%s' not found", typeLib);
+        qWarning("dumpcpp: type library '%s' not found", typeLib.constData());
         return -2;
     }
 
     if (!generateTypeLibrary(typeLib, outname, (ObjectCategory)category)) {
-        qWarning("dumpcpp: error processing type library '%s'", typeLib);
+        qWarning("dumpcpp: error processing type library '%s'", typeLib.constData());
         return -1;
     }
 
