@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#3 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#4 $
 **
 ** Implementation of Network Extension Library
 **
@@ -165,28 +165,41 @@ QString QFtp::toString() const
 void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 {
     QStringList lst = QStringList::split( " ", buffer );
-    QString tmp;
+    
+    if ( lst.count() < 9 ) {
+	if ( buffer[ 0 ] == QChar( 'd' ) ||
+	     buffer[ 0 ] == QChar( '-' ) ||
+	     buffer[ 0 ] == QChar( 'l' ) )
+	    tmp = buffer.stripWhiteSpace();
+	return;
+    }
+    
+    QString tmp_;
 
     // permissions
-    tmp = lst[ 0 ];
+    tmp_ = lst[ 0 ];
 
-    if ( tmp[ 0 ] == QChar( 'd' ) ) {
+    if ( tmp_[ 0 ] == QChar( 'd' ) ) {
 	info.setDir( TRUE );
 	info.setFile( FALSE );
-    } else if ( tmp[ 0 ] == QChar( '-' ) ) {
+    } else if ( tmp_[ 0 ] == QChar( '-' ) ) {
 	info.setDir( FALSE );
 	info.setFile( TRUE );
     } else
 	return; // ### todo links
 
     // owner
-    tmp = lst[ 2 ];
-    info.setOwner( tmp );
+    tmp_ = lst[ 2 ];
+    info.setOwner( tmp_ );
 
     // group
-    tmp = lst[ 3 ];
-    info.setGroup( tmp );
+    tmp_ = lst[ 3 ];
+    info.setGroup( tmp_ );
 
+    // size
+    tmp_ = lst[ 4 ];
+    info.setSize( tmp_.toInt() );
+    
     // date, time #### todo
 
     // name
@@ -249,7 +262,7 @@ void QFtp::readyRead()
     } else if ( s.contains( "250" ) ) { // cwd succesfully, list dir
 	commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
     } else
-	qWarning( "unknown result: %s", s.data() );
+	;//qWarning( "unknown result: %s", s.data() );
 }
 
 void QFtp::dataHostFound()
@@ -261,6 +274,7 @@ void QFtp::dataConnected()
     QString path = url->path().isEmpty() ? QString( "/" ) : url->path();
     QString cmd = "CWD " + path + "\r\n";
     commandSocket->writeBlock( cmd.latin1(), cmd.length() );
+    tmp = QString::null;
 }
 
 void QFtp::dataClosed()
@@ -274,15 +288,21 @@ void QFtp::dataReadyRead()
     QCString s;
     s.resize( dataSocket->bytesAvailable() );
     dataSocket->readBlock( s.data(), dataSocket->bytesAvailable() );
-    QString ss = s.copy();
+    QString ss = QString::fromLatin1( s.copy() );
+    if ( !tmp.isEmpty() )
+	ss.prepend( tmp );
+    tmp = QString::null;
     QStringList lst = QStringList::split( '\n', ss );
     QStringList::Iterator it = lst.begin();
     for ( ; it != lst.end(); ++it ) {
 	QUrlInfo inf;
 	parseDir( *it, inf );
 	if ( !inf.name().isEmpty() ) {
-	    if ( url )
-		url->emitEntry( inf );
+	    if ( url ) {
+		QRegExp filt( url->nameFilter(), FALSE, TRUE );
+		if ( inf.isDir() || filt.match( inf.name() ) != -1 )
+		    url->emitEntry( inf );
+	    }
 	}
     }
 }

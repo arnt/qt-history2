@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.h#2 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.h#3 $
 **
 ** Implementation of Network Extension Library
 **
@@ -70,7 +70,8 @@ protected:
     QString extraData;
     Command command;
     bool connectionReady;
-
+    QString tmp;
+    
 protected slots:
     void hostFound();
     void connected();
