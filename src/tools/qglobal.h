@@ -168,6 +168,7 @@
 //   SUN	- Sun C++
 //   DEC	- DEC C++
 //   HP		- HPUX C++
+//   HPACC	- HPUX ANSI C++
 //   USLC	- SCO UnixWare C++
 //   CDS	- Reliant C++
 //   KAI	- KAI C++
@@ -210,36 +211,47 @@
 #  if __xlC__ < 0x400
 #    define Q_NO_BOOL_TYPE
 #  endif
-#elif defined(__COMO__) || defined(como40)
-// one documented, the other observed (?)
-// defines __EDG__
-#  define Q_CC_COMEAU
-#  define Q_C_CALLBACKS
-#elif defined(__USLC__)
-#  define Q_CC_USLC
-#  ifdef __EDG__ // UnixWare7
-#    define Q_HAS_BOOL_TYPE
-#  endif
 #elif defined(__EDG) || defined(__EDG__)
-// __EDG observed on SGI DCC, MIPSpro 7.3.1.1 and KAI C++
-// __EDG__ documented in EDG online docs, observed on Compaq C++
+// __EDG documented by SGI, observed on MIPSpro 7.3.1.1 and KAI C++ 4.0b
+// __EDG__ documented in EDG online docs, observed on Compaq C++ V6.3-002
 #  define Q_CC_EDG
 // the EDG documentation says that _BOOL is defined when the compiler has bool
-// but Compaq seem to have disabled this
+// but Compaq seem to have disabled this, as observed on Compaq C++ V6.3-002.
 #  if defined(__DECCXX)
 #    define Q_CC_DEC
-#    if __DECCXX_VER >= 60060005
-#      define Q_HAS_BOOL_TYPE
+#    if __DECCXX_VER < 60060005
+#      define Q_NO_BOOL_TYPE
 #    endif
-#  elif defined( __KCC )
-#    define Q_CC_KAI
+#  else
+#    if !defined(_BOOL)
+#      define Q_NO_BOOL_TYPE
+#    endif
+#    if defined(__COMO__) || defined(como40)
+// __COMO__ is documented, the other?
+#      define Q_CC_COMEAU
+#      define Q_C_CALLBACKS
+#    elif defined( __KCC )
+#      define Q_CC_KAI
+// the new UnixWare 7 compiler is based on EDG and defines __EDG__
+#    elif defined(__USLC__)
+#      define Q_CC_USLC
+#    endif
 #  endif
-#  if defined(_BOOL) && !defined(Q_HAS_BOOL_TYPE)
-#    define Q_HAS_BOOL_TYPE
+#elif defined(__CDS__)
+#  define Q_CC_EDG
+#  define Q_CC_CDS
+// does not seem to define __EDG__ or __EDG according to Reliant documentation
+// but nevertheless uses some EDG conventions
+#  if !defined(_BOOL)
+#    define Q_NO_BOOL_TYPE
 #  endif
 #elif defined(OBJECTCENTER) || defined(CENTERLINE_CLPP)
 // defines __EDG__?
 #  define Q_CC_OC
+#elif defined(__USLC__)
+// the older UnixWare compiler is not based on EDG
+#  define Q_CC_USLC
+#  define Q_NO_BOOL_TYPE
 #elif defined(__SUNPRO_CC)
 #  define Q_CC_SUN
 #  if __SUNPRO_CC >= 0x500
@@ -251,21 +263,6 @@
 #    endif
 #  else
      // 4.2 compiler or older
-#    define Q_NO_BOOL_TYPE
-#  endif
-#elif defined(__DECCXX)
-// defines __EDG__?
-#  define Q_CC_DEC
-#  if __DECCXX_VER < 60060005
-#    define Q_NO_BOOL_TYPE
-#  endif
-#elif defined(__CDS__)
-// defines __EDG__?
-#  define Q_CC_CDS
-#elif defined(__EDG__) || defined(__EDG)
-// one documented by EDG, the other documented by SGI
-#  define Q_CC_EDG
-#  if !defined(_BOOL)
 #    define Q_NO_BOOL_TYPE
 #  endif
 #elif defined(Q_OS_HPUX)
