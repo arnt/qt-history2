@@ -189,7 +189,7 @@ typedef void (*QtCleanUpFunction)();
 
 Q_CORE_EXPORT void qAddPostRoutine(QtCleanUpFunction);
 Q_CORE_EXPORT void qRemovePostRoutine(QtCleanUpFunction);
-Q_CORE_EXPORT const char *qAppName();                // get application name
+Q_CORE_EXPORT QString qAppName();                // get application name
 
 #if defined(Q_WS_WIN) && !defined(QT_NO_DEBUG_OUTPUT)
 Q_CORE_EXPORT QString decodeMSG(const MSG &);

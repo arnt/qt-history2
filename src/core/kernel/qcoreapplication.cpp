@@ -42,7 +42,7 @@
 #define q q_func()
 
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC)
-extern const char *qAppFileName(); // Declared in qapplication_win.cpp
+extern QString qAppFileName();
 #endif
 
 

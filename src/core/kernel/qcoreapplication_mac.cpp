@@ -17,35 +17,35 @@
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
-static char    *appName = 0;                        // application name
-static char *appFileName = 0;                       // application file name
+static QString *appName=0;                        // application name
+static QString *appFileName=0;                       // application file name
 
 /*****************************************************************************
   QCoreApplication utility functions
  *****************************************************************************/
-const char *qAppName()                                // get application name
+QString qAppName()                                // get application name
 {
     if(!appName) {
         ProcessSerialNumber psn;
         if(GetCurrentProcess(&psn) == noErr) {
             QCFString cfstr;
             CopyProcessName(&psn, &cfstr);
-            appName = strdup(static_cast<QString>(cfstr).latin1());
+            appName = new QString(static_cast<QString>(cfstr));
         } else if(QCoreApplication *app = QCoreApplication::instance()) {
             char *p = strrchr(app->argv()[0], '/');
-            appName = strdup(p ? p + 1 : app->argv()[0]);
+            appName = new QString(p ? p + 1 : app->argv()[0]);
         }
     }
-    return appName;
+    return *appName;
 }
 
-const char *qAppFileName()
+QString qAppFileName()
 {
     if(!appFileName) {
         QCFType<CFURLRef> bundleURL(CFBundleCopyExecutableURL(CFBundleGetMainBundle()));
         QCFString cfPath(CFURLCopyFileSystemPath(bundleURL, kCFURLPOSIXPathStyle));
-        appFileName = strdup(static_cast<QString>(cfPath).latin1());
+        appFileName = new QString(static_cast<QString>(cfPath));
     }
-    return appFileName;
+    return *appFileName;
 }
 
