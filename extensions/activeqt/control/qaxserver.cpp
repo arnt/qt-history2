@@ -338,6 +338,8 @@ static const char* const type_map[][2] =
     { "QVariantList",	"SAFEARRAY(VARIANT)" },
     { "quint64",	"CY" },
     { "qint64",	        "CY" },
+    { "qulonglong",	"CY" },
+    { "qlonglong",	"CY" },
     { "QByteArray",	"SAFEARRAY(BYTE)" },
     { "QStringList",	"SAFEARRAY(BSTR)" },
     // Userdefined Qt datatypes - some not on Borland though
