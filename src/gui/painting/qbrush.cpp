@@ -22,9 +22,13 @@
 #include "qpixmapcache.h"
 #include "qbitmap.h"
 
+#ifdef Q_WS_MAC
+#include "qt_mac.h" // for the USE_CORE_GRAPHICS define.
+#endif
+
 const uchar *qt_patternForBrush(int brushStyle)
 {
-#if defined(Q_WS_MAC) && defined (USE_CORE_GRAPHICS)
+#if defined(Q_WS_MAC) && defined(USE_CORE_GRAPHICS)
     static const uchar dense1_pat[] = { 0x00, 0x44, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00 };
     static const uchar dense2_pat[] = { 0x88, 0x00, 0x22, 0x00, 0x88, 0x00, 0x22, 0x00 };
     static const uchar dense3_pat[] = { 0xaa, 0x44, 0xaa, 0x11, 0xaa, 0x44, 0xaa, 0x11 };
