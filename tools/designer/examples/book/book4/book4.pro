@@ -1,5 +1,4 @@
 SOURCES	+= main.cpp ../connection.cpp 
-TARGET	= book
 FORMS	= book.ui 
 TEMPLATE	=app
 CONFIG	+= qt warn_on release
