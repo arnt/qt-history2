@@ -279,6 +279,7 @@ void QDateTimeEditor::init()
     setFocusSection( -1 );
     setKeyCompression( TRUE );
     installEventFilter( this );
+    setFocusPolicy( WheelFocus );
 }
 
 
