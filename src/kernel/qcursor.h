@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#27 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#28 $
 **
 ** Definition of QCursor class
 **
@@ -80,7 +80,8 @@ inline void QCursor::setPos( const QPoint &p )
 enum QCursorShape {
     ArrowCursor, UpArrowCursor, CrossCursor, WaitCursor, IbeamCursor,
     SizeVerCursor, SizeHorCursor, SizeBDiagCursor, SizeFDiagCursor,
-    SizeAllCursor, BlankCursor, LastCursor=BlankCursor, BitmapCursor=24 };
+    SizeAllCursor, BlankCursor, SplitVCursor, SplitHCursor,
+    LastCursor=SplitHCursor, BitmapCursor=24 };
 
 
 /*****************************************************************************
