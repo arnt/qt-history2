@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#7 $
 **
 ** Implementation of QImage class
 **
@@ -19,7 +19,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#7 $";
 #endif
 
 
@@ -604,9 +604,185 @@ static void write_gif_image( QImageIO *image )	// write GIF image data
 // BMP (DIB) image read/write functions
 //
 
+struct BMP_FILE {				// BMP file header
+    char   bfType[2];				// "BM"
+    INT32  bfSize;				// size of file
+    INT16  bfReserved1;
+    INT16  bfReserved2;
+    INT32  bfOffBits;				// pointer to the pixmap bits
+};
+
+QDataStream &operator>>( QDataStream &s, BMP_FILE &bf )
+{						// read file header
+    s.readRawBytes( bf.bfType, 2 );
+    s >> bf.bfSize >> bf.bfReserved1 >> bf.bfReserved2 >> bf.bfOffBits;
+}
+
+
+const  BMP_OLD = 12;				// old Windows/OS2 BMP size
+const  BMP_WIN = 40;				// new Windows BMP size
+const  BMP_OS2 = 64;				// new OS/2 BMP size
+
+const  BMP_RGB  = 0;				// no compression
+const  BMP_RLE8 = 1;				// run-length encoded, 8 bits
+const  BMP_RLE4 = 2;				// run-length encoded, 4 bits
+
+struct BMP_INFO {				// BMP information header
+    INT32  biSize;				// size of this struct
+    INT32  biWidth;				// pixmap width
+    INT32  biHeight;				// pixmap height
+    INT16  biPlanes;				// should be 1
+    INT16  biBitCount;				// number of bits per pixel
+    INT32  biCompression;			// compression method
+    INT32  biSizeImage;				// size of image
+    INT32  biXPelsPerMeter;			// horizontal resolution
+    INT32  biYPelsPerMeter;			// vertical resolution
+    INT32  biClrUsed;				// number of colors used
+    INT32  biClrImportant;			// number of important colors
+};
+
+
+QDataStream &operator>>( QDataStream &s, BMP_INFO &bi )
+{
+    s >> bi.biSize;
+    if ( bi.biSize == BMP_WIN || bi.biSize == BMP_OS2 ) {
+	s >> bi.biWidth >> bi.biHeight >> bi.biPlanes >> bi.biBitCount;
+	s >> bi.biCompression >> bi.biSizeImage;
+	s >> bi.biXPelsPerMeter >> bi.biYPelsPerMeter;
+	s >> bi.biClrUsed >> bi.biClrImportant;
+    }
+    else {
+	INT16 w, h;
+	s >> w >> h >> bi.biPlanes >> bi.biBitCount;
+	bi.biWidth  = w;
+	bi.biHeight = h;
+	bi.biCompression = BMP_RGB;		// no compression
+	bi.biSizeImage = 0;
+	bi.biXPelsPerMeter = bi.biYPelsPerMeter = 0;
+	bi.biClrUsed = bi.biClrImportant = 0;
+    }
+}
+
+
 static void read_bmp_image( QImageIO *image )	// read BMP image data
 {
-    debug( "READING BMP" );
+    QIODevice  *d = image->iodev;
+    QDataStream s( d );
+    BMP_FILE	bf;
+    BMP_INFO	bi;
+    
+    image->status = 1;				// assume format error
+    s.setByteOrder( QDataStream::LittleEndian );// Intel
+    s >> bf;					// read BMP header
+    if ( strncmp(bf.bfType,"BM",2) != 0 )	// not a BMP image
+	return;
+
+    s >> bi;					// read BMP info
+    if ( s.eos() )				// end of stream/file
+	return;
+#if 1
+    debug( "biSize...........%d", bi.biSize );
+    debug( "biWidth..........%d", bi.biWidth );
+    debug( "biHeight.........%d", bi.biHeight );
+    debug( "biPlanes.........%d", bi.biPlanes );
+    debug( "biBitCount.......%d", bi.biBitCount );
+    debug( "biCompression....%d", bi.biCompression );
+    debug( "biSizeImage......%d", bi.biSizeImage );
+    debug( "biXPelsPerMeter..%d", bi.biXPelsPerMeter );
+    debug( "biYPelsPerMeter..%d", bi.biYPelsPerMeter );
+    debug( "biClrUsed........%d", bi.biClrUsed );
+    debug( "biClrImportant...%d", bi.biClrImportant );
+#endif
+    int w = bi.biWidth,  h = bi.biHeight,  nbits = bi.biBitCount;
+    int t = bi.biSize,   comp = bi.biCompression;
+    if ( !(nbits == 1 || nbits == 4 || nbits == 8 || nbits == 24) ||
+	 bi.biPlanes != 1 || comp > BMP_RLE4 )
+	return;					// invalid BMP image
+
+    if ( t != BMP_OLD )				// jump to start of colormap
+	d->at( bi.biSize + 14 );
+
+    int    ncols;
+    ulong *c;
+    if ( nbits == 24 ) {			// there is no colormap
+	ncols = 0;
+	c = 0;
+    }
+    else {					// read colormap
+	ncols = bi.biClrUsed ? bi.biClrUsed : 1 << nbits;
+	c = new ulong[ ncols ];
+	CHECK_PTR( c );
+	uchar rgb[4];
+	int   rgb_len = t == BMP_OLD ? 3 : 4;
+	for ( int i=0; i<ncols; i++ ) {
+	    d->readBlock( (char *)rgb, rgb_len );
+	    c[i] = QImageData::setRGB(rgb[2],rgb[1],rgb[0]);
+	    if ( d->atEnd() ) {			// truncated file
+		delete c;
+		return;
+	    }
+	}
+    }
+    image->ncols  = ncols;
+    image->ctbl   = c;
+    image->width  = w;
+    image->height = h;
+    image->depth  = nbits == 24 ? 24 : 8;
+    image->allocBits();
+
+    d->at( bf.bfOffBits );			// start of image data
+    ASSERT( comp == BMP_RGB );
+
+    if ( nbits == 1 ) {				// 1 bit BMP image
+	debug( "BMP: 1 bit images not yet supported" );
+    }
+    else if ( nbits == 4 ) {			// 4 bit BMP image
+	int padw = ((w+7)/8)*8;
+	for ( int i=h-1; i>=0; i-- ) {
+	    uchar *p = image->bits[i];
+	    int nybnum;
+	    uchar x;
+	    for ( int j=nybnum=0; j<padw; j++,nybnum++ ) {
+		if ( (nybnum & 1) == 0 ) {	// read next byte
+		    s >> x;
+		nybnum = 0;
+		}
+		if ( j < w ) {
+		    *p++ = x >> 4;
+		    x <<= 4;
+		}
+	    }
+	}
+    }
+    else if ( nbits == 8 ) {			// 8 bit BMP image
+	int  padlen = ((w+3)/4)*4 - w;
+	char padbuf[8];
+	while ( --h >= 0 ) {
+	    if ( d->readBlock((char *)image->bits[h],w) != w )
+		break;
+	    if ( padlen )
+		d->readBlock( padbuf, padlen );
+	}
+    }
+    else if ( nbits == 24 ) {			// 24 bit BMP image
+	int  padlen = (4 - ((w*3) % 4)) & 0x03;
+	char padbuf[8];
+	while ( --h >= 0 ) {
+	    uchar *p = image->bits[h];
+	    if ( d->readBlock( (char *)p,w*3) != w*3 )
+		break;
+	    for ( int i=0; i<w; i++ ) {		// swap r and b
+		uchar t = p[0];
+		p[0] = p[2];
+		p[2] = t;
+		p += 3;
+	    }
+	    if ( padlen )
+		d->readBlock( padbuf, padlen );
+	}
+    }
+    image->status = 0;				// image ok
+    debug( "BMP IMAGE OK!!!" );
 }
 
 
