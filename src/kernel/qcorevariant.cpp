@@ -84,7 +84,7 @@ static void construct(QCoreVariant::Private *x, const void *v)
 #endif //QT_NO_STRINGLIST
 #ifndef QT_NO_TEMPLATE_VARIANT
 	case QCoreVariant::Map:
-	    QCONSTRUCT(QVariantMap);
+	    QCONSTRUCT(QCoreVariantMap);
 	    break;
 	case QCoreVariant::List:
 	    QCONSTRUCT(QCoreVariantList);
@@ -143,7 +143,7 @@ static void construct(QCoreVariant::Private *x, const void *v)
 #endif //QT_NO_STRINGLIST
 #ifndef QT_NO_TEMPLATE_VARIANT
 	case QCoreVariant::Map:
-	    QCONSTRUCT_EMPTY(QVariantMap);
+	    QCONSTRUCT_EMPTY(QCoreVariantMap);
 	    break;
 	case QCoreVariant::List:
 	    QCONSTRUCT_EMPTY(QCoreVariantList);
@@ -208,7 +208,7 @@ static void clear(QCoreVariant::Private *p)
 #endif //QT_NO_STRINGLIST
 #ifndef QT_NO_TEMPLATE_VARIANT
     case QCoreVariant::Map:
-	QCLEAR(QVariantMap);
+	QCLEAR(QCoreVariantMap);
 	break;
     case QCoreVariant::List:
 	QCLEAR(QCoreVariantList);
@@ -312,7 +312,7 @@ static void load(QCoreVariant::Private *d, QDataStream &s)
     }
 #ifndef QT_NO_TEMPLATE_VARIANT
     case QCoreVariant::Map:
-	QLOAD(QVariantMap);
+	QLOAD(QCoreVariantMap);
 	break;
     case QCoreVariant::List:
 	QLOAD(QCoreVariantList);
@@ -381,7 +381,7 @@ static void save(const QCoreVariant::Private *d, QDataStream &s)
 	QSAVE(QCoreVariantList);
 	break;
     case QCoreVariant::Map:
-	QSAVE(QVariantMap);
+	QSAVE(QCoreVariantMap);
 	break;
 #endif
     case QCoreVariant::String:
@@ -449,12 +449,12 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
     case QCoreVariant::List:
 	QCOMPARE(QCoreVariantList);
     case QCoreVariant::Map: {
-	QVariantMap *m1 = v_cast<QVariantMap>((void *&)a->value.ptr);
-	QVariantMap *m2 = v_cast<QVariantMap>((void *&)b->value.ptr);
+	QCoreVariantMap *m1 = v_cast<QCoreVariantMap>((void *&)a->value.ptr);
+	QCoreVariantMap *m2 = v_cast<QCoreVariantMap>((void *&)b->value.ptr);
 	if (m1->count() != m2->count())
 	    return false;
-	QVariantMap::ConstIterator it = m1->constBegin();
-	QVariantMap::ConstIterator it2 = m2->constBegin();
+	QCoreVariantMap::ConstIterator it = m1->constBegin();
+	QCoreVariantMap::ConstIterator it2 = m2->constBegin();
 	while (it != m1->constEnd()) {
 	    if (*it != *it2)
 		return false;
@@ -1512,7 +1512,7 @@ QCoreVariantMap QCoreVariant::toMap() const
     if (d->type != Map)
 	return QMap<QString,QCoreVariant>();
 
-    return *v_cast<QVariantMap>(d->value.ptr);
+    return *v_cast<QCoreVariantMap>(d->value.ptr);
 }
 #endif
 
