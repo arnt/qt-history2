@@ -3223,7 +3223,7 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    p->restore();
 
 	    QColorGroup cg;
-	    bool drawActiveSelection = hasFocus() || !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) || 
+	    d->drawActiveSelection = hasFocus() || !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ||
 		( qApp->focusWidget() && qApp->focusWidget()->isPopup() );
 	    if ( !d->drawActiveSelection )
 		cg = palette().inactive();
