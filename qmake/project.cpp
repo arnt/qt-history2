@@ -999,6 +999,12 @@ QMakeProject::read(uchar cmd)
                 read(Option::mkfile::cachefile, base_vars);
             }
         }
+
+        if(cmd & ReadFeatures) {
+            debug_msg(1, "Processing default_pre: %s", vars["CONFIG"].join("::").latin1());
+            if(doProjectInclude("default_pre", true, base_vars) == IncludeNoExist)
+                doProjectInclude("default", true, base_vars); 
+        }
     }
 
     vars = base_vars; // start with the base
@@ -1072,8 +1078,9 @@ QMakeProject::read(uchar cmd)
     }
 
     if(cmd & ReadFeatures) {
+        debug_msg(1, "Processing default_post: %s", vars["CONFIG"].join("::").latin1());
+        doProjectInclude("default_post", true, vars); 
         debug_msg(1, "Processing CONFIG features: %s", vars["CONFIG"].join("::").latin1());
-        doProjectInclude("default", true, vars); //find the default CONFIG line
         while(1) {
             const QStringList &configs = vars["CONFIG"];
             int i = configs.size()-1;
