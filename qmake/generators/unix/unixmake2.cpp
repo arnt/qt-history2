@@ -1027,8 +1027,8 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
     writeMakeQmake(t);
 
     if(project->isEmpty("SUBDIRS")) {
-	t << "all qmake_all distclean uicables mocables install"
-	  << " uiclean mocclean lexclean yaccclean clean: FORCE" << endl;
+	t << "all qmake_all distclean uicables mocables install_subdirs uninstall_subdirs"
+	  << " uiclean mocclean lexclean yaccclean clean " << var("SUBDIR_TARGETS") << ": FORCE" << endl;
     } else {
 	t << "all: $(SUBTARGETS)" << endl;
 	t << "qmake_all:";
@@ -1046,7 +1046,8 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	      << " && $(MAKE) -f " << (*it)->makefile << " qmake_all" << "; ) || true";
 	}
 	t << endl;
-	t << "clean uninstall uicables mocables install uiclean mocclean lexclean yaccclean: qmake_all FORCE";
+	t << "clean uninstall_subdirs install_subdirs uicables mocables"
+	  << " uiclean mocclean lexclean yaccclean " << var("SUBDIR_TARGETS") << ": qmake_all FORCE";
 	for( it.toFirst(); it.current(); ++it) {
 	    t << "\n\t ( ";
 	    if(!(*it)->directory.isEmpty())
@@ -1063,6 +1064,12 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	}
 	t << endl << endl;
     }
+
+    //installations
+    project->variables()["INSTALLDEPS"]   += "install_subdirs";
+    project->variables()["UNINSTALLDEPS"] += "uninstall_subdirs";
+    writeInstalls(t, "INSTALLS");
+
     // user defined targets
     QStringList &qut = project->variables()["QMAKE_EXTRA_UNIX_TARGETS"];
     for(QStringList::Iterator qut_it = qut.begin(); qut_it != qut.end(); ++qut_it) {

@@ -1757,7 +1757,8 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
     QStringList &l = project->variables()[installs];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QString pvar = (*it) + ".path";
-	if(project->variables()[pvar].isEmpty()) {
+	if(project->variables()[(*it) + ".CONFIG"].findIndex("no_path") == -1 &&
+	   project->variables()[pvar].isEmpty()) {
 	    warn_msg(WarnLogic, "%s is not defined: install target not created\n", pvar.latin1());
 	    continue;
 	}
@@ -1772,6 +1773,8 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 	QStringList tmp, uninst = project->variables()[(*it) + ".uninstall"];
 	//other
 	tmp = project->variables()[(*it) + ".extra"];
+	if(tmp.isEmpty())
+	    tmp = project->variables()[(*it) + ".commands"]; //to allow compatible name
 	if(!tmp.isEmpty()) {
 	    do_default = FALSE;
 	    if(!target.isEmpty())
@@ -1891,8 +1894,8 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 	    debug_msg(1, "no definition for install %s: install target not created",(*it).latin1());
 	}
     }
-    t << "install: all " << all_installs << "\n\n";
-    t << "uninstall: " << all_uninstalls << "\n\n";
+    t << "install: all " << all_installs << " " << var("INSTALLDEPS")   << "\n\n";
+    t << "uninstall: " << all_uninstalls << " " << var("UNINSTALLDEPS") << "\n\n";
 }
 
 QString

@@ -152,11 +152,12 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     }
     t << endl << endl;
 
-    QString targs[] = { QString("clean"), QString("install"), QString("mocables"), QString("uicables"),
-			QString("uiclean"), QString("mocclean"), QString::null };
-    for(int x = 0; targs[x] != QString::null; x++) {
-        t << targs[x] << ": qmake_all";
-	if(targs[x] == "clean")
+    QStringList targs;
+    targs << "clean" << "install_subdirs" << "mocables" << "uicables" << "uiclean" << "mocclean";
+    targs += project->values("SUBDIR_TARGETS");
+    for(QStringList::Iterator targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
+        t << (*targ_it) << ": qmake_all";
+	if((*targ_it) == "clean")
 	    t << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ", "");
 	if (!subdirs.isEmpty()) {
 	    for( it.toFirst(); it.current(); ++it) {
@@ -165,7 +166,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 		if(have_dir)
 		    t << "\n\t" << "cd " << (*it)->directory;
 		QString in_file = " -f " + (*it)->makefile;
-		t << "\n\t" << "$(MAKE) " << in_file << " " << targs[x];
+		t << "\n\t" << "$(MAKE) " << in_file << " " << (*targ_it);
 		if(have_dir) {
 		    t << "\n\t" << "@cd ..";
 		    for(int i = 1; i < subLevels; i++ )
@@ -179,6 +180,11 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	}
 	t << endl << endl;
     }
+
+    //installations
+    project->variables()["INSTALLDEPS"]   += "install_subdirs";
+    project->variables()["UNINSTALLDEPS"] += "uninstall_subdirs";
+    writeInstalls(t, "INSTALLS");
 
     // user defined targets
     QStringList &qut = project->variables()["QMAKE_EXTRA_WIN_TARGETS"];
