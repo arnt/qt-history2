@@ -128,7 +128,7 @@ QString dumpRegion(QRegion r)
 {
     QMemArray<QRect> myrects=r.rects();
     QString ret="(";
-    for(int loopc=0;loopc<myrects.size();loopc++) {
+    for(unsigned int loopc=0;loopc<myrects.size();loopc++) {
 	QRect rect=myrects[loopc];
 	ret+="[";
 	ret+=QString::number(rect.left());
@@ -757,7 +757,6 @@ bool QRepeaterScreen::initDevice()
 bool QRepeaterScreen::connect(const QString &)
 {
     QScreenRec * walker;
-    int count=0;
     d=0;
     w=0;
     h=0;

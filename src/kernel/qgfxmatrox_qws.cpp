@@ -312,7 +312,7 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
     QScreen * tmp2=qt_screen;
     qt_screen=gfx_screen;
 #endif
-    unsigned int tmpcol=tmp.alloc();
+    int tmpcol=tmp.alloc();
     if(((QLinuxFb_Shared *)shared_data)->forecol!=tmpcol) {
         matrox_regw(FCOL,get_color(tmpcol));
         ((QLinuxFb_Shared *)shared_data)->forecol=tmpcol;
@@ -403,7 +403,7 @@ void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 	QColor tmp=cpen.color();
 	QScreen * tmpscreen=qt_screen;
 	qt_screen=gfx_screen;
-	unsigned int tmp2=tmp.alloc();
+	int tmp2=tmp.alloc();
 	qt_screen=tmpscreen;
 
 	if(((QLinuxFb_Shared *)shared_data)->forecol!=tmp2) {

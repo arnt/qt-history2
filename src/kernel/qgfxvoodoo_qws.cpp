@@ -460,7 +460,7 @@ inline void QGfxVoodoo<depth,type>::blt(int rx,int ry,int w,int h, int sx, int s
 
 	(*gfx_optype)=1;
 	(*gfx_lastop)=LASTOP_BLT;
-	    
+	
         unsigned int dirmask=0;
 
 	// Tell the engine whether to copy bits from left to right,
@@ -552,7 +552,7 @@ inline void QGfxVoodoo<depth,type>::blt(int rx,int ry,int w,int h, int sx, int s
 	return;
     } else {
 	GFX_END
-	    
+	
 	// software fallback
 	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
     }
@@ -592,7 +592,7 @@ inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
     int yp=yoffs+ry;
     QRect cursRect(xp, yp, w+1, h+1);
     GFX_START(cursRect)
-	    
+	
     if(checkSourceDest()) {
 
 	int xp2=srcwidgetoffs.x(); // + sx;
@@ -652,13 +652,11 @@ void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     (*gfx_optype)=1;
     (*gfx_lastop)=LASTOP_LINE;
 
-    QColor tmp=cpen.color();
-
 #ifndef QT_NO_QWS_REPEATER
     QScreen * tmpscreen=qt_screen;
     qt_screen=gfx_screen;
 #endif
-    unsigned int tmp2=tmp.alloc();
+
 #ifndef QT_NO_QWS_REPEATER
     qt_screen=tmpscreen;
 #endif
