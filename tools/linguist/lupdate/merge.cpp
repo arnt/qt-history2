@@ -28,10 +28,11 @@ extern void applySameTextHeuristic( MetaTranslator *tor, bool verbose );
 typedef QValueList<MetaTranslatorMessage> TML;
 
 /*
-  Merges two MetaTranslator objects into the first one.  The first one is a set
-  of source texts and translations for a previous version of the
-  internationalized program; the second one is a set of fresh source text newly
-  extracted from the source code, without any translation yet.
+  Merges two MetaTranslator objects into the first one. The first one
+  is a set of source texts and translations for a previous version of
+  the internationalized program; the second one is a set of fresh
+  source texts newly extracted from the source code, without any
+  translation yet.
 */
 
 void merge( MetaTranslator *tor, const MetaTranslator *virginTor, bool verbose )
@@ -43,8 +44,8 @@ void merge( MetaTranslator *tor, const MetaTranslator *virginTor, bool verbose )
     TML::Iterator it;
 
     /*
-      The types of all the messages from the vernacular translator are updated
-      according to the virgin translator.
+      The types of all the messages from the vernacular translator
+      are updated according to the virgin translator.
     */
     for ( it = all.begin(); it != all.end(); ++it ) {
 	MetaTranslatorMessage::Type newType;

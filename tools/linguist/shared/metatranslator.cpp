@@ -405,6 +405,11 @@ bool MetaTranslator::save( const QString& filename ) const
 	      << "</comment>\n";
 
 	for ( i = inv.begin(); i != inv.end(); ++i ) {
+	    // no need for such noise
+	    if ( (*i).type() == MetaTranslatorMessage::Obsolete &&
+		 (*i).translation().isEmpty() )
+		continue;
+
 	    t << "    <message";
 	    if ( (*i).utf8() )
 		t << " encoding=\"UTF-8\"";

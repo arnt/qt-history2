@@ -36,7 +36,8 @@ typedef QValueList<MetaTranslatorMessage> TML;
 
 void applySameTextHeuristic( MetaTranslator *tor, bool verbose )
 {
-    TMM translated, avoid;
+    TMM translated;
+    TMM avoid;
     TMM::Iterator t;
     TML untranslated;
     TML::Iterator u;
@@ -60,7 +61,8 @@ void applySameTextHeuristic( MetaTranslator *tor, bool verbose )
 		    translated.remove( key );
 		    avoid.insert( key, *it );
 		}
-	    } else if ( !avoid.contains(key) ) {
+	    } else if ( !avoid.contains(key) &&
+			!(*it).translation().isEmpty() ) {
 		translated.insert( key, *it );
 	    }
 	}
