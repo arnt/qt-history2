@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#34 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -19,7 +19,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#33 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#34 $")
 
 
 /*----------------------------------------------------------------------------
@@ -29,7 +29,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#33 $")
   \ingroup realwidgets
 
   A combo box is a kind of popup menu that is opened by pressing a button.
-  The popup list contains a number of string/pixmap items.
+  The popup list contains a number of text or pixmap items.
   The button displays the current item when the popup list is closed.
 
   A combo box emits two signals, activated() and highlighted(), when
@@ -140,36 +140,6 @@ int QComboBox::count() const
 
 
 /*----------------------------------------------------------------------------
-  Sets the contents of the combo box to the list of strings \e list.
- ----------------------------------------------------------------------------*/
-
-void QComboBox::setStrList( const QStrList *list )
-{
-    clear();
-    insertStrList( list, 0 );
-}
-
-/*----------------------------------------------------------------------------
-  Sets the contents of the combo box to the array of strings \e strs.
-
-  The \e numStrings argument is the number of strings.
-  If \e numStrings is -1 (default), the \e strs array must be
-  terminated with 0.
-
-  Example:
-  \code
-    static const char *items[] = { "red", "green", "blue", 0 };
-    combo->insertStrList( items );
-  \endcode
- ----------------------------------------------------------------------------*/
-
-void QComboBox::setStrList( const char **strings, int numStrings )
-{
-    clear();
-    insertStrList( strings, numStrings, 0 );
-}
-
-/*----------------------------------------------------------------------------
   Inserts the list of strings at the index \e index in the combo box.
  ----------------------------------------------------------------------------*/
 
@@ -230,16 +200,16 @@ void QComboBox::insertStrList( const char **strings, int numStrings, int index)
 
 
 /*----------------------------------------------------------------------------
-  Inserts a string item at position \e index. The item will be appended if
+  Inserts a text item at position \e index. The item will be appended if
   \e index is negative.
  ----------------------------------------------------------------------------*/
 
-void QComboBox::insertItem( const char *string, int index )
+void QComboBox::insertItem( const char *text, int index )
 {
     int cnt = count();
     if ( !checkInsertIndex( "insertItem", cnt, &index ) )
 	return;
-    d->popup->insertItem( string, index, index );
+    d->popup->insertItem( text, index, index );
     if ( index != cnt )
 	reIndex();
     if ( index == d->current )
@@ -295,14 +265,14 @@ void QComboBox::clear()
 
 
 /*----------------------------------------------------------------------------
-  Returns the string item at a given index, or 0 if the item is not a string.
+  Returns the text item at a given index, or 0 if the item is not a string.
  ----------------------------------------------------------------------------*/
 
-const char *QComboBox::string( int index ) const
+const char *QComboBox::text( int index ) const
 {
-    if ( !checkIndex( "string", count(), index ) )
+    if ( !checkIndex( "text", count(), index ) )
 	return 0;
-    return d->popup->string( index );
+    return d->popup->text( index );
 }
 
 /*----------------------------------------------------------------------------
@@ -317,14 +287,14 @@ QPixmap *QComboBox::pixmap( int index ) const
 }
 
 /*----------------------------------------------------------------------------
-  Replaces the item at position \e index with a string.
+  Replaces the item at position \e index with a text.
  ----------------------------------------------------------------------------*/
 
-void QComboBox::changeItem( const char *string, int index )
+void QComboBox::changeItem( const char *text, int index )
 {
     if ( !checkIndex( "changeItem", count(), index ) )
 	return;
-    d->popup->changeItem( string, index );
+    d->popup->changeItem( text, index );
 }
 
 /*----------------------------------------------------------------------------
@@ -417,7 +387,7 @@ void QComboBox::adjustSize()
 	buttonH = 0;
 	buttonW = 0;
     }
-    const char *tmp = d->popup->string( d->current );
+    const char *tmp = d->popup->text( d->current );
     int w, h;
     if ( tmp ) {
 	QFontMetrics fm = fontMetrics();
@@ -524,7 +494,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 			 buttonW, buttonH, g, FALSE, 2 );
 	QFontMetrics fm = p.fontMetrics();
 	QRect clip( 4, 2, xPos - 2 - 4, height() - 4 );
-	const char *str = d->popup->string( d->current );
+	const char *str = d->popup->text( d->current );
 	if ( str ) {
 	    p.drawText( clip, AlignCenter | SingleLine, str );
 	} else {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#39 $
 **
 ** Implementation of QMenuData class
 **
@@ -15,15 +15,16 @@
 #include "qpopmenu.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudta.cpp#38 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudta.cpp#39 $")
 
 
 /*----------------------------------------------------------------------------
   \class QMenuData qmenudta.h
   \brief The QMenuData class is a base class for QMenuBar and QPopupMenu.
 
-  QMenuData has an internal list of menu items.  A menu item is a
-  string, separator or pixmap, and may also contain a popup menu.
+  QMenuData has an internal list of menu items.  A menu item is a text,
+  pixmap or a separator, and may also have a popup menu (separators
+  have no popup menus).
 
   The menu item sends out an activated() signal when it is selected, and
   a highlighted() signal when it receives the user input focus.
@@ -159,7 +160,7 @@ uint QMenuData::count() const
   functions.
  ----------------------------------------------------------------------------*/
 
-int QMenuData::insertAny( const char *string, const QPixmap *pixmap,
+int QMenuData::insertAny( const char *text, const QPixmap *pixmap,
 			  QPopupMenu *popup, int id, int index )
 {
     if ( index > (int)mitems->count() ) {
@@ -177,11 +178,11 @@ int QMenuData::insertAny( const char *string, const QPixmap *pixmap,
     register QMenuItem *mi = new QMenuItem;
     CHECK_PTR( mi );
     mi->ident = id == -1 ? index : id;
-    if ( string == 0 && pixmap == 0 && popup == 0 ) {
+    if ( text == 0 && pixmap == 0 && popup == 0 ) {
 	mi->is_separator = TRUE;		// separator
 	mi->ident	 = -1;
     } else {
-	mi->string_data = string;
+	mi->text_data = text;
 	if ( pixmap )
 	    mi->pixmap_data = new QPixmap( *pixmap );
 	mi->popup_menu = popup;
@@ -235,7 +236,7 @@ void QMenuData::setAllDirty( bool dirty )
 
 
 /*----------------------------------------------------------------------------
-  Inserts a menu item with a string and optional accelerator key, and
+  Inserts a menu item with a text and optional accelerator key, and
   connects it to an object/slot.
 
   Returns a unique menu item identifier (negative integer \<= -2).
@@ -251,11 +252,11 @@ void QMenuData::setAllDirty( bool dirty )
   qkeycode.h
  ----------------------------------------------------------------------------*/
 
-int QMenuData::insertItem( const char *string,
+int QMenuData::insertItem( const char *text,
 			   const QObject *receiver, const char *member,
 			   long accel )
 {
-    int id = insertAny( string, 0, 0, -2, -1 );
+    int id = insertAny( text, 0, 0, -2, -1 );
     connectItem( id, receiver, member );
     if ( accel )
 	setAccel( accel, id );
@@ -284,7 +285,7 @@ int QMenuData::insertItem( const QPixmap &pixmap,
 }
 
 /*----------------------------------------------------------------------------
-  Inserts a menu item with a string.  Returns the menu item identifier.
+  Inserts a menu item with a text.  Returns the menu item identifier.
 
   The menu item is assigned the identifier \e id or an automatically
   generated identifier.  It works as follows: If \e id \>= 0, this
@@ -299,13 +300,13 @@ int QMenuData::insertItem( const QPixmap &pixmap,
   \sa removeItem(), changeItem(), setAccel(), connectItem()
  ----------------------------------------------------------------------------*/
 
-int QMenuData::insertItem( const char *string, int id, int index )
+int QMenuData::insertItem( const char *text, int id, int index )
 {
-    return insertAny( string, 0, 0, id, index );
+    return insertAny( text, 0, 0, id, index );
 }
 
 /*----------------------------------------------------------------------------
-  Inserts a menu item with a string and a sub menu.
+  Inserts a menu item with a text and a sub menu.
   Returns the menu item identifier.
 
   The menu item is assigned the identifier \e id or an automatically
@@ -321,10 +322,10 @@ int QMenuData::insertItem( const char *string, int id, int index )
   \sa removeItem(), changeItem(), setAccel(), connectItem()
  ----------------------------------------------------------------------------*/
 
-int QMenuData::insertItem( const char *string, QPopupMenu *popup,
+int QMenuData::insertItem( const char *text, QPopupMenu *popup,
 			   int id, int index )
 {
-    return insertAny( string, 0, popup, id, index );
+    return insertAny( text, 0, popup, id, index );
 }
 
 /*----------------------------------------------------------------------------
@@ -452,9 +453,9 @@ long QMenuData::accel( int id ) const
   \c SHIFT, \c CTRL and \c ALT (OR'ed or added).
   The header file qkeycode.h contains a list of key codes.
 
-  Defining an accelerator key generates a string which is added to the
+  Defining an accelerator key generates a text which is added to the
   menu item, for instance, \c CTRL + \c Key_O generates "Ctrl+O".  The
-  string is formatted differently for different platforms.
+  text is formatted differently for different platforms.
 
   Notice that accelerators are only meaningful for popup submenus of a menu
   bar.
@@ -482,21 +483,21 @@ void QMenuData::setAccel( long key, int id )
 
 
 /*----------------------------------------------------------------------------
-  Returns the string that has been set for menu item \e id, or 0 if no string
+  Returns the text that has been set for menu item \e id, or 0 if no text
   has been set.
-  \sa pixmap()
+  \sa changeItem(), pixmap()
  ----------------------------------------------------------------------------*/
 
-const char *QMenuData::string( int id ) const
+const char *QMenuData::text( int id ) const
 {
     QMenuItem *mi = findItem( id );
-    return mi ? mi->string() : 0;
+    return mi ? mi->text() : 0;
 }
 
 /*----------------------------------------------------------------------------
   Returns the pixmap that has been set for menu item \e id, or 0 if no pixmap
   has been set.
-  \sa string() setPixmap() QPixmap
+  \sa changeItem(), text()
  ----------------------------------------------------------------------------*/
 
 QPixmap *QMenuData::pixmap( int id ) const
@@ -505,34 +506,37 @@ QPixmap *QMenuData::pixmap( int id ) const
     return mi ? mi->pixmap() : 0;
 }
 
-/*!
-  Changes the string of the menu item \e id.
+/*----------------------------------------------------------------------------
+  Changes the text of the menu item \e id.
+  \sa text()
+ ----------------------------------------------------------------------------*/
 
-  \sa pixmap() string()  */
-
-void QMenuData::changeItem( const char *string, int id )
+void QMenuData::changeItem( const char *text, int id )
 {
     QMenuItem *mi = findItem( id );
     if ( mi ) {					// item found
-	if ( mi->string_data == string )	// same string
+	if ( mi->text_data == text )		// same string
 	    return;
 	if ( mi->pixmap_data ) {		// delete pixmap
 	    delete mi->pixmap_data;
 	    mi->pixmap_data = 0;
 	}
-	mi->string_data = string;
+	mi->text_data = text;
 	menuContentsChanged();
     }
 }
 
-/*! Changes the pixmap of the menu item \e id. \sa pixmap() string() QPixmap */
+/*----------------------------------------------------------------------------
+  Changes the pixmap of the menu item \e id.
+  \sa pixmap()
+ ----------------------------------------------------------------------------*/
 
 void QMenuData::changeItem( const QPixmap &pixmap, int id )
 {
     QMenuItem *mi = findItem( id );
     if ( mi ) {					// item found
-	if ( !mi->string_data.isNull() )	// delete string
-	    mi->string_data.resize( 0 );
+	if ( !mi->text_data.isNull() )		// delete text
+	    mi->text_data.resize( 0 );
 	register QPixmap *i = mi->pixmap_data;
 	bool fast_refresh = i != 0 &&
 	    i->width() == pixmap.width() &&

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.h#27 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.h#28 $
 **
 ** Definition of QMenuData class
 **
@@ -32,7 +32,7 @@ public:
    ~QMenuItem();
 
     int		id()		const	{ return ident; }
-    const char *string()	const	{ return string_data; }
+    const char *text()		const	{ return text_data; }
     QPixmap    *pixmap()	const	{ return pixmap_data; }
     QPopupMenu *popup()		const	{ return popup_menu; }
     long	key()		const	{ return accel_key; }
@@ -42,12 +42,12 @@ public:
     bool	isChecked()	const	{ return is_checked; }
     bool	isDirty()	const	{ return is_dirty; }
 
-    void	setString( const char *s ) { string_data = s; }
-    void	setDirty( bool d )	   { is_dirty = d; }
+    void	setText( const char *text ) { text_data = text; }
+    void	setDirty( bool d )	    { is_dirty = d; }
 
 private:
     int		ident;				// item identifier
-    QString	string_data;			// item string
+    QString	text_data;			// item text
     QPixmap    *pixmap_data;			// item pixmap
     QPopupMenu *popup_menu;			// item popup menu
     long	accel_key;			// accelerator key
@@ -81,14 +81,14 @@ public:
 
     uint	count() const;
 
-    int		insertItem( const char *string,
+    int		insertItem( const char *text,
 			    const QObject *receiver, const char *member,
 			    long accel=0 );
     int		insertItem( const QPixmap &pixmap,
 			    const QObject *receiver, const char *member,
 			    long accel=0 );
-    int		insertItem( const char *string, int id=-1, int index=-1 );
-    int		insertItem( const char *string, QPopupMenu *popup,
+    int		insertItem( const char *text, int id=-1, int index=-1 );
+    int		insertItem( const char *text, QPopupMenu *popup,
 			    int id=-1, int index=-1 );
     int		insertItem( const QPixmap &pixmap, int id=-1, int index=-1 );
     int		insertItem( const QPixmap &pixmap, QPopupMenu *popup,
@@ -103,9 +103,12 @@ public:
     long	accel( int id )		const;
     void	setAccel( long key, int id );
 
-    const char *string( int id )	const;
+    const char *text( int id )		const;
+#if defined(OBSOLETE)
+    const char *string( int id )	const { return text(id); }
+#endif
     QPixmap    *pixmap( int id )	const;
-    void	changeItem( const char *string, int id );
+    void	changeItem( const char *text, int id );
     void	changeItem( const QPixmap &pixmap, int id );
 
     bool	isItemDisabled( int id ) const;

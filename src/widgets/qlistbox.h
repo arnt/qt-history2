@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#24 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#25 $
 **
 ** Definition of QListBox widget class
 **
@@ -17,19 +17,19 @@
 
 
 #define LBI_Undefined	0			// list box item types
-#define LBI_String	1
+#define LBI_Text	1
 #define LBI_Pixmap	2
 #define LBI_UserDefined 1000
 
 struct QLBItem					// list box item
 {
     QLBItem()			{ data=0;     type=LBI_Undefined; }
+    QLBItem( const char *txt  )	{ text=txt;   type=LBI_Text; }
     QLBItem( QPixmap	*pm )	{ pixmap=pm;  type=LBI_Pixmap; }
-    QLBItem( const char *str  )	{ string=str; type=LBI_String; }
     int type;
     union {
 	QPixmap	   *pixmap;
-	const char *string;
+	const char *text;
 	void	   *data;
     };
 };
@@ -52,20 +52,25 @@ public:
     void	insertStrList( const QStrList *, int index=-1 );
     void	insertStrList( const char**, int numStrings=-1, int index=-1 );
 
-    void	insertItem( const char *string, int index=-1 );
+    void	insertItem( const char *text, int index=-1 );
     void	insertItem( const QPixmap &pixmap, int index=-1 );
-    void	inSort( const char *string );
+    void	inSort( const char *text );
 
     void	removeItem( int index );
     void	clear();
 
-    const char *string( int index ) const;
-    const QPixmap *pixmap( int index ) const;
-    void	changeItem( const char *string, int index );
+    const char *text( int index )	const;
+    const QPixmap *pixmap( int index )	const;
+#if defined(OBSOLETE)
+    cost char *string( int index )	const { return text(index); }
+#endif
+    void	changeItem( const char *text, int index );
     void	changeItem( const QPixmap &pixmap, int index );
 
-    bool	stringCopy()	const;
-    void	setStringCopy( bool );
+#if defined(OBSOLETE)
+    bool	stringCopy()	const { return TRUE; }
+    void	setStringCopy( bool ) {}
+#endif
 
     bool	autoUpdate()	const;
     void	setAutoUpdate( bool );
@@ -150,7 +155,6 @@ private:
     uint	isTiming	: 1;
     uint	scrollDown	: 1;
     uint	stringsOnly	: 1;
-    uint	copyStrings	: 1;
     uint	multiSelect	: 1;
     uint	ownerDrawn	: 1;
     uint	goingDown	: 1;

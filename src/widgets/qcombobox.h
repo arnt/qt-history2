@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#12 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#13 $
 **
 ** Definition of QComboBox class
 **
@@ -29,22 +29,26 @@ public:
 
     int		count() const;
 
-    void	setStrList( const QStrList * );
-    void	setStrList( const char**, int numStrings=-1 );
-
     void	insertStrList( const QStrList *, int index=-1 );
-    void	insertStrList( const char**, int numStrings=-1, int index=-1);
+    void	insertStrList( const char **, int numStrings=-1, int index=-1);
 
-    void	insertItem( const char *string, int index=-1 );
+#if defined(OBSOLETE)
+    void	setStrList( const QStrList *list )
+			{ clear(); insertStrList(list,0); }
+    void	setStrList( const char **strings, int numStrings=-1 )
+			{ clear(); insertStrList(strings,numStrings,0); }
+#endif
+
+    void	insertItem( const char *text, int index=-1 );
     void	insertItem( const QPixmap &pixmap, int index=-1 );
 
     void	removeItem( int index );
     void	clear();
 
-    const char *string( int index ) const;
+    const char *text( int index ) const;
     QPixmap    *pixmap( int index ) const;
 
-    void	changeItem( const char *string, int index );
+    void	changeItem( const char *text, int index );
     void	changeItem( const QPixmap &pixmap, int index );
 
     int		currentItem()	const;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#55 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#54 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#55 $")
 
 
 declare(QListM, QLBItem);
@@ -33,12 +33,12 @@ int QLBItemList::compareItems( GCI i1, GCI i2)
     QLBItem *lbi1 = (QLBItem *)i1;
     QLBItem *lbi2 = (QLBItem *)i2;
 
-    if ( lbi1->type == LBI_String && lbi2->type == LBI_String )
-	return strcmp( lbi1->string, lbi2->string );
-    if ( lbi1->type == LBI_String )
+    if ( lbi1->type == LBI_Text && lbi2->type == LBI_Text )
+	return strcmp( lbi1->text, lbi2->text );
+    if ( lbi1->type == LBI_Text )
 	return 1;				// string greater than unknown
-    if ( lbi2->type == LBI_String )
-	return -1;				// unknown less than a string
+    if ( lbi2->type == LBI_Text )
+	return -1;				// unknown less than a text
     return 0;					// unknown equals an unknown
 }
 
@@ -75,11 +75,10 @@ static inline bool checkIndex( const char *method, int count, int index )
 
   \ingroup realwidgets
 
-  Each item in a QListBox can contain either a string (QString or
-  char*) or a pixmap.  One of the items can be the current item.  The
-  highlighted() signal is emitted when the user selects a new current
-  item, and selected() is emitted when the user actually selects the
-  current item.
+  Each item in a QListBox can contain either a text or a pixmap.  One of
+  the items can be the current item.  The highlighted() signal is emitted
+  when the user selects a new current item, and selected() is emitted when
+  the user actually selects the current item.
 
   If the user does not select anything, no signals are emitted and
   currentItem() returns -1.
@@ -110,7 +109,6 @@ QListBox::QListBox( QWidget *parent, const char *name )
     : QTableView( parent, name )
 {
     initMetaObject();
-    copyStrings	  = TRUE;
     doDrag	  = TRUE;
     doAutoScroll  = TRUE;
     current	  = -1;
@@ -193,12 +191,12 @@ void QListBox::insertStrList( const QStrList *list, int index )
 	return;
     }
     QStrListIterator it( *list );
-    const char *tmp;
+    const char *txt;
     if ( index < 0 )
 	index = itemList->count();
-    while ( (tmp=it.current()) ) {
+    while ( (txt=it.current()) ) {
 	++it;
-	insertAny( tmp, 0, 0, index++, FALSE );
+	insertAny( txt, 0, 0, index++, FALSE );
     }
     updateNumRows( TRUE );
     if ( autoUpdate() && itemVisible(index) )
@@ -238,24 +236,24 @@ void QListBox::insertStrList( const char **strings, int numStrings, int index )
 }
 
 /*----------------------------------------------------------------------------
-  Inserts \e string into the list at \e index.
+  Inserts \e text into the list at \e index.
 
-  If \e index is negative, \e string is inserted at the end of the list.
+  If \e index is negative, \e text is inserted at the end of the list.
 
   \sa insertStrList()
  ----------------------------------------------------------------------------*/
 
-void QListBox::insertItem( const char *string, int index )
+void QListBox::insertItem( const char *text, int index )
 {
     if ( !checkInsertIndex( "insertItem", count(), &index ) )
 	return;
-    if ( !string ) {
+    if ( !text ) {
 #if defined ( CHECK_NULL )
-	ASSERT( string != 0 );
+	ASSERT( text != 0 );
 #endif
 	return;
     }
-    insertAny( string, 0, 0, index, TRUE );
+    insertAny( text, 0, 0, index, TRUE );
     updateNumRows( FALSE );
     if ( autoUpdate() && itemVisible(index) ) {
 	int x, y;
@@ -295,29 +293,30 @@ void QListBox::insertItem( const QPixmap &pixmap, int index )
 }
 
 /*----------------------------------------------------------------------------
-  Inserts \e string into the list and sorts the list.
+  Inserts \e text at its sorted position in the list box.
 
-  inSort() treats any pixmap (or user-defined type) as lexicographically
-  less than any string.
+  All text items must be inserted with inSort() to maintain the sorting
+  order.  inSort() treats any pixmap (or user-defined type) as
+  lexicographically less than any string.
 
   \sa insertItem()
  ----------------------------------------------------------------------------*/
 
-void QListBox::inSort( const char *string )
+void QListBox::inSort( const char *text )
 {
-    if ( !string ) {
+    if ( !text ) {
 #if defined ( CHECK_NULL )
-	ASSERT( string != 0 );
+	ASSERT( text != 0 );
 #endif
 	return;
     }
     QLBItem lbi;
-    lbi.type = LBI_String;
-    lbi.string = string;
+    lbi.type = LBI_Text;
+    lbi.text = text;
     itemList->inSort(&lbi);
     int index = itemList->at();
     itemList->remove();
-    insertItem( string, index );
+    insertItem( text, index );
 }
 
 
@@ -337,8 +336,8 @@ void QListBox::removeItem( int index )
     QFontMetrics fm = fontMetrics();
     int w = internalItemWidth( lbi, fm );
     updateNumRows( w == cellWidth() );
-    if ( lbi->type == LBI_String && copyStrings )
-	delete (char*)lbi->string;
+    if ( lbi->type == LBI_Text )
+	delete (char*)lbi->text;
     else if ( lbi->type == LBI_Pixmap )
 	delete lbi->pixmap;
     delete lbi;
@@ -361,23 +360,23 @@ void QListBox::clear()
 
 
 /*----------------------------------------------------------------------------
-  Returns a pointer to the string at position \e index, or 0 if there is no
-  string there.
+  Returns a pointer to the text at position \e index, or 0 if there is no
+  text there.
   \sa pixmap()
  ----------------------------------------------------------------------------*/
 
-const char *QListBox::string( int index ) const
+const char *QListBox::text( int index ) const
 {
-    if ( !checkIndex( "string", count(), index ) )
+    if ( !checkIndex( "text", count(), index ) )
 	return 0;
     QLBItem *lbi = itemList->at( index );
-    return lbi->type == LBI_String ? lbi->string : 0;
+    return lbi->type == LBI_Text ? lbi->text : 0;
 }
 
 /*----------------------------------------------------------------------------
   Returns a pointer to the pixmap at position \e index, or 0 if there is no
   pixmap there.
-  \sa string()
+  \sa text()
  ----------------------------------------------------------------------------*/
 
 const QPixmap *QListBox::pixmap( int index ) const
@@ -389,18 +388,18 @@ const QPixmap *QListBox::pixmap( int index ) const
 }
 
 /*----------------------------------------------------------------------------
-  Replaces the item at position \e index with \e string.
+  Replaces the item at position \e index with \e text.
 
   The operation is ignored if \e index is out of range.
 
   \sa insertItem(), removeItem()
  ----------------------------------------------------------------------------*/
 
-void QListBox::changeItem( const char *string, int index )
+void QListBox::changeItem( const char *text, int index )
 {
     if ( !checkIndex( "changeItem", count(), index ) )
 	return;
-    changeAny( string, 0, 0, index );
+    changeAny( text, 0, 0, index );
 }
 
 /*----------------------------------------------------------------------------
@@ -416,52 +415,6 @@ void QListBox::changeItem( const QPixmap &pixmap, int index )
     if ( !checkIndex( "changeItem", count(), index ) )
 	return;
     changeAny( 0, &pixmap, 0, index );
-}
-
-
-/*----------------------------------------------------------------------------
-  Returns TRUE if the list box makes copies of strings that are
-  inserted.
-  \sa setStringCopy()
- ----------------------------------------------------------------------------*/
-
-bool QListBox::stringCopy() const
-{
-    return copyStrings;
-}
-
-/*----------------------------------------------------------------------------
-  Specifies whether the list box should make copies of the strings
-  that are inserted.
-
-  If \e enable is TRUE, the list box makes copies of the inserted
-  strings. If \e enable is FALSE, the list box keeps references to the
-  inserted strings.
-
-  \warning If you choose to use references instead of copies, you will be
-  responsible for deleting the strings after the list box has been
-  destroyed.  Be careful and do not modify any string that is referenced
-  from the list box.  The advantage of using references is that it takes
-  less memory than making copies.
-
-  This function should only be called when the list box is empty.  If
-  the list box not empty it will produce a warning and return
-  immediately.
-
-  The default setting is TRUE.
-
-  \sa setStringCopy()
- ----------------------------------------------------------------------------*/
-
-void QListBox::setStringCopy( bool enable )
-{
-    if ( (bool)copyStrings == enable )
-	return;
-    if ( count() != 0 ) {
-	warning( "QListBox::setStringCopy: Cannot change the value "
-		 "when the list box is not empty." );
-	return;
-    }
 }
 
 
@@ -794,7 +747,7 @@ bool QListBox::userItems() const
 
 /*----------------------------------------------------------------------------
   Specifies that the list box should contains user-defined items if \e
-  enable is TRUE, or only standard items (strings and pixmaps) if \e
+  enable is TRUE, or only standard items (texts and pixmaps) if \e
   enable is FALSE.
 
   The default setting is FALSE.
@@ -945,7 +898,7 @@ int QListBox::cellHeight( int index )
     QLBItem *lbi = item( index );
     if ( lbi ) {
 	switch( lbi->type ) {
-	    case LBI_String:
+	    case LBI_Text:
 		return fontMetrics().lineSpacing() + 1;
 	    case LBI_Pixmap: {
 		if ( lbi->pixmap )
@@ -994,7 +947,7 @@ int QListBox::itemHeight( QLBItem * item )
 {
     NOT_USED(item);
     warning( "QListBox::itemHeight: You must reimplement itemHeight() when you"
-	     " use item types different from LBI_String and LBI_Pixmap" );
+	     " use item types different from LBI_Text and LBI_Pixmap" );
     return 0;
 }
 
@@ -1009,7 +962,7 @@ int QListBox::itemWidth( QLBItem * item )
 {
     NOT_USED(item);
     warning( "QListBox::itemWidth: You must reimplement itemWidth() when you"
-	     " use item types different from LBI_String and LBI_Pixmap" );
+	     " use item types different from LBI_Text and LBI_Pixmap" );
     return 0;
 }
 
@@ -1046,7 +999,7 @@ void QListBox::paintCell( QPainter *p, int row, int col )
     QLBItem *lbi = itemList->at( row );
     if ( !lbi )
 	return;
-    if ( lbi->type != LBI_String && lbi->type != LBI_Pixmap ) {
+    if ( lbi->type != LBI_Text && lbi->type != LBI_Pixmap ) {
 #if defined(CHECK_RANGE)
 	warning( "QListBox::paintCell: Illegal item type (%d) in"
 		 " non-ownerdrawn list box", lbi->type );
@@ -1068,9 +1021,9 @@ void QListBox::paintCell( QPainter *p, int row, int col )
     } else {
 	p->setPen( g.text() );
     }
-    if ( lbi->type == LBI_String ) {
+    if ( lbi->type == LBI_Text ) {
 	QFontMetrics fm = fontMetrics();
-	p->drawText( 3, fm.ascent() + fm.leading()/2, lbi->string );
+	p->drawText( 3, fm.ascent() + fm.leading()/2, lbi->text );
     }
     if ( lbi->type == LBI_Pixmap )
 	p->drawPixmap( 3, 0, *lbi->pixmap );
@@ -1285,8 +1238,8 @@ void QListBox::clearList()
 	if ( ownerDrawn )
 	    deleteItem( lbi );
 	else {
-	    if ( lbi->type == LBI_String && copyStrings )
-		delete (char *)lbi->string;
+	    if ( lbi->type == LBI_Text )
+		delete (char *)lbi->text;
 	    else if ( lbi->type == LBI_Pixmap )
 		delete lbi->pixmap;
 	    delete lbi;
@@ -1325,24 +1278,20 @@ void QListBox::updateCellWidth()
 
 /*----------------------------------------------------------------------------
   \internal
-  Returns a new string or pixmap item.
+  Returns a new text or pixmap item.
  ----------------------------------------------------------------------------*/
 
-QLBItem *QListBox::newAny( const char *str, const QPixmap *pm )
+QLBItem *QListBox::newAny( const char *txt, const QPixmap *pm )
 {
 #if defined(CHECK_NULL)
-    ASSERT( str || pm );
+    ASSERT( txt || pm );
 #endif
     QLBItem *lbi = newItem();
     CHECK_PTR( lbi );
-    if ( str ) {
-	if ( copyStrings )
-	    lbi->string = qstrdup( str );
-	else
-	    lbi->string = str;
-	lbi->type = LBI_String;
-    }
-    else if ( pm ) {
+    if ( txt ) {
+	lbi->text = qstrdup( txt );
+	lbi->type = LBI_Text;
+    } else if ( pm ) {
 	lbi->pixmap = new QPixmap( *pm );
 	lbi->type   = LBI_Pixmap;
     }
@@ -1356,7 +1305,7 @@ QLBItem *QListBox::newAny( const char *str, const QPixmap *pm )
   The caller must also call update() if autoUpdate() is TRUE.
  ----------------------------------------------------------------------------*/
 
-void QListBox::insertAny( const char *str, const QPixmap *pm,
+void QListBox::insertAny( const char *txt, const QPixmap *pm,
 			  const QLBItem *lbi, int index,
 			  bool updateCellWidth	)
 {
@@ -1365,11 +1314,11 @@ void QListBox::insertAny( const char *str, const QPixmap *pm,
 	warning( "QListBox::insertAny: Index %d out of range", index );
 #endif
 #if defined(CHECK_NULL)
-    if ( !str && !pm && !lbi )
+    if ( !txt && !pm && !lbi )
 	warning( "QListBox::insertAny: Unexpected null argument" );
 #endif
     if ( !lbi )
-	lbi = newAny( str, pm );
+	lbi = newAny( txt, pm );
     itemList->insert( index, lbi );
     if ( current == index )
 	current++;
@@ -1386,7 +1335,7 @@ void QListBox::insertAny( const char *str, const QPixmap *pm,
   Changes a list box item.
  ----------------------------------------------------------------------------*/
 
-void QListBox::changeAny( const char *str, const QPixmap *pm,
+void QListBox::changeAny( const char *txt, const QPixmap *pm,
 			  const QLBItem *lbi, int index )
 {
 #if defined(CHECK_RANGE)
@@ -1394,7 +1343,7 @@ void QListBox::changeAny( const char *str, const QPixmap *pm,
 	warning( "QListBox::changeAny: Index %d out of range", index );
 #endif
 #if defined(CHECK_NULL)
-    if ( !str && !pm )
+    if ( !txt && !pm )
 	warning( "QListBox::changeAny: Unexpected null argument" );
 #endif
     QLBItem *old = itemList->take( index );
@@ -1403,12 +1352,12 @@ void QListBox::changeAny( const char *str, const QPixmap *pm,
     if ( w == cellWidth() )
 	updateCellWidth();
     int h = cellHeight( index );
-    if ( old->type == LBI_String && copyStrings )
-	delete (char*)old->string;
+    if ( old->type == LBI_Text )
+	delete (char*)old->text;
     else if ( old->type == LBI_Pixmap )
 	delete old->pixmap;
     deleteItem( old );
-    insertAny( str, pm, lbi, index, TRUE );
+    insertAny( txt, pm, lbi, index, TRUE );
     int nh = cellHeight( index );
     int y;
     // ### the update rectangles are dubious
@@ -1448,8 +1397,8 @@ int QListBox::internalItemWidth( const QLBItem	    *lbi,
 {
     int w;
     switch ( lbi->type ) {
-	case LBI_String:
-	    w = fm.width( lbi->string ) + 6;
+	case LBI_Text:
+	    w = fm.width( lbi->text ) + 6;
 	    break;
 	case LBI_Pixmap:
 	    if ( lbi->pixmap )

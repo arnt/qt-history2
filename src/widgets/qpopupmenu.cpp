@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#65 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#64 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#65 $")
 
 
 // Mac style parameters
@@ -410,10 +410,9 @@ void QPopupMenu::updateSize()
 	else if ( mi->pixmap() ) {
 	    height += mi->pixmap()->height() + 2*motifItemFrame;
 	    w = mi->pixmap()->width();
-	}
-	else if ( mi->string() ) {
+	} else if ( mi->text() ) {
 	    height += cellh;
-	    const char *s = mi->string();
+	    const char *s = mi->text();
 	    const char *t = strchr( s, '\t' );
 	    if ( t ) {				// string contains tab
 		w = fm.width( s, (int)((long)t-(long)s) );
@@ -586,8 +585,8 @@ void QPopupMenu::updateAccel( QWidget *parent )
 	    }
 	    long k = mi->key();
 	    autoaccel->insertItem( k, mi->id() );
-	    if ( mi->string() ) {
-		QString s = mi->string();
+	    if ( mi->text() ) {
+		QString s = mi->text();
 		int i = s.find('\t');
 		QString t = key_str( k );
 		if ( i >= 0 )
@@ -596,8 +595,8 @@ void QPopupMenu::updateAccel( QWidget *parent )
 		    s += '\t';
 		    s += t;
 		}
-		if ( s != mi->string() ) {
-		    mi->setString( s );
+		if ( s != mi->text() ) {
+		    mi->setText( s );
 		    badSize = TRUE;
 		}
 	    }
@@ -745,9 +744,8 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 		       *pixmap );
 	if ( pixmap->depth() == 1 )
 	    p->setBackgroundMode( TransparentMode );
-    }
-    else if ( mi->string() ) {			// draw text
-	const char *s = mi->string();
+    } else if ( mi->text() ) {			// draw text
+	const char *s = mi->text();
 	const char *t = strchr( s, '\t' );
 	int x = motifItemFrame + motifItemHMargin;
 	int m = motifItemVMargin;

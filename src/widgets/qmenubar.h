@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#12 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#13 $
 **
 ** Definition of QMenuBar class
 **
@@ -26,7 +26,6 @@ public:
 
     void	updateItem( int id );
 
-    void	setFont( const QFont & );	// reimplemented set font
     void	show();				// reimplemented show
     void	hide();				// reimplemented hide
 
@@ -36,6 +35,7 @@ signals:
 
 protected:
     void	drawContents( QPainter * );
+    void	fontChange( const QFont & );
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
