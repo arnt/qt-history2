@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#61 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -130,10 +130,23 @@ void QCursor::initialize()
 }
 
 
-/*! \fn QCursor::QCursor()
-
+/*!
   Constructs a cursor with the default arrow shape.
 */
+QCursor::QCursor()
+{
+    if ( !initialized ) {
+	if ( qApp->startingUp() ) {
+	    data = 0;
+	    return;
+	}
+	initialize();
+    }
+    QCursor* c = (QCursor *)&Qt::arrowCursor;
+    c->data->ref();
+    data = c->data;
+}
+
 
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#39 $
 **
 ** Implementation of QCursor class for Win32
 **
@@ -107,6 +107,19 @@ void QCursor::cleanup()
     initialized = FALSE;
 }
 
+QCursor::QCursor()
+{
+    if ( !initialized ) {
+	if ( qApp->startingUp() ) {
+	    data = 0;
+	    return;
+	}
+	initialize();
+    }
+    QCursor* c = (QCursor *)&Qt::arrowCursor;
+    c->data->ref();
+    data = c->data;
+}
 
 QCursor::QCursor( int shape )			// cursor with shape
 {

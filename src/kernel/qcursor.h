@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#35 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#36 $
 **
 ** Definition of QCursor class
 **
@@ -39,7 +39,7 @@ struct QCursorData;				// internal cursor data
 class Q_EXPORT QCursor				// cursor class
 {
 public:
-    QCursor(): data( 0 ) {}			// create default arrow cursor
+    QCursor();					// create default arrow cursor
     QCursor( int shape );
     QCursor( const QBitmap &bitmap, const QBitmap &mask,
 	     int hotX=-1, int hotY=-1 );
