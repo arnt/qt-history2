@@ -79,9 +79,10 @@ ProjectBuilderMakefileGenerator::writeMakefile(QTextStream &t)
 bool
 ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 {
-    QStringList tmp;
     int i;
-    
+    QStringList tmp;
+    bool did_preprocess = FALSE;
+
     //HEADER
     t << "// !$*UTF8*$!" << "\n"
       << "{" << "\n"
@@ -95,7 +96,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	QString mkfile = Option::output_dir + Option::dir_sep + "qt_makeqmake.mak";
 	QFile mkf(mkfile);
 	if(mkf.open(IO_WriteOnly | IO_Translate)) {
-	    debug_msg(0, "Creating file: %s", mkfile.latin1());
+	    debug_msg(1, "Creating file: %s", mkfile.latin1());
 	    QTextStream mkt(&mkf);
 	    writeHeader(mkt);
 	    mkt << "QMAKE    = "	<<
@@ -196,7 +197,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	QString mkfile = Option::output_dir + Option::dir_sep + "qt_preprocess.mak";
 	QFile mkf(mkfile);
 	if(mkf.open(IO_WriteOnly | IO_Translate)) {
-	    debug_msg(0, "Creating file: %s", mkfile.latin1());
+	    did_preprocess = TRUE;
+	    debug_msg(1, "Creating file: %s", mkfile.latin1());
 	    QTextStream mkt(&mkf);
 	    writeHeader(mkt);
 	    mkt << "MOC = " << var("QMAKE_MOC") << endl;
@@ -204,6 +206,12 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    mkt << "FORMS = " << varList("UICIMPLS") << endl;
 	    mkt << "MOCS = " << varList("SRCMOC") << endl;
 	    mkt << "preprocess: $(FORMS) $(MOCS)" << endl << endl;
+	    mkt << "mocclean:" << "\n";
+	    if(!project->isEmpty("SRCMOC"))
+		mkt << "\t-rm -f $(MOCS)" << '\n';
+	    mkt << "uiclean:" << "\n";
+	    if(!project->isEmpty("UICIMPLS"))
+		mkt << "\t-rm -f $(FORMS)" << '\n';
 	    writeUicSrc(mkt, "FORMS");
 	    writeMocSrc(mkt, "HEADERS");
 	    writeMocSrc(mkt, "SOURCES");
@@ -329,7 +337,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	QString mkfile = Option::output_dir + Option::dir_sep + "qt_sublibs.mak";
 	QFile mkf(mkfile);
 	if(mkf.open(IO_WriteOnly | IO_Translate)) {
-	    debug_msg(0, "Creating file: %s", mkfile.latin1());
+	    debug_msg(1, "Creating file: %s", mkfile.latin1());
 	    QTextStream mkt(&mkf);
 	    writeHeader(mkt);
 	    mkt << "SUBLIBS= ";
@@ -436,7 +444,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	QString script = Option::output_dir + Option::dir_sep + "qt_install.sh";
 	QFile shf(script);
 	if(shf.open(IO_WriteOnly | IO_Translate)) {
-	    debug_msg(0, "Creating file: %s", script.latin1());
+	    debug_msg(1, "Creating file: %s", script.latin1());
 	    QString lib = project->first("QMAKE_ORIG_TARGET");
 	    if(project->first("TEMPLATE") == "app") {
 		lib += ".app";
@@ -651,18 +659,22 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "}" << endl;
 
     QString mkwrap = Option::output_dir + Option::dir_sep + ".." + Option::dir_sep + project->first("MAKEFILE");
+    Option::fixPathToLocalOS(mkwrap);
     QFile mkwrapf(mkwrap);
     if(mkwrapf.open(IO_WriteOnly | IO_Translate)) {
-	debug_msg(0, "Creating file: %s", mkwrap.latin1());
+	debug_msg(1, "Creating file: %s", mkwrap.latin1());
 	QTextStream mkwrapt(&mkwrapf);
 	writeHeader(mkwrapt);
 	mkwrapt << "#This is a makefile wrapper for PROJECT BUILDER\n"
 		<< "all:" << "\n\t" 
 		<< "cd " << project->first("QMAKE_ORIG_TARGET") + ".pbproj/ && pbxbuild" << "\n"
-		<< "distclean clean:" << "\n\t" 
+		<< "distclean clean: " << (did_preprocess ? "uiclcean mocclean" : "") << "\n\t" 
 		<< "cd " << project->first("QMAKE_ORIG_TARGET") + ".pbproj/ && pbxbuild clean" << "\n"
-		<< "install:" 
-		<< endl;
+		<< (!did_preprocess ? "uiclcean mocclean " : "") << "install:" << "\n";
+	if(did_preprocess) 
+	    mkwrapt << "uiclean mocclean:" << "\n\t"
+		    << "make -f " 
+		    << Option::output_dir << Option::dir_sep << "qt_preprocess.mak $@" << endl;
     }
     return TRUE;
 }
