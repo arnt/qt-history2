@@ -298,6 +298,7 @@ void QTextDocumentLayoutPrivate::drawBlock(QPainter *painter, const QAbstractTex
 
 void QTextDocumentLayoutPrivate::relayoutDocument()
 {
+    widthUsed = 0;
     q->documentChange(0, 0, q->end().position() + q->end().length());
 }
 
