@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#22 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#23 $
 **
 ** Implementation of something useful.
 **
@@ -414,7 +414,7 @@ bool QWizard::appropriate( QWidget * w ) const
 
 */
 
-void QWizard::setApproprate( QWidget * w, bool enable )
+void QWizard::setAppropriate( QWidget * w, bool enable )
 {
     QWizardPrivate::Page * p = d->page( w );
     if ( p )
