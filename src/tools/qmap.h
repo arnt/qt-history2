@@ -56,7 +56,7 @@
 #define Q_TYPENAME typename
 //#define QT_CHECK_MAP_RANGE
 
-struct QMapData
+struct Q_EXPORT QMapData
 {
     enum Color { Red, Black };
     struct Node {
@@ -684,5 +684,5 @@ Q_DECLARE_ASSOCIATIVE_ITERATOR(QMap)
 
 #define Q_DEFINED_QMAP
 #include "qwinexport.h"
-#endif // QMAP_H
 
+#endif // QMAP_H
