@@ -343,6 +343,10 @@ QVariant QSqlQuery::value( int i ) const
 	return QVariant();
     if ( isActive() && isValid() && ( i > QSql::BeforeFirst ) ) {
 	return d->sqlResult->data( i );
+    } else {
+#ifdef QT_CHECK_RANGE
+	qWarning( "QSqlQuery::value: not positioned on a valid record" );
+#endif
     }
     return QVariant();
 }
