@@ -37,25 +37,24 @@
 
 #include "qrichtext_p.h"
 #include "qtextedit.h"
-
-#include <qstringlist.h>
-#include <qfont.h>
-#include <qtextstream.h>
-#include <qfile.h>
-#include <qregexp.h>
-#include <qapplication.h>
-#include <qclipboard.h>
-#include <qmap.h>
-#include <qfileinfo.h>
-#include <qstylesheet.h>
-#include <qmime.h>
-#include <qregexp.h>
-#include <qimage.h>
-#include <qdragobject.h>
-#include <qpaintdevicemetrics.h>
-#include <qpainter.h>
-#include <qdrawutil.h>
-#include <qcursor.h>
+#include "qstringlist.h"
+#include "qfont.h"
+#include "qtextstream.h"
+#include "qfile.h"
+#include "qregexp.h"
+#include "qapplication.h"
+#include "qclipboard.h"
+#include "qmap.h"
+#include "qfileinfo.h"
+#include "qstylesheet.h"
+#include "qmime.h"
+#include "qregexp.h"
+#include "qimage.h"
+#include "qdragobject.h"
+#include "qpaintdevicemetrics.h"
+#include "qpainter.h"
+#include "qdrawutil.h"
+#include "qcursor.h"
 
 #include <stdlib.h>
 

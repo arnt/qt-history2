@@ -119,5 +119,6 @@ widgets {
 		  $$WIDGETS_CPP/qaction.cpp \
 		  $$WIDGETS_CPP/qeffects.cpp \
 		  $$WIDGETS_CPP/qtextview.cpp \
-		  $$WIDGETS_CPP/qtextbrowser.cpp
+		  $$WIDGETS_CPP/qtextbrowser.cpp \
+		  $$WIDGETS_CPP/qtextedit.cpp
 }

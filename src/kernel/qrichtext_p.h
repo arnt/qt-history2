@@ -38,29 +38,30 @@
 #ifndef QRICHTEXT_P_H
 #define QRICHTEXT_P_H
 
-#include <qstring.h>
-#include <qlist.h>
-#include <qrect.h>
-#include <qfontmetrics.h>
-#include <qintdict.h>
-#include <qmap.h>
-#include <qstringlist.h>
-#include <qfont.h>
-#include <qcolor.h>
-#include <qsize.h>
-#include <qvaluelist.h>
-#include <qvaluestack.h>
-#include <qobject.h>
-#include <qdict.h>
-#include <qtextstream.h>
-#include <qpixmap.h>
-#include <qstylesheet.h>
-#include <qvector.h>
-#include <qpainter.h>
-#include <qlayout.h>
-#include <qobject.h>
-
+#ifndef QT_H
+#include "qstring.h"
+#include "qlist.h"
+#include "qrect.h"
+#include "qfontmetrics.h"
+#include "qintdict.h"
+#include "qmap.h"
+#include "qstringlist.h"
+#include "qfont.h"
+#include "qcolor.h"
+#include "qsize.h"
+#include "qvaluelist.h"
+#include "qvaluestack.h"
+#include "qobject.h"
+#include "qdict.h"
+#include "qtextstream.h"
+#include "qpixmap.h"
+#include "qstylesheet.h"
+#include "qvector.h"
+#include "qpainter.h"
+#include "qlayout.h"
+#include "qobject.h"
 #include <limits.h>
+#endif // QT_H
 
 //#define DEBUG_COLLECTION
 
@@ -533,7 +534,7 @@ public:
 
     QTextString();
     ~QTextString();
-    
+
     QString toString() const;
 
     Char &at( int i ) const;

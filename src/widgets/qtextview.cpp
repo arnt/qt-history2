@@ -37,28 +37,27 @@
 
 #include "qtextview.h"
 #include "../kernel/qrichtext_p.h"
-
-#include <qpainter.h>
-#include <qpen.h>
-#include <qbrush.h>
-#include <qpixmap.h>
-#include <qfont.h>
-#include <qcolor.h>
-#include <qsize.h>
-#include <qevent.h>
-#include <qtimer.h>
-#include <qapplication.h>
-#include <qlistbox.h>
-#include <qvbox.h>
-#include <qapplication.h>
-#include <qclipboard.h>
-#include <qcolordialog.h>
-#include <qfontdialog.h>
-#include <qstylesheet.h>
-#include <qdragobject.h>
-#include <qurl.h>
-#include <qcursor.h>
-#include <qregexp.h>
+#include "qpainter.h"
+#include "qpen.h"
+#include "qbrush.h"
+#include "qpixmap.h"
+#include "qfont.h"
+#include "qcolor.h"
+#include "qsize.h"
+#include "qevent.h"
+#include "qtimer.h"
+#include "qapplication.h"
+#include "qlistbox.h"
+#include "qvbox.h"
+#include "qapplication.h"
+#include "qclipboard.h"
+#include "qcolordialog.h"
+#include "qfontdialog.h"
+#include "qstylesheet.h"
+#include "qdragobject.h"
+#include "qurl.h"
+#include "qcursor.h"
+#include "qregexp.h"
 
 QTextView::QTextView( QWidget *parent, const char *name )
     : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase ),

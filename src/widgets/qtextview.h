@@ -38,9 +38,11 @@
 #ifndef QTEXTVIEW_H
 #define QTEXTVIEW_H
 
-#include <qscrollview.h>
-#include <qstylesheet.h>
-#include <qpainter.h>
+#ifndef QT_H
+#include "qscrollview.h"
+#include "qstylesheet.h"
+#include "qpainter.h"
+#endif // QT_H
 
 class QPainter;
 class QTextDocument;

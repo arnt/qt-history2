@@ -35,36 +35,17 @@
 **
 **********************************************************************/
 
-#ifndef QTEXTEDIT_H
-#define QTEXTEDIT_H
+#include "qtextedit.h"
+#include "qcursor.h"
 
-#ifndef QT_H
-#include "qlist.h"
-#include "qpixmap.h"
-#include "qcolor.h"
-#include "qtextview.h"
-#endif // QT_H
-
-#ifndef QT_NO_TEXTEDIT
-
-class QTextEdit : public QTextView
+QTextEdit::QTextEdit(QWidget *parent, const char *name )
+    : QTextView( parent, name ) 
 {
-    Q_OBJECT
-
-public:
-    QTextEdit(QWidget *parent = 0, const char *name = 0 );
-    ~QTextEdit();
-
-private:
-    bool isReadOnly() const { return FALSE; }
-
-private:	// Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QTextEdit( const QTextEdit & );
-    QTextEdit& operator=( const QTextEdit & );
+#ifndef QT_NO_CURSOR
+    viewport()->setCursor( ibeamCursor );
 #endif
-};
+}
 
-#endif // QT_NO_TEXTEDIT
-
-#endif
+QTextEdit::~QTextEdit() 
+{
+}
