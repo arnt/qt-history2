@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#209 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#210 $
 **
 ** Implementation of QWidget class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#209 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#210 $");
 
 
 /*!
@@ -718,7 +718,7 @@ void QWidget::destroyMapper()
 }
 
 
-QWidgetList *wListInternal( QWidgetMapper *mapper, bool onlyTopLevel )
+static QWidgetList *wListInternal( QWidgetMapper *mapper, bool onlyTopLevel )
 {
     QWidgetList *list = new QWidgetList;
     CHECK_PTR( list );
@@ -736,17 +736,6 @@ QWidgetList *wListInternal( QWidgetMapper *mapper, bool onlyTopLevel )
 
 /*!
   \internal
-  Returns a list of all top level widgets.
-  \sa wList(), QApplication::topLevelWidgets()
-*/
-
-QWidgetList *QWidget::tlwList()
-{
-    return wListInternal( mapper, TRUE );
-}
-
-/*!
-  \internal
   Returns a list of all widgets.
   \sa tlwList(), QApplication::allWidgets()
 */
@@ -754,6 +743,17 @@ QWidgetList *QWidget::tlwList()
 QWidgetList *QWidget::wList()
 {
     return wListInternal( mapper, FALSE );
+}
+
+/*!
+  \internal
+  Returns a list of all top level widgets.
+  \sa wList(), QApplication::topLevelWidgets()
+*/
+
+QWidgetList *QWidget::tlwList()
+{
+    return wListInternal( mapper, TRUE );
 }
 
 
@@ -1586,9 +1586,7 @@ void QWidget::setPalette( const QPalette &p )
 {
     QPalette old = pal;
     pal = p;
-
     setBackgroundColorFromMode();
-
     paletteChange( old );
 }
 
