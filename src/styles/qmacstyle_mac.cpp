@@ -1112,6 +1112,13 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 				    (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
 		}
 
+		// If the background color is set then make the toolbutton 
+		// translucent so the background color is visible
+		if (widget->paletteBackgroundColor() != white) {
+		    p->fillRect( r, widget->backgroundColor() );
+		    info.state = kThemeStateInactive;
+		}
+
 		((QMacPainter *)p)->setport();
 		DrawThemeButton(qt_glb_mac_rect(button, p, FALSE, off_rct),
 				kThemeBevelButton, &info, NULL, NULL, NULL, 0);
