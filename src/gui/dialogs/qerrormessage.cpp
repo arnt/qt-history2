@@ -50,8 +50,8 @@ public:
 class QErrorMessageTextView : public QTextEdit
 {
 public:
-    QErrorMessageTextView(QWidget *parent, const char *name)
-        : QTextEdit(parent, name) { setReadOnly(true); }
+    QErrorMessageTextView(QWidget *parent)
+        : QTextEdit(parent) { setReadOnly(true); }
 
     virtual QSize minimumSizeHint() const;
     virtual QSize sizeHint() const;
@@ -157,7 +157,7 @@ QErrorMessage::QErrorMessage(QWidget * parent)
     d->icon->setPixmap(QMessageBox::standardIcon(QMessageBox::Information));
 #endif
     grid->addWidget(d->icon, 0, 0, AlignTop);
-    d->errors = new QErrorMessageTextView(this, "errors");
+    d->errors = new QErrorMessageTextView(this);
     grid->addWidget(d->errors, 0, 1);
     d->again = new QCheckBox(tr("&Show this message again"), this, "again");
     d->again->setChecked(true);

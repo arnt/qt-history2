@@ -381,8 +381,8 @@ QTextBlock QTextEditPrivate::blockAt(const QPoint &pos, int *documentPosition) c
     return QTextBlock(pt, pt->blockMap().findNode(docPos));
 }
 
-QTextEdit::QTextEdit( QWidget *parent,  const char * name )
-    : QScrollView( parent, name )
+QTextEdit::QTextEdit(QWidget *parent)
+    : QScrollView(parent)
 {
     d = new QTextEditPrivate(this);
 

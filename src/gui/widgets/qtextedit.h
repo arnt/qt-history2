@@ -49,7 +49,7 @@ public:
 
     Q_DECLARE_FLAGS(AutoFormatting, AutoFormattingFlags);
 
-    QTextEdit(QWidget *parent, const char *name = 0);
+    QTextEdit(QWidget *parent);
     virtual ~QTextEdit();
 
     QTextDocument *document() const;
