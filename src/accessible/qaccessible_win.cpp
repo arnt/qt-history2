@@ -934,7 +934,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::put_accValue( VARIANT, BSTR )
     return DISP_E_MEMBERNOTFOUND;
 }
 
-HRESULT STDMETHODCALLTYPE QWindowsAccessible::accSelect( long flagsSelect, VARIANT varID )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::accSelect( long, VARIANT )
 {
     if ( !accessible->isValid() )
 	return E_FAIL;

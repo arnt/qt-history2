@@ -493,7 +493,6 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 	    QAccessible::queryAccessibleInterface(parent, &pIface);
 	    if (!pIface)
 		return -1;
-	    QWidget *start = widget();
 
 	    QRect startg = rect(0);
 	    QPoint startc = startg.center();

@@ -109,7 +109,7 @@ QRect QAccessibleObject::rect( int ) const
 }
 
 /*! \reimp */
-void QAccessibleObject::setText( Text t, int, const QString &text )
+void QAccessibleObject::setText( Text, int, const QString & )
 {
 }
 
@@ -259,13 +259,13 @@ int QAccessibleApplication::state( int ) const
 }
 
 /*! \reimp */
-int QAccessibleApplication::numActions(int control) const
+int QAccessibleApplication::numActions(int) const
 {
     return 1;
 }
 
 /*! \reimp */
-bool QAccessibleApplication::doAction(int action, int child)
+bool QAccessibleApplication::doAction(int action, int)
 {
     if (action == 0) {
         QWidget *w = qApp->mainWidget();
