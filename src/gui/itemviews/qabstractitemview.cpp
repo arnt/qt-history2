@@ -888,7 +888,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     QPoint offset(horizontalOffset(), verticalOffset());
     d->pressedItem = QPersistentModelIndex(index, model());
     d->pressedModifiers = e->modifiers();
-    QItemSelectionModel::SelectionFlags command = selectionCommand(index, e);
+    QItemSelectionModel::SelectionFlags command = selectionCommand(index, Qt::NoModifier, e);
     if ((command & QItemSelectionModel::Current) == 0)
         d->pressedPosition = pos + offset;
 
@@ -957,7 +957,8 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         setCurrentIndex(index);
     }
     setState(SelectingState);
-    setSelection(QRect(topLeft, bottomRight).normalize(), selectionCommand(index, e));
+    setSelection(QRect(topLeft, bottomRight).normalize(),
+                 selectionCommand(index, Qt::NoModifier, e));
 }
 
 /*!
@@ -977,7 +978,7 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
     if (state() == EditingState && d->editors.contains(persistent))
         return;
 
-    selectionModel()->select(index, selectionCommand(index, e));
+    selectionModel()->select(index, selectionCommand(index, Qt::NoModifier, e));
     if (state() == SelectingState)
         setState(NoState);
 
@@ -1144,7 +1145,8 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         }
 
         if (newCurrent != current && newCurrent.isValid()) {
-            QItemSelectionModel::SelectionFlags command = selectionCommand(newCurrent, e);
+            QItemSelectionModel::SelectionFlags command =
+                selectionCommand(newCurrent, Qt::NoModifier, e);
             if (command & QItemSelectionModel::Current) {
                 setCurrentIndex(newCurrent);
                 QPoint offset(horizontalOffset(), verticalOffset());
@@ -1183,7 +1185,8 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         emit returnPressed(currentIndex());
         break;
     case Qt::Key_Space:
-        selectionModel()->select(currentIndex(), selectionCommand(currentIndex(), e));
+        selectionModel()->select(currentIndex(),
+                                 selectionCommand(currentIndex(), Qt::NoModifier, e));
     case Qt::Key_Delete:
         break;
     case Qt::Key_F2:
@@ -1854,8 +1857,8 @@ void QAbstractItemView::doAutoScroll()
     index of the relevant item by \a index, the even type by \a type,
     and the key (if a key was pressed) by \a key.
 */
-QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(const QModelIndex &index,
-                                                                        const QEvent *event) const
+QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(
+    const QModelIndex &index, Qt::KeyboardModifiers modifiers, const QEvent *event) const
 {
     switch (selectionMode()) {
     case NoSelection: // Never update selection model
@@ -1865,118 +1868,119 @@ QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(const QM
             return QItemSelectionModel::ClearAndSelect|d->selectionBehaviorFlags();
         return QItemSelectionModel::NoUpdate;
     case MultiSelection:
-        return d->multiSelectionCommand(index, event);
+        return d->multiSelectionCommand(index, modifiers, event);
     case ExtendedSelection:
-        return d->extendedSelectionCommand(index, event);
+        return d->extendedSelectionCommand(index, modifiers, event);
     }
     return QItemSelectionModel::NoUpdate;
 }
 
 QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::multiSelectionCommand(
-    const QModelIndex &index, const QEvent *event) const
+    const QModelIndex &index, Qt::KeyboardModifiers modifiers, const QEvent *event) const
 {
     if (!index.isValid())
         return QItemSelectionModel::NoUpdate;
 
-    switch (event->type()) {
-    case QEvent::KeyPress: // NoUpdate on Key movement and Ctrl
-        switch (static_cast<const QKeyEvent*>(event)->key()) {
-        case Qt::Key_Down:
-        case Qt::Key_Up:
-        case Qt::Key_Left:
-        case Qt::Key_Right:
-        case Qt::Key_Home:
-        case Qt::Key_End:
-        case Qt::Key_PageUp:
-        case Qt::Key_PageDown:
-        case Qt::Key_Tab:
-        case Qt::Key_Backtab:
-            if (static_cast<const QKeyEvent*>(event)->modifiers() & Qt::ControlModifier)
+    if (event) {
+        switch (event->type()) {
+        case QEvent::KeyPress: // NoUpdate on Key movement and Ctrl
+            switch (static_cast<const QKeyEvent*>(event)->key()) {
+            case Qt::Key_Down:
+            case Qt::Key_Up:
+            case Qt::Key_Left:
+            case Qt::Key_Right:
+            case Qt::Key_Home:
+            case Qt::Key_End:
+            case Qt::Key_PageUp:
+            case Qt::Key_PageDown:
+            case Qt::Key_Tab:
+            case Qt::Key_Backtab:
+                if (static_cast<const QKeyEvent*>(event)->modifiers() & Qt::ControlModifier)
+                    return QItemSelectionModel::NoUpdate;
+                break;
+            case Qt::Key_Space: // Select/Deselect on Space
+                if (selectionModel->isSelected(index))
+                    return QItemSelectionModel::Deselect|selectionBehaviorFlags();
+                return QItemSelectionModel::Select|selectionBehaviorFlags();
+            default:
                 return QItemSelectionModel::NoUpdate;
-            break;
-        case Qt::Key_Space: // Select/Deselect on Space
+            } // switch
+            return QItemSelectionModel::NoUpdate;
+        case QEvent::MouseButtonPress: // Select/Deselect on MouseButtonPress
+            if (selectionModel->isSelected(index))
+                return QItemSelectionModel::Deselect|selectionBehaviorFlags();
+            return QItemSelectionModel::Select|selectionBehaviorFlags();
+        case QEvent::MouseMove: // Select/Deselect on MouseMove
             if (selectionModel->isSelected(index))
                 return QItemSelectionModel::Deselect|selectionBehaviorFlags();
             return QItemSelectionModel::Select|selectionBehaviorFlags();
         default:
-            return QItemSelectionModel::NoUpdate;
+            break;
         } // switch
-        return QItemSelectionModel::NoUpdate;
-    case QEvent::MouseButtonPress: // Select/Deselect on MouseButtonPress
-        if (selectionModel->isSelected(index))
-            return QItemSelectionModel::Deselect|selectionBehaviorFlags();
-        return QItemSelectionModel::Select|selectionBehaviorFlags();
-    case QEvent::MouseMove: // Select/Deselect on MouseMove
-        if (selectionModel->isSelected(index))
-            return QItemSelectionModel::Deselect|selectionBehaviorFlags();
-        return QItemSelectionModel::Select|selectionBehaviorFlags();
-    default:
-        break;
-    } // switch
+    }
 
-//    return QItemSelectionModel::NoUpdate;
     return QItemSelectionModel::ClearAndSelect|selectionBehaviorFlags();
 }
 
 QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::extendedSelectionCommand(
-    const QModelIndex &index, const QEvent *event) const
+    const QModelIndex &index, Qt::KeyboardModifiers modifiers, const QEvent *event) const
 {
-    Qt::KeyboardModifiers modifiers = Qt::NoModifier;
-
-    switch (event->type()) {
-    case QEvent::MouseMove: // Toggle on MouseMove
-        modifiers = static_cast<const QMouseEvent*>(event)->modifiers();
-        if (modifiers & Qt::ControlModifier)
-            return QItemSelectionModel::ToggleCurrent|selectionBehaviorFlags();
-        break;
-    case QEvent::MouseButtonPress: {// NoUpdate when pressing without modifiers on a selected item
-        modifiers = static_cast<const QMouseEvent*>(event)->modifiers();
-        if (!(d->pressedModifiers & Qt::ShiftModifier)
-            && !(d->pressedModifiers & Qt::ControlModifier)
-            && index.isValid()
-            && selectionModel->isSelected(index))
-            return QItemSelectionModel::NoUpdate;
-        // Clear on MouseButtonPress on non-valid item with no modifiers and not Qt::RightButton
-        Qt::MouseButton button = static_cast<const QMouseEvent*>(event)->button();
-        if (!index.isValid() && !(button & Qt::RightButton)
-            && !(modifiers & Qt::ShiftModifier) && !(modifiers & Qt::ControlModifier))
-            return QItemSelectionModel::Clear;
-        break; }
-    case QEvent::MouseButtonRelease: // ClearAndSelect on MouseButtonRelease if MouseButtonPress on selected item
-        modifiers = static_cast<const QMouseEvent*>(event)->modifiers();
-        if (index.isValid()
-            && index == d->pressedItem
-            && !(d->pressedModifiers & Qt::ShiftModifier)
-            && !(d->pressedModifiers & Qt::ControlModifier)
-            && selectionModel->isSelected(index))
-            return QItemSelectionModel::ClearAndSelect|selectionBehaviorFlags();
-        return QItemSelectionModel::NoUpdate;
-    case QEvent::KeyPress: // NoUpdate on Key movement and Ctrl
-        modifiers = static_cast<const QKeyEvent*>(event)->modifiers();
-        switch (static_cast<const QKeyEvent*>(event)->key()) {
-        case Qt::Key_Backtab:
-            modifiers ^= Qt::ShiftModifier; // special case for backtab
-        case Qt::Key_Down:
-        case Qt::Key_Up:
-        case Qt::Key_Left:
-        case Qt::Key_Right:
-        case Qt::Key_Home:
-        case Qt::Key_End:
-        case Qt::Key_PageUp:
-        case Qt::Key_PageDown:
-        case Qt::Key_Tab:
+    if (event) {
+        switch (event->type()) {
+        case QEvent::MouseMove: // Toggle on MouseMove
+            modifiers = static_cast<const QMouseEvent*>(event)->modifiers();
             if (modifiers & Qt::ControlModifier)
-                return QItemSelectionModel::NoUpdate;
+                return QItemSelectionModel::ToggleCurrent|selectionBehaviorFlags();
             break;
-        case Qt::Key_Space:// Toggle on Ctrl-Qt::Key_Space, Select on Space
-            if (modifiers & Qt::ControlModifier)
-                return QItemSelectionModel::Toggle|selectionBehaviorFlags();
-            return QItemSelectionModel::Select|selectionBehaviorFlags();
+        case QEvent::MouseButtonPress: {// NoUpdate when pressing without modifiers on a selected item
+            modifiers = static_cast<const QMouseEvent*>(event)->modifiers();
+            if (!(d->pressedModifiers & Qt::ShiftModifier)
+                && !(d->pressedModifiers & Qt::ControlModifier)
+                && index.isValid()
+                && selectionModel->isSelected(index))
+                return QItemSelectionModel::NoUpdate;
+            // Clear on MouseButtonPress on non-valid item with no modifiers and not Qt::RightButton
+            Qt::MouseButton button = static_cast<const QMouseEvent*>(event)->button();
+            if (!index.isValid() && !(button & Qt::RightButton)
+                && !(modifiers & Qt::ShiftModifier) && !(modifiers & Qt::ControlModifier))
+                return QItemSelectionModel::Clear;
+            break; }
+        case QEvent::MouseButtonRelease: // ClearAndSelect on MouseButtonRelease if MouseButtonPress on selected item
+            modifiers = static_cast<const QMouseEvent*>(event)->modifiers();
+            if (index.isValid()
+                && index == d->pressedItem
+                && !(d->pressedModifiers & Qt::ShiftModifier)
+                && !(d->pressedModifiers & Qt::ControlModifier)
+                && selectionModel->isSelected(index))
+                return QItemSelectionModel::ClearAndSelect|selectionBehaviorFlags();
+            return QItemSelectionModel::NoUpdate;
+        case QEvent::KeyPress: // NoUpdate on Key movement and Ctrl
+            modifiers = static_cast<const QKeyEvent*>(event)->modifiers();
+            switch (static_cast<const QKeyEvent*>(event)->key()) {
+            case Qt::Key_Backtab:
+                modifiers ^= Qt::ShiftModifier; // special case for backtab
+            case Qt::Key_Down:
+            case Qt::Key_Up:
+            case Qt::Key_Left:
+            case Qt::Key_Right:
+            case Qt::Key_Home:
+            case Qt::Key_End:
+            case Qt::Key_PageUp:
+            case Qt::Key_PageDown:
+            case Qt::Key_Tab:
+                if (modifiers & Qt::ControlModifier)
+                    return QItemSelectionModel::NoUpdate;
+                break;
+            case Qt::Key_Space:// Toggle on Ctrl-Qt::Key_Space, Select on Space
+                if (modifiers & Qt::ControlModifier)
+                    return QItemSelectionModel::Toggle|selectionBehaviorFlags();
+                return QItemSelectionModel::Select|selectionBehaviorFlags();
+            default:
+                break;
+            }
         default:
             break;
         }
-    default:
-        break;
     }
 
     if (modifiers & Qt::ShiftModifier)
