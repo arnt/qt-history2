@@ -55,8 +55,8 @@ class QList
         Q_INLINE_TEMPLATE T &t();
 #else
         Q_INLINE_TEMPLATE T &t()
-        { return QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic
-                 ? *reinterpret_cast<T*>(v) : *reinterpret_cast<T*>(this); }
+        { return *reinterpret_cast<T*>(QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic
+                                       ? v : this); }
 #endif
     };
 
