@@ -256,6 +256,11 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	if ( old_winid && old_winid != -1 && isTopLevel() ) {
 	    DisposeWindow( (WindowPtr)old_winid );
 	    setWinId( 0 );
+	} else {
+	    QPoint mp(posInWindow(this));
+	    Rect r;
+	    SetRect( &r, mp.x(), mp.y(), mp.x()+width(), mp.y()+height() );
+	    InvalWindowRect( (WindowRef)topLevelWidget()->winId(), &r );
 	}
     }
     if ( parent ) {				// insert into new parent
@@ -707,7 +712,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	if( isMove || isResize ) {
 	    Rect r;
 	    SetRect( &r, oldmp.x(), oldmp.y(), oldmp.x()+olds.width(), oldmp.y()+olds.height() );
-	    InvalWindowRect( (WindowRef)winId(), &r );
+	    InvalWindowRect( (WindowRef)topLevelWidget()->winId(), &r );
 	}
     } else {
 	if ( isMove ) 
