@@ -15,57 +15,10 @@
 #define QWIDGETSTACK_H
 
 #include "qframe.h"
+#include "qintdict.h"
+#include "qptrdict.h"
+#include "q3widgetstack.h"
 
-#ifndef QT_NO_WIDGETSTACK
-
-class QWidgetStackPrivate;
-
-class Q_COMPAT_EXPORT QWidgetStack : public QFrame
-{
-    Q_OBJECT
-public:
-    QWidgetStack(QWidget* parent=0, const char* name=0, Qt::WFlags f = 0);
-
-    ~QWidgetStack();
-
-    int addWidget(QWidget *, int = -1);
-    void removeWidget(QWidget *);
-
-    QSize sizeHint() const;
-    QSize minimumSizeHint() const;
-    void show();
-
-    QWidget * widget(int) const;
-    int id(QWidget *) const;
-
-    QWidget * visibleWidget() const;
-
-    void setMargin(int);
-    int margin() const;
-
-    QRect contentsRect() const;
-
-signals:
-    void aboutToShow(int);
-    void aboutToShow(QWidget *);
-
-public slots:
-    void raiseWidget(int);
-    void raiseWidget(QWidget *);
-
-protected:
-    void resizeEvent(QResizeEvent *);
-
-    void setChildGeometries();
-    void childEvent(QChildEvent *);
-    bool event(QEvent *);
-
-    QWidgetStackPrivate * d;
-
-private:
-    Q_DISABLE_COPY(QWidgetStack)
-};
-
-#endif // QT_NO_WIDGETSTACK
+typedef Q3WidgetStack QWidgetStack;
 
 #endif // QWIDGETSTACK_H
