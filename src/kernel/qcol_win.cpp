@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#29 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -20,14 +20,17 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#29 $");
 
 
 /*****************************************************************************
   QColor static member functions
  *****************************************************************************/
 
+
 HANDLE QColor::hpal = 0;			// application global palette
+
+static int current_alloc_context = 0;
 
 
 int QColor::maxColors()
@@ -135,9 +138,9 @@ uint QColor::realizePal( QWidget *widget )
 
 QColor::QColor( QRgb rgb, uint pixel )
 {
-    if ( pixel == 0xffffffff )
+    if ( pixel == 0xffffffff ) {
 	setRgb( rgb );
-    else {
+    } else {
 	rgbVal = rgb;
 	pix    = pixel;
     }
@@ -181,19 +184,57 @@ void QColor::setRgb( int r, int g, int b )
 }
 
 
-/*
-  The allocation context functions does nothing under Windows.
-*/
+#define MAX_CONTEXTS 16
+static int  context_stack[MAX_CONTEXTS];
+static int  context_ptr = 0;
 
-int QColor::enterAllocationContext()
+static void init_context_stack()
 {
-    return 0;
+    static bool did_init = FALSE;
+    if ( !did_init ) {
+	did_init = TRUE;
+	context_stack[0] = current_alloc_context = 0;
+    }
 }
 
-void QColor::leaveAllocationContext()
+
+int QColor::enterAllocContext()
 {
+    static context_seq_no = 0;
+    init_context_stack();
+    if ( context_ptr+1 == MAX_CONTEXTS ) {
+#if defined(CHECK_STATE)
+	warning( "QColor::enterAllocContext: Context stack overflow" );
+#endif
+	return 0;
+    }
+    current_alloc_context = context_stack[++context_ptr] = ++context_seq_no;
+    return current_alloc_context;
 }
 
-void QColor::destroyAllocationContext( int )
+
+void QColor::leaveAllocContext()
 {
+    init_context_stack();
+    if ( context_ptr == 0 ) {
+#if defined(CHECK_STATE)
+	warning( "QColor::leaveAllocContext: Context stack underflow" );
+#endif
+	return 0;
+    }
+    current_alloc_context = context_stack[--context_ptr];
+    return current_alloc_context;
+}
+
+
+int QColor::currentAllocContext()
+{
+    return current_alloc_context;
+}
+
+
+void QColor::destroyAllocContext( int )
+{
+    init_context_stack();
+    return; 
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#47 $
 **
 ** Implementation of QColor class for X11
 **
@@ -16,7 +16,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#46 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#47 $");
 
 
 /*****************************************************************************
@@ -31,11 +31,17 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#46 $");
 
 #include "qintdict.h"
 
-typedef Q_DECLARE(QIntDictM,QColor) QColorDict;
-typedef Q_DECLARE(QIntDictIteratorM,QColor) QColorDictIt;
-static QColorDict *colorDict = 0;		// dict of allocated colors
+struct QColorData {
+    uint pix;					// allocated pixel value
+    int	 context;				// allocation context
+};
+
+typedef Q_DECLARE(QIntDictM,QColorData)		QColorDict;
+typedef Q_DECLARE(QIntDictIteratorM,QColorData) QColorDictIt;
+static QColorDict *colorDict  = 0;		// dict of allocated colors
 static bool	   colorAvail = TRUE;		// X colors available
 
+static int	current_alloc_context = 0;	// current color alloc context
 static int	g_depth = 0;			// display depth
 static int	g_ncols = 0;			// number of colors
 static Colormap g_cmap	= 0;			// application global colormap
@@ -88,7 +94,8 @@ int QColor::maxColors()
   Returns the number of color bit planes for the underlying window system.
 
   The returned values is equal to the default pixmap depth;
-  QPixmap::depth().
+
+  \sa QPixmap::defaultDepth()
 */
 
 int QColor::numBitPlanes()
@@ -136,9 +143,9 @@ void QColor::initialize()
   // Initialize global color objects
 
     ((QColor*)(&black))->rgbVal = qRgb( 0, 0, 0 );
-    ((QColor*)(&black))->pix = BlackPixel( dpy, screen );
+    ((QColor*)(&black))->pix	= BlackPixel( dpy, screen );
     ((QColor*)(&white))->rgbVal = qRgb( 255, 255, 255 );
-    ((QColor*)(&white))->pix = WhitePixel( dpy, screen );
+    ((QColor*)(&white))->pix	= WhitePixel( dpy, screen );
 
 #if 0 /* 0 == allocate colors on demand */
     setLazyAlloc( FALSE );			// allocate global colors
@@ -174,6 +181,7 @@ void QColor::cleanup()
     colorDict->setAutoDelete( TRUE );		// remove all entries
     colorDict->clear();
     delete colorDict;
+    colorDict = 0;
 }
 
 
@@ -191,9 +199,9 @@ void QColor::cleanup()
 
 QColor::QColor( QRgb rgb, uint pixel )
 {
-    if ( pixel == 0xffffffff )
+    if ( pixel == 0xffffffff ) {
 	setRgb( rgb );
-    else {
+    } else {
 	rgbVal = rgb;
 	pix    = pixel;
     }
@@ -209,13 +217,20 @@ QColor::QColor( QRgb rgb, uint pixel )
 
   Calling the pixel() function will allocate automatically if
   the color was not already allocated.
+
+  \sa setLazyAlloc(), enterAllocContext()
 */
 
 uint QColor::alloc()
 {
-    if ( (rgbVal & RGB_INVALID) || !colorDict ) { // invalid color or state
+    Display *dpy = qt_xdisplay();
+    int      scr = qt_xscreen();
+    if ( (rgbVal & RGB_INVALID) || !g_cmap ) { // invalid color or state
 	rgbVal = qRgb( 0, 0, 0 );
-	pix = BlackPixel( qt_xdisplay(), qt_xscreen() );
+	if ( dpy )
+	    pix = BlackPixel( dpy, scr );
+	else
+	    pix = 0;
 	return pix;
     }
     int r, g, b;
@@ -230,14 +245,15 @@ uint QColor::alloc()
 	rgbVal &= RGB_MASK;
 	return pix;
     }
-    register QColor *c = colorDict->find( (long)(rgbVal&RGB_MASK) );
+    QColorData *c = colorDict->find( (long)(rgbVal&RGB_MASK) );
     if ( c ) {					// found color in dictionary
 	rgbVal &= RGB_MASK;			// color ok
 	pix = c->pix;				// use same pixel value
+	if ( c->context != current_alloc_context )
+	    c->context = 0;			// convert to standard context
 	return pix;
     }
     XColor col;
-    Display *dpy = qt_xdisplay();
     r = (int)(rgbVal & 0xff);
     g = (int)((rgbVal >> 8) & 0xff);
     b = (int)((rgbVal >> 16) & 0xff);
@@ -278,7 +294,7 @@ uint QColor::alloc()
 	}
 	if ( mincol == -1 ) {			// there are no colors, yuck
 	    rgbVal |= RGB_INVALID;
-	    pix = BlackPixel( dpy, DefaultScreen(dpy) );
+	    pix = BlackPixel( dpy, scr );
 	    return pix;
 	}
 	XAllocColor( dpy, g_cmap, &g_carr[mincol] );
@@ -286,10 +302,10 @@ uint QColor::alloc()
 	rgbVal &= RGB_MASK;
     }
     if ( colorDict->count() < colorDict->size() * 8 ) {
-	c = new QColor;				// insert into color dict
+	c = new QColorData;			// insert into color dict
 	CHECK_PTR( c );
-	c->rgbVal = rgbVal;			// copy values
-	c->pix	  = pix;
+	c->pix	   = pix;
+	c->context = current_alloc_context;
 	colorDict->insert( (long)rgbVal, c );	// store color in dict
     }
     return pix;
@@ -342,34 +358,155 @@ void QColor::setRgb( int r, int g, int b )
 }
 
 
-/*!
-  Enters a color allocation context.
+#define MAX_CONTEXTS 16
+static int  context_stack[MAX_CONTEXTS];
+static int  context_ptr = 0;
 
-  \sa leaveAllocationContext(), destroyAllocationContext()
+static void init_context_stack()
+{
+    static bool did_init = FALSE;
+    if ( !did_init ) {
+	did_init = TRUE;
+	context_stack[0] = current_alloc_context = 0;
+    }
+}
+
+
+/*!
+  Enters a color allocation context and returns a nonzero unique identifier.
+
+  Color allocation contexts are useful for programs that need to
+  allocate many colors and throw them away later, like image viewers.
+  The allocation context functions work for true color displays as
+  well as colormap display, except that QColor::destroyAllocContext()
+  does nothing for true color.
+
+  Example:
+  \code
+    QPixmap loadPixmap( const char *fileName )
+    {
+        static int alloc_context = 0;
+	if ( alloc_context )
+	    QColor::destroyAllocContext( alloc_context );
+	alloc_context = QColor::enterAllocContext();
+	QPixmap pm( fileName );
+	QColor::leaveAllocContext();
+	return pm;
+    }
+  \endcode
+
+  The example code loads a pixmap from file. It frees up all colors
+  that were allocated the last time loadPixmap() was called.
+
+  The initial/default context is 0. Qt keeps a list of colors
+  associated with their allocation contexts. You can call
+  destroyAllocContext() to get rid of all colors that were allocated
+  in a specific context.
+
+  Calling enterAllocContext() enters an allocation context. The
+  allocation context lasts until you call leaveAllocContext(). QColor
+  has an internal stack of allocation contexts. Each call to
+  enterAllocContex() must have a corresponding leaveAllocContext().
+
+  \code
+      // context 0 active
+    int c1 = QColor::enterAllocContext();	// enter context c1
+      // context c1 active
+    int c2 = QColor::enterAllocContext();	// enter context c2
+      // context c2 active
+    QColor::leaveAllocContext();		// leave context c2
+      // context c1 active
+    QColor::leaveAllocContext();		// leave context c1
+      // context 0 active
+      // Now, free all colors that were allocated in context c2
+    QColor::destroyAllocContext( c2 );
+  \endcode
+  
+  \sa leaveAllocContext(), currentAllocContext(), destroyAllocContext()
 */
 
-int QColor::enterAllocationContext()
+int QColor::enterAllocContext()
 {
-    return 0;
+    static context_seq_no = 0;
+    init_context_stack();
+    if ( context_ptr+1 == MAX_CONTEXTS ) {
+#if defined(CHECK_STATE)
+	warning( "QColor::enterAllocContext: Context stack overflow" );
+#endif
+	return 0;
+    }
+    current_alloc_context = context_stack[++context_ptr] = ++context_seq_no;
+    return current_alloc_context;
 }
+
 
 /*!
   Leaves a color allocation context.
 
-  \sa enterAllocationContext(), destroyAllocationContext()
+  See enterAllocContext() for a detailed explanation.
+
+  \sa enterAllocContext(), currentAllocContext()
 */
 
-void QColor::leaveAllocationContext()
+void QColor::leaveAllocContext()
 {
+    init_context_stack();
+    if ( context_ptr == 0 ) {
+#if defined(CHECK_STATE)
+	warning( "QColor::leaveAllocContext: Context stack underflow" );
+#endif
+	return 0;
+    }
+    current_alloc_context = context_stack[--context_ptr];
+    return current_alloc_context;
 }
 
-/*!
-  Destroys all colors that were allocated in a color allocation context,
-  \e context.
 
-  \sa enterAllocationContext(), destroyAllocationContext()
+/*!
+  Returns the current color allocation context.
+
+  The default context is 0.
+
+  \sa enterAllocContext(), leaveAllocContext()
 */
 
-void QColor::destroyAllocationContext( int context )
+int QColor::currentAllocContext()
 {
+    return current_alloc_context;
+}
+
+
+/*!
+  Destroys a color allocation context, \e context.
+
+  This function deallocates all colors that were allocated in the
+  specified \a context. If \a context == -1, it frees up all colors
+  that the application has allocated.
+
+  The function does nothing for true color displays.
+
+  \sa enterAllocContext(), alloc()
+*/
+
+void QColor::destroyAllocContext( int context )
+{
+    init_context_stack();
+    if ( !g_cmap || g_truecolor )
+	return; 
+    ulong *pixels = new ulong[colorDict->count()];
+    QColorData   *d;
+    QColorDictIt it( *colorDict );
+    int i = 0;
+    uint rgbVal;
+    while ( (d=it.current()) ) {
+	rgbVal = (uint)it.currentKey();
+	++it;
+	if ( d->context == context || context == -1 ) {
+	    pixels[i++] = d->pix;		// delete this color
+	    colorDict->remove( (long)rgbVal );	// remove from dict
+	}
+    }
+    if ( i )
+	XFreeColors( qt_xdisplay(), g_cmap, pixels, i, 0 );
+    delete [] pixels;
 }
