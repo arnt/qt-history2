@@ -77,7 +77,7 @@ SqlFormWizard::SqlFormWizard( QUnknownInterface *aIface, QWidget *w,
 	mode = View;
     }
 
-    connect( nextButton(), SIGNAL(clicked()), SLOT(switchPage()) );
+    connect( nextButton(), SIGNAL(clicked()), SLOT(nextPageClicked()) );
     setupPage1();
 }
 
