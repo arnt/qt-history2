@@ -367,7 +367,6 @@ signals:
 private:
     QDockWindow *dockWindow;
     QPoint offset;
-    QToolButton *closeButton;
     uint mousePressed : 1;
     uint hadDblClick : 1;
     uint opaque : 1;
@@ -538,12 +537,13 @@ void QDockWindowHandle::mouseDoubleClickEvent( QMouseEvent *e )
 
 QDockWindowTitleBar::QDockWindowTitleBar( QDockWindow *dw )
     : QTitleBar( 0, dw, "qt_dockwidget_internal" ), dockWindow( dw ),
-      closeButton( 0 ), mousePressed( FALSE ), hadDblClick( FALSE ),
-      opaque( FALSE )
+      mousePressed( FALSE ), hadDblClick( FALSE ), opaque( FALSE )
 {
+    setWFlags( getWFlags() | WStyle_Tool );
     ctrlDown = FALSE;
     setMouseTracking( TRUE );
     setFixedHeight( 13 );
+    connect( this, SIGNAL(doClose()), dockWindow, SLOT(hide()) );
 }
 
 void QDockWindowTitleBar::keyPressEvent( QKeyEvent *e )
@@ -568,6 +568,12 @@ void QDockWindowTitleBar::keyReleaseEvent( QKeyEvent *e )
 
 void QDockWindowTitleBar::mousePressEvent( QMouseEvent *e )
 {
+    QStyle::SubControl tbctrl = style().querySubControl( QStyle::CC_TitleBar, this, e->pos() );
+    if ( tbctrl > QStyle::SC_TitleBarLabel ) {
+	QTitleBar::mousePressEvent( e );
+	return;
+    }
+
     ctrlDown = ( e->state() & ControlButton ) == ControlButton;
     oldFocus = qApp->focusWidget();
     setFocus();
@@ -587,8 +593,11 @@ void QDockWindowTitleBar::mousePressEvent( QMouseEvent *e )
 
 void QDockWindowTitleBar::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( !mousePressed )
+    if ( !mousePressed ) {
+	QTitleBar::mouseMoveEvent( e );
 	return;
+    }
+
     ctrlDown = ( e->state() & ControlButton ) == ControlButton;
     e->accept();
     dockWindow->handleMove( e->pos() - offset, e->globalPos(), !opaque );
@@ -598,6 +607,11 @@ void QDockWindowTitleBar::mouseMoveEvent( QMouseEvent *e )
 
 void QDockWindowTitleBar::mouseReleaseEvent( QMouseEvent *e )
 {
+    if ( !mousePressed ) {
+	QTitleBar::mouseReleaseEvent( e );
+	return;
+    }
+
     ctrlDown = FALSE;
     qApp->removeEventFilter( dockWindow );
     if ( oldFocus )
@@ -623,20 +637,11 @@ void QDockWindowTitleBar::resizeEvent( QResizeEvent *e )
 
 void QDockWindowTitleBar::updateGui()
 {
-    if ( !closeButton ) {
-	closeButton = new QToolButton( this, "qt_close_button2" );
-	closeButton->setPixmap( style().stylePixmap( QStyle::SP_DockWindowCloseButton, closeButton) );
-	closeButton->setFixedSize( 12, 12 );
-	connect( closeButton, SIGNAL( clicked() ),
-		 dockWindow, SLOT( hide() ) );
+    if ( dockWindow->isCloseEnabled() ) {
+	setWFlags( getWFlags() | WStyle_SysMenu );
+    } else {
+	setWFlags( getWFlags() & ~WStyle_SysMenu );
     }
-
-    if ( dockWindow->isCloseEnabled() )
-	closeButton->show();
-    else
-	closeButton->hide();
-
-    closeButton->move( width() - closeButton->width() - 1, 1 );
 }
 
 void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
