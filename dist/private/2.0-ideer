@@ -2,3 +2,4 @@
 
 - hacke QLineEdit til å kunne arves
 
+- QTableView const: cellWidth, cellHeight, totalWidth,  totalHeight, .....
