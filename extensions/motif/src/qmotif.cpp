@@ -170,8 +170,8 @@ QMotif::QMotif()
 QMotif::~QMotif()
 {
     d->unhook();
-    if ( d->ownContext )
-	XtDestroyApplicationContext( d->appContext );
+    // if ( d->ownContext )
+    // XtDestroyApplicationContext( d->appContext );
     delete d;
 }
 

@@ -17,12 +17,16 @@ public:
     QMotifEventLoop( QMotif *motif, QObject *parent, const char *name = 0 );
     virtual ~QMotifEventLoop();
 
+    void registerSocketNotifier( QSocketNotifier * );
+    void unregisterSocketNotifier( QSocketNotifier * );
+
 protected:
-    virtual bool processNextEvent( int eventType, bool canWait );
+    virtual bool processNextEvent( ProcessEventsFlags flags, bool canWait );
 
 private:
     QMotifEventLoopPrivate *d;
 
+    friend void qmotif_socknot_handler( XtPointer, int *, XtInputId * );
     friend void qmotif_timeout_handler( XtPointer, XtIntervalId * );
 };
 
