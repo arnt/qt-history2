@@ -147,6 +147,25 @@ Float handling:
 
 */
 
+/*
+
+   On the table layouting:
+
+   +---[ table border ]-------------------------
+   |      [ cell spacing ]
+   |  +------[ cell border ]-----+  +--------
+   |  |                          |  |
+   |  |
+   |  |
+   |  |
+   |
+
+   rowPositions[i] and columnPositions[i] point at the cell content
+   position. So for example the left border is drawn at
+   x = columnPositions[i] - fd->border and similar for y.
+
+*/
+
 enum {
     TextIndentValue = 40
 };
@@ -350,7 +369,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
 //     INC_INDENT;
 
     QTextTable *table = qt_cast<QTextTable *>(frame);
-    QPoint off = offset + fd->boundingRect.topLeft();
+    const QPoint off = offset + fd->boundingRect.topLeft();
 
     // draw frame decoration
     if (fd->border) {
@@ -364,6 +383,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
         painter->drawRect(off.x() + fd->margin, off.y() + fd->margin, w, fd->border);
         painter->drawRect(off.x() + fd->margin + w, off.y() + fd->margin, fd->border, h);
         painter->drawRect(off.x() + fd->margin, off.y() + fd->margin + h, w + fd->border, fd->border);
+        /*
         if (table) {
             QTextTableData *td = static_cast<QTextTableData *>(fd);
             int rows = table->rows();
@@ -378,12 +398,14 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
             }
 
         }
+        */
         painter->restore();
     }
 
     if (table) {
-        int rows = table->rows();
-        int columns = table->columns();
+        const int rows = table->rows();
+        const int columns = table->columns();
+        const int cellSpacing = table->format().cellSpacing();
         QTextTableData *td = static_cast<QTextTableData *>(data(table));
 
         int row_start = -1, col_start = -1, num_rows = -1, num_cols = -1;
@@ -406,17 +428,53 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
                     if (cc != c)
                         continue;
                 }
+
+                // ### FIXME: temporary until QRect is fixed
+                QRectF cellRect;
+                cellRect.setLeft(td->columnPositions.at(c));
+                cellRect.setTop(td->rowPositions.at(r));
+                cellRect.setWidth(td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1) - cellRect.left());
+                cellRect.setHeight(td->rowPositions.at(r + rspan - 1) + td->heights.at(r + rspan - 1) - cellRect.top());
+
+                /*
                 QRect cellRect(QPoint(td->columnPositions.at(c), td->rowPositions.at(r)),
                                QPoint(td->columnPositions.at(c+cspan-1) + td->widths.at(c+cspan-1),
                                       td->rowPositions.at(r+rspan-1) + td->heights.at(r+rspan-1)));
+                                      */
+
                 cellRect.moveBy(off);
                 if (!cellRect.intersects(painter->clipRegion().boundingRect()))
                     continue;
 
+                if (fd->border) {
+                    const QBrush oldBrush = painter->brush();
+                    const QPen oldPen = painter->pen();
+
+                    painter->setBrush(Qt::black);
+                    painter->setPen(Qt::NoPen);
+
+                    // top border
+                    painter->drawRect(cellRect.left() - fd->border, cellRect.top() - fd->border,
+                                      cellRect.width() + 2 * fd->border, fd->border);
+                    // bottom border
+                    painter->drawRect(cellRect.left() - fd->border, cellRect.top() + cellRect.height(),
+                                      cellRect.width() + 2 * fd->border, fd->border);
+                    // left border
+                    painter->drawRect(cellRect.left() - fd->border, cellRect.top(),
+                                      fd->border, cellRect.height());
+                    // right border
+                    painter->drawRect(cellRect.left() + cellRect.width(), cellRect.top(),
+                                      fd->border, cellRect.height());
+
+                    painter->setBrush(oldBrush);
+                    painter->setPen(oldPen);
+                }
+
                 {
                     QColor bgCol = cell.format().tableCellBackgroundColor();
                     if (bgCol.isValid())
-                        painter->fillRect(cellRect, bgCol);
+                        //painter->fillRect(cellRect, bgCol);
+                        painter->fillRect(cellRect.toRect(), bgCol);
                 }
 
                 QAbstractTextDocumentLayout::PaintContext cell_context = context;
@@ -681,16 +739,24 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
     const int columns = table->columns();
     QTextTableData *td = static_cast<QTextTableData *>(data(table));
 
-    // ### fix padding
-    const int margin = td->margin + td->border;
-
     const QTextTableFormat fmt = table->format();
+
     const QList<int> constraints = fmt.tableColumnConstraintTypes();
     const QList<int> constraintValues = fmt.tableColumnConstraintValues();
     Q_ASSERT(constraints.count() == columns);
     Q_ASSERT(constraintValues.count() == columns);
 
-    int totalWidth = td->contentsWidth - (columns-1)*td->border;
+    const int cellSpacing = fmt.cellSpacing();
+    // ### fix padding
+    const int margin = td->margin + td->border;
+
+    int totalWidth = td->contentsWidth;
+    // two (vertical) borders per cell per column
+    totalWidth -= columns * 2 * td->border;
+    // inter-cell spacing
+    totalWidth -= (columns - 1) * cellSpacing;
+    // cell spacing at the left and right hand side
+    totalWidth -= 2 * cellSpacing;
 
     td->widths.resize(columns);
     td->widths.fill(0);
@@ -760,28 +826,30 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
         }
     }
 
+
     td->columnPositions.resize(columns);
-    td->columnPositions[0] = margin;
+    td->columnPositions[0] = margin /*includes table border*/ + cellSpacing + td->border;
+
     for (int i = 1; i < columns; ++i)
-        td->columnPositions[i] = td->columnPositions.at(i-1) + td->widths.at(i-1) + td->border;
+        td->columnPositions[i] = td->columnPositions.at(i-1) + td->widths.at(i-1) + td->border + cellSpacing + td->border;
 
     td->heights.resize(rows);
     td->heights.fill(0);
 
     td->rowPositions.resize(rows);
-    td->rowPositions[0] = margin;
+    td->rowPositions[0] = margin /*includes table border*/ + cellSpacing + td->border;
 
     bool haveRowSpannedCells = false;
 
     // now that we have the column widths we can lay out all cells with the right
     // width, to calculate the row heights. we have to use two passes though, cells
-    // which span more than onw row have to be processed later to avoid them enlarging
+    // which span more than one row have to be processed later to avoid them enlarging
     // other calls too much
     //
     // ### this could be made faster by iterating over the cells array of QTextTable
     for (int r = 0; r < rows; ++r) {
         if (r > 0)
-            td->rowPositions[r] = td->rowPositions.at(r-1) + td->heights.at(r-1) + td->border;
+            td->rowPositions[r] = td->rowPositions.at(r-1) + td->heights.at(r-1) + td->border + cellSpacing + td->border;
 
         for (int c = 0; c < columns; ++c) {
             QTextTableCell cell = table->cellAt(r, c);
@@ -808,7 +876,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
     if (haveRowSpannedCells) {
         for (int r = 0; r < rows; ++r) {
             if (r > 0)
-                td->rowPositions[r] = td->rowPositions.at(r-1) + td->heights.at(r-1) + td->border;
+                td->rowPositions[r] = td->rowPositions.at(r-1) + td->heights.at(r-1) + td->border + cellSpacing + td->border;
 
             for (int c = 0; c < columns; ++c) {
                 QTextTableCell cell = table->cellAt(r, c);
@@ -830,6 +898,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
                 LayoutStruct layoutStruct = layoutCell(table, cell, width);
 
                 // the last row gets all the remaining space
+                // ### take spacing into account
                 int heightToDistribute = layoutStruct.y + 2*td->padding;
                 for (int n = 0; n < rspan - 1; ++n) {
                     const int row = r + n;
@@ -865,9 +934,11 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
         }
     }
 
-    td->contentsWidth = qMax(td->contentsWidth, td->columnPositions.last() + td->widths.last() + td->padding);
+    // - margin to compensate the + margin in columnPositions[0]
+    // (same for height and rowPositions)
+    td->contentsWidth = qMax(td->contentsWidth, td->columnPositions.last() + td->widths.last() + td->padding + td->border + cellSpacing - margin);
     int height = td->contentsHeight == -1
-                 ? td->rowPositions.at(rows-1) + td->heights.at(rows-1) + margin
+                 ? td->rowPositions.last() + td->heights.last() + td->padding + td->border + cellSpacing - margin
                  : td->contentsHeight + 2*margin;
     td->boundingRect = QRect(0, 0, td->contentsWidth + 2*margin, height);
     td->dirty = false;
