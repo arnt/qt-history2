@@ -234,7 +234,10 @@ void QDockWindowResizeHandle::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
     style().drawPrimitive(QStyle::PE_DockWindowResizeHandle, &p, rect(), colorGroup(),
-			  orientation() == Qt::Horizontal ? QStyle::Style_Horizontal : 0 );
+			  (isEnabled() ?
+			   QStyle::Style_Enabled : QStyle::Style_Default) |
+			  (orientation() == Qt::Horizontal ?
+			   QStyle::Style_Horizontal : QStyle::Style_Default ));
 }
 
 void QDockWindowResizeHandle::startLineDraw()
@@ -389,7 +392,8 @@ void QDockWindowHandle::paintEvent( QPaintEvent *e )
     erase();
     QPainter p( this );
     QStyle::SFlags flags = QStyle::Style_Default;
-
+    if ( isEnabled() )
+	flags |= QStyle::Style_Enabled;
     if ( !dockWindow->area() || dockWindow->area()->orientation() == Horizontal )
 	flags |= QStyle::Style_Horizontal;
 
