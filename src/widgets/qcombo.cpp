@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#84 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#83 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#84 $");
 
 
 /*!
@@ -329,6 +329,52 @@ QComboBox::~QComboBox()
 }
 
 
+
+/*!  Reimplemented for implementational reasons.
+
+*/
+
+void QComboBox::setStyle( GUIStyle s )
+{
+    if ( s != style() ) {
+	QWidget::setStyle( s );
+	if ( !d->usingListBox ) {
+	    QPopupMenu * p = d->popup;
+	    d->listBox = new QListBox( 0, 0, WType_Popup );
+	    d->listBox->setAutoScrollBar( FALSE );
+	    d->listBox->setBottomScrollBar( FALSE );
+	    d->listBox->setAutoBottomScrollBar( FALSE );
+	    d->listBox->setFrameStyle( QFrame::Box | QFrame::Plain );
+	    d->listBox->setLineWidth( 1 );
+	    d->listBox->resize( 100, 10 );
+	    d->usingListBox      = TRUE;
+	    connect( d->listBox, SIGNAL(selected(int)),
+		     SLOT(internalActivate(int)) );
+	    connect( d->listBox, SIGNAL(highlighted(int)),
+		     SLOT(internalHighlight(int)));
+	    if ( p ) {
+		int n;
+		for( n=p->count()-1; n>=0; n-- ) {
+		    if ( p->text( n ) ) 
+			d->listBox->insertItem( p->text( n ), 0 );
+		    else if ( p->pixmap( n ) )
+			d->listBox->insertItem( *(p->pixmap( n )), 0 );
+		}
+		delete p;
+	    }
+	}
+
+    }
+    if ( d->ed ) {
+	d->ed->setStyle( s );
+	d->ed->setFrame( s == MotifStyle );
+    }
+    if ( d->listBox )
+	d->listBox->setStyle( s );
+}
+
+
+
 /*!
   Returns the number of items in the combo box.
 */
@@ -620,6 +666,14 @@ void QComboBox::setCurrentItem( int index )
     d->current = index;
     if ( d->ed )
 	d->ed->setText( text( index ) );
+    if ( d->poppedUp ) {
+	if ( d->usingListBox && d->listBox )
+	    d->listBox->setCurrentItem( index );
+	else if ( d->popup )
+	    // the popup will soon send an override, but for the
+	    // moment this is correct
+	    internalHighlight( index );
+    }
     currentChanged();
 }
 

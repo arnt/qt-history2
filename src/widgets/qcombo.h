@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.h#38 $
+** $Id: //depot/qt/main/src/widgets/qcombo.h#39 $
 **
 ** Definition of QComboBox class
 **
@@ -69,6 +69,8 @@ public:
 
     void	setInsertionPolicy( QComboBox::Policy policy );
     QComboBox::Policy insertionPolicy() const;
+
+    void	setStyle( GUIStyle );
 
 signals:
     void	activated( int index );
