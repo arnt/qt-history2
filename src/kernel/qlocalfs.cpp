@@ -108,7 +108,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 	return;
     }
 
-    const QFileInfoList *filist = dir.entryInfoList( QDir::All | QDir::Hidden );
+    const QFileInfoList *filist = dir.entryInfoList( QDir::All | QDir::Hidden | QDir::System );
     if ( !filist ) {
 	QString msg = tr( "Could not read directory\n" + url()->path() );
 	op->setState( StFailed );
