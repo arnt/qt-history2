@@ -427,7 +427,7 @@ void QTextHTMLImporter::import()
 
             QTextListFormat::Style style = node->listStyle;
 
-            if (node->tag == QLatin1String("ul") && !node->hasOwnListStyle && node->parent) {
+            if (node->id == Html_ul && !node->hasOwnListStyle && node->parent) {
                 const QTextHtmlParserNode *n = &at(node->parent);
                 while (n) {
                     if (n->tag == QLatin1String("ul")) {
@@ -447,7 +447,7 @@ void QTextHTMLImporter::import()
             listFmt.setIndent(indent);
 
             listReferences.append(d->formatCollection.createObjectIndex(listFmt));
-        } else if (node->tag == QLatin1String("table")) {
+        } else if (node->id == Html_table) {
             QTextTableFormat fmt;
             fmt.setBorder(1);
             Table t;

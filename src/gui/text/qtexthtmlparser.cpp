@@ -828,13 +828,13 @@ void QTextHtmlParser::parseTag()
     node->id = lookupElement(node->tag);
 
     node->isListItem = (node->style->displayMode() == QStyleSheetItem::DisplayListItem);
-    node->isListStart = (node->tag == QLatin1String("ol") || node->tag == QLatin1String("ul"));
+    node->isListStart = (node->id == Html_ol || node->id == Html_ul);
     if (node->isListStart)
         node->listStyle = convertListStyle(node->style->listStyle());
-    node->isTableCell = (node->tag == QLatin1String("td") || node->tag == QLatin1String("th"));
+    node->isTableCell = (node->id == Html_td || node->id == Html_th);
     node->isBlock = (node->style->displayMode() != QStyleSheetItem::DisplayInline
-                     || node->tag == QLatin1String("table")
-                     || node->tag == QLatin1String("tr")
+                     || node->id == Html_table
+                     || node->id == Html_tr
                      || node->isTableCell);
 
 
@@ -982,9 +982,9 @@ void QTextHtmlParser::resolveParent()
     // some elements are not allowed in certain contexts
     while (p && !node->style->allowedInContext(at(p).style)
            // ### make new styles aware of empty tags
-           || at(p).tag == QLatin1String("hr")
-           || at(p).tag == QLatin1String("br")
-           || at(p).tag == QLatin1String("img")
+           || at(p).id == Html_hr
+           || at(p).id == Html_br
+           || at(p).id == Html_img
        ){
         p = at(p).parent;
     }
@@ -1052,7 +1052,7 @@ void QTextHtmlParser::parseAttributes()
         }
         if (value.size() == 0)
             continue;
-        if (node->tag == QLatin1String("font")) {
+        if (node->id == Html_font) {
             // the infamous font tag
             if (key == QLatin1String("size") && value.size()) {
                 int n = value.toInt();
@@ -1064,8 +1064,8 @@ void QTextHtmlParser::parseAttributes()
             } else if (key == QLatin1String("color")) {
                 node->color.setNamedColor(value);
             }
-        } else if (node->tag == QLatin1String("ol")
-                   || node->tag == QLatin1String("ul")) {
+        } else if (node->id == Html_ol
+                   || node->id == Html_ul) {
             if (key == QLatin1String("type")) {
                 node->hasOwnListStyle = true;
                 if (value == QLatin1String("1")) {
@@ -1102,7 +1102,7 @@ void QTextHtmlParser::parseAttributes()
                 if (!ok)
                     node->imageHeight = -1;
             }
-        } else if (node->tag == QLatin1String("tr")) {
+        } else if (node->id == Html_tr) {
             if (key == QLatin1String("bgcolor"))
                 node->bgColor.setNamedColor(value);
         }
