@@ -31,7 +31,8 @@ HEADERS += \
     default_propertysheet.h \
     invisible_widget.h \
     treewidget.h \
-    sheet_delegate.h
+    sheet_delegate.h \
+    qdesigner_promotedwidget.h
 
 SOURCES += \
     spacer.cpp \
@@ -47,6 +48,9 @@ SOURCES += \
     default_propertysheet.cpp \
     invisible_widget.cpp \
     treewidget.cpp \
-    sheet_delegate.cpp
+    sheet_delegate.cpp \
+    qdesigner_promotedwidget.cpp
+
+FORMS += promotetocustomwidgetdialog.ui
 
 include(../sharedcomponents.pri)

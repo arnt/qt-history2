@@ -23,6 +23,7 @@
 #include <QtCore/QPointer>
 
 class QWidget;
+class AbstractFormWindow;
 
 class QT_SHARED_EXPORT QDesignerTaskMenu: public QObject, public ITaskMenu
 {
@@ -36,14 +37,19 @@ public:
 
     virtual QList<QAction*> taskActions() const;
 
+protected:
+    AbstractFormWindow *formWindow() const;
+    
 private slots:
     void changeObjectName();
     void createDockWindow();
+    void promoteToCustomWidget();
 
 private:
     QPointer<QWidget> m_widget;
     QAction *m_changeObjectNameAction;
     QAction *m_createDockWindowAction;
+    QAction *m_promoteToCustomWidgetAction;
 };
 
 class QDesignerTaskMenuFactory: public DefaultExtensionFactory

@@ -28,6 +28,7 @@
 #include <qextensionmanager.h>
 #include <qdesigner_taskmenu.h>
 #include <default_propertysheet.h>
+#include <qdesigner_promotedwidget.h>
 
 FormEditor::FormEditor(QObject *parent)
     : AbstractFormEditor(parent)
@@ -53,6 +54,7 @@ FormEditor::FormEditor(QObject *parent)
     mgr->registerExtensions(new QDesignerLayoutDecorationFactory(mgr),      Q_TYPEID(ILayoutDecoration));
     mgr->registerExtensions(new QLayoutWidgetPropertySheetFactory(mgr),     Q_TYPEID(IPropertySheet));
     mgr->registerExtensions(new SpacerPropertySheetFactory(mgr),            Q_TYPEID(IPropertySheet));
+    mgr->registerExtensions(new PromotedWidgetPropertySheetFactory(mgr),    Q_TYPEID(IPropertySheet));
 
     mgr->registerExtensions(new QDesignerTaskMenuFactory(mgr),              Q_TYPEID(ITaskMenu));
 

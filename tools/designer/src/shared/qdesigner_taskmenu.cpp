@@ -13,7 +13,9 @@
 
 #include "qdesigner_taskmenu.h"
 #include "qdesigner_command.h"
+#include "qdesigner_promotedwidget.h"
 #include "qtundo.h"
+#include "ui_promotetocustomwidgetdialog.h"
 
 #include <abstractformeditor.h>
 #include <abstractformwindow.h>
@@ -27,6 +29,8 @@
 #include <QtGui/QDockWindow>
 #include <QtGui/QVariant>
 
+#include <qdebug.h>
+
 QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
     : QObject(parent),
       m_widget(widget)
@@ -36,6 +40,9 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
 
     m_createDockWindowAction = new QAction(tr("Create Dock Window"), this);
     connect(m_createDockWindowAction, SIGNAL(triggered()), this, SLOT(createDockWindow()));
+
+    m_promoteToCustomWidgetAction = new QAction(tr("Promote to Custom Widget"), this);
+    connect(m_promoteToCustomWidgetAction, SIGNAL(triggered()), this, SLOT(promoteToCustomWidget()));
 }
 
 QDesignerTaskMenu::~QDesignerTaskMenu()
@@ -45,6 +52,13 @@ QDesignerTaskMenu::~QDesignerTaskMenu()
 QWidget *QDesignerTaskMenu::widget() const
 {
     return m_widget;
+}
+
+AbstractFormWindow *QDesignerTaskMenu::formWindow() const
+{
+    AbstractFormWindow *result = AbstractFormWindow::findFormWindow(widget());
+    Q_ASSERT(result != 0);
+    return result;
 }
 
 QList<QAction*> QDesignerTaskMenu::taskActions() const
@@ -60,19 +74,18 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
         actions.append(m_createDockWindowAction);
     }
 
+    actions.append(m_promoteToCustomWidgetAction);
+    
     return actions;
 }
 
 void QDesignerTaskMenu::changeObjectName()
 {
-    AbstractFormWindow *formWindow = AbstractFormWindow::findFormWindow(widget());
-    Q_ASSERT(formWindow);
-
     QString newObjectName = QInputDialog::getText(widget(), tr("Change Object Name"),
             tr("Object Name"), QLineEdit::Normal, widget()->objectName());
 
     if (!newObjectName.isEmpty()) {
-        formWindow->cursor()->setProperty("objectName", newObjectName);
+        formWindow()->cursor()->setProperty("objectName", newObjectName);
     }
 }
 
@@ -124,3 +137,44 @@ QObject *QDesignerTaskMenuFactory::createExtension(QObject *object, const QStrin
 
     return 0;
 }
+
+void QDesignerTaskMenu::promoteToCustomWidget()
+{
+    QDialog *dialog = new QDialog(0);
+    
+    Ui::PromoteToCustomWidgetDialog ui;
+    ui.setupUi(dialog);
+
+    connect(ui.m_ok_button, SIGNAL(clicked()), dialog, SLOT(accept()));
+    connect(ui.m_cancel_button, SIGNAL(clicked()), dialog, SLOT(reject()));
+    ui.m_base_class_name_label->setText(QLatin1String(widget()->metaObject()->className()));
+    
+    if (!dialog->exec()) {
+        delete dialog;
+        return;
+    }
+
+    QWidget *wgt = widget();
+    QWidget *parent = wgt->parentWidget();
+    AbstractFormWindow *fw = formWindow();
+
+    fw->beginCommand(tr("Promote to custom widget"));
+
+    QDesignerPromotedWidget *promoted = new QDesignerPromotedWidget(wgt, parent);
+    promoted->setGeometry(wgt->geometry());
+    InsertWidgetCommand *insert_cmd = new InsertWidgetCommand(fw);
+    insert_cmd->init(promoted);
+    fw->commandHistory()->push(insert_cmd);
+
+    ReparentWidgetCommand *reparent_cmd = new ReparentWidgetCommand(fw);
+    reparent_cmd->init(wgt, promoted);
+    fw->commandHistory()->push(reparent_cmd);
+    
+    fw->endCommand();
+
+    fw->clearSelection();
+    fw->selectWidget(promoted);
+    
+    delete dialog;
+}
+

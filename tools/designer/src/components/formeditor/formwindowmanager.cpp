@@ -23,6 +23,7 @@
 #include <abstractmetadatabase.h>
 #include <abstractformwindow.h>
 #include <abstractformwindowcursor.h>
+#include <qdesigner_promotedwidget.h>
 #include <layoutinfo.h>
 #include <qtundo.h>
 
@@ -135,7 +136,7 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
     }
 
     if (QWidget *managedWidget = findManagedWidget(fw, widget)) {
-        switch (e->type()) {
+       switch (e->type()) {
         case QEvent::Close: {
             if (widget != fw)
                 break;
@@ -241,12 +242,15 @@ QWidget *FormWindowManager::findManagedWidget(FormWindow *fw, QWidget *w)
 {
     while (w && w != fw) {
         if (qt_cast<OrderIndicator*>(w))
-            return w;
-
+            break;
         if (fw->isManaged(w))
-            return w;
+            break;
         w = w->parentWidget();
     }
+
+    QWidget *parent = w->parentWidget();
+    if (parent != 0 && qt_cast<QDesignerPromotedWidget*>(parent) != 0)
+        w = parent;
 
     return w;
 }
