@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#40 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#39 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#40 $";
 #endif
 
 
@@ -146,10 +146,6 @@ bool QWidget::create()				// create widget
 				 &v );
     }
     setMouseTracking( FALSE );			// also sets event mask
-    gc = qXAllocGC( bg_col.pixel(), fg_col.pixel(),!testFlag(WPaintUnclipped));
-    if ( testFlag(WPaintUnclipped) )		// paint direct on device
-	XSetSubwindowMode( dpy, gc, IncludeInferiors );
-
     if ( overlap ) {				// set X cursor
 	QCursor *appc = QApplication::cursor();
 	XDefineCursor( dpy, ident, appc ? appc->handle() : curs.handle() );
@@ -175,7 +171,6 @@ bool QWidget::destroy()				// destroy widget
 		++it;
 	    }
 	}
-	qXFreeGC( gc );				// free graphics context
 	if ( !testFlag(WType_Desktop) )
 	    XDestroyWindow( dpy, ident );
 	set_id( 0 );
@@ -203,7 +198,6 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
     flags = f;
     clearFlag( WState_Created );
     clearFlag( WState_Visible );
-    qXFreeGC( gc );				// free graphics context
     create();
     qPRCreate( this, old_ident );
     setBackgroundColor( bgc );			// restore colors
@@ -254,8 +248,6 @@ QColor QWidget::foregroundColor() const		// get foreground color
 void QWidget::setBackgroundColor( const QColor &c )
 {						// set background color
     bg_col = c;
-    gc = qXChangeGC( gc, bg_col.pixel(), fg_col.pixel(),
-		     !testFlag(WPaintUnclipped) );
     XSetWindowBackground( dpy, ident, bg_col.pixel() );
     update();
 }
@@ -263,8 +255,6 @@ void QWidget::setBackgroundColor( const QColor &c )
 void QWidget::setForegroundColor( const QColor &c )
 {						// set foreground color
     fg_col = c;
-    gc = qXChangeGC( gc, bg_col.pixel(), fg_col.pixel(),
-		     !testFlag(WPaintUnclipped) );
     update();
 }
 
@@ -623,7 +613,7 @@ void QWidget::scroll( int dx, int dy )		// scroll widget contents
 	y2 = 0;
 	h += dy;
     }
-    XCopyArea( dpy, ident, ident, gc, x1, y1, w, h, x2, y2 );
+    XCopyArea( dpy, ident, ident, qXGetReadOnlyGC(), x1, y1, w, h, x2, y2 );
     if ( children() ) {				// scroll children
 	QPoint pd( dx, dy );
 	QObjectListIt it(*children());
