@@ -19,12 +19,9 @@ public:
 #else
     DesignerApplication( int &argc, char **argv );
 #endif
-
-    QApplicationInterface *queryInterface();
     
 protected:
     QDateTime lastMod;
-    QGuardedPtr<QApplicationInterface> appIface;
     
 #if defined(_WS_WIN_) 
     bool winEventFilter( MSG *msg );

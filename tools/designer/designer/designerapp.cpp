@@ -20,7 +20,7 @@ DesignerApplication::DesignerApplication( int &argc, char **argv, const QCString
 #else
 
 DesignerApplication::DesignerApplication( int &argc, char **argv )
-    : QApplication( argc, argv ), appIface( 0 )
+    : QApplication( argc, argv )
 {
 #if defined(_WS_WIN_)
     if ( winVersion() & Qt::WV_NT_based )
@@ -31,12 +31,6 @@ DesignerApplication::DesignerApplication( int &argc, char **argv )
 }
 
 #endif
-
-
-QApplicationInterface * DesignerApplication::queryInterface()
-{
-    return appIface ? appIface : ( appIface = new DesignerApplicationInterface );
-}
 
 #if defined(_WS_WIN_)
 #include <qt_windows.h>
