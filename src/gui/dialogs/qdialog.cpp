@@ -890,7 +890,7 @@ QSize QDialog::minimumSizeHint() const
     return QWidget::minimumSizeHint();
 }
 
-/*! \property QDialog::modal
+/*! \property QDialog::isModal
     \brief whether show() should pop up the dialog as modal or modeless
 
     By default, this property is false and show() pops up the dialog as
@@ -910,10 +910,6 @@ void QDialog::setModal(bool modal)
         clearWFlags(Qt::WShowModal);
 }
 
-bool QDialog::isModal() const
-{
-    return testWFlags(Qt::WShowModal) != 0;
-}
 
 bool QDialog::isSizeGripEnabled() const
 {
