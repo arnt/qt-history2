@@ -497,15 +497,15 @@ class QFontEngineMac : public QFontEngine
     FontInfo *info;
 #endif
     int psize;
+    short fnum;
     QMacFontInfo *internal_fi;
     enum { widthCacheSize = 0x500 };
     mutable unsigned char widthCache[widthCacheSize];
-    friend class QGLContext;
+    friend class QFont;
     friend class QFontPrivate;
     friend class QMacSetFontInfo;
 
 public:
-    short fnum;
     QFontEngineMac();
 
     Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const;
