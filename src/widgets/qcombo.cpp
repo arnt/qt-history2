@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#48 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -21,7 +21,7 @@
 #include "qtimer.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#48 $");
 
 
 /*!
@@ -251,15 +251,15 @@ void QComboBox::insertStrList( const char **strings, int numStrings, int index)
   \e index is negative.
 */
 
-void QComboBox::insertItem( const char *txt, int index )
+void QComboBox::insertItem( const char *text, int index )
 {
     int cnt = count();
     if ( !checkInsertIndex( "insertItem", cnt, &index ) )
 	return;
     if ( d->usingListBox )
-        d->listBox->insertItem( txt, index );
+        d->listBox->insertItem( text, index );
     else
-        d->popup->insertItem( txt, index );
+        d->popup->insertItem( text, index );
     if ( index != cnt )
 	reIndex();
     if ( index == d->current )
@@ -406,6 +406,7 @@ void QComboBox::setCurrentItem( int index )
     d->current = index;
     currentChanged();
 }
+
 
 /*!
   Returns TRUE if auto-resizing is enabled, or FALSE if auto-resizing is
@@ -641,7 +642,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 /*!
   \internal
   Returns the button arrow rectangle for windows style combo boxes.
- */
+*/
 QRect QComboBox::arrowRect() const
 {
     return QRect( width() - 2 - 16, 2, 16, height() - 4 );
@@ -727,7 +728,7 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 
 
 /*!
-   \internal
+  \internal
    Calculates the listbox height needed to contain all items.
 */
 static int listHeight( QListBox *l )
@@ -822,8 +823,8 @@ void QComboBox::currentChanged()
     repaint();
 }
 
-/*!  
-   \internal 
+/*!
+  \internal 
    The event filter steals events from the popup or listbox
    when they are popped up. It makes the popup stay up after a short click
    in motif style. In windows style it toggles the arrow button of the
