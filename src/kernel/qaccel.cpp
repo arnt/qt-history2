@@ -157,7 +157,9 @@ public:
     bool tryComposeUnicode(QWidget* w, QKeyEvent* e);
 
 private:
-    QAccelManager():currentState(Qt::NoMatch), clash(-1) { self_ptr = this; }
+    QAccelManager()
+	: currentState(Qt::NoMatch), clash(-1), metaComposeUnicode(false),composedUnicode(0)
+	{ self_ptr = this; }
     ~QAccelManager() { self_ptr = 0; }
 
     bool correctSubWindow(QWidget *w, QAccelPrivate* priv);
@@ -169,6 +171,8 @@ private:
     Qt::SequenceMatch currentState;
     QKeySequence intermediate;
     int clash;
+    bool metaComposeUnicode;
+    int composedUnicode;
 };
 QAccelManager* QAccelManager::self_ptr = 0;
 
@@ -316,7 +320,7 @@ bool QAccelManager::tryAccelEvent(QWidget* w, QKeyEvent* e)
 
 bool QAccelManager::tryComposeUnicode(QWidget* w, QKeyEvent* e)
 {
-    if (qApp->metaComposeUnicode) {
+    if (metaComposeUnicode) {
 	int value = e->key() - Key_0;
 	// Ignore acceloverrides so we don't trigger
 	// accels on keypad when Meta compose is on
@@ -327,36 +331,36 @@ bool QAccelManager::tryComposeUnicode(QWidget* w, QKeyEvent* e)
 	} else if ((e->type() == QEvent::KeyPress) &&
 	     (e->state() == Qt::Keypad + Qt::MetaButton)) {
 	    if (value >= 0 && value <= 9) {
-		qApp->composedUnicode *= 10;
-		qApp->composedUnicode += value;
+		composedUnicode *= 10;
+		composedUnicode += value;
 		return true;
 	    } else {
 		// Composing interrupted, dispatch!
-		if (qApp->composedUnicode) {
-		    QChar ch(qApp->composedUnicode);
+		if (composedUnicode) {
+		    QChar ch(composedUnicode);
 		    QString s(ch);
 		    QKeyEvent kep(QEvent::KeyPress, 0, 0, s);
 		    QKeyEvent ker(QEvent::KeyRelease, 0, 0, s);
 		    QApplication::sendEvent(w, &kep);
 		    QApplication::sendEvent(w, &ker);
 		}
-		qApp->composedUnicode = 0;
+		composedUnicode = 0;
 		return true;
 	    }
 	// Meta compose end, dispatch
 	} else if ((e->type() == QEvent::KeyRelease) &&
 		    (e->key() == Key_Meta) &&
-		    (qApp->composedUnicode != 0)) {
-	    if ((qApp->composedUnicode > 0) &&
-		 (qApp->composedUnicode < 0xFFFE)) {
-		QChar ch(qApp->composedUnicode);
+		    (composedUnicode != 0)) {
+	    if ((composedUnicode > 0) &&
+		 (composedUnicode < 0xFFFE)) {
+		QChar ch(composedUnicode);
 		QString s(ch);
 		QKeyEvent kep(QEvent::KeyPress, 0, 0, s);
 		QKeyEvent ker(QEvent::KeyRelease, 0, 0, s);
 		QApplication::sendEvent(w, &kep);
 		QApplication::sendEvent(w, &ker);
 	    }
-	    qApp->composedUnicode = 0;
+	    composedUnicode = 0;
 	    return true;
 	}
     }

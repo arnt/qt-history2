@@ -279,8 +279,6 @@ private:
     friend void qt_init(int *, char **, QApplication::Type);
 #endif
 
-    bool	     quit_now;
-    int		     quit_code;
     static QStyle   *app_style;
     static int	     app_cspec;
 #ifndef QT_NO_PALETTE
@@ -297,7 +295,6 @@ private:
     static int	     cursor_flash_time;
     static int	     mouse_double_click_time;
     static int	     wheel_scroll_lines;
-    static int	     composedUnicode; // Value, meta-composed character
 
     static bool	     animate_ui;
     static bool	     animate_menu;
@@ -307,15 +304,8 @@ private:
     static bool	     fade_tooltip;
     static bool	     animate_toolbox;
     static bool	     widgetCount; // Coupled with -widgetcount switch
-    static bool	     metaComposeUnicode;
 
     QList<QTranslator*> *translators;
-#ifndef QT_NO_SESSIONMANAGER
-    QSessionManager *session_manager;
-    QString	     session_id;
-    static QString* session_key;
-    bool	     is_session_restored;
-#endif
 #if defined(Q_WS_X11) && !defined (QT_NO_STYLE )
     static void x11_initialize_style();
 #endif
@@ -384,22 +374,7 @@ inline bool QApplication::inPopupMode() const
 {
     return popupWidgets != 0;
 }
-#ifndef QT_NO_SESSIONMANAGER
-inline bool QApplication::isSessionRestored() const
-{
-    return is_session_restored;
-}
 
-inline QString QApplication::sessionId() const
-{
-    return session_id;
-}
-
-inline QString QApplication::sessionKey() const
-{
-    return session_key ? *session_key : QString();
-}
-#endif
 inline QSize QApplication::globalStrut()
 {
     return app_strut;

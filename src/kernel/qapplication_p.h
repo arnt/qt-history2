@@ -73,10 +73,16 @@ extern bool qt_tryModalHelper( QWidget *, QWidget ** = 0 );
 class QApplicationPrivate : public QKernelApplicationPrivate
 {
     Q_DECL_PUBLIC(QApplication);
-
+public:
     QApplicationPrivate(int &argc, char **argv);
     ~QApplicationPrivate() {}
-public:
+
+#ifndef QT_NO_SESSIONMANAGER
+    QSessionManager *session_manager;
+    QString session_id;
+    QString session_key;
+    bool is_session_restored;
+#endif
 
 };
 

@@ -344,9 +344,6 @@ QApplication::Type qt_appType=QApplication::Tty;
 #ifndef QT_NO_COMPONENT
 QStringList *QApplication::app_libpaths = 0;
 #endif
-bool	  QApplication::metaComposeUnicode = FALSE;
-int	  QApplication::composedUnicode   = 0;
-
 
 #if defined(QT_TABLET_SUPPORT)
 bool chokeMouse = FALSE;
@@ -457,9 +454,6 @@ Q_EXPORT void qRemovePostRoutine( QtCleanUpFunction p )
 QAsciiDict<QPalette> *QApplication::app_palettes = 0;
 QAsciiDict<QFont>    *QApplication::app_fonts = 0;
 
-#ifndef QT_NO_SESSIONMANAGER
-QString *QApplication::session_key = 0;		// ## session key. Should be a member in 4.0
-#endif
 QWidgetList *QApplication::popupWidgets = 0;	// has keyboard input focus
 
 QDesktopWidget *qt_desktopWidget = 0;		// root window widgets
@@ -524,15 +518,13 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	} else if ( qstrcmp(arg,"-session") == 0 && i < argc-1 ) {
 	    ++i;
 	    if ( argv[i] && *argv[i] ) {
-		session_id = QString::fromLatin1( argv[i] );
-		int p = session_id.find( '_' );
+		d->session_id = QString::fromLatin1( argv[i] );
+		int p = d->session_id.find( '_' );
 		if ( p >= 0 ) {
-		    if ( !session_key )
-			session_key = new QString;
-		    *session_key = session_id.mid( p +1 );
-		    session_id = session_id.left( p );
+		    d->session_key = d->session_id.mid( p +1 );
+		    d->session_id = d->session_id.left( p );
 		}
-		is_session_restored = TRUE;
+		d->is_session_restored = TRUE;
 	    }
 #endif
 	} else if ( qstrcmp(arg, "-reverse") == 0 ) {
@@ -827,7 +819,7 @@ void QApplication::init_precmdline()
     translators = 0;
     is_app_closing = FALSE;
 #ifndef QT_NO_SESSIONMANAGER
-    is_session_restored = FALSE;
+    d->is_session_restored = FALSE;
 #endif
 }
 
@@ -837,9 +829,6 @@ void QApplication::init_precmdline()
 
 void QApplication::initialize()
 {
-
-    quit_now = FALSE;
-    quit_code = 0;
     QWidget::mapper = new QWidgetMapper;
 #ifndef QT_NO_PALETTE
     (void) palette();  // trigger creation of application palette
@@ -848,9 +837,7 @@ void QApplication::initialize()
 
 #ifndef QT_NO_SESSIONMANAGER
     // connect to the session manager
-    if ( !session_key )
-	session_key = new QString;
-    session_manager = new QSessionManager( qApp, session_id, *session_key );
+    d->session_manager = new QSessionManager( this, d->session_id, d->session_key );
 #endif
 
 }
@@ -993,10 +980,8 @@ QApplication::~QApplication()
 	qDebug( "Widgets left: %i    Max widgets: %i \n", QWidget::instanceCounter, QWidget::maxInstances );
     }
 #ifndef QT_NO_SESSIONMANAGER
-    delete session_manager;
-    session_manager = 0;
-    delete session_key;
-    session_key = 0;
+    delete d->session_manager;
+    d->session_manager = 0;
 #endif //QT_NO_SESSIONMANAGER
 
     qt_explicit_app_style = FALSE;
@@ -2725,6 +2710,23 @@ bool QApplication::desktopSettingsAware()
 
   \sa isSessionRestored(), sessionId(), commitData(), saveState()
  */
+#ifndef QT_NO_SESSIONMANAGER
+bool QApplication::isSessionRestored() const
+{
+    return d->is_session_restored;
+}
+
+QString QApplication::sessionId() const
+{
+    return d->session_id;
+}
+
+QString QApplication::sessionKey() const
+{
+    return d->session_key;
+}
+#endif
+
 
 
 /*!
