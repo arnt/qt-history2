@@ -431,12 +431,16 @@ private:
     CRITICAL_SECTION createWindowSection;
 };
 
-IDispatch *create_object_wrapper( QObject *o )
+bool qAxWrapObject( QObject *o, IDispatch **disp )
 {
-    IDispatch *disp = 0;
+    *disp = 0;
     QAxServerBase *obj = new QAxServerBase( o );
-    obj->QueryInterface( IID_IDispatch, (void**)&disp );
-    return disp;
+    obj->QueryInterface( IID_IDispatch, (void**)disp );
+    if (*disp)
+	return TRUE;
+
+    delete obj;
+    return FALSE;
 }
 
 /*
