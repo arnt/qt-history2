@@ -71,7 +71,8 @@
   respectively, can then be used to access the component that provides the requested feature:
 
   \code
-  MyPluginInterface *iface = manager->queryInterface( "feature" );
+  MyPluginInterface *iface;
+  manager->queryInterface( "feature", &iface );
   if ( iface )
       iface->execute( "feature" );
   \endcode
@@ -85,7 +86,8 @@
 
   QStringList features = manager->featureList();
   for ( QStringList::Iterator it = features.begin(); it != features.end(); ++it ) {
-      MyPluginInterface *iface = manager->queryInterface( *it );
+      MyPluginInterface *iface;
+      manager->queryInterface( *it, &iface );
 
       // use QAction to provide toolbuttons and menuitems for each feature...
   }
@@ -158,7 +160,7 @@
 */
 
 /*!
-  \fn QRESULT QInterface::queryInterface(const QString& feature, QUnknownInterface** iface) const
+  \fn QRESULT QPluginManager::queryInterface(const QString& feature, QUnknownInterface** iface) const
 
   Returns a pointer to the interface providing \a feature.
 

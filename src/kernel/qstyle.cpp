@@ -430,17 +430,6 @@ void QStyle::drawComboButtonMask( QPainter *p, int x, int y, int w, int h)
 }
 
 
-
-
-/*!
-  \overload void QStyle::drawToolButton( QToolButton*, QPainter *)
-
-  Draws a tool button. This function will normally call drawToolButton()
-  with arguments according to the current state of the tool button.
-
-  \sa QToolButton::drawButton()
-*/
-
 /*!
   \fn void QStyle::drawPushButton( QPushButton*, QPainter *)
 
@@ -1006,12 +995,13 @@ int QStyle::menuButtonIndicatorWidth( int h ) const
 }
 
 /*! \fn void QStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
-				    QMenuItem* mi, QColorGroup& g,
-				    bool enabled, bool )
+				  QMenuItem* mi, QColorGroup& g, bool active,
+				  bool down, bool hasFocus = FALSE )
 
   Draws the menu item \a mi using the painter \a p and the ButtonText
   color of \a g. The painter is preset to the right font. \a x, \a y, \a w
-  and \a h determine the geometry of the entire item.
+  and \a h determine the geometry of the entire item, and \a active, \a down and
+  \a hasFocus represent the state of the menu bar item.
 
   In a future version of the Qt library this function will become
   obsolete, and subclasses will be able to reimplement drawMenuBarItem().
