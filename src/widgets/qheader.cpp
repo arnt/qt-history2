@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#23 $
 **
 **  Table header
 **
@@ -18,6 +18,9 @@ static const int MINSIZE  = 8;
 static const int MARKSIZE = 32;
 
 
+#if (QT_VERSION >= 140)
+#error "Move cursors to QCursor"
+#endif
 
 
 static QCursor *vSplitCur = 0;
