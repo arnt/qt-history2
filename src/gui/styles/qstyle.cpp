@@ -28,6 +28,9 @@
     \brief The Q3StyleOption class specifies optional parameters for QStyle functions.
     \ingroup appearance
 
+    \e {This class will be removed for Qt 4.0.} The majority of the
+    functionality can be found in the new QStyleOption class.
+
     Some QStyle functions take an optional argument specifying extra
     information that is required for a paritical primitive or control.
     So that the QStyle class can be extended, Q3StyleOption is used to
@@ -297,7 +300,7 @@
     A large number of GUI elements are common to many widgets. The
     QStyle class allows the look of these elements to be modified
     across all widgets that use the QStyle functions. It also
-    provides two feel options: Motif and Windows.
+    provides "feel" options for widgets.
 
     Although it is not possible to fully enumerate the look of
     graphical elements and the feel of widgets in a GUI, QStyle
@@ -332,13 +335,20 @@
 
     In Qt versions prior to 3.0, if you wanted a low level route into
     changing the appearance of a widget, you would reimplement
-    polish(). With the new 3.0 style engine the recommended approach
+    polish(). With 3.0 and up, the recommended approach
     is to reimplement the draw functions, for example drawItem(),
     drawPrimitive(), drawControl(), drawControlMask(),
     drawComplexControl() and drawComplexControlMask(). Each of these
     functions is called with a range of parameters that provide
     information that you can use to determine how to draw them, e.g.
     style flags, rectangle, color group, etc.
+
+    In Qt 4.0, the majority of the information about what and how something is
+    to be drawn is described in a QStyleOption structure. The widget parameter
+    that was mandatory in Qt 3.0, is now optional, but it has been kept for
+    developers that may need it. Developers using the widget must be careful
+    and use qt_cast() to get the correct widget as there are no gaurentees what
+    the class of widget will be.
 
     For information on changing elements of an existing style or
     creating your own style see the \link customstyles.html Style
@@ -402,7 +412,7 @@ QStyle::~QStyle()
     QWidget::setBackgroundMode() for the widget. An example of highly
     unreasonable use would be setting the geometry! Reimplementing
     this function gives you a back-door through which you can change
-    the appearance of a widget. With Qt 3.0's style engine you will
+    the appearance of a widget. With Qt 4.0's style engine you will
     rarely need to write your own polish(); instead reimplement
     drawItem(), drawPrimitive(), etc.
 
@@ -563,7 +573,7 @@ QRect QStyle::itemRect(QPainter *p, const QRect &r,
 void QStyle::drawItem(QPainter *p, const QRect &r,
                        int flags, const QPalette &pal, bool enabled,
                        const QString& text, int len,
-                       const QColor* penColor) const
+                       const QColor *penColor) const
 {
     int x = r.x();
     int y = r.y();
@@ -590,7 +600,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 void QStyle::drawItem(QPainter *p, const QRect &r,
                        int flags, const QPalette &pal, bool enabled,
                        const QPixmap &pixmap,
-                       const QColor* penColor) const
+                       const QColor *penColor) const
 {
     int x = r.x();
     int y = r.y();
@@ -631,7 +641,9 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
 /* ### For some reason qdoc doesn't understand this
 
-    \fn void QStyle::drawItem(QPainter *p, const QRect &r, int flags, const QPalette &pal, bool enabled, const QPixmap &pixmap, const QString &text, int len, const QColor *penColor)
+    \fn void QStyle::drawItem(QPainter *p, const QRect &r, int flags, const
+                              QPalette &pal, bool enabled, const QPixmap &pixmap,
+                              const QString &text, int len, const QColor *penColor)
 
     \overload
 
@@ -802,85 +814,41 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 /*!
     \fn void QStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p, const QWidget *w = 0) const = 0
 
-    \overload
+    Draw the primitive option \a pe with painter \a p using the information passed in \a opt.
 
-    The primitive's widget is given by \a w.
-*/
+    The \a opt parameter can be qt_cast()'ed to the correct sub-class of the QStyleOption.
 
-/*!
-    \fn void QStyle::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r, const QPalette &pal, SFlags flags, const Q3StyleOption& opt) const;
+    What follows is a table of the elements and the QStyleOption structure they
+    can cast to. The flags stored in the QStyleOption state variable are also
+    listed. If a PrimitiveElement is not listed here, then it uses the default
+    QStyleOption.
 
-    Draws the style PrimitiveElement \a pe using the painter \a p in
-    the area \a r. Colors are used from the palette \a pal.
-
-    The rect \a r should be in screen coordinates.
-
-    The \a flags argument is used to control how the PrimitiveElement
-    is drawn. Multiple flags can be OR'ed together.
-
-    For example, a pressed button would be drawn with the flags \c
-    Style_Enabled and \c Style_Down.
-
-    The \a opt argument can be used to control how various
-    PrimitiveElements are drawn. Note that \a opt may be the default
-    value even for PrimitiveElements that make use of extra options.
-    When \a opt is non-default, it is used as follows:
-
+    The QStyleOption is the the following for the following types of PrimitiveElements.
     \table
-    \header \i PrimitiveElement \i Options \i Notes
-    \row \i \l PE_FocusRect
-         \i \l Q3StyleOption (const \l QColor & bg)
-            \list
-            \i opt.\link Q3StyleOption::color() color\endlink()
-            \endlist
-         \i \e bg is the background color on which the focus rect is being drawn.
-    \row \i12 \l PE_Panel
-         \i12 \l Q3StyleOption (int linewidth, int midlinewidth)
-                \list
-                \i opt.\link Q3StyleOption::lineWidth() lineWidth\endlink()
-                \i opt.\link Q3StyleOption::midLineWidth() midLineWidth\endlink()
-                \endlist
-         \i \e linewidth is the line width for drawing the panel.
-    \row \i \e midlinewidth is the mid-line width for drawing the panel.
-    \row \i12 \l PE_PanelPopup
-         \i12 \l Q3StyleOption (int linewidth, int midlinewidth)
-                \list
-                \i opt.\link Q3StyleOption::lineWidth() lineWidth\endlink()
-                \i opt.\link Q3StyleOption::midLineWidth() midLineWidth\endlink()
-                \endlist
-         \i \e linewidth is the line width for drawing the panel.
-    \row \i \e midlinewidth is the mid-line width for drawing the panel.
-    \row \i12 \l PE_PanelMenuBar
-         \i12 \l Q3StyleOption (int linewidth, int midlinewidth)
-                \list
-                \i opt.\link Q3StyleOption::lineWidth() lineWidth\endlink()
-                \i opt.\link Q3StyleOption::midLineWidth() midLineWidth\endlink()
-                \endlist
-         \i \e linewidth is the line width for drawing the panel.
-    \row \i \e midlinewidth is the mid-line width for drawing the panel.
-    \row \i12 \l PE_PanelDockWindow
-         \i12 \l Q3StyleOption (int linewidth, int midlinewidth)
-                \list
-                \i opt.\link Q3StyleOption::lineWidth() lineWidth\endlink()
-                \i opt.\link Q3StyleOption::midLineWidth() midLineWidth\endlink()
-                \endlist
-         \i \e linewidth is the line width for drawing the panel.
-    \row \i \e midlinewidth is the mid-line width for drawing the panel.
-    \row \i14 \l PE_GroupBoxFrame
-         \i14 \l Q3StyleOption (int linewidth, int midlinewidth, int shape, int shadow)
-                \list
-                \i opt.\link Q3StyleOption::lineWidth() lineWidth\endlink()
-                \i opt.\link Q3StyleOption::midLineWidth() midLineWidth\endlink()
-                \endlist
-         \i \e linewidth is the line width for the group box.
-    \row \i \e midlinewidth is the mid-line width for the group box.
+    \header \i PrimitiveElement \i Option Cast \i Style Flags \i Notes
+    \row \i PE_FocusRect \i (const QStyleOptionFocusRect *) \i Sytle_FocusAtBorder \i Whether the focus is is at the border or inside the widget.
+    \row \i PE_Indicator \i (const QStyleOptionButton *) \i Sytle_NoChange \i Indicates a "tri-state" checkbox.
+    \row \i \i \i Style_On \i Indicates the indicator is checked.
+
+    \row \i PE_ExclusiveIndicator \i (const QStyleOptionButton *) \i Style_On \i Indicates a the radiobutton is selected.
+    \row \i PE_CheckListExclusiveIndicator and PE_CheckListIndicator \i (const QStyleOptoinListView *) \i Style_On \i Indicates whether or not the controller is selected.
+    \row \i \i \i Style_NoChange \i Indicates a "tri-state" controller.
+    \row \i \i \i Style_Enable \i Indicates the controller is enabled.
+    \row \i PE_TreeBranch \i (const QStyleOption *) \i Style_Down \i Indicates the Tree Branch is pressed
+    \row \i \i \i Style_Open \i Indicates the tree branch is not collapsed.
+    \row \i PE_HeaderArrow \i (const QStyleOptionHeader *) \i Style_Up \i Indicates the arrow should be drawn up otherwise it should be down.
+    \row \i PE_HeaderSection \i (const QStyleOptionHeader *) \i Style_Sunken \i Indicates the section is pressed.
+    \row \i \i \i Style_Up \i Indicates the sort indicator should be pointing up.
+    \row \i \i \i Style_Off \i Indicates the the section is not selected.
+    \row \i PE_PanelGroupBox, PE_Panel, PE_PanelLineEdit, PE_PanelPopup, and PE_PanelDockWindow \i (const QStyleOptionFrame *) \i Style_Sunken \i Indicates the Franme should be sunken.
+    \row \i PE_DockWindowHandle \i (const QStyleOptionDockWindow *) \i Style_Horizontal \i Indicates the window handle is horizontal instead of vertical.
+    \row \i PE_DockWindowSeparator \i (const QStyleOption *) \i Style_Horizontal \i Indicates the separator is horizontal instead of vertical.
+    \row \i PE_SpinBoxPlus, PE_SpinBoxMinus, PE_SpinBoxUp, PE_SpinBoxDown, and PE_SpinBoxSlider \i (const QStyleOptionSpinBox *) \i Style_Sunken \i Indicates the button is pressed.
     \endtable
 
+    The \a w argument is optional and may contain a widget that may aid in drawing the primitive.
 
-    For all other \link QStyle::PrimitiveElement
-    PrimitiveElements\endlink, \a opt is unused.
-
-    \sa StyleFlags
+    \sa PrimitiveElement, StyleFlags, QStyleOption
 */
 
 /*!
@@ -935,177 +903,69 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn void QStyle::drawControl(ControlElement element, const
-    QStyleOption *opt, QPainter *p, const QWidget *widget = 0) const = 0
+    \fn void QStyle::drawControl(ControlElement element, const QStyleOption *opt, QPainter *p, const QWidget *widget = 0) const = 0
 
-    \overload
-*/
+    Draws the ControlElement \a element with painter \a p with information
+    described in option \a opt.
 
-/*!
-    \fn void QStyle::drawControl(ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const QPalette &pal, SFlags how, const Q3StyleOption& opt) const;
+    The \a opt parameter can be qt_cast()'ed to the correct sub-class of the QStyleOption.
 
-    Draws the ControlElement \a element using the painter \a p in the
-    area \a r. Colors are used from the palette \a pal.
-
-    The rect \a r should be in screen coordinates.
-
-    The \a how argument is used to control how the ControlElement is
-    drawn. Multiple flags can be OR'ed together. See the table below
-    for an explanation of which flags are used with the various
-    ControlElements.
-
-    The \a widget argument is a pointer to a QWidget or one of its
-    subclasses. The widget can be cast to the appropriate type based
-    on the value of \a element. The \a opt argument can be used to
-    pass extra information required when drawing the ControlElement.
-    Note that \a opt may be the default value even for ControlElements
-    that can make use of the extra options. See the table below for
-    the appropriate \a widget and \a opt usage:
-
+    What follows is a table of the elements and the QStyleOption structure they
+    can cast to. The flags stored in the QStyleOption state variable are also
+    listed. If a ControlElement is not listed here, then it uses the default
+    QStyleOption.
     \table
-    \header \i ControlElement<br>\& Widget Cast
-            \i Style Flags
-            \i Notes
-            \i Options
-            \i Notes
-
-    \row \i16 \l{CE_PushButton}(const \l QPushButton *)
-
-         and
-
-            \l{CE_PushButtonLabel}(const \l QPushButton *)
-         \i \l Style_Enabled \i Set if the button is enabled.
-         \i16 Unused.
-         \i16 &nbsp;
-    \row \i \l Style_HasFocus \i Set if the button has input focus.
-    \row \i \l Style_Raised \i Set if the button is not down, not on and not flat.
-    \row \i \l Style_On \i Set if the button is a toggle button and toggled on.
-    \row \i \l Style_Down \i Set if the button is down (i.e., the mouse button or
+    \header \i ControlElement \i Option Cast \i Style Flags \i Notes
+    \row \i CE_MenuItem and CE_MenuBarItem \i const QStyleOptionMenuItem \i Style_Active \i The menu item is the current item.
+    \row \i \i \i Style_Enabled \i The item is enabled
+    \row \i \i \i Style_Down \i Set if the menuitem is down (i.e., the mouse button or space bar is pressed).
+    \row \i \i \i Style_HasFocus \i Set if the menubar has input focus.
+    \row \i CE_PushButton and CE_PushButtonLabel \i const QStyleOptionButton \i Style_Enabled \i Set if the button is enabled.
+    \row \i \i \i Style_HasFocus \i Set if the button has input focus.
+    \row \i \i \i Style_Raised \i Set if the button is not down, not on and not flat.
+    \row \i \i \i Style_On \i Set if the button is a toggle button and toggled on.
+    \row \i \i \i Style_Down \i Set if the button is down (i.e., the mouse button or
                             space bar is pressed on the button).
-    \row \i \l Style_ButtonDefault \i Set if the button is a default button.
+    \row \i \i \i Style_ButtonDefault \i Set if the button is a default button.
 
-    \row \i16 \l{CE_CheckBox}(const \l QCheckBox *)
-
-         and
-
-         \l{CE_CheckBoxLabel}(const \l QCheckBox *)
-
-         \i \l Style_Enabled \i Set if the checkbox is enabled.
-         \i16 Unused.
-         \i16 &nbsp;
-    \row \i \l Style_HasFocus \i Set if the checkbox has input focus.
-    \row \i \l Style_On \i Set if the checkbox is checked.
-    \row \i \l Style_Off \i Set if the checkbox is not checked.
-    \row \i \l Style_NoChange \i Set if the checkbox is in the NoChange state.
-    \row \i \l Style_Down \i Set if the checkbox is down (i.e., the mouse button or
+    \row \i CE_RadioButton, CE_RadioButtonLabel, CE_CheckBox, and CE_CheckBoxLabel \i const QStyleOptionButton \i Style_Enabled \i Set if the button is enabled.
+    \row \i \i \i Style_HasFocus \i Set if the button has input focus.
+    \row \i \i \i Style_On \i Set if the button is checked.
+    \row \i \i \i Style_Off \i Set if the button is not checked.
+    \row \i \i \i Style_NoChange \i Set if the button is in the NoChange state.
+    \row \i \i \i Style_Down \i Set if the button is down (i.e., the mouse button or
                             space bar is pressed on the button).
-
-    \row \i15 \l{CE_RadioButton}(const QRadioButton *)
-
-        and
-
-        \l{CE_RadioButtonLabel}(const QRadioButton *)
-        \i \l Style_Enabled \i Set if the radiobutton is enabled.
-        \i15 Unused.
-        \i15 &nbsp;
-    \row \i \l Style_HasFocus \i Set if the radiobutton has input focus.
-    \row \i \l Style_On \i Set if the radiobutton is checked.
-    \row \i \l Style_Off \i Set if the radiobutton is not checked.
-    \row \i \l Style_Down \i Set if the radiobutton is down (i.e., the mouse
-                            button or space bar is pressed on the radiobutton).
-
-    \row \i12 \l{CE_TabBarTab}(const \l QTabBar *)
-
-         and
-
-         \l{CE_TabBarLabel}(const \l QTabBar *)
-
-         \i \l Style_Enabled \i Set if the tabbar and tab is enabled.
-         \i12 \l Q3StyleOption (\l QTab *t)
-                \list
-                \i opt.\link Q3StyleOption::tab() tab\endlink()
-                \endlist
-         \i12 \e t is the QTab being drawn.
-    \row \i \l Style_Selected \i Set if the tab is the current tab.
-
-    \row \i12 \l{CE_ProgressBarGroove}(const QProgressBar *)
-
-         and
-
-         \l{CE_ProgressBarContents}(const QProgressBar *)
-
-         and
-
-         \l{CE_ProgressBarLabel}(const QProgressBar *)
-
-         \i \l Style_Enabled \i Set if the progressbar is enabled.
-         \i12 Unused.
-         \i12 &nbsp;
-    \row \i \l Style_HasFocus \i Set if the progressbar has input focus.
-
-    \row \i13 \l{CE_MenuItem}(const \l Q3PopupMenu *)
-         \i \l Style_Enabled \i Set if the menuitem is enabled.
-         \i13 \l Q3StyleOption (Q3MenuItem *mi, int tabwidth, int maxpmwidth)
-                \list
-                \i opt.\link Q3StyleOption::menuItem() menuItem\endlink()
-                \i opt.\link Q3StyleOption::tabWidth() tabWidth\endlink()
-                \i opt.\link Q3StyleOption::maxIconWidth() maxIconWidth\endlink()
-                \endlist
-         \i \e mi is the menu item being drawn. Q3MenuItem is currently an
-            internal class.
-    \row \i \l Style_Active \i Set if the menuitem is the current item.
-         \i \e tabwidth is the width of the tab column where key shortcuts
-            are drawn.
-    \row \i \l Style_Down \i Set if the menuitem is down (i.e., the mouse button
-                            or space bar is pressed).
-         \i \e maxpmwidth is the maximum width of the check column where
-            checkmarks and iconsets are drawn.
-
-    \row \i14 \l{CE_MenuBarItem}(const \l Q3MenuBar *)
-         \i \l Style_Enabled \i Set if the menuitem is enabled
-         \i14 \l Q3StyleOption (Q3MenuItem *mi)
-                \list
-                \i opt.\link Q3StyleOption::menuItem() menuItem\endlink()
-                \endlist
-         \i14 \e mi is the menu item being drawn.
-    \row \i \l Style_Active \i Set if the menuitem is the current item.
-    \row \i \l Style_Down \i Set if the menuitem is down (i.e., a mouse button or
-                            the space bar is pressed).
-    \row \i \l Style_HasFocus \i Set if the menubar has input focus.
-
-    \row \i17 \l{CE_ToolButtonLabel}(const \l QToolButton *)
-         \i \l Style_Enabled \i Set if the toolbutton is enabled.
-         \i17 \l Q3StyleOption (\l Qt::ArrowType t)
-                \list
-                \i opt.\link Q3StyleOption::arrowType() arrowType\endlink()
-                \endlist
-         \i17 When the tool button only contains an arrow, \e t is the
-            arrow's type.
-    \row \i \l Style_HasFocus \i Set if the toolbutton has input focus.
-    \row \i \l Style_Down \i Set if the toolbutton is down (i.e., a
-            mouse button or the space is pressed).
-    \row \i \l Style_On \i Set if the toolbutton is a toggle button
-        and is toggled on.
-    \row \i \l Style_AutoRaise \i Set if the toolbutton has auto-raise enabled.
-    \row \i \l Style_MouseOver \i Set if the mouse pointer is over the toolbutton.
-    \row \i \l Style_Raised \i Set if the button is not down, not on and doesn't
-        contain the mouse when auto-raise is enabled.
+    \row \i CE_ProgressBarContents, CE_ProgressBarLabel, CE_ProgressBarGroove \i const QStyleOptionProgressBar \i Style_Enabled \i Set if the progressbar is enabled.
+    \row \i \i \i Style_HasFocus \i Set if the progressbar has input focus.
+    \row \i CE_HeaderLabel \i const QStyleOptionHeader \i \i
+    \row \i CE_ToolButtonLabel \i const QStyleOptionToolButton \i Style_Enabled \i Set if the toolbutton is enabled.
+    \row \i \i \i Style_HasFocus \i Set if the toolbutton has input focus.
+    \row \i \i \i Style_Down \i Set if the toolbutton is down (i.e., a mouse button or the space is pressed).
+    \row \i \i \i Style_On \i Set if the toolbutton is a toggle button and is toggled on.
+    \row \i \i \i Style_AutoRaise \i Set if the toolbutton has auto-raise enabled.
+    \row \i \i \i Style_MouseOver \i Set if the mouse pointer is over the toolbutton.
+    \row \i \i \i Style_Raised \i Set if the button is not down, not on and doesn't
+    \row \i \i \i CE_ToolBoxTab \i const QStyleOptionToolBox \i Style_Selected \i The tab is the currently selected tab.
     \endtable
 
-    \sa ControlElement, StyleFlags
+    The \a w argument is optional and may contain a widget that may aid in drawing the control.
+
+    \sa ControlElement, StyleFlags, QStyleOption
 */
 
 /*!
-    \fn void QStyle::drawControlMask(ControlElement element, const
-    QStyleOption *opt, QPainter *p, const QWidget *widget) const = 0
+    \fn void QStyle::drawControlMask(ControlElement element, const QStyleOption *opt, QPainter *p, const QWidget *widget = 0) const = 0
 
-    \overload
+    Draw a bitmask for the ControlElement \a element using the painter \a p
+    with the information passed in \a opt. See drawControl() for an explanation
+    of the use of \opt.
+
 */
 
 /*!
     \fn void QStyle::drawControlMask(ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const Q3StyleOption& opt = Q3StyleOption::Default) const;
 
-    Draw a bitmask for the ControlElement \a element using the painter
+    Draw a bitmask for the ControlElement \a element using the pai
     \a p in the area \a r. See drawControl() for an explanation of the
     use of the \a widget and \a opt arguments.
 

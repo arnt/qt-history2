@@ -309,7 +309,7 @@ public:
     virtual void drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
                              const QWidget *w = 0) const = 0;
     virtual void drawControlMask(ControlElement element, const QStyleOption *opt, QPainter *p,
-                                 const QWidget *w) const = 0;
+                                 const QWidget *w = 0) const = 0;
 
     enum SubRect {
         SR_PushButtonContents,
@@ -423,7 +423,7 @@ public:
     virtual SubControl querySubControl(ComplexControl cc, const QStyleOptionComplex *opt,
                                        const QPoint &pt, const QWidget *w = 0) const = 0;
     virtual QRect querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt,
-                                         SubControl sc, const QWidget *w) const = 0;
+                                         SubControl sc, const QWidget *w = 0) const = 0;
     enum PixelMetric {
         PM_ButtonMargin,
         PM_ButtonDefaultIndicator,

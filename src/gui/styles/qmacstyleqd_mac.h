@@ -52,7 +52,7 @@ public:
     SubControl querySubControl(ComplexControl cc, const QStyleOptionComplex *opt,
                                const QPoint &pt, const QWidget *w = 0) const;
     QRect querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt, SubControl sc,
-                                 const QWidget *w) const;
+                                 const QWidget *w = 0) const;
     QSize sizeFromContents(ContentsType ct, const QStyleOption *opt, const QSize &contentsSize,
                            const QFontMetrics &fm, const QWidget *widget = 0) const;
 
