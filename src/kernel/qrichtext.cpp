@@ -997,6 +997,8 @@ QTextDocument::~QTextDocument()
 
 void QTextDocument::clear( bool createEmptyParag )
 {
+    if ( flow_ )
+	flow_->clear();
     while ( fParag ) {
 	QTextParag *p = fParag->next();
 	delete fParag;
@@ -5262,6 +5264,12 @@ QTextFlow::QTextFlow()
 
 QTextFlow::~QTextFlow()
 {
+}
+
+void QTextFlow::clear()
+{
+    leftItems.clear();
+    rightItems.clear();
 }
 
 void QTextFlow::setWidth( int w )

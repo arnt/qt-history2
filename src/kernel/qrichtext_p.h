@@ -1102,6 +1102,8 @@ public:
     virtual bool isEmpty() { return leftItems.isEmpty() && rightItems.isEmpty(); }
     virtual void updateHeight( QTextCustomItem *i );
 
+    void clear();
+    
 private:
     int width;
     int height;
@@ -1500,9 +1502,9 @@ inline QString QTextDocument::originalText() const
 
 inline void QTextDocument::setFlow( QTextFlow *f )
 {
-    if ( flow_ ) 
-	delete flow_; 
-    flow_ = f; 
+    if ( flow_ )
+	delete flow_;
+    flow_ = f;
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
