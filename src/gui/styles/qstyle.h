@@ -676,6 +676,7 @@ public:
 
 
     enum StandardPixmap {
+        SP_TitleBarMenuButton,
         SP_TitleBarMinButton,
         SP_TitleBarMaxButton,
         SP_TitleBarCloseButton,

@@ -1829,10 +1829,16 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             }
 #ifndef QT_NO_WIDGET_TOPEXTRA
             if (tb->subControls & SC_TitleBarSysMenu) {
+                ir = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarSysMenu,
+                                                        widget));
                 if (!tb->icon.isNull()) {
-                    ir = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarSysMenu,
-                                                           widget));
                     drawItem(p, ir, Qt::AlignCenter, tb->palette, true, tb->icon);
+                } else {
+                    pm = standardPixmap(SP_TitleBarMenuButton, &tool, widget);
+                    tool.rect = ir;
+                    p->save();
+                    drawItem(p, ir, Qt::AlignCenter, tb->palette, true, pm);
+                    p->restore();
                 }
             }
 #endif

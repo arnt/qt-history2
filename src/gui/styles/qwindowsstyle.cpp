@@ -306,6 +306,36 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
 
 #ifndef QT_NO_IMAGEIO_XPM
 
+static const char * const qt_menu_xpm[] = {
+"16 16 11 1",
+"  c #000000",
+", c #336600",
+". c #99CC00",
+"X c #666600",
+"o c #999933",
+"+ c #333300",
+"@ c #669900",
+"# c #999900",
+"$ c #336633",
+"% c #666633",
+"& c #99CC33",
+"................",
+"................",
+".....#,++X#.....",
+"....X      X....",
+"...X  Xo#%  X&..",
+"..#  o..&@o  o..",
+".., X..#+ @X X..",
+"..+ o.o+ +o# +..",
+"..+ #o+  +## +..",
+".., %@ ++ +, X..",
+"..#  o@oo+   #..",
+"...X  X##$   o..",
+"....X        X..",
+"....&oX++X#oX...",
+"................",
+"................"};
+
 static const char * const qt_close_xpm[] = {
 "12 12 2 1",
 "# c #000000",
@@ -884,6 +914,8 @@ QPixmap QWindowsStyle::standardPixmap(StandardPixmap standardPixmap, const QStyl
 {
 #ifndef QT_NO_IMAGEIO_XPM
     switch (standardPixmap) {
+    case SP_TitleBarMenuButton:
+        return QPixmap((const char **)qt_menu_xpm);
     case SP_TitleBarShadeButton:
         return QPixmap((const char **)qt_shade_xpm);
     case SP_TitleBarUnshadeButton:
