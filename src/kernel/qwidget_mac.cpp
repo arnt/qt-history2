@@ -2187,6 +2187,10 @@ void QWidget::setRegionDirty(bool child)
     QWExtra *extra = d->extraData();
     if(!extra)
 	return;
+    if(cg_hd) { //just release it and another will be created later..
+	CGContextRelease((CGContextRef)cg_hd);
+	cg_hd = 0;
+    }
     if(child) {
 	extra->clip_serial++;
 	extra->clip_dirty = true;
