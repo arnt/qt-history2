@@ -44,6 +44,9 @@
 
 #if defined(_OS_HPUX_)
 // HP-UX has badly defined strstr() etc.
+// ### fix in 3.0: change hack_* to qt_hack_*
+// by the way HP-UX is probably right, the standard has evolved and
+// we'll have to adapt to it
 inline char *hack_strstr( const char *s1, const char *s2 )
 { return (char *)strstr(s1, s2); }
 inline char *hack_strchr( const char *s, int c )
