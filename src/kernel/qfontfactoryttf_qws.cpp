@@ -118,7 +118,7 @@ public:
 	if(err)
 	    qFatal("Load glyph error %x",err);
 
-	int width,height,pitch,size;
+	int width,height,pitch,size = 0;
 	FT_Glyph glyph;
 	err=FT_Get_Glyph( myface->glyph, &glyph );
 	if(err)
@@ -139,14 +139,18 @@ public:
 		qWarning("Get bitmap error %d",err);
 	}
 
-	FT_Bitmap bm = ((FT_BitmapGlyph)glyph)->bitmap;
-	pitch = bm.pitch;
-	size=pitch*bm.rows;
-	result.data = new uchar[size]; // XXX memory manage me
-	width=bm.width;
-	height=bm.rows;
-	if ( size ) {
-	    memcpy( result.data, bm.buffer, size );
+	if ( !err ) {
+	    FT_Bitmap bm = ((FT_BitmapGlyph)glyph)->bitmap;
+	    pitch = bm.pitch;
+	    size=pitch*bm.rows;
+	    result.data = new uchar[size]; // XXX memory manage me
+	    width=bm.width;
+	    height=bm.rows;
+	    if ( size ) {
+		memcpy( result.data, bm.buffer, size );
+	    } else {
+		result.data = new uchar[0]; // XXX memory manage me
+	    }
 	} else {
 	    result.data = new uchar[0]; // XXX memory manage me
 	}
