@@ -876,6 +876,8 @@ STDMETHODIMP CCommands::QMsDevGenerateQtProject()
 			group = "LEXSOURCES";
 		    else if ( fileext == "ts" )
 			group = "TRANSLATIONS";
+		    else if ( fileext == "rc" )
+			group = "RC_FILE";
 		    else
 			ignore = TRUE;
 		    if ( !ignore ) {
