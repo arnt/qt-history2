@@ -438,6 +438,10 @@ void MainWindow::setupToolbox()
     dw->show();
     setDockEnabled( dw, Qt::DockTop, FALSE );
     setDockEnabled( dw, Qt::DockBottom, FALSE );
+    commonWidgetsToolBar = new QToolBar( "Common Widgets", 0, toolBox, "Common Widgets" );
+    commonWidgetsToolBar->setFrameStyle( QFrame::NoFrame );
+    commonWidgetsToolBar->setOrientation( Qt::Vertical );
+    toolBox->addCategory( "Common Widgets", commonWidgetsToolBar );
 }
 
 void MainWindow::setupRMBMenus()

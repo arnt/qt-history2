@@ -527,7 +527,10 @@ void MainWindow::setupToolActions()
 		a->addTo( tb );
 	    a->addTo( menu );
 	    a->addTo( tb2 );
+	    if ( WidgetDatabase::isCommon( i ) )
+		a->addTo( commonWidgetsToolBar );
 	}
+	commonWidgetsToolBar->setStretchableWidget( new QWidget( commonWidgetsToolBar ) );
 	tb2->setStretchableWidget( new QWidget( tb2 ) );
     }
 

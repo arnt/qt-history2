@@ -59,6 +59,7 @@ WidgetDatabaseRecord::WidgetDatabaseRecord()
     isContainer = FALSE;
     icon = 0;
     nameCounter = 0;
+    isCommon = FALSE;
 }
 
 WidgetDatabaseRecord::~WidgetDatabaseRecord()
@@ -127,6 +128,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->name = "QPushButton";
     r->group = widgetGroup( "Buttons" );
     r->toolTip = "Push Button";
+    r->isCommon = TRUE;
 
     append( r );
 
@@ -143,6 +145,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->name = "QRadioButton";
     r->group = widgetGroup( "Buttons" );
     r->toolTip = "Radio Button";
+    r->isCommon = TRUE;
 
     append( r );
 
@@ -151,6 +154,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->name = "QCheckBox";
     r->group = widgetGroup( "Buttons" );
     r->toolTip = "Check Box";
+    r->isCommon = TRUE;
 
     append( r );
 
@@ -169,6 +173,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->group = widgetGroup( "Containers" );
     r->toolTip = "Button Group";
     r->isContainer = TRUE;
+    r->isCommon = TRUE;
 
     append( r );
 
@@ -204,6 +209,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->name = "QListBox";
     r->group = widgetGroup( "Views" );
     r->toolTip = "List Box";
+    r->isCommon = TRUE;
 
     append( r );
 
@@ -251,6 +257,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->name = "QLineEdit";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Line Edit";
+    r->isCommon = TRUE;
 
     append( r );
 
@@ -259,6 +266,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->name = "QSpinBox";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Spin Box";
+    r->isCommon = TRUE;
 
     append( r );
 
@@ -302,6 +310,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->name = "QTextEdit";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Rich Text Edit";
+    r->isCommon = TRUE;
 
     append( r );
 
@@ -310,6 +319,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->name = "QComboBox";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Combo Box";
+    r->isCommon = TRUE;
 
     append( r );
 
@@ -351,6 +361,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->group = widgetGroup( "Display" );
     r->toolTip = "Text Label";
     r->whatsThis = "The Text Label provides a widget to display static text.";
+    r->isCommon = TRUE;
 
     append( r );
 
@@ -682,6 +693,15 @@ bool WidgetDatabase::isContainer( int id )
     if ( !r )
 	return FALSE;
     return r->isContainer || r->isForm;
+}
+
+bool WidgetDatabase::isCommon( int id )
+{
+    setupDataBase( id );
+    WidgetDatabaseRecord *r = at( id );
+    if ( !r )
+	return FALSE;
+    return r->isCommon;
 }
 
 QString WidgetDatabase::createWidgetName( int id )

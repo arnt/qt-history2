@@ -413,6 +413,7 @@ private:
     QPopupMenu *customWidgetMenu, *windowMenu, *fileMenu, *recentlyFilesMenu, *recentlyProjectsMenu;
     QPopupMenu *toolsMenu, *layoutMenu, *previewMenu;
     QToolBar *customWidgetToolBar, *layoutToolBar, *projectToolBar, *customWidgetToolBar2, *toolsToolBar;
+    QToolBar *commonWidgetsToolBar;
     QList<QToolBar> widgetToolBars;
 
     Preferences *prefDia;
