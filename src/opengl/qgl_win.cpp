@@ -723,9 +723,9 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
 	// we need a current GL context in order to obtain the API
 	// entries, so create a temp dummy one
 	QWidget dmy(0);
-	dmy.create(0);	
+	dmy.create(0);
 	HDC dmy_pdc = GetDC(dmy.winId());
-	PIXELFORMATDESCRIPTOR dmy_pfd = { 
+	PIXELFORMATDESCRIPTOR dmy_pfd = {
 	    sizeof(PIXELFORMATDESCRIPTOR), 1, PFD_SUPPORT_OPENGL,
 	    PFD_TYPE_RGBA, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	    0, 0, 0, 0, PFD_MAIN_PLANE, 0, 0, 0, 0
@@ -743,9 +743,9 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
 	ReleaseDC(dmy.winId(), dmy_pdc);
 	init_wgl_extensions = false;
     }
-    
+
     int chosenPfi = 0;
-    if (wglChoosePixelFormatARB) {	
+    if (wglChoosePixelFormatARB) {
 	bool valid;
 	int pixelFormat = 0;
 	UINT numFormats = 0;
@@ -805,7 +805,7 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
 	    else
 		break;
 	} while (!valid && iAttributes[i-1] > 1);
-	chosenPfi = pixelFormat;	    
+	chosenPfi = pixelFormat;
     } else {
 	int pmDepth = deviceIsPixmap() ? ((QPixmap*)d->paintDevice)->depth() : 0;
 	PIXELFORMATDESCRIPTOR* p = (PIXELFORMATDESCRIPTOR*)dummyPfd;
@@ -845,7 +845,7 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
 	    p->cStencilBits = d->glFormat.stencilBufferSize() == 1 ? 4 : d->glFormat.stencilBufferSize();
 	p->iLayerType = PFD_MAIN_PLANE;
 	chosenPfi = ChoosePixelFormat(pdc, p);
-    
+
 	if (!chosenPfi)
 	    qErrnoWarning("QGLContext: ChoosePixelFormat failed");
 
@@ -1187,7 +1187,7 @@ void QGLWidget::setContext(QGLContext *context,
         doShow = isVisible();
         QWidget *pW = static_cast<QWidget *>(parent());
         QPoint pos = geometry().topLeft();
-        setParent(pW, getWFlags());
+        setParent(pW, windowFlags());
         move(pos);
     }
 
