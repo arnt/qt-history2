@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#17 $
 **
 ** Implementation of QPointArray class
 **
@@ -17,7 +17,7 @@
 #include <stdarg.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpntarry.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpntarry.cpp#17 $";
 #endif
 
 
@@ -415,6 +415,7 @@ static void init_bicot()			// initialize Pascal's triangle
 
 QPointArray QPointArray::bezier() const		// calculate Bezier curve
 {
+    int v;
     if ( size() <= 2 || size() > max_bezcontrols ) {
 	QPointArray p;
 	if ( size() == 2 )			// trivial
@@ -425,7 +426,7 @@ QPointArray QPointArray::bezier() const		// calculate Bezier curve
     int m = 0;					// m = # Bezier points
     float xvec[max_bezcontrols];
     float yvec[max_bezcontrols];
-    for ( int v=0; v<=n; v++ ) {		// store all x,y in xvec,yvec
+    for ( v=0; v<=n; v++ ) {			// store all x,y in xvec,yvec
 	int x, y;
 	point( v, &x, &y );
 	xvec[v] = x;

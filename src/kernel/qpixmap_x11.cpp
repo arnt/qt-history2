@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#16 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#16 $";
 #endif
 
 
@@ -116,10 +116,11 @@ static uchar *flip_bits( uchar *bits, int len )	// flip bits in bitmap
 
 static int highest_bit( ulong v )
 {
-  ulong b = (uint)1 << 31;			// get pos of highest bit in v
-  for ( int i=31; ((b & v) == 0) && i>=0;  i-- )
-      b >>= 1;
-  return i;
+    int i;
+    ulong b = (uint)1 << 31;			// get pos of highest bit in v
+    for ( i=31; ((b & v) == 0) && i>=0;  i-- )
+	b >>= 1;
+    return i;
 }
 
 

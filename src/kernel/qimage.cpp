@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#28 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#28 $";
 #endif
 
 /*!
@@ -980,10 +980,11 @@ static QString fbname( const char *fileName )	// get file basename (sort of)
 
 static void swapPixel01( QImage *image )	// 1-bit: swap 0 and 1 pixels
 {
+    int i;
     if ( image->depth() == 1 && image->numColors() == 2 ) {
 	register ulong *p = (ulong *)image->bits();
 	long nbytes = image->numBytes();
-	for ( int i=0; i<nbytes/4; i++ )
+	for ( i=0; i<nbytes/4; i++ )
 	    *p++ = ~*p;
 	uchar *p2 = (uchar *)p;
 	for ( i=0; i<(nbytes&3); i++ )
