@@ -1801,21 +1801,19 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 		{
 		    const QTitleBar *titlebar = (QTitleBar*)widget;
 		    QRect ir( 0, 0, titlebar->width(), titlebar->height() );
-		    if( titlebar->window() ) {
-			if ( titlebar->window()->testWFlags( WStyle_Tool ) ) {
-			    if ( titlebar->window()->testWFlags( WStyle_SysMenu ) )
-				ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-TITLEBAR_SEPARATION-2, 0 );
-			    if ( titlebar->window()->testWFlags( WStyle_MinMax ) )
-				ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
-			} else {
-			    if ( titlebar->window()->testWFlags( WStyle_SysMenu ) )
-				ir.addCoords( TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH+2, 0,
-					     -TITLEBAR_CONTROL_WIDTH-TITLEBAR_SEPARATION-2, 0 );
-			    if ( titlebar->window()->testWFlags( WStyle_Minimize ) )
-				ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
-			    if ( titlebar->window()->testWFlags( WStyle_Maximize ) )
-				ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
-			}
+		    if ( titlebar->testWFlags( WStyle_Tool ) ) {
+			if ( titlebar->testWFlags( WStyle_SysMenu ) )
+			    ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-TITLEBAR_SEPARATION-2, 0 );
+			if ( titlebar->testWFlags( WStyle_MinMax ) )
+			    ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
+		    } else {
+			if ( titlebar->testWFlags( WStyle_SysMenu ) )
+			    ir.addCoords( TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH+2, 0,
+					 -TITLEBAR_CONTROL_WIDTH-TITLEBAR_SEPARATION-2, 0 );
+			if ( titlebar->testWFlags( WStyle_Minimize ) )
+			    ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
+			if ( titlebar->testWFlags( WStyle_Maximize ) )
+			    ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
 		    }
 		    rect = ir;
 		}
@@ -1839,7 +1837,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	    case SC_TitleBarNormalButton:
 		{
 		    int offset = TITLEBAR_CONTROL_WIDTH + TITLEBAR_SEPARATION;
-		    if ( titlebar->window() && !titlebar->window()->testWFlags( WStyle_Maximize ) )
+		    if ( !titlebar->testWFlags( WStyle_Maximize ) )
 			offset *= 2;
 		    else
 			offset *= 3;
@@ -1921,12 +1919,12 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
 		ctrl <<= 1;
 	    }
 	    if ( titlebar->window() ) {
-		if ( ret == SC_TitleBarMaxButton && titlebar->window()->testWFlags( WStyle_Tool ) ) {
+		if ( ret == SC_TitleBarMaxButton && titlebar->testWFlags( WStyle_Tool ) ) {
 		    if ( titlebar->window()->isMinimized() )
 			ret = SC_TitleBarUnshadeButton;
 		    else
 			ret = SC_TitleBarShadeButton;
-		} else if ( ret == SC_TitleBarMinButton && !titlebar->window()->testWFlags( WStyle_Tool ) ) {
+		} else if ( ret == SC_TitleBarMinButton && !titlebar->testWFlags( WStyle_Tool ) ) {
 		    if ( titlebar->window()->isMinimized() )
 			ret = QStyle::SC_TitleBarNormalButton;
 		}

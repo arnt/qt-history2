@@ -159,10 +159,12 @@ QTitleBar::QTitleBar (QWidget* w, QWidget* parent, const char* name)
     d->window = w;
     d->buttonDown = QStyle::SC_None;
     d->act = 0;
+    if ( w ) {
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    if ( w )
-	setCaption( w->caption() );
+    	setCaption( w->caption() );
 #endif
+	setWFlags( ((QTitleBar*)w)->getWFlags() | WResizeNoErase | WRepaintNoErase );
+    }
 
     readColors();
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
