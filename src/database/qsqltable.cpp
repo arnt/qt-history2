@@ -125,11 +125,11 @@ QSqlTable::~QSqlTable()
 
 void QSqlTable::addColumn( const QSqlField& field )
 {
-    qDebug("adding col:" + field.name());
+    //    qDebug("adding col:" + field.name());
     if ( field.isVisible() && !field.isPrimaryIndex() ) {
-	qDebug("current num cols:" + QString::number(numCols()));
+	//	qDebug("current num cols:" + QString::number(numCols()));
 	setNumCols( numCols() + 1 );
-	qDebug("new num cols:" + QString::number(numCols()));
+	//	qDebug("new num cols:" + QString::number(numCols()));
 	d->colIndex.append( field.fieldNumber() );
 	QHeader* h = horizontalHeader();
 	h->setLabel( numCols()-1, field.displayLabel() );
@@ -429,26 +429,26 @@ void QSqlTable::addColumns( const QSqlFieldList& fieldList )
 }
 
 
-/*!  
-  
+/*!
+
   If the \a sql driver supports query sizes, the number of rows in the
   table is set to the size of the query.  Otherwise, the table
   dynamically resizes itself as it is scrolled.
-  
+
 */
 
 void QSqlTable::setSize( const QSql* sql )
 {
     if ( sql->driver()->hasQuerySizeSupport() ) {
-	setVScrollBarMode( Auto );	
+	setVScrollBarMode( Auto );
 	disconnect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
 		 this, SLOT( loadLine(int) ) );
-	setNumCols( sql->size() );
+	setNumRows( sql->size() );
     } else {
 	setVScrollBarMode( AlwaysOn );
 	connect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
 		 this, SLOT( loadLine(int) ) );
-	loadNextPage();	
+	loadNextPage();
     }
 }
 
@@ -482,7 +482,7 @@ void QSqlTable::setQuery( const QSql& query, bool autoPopulate )
     d->resetMode( QSqlTablePrivate::Sql );
     QSql* sql = d->sql();
     (*sql) = query;
-    if ( autoPopulate ) 
+    if ( autoPopulate )
 	addColumns( sql->fields() );
     setSize( sql );
     setUpdatesEnabled( TRUE );
@@ -517,7 +517,7 @@ void QSqlTable::setRowset( const QSqlRowset& rowset, bool autoPopulate )
     QSqlRowset* rset = d->rowset();
     (*rset) = rowset;
     rset->select( rowset.sort() );
-    if ( autoPopulate ) 
+    if ( autoPopulate )
 	addColumns( (*rset) );
     setSize( rset );
     setUpdatesEnabled( TRUE );
@@ -547,7 +547,7 @@ void QSqlTable::setView( const QSqlView& view, bool autoPopulate )
     QSqlView* vw = d->view();
     (*vw) = view;
     vw->select( view.sort() );
-    if ( autoPopulate ) 
+    if ( autoPopulate )
 	addColumns( (*vw) );
     setSize( vw );
     setUpdatesEnabled( TRUE );
