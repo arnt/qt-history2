@@ -412,6 +412,7 @@ MainWindow::MainWindow()
     modified = TRUE;
 
     QStringList gstyles = QStyleFactory::keys();
+    gstyles.sort();
     gstylecombo->insertStringList(gstyles);
 
     QSettings settings;
@@ -563,7 +564,7 @@ MainWindow::MainWindow()
     sublistbox->insertStringList(subs);
 
     rtlExtensions->setChecked( settings.readBoolEntry( "/qt/useRtlExtensions", FALSE ) );
-    
+
 #ifdef Q_WS_X11
     xftcheckbox->setChecked( settings.readBoolEntry( "/qt/enableXft", TRUE ) );
     if ( xftcheckbox->isChecked() ) {
@@ -648,7 +649,7 @@ void MainWindow::fileSave()
 	settings.writeEntry("/qt/globalStrut", strut);
 
 	settings.writeEntry("/qt/useRtlExtensions", rtlExtensions->isChecked() );
-	
+
 	QStringList effects;
 	if (effectcheckbox->isChecked()) {
 	    effects << "general";
