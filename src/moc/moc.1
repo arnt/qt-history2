@@ -1,6 +1,6 @@
 .TH moc 1 "3 December 1995" "Troll Tech AS" \" -*- nroff -*-
 .\"
-.\" $Id: //depot/qt/main/src/moc/moc.1#3 $
+.\" $Id: //depot/qt/main/src/moc/moc.1#4 $
 .\"
 .\" Copyright 1992-1995 Troll Tech AS.  All rights reserved.
 .\" 
@@ -46,8 +46,8 @@ file containing meta mbject information for the classes.
 .\" for more information, or your local Qt HTML documentation. "
 .PP
 In brief, the meta object system is a structure used by Qt (see
-.BR http://www.troll.no/ )
-for component programming and run time type information.  It adds
+.B http://www.troll.no/
+) for component programming and run time type information.  It adds
 inheritance information to (some) classes and provides a new type of
 communication between those instances of those classes, signal-slot
 connections.
@@ -212,6 +212,37 @@ signals:
 };
 .in -5
 .br
+.PP
+Multiple inheritance is supported, but imperfectly.  The class which
+inherits QObject must be the first of the base classes.  Ie. this
+declaration is illegal:
+.PP
+.in +5
+class Schizophrenic: public MyClass, public QButton {
+.br
+    Q_OBJECT
+.br
+[...]
+};
+.in -5
+.br
+.PP
+By simply swapping the order of the base classes, it becomes legal:
+.PP
+.in +5
+class Schizophrenic: public QButton, public MyClass {
+.br
+    Q_OBJECT
+.br
+[...]
+};
+.in -5
+.br
+.PP
+This bug is almost impossible to fix; since the
+.B moc
+does not expand #include or #define, it cannot find out which one of
+the base classes is a QObject.
 .PP
 Less importantly, the following five constructs are illegal.  All five
 have workarounds which we think are better alternatives, so fixing
