@@ -22,10 +22,10 @@ opengl {
 	mac { 
 	    SOURCES += qgl_mac.cpp
 	    DEFINES += QMAC_ONE_PIXEL_LOCK
+            LIBS += -framework Carbon
 	}
 	win32:SOURCES += qgl_win.cpp
 
 	dlopen_opengl:DEFINES += QT_DLOPEN_OPENGL
 }
-
 
