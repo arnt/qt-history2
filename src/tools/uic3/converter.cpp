@@ -158,10 +158,14 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
                     action->read(n2);
 
                     QList<DomProperty*> properties = action->elementProperty();
-                    action->setAttributeName(fixActionProperties(properties));
+                    QString actionName = fixActionProperties(properties);
+                    action->setAttributeName(actionName);
                     action->setElementProperty(properties);
-                    ui_action_list.append(action);
 
+                    if (actionName.isEmpty())
+                        delete action;
+                    else
+                        ui_action_list.append(action);
                 } else if (tag == QLatin1String("actiongroup")) {
                     DomActionGroup *g= new DomActionGroup();
                     g->read(n2);
@@ -300,6 +304,7 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
                                        bool isActionGroup)
 {
     QString objectName;
+    bool hasMenuText = false;
 
     QListMutableIterator<DomProperty*> it(properties);
     while (it.hasNext()) {
@@ -312,12 +317,12 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
             DomString *str = new DomString();
             str->setText(objectName);
             prop->setElementString(str);
-        } else if (name == QLatin1String("menuText")
-                || name == QLatin1String("text")) {
-            if (isActionGroup) {
-                delete prop;
-                it.remove();
-            }
+        } else if (name == QLatin1String("menuText")) {
+            hasMenuText = true;
+            prop->setAttributeName("text");
+        } else if (name == QLatin1String("text")) {
+            delete prop;
+            it.remove();
         } else if (name == QLatin1String("iconSet")) {
             prop->setAttributeName(QLatin1String("icon"));
         } else if (name == QLatin1String("accel")) {
@@ -333,7 +338,7 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
         }
     }
 
-    return objectName;
+    return hasMenuText ? objectName : QString::null;
 }
 
 void Ui3Reader::fixActionGroup(DomActionGroup *g)
