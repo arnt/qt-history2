@@ -21,12 +21,10 @@ typedef void (*ForeignEventProc)(XEvent*);
 void qt_np_add_event_proc( ForeignEventProc fep );       // defined in qnpsupport.cpp
 void qt_np_remove_event_proc( ForeignEventProc fep );    // defined in qnpsupport.cpp
 
-static bool redelivered_so_dont_deliver_further = FALSE; // yes, this is bad :)
-
 void qmotif_event_proc( XEvent* event )
 {
-    redelivered_so_dont_deliver_further = TRUE;
     (void) QMotif::redeliverEvent( event );
+    event->xany.window = None;
 }
 #endif
 
@@ -115,8 +113,7 @@ Boolean qmotif_event_dispatcher( XEvent *event )
             return True;
 
 #if QT_VERSION < 310
-        if ( redelivered_so_dont_deliver_further ) {
-            redelivered_so_dont_deliver_further = FALSE;
+        if ( event->xany.window == None ) {
             return True;
         }
 #endif
