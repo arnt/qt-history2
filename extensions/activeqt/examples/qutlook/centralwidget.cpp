@@ -256,7 +256,7 @@ void ABCentralWidget::setupOutlook()
 void ABCentralWidget::updateOutlook()
 {
     listView->clear();
-    QAxObject *item = contactItems->querySubObject( "GetFirst" );
+    QAxObject *item = contactItems->querySubObject( "GetFirst()" );
     while ( item ) {
 	QString firstName = item->property( "FirstName" ).toString();
 	QString lastName = item->property( "LastName" ).toString();
@@ -267,7 +267,7 @@ void ABCentralWidget::updateOutlook()
 	// the listviewitem takes ownership
 	item->parent()->removeChild( item );
 
-	item = contactItems->querySubObject( "GetNext" );
+	item = contactItems->querySubObject( "GetNext()" );
     }
 }
 
