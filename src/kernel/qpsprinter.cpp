@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#84 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -1781,7 +1781,7 @@ static void cleanup()
 }
 
 
-static QString wordwrap( QString s )
+static QString wordwrap( const QString & s )
 {
     QString result;
 
@@ -1846,15 +1846,13 @@ static void makeFixedStrings()
 	return;
     qAddPostRoutine( cleanup );
 
-    {
-	QString psh;
-	const char** l = ps_header;
-	while (*l) {
-	    psh += *l++;
-	    psh += '\n';
-	}
-	fixed_ps_header = new QString(psh.ascii());
+    fixed_ps_header = new QString;
+    const char** headerLine = ps_header;
+    while ( *headerLine ) {
+	fixed_ps_header->append( *headerLine++ );
+	fixed_ps_header->append( '\n' );
     }
+
     *fixed_ps_header = wordwrap( *fixed_ps_header );
 
     // fonts.
@@ -2263,9 +2261,11 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	d->pagesInBuffer = 0;
 	d->buffer = new QBuffer();
 	d->buffer->open( IO_WriteOnly );
+	stream.setEncoding( QTextStream::Latin1 );
 	stream.setDevice( d->buffer );
 	d->fontBuffer = new QBuffer();
 	d->fontBuffer->open( IO_WriteOnly );
+	d->fontStream.setEncoding( QTextStream::Latin1 );
 	d->fontStream.setDevice( d->fontBuffer );
 	d->headerFontNumber = 0;
 	pageCount           = 1;		// initialize state
@@ -2587,13 +2587,13 @@ void QPSPrinter::orientationSetup()
 
 
 
-static QString stripHeader( QString header, const char * data, int len,
-			    bool useFonts )
+static QString stripHeader( const QString & header, const char * data,
+			    int len, bool useFonts )
 {
     // first pass: find and mark all identifiers
     QDict<void> ids( 257 );
     ids.setAutoDelete( FALSE );
-
+    
     int i=0;
     int size = header.length();
     int * used = new int[size];
@@ -2650,6 +2650,18 @@ static QString stripHeader( QString header, const char * data, int len,
 			l--;
 		    j++;
 		} while( j < size && l );
+	    } else if ( header[j] == 'D' && header[j+1] == '0' && 
+			!isalnum( header[j+2] ) ) {
+		ids.insert( id, (void*)(i-1) );
+		used[i-1] = 0x20000000;
+		used[j] = (int)ids.find( "D0" );
+		j = j+2;
+	    } else if ( header[j] == 'E' && header[j+1] == 'D' &&
+			!isalnum( header[j+2] ) ) {
+		ids.insert( id, (void*)(i-1) );
+		used[i-1] = 0x20000000;
+		used[j] = (int)ids.find( "ED" );
+		j = j+2;
 	    } else {
 		// handle other variables.
 		while( j < size && !isspace( header[j] ) )
@@ -2751,7 +2763,7 @@ static QString stripHeader( QString header, const char * data, int len,
 	    result += '\n';
 	do {
 	    if ( c )
-		result += isspace( header[i] ) ? QChar(' ') : header[i];
+		result += header[i];
 	    i++;
 	} while ( i < size && used[i] < 0x10000000 );
     }
