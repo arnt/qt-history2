@@ -1616,10 +1616,9 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 				linetop = linebot + 5;
 				} else {
 				// just dotlinery
-				dotlines[c++] = QPoint( bx+1, linebot );
-				dotlines[c++] = QPoint( r.width(), linebot );
-				}
-
+				dotlines[c++] = QPoint( bx+1, linebot -1);
+				dotlines[c++] = QPoint( r.width(), linebot -1);
+			    }
 			    y += child->totalHeight();
 			}
 			child = child->nextSibling();
