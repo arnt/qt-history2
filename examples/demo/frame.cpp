@@ -22,6 +22,11 @@
 #include <qaction.h>
 #include <qsignalmapper.h>
 #include <qdict.h>
+#include <qtextcodec.h>
+#include <stdlib.h>
+
+static QTranslator *translator = 0;
+static QTranslator *qt_translator = 0;
 
 class CategoryItem : public QListBoxItem {
 public:
@@ -99,6 +104,8 @@ void CategoryItem::paint( QPainter *p )
 Frame::Frame( QWidget *parent, const char *name )
     : QMainWindow( parent, name )
 {
+    updateTranslators();
+
     title = tr( "Qt Demo Collection" );
     setCaption( title );
 
@@ -210,3 +217,25 @@ void Frame::clickedCategory( QListBoxItem *item )
     }
 }
 
+void Frame::updateTranslators()
+{
+    if ( !qt_translator ) {
+	qt_translator = new QTranslator( this );
+	translator = new QTranslator( this );
+	qApp->installTranslator( qt_translator );
+	qApp->installTranslator( translator );
+    }
+
+    QString QTDIR = getenv( "QTDIR" );
+
+    qt_translator->load( QString( "qt_%1" ).arg( QTextCodec::locale() ), QTDIR + "/translations" );
+    translator->load( QString( "demo_%1" ).arg( QTextCodec::locale() ) );
+}
+
+bool Frame::event( QEvent *e )
+{
+    if ( e->type() == QEvent::LocaleChange )
+	updateTranslators();
+
+    return QMainWindow::event( e );
+}

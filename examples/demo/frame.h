@@ -27,6 +27,11 @@ private slots:
     void setStyle( const QString& );
     void clickedCategory( QListBoxItem * );
 
+protected:
+    bool event( QEvent *e );
+
+    void updateTranslators();
+
 private:
     QWidget *createCategory( const QString& );
     int idEnglish;
