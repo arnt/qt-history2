@@ -47,6 +47,9 @@ public:
 
     int styleHint(StyleHint sh, const QWidget *, const Q3StyleOption &, QStyleHintReturn *) const;
 
+    QPixmap stylePixmap(StylePixmap stylepixmap, const QWidget *widget,
+                        const Q3StyleOption &opt) const;
+
     QPixmap stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
                         const QPalette &pal, const Q3StyleOption& = Q3StyleOption::Default) const;
 private:        // Disabled copy constructor and operator=

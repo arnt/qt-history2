@@ -772,41 +772,80 @@ int QMacStyleQD::styleHint(StyleHint sh, const QWidget *w,
     return ret;
 }
 
+/*! \reimp */
 QPixmap QMacStyleQD::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
-                                const QPalette &pal, const Q3StyleOption &opt) const
+                               const QPalette &pal, const Q3StyleOption &opt) const
 {
-    switch(pixmaptype) {
-    case PT_Active:
+    QPixmap px = pixmap;
+    switch (pixmaptype) {
     case PT_Disabled: {
-        QImage img;
-        img = pixmap;
+        QImage img = px;
+        img.setAlphaBuffer(true);
         QRgb pixel;
-        for(int y = 0; y < img.height(); y++) {
-            for(int x = 0; x < img.width(); x++) {
+        int imgh = img.height();
+        int imgw = img.width();
+        for (int y = 0; y < imgh; ++y) {
+            for (int x = 0; x < imgw; ++x) {
                 pixel = img.pixel(x, y);
-                if(pixmaptype == PT_Active) {
-                    QColor hsvColor(pixel);
-                    int h, s, v;
-                    hsvColor.getHsv(&h, &s, &v);
-                    s = (s / 2);
-                    v = (v / 2) + 117; //a little less than half 128 (ie 0xFF/2)
-                    hsvColor.setHsv(h, s, v);
-                    pixel = hsvColor.rgb();
-                } else if(pixmaptype == PT_Disabled) {
-                    pixel = qRgba(qRed(pixel), qGreen(pixel), qBlue(pixel), qAlpha(pixel)/2);
-                }
-                img.setPixel(x, y, pixel);
+                img.setPixel(x, y, qRgba(qRed(pixel), qGreen(pixel), qBlue(pixel),
+                                         qAlpha(pixel) / 2));
             }
         }
-        QPixmap ret(img);
-        if(pixmap.mask())
-            ret.setMask(*pixmap.mask());
+        px = img;
+        break; }
+    case PT_Active: {
+        QImage img = px;
+        img.setAlphaBuffer(true);
+        int imgh = img.height();
+        int imgw = img.width();
+        int h, s, v, a;
+        QRgb pixel;
+        for (int y = 0; y < imgh; ++y) {
+            for (int x = 0; x < imgw; ++x) {
+                pixel = img.pixel(x, y);
+                a = qAlpha(pixel);
+                QColor hsvColor(pixel);
+                hsvColor.getHsv(&h, &s, &v);
+                s = qMin(100, s * 2);
+                v = v / 2;
+                hsvColor.setHsv(h, s, v);
+                pixel = hsvColor.rgb();
+                img.setPixel(x, y, qRgba(qRed(pixel), qGreen(pixel), qBlue(pixel), a));
+            }
+        }
+        px = img;
+        break; }
+    default:
+        px = QCommonStyle::stylePixmap(pixmaptype, pixmap, pal, opt);
+    }
+    return px;
+}
+
+/*! \reimp */
+QPixmap QMacStyleQD::stylePixmap(StylePixmap stylepixmap, const QWidget *widget,
+                                 const Q3StyleOption &opt) const
+{
+    IconRef icon = 0;
+    switch (stylepixmap) {
+        case SP_MessageBoxQuestion:
+        case SP_MessageBoxInformation:
+            GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertNoteIcon, &icon);
+            break;
+        case SP_MessageBoxWarning:
+            GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertCautionIcon, &icon);
+            break;
+        case SP_MessageBoxCritical:
+            GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertStopIcon, &icon);
+            break;
+        default:
+            break;
+    }
+    if (icon) {
+        QPixmap ret = qt_mac_convert_iconref(icon, 64, 64);
+        ReleaseIconRef(icon);
         return ret;
     }
-    default:
-        break;
-    }
-    return QCommonStyle::stylePixmap(pixmaptype, pixmap, pal, opt);
+    return QWindowsStyle::stylePixmap(stylepixmap, widget, opt);
 }
 
 void QMacStyleQD::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
