@@ -17,5 +17,5 @@ CONFIG = $$unique(CONFIG)
 CONFIG += debug
 options = $$find(CONFIG, "debug") $$find(CONFIG, "release")
 count(options, 2) {
-    message("Both release and debug specified.")
+    message(Both release and debug specified.)
 }

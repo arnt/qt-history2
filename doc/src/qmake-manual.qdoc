@@ -25,11 +25,13 @@
     \list
     \o \l{qmake-using.html}{Using qmake}
       \list
-      \o \l{qmake-project-files.html}{Project Files}
-      \o \l{qmake-running.html}{Running qmake}
+      \tableofcontents{1 qmake-using.html}
       \endlist
     \o \l{qmake-advanced-usage.html}{Advanced Usage}
-    \o \l{qmake-command-reference.html}{Command Reference}
+    \o \l{qmake-reference.html}{Reference}
+      \list
+      \tableofcontents{1 qmake-reference.html}
+      \endlist
     \endlist
 
     Getting Started:
@@ -85,7 +87,7 @@
     An introduction to project files can be found in the
     \l{qmake-project-files.html}{Project Files} section, and a more
     detailed description is available in the
-    \l{qmake-command-reference.html}{Command Reference}.
+    \l{qmake-reference.html}{Reference}.
 
     \section1 Running qmake
 
@@ -184,6 +186,16 @@
                       application, a library, or a plugin.
     \endtable
 
+    The contents of a variable can be read by prepending the variable name with
+    \c $$. This can be used to assign the contents of one variable to another:
+
+    \quotefromfile snippets/qmake/dereferencing.pro
+    \printuntil TEMP_SOURCES =
+
+    The \c $$ operator is used extensively with built-in functions that operate
+    on strings and lists of values. These are described in the chapter on
+    \l{qmake-advanced-usage.html}{Advanced Usage}.
+
     \section2 Comments
 
     You can add comments to project files. Comments begin with the \c
@@ -270,6 +282,7 @@
     subdirectory is called \c myapp then the project file in that directory
     should be called \c myapp.pro.
 
+    \target GeneralConfiguration
     \section1 General Configuration
 
     The \c CONFIG variable specifies the options that the compiler should use
@@ -289,6 +302,12 @@
                         This is ignored if \c warn_off is specified.
     \row    \i warn_off \i The compiler should output as few warnings as possible.
     \endtable
+
+    Note that each of the options specified in the \c CONFIG variable can also be
+    used as a condition in scopes. This enables different configurations to be
+    defined for \c release and \c debug builds, and is described in more detail
+    in the \l{qmake-advanced-usage.html#Scopes}{Scopes} section of the
+    Advanced Usage chapter of this manual.
 
     The following options define the type of project to be built. Note that some
     of these options only take effect when used on the relevant platform. On other
@@ -380,6 +399,8 @@
     build process to be fine-tuned, provide useful diagnostic
     information, and can be used to specify the target platform for
     your project.
+
+    \tableofcontents
 
     \target Commands
     \section1 Command-Line Options
@@ -487,6 +508,10 @@
     \target MakefileMode
     \section2 Makefile Mode Options
 
+    \code
+        qmake -makefile [options] files
+    \endcode
+
     In Makefile mode, \c qmake will generate a Makefile that is used to build the
     project. Additionally, the following options may be used in this mode to
     influence the way the project file is generated:
@@ -511,7 +536,7 @@
     they will be processed before all of the files specified. For example:
 
     \code
-    qmake -makefile -unix -o Makefile "CONFIG+=test" test.pro
+        qmake -makefile -unix -o Makefile "CONFIG+=test" test.pro
     \endcode
 
     This will generate a Makefile, from test.pro with Unix pathnames.  However
@@ -519,7 +544,7 @@
     Therefore, the line can be simplified on Unix to:
 
     \code
-    qmake "CONFIG+=test" test.pro 
+        qmake "CONFIG+=test" test.pro 
     \endcode
 
     If you are certain you want your variables processed after the
@@ -529,6 +554,10 @@
 
     \target ProjectMode
     \section2 Project Mode Options
+
+    \code
+        qmake -platform [options] files
+    \endcode
 
     In project mode, \c qmake will generate a project file. Additionally, you
     may supply the following options in this mode:
@@ -553,41 +582,76 @@
 */
 
 /*!
-    \page qmake-command-reference.html
-    \title Command Reference
+    \page qmake-reference.html
+    \title Reference
     \contentspage qmake-manual.html qmake Manual
     \previouspage qmake-advanced-usage.html Advanced Usage
-    \nextpage qmake-tutorial.html qmake Tutorial
+    \nextpage qmake-variable-reference.html Variable Reference
 
-    \tableofcontents section1
-
-    \target About
-    \section1 About This Reference
-
-    This reference is a detailed index of all command line options,
-    configurations and internal variables used by the cross-platform
-    Makefile generation utility \c qmake.
-
-    In addition to the variables and functions described in the following
-    sections, \c qmake project files may also include comments. 
-    Comments begin with the '#' symbol and run to the end of the line.
-
-
-    \target SystemVariables
-    \section1 System Variables
+    This reference is a detailed index of all the variables and function
+    that are available for use in \c qmake project files.
 
     \list
-    \i \link #FrequentlyUsedSystemVariables Frequently Used System Variables \endlink
-    \i \link #RarelyUsedSystemVariables Rarely Used System Variables \endlink
+    \o The \l{qmake-variable-reference.html}{Variable Reference}
+       describes the variables that are recognized by \c qmake when
+       configuring the build process for projects.
+    \omit
+      \list
+      \tableofcontents{4 qmake-variable-reference.html}
+      \endlist
+    \endomit
+    \o The \l{qmake-function-reference.html}{Function Reference}
+       describes the function that can be used to process the contents
+       of variables defined in project files.
+    \omit
+      \list
+      \tableofcontents{2 qmake-function-reference.html}
+      \endlist
+    \endomit
     \endlist
 
+    \target FrequentlyUsedVariables
+    \section1 Frequently Used Variables
 
-    \target FrequentlyUsedSystemVariables
-    \section2 Frequently Used System Variables
+    The following variables are frequently used in project files to describe
+    common aspects of the build process. These are fully described in the
+    \l{qmake-variable-reference.html}{Variable Reference}.
 
-    The following variables are recognized by \c qmake and are used
-    most frequently when creating project files.
+    \list
+    \o \l{qmake-variable-reference.html#CONFIG}{CONFIG}
+    \o \l{qmake-variable-reference.html#DEFINES}{DEFINES}
+    \o \l{qmake-variable-reference.html#DEF_FILE}{DEF_FILE}
+    \o \l{qmake-variable-reference.html#DESTDIR}{DESTDIR}
+    \o \l{qmake-variable-reference.html#DLLDESTDIR}{DLLDESTDIR}
+    \o \l{qmake-variable-reference.html#HEADERS}{HEADERS}
+    \o \l{qmake-variable-reference.html#INCLUDEPATH}{INCLUDEPATH}
+    \o \l{qmake-variable-reference.html#FORMS}{FORMS}
+    \o \l{qmake-variable-reference.html#LEXSOURCES}{LEXSOURCES}
+    \o \l{qmake-variable-reference.html#LIBS}{LIBS}
+    \o \l{qmake-variable-reference.html#MOC_DIR}{MOC_DIR}
+    \o \l{qmake-variable-reference.html#OBJECTS_DIR}{OBJECTS_DIR}
+    \o \l{qmake-variable-reference.html#UI_DIR}{UI_DIR}
+    \o \l{qmake-variable-reference.html#UI_HEADERS_DIR}{UI_HEADERS_DIR}
+    \o \l{qmake-variable-reference.html#UI_SOURCES_DIR}{UI_SOURCES_DIR}
+    \o \l{qmake-variable-reference.html#REQUIRES}{REQUIRES}
+    \o \l{qmake-variable-reference.html#SOURCES}{SOURCES}
+    \o \l{qmake-variable-reference.html#SUBDIRS}{SUBDIRS}
+    \o \l{qmake-variable-reference.html#TARGET}{TARGET}
+    \o \l{qmake-variable-reference.html#TEMPLATE}{TEMPLATE}
+    \o \l{qmake-variable-reference.html#VERSION}{VERSION}
+    \o \l{qmake-variable-reference.html#DISTFILES}{DISTFILES}
+    \o \l{qmake-variable-reference.html#YACCSOURCES}{YACCSOURCES}
+    \endlist
+*/
 
+/*!
+    \page qmake-variable-reference.html
+    \title Variable Reference
+    \contentspage qmake-manual.html qmake Manual
+    \previouspage qmake-reference.html Reference
+    \nextpage qmake-function-reference.html Function Reference
+
+    \tableofcontents{3}
 
     \target CONFIG
     \section3 CONFIG
@@ -705,6 +769,18 @@
     \section3 DLLDESTDIR
 
     Specifies where to copy the \link #TARGET target \endlink dll.
+
+    \target DISTFILES
+    \section3 DISTFILES
+
+    This variable contains a list of files to be included in the dist
+    target. This feature is supported by UnixMake specs only.
+
+    For example:
+
+    \code
+        DISTFILES += ../program.txt
+    \endcode
 
     \target HEADERS
     \section3 HEADERS
@@ -888,6 +964,7 @@
     See also \link #HEADERS HEADERS \endlink
 
 
+    \target SUBDIRS
     \section3 SUBDIRS
 
     This variable, when used with the \c subdirs
@@ -952,7 +1029,7 @@
     the command line rather than use the \c -t option.
 
 
-
+    \target VERSION
     \section3 VERSION
 
     This variable contains the version number of the library if the
@@ -963,18 +1040,6 @@
     \code
         VERSION = 1.2.3
     \endcode
-
-    \section3 DISTFILES
-
-    This variable contains a list of files to be included in the dist
-    target. This feature is supported by UnixMake specs only.
-
-    For example:
-
-    \code
-        DISTFILES += ../program.txt
-    \endcode
-
 
     \target YACCSOURCES
     \section3 YACCSOURCES
@@ -988,14 +1053,6 @@
     \code
         YACCSOURCES = moc.y
     \endcode
-
-
-    \target RarelyUsedSystemVariables
-    \section2 Rarely Used System Variables
-
-    The following variables are also recognized by \c qmake but are
-    either internal or very rarely used.
-
 
 
     \target DESTDIR_TARGET
@@ -2142,83 +2199,37 @@
     This variable contains a list of yacc object files. The value of
     this variable is typically handled by \c qmake or
      \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+*/
 
+/*!
+    \page qmake-function-reference.html
+    \title Function Reference
+    \contentspage qmake-manual.html qmake Manual
+    \previouspage qmake-variable-reference.html Variable Reference
+    \nextpage qmake-tutorial.html qmake Tutorial
 
-    \target Functions
-    \section1 Functions
+    \c qmake provides built-in functions to allow the contents of
+    variables to be processed, and to enable tests to be performed
+    during the configuration process. Functions that process the
+    contents of variables typically return values that can be assigned
+    to other variables, and these values are obtained by prefixing
+    function with the \c $$ operator. Functions that perform tests
+    are usually used as the conditional parts of scopes; these are
+    indicated in the function descriptions below.
 
-    \c qmake recognizes the following functions:
+    \tableofcontents{2}
 
+    \section2 basename(file)
 
-
-    \section2 include(filename)
-
-    This function will include the contents of \e filename into the
-    current project at the point where was included.  The function succeeds
-    if \e filename was included, otherwise it fails. You can check the
-    return value of this function using a
-    scope.
-
-    For example:
-
-    \code
-        include( shared.pri )
-        OPTIONS = standard custom
-        !include( options.pri ) {
-            message( "No custom build options specified" )
-        OPTIONS -= custom
-        }
-    \endcode
-
-    \section2 exists(file)
-
-    This function will test if \e file exists.  If the file exists, then it will succeed; otherwise it will
-    fail. 
-    You can specify a regular expression in file and it will succeed if any file
-    matches the regular expression specified.
-
-    For example:
-    \code
-        exists( $(QTDIR)/lib/libqt-mt* ) {
-              message( "Configuring for multi-threaded Qt..." )
-              CONFIG += thread
-        }
-    \endcode
-
-    \section2 contains(variablename, value)
-
-    This function will succeed if the variable \e variablename
-    contains the value \e value.  You can check the return value of this
-    function using a scope.
-
-    For example:
+    Returns the basename of the file specified. For example:
 
     \code
-        contains( drivers, network ) {
-            # drivers contains 'network'
-            message( "Configuring for network build..." )
-            HEADERS += network.h
-            SOURCES += network.cpp
-        }
-    \endcode
-
-    \section2 count(variablename, number)
-
-    This function will succeed if the variable \e variablename
-    contains \e number elements, otherwise it will fail.  You can check
-    the return value of this function using a
-    scope.
-
-    For example:
-
-    \code
-        MYVAR = one two three
-        count( MYVAR, 3 ) {
-            # always true
-        }
+       FILE = /etc/passd
+       FILENAME = $$basename($$FILE) #passwd
     \endcode
 
     \section2 CONFIG(config)
+    [Conditional]
 
     This function can be used to test for variables placed into the CONFIG
     variable. This is the same as regular old style (tmake) scopes, but
@@ -2240,23 +2251,206 @@
     case a second paramter is not needed, but for specific mutual
     exclusive tests it is invaluable.
 
-    \section2 infile(filename, var, val)
+    \section2 contains(variablename, value)
+    [Conditional]
 
-    This function will succeed if the file \e filename (when parsed
-    by qmake itself) contains the variable \e var with a value of 
-    \e val. You may also not pass in a third argument (\e val) and the
-    function will only test if \e var has been assigned to in the file.
+    Succeeds if the variable \e variablename contains the value \e value;
+    otherwise fails. You can check the return value of this function using
+    a scope.
+
+    For example:
+
+    \code
+        contains( drivers, network ) {
+            # drivers contains 'network'
+            message( "Configuring for network build..." )
+            HEADERS += network.h
+            SOURCES += network.cpp
+        }
+    \endcode
+
+    The contents of the scope are only processed if the \c drivers
+    variable contains the value, \c network. If this is the case, the
+    appropriate files are added to the \c SOURCES and \c HEADERS
+    variables.
+
+    \section2 count(variablename, number)
+    [Conditional]
+
+    Succeeds if the variable \e variablename contains a list with the
+    specified \e number of value; otherwise fails.
+
+    This function is used to ensure that declarations inside a scope are
+    only processed if the variable contains the correct number of values;
+    for example:
+
+    \quotefromfile snippets/qmake/functions.pro
+    \skipto options =
+    \printuntil }
+
+    \section2 dirname(file)
+
+    Returns the directory name part of the specified file. For example:
+
+    \code
+       FILE = /etc/X11R6/XF86Config
+       DIRNAME = dirname($$FILE) #/etc/X11R6
+    \endcode
+
+    \section2 error(string)
+
+    This function never returns a value. \c qmake displays the given
+    \e string to the user, and exits. This function should only be used
+    for unrecoverable errors.
+
+    For example:
+
+    \code
+        error(A error has occurred in the configuration process.)
+    \endcode
+
+    \section2 exists(filename)
+    [Conditional]
+
+    Tests whether a file with the given \e filename exists.
+    If the file exists, the function succeeds; otherwise it fails.
+    If a regular expression is specified for the filename, this function
+    succeeds if any file matches the regular expression specified.
+
+    For example:
+    \code
+        exists( $(QTDIR)/lib/libqt-mt* ) {
+              message( "Configuring for multi-threaded Qt..." )
+              CONFIG += thread
+        }
+    \endcode
+
+    Note that "/" can be used as a directory separator, regardless of the
+    platform in use.
+
+    \section2 find(variablename, substr)
+
+    Places all the values in \e variablename that match \e substr. \e
+    substr may be a regular expression, and will be matched accordingly.
+
+    \code
+        MY_VAR = one two three four
+        MY_VAR2 = $$join(MY_VAR, " -L", -L) -Lfive
+        MY_VAR3 = $$member(MY_VAR, 2) $$find(MY_VAR, t.*)
+    \endcode
+
+    MY_VAR2 will contain '-Lone -Ltwo -Lthree -Lfour -Lfive', and MYVAR3 will
+    contains 'three two three'.
+
+    \section2 for(iterate, list)
+
+    This special test function will cause a loop to be started that
+    iterates over all values in \e list, setting \e iterate to each
+    value in turn. As a convenience, if \e list is 1..10 then iterate will
+    iterate over the values 1 through 10.
+
+    The use of an else scope afer a condition line with a for() loop is
+    disallowed. 
+
+    For example:
+
+    \code
+        LIST = 1 2 3
+        for(a, LIST):exists(file.$${a}):message(I see a file.$${a}!)
+    \endcode
+
+    \section2 include(filename)
+    [Conditional]
+
+    Includes the contents of the file specified by \e filename into the
+    current project at the point where it is included. This function
+    succeeds if \e filename is included; otherwise it fails. The included
+    file is processed immediately.
+
+    You can check whether the file was included by using this function as
+    the condition for a scope; for example:
+
+    \code
+        include( shared.pri )
+        OPTIONS = standard custom
+        !include( options.pri ) {
+            message( "No custom build options specified" )
+        OPTIONS -= custom
+        }
+    \endcode
+
+    \section2 infile(filename, var, val)
+    [Conditional]
+
+    Succeeds if the file \e filename (when parsed by \c qmake itself)
+    contains the variable \e var with a value of \e val; otherwise fails.
+    If you do not specify a third argument (\e val), the function will
+    only test whether \e var has been declared in the file.
 
     \section2 isEmpty(variablename)
+    [Conditional]
 
-    This function will succeed if the variable \e variablename is
-    empty (same as \c count(variable, 0)).
+    Succeeds if the variable \e variablename is empty; otherwise fails.
+    This is the equivalent of \c{count( variablename, 0 )}.
+
+    For example:
+
+    \code
+        isEmpty( CONFIG ) {
+        CONFIG += qt warn_on debug
+        }
+    \endcode
+
+    \section2 join(variablename, glue, before, after)
+
+    Joins the value of \e variablename with \c glue. If this value is
+    non-empty it prefixes the value with \e before and suffix it with \e
+    after. \e variablename is the only required field, the others default
+    to empty strings. If you need to encode spaces in \e glue, \e before, or \e
+    after you must quote them.
+
+    \section2 member(variablename, position)
+
+    Places the value in \e variablename in position \e position of the
+    list. If the value of \e variablename is not long, an empty string is
+    returned. \e variablename is the only required field. If not specified,
+    \c position defaults to the first value in the list (0).
+
+    \section2 message(string) 
+
+    This function simply writes a message to the console. Unlike the
+    \c error() function, this function allows processing to continue.
+
+    \code
+        message( "This is a message" )
+    \endcode
+
+    The above line causes "This is a message" to be written to the console.
+    The use of quotation marks is optional.
+
+    \section2 prompt(question)
+
+    Displays the specified \e question, and returns a value read from stdin.
+
+    \section2 quote(string)
+
+    Converts a whole \e string into a single entity and returns the result.
+    Newlines, carriage returns, and tabs can be specified in the string
+    with \\n \\r and \\t. The return value does not contain either single
+    or double quotation marks unless you explicitly include them yourself,
+    but will be placed into a single entry (for literal expansion).
+
+    \section2 sprintf(string, arguments...)
+
+    Replaces %1-%9 with the arguments passed in the comma-separated list
+    of function \e arguments and returns the processed string.
 
     \section2 system(command)
+    [Conditional]
 
-    This function will execute \c command in a secondary shell and will
-    succeed if the command exits with an exit status of 1.  You can check the
-    return value of this function using a scope.
+    Executes the given \c command in a secondary shell, and succeeds
+    if the command returns with a zero exit status; otherwise fails.
+    You can check the return value of this function using a scope:
 
     For example:
 
@@ -2264,22 +2458,29 @@
         system(ls /bin):HAS_BIN=FALSE
     \endcode
 
+    Alternatively, you can use this function to obtain stdout and stderr
+    from the command, and assign it to a variable. For example, you can
+    use this to interrogate information about the platform:
+
+    \code
+        UNAME = $$system(uname -s)
+        contains( UNAME, [lL]inux ):message( This looks like Linux ($$UNAME) to me )
+    \endcode
+
+    \section2 unique(variablename)
+
+    This will return a list of values in variable that are unique (that is
+    with repetitive entries removed). For example:
+
+    \code
+       ARGS = 1 2 3 2 5 1
+       ARGS = $$unique(ARGS) #1 2 3 5
+    \endcode
+
     \section2 warning(string)
 
     This function will always succeed, and will display the given
     \e string to the user. message() is a synonym for warning().
-
-    \section2 error(string)
-
-    This function will never return a value.  It will display the given \e
-    string to the user, and then exit \c qmake. This function should
-    only be used for very fatal configurations.
-
-    For example:
-
-    \code
-        release:debug:error(You can't have release and debug at the same time!)
-    \endcode
 
     \target Properties
     \section1 Properties
@@ -2569,191 +2770,207 @@
     \title Advanced Usage
     \contentspage qmake-manual.html qmake Manual
     \previouspage qmake-running.html Running qmake
-    \nextpage qmake-command-reference.html Command Reference
+    \nextpage qmake-reference.html Reference
 
-    The \c qmake project files we've seen up to now have been very simple,
-    just a list of \c{name = value} and \c{name += value} lines. \c qmake
-    provides a lot more power, for example you can use a single project
-    file to produce Makefiles for multiple platforms.
+    Many \c qmake project files simply describe the sources and header files used
+    by the project, using a list of \c{name = value} and \c{name += value}
+    definitions. \c qmake also provides other operators, functions, and scopes
+    that can be used to process the information supplied in variable declarations.
+    These advanced features allow Makefiles to be generated for multiple platforms
+    from a single project file.
+
+    \tableofcontents
 
     \section1 Operators
 
-    So far, you have seen the \c = operator and \c += operator being used
-    in a project file.  There are more operators available for use; but
-    some of these should be used carefully as they may change more than
-    you expect them to.
+    In many project files, the assignment \c = append \c += operators can be used
+    to include all the information about a project. The typical pattern of use is
+    to assign a list of values to a variable, and append more values depending on
+    the result of various tests. Since \c qmake defines certain variables using
+    default values, it is sometimes necessary to use the removal \c -= operator
+    to filter out values that are not required. The following operators can be
+    used to manipulate the contents of variables.
 
-    \section2 The \c = Operator
-
-    This operator simply assigns a value to a variable, it is used like
-    this:
+    The \c = operator assigns a value to a variable:
 
     \code
         TARGET = myapp
     \endcode
 
-    This sets the TARGET variable to \c myapp.  This will remove any
-    previously set TARGET.
+    The above line sets the \c TARGET variable to \c myapp. This will overwrite any
+    values previously set for \c TARGET with \c myapp.
 
-    \section2 The \c += Operator
-
-    This operator appends a value to the list of values in a variable.  It
-    is used like this:
+    The \c += operator appends a new value to the list of values in a variable:
 
     \code
         DEFINES += QT_DLL
     \endcode
 
-    This appends QT_DLL to the list of pre-processor defines to be put in the
-    Makefile.
+    The above line appends \c QT_DLL to the list of pre-processor defines to be put
+    in the generated Makefile.
 
-    \section2 The \c -= Operator
-
-    This operator removes a value from the list of values in a variable.
-    It is used like this:
+    The \c -= operator removes a value from the list of values in a variable:
 
     \code
         DEFINES -= QT_DLL
     \endcode
 
-    This removes QT_DLL from the list of pre-processor defines to be put
-    in the Makefile.
+    The above line removes \c QT_DLL from the list of pre-processor defines to be
+    put in the generated Makefile.
 
-    \section2 The \c *= Operator
-
-    This operator only adds a value to the list of values in a variable if
-    it doesn't already exist.  It is used like this:
+    The \c *= operator adds a value to the list of values in a variable, but only
+    if it is not already present. This prevents values from being included many
+    times in a variable. For example:
 
     \code
         DEFINES *= QT_DLL
     \endcode
 
-    QT_DLL will only be added to the list of pre-processor defines if it
-    is not already defined.
+    In the above line, \c QT_DLL will only be added to the list of pre-processor
+    defines if it is not already defined. Note that the \l{#unique}{unique()}
+    function can also be used to ensure that a variables only contains one
+    instance of each value.
 
-    \section2 The \c ~= Operator
-
-    This operator replaces any values that match the regexp with the
-    specified value.  It is used like this:
+    The \c ~= operator replaces any values that match a regular expression with
+    the specified value:
 
     \code
         DEFINES ~= s/QT_[DT].+/QT
     \endcode
 
-    This removes any values in the list that start with QT_D or QT_T with
-    QT.
+    In the above line, any values in the list that start with \c QT_D or \c QT_T are
+    replaced with \c QT.
 
-    \section1 Scopes
-
-    A scope are similar to \c if statements, if a certain condition is
-    true, the settings inside the scope are processed.  A scope is written
-    like this:
+    The \c $$ operator is used to extract the contents of a variable, and can be
+    used to pass values between variables or supply them to functions:
 
     \code
-        win32 {
-        DEFINES += QT_DLL
-        }
+        EVERYTHING = $$SOURCES $$HEADERS
+        message("The project contains the following files:")
+        message($$EVERYTHING)
     \endcode
 
-    The above code will add the QT_DLL define to the Makefile if \c qmake
-    is used on a Windows platform.  If \c qmake is used on a different
-    platform than Windows, the define will be ignored. You may also perform
-    single line conditionals/assignments with qmake like this:
+    \target Scopes
+    \section1 Scopes
+
+    Scopes are similar to \c if statements in procedural programming languages.
+    If a certain condition is true, the declarations inside the scope are processed.
+
+    \section2 Scopes and Conditions
+
+    A scope is written as a condition followed by a series of declarations
+    contained within a pair of braces; for example:
+
+    \quotefromfile snippets/qmake/scopes.pro
+    \skipto win32
+    \printuntil }
+
+    The above code will add the \c paintwidget_win.cpp file to the sources listed
+    in the generated Makefile if \c qmake is used on a Windows platform.
+    If \c qmake is used on a platform other than Windows, the define will be
+    ignored.
+
+    The conditions used in a given scope can also be negated to provide an
+    alternative set of declarations that will be processed only if the
+    original condition is false. For example, suppose we want to process
+    something on all platforms \e except for Windows. We can achieve this by
+    negating the scope like this:
+
+    \quotefromfile snippets/qmake/scopes.pro
+    \skipto !win32
+    \printuntil }
+
+    Scopes can be nested to combine more than one condition. For instance, if
+    you want to include a particular file for a certain platform only if
+    debugging is enabled then you write the following:
+
+    \quotefromfile snippets/qmake/scopes.pro
+    \skipto macx {
+    \printuntil /^\}/
+
+    To save writing many nested scopes, you can nest scopes using the \c :
+    operator. The nested scopes in the above example can be rewritten in
+    the following way:
+
+    \skipto macx:debug {
+    \printuntil }
+
+    You may also use the \c : operator to perform single line conditional
+    assignments; for example:
 
     \code
         win32:DEFINES += QT_DLL
     \endcode
 
-    For example, suppose we want to process something on all platforms
-    \e except for Windows. We can achieve this by negating the scope like
-    this:
+    The above line adds \c QT_DLL to the \c DEFINES variable only on the
+    Windows platform.
+    Generally, the \c : operator behaves like a logical AND operator, joining
+    together a number of conditions, and requiring all of them to be true.
+
+    You can also provide alternative declarations to those within a scope by
+    using an \c else scope. Each \c else scope is processed if the conditions
+    for the preceding scopes are false.
+    This allows you to write complex tests when combined with other scopes
+    (separated by the \c : operator as above). For example:
 
     \code
-        !win32 {
-        DEFINES += QT_DLL
-        }
-    \endcode
-
-    Any entry on the CONFIG line is also a scope. For example, if you
-    write this:
-    \code
-        CONFIG += warn_on
-    \endcode
-    you will have a scope called 'warn_on'. This makes it easy to change
-    the configuration for a project without losing all the custom settings
-    that might be needed for a specific configuration.  Since it is
-    possible to put your own values on the CONFIG line, this provides you
-    with a very powerful configuration tool for your Makefiles. For
-    example:
-
-    \code
-        CONFIG += qt warn_on debug
-        debug {
-        TARGET = myappdebug
-        }
-        release {
-        TARGET = myapp
-        }
-    \endcode
-
-    In the above code, two scopes are created which depend on what
-    is put on the CONFIG line.  In the example, \c debug is on the config
-    line, so the TARGET variable is set to \c myappdebug.  If \c release
-    was on the config line, then the TARGET variable would be set to \c
-    myapp.
-
-    It is also possible to check for two things before processing some
-    settings.  For instance, if you want to check if the platform is
-    Windows and that the thread configuration is set, you would write
-    this:
-
-    \code
-        win32 {
-        thread {
-            DEFINES += QT_THREAD_SUPPORT
-        }
-        }
-    \endcode
-
-    To save writing many nested scopes, you can nest scopes using a colon
-    like this:
-
-    \code
-        win32:thread {
-        DEFINES += QT_THREAD_SUPPORT
-        }
-    \endcode
-
-    Once a test has been performed you may also do else/elseif operations. With
-    this you may easily write complicated tests. This can be done with the
-    special \c else scope, it can be combined with other scopes (separated by
-    colons as above) for example:
-
-    \code
-        win32:thread {
-        DEFINES += QT_THREAD_SUPPORT
-        } else:debug {
-        DEFINES += QT_NOTHREAD_DEBUG
+        win32:xml {
+            message(Building for Windows)
+            SOURCES += xmlhandler_win.cpp
+        } else:xml {
+            SOURCES += xmlhandler.cpp
         } else {
-        message("Unknown configuration")
+            message("Unknown configuration")
         }
     \endcode
+
+    \section2 Configuration and Scopes
+
+    The values stored in the
+    \l{qmake-project-files.html#GeneralConfiguration}{\c CONFIG variable}
+    are treated specially by \c qmake. Each of the possible values can be
+    used as the condition for a scope. For example, the list of values
+    held by \c CONFIG can be extended with the \c debug value:
+
+    \quotefromfile snippets/qmake/configscopes.pro
+    \skipto CONFIG += debug
+    \printuntil CONFIG += debug
+
+    As a result of this operation, any scopes that test for \c debug will
+    be processed. We can use this feature to give the final executable an
+    appropriate name:
+
+    \skipto debug {
+    \printuntil release {
+    \printuntil }
+
+    This feature makes it easy to change the configuration for a project
+    without losing all the custom settings that might be needed for a specific
+    configuration. In the above code, the declarations in the first scope are
+    processed, and the final executable will be called \c application-debug.
+    However, if \c release is specified instead of \c debug, the declarations
+    in the second scope are processed instead, and the final executable will
+    be called \c application.
+
+    Since it is possible to put your own values on the \c CONFIG
+    line, this provides you with a convenient way to customize project files
+    and fine-tune the generated Makefiles.
 
     \section1 Variables
 
-    The variables that we have encountered so far are system variables,
-    such as \c DEFINES, \c SOURCES, and \c HEADERS.  It is possible for you
-    to create your own variables so that you use them in scopes.  It's
-    easy to create your own variable; just name it and assign something to
-    it. For example:
+    Many of the variables used in project files are special variables that
+    \c qmake uses when generating Makefiles, such as \c DEFINES, \c SOURCES,
+    and \c HEADERS. It is possible for you to create your own variables to
+    use; \c qmake creates new variables with a given name when it encounters
+    an assignment to that name. For example:
 
     \code
         MY_VARIABLE = value
     \endcode
 
     There are no restricitions on what you do to your own variables, as \c
-    qmake will just ignore them unless it needs to look at them for a
-    scope.  
+    qmake will ignore them unless it needs to evaluate them when processing
+    a scope.  
 
     You can also assign the value of a current variable to another
     variable by prefixing $$ to the variable name. For example:
@@ -2769,268 +2986,72 @@
         MY_DEFINES = $${DEFINES}
     \endcode
 
-    The second notation allows you to adjoin the variable expansion to another
-    value without separating by space. \c qmake will allow a variable to
-    contain anything (including $(VALUE), which will be placed directly into
-    the Makefile, and allow it to expand as appropriate, usually an environment
-    variable). However, if you require an environment variable to be replaced
-    immediately then you may use the $$() notation. For example:
+    The second notation allows you to append the contents of the variable to
+    another value without separating the two with a space. For example, the
+    following will ensure that the final executable will be given a name
+    that includes the project template being used:
 
     \code
-        MY_DEFINES = $$(ENV_DEFINES)
+        TARGET = myproject_$${TEMPLATE}
     \endcode
 
-    This will set MY_DEFINES to the value of the evironment variable
-    ENV_DEFINES as it parses the .pro file. Additionally you may call built-in
-    functions in variable replacing. These functions (not to be confused with
-    Conditional Functions as enumerated in the next section) are listed below:
+    Variables can be used to store the contents of environment variables.
+    These can be evaluated at the time that \c qmake is run, or included
+    in the generated Makefile for evaluation when the project is built.
 
-    \section2 join(variablename, glue, before, after)
+    To obtain the contents of an environment value when \c qmake is run,
+    use the \c $$(...) operator:
 
-    This will join the value of \e variablename with glue. If this value is
-    non-empty it will prefix the value with \e before and suffix it with \e
-    after. \e variablename is the only required field, the others will default
-    to empty strings. If you need to encode spaces in \e glue, \e before, or \e
-    after you must quote them.
+    \quotefromfile snippets/qmake/environment.pro
+    \skipto $$(QTDIR)
+    \printuntil message(
 
-    \section2 prompt(question)
+    In the above assignment, the value of \c $QTDIR is read when the project
+    file is processed.
 
-    This will display \e question, and read from stdin as a return value.
+    To obtain the contents of an environment value at the time when the
+    generated Makefile is processed, use the \c $(...) operator:
 
-    \section2 member(variablename, position)
+    \quotefromfile snippets/qmake/environment.pro
+    \skipto $(QTDIR)
+    \printuntil message(when the Makefile
 
-    This will place the value in \e variablename in position \e position of the
-    list. If the value of \e variablename is not long this will return an empty
-    string. \e variablename is the only required field, if not specified
-    position will default to the first value in the list (0).
+    In the above assignment, the value of \c $QTDIR is read immediately
+    when the project file is processed, but \c $(QTDIR) is assigned to
+    \c DESTDIR in the generated Makefile. This makes the build process
+    more flexible as long as the environment variable is set correctly
+    when the Makefile is processed.
 
-    \section2 find(variablename, substr)
+    \target VariableProcessingFunctions
+    \section1 Variable Processing Functions
 
-    This will place all the values in \e variablename that match \e substr. \e
-    substr may be a regular expression as well, and will be matched
-    accordingly.
+    \c qmake provides a selection of built-in functions to allow the
+    contents of variables to be processed. These functions process the
+    arguments supplied to them and return a value, or list of values, as
+    a result. In order to assign a result to a variable, it is necessary
+    to use the \c $$ operator with this type of function in the same way
+    used to assign contents of one variable to another:
 
-    \code
-        MY_VAR = one two three four
-        MY_VAR2 = $$join(MY_VAR, " -L", -L) -Lfive
-        MY_VAR3 = $$member(MY_VAR, 2) $$find(MY_VAR, t.*)
-    \endcode
+    \quotefromfile snippets/qmake/functions.pro
+    \skipto CONFIG = release
+    \printuntil CONFIG = $$unique(
 
-    MY_VAR2 will contain '-Lone -Ltwo -Lthree -Lfour -Lfive', and MYVAR3 will
-    contains 'three two three'.
+    This type of function should be used on the right-hand side of
+    assignments (i.e, as an operand).
 
-    \section2 basename(file)
-
-    This will return the basename of the file specified. For example:
-
-    \code
-       FILE = /etc/passd
-       FILENAME = $$basename($$FILE) #passwd
-    \endcode
-
-    \section2 dirname(file)
-
-    This will return the directory name part of the file specified. For
-    example:
-
-    \code
-       FILE = /etc/X11R6/XF86Config
-       DIRNAME = dirname($$FILE) #/etc/X11R6
-    \endcode
-
-    \section2 sprintf(string, ...)
-
-    This will replace %1-%9 with the arguments passed into the
-    ... arguments. The resulting string will be returned.
-
-    \section2 unique(variablename)
-
-    This will return a list of values in variable that are unique (that is
-    with repetitive entries removed). For example:
-
-    \code
-       ARGS = 1 2 3 2 5 1
-       ARGS = $$unique(ARGS) #1 2 3 5
-    \endcode
-
-    \section2 quote(string)
-
-    This will place a whole value into a single entity, \\n \\r and \\t can
-    be used to generate literal carriage returns, line feeds and tabs
-    (respectively). The return value will not be quoted (double or single)
-    but will be placed into a single entry (for literal expansion).
-
-    \section2 system(program_and_args)
-
-    This will return the stdout/stderr of the program executed, and parse it as
-    normally expected. You can use this to interrogate information about the
-    platform for example.
-
-    \code
-        UNAME = $$system(uname -s)
-        contains( UNAME, [lL]inux ):message( This looks like Linux ($$UNAME) to me )
-    \endcode
-
+    \target ConditionalFunctions
     \section1 Conditional Functions
 
-    \c qmake provides built-in functions that perform simple, yet powerful
-    tests. These tests may be used in place of scopes (as described above), in
-    some cases it is more usefull to use the test function by itself ignoring
-    its test value.
+    \c qmake provides built-in functions that can be used as conditions
+    when writing scopes. These functions do not return a value, but
+    instead indicate "success" or "failure":
 
-    \section2 contains(variablename, value)
+    \quotefromfile snippets/qmake/functions.pro
+    \skipto count(options, 2)
+    \printuntil }
 
-    If \e value is in the list of values stored in the variable called \e
-    variablename, then the settings inside the scope will be processed.
-    For example:
-
-    \code
-        contains(CONFIG, thread) {
-        DEFINES += QT_THREAD_SUPPORT
-        }
-    \endcode
-
-    If \c thread is in the list of values for the \c CONFIG variable, then
-    QT_THREAD_SUPPORT will be added to the list of values in the \c
-    DEFINES variable.
-
-    \section2 count(variablename, number)
-
-    If \e number matches the number of values stored in the variable
-    called \e variablename, then the settings inside the scope will be
-    processed.  For example:
-
-    \code
-        count( DEFINES, 5 ) {
-        CONFIG += debug
-        }
-    \endcode
-
-    \section2 error(string)
-
-    This function outputs the string given and then makes \c qmake exit.
-    For example:
-
-    \code
-        error( "An error has occurred" )
-    \endcode
-
-    The text "An error has occurred" will be displayed on the console and
-    \c qmake will exit.
-
-    \section2 exists(filename)
-
-    If the specified file exists, then the settings inside the scope will
-    be processed.  For example:
-
-    \code
-        exists( /local/qt/qmake/main.cpp ) {
-        SOURCES += main.cpp
-        }
-    \endcode
-
-    If \c /local/qt/qmake/main.cpp exists then main.cpp is added to the
-    list of source files.
-
-    Note that "/" can be used as a directory separator regardless of the
-    platform.
-
-    \section2 include(filename)
-
-    The contents of filename are included at this point in the project
-    file, so any settings in the specified file will be processed.  An
-    example of this is:
-
-    \code 
-        include( myotherapp.pro )
-    \endcode
-
-    Any settings in the \c myotherapp.pro project file are now processed.
-
-    \section2 isEmpty(variablename)
-
-    This is the equivalent of using count( variablename, 0 ).  If the
-    variable called \e variablename has no elements, then the settings
-    inside the scope will be processed.  An example of this is:
-
-    \code
-        isEmpty( CONFIG ) {
-        CONFIG += qt warn_on debug
-        }
-    \endcode
-
-    \section2 message(string) 
-
-    This function simply outputs a message on the console.
-
-    \code
-        message( "This is a message" )
-    \endcode
-
-    The text "This is a message" is output to the console and
-    processing of the project file carries on.
-
-    \section2 system(command)
-
-    The specified command is performed and if it returns an exit code of
-    1, the settings inside the scope are processed.  For example:
-
-    \code
-        system( ls /bin ) {
-        SOURCES += bin/main.cpp
-        HEADERS += bin/main.h
-        }
-    \endcode
-
-    So if the command \c {ls /bin} returns 1 then \c bin/main.cpp is added
-    to the list of sources and \c bin/main.h is added to the list of
-    headers.
-
-    \section2 CONFIG(config)
-
-    This function can be used to test for variables placed into the CONFIG
-    variable. This is the same as regular old style (tmake) scopes, but
-    has the added advantage a second paramter can be passed to test for
-    the active config. As CONFIG's are order dependent (ie the last one
-    set will be considered the active config for mutual exclusive sets
-    like debug and release) a second paramter can be used to specify a set
-    of values to consider for example:
-
-    \code
-      CONFIG = debug
-      CONFIG += release
-      CONFIG(release, debug|release):message(Release build!) #will print
-      CONFIG(debug, debug|release):message(Debug build!) #no print
-    \endcode
-
-    Because release is considered the active setting (for feature parsing)
-    it will be the CONFIG used to generate the build file. In the common
-    case a second paramter is not needed, but for specific mutual
-    exclusive tests it is invaluable.
-
-    \section2 infile(filename, var, val)
-
-    This function will succeed if the file \e filename (when parsed
-    by qmake itself) contains the variable \e var with a value of 
-    \e val. You may also not pass in a third argument (\e val) and the
-    function will only test if \e var has been assigned to in the file.
-
-    \section2 for(iterate, list)
-
-    This special test function will cause a loop to be started that
-    iterates over all values in \e list setting \e iterate to each
-    value. As a convience if \e list is 1..10 then iterate will iterate
-    over the values 1 through 10.
-
-    The use of an else scope afer a condition line with a for() loop is
-    disallowed. 
-
-    For example:
-
-    \code
-        LIST = 1 2 3
-        for(a, LIST):exists(file.$${a}):message(I see a file.$${a}!)
-    \endcode
+    This type of function should be used in conditional expressions
+    only.
 */
 
 /*!
@@ -3180,7 +3201,7 @@
     \page qmake-tutorial.html
     \title qmake Tutorial
     \contentspage qmake-manual.html qmake Manual
-    \previouspage qmake-command-reference.html Command Reference
+    \previouspage qmake-function-reference.html Function Reference
     \nextpage qmake-common-projects.html Common Projects
 
     This tutorial teaches you how to use \c qmake.  We recommend that
