@@ -275,26 +275,30 @@ void Win32MakefileGenerator::processRcFileVar()
             QTextStream ts(&rcFile);
 
             QString versionString;
-            if (!project->variables()["VERSION"].isEmpty())
-                versionString = project->variables()["VERSION"].first();
-            else
+            if (!project->variables()["VERSION"].isEmpty()) {
+                QStringList vers = project->variables()["VERSION"].first().split(".");
+                for (int i = vers.size(); i < 4; i++)
+                    vers += "0";
+                versionString = vers.join(".");
+            } else {
                 versionString = "0.0.0.0";
+            }
 
             QString companyName;
-            if (!project->variables()["TARGET.company"].isEmpty())
-                companyName = project->variables()["TARGET.company"].join(" ");
+            if (!project->variables()["QMAKE_TARGET_COMPANY"].isEmpty())
+                companyName = project->variables()["QMAKE_TARGET_COMPANY"].join(" ");
 
             QString description;
-            if (!project->variables()["TARGET.description"].isEmpty())
-                description = project->variables()["TARGET.description"].join(" ");
+            if (!project->variables()["QMAKE_TARGET_DESCRIPTION"].isEmpty())
+                description = project->variables()["QMAKE_TARGET_DESCRIPTION"].join(" ");
             
             QString copyright;
-            if (!project->variables()["TARGET.copyright"].isEmpty())
-                copyright = project->variables()["TARGET.copyright"].join(" ");
+            if (!project->variables()["QMAKE_TARGET_COPYRIGHT"].isEmpty())
+                copyright = project->variables()["QMAKE_TARGET_COPYRIGHT"].join(" ");
 
             QString productName;
-            if (!project->variables()["TARGET.product"].isEmpty())
-                productName = project->variables()["TARGET.product"].join(" ");
+            if (!project->variables()["QMAKE_TARGET_PRODUCT"].isEmpty())
+                productName = project->variables()["QMAKE_TARGET_PRODUCT"].join(" ");
             else
                 productName = project->variables()["TARGET"].first();
             
@@ -353,7 +357,7 @@ void Win32MakefileGenerator::processRcFileVar()
         }
         QString resFile = project->variables()["RC_FILE"].first();
         resFile.replace(".rc", Option::res_ext);
-        project->variables()["RES_FILE"].first() = fileInfo(resFile).fileName();
+        project->variables()["RES_FILE"].prepend(fileInfo(resFile).fileName());
         if (!project->variables()["OBJECTS_DIR"].isEmpty())
             project->variables()["RES_FILE"].first().prepend(project->variables()["OBJECTS_DIR"].first() + "\\");
         project->variables()["POST_TARGETDEPS"] += project->variables()["RES_FILE"];

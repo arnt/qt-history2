@@ -80,3 +80,5 @@ INSTALLS += target
    SOURCES += mwerks_mac.cpp
 }
 
+include(../qt_targets.pri)
+
