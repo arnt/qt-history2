@@ -618,7 +618,7 @@ private:        // Disabled copy constructor and operator=
 
 #ifdef QT_COMPAT
 public:
-    QT_COMPAT bool isVisibleToTLW() const;
+    inline QT_COMPAT bool isVisibleToTLW() const;
     QT_COMPAT QRect visibleRect() const;
     inline QT_COMPAT void iconify() { showMinimized(); }
     inline QT_COMPAT void constPolish() const { ensurePolished(); }

@@ -4221,6 +4221,8 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
     \sa hide(), show(), isVisible(), isVisibleTo(), hidden
 */
 
+
+#ifdef QT_COMPAT
 /*!
     \property QWidget::visibleRect
     \brief the visible rectangle
@@ -4234,6 +4236,7 @@ QRect QWidget::visibleRect() const
 {
     return d->clipRect();
 }
+#endif
 
 /*!
     Returns the unobscured region where paint events can occur.
