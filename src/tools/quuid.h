@@ -96,7 +96,16 @@ struct Q_EXPORT QUuid
 
     bool operator==(const QUuid &orig ) const
     {
-	return !memcmp( this, &orig, sizeof(QUuid) );
+	uint i;
+	if ( data1 != orig.data1 || data2 != orig.data2 || 
+	     data3 != orig.data3 )
+	    return FALSE;
+
+	for( i = 0; i < 8; i++ )
+	    if ( data4[i] != orig.data4[i] )
+		return FALSE;
+	
+	return TRUE;
     }
 
     bool operator!=(const QUuid &orig ) const
