@@ -1,6 +1,6 @@
 
 Qt 3.2 introduces new features as well as many improvements over the
-3.0.x series. This file gives an overview of the main changes since
+3.1.x series. This file gives an overview of the main changes since
 version 3.1.2.  For more details, see the online documentation which
 is included in this distribution. The documentation is also available at
 http://doc.trolltech.com/
@@ -165,8 +165,9 @@ be opened from Qt Assistant.
 	setAttributeNS().
 
 - QFont
-	Added the new properties: stretch and overline. Added the new function, resolve(), that
-	copies unspecified attributes from one font to another.
+	Added the new properties: stretch and overline. Added the new
+	function, resolve(), that copies unspecified attributes from
+	one font to another.
 
 - QFontDataBase
 	Added a new overload for families() that restricts the returned list
@@ -232,7 +233,7 @@ be opened from Qt Assistant.
 	handleWidth.
 
 - QSqlError
-	Added a couple of conveniece functions: text(), which returns
+	Added a couple of convenience functions: text(), which returns
 	the concatenated database and driver texts. showMessage(),
 	which will pop up a QMessageBox with the text that text()
 	returns.
@@ -288,9 +289,3 @@ be opened from Qt Assistant.
 	This new plugin class complements QWidgetPlugin for custom
 	container widgets, i.e. widgets that can host child
 	widgets.
-
-
-****************************************************************************
-*		    Qt/Embedded-specific changes		           *
-****************************************************************************
-
