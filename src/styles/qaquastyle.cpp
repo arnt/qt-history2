@@ -11835,7 +11835,7 @@ void QAquaStyle::polish( QWidget * w )
 
     if ( !w->isTopLevel() ) {
         if( !w->inherits("QSplitter") && !w->inherits("QWorkspaceChild") && w->backgroundPixmap() &&
-            (w->backgroundMode() == QWidget::PaletteBackground) )
+            (w->backgroundMode() == QWidget::PaletteBackground) && qApp->palette().isCopyOf(w->palette()))
             w->setBackgroundOrigin( QWidget::WindowOrigin );
     }
 
