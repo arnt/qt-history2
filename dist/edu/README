@@ -5,8 +5,8 @@ Getting Started with Qt/Windows Educational Edition
 Welcome to the world of Qt programming!
 
 
-Updating Visual Studio 6
-------------------------
+MS Visual Studio
+----------------
 
 If you use MS Visual Studio 6 for development, you may want to install
 the Qt add-in that we provide. This can be done as follows:
@@ -17,6 +17,9 @@ the Qt add-in that we provide. This can be done as follows:
 4. Ensure the checkbox to the left of the "QMsDev Developer Studio-Add-In"
    add-in is checked.
 5. Click Close. 
+
+If you use MS Visual Studio .NET 2002 and later, the add-in is installed
+automatically at the end of the Qt installation.
 
 The add-in is now installed. A new floating toolbar will appear with the
 following toolbar buttons:
@@ -34,10 +37,13 @@ following toolbar buttons:
 
 More information about the add-in is available in the chapter "Customizing
 and Integrating Qt Designer" in the Qt Designer manual which is included
-in the online reference manual.
+in the online reference manual. For the MS Visual Studio .NET integration
+see also the file Usage.rtf that is located in the installation directory
+for the integration (C:\Program Files\Trolltech\QMsNet).
 
-MS Visual Studio project (.dsp) files are provided for all Qt example
-and tutorial programs.
+MS Visual Studio project (.dsp and .vcproj) files are provided for all Qt
+example and tutorial programs.
+
 
 
 The Qt Reference Manual
@@ -82,7 +88,8 @@ library header files are incompatible with the Borland compiler.
 The ODBC client library should be available on every Windows installation.
 
 The Oracle (OCI) driver requires that the Oracle client is properly
-installed and configured.
+installed and configured. The DB2 driver requires the same for the DB2
+client.
 
 The TDS driver is built with the DB-Library supplied by Microsoft. In the
 full version of Qt/Windows, it is also possible to build it against the
@@ -123,6 +130,8 @@ to the full Qt/Windows Professional and Enterprise Editions:
 
 * The library is pre-built as a dynamic, multi-threaded library without
   debugging information.
+
+* Applications display an information window on startup
 
 * GIF support is disabled
 
