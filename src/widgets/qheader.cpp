@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#89 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#90 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -485,11 +485,11 @@ void QHeader::mouseReleaseEvent( QMouseEvent *m )
 	break;
     case Sliding: {
 	int s = orient == Horizontal ? m->pos().x() : m->pos().y();
-	// setCursor( arrowCursor ); // We're probably still there...
+	// unsetCursor(); // We're probably still there...
 	handleColumnResize( handleIdx, s, TRUE );
 	} break;
     case Moving: {
-	setCursor( arrowCursor );
+	unsetCursor();
 	if ( handleIdx != moveToIdx && moveToIdx != -1 ) {
 	    moveCell( handleIdx, moveToIdx );
 	    emit moved( handleIdx, moveToIdx );
@@ -534,7 +534,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 	    }
 	}
 	if ( !hit )
-	    setCursor( arrowCursor );
+	    unsetCursor();
 	break;
     case Blocked:
 	break;
@@ -592,10 +592,10 @@ void QHeader::handleColumnResize( int index, int s, bool final )
         left += dx;
         repaint( left, 0, newSize - dx + 1,
                  height(), FALSE );
-        
-        if ( mapFromGlobal( QCursor::pos() ).x() < width() ) 
-            scroll( newSize - oldSize, 0, QRect( left + cellSize( mapToActual( lIdx ) ) - dx + 1, 0, 
-                                                 width() - ( left + cellSize( mapToActual( lIdx ) ) - dx + 1 ), 
+
+        if ( mapFromGlobal( QCursor::pos() ).x() < width() )
+            scroll( newSize - oldSize, 0, QRect( left + cellSize( mapToActual( lIdx ) ) - dx + 1, 0,
+                                                 width() - ( left + cellSize( mapToActual( lIdx ) ) - dx + 1 ),
                                                  height() ) );
     } else
         repaint(0, repaintPos-oldSize+2, width(), height());
