@@ -22,7 +22,7 @@ SOURCES += uic.cpp \
 
 INCLUDEPATH += .
 QT = xml core
-CONFIG += debug warn_on console no_batch
+CONFIG += warn_on console no_batch
 TEMPLATE = app
 DEFINES += QT_KEYWORDS
 TARGET = uic4
