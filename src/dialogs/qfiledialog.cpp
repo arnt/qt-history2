@@ -2228,6 +2228,8 @@ void QFileDialog::init()
     d->types->setEditable( FALSE );
     connect( d->types, SIGNAL(activated(const QString&)),
 	     this, SLOT(setFilter(const QString&)) );
+    connect( d->types, SIGNAL(activated(const QString&)),
+	     this, SIGNAL(filterSelected(const QString&)) );
 
     d->pathL = new QLabel( d->paths, tr("Look &in:"), this );
     d->fileL = new QLabel( nameEdit, tr("File &name:"), this );
@@ -2887,6 +2889,12 @@ void QFileDialog::rereadDir()
   \fn void QFileDialog::dirEntered( const QString& )
 
   This signal is emitted when the user has selected a new directory.
+*/
+
+/*!
+  \fn void QFileDialog::filterSelected( const QString& )
+
+  This signal is emitted when the user selects a filter.
 */
 
 #include "../kernel/qapplication_p.h"

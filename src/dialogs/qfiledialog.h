@@ -204,6 +204,7 @@ signals:
     void fileSelected( const QString& );
     void filesSelected( const QStringList& );
     void dirEntered( const QString& );
+    void filterSelected( const QString& );
 
 private slots:
     void detailViewSelectionChanged();
