@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#2 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#3 $
 **
 ** Definition of QIconView widget class
 **
@@ -200,7 +200,8 @@ protected:
     QFont f;
     QIconSet::Size viewMode;
     QIconViewItemLineEdit *renameBox;
-
+    bool isReady;
+    
 };
 
 
@@ -277,7 +278,8 @@ signals:
 
 protected slots:
     virtual void doAutoScroll();
-
+    virtual void itemsInserted();
+    
 protected:
     virtual void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     virtual void contentsMousePressEvent( QMouseEvent *e );

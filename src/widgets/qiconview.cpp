@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#3 $
 **
 ** Definition of QIconView widget class
 **
@@ -37,6 +37,7 @@
 #include <qtimer.h>
 #include <qcursor.h>
 #include <qkeycode.h>
+#include <qapplication.h>
 
 static const char *unknown[] = {
     "32 32 11 1",
@@ -99,9 +100,10 @@ struct QIconViewPrivate
     QIconView::SelectionMode selectionMode;
     QIconViewItem *currentItem, *tmpCurrentItem;
     QRect *rubber;
-    QTimer *scrollTimer;
+    QTimer *scrollTimer, *insertTimer;
     int rastX, rastY, spacing;
     bool cleared;
+    int newItems;
 };
 
 /*****************************************************************************
@@ -140,8 +142,8 @@ void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
 
 QIconViewItem::QIconViewItem( QIconView *parent )
     : view( parent ), itemText(), itemIcon( QPixmap( unknown ) ),
-      prev( 0L ), next( 0L ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
-      selected( FALSE ), selectable( TRUE ), fm( 0L ), renameBox( 0L )
+      prev( 0 ), next( 0 ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
+      selected( FALSE ), selectable( TRUE ), fm( 0 ), renameBox( 0 ), isReady( FALSE )
 {
     if ( view ) {
         fm = new QFontMetrics( view->font() );
@@ -156,8 +158,8 @@ QIconViewItem::QIconViewItem( QIconView *parent )
 
 QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after )
     : view( parent ), itemText(), itemIcon( QPixmap( unknown ) ),
-      prev( 0L ), next( after ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
-      selected( FALSE ), selectable( TRUE ), fm( 0L ), renameBox( 0L )
+      prev( 0 ), next( after ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
+      selected( FALSE ), selectable( TRUE ), fm( 0 ), renameBox( 0 ), isReady( FALSE )
 {
     if ( view ) {
         fm = new QFontMetrics( view->font() );
@@ -172,8 +174,8 @@ QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after )
 
 QIconViewItem::QIconViewItem( QIconView *parent, const QString &text )
     : view( parent ), itemText( text ), itemIcon( QPixmap( unknown ) ),
-      prev( 0L ), next( 0L ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
-      selected( FALSE ), selectable( TRUE ), fm( 0L ), renameBox( 0L )
+      prev( 0 ), next( 0 ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
+      selected( FALSE ), selectable( TRUE ), fm( 0 ), renameBox( 0 ), isReady( FALSE )
 {
     if ( view ) {
         fm = new QFontMetrics( view->font() );
@@ -188,8 +190,8 @@ QIconViewItem::QIconViewItem( QIconView *parent, const QString &text )
 
 QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after, const QString &text )
     : view( parent ), itemText( text ), itemIcon( QPixmap( unknown ) ),
-      prev( 0L ), next( after ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
-      selected( FALSE ), selectable( TRUE ), fm( 0L ), renameBox( 0L )
+      prev( 0 ), next( after ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
+      selected( FALSE ), selectable( TRUE ), fm( 0 ), renameBox( 0 ), isReady( FALSE )
 {
     if ( view ) {
         fm = new QFontMetrics( view->font() );
@@ -204,8 +206,8 @@ QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after, const QSt
 
 QIconViewItem::QIconViewItem( QIconView *parent, const QString &text, const QIconSet &icon )
     : view( parent ), itemText( text ), itemIcon( icon ),
-      prev( 0L ), next( 0L ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
-      selected( FALSE ), selectable( TRUE ), fm( 0L ), renameBox( 0L )
+      prev( 0 ), next( 0 ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
+      selected( FALSE ), selectable( TRUE ), fm( 0 ), renameBox( 0 ), isReady( FALSE )
 {
     if ( view ) {
         fm = new QFontMetrics( view->font() );
@@ -220,8 +222,8 @@ QIconViewItem::QIconViewItem( QIconView *parent, const QString &text, const QIco
 
 QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after, const QString &text, const QIconSet &icon )
     : view( parent ), itemText( text ), itemIcon( icon ),
-      prev( 0L ), next( after ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
-      selected( FALSE ), selectable( TRUE ), fm( 0L ), renameBox( 0L )
+      prev( 0 ), next( after ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
+      selected( FALSE ), selectable( TRUE ), fm( 0 ), renameBox( 0 ), isReady( FALSE )
 {
     if ( view ) {
         fm = new QFontMetrics( view->font() );
@@ -484,7 +486,7 @@ bool QIconViewItem::acceptDrop( QMimeSource * )
 
 QDragObject *QIconViewItem::dragObject()
 {
-    return 0L;
+    return 0;
 }
 
 void QIconViewItem::rename()
@@ -526,7 +528,7 @@ void QIconViewItem::removeRenameBox()
         return;
 
     delete renameBox;
-    renameBox = 0L;
+    renameBox = 0;
     view->viewport()->setFocusProxy( view );
     view->setFocus();
 }
@@ -723,21 +725,25 @@ QIconView::QIconView( QWidget *parent, const char *name )
     : QScrollView( parent, name, WNorthWestGravity )
 {
     d = new QIconViewPrivate;
-    d->firstItem = 0L;
-    d->lastItem = 0L;
+    d->firstItem = 0;
+    d->lastItem = 0;
     d->count = 0;
     d->mode = QIconSet::Automatic;
     d->mousePressed = FALSE;
     d->selectionMode = Single;
-    d->currentItem = 0L;
-    d->rubber = 0L;
-    d->scrollTimer = 0L;
+    d->currentItem = 0;
+    d->rubber = 0;
+    d->scrollTimer = 0;
     d->startDrag = FALSE;
-    d->tmpCurrentItem = 0L;
+    d->tmpCurrentItem = 0;
     d->rastX = d->rastY = -1;
     d->spacing = 5;
     d->cleared = FALSE;
-
+    d->insertTimer = new QTimer( this );
+    d->newItems = 0;
+    connect( d->insertTimer, SIGNAL( timeout() ),
+             this, SLOT( itemsInserted() ) );
+    
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
 
@@ -747,7 +753,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     setFocusPolicy( QWidget::StrongFocus );
     viewport()->setFocusPolicy( QWidget::StrongFocus );
 
-    setBackgroundMode( PaletteBackground );
+    setBackgroundMode( PaletteBase );
     viewport()->setFocusProxy( this );
 }
 
@@ -786,13 +792,34 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
     }
 
     if ( isVisible() ) {
-        insertInGrid( item );
-
-        resizeContents( QMAX( contentsWidth(), item->x() + item->width() + 5 ),
-                        QMAX( contentsHeight(), item->y() + item->height() + 5 ) );
-    }
+        if ( d->insertTimer->isActive() )
+            d->insertTimer->stop();
+        d->insertTimer->start( 0, TRUE );
+        d->newItems++;
+    } else
+        item->isReady = TRUE;
 
     d->count++;
+}
+
+void QIconView::itemsInserted()
+{
+    int w = 0, h = 0;
+    
+    if ( d->newItems > 0 ) {
+        QIconViewItem *item = d->lastItem;
+        while ( d->newItems > 0 ) {
+            insertInGrid( item );
+            item->isReady = TRUE;
+            
+            w = QMAX( w, item->x() + item->width() );
+            h = QMAX( h, item->y() + item->height() );
+            item = item->next;
+            d->newItems--;
+        }
+        resizeContents( QMAX( contentsWidth(), w ), 
+                        QMAX( contentsHeight(), h ) );
+    }
 }
 
 void QIconView::removeItem( QIconViewItem *item )
@@ -970,7 +997,7 @@ void QIconView::orderItemsInGrid()
         h = QMAX( h, item->y() + item->height() );
     }
 
-    resizeContents( w /*+ 5*/, h /*+ 5*/ );
+    resizeContents( w, h );
 }
 
 void QIconView::show()
@@ -1011,7 +1038,7 @@ void QIconView::selectAll( bool select )
 
 void QIconView::repaintItem( QIconViewItem *item )
 {
-    if ( !item )
+    if ( !item || !item->isReady )
         return;
 
     if ( QRect( contentsX(), contentsY(), contentsWidth(), contentsHeight() ).
@@ -1526,8 +1553,7 @@ void QIconView::startDrag( bool move )
         if ( drag->dragMove() )
             if ( drag->target() != viewport() )
                 emit moved();
-    }
-    else
+    } else
         drag->dragCopy();
 }
 
@@ -1572,8 +1598,9 @@ void QIconView::insertInGrid( QIconViewItem *item )
 
         if ( !isFirst )
             xpos = ( fact + 1 ) * d->rastX;
-        else
+        else    
             xpos = fact * d->rastX;
+        
         if ( xpos + d->rastX >= contentsWidth() ) {
             xpos = d->spacing;
             nextRow = TRUE;
