@@ -49,7 +49,7 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
         }
 
         freeaddrinfo(res);
-    } else if (result == EAI_NONAME) {
+    } else if (result == EAI_NONAME || result == EAI_NODATA) {
         results.d->err = QDnsHostInfo::HostNotFound;
         results.d->errorStr = tr("Host not found");
     } else {
@@ -75,10 +75,11 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
             results.d->err = QDnsHostInfo::UnknownError;
             results.d->errorStr = tr("Unknown address type");
         }
-    } else if (h_errno == HOST_NOT_FOUND) {
+    } else if (h_errno == HOST_NOT_FOUND || h_errno == NO_DATA
+               || h_errno == NO_ADDRESS) {
         results.d->err = QDnsHostInfo::HostNotFound;
         results.d->errorStr = tr("Host not found");
-    } else if (h_errno != NO_DATA && h_errno != NO_ADDRESS) {
+    } else {
         results.d->err = QDnsHostInfo::UnknownError;
         results.d->errorStr = tr("Unknown error");
     }
