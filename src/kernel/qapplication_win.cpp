@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#277 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#278 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2293,13 +2293,13 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	    if ( winPeekMessage(&wm_char, 0, charType, charType, PM_REMOVE) ) {
 		// Found a XXX_CHAR
 		uch = QChar(wm_char.wParam & 0xff, (wm_char.wParam>>8) & 0xff);
-		if ( t == WM_SYSKEYDOWN && !uch.row &&
-		     isalpha(uch.cell) && (msg.lParam & KF_ALTDOWN) ) {
+		if ( t == WM_SYSKEYDOWN && !uch.row() &&
+		     isalpha(uch.cell()) && (msg.lParam & KF_ALTDOWN) ) {
 		    // (See doc of WM_SYSCHAR)
-    		    uch = QChar((char)tolower(uch.cell)); //Alt-letter
+    		    uch = QChar((char)tolower(uch.cell())); //Alt-letter
 		}
-		if ( !code && !uch.row )
-		    code = asciiToKeycode(uch.cell, state);
+		if ( !code && !uch.row() )
+		    code = asciiToKeycode(uch.cell(), state);
 	    }
 	    else {
 		// No XXX_CHAR; deduce uch from XXX_KEYDOWN params
@@ -2314,7 +2314,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		    }
 		}
 		if ( !code )
-		    code = asciiToKeycode( uch.cell, state);
+		    code = asciiToKeycode( uch.cell(), state);
 	    }
 
 	    if ( state == QMouseEvent::AltButton ) {
@@ -2346,7 +2346,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		QString text;
 		if ( uch != QChar::null )
 		    text += uch;
-		char a = uch.row ? 0 : uch.cell;
+		char a = uch.row() ? 0 : uch.cell();
 		store_key_rec( msg.wParam, a, text );
 		k0 = sendKeyEvent( QEvent::KeyPress, code, a,
 				   state, grab, text );

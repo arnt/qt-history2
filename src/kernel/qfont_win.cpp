@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#100 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#101 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -584,17 +584,17 @@ bool QFontMetrics::inFont(QChar ch) const
 #ifdef UNICODE
     if ( qt_winver == Qt::WV_NT ) {
 	TEXTMETRICW *f = TMW;
-	uint ch16 = ch.cell+256*ch.row;
+	uint ch16 = ch.unicode();
 	return ch16 >= f->tmFirstChar
 	    && ch16 <= f->tmLastChar;
     } else
 #endif
     {
 	TEXTMETRICA *f = TMA;
-	if ( ch.row )
+	if ( ch.row() )
 	    return FALSE;
-	return ch.cell >= (uint)f->tmFirstChar
-	    && ch.cell <= (uint)f->tmLastChar;
+	return ch.cell() >= (uint)f->tmFirstChar
+	    && ch.cell() <= (uint)f->tmLastChar;
     }
 }
 
@@ -603,21 +603,21 @@ int QFontMetrics::leftBearing(QChar ch) const
 {
     if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
 	if ( qt_winver == Qt::WV_NT ) {
-	    uint ch16 = ch.cell+256*ch.row;
+	    uint ch16 = ch.unicode();
 	    ABC abc;
 	    GetCharABCWidths(hdc(),ch16,ch16,&abc);
 	    return abc.abcA;
 	} else {
-	    if ( ch.row )
+	    if ( ch.row() )
 		return 0;
 	    ABC abc;
-	    GetCharABCWidthsA(hdc(),ch.cell,ch.cell,&abc);
+	    GetCharABCWidthsA(hdc(),ch.cell(),ch.cell(),&abc);
 	    return abc.abcA;
 	}
     } else {
 #ifdef UNICODE
 	if ( qt_winver == Qt::WV_NT ) {
-	    uint ch16 = ch.cell+256*ch.row;
+	    uint ch16 = ch.unicode();
 	    ABCFLOAT abc;
 	    GetCharABCWidthsFloat(hdc(),ch16,ch16,&abc);
 	    return int(abc.abcfA);
@@ -634,20 +634,20 @@ int QFontMetrics::rightBearing(QChar ch) const
 {
     if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
 	if ( qt_winver == Qt::WV_NT ) {
-	    uint ch16 = ch.cell+256*ch.row;
+	    uint ch16 = ch.unicode();
 	    ABC abc;
 	    GetCharABCWidths(hdc(),ch16,ch16,&abc);
 	    return abc.abcC;
 	} else {
-	    if ( ch.row )
+	    if ( ch.row() )
 		return 0;
 	    ABC abc;
-	    GetCharABCWidthsA(hdc(),ch.cell,ch.cell,&abc);
+	    GetCharABCWidthsA(hdc(),ch.cell(),ch.cell(),&abc);
 	    return abc.abcC;
 	}
     } else {
 	if ( qt_winver == Qt::WV_NT ) {
-	    uint ch16 = ch.cell+256*ch.row;
+	    uint ch16 = ch.unicode();
 	    ABCFLOAT abc;
 	    GetCharABCWidthsFloat(hdc(),ch16,ch16,&abc);
 	    return int(abc.abcfA);
