@@ -22,7 +22,6 @@ public:
     QString toUnicode(const char *chars, int len) const;
 
     int heuristicContentMatch(const char *chars, int len) const;
-    int heuristicNameMatch(const char *hint) const;
 
 private:
     int idx;
