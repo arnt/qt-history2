@@ -34,7 +34,7 @@ protected:
     bool usePCH;
 
 public:
-    NmakeMakefileGenerator(QMakeProject *p);
+    NmakeMakefileGenerator();
     ~NmakeMakefileGenerator();
 
 };

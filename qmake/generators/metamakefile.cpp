@@ -181,39 +181,44 @@ MakefileGenerator
 MakefileGenerator *
 MetaMakefileGenerator::createMakefileGenerator(QMakeProject *proj)
 {
-    if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT)
-        return new ProjectGenerator(proj);
-
     MakefileGenerator *mkfile = NULL;
+    if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT) {
+        mkfile = new ProjectGenerator;
+        mkfile->setProjectFile(proj);
+        return mkfile;
+    }
+
+
     QString gen = proj->first("MAKEFILE_GENERATOR");
     if(gen.isEmpty()) {
         fprintf(stderr, "No generator specified in config file: %s\n",
                 proj->projectFile().latin1());
     } else if(gen == "UNIX") {
-        mkfile = new UnixMakefileGenerator(proj);
+        mkfile = new UnixMakefileGenerator;
     } else if(gen == "MSVC") {
         // Visual Studio =< v6.0
         if(proj->first("TEMPLATE").indexOf(QRegExp("^vc.*")) != -1)
-            mkfile = new DspMakefileGenerator(proj);
+            mkfile = new DspMakefileGenerator;
         else
-            mkfile = new NmakeMakefileGenerator(proj);
+            mkfile = new NmakeMakefileGenerator;
     } else if(gen == "MSVC.NET") {
         // Visual Studio >= v7.0
         if(proj->first("TEMPLATE").indexOf(QRegExp("^vc.*")) != -1)
-            mkfile = new VcprojGenerator(proj);
+            mkfile = new VcprojGenerator;
         else
-            mkfile = new NmakeMakefileGenerator(proj);
+            mkfile = new NmakeMakefileGenerator;
     } else if(gen == "BMAKE") {
-        mkfile = new BorlandMakefileGenerator(proj);
+        mkfile = new BorlandMakefileGenerator;
     } else if(gen == "MINGW") {
-        mkfile = new MingwMakefileGenerator(proj);
+        mkfile = new MingwMakefileGenerator;
     } else if(gen == "METROWERKS") {
-        mkfile = new MetrowerksMakefileGenerator(proj);
+        mkfile = new MetrowerksMakefileGenerator;
     } else if(gen == "PROJECTBUILDER") {
-        mkfile = new ProjectBuilderMakefileGenerator(proj);
+        mkfile = new ProjectBuilderMakefileGenerator;
     } else {
         fprintf(stderr, "Unknown generator specified: %s\n", gen.latin1());
     }
+    mkfile->setProjectFile(proj);
     return mkfile;
 }
 

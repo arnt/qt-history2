@@ -107,7 +107,7 @@ const char* _slnExtSections        = "\n\tGlobalSection(ExtensibilityGlobals) = 
                                   "\n\tEndGlobalSection";
 // ------------------------------------------------------------------
 
-VcprojGenerator::VcprojGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(false)
+VcprojGenerator::VcprojGenerator() : Win32MakefileGenerator(), init_flag(false)
 {
 }
 bool VcprojGenerator::writeMakefile(QTextStream &t)
@@ -271,9 +271,9 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
                     } else if(tmp_proj.first("TEMPLATE") == "vcapp" || tmp_proj.first("TEMPLATE") == "vclib") {
                         // Initialize a 'fake' project to get the correct variables
                         // and to be able to extract all the dependencies
-                        VcprojGenerator tmp_vcproj(&tmp_proj);
+                        VcprojGenerator tmp_vcproj;
                         tmp_vcproj.setNoIO(true);
-                        tmp_vcproj.init();
+                        tmp_vcproj.setProjectFile(&tmp_proj);
                         if(Option::debug_level) {
                             QMap<QString, QStringList> &vars = tmp_proj.variables();
                             for(QMap<QString, QStringList>::Iterator it = vars.begin();

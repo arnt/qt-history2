@@ -17,7 +17,7 @@
 #include <time.h>
 
 
-BorlandMakefileGenerator::BorlandMakefileGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(false)
+BorlandMakefileGenerator::BorlandMakefileGenerator() : Win32MakefileGenerator(), init_flag(false)
 {
 
 }

@@ -28,7 +28,7 @@
 class Win32MakefileGenerator : public MakefileGenerator
 {
 public:
-    Win32MakefileGenerator(QMakeProject *p);
+    Win32MakefileGenerator();
     ~Win32MakefileGenerator();
 protected:
     virtual QString defaultInstall(const QString &);

@@ -24,7 +24,7 @@
 #include <qdir.h>
 #include <stdlib.h>
 
-Win32MakefileGenerator::Win32MakefileGenerator(QMakeProject *p) : MakefileGenerator(p)
+Win32MakefileGenerator::Win32MakefileGenerator() : MakefileGenerator()
 {
 
 }

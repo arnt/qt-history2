@@ -279,11 +279,24 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
     return ret;
 }
 
+QMakeProject::~QMakeProject()
+{
+    if(own_prop)
+        delete prop;
+}
+
+
 void
 QMakeProject::init(QMakeProperty *p)
 {
     iterator = 0;
-    prop = p;
+    if(!p) {
+        prop = new QMakeProperty;
+        own_prop = true;
+    } else {
+        prop = p;
+        own_prop = false;
+    }
 }
 
 void

@@ -37,7 +37,7 @@ QString project_builtin_regx() //calculate the builtin regular expression..
 
 
 
-ProjectGenerator::ProjectGenerator(QMakeProject *p) : MakefileGenerator(p), init_flag(false)
+ProjectGenerator::ProjectGenerator() : MakefileGenerator(), init_flag(false)
 {
 }
 

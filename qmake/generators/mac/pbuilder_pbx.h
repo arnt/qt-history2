@@ -38,7 +38,7 @@ class ProjectBuilderMakefileGenerator : public UnixMakefileGenerator
     IDE_TYPE ideType() const;
 
 public:
-    ProjectBuilderMakefileGenerator(QMakeProject *p);
+    ProjectBuilderMakefileGenerator();
     ~ProjectBuilderMakefileGenerator();
 
     virtual bool supportsMetaBuild() { return false; }

@@ -39,7 +39,7 @@ class VcprojGenerator : public Win32MakefileGenerator
     void init();
 
 public:
-    VcprojGenerator(QMakeProject *p);
+    VcprojGenerator();
     ~VcprojGenerator();
 
     QString defaultMakefile() const;

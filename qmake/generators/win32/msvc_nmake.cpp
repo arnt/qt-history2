@@ -19,7 +19,7 @@
 #include <qdir.h>
 #include <time.h>
 
-NmakeMakefileGenerator::NmakeMakefileGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(false)
+NmakeMakefileGenerator::NmakeMakefileGenerator() : Win32MakefileGenerator(), init_flag(false)
 {
 
 }

@@ -25,7 +25,7 @@
 #include <sys/stat.h>
 #endif
 
-MetrowerksMakefileGenerator::MetrowerksMakefileGenerator(QMakeProject *p) : MakefileGenerator(p), init_flag(false)
+MetrowerksMakefileGenerator::MetrowerksMakefileGenerator() : MakefileGenerator(), init_flag(false)
 {
 
 }

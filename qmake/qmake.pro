@@ -3,7 +3,7 @@
 #once you are boot strapped though, the qmake.pro will offer better coverage of a
 #platform than either of the generic makefiles
 
-CONFIG += console
+CONFIG += console bootstrap
 CONFIG -= qt shared resource_fork uic
 DEFINES += QT_BUILD_QMAKE 
 DESTDIR = ../bin/

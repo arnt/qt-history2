@@ -41,7 +41,7 @@
 #include <time.h>
 
 
-MingwMakefileGenerator::MingwMakefileGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(false)
+MingwMakefileGenerator::MingwMakefileGenerator() : Win32MakefileGenerator(), init_flag(false)
 {
     Option::obj_ext = ".o";
 }

@@ -27,7 +27,7 @@ class BorlandMakefileGenerator : public Win32MakefileGenerator
     void init();
 
 public:
-    BorlandMakefileGenerator(QMakeProject *p);
+    BorlandMakefileGenerator();
     ~BorlandMakefileGenerator();
 };
 

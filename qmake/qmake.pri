@@ -24,46 +24,47 @@ HEADERS+= project.h property.h generators/makefile.h \
 	  qtmd5.h generators/makefiledeps.h generators/metamakefile.h \
 	  generators/xmloutput.h
 
-#Qt code
-SOURCES+=qchar.cpp qstring.cpp qstringmatcher.cpp \
-         qtextstream.cpp qiodevice.cpp qglobal.cpp \
-	 qbytearray.cpp qbytearraymatcher.cpp \
-	 qdatastream.cpp qbuffer.cpp qlist.cpp\
-	 qfile.cpp qregexp.cpp quuid.cpp qioengine.cpp \
-	 qvector.cpp qbitarray.cpp qdir.cpp qhash.cpp \
-	 qfileinfo.cpp qdatetime.cpp qstringlist.cpp qmap.cpp \
-	 qsettings.cpp qunicodetables.cpp qlocale.cpp qfileengine.cpp
-HEADERS+=qchar.h qstring.h qstringmatcher.h \
-         qtextstream.h qiodevice.h qglobal.h \
-	 qbytearray.h qbytearraymatcher.h \
-	 qdatastream.h qbuffer.h qlist.h\
-	 qfile.h qregexp.h quuid.h \
-	 qvector.h qbitarray.h qdir.h qhash.h \
-	 qfileinfo.h qdatetime.h qstringlist.h qmap.h \
-	 qsettings.h qlocale.h qfileengine.h qioengine.h
+bootstrap { #Qt code
+   SOURCES+=qchar.cpp qstring.cpp qstringmatcher.cpp \
+            qtextstream.cpp qiodevice.cpp qglobal.cpp \
+	    qbytearray.cpp qbytearraymatcher.cpp \
+	    qdatastream.cpp qbuffer.cpp qlist.cpp\
+	    qfile.cpp qregexp.cpp quuid.cpp qioengine.cpp \
+	    qvector.cpp qbitarray.cpp qdir.cpp qhash.cpp \
+	    qfileinfo.cpp qdatetime.cpp qstringlist.cpp qmap.cpp \
+	    qsettings.cpp qunicodetables.cpp qlocale.cpp qfileengine.cpp
+   HEADERS+=qchar.h qstring.h qstringmatcher.h \
+            qtextstream.h qiodevice.h qglobal.h \
+	    qbytearray.h qbytearraymatcher.h \
+	    qdatastream.h qbuffer.h qlist.h\
+	    qfile.h qregexp.h quuid.h \
+	    qvector.h qbitarray.h qdir.h qhash.h \
+	    qfileinfo.h qdatetime.h qstringlist.h qmap.h \
+	    qsettings.h qlocale.h qfileengine.h qioengine.h
 
-exists($$QT_BUILD_TREE/src/core/global/qconfig.cpp) {  #qconfig.cpp
-    DEFINES += HAVE_QCONFIG_CPP
-    SOURCES += $$QT_BUILD_TREE/src/core/global/qconfig.cpp
+    exists($$QT_BUILD_TREE/src/core/global/qconfig.cpp) {  #qconfig.cpp
+       DEFINES += HAVE_QCONFIG_CPP
+       SOURCES += $$QT_BUILD_TREE/src/core/global/qconfig.cpp
+    }
+
+    unix {
+        SOURCES += qfileengine_unix.cpp
+        mac:SOURCES += qsettings_mac.cpp qurl.cpp qcore_mac.cpp
+    } else:win32 {
+       SOURCES += qfileengine_win.cpp qsettings_win.cpp
+       HEADERS += qsettings.h
+       win32-msvc*:LIBS += ole32.lib advapi32.lib
+    }
+    macx-*: LIBS += -framework CoreServices
+
+    qnx {
+        CFLAGS += -fhonor-std
+        LFLAGS += -lcpp
+    }
+} else {
+    CONFIG += qt
+    QT = core
 }
-
-unix {
-   SOURCES += qfileengine_unix.cpp
-   mac:SOURCES += qsettings_mac.cpp qurl.cpp qcore_mac.cpp
-}
-
-win32 {
-   SOURCES += qfileengine_win.cpp qsettings_win.cpp
-   HEADERS += qsettings.h
-   win32-msvc*:LIBS += ole32.lib advapi32.lib
-}
-macx-*: LIBS += -framework CoreServices
-
-qnx {
-    CFLAGS += -fhonor-std
-    LFLAGS += -lcpp
-}
-
 *-g++:profiling {
   QMAKE_CFLAGS = -pg
   QMAKE_CXXFLAGS = -pg

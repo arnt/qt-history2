@@ -310,8 +310,12 @@ Option::init(int argc, char **argv)
     Option::sysenv_mod = "QMAKE_ENV_";
     Option::field_sep = ' ';
 
-    if(Option::qmake_mode == Option::QMAKE_GENERATE_NOTHING)
-        Option::qmake_mode = default_mode(argv[0]);
+    if(argc && argv) {
+        if(Option::qmake_mode == Option::QMAKE_GENERATE_NOTHING)
+            Option::qmake_mode = default_mode(argv[0]);
+    } else {
+        Option::qmake_mode = Option::QMAKE_GENERATE_MAKEFILE;
+    }
     if(const char *envflags = getenv("QMAKEFLAGS")) {
         int env_argc = 0, env_size = 0, currlen=0;
         char quote = 0, **env_argv = NULL;

@@ -31,7 +31,7 @@ class UnixMakefileGenerator : public MakefileGenerator
     void writePrlFile(QTextStream &);
 
 public:
-    UnixMakefileGenerator(QMakeProject *p);
+    UnixMakefileGenerator();
     ~UnixMakefileGenerator();
 
 protected:

@@ -29,7 +29,7 @@
 
 // Note: this is fairly hacky, but it does the job...
 
-ProjectBuilderMakefileGenerator::ProjectBuilderMakefileGenerator(QMakeProject *p) : UnixMakefileGenerator(p)
+ProjectBuilderMakefileGenerator::ProjectBuilderMakefileGenerator() : UnixMakefileGenerator()
 {
 
 }

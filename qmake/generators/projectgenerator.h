@@ -26,7 +26,7 @@ protected:
     virtual void init();
     virtual bool writeMakefile(QTextStream &);
 public:
-    ProjectGenerator(QMakeProject *p);
+    ProjectGenerator();
     ~ProjectGenerator();
     virtual bool supportsMetaBuild() { return false; }
     virtual bool openOutput(QFile &, const QString &) const;

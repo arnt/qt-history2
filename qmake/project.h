@@ -43,6 +43,7 @@ class QMakeProject
     QStack<ScopeBlock> scope_blocks;
     ScopeIterator *iterator;
 
+    bool own_prop;
     QString pfile, cfile;
     QMakeProperty *prop;
     void reset();
@@ -67,9 +68,11 @@ class QMakeProject
 public:
     QMakeProject() { init(0); }
     QMakeProject(QMakeProperty *p) { init(p); }
+    ~QMakeProject();
 
     enum { ReadCache=0x01, ReadConf=0x02, ReadCmdLine=0x04, ReadProFile=0x08,
            ReadPostFiles=0x10, ReadFeatures=0x20, ReadConfigs=0x40, ReadAll=0xFF };
+    inline bool parse(const QString &text) { return parse(text, vars); }
     bool read(const QString &project, uchar cmd=ReadAll);
     bool read(uchar cmd=ReadAll);
 

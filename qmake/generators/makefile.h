@@ -67,7 +67,7 @@ protected:
     QMakeLocalFileName findFileForMoc(const QMakeLocalFileName &);
     QMakeProject *project;
 
-
+    virtual void init();
     QString buildArgs();
     QString specdir();
 
@@ -82,7 +82,6 @@ protected:
     virtual bool doDepends() const { return Option::mkfile::do_deps; }
     virtual bool writeMakefile(QTextStream &);
     void initOutPaths();
-    virtual void init();
 
     //for cross-platform dependent directories
     virtual void usePlatformDir();
@@ -116,8 +115,9 @@ protected:
     QStringList fileFixify(const QStringList& files, const QString &out_dir=QString::null,
                            const QString &in_dir=QString::null, FileFixifyType fix=FileFixifyDefault, bool canon=true) const;
 public:
-    MakefileGenerator(QMakeProject *p);
+    MakefileGenerator();
     virtual ~MakefileGenerator();
+    void setProjectFile(QMakeProject *p);
 
     static MakefileGenerator *create(QMakeProject *);
     virtual bool write();

@@ -91,9 +91,8 @@ static bool createDir(QString path)
 }
 
 
-MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_opath_already(false),
-                                                        init_already(false), moc_aware(false),
-                                                        no_io(false), project(p)
+MakefileGenerator::MakefileGenerator() : init_opath_already(false), init_already(false), moc_aware(false),
+                                         no_io(false), project(0)
 {
 }
 
@@ -194,6 +193,20 @@ MakefileGenerator::initOutPaths()
 }
 
 void
+MakefileGenerator::setProjectFile(QMakeProject *p)
+{
+    if(project)
+        return;
+    project = p;
+    init();
+    usePlatformDir();
+    findLibraries();
+    if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE &&
+       project->isActiveConfig("link_prl")) //load up prl's'
+        processPrlFiles();
+}
+
+void 
 MakefileGenerator::init()
 {
     initOutPaths();
@@ -690,14 +703,13 @@ MakefileGenerator::writeProjectMakefile()
 bool
 MakefileGenerator::write()
 {
-    usePlatformDir();
-    init();
-    findLibraries();
+    if(!project)
+        return false;
     if((Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE || Option::qmake_mode == Option::QMAKE_GENERATE_PRL)
        && project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()
        && project->isActiveConfig("create_prl")
        && (project->first("TEMPLATE") == "lib" || project->first("TEMPLATE") == "vclib")
-       && !project->isActiveConfig("plugin")) {
+       && !project->isActiveConfig("plugin")) { //write prl file
         QString prl = var("TARGET");
         int slsh = prl.lastIndexOf(Option::dir_sep);
         if(slsh != -1)
@@ -718,11 +730,7 @@ MakefileGenerator::write()
             ft.close();
         }
     }
-    if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE &&
-       project->isActiveConfig("link_prl")) //load up prl's'
-        processPrlFiles();
-
-    if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE || //write prl file
+    if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE || //write makefile
        Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT) {
         QTextStream t(&Option::output);
         writeMakefile(t);

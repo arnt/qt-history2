@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-DspMakefileGenerator::DspMakefileGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(false)
+DspMakefileGenerator::DspMakefileGenerator() : Win32MakefileGenerator(), init_flag(false)
 {
 
 }

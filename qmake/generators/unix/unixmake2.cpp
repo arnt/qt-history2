@@ -23,7 +23,7 @@
 
 QString mkdir_p_asstring(const QString &dir);
 
-UnixMakefileGenerator::UnixMakefileGenerator(QMakeProject *p) : MakefileGenerator(p), init_flag(false), include_deps(false)
+UnixMakefileGenerator::UnixMakefileGenerator() : MakefileGenerator(), init_flag(false), include_deps(false)
 {
 
 }

@@ -20,7 +20,7 @@
 class MingwMakefileGenerator : public Win32MakefileGenerator
 {
 public:
-    MingwMakefileGenerator(QMakeProject *p);
+    MingwMakefileGenerator();
     ~MingwMakefileGenerator();
 private:
     void writeMingwParts(QTextStream &);

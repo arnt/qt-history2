@@ -31,7 +31,7 @@ class DspMakefileGenerator : public Win32MakefileGenerator
     void init();
 
 public:
-    DspMakefileGenerator(QMakeProject *p);
+    DspMakefileGenerator();
     ~DspMakefileGenerator();
 
     bool supportsMetaBuild() { return false; }

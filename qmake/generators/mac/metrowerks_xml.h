@@ -31,7 +31,7 @@ class MetrowerksMakefileGenerator : public MakefileGenerator
     QString findTemplate(const QString &file);
     void init();
 public:
-    MetrowerksMakefileGenerator(QMakeProject *p);
+    MetrowerksMakefileGenerator();
     ~MetrowerksMakefileGenerator();
 
     bool supportsMetaBuild() { return false; }
