@@ -1,0 +1,66 @@
+                QT/EMBEDDED PROFESSIONAL EDITION LICENSE AGREEMENT
+
+Copyright (C) 1999-2000 Troll Tech AS.  All rights reserved.
+
+This non-exclusive non-transferable License Agreement is between you
+("Licensee") and Troll Tech AS, and pertains to the Qt/Embedded GUI
+Toolkit ("Software"), including the source code, example programs and
+the documentation.
+
+
+                        COPYRIGHT AND RESTRICTIONS
+
+1. All intellectual property rights in the Software are owned by Troll
+Tech AS and are protected by Norwegian copyright laws, other applicable
+copyright laws, and international treaty provisions. Troll Tech AS retains
+all rights not expressly granted. No title, property rights or copyright
+in the Software or in any modifications to the Software shall pass to the
+Licensee under any circumstances.
+
+2. The Licensee may not loan, rent, lease, or license the Software or any
+copy. The Licensee may not alter or remove any details of ownership,
+copyright, trade mark or other property right connected with the
+Software. The Licensee may not disclose any source code or any concepts
+and methods therein for any purpose other than as specifically provided
+in this Agreement.
+
+3. The Licensee may freely use the Software on the platform(s) specified
+in the license certificate, to develop any kind of product, except
+products which would compete with the Software. A product that satisfies
+this section will herein be referred to as the Product.
+
+4. The Licensee may distribute, the Product in any form, including
+executables statically or dynamically linked with the Software, provided
+the Licensee has a sufficient number of valid run-time licenses.
+
+5. The Licensee may modify the Software. The modified Software is
+governed by this License Agreement as Software.
+
+
+                         LIMITATION OF LIABILITY
+
+THIS SOFTWARE IS PROVIDED "AS IS" AND EXCEPT AS SPECIFICALLY PROVIDED
+HEREIN, TROLL TECH AS MAKES NO WARRANTY OR REPRESENTATION, EITHER
+EXPRESSED OR IMPLIED, WITH RESPECT TO THE SOFTWARE, INCLUDING THEIR
+QUALITY, PERFORMANCE, MERCHANTABILITY, OR FITNESS FOR A PARTICULAR
+PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE
+SOFTWARE IS WITH THE LICENSEE.
+
+Because software is inherently complex and may not be completely free of
+errors, the Licensee is advised to verify his work and make backup copies
+where appropriate. In no event will Troll Tech AS be liable for any
+damages whatsoever including - but not restricted to - lost revenue or
+profits or other direct, indirect, special, incidental, cover, or
+consequential damages arising out of the use of or inability to use the
+Software, even if advised of the possibility of such damages, except to
+the extent invariable law, if any, provides otherwise.
+
+
+                              CHOICE OF LAW
+
+This license is governed by the Laws of Norway. Disputes shall be settled
+by Oslo City Court.
+
+
+
+

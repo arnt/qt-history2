@@ -1,8 +1,38 @@
-This is the Qt/Embedded alpha source distribution.
+                   Qt/Embedded Professional Edition
 
-Make sure that a new version of tmake is installed. Then run the
-"start_demo" script.  Try the "large" example first.
+This is the Qt/Embedded Professional Edition version %VERSION%.
 
-If this fails, see INSTALL for details of how to configure your system.
+Before starting to use Qt, you must install Qt as described in the INSTALL
+file.
 
-The doc/html directory here contains the standard Qt Reference Documentation.
+If you want to enable built-in GIF image reading support in Qt, consult
+the header file qgif.h in qt/include.
+
+Qt/Embedded is currently supported on Linux.  Trolltech may be contracted
+to port to other platforms.  Contact info@trolltech.com for more details.
+
+The HTML documentation in the doc/html directory contains the reference
+documentation of the Qt classes. Start your favorite Web browser with the
+doc/html/index.html file. There are also manual pages for each class.
+
+If you are new to Qt it is a good idea to read the tutorial. It is located
+in doc/html/tutorial.html. The tutorial directory contains the programs
+used in the tutorial.
+
+All documentation is available as postscript from our web server, see
+http://www.trolltech.com/dl/ or ftp://ftp.trolltech.com/qt/postscript/
+
+The example programs in the examples directory demonstrate some Qt
+features. You can study these examples to get an overview of how Qt
+programs can be written, or look at doc/html/examples.html with your
+browser.
+
+See the Qt FAQ for frequently asked questions about Qt; html/faq.html and
+the Qt/Embedded FAQ in this directory.
+
+If you find any bugs, send a report to qt-bugs@trolltech.com. If you want
+to join the Qt development mailing list, send a mail to
+qt-interest-request@trolltech.com containing a single word "subscribe".
+
+If you are a customer, you also have access to priority Technical Support
+by sending queries to support@trolltech.com.

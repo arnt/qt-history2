@@ -1,0 +1,35 @@
+			  INSTALLING Qt/Embedded
+
+
+This installation procedure is written for Linux/i386. It may need
+to be modified for other platforms.
+ 
+Unpack the archive if you have not done so already:
+
+cd <anywhere>
+gunzip qt-qws-2.2.0.tar.gz    # uncompress the archive
+tar xf qt-qws-2.2.0.tar       # unpack it
+
+This document assumes that the archive is installed as ~/qt-2.2.0
+
+Compile the Qt/Embedded library and examples:
+
+cd ~/qt-2.2.0
+export QTDIR=~/qt-2.2.0
+./configure
+make
+
+You will require a working Linux framebuffer to use Qt/Embedded.
+
+Set $LD_LIBRARY_PATH:
+
+export LD_LIBRARY_PATH=~/qt-2.2.0/lib:$LD_LIBRARY_PATH
+
+To run the demo:
+
+cd ~/qt-2.2.0/examples/launcher
+./start_demo
+
+See the HTML documentation in docs/html for detailed installation
+instructions.
+
