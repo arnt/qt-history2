@@ -142,6 +142,22 @@ QActionPrivate::QActionPrivate()
 
 QActionPrivate::~QActionPrivate()
 {
+    QListIterator<QToolButton> ittb( toolbuttons );
+    QToolButton *tb;
+
+    while ( ( tb = ittb.current() ) ) {
+	++ittb;
+	delete tb;
+    }
+
+    QListIterator<QActionPrivate::MenuItem> itmi( menuitems);
+    QActionPrivate::MenuItem* mi;
+    while ( ( mi = itmi.current() ) ) {
+	++itmi;
+	if ( mi->popup->findItem( mi->id ) )
+	    mi->popup->removeItem( mi->id );
+    }
+
     delete accel;
     delete iconset;
     delete tipGroup;
@@ -621,6 +637,7 @@ bool QAction::addTo( QWidget* w )
 	d->update( QActionPrivate::Everything );
 	connect( btn, SIGNAL( clicked() ), this, SIGNAL( activated() ) );
 	connect( btn, SIGNAL( toggled(bool) ), this, SLOT( toolButtonToggled(bool) ) );
+	connect( btn, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
 	connect( d->tipGroup, SIGNAL(showTip(const QString&)), this, SLOT(showStatusText(const QString&)) );
 	connect( d->tipGroup, SIGNAL(removeTip()), this, SLOT(clearStatusText()) );
     } else if ( w->inherits( "QPopupMenu" ) ) {
@@ -638,6 +655,7 @@ bool QAction::addTo( QWidget* w )
 	w->topLevelWidget()->className();
 	connect( mi->popup, SIGNAL(highlighted( int )), this, SLOT(menuStatusText( int )) );
 	connect( mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText()) );
+	connect( mi->popup, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
     } else {
 	qWarning( "QAction::addTo(), unknown object" );
 	return FALSE;
@@ -735,20 +753,15 @@ bool QAction::removeFrom( QWidget* w )
 void QAction::objectDestroyed()
 {
     const QObject* obj = sender();
-    if ( obj->inherits( "QPopupMenu") ){
-	QListIterator<QActionPrivate::MenuItem> it( d->menuitems);
-	QActionPrivate::MenuItem* mi;
-	while ( ( mi = it.current() ) ) {
-	    ++it;
-	    if ( mi->popup == obj )
-		d->menuitems.removeRef( mi );
-	}
-    } else if ( obj->inherits( "QToolButton" ) ) {
-	d->toolbuttons.removeRef( (QToolButton*) obj );
+    QListIterator<QActionPrivate::MenuItem> it( d->menuitems);
+    QActionPrivate::MenuItem* mi;
+    while ( ( mi = it.current() ) ) {
+	++it;
+	if ( mi->popup == obj )
+	    d->menuitems.removeRef( mi );
     }
+    d->toolbuttons.removeRef( (QToolButton*) obj );
 }
-
-
 
 /*!
   \fn void QAction::activated()
