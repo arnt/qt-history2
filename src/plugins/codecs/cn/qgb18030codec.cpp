@@ -92,6 +92,7 @@
 */
 
 #include "qgb18030codec.h"
+#include "qlist.h"
 
 #define InRange(c, lower, upper)  (((c) >= (lower)) && ((c) <= (upper)))
 #define IsLatin(c)        ((c) <= 0x7F)
@@ -707,7 +708,7 @@ QFontGb18030_0Codec::QFontGb18030_0Codec()
 }
 
 
-const char* QFontGb18030_0Codec::name() const
+QByteArray QFontGb18030_0Codec::name() const
 {
     //qDebug("QFontGb18030_0Codec::name() = \"gb18030-0\"");
     return "gb18030-0";
