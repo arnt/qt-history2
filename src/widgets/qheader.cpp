@@ -902,7 +902,7 @@ int QHeader::addLabel( const QString &s, int size )
 
     QFontMetrics fm = fontMetrics();
     int height = QMAX( fm.lineSpacing() + 6, ih );
-    int width = fm.boundingRect( s ).width()+ QH_MARGIN * 3 + iw;
+    int width = fm.boundingRect( s ).width()+ QH_MARGIN * 4 + iw;
 
     if ( size < 0 ) {
 	if ( orient == Horizontal )
