@@ -110,7 +110,10 @@
 #include "qscrollview.h"
 #include <qlistview.h>
 #include "qnetworkprotocol.h"
+#include "qabstractlayout.h"
+#include <qlayout.h>
 #include "qdockwidget.h"
+#include "qdockarea.h"
 #include "qtoolbar.h"
 #include "qmap.h"
 #include "qmenudata.h"
@@ -125,7 +128,6 @@
 #include "qurl.h"
 #include <qnetwork.h>
 #include <qftp.h>
-#include "qabstractlayout.h"
 #include <qaccel.h>
 #include <qobjectdict.h>
 #include <qobjectlist.h>
@@ -173,7 +175,6 @@
 #include <qsimplerichtext.h>
 #include "qwmatrix.h"
 #include <qsizegrip.h>
-#include <qlayout.h>
 #include <qsjiscodec.h>
 #include <qslider.h>
 #include <qsocket.h>
@@ -195,7 +196,7 @@
 #include <qsqldriver.h>
 #include <qsqldatabase.h>
 #include <qsqlpropertymanager.h>
-#include <qsqlrelation.h>
+//#include <qsqlrelation.h>
 #include <qsqlresult.h>
 #include "qsqlrowset.h"
 #include "qsqlview.h"
