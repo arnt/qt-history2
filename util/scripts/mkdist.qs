@@ -52,7 +52,8 @@ var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^translations"),
 		       new RegExp("^pics"),
 		       new RegExp("^bin/syncqt.bat"),
-		       new RegExp("^extensions"),
+		       new RegExp("^extensions/nsplugin"),
+		       new RegExp("^extensions/xt"),
 		       new RegExp("^tools/lsqrc"),
 		       new RegExp("^tools/makeqpf"),
 		       new RegExp("^tools/mergetr"),
@@ -60,6 +61,8 @@ var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^tools/qconfig"),
 		       new RegExp("^tools/qembed"),
 		       new RegExp("^tools/qev"),
+		       new RegExp("^tools/designer/data"),
+		       new RegExp("^tools/designer/tests"),
 		       new RegExp("^src/gui/itemviews/qheaderwidget"),
 		       new RegExp("^doc/tutorial"),
 		       new RegExp("^src/gui/painting/makepsheader.pl"),
@@ -80,6 +83,7 @@ platformRemove["win"] = [ new RegExp("^gif"),
 			  new RegExp("^src/plugins/decorations"),
 			  new RegExp("^tools/qtconfig"),
 			  new RegExp("^tools/qvfb"),
+			  new RegExp("^extensions/motif"),
 			  new RegExp("_x11"),
 			  new RegExp("_unix"),
 			  new RegExp("_qws"),
@@ -98,6 +102,7 @@ platformRemove["x11"] = [ new RegExp("^gif"),
 			  new RegExp("^src/plugins/gfxdrivers"),
 			  new RegExp("^src/plugins/decorations"),
 			  new RegExp("^tools/qvfb"),
+			  new RegExp("^extensions/qctiveqt"),
 			  new RegExp("_win"),
 			  new RegExp("_qws"),
 			  new RegExp("_wce"),
@@ -114,6 +119,7 @@ platformRemove["mac"] = [ new RegExp("^gif"),
 			  new RegExp("^src/plugins/gfxdrivers"),
 			  new RegExp("^src/plugins/decorations"),
 			  new RegExp("^tools/qvfb"),
+			  new RegExp("^extensions/qctiveqt"),
 			  new RegExp("_win"),
 			  new RegExp("_qws"),
 			  new RegExp("_wce"),
@@ -130,6 +136,7 @@ platformRemove["embedded"] = [ new RegExp("^gif"),
 			       new RegExp("_wce"),
 			       new RegExp("_mac"),
 			       new RegExp("^src/plugins/styles/mac"),
+			       new RegExp("^extensions/qctiveqt"),
 			       new RegExp("_qnx4"),
 			       new RegExp("_qnx6"),
 			       new RegExp("^bin/configure.exe") ];
@@ -587,6 +594,7 @@ function compile(platform, edition, platformName)
     execute(["ssh", login, "rm -rf", "installscript" + platform + "*"]);
     execute(["ssh", login, "rm -rf", "write*.nsh"]);
     execute(["ssh", login, "rm -rf", "checkqtlicense.ini"]);
+    execute(["ssh", login, "rm -rf", "setenvpage.ini"]);
 
     if (platform == "win" && options["zip"]) {
 	// copy zip package to host
@@ -604,7 +612,7 @@ function compile(platform, edition, platformName)
 	execute(["scp", buildScript, login + ":."]);
 
 	// run it
-	execute(["ssh", login, "cmd", "/c", "buildbinarywin.bat win32-msvc " + platformName]);
+	execute(["ssh", login, "cmd", "/c", "buildbinarywin.bat win32-msvc.net " + platformName]);
 
 	// copy files from bin
 	execute(["ssh", login, "cp", platformName + "/bin/*.exe", platformName+"clean/bin/."]);
@@ -641,10 +649,12 @@ function compile(platform, edition, platformName)
 		 platformName + "clean/mkspecs/.qt.config"]);
 
 	// replace tags and copy over the install script
-	var installScript = p4Copy(p4BranchPath + "/util/scripts","installscriptwin.nsi", p4Label);
-	var installWriteEnv = p4Copy(p4BranchPath + "/util/scripts","writeEnvStr.nsh", p4Label);
-	var installWritePath = p4Copy(p4BranchPath + "/util/scripts","writePathStr.nsh", p4Label);
-	var installCheckLicense = p4Copy(p4BranchPath + "/util/scripts","checkqtlicense.ini", p4Label);
+	var installScript = p4Copy(p4BranchPath + "/util/scripts", "installscriptwin.nsi", p4Label);
+	var installWriteEnv = p4Copy(p4BranchPath + "/util/scripts", "writeEnvStr.nsh", p4Label);
+	var installWritePath = p4Copy(p4BranchPath + "/util/scripts", "writePathStr.nsh", p4Label);
+	var installLicensePage = p4Copy(p4BranchPath + "/util/scripts", "checkqtlicense.ini", p4Label);
+	var installEnvPage = p4Copy(p4BranchPath + "/util/scripts", "setenvpage.ini", p4Label);
+
 	execute(["ssh", login, "cygpath", "-w", "`pwd`/" + platformName + "clean"]);
 	var windowsPath = Process.stdout.split("\n")[0];
 	var extraTags = new Array();
@@ -654,7 +664,8 @@ function compile(platform, edition, platformName)
 	execute(["scp", installScript, login + ":."]);
 	execute(["scp", installWriteEnv, login + ":."]);
 	execute(["scp", installWritePath, login + ":."]);
-	execute(["scp", installCheckLicense, login + ":."]);
+	execute(["scp", installLicensePage, login + ":."]);
+	execute(["scp", installEnvPage, login + ":."]);
 
 	// run the install script and create compiler
 	execute(["ssh", login, "cmd", "/c", "makensis.exe", "installscriptwin.nsi"]);
@@ -668,11 +679,12 @@ function compile(platform, edition, platformName)
     }
 
     // clean up on host after building binaries
-    execute(["ssh", login, "rm -rf", platformName + "*"]);
-    execute(["ssh", login, "rm -rf", "buildbinary" + platform + "*"]);
-    execute(["ssh", login, "rm -rf", "installscript" + platform + "*"]);
-    execute(["ssh", login, "rm -rf", "write*.nsh"]);
-    execute(["ssh", login, "rm -rf", "checkqtlicense.ini"]);
+//     execute(["ssh", login, "rm -rf", platformName + "*"]);
+//     execute(["ssh", login, "rm -rf", "buildbinary" + platform + "*"]);
+//     execute(["ssh", login, "rm -rf", "installscript" + platform + "*"]);
+//     execute(["ssh", login, "rm -rf", "write*.nsh"]);
+//     execute(["ssh", login, "rm -rf", "checkqtlicense.ini"]);
+//     execute(["ssh", login, "rm -rf", "setenvpage.ini"]);
 }
 
 /************************************************************
