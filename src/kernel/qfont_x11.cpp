@@ -66,7 +66,7 @@
 #define QFONTLOADER_DEBUG
 #define QFONTLOADER_DEBUG_VERBOSE
 
-bool qt_has_xft = FALSE;
+Q_EXPORT bool qt_has_xft = FALSE;
 bool qt_use_antialiasing = FALSE;
 
 static inline float pixelSize( const QFontDef &request, QPaintDevice *paintdevice,

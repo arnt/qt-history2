@@ -35,6 +35,12 @@
 **
 **********************************************************************/
 
+// ### 4.0: examine Q_EXPORT's below. The respective symbols had all
+// been in use (e.g. in the KDE wm ) before the introduction of a version
+// map. One might want to turn some of them into propert public API and
+// provide a proper alternative for others. See also the exports in
+// qapplication_win.cpp which suggest a unification.
+
 // ### needed for solaris-g++ in beta5
 #define QT_CLEAN_NAMESPACE
 
@@ -208,9 +214,11 @@ static GC*	app_gc_ro	= 0;		// read-only GC
 static GC*	app_gc_tmp	= 0;		// temporary GC
 static GC*	app_gc_ro_m	= 0;		// read-only GC (monochrome)
 static GC*	app_gc_tmp_m	= 0;		// temporary GC (monochrome)
-Atom		qt_wm_protocols		= 0;	// window manager protocols
-Atom		qt_wm_delete_window	= 0;	// delete window protocol
-Atom		qt_wm_take_focus	= 0;	// take focus window protocol
+// symbols needed by extern QXEmbed class
+Q_EXPORT Atom	qt_wm_protocols		= 0;	// window manager protocols
+Q_EXPORT Atom	qt_wm_delete_window	= 0;	// delete window protocol
+Q_EXPORT Atom	qt_wm_take_focus	= 0;	// take focus window protocol
+
 static Atom	qt_qt_scrolldone	= 0;	// scroll synchronization
 Atom		qt_net_wm_context_help	= 0;	// context help
 Atom		qt_net_wm_ping		= 0;	// _NET_WM_PING protocol
@@ -220,14 +228,14 @@ Atom            qt_xa_clipboard         = 0;
 Atom		qt_selection_property	= 0;
 Atom            qt_clipboard_sentinel   = 0;
 Atom		qt_selection_sentinel	= 0;
-Atom		qt_wm_state		= 0;
+Q_EXPORT Atom	qt_wm_state		= 0;
 static Atom     qt_settings_timestamp	= 0;    // Qt >=3 settings timestamp
 static Atom	qt_input_encoding	= 0;	// Qt desktop properties
 static Atom	qt_resource_manager	= 0;	// X11 Resource manager
 Atom		qt_sizegrip		= 0;	// sizegrip
 Atom		qt_wm_client_leader	= 0;
-Atom		qt_window_role	= 0;
-Atom		qt_sm_client_id		= 0;
+Q_EXPORT Atom	qt_window_role		= 0;
+Q_EXPORT Atom	qt_sm_client_id		= 0;
 Atom		qt_xa_motif_wm_hints	= 0;
 Atom		qt_cde_running		= 0;
 Atom		qt_kwin_running	= 0;
@@ -281,7 +289,7 @@ static int xrandr_eventbase;
 
 // TRUE if Qt is compiled w/ XRender support and XRender exists on the connected
 // Display
-bool	qt_use_xrender	= FALSE;
+Q_EXPORT bool qt_use_xrender = FALSE;
 
 // modifier masks for alt/meta - detected when the application starts
 static long qt_alt_mask = 0;
@@ -348,10 +356,10 @@ static uint appliedstamp = 0;
 
 
 typedef int (*QX11EventFilter) (XEvent*);
-QX11EventFilter qt_set_x11_event_filter (QX11EventFilter filter);
+QX11EventFilter qt_set_x11_event_filter(QX11EventFilter filter);
 
 static QX11EventFilter qt_x11_event_filter = 0;
-QX11EventFilter qt_set_x11_event_filter (QX11EventFilter filter)
+Q_EXPORT QX11EventFilter qt_set_x11_event_filter(QX11EventFilter filter)
 {
     QX11EventFilter old_filter = qt_x11_event_filter;
     qt_x11_event_filter = filter;
@@ -378,7 +386,7 @@ static XIMStyle	xim_preferred_style	= 0;
 static int composingKeycode=0;
 static QTextCodec * input_mapper = 0;
 
-Time		qt_x_time = CurrentTime;
+Q_EXPORT Time	qt_x_time = CurrentTime;
 extern bool     qt_check_clipboard_sentinel( XEvent* ); //def in qclipboard_x11.cpp
 extern bool	qt_check_selection_sentinel( XEvent* ); //def in qclipboard_x11.cpp
 
