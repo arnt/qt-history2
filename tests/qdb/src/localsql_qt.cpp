@@ -42,8 +42,7 @@ public:
 };
 
 LocalSQLResult::LocalSQLResult( const LocalSQLDriver* db, const QString& path )
-    : QSqlResult( db ),
-      currentSize( 0 )
+    : QSqlResult( db )
 {
     d =   new LocalSQLPrivate();
     d->databasePath = path;
@@ -72,6 +71,31 @@ bool LocalSQLResult::fetch( int i )
 	return FALSE;
     if ( i < 0 )
 	return FALSE;
+    if ( at() == QSql::AfterLast ) {
+	if ( !d->env.resultSet(0)->last() )
+	    return FALSE;
+	setAt( (int)d->env.resultSet(0)->size()-1 );
+    }
+    int it = 0;
+    if ( at() < i ) {
+	while ( at() < i ) {
+	    if ( !d->env.resultSet(0)->next() ) {
+		setAt( QSql::AfterLast );
+		return FALSE;
+	    }
+	    ++it;
+	    setAt( at() + 1 );
+	}
+    } else {
+	while ( at() > i ) {
+	    if ( !d->env.resultSet(0)->prev() ) {
+		setAt( QSql::BeforeFirst );
+		return FALSE;
+	    }
+	    ++it;
+	    setAt( at() - 1 );
+	}
+    }
     setAt( i );
     return TRUE;
 }
@@ -113,9 +137,12 @@ bool LocalSQLResult::reset ( const QString& query )
 	return FALSE;
     }
     if ( !d->env.execute() ) {
+	//## this error is not propogating backwards!
 	setLastError( d->makeError( "Unable to execute query" ) );
 	return FALSE;
     }
+    setSelect( TRUE ); //## fix
+    setActive( TRUE );
     return TRUE;
 }
 
