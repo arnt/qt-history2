@@ -1101,6 +1101,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
         int nPackets;        // the number of packets we get from the queue
 #endif
 
+    LRESULT res = 0;
     if (!qApp)                                // unstable app state
         goto do_default;
 
@@ -1137,7 +1138,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
 #endif
 
     if (QEventLoop::instance()) {
-        LRESULT res = 0;
+        res = 0;
         if (QEventLoop::instance()->winEventFilter(&msg, &res))                // send through app filter
             RETURN(res);
     }
@@ -1256,7 +1257,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
             RETURN(ret);
     }
 
-    LRESULT res = 0;
+    res = 0;
     if (widget->winEvent(&msg, &res))                // send through widget filter
         RETURN(res);
 
@@ -1749,7 +1750,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
 
                     // and get an instance of the IAccessibile implementation
                     IAccessible *iface = qt_createWindowsAccessible(acc);
-                    LRESULT res = ptrLresultFromObject(IID_IAccessible, wParam, iface);  // ref == 2
+                    res = ptrLresultFromObject(IID_IAccessible, wParam, iface);  // ref == 2
                     iface->Release(); // the client will release the object again, and then it will destroy itself
 
                     if (res > 0)
