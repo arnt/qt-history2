@@ -13,7 +13,10 @@ unix {
 }
 win32 {
 	OBJECTS_DIR = obj
-	LIBS	*= libmysql.lib
+        
+        !contains(LIBS, .*mysql,*) {
+	    LIBS    *= libmysql.lib
+        }
 #	win32-msvc: {
 #		LIBS *= delayimp.lib
 #		QMAKE_LFLAGS += /DELAYLOAD:libmysql.dll
