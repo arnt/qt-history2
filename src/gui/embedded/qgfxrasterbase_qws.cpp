@@ -55,7 +55,7 @@ struct _XRegion {
     \a w and \a h its width and height in pixels
 */
 QGfxRasterBase::QGfxRasterBase(unsigned char *b, int w, int h) :
-    cpen(Qt::black), cbrush(Qt::black), penColor(0xff000000), brushColor(0xff000000),
+    cpen(Qt::black), cbrush(Qt::black), penColor(0xff000000), brushColor(0x00000000),
     backcolor(Qt::black), buffer(b)
 {
     // Buffers should always be aligned
