@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsmouse_qws.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qwsmouse_qws.cpp#51 $
 **
 ** Implementation of Qt/Embedded mouse drivers
 **
@@ -57,7 +57,7 @@
 
 #ifdef QT_QWS_CASSIOPEIA
 #include <linux/tpanel.h>
-#define QWS_TOUCHPANEL
+//#define QWS_TOUCHPANEL
 #endif
 
 #ifdef QT_QWS_IPAQ
@@ -69,8 +69,6 @@ typedef struct {
 	unsigned short pad;
 } TS_EVENT;
 #endif
-
-//#define QWS_CUSTOMTOUCHPANEL
 
 /*!
   \class QWSMouseHandler qwsmouse_qws.h
@@ -97,7 +95,7 @@ QWSMouseHandler::QWSMouseHandler()
 }
 
 /*!
-  Destroys the mouse handler. You should not invoked this directly.
+  Destroys the mouse handler. You should not invoke this directly.
 */
 QWSMouseHandler::~QWSMouseHandler()
 {
@@ -111,12 +109,6 @@ QWSMouseHandler::~QWSMouseHandler()
   in the state \a bstate.
 */
 
-
-enum MouseProtocol { Unknown = -1, Auto = 0,
-		     MouseMan, IntelliMouse, Microsoft,
-		     QVFBMouse, TPanel,
-		     FirstAuto = MouseMan,
-		     LastAuto = Microsoft };
 
 typedef struct {
     char *name;
@@ -148,6 +140,8 @@ static void limitToScreen( QPoint &pt )
 
 static QPoint &mousePos = QWSServer::mousePosition;
 
+
+#ifndef QT_NO_QWS_MOUSE_AUTO
 /*
  * Automatic-detection mouse driver
  */
@@ -470,28 +464,9 @@ QAutoMouseHandler::UsageResult QAutoMouseHandler::useDev(Dev& d)
     }
 */
 
-class QAutoMouseHandler : public QWSMouseHandler {
-    Q_OBJECT
-public:
-    QAutoMouseHandler();
-    ~QAutoMouseHandler();
 
-private:
-    enum { max_dev=32 };
-    QAutoMouseSubHandler *sub[max_dev];
-    QPtrList<QSocketNotifier> notifiers;
-    int nsub;
-    int retries;
-
-private slots:
-    void readMouseData(int);
-
-private:
-    void openDevices();
-    void closeDevices();
-    void notify(int fd);
-    bool sendEvent(QAutoMouseSubHandler& h)
-    {
+bool QAutoMouseHandlerPrivate::sendEvent(QAutoMouseSubHandler& h)
+{
 	if ( h.reliable() ) {
 	    mousePos += h.takeMotion();
 	    limitToScreen( mousePos );
@@ -513,22 +488,21 @@ mousePos.x(),mousePos.y(),
 	    }
 	    return FALSE;
 	}
-    }
-};
+}
 
-QAutoMouseHandler::QAutoMouseHandler()
+QAutoMouseHandlerPrivate::QAutoMouseHandlerPrivate()
 {
     notifiers.setAutoDelete( TRUE );
     retries = 0;
     openDevices();
 }
 
-QAutoMouseHandler::~QAutoMouseHandler()
+QAutoMouseHandlerPrivate::~QAutoMouseHandlerPrivate()
 {
     closeDevices();
 }
 
-void QAutoMouseHandler::openDevices()
+void QAutoMouseHandlerPrivate::openDevices()
 {
     nsub=0;
     int fd;
@@ -554,7 +528,7 @@ void QAutoMouseHandler::openDevices()
     // ...
 }
 
-void QAutoMouseHandler::closeDevices()
+void QAutoMouseHandlerPrivate::closeDevices()
 {
     int pfd=-1;
     for (int i=0; i<nsub; i++) {
@@ -564,7 +538,7 @@ void QAutoMouseHandler::closeDevices()
     notifiers.clear();
 }
 
-void QAutoMouseHandler::notify(int fd)
+void QAutoMouseHandlerPrivate::notify(int fd)
 {
     QSocketNotifier *mouseNotifier
 	= new QSocketNotifier( fd, QSocketNotifier::Read, this );
@@ -572,7 +546,7 @@ void QAutoMouseHandler::notify(int fd)
     notifiers.append( mouseNotifier );
 }
 
-void QAutoMouseHandler::readMouseData(int fd)
+void QAutoMouseHandlerPrivate::readMouseData(int fd)
 {
     while(1) {
 	uchar buf[8];
@@ -614,9 +588,9 @@ void QAutoMouseHandler::readMouseData(int fd)
 	retries++;
     }
 }
+#endif //QT_NO_QWS_MOUSE_AUTO
 
-
-
+#ifndef QT_NO_QWS_MOUSE_MANUAL
 
 /*
  * Standard mouse driver
@@ -632,28 +606,6 @@ static const MouseData mouseData[] = {
     { 3 }   // Microsoft
 };
 
-
-static const int mouseBufSize = 128;
-
-class QWSMouseHandlerPrivate : public QWSMouseHandler {
-    Q_OBJECT
-public:
-    QWSMouseHandlerPrivate( MouseProtocol protocol, QString mouseDev );
-    ~QWSMouseHandlerPrivate();
-
-private:
-    int mouseFD;
-    int mouseIdx;
-    uchar mouseBuf[mouseBufSize];
-    MouseProtocol mouseProtocol;
-    void handleMouseData();
-
-private slots:
-    void readMouseData();
-
-private:
-    int obstate;
-};
 
 
 void QWSMouseHandlerPrivate::readMouseData()
@@ -675,9 +627,9 @@ void QWSMouseHandlerPrivate::handleMouseData()
 {
     static const int accel_limit = 5;
     static const int accel = 2;
-
-    //    printf( "handleMouseData mouseIdx=%d\n", mouseIdx );
-
+#if 0 // debug
+    printf( "handleMouseData mouseIdx=%d\n", mouseIdx );
+#endif
     int idx = 0;
     int bstate = 0;
     int dx = 0, dy = 0;
@@ -685,7 +637,9 @@ void QWSMouseHandlerPrivate::handleMouseData()
     int tdx = 0, tdy = 0;
 
     while ( mouseIdx-idx >= mouseData[mouseProtocol].bytesPerPacket ) {
+#if 0 // debug
 	qDebug( "Got mouse data" );
+#endif
 	uchar *mb = mouseBuf+idx;
 	bstate = 0;
 	dx = 0;
@@ -868,7 +822,10 @@ QWSMouseHandlerPrivate::~QWSMouseHandlerPrivate()
     if (mouseFD >= 0)
 	close(mouseFD);
 }
+#endif //QT_NO_QWS_MOUSE_MANUAL
 
+
+#ifndef QT_NO_QWS_MOUSE_CALIBRATED
 /*
  *
  */
@@ -1011,34 +968,10 @@ bool QCalibratedMouseHandler::sendFiltered( const QPoint &p, int button )
     return sent;
 }
 
-/*
- * Handler for /dev/tpanel Linux kernel driver
- */
+#endif //QT_NO_QWS_MOUSE_CALIBRATED
 
-class QVrTPanelHandlerPrivate : public QCalibratedMouseHandler {
-    Q_OBJECT
-public:
-    QVrTPanelHandlerPrivate(MouseProtocol, QString dev);
-    ~QVrTPanelHandlerPrivate();
 
-private:
-    int mouseFD;
-    MouseProtocol mouseProtocol;
-private slots:
-    void sendRelease();
-    void readMouseData();
-private:
-    QTimer *rtimer;
-    int mouseIdx;
-    uchar mouseBuf[mouseBufSize];
-};
-
-#ifndef QWS_TOUCHPANEL
-QVrTPanelHandlerPrivate::QVrTPanelHandlerPrivate( MouseProtocol, QString ) :
-    QCalibratedMouseHandler()
-{
-}
-#else
+#ifdef QT_QWS_CASSIOPEIA
 QVrTPanelHandlerPrivate::QVrTPanelHandlerPrivate( MouseProtocol, QString dev ) :
     QCalibratedMouseHandler()
 {
@@ -1070,7 +1003,6 @@ QVrTPanelHandlerPrivate::QVrTPanelHandlerPrivate( MouseProtocol, QString dev ) :
 
     printf("\033[?25l"); fflush(stdout); // VT100 cursor off
 }
-#endif
 
 QVrTPanelHandlerPrivate::~QVrTPanelHandlerPrivate()
 {
@@ -1085,7 +1017,6 @@ void QVrTPanelHandlerPrivate::sendRelease()
 
 void QVrTPanelHandlerPrivate::readMouseData()
 {
-#ifdef QWS_TOUCHPANEL
     if(!qt_screen)
 	return;
     static bool pressed = FALSE;
@@ -1121,36 +1052,14 @@ void QVrTPanelHandlerPrivate::readMouseData()
 	mouseBuf[i] = mouseBuf[idx+i];
     mouseIdx = surplus;
 
-#endif
 }
+#endif //QT_QWS_CASSIOPEIA
 
 
-class QIpaqHandlerPrivate : public QCalibratedMouseHandler
-{
-     Q_OBJECT
-public:
-    QIpaqHandlerPrivate(MouseProtocol, QString dev);
-    ~QIpaqHandlerPrivate();
-
-private:
-    int mouseFD;
-    QPoint oldmouse;
-    bool waspressed;
-    QPointArray samples;
-    unsigned int currSample;
-    unsigned int numSamples;
-    int mouseIdx;
-    uchar mouseBuf[mouseBufSize];
-
-private slots:
-    void readMouseData();
-};
-
-
+#ifdef QT_QWS_IPAQ
 QIpaqHandlerPrivate::QIpaqHandlerPrivate( MouseProtocol, QString )
     : samples(5), currSample(0), numSamples(0)
 {
-#ifdef QT_QWS_IPAQ
 # ifdef QT_QWS_IPAQ_RAW
     if ((mouseFD = open( "/dev/h3600_tsraw", O_RDONLY | O_NDELAY)) < 0) {
 # else
@@ -1166,20 +1075,16 @@ QIpaqHandlerPrivate::QIpaqHandlerPrivate( MouseProtocol, QString )
     connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
     waspressed=FALSE;
     mouseIdx = 0;
-#endif
 }
 
 QIpaqHandlerPrivate::~QIpaqHandlerPrivate()
 {
-#ifdef QT_QWS_IPAQ
     if (mouseFD >= 0)
 	close(mouseFD);
-#endif
 }
 
 void QIpaqHandlerPrivate::readMouseData()
 {
-#ifdef QT_QWS_IPAQ
     if(!qt_screen)
 	return;
 
@@ -1247,24 +1152,12 @@ void QIpaqHandlerPrivate::readMouseData()
     for ( int i = 0; i < surplus; i++ )
 	mouseBuf[i] = mouseBuf[idx+i];
     mouseIdx = surplus;
-#endif
 }
+#endif //QT_QWS_IPAQ
 
-class QCustomTPanelHandlerPrivate : public QWSMouseHandler {
-    Q_OBJECT
-public:
-    QCustomTPanelHandlerPrivate(MouseProtocol, QString dev);
-    ~QCustomTPanelHandlerPrivate();
-
-private:
-    int mouseFD;
-private slots:
-    void readMouseData();
-};
-
+#ifdef QT_QWS_CUSTOMTOUCHPANEL
 QCustomTPanelHandlerPrivate::QCustomTPanelHandlerPrivate( MouseProtocol, QString )
 {
-#ifdef QWS_CUSTOMTOUCHPANEL
     if ((mouseFD = open( "/dev/ts", O_RDONLY)) < 0) {
 	qWarning( "Cannot open /dev/ts (%s)", strerror(errno));
 	return;
@@ -1276,7 +1169,6 @@ QCustomTPanelHandlerPrivate::QCustomTPanelHandlerPrivate( MouseProtocol, QString
     mouseNotifier = new QSocketNotifier( mouseFD, QSocketNotifier::Read,
 					 this );
     connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
-#endif
 }
 
 QCustomTPanelHandlerPrivate::~QCustomTPanelHandlerPrivate()
@@ -1295,7 +1187,6 @@ struct CustomTPdata {
 
 void QCustomTPanelHandlerPrivate::readMouseData()
 {
-#ifdef QWS_CUSTOMTOUCHPANEL
     if(!qt_screen)
 	return;
     CustomTPdata data;
@@ -1323,8 +1214,8 @@ void QCustomTPanelHandlerPrivate::readMouseData()
     if(ret<0) {
 	qDebug("Error %s",strerror(errno));
     }
-#endif
 }
+#endif //QT_QWS_CUSTOMTOUCHPANEL
 
 /*
  * Virtual framebuffer mouse driver
@@ -1333,28 +1224,10 @@ void QCustomTPanelHandlerPrivate::readMouseData()
 #ifndef QT_NO_QWS_VFB
 #include "qvfbhdr.h"
 extern int qws_display_id;
-#endif
-
-class QVFbMouseHandlerPrivate : public QWSMouseHandler {
-    Q_OBJECT
-public:
-    QVFbMouseHandlerPrivate(MouseProtocol, QString dev);
-    ~QVFbMouseHandlerPrivate();
-
-    bool isOpen() const { return mouseFD > 0; }
-
-private:
-    int mouseFD;
-    int mouseIdx;
-    uchar mouseBuf[mouseBufSize];
-private slots:
-    void readMouseData();
-};
 
 QVFbMouseHandlerPrivate::QVFbMouseHandlerPrivate( MouseProtocol, QString mouseDev )
 {
     mouseFD = -1;
-#ifndef QT_NO_QWS_VFB
     if ( mouseDev.isEmpty() )
 	mouseDev = QString(QT_VFB_MOUSE_PIPE).arg(qws_display_id);
 
@@ -1372,20 +1245,16 @@ QVFbMouseHandlerPrivate::QVFbMouseHandlerPrivate( MouseProtocol, QString mouseDe
 	mouseNotifier = new QSocketNotifier( mouseFD, QSocketNotifier::Read, this );
 	connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
     }
-#endif
 }
 
 QVFbMouseHandlerPrivate::~QVFbMouseHandlerPrivate()
 {
-#ifndef QT_NO_QWS_VFB
     if (mouseFD >= 0)
 	close(mouseFD);
-#endif
 }
 
 void QVFbMouseHandlerPrivate::readMouseData()
 {
-#ifndef QT_NO_QWS_VFB
     int n;
     do {
 	n = read(mouseFD, mouseBuf+mouseIdx, mouseBufSize-mouseIdx );
@@ -1409,8 +1278,8 @@ void QVFbMouseHandlerPrivate::readMouseData()
     for ( int i = 0; i < surplus; i++ )
 	mouseBuf[i] = mouseBuf[idx+i];
     mouseIdx = surplus;
-#endif
 }
+#endif //QT_NO_QWS_VFB
 
 /*
  * return a QWSMouseHandler that supports /a spec.
@@ -1421,8 +1290,8 @@ QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
     static int init=0;
     if ( !init && qt_screen ) {
 	init = 1;
-//	mousePos = QPoint(qt_screen->width()/2,
-//			  qt_screen->height()/2);
+	//	mousePos = QPoint(qt_screen->width()/2,
+	//			  qt_screen->height()/2);
     }
 
     int c = spec.find(':');
@@ -1447,7 +1316,7 @@ QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 
     QWSMouseHandler *handler = 0;
 
-#ifdef QWS_CUSTOMTOUCHPANEL
+#ifdef QT_QWS_CUSTOMTOUCHPANEL
     handler=new QCustomTPanelHandlerPrivate(mouseProtocol,mouseDev);
 #endif
 
@@ -1458,31 +1327,33 @@ QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 #ifndef QWS_CUSTOMTOUCHPANEL
 #ifndef QT_QWS_IPAQ
     switch ( mouseProtocol ) {
-	case Auto:
-	    handler = new QAutoMouseHandler();
-	    break;
-
-	case MouseMan:
-	case IntelliMouse:
-	case Microsoft:
-	    handler = new QWSMouseHandlerPrivate( mouseProtocol, mouseDev );
-	    break;
-
-	case QVFBMouse:
-	    handler = new QVFbMouseHandlerPrivate( mouseProtocol, mouseDev );
-	    break;
-
-	case TPanel:
-	    handler = new QVrTPanelHandlerPrivate( mouseProtocol, mouseDev );
-	    break;
-
-	default:
-	    qDebug( "Mouse type %s unsupported", spec.latin1() );
+#ifndef QT_NO_QWS_MOUSE_AUTO
+    case Auto:
+	handler = new QAutoMouseHandlerPrivate();
+	break;
+#endif
+#ifndef QT_NO_QWS_MOUSE_MANUAL	
+    case MouseMan:
+    case IntelliMouse:
+    case Microsoft:
+	handler = new QWSMouseHandlerPrivate( mouseProtocol, mouseDev );
+	break;
+#endif
+#ifndef QT_NO_QWS_VFB	
+    case QVFBMouse:
+	handler = new QVFbMouseHandlerPrivate( mouseProtocol, mouseDev );
+	break;
+#endif
+#ifdef QT_QWS_CASSIOPEIA
+    case TPanel:
+	handler = new QVrTPanelHandlerPrivate( mouseProtocol, mouseDev );
+	break;
+#endif
+    default:
+	qDebug( "Mouse type %s unsupported", spec.latin1() );
     }
 #endif
 #endif
 
     return handler;
 }
-
-#include "qwsmouse_qws.moc"

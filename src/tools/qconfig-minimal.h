@@ -80,3 +80,6 @@
 
 #define QT_NO_WHEELEVENT
 #define QT_NO_BEZIER
+
+#define QT_NO_QWS_MOUSE_AUTO
+//#define QT_NO_QWS_MOUSE_MANUAL

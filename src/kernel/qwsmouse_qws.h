@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsmouse_qws.h#9 $
+** $Id: //depot/qt/main/src/kernel/qwsmouse_qws.h#10 $
 **
 ** Definition of Qt/FB central server classes
 **
@@ -56,10 +56,19 @@ public:
     virtual void clearCalibration() {}
     virtual void calibrate( QWSPointerCalibrationData * ) {}
 
+protected:
+    enum {mouseBufSize = 128};
+
 signals:
     void mouseChanged(const QPoint& pos, int bstate);
 };
 
+
+#if !defined(QT_QWS_IPAQ) && !defined(QT_QWS_CASSIOPEIA)
+# define QT_NO_QWS_MOUSE_CALIBRATED
+#endif
+
+#ifndef QT_NO_QWS_MOUSE_CALIBRATED
 class QCalibratedMouseHandler : public QWSMouseHandler
 {
     Q_OBJECT
@@ -84,6 +93,149 @@ private:
     unsigned int currSample;
     unsigned int numSamples;
 };
+#endif
+
+/********************* PRIVATE CLASSES FOLLOW *******************************/
+
+enum MouseProtocol { Unknown = -1, Auto = 0,
+		     MouseMan, IntelliMouse, Microsoft,
+		     QVFBMouse, TPanel,
+		     FirstAuto = MouseMan,
+		     LastAuto = Microsoft };
+
+#ifndef QT_NO_QWS_MOUSE_AUTO
+class QAutoMouseSubHandler;
+class QSocketNotifier;
+class QAutoMouseHandlerPrivate : public QWSMouseHandler {
+    Q_OBJECT
+public:
+    QAutoMouseHandlerPrivate();
+    ~QAutoMouseHandlerPrivate();
+
+private:
+    enum { max_dev=32 };
+    QAutoMouseSubHandler *sub[max_dev];
+    QPtrList<QSocketNotifier> notifiers;
+    int nsub;
+    int retries;
+
+private slots:
+    void readMouseData(int);
+
+private:
+    void openDevices();
+    void closeDevices();
+    void notify(int fd);
+    bool sendEvent(QAutoMouseSubHandler& h);
+    
+};
+#endif
+
+
+
+#ifndef QT_NO_QWS_MOUSE_MANUAL
+class QWSMouseHandlerPrivate : public QWSMouseHandler {
+    Q_OBJECT
+public:
+    QWSMouseHandlerPrivate( MouseProtocol protocol, QString mouseDev );
+    ~QWSMouseHandlerPrivate();
+
+private:
+    int mouseFD;
+    int mouseIdx;
+    uchar mouseBuf[mouseBufSize];
+    MouseProtocol mouseProtocol;
+    void handleMouseData();
+
+private slots:
+    void readMouseData();
+
+private:
+    int obstate;
+};
+#endif
+
+
+
+#ifdef QT_QWS_CASSIOPEIA
+/*
+ * Handler for /dev/tpanel Linux kernel driver
+ */
+
+class QVrTPanelHandlerPrivate : public QCalibratedMouseHandler {
+    Q_OBJECT
+public:
+    QVrTPanelHandlerPrivate(MouseProtocol, QString dev);
+    ~QVrTPanelHandlerPrivate();
+
+private:
+    int mouseFD;
+    MouseProtocol mouseProtocol;
+private slots:
+    void sendRelease();
+    void readMouseData();
+private:
+    QTimer *rtimer;
+    int mouseIdx;
+    uchar mouseBuf[mouseBufSize];
+};
+#endif
+
+
+#ifdef QT_QWS_IPAQ
+class QIpaqHandlerPrivate : public QCalibratedMouseHandler
+{
+     Q_OBJECT
+public:
+    QIpaqHandlerPrivate(MouseProtocol, QString dev);
+    ~QIpaqHandlerPrivate();
+
+private:
+    int mouseFD;
+    QPoint oldmouse;
+    bool waspressed;
+    QPointArray samples;
+    unsigned int currSample;
+    unsigned int numSamples;
+    int mouseIdx;
+    uchar mouseBuf[mouseBufSize];
+
+private slots:
+    void readMouseData();
+};
+#endif
+
+#ifdef QT_QWS_CUSTOMTOUCHPANEL
+class QCustomTPanelHandlerPrivate : public QWSMouseHandler {
+    Q_OBJECT
+public:
+    QCustomTPanelHandlerPrivate(MouseProtocol, QString dev);
+    ~QCustomTPanelHandlerPrivate();
+
+private:
+    int mouseFD;
+private slots:
+    void readMouseData();
+};
+#endif
+
+#ifndef QT_NO_QWS_VFB
+class QVFbMouseHandlerPrivate : public QWSMouseHandler {
+    Q_OBJECT
+public:
+    QVFbMouseHandlerPrivate(MouseProtocol, QString dev);
+    ~QVFbMouseHandlerPrivate();
+
+    bool isOpen() const { return mouseFD > 0; }
+
+private:
+    int mouseFD;
+    int mouseIdx;
+    uchar mouseBuf[mouseBufSize];
+private slots:
+    void readMouseData();
+};
+#endif
 
 #endif
 
