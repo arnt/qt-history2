@@ -342,8 +342,10 @@ void ConfigureApp::parseCmdLine()
 
     }
 
-    if( dictionary[ "QMAKESPEC" ] == "wince-msvc" )
+    if( dictionary[ "QMAKESPEC" ] == "wince-msvc" ) {
 	dictionary[ "QMAKE_INTERNAL" ] = "no";
+	dictionary[ "ACCESSIBILITY" ] = "no";
+    }
 
     if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
 	qmakeConfig += modules;
