@@ -56,7 +56,7 @@ public:
         { setData(QAbstractItemModel::DisplayRole, text); }
 
     inline QIcon icon() const
-        { return qVariant_to<QIcon>(data(QAbstractItemModel::DecorationRole)); }
+        { return qvariant_cast<QIcon>(data(QAbstractItemModel::DecorationRole)); }
     inline void setIcon(const QIcon &icon)
         { setData(QAbstractItemModel::DecorationRole, icon); }
 
@@ -76,7 +76,7 @@ public:
         { setData(QAbstractItemModel::WhatsThisRole, whatsThis); }
 
     inline QFont font() const
-        { return qVariant_to<QFont>(data(QAbstractItemModel::FontRole)); }
+        { return qvariant_cast<QFont>(data(QAbstractItemModel::FontRole)); }
     inline void setFont(const QFont &font)
         { setData(QAbstractItemModel::FontRole, font); }
 
@@ -86,12 +86,12 @@ public:
         { setData(QAbstractItemModel::TextAlignmentRole, alignment); }
 
     inline QColor backgroundColor() const
-        { return qVariant_to<QColor>(data(QAbstractItemModel::BackgroundColorRole)); }
+        { return qvariant_cast<QColor>(data(QAbstractItemModel::BackgroundColorRole)); }
     inline void setBackgroundColor(const QColor &color)
         { setData(QAbstractItemModel::BackgroundColorRole, color); }
 
     inline QColor textColor() const
-        { return qVariant_to<QColor>(data(QAbstractItemModel::TextColorRole)); }
+        { return qvariant_cast<QColor>(data(QAbstractItemModel::TextColorRole)); }
     inline void setTextColor(const QColor &color)
         { setData(QAbstractItemModel::TextColorRole, color); }
 

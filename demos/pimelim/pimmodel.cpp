@@ -38,7 +38,7 @@ bool PimModel::setData(const QModelIndex &index, const QVariant &value, int role
     if (index.isValid()) {
         switch (role) {
         case PhotoRole:
-            entries[index.row()].photo = qVariant_to<QPixmap>(value);
+            entries[index.row()].photo = qvariant_cast<QPixmap>(value);
             break;
         case FirstNameRole:
             entries[index.row()].firstName = value.toString();

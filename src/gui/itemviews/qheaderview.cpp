@@ -1321,7 +1321,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
     opt.iconAlignment = Qt::AlignVCenter;
     opt.text = d->model->headerData(logicalIndex, orientation(),
                                     QAbstractItemModel::DisplayRole).toString();
-    opt.icon = qVariant_to<QIcon>(d->model->headerData(logicalIndex, orientation(),
+    opt.icon = qvariant_cast<QIcon>(d->model->headerData(logicalIndex, orientation(),
                                     QAbstractItemModel::DecorationRole));
 
     style()->drawControl(QStyle::CE_Header, &opt, painter, this);
@@ -1340,7 +1340,7 @@ QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
     opt.fontMetrics = QFontMetrics(fnt); // do the metrics with a bold font
     opt.text = d->model->headerData(logicalIndex, orientation(),
                                     QAbstractItemModel::DisplayRole).toString();
-    opt.icon = qVariant_to<QIcon>(d->model->headerData(logicalIndex, orientation(),
+    opt.icon = qvariant_cast<QIcon>(d->model->headerData(logicalIndex, orientation(),
                                     QAbstractItemModel::DecorationRole));
     size = style()->sizeFromContents(QStyle::CT_HeaderSection, &opt, size, this);
 

@@ -281,7 +281,7 @@ QImage QClipboard::image(Mode mode) const
     const QMimeData *data = mimeData(mode);
     if (!data)
         return QImage();
-    return qVariant_to<QImage>(data->imageData());
+    return qvariant_cast<QImage>(data->imageData());
 }
 
 /*!
@@ -327,7 +327,7 @@ void QClipboard::setImage(const QImage &image, Mode mode)
 QPixmap QClipboard::pixmap(Mode mode) const
 {
     const QMimeData *data = mimeData(mode);
-    return data ? qVariant_to<QPixmap>(data->imageData()) : QPixmap();
+    return data ? qvariant_cast<QPixmap>(data->imageData()) : QPixmap();
 }
 
 /*!

@@ -468,7 +468,7 @@ QVariant ColorProperty::value() const
 
 void ColorProperty::setValue(const QVariant &value)
 {
-    QColor c = qVariant_to<QColor>(value);
+    QColor c = qvariant_cast<QColor>(value);
     propertyAt(0)->setValue(c.red());
     propertyAt(1)->setValue(c.green());
     propertyAt(2)->setValue(c.blue());
@@ -478,7 +478,7 @@ QVariant ColorProperty::decoration() const
 {
     QPixmap pix;
     pix.resize(16, 16);
-    pix.fill(qVariant_to<QColor>(value()));
+    pix.fill(qvariant_cast<QColor>(value()));
     return qVariant(pix);
 }
 
@@ -539,7 +539,7 @@ QVariant FontProperty::value() const
 
 void FontProperty::setValue(const QVariant &value)
 {
-    QFont fnt = qVariant_to<QFont>(value);
+    QFont fnt = qvariant_cast<QFont>(value);
 
     int family = fontDatabase()->families().indexOf(fnt.family());
 
@@ -557,7 +557,7 @@ QVariant FontProperty::decoration() const
     pix.resize(16, 16);
     pix.fill(Qt::white);
     QPainter p(&pix);
-    QFont fnt = qVariant_to<QFont>(value());
+    QFont fnt = qvariant_cast<QFont>(value());
     fnt.setPointSize(10); // ### always 10pt!!
     p.drawRect(0, 0, 16, 16);
     p.setFont(fnt);
@@ -736,7 +736,7 @@ QVariant SizePolicyProperty::value() const
 
 void SizePolicyProperty::setValue(const QVariant &value)
 {
-    QSizePolicy sizePolicy = qVariant_to<QSizePolicy>(value);
+    QSizePolicy sizePolicy = qvariant_cast<QSizePolicy>(value);
 
     propertyAt(0)->setValue(size_type_to_int(sizePolicy.horizontalData()));
     propertyAt(1)->setValue(size_type_to_int(sizePolicy.verticalData()));
@@ -891,7 +891,7 @@ CursorProperty::CursorProperty(const QCursor &value, const QString &name)
 
 void CursorProperty::setValue(const QVariant &value)
 {
-    m_value = qVariant_to<QCursor>(value);
+    m_value = qvariant_cast<QCursor>(value);
 }
 
 QString CursorProperty::toString() const
@@ -1015,7 +1015,7 @@ KeySequenceProperty::KeySequenceProperty(const QKeySequence &value, const QStrin
 
 void KeySequenceProperty::setValue(const QVariant &value)
 {
-    m_value = qVariant_to<QKeySequence>(value);
+    m_value = qvariant_cast<QKeySequence>(value);
 }
 
 QString KeySequenceProperty::toString() const

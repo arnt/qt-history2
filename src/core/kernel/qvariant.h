@@ -292,7 +292,7 @@ class Q_CORE_EXPORT QVariant
     { return !cmp(v); }
 
 protected:
-    friend inline bool QVariant_to_helper(const QVariant &, QVariant::Type, void *);
+    friend inline bool qvariant_cast_helper(const QVariant &, QVariant::Type, void *);
     friend bool qRegisterGuiVariant();
     friend inline bool operator==(const QVariant &,
                                   const QVariantComparisonHelper &);
@@ -316,7 +316,7 @@ protected:
 typedef QList<QVariant> QVariantList;
 typedef QMap<QString, QVariant> QVariantMap;
 
-inline bool QVariant_to_helper(const QVariant &v, QVariant::Type tp, void *ptr)
+inline bool qvariant_cast_helper(const QVariant &v, QVariant::Type tp, void *ptr)
 { return QVariant::handler->convert(&v.d, tp, ptr, 0); }
 
 template <typename T>
@@ -434,7 +434,7 @@ bool qVariantGet(const QVariant &v, T &t)
     const int tp = qt_variant_metatype_id<T>(static_cast<T *>(0));
     if (tp != v.userType())
         return tp < int(QVariant::UserType)
-            ? QVariant_to_helper(v, QVariant::Type(tp), &t)
+            ? qvariant_cast_helper(v, QVariant::Type(tp), &t)
             : false;
     t = *reinterpret_cast<const T *>(v.constData());
     return true;
@@ -530,14 +530,14 @@ inline bool operator!=(const QVariant &v1, const QVariantComparisonHelper &v2)
 #ifndef QT_MOC
 #if defined Q_CC_MSVC && _MSC_VER < 1300
 
-template<typename T> T qVariant_to(const QVariant &v, T * = 0)
+template<typename T> T qvariant_cast(const QVariant &v, T * = 0)
 {
     const int vid = qt_variant_metatype_id<T>(static_cast<T *>(0));
     if (vid == v.userType())
         return *reinterpret_cast<const T *>(v.constData());
     if (vid < int(QVariant::UserType)) {
         T t;
-        QVariant_to_helper(v, QVariant::Type(vid), &t);
+        qvariant_cast_helper(v, QVariant::Type(vid), &t);
         return t;
     }
     return T();
@@ -545,14 +545,14 @@ template<typename T> T qVariant_to(const QVariant &v, T * = 0)
 
 #else
 
-template<typename T> T qVariant_to(const QVariant &v)
+template<typename T> T qvariant_cast(const QVariant &v)
 {
     const int vid = qt_variant_metatype_id<T>(static_cast<T *>(0));
     if (vid == v.userType())
         return *reinterpret_cast<const T *>(v.constData());
     if (vid < int(QVariant::UserType)) {
         T t;
-        QVariant_to_helper(v, QVariant::Type(vid), &t);
+        qvariant_cast_helper(v, QVariant::Type(vid), &t);
         return t;
     }
     return T();

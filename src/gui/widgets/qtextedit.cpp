@@ -1895,7 +1895,7 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
         const QInputMethodEvent::Attribute &a = e->attributes().at(i);
         if (a.type != QInputMethodEvent::TextFormat)
             continue;
-        QTextCharFormat f = qVariant_to<QTextFormat>(a.value).toCharFormat();
+        QTextCharFormat f = qvariant_cast<QTextFormat>(a.value).toCharFormat();
         if (f.isValid()) {
             QTextLayout::FormatOverride o;
             o.from = a.start + d->cursor.position() - block.position();

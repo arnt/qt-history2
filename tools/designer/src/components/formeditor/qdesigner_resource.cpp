@@ -1034,7 +1034,7 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
         return 0;
     } else if (value.type() == QVariant::Pixmap || value.type() == QVariant::Icon) {
         DomResourcePixmap *r = new DomResourcePixmap;
-        QString icon_file_path = m_core->iconCache()->iconToFilePath(qVariant_to<QIcon>(value));
+        QString icon_file_path = m_core->iconCache()->iconToFilePath(qvariant_cast<QIcon>(value));
         QString ui_file_path = m_formWindow->fileName();
         r->setText(relativePath(QFileInfo(ui_file_path).path(), icon_file_path));
         DomProperty *p = new DomProperty;

@@ -732,9 +732,9 @@ static Atom send_pixmap_selection(QClipboardData *d, Atom target, Window window,
     QPixmap pm;
 
     if (target == XA_PIXMAP) {
-        pm = qVariant_to<QPixmap>(d->source()->imageData());
+        pm = qvariant_cast<QPixmap>(d->source()->imageData());
     } else if (target == XA_BITMAP) {
-        pm = qVariant_to<QPixmap>(d->source()->imageData());
+        pm = qvariant_cast<QPixmap>(d->source()->imageData());
         QImage img = pm.toImage();
         if (img.depth() != 1) {
             img = img.convertDepth(1);

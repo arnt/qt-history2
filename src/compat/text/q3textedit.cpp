@@ -1567,7 +1567,7 @@ void Q3TextEdit::inputMethodEvent(QInputMethodEvent *e)
                 cursor->setIndex(cursor->index() + a.start);
             else if (a.type != QInputMethodEvent::TextFormat)
                 continue;
-            QTextCharFormat f = qVariant_to<QTextFormat>(a.value).toCharFormat();
+            QTextCharFormat f = qvariant_cast<QTextFormat>(a.value).toCharFormat();
             if (f.isValid()) {
                 Q3TextCursor c2 = c;
                 c2.setIndex(c.index() + a.start);

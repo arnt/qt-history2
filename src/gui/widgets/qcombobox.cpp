@@ -45,7 +45,7 @@ QStyleOptionMenuItem MenuDelegate::getStyleOption(const QStyleOptionViewItem &op
     menuOption.checkType = QStyleOptionMenuItem::NonExclusive;
     menuOption.checked = mCombo->currentIndex() == index.row();
     menuOption.menuItemType = QStyleOptionMenuItem::Normal;
-    menuOption.icon = qVariant_to<QIcon>(index.model()->data(index,
+    menuOption.icon = qvariant_cast<QIcon>(index.model()->data(index,
                          QAbstractItemModel::DecorationRole));
     menuOption.text = index.model()->data(index, QAbstractItemModel::DisplayRole).toString();
     menuOption.tabWidth = 0;
@@ -1145,7 +1145,7 @@ QIcon QComboBox::itemIcon(int index) const
 {
     QStyleOptionComboBox opt = d->getStyleOption();
     QModelIndex item = model()->index(index, 0, rootModelIndex());
-    return qVariant_to<QIcon>(model()->data(item, QAbstractItemModel::DecorationRole))
+    return qvariant_cast<QIcon>(model()->data(item, QAbstractItemModel::DecorationRole))
         .pixmap(style()->pixelMetric(QStyle::PM_SmallIconSize),
                 opt.state & QStyle::State_Enabled ? QIcon::Normal : QIcon::Disabled);
 }

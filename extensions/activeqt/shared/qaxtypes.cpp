@@ -347,10 +347,10 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
     case QVariant::Color:
         if (out && arg.vt == (VT_COLOR|VT_BYREF)) {
             
-            *arg.plVal = QColorToOLEColor(qVariant_to<QColor>(qvar));
+            *arg.plVal = QColorToOLEColor(qvariant_cast<QColor>(qvar));
         } else {
             arg.vt = VT_COLOR;
-            arg.lVal = QColorToOLEColor(qVariant_to<QColor>(qvar));
+            arg.lVal = QColorToOLEColor(qvariant_cast<QColor>(qvar));
             if (out)
                 arg.plVal = new long(arg.lVal);
         }
@@ -370,10 +370,10 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
         break;
     case QVariant::Font:
         if (out && arg.vt == (VT_DISPATCH|VT_BYREF)) {
-            *arg.ppdispVal = QFontToIFont(qVariant_to<QFont>(qvar));
+            *arg.ppdispVal = QFontToIFont(qvariant_cast<QFont>(qvar));
         } else {
             arg.vt = VT_DISPATCH;
-            arg.pdispVal = QFontToIFont(qVariant_to<QFont>(qvar));
+            arg.pdispVal = QFontToIFont(qvariant_cast<QFont>(qvar));
             if (out)
                 arg.ppdispVal = new IDispatch*(arg.pdispVal);
         }
@@ -381,10 +381,10 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
         
     case QVariant::Pixmap:
         if (out && arg.vt == (VT_DISPATCH|VT_BYREF)) {
-            *arg.ppdispVal = QPixmapToIPicture(qVariant_to<QPixmap>(qvar));
+            *arg.ppdispVal = QPixmapToIPicture(qvariant_cast<QPixmap>(qvar));
         } else {
             arg.vt = VT_DISPATCH;
-            arg.pdispVal = QPixmapToIPicture(qVariant_to<QPixmap>(qvar));
+            arg.pdispVal = QPixmapToIPicture(qvariant_cast<QPixmap>(qvar));
             if (out)
                 arg.ppdispVal = new IDispatch*(arg.pdispVal);
         }
@@ -392,7 +392,7 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
 
     case QVariant::Cursor:
         {
-            int shape = qVariant_to<QCursor>(qvar).shape();
+            int shape = qvariant_cast<QCursor>(qvar).shape();
             if (out && (arg.vt & VT_BYREF)) {
                 switch(arg.vt & ~VT_BYREF) {
                 case VT_I4:
@@ -645,7 +645,7 @@ bool QVariantToVoidStar(const QVariant &var, void *data, const QByteArray &typeN
         *(double*)data = var.toDouble();
         break;
     case QVariant::Color:
-        *(QColor*)data = qVariant_to<QColor>(var);
+        *(QColor*)data = qvariant_cast<QColor>(var);
         break;
     case QVariant::Date:
         *(QDate*)data = var.toDate();
@@ -657,13 +657,13 @@ bool QVariantToVoidStar(const QVariant &var, void *data, const QByteArray &typeN
         *(QDateTime*)data = var.toDateTime();
         break;
     case QVariant::Font:
-        *(QFont*)data = qVariant_to<QFont>(var);
+        *(QFont*)data = qvariant_cast<QFont>(var);
         break;
     case QVariant::Pixmap:
-        *(QPixmap*)data = qVariant_to<QPixmap>(var);
+        *(QPixmap*)data = qvariant_cast<QPixmap>(var);
         break;
     case QVariant::Cursor:
-        *(QCursor*)data = qVariant_to<QCursor>(var);
+        *(QCursor*)data = qvariant_cast<QCursor>(var);
         break;
     case QVariant::List:
         *(QList<QVariant>*)data = var.toList();

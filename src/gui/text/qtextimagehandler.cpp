@@ -41,11 +41,11 @@ static QPixmap getPixmap(QTextDocument *doc, const QTextImageFormat &format)
 
         const QVariant data = doc->loadResource(QTextDocument::ImageResource, name);
             if (data.type() == QVariant::Pixmap) {
-                pm = qVariant_to<QPixmap>(data);
+                pm = qvariant_cast<QPixmap>(data);
                 QPixmapCache::insert(key, pm);
                 return pm;
             } else if (data.type() == QVariant::Image) {
-                img = qVariant_to<QImage>(data);
+                img = qvariant_cast<QImage>(data);
             } else if (data.type() == QVariant::ByteArray) {
                 img.loadFromData(data.toByteArray());
             }

@@ -184,7 +184,7 @@ static uint variantHash(const QVariant &variant)
     case QVariant::Int: return variant.toInt();
     case QVariant::Double: return static_cast<int>(variant.toDouble());
     case QVariant::String: return qHash(variant.toString());
-    case QVariant::Color: return qHash(qVariant_to<QColor>(variant).rgb());
+    case QVariant::Color: return qHash(qvariant_cast<QColor>(variant).rgb());
     default: break;
     }
     return qHash(variant.typeName());
@@ -630,7 +630,7 @@ QColor QTextFormat::colorProperty(int propertyId) const
     const QVariant prop = d->properties().value(propertyId);
     if (prop.type() != QVariant::Color)
         return QColor();
-    return qVariant_to<QColor>(prop);
+    return qvariant_cast<QColor>(prop);
 }
 
 /*!
@@ -640,7 +640,7 @@ QColor QTextFormat::colorProperty(int propertyId) const
 */
 QTextLength QTextFormat::lengthProperty(int propertyId) const
 {
-    return qVariant_to<QTextLength>(d->properties().value(propertyId));
+    return qvariant_cast<QTextLength>(d->properties().value(propertyId));
 }
 
 /*!
@@ -662,7 +662,7 @@ QVector<QTextLength> QTextFormat::lengthVectorProperty(int propertyId) const
     for (int i=0; i<propertyList.size(); ++i) {
         QVariant var = propertyList.at(i);
         if (var.type() == QVariant::TextLength)
-            vector.append(qVariant_to<QTextLength>(var));
+            vector.append(qvariant_cast<QTextLength>(var));
     }
 
     return vector;

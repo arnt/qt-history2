@@ -42,7 +42,7 @@ public:
         { setData(column, QAbstractItemModel::DisplayRole, text); }
 
     inline QIcon icon(int column) const
-        { return qVariant_to<QIcon>(data(column, QAbstractItemModel::DecorationRole)); }
+        { return qvariant_cast<QIcon>(data(column, QAbstractItemModel::DecorationRole)); }
     inline void setIcon(int column, const QIcon &icon)
         { setData(column, QAbstractItemModel::DecorationRole, icon); }
 
@@ -62,7 +62,7 @@ public:
         { setData(column, QAbstractItemModel::WhatsThisRole, whatsThis); }
 
     inline QFont font(int column) const
-        { return qVariant_to<QFont>(data(column, QAbstractItemModel::FontRole)); }
+        { return qvariant_cast<QFont>(data(column, QAbstractItemModel::FontRole)); }
     inline void setFont(int column, const QFont &font)
         { setData(column, QAbstractItemModel::FontRole, font); }
 
@@ -72,12 +72,12 @@ public:
         { setData(column, QAbstractItemModel::TextAlignmentRole, alignment); }
 
     inline QColor backgroundColor(int column) const
-        { return qVariant_to<QColor>(data(column, QAbstractItemModel::BackgroundColorRole)); }
+        { return qvariant_cast<QColor>(data(column, QAbstractItemModel::BackgroundColorRole)); }
     inline void setBackgroundColor(int column, const QColor &color)
         { setData(column, QAbstractItemModel::BackgroundColorRole, color); }
 
     inline QColor textColor(int column) const
-        { return qVariant_to<QColor>(data(column, QAbstractItemModel::TextColorRole)); }
+        { return qvariant_cast<QColor>(data(column, QAbstractItemModel::TextColorRole)); }
     inline void setTextColor(int column, const QColor &color)
         { setData(column, QAbstractItemModel::TextColorRole, color); }
 

@@ -709,7 +709,7 @@ void QXIMInputContext::update()
     area.width = r.width();
     area.height = r.height();
 
-    XFontSet fontset = getFontSet(qVariant_to<QFont>(w->inputMethodQuery(Qt::ImFont)));
+    XFontSet fontset = getFontSet(qvariant_cast<QFont>(w->inputMethodQuery(Qt::ImFont)));
     if (data->fontset == fontset)
         fontset = 0;
     else

@@ -791,7 +791,7 @@ public:
 QVector<FORMATETC> QWindowsMimeImage::formatsForMime(const QString &mimeType, const QMimeData *mimeData) const
 {
     QVector<FORMATETC> formatetcs;
-    if (!qVariant_to<QPixmap>(mimeData->imageData()).isNull()
+    if (!qvariant_cast<QPixmap>(mimeData->imageData()).isNull()
         && mimeType.startsWith(QLatin1String("image/"))) {
         QList<QByteArray> ofmts = QImageWriter::supportedImageFormats();
         for (int i = 0; i < ofmts.count(); ++i) {
@@ -830,7 +830,7 @@ bool QWindowsMimeImage::canConvertToMime(const QString &mimeType, struct IDataOb
 
 bool QWindowsMimeImage::canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const
 {
-    return getCf(formatetc) == CF_DIB && !qVariant_to<QPixmap>(mimeData->imageData()).isNull();
+    return getCf(formatetc) == CF_DIB && !qvariant_cast<QPixmap>(mimeData->imageData()).isNull();
 }
 
 bool QWindowsMimeImage::convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const
@@ -839,7 +839,7 @@ bool QWindowsMimeImage::convertFromMime(const FORMATETC &formatetc, const QMimeD
         return false;
 #ifndef QT_NO_IMAGEIO_BMP
     QVariant v = mimeData->imageData();
-    QImage img = qVariant_to<QImage>(v);
+    QImage img = qvariant_cast<QImage>(v);
     if (img.isNull())
         return false;
     QByteArray ba;

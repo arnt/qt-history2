@@ -181,13 +181,13 @@ void ChangeProperties::updateProperties()
 	    switch (var.type()) {
 	    case QVariant::Color:
 		{
-		    QColor col = qVariant_to<QColor>(var);
+		    QColor col = qvariant_cast<QColor>(var);
 		    item->setText(2, col.name());
 		}
 		break;
 	    case QVariant::Font:
 		{
-		    QFont fnt = qVariant_to<QFont>(var);
+		    QFont fnt = qvariant_cast<QFont>(var);
 		    item->setText(2, fnt.toString());
 		}
 		break;
@@ -198,7 +198,7 @@ void ChangeProperties::updateProperties()
 		break;
 	    case QVariant::Pixmap:
 		{
-		    QPixmap pm = qVariant_to<QPixmap>(var);
+		    QPixmap pm = qvariant_cast<QPixmap>(var);
 		    item->setIcon(2, pm);
 		}
 		break;

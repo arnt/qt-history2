@@ -182,9 +182,9 @@ void Window::fillRuleChanged()
 
 void Window::fillGradientChanged()
 {
-    QColor color1 = qVariant_to<QColor>(fillColor1ComboBox->itemData(
+    QColor color1 = qvariant_cast<QColor>(fillColor1ComboBox->itemData(
                 fillColor1ComboBox->currentIndex(), ColorRole));
-    QColor color2 = qVariant_to<QColor>(fillColor2ComboBox->itemData(
+    QColor color2 = qvariant_cast<QColor>(fillColor2ComboBox->itemData(
             fillColor2ComboBox->currentIndex(), ColorRole));
 
     for (int i = 0; i < NumRenderAreas; ++i)
@@ -194,7 +194,7 @@ void Window::fillGradientChanged()
 void Window::penColorChanged()
 {
     QColor color =
-        qVariant_to<QColor>(penColorComboBox->itemData(penColorComboBox->currentIndex(), ColorRole));
+        qvariant_cast<QColor>(penColorComboBox->itemData(penColorComboBox->currentIndex(), ColorRole));
 
     for (int i = 0; i < NumRenderAreas; ++i)
         renderAreas[i]->setPenColor(color);

@@ -852,7 +852,7 @@ DomProperty *Resource::createProperty(QObject *obj, const QString &pname, const 
 
         case QVariant::Font: {
             DomFont *fnt = new DomFont();
-            QFont font = qVariant_to<QFont>(v);
+            QFont font = qvariant_cast<QFont>(v);
             fnt->setElementBold(font.bold());
             fnt->setElementFamily(font.family());
             fnt->setElementItalic(font.italic());
@@ -864,18 +864,18 @@ DomProperty *Resource::createProperty(QObject *obj, const QString &pname, const 
         } break;
 
         case QVariant::Cursor: {
-            dom_prop->setElementCursor(qVariant_to<QCursor>(v).shape());
+            dom_prop->setElementCursor(qvariant_cast<QCursor>(v).shape());
         } break;
 
         case QVariant::KeySequence: {
             DomString *s = new DomString();
-            s->setText(qVariant_to<QKeySequence>(v));
+            s->setText(qvariant_cast<QKeySequence>(v));
             dom_prop->setElementString(s);
         } break;
 
         case QVariant::Palette: {
             DomPalette *dom = new DomPalette();
-            QPalette palette = qVariant_to<QPalette>(v);
+            QPalette palette = qvariant_cast<QPalette>(v);
 
             palette.setCurrentColorGroup(QPalette::Active);
             dom->setElementActive(saveColorGroup(palette));
@@ -891,7 +891,7 @@ DomProperty *Resource::createProperty(QObject *obj, const QString &pname, const 
 
         case QVariant::SizePolicy: {
             DomSizePolicy *dom = new DomSizePolicy();
-            QSizePolicy sizePolicy = qVariant_to<QSizePolicy>(v);
+            QSizePolicy sizePolicy = qvariant_cast<QSizePolicy>(v);
 
             dom->setElementHorStretch(sizePolicy.horizontalStretch());
             dom->setElementVerStretch(sizePolicy.verticalStretch());

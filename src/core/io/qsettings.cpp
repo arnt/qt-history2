@@ -327,7 +327,7 @@ QString QSettingsPrivate::variantToString(const QVariant &v)
             break;
         }
         case QVariant::Rect: {
-            QRect r = qVariant_to<QRect>(v);
+            QRect r = qvariant_cast<QRect>(v);
             result += "@Rect("
                         + QString::number(r.x()) + ", "
                         + QString::number(r.y()) + ", "
@@ -336,14 +336,14 @@ QString QSettingsPrivate::variantToString(const QVariant &v)
             break;
         }
         case QVariant::Size: {
-            QSize s = qVariant_to<QSize>(v);
+            QSize s = qvariant_cast<QSize>(v);
             result += "@Size("
                         + QString::number(s.width()) + ", "
                         + QString::number(s.height()) + ")";
             break;
         }
         case QVariant::Point: {
-            QPoint p = qVariant_to<QPoint>(v);
+            QPoint p = qvariant_cast<QPoint>(v);
             result += "@Point("
                         + QString::number(p.x()) + ", "
                         + QString::number(p.y()) + ")";

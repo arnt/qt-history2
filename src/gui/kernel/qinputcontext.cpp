@@ -424,7 +424,7 @@ QFont QInputContext::font() const
     if (!d->focusWidget)
         return QApplication::font();
 
-    return qVariant_to<QFont>(d->focusWidget->inputMethodQuery(Qt::ImFont));
+    return qvariant_cast<QFont>(d->focusWidget->inputMethodQuery(Qt::ImFont));
 }
 
 /*!
