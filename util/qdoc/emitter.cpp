@@ -295,16 +295,27 @@ void Emitter::emitHtml() const
 		htmlFileName = config->defgroupHref( (*def)->name() );
 
 		if ( config->generateHtmlFile(htmlFileName) ) {
+		    bool onlyClasses = TRUE;
+		    c = (*groupies).begin();
+		    while ( c != (*groupies).end() ) {
+			if ( (*c)->kind() != Doc::Class ) {
+			    onlyClasses = FALSE;
+			    break;
+			}
+			++c;
+		    }
+
 		    HtmlWriter out( htmlFileName );
 		    out.setTitle( (*def)->title() );
 		    out.setHeading( (*def)->heading() );
 		    (*def)->printHtml( out );
 		    out.enterFooter();
-		    out.putsMeta( "<p>Classes:\n<ul>\n" );
+		    out.printfMeta( "<p>%s:\n<ul>\n",
+				    onlyClasses ? "Classes" : "Pages" );
 
 		    c = (*groupies).begin();
 		    while ( c != (*groupies).end() ) {
-			QString link = config->classRefHref( (*c)->name() );
+			QString link = (*c)->fileName();
 			out.printfMeta( "<li><a href=\"%s\">%s</a>\n",
 					link.latin1(), (*c)->name().latin1() );
 			if ( !(*c)->whatsThis().isEmpty() )

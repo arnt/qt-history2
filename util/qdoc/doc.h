@@ -51,6 +51,7 @@ public:
 
     void setName( const QString& name ) { nam = name; }
     void setWhatsThis( const QString& whatsThis ) { whats = whatsThis; }
+    void setFileName( const QString& fileName ) { fnam = fileName; }
     void setInternal( bool internal ) { inter = internal; }
     void setObsolete( bool obsolete ) { obs = obsolete; }
     void setSeeAlso( const QStringList& seeAlso ) { sa = seeAlso; }
@@ -63,6 +64,7 @@ public:
     const Location& location() const { return lo; }
     const QString& name() const { return nam; }
     const QString& whatsThis() const { return whats; }
+    const QString& fileName() const { return fnam; }
     bool internal() const { return inter; }
     bool obsolete() const { return obs; }
     bool changedSinceLastRun() const;
@@ -87,6 +89,7 @@ private:
     QString html;
     QString nam;
     QString whats;
+    QString fnam;
     QStringList sa;
     bool inter;
     bool obs;
@@ -162,15 +165,13 @@ class PageLikeDoc : public Doc
 {
 public:
     PageLikeDoc( Kind kind, const Location& loc, const QString& html,
-		 const QString& fileName, const QString& title = QString::null,
+		 const QString& title = QString::null,
 		 const QString& heading = QString::null );
 
-    const QString& fileName() const { return fname; }
     const QString& title() const { return ttl; }
     QString heading() const;
 
 private:
-    QString fname;
     QString ttl;
     QString hding;
 };
@@ -199,9 +200,6 @@ public:
 		  const QString& fileName );
 
     void print( BinaryWriter& out );
-
-private:
-    QString fname;
 };
 
 class DefgroupDoc : public PageLikeDoc

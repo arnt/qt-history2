@@ -1892,6 +1892,8 @@ ClassDoc::ClassDoc( const Location& loc, const QString& html,
     : Doc( Class, loc, html, className ), bf( brief ), mod( module ),
       ext( extension ), h( headers ), imp( important )
 {
+    setFileName( config->classRefHref(className) );
+
     if ( !ext.isEmpty() ) {
 	extlist.insert( ext );
 	classext.insert( className, ext );
@@ -1899,7 +1901,7 @@ ClassDoc::ClassDoc( const Location& loc, const QString& html,
 
     /*
       Derive the what's this from the '\brief' text (e.g., "The QFoo class is a
-      bar class." becomes "A bar class").
+      bar class." becomes "A bar class"). ###
 
       A Qt 3.0 regular expression could do all of that with five lines of code.
       Unfortunately, when this code was written, Qt 3.0 QRegExp was not yet
@@ -1968,9 +1970,8 @@ EnumDoc::EnumDoc( const Location& loc, const QString& html,
 }
 
 PageLikeDoc::PageLikeDoc( Kind kind, const Location& loc, const QString& html,
-			  const QString& fileName, const QString& title,
-			  const QString& heading )
-    : Doc( kind, loc, html ), fname( fileName ), ttl( title ), hding( heading )
+			  const QString& title, const QString& heading )
+    : Doc( kind, loc, html ), ttl( title ), hding( heading )
 {
 }
 
@@ -2000,15 +2001,17 @@ QString PageLikeDoc::heading() const
 PageDoc::PageDoc( const Location& loc, const QString& html,
 		  const QString& fileName, const QString& title,
 		  const QString& heading )
-    : PageLikeDoc( Page, loc, html, fileName, title, heading )
+    : PageLikeDoc( Page, loc, html, title, heading )
 {
     setName( title );
+    setFileName( fileName );
 }
 
 Base64Doc::Base64Doc( const Location& loc, const QString& html,
 		      const QString& fileName )
-    : PageLikeDoc( Base64, loc, html, fileName )
+    : PageLikeDoc( Base64, loc, html )
 {
+    setFileName( fileName );
 }
 
 void Base64Doc::print( BinaryWriter& out )
@@ -2030,15 +2033,16 @@ void PlainpageDoc::print( BinaryWriter& out )
 DefgroupDoc::DefgroupDoc( const Location& loc, const QString& html,
 			  const QString& groupName, const QString& title,
 			  const QString& heading )
-    : PageLikeDoc( Defgroup, loc, html, config->defgroupHref(groupName), title,
-		   heading )
+    : PageLikeDoc( Defgroup, loc, html, title, heading )
 {
     setName( groupName );
+    setFileName( config->defgroupHref(groupName) );
 }
 
 ExampleDoc::ExampleDoc( const Location& loc, const QString& html,
 			const QString& fileName, const QString& title,
 			const QString& heading )
-    : PageLikeDoc( Example, loc, html, fileName, title, heading )
+    : PageLikeDoc( Example, loc, html, title, heading )
 {
+    setFileName( fileName );
 }
