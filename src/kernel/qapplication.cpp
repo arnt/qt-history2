@@ -816,6 +816,11 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
     qt_init( dpy, visual, colormap );
 
     initialize( aargc, aargv );
+
+    if ( qt_is_gui_used )
+	qt_maxWindowRect = desktop()->rect();
+    if ( eventloop )
+	eventloop->appStartingUp();
 }
 
 /*!
@@ -837,6 +842,11 @@ QApplication::QApplication(Display *dpy, int argc, char **argv,
     init_precmdline();
     qt_init(dpy, visual, colormap);
     initialize(argc, argv);
+
+    if ( qt_is_gui_used )
+	qt_maxWindowRect = desktop()->rect();
+    if ( eventloop )
+	eventloop->appStartingUp();
 }
 
 
