@@ -3108,6 +3108,16 @@ static QString &exponentForm(QString &digits, int decpt, uint precision,
     return digits;
 }
 
+static bool isZero(double d)
+{
+    uchar *ch = (uchar *)&d;
+    if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
+        return !(ch[0] & 0x7F || ch[1] || ch[2] || ch[3] || ch[4] || ch[5] || ch[6] || ch[7]);
+    } else {
+        return !(ch[7] & 0x7F || ch[6] || ch[5] || ch[4] || ch[3] || ch[2] || ch[1] || ch[0]);
+    }
+}
+
 QString QLocalePrivate::doubleToString(double d,
                                         int precision,
                                         DoubleForm form,
@@ -3219,7 +3229,7 @@ QString QLocalePrivate::doubleToString(double d,
             }
         }
 
-        negative = sign != 0;
+        negative = sign != 0 && !isZero(d);
     }
 
     // pad with zeros. LeftAdjusted overrides this flag). Also, we don't
