@@ -20,21 +20,30 @@ public:
     {
 	QLabel* l = new QLabel(label, this);
 	QLabel* d = new QLabel(desc, this);
-	QPalette p(black);
+	QPalette p = palette();
+	QColorGroup n = palette().normal();
+	QColorGroup g(n.background(), n.foreground(), n.light(), n.dark(),
+		      n.mid(), n.background(), n.base());
+	p.setNormal( g );
+	setPalette(p);
 	l->setPalette(p);
 	d->setPalette(p);
+	l->setMargin(3);
+	d->setMargin(2);
 
 	QFont bold = *QApplication::font();
 	bold.setBold(TRUE);
 	bold.setPointSize(bold.pointSize()+2);
-	l->setFont(bold);
+	l->setFont( bold );
+
+	l->setFixedSize(l->sizeHint());
     }
 };
 
 static QWidget* advanced()
 {
     QVBox *vbox = new QVBox;
-    //StrongHeading *l = new StrongHeading( "Advanced", "Change preferences that affect the entire product", vbox );
+    StrongHeading *l = new StrongHeading( "Advanced", "Change preferences that affect the entire product", vbox );
 
     QVBox *box;
 
