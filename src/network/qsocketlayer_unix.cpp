@@ -18,6 +18,7 @@
 #include "qvarlengtharray.h"
 #include <time.h>
 #include <errno.h>
+#include <fcntl.h>
 
 //#define QSOCKETLAYER_DEBUG
 

@@ -83,7 +83,7 @@
 
 class QTcpServerPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QTcpServer);
+    Q_DECLARE_PUBLIC(QTcpServer)
 public:
     QTcpServerPrivate();
     ~QTcpServerPrivate();
