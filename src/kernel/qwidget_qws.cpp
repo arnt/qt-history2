@@ -535,7 +535,7 @@ void QWidget::setCursor( const QCursor &cursor )
     extra->curs = new QCursor(cursor);
     setWState( WState_OwnCursor );
     if ( isVisible() )
-	updateCursor();
+	updateCursor( paintableRegion() );
 }
 
 void QWidget::unsetCursor()
@@ -546,7 +546,7 @@ void QWidget::unsetCursor()
     }
     clearWState( WState_OwnCursor );
     if ( isVisible() )
-	updateCursor();
+	updateCursor( paintableRegion() );
 }
 #endif //QT_NO_CURSOR
 
@@ -1574,7 +1574,7 @@ QRegion QWidget::paintableRegion() const
 #ifndef QT_NO_CURSOR
 	    // The change in paintable region may have result in the
 	    // cursor now being within my region.
-	    updateCursor();
+	    updateCursor( paintable_region );
 #endif
 	}
 	if ( !isTopLevel() )
@@ -1792,14 +1792,13 @@ void QWidget::updateFrameStrut() const
 }
 
 #ifndef QT_NO_CURSOR
-void QWidget::updateCursor() const
+void QWidget::updateCursor( const QRegion &r ) const
 {
-    if ( !paintable_region_dirty &&
-	    (!QWidget::mouseGrabber() || QWidget::mouseGrabber() == this) &&
+    if ( (!QWidget::mouseGrabber() || QWidget::mouseGrabber() == this) &&
 	    qt_last_cursor != (WId)cursor().handle() ) {
 	QSize s( qt_screen->width(), qt_screen->height() );
 	QPoint pos = qt_screen->mapToDevice(QPoint(qt_last_x, qt_last_y), s);
-	if ( paintableRegion().contains(pos) )
+	if ( r.contains(pos) )
 	    qwsDisplay()->selectCursor((QWidget*)this, (unsigned int)cursor().handle());
     }
 }
