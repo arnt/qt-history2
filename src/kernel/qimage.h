@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#79 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#80 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -44,6 +44,8 @@ public:
 
     int operator < (const QImageTextKeyLang& other) const
 	{ return key < other.key || key==other.key && lang < other.lang; }
+    int operator == (const QImageTextKeyLang& other) const
+	{ return key==other.key && lang==other.lang; }
 };
 
 
