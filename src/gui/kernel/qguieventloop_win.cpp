@@ -22,7 +22,7 @@
 #define d d_func()
 #define q q_func()
 
-extern bool qt_winEventFilter(MSG* msg);
+extern bool qt_winEventFilter(MSG* msg, long &res);
 Q_CORE_EXPORT bool activateTimer(uint id);                // activate timer
 Q_CORE_EXPORT void activateZeroTimers();
 Q_CORE_EXPORT bool winPeekMessage(MSG*, HWND, UINT, UINT, UINT);
@@ -149,7 +149,8 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
         if (qt_dispatch_timer(msg.wParam, &msg))
             return true;
     } else if (msg.message && (!msg.hwnd || !QWidget::find(msg.hwnd))) {
-        handled = qt_winEventFilter(&msg);
+        long res;
+        handled = qt_winEventFilter(&msg, res);
     }
 
     if (!handled) {
