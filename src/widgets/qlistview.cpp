@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#62 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#61 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#62 $");
 
 
 const int Unsorted = 32767;
@@ -2755,12 +2755,9 @@ QSize QListView::sizeHint() const
 {
     QSize s( d->h->sizeHint() );
     QListViewItem * l = d->r;
-    while( l && !l->height() ) {
-	if ( l->childItem )
-	    l = l->childItem;
-	else if ( l->siblingItem )
-	    l = l->siblingItem;
-    }
+    while( l && !l->height() )
+	l = l->childItem ? l->childItem : l->siblingItem;
+
     if ( l && l->height() )
 	s.setHeight( s.height() + 10 * l->height() );
     else
