@@ -118,7 +118,7 @@ public:
     void 	moveSection( int section, int toIndex );
     virtual void moveCell( int, int); // obsolete, do not use
 
-    void 	setSortIndicator( int section, bool increasing = TRUE );
+    void 	setSortIndicator( int section, bool ascending = TRUE );
     int sortIndicator() const;
     void setSortOrder( SortOrder );
     SortOrder sortOrder() const;
