@@ -38,7 +38,7 @@ public:
 
 // pointer specialization
 template <typename T>
-static inline
+inline
 T *&qThreadStorage_localData(QThreadStorageData &d, T **)
 {
     void **v = d.get();
@@ -47,7 +47,7 @@ T *&qThreadStorage_localData(QThreadStorageData &d, T **)
 }
 
 template <typename T>
-static inline
+inline
 T *qThreadStorage_localData_const(const QThreadStorageData &d, T **)
 {
     void **v = d.get();
@@ -55,7 +55,7 @@ T *qThreadStorage_localData_const(const QThreadStorageData &d, T **)
 }
 
 template <typename T>
-static inline
+inline
 void qThreadStorage_setLocalData(QThreadStorageData &d, T **t)
 { (void) d.set(*t); }
 
@@ -63,7 +63,7 @@ void qThreadStorage_setLocalData(QThreadStorageData &d, T **t)
 
 // value-based specialization
 template <typename T>
-static inline
+inline
 T &qThreadStorage_localData(QThreadStorageData &d, T *)
 {
     void **v = d.get();
@@ -72,7 +72,7 @@ T &qThreadStorage_localData(QThreadStorageData &d, T *)
 }
 
 template <typename T>
-static inline
+inline
 T qThreadStorage_localData_const(const QThreadStorageData &d, T *)
 {
     void **v = d.get();
@@ -80,7 +80,7 @@ T qThreadStorage_localData_const(const QThreadStorageData &d, T *)
 }
 
 template <typename T>
-static inline
+inline
 void qThreadStorage_setLocalData(QThreadStorageData &d, T *t)
 { (void) d.set(new T(*t)); }
 
