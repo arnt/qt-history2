@@ -460,15 +460,15 @@ bool QMYSQLDriver::open( const QString& db,
 
     if ( (d->mysql = mysql_init((MYSQL*) 0)) &&
 	    mysql_real_connect( d->mysql,
-				host,
-				user,
-				password,
-				db.isNull() ? QString("") : db,
+				host.local8Bit(),
+				user.local8Bit(),
+				password.local8Bit(),
+				db.isNull() ? "" : db.local8Bit(),
 				(port > -1) ? port : 0,
 				NULL,
 				optionFlags ) )
     {
-	if ( mysql_select_db( d->mysql, db )) {
+	if ( mysql_select_db( d->mysql, db.local8Bit() )) {
 	    setLastError( qMakeError("Unable open database '" + db + "'", QSqlError::Connection, d ) );
 	    mysql_close( d->mysql );
 	    setOpenError( TRUE );
