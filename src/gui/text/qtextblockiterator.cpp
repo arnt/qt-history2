@@ -100,6 +100,8 @@ QString QTextBlockIterator::blockText() const
     QString text;
 
     // ######### looks wrong if a fragment spans a block boundary!
+    // Simon: I'm sure really sure if this can really happen, as we have the
+    // paragraph separators which create small fragments at the block boundary.
     QTextPieceTable::FragmentIterator it = pt->find(position());
     QTextPieceTable::FragmentIterator e = pt->find(position() + length() - 1);
 
