@@ -255,17 +255,17 @@ static const uchar arabic68PresentationB[] = {
     0xeb, // fe91	in beh
     0xeb, // fe92	m beh
     0xc9, // fe93	is teh marbuta
-    0xc9, // fe94	f teh marbuta
+    0x8e, // fe94	f teh marbuta 
     0xca, // fe95	is teh
     0xca, // fe96	f
-    0xeb, // fe97	in
-    0xeb, // fe98	m
+    0xec, // fe97	in 
+    0xec, // fe98	m  
     0xcb, // fe99	is theh
     0xcb, // fe9a	f
     0xed, // fe9b	in
     0xed, // fe9c	m
     0xcc, // fe9d	is jeem
-    0xc, // fe9e	f
+    0xcc, // fe9e	f 
     0xee, // fe9f	in
 
     0xee, // fea0    	m
@@ -287,56 +287,56 @@ static const uchar arabic68PresentationB[] = {
 
     0xd2, // feb0
     0xd3, // feb1	seen
-    0xd3, // feb2
+    0x8f, // feb2
     0xf1, // feb3
     0xf1, // feb4
     0xd4, // feb5	sheen
-    0xd4, // feb6
+    0x90, // feb6
     0xf2, // feb7
     0xf2, // feb8
     0xd5, // feb9	sad
-    0xd5, // feba
+    0x91, // feba
     0xf3, // febb
     0xf3, // febc
     0xd6, // febd	dad
-    0xd6, // febe
+    0x92, // febe
     0xf4, // febf
 
     0xf4, // fec0
     0xd7, // fec1	tah
-    0xd7, // fec2
+    0x93, // fec2
     0xd7, // fec3
     0xd7, // fec4
     0xd8, // fec5	zah
-    0xd8, // fec6
+    0x94, // fec6
     0xd8, // fec7
     0xd8, // fec8
     0xd9, // fec9	ain
-    0xd9, // feca
+    0x96, // feca
     0xf5, // fecb
-    0xf5, // fecc
+    0x95, // fecc
     0xda, // fecd	ghain
-    0xda, // fece
+    0x98, // fece
     0xf6, // fecf
 
-    0xf6, // fed0
+    0x97, // fed0
     0xe1, // fed1	feh
     0xe1, // fed2
     0xf7, // fed3
-    0xf7, // fed4
+    0x99, // fed4
     0xe2, // fed5	qaf
     0xe2, // fed6
     0xf8, // fed7
-    0xf8, // fed8
+    0x9a, // fed8
     0xe3, // fed9	kaf
     0xe3, // feda
     0xf9, // fedb
-    0xf9, // fedc
+    0x9b, // fedc 
     0xe4, // fedd	lam
     0xe4, // fede
     0xfa, // fedf
 
-    0xfa, // fee0
+    0xa6, // fee0 
     0xe5, // fee1	meem
     0xe5, // fee2
     0xfb, // fee3
@@ -346,9 +346,9 @@ static const uchar arabic68PresentationB[] = {
     0xfc, // fee7
     0xfc, // fee8
     0xe7, // fee9	heh
-    0xe7, // feea
+    0x9d, // feea
     0xfd, // feeb
-    0xfd, // feec
+    0x9c, // feec
     0xe8, // feed	waw
     0xe8, // feee
     0xe9, // feef	alef maksura
