@@ -157,7 +157,7 @@ QSGIStyle::polish( QWidget* w )
     QMotifStyle::polish(w);
 
     if ( !isApplicationStyle ) {
-	QPalette sgiPal;
+	QPalette sgiPal = QApplication::palette();
 
 	sgiPal.setColor( QColorGroup::Background, sgiPal.active().midlight() );
 	if (sgiPal.active().button() == sgiPal.active().background())
