@@ -165,7 +165,8 @@ public:
     QString simplified() const;
 
     QString &insert(int i, QChar c);
-    QString &insert(int i, const QString &s);
+    QString &insert(int i, const QChar *uc, int len);
+    inline QString &insert(int i, const QString &s) { return insert(i, s.constData(), s.length()); }
     QString &append(QChar c);
     QString &append(const QString &s);
     QString &prepend(QChar c);
@@ -178,7 +179,9 @@ public:
     QString &remove(QChar c, CaseSensitivity cs = CaseSensitive);
     QString &remove(const QString &s, CaseSensitivity cs = CaseSensitive);
     QString &replace(int i, int len, QChar after);
-    QString &replace(int i, int len, const QString &after);
+    QString &replace(int i, int len, const QChar *s, int slen);
+    inline QString &replace(int i, int len, const QString &after)
+	{ return replace(i, len, after.constData(), after.length()); }
     QString &replace(QChar before, QChar after, CaseSensitivity cs = CaseSensitive);
     QString &replace(QChar c, const QString &after, CaseSensitivity cs = CaseSensitive);
     QString &replace(const QString &before, const QString &after, CaseSensitivity cs = CaseSensitive);
@@ -315,10 +318,6 @@ public:
 #ifdef QT_COMPAT
     inline QT_COMPAT void setLength(int nl) { resize(nl); }
     inline QT_COMPAT QString copy() const { return *this; }
-    inline QT_COMPAT QString &insert(int i, const QChar *uc, int len)
-    { return insert(i, QString(uc, len)); }
-    inline QT_COMPAT QString &replace(int i, int len, const QChar *s, int clen)
-    { return replace(i, len, QString(s, clen)); }
     inline QT_COMPAT QString &remove(QChar c, bool cs)
     { return remove(c, cs?CaseSensitive:CaseInsensitive); }
     inline QT_COMPAT QString &remove(const QString  &s, bool cs)

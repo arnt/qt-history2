@@ -566,7 +566,8 @@ QString& QString::insert(int i, QChar c)
    return *this;
 }
 
-/*!
+/*! \fn QString& QString::insert(int i, const QString& s)
+
     \overload
 
     Inserts \a s into the string at position \a i and returns a
@@ -583,16 +584,30 @@ QString& QString::insert(int i, QChar c)
     \endcode
 
 */
-QString& QString::insert(int i, const QString& s)
+
+QString& QString::insert(int i, const QChar *str, int len)
 {
-    if (i < 0 || s.d->size == 0)
+    if (i < 0 || len <= 0)
 	return *this;
     d->cache = 0;
-    // protect against s == *this
-    QString t = s;
-    expand(qMax(d->size, i) + t.d->size - 1);
-    ::memmove(d->data + i + t.d->size, d->data + i, (d->size - i - t.d->size)*sizeof(QChar));
-    memcpy(d->data + i, t.d->data, t.d->size*sizeof(QChar));
+
+    if (i > d->size)
+	i = d->size;
+
+    unsigned short *s = (unsigned short *)str;
+
+    if ( s >= d->data && (s - d->data) < d->alloc ) {
+	// Part of me - take a copy.
+	unsigned short *tmp = (unsigned short *)malloc(len*sizeof(QChar));
+	memcpy(tmp, s, len*sizeof(QChar));
+	insert(i, (const QChar *)tmp, len);
+	::free(tmp);
+	return *this;
+    }
+
+    expand(qMax(d->size, i) + len - 1);
+    ::memmove(d->data + i + len, d->data + i, (d->size - i - len)*sizeof(QChar));
+    memcpy(d->data + i, s, len*sizeof(QChar));
     return *this;
 }
 
@@ -773,10 +788,10 @@ QString& QString::replace(int i, int len, QChar after)
 
     \sa insert(), remove()
 */
-QString& QString::replace(int i, int len, const QString& after)
+QString& QString::replace(int i, int len, const QChar *s, int slen)
 {
     remove(i, len);
-    return insert(i, after);
+    return insert(i, s, slen);
 }
 
 /*! \overload
