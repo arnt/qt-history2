@@ -737,7 +737,8 @@ QStringList QSettings::entryList( const QString &key ) const
 	if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
 	    res = RegEnumValueW( handle, index, vnameT, &vnamesz, NULL, NULL, NULL, NULL );
-	    qname = qt_winQString( vnameT );
+	    if ( res == ERROR_SUCCESS )
+		qname = qt_winQString( vnameT );
 #ifndef Q_OS_TEMP
 	} else
 #endif
@@ -745,7 +746,8 @@ QStringList QSettings::entryList( const QString &key ) const
 #ifndef Q_OS_TEMP
 	{
 	    res = RegEnumValueA( handle, index, vnameA, &vnamesz, NULL, NULL, NULL, NULL );
-	    qname = vnameA;
+	    if ( res == ERROR_SUCCESS )
+		qname = vnameA;
 	}
 #endif
 	if ( res == ERROR_NO_MORE_ITEMS )
@@ -770,7 +772,7 @@ QStringList QSettings::subkeyList( const QString &key ) const
     
     HKEY handle = 0;
     for ( QStringList::Iterator it = d->paths.fromLast(); it != d->paths.end(); --it ) {
-	QString k = (*it).isEmpty() ? key : *it + "/" + key + "/fake";
+	QString k = (*it).isEmpty() ? key + "/fake" : *it + "/" + key + "/fake";
 	handle = d->openKey( k, FALSE );
 	if ( handle )
 	    break;
@@ -811,7 +813,8 @@ QStringList QSettings::subkeyList( const QString &key ) const
 	if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
 	    res = RegEnumKeyExW( handle, index, vnameT, &vnamesz, NULL, NULL, NULL, &lastWrite );
-	    qname = qt_winQString( vnameT );
+	    if ( res == ERROR_SUCCESS )
+		qname = qt_winQString( vnameT );
 #ifndef Q_OS_TEMP
 	} else
 #endif
@@ -819,7 +822,8 @@ QStringList QSettings::subkeyList( const QString &key ) const
 #ifndef Q_OS_TEMP
 	{
 	    res = RegEnumKeyExA( handle, index, vnameA, &vnamesz, NULL, NULL, NULL, &lastWrite );
-	    qname = vnameA;
+	    if ( res == ERROR_SUCCESS )
+		qname = vnameA;
 	}
 #endif
 
