@@ -106,7 +106,6 @@ private:
     ICData *createICData(QWidget *w);
 };
 
-
 #endif //Q_NO_IM
 
 #endif // QXIMINPUTCONTEXT_P_H

@@ -35,7 +35,7 @@ public:
         Custom // let somebody else do the resize
     };
 
-    QHeaderView(Qt::Orientation orientation, QWidget *parent = 0);
+    explicit QHeaderView(Qt::Orientation orientation, QWidget *parent = 0);
     virtual ~QHeaderView();
 
     void setModel(QAbstractItemModel *model);
@@ -158,4 +158,4 @@ private:
     Q_DISABLE_COPY(QHeaderView)
 };
 
-#endif
+#endif // QHEADERVIEW_H

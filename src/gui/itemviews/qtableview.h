@@ -26,7 +26,7 @@ class Q_GUI_EXPORT QTableView : public QAbstractItemView
     Q_PROPERTY(Qt::PenStyle gridStyle READ gridStyle WRITE setGridStyle)
 
 public:
-    QTableView(QWidget *parent = 0);
+    explicit QTableView(QWidget *parent = 0);
     ~QTableView();
 
     void setModel(QAbstractItemModel *model);
@@ -110,4 +110,4 @@ private:
     Q_DISABLE_COPY(QTableView)
 };
 
-#endif
+#endif // QTABLEVIEW_H

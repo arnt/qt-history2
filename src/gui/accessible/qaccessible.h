@@ -30,7 +30,7 @@ class Q_GUI_EXPORT QAccessible
 {
 private:
 #ifdef Q_WS_MAC
-    static OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
+    static OSStatus globalEventProcessor(EventHandlerCallRef, EventRef, void *);
 #endif
 public:
     enum Event {
@@ -298,7 +298,7 @@ class Q_GUI_EXPORT QAccessibleEvent: public QEvent
 public:
     enum TextType { Description, Help };
 
-    inline explicit QAccessibleEvent(TextType textType, int child)
+    inline QAccessibleEvent(TextType textType, int child)
         : QEvent(AccessibilityHelp), t(textType), c(child) {}
     inline TextType textType() const { return t; }
     inline int child() const { return c; }

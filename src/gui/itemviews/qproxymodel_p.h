@@ -32,7 +32,7 @@
 class QEmptyModel : public QAbstractItemModel
 {
 public:
-    QEmptyModel(QObject *parent = 0) : QAbstractItemModel(parent) {}
+    explicit QEmptyModel(QObject *parent = 0) : QAbstractItemModel(parent) {}
     QModelIndex index(int, int, const QModelIndex &) const { return QModelIndex(); }
     QModelIndex parent(const QModelIndex &) const { return QModelIndex(); }
     int rowCount(const QModelIndex &) const { return 0; }
@@ -51,4 +51,4 @@ public:
     QEmptyModel empty;
 };
 
-#endif // Q_PROXYSORTER_H
+#endif // QPROXYMODEL_P_H

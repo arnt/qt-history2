@@ -41,7 +41,7 @@ class Q_GUI_EXPORT QTableWidgetItem
     friend class QTableModel;
 public:
     QTableWidgetItem();
-    QTableWidgetItem(const QString &text);
+    explicit QTableWidgetItem(const QString &text);
     virtual ~QTableWidgetItem();
 
     inline QTableWidget *tableWidget() const { return view; }
@@ -145,7 +145,7 @@ class Q_GUI_EXPORT QTableWidget : public QTableView
 
     friend class QTableModel;
 public:
-    QTableWidget(QWidget *parent = 0);
+    explicit QTableWidget(QWidget *parent = 0);
     QTableWidget(int rows, int columns, QWidget *parent = 0);
     ~QTableWidget();
 
@@ -242,4 +242,4 @@ private:
     Q_PRIVATE_SLOT(d, void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current))
 };
 
-#endif
+#endif // QTABLEWIDGET_H

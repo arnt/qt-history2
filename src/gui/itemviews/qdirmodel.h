@@ -45,11 +45,9 @@ class Q_GUI_EXPORT QDirModel : public QAbstractItemModel
 public:
     enum Roles { FileIconRole = DecorationRole, FilePathRole = UserRole + 1, FileNameRole };
 
-    QDirModel(const QStringList &nameFilters,
-              QDir::Filters filters,
-              QDir::SortFlags sort,
-              QObject *parent = 0);
-    QDirModel(QObject *parent = 0);
+    QDirModel(const QStringList &nameFilters, QDir::Filters filters,
+              QDir::SortFlags sort, QObject *parent = 0);
+    explicit QDirModel(QObject *parent = 0);
     ~QDirModel();
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -115,4 +113,4 @@ private:
     Q_DISABLE_COPY(QDirModel)
 };
 
-#endif //QDIRMODEL_H
+#endif // QDIRMODEL_H

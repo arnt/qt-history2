@@ -24,8 +24,8 @@ class Q_GUI_EXPORT QListWidgetItem
 {
     friend class QListModel;
 public:
-    QListWidgetItem(QListWidget *view = 0);
-    QListWidgetItem(const QString &text, QListWidget *view = 0);
+    explicit QListWidgetItem(QListWidget *view = 0);
+    explicit QListWidgetItem(const QString &text, QListWidget *view = 0);
     virtual ~QListWidgetItem();
 
     inline QListWidget *listWidget() const { return view; }
@@ -114,7 +114,7 @@ class Q_GUI_EXPORT QListWidget : public QListView
 
     friend class QListWidgetItem;
 public:
-    QListWidget(QWidget *parent = 0);
+    explicit QListWidget(QWidget *parent = 0);
     ~QListWidget();
 
     QListWidgetItem *item(int row) const;
@@ -184,4 +184,4 @@ private:
     Q_PRIVATE_SLOT(d, void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current))
 };
 
-#endif
+#endif // QLISTWIDGET_H

@@ -173,4 +173,4 @@ inline void qCollapse(QVector<T> &vec, int after, size_t n)
     vec.resize(vec.size() - n);
 }
 
-#endif
+#endif // QABSTRACTITEMVIEW_P_H

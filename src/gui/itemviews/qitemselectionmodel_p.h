@@ -51,4 +51,4 @@ public:
     QItemSelectionModel::SelectionFlags currentCommand;
 };
 
-#endif
+#endif // QITEMSELECTIONMODEL_P_H

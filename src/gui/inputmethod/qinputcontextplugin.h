@@ -53,7 +53,7 @@ class Q_GUI_EXPORT QInputContextPlugin : public QObject, public QInputContextFac
     Q_OBJECT
     Q_INTERFACES(QInputContextFactoryInterface:QFactoryInterface)
 public:
-    QInputContextPlugin(QObject *parent = 0);
+    explicit QInputContextPlugin(QObject *parent = 0);
     ~QInputContextPlugin();
 
     virtual QStringList keys() const = 0;
@@ -62,5 +62,7 @@ public:
     virtual QString displayName( const QString &key ) = 0;
     virtual QString description( const QString &key ) = 0;
 };
+
 #endif // QT_NO_IM
+
 #endif // QINPUTCONTEXTPLUGIN_H

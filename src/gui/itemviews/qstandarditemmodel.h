@@ -21,7 +21,7 @@ class QStandardItemModelPrivate;
 class QStandardItemModel : public QAbstractItemModel
 {
 public:
-    QStandardItemModel(QObject *parent = 0);
+    explicit QStandardItemModel(QObject *parent = 0);
     QStandardItemModel(int rows, int columns, QObject *parent = 0);
     ~QStandardItemModel();
 

@@ -67,7 +67,7 @@ public:
 
     Q_DECLARE_FLAGS(EditTriggers, EditTrigger)
 
-    QAbstractItemView(QWidget *parent = 0);
+    explicit QAbstractItemView(QWidget *parent = 0);
     ~QAbstractItemView();
 
     virtual void setModel(QAbstractItemModel *model);
@@ -230,7 +230,6 @@ private:
     Q_DECLARE_PRIVATE(QAbstractItemView)
     Q_DISABLE_COPY(QAbstractItemView)
 };
-
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemView::EditTriggers);
 
-#endif
+#endif // QABSTRACTITEMVIEW_H

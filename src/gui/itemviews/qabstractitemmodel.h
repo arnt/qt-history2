@@ -146,7 +146,7 @@ public:
 
     Q_DECLARE_FLAGS(ItemFlags, ItemFlag)
 
-    QAbstractItemModel(QObject *parent = 0);
+    explicit QAbstractItemModel(QObject *parent = 0);
     virtual ~QAbstractItemModel();
 
     bool hasIndex(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -249,7 +249,7 @@ class Q_GUI_EXPORT QAbstractTableModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    QAbstractTableModel(QObject *parent = 0);
+    explicit QAbstractTableModel(QObject *parent = 0);
     ~QAbstractTableModel();
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -268,7 +268,7 @@ class Q_GUI_EXPORT QAbstractListModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    QAbstractListModel(QObject *parent = 0);
+    explicit QAbstractListModel(QObject *parent = 0);
     ~QAbstractListModel();
 
     QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
@@ -294,4 +294,4 @@ inline QModelIndex QModelIndex::sibling(int row, int column) const
 inline QModelIndex QModelIndex::child(int row, int column) const
 { return m ? m->index(row, column, *this) : QModelIndex(); }
 
-#endif
+#endif // QABSTRACTITEMMODEL_H

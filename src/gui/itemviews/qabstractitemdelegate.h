@@ -35,7 +35,7 @@ public:
         RevertModelCache
     };
 
-    QAbstractItemDelegate(QObject *parent = 0);
+    explicit QAbstractItemDelegate(QObject *parent = 0);
     virtual ~QAbstractItemDelegate();
 
     // painting
@@ -80,4 +80,4 @@ protected:
                          const QString &org) const;
 };
 
-#endif
+#endif // QABSTRACTITEMDELEGATE_H

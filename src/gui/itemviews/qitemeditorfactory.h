@@ -60,4 +60,4 @@ private:
     QHash<QVariant::Type, QItemEditorCreatorBase *> creatorMap;
 };
 
-#endif
+#endif // QITEMEDITORFACTORY_H

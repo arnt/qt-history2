@@ -93,7 +93,7 @@ public:
 
     Q_DECLARE_FLAGS(SelectionFlags, SelectionFlag)
 
-    QItemSelectionModel(QAbstractItemModel *model);
+    explicit QItemSelectionModel(QAbstractItemModel *model);
     virtual ~QItemSelectionModel();
 
     QModelIndex currentIndex() const;
@@ -147,4 +147,4 @@ public:
                       QItemSelection *result);
 };
 
-#endif
+#endif // QITEMSELECTIONMODEL_H

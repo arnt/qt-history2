@@ -25,8 +25,8 @@ class Q_GUI_EXPORT QAbstractPageSetupDialog : public QDialog
 
 public:
     explicit QAbstractPageSetupDialog(QPrinter *printer, QWidget *parent = 0);
-    explicit QAbstractPageSetupDialog(QAbstractPageSetupDialogPrivate &ptr,
-                                      QPrinter *printer, QWidget *parent = 0);
+    QAbstractPageSetupDialog(QAbstractPageSetupDialogPrivate &ptr,
+                             QPrinter *printer, QWidget *parent = 0);
 
     virtual int exec() = 0;
 

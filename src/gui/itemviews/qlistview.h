@@ -40,7 +40,7 @@ public:
     enum LayoutMode { SinglePass, Batched };
     enum ViewMode { ListMode, IconMode };
 
-    QListView(QWidget *parent = 0);
+    explicit QListView(QWidget *parent = 0);
     ~QListView();
 
     void setMovement(Movement movement);
@@ -129,4 +129,4 @@ private:
     Q_DISABLE_COPY(QListView)
 };
 
-#endif
+#endif // QLISTVIEW_H

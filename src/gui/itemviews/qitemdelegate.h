@@ -27,7 +27,7 @@ class Q_GUI_EXPORT QItemDelegate : public QAbstractItemDelegate
     Q_OBJECT
 
 public:
-    QItemDelegate(QObject *parent = 0);
+    explicit QItemDelegate(QObject *parent = 0);
     ~QItemDelegate();
 
     // painting
@@ -81,4 +81,4 @@ private:
     Q_DISABLE_COPY(QItemDelegate)
 };
 
-#endif
+#endif // QITEMDELEGATE_H

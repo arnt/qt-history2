@@ -23,7 +23,7 @@ class Q_GUI_EXPORT QProxyModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    QProxyModel(QObject *parent = 0);
+    explicit QProxyModel(QObject *parent = 0);
     ~QProxyModel();
 
     virtual void setModel(QAbstractItemModel *model);
@@ -74,4 +74,4 @@ private:
     Q_DISABLE_COPY(QProxyModel)
 };
 
-#endif
+#endif // QPROXYMODEL_H

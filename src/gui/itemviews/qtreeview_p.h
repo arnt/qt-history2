@@ -113,4 +113,4 @@ public:
     int hiddenItemsCount;
 };
 
-#endif
+#endif // QTREEVIEW_P_H

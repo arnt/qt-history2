@@ -27,7 +27,7 @@ class Q_GUI_EXPORT QTreeView : public QAbstractItemView
     Q_PROPERTY(bool uniformRowHeights READ uniformRowHeights WRITE setUniformRowHeights)
 
 public:
-    QTreeView(QWidget *parent = 0);
+    explicit QTreeView(QWidget *parent = 0);
     ~QTreeView();
 
     void setModel(QAbstractItemModel *model);
@@ -124,4 +124,4 @@ private:
     Q_DISABLE_COPY(QTreeView)
 };
 
-#endif
+#endif // QTREEVIEW_H

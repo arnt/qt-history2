@@ -24,9 +24,9 @@ class Q_GUI_EXPORT QTreeWidgetItem
 {
     friend class QTreeModel;
 public:
-    QTreeWidgetItem(QTreeWidget *view);
+    explicit QTreeWidgetItem(QTreeWidget *view);
     QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after);
-    QTreeWidgetItem(QTreeWidgetItem *parent);
+    explicit QTreeWidgetItem(QTreeWidgetItem *parent);
     QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after);
     virtual ~QTreeWidgetItem();
 
@@ -134,7 +134,7 @@ class Q_GUI_EXPORT QTreeWidget : public QTreeView
     Q_PROPERTY(int topLevelItemCount READ topLevelItemCount)
 
 public:
-    QTreeWidget(QWidget *parent = 0);
+    explicit QTreeWidget(QWidget *parent = 0);
     ~QTreeWidget();
 
     int columnCount() const;
@@ -215,4 +215,4 @@ private:
 
 };
 
-#endif
+#endif // QTREEWIDGET_H

@@ -53,7 +53,7 @@ public:
 
 class QStdModelRow {
 public:
-    QStdModelRow(QStdModelRow *parent) : p(parent), childrenColumns(0) {}
+    explicit QStdModelRow(QStdModelRow *parent) : p(parent), childrenColumns(0) {}
     ~QStdModelRow()
         {
             for (int i=0; i<items.count(); ++i)
