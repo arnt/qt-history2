@@ -418,13 +418,13 @@ public:
 
 
     virtual void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
-                                    const QWidget *w = 0) const = 0;
+                                    const QWidget *widget = 0) const = 0;
     virtual void drawComplexControlMask(ComplexControl cc, const QStyleOptionComplex *opt,
-                                        QPainter *p, const QWidget *w = 0) const = 0;
+                                        QPainter *p, const QWidget *widget = 0) const = 0;
     virtual SubControl querySubControl(ComplexControl cc, const QStyleOptionComplex *opt,
-                                       const QPoint &pt, const QWidget *w = 0) const = 0;
+                                       const QPoint &pt, const QWidget *widget = 0) const = 0;
     virtual QRect querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt,
-                                         SubControl sc, const QWidget *w = 0) const = 0;
+                                         SubControl sc, const QWidget *widget = 0) const = 0;
     enum PixelMetric {
         PM_ButtonMargin,
         PM_ButtonDefaultIndicator,

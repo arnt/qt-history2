@@ -828,24 +828,24 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     The QStyleOption is the the following for the following types of PrimitiveElements.
     \table
     \header \i PrimitiveElement \i Option Cast \i Style Flags \i Notes
-    \row \i PE_FocusRect \i (const QStyleOptionFocusRect *) \i Sytle_FocusAtBorder \i Whether the focus is is at the border or inside the widget.
-    \row \i PE_Indicator \i (const QStyleOptionButton *) \i Sytle_NoChange \i Indicates a "tri-state" checkbox.
-    \row \i \i \i Style_On \i Indicates the indicator is checked.
+    \row \i \l PE_FocusRect \i (const \l QStyleOptionFocusRect *) \i \l Style_FocusAtBorder \i Whether the focus is is at the border or inside the widget.
+    \row \i \l PE_Indicator \i (const \l QStyleOptionButton *) \i \l Sytle_NoChange \i Indicates a "tri-state" checkbox.
+    \row \i \i \i \l Style_On \i Indicates the indicator is checked.
 
-    \row \i PE_ExclusiveIndicator \i (const QStyleOptionButton *) \i Style_On \i Indicates a the radiobutton is selected.
-    \row \i PE_CheckListExclusiveIndicator and PE_CheckListIndicator \i (const QStyleOptoinListView *) \i Style_On \i Indicates whether or not the controller is selected.
-    \row \i \i \i Style_NoChange \i Indicates a "tri-state" controller.
-    \row \i \i \i Style_Enable \i Indicates the controller is enabled.
-    \row \i PE_TreeBranch \i (const QStyleOption *) \i Style_Down \i Indicates the Tree Branch is pressed
+    \row \i \l PE_ExclusiveIndicator \i (const \l QStyleOptionButton *) \i \l Style_On \i Indicates a the radiobutton is selected.
+    \row \i \l PE_CheckListExclusiveIndicator and \l PE_CheckListIndicator \i (const \l QStyleOptionListView *) \i \l Style_On \i Indicates whether or not the controller is selected.
+    \row \i \i \i \l Style_NoChange \i Indicates a "tri-state" controller.
+    \row \i \i \i \l Style_Enable \i Indicates the controller is enabled.
+    \row \i \l PE_TreeBranch \i (const \l QStyleOption *) \i \l Style_Down \i Indicates the Tree Branch is pressed
     \row \i \i \i Style_Open \i Indicates the tree branch is not collapsed.
-    \row \i PE_HeaderArrow \i (const QStyleOptionHeader *) \i Style_Up \i Indicates the arrow should be drawn up otherwise it should be down.
-    \row \i PE_HeaderSection \i (const QStyleOptionHeader *) \i Style_Sunken \i Indicates the section is pressed.
-    \row \i \i \i Style_Up \i Indicates the sort indicator should be pointing up.
-    \row \i \i \i Style_Off \i Indicates the the section is not selected.
-    \row \i PE_PanelGroupBox, PE_Panel, PE_PanelLineEdit, PE_PanelPopup, and PE_PanelDockWindow \i (const QStyleOptionFrame *) \i Style_Sunken \i Indicates the Franme should be sunken.
-    \row \i PE_DockWindowHandle \i (const QStyleOptionDockWindow *) \i Style_Horizontal \i Indicates the window handle is horizontal instead of vertical.
-    \row \i PE_DockWindowSeparator \i (const QStyleOption *) \i Style_Horizontal \i Indicates the separator is horizontal instead of vertical.
-    \row \i PE_SpinBoxPlus, PE_SpinBoxMinus, PE_SpinBoxUp, PE_SpinBoxDown, and PE_SpinBoxSlider \i (const QStyleOptionSpinBox *) \i Style_Sunken \i Indicates the button is pressed.
+    \row \i \l PE_HeaderArrow \i (const \l QStyleOptionHeader *) \i \l Style_Up \i Indicates the arrow should be drawn up otherwise it should be down.
+    \row \i \l PE_HeaderSection \i (const \l QStyleOptionHeader *) \i \l Style_Sunken \i Indicates the section is pressed.
+    \row \i \i \i \l Style_Up \i Indicates the sort indicator should be pointing up.
+    \row \i \i \i \l Style_Off \i Indicates the the section is not selected.
+    \row \i \l PE_PanelGroupBox, \l PE_Panel, \l PE_PanelLineEdit, \l PE_PanelPopup, and \l PE_PanelDockWindow \i (const \l QStyleOptionFrame *) \i \l Style_Sunken \i Indicates the Franme should be sunken.
+    \row \i \l PE_DockWindowHandle \i (const \l QStyleOptionDockWindow *) \i \l Style_Horizontal \i Indicates the window handle is horizontal instead of vertical.
+    \row \i \l PE_DockWindowSeparator \i (const \l QStyleOption *) \i \l Style_Horizontal \i Indicates the separator is horizontal instead of vertical.
+    \row \i \l PE_SpinBoxPlus, \l PE_SpinBoxMinus, \l PE_SpinBoxUp, \l PE_SpinBoxDown, and \l PE_SpinBoxSlider \i (const \l QStyleOptionSpinBox *) \i \l Style_Sunken \i Indicates the button is pressed.
     \endtable
 
     \sa PrimitiveElement, StyleFlags, QStyleOption
@@ -919,36 +919,36 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     QStyleOption.
     \table
     \header \i ControlElement \i Option Cast \i Style Flags \i Notes
-    \row \i CE_MenuItem and CE_MenuBarItem \i const QStyleOptionMenuItem \i Style_Active \i The menu item is the current item.
-    \row \i \i \i Style_Enabled \i The item is enabled
-    \row \i \i \i Style_Down \i Set if the menuitem is down (i.e., the mouse button or space bar is pressed).
-    \row \i \i \i Style_HasFocus \i Set if the menubar has input focus.
-    \row \i CE_PushButton and CE_PushButtonLabel \i const QStyleOptionButton \i Style_Enabled \i Set if the button is enabled.
-    \row \i \i \i Style_HasFocus \i Set if the button has input focus.
-    \row \i \i \i Style_Raised \i Set if the button is not down, not on and not flat.
-    \row \i \i \i Style_On \i Set if the button is a toggle button and toggled on.
-    \row \i \i \i Style_Down \i Set if the button is down (i.e., the mouse button or
+    \row \i \l CE_MenuItem and \l CE_MenuBarItem \i const \l QStyleOptionMenuItem \i \l Style_Active \i The menu item is the current item.
+    \row \i \i \i \l Style_Enabled \i The item is enabled
+    \row \i \i \i \l Style_Down \i Set if the menuitem is down (i.e., the mouse button or space bar is pressed).
+    \row \i \i \i \l Style_HasFocus \i Set if the menubar has input focus.
+    \row \i \l CE_PushButton and \l CE_PushButtonLabel \i const \l QStyleOptionButton \i \l Style_Enabled \i Set if the button is enabled.
+    \row \i \i \i \l Style_HasFocus \i Set if the button has input focus.
+    \row \i \i \i \l Style_Raised \i Set if the button is not down, not on and not flat.
+    \row \i \i \i \l Style_On \i Set if the button is a toggle button and toggled on.
+    \row \i \i \i \l Style_Down \i Set if the button is down (i.e., the mouse button or
                             space bar is pressed on the button).
-    \row \i \i \i Style_ButtonDefault \i Set if the button is a default button.
+    \row \i \i \i \l Style_ButtonDefault \i Set if the button is a default button.
 
-    \row \i CE_RadioButton, CE_RadioButtonLabel, CE_CheckBox, and CE_CheckBoxLabel \i const QStyleOptionButton \i Style_Enabled \i Set if the button is enabled.
-    \row \i \i \i Style_HasFocus \i Set if the button has input focus.
-    \row \i \i \i Style_On \i Set if the button is checked.
-    \row \i \i \i Style_Off \i Set if the button is not checked.
-    \row \i \i \i Style_NoChange \i Set if the button is in the NoChange state.
-    \row \i \i \i Style_Down \i Set if the button is down (i.e., the mouse button or
+    \row \i \l CE_RadioButton, \l CE_RadioButtonLabel, \l CE_CheckBox, and \l CE_CheckBoxLabel \i const \l QStyleOptionButton \i \l Style_Enabled \i Set if the button is enabled.
+    \row \i \i \i \l Style_HasFocus \i Set if the button has input focus.
+    \row \i \i \i \l Style_On \i Set if the button is checked.
+    \row \i \i \i \l Style_Off \i Set if the button is not checked.
+    \row \i \i \i \l Style_NoChange \i Set if the button is in the NoChange state.
+    \row \i \i \i \l Style_Down \i Set if the button is down (i.e., the mouse button or
                             space bar is pressed on the button).
-    \row \i CE_ProgressBarContents, CE_ProgressBarLabel, CE_ProgressBarGroove \i const QStyleOptionProgressBar \i Style_Enabled \i Set if the progressbar is enabled.
-    \row \i \i \i Style_HasFocus \i Set if the progressbar has input focus.
-    \row \i CE_HeaderLabel \i const QStyleOptionHeader \i \i
-    \row \i CE_ToolButtonLabel \i const QStyleOptionToolButton \i Style_Enabled \i Set if the toolbutton is enabled.
-    \row \i \i \i Style_HasFocus \i Set if the toolbutton has input focus.
-    \row \i \i \i Style_Down \i Set if the toolbutton is down (i.e., a mouse button or the space is pressed).
-    \row \i \i \i Style_On \i Set if the toolbutton is a toggle button and is toggled on.
-    \row \i \i \i Style_AutoRaise \i Set if the toolbutton has auto-raise enabled.
-    \row \i \i \i Style_MouseOver \i Set if the mouse pointer is over the toolbutton.
-    \row \i \i \i Style_Raised \i Set if the button is not down, not on and doesn't
-    \row \i CE_ToolBoxTab \i const QStyleOptionToolBox \i Style_Selected \i The tab is the currently selected tab.
+    \row \i \l CE_ProgressBarContents, \l CE_ProgressBarLabel, \l CE_ProgressBarGroove \i const \l QStyleOptionProgressBar \i \l Style_Enabled \i Set if the progressbar is enabled.
+    \row \i \i \i \l Style_HasFocus \i Set if the progressbar has input focus.
+    \row \i \l CE_HeaderLabel \i const \l QStyleOptionHeader \i \i
+    \row \i \l CE_ToolButtonLabel \i const \l QStyleOptionToolButton \i \l Style_Enabled \i Set if the toolbutton is enabled.
+    \row \i \i \i \l Style_HasFocus \i Set if the toolbutton has input focus.
+    \row \i \i \i \l Style_Down \i Set if the toolbutton is down (i.e., a mouse button or the space is pressed).
+    \row \i \i \i \l Style_On \i Set if the toolbutton is a toggle button and is toggled on.
+    \row \i \i \i \l Style_AutoRaise \i Set if the toolbutton has auto-raise enabled.
+    \row \i \i \i \l Style_MouseOver \i Set if the mouse pointer is over the toolbutton.
+    \row \i \i \i \l Style_Raised \i Set if the button is not down, not on and doesn't
+    \row \i \l CE_ToolBoxTab \i const \l QStyleOptionToolBox \i \l Style_Selected \i The tab is the currently selected tab.
     \endtable
 
     \sa ControlElement, StyleFlags, QStyleOption
@@ -1040,8 +1040,8 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \row \i \l SR_RadioButtonIndicator        \i (const \l QStyleOptionButton *)
     \row \i \l SR_RadioButtonContents        \i (const \l QStyleOptionButton *)
     \row \i \l SR_RadioButtonFocusRect        \i (const \l QStyleOptionButton *)
-    \row \i \l SR_ComboBoxFocusRect        \i (const \l QComboBoxOption *)
-    \row \i \l SR_DockWindowHandleRect        \i (const \l QStyleOptoinDockWindow *)
+    \row \i \l SR_ComboBoxFocusRect        \i (const \l QStyleOptionComboBox *)
+    \row \i \l SR_DockWindowHandleRect        \i (const \l QStyleOptionDockWindow *)
     \row \i \l SR_ProgressBarGroove        \i (const \l QStyleOptionProgressBar *)
     \row \i \l SR_ProgressBarContents        \i (const \l QStyleOptionProgressBar *)
     \row \i \l SR_ProgressBarLabel        \i (const \l QStyleOptionProgressBar *)
@@ -1138,12 +1138,12 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn void QStyle::drawComplexControl(ComplexControl control, const QStyleOptionComplex *opt, QPainter *p, const QWidget *widget = 0) const = 0
+    \fn void QStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p, const QWidget *widget = 0) const = 0
 
-    Draws the ComplexControl \a control using the painter \a p with the information
+    Draws the ComplexControl \a cc using the painter \a p with the information
     provided in \a opt.
 
-    The \a widget argument is optional and may contain a widget to aid in drawing the control.
+    The \a widget argument is optional and may contain a widget to aid in drawing \a cc.
 
     The \a opt parameter is a pointer to a QStyleOptionComplex structure that
     can be qt_cast'ed to the correct structure. Note that the rect member of \a opt
@@ -1157,24 +1157,24 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     \table
     \header \i Complex Control \i Option Cast \i Style Flags \i Notes
-    \row \i \l{CC_SpinBox} \i (const QStyleOptionSpinBox *)
+    \row \i \l{CC_SpinBox} \i (const \l QStyleOptionSpinBox *)
          \i \l Style_Enabled \i Set if the spinwidget is enabled.
-    \row \i \i \i  Style_HasFocus \i Set if the spinwidget has input focus.
+    \row \i \i \i  \l Style_HasFocus \i Set if the spinwidget has input focus.
 
-    \row \i {CC_ComboBox} \i (const \l QStyleOptionComboBox *)
-         \i Style_Enabled \i Set if the combobox is enabled.
-    \row \i \i \i Style_HasFocus \i Set if the combobox has input focus.
+    \row \i \l {CC_ComboBox} \i (const \l QStyleOptionComboBox *)
+         \i \l Style_Enabled \i Set if the combobox is enabled.
+    \row \i \i \i \l Style_HasFocus \i Set if the combobox has input focus.
 
-    \row \i {CC_ScrollBar} \i (const \l QStyleOptionSlider *)
-         \i Style_Enabled \i Set if the scrollbar is enabled.
+    \row \i \l {CC_ScrollBar} \i (const \l QStyleOptionSlider *)
+         \i \l Style_Enabled \i Set if the scrollbar is enabled.
     \row \i \i \i \l Style_HasFocus \i Set if the scrollbar has input focus.
 
-    \row \i {CC_Slider} \i(const \l QStyleOptionSlider *)
-         \i Style_Enabled \i Set if the slider is enabled.
+    \row \i \l {CC_Slider} \i(const \l QStyleOptionSlider *)
+         \i \l Style_Enabled \i Set if the slider is enabled.
 
-    \row \i \i \i Style_HasFocus \i Set if the slider has input focus.
+    \row \i \i \i \l Style_HasFocus \i Set if the slider has input focus.
 
-    \row \i {CC_ToolButton} \i (const \l QStyleOptionToolButton *)
+    \row \i \l {CC_ToolButton} \i (const \l QStyleOptionToolButton *)
          \i \l Style_Enabled \i Set if the toolbutton is enabled.
     \row \i \i \i \l Style_HasFocus \i Set if the toolbutton has input focus.
     \row \i \i \i \l Style_Down \i Set if the toolbutton is down (ie. mouse
@@ -1192,13 +1192,13 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
          \i \l Style_Enabled \i Set if the listview is enabled.
     \endtable
 
-    \sa ComplexControl, SubControl, QStyleOptionComplex
+    \sa ComplexControl SubControl QStyleOptionComplex
 */
 
 /*!
-    \fn void QStyle::drawComplexControlMask(ComplexControl control, const QStyleOptionComplex *opt, QPainter *p, const QWidget *widget = 0) const = 0
+    \fn void QStyle::drawComplexControlMask(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p, const QWidget *widget = 0) const = 0
 
-    Draw a bitmask for the ComplexControl \a control using the painter \a p
+    Draw a bitmask for the ComplexControl \a cc using the painter \a p
     with the information provided in \a opt. See drawComplexControl() for an
     explanation of the use of the \a widget and \a opt arguments.
 
@@ -1207,14 +1207,14 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     change the logical corrdinates into screen coordinates when using
     drawPrimitive() and drawControl().
 
-    \sa drawComplexControl() ComplexControl, QStyleOptionComplex
+    \sa drawComplexControl() ComplexControl QStyleOptionComplex
 */
 
 /*!
-    \fn QRect QStyle::querySubControlMetrics(ComplexControl control, const QStyleOptionComplex *opt, const QWidget *widget = 0) const = 0
+    \fn QRect QStyle::querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt, SubControl sc, const QWidget *widget = 0) const = 0
 
-    Returns the rect for the SubControl \a subcontrol for the structure
-    described in \a opt in logical coordinates.
+    Returns the rect for the SubControl \a sc in the ComplexControl \a cc, for
+    a style object described in the structure \a opt in logical coordinates.
 
     The \a opt argument is a pointer to a QStyleOptionComplex or one of its
     subclasses. The structure can be cast to the appropriate type based on the
@@ -1222,26 +1222,26 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     information for the function.  See drawComplexControl() for an explanation
     of the \a widget and \a opt arguments.
 
-    \sa drawComplexControl(), ComplexControl, SubControl, QStyleOptionComplex
+    \sa drawComplexControl() ComplexControl SubControl QStyleOptionComplex
 */
 
 /*!
-    \fn SubControl QStyle::querySubControl(ComplexControl control, const QStyleOptionComplex *opt, const QPoint &pos, const QWidget *widget = 0) const = 0
+    \fn SubControl QStyle::querySubControl(ComplexControl cc, const QStyleOptionComplex *opt, const QPoint &pos, const QWidget *widget = 0) const = 0
 
-    Returns the SubControl for the structure described in \a opt at the point
-    \a pos. The \a opt argument is a pointer to a QStyleOptionComplex structure
-    or one of its subclasses. The structure can be cast to the appropriate type
-    based on the value of \a control. The \a widget argument is optional and
-    can contain additional information for the functions.  See
-    drawComplexControl() for an explanation of the \a widget and \a opt
-    arguments.
+    Returns the SubControl in the ComplexControl \a cc for a styled object
+    described in the structure \a opt at the point \a pos. The \a opt argument
+    is a pointer to a QStyleOptionComplex structure or one of its subclasses.
+    The structure can be cast to the appropriate type based on the value of \a
+    control. The \a widget argument is optional and can contain additional
+    information for the functions.  See drawComplexControl() for an explanation
+    of the \a widget and \a opt arguments.
 
     Note that \a pos is passed in screen coordinates. When using
     querySubControlMetrics() to check for hits and misses, use
     visualRect() to change the logical coordinates into screen
     coordinates.
 
-    \sa drawComplexControl(), ComplexControl, SubControl, querySubControlMetrics(), QStyleOptionComplex
+    \sa drawComplexControl() ComplexControl SubControl querySubControlMetrics() QStyleOptionComplex
 */
 
 /*!
@@ -1411,46 +1411,31 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn QSize QStyle::sizeFromContents(ContentsType contents, const QStyleOption *opt, const QSize &contentsSize, const QFontMetrics &fm, const QWidget *w) const = 0
+    \fn QSize QStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, const QSize &contentsSize, const QFontMetrics &fm, const QWidget *w = 0) const = 0
 
-    \overload
+    Returns the size of styled object described in \a opt based on the contents size \a
+    ct. The font metrics in \a fm can aid in determining the size.
 
-    The font metrics are passed in \a fm, and the parent widget in \a
-    w.
-*/
-
-/*!
-    \fn QSize QStyle::sizeFromContents(ContentsType contents, const QWidget *widget, const QSize &contentsSize, const Q3StyleOption& opt = Q3StyleOption::Default) const;
-
-    Returns the size of \a widget based on the contents size \a
-    contentsSize.
-
-    The \a widget argument is a pointer to a QWidget or one of its
-    subclasses. The widget can be cast to the appropriate type based
-    on the value of \a contents. The \a opt argument can be used to
-    pass extra information required when calculating the size. Note
-    that \a opt may be the default value even for ContentsTypes that
-    can make use of the extra options. See the table below for the
-    appropriate \a widget and \a opt usage:
+    The \a opt argument is a pointer to a QStyleOption or one of its
+    subclasses. The \a opt can be cast to the appropriate type based
+    on the value of \a contents. The \a widget is optional argument and can
+    contain extra information used for calculating the size.
+    See the table below for the appropriate \a opt usage:
 
     \table
-    \header \i ContentsType \i Widget Cast \i Options \i Notes
-    \row \i \l CT_PushButton \i (const \l QPushButton *) \i Unused. \i &nbsp;
-    \row \i \l CT_CheckBox \i (const \l QCheckBox *) \i Unused. \i &nbsp;
-    \row \i \l CT_RadioButton \i (const \l QRadioButton *) \i Unused. \i &nbsp;
-    \row \i \l CT_ToolButton \i (const \l QToolButton *) \i Unused. \i &nbsp;
-    \row \i \l CT_ComboBox \i (const \l QComboBox *) \i Unused. \i &nbsp;
-    \row \i \l CT_Splitter \i (const \l QSplitter *) \i Unused. \i &nbsp;
-    \row \i \l CT_DockWindow \i (const \l QDockWindow *) \i Unused. \i &nbsp;
-    \row \i \l CT_ProgressBar \i (const \l QProgressBar *) \i Unused. \i &nbsp;
-    \row \i \l CT_MenuItem \i (const Q3PopupMenu *)
-        \i \l Q3StyleOption (Q3MenuItem *mi)
-            \list
-            \i opt.\link Q3StyleOption::menuItem() menuItem\endlink()
-            \endlist
-        \i \e mi is the menu item to use when calculating the size.
-            Q3MenuItem is currently an internal class.
+    \header \i ContentsType \i Option Cast
+    \row \i \l CT_PushButton \i (const \l QStyleOptionButton *)
+    \row \i \l CT_CheckBox \i (const \l QStyleOptionButton *)
+    \row \i \l CT_RadioButton \i (const \l QStyleOptionButton *)
+    \row \i \l CT_ToolButton \i (const \l QStyleOptionToolButton *)
+    \row \i \l CT_ComboBox \i (const \l QStyleOptionComboBox *)
+    \row \i \l CT_Splitter \i (const \l QStyleOption *)
+    \row \i \l CT_DockWindow \i (const \l QStyleOptionDockWindow *)
+    \row \i \l CT_ProgressBar \i (const \l QStyleOptionProgressBar *)
+    \row \i \l CT_MenuItem \i (const \l QStyleOptionMenuItem *)
     \endtable
+
+    \sa ContentsType QStyleOption
 */
 
 /*!
