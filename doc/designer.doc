@@ -38,10 +38,10 @@
 The Qt Designer is a visual design tool that makes designing and
 implementing user interfaces a lot easier.
 
-<center><a href="designer/book1.html"><img src="designer.png" alt="Screenshot of the Qt Designer"></a></center>
+<center><a href="tools/designer/manual/book1.html"><img src="designer.png" alt="Screenshot of the Qt Designer"></a></center>
 
 Here's a brief overview of its key features. For further information,
-please browse the \link designer/book1.html online manual \endlink or
+please browse the \link tools/designer/manual/book1.html online manual \endlink or
 start the designer with \c designer and select \e Manual from the \e
 Help menu.
 
@@ -91,7 +91,7 @@ Help menu.
  A graphical tab-order tool makes it possible to edit the tabfocus
   chain intuitively with point and click.
 
-<h3>Ensures unique keyboard accellerators</h3>
+<h3>Ensures unique keyboard accelerators</h3>
 
   Qt Designer checks that your keyboard shortcuts don't clash.
 
@@ -131,7 +131,7 @@ If you are interested in the Qt Professional Edition or the
 Qt Enterprise Edition, please write to
 <a href="mailto:sales@trolltech.com">sales@trolltech.com</a>. In
 case you have any bug reports, suggestions or wishes, send them to <a
-href="mailto:bugs@trolltech.com">bugs@trolltech.com</a>. Other mail can
+href="mailto:qt-bugs@trolltech.com">qt-bugs@trolltech.com</a>. Other mail can
 be sent to <a href="mailto:info@trolltech.com">info@trolltech.com</a>.
 
 
