@@ -139,6 +139,12 @@ int main( int argc, char *argv[] )
     DesignerApplication a( argc, argv );
 #endif
 
+#if defined (QT_REMOTE_CONTROL)
+    // {9A6A9A56-011B-4FEE-9B83-5BAD85071729} 
+    static const QUuid id = QUuid( 0x9a6a9a56, 0x011b, 0x4fee, 0x9b, 0x83, 0x5b, 0xad, 0x85, 0x07, 0x17, 0x29 );
+    a.setEnableRemoteControl(TRUE,id);
+#endif
+
     DesignerApplication::setOverrideCursor( Qt::WaitCursor );
 
     bool creatPid = FALSE;
