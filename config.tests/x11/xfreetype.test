@@ -8,7 +8,8 @@ XCONFIG=$1/qmake.conf
 VERBOSE=$2
 x11tests=$3
 
-rm -f xfreetype.inc
+rm -f $x11tests/xfreetype.cfg
+rm -f $x11tests/xfreetype.inc
 
 
 # debuggery
@@ -112,6 +113,12 @@ fi
 if [ "$XFREETYPE" = "yes" ] && [ -f "$XFT_H" ]
 then
     grep XftNameUnparse $XFT_H >/dev/null || XFREETYPE=no
+    if [ "$XFREETYPE" = "no" ]
+    then
+	echo "adding config to build xftnameunparse"
+	echo "xftnameunparse" > $x11tests/xfreetype.cfg
+    fi
+
     if [ "$VERBOSE" = "yes" ]
     then
 	if [ "$XFREETYPE" = "yes" ]

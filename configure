@@ -909,6 +909,12 @@ then
        I_FLAGS="$IFLAGS -I`cat $x11tests/xfreetype.inc`"
    fi
    rm -f $x11tests/xfreetype.inc
+   # Add XftFreetype specific config options
+   if [ $XFTFREETYPE = yes ] && [ -f $x11tests/xfreetype.cfg ]
+   then
+       QMAKE_CONFIG="$QMAKE_CONFIG `cat $x11tests/xfreetype.cfg`"
+   fi
+   rm -f $x11tests/xfreetype.cfg
    # Auto-detect session management support
    if [ $SM = auto ]
    then
