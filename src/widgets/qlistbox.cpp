@@ -2307,7 +2307,9 @@ void QListBox::updateSelection()
 	 d->mousePressColumn >= 0 && d->mousePressRow >= 0 ) {
 	QListBoxItem * i = item( d->mouseMoveColumn * numRows() +
 				 d->mouseMoveRow );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 	int ind = index(i);
+#endif
 	if ( selectionMode() == Single || selectionMode() == NoSelection ) {
 	    if ( i && ( d->mouseInternalPress || testWFlags(WType_Popup) ) )
 		setCurrentItem( i );
