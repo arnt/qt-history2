@@ -351,8 +351,12 @@ private:
 #ifdef QT_USE_MMAP
     void readNode(uchar*& data)
     {
-	memcpy((uchar*)&min,data,sizeof(QChar)); data += sizeof(QChar);
-	memcpy((uchar*)&max,data,sizeof(QChar)); data += sizeof(QChar);
+	uchar rw = *data++;
+	uchar cl = *data++;
+	min.unicode() = (rw << 8) | cl;
+	rw = *data++;
+	cl = *data++;
+	max.unicode() = (rw << 8) | cl;
 	int flags = *data++;
 	if ( flags & 1 )
 	    less = new QGlyphTree;
@@ -373,8 +377,12 @@ private:
 #else
     void readNode(QIODevice& f)
     {
-	f.readBlock((char*)&min, sizeof(QChar));
-	f.readBlock((char*)&max, sizeof(QChar));
+	uchar rw = f.getch();
+	uchar cl = f.getch();
+	min.unicode() = (rw << 8) | cl;
+	rw = f.getch();
+	cl = f.getch();
+	max.unicode() = (rw << 8) | cl;
 	int flags = f.getch();
 	if ( flags & 1 )
 	    less = new QGlyphTree;
