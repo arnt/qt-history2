@@ -2124,7 +2124,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                                 || child.childCount > 0 && child.height > 0) {
                                 // needs a box
                                 p->setPen(lv->palette.mid().color());
-                                p->drawRect(bx - 4, linebot - 4, 9, 9);
+                                p->drawRect(bx - 4, linebot - 4, 8, 8);
                                 // plus or minus
                                 p->setPen(lv->palette.text().color());
                                 p->drawLine(bx - 2, linebot, bx + 2, linebot);
