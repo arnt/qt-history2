@@ -986,5 +986,13 @@ bool QPrinter::isOptionEnabled( PrinterOption option )
 {
     return d->printerOptions & ( 1 << option );
 }
+
+#ifndef Q_WS_MAC
+bool QPrinter::setup(QWidget *parent)
+{
+    return printSetup(parent);
+}
+#endif
+
 #endif // QT_NO_PRINTER
 

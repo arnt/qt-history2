@@ -198,7 +198,7 @@ bool QPrinter::setup(QWidget *w)
     if(!psession && PMCreateSession(&psession) != noErr)
         return FALSE;
     if(qApp->style().inherits(QMAC_DEFAULT_STYLE) || qApp->style().inherits("QMacStyle")) {
-	return (printSetup() && pageSetup(w));
+	return (printSetup(w) && pageSetup(w));
     } else if(QPrintDialog::getPrinterSetup(this)) {
         if(!prepare(&pformat) || !prepare(&psettings))
             return FALSE;
@@ -239,7 +239,7 @@ void QPrinter::interpret(PMPageFormat *f)
 }
 
 // shows the native mac print setup dialog
-bool QPrinter::printSetup()
+bool QPrinter::printSetup(QWidget *)
 {
     if(!psession && PMCreateSession(&psession) != noErr)
         return FALSE;
@@ -398,7 +398,6 @@ int QPrinter::metric(int m) const
     }
     return val;
 }
-
 
 QSize QPrinter::margins() const
 {

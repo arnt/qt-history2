@@ -1051,7 +1051,7 @@ void QPrinter::writeDevmodeA( HANDLE hdm )
     D->needReinit = changeCount>0;
 }
 
-bool QPrinter::setup( QWidget *parent )
+bool QPrinter::printSetup( QWidget *parent )
 {
     if ( parent )
         parent = parent->topLevelWidget();

@@ -86,9 +86,7 @@ public:
     void setWinPageSize( short winPageSize );
     short winPageSize() const;
 #endif
-#ifdef Q_WS_MAC
-    bool printSetup();
-#endif
+
     virtual void setPageOrder( PageOrder );
     PageOrder   pageOrder() const;
 
@@ -126,8 +124,9 @@ public:
     bool        abort();
     bool        aborted()       const;
 
-    bool        setup( QWidget *parent = 0 );
-    bool	pageSetup( QWidget *parent = 0 );
+    bool        setup(QWidget *parent = 0);
+    bool        printSetup(QWidget *parent = 0);
+    bool	pageSetup(QWidget *parent = 0);
 
     PaperSource paperSource()   const;
     virtual void setPaperSource( PaperSource );

@@ -221,7 +221,7 @@ static void deleteGlobalPrinterDefaults()
     user cancelled the operation.
 */
 
-bool QPrinter::setup( QWidget * parent )
+bool QPrinter::printSetup( QWidget * parent )
 {
 #ifndef QT_NO_PRINTDIALOG
     bool result = QPrintDialog::getPrinterSetup( this, parent  );
