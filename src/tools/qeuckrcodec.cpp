@@ -206,10 +206,10 @@ int QEucKrCodec::heuristicNameMatch(const char* hint) const
     p = hint;
   }
   if (p) {
-    if (stricmp(p, "eucKR") == 0) {
+    if (qstricmp(p, "eucKR") == 0) {
       return score + 4;
     }
-    else if (stricmp(p, "euc") == 0) {
+    else if (qstricmp(p, "euc") == 0) {
       return ko ? score + 4 : 1;
     }
   }
