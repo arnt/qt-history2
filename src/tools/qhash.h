@@ -338,7 +338,7 @@ QHash<Key, T>::createNode(uint h, const Key &key, const T &value, Node **nextNod
 template <class Key, class T>
 Q_INLINE_TEMPLATE QHash<Key, T> &QHash<Key, T>::operator+=(const QHash<Key, T> &other)
 {
-    QHash<Key, T>::ConstIterator it = other.begin();
+    typename QHash<Key, T>::ConstIterator it = other.begin();
     while (it != other.end()) {
 	insert(it.key(), it.value());
 	++it;

@@ -437,7 +437,7 @@ Q_INLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::find(const Key &
 template <class Key, class T>
 Q_INLINE_TEMPLATE QMap<Key, T> &QMap<Key, T>::operator+=(const QMap<Key, T> &other)
 {
-    QMap<Key, T>::ConstIterator it = other.begin();
+    typename QMap<Key, T>::ConstIterator it = other.begin();
     while (it != other.end()) {
 	insert(it.key(), it.value());
 	++it;
