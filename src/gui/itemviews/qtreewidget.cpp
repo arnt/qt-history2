@@ -72,8 +72,8 @@ protected:
     void emitDataChanged(QTreeWidgetItem *item, int column);
     void emitRowsInserted(QTreeWidgetItem *item);
     void emitRowsAboutToBeRemoved(QTreeWidgetItem *item);
+    void updatePersistentIndexes(const QModelIndex &parent, int row, int count);
     void invalidatePersistentIndexRow(QTreeWidgetItem *item);
-    void updatePersistentIndexRowsBelow(const QModelIndex &parent, int row, int d = 1);
 
 private:
     QList<QTreeWidgetItem*> tree;
@@ -375,13 +375,6 @@ bool QTreeModel::setHeaderData(int section, Qt::Orientation orientation,
 
 bool QTreeModel::insertRows(int row, int count, const QModelIndex &parent)
 {
-    // prepare for updating persistent model indexes
-    QVector<int> toBeUpdated;
-    for (int i = 0; i < persistentIndexesCount(); ++i) {
-        QModelIndex idx = persistentIndexAt(i);
-        if (idx.row() >= row && idx.parent() == parent)
-            toBeUpdated.append(i);
-    }
     QTreeWidgetItem *c = 0;
     if (parent.isValid()) {
         // add items
@@ -394,15 +387,6 @@ bool QTreeModel::insertRows(int row, int count, const QModelIndex &parent)
             c->par = p;
             p->children.insert(r, c);
         }
-        // update persistent model indexes
-        for (int j = 0; j < toBeUpdated.count(); ++j) {
-            int i = toBeUpdated.at(j);
-            QModelIndex idx = persistentIndexAt(i);
-            if (idx.row() >= p->children.count())
-                setPersistentIndex(i, QModelIndex());
-            else if (idx.row() >= row)
-                setPersistentIndex(i, index(idx.row() + count, idx.column(), parent));
-        }
     } else {
         // add items
         QTreeWidget *view = ::qt_cast<QTreeWidget*>(QObject::parent());
@@ -413,16 +397,8 @@ bool QTreeModel::insertRows(int row, int count, const QModelIndex &parent)
             c->par = 0;
             tree.insert(r, c);
         }
-        // update persistent model indexes
-        for (int j = 0; j < toBeUpdated.count(); ++j) {
-            int i = toBeUpdated.at(j);
-            QModelIndex idx = persistentIndexAt(i);
-            if (idx.row() >= tree.count())
-                setPersistentIndex(i, QModelIndex());
-            else if (idx.row() >= row)
-                setPersistentIndex(i, index(idx.row() + count, idx.column(), parent));
-        }
     }
+    updatePersistentIndexes(parent, row, count);
     emit rowsInserted(parent, row, row + count - 1);
     return true;
 }
@@ -467,16 +443,7 @@ bool QTreeModel::removeRows(int row, int count, const QModelIndex &parent)
         itemsCount = tree.count();
     }
 
-    // prepare for updating persistent model indexes
-    for (int i = 0; i < persistentIndexesCount(); ++i) {
-        QModelIndex idx = persistentIndexAt(i); // invalidated index
-        if (idx.isValid() && idx.parent() == parent) {
-            if (idx.row() >= itemsCount)
-                setPersistentIndex(i, QModelIndex());
-            else if (idx.row() >= row)
-                setPersistentIndex(i, index(idx.row() - count, idx.column(), parent));
-        }
-    }
+    updatePersistentIndexes(parent, row, -count);
     return true;
 }
 
@@ -568,7 +535,7 @@ QList<QTreeWidgetItem*> QTreeModel::find(const QRegExp &rx, int column) const
             parents.pop_back();
         }
     } while (!parents.isEmpty());
-    
+
     return result;
 }
 
@@ -636,7 +603,7 @@ void QTreeModel::notifyItemAboutToBeRemoved(QTreeWidgetItem *item)
     // update the persistent index rows below the removed item
     QModelIndex idx = index(item, 0);
     QModelIndex par = parent(idx);
-    updatePersistentIndexRowsBelow(par, idx.row(), -1);
+    updatePersistentIndexes(par, idx.row(), -1);
     // caller will remove the item
 }
 
@@ -649,7 +616,7 @@ void QTreeModel::notifyItemInserted(QTreeWidgetItem *item)
     // update the persistent index rows below the inserted item
     QModelIndex idx = index(item, 0);
     QModelIndex par = parent(idx);
-    updatePersistentIndexRowsBelow(par, idx.row(), 1);
+    updatePersistentIndexes(par, idx.row(), 1);
     // let the rest of the world know
     emitRowsInserted(item);
 }
@@ -657,12 +624,15 @@ void QTreeModel::notifyItemInserted(QTreeWidgetItem *item)
 /*!
   \internal
 */
-void QTreeModel::updatePersistentIndexRowsBelow(const QModelIndex &parent, int row, int d)
+void QTreeModel::updatePersistentIndexes(const QModelIndex &parent, int row, int count)
 {
+    int rc = rowCount(parent);
     for (int i = 0; i < persistentIndexesCount(); ++i) {
         QModelIndex idx = persistentIndexAt(i);
-        if (idx.row() > row && idx.parent() == parent)
-            setPersistentIndex(i, index(idx.row() + d, idx.column(), parent));
+        if (idx.row() >= rc && idx.parent() == parent)
+            setPersistentIndex(i, QModelIndex());
+        else if (idx.row() > row && idx.parent() == parent)
+            setPersistentIndex(i, index(idx.row() + count, idx.column(), parent));
     }
 }
 

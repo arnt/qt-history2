@@ -52,6 +52,9 @@ public:
 
     void itemChanged(QListWidgetItem *item);
 
+protected:
+    void updatePersistentIndexes(int row, int count);
+
 private:
     QList<QListWidgetItem*> lst;
 };
@@ -89,36 +92,34 @@ QListWidgetItem *QListModel::at(int row) const
 
 void QListModel::remove(QListWidgetItem *item)
 {
+    Q_ASSERT(item);
     int row = lst.indexOf(item);
-    if (row != -1) {
-        emit rowsAboutToBeRemoved(QModelIndex(), row, row);
-        invalidatePersistentIndex(index(row));
-        lst.at(row)->model = 0;
-        lst.removeAt(row);
-    }
+    Q_ASSERT(row != -1);
+    emit rowsAboutToBeRemoved(QModelIndex(), row, row);
+    updatePersistentIndexes(row, -1);
+    lst.at(row)->model = 0;
+    lst.removeAt(row);
 }
 
 void QListModel::insert(int row, QListWidgetItem *item)
 {
     Q_ASSERT(item);
     item->model = this;
-    if (row >= 0 && row <= lst.count()) {
-        if (lst.contains(item))
-            qWarning("The item %p has already been inserted", item);
-        lst.insert(row, item);
-        emit rowsInserted(QModelIndex(), row, row);
-    }
+    Q_ASSERT(row >= 0 && row <= lst.count());
+    if (lst.contains(item))
+        qWarning("The item %p has already been inserted", item);
+    lst.insert(row, item);
+    updatePersistentIndexes(row, 1);
+    emit rowsInserted(QModelIndex(), row, row);
 }
 
 QListWidgetItem *QListModel::take(int row)
 {
-    if (row >= 0 && row < lst.count()) {
-        emit rowsAboutToBeRemoved(QModelIndex(), row, row);
-        invalidatePersistentIndex(index(row));
-        lst.at(row)->model = 0;
-        return lst.takeAt(row);
-    }
-    return 0;
+    Q_ASSERT(row >= 0 && row < lst.count());
+    emit rowsAboutToBeRemoved(QModelIndex(), row, row);
+    updatePersistentIndexes(row, -1);
+    lst.at(row)->model = 0;
+    return lst.takeAt(row);
 }
 
 int QListModel::rowCount(const QModelIndex &) const
@@ -128,9 +129,9 @@ int QListModel::rowCount(const QModelIndex &) const
 
 QModelIndex QListModel::index(QListWidgetItem *item) const
 {
+    Q_ASSERT(item);
     int row = lst.indexOf(item);
-    if (row == -1)
-        return QModelIndex();
+    Q_ASSERT(row != -1);
     return createIndex(row, 0, item);
 }
 
@@ -177,12 +178,7 @@ bool QListModel::insertRows(int row, int count, const QModelIndex &)
             lst.append(itm);
         }
     }
-    // update persistent model indexes
-    for (int i = 0; i < persistentIndexesCount(); ++i) {
-        QModelIndex idx = persistentIndexAt(i);
-        if (idx.row() >= row)
-            setPersistentIndex(i, index(idx.row() + count, idx.column()));
-    }
+    updatePersistentIndexes(row, count);
     emit rowsInserted(QModelIndex(), row, row + count - 1);
     return true;
 }
@@ -199,14 +195,7 @@ bool QListModel::removeRows(int row, int count, const QModelIndex &)
             itm->model = 0;
             delete itm;
         }
-        // update persistent model indexes
-        for (int i = 0; i < persistentIndexesCount(); ++i) {
-            int r = persistentIndexAt(i).row();
-            if (r >= lst.count())
-                setPersistentIndex(i, QModelIndex());
-            else if (r >= row)
-                setPersistentIndex(i, index(r - count, 0));
-        }
+        updatePersistentIndexes(row, -count);
         return true;
     }
     return false;
@@ -253,6 +242,18 @@ void QListModel::itemChanged(QListWidgetItem *item)
 {
     QModelIndex idx = index(item);
     emit dataChanged(idx, idx);
+}
+
+void QListModel::updatePersistentIndexes(int row, int count)
+{
+    // update persistent model indexes
+    for (int i = 0; i < persistentIndexesCount(); ++i) {
+        int r = persistentIndexAt(i).row();
+        if (r >= lst.count()) // deleted at the end
+            setPersistentIndex(i, QModelIndex());
+        else if (r >= row) // update existing
+            setPersistentIndex(i, index(r + count));
+    }
 }
 
 /*!
