@@ -1493,19 +1493,21 @@ bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, Qt::SocketState 
 */
 bool QAbstractSocket::waitForReadyRead(int msecs)
 {
-    if (socketState() != Qt::ConnectedState) {
+    if (socketState() != Qt::ConnectedState && socketState() != Qt::BoundState) {
         qWarning("%s", tr("QAbstractSocket::waitForReadyRead() is only"
                           " allowed in connected state.").latin1());
         return false;
     }
 
     bool timedOut = false;
-    if (!d->socketLayer.waitForRead(msecs, &timedOut) || !d->readFromSocket()) {
+    if (!d->socketLayer.waitForRead(msecs, &timedOut) || (d->isBuffered && !d->readFromSocket())) {
         d->socketError = d->socketLayer.socketError();
         d->socketErrorString = d->socketLayer.errorString();
+        emit error(d->socketError);
         return false;
     }
 
+    emit readyRead();
     return true;
 }
 
