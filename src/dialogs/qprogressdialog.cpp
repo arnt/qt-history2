@@ -352,9 +352,8 @@ void QProgressDialog::setLabel( QLabel *label )
 
 
 /*!
-  Returns the labels text.
-
-  \sa setLabelText
+  \property QProgressDialog::labelText
+  \brief the labels text.
 */
 
 QString QProgressDialog::labelText() const
@@ -363,12 +362,6 @@ QString QProgressDialog::labelText() const
 	return label()->text();
     return QString::null;
 }
-
-
-/*!
-  Sets the label text. The progress dialog resizes to fit.
-  \sa setLabel()
-*/
 
 void QProgressDialog::setLabelText( const QString &text )
 {
@@ -454,8 +447,10 @@ void QProgressDialog::setBar( QProgressBar *bar )
 
 
 /*!
-  Returns TRUE if the dialog was cancelled, otherwise FALSE.
-  \sa setProgress(), cancel(), cancelled()
+  \property QProgressDialog::wasCancelled
+  \brief whether the dialog was cancelled.
+
+  \sa setProgress()
 */
 
 bool QProgressDialog::wasCancelled() const
@@ -465,8 +460,8 @@ bool QProgressDialog::wasCancelled() const
 
 
 /*!
-  Returns the total number of steps.
-  \sa setTotalSteps(), QProgressBar::totalSteps()
+  \property QProgressDialog::totalSteps 
+  \brief the total number of steps.
 */
 
 int QProgressDialog::totalSteps() const
@@ -475,12 +470,6 @@ int QProgressDialog::totalSteps() const
 	return bar()->totalSteps();
     return 0;
 }
-
-
-/*!
-  Sets the total number of steps.
-  \sa totalSteps(), QProgressBar::setTotalSteps()
-*/
 
 void QProgressDialog::setTotalSteps( int totalSteps )
 {
@@ -525,25 +514,13 @@ void QProgressDialog::cancel()
     d->cancellation_flag = TRUE;
 }
 
-
 /*!
-  Returns the current amount of progress, or -1 if the progress counting
-  has not started.
-  \sa setProgress()
-*/
+  \property QProgressDialog::progress
+  \brief the current amount of progress made.
 
-int QProgressDialog::progress() const
-{
-    return bar()->progress();
-}
-
-
-/*!
-  Sets the current amount of progress made to \a progress units of the
-  total number of steps.  For the progress dialog to work correctly,
-  you must call this with the parameter 0 initially and then
-  later with QProgressDialog::totalSteps(); you may call it any
-  number of times in-between.
+  For the progress dialog to work correctly,
+  you must initially set this property to 0 and finally to QProgressDialog::totalSteps(); 
+  you may call it any number of times in-between.
 
   \warning If the progress dialog is modal
     (see QProgressDialog::QProgressDialog()),
@@ -551,8 +528,13 @@ int QProgressDialog::progress() const
     this does not cause undesirable re-entrancy to your code. For example,
     don't use a QProgressDialog inside a paintEvent()!
 
-  \sa progress()
+  \sa totalSteps
 */
+
+int QProgressDialog::progress() const
+{
+    return bar()->progress();
+}
 
 void QProgressDialog::setProgress( int progress )
 {
@@ -606,22 +588,6 @@ void QProgressDialog::setProgress( int progress )
     if ( progress == bar()->totalSteps() && d->autoReset )
 	reset();
 }
-
-
-void QProgressDialog::center()
-{
-//     QPoint p(0,0);
-//     QWidget* w;
-//     if (d->creator) {
-//	p = d->creator->mapToGlobal( p );
-//	w = d->creator;
-//     } else {
-//	w = QApplication::desktop();
-//     }
-//     setGeometry( p.x() + w->width()/2  - width()/2,
-//	  p.y() + w->height()/2 - height()/2, width(), height() );
-}
-
 
 /*!
   Returns a size that fits the contents of the progress dialog.
@@ -698,14 +664,14 @@ void QProgressDialog::layout()
 }
 
 /*!
-  Sets the minimum duration to \a ms milliseconds.
+  \property QProgressDialog::minimumDuration
+  \brief the duration the progress has to take before the dialog opens.
+
   The dialog will not appear if the anticipated duration of the
   progressing task is less than the minimum duration.
 
-  If \a ms is 0 the dialog is always shown as soon as any progress
+  If set to 0, the dialog is always shown as soon as any progress
   is set.
-
-  \sa minimumDuration()
 */
 void QProgressDialog::setMinimumDuration( int ms )
 {
@@ -716,11 +682,6 @@ void QProgressDialog::setMinimumDuration( int ms )
     }
 }
 
-/*!
-  Returns the currently set minimum duration for the QProgressDialog.
-
-  \sa setMinimumDuration()
-*/
 int QProgressDialog::minimumDuration() const
 {
     return d->showTime;
@@ -737,13 +698,11 @@ void QProgressDialog::closeEvent( QCloseEvent *e )
     QDialog::closeEvent( e );
 }
 
-/*!  If you set \a b to TRUE, the progress dialog calls reset() if
-  progress() equals totalSteps(). This does not happen if you set it
-  to FALSE.
+/*!
+  \property QProgressDialog::autoReset
+  \brief whether the progress dialog calls reset() as soon as progress() equals totalSteps().
 
-  The default is TRUE.
-
-  \sa autoReset(), setAutoClose()
+  \sa setAutoClose()
 */
 
 void QProgressDialog::setAutoReset( bool b )
@@ -751,37 +710,23 @@ void QProgressDialog::setAutoReset( bool b )
     d->autoReset = b;
 }
 
-/*!
-  Returns if the dialog resets itself when progress() equals
-  totalSteps().
-
-  \sa setAutoReset()
-*/
-
 bool QProgressDialog::autoReset() const
 {
     return d->autoReset;
 }
 
 /*!
-  If you set \a b to TRUE, the dialog gets closed (hidden) if
-  reset() is called; this does not happen otherwise.
+  \property QProgressDialog::autoClose
 
-  The default is TRUE.
+  \brief whether the dialog gets hidden by reset().
 
-  \sa autoClose(), setAutoReset()
+  \sa setAutoReset()
 */
 
 void QProgressDialog::setAutoClose( bool b )
 {
     d->autoClose = b;
 }
-
-/*!
-  Returns if the dialog gets hidden by reset().
-
-  \sa setAutoClose()
-*/
 
 bool QProgressDialog::autoClose() const
 {

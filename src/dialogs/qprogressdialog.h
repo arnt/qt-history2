@@ -57,6 +57,7 @@ class Q_EXPORT QProgressDialog : public QDialog
     Q_PROPERTY( int progress READ progress WRITE setProgress )
     Q_PROPERTY( bool autoReset READ autoReset WRITE setAutoReset )
     Q_PROPERTY( bool autoClose READ autoClose WRITE setAutoClose )
+    Q_PROPERTY( int minimumDuration READ minimumDuration WRITE setMinimumDuration )
     Q_PROPERTY( QString labelText READ labelText WRITE setLabelText )
 
 public:
@@ -112,7 +113,6 @@ protected slots:
 private:
     void	   init( QWidget *creator, const QString& lbl, const QString &canc,
 			 int totstps);
-    void	   center();
     void	   layout();
     QLabel	  *label()  const;
     QProgressBar  *bar()    const;

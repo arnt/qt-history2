@@ -489,12 +489,12 @@ bool QToolBar::event( QEvent * e )
 }
 
 
-/*!  Sets the label of this toolbar to \a label.
+/*!  
+  \property QToolBar::label
+  \brief the label of the toolbar.
 
-If the toolbar is floated the label becomes the toolbar window's
-caption.
-
-\sa label()
+  If the toolbar is floated the label becomes the toolbar window's
+  caption.
 */
 
 void QToolBar::setLabel( const QString & label )
@@ -502,12 +502,6 @@ void QToolBar::setLabel( const QString & label )
     l = label;
     setCaption( l );
 }
-
-
-/*!  Returns the label of this toolbar.
-
-  \sa setLabel()
-*/
 
 QString QToolBar::label() const
 {

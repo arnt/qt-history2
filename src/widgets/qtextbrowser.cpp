@@ -133,16 +133,20 @@ QTextBrowser::~QTextBrowser()
 }
 
 
-/*!  Sets the text document with the given \a name to be displayed.
-  The name is looked up in the mimeSourceFactory() of the browser.
+/*!  
+  \property QTextBrowser::source
+  \brief the source of the currently displayed document. 
+  
+  This is a null string if no document is displayed or 
+  the source is unknown.
 
-  In addition to the factory lookup, this function also checks for
-  optional anchors and scrolls the document accordingly.
+  Setting this property uses the mimeSourceFactory to lookup the provided document. 
+  It also checks for optional anchors and scrolls the document accordingly.
 
   If the first tag in the document is \c &lt;qt \c type=detail&gt;, it is
   displayed as a popup rather than as new document in the browser
   window itself. Otherwise, the document is set normally via
-  setText(), with \a name as new context.
+  setText(), with the provided name as new context.
 
   If you are using the filesystem access capabilities of the mime
   source factory, you have to ensure that the factory knows about the
@@ -150,8 +154,16 @@ QTextBrowser::~QTextBrowser()
   available. The default factory handles a couple of common file
   extensions such as \c *.html and \c *.txt with reasonable defaults. See
   QMimeSourceFactory::data() for details.
-
 */
+
+QString QTextBrowser::source() const
+{
+    if ( d->stack.isEmpty() )
+	return QString::null;
+    else
+	return d->stack.top();
+}
+
 void QTextBrowser::setSource(const QString& name)
 {
 #ifndef QT_NO_CURSOR
@@ -233,20 +245,6 @@ void QTextBrowser::setSource(const QString& name)
     if ( isVisible() )
 	qApp->restoreOverrideCursor();
 #endif
-}
-
-/*!  Returns the source of the currently display document. If no
-  document is displayed or the source is unknown, a null string is
-  returned.
-
-  \sa setSource()
- */
-QString QTextBrowser::source() const
-{
-    if ( d->stack.isEmpty() )
-	return QString::null;
-    else
-	return d->stack.top();
 }
 
 /*!  \fn void QTextBrowser::backwardAvailable(bool available)

@@ -1004,24 +1004,15 @@ QToolTipGroup::~QToolTipGroup()
 }
 
 
-/*!  Returns TRUE if the group text is shown delayed (at the same time
-as the tip) and FALSE if it is shown immediately.
-
-\sa setDelay()
+/*!  
+  \property QToolTipGroup::delay
+  \brief whether the group text is shown delayed.
 */
 
 bool QToolTipGroup::delay() const
 {
     return del;
 }
-
-
-/*!  Sets the group to show its text immediately if \a enable is
-FALSE and delayed (at the same time as the tip text) if \a enable is
-TRUE.  The default is TRUE.
-
-\sa delay()
-*/
 
 void QToolTipGroup::setDelay( bool enable )
 {
@@ -1034,10 +1025,8 @@ void QToolTipGroup::setDelay( bool enable )
 }
 
 /*!
-  Sets the group to be enabled (all tool tips in the group show
-  when activated) or disabled (tool tips in the group are never shown).
-
-  \sa QToolTip::setEnabled(), enabled()
+  \property QToolTipGroup::enabled
+  \brief whether tool tips in the group are enabled.
 */
 
 void QToolTipGroup::setEnabled( bool enable )
@@ -1045,10 +1034,6 @@ void QToolTipGroup::setEnabled( bool enable )
     ena = enable;
 }
 
-/*!
-  Returns whether tool tips in the group are enabled.
-  \sa setEnabled()
-*/
 bool QToolTipGroup::enabled() const
 {
     return (bool)ena;

@@ -135,14 +135,10 @@ void QProgressBar::reset()
 
 
 /*!
-  \fn int QProgressBar::totalSteps() const
-  Returns the total number of steps.
-  \sa setTotalSteps()
-*/
+  \property QProgressBar::totalSteps
+  \brief The total number of steps. 
 
-/*!
-  Sets the total number of steps to \a totalSteps. If \a totalSteps is null,
-  the progress bar will display a busy indicator.
+  If totalSteps is null, the progress bar will display a busy indicator.
 
   \sa totalSteps()
 */
@@ -162,16 +158,10 @@ void QProgressBar::setTotalSteps( int totalSteps )
 
 
 /*!
-  \fn int QProgressBar::progress() const
-  Returns the current amount of progress, or -1 if the progress counting
-  has not started.
-  \sa setProgress()
-*/
-
-/*!
-  Sets the current amount of progress made to \e progress units of the
-  total number of steps, or moves the busy indicator if totalSteps is null.
-  \sa progress(), totalSteps()
+  \property QProgressBar::progress
+  \brief the current amount of progress
+  
+  This property is -1 if the progress counting has not started.
 */
 
 void QProgressBar::setProgress( int progress )
@@ -212,27 +202,16 @@ QSize QProgressBar::minimumSizeHint() const
 }
 
 /*!
-  \fn bool QProgressBar::centerIndicator() const
+  \property QProgressBar::centerIndicator
 
-  Returns where the indicator string should be displayed if
-  indicatorFollowsStyle() is TRUE.
+  \brief where the indicator string should be displayed 
+  
+  If set to TRUE, the indicator is displayed centered.
+  Changing this property sets indicatorFollowsStyle to FALSE.
 
-  \sa setCenterIndicator(), indicatorFollowsStyle(),
-      setIndicatorFollowsStyle(), setIndicator()
+  \sa indicatorFollowsStyle
 */
 
-/*!
-  If set to TRUE (the default), the progress bar always shows the indicator
-  text at the center of the progress bar regardless of the GUI style
-  currently set.  If set to FALSE, the progress bar always shows the
-  indicator text outside the progress bar, regardless of the GUI style
-  currently set.
-
-  Calling this function always sets indicatorFollowsStyle() to FALSE.
-
-  \sa centerIndicator(), indicatorFollowsStyle(), setIndicatorFollowsStyle(),
-      setIndicator()
- */
 void QProgressBar::setCenterIndicator( bool on )
 {
     if ( !auto_indicator && on == center_indicator )
@@ -245,23 +224,12 @@ void QProgressBar::setCenterIndicator( bool on )
 }
 
 /*!
-  \fn bool QProgressBar::indicatorFollowsStyle() const
+  \property QProgressBar::indicatorFollowsStyle
+  \brief whether the display of the indicator string should follow the GUI style or not.
 
-  Returns whether the display of the indicator string should follow the
-  GUI style or not.
-
-  \sa setIndicatorFollowsStyle(), setCenterIndicator(), centerIndicator()
-      setIndicator()
+  \sa centerIndicator
 */
 
-/*!
-  When set to TRUE (the default), the positioning of the indicator string
-  follows the GUI style. When set to FALSE, the indicator position is decided
-  by the value of indicatorFollowsStyle().
-
-  \sa indicatorFollowsStyle(), centerIndicator(), setCenterIndicator(),
-      setIndicator()
- */
 void QProgressBar::setIndicatorFollowsStyle( bool on )
 {
     if ( on == auto_indicator )
@@ -273,18 +241,8 @@ void QProgressBar::setIndicatorFollowsStyle( bool on )
 }
 
 /*!
-  \fn bool QProgressBar::percentageVisible() const
-
-  Returns whether the current progress value is displayed or not.
-
-  \sa setPercentageVisible, setCenterIndicator
-*/
-
-/*!
-  When set to TRUE (the default), the current progress value is displayed
-  according to the GUI style. Otherwise, no value is displayed.
-
-  \sa indicatorFollowsStyle(), setCenterIndicator()
+  \property QProgressBar::percentageVisible
+  \brief whether the current progress value is displayed or not.
 */
 void QProgressBar::setPercentageVisible( bool on )
 {
