@@ -156,6 +156,7 @@ QImageData * QImageData::create(const QSize &size, QImage::Format format, int nu
     case QImage::Format_Mono:
     case QImage::Format_MonoLSB:
         depth = 1;
+        numColors = 2;
         break;
     case QImage::Format_Indexed8:
         depth = 8;
@@ -172,8 +173,13 @@ QImageData * QImageData::create(const QSize &size, QImage::Format format, int nu
 
     QImageData *d = new QImageData;
     d->colortable.resize(numColors);
-    for (int i = 0; i < numColors; ++i)
-        d->colortable[i] = 0;
+    if (depth == 1) {
+        d->colortable[0] = QColor(Qt::color0).rgba();
+        d->colortable[1] = QColor(Qt::color1).rgba();
+    } else {
+        for (int i = 0; i < numColors; ++i)
+            d->colortable[i] = 0;
+    }
 
     d->width = width;
     d->height = height;
@@ -2380,7 +2386,7 @@ static const Image_Converter converter_map[QImage::Format_ARGB32_Premultiplied][
 */
 QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) const
 {
-    if (d->format == format)
+    if (!d || d->format == format)
         return *this;
 
     Image_Converter converter = converter_map[d->format - 1][format - 1];
