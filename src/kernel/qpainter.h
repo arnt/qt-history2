@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#59 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#60 $
 **
 ** Definition of QPainter class
 **
@@ -154,35 +154,10 @@ public:
     void	drawPixmap( const QPoint &, const QPixmap & );
     void	drawPicture( const QPicture & );
 
-    void	fillRect( int x, int y, int w, int h, const QColor & );
-    void	fillRect( const QRect &, const QColor & );
+    void	fillRect( int x, int y, int w, int h, const QBrush & );
+    void	fillRect( const QRect &, const QBrush & );
     void	eraseRect( int x, int y, int w, int h );
     void	eraseRect( const QRect & );
-
-  // Shade drawing functions
-
-    void	drawShadeLine( int x1, int y1, int x2, int y2,
-			       const QColor &tc, const QColor &bc, int lw=1,
-			       const QColor &mc=black, int midlw=0 );
-    void	drawShadeLine( const QPoint &, const QPoint &,
-			       const QColor &tc, const QColor &bc, int lw=1,
-			       const QColor &mc=black, int midlw=0 );
-    void	drawShadeRect( int x, int y, int w, int h,
-			       const QColor &tColor, const QColor &bColor,
-			       int lw=1,
-			       const QColor &fColor=black, int midlw=0 );
-    void	drawShadeRect( const QRect &,
-			       const QColor &tColor, const QColor &bColor,
-			       int lw=1,
-			       const QColor &fColor=black, int midlw=0 );
-    void	drawShadePanel( int x, int y, int w, int h,
-				const QColor &tColor, const QColor &bColor,
-				int lw=1,
-				const QColor &fColor=black, bool fill=FALSE );
-    void	drawShadePanel( const QRect &,
-				const QColor &tColor, const QColor &bColor,
-				int lw=1,
-				const QColor &fColor=black, bool fill=FALSE );
 
   // Text drawing functions
 
@@ -400,9 +375,9 @@ inline void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm,
     drawPixmap( p.x(), p.y(), pm, sr.x(), sr.y(), sr.width(), sr.height() );
 }
 
-inline void QPainter::fillRect( const QRect &r, const QColor &c )
+inline void QPainter::fillRect( const QRect &r, const QBrush &brush )
 {
-    fillRect( r.x(), r.y(), r.width(), r.height(), c );
+    fillRect( r.x(), r.y(), r.width(), r.height(), brush );
 }
 
 inline void QPainter::eraseRect( int x, int y, int w, int h )
@@ -413,27 +388,6 @@ inline void QPainter::eraseRect( int x, int y, int w, int h )
 inline void QPainter::eraseRect( const QRect &r )
 {
     fillRect( r.x(), r.y(), r.width(), r.height(), backgroundColor() );
-}
-
-inline void QPainter::drawShadeLine( const QPoint &p1, const QPoint &p2,
-				     const QColor &tc, const QColor &bc,
-				     int lw, const QColor &mc, int mlw )
-{
-    drawShadeLine( p1.x(), p1.y(), p2.x(), p2.y(), tc, bc, lw, mc, mlw );
-}
-
-inline void QPainter::drawShadeRect( const QRect &r,
-				     const QColor &tc, const QColor &bc,
-				     int lw, const QColor &mc, int mlw )
-{
-    drawShadeRect( r.x(), r.y(), r.width(), r.height(), tc, bc, lw, mc, mlw );
-}
-
-inline void QPainter::drawShadePanel( const QRect &r,
-				      const QColor &tc, const QColor &bc,
-				      int lw, const QColor &fc, bool fill )
-{
-    drawShadePanel( r.x(), r.y(), r.width(), r.height(), tc, bc, lw, fc, fill);
 }
 
 inline void QPainter::drawText( const QPoint &p, const char *s, int len )

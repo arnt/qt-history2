@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#55 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#54 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#55 $")
 
 
 /*!
@@ -72,6 +72,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#54 $")
   \warning QPainter::begin resets all attributes to their default
   values, from the device, thus setting fonts, brushes, etc, before
   begin() will have \e no effect.
+
+  \header qdrawutl.h
 
   \sa QPaintDevice, QWidget */
 
@@ -539,225 +541,19 @@ void QPainter::resetXForm()
 }
 
 
-// --------------------------------------------------------------------------
-// QPainter functions for drawing shadow effects.
-//
-
 /*!
-  Draw a horizontal (\e y1 == \e y2) or vertical (\e x1 == \e x2) shaded line.
+  Fills the rectangle \e (x,y,w,h) with the \e brush.
 
-  The \e tColor argument specifies the top (or left) color and \e bColor
-  specifies the bottom (or right) color.
-
-  The \e lw argument specifies the line width for each of the lines. It is
-  not the total line width.
-
-  The \e mw argument specifies the width of a middle line drawn in \e mColor.
-
-  If \e tColor is brighter than \e bColor, the line appears to be
-  raised from the surface.  If \e tColor is darker than \e bColor, the line
-  appears to be sunken into the surface.
-  \sa drawShadeRect(), drawShadePanel(), QFrame
+  You can specify a QColor as \e brush, since there is a QBrush constructor
+  that takes a QColor argument and creates a solid pattern brush.
 */
 
-void QPainter::drawShadeLine( int x1, int y1, int x2, int y2,
-			      const QColor &tColor, const QColor &bColor,
-			      int lw, const QColor &mColor, int mlw )
-{
-    int tlw = lw*2 + mlw;			// total line width
-    QPen oldPen = pen();			// save pen
-    setPen( tColor );				// makes new cpen
-    if ( y1 == y2 ) {				// horizontal line
-	int y = y1 - tlw/2;
-	if ( x1 > x2 ) {			// swap x1 and x2
-	    int t = x1;
-	    x1 = x2;
-	    x2 = t;
-	}
-	x2--;
-	QPointArray a;
-	int i;
-	for ( i=0; i<lw; i++ ) {		// draw top shadow
-	    a.setPoints( 3, x1+i, y+tlw-1,
-			    x1+i, y+i,
-			    x2,	  y+i );
-	    drawPolyline( a );
-	}
-	setPen( mColor );
-	for ( i=0; i<mlw; i++ )			// draw lines in the middle
-	    drawLine( x1+lw, y+lw+i, x2-lw, y+lw+i );
-	setPen( bColor );
-	for ( i=0; i<lw; i++ ) {		// draw bottom shadow
-	    a.setPoints( 3, x1+lw, y+tlw-i-1,
-			    x2-i,  y+tlw-i-1,
-			    x2-i,  y+lw );
-	    drawPolyline( a );
-	}
-    }
-    else if ( x1 == x2 ) {			// vertical line
-	int x = x1 - tlw/2;
-	if ( y1 > y2 ) {			// swap y1 and y2
-	    int t = y1;
-	    y1 = y2;
-	    y2 = t;
-	}
-	y2--;
-	QPointArray a;
-	int i;
-	for ( i=0; i<lw; i++ ) {		// draw top shadow
-	    a.setPoints( 3, x+i,     y2,
-			    x+i,     y1+i,
-			    x+tlw-1, y1+i );
-	    drawPolyline( a );
-	}
-	setPen( mColor );
-	for ( i=0; i<mlw; i++ )			// draw lines in the middle
-	    drawLine( x+lw+i, y1+lw, x+lw+i, y2 );
-	setPen( bColor );
-	for ( i=0; i<lw; i++ ) {		// draw bottom shadow
-	    a.setPoints( 3, x+lw,      y2-i,
-			    x+tlw-i-1, y2-i,
-			    x+tlw-i-1, y1+lw );
-	    drawPolyline( a );
-	}
-    }
-    setPen( oldPen );
-}
-
-
-/*!
-  Draw a shaded rectangle given by \e (x,y,w,h).
-
-  The arguments have the same meaning as for drawShadeLine().
-  \sa drawShadeLine(), drawShadePanel(), QFrame
-*/
-
-void QPainter::drawShadeRect( int x, int y, int w, int h,
-			      const QColor &tColor, const QColor &bColor,
-			      int lw, const QColor &mColor, int mlw )
-{
-    if ( w < 1 || h < 1 || lw < 0 || mlw < 0 )	// bad parameters
-	return;
-    QPen oldPen = pen();			// save pen
-    setPen( tColor );				// makes new cpen
-    int x1=x, y1=y, x2=x+w-1, y2=y+h-1;
-    QPointArray a;
-    if ( lw == 1 && mlw == 0 ) {		// standard shade rectangle
-	a.setPoints( 8, x1,y1, x2,y1, x1,y1+1, x1,y2, x1+2,y2-1,
-		     x2-1,y2-1, x2-1,y1+2,  x2-1,y2-2 );
-	drawLineSegments( a );			// draw top lines
-	setPen( bColor );
-	a.setPoints( 8, x1+1,y1+1, x2,y1+1, x1+1,y1+2, x1+1,y2-1,
-		     x1+1,y2, x2,y2,  x2,y1+2, x2,y2-1 );
-	drawLineSegments( a );			// draw bottom lines
-    }
-    else {					// more complicated
-	int t = lw*2+mlw;
-	int m = lw+mlw;
-	int i, j=0, k=m;
-	for ( i=0; i<lw; i++ ) {		// draw top shadow
-	    drawLine( x1+j, y2-j, x1+j, y1+j );
-	    drawLine( x1+j, y1+j, x2-j, y1+j );
-	    drawLine( x1+t, y2-k, x2-k, y2-k );
-	    drawLine( x2-k, y2-k, x2-k, y1+k );
-	    j++;
-	    k++;
-	}
-	setPen( mColor );
-	j = lw*2;
-	for ( i=0; i<mlw; i++ ) {		// draw lines in the middle
-	    drawRect( x1+lw+i, y1+lw+i, w-j, h-j );
-	    j += 2;
-	}
-	setPen( bColor );
-	j = 0;
-	k = m;
-	for ( i=0; i<lw; i++ ) {		// draw bottom shadow
-	    drawLine( x1+1+j,y2-j, x2-j, y2-j );
-	    drawLine( x2-j,  y2-j, x2-j, y1+j+1 );
-	    drawLine( x1+k,  y2-m, x1+k, y1+k );
-	    drawLine( x1+k,  y1+k, x2-k, y1+k );
-	    j++;
-	    k++;
-	}
-    }
-    setPen( oldPen );				// restore pen
-}
-
-
-/*!
-  Draw a shaded panel given by \e (x,y,w,h).
-  \sa drawShadeLine(), drawShadeRect(), QFrame
-*/
-
-void QPainter::drawShadePanel( int x, int y, int w, int h,
-			       const QColor &tColor, const QColor &bColor,
-			       int lw, const QColor &fColor, bool fill )
-{
-    if ( w < 1 || h < 1 || lw <= 0 )		// bad parameters
-	return;
-    QPen oldPen = pen();			// save pen
-    QPointArray a( 4*lw );
-    setPen( tColor );
-    int x1, y1, x2, y2;
-    int i;
-    int n = 0;
-    x1 = x;
-    y1 = y2 = y;
-    x2 = x+w-2;
-    for ( i=0; i<lw; i++ ) {			// top shadow
-	a.setPoint( n++, x1, y1++ );
-	a.setPoint( n++, x2--, y2++ );
-    }
-    x2 = x1;
-    y1 = y+h-2;
-    for ( i=0; i<lw; i++ ) {			// left shadow
-	a.setPoint( n++, x1++, y1 );
-	a.setPoint( n++, x2++, y2-- );
-    }
-    drawLineSegments( a );
-    n = 0;
-    setPen( bColor );
-    x1 = x;
-    y1 = y2 = y+h-1;
-    x2 = x+w-1;
-    for ( i=0; i<lw; i++ ) {			// bottom shadow
-	a.setPoint( n++, x1++, y1-- );
-	a.setPoint( n++, x2, y2-- );
-    }
-    x1 = x2;
-    y1 = y;
-    y2 = y+h-lw-1;
-    for ( i=0; i<lw; i++ ) {			// right shadow
-	a.setPoint( n++, x1--, y1++ );
-	a.setPoint( n++, x2--, y2 );
-    }
-    drawLineSegments( a );
-    if ( fill ) {				// fill with fill color
-	cpen.setStyle( NoPen );
-	QBrush oldBrush = brush();
-	setBrush ( fColor );
-	drawRect( x+lw, y+lw, w-lw*2, h-lw*2 );
-	setBrush( oldBrush );
-    }
-    setPen( oldPen );				// restore pen
-}
-
-
-// --------------------------------------------------------------------------
-// Convenience function for filling a rectangle.
-//
-
-/*!
-  Fills the rectangle \e (x,y,w,h) with a \e color.
-*/
-
-void QPainter::fillRect( int x, int y, int w, int h, const QColor &color )
+void QPainter::fillRect( int x, int y, int w, int h, const QBrush &brush )
 {
     QPen   oldPen   = pen();			// save pen
-    QBrush oldBrush = brush();			// save brush
+    QBrush oldBrush = this->brush();		// save brush
     setPen( NoPen );
-    setBrush( color );
+    setBrush( brush );
     drawRect( x, y, w, h );			// draw filled rect
     setBrush( oldBrush );			// restore brush
     setPen( oldPen );				// restore pen
@@ -915,42 +711,13 @@ void QPainter::eraseRect( int x, int y, int w, int h )
     fillRect( x, y, w, h, backgroundColor() );
 }
 
-/*! \overload void QPainter::eraseRect( const QRect &r ) */
+/*!
+  \overload void QPainter::eraseRect( const QRect &r )
+*/
 
 void QPainter::eraseRect( const QRect &r )
 {
     fillRect( r.x(), r.y(), r.width(), r.height(), backgroundColor() );
-}
-
-/*! \overload void QPainter::drawShadeLine( const QPoint &p1, const QPoint &p2, const QColor &tc, const QColor &bc, int lw, const QColor &mc, int mlw ) */
-
-void QPainter::drawShadeLine( const QPoint &p1, const QPoint &p2,
-			      const QColor &tc, const QColor &bc,
-			      int lw, const QColor &mc, int mlw )
-{
-    drawShadeLine( p1.x(), p1.y(), p2.x(), p2.y(), tc, bc, lw, mc, mlw );
-}
-
-/*!
-  Overloaded drawShadeRect; takes a QRect instead of \e (x,y,w,h).
-*/
-
-void QPainter::drawShadeRect( const QRect &r,
-			      const QColor &tc, const QColor &bc,
-			      int lw, const QColor &mc, int mlw )
-{
-    drawShadeRect( r.x(), r.y(), r.width(), r.height(), tc, bc, lw, mc, mlw );
-}
-
-/*!
-  Overloaded drawShadePanel; takes a QRect instead of \e (x,y,w,h).
-*/
-
-void QPainter::drawShadePanel( const QRect &r,
-			       const QColor &tc, const QColor &bc,
-			       int lw, const QColor &fc, bool fill )
-{
-    drawShadePanel( r.x(), r.y(), r.width(), r.height(), tc, bc, lw, fc, fill);
 }
 
 /*!
