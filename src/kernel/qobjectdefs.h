@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#33 $
+** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#34 $
 **
 ** Macros and definitions related to QObject
 **
@@ -73,10 +73,13 @@ private:								\
 /* tmake ignore Q_OBJECT */
 #define Q_OBJECT_FAKE Q_OBJECT
 
+#ifdef Q_PROPS
 #define Q_BUILDER( comment, pixmap, inspector )				\
 private:								\
     static QObject* factory( QWidget* );
-
+#else
+#define Q_BUILDER( comment, pixmap, inspector )
+#endif
 						// macro for naming members
 #if defined(_OLD_CPP_)
 #define METHOD(a)	"0""a"
