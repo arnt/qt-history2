@@ -16,6 +16,7 @@
 #include "qevent.h"
 #include "qt_mac.h"
 #include <qhash.h>
+#include "qsocketnotifier.h"
 
 #if defined(QT_THREAD_SUPPORT)
 #  include "qmutex.h"

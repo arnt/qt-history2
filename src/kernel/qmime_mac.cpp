@@ -509,7 +509,7 @@ QByteArray QMacMimeImage::convertToMime(QList<QByteArray> data, const char* mime
 	QBuffer iod(ret);
 	iod.open(IO_WriteOnly);
 	QImage img = px.convertToImage();
-	QImageIO iio(&iod, ofmt.upper());
+	QImageIO iio(&iod, ofmt.toUpper());
 	iio.setImage(img);
 	if(iio.write()) 
 	    iod.close();

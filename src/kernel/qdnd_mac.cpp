@@ -444,7 +444,7 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     QRegion r(0, 0, pix.width(), pix.height());
     SetDragImage(theDrag, GetGWorldPixMap((GWorldPtr)pix.handle()), r.handle(TRUE), boundsPoint, 0);
 
-    QWidget *widget = QApplication::widgetAt(fakeEvent.where.h, fakeEvent.where.v, TRUE);
+    QWidget *widget = QApplication::widgetAt(fakeEvent.where.h, fakeEvent.where.v);
     if(!widget) {
 	dragSource = 0;
 	return FALSE;
@@ -489,9 +489,9 @@ static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, 
     QCursor cursor(Qt::ArrowCursor);
     if(qApp && qApp->overrideCursor()) {
 	cursor = *qApp->overrideCursor();
-    } else if(QWidget *widget = QApplication::widgetAt(mouse.h, mouse.v, TRUE)) {
+    } else if(QWidget *widget = QApplication::widgetAt(mouse.h, mouse.v)) {
 	for(QWidget *p = widget; p; p = p->parentWidget()) {
-	    if(p->ownCursor()) {
+	    if(p->testAttribute(QWidget::WA_SetCursor)) {
 		cursor = p->cursor();
 		break;
 	    }
@@ -555,7 +555,7 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler(DragTrackingMessage theMessage,
 	GetGlobalMouse(&mouse);
     QPoint globalMouse(mouse.h, mouse.v);
     QMacDndExtra *macDndExtra = (QMacDndExtra*) handlerRefCon;
-    QWidget *widget = QApplication::widgetAt(globalMouse, TRUE);
+    QWidget *widget = QApplication::widgetAt(globalMouse);
     while(widget && (!widget->acceptDrops()))
 	widget = widget->parentWidget(TRUE);
     //Dispatch events
@@ -634,7 +634,7 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler(DragTrackingMessage theMessage,
 	    cursor = *qApp->overrideCursor();
 	} else if(widget) {
 	    for(QWidget *p = widget; p; p = p->parentWidget()) {
-		if(p->ownCursor()) {
+		if(p->testAttribute(QWidget::WA_SetCursor)) {
 		    cursor = p->cursor();
 		    break;
 		}
