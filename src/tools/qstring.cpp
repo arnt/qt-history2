@@ -13472,8 +13472,10 @@ uint QString::toUInt( bool *ok, int base ) const
 double QString::toDouble( bool *ok ) const
 {
     char *end;
-    const char *a = latin1();
-    double val = strtod( a ? a : "", &end );
+    // can't use latin1() here, because ("1" +some nonlatin1).latin1() == "1", 
+    // and the function would return true.
+    QCString a = utf8();
+    double val = strtod( a.data() ? a.data() : "", &end );
     if ( ok )
 	*ok = ( a && *a && ( end == 0 || *end == '\0' ) );
     return val;
