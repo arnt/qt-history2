@@ -227,9 +227,9 @@ void QToolBar::init()
     b->addSpacing( 9 );
 
     if ( mw ) {
-	connect( mw, SIGNAL( startMovingToolbar( QToolBar * ) ),
+	connect( mw, SIGNAL( startMovingToolBar( QToolBar * ) ),
 		 this, SLOT( startMoving( QToolBar * ) ) );
-	connect( mw, SIGNAL( endMovingToolbar( QToolBar * ) ),
+	connect( mw, SIGNAL( endMovingToolBar( QToolBar * ) ),
 		 this, SLOT( endMoving( QToolBar * ) ) );
     }
 #if defined(CHECK_NULL)

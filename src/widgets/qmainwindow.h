@@ -99,7 +99,7 @@ public:
     void lineUpToolBars( bool keepNewLines = FALSE );
 
     bool isDockMenuEnabled() const;
-    
+
 public slots:
     virtual void setRightJustification( bool );
     virtual void setUsesBigPixmaps( bool );
@@ -113,9 +113,10 @@ public slots:
 signals:
     void pixmapSizeChanged( bool );
     void usesTextLabelChanged( bool );
-    void startMovingToolbar( QToolBar * );
-    void endMovingToolbar( QToolBar * );
-
+    void startMovingToolBar( QToolBar * );
+    void endMovingToolBar( QToolBar * );
+    void toolBarPositionChanged( QToolBar * );
+    
 protected slots:
     virtual void setUpLayout();
 

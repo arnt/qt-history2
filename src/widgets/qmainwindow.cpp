@@ -1635,6 +1635,8 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
     if ( !toolBar )
 	return;
 
+    emit toolBarPositionChanged( toolBar );
+
     if ( relative == toolBar || ipos == QMainWindowPrivate::SameIndex ) {
 #ifdef QMAINWINDOW_DEBUG
 	QMainWindowPrivate::ToolBarDock *dummy;
@@ -2029,8 +2031,10 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 	   e->type() == QEvent::MouseMove ||
 	   e->type() == QEvent::MouseButtonRelease )
 	 && o && o->inherits( "QToolBar" )  ) {
-	if ( d->movable ) {
-	    moveToolBar( (QToolBar *)o, (QMouseEvent *)e );
+	QMouseEvent *me = (QMouseEvent*)e;
+	if ( d->movable && ( ( me->button() & LeftButton || me->state() & LeftButton ) ||
+	     ( ( me->button() & RightButton ) && d->dockMenu ) ) ) {
+	    moveToolBar( (QToolBar *)o, me );
 	    return TRUE;
 	}
     }
@@ -2161,18 +2165,27 @@ void QMainWindow::setUsesTextLabel( bool enable )
 */
 
 /*!
-  \fn void QMainWindow::startMovingToolbar( QToolBar *toolbar )
+  \fn void QMainWindow::startMovingToolBar( QToolBar *toolbar )
 
   This signal is emitted when the \a toolbar starts moving because
   the user started dragging it.
 */
 
 /*!
-  \fn void QMainWindow::endMovingToolbar( QToolBar *toolbar )
+  \fn void QMainWindow::endMovingToolBar( QToolBar *toolbar )
 
   This signal is emitted if the \a toolbar has been moved by
   the user and he/she released the mouse button now, so he/she
   stopped the moving.
+*/
+
+/*!
+  \fn void QMainWindow::toolBarPositionChanged( QToolBar *toolbar )
+
+  This signal is emitted when the \a toolbar has changed its position.
+  This means it has been moved to another dock or inside the dock.
+  
+  \sa getLocation()
 */
 
 /*!
@@ -2410,7 +2423,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	if ( ( e->button() & RightButton ) ) {
 	    if ( !isDockMenuEnabled() )
 		return;
-	    emit startMovingToolbar( t );
+	    emit startMovingToolBar( t );
 	    d->inMovement = TRUE;
 	    QPopupMenu menu( this );
 	    int left = menu.insertItem( tr( "&Left" ) );
@@ -2435,14 +2448,14 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 		moveToolBar( t, Bottom );
 	    else if ( res == hide )
 		moveToolBar( t,  Hidden );
-	    emit endMovingToolbar( t );
+	    emit endMovingToolBar( t );
 	    d->inMovement = FALSE;
 	    return;
 	}
 	if ( ( e->button() & MidButton ) ) {
 	    return;
 	}
-	emit startMovingToolbar( t );
+	emit startMovingToolBar( t );
 	d->inMovement = TRUE;
 
 	// don't allow repaints of the central widget as this may be a problem for our rects
@@ -2552,7 +2565,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 		d->mc->setUpdatesEnabled( TRUE );
 	}
 
-	emit endMovingToolbar( t );
+	emit endMovingToolBar( t );
 	d->inMovement = FALSE;
 
 	return;
