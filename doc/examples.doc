@@ -80,7 +80,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 */
 
-/*! \example buttons_groups/main.cpp
+/*! \example buttongroups/main.cpp
 
   <h1 align=center>Buttons and Groupboxes</h1><br clear="all">
 
@@ -91,13 +91,13 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
   Header file:
 
-  \include buttons_groups/buttons_groups.h
+  \include buttongroups/buttongroups.h
 
   <hr>
 
   Implementation:
 
-  \include buttons_groups/buttons_groups.cpp
+  \include buttongroups/buttongroups.cpp
 
   <hr>
 

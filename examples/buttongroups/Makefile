@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/examples/buttons_groups/Makefile#3 $
+# $Id: //depot/qt/main/examples/buttongroups/Makefile#1 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #

@@ -74,7 +74,7 @@
   has a menu bar, it has a tool bar, it has a status bar and works
   like a simple text editor.
 
-- buttons_groups
+- buttongroups
   This examples shows different types of Groupboxes (Buttongroups, etc.) and lots
   of different kinds of Buttons (Checkboxes, Radiobuttons, Pushbuttons, etc.)
 
@@ -143,7 +143,7 @@
   The Lineedits example shows how to work with single Lineedit widgets, and
   how to use different Echo Modes and Validators.
 
-- listbox_combo
+- listboxcombo
   This example program desmonstrates how to use Listboxes (with single selection
   and multi selection) and Comboboxes (editable and non-editable).
 

@@ -8,7 +8,7 @@
 **
 *****************************************************************************/
 
-#include "buttons_groups.h"
+#include "buttongroups.h"
 #include <qapplication.h>
 
 int main( int argc, char **argv )

@@ -8,7 +8,7 @@
 **
 *****************************************************************************/
 
-#include "buttons_groups.h"
+#include "buttongroups.h"
 
 #include <qbuttongroup.h>
 #include <qhbox.h>
