@@ -16,6 +16,7 @@
 
 #include "QtCore/qglobal.h"
 #include "QtCore/qvector.h"
+#include <stdlib.h>
 
 /*
     Warning: The contents of QAlgorithmsPrivate is not a part of the public Qt API
