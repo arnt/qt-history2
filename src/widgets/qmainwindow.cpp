@@ -2245,6 +2245,10 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
     } else if ( e->type() == QEvent::LayoutHint && o->inherits( "QToolBar" ) ) {
 	if ( isVisible() && ( (QToolBar*)o )->isVisible() )
 	    QTimer::singleShot( 0, (QToolBar*)o, SLOT( updateArrowStuff() ) );
+    } else if ( e->type() == QEvent::Show && o == this ) {
+	if ( !d->tll )
+	    setUpLayout();
+	d->tll->activate();
     }
     return QWidget::eventFilter( o, e );
 }
