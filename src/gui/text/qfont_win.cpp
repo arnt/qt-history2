@@ -112,7 +112,7 @@ void QFont::initialize()
         return;
     shared_dc = CreateCompatibleDC(qt_display_dc());
     if (!shared_dc)
-        qCritical("QFont::initialize: Couldn't create DC (%s)", qt_error_string().local8Bit());
+        qErrnoWarning("QFont::initialize: CreateCompatibleDC failed");
     new QFontCache();
 
     // #########

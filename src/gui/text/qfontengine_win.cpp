@@ -216,10 +216,8 @@ QFontEngineWin::QFontEngineWin(const QString &name, HDC _hdc, HFONT _hfont, bool
     } , {
         res = GetTextMetricsA(dc(), &tm.a);
     });
-#ifndef QT_NO_DEBUG
     if (!res)
-        qCritical("QFontEngineWin: GetTextMetrics failed (%s)", qt_error_string().local8Bit());
-#endif
+        qErrnoWarning("QFontEngineWin: GetTextMetrics failed");
     cache_cost = tm.w.tmHeight * tm.w.tmAveCharWidth * 2000;
     getCMap();
 
@@ -699,8 +697,7 @@ void QFontEngineWin::addOutlineToPath(float x, float y, const QGlyphLayout *glyp
             DWORD ret = GetGlyphOutline(hdc, glyphs[i].glyph, glyphFormat, &gMetric, bufferSize,
                                         dataBuffer, &mat);
             if (ret == GDI_ERROR) {
-                qCritical("QFontEngineWin::addOutlineToPath: GetGlyphOutline(2) failed (%s)",
-                          qt_error_string().local8Bit());
+                qErrnoWarning("QFontEngineWin::addOutlineToPath: GetGlyphOutline(2) failed");
                 return;
             }
 

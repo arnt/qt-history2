@@ -718,10 +718,7 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
             f = deffnt;
         hfont = (HFONT)GetStockObject(f);
         if (!hfont) {
-#ifndef QT_NO_DEBUG
-            qCritical("QFontEngine::loadEngine: GetStockObject failed (%s)",
-                      qt_error_string().local8Bit());
-#endif
+            qErrnoWarning("QFontEngine::loadEngine: GetStockObject failed");
             hfont = systemFont();
         }
         stockFont = true;
@@ -834,11 +831,8 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
                 qMin(lname.length()+1,32));  // 32 = Windows hard-coded
             hfont = CreateFontIndirectA((LOGFONTA*)&lf);
         });
-#ifndef QT_NO_DEBUG
         if (!hfont)
-            qCritical("QFontEngine::loadEngine: CreateFontIndirect failed (%s)",
-                      qt_error_string().local8Bit());
-#endif
+            qErrnoWarning("QFontEngine::loadEngine: CreateFontIndirect failed");
 
         stockFont = (hfont == 0);
 
@@ -855,11 +849,8 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
                 res = GetTextMetricsA(hdc, &tm);
                 avWidth = tm.tmAveCharWidth;
             });
-#ifndef QT_NO_DEBUG
             if (!res)
-                qCritical("QFontEngine::loadEngine: GetTextMetrics failed (%s)",
-                          qt_error_string().local8Bit());
-#endif
+                qErrnoWarning("QFontEngine::loadEngine: GetTextMetrics failed");
 
             SelectObject(hdc, oldObj);
             DeleteObject(hfont);
@@ -870,11 +861,8 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
             } , {
                 hfont = CreateFontIndirectA((LOGFONTA*)&lf);
             });
-#ifndef QT_NO_DEBUG
             if (!hfont)
-                qCritical("QFontEngine::loadEngine: CreateFontIndirect with stretch failed (%s)",
-                          qt_error_string().local8Bit());
-#endif
+                qErrnoWarning("QFontEngine::loadEngine: CreateFontIndirect with stretch failed");
         }
 
 #ifndef Q_OS_TEMP

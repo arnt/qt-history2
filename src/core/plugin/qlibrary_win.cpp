@@ -36,16 +36,14 @@ bool QLibraryPrivate::load_sys()
     }
 
     if (!pHnd)
-        qCritical("QLibrary::load_sys: Cannot load %s (%s)",
-                  QFile::encodeName(fileName).constData(), qt_error_string().local8Bit());
+        qErrnoWarning("QLibrary::load_sys: Cannot load %s", QFile::encodeName(fileName).constData());
     return pHnd != 0;
 }
 
 bool QLibraryPrivate::unload_sys()
 {
     if (!FreeLibrary(pHnd)) {
-        qCritical("QLibrary: Cannot unload %s (%s)", QFile::encodeName(fileName).constData(),
-                  qt_error_string().local8Bit());   
+        qErrnoWarning("QLibrary::unload_sys: Cannot unload %s", QFile::encodeName(fileName).constData());
         return false;
     }
     return true;
@@ -60,7 +58,7 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 #endif
 #if defined(QT_DEBUG_COMPONENT)
     if (!address)
-        qCritical("QLibrary::resolve_sys: Undefined symbol \"%s\" in %s", symbol,
+        qErrnoWarning("QLibrary::resolve_sys: Symbol \"%s\" undefined in %s", symbol,
                   QFile::encodeName(fileName).constData());
 #endif
     return address;

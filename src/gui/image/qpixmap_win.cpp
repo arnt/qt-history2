@@ -202,9 +202,10 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
         delete [] bmi_data;
 #endif
     if (!data->hbm) {
+        qErrnoWarning("QPixmap::init(): Pixmap allocation of size %d, %d failed", data->w, data->h);
         data->w = 0;
         data->h = 0;
-        qCritical("QPixmap::init(): Pixmap allocation failed (%s)", qt_error_string().local8Bit());
+        
         return;
     }
 }
@@ -1438,8 +1439,7 @@ HDC QPixmap::getDC() const
     if(!mem_dc->hdc) {
         mem_dc->hdc = CreateCompatibleDC(0);
         if (!mem_dc->hdc) {
-            qCritical("QPixmap::getDC(): CreateCompatibleDC failed (%s)",
-                      qt_error_string().local8Bit());
+            qErrnoWarning("QPixmap::getDC(): CreateCompatibleDC failed");
             return 0;
         }
         HPALETTE hpal = QColormap::hPal();

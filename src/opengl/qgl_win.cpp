@@ -664,11 +664,8 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
         p->cStencilBits = 4;
     p->iLayerType = PFD_MAIN_PLANE;
     int chosenPfi = ChoosePixelFormat(pdc, p);
-#ifndef QT_NO_DEBUG
     if (!chosenPfi)
-        qCritical("QGLContext: Call of ChoosePixelFormat failed (%s)",
-                  qt_error_string().local8Bit());
-#endif
+        qErrnoWarning("QGLContext: ChoosePixelFormat failed");
 
     // Since the GDI function ChoosePixelFormat() does not handle
     // overlay and direct-rendering requests, we must roll our own here

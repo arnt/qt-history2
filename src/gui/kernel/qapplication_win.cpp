@@ -837,8 +837,7 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
 
 #ifndef QT_NO_DEBUG
     if (!atom)
-        qCritical("QApplication::regClass: Registering window class failed. (%s)",
-                  qt_error_string().local8Bit());
+        qErrnoWarning("QApplication::regClass: Registering window class failed.");
 #endif
 
     winclassNames()->insert(cname, 1);

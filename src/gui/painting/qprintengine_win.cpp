@@ -249,8 +249,7 @@ bool QWin32PrintEngine::begin(QPaintDevice *dev)
 	if (d->printToFile && !d->fileName.isEmpty())
 	    di.lpszOutput = d->fileName.utf16();
 	if (ok && StartDoc(d->hdc, &di) == SP_ERROR) {
-	    qCritical("QWin32PrintEngine::begin: StartDoc failed (%s)",
-	              qt_error_string().local8Bit());
+	    qErrnoWarning("QWin32PrintEngine::begin: StartDoc failed");
 	    ok = FALSE;
 	}
 //     } , {
@@ -314,22 +313,19 @@ bool QWin32PrintEngine::newPage()
     Q_ASSERT(d->hdc);
 
     if (!EndPage(d->hdc)) {
-        qCritical("QWin32PrintEngine::newPage: End page failed (%s)",
-                  qt_error_string().local8Bit());
+        qErrnoWarning("QWin32PrintEngine::newPage: EndPage failed");
         return false;
     }
 
     if (d->reinit) {
         if (!(d->hdc = ResetDC(d->hdc, d->devMode))) {
-            qCritical("QWin32PrintEngine::newPage: Failed to reset DC (%s)",
-                      qt_error_string().local8Bit());
+            qErrnoWarning("QWin32PrintEngine::newPage: ResetDC failed");
             return false;
         }
     }
 
     if (!StartPage(d->hdc)) {
-        qCritical("Win32PrintEngine::newPage: Failed to start new page (%s)",
-                  qt_error_string().local8Bit());
+        qErrnoWarning("Win32PrintEngine::newPage: StartPage failed");
         return false;
     }
 
@@ -725,8 +721,7 @@ void QWin32PrintEnginePrivate::initialize()
     Q_ASSERT(!pInfo);
 
     if(!OpenPrinterW((LPWSTR)name.utf16(), (LPHANDLE)&hPrinter, 0)) {
-	qCritical("QWin32PrintEngine::init: Failed to open handle to printer (%s)",
-	          qt_error_string().local8Bit());
+	qErrnoWarning("QWin32PrintEngine::initialize: OpenPrinter failed");
 	return;
     }
 
@@ -736,8 +731,7 @@ void QWin32PrintEnginePrivate::initialize()
     GetPrinter(d->hPrinter, 2, NULL, 0, &infoSize);
     pInfo = (PRINTER_INFO_2 *)malloc(infoSize);
     if (!GetPrinter(hPrinter, 2, (LPBYTE)pInfo, infoSize, &numBytes)) {
-	qCritical("QWin32PrintEngine::init: Failed to get printer info (%s)",
-	          qt_error_string().local8Bit());
+	qErrnoWarning("QWin32PrintEngine::initialize: GetPrinter failed");
 	return;
     }
 
@@ -780,33 +774,24 @@ QList<int> QWin32PrintEnginePrivate::queryResolutions() const
     // Read the supported resolutions of the printer.
     DWORD numRes;
     LONG *enumRes;
+    DWORD errRes;
+
     QT_WA({
-	numRes = DeviceCapabilities(name.utf16(),
-				    port.utf16(),
-				    DC_ENUMRESOLUTIONS, 0, 0);
+	numRes = DeviceCapabilities(name.utf16(), port.utf16(), DC_ENUMRESOLUTIONS, 0, 0);
 	enumRes = (LONG*)malloc(numRes * 2 * sizeof(LONG));
-	if (!DeviceCapabilities(name.utf16(),
-				port.utf16(),
-				DC_ENUMRESOLUTIONS, (LPWSTR)enumRes, 0)) {
-	    qCritical("QWin32PrintEngine::queryResolutions: Failed to enumerate printer resolutions (%s)",
-	              qt_error_string().local8Bit());
-	    return QList<int>();
-	}
+        errRes = DeviceCapabilities(name.utf16(), port.utf16(), DC_ENUMRESOLUTIONS, (LPWSTR)enumRes, 0);
     }, {
-	numRes = DeviceCapabilitiesA(name.local8Bit(),
-				     port.local8Bit(),
-				     DC_ENUMRESOLUTIONS, 0, 0);
+	numRes = DeviceCapabilitiesA(name.local8Bit(), port.local8Bit(), DC_ENUMRESOLUTIONS, 0, 0);
 	enumRes = (LONG*)malloc(numRes * 2 * sizeof(LONG));
-	if (!DeviceCapabilitiesA(name.local8Bit(),
-				 port.local8Bit(),
-				 DC_ENUMRESOLUTIONS, (LPSTR)enumRes, 0)) {
-	    qCritical("QWin32PrintEngine::queryResolutions: Failed to enumerate printer resolutions (%s)",
-	              qt_error_string().local8Bit());
-	    return QList<int>();
-	}
+	errRes = DeviceCapabilitiesA(name.local8Bit(), port.local8Bit(), DC_ENUMRESOLUTIONS, (LPSTR)enumRes, 0);
     });
 
     QList<int> list;
+    if (errRes == -1) {
+        qErrnoWarning("QWin32PrintEngine::queryResolutions: DeviceCapabilities failed");
+        return list;
+    }
+
     for (uint i=0; i<numRes; ++i)
 	list.append(enumRes[i*2]);
     return list;
