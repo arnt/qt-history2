@@ -474,6 +474,9 @@ MakefileGenerator::init()
             QString moc = Option::fixPathToTargetOS(createMocFileName(mocables[i]), false);
             if(QMakeSourceFileInfo::included(moc))
                 srcmoc += moc;
+            else if(moc.endsWith(Option::cpp_moc_ext))
+                warn_msg(WarnLogic, "File %s considered mocable but will not be linked into TARGET!", 
+                         mocables[i].latin1());
             else
                 hdrmoc += moc;
         }
