@@ -59,7 +59,7 @@ struct QFontDef {
     short	pointSize;
     short	lbearing;
     short	rbearing;
-    
+
     uint	styleHint	: 8;
     uint	styleStrategy	: 8;
     uint	weight		: 8;
@@ -77,6 +77,7 @@ class QTextCodec;
 
 
 #ifdef Q_WS_X11
+
 // this is a shared wrapper for XFontStruct (to prevent a font being freed by
 // the cache while it's being used)
 class QFontStruct : public QShared
@@ -85,17 +86,16 @@ public:
     QFontStruct(Qt::HANDLE h, QCString n) :
 	handle(h), name(n), codec(0)
     { ; }
-    
+
     ~QFontStruct();
-    
+
     bool deref();
 
     Qt::HANDLE handle;
     QCString name;
     QTextCodec *codec;
 };
-#endif
-
+#endif // Q_WS_X11
 
 
 // QFontPrivate - holds all data on which a font operates
@@ -105,7 +105,7 @@ public:
     enum Script {
 	// Basic Latin with Latin-1 Supplement
 	BASICLATIN,
-	
+
 	// To get Latin Extended-A characters from various ISO-8859-* encodings
 	EXTLATINA2, // Extended Latin from ISO-8859-2
 	EXTLATINA3, // Extended Latin from ISO-8859-3
@@ -113,36 +113,38 @@ public:
 	EXTLATINA9, // Extended Latin from ISO-8859-9
 	EXTLATINA14, // Extended Latin from ISO-8859-14
 	EXTLATINA15, // Extended Latin from ISO-8859-15
-	
+
 	// TODO: support for Latin Extended-B characters
-	
+
 	CYRILLIC,
 	ARABIC,
 	GREEK,
 	HEBREW,
-	
+
 	// South/Southeast Asian Scripts
 	TAMIL,
 	THAI,
-	
+
 	// East Asian Scripts
 	HAN,
 	HIRAGANA,
 	KATAKANA,
 	HANGUL,
 	BOPOMOFO,
-      	
+
 	UNICODE,
 
 	// End
 	NScripts,
 	AnyScript = NScripts,
-	UnknownScript = NScripts,
+	UnknownScript = NScripts
     };
+
+    static const int egcshack = NScripts;
     
     static Script scriptForChar(const QChar &c);
-    
-    
+
+
     QFontPrivate()
 	: // printerHackFont(0),
 	exactMatch(FALSE), lineWidth(1)
@@ -267,8 +269,11 @@ public:
     void initFontInfo(QFontPrivate::Script);
     void load(QFontPrivate::Script, bool = TRUE);
 
+    class QFontX11Data {
+    public:
+	// X fontstruct handles for each character set
+	QFontStruct *fontstruct[QFontPrivate::egcshack];
 
-    struct QFontX11Data {
 	QFontX11Data()
 	{
 	    for (int i = 0; i < QFontPrivate::NScripts; i++) {
@@ -305,27 +310,26 @@ public:
 		    fontstruct[i]->deref();
 		}
 	    }
-	    
+
 	    if (fontstruct[QFontPrivate::UNICODE] &&
 		fontstruct[QFontPrivate::UNICODE] != (QFontStruct *) -1) {
 		fontstruct[QFontPrivate::UNICODE]->deref();
 	    }
 	}
-	
-	// X fontstruct handles for each character set
-	QFontStruct *fontstruct[QFontPrivate::NScripts];
     } x11data;
-
-
-    static QFontPrivate::Script defaultScript;    
+    
+    // QFontX11Data x11data;
+    
+    static QFontPrivate::Script defaultScript;
+    
 #endif // Q_WS_X11
 
-   
+
 #ifndef QT_NO_COMPAT
     // source compatibility for QFont
     // QFont::CharSet charsetcompat;
 #endif // QT_NO_COMPAT
-    
+
 };
 
 
