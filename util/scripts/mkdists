@@ -48,6 +48,7 @@ DO_BZIP=auto
 DO_STUFF=auto
 DO_ID=auto
 DO_DOC=auto
+DO_EXPORTS=auto
 TYPE=auto
 
 die()
@@ -115,11 +116,12 @@ showhelp()
     echo
 
     echo "Various:"
-    echo "  -no-id   / -do-id    : Toggle whether to generate \$Id tag"
-    echo "  -no-doc  / -do-doc   : Toggle whether to generate documentation"
-    echo "  -no-gzip / -do-gzip  : Toggle whether to add a gzip package"
-    echo "  -no-bzip / -do-bzip  : Toggle whether to add a bzip package"
-    echo "  -no-stuff / -do-stuff: Toggle whether to add a stuffit package"
+    echo "  -no-id      / -do-id      : Toggle whether to generate \$Id tag"
+    echo "  -no-doc     / -do-doc     : Toggle whether to generate documentation"
+    echo "  -no-gzip    / -do-gzip    : Toggle whether to add a gzip package"
+    echo "  -no-bzip    / -do-bzip    : Toggle whether to add a bzip package"
+    echo "  -no-stuff   / -do-stuff   : Toggle whether to add a stuffit package"
+    echo "  -no-exports / -do-exports : Toggle whether to generate libqt.map"
 
     echo "=-________________________________________________________________-="
     echo "All options can be in long form --option=value as well (where value "
@@ -245,6 +247,7 @@ while [ -n "$1" ]; do
        fi
        ;;
    #other
+   exports) DO_EXPORTS=$VAL ;;
    qmake) DO_QMAKE=$VAL ;;
    stuff) DO_STUFF=$VAL ;;
    doc) DO_DOC=$VAL ;;
@@ -289,6 +292,13 @@ if [ "$DO_STUFF" = "auto" ]; then
 	DO_STUFF=yes
     else
 	DO_STUFF=no
+    fi
+fi
+if [ "$DO_EXPORTS" = "auto" ]; then
+    if [ -x "$EXPORTS_PATH" ]; then
+        DO_EXPORTS=yes
+    else
+        DO_EXPORTS=no
     fi
 fi
 if [ "$BRANCH" = "auto" ]; then
@@ -397,7 +407,7 @@ rm -f Makefile
 popd >>$LOG 2>&1
 
 #generate libqt.map
-if [ -x "$EXPORTS_PATH" ]; then
+if [ "$DO_EXPORTS" = "yes" ]; then
   status "Creating libqt.map.."
   pushd $DISTDIR/qt/src >>$LOG 2>&1
   $EXPORTS_PATH $DISTDIR/qt/src
