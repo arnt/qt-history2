@@ -160,7 +160,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	out() << formattingRightMap()[ATOM_FORMATTING_TELETYPE];
 	break;
     case Atom::Code:
-	out() << "<pre>" << trimmedTrailing(protect(plainCode(indent(4, atom->string()))))
+	out() << "<pre>" << trimmedTrailing(protectPreformatted(plainCode(indent(4, atom->string()))))
 	      << "</pre>\n";
 	break;
     case Atom::CodeBad:
@@ -1387,6 +1387,15 @@ QString HtmlGenerator::protect( const QString& string )
     html.replace( "<", "&lt;" );
     html.replace( ">", "&gt;" );
     html.replace( "\"", "&quot;" );
+    return html;
+}
+
+QString HtmlGenerator::protectPreformatted(const QString &string)
+{
+    if (string.isEmpty())
+        return string;
+
+    QString html = protect(string);
     if (html.at(0) == QLatin1Char(' '))
         html.replace(0, 1, "&nbsp;");
     return html;

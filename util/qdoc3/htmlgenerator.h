@@ -34,6 +34,7 @@ public:
     virtual void generateTree(const Tree *tree, CodeMarker *marker);
 
     static QString protect( const QString& string );
+    static QString protectPreformatted( const QString& string );
 
 protected:
     virtual void startText( const Node *relative, CodeMarker *marker );
