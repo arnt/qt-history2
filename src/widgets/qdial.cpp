@@ -452,7 +452,8 @@ void QDial::focusOutEvent( QFocusEvent * )
 }
 
 /*!
-
+  Reimplemented to ensure the display is correct and to emit
+  the valueChanged(int) signal when appropriate.
 */
 
 void QDial::valueChange()
@@ -465,7 +466,7 @@ void QDial::valueChange()
 
 
 /*!
-
+  Reimplemented to ensure tick-marks are consistent with the new range.
 */
 
 void QDial::rangeChange()

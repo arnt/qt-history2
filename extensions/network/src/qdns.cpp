@@ -637,7 +637,7 @@ void QDnsAnswer::notify()
 	    QValueList<QString> n = dns->qualifiedNames();
 	    int i = n.count();
 	    bool found = FALSE;
-	    while( i-- > 0 && !found )
+	    while( i-- > 0 && !found ) // ######## O(n*n)!! should use iterator!
 		if ( n[i] == q->l )
 		    found = TRUE;
 	    if ( found )
@@ -1377,6 +1377,12 @@ void QDns::setRecordType( RecordType rr )
   \sa setRecordType() RecordType
 */
 
+/*!
+  \fn QDns::resultsReady()
+
+  This signal is emitted when results are available for one of
+  the qualifiedNames().
+*/
 
 /*! Returns TRUE if QDns is doing a lookup for this object, and FALSE
 if this object has the information it wants.
