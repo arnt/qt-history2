@@ -59,6 +59,7 @@ TeamEditorWidget::TeamEditorWidget( QWidget * parent, const char * name )
     teamTable   = new QSqlTable( this );
     teamCursor.select( teamCursor.index( "name" ) );
     teamTable->setCursor( &teamCursor );
+    teamTable->setSorting( TRUE );
     g->addWidget( teamTable, 1, 0 );
     connect( teamTable, SIGNAL( currentChanged( const QSqlRecord * ) ),
 	     SLOT( updateTeamMembers( const QSqlRecord * ) ) );
@@ -69,6 +70,7 @@ TeamEditorWidget::TeamEditorWidget( QWidget * parent, const char * name )
     playerTable = new QSqlTable( this );
     playerCursor.select( playerCursor.index( "name" ) );
     playerTable->setCursor( &playerCursor );
+    playerTable->setSorting( TRUE );
     g->addWidget( playerTable, 1, 1 );
 
     player2teamLabel = new QLabel( "Players on ?", this );
@@ -92,7 +94,7 @@ TeamEditorWidget::TeamEditorWidget( QWidget * parent, const char * name )
     v->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
 				 QSizePolicy::Expanding ) );
     g->addWidget( buttonFrame, 3, 1 );
-    
+
     QSqlRecord t = teamTable->currentFieldSelection();
     updateTeamMembers( &t );
 }
