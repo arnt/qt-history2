@@ -22,7 +22,7 @@ class QRect;
 class QSize;
 
 class QImageReaderPrivate;
-class QImageReader
+class Q_GUI_EXPORT QImageReader
 {
 public:
     enum ImageReaderError {

@@ -21,7 +21,7 @@ class QIODevice;
 class QImage;
 
 class QImageWriterPrivate;
-class QImageWriter
+class Q_GUI_EXPORT QImageWriter
 {
 public:
     enum ImageWriterError {
