@@ -827,8 +827,9 @@ STDMETHODIMP
 QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
     current_dropobj = pDataObj;
-
     QDragEnterEvent de( widget->mapFromGlobal(QPoint(pt.x,pt.y)) );
+
+    QueryDrop(grfKeyState, pdwEffect);
     if ( *pdwEffect & DROPEFFECT_MOVE )
 	de.setAction( QDropEvent::Move );
     else if ( *pdwEffect & DROPEFFECT_LINK )
@@ -837,7 +838,6 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
     acceptfmt = de.isAccepted();
     acceptact = de.isActionAccepted();
 
-    QueryDrop(grfKeyState, pdwEffect);
     return NOERROR;
 }
 
@@ -845,6 +845,8 @@ STDMETHODIMP
 QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
     QDragMoveEvent de( widget->mapFromGlobal(QPoint(pt.x,pt.y)) );
+
+    QueryDrop(grfKeyState, pdwEffect);
     if ( *pdwEffect & DROPEFFECT_MOVE )
 	de.setAction( QDropEvent::Move );
     else if ( *pdwEffect & DROPEFFECT_LINK )
@@ -857,7 +859,6 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
     acceptfmt = de.isAccepted();
     acceptact = de.isActionAccepted();
 
-    QueryDrop(grfKeyState, pdwEffect);
     return NOERROR;
 }
 
@@ -922,15 +923,11 @@ QOleDropTarget::QueryDrop(DWORD grfKeyState, LPDWORD pdwEffect)
 	    *pdwEffect = DROPEFFECT_LINK;
 	}
 	else goto dropeffect_none;
-    }
-    else {
+    } else {
 	// Check if the drag source application allows the drop effect desired by user.
 	// The drag source specifies this in DoDragDrop
 	if (!(*pdwEffect & dwOKEffects))
 	    goto dropeffect_none;
-	// We don't accept links
-	//if (*pdwEffect == DROPEFFECT_LINK)
-	    //goto dropeffect_none;
     }
     return TRUE;
 
