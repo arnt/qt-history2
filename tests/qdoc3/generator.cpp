@@ -42,22 +42,24 @@ void Generator::terminateGenerator()
 
 void Generator::initialize( const Config& config )
 {
-    outDir = config.getString( CONFIG_OUTPUTDIR );
-    if ( outDir.isEmpty() )
-	config.lastLocation().fatal( tr("No output directory specified in"
-					" configuration file") );
-
-    QDir dirInfo;
-    if ( dirInfo.exists(outDir) ) {
-	if ( !Config::removeDirContents(outDir) )
-	    config.lastLocation().error( tr("Cannot empty output directory"
-					    " '%1'")
-					 .arg(outDir) );
-    } else {
-	if ( !dirInfo.mkdir(outDir) )
-	    config.lastLocation().fatal( tr("Cannot create output directory"
-					    " '%1'")
-					 .arg(outDir) );
+    Set<QString> outputFormats = config.getStringSet( CONFIG_OUTPUTFORMATS );
+    if ( !outputFormats.isEmpty() ) {
+	outDir = config.getString( CONFIG_OUTPUTDIR );
+	if ( outDir.isEmpty() )
+	    config.lastLocation().fatal( tr("No output directory specified in"
+					    " configuration file") );
+	QDir dirInfo;
+	if ( dirInfo.exists(outDir) ) {
+	    if ( !Config::removeDirContents(outDir) )
+		config.lastLocation().error( tr("Cannot empty output directory"
+						" '%1'")
+					     .arg(outDir) );
+	} else {
+	    if ( !dirInfo.mkdir(outDir) )
+		config.lastLocation().fatal( tr("Cannot create output directory"
+						" '%1'")
+					     .arg(outDir) );
+	}
     }
 
     QValueList<Generator *>::ConstIterator g = generators.begin();

@@ -20,6 +20,7 @@
 #include "plaincodemarker.h"
 #include "polyarchiveextractor.h"
 #include "polyuncompressor.h"
+#include "qsakernelparser.h"
 #include "qscodemarker.h"
 #include "qscodeparser.h"
 #include "sgmlgenerator.h"
@@ -114,8 +115,11 @@ static void processQdocFile( const QString& fileName )
     if ( codeParser == 0 )
 	config.lastLocation().fatal( tr("Cannot parse language '%1'")
 				     .arg(lang) );
+
+    Set<QString> outputFormats = config.getStringSet( CONFIG_OUTPUTFORMATS );
+
     CodeMarker *marker = CodeMarker::markerForLanguage( lang );
-    if ( marker == 0 )
+    if ( marker == 0 && !outputFormats.isEmpty() )
 	config.lastLocation().fatal( tr("Cannot output documentation for"
 					" language '%1'")
 				     .arg(lang) );
@@ -140,7 +144,6 @@ static void processQdocFile( const QString& fileName )
     }
     codeParser->doneParsingSourceFiles( tree );
 
-    Set<QString> outputFormats = config.getStringSet( CONFIG_OUTPUTFORMATS );
     Set<QString>::ConstIterator of = outputFormats.begin();
     while ( of != outputFormats.end() ) {
 	Generator *generator = Generator::generatorForFormat( *of );
@@ -189,7 +192,11 @@ int main( int argc, char **argv )
 
     CCodeParser cParser;
     CppCodeParser cppParser;
-    QsCodeParser qsParser( treeForLanguage(cppParser.language()) );
+
+    Tree *cppTree = treeForLanguage( cppParser.language() );
+
+    QsCodeParser qsParser( cppTree );
+    QsaKernelParser qsaKernelParser( cppTree );
 
     PlainCodeMarker plainMarker;
     CppCodeMarker cppMarker;

@@ -25,6 +25,7 @@ HEADERS += archiveextractor.h \
 	   plaincodemarker.h \
 	   polyarchiveextractor.h \
 	   polyuncompressor.h \
+	   qsakernelparser.h \
 	   qscodemarker.h \
 	   qscodeparser.h \
            quoter.h \
@@ -62,6 +63,7 @@ SOURCES += archiveextractor.cpp \
 	   plaincodemarker.cpp \
 	   polyarchiveextractor.cpp \
 	   polyuncompressor.cpp \
+	   qsakernelparser.cpp \
 	   qscodemarker.cpp \
 	   qscodeparser.cpp \
            quoter.cpp \

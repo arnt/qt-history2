@@ -222,7 +222,17 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 	}
 	return 0;
     } else if ( nodeTypeMap.contains(command) ) {
-	QStringList path = QStringList::split( ".", arg );
+	QStringList subArgs = QStringList::split( " ", arg );
+	QString dataType;
+
+	if ( subArgs.count() == 3 && subArgs[1] == ":" ) {
+	    dataType = subArgs[2];
+	} else if ( subArgs.count() != 1 ) {
+	    doc.location().warning( tr("Invalid syntax in '\\%1'")
+				    .arg(command) );
+	}
+
+	QStringList path = QStringList::split( ".", subArgs[0] );
 	Node *quickNode = qsTre->findNode( path, nodeTypeMap[command] );
 	if ( quickNode == 0 ) {
 	    doc.location().warning( tr("Cannot resolve '%1' specified with"
@@ -233,9 +243,24 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 	    if ( quickNode->type() == Node::Class ) {
 		classesWithNoQuickDoc.remove( quickNode->name() );
 		if ( doc.briefText().isEmpty() )
-		    doc.location().warning( tr("Missing '\\%1' for class '%3'")
+		    doc.location().warning( tr("Missing '\\%1' for class '%2'")
 					    .arg(COMMAND_BRIEF)
 					    .arg(quickNode->name()) );
+	    } else if ( quickNode->type() == Node::Property ) {
+		PropertyNode *quickProperty = (PropertyNode *) quickNode;
+		if ( quickProperty->dataType() == "Variant" ) {
+		    if ( dataType.isEmpty() ) {
+			doc.location().warning( tr("Missing data type in '\\%1'"
+						   " (assuming 'Variant')")
+						.arg(command) );
+		    } else {
+			quickProperty->setDataType( dataType );
+		    }
+		} else if ( dataType != quickProperty->dataType() ) {
+		    doc.location().warning( tr("Ignored contradictory data type"
+					       " in '\\%1'")
+					    .arg(command) );
+		}
 	    }
 	}
 	return 0;
@@ -403,9 +428,7 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
     ClassNode *qtClass = 0;
     ClassNode *wrapperClass = 0;
 
-    if ( (wrapperClass = tryClass("Quick" + bare + "Interface")) != 0 ) {
-	qtClass = tryClass( qtClassName );
-    } else if ( (wrapperClass = tryClass("Quick" + bare)) != 0 ) {
+    if ( (wrapperClass = tryClass("Quick" + bare)) != 0 ) {
 	qtClass = tryClass( qtClassName );
 	if ( qtClass == 0 ) {
 	    qtClass = wrapperClass;
@@ -419,9 +442,12 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
 	     ptrToQtType.exactMatch(ctor->parameters().first().leftType()) )
 	    qtClassName = ptrToQtType.cap( 1 );
 	qtClass = tryClass( qtClassName );
-    } else if ( (wrapperClass = tryClass("Q" + bare + "Ptr")) != 0 ) {
-	qtClass = tryClass( qtClassName );
     } else {
+	wrapperClass = tryClass( "Q" + bare + "Ptr" );
+	if ( wrapperClass == 0 )
+	    wrapperClass = tryClass( "Quick" + bare + "Interface" );
+	if ( wrapperClass == 0 )
+	    wrapperClass = tryClass( "QS" + bare + "Class" );
 	qtClass = tryClass( qtClassName );
     }
 

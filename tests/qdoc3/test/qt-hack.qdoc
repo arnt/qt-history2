@@ -22,6 +22,5 @@ sources		= $QTDIR/src/dialogs/qwizard.cpp \
 		  $QTDIR/src/kernel/qwidget_x11.cpp \
 		  $QTDIR/src/widgets/qaction.cpp \
 		  $QTDIR/src/kernel/qstyle.cpp
-formats		= ""
 spurious	= ".*"
-outputdir	= output/qt-with-extensions
+outputformats	= ""

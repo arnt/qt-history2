@@ -22,15 +22,13 @@ public:
     virtual void initializeParser( const Config& config );
     virtual void terminateParser();
     virtual QString language() = 0;
-    virtual QString headerFileNameFilter() = 0;
+    virtual QString headerFileNameFilter();
     virtual QString sourceFileNameFilter() = 0;
     virtual void parseHeaderFile( const Location& location,
-				  const QString& filePath,
-				  Tree *tree ) = 0;
+				  const QString& filePath, Tree *tree );
     virtual void parseSourceFile( const Location& location,
-				  const QString& filePath,
-				  Tree *tree ) = 0;
-    virtual void doneParsingHeaderFiles( Tree *tree ) = 0;
+				  const QString& filePath, Tree *tree ) = 0;
+    virtual void doneParsingHeaderFiles( Tree *tree );
     virtual void doneParsingSourceFiles( Tree *tree ) = 0;
 
     static void initialize( const Config& config );

@@ -34,6 +34,22 @@ void CodeParser::terminateParser()
 {
 }
 
+QString CodeParser::headerFileNameFilter()
+{
+    return sourceFileNameFilter();
+}
+
+void CodeParser::parseHeaderFile( const Location& location,
+				  const QString& filePath, Tree *tree )
+{
+    parseSourceFile( location, filePath, tree );
+}
+
+void CodeParser::doneParsingHeaderFiles( Tree *tree )
+{
+    doneParsingSourceFiles( tree );
+}
+
 void CodeParser::initialize( const Config& config )
 {
     QValueList<CodeParser *>::ConstIterator p = parsers.begin();
