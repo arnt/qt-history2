@@ -24,6 +24,7 @@
 #include <qmenubar.h>
 #include <qspinbox.h>
 #include <qtableview.h>
+#include <qtabwidget.h>
 #include <qlistbox.h>
 #include <qmultilinedit.h>
 #include <qpopupmenu.h>
@@ -34,6 +35,7 @@
 #include <qtabbar.h>
 #include <qscrollview.h>
 #include <qsplitter.h>
+#include <qsizegrip.h>
 #include <qhbox.h>
 #include <qvbox.h>
 #include <qgrid.h>
@@ -285,6 +287,35 @@ public:
 	QWidget::show();
     }
 };
+
+
+
+class EgQTabWidget : public QTabWidget {
+    QWidget t1;
+    QWidget t2;
+    QWidget t3;
+    EgQRadioButton rb;
+
+public:
+    EgQTabWidget() :
+	t1(this),
+	t2(this),
+	t3(this),
+	rb(&t1)
+    {
+	rb.move(10,10);
+	addTab(&t1, "Base");
+	addTab(&t2, "Innings");
+	addTab(&t3, "Style");
+	resize(250,150);
+    }
+
+    void show()
+    {
+	QWidget::show();
+    }
+};
+
 
 class EgQGroupBox : public QGroupBox {
 public:
@@ -585,9 +616,20 @@ public:
     EgQMainWindow() :
 	QMainWindow()
     {
-	(void) new EgQMenuBar(this);
-	(void) new EgQStatusBar(this);
-	(void) new EgQToolBar(this);
+	
+	menuBar()->insertItem("File");
+	menuBar()->insertItem("Edit");
+	menuBar()->insertItem("Options");
+	menuBar()->insertSeparator();
+	menuBar()->insertItem("Help");
+	statusBar()->message( "Ready" );
+	QToolBar *tb = new QToolBar( this );
+	(void)new EgQToolButton( tb );
+	addToolBar( tb );
+	
+	//(void) new EgQMenuBar(this);
+	//(void) new EgQStatusBar(this);
+	//(void) new EgQToolBar(this);
 	QLabel *f = new QLabel("Central\nWidget",this);
 	f->setAlignment(AlignCenter);
 	f->setFrameStyle(QFrame::Sunken|QFrame::Panel);
@@ -606,6 +648,19 @@ public:
 	resize(160,26);
     }
 };
+
+
+
+
+class EgQSizeGrip : public QSizeGrip {
+public:
+    EgQSizeGrip() :
+	QSizeGrip( 0 )
+    {
+	resize(sizeHint());
+    }
+};
+
 
 
 class EgQHBox : public QHBox {
@@ -711,6 +766,7 @@ int main( int argc, char **argv )
 
 	DEPICT( EgQButtonGroup, "qbttngrp", "QButtonGroup" );
 	DEPICT( EgQTabDialog, "qtabdlg", "QTabDialog" );
+	DEPICT( EgQTabWidget, "qtabwidget", "QTabWidget" );
 	DEPICT( EgQGroupBox, "qgrpbox", "QGroupBox" );
 	DEPICT( EgQCheckBox, "qchkbox", "QCheckBox" );
 	DEPICT( EgQPushButton, "qpushbt", "QPushButton" );
@@ -746,6 +802,8 @@ int main( int argc, char **argv )
 	DEPICT( EgQHBox, "qhbox", "QHBox" );
 	DEPICT( EgQVBox, "qvbox", "QVBox" );
 
+	DEPICT( EgQSizeGrip, "qsizegrip", "QSizeGrip" );	
+	
 	if ( !first ) break;
 
 	first = false;
