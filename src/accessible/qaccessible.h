@@ -210,9 +210,7 @@ public:
 
 	FocusChild	= 0x00010000,
 	Label		= 0x00020000,
-	Buddy		= 0x00040000,
-	Controller	= 0x00080000,
-	Controlled	= 0x00100000,
+	Controller	= 0x00040000,
 	LogicalMask	= 0x00ff0000
     };
 

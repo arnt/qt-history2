@@ -232,11 +232,7 @@
 			    focus child
     \value Label	    The first object is the label of the
 			    second object
-    \value Buddy	    The second object is the label of the
-			    first object
     \value Controller	    The first object controls the second object
-    \value Controlled	    The first object is controlled by the the
-			    second object
     \value LogicalMask	    A mask for logical relationships
 
     relationTo() can return a combination of the different values.
