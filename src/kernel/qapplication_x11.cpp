@@ -2847,7 +2847,7 @@ int QApplication::exec()
     quit_code = 0;
 
 #if defined(QT_THREAD_SUPPORT)
-    if (! qt_is_gui_used)
+    if (qt_is_gui_used)
 	qApp->unlock(FALSE);
 #endif
 
