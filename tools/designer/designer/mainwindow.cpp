@@ -2597,8 +2597,8 @@ void MainWindow::helpContents()
     if ( !source.isEmpty() ) {
 	QStringList lst;
 	lst << "assistant" << source;
-	QProcess *proc = new QProcess( lst, this );
-	proc->start();
+	QProcess proc( lst );
+	proc.start();
     }
 
 }
@@ -2607,8 +2607,8 @@ void MainWindow::helpManual()
 {
     QStringList lst;
     lst << "assistant" << "book1.html";
-    QProcess *proc = new QProcess( lst, this );
-    proc->start();
+    QProcess proc( lst );
+    proc.start();
 }
 
 void MainWindow::helpAbout()
@@ -4138,8 +4138,8 @@ void MainWindow::openHelpForDialog( const QString &dia )
     if ( !page.isEmpty() ) {
 	QStringList lst;
 	lst << "assistant" << page;
-	QProcess *proc = new QProcess( lst, this );
-	proc->start();
+	QProcess proc( lst );
+	proc.start();
     }
 }
 
