@@ -1,10 +1,16 @@
 // Qt stuff
 #include "qnp.h"
 #include <qpainter.h>
+#include <qmsgbox.h>
 
 class Trivial : public QNPWidget {
     Q_OBJECT
 public:
+    void mouseReleaseEvent(QMouseEvent* event)
+    {
+	QMessageBox::aboutQt(this);
+    }
+
     void paintEvent(QPaintEvent* event)
     {
 	QPainter p(this);
@@ -38,7 +44,7 @@ public:
 
     const char* getMIMEDescription() const
     {
-	return "trivial/very::Trivial and useless";
+	return "trivial/very:xxx:Trivial and useless";
     }
 
     const char * getPluginNameString() const
