@@ -25,7 +25,7 @@ for PARAM in $PARAMS; do
 done
 
 # debuggery
-[ "$VERBOSE" = "yes" ] && echo "XftFreeType auto-detection... ($*)"
+[ "$VERBOSE" = "yes" ] && echo "Xft auto-detection... ($*)"
 
 # cleanup...
 rm -f $OUTDIR/config.tests/x11/xfreetype.cfg
@@ -39,13 +39,13 @@ for LIBDIR in $LIBDIRS; do
     FOUND_LIB=`ls $LIBDIR/libXft.* 2>/dev/null`
     if [ ! -z "$FOUND_LIB" ]; then
 	F=yes
-	[ "$VERBOSE" = "yes" ] && echo "  Found XftFreeType lib in $LIBDIR"
+	[ "$VERBOSE" = "yes" ] && echo "  Found Xft lib in $LIBDIR"
 	break
     fi
 done
 if [ -z "$F" ]; then
     XFREETYPE=no
-    [ "$VERBOSE" = "yes" ] && echo "  Could not find XftFreeType lib anywhere in $LIBDIRS"
+    [ "$VERBOSE" = "yes" ] && echo "  Could not find Xft lib anywhere in $LIBDIRS"
 fi
     
 # check for X11/Xft/Xft.h
@@ -138,10 +138,10 @@ fi
 
 # done
 if [ "$XFREETYPE" != "yes" ]; then
-    [ "$VERBOSE" = "yes" ] && echo "XftFreeType disabled."
+    [ "$VERBOSE" = "yes" ] && echo "Xft disabled."
     exit 0
 else
-    [ "$VERBOSE" = "yes" ] && echo "XftFreeType enabled."
+    [ "$VERBOSE" = "yes" ] && echo "Xft enabled."
     echo "$FREETYPE2_INCDIR" > $OUTDIR/config.tests/x11/xfreetype.inc
     exit 1
 fi
