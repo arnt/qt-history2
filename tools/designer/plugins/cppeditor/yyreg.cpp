@@ -1,9 +1,22 @@
-/*
-  yyreg.cpp
-
-  This is a parser for Reginald Stadlbauer. It borrows many things
-  from qdoc.
-*/
+/**********************************************************************
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of Qt Designer.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include <qregexp.h>
 
@@ -13,11 +26,12 @@
 #include "yyreg.h"
 
 /*
-  First the tokenizer. We need something that knows not very much
-  about C++.
+  First comes the tokenizer. We don't need something that knows much
+  about C++. However, we need something that give tokens from the end
+  of the file to the start.
 */
 
-enum { Tok_Eoi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen,
+enum { Tok_Boi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen,
        Tok_Equal, Tok_LeftBrace, Tok_RightBrace, Tok_Semicolon, Tok_Colon,
        Tok_LeftAngle, Tok_RightAngle, Tok_Comma, Tok_Ellipsis, Tok_Gulbrandsen,
        Tok_LeftBracket, Tok_RightBracket, Tok_Tilde, Tok_Something, Tok_Comment,
@@ -29,10 +43,8 @@ enum { Tok_Eoi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen,
 static QString yyIn;
 static int yyPos;
 static int yyCurPos;
-static char yyLex[65536]; // big enough for long comments (unlike this one)
-static int yyLexLen;
-static int yyLineNo;
-static int yyCurLineNo;
+static char yyLexBuf[65536]; // big enough for long comments (unlike this one)
+static char *yyLex;
 static int yyCh;
 
 static inline void readChar()
@@ -40,29 +52,24 @@ static inline void readChar()
     if ( yyCh == EOF )
 	return;
 
-    if ( yyLexLen < (int) sizeof(yyLex) + 1 ) {
-	yyLex[yyLexLen++] = (char) yyCh;
-	yyLex[yyLexLen] = '\0';
-    }
+    if ( yyLex > yyLexBuf )
+	*--yyLex = (char) yyCh;
 
-    if ( yyCurPos == (int) yyIn.length() ) {
+    if ( yyCurPos < 0 )
 	yyCh = EOF;
-    } else {
-	yyCh = yyIn[yyCurPos++].unicode();
-	if ( yyCh == '\n' )
-	    yyLineNo++;
-    }
+    else
+	yyCh = yyIn[yyCurPos].unicode();
+
+    yyCurPos--;
 }
 
 static void startTokenizer( const QString& in )
 {
     yyIn = in;
-    yyPos = 0;
-    yyCurPos = 0;
-    yyLex[0] = '\0';
-    yyLexLen = 0;
-    yyLineNo = 0;
-    yyCurLineNo = 0;
+    yyPos = yyIn.length() - 1;
+    yyCurPos = yyPos;
+    yyLex = yyLexBuf + sizeof(yyLexBuf) - 1;
+    *yyLex = '\0';
     yyCh = '\0';
     readChar();
 }
@@ -74,11 +81,11 @@ static void startTokenizer( const QString& in )
 
 static int getToken()
 {
+    yyPos = yyCurPos + 2;
+
     while ( TRUE ) {
-	yyPos = yyCurPos - 1; // yyCurPos is one character ahead
-	yyLex[0] = '\0';
-	yyLexLen = 0;
-	yyLineNo = yyCurLineNo;
+	yyLex = yyLexBuf + sizeof(yyLexBuf) - 1;
+	*yyLex = '\0';
 
 	if ( yyCh == EOF ) {
 	    break;
@@ -86,12 +93,12 @@ static int getToken()
 	    do {
 		readChar();
 	    } while ( isspace(yyCh) );
-	} else if ( isalpha(yyCh) || yyCh == '_' ) {
+	} else if ( isalnum(yyCh) || yyCh == '_' ) {
 	    do {
 		readChar();
 	    } while ( isalnum(yyCh) || yyCh == '_' );
 
-	    switch ( HASH(yyLex[0], yyLexLen) ) {
+	    switch ( HASH(yyLex[0], strlen(yyLex)) ) {
 	    case HASH( 'c', 4 ):
 		CHECK( "char" );
 		return Tok_char;
@@ -120,52 +127,45 @@ static int getToken()
 		CHECK( "unsigned" );
 		return Tok_unsigned;
 	    }
-	    return Tok_Ident;
+	    if ( isdigit(*yyLex) )
+		return Tok_Something;
+	    else
+		return Tok_Ident;
 	} else {
+	    int quote;
+
 	    switch ( yyCh ) {
 	    case '!':
 	    case '%':
 	    case '^':
-		readChar();
-		if ( yyCh == '=' )
-		    readChar();
+	    case '+':
+	    case '-':
+	    case '?':
+	    case '|':
 		return Tok_Something;
 	    case '"':
+	    case '\'':
+		quote = yyCh;
 		readChar();
 
-		while ( yyCh != EOF && yyCh != '"' ) {
-		    if ( yyCh == '\\' )
+		while ( yyCh != EOF ) {
+		    if ( yyCh == quote ) {
 			readChar();
-		    readChar();
+			if ( yyCh != '\\' )
+			    break;
+		    } else {
+			readChar();
+		    }
 		}
-		readChar();
 		return Tok_Something;
-		break;
-	    case '#':
-		while ( yyCh != EOF && yyCh != '\n' ) {
-		    if ( yyCh == '\\' )
-			readChar();
-		    readChar();
-		}
-		break;
-	    case '&':
+	    case Tok_Ampersand:
 		readChar();
-		if ( yyCh == '&' || yyCh == '=' ) {
+		if ( yyCh == '&' ) {
 		    readChar();
 		    return Tok_Something;
 		} else {
 		    return Tok_Ampersand;
 		}
-	    case '\'':
-		readChar();
-		if ( yyCh == '\\' )
-		    readChar();
-		do {
-		    readChar();
-		} while ( yyCh != EOF && yyCh != '\'' );
-
-		readChar();
-		return Tok_Something;
 	    case '(':
 		readChar();
 		return Tok_LeftParen;
@@ -174,53 +174,24 @@ static int getToken()
 		return Tok_RightParen;
 	    case '*':
 		readChar();
-		if ( yyCh == '=' ) {
-		    readChar();
-		    return Tok_Something;
-		} else {
-		    return Tok_Aster;
-		}
-	    case '+':
-		readChar();
-		if ( yyCh == '+' || yyCh == '=' )
-		    readChar();
-		return Tok_Something;
+		return Tok_Aster;
 	    case ',':
 		readChar();
 		return Tok_Comma;
-	    case '-':
-		readChar();
-		if ( yyCh == '-' || yyCh == '=' ) {
-		    readChar();
-		} else if ( yyCh == '>' ) {
-		    readChar();
-		    if ( yyCh == '*' )
-			readChar();
-		}
-		return Tok_Something;
 	    case '.':
 		readChar();
-		if ( yyCh == '*' ) {
-		    readChar();
-		} else if ( yyCh == '.' ) {
+		if ( yyCh == '.' ) {
 		    do {
 			readChar();
 		    } while ( yyCh == '.' );
 		    return Tok_Ellipsis;
-		} else if ( isdigit(yyCh) ) {
-		    do {
-			readChar();
-		    } while ( isalnum(yyCh) || yyCh == '.' || yyCh == '+' ||
-			      yyCh == '-' );
+		} else {
+		    return Tok_Something;
 		}
-		return Tok_Something;
 	    case '/':
+		// we don't treat C++-style comments specially
 		readChar();
-		if ( yyCh == '/' ) {
-		    do {
-			readChar();
-		    } while ( yyCh != EOF && yyCh != '\n' );
-		} else if ( yyCh == '*' ) {
+		if ( yyCh == '*' ) {
 		    bool metAster = FALSE;
 		    bool metAsterSlash = FALSE;
 
@@ -240,11 +211,8 @@ static int getToken()
 		    }
 		    return Tok_Comment;
 		} else {
-		    if ( yyCh == '=' )
-			readChar();
 		    return Tok_Something;
 		}
-		break;
 	    case ':':
 		readChar();
 		if ( yyCh == ':' ) {
@@ -258,48 +226,16 @@ static int getToken()
 		return Tok_Semicolon;
 	    case '<':
 		readChar();
-		if ( yyCh == '<' ) {
-		    readChar();
-		    if ( yyCh == '=' )
-			readChar();
-		    return Tok_Something;
-		} else if ( yyCh == '=' ) {
-		    readChar();
-		    return Tok_Something;
-		} else {
-		    return Tok_LeftAngle;
-		}
+		return Tok_LeftAngle;
 	    case '=':
 		readChar();
-		if ( yyCh == '=' ) {
-		    readChar();
-		    return Tok_Something;
-		} else {
-		    return Tok_Equal;
-		}
+		return Tok_Equal;
 	    case '>':
 		readChar();
-		if ( yyCh == '>' ) {
-		    readChar();
-		    if ( yyCh == '=' )
-			readChar();
-		    return Tok_Something;
-		} else if ( yyCh == '=' ) {
-		    readChar();
-		    return Tok_Something;
-		} else {
-		    return Tok_RightAngle;
-		}
-	    case '?':
-		readChar();
-		return Tok_Something;
+		return Tok_RightAngle;
 	    case '[':
 		readChar();
 		return Tok_LeftBracket;
-	    case '\\':
-		readChar();
-		readChar(); // skip one character
-		break;
 	    case ']':
 		readChar();
 		return Tok_RightBracket;
@@ -309,11 +245,6 @@ static int getToken()
 	    case '}':
 		readChar();
 		return Tok_RightBrace;
-	    case '|':
-		readChar();
-		if ( yyCh == '|' || yyCh == '=' )
-		    readChar();
-		return Tok_Something;
 	    case '~':
 		readChar();
 		return Tok_Tilde;
@@ -322,11 +253,11 @@ static int getToken()
 	    }
 	}
     }
-    return Tok_Eoi;
+    return Tok_Boi;
 }
 
 /*
-  A few member functions of Function.
+  Follow a few member functions of CppFunction.
 */
 
 CppFunction::CppFunction( const CppFunction& f )
@@ -372,146 +303,13 @@ QString CppFunction::prototype() const
 
 /*
   The parser follows. We are not really parsing C++, just trying to
-  find the start and end of function definitions. One pitfall is that
-  the parsed code needs not be valid. In particular, braces might be
-  unbalanced.
+  find the start and end of function definitions.
+
+  One pitfall is that the parsed code needs not be valid. Parsing
+  from right to left helps cope with that.
 */
 
 static int yyTok;
-
-static QString matchTemplateAngles()
-{
-    QString t;
-
-    if ( yyTok == Tok_LeftAngle ) {
-	int depth = 0;
-	do {
-	    if ( yyTok == Tok_LeftAngle )
-		depth++;
-	    else if ( yyTok == Tok_RightAngle )
-		depth--;
-	    t += yyLex;
-	    yyTok = getToken();
-	} while ( depth > 0 && yyTok != Tok_Eoi );
-    }
-    return t;
-}
-
-enum VariableNamePolicy { DontParseVarNames, StripVarNames, KeepVarNames };
-
-static void appendToType( QString *type, const QString& trailer )
-{
-    if ( !type->isEmpty() && !trailer.isEmpty() ) {
-	QString newType = *type;
-	if ( newType[(int)newType.length() - 1].isLetter() ) {
-	    if ( trailer[0].isLetter() || trailer[0] == QChar('*') ||
-		 trailer[0] == QChar('&') )
-		*type += QChar( ' ' );
-	}
-    }
-    *type += trailer;
-}
-
-/*
-  Tries to match a data type and possibly a variable name, and returns
-  these. The variable name belongs here because of cases such as
-  'char *xpm[]' and 'int (*f)(int)'.
-*/
-static QString matchDataType( VariableNamePolicy policy )
-{
-    QString type;
-
-    /*
-      This code is really hard to follow... sorry. The loop is there to match
-      Alpha::Beta::Gamma::...::Omega.
-    */
-    while ( TRUE ) {
-	bool virgin = TRUE;
-
-	if ( yyTok != Tok_Ident ) {
-	    /*
-	      People may write 'const unsigned short' or
-	      'short unsigned const' or any other permutation.
-	    */
-	    while ( yyTok == Tok_const ) {
-		appendToType( &type, yyLex );
-		yyTok = getToken();
-	    }
-	    while ( yyTok == Tok_signed || yyTok == Tok_unsigned ||
-		    yyTok == Tok_short || yyTok == Tok_long ) {
-		appendToType( &type, yyLex );
-		yyTok = getToken();
-		virgin = FALSE;
-	    }
-	    while ( yyTok == Tok_const ) {
-		appendToType( &type, yyLex );
-		yyTok = getToken();
-	    }
-
-	    if ( yyTok == Tok_Tilde ) {
-		appendToType( &type, yyLex );
-		yyTok = getToken();
-	    }
-	}
-
-	if ( virgin ) {
-	    if ( yyTok == Tok_Ellipsis || yyTok == Tok_Ident ||
-		 yyTok == Tok_char || yyTok == Tok_int ||
-		 yyTok == Tok_double ) {
-		appendToType( &type, yyLex );
-		yyTok = getToken();
-	    } else {
-		return QString::null;
-	    }
-	} else if ( yyTok == Tok_int || yyTok == Tok_char ||
-		    yyTok == Tok_double ) {
-	    appendToType( &type, yyLex );
-	    yyTok = getToken();
-	}
-
-	appendToType( &type, matchTemplateAngles() );
-
-	while ( yyTok == Tok_const ) {
-	    appendToType( &type, yyLex );
-	    yyTok = getToken();
-	}
-
-	if ( yyTok == Tok_Gulbrandsen ) {
-	    appendToType( &type, yyLex );
-	    yyTok = getToken();
-	} else {
-	    break;
-	}
-    }
-
-    while ( yyTok == Tok_Ampersand || yyTok == Tok_Aster ||
-	    yyTok == Tok_const ) {
-	appendToType( &type, yyLex );
-	yyTok = getToken();
-    }
-
-    /*
-      Look for an optional identifier, then for some array brackets.
-      We don't recognize pointers to functions.
-    */
-    if ( policy != DontParseVarNames ) {
-	if ( yyTok == Tok_Ident ) {
-	    if ( policy == KeepVarNames )
-		appendToType( &type, yyLex );
-	    yyTok = getToken();
-	}
-
-	while ( yyTok == Tok_LeftBracket ) {
-	    do {
-		yyTok = getToken();
-		appendToType( &type, yyLex );
-	    } while ( yyTok != Tok_Eoi && yyTok != Tok_RightBracket );
-	    yyTok = getToken();
-	    appendToType( &type, yyLex );
-	}
-    }
-    return type;
-}
 
 static bool isCtorOrDtor( const QString& thingy )
 {
@@ -525,97 +323,206 @@ static bool isCtorOrDtor( const QString& thingy )
     return xtor.exactMatch( thingy );
 }
 
+static QString matchTemplateAngles()
+{
+    QString t;
+
+    if ( yyTok == Tok_RightAngle ) {
+	int depth = 0;
+	do {
+	    if ( yyTok == Tok_RightAngle )
+		depth++;
+	    else if ( yyTok == Tok_LeftAngle )
+		depth--;
+	    t.prepend( yyLex );
+	    yyTok = getToken();
+	} while ( depth > 0 && yyTok != Tok_Boi );
+    }
+    return t;
+}
+
+static QString matchArrayBrackets()
+{
+    QString t;
+
+    while ( yyTok == Tok_RightBracket ) {
+	t.prepend( yyLex );
+	if ( yyTok == Tok_Something )
+	    t.prepend( yyLex );
+	if ( yyTok != Tok_LeftBracket )
+	    return QString::null;
+	yyTok = getToken();
+    }
+    return t;
+}
+
+static void prependToType( QString *type, const QString& prefix )
+{
+    if ( !type->isEmpty() && !prefix.isEmpty() ) {
+	QChar left = prefix[prefix.length() - 1];
+	QChar right = (*type)[0];
+
+	// style can be enforced here
+	if ( left.isLetter() &&
+	     (right.isLetter() || right == QChar('*') || right == QChar('&')) )
+	    type->prepend( QChar(' ') );
+    }
+    type->prepend( prefix );
+}
+
+static QString matchDataType()
+{
+    QString type;
+
+    while ( yyTok == Tok_Ampersand || yyTok == Tok_Aster ||
+	    yyTok == Tok_const ) {
+	prependToType( &type, yyLex );
+	yyTok = getToken();
+    }
+
+    /*
+      This code is really hard to follow... sorry. The loop is there to match
+      Alpha::Beta::Gamma::...::Omega.
+    */
+    while ( TRUE ) {
+	bool virgin = TRUE;
+
+	prependToType( &type, matchTemplateAngles() );
+
+	if ( yyTok != Tok_Ident ) {
+	    /*
+	      People may write 'const unsigned short' or
+	      'short unsigned const' or any other permutation.
+	    */
+	    while ( yyTok == Tok_const || yyTok == Tok_signed ||
+		    yyTok == Tok_unsigned || yyTok == Tok_short ||
+		    yyTok == Tok_long ) {
+		prependToType( &type, yyLex );
+		yyTok = getToken();
+		if ( yyTok != Tok_const )
+		    virgin = FALSE;
+	    }
+
+	    if ( yyTok == Tok_Tilde ) {
+		prependToType( &type, yyLex );
+		yyTok = getToken();
+	    }
+	}
+
+	if ( virgin ) {
+	    if ( yyTok == Tok_Ellipsis || yyTok == Tok_Ident ||
+		 yyTok == Tok_char || yyTok == Tok_int ||
+		 yyTok == Tok_double ) {
+		prependToType( &type, yyLex );
+		yyTok = getToken();
+	    } else {
+		return QString::null;
+	    }
+	} else if ( yyTok == Tok_int || yyTok == Tok_char ||
+		    yyTok == Tok_double ) {
+	    prependToType( &type, yyLex );
+	    yyTok = getToken();
+	}
+
+	while ( yyTok == Tok_const ) {
+	    prependToType( &type, yyLex );
+	    yyTok = getToken();
+	}
+
+	if ( yyTok == Tok_Gulbrandsen ) {
+	    prependToType( &type, yyLex );
+	    yyTok = getToken();
+	} else {
+	    break;
+	}
+    }
+    return type;
+}
+
 static CppFunction matchFunctionPrototype( bool stripParamNames )
 {
     CppFunction func;
+    QString documentation;
     QString returnType;
     QString scopedName;
     QStringList params;
-    bool cnst = FALSE;
     QString qualifier;
-
-    if ( yyTok == Tok_Comment )
-	yyTok = getToken();
-
-    returnType = matchDataType( DontParseVarNames );
-    if ( returnType.isEmpty() ) {
-	yyTok = getToken();
-	return func;
-    }
-
-    if ( isCtorOrDtor(returnType) ) {
-	scopedName = returnType;
-	returnType = QString::null;
-    } else if ( yyTok == Tok_Ident ) {
-	scopedName = yyLex;
-	yyTok = getToken();
-
-	scopedName += matchTemplateAngles();
-
-	while ( yyTok == Tok_Gulbrandsen ) {
-	    scopedName += yyLex;
-	    yyTok = getToken();
-
-	    bool isOperator = FALSE;
-
-	    switch ( yyTok ) {
-	    case Tok_operator:
-		isOperator = TRUE;
-		break;
-	    case Tok_Ident:
-		break;
-	    default:
-		return func;
-	    }
-
-	    scopedName += yyLex;
-	    yyTok = getToken();
-
-	    if ( isOperator ) {
-		do {
-		    scopedName += yyLex;
-		    yyTok = getToken();
-		} while ( yyTok != Tok_Eoi && yyTok != Tok_LeftParen &&
-			  yyTok != Tok_LeftBrace && yyTok != Tok_RightBrace &&
-			  yyTok != Tok_Semicolon );
-	    }
-	}
-    } else {
-	return func;
-    }
-
-    if ( yyTok != Tok_LeftParen )
-	return func;
-    yyTok = getToken();
-
-    if ( yyTok != Tok_RightParen ) {
-	while ( TRUE ) {
-	    QString param = matchDataType( stripParamNames ? StripVarNames
-					   : KeepVarNames );
-	    if ( param.isEmpty() )
-		return func;
-	    params.append( param );
-
-	    if ( yyTok != Tok_Comma )
-		break;
-
-	    yyTok = getToken();
-	}
-	if ( yyTok != Tok_RightParen )
-	    return func;
-    }
-    yyTok = getToken();
+    bool cnst = FALSE;
 
     if ( yyTok == Tok_const ) {
 	cnst = TRUE;
 	yyTok = getToken();
     }
 
-    if ( yyTok == Tok_Colon ) {
-	while ( yyTok != Tok_LeftBrace && yyTok != Tok_Eoi )
+    if ( yyTok != Tok_RightParen )
+	return func;
+    yyTok = getToken();
+
+    if ( yyTok != Tok_LeftParen ) {
+	while ( TRUE ) {
+	    QString brackets = matchArrayBrackets();
+	    QString name;
+	    if ( yyTok == Tok_Ident ) {
+		name = yyLex;
+		yyTok = getToken();
+	    }
+	    QString type = matchDataType();
+
+	    if ( type.isEmpty() ) {
+		if ( name.isEmpty() )
+		    return func;
+		type = name;
+		name = QString::null;
+	    }
+	    if ( stripParamNames )
+		name = QString::null;
+
+	    QString param = type + QChar( ' ' ) + name + brackets;
+	    params.prepend( param.stripWhiteSpace() );
+
+	    if ( yyTok != Tok_Comma )
+		break;
 	    yyTok = getToken();
+	}
+	if ( yyTok != Tok_LeftParen )
+	    return func;
+    }
+    yyTok = getToken();
+
+    while ( TRUE ) {
+	scopedName.prepend( matchTemplateAngles() );
+
+	if ( yyTok != Tok_Ident ) {
+	    // the operator keyword should be close
+	    int i = 0;
+	    while ( i < 4 && yyTok != Tok_operator ) {
+		scopedName.prepend( yyLex );
+		i++;
+	    }
+	    if ( yyTok != Tok_operator )
+		return func;
+	}
+	scopedName.prepend( yyLex );
+	yyTok = getToken();
+
+	if ( yyTok != Tok_Gulbrandsen )
+	    break;
+	scopedName.prepend( yyLex );
+	yyTok = getToken();
     }
 
+    if ( !isCtorOrDtor(scopedName) ) {
+	returnType = matchDataType();
+	if ( returnType.isEmpty() )
+	    return func;
+    }
+
+    if ( yyTok == Tok_Comment ) {
+	documentation = yyLex;
+	yyTok = getToken();
+    }
+
+    func.setDocumentation( documentation );
     func.setReturnType( returnType );
     func.setScopedName( scopedName );
     func.setParameterList( params );
@@ -647,34 +554,21 @@ static void setBody( CppFunction *func, const QString& somewhatBody )
 
 static void matchTranslationUnit( QValueList<CppFunction> *flist )
 {
-    CppFunction pendingFunc;
-    int startBody = -1;
-    int endBody;
+    while ( TRUE ) {
+	int endBody = yyPos;
 
-    while ( yyTok != Tok_Eoi ) {
-	endBody = yyPos;
-	CppFunction func = matchFunctionPrototype( FALSE );
-	if ( !func.scopedName().isEmpty() && yyTok == Tok_LeftBrace ) {
-	    if ( startBody != -1 ) {
-		setBody( &pendingFunc,
-			 yyIn.mid(startBody, endBody - startBody) );
-		flist->append( pendingFunc );
-	    }
-
-	    startBody = yyPos;
-	    pendingFunc = func;
-	}
-
-#if 0
-	while ( yyTok != Tok_Eoi && yyTok != Tok_RightBrace &&
-		yyTok != Tok_Semicolon )
+	while ( yyTok != Tok_Boi && yyTok != Tok_LeftBrace )
 	    yyTok = getToken();
+	if ( yyTok == Tok_Boi )
+	    break;
+
 	yyTok = getToken();
-#endif
-    }
-    if ( startBody != -1 ) {
-	setBody( &pendingFunc, yyIn.mid(startBody) );
-	flist->append( pendingFunc );
+	int startBody = yyPos;
+	CppFunction func = matchFunctionPrototype( FALSE );
+	if ( !func.scopedName().isEmpty() ) {
+	    setBody( &func, yyIn.mid(startBody, endBody - startBody) );
+	    flist->prepend( func );
+	}
     }
 }
 
@@ -698,53 +592,3 @@ QString canonicalCppProto( const QString& proto )
     CppFunction func = matchFunctionPrototype( TRUE );
     return func.prototype();
 }
-
-/*
-  Follows a test driver that is not really part of the parser.
-*/
-#include <qfile.h>
-#include <qtextstream.h>
-
-#include <errno.h>
-#include <stdlib.h>
-
-#if 0
-int main( int argc, char **argv )
-{
-    const char * const tab[] = {
-	"int Foo::printFoo(int x, int y) const",
-	"void Foo::Bar::printBar(QWidget *z)"
-    };
-
-    for ( int i = 0; i < 2; i++ )
-	qDebug( "Canonical: %s\n",
-		 canonicalCppProto(QString(tab[i])).latin1() );
-
-    if ( argc != 2 ) {
-	qWarning( "Usage: yyreg file.cpp" );
-	return EXIT_FAILURE;
-    }
-
-    QFile f( argv[1] );
-    if ( !f.open(IO_ReadOnly) ) {
-	qWarning( "Cannot open '%s' for reading: %s", argv[1],
-		  strerror(errno) );
-	return EXIT_FAILURE;
-    }
-
-    QTextStream t( &f );
-    QString code = t.read();
-    f.close();
-
-    QValueList<CppFunction> flist;
-    extractCppFunctions( code, &flist );
-    QValueList<CppFunction>::ConstIterator func = flist.begin();
-    while ( func != flist.end() ) {
-	qDebug( "Function: %s", (*func).prototype().latin1() );
-	qDebug( "Body:     %s\n",
-		(*func).body().simplifyWhiteSpace().latin1() );
-	++func;
-    }
-    return EXIT_SUCCESS;
-}
-#endif
