@@ -1599,7 +1599,7 @@ void QWindowsStyle::drawProgressChunk( QPainter *p, int x, int y, int w, int h, 
  \reimp
 */
 void QWindowsStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
-		 const QColorGroup &g, bool on, bool down, bool, bool autoRaised,
+		 const QColorGroup &g, bool on, bool down, bool enabled, bool autoRaised,
 		 const QBrush *fill )
 {
     QBrush onfill( g.light(), Dense4Pattern );
@@ -1612,6 +1612,7 @@ void QWindowsStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
 	  qWinVersion() == WV_XP ) )
 	thefill = &onfill;
 #else
+    Q_UNUSED(enabled)
     if ( !thefill && on && !d->hotWidget )
 	thefill = &onfill;
 #endif
