@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#20 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#21 $
 **
 ** Implementation of QGVector class
 **
@@ -28,7 +28,7 @@
 #include "qdstream.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#21 $");
 
 
 #define USE_MALLOC				// comment to use new/delete
@@ -250,11 +250,20 @@ bool QGVector::fill( GCI d, int flen )		// resize and fill vector
 
 static QGVector *sort_vec=0;			// current sort vector
 
+
+#if defined(Q_C_CALLBACKS)
 extern "C" {
-    static int cmp_vec( const void *n1, const void *n2 ) {
-	return sort_vec->compareItems( (GCI)n1, (GCI)n2 );
-    }
+#endif
+
+static int cmp_vec( const void *n1, const void *n2 )
+{
+    return sort_vec->compareItems( (GCI)n1, (GCI)n2 );
 }
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
+
 
 void QGVector::sort()				// sort vector
 {
