@@ -342,7 +342,10 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
     if (object && object->format().toListFormat().style() != QTextListFormat::ListStyleUndefined)
         drawListItem(offset, painter, context, bl, s);
 
-    if (tl->numLines() == 0) {
+    // QTextLayout even for empty blocks creates at least one line (per QTextLayout::createLine),
+    // so we need the second check, too
+    const int lines = tl->numLines();
+    if (lines == 0 || (lines == 1 && tl->lineAt(0).length() == 0)) {
 
         QPoint pos = tl->rect().topLeft() + offset;
 
