@@ -1243,7 +1243,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_32(
 GFX_INLINE unsigned int QGfxRasterBase::get_value_16(
 		       int sdepth, unsigned char **srcdata, bool reverse)
 {
-    unsigned int ret;
+    unsigned int ret = 0;
     if ( sdepth == 16 ) {
 	unsigned short int hold = *((unsigned short int *)(*srcdata));
 	if(reverse) {
