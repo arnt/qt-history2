@@ -1261,6 +1261,19 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 #endif
 	break;
     case Key_Backspace:
+#if defined (Q_WS_WIN)
+	if ( e->state() & AltButton ) {
+	    if (e->state() & ControlButton ) {
+		break;
+	    } else if ( e->state() & ShiftButton ) {
+		redo();
+		break;
+	    } else {
+		undo();
+		break;
+	    }
+	} else
+#endif
 	if ( doc->hasSelection( QTextDocument::Standard, TRUE ) ) {
 	    removeSelectedText();
 	    break;
