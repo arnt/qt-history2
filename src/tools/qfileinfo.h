@@ -114,8 +114,8 @@ public:
 
     bool	permission( int permissionSpec ) const;
 
-#ifdef QT_LARGE_FILE
-    QIODevice::Offset	size()	const;
+#ifdef QT_LARGE_FILE_SUPPORT
+    QIODevice::Offset size()	const;
 #else
     uint	size()		const;
 #endif

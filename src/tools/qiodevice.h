@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QIODevice class
 **
@@ -39,13 +39,6 @@
 #define QIODEVICE_H
 
 #ifndef QT_H
-#ifdef QT_LARGE_FILE
-// ### Should be included first. This is a problem in the current
-// ### "qplatformdefs.h" strategy which is OK for source files but
-// ### not for header files. Do we need defines back in qmake.conf?
-#define _FILE_OFFSET_BITS 64
-#include "qplatformdefs.h"
-#endif
 #include "qglobal.h"
 #include "qcstring.h"
 #endif // QT_H
@@ -95,12 +88,8 @@
 class Q_EXPORT QIODevice			// IO device class
 {
 public:
-#ifdef QT_LARGE_FILE
-#if defined(Q_OS_WIN32)
-    typedef __int64 Offset; // ### make it work with all compilers!
-#else
-    typedef off_t Offset;
-#endif
+#ifdef QT_LARGE_FILE_SUPPORT
+    typedef Q_UINT64_P Offset;
 #else
     typedef Q_ULONG Offset;
 #endif

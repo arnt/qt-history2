@@ -245,6 +245,7 @@ CFG_GFX_AVAILABLE=
 CFG_TABLET=auto
 CFG_XKB=auto
 CFG_NIS=auto
+CFG_LARGEFILE=no
 CFG_STL=auto
 CFG_NAS=no
 CFG_REMOTE=no
@@ -303,7 +304,7 @@ while [ -n "$1" ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-tablet|-stl|-freetype|-big-codecs|-xrender|-xft|-xkb|-nis|-remote|-h|-help|-v|-verbose|-debug|-release|-fast)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-tablet|-stl|-freetype|-big-codecs|-xrender|-xft|-xkb|-nis|-largefile|-remote|-h|-help|-v|-verbose|-debug|-release|-fast)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -648,6 +649,13 @@ while [ -n "$1" ]; do
     nis)
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
 	    CFG_NIS="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
+	;;
+    largefile)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_LARGEFILE="$VAL"
 	else
 	    UNKNOWN_OPT=yes
 	fi
@@ -1295,7 +1303,9 @@ if [ "$CFG_NIS" != "no" ]; then
 else
     CFG_NIS=no
 fi
-
+# auto-detect large file support
+# * MUST BE EXPLICITLY ENABLED FOR NOW - BREAKS BINARY COMPATIBILITY *
+ 
 # x11
 if [ "$PLATFORM_X11" = "yes" ]; then
     x11tests=$relpath/config.tests/x11
@@ -1383,6 +1393,13 @@ if [ "$OPT_HELP" = "yes" ]; then
     else
 	NSY="*"
 	NSN=" "
+    fi
+    if [ "$CFG_LARGEFILE" = "no" ]; then
+	LFSY=" "
+	LFSN="*"
+    else
+	LFSY="*"
+	LFSN=" "
     fi
     if [ "$CFG_STL" = "auto" ]; then
 	SHY="+"
@@ -2116,11 +2133,10 @@ elif [ "$CFG_ZLIB" = "system" ]; then
 fi
 [ "$CFG_NIS" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG nis"
 [ "$CFG_NAS" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG nas"
+[ "$CFG_LARGEFILE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG largefile"
 [ "$CFG_BIG_CODECS" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG bigcodecs"
 
-if [ "$CFG_REMOTE" = "yes" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG remote"
-fi
+[ "$CFG_REMOTE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG remote"
 
 [ "$CFG_QWS_FREETYPE" = "yes" -a "x$CFG_EMBEDDED" != "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG ft"
 if [ "$PLATFORM_X11" = "yes" ]; then
@@ -2317,6 +2333,7 @@ echo "Remote support ...... $CFG_REMOTE"
 echo "STL support ......... $CFG_STL"
 echo "Thread support ...... $CFG_THREAD"
 echo "NIS support ......... $CFG_NIS"
+echo "Large File support .. $CFG_LARGEFILE"
 echo "GIF support ......... $CFG_GIF"
 if [ "$CFG_MNG" = "no" ]; then
     echo "MNG support ......... $CFG_MNG"

@@ -285,7 +285,7 @@ bool QFile::open( int m, int f )
 
 QIODevice::Offset QFile::size() const
 {
-#if defined(QT_LARGE_FILE)
+#if defined(QT_LARGE_FILE_SUPPORT)
 #error "large file support not yet implemented!"
 #else
     QT_STATBUF st;
@@ -304,7 +304,7 @@ QIODevice::Offset QFile::size() const
 
 bool QFile::at( Offset pos )
 {
-#if defined(QT_LARGE_FILE)
+#if defined(QT_LARGE_FILE_SUPPORT)
 #error "large file support not yet implemented!"
 #else
     if ( !isOpen() ) {

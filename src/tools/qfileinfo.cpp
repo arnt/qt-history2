@@ -559,7 +559,7 @@ bool QFileInfo::isDir() const
   Returns the file size in bytes, or 0 if the file does not exist or if
   the size is 0 or if the size cannot be fetched.
 */
-#ifdef QT_LARGE_FILE
+#ifdef QT_LARGE_FILE_SUPPORT
 QIODevice::Offset QFileInfo::size() const
 {
 #error "large file support not yet implemented!"
