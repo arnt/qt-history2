@@ -42,6 +42,10 @@
 extern double qt_pointSize(double pixelSize, QPaintDevice *paintdevice, int screen);
 extern double qt_pixelSize(double pointSize, QPaintDevice *paintdevice, int screen);
 
+#ifdef Q_Q4PAINTER
+#include "qx11gc.h"
+#define QPaintDevice QX11GC
+#endif
 
 static inline void capitalize ( char *s )
 {

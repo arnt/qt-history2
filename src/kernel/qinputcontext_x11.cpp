@@ -22,6 +22,10 @@
 #include <stdlib.h>
 #include <limits.h>
 
+#ifdef Q_Q4PAINTER
+#include "qx11gc.h"
+#define QPaintDevice QX11GC
+#endif
 
 bool qt_compose_emptied = FALSE;
 

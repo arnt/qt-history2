@@ -23,11 +23,29 @@
 #ifdef Q_Q4PAINTER
 #include "qx11gc.h"
 
-inline Display *QPaintDevice::x11Display() const
+Display *QPaintDevice::x11Display() const
 { return x11Data ? x11Data->x_display : QX11GC::x11AppDisplay(); }
 
-inline int QPaintDevice::x11Screen() const
+int QPaintDevice::x11Screen() const
 { return x11Data ? x11Data->x_screen : QX11GC::x11AppScreen(); }
+
+void *QPaintDevice::x11Visual() const
+{ return x11Data ? x11Data->x_visual : QX11GC::x11AppVisual(); }
+
+int QPaintDevice::x11Depth() const
+{ return x11Data ? x11Data->x_depth : QX11GC::x11AppDepth(); }
+
+int QPaintDevice::x11Cells() const
+{ return x11Data ? x11Data->x_cells : QX11GC::x11AppCells(); }
+
+Qt::HANDLE QPaintDevice::x11Colormap() const
+{ return x11Data ? x11Data->x_colormap : QX11GC::x11AppColormap(); }
+
+bool QPaintDevice::x11DefaultColormap() const
+{ return x11Data ? x11Data->x_defcolormap : QX11GC::x11AppDefaultColormap(); }
+
+bool QPaintDevice::x11DefaultVisual() const
+{ return x11Data ? x11Data->x_defvisual : QX11GC::x11AppDefaultVisual(); }
 #endif
 
 /*!

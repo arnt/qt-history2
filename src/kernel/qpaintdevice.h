@@ -321,7 +321,6 @@ inline Display *QPaintDevice::x11Display() const
 
 inline int QPaintDevice::x11Screen() const
 { return x11Data ? x11Data->x_screen : x_appscreen; }
-#endif
 
 inline int QPaintDevice::x11Depth() const
 { return x11Data ? x11Data->x_depth : x_appdepth; }
@@ -340,6 +339,7 @@ inline void *QPaintDevice::x11Visual() const
 
 inline bool QPaintDevice::x11DefaultVisual() const
 { return x11Data ? x11Data->x_defvisual : x_appdefvisual; }
+#endif
 
 inline Display *QPaintDevice::x11AppDisplay()
 { return x_appdisplay; }

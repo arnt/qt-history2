@@ -22,6 +22,11 @@
 #include "qpaintdevice.h"
 #include "qpainter.h"
 
+#ifdef Q_Q4PAINTER
+#include "qx11gc.h"
+#define QPaintDevice QX11GC
+#endif
+
 #include "qt_x11_p.h"
 
 #include "qfont.h"
@@ -1291,6 +1296,9 @@ void QFontEngineLatinXLFD::setScale( double scale )
 // Xft cont engine
 // ------------------------------------------------------------------
 // #define FONTENGINE_DEBUG
+#ifdef Q_Q4PAINTER
+#undef QPaintDevice
+#endif
 
 #ifndef QT_NO_XFTFREETYPE
 class Q_HackPaintDevice : public QPaintDevice
@@ -1302,6 +1310,9 @@ public:
     }
 
 };
+#ifdef Q_Q4PAINTER
+#define QPaintDevice QX11GC
+#endif
 
 #ifdef QT_XFT2
 static inline void getGlyphInfo( XGlyphInfo *xgi, XftFont *font, int glyph )
