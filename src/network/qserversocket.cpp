@@ -36,7 +36,7 @@ public:
 
     This class is a convenience class for accepting incoming TCP
     connections. You can specify the port or have QServerSocket pick
-    one, and listen on just one address or on all the machine's
+    one, and listen on just one address, or on all the machine's
     addresses.
 
     Using the API is very simple: subclass QServerSocket, call the
@@ -51,7 +51,7 @@ public:
 
 
 /*!
-    Creates a server socket object, that will serve the given \a port
+    Creates a server socket object to serve the given \a port
     on all the addresses of this host. If \a port is 0, QServerSocket
     will pick a suitable port in a system-dependent manner. Use \a
     backlog to specify how many pending connections the server can
@@ -75,7 +75,7 @@ QServerSocket::QServerSocket(Q_UINT16 port, int backlog,
 
 
 /*!
-    Creates a server socket object, that will serve the given \a port
+    Creates a server socket object to serve the given \a port
     only on the given \a address. Use \a backlog to specify how many
     pending connections the server can have.
 
@@ -101,8 +101,8 @@ QServerSocket::QServerSocket(const QHostAddress & address, Q_UINT16 port,
     Construct an empty server socket.
 
     This constructor, in combination with setSocket(), allows us to
-    use the QServerSocket class as a wrapper for other socket types
-    (e.g. Unix Domain Sockets under Unix).
+    use the QServerSocket class as a wrapper for other socket types,
+    such as Unix Domain Sockets.
 
     The \a parent and \a name arguments are passed on to the QObject
     constructor.
@@ -118,7 +118,7 @@ QServerSocket::QServerSocket(QObject *parent, const char *name)
 
 
 /*!
-    Returns true if the construction succeeded; otherwise returns false.
+    Returns true if the socket is ready to use; otherwise returns false.
 */
 bool QServerSocket::ok() const
 {
@@ -157,12 +157,12 @@ void QServerSocket::init(const QHostAddress & address, Q_UINT16 port, int backlo
 /*!
     Destroys the socket.
 
-    This causes any backlogged connections (connections that have
-    reached the host, but not yet been completely set up by calling
-    QSocketDevice::accept()) to be severed.
+    All backlogged connections are closed; this includes connections that
+    have reached the host, but have not yet been set up by a call to
+    QSocketDevice::accept().
 
     Existing connections continue to exist; this only affects the
-    acceptance of new connections.
+    ability of the server to accept new connections.
 */
 QServerSocket::~QServerSocket()
 {
@@ -174,8 +174,8 @@ QServerSocket::~QServerSocket()
     \fn void QServerSocket::newConnection(int socket)
 
     This pure virtual function is responsible for setting up a new
-    incoming connection. \a socket is the fd (file descriptor) for the
-    newly accepted connection.
+    incoming connection. The \a socket given is the fd (file descriptor)
+    for the newly accepted connection.
 */
 
 
@@ -191,7 +191,7 @@ void QServerSocket::incomingConnection(int)
     Returns the port number on which this server socket listens. This
     is always non-zero; if you specify 0 in the constructor,
     QServerSocket will pick a non-zero port itself. ok() must be true
-    before calling this function.
+    before this function is called.
 
     \sa address() QSocketDevice::port()
 */
@@ -248,11 +248,11 @@ QSocketDevice *QServerSocket::socketDevice()
 
 
 /*!
-    Sets the socket to use \a socket. bind() and listen() should
-    already have been called for \a socket.
+    Sets the \a socket to use for the server. bind() and listen() should
+    already have been called for the \a socket given.
 
     This allows us to use the QServerSocket class as a wrapper for
-    other socket types (e.g. Unix Domain Sockets).
+    other socket types, such as Unix Domain Sockets.
 */
 void QServerSocket::setSocket(int socket)
 {
