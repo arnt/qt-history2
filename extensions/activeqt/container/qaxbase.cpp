@@ -1039,6 +1039,8 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
 	str = "bool";
 	break;
     case VT_I1:
+	str = "char";
+	break;
     case VT_I2:
 	str = "short";
 	break;
@@ -1185,6 +1187,9 @@ static inline void QStringToQUType( const QString& fulltype, QUParameter *param,
     } else if ( type == "short" ) {
 	param->type = &static_QUType_int;
 	param->typeExtra = (void*)2; // byte size if not default
+    } else if ( type == "char" ) {
+	param->type = &static_QUType_int;
+	param->typeExtra = (void*)1;
     } else if ( type == "uint" ) {
 	param->type = &static_QUType_varptr;
 	param->typeExtra = new char(QVariant::UInt);
@@ -2223,8 +2228,14 @@ QMetaObject *MetaObjectGenerator::metaObject( QMetaObject *parentObject )
     while ( slot_it.current() ) {
 	QUMethod *slot = slot_it.current();
 	QString slotname = slot_it.currentKey();
-	if (slotname.contains("short"))
-	    slotname.replace("short", "int");
+	int pi = slotname.find('(');
+	int i = pi;
+	while ((i = slotname.find("short", i)) != -1)
+	    slotname.replace(i, 5, "int");
+	i = pi;
+	while ((i = slotname.find("char", i)) != -1)
+	    slotname.replace(i, 4, "int");
+
 	slot_data[index].name = new char[slotname.length()+1];
 	slot_data[index].name = qstrcpy( (char*)slot_data[index].name, slotname );
 	slot_data[index].method = slot;
@@ -2246,8 +2257,14 @@ QMetaObject *MetaObjectGenerator::metaObject( QMetaObject *parentObject )
     while ( signal_it.current() ) {
 	QUMethod *signal = signal_it.current();
 	QString signalname = signal_it.currentKey();
-	if (signalname.contains("short"))
-	    signalname.replace("short", "int");
+	int pi = signalname.find('(');
+	int i = pi;
+	while ((i = signalname.find("short", i)) != -1)
+	    signalname.replace(i, 5, "int");
+	i = pi;
+	while ((i = signalname.find("char", i)) != -1)
+	    signalname.replace(i, 4, "int");
+
 	signal_data[index].name = new char[signalname.length()+1];
 	signal_data[index].name = qstrcpy( (char*)signal_data[index].name, signalname );
 	signal_data[index].method = signal;
