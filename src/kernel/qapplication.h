@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#115 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#116 $
 **
 ** Definition of QApplication class
 **
@@ -35,6 +35,7 @@
 #include "qpalette.h"
 #endif // QT_H
 
+class QSessionManager;
 class QStyle;
 
 extern Q_EXPORT QApplication *qApp;		// global application object
@@ -134,7 +135,7 @@ public:
 
     static void 	setCusorFlashTime( int );
     static int 	cursorFlashTime();
-    
+
     static void 	setDoubleClickInterval( int );
     static int 	doubleClickInterval();
 
@@ -154,17 +155,27 @@ public:
 #if defined(_WS_WIN_)
     void	     winFocus( QWidget *, bool );
 #endif
+    
+    
+    // session management
+    bool isSessionRestored() const;
+    QString sessionId() const;
+    virtual void commitData( QSessionManager& sm );
+    virtual void saveState( QSessionManager& sm );
 
+    
 signals:
     void	     lastWindowClosed();
     void	     aboutToQuit();
 public slots:
     void	     quit();
+    void	     closeAllWindows();
 
 private:
     bool	     processNextEvent( bool );
     void	     initialize( int, char ** );
     void	     init_precmdline();
+    void	     process_cmdline( int* argcptr, char ** argv );
 
     int		     app_argc;
     char	   **app_argv;
@@ -187,6 +198,9 @@ private:
     static int	     cursor_flash_time;
     static int	     mouse_double_click_time;
     QList<QTranslator> * translators;
+    QSessionManager* session_manager;
+    QString session_id;
+    bool is_session_restored;
 
     static QDict<QPalette>* app_palettes;
     static QDict<QFont>* app_fonts;
@@ -259,6 +273,16 @@ inline QWidget *QApplication::widgetAt( const QPoint &p, bool child )
 inline bool QApplication::inPopupMode() const
 {
     return popupWidgets != 0;
+}
+
+inline bool QApplication::isSessionRestored() const
+{
+    return is_session_restored;
+}
+    
+inline QString QApplication::sessionId() const 
+{
+    return session_id;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#467 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#468 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -45,6 +45,8 @@
 #include "qtextcodec.h"
 #include "qdatastream.h"
 #include "qbuffer.h"
+#include "qsocketnotifier.h"
+#include "qsessionmanager.h"
 #include <stdlib.h>
 #include <ctype.h>
 #include <locale.h>
@@ -192,6 +194,8 @@ static Atom 	qt_desktop_properties;   	// Qt desktop properties
 static Atom 	qt_resource_manager;   	// X11 Resource manager
 Atom 		qt_sizegrip;		// sizegrip
 Atom 		qt_wm_client_leader;
+Atom 		qt_window_role;
+Atom 		qt_sm_client_id;
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
@@ -204,6 +208,8 @@ static QWidget     *popupButtonFocus = 0;
 static QWidget     *popupOfPopupButtonFocus = 0;
 static bool	    popupCloseDownMode = FALSE;
 static bool	    popupGrabOk;
+
+static bool sm_blockUserInput = FALSE; // session management
 
 typedef void  (*VFPTR)();
 typedef QList<void> QVFuncList;
@@ -893,6 +899,8 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
     qt_x11_intern_atom( "QT_DESKTOP_PROPERTIES", &qt_desktop_properties );
     qt_x11_intern_atom( "QT_SIZEGRIP", &qt_sizegrip );
     qt_x11_intern_atom( "WM_CLIENT_LEADER", &qt_wm_client_leader);
+    qt_x11_intern_atom( "WINDOW_ROLE", &qt_window_role);
+    qt_x11_intern_atom( "SM_CLIENT_ID", &qt_sm_client_id);
 
     qt_x11_intern_atom( "QT_EMBEDDED_WINDOW", &qt_embedded_window );
     qt_x11_intern_atom( "QT_EMBEDDED_WINDOW_FOCUS_IN", &qt_embedded_window_focus_in );
@@ -2238,6 +2246,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		
 		{
 		    // check whether the widget was embedded rather than managed.
+		    
+		    //#### get rid of XGetWindowProperty (round trip!), observe propertynotify instead.
 		    Atom type;
 		    int format;
 		    unsigned long length, after;
@@ -2917,6 +2927,9 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     int	   button = 0;
     int	   state;
 
+    if ( sm_blockUserInput ) // block user interaction during session management
+	return TRUE;
+    
     if ( event->type == MotionNotify ) {	// mouse move
 	XEvent *xevent = (XEvent *)event;
 	unsigned int xstate = event->xmotion.state;
@@ -3387,6 +3400,9 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     int	   state;
     char   ascii = 0;
 
+    if ( sm_blockUserInput ) // block user interaction during session management
+	return TRUE;
+    
     Display *dpy = x11Display();
     QWidget *tlw = topLevelWidget();
 
@@ -3869,3 +3885,521 @@ int QApplication::doubleClickInterval()
     return mouse_double_click_time;
 }
 
+
+
+
+/*****************************************************************************
+  session management support
+ *****************************************************************************/
+
+//#define SM_SUPPORT
+
+#ifndef SM_SUPPORT
+
+
+class QSessionManagerData
+{
+public:
+    QStringList restartCommand;
+    QStringList discardCommand;
+    QString sessionId;
+    QSessionManager::RestartHint restartHint;
+};
+
+QSessionManager::QSessionManager( QApplication * /* app*/, QString session )
+{
+    d = new QSessionManagerData;
+    d->sessionId = session;
+    d->restartHint = RestartIfRunning;
+}
+
+QSessionManager::~QSessionManager()
+{
+    delete d;
+}
+
+QString QSessionManager::sessionId()
+{
+    return d->sessionId;
+}
+
+bool QSessionManager::allowsInteraction()
+{
+    return TRUE;
+}
+
+bool QSessionManager::allowsErrorInteraction()
+{
+    return TRUE;
+}
+
+void QSessionManager::release()
+{
+}
+
+void QSessionManager::cancel()
+{
+}
+
+void QSessionManager::setRestartHint( QSessionManager::RestartHint hint)
+{
+    d->restartHint = hint;
+}
+
+QSessionManager::RestartHint QSessionManager::restartHint() const
+{
+    return d->restartHint;
+}
+
+void QSessionManager::setRestartCommand( const QStringList& command)
+{
+    d->restartCommand = command;
+}
+
+QStringList QSessionManager::restartCommand() const
+{
+    return d->restartCommand;
+}
+
+void QSessionManager::setDiscardCommand( const QStringList& command)
+{
+    d->discardCommand = command;
+}
+
+QStringList QSessionManager::discardCommand() const
+{
+    return d->discardCommand;
+}
+
+void QSessionManager::setProperty( const QString&, const QString&)
+{
+}
+
+void QSessionManager::setProperty( const QString&, const QStringList& )
+{
+}
+
+bool QSessionManager::isPhase2()
+{
+    return FALSE;
+}
+
+void QSessionManager::requestPhase2()
+{
+}
+
+#else // SM_SUPPORT
+
+
+#include <X11/SM/SMlib.h>
+
+class QSmSocketReceiver : public QObject
+{
+    Q_OBJECT
+public:
+    QSmSocketReceiver( int socket )
+	: QObject(0,0)
+	{
+	    QSocketNotifier* sn = new QSocketNotifier( socket, QSocketNotifier::Read, this );
+	    connect( sn, SIGNAL( activated(int) ), this, SLOT( socketActivated(int) ) );
+	}
+
+public slots:
+     void socketActivated(int);
+};
+
+
+
+static SmcConn smcConnection = 0;
+static bool sm_interactionActive;
+static bool sm_smActive;
+static int sm_interactStyle;
+static int sm_saveType;
+static bool sm_cancel;
+static bool sm_waitingForPhase2;
+static bool sm_waitingForInteraction;
+static bool sm_isshutdown;
+static bool sm_shouldbefast;
+static bool sm_phase2;
+
+static QSmSocketReceiver* sm_receiver = 0;
+
+static void resetSmState();
+static void sm_setProperties();
+static void sm_setProperty( char* name, char* type,
+			    int num_vals, SmPropValue* vals);
+static void sm_saveYourselfCallback( SmcConn smcConn, SmPointer clientData,
+				  int saveType, Bool shutdown , int interactStyle, Bool fast);
+static void sm_saveYourselfPhase2Callback( SmcConn smcConn, SmPointer clientData ) ;
+static void sm_dieCallback( SmcConn smcConn, SmPointer clientData ) ;
+static void sm_shutdownCancelledCallback( SmcConn smcConn, SmPointer clientData );
+static void sm_saveCompleteCallback( SmcConn smcConn, SmPointer clientData );
+static void sm_interactCallback( SmcConn smcConn, SmPointer clientData );
+static void sm_performSaveYourself( QSessionManager* );
+
+
+static void resetSmState()
+{
+    sm_waitingForPhase2 = FALSE;
+    sm_waitingForInteraction = FALSE;
+    sm_interactionActive = FALSE;
+    sm_interactStyle = SmInteractStyleNone;
+    sm_smActive = FALSE;
+    sm_blockUserInput = FALSE;
+    sm_isshutdown = FALSE;
+    sm_shouldbefast = FALSE;
+    sm_phase2 = FALSE;
+}
+
+static void sm_setProperties()
+{
+    // theoretically it's possible to set several properties at
+    // once. However, this lead to segfaults in libSM, so we do just
+    // one property at a time
+
+    SmPropValue program;
+    program.length = strlen(qApp->argv()[0])+1;
+    program.value = (SmPointer) qApp->argv()[0];
+    sm_setProperty( SmProgram, SmARRAY8, 1, &program );
+}
+
+static void sm_setProperty( char* name, char* type,
+			    int num_vals, SmPropValue* vals)
+{
+    SmProp prop;
+    prop.name = name;
+    prop.type = type;
+    prop.num_vals = num_vals;
+    prop.vals = vals;
+
+    SmProp* props[1];
+    props[0] = &prop;
+    SmcSetProperties( smcConnection, 1, props );
+}
+
+
+
+static void sm_saveYourselfCallback( SmcConn smcConn, SmPointer clientData,
+				  int saveType, Bool shutdown , int interactStyle, Bool fast)
+{
+    if (smcConn != smcConnection )
+	return;
+    debug("sm_saveYourselfCallback");
+    sm_setProperties();
+    sm_cancel = FALSE;
+    sm_smActive = TRUE;
+    sm_isshutdown = shutdown;
+    if ( sm_isshutdown )
+	sm_blockUserInput = TRUE;
+    sm_saveType = saveType;
+    sm_interactStyle = interactStyle;
+    sm_shouldbefast = fast;
+    sm_performSaveYourself( (QSessionManager*) clientData );
+    if ( !sm_isshutdown ) // we cannot expect a confirmation message in that case
+	resetSmState();
+}
+
+static void sm_performSaveYourself( QSessionManager* sm )
+{
+    switch ( sm_saveType ) {
+    case SmSaveBoth:
+	qApp->commitData( *sm );
+	// fall through
+    case SmSaveLocal:
+	qApp->saveState( *sm );
+	// todo client id, install crap on the toplevels etc. pp.
+	break;
+    case SmSaveGlobal:
+	qApp->commitData( *sm );
+	break;
+    default:
+	break;
+    }
+
+    if ( sm_phase2 ) {
+	SmcRequestSaveYourselfPhase2( smcConnection, sm_saveYourselfPhase2Callback, (SmPointer*) sm );
+    }
+    else {
+	// close eventual interaction monitors and cancel the
+	// shutdown, if required.  Note that we can only cancel when
+	// performing a shutdown, it does not work for checkpoints
+	if ( sm_interactionActive ) {
+	    SmcInteractDone( smcConnection, sm_isshutdown && sm_cancel);
+	    sm_interactionActive = FALSE;
+	}
+	else if ( sm_cancel && sm_isshutdown ) {
+	    if ( sm->allowsErrorInteraction() ) {
+		SmcInteractDone( smcConnection, TRUE );
+		sm_interactionActive = FALSE;
+	    }
+	}
+	SmcSaveYourselfDone( smcConnection, !sm_cancel );
+    }
+}
+
+static void sm_dieCallback( SmcConn smcConn, SmPointer /* clientData  */)
+{
+    if (smcConn != smcConnection )
+	return;
+    resetSmState();
+    qApp->quit();
+}
+
+static void sm_shutdownCancelledCallback( SmcConn smcConn, SmPointer /* clientData */)
+{
+    if (smcConn != smcConnection )
+	return;
+    debug("sm_shutdownCancelledCallback");
+    if ( sm_waitingForInteraction )
+	qApp->exit_loop();
+    resetSmState();
+}
+
+static void sm_saveCompleteCallback( SmcConn smcConn, SmPointer /*clientData */)
+{
+    debug("sm_saveCompleteCallback");
+    if (smcConn != smcConnection )
+	return;
+    debug("sm_saveCompleteCallback");
+    resetSmState();
+}
+
+static void sm_interactCallback( SmcConn smcConn, SmPointer /* clientData */ )
+{
+    if (smcConn != smcConnection )
+	return;
+    if ( sm_waitingForInteraction )
+	qApp->exit_loop();
+}
+
+static void sm_saveYourselfPhase2Callback( SmcConn smcConn, SmPointer clientData )
+{
+    if (smcConn != smcConnection )
+	return;
+    sm_performSaveYourself( (QSessionManager*) clientData );
+}
+
+
+void QSmSocketReceiver::socketActivated(int)
+{
+    Bool reply_set;
+    IceProcessMessages( SmcGetIceConnection( smcConnection ), 0, &reply_set );
+}
+
+const char *QSmSocketReceiver::className() const
+{
+    return "QSmSocketReceiver";
+}
+
+QMetaObject *QSmSocketReceiver::metaObj = 0;
+
+
+static QMetaObjectInit init_QSmSocketReceiver(&QSmSocketReceiver::staticMetaObject);
+
+void QSmSocketReceiver::initMetaObject()
+{
+    if ( metaObj )
+        return;
+    if ( strcmp(QObject::className(), "QObject") != 0 )
+        badSuperclassWarning("QSmSocketReceiver","QObject");
+
+    staticMetaObject();
+}
+
+QString QSmSocketReceiver::tr(const char* s)
+{
+    return qApp->translate("QSmSocketReceiver",s);
+}
+
+void QSmSocketReceiver::staticMetaObject()
+{
+    if ( metaObj )
+        return;
+    QObject::staticMetaObject();
+
+    typedef void(QSmSocketReceiver::*m1_t0)(int);
+    m1_t0 v1_0 = &QSmSocketReceiver::socketActivated;
+    QMetaData *slot_tbl = QMetaObject::new_metadata(1);
+    slot_tbl[0].name = "socketActivated(int)";
+    slot_tbl[0].ptr = *((QMember*)&v1_0);
+    metaObj = QMetaObject::new_metaobject(
+        "QSmSocketReceiver", "QObject",
+        slot_tbl, 1,
+        0, 0 );
+}
+
+class QSessionManagerData
+{
+public:
+    QStringList restartCommand;
+    QStringList discardCommand;
+    QString sessionId;
+    QSessionManager::RestartHint restartHint;
+};
+
+QSessionManager::QSessionManager( QApplication * /* app */, QString session )
+{
+    d = new QSessionManagerData;
+    d->sessionId = session;
+    d->restartHint = RestartIfRunning;
+
+    resetSmState();
+    char cerror[256];
+    char* myId = 0;
+    char* prevId = (char*)session.latin1(); // we know what we are doing
+
+    SmcCallbacks cb;
+    cb.save_yourself.callback = sm_saveYourselfCallback;
+    cb.save_yourself.client_data = (SmPointer) this;
+    cb.die.callback = sm_dieCallback;
+    cb.die.client_data = (SmPointer) this;
+    cb.save_complete.callback = sm_saveCompleteCallback;
+    cb.save_complete.client_data = (SmPointer) this;
+    cb.shutdown_cancelled.callback = sm_shutdownCancelledCallback;
+    cb.shutdown_cancelled.client_data = (SmPointer) this;
+
+    smcConnection = SmcOpenConnection( 0, 0, 1, 0,
+				       SmcSaveYourselfProcMask |
+				       SmcDieProcMask |
+				       SmcSaveCompleteProcMask |
+				       SmcShutdownCancelledProcMask,
+				       &cb,
+				       prevId,
+				       &myId,
+				       256,
+				       (char*)&cerror );
+
+    d->sessionId = QString::fromLatin1( myId );
+    ::free( myId ); // it was allocated by C
+
+    QString error = cerror;
+    if (!smcConnection ) {
+	warning("Session management error: %s", error.latin1() );
+    }
+    else {
+	sm_receiver = new QSmSocketReceiver(  IceConnectionNumber( SmcGetIceConnection( smcConnection ) ) );
+    }
+
+}
+
+QSessionManager::~QSessionManager()
+{
+    delete sm_receiver;
+    delete d;
+}
+
+QString QSessionManager::sessionId()
+{
+    return d->sessionId;
+}
+
+bool QSessionManager::allowsInteraction()
+{
+    if ( sm_waitingForInteraction )
+	return FALSE;
+
+    if ( sm_interactStyle == SmInteractStyleAny ) {
+	sm_waitingForInteraction =  SmcInteractRequest( smcConnection, SmDialogNormal,
+							sm_interactCallback, (SmPointer*) this );
+    }
+    if ( sm_waitingForInteraction ) {
+	qApp->enter_loop();
+	sm_waitingForInteraction = FALSE;
+	if ( sm_smActive ) { // not cancelled
+	    sm_interactionActive = TRUE;
+	    sm_blockUserInput = FALSE;
+	    return TRUE;
+	}
+    }
+    return FALSE;
+}
+
+bool QSessionManager::allowsErrorInteraction()
+{
+    if ( sm_waitingForInteraction )
+	return FALSE;
+
+    if ( sm_interactStyle == SmInteractStyleAny || sm_interactStyle == SmInteractStyleErrors ) {
+	sm_waitingForInteraction =  SmcInteractRequest( smcConnection, SmDialogError,
+							sm_interactCallback, (SmPointer*) this );
+    }
+    if ( sm_waitingForInteraction ) {
+	qApp->enter_loop();
+	sm_waitingForInteraction = FALSE;
+	if ( sm_smActive ) { // not cancelled
+	    sm_interactionActive = TRUE;
+	    sm_blockUserInput = FALSE;
+	    return TRUE;
+	}
+    }
+    return FALSE;
+}
+
+void QSessionManager::release()
+{
+    if ( sm_interactionActive ) {
+	SmcInteractDone( smcConnection, FALSE );
+	sm_interactionActive = FALSE;
+	if ( sm_smActive && sm_isshutdown )
+	    sm_blockUserInput = TRUE;
+    }
+}
+
+void QSessionManager::cancel()
+{
+    sm_cancel = TRUE;
+}
+
+void QSessionManager::setRestartHint( QSessionManager::RestartHint hint)
+{
+    d->restartHint = hint;
+}
+
+QSessionManager::RestartHint QSessionManager::restartHint() const
+{
+    return d->restartHint;
+}
+
+void QSessionManager::setRestartCommand( const QStringList& command)
+{
+    d->restartCommand = command;
+}
+
+QStringList QSessionManager::restartCommand() const
+{
+    return d->restartCommand;
+}
+
+void QSessionManager::setDiscardCommand( const QStringList& command)
+{
+    d->discardCommand = command;
+}
+
+QStringList QSessionManager::discardCommand() const
+{
+    return d->discardCommand;
+}
+
+void QSessionManager::setProperty( const QString&, const QString&)
+{
+    // TODO
+}
+
+void QSessionManager::setProperty( const QString&, const QStringList& )
+{
+    // TODO
+}
+
+bool QSessionManager::isPhase2()
+{
+    return sm_phase2;
+}
+
+void QSessionManager::requestPhase2()
+{
+    sm_phase2 = TRUE;
+}
+
+
+
+#endif // SM_SUPPORT

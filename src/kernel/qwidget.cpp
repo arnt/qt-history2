@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#401 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#402 $
 **
 ** Implementation of QWidget class
 **
@@ -272,7 +272,7 @@
   <li> paintEvent() - called whenever the widget needs to be
   repainted.  Every widget which displays output must implement it,
   and it is sensible to \e never paint on the screen outside
-  paintEvent().  
+  paintEvent().
 
   <li> resizeEvent() - called when the widget has been resized.
 
@@ -3630,7 +3630,7 @@ void QWidget::leaveEvent( QEvent * )
   Pixmaps can also be used to implement flicker-free update.
 
   update() and repaint() can be used to force a paint event.
-  
+
   \sa event(), repaint(), update(), QPainter, QPixmap, QPaintEvent
 */
 

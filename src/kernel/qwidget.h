@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#225 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#226 $
 **
 ** Definition of QWidget class
 **
@@ -52,6 +52,7 @@ public:
    ~QWidget();
 
     WId		 winId() const;
+    void		 setName( const char *name );
 
   // GUI style setting
 

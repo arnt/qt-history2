@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#279 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#280 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -27,6 +27,7 @@
 #include "qpainter.h"
 #include "qpixmapcache.h"
 #include "qdatetime.h"
+#include "qsessionmanager.h"
 #include <ctype.h>
 #include "qt_windows.h"
 
@@ -67,6 +68,13 @@ static HDC	 displayDC	= 0;		// display device context
 #if defined(USE_HEARTBEAT)
 static int	 heartBeat	= 0;		// heatbeat timer
 #endif
+
+// session management
+static bool sm_blockUserInput = FALSE;
+static bool sm_smActive = FALSE;
+static bool sm_interactionActive = FALSE;
+static QSessionManager* win_session_manager = 0;
+
 
 #if defined(DEBUG)
 static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
@@ -1384,7 +1392,35 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    }
 	    result = FALSE;
 	    break;
-
+	    
+	case WM_QUERYENDSESSION:
+	    {
+		if ( sm_smActive ) // bogus message from windows
+		    return TRUE;
+		
+		sm_smActive = TRUE; 
+		sm_blockUserInput = TRUE; // prevent user-interaction outside interaction windows
+		sm_cancel = FALSE;
+		qApp->commitData( *win_session_manager );
+		if ( lParam == ENDSESSION_LOGOFF ) {
+		    //#### sync filesystems according to Arnt, how?
+		}
+		return !sm_cancel;
+	    }
+	    
+	case WM_ENDSESSION:
+	    {
+		sm_smActive = FALSE;
+		sm_blockUserInput = FALSE;
+		bool endsession = (bool) wParam;
+		
+		if ( endsession ) {
+		    qApp->quit();
+		}
+		
+		return 0;
+	    }
+	    
 	case WM_GETMINMAXINFO:
 	    if ( widget->xtra() ) {
 		MINMAXINFO *mmi = (MINMAXINFO *)lParam;
@@ -1949,6 +1985,9 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
     int	   state;
     int	   i;
 
+    if ( sm_blockUserInput ) // block user interaction during session management
+	return TRUE;
+    
     for ( i=0; (UINT)mouseTbl[i] != msg.message || !mouseTbl[i]; i += 3 )
 	;
     if ( !mouseTbl[i] )
@@ -2232,6 +2271,9 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
     bool k0=FALSE, k1=FALSE;
     int  state = 0;
 
+    if ( sm_blockUserInput ) // block user interaction during session management
+	return TRUE;
+    
     if ( GetKeyState(VK_SHIFT) < 0 )
 	state |= QMouseEvent::ShiftButton;
     if ( GetKeyState(VK_CONTROL) < 0 )
@@ -2355,6 +2397,9 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 {
     int  state = 0;
 
+    if ( sm_blockUserInput ) // block user interaction during session management
+	return TRUE;
+    
     if ( GetKeyState(VK_SHIFT) < 0 )
 	state |= QMouseEvent::ShiftButton;
     if ( GetKeyState(VK_CONTROL) < 0 )
@@ -2568,3 +2613,106 @@ int QApplication::doubleClickInterval()
     return mouse_double_click_time;
 }
 
+/*****************************************************************************
+  Poor man's session management support on MS-Windows
+ *****************************************************************************/
+
+
+class QSessionManagerData
+{
+public:
+    QStringList restartCommand;
+    QStringList discardCommand;
+    QString sessionId;
+    QSessionManager::RestartHint restartHint;
+};
+
+QSessionManager::QSessionManager( QApplication *app, QString session )
+{
+    d = new QSessionManagerData;
+    d->sessionId = session;
+    win_session_manager = this;
+}
+
+QSessionManager::~QSessionManager()
+{
+    delete d;
+}
+
+QString QSessionManager::sessionId()
+{
+    return d->sessionId;
+}
+
+bool QSessionManager::allowsInteraction()
+{
+    sm_interactionActive = TRUE;
+    sm_blockUserInput = FALSE;
+    return TRUE;
+}
+
+bool QSessionManager::allowsErrorInteraction()
+{
+    sm_interactionActive = TRUE;
+    return TRUE;
+}
+
+void QSessionManager::release()
+{
+    sm_interactionActive = FALSE;
+    if ( sm_smActive )
+	sm_blockUserInput = TRUE;
+}
+
+void QSessionManager::cancel()
+{
+    sm_cancel = TRUE;
+}
+
+void QSessionManager::setRestartHint( QSessionManager::RestartHint hint)
+{
+    d->restartHint = hint;
+}
+
+QSessionManager::RestartHint QSessionManager::restartHint() const
+{
+    return d->restartHint;
+}
+
+void QSessionManager::setRestartCommand( const QStringList& command)
+{
+    d->restartCommand = command;
+}
+
+QStringList QSessionManager::restartCommand() const
+{
+    return d->restartCommand;
+}
+
+void QSessionManager::setDiscardCommand( const QStringList& command)
+{
+    d->discardCommand = command;
+}
+
+QStringList QSessionManager::discardCommand() const
+{
+    return d->discardCommand;
+}
+
+void QSessionManager::setProperty( const QString&, const QString&)
+{
+}
+
+void QSessionManager::setProperty( const QString&, const QStringList& )
+{
+}
+
+
+bool QSessionManager::isPhase2()
+{
+    return FALSE;
+}
+
+void QSessionManager::requestPhase2()
+{
+}

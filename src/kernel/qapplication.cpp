@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#223 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#224 $
 **
 ** Implementation of QApplication class
 **
@@ -37,16 +37,74 @@
 #include "qtranslator.h"
 #include "qtextcodec.h"
 #include "qpngio.h"
+#include "qsessionmanager.h"
 
 /*!
   \class QApplication qapplication.h
-  \brief The QApplication class manages the application event queue.
+  \brief The QApplication class manages the application event queue and application wide settings.
 
   \ingroup kernel
 
-  The QApplication class is central to Qt.  It receives events from
-  the underlying window system and sends them to the destination widgets.
-  An application object must be created before any widgets can be created!
+  The QApplication class is central to Qt.  It is responsible for a
+  wide range of tasks: 
+  
+  <ul>
+   
+   <li> It initializes the application to the user's desktop settings
+   like palette(), font() or the doubleClickInterval(). It keeps track
+   of these properties in case the user changes the desktop globally
+   in some kind of control panel.
+   
+  <li> It performs event handling, meaning that it receives events
+  from the underlying window system and sends them to the destination
+  widgets. An application usually terminates when the event loop is
+  left. This can be forced with a call to quit(). By using sendEvent()
+  and postEvent() you can send your own events to widgets.
+   
+   <li> It parses common command line arguments and sets its internal
+   state respectively. See the QApplication() constructor for more
+   details.
+   
+   <li> It defines the application's look and feel, which is
+   encapsulate in a QStyle() object. This can be changed during
+   runtime with setStyle().
+   
+   <li> It specifies how the application is supposed to deal with colors.
+   See setColorSpec() for details.
+   
+   <li> It specifies the default text endcoding (see setDefaultCodec() ) 
+   and provides localization of strings that are visible to the user via
+   translate()
+   
+   <li> It gives access to special objects like the desktop() widget
+   or the clipboard(). Furthermore you can query for the widgetAt() a
+   certain coordinate position or for example all
+   topLevelWidgets(). It also provides shortcuts to the activeWindow()
+   and the widget that receives currently key events, dubbed the
+   focusWidget(). Auxiliary slots like closeAllWindows() complete this
+   list.
+   
+   <li> It provides an interface to application wide caret handling,
+   see setOverrideCursor() and setGlobalMouseTracking().
+
+   <li> To deal with the specialities of the asynchronous X Window
+   System, two synchronization functions flush() and syncX() are
+   provided.
+   
+   <li> It provides support to implement sophisticated \link
+   session.html session management \endlink. This makes it possible
+   for applications to terminate gracefully when the user logs out, to
+   cancel a shutdown process if termination isn't possible or even to
+   preserve the entire application state for a future session. See
+   isSessionRestored(), sessionId() and commitData() and saveState()
+   for details.
+  
+  </ul>
+  
+  An application object must be created before any widgets can be
+  created!  Since it also deals with common command line arguments, it
+  is usually a good idea to create it \e before any interpretation or
+  modification of \c argv is done in the application itself.
 
   Only one single QApplication object should be created.  In fact Qt
   complains if you create more than one, and this is normally done
@@ -79,7 +137,7 @@
   according to the \e -geometry option.	 To preserve this functionality,
   you must set your defaults before setMainWidget() and any overrides
   after.
-  
+
   <strong>Groups of functions:</strong>
   <ul>
      <li> System settings:
@@ -94,6 +152,28 @@
 	font(),
 	setFont(),
 	fontMetrics().
+
+     <li> Event handling:
+	exec(),
+	processEvents(),
+	processOneEvent(),
+	enter_loop(),
+	exit_loop(),
+	exit(),
+	quit().
+	sendEvent(),
+	postEvent(),
+	sendPostedEvents(),
+	removePostedEvents(),
+	notify(),
+	x11EventFilter(),
+	x11ProcessEvent(),
+	winEventFilter().
+
+     <li> GUI Styles:
+	style(),
+	setStyle(),
+	polish().
 
      <li> Color usage:
 	colorSpec(),
@@ -118,31 +198,6 @@
 	activeWindow(),
 	widgetAt().
 
-     <li> Event handling:
-	exec(),
-	processEvents(),
-	processOneEvent(),
-	enter_loop(),
-	exit_loop(),
-	exit(),
-	sendEvent(),
-	postEvent(),
-	sendPostedEvents(),
-	removePostedEvents(),
-	notify(),
-	x11EventFilter(),
-	x11ProcessEvent(),
-	winEventFilter().
-
-     <li> X Window System synchronization:
-	flushX(),
-	syncX().
-
-     <li> GUI Styles:
-	style(),
-	setStyle(),
-	polish().
-
      <li> Advanced caret handling:
 	hasGlobalMouseTracking(),
 	setGlobalMouseTracking(),
@@ -150,12 +205,23 @@
 	setOverrideCursor(),
 	restoreOverrideCursor().
 	
+     <li> X Window System synchronization:
+	flushX(),
+	syncX().
+	
+     <li> Session management:
+	isSessionRestored(),
+	sessionId(),
+	commitData(),
+	saveState()
+
      <li> Misc:
+	closeAllWindows(),
 	startingUp(),
 	closingDown(),
-	quit().
   </ul>
 
+  <strong>Non-GUI programs</strong><br> 
   While Qt is not optimized or designed for writing non-GUI programs,
   it's possible to use <a href="tools.html">some of its classes</a>
   without creating a QApplication.  This can be very useful if you
@@ -246,8 +312,7 @@ static void destroy_palettes()
     delete stdPalette;
 }
 
-static
-void process_cmdline( int* argcptr, char ** argv )
+void QApplication::process_cmdline( int* argcptr, char ** argv )
 {
     // process platform-indep command line
 
@@ -264,24 +329,30 @@ void process_cmdline( int* argcptr, char ** argv )
 	if ( arg == "-qdevel" || arg == "-qdebug") {
 	    makeqdevel = !makeqdevel;
 	} else if ( stricmp(arg, "-style=windows") == 0 ) {
-	    qApp->setStyle( new QWindowsStyle );
+	    setStyle( new QWindowsStyle );
 	} else if ( stricmp(arg, "-style=motif") == 0 ) {
-	    qApp->setStyle( new QMotifStyle );
+	    setStyle( new QMotifStyle );
 	} else if ( stricmp(arg, "-style=platinum") == 0 ) {
-	    qApp->setStyle( new QPlatinumStyle );
+	    setStyle( new QPlatinumStyle );
 	} else if ( stricmp(arg, "-style=cde") == 0 ) {
-	    qApp->setStyle( new QCDEStyle );
+	    setStyle( new QCDEStyle );
 	} else if ( strcmp(arg,"-style") == 0 && i < argc-1 ) {
 	    QCString s = argv[++i];
 	    s = s.lower();
 	    if ( s == "windows" )
-		qApp->setStyle( new QWindowsStyle );
+		setStyle( new QWindowsStyle );
 	    else if ( s == "motif" )
-		qApp->setStyle( new QMotifStyle );
+		setStyle( new QMotifStyle );
 	    else if ( s == "platinum" )
-		qApp->setStyle( new QPlatinumStyle );
+		setStyle( new QPlatinumStyle );
 	    else if ( s == "cde" )
-		qApp->setStyle( new QCDEStyle );
+		setStyle( new QCDEStyle );
+	} else if ( strcmp(arg,"-session") == 0 && i < argc-1 ) {
+	    QCString s = argv[++i];
+	    if ( !s.isEmpty() ) {
+		session_id = QString::fromLatin1( s );
+		is_session_restored = TRUE;
+	    }
 	} else
 	    argv[j++] = argv[i];
     }
@@ -322,6 +393,8 @@ void process_cmdline( int* argcptr, char ** argv )
   <ul>
   <li> \c -style= \e style, sets the application GUI style. Possible values
        are \c motif, \c windows, and \c platinum.
+  <li> \c -session= \e session, restores the application from an earlier
+       \link session.html session \endlink.
   <li> \c -qdevel activates the Application Builder window, which allows
        run-time inspection of the program.
   <li> \c -qtranslate activates the Application Translator window, which allows
@@ -392,6 +465,7 @@ QApplication::QApplication( Display* dpy )
 void QApplication::init_precmdline()
 {
     translators = 0;
+    is_session_restored = FALSE;
 #if defined(CHECK_STATE)
     if ( qApp )
 	warning( "QApplication: There should be only one application object" );
@@ -442,6 +516,9 @@ void QApplication::initialize( int argc, char **argv )
 	qdevel = new QDeveloper;
 	qdevel->show();
     }
+
+    // connect to the session manager
+    session_manager = new QSessionManager( this, session_id );
 }
 
 
@@ -455,6 +532,7 @@ void QApplication::initialize( int argc, char **argv )
 QApplication::~QApplication()
 {
     is_app_closing = TRUE;
+    delete session_manager;
     QWidget::destroyMapper();
     destroy_palettes();
     delete app_pal;
@@ -1056,9 +1134,43 @@ void QApplication::exit( int retcode )
 
 void QApplication::quit()
 {
-    if ( !qApp->quit_now )
-	emit aboutToQuit();
     QApplication::exit( 0 );
+}
+
+
+/*!
+  A convenience function that closes all toplevel windows.
+
+  The function is particularly useful for applications with many
+  toplevel windows. It could for example be connected to a "Quit"
+  entry in the file menu as shown in the following code example:
+
+  \code
+    // the "Quit" menu entry should try to close all windows
+    QPopupMenu* file = new QPopupMenu( this );
+    file->insertItem( tr("&Quit"), qApp, SLOT(closeAllWindows()), CTRL+Key_Q );
+
+    // when the last window was closed, the application should quit
+    connect( qApp, SIGNAL( lastWindowClosed() ), qApp, SLOT( quit() ) );
+  \endcode
+
+  The windows are closed in random order, until one window does not
+  accept the close event.
+
+  \sa QWidget::close(), QWidget::closeEvent(), lastWindowClosed(),
+  quit(), topLevelWidgets(), QWidget::isTopLevel()
+
+ */
+void QApplication::closeAllWindows()
+{
+    QWidgetList *list = QApplication::topLevelWidgets();
+    QWidgetListIt it( *list );		// iterate over the widgets
+    bool did_close = TRUE;
+    while ( did_close && it.current() ) {		// for each top level widget...
+	did_close = it.current()->close();
+	++it;
+    }
+    delete list;			// delete the list, not the widgets
 }
 
 
@@ -1077,9 +1189,10 @@ void QApplication::quit()
 /*!
   \fn void QApplication::aboutToQuit()
 
-  This signal is emitted when the application is about to
-  quit. This may happen either after a call to quit() from inside the
-  applicaton or when the users shuts down the entire desktop session.
+  This signal is emitted when the application is about to quit the
+  main event loop.  This may happen either after a call to quit() from
+  inside the applicaton or when the users shuts down the entire
+  desktop session.
 
   The signal is particularly useful if your application has to do some
   last-second cleanups. Note that no user interaction is possible at
@@ -1087,7 +1200,6 @@ void QApplication::quit()
 
   \sa quit()
 */
-
 
 /*!
   \fn bool QApplication::sendEvent( QObject *receiver, QEvent *event )
@@ -1787,6 +1899,9 @@ int QApplication::enter_loop()
     app_exit_loop = old_app_exit_loop;
     loop_level--;
 
+    if ( quit_now && !loop_level )
+	emit aboutToQuit();
+
     return 0;
 }
 
@@ -1802,3 +1917,76 @@ void QApplication::exit_loop()
     app_exit_loop = TRUE;
 }
 
+
+/*! \fn bool QApplication::isSessionRestored() const
+
+  Returns whether the application has been restored from an earlier
+  \link session.html session \endlink.
+ 
+\sa sessionId(), commitData(), saveState()
+ */
+
+
+/*! \fn QString QApplication::sessionId() const
+
+  Returns the identifier of the current \link session.html session
+  \endlink.
+  
+  If the application has been restored from an earlier session, this
+  identifier is the same as it was in that previous session.
+  
+\sa isSessionRestored(), commitData(), saveState()
+ */
+
+
+/*!
+  \fn void QApplication::commitData( QSessionManager& sm )
+
+  This function deals with \link session.html session management
+  \endlink. It is invoked when the \link QSessionManager session
+  manager \endlink wants the application to commit all its data.
+  
+  Usually this means saving of all open files, after getting
+  permission from the user. Furthermore you may want to provide the
+  user a way to cancel the shutdown.
+  
+  <strong>Important</strong><br> Within this function, no user
+  interaction is possible, \e unless you ask the session manager \a sm
+  for explicit permission. See QSessionManager::allowsInteraction()
+  and QSessionManager::allowsErrorInteraction() for details.
+  
+  Details about session management in general can be found \link
+  session.html here \endlink.
+  
+\sa isSessionRestored(), sessionId(), saveState()
+ */
+void QApplication::commitData( QSessionManager& /* sm */ )
+{
+}
+
+
+/*!
+  \fn void QApplication::saveState( QSessionManager& sm )
+
+  This function deals with \link session.html session management
+  \endlink It is invoked when the \link QSessionManager session
+  manager \endlink wants the application to preserve its state for a
+  future session.
+  
+  For a text editor this would mean creating a temporary file that
+  includes the current contents of the edit buffers, the location of
+  the cursor and other aspects of the current editing session.
+  
+  <strong>Important</strong><br> Within this function, no user
+  interaction is possible, \e unless you ask the session manager \a sm
+  for explicit permission. See QSessionManager::allowsInteraction()
+  and QSessionManager::allowsErrorInteraction() for details.
+  
+  Details about session management in general can be found \link
+  session.html here \endlink
+  
+\sa isSessionRestored(), sessionId(), commitData()
+ */
+void QApplication::saveState( QSessionManager& /* sm */ )
+{
+}

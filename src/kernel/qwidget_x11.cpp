@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#352 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#353 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -63,6 +63,8 @@ static QWidget *keyboardGrb = 0;
 
 extern Atom qt_wm_delete_window;		// defined in qapplication_x11.cpp
 extern Atom qt_wm_client_leader;		// defined in qapplication_x11.cpp
+extern Atom qt_window_role;			// defined in qapplication_x11.cpp
+extern Atom qt_sm_client_id;			// defined in qapplication_x11.cpp
 
 const uint stdWidgetEventMask =			// X event mask
 	(uint)(
@@ -330,6 +332,20 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    delete xd;
 	}
     }
+    
+    if ( topLevel ) {
+	// declare the widget's object name as window role
+	XChangeProperty( dpy, id,
+			 qt_window_role, XA_STRING, 8, PropModeReplace,
+			 (unsigned char *)name(), qstrlen( name() ) );
+	// If we are session managed, inform the window manager about it
+	QCString session = qApp->sessionId().latin1();
+	if ( !session.isEmpty() ) {
+	    XChangeProperty( dpy, id,
+			     qt_sm_client_id, XA_STRING, 8, PropModeReplace,
+			     (unsigned char *)session.data(), session.length() );
+	}
+    }
 
     if ( destroyw )
 	qt_XDestroyWindow( this, dpy, destroyw );
@@ -512,7 +528,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
   When a widget gets focus, it should call setMicroFocusHint for some
   appropriate position and size - \a x, \a y and \a w by \a h.  This
   has no \e visual effect, it just provides hints to any
-  system-specific input handling tools.  
+  system-specific input handling tools.
 
   The \a text argument should be TRUE if this is a position for text
   input.
@@ -1446,7 +1462,7 @@ void QWidget::setMaximumSize( int maxw, int maxh )
     if ( maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX ) {
 	warning("QWidget::setMaximumSize: (%s/%s) "
 		"The largest allowed size is (%d,%d)",
-		 name( "unnamed" ), className(), QWIDGETSIZE_MAX, 
+		 name( "unnamed" ), className(), QWIDGETSIZE_MAX,
 		QWIDGETSIZE_MAX );
 	maxw = QMIN( maxw, QWIDGETSIZE_MAX );
 	maxh = QMIN( maxh, QWIDGETSIZE_MAX );
@@ -1872,4 +1888,16 @@ void QWidget::clearMask()
 {
     XShapeCombineMask( x11Display(), winId(), ShapeBounding, 0, 0,
 		       None, ShapeSet );
+}
+
+/*!\reimp
+ */
+void QWidget::setName( const char *name )
+{
+    QObject::setName( name );
+    if ( isTopLevel() ) {
+	XChangeProperty(qt_xdisplay(), winId(),
+			qt_window_role, XA_STRING, 8, PropModeReplace,
+			(unsigned char *)name, qstrlen( name ) );
+    }
 }

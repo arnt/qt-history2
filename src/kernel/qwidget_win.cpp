@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#196 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#197 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -1086,4 +1086,8 @@ void QWidget::setMask( const QBitmap &bitmap )
 void QWidget::clearMask()
 {
     SetWindowRgn( winId(), 0, TRUE );
+}
+
+void QWidget::setName( const char *name )
+{
 }
