@@ -43,6 +43,9 @@
 #include "qstrlist.h"
 #include "qfileinfo.h"
 #if defined(Q_OS_MAC)
+#if defined(Q_CC_GNU)
+#warning "avoid including header file \"qwindowdefs.h\" in directory 'tools'"
+#endif
 // ### remove this hack, tools shouldn't include kernel files
 #include "qwindowdefs.h"
 #endif
