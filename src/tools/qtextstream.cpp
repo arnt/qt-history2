@@ -59,14 +59,6 @@
 
   \ingroup io text
 
-  \define endl
-  \define bin
-  \define oct
-  \define dec
-  \define hex
-  \define flush
-  \define ws
-
   The text stream class has a functional interface that is very
   similar to that of the standard C++ iostream class.  The difference
   between iostream and QTextStream is that our stream operates on a
@@ -83,6 +75,12 @@
   \i flush forces the QIODevice to flush any buffered data
   \i ws eats any available whitespace (on input)
   \i reset resets the QTextStream to its default mode (see reset())
+  \i qSetW(int) sets the \link width() field width \endlink as specified with
+     the argument
+  \i qSetFill(int) sets the \link fill() fill character \endlink as specified
+     with the argument
+  \i qSetPrecision(int) sets the \link precision() precision \endlink as
+     specified with the argument
   \endlist
 
   \warning By default QTextStream will automatically detect whether
