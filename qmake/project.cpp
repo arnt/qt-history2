@@ -95,6 +95,27 @@ static QStringList split_arg_list(const QString &params)
     return args;
 }
 
+static QStringList split_value_list(const QString &vals, bool do_semicolon=FALSE)
+{
+    QStringList ret;
+    int last = 0;
+    QChar quote = 0;
+    for(int x = 0; x < (int)vals.length(); x++) {
+	if(vals[x] == quote) {
+	    quote = 0;
+	} else if(vals[x] == '\'' || vals[x] == '"') {
+	    quote = vals[x];
+	} else if(!quote && 
+		  ((do_semicolon && vals[x] == ';') ||  vals[x] == ' ')) {
+	    ret << vals.mid(last, x - last);
+	    last = x+1;
+	}
+    }
+    if(last != (int)vals.length())
+	ret << vals.mid(last);
+    return ret;
+}
+
 QMakeProject::QMakeProject()
 {
 }
@@ -264,24 +285,8 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
     }
     var = varMap(var); //backwards compatability
 
-    QStringList vallist;  /* vallist is the broken up list of values */
-    {
-	int last = 0;
-	QChar quote = 0;
-	for(int x = 0; x < (int)vals.length(); x++) {
-	    if(vals[x] == quote) {
-		quote = 0;
-	    } else if(vals[x] == '\'' || vals[x] == '"') {
-		quote = vals[x];
-	    } else if(!quote &&
-		      ((vals[x] == ';' && (var == "DEPENDPATH" || var == "INCLUDEPATH")) || vals[x] == ' ')) {
-		vallist << vals.mid(last, x - last);
-		last = x+1;
-	    }
-	}
-	if(last != (int)vals.length())
-	    vallist << vals.mid(last);
-    }
+    /* vallist is the broken up list of values */
+    QStringList vallist = split_value_list(vals, (var == "DEPENDPATH" || var == "INCLUDEPATH")); 
     if(!vallist.grep("=").isEmpty())
 	warn_msg(WarnParser, "Detected possible line continuation: {%s} %s:%d",
 		 var.latin1(), parser.file.latin1(), parser.line_no);
@@ -806,14 +811,15 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 {
     for(int x = 0, rep; x < 5; x++) {
 	QRegExp reg_var;
+	reg_var.setMinimal(TRUE);
 	if( x == 0 ) //function blocked out by {}'s
-	    reg_var = QRegExp("\\$\\$\\{([a-zA-Z0-9_]*)\\(([^)]*)\\)\\}");
+	    reg_var = QRegExp("\\$\\$\\{([a-zA-Z0-9_]*)\\((\\(.|(.*)\\)*)\\)\\}");
 	else if( x == 1 ) //variables blocked out by {}'s
 	    reg_var = QRegExp("\\$\\$\\{([a-zA-Z0-9_\\.-]*)\\}");
 	else if(x == 2) //environment
 	    reg_var = QRegExp("\\$\\$\\(([a-zA-Z0-9_\\.-]*)\\)");
 	else if(x == 3) //function
-	    reg_var = QRegExp("\\$\\$([a-zA-Z0-9_]*)\\(([^)]*)\\)");
+	    reg_var = QRegExp("\\$\\$([a-zA-Z0-9_]*)\\((\\(.|(.*)\\)*)\\)");
 	else if(x == 4) //normal variable
 	    reg_var = QRegExp("\\$\\$([a-zA-Z0-9_\\.-]*)");
 	while((rep = reg_var.search(str)) != -1) {
@@ -840,9 +846,14 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			    replacement = var[pos];
 		    }
 		} else if(reg_var.cap(1).lower() == "list") {
-		    static int x = 0;
-		    replacement.sprintf("QMAKE_INTERNAL_TMP_VAR_%d", x++);
-		    (*((QMap<QString, QStringList>*)&place))[replacement] = args;
+		    if(args.count() != 1) {
+			fprintf(stderr, "%s:%d: list(vals) requires one"
+				"argument.\n", parser.file.latin1(), parser.line_no);
+		    } else {
+			static int x = 0;
+			replacement.sprintf(".QMAKE_INTERNAL_TMP_VAR_%d", x++);
+			(*((QMap<QString, QStringList>*)&place))[replacement] = split_value_list(args.first());
+		    }
 		} else if(reg_var.cap(1).lower() == "join") {
 		    if(args.count() < 1 || args.count() > 4) {
 			fprintf(stderr, "%s:%d: join(var, glue, before, after) requires four"
@@ -899,7 +910,9 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			    parser.file.latin1(), parser.line_no, reg_var.cap(1).latin1());
 		}
 	    } else { //variable
-		if(reg_var.cap(1) == "LITERAL_WHITESPACE")
+		if(reg_var.cap(1).left(1) == ".")
+		    replacement = "";
+		else if(reg_var.cap(1) == "LITERAL_WHITESPACE")
 		    replacement = "\t";
 		else
 		    replacement = place[varMap(reg_var.cap(1))].join(" ");
