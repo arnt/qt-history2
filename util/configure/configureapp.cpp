@@ -2,6 +2,7 @@
 #include <qfileinfo.h>
 #include <qtextstream.h>
 #include <qregexp.h>
+#include <qglobal.h>
 #include "configureapp.h"
 
 #include <iostream.h>
@@ -36,7 +37,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "LEAN" ]	    = "no";
     dictionary[ "NOPROCESS" ]	    = "no";
     dictionary[ "STL" ]		    = "no";
-    dictionary[ "VERSION" ]	    = "310";
+    dictionary[ "VERSION" ]	    = QString("%1").arg(QT_VERSION);
     dictionary[ "REDO" ]	    = "no";
     dictionary[ "FORCE_PROFESSIONAL" ] = getenv( "FORCE_PROFESSIONAL" );
     dictionary[ "DEPENDENCIES" ]    = "no";
@@ -1031,10 +1032,16 @@ void Configure::generateMakefiles()
 	    if( dictionary[ "DEPENDENCIES" ] == "no" )
 		args << "-nodepend";
 
+	    // Temporary workaround to make linking with the ODBC driver compiled in work
+	    if ( dictionary[ "SQL_ODBC" ] == "yes" )
+		args << "\"LIBS+=odbc.lib\"";
+	    
 	    if( makefileName.right( 4 ) == ".dsp" )
 		args << "-t" << qmakeTemplate;
 	    else
 		cout << "For " << projectName.latin1() << endl;
+
+	    
 
 	    QDir::setCurrent( QDir::convertSeparators( dirPath ) );
 	    if ( !( qmakeTemplate == "subdirs" && makefileName.right( 4 ) == ".dsp" ) ) {

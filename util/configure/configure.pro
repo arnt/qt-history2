@@ -23,7 +23,7 @@ SOURCES += $(QTDIR)/src/tools/qmap.cpp
 INCLUDEPATH = $(QTDIR)/include/ $(QTDIR)/src/tools/
 INTERFACES=
 TARGET=configure
-DESTDIR=../../bin
+DESTDIR=../../dist/win/bin
 LIBS = ole32.lib
 
 win32:CONFIG+=console
