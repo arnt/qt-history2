@@ -711,8 +711,6 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     setPrinter( prn, TRUE );
     d->printers->setFocus();
 
-    setFontPropagation( SameFont );
-    setPalettePropagation( SamePalette );
     d->ok->setEnabled( TRUE );
 }
 
