@@ -284,7 +284,6 @@ void HelpNavigation::loadIndexFile( QProgressBar *bar )
 	QString link = s.mid( pipe + 1, 0xFFFFFF );
 	link = link.simplifyWhiteSpace();
 	titleMap[ link ] = title.stripWhiteSpace();
-	titleMap[ "qwidget.html" ] = "Qt Toolkit - QWidget Class";
     }
     delete lst;
 }
