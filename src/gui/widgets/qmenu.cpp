@@ -65,9 +65,9 @@ public:
     }
     void syncWithMenu(QMenu *, QActionEvent *act)
     {
-        if(act->type() == QEvent::ActionAdded) {
+        if (act->type() == QEvent::ActionAdded) {
             insertAction(act->before(), act->action());
-        } else if(act->type() == QEvent::ActionRemoved)
+        } else if (act->type() == QEvent::ActionRemoved)
             removeAction(act->action());
     }
     void actionEvent(QActionEvent *e)
@@ -80,7 +80,7 @@ public:
 
 void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAction*> &actionList) const
 {
-    if(!itemsDirty) {
+    if (!itemsDirty) {
         actionRects = d->actionRects;
         actionList = d->actionList;
         return;
@@ -98,10 +98,10 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
     const_cast<QMenuPrivate *>(this)->maxIconWidth = 0;
     for(int i = 0; i < items.count(); i++) {
         QAction *action = items.at(i);
-        if(!action->isVisible())
+        if (!action->isVisible())
             continue;
         QIcon is = action->icon();
-        if(!is.isNull())
+        if (!is.isNull())
             const_cast<QMenuPrivate *>(this)->maxIconWidth =
                 qMax(maxIconWidth,
                      (uint)is.pixmap(Qt::SmallIconSize, QIcon::Normal).width() + 4);
@@ -111,19 +111,19 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
     QFontMetrics qfm = q->fontMetrics();
     for(int i = 0; i < items.count(); i++) {
         QAction *action = items.at(i);
-        if(!action->isVisible())
+        if (!action->isVisible())
             continue;
 
         QFontMetrics fm(action->font().resolve(q->font()));
         QSize sz;
 
         //calc what I think the size is..
-        if(action->isSeparator()) {
+        if (action->isSeparator()) {
             sz = QSize(2, 2);
         } else {
             QString s = action->text();
             int t = s.indexOf('\t');
-            if(t != -1) {
+            if (t != -1) {
                 const_cast<QMenuPrivate *>(this)->tabWidth =
                     qMax((int)tabWidth, qfm.width(s.mid(t+1)));
                 s = s.left(t);
@@ -140,9 +140,9 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
             sz.setHeight(qMax(fm.height(), qfm.height()));
 
             QIcon is = action->icon();
-            if(!is.isNull()) {
+            if (!is.isNull()) {
                 QSize is_sz = is.pixmap(Qt::SmallIconSize, QIcon::Normal).size();
-                if(is_sz.height() > sz.height())
+                if (is_sz.height() > sz.height())
                     sz.setHeight(is_sz.height());
             }
         }
@@ -152,10 +152,10 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
         opt.rect = q->rect();
         sz = q->style()->sizeFromContents(QStyle::CT_MenuItem, &opt, sz, q);
 
-        if(!sz.isEmpty()) {
+        if (!sz.isEmpty()) {
             max_column_width = qMax(max_column_width, sz.width());
             //wrapping
-            if(!scroll &&
+            if (!scroll &&
                y+sz.height()+vmargin > dh - (q->style()->pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, q) * 2)) {
                 ncols++;
                 y = vmargin;
@@ -166,7 +166,7 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
             actionList.append(action);
         }
     }
-    if(tabWidth)
+    if (tabWidth)
         max_column_width += tabWidth; //finally add in the tab width
 
     //calculate position
@@ -175,10 +175,10 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
     for(int i = 0; i < actionList.count(); i++) {
         QAction *action = actionList.at(i);
         QRect &rect = actionRects[action];
-        if(!scroll &&
+        if (!scroll &&
            y+rect.height() > dh - (q->style()->pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, q) * 2)) {
             ncols--;
-            if(ncols < 0)
+            if (ncols < 0)
                 qWarning("QMenu: Column mismatch calculation. %d", ncols);
             x += max_column_width + hmargin;
             y = vmargin;
@@ -191,15 +191,15 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
 
 void QMenuPrivate::updateActions()
 {
-    if(!itemsDirty)
+    if (!itemsDirty)
         return;
     sloppyAction = 0;
     calcActionRects(actionRects, actionList);
     ncols = 1;
-    if(!scroll) {
+    if (!scroll) {
         for(int i = 0, last_left = 0; i < actionList.count(); i++) {
             int left = actionRects.value(actionList.at(i)).left();
-            if(left > last_left) {
+            if (left > last_left) {
                 last_left = left;
                 ncols++;
             }
@@ -211,9 +211,9 @@ void QMenuPrivate::updateActions()
 QRect QMenuPrivate::actionRect(QAction *act) const
 {
     QRect ret = actionRects.value(act);
-    if(scroll)
+    if (scroll)
         ret.translate(0, scroll->scrollOffset);
-    if(tearoff)
+    if (tearoff)
         ret.translate(0, q->style()->pixelMetric(QStyle::PM_MenuTearoffHeight, 0, q));
     const int fw = q->style()->pixelMetric(QStyle::PM_MenuPanelWidth, 0, q);
     ret.translate(fw+leftmargin, fw+topmargin);
@@ -222,16 +222,16 @@ QRect QMenuPrivate::actionRect(QAction *act) const
 
 void QMenuPrivate::hideUpToMenuBar()
 {
-    if(!tornoff) {
+    if (!tornoff) {
         QWidget *caused = causedPopup;
         q->hide(); //hide after getting causedPopup
         while(caused) {
-            if(QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {
+            if (QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {
                 mb->d->setCurrentAction(0);
                 caused = 0;
-            } else if(QMenu *m = qt_cast<QMenu*>(caused)) {
+            } else if (QMenu *m = qt_cast<QMenu*>(caused)) {
                 caused = m->d->causedPopup;
-                if(!m->d->tornoff)
+                if (!m->d->tornoff)
                     m->hide();
                 m->d->setCurrentAction(0);
             } else {
@@ -245,12 +245,12 @@ void QMenuPrivate::hideUpToMenuBar()
 
 void QMenuPrivate::popupAction(QAction *action, int delay, bool activateFirst)
 {
-    if(action && action->menu()) {
-        if(!delay) {
+    if (action && action->menu()) {
+        if (!delay) {
             q->internalDelayedPopup();
         } else {
             static QTimer *menuDelayTimer = 0;
-            if(!menuDelayTimer)
+            if (!menuDelayTimer)
                 menuDelayTimer = new QTimer(qApp);
             menuDelayTimer->disconnect(SIGNAL(timeout()));
             QObject::connect(menuDelayTimer, SIGNAL(timeout()),
@@ -258,7 +258,7 @@ void QMenuPrivate::popupAction(QAction *action, int delay, bool activateFirst)
             menuDelayTimer->setSingleShot(true);
             menuDelayTimer->start(delay);
         }
-        if(activateFirst)
+        if (activateFirst)
             action->menu()->d->setFirstActionActive();
     }
 }
@@ -268,12 +268,12 @@ void QMenuPrivate::setFirstActionActive()
     const int scrollerHeight = q->style()->pixelMetric(QStyle::PM_MenuScrollerHeight, 0, q);
     for(int i = 0, saccum = 0; i < actionList.count(); i++) {
         QAction *act = actionList[i];
-        if(scroll && scroll->scrollFlags & QMenuScroller::ScrollUp) {
+        if (scroll && scroll->scrollFlags & QMenuScroller::ScrollUp) {
             saccum -= actionRects.value(act).height();
-            if(saccum > scroll->scrollOffset-scrollerHeight)
+            if (saccum > scroll->scrollOffset-scrollerHeight)
                 continue;
         }
-        if(!act->isSeparator() &&
+        if (!act->isSeparator() &&
            (q->style()->styleHint(QStyle::SH_Menu_AllowActiveAndDisabled, 0, q)
             || act->isEnabled())) {
             setCurrentAction(act);
@@ -286,22 +286,22 @@ void QMenuPrivate::setFirstActionActive()
 void QMenuPrivate::setCurrentAction(QAction *action, int popup, bool activateFirst)
 {
     d->tearoffHighlighted = 0;
-    if(action == currentAction)
+    if (action == currentAction)
         return;
-    if(currentAction)
+    if (currentAction)
         q->update(actionRect(currentAction));
 
     d->sloppyAction = 0;
-    if(!sloppyRegion.isEmpty())
+    if (!sloppyRegion.isEmpty())
         sloppyRegion = QRegion();
     currentAction = action;
-    if(action && !action->isSeparator()) {
+    if (action && !action->isSeparator()) {
         activateAction(action, QAction::Hover);
-        if(popup != -1)
+        if (popup != -1)
             popupAction(d->currentAction, popup, activateFirst);
         q->update(actionRect(action));
     }
-    if(activeMenu && (!action || !action->menu())) { //otherwise done in popupAction
+    if (activeMenu && (!action || !action->menu())) { //otherwise done in popupAction
         QMenu *menu = activeMenu;
         activeMenu = NULL;
         menu->hide();
@@ -310,12 +310,12 @@ void QMenuPrivate::setCurrentAction(QAction *action, int popup, bool activateFir
 
 QAction *QMenuPrivate::actionAt(QPoint p) const
 {
-    if(!q->rect().contains(p))     //sanity check
+    if (!q->rect().contains(p))     //sanity check
        return 0;
 
     for(int i = 0; i < actionList.count(); i++) {
         QAction *act = actionList[i];
-        if(actionRect(act).contains(p))
+        if (actionRect(act).contains(p))
             return act;
     }
     return 0;
@@ -372,10 +372,10 @@ void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation loc
     const int scrollHeight = q->style()->pixelMetric(QStyle::PM_MenuScrollerHeight, 0, q);
     const int topScroll = (scroll->scrollFlags & QMenuScroller::ScrollUp)   ? scrollHeight : 0;
     const int botScroll = (scroll->scrollFlags & QMenuScroller::ScrollDown) ? scrollHeight : 0;
-    if(location == QMenuScroller::ScrollTop) {
+    if (location == QMenuScroller::ScrollTop) {
         for(int i = 0, saccum = 0; i < actionList.count(); i++) {
             QAction *act = actionList.at(i);
-            if(act == action) {
+            if (act == action) {
                 newOffset = topScroll - saccum;
                 break;
             }
@@ -385,8 +385,8 @@ void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation loc
         for(int i = 0, saccum = 0; i < actionList.count(); i++) {
             QAction *act = actionList.at(i);
             saccum += actionRects.value(act).height();
-            if(act == action) {
-                if(location == QMenuScroller::ScrollCenter)
+            if (act == action) {
+                if (location == QMenuScroller::ScrollCenter)
                     newOffset = ((q->height() / 2) - botScroll) - saccum;
                 else
                     newOffset = (q->height() - botScroll) - saccum;
@@ -397,42 +397,42 @@ void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation loc
 
     //figure out which scroll flags
     uint newScrollFlags = QMenuScroller::ScrollNone;
-    if(newOffset < 0) //easy and cheap one
+    if (newOffset < 0) //easy and cheap one
         newScrollFlags |= QMenuScroller::ScrollUp;
     for(int i = 0, saccum=newOffset+topScroll; i < actionList.count(); i++) {
         saccum += actionRects.value(actionList.at(i)).height();
-        if(saccum > q->height()) {
+        if (saccum > q->height()) {
             newScrollFlags |= QMenuScroller::ScrollDown;
             break;
         }
     }
-    if(location == QMenuScroller::ScrollTop && (newScrollFlags & QMenuScroller::ScrollUp)
+    if (location == QMenuScroller::ScrollTop && (newScrollFlags & QMenuScroller::ScrollUp)
        && !(scroll->scrollFlags & QMenuScroller::ScrollUp))
         newOffset += scrollHeight;
-    else if(location == QMenuScroller::ScrollBottom && (newScrollFlags & QMenuScroller::ScrollDown)
+    else if (location == QMenuScroller::ScrollBottom && (newScrollFlags & QMenuScroller::ScrollDown)
             && !(scroll->scrollFlags & QMenuScroller::ScrollDown))
         newOffset -= scrollHeight;
 
     int dh = QApplication::desktop()->height();
     const int desktopFrame = q->style()->pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, q);
-    if(q->height() < dh-(desktopFrame*2)) {
+    if (q->height() < dh-(desktopFrame*2)) {
         QRect geom = q->geometry();
-        if(newOffset > d->scroll->scrollOffset) { //scroll up
+        if (newOffset > d->scroll->scrollOffset) { //scroll up
             geom.setHeight(geom.height()-(newOffset-scroll->scrollOffset));
         } else {
             geom.setTop(geom.top() + (newOffset-scroll->scrollOffset));
-            if(geom != q->geometry()) {
+            if (geom != q->geometry()) {
                 newOffset = 0;
                 newScrollFlags &= ~QMenuScroller::ScrollUp;
             }
         }
-        if(geom.bottom() > dh - desktopFrame)
+        if (geom.bottom() > dh - desktopFrame)
             geom.setBottom(dh - desktopFrame);
-        if(geom.top() < desktopFrame)
+        if (geom.top() < desktopFrame)
             geom.setTop(desktopFrame);
-        if(geom != q->geometry()) {
+        if (geom != q->geometry()) {
 #if 0
-            if(newScrollFlags & QMenuScroller::ScrollDown && 
+            if (newScrollFlags & QMenuScroller::ScrollDown &&
                q->geometry().top() - geom.top() >= -newOffset)
                 newScrollFlags &= ~QMenuScroller::ScrollDown;
 #endif
@@ -442,10 +442,10 @@ void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation loc
 
     //actually update flags
     scroll->scrollOffset = newOffset;
-    if(scroll->scrollOffset > 0)
+    if (scroll->scrollOffset > 0)
         scroll->scrollOffset = 0;
     scroll->scrollFlags = newScrollFlags;
-    if(active)
+    if (active)
         setCurrentAction(action);
 
     q->update();     //issue an update so we see all the new state..
@@ -454,33 +454,33 @@ void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation loc
 //only directional
 void QMenuPrivate::scrollMenu(QMenuScroller::ScrollDirection direction, bool page, bool active)
 {
-    if(!scroll || !(scroll->scrollFlags & direction)) //not really possible...
+    if (!scroll || !(scroll->scrollFlags & direction)) //not really possible...
         return;
     const int scrollHeight = q->style()->pixelMetric(QStyle::PM_MenuScrollerHeight, 0, q);
     const int topScroll = (scroll->scrollFlags & QMenuScroller::ScrollUp)   ? scrollHeight : 0;
     const int botScroll = (scroll->scrollFlags & QMenuScroller::ScrollDown) ? scrollHeight : 0;
-    if(direction == QMenuScroller::ScrollUp) {
+    if (direction == QMenuScroller::ScrollUp) {
         for(int i = 0, saccum = 0; i < actionList.count(); i++) {
             QAction *act = actionList.at(i);
             const int iHeight = actionRects.value(act).height();
             saccum -= iHeight;
-            if(saccum <= scroll->scrollOffset-topScroll) {
+            if (saccum <= scroll->scrollOffset-topScroll) {
                 scrollMenu(act, page ? QMenuScroller::ScrollBottom : QMenuScroller::ScrollTop, active);
                 break;
             }
         }
-    } else if(direction == QMenuScroller::ScrollDown) {
+    } else if (direction == QMenuScroller::ScrollDown) {
         for(int i = 0, saccum = 0; i < actionList.count(); i++) {
             QAction *act = actionList.at(i);
             const int iHeight = actionRects.value(act).height();
-            if(saccum <= scroll->scrollOffset-topScroll) {
+            if (saccum <= scroll->scrollOffset-topScroll) {
                 const int scrollerArea = q->height() - botScroll;
                 int visible = -(((scroll->scrollOffset-topScroll) - saccum) - iHeight);
                 for(i++ ; i < actionList.count(); i++) {
                     act = actionList.at(i);
                     const int iHeight = actionRects.value(act).height();
                     visible += iHeight;
-                    if(visible > scrollerArea-topScroll) {
+                    if (visible > scrollerArea-topScroll) {
                         scrollMenu(act, page ? QMenuScroller::ScrollTop : QMenuScroller::ScrollBottom, active);
                         break;
                     }
@@ -497,43 +497,43 @@ void QMenuPrivate::scrollMenu(QMenuScroller::ScrollDirection direction, bool pag
 bool QMenuPrivate::mouseEventTaken(QMouseEvent *e)
 {
     QPoint pos = q->mapFromGlobal(e->globalPos());
-    if(scroll && !activeMenu) { //let the scroller "steal" the event
+    if (scroll && !activeMenu) { //let the scroller "steal" the event
         bool isScroll = false;
-        if(pos.x() >= 0 && pos.x() < q->width()) {
+        if (pos.x() >= 0 && pos.x() < q->width()) {
             const int scrollerHeight = q->style()->pixelMetric(QStyle::PM_MenuScrollerHeight, 0, q);
             for(int dir = QMenuScroller::ScrollUp; dir <= QMenuScroller::ScrollDown; dir = dir << 1) {
-                if(scroll->scrollFlags & dir) {
-                    if(dir == QMenuScroller::ScrollUp)
+                if (scroll->scrollFlags & dir) {
+                    if (dir == QMenuScroller::ScrollUp)
                         isScroll = (pos.y() <= scrollerHeight);
-                    else if(dir == QMenuScroller::ScrollDown)
+                    else if (dir == QMenuScroller::ScrollDown)
                         isScroll = (pos.y() >= q->height()-scrollerHeight);
-                    if(isScroll) {
+                    if (isScroll) {
                         scroll->scrollDirection = dir;
                         break;
                     }
                 }
             }
         }
-        if(isScroll) {
-            if(!scroll->scrollTimer)
+        if (isScroll) {
+            if (!scroll->scrollTimer)
                 scroll->scrollTimer = new QBasicTimer;
             scroll->scrollTimer->start(50, q);
             return true;
-        } else if(scroll->scrollTimer && scroll->scrollTimer->isActive()) {
+        } else if (scroll->scrollTimer && scroll->scrollTimer->isActive()) {
             scroll->scrollTimer->stop();
         }
     }
 
-    if(tearoff) { //let the tear off thingie "steal" the event..
+    if (tearoff) { //let the tear off thingie "steal" the event..
         QRect tearRect(0, 0, q->width(), q->style()->pixelMetric(QStyle::PM_MenuTearoffHeight, 0, q));
-        if(scroll && scroll->scrollFlags & QMenuPrivate::QMenuScroller::ScrollUp)
+        if (scroll && scroll->scrollFlags & QMenuPrivate::QMenuScroller::ScrollUp)
             tearRect.translate(0, q->style()->pixelMetric(QStyle::PM_MenuScrollerHeight, 0, q));
         q->update(tearRect);
-        if(tearRect.contains(pos)) {
+        if (tearRect.contains(pos)) {
             setCurrentAction(0);
             tearoffHighlighted = 1;
-            if(e->type() == QEvent::MouseButtonRelease) {
-                if(tornPopup) {
+            if (e->type() == QEvent::MouseButtonRelease) {
+                if (tornPopup) {
                     tornPopup->close();
                 } else {
                     tornPopup = new QTornOffMenu(q);
@@ -547,25 +547,25 @@ bool QMenuPrivate::mouseEventTaken(QMouseEvent *e)
         tearoffHighlighted = 0;
     }
 
-    if(q->frameGeometry().contains(e->globalPos())) //otherwise if the event is in our rect we want it..
+    if (q->frameGeometry().contains(e->globalPos())) //otherwise if the event is in our rect we want it..
         return false;
 
     for(QWidget *caused = causedPopup; caused;) {
         bool passOnEvent = false;
         QWidget *next_widget = 0;
         QPoint cpos = caused->mapFromGlobal(e->globalPos());
-        if(QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {
+        if (QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {
             passOnEvent = mb->rect().contains(cpos);
-        } else if(QMenu *m = qt_cast<QMenu*>(caused)) {
+        } else if (QMenu *m = qt_cast<QMenu*>(caused)) {
             passOnEvent = m->d->actionAt(cpos);
             next_widget = m->d->causedPopup;
         }
-        if(passOnEvent) {
+        if (passOnEvent) {
             QMouseEvent new_e(e->type(), cpos, e->button(), e->buttons(), e->modifiers());
             QApplication::sendEvent(caused, &new_e);
             return true;
         }
-        if(!next_widget)
+        if (!next_widget)
             break;
         caused = next_widget;
     }
@@ -574,7 +574,7 @@ bool QMenuPrivate::mouseEventTaken(QMouseEvent *e)
 
 void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e)
 {
-    if(!action)
+    if (!action)
         return;
 
     /* I have to save the caused stack here because it will be undone after popup execution (ie in the hide).
@@ -583,39 +583,39 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
     QList<QPointer<QWidget> > causedStack;
     for(QWidget *widget = causedPopup; widget; ) {
         causedStack.append(widget);
-        if(QMenu *qmenu = ::qt_cast<QMenu*>(widget)) 
+        if (QMenu *qmenu = ::qt_cast<QMenu*>(widget))
             widget = qmenu->d->causedPopup;
         break;
     }
-    if(action_e == QAction::Trigger)
+    if (action_e == QAction::Trigger)
         hideUpToMenuBar();
 
     action->activate(action_e);
     for(int i = 0; i < causedStack.size(); ++i) {
         QPointer<QWidget> widget = causedStack.at(i);
-        if(!widget)
+        if (!widget)
             continue;
         //fire
-        if(QMenu *qmenu = ::qt_cast<QMenu*>(widget)) {
+        if (QMenu *qmenu = ::qt_cast<QMenu*>(widget)) {
             widget = qmenu->d->causedPopup;
-            if(action_e == QAction::Trigger) {
+            if (action_e == QAction::Trigger) {
                 emit qmenu->triggered(action);
 #ifdef QT_COMPAT
                 emit qmenu->activated(qmenu->findIdForAction(action));
 #endif
-            } else if(action_e == QAction::Hover) {
+            } else if (action_e == QAction::Hover) {
                 emit qmenu->hovered(action);
 #ifdef QT_COMPAT
                 emit qmenu->highlighted(qmenu->findIdForAction(action));
 #endif
             }
-        } else if(QMenuBar *qmenubar = ::qt_cast<QMenuBar*>(widget)) {
-            if(action_e == QAction::Trigger) {
+        } else if (QMenuBar *qmenubar = ::qt_cast<QMenuBar*>(widget)) {
+            if (action_e == QAction::Trigger) {
                 emit qmenubar->triggered(action);
 #ifdef QT_COMPAT
                 emit qmenubar->activated(qmenu->findIdForAction(action));
 #endif
-            } else if(action_e == QAction::Hover) {
+            } else if (action_e == QAction::Hover) {
                 emit qmenubar->hovered(action);
 #ifdef QT_COMPAT
                 emit qmenubar->highlighted(qmenu->findIdForAction(action));
@@ -625,7 +625,7 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
         }
     }
 
-    if(action_e == QAction::Hover) {
+    if (action_e == QAction::Hover) {
 #ifndef QT_NO_ACCESSIBILITY
         int actionID = indexOf(action);
         QAccessible::updateAccessibility(q, actionID, QAccessible::Focus);
@@ -694,7 +694,7 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
     QString textAndAccel = action->text();
     if (textAndAccel.indexOf('\t') == -1) {
         QKeySequence seq = action->shortcut();
-        if(!seq.isEmpty())
+        if (!seq.isEmpty())
             textAndAccel += '\t' + QString(seq);
     }
     opt.text = textAndAccel;
@@ -784,7 +784,7 @@ QMenu::QMenu(QWidget *parent)
 {
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(style()->styleHint(QStyle::SH_Menu_MouseTracking, 0, this));
-    if(style()->styleHint(QStyle::SH_Menu_Scrollable, 0, this)) {
+    if (style()->styleHint(QStyle::SH_Menu_Scrollable, 0, this)) {
         d->scroll = new QMenuPrivate::QMenuScroller;
         d->scroll->scrollFlags = QMenuPrivate::QMenuScroller::ScrollNone;
     }
@@ -806,7 +806,7 @@ QMenu::QMenu(const QString &title, QWidget *parent)
 {
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(style()->styleHint(QStyle::SH_Menu_MouseTracking));
-    if(style()->styleHint(QStyle::SH_Menu_Scrollable, 0, this)) {
+    if (style()->styleHint(QStyle::SH_Menu_Scrollable, 0, this)) {
         d->scroll = new QMenuPrivate::QMenuScroller;
         d->scroll->scrollFlags = QMenuPrivate::QMenuScroller::ScrollNone;
     }
@@ -821,7 +821,7 @@ QMenu::~QMenu()
 {
     if (d->eventLoop)
         d->eventLoop->exit();
-    if(d->tornPopup)
+    if (d->tornPopup)
         d->tornPopup->close();
 }
 
@@ -1017,14 +1017,14 @@ QAction *QMenu::defaultAction() const
 */
 void QMenu::setTearOffEnabled(bool b)
 {
-    if(d->tearoff == b)
+    if (d->tearoff == b)
         return;
-    if(!b && d->tornPopup)
+    if (!b && d->tornPopup)
         d->tornPopup->close();
     d->tearoff = b;
 
     d->itemsDirty = true;
-    if(isVisible())
+    if (isVisible())
         resize(sizeHint()+contentsMarginSize());
 }
 
@@ -1042,7 +1042,7 @@ bool QMenu::isTearOffEnabled() const
 */
 bool QMenu::isTearOffMenuVisible() const
 {
-    if(d->tornPopup)
+    if (d->tornPopup)
         return d->tornPopup->isVisible();
     return false;
 }
@@ -1055,7 +1055,7 @@ bool QMenu::isTearOffMenuVisible() const
 */
 void QMenu::hideTearOffMenu()
 {
-    if(d->tornPopup)
+    if (d->tornPopup)
         d->tornPopup->close();
 }
 
@@ -1070,12 +1070,12 @@ void QMenu::hideTearOffMenu()
 */
 void QMenu::setCheckable(bool b)
 {
-    if(b == d->checkable)
+    if (b == d->checkable)
         return;
     d->checkable = b;
 
     d->itemsDirty = true;
-    if(isVisible())
+    if (isVisible())
         resize(sizeHint()+contentsMarginSize());
 }
 
@@ -1090,7 +1090,7 @@ bool QMenu::isCheckable() const
 void QMenu::setActiveAction(QAction *act)
 {
     d->setCurrentAction(act);
-    if(d->scroll)
+    if (d->scroll)
         d->scrollMenu(act, QMenuPrivate::QMenuScroller::ScrollCenter);
 }
 
@@ -1137,7 +1137,7 @@ int QMenu::columnCount() const
 */
 QAction *QMenu::actionAtPos(const QPoint &pt) const
 {
-    if(QAction *ret = d->actionAt(pt))
+    if (QAction *ret = d->actionAt(pt))
         return ret;
     return 0;
 }
@@ -1169,14 +1169,14 @@ QSize QMenu::sizeHint() const
     opt.state = QStyle::Style_None;
     for (QMap<QAction*, QRect>::const_iterator i = actionRects.begin();
          i != actionRects.constEnd(); ++i) {
-        if(i.value().bottom() > s.height())
+        if (i.value().bottom() > s.height())
             s.setHeight(i.value().y()+i.value().height());
-        if(i.value().right() > s.width())
+        if (i.value().right() > s.width())
             s.setWidth(i.value().right());
     }
-    if(d->tearoff)
+    if (d->tearoff)
         s.rheight() += style()->pixelMetric(QStyle::PM_MenuTearoffHeight, &opt, this);
-    if(const int fw = style()->pixelMetric(QStyle::PM_MenuPanelWidth, &opt, this)) {
+    if (const int fw = style()->pixelMetric(QStyle::PM_MenuPanelWidth, &opt, this)) {
         s.rwidth() += fw*2;
         s.rheight() += fw*2;
     }
@@ -1203,7 +1203,7 @@ QSize QMenu::sizeHint() const
 */
 void QMenu::popup(const QPoint &p, QAction *atAction)
 {
-    if(d->scroll) { //reset scroll state from last popup
+    if (d->scroll) { //reset scroll state from last popup
         d->scroll->scrollOffset = 0;
         d->scroll->scrollFlags = QMenuPrivate::QMenuScroller::ScrollNone;
     }
@@ -1215,14 +1215,14 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     QSize size = sizeHint() + contentsMarginSize();;
     QRect screen = QApplication::desktop()->geometry();
     const int desktopFrame = style()->pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, this);
-    if(d->ncols != 1) {
+    if (d->ncols != 1) {
         pos.setY(screen.top()+desktopFrame);
-    } else if(atAction) {
+    } else if (atAction) {
         for(int i=0, above_height=0; i<(int)d->actionList.count(); i++) {
             QAction *action = d->actionList.at(i);
-            if(action == atAction) {
+            if (action == atAction) {
                 int newY = pos.y()-above_height;
-                if(d->scroll && newY < desktopFrame) {
+                if (d->scroll && newY < desktopFrame) {
                     d->scroll->scrollFlags = d->scroll->scrollFlags
                                              | QMenuPrivate::QMenuScroller::ScrollUp;
                     d->scroll->scrollOffset = newY;
@@ -1230,7 +1230,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
                 }
                 pos.setY(newY);
 
-                if(!style()->styleHint(QStyle::SH_Menu_FillScreenWithScroll, 0, this)) {
+                if (!style()->styleHint(QStyle::SH_Menu_FillScreenWithScroll, 0, this)) {
                     int below_height = above_height + d->scroll->scrollOffset;
                     for(int i2 = i; i2 < (int)d->actionList.count(); i2++)
                         below_height += d->actionRects.value(d->actionList.at(i2)).height();
@@ -1245,19 +1245,19 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
 
     QPoint mouse = QCursor::pos();
     bool snapToMouse = (p == mouse);
-    if(snapToMouse) {
-        if(qApp->layoutDirection() == Qt::RightToLeft)
+    if (snapToMouse) {
+        if (qApp->layoutDirection() == Qt::RightToLeft)
             pos.setX(pos.x()-size.width());
-        if(pos.x()+size.width() > screen.right())
+        if (pos.x()+size.width() > screen.right())
             pos.setX(mouse.x()-size.width());
-        if(pos.y()+size.height() > screen.bottom() - (desktopFrame * 2))
+        if (pos.y()+size.height() > screen.bottom() - (desktopFrame * 2))
             pos.setY(mouse.y()-size.height());
-        if(pos.x() < screen.left())
+        if (pos.x() < screen.left())
             pos.setX(mouse.x());
-        if(pos.y() < screen.top() + desktopFrame)
+        if (pos.y() < screen.top() + desktopFrame)
             pos.setY(screen.top() + desktopFrame);
     }
-    if(d->scroll && pos.y()+size.height() > screen.height()-(desktopFrame*2)) {
+    if (d->scroll && pos.y()+size.height() > screen.height()-(desktopFrame*2)) {
         d->scroll->scrollFlags |= uint(QMenuPrivate::QMenuScroller::ScrollDown);
         size.setHeight(screen.height()-desktopFrame-pos.y());
     }
@@ -1266,26 +1266,26 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
 #ifndef QT_NO_EFFECTS
     int hGuess = qApp->layoutDirection() == Qt::RightToLeft ? QEffects::LeftScroll : QEffects::RightScroll;
     int vGuess = QEffects::DownScroll;
-    if(qApp->layoutDirection() == Qt::RightToLeft) {
-        if((snapToMouse && (pos.x() + size.width()/2 > mouse.x())) ||
+    if (qApp->layoutDirection() == Qt::RightToLeft) {
+        if ((snapToMouse && (pos.x() + size.width()/2 > mouse.x())) ||
            (qt_cast<QMenu*>(d->causedPopup) && pos.x() + size.width()/2 > d->causedPopup->x()))
             hGuess = QEffects::RightScroll;
     } else {
-        if((snapToMouse && (pos.x() + size.width()/2 < mouse.x())) ||
+        if ((snapToMouse && (pos.x() + size.width()/2 < mouse.x())) ||
            (qt_cast<QMenu*>(d->causedPopup) && pos.x() + size.width()/2 < d->causedPopup->x()))
             hGuess = QEffects::LeftScroll;
     }
 
 #ifndef QT_NO_MENUBAR
-    if((snapToMouse && (pos.y() + size.height()/2 < mouse.y())) ||
+    if ((snapToMouse && (pos.y() + size.height()/2 < mouse.y())) ||
        (qt_cast<QMenuBar*>(d->causedPopup) && pos.y() + size.width()/2 < d->causedPopup->mapToGlobal(d->causedPopup->pos()).y()))
        vGuess = QEffects::UpScroll;
 #endif
 
-    if(QApplication::isEffectEnabled(Qt::UI_AnimateMenu)) {
-        if(QApplication::isEffectEnabled(Qt::UI_FadeMenu))
+    if (QApplication::isEffectEnabled(Qt::UI_AnimateMenu)) {
+        if (QApplication::isEffectEnabled(Qt::UI_FadeMenu))
             qFadeEffect(this);
-        else if(d->causedPopup)
+        else if (d->causedPopup)
             qScrollEffect(this, qt_cast<QMenu*>(d->causedPopup) ? hGuess : vGuess);
         else
             qScrollEffect(this, hGuess | vGuess);
@@ -1423,7 +1423,7 @@ void QMenu::hideEvent(QHideEvent *)
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::PopupMenuEnd);
 #endif
-    if(QMenuBar *mb = qt_cast<QMenuBar*>(d->causedPopup))
+    if (QMenuBar *mb = qt_cast<QMenuBar*>(d->causedPopup))
         mb->d->setCurrentAction(0);
     d->mouseDown = false;
     d->causedPopup = 0;
@@ -1441,7 +1441,7 @@ void QMenu::paintEvent(QPaintEvent *e)
     for (int i = 0; i < d->actionList.count(); ++i) {
         QAction *action = d->actionList.at(i);
         QRect adjustedActionRect = d->actionRect(action);
-        if(!e->rect().intersects(adjustedActionRect))
+        if (!e->rect().intersects(adjustedActionRect))
            continue;
         //set the clip region to be extra safe (and adjust for the scrollers)
         QRegion adjustedActionReg(adjustedActionRect);
@@ -1528,7 +1528,7 @@ void QMenu::paintEvent(QPaintEvent *e)
 */
 void QMenu::wheelEvent(QWheelEvent *e)
 {
-    if(d->scroll && rect().contains(e->pos()))
+    if (d->scroll && rect().contains(e->pos()))
         d->scrollMenu(e->delta() > 0 ?
                       QMenuPrivate::QMenuScroller::ScrollUp : QMenuPrivate::QMenuScroller::ScrollDown);
 }
@@ -1539,9 +1539,9 @@ void QMenu::wheelEvent(QWheelEvent *e)
 */
 void QMenu::mousePressEvent(QMouseEvent *e)
 {
-    if(d->mouseEventTaken(e) || e->button() != Qt::LeftButton)
+    if (d->mouseEventTaken(e))
         return;
-    if(!rect().contains(e->pos())) {
+    if (!rect().contains(e->pos())) {
          if (d->noReplayFor
              && QRect(d->noReplayFor->mapToGlobal(QPoint()), d->noReplayFor->size()).contains(e->globalPos()))
              setAttribute(Qt::WA_NoMouseReplay);
@@ -1559,15 +1559,15 @@ void QMenu::mousePressEvent(QMouseEvent *e)
 */
 void QMenu::mouseReleaseEvent(QMouseEvent *e)
 {
-    if(d->mouseEventTaken(e) || e->button() != Qt::LeftButton)
+    if (d->mouseEventTaken(e))
         return;
-    if(!d->mouseDown && d->motions < 6)
+    if (!d->mouseDown && d->motions < 6)
         return;
 
     d->mouseDown = false;
     QAction *action = d->actionAt(e->pos());
     for(QWidget *caused = this; caused;) {
-        if(QMenu *m = qt_cast<QMenu*>(caused)) {
+        if (QMenu *m = qt_cast<QMenu*>(caused)) {
             caused = m->d->causedPopup;
             if (m->d->eventLoop) // synchronous operation
                 m->d->syncAction = action;
@@ -1575,8 +1575,8 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
             break;
         }
     }
-    if(action && action->isEnabled()) {
-        if(action->menu())
+    if (action && action->isEnabled()) {
+        if (action->menu())
             action->menu()->d->setFirstActionActive();
         else
             d->activateAction(action, QAction::Trigger);
@@ -1588,19 +1588,19 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
 */
 void QMenu::changeEvent(QEvent *e)
 {
-    if(e->type() == QEvent::StyleChange || e->type() == QEvent::FontChange) {
+    if (e->type() == QEvent::StyleChange || e->type() == QEvent::FontChange) {
         d->itemsDirty = 1;
         setMouseTracking(style()->styleHint(QStyle::SH_Menu_MouseTracking, 0, this));
-        if(isVisible())
+        if (isVisible())
             resize(sizeHint() + contentsMarginSize());
-        if(!style()->styleHint(QStyle::SH_Menu_Scrollable, 0, this)) {
+        if (!style()->styleHint(QStyle::SH_Menu_Scrollable, 0, this)) {
             delete d->scroll;
             d->scroll = 0;
-        } else if(!d->scroll) {
+        } else if (!d->scroll) {
             d->scroll = new QMenuPrivate::QMenuScroller;
             d->scroll->scrollFlags = QMenuPrivate::QMenuScroller::ScrollNone;
         }
-    } else if(e->type() == QEvent::EnabledChange) {
+    } else if (e->type() == QEvent::EnabledChange) {
         if (d->tornPopup) // torn-off menu
             d->tornPopup->setEnabled(isEnabled());
     }
@@ -1621,9 +1621,9 @@ void QMenu::contextMenuEvent(QContextMenuEvent *e)
 bool
 QMenu::event(QEvent *e)
 {
-    if(e->type() == QEvent::KeyPress) {
+    if (e->type() == QEvent::KeyPress) {
         QKeyEvent *ke = (QKeyEvent*)e;
-        if(ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab) {
+        if (ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab) {
             keyPressEvent(ke);
             return true;
         }
@@ -1642,35 +1642,35 @@ QMenu::event(QEvent *e)
 void QMenu::keyPressEvent(QKeyEvent *e)
 {
     int key = e->key();
-    if(isRightToLeft()) {  // in reverse mode open/close key for submenues are reversed
-        if(key == Qt::Key_Left)
+    if (isRightToLeft()) {  // in reverse mode open/close key for submenues are reversed
+        if (key == Qt::Key_Left)
             key = Qt::Key_Right;
-        else if(key == Qt::Key_Right)
+        else if (key == Qt::Key_Right)
             key = Qt::Key_Left;
     }
-    if(key == Qt::Key_Tab) //means down
+    if (key == Qt::Key_Tab) //means down
         key = Qt::Key_Down;
 
     bool key_consumed = false;
     switch(key) {
     case Qt::Key_Home:
         key_consumed = true;
-        if(d->currentAction && d->scroll)
+        if (d->currentAction && d->scroll)
             d->scrollMenu(d->actionList.first(), QMenuPrivate::QMenuScroller::ScrollTop, true);
         break;
     case Qt::Key_End:
         key_consumed = true;
-        if(d->currentAction && d->scroll)
+        if (d->currentAction && d->scroll)
             d->scrollMenu(d->actionList.last(), QMenuPrivate::QMenuScroller::ScrollBottom, true);
         break;
     case Qt::Key_PageUp:
         key_consumed = true;
-        if(d->currentAction && d->scroll)
+        if (d->currentAction && d->scroll)
             d->scrollMenu(QMenuPrivate::QMenuScroller::ScrollUp, true, true);
         break;
     case Qt::Key_PageDown:
         key_consumed = true;
-        if(d->currentAction && d->scroll)
+        if (d->currentAction && d->scroll)
             d->scrollMenu(QMenuPrivate::QMenuScroller::ScrollDown, true, true);
         break;
     case Qt::Key_Up:
@@ -1678,62 +1678,62 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         key_consumed = true;
         QAction *nextAction = 0;
         QMenuPrivate::QMenuScroller::ScrollLocation scroll_loc = QMenuPrivate::QMenuScroller::ScrollStay;
-        if(!d->currentAction) {
+        if (!d->currentAction) {
             nextAction = d->actionList.first();
         } else {
             for(int i=0, y=0; !nextAction && i < (int)d->actionList.count(); i++) {
                 QAction *act = d->actionList.at(i);
-                if(act == d->currentAction) {
-                    if(key == Qt::Key_Up) {
+                if (act == d->currentAction) {
+                    if (key == Qt::Key_Up) {
                         for(int next_i = i-1; true; next_i--) {
-                            if(next_i == -1) {
-                                if(d->scroll)
+                            if (next_i == -1) {
+                                if (d->scroll)
                                     break;
                                 next_i = d->actionList.count()-1;
                             }
                             QAction *next = d->actionList.at(next_i);
-                            if(next == d->currentAction)
+                            if (next == d->currentAction)
                                 break;
-                            if(next->isSeparator() ||
+                            if (next->isSeparator() ||
                                (!next->isEnabled() &&
                                 !style()->styleHint(QStyle::SH_Menu_AllowActiveAndDisabled, 0, this)))
                                 continue;
                             nextAction = next;
-                            if(d->scroll && (d->scroll->scrollFlags & QMenuPrivate::QMenuScroller::ScrollUp)) {
+                            if (d->scroll && (d->scroll->scrollFlags & QMenuPrivate::QMenuScroller::ScrollUp)) {
                                 int topVisible = style()->pixelMetric(QStyle::PM_MenuScrollerHeight, 0, this);
-                                if(d->tearoff)
+                                if (d->tearoff)
                                     topVisible += style()->pixelMetric(QStyle::PM_MenuTearoffHeight, 0, this);
-                                if(((y + d->scroll->scrollOffset) - topVisible) <= d->actionRects.value(nextAction).height())
+                                if (((y + d->scroll->scrollOffset) - topVisible) <= d->actionRects.value(nextAction).height())
                                     scroll_loc = QMenuPrivate::QMenuScroller::ScrollTop;
                             }
                             break;
                         }
-                        if(!nextAction && d->tearoff)
+                        if (!nextAction && d->tearoff)
                             d->tearoffHighlighted = 1;
                     } else {
                         y += d->actionRects.value(act).height();
                         for(int next_i = i+1; true; next_i++) {
-                            if(next_i == d->actionList.count()) {
-                                if(d->scroll)
+                            if (next_i == d->actionList.count()) {
+                                if (d->scroll)
                                     break;
                                 next_i = 0;
                             }
                             QAction *next = d->actionList.at(next_i);
-                            if(next == d->currentAction)
+                            if (next == d->currentAction)
                                 break;
-                            if(next->isSeparator() ||
+                            if (next->isSeparator() ||
                                (!next->isEnabled() &&
                                 !style()->styleHint(QStyle::SH_Menu_AllowActiveAndDisabled, 0, this)))
                                 continue;
                             nextAction = next;
-                            if(d->scroll && (d->scroll->scrollFlags & QMenuPrivate::QMenuScroller::ScrollDown)) {
+                            if (d->scroll && (d->scroll->scrollFlags & QMenuPrivate::QMenuScroller::ScrollDown)) {
                                 const int scrollerHeight = style()->pixelMetric(QStyle::PM_MenuScrollerHeight, 0, this);
                                 int bottomVisible = height()-scrollerHeight;
-                                if(d->scroll->scrollFlags & QMenuPrivate::QMenuScroller::ScrollUp)
+                                if (d->scroll->scrollFlags & QMenuPrivate::QMenuScroller::ScrollUp)
                                     bottomVisible -= scrollerHeight;
-                                if(d->tearoff)
+                                if (d->tearoff)
                                     bottomVisible -= style()->pixelMetric(QStyle::PM_MenuTearoffHeight, 0, q);
-                                if((y + d->scroll->scrollOffset + d->actionRects.value(nextAction).height()) > bottomVisible)
+                                if ((y + d->scroll->scrollOffset + d->actionRects.value(nextAction).height()) > bottomVisible)
                                     scroll_loc = QMenuPrivate::QMenuScroller::ScrollBottom;
                             }
                             break;
@@ -1744,9 +1744,9 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                 y += d->actionRects.value(act).height();
             }
         }
-        if(nextAction) {
-            if(d->scroll && scroll_loc != QMenuPrivate::QMenuScroller::ScrollStay) {
-                if(d->scroll->scrollTimer)
+        if (nextAction) {
+            if (d->scroll && scroll_loc != QMenuPrivate::QMenuScroller::ScrollStay) {
+                if (d->scroll->scrollTimer)
                     d->scroll->scrollTimer->stop();
                 d->scrollMenu(nextAction, scroll_loc);
             }
@@ -1755,16 +1755,16 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         break; }
 
     case Qt::Key_Right:
-        if(d->currentAction && d->currentAction->isEnabled() && d->currentAction->menu()) {
+        if (d->currentAction && d->currentAction->isEnabled() && d->currentAction->menu()) {
             d->popupAction(d->currentAction, 0, true);
             key_consumed = true;
             break;
         }
         //FALL THROUGH
     case Qt::Key_Left: {
-        if(d->currentAction && !d->scroll) {
+        if (d->currentAction && !d->scroll) {
             QAction *nextAction = 0;
-            if(key == Qt::Key_Left) {
+            if (key == Qt::Key_Left) {
                 QRect actionR = d->actionRect(d->currentAction);
                 for(int x = actionR.left()-1; !nextAction && x >= 0; x--)
                     nextAction = d->actionAt(QPoint(x, actionR.center().y()));
@@ -1773,15 +1773,15 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                 for(int x = actionR.right()+1; !nextAction && x < width(); x++)
                     nextAction = d->actionAt(QPoint(x, actionR.center().y()));
             }
-            if(nextAction) {
+            if (nextAction) {
                 d->setCurrentAction(nextAction);
                 key_consumed = true;
             }
         }
-        if(!key_consumed && key == Qt::Key_Left && d->causedPopup && qt_cast<QMenu*>(d->causedPopup)) {
+        if (!key_consumed && key == Qt::Key_Left && d->causedPopup && qt_cast<QMenu*>(d->causedPopup)) {
             QPointer<QWidget> caused = d->causedPopup;
             hide();
-            if(caused)
+            if (caused)
                 caused->setFocus();
             key_consumed = true;
         }
@@ -1793,14 +1793,14 @@ void QMenu::keyPressEvent(QKeyEvent *e)
 
     case Qt::Key_Escape:
         key_consumed = true;
-        if(d->tornoff) {
+        if (d->tornoff) {
             close();
             return;
         }
         {
             QPointer<QWidget> caused = d->causedPopup;
             hide(); //hide after getting causedPopup
-            if(QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {
+            if (QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {
                 mb->d->setCurrentAction(d->menuAction);
                 mb->d->setKeyboardMode(true);
             }
@@ -1808,21 +1808,21 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         break;
 
     case Qt::Key_Space:
-        if(!style()->styleHint(QStyle::SH_Menu_SpaceActivatesItem, 0, this))
+        if (!style()->styleHint(QStyle::SH_Menu_SpaceActivatesItem, 0, this))
             break;
         // for motif, fall through
     case Qt::Key_Return:
     case Qt::Key_Enter: {
-            if(!d->currentAction)
+            if (!d->currentAction)
                 break;
 #ifndef QT_NO_WHATSTHIS
             bool whats_this_mode = QWhatsThis::inWhatsThisMode();
 #else
             const bool whats_this_mode = false;
 #endif
-            if(!d->currentAction->isEnabled() && !whats_this_mode)
+            if (!d->currentAction->isEnabled() && !whats_this_mode)
                 break;
-            if(d->currentAction->menu())
+            if (d->currentAction->menu())
                 d->popupAction(d->currentAction, 20, true);
             else
                 d->activateAction(d->currentAction, QAction::Trigger);
@@ -1831,9 +1831,9 @@ void QMenu::keyPressEvent(QKeyEvent *e)
 
 #ifndef QT_NO_WHATSTHIS
     case Qt::Key_F1:
-        if(!d->currentAction || d->currentAction->whatsThis().isNull())
+        if (!d->currentAction || d->currentAction->whatsThis().isNull())
             break;
-        if(!QWhatsThis::inWhatsThisMode())
+        if (!QWhatsThis::inWhatsThisMode())
             QWhatsThis::enterWhatsThisMode();
         QWhatsThis::leaveWhatsThisMode();
         //fall-through!
@@ -1842,8 +1842,8 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         key_consumed = false;
     }
 
-    if(!key_consumed) {                                // send to menu bar
-        if((!e->modifiers() || e->modifiers() == Qt::AltModifier || e->modifiers() == Qt::ShiftModifier) &&
+    if (!key_consumed) {                                // send to menu bar
+        if ((!e->modifiers() || e->modifiers() == Qt::AltModifier || e->modifiers() == Qt::ShiftModifier) &&
            e->text().length()==1) {
             int clashCount = 0;
             QAction *first = 0, *currentSelected = 0, *firstAfterCurrent = 0;
@@ -1853,11 +1853,11 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                     register QAction *act = d->actionList.at(i);
                     QKeySequence sequence = QKeySequence::mnemonic(act->text());
                     int key = sequence[0] & 0xffff;
-                    if(key == c.unicode()) {
+                    if (key == c.unicode()) {
                         clashCount++;
-                        if(!first)
+                        if (!first)
                             first = act;
-                        if(act == d->currentAction)
+                        if (act == d->currentAction)
                             currentSelected = act;
                         else if (!firstAfterCurrent && currentSelected)
                             firstAfterCurrent = act;
@@ -1865,28 +1865,28 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                 }
             }
             QAction *next_action = 0;
-            if(clashCount >= 1) {
-                if(clashCount == 1 || !d->currentAction || (currentSelected && !firstAfterCurrent))
+            if (clashCount >= 1) {
+                if (clashCount == 1 || !d->currentAction || (currentSelected && !firstAfterCurrent))
                     next_action = first;
                 else
                     next_action = firstAfterCurrent;
             }
-            if(next_action) {
+            if (next_action) {
                 d->setCurrentAction(next_action, 20, true);
-                if(!next_action->menu()) {
+                if (!next_action->menu()) {
                     key_consumed = true;
                     d->activateAction(next_action, QAction::Trigger);
                 }
             }
         }
-        if(!key_consumed) {
-            if(QWidget *caused = d->causedPopup) {
+        if (!key_consumed) {
+            if (QWidget *caused = d->causedPopup) {
                 while(QMenu *m = qt_cast<QMenu*>(caused))
                     caused = m->d->causedPopup;
-                if(QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {
+                if (QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {
                     QAction *oldAct = mb->d->currentAction;
                     QApplication::sendEvent(mb, e);
-                    if(mb->d->currentAction != oldAct)
+                    if (mb->d->currentAction != oldAct)
                         key_consumed = true;
                 }
             }
@@ -1897,7 +1897,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
             qApp->beep();
 #endif // Q_OS_WIN32
     }
-    if(key_consumed)
+    if (key_consumed)
         e->accept();
     else
         e->ignore();
@@ -1908,21 +1908,21 @@ void QMenu::keyPressEvent(QKeyEvent *e)
 */
 void QMenu::mouseMoveEvent(QMouseEvent *e)
 {
-    if(!isVisible() || d->mouseEventTaken(e))
+    if (!isVisible() || d->mouseEventTaken(e))
         return;
     d->motions++;
 
     QAction *action = d->actionAt(e->pos());
-    if(!action) {
-        if(!rect().contains(e->pos()))
+    if (!action) {
+        if (!rect().contains(e->pos()))
             d->setCurrentAction(0);
         return;
     } else {
         d->mouseDown = e->buttons() & Qt::LeftButton;
     }
-    if(d->sloppyRegion.contains(e->pos())) {
+    if (d->sloppyRegion.contains(e->pos())) {
         static QTimer *sloppyDelayTimer = 0;
-        if(!sloppyDelayTimer)
+        if (!sloppyDelayTimer)
             sloppyDelayTimer = new QTimer(qApp);
         sloppyDelayTimer->disconnect(SIGNAL(timeout()));
         QObject::connect(sloppyDelayTimer, SIGNAL(timeout()),
@@ -1941,7 +1941,7 @@ void QMenu::mouseMoveEvent(QMouseEvent *e)
 void QMenu::leaveEvent(QEvent *)
 {
     d->sloppyAction = 0;
-    if(!d->sloppyRegion.isEmpty())
+    if (!d->sloppyRegion.isEmpty())
         d->sloppyRegion = QRegion();
 }
 
@@ -1951,9 +1951,9 @@ void QMenu::leaveEvent(QEvent *)
 void
 QMenu::timerEvent(QTimerEvent *e)
 {
-    if(d->scroll && d->scroll->scrollTimer && d->scroll->scrollTimer->timerId() == e->timerId()) {
+    if (d->scroll && d->scroll->scrollTimer && d->scroll->scrollTimer->timerId() == e->timerId()) {
         d->scrollMenu((QMenuPrivate::QMenuScroller::ScrollDirection)d->scroll->scrollDirection);
-        if(d->scroll->scrollFlags == QMenuPrivate::QMenuScroller::ScrollNone)
+        if (d->scroll->scrollFlags == QMenuPrivate::QMenuScroller::ScrollNone)
             d->scroll->scrollTimer->stop();
     }
 }
@@ -1965,26 +1965,26 @@ void QMenu::actionEvent(QActionEvent *e)
 {
     d->itemsDirty = 1;
     setAttribute(Qt::WA_Resized, false);
-    if(d->tornPopup)
+    if (d->tornPopup)
         d->tornPopup->syncWithMenu(this, e);
 #ifdef Q_WS_MAC
-    if(d->mac_menu) {
-        if(e->type() == QEvent::ActionAdded)
+    if (d->mac_menu) {
+        if (e->type() == QEvent::ActionAdded)
             d->mac_menu->addAction(e->action(), d->mac_menu->findAction(e->before()));
-        else if(e->type() == QEvent::ActionRemoved)
+        else if (e->type() == QEvent::ActionRemoved)
             d->mac_menu->removeAction(e->action());
-        else if(e->type() == QEvent::ActionChanged)
+        else if (e->type() == QEvent::ActionChanged)
             d->mac_menu->syncAction(e->action());
     }
 #endif
-    if(e->type() == QEvent::ActionAdded) {
+    if (e->type() == QEvent::ActionAdded) {
         connect(e->action(), SIGNAL(triggered()), this, SLOT(actionTriggered()));
         connect(e->action(), SIGNAL(hovered()), this, SLOT(actionHovered()));
-    } else if(e->type() == QEvent::ActionRemoved) {
+    } else if (e->type() == QEvent::ActionRemoved) {
         e->action()->disconnect(this);
     }
 
-    if(isVisible()) {
+    if (isVisible()) {
         d->updateActions();
         update();
     }
@@ -1995,7 +1995,7 @@ void QMenu::actionEvent(QActionEvent *e)
 */
 void QMenu::internalSetSloppyAction()
 {
-    if(d->sloppyAction)
+    if (d->sloppyAction)
         d->setCurrentAction(d->sloppyAction, 0);
 }
 
@@ -2004,11 +2004,11 @@ void QMenu::internalSetSloppyAction()
 */
 void QMenu::internalDelayedPopup()
 {
-    if(!d->currentAction || !d->currentAction || d->currentAction->menu() == d->activeMenu)
+    if (!d->currentAction || !d->currentAction || d->currentAction->menu() == d->activeMenu)
         return;
 
     //hide the current item
-    if(QMenu *menu = d->activeMenu) {
+    if (QMenu *menu = d->activeMenu) {
         d->activeMenu = NULL;
         menu->hide();
     }
@@ -2021,28 +2021,28 @@ void QMenu::internalDelayedPopup()
 
     bool on_left = false;     //find "best" position
     const QSize menuSize(d->activeMenu->sizeHint() + d->activeMenu->contentsMarginSize());
-    if(isRightToLeft()) {
+    if (isRightToLeft()) {
         on_left = true;
         QMenu *caused = qt_cast<QMenu*>(d->causedPopup);
-        if(caused && caused->x() < x() || x() - menuSize.width() < 0)
+        if (caused && caused->x() < x() || x() - menuSize.width() < 0)
             on_left = false;
     } else {
         QMenu *caused = qt_cast<QMenu*>(d->causedPopup);
-        if(caused && caused->x() > x() ||
+        if (caused && caused->x() > x() ||
            x() + width() + menuSize.width() > QApplication::desktop()->width())
             on_left = true;
     }
-    if(on_left)
+    if (on_left)
         pos.rx() = x() - menuSize.width();
 
     //calc sloppy focus buffer
-    if(style()->styleHint(QStyle::SH_Menu_SloppySubMenus, 0, this)) {
+    if (style()->styleHint(QStyle::SH_Menu_SloppySubMenus, 0, this)) {
         QPoint cur = QCursor::pos();
-        if(actionRect.contains(mapFromGlobal(cur))) {
+        if (actionRect.contains(mapFromGlobal(cur))) {
             QPoint pts[4];
             pts[0] = QPoint(cur.x(), cur.y() - 2);
             pts[3] = QPoint(cur.x(), cur.y() + 2);
-            if(pos.x() >= cur.x())        {
+            if (pos.x() >= cur.x())        {
                 pts[1] = QPoint(geometry().right(), pos.y());
                 pts[2] = QPoint(geometry().right(), pos.y() + menuSize.height());
             } else {
@@ -2106,17 +2106,17 @@ int QMenu::insertAny(const QIcon *icon, const QString *text, const QObject *rece
                           const QKeySequence *shortcut, const QMenu *popup, int id, int index)
 {
     QAction *act = popup ? popup->menuAction() : new QAction(this);
-    if(id != -1)
+    if (id != -1)
         static_cast<QMenuItem*>(act)->setId(id);
-    if(icon)
+    if (icon)
         act->setIcon(*icon);
-    if(text)
+    if (text)
         act->setText(*text);
-    if(shortcut)
+    if (shortcut)
         act->setShortcut(*shortcut);
-    if(receiver && member)
+    if (receiver && member)
         QObject::connect(act, SIGNAL(activated(int)), receiver, member, Qt::DirectCompatConnection);
-    if(index == -1)
+    if (index == -1)
         addAction(act);
     else
         insertAction(actions().value(index+1), act);
@@ -2131,7 +2131,7 @@ int QMenu::insertSeparator(int index)
 {
     QAction *act = new QAction(this);
     act->setSeparator(true);
-    if(index == -1)
+    if (index == -1)
         addAction(act);
     else
         insertAction(actions().value(index+1), act);
@@ -2173,7 +2173,7 @@ QMenuItem *QMenu::findPopup( QMenu *popup, int *index )
 */
 bool QMenu::setItemParameter(int id, int param)
 {
-    if(QAction *act = findActionForId(id)) {
+    if (QAction *act = findActionForId(id)) {
         act->d->param = param;
         return true;
     }
@@ -2185,7 +2185,7 @@ bool QMenu::setItemParameter(int id, int param)
 */
 int QMenu::itemParameter(int id) const
 {
-    if(QAction *act = findActionForId(id))
+    if (QAction *act = findActionForId(id))
         return act->d->param;
     return id;
 }
@@ -2200,7 +2200,7 @@ int QMenu::frameWidth() const
 
 int QMenu::findIdForAction(QAction *act) const
 {
-    if(!act)
+    if (!act)
         return -1;
     return act->d->id;
 }
