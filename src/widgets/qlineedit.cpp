@@ -909,7 +909,7 @@ void QLineEdit::drawContents( QPainter *painter )
 
     int lineheight = QMIN( fontMetrics().lineSpacing() + 4, height() );
     int linetop = (height() - lineheight ) / 2;
-    
+
     // always double buffer when we have focus, and keep the pixmap
     // around until we loose focus again. If we do not have focus,
     // only use the standard shared buffer.
@@ -924,7 +924,7 @@ void QLineEdit::drawContents( QPainter *painter )
 			       QColorGroup::Background);
     buffer.painter()->fillRect( 0, 0, width(), height(), bg );
     if ( linetop ) {
-	painter->fillRect( 0, 0, width(), linetop, bg );	
+	painter->fillRect( 0, 0, width(), linetop, bg );
 	painter->fillRect( 0, linetop + lineheight, width(), linetop, bg );
     }
 
@@ -1792,8 +1792,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
     }
     t.truncate( maxLength() );
 
-    QString old = d->parag->string()->toString();
-    old.remove( old.length() - 1, 1 );
+    QString old = this->text();
 
 #ifndef QT_NO_VALIDATOR
     const QValidator * v = validator();
@@ -1806,32 +1805,27 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 #endif
 
     // okay, it succeeded
-    if ( t != old ) {
-	// contents of setText() with one addition
-	QString text = t;
-	QString oldText = this->text();
+    bool text_changed = ( t != old );
+    if ( text_changed ) {
 	d->parag->truncate( 0 );
-	d->parag->append( text );
-	d->cursor->setIndex( d->parag->length() - 1 );
-	if ( hasFocus() )
-	    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
-	deselect();
-	update();
-	d->cursor->setIndex( newPos ); // put the cursor back where its meant to be before emitting the signal
-	if ( oldText != text ) {
-	    emit textChanged( text );
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-	    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
-#endif
-	// end of setText contents
-	}
+	d->parag->append( t );
     }
 
     d->cursor->setIndex( newPos );
     d->selectionStart = newMarkAnchor;
     d->parag->setSelection( QTextDocument::Standard, newMarkAnchor, newMarkDrag );
     repaint( FALSE );
-    d->selectionStart = d->cursor->index();
+
+    if ( hasFocus() )
+	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(),
+			   0, d->cursor->parag()->rect().height(), TRUE );
+
+    if ( text_changed ) {
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
+#endif
+	emit textChanged( t );
+    }
     return TRUE;
 }
 
