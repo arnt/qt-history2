@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#14 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#15 $
 **
 ** Definition of QIconView widget class
 **
@@ -55,6 +55,67 @@ class QIconViewItemLineEdit;
 
 /*****************************************************************************
  *
+ * Class QIconDragItem
+ *
+ *****************************************************************************/
+
+class QIconDragItem
+{
+public:
+    QIconDragItem();
+    QIconDragItem( const QRect &r );
+    virtual ~QIconDragItem();
+    
+    virtual bool operator<( const QIconDragItem &icon );
+    virtual bool operator==( const QIconDragItem &icon );
+	
+    virtual QRect rect() const;
+    virtual QString key() const;
+    
+    virtual void setRect( const QRect &r );
+    
+protected:
+    virtual void makeKey();
+
+    QRect rect_;
+    QString key_;
+	
+};    
+    
+/*****************************************************************************
+ *
+ * Class QIconDrag
+ *
+ *****************************************************************************/
+
+class QIconDrag : public QDragObject
+{
+    Q_OBJECT
+
+public:
+    typedef QValueList<QIconDragItem> QIconList;
+
+    QIconDrag( const QIconList &icons_, QWidget * dragSource, const char* name = 0 );
+    QIconDrag( QWidget * dragSource, const char* name = 0 );
+    virtual ~QIconDrag();
+
+    void setIcons( const QIconList &list_ );
+    void append( const QIconDragItem &icon_ );
+    
+    virtual const char* format( int i ) const;
+    virtual QByteArray encodedData( const char* mime ) const;
+  
+    static bool canDecode( QMimeSource* e );
+  
+    static bool decode( QMimeSource* e, QIconList &list_ );
+
+protected:
+    QIconList icons;
+
+};
+
+/*****************************************************************************
+ *
  * Class QIconViewItem
  *
  *****************************************************************************/
@@ -65,7 +126,7 @@ class QIconViewItem : public QObject
 
     Q_OBJECT
 
-	public:
+public:
     QIconViewItem( QIconView *parent );
     QIconViewItem( QIconView *parent, QIconViewItem *after );
     QIconViewItem( QIconView *parent, const QString &text );
@@ -251,7 +312,7 @@ signals:
 protected slots:
     virtual void doAutoScroll();
     virtual void adjustItems();
-    
+
 protected:
     virtual void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     virtual void contentsMousePressEvent( QMouseEvent *e );
@@ -273,12 +334,16 @@ protected:
     virtual void startDrag();
     virtual void insertInGrid( QIconViewItem *item );
     virtual void drawDragShape( const QPoint &pnt );
-    virtual int dragItems( QDropEvent *e );
+    virtual void initDrag( QDropEvent *e );
     virtual void drawBackground( QPainter *p, const QRect &r );
 
     void emitSelectionChanged();
     void emitNewSelectionNumber();
 
+    void setDragObjectIsKnown( bool b );
+    void setIconDragData( const QValueList<QIconDragItem> &lst );
+    void setNumDragItems( int num );
+    
 private:
     QIconViewPrivate *d;
 
