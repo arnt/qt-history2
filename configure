@@ -903,7 +903,7 @@ if [ '!' -d "$QMAKESPEC" ]
 then
     echo
     echo
-    echo '   The specified platform/compiler not supported: ' $PLATFORM
+    echo '   The specified platform/compiler not supported: ' $QMAKESPEC
     echo '   Please see the PLATFORMS file for a complete list.'
     echo
     echo
@@ -913,7 +913,7 @@ if [ '!' -d "$XQMAKESPEC" ]
 then
     echo
     echo
-    echo '   The specified platform/compiler not supported: ' $XPLATFORM
+    echo '   The specified platform/xcompiler not supported: ' $XQMAKESPEC
     echo '   Please see the PLATFORMS file for a complete list.'
     echo
     echo
