@@ -164,6 +164,21 @@ QTextBrowser::QTextBrowser(QWidget *parent)
     d->viewport->setMouseTracking(true);
 }
 
+#ifdef QT_COMPAT
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
+QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
+    : QTextEdit(*new QTextBrowserPrivate, parent)
+{
+    setObjectName(name);
+    setReadOnly(true);
+    setUndoRedoEnabled(false);
+    d->viewport->setMouseTracking(true);
+}
+#endif
+
 QTextBrowser::~QTextBrowser()
 {
 }

@@ -61,6 +61,8 @@ protected:
 #if defined(QT_COMPAT)
 signals:
     QT_MOC_COMPAT void anchorClicked(const QString&, const QString&);
+public:
+    QT_COMPAT_CONSTRUCTOR QTextBrowser(QWidget *parent, const char *name);
 #endif
 
 private:        // Disabled copy constructor and operator=
