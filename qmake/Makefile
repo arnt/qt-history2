@@ -157,9 +157,16 @@ clean::
 	-del property.obj 
 	-del meta.obj 
 	-del qtmd5.obj
-        -del makefiledeps.obj 
+	-del makefiledeps.obj 
 	-del metamakefile.obj 
 	-del xmloutput.obj 
+	-del borland_bmake.obj 
+	-del msvc_nmake.obj 
+	-del msvc_dsp.obj 
+	-del msvc_vcproj.obj
+	-del msvc_objectmodel.obj 
+	-del metrowerks_xml.obj 
+	-del pbuilder_pbx.obj
 	-del vc60.pdb 
 	-del vc70.pdb 
 	-del qmake.pdb 
