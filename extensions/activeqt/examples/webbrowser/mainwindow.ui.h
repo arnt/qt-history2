@@ -14,6 +14,7 @@
 #include <qmessagebox.h>
 #include <qprogressbar.h>
 #include <qstatusbar.h>
+#include <qmenudata.h>
 
 void MainWindow::init()
 {
