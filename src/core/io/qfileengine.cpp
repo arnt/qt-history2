@@ -633,6 +633,11 @@ QFSFileEngine::QFSFileEngine() : QFileEngine(*new QFSFileEnginePrivate)
 {
 }
 
+QFSFileEngine::QFSFileEngine(QFSFileEnginePrivate &dd)
+    : QFileEngine(dd)
+{
+}
+
 
 QFSFileEngine::~QFSFileEngine()
 {

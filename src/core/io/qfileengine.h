@@ -199,6 +199,9 @@ public:
     static QString rootPath();
     static QString tempPath();
     static QFileInfoList drives();
+
+protected:
+    QFSFileEngine(QFSFileEnginePrivate &dd);
 private:
     Q_DECLARE_PRIVATE(QFSFileEngine)
 };

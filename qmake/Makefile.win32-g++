@@ -41,6 +41,7 @@ QTOBJS= \
 	qfileinfo.o \
 	qfileengine_win.o \
 	qfileengine.o \
+	qbufferedfsfileengine.o \
 	qglobal.o \
 	qhash.o \
 	qiodevice.o \
@@ -132,7 +133,7 @@ qvsnprintf.o: ..\src\core\tools\qvsnprintf.cpp
 
 qbytearraymatcher.o: ..\src\core\tools\qbytearraymatcher.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qbytearraymatcher.cpp
-	
+
 qchar.o: ..\src\core\tools\qchar.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qchar.cpp
 
@@ -171,6 +172,9 @@ qfileengine_win.o: ..\src\core\io\qfileengine_win.cpp
 
 qfileengine.o: ..\src\core\io\qfileengine.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qfileengine.cpp
+
+qbufferedfsfileengine.o: ..\src\core\io\qbufferedfsfileengine.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qbufferedfsfileengine.cpp
 
 qtextcodec.o: ..\src\codecs\qtextcodec.cpp
 	$(CXX) $(CXXFLAGS) ..\src\codecs\qtextcodec.cpp
@@ -267,6 +271,6 @@ makefiledeps.o: generators/makefiledeps.cpp
 
 metamakefile.o: generators/metamakefile.cpp
 	$(CXX) $(CXXFLAGS) generators/metamakefile.cpp
-	
+
 xmloutput.o: generators/xmloutput.cpp
 	$(CXX) $(CXXFLAGS) generators/xmloutput.cpp

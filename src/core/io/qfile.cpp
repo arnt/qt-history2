@@ -15,6 +15,7 @@
 
 #include "qfile.h"
 #include <qfileengine.h>
+#include "qbufferedfsfileengine_p.h"
 #include <qtemporaryfile.h>
 #include <qlist.h>
 #include <qfileinfo.h>
@@ -77,6 +78,15 @@ QFilePrivate::openExternalFile(int flags, int fd)
     QFSFileEngine *fe = new QFSFileEngine;
     fileEngine = fe;
     return fe->open(flags, fd);
+}
+
+bool
+QFilePrivate::openExternalFile(int flags, FILE *fh)
+{
+    delete fileEngine;
+    QBufferedFSFileEngine *fe = new QBufferedFSFileEngine;
+    fileEngine = fe;
+    return fe->open(flags, fh);
 }
 
 void
@@ -782,7 +792,26 @@ bool QFile::isSequential() const
 bool
 QFile::open(OpenMode mode, FILE *fh)
 {
-    return open(mode, QT_FILENO(fh));
+    if (isOpen()) {
+        qWarning("QFile::open: File already open");
+        return false;
+    }
+    if (mode & Append)
+        mode |= WriteOnly;
+    unsetError();
+    if ((mode & (ReadOnly | WriteOnly)) == 0) {
+        qWarning("QFile::open: File access not specified");
+        return false;
+    }
+
+    // Implicitly set Unbuffered mode; buffering is already handled.
+    mode |= Unbuffered;
+
+    if(d->openExternalFile(mode, fh)) {
+        setOpenMode(mode);
+        return true;
+    }
+    return false;
 }
 
 /*!
@@ -1095,43 +1124,47 @@ Q_LONGLONG QFile::readData(char *data, Q_LONGLONG len)
 
     Q_LONGLONG ret = 0;
 #ifndef QT_NO_FILE_BUFFER
-    //from buffer
-    while(ret != len && !d->buffer.isEmpty()) {
-        uint buffered = qMin(len, (Q_LONGLONG)d->buffer.used());
-        char *buffer = d->buffer.take(buffered, &buffered);
-        memcpy(data+ret, buffer, buffered);
-        d->buffer.free(buffered);
-        ret += buffered;
-    }
-    //from the device
-    if(ret < len) {
-        if(len > read_cache_size) {
-            Q_LONGLONG read = fileEngine()->read(data+ret, len-ret);
-            if(read != -1)
-                ret += read;
-        } else {
-            char *buffer = d->buffer.alloc(read_cache_size);
-            Q_LONGLONG got = fileEngine()->read(buffer, read_cache_size);
-            if(got != -1) {
-                if(got < read_cache_size)
-                    d->buffer.truncate(read_cache_size - got);
-
-                const Q_LONGLONG need = qMin(len-ret, got);
-                memcpy(data+ret, buffer, need);
-                d->buffer.free(need);
-                ret += need;
+    if ((openMode() & Unbuffered) == 0) {
+        //from buffer
+        while(ret != len && !d->buffer.isEmpty()) {
+            uint buffered = qMin(len, (Q_LONGLONG)d->buffer.used());
+            char *buffer = d->buffer.take(buffered, &buffered);
+            memcpy(data+ret, buffer, buffered);
+            d->buffer.free(buffered);
+            ret += buffered;
+        }
+        //from the device
+        if(ret < len) {
+            if(len > read_cache_size) {
+                Q_LONGLONG read = fileEngine()->read(data+ret, len-ret);
+                if(read != -1)
+                    ret += read;
             } else {
-                if(!ret)
-                    ret = -1;
-                d->buffer.truncate(read_cache_size);
+                char *buffer = d->buffer.alloc(read_cache_size);
+                Q_LONGLONG got = fileEngine()->read(buffer, read_cache_size);
+                if(got != -1) {
+                    if(got < read_cache_size)
+                        d->buffer.truncate(read_cache_size - got);
+                    const Q_LONGLONG need = qMin(len-ret, got);
+                    memcpy(data+ret, buffer, need);
+                    d->buffer.free(need);
+                    ret += need;
+                } else {
+                    if(!ret)
+                        ret = -1;
+                    d->buffer.truncate(read_cache_size);
+                }
             }
         }
-    }
-#else
-    Q_LONGLONG read = fileEngine()->read(data+ret, len-ret);
-    if(read != -1)
-        ret += read;
+    } else {
 #endif
+        Q_LONGLONG read = fileEngine()->read(data+ret, len-ret);
+        if(read != -1)
+            ret += read;
+#ifndef QT_NO_FILE_BUFFER
+    }
+#endif
+
     if(ret < 0) {
         QFile::Error err = fileEngine()->error();
         if(err == QFile::UnspecifiedError)

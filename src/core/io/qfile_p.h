@@ -40,6 +40,7 @@ protected:
     ~QFilePrivate();
 
     bool openExternalFile(int flags, int fd);
+    bool openExternalFile(int flags, FILE *fh);
 
 #ifndef QT_NO_FILE_BUFFER
     QCircularBuffer buffer;

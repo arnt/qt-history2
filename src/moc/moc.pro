@@ -36,6 +36,7 @@ SOURCES	+= ../core/tools/qbytearray.cpp	\
 		  ../core/io/qfile.cpp		\
 		  ../core/io/qtemporaryfile.cpp \
                   ../core/io/qfileengine.cpp  \
+                  ../core/io/qbufferedfsfileengine.cpp  \
 		  ../core/io/qdir.cpp		\
 		  ../core/io/qfileinfo.cpp	\
 		  ../core/global/qglobal.cpp		\

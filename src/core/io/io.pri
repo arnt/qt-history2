@@ -9,6 +9,7 @@ HEADERS +=  \
 	io/qfileinfo.h \
         io/qfileengine.h \
         io/qfileengine_p.h \
+        io/qbufferedfsfileengine_p.h \
 	io/qiodevice.h \
 	io/qiodevice_p.h \
         io/qprocess.h \
@@ -30,6 +31,7 @@ SOURCES += \
 	io/qfile.cpp \
 	io/qfileinfo.cpp \
         io/qfileengine.cpp \
+        io/qbufferedfsfileengine.cpp \
 	io/qiodevice.cpp \
         io/qprocess.cpp \
 	io/qtextstream.cpp \
