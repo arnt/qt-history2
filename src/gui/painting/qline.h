@@ -123,7 +123,6 @@ inline float QLineF::vy() const
 
 inline QLineF QLineF::normalVector() const
 {
-    Q_ASSERT(!isNull());
     return QLineF(start(), start() + QPointF(vy(), -vx()));
 }
 
@@ -135,7 +134,8 @@ inline void QLineF::moveBy(const QLineF &l)
 
 inline void QLineF::setLength(float len)
 {
-    Q_ASSERT(!isNull());
+    if (isNull())
+        return;
     QLineF v = unitVector();
     p2 = QPointF(p1.x() + v.vx() * len, p1.y() + v.vy() * len);
 }

@@ -228,8 +228,8 @@ static bool qt_linef_intersect(float x1, float y1, float x2, float y2,
 */
 QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPoint) const
 {
-    Q_ASSERT(!isNull());
-    Q_ASSERT(!l.isNull());
+    if (isNull() || l.isNull())
+        return NoIntersection;
 
     // Parallell lines
     if (vx() == l.vx() && vy() == l.vy()) {
@@ -275,8 +275,8 @@ QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPo
 */
 float QLineF::angle(const QLineF &l) const
 {
-    Q_ASSERT(!isNull());
-    Q_ASSERT(!l.isNull());
+    if (isNull() || l.isNull())
+        return 0;
     float rad = acos( (vx()*l.vx() + vy()*l.vy()) / (length()*l.length()) );
     return rad * 360 / M_2PI;
 }
