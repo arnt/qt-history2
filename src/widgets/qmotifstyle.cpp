@@ -659,7 +659,7 @@ void QMotifStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
     int sliderMin, sliderMax, sliderLength, buttonDim;
     scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
 
-    if ( controls == (AddLine | SubLine | AddPage | SubPage | Slider) )
+    if ( controls == (AddLine | SubLine | AddPage | SubPage | Slider | First | Last ) )
 	qDrawShadePanel( p, sb->rect(), g, TRUE );
 
     if (sliderStart > sliderMax) { // sanity check
