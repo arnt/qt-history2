@@ -649,10 +649,10 @@ public:
     QString toHtml();
 
 private:
-    void exportFrame(QTextFrame::Iterator frameIt);
-    void exportBlock(const QTextBlock &block);
-    void exportTable(const QTextTable *table);
-    void exportFragment(const QTextFragment &fragment);
+    void emitFrame(QTextFrame::Iterator frameIt);
+    void emitBlock(const QTextBlock &block);
+    void emitTable(const QTextTable *table);
+    void emitFragment(const QTextFragment &fragment);
 
     void emitBlockFormatAttributes(const QTextBlockFormat &format);
     bool emitCharFormatStyle(const QTextCharFormat &format);
@@ -674,7 +674,7 @@ QTextHtmlExporter::QTextHtmlExporter(const QTextDocument *_doc)
 QString QTextHtmlExporter::toHtml()
 {
     html = QLatin1String("<html><body>"); // ####
-    exportFrame(doc->rootFrame()->begin());
+    emitFrame(doc->rootFrame()->begin());
     html += QLatin1String("</body></html>");
     return html;
 }
@@ -785,7 +785,7 @@ void QTextHtmlExporter::emitTextLength(const char *attribute, const QTextLength 
         html += QLatin1String("\"");
 }
 
-void QTextHtmlExporter::exportFragment(const QTextFragment &fragment)
+void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
 {
     const QTextCharFormat format = fragment.charFormat();
 
@@ -847,7 +847,7 @@ void QTextHtmlExporter::emitBlockFormatAttributes(const QTextBlockFormat &format
         emitAttribute("bgcolor", format.backgroundColor().name());
 }
 
-void QTextHtmlExporter::exportBlock(const QTextBlock &block)
+void QTextHtmlExporter::emitBlock(const QTextBlock &block)
 {
     if (block.begin().atEnd())
         return;
@@ -863,7 +863,7 @@ void QTextHtmlExporter::exportBlock(const QTextBlock &block)
 
     for (QTextBlock::Iterator it = block.begin();
          !it.atEnd(); ++it)
-        exportFragment(it.fragment());
+        emitFragment(it.fragment());
 
     if (pre)
         html += QLatin1String("</pre>");
@@ -871,7 +871,7 @@ void QTextHtmlExporter::exportBlock(const QTextBlock &block)
         html += QLatin1String("</p>");
 }
 
-void QTextHtmlExporter::exportTable(const QTextTable *table)
+void QTextHtmlExporter::emitTable(const QTextTable *table)
 {
     QTextTableFormat format = table->format();
 
@@ -941,7 +941,7 @@ void QTextHtmlExporter::exportTable(const QTextTable *table)
 
             html += QLatin1Char('>');
 
-            exportFrame(cell.begin());
+            emitFrame(cell.begin());
 
             html += QLatin1String("</td>");
         }
@@ -952,14 +952,14 @@ void QTextHtmlExporter::exportTable(const QTextTable *table)
     html += QLatin1String("</table>");
 }
 
-void QTextHtmlExporter::exportFrame(QTextFrame::Iterator frameIt)
+void QTextHtmlExporter::emitFrame(QTextFrame::Iterator frameIt)
 {
     for (QTextFrame::Iterator it = frameIt;
          !it.atEnd(); ++it) {
         if (QTextTable *table = qt_cast<QTextTable *>(it.currentFrame()))
-            exportTable(table);
+            emitTable(table);
         else if (it.currentBlock().isValid())
-            exportBlock(it.currentBlock());
+            emitBlock(it.currentBlock());
     }
 }
 
