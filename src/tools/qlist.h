@@ -32,6 +32,7 @@ struct Q_EXPORT QListData {
     void **insert(int i);
     void remove(int i);
     void remove(int i, int n);
+    void move(int from, int to);
     inline int size() const { return d->end - d->begin; }
     inline bool isEmpty() const { return d->end  == d->begin; }
     inline void **at(int i) const { return d->array + d->begin + i; }
@@ -77,6 +78,8 @@ public:
     void removeAt(int i);
     int take(const T &t);
     T takeAt(int i);
+    void move(int from, int to);
+    void swap(int i, int j);
     int indexOf(const T &t, int from = 0) const;
     int lastIndexOf(const T &t, int from = -1) const;
     QBool contains(const T &t) const;
@@ -295,6 +298,20 @@ template <typename T>
 inline void QList<T>::replace(int i, const T &t)
 { Q_ASSERT(i >= 0 && i < size()); detach();
  ((Node*)p.at(i))->t() = t; }
+template <typename T>
+inline void QList<T>::swap(int i, int j)
+{ Q_ASSERT(i >= 0 && i < size() && j >= 0 && j < size()); detach();
+ T t = ((Node*)p.at(i))->t(); 
+ ((Node*)p.at(i))->t() = ((Node*)p.at(j))->t(); 
+ ((Node*)p.at(j))->t() = t; 
+}
+
+template <typename T>
+inline void QList<T>::move(int from, int to)
+{ Q_ASSERT(from >= 0 && from < size() && to >= 0 && to < size()); detach();
+ p.move(from, to); 
+}
+
 template <typename T>
 inline bool QList<T>::autoDelete() const
 { return d->autoDelete == (void*) this; }

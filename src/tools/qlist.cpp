@@ -140,6 +140,23 @@ void QListData::remove(int i, int n)
     }
 }
 
+void QListData::move(int from, int to)
+{
+    // TODO: optimize by shifting the array if we've got space
+    Q_ASSERT( d->ref == 1 );
+    from += d->begin;
+    to += d->begin;
+    void *t = d->array[from]; 
+    if (from < to) {
+      ::memmove(d->array + from, d->array + from + 1, 
+		(to - from) * sizeof(void*));
+    } else {
+      ::memmove(d->array + to + 1, d->array + to, 
+		(from - to) * sizeof(void*));
+    }
+    d->array[to] = t;
+}
+
 void **QListData::erase(void **xi)
 {
     Q_ASSERT( d->ref == 1 );
