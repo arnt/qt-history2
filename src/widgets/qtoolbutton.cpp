@@ -755,8 +755,11 @@ QIconSet QToolButton::iconSet( bool on ) const
 	return *that->son;
 
     if ( pixmap() && (!that->s || (that->s->pixmap().serialNumber() !=
-				   pixmap()->serialNumber())) )
+	pixmap()->serialNumber())) ) {
+	if ( that->s )
+	    delete that->s;
 	that->s = new QIconSet( *pixmap() );
+    }
 
     if ( that->s )
 	return *that->s;
