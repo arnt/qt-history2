@@ -1033,7 +1033,7 @@ bool QDockWindow::isCloseEnabled() const
 
 int QDockWindow::closeMode() const
 {
-    return closeMode();
+    return cMode;
 }
 
 /*!  Sets the QDockWindow to be horizontally stretchable, if \a b is
