@@ -255,7 +255,7 @@ glyph_metrics_t QTextEngine::boundingBox( int from,  int len ) const
 		    glyph_metrics_t m = fe->boundingBox( shaped->glyphs+glyphStart, shaped->advances+glyphStart,
 						       shaped->offsets+glyphStart, glyphEnd-glyphStart );
 		    gm.x = QMIN( gm.x, m.x + gm.xoff );
-		    gm.y = QMIN( gm.y, m.x + gm.yoff );
+		    gm.y = QMIN( gm.y, m.y + gm.yoff );
 		    gm.width = QMAX( gm.width, m.width+gm.xoff );
 		    gm.height = QMAX( gm.height, m.height+gm.yoff );
 		    gm.xoff += m.xoff;

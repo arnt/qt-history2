@@ -46,14 +46,14 @@ typedef offset_t GOFFSET;
         MAKE_HRESULT(SEVERITY_ERROR,FACILITY_ITF,0x200)    // Script doesn't exist in font
 
 typedef struct {
-  DWORD   langid              :16;  
+  DWORD   langid              :16;
   DWORD   fNumeric            :1;
   DWORD   fComplex            :1;
-  DWORD   fNeedsWordBreaking  :1;   
+  DWORD   fNeedsWordBreaking  :1;
   DWORD   fNeedsCaretInfo     :1;
-  DWORD   bCharSet            :8;   
-  DWORD   fControl            :1;   
-  DWORD   fPrivateUseArea     :1;   
+  DWORD   bCharSet            :8;
+  DWORD   fControl            :1;
+  DWORD   fPrivateUseArea     :1;
   DWORD   fNeedsCharacterJustify :1;
   DWORD   fInvalidGlyph       :1;
   DWORD   fInvalidLogAttr     :1;
@@ -64,13 +64,13 @@ typedef struct {
 } SCRIPT_PROPERTIES;
 
 typedef HRESULT (WINAPI *fScriptFreeCache)( SCRIPT_CACHE *);
-typedef HRESULT (WINAPI *fScriptItemize)( const WCHAR *, int, int, const SCRIPT_CONTROL *, 
+typedef HRESULT (WINAPI *fScriptItemize)( const WCHAR *, int, int, const SCRIPT_CONTROL *,
 					  const SCRIPT_STATE *, SCRIPT_ITEM *, int *);
-typedef HRESULT (WINAPI *fScriptShape)( HDC hdc, SCRIPT_CACHE *, const WCHAR *, int, int, 
+typedef HRESULT (WINAPI *fScriptShape)( HDC hdc, SCRIPT_CACHE *, const WCHAR *, int, int,
 				        QScriptAnalysis *, WORD *, WORD *, SCRIPT_VISATTR *, int *);
-typedef HRESULT (WINAPI *fScriptPlace)( HDC, SCRIPT_CACHE *, const WORD *, int, const SCRIPT_VISATTR *, QScriptAnalysis *, int *, 
+typedef HRESULT (WINAPI *fScriptPlace)( HDC, SCRIPT_CACHE *, const WORD *, int, const SCRIPT_VISATTR *, QScriptAnalysis *, int *,
 					GOFFSET *, ABC * );
-typedef HRESULT (WINAPI *fScriptTextOut)( const HDC, SCRIPT_CACHE *, int, int, UINT, const RECT *, const QScriptAnalysis *, 
+typedef HRESULT (WINAPI *fScriptTextOut)( const HDC, SCRIPT_CACHE *, int, int, UINT, const RECT *, const QScriptAnalysis *,
 					 const WCHAR *, int, const WORD *, int, const int *, const int *, const GOFFSET *);
 typedef HRESULT (WINAPI *fScriptBreak)( const WCHAR *, int, const QScriptAnalysis *, QCharAttributes * );
 //typedef HRESULT (WINAPI *fScriptGetFontProperties)( HDC, SCRIPT_CACHE *, SCRIPT_FONTPROPERTIES * );
@@ -130,101 +130,101 @@ static void resolveUsp10()
 }
 
 static unsigned char script_for_win_language[ 0x80 ] = {
-    //0x00 LANG_NEUTRAL Neutral 
+    //0x00 LANG_NEUTRAL Neutral
     QFont::Latin,
-    //0x01 LANG_ARABIC Arabic 
+    //0x01 LANG_ARABIC Arabic
     QFont::Arabic,
-    //0x02 LANG_BULGARIAN Bulgarian 
+    //0x02 LANG_BULGARIAN Bulgarian
     QFont::NScripts,
-    //0x03 LANG_CATALAN Catalan  
+    //0x03 LANG_CATALAN Catalan
     QFont::NScripts,
-    //0x04 LANG_CHINESE Chinese 
+    //0x04 LANG_CHINESE Chinese
     QFont::Han,
-    //0x05 LANG_CZECH Czech 
+    //0x05 LANG_CZECH Czech
     QFont::NScripts,
-    //0x06 LANG_DANISH Danish 
+    //0x06 LANG_DANISH Danish
     QFont::NScripts,
-    //0x07 LANG_GERMAN German 
+    //0x07 LANG_GERMAN German
     QFont::NScripts,
-    //0x08 LANG_GREEK Greek 
+    //0x08 LANG_GREEK Greek
     QFont::Greek,
-    //0x09 LANG_ENGLISH English  
+    //0x09 LANG_ENGLISH English
     QFont::Latin,
-    //0x0a LANG_SPANISH Spanish  
+    //0x0a LANG_SPANISH Spanish
     QFont::NScripts,
-    //0x0b LANG_FINNISH Finnish 
+    //0x0b LANG_FINNISH Finnish
     QFont::NScripts,
-    //0x0c LANG_FRENCH French 
+    //0x0c LANG_FRENCH French
     QFont::NScripts,
-    //0x0d LANG_HEBREW Hebrew 
+    //0x0d LANG_HEBREW Hebrew
     QFont::Hebrew,
-    //0x0e LANG_HUNGARIAN Hungarian 
+    //0x0e LANG_HUNGARIAN Hungarian
     QFont::NScripts,
-    //0x0f LANG_ICELANDIC Icelandic 
+    //0x0f LANG_ICELANDIC Icelandic
     QFont::NScripts,
 
-    //0x10 LANG_ITALIAN Italian  
+    //0x10 LANG_ITALIAN Italian
     QFont::NScripts,
-    //0x11 LANG_JAPANESE Japanese 
+    //0x11 LANG_JAPANESE Japanese
     QFont::Hiragana,
-    //0x12 LANG_KOREAN Korean 
+    //0x12 LANG_KOREAN Korean
     QFont::Hangul,
-    //0x13 LANG_DUTCH Dutch 
+    //0x13 LANG_DUTCH Dutch
     QFont::NScripts,
-    //0x14 LANG_NORWEGIAN Norwegian 
+    //0x14 LANG_NORWEGIAN Norwegian
     QFont::NScripts,
-    //0x15 LANG_POLISH Polish 
+    //0x15 LANG_POLISH Polish
     QFont::NScripts,
-    //0x16 LANG_PORTUGUESE Portuguese 
+    //0x16 LANG_PORTUGUESE Portuguese
     QFont::NScripts,
     QFont::NScripts,
-    //0x18 LANG_ROMANIAN Romanian 
+    //0x18 LANG_ROMANIAN Romanian
     QFont::NScripts,
-    //0x19 LANG_RUSSIAN Russian 
+    //0x19 LANG_RUSSIAN Russian
     QFont::Cyrillic,
-    //0x1a LANG_CROATIAN Croatian 
-    //0x1a LANG_SERBIAN Serbian 
+    //0x1a LANG_CROATIAN Croatian
+    //0x1a LANG_SERBIAN Serbian
     QFont::NScripts,
-    //0x1b LANG_SLOVAK Slovak 
+    //0x1b LANG_SLOVAK Slovak
     QFont::NScripts,
-    //0x1c LANG_ALBANIAN Albanian 
+    //0x1c LANG_ALBANIAN Albanian
     QFont::NScripts,
-    //0x1d LANG_SWEDISH Swedish  
+    //0x1d LANG_SWEDISH Swedish
     QFont::NScripts,
-    //0x1e LANG_THAI Thai 
+    //0x1e LANG_THAI Thai
     QFont::Thai,
-    //0x1f LANG_TURKISH Turkish  
+    //0x1f LANG_TURKISH Turkish
     QFont::NScripts,
 
-    //0x20 LANG_URDU Urdu 
+    //0x20 LANG_URDU Urdu
     QFont::NScripts,
-    //0x21 LANG_INDONESIAN Indonesian 
+    //0x21 LANG_INDONESIAN Indonesian
     QFont::NScripts,
-    //0x22 LANG_UKRAINIAN Ukrainian 
+    //0x22 LANG_UKRAINIAN Ukrainian
     QFont::NScripts,
-    //0x23 LANG_BELARUSIAN Belarusian 
+    //0x23 LANG_BELARUSIAN Belarusian
     QFont::NScripts,
-    //0x24 LANG_SLOVENIAN Slovenian 
+    //0x24 LANG_SLOVENIAN Slovenian
     QFont::NScripts,
-    //0x25 LANG_ESTONIAN Estonian 
+    //0x25 LANG_ESTONIAN Estonian
     QFont::NScripts,
-    //0x26 LANG_LATVIAN Latvian 
+    //0x26 LANG_LATVIAN Latvian
     QFont::NScripts,
-    //0x27 LANG_LITHUANIAN Lithuanian 
+    //0x27 LANG_LITHUANIAN Lithuanian
     QFont::NScripts,
     QFont::NScripts,
-    //0x29 LANG_FARSI Farsi 
+    //0x29 LANG_FARSI Farsi
     QFont::NScripts,
-    //0x2a LANG_VIETNAMESE Vietnamese 
+    //0x2a LANG_VIETNAMESE Vietnamese
     QFont::NScripts,
-    //0x2b LANG_ARMENIAN Armenian 
+    //0x2b LANG_ARMENIAN Armenian
     QFont::Armenian,
-    //0x2c LANG_AZERI Azeri 
+    //0x2c LANG_AZERI Azeri
     QFont::NScripts,
-    //0x2d LANG_BASQUE Basque 
+    //0x2d LANG_BASQUE Basque
     QFont::NScripts,
     QFont::NScripts,
-    //0x2f LANG_MACEDONIAN FYRO Macedonian 
+    //0x2f LANG_MACEDONIAN FYRO Macedonian
     QFont::NScripts,
 
     QFont::NScripts,
@@ -233,71 +233,71 @@ static unsigned char script_for_win_language[ 0x80 ] = {
     QFont::NScripts,
     QFont::NScripts,
     QFont::NScripts,
-    //0x36 LANG_AFRIKAANS Afrikaans 
+    //0x36 LANG_AFRIKAANS Afrikaans
     QFont::NScripts,
-    //0x37 LANG_GEORGIAN Georgian 
+    //0x37 LANG_GEORGIAN Georgian
     QFont::NScripts,
-    //0x38 LANG_FAEROESE Faeroese 
+    //0x38 LANG_FAEROESE Faeroese
     QFont::NScripts,
-    //0x39 LANG_HINDI Hindi 
+    //0x39 LANG_HINDI Hindi
     QFont::Devanagari,
     QFont::NScripts,
     QFont::NScripts,
     QFont::NScripts,
     QFont::NScripts,
-    //0x3e LANG_MALAY Malay 
+    //0x3e LANG_MALAY Malay
     QFont::NScripts,
-    //0x3f LANG_KAZAK Kazak 
+    //0x3f LANG_KAZAK Kazak
     QFont::NScripts,
 
-    //0x40 LANG_KYRGYZ Kyrgyz 
+    //0x40 LANG_KYRGYZ Kyrgyz
     QFont::NScripts,
-    //0x41 LANG_SWAHILI Swahili 
+    //0x41 LANG_SWAHILI Swahili
     QFont::NScripts,
     QFont::NScripts,
-    //0x43 LANG_UZBEK Uzbek 
+    //0x43 LANG_UZBEK Uzbek
     QFont::NScripts,
-    //0x44 LANG_TATAR Tatar 
+    //0x44 LANG_TATAR Tatar
     QFont::NScripts,
-    //0x45 LANG_BENGALI Not supported. 
+    //0x45 LANG_BENGALI Not supported.
     QFont::Bengali,
-    //0x46 LANG_PUNJABI Punjabi 
+    //0x46 LANG_PUNJABI Punjabi
     QFont::NScripts,
-    //0x47 LANG_GUJARATI Gujarati 
+    //0x47 LANG_GUJARATI Gujarati
     QFont::Gujarati,
-    //0x48 LANG_ORIYA Not supported. 
+    //0x48 LANG_ORIYA Not supported.
     QFont::Oriya,
-    //0x49 LANG_TAMIL Tamil 
+    //0x49 LANG_TAMIL Tamil
     QFont::Tamil,
-    //0x4a LANG_TELUGU Telugu 
+    //0x4a LANG_TELUGU Telugu
     QFont::Telugu,
-    //0x4b LANG_KANNADA Kannada 
+    //0x4b LANG_KANNADA Kannada
     QFont::Kannada,
-    //0x4c LANG_MALAYALAM Not supported. 
+    //0x4c LANG_MALAYALAM Not supported.
     QFont::Malayalam,
-    //0x4d LANG_ASSAMESE Not supported. 
+    //0x4d LANG_ASSAMESE Not supported.
     QFont::NScripts,
-    //0x4e LANG_MARATHI Marathi 
+    //0x4e LANG_MARATHI Marathi
     QFont::NScripts,
-    //0x4f LANG_SANSKRIT Sanskrit 
+    //0x4f LANG_SANSKRIT Sanskrit
     QFont::NScripts,
 
-    //0x50 LANG_MONGOLIAN Mongolian 
+    //0x50 LANG_MONGOLIAN Mongolian
     QFont::Mongolian,
     QFont::NScripts,
     QFont::NScripts,
     QFont::NScripts,
     QFont::NScripts,
     QFont::NScripts,
-    //0x56 LANG_GALICIAN Galician 
+    //0x56 LANG_GALICIAN Galician
     QFont::NScripts,
-    //0x57 LANG_KONKANI Konkani 
+    //0x57 LANG_KONKANI Konkani
     QFont::NScripts,
-    //0x58 LANG_MANIPURI Not supported. 
+    //0x58 LANG_MANIPURI Not supported.
     QFont::NScripts,
-    //0x59 LANG_SINDHI Not supported. 
+    //0x59 LANG_SINDHI Not supported.
     QFont::NScripts,
-    //0x5a LANG_SYRIAC Syriac 
+    //0x5a LANG_SYRIAC Syriac
     QFont::Syriac,
     QFont::NScripts,
     QFont::NScripts,
@@ -305,14 +305,14 @@ static unsigned char script_for_win_language[ 0x80 ] = {
     QFont::NScripts,
     QFont::NScripts,
 
-    //0x60 LANG_KASHMIRI Not supported. 
+    //0x60 LANG_KASHMIRI Not supported.
     QFont::NScripts,
-    //0x61 LANG_NEPALI Not supported. 
-    QFont::NScripts,
-    QFont::NScripts,
+    //0x61 LANG_NEPALI Not supported.
     QFont::NScripts,
     QFont::NScripts,
-    //0x65 LANG_DIVEHI Divehi 
+    QFont::NScripts,
+    QFont::NScripts,
+    //0x65 LANG_DIVEHI Divehi
     QFont::NScripts,
     QFont::NScripts,
     QFont::NScripts,
@@ -493,7 +493,7 @@ void QTextEngine::itemize( bool doBidi )
 		res = ScriptItemize( (WCHAR *)string.unicode(), string.length(), alloc-1, control, state, usp_items, &numItems );
 	    }
 	}
-	items.resize( numItems );	    
+	items.resize( numItems );
 	int i;
 	for( i = 0; i < numItems; i++ ) {
 	    QScriptItem item;
@@ -600,7 +600,7 @@ QShapedItem *QTextEngine::shape( int item ) const
 	if ( hasUsp10 ) {
 	    const SCRIPT_PROPERTIES *script_prop = script_properties[si.analysis.script];
 	    script = scriptForWinLanguage( script_prop->langid );
-	} 
+	}
 	si.fontEngine = fnt->engineForScript( script );
 	if ( si.fontEngine->type() == QFontEngine::Box )
 	    si.fontEngine = fnt->engineForScript( QFont::NoScript );
@@ -615,8 +615,8 @@ QShapedItem *QTextEngine::shape( int item ) const
 	HDC hdc = 0;
 	do {
 	    shaped_allocate( &si, l );
-	    res = ScriptShape( hdc, &si.fontEngine->script_cache, (WCHAR *)string.unicode() + from, len, 
-			       l, &si.analysis, si.shaped->glyphs, si.shaped->logClusters, si.shaped->glyphAttributes, 
+	    res = ScriptShape( hdc, &si.fontEngine->script_cache, (WCHAR *)string.unicode() + from, len,
+			       l, &si.analysis, si.shaped->glyphs, si.shaped->logClusters, si.shaped->glyphAttributes,
 			       &si.shaped->num_glyphs );
 	    if ( res == E_PENDING ) {
 		hdc = si.fontEngine->dc();
@@ -641,12 +641,12 @@ QShapedItem *QTextEngine::shape( int item ) const
 	} while( res != S_OK );
 
 	ABC abc;
-	res = ScriptPlace( hdc, &si.fontEngine->script_cache, si.shaped->glyphs, si.shaped->num_glyphs, 
+	res = ScriptPlace( hdc, &si.fontEngine->script_cache, si.shaped->glyphs, si.shaped->num_glyphs,
 		           si.shaped->glyphAttributes, &si.analysis, si.shaped->advances, si.shaped->offsets, &abc );
 	if ( res == E_PENDING ) {
 	    hdc = si.fontEngine->dc();
 	    SelectObject( hdc, si.fontEngine->hfont );
-	    ScriptPlace( hdc, &si.fontEngine->script_cache, si.shaped->glyphs, si.shaped->num_glyphs, 
+	    ScriptPlace( hdc, &si.fontEngine->script_cache, si.shaped->glyphs, si.shaped->num_glyphs,
 			 si.shaped->glyphAttributes, &si.analysis, si.shaped->advances, si.shaped->offsets, &abc );
 	}
 	si.ascent = si.fontEngine->ascent();
@@ -739,7 +739,7 @@ glyph_metrics_t QTextEngine::boundingBox( int from,  int len ) const
 		    glyph_metrics_t m = fe->boundingBox( shaped->glyphs+glyphStart, shaped->advances+glyphStart,
 						       shaped->offsets+glyphStart, glyphEnd-glyphStart );
 		    gm.x = QMIN( gm.x, m.x + gm.xoff );
-		    gm.y = QMIN( gm.y, m.x + gm.yoff );
+		    gm.y = QMIN( gm.y, m.y + gm.yoff );
 		    gm.width = QMAX( gm.width, m.width+gm.xoff );
 		    gm.height = QMAX( gm.height, m.height+gm.yoff );
 		    gm.xoff += m.xoff;
