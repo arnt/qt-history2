@@ -290,10 +290,18 @@ void QToolBar::setOrientation( Orientation newOrientation )
 
 void QToolBar::show()
 {
-    //Does nothing, present for binary compatibility
+    if ( mw )
+	mw->triggerLayout();
     QWidget::show();
 }
 
+
+void QToolBar::hide()
+{
+    if ( mw )
+	mw->triggerLayout();
+    QWidget::hide();
+}
 
 void QToolBar::setUpGM()
 {

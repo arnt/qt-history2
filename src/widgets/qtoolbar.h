@@ -58,7 +58,8 @@ public:
     Orientation orientation() const { return o; }
 
     void show();
-
+    void hide();
+    
     QMainWindow * mainWindow();
 
     virtual void setStretchableWidget( QWidget * );

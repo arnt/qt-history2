@@ -396,7 +396,7 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
     int pos = rect_pos( r, o, TRUE );
     int lineExtend = 0;
     while ( TRUE ) {
-	QSize sh = t ? t->t->sizeHint() : QSize();
+	QSize sh = t && t->t->isVisible() ? t->t->sizeHint() : QSize();
 	int nx = e;
 	if ( t && t->extraOffset != -1 && t->extraOffset > e )
 	    nx = t->extraOffset;
