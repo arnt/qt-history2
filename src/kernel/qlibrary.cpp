@@ -230,7 +230,7 @@ QString QLibrary::library() const
 
   \sa QUnknownInterface::queryInterface
 */
-QUnknownInterface* QLibrary::queryInterface( const QString &request, bool recusive, bool regexp )
+QUnknownInterface* QLibrary::queryInterface( const QString &request, bool recursive, bool regexp )
 {
     if ( !info ) {
 	if ( libPol != Manual )
@@ -243,7 +243,7 @@ QUnknownInterface* QLibrary::queryInterface( const QString &request, bool recusi
 	}
     }
     
-    QUnknownInterface *iface = info->queryInterface( request, recusive, regexp );
+    QUnknownInterface *iface = info->queryInterface( request, recursive, regexp );
 
     return iface;
 }
