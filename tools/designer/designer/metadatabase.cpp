@@ -647,7 +647,7 @@ bool MetaDataBase::hasSlot( QObject *o, const QCString &slot, bool onlyCustom )
 
 	if ( o->inherits( "CustomWidget" ) ) {
 	    MetaDataBase::CustomWidget *w = ( (::CustomWidget*)o )->customWidget();
-	    for ( QValueList<MetaDataBase::Slot>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it ) {
+	    for ( QValueList<Slot>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it ) {
 		QCString s = (*it).slot;
 		if ( !s.data() )
 		    continue;
@@ -698,11 +698,11 @@ bool MetaDataBase::addCustomWidget( CustomWidget *wid )
 		if ( !w->hasSignal( *it ) )
 		    w->lstSignals.append( *it );
 	    }
-	    for ( QValueList<MetaDataBase::Slot>::ConstIterator it2 = wid->lstSlots.begin(); it2 != wid->lstSlots.end(); ++it2 ) {
+	    for ( QValueList<Slot>::ConstIterator it2 = wid->lstSlots.begin(); it2 != wid->lstSlots.end(); ++it2 ) {
 		if ( !w->hasSlot( MetaDataBase::normalizeSlot( (*it2).slot ).latin1() ) )
 		    w->lstSlots.append( *it2 );
 	    }
-	    for ( QValueList<MetaDataBase::Property>::ConstIterator it3 = wid->lstProperties.begin(); it3 != wid->lstProperties.end(); ++it3 ) {
+	    for ( QValueList<Property>::ConstIterator it3 = wid->lstProperties.begin(); it3 != wid->lstProperties.end(); ++it3 ) {
 		if ( !w->hasProperty( (*it3).property ) )
 		    w->lstProperties.append( *it3 );
 	    }
@@ -1153,20 +1153,20 @@ static QStringList get_arguments( const QString &s )
 QValueList<MetaDataBase::EventDescription> MetaDataBase::events( QObject *o, const QString &lang )
 {
     if ( !o )
-	return QValueList<MetaDataBase::EventDescription>();
+	return QValueList<EventDescription>();
     setupDataBase();
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r ) {
 	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
 		  o, o->name(), o->className() );
-	return QValueList<MetaDataBase::EventDescription>();
+	return QValueList<EventDescription>();
     }
 
     if ( !eventInterfaceManager || langList.count() == 1 )
-	return QValueList<MetaDataBase::EventDescription>();
+	return QValueList<EventDescription>();
     EventInterface *iface = 0;
     eventInterfaceManager->queryInterface( lang, &iface );
-    QValueList<MetaDataBase::EventDescription> list;
+    QValueList<EventDescription> list;
     if ( !iface )
 	return list;
     QStringList lst = iface->events( o );

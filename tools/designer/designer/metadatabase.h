@@ -126,6 +126,9 @@ public:
     {
 	QString name;
 	QStringList args;
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+	bool operator==( const EventDescription& ) const { return FALSE; }
+#endif
     };
 
     MetaDataBase();

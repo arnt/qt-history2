@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QSlider class
 **
@@ -45,6 +45,8 @@
 
 #ifndef QT_NO_SLIDER
 
+
+struct QSliderPrivate;
 
 class QTimer;
 
@@ -143,8 +145,7 @@ private:
     int		goodPart( const QPoint& ) const;
     void	initTicks();
 
-    class Data;
-    Data *extra;
+    QSliderPrivate *extra;
     QTimer	*timer;
     QCOORD	sliderPos;
     int		sliderVal;

@@ -91,6 +91,9 @@ private:
 	QString name;
 	QPixmap pix;
 	QString field;
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+	bool operator==( const Field& ) const { return FALSE; }
+#endif
     };
 
     struct EventFunction

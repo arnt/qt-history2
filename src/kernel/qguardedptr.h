@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QGuardedPtr class
 **
@@ -87,7 +87,7 @@ public:
 
     QGuardedPtr<T> &operator=(T* o) {
 	if ( priv->count == 1 ) {
-	    priv->reconnect( o );
+	    priv->reconnect( (QObject*)o );
 	} else {
 	    deref();
 	    priv = new QGuardedPtrPrivate( (QObject*)o );

@@ -705,6 +705,9 @@ public:
     {
 	QString text;
 	QPixmap pix;
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+	bool operator==( const Row& ) const { return FALSE; }
+#endif
     };
 
     struct Column
@@ -712,6 +715,9 @@ public:
 	QString text;
 	QPixmap pix;
 	QString field;
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+	bool operator==( const Column& ) const { return FALSE; }
+#endif
     };
 
     PopulateTableCommand( const QString &n, FormWindow *fw, QTable *t,
