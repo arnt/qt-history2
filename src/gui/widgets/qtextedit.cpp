@@ -122,7 +122,6 @@ bool QRichTextDrag::canDecode(const QMimeSource* e)
 // could go into QTextCursor...
 static QTextLine currentTextLine(const QTextCursor &cursor)
 {
-    QTextLine line;
     const QTextBlock block = cursor.block();
     if (!block.isValid())
         return QTextLine();
@@ -1644,6 +1643,7 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *ev)
 {
     if (d->mightStartDrag) {
         d->mousePressed = false;
+        d->setCursorPosition(d->translateCoordinates(ev->pos()));
         d->cursor.clearSelection();
         d->selectionChanged();
     }
@@ -1673,6 +1673,8 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *ev)
         return;
     }
 
+    d->mightStartDrag = false;
+    d->setCursorPosition(d->translateCoordinates(ev->pos()));
     QTextLine line = currentTextLine(d->cursor);
     if (line.isValid() && line.length()) {
         d->cursor.movePosition(QTextCursor::StartOfWord);
