@@ -19,33 +19,17 @@ class QActiveX;
 class CTestWidget : public QActiveXBase 
 {
 public:
-	CTestWidget( QActiveX* pControl);
-	~CTestWidget();
+    CTestWidget( HWND hWndParent );
+    ~CTestWidget();
 
-   void updateControl();
+    virtual void resizeEvent( QResizeEvent* pEvent );
+    void keyPressEvent( QKeyEvent* pEvent );
 private:
-	QSlider* m_pSlider;
-	QLCDNumber* m_pLCD;
-	QMultiLineEdit* m_pEdit;
-	QMultiLineEdit* m_pEdit2;
+    QSlider* m_pSlider;
+    QLCDNumber* m_pLCD;
+    QMultiLineEdit* m_pEdit;
+    QMultiLineEdit* m_pEdit2;
 
-    QActiveX* m_pControl;
-protected:
-    void	drawControl( QPainter* pPainter, const QRect& rc );
-    void	resizeEvent( QResizeEvent* pEvent );
-        
-
-public:
-/*
-** Hide until we get the other stuff to work
-// These are pure virtual functions in the baseclass
-	virtual void InitWidget();
-	virtual void UnInitWidget();
-
-protected:
-// Event handlers
-	virtual void resizeEvent( QResizeEvent* pEvent );
-*/
 };
 
 #endif // !defined(AFX_TESTWIDGET_H__DA4969C1_5578_42FE_AD7E_8E6924794EBB__INCLUDED_)

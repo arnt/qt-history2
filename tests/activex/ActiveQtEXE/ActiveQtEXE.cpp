@@ -13,8 +13,6 @@
 #include "ActiveQtEXE_i.c"
 #include "QActiveX.h"
 
-#include <QApplication.h>
-
 
 const DWORD dwTimeOut = 5000; // time for EXE to be idle before shutting down
 const DWORD dwPause = 1000; // time to wait for threads to finish up
@@ -53,11 +51,7 @@ void CExeModule::MonitorShutdown()
         // timed out
         if (!bActivity && m_nLockCnt == 0) // if no activity let's really bail
         {
-#if _WIN32_WINNT >= 0x0400 & defined(_ATL_FREE_THREADED)
-            CoSuspendClassObjects();
-            if (!bActivity && m_nLockCnt == 0)
-#endif
-                break;
+            break;
         }
     }
     CloseHandle(hEventShutdown);
@@ -98,6 +92,7 @@ LPCTSTR FindOneOf(LPCTSTR p1, LPCTSTR p2)
 }
 
 QApplication* pGlobalApp;
+//QActiveXApp* pGlobalApp;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -106,17 +101,12 @@ extern "C" int WINAPI _tWinMain(HINSTANCE hInstance,
 {
     lpCmdLine = GetCommandLine(); //this line necessary for _ATL_MIN_CRT
 
-#if _WIN32_WINNT >= 0x0400 & defined(_ATL_FREE_THREADED)
-    HRESULT hRes = CoInitializeEx(NULL, COINIT_MULTITHREADED);
-#else
     HRESULT hRes = CoInitialize(NULL);
-#endif
+
     _ASSERTE(SUCCEEDED(hRes));
     _Module.Init(ObjectMap, hInstance, &LIBID_ACTIVEQTEXELib);
     _Module.dwThreadID = GetCurrentThreadId();
     TCHAR szTokens[] = _T("-/");
-
-    int tmp( 0 );
 
 	int nRet = 0;
     BOOL bRun = TRUE;
@@ -142,36 +132,25 @@ extern "C" int WINAPI _tWinMain(HINSTANCE hInstance,
 
     if (bRun)
     {
+	int tmp( 0 );
 		// Create our QApplication object before starting our monitor.
-		pGlobalApp = new QApplication( tmp, NULL );
+	pGlobalApp = new QApplication( tmp, NULL );
+//	pGlobalApp = new QActiveXApp( tmp, NULL );
         _Module.StartMonitor();
-#if _WIN32_WINNT >= 0x0400 & defined(_ATL_FREE_THREADED)
-        hRes = _Module.RegisterClassObjects(CLSCTX_LOCAL_SERVER, 
-            REGCLS_MULTIPLEUSE | REGCLS_SUSPENDED);
-        _ASSERTE(SUCCEEDED(hRes));
-        hRes = CoResumeClassObjects();
-#else
-        hRes = _Module.RegisterClassObjects(CLSCTX_LOCAL_SERVER, 
-            REGCLS_MULTIPLEUSE);
-#endif
+        hRes = _Module.RegisterClassObjects(CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE);
         _ASSERTE(SUCCEEDED(hRes));
 
-        MSG msg;
-        while (GetMessage(&msg, 0, 0, 0))
-		{
-			DispatchMessage(&msg);
-		}
+        pGlobalApp->exec();
 
         _Module.RevokeClassObjects();
         Sleep(dwPause); //wait for any threads to finish
 
-		// Delete the application object should be the last thing
-		// we do.
-		delete pGlobalApp;
+	// Delete the application object should be the last thing
+	// we do.
+	delete pGlobalApp;
     }
 
-
-	_Module.Term();
+    _Module.Term();
     CoUninitialize();
     return nRet;
 }
