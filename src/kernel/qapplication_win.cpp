@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#307 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#308 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -351,11 +351,14 @@ static void qt_set_windows_resources()
 	messageFont = LOGFONT_AorW_to_QFont((LOGFONT&)ncm.lfMessageFont);
     }
 
-    if (menuFont != QFont::defaultFont()) {
+    if (menuFont != QApplication::font() || 
+	QApplication::font("QPopupMenu") != menuFont ||
+	QApplication::font("QMenuBar") != menuFont ) {
 	QApplication::setFont( menuFont, FALSE, "QPopupMenu");
 	QApplication::setFont( menuFont, TRUE, "QMenuBar");
     }
-    if (messageFont != QFont::defaultFont()) {
+    if (messageFont != QApplication::font() ||
+	QApplication::font("QMessageBoxLabel") != messageFont ) {
 	QApplication::setFont( messageFont, TRUE, "QMessageBoxLabel");
     }
 
@@ -401,13 +404,11 @@ static void qt_set_windows_resources()
     QColorGroup dcg( disabled, cg.button(), cg.light(), cg.dark(), cg.mid(),
 		     disabled, Qt::white, Qt::white, cg.background() );
 	
-    QPalette pal( cg, dcg, cg );
-    QApplication::setPalette( pal, TRUE );
 
     QColor menu(colorref2qrgb(GetSysColor(COLOR_MENU)));
     QColor menuText(colorref2qrgb(GetSysColor(COLOR_MENUTEXT)));
-    if (menu != cg.button() || menuText != cg.text()) {
-	// we need a special color group for the menu.
+    {
+	// we might need a special color group for the menu.
 	cg.setColor( QColorGroup::Button, menu );
 	cg.setColor( QColorGroup::Text, menuText );
 	cg.setColor( QColorGroup::Foreground, menuText );
@@ -419,10 +420,12 @@ static void qt_set_windows_resources()
 			 disabled, Qt::white, Qt::white, cg.background() );
 	
 	QPalette pal(cg, dcg, cg);
- 	QApplication::setPalette( pal, TRUE, "QPopupMenu");
- 	QApplication::setPalette( pal, TRUE, "QMenuBar");
+ 	QApplication::setPalette( pal, FALSE, "QPopupMenu");
+ 	QApplication::setPalette( pal, FALSE, "QMenuBar");
     }
 
+    QPalette pal( cg, dcg, cg );
+    QApplication::setPalette( pal, TRUE );
 }
 
 /*****************************************************************************
@@ -523,9 +526,6 @@ void qt_init( int *argcptr, char **argv )
 	QApplication::setFont( name, size );
     }
 
-    if ( QApplication::desktopSettingsAware() )
-	qt_set_windows_resources();
-
 #if defined(USE_HEARTBEAT)
     /*
       ########
@@ -539,6 +539,9 @@ void qt_init( int *argcptr, char **argv )
 	(TIMERPROC)qt_simple_timer_func : 0 );
 #endif
     // QFont::locale_init();  ### Uncomment when it does something on Windows
+
+    if ( QApplication::desktopSettingsAware() )
+	qt_set_windows_resources();
 
 }
 

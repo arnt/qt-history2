@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#150 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#151 $
 **
 ** Implementation of QMenuBar class
 **
@@ -169,7 +169,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 \reimp
 */
 
-void QMenuBar::styleChange( QStyle& )
+void QMenuBar::styleChange( QStyle& old )
 {
     switch ( style().guiStyle() ) {
 	case WindowsStyle:
@@ -184,6 +184,7 @@ void QMenuBar::styleChange( QStyle& )
 	    break;
     }
     updateGeometry();
+    QFrame::styleChange( old );
 }
 
 
@@ -546,10 +547,10 @@ void QMenuBar::hide()
   Needs to change the size of the menu bar when a new font is set.
 */
 
-void QMenuBar::fontChange( const QFont & )
+void QMenuBar::fontChange( const QFont & f )
 {
     badSize = TRUE;
-    repaint();
+    QWidget::fontChange( f );
 }
 
 

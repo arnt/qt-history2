@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#70 $
 **
 ** Implementation of QMainWindow class
 **
@@ -1314,7 +1314,8 @@ void QMainWindow::whatsThis()
 \reimp
 */
 
-void QMainWindow::styleChange( QStyle& )
+void QMainWindow::styleChange( QStyle& old )
 {
     setUpLayout();
+    QWidget::styleChange( old );
 }

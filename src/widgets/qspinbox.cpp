@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#71 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -829,7 +829,7 @@ void QSpinBox::setEnabled( bool on )
 
 /*! \reimp */
 
-void QSpinBox::styleChange( QStyle& )
+void QSpinBox::styleChange( QStyle& old )
 {
 //#####    vi->setStyle( style() );
 //#####    up->setStyle( style() );
@@ -838,4 +838,5 @@ void QSpinBox::styleChange( QStyle& )
 	setFrameStyle( WinPanel | Sunken );
     else
 	setFrameStyle( Panel | Sunken );
+    QFrame::styleChange( old );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#257 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#258 $
 **
 ** Implementation of QApplication class
 **
@@ -1170,11 +1170,14 @@ void QApplication::closeAllWindows()
 /*!
   \fn void QApplication::lastWindowClosed()
 
-  This signal is emitted when the user has closed a top level widget
-  and there are no more visible top level widgets left.
-
+  This signal is emitted when the user has closed the last remaining
+  top level window.
+  
   The signal is very useful when your application has many top level
   widgets but no main widget. You can then connect it to the quit() slot.
+
+  For convenience, transient toplevel widgets such as popup menus and
+  dialogs are omitted.
 
   \sa mainWidget(), topLevelWidgets(), QWidget::isTopLevel(), QWidget::close()
 */
@@ -2052,7 +2055,7 @@ void QApplication::saveState( QSessionManager& /* sm */ )
 
 
 /*! \fn HANDLE QSessionManager::handle() const
-  
+
   X11 only: returns a handle to the current \c SmcConnection.
  */
 

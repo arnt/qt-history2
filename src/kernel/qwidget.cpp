@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#432 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#433 $
 **
 ** Implementation of QWidget class
 **
@@ -907,9 +907,10 @@ QStyle& QWidget::style() const
   previous GUI style; you can get the new style from style().
 
   Reimplement this function if your widget needs to know when its GUI
-  style changes.  The widget will be updated automatically afterwards.
+  style changes.  You will almost certainly need to update the widget
+  using either repaint(TRUE) or update().
 
-  The default implementation does nothing.
+  The default implementation calls update().
 
   \sa QApplication::setStyle(), style()
 */
@@ -1707,7 +1708,7 @@ const QColor &QWidget::foregroundColor() const
   background color changes.  You will almost certainly need to update the
   widget using either repaint(TRUE) or update().
 
-  The default implementation repaints the visible part of the widget.
+  The default implementation calls update()
 
   \sa setBackgroundColor(), backgroundColor(), setPalette(), repaint(),
   update()
@@ -1715,7 +1716,7 @@ const QColor &QWidget::foregroundColor() const
 
 void QWidget::backgroundColorChange( const QColor & )
 {
-    repaint( visibleRect() );
+    update();
 }
 
 
@@ -1744,14 +1745,14 @@ const QPixmap *QWidget::backgroundPixmap() const
   background pixmap changes.  You will almost certainly need to update the
   widget using either repaint(TRUE) or update().
 
-  The default implementation repaints the visible part of the widget.
+  The default implementation calls update()
 
   \sa setBackgroundPixmap(), backgroundPixmap(), repaint(), update()
 */
 
 void QWidget::backgroundPixmapChange( const QPixmap & )
 {
-    repaint( visibleRect() );
+    update();
 }
 
 
@@ -1851,7 +1852,7 @@ void QWidget::setPalette( const QPalette &p )
 		w->setPalette( pal );
 	}
     }
-    repaint( visibleRect() );
+    update();
 }
 
 
@@ -1880,9 +1881,10 @@ void QWidget::setPalette( const QPalette &p, bool fixed )
   previous palette; you can get the new palette from palette().
 
   Reimplement this function if your widget needs to know when its palette
-  changes. The widget will be updated automatically afterwards.
+  changes.  You will almost certainly need to update the widget using
+  either repaint(TRUE) or update().
 
-  The default implementation does nothing.
+  The default implementation calls update().
 
   \sa setPalette(), palette()
 */
@@ -1992,14 +1994,14 @@ void QWidget::setFont( const QFont &font, bool fixed )
   changes.  You will almost certainly need to update the widget using
   either repaint(TRUE) or update().
 
-  The default implementation repaints the visible part of the widget.
+  The default implementation calls update
 
   \sa setFont(), font(), repaint(), update()
 */
 
 void QWidget::fontChange( const QFont & )
 {
-    repaint( visibleRect() );
+    update();
 }
 
 
@@ -2834,17 +2836,21 @@ void QWidget::setUpdatesEnabled( bool enable )
 
 
 /*
-  Returns TRUE if there's no visible top level window (except the desktop).
-  This is an internal function used by QWidget::hide().
+  Returns TRUE if there's no non-withdrawn top level window left
+  (except the desktop, dialogs or popups).  This is an internal
+  function used by QWidget::close() to decide whether to emit
+  QApplication::lastWindowClosed() or not.
 */
 
-static bool onlyWithdrawnTLW()
+static bool noMoreToplevels()
 {
     QWidgetList *list   = qApp->topLevelWidgets();
     QWidget     *widget = list->first();
     while ( widget ) {
 	if ( !widget->testWState( Qt::WState_Withdrawn )
-	     && !widget->isDesktop() )
+	     && !widget->isDesktop() 
+	     && !widget->isPopup()
+	     && !widget->testWFlags( Qt::WStyle_Dialog) )
 	    break;
 	widget = list->next();
     }
@@ -3053,7 +3059,7 @@ bool QWidget::close( bool alsoDelete )
 {
     WId	 id	= winId();
     bool isMain = qApp->mainWidget() == this;
-    bool wasTopLevel = isTopLevel();
+    bool checkLastWindowClosed = isTopLevel() && !isPopup() && !testWFlags( WStyle_Dialog );
     QCloseEvent e;
     bool accept = QApplication::sendEvent( this, &e );
     if ( !QWidget::find(id) ) {			// widget was deleted
@@ -3072,8 +3078,8 @@ bool QWidget::close( bool alsoDelete )
     if ( isMain )
 	qApp->quit();
 
-    if ( accept && wasTopLevel ) {			// last TLW closed?
-	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && onlyWithdrawnTLW() )
+    if ( accept && checkLastWindowClosed ) {	// last window closed?
+	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noMoreToplevels() )
 	    emit qApp->lastWindowClosed();
     }
 
@@ -4271,6 +4277,5 @@ void QWidget::setStyle( QStyle *style )
 	old.unPolish( this );
 	QWidget::style().polish( this );
 	styleChange( old );
-	repaint( visibleRect(), TRUE );
     }
 }

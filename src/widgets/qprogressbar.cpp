@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#44 $
 **
 ** Implementation of QProgressBar class
 **
@@ -67,7 +67,7 @@ QProgressBar::QProgressBar( QWidget *parent, const char *name, WFlags f )
       auto_indicator( TRUE ),
       d( 0 )
 {
-    styleChange( style() );
+    initFrame();
 }
 
 
@@ -96,7 +96,7 @@ QProgressBar::QProgressBar( int totalSteps,
       auto_indicator( TRUE ),
       d( 0 )
 {
-    styleChange( style() );
+    initFrame();
 }
 
 
@@ -245,9 +245,7 @@ void QProgressBar::show()
 }
 
 
-/*! \reimp
- */
-void QProgressBar::styleChange( QStyle& )
+void QProgressBar::initFrame() 
 {
     if ( style() == MotifStyle ) {
 	setFrameStyle(QFrame::WinPanel | QFrame::Sunken);
@@ -257,6 +255,14 @@ void QProgressBar::styleChange( QStyle& )
 	setFrameStyle(QFrame::NoFrame);
 	setLineWidth( 1 );
     }
+}
+
+/*! \reimp
+ */
+void QProgressBar::styleChange( QStyle& old )
+{
+    initFrame();
+    QFrame::styleChange( old );
 }
 
 

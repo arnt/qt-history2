@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#232 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#233 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -1126,9 +1126,10 @@ void QPopupMenu::timerEvent( QTimerEvent *e )
 /*!
   Reimplemented for internal purposes.
 */
-void  QPopupMenu::styleChange( QStyle& )
+void  QPopupMenu::styleChange( QStyle& old )
 {
     style().polishPopupMenu( this );
+    QFrame::styleChange( old );
 }
 
 

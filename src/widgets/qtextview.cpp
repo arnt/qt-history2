@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#20 $
 **
 ** Implementation of the QTextView class
 **
@@ -542,8 +542,9 @@ void QTextView::keyPressEvent( QKeyEvent * e)
 /*!
   \reimp
 */
-void QTextView::paletteChange( const QPalette & )
+void QTextView::paletteChange( const QPalette & p )
 {
+    QScrollView::paletteChange( p );
     d->mypapcolgrp = palette().normal();
     d->papcolgrp = d->mypapcolgrp;
 }

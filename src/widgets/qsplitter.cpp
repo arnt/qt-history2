@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#74 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#75 $
 **
 **  Splitter widget
 **
@@ -1035,7 +1035,7 @@ void QSplitter::processChildEvents()
   \reimp
 */
 
-void QSplitter::styleChange( QStyle& )
+void QSplitter::styleChange( QStyle& old )
 {
     int sw = style().splitterWidth();
     QSplitterLayoutStruct *s = data->list.first();
@@ -1045,5 +1045,6 @@ void QSplitter::styleChange( QStyle& )
 	s = data->list.next();
     }
     doResize();
+    QFrame::styleChange( old );
 }
 
