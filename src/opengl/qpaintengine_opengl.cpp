@@ -33,6 +33,10 @@
 #define CALLBACK
 #endif
 
+#ifndef GL_TEXTURE_MAX_ANISOTROPY_EXT
+#define GL_TEXTURE_MAX_ANISOTROPY_EXT 0x84FE
+#endif
+
 // define QT_GL_NO_CONCAVE_POLYGONS to remove support for drawing
 // concave polygons (for speedup purposes)
 
@@ -51,8 +55,10 @@ public:
     QBrush cbrush;
     QBrush bgbrush;
     Qt::BGMode bgmode;
+    bool use_anisotropic_filtering;
 };
 
+static bool init_gl_exts = true;
 static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush);
 
 #define d d_func()
@@ -94,6 +100,13 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslatef(0.375, 0.375, 0.0);
+    
+    // init any GL extensions we use
+    if (init_gl_exts) {
+	QString exts((const char *) glGetString(GL_EXTENSIONS));
+	d->use_anisotropic_filtering = exts.contains("GL_EXT_texture_filter_anisotropic");
+	init_gl_exts = false;
+    }
     return true;
 }
 
@@ -683,6 +696,8 @@ void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QR
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    if (d->use_anisotropic_filtering)
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.f);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glPushAttrib(GL_CURRENT_BIT);
@@ -719,6 +734,8 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    if (d->use_anisotropic_filtering)
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.f);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glPushAttrib(GL_CURRENT_BIT);
