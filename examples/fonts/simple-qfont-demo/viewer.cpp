@@ -12,7 +12,7 @@ Viewer::Viewer()
 {
     setFontSubstitutions();
 
-    QString greeting_heb = QString::fromUtf8( "שלום" );
+    QString greeting_heb = QString::fromUtf8( "\327\251\327\234\327\225\327\235" );
     QString greeting_ru = QString::fromUtf8( "\320\227\320\264\321\200\320\260\320\262\321\201\321\202\320\262\321\203\320\271\321\202\320\265" );
     QString greeting_en( "Hello" );
 
