@@ -1428,7 +1428,22 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     msg.message = message;			// time and pt fields ignored
     msg.wParam = wParam;
     msg.lParam = lParam;
+    msg.pt.x = GET_X_LPARAM( lParam );
+    msg.pt.y = GET_Y_LPARAM( lParam );
+    ClientToScreen( msg.hwnd, &msg.pt ); 	// the coords we get are client coords
 
+    // when the hwnd passed in and the hwnd of the window under the
+    // clicked point is the same everything is OK - after popping up a
+    // modal dialog these may not be the same for some reason which
+    // causes mouse press events to be delivered to the wrong window
+    if ( msg.message == WM_LBUTTONDOWN || msg.message == WM_RBUTTONDOWN || msg.message == WM_MBUTTONDOWN ) {
+	HWND handle = WindowFromPoint( msg.pt );
+	if ( msg.hwnd != handle ) {
+	    msg.hwnd = handle;
+	    hwnd = handle;
+	}
+    }
+    
 #if defined(QT_NON_COMMERCIAL)
     QT_NC_WNDPROC
 #endif
@@ -1523,15 +1538,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    message >= WM_XBUTTONDOWN && message <= WM_XBUTTONDBLCLK )
 	    && message != WM_MOUSEWHEEL ) {
 	if ( qApp->activePopupWidget() != 0) { // in popup mode
-	    POINT curPos;
-	    DWORD ol_pos = GetMessagePos();
-#ifndef Q_OS_TEMP
-	    curPos.x = GET_X_LPARAM(ol_pos);
-	    curPos.y = GET_Y_LPARAM(ol_pos);
-#else
-	    curPos.x = LOWORD(ol_pos);
-	    curPos.y = HIWORD(ol_pos);
-#endif
+	    POINT curPos = msg.pt;
 	    QWidget* w = QApplication::widgetAt(curPos.x, curPos.y, TRUE );
 	    if ( w )
 		widget = (QETWidget*)w;
@@ -2493,16 +2500,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    }
 	}
 
-	POINT curPos;
-	DWORD ol_pos = GetMessagePos();
-#ifndef Q_OS_TEMP
-	curPos.x = GET_X_LPARAM(ol_pos);
-	curPos.y = GET_Y_LPARAM(ol_pos);
-#else
-	curPos.x = LOWORD(ol_pos);
-	curPos.y = HIWORD(ol_pos);
-#endif
-
+	POINT curPos = msg.pt;
 	if ( curPos.x == gpos.x && curPos.y == gpos.y )
 	    return TRUE;			// same global position
 	gpos = curPos;
@@ -2516,15 +2514,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	pos.rx() = (short)curPos.x;
 	pos.ry() = (short)curPos.y;
     } else {
-	DWORD ol_pos = GetMessagePos();
-#ifndef Q_OS_TEMP
-	gpos.x = GET_X_LPARAM(ol_pos);
-	gpos.y = GET_Y_LPARAM(ol_pos);
-#else
-	gpos.x = LOWORD(ol_pos);
-	gpos.y = HIWORD(ol_pos);
-#endif
-
+	gpos = msg.pt;
 	pos = mapFromGlobal( QPoint(gpos.x, gpos.y) );
 
 	if ( type == QEvent::MouseButtonPress || type == QEvent::MouseButtonDblClick ) {	// mouse button pressed
