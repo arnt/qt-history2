@@ -915,7 +915,6 @@ const char* QPNGFormatType::formatName() const
     return "PNG";
 }
 
-
 #if defined(Q_C_CALLBACKS)
 extern "C" {
 #endif
@@ -942,8 +941,8 @@ CALLBACK_CALL_TYPE end_callback(png_structp png_ptr, png_infop info)
     that->end(png_ptr,info);
 }
 
-#ifdef PNG_USER_CHUNKS_SUPPORTED
 #if 0
+#ifdef PNG_USER_CHUNKS_SUPPORTED
 static int
 CALLBACK_CALL_TYPE user_chunk_callback(png_structp png_ptr,
          png_unknown_chunkp chunk)
@@ -1187,6 +1186,7 @@ static QPNGFormatType* globalPngFormatTypeObject = 0;
 
 #endif // QT_NO_ASYNC_IMAGE_IO
 
+static bool done = FALSE;
 void qCleanupPngIO()
 {
 #ifndef QT_NO_ASYNC_IMAGE_IO
@@ -1195,11 +1195,11 @@ void qCleanupPngIO()
 	globalPngFormatTypeObject = 0;
     }
 #endif
+    done = FALSE;
 }
 
 void qInitPngIO()
 {
-    static bool done = FALSE;
     if ( !done ) {
 	done = TRUE;
 	QImageIO::defineIOHandler( "PNG", "^.PNG\r", 0, read_png_image,
