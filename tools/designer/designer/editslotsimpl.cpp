@@ -121,7 +121,7 @@ void EditSlots::okClicked()
 	    QMap<QListViewItem*, QString>::Iterator sit = oldSlotNames.find( it.current() );
 	    if ( sit != oldSlotNames.end() ) {
 		if ( *sit != it.current()->text( 0 ) )
-		    MetaDataBase::functionNameChanged( formWindow, *sit, it.current()->text( 1 ) );
+		    MetaDataBase::functionNameChanged( formWindow, *sit, it.current()->text( 0 ) );
 	    }
 	    lst.append( slot.slot );
 	}
