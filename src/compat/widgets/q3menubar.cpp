@@ -50,7 +50,7 @@ extern int qt_xfocusout_grab_counter; // defined in qapplication_x11.cpp
 #endif
 
 /*!
-    \class Q3MenuBar
+    \class Q3MenuBar q3menubar.h
     \brief The Q3MenuBar class provides a horizontal menu bar.
 
     \ingroup application

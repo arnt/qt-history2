@@ -192,7 +192,7 @@ void Q3ToolBarSeparator::paintEvent(QPaintEvent *)
 
 
 /*!
-    \class Q3ToolBar qtoolbar.h
+    \class Q3ToolBar q3toolbar.h
     \brief The Q3ToolBar class provides a movable panel containing
     widgets such as tool buttons.
 

@@ -38,7 +38,7 @@ Q3MenuDataData::Q3MenuDataData()
 {}
 
 /*!
-    \class Q3MenuData
+    \class Q3MenuData q3menudata.h
     \brief The Q3MenuData class is a base class for Q3MenuBar and Q3PopupMenu.
 
     \ingroup misc

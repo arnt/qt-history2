@@ -127,7 +127,7 @@ static QStyleOptionHeader getStyleOption(const Q3Header *header, int section)
 }
 
 /*!
-    \class Q3Header qheader.h
+    \class Q3Header q3header.h
     \brief The Q3Header class provides a header row or column, e.g. for
     tables and listviews.
 

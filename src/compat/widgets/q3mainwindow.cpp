@@ -414,7 +414,7 @@ void QHideToolTip::maybeTip(const QPoint &pos)
 #endif
 
 /*!
-    \class Q3MainWindow qmainwindow.h
+    \class Q3MainWindow q3mainwindow.h
     \brief The Q3MainWindow class provides a main application window,
     with a menu bar, dock windows (e.g. for toolbars), and a status
     bar.

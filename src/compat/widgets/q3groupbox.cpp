@@ -75,7 +75,7 @@ public:
 
 
 /*!
-    \class Q3GroupBox qgroupbox.h
+    \class Q3GroupBox q3groupbox.h
     \brief The Q3GroupBox widget provides a group box frame with a title.
 
     \ingroup organizers

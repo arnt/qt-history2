@@ -21,7 +21,7 @@
 
 
 /*!
-    \class Q3ButtonGroup qbuttongroup.h
+    \class Q3ButtonGroup q3buttongroup.h
     \brief The Q3ButtonGroup widget organizes QButton widgets in a group.
 
     \ingroup organizers

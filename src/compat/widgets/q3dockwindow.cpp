@@ -694,7 +694,7 @@ void Q3DockWindowTitleBar::mouseDoubleClickEvent(QMouseEvent *)
 }
 
 /*!
-    \class Q3DockWindow qdockwindow.h
+    \class Q3DockWindow q3dockwindow.h
     \brief The Q3DockWindow class provides a widget which can be docked
     inside a Q3DockArea or floated as a top level window on the
     desktop.

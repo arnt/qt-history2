@@ -711,7 +711,7 @@ bool Q3DateTimeEditor::setFocusSection(int sec)
     return d->setFocusSection(sec);
 }
 
-/*! 
+/*!
     \class Q3DateTimeEditBase
     \brief The Q3DateTimeEditBase class provides an abstraction for date and edit editors.
 
@@ -800,7 +800,7 @@ public:
 
 
 /*!
-    \class Q3DateEdit qdatetimeedit.h
+    \class Q3DateEdit q3datetimeedit.h
     \brief The Q3DateEdit class provides a date editor.
 
     \ingroup advanced
@@ -1734,7 +1734,7 @@ public:
 };
 
 /*!
-    \class Q3TimeEdit qdatetimeedit.h
+    \class Q3TimeEdit q3datetimeedit.h
     \brief The Q3TimeEdit class provides a time editor.
 
     \ingroup advanced
@@ -2546,7 +2546,7 @@ public:
 };
 
 /*!
-    \class Q3DateTimeEdit qdatetimeedit.h
+    \class Q3DateTimeEdit q3datetimeedit.h
     \brief The Q3DateTimeEdit class combines a Q3DateEdit and Q3TimeEdit
     widget into a single widget for editing datetimes.
 
