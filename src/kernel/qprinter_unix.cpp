@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QPrinter class for Unix
 **
 ** Created : 950810
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -36,6 +36,14 @@
 **********************************************************************/
 
 #include "qplatformdefs.h"
+
+// POSIX Large File Support redefines open -> open64
+static inline int qt_open(const char *pathname, int flags, mode_t mode)
+{ return ::open(pathname, flags, mode); }
+#if defined(open)
+# undef open
+#endif
+
 #include "qprinter.h"
 
 #ifndef QT_NO_PRINTER
@@ -283,7 +291,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
         if ( state == PST_IDLE ) {
             if ( output_file ) {
                 int fd = 0;
-                fd = ::open( output_filename.local8Bit(),
+                fd = qt_open( output_filename.local8Bit(),
                              O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
                              0666 );
                 if ( fd >= 0 ) {

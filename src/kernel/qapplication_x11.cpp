@@ -41,6 +41,11 @@
 // Get the system specific includes and defines
 #include "qplatformdefs.h"
 
+// POSIX Large File Support on broken compilers redefines open -> open64
+#if defined(open)
+# undef open
+#endif
+
 // Solaris redefines connect to __xnet_connect when _XOPEN_SOURCE_EXTENDED is
 // defined. This breaks our sources.
 #if defined(connect)
