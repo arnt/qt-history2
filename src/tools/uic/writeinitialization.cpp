@@ -183,13 +183,23 @@ void WriteInitialization::accept(DomLayout *node)
     if (properties.contains("spacing"))
         spacing = properties.value("spacing")->elementNumber();
 
+    bool isGroupBox = false;
     bool isMainWindow = false;
     QString centralWidget;
 
     if (m_widgetChain.top()) {
         QString parentWidget = m_widgetChain.top()->attributeClass();
 
-        if (m_widgetChain.top()->attributeClass() == QLatin1String("QMainWindow")) {
+        if (!m_layoutChain.top() && (parentWidget == QLatin1String("Q3GroupBox") || parentWidget == QLatin1String("Q3ButtonGroup"))) {
+            QString parent = driver->findOrInsertWidget(m_widgetChain.top());
+
+            isGroupBox = true;
+
+            // special case for group box
+            output << option.indent << parent << "->setColumnLayout(0, Qt::Vertical);\n";
+            output << option.indent << parent << "->layout()->setSpacing(" << spacing << ");" << endl;
+            output << option.indent << parent << "->layout()->setMargin(" << margin << ");" << endl;
+        } else if (m_widgetChain.top()->attributeClass() == QLatin1String("QMainWindow")) {
             QString parent = driver->findOrInsertWidget(m_widgetChain.top());
 
             isMainWindow = true;
