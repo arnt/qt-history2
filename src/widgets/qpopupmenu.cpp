@@ -1741,6 +1741,7 @@ void QPopupMenu::updateRow( int row )
 
 int QPopupMenu::exec( const QPoint & pos, int indexAtPoint )
 {
+    snapToMouse = TRUE;
     if ( !qApp )
 	return -1;
 
