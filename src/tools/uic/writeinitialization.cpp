@@ -212,11 +212,13 @@ void WriteInitialization::acceptWidget(DomWidget *node)
     if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QMainWindow"))
             || uic->customWidgetsInfo()->extends(parentClass, QLatin1String("Q3MainWindow"))) {
 
-        if (uic->customWidgetsInfo()->extends(className, QLatin1String("QMenuBar"))
-            && !uic->customWidgetsInfo()->extends(parentClass, QLatin1String("Q3MainWindow"))) {
-            output << option.indent << parentWidget << "->setMenuBar(" << varName <<");\n";
+        if (uic->customWidgetsInfo()->extends(className, QLatin1String("QMenuBar"))) {
+            if (!uic->customWidgetsInfo()->extends(parentClass, QLatin1String("Q3MainWindow")))
+                output << option.indent << parentWidget << "->setMenuBar(" << varName <<");\n";
         } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("QToolBar"))) {
             output << option.indent << parentWidget << "->addToolBar(" << varName << ");\n";
+        } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("QStatusBar"))) {
+            output << option.indent << parentWidget << "->setStatusBar(" << varName << ");\n";
         } else {
             output << option.indent << parentWidget << "->setCentralWidget(" << varName << ");\n";
         }

@@ -411,19 +411,27 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
     QList<DomProperty*> ui_attribute_list;
     QList<DomLayout*> ui_layout_list;
     QList<DomActionRef*> ui_action_list;
+    QList<DomWidget*> ui_mainwindow_child_list;
 
     bool needPolish = false;
 
     createProperties(w, &ui_property_list, className);
     createAttributes(w, &ui_attribute_list, className);
 
+    DomWidget *ui_mainWindow = 0;
+    DomWidget *ui_centralWidget = 0;
+    if (className == QLatin1String("QMainWindow") || className == QLatin1String("Q3MainWindow")) {
+        ui_centralWidget = new DomWidget;
+        ui_centralWidget->setAttributeClass(QLatin1String("QWidget"));
+        ui_mainwindow_child_list.append(ui_centralWidget);
+        ui_mainWindow = ui_widget;
+    }
+
     QDomElement e = w.firstChild().toElement();
 
     while (!e.isNull()) {
         QString t = e.tagName().toLower();
-        if (t == QLatin1String("vbox")
-                || t == QLatin1String("hbox")
-                || t == QLatin1String("grid")) {
+        if (t == QLatin1String("vbox") || t == QLatin1String("hbox") || t == QLatin1String("grid")) {
             DomLayout *lay = createLayout(e);
             Q_ASSERT(lay != 0);
             if (ui_layout_list.isEmpty()) {
@@ -460,7 +468,13 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
                 }
             }
 
-            ui_child_list.append(ui_child);
+            QString widgetClass = ui_child->attributeClass();
+            if (widgetClass == QLatin1String("QMenuBar") || widgetClass == QLatin1String("QToolBar")
+                    || widgetClass == QLatin1String("QStatusBar")) {
+                ui_mainwindow_child_list.append(ui_child);
+            } else {
+                ui_child_list.append(ui_child);
+            }
         } else if (t == QLatin1String("action")) {
             DomActionRef *a = new DomActionRef();
             a->read(e);
@@ -522,8 +536,7 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
         }
 
         QString s = getClassName(e);
-        if (s == QLatin1String("QDataTable")
-                || s == QLatin1String("QDataBrowser")) {
+        if (s == QLatin1String("QDataTable") || s == QLatin1String("QDataBrowser")) {
             if (isFrameworkCodeGenerated(e))
                  needPolish = true;
         }
@@ -531,18 +544,25 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
         e = e.nextSibling().toElement();
     }
 
+    ui_widget->setElementProperty(ui_property_list);
+    ui_widget->setElementAttribute(ui_attribute_list);
+
+    if (ui_centralWidget != 0) {
+        Q_ASSERT(ui_mainWindow != 0);
+        ui_mainWindow->setElementWidget(ui_mainwindow_child_list);
+        ui_widget = ui_centralWidget;
+    }
+
     ui_widget->setElementWidget(ui_child_list);
     ui_widget->setElementAddAction(ui_action_list);
     ui_widget->setElementRow(ui_row_list);
     ui_widget->setElementColumn(ui_column_list);
     ui_widget->setElementItem(ui_item_list);
-    ui_widget->setElementProperty(ui_property_list);
-    ui_widget->setElementAttribute(ui_attribute_list);
     ui_widget->setElementLayout(ui_layout_list);
 
     //ui_widget->setAttributeName(p->elementCstring());
 
-    return ui_widget;
+    return ui_mainWindow ? ui_mainWindow : ui_widget;
 }
 
 DomLayout *Ui3Reader::createLayout(const QDomElement &w)
