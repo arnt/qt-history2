@@ -797,13 +797,14 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 				" thread support. The exception%s ",
 				except.count() == 1 ? " is" : "s are" );
 		QValueStack<QString> seps = separators( except.count(),
-							QString(".</p>\n") );
+							QString(".\n") );
 		QValueList<Decl *>::ConstIterator e = except.begin();
 		while ( e != except.end() ) {
 		    printHtmlShortName( out, *e );
 		    out.puts( ("()" + seps.pop()).latin1() );
 		    ++e;
 		}
+		out.printfMeta( "</p>" );
 	    }
 	}
 
@@ -831,13 +832,14 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 				" thread support. The exception%s ",
 				except.count() == 1 ? " is" : "s are" );
 		QValueStack<QString> seps = separators( except.count(),
-							QString(".</p>\n") );
+							QString(".\n") );
 		QValueList<Decl *>::ConstIterator e = except.begin();
 		while ( e != except.end() ) {
 		    printHtmlShortName( out, *e );
 		    out.puts( ("()" + seps.pop()).latin1() );
 		    ++e;
 		}
+		out.printfMeta( "</p>" );
 	    }
 	}
     }
