@@ -29,7 +29,7 @@
 #include "qdatetime.h"
 #include "qdir.h"
 
-static void slashify( QString& )
+void QFileInfo::slashify( QString& )
 {
     return;
 }

@@ -5,7 +5,7 @@
 #include "qregexp.h"
 #include "qstringlist.h"
 
-void slashify(QString& n)
+void QDir::slashify(QString& n)
 {
   if(n.isNull())
       return;
