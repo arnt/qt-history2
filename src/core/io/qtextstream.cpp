@@ -591,23 +591,25 @@ bool QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l
     while(ret == NO_FINISH) {
         //read out of the unget buffer
         if (d->ungetcBuf.length()) {
-            int ungetc_len = d->ungetcBuf.length();
+            int ungetc_len = d->ungetcBuf.length(), ungetc_used = 0;
             const QChar *ungetc_buff = d->ungetcBuf.unicode();
-            while(rnum < ungetc_len) {
-                if(int end = ts_end(ungetc_buff+rnum, ungetc_len-rnum, end_flags)) {
-                    rnum += (end - 1);
+            while(rnum < ungetc_len && ungetc_used < ungetc_len) {
+                if(int end = ts_end(ungetc_buff+ungetc_used, 
+				    ungetc_len-ungetc_used, end_flags)) {
+		    ungetc_used += end - 1;
                     ret = END_FOUND;
                     break;
                 }
-                if(out)
-                    *(out++) = *(ungetc_buff+rnum);
+                if(out) 
+                    *(out++) = *(ungetc_buff+ungetc_used);
+		ungetc_used++;
                 rnum++;
                 if(rnum >= len) {
                     ret = END_BUFFER;
                     break;
                 }
             }
-            d->ungetcBuf = d->ungetcBuf.mid(rnum);
+            d->ungetcBuf = d->ungetcBuf.mid(ungetc_used);
             if (ret != NO_FINISH) {
                 if(l)
                     *l = rnum;
