@@ -1,3 +1,15 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the widgets module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef QDIRMODEL_H
 #define QDIRMODEL_H
 
@@ -63,12 +75,14 @@ public:
 
     void setNameFilters(const QStringList &filters);
     QStringList nameFilters() const;
-    void setFilter(QDir::FilterSpec spec);
+    void setFilter(int spec);
     QDir::FilterSpec filter() const;
     void setSorting(int spec);
     QDir::SortSpec sorting() const;
     void setMatchAllDirs(bool enable);
     bool matchAllDirs() const;
+
+    void refresh(const QModelIndex &parent = 0);
 
     QModelIndex index(const QString &path) const;
     QString path(const QModelIndex &index) const;

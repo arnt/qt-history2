@@ -80,7 +80,7 @@ void QAbstractItemViewPrivate::init()
 }
 
 /*!
-  \class QAbstractItemView qgenericitemview.h
+  \class QAbstractItemView qabstractitemview.h
 
   \brief Abstract baseclass for every view working on a QAbstractItemModel
 

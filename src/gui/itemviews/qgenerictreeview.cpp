@@ -495,7 +495,7 @@ void QGenericTreeView::setSelection(const QRect &rect, int command)
 
 QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) const
 {
-    if (!selection.count())
+    if (selection.count() <= 0 || d->items.count() <= 0)
         return QRect();
 
     QModelIndex bottomRight = model()->bottomRight(root());

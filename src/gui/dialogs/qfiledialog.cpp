@@ -263,7 +263,9 @@ public:
     void select(const QModelIndex &index);
     QModelIndexList selectedItems() const;
 
-    void setNameFilter(const QString &filter);
+    void refresh();
+    void setDirSorting(int spec);
+    void setDirFilter(int spec);
 
     QDirModel *model;
     QGenericListView *lview;
@@ -282,7 +284,14 @@ public:
     QAction *openAction;
     QAction *renameAction;
     QAction *deleteAction;
+    
     QMenu *viewContextMenu;
+    QAction *reloadAction;
+    QAction *sortByNameAction;
+    QAction *sortBySizeAction;
+    QAction *sortByDateAction;
+    QAction *unsortedAction;
+    QAction *showHiddenAction;
 
     QToolButton *back;
     QToolButton *toParent;
@@ -398,12 +407,8 @@ void QFileDialog::setFileMode(FileMode mode)
     // so all QModelIndex objects are invalidated, including the root object.
     QString path = d->model->path(d->root());
     d->setRoot(QModelIndex());
-
     d->model->setFilter(spec);
-
-    QModelIndex root = d->model->index(path);
-    d->setRoot(root);
-    d->setCurrent(d->model->topLeft(root));
+    d->setRoot(d->model->index(path));
 }
 
 QFileDialog::FileMode QFileDialog::fileMode() const
@@ -510,7 +515,6 @@ void QFileDialog::deletePressed(const QModelIndex &index)
         d->model->remove(index);
 
     setCurrentDir(path);
-    d->setCurrent(d->model->topLeft(d->root()));
 }
 
 void QFileDialog::currentChanged(const QModelIndex &, const QModelIndex &current)
@@ -556,12 +560,8 @@ void QFileDialog::setFilter(const QString &filter)
     // so all QModelIndex objects are invalidated, including the root object.
     QString path = d->model->path(d->root());
     d->setRoot(QModelIndex());
-
     d->model->setNameFilters(filters);
-
-    QModelIndex root = d->model->index(path);
-    d->setRoot(root);
-    d->setCurrent(d->model->topLeft(root));
+    d->setRoot(d->model->index(path));
 }
 
 void QFileDialog::setCurrentDir(const QString &path)
@@ -571,10 +571,10 @@ void QFileDialog::setCurrentDir(const QString &path)
 
 void QFileDialog::showContextMenu(const QModelIndex &index, const QPoint &position)
 {
+    QAbstractItemView *view = d->listMode->isDown()
+                              ? static_cast<QAbstractItemView*>(d->lview)
+                              : static_cast<QAbstractItemView*>(d->tview);
     if (index.isValid()) {
-        QAbstractItemView *view = d->listMode->isDown()
-                                  ? static_cast<QAbstractItemView*>(d->lview)
-                                  : static_cast<QAbstractItemView*>(d->tview);
         bool editable = d->model->isEditable(index);
         bool children = d->model->hasChildren(index);
         d->renameAction->setEnabled(editable);
@@ -586,9 +586,29 @@ void QFileDialog::showContextMenu(const QModelIndex &index, const QPoint &positi
             view->edit(index);
         else if (selected == d->deleteAction)
             deletePressed(index);
+    } else {
+        QAction *selected = d->viewContextMenu->exec(view->mapToGlobal(position));
+        if (selected == d->reloadAction) {
+            d->refresh();
+        } else if (selected == d->showHiddenAction) {
+            int filter = (d->showHiddenAction->isChecked()
+                          ? d->model->filter() & ~QDir::Hidden
+                          : d->model->filter() | QDir::Hidden);
+            d->setDirFilter(filter);
+        } else if (selected == d->sortByNameAction) {
+            d->setDirSorting(QDir::Name|QDir::DirsFirst
+                             |(d->model->filter() & QDir::Reversed));
+        } else if (selected == d->sortBySizeAction) {
+            d->setDirSorting(QDir::Size|QDir::DirsFirst
+                             |(d->model->filter() & QDir::Reversed));
+        } else if (selected == d->sortByDateAction) {
+            d->setDirSorting(QDir::Time|QDir::DirsFirst
+                             |(d->model->filter() & QDir::Reversed));
+        } else if (selected == d->unsortedAction) {
+            d->setDirSorting(QDir::Unsorted|QDir::DirsFirst
+                             |(d->model->filter() & QDir::Reversed));
+        }
     }
-//     else
-//         d->viewContextMenu->exec(position);
 }
 
 void QFileDialogPrivate::setup()
@@ -669,16 +689,35 @@ void QFileDialogPrivate::setup()
                      q, SLOT(setFilter(const QString&)));
     grid->addWidget(fileType, 3, 2, 1, 3);
 
-    // context menu
+    // file context menu
     fileContextMenu = new QMenu(q);
-    openAction = fileContextMenu->addAction("Open");
+    openAction = fileContextMenu->addAction("&Open");
     fileContextMenu->addSeparator();
-    renameAction = fileContextMenu->addAction("Rename");
-    deleteAction = fileContextMenu->addAction("Delete");
+    renameAction = fileContextMenu->addAction("&Rename");
+    deleteAction = fileContextMenu->addAction("&Delete");
     QObject::connect(lview, SIGNAL(contextMenuRequested(const QModelIndex&, const QPoint&)),
                      q, SLOT(showContextMenu(const QModelIndex&, const QPoint&)));
     QObject::connect(tview, SIGNAL(contextMenuRequested(const QModelIndex&, const QPoint&)),
                      q, SLOT(showContextMenu(const QModelIndex&, const QPoint&)));
+    
+    // view context menu
+    viewContextMenu = new QMenu(q);
+    reloadAction = viewContextMenu->addAction("&Reload");
+    QMenu *sortContextMenu = viewContextMenu;//new QMenu();
+    //viewContextMenu->addMenu("Sort", sortContextMenu); // FIXME: QMenu bug
+    sortByNameAction = sortContextMenu->addAction("Sort by &Name");
+    sortByNameAction->setCheckable(true);
+    sortByNameAction->setChecked(true);
+    sortBySizeAction = sortContextMenu->addAction("Sort by &Size");
+    sortBySizeAction->setCheckable(true);
+    sortByDateAction = sortContextMenu->addAction("Sort by &Date");
+    sortByDateAction->setCheckable(true);
+    sortContextMenu->addSeparator();
+    unsortedAction = sortContextMenu->addAction("&Unsorted");
+    unsortedAction->setCheckable(true);
+    viewContextMenu->addSeparator();
+    showHiddenAction = viewContextMenu->addAction("Show &hidden files");
+    showHiddenAction->setCheckable(true);
 
     // tool buttons
     QHBoxLayout *box = new QHBoxLayout(0, 3, 3);
@@ -736,12 +775,15 @@ void QFileDialogPrivate::setRoot(const QModelIndex &index)
 {
     toParent->setEnabled(index.isValid());
     back->setEnabled(history.count() > 0);
-    lview->selectionModel()->clear();
+    QItemSelectionModel *selections = lview->selectionModel();
+    bool block = selections->blockSignals(true);
+    selections->clear();
+    setCurrent(d->model->topLeft(index));
     lview->setRoot(index);
     tview->setRoot(index);
+    selections->blockSignals(block);
     lookIn->insertItem(d->model->path(index));
     lookIn->setCurrentItem(lookIn->count() - 1);
-    setCurrent(d->model->topLeft(index));
 }
 
 QModelIndex QFileDialogPrivate::root() const
@@ -769,6 +811,46 @@ QModelIndexList QFileDialogPrivate::selectedItems() const
     return lview->selectionModel()->selectedItems();
 }
 
+void QFileDialogPrivate::refresh()
+{
+    // Save path to current root, set the filter and then set the root back.
+    // This is because the models internal data structure is totally rebuilt, and
+    // so all QModelIndex objects are invalidated, including the root object.
+    QString path = model->path(d->root());
+    setRoot(QModelIndex());
+    model->refresh(d->root());
+    setRoot(model->index(path));
+}
+
+void QFileDialogPrivate::setDirSorting(int spec)
+{
+    int sortBy = spec & QDir::SortByMask;
+    sortByNameAction->setChecked(sortBy == QDir::Name);
+    sortBySizeAction->setChecked(sortBy == QDir::Size);
+    sortByDateAction->setChecked(sortBy == QDir::Time);
+    unsortedAction->setChecked(sortBy == QDir::Unsorted);
+//    return;
+    // Save path to current root, set the filter and then set the root back.
+    // This is because the models internal data structure is totally rebuilt, and
+    // so all QModelIndex objects are invalidated, including the root object.
+    QString path = model->path(d->root());
+    setRoot(QModelIndex());
+    model->setSorting(spec);
+    setRoot(model->index(path));
+}
+
+void QFileDialogPrivate::setDirFilter(int spec)
+{
+    showHiddenAction->setChecked(spec & QDir::Hidden);
+    // Save path to current root, set the filter and then set the root back.
+    // This is because the models internal data structure is totally rebuilt, and
+    // so all QModelIndex objects are invalidated, including the root object.
+    QString path = model->path(d->root());
+    setRoot(QModelIndex());
+    model->setFilter(spec);
+    QModelIndex root = model->index(path);
+    setRoot(root);
+}
 
 /******************************************************************
  *

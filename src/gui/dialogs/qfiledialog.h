@@ -25,7 +25,10 @@ class QFileDialogPrivate;
 class QFileDialog : public QDialog
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QFileDialog);
+    Q_DECLARE_PRIVATE(QFileDialog)
+
+    Q_PROPERTY(ViewMode viewMode READ viewMode WRITE setViewMode)
+    Q_PROPERTY(FileMode fileMode READ fileMode WRITE setFileMode)
 
 public:
     QFileDialog(QWidget *parent);

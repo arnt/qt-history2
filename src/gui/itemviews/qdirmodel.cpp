@@ -1,3 +1,15 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the widgets module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include "qdirmodel.h"
 #include <qfile.h>
 #include <qvector.h>
@@ -237,6 +249,16 @@ public:
 
 #define d d_func()
 #define q q_func()
+
+/*!
+  \class QDirModel qdirmodel.h
+
+  \brief data model for browsing the local filesystem.
+
+  This class provides access to the local filesystem,
+  and provides functions for renaming and removing files
+  and directories, and creating new directories.
+*/
 
 QDirModel::QDirModel(const QDir &directory, QObject *parent)
     : QAbstractItemModel(*new QDirModelPrivate, parent)
@@ -527,9 +549,8 @@ QFileIconProvider *QDirModel::iconProvider() const
 void QDirModel::setNameFilters(const QStringList &filters)
 {
     // FIXME: this will rebuild the entire structure of the qdirmodel
-    QModelIndex otl = topLeft();
-    QModelIndex obr = bottomRight();
-    emit contentsRemoved(QModelIndex(), otl, obr); // FIXME: we should not require the old indices to be valid
+    // FIXME: we should not require the old indices to be valid
+    emit contentsRemoved(QModelIndex(), topLeft(), bottomRight());
     d->root.setNameFilters(filters);
     d->tree = d->children(0);
     emit contentsInserted(topLeft(), bottomRight());
@@ -540,7 +561,7 @@ QStringList QDirModel::nameFilters() const
     return d->root.nameFilters();
 }
 
-void QDirModel::setFilter(QDir::FilterSpec spec)
+void QDirModel::setFilter(int spec)
 {
     d->root.setFilter(spec);
 }
@@ -569,6 +590,14 @@ void QDirModel::setMatchAllDirs(bool enable)
 bool QDirModel::matchAllDirs() const
 {
     return d->root.matchAllDirs();
+}
+
+void QDirModel::refresh(const QModelIndex &parent)
+{
+    // FIXME: we should not require the old indices to be valid
+    emit contentsRemoved(parent, topLeft(parent), bottomRight(parent));
+    d->refresh(static_cast<QDirModelPrivate::QDirNode*>(parent.data()));
+    emit contentsInserted(topLeft(), bottomRight());
 }
 
 QModelIndex QDirModel::index(const QString &path) const
@@ -655,7 +684,7 @@ bool QDirModel::rmdir(const QModelIndex &index)
     if (!n->info.dir().rmdir(n->info.absFilePath()))
         return false;
 
-    emit QAbstractItemModel::contentsRemoved(parent(index), index, index); // FIXME:
+    emit contentsRemoved(parent(index), index, index); // FIXME:
 
     QDirModelPrivate::QDirNode *p = d->parent(n);
     if (p)
@@ -678,7 +707,7 @@ bool QDirModel::remove(const QModelIndex &index)
         return false;
     }
 
-    emit QAbstractItemModel::contentsRemoved(parent(index), index, index); // FIXME
+    emit contentsRemoved(parent(index), index, index); // FIXME
         
     QDirModelPrivate::QDirNode *p = d->parent(n);
     QDir dir = p ? p->info.dir() : d->root;
