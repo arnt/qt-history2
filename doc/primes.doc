@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: primes.doc,v 1.5 1995/12/21 22:02:49 hanord Exp $
+** $Id: primes.doc,v 1.6 1995/12/27 17:29:51 hanord Exp $
 **
 ** Prime numbers
 **
@@ -15,6 +15,7 @@
 <a name=primenumbers></a>
 
 <h1>Table of Prime Numbers 1 - 49999</h1>
+<hr>
 
 <pre>
     1     2     3     5     7    11    13    17    19    23
