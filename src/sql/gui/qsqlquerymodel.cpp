@@ -223,7 +223,7 @@ void QSqlQueryModel::clear()
     This function is used to set the caption for the horizontal
     header of a column to \a value.
 
-    It returns true if \a role is \c QAbstractItemModel::Display and \a
+    It returns true if \a role is \c QAbstractItemModel::DisplayRole and \a
     index is of type \c QModelIndex::HorizontalHeader and points to a
     valid column; otherwise returns false.
 
@@ -235,7 +235,7 @@ void QSqlQueryModel::clear()
 bool QSqlQueryModel::setHeaderData(int section, Qt::Orientation orientation, int role,
                                    const QVariant &value)
 {
-    if (role != DisplayRole || orientation != Qt::Horizontal || section <= 0 || section < 0)
+    if (role != DisplayRole || orientation != Qt::Horizontal || section < 0)
         return false;
 
     if (d->headers.size() <= section)
