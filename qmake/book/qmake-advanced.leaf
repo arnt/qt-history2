@@ -28,14 +28,14 @@ previously set TARGET.
 
 \section2 The '+=' operator
 
-This operator adds a value to the list of values in a variable.  It
+This operator appends a value to the list of values in a variable.  It
 is used like this:
 
 \code
     DEFINES += QT_DLL
 \endcode
 
-This adds QT_DLL to the list of pre-processor defines to be put in the
+This appends QT_DLL to the list of pre-processor defines to be put in the
 makefile.
 
 \section2 The '-=' operator
