@@ -35,7 +35,7 @@ class Q_NETWORK_EXPORT QDnsHostInfo
 public:
     QDnsHostInfo();
     QDnsHostInfo(const QDnsHostInfo &d);
-    QDnsHostInfo &operator =(const QDnsHostInfo &d);
+    QDnsHostInfo &operator=(const QDnsHostInfo &d);
     ~QDnsHostInfo();
 
     QString host() const;
