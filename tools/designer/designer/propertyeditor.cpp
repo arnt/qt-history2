@@ -3118,7 +3118,6 @@ QString PropertyList::whatsThisText( QListViewItem *i )
 	i = ( (PropertyItem*)i )->propertyParent();
 
     const QMetaObject *mo = editor->widget()->metaObject();
-
     QString prop = ( (PropertyItem*)i )->name();
     while ( mo ) {
 	QString s;
@@ -3129,7 +3128,8 @@ QString PropertyList::whatsThisText( QListViewItem *i )
 	}
 	mo = mo->superClass();
     }
-    return QString::null;
+
+    return tr( "<p><b>QWidget::%1</b></p><p>There is no documentation available for this property.</p>" ).arg( prop );
 }
 
 void PropertyList::readPropertyDocs()
