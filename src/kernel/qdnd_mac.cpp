@@ -170,16 +170,6 @@ const char* QDropEvent::format( int i ) const
     if ( i >= numFlavors )
 	return 0;
 
-    int subtract = 0;
-    for(int sm = 0; scrap_map[sm].qt_type; sm++) {
-	if(i == (sm - subtract)) {
-	    if(GetFlavorDataSize( current_dropobj, ref, scrap_map[sm].mac_type, &flavorsize) == noErr) 
-		return scrap_map[sm].qt_type;
-	    else 
-		subtract++;
-	}
-    }
-
     for( ; i < (int)numFlavors; i++) {
 	if ( GetFlavorType(current_dropobj, ref, i+1, &info ) ) {
 	    qDebug( "OOps.. %d %s:%d", i, __FILE__, __LINE__ );
@@ -187,8 +177,12 @@ const char* QDropEvent::format( int i ) const
 	}
 	if ((info >> 16) == ('QTxx' >> 16)) 
 	    break;
+	for(int sm = 0; scrap_map[sm].qt_type; sm++) 
+	    if(info == scrap_map[sm].mac_type)
+		return scrap_map[sm].qt_type;
 	qDebug( "%s:%d Unknown type %c%c%c%c", __FILE__, __LINE__,
-		char(info >> 24), char((info >> 16) & 255), char((info >> 8) & 255), char(info & 255 ) );
+		char(info >> 24), char((info >> 16) & 255), char((info >> 8) & 255), 
+		char(info & 255 ) );
     }
     if(i >= (int)numFlavors)
 	return 0;
