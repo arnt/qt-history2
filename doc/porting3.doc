@@ -178,7 +178,7 @@ have been changed:
 
 <h3><a name="Removed">Removed functions</a></h3>
 
-All \link removed30.html these functions \endlink have been removed in Qt 3.x.
+All these functions have been removed in Qt 3.x:
 <ul>
     <li>QWidget::setFontPropagation, QWidget::setPalettePropagation
     <li>QMenuBar::setActItem, QMenuBar::setWindowsAltMode
@@ -186,6 +186,24 @@ All \link removed30.html these functions \endlink have been removed in Qt 3.x.
     <li>QString::visual, QString::basicDirection
     <li>QStyle::set...
 </ul>
+
+Additionally, the following preprocessor directives have been removed:
+
+<ul>
+   <li>\c #define strlen qstrlen
+   <li>\c #define strcpy qstrcpy
+   <li>\c #define strcmp qstrcmp
+   <li>\c #define strncmp qstrncmp
+   <li>\c #define stricmp qstricmp
+   <li>\c #define strnicmp qstrnicmp
+</ul>
+
+See the changes-3.0 document for motivation why this had to be done.
+You might have been relying on the non-portable and unpredictable behavior
+resulting from these directives. We strongly recommend to either make
+use of the safe qstr* variants directly or ensure that no 0 pointer is
+passed to the standard C functions in your current and future code
+base.
 
 <h3><a name="QRegExp">QRegExp</a></h3>
 
@@ -406,13 +424,3 @@ the internal data structure.
 So, applications which made normal usage of the QMultiLineEdit,
 should keep working without problems. Programs which did some
 special stuff with it might require some porting.
-
-
-/*! \page removed30.html
-
-\title Functions removed in  Qt 3.0
-
-<pre>
-</pre>
-
-*/

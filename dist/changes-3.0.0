@@ -931,11 +931,6 @@ Removed preprocessor directives:
 	third-party code, or, simply be nullified by standard system and
 	library headers depending on version and include order.
 
-	To exclude this non-portable, unpredictable behavior we strongly
-	recommend to either make use of the safe qstr* variants or ensure
-	that no 0 pointer is passed to the standard C functions in your
-	current and future code base.
-
 	The name of some debugging macro variables has been changed.
 
 		DEBUG becomes QT_DEBUG
