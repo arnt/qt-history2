@@ -11,8 +11,9 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef __QMENUDATA_H__
-#define __QMENUDATA_H__
+
+#ifndef QMENUDATA_H
+#define QMENUDATA_H
 
 #include <qglobal.h>
 
@@ -37,4 +38,4 @@ private:
 };
 #endif
 
-#endif /* __QMENUDATA_H__ */
+#endif // QMENUDATA_H

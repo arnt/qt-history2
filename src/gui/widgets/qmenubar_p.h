@@ -11,8 +11,9 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef __QMENUBAR_P_H__
-#define __QMENUBAR_P_H__
+
+#ifndef QMENUBAR_P_H
+#define QMENUBAR_P_H
 
 #ifndef QMAC_Q3MENUBAR_CPP_FILE
 #include "qstyleoption.h"
@@ -121,4 +122,4 @@ struct Q3MenuBarCallBacks {
 #endif
 #endif
 
-#endif /* __QMENUBAR_P_H__ */
+#endif // QMENUBAR_P_H

@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef __QIOENGINE_H__
-#define __QIOENGINE_H__
+#ifndef QIOENGINE_H
+#define QIOENGINE_H
 
 #include "qiodevice.h"
 
@@ -67,4 +67,4 @@ protected:
 
 extern QString qt_errorstr(int errorCode);
 
-#endif /* __QIOENGINE_H__ */
+#endif // QIOENGINE_H

@@ -124,7 +124,7 @@ signals:
     void done(bool);
 
 private slots:
-    void startNextCommand();
+    void startNextCommand();network/qftp.h
     void piFinished(const QString&);
     void piError(int, const QString&);
     void piConnectState(int);
@@ -132,5 +132,4 @@ private slots:
 };
 
 #endif // QT_NO_NETWORKPROTOCOL_FTP
-
-#endif // QFTP_H
+#endif

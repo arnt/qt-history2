@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef __QRESOURCE_H__
-#define __QRESOURCE_H__
+#ifndef QRESOURCE_H
+#define QRESOURCE_H
 
 #include <qglobal.h>
 #include <qlist.h>
@@ -57,4 +57,4 @@ public:
     ~QMetaResource();
 };
 
-#endif /* __QRESOURCE_H__ */
+#endif // QRESOURCE_H

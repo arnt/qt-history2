@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef __QMENU_H__
-#define __QMENU_H__
+#ifndef QMENU_H
+#define QMENU_H
 
 #include <qwidget.h>
 #include <qstring.h>
@@ -311,4 +311,4 @@ private:
 #endif
 };
 
-#endif /* __QMENU_H__ */
+#endif // QMENU_H

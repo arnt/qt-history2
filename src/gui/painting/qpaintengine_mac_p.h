@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef __QPAINTENGINE_MAC_P_H__
-#define __QPAINTENGINE_MAC_P_H__
+#ifndef QPAINTENGINE_MAC_P_H
+#define QPAINTENGINE_MAC_P_H
 
 #include "qpaintengine_p.h"
 
@@ -107,4 +107,4 @@ public:
     }
 };
 
-#endif /* __QPAINTENGINE_MAC_P_H__ */
+#endif // QPAINTENGINE_MAC_P_H

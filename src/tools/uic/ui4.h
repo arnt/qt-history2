@@ -1,5 +1,5 @@
-#ifndef __UI4_H
-#define __UI4_H
+#ifndef UI4_H
+#define UI4_H
 
 #include <qstring.h>
 #include <qdom.h>
@@ -4311,6 +4311,4 @@ inline void DomProperty::reset(bool full)
     m_text = QString::null;
 }
 
-
-
-#endif //__UI4_H
+#endif //UI4_H

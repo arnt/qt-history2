@@ -275,4 +275,5 @@ private:
     QMenuBar &operator=(const QMenuBar &);
 #endif
 };
+
 #endif // QMENUBAR_H

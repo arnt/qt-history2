@@ -1,5 +1,5 @@
-#ifndef __QSPLITTER_P_H__
-#define __QSPLITTER_P_H__
+#ifndef QSPLITTER_P_H
+#define QSPLITTER_P_H
 
 #include <private/qframe_p.h>
 class QSplitterLayoutStruct;
@@ -49,5 +49,4 @@ public:
 
 };
 
-
-#endif /* __QSPLITTER_P_H__ */
+#endif // QSPLITTER_P_H

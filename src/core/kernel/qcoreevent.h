@@ -1,5 +1,5 @@
-#ifndef __QKERNELEVENT_H__
-#define __QKERNELEVENT_H__
+#ifndef QCOREEVENT_H
+#define QCOREEVENT_H
 
 #include <qnamespace.h>
 
@@ -195,4 +195,4 @@ private:
     void       *d;
 };
 
-#endif /* __QCOREEVENT_H__ */
+#endif // QCOREEVENT_H

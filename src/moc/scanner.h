@@ -9,4 +9,4 @@ public:
     static Symbols scan2(const QByteArray &input);
 };
 
-#endif // SCANNER_H
+#endif

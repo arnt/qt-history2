@@ -770,7 +770,6 @@ public:
     void drawUnique(QPainter& painter);
     QCanvasItemList operator+(const QCanvasItemList& l) const;
 };
+
 #endif // QT_NO_CANVAS
-
-
-#endif // QCANVAS_H
+#endif

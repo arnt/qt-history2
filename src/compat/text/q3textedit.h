@@ -583,5 +583,5 @@ inline void Q3TextEdit::setCurrentFont(const QFont &f)
     Q3TextEdit::setFontInternal(f);
 }
 
-#endif //QT_NO_TEXTEDIT
-#endif //QTEXTVIEW_H
+#endif // QT_NO_TEXTEDIT
+#endif // Q3TEXTEDIT_H

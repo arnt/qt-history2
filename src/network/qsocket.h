@@ -117,4 +117,4 @@ private:
     friend class QSocketEngine;
 };
 
-#endif // QSOCKET_H
+#endif

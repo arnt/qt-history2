@@ -146,4 +146,4 @@ private:
 };
 
 #endif // QT_NO_BIG_CODECS
-#endif /* QJPUNICODE_H */
+#endif // QJPUNICODE_H

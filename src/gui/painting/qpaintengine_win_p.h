@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QPaintEngine(for Windows) private data.
+** Definition of QPaintEngine (for Windows) private data.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **

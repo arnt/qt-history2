@@ -57,4 +57,4 @@ private:
     void actionDeleted();    //private slot
 };
 
-#endif /* QACTION_P_H */
+#endif // QACTION_P_H

@@ -185,6 +185,4 @@ inline void Moc::next(Token token, const char *msg)
         error(msg);
 }
 
-
-
-#endif // MOC_H
+#endif

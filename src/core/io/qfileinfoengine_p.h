@@ -11,8 +11,9 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef __QFILEINFOENGINE_P_H__
-#define __QFILEINFOENGINE_P_H__
+
+#ifndef QFILEINFOENGINE_P_H
+#define QFILEINFOENGINE_P_H
 
 #include <qplatformdefs.h>
 
@@ -51,4 +52,4 @@ private:
 #endif
 };
 
-#endif /* __QFILEINFOENGINE_P_H__ */
+#endif // QFILEINFOENGINE_P_H

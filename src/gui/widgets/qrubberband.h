@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef __QRUBBERBAND_H__
-#define __QRUBBERBAND_H__
+#ifndef QRUBBERBAND_H
+#define QRUBBERBAND_H
 
 #ifndef QT_H
 # include <qwidget.h>
@@ -57,4 +57,4 @@ protected:
     void updateMask();
 };
 
-#endif /* __QRUBBERBAND_H__ */
+#endif // QRUBBERBAND_H

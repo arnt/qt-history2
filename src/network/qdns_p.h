@@ -77,4 +77,4 @@ public:
     QString hostName;
 };
 
-#endif // QDNS_P_H
+#endif

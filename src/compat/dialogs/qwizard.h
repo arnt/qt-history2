@@ -12,9 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWIZARDDIALOG_H
-#define QWIZARDDIALOG_H
-
+#ifndef QWIZARD_H
+#define QWIZARD_H
 
 #ifndef QT_H
 #include "qdialog.h"
@@ -112,5 +111,4 @@ private:        // Disabled copy constructor and operator=
 };
 
 #endif // QT_NO_WIZARD
-
 #endif // QWIZARD_H

@@ -23,5 +23,4 @@ private:
     QByteArray purestSuperClass;
 };
 
-
-#endif // GENERATOR_H
+#endif

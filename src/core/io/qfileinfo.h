@@ -11,8 +11,9 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef __QFILEINFO_H__
-#define __QFILEINFO_H__
+
+#ifndef QFILEINFO_H
+#define QFILEINFO_H
 
 #ifndef QT_H
 #include "qfile.h"
@@ -132,4 +133,4 @@ public:
 
 typedef QList<QFileInfo> QFileInfoList;
 
-#endif /* __QFILEINFO_H__ */
+#endif // QFILEINFO_H

@@ -11,6 +11,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef QPAINTENGINE_OPENGL_H
 #define QPAINTENGINE_OPENGL_H
 
@@ -72,4 +73,4 @@ private:
 #endif
 };
 
-#endif // QPAINTENGINE_OPENGL_H
+#endif

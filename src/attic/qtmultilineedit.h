@@ -359,5 +359,4 @@ inline int QtMultiLineEdit::numLines() const
 }
 
 #endif // QT_NO_QTMULTILINEEDIT
-
-#endif // QTMULTILINEDIT_H
+#endif

@@ -11,8 +11,9 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef __QIOENGINE_P_H__
-#define __QIOENGINE_P_H__
+
+#ifndef QIOENGINE_P_H
+#define QIOENGINE_P_H
 
 class QIOEngine;
 class Q_CORE_EXPORT QIOEnginePrivate
@@ -25,4 +26,4 @@ protected:
     ~QIOEnginePrivate() { q_ptr = 0; }
 };
 
-#endif /* __QIOENGINE_P_H__ */
+#endif // QIOENGINE_P_H

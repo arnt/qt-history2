@@ -93,4 +93,4 @@ protected:
 inline void QSocketDevicePrivate::init() {}
 #endif
 
-#endif // QSOCKETDEVICE_P_H
+#endif

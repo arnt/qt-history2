@@ -246,5 +246,4 @@ inline void QtTableView::updateScrollBars()
 
 
 #endif // QT_NO_QTTABLEVIEW
-
-#endif // QTTABLEVIEW_H
+#endif

@@ -10,8 +10,8 @@
 **
 ****************************************************************************/
 
-#ifndef __QCRASHHANDLER_P_H__
-#define __QCRASHHANDLER_P_H__
+#ifndef QCRASHHANDLER_P_H
+#define QCRASHHANDLER_P_H
 
 typedef void (*QtCrashHandler)();
 
@@ -28,5 +28,4 @@ public:
 private:
 };
 
-
-#endif /* __QCRASHHANDLER_P_H__ */
+#endif // QCRASHHANDLER_P_H

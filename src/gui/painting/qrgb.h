@@ -1,5 +1,5 @@
-#ifndef __QRGB_H__
-#define __QRGB_H__
+#ifndef QRGB_H
+#define QRGB_H
 
 #ifndef QT_H
 #  include "qglobal.h"
@@ -33,4 +33,4 @@ Q_GUI_EXPORT inline int qGray(int r, int g, int b)// convert R,G,B to gray 0..25
 Q_GUI_EXPORT inline int qGray(QRgb rgb)                // convert RGB to gray 0..255
 { return qGray(qRed(rgb), qGreen(rgb), qBlue(rgb)); }
 
-#endif /* __QRGB_H__ */
+#endif // QRGB_H

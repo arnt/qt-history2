@@ -633,4 +633,4 @@ private:
 QM_EXPORT_DOM QTextStream& operator<<(QTextStream&, const QDomNode&);
 
 #endif //QT_NO_DOM
-#endif // QDOM_H
+#endif

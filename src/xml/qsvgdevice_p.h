@@ -112,5 +112,4 @@ inline QRect QSvgDevice::boundingRect() const
 }
 
 #endif // QT_NO_SVG
-
-#endif // QSVGDEVICE_P_H
+#endif

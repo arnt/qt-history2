@@ -47,4 +47,4 @@ public:
 #endif
 };
 
-#endif // QGL_P_H
+#endif

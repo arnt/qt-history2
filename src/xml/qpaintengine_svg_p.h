@@ -13,6 +13,7 @@
 ****************************************************************************/
 
 #ifndef QPAINTENGINE_SVG_P_H
+#define QPAINTENGINE_SVG_P_H
 
 #include "qdom.h"
 #include "qpaintengine.h"
@@ -92,4 +93,5 @@ private:
     QSVGPaintEngine &operator=(const QSVGPaintEngine &);
 #endif
 };
-#endif // QPAINTENGINE_SVG_P_H
+
+#endif

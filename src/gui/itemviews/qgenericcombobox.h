@@ -105,4 +105,4 @@ private:
     Q_PRIVATE_SLOT(void complete())
 };
 
-#endif /* QGENERICCOMBOBOX_H */
+#endif // QGENERICCOMBOBOX_H

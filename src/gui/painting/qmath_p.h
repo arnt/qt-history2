@@ -1,5 +1,5 @@
-#ifndef __QMATH_P_H__
-#define __QMATH_P_H__
+#ifndef QMATH_P_H
+#define QMATH_P_H
 
 #include <math.h>
 
@@ -92,4 +92,4 @@ inline double qsincos(double a, bool calcCos=false)
 # define qcos cos
 #endif
 
-#endif /* __QMATH_P_H__ */
+#endif // QMATH_P_H

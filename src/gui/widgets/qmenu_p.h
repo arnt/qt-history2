@@ -1,5 +1,5 @@
-#ifndef __QMENU_P_H__
-#define __QMENU_P_H__
+#ifndef QMENU_P_H
+#define QMENU_P_H
 
 #include <private/qwidget_p.h>
 #include <qbasictimer.h>
@@ -132,4 +132,4 @@ public:
 #endif
 };
 
-#endif /* __QMENU_P_H__ */
+#endif // QMENU_P_H

@@ -63,4 +63,4 @@ private:
     void init(const QHostAddress & address, Q_UINT16 port, int backlog);
 };
 
-#endif // QSERVERSOCKET_H
+#endif

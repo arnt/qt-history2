@@ -79,5 +79,5 @@ protected:
 
 #endif // Q_WS_MAC
 
-#endif /* QMACSTYLECG_MAC_H */
 #endif
+#endif // QMACSTYLECG_MAC_H

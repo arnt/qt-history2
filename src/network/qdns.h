@@ -14,6 +14,7 @@
 
 #ifndef QDNS_H
 #define QDNS_H
+
 #include <qlist.h>
 #include <qhostaddress.h>
 
@@ -51,4 +52,4 @@ private:
     QDnsHostInfoPrivate *d;
 };
 
-#endif // QDNS_H
+#endif

@@ -11,8 +11,9 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef __QFILEENGINE_H__
-#define __QFILEENGINE_H__
+
+#ifndef QFILEENGINE_H
+#define QFILEENGINE_H
 
 #include "qioengine.h"
 #include "qdir.h"
@@ -155,4 +156,5 @@ public:
     static QString tempPath();
     static QFileInfoList drives();
 };
-#endif /* __QFILEENGINE_H__ */
+
+#endif // QFILEENGINE_H

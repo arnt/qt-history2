@@ -11,8 +11,9 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef __Q3MAINWINDOW_P_H__
-#define __Q3MAINWINDOW_P_H__
+
+#ifndef Q3MAINWINDOW_P_H
+#define Q3MAINWINDOW_P_H
 
 #include <private/qwidget_p.h>
 
@@ -69,4 +70,4 @@ public:
     QMap<Q3DockWindow*, bool> appropriate;
 };
 
-#endif /* __Q3MAINWINDOW_P_H__ */
+#endif // Q3MAINWINDOW_P_H

@@ -11,8 +11,9 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef __QDIR_H__
-#define __QDIR_H__
+
+#ifndef QDIR_H
+#define QDIR_H
 
 #include "qstring.h"
 #include "qfileinfo.h"
@@ -203,4 +204,4 @@ public:
     void refresh() const;
 };
 
-#endif /* __QDIR_H__ */
+#endif // QDIR_H

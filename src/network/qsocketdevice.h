@@ -139,5 +139,4 @@ public:
     virtual Type type() const;
 };
 
-
-#endif // QSOCKETDEVICE_H
+#endif
