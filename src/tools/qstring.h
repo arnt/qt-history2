@@ -671,7 +671,7 @@ inline QString::QString() :
 //
 inline QString::~QString()
 {
-    if ( d->deref() ) {
+    if ( d->deref() && d != 0 ) {
         if ( d == shared_null )
             shared_null = 0;
         d->deleteSelf();
