@@ -355,7 +355,7 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
 	Q_UNUSED(rgn);
 	QRegion reg(0, 0, widget->width(), widget->height());
 #endif
-	qt_paint_children(widget, reg, PC_Now | PC_ForceErase );
+	qt_paint_children(widget, reg, PC_Now | PC_ForceErase);
     }
     return 0;
 }
@@ -944,6 +944,7 @@ void QWidget::update( int x, int y, int w, int h )
 #if 0
 	    QRegion r(x, y, w, h);
 	    qt_event_request_updates(this, r);
+	    debug_wndw_rgn("update", this, r);
 #else
 	    QPoint p(posInWindow(this));
 	    qt_dirty_wndw_rgn("update", this, mac_rect(QRect(p.x() + x, p.y() + y, w, h)));
@@ -986,10 +987,9 @@ void QWidget::showWindow()
 
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
+	//ick, this is needed because layouts are updated by it and mac paints immediatly..
+	QApplication::sendPostedEvents(0, QEvent::LayoutHint);
 #if defined( Q_WS_MACX ) && 0 //handle transition
-	//ick, this is needed because docks are updated by it and mac paints immediatly..
-	QApplication::sendPostedEvents(this, QEvent::LayoutHint);
-
 	if(qApp->style().inherits("QAquaStyle") && parentWidget() && testWFlags(WShowModal)) 
 	    TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd,
 				      kWindowSheetTransitionEffect,
