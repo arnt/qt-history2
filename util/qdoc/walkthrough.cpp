@@ -162,11 +162,15 @@ QString Walkthrough::xline( const QString& substr, const Location& docLoc,
 	    shutUp = TRUE;
 	}
     } else if ( plainlines.first().simplifyWhiteSpace().find(subs) == -1 ) {
-	warning( 2, docLoc, "Command '\\%s %s' failed at line %d of '%s'",
-		 command.latin1(), subs.latin1(), walkloc.lineNum(),
-		 walkloc.shortFilePath().latin1() );
+	if ( !shutUp ) {
+	    warning( 2, docLoc, "Command '\\%s %s' failed at line %d of '%s'",
+		     command.latin1(), subs.latin1(), walkloc.lineNum(),
+		     walkloc.shortFilePath().latin1() );
+	    shutUp = TRUE;
+	}
     } else {
 	s = getNextLine();
+	shutUp = FALSE;
     }
     return s;
 }
