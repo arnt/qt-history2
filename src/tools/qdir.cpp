@@ -35,7 +35,7 @@
 **
 **********************************************************************/
 
-#include "qglobal.h"
+#include "qplatformdefs.h"
 
 #include "qdir.h"
 
