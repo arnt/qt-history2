@@ -588,6 +588,9 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	break;
 
     case PE_HeaderArrow:
+	// Reenable XP style headerarrows when the
+	// styles actually have usable pixmaps!
+	/*
 	name = "HEADER";
 	partId = HP_HEADERSORTARROW;
 	if ( flags & Style_Down )
@@ -595,6 +598,9 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	else
 	    stateId = HSAS_SORTEDUP;
 	break;
+	*/
+	QWindowsStyle::drawPrimitive( op, p, r, cg, flags, opt );
+	return; 
 
     case PE_StatusBarSection:
 	name = "STATUS";
