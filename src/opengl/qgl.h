@@ -324,15 +324,12 @@ private:	// Disabled copy constructor and operator=
     QGLWidget( const QGLWidget& );
     QGLWidget& operator=( const QGLWidget& );
 #endif
+    friend class QGLContext;
     friend class QGLOverlayWidget;
     friend class QOpenGLPaintEngine;
 
     Q_DECL_PRIVATE(QGLWidget);
 
-#if defined(Q_WS_MAC)
-    virtual void setRegionDirty( bool );
-    virtual void macWidgetChangedWindow();
-#endif
 private slots:
     void macInternalFixBufferRect();
 };

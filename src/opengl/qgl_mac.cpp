@@ -245,7 +245,7 @@ void QGLContext::fixBufferRect()
 	    aglDisable((AGLContext)cx, AGL_CLIP_REGION);
 
 	QWidget *w = (QWidget *)d->paintDevice;
-	QRegion clp = w->clippedRegion();
+	QRegion clp = qt_cast<QGLWidget*>(w)->d_func()->clippedRegion();
 	if(clp != d->oldR) {
 	    if(clp.isEmpty()) {
 		GLint offs[4] = { 0, 0, 0, 0 };
@@ -344,6 +344,22 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
 
 #define d d_func()
 #define q q_func()
+
+void QGLWidgetPrivate::setRegionDirty(bool b) //Internally we must put this off until "later"
+{
+    QWidgetPrivate::setRegionDirty(b);
+    QTimer::singleShot(1, q, SLOT(macInternalFixBufferRect()));
+}
+
+#if 0
+void QGLWidgetPrivate::macWidgetChangedWindow()
+{
+    if(d->glcx)
+	aglSetDrawable((AGLContext)d->glcx->cx, GetWindowPort((WindowPtr)handle()));
+    if(d->olcx)
+	aglSetDrawable((AGLContext)d->olcx->cx, GetWindowPort((WindowPtr)handle()));
+}
+#endif
 
 void QGLWidget::init(QGLContext *context, const QGLWidget* shareWidget)
 {
@@ -461,20 +477,6 @@ void QGLWidget::setColormap(const QGLColormap &)
 
 void QGLWidget::cleanupColormaps()
 {
-}
-
-void QGLWidget::macWidgetChangedWindow()
-{
-    if(d->glcx)
-	aglSetDrawable((AGLContext)d->glcx->cx, GetWindowPort((WindowPtr)handle()));
-    if(d->olcx)
-	aglSetDrawable((AGLContext)d->olcx->cx, GetWindowPort((WindowPtr)handle()));
-}
-
-void QGLWidget::setRegionDirty(bool b) //Internally we must put this off until "later"
-{
-    QWidget::setRegionDirty(b);
-    QTimer::singleShot(1, this, SLOT(macInternalFixBufferRect()));
 }
 
 void QGLWidget::macInternalFixBufferRect()

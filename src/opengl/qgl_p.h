@@ -26,6 +26,7 @@ class QPixmap;
 
 class QGLWidgetPrivate : public QWidgetPrivate
 {
+    Q_DECL_PUBLIC( QWidget );
 public:
     QGLWidgetPrivate():	QWidgetPrivate() {}
     ~QGLWidgetPrivate() {}
@@ -42,6 +43,7 @@ public:
     QGLOverlayWidget*	olw;
 #endif
 #if defined(Q_WS_MAC)
+    void setRegionDirty(bool);
     uint clp_serial : 15;
 #endif
 };
