@@ -310,7 +310,8 @@ void QFontPrivate::load( QFont::Script script )
     // identical... if you change one, change both.
 
     // sanity checks
-    Q_ASSERT( QFontCache::instance != 0);
+    if (!QFontCache::instance)
+	qWarning("Must construct a QApplication before a QFont");
     Q_ASSERT( script >= 0 && script < QFont::LastPrivateScript );
 
     QFontDef req = request;

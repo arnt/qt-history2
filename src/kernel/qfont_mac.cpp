@@ -255,7 +255,7 @@ void QFont::cleanup()
     delete QFontCache::instance;
 }
 
-// Return a font family ID 
+// Return a font family ID
 Qt::HANDLE QFont::handle() const
 {
     if ( ! d->engineData )
@@ -274,7 +274,8 @@ void QFont::macSetFont(QPaintDevice *v)
 void QFontPrivate::load(QFont::Script script)
 {
     // sanity checks
-    Q_ASSERT(QFontCache::instance != 0);
+    if (!QFontCache::instance)
+	qWarning("Must construct a QApplication before a QFont");
     Q_ASSERT(script >= 0 && script < QFont::LastPrivateScript);
 
     QFontEngineMac *engine = NULL;
