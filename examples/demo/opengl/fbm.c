@@ -1,4 +1,5 @@
 /*****************************************************************
+
   Implementation of the fractional Brownian motion algorithm. These
   functions were originally the work of F. Kenton Musgrave.
   For documentation of the different functions please refer to the

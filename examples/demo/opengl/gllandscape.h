@@ -20,11 +20,16 @@ public slots:
     
     void setWireframe( int );
     void setFilled( int );
-    void setShaded( int );
+    void setSmoothShaded( int );
     void setGridSize( int );
     
     void toggleWaveAnimation( bool );
 
+signals:
+    void rotatedX( int );
+    void rotatedY( int );
+    void rotatedZ( int );
+    
 protected:
     void paintGL();
     void initializeGL();
@@ -33,20 +38,24 @@ protected:
     void mouseReleaseEvent( QMouseEvent * );
     void mouseMoveEvent( QMouseEvent * );
     void timerEvent( QTimerEvent * );
+    void showEvent( QShowEvent * );
+    void hideEvent( QHideEvent * );
     
-    void drawWireframe( bool removeHiddenLines );
+    void drawWireframe();
     void drawFilled();
     void drawSmoothShaded();
     
 private:
     enum Axis { XAxis, YAxis, ZAxis };
-    enum RenderModes { Wireframe, Filled, Shaded };
+    enum RenderModes { Wireframe, Filled, SmoothShaded };
+    enum Views { DefaultView, CurrentView };
 
     void rotate( GLfloat deg, Axis axis );
     void calculateVertexNormals();
     void averageNormals();
-    void createDisplayLists();
-
+    void createGrid( int size );
+    void destroyGrid();
+    
     RenderModes mode;
     
     typedef struct grid_normals {
@@ -58,16 +67,24 @@ private:
 	double n[3];
     } avgNormals;
 
+    typedef struct viewMatrix {
+	GLfloat model[4][4];      // OpenGL model view matrix for the view
+	GLfloat projection[4][4]; // OpenGL projection matrix for the view
+    } viewMatrix;
+
     double      ** landscape; // Height field data
     double      ** wave;      // Wave data
-    double      ** wt;
+    double      ** wt;        // Parameterized wave data
     gridNormals ** normals;
     avgNormals  ** vertexNormals;
+    viewMatrix     views[2];
     
     QPoint  oldPos;
     GLfloat oldX, oldY, oldZ;
     bool initFractals;
     int  gridSize, gridHalf;
+    bool animationRunning;
+    bool mouseButtonDown;
 };
 
 #endif

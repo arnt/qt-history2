@@ -4,48 +4,30 @@
 #include <GL/glu.h>
 #include <math.h>
 
+#include "fbm.h"
+
 #ifndef PI
 #define PI 3.14159
 #endif
 
-#include "fbm.h"
-
-typedef struct view_data {
-  GLfloat model[4][4];      /* OpenGL model view matrix for the view */
-  GLfloat projection[4][4]; /* OpenGL projection matrix for the view */
-} view_data;
-
-view_data views[4];
-
-#define V3D 0
-#define ORG 1
-
 GLLandscape::GLLandscape( QWidget * parent, const char * name )
     : QGLWidget( parent, name )
 {
+    mouseButtonDown  = FALSE;
+    animationRunning = FALSE;
     oldX = oldY = oldZ = 0.0;
     landscape     = 0;
     vertexNormals = 0;
     normals       = 0;
     wave          = 0;
     wt            = 0;
-    setGridSize( 50 );
+    createGrid( 50 );
+    setWireframe( 0 );
 }
 
 GLLandscape::~GLLandscape()
 {
-    for( int i = 0; i < gridSize; i++ ) {
-	delete[] landscape[i];
-	delete[] normals[i];
-	delete[] vertexNormals[i];
-	delete[] wave[i];
-	delete[] wt[i];
-    }
-    delete[] landscape;
-    delete[] normals;
-    delete[] vertexNormals;
-    delete[] wave;
-    delete[] wt;
+    destroyGrid();
 }
 
 void GLLandscape::initializeGL()
@@ -55,25 +37,19 @@ void GLLandscape::initializeGL()
     glTranslatef( 0.0, 0.0, -50.0 );
     glRotatef( -45, 1, 0, 0 );
     glRotatef( -45, 0, 0, 1 );
-    glGetFloatv( GL_MODELVIEW_MATRIX,(GLfloat *) views[V3D].model );
-    glGetFloatv( GL_MODELVIEW_MATRIX,(GLfloat *) views[ORG].model );
+    glGetFloatv( GL_MODELVIEW_MATRIX,(GLfloat *) views[CurrentView].model );
+    glGetFloatv( GL_MODELVIEW_MATRIX,(GLfloat *) views[DefaultView].model );
 
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
     /* Use GL utility library function to obtain desired view */
     gluPerspective( 60, 1, 1, 250 );
-    glGetFloatv( GL_PROJECTION_MATRIX, (GLfloat *)views[V3D].projection );
-    glGetFloatv( GL_PROJECTION_MATRIX, (GLfloat *)views[ORG].projection );
+    glGetFloatv( GL_PROJECTION_MATRIX, (GLfloat *)views[CurrentView].projection );
+    glGetFloatv( GL_PROJECTION_MATRIX, (GLfloat *)views[DefaultView].projection );
 
-    // Enable line antialiasing
-    glEnable( GL_LINE_SMOOTH );
-    glEnable( GL_BLEND );
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-    glHint( GL_LINE_SMOOTH_HINT, GL_DONT_CARE );
 
     qglClearColor( black );
     glDepthFunc( GL_LESS );
-    glEnable( GL_DEPTH_TEST );
     calculateVertexNormals();
 }
 
@@ -84,152 +60,51 @@ void GLLandscape::resizeGL( int width, int height )
 
 void GLLandscape::paintGL()
 {
-//     static int p = 0;
-//     if ( p == 0 ) {
-// 	p = 1;
-// 	createDisplayLists();
-//     }
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-//     glCallList( mode );
     switch ( mode ) {
 	case Wireframe:
-	    drawWireframe( FALSE );
+	    drawWireframe();
 	    break;
 	case Filled:
 	    drawFilled();
 	    break;
-	case Shaded:
+	case SmoothShaded:
 	    drawSmoothShaded();
 	    break;
     }
 }
 
-void GLLandscape::drawWireframe( bool removeHiddenLines )
+void GLLandscape::drawWireframe()
 {
-    if ( !removeHiddenLines ) {
-	glDisable( GL_DEPTH_TEST );
-	qglColor( white );
-	glBegin( GL_LINES );
-	{
-	    for ( int y = 0; y < (gridSize-1); y++ )
-		for ( int x = 0; x < (gridSize-1); x++) {
-		    glVertex3f( x-gridHalf, y-gridHalf, landscape[x][y] );
-		    glVertex3f( x+1-gridHalf, y-gridHalf, landscape[x+1][y] );
-		    glVertex3f( x-gridHalf, y-gridHalf, landscape[x][y] );
-		    glVertex3f( x+1-gridHalf, y+1-gridHalf, landscape[x+1][y+1] );
+    qglColor( white );
+    glBegin( GL_LINES );
+    {
+	for ( int y = 0; y < (gridSize-1); y++ )
+	    for ( int x = 0; x < (gridSize-1); x++) {
+		glVertex3f( x-gridHalf, y-gridHalf, landscape[x][y] );
+		glVertex3f( x+1-gridHalf, y-gridHalf, landscape[x+1][y] );
+		glVertex3f( x-gridHalf, y-gridHalf, landscape[x][y] );
+		glVertex3f( x+1-gridHalf, y+1-gridHalf, landscape[x+1][y+1] );
 
-		    glVertex3f( x-gridHalf, y-gridHalf, landscape[x][y] );
-		    glVertex3f( x-gridHalf, y+1-gridHalf, landscape[x][y+1] );
-		}
-	}
-	glEnd();
-	glBegin( GL_LINE_STRIP );
-	{
-	    for ( int x = 0; x < gridSize; x++ ) {
-		glVertex3f( x-gridHalf, gridHalf-1, landscape[x][gridSize-1] );
+		glVertex3f( x-gridHalf, y-gridHalf, landscape[x][y] );
+		glVertex3f( x-gridHalf, y+1-gridHalf, landscape[x][y+1] );
 	    }
+    }
+    glEnd();
+    glBegin( GL_LINE_STRIP );
+    {
+	for ( int x = 0; x < gridSize; x++ ) {
+	    glVertex3f( x-gridHalf, gridHalf-1, landscape[x][gridSize-1] );
 	}
-	glEnd();
-	glBegin( GL_LINE_STRIP );
-	{
-	    for ( int y = 0; y < gridSize; y++ ) {
-		glVertex3f( gridHalf-1, y-gridHalf, landscape[gridSize-1][y] );
-	    }
+    }
+    glEnd();
+    glBegin( GL_LINE_STRIP );
+    {
+	for ( int y = 0; y < gridSize; y++ ) {
+	    glVertex3f( gridHalf-1, y-gridHalf, landscape[gridSize-1][y] );
 	}
-	glEnd();
-
-	glEnable( GL_DEPTH_TEST );
-    } else {
-	//
-	// Hidden line removal using the stencil buffer.
-	// I know: it sucks!
-	//
-	glEnable( GL_STENCIL_TEST );
-	glEnable( GL_DEPTH_TEST );
-
-	glClear( GL_DEPTH_BUFFER_BIT );
-	glClear( GL_STENCIL_BUFFER_BIT );
-	glStencilFunc( GL_ALWAYS, 0, 1 );
-	glStencilOp( GL_INVERT, GL_INVERT, GL_INVERT );
-	glColor3f( 0.4, 0.6, 0.6 );
-	for ( int i = 0; i < gridSize-1; i++ )
-	    for ( int k = 0; k < gridSize-1; k++ ) {
-		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-		glBegin( GL_POLYGON );
-		{
-		    glVertex3f(i-gridHalf,k-gridHalf,landscape[i][k]);
-		    glVertex3f(i+1-gridHalf, k-gridHalf, landscape[i+1][k]);
-		    glVertex3f(i+1-gridHalf, k+1-gridHalf, landscape[i+1][k+1]);
-		} /* end GL_POLYGON */
-		glEnd();
-
-//		qglColor( white );
-		qglColor( black );
-		glStencilFunc( GL_EQUAL, 0, 1 );
-		glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
-		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-		glBegin( GL_POLYGON );
-		{
-		    glVertex3f(i-gridHalf,k-gridHalf,landscape[i][k]);
-		    glVertex3f(i+1-gridHalf, k-gridHalf, landscape[i+1][k]);
-		    glVertex3f(i+1-gridHalf, k+1-gridHalf, landscape[i+1][k+1]);
-		} /* end GL_POLYGON */
-		glEnd();
-
-		qglColor( white );
-//		glColor3f( 0.4, 0.6, 0.6 );
-		glStencilFunc( GL_ALWAYS, 0, 1 );
-		glStencilOp( GL_INVERT, GL_INVERT, GL_INVERT );
-		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-		glBegin( GL_POLYGON );
-		{
-		    glVertex3f(i-gridHalf,k-gridHalf,landscape[i][k]);
-		    glVertex3f(i+1-gridHalf, k-gridHalf, landscape[i+1][k]);
-		    glVertex3f(i+1-gridHalf, k+1-gridHalf, landscape[i+1][k+1]);
-		} /* end GL_POLYGON */
-		glEnd();
-		/* Second triangle -- do exactly the same as above, but for
-		   the second triangle in the current cell. */
-		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-		glBegin(GL_POLYGON);
-		{
-		    glVertex3f(i-gridHalf,k-gridHalf, landscape[i][k]);
-		    glVertex3f(i-gridHalf,k+1-gridHalf, landscape[i][k+1]);
-		    glVertex3f(i+1-gridHalf,k+1-gridHalf, landscape[i+1][k+1]);
-		} /* end GL_POLYGON */
-		glEnd();
-
-		qglColor( black );
-		glStencilFunc( GL_EQUAL, 0, 1 );
-		glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
-		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-		glBegin(GL_POLYGON);
-		{
-		    glVertex3f(i-gridHalf,k-gridHalf, landscape[i][k]);
-		    glVertex3f(i-gridHalf,k+1-gridHalf, landscape[i][k+1]);
-		    glVertex3f(i+1-gridHalf,k+1-gridHalf, landscape[i+1][k+1]);
-		} /* end GL_POLYGON */
-		glEnd();
-
-//		glColor3f( 0.4, 0.6, 0.6 );
-		qglColor( white );
-		glStencilFunc( GL_ALWAYS, 0, 1 );
-		glStencilOp( GL_INVERT, GL_INVERT, GL_INVERT );
-		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-		glBegin(GL_POLYGON);
-		{
-		    glVertex3f(i-gridHalf,k-gridHalf, landscape[i][k]);
-		    glVertex3f(i-gridHalf,k+1-gridHalf, landscape[i][k+1]);
-		    glVertex3f(i+1-gridHalf,k+1-gridHalf, landscape[i+1][k+1]);
-		} /* end GL_POLYGON */
-		glEnd();
-	    } /* for */
-	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-	glDisable( GL_STENCIL_TEST );
-	glDisable( GL_DEPTH_TEST );
-   }
-
+    }
+    glEnd();
 }
 
 void GLLandscape::drawFilled()
@@ -310,28 +185,18 @@ void GLLandscape::drawSmoothShaded()
 	    }
 	    glEnd();
 	}
-    glDisable( GL_LIGHTING );
 }
 
 void GLLandscape::setGridSize( int size )
 {
-    // Destroy old grid..
-    if ( landscape != NULL ) {
-	for( int i = 0; i < gridSize; i++ ) {
-	    delete[] landscape[i];
-	    delete[] normals[i];
-	    delete[] vertexNormals[i];
-	    delete[] wt[i];
-	    delete[] wave[i];
-	}
-	delete[] landscape;
-	delete[] normals;
-	delete[] vertexNormals;
-	delete[] wt;
-	delete[] wave;
-    }
+    destroyGrid();      // destroy old grid
+    createGrid( size ); // create new grid
+    initializeGL();
+    updateGL();
+}
 
-    // ..and create a new one
+void GLLandscape::createGrid( int size )
+{
     if ( (size % 2) != 0 )
 	size++;
     gridSize = size;
@@ -355,9 +220,25 @@ void GLLandscape::setGridSize( int size )
 	memset( wt[i], 0, gridSize*sizeof(double) );
 	memset( wave[i], 0, gridSize*sizeof(double) );
     }
+}
 
-    initializeGL();
-    updateGL();
+void GLLandscape::destroyGrid()
+{
+    if ( landscape != NULL ) {
+	for( int i = 0; i < gridSize; i++ ) {
+	    delete[] landscape[i];
+	    delete[] normals[i];
+	    delete[] vertexNormals[i];
+	    delete[] wt[i];
+	    delete[] wave[i];
+	}
+	delete[] landscape;
+	delete[] normals;
+	delete[] vertexNormals;
+	delete[] wt;
+	delete[] wave;
+    }
+    landscape = 0;
 }
 
 void GLLandscape::rotate( GLfloat deg, Axis axis )
@@ -373,7 +254,7 @@ void GLLandscape::rotate( GLfloat deg, Axis axis )
 	    glRotatef( deg, 0, 0, 1 );
 	glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat *) views[i].model);
     }
-    glLoadMatrixf((GLfloat *) views[V3D].model);
+    glLoadMatrixf((GLfloat *) views[CurrentView].model);
 }
 
 void GLLandscape::rotateX( int deg )
@@ -414,9 +295,9 @@ void GLLandscape::zoom( int z )
     }
     glMatrixMode( GL_MODELVIEW );
     // Always scale the original model matrix
-    glLoadMatrixf((GLfloat *) views[ORG].model);
+    glLoadMatrixf((GLfloat *) views[DefaultView].model);
     glScalef( zoom, zoom, zoom );
-    glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat *) views[V3D].model);
+    glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat *) views[CurrentView].model);
     updateGL();
 }
 
@@ -549,6 +430,16 @@ void GLLandscape::averageNormals()
 void GLLandscape::setWireframe( int state )
 {
     if ( state != 1 ) {
+	// Enable line antialiasing
+	glEnable( GL_LINE_SMOOTH );
+	glEnable( GL_BLEND );
+	glDisable( GL_DEPTH_TEST );
+	glDisable( GL_LIGHTING );
+	glDisable( GL_NORMALIZE );
+
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+	glHint( GL_LINE_SMOOTH_HINT, GL_DONT_CARE );
+
 	mode = Wireframe;
 	updateGL();
     }
@@ -557,15 +448,51 @@ void GLLandscape::setWireframe( int state )
 void GLLandscape::setFilled( int state )
 {
     if ( state != 1 ) {
+	glEnable( GL_DEPTH_TEST );
+	glDisable( GL_LINE_SMOOTH );
+	glDisable( GL_BLEND );
+	glDisable( GL_LIGHTING );
+	glDisable( GL_NORMALIZE );
+
 	mode = Filled;
 	updateGL();
     }
 }
 
-void GLLandscape::setShaded( int state )
+void GLLandscape::setSmoothShaded( int state )
 {
     if ( state != 1 ) {
-	mode = Shaded;
+	glEnable( GL_DEPTH_TEST );
+	glEnable( GL_LIGHTING );
+	glEnable( GL_LIGHT0 );
+	glEnable( GL_NORMALIZE );
+	glDisable( GL_LINE_SMOOTH );
+	glDisable( GL_BLEND );
+
+	glShadeModel( GL_SMOOTH );
+	glLightModeli( GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE );
+
+	// Setup lighting and material properties
+	GLfloat position[] = { 15.0, -15.0, 15.0, 0.0 };
+	GLfloat ambient[]  = { 0.50, 0.50, 0.50, 0.0 };
+	GLfloat diffuse[]  = { 1.00, 1.00, 1.00, 0.0 };
+	GLfloat specular[] = { 1.0, 1.0, 1.0, 0.0 };
+	GLfloat materialAmbient[]   = { 0.00, 0.00, 1.0, 0.0 };
+        // GLfloat materialDiffuse[]   = { 1.00, 1.00, 1.0, 0.0 };
+	GLfloat materialShininess[] = { 128.0 };
+	GLfloat materialSpecular[]  = { 1.0, 1.0, 1.0, 0.0 };
+
+	glMaterialfv( GL_FRONT, GL_SPECULAR, materialSpecular );
+        // glMaterialfv( GL_FRONT, GL_DIFFUSE, materialDiffuse );
+	glMaterialfv( GL_FRONT, GL_AMBIENT, materialAmbient );
+	glMaterialfv( GL_FRONT, GL_SHININESS, materialShininess );
+
+	glLightfv( GL_LIGHT0, GL_POSITION, position );
+	glLightfv( GL_LIGHT0, GL_AMBIENT, ambient );
+	glLightfv( GL_LIGHT0, GL_DIFFUSE, diffuse );
+	glLightfv( GL_LIGHT0, GL_SPECULAR, specular );
+
+	mode = SmoothShaded;
 	calculateVertexNormals();
 	updateGL();
     }
@@ -574,11 +501,13 @@ void GLLandscape::setShaded( int state )
 void GLLandscape::mousePressEvent( QMouseEvent *e )
 {
     oldPos = e->pos();
+    mouseButtonDown = TRUE;
 }
 
 void GLLandscape::mouseReleaseEvent( QMouseEvent *e )
 {
     oldPos = e->pos();
+    mouseButtonDown = FALSE;
 }
 
 void GLLandscape::mouseMoveEvent( QMouseEvent *e )
@@ -604,36 +533,16 @@ void GLLandscape::mouseMoveEvent( QMouseEvent *e )
     oldPos = e->pos();
 }
 
-void GLLandscape::createDisplayLists()
-{
-    glDeleteLists( Wireframe, 3 );
-    glGenLists( 3 );
-
-    glNewList( Wireframe, GL_COMPILE );
-    drawWireframe( FALSE );
-    glEndList();
-    glNewList( Filled, GL_COMPILE );
-    drawFilled();
-    glEndList();
-    glNewList( Shaded, GL_COMPILE );
-    drawSmoothShaded();
-    glEndList();
-}
-
 void GLLandscape::timerEvent( QTimerEvent * )
 {
-    // This wave function is a slightly modified version of the
-    // the one found in the Water demo created by Roman Podobedov.
-    // http://romka.demonews.com/index_eng.htm
-
-    int dx, dy; /* Disturbance Point */
+    int dx, dy; // disturbance point
     float s, v, W, t;
     int i, j;
 
     dx = gridSize >> 1;
     dy = gridSize >> 1;
     W = 0.3;
-    v = -4; /* Wave speed */
+    v = -4; // wave speed
 
     for ( i = 0; i < gridSize; i++ )
 	for ( j = 0; j < gridSize; j++ )
@@ -642,23 +551,37 @@ void GLLandscape::timerEvent( QTimerEvent * )
 	    wt[i][j] += 0.1;
 	    t = s / v;
 	    landscape[i][j] -= wave[i][j];
-		if ( s != 0 )
-			wave[i][j] = 2 * sin(2 * PI * W * ( wt[i][j] + t )) / 
-						 (0.2*(s + 2));
-		else
-			wave[i][j] = 2 * sin( 2 * PI * W * ( wt[i][j] + t ) );
-
+	    if ( s != 0 )
+		wave[i][j] = 2 * sin(2 * PI * W * ( wt[i][j] + t )) / 
+			     (0.2*(s + 2));
+	    else
+		wave[i][j] = 2 * sin( 2 * PI * W * ( wt[i][j] + t ) );
 	    landscape[i][j] += wave[i][j];
 	}
-    if ( mode == Shaded )
+    if ( mode == SmoothShaded )
 	calculateVertexNormals();
     updateGL();
 }
 
 void GLLandscape::toggleWaveAnimation( bool state )
 {
-    if ( state )
+    if ( state ) {
  	startTimer( 20 );
-    else
+	animationRunning = TRUE;
+    } else {
+	killTimers();
+	animationRunning = FALSE;
+    }
+}
+
+void GLLandscape::showEvent( QShowEvent * )
+{
+    if ( animationRunning )
+ 	startTimer( 20 );	
+}
+
+void GLLandscape::hideEvent( QHideEvent * )
+{
+    if ( animationRunning )
 	killTimers();
 }

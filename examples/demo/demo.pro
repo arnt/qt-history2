@@ -1,8 +1,8 @@
 TEMPLATE 	= app
-CONFIG		+= qt warn_on
-HEADERS	= frame.h \
+CONFIG		+= qt warn_on debug
+HEADERS		= frame.h \
 		  graph.h \
-                   	  display.h \
+                  display.h \
 		  textdrawing/textedit.h \
 		  textdrawing/helpwindow.h \
 		  dnd/dnd.h \
@@ -24,29 +24,29 @@ SOURCES		= frame.cpp \
 		  main.cpp
 
 opengl {
-       HEADERS += opengl/glworkspace.h \
-		  opengl/glcontrolwidget.h \
-		  opengl/gltexobj.h \
-		  opengl/glbox.h \
-		  opengl/glgear.h \
-		  opengl/gllandscape.h \
-		  opengl/fbm.h
-       SOURCES += opengl/glworkspace.cpp \
-		  opengl/glcontrolwidget.cpp \
-		  opengl/gltexobj.cpp \
-		  opengl/glbox.cpp \
-		  opengl/glgear.cpp \
-		  opengl/gllandscape.cpp \
-		  opengl/fbm.c
+	HEADERS += opengl/glworkspace.h \
+		   opengl/glcontrolwidget.h \
+		   opengl/gltexobj.h \
+		   opengl/glbox.h \
+		   opengl/glgear.h \
+		   opengl/gllandscape.h \
+		   opengl/fbm.h
+	SOURCES += opengl/glworkspace.cpp \
+	 	   opengl/glcontrolwidget.cpp \
+		   opengl/gltexobj.cpp \
+		   opengl/glbox.cpp \
+		   opengl/glgear.cpp \
+		   opengl/gllandscape.cpp \
+		   opengl/fbm.c
 
-       INTERFACES += opengl/printpreview.ui \
-		     opengl/gllandscapeviewer.ui
+	INTERFACES += opengl/printpreview.ui \
+		      opengl/gllandscapeviewer.ui
 }
 
 sql {
 	INTERFACES += sql/book.ui \
 		      sql/editbook.ui \
-		      sql/connect.ui
+	              sql/connect.ui
 }
 
 TARGET		= demo

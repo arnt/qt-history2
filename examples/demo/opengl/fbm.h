@@ -1,9 +1,11 @@
 /*****************************************************************
+
   Prototypes for the fractional Brownian motion algorithm. These
   functions were originally the work of F. Kenton Musgrave.  For
   documentation of the different functions please refer to the book:
   "Texturing and modeling: a procedural approach"
   by David S. Ebert et. al.
+  
 ******************************************************************/
 
 #ifndef _fbm_h
