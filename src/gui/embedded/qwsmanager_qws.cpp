@@ -542,8 +542,6 @@ void QWSManager::toggleMaximize()
     }
 }
 
-
-
 void QWSManager::setMouseOver(QWSButton *b, bool m)
 {
     if (b->setMouseOver(m))
@@ -568,14 +566,13 @@ void QWSManager::repaintButton(QWSButton *b)
     if (managed->testWState(Qt::WState_InPaintEvent))
         qWarning("QWSManager::repaintButton() recursive paint event detected");
     managed->setWState(Qt::WState_InPaintEvent);
-#warning "This isn't really inside a paint event. Please fix"
+    //### This isn't really inside a paint event
+    //optimization instead of calling paintEvent()
     QPainter painter(managed);
     painter.setClipRegion(dec.region(managed, managed->rect()));
     dec.paintButton(&painter, managed, b->type(), b->state());
     managed->clearWState(Qt::WState_InPaintEvent);
 }
-
-
 
 /*
 */
