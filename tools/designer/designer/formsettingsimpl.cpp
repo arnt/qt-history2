@@ -46,7 +46,7 @@ FormSettings::FormSettings( QWidget *parent, FormWindow *fw )
     editComment->setText( info.comment );
     editAuthor->setText( info.author );
 
-    editClassName->setValidator( new AsciiValidator( editClassName ) );
+    editClassName->setValidator( new AsciiValidator( QString( ":" ), editClassName ) );
     editPixmapFunction->setValidator( new AsciiValidator( QString( ":" ), editPixmapFunction ) );
 
     if ( formwindow->savePixmapInline() )
