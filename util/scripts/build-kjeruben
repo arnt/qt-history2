@@ -5,7 +5,8 @@ SOURCEQTDIR=/space/mike/qt-source
 P4CLIENT=mike-moderne-build-kjeruben
 P4PORT=p4.troll.no:866
 P4=/usr/bin/p4
-P4SYNC="yes"
+P4SYNC=yes
+MKSPEC=""
 
 for arg in $*; do
     if [ "$arg" = "noresync" ]; then
@@ -56,16 +57,14 @@ for config in $configs; do
 	rm -rf $BUILDROOT/$config
     fi
     mkdir $BUILDROOT/$config
-    echo "Copying files from $SOURCEQTDIR to $BUILDROOT/$config"
-    ( cd $SOURCEQTDIR; tar -cf - .) | ( cd $BUILDROOT/$config ; tar -xf - )
-    QTDIR=$BUILDROOT/$config 
+    QTDIR=$SOURCEQTDIR
     export QTDIR
-    cd $QTDIR
+    cd $BUILDROOT/$config
     LD_LIBRARY_PATH=$QTDIR/lib
     export LD_LIBRARY_PATH
     args=`echo $config | sed 's/_/ /g'`
     echo "Configuring as $MKSPEC $args"
-    if echo yes yes | ./configure $args > configure-output 2>&1; then
+    if echo yes yes | $QTDIR/configure $args > configure-output 2>&1; then
 	echo "Configure succeeded, making"
 	if make > make-output 2>&1; then
 	    date=`date`
@@ -74,11 +73,11 @@ for config in $configs; do
 	else
 	    date=`date`
 	    echo "Build failed: $date"
-	    mail -s "$MKSPEC $config failed to make: $date" $PLATFORMSJEF < make-output
+	    mailx -s "$MKSPEC $config failed to make: $date" $PLATFORMSJEF < make-output
 	fi
     else
 	date=`date`
 	echo "Configure failed: $date"
-	mail -s "$MKSPEC $config failed to configure: $date" $PLATFORMSJEF < configure-output
+	mailx -s "$MKSPEC $config failed to configure: $date" $PLATFORMSJEF < configure-output
     fi
 done
