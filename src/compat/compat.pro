@@ -19,6 +19,6 @@ include(network/network.pri)
 
 mac:LIBS += -framework Carbon
 
-QMAKE_LIBS += $$QMAKE_LIBS_COMPAT
+QMAKE_LIBS += $$QMAKE_LIBS_COMPAT $$QMAKE_LIBS_NETWORK
 DEFINES -= QT_COMPAT_WARNINGS
 DEFINES += QT_COMPAT
