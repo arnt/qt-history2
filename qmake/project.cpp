@@ -271,6 +271,7 @@ QMakeProject::read(const char *project)
 	if(Option::debug_level)
 	    printf("MKSPEC file: reading %s\n", Option::specfile.latin1());
 
+	base_vars = cache; //start with the cache
 	if(!read(Option::specfile, base_vars)) {
 	    fprintf(stderr, "Failure to read MKSPEC file.\n");
 	    return FALSE;
@@ -289,7 +290,7 @@ QMakeProject::read(const char *project)
 	printf("Project file: reading %s\n", project);
 
     vars = base_vars; /* start with the base */
-    vars["CONFIG"] += cache["CONFIG"];
+
     pfile = project;
     if(!QFile::exists(pfile) && pfile.right(4) != ".pro")
 	pfile += ".pro";
