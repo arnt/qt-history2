@@ -2746,7 +2746,7 @@ bool QApplication::isEffectEnabled(Qt::UIEffect effect)
 */
 bool QApplicationPrivate::qt_mac_apply_settings()
 {
-    QSettings settings(Qt::UserScope, QLatin1String("Trolltech"), QLatin1String("Qt"));
+    QSettings settings(Qt::UserScope, QLatin1String("trolltech.com"), QLatin1String("Qt"));
 
     /*
       Qt settings.  This is how they are written into the datastream.

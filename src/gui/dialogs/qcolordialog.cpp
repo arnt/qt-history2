@@ -1437,7 +1437,7 @@ QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
 
 #ifndef QT_NO_SETTINGS
     if (!customSet) {
-        QSettings settings(Qt::UserScope, QLatin1String("Trolltech"), QLatin1String("Qt"));
+        QSettings settings(Qt::UserScope, QLatin1String("trolltech.com"), QLatin1String("Qt"));
         for (int i = 0; i < 2*8; ++i) {
             QVariant v = settings.value(QLatin1String("customColors/") + QString::number(i));
             if (v.isValid()) {
@@ -1541,7 +1541,7 @@ QColorDialog::~QColorDialog()
 {
 #ifndef QT_NO_SETTINGS
     if (!customSet) {
-        QSettings settings(Qt::UserScope, QLatin1String("Trolltech"), QLatin1String("Qt"));
+        QSettings settings(Qt::UserScope, QLatin1String("trolltech.com"), QLatin1String("Qt"));
         for (int i = 0; i < 2*8; ++i)
             settings.setValue(QLatin1String("customColors/") + QString::number(i), (int)cusrgb[i]);
     }

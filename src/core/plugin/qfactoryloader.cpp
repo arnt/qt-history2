@@ -50,7 +50,7 @@ QFactoryLoader::QFactoryLoader(const char *iid,
     filters << QLatin1String("*.so");
 #endif
 
-    QCoreSettings settings(Qt::UserScope, QLatin1String("Trolltech"));
+    QCoreSettings settings(Qt::UserScope, QLatin1String("trolltech.com"));
 
     for (int i = 0; i < paths.count(); ++i) {
         QString path = paths.at(i) + suffix;

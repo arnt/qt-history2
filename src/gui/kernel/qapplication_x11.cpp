@@ -710,7 +710,7 @@ bool QApplication::x11_apply_settings()
         ds >> timestamp;
     }
 
-    QSettings settings(Qt::UserScope, QLatin1String("Trolltech"), QLatin1String("Qt"));
+    QSettings settings(Qt::UserScope, QLatin1String("trolltech.com"), QLatin1String("Qt"));
     settingsstamp = QFileInfo(settings.fileName()).lastModified();
     if (!settingsstamp.isValid())
         return false;
@@ -1830,7 +1830,7 @@ void qt_init(QApplicationPrivate *priv, int,
             // read some non-GUI settings when not using the X server...
 
             if (QApplication::desktopSettingsAware()) {
-                QSettings settings(Qt::UserScope, QLatin1String("Trolltech"), QLatin1String("Qt"));
+                QSettings settings(Qt::UserScope, QLatin1String("trolltech.com"), QLatin1String("Qt"));
 
                 // read library (ie. plugin) path list
                 QString libpathkey = QString(QLatin1String("%1.%2/libraryPath"))

@@ -418,7 +418,7 @@ bool QLibraryPrivate::isPlugin()
                      .arg(fileName);
     QStringList reg;
 
-    QCoreSettings settings(Qt::UserScope, QLatin1String("Trolltech"));
+    QCoreSettings settings(Qt::UserScope, QLatin1String("trolltech.com"));
     reg = settings.value(regkey).toStringList();
     if (reg.count() == 3 &&lastModified == reg[2]) {
         qt_version = reg[0].toUInt(0, 16);
