@@ -1,5 +1,5 @@
 #include "plugmainwindow.h"
-#include "../../tools/designer/designer/widgetplugin.h"
+#include "../../tools/designer/shared/widgetplugin.h"
 #include "qactionplugin.h"
 
 #define INCLUDE_MENUITEM_DEF

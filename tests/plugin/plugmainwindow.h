@@ -43,6 +43,18 @@ private:
     QMap<int, QString> menuIDs;
 };
 
+class PlugApplicationInterface : public QApplicationInterface
+{
+public:
+    PlugApplicationInterface();
+    ~PlugApplicationInterface();
+
+    QComponentInterface* requestInterface( const QCString& );
+
+private:
+    QGuardedPtr<QComponentInterface> iMainWindow;
+};
+
 class PlugApplication : public QApplication
 {
 public:
@@ -52,7 +64,7 @@ public:
 	appIface = 0;
     }
 
-    QApplicationInterface* requestApplicationInterface( const QCString& request );
+    QApplicationInterface* requestApplicationInterface();
 
 protected:
     QGuardedPtr<QApplicationInterface> appIface;

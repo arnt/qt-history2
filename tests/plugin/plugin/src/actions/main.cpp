@@ -61,7 +61,7 @@ protected:
 
 private:
     QGuardedPtr<SoundDialog> dialog;
-    QApplication* theApp;
+    QGuardedPtr<QApplicationInterface> appInterface;
 };
 
 TestInterface::TestInterface()
@@ -74,17 +74,21 @@ TestInterface::~TestInterface()
 {
 }
 
-bool TestInterface::connectNotify( QApplication* a )
+bool TestInterface::connectNotify( QApplication* theApp )
 {
-    ASSERT( theApp = a );
-    QApplicationInterface* ifc = theApp->requestApplicationInterface( "PlugMainWindowInterface" );
+    if ( !theApp )
+	return FALSE;
+
+    ASSERT( appInterface = theApp->requestApplicationInterface() );
+    if ( !appInterface )
+	return FALSE;
+
+    QComponentInterface *ifc = appInterface->requestInterface( "PlugMainWindowInterface" );
     if ( ifc ) {
 	ifc->requestConnect( SIGNAL(startMovingToolBar(QToolBar*)), this, SLOT(toolBarMoves(QToolBar*)) );
 	ifc->requestConnect( SIGNAL(endMovingToolBar(QToolBar*)), this, SLOT(toolBarMoves(QToolBar*)) );
-	return TRUE;
-    } else {
-	return FALSE;
     }
+    return TRUE;
 }
 
 QStringList TestInterface::featureList()
@@ -128,8 +132,8 @@ QAction* TestInterface::create( const QString& actionname, QObject* parent )
 	actions.addCleanUp( a );
 	return a;
     } else if ( actionname == "Toggle Menu" ) {
-	QApplicationInterface* ifc = 0;
-	if ( ( ifc = theApp->requestApplicationInterface( "PlugMenuInterface" ) ) )
+	QComponentInterface* ifc = 0;
+	if ( ( ifc = appInterface->requestInterface( "PlugMenuInterface" ) ) )
 	    ifc = ifc->requestInterface( "PlugMenuBarInterface" );
 	if ( !ifc )
 	    return 0;
@@ -150,8 +154,8 @@ void TestInterface::openDialog()
 
 void TestInterface::toggleText()
 {
-    QApplicationInterface* ifc;
-    if ( ( ifc = theApp->requestApplicationInterface( "PlugMainWindowInterface" ) ) ) {
+    QComponentInterface* ifc;
+    if ( ( ifc = appInterface->requestInterface( "PlugMainWindowInterface" ) ) ) {
 	QVariant onOff = ifc->requestProperty( "usesTextLabel" );
 	bool on = onOff.toBool();
 	if ( !on ) {
@@ -167,8 +171,8 @@ void TestInterface::toggleText()
 
 void TestInterface::selectWidget()
 {
-    QApplicationInterface* ifc;
-    if ( ( ifc = theApp->requestApplicationInterface( "PlugMainWindowInterface" ) ) ) {
+    QComponentInterface* ifc;
+    if ( ( ifc = appInterface->requestInterface( "PlugMainWindowInterface" ) ) ) {
 	bool ok = FALSE;
 	QString wc = QInputDialog::getText( "Set central widget", "Enter widget class", QLineEdit::Normal, "QWidget", &ok );
 	if ( ok ) {
@@ -179,9 +183,9 @@ void TestInterface::selectWidget()
 
 void TestInterface::toggleMenu()
 {
-    QApplicationInterface* ifc;
-    if ( ( ifc = theApp->requestApplicationInterface( "PlugMainWindowInterface" ) ) ) {
-	QApplicationInterface* menuIfc;
+    QComponentInterface* ifc;
+    if ( ( ifc = appInterface->requestInterface( "PlugMainWindowInterface" ) ) ) {
+	QComponentInterface* menuIfc;
 	if ( ( menuIfc = ifc->requestInterface( "PlugMenuInterface" ) ) )
 	    menuIfc->requestSetProperty( "defaultUp", !menuIfc->requestProperty( "defaultUp").toBool() );
     }

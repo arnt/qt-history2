@@ -1,4 +1,4 @@
-#include "../../../../../tools/designer/designer/widgetinterface.h"
+#include "../../../../../tools/designer/shared/widgetinterface.h"
 
 #include <qapplication.h>
 #include <qcleanuphandler.h>
