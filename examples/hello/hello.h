@@ -20,7 +20,7 @@ class Hello : public QWidget
 {
     Q_OBJECT
 public:
-    Hello( const char *text, QWidget *parent=0, const char *name=0 );
+    Hello(const char *text, QWidget *parent=0);
 signals:
     void clicked();
 protected:

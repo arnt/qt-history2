@@ -22,8 +22,8 @@
   Constructs a Hello widget. Starts a 40 ms animation timer.
 */
 
-Hello::Hello( const char *text, QWidget *parent, const char *name )
-    : QWidget(parent,name), t(text), b(0)
+Hello::Hello(const char *text, QWidget *parent)
+    : QWidget(parent), t(text), b(0)
 {
     setAttribute(Qt::WA_PaintOnScreen);
     QTimer *timer = new QTimer(this);
