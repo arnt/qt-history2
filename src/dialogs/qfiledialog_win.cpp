@@ -40,11 +40,61 @@
 #include "qstringlist.h"
 #include "qlibrary.h"
 
+#ifdef QT_THREAD_SUPPORT
+#  include <private/qmutexpool_p.h>
+#endif // QT_THREAD_SUPPORT
+
 #include "shlobj.h"
 
 #ifdef Q_OS_TEMP
 #include "commdlg.h"
 #endif
+
+
+// Don't remove the lines below!
+//
+// resolving the W methods manually is needed, because Windows 95 doesn't include
+// these methods in Shell32.lib (not even stubs!), so you'd get an unresolved symbol
+// when Qt calls getEsistingDirectory(), etc.
+typedef LPITEMIDLIST (WINAPI *PtrSHBrowseForFolder)(BROWSEINFO*);
+static PtrSHBrowseForFolder ptrSHBrowseForFolder = 0;
+typedef BOOL (WINAPI *PtrSHGetPathFromIDList)(LPITEMIDLIST,LPWSTR);
+static PtrSHGetPathFromIDList ptrSHGetPathFromIDList = 0;
+
+static void resolveLibs()
+{
+#ifndef Q_OS_TEMP
+    static bool triedResolve = FALSE;
+
+    if ( !triedResolve ) {
+#ifdef QT_THREAD_SUPPORT
+	// protect initialization
+	QMutexLocker locker( qt_global_mutexpool->get( &triedResolve ) );
+	// check triedResolve again, since another thread may have already
+	// done the initialization
+	if ( triedResolve ) {
+	    // another thread did initialize the security function pointers,
+	    // so we shouldn't do it again.
+	    return;
+	}
+#endif
+
+	triedResolve = TRUE;
+	if ( qt_winunicode ) {
+	    QLibrary lib("shell32");
+	    lib.setAutoUnload( FALSE );
+
+	    ptrSHBrowseForFolder = (PtrSHBrowseForFolder) lib.resolve( "SHBrowseForFolderW" );
+	    ptrSHGetPathFromIDList = (PtrSHGetPathFromIDList) lib.resolve( "SHGetPathFromIDListW" );
+	}
+    }
+#endif
+}
+#ifdef Q_OS_TEMP
+#define PtrSHBrowseForFolder SHBrowseForFolder ;
+#define PtrSHGetPathFromIDList SHGetPathFromIDList;
+#endif
+
 
 extern const char qt_file_dialog_filter_reg_exp[]; // defined in qfiledialog.cpp
 
@@ -502,8 +552,9 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
 	}
     } else if (uMsg == BFFM_SELCHANGED) {
 	QT_WA( {
+	    resolveLibs();
 	    TCHAR path[MAX_PATH];
-	    SHGetPathFromIDList(LPITEMIDLIST(lParam), path);
+	    ptrSHGetPathFromIDList(LPITEMIDLIST(lParam), path);
 	    QString tmpStr = QString::fromUcs2((ushort*)path);
 	    if (!tmpStr.isEmpty())
 		SendMessage(hwnd, BFFM_ENABLEOK, 1, 1);
@@ -544,6 +595,7 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
     if ( parent )
 	qt_enter_modal( parent );
     QT_WA( {
+	resolveLibs();
 	QString initDir = QDir::convertSeparators(initialDirectory);
 	TCHAR path[MAX_PATH];
 	TCHAR initPath[MAX_PATH];
@@ -558,9 +610,9 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_STATUSTEXT;
 	bi.lpfn = winGetExistDirCallbackProc;
 	bi.lParam = Q_ULONG(&initDir);
-	LPITEMIDLIST pItemIDList = SHBrowseForFolder(&bi);
+	LPITEMIDLIST pItemIDList = ptrSHBrowseForFolder(&bi);
 	if (pItemIDList) {
-	    SHGetPathFromIDList(pItemIDList, path);
+	    ptrSHGetPathFromIDList(pItemIDList, path);
 	    IMalloc *pMalloc;
 	    if (SHGetMalloc(&pMalloc) != NOERROR)
 		result = QString::null;
