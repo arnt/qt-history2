@@ -7,6 +7,7 @@
 #include <qstack.h>
 #include <stdio.h>
 #include <qfile.h>
+#include <qtextstream.h>
 #include <qlayout.h>
 
 
@@ -1589,17 +1590,26 @@ void QMLCursor::end(QPainter* p, bool select)
 //************************************************************************
 
 
+/*!
+  Create a provider.
+ */
 QMLProvider::QMLProvider()
 {
     images.setAutoDelete( TRUE );
     documents.setAutoDelete( TRUE );
 }
 
+/*!
+  Destructor
+ */
 QMLProvider::~QMLProvider()
 {
 }
 
 
+/*!
+  Returns the default provider.
+ */
 QMLProvider& QMLProvider::defaultProvider()
 {
     //### pseudo memory leak, needs clean up
@@ -1625,7 +1635,7 @@ QPixmap QMLProvider::image(const QString &name) const
     if (p)
 	return *p;
     else
-	return QPixmap();
+	return QPixmap( searchPath + name );
 }
 
 /*!  Bind the given name to a document. The document can be accessed with
@@ -1643,8 +1653,39 @@ QString QMLProvider::document(const QString &name) const
     QString* s = documents[name];
     if (s)
 	return *s;
-    else
-	return QString();
+    {
+	QFile f (searchPath + name);
+	QString d;
+	if ( f.open( IO_ReadOnly ) ) {
+	    QTextStream t( &f );
+	    d = t.read();
+	    f.close();
+	}
+	return d;
+    }
+}
+
+
+/*!
+  If an item cannot be found in the cache, the QMLProvider will try to
+  load it from the local filesystem in the directory specified with
+  setPath().
+  
+  \sa path()
+ */
+void QMLProvider::setPath( const QString &path )
+{
+     searchPath = path;
+ }
+
+/*!
+  Returns the current search path for items.
+  
+  \sa setPath()
+ */
+QString QMLProvider::path() const
+{
+    return searchPath;
 }
 
 
@@ -2570,40 +2611,6 @@ void QMLBrowser::setContents( const QString& contents )
     emit contentsChanged();
 }
 
-// QPixmap QMLBrowser::image(const QString &name) const
-// {
-//     QPixmap pm = QMLView::image( name );
-//     if ( !pm.isNull() )
-// 	return pm;
-//     return QPixmap( searchPath + name );
-
-// }
-
-// QString QMLBrowser::document(const QString &name) const
-// {
-//     QString doc = QMLView::document( name );
-//     if ( !doc.isNull() )
-// 	return doc;
-
-//     QFile f( searchPath + name );
-//     if ( f.open( IO_ReadOnly ) ) {
-// 	int c;
-// 	while ( (c = f.getch()) >= 0 ) {
-// 	    doc += (char)c;
-// 	}
-// 	f.close();
-//     }
-
-//     return doc;
-// }
-
-
-// void QMLBrowser::setPath( const QString &path )
-// {
-//     searchPath = path;
-// }
-
-
 void QMLBrowser::backward()
 {
     goBackwards = 1;
@@ -2725,20 +2732,21 @@ void QMLBrowser::popupDefinition( const QString& contents, const QPoint& pos )
 
 int main( int argc, char* argv[] ){
     QApplication a(argc,argv);
-    //QMLBrowser t;
-    QMLEdit t;
+    QMLBrowser t;
+    //    QMLEdit t;
 
 
     QString text = "<qml title=\"Hallo Du Da!\" bgcolor=\"dudel\" bgpixmap=\"marble01.bmp\" text=\"dudel\"><p>Hello <EM>this is <B>bold</B> italic</EM> this is <B>bold   </B> :-) </p><p><B>wichtig</B></p><H1>And <a href=\"this\">this</a> is a pretty long <EM>heading</EM> in 24 point font!</H1><p>a<large>Grosser Text</large>This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text and an image <img SOURCE= \"qt.bmp\" >.  This is another huge paragraph, it contains more or less stupid text. </p><H1> Heading in paragraph </H1><p>This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. </p><p2>This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. <h1>This is a heading inside the p2 environment</h1>This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. </p2><p3>This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text.</p3></qml>";
 
+    /*
     QPixmap pm("qt.bmp");
     t.provider().setImage("qt.bmp", pm);
     t.provider().setImage("marble01.bmp", QPixmap("marble01.bmp"));
 
     t.setContents(text);
+ */
 
-
-    // t.setDocument("beispiel.qml");
+    t.setDocument("beispiel.qml");
     // t.setDocument("heading.qml");
 
     //t.setPaperPixmap( QPixmap("marble01.bmp"));

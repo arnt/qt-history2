@@ -1,5 +1,5 @@
 /****************************************************************************
- ** $Id: //depot/qt/main/tests/qml/qml.h#15 $
+ ** $Id: //depot/qt/main/tests/qml/qml.h#16 $
  **
  ** Definition of something or other
  **
@@ -84,15 +84,22 @@ public:
 
     static QMLProvider& defaultProvider();
 
-    void setImage(const QString& name, const QPixmap& pm);
-    void setDocument(const QString& name, const QString& contents);
 
     virtual QPixmap image(const QString &name) const;
     virtual QString document(const QString &name) const;
 
+    virtual void setImage(const QString& name, const QPixmap& pm);
+    virtual void setDocument(const QString& name, const QString& contents);
+
+    virtual void setPath( const QString &path );
+    QString path() const;
+    
+    // TODO add nifty pixmap cache stuff
+
 private:
     QDict<QPixmap>images;
     QDict<QString>documents;
+    QString searchPath;
 };
 
 class QMLNode;
@@ -370,7 +377,7 @@ public:
 
     void setProvider( QMLProvider* newProvider );
     QMLProvider& provider() const;
-    
+
     QString title() const;
 
     int heightForWidth( int w ) const;
@@ -460,10 +467,6 @@ public:
 
     void setContents( const QString& contents );
 
-//     QPixmap image(const QString &name) const;
-//     QString document(const QString &name) const;
-
-    void setPath( const QString &path );
 
 public slots:
 void backward();
