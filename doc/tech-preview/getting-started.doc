@@ -33,7 +33,7 @@ been refactored so that they can be used in non-GUI applications:
 \i QApplication is split into QCoreApplication (in QtCore) and
       QApplication (in QtGui).
 
-\i QCoreVariant is split into QCoreVariant and QVariant.
+\i QVariant is split into QCoreVariant and QVariant.
 
 \i QEventLoop is split into QEventLoop and QGuiEventLoop.
 \endlist
