@@ -171,9 +171,9 @@ NmakeMakefileGenerator::init()
 	if(configs.findIndex("qt") == -1) configs.append("qt");
     if ( project->isActiveConfig("qt") ) {
 	if ( (project->variables()["DEFINES"].findIndex("QT_NODLL") == -1) &&
-	     ((project->variables()["DEFINES"].findIndex("QT_MAKEDLL") != -1 &&
-	       project->variables()["DEFINES"].findIndex("QT_DLL") != -1) ||
-	      project->isActiveConfig("qt_dll") ||(getenv("QT_DLL") && !getenv("QT_NODLL"))) ) {
+         ((project->variables()["DEFINES"].findIndex("QT_MAKEDLL") != -1 ||
+           project->variables()["DEFINES"].findIndex("QT_DLL") != -1) ||
+          (getenv("QT_DLL") && !getenv("QT_NODLL"))) ) {
 	    project->variables()["TMAKE_QT_DLL"].append("1");
 	    if ( (project->variables()["TARGET"].first() == "qt") && 
 		 !project->variables()["TMAKE_LIB_FLAG"].isEmpty() )
@@ -237,6 +237,7 @@ NmakeMakefileGenerator::init()
 	if ( !project->isActiveConfig("debug") ) {
 	    project->variables()["DEFINES"].append("NO_DEBUG");
 	}
+	const char *foo = project->variables()["TARGET"].first().latin1();
 	if ( (project->variables()["TARGET"].first() == "qt") && 
 	     !project->variables()["TMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["TMAKE_QT_DLL"].isEmpty()) {
