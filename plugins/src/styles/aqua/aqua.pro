@@ -5,7 +5,8 @@ HEADERS		= ../../../../include/qaquastyle.h \
 		  ../../../../src/styles/qaquastyle_p.h
 
 SOURCES		= main.cpp \
-		  ../../../../src/styles/qaquastyle.cpp
+		  ../../../../src/styles/qaquastyle.cpp \
+		  ../../../../src/styles/qaquastyle_p.cpp
 
 !contains(styles, windows) {
 	HEADERS += ../../../../include/qwindowsstyle.h
