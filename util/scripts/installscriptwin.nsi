@@ -102,7 +102,7 @@ Section -Post
   call MakeQtVarsFile
   
   #setting the qt version for the integration
-  WriteRegStr HKCU "SOFTWARE\${PRODUCT_PUBLISHER}\Versions\%VERSION%\" "InstallDir" "$INSTDIR"
+  WriteRegStr HKCU "SOFTWARE\trolltech.com\Versions\%VERSION%\" "InstallDir" "$INSTDIR"
 SectionEnd
 
 Function .onInit
@@ -195,7 +195,7 @@ Section Uninstall
   noenv:
   
   #removing the qt version for the integration
-  DeleteRegKey HKCU "SOFTWARE\${PRODUCT_PUBLISHER}\Versions\%VERSION%\"
+  DeleteRegKey HKCU "SOFTWARE\trolltech.com\Versions\%VERSION%\"
   
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
   SetAutoClose true
