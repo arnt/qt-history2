@@ -57,6 +57,35 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     triedToIntegrate = false;
 
     connect( &autoContTimer, SIGNAL( timeout() ), this, SLOT( timerFired() ) );
+
+    // Intropage
+#ifdef USE_ARCHIVES
+    QFile licenseFile( tmpPath + "/LICENSE" );
+#else
+    QFile licenseFile( "LICENSE" );
+#endif
+    if( licenseFile.open( IO_ReadOnly ) ) {
+	QFileInfo fi( licenseFile );
+	QByteArray fileData( fi.size() + 2 );
+	licenseFile.readBlock( fileData.data(), fi.size() );
+	fileData.data()[ fi.size() ] = 0;
+	fileData.data()[ fi.size() + 1 ] = 0;
+	introText->setText( QString( fileData.data() ) );
+    }
+    // Optionspage
+    installPath->setText( QString( "C:\\Qt\\" ) + DISTVER );
+    sysGroup->setButton( 0 );
+    // Folderspage
+    QByteArray buffer( 256 );
+    unsigned long buffSize( buffer.size() );
+    GetUserNameA( buffer.data(), &buffSize );
+    folderGroups->insertItem( "Anyone who uses this computer (all users)" );
+    folderGroups->insertItem( QString( "Only for me (" ) + QString( buffer.data() ) + ")" );
+    folderPath->setText( QString( "Qt " ) + DISTVER );
+    if( int( qWinVersion() ) & int( Qt::WV_NT_based ) )   // On NT we also have a common folder
+	folderGroups->setEnabled( true );
+    else
+	folderGroups->setDisabled( true );
 }
 
 void SetupWizardImpl::stopProcesses()
@@ -419,27 +448,9 @@ void SetupWizardImpl::showPage( QWidget* newPage )
     SetupWizard::showPage( newPage );
 
     if( newPage == introPage ) {
-#ifdef USE_ARCHIVES
-	QFile licenseFile( tmpPath + "/LICENSE" );
-#else
-	QFile licenseFile( "LICENSE" );
-#endif
-	if( licenseFile.open( IO_ReadOnly ) ) {
-//	    QByteArray fileData = licenseFile.readAll();
-
-	    QFileInfo fi( licenseFile );
-	    QByteArray fileData( fi.size() + 2 );
-	    licenseFile.readBlock( fileData.data(), fi.size() );
-	    fileData.data()[ fi.size() ] = 0;
-	    fileData.data()[ fi.size() + 1 ] = 0;
-	    introText->setText( QString( fileData.data() ) );
-	}
 	setInstallStep( 1 );
     }
     else if( newPage == optionsPage ) {
-	if( !installPath->text().length() )
-	    installPath->setText( QString( "C:\\Qt\\" ) + DISTVER );
-	sysGroup->setButton( 0 );
 	setInstallStep( 2 );
     }
     else if( newPage == licensePage ) {
@@ -447,74 +458,56 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	readLicense( installPath->text() + "/.qt-license" );
     }
     else if( newPage == foldersPage ) {
-	QByteArray buffer( 256 );
-	unsigned long buffSize( buffer.size() );
-	GetUserNameA( buffer.data(), &buffSize );
-	folderGroups->clear();
-	folderGroups->insertItem( "Anyone who uses this computer (all users)" );
-        folderGroups->insertItem( QString( "Only for me (" ) + QString( buffer.data() ) + ")" );
 
-/*
-        ULARGE_INTEGER freeSpace = WinShell::dirFreeSpace( installPath->text() );
-	if( ( freeSpace.HighPart == 0 ) && ( freeSpace.LowPart < 250 * 1024 * 1024 ) ) {
-	    QMessageBox::warning( this, "Disk space", "There is not enough disk space available\non this drive." );
-	    showPage( optionsPage );
-	}
-*/
 	QStringList devSys = QStringList::split( ';',"Microsoft Visual Studio path;Borland C++ Builder path;GNU C++ path" );
 
-	folderPath->setText( QString( "Qt " ) + DISTVER );
 	devSysLabel->setText( devSys[ sysID ] );
 	devSysPath->setEnabled( sysID == 0 );
 	devSysPathButton->setEnabled( sysID == 0 );
-	QString devdir = QEnvironment::getEnv( "MSDevDir" );
-	if( !devdir.length() ) {
-	    int envSpec = QEnvironment::LocalEnv;
-	    QString vsCommonDir, msDevDir, msVCDir, osDir;
+	if( sysID == 0 ) {
+	    QString devdir = QEnvironment::getEnv( "MSDevDir" );
+	    if( !devdir.length() ) {
+		int envSpec = QEnvironment::LocalEnv;
+		QString vsCommonDir, msDevDir, msVCDir, osDir;
 
-	    if( QMessageBox::warning( this, "Environment", "The Visual C++ environment variables has not been set\nDo you want to do this now?", "Yes", "No", QString::null, 0, 1 ) == 0 ) {
-		envSpec |= QEnvironment::PersistentEnv;
-		persistentEnv = true;
+		if( QMessageBox::warning( this, "Environment", "The Visual C++ environment variables has not been set\nDo you want to do this now?", "Yes", "No", QString::null, 0, 1 ) == 0 ) {
+		    envSpec |= QEnvironment::PersistentEnv;
+		    persistentEnv = true;
+		}
+
+		vsCommonDir = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup", "VsCommonDir", QEnvironment::LocalMachine );
+		    msDevDir = QEnvironment::getFSFileName( vsCommonDir + "\\MSDev98" );
+		QEnvironment::putEnv( "MSDevDir", msDevDir, envSpec );
+		    msVCDir = QEnvironment::getFSFileName( QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual C++", "ProductDir", QEnvironment::LocalMachine ) );
+		QEnvironment::putEnv( "MSVCDir", msVCDir, envSpec );
+		if( int( qWinVersion() ) & int( WV_NT_based ) )
+		    osDir = "WINNT";
+		else
+		    osDir = "WIN95";
+		QStringList path = QStringList::split( ';', QEnvironment::getEnv( "PATH", envSpec ) );
+		QStringList::Iterator it;
+
+		path.prepend( msDevDir + "\\BIN" );
+		path.prepend( msVCDir + "\\BIN" );
+		path.prepend( vsCommonDir + "\\Tools\\" + osDir );
+		path.prepend( vsCommonDir + "\\Tools" );
+		if( path.findIndex( installPath->text() + "\\bin" ) == -1 )
+		    path.prepend( installPath->text() + "\\bin" );
+		QEnvironment::putEnv( "PATH", path.join( ";" ), envSpec );
+		QStringList include = QStringList::split( ';', QEnvironment::getEnv( "INCLUDE", envSpec ) );
+		include.prepend( msVCDir + "\\ATL\\INCLUDE" );
+		include.prepend( msVCDir + "\\INCLUDE" );
+		include.prepend( msVCDir + "\\MFC\\INCLUDE" );
+		QEnvironment::putEnv( "INCLUDE", include.join( ";" ), envSpec );
+		QStringList lib = QStringList::split( ';', QEnvironment::getEnv( "LIB", envSpec ) );
+		lib.prepend( msVCDir + "\\LIB" );
+		lib.prepend( msVCDir + "\\MFC\\LIB" );
+		QEnvironment::putEnv( "LIB", lib.join( ";" ), envSpec );
 	    }
-
-	    vsCommonDir = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup", "VsCommonDir", QEnvironment::LocalMachine );
-		msDevDir = QEnvironment::getFSFileName( vsCommonDir + "\\MSDev98" );
-	    QEnvironment::putEnv( "MSDevDir", msDevDir, envSpec );
-		msVCDir = QEnvironment::getFSFileName( QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual C++", "ProductDir", QEnvironment::LocalMachine ) );
-	    QEnvironment::putEnv( "MSVCDir", msVCDir, envSpec );
-	    if( int( qWinVersion() ) & int( WV_NT_based ) )
-		osDir = "WINNT";
-	    else
-		osDir = "WIN95";
-	    QStringList path = QStringList::split( ';', QEnvironment::getEnv( "PATH", envSpec ) );
-	    QStringList::Iterator it;
-
-	    path.prepend( msDevDir + "\\BIN" );
-	    path.prepend( msVCDir + "\\BIN" );
-	    path.prepend( vsCommonDir + "\\Tools\\" + osDir );
-	    path.prepend( vsCommonDir + "\\Tools" );
-	    if( path.findIndex( installPath->text() + "\\bin" ) == -1 )
-		path.prepend( installPath->text() + "\\bin" );
-//	    if( path.findIndex( installPath->text() + "\\lib" ) == -1 )
-//		path.prepend( installPath->text() + "\\lib" );
-	    QEnvironment::putEnv( "PATH", path.join( ";" ), envSpec );
-	    QStringList include = QStringList::split( ';', QEnvironment::getEnv( "INCLUDE", envSpec ) );
-	    include.prepend( msVCDir + "\\ATL\\INCLUDE" );
-	    include.prepend( msVCDir + "\\INCLUDE" );
-	    include.prepend( msVCDir + "\\MFC\\INCLUDE" );
-	    QEnvironment::putEnv( "INCLUDE", include.join( ";" ), envSpec );
-	    QStringList lib = QStringList::split( ';', QEnvironment::getEnv( "LIB", envSpec ) );
-	    lib.prepend( msVCDir + "\\LIB" );
-	    lib.prepend( msVCDir + "\\MFC\\LIB" );
-	    QEnvironment::putEnv( "LIB", lib.join( ";" ), envSpec );
 	}
 	qtDirCheck->setChecked( ( QEnvironment::getEnv( "QTDIR" ).length() == 0 ) );
 	if( sysID == 0 )
 	    devSysPath->setText( QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine ) );
-	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) )   // On NT we also have a common folder
-	    folderGroups->setEnabled( true );
-	else
-	    folderGroups->setDisabled( true );
 	setInstallStep( 4 );
     }
     else if( newPage == configPage ) {
@@ -1099,7 +1092,10 @@ void SetupWizardImpl::readLicense( QString filePath)
 	customerID->setText( licenseInfo[ "CUSTOMERID" ] );
 	licenseID->setText( licenseInfo[ "LICENSEID" ] );
 	licenseeName->setText( licenseInfo[ "LICENSEE" ] );
-	productsString->setText( licenseInfo[ "PRODUCTS" ] );
+	if( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" )
+	    productsString->setCurrentItem( 1 );
+	else
+	    productsString->setCurrentItem( 0 );
 	expiryDate->setText( licenseInfo[ "EXPIRYDATE" ] );
     }
 }
@@ -1114,7 +1110,11 @@ void SetupWizardImpl::writeLicense( QString filePath )
 	licenseInfo[ "CUSTOMERID" ] = customerID->text();
 	licenseInfo[ "LICENSEID" ] = licenseID->text();
 	licenseInfo[ "LICENSEE" ] = licenseeName->text();
-	licenseInfo[ "PRODUCTS" ] = productsString->text();
+	if( productsString->currentItem() == 0 )
+	    licenseInfo[ "PRODUCTS" ] = "qt-professional";
+	else
+	    licenseInfo[ "PRODUCTS" ] = "qt-enterprise";
+
 	licenseInfo[ "EXPIRYDATE" ] = expiryDate->text();
 
 	licStream << "# Toolkit license file" << endl;

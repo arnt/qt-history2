@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>552</width>
-            <height>332</height>
+            <width>544</width>
+            <height>337</height>
         </rect>
     </property>
     <property name="caption">
@@ -381,9 +381,9 @@
             </widget>
             <widget class="QLayoutWidget">
                 <property name="name">
-                    <cstring>Layout6</cstring>
+                    <cstring>Layout7</cstring>
                 </property>
-                <vbox>
+                <grid>
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
@@ -393,136 +393,110 @@
                     <property name="spacing">
                         <number>6</number>
                     </property>
-                    <widget class="QLayoutWidget">
+                    <widget class="QLabel" row="1" column="0">
                         <property name="name">
-                            <cstring>Layout4</cstring>
+                            <cstring>customerIDLabel</cstring>
                         </property>
-                        <grid>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <property name="margin">
-                                <number>0</number>
-                            </property>
-                            <property name="spacing">
-                                <number>6</number>
-                            </property>
-                            <widget class="QLineEdit" row="2" column="1">
-                                <property name="name">
-                                    <cstring>licenseID</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>7</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                    </sizepolicy>
-                                </property>
-                            </widget>
-                            <widget class="QLabel" row="3" column="0">
-                                <property name="name">
-                                    <cstring>LicenseeLabel</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Licensee</string>
-                                </property>
-                            </widget>
-                            <widget class="QLabel" row="1" column="0">
-                                <property name="name">
-                                    <cstring>customerIDLabel</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Customer ID</string>
-                                </property>
-                            </widget>
-                            <widget class="QLineEdit" row="4" column="1">
-                                <property name="name">
-                                    <cstring>productsString</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>7</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                    </sizepolicy>
-                                </property>
-                            </widget>
-                            <widget class="QLabel" row="2" column="0">
-                                <property name="name">
-                                    <cstring>licenseIDLabel</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>License ID</string>
-                                </property>
-                            </widget>
-                            <widget class="QLineEdit" row="1" column="1">
-                                <property name="name">
-                                    <cstring>customerID</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>7</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                    </sizepolicy>
-                                </property>
-                            </widget>
-                            <widget class="QLineEdit" row="5" column="1">
-                                <property name="name">
-                                    <cstring>expiryDate</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>7</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                    </sizepolicy>
-                                </property>
-                            </widget>
-                            <widget class="QLabel" row="5" column="0">
-                                <property name="name">
-                                    <cstring>expiryLabel</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Expiry date</string>
-                                </property>
-                            </widget>
-                            <widget class="QLineEdit" row="3" column="1">
-                                <property name="name">
-                                    <cstring>licenseeName</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>7</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                    </sizepolicy>
-                                </property>
-                            </widget>
-                            <widget class="QLabel" row="0" column="0" rowspan="1" colspan="2">
-                                <property name="name">
-                                    <cstring>licenseInfoHeader</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>7</hsizetype>
-                                        <vsizetype>1</vsizetype>
-                                    </sizepolicy>
-                                </property>
-                                <property name="text">
-                                    <string>Enter the supplied license information here, License ID and Products String are mandatory, the rest are optional.
-Alternatively, the installation wizard may read them from a license file.</string>
-                                </property>
-                                <property name="alignment">
-                                    <set>WordBreak|AlignAuto|AlignVCenter</set>
-                                </property>
-                            </widget>
-                            <widget class="QLabel" row="4" column="0">
-                                <property name="name">
-                                    <cstring>productsLabel</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Products string</string>
-                                </property>
-                            </widget>
-                        </grid>
+                        <property name="text">
+                            <string>Customer ID</string>
+                        </property>
                     </widget>
-                    <widget class="QLayoutWidget">
+                    <widget class="QLineEdit" row="3" column="1" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>licenseeName</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>7</hsizetype>
+                                <vsizetype>0</vsizetype>
+                            </sizepolicy>
+                        </property>
+                    </widget>
+                    <widget class="QLineEdit" row="1" column="1" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>customerID</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>7</hsizetype>
+                                <vsizetype>0</vsizetype>
+                            </sizepolicy>
+                        </property>
+                    </widget>
+                    <widget class="QLineEdit" row="2" column="1" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>licenseID</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>7</hsizetype>
+                                <vsizetype>0</vsizetype>
+                            </sizepolicy>
+                        </property>
+                    </widget>
+                    <spacer row="7" column="2">
+                        <property name="name">
+                            <cstring>Spacer7</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QLineEdit" row="5" column="1" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>expiryDate</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>7</hsizetype>
+                                <vsizetype>0</vsizetype>
+                            </sizepolicy>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="0" column="0" rowspan="1" colspan="3">
+                        <property name="name">
+                            <cstring>licenseInfoHeader</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>7</hsizetype>
+                                <vsizetype>1</vsizetype>
+                            </sizepolicy>
+                        </property>
+                        <property name="text">
+                            <string>Enter the supplied license information here, License ID and Products String are mandatory, the rest are optional.
+Alternatively, the installation wizard may read them from a license file.</string>
+                        </property>
+                        <property name="alignment">
+                            <set>WordBreak|AlignAuto|AlignVCenter</set>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="4" column="0">
+                        <property name="name">
+                            <cstring>productsLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Products string</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="3" column="0">
+                        <property name="name">
+                            <cstring>LicenseeLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Licensee</string>
+                        </property>
+                    </widget>
+                    <widget class="QLayoutWidget" row="6" column="0" rowspan="1" colspan="3">
                         <property name="name">
                             <cstring>Layout5</cstring>
                         </property>
@@ -580,24 +554,38 @@ Alternatively, the installation wizard may read them from a license file.</strin
                             </spacer>
                         </hbox>
                     </widget>
-                    <spacer>
+                    <widget class="QLabel" row="2" column="0">
                         <property name="name">
-                            <cstring>Spacer7</cstring>
+                            <cstring>licenseIDLabel</cstring>
                         </property>
-                        <property name="orientation">
-                            <enum>Vertical</enum>
+                        <property name="text">
+                            <string>License ID</string>
                         </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
+                    </widget>
+                    <widget class="QLabel" row="5" column="0">
+                        <property name="name">
+                            <cstring>expiryLabel</cstring>
                         </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>20</width>
-                                <height>20</height>
-                            </size>
+                        <property name="text">
+                            <string>Expiry date</string>
                         </property>
-                    </spacer>
-                </vbox>
+                    </widget>
+                    <widget class="QComboBox" row="4" column="1">
+                        <item>
+                            <property name="text">
+                                <string>qt-professional</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>qt-enterprise</string>
+                            </property>
+                        </item>
+                        <property name="name">
+                            <cstring>productsString</cstring>
+                        </property>
+                    </widget>
+                </grid>
             </widget>
         </hbox>
     </widget>
@@ -1190,12 +1178,6 @@ Alternatively, the installation wizard may read them from a license file.</strin
         <slot>licenseChanged(const QString&amp;)</slot>
     </connection>
     <connection language="C++">
-        <sender>productsString</sender>
-        <signal>textChanged(const QString&amp;)</signal>
-        <receiver>SetupWizard</receiver>
-        <slot>licenseChanged(const QString&amp;)</slot>
-    </connection>
-    <connection language="C++">
         <sender>expiryDate</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>SetupWizard</receiver>
@@ -1241,10 +1223,10 @@ Alternatively, the installation wizard may read them from a license file.</strin
 
 }</function>
     <function name="licenseChanged(const QString&amp;)" >{
-	if( licenseID-&gt;text().length() &amp;&amp; productsString-&gt;text().length() )
+	if( licenseID-&gt;text().length() )
 	    setNextEnabled( licensePage, true );
     	else
-		setNextEnabled( licensePage, false );
+	    setNextEnabled( licensePage, false );
 }</function>
 </functions>
 <tabstops>
@@ -1260,7 +1242,6 @@ Alternatively, the installation wizard may read them from a license file.</strin
     <tabstop>customerID</tabstop>
     <tabstop>licenseID</tabstop>
     <tabstop>licenseeName</tabstop>
-    <tabstop>productsString</tabstop>
     <tabstop>expiryDate</tabstop>
     <tabstop>folderPath</tabstop>
     <tabstop>folderPathButton</tabstop>

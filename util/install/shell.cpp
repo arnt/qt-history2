@@ -233,6 +233,10 @@ HRESULT WinShell::createShortcut( QString folderName, bool common, QString short
 	if( SUCCEEDED( hr = CoCreateInstance( CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLinkW, (void**)&link ) ) ) {
 	    if( SUCCEEDED( hr = link->QueryInterface( IID_IPersistFile, (void**)&linkFile ) ) ) {
 		link->SetPath( (LPOLESTR)qt_winTchar( target, true ) );
+		QString wrkDir = target;
+		QDir::convertSeparators( wrkDir );
+		target = target.left( target.findRev( '\\' ) );
+		link->SetWorkingDirectory( (LPOLESTR)qt_winTchar( wrkDir, true ) );
 		if( description.length() )
 		    link->SetDescription( (LPOLESTR)qt_winTchar( description, true ) );
 		if( arguments.length() )
