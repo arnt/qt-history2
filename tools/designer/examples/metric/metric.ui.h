@@ -9,12 +9,15 @@
 
 #include <qvalidator.h>
 
-void dialog::init()
+void ConversionForm::init()
 {
-    editInput->setValidator( new QDoubleValidator( editInput ) );
+    numberLineEdit->setValidator( new QDoubleValidator( numberLineEdit ) );
+    numberLineEdit->setText( "10" );
+    convert();
+    numberLineEdit->selectAll();
 }
 
-void dialog::convert()
+void ConversionForm::convert()
 {
     enum MetricUnits {
 	Kilometers,
@@ -30,25 +33,26 @@ void dialog::convert()
     };
     
     // Retrieve the input
-    double input = editInput->text().toDouble();
+    double input = numberLineEdit->text().toDouble();
+    double scaledInput = input;
     
     // internally convert the input to millimeters
-    switch ( comboFrom->currentItem() ) {
+    switch ( fromComboBox->currentItem() ) {
     case Kilometers:
-	input *= 1000000;
+	scaledInput *= 1000000;
 	break;
     case Meters:
-	input *= 1000;
+	scaledInput *= 1000;
 	break;
     case Centimeters:
-	input *= 10;
+	scaledInput *= 10;
 	break;
     }
     
     //convert to inches
-    double result = input * 0.0393701;
+    double result = scaledInput * 0.0393701;
     
-    switch ( comboTo->currentItem() ) {
+    switch ( toComboBox->currentItem() ) {
     case Miles:
 	result /= 63360;
 	break;
@@ -61,5 +65,8 @@ void dialog::convert()
     }
     
     // set the result
-    editResult->setText( QString::number( result ) );
+    resultTextLabel->setText( QString::number( result, 'f', decimalsSpinBox->value() ) );
+    
+   numberLineEdit->setText( QString::number( input, 'f', decimalsSpinBox->value() ) );
 }
+
