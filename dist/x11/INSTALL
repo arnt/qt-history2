@@ -37,7 +37,7 @@ where you choose to install Qt.
 
 	QTDIR=/usr/local/qt
 	PATH=$QTDIR/bin:$PATH
-	MANPATH=$QTDIR/man:$MANPATH
+	MANPATH=$QTDIR/doc/man:$MANPATH
 	LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
 
 	export QTDIR PATH MANPATH LD_LIBRARY_PATH
@@ -46,7 +46,7 @@ where you choose to install Qt.
 
 	setenv QTDIR /usr/local/qt
 	setenv PATH $QTDIR/bin:$PATH
-	setenv MANPATH $QTDIR/man:$MANPATH
+	setenv MANPATH $QTDIR/doc/man:$MANPATH
 	setenv LD_LIBRARY_PATH $QTDIR/lib:$LD_LIBRARY_PATH
 
     After you have done this, you will need to login again, or
