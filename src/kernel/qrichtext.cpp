@@ -3995,8 +3995,10 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 			x -= str->at(i - 1).d.mark->xoff + str->width( i - 2 );
 		}
 		if ( ( alignment() & Qt::AlignJustify ) == Qt::AlignJustify && paintEnd != -1 &&
-		     at( paintEnd )->c.isSpace() )
-		    bw += str->at(paintEnd).x - str->at(paintEnd-1).x - str->width(paintEnd-1); // ## correct for RTL ?
+		     at( paintEnd )->c.isSpace() ) {
+		    int add = str->at(paintEnd).x - str->at(paintEnd-1).x - str->width(paintEnd-1); 
+		    bw += ( lastDirection ? 0 : add );
+		}
 		drawParagString( painter, qstr, paintStart, paintEnd - paintStart + 1, x, lastY,
 				 lastBaseLine, bw, lasth, drawSelections,
 				 lastFormat, i, selectionStarts, selectionEnds, cg, lastDirection );
@@ -4745,7 +4747,7 @@ QTextParagLineStart *QTextFormatter::formatLine( QTextParag *parag, QTextString 
 #endif
 
 // collects one line of the paragraph and transforms it to visual order
-QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextString *text, QTextParagLineStart *line,
+QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag */*parag*/, QTextString *text, QTextParagLineStart *line,
 							QTextStringChar *startChar, QTextStringChar *lastChar, int align, int space )
 {
     int start = (startChar - &text->at(0));
