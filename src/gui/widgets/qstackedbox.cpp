@@ -40,22 +40,48 @@ public:
 
 /*!
     \class QStackedBox qstackedbox.h
-    \brief The  QStackedBox class provides a stack of widgets where only the top widget is visible.
+    \brief The QStackedBox class provides a stack of widgets where only the top
+    widget is visible.
 
     \ingroup organizers
     \ingroup geomanagement
     \ingroup appearance
     \mainclass
 
-    All the horizontal box's child widgets will be placed on top of
-    each other, and only the top one will be visible to the user. This
-    top widget is the currentWidget().  It can be changed by setting
-    the \l currentIndex property, using setCurrentIndex(). The index
-    of a given widget inside the stacked box is retrieved with
-    indexOf(); widget() returns the widget at a given index position.
+    A stacked box provides a container for a number of child widgets, keeping
+    all of these hidden except the widget at the top of the stack. It can be
+    used to create a user interface similar to the one provided by QTabWidget.
 
-    If you just need a stacked layout (not a widget), use
-    QStackedLayout instead.
+    A stacked box can be constructed and populated with a number of child
+    widgets, each of which is typically created without a parent widget:
+
+    \code
+      QStackedBox *pages = new QStackedBox(this);
+      pages->addWidget(firstPageWidget);
+      pages->addWidget(secondPageWidget);
+      pages->addWidget(thirdPageWidget);
+    \endcode
+
+    The top widget in the stack is the currentWidget(). It can be changed by
+    setting the \l currentIndex property, using setCurrentIndex(). The index
+    of a given widget inside the stacked box is retrieved with indexOf().
+    The widget() function returns the widget at a given index position.
+
+    It is often useful to be able to control the current widget from other
+    widgets. For example, a combobox could be used to hold the titles of the
+    widgets in a stacked box, and used to change the current widget when an
+    item is selected. This would be achieved by connecting its activated()
+    signal to the setCurrent() slot of the stacked box:
+
+    \code
+      QComboBox *pageComboBox = new QComboBox(this);
+      pageComboBox->insertItem("Page 1");
+      pageComboBox->insertItem("Page 2");
+      pageComboBox->insertItem("Page 3");
+      connect(pageComboBox, SIGNAL(activated(int)), pages, SLOT(setCurrent(int)));
+    \endcode
+
+    If you just need a stacked layout (not a widget), use QStackedLayout instead.
 
     \sa QTabWidget
 */

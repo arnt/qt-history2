@@ -34,9 +34,9 @@
     \ingroup advanced
     \mainclass
 
-    A tab widget provides a tab bar of tabs and a `page area' below
+    A tab widget provides a tab bar of tabs and a "page area" below
     (or above, see \l{TabPosition}) the tabs. Each tab is associated
-    with a different widget (called a `page'). Only the current tab's
+    with a different widget (called a "page"). Only the current tab's
     widget is shown in the page area; all the other tabs' widgets are
     hidden. The user can show a different page by clicking on its tab
     or by pressing its Alt+\e{letter} shortcut if it has one.
