@@ -77,7 +77,7 @@ QAbstractItemModel::ItemFlags StringListModel::flags(const QModelIndex &index) c
     if (!index.isValid())
         return ItemIsEnabled;
 
-    return ItemIsEnabled | ItemIsSelectable | ItemIsEditable;
+    return QAbstractItemModel::flags(index) | ItemIsEditable;
 }
 
 /*!
