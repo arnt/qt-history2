@@ -2560,6 +2560,7 @@ void Q3TextEdit::contentsDragMoveEvent(QDragMoveEvent *e)
 
 void Q3TextEdit::contentsDragLeaveEvent(QDragLeaveEvent *)
 {
+    drawCursor(false);
     inDnD = false;
 }
 
