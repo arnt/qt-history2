@@ -1424,6 +1424,8 @@ void FunctionDecl::printHtmlShort( HtmlWriter& out ) const
 
     if ( isConst() )
 	out.putsMeta( " const" );
+    if ( isPure() )
+	out.putsMeta( " = 0" );
 }
 
 void FunctionDecl::printHtmlLong( HtmlWriter& out ) const
@@ -1451,6 +1453,8 @@ void FunctionDecl::printHtmlLong( HtmlWriter& out ) const
 	out.putsMeta( " const" );
 
     QString bracketedStuff;
+    if ( isPure() )
+	bracketedStuff += QString( " pure" );
     if ( isVirtual() )
 	bracketedStuff += QString( " virtual" );
     if ( isStatic() )

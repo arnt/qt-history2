@@ -341,7 +341,7 @@ static bool matchFunctionDecl( Decl *context )
 
     // pure virtual
     if ( match(Tok_Equal) )
-	match( Tok_Number );
+	funcDecl->setPure( match(Tok_Number) );
 
     if ( match(Tok_Colon) ) {
 	while ( yyTok != Tok_LeftBrace && yyTok != Tok_Eoi )
