@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#172 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#173 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -1468,8 +1468,8 @@ XCharStruct* charStr(const QTextCodec* mapper, XFontStruct *f, QChar ch)
     }
 }
 
-static
-void getExt(QString str, int len, XRectangle& ink, XRectangle& logical, XFontSet set, const QTextCodec* m)
+static void getExt( QString str, int len, XRectangle& ink,
+		    XRectangle& logical, XFontSet set, const QTextCodec* m )
 {
     // Callers to this / this needs to be optimized.
     // Trouble is, too much caching in multiple clients will make the
