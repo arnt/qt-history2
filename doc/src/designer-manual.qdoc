@@ -314,9 +314,6 @@ toolbox. Some features are also available through context menus that can
 opened over the form windows. On most platforms, the right mouse button is
 used to open context menus.
 
-\l{designer-manual.html}{[Qt Designer]}
-\l{designer-designing-a-component.html}{[Designing a Component]}
-
 */
 
 /*!
@@ -591,10 +588,6 @@ respond to different window sizes, and use this information to fine tune
 the form's design.
 \endtable
 
-\l{designer-getting-started.html}{[Getting Started]}
-\l{designer-manual.html}{[Up]}
-\l{designer-using-a-component.html}{[Using a Component In Your Application]}
-
 */
 
 /*!
@@ -841,9 +834,6 @@ work to. By providing source code that implements a given interface,
 user interface designers can check that their designs actually work
 without having to write code themselves.
 
-\l{designer-designing-a-component.html}{[Designing a Component]}
-\l{designer-manual.html}{[Up]}
-
 */
 
 /*!
@@ -1043,9 +1033,6 @@ This feature can be activated by opening the \key Form menu and selecting
 The preview shows exactly what the final component will look like when
 used in an application.
 
-\l{designer-designing-a-component.html}{[Designing a Component]}
-\l{designer-manual.html}{[Up]}
-
 */
 
 /*!
@@ -1179,8 +1166,6 @@ segments. Once selected, connections can be deleted, and they will not
 be set up in the .ui file.
 \endtable
 
-\l{designer-designing-a-component.html}{[Designing a Component]}
-\l{designer-manual.html}{[Up]}
 */
 
 /*!
@@ -1317,9 +1302,5 @@ menu, and select \key{Delete Page}.
 Each page in the toolbox can be given its own layout, and this is
 necessary if it contains other objects. To add a layout to a page,
 click inside it and apply the layout as usual.
-
-\l{designer-designing-a-component.html}{[Designing a Component]}
-\l{designer-editing-mode.html}{[Form Editing Mode]}
-\l{designer-manual.html}{[Up]}
 
 */
