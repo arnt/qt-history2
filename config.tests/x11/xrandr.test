@@ -44,7 +44,7 @@ fi
     
 # check for Xrandr.h and randr.h
 XRANDR_H=
-RANDR_R=
+RANDR_H=
 if [ "$XRANDR" = "yes" ]; then
     INC="X11/extensions/Xrandr.h"
     INC2="X11/extensions/randr.h"
