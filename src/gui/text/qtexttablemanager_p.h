@@ -1,12 +1,14 @@
 #ifndef QTEXTTABLEMANAGER_H
 #define QTEXTTABLEMANAGER_H
 
+#ifndef QT_H
 #include <qobject.h>
 #include <qstylesheet.h>
 #include <qhash.h>
-
 #include "qtextpiecetable_p.h"
 #include "qfragmentmap_p.h"
+#endif // QT_H
+
 
 class QTextTableManagerPrivate;
 class QTextPieceTable;

@@ -1,10 +1,12 @@
 #ifndef QTEXTIMAGEHANDLER_P_H
 #define QTEXTIMAGEHANDLER_P_H
 
+#ifndef QT_H
 #include <qobject.h>
 #include <private/qtextlayout_p.h>
 
 #include "qtextglobal.h"
+#endif // QT_H
 
 class QTextImageFormat;
 

@@ -1,10 +1,12 @@
 #ifndef QTEXTOBJECTMANAGER_P_H
 #define QTEXTOBJECTMANAGER_P_H
 
+#ifndef QT_H
 #include <qhash.h>
 #include <private/qtextlayout_p.h>
 
 #include "qtextglobal.h"
+#endif // QT_H
 
 class QTextInlineObjectInterface;
 

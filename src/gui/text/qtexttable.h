@@ -1,10 +1,12 @@
 #ifndef QTEXTTABLE_H
 #define QTEXTTABLE_H
 
+#ifndef QT_H
 #include <qglobal.h>
 #include <qsharedpointer.h>
 #include <qobject.h>
 #include "qtextcursor.h"
+#endif // QT_H
 
 class QTextTablePrivate;
 class QTextPieceTable;

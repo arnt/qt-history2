@@ -1,10 +1,12 @@
 #ifndef QTEXTLIST_P_H
 #define QTEXTLIST_P_H
 
+#ifndef QT_H
 #include "qtextpiecetable_p.h"
 #include "qtextdocument.h"
 #include <qpointer.h>
 #include <private/qobject_p.h>
+#endif // QT_H
 
 class QTextList;
 

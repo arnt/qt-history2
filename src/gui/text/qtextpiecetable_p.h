@@ -1,6 +1,7 @@
 #ifndef Q_TEXTPIECETABLE_H
 #define Q_TEXTPIECETABLE_H
 
+#ifndef QT_H
 #include "qglobal.h"
 #include <qstring.h>
 #include <qvector.h>
@@ -12,7 +13,7 @@
 #include <qsharedpointer.h>
 
 #include "qtextglobal.h"
-
+#endif // QT_H
 // #define QT_QMAP_DEBUG
 
 #ifdef QT_QMAP_DEBUG

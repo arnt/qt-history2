@@ -1,10 +1,12 @@
 #ifndef QTEXTLIST_H
 #define QTEXTLIST_H
 
+#ifndef QT_H
 #include <qsharedpointer.h>
 #include <qtextformat.h>
 
 #include "qtextpiecetable_p.h"
+#endif // QT_H
 
 class QTextListPrivate;
 class QTextPieceTable;
