@@ -1360,9 +1360,9 @@ QString VcprojGenerator::replaceExtraCompilerVariables(const QString &var, const
     ret.replace("$(DEFINES)", defines.first());
 
     QStringList &incpath = project->variables()["VCPROJ_MAKEFILE_INCPATH"];
-    if(incpath.isEmpty())
+    if(incpath.isEmpty() && !this->var("MSVCPROJ_INCPATH").isEmpty())
         incpath.append(this->var("MSVCPROJ_INCPATH"));
-    ret.replace("$(INCPATH)", incpath.first());
+    ret.replace("$(INCPATH)", incpath.join(" "));
 
     return ret;
 }
