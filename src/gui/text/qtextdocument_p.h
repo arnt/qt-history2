@@ -177,6 +177,9 @@ public:
 
     void changeObjectFormat(QTextObject *group, int format);
 
+    void setModified(bool m);
+    inline bool isModified() const { return modified; }
+
 private:
     bool split(int pos);
     bool unite(uint f);
@@ -216,6 +219,8 @@ private:
 
     void appendUndoItem(const UndoCommand &c);
 
+    void contentsChanged();
+
     QString text;
 
     QVector<UndoCommand> undoStack;
@@ -238,6 +243,8 @@ private:
     QMap<int, QTextObject *> objects;
 
     QTextDocumentConfig docConfig;
+
+    bool modified;
 };
 
 #endif // QTEXTDOCUMENT_P_H

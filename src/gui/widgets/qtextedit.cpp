@@ -117,8 +117,7 @@ public:
     inline QTextEditPrivate()
         : doc(0), cursorOn(false), readOnly(false),
           autoFormatting(QTextEdit::AutoAll), tabChangesFocus(false), trippleClickTimerActive(false),
-          mousePressed(false), mightStartDrag(false), wordWrap(QTextEdit::WidgetWidth), wrapColumnOrWidth(0),
-          modified(false)
+          mousePressed(false), mightStartDrag(false), wordWrap(QTextEdit::WidgetWidth), wrapColumnOrWidth(0)
     {}
 
     bool cursorMoveKeyEvent(QKeyEvent *e);
@@ -185,8 +184,6 @@ public:
     // Qt3 COMPAT only
     // ### non-compat'ed append needs it, too
     Qt::TextFormat textFormat;
-
-    bool modified;
 };
 
 bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
@@ -315,8 +312,6 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment)
         hbar->setSingleStep(20);
         vbar->setSingleStep(20);
 
-        QObject::connect(doc, SIGNAL(contentsChanged()), q, SLOT(setModified()));
-
         // compat signals
         QObject::connect(doc, SIGNAL(contentsChanged()), q, SIGNAL(textChanged()));
         QObject::connect(doc, SIGNAL(undoAvailable(bool)), q, SIGNAL(undoAvailable(bool)));
@@ -332,7 +327,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment)
     readOnly = false;
     q->clear();
 
-    q->setModified(false);
+    doc->setModified(false);
 
     QTextCharFormat fmt;
     fmt.setFont(q->font());
@@ -1391,25 +1386,6 @@ void QTextEdit::insertHtml(const QString &text)
     QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(text);
     d->cursor.insertFragment(fragment);
     d->selectionChanged();
-}
-
-/*!
-    \property QTextEdit::modified
-    \brief whether the document has been modified by the user
-*/
-
-bool QTextEdit::isModified() const
-{
-    return d->modified;
-}
-
-void QTextEdit::setModified(bool m)
-{
-    if (d->modified == m)
-        return;
-
-    d->modified = m;
-    emit modificationChanged(m);
 }
 
 bool QTextEdit::tabChangesFocus() const

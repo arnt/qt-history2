@@ -138,6 +138,8 @@ QTextDocumentPrivate::QTextDocumentPrivate()
     framesDirty = false;
 
     lout = 0;
+
+    modified = false;
 }
 
 void QTextDocumentPrivate::init()
@@ -488,7 +490,7 @@ void QTextDocumentPrivate::setCharFormat(int pos, int length, const QTextCharFor
         QTextDocumentPrivate::block(blockIt)->invalidate();
 
     documentChange(startPos, length);
-    emit q->contentsChanged();
+    contentsChanged();
 
     endEditBlock();
 }
@@ -538,7 +540,7 @@ void QTextDocumentPrivate::setBlockFormat(const QTextBlock &from, const QTextBlo
     }
 
     documentChange(from.position(), to.position() + to.length() - from.position());
-    emit q->contentsChanged();
+    contentsChanged();
 
     endEditBlock();
 }
@@ -810,7 +812,7 @@ void QTextDocumentPrivate::adjustDocumentChangesAndCursors(int from, int addedOr
         }
 //         qDebug("adjustDocumentChanges:");
 //         qDebug("    -> %d %d %d", docChangeFrom, docChangeOldLength, docChangeLength);
-        emit q->contentsChanged();
+        contentsChanged();
         return;
     }
 
@@ -835,7 +837,7 @@ void QTextDocumentPrivate::adjustDocumentChangesAndCursors(int from, int addedOr
     docChangeLength += added - removedInside + diff;
 //     qDebug("    -> %d %d %d", docChangeFrom, docChangeOldLength, docChangeLength);
 
-    emit q->contentsChanged();
+    contentsChanged();
 }
 
 
@@ -905,7 +907,7 @@ void QTextDocumentPrivate::changeObjectFormat(QTextObject *obj, int format)
     c.object = obj;
     appendUndoItem(c);
 
-    emit q->contentsChanged();
+    contentsChanged();
     endEditBlock();
 }
 
@@ -1106,5 +1108,19 @@ QTextObject *QTextDocumentPrivate::createObject(const QTextFormat &f, int object
     }
 
     return obj;
+}
+
+void QTextDocumentPrivate::contentsChanged()
+{
+    q->contentsChanged();
+    setModified(true);
+}
+
+void QTextDocumentPrivate::setModified(bool m)
+{
+    if (m == modified)
+        return;
+    modified = m;
+    emit q->modificationChanged(m);
 }
 

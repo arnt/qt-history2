@@ -463,6 +463,20 @@ QTextBlock QTextDocument::end() const
     return QTextBlock(docHandle(), 0);
 }
 
+/*!
+    \property QTextDocument::modified
+    \brief whether the document has been modified by the user
+*/
+
+bool QTextDocument::isModified() const
+{
+    return docHandle()->isModified();
+}
+
+void QTextDocument::setModified(bool m)
+{
+    docHandle()->setModified(m);
+}
 
 /*!
   \internal
