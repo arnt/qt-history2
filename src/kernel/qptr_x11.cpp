@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#30 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#30 $";
 #endif
 
 
@@ -2269,14 +2269,14 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    while ( *cp && (*cp & (BEGLINE|TABSTOP)) == 0 ) {
 		if ( (*cp & PREFIX) == PREFIX ) {
 		    int xcpos = fm.width( p, k );
-		    if ( pp ) {			// gray text
-			pp->cpen.setStyle( SolidLine );
-			pp->drawLine( xp+xcpos, fascent+2,
-				      xp+xcpos+CWIDTH( *cp&0xff ), fascent+2 );
-		    }
+		    if ( pp )			// gray text
+			pp->fillRect( xp+xcpos, fascent+fm.underlinePos(),
+				      CWIDTH( *cp&0xff ), fm.lineWidth(),
+				      cpen.color() );
 		    else
-			drawLine( x+xp+xcpos, y+yp+2,
-				  x+xp+xcpos+CWIDTH( *cp&0xff ), y+yp+2 );
+			fillRect( x+xp+xcpos, y+yp+fm.underlinePos(),
+				  CWIDTH( *cp&0xff ), fm.lineWidth(), 
+				  cpen.color());
 		}
 		p[k++] = (char)*cp++;
 		index++;
