@@ -26,6 +26,7 @@
 #include <qlistbox.h>
 
 SourceTemplateInterfaceImpl::SourceTemplateInterfaceImpl()
+: ref( 0 )
 {
 }
 
