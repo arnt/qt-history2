@@ -11,6 +11,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 /*! \page table.html
 
 \title Table Module
@@ -46,4 +47,3 @@ See the appropriate class documentation for details and refer to the
 \link table-examples.html Qt table examples\endlink.
 
 */
-
