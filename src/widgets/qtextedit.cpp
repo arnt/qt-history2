@@ -6253,7 +6253,7 @@ static int qStrWidth(const QString& str, int tabWidth, const QFontMetrics& fm)
 	}
 	lastIdx = ++newIdx;
     }
-    if ((int)str.length() - 1 > newIdx)
+    if ((int)str.length() > newIdx)
 	strWidth += fm.width(str.mid(newIdx));
     return strWidth;
 }
