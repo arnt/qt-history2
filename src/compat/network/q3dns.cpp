@@ -63,16 +63,6 @@ extern "C" int res_init(); // undeclared - at least on HP-UX 10.20
 #include <resolv.h>
 #endif
 
-// POSIX Large File Support redefines open -> open64
-#if defined(open)
-# undef open
-#endif
-
-// POSIX Large File Support redefines truncate -> truncate64
-#if defined(truncate)
-# undef truncate
-#endif
-
 // Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
 #if defined(connect)
 # undef connect
@@ -90,7 +80,6 @@ extern "C" int res_init(); // undeclared - at least on HP-UX 10.20
 #include "qdatetime.h"
 #include "qhash.h"
 #include "qvector.h"
-#include "qstring.h"
 #include "qtimer.h"
 #include "qcoreapplication.h"
 #include "qfile.h"
@@ -104,6 +93,16 @@ extern "C" int res_init(); // undeclared - at least on HP-UX 10.20
 
 #if defined(__GLIBC__) && ((__GLIBC__ > 2) || ((__GLIBC__ == 2) && (__GLIBC_MINOR__ >= 3)))
 #define Q_MODERN_RES_API
+#endif
+
+// POSIX Large File Support redefines open -> open64
+#if defined(open)
+# undef open
+#endif
+
+// POSIX Large File Support redefines truncate -> truncate64
+#if defined(truncate)
+# undef truncate
 #endif
 
 //#define QDNS_DEBUG

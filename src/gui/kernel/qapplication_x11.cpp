@@ -17,22 +17,14 @@
 // provide a proper alternative for others. See also the exports in
 // qapplication_win.cpp, which suggest a unification.
 
-#include "qplatformdefs.h"
-#include <fcntl.h>
-
-// POSIX Large File Support redefines open -> open64
-#if defined(open)
-# undef open
+#if defined(QT_DEBUG) && defined(Q_OS_LINUX)
+# include "qfile.h"
 #endif
+#include "qplatformdefs.h"
 
 // Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
 #if defined(connect)
 # undef connect
-#endif
-
-// POSIX Large File Support redefines truncate -> truncate64
-#if defined(truncate)
-# undef truncate
 #endif
 
 #include "qcolormap.h"
@@ -66,10 +58,6 @@
 // Input method stuff - UNFINISHED
 #include "qinputcontext_p.h"
 
-#if defined(QT_DEBUG) && defined(Q_OS_LINUX)
-# include "qfile.h"
-#endif
-
 #include "qt_x11_p.h"
 #include "qx11info_x11.h"
 
@@ -81,6 +69,16 @@
 #include "qwidget_p.h"
 #define d d_func()
 #define q q_func()
+
+// POSIX Large File Support redefines open -> open64
+#if defined(open)
+# undef open
+#endif
+
+// POSIX Large File Support redefines truncate -> truncate64
+#if defined(truncate)
+# undef truncate
+#endif
 
 //#define X_NOT_BROKEN
 #ifdef X_NOT_BROKEN

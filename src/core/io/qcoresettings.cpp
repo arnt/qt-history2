@@ -1,16 +1,9 @@
+#include "qfile.h"
 #include "qplatformdefs.h"
 
 // POSIX Large File Support redefines open -> open64
 static inline int qt_open(const char *pathname, int flags, mode_t mode)
 { return ::open(pathname, flags, mode); }
-#if defined(open)
-#undef open
-#endif
-
-// POSIX Large File Support redefines truncate -> truncate64
-#if defined(truncate)
-#undef truncate
-#endif
 
 #include "qcoresettings.h"
 
@@ -20,13 +13,20 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include "qcoreapplication.h"
 #include "private/qcoresettings_p.h"
 #include "qdir.h"
-#include "qfile.h"
 #include "qfileinfo.h"
-#include "qstring.h"
 #include "qmutex.h"
 
 #define d d_func()
 #define q q_func()
+
+#if defined(open)
+#undef open
+#endif
+
+// POSIX Large File Support redefines truncate -> truncate64
+#if defined(truncate)
+#undef truncate
+#endif
 
 // ************************************************************************
 // QConfFile
