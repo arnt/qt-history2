@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 2.2 1996/10/10 14:02:12 agulbra Exp $
+** $Id: tutorial.doc,v 2.3 1996/10/20 15:58:41 agulbra Exp $
 **
 ** Tutorial
 **
@@ -2989,7 +2989,8 @@ the CannonField.
 
 <h2>Excercises</h2>
 
-Make a space invaders game and contribute it to the net.
+Write a space invaders game and enter it in the
+<a href="http://www.troll.no/contest.html">Qt GUI contest.</a>
 
 You may now go on to write your own Qt applications.
 
