@@ -206,10 +206,12 @@ void SettingsDialog::checkItem( CheckListItem *item )
 
 void SettingsDialog::makeCategoryList( void )
 {
-    catListAvail.sort();
     QStringList::iterator i = catListAvail.begin();
+    for ( ; i != catListAvail.end(); ++i )
+	*i = (*i).simplifyWhiteSpace().replace( ' ', '_' );
+    catListAvail.sort();
 
-    for ( ; i != catListAvail.end(); ++i ) {
+    for ( i = catListAvail.begin(); i != catListAvail.end(); ++i ) {
 	QString str( *i );
 	int pos = str.findRev( '/' );
         str.remove( pos,  str.length() - pos );
@@ -222,6 +224,8 @@ void SettingsDialog::makeCategoryList( void )
 	}
     }
     catListAvail.sort();
+    for ( i = catListAvail.begin(); i != catListAvail.end(); ++i )
+	*i = (*i).replace( '_', ' ' );
 }
 
 void SettingsDialog::selectColor()
