@@ -368,6 +368,17 @@ int FunctionNode::overloadNumber() const
     return parent()->overloadNumber( this );
 }
 
+QStringList FunctionNode::parameterNames() const
+{
+    QStringList names;
+    QValueList<Parameter>::ConstIterator p = parameters().begin();
+    while ( p != parameters().end() ) {
+	names << (*p).name();
+	++p;
+    }
+    return names;
+}
+
 PropertyNode::PropertyNode( InnerNode *parent, const QString& name )
     : LeafNode( Property, parent, name ), sto( Trool_Default ),
       des( Trool_Default )

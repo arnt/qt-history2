@@ -8,11 +8,13 @@
     \internal
 */
 
-/*! \quickfn QWidget.setFixedSize( x : Number, y : Number )
+/*! \quickfn QWidget.setFixedSize( alpha : Number, Number )
 
     \public
 
     \quickify
+
+    The parameter \a alfa bla bla.
 
     This function is imported explicitly from Qt, even though it's
     not a signal.

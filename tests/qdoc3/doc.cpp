@@ -1711,6 +1711,11 @@ Doc::SectioningUnit Doc::sectioningUnit() const
 }
 #endif
 
+const Set<QString> *Doc::parameterNames() const
+{
+    return priv->params;
+}
+
 const Set<QString> *Doc::enumItemNames() const
 {
     return priv->enumItemSet;

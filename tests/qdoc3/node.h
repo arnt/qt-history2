@@ -247,6 +247,7 @@ public:
     bool isReimplementation() const { return rei; }
     int overloadNumber() const;
     const QValueList<Parameter>& parameters() const { return params; }
+    QStringList parameterNames() const;
     const FunctionNode *reimplementedFrom() const { return rf; }
     const QValueList<FunctionNode *>& reimplementedBy() const { return rb; }
 

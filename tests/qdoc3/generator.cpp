@@ -218,25 +218,66 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 	    documentedItems = *enume->doc().enumItemNames();
 
 	Set<QString> allItems = reunion( definedItems, documentedItems );
-	Set<QString>::ConstIterator a = allItems.begin();
-	while ( a != allItems.end() ) {
-	    if ( !definedItems.contains(*a) ) {
-		QString details;
-		QString best = nearestName( *a, definedItems );
-		if ( !best.isEmpty() && !documentedItems.contains(best) )
-		    details = tr( "Maybe you meant '%1'?" ).arg( best );
+	if ( allItems.count() > definedItems.count() ||
+	     allItems.count() > documentedItems.count() ) {
+	    Set<QString>::ConstIterator a = allItems.begin();
+	    while ( a != allItems.end() ) {
+		if ( !definedItems.contains(*a) ) {
+		    QString details;
+		    QString best = nearestName( *a, definedItems );
+		    if ( !best.isEmpty() && !documentedItems.contains(best) )
+			details = tr( "Maybe you meant '%1'?" ).arg( best );
 
-		node->doc().location().warning( tr("No such enum item '%1'")
-						.arg(*a),
-						details );
-	    } else if ( !documentedItems.contains(*a) ) {
-		node->doc().location().warning( tr("Undocumented enum item"
-						   " '%1'").arg(*a) );
+		    node->doc().location().warning( tr("No such enum item '%1'")
+						    .arg(*a),
+						    details );
+		} else if ( !documentedItems.contains(*a) ) {
+		    node->doc().location().warning( tr("Undocumented enum item"
+						       " '%1'").arg(*a) );
+		}
+		++a;
 	    }
-	    ++a;
 	}
     } else if ( node->type() == Node::Function ) {
 	const FunctionNode *func = (const FunctionNode *) node;
+
+	Set<QString> definedParams;
+	QValueList<Parameter>::ConstIterator p = func->parameters().begin();
+	while ( p != func->parameters().end() ) {
+	    if ( (*p).name().isEmpty() ) {
+		node->location().warning( tr("Missing parameter name") );
+	    } else {
+		definedParams.insert( (*p).name() );
+	    }
+	    ++p;
+	}
+
+	Set<QString> documentedParams;
+	if ( func->doc().parameterNames() != 0 )
+	    documentedParams = *func->doc().parameterNames();
+
+	Set<QString> allParams = reunion( definedParams, documentedParams );
+	if ( allParams.count() > definedParams.count() ||
+	     allParams.count() > documentedParams.count() ) {
+	    Set<QString>::ConstIterator a = allParams.begin();
+	    while ( a != allParams.end() ) {
+		if ( !definedParams.contains(*a) ) {
+		    QString details;
+		    QString best = nearestName( *a, definedParams );
+		    if ( !best.isEmpty() && !documentedParams.contains(best) )
+			details = tr( "Maybe you meant '%1'?" ).arg( best );
+
+		    node->doc().location().warning( tr("No such parameter '%1'")
+						    .arg(*a),
+						    details );
+		} else if ( !documentedParams.contains(*a) ) {
+		    node->doc().location().warning( tr("Undocumented parameter"
+						       " '%1'").arg(*a) );
+		}
+		++a;
+	    }
+	}
+
 	if ( func->reimplementedFrom() != 0 )
 	    generateReimplementedFrom( func, marker );
 	if ( !func->reimplementedBy().isEmpty() )
@@ -519,8 +560,7 @@ const Atom *Generator::generateAtomList( const Atom *atom, const Node *relative,
 	    if ( atom->type() == Atom::FormatEndif ) {
 		if ( generate && numAtoms0 == numAtoms ) {
 		    relative->location().warning(
-			    tr("Output format '%1' not handled")
-			    .arg(format()) );
+			    tr("Output format %1 not handled").arg(format()) );
 		    Atom unhandledFormatAtom( Atom::UnhandledFormat, format() );
 		    generateAtomList( &unhandledFormatAtom, relative, marker,
 				      generate, numAtoms );

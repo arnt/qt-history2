@@ -193,8 +193,10 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 					   " '\\%2'")
 					.arg(arg).arg(command) );
 	    } else {
+		QStringList qtParams = quickFunc->parameterNames();
 		quickFunc->borrowParameterNames( clone );
-		setQuickDoc( quickFunc, doc );
+		QStringList quickParams = quickFunc->parameterNames();
+		setQuickDoc( quickFunc, doc, qtParams, quickParams );
 	    }
 	    delete clone;
 	} else {
@@ -279,6 +281,24 @@ void QsCodeParser::extractTarget( const QString& target, QString& source,
 	pos += targetRegExp.matchedLength();
     }
     doc.location().warning( tr("Cannot find target '%1'").arg(target) );
+}
+
+void QsCodeParser::renameParameters( QString& source, const Doc& /* doc */,
+				     const QStringList& qtParams,
+				     const QStringList& quickParams )
+{
+    QRegExp paramRegExp( "(\\\\a\\s*\\{?\\s*)([A-Za-z0-9_]+)" );
+
+    int pos = 0;
+    while ( (pos = paramRegExp.search(source, pos)) != -1 ) {
+	pos += paramRegExp.cap( 1 ).length();
+	QString before = paramRegExp.cap( 2 );
+	int index = qtParams.findIndex( before );
+	if ( index != -1 ) {
+	    QString after = quickParams[index];
+	    source.replace( pos, before.length(), after );
+	}
+    }
 }
 
 void QsCodeParser::applyReplacementList( QString& source, const Doc& doc )
@@ -366,15 +386,15 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
 	return;
     }
 
-    QMap<QString, int> blackList;
+    Set<QString> blackList;
 
     NodeList children = qtClass->childNodes();
     if ( wrapperClass != 0 ) {
 	children += wrapperClass->childNodes();
 
 	// we don't want the wrapper class constructor and destructor
-	blackList.insert( wrapperClass->name(), 0 );
-	blackList.insert( "~" + wrapperClass->name(), 0 );
+	blackList.insert( wrapperClass->name() );
+	blackList.insert( "~" + wrapperClass->name() );
     }
 
     for ( int pass = 0; pass < 2; pass++ ) {
@@ -389,9 +409,9 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
 		    } else if ( (*c)->type() == Node::Property ) {
 			PropertyNode *property = (PropertyNode *) *c;
 			quickifyProperty( quickClass, qtClass, property );
-			blackList.insert( property->getter(), 0 );
-			blackList.insert( property->setter(), 0 );
-			blackList.insert( property->resetter(), 0 );
+			blackList.insert( property->getter() );
+			blackList.insert( property->setter() );
+			blackList.insert( property->resetter() );
 		    }
 		} else {
 		    if ( (*c)->type() == Node::Function &&
@@ -563,11 +583,11 @@ QString QsCodeParser::quickifiedCode( const QString& code )
 	    "^([ \t]*)(?:[\\w<>,&*]+[ \t]+)+((?:\\w+::)*\\w+)\\((" +
 	    balancedParens + ")\\)(?:[ \t]*const)?(?=[ \n\t]*\\{)" );
     QRegExp paramRegExp(
-	     "\\s*(const\\s+)?([^\\s=]+)\\b[^=]*\\W(\\w+)\\s*(?:=.*)?" );
+	    "\\s*(const\\s+)?([^\\s=]+)\\b[^=]*\\W(\\w+)\\s*(?:=.*)?" );
     QRegExp qtVarRegExp(
-	     "^([ \t]*)(const[ \t]+)?Q([A-Z][A-Za-z_0-9]*)\\s+"
-	     "([a-z][A-Za-z_0-9]*)\\s*(?:\\((" + balancedParens +
-	     ")\\))?\\s*;" );
+	    "^([ \t]*)(const[ \t]+)?Q([A-Z][A-Za-z_0-9]*)\\s+"
+	    "([a-z][A-Za-z_0-9]*)\\s*(?:\\((" + balancedParens +
+	    ")\\))?\\s*;" );
     QRegExp signalOrSlotRegExp(
 	     "^(SIGNAL|SLOT)\\((" + balancedParens + ")\\)" );
     QString result;
@@ -758,7 +778,9 @@ void QsCodeParser::setQtDoc( Node *quickNode, const Doc& doc )
     }
 }
 
-void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc )
+void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc,
+				const QStringList& qtParams,
+				const QStringList& quickParams )
 {
     QRegExp quickifyCommand( "\\\\" + COMMAND_QUICKIFY + "([^\n]*)(?:\n|$)" );
 
@@ -773,6 +795,9 @@ void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc )
 	int pos = source.find( quickifyCommand );
 	if ( pos != -1 ) {
 	    QString quickifiedSource = quickNode->doc().source();
+	    if ( !qtParams.isEmpty() && qtParams != quickParams )
+		renameParameters( quickifiedSource, doc, qtParams,
+				  quickParams );
 	    applyReplacementList( quickifiedSource, doc );
 
 	    do {
@@ -811,7 +836,7 @@ bool QsCodeParser::makeFunctionNode( const QString& synopsis,
 	    "\\s*([A-Za-z0-9_]+)\\.([A-Za-z0-9_]+)\\s*\\((" + balancedParens +
 	    ")\\)\\s*" );
     QRegExp paramRegExp(
-	    "\\s*([A-Za-z0-9_]+)?\\s*(?::\\s*([A-Za-z0-9_]+)\\s*)?" );
+	    "(?:\\s*([A-Za-z0-9_]+)\\s*:)?\\s*([A-Za-z0-9_]+)\\s*" );
 
     if ( !funcRegExp.exactMatch(synopsis) )
 	return FALSE;

@@ -42,6 +42,9 @@ private:
 			const Doc& doc );
     void extractTarget( const QString& target, QString& source,
 			const Doc& doc );
+    void renameParameters( QString& source, const Doc& doc,
+			   const QStringList& qtNames,
+			   const QStringList& quickNames );
     void applyReplacementList( QString& source, const Doc& doc );
     void quickifyClass( ClassNode *quickClass );
     void quickifyEnum( ClassNode *quickClass, EnumNode *enume );
@@ -54,7 +57,9 @@ private:
     QString quickifiedCode( const QString& code );
     QString quickifiedDoc( const QString& source );
     void setQtDoc( Node *quickNode, const Doc& doc );
-    void setQuickDoc( Node *quickNode, const Doc& doc );
+    void setQuickDoc( Node *quickNode, const Doc& doc,
+		      const QStringList& qtParams = QStringList(),
+		      const QStringList& quickParams = QStringList() );
     bool makeFunctionNode( const QString& synopsis, QStringList *pathPtr,
 			   FunctionNode **funcPtr );
 
