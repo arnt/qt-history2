@@ -1701,17 +1701,16 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	else
 	    widget = QApplication::widgetAt( where.h, where.v, true );
 
+	if(special_close) {
+	    qt_replay_event = CopyEvent(event);
+	    return 0;
+	}
+	mouse_button_state = after_state;
 	if ( widget && app_do_modal && !qt_try_modal(widget, event) )
 	    return 1;
 
 	if(ekind == kEventMouseDown && !app->do_mouse_down( &where ))
 	    return 0;
-
-	mouse_button_state = after_state;
-	if(special_close) {
-	    qt_replay_event = CopyEvent(event);
-	    return 0;
-	}
 
 	switch(ekind) {
 	case kEventMouseDragged:
