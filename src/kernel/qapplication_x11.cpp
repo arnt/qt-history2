@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#528 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#529 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2285,6 +2285,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case LeaveNotify: {			// leave window
 	qt_x_clipboardtime = event->xcrossing.time;
 	QEvent e( event->type == EnterNotify ? QEvent::Enter : QEvent::Leave );
+	widget->translateMouseEvent( event ); //we don't get MotionNotify
 	QApplication::sendEvent( widget, &e );
     }
     break;
@@ -3028,7 +3029,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     if ( sm_blockUserInput ) // block user interaction during session management
 	return TRUE;
 
-    if ( event->type == MotionNotify ) {	// mouse move
+    if ( event->type == MotionNotify ) { // mouse move
 	XEvent *xevent = (XEvent *)event;
 	unsigned int xstate = event->xmotion.state;
 	while ( XCheckTypedWindowEvent( appDpy, event->xmotion.window, MotionNotify, xevent ) ) {
@@ -3048,6 +3049,24 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    state &= ~(LeftButton |
 		       MidButton |
 		       RightButton );
+    } else if (	 event->type == EnterNotify || event->type == LeaveNotify) {
+	XEvent *xevent = (XEvent *)event;
+	unsigned int xstate = event->xcrossing.state;
+	type = QEvent::MouseMove;
+	pos.rx() = xevent->xcrossing.x;
+	pos.ry() = xevent->xcrossing.y;
+	globalPos.rx() = xevent->xcrossing.x_root;
+	globalPos.ry() = xevent->xcrossing.y_root;
+	state = translateButtonState( xevent->xcrossing.state );
+	/*
+	  ########### Can you take a look at this, Matthias?
+	  if ( !qt_button_down )
+	    state &= ~(LeftButton |
+		       MidButton |
+		       RightButton );
+	*/
+	
+	
     } else {					// button press or release
 	pos.rx() = event->xbutton.x;
 	pos.ry() = event->xbutton.y;
