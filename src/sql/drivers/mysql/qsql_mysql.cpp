@@ -565,7 +565,7 @@ QSqlRecord QMYSQLDriver::record( const QSqlQuery& query ) const
     QSqlRecord fil;
     if ( !isOpen() )
 	return fil;
-    if ( query.isActive() && query.driver() == this ) {
+    if ( query.isActive() && query.isSelect() && query.driver() == this ) {
 	QMYSQLResult* result =  (QMYSQLResult*)query.result();
 	QMYSQLResultPrivate* p = result->d;
 	if ( !mysql_errno( p->mysql ) ) {
@@ -611,7 +611,7 @@ QSqlRecordInfo QMYSQLDriver::recordInfo( const QSqlQuery& query ) const
     QSqlRecordInfo info;
     if ( !isOpen() )
 	return info;
-    if ( query.isActive() && query.driver() == this ) {
+    if ( query.isActive() && query.isSelect() && query.driver() == this ) {
 	QMYSQLResult* result =  (QMYSQLResult*)query.result();
 	QMYSQLResultPrivate* p = result->d;
 	if ( !mysql_errno( p->mysql ) ) {
