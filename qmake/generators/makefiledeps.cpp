@@ -266,7 +266,7 @@ QMakeLocalFileName QMakeSourceFileInfo::fixPathForFile(const QMakeLocalFileName 
     return f;
 }
 
-QMakeLocalFileName QMakeSourceFileInfo::findFileForDep(const QMakeLocalFileName &file)
+QMakeLocalFileName QMakeSourceFileInfo::findFileForDep(const QMakeLocalFileName &/*file*/)
 {
     return QMakeLocalFileName();
 }
@@ -356,7 +356,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                                     break;
                                 }
                             }
-                            char saved = *(buffer + x + val_len);
+//?                            char saved = *(buffer + x + val_len);
                             *(buffer + x + val_len) = '\0';
                             if(!strcmp(buffer+x, "in implementation")) {
                                 //### do this

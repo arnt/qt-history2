@@ -527,7 +527,7 @@ QFSFileInfoEngine::isRelativePath() const
 }
 
 uint
-QFSFileInfoEngine::ownerId(FileOwner own) const
+QFSFileInfoEngine::ownerId(FileOwner /*own*/) const
 {
     static const uint nobodyID = (uint) -2;
     return nobodyID;
