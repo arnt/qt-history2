@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#6 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#7 $
 **
 ** Definition of QPushButton class
 **
@@ -32,12 +32,9 @@ public:
     void    resizeFitLabel();
 
   // Reimplemented move,resize etc. because of auto-sized default push buttons
-    bool    move( int, int );
-    bool    move( const QPoint & );
-    bool    resize( int, int );
-    bool    resize( const QSize & );
-    bool    changeGeometry( int, int, int, int );
-    bool    changeGeometry( const QRect & );
+    void    move( int, int );
+    void    resize( int, int );
+    void    changeGeometry( int, int, int, int );
 
 signals:
     void    becameDefault();
@@ -54,22 +51,6 @@ private:
     uint    lastDown	  : 1;
     uint    lastDef	  : 1;
 };
-
-
-inline bool QPushButton::move( const QPoint &p )
-{
-    return move( p.x(), p.y() );
-}
-
-inline bool QPushButton::resize( const QSize &s )
-{
-    return resize( s.width(), s.height());
-}
-
-inline bool QPushButton::changeGeometry( const QRect &r )
-{
-    return changeGeometry( r.left(), r.top(), r.width(), r.height() );
-}
 
 
 #endif // QPUSHBT_H
