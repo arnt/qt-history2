@@ -315,7 +315,7 @@ QSqlRecordInfo QSqlDriver::recordInfo( const QString& tablename ) const
 /*! \overload
 
     Returns a QSqlRecordInfo object with meta data for the QSqlQuery \a query.
-    Note that this overloaded function may return not as much information as
+    Note that this overloaded function may not return as much information as
     the recordInfo function which takes the name of a table as parameter.
 
 */
