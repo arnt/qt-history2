@@ -5,7 +5,7 @@
 **
 ** Created : 990124
 **
-** Copyright (C) 1999-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1999-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
