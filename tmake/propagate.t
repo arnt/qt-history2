@@ -204,13 +204,13 @@ ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
 #$}
 
 #$ Substitute('../lib/libfreetype.a:');
-#$ Substitute('	cd 3rdparty/freetype2; make CONFIG_MK=config.mk LIB_DIR=../../../lib ../../../lib/libfreetype.a');
+#$ Substitute('	cd 3rdparty/freetype2; make "CC=$(CC)" CONFIG_MK=config.mk LIB_DIR=../../../lib ../../../lib/libfreetype.a');
 
 #$ Substitute('../lib/libz.a:');
-#$ Substitute('	cd 3rdparty/zlib; make; cp libz.a ../../../lib');
+#$ Substitute('	cd 3rdparty/zlib; make "CC=$(CC)"; cp libz.a ../../../lib');
 
 #$ Substitute('../lib/libpng.a:');
-#$ Substitute('	cd 3rdparty/libpng; make -f scripts/makefile.linux; cp libpng.a ../../../lib');
+#$ Substitute('	cd 3rdparty/libpng; make "CC=$(CC)" -f scripts/makefile.linux; cp libpng.a ../../../lib');
 
 moc: $(SRCMOC)
 
