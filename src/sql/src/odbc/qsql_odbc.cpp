@@ -1036,7 +1036,7 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
     return index;
 }
 
-QSqlRecord QODBCDriver::fields( const QString& tablename ) const
+QSqlRecord QODBCDriver::record( const QString& tablename ) const
 {
     QSqlRecord fil;
     SQLHANDLE hStmt;
@@ -1045,7 +1045,7 @@ QSqlRecord QODBCDriver::fields( const QString& tablename ) const
 				  &hStmt );
     if ( r != SQL_SUCCESS ) {
 #ifdef CHECK_RANGE
-	qSqlWarning( "QODBCDriver::fields: Unable to allocate handle", d );
+	qSqlWarning( "QODBCDriver::record: Unable to allocate handle", d );
 #endif
 	return fil;
     }
@@ -1087,7 +1087,7 @@ QSqlRecord QODBCDriver::fields( const QString& tablename ) const
 #endif
 #ifdef CHECK_RANGE
     if ( r != SQL_SUCCESS )
-	qSqlWarning( "QODBCDriver::fields: Unable to execute column list", d );
+	qSqlWarning( "QODBCDriver::record: Unable to execute column list", d );
 #endif
     r = SQLFetchScroll( hStmt,
                         SQL_FETCH_NEXT,
@@ -1109,7 +1109,7 @@ QSqlRecord QODBCDriver::fields( const QString& tablename ) const
     return fil;
 }
 
-QSqlRecord QODBCDriver::fields( const QSqlQuery& query ) const
+QSqlRecord QODBCDriver::record( const QSqlQuery& query ) const
 {
     QSqlRecord fil;
     if ( query.isActive() && query.driver() == this ) {
@@ -1119,7 +1119,7 @@ QSqlRecord QODBCDriver::fields( const QSqlQuery& query ) const
 	r = SQLNumResultCols( result->d->hStmt, &count );
 #ifdef CHECK_RANGE
 	if ( r != SQL_SUCCESS )
-	    qSqlWarning( "QODBCDriver::fields: Unable to count result columns", d );
+	    qSqlWarning( "QODBCDriver::record: Unable to count result columns", d );
 #endif
 	if ( count > 0 && r == SQL_SUCCESS ) {
 	    for ( int i = 0; i < count; ++i ) {

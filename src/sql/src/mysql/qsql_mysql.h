@@ -43,8 +43,8 @@ public:
     QSqlQuery		createQuery() const;
     QStringList         tables( const QString& user ) const;
     QSqlIndex           primaryIndex( const QString& tablename ) const;
-    QSqlRecord          fields( const QString& tablename ) const;
-    QSqlRecord          fields( const QSqlQuery& query ) const;
+    QSqlRecord          record( const QString& tablename ) const;
+    QSqlRecord          record( const QSqlQuery& query ) const;
 private:
     void		init();
     QMySQLPrivate* 	d;

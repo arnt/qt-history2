@@ -301,7 +301,7 @@ QSqlIndex QMySQLDriver::primaryIndex( const QString& tablename ) const
     return idx;
 }
 
-QSqlRecord QMySQLDriver::fields( const QString& tablename ) const
+QSqlRecord QMySQLDriver::record( const QString& tablename ) const
 {
     QSqlRecord fil;
     QString fieldStmt( "show columns from %1;");
@@ -314,7 +314,7 @@ QSqlRecord QMySQLDriver::fields( const QString& tablename ) const
     return fil;
 }
 
-QSqlRecord QMySQLDriver::fields( const QSqlQuery& query ) const
+QSqlRecord QMySQLDriver::record( const QSqlQuery& query ) const
 {
     QSqlRecord fil;
     if ( query.isActive() && query.driver() == this ) {
