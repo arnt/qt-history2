@@ -1601,5 +1601,4 @@ void QPrintDialogPrivate::init()
 }
 
 #include "moc_qprintdialog.cpp"
-#include "qprintdialog_unix.moc"
 #endif
