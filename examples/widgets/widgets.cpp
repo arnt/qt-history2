@@ -328,7 +328,6 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 
     QRadioButton *rb;
     bg = new QButtonGroup( central, "radioGroup" );
-    bg->setEnabled( FALSE );
     bg->setTitle( "Radio buttons" );
 
     grid->addWidget( bg, 1, 1 );
