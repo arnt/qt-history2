@@ -312,6 +312,11 @@ QMakeProject::read(const char *project)
     else
 	vars["TEMPLATE"].first().replace(QRegExp("\\.t$"), "");
 
+    if(vars["TARGET"].isEmpty()) {
+	QFileInfo fi(project);
+	vars["TARGET"].append(fi.fileName().replace(QRegExp("\\.pro$"), ""));
+    }
+
     return TRUE;
 }
 
