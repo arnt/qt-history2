@@ -362,12 +362,10 @@ void QFontPrivate::load(QFont::Script script)
     }
     { //fill in the engine's font definition
 	engineData->engine->fontDef = request; //copy..
-#if 0
 	if(engineData->engine->fontDef.pointSize == -1)
 	    engineData->engine->fontDef.pointSize = qt_mac_pointsize(engineData->engine->fontDef, paintdevice);
 	else
 	    engineData->engine->fontDef.pixelSize = qt_mac_pixelsize(engineData->engine->fontDef, paintdevice);
-#endif
 	Str255 font;
 	Q_ASSERT(engineData->engine->type() == QFontEngine::Mac);
 	GetFontName(((QFontEngineMac*)engineData->engine)->fnum, font);
