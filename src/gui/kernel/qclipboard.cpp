@@ -280,7 +280,7 @@ QImage QClipboard::image(Mode mode) const
 }
 
 /*!
-    Copies \a image into the clipboard.
+    Copies the \a image into the clipboard.
 
     The \a mode argument is used to control which part of the system
     clipboard is used.  If \a mode is QClipboard::Clipboard, the
@@ -349,7 +349,9 @@ void QClipboard::setPixmap(const QPixmap &pixmap, Mode mode)
 }
 
 
-/*! \fn QMimeData *QClipboard::mimeData(Mode mode) const
+/*! 
+    \fn QMimeData *QClipboard::mimeData(Mode mode) const
+
     Returns a reference to a QMimeData representation of the current
     clipboard data.
 
@@ -359,13 +361,15 @@ void QClipboard::setPixmap(const QPixmap &pixmap, Mode mode)
     QClipboard::Selection, the data is retrieved from the global
     mouse selection.
 
-    The text(), image() and pixmap() functions are simpler
-    wrappers for retrieving text, image and pixmap data.
+    The text(), image(), and pixmap() functions are simpler
+    wrappers for retrieving text, image, and pixmap data.
 
-    \sa setData()
+    \sa setMimeData()
 */
 
-/*! \fn void QClipboard::setData(QMimeData *src, Mode mode)
+/*! 
+    \fn void QClipboard::setMimeData(QMimeData *src, Mode mode)
+
     Sets the clipboard data to \a src. Ownership of the data is
     transferred to the clipboard. If you want to remove the data
     either call clear() or call setData() again with new data.
@@ -395,17 +399,11 @@ void QClipboard::setPixmap(const QPixmap &pixmap, Mode mode)
 */
 
 #ifdef QT_COMPAT
-/*! \fn QMimeSource *QClipboard::data(Mode mode) const
-    Returns a reference to a QMimeSource representation of the current
-    clipboard data.
+/*! 
+    \fn QMimeSource *QClipboard::data(Mode mode) const
+    \compat
 
-    The \a mode argument is used to control which part of the system
-    clipboard is used.  If \a mode is QClipboard::Clipboard, the
-    data is retrieved from the global clipboard.  If \a mode is
-    QClipboard::Selection, the data is retrieved from the global
-    mouse selection.
-
-    \sa mimeData()
+    Use mimeData() instead.
 */
 QMimeSource *QClipboard::data(Mode mode) const
 {
@@ -422,28 +420,11 @@ QMimeSource *QClipboard::data(Mode mode) const
 }
 
 
-/*! \fn void QClipboard::setData(QMimeSource *src, Mode mode)
-    Sets the clipboard data to \a src. Ownership of the data is
-    transferred to the clipboard. If you want to remove the data
-    either call clear() or call setData() again with new data.
+/*! 
+    \fn void QClipboard::setData(QMimeSource *src, Mode mode)
+    \compat
 
-    The \a mode argument is used to control which part of the system
-    clipboard is used.  If \a mode is QClipboard::Clipboard, the
-    data is retrieved from the global clipboard.  If \a mode is
-    QClipboard::Selection, the data is retrieved from the global
-    mouse selection.
-
-    The QDragObject subclasses are reasonable objects to put into the
-    clipboard (but do not try to call QDragObject::drag() on the same
-    object). Any QDragObject placed in the clipboard should have a
-    parent of 0. Do not put QDragMoveEvent or QDropEvent subclasses in
-    the clipboard, as they do not belong to the event handler which
-    receives them.
-
-    The setText(), setImage() and setPixmap() functions are simpler
-    wrappers for setting text, image and pixmap data respectively.
-
-    \sa setMimeData()
+    Use setMimeData() instead.
 */
 void QClipboard::setData(QMimeSource *source, Mode mode)
 {
