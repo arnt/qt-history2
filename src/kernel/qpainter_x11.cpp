@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QPainter class for X11
 **
 ** Created : 940112
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -124,7 +124,7 @@ void qt_erase_rect( QWidget* w, const QRect& r)
 
 #ifdef QT_NO_XRENDER
 typedef unsigned long Picture;
-static const unsigned long rendhd = 0;
+static const Picture rendhd = 0;
 #endif
 
 // hack, so we don't have to make QRegion::clipRectangles() public or include
@@ -134,28 +134,28 @@ inline void *qt_getClipRects( const QRegion &r, int &num )
     return r.clipRectangles( num );
 }
 
-static inline void x11SetClipRegion( Display *dpy, GC gc, Picture rendhd, const QRegion &r )
+static inline void x11SetClipRegion( Display *dpy, GC gc, Picture rh, const QRegion &r )
 {
     int num;
     XRectangle *rects = (XRectangle *)qt_getClipRects( r, num );
 #ifndef QT_NO_XRENDER
-    if (rendhd)
-	XRenderSetPictureClipRectangles(dpy, rendhd, 0, 0, rects, num );
+    if (rh)
+	XRenderSetPictureClipRectangles(dpy, rh, 0, 0, rects, num );
 #else
-    Q_UNUSED( rendhd );
+    Q_UNUSED( rh );
 #endif // QT_NO_XRENDER
     XSetClipRectangles( dpy, gc, 0, 0, rects, num, YXBanded );
 }
 
-static inline void x11SetClipRegion( Display *dpy, GC gc, Picture rendhd, const QRegion &r, GC gc2 )
+static inline void x11SetClipRegion( Display *dpy, GC gc, Picture rh, const QRegion &r, GC gc2 )
 {
     int num;
     XRectangle *rects = (XRectangle *)qt_getClipRects( r, num );
 #ifndef QT_NO_XRENDER
-    if (rendhd)
-	XRenderSetPictureClipRectangles(dpy, rendhd, 0, 0, rects, num );
+    if (rh)
+	XRenderSetPictureClipRectangles(dpy, rh, 0, 0, rects, num );
 #else
-    Q_UNUSED( rendhd );
+    Q_UNUSED( rh );
 #endif // QT_NO_XRENDER
     XSetClipRectangles( dpy, gc, 0, 0, rects, num, YXBanded );
     XSetClipRectangles( dpy, gc2, 0, 0, rects, num, YXBanded );
