@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#57 $
 **
 ** Implementation of layout classes
 **
@@ -97,11 +97,18 @@ static QSize smartMinSize( QWidget *w )
 //returns the max size of a box containing \a w with alignment \a align.
 static QSize smartMaxSize( QWidget *w, int align = 0 )
 {
-    QSize s( align & HorAlign || w->sizePolicy().horData().mayGrow() 
-	     ? QCOORD_MAX : w->sizeHint().width(),
-	     align & VerAlign || w->sizePolicy().verData().mayGrow() 
-	     ? QCOORD_MAX : w->sizeHint().height() );
-    return s.boundedTo( w->maximumSize() );
+    QSize s( QCOORD_MAX, QCOORD_MAX );
+    if ( !w->sizePolicy().horData().mayGrow() )
+       s.setWidth( w->sizeHint().width() );
+    if ( !w->sizePolicy().verData().mayGrow() )
+       s.setHeight( w->sizeHint().height() );
+    s = s.boundedTo( w->maximumSize() );
+    
+    if (align & HorAlign )
+	s.setWidth( QCOORD_MAX );
+    if (align & VerAlign )
+	s.setHeight( QCOORD_MAX );
+    return s;
 }
 
 //this one gives the "soft max" size
@@ -242,9 +249,9 @@ QSize QLayoutBox::maximumSize() const
 {
     switch ( myType ) {
     case Spacer:
-	return QSize( sizeP.horData().mayGrow() 
+	return QSize( sizeP.horData().mayGrow()
 		      ? QCOORD_MAX : width,
-		      sizeP.verData().mayGrow() 
+		      sizeP.verData().mayGrow()
 		      ? QCOORD_MAX : height );
     case Layout:
 	return lay->maximumSize();
@@ -698,12 +705,13 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 
 }
 
+//#define QT_LAYOUT_DISABLE_CACHING
 void QLayoutArray::setupLayoutData()
 {
 #ifndef QT_LAYOUT_DISABLE_CACHING
     if ( !needRecalc )
 	return;
-#endif    
+#endif
     int i;
     for ( i = 0; i < rr; i++ ) {
 	rowData[i].initParameters();
@@ -754,18 +762,18 @@ void QLayoutArray::setupLayoutData()
 	    }
 	}
     }
-    
+
     for ( i = 0; i < rr; i++ ) {
-	rowData[i].expansive = rowData[i].maximumSize > rowData[i].sizeHint && 
+	rowData[i].expansive = rowData[i].maximumSize > rowData[i].sizeHint &&
 			    ( rowData[i].expansive || rowData[i].stretch > 0 );
 	
     }
     for ( i = 0; i < cc; i++ ) {
-	colData[i].expansive = colData[i].maximumSize > colData[i].sizeHint && 
+	colData[i].expansive = colData[i].maximumSize > colData[i].sizeHint &&
 			    ( colData[i].expansive || colData[i].stretch > 0 );
     }
 
-    
+
     needRecalc = FALSE;
 }
 
