@@ -70,6 +70,17 @@ public:
     // non-QNetworkProtocol functions:
     void connectToHost( const QString &host, Q_UINT16 port=21 );
 
+    enum ConnectState {
+	CsHostFound,
+	CsConnected,
+	CsClosed,
+	CsHostNotFound,
+	CsConnectionRefused
+    };
+
+signals:
+    void connectState( int );
+
 protected:
     void parseDir( const QString &buffer, QUrlInfo &info ); // ### private in Qt 4.0?
     void operationListChildren( QNetworkOperation *op );

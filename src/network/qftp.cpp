@@ -108,25 +108,74 @@ public:
     void connectToHost( const QString &host, Q_UINT16 port );
 
 signals:
-    void hostFound();
-    void connected();
-    void closed();
+    void connectState( int );
 
 private:
     QSocket commandSocket;
+
+private slots:
+    void hostFound();
+    void connected();
+    void connectionClosed();
+    void delayedCloseFinished();
+    void readyRead();
+    void error( int );
 };
 
 QFtpPI::QFtpPI( QObject *parent ) : QObject( parent )
 {
-    connect( &commandSocket, SIGNAL(hostFound()), SIGNAL(hostFound()) );
-    connect( &commandSocket, SIGNAL(connected()), SIGNAL(connected()) );
-    connect( &commandSocket, SIGNAL(connectionClosed()), SIGNAL(closed()) );
+    connect( &commandSocket, SIGNAL(hostFound()),
+	    SLOT(hostFound()) );
+    connect( &commandSocket, SIGNAL(connected()),
+	    SLOT(connected()) );
+    connect( &commandSocket, SIGNAL(connectionClosed()),
+	    SLOT(connectionClosed()) );
+    connect( &commandSocket, SIGNAL(delayedCloseFinished()),
+	    SLOT(delayedCloseFinished()) );
+    connect( &commandSocket, SIGNAL(readyRead()),
+	    SLOT(readyRead()) );
+    connect( &commandSocket, SIGNAL(error(int)),
+	    SLOT(error(int)) );
 }
 
 void QFtpPI::connectToHost( const QString &host, Q_UINT16 port )
 {
     commandSocket.connectToHost( host, port );
 }
+
+void QFtpPI::hostFound()
+{
+    emit connectState( QFtp::CsHostFound );
+}
+
+void QFtpPI::connected()
+{
+    emit connectState( QFtp::CsConnected );
+}
+
+void QFtpPI::connectionClosed()
+{
+    emit connectState( QFtp::CsClosed );
+}
+
+void QFtpPI::delayedCloseFinished()
+{
+    emit connectState( QFtp::CsClosed );
+}
+
+void QFtpPI::readyRead()
+{
+}
+
+void QFtpPI::error( int e )
+{
+    if ( e == QSocket::ErrHostNotFound )
+	emit connectState( QFtp::CsHostNotFound );
+    else if ( e == QSocket::ErrConnectionRefused )
+	emit connectState( QFtp::CsConnectionRefused );
+}
+
+
 
 class QFtpPrivate
 {
@@ -220,27 +269,44 @@ void QFtp::init()
     ///////////////////////////////////////////////////////////
     QFtpPrivate *d = ::d( this );
 
-    // ### we are using the same signals as the network operation stuff at the
-    // moment -- is this the right approach?
-    connect( &d->pi, SIGNAL(hostFound()), SLOT(hostFound()) );
-    connect( &d->pi, SIGNAL(connected()), SLOT(connected()) );
-    connect( &d->pi, SIGNAL(closed()), SLOT(closed()) );
+    connect( &d->pi, SIGNAL(connectState(int)), SIGNAL(connectState(int)) );
 }
 
 /*!
    Connects to the FTP server \a host at the \a port. This function returns
    immediately and does not block until the connection succeeded. The
-   connectionStateChanged() signal is emitted when the state of the connecting
+   connectState() signal is emitted when the state of the connecting
    process changes.
 
-   ### I am not sure yet, if it is a wise idea to use the QNetworkProtocol
-   signal for the non-QNetworkProtocol functions.
+   \sa connectState()
 */
 void QFtp::connectToHost( const QString &host, Q_UINT16 port )
 {
     QFtpPrivate *d = ::d( this );
     d->pi.connectToHost( host, port );
 }
+
+/*!  \fn void QFtp::connectState( int state )
+  This signal is emitted when the state of the connection changes. The argument
+  \a state is the new state of the connection; it is one of the enum \l
+  ConnectState values.
+
+  \sa connectToHost() ConnectState
+*/
+
+/*!
+  \enum QFtp::ConnectState
+
+  This enum defines the changes of the connection state:
+
+  \value CsHostFound if the host name lookup was successful
+  \value CsConnected if the connection to the host was successful
+  \value CsClosed if the connection is closed
+  \value CsHostNotFound if the host name lookup failed
+  \value CsConnectionRefused if the connection to the host failed.
+
+  \sa connectState()
+*/
 
 //
 //  end of new stuff
