@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#85 $
 **
 ** Implementation of QButton widget class
 **
@@ -19,7 +19,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#84 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#85 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -182,10 +182,9 @@ static int shortcutChar( const char *str )
   sizeHint() as well, and sometimes hitButton() (to determine whether
   a button press is within the button).
 
-  Note that to reduce flickering the code in drawButton() has to follow a
-  rule: Any change in the value of isOn() and isDown() must change the
-  same set of pixels covered by the drawing commands in the function. This
-  is normally not a problem.
+  To reduce flickering the QButton::paintEvent() sets up a pixmap that the
+  drawButton() function draws in. You should not reimplement paintEvent()
+  for a subclass of QButton unless you want to take over all drawing.
 
   \sa QButtonGroup
 */
@@ -704,19 +703,19 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
 
 void QButton::paintEvent( QPaintEvent *event )
 {
+    QPainter paint;
+    
     if ( width() <= drawingPixWidth && height() <= drawingPixHeight  ) {
 	QPixmap *pm = getDrawingPixmap();
 	ASSERT( pm );
 
-	QPainter paint( pm );
-
-	paint.fillRect( rect(), backgroundBrush() );
+	paint.begin( pm );
+	pm->fill( this, 0, 0 );
 	drawButton( &paint );
 	paint.end();
 	
 	bitBlt( this, event->rect().topLeft(), pm, event->rect() );
     } else {
-	QPainter paint;
 	paint.begin( this );
 
 	// This optimization is worth it, since we often call repaint()
@@ -731,10 +730,6 @@ void QButton::paintEvent( QPaintEvent *event )
 
 
 }
-
-#if QT_VERSION == 200
-#error "Remove QButton::focusInEvent/Out virtuals - they do nothing but bin compat."
-#endif
 
 /*!
   Handles focus in events for the button.
