@@ -383,7 +383,7 @@
             <string>&amp;Close</string>
         </property>
         <property name="whatsThis">
-            <string>Quit Qt Assistant</string>
+            <string>Close the current Qt Assistant window.</string>
         </property>
     </action>
     <action>
