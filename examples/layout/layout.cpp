@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/layout/layout.cpp#2 $
+** $Id: //depot/qt/main/examples/layout/layout.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -106,19 +106,13 @@ ExampleWidget::ExampleWidget( QWidget *parent, const char *name )
 	QLineEdit *ed = new QLineEdit( this );
 	// The line edit goes in the second column
 	grid->addWidget( ed, row, linedCol );	
-	// show off the nice new keyboard interface in Qt 1.3
+
 	QLabel *label = new QLabel( this );
 	QString s;
 	s.sprintf( "Line &%d", row+1 );
 	label->setText( s );
 	// The label goes in the first column.
 	grid->addWidget( label, row, labelCol );
-
-	ed = new QLineEdit( this );
-	// no minimum width for the line edit
-	//ed->setMinimumHeight( ed->sizeHint().height() );
-	// The line edit goes in the second column
-	grid->addWidget( ed, row, linedCol );	
 	// show off the nice new keyboard interface in Qt 1.3
 	label->setBuddy( ed );
     }
