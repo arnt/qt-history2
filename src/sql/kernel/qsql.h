@@ -19,8 +19,8 @@
 namespace QSql
 {
     enum Location {
-        BeforeFirstRecord,
-        AfterLastRecord
+        BeforeFirstRecord = -1,
+        AfterLastRecord = -2
 //#ifdef QT_COMPAT ### should uncomment the check at some point
         , BeforeFirst = BeforeFirstRecord,
         AfterLast = AfterLastRecord
