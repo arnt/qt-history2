@@ -228,6 +228,7 @@ void TextEdit::doConnections( QTextEdit *e )
 void TextEdit::fileNew()
 {
     QTextEdit *edit = new QTextEdit( tabWidget );
+    edit->setTextFormat( RichText );
     doConnections( edit );
     tabWidget->addTab( edit, tr( "noname" ) );
     tabWidget->showPage( edit );

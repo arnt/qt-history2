@@ -47,6 +47,10 @@
   formatting. It is optimized to handle large text
   documents and responds quickly to user input.
 
+  If you create a new and empty QTextEdit, and want to allow the user
+  to edit rich text (HTML) in there, call setTextFormat( Qt::RichText)
+  to be sure that text() returns the formatted text.
+
   QTextEdit extends QTextView with keyboard and mouse handling for
   user input and functions to set/get/modify formatting, text, etc.
 
