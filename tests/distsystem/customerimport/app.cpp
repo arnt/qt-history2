@@ -64,7 +64,12 @@ void ImportApp::doImport()
 
 				simpleAxaptaAddress.replace( QRegExp( "[\r\n ]" ), " " );
 				simpleInternAddress.replace( QRegExp( "[\r\n ]" ), " " );
-				log << customerID << " ... MAYBE (Name OK, but address mismatch) A: \"" << simpleAxaptaAddress << "\" I: \"" << simpleInternAddress << "\"" << endl;
+				if( simpleAxaptaAddress == simpleInternAddress ) {
+				    // The addresses resolve to the same when the whitespace is processed
+				    log << customerID << "... OK" << endl;
+				}
+				else
+				    log << customerID << " ... MAYBE (Name OK, but address mismatch) A: \"" << simpleAxaptaAddress << "\" I: \"" << simpleInternAddress << "\"" << endl;
 			    }
 			    else
 				log << customerID << " ... FAILED (SQL error)" << endl;
