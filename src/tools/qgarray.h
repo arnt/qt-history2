@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.h#9 $
+** $Id: //depot/qt/main/src/tools/qgarray.h#10 $
 **
 ** Definition of QGArray class
 **
@@ -64,9 +64,10 @@ protected:
     virtual void	deleteData( array_data *p ) { delete p; }
 };
 
-// maybe use the safe version in qgarray.cpp
+
 #if !defined(CHECK_RANGE) && !defined(QGARRAY_CPP)
-char *QGArray::at( uint index ) const {
+inline char *QGArray::at( uint index ) const
+{
     return &p->data[index];
 }
 #endif
