@@ -439,6 +439,17 @@ as well as
 <a href=http://www.sun.com/software/white-papers/wp-unicode/>Unicode
 support in Solaris<sup class="tm"><font size="-1">TM</font></sup> 7</a>.
 
+
+<h2>Notes about locales on X11</h2>
+
+Many Unix distributations in only partial support for some locales -
+for example, if you have a <tt>/usr/share/locale/ja_JP.EUC</tt>
+directory, this does not necessarily mean you can display Japanese text
+- you also need JIS encoded fonts (or Unicode fonts), and that
+<tt>/usr/share/locale/ja_JP.EUC</tt> directory needs to be complete.
+For best results, use complete locales from your OS vendor.  
+
+
 <h2>Note about Kinput2 on X11</h2>
 
 If using the Kinput2 XIM Server, users may need to apply the
