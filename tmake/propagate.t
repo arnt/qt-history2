@@ -199,7 +199,7 @@ ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
 #$}
 
 #$ Substitute('../lib/libfreetype.a:');
-#$ Substitute('	cd 3rdparty/freetype2; make CONFIG_MK=config.mk ../../../lib/libfreetype.a');
+#$ Substitute('	cd 3rdparty/freetype2; make CONFIG_MK=config.mk LIB_DIR=../../../lib ../../../lib/libfreetype.a');
 
 moc: $(SRCMOC)
 
