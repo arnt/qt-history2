@@ -235,8 +235,6 @@ struct QListViewPrivate
     QListViewToolTip *toolTip;
     int pressedColumn;
     QListView::ResizeMode resizeMode;
-
-    QPoint lastMousePos;
 };
 
 #ifndef QT_NO_TOOLTIP
@@ -4441,9 +4439,7 @@ void QListView::contentsMouseMoveEvent( QMouseEvent * e )
 		 this, SLOT(doAutoScroll()) );
 	d->scrollTimer->start( 100, FALSE );
 	// call it once manually
-	d->lastMousePos = e->pos();
 	doAutoScroll();
-	d->lastMousePos = QPoint();
     }
 
     // if we don't need to autoscroll
@@ -4457,9 +4453,7 @@ void QListView::contentsMouseMoveEvent( QMouseEvent * e )
 	    d->scrollTimer = 0;
 	}
 	// call this to select an item
-	d->lastMousePos = e->pos();
 	doAutoScroll();
-	d->lastMousePos = QPoint();
     }
 }
 
@@ -4471,10 +4465,7 @@ void QListView::contentsMouseMoveEvent( QMouseEvent * e )
 
 void QListView::doAutoScroll()
 {
-    QPoint pos = d->lastMousePos;
-    if ( pos.isNull() )
-	pos = viewport()->mapFromGlobal( QCursor::pos() );
-
+    QPoint pos = viewport()->mapFromGlobal( QCursor::pos() );
     if ( !d->focusItem || ( d->pressedEmptyArea && pos.y() > contentsHeight() ) )
 	return;
 
