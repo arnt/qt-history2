@@ -1,7 +1,7 @@
 /*!
     \page plugins-howto.html
 
-\title Qt Plugins
+\title Qt Plugins Documentation
 
 Qt provides a simple plugin interface which makes it easy to create
 custom database drivers, image formats, text codecs, styles and
@@ -60,11 +60,14 @@ The constructor and destructor do not need to do anything, so are left
 empty. There are only two virtual functions that must be implemented.
 The first is keys() which returns a string list of the classes
 implemented in the plugin. (We've just implemented one class in the
-example above.) The second is create() which returns an object of the
+example above.) The second is a function that returns an object of the
 required class (or 0 if the plugin is asked to create an object of a
-class that it doesn't implement). It is possible to implement any
-number of plugin subclasses in a single plugin, providing they are all
-derived from the same base class, e.g. QStylePlugin.
+class that it doesn't implement). For QStylePlugin, this second
+function is called create(). 
+
+It is possible to implement any number of plugin subclasses in a
+single plugin, providing they are all derived from the same base
+class, e.g. QStylePlugin.
 
 For database drivers, image formats, custom widgets and text codecs,
 no explicit object creation is required. Qt will find and create them
@@ -79,6 +82,9 @@ see the \link designer-manual.book Qt Designer manual's\endlink,
 'Creating Custom Widgets' section in the 'Creating Custom Widgets'
 chapter, for a complete example of a QWidgetPlugin, which implements
 extra functions to integrate the plugin into \e{Qt Designer}.
+
+See the class documentation for details of the virtual functions that
+must be reimplemented for each type of plugin.
 
 Qt applications automatically know which plugins are available,
 because plugins are stored in the standard plugin subdirectories.

@@ -3,6 +3,26 @@
 #include "qobjectcleanuphandler.h"
 #include "qwidget.h"
 
+/*!   \class QWidgetPlugin qwidgetplugin.h
+  \brief The QWidgetPlugin class provides an abstract base for custom QWidget plugins.
+  \ingroup plugins
+
+  The widget plugin is a simple plugin interface that makes it easy to
+  create custom widgets that can be included in forms using \link
+  designer-manual.book Qt Designer\endlink and used by applications.
+
+  Writing a widget plugin is achieved by subclassing this base class,
+  reimplementing the pure virtual functions keys(), create(), group(),
+  iconSet(), includeFile(), toolTip(), whatsThis() and isContainer(),
+  and exporting the class with the Q_EXPORT_PLUGIN macro.
+
+    See the \link designer-manual.book Qt Designer manual's\endlink,
+    'Creating Custom Widgets' section in the 'Creating Custom Widgets'
+    chapter, for a complete example of a QWidgetPlugin.
+
+  See also the \link plugins-howto.html Plugins documentation\endlink.
+*/
+
 class QWidgetPluginPrivate : public QWidgetFactoryInterface, QLibraryInterface
 {
 public:
@@ -52,6 +72,26 @@ QRESULT QWidgetPluginPrivate::queryInterface( const QUuid &iid, QUnknownInterfac
     (*iface)->addRef();
     return QS_OK;
 }
+
+/*! \fn QStringList QWidgetPlugin::keys() const
+
+  Returns the list of widget keys this plugin supports.
+
+  These keys are usually the class names of the custom widgets that are
+  implemented in the plugin.
+
+  \sa create()
+*/
+
+/*! \fn QWidget *QWidgetPlugin::create( const QString, QWidget, const char )
+
+  Creates and returns a QWidget object for the widget key \a key. The
+  widget key is usually the class name of the required widget. The
+  \a name and \a parent arguments are passed to the custom widget's
+  constructor.
+
+  \sa keys()
+*/
 
 QWidgetPluginPrivate::~QWidgetPluginPrivate()
 {
@@ -116,42 +156,91 @@ bool QWidgetPluginPrivate::canUnload() const
 }
 
 
+/*!
+  Constructs a widget plugin. This is invoked automatically by
+  the Q_EXPORT_PLUGIN macro.
+*/
 QWidgetPlugin::QWidgetPlugin()
 {
     d = new QWidgetPluginPrivate( this );
     _iface = (QWidgetFactoryInterface*)d;
 }
 
+/*!
+  Destroys the widget plugin.
+
+  You never have to call this explicitly. Qt destroys a plugin
+  automatically when it is no longer used.
+
+*/
 QWidgetPlugin::~QWidgetPlugin()
 {
     // don't delete d, as this is deleted by d
 }
 
+/*!
+    Returns the group (toolbar name) that the custom widget called \a
+    key should be part of when \e{Qt Designer} loads it.
+
+    The default implementation returns a null string.
+*/
 QString QWidgetPlugin::group( const QString & ) const
 {
     return QString::null;
 }
 
+/*!
+    Returns the iconset that \e{Qt Designer} should use to represent
+    the custom widget called \a key in the toolbar.
+
+    The default implementation returns an null iconset.
+*/
 QIconSet QWidgetPlugin::iconSet( const QString & ) const
 {
     return QIconSet();
 }
 
+/*!
+    Returns the name of the include file that \e{Qt Designer} and \c
+    uic should use to include the custom widget called \a key in
+    generated code.
+
+    The default implementation returns a null string.
+*/
 QString QWidgetPlugin::includeFile( const QString & ) const
 {
     return QString::null;
 }
 
+/*!
+    Returns the text of the tooltip that \e{Qt Designer} should use
+    for the custom widget called \a key's toolbar button.
+
+    The default implementation returns a null string.
+*/
 QString QWidgetPlugin::toolTip( const QString & ) const
 {
     return QString::null;
 }
 
+/*!
+    Returns the text of the whatsThis text that \e{Qt Designer} should
+    use when the user requests whatsThis help for the custom widget
+    called \a key.
+
+    The default implementation returns a null string.
+*/
 QString QWidgetPlugin::whatsThis( const QString & ) const
 {
     return QString::null;
 }
 
+/*!
+    Returns TRUE if the custom widget called \a key can contain other
+    widgets, e.g. like QFrame; otherwise returns FALSE.
+
+    The default implementation returns FALSE.
+*/
 bool QWidgetPlugin::isContainer( const QString & ) const
 {
     return FALSE;

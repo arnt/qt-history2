@@ -5,17 +5,16 @@
 /*!   \class QImageFormatPlugin qimageformatplugin.h
   \brief The QImageFormatPlugin class provides an abstract base for custom image format plugins.
   \ingroup plugins
-  \mainclass
 
   The image format  plugin is a simple plugin interface that makes it easy to
-  create custom image formats  that can be loaded dynamically into
+  create custom image formats that can be used transparently by
   applications.
 
   Writing an image format plugin is achieved by subclassing this
-  baseclass, reimplementing the pure virtual functions keys() and
+  base class, reimplementing the pure virtual functions keys() and
   installIOHandler(), and exporting the class with the Q_EXPORT_PLUGIN
-  macro.  See the \link plugins-howto.html Plugins \endlink documentation
-  for details.
+  macro.  See the \link plugins-howto.html Plugins
+  documentation\endlink for details.
 */
 
 /*! \fn QStringList QImageFormatPlugin::keys() const
@@ -112,7 +111,7 @@ QImageFormatPlugin::QImageFormatPlugin()
 /*!
   Destroys the image format plugin.
 
-  You never have to call this explicitely. Qt destroys a plugin
+  You never have to call this explicitly. Qt destroys a plugin
   automatically when it is no longer used.
 
 */

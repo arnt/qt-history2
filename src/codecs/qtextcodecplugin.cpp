@@ -6,13 +6,13 @@
   \ingroup plugins
   \mainclass
 
-  The style plugin is a simple plugin interface that makes it easy to
+  The text codec plugin is a simple plugin interface that makes it easy to
   create custom text codecs that can be loaded dynamically into
   applications.
 
   Writing a text codec plugin is achieved by subclassing this
-  baseclass, reimplementing the pure virtual functions names(),
-  createForName(), mibEnums() and createForMib() , and exporting the
+  base class, reimplementing the pure virtual functions names(),
+  createForName(), mibEnums() and createForMib(), and exporting the
   class with the Q_EXPORT_PLUGIN macro.  See the \link plugins-howto.html Qt
   Plugins documentation \endlink for details.
 
@@ -32,7 +32,7 @@
 
 /*! \fn QTextCodec *QTextCodecPlugin::createForName( const QString &name );
 
-  Creates a QTextCodec object for \a name.
+  Creates a QTextCodec object for the codec called \a name.
 
   \sa names()
 */
@@ -49,7 +49,8 @@
 /*! \fn QTextCodec *QTextCodecPlugin::createForMib( int mib );
 
   Creates a QTextCodec object for the mib enum \a mib.
-  (see \link ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets
+
+  (See \link ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets
   the IANA character-sets encoding file\endlink for more information)
 
   \sa mibEnums()
@@ -132,7 +133,7 @@ QTextCodecPlugin::QTextCodecPlugin()
 /*!
   Destroys the text codec plugin.
 
-  You never have to call this explicitely. Qt destroys a plugin
+  You never have to call this explicitly. Qt destroys a plugin
   automatically when it is no longer used.
 
 */
