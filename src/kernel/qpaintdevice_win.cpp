@@ -221,6 +221,8 @@ void qt_AlphaBlend( HDC dst_dc, int dx, int dy, int sw, int sh, HDC src_dc, int 
 #endif
 }
 
+extern Qt::RasterOp qt_map_rop_for_bitmaps( Qt::RasterOp ); // defined in qpainter_win.cpp
+
 void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
 	     Qt::RasterOp rop, bool ignoreMask  )
@@ -420,14 +422,21 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	} else {
 	    // We can safely access hbm() here since multi cell pixmaps
 	    // are not used under NT.
-	    MaskBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
-		     sx, sy, MAKEROP4(0x00aa0000,ropCodes[rop]) );
+	    if ( td==QInternal::Pixmap && ((QPixmap *)dst)->isQBitmap() )
+		MaskBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
+			sx, sy, MAKEROP4(0x00aa0000,ropCodes[ qt_map_rop_for_bitmaps(rop) ]) );
+	    else
+		MaskBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
+			sx, sy, MAKEROP4(0x00aa0000,ropCodes[rop]) );
 	}
     } else {
 	if ( src_pm && src_pm->data->hasRealAlpha ) {
 	    qt_AlphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
 	} else {
-	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
+	    if ( td==QInternal::Pixmap && ((QPixmap *)dst)->isQBitmap() )
+		BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[ qt_map_rop_for_bitmaps(rop) ] );
+	    else
+		BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
 	}
     }
     if ( src_tmp )

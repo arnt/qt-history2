@@ -965,6 +965,36 @@ void QPainter::setBackgroundMode( BGMode m )
     SetBkMode( hdc, m == TransparentMode ? TRANSPARENT : OPAQUE );
 }
 
+/*
+  This function adjusts the raster operations for painting into a QBitmap on
+  Windows.
+
+  For bitmaps und Windows, color0 is 0xffffff and color1 is 0x000000 -- so we
+  have to use adjusted ROPs in this case to get the same effect as on Unix.
+*/
+Qt::RasterOp qt_map_rop_for_bitmaps( Qt::RasterOp r )
+{
+    static const Qt::RasterOp ropCodes[] = {
+	Qt::CopyROP,	// CopyROP
+	Qt::AndROP,		// OrROP
+	Qt::NotXorROP,	// XorROP
+	Qt::NotOrROP,	// NotAndROP
+	Qt::NotCopyROP,	// NotCopyROP
+	Qt::NotAndROP,	// NotOrROP
+	Qt::XorROP,	// NotXorROP
+	Qt::OrROP,	// AndROP
+	Qt::NotROP,	// NotROP
+	Qt::SetROP,	// ClearROP
+	Qt::ClearROP,	// SetROP
+	Qt::NopROP,	// NopROP
+	Qt::OrNotROP,	// AndNotROP
+	Qt::AndNotROP,	// OrNotROP
+	Qt::NorROP,	// NandROP
+	Qt::NandROP	// NorROP
+    };
+    return ropCodes[r];
+}
+
 void QPainter::setRasterOp( RasterOp r )
 {
     static const short ropCodes[] = {
@@ -984,26 +1014,6 @@ void QPainter::setRasterOp( RasterOp r )
 	R2_MERGEPENNOT,	// OrNotROP
 	R2_NOTMASKPEN,	// NandROP
 	R2_NOTMERGEPEN	// NorROP
-    };
-    // For bitmaps, color0 is 0xffffff and color1 is 0x000000 -- so we have to
-    // use adjusted ROPs in this case to get the same effect as on Unix.
-    static const short ropCodesBitmap[] = {
-	R2_COPYPEN,	// CopyROP
-	R2_MASKPEN,	// OrROP
-	R2_NOTXORPEN,	// XorROP
-	R2_MERGENOTPEN,	// NotAndROP
-	R2_NOTCOPYPEN,	// NotCopyROP
-	R2_MASKNOTPEN,	// NotOrROP
-	R2_XORPEN,	// NotXorROP
-	R2_MERGEPEN,	// AndROP
-	R2_NOT,		// NotROP
-	R2_WHITE,	// ClearROP
-	R2_BLACK,	// SetROP
-	R2_NOP,		// NopROP
-	R2_MERGEPENNOT,	// AndNotROP
-	R2_MASKPENNOT,	// OrNotROP
-	R2_NOTMERGEPEN,	// NandROP
-	R2_NOTMASKPEN	// NorROP
     };
 
     if ( !isActive() ) {
@@ -1026,9 +1036,9 @@ void QPainter::setRasterOp( RasterOp r )
 	    return;
     }
     if ( pdev->devType()==QInternal::Pixmap && ((QPixmap*)pdev)->isQBitmap() )
-	SetROP2( hdc, ropCodesBitmap[rop] );
+	SetROP2( hdc, ropCodes[ qt_map_rop_for_bitmaps(r) ] );
     else
-	SetROP2( hdc, ropCodes[rop] );
+	SetROP2( hdc, ropCodes[r] );
 }
 
 
