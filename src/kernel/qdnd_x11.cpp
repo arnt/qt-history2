@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#51 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -146,7 +146,7 @@ public:
 
 QShapedPixmapWidget * qt_xdnd_deco = 0;
 
-Q1String qt_xdnd_atom_to_str( Atom a )
+const char* qt_xdnd_atom_to_str( Atom a )
 {
     if ( !a ) return 0;
 
@@ -172,7 +172,7 @@ Q1String qt_xdnd_atom_to_str( Atom a )
 
 Atom* qt_xdnd_str_to_atom( const char *mimeType )
 {
-    if ( mimeType && *mimeType )
+    if ( !mimeType || !*mimeType )
 	return 0;
     if ( !qt_xdnd_atom_numbers ) {
 	qt_xdnd_atom_numbers = new QDict<Atom>( 17 );
