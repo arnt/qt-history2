@@ -59,9 +59,9 @@ public:
     display result sets from general SQL queries in data-aware Qt
     widgets. QSqlSelectCursor is read-only and does not support
     INSERT, UPDATE or DELETE operations.
-    
+
     Pass the query in at construction time, or use the QSqlSelectCursor::exec() function.
-    
+
     Example:
     \code
     ...
@@ -133,7 +133,7 @@ bool QSqlSelectCursor::select( const QString&, const QSqlIndex& )
 void QSqlSelectCursor::populateCursor()
 {
     QSqlRecordInfo inf = driver()->recordInfo( *(QSqlQuery*)this );
-    for ( QSqlRecordInfo::iterator it = inf.begin(); it != inf.end(); ++it )
+    for ( QSqlRecordInfo::const_iterator it = inf.begin(); it != inf.end(); ++it )
 	QSqlCursor::append( *it );
     d->populated = TRUE;
 }
