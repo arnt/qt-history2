@@ -97,6 +97,8 @@ private:
     double parseLen( const QString &str, bool *ok=0, bool horiz=TRUE ) const;
     int lenToInt( const QDomNamedNodeMap &map, const QString &attr,
 		  int def=0 ) const;
+    void setStyleProperty( const QString &prop, const QString &val,
+			   QPen *pen, QFont *font, int *talign );
     void setStyle( const QString &s );
     void setTransform( const QString &tr );
     void drawPath( const QString &data );

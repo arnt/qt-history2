@@ -635,10 +635,19 @@ bool QSvgDevice::play( const QDomNode &node )
 	pt->save();
 
 	QDomNamedNodeMap attr = child.attributes();
-	if ( attr.contains( "style" ) )
-	    setStyle( attr.namedItem( "style" ).nodeValue() );
-	if ( attr.contains( "transform" ) )
-	    setTransform( attr.namedItem( "transform" ).nodeValue() );
+	uint i = attr.length();
+	if ( i > 0 ) {
+	    QPen pen = pt->pen();
+	    QFont font = pt->font();
+	    while ( i-- ) {
+		QDomNode n = attr.item( i );
+		QString a = n.nodeName();
+		QString val = n.nodeValue().lower().stripWhiteSpace();
+		setStyleProperty( a, val, &pen, &font, &d->talign );
+	    }
+	    pt->setPen( pen );
+	    pt->setFont( font );
+	}
 
 	int x1, y1, x2, y2, rx, ry, w, h;
 	ElementType t = (*qSvgTypeMap)[ child.nodeName() ];
@@ -917,6 +926,55 @@ int QSvgDevice::lenToInt( const QDomNamedNodeMap &map, const QString &attr,
     return def;
 }
 
+void QSvgDevice::setStyleProperty( const QString &prop, const QString &val,
+				   QPen *pen, QFont *font, int *talign )
+{
+    if ( prop == "stroke" ) {
+	if ( val == "none" ) {
+	    pen->setStyle( Qt::NoPen );
+	} else {
+	    pen->setColor( parseColor( val ));
+	    if ( pen->style() == Qt::NoPen )
+		pen->setStyle( Qt::SolidLine );
+	    if ( pen->width() == 0 )
+		pen->setWidth( 1 );
+	}
+    } else if ( prop == "stroke-width" ) {
+	pen->setWidth( int(parseLen( val )) );
+    } else if ( prop == "stroke-linecap" ) {
+	if ( val == "butt" )
+	    pen->setCapStyle( Qt::FlatCap );
+	else if ( val == "round" )
+	    pen->setCapStyle( Qt::RoundCap );
+	else if ( val == "square" )
+	    pen->setCapStyle( Qt::SquareCap );
+    } else if ( prop == "stroke-linejoin" ) {
+	if ( val == "miter" )
+	    pen->setJoinStyle( Qt::MiterJoin );
+	else if ( val == "round" )
+	    pen->setJoinStyle( Qt::RoundJoin );
+	else if ( val == "bevel" )
+	    pen->setJoinStyle( Qt::BevelJoin );
+    } else if ( prop == "fill" ) {
+	if ( val == "none" )
+	    pt->setBrush( Qt::NoBrush );
+	else
+	    pt->setBrush( parseColor( val ) );
+    } else if ( prop == "font-size" ) {
+	// ### pixel size seems more logical but produces bad results
+	font->setPointSizeFloat( float(parseLen( val )) );
+    } else if ( prop == "font-family" ) {
+	font->setFamily( val );
+    } else if ( prop == "text-anchor" ) {
+	if ( val == "middle" )
+	    *talign = Qt::AlignHCenter;
+	else if ( val == "end" )
+	    *talign = Qt::AlignRight;
+	else
+	    *talign = Qt::AlignLeft;
+    }
+}
+
 void QSvgDevice::setStyle( const QString &s )
 {
     QStringList rules = QStringList::split( QRegExp( ";" ), s );
@@ -931,50 +989,7 @@ void QSvgDevice::setStyle( const QString &s )
 	    QString prop = (*it).left( col ).simplifyWhiteSpace();
 	    QString val = (*it).right( (*it).length() - col - 1 );
 	    val = val.lower().stripWhiteSpace();
-	    if ( prop == "stroke" ) {
-		if ( val == "none" ) {
-		    pen.setStyle( Qt::NoPen );
-		} else {
-		    pen.setColor( parseColor( val ));
- 		    if ( pen.style() == Qt::NoPen )
- 			pen.setStyle( Qt::SolidLine );
-		    if ( pen.width() == 0 )
- 			pen.setWidth( 1 );
-		}
-	    } else if ( prop == "stroke-width" ) {
-		pen.setWidth( int(parseLen( val )) );
-	    } else if ( prop == "stroke-linecap" ) {
-		if ( val == "butt" )
-		    pen.setCapStyle( Qt::FlatCap );
-		else if ( val == "round" )
-		    pen.setCapStyle( Qt::RoundCap );
-		else if ( val == "square" )
-		    pen.setCapStyle( Qt::SquareCap );
-	    } else if ( prop == "stroke-linejoin" ) {
-		if ( val == "miter" )
-		    pen.setJoinStyle( Qt::MiterJoin );
-		else if ( val == "round" )
-		    pen.setJoinStyle( Qt::RoundJoin );
-		else if ( val == "bevel" )
-		    pen.setJoinStyle( Qt::BevelJoin );
-	    } else if ( prop == "fill" ) {
-		if ( val == "none" )
-		    pt->setBrush( Qt::NoBrush );
-		else
-		    pt->setBrush( parseColor( val ));
-	    } else if ( prop == "font-size" ) {
-		// ### pixel size seems more logical but produces bad results
-		font.setPointSizeFloat( float(parseLen( val )) );
-	    } else if ( prop == "font-family" ) {
-		font.setFamily( val );
-	    } else if ( prop == "text-anchor" ) {
-		if ( val == "middle" )
-		    d->talign = Qt::AlignHCenter;
-		else if ( val == "end" )
-		    d->talign = Qt::AlignRight;
-		else
-		    d->talign = Qt::AlignLeft;
-	    }
+	    setStyleProperty( prop, val, &pen, &font, &d->talign );
 	}
     }
 
