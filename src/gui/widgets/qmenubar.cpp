@@ -35,10 +35,11 @@
 
 QAction *QMenuBarPrivate::actionAt(QPoint p) const
 {
-    for (QMap<QAction*, QRect>::const_iterator i = actionRects.begin();
-         i != actionRects.constEnd(); ++i) {
-        if(i.value().contains(p))
-            return i.key();
+    Q_Q(QMenuBar);
+    QList<QAction*> items = q->actions();
+    for(int i = 0; i < items.size(); ++i) {
+        if(actionRect(items.at(i)).contains(p))
+            return items.at(i);
     }
     return 0;
 }
