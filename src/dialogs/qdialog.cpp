@@ -973,6 +973,30 @@ QSize QDialog::minimumSizeHint() const
     return QWidget::minimumSizeHint();
 }
 
+/*! \property QDialog::modal
+    \brief whether show() should pop up the dialog as modal or modeless
+
+    By default, this property is false and show() pops up the dialog as
+    modeless.
+
+    exec() ignores the value of this property and always pops up the
+    dialog as modal.
+
+    \sa show(), exec()
+*/
+
+void QDialog::setModal( bool modal )
+{
+    if ( modal )
+	setWFlags( WShowModal );
+    else
+	clearWFlags( WShowModal );
+}
+
+bool QDialog::isModal() const
+{
+    return testWFlags( WShowModal ) != 0;
+}
 
 bool QDialog::isSizeGripEnabled() const
 {
