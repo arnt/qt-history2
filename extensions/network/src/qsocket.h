@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocket.h#4 $
+** $Id: //depot/qt/main/extensions/network/src/qsocket.h#5 $
 **
 ** Implementation of Network Extension Library
 **
@@ -50,7 +50,7 @@ public:
     Mode	 mode() const;
     void	 setMode( Mode );
 
-    bool	 connectToHost( const QString &host, int port );
+    void	 connectToHost( const QString &host, int port );
     QString	 host() const;
     int		 port() const;
 
@@ -93,6 +93,9 @@ protected:
     QSocketDevice *socketDevice();
     void	  timerEvent( QTimerEvent * );
 
+private slots:
+    void	tryConnecting();
+
 private:
     QSocketPrivate *d;
 
@@ -100,7 +103,7 @@ private:
     bool	 skipWriteBuf( int nbytes );
     bool	 scanNewline( QByteArray * = 0 );
     bool firstTime;
-    
+
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QSocket( const QSocket & );

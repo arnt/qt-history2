@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qserversocket.h#4 $
+** $Id: //depot/qt/main/extensions/network/src/qserversocket.h#5 $
 **
 ** Implementation of Network Extension Library
 **
@@ -51,7 +51,7 @@ public:
 
 protected:
     QSocketDevice *socketDevice();
-    virtual bool accept( const QSocketAddress & ) const;
+    virtual bool accept() const;
 
 protected slots:
     void	 incomingConnection( int socket );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#5 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#6 $
 **
 ** Implementation of Network Extension Library
 **
@@ -31,37 +31,10 @@
 #include "qstring.h"
 #endif // QT_H
 
-
-class QSocketAddress
-{
-public:
-    QSocketAddress();
-    QSocketAddress( int port, uint ip4Addr=0 );
-    QSocketAddress( const QSocketAddress & );
-   ~QSocketAddress();
-
-    QSocketAddress & operator=( const QSocketAddress & );
-
-    int		 port()		 const;
-    uint	 ip4Addr()	 const;
-    QString	 ip4AddrString() const;
-
-    bool	 operator==( const QSocketAddress & );
-
-protected:
-    void	*data()    const { return ptr; }
-    int		 length()  const { return len; }
-    void	 setData( void *, int );
-
-private:
-    char	*ptr;
-    int		 len;
-
-    friend class QSocketDevice;
-};
+#include "qhostaddress.h"
 
 
-class QSocketDevice : public QIODevice
+class Q_EXPORT QSocketDevice: public QIODevice
 {
 friend class QSocket;
 
@@ -87,29 +60,28 @@ public:
     bool	 at( int );
     bool	 atEnd() const;
 
-    bool	 nonblocking() const;
-    virtual void setNonblocking( bool );
+    bool	 blocking() const;
+    virtual void setBlocking( bool );
 
-    enum Option { Broadcast, Debug, DontRoute, KeepAlive, Linger,
-		  OobInline, ReceiveBuffer, ReuseAddress, SendBuffer };
+    bool	 addressReusable() const;
+    virtual void setAddressReusable( bool );
 
-    int		 option( Option ) const;
-    virtual void setOption( Option, int );
+    int		 receiveBufferSize() const;
+    virtual void setReceiveBufferSize( uint );
+    int		 sendBufferSize() const;
+    virtual void setSendBufferSize( uint );
 
-    /*
-    enum Error { OK, InProgress, Failed };
-    Error	 lastError() const;
-    */
+    virtual bool connect( const QHostAddress &, uint );
 
-    bool	 connect( const QSocketAddress & );
-
-    virtual bool bind( const QSocketAddress & );
+    virtual bool bind( const QHostAddress &, uint );
     virtual bool listen( int backlog );
-    virtual int	 accept( QSocketAddress * );
+    virtual int	 accept();
 
     int		 bytesAvailable() const;
     int		 readBlock( char *data, uint maxlen );
     int		 writeBlock( const char *data, uint len );
+    virtual int  writeBlock( const char *data, uint len,
+			    const QHostAddress & host, uint port );
 
     int		 getch();
     int		 putch( int );
@@ -119,7 +91,10 @@ private:
     Type	 sock_type;
     int		 sock_fd;
 
-    static bool	initWinSock();
+    enum Option { Broadcast, ReceiveBuffer, ReuseAddress, SendBuffer };
+
+    int		 option( Option ) const;
+    virtual void setOption( Option, int );
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

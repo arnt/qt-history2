@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qserversocket.cpp#4 $
+** $Id: //depot/qt/main/extensions/network/src/qserversocket.cpp#5 $
 **
 ** Implementation of Network Extension Library
 **
@@ -30,7 +30,8 @@ class QServerSocketPrivate {
 public:
     QServerSocketPrivate() { socket=0; sn=0; }
     QSocketDevice *socket;
-    QSocketAddress addr;
+    QHostAddress addr;
+    uint port;
     QSocketNotifier *sn;
 };
 
@@ -63,8 +64,8 @@ QServerSocket::QServerSocket( QObject *parent, const char *name )
 
 
 /*!
-  Creates a server socket object, that will server the
-  given \a port. The server is not started until start() is called.
+  Creates a server socket object, that will server the given \a port.
+  The server is not started until start() is called.
 
   The \a parent and \a name arguments are passed on as usual
   to the QObject constructor.
@@ -76,7 +77,9 @@ QServerSocket::QServerSocket( int port, QObject *parent,
 {
     d = new QServerSocketPrivate;
     d->socket = new QSocketDevice;
-    d->addr = QSocketAddress( port );
+    d->addr = QHostAddress( 0 );
+    d->port = port;
+    
 }
 
 /*!
@@ -87,22 +90,30 @@ QServerSocket::QServerSocket( int port, QObject *parent,
 
   Returns TRUE if the server succeeds in binding to the required resources.
 */
-bool QServerSocket::start(int backlog)
+bool QServerSocket::start( int backlog )
 {
-    if ( !d->socket->bind( d->addr ) )
+    if ( !d->socket->bind( d->addr, d->port ) )
 	return FALSE;
     d->socket->listen( backlog );
-    d->sn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read, this );
+    d->sn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read, 
+				 this, "accepting new connections" );
     connect( d->sn, SIGNAL(activated(int)),
 	     this, SLOT(incomingConnection(int)) );
     return TRUE;
 }
 
+
 /*!
   Destructs the socket.
-  \internal
-     ##### what happens to connection?
+
+  This brutally severes any backlogged connections (connections that
+  have reached the host, but not yet been completely set up by calling
+  accept()).
+
+  Existing connections continue to exist; this only affects acceptance
+  of new connections.
 */
+
 QServerSocket::~QServerSocket()
 {
     delete d;
@@ -111,7 +122,7 @@ QServerSocket::~QServerSocket()
 
 int QServerSocket::port() const
 {
-    return d->addr.port();
+    return d->port;
 }
 
 
@@ -122,7 +133,7 @@ void QServerSocket::setPort( int port )
 
 void QServerSocket::newConnection( int socket )
 {
-    QSocketDevice s(socket,QSocketDevice::Stream);
+    QSocketDevice s( socket, QSocketDevice::Stream );
     s.close();
 }
 
@@ -136,7 +147,7 @@ QSocketDevice *QServerSocket::socketDevice()
 }
 
 
-bool QServerSocket::accept( const QSocketAddress & ) const
+bool QServerSocket::accept() const
 {
     return TRUE;
 }
@@ -144,7 +155,6 @@ bool QServerSocket::accept( const QSocketAddress & ) const
 
 void QServerSocket::incomingConnection( int socket )
 {
-    QSocketAddress addr;
-    int fd=d->socket->accept(&addr);
-    newConnection(fd);
+    int fd = d->socket->accept();
+    newConnection( fd );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#44 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#45 $
 **
 ** Implementation of Network Extension Library
 **
@@ -114,6 +114,9 @@ bool QFtp::checkConnection( QNetworkOperation *op )
 	return FALSE;
 
     connectionReady = FALSE;
+    commandSocket->connectToHost( url()->host(),
+				  url()->port() != -1 ? url()->port() : 21 );
+#if 0
     if ( commandSocket->connectToHost( url()->host(), url()->port() != -1 ? url()->port() : 21 ) ) {
 	if ( !dataSocket->host().isEmpty() )
 	    dataSocket->close();
@@ -123,6 +126,7 @@ bool QFtp::checkConnection( QNetworkOperation *op )
 	op->setProtocolDetail( msg );
 	op->setErrorCode( ErrHostNotFound );
     }
+#endif
 
     return FALSE;
 }
