@@ -416,6 +416,9 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	ff = FindFirstFileA(qt_win95Name(p),(WIN32_FIND_DATAA*)&finfo);
     }
     if ( ff == FF_ERROR ) {
+	// if it is a floppy disk drive, it might just not have a file on it
+	if ( plen > 1 && p[ 1 ] == ':' )
+	    return TRUE;
 #if defined(CHECK_RANGE)
 	qWarning( "QDir::readDirEntries: Cannot read the directory: %s (UTF8)",
 		  dPath.utf8().data() );
