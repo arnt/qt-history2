@@ -95,6 +95,11 @@ Qt 3.3.x does no longer officially support IRIX MIPSpro o32 or Sun CC
   now "menuText" set explicitly encode the '&' to "&&" so that the ampersand
   is visible in the menu.
 
+- QVariant
+  Compariason between variants where one of the variants is a numeric value will
+  compare on the numeric value. 
+  Type casting between different variants is made more consistent.
+
 - QHeader
   The sizeChange() signal is emitted when the section sizes are adjusted by
   double clicking.
