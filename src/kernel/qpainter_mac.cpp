@@ -61,6 +61,8 @@ QRegion make_region(RgnHandle handle);
 void unclippedBitBlt( QPaintDevice *dst, int dx, int dy,
 		      const QPaintDevice *src, int sx, int sy, int sw, int sh,
 		      Qt::RasterOp rop, bool imask);
+RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
+void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 
 #ifdef Q_WS_MAC9
 #define QMAC_NO_CACHE_TEXT_XFORM
@@ -726,7 +728,7 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
     if(paintreg.isEmpty())
 	return;
 
-    RgnHandle polyRegion = NewRgn();
+    RgnHandle polyRegion = qt_mac_get_rgn();
     OpenRgn();
     uint loopc;
     MoveTo( a[0].x()+offx, a[0].y()+offy );
@@ -793,7 +795,7 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 	updatePen();
 	FrameRgn( polyRegion );
     }
-    DisposeRgn( polyRegion );
+    qt_mac_dispose_rgn( polyRegion );
 }
 #else //!QMAC_NO_QUARTZ
 //FIXME

@@ -43,7 +43,7 @@
 static bool rgncache_init=FALSE;
 static int rgncache_used;
 static RgnHandle rgncache[RGN_CACHE_SIZE];
-void cleanup_rgncache() {
+static void qt_mac_cleanup_rgncache() {
     for(int i = 0; i < RGN_CACHE_SIZE; i++) {
 	if(rgncache[i]) {
 	    rgncache_used--;
@@ -52,14 +52,14 @@ void cleanup_rgncache() {
 	}
     }
 }
-inline RgnHandle get_rgn() {
+RgnHandle qt_mac_get_rgn() {
     RgnHandle ret = NULL;
     if(!rgncache_init) {
 	rgncache_used = 0;
 	rgncache_init = TRUE;
 	for(int i = 0; i < RGN_CACHE_SIZE; i++) 
 	    rgncache[i] = 0;
-	qAddPostRoutine(cleanup_rgncache);
+	qAddPostRoutine(qt_mac_cleanup_rgncache);
     } else if(rgncache_used) {
 	for(int i = 0; i < RGN_CACHE_SIZE; i++) {
 	    if(rgncache[i]) {
@@ -75,7 +75,7 @@ inline RgnHandle get_rgn() {
 	ret = NewRgn();
     return ret;
 }
-inline void dispose_rgn(RgnHandle r) {
+void qt_mac_dispose_rgn(RgnHandle r) {
     if(rgncache_init && rgncache_used < RGN_CACHE_SIZE) {
 	for(int i = 0; i < RGN_CACHE_SIZE; i++) {
 	    if(!rgncache[i]) {
@@ -120,7 +120,7 @@ QRegion::QRegion(RgnHandle rgn)
     Q_CHECK_PTR(data);
     data->is_null = FALSE;
     data->is_rect = FALSE;
-    data->rgn = get_rgn();
+    data->rgn = qt_mac_get_rgn();
     CopyRgn(rgn, data->rgn);
 }    
 
@@ -134,7 +134,7 @@ QRegion::rectifyRegion()
 	data->is_null = FALSE;
     }
     data->is_rect = FALSE;
-    data->rgn = get_rgn();
+    data->rgn = qt_mac_get_rgn();
     if(!data->rect.isEmpty()) {
 	Rect rect;
 	SetRect(&rect, data->rect.x(), data->rect.y(), 
@@ -167,7 +167,7 @@ QRegion::QRegion( bool is_null )
 	data->rect = QRect();
     } else {
 	data->is_rect = FALSE;
-	data->rgn = get_rgn();
+	data->rgn = qt_mac_get_rgn();
     }
 }
 
@@ -184,7 +184,7 @@ QRegion::QRegion( const QRect &r, RegionType t )
 	Rect rect;
 	SetRect(&rect, rr.x(), rr.y(), rr.right()+1, rr.bottom()+1);
 	data->is_rect = FALSE;
-	data->rgn = get_rgn();
+	data->rgn = qt_mac_get_rgn();
 	OpenRgn();
 	FrameOval(&rect);
 	CloseRgn(data->rgn);
@@ -197,7 +197,7 @@ QRegion::QRegion( const QPointArray &a, bool winding)
     Q_CHECK_PTR( data );
     data->is_null = FALSE;
     data->is_rect = FALSE;
-    data->rgn = get_rgn();
+    data->rgn = qt_mac_get_rgn();
 
     OpenRgn();
     MoveTo( a[0].x(), a[0].y() );
@@ -221,13 +221,13 @@ static RgnHandle qt_mac_bitmapToRegion(const QBitmap& bitmap)
 {
     QImage image = bitmap.convertToImage();
 
-    RgnHandle region = get_rgn(), rr;
+    RgnHandle region = qt_mac_get_rgn(), rr;
 
 #define AddSpan \
 	{ \
     	   Rect rect; \
 	   SetRect(&rect, prev1, y, (x-1)+1, (y+1)); \
-	   rr = get_rgn(); \
+	   rr = qt_mac_get_rgn(); \
     	   OpenRgn(); \
 	   FrameRect(&rect); \
 	   CloseRgn(rr); \
@@ -301,7 +301,7 @@ QRegion::QRegion( const QBitmap &bm )
     data->is_null = FALSE;
     data->is_rect = FALSE;
 #if 0 //this should work, but didn't
-    data->rgn = get_rgn();
+    data->rgn = qt_mac_get_rgn();
     BitMapToRegion(data->rgn, (BitMap *)*GetGWorldPixMap((GWorldPtr)bm.handle()));
 #else
     data->rgn = qt_mac_bitmapToRegion(bm);
@@ -313,7 +313,7 @@ QRegion::~QRegion()
 {
     if ( data->deref() ) {
 	if(!data->is_rect)
-	    dispose_rgn( data->rgn );
+	    qt_mac_dispose_rgn( data->rgn );
 	delete data;
     }
 }
@@ -324,7 +324,7 @@ QRegion &QRegion::operator=( const QRegion &r )
     r.data->ref();				// beware of r = r
     if ( data->deref() ) {
 	if(!data->is_rect)
-	    dispose_rgn( data->rgn );
+	    qt_mac_dispose_rgn( data->rgn );
 	delete data;
     }
     data = r.data;
@@ -466,12 +466,12 @@ QRect QRegion::boundingRect() const
 }
 
 typedef QValueList<QRect> RectList;
-static OSStatus mac_get_rgn_rect(UInt16 msg, RgnHandle, const Rect *rect, void *myd)
+static OSStatus qt_mac_get_rgn_rect(UInt16 msg, RgnHandle, const Rect *rect, void *myd)
 {
     if(msg == kQDRegionToRectsMsgParse) {
 	RectList *rl = (RectList *)myd;
-	rl->append(QRect(rect->left, rect->top, rect->right - rect->left, 
-			 rect->bottom - rect->top));
+	rl->append(QRect(rect->left, rect->top, (rect->right - rect->left), 
+			 (rect->bottom - rect->top)));
     }
     return noErr;
 }
@@ -487,7 +487,7 @@ QArray<QRect> QRegion::rects() const
     //get list
     RectList rl;
     OSStatus oss;
-    RegionToRectsUPP cbk = NewRegionToRectsUPP(mac_get_rgn_rect);
+    RegionToRectsUPP cbk = NewRegionToRectsUPP(qt_mac_get_rgn_rect);
     oss = QDRegionToRects(data->rgn, kQDParseRegionFromTopLeft, cbk, (void *)&rl);
     DisposeRegionToRectsUPP(cbk);
 

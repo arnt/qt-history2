@@ -62,7 +62,6 @@
  *****************************************************************************/
 //#define DEBUG_WINDOW_RGNS
 
-
 /*****************************************************************************
   QWidget globals
  *****************************************************************************/
@@ -72,14 +71,14 @@ QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
 int mac_window_count = 0;
 
-
-
 /*****************************************************************************
   Externals
  *****************************************************************************/
 void qt_event_request_updates();
 void qt_event_request_updates(QWidget *w, QRegion &r);
 bool qt_nograb();
+RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
+void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 
 /*****************************************************************************
   QWidget utility functions
@@ -192,10 +191,11 @@ void qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_ForceErase)
 	    p->extra->dirty_area -= r;
 	bool erase = !(ops & PC_NoErase) && ((ops & PC_ForceErase) || !p->testWFlags(QWidget::WRepaintNoErase));
 	if((ops & PC_NoPaint)) {
-	    if(erase)
+	    if(erase) 
 		p->erase(r);
 	} else {
 	    if(ops & PC_Now) {
+		clean_wndw_rgn("**paint_children",p, r);
 		p->repaint(r, erase);
 	    } else {
 		bool painted = FALSE;
@@ -1265,23 +1265,23 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    bltregion.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
 		bltregion &= clpreg;
 		{   //can't blt that which is dirty
-		    RgnHandle r = NewRgn();
+		    RgnHandle r = qt_mac_get_rgn();
 		    GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, r);
 		    if(!EmptyRgn(r)) {
 			QRegion dirty(r); //the dirty region
-			dirty.translate(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
+			dirty.translate(-topLevelWidget()->geometry().x(), 
+					-topLevelWidget()->geometry().y());
 			if(isMove && !isTopLevel()) //need to be in new coords
 			    dirty.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
 			bltregion -= dirty;
 		    }
-		    DisposeRgn(r);
+		    qt_mac_dispose_rgn(r);
 		}
 
 		if(isMove && !no_move_blt && !isTopLevel()) {
 		    QWidget *parent = parentWidget() ? parentWidget() : this;
 		    QPoint tp(posInWindow(parent));
 		    int px = tp.x(), py = tp.y();
-
 #ifdef QMAC_NO_QUARTZ
 		    //save the window state, and do the grunt work
 		    int ow = olds.width(), oh = olds.height();
@@ -1310,6 +1310,16 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 #endif
 		}
 	    }
+	    if(!isTopLevel() || !QDIsPortBuffered(GetWindowPort((WindowPtr)hd))) {
+		//finally issue "expose" event
+		QRegion upd((oldregion + clpreg) - bltregion);
+		if(isResize && !testWFlags(WStaticContents))
+		    upd += clippedRegion();
+		qt_dirty_wndw_rgn("internalSetGeometry",this, upd);
+		//and force the update
+		if(isResize || 1)
+		    qt_event_request_updates();
+	    }
 	    //Do these last, as they may cause an event which paints, and messes up
 	    //what we blt above
 	    if ( isMove ) { //send the move event..
@@ -1319,17 +1329,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    if ( isResize ) { //send the resize event..
 		QResizeEvent e( size(), olds );
 		QApplication::sendEvent( this, &e );
-	    }
-	    if(!isTopLevel() || !QDIsPortBuffered(GetWindowPort((WindowPtr)hd)))
-	    {
-		//finally issue "expose" event
-		QRegion upd((oldregion + clpreg) - bltregion);
-		if(isResize && !testWFlags(WStaticContents))
-		    upd += clippedRegion();
-		qt_dirty_wndw_rgn("internalSetGeometry",this, upd);
-		//and force the update
-		if(isResize)
-		    qt_event_request_updates();
 	    }
 	}
     }
@@ -1607,12 +1606,12 @@ void QWidget::updateFrameStrut() const
     if(isTopLevel()) {
 	Rect window_r, content_r;
 	//get bounding rects
-	RgnHandle rgn = NewRgn();
+	RgnHandle rgn = qt_mac_get_rgn();
 	GetWindowRegion((WindowPtr)hd, kWindowStructureRgn, rgn);
 	GetRegionBounds(rgn, &window_r);
 	GetWindowRegion((WindowPtr)hd, kWindowContentRgn, rgn);
 	GetRegionBounds(rgn, &content_r);
-	DisposeRgn(rgn);
+	qt_mac_dispose_rgn(rgn);
 	//put into qt structure
 	top->fleft = content_r.left - window_r.left;
 	top->ftop = content_r.top - window_r.top;
@@ -1857,13 +1856,13 @@ QRegion QWidget::clippedRegion(bool do_children)
 
 	if(isTopLevel()) {
 	    QRegion contents;
-	    RgnHandle r = NewRgn();
+	    RgnHandle r = qt_mac_get_rgn();
 	    GetWindowRegion((WindowPtr)hd, kWindowContentRgn, r);
 	    if(!EmptyRgn(r)) {
 		contents = QRegion(r);
 		contents.translate(-geometry().x(), -geometry().y());
 	    }
-	    DisposeRgn(r);
+	    qt_mac_dispose_rgn(r);
 	    extra->clip_sibs &= contents;
 	}
 	else if(parentWidget()) {
