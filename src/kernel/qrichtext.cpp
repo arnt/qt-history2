@@ -1990,7 +1990,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    }
 		}
 
-		if ( c == '\n' ) 
+		if ( c == '\n' )
 		    break;  // break on  newlines, pre delievers a QChar_linesep
 
 		bool c_isSpace = c.isSpace() && c.unicode() != 0x00a0U && !textEditMode;
@@ -4143,7 +4143,7 @@ void QTextParag::move( int &dy )
 
 void QTextParag::format( int start, bool doMove )
 {
-    if ( !str || str->length() == 0 || !formatter() || (hasdoc && document()->visibleWidth() == 0 ) )
+    if ( !str || str->length() == 0 || !formatter() ) 
 	return;
 
     if ( hasdoc &&
@@ -4195,7 +4195,7 @@ void QTextParag::format( int start, bool doMove )
 	// always extend completely to the right. This is a bit unefficient,
 	// as this results in a bigger double buffer than needed but ok for
 	// now.
-	if ( lineStarts.count() == 1 ) { 
+	if ( lineStarts.count() == 1 ) {
 	    if ( !string()->isBidi() ) {
 		c = &str->at( str->length() - 1 );
 		r.setWidth( c->x + str->width( str->length() - 1 ) );
@@ -5153,7 +5153,7 @@ QString QTextParag::richText() const
 	else if ( c->isCustom() )
 	    s += c->customItem()->richText();
 	else if ( c->c == '\n' || c->c == QChar_linesep )
-	    s += "<br />"; // space on purpose for compatibility with Netscape, Lynx & Co. 
+	    s += "<br />"; // space on purpose for compatibility with Netscape, Lynx & Co.
 	else
 	    s += c->c;
     }
@@ -5733,7 +5733,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	}
 #endif
 
-	if ( lastChr == QChar_linesep ||  
+	if ( lastChr == QChar_linesep ||
 	     ( wrapEnabled && ( wrapAtColumn() == -1 && x + ww > w ||
 			wrapAtColumn() != -1 && col >= wrapAtColumn() ) ) ) {
 	    x = doc ? parag->document()->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
@@ -5923,7 +5923,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		minw = QMAX( minw, tw );
 	}
 
-	if ( lastChr == QChar_linesep || 
+	if ( lastChr == QChar_linesep ||
 	     ( wrapEnabled && ( !c->c.isSpace() || lastBreak == -2 )
 	       && ( lastBreak != -1 || allowBreakInWords() ) &&
 	       ( wrapAtColumn() == -1 && x + ww > w && lastBreak != -1 ||
