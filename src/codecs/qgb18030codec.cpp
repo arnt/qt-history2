@@ -111,7 +111,7 @@
 */
 
 #if (QT_VERSION-0 >= 400)
-#error "move obsolete header <qgbkcodec.h>" into the src/compat directory"
+#error "move obsolete header <qgbkcodec.h> into the src/compat directory"
 #endif
 
 
