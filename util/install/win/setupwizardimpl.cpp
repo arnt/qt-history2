@@ -601,10 +601,10 @@ void SetupWizardImpl::clickedPath()
 	dest = "C:\\Qt";
     if ( dest.right(1) == "\\" )
 	dest += "Qt";
-    if ( dest.contains( QRegExp( "\\s" ) ) )
-	QMessageBox::warning( 0, "Invalid directory", "No whitespace is allowed in the directory name" );
-    else if ( dest.contains( "-" ) )
-	QMessageBox::warning( 0, "Invalid directory", "No '-' characters are allowed in the directory name" );
+    if ( dest.contains( QRegExp( "\\s" ) ) && !optionsPage->sysBorland->isChecked() )
+	QMessageBox::warning( 0, "Invalid directory", "No whitespace is allowed in the directory name due to a limitation with MSVC" );
+    else if ( dest.contains( "-" ) && optionsPage->sysBorland->isChecked() )
+	QMessageBox::warning( 0, "Invalid directory", "No '-' characters are allowed in the directory name due to a limitation with the Borland linker" );
     else {
 	dir.setPath( dest );
 	optionsPage->installPath->setText( QDir::convertSeparators(dir.absPath()) );
