@@ -260,4 +260,3 @@ bool qInvokeMetaMember(QObject *obj, const char *member, Qt::ConnectionType type
     }
     return true;
 }
-

@@ -1604,5 +1604,3 @@ const char* QMetaClassInfo::value() const
         return 0;
     return mobj->d.stringdata + mobj->d.data[handle + 1];
 }
-
-

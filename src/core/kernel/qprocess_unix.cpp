@@ -32,7 +32,6 @@
 
 #include <stdlib.h>
 #include <errno.h>
-#include <sys/types.h>
 
 #ifdef __MIPSEL__
 # ifndef SOCK_DGRAM

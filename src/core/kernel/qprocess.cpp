@@ -11,14 +11,14 @@
 **
 ****************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "qprocess.h"
 
 #ifndef QT_NO_PROCESS
 
 #include "private/qinternal_p.h"
+
+#include <stdio.h>
+#include <stdlib.h>
 
 
 //#define QT_QPROCESS_DEBUG

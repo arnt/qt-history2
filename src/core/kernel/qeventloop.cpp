@@ -14,10 +14,8 @@
 #include "qeventloop.h"
 #include "qeventloop_p.h"
 #include "qcoreapplication.h"
-
-#include <qdatetime.h>
-#include <qhash.h>
-#include <qthread.h>
+#include "qdatetime.h"
+#include "qthread.h"
 #include <private/qthread_p.h>
 #include <private/qspinlock_p.h>
 

@@ -11,13 +11,10 @@
 **
 ****************************************************************************/
 
+#include "qplatformdefs.h"
 #include "qsocketnotifier.h"
 #include "qcoreapplication.h"
 #include "qeventloop.h"
-
-#if defined(Q_OS_UNIX)
-#include <sys/types.h>
-#endif
 
 
 /*!

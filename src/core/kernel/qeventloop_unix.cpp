@@ -16,12 +16,11 @@
 #include "qcoreapplication.h"
 #include "qbitarray.h"
 #include "qcoreevent.h"
-#include "qmutex.h"
+#include "qsocketnotifier.h"
+#include "qthread.h"
 #include <stdlib.h>
 #include <errno.h>
-#include <sys/types.h>
-#include "qsocketnotifier.h"
-#include <qthread.h>
+
 #define d d_func()
 #define q q_func()
 

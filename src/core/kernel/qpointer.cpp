@@ -188,4 +188,3 @@
     function you can pass a QPointer\<T\> to a function where a T*
     is required.
 */
-

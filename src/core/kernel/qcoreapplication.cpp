@@ -15,14 +15,12 @@
 #include "qcoreapplication_p.h"
 #include "qcoreevent.h"
 #include "qeventloop.h"
-
 #include <qdatastream.h>
 #include <qdir.h>
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qhash.h>
 #include <qtextcodec.h>
-
 #include <qthread.h>
 #include <qthreadstorage.h>
 #include <private/qthread_p.h>
@@ -1366,4 +1364,5 @@ void QCoreApplication::removeLibraryPath(const QString &path)
 
     self->d->app_libpaths->removeAll(path);
 }
+
 #endif //QT_NO_COMPONENT

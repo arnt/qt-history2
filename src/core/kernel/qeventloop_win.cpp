@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "qeventloop_p.h"
 #include "qeventloop.h"
 #include "qcoreapplication.h"
@@ -19,7 +20,6 @@
 #define d d_func()
 #define q q_func()
 
-#include "qmutex.h"
 
 extern uint qGlobalPostedEventsCount();
 extern HINSTANCE qWinAppInst();

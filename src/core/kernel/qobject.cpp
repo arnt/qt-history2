@@ -18,10 +18,9 @@
 #include "qcorevariant.h"
 #include "qeventloop.h"
 #include "qmetaobject.h"
-
-#include <qdebug.h>
 #include <qregexp.h>
 #include <qthread.h>
+#include <qdebug.h>
 
 #include <new>
 

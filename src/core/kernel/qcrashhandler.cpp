@@ -11,11 +11,10 @@
 **
 ****************************************************************************/
 
+#include "qplatformdefs.h"
 #include "private/qcrashhandler_p.h"
-#include "qglobal.h"
 #include <stdio.h>
 #include <signal.h>
-#include <unistd.h>
 #include <stdlib.h>
 
 QtCrashHandler QSegfaultHandler::callback = 0;

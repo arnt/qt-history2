@@ -96,4 +96,3 @@ void QBasicTimer::stop()
         QCoreApplication::eventLoop()->unregisterTimer(id);
     id = 0;
 }
-
