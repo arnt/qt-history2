@@ -44,8 +44,13 @@
 
 #ifndef QT_NO_STYLE_WINDOWS
 
+#if defined(QT_PLUGIN_STYLE_WINDOWS)
+#define Q_EXPORT_STYLE_WINDOWS
+#else
+#define Q_EXPORT_STYLE_WINDOWS Q_EXPORT
+#endif
 
-class Q_EXPORT QWindowsStyle : public QCommonStyle
+class Q_EXPORT_STYLE_WINDOWS QWindowsStyle : public QCommonStyle
 {
     Q_OBJECT
 public:

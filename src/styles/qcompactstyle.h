@@ -44,8 +44,13 @@
 
 #ifndef QT_NO_STYLE_COMPACT
 
+#if defined(QT_PLUGIN_STYLE_COMPACT)
+#define Q_EXPORT_STYLE_COMPACT
+#else
+#define Q_EXPORT_STYLE_COMPACT Q_EXPORT
+#endif
 
-class Q_EXPORT QCompactStyle : public QWindowsStyle
+class Q_EXPORT_STYLE_COMPACT QCompactStyle : public QWindowsStyle
 {
 public:
     QCompactStyle();

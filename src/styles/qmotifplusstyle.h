@@ -45,7 +45,14 @@
 
 #ifndef QT_NO_STYLE_MOTIFPLUS
 
-class Q_EXPORT QMotifPlusStyle : public QMotifStyle {
+#if defined(QT_PLUGIN_STYLE_MOTIFPLUS)
+#define Q_EXPORT_STYLE_MOTIFPLUS
+#else
+#define Q_EXPORT_STYLE_MOTIFPLUS Q_EXPORT
+#endif
+
+class Q_EXPORT_STYLE_MOTIFPLUS QMotifPlusStyle : public QMotifStyle 
+{
     Q_OBJECT
 
 public:

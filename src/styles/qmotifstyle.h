@@ -46,7 +46,14 @@
 
 class QPalette;
 
-class Q_EXPORT QMotifStyle : public QCommonStyle
+#if defined(QT_PLUGIN_STYLE_MOTIF)
+#define Q_EXPORT_STYLE_MOTIF
+#else
+#define Q_EXPORT_STYLE_MOTIF Q_EXPORT
+#endif
+
+
+class Q_EXPORT_STYLE_MOTIF QMotifStyle : public QCommonStyle
 {
     Q_OBJECT
 public:

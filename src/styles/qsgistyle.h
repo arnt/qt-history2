@@ -40,7 +40,6 @@
 
 #ifndef QT_H
 #include "qmotifstyle.h"
-#include "qpalette.h"
 #include "qguardedptr.h"
 #include "qwidget.h"
 #endif // QT_H
@@ -49,13 +48,19 @@
 
 class QButton;
 
+#if defined(QT_PLUGIN_STYLE_SGI)
+#define Q_EXPORT_STYLE_SGI
+#else
+#define Q_EXPORT_STYLE_SGI Q_EXPORT
+#endif
+
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QGuardedPtr<QWidget>;
+template class Q_EXPORT_STYLE_SGI QGuardedPtr<QWidget>;
 // MOC_SKIP_END
 #endif
 
-class Q_EXPORT QSGIStyle: public QMotifStyle
+class Q_EXPORT_STYLE_SGI QSGIStyle: public QMotifStyle
 {
     Q_OBJECT
 public:

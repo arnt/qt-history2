@@ -45,7 +45,13 @@
 
 #ifndef QT_NO_STYLE_CDE
 
-class Q_EXPORT QCDEStyle : public QMotifStyle
+#if defined(QT_PLUGIN_STYLE_CDE)
+#define Q_EXPORT_STYLE_CDE
+#else
+#define Q_EXPORT_STYLE_CDE Q_EXPORT
+#endif
+
+class Q_EXPORT_STYLE_CDE QCDEStyle : public QMotifStyle
 {
     Q_OBJECT
 public:

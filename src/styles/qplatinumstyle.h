@@ -46,7 +46,14 @@
 
 class QPalette;
 
-class Q_EXPORT QPlatinumStyle : public QWindowsStyle
+#if defined(QT_PLUGIN_STYLE_PLATINUM)
+#define Q_EXPORT_STYLE_PLATINUM
+#else
+#define Q_EXPORT_STYLE_PLATINUM Q_EXPORT
+#endif
+
+
+class Q_EXPORT_STYLE_PLATINUM QPlatinumStyle : public QWindowsStyle
 {
     Q_OBJECT
 public:
