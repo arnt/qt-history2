@@ -2649,13 +2649,8 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
     }
 #ifndef QT_NO_XFTFREETYPE
     else if (xftfs) {
-	cost = (xftfs->max_char - xftfs->min_char);
-	if (cost <= 0)
-	    cost = 256;
-	else if (cost > 3000)
-	    cost = 3000;
 	cost = ((xftfs->ascent + xftfs->descent) *
-		(xftfs->max_advance_width * cost / 8));
+		(xftfs->max_advance_width * 256 / 8));
     }
 #endif // QT_NO_XFTFREETYPE
     else {
