@@ -39,6 +39,7 @@
 #include "qslider.h"
 #include "qstylefactory.h"
 
+#include <limits.h>
 
 // The Light Style, 3rd revision
 

@@ -39,6 +39,8 @@
 #include "qslider.h"
 #include "qstylefactory.h"
 
+#include <limits.h>
+
 
 class LightStyleV2Private
 {
