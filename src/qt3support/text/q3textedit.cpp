@@ -2880,11 +2880,19 @@ void Q3TextEdit::insert(const QString &text, uint insertionFlags)
 
     if (undoEnabled && !isReadOnly()) {
         checkUndoRedoInfo(UndoRedoInfo::Insert);
-        if (!undoRedoInfo.valid()) {
+
+        // If we are inserting at the end of the previous insertion, we keep this in
+        // the same undo/redo command. Otherwise, we separate them in two different commands.
+        if (undoRedoInfo.valid() && undoRedoInfo.index + undoRedoInfo.d->text.length() != cursor->index()) {
+            clearUndoRedo();        
+            undoRedoInfo.type = UndoRedoInfo::Insert;
+        }
+               
+        if (!undoRedoInfo.valid()) {            
             undoRedoInfo.id = cursor->paragraph()->paragId();
             undoRedoInfo.index = cursor->index();
             undoRedoInfo.d->text = QString::null;
-        }
+        } 
         oldLen = undoRedoInfo.d->text.length();
     }
 
@@ -2926,6 +2934,7 @@ void Q3TextEdit::insert(const QString &text, uint insertionFlags)
         doc->setSelectionEnd(Q3TextDocument::Standard, *cursor);
         repaintChanged();
     }
+
     setModified();
     emit textChanged();
 }
@@ -4287,7 +4296,7 @@ void Q3TextEdit::selectAll(bool select)
 void Q3TextEdit::UndoRedoInfo::clear()
 {
     if (valid()) {
-        if (type == Insert || type == Return)
+        if (type == Insert || type == Return) 
             doc->addCommand(new Q3TextInsertCommand(doc, id, index, d->text.rawData(), styleInformation));
         else if (type == Format)
             doc->addCommand(new Q3TextFormatCommand(doc, id, index, eid, eindex, d->text.rawData(), format, flags));
