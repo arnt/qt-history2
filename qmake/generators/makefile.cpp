@@ -280,8 +280,11 @@ MakefileGenerator::findFilesInVPATH(QStringList l, uchar flags, const QString &v
                             warn_msg(WarnLogic, "Failure to find: %s", val.toLatin1().constData());
                     } else {
                         l.removeAt(val_it);
-                        for(int i = (int)files.count()-1; i >= 0; i--)
+                        for(int i = (int)files.count()-1; i >= 0; i--) {
+                            if(files[i] == "." || files[i] == "..")
+                                continue;
                             l.insert(val_it, fileFixify(dir + files[i]));
+                        }
                     }
                 } else {
                     debug_msg(1, "%s:%d Cannot match %s%c%s, as %s does not exist.",
