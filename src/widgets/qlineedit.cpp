@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#85 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#84 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#85 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -371,7 +371,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	}
 	if ( (int)test.length() < maxLen )
 	    test.insert( cp, e->ascii() );
-	if ( validator() && validator()->validate( test )==QValidator::Bad ) {
+	if ( validator() && validator()->isValid( test ) ) {
 	    // add stuff to indicate the error here and suggest remedies
 	    return;
 	}
@@ -441,8 +441,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		    t[maxLen-blen] = '\0';
 		}
 		test.insert( cursorPos, t );
-		if ( validator() &&
-		     validator()->validate( test ) == QValidator::Bad )
+		if ( validator() && !validator()->isValid( test ) )
 		    break;
 
 		// okay, it succeeded, so use those changes.
@@ -919,8 +918,7 @@ void QLineEdit::del()
 
     if ( hasMarkedText() ) {
 	test.remove( minMark(), maxMark() - minMark() );
-	if ( validator() &&
-	     validator()->validate( test ) == QValidator::Bad )
+	if ( validator() && !validator()->isValid( test ) )
 	    return;
 	tbuf = test;
 	cursorPos  = minMark();
@@ -932,8 +930,7 @@ void QLineEdit::del()
 	emit textChanged( tbuf.data() );
     } else if ( cursorPos != (int)strlen(tbuf) ) {
 	test.remove( cursorPos, 1 );
-	if ( validator() &&
-	     validator()->validate( test ) == QValidator::Bad )
+	if ( validator() && !validator()->isValid( test ) )
 	    return;
 	tbuf = test;
 	repaint( !hasFocus() );
