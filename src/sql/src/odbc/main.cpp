@@ -34,7 +34,7 @@
 **
 **********************************************************************/
 
-#include "../../qsqldriverinterface.h"
+#include <qsqldriverinterface.h>
 #include "qsql_odbc.h"
 
 class QODBCDriverPlugin : public QSqlDriverFactoryInterface

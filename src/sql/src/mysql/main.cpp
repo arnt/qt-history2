@@ -34,7 +34,7 @@
 **
 **********************************************************************/
 
-#include "../../qsqldriverinterface.h"
+#include <qsqldriverinterface.h>
 #include "qsql_mysql.h"
 
 class QMYSQLDriverPlugin : public QSqlDriverFactoryInterface

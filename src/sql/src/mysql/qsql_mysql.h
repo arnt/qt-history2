@@ -37,10 +37,10 @@
 #ifndef QSQL_MYSQL_H
 #define QSQL_MYSQL_H
 
-#include "../../qsqldriver.h"
-#include "../../qsqlresult.h"
-#include "../../qsqlfield.h"
-#include "../../qsqlindex.h"
+#include <qsqldriver.h>
+#include <qsqlresult.h>
+#include <qsqlfield.h>
+#include <qsqlindex.h>
 
 #if defined (Q_OS_WIN32)
 #include <qt_windows.h>

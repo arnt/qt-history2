@@ -35,7 +35,7 @@
 **********************************************************************/
 
 #define Q_UUIDIMPL
-#include "../../qsqldriverinterface.h"
+#include <qsqldriverinterface.h>
 #include "qsql_psql.h"
 
 class QPSQLDriverPlugin : public QSqlDriverFactoryInterface
