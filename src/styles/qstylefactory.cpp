@@ -217,9 +217,6 @@ QStringList QStyleFactory::styles()
     if ( !list.contains( "Compact" ) )
 	list << "Compact";
 #endif
-#ifndef QT_NO_STYLE_POCKETPC
-    list << "PocketPC";
-#endif
 #ifndef QT_NO_STYLE_AQUA
     if ( !list.contains( "Aqua" ) )
 	list << "Aqua";
