@@ -199,7 +199,7 @@
 #define HAS_BOOL_TYPE
 #elif defined(_OS_HPUX_)
 // this test is from aCC online help
-#if __cplusplus >= 199707L
+#if defined(__HP_aCC) || __cplusplus >= 199707L
 // this is the aCC
 #define _CC_HP_ACC_
 #define HAS_BOOL_TYPE
@@ -207,7 +207,7 @@
 // this is the CC
 #define _CC_HP_
 #define Q_FULL_TEMPLATE_INSTANTIATION
-#endif // __cplusplus >= 199707L
+#endif // __HP_aCC
 #else
 #error "Qt has not been tested with this compiler - talk to qt-bugs@trolltech.com"
 #endif
