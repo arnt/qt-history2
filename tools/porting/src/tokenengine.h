@@ -72,51 +72,15 @@ public:
     //preprocessor tree pointer?
 };
 
-/*
-    Attribute system for containers. The idea is that we have several types
-    of attributes (sparesly) assigned to tokens i the container. We want
-    the attribute system to be as simple and flexible as possible, and
-    also be memory efficient.
-
-    This implementation achives the flexiblity goal by allowing you to
-    assing any pointer type as an attribute given by a name and tokenIndex.
-    This flexibillity comes at the expence of type-safety. Nothing stops
-    the user from storing an int* and then retrieving it as a double*.
-*/
 class TokenAttributes
 {
 public:
-    template <typename AttributeType>
-    void addAttribute(const QByteArray &name, const int index, AttributeType *attribute)
-    {
-        void *storeAttribute = reinterpret_cast<void *>(attribute);
-        QByteArray keyText = makeKeyText(name, index);
-        attributeMap.insert(keyText, storeAttribute);
-    }
-
-    template <typename AttributeType>
-    AttributeType *attribute(const QByteArray &name, const int index) const
-    {
-        QByteArray keyText = makeKeyText(name, index);
-        void *storeAttribute = attributeMap.value(keyText);
-        //Not type-safe! You get what you ask for.
-        return reinterpret_cast<AttributeType *>(storeAttribute);
-    }
-
-    template <typename AttributeType>
-    void attribute(const QByteArray &name, const int index, AttributeType *&attrib) const
-    {
-        attrib = attribute<AttributeType>(name, index);
-    }
+    void addAttribute(const int index, const QByteArray &name,  const QByteArray &value);
+    QByteArray attribute(const int index, const QByteArray &name) const;
 
 private:
-    inline QByteArray makeKeyText(const QByteArray &name, const int index) const
-    {
-        QByteArray indexText;
-        return name + indexText.setNum(index);
-    }
-
-    QMap<QByteArray, void *> attributeMap;
+    inline QByteArray makeKeyText(const int index, const QByteArray &name) const;
+    QMap<QByteArray, QByteArray> attributes;
 };
 
 

@@ -15,6 +15,29 @@
 namespace TokenEngine {
 
 /*
+    Add an attribute. Note: Don't use names starting with a number, that will
+    break the indexing.
+*/
+void TokenAttributes::addAttribute(const int index, const QByteArray &name, const QByteArray &value)
+{
+    QByteArray keyText = makeKeyText(index, name);
+    attributes.insert(keyText, value);
+}
+
+QByteArray TokenAttributes::attribute(const int index, const QByteArray &name) const
+{
+    QByteArray keyText = makeKeyText(index, name);
+    return attributes.value(keyText);
+}
+
+QByteArray TokenAttributes::makeKeyText(const int index, const QByteArray &name) const
+{
+    QByteArray indexText;
+    return indexText.setNum(index) + name;
+}
+
+
+/*
      Construnct an empty TokenContainer.
 */
 TokenContainer::TokenContainer()
@@ -31,10 +54,10 @@ TokenContainer::TokenContainer(QByteArray text, QList<Token> tokens, TypeInfo *t
     d = new TokenContainerData();
     d->text = text;
     d->tokens = tokens;
-    if(d->typeInfo == 0)
-		d->typeInfo = new TypeInfo();
-	else 
-		d->typeInfo = typeInfo;
+    if(typeInfo == 0)
+        d->typeInfo = new TypeInfo();
+    else
+        d->typeInfo = typeInfo;
 }
 
 int TokenContainer::count() const
