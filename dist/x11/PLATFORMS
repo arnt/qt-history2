@@ -6,7 +6,6 @@ system and compiler you are using.
 Supported platforms and compilers:
 
   linux-g++
-  linux-icc
 
 Compilation problems:
 
