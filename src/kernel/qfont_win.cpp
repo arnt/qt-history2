@@ -77,7 +77,7 @@ QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool scale)
 
 int QFont::pixelSize() const
 {
-    return (d->req.pointSize*GetDeviceCaps(shared_dc,LOGPIXELSY) + 360) / 720;
+    return (d->request.pointSize*GetDeviceCaps(shared_dc,LOGPIXELSY) + 360) / 720;
 }
 
 void QFont::setPixelSizeFloat( float pixelSize )
@@ -86,55 +86,27 @@ void QFont::setPixelSizeFloat( float pixelSize )
 }
 
 /*****************************************************************************
-  QFontInternal definition and implementation
+  QFontStruct implementation
  *****************************************************************************/
 
-class QFontInternal
-{
-public:
-   ~QFontInternal();
-    bool	    dirty()      const;
-    QString         key()	 const;
-    HDC		    dc()	 const;
-    HFONT	    font()	 const;
-    TEXTMETRICA	   *textMetricA() const;
-    TEXTMETRICW	   *textMetricW() const;
-    const QFontDef *spec()	 const;
-    int		    lineWidth()  const;
-    void	    reset();
-private:
-    QFontInternal( const QString & );
-    QString	k;
-    HDC		hdc;
-    HFONT	hfont;
-    bool	stockFont;
-    union {
-	TEXTMETRICW	w;
-	TEXTMETRICA	a;
-    } tm;
-    QFontDef	s;
-    int		lw;
-    friend void QFont::load() const;
-    friend void QFont::initFontInfo() const;
-};
-
-inline QFontInternal::QFontInternal( const QString &key )
+QFontStruct::QFontStruct( const QString &key )
     : k(key), hdc(0), hfont(0)
 {
     s.dirty = TRUE;
+	cache_cost = 1;
 }
 
-inline bool QFontInternal::dirty() const
+inline bool QFontStruct::dirty() const
 {
     return hfont == 0;
 }
 
-inline QString QFontInternal::key() const
+inline QString QFontStruct::key() const
 {
     return k;
 }
 
-inline HDC QFontInternal::dc() const
+inline HDC QFontStruct::dc() const
 {
     if ( qt_winver & Qt::WV_NT_based )
 	return hdc;
@@ -146,34 +118,29 @@ inline HDC QFontInternal::dc() const
     return shared_dc;
 }
 
-inline HFONT QFontInternal::font() const
+inline HFONT QFontStruct::font() const
 {
     return hfont;
 }
 
-inline TEXTMETRICA *QFontInternal::textMetricA() const
+inline TEXTMETRICA *QFontStruct::textMetricA() const
 {
-    QFontInternal *that = (QFontInternal *)this;
+    QFontStruct *that = (QFontStruct *)this;
     return &that->tm.a;
 }
 
-inline TEXTMETRICW *QFontInternal::textMetricW() const
+inline TEXTMETRICW *QFontStruct::textMetricW() const
 {
-    QFontInternal *that = (QFontInternal *)this;
+    QFontStruct *that = (QFontStruct *)this;
     return &that->tm.w;
 }
 
-inline const QFontDef *QFontInternal::spec() const
+inline const QFontDef *QFontStruct::spec() const
 {
     return &s;
 }
 
-inline int QFontInternal::lineWidth() const
-{
-    return lw;
-}
-
-void QFontInternal::reset()
+void QFontStruct::reset()
 {
     if ( qt_winver & Qt::WV_NT_based ) {
 	if ( hdc ) {				// one DC per font (Win NT)
@@ -198,107 +165,44 @@ void QFontInternal::reset()
     }
 }
 
-inline QFontInternal::~QFontInternal()
-{
-    reset();
-}
-
-
-static const int fontCacheSize = 1000;		// max number of loaded fonts
-
-typedef QCacheIterator<QFontInternal> QFontCacheIt;
-typedef QDict<QFontInternal>	      QFontDict;
-
-
-class QFontCache : public QCache<QFontInternal>
-{
-public:
-    QFontCache( int maxCost, int size=17, bool cs=TRUE )
-	: QCache<QFontInternal>(maxCost,size,cs) {}
-    ~QFontCache() { clear(); }
-    
-    // This pass-through function is needed to avoid MSVC++ 5.0 internal
-    // compiler error. (occurs in QFont::load()).
-    QFontInternal *find(const QString& k)
-	{ return QCache<QFontInternal>::find(k,TRUE); }
-
-    void deleteItem( Item );
-};
-
-void QFontCache::deleteItem( Item d )
-{
-    QFontInternal *fin = (QFontInternal *)d;
-    fin->reset();
-}
-
-
-static QFontCache    *fontCache	     = 0;	// cache of loaded fonts
-static QFontDict     *fontDict	     = 0;	// dict of all loaded fonts
-						// default character set:
-// ### Not used until we have support for for codecs on Windows 95/98
-QFont::CharSet     QFont::defaultCharSet = QFont::AnyCharSet;
 
 /*****************************************************************************
   QFont member functions
  *****************************************************************************/
 
-void QFont::locale_init()
-{
-    // ### Does nothing until we have support for codecs on Windows 95/98
-}
-
 void QFont::initialize()
 {
-    if ( fontCache )
+    if ( QFontPrivate::fontCache )
 	return;
     shared_dc = CreateCompatibleDC( qt_display_dc() );
     shared_dc_font = 0;
-    fontCache = new QFontCache( fontCacheSize, 29 );
-    Q_CHECK_PTR( fontCache );
-    fontDict = new QFontDict( 29 );
-    Q_CHECK_PTR( fontDict );
+	QFontPrivate::fontCache = new QFontCache();
+    Q_CHECK_PTR( QFontPrivate::fontCache );
 }
 
 void QFont::cleanup()
 {
-    delete fontCache;
-    fontCache = 0;
-    fontDict->setAutoDelete( TRUE );
-    delete fontDict;
+    delete QFontPrivate::fontCache;
+	QFontPrivate::fontCache = 0;
     Q_ASSERT( shared_dc_font == 0 );
     DeleteDC( shared_dc );
     shared_dc = 0;
 }
 
-void QFont::cacheStatistics()
-{
-#if defined(QT_DEBUG)
-    fontCache->statistics();
-    QFontCacheIt it(*fontCache);
-    QFontInternal *fin;
-    qDebug( "{" );
-    while ( (fin = it.current()) ) {
-	++it;
-	qDebug( "   [%s]", fin->key().data() );
-    }
-    qDebug( "}" );
-#endif
-}
-
 // If d->req.dirty is not TRUE the font must have been loaded
 // and we can safely assume that d->fin is a valid pointer:
 
-#define DIRTY_FONT (d->req.dirty || d->fin->dirty())
+#define DIRTY_FONT (d->request.dirty || d->fin->dirty())
 
 
 HFONT QFont::handle() const
 {
     static HFONT last = 0;
     if ( DIRTY_FONT ) {
-	load();
+	d->load();
     } else {
 	if ( d->fin->font() != last )
-	    fontCache->find( d->fin->key() );
+		QFontPrivate::fontCache->find( d->fin->key() );
     }
     last = d->fin->font();
     return last;
@@ -321,90 +225,87 @@ bool QFont::dirty() const
 }
 
 
-QString QFont::defaultFamily() const
+QString QFontPrivate::defaultFamily() const
 {
-    switch( d->req.styleHint ) {
-	case Times:
+    switch( request.styleHint ) {
+	case QFont::Times:
 	    return QString::fromLatin1("Times New Roman");
-	case Courier:
+	case QFont::Courier:
 	    return QString::fromLatin1("Courier New");
-	case Decorative:
+	case QFont::Decorative:
 	    return QString::fromLatin1("Bookman Old Style");
-	case Helvetica:
+	case QFont::Helvetica:
 	    return QString::fromLatin1("Arial");
-	case System:
+	case QFont::System:
 	default:
 	    return QString::fromLatin1("MS Sans Serif");
     }
 }
 
-
-QString QFont::lastResortFamily() const
+QString QFontPrivate::lastResortFamily() const
 {
     return QString::fromLatin1("helvetica");
 }
 
-QString QFont::lastResortFont() const
+QString QFontPrivate::lastResortFont() const
 {
     return QString::fromLatin1("arial");
 }
 
-
-void QFont::initFontInfo() const
+void QFontPrivate::initFontInfo()
 {
-    QFontInternal *f = d->fin;
-    if ( !f->s.dirty )				// already initialized
+    if ( !fin->s.dirty )				// already initialized
 	return;
-    f->lw = 1;
-    f->s = d->req;				// most settings are equal
+    lineWidth = 1;
+    fin->s = request;				// most settings are equal
     if ( qt_winver & Qt::WV_NT_based ) {
 	TCHAR n[64];
-	GetTextFace( f->dc(), 64, n );
-	f->s.family = qt_winQString(n);
+	GetTextFace( fin->dc(), 64, n );
+	fin->s.family = qt_winQString(n);
     } else {
 	char an[64];
-	GetTextFaceA( f->dc(), 64, an );
-	f->s.family = QString::fromLocal8Bit(an);
+	GetTextFaceA( fin->dc(), 64, an );
+	fin->s.family = QString::fromLocal8Bit(an);
     }
-    f->s.dirty = FALSE;
+    fin->s.dirty = FALSE;
 }
 
-
-void QFont::load() const
+void QFontPrivate::load()
 {
     if ( !fontCache )				// not initialized
-	return;
+		return;
+	if ( !request.dirty )
+		return;
 
     QString k = key();
-    d->fin = fontCache->find( k );
-
-    if ( !d->fin ) {				// font not loaded
-	d->fin = fontDict->find(k);
-	if ( !d->fin ) {			// font was never loaded
-	    d->fin = new QFontInternal( k );
-	    Q_CHECK_PTR( d->fin );
-	    fontDict->insert( d->fin->key(), d->fin );
+	QFontStruct *qfs = fontCache->find( k );
+	
+	if ( !qfs ) {			// font was never loaded
+	    qfs = new QFontStruct( k );
+	    Q_CHECK_PTR( qfs );
 	}
-    }
+	qfs->ref();
+	if ( fin ) fin->deref();
+	fin = qfs;
 
-    if ( !d->fin->font() ) {			// font not loaded
+    if ( !fin->font() ) {			// font not loaded
 	if ( qt_winver & Qt::WV_NT_based )
-	    d->fin->hdc = GetDC(0);
-	d->fin->hfont = create( &d->fin->stockFont, d->fin->hdc );
-	SelectObject( d->fin->dc(), d->fin->hfont );
+	    fin->hdc = GetDC(0);
+	fin->hfont = create( &fin->stockFont, fin->hdc );
+	SelectObject( fin->dc(), fin->hfont );
 #ifdef UNICODE
 	if ( qt_winver & Qt::WV_NT_based ) {
-	    GetTextMetricsW( d->fin->dc(), &d->fin->tm.w );
+	    GetTextMetricsW( fin->dc(), &fin->tm.w );
 	} else
 #endif
 	{
-	    GetTextMetricsA( d->fin->dc(), &d->fin->tm.a );
+	    GetTextMetricsA( fin->dc(), &fin->tm.a );
 	}
-	fontCache->insert( d->fin->key(), d->fin, 1 );
+	fontCache->insert( fin->key(), fin, 1 );
 	initFontInfo();
     }
-    d->exactMatch = TRUE;
-    d->req.dirty = FALSE;
+    exactMatch = TRUE;
+    request.dirty = FALSE;
 }
 
 
@@ -412,11 +313,15 @@ void QFont::load() const
 #define DEFAULT_GUI_FONT 17
 #endif
 
-
-HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
+HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF )
 {
-    QString fam = QFont::substitute( d->req.family );
-    if ( d->req.rawMode ) {			// will choose a stock font
+	return d->create(stockFont, hdc, VxF);
+}
+
+HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool VxF )
+{
+    QString fam = QFont::substitute( request.family );
+    if ( request.rawMode ) {			// will choose a stock font
 	int f, deffnt;
 	// ### why different?
 	if ( (qt_winver & Qt::WV_NT_based) || qt_winver == Qt::WV_32s )
@@ -451,20 +356,20 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
     }
 
     int hint = FF_DONTCARE;
-    switch ( styleHint() ) {
-	case Helvetica:
+    switch ( request.styleHint ) {
+	case QFont::Helvetica:
 	    hint = FF_SWISS;
 	    break;
-	case Times:
+	case QFont::Times:
 	    hint = FF_ROMAN;
 	    break;
-	case Courier:
+	case QFont::Courier:
 	    hint = FF_MODERN;
 	    break;
-	case OldEnglish:
+	case QFont::OldEnglish:
 	    hint = FF_DECORATIVE;
 	    break;
-	case System:
+	case QFont::System:
 	    hint = FF_MODERN;
 	    break;
 	default:
@@ -474,23 +379,24 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
     LOGFONT lf;
     memset( &lf, 0, sizeof(LOGFONT) );
     if ( hdc && !VxF ) {
-	lf.lfHeight = -int((float)d->req.pointSize*
+	lf.lfHeight = -int((float)request.pointSize*
 			   GetDeviceCaps(hdc,LOGPIXELSY)/(float)720+0.5);
     } else {
-	lf.lfHeight = -int((float)d->req.pointSize*
+	lf.lfHeight = -int((float)request.pointSize*
 			   GetDeviceCaps(shared_dc,LOGPIXELSY)/(float)720+0.5);
     }
     lf.lfWidth		= 0;
     lf.lfEscapement	= 0;
     lf.lfOrientation	= 0;
-    if ( d->req.weight == 50 )
+    if ( request.weight == 50 )
 	lf.lfWeight = FW_DONTCARE;
     else
-	lf.lfWeight = (d->req.weight*900)/99;
-    lf.lfItalic		= d->req.italic;
-    lf.lfUnderline	= d->req.underline;
-    lf.lfStrikeOut	= d->req.strikeOut;
+	lf.lfWeight = (request.weight*900)/99;
+    lf.lfItalic		= request.italic;
+    lf.lfUnderline	= request.underline;
+    lf.lfStrikeOut	= request.strikeOut;
 
+#if 0
     /*
 	We use DEFAULT_CHARSET as much as possible, so that
 	we get good Unicode-capable fonts on international
@@ -516,27 +422,30 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
 	    break;
     }
     lf.lfCharSet	= cs;
+#else
+	lf.lfCharSet	= DEFAULT_CHARSET;
+#endif
 
     int strat = OUT_DEFAULT_PRECIS;
-    if (  styleStrategy() & PreferBitmap ) {
+    if (  request.styleStrategy & QFont::PreferBitmap ) {
 	strat = OUT_RASTER_PRECIS;
-    } else if ( styleStrategy() & PreferDevice ) {
+    } else if ( request.styleStrategy & QFont::PreferDevice ) {
 	strat = OUT_DEVICE_PRECIS;
-    } else if ( styleStrategy() & PreferOutline ) {
+    } else if ( request.styleStrategy & QFont::PreferOutline ) {
 	if ( qt_winver & Qt::WV_NT_based )
 	    strat = OUT_OUTLINE_PRECIS;
 	else
 	    strat = OUT_TT_PRECIS;
-    } else if ( styleStrategy() & ForceOutline ) {
+    } else if ( request.styleStrategy & QFont::ForceOutline ) {
 	strat = OUT_TT_ONLY_PRECIS;
     }
 
     lf.lfOutPrecision   = strat;
 
     int qual = DEFAULT_QUALITY;
-    if ( styleStrategy() & PreferMatch )
+    if ( request.styleStrategy & QFont::PreferMatch )
 	qual = DRAFT_QUALITY;
-    else if ( styleStrategy() & PreferQuality )
+    else if ( request.styleStrategy & QFont::PreferQuality )
 	qual = PROOF_QUALITY;
 
     lf.lfQuality	= qual;
@@ -568,17 +477,17 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
 void *QFont::textMetric() const
 {
     if ( DIRTY_FONT ) {
-	load();
+		d->load();
 #if defined(QT_DEBUG)
-	Q_ASSERT( d->fin && d->fin->font() );
+		Q_ASSERT( d->fin && d->fin->font() );
 #endif
     }
 #ifdef UNICODE
     if ( qt_winver & Qt::WV_NT_based )
-	return d->fin->textMetricW();
+		return d->fin->textMetricW();
     else
 #endif
-	return d->fin->textMetricA();
+		return d->fin->textMetricA();
 }
 
 
@@ -586,26 +495,16 @@ void *QFont::textMetric() const
   QFontMetrics member functions
  *****************************************************************************/
 
-const QFontDef *QFontMetrics::spec() const
-{
-    if ( painter ) {
-	painter->cfont.handle();
-	return painter->cfont.d->fin->spec();
-    } else {
-	return d->fin->spec();
-    }
-}
-
 void *QFontMetrics::textMetric() const
 {
     if ( painter ) {
-	return painter->textMetric();
+		return painter->textMetric();
 #ifdef UNICODE
     } else if ( qt_winver & Qt::WV_NT_based ) {
-	return d->fin->textMetricW();
+		return d->fin->textMetricW();
 #endif
     } else {
-	return d->fin->textMetricA();
+		return d->fin->textMetricA();
     }
 }
 
@@ -773,10 +672,10 @@ static int get_min_right_bearing( const QFontMetrics *f )
 int QFontMetrics::minLeftBearing() const
 {
     // Safely cast away const, as we cache rbearing there.
-    QFontDef* def = (QFontDef*)spec();
+    const QFontDef* def = d->fin->spec();
 
     if ( def->lbearing == SHRT_MIN ) {
-	minRightBearing(); // calculates both
+		minRightBearing(); // calculates both
     }
 
     return def->lbearing;
@@ -785,7 +684,7 @@ int QFontMetrics::minLeftBearing() const
 int QFontMetrics::minRightBearing() const
 {
     // Safely cast away const, as we cache rbearing there.
-    QFontDef* def = (QFontDef*)spec();
+    QFontDef* def = (QFontDef*)d->fin->spec();
 
     if ( def->rbearing == SHRT_MIN ) {
 	int ml = 0;
@@ -895,6 +794,11 @@ int QFontMetrics::width( const QString &str, int len ) const
     return s.cx;
 }
 
+int QFontMetrics::charWidth( const QString &str, int pos ) const
+{
+	return width( str.at(pos) );
+}
+
 QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 {
     if ( len < 0 )
@@ -947,9 +851,9 @@ int QFontMetrics::lineWidth() const
 {
     if ( painter ) {
 	painter->cfont.handle();
-	return painter->cfont.d->fin->lineWidth();
+	return painter->cfont.d->lineWidth;
     } else {
-	return d->fin->lineWidth();
+	return d->lineWidth;
     }
 }
 
@@ -958,6 +862,7 @@ int QFontMetrics::lineWidth() const
   QFontInfo member functions
  *****************************************************************************/
 
+#if 0
 const QFontDef *QFontInfo::spec() const
 {
     if ( painter ) {
@@ -967,19 +872,4 @@ const QFontDef *QFontInfo::spec() const
 	return fin->spec();
     }
 }
-
-
-/*****************************************************************************
-  QFontData member functions
- *****************************************************************************/
-
-const QTextCodec* QFontData::mapper() const
-{
-    return 0;
-}
-
-void* QFontData::fontSet() const
-{
-    return 0;
-}
-
+#endif

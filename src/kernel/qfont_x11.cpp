@@ -34,645 +34,284 @@
 ** not clear to you.
 **
 **********************************************************************/
+// REVISED: brad
 
-#ifdef Q_SUPERFONT
-
-#include "newfont/qfont_x11.cpp"
-#include "newfont/qfontencodings_x11.cpp"
-
-#else
-
-// #define QT_DEBUG
-// REVISED: arnt
-
-#include "qwidget.h"
-#include "qpainter.h"
+#include "qfont.h"
 #include "qfontdata_p.h"
+#include "qfontinfo.h"
 #include "qfontdatabase.h"
-#include "qcache.h"
-#include "qdict.h"
-#include "qtextcodec.h"
-#include "qapplication.h"
-#include "qfile.h"
-#include "qtextstream.h"
-#include "qdir.h" // Font Guessing
-#include "qstringlist.h"
-#include "qregexp.h"
+#include "qfontmetrics.h"
+#include "qpainter.h"
+
+#include <qpaintdevice.h>
+#include <qregexp.h>
+#include <qdict.h>
+#include <qtextcodec.h>
+
 #include <ctype.h>
 #include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
+#include <time.h>
+
 #include "qt_x11.h"
-#include "qmap.h"
 
-// NOT REVISED
+#include "qfontencodings_p.h"
 
-/* UNICODE:
-     XLFD names are defined to be Latin1.
-*/
 
-// Font Guessing
-struct FontGuessingPair {
-  QStringList charset;
-  QStringList family;
+// #define QFONTLOADER_DEBUG
+
+
+// to get which font encodings are installed:
+// xlsfonts | egrep -- "^-.*-.*-.*$" | cut -f 14- -d- | sort | uniq
+
+// This array must be kept in sync with the QFontPrivate::Script enum in
+// qfontdata_p.h
+static char *qt_x11encodings[][QFontPrivate::NScripts + 1] = {
+    { "iso8859-1"        , 0 }, // BASICLATIN
+
+    { "iso8859-2"        , 0 }, // EXTLATINA2
+    { "iso8859-3"        , 0 }, // EXTLATINA3
+    { "iso8859-4"        , 0 }, // EXTLATINA4
+    { "iso8859-9"        , 0 }, // EXTLATINA9
+    { "iso8859-14"       , 0 }, // EXTLATINA14
+    { "iso8859-15"       , 0 }, // EXTLATINA15
+
+    // TODO: Latin Extended-B
+    { 0                      }, // EXTLATINB
+    { 0                      }, // EXTIPA
+    { 0                      }, // EXTLATINADDL
+    { 0                      }, // LATINLIGATURE
+
+    { 0                      }, // DIACRITICAL
+
+    { "iso8859-7"        , 0 }, // GREEK
+    { 0                      }, // EXTGREEK
+    { "iso8859-5",
+      "koi8-r",
+      "koi8-ru"          , 0 }, // CYRILLIC
+    { 0                      }, // CYRILLICHISTORIC
+    { 0                      }, // EXTCYRILLIC
+    { 0                      }, // ARMENIAN
+    { 0                      }, // GEORGIAN
+    { 0                      }, // RUNIC
+    { 0                      }, // OGHAM
+
+    { "iso8859-8"        , 0 }, // HEBREW
+    { 0                      }, // HEBREWPRESENTATION
+    { "iso8859-6.8x",
+      "iso8859-6"        , 0 }, // ARABIC
+    { 0                      }, // ARABICPRESENTATIONA
+    { 0                      }, // ARABICPRESENTATIONB
+    { 0                      }, // SYRIAC
+    { 0                      }, // THAANA
+
+    { 0                      }, // DEVANAGARI
+    { 0                      }, // BENGALI
+    { 0                      }, // GURMUKHI
+    { 0                      }, // GUJARATI
+    { 0                      }, // ORIYA
+    { "tscii-*"          , 0 }, // TAMIL
+    { 0                      }, // TELUGU,
+    { 0                      }, // KANNADA,
+    { 0                      }, // MALAYALAM,
+    { 0                      }, // SINHALA,
+    { "tis620-0",
+      "iso8859-11"       , 0 }, // THAI
+    { 0                      }, // LAO,
+    { 0                      }, // TIBETAN,
+    { 0                      }, // MYANMAR,
+    { 0                      }, // KHMER,
+
+    { "jisx0208.1983-0",
+      "gb2312.1980-0",
+      "big5*-0",
+      "ksc5601.1987-0"   , 0 }, // HAN
+    { "jisx0208.1983-0"  , 0 }, // HIRAGANA
+    { "jisx0208.1983-0"  , 0 }, // KATAKANA
+    { "ksc5601.1987-0"   , 0 }, // HANGUL
+    { "gb2312.1980-0"    , 0 }, // BOPOMOFO
+    { 0                      }, // YI
+
+    { 0                      }, // ETHOPIC
+    { 0                      }, // CHEROKEE
+    { 0                      }, // CANADIANABORIGINAL
+    { 0                      }, // MONGOLIAN
+
+    { "iso10646-1",
+      "unicode-*"        , 0 }, // UNICODE == ISO-10646-1 (for now)
+
+    { "*-*"              , 0 } // UnknownScript
 };
 
-#define FONT_GUESSING_FILE "/etc/qt.fontguess"
 
-QList<FontGuessingPair> *fontGuessingList=0;
-//
+static int qt_x11indices[QFontPrivate::NScripts + 1] = {
+    0, // BASICLATIN
 
-static const int fontFields = 14;
+    0, // EXTLATINA2
+    0, // EXTLATINA3
+    0, // EXTLATINA4
+    0, // EXTLATINA9
+    0, // EXTLATINA14
+    0, // EXTLATINA15
 
-enum FontFieldNames {				// X LFD fields
-    Foundry,
-    Family,
-    Weight_,
-    Slant,
-    Width,
-    AddStyle,
-    PixelSize,
-    PointSize,
-    ResolutionX,
-    ResolutionY,
-    Spacing,
-    AverageWidth,
-    CharsetRegistry,
-    CharsetEncoding };
+    0, // EXTLATINB
+    0, // EXTIPA
+    0, // EXTLATINADDL
+    0, // LATINLIGATURE
 
-// Internal functions
+    0, // DIACRITICAL
 
-bool	qParseXFontName( QCString &fontName, char **tokens );
-static char   **getXFontNames( const char *pattern, int *count );
-static bool	fontExists( const QString &fontName );
-int	qFontGetWeight( const QCString &weightString, bool adjustScore=FALSE );
+    0, // GREEK
+    0, // EXTGREEK
+    0, // CYRILLIC
+    0, // CYRILLICHISTORIC
+    0, // EXTCYRILLIC
+    0, // ARMENIAN
+    0, // GEORGIAN
+    0, // RUNIC
+    0, // OGHAM
+
+    0, // HEBREW
+    0, // HEBREWPRESENTATION
+    0, // ARABIC
+    0, // ARABICPRESENTATIONA
+    0, // ARABICPRESENTATIONB
+    0, // SYRIAC
+    0, // THAANA
+
+    0, // DEVANAGARI
+    0, // BENGALI
+    0, // GURMUKHI
+    0, // GUJARATI
+    0, // ORIYA
+    0, // TAMIL
+    0, // TELUGU
+    0, // KANNADA
+    0, // MALAYALAM
+    0, // SINHALA
+    0, // THAI
+    0, // LAO
+    0, // TIBETAN
+    0, // MYANMAR
+    0, // KHMER
+
+    0, // HAN
+    0, // HIRAGANA
+    0, // KATAKANA
+    0, // HANGUL
+    0, // BOPOMOFO
+    0, // YI
+
+    0, // ETHOPIC
+    0, // CHEROKEE
+    0, // CANADIANABORIGINAL
+    0, // MONGOLIAN
+
+    0, // UNICODE
+
+    0, // NScripts
+};
 
 
-#undef	IS_ZERO
-#define IS_ZERO(X) (X[0] == '0' && X[1] == 0)
 
-static
-inline bool isScalable( char **tokens )
-{
-    return ( IS_ZERO(tokens[PixelSize]) &&
-	     IS_ZERO(tokens[PointSize]) &&
-	     IS_ZERO(tokens[AverageWidth]) );
-}
 
-static
-inline bool isSmoothlyScalable( char **tokens )
-{
-    return ( IS_ZERO( tokens[ResolutionX] ) &&
-	     IS_ZERO( tokens[ResolutionY] ) );
-}
 
-// QFont_Private accesses QFont protected functions
 
-class QFont_Private : public QFont
+
+class QXFontName
 {
 public:
-    int	    fontMatchScore( const char *fontName, QCString &buffer,
-			    float *pointSizeDiff, int *weightDiff,
-			    bool *scalable, bool *smoothScalable );
-	// Font Guessing
-    bool fontmapping(const QString& filename);
-    QCString bestMatchFontSetMember( const QString& family,
-		const char *wt, const char *slant, int size, int xdpi, int ydpi );
-    //
-    QCString bestMatch( const char *pattern, int *score );
-    QCString bestFamilyMember( const QString& foundry,
-			       const QString& family, int *score );
-    QCString findFont( bool *exact );
-    bool needsSet() const { return (charSet() >= Set_1 && charSet() <= Set_N)
-	    || charSet() == Set_GBK || charSet() == Set_Big5; }
+    QXFontName( const QCString &n, bool e )
+	: name(n), exactMatch(e)
+    { ; }
 
-};
-
-#undef  PRIV
-#define PRIV ((QFont_Private*)this)
-
-
-/*****************************************************************************
-  QFontInternal contains X11 font data: an XLFD font name ("-*-*-..") and
-  an X font struct.
-
-  Two global dictionaries and a cache hold QFontInternal objects, which
-  are shared between all QFonts.
-  This mechanism makes font loading much faster than using XLoadQueryFont.
- *****************************************************************************/
-
-class QFontInternal
-{
-public:
-   ~QFontInternal();
-    bool	    dirty() const;
-    const char	   *name()  const;
-    int		    xResolution() const;
-    XFontStruct	   *fontStruct() const;
-    XFontSet	    fontSet() const;
-    const QFontDef *spec()  const;
-    int		    lineWidth() const;
-    const QTextCodec *mapper() const;
-    void	    reset();
-private:
-    QFontInternal( const QString & );
-    void computeLineWidth();
-
-    QCString	    n;
-    XFontStruct	   *f;
-    XFontSet	    set;
-    QFontDef	    s;
-    int		    lw;
-    int		    xres;
-    QTextCodec	   *cmapper;
-    friend void QFont::load() const;
-    friend void QFont::initFontInfo() const;
-};
-
-inline QFontInternal::QFontInternal( const QString &name )
-    : n(name.ascii()), f(0), set(0), cmapper(0)
-{
-    s.dirty = TRUE;
-}
-
-inline bool QFontInternal::dirty() const
-{
-    return f == 0 && set == 0;
-}
-
-inline const char *QFontInternal::name() const
-{
-    return n;
-}
-
-inline XFontStruct *QFontInternal::fontStruct() const
-{
-    return f;
-}
-
-inline XFontSet QFontInternal::fontSet() const
-{
-    return set;
-}
-
-inline const QFontDef *QFontInternal::spec() const
-{
-    return &s;
-}
-
-inline int QFontInternal::lineWidth() const
-{
-    return lw;
-}
-
-inline int QFontInternal::xResolution() const
-{
-    return xres;
-}
-
-inline const QTextCodec *QFontInternal::mapper() const
-{
-    return cmapper;
-}
-
-inline void QFontInternal::reset()
-{
-    if ( f ) {
-	XFreeFont( QPaintDevice::x11AppDisplay(), f );
-	f = 0;
-    }
-    if ( set ) {
-	XFreeFontSet( QPaintDevice::x11AppDisplay(), set );
-	set = 0;
-    }
-}
-
-inline QFontInternal::~QFontInternal()
-{
-    reset();
-}
-
-
-static const int fontCacheSize = 1024;
-
-
-typedef QCacheIterator<QFontInternal> QFontCacheIt;
-typedef QDict<QFontInternal>	      QFontDict;
-typedef QDictIterator<QFontInternal>  QFontDictIt;
-
-
-class QFontCache : public QCache<QFontInternal>
-{
-public:
-    QFontCache( int maxCost, int size=17 )
-	: QCache<QFontInternal>(maxCost,size) {}
-    ~QFontCache() { clear(); }
-    void deleteItem( Item );
-};
-
-void QFontCache::deleteItem( Item d )
-{
-    QFontInternal *fin = (QFontInternal *)d;
-    fin->reset();
-}
-
-
-struct QXFontName
-{
-    QXFontName( const QCString &n, bool e ) : name(n), exactMatch(e) {}
     QCString name;
-    bool    exactMatch;
+    bool exactMatch;
 };
+
 
 typedef QDict<QXFontName> QFontNameDict;
 
-static QFontCache    *fontCache	     = 0;	// cache of loaded fonts
-static QFontDict     *fontDict	     = 0;	// dict of all loaded fonts
-static QFontNameDict *fontNameDict   = 0;	// dict of matched font names
-						// default character set:
-QFont::CharSet QFont::defaultCharSet = QFont::AnyCharSet;
 
-//
-// This function returns the X font struct for a QFontData.
-// It is called from QPainter::drawText().
-//
+// dict of matched font names default character set
+static QFontNameDict *fontNameDict = 0;
 
-XFontStruct *qt_get_xfontstruct( QFontData *d )
-{
-    return d->fin->fontStruct();
-}
-
-
-/*****************************************************************************
-  QFont member functions
- *****************************************************************************/
-
-/*****************************************************************************
-  set_local_font() - tries to set a sensible default font char set
- *****************************************************************************/
-
-/* This will go away - we'll just use codecForLocale() */
-static struct {
-    const char * name;
-    QFont::CharSet cs;
-} encoding_names[] = {
-    { "ISO 8859-1", QFont::ISO_8859_1 },
-    { "ISO 8859-2", QFont::ISO_8859_2 },
-    { "ISO 8859-3", QFont::ISO_8859_3 },
-    { "ISO 8859-4", QFont::ISO_8859_4 },
-    { "ISO 8859-5", QFont::ISO_8859_5 },
-    { "ISO 8859-6", QFont::ISO_8859_6 },
-    { "ISO 8859-7", QFont::ISO_8859_7 },
-    { "ISO 8859-8-I", QFont::ISO_8859_8 },
-    { "ISO 8859-9", QFont::ISO_8859_9 },
-    { "ISO 8859-10", QFont::ISO_8859_10 },
-    { "ISO 8859-11", QFont::ISO_8859_11 },
-    { "ISO 8859-12", QFont::ISO_8859_12 },
-    { "ISO 8859-13", QFont::ISO_8859_13 },
-    { "ISO 8859-14", QFont::ISO_8859_14 },
-    { "ISO 8859-15", QFont::ISO_8859_15 },
-    { "KOI8-R", QFont::KOI8R },
-    { "eucJP", QFont::Set_Ja },
-    { "SJIS", QFont::Set_Ja },
-    { "JIS7", QFont::Set_Ja },
-    { "eucKR", QFont::Set_Ko },
-    { "TACTIS", QFont::Set_Th_TH },
-    { "GBK", QFont::Set_GBK },
-    { "zh_CN.GBK", QFont::Set_GBK },
-    { "eucCN", QFont::Set_Zh },
-    { "eucTW", QFont::Set_Zh_TW },
-    { "zh_TW.Big5", QFont::Set_Big5 },
-    { "Big5", QFont::Set_Big5 },
-    { "ta_TA.TSCII", QFont::TSCII },
-    { "TSCII", QFont::TSCII },
-    { "KOI8-U", QFont::KOI8U },
-    { 0, /* anything */ QFont::ISO_8859_1 }
-};
-
-
-/*!
-  Internal function that uses locale information to find the preferred
-  character set of loaded fonts.
-
-  \internal
-  Uses QTextCodec::codecForLocale() to find the character set name.
-*/
-void QFont::locale_init()
-{
-    QTextCodec * t = QTextCodec::codecForLocale();
-    const char * p = t ? t->name() : 0;
-    if ( p && *p ) {
-	int i=0;
-	while( encoding_names[i].name &&
-	       qstricmp( p, encoding_names[i].name ) )
-	    i++;
-	if ( encoding_names[i].name ) {
-	    defaultCharSet = encoding_names[i].cs;
-	    return;
-	}
-    }
-    defaultCharSet = QFont::Latin1;
-}
-
-/*!
-  Internal function that initializes the font system.
-
-  \internal
-  The font cache and font dict do not alloc the keys. The key is a QString
-  which is shared between QFontInternal and QXFontName.
-*/
-
-void QFont::initialize()
-{
-    if ( fontCache )
-	return;
-    fontCache = new QFontCache( fontCacheSize, 29 );
-    Q_CHECK_PTR( fontCache );
-    fontDict  = new QFontDict( 29 );
-    Q_CHECK_PTR( fontDict );
-    fontNameDict = new QFontNameDict( 29 );
-    Q_CHECK_PTR( fontNameDict );
-    fontNameDict->setAutoDelete( TRUE );
-}
-
-/*!
-  Internal function that cleans up the font system.
-*/
-
-void QFont::cleanup()
-{
-    delete fontCache;
-    fontCache = 0;
-    if ( fontDict )
-	fontDict->setAutoDelete( TRUE );
-    delete fontDict;
-    fontDict = 0;
-    delete fontNameDict;
-    fontNameDict = 0;
-}
-
-/*!
-  Internal function that dumps font cache statistics.
-*/
-
-void QFont::cacheStatistics()
-{
-#if defined(QT_DEBUG)
-    fontCache->statistics();
-    QFontCacheIt it(*fontCache);
-    QFontInternal *fin;
-    qDebug( "{" );
-    while ( (fin = it.current()) ) {
-	++it;
-	qDebug( "   [%s]", fin->name() );
-    }
-    qDebug( "}" );
-#endif
-}
-
-/* Clears the internal cache of mappings from QFont instances to X11
-    (XLFD) font names. Called from QPaintDevice::x11App
-*/
-void qX11ClearFontNameCache()
-{
-    if ( fontNameDict )
-	fontNameDict->clear();
-}
-
-// If d->req.dirty is not TRUE the font must have been loaded
-// and we can safely assume that d->fin is a valid pointer:
-
-#define DIRTY_FONT (d->req.dirty || d->fin->dirty())
-
-
-/*!
-  Returns the window system handle to the font, for low-level
-  access.  Using this function is \e not portable.
-*/
-
-Qt::HANDLE QFont::handle() const
-{
-    static Font last = 0;
-    if ( DIRTY_FONT ) {
-	load();
-	if ( d->fin->fontSet() )
-	    return 0;
-    } else {
-	if ( d->fin->fontSet() )
-	    return 0;
-	if ( d->fin->fontStruct()->fid != last )
-	    fontCache->find( d->fin->name() );
-    }
-
-    last = d->fin->fontStruct()->fid;
-    return last;
-}
-
-// ### maybe reorder the CharSet enum and get rid of this crap?
-static QFont::CharSet c8859[] = { QFont::ISO_8859_1,  QFont::ISO_8859_2,
-				  QFont::ISO_8859_3,  QFont::ISO_8859_4,
-				  QFont::ISO_8859_5,  QFont::ISO_8859_6,
-				  QFont::ISO_8859_7,  QFont::ISO_8859_8,
-				  QFont::ISO_8859_9,  QFont::ISO_8859_10,
-				  QFont::ISO_8859_9,  QFont::ISO_8859_12,
-				  QFont::ISO_8859_13, QFont::ISO_8859_14,
-				  QFont::ISO_8859_15 };
 
 /*
-  Fills in a font definition (QFontDef) from an XLFD (X Logical Font
-  Description). Returns TRUE if the the given xlfd is valid. If the xlfd
-  is valid the encoding name (charset registry + "-" + charset encoding)
-  is returned in /e encodingName if /e encodingName is non-zero. The
-  fileds lbearing and rbearing are not given any values.
- */
-
-static bool fillFontDef( const QCString &xlfd, QFontDef *fd,
-			 QCString *encodingName )
+  Clears the internal cache of mappings from QFont instances to X11
+  (XLFD) font names. Called from QPaintDevice::x11App
+  */
+void qX11ClearFontNameCache()
 {
-
-    char *tokens[fontFields];
-    QCString buffer = xlfd;
-    if ( !qParseXFontName(buffer, tokens) )
-	return FALSE;
-
-    if ( encodingName ) {
-	*encodingName = tokens[CharsetRegistry];
-	*encodingName += '-';
-	*encodingName += tokens[CharsetEncoding];
-    }
-
-    fd->family = QString::fromLatin1(tokens[Family]);
-    fd->pointSize = atoi(tokens[PointSize]);
-    fd->styleHint = QFont::AnyStyle;	// ### any until we match families
-
-    if ( qstrcmp( tokens[CharsetRegistry], "iso8859" ) == 0 ) {
-	int tmp = 999;
-	if ( sscanf( tokens[CharsetEncoding], "%u", &tmp ) == 1 &&
-	     tmp >= 1 && tmp <= 15 ) {
-	    fd->charSet = c8859[tmp-1];
-	    if ( tmp == 8 || tmp == 6 ) { // hebrew and arabic
-		*encodingName += "-I";
-	    }
-	}
-    } else if( qstrcmp( tokens[CharsetRegistry], "koi8" ) == 0 &&
-	       (qstrcmp( tokens[CharsetEncoding], "r" ) == 0 ||
-		qstrcmp( tokens[CharsetEncoding], "1" ) == 0) ) {
-	fd->charSet = QFont::KOI8R;
-    } else if( strcmp( tokens[CharsetRegistry], "koi8" ) == 0 &&
-	       strcmp( tokens[CharsetEncoding], "u" ) == 0) {
-	fd->charSet = QFont::KOI8U;
-    } else if( qstrcmp( tokens[CharsetRegistry], "tscii" ) == 0 &&
-	       qstrcmp( tokens[CharsetEncoding], "0" ) == 0 ) {
-	fd->charSet = QFont::TSCII;
-    } else if( qstrcmp( tokens[CharsetRegistry], "tis620" ) == 0 ) {
-        // tis620 and latin11 are the same
-        fd->charSet = QFont::ISO_8859_11;
-    } else if( qstrcmp( tokens[CharsetRegistry], "iso10646" ) == 0 ) {
-	fd->charSet = QFont::Unicode;
-    } else if( qstrncmp( tokens[CharsetRegistry], "jisx0201.", 9 ) == 0 ) {
-	fd->charSet = QFont::JIS_X_0201;
-    } else if( qstrncmp( tokens[CharsetRegistry], "jisx0208.", 9 ) == 0 ) {
-	fd->charSet = QFont::JIS_X_0208;
-    } else if( qstrncmp( tokens[CharsetRegistry], "ksc5601.", 8 ) == 0 ) {
-	fd->charSet = QFont::KSC_5601;
-    } else if( qstrncmp( tokens[CharsetRegistry], "gb2312.", 7 ) == 0 ) {
-	fd->charSet = QFont::GB_2312;
-    } else if( qstrncmp( tokens[CharsetRegistry], "big5", 4 ) == 0 ) {
-	fd->charSet = QFont::Big5;
-    } else {
-	fd->charSet = QFont::AnyCharSet;
-    }
-
-    char slant	= tolower( tokens[Slant][0] );
-    fd->italic = (slant == 'o' || slant == 'i');
-    char fixed	= tolower( tokens[Spacing][0] );
-    fd->fixedPitch = (fixed == 'm' || fixed == 'c');
-    fd->weight = qFontGetWeight( tokens[Weight_] );
-
-#if 1
-    int r = atoi(tokens[ResolutionY]);
-    float resDiff = 0;
-    if ( r && QPaintDevice::x11AppDpiY() )
-	resDiff = QABS( ((float)(r - QPaintDevice::x11AppDpiY())) / ((float) r) );
-    if ( resDiff > 0.1 ) { // not "0" or "*", or required DPI
-	// calculate actual pointsize for display DPI
-	fd->pointSize = ( 2*fd->pointSize*atoi(tokens[ResolutionY])
-			  + QPaintDevice::x11AppDpiY()
-			  ) / (QPaintDevice::x11AppDpiY() * 2);
-    }
-#endif
-
-    fd->underline     = FALSE;
-    fd->strikeOut     = FALSE;
-    fd->hintSetByUser = FALSE;
-    fd->rawMode       = FALSE;
-    fd->dirty         = FALSE;
-    return TRUE;
+    if (fontNameDict) fontNameDict->clear();
 }
 
-/*!
-  Returns the name of the font within the underlying window system.
-  On Windows, this is usually just the family name of a true type
-  font. Under X, it is a rather complex XLFD (X Logical Font
-  Description). Using the return value of this function is usually \e
-  not \e portable.
 
-  \sa setRawName()
-*/
-QString QFont::rawName() const
+
+
+
+
+
+
+// **********************************************************************
+// QFontStruct member methods
+// **********************************************************************
+
+QFontStruct::~QFontStruct()
 {
-    if ( DIRTY_FONT )
-	load();
-    return QString::fromLatin1(d->fin->name());
-}
-
-/*!
-  Sets a font by its system specific name. The function is in
-  particular useful under X, where system font settings ( for example
-  X resources) are usually available as XLFD (X Logical Font
-  Description) only. You can pass an XLFD as \a name to this function.
-
-  In Qt 2.0 and later, a font set with setRawName() is still a
-  full-featured QFont. It can be queried (for example with italic())
-  or modified (for example with setItalic() ) and is therefore also
-  suitable as a basis font for rendering rich text.
-
-  If Qt's internal font database cannot resolve the raw name, the font
-  becomes a raw font with \a name as family.
-
-  Note that the present implementation does not handle handle
-  wildcards in XLFDs well, and that font aliases (file \c fonts.alias
-  in the font directory on X11) are not supported.
-
-  \sa rawName(), setRawMode(), setFamily()
-*/
-void QFont::setRawName( const QString &name )
-{
-    detach();
-    bool validXLFD = fillFontDef( name.latin1(), &d->req, 0 );
-    d->req.dirty = TRUE;
-    if ( !validXLFD ) {
-#if defined(QT_CHECK_STATE)
-	qWarning( "QFont::setRawMode(): Invalid XLFD: \"%s\"", name.latin1() );
-#endif
-	setFamily( name );
-	setRawMode( TRUE );
+    if (handle) {
+	XFreeFont(QPaintDevice::x11AppDisplay(), (XFontStruct *) handle);
+	handle = 0;
     }
 }
 
 
 
-/*!
-  Returns TRUE if the font attributes have been changed and the font has to
-  be (re)loaded, or FALSE if no changes have been made.
-*/
 
-bool QFont::dirty() const
+
+
+
+
+// **********************************************************************
+// QFontPrivate static methods
+// **********************************************************************
+
+// Returns the family name that corresponds to the current style hint.
+QString QFontPrivate::defaultFamily() const
 {
-    return DIRTY_FONT;
-}
+    switch (request.styleHint) {
+    case QFont::Times:
+	return QString::fromLatin1("times");
 
+    case QFont::Courier:
+	return QString::fromLatin1("courier");
 
-/*!
-  Returns the family name that corresponds to the current style hint.
-*/
+    case QFont::Decorative:
+	return QString::fromLatin1("old english");
 
-QString QFont::defaultFamily() const
-{
-    switch( d->req.styleHint ) {
-	case Times:
-	    return QString::fromLatin1("times");
-	case Courier:
-	    return QString::fromLatin1("courier");
-	case Decorative:
-	    return QString::fromLatin1("old english");
-	case Helvetica:
-	case System:
-	default:
-	    return QString::fromLatin1("helvetica");
+    case QFont::Helvetica:
+    case QFont::System:
+    default:
+	return QString::fromLatin1("helvetica");
     }
 }
 
 
-/*!
-  Returns a last resort family name for the font matching algorithm.
-
-  \sa lastResortFont()
-*/
-
-QString QFont::lastResortFamily() const
+// Returns a last resort family name for the font matching algorithm.
+QString QFontPrivate::lastResortFamily() const
 {
     return QString::fromLatin1("helvetica");
 }
 
 
+// Returns a last resort raw font name for the font matching algorithm.
+// This is used if even the last resort family is not available.  It
+// returns \e something, almost no matter what.
+// The current implementation tries a wide variety of common fonts,
+// returning the first one it finds.  The implementation may change at
+// any time.
 static const char * const tryFonts[] = {
-    "6x13",
-    "7x13",
-    "8x13",
-    "9x15",
-    "fixed",
     "-*-helvetica-medium-r-*-*-*-120-*-*-*-*-*-*",
     "-*-courier-medium-r-*-*-*-120-*-*-*-*-*-*",
     "-*-times-medium-r-*-*-*-120-*-*-*-*-*-*",
@@ -685,894 +324,406 @@ static const char * const tryFonts[] = {
     "-*-courier-*-*-*-*-*-*-*-*-*-*-*-*",
     "-*-times-*-*-*-*-*-*-*-*-*-*-*-*",
     "-*-lucida-*-*-*-*-*-*-*-*-*-*-*-*",
-    0 };
+    "-*-fixed-*-*-*-*-*-*-*-*-*-*-*-*",
+    "6x13",
+    "7x13",
+    "8x13",
+    "9x15",
+    "fixed",
+    0
+};
 
-/*!
-  Returns a last resort raw font name for the font matching algorithm.
-  This is used if even the last resort family is not available.  It
-  returns \e something, almost no matter what.
-
-  The current implementation tries a wide variety of common fonts,
-  returning the first one it finds.  The implementation may change at
-  any time.
-
-  \sa lastResortFamily()
-*/
-
-QString QFont::lastResortFont() const
+QString QFontPrivate::lastResortFont() const
 {
     static QString last;
-    if ( !last.isNull() )			// already found
+
+    // already found
+    if ( !last.isNull() )
 	return last;
+
     int i = 0;
     const char* f;
+
     while ( (f = tryFonts[i]) ) {
 	last = QString::fromLatin1(f);
+
 	if ( fontExists(last) ) {
 	    return last;
 	}
+
 	i++;
     }
-#if defined(QT_CHECK_NULL)
-    qFatal( "QFont::lastResortFont: Cannot find any reasonable font" );
+
+#if defined(CHECK_NULL)
+    qFatal( "QFontPrivate::lastResortFont: Cannot find any reasonable font" );
 #endif
+
     return last;
 }
 
 
-static void resetFontDef( QFontDef *def )	// used by initFontInfo()
+// Get an array of X font names that matches a pattern
+char **QFontPrivate::getXFontNames( const char *pattern, int *count )
 {
-    def->pointSize     = 0;
-    def->styleHint     = QFont::AnyStyle;
-    def->weight	       = QFont::Normal;
-    def->italic	       = FALSE;
-    def->charSet       = QFont::Latin1;
-    def->underline     = FALSE;
-    def->strikeOut     = FALSE;
-    def->fixedPitch    = FALSE;
-    def->hintSetByUser = FALSE;
-    def->lbearing      = SHRT_MIN;
-    def->rbearing      = SHRT_MIN;
+    static int maxFonts = 256;
+    char **list;
+
+    while (1) {
+	list = XListFonts( QPaintDevice::x11AppDisplay(), (char*)pattern,
+			   maxFonts, count );
+
+	// I know precisely why 32768 is 32768.
+	if ( *count != maxFonts || maxFonts >= 32768 )
+	    return list;
+
+	XFreeFontNames( list );
+
+	maxFonts *= 2;
+    }
 }
 
-#ifndef QT_NO_CODECS
-#include <qjpunicode.h>
 
-class QFontJis0208Codec : public QTextCodec
+// Returns TRUE if the font exists, FALSE otherwise
+bool QFontPrivate::fontExists( const QString &fontName )
 {
-public:
-    QFontJis0208Codec();
+    char **fontNames;
+    int count;
 
-    const char* name() const ;
-    //       Return the official name for the encoding.
-    int mibEnum() const ;
-    // Return the MIB enum for the encoding if it is listed in the
-    // IANA character-sets encoding file.
+    fontNames = getXFontNames( fontName.ascii(), &count );
 
-    QString toUnicode(const char* chars, int len) const ;
-    // Converts len characters from chars to Unicode.
-    QCString fromUnicode(const QString& uc, int& lenInOut ) const;
-    // Converts lenInOut characters (of type QChar) from the start of
-    // the string uc, returning a QCString result, and also returning
-    // the length of the result in lenInOut.
+    XFreeFontNames( fontNames );
 
-    int heuristicContentMatch(const char *, int) const;
-private:
-    static const QJpUnicodeConv * convJP;
-};
-
-
-int QFontJis0208Codec::heuristicContentMatch(const char *, int) const
-{
-    return 0;
+    return count != 0;
 }
 
-const QJpUnicodeConv * QFontJis0208Codec::convJP;
 
-QFontJis0208Codec::QFontJis0208Codec()
+// Splits an X font name into fields separated by '-'
+bool QFontPrivate::parseXFontName(const QCString &fontName, char **tokens)
 {
-    if ( !convJP )
-	convJP = QJpUnicodeConv::newConverter(JU_Default);
+    if (fontName.isEmpty() || fontName[0] != '-') {
+	tokens[0] = 0;
+	return FALSE;
+    }
+
+    int	  i;
+    char *f = fontName.data() + 1;
+    for (i = 0; i < NFontFields && f && f[0]; i++) {
+	tokens[i] = f;
+	f = strchr( f, '-' );
+
+	if (f) *f++ = '\0';
+    }
+
+    if (i < NFontFields) {
+	for(int j = i ; j < NFontFields; j++)
+	    tokens[j] = 0;
+
+	return FALSE;
+    }
+
+    return TRUE;
 }
 
-const char* QFontJis0208Codec::name() const
+
+// Fills in a font definition (QFontDef) from an XLFD (X Logical Font Description).
+// Returns TRUE if the the given xlfd is valid. If the xlfd is valid the encoding
+// name (charset registry + "-" + charset encoding) is returned in encodingName if
+// encodingName is non-zero. The fileds lbearing and rbearing are not given any values.
+bool QFontPrivate::fillFontDef( const QCString &xlfd, QFontDef *fd,
+				QCString *encodingName )
 {
-    return "JIS_X0208";
+    char *tokens[QFontPrivate::NFontFields];
+    QCString buffer = xlfd.copy();
+    if ( ! parseXFontName(buffer, tokens) )
+	return FALSE;
+
+    if ( encodingName ) {
+	*encodingName = tokens[QFontPrivate::CharsetRegistry];
+	*encodingName += '-';
+	*encodingName += tokens[QFontPrivate::CharsetEncoding];
+    }
+
+    fd->family = QString::fromLatin1(tokens[Family]);
+    fd->pointSize = atoi(tokens[PointSize]);
+    fd->styleHint = QFont::AnyStyle;	// ### any until we match families
+
+    char slant	= tolower( tokens[Slant][0] );
+    fd->italic = (slant == 'o' || slant == 'i');
+    char fixed	= tolower( tokens[Spacing][0] );
+    fd->fixedPitch = (fixed == 'm' || fixed == 'c');
+    fd->weight = getFontWeight( tokens[Weight] );
+
+    int r = atoi(tokens[ResolutionY]);
+    int px = atoi(tokens[PixelSize]);
+    // not "0" or "*", or required DPI
+    if ( r && px && QPaintDevice::x11AppDpiY() && r != QPaintDevice::x11AppDpiY() ) {
+	// calculate actual pointsize for display DPI
+	fd->pointSize = (int) ((px * 720 + QPaintDevice::x11AppDpiY() / 2) /
+			       QPaintDevice::x11AppDpiY());
+    }
+
+    fd->underline     = FALSE;
+    fd->strikeOut     = FALSE;
+    fd->hintSetByUser = FALSE;
+    fd->rawMode       = FALSE;
+    fd->dirty         = FALSE;
+    return TRUE;
 }
 
-int QFontJis0208Codec::mibEnum() const
-{
-    return 63;
-}
 
-QString QFontJis0208Codec::toUnicode(const char* /*chars*/, int /*len*/) const
-{
-    return QString(); //###
-}
 
-QCString QFontJis0208Codec::fromUnicode(const QString& uc, int& lenInOut ) const
+// **********************************************************************
+// QFontPrivate member methods
+// **********************************************************************
+
+// Scoring constants
+#define exactScore           0xfffe
+#define exactNonUnicodeScore 0xffff
+
+#define PitchScore	     0x40
+#define SizeScore	     0x20
+#define ResolutionScore	     0x10
+#define WeightScore	     0x08
+#define SlantScore	     0x04
+#define WidthScore	     0x02
+#define NonUnicodeScore	     0x01
+
+// Returns an XLFD for the font and sets exact to TRUE if the font found matches
+// the font queried
+QCString QFontPrivate::findFont(QFontPrivate::Script script, bool *exact) const
 {
-    QCString result;
-    for ( int i = 0; i < lenInOut; i++ ) {
-	QChar ch = uc[i];
-	if ( ch.row() == 0) {
-	    if ( ch.cell() == ' ' )
-		ch = QChar( 0x3000 );
-	    else if ( ch.cell() == '"' )
-		ch = QChar( 0x2033 );
-	    else if ( ch.cell() == '\'' )
-		ch = QChar( 0x2032 );
-	    else if ( ch.cell() == '-' )
-		ch = QChar( 0x2212 );
-	    else if ( ch.cell() == '~' )
-		ch = QChar( 0x301c );
-	    else if ( ch.cell() > ' ' && ch.cell() < 127 )
-		ch = QChar( ch.cell()-' ', 255 );
-	}
-	ch = convJP->UnicodeToJisx0208( ch.unicode());
-	if ( !ch.isNull() ) {
-	    result += ch.row();
-	    result += ch.cell();
+    QString familyName = request.family;
+
+    // assume exact match
+    *exact = TRUE;
+
+    if ( familyName.isEmpty() ) {
+	familyName = defaultFamily();
+	*exact = FALSE;
+    }
+
+    // if the family name contains a '-' (ie. "Adobe-Courier"), then we split
+    // at the '-', and use the string as the foundry, and the string to the right as
+    // the family
+    QString foundry;
+    if ( familyName.contains('-') ) {
+	int i = familyName.find('-');
+	foundry = familyName.left( i );
+	familyName = familyName.right( familyName.length() - i - 1 );
+    }
+
+    int score;
+
+    QCString bestName;
+    bool done = FALSE;
+    int start_index = qt_x11indices[script];
+
+    while (! done) {
+	bestName = bestFamilyMember(script, foundry, familyName, &score);
+
+	if (bestName.isNull()) {
+	    if (! qt_x11encodings[script][++qt_x11indices[script]]) {
+		qt_x11indices[script] = 0;
+	    }
+
+	    if (qt_x11indices[script] == start_index) {
+		done = TRUE;
+	    }
 	} else {
-	    //black square
-	    result += 0x22;
-	    result += 0x23;
+	    done = TRUE;
 	}
     }
-    lenInOut *=2;
+
+    if ( score < exactScore )
+	*exact = FALSE;
+
+    if (script == QFontPrivate::Unicode) {
+	return bestName;
+    } else if (! bestName.isNull()) {
+	return bestName;
+    }
+
+    // try substitution
+    QStringList list = QFont::substitutes( request.family );
+    QStringList::Iterator sit = list.begin();
+
+    while (sit != list.end() && bestName.isNull()) {
+	if (familyName != *sit) {
+	    done = FALSE;
+	    qt_x11indices[script] = start_index;
+
+	    while (! done) {
+		bestName = bestFamilyMember(script, foundry, *sit, &score);
+
+		if (bestName.isNull()) {
+		    if (! qt_x11encodings[script][++qt_x11indices[script]]) {
+			qt_x11indices[script] = 0;
+		    }
+
+		    if (qt_x11indices[script] == start_index) {
+			done = TRUE;
+		    }
+		} else {
+		    done = TRUE;
+		}
+	    }
+	}
+
+	++sit;
+    }
+
+    if (! bestName.isNull()) return bestName;
+
+    // try default family for style
+    QString f = defaultFamily();
+
+    if ( familyName != f ) {
+	familyName = f;
+	done = FALSE;
+	qt_x11indices[script] = start_index;
+
+	while (! done) {
+	    bestName = bestFamilyMember(script, foundry, familyName, &score);
+
+	    if (bestName.isNull()) {
+		if (! qt_x11encodings[script][++qt_x11indices[script]]) {
+		    qt_x11indices[script] = 0;
+		}
+
+		if (qt_x11indices[script] == start_index) {
+		    done = TRUE;
+		}
+	    } else {
+		done = TRUE;
+	    }
+	}
+    }
+
+    if (! bestName.isNull()) return bestName;
+
+    // try system default family
+    f = lastResortFamily();
+
+    if ( familyName != f ) {
+	familyName = f;
+	done = FALSE;
+	qt_x11indices[script] = start_index;
+
+	while (! done) {
+	    bestName = bestFamilyMember(script, foundry, familyName, &score);
+
+	    if (bestName.isNull()) {
+		if (! qt_x11encodings[script][++qt_x11indices[script]]) {
+		    qt_x11indices[script] = 0;
+		}
+
+		if (qt_x11indices[script] == start_index) {
+		    done = TRUE;
+		}
+	    } else {
+		done = TRUE;
+	    }
+	}
+    }
+
+    if (! bestName.isNull()) return bestName;
+
+    // try *any* family
+    f = "*";
+
+    if (familyName != f) {
+	familyName = f;
+	done = FALSE;
+	qt_x11indices[script] = start_index;
+
+	while (! done) {
+	    bestName = bestFamilyMember(script, foundry, familyName, &score);
+
+	    if (bestName.isNull()) {
+		if (! qt_x11encodings[script][++qt_x11indices[script]]) {
+		    qt_x11indices[script] = 0;
+		}
+
+		if (qt_x11indices[script] == start_index) {
+		    done = TRUE;
+		}
+	    } else {
+		done = TRUE;
+	    }
+	}
+    }
+
+    // no matching fonts found
+    if (bestName.isNull()) {
+	bestName = lastResortFont().latin1();
+    }
+
+    return bestName;
+}
+
+
+QCString QFontPrivate::bestFamilyMember(QFontPrivate::Script script,
+					const QString& foundry,
+					const QString& family,
+					int *score ) const
+{
+    const int prettyGoodScore = SizeScore | WeightScore | SlantScore | WidthScore;
+
+    int testScore = 0;
+    QCString testResult;
+    int bestScore = 0;
+    QCString result;
+
+    if ( !foundry.isEmpty() ) {
+	QString pattern
+	    = "-" + foundry + "-" + family + "-*-*-*-*-*-*-*-*-*-*-" +
+	    (qt_x11encodings[script])[(qt_x11indices[script])];
+	result = bestMatch(pattern.latin1(), &bestScore);
+    }
+
+    if ( bestScore < prettyGoodScore ) {
+	QRegExp alt( "[,;]" );
+	int alternator = 0;
+	int next;
+	int bias = 0;
+
+	while ( alternator < (int)family.length() ) {
+	    next = family.find( alt, alternator );
+
+	    if ( next < alternator )
+		next = family.length();
+
+	    QString fam = family.mid( alternator, next-alternator );
+	    QString pattern = "-*-" + fam + "-*-*-*-*-*-*-*-*-*-*-" +
+			      (qt_x11encodings[script])[(qt_x11indices[script])];
+	    testResult = bestMatch( pattern.latin1(), &testScore );
+	    bestScore -= bias;
+
+	    if ( testScore > bestScore ) {
+		bestScore = testScore;
+		result = testResult;
+	    }
+
+	    if ( family[next] == ';' )
+		bias += 1;
+
+	    alternator = next + 1;
+	}
+    }
+
+    if ( score )
+	*score = bestScore;
+
     return result;
 }
 
 
-
-extern unsigned int qt_UnicodeToKsc5601(unsigned int unicode);
-
-
-class QFontKsc5601Codec : public QTextCodec
-{
-public:
-    QFontKsc5601Codec();
-
-    const char* name() const ;
-    //       Return the official name for the encoding.
-    int mibEnum() const ;
-    // Return the MIB enum for the encoding if it is listed in the
-    // IANA character-sets encoding file.
-
-    QString toUnicode(const char* chars, int len) const ;
-    // Converts len characters from chars to Unicode.
-    QCString fromUnicode(const QString& uc, int& lenInOut ) const;
-    // Converts lenInOut characters (of type QChar) from the start of
-    // the string uc, returning a QCString result, and also returning
-    // the length of the result in lenInOut.
-
-    int heuristicContentMatch(const char *, int) const;
-};
-
-
-int QFontKsc5601Codec::heuristicContentMatch(const char *, int) const
-{
-    return 0;
-}
-
-QFontKsc5601Codec::QFontKsc5601Codec()
-{
-}
-
-const char* QFontKsc5601Codec::name() const
-{
-    return "KSC_5601";
-}
-
-int QFontKsc5601Codec::mibEnum() const
-{
-    return 63;
-}
-
-QString QFontKsc5601Codec::toUnicode(const char* /*chars*/, int /*len*/) const
-{
-    return QString(); //###
-}
-
-QCString QFontKsc5601Codec::fromUnicode(const QString& uc, int& lenInOut ) const
-{
-    QCString result;
-    for ( int i = 0; i < lenInOut; i++ ) {
-	QChar ch = uc[i];
-	if ( ch.row() == 0) {
-	    if ( ch.cell() == ' ' )
-		ch = QChar( 0x3000 );
-	    else if ( ch.cell() > ' ' && ch.cell() < 127 )
-		ch = QChar( ch.cell()-' ', 255 );
-	}
-	ch = QChar( qt_UnicodeToKsc5601(ch.unicode()) );
-
-	if ( ch.row() > 0 && ch.cell() > 0  ) {
-	    result += ch.row() & 0x7f ;
-	    result += ch.cell() & 0x7f;
-	} else {
-	    //black square
-	    result += 0x21;
-	    result += 0x61;
-	}
-    }
-    lenInOut *=2;
-    return result;
-}
-
-
-/********
-
-
-Name: GB_2312-80                                        [RFC1345,KXS2]
-MIBenum: 57
-Source: ECMA registry
-Alias: iso-ir-58
-Alias: chinese
-Alias: csISO58GB231280
-
-*/
-
-
-extern unsigned int qt_UnicodeToGBK(unsigned int code);
-
-
-
-class QFontGB2312Codec : public QTextCodec
-{
-public:
-    QFontGB2312Codec();
-
-    const char* name() const ;
-    //       Return the official name for the encoding.
-    int mibEnum() const ;
-    // Return the MIB enum for the encoding if it is listed in the
-    // IANA character-sets encoding file.
-
-    QString toUnicode(const char* chars, int len) const ;
-    // Converts len characters from chars to Unicode.
-    QCString fromUnicode(const QString& uc, int& lenInOut ) const;
-    // Converts lenInOut characters (of type QChar) from the start of
-    // the string uc, returning a QCString result, and also returning
-    // the length of the result in lenInOut.
-
-    int heuristicContentMatch(const char *, int) const;
-};
-
-
-int QFontGB2312Codec::heuristicContentMatch(const char *, int) const
-{
-    return 0;
-}
-
-QFontGB2312Codec::QFontGB2312Codec()
-{
-}
-
-const char* QFontGB2312Codec::name() const
-{
-    return "GB_2312";
-}
-
-int QFontGB2312Codec::mibEnum() const
-{
-    return 57;
-}
-
-QString QFontGB2312Codec::toUnicode(const char* /*chars*/, int /*len*/) const
-{
-    return QString(); //###
-}
-
-QCString QFontGB2312Codec::fromUnicode(const QString& uc, int& lenInOut ) const
-{
-    QCString result;
-    for ( int i = 0; i < lenInOut; i++ ) {
-	QChar ch = uc[i];
-	if ( ch.row() == 0) {
-	    if ( ch.cell() == ' ' )
-		ch = QChar( 0x3000 );
-	    else if ( ch.cell() > ' ' && ch.cell() < 127 )
-		ch = QChar( ch.cell()-' ', 255 );
-	}
-	ch = QChar( qt_UnicodeToGBK(ch.unicode()) );
-
-	if ( ch.row() > 0xa0 && ch.cell() > 0xa0  ) {
-	    result += ch.row() & 0x7f ;
-	    result += ch.cell() & 0x7f;
-	} else {
-	    //black square
-	    result += 0x21;
-	    result += 0x76;
-	}
-    }
-    lenInOut *=2;
-    return result;
-}
-
-
-
-extern unsigned int qt_UnicodeToBig5(unsigned int unicode);
-
-class QFontBig5Codec : public QTextCodec
-{
-public:
-    QFontBig5Codec();
-
-    const char* name() const ;
-    //       Return the official name for the encoding.
-    int mibEnum() const ;
-    // Return the MIB enum for the encoding if it is listed in the
-    // IANA character-sets encoding file.
-
-    QString toUnicode(const char* chars, int len) const ;
-    // Converts len characters from chars to Unicode.
-    QCString fromUnicode(const QString& uc, int& lenInOut ) const;
-    // Converts lenInOut characters (of type QChar) from the start of
-    // the string uc, returning a QCString result, and also returning
-    // the length of the result in lenInOut.
-
-    int heuristicContentMatch(const char *, int) const;
-};
-
-
-int QFontBig5Codec::heuristicContentMatch(const char *, int) const
-{
-    return 0;
-}
-
-QFontBig5Codec::QFontBig5Codec()
-{
-}
-
-const char* QFontBig5Codec::name() const
-{
-    return "Big5";
-}
-
-int QFontBig5Codec::mibEnum() const
-{
-    return -1;
-}
-
-QString QFontBig5Codec::toUnicode(const char* /*chars*/, int /*len*/) const
-{
-    return QString(); //###
-}
-
-QCString QFontBig5Codec::fromUnicode(const QString& uc, int& lenInOut ) const
-{
-    QCString result;
-    for ( int i = 0; i < lenInOut; i++ ) {
-	QChar ch = uc[i];
-	if ( ch.row() == 0) {
-	    if ( ch.cell() == ' ' )
-		ch = QChar( 0x3000 );
-	    else if ( ch.cell() > ' ' && ch.cell() < 127 )
-		ch = QChar( ch.cell()-' ', 255 );
-	}
-	ch = QChar( qt_UnicodeToBig5(ch.unicode()) );
-
-	if ( ch.row() > 0xa0 && ch.cell() >= 0x40  ) {
-	    result += ch.row();
-	    result += ch.cell();
-	} else {
-	    //black square
-	    result += 0xa1;
-	    result += 0xbd;
-	}
-    }
-    lenInOut *=2;
-    return result;
-}
-
-
-#endif //QT_NO_CODECS
-
-
-/*!
-  Initializes the font information in the font's QFontInternal data.
-  This function is called from load() for a new font.
-*/
-
-void QFont::initFontInfo() const
-{
-    QFontInternal *f = d->fin;
-    if ( !f->s.dirty )				// already initialized
-	return;
-
-    f->s.lbearing = SHRT_MIN;
-    f->s.rbearing = SHRT_MIN;
-    f->computeLineWidth();
-
-
-    if (  d->exactMatch ) {
-	if ( PRIV->needsSet() ) {
-	    QCString locale = setlocale(LC_CTYPE, 0);
-	    bool useLocale = FALSE;
-
-	    switch (charSet()) {
-	    case Set_Ja:
-		// In case the user has set a locale, we want to use codecForLocale(),
-		// and only use codecForName if the locale is something different (as eg "de").
-		if (locale.left(2) != "ja")
-		    f->cmapper = QTextCodec::codecForName("eucJP");
-		break;
-	    case Set_Ko:
-		if (locale.left(2) != "ko")
-		    f->cmapper = QTextCodec::codecForName("eucKR");
-		break;
-	    case Set_Zh:
-		if (locale.left(2) != "zh")
-		    f->cmapper = QTextCodec::codecForName("GBK");
-		break;
-	    case Set_Zh_TW:
-		if (locale.left(5) != "zh_TW")
-		    f->cmapper = QTextCodec::codecForName("Big5");
-		break;
-	    case Set_Th_TH: // ### need a codec?
-	    default:
-		useLocale = TRUE;
-	    }
-
-	    if ( useLocale || !f->cmapper )
-		f->cmapper = QTextCodec::codecForLocale();
-#ifndef QT_NO_CODECS
-	} else if ( charSet() == JIS_X_0208 ) {
-	    f->cmapper = new QFontJis0208Codec;
-	} else if ( charSet() == KSC_5601 ) {
-	    f->cmapper = new QFontKsc5601Codec;
-	} else if ( charSet() == GB_2312 ) {
-	    f->cmapper = new QFontGB2312Codec;
-	} else if ( charSet() == Big5 ) {
-	    f->cmapper = new QFontBig5Codec;
-#endif //QT_NO_CODECS
-	} else {
-	    QCString encoding;
-	    encoding = encodingName( charSet() );
-	    if( charSet() == ISO_8859_8 || charSet() == ISO_8859_6 )
-		encoding += "-I";
-	    f->cmapper = QTextCodec::codecForName( encoding );
-	}
-	f->s = d->req;
-	f->s.dirty = FALSE;
-	return;
-    }
-
-    Q_ASSERT(!PRIV->needsSet()); // They are always exact
-    QCString encoding;
-
-    if ( fillFontDef( f->name(), &f->s, &encoding ) ) { // valid XLFD?
-#ifndef QT_NO_CODECS
-	if ( encoding.left(9) == "jisx0208." ) {
-	    f->cmapper = new QFontJis0208Codec;
-	} else if ( encoding.left(8) == "ksc5601." ) {
-	    f->cmapper = new QFontKsc5601Codec;
-	} else if ( encoding.left(7) == "gb2312." ) {
-	    f->cmapper = new QFontGB2312Codec;
-	} else if ( encoding.left(4) == "big5" ) {
-	    f->cmapper = new QFontBig5Codec;
-	} else
-#endif //QT_NO_CODECS
-	    f->cmapper = QTextCodec::codecForName( encoding );
-    } else {
-	f->cmapper = 0;
-	resetFontDef( &f->s );
-	f->s.family   = QString::fromLatin1(f->name());
-	f->s.rawMode  = TRUE;
-	d->exactMatch = FALSE;
-	return;
-    }
-    f->s.underline = d->req.underline;
-    f->s.strikeOut = d->req.strikeOut;
-}
-
-static
-inline int maxIndex(XFontStruct *f)
-{
-    return
-	( ( (f->max_byte1 - f->min_byte1) *
-	    (f->max_char_or_byte2 - f->min_char_or_byte2 + 1) ) +
-	  f->max_char_or_byte2 - f->min_char_or_byte2 );
-}
-
-
-static QCString setLocaleForCharSet(QFont::CharSet charset)
-{
-    QCString oldlocale;
-    int i = 0;
-
-    switch (charset) {
-    case QFont::Set_Ja:
-	{
-	    oldlocale = setlocale(LC_CTYPE, NULL);
-	    if (oldlocale.left(2) == "ja")
-		return (const char *) 0;
-
-	    const char *locales[] =
-	    { "ja", "ja_JP", "ja_JP.EUC", "ja_JP.sjis", "ja_JP.ujis", "ja_JP.PCK",
-		  "ja_JP.UTF-8", "ja_JP.SJIS", "ja_JP.Shift_JIS", 0 };
-
-	    while (setlocale(LC_CTYPE, locales[i]) == NULL)
-		i++;
-
-	    break;
-	}
-
-    case QFont::Set_Ko:
-	{
-	    oldlocale = setlocale(LC_CTYPE, NULL);
-	    if (oldlocale.left(2) == "ko")
-		return (const char *) 0;
-
-	    const char *locales[] = { "ko", "ko_KR", "ko_KR.EUC", 0 };
-
-	    while (setlocale(LC_CTYPE, locales[i]) == NULL)
-		i++;
-
-	    break;
-	}
-
-    case QFont::Set_Zh: // assume GBK and/or EUC
-    case QFont::Set_GBK: // assume GBK and/or EUC
-	{
-	    oldlocale = setlocale(LC_CTYPE, NULL);
-	    if (oldlocale.left(2) == "zh") return (const char *) 0;
-
-	    const char *locales[] =
-	    { "zh", "zh_CN", "zh.GBK", "zh_CN.GBK", "zh_CN.GB2312", "zh_CN.EUC", 0 };
-
-	    while (setlocale(LC_CTYPE, locales[i]) == NULL)
-		i++;
-
-	    break;
-	}
-
-    case QFont::Set_Zh_TW: // assume Big5 and/or EUC
-    case QFont::Set_Big5: // assume Big5 and/or EUC
-	{
-	    oldlocale = setlocale(LC_CTYPE, NULL);
-	    if (oldlocale.left(5) == "zh_TW") return (const char *) 0;
-
-	    const char *locales[] =
-	    { "zh_TW", "zh_TW.BIG5", "zh_TW.Big5", "zh_TW.EUC", 0 };
-
-	    while (setlocale(LC_CTYPE, locales[i]) == NULL) i++;
-
-	    break;
-	}
-
-    case QFont::Set_Th_TH:
-    default:
-	;
-    }
-
-    return oldlocale;
-}
-
-
-/*!
-  Loads the font.
-*/
-
-void QFont::load() const
-{
-    if ( !fontCache ) {				// not initialized
-#if defined(QT_CHECK_STATE)
-	qFatal( "QFont: Must construct a QApplication before a QFont" );
-#endif
-
-	return;
-    }
-
-    QString k = key();
-    QXFontName *fn = fontNameDict->find( k );
-
-    if ( !fn ) {
-	QString name;
-	bool match;
-	if ( d->req.rawMode ) {
-	    name = substitute( family() );
-	    match = fontExists( name );
-	    if ( !match )
-		name = lastResortFont();
-	} else {
-	    name = PRIV->findFont( &match );
-	}
-	fn = new QXFontName( name.ascii(), match );
-	Q_CHECK_PTR( fn );
-	fontNameDict->insert( k, fn );
-    }
-    d->exactMatch = fn->exactMatch;
-
-    QCString n = fn->name;
-    d->fin = fontCache->find( n.data() );
-    if ( !d->fin ) {				// font not loaded
-	d->fin = fontDict->find( n.data() );
-	if ( !d->fin ) {			// font was never loaded
-	    d->fin = new QFontInternal( n );
-	    Q_CHECK_PTR( d->fin );
-	    fontDict->insert( d->fin->name(), d->fin );
-	}
-    }
-    if ( PRIV->needsSet() )  {
-	XFontSet s = d->fin->set;
-	if ( !s ) {
-	    char** missing=0;
-	    int nmissing;
-	    //qDebug("fontSet : %s\n",n.data());
-
-	    // set the locale for the charset of the application, this will
-	    // allow applications in (for example) Latin1 environment display
-	    // Korean or Japanese characters
-
-	    QCString oldlocale = setLocaleForCharSet(charSet());
-	    s = XCreateFontSet( QPaintDevice::x11AppDisplay(), n,
-				&missing, &nmissing, 0 );
-	    if ( missing ) {
-#if defined(QT_DEBUG)
-		for(int i=0; i<nmissing; i++)
-		    qDebug("Qt: missing charset %s",missing[i]);
-#endif
-		XFreeStringList(missing);
-	    }
-
-	    // restore locale for application
-	    if (! oldlocale.isNull() && ! oldlocale.isEmpty()) {
-		// qDebug("restoring locale '%s'", (const char *) oldlocale);
-		setlocale(LC_CTYPE, (const char *) oldlocale);
-	    }
-	    if ( !s ) {
-		d->fin->f = XLoadQueryFont( QPaintDevice::x11AppDisplay(),
-				    lastResortFont().ascii() );
-		fn->exactMatch = FALSE;
-#if defined(QT_CHECK_NULL)
-		if ( !d->fin->f )
-		    qFatal( "QFont::load: Internal error" );
-#endif
-	    }
-
-	    d->fin->set = s;
-	    // [not cached]
-	    initFontInfo();
-	}
-    } else {
-	XFontStruct *f = d->fin->f;
-	if ( !f ) {					// font not loaded
-	    //qDebug("font : %s\n",n.data());
-	    f = XLoadQueryFont( QPaintDevice::x11AppDisplay(), n );
-	    if ( !f ) {
-		f = XLoadQueryFont( QPaintDevice::x11AppDisplay(),
-				    lastResortFont().ascii() );
-		fn->exactMatch = FALSE;
-#if defined(QT_CHECK_NULL)
-		if ( !f )
-		    qFatal( "QFont::load: Internal error" );
-#endif
-	    }
-	    int chars = maxIndex(f);
-	    if ( chars > 2000 ) {
-		// If the user is using large fonts, we assume they have
-		// turned on the Xserver option deferGlyphs, and that they
-		// have more memory available to the server.
-		chars = 2000;
-	    }
-	    fontCache->insert(d->fin->name(), d->fin, 1);
-	    d->fin->f = f;
-	    initFontInfo();
-	}
-    }
-    d->req.dirty = FALSE;
-    delete d->printerHackFont;
-    d->printerHackFont = 0;
-}
-
-
-/*****************************************************************************
-  QFont_Private member functions
- *****************************************************************************/
-
-#define exactScore	   0xfffe
-#define exactNonUnicodeScore  0xffff
-
-#define CharSetScore	 0x80
-#define PitchScore	 0x40
-#define SizeScore	 0x20
-#define ResolutionScore	 0x10
-#define WeightScore	 0x08
-#define SlantScore	 0x04
-#define WidthScore	 0x02
-#define NonUnicodeScore	 0x01
-
-//
-// Returns a score describing how well a font name matches the contents
-// of a font.
-//
-
-int QFont_Private::fontMatchScore( const char *fontName, QCString &buffer,
-				   float *pointSizeDiff, int  *weightDiff,
-				   bool	 *scalable     , bool *smoothScalable )
-{
-    char *tokens[fontFields];
-    bool   exactMatch = TRUE;
-    int	   score      = NonUnicodeScore;
-    *scalable	      = FALSE;
-    *smoothScalable   = FALSE;
-    *weightDiff	      = 0;
-    *pointSizeDiff    = 0;
-
-    qstrcpy( buffer.data(), fontName );	// NOTE: buffer must be large enough
-    if ( !qParseXFontName( buffer, tokens ) )
-	return 0;	// Name did not conform to X Logical Font Description
-
-#undef	IS_ZERO
-#define IS_ZERO(X) (X[0] == '0' && X[1] == 0)
-
-    if ( isScalable( tokens ) ) {
-	*scalable = TRUE;			// scalable font
-	if ( isSmoothlyScalable( tokens ) )
-	    *smoothScalable = TRUE;
-    }
-
-    // the next bit isn't comprehensive, but it does at least cover
-    // the fonts I've seen so far. Thai and traditional Chinese fonts
-    // aren't on the list, guess why. --Arnt
-    if ( charSet() == AnyCharSet ) {
-	// this can happen at least two cases which do not deserve warnings:
-	// 1. if the program is being used in the yoo-nited states
-	//    and without $LANG
-	// 2. if the program explicitly asks for AnyCharSet
-	score |= CharSetScore;
-    } else if ( charSet() == KOI8R ) {
-	if ( qstrcmp( tokens[CharsetRegistry], "koi8" ) == 0 &&
-	     ( qstrcmp( tokens[CharsetEncoding], "r" ) == 0 ||
-	       qstrcmp( tokens[CharsetEncoding], "1" ) == 0) )
-	       score |= CharSetScore;
-       else
-	       exactMatch = FALSE;
-    } else if ( charSet() == KOI8U ) {
-       if ( strcmp( tokens[CharsetRegistry], "koi8" ) == 0 &&
-	    strcmp( tokens[CharsetEncoding], "u" ) == 0 )
-	    score |= CharSetScore;
-	else
-	    exactMatch = FALSE;
-    } else if ( qstrcmp( tokens[CharsetRegistry], "iso8859" ) == 0 &&
-		charSet() >= ISO_8859_1 && charSet() <= ISO_8859_15 ) {
-	int i = 0;
-	while( c8859[i] != ISO_8859_15 && c8859[i] != charSet() )
-	    i++;
-	QString s = QString::number( i+1 );
-	if ( s == tokens[CharsetEncoding] )
-	    score |= CharSetScore;
-	else
-	    exactMatch = FALSE;
-    } else if ( charSet() == QFont::JIS_X_0201 ) {
-	if( qstrncmp( tokens[CharsetRegistry], "jisx0201.", 9 ) == 0 )
-	    score |= CharSetScore;
-	else
-	    exactMatch = FALSE;
-    } else if ( charSet() == QFont::JIS_X_0208 ) {
-	if( qstrncmp( tokens[CharsetRegistry], "jisx0208.", 9 ) == 0 )
-	    score |= CharSetScore;
-	else
-	    exactMatch = FALSE;
-    } else if ( charSet() == QFont::KSC_5601 ) {
-	if( qstrncmp( tokens[CharsetRegistry], "ksc5601.", 8 ) == 0 )
-	    score |= CharSetScore;
-	else
-	    exactMatch = FALSE;
-    } else if ( charSet() == QFont::GB_2312 ) {
-	if( qstrncmp( tokens[CharsetRegistry], "gb2312.", 7 ) == 0 )
-	    score |= CharSetScore;
-	else
-	    exactMatch = FALSE;
-    } else if ( charSet() == QFont::Big5 ) {
-	if( qstrncmp( tokens[CharsetRegistry], "big5", 4 ) == 0 )
-	    score |= CharSetScore;
-	else
-	    exactMatch = FALSE;
-    } else if ( charSet() == TSCII ) {
-	if ( qstrcmp( tokens[CharsetRegistry], "tscii" ) == 0 &&
-	     qstrcmp( tokens[CharsetEncoding], "0" ) == 0 )
-	    score |= CharSetScore;
-	else
-	    exactMatch = FALSE;
-    } else if ( charSet() == TIS620 ) {
-	if ( qstrcmp( tokens[CharsetRegistry], "tis620" ) == 0 )
-	    score |= CharSetScore;
-	else
-	    exactMatch = FALSE;
-    } else if ( qstrcmp( tokens[CharsetRegistry], "iso10646" ) == 0 ) {
-	// Yes...
-	score |= CharSetScore;
-	// But it's big...
-	score &= ~NonUnicodeScore;
-    } else {
-	exactMatch = FALSE;
-    }
-
-    char pitch = tolower( tokens[Spacing][0] );
-    if ( fixedPitch() ) {
-	if ( pitch == 'm' || pitch == 'c' )
-	    score |= PitchScore;
-	else
-	    exactMatch = FALSE;
-    } else {
-	if ( pitch == 'p' )
-	    score |= PitchScore;
-	else
-	    exactMatch = FALSE;
-    }
-
-    float diff;
-    if ( *scalable ) {
-	diff = 0.9;	// choose scalable font over >= 0.9 point difference
-	score |= SizeScore;
-	exactMatch = FALSE;
-    } else {
-	int pSize, pixSize;
-	float percentDiff;
-
-	pSize = atoi(tokens[PixelSize]);
-	pixSize = pixelSize();
-
-	// this is a hack to make 93dpi displays use 100dpi fonts directly, etc...
-	float res = atoi(tokens[ResolutionY]);
-	if ( res ) {
-	    float diff = QABS((QPaintDevice::x11AppDpiY() - res)/res);
-	    if( diff < .1 ) 
-		pixSize = (int)( deciPointSize()*res + 360 ) / 720;
-	}
-	if ( pixSize != 0 ) {
-	    diff = (float)QABS(pSize - pixSize);
-	    percentDiff = (diff/pixSize)*100.0F;
-	} else {
-	    diff = (float)atoi(tokens[PointSize]);
-	    percentDiff = 100;
-	}
-
-	if ( percentDiff < 20 ) {
-	    score |= SizeScore;
-	    if ( pSize != pixSize ) {
-		exactMatch = FALSE;
-	    }
-	} else {
-	    exactMatch = FALSE;
-	}
-    }
-    if ( pointSizeDiff )
-	*pointSizeDiff = diff;
-    int weightVal = qFontGetWeight( tokens[Weight_], TRUE );
-
-    if ( weightVal == weight() )
-	score |= WeightScore;
-    else
-	exactMatch = FALSE;
-
-    *weightDiff = QABS( weightVal - weight() );
-    char slant = tolower( tokens[Slant][0] );
-    if ( italic() ) {
-	if ( slant == 'o' || slant == 'i' )
-	    score |= SlantScore;
-	else
-	    exactMatch = FALSE;
-    } else {
-	if ( slant == 'r' )
-	    score |= SlantScore;
-	else
-	    exactMatch = FALSE;
-    }
-    if ( qstricmp( tokens[Width], "normal" ) == 0 )
-	score |= WidthScore;
-    else
-	exactMatch = FALSE;
-    return exactMatch ? (exactScore | (score&NonUnicodeScore)) : score;
-}
-
-
-struct QFontMatchData {			// internal for bestMatch
+struct QFontMatchData { // internal for bestMatch
     QFontMatchData()
-	{ score=0; name=0; pointDiff=99; weightDiff=99; smooth=FALSE; }
+    {
+	score=0; name=0; pointDiff=99; weightDiff=99; smooth=FALSE;
+    }
+
     int	    score;
     char   *name;
     float   pointDiff;
@@ -1580,10 +731,10 @@ struct QFontMatchData {			// internal for bestMatch
     bool    smooth;
 };
 
-QCString QFont_Private::bestMatch( const char *pattern, int *score )
+QCString QFontPrivate::bestMatch( const char *pattern, int *score ) const
 {
-    QFontMatchData	best;
-    QFontMatchData	bestScalable;
+    QFontMatchData best;
+    QFontMatchData bestScalable;
 
     QCString	matchBuffer( 256 );	// X font name always <= 255 chars
     char **	xFontNames;
@@ -1601,6 +752,7 @@ QCString QFont_Private::bestMatch( const char *pattern, int *score )
 	sc = fontMatchScore( xFontNames[i], matchBuffer,
 			     &pointDiff, &weightDiff,
 			     &scalable, &smoothScalable );
+
 	if ( scalable ) {
 	    if ( sc > bestScalable.score ||
 		 sc == bestScalable.score &&
@@ -1626,29 +778,43 @@ QCString QFont_Private::bestMatch( const char *pattern, int *score )
 	    }
 	}
     }
-    QCString bestName;
-    char *tokens[fontFields];
 
-    //qDebug("best font: %d '%s'", best.score, best.name);
-    //qDebug("best scalable font: %d '%s'", bestScalable.score, bestScalable.name);
-    
+    QCString bestName;
+    char *tokens[NFontFields];
     if ( bestScalable.score > best.score ||
 	 bestScalable.score == best.score &&
 	 bestScalable.pointDiff < best.pointDiff ||
 	 bestScalable.score == best.score &&
 	 bestScalable.pointDiff == best.pointDiff &&
 	 bestScalable.weightDiff < best.weightDiff ) {
-	//qDebug("using scalable font");
 	qstrcpy( matchBuffer.data(), bestScalable.name );
-	if ( qParseXFontName( matchBuffer, tokens ) ) {
-	    bestName.sprintf( "-%s-%s-%s-%s-%s-%s-%i-*-*-*-%s-*-%s-%s",
+
+	if ( parseXFontName( matchBuffer, tokens ) ) {
+	    int resx;
+	    int resy;
+	    int pSize;
+
+	    if ( bestScalable.smooth ) {
+		// X will scale the font accordingly
+		resx  = QPaintDevice::x11AppDpiX();
+		resy  = QPaintDevice::x11AppDpiY();
+		pSize = request.pointSize;
+	    } else {
+		resx = atoi(tokens[ResolutionX]);
+		resy = atoi(tokens[ResolutionY]);
+		pSize = ( (2 * request.pointSize * QPaintDevice::x11AppDpiY()) + resy )
+			/ (resy * 2);
+	    }
+
+	    bestName.sprintf( "-%s-%s-%s-%s-%s-%s-*-%i-%i-%i-%s-*-%s-%s",
 			      tokens[Foundry],
 			      tokens[Family],
-			      tokens[Weight_],
+			      tokens[Weight],
 			      tokens[Slant],
 			      tokens[Width],
 			      tokens[AddStyle],
-			      pixelSize(),
+			      pSize,
+			      resx, resy,
 			      tokens[Spacing],
 			      tokens[CharsetRegistry],
 			      tokens[CharsetEncoding] );
@@ -1656,342 +822,841 @@ QCString QFont_Private::bestMatch( const char *pattern, int *score )
 	    best.score = bestScalable.score;
 	}
     }
+
     *score   = best.score;
     bestName = best.name;
 
     XFreeFontNames( xFontNames );
-    //qDebug("requesting font '%s' pixSize=%d pointSize=%d", pattern, pixelSize(), pointSize() );
-    //qDebug("best font found is '%s'", (const char *)bestName);
+
     return bestName;
 }
 
 
-QCString QFont_Private::bestFamilyMember( const QString& foundry,
-					  const QString& family, int *score )
+// Returns a score describing how well a font name matches the contents
+// of a font.
+int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
+				   float *pointSizeDiff, int  *weightDiff,
+				   bool	 *scalable     , bool *smoothScalable ) const
 {
-    const int prettyGoodScore = CharSetScore | SizeScore |
-				WeightScore | SlantScore | WidthScore;
+    char *tokens[NFontFields];
+    bool   exactMatch = TRUE;
+    int	   score      = NonUnicodeScore;
+    *scalable	      = FALSE;
+    *smoothScalable   = FALSE;
+    *weightDiff	      = 0;
+    *pointSizeDiff    = 0;
 
-    int testScore = 0;
-    QCString testResult;
-    int bestScore = 0;
-    QCString result;
+    qstrcpy( buffer.data(), fontName );	// NOTE: buffer must be large enough
+    if ( ! parseXFontName( buffer, tokens ) )
+	return 0;	// Name did not conform to X Logical Font Description
 
-    if ( !foundry.isEmpty() ) {
-	QString pattern
-	    = "-" + foundry + "-" + family + "-*-*-*-*-*-*-*-*-*-*-*-*";
-	result = bestMatch( pattern.latin1(), &bestScore );
+    if ( isScalable( tokens ) ) {
+	*scalable = TRUE;			// scalable font
+	if ( isSmoothlyScalable( tokens ) )
+	    *smoothScalable = TRUE;
     }
 
-    if ( bestScore < prettyGoodScore ) {
-	QRegExp alt( "[,;]" );
-	int alternator = 0;
-	int next;
-	int bias = 0;
-	while ( alternator < (int)family.length() ) {
-	    next = family.find( alt, alternator );
-	    if ( next < alternator )
-		next = family.length();
-	    QString fam = family.mid( alternator, next-alternator );
-	    QString pattern = "-*-" + fam + "-*-*-*-*-*-*-*-*-*-*-*-*";
-	    testResult = bestMatch( pattern.latin1(), &testScore );
-	    bestScore -= bias;
-	    if ( testScore > bestScore ) {
-		bestScore = testScore;
-		result = testResult;
+    // we no longer score the charset, since we query the X server for fonts based
+    // on the foundry, family and charset now
+
+    char pitch = tolower( tokens[Spacing][0] );
+    if ( request.fixedPitch ) {
+	if ( pitch == 'm' || pitch == 'c' )
+	    score |= PitchScore;
+	else
+	    exactMatch = FALSE;
+    } else {
+	if ( pitch != 'p' )
+	    exactMatch = FALSE;
+    }
+
+    float diff;
+    if ( *scalable ) {
+	diff = 9.0;	// choose scalable font over >= 0.9 point difference
+	score |= SizeScore;
+	exactMatch = FALSE;
+    } else {
+	int pSize;
+	float percentDiff;
+	pSize = ( 2*atoi( tokens[PointSize] )*atoi(tokens[ResolutionY]) +
+		  QPaintDevice::x11AppDpiY())
+		/ (QPaintDevice::x11AppDpiY() * 2); // adjust actual pointsize
+
+	if ( request.pointSize != 0 ) {
+	    diff = (float)QABS(pSize - request.pointSize);
+	    percentDiff = diff/request.pointSize*100.0F;
+	} else {
+	    diff = (float)pSize;
+	    percentDiff = 100;
+	}
+
+	if ( percentDiff < 20 ) {
+	    score |= SizeScore;
+
+	    if ( pSize != request.pointSize ) {
+		exactMatch = FALSE;
 	    }
-	    if ( family[next] == ';' )
-		bias += 1;
-	    alternator = next + 1;
+	} else {
+	    exactMatch = FALSE;
 	}
     }
 
-    if ( score )
-	*score = bestScore;
-    return result;
+    if ( pointSizeDiff )
+	*pointSizeDiff = diff;
+
+    int weightVal = getFontWeight(tokens[Weight], TRUE);
+    if ( weightVal == (int) request.weight )
+	score |= WeightScore;
+    else
+	exactMatch = FALSE;
+
+    *weightDiff = QABS( weightVal - (int) request.weight );
+    char slant = tolower( tokens[Slant][0] );
+
+    if ( request.italic ) {
+	if ( slant == 'o' || slant == 'i' )
+	    score |= SlantScore;
+	else
+	    exactMatch = FALSE;
+    } else {
+	if ( slant == 'r' )
+	    score |= SlantScore;
+	else
+	    exactMatch = FALSE;
+    }
+
+    if ( qstricmp( tokens[Width], "normal" ) == 0 )
+	score |= WidthScore;
+    else
+	exactMatch = FALSE;
+
+    return exactMatch ? (exactScore | (score&NonUnicodeScore)) : score;
 }
 
-// Font Guessing
-bool QFont_Private::fontmapping(const QString& filename)
-{
-    QStringList chsetlst;
 
-    QFile f( filename );
-    if ( f.open( IO_ReadOnly ) ) {
-	QTextStream t( &f );
-	QString s;
-	while ( !t.eof() ) {
-  	    s = t.readLine();
-	    if ( s.isEmpty() || s[0] == '#' )
-	        continue;
-	    if ( s.contains('[') ) {
-		QRegExp sep( "[][]" );
-		chsetlst = QStringList::split( sep, s );
+// Computes the line width (underline,strikeout) for the X font
+// and fills in the X resolution of the font.
+void QFontPrivate::computeLineWidth()
+{
+    int nlw;
+    int weight = request.weight;
+    int pSize  = request.pointSize / 10;
+
+    // ad hoc algorithm
+    int score = pSize * weight;
+    nlw = ( score ) / 700;
+
+    // looks better with thicker line for small pointsizes
+    if ( nlw < 2 && score >= 1050 ) nlw = 2;
+    if ( nlw == 0 ) nlw = 1;
+
+    if (nlw > lineWidth) lineWidth = nlw;
+}
+
+
+// fill the actual fontdef with data from the loaded font
+void QFontPrivate::initFontInfo(QFontPrivate::Script script)
+{
+    if (! actual.dirty) return;
+
+    actual.lbearing = SHRT_MIN;
+    actual.rbearing = SHRT_MIN;
+
+    if (exactMatch) {
+	actual = request;
+	actual.dirty = FALSE;
+
+	return;
+    }
+
+    if (! fillFontDef(x11data.fontstruct[script]->name, &actual, 0)) {
+	// zero fontdef
+	actual = QFontDef();
+
+	actual.family = QString::fromLatin1(x11data.fontstruct[script]->name);
+	actual.rawMode = TRUE;
+	exactMatch = FALSE;
+    }
+
+    actual.underline = request.underline;
+    actual.strikeOut = request.strikeOut;
+    actual.dirty = FALSE;
+}
+
+
+// Loads the font for the specified script
+#define MAXINDEX(f) \
+    ((((f)->max_byte1 - (f)->min_byte1) * \
+      ((f)->max_char_or_byte2 - (f)->min_char_or_byte2 + 1)) + \
+     (f)->max_char_or_byte2 - (f)->min_char_or_byte2)
+
+void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
+{
+    // Make sure fontCache is initialized
+    if (! fontCache) {
+
+#ifdef QT_CHECK_STATE
+	qFatal( "QFont: Must construct a QApplication before a QFont" );
+#endif // QT_CHECK_STATE
+
+	return;
+    }
+
+    if (script == NoScript) script = defaultScript;
+
+    if (script > Unicode) {
+	qDebug("OUT OF RANGE");
+	int *foo = 0; *foo = 0;
+    }
+
+    if (x11data.fontstruct[script] && ! request.dirty) {
+	return;
+    }
+
+    if (request.dirty) {
+	// dirty font needs to have the fontstruct deref'ed
+	QFontStruct *qfs = x11data.fontstruct[script];
+	x11data.fontstruct[script] = 0;
+
+	if (qfs && qfs != (QFontStruct *) -1) {
+	    // only deref here... we will let the cache take care of cleaning up
+	    // while the application is running
+	    qfs->deref();
+	}
+
+	// dirty unicode also if the font is dirty
+     	qfs = x11data.fontstruct[QFontPrivate::Unicode];
+	x11data.fontstruct[QFontPrivate::Unicode] = 0;
+
+	if (qfs && qfs != (QFontStruct *) -1) {
+	    // only deref here... we will let the cache take care of cleaning up
+	    // while the application is running
+	    qfs->deref();
+	}
+    }
+
+    // look for a unicode font first, and see if it has the script that we want...
+    if (tryUnicode) {
+	QFontStruct *qfs = x11data.fontstruct[QFontPrivate::Unicode];
+
+	if (! qfs) {
+
+#ifdef QFONTLOADER_DEBUG
+	    qDebug("QFP::load: trying to load unicode font");
+#endif // QFONTLOADER_DEBUG
+
+	    load(QFontPrivate::Unicode, FALSE);
+	    qfs = x11data.fontstruct[QFontPrivate::Unicode];
+	}
+
+	if (qfs != (QFontStruct *) -1) {
+	    // hit the font cache to keep this unicode font alive a little longer
+	    fontCache->find(qfs->name);
+
+	    bool hasChar = FALSE;
+	    QChar ch;
+
+	    XFontStruct *f = (XFontStruct *) qfs->handle;
+
+	    if (f->per_char &&
+		f->min_byte1 == 0 && f->max_byte1 >= 0xff &&
+		f->min_char_or_byte2 == 0 && f->max_char_or_byte2 >= 0xff) {
+
+#ifdef QFONTLOADER_DEBUG
+		qDebug("QFP::load: unicode font has individual charstructs");
+		qDebug("QFP::load: m1 %d x1 %d m2 %d x2 %d",
+		       f->min_byte1, f->max_byte1,
+		       f->min_char_or_byte2, f->max_char_or_byte2);
+#endif // QFONTLOADER_DEBUG
+
+		XCharStruct *xcs = f->per_char + 0xfffe;
+
+#ifdef QFONTLOADER_DEBUG
+
+		if (xcs) {
+		    qDebug("QFP::load: bounding box for undefined char: %d %d %d",
+			   xcs->width, xcs->ascent, xcs->descent);
+ 		} else {
+		    qDebug("QFP::load: unicode font doesn't have undefined char?");
+		}
+
+#endif // QFONTLOADER_DEBUG
+
+		if (xcs && xcs->width == 0 && xcs->ascent + xcs->descent == 0) {
+		    uchar row, cell;
+
+		    switch (script) {
+		    case BasicLatin:
+			row = 0x00; cell = 0x30; break;
+		    case LatinExtA2:
+			row = 0x01; cell = 0x02; break;
+		    case LatinExtA3:
+			row = 0x01; cell = 0x08; break;
+		    case LatinExtA4:
+			row = 0x01; cell = 0x00; break;
+		    case LatinExtA9:
+			row = 0x01; cell = 0x00; break;
+		    case LatinExtA14:
+			row = 0x01; cell = 0x74; break;
+		    case LatinExtA15:
+			row = 0x01; cell = 0x52; break;
+		    case LatinExtB:
+			row = 0x01; cell = 0x80; break;
+		    case IPAExt:
+			row = 0x02; cell = 0x50; break;
+		    case LatinExtADDL:
+			row = 0x1e; cell = 0x00; break;
+		    case LatinLigatures:
+			row = 0xfb; cell = 0x00; break;
+		    case Diacritical:
+			row = 0x03; cell = 0x00; break;
+		    case Greek:
+			row = 0x03; cell = 0x90; break;
+		    case GreekExt:
+			row = 0x1f; cell = 0x00; break;
+		    case Cyrillic:
+			row = 0x04; cell = 0x10; break;
+		    case CyrillicHistoric:
+			row = 0x04; cell = 0x60; break;
+		    case CyrillicExt:
+			row = 0x04; cell = 0x90; break;
+		    case Armenian:
+			row = 0x05; cell = 0x40; break;
+		    case Georgian:
+			row = 0x10; cell = 0xa0; break;
+		    case Runic:
+			row = 0x16; cell = 0xa0; break;
+		    case Ogham:
+			row = 0x16; cell = 0x80; break;
+		    case Hebrew:
+			row = 0x05; cell = 0xd0; break;
+		    case HebrewPresentation:
+			row = 0xfb; cell = 0x20; break;
+		    case Arabic:
+			row = 0x06; cell = 0x30; break;
+		    case ArabicPresentationA:
+			row = 0xfb; cell = 0x50; break;
+		    case ArabicPresentationB:
+			row = 0xfe; cell = 0x70; break;
+		    case Syriac:
+			row = 0x07; cell = 0x10; break;
+		    case Thaana:
+			row = 0x07; cell = 0x80; break;
+		    case Devanagari:
+			row = 0x09; cell = 0x10; break;
+		    case Bengali:
+			row = 0x09; cell = 0x90; break;
+		    case Gurmukhi:
+			row = 0xa0; cell = 0x10; break;
+		    case Gujarati:
+			row = 0x0a; cell = 0x90; break;
+		    case Oriya:
+			row = 0x0b; cell = 0x10; break;
+		    case Tamil:
+			row = 0x0b; cell = 0x90; break;
+		    case Telugu:
+			row = 0x0c; cell = 0x10; break;
+		    case Kannada:
+			row = 0x0c; cell = 0x90; break;
+		    case Malayalam:
+			row = 0x0d; cell = 0x10; break;
+		    case Sinhala:
+			row = 0x0d; cell = 0x90; break;
+		    case Thai:
+			row = 0x0e; cell = 0x10; break;
+		    case Lao:
+			row = 0xe0; cell = 0x81; break;
+		    case Tibetan:
+			row = 0x0f; cell = 0x00; break;
+		    case Myanmar:
+			row = 0x10; cell = 0x00; break;
+		    case Khmer:
+			row = 0x17; cell = 0x80; break;
+		    case Han:
+			row = 0x4e; cell = 0x00; break;
+		    case Hiragana:
+			row = 0x30; cell = 0x50; break;
+		    case Katakana:
+			row = 0x30; cell = 0xb0; break;
+		    case Hangul:
+			row = 0xac; cell = 0x00; break;
+		    case Bopomofo:
+			row = 0x31; cell = 0x10; break;
+		    case Yi:
+			row = 0xa0; cell = 0x00; break;
+		    case Ethiopic:
+			row = 0x12; cell = 0x00; break;
+		    case Cherokee:
+			row = 0x13; cell = 0xa0; break;
+		    case CanadianAboriginal:
+			row = 0x14; cell = 0x10; break;
+		    default:
+			row = cell = 0;
+		    }
+
+		    ch.cell() = cell;
+		    ch.row()  = row;
+
+		    if (row + cell != 0) {
+			xcs = f->per_char + ch.unicode();
+
+			hasChar = (xcs && (xcs->width != 0 ||
+					   xcs->ascent + xcs->descent != 0));
+		    }
+		}
+	    }
+
+	    if (hasChar) {
+
+#ifdef QFONTLOADER_DEBUG
+		qDebug("QFontPrivate::load: %p unicode font has char "
+		       "0x%02x%02x for %d %s", this, ch.row(), ch.cell(), script,
+		       qt_x11encodings[script][qt_x11indices[script]]);
+#endif // QFONTLOADER_DEBUG
+
+		x11data.fontstruct[script] = qfs;
+		qfs->ref();
+		request.dirty = FALSE;
+
+		return;
+
+#ifdef QFONTLOADER_DEBUG
 	    } else {
-		QStringList familylst;
-		QRegExp sep( "[ =\t]" );
-		familylst = QStringList::split( sep, s );
-		if ( !chsetlst.isEmpty() && !familylst.isEmpty() ) {
-		    if ( !fontGuessingList )
-			fontGuessingList = new QList<FontGuessingPair>;
-		    FontGuessingPair *fontGuessingPair;
-		    fontGuessingPair = new FontGuessingPair;
-		    fontGuessingPair->charset = chsetlst;
-		    fontGuessingPair->family = familylst;
-		    fontGuessingList->append(fontGuessingPair);
-#if DBG // to debug
-		    printf( "charset = [%s], from = [%s], to = [%s]\n",
-		  		fontGuessingPair->charset[0].ascii(),
-		  		fontGuessingPair->family[1].ascii() );
+		qDebug("QFontPrivate::load: unicode font doesn't have char 0x%04x",
+		       ch.unicode());
+#endif // QFONTLOADER_DEBUG
+
+	    }
+
+#ifdef QFONTLOADER_DEBUG
+	} else {
+	    qDebug("QFontPrivate::load: unicode font tried, but doesn't exist");
+#endif // QFONTLOADER_DEBUG
+
+	}
+
+#ifdef QFONTLOADER_DEBUG
+    } else {
+	qDebug("QFontPrivate::load: not trying Unicode font");
+#endif // QFONTLOADER_DEBUG
+
+    }
+
+    // Look for font name in fontNameDict based on QFont::key()
+    QString k(key() + qt_x11encodings[script][qt_x11indices[script]]);
+    QXFontName *qxfn = fontNameDict->find(k);
+
+    if (! qxfn) {
+	// if we don't find the name in the dict, we need to find a font name
+
+#ifdef QFONTLOADER_DEBUG
+	qDebug("QFont::load: getting font name");
+#endif // QFONTLOADER_DEBUG
+
+	QString name;
+	bool match;
+
+	if (request.rawMode) {
+	    name = QFont::substitute(request.family);
+	    match = fontExists(name);
+
+	    if (! match) {
+		name = lastResortFont();
+	    }
+	} else {
+	    name = findFont(script, &match);
+	}
+
+	if (name.isNull()) {
+	    // no font name... this can only happen with Unicode
+	    //qDebug("QFP::load: no font name - this must be unicode (%d %s)",
+	    //script, qt_x11encodings[script][qt_x11indices[script]]);
+
+	    name = k + "NU";
+	}
+
+#ifdef QFONTLOADER_DEBUG
+	qDebug("QFontPrivate::load: putting '%s' (%d) into name dict", name.latin1(),
+	       name.length());
+#endif // QFONTLOADER_DEBUG
+
+	// Put font name into fontNameDict
+	qxfn = new QXFontName(name.latin1(), match);
+	Q_CHECK_PTR(qxfn);
+	fontNameDict->insert(k, qxfn);
+    }
+
+#ifdef QFONTLOADER_DEBUG
+    qDebug("QFont::load: using name '%s'", (const char *) qxfn->name);
+#endif // QFONTLOADER_DEBUG
+
+    exactMatch = qxfn->exactMatch;
+
+    QCString n(qxfn->name);
+
+    // Look in fontCache for font
+    QFontStruct *qfs = fontCache->find(n.data());
+    if (qfs) {
+	// Found font in either cache or dict...
+	x11data.fontstruct[script] = qfs;
+
+	if (qfs != (QFontStruct *) -1) {
+	    qfs->ref();
+	}
+
+	request.dirty = FALSE;
+
+	return;
+    }
+
+    // if we have no way to map this script, we give up
+    if (! qt_x11encodings[script][qt_x11indices[script]]) {
+
+#ifdef QFONTLOADER_DEBUG
+	qDebug("QFontPrivate::load: no nothing about script %d, giving up", script);
+#endif // QFONTLOADER_DEBUG
+
+	x11data.fontstruct[script] = (QFontStruct *) -1;
+	return;
+    }
+
+    // font was never loaded, we need to do that now
+    XFontStruct *f = 0;
+
+#ifdef QFONTLOADER_DEBUG
+    qDebug("QFontPrivate::load: %p loading font for %d %s\n\t%s", this,
+	   script, qt_x11encodings[script][qt_x11indices[script]], (const char *) n);
+#endif // QFONTLOADER_DEBUG
+
+    if (! (f = XLoadQueryFont(QPaintDevice::x11AppDisplay(),
+			      (const char *) n))) {
+	if (! script == QFontPrivate::Unicode) {
+
+#ifdef QFONTLOADER_DEBUG
+	    qDebug("QFontPrivate::load: load failed, trying last resort");
+#endif // QFONTLOADER_DEBUG
+
+	    exactMatch = FALSE;
+
+	    if (! (f = XLoadQueryFont(QPaintDevice::x11AppDisplay(),
+				      lastResortFont().latin1()))) {
+		qFatal("QFontPrivate::load: Internal error");
+	    }
+	} else {
+	    // Didn't get unicode font, set to sentinel and return
+	    //qDebug("no unicode font, doing negative caching");
+	    x11data.fontstruct[script] = (QFontStruct *) -1;
+	    fontCache->insert((const char *) n, x11data.fontstruct[script], 1);
+
+	    return;
+	}
+    }
+
+    // Adjust cost of this item in the fontCache (and adjust the maxcost of
+    // the cache if necessary)
+    int chars = MAXINDEX(f);
+    if ( chars > 5000 ) {
+	// If the user is using large fonts, we assume they have
+	// turned on the Xserver option deferGlyphs, and that they
+	// have more memory available to the server.
+	chars = 5000;
+    }
+
+    // get unicode -> font encoding codec
+    QTextCodec *codec = 0;
+    if (script < QFontPrivate::Unicode) {
+	codec = QTextCodec::codecForName(qt_x11encodings[script][qt_x11indices[script]]);
+    } else {
+	codec = QTextCodec::codecForName("ArabicUnicode");
+    }
+
+#ifdef QFONTLOADER_DEBUG
+    if (codec) {
+	qDebug("QFP::load: got codec %s for script %d %s",
+	       codec->name(), script, qt_x11encodings[script][qt_x11indices[script]]);
+    }
+#endif // QFONTLOADER_DEBUG
+
+    qfs = new QFontStruct((Qt::HANDLE) f, n, codec,
+			  (f->max_bounds.ascent + f->max_bounds.descent) *
+			  f->max_bounds.width * chars / 8);
+
+    x11data.fontstruct[script] = qfs;
+
+    initFontInfo(script);
+    request.dirty = FALSE;
+
+    // Insert font into the font cache and font dict
+    bool inserted;
+    inserted = fontCache->insert(qfs->name, qfs, qfs->cache_cost);
+
+#ifdef QT_CHECK_STATE
+    if (! inserted)
+	qFatal("QFont::load: font cache overflow error");
+#endif // QT_CHECK_STATE
+
+}
+
+
+
+
+
+
+
+
+// **********************************************************************
+// QFont static methods
+// **********************************************************************
+
+QFontPrivate::Script QFontPrivate::defaultScript = QFontPrivate::AnyScript;
+
+/*!
+  Internal function that initializes the font system.
+
+  \internal
+  The font cache and font dict do not alloc the keys. The key is a QString
+  which is shared between QFontPrivate and QXFontName.
+*/
+void QFont::initialize()
+{
+    if (QFontPrivate::NScripts != NSCRIPTSEGCSHACK) {
+	qFatal("The QFontPrivate::Script enum has changed, but the x11data.fontstruct\n"
+	       "member array size wasn't updated (%d)", QFontPrivate::NScripts);
+    }
+
+    // get some sample text based on the users locale.  we use this to determine the
+    // default script for the font system
+    QCString oldlctime = setlocale(LC_TIME, 0);
+    QCString lctime = setlocale(LC_TIME, "");
+
+    time_t ttmp = time(NULL);
+    struct tm *tt = 0;
+    char samp[64];
+    QString sample;
+
+    if (ttmp != -1 && (tt = localtime(&ttmp)) != 0 &&
+	strftime(samp, 64, "%A%B", tt) > 0) {
+
+	QTextCodec *codec = QTextCodec::codecForLocale();
+	if (codec) {
+	    sample = codec->toUnicode(samp);
+	}
+    }
+
+    if (! sample.isNull() && ! sample.isEmpty()) {
+	QFontPrivate::Script cs = QFontPrivate::AnyScript, tmp;
+	const QChar *uc = sample.unicode();
+
+	for (uint i = 0; i < sample.length(); i++) {
+	    tmp = QFontPrivate::scriptForChar(*uc++);
+	    if (tmp != cs && tmp != QFontPrivate::AnyScript) {
+		cs = tmp;
+		break;
+	    }
+	}
+
+	if (cs != QFontPrivate::AnyScript) {
+	    QFontPrivate::defaultScript = cs;
+	}
+    }
+
+    setlocale(LC_TIME, (const char *) oldlctime);
+
+    // create font cache and name dict
+    if (! QFontPrivate::fontCache) {
+	QFontPrivate::fontCache = new QFontCache();
+
+	fontNameDict = new QFontNameDict(QFontPrivate::fontCache->size());
+	Q_CHECK_PTR(fontNameDict);
+	fontNameDict->setAutoDelete(TRUE);
+    }
+
+    // create font codecs
+
+#ifndef QT_NO_CODECS
+    (void) new QFontJis0208Codec;
+    (void) new QFontKsc5601Codec;
+    (void) new QFontGB2312Codec;
+    (void) new QFontBig5Codec;
+    (void) new QFontArabic68Codec;
+    (void) new QFontArabicUnicodeCodec;
 #endif
-		}
-	    }
-	} /* while */
-	f.close();
-	return TRUE;
-    } else
-	return FALSE;
+
 }
 
-QCString QFont_Private::bestMatchFontSetMember( const QString& family,
-		const char *wt, const char *slant, int size, int /*xdpi*/, int /*ydpi*/ )
+
+/*!
+  Internal function that cleans up the font system.
+*/
+void QFont::cleanup()
 {
-    static int read = 0;
+    // delete cache and namedict
+    QFontPrivate::fontCache->setAutoDelete(TRUE);
+    delete QFontPrivate::fontCache;
+    QFontPrivate::fontCache = 0;
 
-    if ( !read ) {
-        QString filename;
-        read = 1;
-        QString home = QDir::homeDirPath();
-        filename = qstrdup(home + "/.fontguess");
-        fontmapping(filename);
-        filename = qstrdup(FONT_GUESSING_FILE);
-        fontmapping(filename);
-    }
-
-    QCString bestName;
-
-    if ( fontGuessingList ) {
-	FontGuessingPair *fontGuessingPair = fontGuessingList->first();
-	while ( fontGuessingPair ) {
-	    if ( qstricmp(family, fontGuessingPair->family[0]) == 0 ) {
-		for ( int i = 0; i < (int)(fontGuessingPair->family.count())-1; ++i ) {
-		    char s[1024];
-		    sprintf( s, "-*-%s-%s-%s-*-*-%d-*-*-*-*-*-%s,",
-				fontGuessingPair->family[i+1].latin1(),
-				wt, slant, size, 
-				fontGuessingPair->charset[i].latin1() );
-				bestName.append(s);
-		}
-		return bestName;
-	    }
-	    fontGuessingPair = fontGuessingList->next();
-	}
-    }
-
-    // default font
-    bestName.sprintf("-*-helvetica-%s-%s-*-*-%d-*-*-*-*-*-*-*,",
-		wt, slant, size);
-    return bestName;
+    delete fontNameDict;
+    fontNameDict = 0;
 }
 
-// Font Guessing end
 
 
-QCString QFont_Private::findFont( bool *exact )
+
+
+// **********************************************************************
+// QFont member methods
+// **********************************************************************
+
+/*!
+  Returns the window system handle to the font, for low-level
+  access.  Using this function is \e not portable.
+*/
+Qt::HANDLE QFont::handle() const
 {
-    QString familyName = family();
-    *exact = TRUE;				// assume exact match
-    if ( familyName.isEmpty() ) {
-	familyName = defaultFamily();
-	*exact = FALSE;
-    }
 
-    QString foundry;
+#warning "TODO: handle based on charset compatibility?"
+    // qDebug("QFont::handle: checking charset for !QT_NO_COMPAT");
+    // qDebug("QFont::handle: d->charset is %d '%s'", d->charset,
+    // qt_x11encodings[d->charset]);
 
-    if ( familyName.contains('-') ) {
-	int i = familyName.find('-');
-	foundry = familyName.left( i );
-	familyName = familyName.right( familyName.length() - i - 1 );
-    }
+    // if the charset has been set, then we return the handle for that font
+    // if (d->charset != QFont::AnyScript) {
+    // qDebug("font charset is %d '%s'", d->charset, qt_x11encodings[d->charset]);
 
-    if ( needsSet() ) {
-	// Font sets do not use scoring.
-	*exact = TRUE;
+    // if (d->x11data.fontstruct[d->charset]) {
+    // qDebug("QFont::handle: charset has been set, returning that font id");
+    // return ((XFontStruct *) d->x11data.fontstruct[d->charset]->handle)->fid;
+    // } else {
+    // qDebug("QFont::handle: charset has been set, but font isn't loaded");
+    // return 0;
+    // }
+    // } else {
+    // qDebug("QFont::handle: charset not set");
+    // }
 
-	const char* wt = weight() < 37 ? "light" :
-		 ( weight() < 57 ? "medium" :
-		   ( weight() < 69 ? "demibold" :
-		     ( weight() < 81 ? "bold" : "black" ) ) );
-	const char* slant = italic() ? "i" : "r";
-	const char* slant2 = italic() ? "o" : "r";
-	int size = pixelSize();
-	QCString s( 512 + 3*familyName.length() );
-	if ( foundry.isEmpty() ) {
-	    s.sprintf( "-*-%s-%s-%s-normal-*-%d-*-*-*-*-*-*-*,"
-		       "-*-%s-*-%s-*-*-%d-*-*-*-*-*-*-*,"
-		       "-*-%s-*-%s-*-*-%d-*-*-*-*-*-*-*,"
-				// Font Guessing
-		       "%s"
-		       "-*-*-*-%s-*-*-%d-*-*-*-*-*-*-*,"
-		       "-*-*-*-*-*-*-%d-*-*-*-*-*-*-*",
-		       familyName.ascii(), wt, slant, size, 
-		       familyName.ascii(), slant, size, 
-		       familyName.ascii(), slant2, size, 
-				// Font Guessing
-		       bestMatchFontSetMember(familyName, wt, slant, size, 0, 0).data(),
-		       slant, size, 
-		       size );
-	} else {
-	    s.sprintf( "-%s-%s-%s-%s-normal-*-%d-*-*-*-*-*-*-*,"
-		       "-%s-%s-*-%s-*-*-%d-*-*-*-*-*-*-*,"
-		       "-%s-%s-*-%s-*-*-%d-*-*-*-*-*-*-*,"
-		       "-*-%s-%s-%s-normal-*-%d-*-*-*-*-*-*-*,"
-		       "-*-%s-*-%s-*-*-%d-*-*-*-*-*-*-*,"
-		       "-*-%s-*-%s-*-*-%d-*-*-*-*-*-*-*,"
-				// Font Guessing
-		       "%s"
-		       "-*-*-*-%s-*-*-%d-*-*-*-*-*-*-*,"
-		       "-*-*-*-*-*-*-%d-*-*-*-*-*-*-*",
-		       foundry.ascii(), familyName.ascii(), wt, slant, size,
-		       foundry.ascii(), familyName.ascii(), slant, size,
-		       foundry.ascii(), familyName.ascii(), slant2, size,
-		       familyName.ascii(), wt, slant, size,
-		       familyName.ascii(), slant, size, 
-		       familyName.ascii(), slant2, size, 
-				// Font Guessing
-		       bestMatchFontSetMember(familyName, wt, slant, size, 0, 0).data(),
-		       slant, size, 
-		       size );
-	}
-	return s;
-    } else {
-	int score;
-	QCString bestName = bestFamilyMember( foundry, familyName, &score );
-	if ( score < exactScore )
-	    *exact = FALSE;
+    d->load(QFontPrivate::defaultScript);
 
-	if ( !(score & NonUnicodeScore) )
-	    setCharSet( Unicode );
+    // find the first font id and return that
+    for (int i = 0; i < QFontPrivate::NScripts; i++) {
+	QFontStruct *qfs = d->x11data.fontstruct[i];
 
-	if ( score < CharSetScore ) {
-	    QString f = substitute( family() );
-	    if( familyName != f ) {
-		familyName = f;                     // try substitution
-		bestName = bestFamilyMember( foundry, familyName, &score );
+	if (qfs) {
+	    d->load((QFontPrivate::Script) i);
+
+	    qfs = d->x11data.fontstruct[i];
+
+	    if (qfs && qfs != (QFontStruct *) -1) {
+		return ((XFontStruct *) qfs->handle)->fid;
 	    }
 	}
-	if ( score < CharSetScore ) {
-	    QString f = defaultFamily();
-	    if ( familyName != f ) {
-		familyName = f;			// try default family for style
-		bestName = bestFamilyMember( foundry, familyName, &score );
-	    }
-	    if ( score < CharSetScore ) {
-		f = lastResortFamily();
-		if ( familyName != f ) {
-		    familyName = f;		// try system default family
-		    bestName = bestFamilyMember( foundry, familyName, &score );
-		}
-	    }
-	}
-	if ( bestName.isNull() )		// no matching fonts found
-	    bestName = lastResortFont().ascii();
-	return bestName;
     }
+
+    // no font ids in the font, so we return an invalid handle
+    return 0;
 }
 
 
-/*****************************************************************************
-  QFontMetrics member functions
- *****************************************************************************/
+/*!
+  Returns the name of the font within the underlying window system.
+  On Windows, this is usually just the family name of a true type
+  font. Under X, it is a rather complex XLFD (X Logical Font
+  Description). Using the return value of this function is usually \e
+  not \e portable.
 
-const QFontDef *QFontMetrics::spec() const
+  \sa setRawName()
+*/
+QString QFont::rawName() const
 {
-    if ( painter ) {
-	painter->cfont.handle();
-	return painter->cfont.d->fin->spec();
-    } else {
-	return d->fin->spec();
+    d->load(QFontPrivate::defaultScript);
+
+    QFontStruct *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
+    if (! qfs || qfs == (QFontStruct *) -1) {
+	return QString::null;
     }
+
+    return QString::fromLatin1(qfs->name);
 }
 
-void *QFontMetrics::fontStruct() const
+
+/*!
+  Sets a font by its system specific name. The function is in
+  particular useful under X, where system font settings ( for example
+  X resources) are usually available as XLFD (X Logical Font
+  Description) only. You can pass an XLFD as \a name to this function.
+
+  In Qt 2.0 and later, a font set with setRawName() is still a
+  full-featured QFont. It can be queried (for example with italic())
+  or modified (for example with setItalic() ) and is therefore also
+  suitable as a basis font for rendering rich text.
+
+  If Qt's internal font database cannot resolve the raw name, the font
+  becomes a raw font with \a name as family.
+
+  Note that the present implementation does not handle handle
+  wildcards in XLFDs well, and that font aliases (file \c fonts.alias
+  in the font directory on X11) are not supported.
+
+  \sa rawName(), setRawMode(), setFamily()
+*/
+void QFont::setRawName( const QString &name )
 {
-    if ( painter ) {
-	painter->cfont.handle();
-	// ### printer font metrics hack
-	if ( painter->device() &&
-	     painter->device()->devType() == QInternal::Printer &&
-	     painter->cfont.pointSize() < 48 ) {
-	    if ( painter->cfont.d->printerHackFont == 0 ) {
-		painter->cfont.d->printerHackFont
-		    = new QFont( painter->cfont );
-		painter->cfont.d->printerHackFont->setPointSize( 64 );
-	    }
-	    painter->cfont.d->printerHackFont->handle();
-	    return painter->cfont.d->printerHackFont->d->fin->fontStruct();
-	}
-	return painter->cfont.d->fin->fontStruct();
-    } else {
-	return d->fin->fontStruct();
+    detach();
+
+    bool validXLFD = QFontPrivate::fillFontDef(name.latin1(), &d->request, 0);
+    d->request.dirty = TRUE;
+
+    if ( !validXLFD ) {
+
+#ifdef QT_CHECK_STATE
+	qWarning("QFont::setRawMode(): Invalid XLFD: \"%s\"", name.latin1());
+#endif // QT_CHECK_STATE
+
+	setFamily( name );
+	setRawMode( TRUE );
     }
 }
 
-void *QFontMetrics::fontSet() const
+
+/*!
+  Returns TRUE if the font attributes have been changed and the font has to
+  be (re)loaded, or FALSE if no changes have been made.
+*/
+bool QFont::dirty() const
 {
-    if ( painter ) {
-	painter->cfont.handle();
-	return painter->cfont.d->fin->fontSet();
-    } else {
-	return d->fin->fontSet();
-    }
+    return d->request.dirty;
 }
 
-const QTextCodec *QFontMetrics::mapper() const
+
+/*!
+  Returns the logical pixel height of characters in the font if shown on
+  the screen.
+*/
+int QFont::pixelSize() const
 {
-    if ( painter ) {
-	painter->cfont.handle();
-	return painter->cfont.d->fin->mapper();
-    } else {
-	return d->fin->mapper();
-    }
+    // 360 == .5 for correct rounding
+    return ((d->request.pointSize * QPaintDevice::x11AppDpiY()) + 360) / 720;
 }
 
-#undef  FS
-#define FS (painter ? (XFontStruct*)fontStruct() : d->fin->fontStruct())
-#undef  SET
-#define SET ((XFontSet)fontSet())
 
-// How to calculate metrics from ink and logical rectangles.
-#define LBEARING(i,l) (i.x+l.x)
-#define RBEARING(i,l) (i.width-l.width)
-#define ASCENT(i,l) (-i.y)
-#define DESCENT(i,l) (i.height+i.y-1)
-
-
-int QFontMetrics::printerAdjusted(int val) const
+/*!
+  Sets the logical pixel height of characters in the font if shown on
+  the screen.
+*/
+void QFont::setPixelSizeFloat( float pixelSize )
 {
-    if ( painter && painter->device() &&
-	 painter->device()->devType() == QInternal::Printer) {
-	(void)fontStruct();
-	// ### printer font metrics hack
-	if ( painter->cfont.d->printerHackFont ) {
-	    painter->cfont.d->printerHackFont->handle();
-	    val = val 
-		  * painter->cfont.pointSize()	// to target size
-		  * 75				// to 75dpi
-		  / 64 				// from hack size
-		  / QPaintDevice::x11AppDpiY(); // from screen resolution
-	} else {
-	    val = val 
-		  * 75				// to 75dpi
-		  / QPaintDevice::x11AppDpiY(); // from screen resolution
-	}
-	return val;
-    } else {
-	return val;
-    }
+    setPointSizeFloat(pixelSize * 72.0 / QPaintDevice::x11AppDpiY());
 }
+
+
+
+
+
+
+
+
+// **********************************************************************
+// QFontMetrics member methods
+// **********************************************************************
 
 /*!
   Returns the maximum ascent of the font.
@@ -2001,15 +1666,17 @@ int QFontMetrics::printerAdjusted(int val) const
 
   \sa descent()
 */
-
 int QFontMetrics::ascent() const
 {
-    XFontStruct *f = FS;
-    if ( f )
-	return printerAdjusted(f->max_bounds.ascent);
-    XFontSetExtents *ext = XExtentsOfFontSet(SET);
-    return printerAdjusted(ASCENT(ext->max_ink_extent,
-				  ext->max_logical_extent));
+    d->load(QFontPrivate::defaultScript);
+
+    QFontStruct *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
+    if (! qfs || qfs == (QFontStruct *) -1) {
+	return d->request.pointSize * 3 / 40;
+    }
+
+    XFontStruct *f = (XFontStruct *) qfs->handle;
+    return f->max_bounds.ascent;
 }
 
 
@@ -2022,95 +1689,106 @@ int QFontMetrics::ascent() const
 
   \sa ascent()
 */
-
 int QFontMetrics::descent() const
 {
-    XFontStruct *f = FS;
-    if ( f )
-	return printerAdjusted(f->max_bounds.descent - 1);
-    XFontSetExtents *ext = XExtentsOfFontSet(SET);
-    return printerAdjusted(DESCENT(ext->max_ink_extent,ext->max_logical_extent));
+    d->load(QFontPrivate::defaultScript);
+
+    QFontStruct *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
+    if (! qfs || qfs == (QFontStruct *) -1) {
+	return 0;
+    }
+
+    XFontStruct *f = (XFontStruct *) qfs->handle;
+    return f->max_bounds.descent - 1;
 }
 
-inline bool inFont(XFontStruct *f, QChar ch)
-{
-    if ( f->max_byte1 ) {
-	return ch.cell() >= f->min_char_or_byte2
-	    && ch.cell() <= f->max_char_or_byte2
-	    && ch.row() >= f->min_byte1
-	    && ch.row() <= f->max_byte1;
-    } else if ( ch.row() ) {
-	uint ch16 = ch.unicode();
-	return ch16 >= f->min_char_or_byte2
-	    && ch16 <= f->max_char_or_byte2;
-    } else {
-	return ch.cell() >= f->min_char_or_byte2
-	    && ch.cell() <= f->max_char_or_byte2;
-    }
-}
 
 /*!
   Returns TRUE if \a ch is a valid character in the font.
 */
 bool QFontMetrics::inFont(QChar ch) const
 {
-    XFontStruct *f = FS;
-    if ( f && !mapper() ) {
-	return ::inFont( f, ch );
-    } else if ( mapper() ) {
-	return mapper()->canEncode(ch);
+    QFontPrivate::Script script = QFontPrivate::scriptForChar(ch);
+
+    if (script == QFontPrivate::UnknownScript)
+	return FALSE;
+
+    d->load(script);
+
+    QFontStruct *qfs = d->x11data.fontstruct[script];
+    if (! qfs || qfs == (QFontStruct *) -1) {
+	return FALSE;
     }
-    return TRUE; // ###### XFontSet range?
+
+    XFontStruct *f = (XFontStruct *) qfs->handle;
+
+    if (f->max_byte1) {
+        return (ch.cell() >= f->min_char_or_byte2 &&
+		ch.cell() <= f->max_char_or_byte2 &&
+		ch.row() >= f->min_byte1 &&
+		ch.row() <= f->max_byte1);
+    } else if (ch.row()) {
+        uint ch16 = ch.unicode();
+
+	return (ch16 >= f->min_char_or_byte2 &&
+		ch16 <= f->max_char_or_byte2);
+    }
+
+    return (ch.cell() >= f->min_char_or_byte2 &&
+	    ch.cell() <= f->max_char_or_byte2);
 }
 
+
 static
-XCharStruct* charStr(const QTextCodec* mapper, XFontStruct *f, QChar ch)
+XCharStruct* charStr(const QTextCodec* codec, XFontStruct *f,
+		const QString &str, int pos)
 {
     // Optimized - inFont() is merged in here.
+    QChar ch;
 
-    if ( !f->per_char )
+    if (! f->per_char) {
 	return &f->max_bounds;
+    }
 
-    if ( mapper ) {
-	int l = 1;
-	QCString c = mapper->fromUnicode(ch,l);
-	// #### What if c.length()>1 ?
-	ch = c[0];
+    if (codec) {
+	ch = QChar(codec->characterFromUnicode(str, pos));
+    } else {
+	ch = *( str.unicode() + pos );
+    }
+
+    if( ch.unicode() == 0 ) {
+	return 0;
     }
 
     if ( f->max_byte1 ) {
-	if ( !(ch.cell() >= f->min_char_or_byte2
-	    && ch.cell() <= f->max_char_or_byte2
-	    && ch.row() >= f->min_byte1
-	    && ch.row() <= f->max_byte1) )
+	if (! (ch.cell() >= f->min_char_or_byte2 &&
+	       ch.cell() <= f->max_char_or_byte2 &&
+	       ch.row() >= f->min_byte1 &&
+	       ch.row() <= f->max_byte1)) {
 	    ch = QChar((ushort)f->default_char);
+	}
+
 	return f->per_char +
 	    ((ch.row() - f->min_byte1)
-		    * (f->max_char_or_byte2 - f->min_char_or_byte2 + 1)
-		+ ch.cell() - f->min_char_or_byte2);
+	     * (f->max_char_or_byte2 - f->min_char_or_byte2 + 1)
+	     + ch.cell() - f->min_char_or_byte2);
     } else if ( ch.row() ) {
 	uint ch16 = ch.unicode();
-	if ( !(ch16 >= f->min_char_or_byte2
-	    && ch16 <= f->max_char_or_byte2) )
-	    ch16 = f->default_char;
-	return f->per_char + ch16;
-    } else {
-	if ( !( ch.cell() >= f->min_char_or_byte2
-	    && ch.cell() <= f->max_char_or_byte2) )
-	    ch = QChar((uchar)f->default_char);
-	return f->per_char + ch.cell() - f->min_char_or_byte2;
-    }
-}
 
-static void getExt( QString str, int len, XRectangle& ink,
-		    XRectangle& logical, XFontSet set, const QTextCodec* m )
-{
-    // Callers to this / this needs to be optimized.
-    // Trouble is, too much caching in multiple clients will make the
-    //  overall performance suffer.
-    
-    QCString x = m->fromUnicode(str,len);
-    XmbTextExtents( set, x, len, &ink, &logical );
+	if (! (ch16 >= f->min_char_or_byte2 &&
+	       ch16 <= f->max_char_or_byte2)) {
+	    ch16 = f->default_char;
+	}
+
+	return f->per_char + ch16;
+    }
+
+    if (! (ch.cell() >= f->min_char_or_byte2 &&
+	   ch.cell() <= f->max_char_or_byte2)) {
+	ch = QChar((uchar)f->default_char);
+    }
+
+    return f->per_char + ch.cell() - f->min_char_or_byte2;
 }
 
 
@@ -2128,14 +1806,23 @@ static void getExt( QString str, int len, XRectangle& ink,
 */
 int QFontMetrics::leftBearing(QChar ch) const
 {
-    XFontStruct *f = FS;
-    if ( f )
-	return printerAdjusted(charStr(mapper(),f,ch)->lbearing);
+    QFontPrivate::Script script = QFontPrivate::scriptForChar(ch);
 
-    XRectangle ink, log;
-    getExt(ch,1,ink,log,SET,mapper());
-    return printerAdjusted(LBEARING(ink,log));
+    if (script == QFontPrivate::UnknownScript) {
+	return 0;
+    }
+
+    d->load(script);
+
+    QFontStruct *qfs = d->x11data.fontstruct[script];
+    if (! qfs || qfs == (QFontStruct *) -1) {
+	return 0;
+    }
+
+    XCharStruct *xcs = charStr(qfs->codec, ((XFontStruct *) qfs->handle), ch, 0);
+    return xcs ? xcs->width : 0;
 }
+
 
 /*!
   Returns the right bearing of character \a ch in the font.
@@ -2151,15 +1838,23 @@ int QFontMetrics::leftBearing(QChar ch) const
 */
 int QFontMetrics::rightBearing(QChar ch) const
 {
-    XFontStruct *f = FS;
-    if ( f ) {
-	XCharStruct* cs = charStr(mapper(),f,ch);
-	return printerAdjusted(cs->width - cs->rbearing);
+    QFontPrivate::Script script = QFontPrivate::scriptForChar(ch);
+
+    if (script == QFontPrivate::UnknownScript) {
+	return 0;
     }
-    XRectangle ink, log;
-    getExt(ch,1,ink,log,SET,mapper());
-    return printerAdjusted(RBEARING(ink,log));
+
+    d->load(script);
+
+    QFontStruct *qfs = d->x11data.fontstruct[script];
+    if (! qfs || qfs == (QFontStruct *) -1) {
+	return 0;
+    }
+
+    XCharStruct *xcs = charStr(qfs->codec, ((XFontStruct *) qfs->handle), ch, 0);
+    return xcs ? xcs->width : 0;
 }
+
 
 /*!
   Returns the minimum left bearing of the font.
@@ -2172,13 +1867,49 @@ int QFontMetrics::rightBearing(QChar ch) const
 */
 int QFontMetrics::minLeftBearing() const
 {
-    // Don't need def->lbearing, the FS stores it.
-    XFontStruct *f = FS;
-    if ( f )
-	return printerAdjusted(f->min_bounds.lbearing);
-    XFontSetExtents *ext = XExtentsOfFontSet(SET);
-    return printerAdjusted(ext->max_logical_extent.x+ext->max_ink_extent.x);
+    if ( d->actual.lbearing == SHRT_MIN ) {
+	XFontStruct *f;
+	int mlb = SHRT_MAX;
+	int mx = 0;
+
+	for(int i = 0; i < QFontPrivate::NScripts - 1; i++) {
+	    if (! d->x11data.fontstruct[i]) {
+		continue;
+	    }
+
+	    d->load((QFontPrivate::Script) i);
+
+	    if (! d->x11data.fontstruct[i] ||
+		d->x11data.fontstruct[i] == (QFontStruct *) -1) {
+		continue;
+	    }
+
+	    f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
+
+	    if ( f->per_char ) {
+		XCharStruct *cs = f->per_char;
+		int nc = MAXINDEX(f) + 1;
+		mx = cs->lbearing;
+
+		for (int c = 1; c < nc; c++) {
+		    int nmx = cs[c].lbearing;
+		    if (nmx < mx) mx = nmx;
+		}
+	    } else {
+		mx = f->min_bounds.lbearing;
+	    }
+
+	    if (mx < mlb) {
+		mlb = mx;
+	    }
+	}
+
+	d->actual.lbearing = mlb;
+    }
+
+    return d->actual.lbearing;
 }
+
 
 /*!
   Returns the minimum right bearing of the font.
@@ -2192,33 +1923,46 @@ int QFontMetrics::minLeftBearing() const
 */
 int QFontMetrics::minRightBearing() const
 {
-    // Safely cast away const, as we cache rbearing there.
-    QFontDef* def = (QFontDef*)spec();
+    if ( d->actual.rbearing == SHRT_MIN ) {
+	XFontStruct *f;
+	int mrb = SHRT_MAX;
+	int mx = 0;
 
-    if ( def->rbearing == SHRT_MIN ) {
-	XFontStruct *f = FS;
-	if ( f ) {
-	    if ( f->per_char ) {
-		XCharStruct *c = f->per_char;
-		int nc = maxIndex(f)+1;
-		int mx = c->width - c->rbearing;
-		for ( int i=1; i < nc; i++ ) {
-		    int nmx = c[i].width - c[i].rbearing;
-		    if ( nmx < mx )
-			mx = nmx;
-		}
-		def->rbearing = mx;
-	    } else {
-		def->rbearing = f->max_bounds.width - f->max_bounds.rbearing;
+	for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
+	    if (! d->x11data.fontstruct[i]) {
+		continue;
 	    }
-	} else {
-	    XFontSetExtents *ext = XExtentsOfFontSet(SET);
-	    def->rbearing = ext->max_ink_extent.width
-			-ext->max_logical_extent.width;
+
+	    d->load((QFontPrivate::Script) i);
+
+	    if (! d->x11data.fontstruct[i] ||
+		d->x11data.fontstruct[i] == (QFontStruct *) -1) {
+		continue;
+	    }
+
+	    f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
+
+	    if ( f->per_char ) {
+		XCharStruct *cs = f->per_char;
+		int nc = MAXINDEX(f) + 1;
+		mx = cs->width - cs->rbearing;
+
+		for (int c = 1; c < nc; c++) {
+		    int nmx = cs[c].width - cs[c].rbearing;
+		    if (nmx < mx) mx = nmx;
+		}
+	    } else {
+		mx = f->max_bounds.width - f->max_bounds.rbearing;
+	    }
+
+	    if (mx < mrb)
+		mrb = mx;
 	}
+
+	d->actual.rbearing = mrb;
     }
 
-    return printerAdjusted(def->rbearing);
+    return d->actual.rbearing;
 }
 
 
@@ -2229,15 +1973,19 @@ int QFontMetrics::minRightBearing() const
 
   \sa leading(), lineSpacing()
 */
-
 int QFontMetrics::height() const
 {
-    XFontStruct *f = FS;
-    if ( f )
-	return printerAdjusted(f->max_bounds.ascent + f->max_bounds.descent);
-    XFontSetExtents *ext = XExtentsOfFontSet(SET);
-    return printerAdjusted(ext->max_ink_extent.height);
+    d->load(QFontPrivate::defaultScript);
+
+    QFontStruct *qfs =  d->x11data.fontstruct[QFontPrivate::defaultScript];
+    if (! qfs || qfs == (QFontStruct *) -1) {
+	return (d->request.pointSize * 3 / 40) + 1;
+    }
+
+    XFontStruct *f = (XFontStruct *) qfs->handle;
+    return f->max_bounds.ascent + f->max_bounds.descent;
 }
+
 
 /*!
   Returns the leading of the font.
@@ -2246,22 +1994,17 @@ int QFontMetrics::height() const
 
   \sa height(), lineSpacing()
 */
-
 int QFontMetrics::leading() const
 {
-    XFontStruct *f = FS;
-    if ( f ) {
-	int l = f->ascent		 + f->descent -
-		f->max_bounds.ascent - f->max_bounds.descent;
-	if ( l > 0 ) {
-	    return printerAdjusted(l);
-	} else {
-	    return 0;
-	}
+    d->load(QFontPrivate::defaultScript);
+
+    QFontStruct *qfs =  d->x11data.fontstruct[QFontPrivate::defaultScript];
+    if (! qfs || qfs == (QFontStruct *) -1) {
+	return 0;
     }
-    XFontSetExtents *ext = XExtentsOfFontSet(SET);
-    return printerAdjusted(ext->max_logical_extent.height
-		-ext->max_ink_extent.height);
+
+    XFontStruct *f = (XFontStruct *) qfs->handle;
+    return f->ascent + f->descent - f->max_bounds.ascent - f->max_bounds.descent;
 }
 
 
@@ -2272,11 +2015,11 @@ int QFontMetrics::leading() const
 
   \sa height(), leading()
 */
-
 int QFontMetrics::lineSpacing() const
 {
     return leading() + height();
 }
+
 
 /*! \overload int QFontMetrics::width( char c ) const
 
@@ -2285,7 +2028,13 @@ int QFontMetrics::lineSpacing() const
   Provided to aid porting from Qt 1.x.
 */
 
+
 /*!
+  \obsolete
+  This function will produce incorrect results for arabic characters, as
+  the glyph shaping occuring in these languages ca not be taken into account.
+  Use \a charWidth() instead.
+
   <img src="bearings.png" align=right> Returns the logical width of a
   \e ch in pixels.  This is a distance appropriate for drawing a
   subsequent character after \e ch.
@@ -2298,49 +2047,180 @@ int QFontMetrics::lineSpacing() const
 
   \sa boundingRect()
 */
-
-int QFontMetrics::width( QChar ch ) const
+int QFontMetrics::width(QChar ch) const
 {
-    XFontStruct *f = FS;
-    if ( f ) {
-	return printerAdjusted(charStr(mapper(),f,ch)->width);
-    } else {
-	XRectangle ink, log;
-	getExt(ch,1,ink,log,SET,mapper());
-	return printerAdjusted(log.width);
+    QFontPrivate::Script script = QFontPrivate::scriptForChar(ch);
+
+    if (script == QFontPrivate::UnknownScript) {
+	return d->request.pointSize * 3 / 40;
     }
+
+    d->load(script);
+
+    QFontStruct *qfs =  d->x11data.fontstruct[script];
+    if (! qfs || qfs == (QFontStruct *) -1) {
+	return d->request.pointSize * 3 / 40;
+    }
+
+    XCharStruct *xcs = charStr(qfs->codec, ((XFontStruct *) qfs->handle), ch, 0);
+    return xcs ? xcs->width : d->request.pointSize * 3 / 40;
 }
+
+
+/*!
+  Returns the width of the character at position \e pos in the string \e str.
+
+  The whole string is needed, as the glyph drawn may change depending on the
+  context (the letter before and after the current one) for some languages
+  (eg. Arabic).
+
+  Also takes non spacing marks and ligatures into account.
+*/
+int QFontMetrics::charWidth( const QString &str, int pos ) const
+{
+    QChar ch = str[pos];
+    QFontPrivate::Script script = QFontPrivate::scriptForChar(ch);
+
+    if (script == QFontPrivate::UnknownScript) {
+	return d->request.pointSize * 3 / 40;
+    }
+
+    d->load(script);
+
+    QFontStruct *qfs = d->x11data.fontstruct[script];
+    if (! qfs || qfs == (QFontStruct *) -1) {
+        return d->request.pointSize * 3 / 40;
+    }
+
+    XCharStruct *xcs = charStr(qfs->codec, ((XFontStruct *) qfs->handle), str, pos);
+    return xcs ? xcs->width : d->request.pointSize * 3 / 40;
+}
+
 
 /*!
   Returns the width in pixels of the first \e len characters of \e str.
-
   If \e len is negative (the default value is), the whole string is used.
 
   Note that this value is \e not equal to boundingRect().width();
   boundingRect() returns a rectangle describing the pixels this string
-  will cover whereas width() returns the distance to where the next string
+  will cover whereas width() r eturns the distance to where the next string
   should be drawn.
 
   \sa boundingRect()
 */
-
 int QFontMetrics::width( const QString &str, int len ) const
 {
-    if ( len < 0 )
+    if (len < 0)
 	len = str.length();
-    XFontStruct *f = FS;
-    if ( f ) {
-	const QTextCodec* m = mapper();
-	if ( m )
-	    return printerAdjusted(XTextWidth( f, m->fromUnicode(str,len),
-					       len ));
-	else
-	    return printerAdjusted(XTextWidth16( f, (XChar2b*)str.unicode(),
-						 len ));
+    if (len == 0)
+	return 0;
+
+    // this algorithm is similar to the one used for painting
+    const QChar *uc = str.unicode();
+    QFontPrivate::Script currs = QFontPrivate::NoScript, tmp;
+    QFontStruct *qfs;
+    XFontStruct *f;
+    int i;
+
+    QByteArray mapped;
+    int currw = 0;
+    int lasts = -1;
+
+    for (i = 0; i < len; i++) {
+	tmp = QFontPrivate::scriptForChar(*uc++);
+
+	if (tmp != currs) {
+	    if (lasts >= 0) {
+		qfs = 0;
+		f = 0;
+
+		if (currs != QFontPrivate::UnknownScript) {
+		    d->load(currs);
+
+		    qfs = d->x11data.fontstruct[currs];
+		    if (qfs || qfs != (QFontStruct *) -1) {
+			f = (XFontStruct *) qfs->handle;
+		    }
+		}
+
+		if (f) {
+		    if (qfs->codec) {
+			mapped = qfs->codec->fromUnicode(str, lasts, i - lasts );
+
+			if (f->max_byte1) {
+			    currw += XTextWidth16(f, (XChar2b *) mapped.data(),
+						  mapped.size() / 2);
+			} else {
+			    currw += XTextWidth(f, mapped.data(), mapped.size());
+			}
+
+			mapped.resize(0);
+		    } else {
+			// we are dealing with unicode text and a unicode font - YAY
+			if (f->max_byte1) {
+			    currw +=
+				XTextWidth16(f, (XChar2b *) (str.unicode() + lasts),
+					     i - lasts);
+			} else {
+			    // STOP: we want to use unicode, but don't have a multi-byte
+			    // font?  something is seriously wrong... assume we have text
+			    // we know nothing about
+
+			    currw += (i - lasts) * (d->request.pointSize * 3 / 40);
+			}
+		    }
+		} else {
+		    currw += (i - lasts) * (d->request.pointSize * 3 / 40);
+		}
+	    }
+
+	    currs = tmp;
+	    lasts = i;
+	}
     }
-    XRectangle ink, log;
-    getExt(str,len,ink,log,SET,mapper());
-    return printerAdjusted(log.width);
+
+    if (lasts >= 0) {
+	qfs = 0;
+	f = 0;
+
+	if (currs != QFontPrivate::UnknownScript) {
+	    d->load(currs);
+
+	    qfs =  d->x11data.fontstruct[currs];
+	    if (qfs && qfs != (QFontStruct *) -1) {
+		f = (XFontStruct *) qfs->handle;
+	    }
+	}
+
+	if (f) {
+	    if (qfs->codec) {
+		mapped = qfs->codec->fromUnicode( str, lasts, i - lasts );
+
+		if (f->max_byte1) {
+		    currw += XTextWidth16(f, (XChar2b *) mapped.data(),
+					  mapped.size() / 2);
+		} else {
+		    currw += XTextWidth(f, mapped.data(), mapped.size());
+		}
+	    } else {
+		if (f->max_byte1) {
+		    // we are dealing with unicode text and a unicode font - YAY
+		    currw += XTextWidth16(f, (XChar2b *) (str.unicode() + lasts),
+					  i - lasts);
+		} else {
+		    // STOP: we want to use unicode, but don't have a multi-byte
+		    // font?  something is seriously wrong... assume we have text
+		    // we know nothing about
+
+		    currw += (i - lasts) * (d->request.pointSize * 3 / 40);
+		}
+	    }
+	} else {
+	    currw += (i - lasts) * (d->request.pointSize * 3 / 40);
+	}
+    }
+
+    return currw;
 }
 
 
@@ -2362,21 +2242,197 @@ int QFontMetrics::width( const QString &str, int len ) const
 
   \sa width(), QPainter::boundingRect()
 */
-
 QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 {
-    // Values are printerAdjusted during calculations.
-
-    if ( len < 0 )
+    if (len < 0)
 	len = str.length();
-    XFontStruct *f = FS;
-    int direction;
-    int ascent;
-    int descent;
+    if (len == 0)
+	return QRect();
+
+    // this algorithm is similar to width(const QString &, int)
+    const QChar *uc = str.unicode();
+    QFontPrivate::Script currs = QFontPrivate::NoScript, tmp;
+    QFontStruct *qfs;
+    XFontStruct *f;
+    int i;
+
+    QByteArray mapped;
+    int lasts = -1;
+
     XCharStruct overall;
+    XCharStruct immediate;
+    int unused;
+
+    // zero overall
+    overall.lbearing = 0;
+    overall.rbearing = 0;
+    overall.ascent = 0;
+    overall.descent = 0;
+    overall.width = 0;
+
+    for (i = 0; i < len; i++) {
+	tmp = QFontPrivate::scriptForChar(*uc++);
+
+	if (tmp != currs) {
+	    if (lasts >= 0) {
+		qfs = 0;
+		f = 0;
+
+		if (currs != QFontPrivate::UnknownScript) {
+		    d->load(currs);
+
+		    qfs = d->x11data.fontstruct[currs];
+		    if (qfs && qfs != (QFontStruct *) -1) {
+			f = (XFontStruct *) qfs->handle;
+		    }
+		}
+
+		if (f) {
+		    if (qfs->codec) {
+			mapped = qfs->codec->fromUnicode(str, lasts, i - lasts );
+
+			if (f->max_byte1) {
+			    XTextExtents16(f, (XChar2b *) mapped.data(),
+					   mapped.size() / 2, &unused, &unused,
+					   &unused, &immediate);
+
+			    overall.lbearing =
+				QMAX(overall.lbearing, immediate.lbearing);
+			    overall.rbearing =
+				QMAX(overall.rbearing, immediate.rbearing);
+			    overall.ascent = QMAX(overall.ascent, immediate.ascent);
+			    overall.descent = QMAX(overall.descent, immediate.descent);
+			    overall.width += immediate.width;
+			} else {
+			    XTextExtents(f, mapped.data(), mapped.size(), &unused,
+					 &unused, &unused, &immediate);
+
+			    overall.lbearing =
+				QMAX(overall.lbearing, immediate.lbearing);
+			    overall.rbearing =
+				QMAX(overall.rbearing, immediate.rbearing);
+			    overall.ascent = QMAX(overall.ascent, immediate.ascent);
+			    overall.descent = QMAX(overall.descent, immediate.descent);
+			    overall.width += immediate.width;
+			}
+
+			mapped.resize(0);
+		    } else {
+			// we are dealing with unicode text and a unicode font - YAY
+			if (f->max_byte1) {
+			    XTextExtents16(f, (XChar2b *) (str.unicode() + lasts),
+					   i - lasts, &unused, &unused, &unused,
+					   &immediate);
+
+			    overall.lbearing =
+				QMAX(overall.lbearing, immediate.lbearing);
+			    overall.rbearing =
+				QMAX(overall.rbearing , immediate.rbearing);
+			    overall.ascent = QMAX(overall.ascent, immediate.ascent);
+			    overall.descent = QMAX(overall.descent, immediate.descent);
+			    overall.width += immediate.width;
+			} else {
+			    // STOP: we want to use unicode, but don't have a multi-byte
+			    // font?  something is seriously wrong... assume we have text
+			    // we know nothing about
+
+			    int tqa = d->request.pointSize * 3 / 40;
+			    overall.ascent = QMAX(overall.ascent, tqa);
+			    overall.width += (i - lasts) * tqa;
+			}
+		    }
+		} else {
+		    int tqa = d->request.pointSize * 3 / 40;
+		    overall.ascent = QMAX(overall.ascent, tqa);
+		    overall.width += (i - lasts) * tqa;
+		}
+	    }
+
+	    currs = tmp;
+	    lasts = i;
+	}
+    }
+
+    if (lasts >= 0) {
+	qfs = 0;
+	f = 0;
+
+	if (currs != QFontPrivate::UnknownScript) {
+	    d->load(currs);
+
+	    qfs = d->x11data.fontstruct[currs];
+
+	    if (qfs && qfs != (QFontStruct *) -1) {
+		f = (XFontStruct *) qfs->handle;
+	    }
+	}
+
+	if (f) {
+	    if (qfs->codec) {
+		mapped = qfs->codec->fromUnicode(str, lasts, i - lasts );
+
+		if (f->max_byte1) {
+		    XTextExtents16(f, (XChar2b *) mapped.data(),
+				   mapped.size() / 2, &unused, &unused, &unused,
+				   &immediate);
+
+		    overall.lbearing = QMAX(overall.lbearing, immediate.lbearing);
+		    overall.rbearing = QMAX(overall.rbearing, immediate.rbearing);
+		    overall.ascent = QMAX(overall.ascent, immediate.ascent);
+		    overall.descent = QMAX(overall.descent, immediate.descent);
+		    overall.width += immediate.width;
+		} else {
+		    XTextExtents(f, mapped.data(), mapped.size(), &unused,
+				 &unused, &unused, &immediate);
+
+		    overall.lbearing = QMAX(overall.lbearing, immediate.lbearing);
+		    overall.rbearing = QMAX(overall.rbearing, immediate.rbearing);
+		    overall.ascent = QMAX(overall.ascent, immediate.ascent);
+		    overall.descent = QMAX(overall.descent, immediate.descent);
+		    overall.width += immediate.width;
+		}
+	    } else {
+		// we are dealing with unicode text and a unicode font - YAY
+		if (f->max_byte1) {
+		    XTextExtents16(f, (XChar2b *) (str.unicode() + lasts),
+				   i - lasts, &unused, &unused, &unused,
+				   &immediate);
+
+		    overall.lbearing = QMAX(overall.lbearing, immediate.lbearing);
+		    overall.rbearing = QMAX(overall.rbearing, immediate.rbearing);
+		    overall.ascent = QMAX(overall.ascent, immediate.ascent);
+		    overall.descent = QMAX(overall.descent, immediate.descent);
+		    overall.width += immediate.width;
+		} else {
+		    // STOP: we want to use unicode, but don't have a multi-byte
+		    // font?  something is seriously wrong... assume we have text
+		    // we know nothing about
+
+		    int tqa = d->request.pointSize * 3 / 40;
+		    overall.ascent = QMAX(overall.ascent, tqa);
+		    overall.width += (i - lasts) * tqa;
+		}
+	    }
+	} else {
+	    int tqa = d->request.pointSize * 3 / 40;
+	    overall.ascent = QMAX(overall.ascent, tqa);
+	    overall.width += (i - lasts) * tqa;
+	}
+    }
+
+    overall.lbearing = overall.lbearing;
+    overall.rbearing = overall.rbearing;
+    overall.ascent = overall.ascent;
+    overall.descent = overall.descent;
+    overall.width = overall.width;
 
     bool underline;
     bool strikeOut;
+    int startX = overall.lbearing;
+    int width = overall.rbearing - startX;
+    int ascent = overall.ascent;
+    int descent = overall.descent;
+
     if ( painter ) {
 	underline = painter->cfont.underline();
 	strikeOut = painter->cfont.strikeOut();
@@ -2385,74 +2441,73 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 	strikeOut = strikeOutFlag();
     }
 
-    if ( f ) {
-	const QTextCodec *m = mapper();
-	if ( m ) {
-	    XTextExtents( f, m->fromUnicode(str,len), len, &direction, &ascent, &descent, &overall );
-	} else {
-	    XTextExtents16( f, (XChar2b*)str.unicode(), len, &direction, &ascent, &descent, &overall );
-	}
-    } else {
-	XRectangle ink, log;
-	getExt(str,len,ink,log,SET,mapper());
-	overall.lbearing = LBEARING(ink,log);
-	overall.rbearing = ink.width+ink.x; // RBEARING(ink,log);
-	overall.ascent = ASCENT(ink,log);
-	overall.descent = DESCENT(ink,log);
-	overall.width = log.width;
-    }
-
-    overall.lbearing = printerAdjusted(overall.lbearing);
-    overall.rbearing = printerAdjusted(overall.rbearing);
-    overall.ascent = printerAdjusted(overall.ascent);
-    overall.descent = printerAdjusted(overall.descent);
-    overall.width = printerAdjusted(overall.width);
-
-    int startX = overall.lbearing;
-    int width  = overall.rbearing - startX;
-    ascent     = overall.ascent;
-    descent    = overall.descent;
     if ( !underline && !strikeOut ) {
-	width  = overall.rbearing - startX;
+	width = overall.rbearing - startX;
     } else {
 	if ( startX > 0 )
 	    startX = 0;
+
 	if ( overall.rbearing < overall.width )
-	   width =  overall.width - startX;
+	    width =  overall.width - startX;
 	else
-	   width =  overall.rbearing - startX;
+	    width =  overall.rbearing - startX;
+
 	if ( underline && len != 0 ) {
 	    int ulTop = underlinePos();
 	    int ulBot = ulTop + lineWidth(); // X descent is 1
+
 	    if ( descent < ulBot )	// more than logical descent, so don't
 		descent = ulBot;	// subtract 1 here!
+
 	    if ( ascent < -ulTop )
 		ascent = -ulTop;
 	}
+
 	if ( strikeOut && len != 0 ) {
 	    int soTop = strikeOutPos();
 	    int soBot = soTop - lineWidth(); // same as above
+
 	    if ( descent < -soBot )
 		descent = -soBot;
+
 	    if ( ascent < soTop )
 		ascent = soTop;
 	}
     }
-    return QRect( startX, -ascent, width, descent + ascent );
+
+    return QRect(startX, -ascent, width, descent + ascent);
 }
 
 
 /*!
   Returns the width of the widest character in the font.
 */
-
 int QFontMetrics::maxWidth() const
 {
-    XFontStruct *f = FS;
-    if ( f )
-	return printerAdjusted(f->max_bounds.width);
-    XFontSetExtents *ext = XExtentsOfFontSet(SET);
-    return printerAdjusted(ext->max_logical_extent.width);
+    XFontStruct *f;
+    QFontStruct *qfs;
+    int w = 0, ww;
+
+    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
+	if (! d->x11data.fontstruct[i]) {
+	    continue;
+	}
+
+	d->load((QFontPrivate::Script) i);
+
+	qfs = d->x11data.fontstruct[i];
+	if (! qfs || qfs == (QFontStruct *) -1) {
+	    continue;
+	}
+
+	f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
+	ww = f->max_bounds.width;
+
+	if (ww > w)
+	    w = ww;
+    }
+
+    return w;
 }
 
 
@@ -2461,15 +2516,11 @@ int QFontMetrics::maxWidth() const
   drawn.
   \sa strikeOutPos(), lineWidth()
 */
-
 int QFontMetrics::underlinePos() const
 {
-    int pos = (lineWidth()*2 + 3)/6;
-    if ( pos ) {
-	return pos;
-    } else {
-	return 1;
-    }
+    int pos = ((lineWidth() * 2) + 3) / 6;
+
+    return pos ? pos : 1;
 }
 
 
@@ -2478,19 +2529,11 @@ int QFontMetrics::underlinePos() const
   should be drawn.
   \sa underlinePos(), lineWidth()
 */
-
 int QFontMetrics::strikeOutPos() const
 {
-    XFontStruct *f = FS;
-    if ( f ) {
-	int pos = f->max_bounds.ascent/3;
-	if ( pos ) {
-	    return printerAdjusted(pos);
-	} else {
-	    return 1;
-	}
-    }
-    return ascent()/3;
+    int pos = ascent() / 3;
+
+    return pos ? pos : 1;
 }
 
 
@@ -2499,205 +2542,10 @@ int QFontMetrics::strikeOutPos() const
   the point size of the font.
   \sa underlinePos(), strikeOutPos()
 */
-
 int QFontMetrics::lineWidth() const
 {
-    if ( painter ) {
-	painter->cfont.handle();
-	return printerAdjusted(painter->cfont.d->fin->lineWidth());
-    } else {
-	return d->fin->lineWidth();
-    }
+    // lazy computation of linewidth
+    d->computeLineWidth();
+
+    return d->lineWidth;
 }
-
-
-/*****************************************************************************
-  QFontInfo member functions
- *****************************************************************************/
-
-const QFontDef *QFontInfo::spec() const
-{
-    if ( painter ) {
-	painter->cfont.handle();
-	return painter->cfont.d->fin->spec();
-    } else {
-	return fin->spec();
-    }
-}
-
-
-/*****************************************************************************
-  QFontData member functions
- *****************************************************************************/
-
-const QTextCodec* QFontData::mapper() const
-{
-    return fin ? fin->mapper() : 0;
-}
-
-void* QFontData::fontSet() const
-{
-    return fin ? fin->fontSet() : 0;
-}
-
-
-/*****************************************************************************
-  Internal X font functions
- *****************************************************************************/
-
-//
-// Splits an X font name into fields separated by '-'
-//
-
-bool qParseXFontName( QCString &fontName, char **tokens )
-{
-    if ( fontName.isEmpty() || fontName[0] != '-' ) {
-	tokens[0] = 0;
-	return FALSE;
-    }
-    int	  i;
-    char *f = fontName.data() + 1;
-    for ( i=0; i<fontFields && f && f[0]; i++ ) {
-	tokens[i] = f;
-	f = strchr( f, '-' );
-	if( f )
-	    *f++ = '\0';
-    }
-    if ( i < fontFields ) {
-	for( int j=i ; j<fontFields; j++ )
-	    tokens[j] = 0;
-	return FALSE;
-    }
-    return TRUE;
-}
-
-
-//
-// Get an array of X font names that matches a pattern
-//
-
-static char **getXFontNames( const char *pattern, int *count )
-{
-    static int maxFonts = 256;
-    char **list;
-    while( 1 ) {
-	list = XListFonts( QPaintDevice::x11AppDisplay(), (char*)pattern,
-			   maxFonts, count );
-	// I know precisely why 32768 is 32768.
-	if ( *count != maxFonts || maxFonts >= 32768 )
-	    return list;
-	XFreeFontNames( list );
-	maxFonts *= 2;
-    }
-}
-
-
-//
-// Returns TRUE if the font exists, FALSE otherwise
-//
-
-static bool fontExists( const QString &fontName )
-{
-    char **fontNames;
-    int	   count;
-    fontNames = getXFontNames( fontName.ascii(), &count );
-    XFreeFontNames( fontNames );
-    return count != 0;
-}
-
-
-//
-// Computes the line width (underline,strikeout) for the X font
-// and fills in the X resolution of the font.
-//
-
-void QFontInternal::computeLineWidth()
-{
-    char *tokens[fontFields];
-    QCString buffer(256);		// X font name always <= 255 chars
-    qstrcpy( buffer.data(), name() );
-    if ( !qParseXFontName(buffer, tokens) ) {
-	lw   = 1;                   // name did not conform to X LFD
-	xres = QPaintDevice::x11AppDpiX();
-	return;
-    }
-    int weight = qFontGetWeight( tokens[Weight_] );
-    int pSize  = atoi( tokens[PointSize] ) / 10;
-    int ry = atoi( tokens[ResolutionY] );
-    if ( ry != QPaintDevice::x11AppDpiY() )
-	pSize = ( 2*pSize*ry + QPaintDevice::x11AppDpiY() )
-	    / ( QPaintDevice::x11AppDpiY() * 2 );
-    QCString tmp = tokens[ResolutionX];
-    bool ok;
-    xres = tmp.toInt( &ok );
-    if ( !ok || xres == 0 )
-	xres = QPaintDevice::x11AppDpiX();
-    int score = pSize*weight;		// ad hoc algorithm
-    lw = ( score ) / 700;
-    if ( lw < 2 && score >= 1050 )	// looks better with thicker line
-	lw = 2;				//   for small pointsizes
-    if ( lw == 0 )
-	lw = 1;
-}
-
-
-//
-// Converts a weight string to a value
-//
-
-int qFontGetWeight( const QCString &weightString, bool adjustScore )
-{
-    // Test in decreasing order of commonness
-    //
-    if ( weightString == "medium" )       return QFont::Normal;
-    else if ( weightString == "bold" )    return QFont::Bold;
-    else if ( weightString == "demibold") return QFont::DemiBold;
-    else if ( weightString == "black" )   return QFont::Black;
-    else if ( weightString == "light" )   return QFont::Light;
-
-    QCString s = weightString;
-    s = s.lower();
-    if ( s.contains("bold") ) {
-	if ( adjustScore )
-	    return (int) QFont::Bold - 1;  // - 1, not sure that this IS bold
-	else
-	    return (int) QFont::Bold;
-    }
-    if ( s.contains("light") ) {
-	if ( adjustScore )
-	    return (int) QFont::Light - 1; // - 1, not sure that this IS light
-       else
-	    return (int) QFont::Light;
-    }
-    if ( s.contains("black") ) {
-	if ( adjustScore )
-	    return (int) QFont::Black - 1; // - 1, not sure this IS black
-	else
-	    return (int) QFont::Black;
-    }
-    if ( adjustScore )
-	return (int) QFont::Normal - 2;	   // - 2, we hope it's close to normal
-
-    return (int) QFont::Normal;
-}
-
-/*!
-  Returns the logical pixel height of characters in the font if shown on
-  the screen.
-*/
-int QFont::pixelSize() const
-{
-    return ( d->req.pointSize*QPaintDevice::x11AppDpiY() + 360 ) / 720;
-}
-
-/*!
-  Sets the logical pixel height of characters in the font if shown on
-  the screen.
-*/
-void QFont::setPixelSizeFloat( float pixelSize )
-{
-    setPointSizeFloat( pixelSize * 72.0 / QPaintDevice::x11AppDpiY() );
-}
-
-#endif // Q_SUPERFONT
-

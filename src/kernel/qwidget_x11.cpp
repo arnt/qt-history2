@@ -152,7 +152,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     if ( !parentWidget() || parentWidget()->isDesktop() )
 	setWFlags( WType_TopLevel );		// top-level widget
-    
+
     bool topLevel = testWFlags(WType_TopLevel);
     bool popup = testWFlags(WType_Popup);
     bool dialog = testWFlags(WType_Dialog);
@@ -165,9 +165,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     if ( popup )
 	setWFlags(WStyle_StaysOnTop); // a popup stays on top
-    
-    
-    if ( desktop && 
+
+
+    if ( desktop &&
 	 qt_x11_create_desktop_on_screen >= 0 &&
 	 qt_x11_create_desktop_on_screen != x11Screen() ) {
 	// desktop on a certain screen other than the default requested
@@ -181,8 +181,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	xd->x_screen = parentWidget()->x11Screen();
 	xd->x_depth = parentWidget()->x11Depth();
 	setX11Data( xd );
-    } 
-    
+    }
+
     //get display, screen number, root window and desktop geometry for
     //the current screen
     Display *dpy = x11Display();
@@ -206,7 +206,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
     fpos = crect.topLeft();			// default frame rect
 
-    
+
     parentw = topLevel ? root_win : parentWidget()->winId();
 
     XSetWindowAttributes wsa;
@@ -666,7 +666,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text)
 
 #ifndef NO_XIM
 
-#ifndef Q_SUPERFONT
+#if 0
 static XFontSet fixed_fontset = 0; // leaked once
 
 static
@@ -703,7 +703,7 @@ XFontSet xic_fontset(void* qfs, int pt)
     return fixed_fontset;
 }
 
-#endif // Q_SUPERFONT
+#endif // was Q_SUPERFONT
 
 #endif // NO_XIM
 
@@ -712,7 +712,7 @@ void QWidget::setFontSys()
 {
 #ifndef NO_XIM
 
-#ifndef Q_SUPERFONT
+#if 0
 
     QWidget* tlw = topLevelWidget();
     if ( tlw->extra && tlw->extra->topextra && tlw->extra->topextra->xic ) {
@@ -735,7 +735,7 @@ void QWidget::setFontSys()
 
     }
 
-#endif // Q_SUPERFONT
+#endif // was Q_SUPERFONT
 
 #endif // NO_XIM
 }
@@ -2114,46 +2114,46 @@ void QWidget::createTLSysExtra()
     if ( qt_xim ) {
 	XPoint spot; spot.x = 1; spot.y = 1; // dummmy
 
-#ifndef Q_SUPERFONT
+#if 0
 	XFontSet fontset = xic_fontset(fontMetrics().fontSet(), font().pointSize());
-#endif // Q_SUPERFONT
-	
+#endif // was Q_SUPERFONT
+
 	XVaNestedList preedit_att =
 	    XVaCreateNestedList(0,
 				XNSpotLocation, &spot,
-				
-#ifndef Q_SUPERFONT
+
+#if 0
 				XNFontSet, fontset,
-#endif // Q_SUPERFONT
-				
+#endif // was Q_SUPERFONT
+
 				NULL);
 
-#ifndef Q_SUPERFONT
+#if 0
 	XVaNestedList status_att =
 	    XVaCreateNestedList(0,
 				XNFontSet, fontset,
 				NULL);
-#endif // Q_SUPERFONT
-	
+#endif // was Q_SUPERFONT
+
 	extra->topextra->xic =
 	    (void*)XCreateIC( qt_xim,
 			      XNInputStyle, qt_xim_style,
 			      XNClientWindow, winId(),
 			      XNFocusWindow, winId(),
 			      XNPreeditAttributes, preedit_att,
-			
-#ifndef Q_SUPERFONT
+
+#if 0
 			      XNStatusAttributes, status_att,
-#endif // Q_SUPERFONT
-			
+#endif // was Q_SUPERFONT
+
 			      0 );
 
 	XFree(preedit_att);
-	
-#ifndef Q_SUPERFONT
+
+#if 0
 	XFree(status_att);
-#endif // Q_SUPERFONT
-	
+#endif // was Q_SUPERFONT
+
     } else {
 	extra->topextra->xic = 0;
     }

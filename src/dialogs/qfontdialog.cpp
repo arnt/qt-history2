@@ -555,13 +555,7 @@ void QFontDialog::updateStyles()
     d->styleList->clear();
 
 
-    QStringList styles = d->fdb.styles( d->family
-					
-#ifndef Q_SUPERFONT
-					, d->charSet
-#endif // Q_SUPERFONT
-					
-					);
+    QStringList styles = d->fdb.styles( d->family );
     
     if ( styles.isEmpty() ) {
 	qWarning( "QFontDialog::updateFamilies: Internal error, "
@@ -581,13 +575,8 @@ void QFontDialog::updateSizes()
     //    usingStandardSizes = d->fdb.isScalable( d->family );
 
     d->sizeList->clear();
-    QValueList<int> sizes = d->fdb.pointSizes( d->family,d->style
-					       
-#ifndef Q_SUPERFONT
-					       , d->charSet
-#endif // Q_SUPERFONT
-					       
-					       );
+    QValueList<int> sizes = d->fdb.pointSizes( d->family,d->style );
+
     if ( sizes.isEmpty() ) {
 	qWarning( "QFontDialog::updateFamilies: Internal error, "
 		  "no pointsizes for family \"%s\" with script \"%s\"\n"
@@ -763,14 +752,8 @@ QFont QFontDialog::font() const
     int pSize = d->size.toInt();
     if ( pSize == 0 )
 	pSize = 12;
-    QFont f = d->fdb.font( d->family, d->style, pSize
-			   
-#ifndef Q_SUPERFONT
-			   , d->charSet 
-#endif // Q_SUPERFONT
-			   
-			   );
-    
+    QFont f = d->fdb.font( d->family, d->style, pSize );
+
     f.setStrikeOut( d->strikeout->isChecked() );
     f.setUnderline( d->underline->isChecked() );
     return f;

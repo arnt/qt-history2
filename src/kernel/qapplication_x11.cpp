@@ -708,10 +708,6 @@ static bool qt_set_desktop_properties()
 	QApplication::setPalette( pal, TRUE );
     *qt_std_pal = pal;
 
-#ifndef Q_SUPERFONT
-    font.setCharSet(QFont::charSetForLocale());
-#endif // Q_SUPERFONT
-
     if ( font != QApplication::font() ) {
 	QApplication::setFont( font, TRUE );
     }
@@ -848,12 +844,6 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
     if ( !resFont.isEmpty() ) {				// set application font
 	QFont fnt;
 	fnt.setRawName( resFont );
-
-#ifndef Q_SUPERFONT
-	// override requested charset, unless given on the command-line
-	if ( !font )
-	    fnt.setCharSet( QFont::charSetForLocale() );
-#endif // Q_SUPERFONT
 
 	if ( fnt != QApplication::font() )
 	    QApplication::setFont( fnt, TRUE );
@@ -1224,7 +1214,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	appScreen = DefaultScreen(appDpy);
 	screenCount = ScreenCount(appDpy);
 	appRootWin = RootWindow(appDpy,appScreen);
-	    
+
 	// Set X paintdevice parameters
 
 	Visual *vis = DefaultVisual(appDpy,appScreen);
@@ -1352,19 +1342,8 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
 	qt_set_input_encoding();
 
-	// pick default character set (now that we have done setlocale stuff)
-
-#ifndef Q_SUPERFONT
-	QFont::locale_init();
-#endif // Q_SUPERFONT
-
 	QFont f;
 	f = QFont( "Helvetica", (QPaintDevice::x11AppDpiX() < 95) ? 12 : 11 );
-
-#ifndef Q_SUPERFONT
-	f.setCharSet( QFont::charSetForLocale() ); // must come after locale_init()
-#endif // Q_SUPERFONT
-
 	QApplication::setFont( f );
 
 	qt_set_x11_resources( appFont, appFGCol, appBGCol, appBTNCol);
@@ -1555,11 +1534,11 @@ bool qt_wstate_iconified( WId winid )
 QWidget *QApplication::desktop( int screen )
 {
     extern int qt_x11_create_desktop_on_screen; // defined in qwidget_x11.cpp
-    
+
     static QWidget** desktopWidget = 0;
     if ( screen < 0 || screen >= screenCount )
 	screen = appScreen;
-    
+
     if ( !desktopWidget )
 	memset( (desktopWidget = new QWidget*[screenCount] ), 0, screenCount * sizeof( QWidget*) );
     if ( !desktopWidget[screen] || // not created yet

@@ -35,12 +35,6 @@
 **
 **********************************************************************/
 
-#ifdef Q_SUPERFONT
-
-#include "newfont/qpainter_x11.cpp"
-
-#else
-
 #include "qpainter.h"
 #include "qwidget.h"
 #include "qbitmap.h"
@@ -55,7 +49,8 @@
 
 // REVISED: arnt
 
-/* paintevent magic to provide Windows semantics on X11
+/*
+  paintevent magic to provide Windows semantics on X11
  */
 static QRegion* paintEventClipRegion = 0;
 static QPaintDevice* paintEventDevice = 0;
@@ -2703,29 +2698,56 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
 }
 
 
+// used for fancy drawText
+struct qt_truple
+{
+    qt_truple()
+	: script((QFontPrivate::Script) -1), stroffset(-1), xoffset(0)
+    { ; }
+
+    QByteArray mapped;
+    QFontPrivate::Script script;
+    int stroffset;
+    int xoffset;
+};
+
+
 /*!
-  Draws at most \a len characters from \a str at position \a (x,y).
+  Draws at most \a len characters of the string \a str to position \a (x,y).
 
   \a (x,y) is the base line position.  Note that the meaning of \a y
   is not the same for the two drawText() varieties.
 */
-void QPainter::drawText( int x, int y, const QString &s, int from, int len)
+void QPainter::drawText( int x, int y, const QString &str, int len )
 {
-    drawText(x, y, s.mid(from, len) );
+    if (len < 0)
+	len = str.length();
+    if (len == 0)
+	return;
+    drawText( x, y, str, 0, len );
 }
 
-void QPainter::drawText( int x, int y, const QString &str, int len )
+
+/*!
+  Draws at most \a len characters starting at position \a pos from the string \a str to
+  position \a (x,y).
+
+  \a (x,y) is the base line position.  Note that the meaning of \a y
+  is not the same for the two drawText() varieties.
+*/
+void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 {
     if ( !isActive() )
 	return;
-    if ( len < 0 )
-	len = str.length();
-    if ( len == 0 )				// empty string
+    if ( len == 0 || pos >= (int)str.length() ) 	// empty string
 	return;
+    if ( pos + len > (int)str.length() )
+	len = str.length() - pos;
 
     if ( testf(DirtyFont|ExtDev|VxF|WxF) ) {
-	if ( testf(DirtyFont) )
+	if ( testf(DirtyFont) ) {
 	    updateFont();
+	}
 
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[2];
@@ -2776,7 +2798,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		QPainter paint;
 		paint.begin( &bm );		// draw text in bitmap
 		paint.setFont( dfont );
-		paint.drawText( tx, ty, str, len );
+		paint.drawText( tx, ty, str, pos, len );
 		paint.end();
 		wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
 		if ( wx_bm->isNull() ) {
@@ -2792,7 +2814,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		int m, n;
 		QPointArray a(5);
 		mat1.map( fx,	 fy,	&m, &n );  a.setPoint( 0, m, n );
-						   a.setPoint( 4, m, n );
+		a.setPoint( 4, m, n );
 		mat1.map( fx+fw, fy,	&m, &n );  a.setPoint( 1, m, n );
 		mat1.map( fx+fw, fy+fh, &m, &n );  a.setPoint( 2, m, n );
 		mat1.map( fx,	 fy+fh, &m, &n );  a.setPoint( 3, m, n );
@@ -2827,63 +2849,279 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    map( x, y, &x, &y );
     }
 
-    QCString mapped;
+    // we are going to to this:
+    //
+    // 1. allocate an array of script/pixeloffset/stringoffset truples as long as
+    //    the string
+    // 2. (a.) find all encoding boundaries,
+    //    (b.) calc all string widths and
+    //    (c.) put them into the allocated array
+    // 3. find the first language/offset pair and set the GC's font
+    // 4. if no language/offset pair is found, stop
+    // 5. step through the array and draw all text in current language (zero'ing the
+    //    pairs after drawing)
+    // 6. goto step 3;
+    // 7. delete array from step 1
 
-    const QTextCodec* mapper = cfont.d->mapper();
-    if ( mapper ) {
-	// translate from Unicode to font charset encoding here
-	mapped = mapper->fromUnicode(str,len);
-    }
-// ### not pretty -- using codec to produce 16-bit encoding
-    if ( !cfont.handle() ) {
-	if ( mapped.isNull() )
-	    qWarning("Fontsets only apply to mapped encodings");
-	else {
-	    XFontSet set = (XFontSet)cfont.d->fontSet();
-	    if ( bg_mode == TransparentMode )
-		XmbDrawString( dpy, hd, set, gc, x, y, mapped, len );
-	    else
-		XmbDrawImageString( dpy, hd, set, gc, x, y, mapped, len );
+    // step 1
+    struct qt_truple *truples = new qt_truple[len + 1];
+    int currt = 0;
+    int currx = x;
+
+    // step 2
+    const QChar *uc = str.unicode() + pos;
+    QFontPrivate::Script currs = QFontPrivate::NoScript, tmp;
+    QFontStruct *qfs;
+    XFontStruct *f;
+    int i;
+
+    // find encoding boundaries
+    for (i = 0; i < len; i++) {
+	tmp = QFontPrivate::scriptForChar(*uc++);
+
+	// 2a. encoding boundary
+	if (tmp != currs) {
+	    if (currt != 0) {
+		qfs = 0;
+		f = 0;
+
+		if (truples[currt - 1].script != QFontPrivate::UnknownScript) {
+		    cfont.d->load(truples[currt - 1].script);
+
+		    qfs = cfont.d->x11data.fontstruct[truples[currt - 1].script];
+		    if (qfs && qfs != (QFontStruct *) -1) {
+			f = (XFontStruct *) qfs->handle;
+		    }
+		}
+
+		if (f) {
+		    // 2b. string width (this is for the PREVIOUS truple)
+		    if (qfs->codec) {
+			truples[currt - 1].mapped =
+			    qfs->codec-> fromUnicode( str, truples[currt - 1].stroffset,
+						      i + pos -
+						      truples[currt - 1].stroffset );
+
+			if (f->max_byte1) {
+			    currx +=
+				XTextWidth16(f, (XChar2b *)
+					     truples[currt - 1].mapped.data(),
+					     truples[currt - 1].mapped.size() / 2);
+			} else {
+			    currx +=
+				XTextWidth(f, truples[currt - 1].mapped.data(),
+					   truples[currt - 1].mapped.size() );
+			}
+		    } else {
+			if (f->max_byte1) {
+			    currx +=
+				XTextWidth16(f, (XChar2b *)
+					     (str.unicode() +
+					      truples[currt - 1].stroffset),
+					     i + pos - truples[currt - 1].stroffset);
+			} else {
+			    // STOP: we want to use unicode, but don't have a multi-byte
+			    // font?  something is seriously wrong... assume we have text
+			    // we know nothing about
+
+			    currx += (i + pos - truples[currt - 1].stroffset) *
+				     (cfont.d->request.pointSize * 3 / 40);
+			}
+		    }
+		} else {
+		    currx += (i + pos - truples[currt - 1].stroffset) *
+			     (cfont.d->request.pointSize * 3 / 40);
+		}
+	    }
+
+	    currs = tmp;
+
+	    // 2c.
+	    truples[currt].script = currs;
+	    truples[currt].stroffset = i + pos;
+	    truples[currt].xoffset = currx;
+	    currt++;
 	}
-    } else {
-	if ( !mapped.isNull() ) {
-	    if ( cfont.charSet() < QFont::Enc16 )
-		if ( bg_mode == TransparentMode )
-		    XDrawString( dpy, hd, gc, x, y, mapped, len );
-		else
-		    XDrawImageString( dpy, hd, gc, x, y, mapped, len );
-	    else
-		if ( bg_mode == TransparentMode )
-		    XDrawString16( dpy, hd, gc, x, y, (XChar2b*)mapped.data(), len/2 );
-		else
-		    XDrawImageString16( dpy, hd, gc, x, y, (XChar2b*)mapped.data(), len/2 );
+    }
+
+    if (currt != 0) {
+	qfs = 0;
+	f = 0;
+
+	if (truples[currt - 1].script != QFontPrivate::UnknownScript) {
+	    cfont.d->load(truples[currt - 1].script);
+
+	    qfs = cfont.d->x11data.fontstruct[truples[currt - 1].script];
+	    if (qfs && qfs != (QFontStruct *) -1) {
+		f = (XFontStruct *) cfont.d->
+		    x11data.fontstruct[truples[currt - 1].script]->handle;
+	    }
+	}
+
+	if (f) {
+	    // 2b. string width (this is for the PREVIOUS truple)
+	    if (qfs->codec) {
+		truples[currt - 1].mapped =
+		    qfs->codec->fromUnicode( str, truples[currt - 1].stroffset,
+					     i + pos - truples[currt - 1].stroffset );
+
+		if (f->max_byte1) {
+		    currx += XTextWidth16(f, (XChar2b *)
+					  truples[currt - 1].mapped.data(),
+					  truples[currt - 1].mapped.size() / 2);
+		} else {
+		    currx += XTextWidth(f, truples[currt - 1].mapped.data(),
+					truples[currt - 1].mapped.size() );
+		}
+	    } else {
+		if (f->max_byte1) {
+		    currx +=
+			XTextWidth16(f, (XChar2b *)
+				     (str.unicode() + truples[currt - 1].stroffset),
+				     i + pos - truples[currt - 1].stroffset);
+		} else {
+		    // STOP: we want to use unicode, but don't have a multi-byte
+		    // font?  something is seriously wrong... assume we have text
+		    // we know nothing about
+
+		    // currs = QFontPrivate::UnknownScript;
+		    currx += (i + pos - truples[currt - 1].stroffset) *
+			     (cfont.d->request.pointSize * 3 / 40);
+		}
+	    }
 	} else {
-	    // Unicode font
-
-	    QString v = str;
-#ifdef QT_BIDI
-	    v.compose();  // apply ligatures (for arabic, etc...)
-	    v = v.visual(); // visual ordering
-	    len = v.length();
-#endif
-
-	    if ( bg_mode == TransparentMode )
-		XDrawString16( dpy, hd, gc, x, y, (XChar2b*)v.unicode(), len );
-	    else
-		XDrawImageString16( dpy, hd, gc, x, y, (XChar2b*)v.unicode(), len );
+	    currx += (i + pos - truples[currt - 1].stroffset) *
+		     (cfont.d->request.pointSize * 3 / 40);
 	}
+    } else if (truples[currt].script != QFontPrivate::UnknownScript) {
+	// make sure the last font for the text is at least loaded
+	// cfont.d->load(truples[currt].script);
     }
+
+    // step 3
+    for (i = 0; i < len; i++) {
+	// step 4... if nothing is found, the for-condition will
+	// break us out of the loop
+	if (truples[i].stroffset == -1) {
+	    break;
+	}
+
+	// step 5
+	int j;
+	currs = truples[i].script;
+
+	if (currs != QFontPrivate::UnknownScript) {
+	    qfs = cfont.d->x11data.fontstruct[currs];
+	} else {
+	    qfs = 0;
+	}
+
+	if (qfs && qfs != (QFontStruct *) -1) {
+	    f = (XFontStruct *) qfs->handle;
+	    XSetFont(dpy, gc, f->fid);
+
+	    for (j = i; j < len; j++) {
+		if (truples[j].stroffset == -1) {
+		    break;
+		}
+
+		if (truples[j].script != currs) {
+		    continue;
+		}
+
+		int l;
+		if (truples[j + 1].stroffset == -1) {
+		    l = len + pos - truples[j].stroffset;
+		} else {
+		    l = truples[j + 1].stroffset - truples[j].stroffset;
+		}
+
+		if (truples[j].mapped.isNull()) {
+		    if (f->max_byte1) {
+			XDrawString16(dpy, hd, gc, truples[j].xoffset, y,
+				      (XChar2b *) (str.unicode() + truples[j].stroffset),
+				      l);
+		    } else {
+			// STOP: we want to use unicode, but don't have a multi-byte
+			// font?  something is seriously wrong... assume we have text
+			// we know nothing about
+
+			XRectangle *rects = new XRectangle[l];
+			int inc = cfont.d->request.pointSize * 3 / 40;
+
+			for (int k = 0; k < l; k++) {
+			    rects[k].x = truples[j].xoffset + (k * inc);
+			    rects[k].y = y - inc + 2;
+			    rects[k].width = rects[k].height = inc - 3;
+			}
+
+			XDrawRectangles(dpy, hd, gc, rects, l);
+			delete [] rects;
+		    }
+		} else {
+		    if (f->max_byte1) {
+			XDrawString16(dpy, hd, gc, truples[j].xoffset, y,
+				      (XChar2b *) truples[j].mapped.data(),
+				      truples[j].mapped.size() / 2);
+		    } else {
+			XDrawString(dpy, hd, gc, truples[j].xoffset, y,
+				    truples[j].mapped.data(),
+				    truples[j].mapped.size() );
+		    }
+		}
+	    }
+	} else {
+	    for (j = i; j < len; j++) {
+		if (truples[j].stroffset == -1) {
+		    break;
+		}
+
+		if (truples[j].script != currs) {
+		    continue;
+		}
+
+		int inc = cfont.d->request.pointSize * 3 / 40;
+		int l;
+
+		if (truples[j + 1].stroffset == -1) {
+		    l = len + pos - truples[j].stroffset;
+		} else {
+		    l = truples[j + 1].stroffset - truples[j].stroffset;
+		}
+
+		XRectangle *rects = new XRectangle[l];
+
+		for (int k = 0; k < l; k++) {
+		    rects[k].x = truples[j].xoffset + (k * inc);
+		    rects[k].y = y - inc + 2;
+		    rects[k].width = rects[k].height = inc - 3;
+		}
+
+		XDrawRectangles(dpy, hd, gc, rects, l);
+		delete [] rects;
+	    }
+	}
+
+	// step 6 - gotta love loops
+    }
+
+    // step 7
+    delete [] truples;
 
     if ( cfont.underline() || cfont.strikeOut() ) {
 	QFontMetrics fm = fontMetrics();
 	int lw = fm.lineWidth();
-	int tw = fm.width( str, len );
-	if ( cfont.underline() )		// draw underline effect
-	    XFillRectangle( dpy, hd, gc, x, y+fm.underlinePos(),
-			    tw, lw );
-	if ( cfont.strikeOut() )		// draw strikeout effect
-	    XFillRectangle( dpy, hd, gc, x, y-fm.strikeOutPos(),
-			    tw, lw );
+	int tw = currx - x;
+
+	// draw underline effect
+	if ( cfont.underline() ) {
+	    XFillRectangle( dpy, hd, gc, x, y+fm.underlinePos(), tw, lw );
+	}
+
+	// draw strikeout effect
+	if ( cfont.strikeOut() ) {
+	    XFillRectangle( dpy, hd, gc, x, y-fm.strikeOutPos(), tw, lw );
+	}
     }
 }
 
@@ -2897,4 +3135,3 @@ QPoint QPainter::pos() const
     return curPt;
 }
 
-#endif // Q_SUPERFONT

@@ -35,12 +35,6 @@
 **
 **********************************************************************/
 
-#ifdef Q_SUPERFONT
-
-#include "newfont/qfontdatabase.h"
-
-#else
-
 #ifndef QFONTDATABASE_H
 #define QFONTDATABASE_H
 
@@ -52,11 +46,11 @@
 #include "qvaluelist.h"
 #endif // QT_H
 
+
 #ifndef QT_NO_FONTDATABASE
 
 class QFontStylePrivate;
 class QtFontStyle;
-class QtFontCharSet;
 class QtFontFamily;
 class QtFontFoundry;
 
@@ -65,78 +59,182 @@ class QFontDatabasePrivate;
 class Q_EXPORT QFontDatabase
 {
 public:
-    QFontDatabase();
-
-    QStringList families( bool onlyForLocale = TRUE ) const;
-    QValueList<int> pointSizes( const QString &family,
-				const QString &style = QString::null,
-				const QString &charSet = QString::null );
-    QStringList styles( const QString &family,
-			const QString &charSet = QString::null ) const;
-    QStringList charSets( const QString &familyName,
-			  bool onlyForLocale = TRUE ) const;
-
-    QFont font( const QString familyName, const QString &style,
-		int pointSize, const QString charSetName = QString::null );
-
-    bool  isBitmapScalable( const QString &family,
-			    const QString &style   = QString::null,
-			    const QString &charSet = QString::null ) const;
-    bool  isSmoothlyScalable( const QString &family,
-			      const QString &style   = QString::null,
-			      const QString &charSet = QString::null ) const;
-    bool  isScalable( const QString &family,
-		      const QString &style   = QString::null,
-		      const QString &charSet = QString::null ) const;
-
-    QValueList<int> smoothSizes( const QString &family,
-				 const QString &style,
-				 const QString &charSet = QString::null );
-
     static QValueList<int> standardSizes();
 
-    bool italic( const QString &family,
-		 const QString &style,
-		 const QString &charSet = QString::null ) const;
+    QFontDatabase();
 
-    bool bold( const QString &family,
-	       const QString &style,
-	       const QString &charSet = QString::null ) const;
+    QStringList families() const;
 
-    int weight( const QString &family,
-		const QString &style,
-		const QString &charSet = QString::null ) const;
+    QStringList styles( const QString & ) const;
 
+    // This will always return a list with only "Unicode"/"ISO 10646-1"
+    QStringList charSets( const QString & ) const;
 
-#if 0
-    QValueList<QFont::CharSet> charSets( const QString &familyName ) const;
-    bool  supportsCharSet( const QString &familyName,
-			   const QString &charSet ) const;
-    bool  supportsCharSet( const QString &familyName,
-			   QFont::CharSet charSet ) const;
-#endif
+    QValueList<int> pointSizes( const QString &, const QString & = QString::null);
+
+    QValueList<int> smoothSizes( const QString &, const QString &);
 
     QString styleString( const QFont &);
 
-    static QString verboseCharSetName( const QString & charSetName );
-    static QString charSetSample( const QString & charSetName );
+    QFont font( const QString &, const QString &, int);
 
+    bool isBitmapScalable( const QString &, const QString & = QString::null) const;
+    
+    bool isSmoothlyScalable( const QString &, const QString & = QString::null) const;
+
+    bool isScalable( const QString &, const QString & = QString::null) const;
+    
+    bool italic( const QString &, const QString &) const;
+
+    bool bold( const QString &, const QString &) const;
+
+    int weight( const QString &, const QString &) const;
+    
+    
+    
+    
+    // For source compatibility with < 3.0
+#ifndef QT_NO_COMPAT
+
+    QStringList families(bool) const;
+
+    QStringList styles( const QString &, const QString & ) const;
+
+    QStringList charSets( const QString &, bool ) const;
+
+    QValueList<int> pointSizes( const QString &, const QString &, const QString & );
+
+    QValueList<int> smoothSizes( const QString &, const QString &, const QString & );
+
+    QFont font( const QString &, const QString &, int, const QString &);
+
+    bool  isBitmapScalable( const QString &, const QString &, const QString & ) const;
+
+    bool  isSmoothlyScalable( const QString &, const QString &, const QString & ) const;
+
+    bool  isScalable( const QString &, const QString &, const QString & ) const;
+
+    bool italic( const QString &, const QString &, const QString & ) const;
+
+    bool bold( const QString &, const QString &, const QString & ) const;
+
+    int weight( const QString &, const QString &, const QString & ) const;
+    
+#endif // QT_NO_COMPAT
+
+
+
+
+    // What do we do about this?  It's not enabled for 2.x, and is obsolete in 3.x
+#if 0
+    QValueList<QFont::CharSet> charSets( const QString & ) const;
+    bool  supportsCharSet( const QString &, const QString & ) const;
+    bool  supportsCharSet( const QString &, QFont::CharSet ) const;
+#endif
+
+
+    // ARGH
+    static QString verboseCharSetName( const QString & );
+    static QString charSetSample( const QString & );
+    
+    
 private:
     static void createDatabase();
 
     friend class QtFontStyle;
-    friend class QtFontCharSet;
     friend class QtFontFamily;
     friend class QtFontFoundry;
     friend class QFontDatabasePrivate;
 
     QFontDatabasePrivate *d;
-
 };
+
+
+#ifndef QT_NO_COMPAT
+
+inline QStringList QFontDatabase::families( bool ) const
+{
+    return families();
+}
+
+inline QStringList QFontDatabase::styles( const QString &family,
+					  const QString & ) const
+{
+    return styles(family);
+}
+
+inline QStringList QFontDatabase::charSets( const QString &family,
+					    bool ) const
+{
+    return charSets(family);
+}
+
+inline QValueList<int> QFontDatabase::pointSizes( const QString &family,
+						  const QString &style ,
+						  const QString & )
+{
+    return pointSizes(family, style);
+}
+
+inline QValueList<int> QFontDatabase::smoothSizes( const QString &family,
+						   const QString &style,
+						   const QString & )
+{
+    return smoothSizes(family, style);
+}
+
+inline QFont QFontDatabase::font( const QString &familyName,
+				  const QString &style,
+				  int pointSize,
+				  const QString &)
+{
+    return font(familyName, style, pointSize);
+}
+
+inline bool QFontDatabase::isBitmapScalable( const QString &family,
+					     const QString &style,
+					     const QString & ) const
+{
+    return isBitmapScalable(family, style);
+}
+
+inline bool QFontDatabase::isSmoothlyScalable( const QString &family,
+					       const QString &style,
+					       const QString & ) const
+{
+    return isSmoothlyScalable(family, style);
+}
+
+inline bool QFontDatabase::isScalable( const QString &family,
+				       const QString &style,
+				       const QString & ) const
+{
+    return isScalable(family, style);
+}
+
+inline bool QFontDatabase::italic( const QString &family,
+				   const QString &style,
+				   const QString & ) const
+{
+    return italic(family, style);
+}
+
+inline bool QFontDatabase::bold( const QString &family,
+				 const QString &style,
+				 const QString & ) const
+{
+    return bold(family, style);
+}
+
+inline int QFontDatabase::weight( const QString &family,
+				  const QString &style,
+				  const QString & ) const
+{
+    return weight(family, style);
+}
+
+#endif // QT_NO_COMPAT
 
 #endif // QT_NO_FONTDATABASE
 
 #endif // QFONTDATABASE_H
-
-#endif // Q_SUPERFONT
-

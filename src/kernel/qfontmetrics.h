@@ -35,12 +35,6 @@
 **
 **********************************************************************/
 
-#ifdef Q_SUPERFONT
-
-#include "newfont/qfontmetrics.h"
-
-#else
-
 #ifndef QFONTMETRICS_H
 #define QFONTMETRICS_H
 
@@ -48,6 +42,7 @@
 #include "qfont.h"
 #include "qrect.h"
 #endif // QT_H
+
 
 class QTextCodec;
 class QTextParag;
@@ -57,7 +52,7 @@ class Q_EXPORT QFontMetrics
 public:
     QFontMetrics( const QFont & );
     QFontMetrics( const QFontMetrics & );
-   ~QFontMetrics();
+    ~QFontMetrics();
 
     QFontMetrics &operator=( const QFontMetrics & );
 
@@ -75,11 +70,13 @@ public:
     int		leftBearing(QChar) const;
     int		rightBearing(QChar) const;
     int		width( const QString &, int len = -1 ) const;
+    
+#ifndef QT_NO_COMPAT
     int		width( QChar ) const;
     int		width( char c ) const { return width( (QChar) c ); }
-    // the following function is only a dummy here. It will be used and get some real functionality
-    // with the new QFont. Lars.
-    int 		charWidth( const QString &str, int pos ) const { return width( str[pos] ); }
+#endif // QT_NO_COMPAT
+    
+    int 		charWidth( const QString &str, int pos ) const;
     QRect	boundingRect( const QString &, int len = -1 ) const;
     QRect	boundingRect( QChar ) const;
     QRect	boundingRect( int x, int y, int w, int h, int flags,
@@ -96,16 +93,10 @@ public:
 private:
     QFontMetrics( const QPainter * );
     static void reset( const QPainter * );
-    const QFontDef *spec() const;
 
 #if defined(Q_WS_WIN)
     void   *textMetric() const;
     HDC	    hdc() const;
-#elif defined(Q_WS_X11)
-    void   *fontStruct() const;
-    void   *fontSet() const;
-    const QTextCodec *mapper() const;
-    int	    printerAdjusted(int) const;
 #elif defined(Q_WS_QWS)
     QFontInternal *internal();
 #endif
@@ -113,7 +104,7 @@ private:
     friend class QWidget;
     friend class QPainter;
 
-    QFontData *d;
+    QFontPrivate  *d;
     QPainter      *painter;
     int		   flags;
 
@@ -123,7 +114,5 @@ private:
     void    setStrikeOutFlag()	   { flags |= 0x2; }
 };
 
+
 #endif // QFONTMETRICS_H
-
-#endif // Q_SUPERFONT
-
