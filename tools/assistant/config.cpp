@@ -69,7 +69,7 @@ bool Config::addProfile( const QString &profileFileName, const QString &path )
 	    QFileInfo fi( p->props[*pit] );
 	    if ( fi.isRelative() ) {
 		QDir d( docPath + "/" + fi.dirPath() );
-		p->props[*pit] = d.path() + "/" + fi.fileName();
+		p->props[*pit] = d.absPath() + "/" + fi.fileName();
 	    }
 	}
     }
@@ -84,8 +84,11 @@ bool Config::addProfile( const QString &profileFileName, const QString &path )
 	p->imageDirs.erase( *it );
 	p->titles.erase( *it );
 	QDir d( docPath + "/" + dfi.dirPath() );
-	(*it) = d.path() + "/" + dfi.fileName();
-	p->icons[*it] = icon;
+	(*it) = d.absPath() + "/" + dfi.fileName();
+	if ( icon.isEmpty() )
+	    p->icons[*it] = icon;
+	else
+	    p->icons[*it] = d.absPath() + "/" + icon;
 	p->imageDirs[*it] = dir;
 	p->titles[*it] = title;
     }

@@ -41,6 +41,7 @@ public:
     inline void addDocFileTitle( const QString docfile, const QString &title );
     inline void addDocFileImageDir( const QString docfile, const QString &imgDir );
     inline void addProperty( const QString &name, const QString &value );
+    void removeDocFileEntry( const QString &title );
 
     static Profile* createProfile( const QString &file );
     static Profile* createDefaultProfile();

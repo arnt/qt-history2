@@ -56,6 +56,7 @@ private:
     Profile *oldProfile, *profile;
     bool changed;
     Mode mode;
+    QStringList removedDocFiles;
 };
 
 #endif

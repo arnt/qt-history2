@@ -388,9 +388,16 @@ void MainWindow::showLink( const QString &link )
     int find = link.find( '#' );
     QString name = find >= 0 ? link.left( find ) : link;
 
+    QString absLink = link;
     QFileInfo fi( name );
+    if ( fi.isRelative() ) {
+	if ( find >= 0 )
+	    absLink = fi.absFilePath() + link.right( link.length() - find );
+	else
+	    absLink = fi.absFilePath();
+    }
     if( fi.exists() ) {
-	tabs->setSource( link );
+	tabs->setSource( absLink );
     } else {
 	// ### Default 404 site!
 	statusBar()->message( tr( "Failed to open link: '%1'" ).arg( link ), 5000 );

@@ -338,3 +338,24 @@ void Profile::save( const QString &name )
     s << "</ADP>";
     file.close();
 }
+
+void Profile::removeDocFileEntry( const QString &title )
+{
+    QString docFile = "";
+    QMap<QString,QString>::Iterator it = titles.begin();
+    for ( ; it != titles.end(); ++it ) {
+	if ( it.data() == title ) {
+	    docFile = it.key();
+	    break;
+	}
+    }
+    if ( docFile.isEmpty() )
+	return;
+    QStringList::Iterator iter = docs.begin();
+    for ( ; iter != docs.end(); ++iter ) {
+	if ( *iter == docFile ) {
+	    docs.remove( iter );
+	    break;
+	    }
+    }
+}

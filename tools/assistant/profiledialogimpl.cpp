@@ -125,6 +125,12 @@ void ProfileDialog::okClicked()
 	changed = TRUE;
 	if ( mode == Modify )
 	    Config::configuration()->removeProfile( oldProfile->props["name"] );
+	if ( removedDocFiles.count() ) {
+	    QValueListConstIterator<QString> it = removedDocFiles.begin();
+	    for ( ; it != removedDocFiles.end(); ++it )
+		profile->removeDocFileEntry( *it );
+	    removedDocFiles.clear();
+	}
 	Config::configuration()->saveProfile( profile, TRUE );
 	delete oldProfile;
 	oldProfile = 0;
@@ -232,6 +238,7 @@ void ProfileDialog::removeDocFile()
 	}
 	++it;
     }
+    removedDocFiles << docListView->currentText();
     docListView->removeItem( docListView->currentItem() );
 }
 
@@ -243,6 +250,12 @@ void ProfileDialog::saveProfileInFile()
     if ( !fileName.isEmpty() ) {
 	if ( !fileName.endsWith( ".adp" ) )
 	    fileName += ".adp";
+	if ( removedDocFiles.count() ) {
+	    QValueListConstIterator<QString> it = removedDocFiles.begin();
+	    for ( ; it != removedDocFiles.end(); ++it )
+		profile->removeDocFileEntry( *it );
+	    removedDocFiles.clear();
+	}
 	profile->props["name"] = leName->text();
 	profile->props["aboutmenutext"] = leAboutMenuText->text();
 	profile->props["title"] = leTitle->text();
