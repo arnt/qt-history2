@@ -810,10 +810,8 @@ QWidget::~QWidget()
 	    qApp->quit();
     }
 
-    if ( focusWidget() == this )
+    if ( hasFocus() )
 	clearFocus();
-    if ( QApplication::focus_widget == this )
-	QApplication::focus_widget = 0;
 
     if ( isTopLevel() && !isHidden() && winId() )
 	hide();
