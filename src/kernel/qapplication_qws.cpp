@@ -115,6 +115,25 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
+#ifdef DEBUG
+extern "C" void dumpmem(const char* m)
+{
+    static int init=0;
+    static int prev=0;
+    FILE* f = fopen("/proc/meminfo","r");
+    char line[100];
+    int total=0,used=0,free=0,shared=0,buffers=0,cached=0;
+    fscanf(f,"%*[^M]Mem: %d %d %d %d %d %d",&total,&used,&free,&shared,&buffers,&cached);
+    used -= buffers + cached;
+    if (!init) {
+        init=used;
+    } else {
+        printf("%40s: %+8d = %8d\n",m,used-init-prev,used-init);
+        prev = used-init;
+    }
+    fclose(f);
+}
+#endif
 
 /*****************************************************************************
   Internal variables and functions
