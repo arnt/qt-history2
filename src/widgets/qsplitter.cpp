@@ -160,7 +160,21 @@ public:
     QCOORD sizer;
     bool isSplitter;
     QWidget *wid;
+
+    QSplitterLayoutStruct() : sizer( -1 ) { }
+    QCOORD getSizer( Qt::Orientation orient );
 };
+
+QCOORD QSplitterLayoutStruct::getSizer( Qt::Orientation orient )
+{
+    if ( sizer == -1 ) {
+	QSize s = wid->sizeHint();
+	if ( !s.isValid() || wid->testWState(Qt::WState_Resized) )
+	    s = wid->size();
+	sizer = ( orient == Qt::Horizontal ) ? s.width() : s.height();
+    }
+    return sizer;
+}
 
 class QSplitterData
 {
@@ -304,7 +318,7 @@ void QSplitter::setOrientation( Orientation o )
 	    ((QSplitterHandle*)s->wid)->setOrientation( o );
 	s = data->list.next();
     }
-    recalc( isVisible() );
+    recalc( isVisibleTo(0) );
 }
 
 
@@ -349,16 +363,12 @@ QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool first )
     s = new QSplitterLayoutStruct;
     s->mode = Auto;
     s->wid = w;
-    if ( !testWState( WState_Resized ) && w->sizeHint().isValid() )
-	s->sizer = pick( w->sizeHint() );
-    else
-	s->sizer = pick( w->size() );
     s->isSplitter = FALSE;
     if ( first )
 	data->list.prepend( s );
     else
 	data->list.append( s );
-    if ( newHandle && isVisible() )
+    if ( newHandle && isVisibleTo(0) )
 	newHandle->show(); //will trigger sending of post events
     return s;
 }
@@ -385,8 +395,7 @@ void QSplitter::childEvent( QChildEvent *c )
 	    s = data->list.next();
 	}
 	addWidget( (QWidget*)c->child() );
-	recalc( isVisible() );
-
+	recalc( isVisibleTo(0) );
     } else if ( c->type() == QEvent::ChildRemoved ) {
 	QSplitterLayoutStruct *p = 0;
 	if ( data->list.count() > 1 )
@@ -449,10 +458,17 @@ void QSplitter::setRubberband( int p )
 
 bool QSplitter::event( QEvent *e )
 {
-    if ( e->type() == QEvent::LayoutHint || ( e->type() == QEvent::Show && data->firstShow ) ) {
-	recalc( isVisible() );
-	if ( e->type() == QEvent::Show )
-	    data->firstShow = FALSE;
+    switch ( e->type() ) {
+    case QEvent::Show:
+	if ( !data->firstShow )
+	    break;
+	data->firstShow = FALSE;
+	// fall through
+    case QEvent::LayoutHint:
+	recalc( isVisibleTo(0) );
+	break;
+    default:
+	;
     }
     return QWidget::event( e );
 }
@@ -560,7 +576,7 @@ void QSplitter::moveBefore( int pos, int id, bool upLeft )
 	moveBefore( pos, id-1, upLeft );
     } else if ( s->isSplitter ) {
 	int pos1, pos2;
-	int dd = s->sizer;
+	int dd = s->getSizer( orient );
 	if ( QApplication::reverseLayout() && orient == Horizontal ) {
 	    pos1 = pos;
 	    pos2 = pos + dd;
@@ -615,7 +631,7 @@ void QSplitter::moveAfter( int pos, int id, bool upLeft )
 	//No need to do anything if it's already there.
 	return;
     } else if ( s->isSplitter ) {
-	int dd = s->sizer;
+	int dd = s->getSizer( orient );
 	int pos1, pos2;
 	if( QApplication::reverseLayout() && orient == Horizontal ) {
 	    pos2 = pos - dd;
@@ -678,8 +694,8 @@ void QSplitter::getRange( int id, int *min, int *max )
 	if ( s->wid->isHidden() ) {
 	    //ignore
 	} else if ( s->isSplitter ) {
-	    minB += s->sizer;
-	    maxB += s->sizer;
+	    minB += s->getSizer( orient );
+	    maxB += s->getSizer( orient );
 	} else {
 	    minB += pick( s->wid->minimumSize() );
 	    maxB += pick( s->wid->maximumSize() );
@@ -690,8 +706,8 @@ void QSplitter::getRange( int id, int *min, int *max )
 	if ( s->wid->isHidden() ) {
 	    //ignore
 	} else if ( s->isSplitter ) {
-	    minA += s->sizer;
-	    maxA += s->sizer;
+	    minA += s->getSizer( orient );
+	    maxA += s->getSizer( orient );
 	} else {
 	    minA += pick( s->wid->minimumSize() );
 	    maxA += pick( s->wid->maximumSize() );
@@ -779,13 +795,13 @@ void QSplitter::doResize()
 		a[i].empty = FALSE;
 
 		if ( mode == Stretch ) {
-		    if ( s->sizer > 1 )
-			stretch *= s->sizer;
+		    if ( s->getSizer(orient) > 1 )
+			stretch *= s->getSizer( orient );
 		    // ad-hoc work-around for layout engine limitation
 		    a[i].stretch = QMIN( stretch, 8192 );
 		    a[i].sizeHint = a[i].minimumSize;
 		} else if ( mode == KeepSize ) {
-		    a[i].sizeHint = s->sizer;
+		    a[i].sizeHint = s->getSizer( orient );
 		} else { // mode == FollowSizeHint
 		    a[i].sizeHint = pick( s->wid->sizeHint() );
 		}
@@ -845,8 +861,8 @@ void QSplitter::recalc( bool update )
 	if ( !s->wid->isHidden() ) {
 	    empty = FALSE;
 	    if ( s->isSplitter ) {
-		minl += s->sizer;
-		maxl += s->sizer;
+		minl += s->getSizer( orient );
+		maxl += s->getSizer( orient );
 	    } else {
 		QSize minS = s->wid->minimumSize();
 		minl += pick( minS );
@@ -1121,7 +1137,7 @@ QValueList<int> QSplitter::sizes() const
     QSplitterLayoutStruct *s = data->list.first();
     while ( s ) {
 	if ( !s->isSplitter )
-	    list.append( s->sizer );
+	    list.append( s->getSizer(orient) );
 	s = data->list.next();
     }
     return list;
@@ -1209,7 +1225,7 @@ QTextStream& operator<<( QTextStream& ts, const QSplitter& splitter )
 	    if ( s->wid->isHidden() ) {
 		ts << "H";
 	    } else {
-		ts << s->sizer;
+		ts << s->getSizer( splitter.orientation() );
 	    }
 	    first = FALSE;
 	}
