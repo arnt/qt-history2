@@ -4221,9 +4221,10 @@ const char *QImageIO::imageFormat( QIODevice *d )
 	    buf[n] = '\001';
     if ( d->status() == IO_Ok && rdlen > 0 ) {
 	buf[rdlen - 1] = '\0';
+	QString bufStr = QString::fromLatin1(buf);
 	QImageHandler *p = imageHandlers->first();
 	while ( p ) {
-	    if ( p->header.search(QString::fromLatin1(buf)) != -1 )
+	    if ( p->header.search(bufStr) != -1 )
 		// try match with headers
 	    {
 		format = p->format;
