@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#41 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#40 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#41 $")
 
 
 /*!
@@ -44,7 +44,8 @@ is the new text.
 */
 
 
-static const int blinkTime = 500;		// text cursor blink time
+static const int blinkTime  = 500;		// text cursor blink time
+static const int scrollTime = 100;		// mark text scroll time
 
 #define LEFT_MARGIN 4
 #define RIGHT_MARGIN 4
@@ -52,25 +53,26 @@ static const int blinkTime = 500;		// text cursor blink time
 #define BOTTOM_MARGIN 4
 
 
-static uint xPosToCursorPos( char *s, const QFontMetrics &fm,
-			     uint xPos, uint width )
+static int xPosToCursorPos( char *s, const QFontMetrics &fm,
+			    int xPos, int width )
 {
     char *tmp;
     int	  dist;
 
-    if( xPos > width )
+    if ( xPos > width )
 	xPos = width;
+    if ( xPos <= 0 )
+	return 0;
     dist = xPos;
     tmp	 = s;
-    while( *tmp && dist >= 0 )
+    while ( *tmp && dist > 0 )
 	dist -= fm.width( tmp++, 1 );
-    if( dist < 0 && ( xPos - dist > width ||
-		      fm.width( tmp - 1, 1)/2 < -dist ) )
+    if ( dist < 0 && ( xPos - dist > width || fm.width( tmp - 1, 1)/2 < -dist))
 	tmp--;
     return tmp - s;
 }
 
-static uint showLastPartOffset( char *s, const QFontMetrics &fm, int width )
+static int showLastPartOffset( char *s, const QFontMetrics &fm, int width )
 {
     if ( !s || s[0] == '\0' )
 	return 0;
@@ -95,12 +97,16 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
     initMetaObject();
-    pm		= 0;
-    cursorPos	= 0;
-    offset	= 0;
-    maxLen	= 32767;
-    cursorOn	= TRUE;
-    tbuf	= "";
+    pm		  = 0;
+    cursorPos	  = 0;
+    offset	  = 0;
+    maxLen	  = 32767;
+    cursorOn	  = TRUE;
+    markBegin     = 0;
+    markEnd       = 0;
+    dragScrolling = FALSE;
+    scrollingLeft = FALSE;
+    tbuf	  = "";
     setAcceptFocus( TRUE );
 }
 
@@ -151,24 +157,48 @@ const char *QLineEdit::text() const
     return tbuf.data();
 }
 
+/*!  
+  Returns TRUE if part of the text has been marked by the user (e.g. by
+  clicking and dragging).
+*/
+
+bool QLineEdit::hasMarkedText() const
+{
+    return markBegin != markEnd;
+}
+
+/*!  
+  Returns the text marked by the user (e.g. by clicking and
+   dragging). Returns 0 if no text is marked.  
+*/
+
+QString QLineEdit::markedText() const
+{
+    if ( markBegin != markEnd ) {
+	return tbuf.mid( markBegin, markEnd - markBegin );
+    } else {
+	return 0;
+    }
+}
 
 /*!
-Set the maximum length of the text in the editor.  If the text is
-currently too long, it is chopped off at the limit.
-\sa maxLength().
+  Set the maximum length of the text in the editor.  If the text is
+  currently too long, it is chopped off at the limit. Any marked text will
+  be unmarked.  The cursor position is set to 0 and the first part of the
+  string is shown. \sa maxLength().
 */
 
 void QLineEdit::setMaxLength( int m )
 {
-    maxLen = (uint) m;
-    if ( (int)tbuf.length() > maxLen ) {
+    maxLen = m;
+    markStart = 0;
+    markBegin = 0;
+    markEnd   = 0;
+    if ( (int)tbuf.length() > maxLen )
 	tbuf.resize( maxLen + 1 );		// include \0
-	if ( cursorPos > maxLen ) {
-	    offset = maxLen;
-	    end();
-	}
-	paint();
-    }
+    offset    = 0;
+    cursorPos = 0;
+    paint();
 }
 
 /*!
@@ -218,29 +248,61 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
     }
      if ( e->ascii() >= 32 && e->key() != Key_Delete ) {
 	if ( (int)tbuf.length() < maxLen ) {
+	    if ( hasMarkedText() ) {
+		tbuf.remove( markBegin, markEnd - markBegin );
+		cursorPos = markBegin;
+		markEnd   = markBegin;
+		if ( cursorPos < offset )
+		    offset = cursorPos;
+	    }
 	    tbuf.insert( cursorPos, e->ascii() );
-	    cursorRight();			// will repaint
+	    cursorRight( FALSE );			// will repaint
 	    emit textChanged( tbuf.data() );
 	}
 	return;
     }
     int unknown = 0;
-    if ( e->state() == 0 ) {
+    if ( e->state() & ControlButton ) {
+	switch ( e->key() ) {
+	    case Key_A:
+	    case Key_Left:
+		home( e->state() & ShiftButton );
+		break;
+	    case Key_B:
+		cursorLeft( e->state() & ShiftButton );
+		break;
+	    case Key_D:
+		del();
+		break;
+	    case Key_E:
+	    case Key_Right:
+		end( e->state() & ShiftButton );
+		break;
+	    case Key_F:
+		cursorRight( e->state() & ShiftButton );
+		break;
+	    case Key_H:
+		backspace();
+		break;
+	    default:
+		unknown++;
+	}
+    } else {
 	switch ( e->key() ) {
 	    case Key_Left:
-		cursorLeft();
+		cursorLeft( e->state() & ShiftButton );
 		break;
 	    case Key_Right:
-		cursorRight();
+		cursorRight( e->state() & ShiftButton );
 		break;
 	    case Key_Backspace:
 		backspace();
 		break;
 	    case Key_Home:
-		home();
+		home( e->state() & ShiftButton );
 		break;
 	    case Key_End:
-		end();
+		end( e->state() & ShiftButton );
 		break;
 	    case Key_Delete:
 		del();
@@ -249,32 +311,6 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		unknown++;
 	}
     }
-    else if ( e->state() == ControlButton ) {
-	switch ( e->key() ) {
-	    case Key_A:
-		home();
-		break;
-	    case Key_B:
-		cursorLeft();
-		break;
-	    case Key_D:
-		del();
-		break;
-	    case Key_E:
-		end();
-		break;
-	    case Key_F:
-		cursorRight();
-		break;
-	    case Key_H:
-		backspace();
-		break;
-	    default:
-		unknown++;
-	}
-    }
-    else
-	unknown++;
 
     if ( unknown ) {				// unknown key
 	e->ignore();
@@ -306,9 +342,10 @@ void QLineEdit::focusOutEvent( QFocusEvent * )
 {
     killTimers();
     delete pm;
-    pm = 0;
-    cursorOn = FALSE;
-    paint();
+    pm            = 0;
+    cursorOn      = FALSE;
+    dragScrolling = FALSE;
+    paint( TRUE );
 }
 
 
@@ -318,16 +355,23 @@ void QLineEdit::paintEvent( QPaintEvent * )
 }
 
 
-/*!
-\internal
-This event is used to implement the blinking text cursor.
+/*!  \internal 
+  This event is used to implement the blinking text cursor
+  and scrolling when marking text.  
 */
 
 void QLineEdit::timerEvent( QTimerEvent * )
 {
     if ( hasFocus() ) {
-	cursorOn = !cursorOn;
-	paint();
+	if ( dragScrolling ) {
+	    if ( scrollingLeft )
+		cursorLeft( TRUE );	// mark left
+	    else
+		cursorRight( TRUE );	// mark right
+	} else {
+	    cursorOn = !cursorOn;
+	    paint();
+	}
     }
 }
 
@@ -350,15 +394,58 @@ Sets the text cursor.
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
     killTimers();
-    cursorPos = offset +
-	xPosToCursorPos( &tbuf[(int)offset], fontMetrics(),
-			 e->pos().x() - LEFT_MARGIN,
-			 width() - LEFT_MARGIN - RIGHT_MARGIN );
-    cursorOn = TRUE;
+    cursorPos = offset + xPosToCursorPos( &tbuf[(int)offset], fontMetrics(),
+         			       e->pos().x() - LEFT_MARGIN,
+			               width() - LEFT_MARGIN - RIGHT_MARGIN );
+    markStart = cursorPos;
+    newMark( markStart );
+    cursorOn      = TRUE;
+    dragScrolling = FALSE;
     startTimer( blinkTime );
     paint();
 }
 
+void QLineEdit::mouseMoveEvent( QMouseEvent *e )
+{
+    if ( e->pos().x() < LEFT_MARGIN || e->pos().x() > width() - RIGHT_MARGIN) {
+	scrollingLeft =  ( e->pos().x() < LEFT_MARGIN );
+	if ( !dragScrolling ) {
+	    killTimers();
+	    dragScrolling = TRUE;
+	    cursorOn      = FALSE;
+	    startTimer( scrollTime );
+	    paint();
+	} else {
+	    if ( scrollingLeft ) {
+		int steps = -(e->pos().x() + LEFT_MARGIN) / 15 + 2;
+		cursorLeft( TRUE, steps );
+	    } else {
+		int steps = (e->pos().x() - width() +  RIGHT_MARGIN) / 15 + 2;
+		cursorRight( TRUE, steps );
+	    }
+	}
+    } else {
+	dragScrolling = FALSE;
+	int mousePos  = offset +
+	    xPosToCursorPos( &tbuf[(int)offset], fontMetrics(),
+			     e->pos().x() - LEFT_MARGIN,
+			     width() - LEFT_MARGIN - RIGHT_MARGIN );
+	newMark( mousePos );
+	cursorOn  = TRUE;
+	killTimers();
+	startTimer( blinkTime );
+	paint();
+    }
+}
+
+void QLineEdit::mouseReleaseEvent( QMouseEvent * )
+{
+    if ( dragScrolling ) {
+	dragScrolling = FALSE;
+	killTimers();
+	startTimer( blinkTime );
+    }
+}
 
 /*!
   \internal
@@ -417,65 +504,142 @@ void QLineEdit::paintText( QPainter *p, const QSize &s, bool frame )
 	qDrawWinPanel( p, 0, 0, s.width(), s.height(), g, TRUE, &fill );
     }
     p->setClipRect( LEFT_MARGIN, TOP_MARGIN,
-		    s.width()  - LEFT_MARGIN - RIGHT_MARGIN + 1,
-		    s.height() - TOP_MARGIN - BOTTOM_MARGIN + 1 );
+		    s.width()  - LEFT_MARGIN - RIGHT_MARGIN,
+		    s.height() - TOP_MARGIN - BOTTOM_MARGIN );
 
-    int tDispWidth = s.width() - LEFT_MARGIN - RIGHT_MARGIN;
-    int displayLength = xPosToCursorPos( displayText, fontMetrics(),
-					 tDispWidth, tDispWidth );
-    if ( displayText[ displayLength ] != '\0' )
-	displayLength++;
+    int tDispWidth    = s.width() - LEFT_MARGIN - RIGHT_MARGIN;
+    int charsVisible = xPosToCursorPos( displayText, fontMetrics(), // no of
+				     tDispWidth, tDispWidth ); // chars visible
+    if ( displayText[ charsVisible ] != '\0' )
+	charsVisible++;
 
+    int ypos = s.height() - BOTTOM_MARGIN - fm.descent() - 1 - 
+               (s.height() - BOTTOM_MARGIN - TOP_MARGIN - fm.height())/2;
+    int mark1,mark2; // start and end of inverted text, 0 = leftmost char
+
+    if ( markBegin > offset ) {
+	if ( markBegin <  offset + charsVisible )
+	    mark1 = markBegin - offset;
+	else
+	    mark1 = charsVisible;
+    } else {
+	mark1 = 0;
+    }
+    
+    if ( markEnd > offset ) {
+	if ( markEnd <  offset + charsVisible )
+	    mark2 = markEnd - offset;
+	else
+	    mark2 = charsVisible;
+    } else {
+	mark2 = 0;
+    }
+    if ( mark1 != mark2 ) {
+        int xpos1 =  LEFT_MARGIN + fm.width( displayText, mark1 );
+        int xpos2 =  xpos1 + fm.width( displayText + mark1, mark2 - mark1 );
+        p->fillRect( xpos1, ypos - fm.ascent(),
+		     xpos2 - xpos1, fm.height(), g.text() );
+	p->setPen( g.base() );
+	p->drawText( xpos1, ypos, displayText + mark1, mark2 - mark1 );
+    }
     p->setPen( g.text() );
-    p->drawText( LEFT_MARGIN, s.height() - BOTTOM_MARGIN - fm.descent(),
-		 displayText, displayLength );
+    if ( mark1 != 0 )
+        p->drawText( LEFT_MARGIN, ypos, displayText, mark1 );
+    if ( mark2 != charsVisible )
+        p->drawText( LEFT_MARGIN + fm.width( displayText, mark2 ), ypos,
+	    	     displayText + mark2, charsVisible - mark2 );
+
     p->setPen( g.foreground() );
 
     p->setClipping( FALSE );
-    if( cursorOn ) {
-	uint curPos = LEFT_MARGIN +
-		      fm.width( displayText, cursorPos - offset ) - 1;
+    if ( cursorOn ) {
+	int curXPos   = LEFT_MARGIN +
+		        fm.width( displayText, cursorPos - offset ) - 1;
+	int curYPos   = ypos - fm.ascent();
 	if ( hasFocus() ) {
-	    p->drawLine( curPos- 2, TOP_MARGIN, curPos + 2, TOP_MARGIN );
-	    p->drawLine( curPos	  , TOP_MARGIN,
-			 curPos	  , s.height() - BOTTOM_MARGIN );
-	    p->drawLine( curPos - 2, s.height() - BOTTOM_MARGIN,
-			 curPos + 2, s.height() - BOTTOM_MARGIN );
+	    p->drawLine( curXPos - 2, curYPos, 
+			 curXPos + 2, curYPos );
+	    p->drawLine( curXPos    , curYPos,
+			 curXPos    , curYPos + fm.height() - 1);
+	    p->drawLine( curXPos - 2, curYPos + fm.height() - 1,
+			 curXPos + 2, curYPos + fm.height() - 1);
 	}
     }
 }
 
+/*!
+  Sets a new marked text limit, does not repaint the widget.
+*/
+
+void QLineEdit::newMark( int pos )
+{
+    if ( pos <= markStart ) {
+	markBegin = pos;
+	markEnd   = markStart;
+    } else {
+	markBegin = markStart;
+	markEnd   = pos;
+    }
+    cursorPos = pos;
+}
 
 /*!
-  Moves the cursor leftwards one character.
+  Moves the cursor leftwards one or more characters.
   \sa cursorRight()
 */
 
-void QLineEdit::cursorLeft()
+void QLineEdit::cursorLeft( bool mark, int steps )
 {
+    if ( steps < 0 ) {
+	cursorRight( mark, -steps );
+	return;
+    }
     if ( cursorPos != 0 ) {
 	killTimers();
 	cursorOn = TRUE;
-	cursorPos--;
+	cursorPos -= steps;
+	if ( cursorPos < 0 )
+	    cursorPos = 0;
+	if ( mark ) {
+	    newMark( cursorPos );
+	} else {
+	    markStart = cursorPos;
+	    markBegin = 0;
+	    markEnd   = 0;
+	}
 	if ( cursorPos < offset )
 	    offset = cursorPos;
-	startTimer( blinkTime );
+	startTimer( dragScrolling ? scrollTime : blinkTime );
 	paint();
     }
 }
 
 /*!
-  Moves the cursor rightwards one character.
+  Moves the cursor rightwards one or more characters.
   \sa cursorLeft()
 */
 
-void QLineEdit::cursorRight()
+void QLineEdit::cursorRight( bool mark, int steps )
 {
-    if ( (int)strlen(tbuf) > cursorPos ) {
+    if ( steps < 0 ) {
+	cursorLeft( mark, -steps );
+	return;
+    }
+    int len = (int)strlen( tbuf );
+    if ( len > cursorPos ) {
 	QFontMetrics fm = fontMetrics();
 	killTimers();
-	cursorOn = TRUE;
-	cursorPos++;
+	cursorOn   = TRUE;
+	cursorPos += steps;
+        if ( cursorPos > len )
+	    cursorPos = len;
+	if ( mark ) {
+	    newMark( cursorPos );
+	} else {
+	    markStart = cursorPos;
+	    markBegin = 0;
+	    markEnd   = 0;
+	}
 	int surplusWidth = width() - LEFT_MARGIN - RIGHT_MARGIN
 			   - fm.width( &tbuf[ offset ], cursorPos - offset);
 	if ( surplusWidth < 0 ) {
@@ -484,63 +648,89 @@ void QLineEdit::cursorRight()
 		offset++;
 	    }
 	}
-	startTimer( blinkTime );
+	startTimer( dragScrolling ? scrollTime : blinkTime );
 	paint();
     }
 }
 
-
 /*!
-  Deletes the character on the left side of the text cursor and
-  moves the cursor one position to the left.
-  \sa del()
+  Deletes the character on the left side of the text cursor and moves the
+  cursor one position to the left. If a text has been marked by the user
+  (e.g. by clicking and dragging) the cursor will be put at the beginning
+  of the marked text and the marked text will be removed.  \sa del()
 */
 
 void QLineEdit::backspace()
 {
-    if ( cursorPos > 0 ) {
-	cursorLeft();
+    if ( hasMarkedText() ) {
 	del();
+    } else {
+	if ( cursorPos > 0 ) {
+	    cursorLeft( FALSE );
+	    del();
+	}
     }
 }
 
 /*!
-  Deletes the character on the right side of the text cursor.
-  \sa backspace()
+  Deletes the character on the right side of the text cursor. If a text
+  has been marked by the user (e.g. by clicking and dragging) the cursor
+  will be put at the beginning of the marked text and the marked text will
+  be removed.  \sa backspace()
 */
 
 void QLineEdit::del()
 {
-    if ( cursorPos != (int)strlen(tbuf) ) {
-	tbuf.remove( cursorPos, 1 );
+    if ( hasMarkedText() ) {
+	tbuf.remove( markBegin, markEnd - markBegin );
+	cursorPos = markBegin;
+	markEnd   = markBegin;
+	if ( cursorPos < offset )
+	    offset = cursorPos;
 	paint();
-	emit textChanged( tbuf.data() );
+        emit textChanged( tbuf.data() );
+    } else {
+	if ( cursorPos != (int)strlen(tbuf) ) {
+	    tbuf.remove( cursorPos, 1 );
+	    paint();
+	    emit textChanged( tbuf.data() );
+	}
     }
 }
 
 /*!
-  Moves the text cursor to the left end of the line.
-  \sa end()
+  Moves the text cursor to the left end of the line. If mark is TRUE text
+  will be marked towards the first position, if not any marked text will
+  be unmarked if the cursor is moved.  \sa end()
 */
 
-void QLineEdit::home()
+void QLineEdit::home( bool mark )
 {
     if ( cursorPos != 0 ) {
 	killTimers();
 	cursorPos = 0;
+	if ( mark ) {
+	    newMark( cursorPos );
+	} else {
+	    markStart = 0;
+	    markBegin = markStart;
+	    markEnd   = markStart;
+	}
 	offset	  = 0;
 	cursorOn = TRUE;
-	startTimer( blinkTime );
+	startTimer( dragScrolling ? scrollTime : blinkTime );
 	paint();
     }
 }
 
 /*!
-  Moves the text cursor to the right end of the line.
+  Moves the text cursor to the right end of the line. If mark is TRUE text
+  will be marked towards the last position, if not any marked text will
+  be unmarked if the cursor is moved.
   \sa home()
 */
 
-void QLineEdit::end()
+void QLineEdit::end( bool mark )
 {
     int tlen = strlen( tbuf );
     if ( cursorPos != tlen ) {
@@ -548,8 +738,15 @@ void QLineEdit::end()
 	offset += showLastPartOffset( &tbuf[offset], fontMetrics(),
 				      width() - LEFT_MARGIN - RIGHT_MARGIN );
 	cursorPos = tlen;
-	cursorOn = TRUE;
-	startTimer( blinkTime );
+	if ( mark ) {
+	    newMark( cursorPos );
+	} else {
+	    markStart = cursorPos;
+	    markBegin = markStart;
+	    markEnd   = markStart;
+	}
+	cursorOn  = TRUE;
+	startTimer( dragScrolling ? scrollTime : blinkTime );
 	paint();
     }
 }
