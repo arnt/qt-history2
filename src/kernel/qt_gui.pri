@@ -1,6 +1,6 @@
 # Qt kernel module
 
-kernel {
+core {
 	KERNEL_P	= kernel
 	HEADERS += \
 		  $$KERNEL_H/qabstractgc.h \
