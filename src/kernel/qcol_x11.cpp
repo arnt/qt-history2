@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#15 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#15 $";
 #endif
 
 
@@ -43,8 +43,8 @@ static Colormap g_cmap  = 0;			// application global colormap
 static XColor  *g_carr  = 0;			// color array
 static Visual  *g_vis   = 0;
 static bool	g_truecolor;
-static int	red_shift, green_shift, blue_shift;
 static uint	red_mask , green_mask , blue_mask;
+static int	red_shift, green_shift, blue_shift;
 
 
 void qResetColorAvailFlag()			// OOPS: called from event loop
@@ -85,10 +85,7 @@ void QColor::initialize()			// called from startup routines
 	return;
     Display *dpy    = qXDisplay();
     int      screen = qXScreen();
-    int      dd;
-    Window   root;
-    root    = RootWindow( dpy, screen );
-    dd      = DefaultDepth( dpy, screen );	// default depth of display
+    int dd  = DefaultDepth( dpy, screen );	// default depth of display
     g_cmap  = DefaultColormap( dpy, screen );	// create colormap
     g_ncols = DisplayCells( dpy, screen );	// number of colors
     g_vis   = DefaultVisual( dpy, screen );
@@ -105,7 +102,7 @@ void QColor::initialize()			// called from startup routines
 	blue_mask   = g_vis->blue_mask;
 	red_shift   = highest_bit( red_mask )   - 7;
 	green_shift = highest_bit( green_mask ) - 7;
-	blue_shift  = highest_bit( blue_mask )  - 7;	
+	blue_shift  = highest_bit( blue_mask )  - 7;
     }
     colorDict = new QColorDict(dictsize);	// create dictionary
     CHECK_PTR( colorDict );
