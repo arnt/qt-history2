@@ -97,7 +97,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "DEBUG" ]	    = "no";
     dictionary[ "SHARED" ]	    = "yes";
 
-    dictionary[ "GIF" ]		    = "yes";
+    dictionary[ "GIF" ]		    = "no";
     dictionary[ "ZLIB" ]	    = "yes";
     dictionary[ "PNG" ]		    = "qt";
     dictionary[ "JPEG" ]	    = "qt";
