@@ -2152,42 +2152,48 @@ AddMenuCommand::AddMenuCommand( const QString &n,
 				MenuBarEditor *b,
 				MenuBarEditorItem *i,
 				int idx )
-    : Command( n, fw ), bar( b ), item( i ), name( 0 ), index( idx )
+    : Command( n, fw ), mb( b ), item( i ), name( 0 ), index( idx )
 { }
 
 AddMenuCommand::AddMenuCommand( const QString &n,
 				FormWindow *fw,
 				QMainWindow *mw,
 				const QString &nm )
-    : Command( n, fw ), bar( 0 ), item( 0 ), name( nm ), index( -1 )
+    : Command( n, fw ), mb( 0 ), item( 0 ), name( nm ), index( -1 )
 {
     if ( mw )
-	bar = (MenuBarEditor *)mw->child( 0, "MenuBarEditor" );
+	mb = (MenuBarEditor *)mw->child( 0, "MenuBarEditor" );
 }
 
 void AddMenuCommand::execute()
 {
+    QString n;
     QMainWindow *mw = (QMainWindow*)formWindow()->mainContainer();
-    if ( !bar ) {
-	bar = new MenuBarEditor( formWindow(), mw );
-	bar->setName( "MenuBar" );
+    if ( !mb ) {
+	mb = new MenuBarEditor( formWindow(), mw );
+	n = "MenuBar";
+	formWindow()->unify( mb, n, TRUE );
+	mb->setName( n );
+	MetaDataBase::addEntry( mb );
     }
     if ( !item ) {
-	QString n = "PopupMenu";
+	n = "PopupMenu";
 	PopupMenuEditor *popup = new PopupMenuEditor( formWindow(), mw );
 	formWindow()->unify( popup, n, TRUE );
 	popup->setName( n );
-	bar->insertItem( name, popup, index );
+	mb->insertItem( name, popup, index );
     } else {
-	bar->insertItem( item, index );
+	mb->insertItem( item, index );
     }
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 void AddMenuCommand::unexecute()
 {
     item->menu()->hide();
-    int i = bar->findItem( item );
-    bar->removeItemAt( i );
+    int i = mb->findItem( item );
+    mb->removeItemAt( i );
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 // ------------------------------------------------------------
@@ -2198,7 +2204,7 @@ RemoveMenuCommand::RemoveMenuCommand( const QString &n,
 				      int idx )
     : AddMenuCommand( n, fw, b, 0, idx )
 {
-    item = bar->item( index );
+    item = mb->item( index );
 }
 
 void RemoveMenuCommand::execute()
@@ -2247,7 +2253,6 @@ void RenameMenuCommand::execute()
 {
     item->setMenuText( newName );
     QString s = newName;
-    //item->setName( s.remove( "&" ).lower() );
 }
 
 void RenameMenuCommand::unexecute()

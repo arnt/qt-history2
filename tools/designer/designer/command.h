@@ -1115,7 +1115,7 @@ public:
     void unexecute();
     Type type() const { return AddMenu; }
 protected:
-    MenuBarEditor *bar;
+    MenuBarEditor *mb;
     MenuBarEditorItem *item;
     QString name;
     int index;

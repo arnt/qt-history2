@@ -2794,6 +2794,7 @@ void Resource::saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent )
 	return;
     ts << makeIndent( indent ) << "<menubar>" << endl;
     indent++;
+    MetaDataBase::setPropertyChanged( mb, "name", TRUE ); // FIXME: remove
     saveObjectProperties( mb, ts, indent );
 
     for ( int i = 0; i < (int)mb->count(); ++i ) {
@@ -2860,10 +2861,12 @@ void Resource::loadMenuBar( const QDomElement &e )
     QDomElement n = e.firstChild().toElement();
     QMainWindow *mw = (QMainWindow*)formwindow->mainContainer();
     MenuBarEditor *mb = new MenuBarEditor( formwindow, mw );
+    MetaDataBase::addEntry( mb );
     while ( !n.isNull() ) {
 	if ( n.tagName() == "item" ) {
 	    PopupMenuEditor *popup = new PopupMenuEditor( formwindow, mw );
 	    popup->setName( n.attribute( "name" ) );
+	    MetaDataBase::addEntry( popup );
 	    QDomElement n2 = n.firstChild().toElement();
 	    while ( !n2.isNull() ) {
 		if ( n2.tagName() == "action" ) {
@@ -2880,6 +2883,7 @@ void Resource::loadMenuBar( const QDomElement &e )
 	    mb->insertItem( n.attribute( "text" ), popup );
 	} else if ( n.tagName() == "property" ) {
 	    setObjectProperty( mb, n.attribute( "name" ), n.firstChild().toElement() );
+	    //MetaDataBase::setPropertyChanged( mb, "name", TRUE ); // FIXME: remove
 	}
 	n = n.nextSibling().toElement();
     }

@@ -592,6 +592,7 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
 	    draggedItem = item( findItem( mousePressPos ) );
 	    if ( draggedItem == &addItem || draggedItem == &addSeparator ) {
 		draggedItem = 0;
+		// FIXME: create new item here
 		return;
 	    }	    
 	    MenuBarEditorItemPtrDrag * d =
@@ -747,6 +748,7 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 	case Qt::Key_Shift:
 	case Qt::Key_Control:
 	case Qt::Key_Escape:
+	    e->ignore();
 	    setFocus(); // FIXME: this is because some other widget get the focus when CTRL is pressed
 	    return; // no update
 	    
@@ -774,15 +776,7 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 		break;
 	    }
 
-	case Qt::Key_T:
-	    if ( e->state() & Qt::ControlButton ) {
-		qDebug( "<Ctrl+T>" );
-		QApplication::sendEvent( formWnd, e );
-		e->accept();
-		return;
-	    }
-	    
-	default:    
+	default:
 	    showLineEdit();
 	    QApplication::sendEvent( lineEdit, e );
 	    e->accept();
@@ -791,6 +785,9 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
     } else { // In edit mode
 	
 	switch ( e->key() ) {
+	case Qt::Key_Control:
+	    e->ignore();
+	    return;
 	case Qt::Key_Enter:
 	case Qt::Key_Return:
 	{
@@ -823,6 +820,7 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 	    break;	    
 	}
     }
+    e->accept();
     update();
 }
 

@@ -938,6 +938,7 @@ void DesignerFormWindowImpl::addMenu( const QString &text, const QString &name )
     if ( !mb ) {
 	mb = new MenuBarEditor( formWindow, mw );
 	mb->setName( "MenuBar" );
+	MetaDataBase::addEntry( mb );
     }
     mb->insertItem( text, popup );
 }
