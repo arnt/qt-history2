@@ -20,10 +20,12 @@
 #include <qhash.h>
 #include <quuid.h>
 #include <stdlib.h>
-#include <qt_windows.h>
 
 //#define DEBUG_SOLUTION_GEN
 //#define DEBUG_PROJECT_GEN
+
+#ifdef Q_OS_WIN32
+#  include <qt_windows.h>
 
 // Registry keys for .NET version detection -------------------------
 const char* _regNet2002                = "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir";
@@ -154,6 +156,7 @@ static QString readRegistryKey(HKEY parentHandle, const QString &rSubkey)
     RegCloseKey(handle);
     return result;
 }
+#endif
 
 bool use_net2003_version()
 {
