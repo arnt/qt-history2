@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 
+# $Id: //depot/qt/main/util/qdoc/qspell#2 $
+
 # really primitive spell checker
 
 use File::Find;
@@ -46,7 +48,7 @@ while( <I> ) {
 study $long;
 
 foreach ( sort { $words{$a} <=> $words{$b} || $a cmp $b } keys %words ) {
-    printf( "%d %-15s  %-60s\n", $words{$_}, $_, $& ) 
+    printf( "%d %-15s  %s\n", $words{$_}, $_, $& ) 
       if ( $words{$_} > 0 && $words{$_} < 3 &&
 	   $long =~ /\S+ \S+ $_ \S+ \S+/ );
 }
