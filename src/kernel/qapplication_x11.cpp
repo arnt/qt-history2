@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#219 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#220 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#219 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#220 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -2315,7 +2315,9 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	}
 
 	if ( popupButtonFocus ) {
-	    QMouseEvent e( type, popupButtonFocus->mapFromGlobal( popup->mapToGlobal( pos ) ), button, state );
+	    QMouseEvent e( type, popupButtonFocus->
+			   mapFromGlobal(popup->mapToGlobal(pos)),
+			   button, state );
 	    QApplication::sendEvent( popupButtonFocus, &e );
 	    if ( releaseAfter )
 		popupButtonFocus = 0;
@@ -2328,7 +2330,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    if ( popupGrabOk )
 		XAllowEvents( dpy, SyncPointer, CurrentTime );
 	} else {				// left popup mode
-	    if ( type != Event_MouseButtonRelease && state != 0 ) {
+	    if ( type != Event_MouseButtonRelease && state != 0 &&
+		 QWidget::find(mouseActWindow) ) {
 		manualGrab = TRUE;		// need to manually grab
 		XGrabPointer( dpy, mouseActWindow, FALSE,
 			      (uint)(ButtonPressMask | ButtonReleaseMask |
