@@ -25,6 +25,10 @@
 #include "qrect.h"
 #include "qmutex.h"
 
+
+#ifndef QT_NO_QOBJECT
+#include "qcoreapplication.h"
+
 #ifdef Q_OS_WIN // for homedirpath reading from registry
 #include "qt_windows.h"
 #include "qlibrary.h"
@@ -34,10 +38,7 @@
 #endif
 
 #endif // Q_OS_WIN
-
-#ifndef QT_NO_QOBJECT
-#include "qcoreapplication.h"
-#endif
+#endif // QT_NO_QOBJECT
 
 // ************************************************************************
 // QConfFile
@@ -800,7 +801,8 @@ void QConfFileSettingsPrivate::init()
 static QString systemIniPath()
 {
     QString defPath;
-#ifdef Q_OS_WIN
+#if defined (Q_OS_WIN) && !defined(QT_NO_QOBJECT)
+    // We can't use QLibrary if there is QT_NO_QOBJECT is defined
     QLibrary library("shell32");
     library.setAutoUnload(false);
     QT_WA( {
