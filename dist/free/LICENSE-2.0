@@ -1,10 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- Copyright © Troll Tech -- See http://www.troll.no/copright.html for license terms -->
+<html><head><title> The License for the Qt Free Edition
+</title><style type="text/css"><!-- H1, H2, H3, H4 {font-family: Univers, Helvetica, "Lucida Sans", Arial, Geneva, sans-serif;} BODY {font-family: "Times New Roman", Georgia, Times, "New York", serif; background: white; color: black;} TT, PRE, CODE {font-family: "Courier New", "Courier", fixed; background: white; color: black;} -->
+</style></head><body bgcolor="#ffffff" onload="if(top.frames.length!=0)top.location=self.location;">
+<div align="right">
+<table border="0" cellspacing="0" cellpadding="0" align="left">
+<tr valign="top"><td halign="left">
+<a href="/"><img width="168" height="98" src="/image/ttlogo-small.jpg" alt="Home" align="left" border="0"></a></table>
+<a href="/products/"><img width="98" height="22" src="/image/btn-products.gif" alt="Products" border="0"></a>
+<a href="/purchase/"><img width="98" height="22" src="/image/btn-purchase.gif" alt="Purchase" border="0"></a>
+<a href="/dl/"><img width="98" height="22" src="/image/btn-download.gif" alt="Download" border="0"></a>
+<a href="/developer/"><img width="98" height="22" src="/image/btn-developer.gif" alt="Developer" border="0"></a>
+<a href="/site-map.html"><img width="98" height="22" src="/image/btn-sitemap.gif" alt="Site Map" border="0"></a>
+<a href="/search.html"><img width="98" height="22" src="/image/btn-search.gif" alt="Search" border="0"></a>
+</div><br clear="all"><h1 align=center>The License for the Qt Free Edition</h1>
+<!-- remove all lines starting with less-than to get plaintext version -->
+<p>Included below is the license offered for the Qt Free Edition.  The license
+<!-- -->is called the Qt Public License (or "QPL"), and qualifies as
+<!-- -->an <a href=http://www.opensource.org/osd.html>Open Source license</a>.
+<!-- -->It is thus appropriate for people wishing to write
+<!-- -->software under the <a href=http://www.opensource.org/>Open Source</a>
+<!-- -->model where all source code to
+<!-- -->the software is made available to all users and can be freely
+<!-- -->modified and redistributed.
+<p>The annotations in <i><font color=green>green italics</font></i> are not part of
+<!-- -->the license, merely our answers to common questions that might
+<!-- -->arise.
+<p>To use the Qt Free Edition under the QPL, simply meet the
+<!-- -->requirements therein.  Your software can be licensed by any license
+<!-- -->that meets the requirements.
+<!-- -->
+<p>To use this license
+<!-- -->for you own software, add a notice to the software saying
+<!-- -->your software may be distributed under the terms of the Qt
+<!-- -->Public License version 1.0.
+<hr>
+<h1 align=center>
 			     THE Qt PUBLIC LICENSE
+<br>
 				  version 1.0
+<br>
+<br>
+<small>
 
 		   Copyright (C) 1998 Troll Tech AS, Norway.
+<br>
 		       Everyone is permitted to copy and
+<br>
 		       distribute this license document.
+</small>
+</h1>
 
+<p>
 This license applies to any software containing a notice placed by the
 copyright holder saying it may be distributed under the terms of the Qt
 Public License version 1.0.  Such software is herein referred to as the
@@ -12,58 +59,92 @@ Software.  This license covers modification and distribution of the
 Software, use of third-party application programs based on the
 Software, and development of free software which uses the Software.  
 
+<h2 align=center>
 			   Copyright and Restrictions
+</h2>
 
+<p>
 You may copy and distribute the Software provided that you accept this
 license and that the entire package is distributed, including this notice.  
 
+<p>
 You may use the Software to compile, link and run application programs legally
 developed by third parties.
+<br><i><font color=green>For example, the Qt Free Edition can be used to
+<!-- -->run commercial software written with the Qt Profession Edition
+<!-- -->without having to install another library.
+</font></i>
 
+<p>
 You may use the Software to create application programs, reusable
 components and other software items under the following restrictions: 
 
+<blockquote>
+<p>
   1. You accept this license.
-
+<p>
   2. You make your items available in source code form to all users
       of those items.
-
-  3  You explicitly permit your items to be modified and redistributed
+<p>
+  3. You explicitly permit your items to be modified and redistributed
       in original and modified versions without any charge.
+</blockquote>
 
+<p>
 You may make modifications to the Software.  In order to preserve the
 copyright of the unmodified version of the Software, modifications must
 be distributed in the form of patches, and the following restrictions
 apply to each patch: 
 
+<blockquote>
+<p>
   1. The patch must not modify copyright notices in the Software.
 
+<p>
   2. The patch must include the following copyright notice:
 
+<blockquote>
         Permission is hereby granted, free of charge, to any person
         obtaining a copy of this patch, to deal in the patch without
         restriction, including without limitation the rights to use,
         copy, modify, merge, publish, distribute, sublicense, and/or
         sell copies of the patch.  
+<br><i><font color=green>This is similar to the permission granted in
+<!-- -->the X Consortium software (X11R6 etc.).
+</font></i>
+</blockquote>
 
+<p>
   3. The patch must include an accurate English-language description
      of the modification and the date of the modification.
+</blockquote>
 
 You may additionally distribute machine-executable forms of the modified
 version of the Software that results mechanically from using the patch
 files.
 
-Troll Tech AS may publish new versions of the license, each new version
+<p>
+Troll Tech AS may publish new versions of this license, and each new version
 will be given a version number.
 
+<h2 align=center>
 			    Limitations of Liability
+</h2>
 
 In no event shall the authors of the Software or their employers be liable for
 any lost revenue or profits or other direct, indirect, special, incidental or
 consequential damages, even if they have been advised of the possibility of
 such damages.
 
+<h2 align=center>
 				  No Warranty
+</h2>
 
+<p>
 The Software is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+<address><p><hr><div align="center">
+<table width="100%" cellspacing="0" border="0"><tr>
+<td>Copyright © 1998 Troll Tech<td><a href="/trademarks.html">Trademarks</a>
+<td align="right"><div align="right"> Questions? Ask <a href="mailto:info@troll.no">info@troll.no</a></div>
+</table></div></address></body></html>
