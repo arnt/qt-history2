@@ -188,15 +188,16 @@ uint QMenuBar::isCommand(QMenuItem *it)
 	    ret = kHICommandAbout;
 	else 
 	    ret = 'CUTE';
-    }
-    if(t.find("config", 0, FALSE) == 0 || t.find("preference", 0, FALSE) == 0 || 
-       t.find("options", 0, FALSE) == 0 || t.find("setting", 0, FALSE) == 0) 
+    } else if(t.find("config", 0, FALSE) == 0 || t.find("preference", 0, FALSE) == 0 || 
+	      t.find("options", 0, FALSE) == 0 || t.find("setting", 0, FALSE) == 0 ||
+	      t.find("setup", 0, FALSE) == 0 ) {
 	ret = kHICommandPreferences;
-    if(t.find("quit", 0, FALSE) == 0 || t.find("exit", 0, FALSE) == 0) 
+    } else if(t.find("quit", 0, FALSE) == 0 || t.find("exit", 0, FALSE) == 0) {
 	ret = kHICommandQuit;
+    }
     //shall we?
-    if(ret && activeMenuBar && (!activeMenuBar->mac_d->commands || 
-				!activeMenuBar->mac_d->commands->find(ret))) {
+    if(ret && activeMenuBar && 
+       (!activeMenuBar->mac_d->commands || activeMenuBar->mac_d->commands->find(ret))) {
 	if(ret == kHICommandAbout || ret == 'CUTE') {
 	    if(activeMenuBar->mac_d->apple_menu) {
 		QString text = it->text();
@@ -214,7 +215,8 @@ uint QMenuBar::isCommand(QMenuItem *it)
 #endif
 		InsertMenuItemTextWithCFString(activeMenuBar->mac_d->apple_menu, 
 					       no_ampersands(text), 
-					       activeMenuBar->mac_d->in_apple++, 0, ret);
+					       activeMenuBar->mac_d->in_apple++, 
+					       kMenuItemAttrAutoRepeat, ret);
 	    }
 	} 
 	EnableMenuCommand(NULL, ret);
@@ -275,7 +277,12 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 		continue;
 #endif
 
-	    InsertMenuItemTextWithCFString(ret, no_ampersands(text), id, 0, item->id());
+	    MenuItemAttributes attr = kMenuItemAttrAutoRepeat;
+#if !defined(QMAC_QMENUBAR_NO_EVENT)
+	    if(item->custom()) 
+		attr |= kMenuItemAttrCustomDraw;
+#endif
+	    InsertMenuItemTextWithCFString(ret, no_ampersands(text), id,  attr, item->id());
 	    if(item->isSeparator()) {
 		ChangeMenuItemAttributes(ret, id, kMenuItemAttrSeparator, 0);
 	    } else {
@@ -288,10 +295,6 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 		    SetMenuItemIconHandle(ret, id, kMenuIconRefType, (Handle)ic);
 #endif
 		}
-#if !defined(QMAC_QMENUBAR_NO_EVENT)
-		if(item->custom()) 
-		    ChangeMenuItemAttributes(ret, id, kMenuItemAttrCustomDraw, 0);
-#endif
 		if(item->isEnabled())
 		    EnableMenuItem(ret, id);
 		else
@@ -303,7 +306,6 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 		    int k = item->key();
 		    if(k == Qt::Key_unknown && !accel.isEmpty()) 
 			k = QAccel::stringToKey(accel);
-
 		    if( k != Qt::Key_unknown ) {
 			char mod = 0;
 			if ( (k & Qt::CTRL) != Qt::CTRL ) 
@@ -313,14 +315,43 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 			if ( (k & Qt::SHIFT) == Qt::SHIFT ) 
 			    mod |= kMenuShiftModifier;
 			int keycode = (k & (~(Qt::SHIFT | Qt::CTRL | Qt::ALT)));
-			if(keycode & 0xFF) {
+			if(keycode) {
 			    SetMenuItemModifiers(ret, id, mod);
-			    if(keycode >= Qt::Key_F1 && keycode <= Qt::Key_F15) {
+			    bool do_glyph = TRUE;
+			    if(keycode == Qt::Key_Return)
+				keycode = kMenuReturnGlyph;
+			    else if(keycode == Qt::Key_Tab)
+				keycode = kMenuTabRightGlyph;
+			    else if(keycode == Qt::Key_Backspace)
+				keycode = kMenuDeleteLeftGlyph;
+			    else if(keycode == Qt::Key_Escape) 
+				keycode = kMenuEscapeGlyph;
+			    else if(keycode == Qt::Key_PageUp)
+				keycode = kMenuPageUpGlyph;
+			    else if(keycode == Qt::Key_PageDown)
+				keycode = kMenuPageDownGlyph;
+			    else if(keycode == Qt::Key_Up)
+				keycode = kMenuUpArrowGlyph;
+			    else if(keycode == Qt::Key_Down)
+				keycode = kMenuDownArrowGlyph;
+			    else if(keycode == Qt::Key_Left)
+				keycode = kMenuLeftArrowGlyph;
+			    else if(keycode == Qt::Key_Right)
+				keycode = kMenuRightArrowGlyph;
+			    else if(keycode == Qt::Key_CapsLock)
+				keycode = kMenuCapsLockGlyph;
+			    else if(keycode >= Qt::Key_F1 && keycode <= Qt::Key_F15) 
 				keycode = (keycode - Qt::Key_F1) + kMenuF1Glyph;
-				SetMenuItemKeyGlyph(ret, id, (SInt16)keycode);
-			    } else {
-				SetItemCmd(ret, id, (CharParameter)keycode );
+			    else {
+				do_glyph = FALSE;
+				if(keycode < 127)
+				    SetItemCmd(ret, id, (CharParameter)keycode );
+				else
+				    qDebug("%s:%d Not sure how to handle %d", 
+					   __FILE__, __LINE__, keycode);
 			    }
+			    if(do_glyph)
+				SetMenuItemKeyGlyph(ret, id, (SInt16)keycode);
 			}
 		    }
 		}
@@ -334,8 +365,12 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 MenuRef QMenuBar::createMacPopup(QPopupMenu *d, bool do_sync, bool top_level) 
 {
     static int mid = 0;
+    MenuAttributes attr = 0;
+#if !defined(QMAC_QMENUBAR_NO_EVENT)
+    attr |= kMenuItemAttrCustomDraw;
+#endif
     MenuRef ret;
-    if(CreateNewMenu(0, kMenuItemAttrCustomDraw, &ret) != noErr)
+    if(CreateNewMenu(0, attr, &ret) != noErr)
 	return NULL;
 
     if(!activeMenuBar->mac_d->popups) {
