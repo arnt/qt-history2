@@ -284,7 +284,7 @@ void QSqlFieldList::append( const QSqlField* field )
 void QSqlFieldList::prepend( const QSqlField* field )
 {
     fieldList.prepend( *field );
-    
+
 }
 
 /*!  Inserts a copy of \q field before \a pos.  If \a pos does not
@@ -304,7 +304,7 @@ void QSqlFieldList::insert( int pos, const QSqlField* field )
 
 void QSqlFieldList::remove( int pos )
 {
-    fieldList.remove( fieldList.at( pos ) );    
+    fieldList.remove( fieldList.at( pos ) );
 }
 
 /*!
@@ -328,7 +328,7 @@ QString QSqlFieldList::toString( const QString& prefix ) const
 {
     QString pflist;
     QString pfix =  prefix.isNull() ? QString::null : prefix + ".";
-    for ( uint i = 0; i < count(); ++i ) 
+    for ( uint i = 0; i < count(); ++i )
 	pflist += pfix + field( i )->name() + ", ";
     return pflist;
 }
@@ -376,6 +376,30 @@ QSqlField* QSqlFieldList::findField( const QString& name )
     }
 #endif // CHECK_RANGE
     return &fieldList[ position( name ) ];
+}
+
+/*! Sets the value of the field at position \a i with \a val.  If the field does
+  not exist, nothing happens.
+
+*/
+
+void QSqlFieldList::setValue( int i, const QVariant& val )
+{
+    QSqlField* f = findField( i );
+    if ( f )
+	f->setValue( val );
+}
+
+
+/*!  Sets the value of field \a name with \a val.  If the field does
+  not exist, nothing happens.
+*/
+
+void QSqlFieldList::setValue( const QString& name, const QVariant& val )
+{
+    QSqlField* f = findField( name );
+    if ( f )
+	f->setValue( val );
 }
 
 #endif

@@ -490,4 +490,28 @@ bool QSql::checkDetach()
     return FALSE;
 }
 
+
+/*!  Protected virtual called before the internal record pointer is
+  moved.  The default implentation does nothing.
+
+*/
+
+void QSql::preSeek()
+{
+    
+}
+
+
+/*!  Protected virtual called after the internal record pointer is
+  moved.  The default implentation does nothing.
+*/
+
+void QSql::postSeek()
+{
+    
+}
+
+
 #endif // QT_NO_SQL
+
+

@@ -75,8 +75,10 @@ public:
     virtual ~QSqlFieldList();
     QVariant&            operator[]( int i );
     QVariant&            operator[]( const QString& name );
-    QVariant             value( int i );
-    QVariant             value( const QString& name );
+    virtual QVariant     value( int i );
+    virtual QVariant     value( const QString& name );
+    virtual void         setValue( int i, const QVariant& val );
+    virtual void         setValue( const QString& name, const QVariant& val );    
     int                  position( const QString& name ) const;
     QSqlField*           field( int i );
     const QSqlField*     field( int i ) const;

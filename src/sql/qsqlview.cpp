@@ -32,7 +32,7 @@ QSqlView::QSqlView( const QString & name, const QString& databaseName )
 */
 
 QSqlView::QSqlView( const QSqlView & s )
-    : QSqlFieldList( s ), QSql( s ), lastAt( s.lastAt ), nm( s.nm )    
+    : QSqlFieldList( s ), QSql( s ), lastAt( s.lastAt ), nm( s.nm )
 {
 
 }
@@ -355,40 +355,6 @@ bool QSqlView::setQuery( const QString & str )
     return isActive();
 }
 
-QVariant& QSqlView::operator[]( int i )
-{
-    sync();
-    return QSqlFieldList::operator[]( i );
-}
-
-QVariant& QSqlView::operator[]( const QString& name )
-{
-    sync();
-    return QSqlFieldList::operator[]( name );
-}
-
-QVariant QSqlView::value( int i )
-{
-    sync();
-    return QSqlFieldList::value( i );
-}
-
-QVariant QSqlView::value( const QString& name )
-{
-    sync();
-    return QSqlFieldList::value( name );
-}
-
-void QSqlView::setValue( int i, const QVariant& value )
-{
-    QSqlFieldList::operator[]( i ) = value ;
-}
-
-void QSqlView::setValue( const QString& name, const QVariant& value )
-{
-    QSqlFieldList::operator[]( name ) = value ;
-}
-
 QVariant QSqlView::calculateField( uint )
 {
     return QVariant();
@@ -401,14 +367,34 @@ void QSqlView::sync()
 	uint i = 0;
 	for ( ; i < count(); ++i ){
 	    if ( field(i)->isCalculated() )
-		setValue( i, calculateField( i ) );
+		QSqlFieldList::setValue( i, calculateField( i ) );
 	    else {
-		setValue( i, QSql::value(i) );
+		QSqlFieldList::setValue( i, QSql::value(i) );
 	    }
 	}
     }
 }
 
+/*!
+  \reimpl
+*/
+
+void QSqlView::postSeek()
+{
+    sync();
+}
+
+/*!
+  \reimpl
+*/
+
+QVariant QSqlView::value( int i )
+{
+    return QSqlFieldList::value( i );
+}
 
 #endif
+
+
+
 

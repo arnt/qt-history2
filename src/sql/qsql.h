@@ -51,6 +51,10 @@ public:
     QSqlError	     lastError() const;
     bool             isSelect() const;
     const QSqlDriver*   driver() const;
+protected:
+    virtual void     preSeek();
+    virtual void     postSeek();
+    
 private:
     void             deref();
     bool             checkDetach();
