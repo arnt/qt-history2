@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#243 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#244 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#243 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#244 $");
 
 
 /*****************************************************************************
@@ -41,6 +41,17 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#243 $");
 const double Q_PI   = 3.14159265358979323846;	// pi
 const double Q_2PI  = 6.28318530717958647693;	// 2*pi
 const double Q_PI2  = 1.57079632679489661923;	// pi/2
+
+
+#if defined(_CC_GNU_) && defined(_OS_AIX_)
+// AIX 4.2 gcc 2.7.2.3 gets internal error.
+static int qRoundAIX( double d )
+{
+    return qRound(d);
+}
+#define qRound qRoundAIX
+#endif
+
 
 #if defined(_CC_GNU_) && defined(__i386__)
 
