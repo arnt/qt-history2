@@ -646,7 +646,7 @@ void QWidget::update(int x, int y, int w, int h)
     }
 }
 
-void QWidget::repaint( const QRegion& r )
+void QWidget::repaint( const QRegion& rgn )
 {
     if (testWState(WState_InPaintEvent))
 	qWarning("QWidget::repaint: recursive repaint detected.");
@@ -654,7 +654,6 @@ void QWidget::repaint( const QRegion& r )
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) != WState_Visible )
 	return;
 
-    QRegion rgn(r.intersect(d->clipRect()));
     if (rgn.isEmpty())
 	return;
 
@@ -717,7 +716,7 @@ void QWidget::repaint( const QRegion& r )
     clearWState(WState_InPaintEvent);
 
     if (testAttribute(WA_ContentsPropagated))
-	d->updatePropagatedBackground(&r);
+	d->updatePropagatedBackground(&rgn);
 }
 
 void QWidget::showWindow()

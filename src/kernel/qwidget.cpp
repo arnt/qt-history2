@@ -5356,7 +5356,7 @@ void QWidget::repaint(int x, int y, int w, int h)
 	w = crect.width()  - x;
     if ( h < 0 )
 	h = crect.height() - y;
-    repaint(QRegion(QRect(x, y, w, h)));
+    repaint(d->clipRect().intersect(QRect(x, y, w, h)));
 }
 
 /*! \overload
@@ -5365,7 +5365,7 @@ void QWidget::repaint(int x, int y, int w, int h)
 */
 void QWidget::repaint(const QRect &r)
 {
-    repaint(QRegion(r));
+    repaint(QRegion(d->clipRect().intersect(r)));
 }
 
 /*! \fn void QWidget::repaint( const QRegion &rgn )
