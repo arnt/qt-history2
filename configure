@@ -1911,7 +1911,7 @@ for MODULE in $MODULES
 do
     if [ -d "$relpath/src/$MODULE" ]
     then
-	M=`echo $MODULE | tr '[a-z]' '[A-Z]'`
+	M=`echo $MODULE | tr '[:lower:]' '[:upper:]'`
 	echo "#define QT_MODULE_$M" >>$outpath/include/qmodules.h.new
 	QMAKE_CONFIG="$QMAKE_CONFIG $MODULE"
     fi
