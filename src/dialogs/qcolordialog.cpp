@@ -856,6 +856,7 @@ void QColorPicker::setCol( const QPoint &pt )
 QColorPicker::QColorPicker(QWidget* parent, const char* name )
     : QFrame( parent, name )
 {
+    hue = 0; sat = 0;
     setCol( 150, 255 );
 
     QImage img( pWidth, pHeight, 32 );
