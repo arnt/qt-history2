@@ -1945,7 +1945,11 @@ static QStringList makeFiltersList( const QString &filter )
   \brief The QFileDialog provides a dialog widget for inputting file names.
   \ingroup dialogs
 
-  Example:
+  This class implements a dialog which can be used if the user should select
+  a file or a directory.
+  
+  Example (e.g. to get a filename for saving a file):
+
   \code
     QString fileName = QFileDialog::getSaveFileName( "newfile.txt", "Textfiles (*.txt)", this );
     if ( !fileName.isNull() ) {			// got a file name
@@ -1953,17 +1957,31 @@ static QStringList makeFiltersList( const QString &filter )
     }
   \endcode
 
-  There are two ready-made convenience functions, getOpenFileName()
-  and getSaveFileName(), which may be used like this:
-
+  To let the user specify a filename for e.g. opening a file, you could use following
+  code:
+  
   \code
     QString s( QFileDialog::getOpenFileName( QString::null, "Images (*.png *.xpm *.jpg)", this ) );
-    if ( s.isNull() )
+    if ( s.isEmpty() )
 	return;
 
     open( s ); // open() being your function to read the file
   \endcode
 
+  Other convenient static methods are QFileDialog::getExistingDirectory() to let the user
+  choode a directory or QFileDialog::getOpenFileNames() to let the user select multiple
+  files.
+  
+  Additionally to these convenient static methods you can use one of QFileDialog's
+  constructors, set a mode (see setMode()) and do more things, like adding a preview
+  widget which will preview the current file or information of the current file while
+  the user does the selection (see setPreviewMode(), setInfoPreviewWidget and 
+  setContentsPreviewWidget()) or add additional widgets to the filedialog then 
+  (see addWidgets(), addToolButton(), addLeftWidget() and addRightWidget()).
+  
+  To get the selection the user did then, see selectedFile(), selectedFiles(), selectedFilter()
+  and url(). To set these things see setUrl() and setSelection().
+  
   <img src=qfiledlg-m.png> <img src=qfiledlg-w.png>
 
   \sa QPrintDialog
@@ -2294,7 +2312,7 @@ void QFileDialog::init()
     h->addWidget( d->previewContents );
 
     d->topLevelLayout->addWidget( d->splitter );
-    
+
     h = new QHBoxLayout();
     d->topLevelLayout->addLayout( h );
     h->addWidget( d->fileL );
@@ -3800,7 +3818,7 @@ int QFileDialog::viewMode() const
   Each time calling this method adds a new row of widgets to the
   bottom of the filedialog.
 
-  \sa addToolButton()
+  \sa addToolButton(), addLeftWidget(), addRightWidget()
 */
 
 void QFileDialog::addWidgets( QLabel * l, QWidget * w, QPushButton * b )
@@ -3843,7 +3861,7 @@ void QFileDialog::addWidgets( QLabel * l, QWidget * w, QPushButton * b )
   this row. If \a separator is TRUE, a small space is inserted between the
   last button of the row and the new button \a b.
 
-  \sa addWidgets()
+  \sa addWidgets(), addLeftWidget(), addRightWidget()
 */
 
 void QFileDialog::addToolButton( QButton *b, bool separator )
@@ -3861,6 +3879,12 @@ void QFileDialog::addToolButton( QButton *b, bool separator )
     updateGeometries();
 }
 
+/*!
+  Adds the widget \a w to the left of the filedialog.
+  
+  \sa addRightWidget(), addWidgets(), addToolButton()
+*/
+
 void QFileDialog::addLeftWidget( QWidget *w )
 {
     if ( !w )
@@ -3873,12 +3897,18 @@ void QFileDialog::addLeftWidget( QWidget *w )
     updateGeometries();
 }
 
+/*!
+  Adds the widget \a w to the right of the filedialog.
+  
+  \sa addLeftWidget(), addWidgets(), addToolButton()
+*/
+
 void QFileDialog::addRightWidget( QWidget *w )
 {
     if ( !w )
 	return;
     d->geometryDirty = TRUE;
-    
+
     d->rightLayout->addSpacing( 5 );
     d->rightLayout->addWidget( w );
 
