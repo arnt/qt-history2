@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#5 $
 **
 ** Implementation of QButton class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#5 $";
 #endif
 
 
@@ -339,11 +339,11 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
     if ( actItem >= 0 ) {			// selected menu item!
 	QMenuItem *mi = mitems->at(actItem);
 	if ( !mi->popup() ) {			// it's not another popup
+	    hideAllMenus();
 	    if ( mi->signal() )			// activate signal
 		mi->signal()->activate();
 	    else				// normal connection
 		emit selected( mi->id() );
-	    hideAllMenus();
 	}
     }
     else {
