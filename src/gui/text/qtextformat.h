@@ -197,13 +197,24 @@ public:
     QTextLength lengthProperty(int propertyId) const;
     QVector<QTextLength> lengthVectorProperty(int propertyId) const;
 
-    void setProperty(int propertyId, bool value, bool defaultValue = false);
-    void setProperty(int propertyId, int value, int defaultValue = 0);
-    void setProperty(int propertyId, float value, float defaultValue = 0.0);
-    void setProperty(int propertyId, const QString &value, const QString &defaultValue = QString::null);
-    void setProperty(int propertyId, const QColor &value, const QColor &defaultValue = QColor());
+    void setProperty(int propertyId, bool value);
+    void setProperty(int propertyId, int value);
+    void setProperty(int propertyId, float value);
+    void setProperty(int propertyId, const QString &value);
+    void setProperty(int propertyId, const QColor &value);
     void setProperty(int propertyId, const QTextLength &length);
     void setProperty(int propertyId, const QVector<QTextLength> &lengths);
+
+    //#### I would prefer to remove the next 5. Weird API and they
+    //#### safe little. Instead the caller can simply have one
+    //#### if-statement and call clearProperty().
+    void setProperty(int propertyId, bool value, bool defaultValue);
+    void setProperty(int propertyId, int value, int defaultValue);
+    void setProperty(int propertyId, float value, float defaultValue);
+    void setProperty(int propertyId, const QString &value, const QString &defaultValue);
+    void setProperty(int propertyId, const QColor &value, const QColor &defaultValue);
+
+    void clearProperty(int propertyId);
 
     bool hasProperty(int propertyId) const;
     PropertyType propertyType(int propertyId) const;

@@ -875,11 +875,68 @@ QVector<QTextLength> QTextFormat::lengthVectorProperty(int propertyId) const
 /*!
     \overload
 
+    Sets the value of the property given by \a propertyId to \a value.
+
+    \sa boolProperty() PropertyType
+*/
+void QTextFormat::setProperty(int propertyId, bool value)
+{
+    d->insertProperty(propertyId, value);
+}
+
+/*!
+    \overload
+
+    Sets the value of the property given by \a propertyId to \a value.
+    \sa intProperty() PropertyType
+*/
+void QTextFormat::setProperty(int propertyId, int value)
+{
+    d->insertProperty(propertyId, value);
+}
+
+/*!
+    \overload
+
+    Sets the value of the property given by \a propertyId to \a value.
+
+    \sa floatProperty() PropertyType
+*/
+void QTextFormat::setProperty(int propertyId, float value)
+{
+    d->insertProperty(propertyId, value);
+}
+
+/*!
+    Sets the value of the property given by \a propertyId to \a value.
+
+    \sa stringProperty() PropertyType
+*/
+void QTextFormat::setProperty(int propertyId, const QString &value)
+{
+    d->insertProperty(propertyId, value);
+}
+
+/*!
+    Sets the value of the property given by \a propertyId to \a value.
+
+    \sa colorProperty() PropertyType
+*/
+void QTextFormat::setProperty(int propertyId, const QColor &value)
+{
+    d->insertProperty(propertyId, value);
+}
+
+
+
+/*!
+    \overload
+
     Sets the value of the property given by \a propertyId to \a value,
     unless \a value == \a defaultValue, in which case the property's
     value is cleared.
 
-    \sa boolProperty() PropertyType
+    \sa intProperty() PropertyType
 */
 void QTextFormat::setProperty(int propertyId, bool value, bool defaultValue)
 {
@@ -972,6 +1029,15 @@ void QTextFormat::setProperty(int propertyId, const QVector<QTextLength> &value)
 {
     d->insertProperty(propertyId, value);
 }
+
+/*!
+  Clears the value of the property given by \a propertyId
+ */
+void QTextFormat::clearProperty(int propertyId)
+{
+    d->clearProperty(propertyId);
+}
+
 
 /*!
     \fn void QTextFormat::setObjectType(int type)
