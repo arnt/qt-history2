@@ -304,16 +304,22 @@ QGCache &QGCache::operator=( const QGCache & )
 
 
 /*!
-  \fn uint QGCache::count() const
-
   Returns the number of items in the cache.
 */
 
-/*!
-  \fn uint QGCache::size() const
+uint QGCache::count() const
+{
+    return dict->count();
+}
 
+/*!
   Returns the size of the hash array.
 */
+
+uint QGCache::size() const
+{
+    return dict->size();
+}
 
 /*!
   \fn int QGCache::maxCost() const

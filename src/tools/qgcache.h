@@ -63,8 +63,8 @@ protected:
    ~QGCache();
     QGCache &operator=( const QGCache & );	// not allowed, calls fatal()
 
-    uint    count()	const	{ return ((QGDict*)dict)->count(); }
-    uint    size()	const	{ return ((QGDict*)dict)->size(); }
+    uint    count()	const;
+    uint    size()	const;
     int	    maxCost()	const	{ return mCost; }
     int	    totalCost() const	{ return tCost; }
     void    setMaxCost( int maxCost );
