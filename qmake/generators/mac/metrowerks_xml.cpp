@@ -81,20 +81,15 @@ MetrowerksMakefileGenerator::writeMakefile(QTextStream &t)
 bool
 MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 {
-    QString xmltmpl;
-    if ( !project->variables()["XML_TEMPLATE"].isEmpty() ) 
-	xmltmpl = project->first("XML_TEMPLATE");
-    else 
-	xmltmpl = project->first("MWERKS_XML_TEMPLATE");
-    QString xmlfile = findTemplate(xmltmpl);
-    createFork(Option::output.name());
-
+    QString xmlfile = findTemplate(project->first("QMAKE_XML_TEMPLATE"));
     QFile file(xmlfile);
     if(!file.open(IO_ReadOnly )) {
-	fprintf(stderr, "Cannot open XML file: %s\n", xmltmpl.latin1());
+	fprintf(stderr, "Cannot open XML file: %s\n", 
+		project->first("QMAKE_XML_TEMPLATE").latin1());
 	return FALSE;
     }
     QTextStream xml(&file);
+    createFork(Option::output.name());
 
     int rep;
     QString line;
@@ -226,13 +221,15 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		t << (int)(!project->isActiveConfig("warn_off") && project->isActiveConfig("warn_on"));
 	    } else if(variable == "CODEWARRIOR_TEMPLATE") {
 		if(project->first("TEMPLATE") == "app" ) {
-		    t << "Application";
+		    t << "Executable";
 		} else if(project->first("TEMPLATE") == "lib") {
 		    if(project->isActiveConfig("staticlib"))
 		       t << "Library";
 		    else
 			t << "SharedLibrary";
 		}
+	    } else if(variable == "CODEWARRIOR_QTDIR") {
+		t << getenv("QTDIR");
 	    } else {
 		t << var(variable);
 	    }
@@ -293,12 +290,8 @@ MetrowerksMakefileGenerator::init()
     QStringList::Iterator it;
     init_flag = TRUE;
 
-    /* this should probably not be here, but I'm using it to wrap the .t files */
-    if(project->first("TEMPLATE") == "app" ) 
-	project->variables()["MWERKS_XML_TEMPLATE"].append("mwerksapp.xml");
-    else if(project->first("TEMPLATE") == "lib") 
-	project->variables()["MWERKS_XML_TEMPLATE"].append("mwerkslib.xml");
-    
+    if ( project->isEmpty("QMAKE_XML_TEMPLATE") ) 
+	project->variables()["QMAKE_XML_TEMPLATE"].append("mwerkstmpl.xml");
     QStringList &configs = project->variables()["CONFIG"];
     if(project->isActiveConfig("qt")) {
 	if(configs.findIndex("moc")) configs.append("moc");

@@ -96,7 +96,9 @@
                     <SETTING><NAME>PathFormat</NAME><VALUE>Generic</VALUE></SETTING>
                     <SETTING><NAME>PathRoot</NAME><VALUE>Absolute</VALUE></SETTING>
                 </SETTING>
-                <SETTING><NAME>MWRuntimeSettings_EnvVars</NAME><VALUE></VALUE></SETTING>
+                <SETTING><NAME>MWRuntimeSettings_EnvVars</NAME>
+                  <SETTING><VALUE>QTDIR=$$CODEWARRIOR_QTDIR</VALUE></SETTING>
+                </SETTING>
 
                 <!-- Settings for "Target Settings" panel -->
                 <SETTING><NAME>Linker</NAME><VALUE>Mach-O PPC Linker</VALUE></SETTING>
@@ -439,7 +441,7 @@
                 <SETTING><NAME>MWFrontEnd_C_dontreusestrings</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWFrontEnd_C_poolstrings</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWFrontEnd_C_dontinline</NAME><VALUE>1</VALUE></SETTING>
-                <SETTING><NAME>MWFrontEnd_C_useRTTI</NAME><VALUE>1</VALUE></SETTING>
+                <SETTING><NAME>MWFrontEnd_C_useRTTI</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWFrontEnd_C_multibyteaware</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWFrontEnd_C_unsignedchars</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWFrontEnd_C_autoinline</NAME><VALUE>0</VALUE></SETTING>
@@ -483,7 +485,7 @@
                 <!-- Settings for "MacOS Merge Panel" panel -->
                 <SETTING><NAME>MWMerge_MacOS_projectType</NAME><VALUE>$$CODEWARRIOR_TEMPLATE</VALUE></SETTING>
                 <SETTING><NAME>MWMerge_MacOS_outputName</NAME><VALUE>Merge Out</VALUE></SETTING>
-                <SETTING><NAME>MWMerge_MacOS_outputCreator</NAME><VALUE>????</VALUE></SETTING>
+                <SETTING><NAME>MWMerge_MacOS_outputCreator</NAME><VALUE>CUTE</VALUE></SETTING>
                 <SETTING><NAME>MWMerge_MacOS_outputType</NAME><VALUE>APPL</VALUE></SETTING>
                 <SETTING><NAME>MWMerge_MacOS_suppressWarning</NAME><VALUE>$$CODEWARRIOR_WARNING</VALUE></SETTING>
                 <SETTING><NAME>MWMerge_MacOS_copyFragments</NAME><VALUE>1</VALUE></SETTING>
@@ -641,11 +643,11 @@
                 <!-- Settings for "PPC Mach-O Target" panel -->
                 <SETTING><NAME>MWProject_MachO_type</NAME><VALUE>$$CODEWARRIOR_TEMPLATE</VALUE></SETTING>
                 <SETTING><NAME>MWProject_MachO_outfile</NAME><VALUE>$$TARGET</VALUE></SETTING>
-                <SETTING><NAME>MWProject_MachO_filecreator</NAME><VALUE>????</VALUE></SETTING>
+                <SETTING><NAME>MWProject_MachO_filecreator</NAME><VALUE>CUTE</VALUE></SETTING>
                 <SETTING><NAME>MWProject_MachO_filetype</NAME><VALUE>APPL</VALUE></SETTING>
                 <SETTING><NAME>MWProject_MachO_stacksize</NAME><VALUE>64</VALUE></SETTING>
                 <SETTING><NAME>MWProject_MachO_stackaddress</NAME><VALUE>0</VALUE></SETTING>
-                <SETTING><NAME>MWProject_MachO_flatrsrc</NAME><VALUE>1</VALUE></SETTING>
+                <SETTING><NAME>MWProject_MachO_flatrsrc</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWProject_MachO_flatrsrcfilename</NAME><VALUE>$$TARGET.rsrc</VALUE></SETTING>
                 <SETTING><NAME>MWProject_MachO_flatrsrcoutputdir</NAME>
                     <SETTING><NAME>Path</NAME><VALUE>:</VALUE></SETTING>
@@ -668,7 +670,7 @@
                 <!-- Settings for "PPC Project" panel -->
                 <SETTING><NAME>MWProject_PPC_type</NAME><VALUE>$$CODEWARRIOR_TEMPLATE</VALUE></SETTING>
                 <SETTING><NAME>MWProject_PPC_outfile</NAME><VALUE>$$TARGET</VALUE></SETTING>
-                <SETTING><NAME>MWProject_PPC_filecreator</NAME><VALUE>????</VALUE></SETTING>
+                <SETTING><NAME>MWProject_PPC_filecreator</NAME><VALUE>CUTE</VALUE></SETTING>
                 <SETTING><NAME>MWProject_PPC_filetype</NAME><VALUE>APPL</VALUE></SETTING>
                 <SETTING><NAME>MWProject_PPC_size</NAME><VALUE>800</VALUE></SETTING>
                 <SETTING><NAME>MWProject_PPC_minsize</NAME><VALUE>600</VALUE></SETTING>
