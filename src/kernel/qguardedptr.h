@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qguardedptr.h#1 $
+** $Id: //depot/qt/main/src/kernel/qguardedptr.h#2 $
 **
 ** Definition of QGuardedPtr class
 **
@@ -36,7 +36,7 @@ class Q_EXPORT QGuardedPtrPrivate : public  QObject, public QShared
 public:
     QGuardedPtrPrivate( QObject*);
     ~QGuardedPtrPrivate();
-    
+
     QObject* object() const;
 private slots:
     void objectDestroyed();
@@ -50,7 +50,7 @@ template <class T> class Q_EXPORT QGuardedPtr
 public:
     QGuardedPtr()
     {
-	priv = 0;
+	priv = new QGuardedPtrPrivate( 0 );
     }
     QGuardedPtr( T* o)
     {
@@ -59,67 +59,64 @@ public:
     QGuardedPtr(const QGuardedPtr<T> &p)
     {
 	priv = p.priv;
-	if ( priv )
-	    priv->ref();
+	ref();
     }
     ~QGuardedPtr()
     {
 	deref();
     }
-    
+
     QGuardedPtr<T> &operator=(const QGuardedPtr<T> &p)
     {
+	p.ref();
 	deref();
-	priv = p.priv;
-	if ( priv )
-	    priv->ref();
+	p = p.priv;
 	return *this;
     }
 
     QGuardedPtr<T> &operator=(T* o)
     {
 	deref();
-	if ( o )
-	    priv = new QGuardedPtrPrivate( o );
+	priv = new QGuardedPtrPrivate( o );
 	return *this;
     }
-    
-    bool operator==( const QGuardedPtr<T> &p ) const 
+
+    bool operator==( const QGuardedPtr<T> &p ) const
     {
-	return (!priv && !p.priv ) || (priv && p.priv && priv->object() == p.priv->object() );
+	return priv->object() == p.priv->object();
     }
-    
-    bool operator!= ( const QGuardedPtr<T>& p ) const 
-    { 
-	return !( *this == p ); 
-    }
-    
-    bool isNull() const 
+
+    bool operator!= ( const QGuardedPtr<T>& p ) const
     {
-	return !priv || !priv->object();
+	return !( *this == p );
     }
-    
+
+    bool isNull() const
+    {
+	return !priv->object();
+    }
+
     T* operator->()
     {
 	return (T*) priv->object();
     }
-    
+
     const T* operator->() const
     {
 	return (T*) priv->object();
     }
-    
-    T& operator*() 
+
+    T& operator*()
     {
 	return *( (T*)priv->object() );
     }
 
-    const T& operator*() const 
+    const T& operator*() const
     {
 	return *( (T*)priv->object() );
     }
-    
-    operator T*() 
+
+    operator T*()
     {
 	return (T*) priv->object();
     }
@@ -128,20 +125,23 @@ public:
     {
 	return (const T*) priv->object();
     }
-    
+
     operator bool() const
     {
 	return !isNull();
     }
-    
 
-    
+
+
 private:
-    void deref() 
+    void ref()
     {
-	if ( priv && priv->deref() )
+	priv->ref();
+    }
+    void deref()
+    {
+	if ( priv->deref() )
 	    delete priv;
-	priv = 0;
     }
     QGuardedPtrPrivate* priv;
 };
