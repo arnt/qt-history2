@@ -1525,6 +1525,8 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
     }
 
     const QScriptItem *si = &eng->layoutData->items[itm];
+    if (!si->num_glyphs)
+        eng->shape(itm);
     pos -= si->position;
 
     if (!si->num_glyphs)
@@ -1585,7 +1587,7 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
         int start = qMax(line.from, si.position);
         int end = qMin(lineEnd, si.position + eng->length(item));
 
-        unsigned short *logClusters = eng->logClusters(&si);
+        logClusters = eng->logClusters(&si);
 
         int gs = logClusters[start-si.position];
         int ge = (end == si.position + eng->length(item)) ? si.num_glyphs-1 : logClusters[end-si.position-1];
@@ -1598,6 +1600,8 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
         }
     }
 
+    logClusters = eng->logClusters(si);
+    glyphs = eng->glyphs(si);
     if (si->isTab) {
         if(pos == l)
             x = eng->nextTab(si, x);
