@@ -307,6 +307,11 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         setPosition(blockIt.position() + relativePos);
         break;
     }
+    case QTextCursor::EndOfBlock:
+        if (blockIt.length() >= 2)
+            // position right before the block separator
+            position = blockIt.position() + blockIt.length() - 2;
+        break;
     case QTextCursor::NextBlock: {
         blockIt = blockIt.next();
         if (!blockIt.isValid())
@@ -456,6 +461,8 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
 
     \value End move to the end of the document
     \value EndOfLine move to the end of the current line
+    \value EndOfWord move to the end of the current word
+    \value EndOfBlock move to the end of the current block
     \value NextBlock move to the beginning of the next block
     \value NextCharacter move to the next character
     \value NextWord move to the next word
