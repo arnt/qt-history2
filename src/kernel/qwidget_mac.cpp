@@ -456,7 +456,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	    wclass = kDocumentWindowClass;
 
 	WindowAttributes wattr = kWindowNoAttributes /*| kWindowLiveResizeAttribute*/;
-	if(testWFlags(WType_Popup)) 
+	if(testWFlags(WType_Popup) || testWFlags(WStyle_Tool) )
 	    wattr |= kWindowNoActivatesAttribute;
 	if( testWFlags(WStyle_Customize) ) {
 	    if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
@@ -922,7 +922,10 @@ void QWidget::setActiveWindow()
 {
     if(!isVisible() || !isTopLevel() || isPopup() || isDesktop() || testWFlags( WStyle_Tool ))
 	return;
-    ActivateWindow((WindowPtr)hd, true);
+    if(IsWindowActive((WindowPtr)hd))
+	ActivateWindow((WindowPtr)hd, true);
+    else
+	SelectWindow((WindowPtr)hd);
 }
 
 void QWidget::update()

@@ -2748,16 +2748,6 @@ void QApplication::setActiveWindow( QWidget* act )
 	    QApplication::sendSpontaneousEvent( w, &e );
     }
 
-#if 0
-    if(QWidgetList *list = topLevelWidgets()) {
-	for(QWidget *w = list->first(); w; w = list->next() ) {
-	    if(w->isVisible() && w->inherits("QDockWindow")) 
-		ShowHide((WindowPtr)w->handle(), 
-			 window && w->parentWidget()->topLevelWidget() == window->topLevelWidget());
-	}
-	delete list;
-    }
-#endif
     active_window = window;
     if ( active_window ) {
 	QEvent e( QEvent::WindowActivate );
