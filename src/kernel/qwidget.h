@@ -915,9 +915,9 @@ struct Q_EXPORT QTLWExtra {
     WId  parentWinId;				// parent window Id (valid after reparenting)
     uint     embedded : 1;			// window is embedded in another Qt application
     uint     reserved: 2;			// reserved
-    uint     dnd : 1; 				// DND properties installed
-    uint     uspos : 1;                         // User defined position
-    uint     ussize : 1;                        // User defined size
+    uint     dnd : 1;				// DND properties installed
+    uint     uspos : 1;				// User defined position
+    uint     ussize : 1;			// User defined size
     void    *xic;				// XIM Input Context
 #endif
 #if defined(Q_WS_MAC)
