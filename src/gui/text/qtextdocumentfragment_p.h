@@ -58,14 +58,13 @@ public:
     { appendText(QString(QTextParagraphSeparator), formatIdx); }
     inline void appendText(const QString &text, const QTextFormat &format)
     { appendText(text, localFormatCollection->indexForFormat(format)); }
-    void appendText(const QString &text, int formatIdx, int origPos = -1);
+    void appendText(const QString &text, int formatIdx);
     inline void appendImage(const QTextImageFormat &format)
     { appendText(QString(QTextObjectReplacementChar), format); }
 
     struct Fragment
     {
         int position;
-        int originalPosition;
         Q_UINT32 size;
         int format;
     };

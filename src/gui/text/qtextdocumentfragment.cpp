@@ -233,7 +233,7 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
         usedFormats << ptFragment->format;
         pos += size;
 
-        appendText(QConstString(originalText.constData() + position, size), ptFragment->format, position);
+        appendText(QConstString(originalText.constData() + position, size), ptFragment->format);
     }
 
     QTextFormatCollectionState collState(pieceTable->formatCollection(), usedFormats);
@@ -327,11 +327,10 @@ QTextFormatCollectionState QTextDocumentFragmentPrivate::formatCollectionState()
     return QTextFormatCollectionState(localFormatCollection, usedFormats);
 }
 
-void QTextDocumentFragmentPrivate::appendText(const QString &text, int formatIdx, int origPos)
+void QTextDocumentFragmentPrivate::appendText(const QString &text, int formatIdx)
 {
     Fragment f;
     f.position = localBuffer.length();
-    f.originalPosition = origPos;
     localBuffer.append(text);
     f.size = text.length();
     f.format = formatIdx;
