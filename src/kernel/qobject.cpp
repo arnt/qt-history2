@@ -1266,11 +1266,11 @@ static void err_info_about_candidates( int code,
 	}
 	QMetaData *rm = 0;
 	switch ( code ) {
-	case SLOT_CODE:	  
-	    rm = mo->slot( mo->findSlot( newname, TRUE ), TRUE );   
+	case SLOT_CODE:	
+	    rm = mo->slot( mo->findSlot( newname, TRUE ), TRUE );
 	    break;
 	case SIGNAL_CODE:
-	    rm = mo->signal( mo->findSignal( newname, TRUE ), TRUE );   
+	    rm = mo->signal( mo->findSignal( newname, TRUE ), TRUE );
 	    break;
 	}
 	if ( rm ) {
@@ -1480,9 +1480,9 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 	return FALSE;
 #endif
     signal++;					// skip member type code
-    
+
     int signal_index = smeta->findSignal( signal, TRUE );
-    
+
     if ( signal_index < 0  ) {	// no such signal
 #if defined(CHECK_RANGE)
 	err_member_notfound( SIGNAL_CODE, sender, signal, "connect" );
@@ -1504,16 +1504,16 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 	return FALSE;
 #endif
     member++;					// skip code
-    
+
     QMetaObject *rmeta = r->metaObject();
     QMetaData   *rm = 0;
 
     switch ( membcode ) {			// get receiver member
-	case SLOT_CODE:	  
-	    rm = rmeta->slot( rmeta->findSlot( member, TRUE ), TRUE );   
+	case SLOT_CODE:	
+	    rm = rmeta->slot( rmeta->findSlot( member, TRUE ), TRUE );
 	    break;
 	case SIGNAL_CODE:
-	    rm = rmeta->signal( rmeta->findSignal( member, TRUE ), TRUE );   
+	    rm = rmeta->signal( rmeta->findSignal( member, TRUE ), TRUE );
 	    break;
     }
     if ( !rm ) {
@@ -1660,11 +1660,11 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 	QMetaObject *rmeta = r->metaObject();
 	
 	switch ( membcode ) {			// get receiver member
-	    case SLOT_CODE:   
-		rm = rmeta->slot( rmeta->findSlot( member, TRUE ), TRUE );	  
+	    case SLOT_CODE:
+		rm = rmeta->slot( rmeta->findSlot( member, TRUE ), TRUE );	
 		break;
-	    case SIGNAL_CODE: 
-		rm = rmeta->signal( rmeta->findSignal( member, TRUE ), TRUE ); 
+	    case SIGNAL_CODE:
+		rm = rmeta->signal( rmeta->findSignal( member, TRUE ), TRUE );
 		break;
 	}
 	if ( !rm ) {				// no such member
@@ -2082,27 +2082,26 @@ void QObject::dumpObjectInfo()
 #if defined(DEBUG)
     qDebug( "OBJECT %s::%s", className(), name( "unnamed" ) );
     int n = 0;
-    /*
     qDebug( "  SIGNALS OUT" );
     if ( connections ) {
-	QSignalDictIt it(*connections);
 	QConnectionList *clist;
-	while ( (clist=it.current()) ) {
-	    qDebug( "\t%s", it.currentKey() );
-	    n++;
-	    ++it;
-	    register QConnection *c;
-	    QConnectionListIt cit(*clist);
-	    while ( (c=cit.current()) ) {
-		++cit;
-		qDebug( "\t  --> %s::%s %s", c->object()->className(),
-		       c->object()->name( "unnamed" ), c->memberName() );
+	for ( uint i = 0; i < connections->size(); i++ ) {
+	    if ( ( clist = connections->at( i ) ) ) {
+		qDebug( "\t%s", metaObject()->signal( i, TRUE )->name );
+		n++;
+		register QConnection *c;
+		QConnectionListIt cit(*clist);
+		while ( (c=cit.current()) ) {
+		    ++cit;
+		    qDebug( "\t  --> %s::%s %s", c->object()->className(),
+			    c->object()->name( "unnamed" ), c->memberName() );
+		}
 	    }
 	}
     }
     if ( n == 0 )
 	qDebug( "\t<None>" );
-    */
+    
     qDebug( "  SIGNALS IN" );
     n = 0;
     if ( senderObjects ) {
