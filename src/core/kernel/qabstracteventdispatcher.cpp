@@ -16,6 +16,7 @@
 
 #include "qthread.h"
 #include <private/qthread_p.h>
+#include <private/qcoreapplication_p.h>
 
 /*!
     \class QAbstractEventDispatcher
@@ -73,24 +74,40 @@
 QAbstractEventDispatcher::QAbstractEventDispatcher(QObject *parent)
     : QObject(*new QAbstractEventDispatcherPrivate, parent)
 {
-    QThreadData *data = QThreadData::current();
-    Q_ASSERT_X(data != 0, "QAbstractEventDispatcher",
-               "QAbstractEventDispatcher can only be used with threads started with QThread");
-    Q_ASSERT_X(!data->eventDispatcher, "QAbstractEventDispatcher",
-               "Cannot have more than one event dispatcher per thread");
-    data->eventDispatcher = this;
+    if (!QCoreApplication::instance()) {
+        if (!QCoreApplicationPrivate::eventDispatcher) {
+            QCoreApplicationPrivate::eventDispatcher = this;
+        } else {
+            Q_ASSERT_X(false, "QAbstractEventDispatcher",
+                       "An event dispatcher has already been created for the application");
+        }
+    } else {
+        QThreadData *data = QThreadData::current();
+        Q_ASSERT_X(data != 0, "QAbstractEventDispatcher",
+                   "QAbstractEventDispatcher can only be used with threads started with QThread");
+        Q_ASSERT_X(!data->eventDispatcher, "QAbstractEventDispatcher",
+                   "An event dispatcher has already been created for this thread");
+    }
 }
 
 QAbstractEventDispatcher::QAbstractEventDispatcher(QAbstractEventDispatcherPrivate &dd,
                                                    QObject *parent)
     : QObject(dd, parent)
 {
-    QThreadData *data = QThreadData::current();
-    Q_ASSERT_X(data != 0, "QAbstractEventDispatcher",
-               "QAbstractEventDispatcher can only be used with threads started with QThread");
-    Q_ASSERT_X(!data->eventDispatcher, "QAbstractEventDispatcher",
-               "Cannot have more than one event dispatcher per thread");
-    data->eventDispatcher = this;
+    if (!QCoreApplication::instance()) {
+        if (!QCoreApplicationPrivate::eventDispatcher) {
+            QCoreApplicationPrivate::eventDispatcher = this;
+        } else {
+            Q_ASSERT_X(false, "QAbstractEventDispatcher",
+                       "An event dispatcher has already been created for the application");
+        }
+    } else {
+        QThreadData *data = QThreadData::current();
+        Q_ASSERT_X(data != 0, "QAbstractEventDispatcher",
+                   "QAbstractEventDispatcher can only be used with threads started with QThread");
+        Q_ASSERT_X(!data->eventDispatcher, "QAbstractEventDispatcher",
+                   "An event dispatcher has already been created for this thread");
+    }
 }
 
 QAbstractEventDispatcher::~QAbstractEventDispatcher()

@@ -99,6 +99,7 @@ Q_CORE_EXPORT uint qGlobalPostedEventsCount()
 
 
 QCoreApplication *QCoreApplication::self = 0;
+QAbstractEventDispatcher *QCoreApplicationPrivate::eventDispatcher = 0;
 
 #ifdef Q_OS_UNIX
 Qt::HANDLE qt_application_thread_id = 0;
@@ -108,7 +109,7 @@ Qt::HANDLE qt_application_thread_id = 0;
 Q_GLOBAL_STATIC(QThreadData, mainData)
 
 QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
-    : QObjectPrivate(), argc(aargc), argv(aargv), eventDispatcher(0), eventFilter(0)
+    : QObjectPrivate(), argc(aargc), argv(aargv), eventFilter(0)
 {
     static const char *empty = "";
     if (argc == 0 || argv == 0) {
@@ -137,14 +138,15 @@ QCoreApplicationPrivate::~QCoreApplicationPrivate()
     data->postEventList.clear();
     data->postEventList.offset = 0;
     data->id = -1;
+    data->quitNow = false;
 }
 
 void QCoreApplicationPrivate::createEventDispatcher()
 {
 #if defined(Q_OS_UNIX)
-    eventDispatcher = new QEventDispatcherUNIX;
+    eventDispatcher = new QEventDispatcherUNIX(q);
 #elif defined(Q_OS_WIN)
-    eventDispatcher = new QEventDispatcherWin32;
+    eventDispatcher = new QEventDispatcherWin32(q);
 #else
 #  error "QEventDispatcher not yet ported to this platform"
 #endif
@@ -291,10 +293,12 @@ void QCoreApplication::init()
 
     QThread::initialize();
 
-    if (!d->eventDispatcher)
+    if (!QCoreApplicationPrivate::eventDispatcher)
         d->createEventDispatcher();
-    Q_ASSERT(d->eventDispatcher != 0);
-    d->eventDispatcher->setParent(this);
+    Q_ASSERT(QCoreApplicationPrivate::eventDispatcher != 0);
+
+    QThreadData *data = mainData();
+    data->eventDispatcher = QCoreApplicationPrivate::eventDispatcher;
 }
 
 /*!

@@ -58,7 +58,6 @@ public:
 
     int &argc;
     char **argv;
-    QAbstractEventDispatcher *eventDispatcher;
     QString organization, application;
 #ifndef QT_NO_TRANSLATION
     QTranslatorList translators;
@@ -68,6 +67,8 @@ public:
 #endif
 
     QCoreApplication::EventFilter eventFilter;
+
+    static QAbstractEventDispatcher *eventDispatcher;
 };
 
 #endif
