@@ -219,7 +219,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         return true;
 
     case QTextCursor::Start:
-        position = 0;
+        newPosition = 0;
         break;
     case QTextCursor::StartOfLine: {
 
@@ -283,7 +283,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     }
 
     case QTextCursor::End:
-        position = priv->length() - 1;
+        newPosition = priv->length() - 1;
         break;
     case QTextCursor::EndOfLine: {
         if (!line.isValid() || line.length() == 0)
@@ -310,7 +310,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     case QTextCursor::EndOfBlock:
         if (blockIt.length() >= 1)
             // position right before the block separator
-            position = blockIt.position() + blockIt.length() - 1;
+            newPosition = blockIt.position() + blockIt.length() - 1;
         break;
     case QTextCursor::NextBlock: {
         blockIt = blockIt.next();
