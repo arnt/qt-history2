@@ -246,7 +246,8 @@ int QIODeviceSource::readyToSend()
     if ( iod->status() != IO_Ok || !(iod->state() & IO_Open) )
 	return -1;
 
-    int n = QMIN((uint)buf_size, iod->size()-iod->at());
+    int n = QMIN((uint)buf_size, iod->size()-iod->at()); // ### not 64-bit safe
+                                                         // ### not large file safe
     return n ? n : -1;
 }
 
