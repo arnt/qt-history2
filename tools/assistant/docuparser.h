@@ -32,6 +32,7 @@ struct ContentItem {
     QString title;
     QString reference;
     int depth;
+    Q_DUMMY_COMPARISON_OPERATOR(ContentItem)
 };
 
 QDataStream &operator>>( QDataStream &s, ContentItem &ci );

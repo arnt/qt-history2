@@ -978,7 +978,8 @@ void QWorkspace::showEvent( QShowEvent *e )
 		w->installEventFilter(this);
 	    } else if(w->inherits("QStatusBar")) {
 		if(activeWindow()) {
-		    if(QWorkspaceChild *c = findChild(activeWindow()))
+		    QWorkspaceChild *c;
+		    if(c = findChild(activeWindow()))
 			c->setStatusBar((QStatusBar*)w);
 		}
 	    } else if(w->inherits("QWorkspaceChild")) {

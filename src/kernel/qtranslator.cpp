@@ -179,7 +179,7 @@ public:
 	bool operator<( const Offset&k ) const {
 	    return ( h != k.h ) ? h < k.h : o < k.o;
 	}
-	Q_DUMMY_COMPARISON_OPERATOR(QTranslatorPrivate)
+	Q_DUMMY_COMPARISON_OPERATOR(QTranslatorPrivate::Offset)
 	uint h;
 	uint o;
     };

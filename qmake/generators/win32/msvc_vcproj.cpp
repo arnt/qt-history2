@@ -111,7 +111,7 @@ bool VcprojGenerator::writeMakefile(QTextStream &t)
         debug_msg(1, "Generator: MSVC.NET: Writing project file" );
 	t << vcProject;
 	return TRUE;
-    } 
+    }
     // Generate solution file
     else if(project->first("TEMPLATE") == "vcsubdirs") {
         debug_msg(1, "Generator: MSVC.NET: Writing solution file" );
@@ -132,15 +132,15 @@ struct VcsolutionDepend {
 QUuid VcprojGenerator::increaseUUID( const QUuid &id )
 {
     QUuid result( id );
-    Q_LONG dataFirst = (result.data4[0] << 24) + 
+    Q_LONG dataFirst = (result.data4[0] << 24) +
 		       (result.data4[1] << 16) +
 		       (result.data4[2] << 8) +
                         result.data4[3];
-    Q_LONG dataLast =  (result.data4[4] << 24) + 
+    Q_LONG dataLast =  (result.data4[4] << 24) +
 		       (result.data4[5] << 16) +
 		       (result.data4[6] <<  8) +
 		        result.data4[7];
-    
+
     if ( !(dataLast++) )
 	dataFirst++;
 
@@ -209,15 +209,15 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 			tmp_vcproj.init();
 			if(Option::debug_level) {
 			    QMap<QString, QStringList> &vars = tmp_proj.variables();
-			    for(QMap<QString, QStringList>::Iterator it = vars.begin(); 
+			    for(QMap<QString, QStringList>::Iterator it = vars.begin();
 				it != vars.end(); ++it) {
 				if(it.key().left(1) != "." && !it.data().isEmpty())
-				    debug_msg(1, "%s: %s === %s", fn.latin1(), it.key().latin1(), 
+				    debug_msg(1, "%s: %s === %s", fn.latin1(), it.key().latin1(),
 						it.data().join(" :: ").latin1());
 			    }
 			}
 
-			// We assume project filename is [QMAKE_ORIG_TARGET].vcproj 
+			// We assume project filename is [QMAKE_ORIG_TARGET].vcproj
 			QString vcproj = fixFilename(tmp_vcproj.project->first("QMAKE_ORIG_TARGET")) + project->first("VCPROJ_EXTENSION");
 
 			// If file doesn't exsist, then maybe the users configuration
@@ -239,13 +239,13 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 			}
 			if(newDep->target.endsWith(".dll"))
 			    newDep->target = newDep->target.left(newDep->target.length()-3) + "lib";
-			if(!tmp_proj.isEmpty("FORMS")) 
+			if(!tmp_proj.isEmpty("FORMS"))
 			    newDep->dependencies << "uic.exe";
 			{
 			    QStringList where("QMAKE_LIBS");
 			    if(!tmp_proj.isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
 				where = tmp_proj.variables()["QMAKE_INTERNAL_PRL_LIBS"];
-			    for(QStringList::iterator wit = where.begin(); 
+			    for(QStringList::iterator wit = where.begin();
 				wit != where.end(); ++wit) {
 				QStringList &l = tmp_proj.variables()[(*wit)];
 				for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
@@ -259,12 +259,12 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
   			solution_depends.insert(newDep->target, newDep);
   			{
   			    QRegExp libVersion("[0-9]{3,3}\\.lib$");
-    	  		    if(libVersion.search(newDep->target) != -1) 
-	    			solution_depends.insert(newDep->target.left(newDep->target.length() - 
+    	  		    if(libVersion.search(newDep->target) != -1)
+	    			solution_depends.insert(newDep->target.left(newDep->target.length() -
 	    						libVersion.matchedLength()) + ".lib", newDep);
 			}
-			t << _snlProjectBeg << _snlMSVCvcprojGUID << _snlProjectMid 
-			    << "\"" << newDep->orig_target << "\", \"" << newDep->vcprojFile 
+			t << _snlProjectBeg << _snlMSVCvcprojGUID << _snlProjectMid
+			    << "\"" << newDep->orig_target << "\", \"" << newDep->vcprojFile
 			    << "\", \"" << newDep->uuid << "\"";
 			t << _snlProjectEnd;
 		    }
@@ -279,10 +279,11 @@ nextfile:
     t << _snlProjDepBeg;
     for(solution_cleanup.first(); solution_cleanup.current(); solution_cleanup.next()) {
 	int cnt = 0;
-	for(QStringList::iterator dit = solution_cleanup.current()->dependencies.begin(); 
-	    dit != solution_cleanup.current()->dependencies.end(); 
+	for(QStringList::iterator dit = solution_cleanup.current()->dependencies.begin();
+	    dit != solution_cleanup.current()->dependencies.end();
 	    ++dit) {
-	    if(VcsolutionDepend *vc=solution_depends[*dit]) {
+	    VcsolutionDepend *vc;
+	    if(vc=solution_depends[*dit]) {
 	    	if(solution_cleanup.current()->targetType != StaticLib || vc->targetType == Application)
 		    t << "\n\t\t" << solution_cleanup.current()->uuid << "." << cnt++ << " = " << vc->uuid;
 	    }
