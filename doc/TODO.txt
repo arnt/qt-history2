@@ -85,6 +85,10 @@ QFileDialog
   set filter to initial file-extension
   make addFilter public
 
+QFileDialog
+  Make the combobox like on MS-Windows and add additional
+  functionality for bookmarks and history
+
 QSizeGrip (Win32) (Volker)
   Outlined resize as set in the system properties
 
@@ -149,12 +153,12 @@ BiDi (Lars)
 
 Database classes (Dave)
     Classes to query SQL databases.  Eventually use the plugin system to
-    dynamically load required drivers.  Also, eventually create 'data 
-    aware' widgets to speed Qt database app development.  Integrate them 
+    dynamically load required drivers.  Also, eventually create 'data
+    aware' widgets to speed Qt database app development.  Integrate them
     into designer.  Possibly integrate with XML query mechanism so that
     you can run SQL queries against XML files as if it were just another
     database.
-    
+
 QSettings (Brad, Volker)
     QSetting class to store Qt settings in a XML tree
     structure. Offer API so that Qt apps can use that to store
