@@ -33,19 +33,19 @@
         } \
     } while (0)
 
-#define CHECK_WRITABLE(function) \
+#define CHECK_WRITABLE(function, returnType) \
    do { \
        if ((d->openMode & WriteOnly) == 0) { \
            qWarning("QIODevice::"#function" called on a ReadOnly device"); \
-           return Q_LONGLONG(-1); \
+           return returnType; \
        } \
    } while (0)
 
-#define CHECK_READABLE(function) \
+#define CHECK_READABLE(function, returnType) \
    do { \
        if ((d->openMode & ReadOnly) == 0) { \
            qWarning("QIODevice::"#function" called on a WriteOnly device"); \
-           return Q_LONGLONG(-1); \
+           return returnType; \
        } \
    } while (0)
 
@@ -480,7 +480,7 @@ Q_LONGLONG QIODevice::bytesToWrite() const
 Q_LONGLONG QIODevice::read(char *data, Q_LONGLONG maxlen)
 {
     CHECK_OPEN(read, Q_LONGLONG(-1));
-    CHECK_READABLE(read);
+    CHECK_READABLE(read, Q_LONGLONG(-1));
     CHECK_MAXLEN(read, Q_LONGLONG(-1));
     Q_LONGLONG readSoFar = Q_LONGLONG(0);
 
@@ -551,6 +551,7 @@ QByteArray QIODevice::readLine(Q_LONGLONG maxlen)
     CHECK_MAXLEN(readLine, QByteArray());
     QByteArray tmp;
     char buffer[4096];
+    Q_UNUSED(buffer);
     Q_LONGLONG readSoFar = 0;
     Q_LONGLONG readBytes = 0;
 
@@ -575,6 +576,8 @@ bool QIODevice::canReadLine() const
 
 bool QIODevice::getChar(char *c)
 {
+    CHECK_OPEN(getChar, false);
+    CHECK_READABLE(getChar, false);
     char tmp;
     if (readData(&tmp, 1) != 1)
         return false;
@@ -586,7 +589,7 @@ bool QIODevice::getChar(char *c)
 Q_LONGLONG QIODevice::write(const char *data, Q_LONGLONG maxlen)
 {
     CHECK_OPEN(write, Q_LONGLONG(-1));
-    CHECK_WRITABLE(write);
+    CHECK_WRITABLE(write, Q_LONGLONG(-1));
     CHECK_MAXLEN(write, Q_LONGLONG(-1));
     return writeData(data, maxlen);
 }
@@ -598,7 +601,8 @@ Q_LONGLONG QIODevice::write(const QByteArray &byteArray)
 
 bool QIODevice::putChar(char c)
 {
-    CHECK_WRITABLE(putChar);
+    CHECK_OPEN(putChar, false);
+    CHECK_WRITABLE(putChar, false);
     return writeData(&c, 1) == 1;
 }
 
