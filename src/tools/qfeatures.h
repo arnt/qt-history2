@@ -86,7 +86,14 @@
 //#define QT_NO_QWS_DEPTH_32
 
 
+//#define QT_NO_DRAWUTIL
+//#define QT_NO_IMAGE_32_BIT
+//#define QT_NO_IMAGE_SMOOTHSCALE
+//#define QT_NO_IMAGE_TEXT
 
+#if defined QT_NO_IMAGE_TRUECOLOR
+    #define QT_NO_IMAGE_16_BIT
+#endif
 #if defined(QT_NO_QWS_CURSOR) && defined(_WS_QWS_)
     #define QT_NO_CURSOR
 #endif

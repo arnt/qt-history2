@@ -899,6 +899,7 @@ static int getByte(char* &cursor)
     return byte&0xff;
 }
 
+#ifndef QT_NO_CODECS
 class QTextCodecFromIOD;
 
 class QTextCodecFromIODDecoder : public QTextDecoder {
@@ -1248,7 +1249,7 @@ QTextCodec* QTextCodec::loadCharmapFile(QString filename)
     }
     return 0;
 }
-
+#endif //QT_NO_CODECS
 
 
 /*!

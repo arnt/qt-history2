@@ -33,7 +33,7 @@
 #endif // QT_H
 
 class QImageDataMisc; // internal
-
+#ifndef QT_NO_IMAGE_TEXT
 class QImageTextKeyLang {
 public:
     QImageTextKeyLang(const char* k, const char* l) : key(k), lang(l) { }
@@ -47,7 +47,7 @@ public:
     int operator == (const QImageTextKeyLang& other) const
 	{ return key==other.key && lang==other.lang; }
 };
-
+#endif //QT_NO_IMAGE_TEXT
 
 
 class Q_EXPORT QImage
@@ -119,11 +119,14 @@ public:
     void	invertPixels( bool invertAlpha = TRUE );
 
     QImage	convertDepth( int ) const;
+#ifndef QT_NO_IMAGE_TRUECOLOR
     QImage	convertDepthWithPalette( int, QRgb* p, int pc, int cf=0 ) const;
+#endif
     QImage	convertDepth( int, int conversion_flags ) const;
     QImage	convertBitOrder( Endian ) const;
+#ifndef QT_NO_IMAGE_SMOOTHSCALE
     QImage	smoothScale(int width, int height) const;
-
+#endif
     QImage	createAlphaMask( int conversion_flags=0 ) const;
     QImage	createHeuristicMask( bool clipTight=TRUE ) const;
 
@@ -160,13 +163,14 @@ public:
     void setDotsPerMeterY(int);
     QPoint offset() const;
     void setOffset(const QPoint&);
+#ifndef QT_NO_IMAGE_TEXT
     QValueList<QImageTextKeyLang> textList() const;
     QStringList textLanguages() const;
     QStringList textKeys() const;
     QString text(const char* key, const char* lang=0) const;
     QString text(const QImageTextKeyLang&) const;
     void setText(const char* key, const char* lang, const QString&);
-
+#endif
 private:
     void	init();
     void	reinit();
@@ -186,13 +190,15 @@ private:
 	int	dpmx;				// dots per meter X (or 0)
 	int	dpmy;				// dots per meter Y (or 0)
 	QPoint	offset;				// offset in pixels
+#ifndef QT_NO_IMAGE_TEXT
 	QImageDataMisc* misc;			// less common stuff
+#endif
 	bool    bits_mine;			// this allocated bits
 	bool    ctbl_mine;			// this allocated ctbl
     } *data;
-
+#ifndef QT_NO_IMAGE_TEXT
     QImageDataMisc& misc() const;
-
+#endif
     friend Q_EXPORT void bitBlt( QImage* dst, int dx, int dy,
 				 const QImage* src, int sx, int sy,
 				 int sw, int sh, int conversion_flags );
