@@ -1596,6 +1596,11 @@ QPainter::RenderHints QWin32PaintEngine::supportedRenderHints() const
     return 0;
 }
 
+HDC QWin32PaintEngine::winHDC() const
+{
+    return d->hdc;
+}
+
 #define COLSCALE(x) uint( (x) * 0xff00 / 255.0 )
 
 inline TRIVERTEX createVertex(int x, int y, const QColor &col)

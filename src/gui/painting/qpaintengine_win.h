@@ -77,6 +77,8 @@ public:
 
     QPainter::RenderHints supportedRenderHints() const;
 
+    HDC winHDC() const;
+
 protected:
     QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, PaintEngineFeatures caps);
 
