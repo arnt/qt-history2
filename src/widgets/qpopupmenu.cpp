@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#164 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#165 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -130,12 +130,12 @@ static void getSizeOfBitmap( int gs, int *w, int *h )
 }
 
 
-int QPopupMenu::getWidthOfCheckCol( int gs ) const
+int QPopupMenu::getWidthOfCheckCol() const
 {
     int pmw = maxPMWidth;
     int cmw = 7;   // check mark width
     int w = cmw > pmw ? cmw : pmw;
-    if ( gs == MotifStyle )
+    if ( style() == MotifStyle )
 	w += 2;
     w += motifItemFrame + 2 * motifCheckMarkHMargin;
     return w;
@@ -804,7 +804,7 @@ void QPopupMenu::updateSize()
     max_width  += 2*motifItemHMargin;
 
     if ( isCheckable() )
-	max_width += getWidthOfCheckCol( this, gs ) + motifItemFrame;
+	max_width += getWidthOfCheckCol() + motifItemFrame;
     else
 	max_width += 2*motifItemFrame;
 
@@ -986,9 +986,9 @@ int QPopupMenu::cellWidth( int col )
 {
     if ( isCheckable() ) {
 	if ( col == 0 )
-	    return getWidthOfCheckCol(this,style());
+	    return getWidthOfCheckCol();
 	else
-	    return width() - (2*frameWidth()+getWidthOfCheckCol(this,style()));
+	    return width() - (2*frameWidth()+getWidthOfCheckCol());
     }	
     else
 	return width() - 2*frameWidth();	

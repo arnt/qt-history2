@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#45 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#46 $
 **
 ** Definition of QPopupMenu class
 **
@@ -109,8 +109,8 @@ private:
     int		tabMark();
     void	setCheckableFlag( bool );
 
-    int getWidthOfCheckCol( int gs ) const;
-    
+    int getWidthOfCheckCol() const;
+
     QMenuItem  *selfItem;
     QAccel     *autoaccel;
     bool	accelDisabled;
