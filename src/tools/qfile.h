@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#10 $
+** $Id: //depot/qt/main/src/tools/qfile.h#11 $
 **
 ** Definition of QFile class
 **
@@ -39,9 +39,9 @@ public:
     void	close();
     void	flush();
 
-    long	size()	const;
-    long	at()	const;
-    bool	at( long );
+    uint	size()	const;
+    int		at()	const;
+    bool	at( uint );
     bool	atEnd() const;
 
     int		readBlock( char *data, uint len );
@@ -56,7 +56,7 @@ protected:
     QString	fn;
     FILE       *fh;
     int		fd;
-    long	length;
+    int		length;
     bool	ext_f;
 
 private:
@@ -65,9 +65,10 @@ private:
 
 
 inline const char *QFile::name() const
-{
-    return fn.data();
-}
+{ return fn; }
+
+inline int QFile::at() const
+{ return index; }
 
 
 #endif // QFILE_H

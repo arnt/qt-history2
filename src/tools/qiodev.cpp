@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodev.cpp#19 $
+** $Id: //depot/qt/main/src/tools/qiodev.cpp#20 $
 **
 ** Implementation of QIODevice class
 **
@@ -12,37 +12,37 @@
 
 #include "qiodev.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qiodev.cpp#19 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qiodev.cpp#20 $")
 
 
 /*----------------------------------------------------------------------------
   \class QIODevice qiodev.h
 
-  \brief The QIODevice class is the base class of IO devices.
+  \brief The QIODevice class is the base class of I/O devices.
 
   \ingroup tools
   \ingroup files
   \ingroup streams
 
-  An IO device represents a medium that one can read bytes from and write
-  bytes to.  The QIODevice class itself is not capable of reading or writing
-  any data, but it has virtual functions for doing so. These functions are
-  implemented by the subclasses QFile and QBuffer.
+  An I/O device represents a medium that one can read bytes from and write
+  bytes to.  The QIODevice class itself is not capable of reading or
+  writing any data; it has virtual functions for doing so. These functions
+  are implemented by the subclasses QFile and QBuffer.
 
-  There are two types of IO devices; <em>direct access</em> and <em>sequential
-  access </em> devices.
-  Files can normally be accessed directly, except \c stdin etc., which must be
-  processed sequentially.  Buffers are always direct access devices.
+  There are two types of I/O devices; <em>direct access</em> and
+  <em>sequential access </em> devices.  Files can normally be accessed
+  directly, except \c stdin etc., which must be processed sequentially.
+  Buffers are always direct access devices.
 
-  The access mode of an IO device can be either \e raw or \e buffered.
+  The access mode of an I/O device can be either \e raw or \e buffered.
   QFile objects can be created using one of these.  Raw access mode is more
   low level, while buffered access use smart buffering techniques.
-  The raw access mode is best when IO is block-operated using 4kB block size
+  The raw access mode is best when I/O is block-operated using 4kB block size
   or greater.  Buffered access works better when reading small portions of
   data at a time.
 
-  An IO device operation can be executed in either \e synchronous or
-  \e asynchronous mode.	 The IO devices currently supported by Qt only
+  An I/O device operation can be executed in either \e synchronous or
+  \e asynchronous mode.	 The I/O devices currently supported by Qt only
   execute synchronously.
 
   The QDataStream and QTextStream provide binary and text operations
@@ -52,13 +52,8 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qiodev.cpp#19 $")
  ----------------------------------------------------------------------------*/
 
 
-/*****************************************************************************
-  QIODevice member functions
- *****************************************************************************/
-
-
 /*----------------------------------------------------------------------------
-  Constructs an IO device.
+  Constructs an I/O device.
  ----------------------------------------------------------------------------*/
 
 QIODevice::QIODevice()
@@ -69,7 +64,7 @@ QIODevice::QIODevice()
 }
 
 /*----------------------------------------------------------------------------
-  Destroys an IO device.
+  Destroys the I/O device.
  ----------------------------------------------------------------------------*/
 
 QIODevice::~QIODevice()
@@ -79,7 +74,7 @@ QIODevice::~QIODevice()
 
 /*----------------------------------------------------------------------------
   \fn int QIODevice::flags() const
-  Returns the current IO device flags setting.
+  Returns the current I/O device flags setting.
 
   Flags consists of mode flags and state flags.
 
@@ -107,21 +102,21 @@ QIODevice::~QIODevice()
 
 /*----------------------------------------------------------------------------
   \fn bool QIODevice::isDirectAccess() const
-  Returns TRUE if the IO device is a direct access (not sequential) device,
+  Returns TRUE if the I/O device is a direct access (not sequential) device,
   otherwise FALSE.
   \sa isSequentialAccess()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool QIODevice::isSequentialAccess() const
-  Returns TRUE if the IO device is a sequential access (not direct) device,
+  Returns TRUE if the I/O device is a sequential access (not direct) device,
   otherwise FALSE.
   \sa isDirectAccess()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool QIODevice::isCombinedAccess() const
-  Returns TRUE if the IO device is a combined access (both direct and
+  Returns TRUE if the I/O device is a combined access (both direct and
   sequential) device,  otherwise FALSE.
 
   This access method is currently not in use.
@@ -129,28 +124,28 @@ QIODevice::~QIODevice()
 
 /*----------------------------------------------------------------------------
   \fn bool QIODevice::isBuffered() const
-  Returns TRUE if the IO device is a buffered (not raw) device, otherwise
+  Returns TRUE if the I/O device is a buffered (not raw) device, otherwise
   FALSE.
   \sa isRaw()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool QIODevice::isRaw() const
-  Returns TRUE if the IO device is a raw (not buffered) device, otherwise
+  Returns TRUE if the I/O device is a raw (not buffered) device, otherwise
   FALSE.
   \sa isBuffered()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool QIODevice::isSynchronous() const
-  Returns TRUE if the IO device is a synchronous device, otherwise
+  Returns TRUE if the I/O device is a synchronous device, otherwise
   FALSE.
   \sa isAsynchronous()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool QIODevice::isAsynchronous() const
-  Returns TRUE if the IO device is a asynchronous device, otherwise
+  Returns TRUE if the I/O device is a asynchronous device, otherwise
   FALSE.
 
   This mode is currently not in use.
@@ -160,7 +155,7 @@ QIODevice::~QIODevice()
 
 /*----------------------------------------------------------------------------
   \fn bool QIODevice::isTranslated() const
-  Returns TRUE if the IO device translates carriage-return and linefeed
+  Returns TRUE if the I/O device translates carriage-return and linefeed
   characters.
 
   A QFile is translated if it is opened with the \c IO_Translate mode
@@ -169,42 +164,42 @@ QIODevice::~QIODevice()
 
 /*----------------------------------------------------------------------------
   \fn bool QIODevice::isReadable() const
-  Returns TRUE if the IO device was opened using \c IO_ReadOnly or
+  Returns TRUE if the I/O device was opened using \c IO_ReadOnly or
   \c IO_ReadWrite mode.
   \sa isWritable(), isReadWrite()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool QIODevice::isWritable() const
-  Returns TRUE if the IO device was opened using \c IO_WriteOnly or
+  Returns TRUE if the I/O device was opened using \c IO_WriteOnly or
   \c IO_ReadWrite mode.
   \sa isReadable(), isReadWrite()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool QIODevice::isReadWrite() const
-  Returns TRUE if the IO device was opened using \c IO_ReadWrite mode.
+  Returns TRUE if the I/O device was opened using \c IO_ReadWrite mode.
   \sa isReadable(), isWritable()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool QIODevice::isInactive() const
-  Returns TRUE if the IO device state is 0, i.e. the device is not open.
+  Returns TRUE if the I/O device state is 0, i.e. the device is not open.
   \sa isOpen()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool QIODevice::isOpen() const
-  Returns TRUE if the IO device state has been opened, otherwise FALSE.
+  Returns TRUE if the I/O device state has been opened, otherwise FALSE.
   \sa isInactive()
  ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
   \fn int QIODevice::status() const
-  Returns the IO device status.
+  Returns the I/O device status.
 
-  The IO device status returns an error code.  If open() returns FALSE
+  The I/O device status returns an error code.  If open() returns FALSE
   or readBlock() or writeBlock() return -1, this function can be called to
   get the reason why the operation did not succeed.
 
@@ -226,11 +221,17 @@ QIODevice::~QIODevice()
 /*----------------------------------------------------------------------------
   \fn void QIODevice::resetStatus()
 
-  Sets the IO device status to \c IO_Ok.
+  Sets the I/O device status to \c IO_Ok.
 
   \sa status()
  ----------------------------------------------------------------------------*/
 
+
+/*----------------------------------------------------------------------------
+  \fn void QIODevice::setFlags( int f )
+  \internal
+  Used by subclasses to set the device flags.
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \internal
@@ -290,7 +291,7 @@ void QIODevice::setStatus( int s )
 
 /*----------------------------------------------------------------------------
   \fn bool QIODevice::open( int mode )
-  Opens the IO device using the specified \e mode.
+  Opens the I/O device using the specified \e mode.
   Returns TRUE if successful, or FALSE if the device could not be opened.
 
   The mode parameter \e m must be a combination of the following flags.
@@ -306,16 +307,16 @@ void QIODevice::setStatus( int s )
   combined with \c IO_Raw.
   </ul>
 
-  This virtual function must be reimplemented by subclasses.
+  This virtual function must be reimplemented by all subclasses.
 
   \sa close()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn void QIODevice::close()
-  Closes the IO device.
+  Closes the I/O device.
 
-  This virtual function must be reimplemented by subclasses.
+  This virtual function must be reimplemented by all subclasses.
 
   \sa open()
  ----------------------------------------------------------------------------*/
@@ -323,38 +324,37 @@ void QIODevice::setStatus( int s )
 /*----------------------------------------------------------------------------
   \fn void QIODevice::flush()
 
-  Flushes an open IO device.
+  Flushes an open I/O device.
 
-  This virtual function must be reimplemented by subclasses.
+  This virtual function must be reimplemented by all subclasses.
  ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
-  \fn long QIODevice::size() const
-  Virtual function that returns the size of the IO device.
+  \fn uint QIODevice::size() const
+  Virtual function that returns the size of the I/O device.
   \sa at()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Virtual function that returns the current IO device index.
+  Virtual function that returns the current I/O device index.
 
-  This index is the data read/write head of the IO device.
+  This index is the data read/write head of the I/O device.
 
   \sa size()
  ----------------------------------------------------------------------------*/
 
-long QIODevice::at() const
+int QIODevice::at() const
 {
     return index;
 }
 
 /*----------------------------------------------------------------------------
-  Virtual function that sets the IO device index to \e n.
-
+  Virtual function that sets the I/O device index to \e n.
   \sa size()
  ----------------------------------------------------------------------------*/
 
-bool QIODevice::at( long n )
+bool QIODevice::at( uint n )
 {
 #if defined(CHECK_RANGE)
     if ( n > size() ) {
@@ -367,7 +367,7 @@ bool QIODevice::at( long n )
 }
 
 /*----------------------------------------------------------------------------
-  Virtual function that returns TRUE if the IO device index is at the
+  Virtual function that returns TRUE if the I/O device index is at the
   end of the input.
  ----------------------------------------------------------------------------*/
 
@@ -384,21 +384,21 @@ bool QIODevice::atEnd() const
 
 
 /*----------------------------------------------------------------------------
-  \fn int QIODev::readBlock( char *data, uint len )
-  Reads at most \e len bytes from the IO device into \e data and
+  \fn int QIODevice::readBlock( char *data, uint len )
+  Reads at most \e len bytes from the I/O device into \e data and
   returns the number of bytes actually read.
 
-  This virtual function must be reimplemented by subclasses.
+  This virtual function must be reimplemented by all subclasses.
 
   \sa writeBlock()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn int QIODev::writeBlock( const char *data, uint len )
-  Writes \e len bytes from \e p to the IO device and returns the number of
+  \fn int QIODevice::writeBlock( const char *data, uint len )
+  Writes \e len bytes from \e p to the I/O device and returns the number of
   bytes actually written.
 
-  This virtual function must be reimplemented by subclasses.
+  This virtual function must be reimplemented by all subclasses.
 
   \sa readBlock()
  ----------------------------------------------------------------------------*/
@@ -406,15 +406,15 @@ bool QIODevice::atEnd() const
 /*----------------------------------------------------------------------------
   Reads a line of text, up to \e maxlen bytes.
 
-  This virtual function can be reimplemented by subclasses.
+  This virtual function can be reimplemented by the subclasses.
 
   \sa readBlock()
  ----------------------------------------------------------------------------*/
 
 int QIODevice::readLine( char *data, uint maxlen )
 {
-    long pos = at();				// get current position
-    long s  = size();				// size of IO device
+    int pos = at();				// get current position
+    int s  = (int)size();			// size of I/O device
     char *p = data;
     if ( pos >= s )
 	return 0;
@@ -426,3 +426,46 @@ int QIODevice::readLine( char *data, uint maxlen )
     *p++ = '\0';
     return (int)((long)p - (long)data);
 }
+
+
+/*----------------------------------------------------------------------------
+  \fn int QIODevice::getch()
+
+  Reads a single byte/character from the I/O device.
+
+  Returns the byte/character read, or -1 if the end of the I/O device has been
+  reached.
+
+  This virtual function must be reimplemented by all subclasses.
+
+  \sa putch(), ungetch()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn int QIODevice::putch( int ch )
+
+  Writes the character \e ch to the I/O device.
+
+  Returns \e ch, or -1 if some error occurred.
+
+  This virtual function must be reimplemented by all subclasses.
+
+  \sa getch(), ungetch()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn int QIODevice::ungetch( int ch )
+
+  Puts the character \e ch back into the I/O device and decrements the
+  index if it is not zero.
+
+  This function is normally called to "undo" a getch() operation.
+
+  Returns \e ch, or -1 if some error occurred.
+
+  This virtual function must be reimplemented by all subclasses.
+
+  \sa getch(), putch()
+ ----------------------------------------------------------------------------*/
+
+

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.h#9 $
+** $Id: //depot/qt/main/src/tools/qiodevice.h#10 $
 **
 ** Definition of QIODevice class
 **
@@ -87,35 +87,35 @@ public:
     int		 status() const { return ioSt; }
     void	 resetStatus()	{ ioSt = IO_Ok; }
 
-    virtual bool open( int mode ) = 0;		// open device
-    virtual void close() = 0;			// close device
-    virtual void flush() = 0;			// flush device
+    virtual bool open( int mode ) = 0;
+    virtual void close() = 0;
+    virtual void flush() = 0;
 
-    virtual long size()	  const = 0;		// get size of data
-    virtual long at()	  const;		// get data index
-    virtual bool at( long );			// set data index
-    virtual bool atEnd()  const;		// test if at end of data
-    bool	 reset() { return at(0); }	// reset data index
+    virtual uint size()	  const = 0;
+    virtual int  at()	  const;
+    virtual bool at( uint );
+    virtual bool atEnd()  const;
+    bool	 reset() { return at(0); }
 
     virtual int	 readBlock( char *data, uint len ) = 0;
     virtual int	 writeBlock( const char *data, uint len ) = 0;
     virtual int	 readLine( char *data, uint maxlen );
 
-    virtual int	 getch() = 0;			// get next char
-    virtual int	 putch( int ) = 0;		// put char
-    virtual int	 ungetch( int ) = 0;		// put back char
+    virtual int	 getch() = 0;
+    virtual int	 putch( int ) = 0;
+    virtual int	 ungetch( int ) = 0;
 
 protected:
     void	 setFlags( int f ) { ioMode = f; }
-    void	 setType( int );		// set device type
-    void	 setMode( int );		// set device mode
-    void	 setState( int );		// set device state
-    void	 setStatus( int );		// set device status
-    long	 index;				// data index
+    void	 setType( int );
+    void	 setMode( int );
+    void	 setState( int );
+    void	 setStatus( int );
+    int		 index;
 
 private:
-    int		 ioMode;			// IO mode
-    int		 ioSt;				// IO status
+    int		 ioMode;
+    int		 ioSt;
 };
 
 

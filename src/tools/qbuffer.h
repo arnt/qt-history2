@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.h#5 $
+** $Id: //depot/qt/main/src/tools/qbuffer.h#6 $
 **
 ** Definition of QBuffer class
 **
@@ -24,31 +24,31 @@ public:
     QBuffer( QByteArray );
    ~QBuffer();
 
-    QByteArray buffer() const { return a; }	// get buffer
-    bool  setBuffer( QByteArray );		// set buffer
+    QByteArray buffer() const { return a; }
+    bool  setBuffer( QByteArray );
 
-    bool  open( int );				// open buffer
-    void  close();				// close buffer
-    void  flush();				// flush buffer
+    bool  open( int );
+    void  close();
+    void  flush();
 
-    long  size() const { return a.size(); }	// get buffer size
-    long  at()	 const { return index; }	// get buffer index
-    bool  at( long );				// set buffer index
+    uint  size() const { return a.size(); }
+    int   at()	 const { return index; }
+    bool  at( uint );
 
     int	  readBlock( char *p, uint );
     int	  writeBlock( const char *p, uint );
     int	  readLine( char *p, uint );
 
-    int	  getch();				// get next char
-    int	  putch( int );				// put char
-    int	  ungetch( int ) ;			// put back char
+    int	  getch();
+    int	  putch( int );
+    int	  ungetch( int );
 
 protected:
-    QByteArray a;				// byte array
+    QByteArray a;
 
 private:
-    uint  a_len;				// byte array real length
-    uint  a_inc;				// byte array increment
+    uint  a_len;
+    uint  a_inc;
 };
 
 

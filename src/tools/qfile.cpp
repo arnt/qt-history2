@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#30 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#31 $
 **
 ** Implementation of QFile class
 **
@@ -13,19 +13,21 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#30 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#31 $")
 
 
 /*----------------------------------------------------------------------------
   \class QFile qfile.h
-  \brief The QFile class provides system-independent file access.
+  \brief The QFile class is an I/O device that operates on files.
 
   \ingroup tools
   \ingroup files
+  \ingroup stream
 
-  A file is an I/O device you can use to read and write binary and
-  text files, by itself or more conveniently using QDataStream or
-  QTextStream.  Most of its behavior is inherited from QIODevice.
+  QFile is an I/O device for reading and writing binary and text files.  A
+  QFile may be used by itself (readBlock and writeBlock) or by more
+  conveniently using QDataStream or QTextStream.  Most of its behavior is
+  inherited from QIODevice.
 
   The QFileInfo class holds detailed information about a file, such as
   access permissions, file dates and file types.
@@ -62,10 +64,15 @@ QFile::QFile( const char *name )
 
 QFile::~QFile()
 {
-    close();					// close file
+    close();
 }
 
-void QFile::init()				// initialize internal data
+/*----------------------------------------------------------------------------
+  \internal
+  Initialize internal data.
+ ----------------------------------------------------------------------------*/
+
+void QFile::init()
 {
     setFlags( IO_Direct );
     setStatus( IO_Ok );
@@ -173,6 +180,10 @@ bool QFile::exists( const char *fileName )
   combined with \c IO_Raw.
   </ul>
 
+  The raw access mode is best when I/O is block-operated using 4kB block size
+  or greater.  Buffered access works better when reading small portions of
+  data at a time.
+
   If the file does not exist and \c IO_WriteOnly or \c IO_ReadWrite is
   specified, it is created.
 
@@ -184,10 +195,10 @@ bool QFile::exists( const char *fileName )
     f2.open( IO_ReadOnly | IO_Translate );
   \endcode
 
-  \sa name(), close()
+  \sa name(), close(), isOpen()
  ----------------------------------------------------------------------------*/
 
-bool QFile::open( int m )			// open file
+bool QFile::open( int m )
 {
     if ( isOpen() ) {				// file already open
 #if defined(CHECK_STATE)
@@ -324,7 +335,7 @@ bool QFile::open( int m )			// open file
   close the file, only flushes it.
 
   \warning If \e f is one of \c stdin, \c stdout or \c stderr, you may not
-  be able to seek. size() is set to \c LONG_MAX (in limits.h).
+  be able to seek. size() is set to \c INT_MAX (in limits.h).
 
   \sa close()
  ----------------------------------------------------------------------------*/
@@ -343,9 +354,8 @@ bool QFile::open( int m, FILE *f )
     fh = f;
     ext_f = TRUE;
     if ( fh == stdin || fh == stdout || fh == stderr ) {
-	length = LONG_MAX;
-    }
-    else {
+	length = INT_MAX;
+    } else {
 	index = ftell( fh );
 	fseek( fh, 0, SEEK_END );
 	length = ftell( fh );
@@ -362,7 +372,7 @@ bool QFile::open( int m, FILE *f )
   close the file, only flushes it.
 
   \warning If \e f is one of 0 (stdin), 1 (stdout) or 2 (stderr), you may not
-  be able to seek. size() is set to \c LONG_MAX (in limits.h).
+  be able to seek. size() is set to \c INT_MAX (in limits.h).
 
   \sa close()
  ----------------------------------------------------------------------------*/
@@ -381,7 +391,7 @@ bool QFile::open( int m, int f )
     fd = f;
     ext_f = TRUE;
     if ( fd == 0 || fd == 1 || fd == 2 ) {
-	length = LONG_MAX;
+	length = INT_MAX;
     }
     else {
 	index = LSEEK( fd, 0, SEEK_CUR );
@@ -423,7 +433,7 @@ void QFile::close()
 /*----------------------------------------------------------------------------
   Flushes the file buffer to the disk.
 
-  Calling close() implicitly flushes the file buffer.
+  close() also flushes the file buffer.
  ----------------------------------------------------------------------------*/
 
 void QFile::flush()
@@ -438,13 +448,13 @@ void QFile::flush()
   \sa at()
  ----------------------------------------------------------------------------*/
 
-long QFile::size() const
+uint QFile::size() const
 {
     if ( isOpen() ) {
 	return length;
     } else {
 	QFile f( fn );
-	long s;
+	uint s;
 	if ( f.open(IO_ReadOnly) ) {
 	    s = f.size();
 	    f.close();
@@ -456,14 +466,10 @@ long QFile::size() const
 }
 
 /*----------------------------------------------------------------------------
+  \fn int QFile::at() const
   Returns the file index.
   \sa size()
  ----------------------------------------------------------------------------*/
-
-long QFile::at() const
-{
-    return index;
-}
 
 /*----------------------------------------------------------------------------
   Sets the file index to \e n.	Returns TRUE if successful, otherwise FALSE.
@@ -481,7 +487,7 @@ long QFile::at() const
   \sa size()
  ----------------------------------------------------------------------------*/
 
-bool QFile::at( long n )
+bool QFile::at( uint n )
 {
     if ( !isOpen() ) {
 #if defined(CHECK_STATE)
@@ -532,8 +538,8 @@ bool QFile::atEnd() const
 
 
 /*----------------------------------------------------------------------------
-  Reads at most \e len bytes from the file into \e p and
-  returns the number of bytes actually read.
+  Reads at most \e len bytes from the file into \e p and returns the
+  number of bytes actually read.
 
   Returns -1 if a serious error occurred.
 
@@ -615,6 +621,7 @@ int QFile::writeBlock( const char *p, uint len )
 
   Reads bytes from the file until end-of-line is reached, or up to
   \e maxlen bytes.
+
   This function is efficient only for buffered files.  Avoid
   readLine() for files that have been opened with the \c IO_Raw
   flag.
@@ -717,7 +724,7 @@ int QFile::putch( int ch )
 /*----------------------------------------------------------------------------
   Puts the character \e ch back into the file.
 
-  This function is normally called to "undo" a getch() operator.
+  This function is normally called to "undo" a getch() operation.
 
   Returns \e ch, or -1 if some error occurred.
 
