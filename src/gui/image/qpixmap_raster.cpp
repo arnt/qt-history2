@@ -610,6 +610,7 @@ QPixmap QPixmap::alphaChannel() const
 QImage QPixmapData::createBitmapImage(int w, int h)
 {
     QImage bitmap(w, h, QImage::Format_MonoLSB);
+    bitmap.setNumColors(2);
     bitmap.setColor(0, QColor(Qt::color0).rgba());
     bitmap.setColor(1, QColor(Qt::color1).rgba());
     return bitmap;
