@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#307 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#308 $
 **
 ** Implementation of QListView widget class
 **
@@ -4597,9 +4597,19 @@ QListViewItemIterator &QListViewItemIterator::operator++()
 	return *this;
     }
 
-    curr = curr->parent();
-    if ( curr )
-	curr = curr->nextSibling();
+    QListViewItem *p = curr->parent();
+    bool found = FALSE;
+    while ( p ) {
+	if ( p->nextSibling() ) {
+	    curr = p->nextSibling();
+	    found = TRUE;
+	    break;
+	}
+	p = p->parent();
+    }
+
+    if ( !found )
+	curr = 0;
 
     return *this;
 }
