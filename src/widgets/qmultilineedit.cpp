@@ -3345,7 +3345,7 @@ void QMultiLineEdit::setWordWrap( int mode )
     d->wrapmode = mode;
     if ( BREAK_WITHIN_WORDS ) {
 	d->arrow = QPixmap( arrow );
-	d->marg_extra = 10;
+	d->marg_extra = 8;
 	clearTableFlags( Tbl_autoHScrollBar );
     } else {
 	d->marg_extra = 0;
