@@ -113,7 +113,7 @@ public:
 
     virtual void drawLine(const QLineF &line);
     virtual void drawRect(const QRectF &r);
-    virtual void drawRects(const QLineF *lines, int lineCount)
+    virtual void drawRects(const QRectF *lines, int lineCount)
     virtual void drawPoint(const QPointF &p);
     virtual void drawEllipse(const QRectF &r);
     virtual void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
