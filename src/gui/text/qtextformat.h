@@ -18,6 +18,7 @@
 #include <qshareddata.h>
 #include <qobject.h>
 #include <qfont.h>
+#include <qvariant.h>
 
 class QString;
 
@@ -217,7 +218,7 @@ public:
 
     bool hasProperty(int propertyId) const;
 
-    QList<int> allPropertyIds() const;
+    QMap<int, QVariant> properties() const;
 
     inline void setObjectType(int type)
     { setProperty(ObjectType, type, NoObject); }

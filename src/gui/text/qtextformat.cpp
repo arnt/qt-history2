@@ -905,16 +905,11 @@ bool QTextFormat::hasProperty(int propertyId) const
 */
 
 /*!
-    Returns a list of all the property IDs for this text format.
-
-    \sa hasProperty() propertyType() PropertyType
+    Returns a map with all properties of this text format.
 */
-QList<int> QTextFormat::allPropertyIds() const
+QMap<int, QVariant> QTextFormat::properties() const
 {
-    if (!d)
-        return QList<int>();
-
-    return d->properties().keys();
+    return d->properties();
 }
 
 
