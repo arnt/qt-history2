@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#119 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#120 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#119 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#120 $");
 
 
 /*!
@@ -2067,7 +2067,7 @@ void QImageIO::defineIOHandler( const char *format,
 
 /*!
   \fn const char *QImageIO::format() const
-  Returns the image format string, or 0 if no format has been set.
+  Returns the image format string, or 0 if no format has been explicitly set.
 */
 
 /*!
@@ -2300,6 +2300,10 @@ QStrList QImageIO::outputFormats()
 
   Setting the image file format string is optional.
 
+  Note that this function does \e not set the \link format() format\endlink
+  used to read the image.  If you need that information, use the imageFormat()
+  static functions.
+
   Example:
 
   \code
@@ -2329,16 +2333,21 @@ bool QImageIO::read()
     } else {					// no file name or io device
 	return FALSE;
     }
-    image_format = imageFormat( iodev );	// get image format
-    if ( !image_format ||
-	 !(frmt.isEmpty() || frmt == image_format) ) {
-	if ( file.isOpen() ) {			// unknown or wrong format
-	    file.close();
-	    iodev = 0;
+    if (frmt.isEmpty()) {
+	// Try to guess format
+	image_format = imageFormat( iodev );	// get image format
+
+	if ( !image_format ) {
+	    if ( file.isOpen() ) {			// unknown format
+		file.close();
+		iodev = 0;
+	    }
+	    return FALSE;
 	}
-	return FALSE;
+    } else {
+	image_format = frmt;
     }
-    frmt = image_format;			// set format
+
     h = get_image_handler( image_format );
     if ( file.isOpen() ) {
 #if !defined(UNIX)
