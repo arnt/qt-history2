@@ -3461,7 +3461,10 @@ void QString::truncate(int pos)
         // str == "LOGOUT"
     \endcode
 
-    \sa truncate(), resize()
+    If you want to remove characters from the \e beginning of the
+    string, use remove() instead. 
+
+    \sa truncate(), resize(), remove()
 */
 void QString::chop(int n)
 {
