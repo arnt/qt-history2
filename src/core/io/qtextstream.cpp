@@ -848,11 +848,11 @@ void QTextStreamPrivate::ts_ungetc(QChar c)
     \sa QIODevice::read()
 */
 
-QTextStream &QTextStream::readRawBytes(char *s, uint len)
+QTextStream &QTextStream::readRawBytes(char *s, Q_LLONG len)
 {
     //just append directly onto the string (optimization)
     if (d->sourceType == QTextStreamPrivate::String) {
-        len = qMin((d->str->length()*sizeof(QChar))-d->strOff, len);
+        len = qMin((d->str->length()*sizeof(QChar))-d->strOff, (uint)len);
         memcpy(s, ((char *)d->str->unicode())+d->strOff, len);
         d->strOff += len;
         return *this;
@@ -871,7 +871,7 @@ QTextStream &QTextStream::readRawBytes(char *s, uint len)
     \sa QIODevice::write()
 */
 
-QTextStream &QTextStream::writeRawBytes(const char* s, uint len)
+QTextStream &QTextStream::writeRawBytes(const char* s, Q_LLONG len)
 {
     //just append directly onto the string (optimization)
     if (d->sourceType == QTextStreamPrivate::String) {
@@ -883,6 +883,25 @@ QTextStream &QTextStream::writeRawBytes(const char* s, uint len)
     return *this;
 }
 
+/*!
+    Sets the backing device position to the \a offset given. Returns
+    true if the position was successfully set (the \a offset is within
+    range and the seek was successful); otherwise returns false.
+
+    If the device is sequential, the \a offset is relative to the current
+    position.
+
+    \sa QIODevice::seek()
+*/
+
+bool QTextStream::seek(Q_LLONG offset)
+{
+    if(d->dev->seek(offset)) {
+        d->cacheReadBuf.clear();
+        return true;
+    }
+    return false;
+}
 
 QTextStream &QTextStreamPrivate::write(const char* p, uint len)
 {
