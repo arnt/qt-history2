@@ -2,7 +2,7 @@
 
 tools {
 	TOOLS_P		= tools
-	HEADERS +=  $$TOOLS_H/qptrarray.h \
+	HEADERS +=  $$TOOLS_H/qmemarray.h \
 		  $$TOOLS_H/qasciicache.h \
 		  $$TOOLS_H/qasciidict.h \
 		  $$TOOLS_H/qbitarray.h \
