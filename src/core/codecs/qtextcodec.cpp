@@ -1549,9 +1549,11 @@ const char* QTextCodec::locale()
 	    language = QString::fromUcs2( (ushort*)out );
 	if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255 ) )
 	    sublanguage = QString::fromUcs2( (ushort*)out ).toLower();
-	lang = language;
-	if ( sublanguage != language && !sublanguage.isEmpty() )
-	     lang += "_" + sublanguage;
+	lang = language.local8Bit();
+	if ( sublanguage != language && !sublanguage.isEmpty() ) {
+	    lang += '_';
+	    lang += sublanguage.local8Bit();
+	}
     } , {
 	char out[256];
 	QString language;
@@ -1560,9 +1562,11 @@ const char* QTextCodec::locale()
 	    language = QString::fromLocal8Bit( out );
 	if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255 ) )
 	    sublanguage = QString::fromLocal8Bit( out ).toLower();
-	lang = language;
-	if ( sublanguage != language && !sublanguage.isEmpty() )
-	    lang += "_" + sublanguage;
+	lang = language.local8Bit();
+	if ( sublanguage != language && !sublanguage.isEmpty() ) {
+	    lang += '_';
+	    lang += sublanguage.local8Bit();
+	}
     } );
 #endif
     if ( lang.isEmpty() )
