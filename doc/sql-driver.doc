@@ -251,7 +251,7 @@ the name of the ODBC datasource to the QSqlDatabase::setDatabaseName()
 function - not the actual database name.
 
 The QODBC3 Plugin needs an ODBC compliant driver manager version 3.0 or
-greater to work. Some ODBC drivers claim to be version 3.0 compilant,
+greater to work. Some ODBC drivers claim to be version 3.0 compliant,
 but do not offer all needed functionality. The QODBC3 plugin therefore
 checks whether the data source can be used after a connection has been
 established and refuses to work if the check fails. If you don't
