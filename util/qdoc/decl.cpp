@@ -42,14 +42,14 @@ static void printHtmlListEntry( HtmlWriter& out, const QString& funcName,
 }
 
 static void printHtmlShortMembers( HtmlWriter& out,
-				   const QValueList<Decl *>& members,
+				   const QMap<QString, Decl *>& members,
 				   const QString& header )
 {
     if ( !members.isEmpty() ) {
 	out.printfMeta( "<h2>%s</h2>\n", header.latin1() );
 	out.putsMeta( "<ul>\n" );
 
-	QValueList<Decl *>::ConstIterator m = members.begin();
+	QMap<QString, Decl *>::ConstIterator m = members.begin();
 	while( m != members.end() ) {
 	    if ( config->isInternal() || !(*m)->internal() ) {
 		out.putsMeta( "<li><div class=fn>" );
@@ -169,13 +169,16 @@ static void printHtmlLongMembers( HtmlWriter& out,
     }
 }
 
-static void tangle( Decl *child, QValueList<Decl *> *membersp,
-		    QValueList<Decl *> *slotsp, QValueList<Decl *> *signalsp,
-		    QValueList<Decl *> *staticMembersp,
+static void tangle( Decl *child, QMap<QString, Decl *> *membersp,
+		    QMap<QString, Decl *> *slotsp,
+		    QMap<QString, Decl *> *signalsp,
+		    QMap<QString, Decl *> *staticMembersp,
 		    QMap<QString, Decl *> *memberTypesp,
 		    QMap<QString, Decl *> *memberPropertiesp,
 		    QMap<QString, Decl *> *memberFunctionsp )
 {
+    static int unique = 0;
+
     // enum items are documented as part of the enum
     if ( child->kind() == Decl::EnumItem )
 	return;
@@ -204,25 +207,32 @@ static void tangle( Decl *child, QValueList<Decl *> *membersp,
 	}
     }
 
+    QString sortKey;
+#if 0
+    sortKey.sprintf( "%.8x", unique++ );
+#else
+    sortKey = child->sortName();
+#endif
+
     if ( child->kind() == ClassDecl::Function ) {
 	FunctionDecl *funcDecl = (FunctionDecl *) child;
 
 	if ( funcDecl->isSlot() ) {
 	    if ( slotsp != 0 )
-		slotsp->append( funcDecl );
+		slotsp->insert( sortKey, funcDecl );
 	    return;
 	} else if ( funcDecl->isSignal() ) {
 	    if ( signalsp != 0 )
-		signalsp->append( funcDecl );
+		signalsp->insert( sortKey, funcDecl );
 	    return;
 	} else if ( funcDecl->isStatic() ) {
 	    if ( staticMembersp != 0 )
-		staticMembersp->append( funcDecl );
+		staticMembersp->insert( sortKey, funcDecl );
 	    return;
 	}
     }
     if ( membersp != 0 && child->kind() != Decl::Property )
-	membersp->append( child );
+	membersp->insert( sortKey, child );
 }
 
 static void fillInImportantChildren( ClassDecl *classDecl,
@@ -631,18 +641,19 @@ void ClassDecl::printHtmlShort( HtmlWriter& out ) const
 
 void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 {
-    QValueList<Decl *> publicMembers;
-    QValueList<Decl *> publicSlots;
-    QValueList<Decl *> publicSignals;
-    QValueList<Decl *> staticPublicMembers;
-    QValueList<Decl *> importantInheritedMembers;
-    QValueList<Decl *> protectedMembers;
-    QValueList<Decl *> protectedSlots;
-    QValueList<Decl *> staticProtectedMembers;
-    QValueList<Decl *> privateMembers;
-    QValueList<Decl *> privateSlots;
-    QValueList<Decl *> staticPrivateMembers;
-    QValueList<Decl *> related;
+    QMap<QString, Decl *> publicMembers;
+    QMap<QString, Decl *> publicSlots;
+    QMap<QString, Decl *> publicSignals;
+    QMap<QString, Decl *> staticPublicMembers;
+    QMap<QString, Decl *> importantInheritedMembers;
+    QMap<QString, Decl *> properties;
+    QMap<QString, Decl *> protectedMembers;
+    QMap<QString, Decl *> protectedSlots;
+    QMap<QString, Decl *> staticProtectedMembers;
+    QMap<QString, Decl *> privateMembers;
+    QMap<QString, Decl *> privateSlots;
+    QMap<QString, Decl *> staticPrivateMembers;
+    QMap<QString, Decl *> related;
 
     QMap<QString, Decl *> memberTypes;
     QMap<QString, Decl *> memberProperties;
@@ -771,13 +782,19 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 	++child;
     }
 
+    QValueList<PropertyDecl *>::ConstIterator p = props.begin();
+    while ( p != props.end() ) {
+	properties.insert( (*p)->name(), *p );
+	++p;
+    }
+
     printHtmlShortMembers( out, publicMembers, "Public Members" );
     printHtmlShortMembers( out, publicSlots, "Public Slots" );
     printHtmlShortMembers( out, publicSignals, "Signals" );
     printHtmlShortMembers( out, staticPublicMembers, "Static Public Members" );
-    printHtmlShortMembers( out, importantChildren(),
+    printHtmlShortMembers( out, importantInheritedMembers,
 			   "Important Inherited Members" );
-    printHtmlShortMembers( out, (QValueList<Decl *>&) props, "Properties" );
+    printHtmlShortMembers( out, properties, "Properties" );
     printHtmlShortMembers( out, protectedMembers, "Protected Members" );
     printHtmlShortMembers( out, protectedSlots, "Protected Slots" );
     printHtmlShortMembers( out, staticProtectedMembers,
@@ -1301,7 +1318,8 @@ QString FunctionDecl::sortName() const
     else
 	prio = 3;
 
-    return QChar( '0' + prio ) + uniqueName();
+    // functions go to the end, if they are mixed with other things
+    return QChar( 'z' + prio ) + uniqueName();
 }
 
 void FunctionDecl::setOverloadNumber( int no )
