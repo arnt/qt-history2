@@ -83,6 +83,7 @@ public:
 
 protected:
     QAbstractItemDelegate(QAbstractItemDelegatePrivate &, QAbstractItemModel* model, QObject *parent = 0);
+    QString ellipsisText(const QFontMetrics &fontMetrics, int width, int align, const QString &org) const;
 };
 
 #endif

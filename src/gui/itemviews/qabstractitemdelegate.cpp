@@ -1,5 +1,7 @@
 #include "qabstractitemdelegate.h"
 #include <qabstractitemmodel.h>
+#include <qfontmetrics.h>
+#include <qstring.h>
 
 #include <private/qabstractitemdelegate_p.h>
 #define d d_func()
@@ -80,4 +82,32 @@ void QAbstractItemDelegate::updateEditorContents(QWidget *, const QModelIndex &)
 void QAbstractItemDelegate::updateEditorGeometry(QWidget *, const QItemOptions &, const QModelIndex &) const
 {
     // do nothing
+}
+
+/*!
+  Creates a string with ... like "Trollte..." or "...olltech" depending on the alignment
+*/
+
+QString QAbstractItemDelegate::ellipsisText(const QFontMetrics &fontMetrics, int width, int align,
+                                            const QString &org) const
+{
+    int ellWidth = fontMetrics.width("...");
+    QString text = QString::fromLatin1("");
+    int i = 0;
+    int len = org.length();
+    int offset = (align & Qt::AlignRight) ? (len - 1) - i : i;
+    while (i < len && fontMetrics.width(text + org.at(offset)) + ellWidth < width) {
+	if (align & Qt::AlignRight)
+	    text.prepend(org.at(offset));
+	else
+	    text.append(org.at(offset));
+	offset = (align & Qt::AlignRight) ? (len - 1) - ++i : ++i;
+    }
+    if (text.isEmpty())
+	text = (align & Qt::AlignRight) ? org.right(1) : text = org.left(1);
+    if (align & Qt::AlignRight)
+	text.prepend("...");
+    else
+	text.append("...");
+    return text;
 }
