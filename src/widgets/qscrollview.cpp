@@ -90,6 +90,8 @@ public:
         : QWidget ( parent,name,f) {}
 };
 
+#include "qscrollview.moc"
+
 class QScrollViewData {
 public:
     QScrollViewData(QScrollView* parent, Qt::WFlags vpwflags) :
