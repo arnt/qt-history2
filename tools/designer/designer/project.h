@@ -56,6 +56,8 @@ public:
     void setFormWindowFileName( FormWindow *fw, const QString &f );
 
     QString makeAbsolute( const QString &f );
+
+    void save();
     
 private:
     void parse();

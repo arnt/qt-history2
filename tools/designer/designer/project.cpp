@@ -119,6 +119,7 @@ void Project::addUiFile( const QString &f, FormWindow *fw )
     uifiles << f;
     if ( fw )
 	formWindows.insert( fw, f );
+    save();
 }
 
 bool Project::isFormLoaded( const QString &form )
@@ -152,6 +153,7 @@ QString Project::description() const
 void Project::setUiFiles( const QStringList &lst )
 {
     uifiles = lst;
+    save();
 }
 
 bool Project::isValid() const
@@ -163,6 +165,7 @@ void Project::setFormWindow( const QString &f, FormWindow *fw )
 {
     formWindows.remove( fw );
     formWindows.insert( fw, f );
+    save();
 }
 
 void Project::setFormWindowFileName( FormWindow *fw, const QString &f )
@@ -172,10 +175,69 @@ void Project::setFormWindowFileName( FormWindow *fw, const QString &f )
     uifiles << f;
     formWindows.remove( fw );
     formWindows.insert( fw, f );
+    save();
 }
 
 QString Project::makeAbsolute( const QString &f )
 {
     QUrl u( QFileInfo( filename ).dirPath( TRUE ), f );
     return u.path();
+}
+
+void Project::save()
+{
+    QFile f( filename );
+    if ( !f.exists() || !f.open( IO_ReadOnly ) )
+	return;
+    QTextStream ts( &f );
+    QString contents = ts.read();
+    f.close();
+
+    int i = contents.find( "INTERFACES" );
+    if ( i != -1 ) {
+	int start = i;
+	int end = i;
+	while ( TRUE ) {
+	    i = contents.find( '\n', i + 1 );
+	    if ( i == -1 ) {
+		end = contents.length() - 1;
+		break;
+	    }
+	    int j = i;
+	    bool atEnd = FALSE;
+	    while ( j > i ) {
+		if ( contents[ j ].isSpace() ||
+		     contents[ j ] == '\t' ||
+		     contents[ j ] == '\r' ||
+		     contents[ j ] == '\n' ) {
+		    --j;
+		    continue;
+		}
+		if ( contents[ j ] != '\\' )
+		    atEnd = TRUE;
+		break;
+	    }
+	    if ( atEnd ) {
+		end = i + 1;
+		break;
+	    }
+	}
+	contents.remove( start, end - start + 1 );
+    }
+	
+    if ( !uifiles.isEmpty() ) {
+	contents += "INTERFACES\t= ";
+	for ( QStringList::Iterator it = uifiles.begin(); it != uifiles.end(); ++it )
+	    contents += *it + " ";
+    }
+	
+    if ( !f.open( IO_WriteOnly ) ) {
+	qWarning( "Couldn't write project file...." );
+	return;
+    }
+	
+    QTextStream os( &f );
+    os << contents;
+    
+    f.close();
 }
