@@ -1489,10 +1489,6 @@ extern bool qt_app_has_font;
 void qt_init_internal( int *argcptr, char **argv,
 		       Display *display, Qt::HANDLE visual, Qt::HANDLE colormap )
 {
-#if defined(QT_THREAD_SUPPORT) && (XlibSpecificationRelease >= 6)
-    (void) XInitThreads();
-#endif // QT_THREAD_SUPPORT
-
     if ( display ) {
 	// Qt part of other application
 
