@@ -154,11 +154,13 @@ void QHashData::rehash(int hint)
 	for (int i = 0; i < oldNumBuckets; i++) {
 	    Node *node = oldBuckets[i];
 	    while (node != e) {
-		Node *next = node->next;
-		Node *& bucket = buckets[node->h % numBuckets];
-		node->next = bucket;
-		bucket = node;
-		node = next;
+		Node *oldNext = node->next;
+		Node **nextNode_ptr = &buckets[node->h % numBuckets];
+		while (*nextNode_ptr != e)
+		    nextNode_ptr = &(*nextNode_ptr)->next;
+		node->next = *nextNode_ptr;
+		*nextNode_ptr = node;
+		node = oldNext;
 	    }
 	}
 	delete [] oldBuckets;

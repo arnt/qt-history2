@@ -252,6 +252,7 @@ private:
     void free(QHashData* d);
     Node * &node_find(const Key &key, uint *hp = 0) const;
     Node *node_create(uint h, const Key &key, const T &value);
+    Node *node_create(uint h, const Key &key, const T &value, Node *&nextNode);
     static QHashData::Node *node_duplicate(QHashData::Node *node);
 };
 
@@ -264,15 +265,20 @@ QHashData::Node *QHash<Key, T>::node_duplicate(QHashData::Node *node)
 
 template <class Key, class T>
 inline typename QHash<Key, T>::Node *QHash<Key, T>::node_create(uint h, const Key &key,
-								const T &value)
+								const T &value, Node *&nextNode)
 {
-    d->grow();
     Node *node = new Node(key, value);
     node->h = h;
-    Node **bucket = (Node **) &d->buckets[h % d->numBuckets];
-    node->next = *bucket;
-    *bucket = node;
+    node->next = nextNode;
+    nextNode = node;
     return node;
+}
+
+template <class Key, class T>
+inline typename QHash<Key, T>::Node *QHash<Key, T>::node_create(uint h, const Key &key,
+								const T &value)
+{
+    return node_create(h, key, value, *reinterpret_cast<Node **>(&d->buckets[h % d->numBuckets]));
 }
 
 template <class Key, class T>
@@ -372,8 +378,10 @@ inline T &QHash<Key, T>::operator[](const Key &key)
 
     uint h;
     Node *node = node_find(key, &h);
-    if (node == e)
+    if (node == e) {
+	d->grow();
 	node = node_create(h, key, T());
+    }
     return node->value;
 }
 
@@ -385,9 +393,10 @@ inline void QHash<Key, T>::insert(const Key &key, const T &value)
     uint h;
     Node *node = node_find(key, &h);
     if (node == e) {
+	d->grow();
 	node_create(h, key, value);
     } else {
-	if (d->autoDelete==this && node->value != value)
+	if (d->autoDelete == this)
 	    qDelete(node->value);
 	node->value = value;
     }
@@ -399,15 +408,9 @@ inline void QHash<Key, T>::insertMulti(const Key &key, const T &value)
     detach();
 
     uint h;
-    Node *firstNode = node_find(key, &h);
-    if (firstNode == e) {
-	node_create(h, key, value);
-    } else {
-	Node *secondNode = node_create(h, key, firstNode->value);
-	firstNode->value = value;
-	secondNode->next = firstNode->next;
-	firstNode->next = secondNode;
-    }
+    d->grow();
+    Node * &nextNode = node_find(key, &h);
+    node_create(h, key, value, nextNode);
 }
 
 template <class Key, class T>
