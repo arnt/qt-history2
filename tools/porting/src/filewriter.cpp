@@ -1,7 +1,12 @@
 #include "filewriter.h"
+#include <iostream>
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
+
+using std::cout;
+using std::cin;
+using std::endl;
 
 FileWriter *FileWriter::theInstance  = 0;
 
@@ -21,18 +26,20 @@ void FileWriter::deleteInstance()
     }
 }
 
-FileWriter::FileWriter(OverWriteFiles overWrite)
+FileWriter::FileWriter(OverWriteFiles overWrite, QString overwriteMsg)
 :overWriteFiles(overWrite)
+,overwriteMessage(overwriteMsg)
 {
-    
+    if(overwriteMessage.isEmpty())
+       overwriteMessage = "Convert file ";
 }
 
 bool FileWriter::writeFileVerbously(QString filePath, QByteArray contents)
 {
-    
     if( writeFile(filePath, contents)) {
         QString cleanPath = QDir::cleanPath(filePath);
-        printf("Wrote to file: %s\n", cleanPath.latin1());
+        cout << "Wrote to file: ";
+        cout << QDir::convertSeparators(cleanPath).latin1() << endl;
         return true;
     }
     return false;
@@ -44,24 +51,29 @@ bool FileWriter::writeFile(QString filePath, QByteArray contents)
         return false;
     QString path = QFileInfo(filePath).path();
     if (!QDir().mkdir(path, QDir::Recursive)){
-        printf("Error creating path %s\n", (path).latin1());
+         cout << "Error creating path " << 
+         cout << QDir::convertSeparators(path).latin1() << endl;
     }
             
     QString cleanPath = QDir::cleanPath(filePath);
     QFile f(cleanPath);
     if (f.exists()) {
         if (overWriteFiles == DontOverWrite) {
-            printf("Error writing file %s: It already exists\n", cleanPath.latin1());
+            cout << "Error writing file ";
+            cout << QDir::convertSeparators(cleanPath).latin1();
+            cout << " It already exists" <<endl;
             return false;
         } else if(overWriteFiles == AskOnOverWrite) {
-            printf("Convert file %s", cleanPath.latin1());
+            cout << overwriteMessage.latin1();
+            cout << QDir::convertSeparators(cleanPath).latin1();
+            cout << "? (Y)es, (N)o, (A)ll ";
+            
             char answer = 0;
-            int ret = 0;
-            printf("? (Y)es, (N)o, (A)ll ");
-            while (ret == 0 || (answer != 'y' && answer != 'n' && answer != 'a')) {
-                ret = scanf("%c", &answer);            
+            while (answer != 'y' && answer != 'n' && answer != 'a') {
+                cin >> answer;
                 answer = tolower(answer);
             }
+            
             if(answer == 'n') 
                 return false;
             else if(answer == 'a') 
@@ -73,6 +85,8 @@ bool FileWriter::writeFile(QString filePath, QByteArray contents)
     if (f.isOpen() && f.write(contents) == contents.size()) 
         return true;
     
-    printf("Could not write to to file: %s. Is it write protected?\n", filePath.latin1());
+    cout << "Could not write to to file: "; 
+    cout << QDir::convertSeparators(filePath).latin1();
+    cout << "Is it write protected?" << endl;
     return false;
 }

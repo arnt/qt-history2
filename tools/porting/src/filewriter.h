@@ -12,12 +12,14 @@ public:
     static FileWriter *instance();
     static void deleteInstance();
     
-    FileWriter(OverWriteFiles overWRite = AskOnOverWrite );
+    FileWriter(OverWriteFiles overWRite = AskOnOverWrite, 
+                QString overwriteMessage = QString());
     bool writeFile(QString filePath, QByteArray contents);
     bool writeFileVerbously(QString filePath, QByteArray contents);
 private:    
     QMap<QString, int> processedFilesSet;
     OverWriteFiles overWriteFiles;
+    QString overwriteMessage;
     static FileWriter *theInstance;
 };
 

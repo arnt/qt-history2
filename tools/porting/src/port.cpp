@@ -135,7 +135,8 @@ int main(int argc, char**argv)
     newLine << endl;
     QString qNewLine(newLine.str());
     //write log file
-    FileWriter().writeFile(logFileName, report.join(qNewLine).latin1());
+    FileWriter fileWriter(FileWriter::AskOnOverWrite, "Overwrite file ");
+    fileWriter.writeFile(logFileName, report.join(qNewLine).latin1());
        
     Logger::deleteInstance();
     return retval;
