@@ -44,7 +44,7 @@ win32:RC_FILE	= install.rc
 #  - a Qt/Windows evaluation version (eval),
 #  - a Qt/Windows evaluation version that can be burned on CD and
 #    distributed on tradeshows (eval-cd)
-#  - the QSA pre-release (qsa)
+#  - the QSA evaluation version (qsa)
 #  - educational version (edu)
 #
 #CONFIG += eval
@@ -59,7 +59,7 @@ INCLUDEPATH		+= ../keygen
 
 # We have the following dependencies on config:
 #
-#  qsa     -> eval-cd and eval
+#  qsa     -> eval
 #  eval-cd -> eval
 #  eval    -> (none)
 #  edu     -> (none)
@@ -68,12 +68,12 @@ INCLUDEPATH		+= ../keygen
 #
 # eval   : EVAL
 # eval-cd: EVAL, EVAL_CD
-# qsa    : EVAL, EVAL_CD, QSA
+# qsa    : EVAL, QSA
 # edu    : EDU
 #
 
 qsa {
-    CONFIG += eval-cd
+    CONFIG += eval
     DEFINES		+= QSA
 }
 
@@ -87,7 +87,11 @@ eval {
 	error(You must set the QTEVAL environment variable to the directory where you checked out //depot/qteval/main in order to be able to build the evaluation version of install.)
     }
     DEFINES		+= EVAL
-    win32:RC_FILE	= install-eval.rc
+    qsa {
+	win32:RC_FILE	= install-qsa.rc
+    } else {
+	win32:RC_FILE	= install-eval.rc
+    }
     SOURCES		+= $(QTEVAL)/src/check-and-patch.cpp
     INCLUDEPATH		+= $(QTEVAL)/src
     DESTDIR		= ../../../bin

@@ -47,6 +47,9 @@ static int usage(const char *argv0, const char *un=NULL) {
     fprintf(stderr, "                       QT_ARQ to the excutable file2\n");
     fprintf(stderr, " -getres file        : Get the binary resource QT_ARQ from the executable\n" );
     fprintf(stderr, "                       file and store it under qt.arq\n");
+    fprintf(stderr, " -namedres RES_NAME file1 file2:\n");
+    fprintf(stderr, "                       Add the file1 as the binary resource\n");
+    fprintf(stderr, "                       RES_NAME to the excutable file2\n");
     fprintf(stderr, " -license LICENSE file2:\n");
     fprintf(stderr, "                       Add the license LICENSE as the binary resource\n");
     fprintf(stderr, "                       LICENSE to the excutable file2\n");
@@ -125,6 +128,7 @@ int main( int argc, char** argv )
     QMap<QString,QString> extra;
 #if defined(Q_OS_WIN32)
     QString arq, exe;
+    QString resName;
     bool doRes = FALSE;
     bool doLicense = FALSE;
     bool doLicenseUs = FALSE;
@@ -197,6 +201,15 @@ int main( int argc, char** argv )
 	    getRes = TRUE;
 	    if ( ++i < argc )
 		exe = argv[i];
+	//res (Windows only)
+	} else if(!strcmp(argv[i], "-namedres")) {
+	    doRes = TRUE;
+	    if ( ++i < argc )
+		resName = argv[i];
+	    if ( ++i < argc )
+		arq = argv[i];
+	    if ( ++i < argc )
+		exe = argv[i];
 	//license (Windows only)
 	} else if(!strcmp(argv[i], "-license")) {
 	    doLicense = TRUE;
@@ -241,13 +254,14 @@ int main( int argc, char** argv )
 	    qSystemWarning( "" );
 	    return -1;
 	}
-	QString resName;
-	if ( doRes ) {
-	    resName = "QT_ARQ";
-	} else if ( doLicense ){
-	    resName = "LICENSE";
-	} else {
-	    resName = "LICENSE-US";
+	if ( resName.isEmpty() ) {
+	    if ( doRes ) {
+		resName = "QT_ARQ";
+	    } else if ( doLicense ){
+		resName = "LICENSE";
+	    } else {
+		resName = "LICENSE-US";
+	    }
 	}
 	if ( !UpdateResourceA(hExe,RT_RCDATA,resName.latin1(),0,ba.data(),ba.count()) ) {
 	    EndUpdateResource( hExe, TRUE );
