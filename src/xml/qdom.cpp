@@ -2022,7 +2022,7 @@ QString QDomNode::localName() const
 */
 bool QDomNode::hasAttributes() const
 {
-    if ( !impl && !impl->isElement())
+    if ( !impl || !impl->isElement())
 	return FALSE;
     return static_cast<QDomElementPrivate *>(impl)->hasAttributes();
 }
