@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.h#5 $
+** $Id: //depot/qt/main/src/kernel/qsize.h#6 $
 **
 ** Definition of QSize class
 **
@@ -34,6 +34,8 @@ public:
     QCOORD &rwidth()		{ return wd; }	// get reference to width
     QCOORD &rheight()		{ return ht; }	// get reference to height
 
+    QSize &operator+=( const QSize & );		// add size
+    QSize &operator-=( const QSize & );		// subtract size
     QSize &operator*=( int c );			// multiply with scalar
     QSize &operator*=( float c );		// multiply with scalar float
     QSize &operator/=( int c );			// divide by scalar
@@ -41,6 +43,8 @@ public:
 
     friend bool	  operator==( const QSize &, const QSize & );
     friend bool	  operator!=( const QSize &, const QSize & );
+    friend QSize  operator+( const QSize &, const QSize & );
+    friend QSize  operator-( const QSize &, const QSize & );
     friend QSize  operator*( const QSize &, int );
     friend QSize  operator*( int, const QSize & );
     friend QSize  operator*( const QSize &, float );

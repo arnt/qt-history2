@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#88 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#87 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#88 $";
 #endif
 
 
@@ -1208,6 +1208,8 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	pdev = (QPaintDevice *)pd;
     if ( pdev->devFlags & PDF_EXTDEV )
 	setf(ExtDev);				// this is an extended device
+    if ( pdev->devType() == PDT_PIXMAP )	// device is a pixmap
+	((QPixmap*)pdev)->detach();             // will modify pixmap
     dpy = pdev->dpy;				// get display variable
     hd = pdev->hd;				// get handle to drawable
     if ( testf(ExtDev) ) {
@@ -1272,7 +1274,6 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	    bg_col = color0;
 	    cpen.setColor( color1 );		// changes gc directly!
 	}
-	pm->detach();				// will modify pixmap
     }
     else
 	ww = wh = vw = vh = 1;

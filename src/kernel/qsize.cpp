@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#8 $
 **
 ** Implementation of QSize class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qsize.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qsize.cpp#8 $";
 #endif
 
 /*!
@@ -120,6 +120,35 @@ Using a reference makes it possible to directly manipulate the height:
 */
 
 /*!
+Adds \e s to the size and returns a reference to this size.
+
+\code
+  QSize s(  3, 7 );
+  QSize r( -1, 4 );
+  s += r;			\/ s becomes (2,11)
+\endcode
+*/
+
+QSize &QSize::operator+=( const QSize &s )
+{
+    wd+=s.wd; ht+=s.ht; return *this;
+}
+
+/*!
+Subtracts \e s from the size and returns a reference to this size.
+\code
+  QSize s(  3, 7 );
+  QSize r( -1, 4 );
+  s -= r;			\/ s becomes (4,3)
+\endcode
+*/
+
+QSize &QSize::operator-=( const QSize &s )
+{
+    wd-=s.wd; ht-=s.ht; return *this;
+}
+
+/*!
 Multiplies both the width and height with \e c and returns a reference to
 the size.
 */
@@ -197,6 +226,27 @@ Returns TRUE if \e s1 and \e s2 are different, or FALSE if they are equal.
 bool operator!=( const QSize &s1, const QSize &s2 )
 {
     return s1.wd != s2.wd || s1.ht != s2.ht;
+}
+
+/*!
+\relates QSize
+Returns the sum of \e s1 and \e s2; each component is added separately.
+*/
+
+QSize operator+( const QSize & s1, const QSize & s2 )
+{
+    return QSize( s1.wd+s2.wd, s1.ht+s2.ht );
+}
+
+/*!
+\relates QSize
+Returns \e s2 subtracted from \e s1; each component is
+subtracted separately.
+*/
+
+QSize operator-( const QSize & p1, const QSize & p2 )
+{
+    return QSize( p1.wd-p2.wd, p1.ht-p2.ht );
 }
 
 /*!

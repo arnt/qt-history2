@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#21 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#21 $";
 #endif
 
 
@@ -202,7 +202,7 @@ supported by the hardware (normally 8 bits).
 If \e depth is negative, then the hardware depth will be used.
 */
 
-QPixmap::QPixmap( QSize sz, int depth )
+QPixmap::QPixmap( const QSize &sz, int depth )
     : QPaintDevice( PDT_PIXMAP )
 {
     int w = sz.width();

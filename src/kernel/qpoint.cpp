@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#9 $
 **
 ** Implementation of QPoint class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpoint.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpoint.cpp#9 $";
 #endif
 
 
@@ -138,6 +138,7 @@ QPoint &QPoint::operator+=( const QPoint &p )
 }
 
 /*!
+Subtracts \e p from the point and returns a reference to this point.
 \code
   QPoint p(  3, 7 );
   QPoint q( -1, 4 );
@@ -258,7 +259,7 @@ QPoint operator+( const QPoint & p1, const QPoint & p2 )
 
 /*!
 \relates QPoint
-Returns the \e p2 subtracted from \e p1; each component is
+Returns \e p2 subtracted from \e p1; each component is
 subtracted separately.
 */
 
