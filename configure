@@ -1372,11 +1372,25 @@ then
     no)   DYLIB_LINK="" ;;
     *)    DYLIB_LINK="$LIBDL" ;;	
     esac
+
+    grep "QMAKE_CC" $MKSPEC/qmake.conf | \
+	sed -e "s,QMAKE_.*FLAGS.*,,g" -e "s,QMAKE_CC,CC," > $outpath/qmake/GNUmakefile
+    grep "QMAKE_CC" $MKSPEC/qmake.conf | \
+	sed -e "s,QMAKE_.*FLAGS.*,,g" -e "s,QMAKE_CC,CC," > $outpath/qmake/Makefile
+    grep "QMAKE_CXX" $MKSPEC/qmake.conf | \
+	sed -e "s,QMAKE_.*FLAGS.*,,g" -e "s,QMAKE_CXX,CXX", >> $outpath/qmake/GNUmakefile
+    grep "QMAKE_CXX" $MKSPEC/qmake.conf | \
+	sed -e "s,QMAKE_.*FLAGS.*,,g" -e "s,QMAKE_CXX,CXX," >> $outpath/qmake/Makefile
+
     sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" \
-        -e "s,@QMAKE_LIBRARIES@,$DYLIB_LINK,g" $relpath/qmake/GNUmakefile.in >$outpath/qmake/GNUmakefile
+        -e "s,@QMAKE_LIBRARIES@,$DYLIB_LINK,g" $relpath/qmake/GNUmakefile.in >> \
+	$outpath/qmake/GNUmakefile
     sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" \
-	-e "s,@QMAKE_LIBRARIES@,$DYLIB_LINK,g" $relpath/qmake/Makefile.unix >$outpath/qmake/Makefile
-    (cd $outpath/qmake; /bin/sh -c $MAKE || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
+	-e "s,@QMAKE_LIBRARIES@,$DYLIB_LINK,g" $relpath/qmake/Makefile.unix >> \
+	$outpath/qmake/Makefile
+
+    (cd $outpath/qmake; /bin/sh -c $MAKE || \
+	(echo "QMake failed to build. Aborting." && exit 2)) || exit 2
 fi
 
 QMAKE_ALL_ARGS="\"CONFIG+=$QMAKE_CONFIG\" $QMAKE_VARS $QMAKE_SWITCHES"
