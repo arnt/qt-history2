@@ -37,7 +37,7 @@
 
 \title Qt XML Module
 
-The XML module provides a well-formed XML parser with SAX2 (Simple API for
+The XML module provides a well-formed XML parser using the SAX2 (Simple API for
 XML) interface plus an implementation of the DOM Level 1 (Document Object
 Model).
 
@@ -52,9 +52,9 @@ e.g. <a href="http://www.w3.org/XML/">http://www.w3.org/XML/</a>.
 
 The Qt XML Module provides two interfaces for XML: SAX2 and DOM Level 1.
 
-SAX2 is a very popular Java interface for XML parsers that was also adopted
-for other languages. The Qt interface follows the design of the Java
-interface. Its naming scheme was however adjusted to fit the Qt naming conventions.
+SAX is a very popular event-based standard interface for XML parsers.
+The Qt interface follows the design of the SAX2 Java implementation.
+Its naming scheme was however adjusted to fit the Qt naming conventions.
 Details on SAX2 can be found at
 <a href="http://www.megginson.com/SAX/">http://www.megginson.com/SAX/</a>.
 
@@ -65,32 +65,50 @@ present in the Java interface.
 Refer to the "<a href="xml-sax.html">How to use the Qt SAX2 classes</a>" document
 for further information on how to use SAX2 with Qt.
 
-DOM Level 1 is a W3C Recommendation for XML interfaces. Details and the
+DOM Level 1 is a W3C Recommendation for XML interfaces that maps the
+constituents of a XML document in a tree structure. Details and the
 specification of DOM Level 1 can be found at
 <a href="http://www.w3.org/DOM/">http://www.w3.org/DOM/</a>.
 
 
 <h2><a name="introSAX2">Introduction to SAX2</h2>
 
-The SAX2 interface is a event-driven mechanism to provide the user with
+The SAX2 interface is an event-driven mechanism to provide the user with
 document information. "Event" in this context has nothing to do with the
 term "event" you probably know from windowing systems; it means that the
 parser reports certain document information while parsing the document.
 These reported information is referred to as "event".
 
-The parser in SAX2 is usually referred to as "reader". There is an
-abstract class, \l QXmlReader, that defines the interface for potential readers.
-At the moment Qt provides one reader implementation, \l
+To make it less abstract consider the following example:
+
+\code 
+<quote>To make it less abstract consider the following example:</quote>
+\endcode
+
+Whilst reading (the parser in SAX2 is usually referred to as "reader") 
+the above document three events would be triggered:
+<OL>
+<LI> A start tag occurs (\code <quote> \endcode).
+<LI> Character data (i.e. text) occur.
+<LI> An end tag is parsed (\code </quote> \endcode).
+</OL>
+
+Each time such an event occurs the parser reports it so that 
+a suitable event handling routine can be invoked.
+
+Whilst this is a fast and simple approach to read XML documents
+manipulation is difficult because data are not stored, simply handled
+and discarded serially. This is when the DOM interface comes handy.
+
+The Qt XML module provides an
+abstract class, \l QXmlReader, that defines the interface for potential 
+SAX2 readers.
+At the moment Qt ships with one reader implementation, \l
 QXmlSimpleReader.
 
-The SAX2 interface provides serial access to the information in the
-document; i.e. the reader parses the document serially and 
-reports the parsing events as soon as it finds appropriate information in the
-document.
-
-The reader reports parsing events through special handler classes. The user
-has to install a certain handler class if he or she wants to be informed about
-parsing events. The following handler classes are available:
+The reader reports parsing events through special handler classes. If the user
+wants to be informed about events, he or she has to install appropriate 
+ones. The following handler classes are available:
 <ul>
 <li>\l QXmlContentHandler
     reports events related to the content of a document (e.g. the start tag,
@@ -137,10 +155,17 @@ For a more detailed description see the document
 <h2><a name="introDOM">Introduction to DOM</h2>
 
 DOM provides an interface to access and change the content and structure of
-an XML file. It makes a hierarchical view of the document (tree) available. All
-nodes in this tree are subclasses of \l QDomNode.
+an XML file. It makes a hierarchical view of the document (tree) 
+available with the root element of the XML file serving as its root. 
+Thus -- in contrast to the SAX2 interface -- an object model of the document 
+is resident in memory after parsing which makes manipulation easy. 
 
-The following table lists all node classes and their potential children classes.
+In the Qt implementation of the DOM all
+nodes in the document tree are subclasses of \l QDomNode.
+The document itself is represented as a \l QDomDocument object.
+
+The following table lists the available node classes and 
+their potential children classes.
 <table>
 <tr>
     <th align="left">Node type</th>
