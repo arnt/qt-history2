@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#109 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#110 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#109 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#110 $";
 #endif
 
 
@@ -364,19 +364,8 @@ void QPainter::setPen( PenStyle style )		// set solid pen with color
 
 void QPainter::setPen( const QColor &color )	// set solid pen with color
 {
-    register QPen::QPenData *d = cpen.data;	// low level access!
-    if ( d->count == 1 && isActive() && gc &&
-	 d->style == SolidLine && d->width == 0 ) {
-	if ( d->color != color ) {
-	    d->color = color;
-	    XSetForeground( dpy, gc, d->color.pixel() );
-	}
-    }
-    else {
-	QPen pen( color );
-	cpen = pen;
-	setf( DirtyPen );
-    }
+    QPen pen( color, 0, SolidLine );
+    setPen( pen );
 }
 
 /*!
