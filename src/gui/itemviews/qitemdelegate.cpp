@@ -390,26 +390,19 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRe
             display.setRect(x, y, w, h);
             break;}
         case QStyleOptionViewItem::Left: {
-            if (option.direction == Qt::RightToLeft) {
-                w = hint ? textRect->width() + pixmapRect->width() : w;
-                decoration.setRect(x + w - pixmapRect->width(), y, pixmapRect->width(), h);
-                w = hint ? textRect->width() : w - pixmapRect->width();
-                display.setRect(x, y, w, h);
-                break;
-            }
+            if (option.direction == Qt::RightToLeft)
+                goto Right;
+        Left:
             decoration.setRect(x, y, pixmapRect->width(), h);
             w = hint ? textRect->width() : w - pixmapRect->width();
             display.setRect(x + pixmapRect->width(), y, w, h);
             break;}
         case QStyleOptionViewItem::Right: {
-            if (option.direction == Qt::RightToLeft) {
-                decoration.setRect(x, y, pixmapRect->width(), h);
-                w = hint ? textRect->width() : w - pixmapRect->width();
-                display.setRect(x + pixmapRect->width(), y, w, h);
-                break;
-            }
+            if (option.direction == Qt::RightToLeft)
+                goto Left;
+        Right:
             w = hint ? textRect->width() + pixmapRect->width() : w;
-            decoration.setRect(x + w + pixmapRect->width(), y, pixmapRect->width(), h);
+            decoration.setRect(x + w - pixmapRect->width(), y, pixmapRect->width(), h);
             w = hint ? textRect->width() : w - pixmapRect->width();
             display.setRect(x, y, w, h);
             break;}
