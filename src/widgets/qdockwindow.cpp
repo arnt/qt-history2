@@ -932,10 +932,18 @@ void QDockWindow::swapRect( QRect &r, Qt::Orientation o, const QPoint &offset, Q
     r.setSize( bl->sizeHint() );
     bl->data = 0;
     delete bl;
+#ifdef REVERSE_LAYOUT
+    bool reverse = QApplication::reverseLayout();
+    if ( o == Qt::Horizontal )
+	r.moveBy( reverse ? r.height() + r.width()/2 : -r.width()/2, 0 );
+    else
+	r.moveBy( reverse ? - r.width() : 0, -r.height() / 2  );
+#else
     if ( o == Qt::Horizontal )
 	r.moveBy( -r.width() / 2, 0 );
     else
-	r.moveBy( 0, -r.height() / 2 );
+	r.moveBy( 0, -r.height() / 2  );
+#endif    
     r.moveBy( offset.x(), offset.y() );
 }
 
