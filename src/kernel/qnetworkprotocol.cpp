@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#13 $
 **
 ** Implementation of QFileDialog class
 **
@@ -162,7 +162,7 @@ QNetworkProtocol::QNetworkProtocol()
     opStartTimer = new QTimer( this );
     connect( opStartTimer, SIGNAL( timeout() ),
 	     this, SLOT( startOps() ) );
-    
+
 }
 
 /*!
@@ -185,7 +185,7 @@ void QNetworkProtocol::setUrl( QUrlOperator *u )
 {
     url = u;
     if ( !opInProgress && !operationQueue.isEmpty() )
-	opStartTimer->start( 0, TRUE );
+	opStartTimer->start( 1, TRUE );
 }
 
 /*!
@@ -293,7 +293,7 @@ void QNetworkProtocol::addOperation( QNetworkOperation *op )
 {
     operationQueue.enqueue( op );
     if ( !opInProgress )
-	opStartTimer->start( 0, TRUE );
+	opStartTimer->start( 1, TRUE );
 }
 
 /*!
@@ -321,7 +321,7 @@ QNetworkProtocol *QNetworkProtocol::getNetworkProtocol( const QString &protocol 
 	qNetworkProtocolRegister = new QNetworkProtocolDict;
 	QNetworkProtocol::registerNetworkProtocol( "file", new QNetworkProtocolFactory< QLocalFs > );
     }
-    
+
     if ( protocol.isNull() )
 	return 0;
 
@@ -339,7 +339,7 @@ bool QNetworkProtocol::hasOnlyLocalFileSystem()
 {
     if ( !qNetworkProtocolRegister )
 	return FALSE;
-    
+
     QDictIterator< QNetworkProtocolFactoryBase > it( *qNetworkProtocolRegister );
     for ( ; it.current(); ++it )
 	if ( it.currentKey() != "file" )
@@ -362,7 +362,7 @@ void QNetworkProtocol::processOperation( QNetworkOperation *op )
 {
     if ( !op )
 	return;
-    
+
     switch ( op->operation() ) {
     case OpListChildren:
 	operationListChildren( op );
@@ -434,7 +434,7 @@ void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
 {
     if ( old )
 	delete old;
-    
+
     if ( operationQueue.isEmpty() ) {
 	opInProgress = 0;
 	return;
@@ -442,18 +442,18 @@ void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
 
     QNetworkOperation *op = operationQueue.head();
     opInProgress = 0;
- 
+
     if ( !checkConnection( op ) ) {
 	if ( op->state() != QNetworkProtocol::StFailed )
-	    opStartTimer->start( 0, TRUE );
+	    opStartTimer->start( 1, TRUE );
 	else {
 	    emit finished( op );
 	    operationQueue.clear();
 	}
-	    
+	
 	return;
     }
-    
+
     opInProgress = op;
     operationQueue.dequeue();
     processOperation( op );
