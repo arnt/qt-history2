@@ -185,9 +185,10 @@ public:
 signals:
     void reply( const QHttpReplyHeader& repl, const QByteArray& data );
     void reply( const QHttpReplyHeader& repl, const QIODevice* device );
+    void replyChunk( const QHttpReplyHeader& repl, const QByteArray& data );
     void replyHeader( const QHttpReplyHeader& repl );
     void requestFailed();
-    void idle();
+    void finished();
     
 protected:
     void timerEvent( QTimerEvent * );
@@ -310,8 +311,8 @@ private:
 //    void close();
 
 protected slots:
-    void reply( const QHttpReplyHeader &, const QByteArray & dataA );
-    void idle();
+    void reply( const QHttpReplyHeader & rep, const QByteArray & dataA );
+    void requestFinished();
 //    void hostFound();
 //    void connected();
 //    void closed();
@@ -320,6 +321,7 @@ protected slots:
 private:
     QHttpPrivate *d;
     QHttpClient *client;
+    int bytesRead;
     enum Operation { NoOp, Get, Put };
     Operation operation;
 };

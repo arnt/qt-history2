@@ -687,15 +687,27 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
   \fn void QHttpClient::reply( const QHttpReplyHeader& repl, const QByteArray& data )
 
   This signal is emitted when the reply is available. Do not call request()
-  in response to this signal. Instead wait for idle().
+  in response to this signal. Instead wait for finished().
  
-  If this QHttpClient has a socket set, then this signal is not emitted.
+  If this QHttpClient has a device set, then this signal is not emitted.
 */
 /*!
   \fn void QHttpClient::reply( const QHttpReplyHeader& repl, const QIODevice* device )
 
   This signal is emitted if the reply is available and the data was written to
   a device.
+*/
+/*!
+  \fn void QHttpClient::replyChunk( const QHttpReplyHeader& repl, const QByteArray& data )
+
+  This signal is emitted if the client has received a piece of the reply data.
+  This is useful for slow connections: you don't have to wait until all data is
+  available; you can present the data that is already loaded to the user.
+
+  If you are only interested in the complete document, use one of the reply()
+  signals instead.
+
+  After everything is read and reported, the finished() signal is emitted.
 */
 /*!
   \fn void QHttpClient::replyHeader( const QHttpReplyHeader& repl )
@@ -711,7 +723,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
   This signal is emitted if a request failed.
 */
 /*!
-  \fn void QHttpClient::idle()
+  \fn void QHttpClient::finished()
 
   This signal is emitted when the QHttpClient is able to start a new request.
   The QHttpClient is either in the state Idle or Alive now.
@@ -748,7 +760,7 @@ QHttpClient::~QHttpClient()
 /*!
   Closes the connection. This will abort a running request.
 
-  Do not call request() in response to this signal. Instead wait for idle().
+  Do not call request() in response to this signal. Instead wait for finished().
 */
 void QHttpClient::close()
 {
@@ -768,7 +780,7 @@ void QHttpClient::close()
 	
 	// Did close succeed immediately ?
 	if ( m_socket->state() == QSocket::Idle ) {
-	    // Prepare to emit the idle() signal.
+	    // Prepare to emit the finished() signal.
 	    m_idleTimer = startTimer( 0 );
 	}
     }
@@ -802,7 +814,7 @@ bool QHttpClient::request( const QString& hostname, int port, const QHttpRequest
   header as the HTTP request header. \a data is a char array of size \a size;
   it is used as the content data of the POST request.
 
-  Call this function after the client was created or after the idle() signal
+  Call this function after the client was created or after the finished() signal
   was emitted.  On other occasions the function returns FALSE to indicate that
   it can not issue an request currently.
 */
@@ -838,7 +850,7 @@ bool QHttpClient::request( const QString& hostname, int port, const QHttpRequest
   header as the HTTP request header. The content data is read from \a device
   (the device must be opened for reading).
 
-  Call this function after the client was created or after the idle() signal
+  Call this function after the client was created or after the finished() signal
   was emitted.  On other occasions the function returns FALSE to indicate that
   it can not issue an request currently.
 */
@@ -968,6 +980,8 @@ void QHttpClient::bytesWritten( int )
 
 void QHttpClient::readyRead()
 {
+    uint bytesReadOld = m_bytesRead;
+
     if ( m_state != Reading ) {
 	m_state = Reading;
 	m_buffer = QByteArray();
@@ -1045,10 +1059,16 @@ void QHttpClient::readyRead()
 	    }
 	    m_bytesRead += n;
 	}
+	if ( m_bytesRead > bytesReadOld ) {
+	    QByteArray tmp( m_bytesRead - bytesReadOld );
+	    memcpy( tmp.data(), m_buffer.data()+bytesReadOld,
+		    m_bytesRead-bytesReadOld );
+	    emit replyChunk( m_reply, tmp );
+	}
 	
 	// Read everything ?
 	// We can only know that is the content length was given in advance.
-	// Otherwise we emit the signal in @ref #closed.
+	// Otherwise we emit the signal in closed().
 	if ( !m_reply.hasAutoContentLength() && m_bytesRead == m_reply.contentLength() ) {	
 	    if ( m_device )
 		emit reply( m_reply, m_device );
@@ -1110,10 +1130,10 @@ void QHttpClient::timerEvent( QTimerEvent *e )
 	m_idleTimer = 0;
 	
 	if ( m_state == Alive ) {
-	    emit idle();
+	    emit finished();
 	} else if ( m_state != Idle ) {
 	    m_state = Idle;
-	    emit idle();
+	    emit finished();
 	}
     } else {
 	QObject::timerEvent( e );
@@ -1566,8 +1586,8 @@ int QHttpConnection::keepAliveTimeout() const
  *
  ****************************************************/
 /*!
-  \class QHttp qhttp.h
-  \brief The QHttp class is a network protocol class for HTTP.
+  \class QHttp qhttp.h \brief The QHttp class is a network protocol class for
+  HTTP.
 
   \module network
 
@@ -1581,11 +1601,13 @@ QHttp::QHttp()
 {
     d = 0;
     operation = NoOp;
+    bytesRead = 0;
     client = new QHttpClient( this );
+//    connect( client, SIGNAL(replyChunk(const QHttpReplyHeader&, const QByteArray&)),
     connect( client, SIGNAL(reply(const QHttpReplyHeader&, const QByteArray&)),
 	    this, SLOT(reply(const QHttpReplyHeader&, const QByteArray&)) );
-    connect( client, SIGNAL(idle()),
-	    this, SLOT(idle()) );
+    connect( client, SIGNAL(finished()),
+	    this, SLOT(requestFinished()) );
 }
 
 /*!
@@ -1593,7 +1615,6 @@ QHttp::QHttp()
 */
 QHttp::~QHttp()
 {
-    client->close();
 }
 
 /*! \reimp
@@ -1626,7 +1647,7 @@ void QHttp::operationPut( QNetworkOperation *op )
 
     operation = Put;
     QHttpRequestHeader header( "POST", url()->encodedPathAndQuery() );
-//    header.setContentType( "text/plain" );
+    //header.setContentType( "text/plain" );
     client->request( url()->host(), url()->port() != -1 ? url()->port() : 80,
 	    header, op->rawArg(1) );
 }
@@ -1645,16 +1666,20 @@ bool QHttp::checkConnection( QNetworkOperation * )
 
 /*! \internal
 */
-void QHttp::reply( const QHttpReplyHeader &, const QByteArray & dataA )
+void QHttp::reply( const QHttpReplyHeader &rep, const QByteArray & dataA )
 {
     if ( operation == Get && !dataA.isEmpty() ) {
 	emit data( dataA, operationInProgress() );
+	bytesRead += dataA.size();
+	if ( !rep.hasAutoContentLength() ) {
+	    emit dataTransferProgress( bytesRead, rep.contentLength(), operationInProgress() );
+	}
     }
 }
 
 /*! \internal
 */
-void QHttp::idle()
+void QHttp::requestFinished()
 {
     emit finished( operationInProgress() );
     operation = NoOp;

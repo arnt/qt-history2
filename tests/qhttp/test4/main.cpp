@@ -42,7 +42,7 @@ int main( int argc, char** argv )
 
     client->request( url.host(), ( url.port() != -1 ? url.port() : 80 ), header, &in );
 
-    QObject::connect( client, SIGNAL( idle() ), qApp, SLOT( quit() ) );
+    QObject::connect( client, SIGNAL( finished() ), qApp, SLOT( quit() ) );
 
     app.exec();
 
