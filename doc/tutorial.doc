@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 2.18 1998/12/04 05:43:50 agulbra Exp $
+** $Id: tutorial.doc,v 2.19 1999/01/11 17:54:04 agulbra Exp $
 **
 ** Tutorial
 **
@@ -884,7 +884,8 @@ outside the scroll bar's legal range.
 
 \skip previous
 \line previous
-\until previous
+\until setValue
+\line previous
 \line }
 \line }
 
