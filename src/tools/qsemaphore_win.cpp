@@ -109,21 +109,24 @@ int QSemaphore::operator--(int)
 
 int QSemaphore::operator -=(int s)
 {
-    d->protect.enter();
-    int c = d->count;
     if ( !ReleaseSemaphore( d->handle, s, NULL ) ) {
 #ifdef QT_CHECK_RANGE
 	qSystemWarning( "Semaphore release failure" );
 #endif
-    } else {
-	d->dontBlock.wakeAll();
-	d->count += s;
-	if ( d->count > d->maxCount )
-	    d->count = d->maxCount;
-	c = d->count;
+	d->protect.enter();
+	int c = d->count; 
+	d->protect.leave();
+	return c;
     }
-    d->protect.leave();
 
+    d->protect.enter();
+    int c = d->count;
+    d->count += s;
+    if ( d->count > d->maxCount )
+	d->count = d->maxCount;
+    c = d->count;
+    d->dontBlock.wakeAll();
+    d->protect.leave();	
     return c;
 }
 
