@@ -1217,7 +1217,6 @@ void QSplitter::styleChange( QStyle& old )
 
 QTextStream& operator<<( QTextStream& ts, const QSplitter& splitter )
 {
-    splitter.processChildEvents();
     QSplitterLayoutStruct *s = splitter.data->list.first();
     bool first = TRUE;
     ts << "[";
