@@ -2799,7 +2799,7 @@ bool QTextDocument::find( QTextCursor& cursor, const QString &e, bool cs, bool w
 		break;
 	}
 	for ( ;; ) {
-	    if ( expr[ expr.length() - 1 ].isSpace() || expr[ expr.length() - 1 ].isPunct() )
+	    if ( expr.at( expr.length() - 1 ).isSpace() || expr.at( expr.length() - 1 ).isPunct() )
 		expr = expr.left( expr.length() - 1 );
 	    else
 		break;
