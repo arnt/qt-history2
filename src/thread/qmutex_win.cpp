@@ -19,16 +19,16 @@
 #include "qmutex_p.h"
 
 #if defined(Q_CC_BOR)
-static bool compare_and_set(long * volatile ptr, long expected, long newval)
+static bool compare_and_set(long * volatile pointer, long expected, long newval)
 #else
-inline bool compare_and_set(long * volatile ptr, long expected, long newval)
+inline bool compare_and_set(long * volatile pointer, long expected, long newval)
 #endif
 {
     __asm {
-	mov EBX,ptr
+	mov EBX,pointer
 	mov EAX,expected
 	mov EDX,newval
-	lock cmpxchg dword ECX,ptr[EBX]
+	lock cmpxchg dword ptr[EBX],ECX
 	sete newval
     }
     return (newval != 0);

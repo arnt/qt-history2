@@ -41,25 +41,25 @@ inline void *q_cas_ptr(void *volatile *ptr, void *expected, void *newval)
 
 #elif defined(Q_OS_WIN) && (defined(Q_CC_MSVC) || defined(Q_CC_INTEL))
 
-inline int q_cas_32(int *volatile ptr, int expected, int newval)
+inline int q_cas_32(int *volatile pointer, int expected, int newval)
 {
     __asm {
-	mov EBX,ptr
+	mov EBX,pointer
 	mov EAX,expected
 	mov ECX,newval
-        lock cmpxchg dword ECX,ptr[EBX]
+        lock cmpxchg dword ptr[EBX],ECX
         mov newval,EAX
     }
     return newval;
 }
 
-inline void *q_cas_ptr(void *volatile *ptr, void *expected, void *newval)
+inline void *q_cas_ptr(void *volatile *pointer, void *expected, void *newval)
 {
     __asm {
-	mov EBX,ptr
+	mov EBX,pointer
 	mov EAX,expected
 	mov ECX,newval
-        lock cmpxchg dword ECX,ptr[EBX]
+        lock cmpxchg dword ptr[EBX],ECX
 	mov newval,EAX
     }
     return newval;
