@@ -285,7 +285,10 @@ bool QBuffer::at( Offset pos )
 Q_LONG QBuffer::readBlock( char *p, Q_ULONG len )
 {
 #if defined(QT_CHECK_STATE)
-    Q_CHECK_PTR( p );
+    if ( !p ) {
+	qWarning( "QBuffer::readBlock: Null pointer error" );
+	return -1;
+    }
     if ( !isOpen() ) {                          // buffer not open
         qWarning( "QBuffer::readBlock: Buffer not open" );
         return -1;
