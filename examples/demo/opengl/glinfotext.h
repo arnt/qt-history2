@@ -16,7 +16,6 @@ public:
 	l->addWidget(view);
 	GLInfo info;
 	view->setText(info.info());
-	//	view->append(info.configs());
     }
     
 private:
