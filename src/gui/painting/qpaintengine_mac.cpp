@@ -489,7 +489,7 @@ QQuickDrawPaintEngine::drawPolygon(const QPointF *points, int pointCount, Polygo
         }
 
         // We draw 5000 chunks at a time because of limitations in QD
-        for(int chunk = 0; chunk < pointCount;) {
+        for(int chunk = 0; chunk < fixedPoints.count();) {
             //make a region of it
             PolyHandle poly = OpenPoly();
             MoveTo(fixedPoints[chunk].x()+d->offx+penPoint.x(), fixedPoints[chunk].y()+d->offy+penPoint.y());
@@ -510,7 +510,7 @@ QQuickDrawPaintEngine::drawPolygon(const QPointF *points, int pointCount, Polygo
 
         PolyHandle polyHandle = OpenPoly();
         MoveTo(fixedPoints[0].x()+d->offx, fixedPoints[0].y()+d->offy);
-        for(int x = 1; x < pointCount; x++)
+        for(int x = 1; x < fixedPoints.size(); x++)
             LineTo(fixedPoints[x].x()+d->offx, fixedPoints[x].y()+d->offy);
         LineTo(fixedPoints[0].x()+d->offx, fixedPoints[0].y()+d->offy);
         ClosePoly();
