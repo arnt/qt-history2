@@ -329,6 +329,8 @@ private:
     void showSourceLine( QObject *o, int line, LineMode lm );
     QWidget *findRealForm( QWidget *w );
 
+    QString whatsThisFrom( const QString &key );
+
 private slots:
     void doSlotsChanged();
     bool openProjectSettings( Project *pro );
@@ -425,6 +427,7 @@ private:
     QString lastOpenFilter;
     QGuardedPtr<QWidget> previewedForm;
     QPopupMenu *projectMenu;
+    QString menuHelpFile;
 
 public:
     QString lastSaveFilter;

@@ -3336,3 +3336,24 @@ SourceTemplateInterface* MainWindow::sourceTemplateInterface( const QString& tem
     return iface;
 }
 
+QString MainWindow::whatsThisFrom( const QString &key )
+{
+    if ( menuHelpFile.isEmpty() ) {
+	QString fn = getenv( "QTDIR" );
+	fn += "/doc/html/designer-manual-11.html";
+	QFile f( fn );
+	if ( f.open( IO_ReadOnly ) ) {
+	    QTextStream ts( &f );
+	    menuHelpFile = ts.read();
+	}
+    }
+
+    int i = menuHelpFile.find( key );
+    if ( i == -1 )
+	return QString::null;
+    int start = i;
+    int end = i;
+    start = menuHelpFile.findRev( "<li>", i ) + 4;
+    end = menuHelpFile.find( '\n', i ) - 1;
+    return menuHelpFile.mid( start, end - start + 1 );
+}
