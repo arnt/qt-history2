@@ -1418,7 +1418,7 @@ static int listHeight(QListBox *l, int sl)
 
 void QComboBox::popup()
 {
-    if (!count())
+    if (!count() || d->poppedUp)
         return;
 
     if(!d->usingListBox() || style().styleHint(QStyle::SH_ComboBox_Popup, this)) {
