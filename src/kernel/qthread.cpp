@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qthread.cpp#2 $
 **
 ** Implementation of QThread class
 **
@@ -86,7 +86,7 @@ int QThread::priority() const
     return GetThreadPriority( id() );
 #elif defined(QTHREAD_POSIX)
 #else
-    return 0
+    return 0;
 #endif
 }
 
