@@ -1014,7 +1014,14 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
     case VT_SAFEARRAY:
 	str = guessTypes( tdesc.lpadesc->tdescElem, info, enumlist, function );
 	if ( !str.isEmpty() )
-	    str = str + "[" + QString::number( tdesc.lpadesc->cDims ) + "]";
+	    str += "[" + QString::number( tdesc.lpadesc->cDims ) + "]";
+	break;
+    case VT_CARRAY:
+	str = guessTypes( tdesc.lpadesc->tdescElem, info, enumlist, function );
+	if ( !str.isEmpty() ) {
+	    for ( int index = 0; index < tdesc.lpadesc->cDims; ++index )
+		str += "[" + QString::number( tdesc.lpadesc->rgbounds[index].cElements ) + "]";
+	}
 	break;
     case VT_USERDEFINED:
 	str = usertypeToQString( tdesc, info, enumlist, function );
