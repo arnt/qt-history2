@@ -30,6 +30,10 @@
 #include <private/qpaintengine_win_p.h>
 #include "qcleanuphandler.h"
 
+#ifdef QT_RASTER_PAINTENGINE
+#include "qpaintengine_raster_p.h"
+#endif
+
 typedef BOOL    (WINAPI *PtrSetLayeredWindowAttributes)(HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags);
 static PtrSetLayeredWindowAttributes ptrSetLayeredWindowAttributes = 0;
 #define Q_WS_EX_LAYERED           0x00080000 // copied from WS_EX_LAYERED in winuser.h
@@ -893,6 +897,11 @@ void QWidget::repaint(const QRegion& rgn)
                           && br.width()  <= QWinDoubleBuffer::MaxWidth
                           && br.height() <= QWinDoubleBuffer::MaxHeight
                           && !QPainter::redirected(this));
+
+#ifdef QT_RASTER_PAINTENGINE
+    double_buffer = false;
+#endif
+
     bool tmphdc = !d->hd;
     if (tmphdc)
         d->hd = GetDC(winId());
@@ -939,6 +948,12 @@ void QWidget::repaint(const QRegion& rgn)
                                 br.x() + offset.x(), br.y() + offset.y(),
                                 this);
         } else {
+#ifdef QT_RASTER_PAINTENGINE
+            QPainter p(this);
+            ((QRasterPaintEngine*)p.paintEngine())->setFlushOnEnd(false);
+            QSize bgsize = data->wrect.isValid() ? data->wrect.size() : data->crect.size();
+            p.fillRect(0, 0, bgsize.width(), bgsize.height(), palette().brush(w->d->bg_role));
+#else
             QRegion mappedRegion(rgn);
             mappedRegion.translate(-data->wrect.topLeft());
             SelectClipRgn((HDC)d->hd, mappedRegion.handle());
@@ -947,6 +962,7 @@ void QWidget::repaint(const QRegion& rgn)
             qt_erase_background((HDC)d->hd, 0, 0, bgsize.width(), bgsize.height(),
                                 palette().brush(w->d->bg_role), offset.x(), offset.y(),
                                 this);
+#endif
         }
 
         if (parents.size()) {
@@ -1828,20 +1844,40 @@ qreal QWidget::windowOpacity() const
     return isTopLevel() ? (d->topData()->opacity / 255.0) : 0.0;
 }
 
-static QSingleCleanupHandler<QWin32PaintEngine> qt_paintengine_cleanup_handler;
-static QWin32PaintEngine *qt_widget_paintengine = 0;
+#ifdef QT_RASTER_PAINTENGINE
+static QSingleCleanupHandler<QRasterPaintEngine> qt_paintengine_cleanup_handler;
+static QRasterPaintEngine *qt_widget_paintengine = 0;
 QPaintEngine *QWidget::paintEngine() const
 {
     if (!qt_widget_paintengine) {
-        qt_widget_paintengine = new QWin32PaintEngine();
+        qt_widget_paintengine = new QRasterPaintEngine();
         qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
     }
 
     if (qt_widget_paintengine->isActive()) {
-        QPaintEngine *extraEngine = new QWin32PaintEngine();
+        QPaintEngine *extraEngine = new QRasterPaintEngine();
         extraEngine->setAutoDestruct(true);
         return extraEngine;
     }
 
     return qt_widget_paintengine;
 }
+#else
+static QSingleCleanupHandler<QWin32PaintEngine> qt_paintengine_cleanup_handler;
+static QWin32PaintEngine *qt_widget_paintengine = 0;
+ QPaintEngine *QWidget::paintEngine() const
+ {
+     if (!qt_widget_paintengine) {
+         qt_widget_paintengine = new QWin32PaintEngine();
+         qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
+     }
+
+     if (qt_widget_paintengine->isActive()) {
+        QPaintEngine *extraEngine = new QWin32PaintEngine();
+         extraEngine->setAutoDestruct(true);
+         return extraEngine;
+     }
+
+     return qt_widget_paintengine;
+ }
+#endif

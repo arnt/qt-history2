@@ -96,6 +96,7 @@ static HBRUSH stock_blackBrush;
 static HBRUSH stock_whiteBrush;
 static HFONT  stock_sysfont;
 
+#ifndef QT_RASTER_PAINTENGINE
 QRegion* paintEventClipRegion = 0;
 QPaintDevice* paintEventDevice = 0;
 
@@ -114,6 +115,7 @@ void qt_clear_paintevent_clipping()
     paintEventClipRegion = 0;
     paintEventDevice = 0;
 }
+#endif
 
 /********************************************************************************
  * GDI functions we need to dynamically resolve due for 9x based.
@@ -237,9 +239,11 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
         Q_ASSERT(d->hdc);
     }
 
+#ifndef QT_RASTER_PAINTENGINE
     QRegion *region = paintEventClipRegion;
     if (region && pdev == paintEventDevice)
         SelectClipRgn(d->hdc, region->handle());
+#endif
 
     HPALETTE hpal = QColormap::hPal();
     if (hpal) {
