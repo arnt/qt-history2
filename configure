@@ -809,7 +809,7 @@ while [ "$#" -gt 0 ]; do
 	# if Qt style options were used, $VAL can be "no", "qt", or "plugin"
 	# if autoconf style options were used, $VAL can be "yes" or "no"
 	[ "$VAL" = "yes" ] && VAL=qt
-	# now $VAL shopuld be "no", "qt", or "plugin"... double-check
+	# now $VAL should be "no", "qt", or "plugin"... double-check
 	if [ "$VAL" != "no" ] && [ "$VAL" != "qt" ] && [ "$VAL" != "plugin" ]; then
 	    UNKNOWN_OPT=yes
 	fi
