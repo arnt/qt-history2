@@ -29,7 +29,6 @@ class QPaintEnginePrivate;
 class QTextItem {
 public:
     unsigned short right_to_left : 1;
-    unsigned short hasPositioning : 1;
     unsigned short underline : 1;
     unsigned short overline : 1;
     unsigned short strikeout : 1;

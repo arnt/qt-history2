@@ -684,7 +684,6 @@ void QTextEngine::shapeText( int item ) const
 
     //     qDebug("    -> item: script=%d num_glyphs=%d", shaper_item.script, shaper_item.num_glyphs);
 	si.num_glyphs = shaper_item.num_glyphs;
-	si.hasPositioning = true; // ##### get rid of me
 
 	used += si.num_glyphs;
 
@@ -694,16 +693,12 @@ void QTextEngine::shapeText( int item ) const
 	if ( this->font(si).d->kerning && font->type() == QFontEngine::Xft) {
 	    FT_Face face = static_cast<QFontEngineXft *>(font)->freetypeFace();
 	    if (FT_HAS_KERNING(face)) {
-		FT_Vector kerning;
-		bool kern = false;
 		for (int i = 0; i < si.num_glyphs-1; ++i) {
+		    FT_Vector kerning;
 		    FT_Get_Kerning(face, g[i].glyph, g[i+1].glyph, FT_KERNING_DEFAULT, &kerning);
 		    g[i].advance.x += Q26Dot6(kerning.x, F26Dot6);
 		    g[i].advance.y += Q26Dot6(kerning.y, F26Dot6);
-		    kern |= (kerning.x != 0);
-		    kern |= (kerning.y != 0);
 		}
-		si.hasPositioning |= kern;
 	    }
 	}
 #endif

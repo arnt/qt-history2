@@ -14,19 +14,19 @@
 void QTextEngine::shapeText( int item ) const
 {    assert( item < items.size() );
     QScriptItem &si = items[item];
-    
+
     if (si.num_glyphs)
         return;
-    
+
     si.glyph_data_offset = used;
-    
+
     QFontEngine *font = fontEngine(si);
-    
+
     if ( !widthOnly ) {
         si.ascent = font->ascent();
         si.descent = font->descent();
     }
-    
+
     QShaperItem shaper_item;
     shaper_item.script = si.analysis.script;
     shaper_item.string = &string;
@@ -36,7 +36,7 @@ void QTextEngine::shapeText( int item ) const
     shaper_item.num_glyphs = qMax(num_glyphs - used, shaper_item.length);
     // ### DesignMetrics
     shaper_item.flags = si.analysis.bidiLevel % 2 ? RightToLeft : 0;
-    
+
     //     qDebug("shaping");
     while (1) {
         //      qDebug("    . num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
@@ -48,19 +48,18 @@ void QTextEngine::shapeText( int item ) const
         if (scriptEngines[shaper_item.script].shape(&shaper_item))
             break;
     }
-    
+
     //     qDebug("    -> item: script=%d num_glyphs=%d", shaper_item.script, shaper_item.num_glyphs);
     si.num_glyphs = shaper_item.num_glyphs;
-    si.hasPositioning = true; // ##### get rid of me
-    
+
     used += si.num_glyphs;
-    
+
     QGlyphLayout *g = shaper_item.glyphs;
 
     si.width = 0;
     QGlyphLayout *end = g + si.num_glyphs;
     while ( g < end )
         si.width += (g++)->advance.x;
-    
+
     return;
 }

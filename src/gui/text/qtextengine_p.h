@@ -244,6 +244,14 @@ struct QGlyphLayout
     Attributes attributes;
     Q26Dot6Offset advance;
     Q26Dot6Offset offset;
+
+    enum JustificationType {
+	JustifyNone,
+	JustifySpace,
+	JustifyKashida
+    };
+    uint justificationType :2;
+    uint space_or_nKashidas : 30;
 };
 Q_DECLARE_TYPEINFO(QGlyphLayout, Q_PRIMITIVE_TYPE);
 
@@ -261,7 +269,7 @@ Q_DECLARE_TYPEINFO(QCharAttributes, Q_PRIMITIVE_TYPE);
 struct QScriptItem
 {
     inline QScriptItem() : position( 0 ), isSpace( FALSE ), isTab( FALSE ),
-			   isObject( FALSE ), hasPositioning( FALSE ),
+			   isObject( FALSE ),
 			   num_glyphs( 0 ), descent( -1 ), ascent( -1 ), width( -1 ),
 			   glyph_data_offset( 0 ),
 			   format(-1) { }
@@ -271,7 +279,6 @@ struct QScriptItem
     unsigned short isSpace  : 1;
     unsigned short isTab    : 1;
     unsigned short isObject : 1;
-    unsigned short hasPositioning : 1;
     int num_glyphs;
     Q26Dot6 descent;
     Q26Dot6 ascent;
@@ -301,7 +308,6 @@ struct QScriptLine
 Q_DECLARE_TYPEINFO(QScriptLine, Q_PRIMITIVE_TYPE);
 
 typedef QVector<QScriptLine> QScriptLineArray;
-
 
 class QFontPrivate;
 class QTextFormatCollection;

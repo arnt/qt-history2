@@ -618,7 +618,6 @@ void QTextLine::draw( QPainter *p, int xpos, int ypos, int selection ) const
 
 	QTextItem gf;
 	gf.right_to_left = (si.analysis.bidiLevel % 2);
-	gf.hasPositioning = si.hasPositioning;
 	gf.ascent = si.ascent.toInt();
 	gf.descent = si.descent.toInt();
 	gf.num_glyphs = ge - gs + 1;

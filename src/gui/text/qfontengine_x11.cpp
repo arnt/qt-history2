@@ -382,7 +382,7 @@ void QFontEngineXLFD::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem
     glyph_metrics_t ci = boundingBox( glyphs, si.num_glyphs );
     p->drawRect( x + ci.x, y + ci.y, ci.width, ci.height );
     p->drawRect( x + ci.x, y + 100 + ci.y, ci.width, ci.height );
-     qDebug("bounding rect=%d %d (%d/%d)", ci.x, ci.y, ci.width, ci.height );
+    qDebug("bounding rect=%d %d (%d/%d)", ci.x, ci.y, ci.width, ci.height );
     p->restore();
     int xp = x;
     int yp = y;
@@ -408,19 +408,13 @@ void QFontEngineXLFD::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem
 	    XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
 	}
     } else {
-	if (si.hasPositioning) {
-	    int i = 0;
-	    while( i < si.num_glyphs ) {
-		int xp = (x+glyphs[i].offset.x).toInt();
-		int yp = (y+glyphs[i].offset.y).toInt();
-		XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
-		x += glyphs[i].advance.x;
-		i++;
-	    }
-	} else {
-	    // we can take a shortcut
-	    XDrawString16(dpy, hd, gc, x.toInt(), y.toInt(), chars.data(), si.num_glyphs );
-	    x += si.width;
+	int i = 0;
+	while( i < si.num_glyphs ) {
+	    int xp = (x+glyphs[i].offset.x).toInt();
+	    int yp = (y+glyphs[i].offset.y).toInt();
+	    XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
+	    x += glyphs[i].advance.x;
+	    i++;
 	}
     }
 
