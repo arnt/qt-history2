@@ -26,6 +26,9 @@ public slots:
     void writeMuch();
     void wroteStdin();
 
+    void readyReadStdout();
+    void readyReadStderr();
+
 signals:
 
 private:

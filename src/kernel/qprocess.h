@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id:$
+** $Id: //depot/qt/main/src/kernel/qprocess.h#16 $
 **
 ** Implementation of QProcess class
 **
@@ -75,21 +75,22 @@ public:
     bool normalExit();
     int exitStatus();
 
-signals:
-    // output
-    void dataStdout( const QString& buf );
-    void dataStdout( const QByteArray& buf );
-    void dataStderr( const QString& buf );
-    void dataStderr( const QByteArray& buf );
+    // reading
+    void readStdout( QString& buf );
+    void readStdout( QByteArray& buf );
+    void readStderr( QString& buf );
+    void readStderr( QByteArray& buf );
 
-    // notification stuff
+signals:
+    void readyReadStdout();
+    void readyReadStderr();
     void processExited();
     void wroteStdin();
 
 public slots:
     // input
-    void dataStdin( const QByteArray& buf );
-    void dataStdin( const QString& buf );
+    void writeToStdin( const QByteArray& buf );
+    void writeToStdin( const QString& buf );
     void closeStdin();
 
 protected:
@@ -106,6 +107,8 @@ private:
     QDir        workingDir;
     QStringList arguments;
 
+    QByteArray bufStdout;
+    QByteArray bufStderr;
     int  exitStat;	// exit status
     bool exitNormal;	// normal exit?
     bool ioRedirection;
@@ -115,7 +118,7 @@ private:
 private:
     void init();
 #if defined(Q_WS_WIN)
-    QByteArray readStddev( HANDLE dev, ulong bytes = 0 );
+    uint readStddev( HANDLE dev, char *buf, uint bytes );
 #endif
 
 private slots:

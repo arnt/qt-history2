@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id:$
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#15 $
 **
 ** Implementation of QProcess class
 **
@@ -61,7 +61,7 @@
   on stdout and stderr. You get notified when the program exits.
 
   There are two different ways to run a process: If you use start(), you have
-  full control over the process; you can write to the stdin via the dataStdin()
+  full control over the process; you can write to the stdin via the writeToStdin()
   slots whenever you want, and you can close stdin via the closeStdin() slot.
 
   If you know the data that should be written to the stdin of the process
@@ -71,7 +71,7 @@
   written.
 
   If you use a launch() function to run the process, you should not use the
-  slots dataStdin() and closeStdin().
+  slots writeToStdin() and closeStdin().
 */
 
 /*!
@@ -174,12 +174,49 @@ int QProcess::exitStatus()
 
 
 /*!
+  fnord
+*/
+void QProcess::readStdout( QByteArray& buf )
+{
+    buf = bufStdout;
+    bufStdout.resize( 0 );
+}
+
+/*!
+  fnord
+*/
+void QProcess::readStdout( QString& buf )
+{
+    buf = QString::fromLocal8Bit( bufStdout, bufStdout.size() );
+    bufStdout.resize( 0 );
+}
+
+/*!
+  fnord
+*/
+void QProcess::readStderr( QByteArray& buf )
+{
+    buf = bufStderr;
+    bufStderr.resize( 0 );
+}
+
+/*!
+  fnord
+*/
+void QProcess::readStderr( QString& buf )
+{
+    buf = QString::fromLocal8Bit( bufStderr, bufStderr.size() );
+    bufStderr.resize( 0 );
+}
+
+
+/*!
   Runs the process and writes the data \a buf to stdin of the process. If all
   data is written to stdin, it closes stdin.
 
   Returns TRUE on success, otherwise FALSE.
 
-  Notice that you should not use the slots dataStdin() and closeStdin() on
+  Notice that you should not use the slots writeToStdin() and closeStdin() on
   processes started with launch(). If you need these slots, use start()
   instead.
 
@@ -194,7 +231,7 @@ bool QProcess::launch( const QString& buf )
     if ( start() ) {
 	connect( this, SIGNAL(wroteStdin()),
 		this, SLOT(closeStdinLaunch()) );
-	dataStdin( buf );
+	writeToStdin( buf );
 	return TRUE;
     } else {
 	return FALSE;
@@ -208,7 +245,7 @@ bool QProcess::launch( const QByteArray& buf )
     if ( start() ) {
 	connect( this, SIGNAL(wroteStdin()),
 		this, SLOT(closeStdinLaunch()) );
-	dataStdin( buf );
+	writeToStdin( buf );
 	return TRUE;
     } else {
 	return FALSE;
@@ -227,24 +264,20 @@ void QProcess::closeStdinLaunch()
 
 
 /*!
-  \fn void QProcess::dataStdout( const QByteArray& buf )
+  \fn void QProcess::readyReadStdout()
 
-  When the process wrote data to stdout, this signal is emitted.
+  When the process wrote data to stdout, this signal is emitted. You can read
+  the data with readStdout().
+
+  \sa readStdout() readyReadStderr()
 */
 /*!
-  \fn void QProcess::dataStdout( const QString& buf )
+  \fn void QProcess::readyReadStderr()
 
-  When the process wrote data to stdout, this signal is emitted.
-*/
-/*!
-  \fn void QProcess::dataStderr( const QByteArray& buf )
+  When the process wrote data to stderr, this signal is emitted. You can read
+  the data with readStderr().
 
-  When the process wrote data to stderr, this signal is emitted.
-*/
-/*!
-  \fn void QProcess::dataStderr( const QString& buf )
-
-  When the process wrote data to stderr, this signal is emitted.
+  \sa readStderr() readyReadStdout()
 */
 /*!
   \fn void QProcess::processExited()
@@ -254,7 +287,7 @@ void QProcess::closeStdinLaunch()
 /*!
   \fn void QProcess::wroteStdin()
 
-  This signal is emitted if the data send to stdin (via dataStdin()) was
+  This signal is emitted if the data send to stdin (via writeToStdin()) was
   actually read by the process.
 */
 
@@ -264,11 +297,11 @@ void QProcess::closeStdinLaunch()
   what is written to stdin is the QString::latin1(). The process may or may not
   read this data. If the data was read, the signal wroteStdin() is emitted.
 */
-void QProcess::dataStdin( const QString& buf )
+void QProcess::writeToStdin( const QString& buf )
 {
     QByteArray bbuf;
     bbuf.duplicate( buf.latin1(), buf.length() );
-    dataStdin( bbuf );
+    writeToStdin( bbuf );
 }
 
 
@@ -288,10 +321,8 @@ void QProcess::connectNotify( const char * signal )
     qDebug( "QProcess::connectNotify(): signal %s has been connected", signal );
 #endif
     if ( !ioRedirection )
-	if ( qstrcmp( signal, SIGNAL(dataStdout(const QString&)) )==0 ||
-		qstrcmp( signal, SIGNAL(dataStdout(const QByteArray&)) )==0 ||
-		qstrcmp( signal, SIGNAL(dataStderr(const QString&)) )==0 ||
-		qstrcmp( signal, SIGNAL(dataStderr(const QByteArray& buf)) )==0
+	if ( qstrcmp( signal, SIGNAL(readyReadStdout()) )==0 ||
+		qstrcmp( signal, SIGNAL(readyReadStderr()) )==0
 	   ) {
 #if defined(QPROCESS_DEBUG)
 	    qDebug( "QProcess::connectNotify(): set ioRedirection to TRUE" );
@@ -320,10 +351,8 @@ void QProcess::connectNotify( const char * signal )
 void QProcess::disconnectNotify( const char * )
 {
     if ( ioRedirection &&
-	    receivers( SIGNAL(dataStdout(const QString&)) ) ==0 &&
-	    receivers( SIGNAL(dataStdout(const QByteArray&)) ) ==0 &&
-	    receivers( SIGNAL(dataStderr(const QString&)) ) ==0 &&
-	    receivers( SIGNAL(dataStderr(const QByteArray& buf)) ) ==0
+	    receivers( SIGNAL(readyReadStdout()) ) ==0 &&
+	    receivers( SIGNAL(readyReadStderr()) ) ==0
 	    ) {
 #if defined(QPROCESS_DEBUG)
 	qDebug( "QProcess::disconnectNotify(): set ioRedirection to FALSE" );

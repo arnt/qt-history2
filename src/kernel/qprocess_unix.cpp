@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id:$
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#22 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -258,7 +258,7 @@ QProcess::~QProcess()
 
 /*!
   Runs the process. You can write data to the stdin of the process with
-  dataStdin(), you can close stdin with closeStdin() and you can terminate the
+  writeToStdin(), you can close stdin with closeStdin() and you can terminate the
   process hangUp() resp. kill().
 
   Returns TRUE if the process could be started, otherwise FALSE.
@@ -437,10 +437,10 @@ bool QProcess::isRunning()
   Writes data to the stdin of the process. The process may or may not read this
   data. If the data was read, the signal wroteStdin() is emitted.
 */
-void QProcess::dataStdin( const QByteArray& buf )
+void QProcess::writeToStdin( const QByteArray& buf )
 {
 #if defined(QPROCESS_DEBUG)
-//    qDebug( "QProcess::dataStdin(): write to stdin (%d)", d->socketStdin[1] );
+//    qDebug( "QProcess::writeToStdin(): write to stdin (%d)", d->socketStdin[1] );
 #endif
     d->stdinBuf.enqueue( new QByteArray(buf) );
     if ( d->notifierStdin != 0 )
@@ -483,11 +483,24 @@ void QProcess::socketRead( int fd )
 #endif
     if ( fd == 0 )
 	return;
-    const size_t bufsize = 4096;
-    char *buffer = new char[bufsize];
-    int n = ::read( fd, buffer, bufsize-1 );
+    const int bufsize = 4096;
+    QByteArray buffer;
+    uint oldSize;
+    int n;
+    if ( fd == d->socketStdout[0] ) {
+	buffer = bufStdout;
+    } else {
+	buffer = bufStderr;
+    }
 
-    if ( n == 0 ) {
+    // read data
+    oldSize = buffer.size();
+    buffer.resize( oldSize + 4096 );
+    n = ::read( fd, buffer.data()+oldSize, bufsize );
+    if ( n > 0 )
+	buffer.resize( oldSize + n );
+    // eof or error?
+    if ( n == 0 || n == -1 ) {
 	if ( fd == d->socketStdout[0] ) {
 #if defined(QPROCESS_DEBUG)
 	    qDebug( "QProcess::socketRead(): stdout (%d) closed", fd );
@@ -510,27 +523,27 @@ void QProcess::socketRead( int fd )
 	    return;
 	}
     }
-
-    buffer[n] = 0;
-    QString str( QString::fromLocal8Bit( buffer ) );
-    QByteArray buf;
-    buf.assign( buffer, n );
-
-    if ( fd == d->socketStdout[0] ) {
-#if defined(QPROCESS_DEBUG)
-	qDebug( "QProcess::socketRead(): read from stdout (%d)", fd );
-#endif
-	emit dataStdout( buf );
-    } else {
-#if defined(QPROCESS_DEBUG)
-	qDebug( "QProcess::socketRead(): read from stderr (%d)", fd );
-#endif
-	emit dataStderr( buf );
+    // read all data that is available
+    while ( n == bufsize ) {
+	oldSize = buffer.size();
+	buffer.resize( oldSize + 4096 );
+	n = ::read( fd, buffer.data()+oldSize, bufsize );
+	if ( n > 0 )
+	    buffer.resize( oldSize + n );
     }
+
     if ( fd == d->socketStdout[0] ) {
-	emit dataStdout( str );
+#if defined(QPROCESS_DEBUG)
+	qDebug( "QProcess::socketRead(): %d bytes read from stdout (%d)",
+		buffer.size()-oldSize, fd );
+#endif
+	emit readyReadStdout();
     } else {
-	emit dataStderr( str );
+#if defined(QPROCESS_DEBUG)
+	qDebug( "QProcess::socketRead(): %d bytes read from stderr (%d)",
+		buffer.size()-oldSize, fd );
+#endif
+	emit readyReadStderr();
     }
 }
 

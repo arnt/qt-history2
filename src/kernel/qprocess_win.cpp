@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id:$
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#17 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -248,7 +248,7 @@ bool QProcess::isRunning()
     }
 }
 
-void QProcess::dataStdin( const QByteArray& buf )
+void QProcess::writeToStdin( const QByteArray& buf )
 {
     d->stdinBuf.enqueue( new QByteArray(buf) );
     socketWrite( 0 );
@@ -280,23 +280,26 @@ void QProcess::socketRead( int fd )
 	return; // ### is it worth to dig for the reason of the error?
     }
     if ( i > 0 ) {
-	QByteArray buffer = readStddev( dev, i );
-	int sz = buffer.size();
+	QByteArray buffer;
+	uint oldSize;
+	if ( fd == d->socketStdout[0] ) {
+	    buffer = bufStdout;
+	} else {
+	    buffer = bufStderr;
+	}
+
+	oldSize = buffer.size();
+	buffer.resize( oldSize + i );
+	uint sz = readStddev( dev, buffer.data()+oldSize, i );
+	if ( sz != i )
+	    buffer.resize( oldSize + i );
+
 	if ( sz == 0 )
 	    return;
-	if ( fd == 1 ) {
-	    emit dataStdout( buffer );
-	} else {
-	    emit dataStderr( buffer );
-	}
-	buffer.resize( sz+1 );
-	buffer[ sz ] = 0;
-	QString str( buffer );
-	if ( fd == 1 ) {
-	    emit dataStdout( str );
-	} else {
-	    emit dataStderr( str );
-	}
+	if ( fd == 1 )
+	    emit readyReadStdout();
+	else
+	    emit readyReadStderr();
     }
 }
 
@@ -355,29 +358,16 @@ void QProcess::timeout()
 }
 
 /*
-  non-blocking read on the pipe
+  read on the pipe
 */
-QByteArray QProcess::readStddev( HANDLE dev, ulong bytes )
+uint QProcess::readStddev( HANDLE dev, char *buf, uint bytes )
 {
-    unsigned long i, r;
-    if ( bytes == 0 ) {
-	// get the number of bytes that are waiting to be read
-	char dummy;
-	if ( !PeekNamedPipe( dev, &dummy, 1, &r, &i, 0 ) ) {
-	    i = 0;
-	}
-    } else {
-	i = bytes;
+    if ( bytes > 0 ) {
+	ulong r;
+	ReadFile( dev, buf, bytes, &r, 0 );
+	return r;
     }
-    // and read it!
-    QByteArray readBuffer( i );
-    if ( i > 0 ) {
-	ReadFile( dev, readBuffer.data(), i, &r, 0 );
-	if ( r != i ) {
-	    readBuffer.resize( r );
-	}
-    }
-    return readBuffer;
+    return 0;
 }
 
 /*

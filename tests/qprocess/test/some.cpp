@@ -75,9 +75,9 @@ Some::Some( QObject *p, bool start, bool cStdout, bool cStderr, bool cExit, int 
     QObject::connect( showInfoButton, SIGNAL(clicked()),
 	    this, SLOT(showInfo()) );
 
-    // slot dataStdin( const QString& )
+    // slot writeToStdin( const QString& )
     QObject::connect( in, SIGNAL(textChanged(const QString&)),
-	    proc, SLOT(dataStdin(const QString&)) );
+	    proc, SLOT(writeToStdin(const QString&)) );
     // slot write much
     QObject::connect( writeMuch, SIGNAL(clicked()),
 	    this, SLOT(writeMuch()) );
@@ -85,13 +85,13 @@ Some::Some( QObject *p, bool start, bool cStdout, bool cStderr, bool cExit, int 
     QObject::connect( close, SIGNAL(clicked()),
 	    proc, SLOT(closeStdin()) );
 
-    // signal dataStdout( const QString& )
+    // signal readyReadStdout()
     QCheckBox *cb1 = new QCheckBox( "Stdout", &main );
     QObject::connect( cb1, SIGNAL(toggled(bool)),
 	    this, SLOT(connectStdout(bool)) );
     cb1->setChecked( cStdout );
     connectStdout( cStdout );
-    // signal dataStderr( const QString& )
+    // signal readyReadStderr()
     QCheckBox *cb2 = new QCheckBox( "Stderr", &main );
     QObject::connect( cb2, SIGNAL(toggled(bool)),
 	    this, SLOT(connectStderr(bool)) );
@@ -126,7 +126,7 @@ void Some::writeMuch()
 {
     QString big;
     big.fill( 'c', 16*4096 );
-    proc->dataStdin( big );
+    proc->writeToStdin( big );
 }
 
 void Some::kill()
@@ -179,22 +179,46 @@ void Some::wroteStdin()
 
 void Some::connectStdout( bool enable )
 {
-    if ( enable )
-	QObject::connect( proc, SIGNAL(dataStdout(const QString&)),
-		out, SLOT(setText(const QString&)) );
-    else
-	QObject::disconnect( proc, SIGNAL(dataStdout(const QString&)),
-		out, SLOT(setText(const QString&)) );
+    static bool connected = FALSE;
+    if ( enable ) {
+	if ( !connected )
+	    QObject::connect( proc, SIGNAL(readyReadStdout()),
+		    this, SLOT(readyReadStdout()) );
+	connected = TRUE;
+    } else {
+	QObject::disconnect( proc, SIGNAL(readyReadStdout()),
+		this, SLOT(readyReadStdout()) );
+	connected = FALSE;
+    }
+}
+
+void Some::readyReadStdout()
+{
+    QString s;
+    proc->readStdout( s );
+    out->setText( s );
 }
 
 void Some::connectStderr( bool enable )
 {
-    if ( enable )
-	QObject::connect( proc, SIGNAL(dataStderr(const QString&)),
-		err, SLOT(setText(const QString&)) );
-    else
-	QObject::disconnect( proc, SIGNAL(dataStderr(const QString&)),
-		err, SLOT(setText(const QString&)) );
+    static bool connected = FALSE;
+    if ( enable ) {
+	if ( !connected )
+	    QObject::connect( proc, SIGNAL(readyReadStderr()),
+		    this, SLOT(readyReadStderr()) );
+	connected = TRUE;
+    } else {
+	QObject::disconnect( proc, SIGNAL(readyReadStderr()),
+		this, SLOT(readyReadStderr()) );
+	connected = FALSE;
+    }
+}
+
+void Some::readyReadStderr()
+{
+    QString s;
+    proc->readStderr( s );
+    err->setText( s );
 }
 
 void Some::connectExit( bool enable )
