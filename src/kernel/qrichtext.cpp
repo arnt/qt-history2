@@ -1465,14 +1465,14 @@ struct Q_EXPORT Tag {
 };
 
 #define NEWPAR       if ( !curpar || ( curtag.name != "table" && curtag.name != "li" ) || curpar->length() > 1 ) { if ( !hasNewPar ) curpar = createParag( this, curpar );  if ( curtag.style->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal ) curpar->setBreakable( FALSE ); \
-		    hasNewPar = TRUE;  \
+		    hasNewPar = TRUE;  curpar->setAlignment( curAlignment ); \
 		    QPtrVector<QStyleSheetItem> vec( tags.count() ); \
 		    int i = 0; \
 		    for ( QValueStack<Tag>::Iterator it = tags.begin(); it != tags.end(); ++it ) \
 			vec.insert( i++, (*it).style ); \
 		    curpar->setStyleSheetItems( vec ); }while(FALSE)
 #define NEWPAROPEN(nstyle)       if ( !curpar || ( curtag.name != "table" && curtag.name != "li" ) || curpar->length() > 1 )  { if ( !hasNewPar ) curpar = createParag( this, curpar ); curpar->setBreakable( nstyle->whiteSpaceMode() == QStyleSheetItem::WhiteSpaceNormal);\
-		    hasNewPar = TRUE;  \
+		    hasNewPar = TRUE;  curpar->setAlignment( curAlignment ); \
 		    QPtrVector<QStyleSheetItem> vec( tags.count()+1 ); \
 		    int i = 0; \
 		    for ( QValueStack<Tag>::Iterator it = tags.begin(); it != tags.end(); ++it ) \
@@ -1527,6 +1527,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
     QValueStack<Tag> tags;
     QValueStack<QStyleSheetItem::ListStyle> listStyles;
     QValueStack<int> alignments;
+    bool inCenter = FALSE;
     Tag curtag( "", sheet_->item("") );
     curtag.format = *formatCollection()->defaultFormat();
     bool space = FALSE;
@@ -1535,7 +1536,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
     int depth = 0;
     bool hasNewPar = TRUE;
     QStyleSheetItem::ListStyle curListStyle = QStyleSheetItem::ListDisc;
-    int curAlignment = 0;
+    int curAlignment = Qt::AlignAuto;
     QString lastClose;
     while ( pos < int( doc.length() ) ) {
 	if (hasPrefix(doc, pos, '<' ) ){
@@ -1546,6 +1547,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		QString tagname = parseOpenTag(doc, pos, attr, emptyTag);
 		if ( tagname.isEmpty() )
 		    continue; // nothing we could do with this, probably parse error
+		inCenter = inCenter || tagname == "center";
 		const QStyleSheetItem* nstyle = sheet_->item(tagname);
 		if ( nstyle ) {
 		    // we might have to close some 'forgotten' tags
@@ -1563,6 +1565,9 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    }
 		    curListStyle = chooseListStyle( nstyle, attr, curListStyle );
 		}
+
+		if ( inCenter )
+		    curAlignment = Qt::AlignCenter;
 
 		if ( !nstyle || nstyle->whiteSpaceMode() != QStyleSheetItem::WhiteSpacePre ) {
  		    while ( eat( doc, pos, '\n' ) )
@@ -1644,6 +1649,11 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			}
 			if ( nstyle->alignment() != QStyleSheetItem::Undefined )
 			    curAlignment = nstyle->alignment();
+			else if ( !inCenter && ( nstyle->displayMode() == QStyleSheetItem::DisplayBlock ||
+						 nstyle->displayMode() == QStyleSheetItem::DisplayListItem ) )
+			    curAlignment = Qt::AlignAuto;
+			else if ( inCenter )
+			    curAlignment = Qt::AlignCenter;
 			
 			curtag.style = nstyle;
 			curtag.wsm = nstyle->whiteSpaceMode();
@@ -1688,6 +1698,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			else if ( align == "justify" )
 			    curAlignment = Qt::AlignJustify;
 		    }
+		    if ( inCenter )
+			curAlignment = Qt::AlignCenter;
 		    curpar->setAlignment( curAlignment );
 		    depth++;
 		}
@@ -1700,6 +1712,10 @@ void QTextDocument::setRichTextInternal( const QString &text )
  		    fakeHasNewPar = TRUE;
 		if ( tagname.isEmpty() )
 		    continue; // nothing we could do with this, probably parse error
+		if ( tagname == "center" ) {
+		    inCenter = FALSE;
+		    curAlignment = Qt::AlignAuto;
+		}
 		while ( eat( doc, pos, '\n' ) )
 		    ; // eliminate newlines right after closings
 		if ( !sheet_->item( tagname ) ) // ignore unknown tags
@@ -1734,6 +1750,12 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		}
  		if ( fakeHasNewPar && curtagtmp.name != "li" )
  		    hasNewPar = FALSE;
+		curAlignment = alignments.pop();
+		if ( !inCenter && ( curtag.style->displayMode() == QStyleSheetItem::DisplayBlock ||
+				    curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) )
+		    curAlignment = Qt::AlignAuto;
+		else if ( inCenter )
+		    curAlignment = Qt::AlignCenter;
 		if ( !hasNewPar && curtag.style->displayMode() != QStyleSheetItem::DisplayInline
 		     && curtag.wsm == QStyleSheetItem::WhiteSpaceNormal ) {
 		    eatSpace( doc, pos );
@@ -1748,7 +1770,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			curtag = curtagtmp;
 		}
 		curListStyle = listStyles.pop();
-		curAlignment = alignments.pop();
 	    }
 	} else {
 	    // normal contents
