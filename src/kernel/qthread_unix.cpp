@@ -35,7 +35,13 @@
 **
 **********************************************************************/
 
+// What's up here? Please add comments!
+// Is this a way to ask the pre-Single Unix 1998 GNU C library to bring
+// in relevant extensions?
 #define _GNU_SOURCE
+// What's up here? Please add comments!
+// Is this a way to ask for the Single Unix 1998 interface?
+// Isn't _XOPEN_SOURCE=500 a more common way to obtain the same result?
 #define __USE_UNIX98
 
 #include "qthread.h"

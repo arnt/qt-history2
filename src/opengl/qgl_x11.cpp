@@ -58,7 +58,7 @@
 
 
 /*
-  The create_cmap function is internal and used by QGLWidget::setContext()
+  The choose_cmap function is internal and used by QGLWidget::setContext()
   and GLX (not Windows).  If the application can't find any sharable
   colormaps, it must at least create as few colormaps as possible.  The
   dictionary solution below ensures only one colormap is created per visual.
@@ -156,7 +156,6 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 			x->cmap = c[i].colormap;
 			x->scmap = c[i];
 			//qDebug( "Using RGB_DEFAULT scmap" );
-
 		    }
 		    i++;
 		}
@@ -935,5 +934,4 @@ bool QGLWidget::renderCxPm( QPixmap* pm )
     return TRUE;
 }
 
-#endif // GLX
-
+#endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#13 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#14 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -41,8 +41,17 @@
 #include <string.h>
 
 #if defined(Q_OS_AIX)
+// What's up here? Please add comments!
+// Asking for BSD compatibility the AIX way before including <string.h>
+// or <sys/time.h> ought to be enough.
 #include <strings.h>
 #include <sys/select.h>
+#endif
+
+#if defined(_OS_OSF_) && defined(_XOPEN_SOURCE_EXTENDED)
+// Tru64 redefines accept() to _accept() when XNS4 is specified using
+// _XOPEN_SOURCE_EXTENDED.  Avoid it as it breaks our sources.
+#undef _XOPEN_SOURCE_EXTENDED
 #endif
 
 #include <unistd.h>
@@ -76,12 +85,18 @@
 #endif
 
 #if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
-// this should perhaps be included for all unixware versions?
+// This is probably not needed on Solaris:
+// - Just define BSD_COMP before including <sys/ioctl.h> if we specify
+//   Single Unix 1995 only.
+// - Do nothing if we ask for Single Unix 1998.
+// This should perhaps be included for all Unixware versions?
 #include <sys/filio.h>
 #endif
 
 #if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7) || defined(Q_OS_OS2EMX) || defined(Q_OS_QNX)
-// and this then?  unixware?
+// And this then?  Unixware?
+// Also why is this defined on Solaris? Seems to be in <sys/file.h>, unguarded,
+// in both Solaris 2.5.1 and Solaris 8!
 #if !defined(FNDELAY)
 #define FNDELAY O_NDELAY
 #endif
@@ -100,17 +115,22 @@
 #define FIONREAD TIOCINQ
 #endif
 
-// this mess (it's not yet a mess but I'm sure it'll be one before
-// it's done) defines SOCKLEN_T to socklen_t or whatever else, for
-// this system.  Single Unix 2 says it's to be socklen_t, classically
-// it's int, who knows what it might be on different modern unixes.
+// This mess (it's not yet a mess but I'm sure it'll be one before it's
+// done) defines SOCKLEN_T to socklen_t or whatever else, for this system.
+// Single Unix 1998 says it's to be socklen_t, classically (XNS4) it's int,
+// who knows what it might be on different modern unixes.  size_t seems to
+// have been a short-lived non-LP64 compatible error on most decent systems.
+//
+// Short answer: Single Unix 1995 with XNS4 seems to be the default on most
+// modern unixes and you have to explicitly _ask_ for Single Unix 1998 by
+// setting for example _XOPEN_SOURCE=500 and we don't do that.
 
 #if defined(SOCKLEN_T)
 #  undef SOCKLEN_T
 #endif
 
-#if defined(Q_OS_LINUX) && defined(__GLIBC__) && ( __GLIBC__ >= 2 )
-// new linux, not old
+#if defined(Q_OS_LINUX_) && defined(__GLIBC__) && ( __GLIBC__ >= 2 )
+// new linux is Single Unix 1998, not old linux
 #  define SOCKLEN_T socklen_t
 #elif defined(Q_OS_MACX)
 #  define SOCKLEN_T int
@@ -126,7 +146,8 @@
 #elif defined(Q_OS_QNX)
 #define SOCKLEN_T size_t
 #else
-// most unixes, including irix, osf1/du/tru64, solaris, hp-ux and old linux
+// most unixes are Single Unix 1995 by default including at least irix,
+// osf1/tru64, solaris, hp-ux and old linux
 #  define SOCKLEN_T int
 #endif
 
@@ -136,8 +157,7 @@
 #error "requires EAGAIN or EWOULDBLOCK"
 #endif
 
-// if one is there, define the other one similarly, so we can switch()
-// easily
+// if one is there, define the other one similarly, so we can switch() easily
 #if defined(EAGAIN) && !defined(EWOULDBLOCK)
 #define EWOULDBLOCK EAGAIN
 #endif
@@ -921,3 +941,4 @@ void QSocketDevice::fetchConnectionParameters()
     }
 }
 #endif //QT_NO_NETWORK
+
