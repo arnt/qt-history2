@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#47 $
 **
 ** Implementation of movie classes
 **
@@ -514,7 +514,6 @@ QMovie::QMovie(QDataSource* src, int bufsize)
 }
 
 /*!
-  \overload
   Creates a QMovie which reads an image sequence from the named file.
 */
 QMovie::QMovie(const QString &fileName, int bufsize)
@@ -525,7 +524,6 @@ QMovie::QMovie(const QString &fileName, int bufsize)
 }
 
 /*!
-  \overload
   Creates a QMovie which reads an image sequence from given data.
 */
 QMovie::QMovie(QByteArray data, int bufsize)
@@ -850,7 +848,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char *member)
 ** QMoviePrivate meta object code from reading C++ file 'standard input'
 **
 ** Created: Fri Aug 21 01:55:09 1998
-**      by: The Qt Meta Object Compiler ($Revision: 1.46 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.47 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

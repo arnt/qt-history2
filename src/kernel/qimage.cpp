@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#193 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#194 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2215,6 +2215,8 @@ bool QImage::loadFromData( const uchar *buf, uint len, const char *format )
 
 /*!
   \overload
+
+  Loads from a QByteArray.
 */
 bool QImage::loadFromData( QByteArray buf, const char *format )
 {

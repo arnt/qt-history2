@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#16 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#17 $
 **
 ** Implementation of QTextCodec class
 **
@@ -345,7 +345,7 @@ char* QTextCodec::fromUnicode(const QString& uc, int& len_in_out) const
 }
 
 /*!
-  \overload
+  \overload char* QTextCodec::fromUnicode(const QString& uc) const
 */
 char* QTextCodec::fromUnicode(const QString& uc) const
 {
@@ -354,7 +354,7 @@ char* QTextCodec::fromUnicode(const QString& uc) const
 }
 
 /*!
-  \overload
+  \overload QString QTextCodec::toUnicode(const QByteArray& a, int len) const
 */
 QString QTextCodec::toUnicode(const QByteArray& a, int len) const
 {
@@ -362,7 +362,7 @@ QString QTextCodec::toUnicode(const QByteArray& a, int len) const
 }
 
 /*!
-  \overload
+  \overload QString QTextCodec::toUnicode(const QByteArray& a) const
 */
 QString QTextCodec::toUnicode(const QByteArray& a) const
 {
@@ -370,7 +370,7 @@ QString QTextCodec::toUnicode(const QByteArray& a) const
 }
 
 /*!
-  \overload
+  \overload QString QTextCodec::toUnicode(const char* chars) const
 */
 QString QTextCodec::toUnicode(const char* chars) const
 {
