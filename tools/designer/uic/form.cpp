@@ -970,7 +970,7 @@ void Uic::createFormImpl( const QDomElement &e )
 		stdset = toBool( n.attribute( "stdset" ) );
 	    QString prop = n.attribute("name");
 	    QDomElement n2 = n.firstChild().toElement();
-	    QString value = setObjectProperty( objClass, objName, prop, n2, stdset );
+	    QString value = setObjectProperty( objClass, QString::null, prop, n2, stdset );
 	    if ( value.isEmpty() )
 		continue;
 
