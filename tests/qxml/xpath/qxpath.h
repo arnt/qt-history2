@@ -1,4 +1,9 @@
+#ifndef QXPATH_H
+#define QXPATH_H
+
+#ifndef QT_H
 #include "qdom.h"
+#endif // QT_H
 
 class QXPathStep;
 class QXPathPrivate;
@@ -52,3 +57,5 @@ public:
 private:
     QXPath::Axis stepAxis;
 };
+
+#endif // QXPATH_H

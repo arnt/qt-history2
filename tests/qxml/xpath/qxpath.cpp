@@ -1,5 +1,7 @@
 #include "qxpath.h"
 
+#include "qlist.h"
+
 
 /***************************************************************
  *
@@ -66,6 +68,41 @@ public:
 	OpGtEq		// '>='
     };
 };
+
+
+/***************************************************************
+ *
+ * QXPathAtom (atom expressions for the expression tree)
+ *
+ ***************************************************************/
+class QXPathAtom
+{
+public:
+    enum Type {
+	LocationPath,
+	LocationStep,
+	VariableReference,
+	Literal,
+	Number,
+	FunctionCall
+    };
+
+    QXPathAtom( Type t, QXPathAtom *p ) :
+	type(t), parent(p)
+    {
+	children.setAutoDelete( TRUE );
+    }
+
+    ~QXPathAtom()
+    {
+	children.clear();
+    }
+
+    Type type;
+    QXPathAtom *parent;
+    QList<QXPathAtom> children; // QList is more complex than needed
+};
+
 
 /***************************************************************
  *
@@ -456,7 +493,6 @@ QXPath::~QXPath()
 {
 }
 
-
 /*!
   Sets the expression \a expr. The string \a expr is parsed and stored in an
   internal format.
@@ -484,7 +520,6 @@ QString QXPath::expression() const
     return QString::null;
 }
 
-
 /*!
   Returns TRUE if the XPath is valid, otherwise FALSE. An XPath is invalid when
   it was constructed by a malformed string.
@@ -500,22 +535,67 @@ bool QXPath::isValid() const
 */
 bool QXPath::parse( const QString& expr )
 {
-#if 0
-    QString p = expr.stripWhiteSpace();
-    int pos = 0;
-
-    if ( p[0] == '/' ) {
-	pos ++;
-    } else {
-    }
-#endif
     QXPathLexicalAnalyzer lex( expr );
     QXPathNS::Token token;
-qDebug( "Reporting tokens for: %s", expr.latin1() );
+
     while ( !lex.atEnd() ) {
 	token = lex.nextToken();
-qDebug( "Token %d: (%s) (%f) (%d)", token,
-	lex.getString().latin1(), lex.getNumber(), lex.getOperator() );
+	switch ( token ) {
+	    case QXPathNS::TkError:
+		// ### think about error handling
+		break;
+	    case QXPathNS::TkLeftParen:
+		break;
+	    case QXPathNS::TkRightParen:
+		break;
+	    case QXPathNS::TkLeftBracket:
+		break;
+	    case QXPathNS::TkRightBracket:
+		break;
+	    case QXPathNS::TkSelfAbbr:
+		break;
+	    case QXPathNS::TkParentAbbr:
+		break;
+	    case QXPathNS::TkAttribAbbr:
+		break;
+	    case QXPathNS::TkComma:
+		break;
+	    case QXPathNS::TkDoubleColon:
+		break;
+	    case QXPathNS::TkNameTest_Star:
+	    case QXPathNS::TkNameTest_NCNameStar:
+	    case QXPathNS::TkNameTest_QName:
+		break;
+	    case QXPathNS::TkNodeType_Comment:
+	    case QXPathNS::TkNodeType_Text:
+	    case QXPathNS::TkNodeType_PI:
+	    case QXPathNS::TkNodeType_Node:
+		break;
+	    case QXPathNS::TkOperator:
+		break;
+	    case QXPathNS::TkFunctionName:
+		break;
+	    case QXPathNS::TkAxisName_Child:
+	    case QXPathNS::TkAxisName_Descendant:
+	    case QXPathNS::TkAxisName_Parent:
+	    case QXPathNS::TkAxisName_Ancestor:
+	    case QXPathNS::TkAxisName_FollowingSibling:
+	    case QXPathNS::TkAxisName_PrecedingSibling:
+	    case QXPathNS::TkAxisName_Following:
+	    case QXPathNS::TkAxisName_Preceding:
+	    case QXPathNS::TkAxisName_Attribute:
+	    case QXPathNS::TkAxisName_Namespace:
+	    case QXPathNS::TkAxisName_Self:
+	    case QXPathNS::TkAxisName_DescendantOrSelf:
+	    case QXPathNS::TkAxisName_AncestorOrSelf:
+		break;
+	    case QXPathNS::TkLiteral:
+		break;
+	    case QXPathNS::TkNumber:
+		break;
+	    case QXPathNS::TkVariableReference:
+		break;
+	}
     }
 
     return TRUE;
@@ -524,7 +604,7 @@ qDebug( "Token %d: (%s) (%f) (%d)", token,
 
 /***************************************************************
  *
- * QXPath
+ * QXPathStep
  *
  ***************************************************************/
 /*!
