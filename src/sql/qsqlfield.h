@@ -77,6 +77,8 @@ public:
     bool               isCalculated() const { return cf; }
     void               setAlignment( int align ) { af = align; }
     int                alignment() const { return af; }
+    void               setGenerated( bool generated ) { gen = generated; }
+    bool               isGenerated() const { return gen; }
 
 private:
     QString       nm;
@@ -88,6 +90,7 @@ private:
     bool          iv;
     bool          cf;
     int           af;
+    bool          gen;
     QSqlFieldPrivate* d;
 };
 
