@@ -41,22 +41,9 @@
     \c moc is typically used with an input file containing class
     declarations like this:
 
-    \code
-        class MyClass : public QObject
-        {
-            Q_OBJECT
-
-        public:
-            MyClass(QObject *parent = 0);
-            ~MyClass();
-
-        signals:
-	    void mySignal();
-
-        public slots:
-	    void mySlot();
-        };
-    \endcode
+    \quotefromfile snippets/moc/myclass1.h
+    \skipto class
+    \printuntil /^\};$/
 
     In addition to the signals and slots shown above, \c moc also
     implements object properties as in the next example. The \c
@@ -68,23 +55,9 @@
     priority and has a get function \c priority() and a set function
     \c setPriority().
 
-    \code
-        class MyClass : public QObject
-        {
-            Q_OBJECT
-            Q_PROPERTY(Priority priority READ priority WRITE setPriority)
-            Q_ENUMS(Priority)
-
-        public:
-            enum Priority { High, Low, VeryHigh, VeryLow };
-
-            MyClass(QObject *parent = 0);
-            ~MyClass();
-
-            void setPriority(Priority priority);
-            Priority priority() const;
-        };
-    \endcode
+    \quotefromfile snippets/moc/myclass2.h
+    \skipto class
+    \printuntil /^\};$/
 
     Properties can be modified in subclasses with the \c Q_OVERRIDE()
     macro. The \c Q_FLAGS() macro declares enums that are to be used
@@ -92,18 +65,9 @@
     allows you to attach additional name/value pairs to the class'
     meta-object:
 
-    \code
-        class MyClass : public QObject
-        {
-            Q_OBJECT
-            Q_CLASSINFO("Author", "Oscar Peterson")
-            Q_CLASSINFO("Status", "Active")
-
-        public:
-            MyClass(QObject *parent = 0);
-            ~MyClass();
-        };
-    \endcode
+    \quotefromfile snippets/moc/myclass3.h
+    \skipto class
+    \printuntil /^\};$/
 
     The output produced by \c moc must be compiled and linked, just
     like the other C++ code in your program; otherwise, the build
@@ -139,7 +103,7 @@
     \c Q_OBJECT class is implementation-internal and thus should not
     be visible in the header file.
 
-    \section1 Automating \c moc Usage with Makefiles
+    \section1 Writing Make Rules for Invoking \c moc
 
     For anything but the simplest test programs, it is recommended
     that you automate running the \c{moc}. By adding some rules to
@@ -204,30 +168,58 @@
 
     \table
     \header \i Option \i Description
+
     \row
-    \i \c{-o <file>}
-    \i Write output to \c <file> rather than to standard output.
+    \o \c{-o<file>}
+    \o Write output to \c <file> rather than to standard output.
+
     \row
-    \i \c -f
-    \i Force the generation of an \c #include statement in the
-    output. This is the default for files whose extension starts with
-    \c H or \c h. This option is only useful if you have header files
-    that do not follow the standard naming conventions.
+    \o \c{-f[<file>]}
+    \o Force the generation of an \c #include statement in the
+    output. This is the default for header files whose extension
+    starts with \c H or \c h. This option is useful if you have
+    header files that do not follow the standard naming conventions.
+    The \c <file> part is optional.
+
     \row
-    \i \c -i
-    \i Do not generate an \c #include statement in the output.
+    \o \c -i
+    \o Do not generate an \c #include statement in the output.
     This may be used to run the moc on on a C++ file containing one or
     more class declarations. You should then \c #include the meta-object
     code in the \c .cpp file.
+
     \row
-    \i \c -nw
-    \i Do not generate any warnings. (Not recommended.)
+    \o \c -nw
+    \o Do not generate any warnings. (Not recommended.)
+
     \row
-    \row
-    \i \c {-p <path>}
-    \i Makes the moc prepend \c {<path>/} to the file name in the
+    \o \c {-p<path>}
+    \o Makes the moc prepend \c {<path>/} to the file name in the
     generated \c #include statement.
+
     \row
+    \o \c {-I<dir>}
+    \o Add dir to the include path for header files.
+
+    \row
+    \o \c{-E}
+    \o Preprocess only; do not generate meta-object code.
+
+    \row
+    \o \c {-D<macro>[=<def>]}
+    \o Define macro, with optional definition.
+
+    \row
+    \o \c{-U<macro>}
+    \o Undefine macro.
+
+    \row
+    \o \c{-h}
+    \o Display the usage and the list of options.
+
+    \row
+    \o \c {-v}
+    \o Display \c{moc}'s version number.
     \endtable
 
     You can explicitly tell the moc not to parse parts of a header
@@ -289,6 +281,8 @@
         };
     \endcode
 
+    Virtual inheritance with QObject is \e not supported.
+
     \section2 Function Pointers Cannot Be Signal or Slot Parameters
 
     In most cases where you would consider using function pointers as
@@ -322,48 +316,11 @@
     It may sometimes be even better to replace the function pointer
     with inheritance and virtual functions.
 
-    \section2 Friend Declarations Cannot Be Placed in Signals or Slots Sections
-
-    Sometimes it will work, but in general, friend declarations
-    cannot be placed in signals or slots sections. Put them in the
-    private, protected, or public sections instead. Here is an
-    example of the illegal syntax:
-
-    \code
-        class SomeClass : public QObject
-        {
-            Q_OBJECT
-
-        signals:
-            friend class ClassTemplate<char>; // WRONG
-        };
-    \endcode
-
-    \section2 Signals and Slots Cannot Be Upgraded
-
-    The C++ feature of upgrading an inherited member function to
-    public status is not extended to cover signals and slots. Here is
-    an illegal example:
-
-    \code
-        class MyModel : public QAbstractItemModel
-        {
-	    Q_OBJECT
-
-        public slots:
-	    QAbstractItemModel::resetPersistentIndexes; // WRONG
-	    ...
-        };
-    \endcode
-
-    (The QAbstractItemModel::resetPersistentIndexes() slot is
-    protected.)
-
     \section2 Type Macros Cannot Be Used for Signal and Slot Parameters
 
-    Since QObject::connect() does not expand \c{#define}, type macros
-    that take an argument will not work in signals and slots. Here is
-    an illegal example:
+    Since \c moc doesn't expand \c{#define}s, type macros that take
+    an argument will not work in signals and slots. Here is an
+    illegal example:
 
     \code
         #ifdef ultrix
@@ -381,49 +338,28 @@
         };
     \endcode
 
-    A \c #define without parameters won't work either, unless you
-    expand it in the QObject::connect() call.
+    A macro without parameters will work.
 
-    \section2 Nested Classes Cannot Be in the Signals or Slots Sections or Have Signals or Slots
+    \section2 Nested Classes Cannot Have Signals or Slots
 
-    Here's an example:
+    Here's an example of the offending construct:
 
     \code
         class A
         {
-	    Q_OBJECT
-
         public:
             class B
             {
+                Q_OBJECT
+
 	    public slots:   // WRONG
 	        void b();
             };
-
-        signals:
-            class B         // WRONG
-            {
-	        void b();
-            }:
         };
     \endcode
 
-    \section2 Constructors Cannot Be Used in Signals or Slots Sections
+    \section2 Only Signals and Slots May Appear in the \c signals and \c slots Sections of a Class
 
-    It is a mystery to us why anyone would put a constructor in
-    either the signals or slots sections. You can't anyway (except
-    that it happens to work in some cases). Put them in private,
-    protected or public sections, where they belong. Here is an
-    example of the illegal syntax:
-
-    \code
-        class SomeClass : public QObject
-        {
-	    Q_OBJECT
-
-        public slots:
-	    SomeClass(QObject *parent)    // WRONG
-	        : QObject(parent) {}
-        };
-    \endcode
+    \c moc will complain if you try to put other constructs in the \c
+    signals or \c slots sections of a class than signals and slots.
 */
