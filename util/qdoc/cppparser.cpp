@@ -109,10 +109,7 @@ static bool matchTemplateHeader()
 */
 static bool matchDataType( CodeChunk *type, QString *var = 0 )
 {
-    static QRegExp *varComment = 0;
-
-    if ( varComment == 0 )
-	varComment = new QRegExp( QString("/\\*\\s([a-zA-Z_0-9]+)\\s\\*/") );
+    static QRegExp varComment( QString("/\\*\\s([a-zA-Z_0-9]+)\\s\\*/") );
 
     /*
       This code is really hard to follow... sorry.  The loop is there to match
@@ -214,8 +211,8 @@ static bool matchDataType( CodeChunk *type, QString *var = 0 )
 		  illustrate inside a C++ comment, because the explanation does
 		  not fit on one line.
 		*/
-		if ( varComment->match(yyTokenizer->previousLexeme()) )
-		    *var = varComment->cap( 1 );
+		if ( varComment.match(yyTokenizer->previousLexeme()) )
+		    *var = varComment.cap( 1 );
 	    }
 	}
 

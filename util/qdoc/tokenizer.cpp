@@ -381,7 +381,7 @@ int Tokenizer::getTokenAfterPreprocessor()
     if ( comment == 0 ) {
 	comment = new QRegExp( QString("/(?:\\*.*\\*/|/.*\n)") );
 	comment->setMinimal( TRUE );
-	versionX = new QRegExp;
+	versionX = new QRegExp( QString("won't$match") );
 	if ( !config->versionSymbol().isEmpty() )
 	    versionX->setPattern( QString(
 		    "[ \t]*(?:%1)[ \t]+\"([^\"]*)\"[ \t]*")

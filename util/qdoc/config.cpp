@@ -286,7 +286,7 @@ Config::Config( int argc, char **argv )
 	    } else if ( QRegExp(QString("-W[0-4]")).match(opt) ) {
 		wlevel = opt[2].unicode() - QChar( '0' ).unicode();
 	    } else if ( opt == QString("-Wnone") ) {
-	        wlevel = 0;
+	        wlevel = -1;
 	    } else if ( opt == QString("-Wall") ) {
 		wlevel = 4;
 		maxSim = 262144;

@@ -71,20 +71,14 @@ static void sanitize( QString& str )
 
 static QString htmlProtect( const QString& str )
 {
-    static QRegExp *amp = 0;
-    static QRegExp *lt = 0;
-    static QRegExp *gt = 0;
-
-    if ( amp == 0 ) {
-	amp = new QRegExp( QChar('&') );
-	lt = new QRegExp( QChar('<') );
-	gt = new QRegExp( QChar('>') );
-    }
+    static QRegExp amp( QChar('&') );
+    static QRegExp lt( QChar('<') );
+    static QRegExp gt( QChar('>') );
 
     QString t = str;
-    t.replace( *amp, QString("&amp;") );
-    t.replace( *lt, QString("&lt;") );
-    t.replace( *gt, QString("&gt;") );
+    t.replace( amp, QString("&amp;") );
+    t.replace( lt, QString("&lt;") );
+    t.replace( gt, QString("&gt;") );
     return t;
 }
 
@@ -99,7 +93,7 @@ static QString indexAnchor( const QString& str )
 /*
   This function makes sure no two automatic links for the same identifier are
   too close to each other.  It returns TRUE if it's OK to have a new link to
-  'name', otherwise FALSE.
+  name, otherwise FALSE.
 
   The criterion is that two automatic links to the same place should be
   separated by at least 1009 characters.
@@ -254,10 +248,7 @@ private:
 
 Doc *DocParser::parse( const Location& loc, const QString& in )
 {
-    static QRegExp *unfriendly = 0;
-
-    if ( unfriendly == 0 )
-	unfriendly = new QRegExp( QString("[^0-9A-Z_a-z]+") );
+    static QRegExp unfriendly( QString("[^0-9A-Z_a-z]+") );
 
     kindIs = Doc::Null;
     kindHasToBe = Doc::Null;
@@ -356,7 +347,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			     "Expected variable name after '\\a'" );
 		} else {
 		    QString toks = arg;
-		    toks.replace( *unfriendly, QChar(' ') );
+		    toks.replace( unfriendly, QChar(' ') );
 		    QStringList tokl = QStringList::split( QChar(' '), toks );
 		    while ( !tokl.isEmpty() ) {
 			if ( tokl.first()[0].isLetter() )
@@ -374,18 +365,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		warning( 3, location(),
 			 "Command '\\arg' is obsolete, use '\\a'" );
 		break;
-
-	    /*
-	      ### Remove this bad-looking code once annotated.doc is fixed.
-	    */
-#if 1
-	    case hash( 'a', 18 ):
-		check( "annotatedclasslist" );
-		if ( !getArgument(yyIn, yyPos).isEmpty() )
-		    warning( 3, location(),
-			     "Argument to '\\annotatedclasslist' obsolete" );
-		break;
-#endif
 	    case hash( 'b', 3 ):
 		consume( "bug" );
 		if ( numBugs == 0 ) {

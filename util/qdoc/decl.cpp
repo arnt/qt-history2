@@ -13,7 +13,6 @@
 #include "htmlwriter.h"
 #include "messages.h"
 
-
 static void printHtmlDataType( HtmlWriter& out, const CodeChunk& type,
 			       const Decl *context,
 			       const QString& var = QString::null )
@@ -236,29 +235,20 @@ static void fillInImportantChildren( ClassDecl *classDecl,
 
 QString Decl::anchor( const QString& name )
 {
-    static QRegExp *op = 0;
-    static QRegExp *sp = 0;
-    static QRegExp *amp = 0;
-    static QRegExp *lt = 0;
-    static QRegExp *eq = 0;
-    static QRegExp *gt = 0;
+    static QRegExp op( QString("^operator") );
+    static QRegExp sp( QChar(' ') );
+    static QRegExp amp( QChar('&') );
+    static QRegExp lt( QChar('<') );
+    static QRegExp eq( QChar('=') );
+    static QRegExp gt( QChar('>') );
 
-    if ( op == 0 ) {
-	op = new QRegExp( QString("^operator") );
-	sp = new QRegExp( QChar(' ') );
-	amp = new QRegExp( QChar('&') );
-	lt = new QRegExp( QChar('<') );
-	eq = new QRegExp( QChar('=') );
-	gt = new QRegExp( QChar('>') );
-    }
-
-    if ( name.find(*op) == 0 ) {
+    if ( name.find(op) == 0 ) {
 	QString t = name;
-	t.replace( *sp, QChar('-') );
-	t.replace( *amp, QString("-and") );
-	t.replace( *lt, QString("-lt") );
-	t.replace( *eq, QString("-eq") );
-	t.replace( *gt, QString("-gt") );
+	t.replace( sp, QChar('-') );
+	t.replace( amp, QString("-and") );
+	t.replace( lt, QString("-lt") );
+	t.replace( eq, QString("-eq") );
+	t.replace( gt, QString("-gt") );
 	return t;
     } else {
 	return name;

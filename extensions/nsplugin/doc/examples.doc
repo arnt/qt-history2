@@ -60,7 +60,7 @@ to an image at the server.
 
 <br clear>
 */
-/*! \page graph.g1n
+/*! \base256 graph.g1n
 num label
 10 A
 24 B

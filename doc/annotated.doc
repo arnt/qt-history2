@@ -45,8 +45,5 @@ static char ident[] = "$Id: annotated.doc,v 1.7 1999/04/28 09:53:41 aavit Exp $"
 
 <p>Here are the classes in Qt, with brief descriptions:
 
-\annotatedclasslist(<table>
-    ,<tr bgcolor=#f0f0f0><td>,</td><td>,</td></tr>
-    ,</table>
-    )
+\annotatedclasslist
 */
