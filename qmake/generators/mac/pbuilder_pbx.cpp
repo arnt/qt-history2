@@ -27,7 +27,6 @@
 
 // Note: this is fairly hacky, but it does the job...
 
-
 ProjectBuilderMakefileGenerator::ProjectBuilderMakefileGenerator(QMakeProject *p) : UnixMakefileGenerator(p)
 {
 
@@ -115,6 +114,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		file += Option::h_ext.first();
 		if(!QFile::exists(file))
 		    continue;
+		buildable = FALSE;
+	    } else if(srcs[i] == "HEADERS") {
 		buildable = FALSE;
 	    }
 
@@ -649,7 +650,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t" << "refType = 4;" << "\n"
       << "\t\t" << "};" << "\n";
     //REFERENCE
-    t << "\t\t" << keyFor("QMAKE_PBX_REFERENCE") << " = {" << "\n";
+    t << "\t\t" << keyFor("QMAKE_PBX_REFERENCE") << " = {" << "\n"
+      << "\t\t\t" << "fallbackIsa = PBXFileReference;" << "\n";
     if(project->first("TEMPLATE") == "app") {
 	QString targ = project->first("QMAKE_ORIG_TARGET");
 	if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console")) {
@@ -677,8 +679,10 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	if(slsh != -1)
 	    lib = lib.right(lib.length() - slsh - 1);
 	t << "\t\t\t" << "isa = PBXLibraryReference;" << "\n"
+	  << "\t\t\t" << "expectedFileType = \"compiled.mach-o.dylib\";" << "\n"
 	  << "\t\t\t" << "path = " << lib << ";\n"
-	  << "\t\t\t" << "refType = " << reftypeForFile(lib) << ";" << "\n";
+	  << "\t\t\t" << "refType = " << 3/*reftypeForFile(lib)*/ << ";" << "\n"
+	  << "\t\t\t" << "sourceTree = BUILT_PRODUCTS_DIR" << ";" << "\n";
     }
     t << "\t\t" << "};" << "\n";
     //TARGET
@@ -762,36 +766,45 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t" << ");" << "\n"
       << "\t\t\t" << "productReference = " << keyFor("QMAKE_PBX_REFERENCE") << ";" << "\n"
       << "\t\t\t" << "shouldUseHeadermap = 1;" << "\n";
+    if(ideType() == MAC_XCODE)
+	t << "\t\t\t" << "isa = PBXNativeTarget;" << "\n";
     if(project->first("TEMPLATE") == "app") {
 	if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console")) {
-	    t << "\t\t\t" << "isa = PBXApplicationTarget;" << "\n"
-	      << "\t\t\t" << "productSettingsXML = " << "\"" << "<?xml version=" 
-	      << "\\\"1.0\\\" encoding=" << "\\\"UTF-8\\\"" << "?>" << "\n"
-	      << "\t\t\t\t" << "<!DOCTYPE plist SYSTEM \\\"file://localhost/System/" 
-	      << "Library/DTDs/PropertyList.dtd\\\">" << "\n"
-	      << "\t\t\t\t" << "<plist version=\\\"0.9\\\">" << "\n"
-	      << "\t\t\t\t" << "<dict>" << "\n"
-	      << "\t\t\t\t\t" << "<key>CFBundleDevelopmentRegion</key>" << "\n"
-	      << "\t\t\t\t\t" << "<string>English</string>" << "\n"
-	      << "\t\t\t\t\t" << "<key>CFBundleExecutable</key>" << "\n"
-	      << "\t\t\t\t\t" << "<string>" << project->first("QMAKE_ORIG_TARGET") << "</string>" << "\n"
-	      << "\t\t\t\t\t" << "<key>CFBundleIconFile</key>" << "\n"
-	      << "\t\t\t\t\t" << "<string>" << var("RC_FILE").section(Option::dir_sep, -1) << "</string>" << "\n"
-	      << "\t\t\t\t\t" << "<key>CFBundleInfoDictionaryVersion</key>"  << "\n"
-	      << "\t\t\t\t\t" << "<string>6.0</string>" << "\n"
-	      << "\t\t\t\t\t" << "<key>CFBundlePackageType</key>" << "\n"
-	      << "\t\t\t\t\t" << "<string>APPL</string>" << "\n"
-	      << "\t\t\t\t\t" << "<key>CFBundleSignature</key>" << "\n"
-		//Although the output below looks strange it is to avoid the trigraph ??<
-	      << "\t\t\t\t\t" << "<string>????" << "</string>" << "\n"
-	      << "\t\t\t\t\t" << "<key>CFBundleVersion</key>" << "\n"
-	      << "\t\t\t\t\t" << "<string>0.1</string>" << "\n"
-	      << "\t\t\t\t\t" << "<key>CSResourcesFileMapped</key>" << "\n"
-	      << "\t\t\t\t\t" << "<true/>" << "\n"
-	      << "\t\t\t\t" << "</dict>" << "\n"
-	      << "\t\t\t\t" << "</plist>" << "\";" << "\n";
+	    if(ideType() == MAC_XCODE) {
+		t << "\t\t\t" << "productType = \"com.apple.product-type.application\";" << "\n";
+	    } else {
+		t << "\t\t\t" << "isa = PBXApplicationReference;" << "\n"
+		  << "\t\t\t" << "productSettingsXML = " << "\"" << "<?xml version=" 
+		  << "\\\"1.0\\\" encoding=" << "\\\"UTF-8\\\"" << "?>" << "\n"
+		  << "\t\t\t\t" << "<!DOCTYPE plist SYSTEM \\\"file://localhost/System/" 
+		  << "Library/DTDs/PropertyList.dtd\\\">" << "\n"
+		  << "\t\t\t\t" << "<plist version=\\\"0.9\\\">" << "\n"
+		  << "\t\t\t\t" << "<dict>" << "\n"
+		  << "\t\t\t\t\t" << "<key>CFBundleDevelopmentRegion</key>" << "\n"
+		  << "\t\t\t\t\t" << "<string>English</string>" << "\n"
+		  << "\t\t\t\t\t" << "<key>CFBundleExecutable</key>" << "\n"
+		  << "\t\t\t\t\t" << "<string>" << project->first("QMAKE_ORIG_TARGET") << "</string>" << "\n"
+		  << "\t\t\t\t\t" << "<key>CFBundleIconFile</key>" << "\n"
+		  << "\t\t\t\t\t" << "<string>" << var("RC_FILE").section(Option::dir_sep, -1) << "</string>" << "\n"
+		  << "\t\t\t\t\t" << "<key>CFBundleInfoDictionaryVersion</key>"  << "\n"
+		  << "\t\t\t\t\t" << "<string>6.0</string>" << "\n"
+		  << "\t\t\t\t\t" << "<key>CFBundlePackageType</key>" << "\n"
+		  << "\t\t\t\t\t" << "<string>APPL</string>" << "\n"
+		  << "\t\t\t\t\t" << "<key>CFBundleSignature</key>" << "\n"
+		    //Although the output below looks strange it is to avoid the trigraph ??<
+		  << "\t\t\t\t\t" << "<string>????" << "</string>" << "\n"
+		  << "\t\t\t\t\t" << "<key>CFBundleVersion</key>" << "\n"
+		  << "\t\t\t\t\t" << "<string>0.1</string>" << "\n"
+		  << "\t\t\t\t\t" << "<key>CSResourcesFileMapped</key>" << "\n"
+		  << "\t\t\t\t\t" << "<true/>" << "\n"
+		  << "\t\t\t\t" << "</dict>" << "\n"
+		  << "\t\t\t\t" << "</plist>" << "\";" << "\n";
+	    }
 	} else {
-	    t << "\t\t\t" << "isa = PBXToolTarget;" << "\n";
+	    if(ideType() == MAC_XCODE) 
+		t << "\t\t\t" << "productType = \"com.apple.product-type.bundle\";" << "\n";
+	    else
+		t << "\t\t\t" << "isa = PBXToolTarget;" << "\n";
 	}
 	t << "\t\t\t" << "name = \"" << project->first("QMAKE_ORIG_TARGET") << "\";" << "\n"
 	  << "\t\t\t" << "productName = " << project->first("QMAKE_ORIG_TARGET") << ";" << "\n";
@@ -799,9 +812,14 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	QString lib = project->first("QMAKE_ORIG_TARGET");
 	if(!project->isActiveConfig("frameworklib"))
 	   lib.prepend("lib");
-	t << "\t\t\t" << "isa = PBXLibraryTarget;" << "\n"
-	  << "\t\t\t" << "name = \"" << lib << "\";" << "\n"
+	t << "\t\t\t" << "name = \"" << lib << "\";" << "\n"
 	  << "\t\t\t" << "productName = " << lib << ";" << "\n";
+	if(ideType() == MAC_XCODE) {
+	    t << "\t\t\t" << "productType = \"com.apple.product-type.library.dynamic\";" << "\n";
+	    //t << "\t\t\t" << "productType = \"com.apple.product-type.library.static\";" << "\n";
+	} else {
+	    t << "\t\t\t" << "isa = PBXLibraryTarget;" << "\n";
+	}
     }
     t << "\t\t\t" << "startupPath = \"<<ProjectDirectory>>\";" << "\n";
     if(!project->isEmpty("DESTDIR"))
@@ -977,7 +995,7 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
     if(project->isEmpty("QMAKE_PBUILDER_VERSION")) {
 	QString version, version_plist = project->first("QMAKE_PBUILDER_VERSION_PLIST");
 	if(version_plist.isEmpty()) {
-	    if(QFile::exists("/Developer/Applications/Xcode.app/Contents/version.plist"))
+	    if(ideType() == MAC_XCODE && QFile::exists("/Developer/Applications/Xcode.app/Contents/version.plist"))
 		version_plist = "/Developer/Applications/Xcode.app/Contents/version.plist";
 	    else
 		version_plist = "/Developer/Applications/Project Builder.app/Contents/version.plist";
@@ -1038,6 +1056,14 @@ ProjectBuilderMakefileGenerator::reftypeForFile(const QString &where)
     return "0"; //absolute
 }
 
+ProjectBuilderMakefileGenerator::IDE_TYPE
+ProjectBuilderMakefileGenerator::ideType() const
+{
+    if(QFile::exists("/Developer/Applications/Xcode.app/Contents/version.plist") || project->isActiveConfig("pbx_xcode"))
+	return ProjectBuilderMakefileGenerator::MAC_XCODE;
+    return ProjectBuilderMakefileGenerator::MAC_PBUILDER;
+}
+
 QString
 ProjectBuilderMakefileGenerator::pbxbuild()
 {
@@ -1045,5 +1071,5 @@ ProjectBuilderMakefileGenerator::pbxbuild()
 	return "pbbuild";
     if(QFile::exists("/usr/bin/xcodebuild"))
        return "xcodebuild";
-    return "pbxbuild";
+    return (ideType() == MAC_XCODE ? "xcodebuild" : "pbxbuild");
 }
