@@ -1,6 +1,6 @@
 // All feature and their dependencies
 //
-// This list is generated from $QTDIR/src/tools/qfeatures.txt
+// This list is generated from $QTDIR/src/core/base/qfeatures.txt
 //
 // Asynchronous I/O
 //#define QT_NO_ASYNC_IO
@@ -140,8 +140,14 @@
 // Playing sounds
 //#define QT_NO_SOUND
 
+// QString::sprintf()
+//#define QT_NO_SPRINTF
+
 // Standard template library compatiblity
 //#define QT_NO_STL
+
+// QStringList
+//#define QT_NO_STRINGLIST
 
 // Character set conversions
 //#define QT_NO_TEXTCODEC
@@ -164,6 +170,11 @@
 // QWMatrix
 //#define QT_NO_WMATRIX
 
+// Keyboard accelerators and shortcuts
+#if !defined(QT_NO_ACCEL) && (defined(QT_NO_SPRINTF))
+#define QT_NO_ACCEL
+#endif
+
 // Non-Unicode text conversions
 #if !defined(QT_NO_CODECS) && (defined(QT_NO_TEXTCODEC))
 #define QT_NO_CODECS
@@ -172,6 +183,16 @@
 // QCop IPC
 #if !defined(QT_NO_COP) && (defined(QT_NO_DATASTREAM))
 #define QT_NO_COP
+#endif
+
+// QDir
+#if !defined(QT_NO_DIR) && (defined(QT_NO_STRINGLIST))
+#define QT_NO_DIR
+#endif
+
+// QFontDatabase
+#if !defined(QT_NO_FONTDATABASE) && (defined(QT_NO_STRINGLIST))
+#define QT_NO_FONTDATABASE
 #endif
 
 // Image formats
@@ -184,6 +205,11 @@
 #define QT_NO_IMAGE_16_BIT
 #endif
 
+// Image file text strings
+#if !defined(QT_NO_IMAGE_TEXT) && (defined(QT_NO_STRINGLIST))
+#define QT_NO_IMAGE_TEXT
+#endif
+
 // Shared library wrapper
 #if !defined(QT_NO_LIBRARY) && (defined(QT_NO_REGEXP))
 #define QT_NO_LIBRARY
@@ -192,6 +218,11 @@
 // Pixmap transformations
 #if !defined(QT_NO_PIXMAP_TRANSFORMATION) && (defined(QT_NO_WMATRIX))
 #define QT_NO_PIXMAP_TRANSFORMATION
+#endif
+
+// Convert UUID to/from string
+#if !defined(QT_NO_QUUID_STRING) && (defined(QT_NO_STRINGLIST))
+#define QT_NO_QUUID_STRING
 #endif
 
 // The "BeOS" style
@@ -215,8 +246,8 @@
 #endif
 
 // Keyboard for SHARP Zaurus SL5xxx devices
-#if !defined(QT_NO_QWS_KBD_SHARP) && (defined(QT_NO_QWS_KEYBOARD))
-#define QT_NO_QWS_KBD_SHARP
+#if !defined(QT_NO_QWS_KBD_SL5000) && (defined(QT_NO_QWS_KEYBOARD))
+#define QT_NO_QWS_KBD_SL5000
 #endif
 
 // The "KDE2" style
@@ -294,9 +325,9 @@
 #define QT_NO_SEMIMODAL
 #endif
 
-// QString::sprintf()
-#if !defined(QT_NO_SPRINTF) && (defined(QT_NO_REGEXP))
-#define QT_NO_SPRINTF
+// Session management
+#if !defined(QT_NO_SESSIONMANAGER) && (defined(QT_NO_STRINGLIST))
+#define QT_NO_SESSIONMANAGER
 #endif
 
 // Scaling and rotation
@@ -314,24 +345,19 @@
 #define QT_NO_WIDGET_TOPEXTRA
 #endif
 
-// Keyboard accelerators and shortcuts
-#if !defined(QT_NO_ACCEL) && (defined(QT_NO_SPRINTF))
-#define QT_NO_ACCEL
-#endif
-
 // Asynchronous image I/O
 #if !defined(QT_NO_ASYNC_IMAGE_IO) && (defined(QT_NO_IMAGEIO))
 #define QT_NO_ASYNC_IMAGE_IO
 #endif
 
 // BDF font files
-#if !defined(QT_NO_BDF) && defined(QT_NO_TEXTSTREAM)
+#if !defined(QT_NO_BDF) && (defined(QT_NO_TEXTSTREAM) || defined(QT_NO_STRINGLIST))
 #define QT_NO_BDF
 #endif
 
-// QDir
-#if !defined(QT_NO_DIR) && defined(QT_NO_REGEXP)
-#define QT_NO_DIR
+// Drawing utility functions
+#if !defined(QT_NO_DRAWUTIL) && (defined(QT_NO_SPRINTF) || defined(QT_NO_PALETTE))
+#define QT_NO_DRAWUTIL
 #endif
 
 // JPEG image I/O
@@ -365,12 +391,12 @@
 #endif
 
 // External process invocation.
-#if !defined(QT_NO_PROCESS) && (defined(QT_NO_REGEXP))
+#if !defined(QT_NO_PROCESS) && (defined(QT_NO_STRINGLIST) || defined(QT_NO_REGEXP))
 #define QT_NO_PROCESS
 #endif
 
 // Regular expression capture
-#if !defined(QT_NO_REGEXP_CAPTURE) && (defined(QT_NO_REGEXP))
+#if !defined(QT_NO_REGEXP_CAPTURE) && (defined(QT_NO_REGEXP) || defined(QT_NO_STRINGLIST))
 #define QT_NO_REGEXP_CAPTURE
 #endif
 
@@ -380,18 +406,18 @@
 #endif
 
 // Template classes in QVariant
-#if !defined(QT_NO_TEMPLATE_VARIANT) && (defined(QT_NO_VARIANT))
+#if !defined(QT_NO_TEMPLATE_VARIANT) && (defined(QT_NO_VARIANT) || defined(QT_NO_STRINGLIST))
 #define QT_NO_TEMPLATE_VARIANT
 #endif
 
 // Month and day names in dates
-#if !defined(QT_NO_TEXTDATE) && (defined(QT_NO_DATESTRING))
+#if !defined(QT_NO_TEXTDATE) && (defined(QT_NO_STRINGLIST) || defined(QT_NO_DATESTRING))
 #define QT_NO_TEXTDATE
 #endif
 
-// Drawing utility functions
-#if !defined(QT_NO_DRAWUTIL) && (defined(QT_NO_SPRINTF) || defined(QT_NO_PALETTE))
-#define QT_NO_DRAWUTIL
+// URL parser
+#if !defined(QT_NO_URL) && (defined(QT_NO_DIR))
+#define QT_NO_URL
 #endif
 
 // BMP image I/O
@@ -404,28 +430,18 @@
 #define QT_NO_PICTURE
 #endif
 
-// Translations via QObject::trUtf8()
-#if !defined(QT_NO_TRANSLATION_UTF8) && (defined(QT_NO_TRANSLATION) || defined(QT_NO_TEXTCODEC))
-#define QT_NO_TRANSLATION_UTF8
-#endif
-
-// URL parser
-#if !defined(QT_NO_URL) && (defined(QT_NO_DIR))
-#define QT_NO_URL
-#endif
-
-// Animated images
-#if !defined(QT_NO_MOVIE) && (defined(QT_NO_ASYNC_IO) || defined(QT_NO_ASYNC_IMAGE_IO))
-#define QT_NO_MOVIE
-#endif
-
 // QStyle
 #if !defined(QT_NO_STYLE) && (defined(QT_NO_DRAWUTIL))
 #define QT_NO_STYLE
 #endif
 
+// Translations via QObject::trUtf8()
+#if !defined(QT_NO_TRANSLATION_UTF8) && (defined(QT_NO_TRANSLATION) || defined(QT_NO_TEXTCODEC))
+#define QT_NO_TRANSLATION_UTF8
+#endif
+
 // DNS
-#if !defined(QT_NO_DNS) && (defined(QT_NO_NETWORK) || defined(QT_NO_TEXTSTREAM) || defined(QT_NO_SPRINTF))
+#if !defined(QT_NO_DNS) && (defined(QT_NO_NETWORK) || defined(QT_NO_STRINGLIST) || defined(QT_NO_TEXTSTREAM) || defined(QT_NO_SPRINTF))
 #define QT_NO_DNS
 #endif
 
@@ -434,14 +450,14 @@
 #define QT_NO_FRAME
 #endif
 
-// QIconSet
-#if !defined(QT_NO_ICONSET) && (defined(QT_NO_IMAGEIO) || defined(QT_NO_IMAGE_SMOOTHSCALE) || defined(QT_NO_PALETTE) || defined(QT_NO_IMAGE_HEURISTIC_MASK))
-#define QT_NO_ICONSET
-#endif
-
 // XPM image I/O
 #if !defined(QT_NO_IMAGEIO_XPM) && (defined(QT_NO_IMAGEIO) || defined(QT_NO_SPRINTF) || defined(QT_NO_TEXTSTREAM))
 #define QT_NO_IMAGEIO_XPM
+#endif
+
+// Animated images
+#if !defined(QT_NO_MOVIE) && (defined(QT_NO_ASYNC_IO) || defined(QT_NO_ASYNC_IMAGE_IO))
+#define QT_NO_MOVIE
 #endif
 
 // Network file access
@@ -469,11 +485,6 @@
 #define QT_NO_TITLEBAR
 #endif
 
-// XML
-#if !defined(QT_NO_XML) && (defined(QT_NO_TEXTSTREAM) || defined(QT_NO_TEXTCODEC) || defined(QT_NO_REGEXP_CAPTURE))
-#define QT_NO_XML
-#endif
-
 // Check-boxes
 #if !defined(QT_NO_CHECKBOX) && (defined(QT_NO_BUTTON) || defined(QT_NO_STYLE))
 #define QT_NO_CHECKBOX
@@ -482,6 +493,11 @@
 // Dials
 #if !defined(QT_NO_DIAL) && (defined(QT_NO_RANGECONTROL) || defined(QT_NO_STYLE))
 #define QT_NO_DIAL
+#endif
+
+// QIconSet
+#if !defined(QT_NO_ICONSET) && (defined(QT_NO_IMAGEIO) || defined(QT_NO_IMAGE_SMOOTHSCALE) || defined(QT_NO_PALETTE) || defined(QT_NO_IMAGE_HEURISTIC_MASK))
+#define QT_NO_ICONSET
 #endif
 
 // QLabel
@@ -564,6 +580,11 @@
 #define QT_NO_WIDGETSTACK
 #endif
 
+// XML
+#if !defined(QT_NO_XML) && (defined(QT_NO_TEXTSTREAM) || defined(QT_NO_TEXTCODEC) || defined(QT_NO_REGEXP_CAPTURE))
+#define QT_NO_XML
+#endif
+
 // Grid layout widgets
 #if !defined(QT_NO_GRID) && (defined(QT_NO_LAYOUT) || defined(QT_NO_FRAME))
 #define QT_NO_GRID
@@ -577,11 +598,6 @@
 // Horizontal box layout widgets
 #if !defined(QT_NO_HBOX) && (defined(QT_NO_LAYOUT) || defined(QT_NO_FRAME))
 #define QT_NO_HBOX
-#endif
-
-// Menu-oriented widgets
-#if !defined(QT_NO_MENUDATA) && (defined(QT_NO_ICONSET) || defined(QT_NO_VARIANT))
-#define QT_NO_MENUDATA
 #endif
 
 // Persistent application settings
@@ -614,18 +630,18 @@
 #define QT_NO_HGROUPBOX
 #endif
 
-// Properties
-#if !defined(QT_NO_PROPERTIES) && (defined(QT_NO_VARIANT) || defined(QT_NO_ICONSET))
-#define QT_NO_PROPERTIES
+// Menu-oriented widgets
+#if !defined(QT_NO_MENUDATA) && (defined(QT_NO_ICONSET) || defined(QT_NO_VARIANT))
+#define QT_NO_MENUDATA
 #endif
 
 // RichText (HTML) display
-#if !defined(QT_NO_RICHTEXT) && (defined(QT_NO_STYLE) || defined(QT_NO_LAYOUT) || defined(QT_NO_TEXTSTREAM))
+#if !defined(QT_NO_RICHTEXT) && (defined(QT_NO_STYLE) || defined(QT_NO_LAYOUT) || defined(QT_NO_STRINGLIST) || defined(QT_NO_TEXTSTREAM))
 #define QT_NO_RICHTEXT
 #endif
 
 // SQL classes
-#if !defined(QT_NO_SQL) && (defined(QT_NO_REGEXP_CAPTURE) || defined(QT_NO_VARIANT) || defined(QT_NO_SPRINTF) || defined(QT_NO_DATESTRING))
+#if !defined(QT_NO_SQL) && (defined(QT_NO_STRINGLIST) || defined(QT_NO_REGEXP_CAPTURE) || defined(QT_NO_VARIANT) || defined(QT_NO_SPRINTF) || defined(QT_NO_DATESTRING))
 #define QT_NO_SQL
 #endif
 
@@ -654,6 +670,16 @@
 #define QT_NO_PRINTER
 #endif
 
+// Properties
+#if !defined(QT_NO_PROPERTIES) && (defined(QT_NO_VARIANT) || defined(QT_NO_STRINGLIST) || defined(QT_NO_ICONSET))
+#define QT_NO_PROPERTIES
+#endif
+
+// Server to play sound
+#if !defined(QT_NO_QWS_SOUNDSERVER) && (defined(QT_NO_SOUND) || defined(QT_NO_DIR) || defined(QT_NO_DNS))
+#define QT_NO_QWS_SOUNDSERVER
+#endif
+
 // Aqua style
 #if !defined(QT_NO_STYLE_AQUA) && (defined(QT_NO_STYLE_WINDOWS) || defined(QT_NO_IMAGE_TRANSFORMATION))
 #define QT_NO_STYLE_AQUA
@@ -664,14 +690,14 @@
 #define QT_NO_VGROUPBOX
 #endif
 
-// Server to play sound
-#if !defined(QT_NO_QWS_SOUNDSERVER) && (defined(QT_NO_SOUND) || defined(QT_NO_DIR) || defined(QT_NO_DNS))
-#define QT_NO_QWS_SOUNDSERVER
-#endif
-
 // QHeader
 #if !defined(QT_NO_HEADER) && (defined(QT_NO_STYLE) || defined(QT_NO_ICONSET))
 #define QT_NO_HEADER
+#endif
+
+// HTTP file access
+#if !defined(QT_NO_NETWORKPROTOCOL_HTTP) && (defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS))
+#define QT_NO_NETWORKPROTOCOL_HTTP
 #endif
 
 // Hebrew Codec
@@ -679,9 +705,14 @@
 #define QT_NO_CODEC_HEBREW
 #endif
 
-// HTTP file access
-#if !defined(QT_NO_NETWORKPROTOCOL_HTTP) && (defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS))
-#define QT_NO_NETWORKPROTOCOL_HTTP
+// Experimental internal class
+#if !defined(QT_NO_DIALOGBUTTONS) && (defined(QT_NO_LAYOUT) || defined(QT_NO_STYLE) || defined(QT_NO_PUSHBUTTON))
+#define QT_NO_DIALOGBUTTONS
+#endif
+
+// Scrollable view widgets
+#if !defined(QT_NO_SCROLLVIEW) && (defined(QT_NO_SCROLLBAR) || defined(QT_NO_FRAME))
+#define QT_NO_SCROLLVIEW
 #endif
 
 // Tool-buttons
@@ -694,24 +725,9 @@
 #define QT_NO_BIG_CODECS
 #endif
 
-// Experimental internal class
-#if !defined(QT_NO_DIALOGBUTTONS) && (defined(QT_NO_LAYOUT) || defined(QT_NO_STYLE) || defined(QT_NO_PUSHBUTTON))
-#define QT_NO_DIALOGBUTTONS
-#endif
-
 // Document Object Model
 #if !defined(QT_NO_DOM) && (defined(QT_NO_XML) || defined(QT_NO_MIME))
 #define QT_NO_DOM
-#endif
-
-// Scrollable view widgets
-#if !defined(QT_NO_SCROLLVIEW) && (defined(QT_NO_SCROLLBAR) || defined(QT_NO_FRAME))
-#define QT_NO_SCROLLVIEW
-#endif
-
-// Tab-bars
-#if !defined(QT_NO_TABBAR) && (defined(QT_NO_TOOLBUTTON))
-#define QT_NO_TABBAR
 #endif
 
 // Drag and drop
@@ -724,9 +740,9 @@
 #define QT_NO_GRIDVIEW
 #endif
 
-// Popup-menus
-#if !defined(QT_NO_POPUPMENU) && (defined(QT_NO_MENUDATA) || defined(QT_NO_FRAME))
-#define QT_NO_POPUPMENU
+// Tab-bars
+#if !defined(QT_NO_TABBAR) && (defined(QT_NO_TOOLBUTTON))
+#define QT_NO_TABBAR
 #endif
 
 // QCanvas
@@ -740,13 +756,8 @@
 #endif
 
 // QListBox
-#if !defined(QT_NO_LISTBOX) && (defined(QT_NO_SCROLLVIEW))
+#if !defined(QT_NO_LISTBOX) && (defined(QT_NO_SCROLLVIEW) || defined(QT_NO_STRINGLIST))
 #define QT_NO_LISTBOX
-#endif
-
-// Menu bars
-#if !defined(QT_NO_MENUBAR) && (defined(QT_NO_POPUPMENU))
-#define QT_NO_MENUBAR
 #endif
 
 // QMessageBox
@@ -759,9 +770,19 @@
 #define QT_NO_NETWORKPROTOCOL_FTP
 #endif
 
+// Popup-menus
+#if !defined(QT_NO_POPUPMENU) && (defined(QT_NO_MENUDATA) || defined(QT_NO_FRAME))
+#define QT_NO_POPUPMENU
+#endif
+
 // Button groups
 #if !defined(QT_NO_BUTTONGROUP) && (defined(QT_NO_GROUPBOX) || defined(QT_NO_BUTTON) || defined(QT_NO_RADIOBUTTON))
 #define QT_NO_BUTTONGROUP
+#endif
+
+// Menu bars
+#if !defined(QT_NO_MENUBAR) && (defined(QT_NO_POPUPMENU))
+#define QT_NO_MENUBAR
 #endif
 
 // Spin boxes
@@ -794,11 +815,6 @@
 #define QT_NO_IMAGEFORMATPLUGIN
 #endif
 
-// QSqlForm
-#if !defined(QT_NO_SQL_FORM) && (defined(QT_NO_SQL) || defined(QT_NO_PROPERTIES))
-#define QT_NO_SQL_FORM
-#endif
-
 // Scalable Vector Graphics (SVG)
 #if !defined(QT_NO_SVG) && (defined(QT_NO_DOM) || defined(QT_NO_TRANSFORMATIONS) || defined(QT_NO_SPRINTF))
 #define QT_NO_SVG
@@ -809,14 +825,19 @@
 #define QT_NO_VBUTTONGROUP
 #endif
 
-// QPictureFormatPlugin
-#if !defined(QT_NO_PICTUREFORMATPLUGIN) && (defined(QT_NO_COMPONENT) || defined(QT_NO_PICTURE))
-#define QT_NO_PICTUREFORMATPLUGIN
+// QSqlForm
+#if !defined(QT_NO_SQL_FORM) && (defined(QT_NO_SQL) || defined(QT_NO_PROPERTIES))
+#define QT_NO_SQL_FORM
 #endif
 
 // QIconView
 #if !defined(QT_NO_ICONVIEW) && (defined(QT_NO_SCROLLVIEW) || defined(QT_NO_IMAGEIO_XPM) || defined(QT_NO_IMAGE_HEURISTIC_MASK))
 #define QT_NO_ICONVIEW
+#endif
+
+// QPictureFormatPlugin
+#if !defined(QT_NO_PICTUREFORMATPLUGIN) && (defined(QT_NO_COMPONENT) || defined(QT_NO_PICTURE))
+#define QT_NO_PICTUREFORMATPLUGIN
 #endif
 
 // Tab widgets
@@ -827,11 +848,6 @@
 // "What's this" help
 #if !defined(QT_NO_WHATSTHIS) && (defined(QT_NO_TOOLTIP) || defined(QT_NO_TOOLBUTTON))
 #define QT_NO_WHATSTHIS
-#endif
-
-// QWidgetPlugin
-#if !defined(QT_NO_WIDGETPLUGIN) && (defined(QT_NO_COMPONENT) || defined(QT_NO_ICONSET))
-#define QT_NO_WIDGETPLUGIN
 #endif
 
 // QProgressDialog
@@ -847,6 +863,11 @@
 // Rich text edit
 #if !defined(QT_NO_TEXTEDIT) && (defined(QT_NO_RICHTEXT) || defined(QT_NO_SCROLLVIEW))
 #define QT_NO_TEXTEDIT
+#endif
+
+// QWidgetPlugin
+#if !defined(QT_NO_WIDGETPLUGIN) && (defined(QT_NO_COMPONENT) || defined(QT_NO_ICONSET))
+#define QT_NO_WIDGETPLUGIN
 #endif
 
 // QWizard
@@ -884,14 +905,14 @@
 #define QT_NO_LISTVIEW
 #endif
 
-// QComboBox
-#if !defined(QT_NO_COMBOBOX) && (defined(QT_NO_LISTBOX) || defined(QT_NO_LINEEDIT) || defined(QT_NO_POPUPMENU))
-#define QT_NO_COMBOBOX
-#endif
-
 // QColorDialog
 #if !defined(QT_NO_COLORDIALOG) && (defined(QT_NO_DIALOG) || defined(QT_NO_LABEL) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR) || defined(QT_NO_GRIDVIEW) || defined(QT_NO_LAYOUT))
 #define QT_NO_COLORDIALOG
+#endif
+
+// QComboBox
+#if !defined(QT_NO_COMBOBOX) && (defined(QT_NO_LISTBOX) || defined(QT_NO_LINEEDIT) || defined(QT_NO_POPUPMENU))
+#define QT_NO_COMBOBOX
 #endif
 
 // Tool box
@@ -899,18 +920,18 @@
 #define QT_NO_TOOLBOX
 #endif
 
-// SGI style
-#if !defined(QT_NO_STYLE_SGI) && (defined(QT_NO_STYLE_MOTIF) || defined(QT_NO_TRANSFORMATIONS) || defined(QT_NO_BUTTON) || defined(QT_NO_SCROLLBAR) || defined(QT_NO_SLIDER) || defined(QT_NO_LINEEDIT) || defined(QT_NO_MENUBAR))
-#define QT_NO_STYLE_SGI
-#endif
-
 // QErrorMessage
 #if !defined(QT_NO_ERRORMESSAGE) && (defined(QT_NO_DIALOG) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_LABEL) || defined(QT_NO_CHECKBOX) || defined(QT_NO_TEXTVIEW))
 #define QT_NO_ERRORMESSAGE
 #endif
 
+// SGI style
+#if !defined(QT_NO_STYLE_SGI) && (defined(QT_NO_STYLE_MOTIF) || defined(QT_NO_TRANSFORMATIONS) || defined(QT_NO_BUTTON) || defined(QT_NO_SCROLLBAR) || defined(QT_NO_SLIDER) || defined(QT_NO_LINEEDIT) || defined(QT_NO_MENUBAR))
+#define QT_NO_STYLE_SGI
+#endif
+
 // Main-windows
-#if !defined(QT_NO_MAINWINDOW) && (defined(QT_NO_POPUPMENU) || defined(QT_NO_TITLEBAR) || defined(QT_NO_RESIZEHANDLER) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_STATUSBAR))
+#if !defined(QT_NO_MAINWINDOW) && (defined(QT_NO_STRINGLIST) || defined(QT_NO_POPUPMENU) || defined(QT_NO_TITLEBAR) || defined(QT_NO_RESIZEHANDLER) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_STATUSBAR))
 #define QT_NO_MAINWINDOW
 #endif
 

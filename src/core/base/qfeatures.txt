@@ -151,7 +151,7 @@ SeeAlso: ???
 
 Feature: SPRINTF
 Section: Data structures
-Requires: REGEXP
+Requires: 
 Name: QString::sprintf()
 SeeAlso: ???
 
@@ -181,7 +181,7 @@ SeeAlso: ???
 
 Feature: DIR
 Section: File I/O
-Requires: STRINGLIST REGEXP
+Requires: STRINGLIST
 Name: QDir
 SeeAlso: ???
 
