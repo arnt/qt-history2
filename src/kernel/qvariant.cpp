@@ -1433,7 +1433,7 @@ QDataStream& operator<< ( QDataStream& s, const QVariant::Type p )
 
 /*!
   Returns the variant as a QString if the variant has type()
-  String, CString, Int, Uint, Bool, Double, Date, Time, or DateTime,
+  String, CString, ByteArray, Int, Uint, Bool, Double, Date, Time, or DateTime,
   or QString::null otherwise.
 
   \sa asString()
@@ -1460,6 +1460,8 @@ const QString QVariant::toString() const
 	return QString::number( toInt() );
     if ( d->typ == KeySequence )
 	return (QString) *( (QKeySequence*)d->value.ptr );
+    if ( d->typ == ByteArray )
+	return QString( *((QByteArray*)d->value.ptr) );
     if ( d->typ != String )
 	return QString::null;
     return *((QString*)d->value.ptr);
