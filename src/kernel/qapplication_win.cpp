@@ -3895,8 +3895,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
     t = QEvent::TabletMove;
     if ( winPeekMessage( &msg1, msg.hwnd, WM_MOUSEFIRST, WM_MOUSELAST, PM_NOREMOVE) ) {
 	switch (msg1.message) {
-	case WM_MOUSEMOVE:    
-	    chokeMouse = TRUE;
+	case WM_MOUSEMOVE:    	    
 	    t = QEvent::TabletMove;
 	    break;
 	case WM_LBUTTONDOWN:
