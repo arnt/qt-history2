@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#285 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#286 $
 **
 ** Implementation of QFileDialog class
 **
@@ -2877,7 +2877,7 @@ void QFileDialog::error( int ecode, const QString &msg )
     QMessageBox::critical( this, tr( "ERROR" ), msg );
 
     if ( ecode == QUrl::ErrReadDir || ecode == QUrl::ErrParse ||
-	 ecode == QUrl::ErrUnknownProtocol ) {
+	 ecode == QUrl::ErrUnknownProtocol || ecode == QUrl::ErrLoginIncorrect ) {
 	// #### todo
 	d->url = "/";
 	rereadDir();
