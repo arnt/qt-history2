@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#256 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#257 $
 **
 ** Implementation of QFileDialog class
 **
@@ -2106,24 +2106,29 @@ void QFileDialog::rereadDir()
     d->moreFiles->clear();
     files->clear();
 
+    if ( !cwd.isRoot() ) {
+	QFileInfo *fi = new QFileInfo( cwd, ".." );
+	QFileDialogPrivate::File * i = new QFileDialogPrivate::File( d, fi , files );
+	if ( mode() == ExistingFiles && fi->isDir() )
+	    i->setSelectable( FALSE );
+	QFileDialogPrivate::MCItem *i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
+	i->i = i2;	
+    }
+    
     QFileInfoListIterator it( *filist );
     QFileInfo *fi;
     while ( (fi = it.current()) != 0 ) {
         ++it;
-
         if ( fi->fileName() != QString::fromLatin1(".") &&
-             ( !cwd.isRoot() ||
-               fi->fileName() != QString::fromLatin1("..") ) ) {
-
-            QFileDialogPrivate::File * i = new QFileDialogPrivate::File( d, fi, files );
-            if ( mode() == ExistingFiles && fi->isDir() )
-                i->setSelectable( FALSE );
-            QFileDialogPrivate::MCItem *i2
-                = new QFileDialogPrivate::MCItem( d->moreFiles, i );
-            if ( mode() == ExistingFiles && fi->isDir() )
-                i2->setSelectable( FALSE );
-            i->i = i2;
-        }
+	     fi->fileName() != QString::fromLatin1("..") ) {
+	QFileDialogPrivate::File * i = new QFileDialogPrivate::File( d, fi, files );
+	if ( mode() == ExistingFiles && fi->isDir() )
+	    i->setSelectable( FALSE );
+	QFileDialogPrivate::MCItem *i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
+	if ( mode() == ExistingFiles && fi->isDir() )
+	    i2->setSelectable( FALSE );
+	i->i = i2;	
+	}
 
     }
     d->moreFiles->setCurrentItem( 0 );

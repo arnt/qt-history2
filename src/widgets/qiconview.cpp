@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#16 $
 **
 ** Definition of QIconView widget class
 **
@@ -1511,7 +1511,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
                 }
             }
         }
-            
+
     } break;
     case Key_Up:
     {
