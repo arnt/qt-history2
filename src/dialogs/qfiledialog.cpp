@@ -82,6 +82,7 @@
 
 #ifdef Q_WS_MAC
 #include <qt_mac.h>
+#undef check
 #endif
 
 #if defined(Q_OS_UNIX)

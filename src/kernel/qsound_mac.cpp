@@ -46,6 +46,7 @@
 #include <qpainter.h>
 #include <qapplication.h>
 #include "qt_mac.h"
+#undef check
 
 class QAuServerMac : public QAuServer {
     Q_OBJECT
