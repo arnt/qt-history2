@@ -59,6 +59,7 @@
 #include "qbitmap.h"
 #include "qpixmapcache.h"
 #include "qptrdict.h"
+#include "qstringlist.h"
 #include "qcleanuphandler.h"
 
 #include <stdlib.h>
@@ -158,6 +159,8 @@ static QPixmap *get_qiv_buffer_pixmap( const QSize &s )
  *
  *****************************************************************************/
 
+#ifndef QT_NO_DRAGANDDROP
+
 class QIconDragData
 {
 public:
@@ -192,6 +195,8 @@ struct QIconDragPrivate
     static bool decode( QMimeSource* e, QValueList<QIconDragDataItem> &lst );
 };
 
+#endif
+
 class QIconViewToolTip;
 
 class QIconViewPrivate
@@ -212,7 +217,9 @@ public:
     QIconView::Arrangement arrangement;
     QIconView::ResizeMode resizeMode;
     QSize oldSize;
+#ifndef QT_NO_DRAGANDDROP
     QValueList<QIconDragDataItem> iconDragData;
+#endif
     bool isIconDrag;
     int numDragItems, cachedW, cachedH;
     int maxItemWidth, maxItemTextLength;
@@ -393,6 +400,8 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
 {
     item->cancelRenameItem();
 }
+
+#ifndef QT_NO_DRAGANDDROP
 
 /*****************************************************************************
  *
@@ -678,6 +687,8 @@ void QIconDragData::setTextRect( const QRect &r )
 {
     textRect_ = r;
 }
+
+#endif
 
 /*****************************************************************************
  *
@@ -2254,7 +2265,9 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->dropped = FALSE;
     d->adjustTimer = new QTimer( this );
     d->isIconDrag = FALSE;
+#ifndef QT_NO_DRAGANDDROP
     d->iconDragData.clear();
+#endif
     d->numDragItems = 0;
     d->updateTimer = new QTimer( this );
     d->cachedW = d->cachedH = 0;
@@ -2620,7 +2633,7 @@ int QIconView::index( const QIconViewItem *item ) const
     else {
 	QIconViewItem *i = d->firstItem;
 	uint j = 0;
-	while ( i != item ) {
+	while ( i && i != item ) {
 	    i = i->next;
 	    ++j;
 	}
@@ -4685,6 +4698,7 @@ void QIconView::emitRenamed( QIconViewItem *item )
 
 void QIconView::drawDragShapes( const QPoint &pos )
 {
+#ifndef QT_NO_DRAGANDDROP
     if ( pos == QPoint( -1, -1 ) )
 	return;
 
@@ -4726,6 +4740,7 @@ void QIconView::drawDragShapes( const QPoint &pos )
 
 	p.end();
     }
+#endif
 }
 
 /*!
