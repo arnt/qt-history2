@@ -2168,6 +2168,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		QContextMenuEvent ce( cevent->reason(),
 				      w->mapFromGlobal( cevent->globalPos() ),
 				      cevent->globalPos(), cevent->state() );
+		ce.spont = e->spontaneous();
 		res = internalNotify( w, &ce );
 
 		if ( ce.isConsumed() )
