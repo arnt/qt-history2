@@ -340,6 +340,14 @@ struct QLineEditPrivate {
 */
 
 /*!
+    \fn void QLineEdit::lostFocus()
+
+    This signal is emitted when the line edit has lost focus.
+
+    \sa hasFocus(), QWidget::focusInEvent(), QWidget::focusOutEvent()
+*/
+
+/*!
     Constructs a line edit with no text.
 
     The maximum text length is set to 32767 characters.
@@ -986,6 +994,7 @@ void QLineEdit::focusOutEvent( QFocusEvent * e )
     if ( d->cursorOn )
 	blinkSlot();
     update();
+    emit lostFocus();
 }
 
 /*!\reimp
