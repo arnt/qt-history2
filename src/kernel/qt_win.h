@@ -18,7 +18,6 @@
 
 #if defined __cplusplus
 
-# include <private/qucomextra_p.h>  	/* For moc generated code   */
 # include <qapplication.h>
 # include <qbitmap.h>
 # include <qcursor.h>
