@@ -48,6 +48,7 @@
 #include <qfiledialog.h>
 #include <qaccel.h>
 #include <qmetaobject.h>
+#include <qpainter.h>
 
 #include "widgets.h"
 
