@@ -324,8 +324,10 @@ private:
 
     void writeNode(QIODevice& f)
     {
-	f.writeBlock((char*)&min, sizeof(QChar));
-	f.writeBlock((char*)&max, sizeof(QChar));
+	char t[4];
+	t[0] = min.row(); t[1]=min.cell();
+	t[2] = max.row(); t[3]=max.cell();
+	f.writeBlock(t,4);
 	int flags = 0;
 	if ( less ) flags |= 1;
 	if ( more ) flags |= 2;
@@ -483,7 +485,7 @@ private:
 	    QSize s( glyph[i].metrics->width, glyph[i].metrics->height );
 	    s = qt_screen->mapToDevice( s );
 	    uint datasize = glyph[i].metrics->linestep * s.height();
-	    glyph[i].data = new uchar[datasize];
+	    glyph[i].data = new uchar[datasize]; // ### deleted?
 	    f.readBlock((char*)glyph[i].data, datasize);
 	}
 	if ( less )
@@ -546,7 +548,8 @@ public:
     {
 	if ( default_glyph ) {
 	    delete default_glyph->metrics;
-	    delete [] default_glyph->data;
+	    if ( default_glyph->data )
+		delete [] default_glyph->data;
 	    delete default_glyph;
 	}
 	if ( tree ) {
