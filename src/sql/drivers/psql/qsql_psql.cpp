@@ -43,7 +43,9 @@
 #include <postgres.h>
 #include <libpq/libpq-fs.h>
 #include <catalog/pg_type.h>
+#ifndef Q_WS_MAC
 #include <utils/geo_decls.h>
+#endif
 #include <math.h>
 
 class QPSQLPrivate
@@ -529,7 +531,7 @@ bool QPSQLDriver::beginTransaction()
     PGresult* res = PQexec( d->connection, "BEGIN" );
     if ( !res || PQresultStatus( res ) != PGRES_COMMAND_OK ) {
 	PQclear( res );
-	setLastError( qMakeError( "Could not being transaction", QSqlError::Transaction, d ) );
+	setLastError( qMakeError( "Could not begin transaction", QSqlError::Transaction, d ) );
 	return FALSE;
     }
     PQclear( res );
