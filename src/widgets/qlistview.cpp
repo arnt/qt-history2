@@ -594,6 +594,8 @@ void QListViewItem::setEnabled( bool b )
     if ( (bool)enabled == b )
 	return;
     enabled = b;
+    if ( !enabled )
+	selected = FALSE;
     QListView *lv = listView();
     if ( lv )
 	lv->triggerUpdate();

@@ -144,7 +144,7 @@ public:
     QListView *listView() const;
 
     virtual void setSelectable( bool enable );
-    bool isSelectable() const { return selectable; }
+    bool isSelectable() const { return selectable && enabled; }
 
     virtual void setExpandable( bool );
     bool isExpandable() const { return expandable; }
