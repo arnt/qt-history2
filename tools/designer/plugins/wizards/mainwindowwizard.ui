@@ -1625,7 +1625,7 @@
 }</function>
     <function name="setAppInterface(QUnknownInterface*,DesignerFormWindow*,QWidget*)" >{
     DesignerInterface *d = 0;
-    iface-&gt;queryInterface(  IID_DesignerInterface, (QUnknownInterface**)&amp;d );
+    iface-&gt;queryInterface(  IID_Designer, (QUnknownInterface**)&amp;d );
     dIface = d;
     dfw = fw;
     widget = w;
