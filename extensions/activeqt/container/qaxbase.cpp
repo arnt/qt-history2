@@ -1040,6 +1040,8 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
 	break;
     case VT_I1:
     case VT_I2:
+	str = "short";
+	break;
     case VT_I4:
     case VT_INT:
 	str = "int";
@@ -1178,10 +1180,11 @@ static inline void QStringToQUType( const QString& fulltype, QUParameter *param,
 	type.truncate( type.length()-1 );
 
     param->typeExtra = 0;
-    if ( type == "int" ) {
+    if ( type == "int" || type == "long" ) {
 	param->type = &static_QUType_int;
-    } else if ( type == "short" || type == "long" ) {
+    } else if ( type == "short" ) {
 	param->type = &static_QUType_int;
+	param->typeExtra = (void*)2; // byte size if not default
     } else if ( type == "uint" ) {
 	param->type = &static_QUType_varptr;
 	param->typeExtra = new char(QVariant::UInt);
@@ -2219,8 +2222,11 @@ QMetaObject *MetaObjectGenerator::metaObject( QMetaObject *parentObject )
     QDictIterator<QUMethod> slot_it( slotlist );
     while ( slot_it.current() ) {
 	QUMethod *slot = slot_it.current();
-	slot_data[index].name = new char[slot_it.currentKey().length()+1];
-	slot_data[index].name = qstrcpy( (char*)slot_data[index].name, slot_it.currentKey() );
+	QString slotname = slot_it.currentKey();
+	if (slotname.contains("short"))
+	    slotname.replace("short", "int");
+	slot_data[index].name = new char[slotname.length()+1];
+	slot_data[index].name = qstrcpy( (char*)slot_data[index].name, slotname );
 	slot_data[index].method = slot;
 	slot_data[index].access = QMetaData::Public;
 
@@ -2239,8 +2245,11 @@ QMetaObject *MetaObjectGenerator::metaObject( QMetaObject *parentObject )
     QDictIterator<QUMethod> signal_it( signallist );
     while ( signal_it.current() ) {
 	QUMethod *signal = signal_it.current();
-	signal_data[index].name = new char[signal_it.currentKey().length()+1];
-	signal_data[index].name = qstrcpy( (char*)signal_data[index].name, signal_it.currentKey() );
+	QString signalname = signal_it.currentKey();
+	if (signalname.contains("short"))
+	    signalname.replace("short", "int");
+	signal_data[index].name = new char[signalname.length()+1];
+	signal_data[index].name = qstrcpy( (char*)signal_data[index].name, signalname );
 	signal_data[index].method = signal;
 	signal_data[index].access = QMetaData::Public;
 
