@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.h#5 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.h#6 $
 **
 ** Definition of the QWorkspace class
 **
@@ -56,9 +56,9 @@ public:
     void minimizeClient( QWidget* w);
     void normalizeClient( QWidget* w);
     QWidget* activeClient() const;
-    
+
 signals:
-    void clientActivated( QWidget* w);
+    void clientActivated( const QWidget* w);
 
 protected:
     void childEvent( QChildEvent * );
