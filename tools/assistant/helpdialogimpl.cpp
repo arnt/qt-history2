@@ -587,6 +587,7 @@ void HelpDialog::showIndexTopic()
     if ( links.count() == 1 ) {
 	emit showLink( links.first() );
     } else {
+	qHeapSort( links );
 	QStringList::Iterator it = links.begin();
 	QStringList linkList;
 	QStringList linkNames;

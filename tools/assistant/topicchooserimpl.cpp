@@ -29,7 +29,6 @@ TopicChooser::TopicChooser( QWidget *parent, const QStringList &lnkNames,
     : TopicChooserBase( parent, 0, TRUE ), links( lnks ), linkNames( lnkNames )
 {
     label->setText( tr( "Choose a topic for <b>%1</b>" ).arg( title ) );
-    qHeapSort( linkNames );
     listbox->insertStringList( linkNames );
     listbox->setCurrentItem( listbox->firstItem() );
     listbox->setFocus();
