@@ -45,7 +45,7 @@
 /*! \file sql/overview/extract/main.cpp */
 /*! \file sql/overview/insert/main.cpp */
 /*! \file sql/overview/update/main.cpp */
-/*! \file sql/overview/del/main.cpp */
+/*! \file sql/overview/delete/main.cpp */
 /*! \file sql/overview/table1/main.cpp */
 /*! \file sql/overview/table2/main.cpp */
 /*! \file sql/overview/table3/main.h */
@@ -765,11 +765,11 @@ with \l QSqlQuery is more efficient, e.g.
 \target Deleting_Records
 \section3 Deleting Records
 
-\quotefile sql/overview/del/main.cpp
+\quotefile sql/overview/delete/main.cpp
 \skipto QSqlCursor
 \printline QSqlCursor
 \printuntil del
-\caption From \l sql/overview/del/main.cpp
+\caption From \l sql/overview/delete/main.cpp
 
 To delete records, select the record to be deleted and navigate to it.
 Then call primeDelete() to populate the cursor with the primary key
