@@ -518,7 +518,7 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 		origPressPos = oldPressPos;
 		checkedSelectionsForMove = FALSE;
 		moving.clear();
-		if (w->parentWidget() && !w->parentWidget()->inherits( "QDesignerDialog" )) {
+		if ( w->parentWidget() && !isMainContainer( w->parentWidget() ) && !isCentralWidget( w->parentWidget() ) ) {
 		    targetContainer = w->parentWidget();
 		    hadOwnPalette = w->parentWidget()->ownPalette();
 		    restoreColor = w->parentWidget()->backgroundColor();
@@ -694,7 +694,7 @@ void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
 		
 		// check whether we would have to reparent the selection and highlight the possible new parent container
 		QWidget* wa = containerAt( e->globalPos(), ( (QWidget*)moving.begin().key() ) );
-		if ( wa  && !wa->inherits( "QDesignerDialog" ) ) {
+		if ( wa  && !isMainContainer( wa ) && !isCentralWidget( wa ) ) {
 		    wa = WidgetFactory::containerOfWidget( wa );
 		    // ok, looks like we moved onto a container
 
