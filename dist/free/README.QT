@@ -1,7 +1,7 @@
 Qt is a complete and well-developed object-oriented framework for
 developing graphical user interface (GUI) applications using C++.
 
-This release, Qt 1.30, is free only for development of free software for
+This release, Qt 1.31, is free only for development of free software for
 the X Window System. If you are using Qt for developing commercial or
 other non-free software, you must have a professional license. Please see
 http://www.troll.no/pricing.html for how to obtain this.
@@ -74,7 +74,7 @@ Here is the license intended for free software:
 
 Copyright (C) 1992-1997 Troll Tech AS.  All rights reserved.
 
-This is the free software license for Qt version 1.30; it covers private
+This is the free software license for Qt version 1.31; it covers private
 use, use of third-party application programs based on Qt, and development
 of free software for the free software community.
 
