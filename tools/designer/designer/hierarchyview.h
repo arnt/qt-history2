@@ -23,7 +23,7 @@
 
 #include <qvariant.h>
 #include <qlistview.h>
-#include <qvbox.h>
+#include <qtabwidget.h>
 #include <qlist.h>
 
 class HierarchyView;
@@ -60,13 +60,13 @@ class HierarchyList : public QListView
     Q_OBJECT
 
 public:
-    HierarchyList( QWidget *parent, HierarchyView *view );
+    HierarchyList( QWidget *parent, HierarchyView *view, bool doConnects = TRUE );
 
-    void setup();
-    void setCurrent( QWidget *w );
+    virtual void setup();
+    virtual void setCurrent( QWidget *w );
     void setOpen( QListViewItem *i, bool b );
     void changeNameOf( QWidget *w, const QString &name );
-    void changeDatabaseOf( QWidget *w, const QString &info );    
+    void changeDatabaseOf( QWidget *w, const QString &info );
 
 protected:
     void keyPressEvent( QKeyEvent *e );
@@ -90,14 +90,25 @@ private slots:
     void objectClicked( QListViewItem *i );
     void showRMBMenu( QListViewItem *, const QPoint & );
 
-private:
+protected:
     HierarchyView *hierarchyView;
     QPopupMenu *normalMenu, *tabWidgetMenu;
     bool deselect;
 
 };
 
-class HierarchyView : public QVBox
+class FunctionList : public HierarchyList
+{
+public:
+    FunctionList( QWidget *parent, HierarchyView *view );
+
+    void setup();
+    void setCurrent( QWidget *w );
+
+};
+
+
+class HierarchyView : public QTabWidget
 {
     Q_OBJECT
 
@@ -127,6 +138,7 @@ signals:
 private:
     FormWindow *formwindow;
     HierarchyList *listview;
+    FunctionList *fList;
 
 };
 

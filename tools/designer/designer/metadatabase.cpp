@@ -54,6 +54,7 @@ static QPtrDict<MetaDataBaseRecord> *db = 0;
 static QList<MetaDataBase::CustomWidget> *cWidgets = 0;
 static bool doUpdate = TRUE;
 static bool haveEvents = FALSE;
+static bool editorInstalled = FALSE;
 
 /*!
   \class MetaDataBase metadatabase.h
@@ -1026,4 +1027,14 @@ QString MetaDataBase::eventFunction( QObject *o, const QString &event )
     }
 
     return *r->eventFunctions.find( event );
+}
+
+void MetaDataBase::setEditor( bool b )
+{
+    editorInstalled = b;
+}
+
+bool MetaDataBase::hasEditor()
+{
+    return editorInstalled;
 }

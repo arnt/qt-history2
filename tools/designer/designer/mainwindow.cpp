@@ -99,6 +99,7 @@
 #include "projectsettingsimpl.h"
 #include "dbconnectionsimpl.h"
 #include "../resource/qwidgetfactory.h"
+#include <qvbox.h>
 
 static int forms = 0;
 
@@ -146,6 +147,9 @@ MainWindow::MainWindow( bool asClient )
     dir += "/lib";
     if ( QFile::exists( dir + "/libqscript.so" ) || QFile::exists( dir + "/qscript.dll" ) )
 	MetaDataBase::setEventsEnabled( TRUE );
+
+    // #### check for editor component
+    MetaDataBase::setEditor( TRUE );
 
     qApp->setMainWidget( this );
     QWidgetFactory::addWidgetFactory( new CustomWidgetFactory );

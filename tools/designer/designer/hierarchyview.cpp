@@ -108,7 +108,7 @@ QWidget *HierarchyItem::widget() const
 
 
 
-HierarchyList::HierarchyList( QWidget *parent, HierarchyView *view )
+HierarchyList::HierarchyList( QWidget *parent, HierarchyView *view, bool doConnects )
     : QListView( parent ), hierarchyView( view )
 {
     header()->setMovingEnabled( FALSE );
@@ -124,14 +124,16 @@ HierarchyList::HierarchyList( QWidget *parent, HierarchyView *view )
 		this, SLOT( changeSortColumn( int ) ) );
     setSorting( -1 );
     setHScrollBarMode( AlwaysOff );
-    connect( header(), SIGNAL( sizeChange( int, int, int ) ),
-	     this, SLOT( updateHeader() ) );
-    connect( this, SIGNAL( clicked( QListViewItem * ) ),
-	     this, SLOT( objectClicked( QListViewItem * ) ) );
-    connect( this, SIGNAL( returnPressed( QListViewItem * ) ),
-	     this, SLOT( objectClicked( QListViewItem * ) ) );
-    connect( this, SIGNAL( rightButtonPressed( QListViewItem *, const QPoint&, int ) ),
-	     this, SLOT( showRMBMenu( QListViewItem *, const QPoint & ) ) );
+    if ( doConnects ) {
+	connect( header(), SIGNAL( sizeChange( int, int, int ) ),
+		 this, SLOT( updateHeader() ) );
+	connect( this, SIGNAL( clicked( QListViewItem * ) ),
+		 this, SLOT( objectClicked( QListViewItem * ) ) );
+	connect( this, SIGNAL( returnPressed( QListViewItem * ) ),
+		 this, SLOT( objectClicked( QListViewItem * ) ) );
+	connect( this, SIGNAL( rightButtonPressed( QListViewItem *, const QPoint&, int ) ),
+		 this, SLOT( showRMBMenu( QListViewItem *, const QPoint & ) ) );
+    }
     deselect = TRUE;
 }
 
@@ -493,14 +495,57 @@ void HierarchyList::removeTabPage()
     }
 }
 
+// ------------------------------------------------------------
 
+FunctionList::FunctionList( QWidget *parent, HierarchyView *view )
+    : HierarchyList( parent, view, FALSE )
+{
+    header()->hide();
+}
+
+void FunctionList::setup()
+{
+    clear();
+    QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( hierarchyView->formWindow() );
+    if ( slotList.isEmpty() )
+	return;
+    HierarchyItem *itemProtected = new HierarchyItem( this, tr( "protected" ), QString::null, QString::null );
+    HierarchyItem *itemPublic = new HierarchyItem( this, tr( "public" ), QString::null, QString::null );
+    QValueList<MetaDataBase::Slot>::Iterator it = --( slotList.end() );
+    while ( TRUE ) {
+	QListViewItem *item = 0;
+	if ( (*it).access == "public" )
+	    item = new HierarchyItem( itemPublic, (*it).slot, QString::null, QString::null );
+	else
+	    item = new HierarchyItem( itemProtected, (*it).slot, QString::null, QString::null );
+	item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
+	if ( it == slotList.begin() )
+	    break;
+	--it;
+    }
+    itemProtected->setOpen( TRUE );
+    itemPublic->setOpen( TRUE );
+}
+
+void FunctionList::setCurrent( QWidget * )
+{
+}
+
+// ------------------------------------------------------------
 
 HierarchyView::HierarchyView( QWidget *parent )
-    : QVBox( parent, 0, WStyle_Customize | WStyle_NormalBorder | WStyle_Title |
-	     WStyle_Tool |WStyle_MinMax | WStyle_SysMenu )
+    : QTabWidget( parent, 0, WStyle_Customize | WStyle_NormalBorder | WStyle_Title |
+		  WStyle_Tool |WStyle_MinMax | WStyle_SysMenu )
 {
     setIcon( PixmapChooser::loadPixmap( "logo" ) );
     listview = new HierarchyList( this, this );
+    addTab( listview, tr( "Widgets" ) );
+    fList = new FunctionList( this, this );
+    if ( MetaDataBase::hasEditor() )
+	addTab( fList, tr( "Functions" ) );
+    else
+	fList->hide();
+	
     formwindow = 0;
 }
 
@@ -508,6 +553,7 @@ void HierarchyView::setFormWindow( FormWindow *fw, QWidget *w )
 {
     if ( fw == 0 || w == 0 ) {
 	listview->clear();
+	fList->clear();
 	formwindow = 0;
     }
 
@@ -519,6 +565,7 @@ void HierarchyView::setFormWindow( FormWindow *fw, QWidget *w )
     formwindow = fw;
     listview->setup();
     listview->setCurrent( w );
+    fList->setup();
 }
 
 FormWindow *HierarchyView::formWindow() const
