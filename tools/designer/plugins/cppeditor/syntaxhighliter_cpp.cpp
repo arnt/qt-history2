@@ -269,6 +269,7 @@ void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParag *string, int
 
     static QString alphabeth = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     static QString mathChars = "xXeE";
+    bool questionMark = FALSE;
     QChar lastChar;
     while ( TRUE ) {
 	QChar c = string->at( i )->c;
@@ -315,7 +316,7 @@ void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParag *string, int
 		QChar nextChar = ' ';
 		if ( i < string->length() - 1 )
 		    nextChar = string->at( i + 1 )->c;
-		if ( lastChar != ':' && nextChar != ':' ) {
+		if ( state == StateStandard && !questionMark && lastChar != ':' && nextChar != ':' ) {
 		    for ( int j = 0; j < i; ++j ) {
 			if ( string->at( j )->format() == formatStandard )
 			    string->setFormat( j, 1, formatLabel, FALSE );
@@ -323,11 +324,13 @@ void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParag *string, int
 		}
 	    } break;
 	    default: {
-		    if ( c.isLetter() || c == '_' )
-			input = InputAlpha;
-		    else
-			input = InputSep;
-		} break;
+		if ( !questionMark && c == '?' )
+		    questionMark = TRUE;
+		if ( c.isLetter() || c == '_' )
+		    input = InputAlpha;
+		else
+		    input = InputSep;
+	    } break;
 	    }
 	}
 	
