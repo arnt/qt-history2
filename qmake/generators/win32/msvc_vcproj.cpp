@@ -635,6 +635,7 @@ void VcprojGenerator::initProject()
     // - Do this first since project elements may need
     // - to know of certain configuration options
     initConfiguration();
+    initRootFiles();
     initSourceFiles();
     initHeaderFiles();
     initGeneratedFiles();
@@ -899,6 +900,16 @@ void VcprojGenerator::addMocArguments(VCFilter &filter)
     }
 }
 
+void VcprojGenerator::initRootFiles()
+{
+    // Note: Root files do _not_ have any filter name, filter nor GUID!
+    vcProject.RootFiles.addFiles(project->variables()["RC_FILE"]);
+
+    vcProject.RootFiles.Project = this;
+    vcProject.RootFiles.Config = &(vcProject.Configuration);
+    vcProject.RootFiles.CustomBuild = none;
+}
+
 void VcprojGenerator::initSourceFiles()
 {
     vcProject.SourceFiles.Name = "Source Files";
@@ -953,7 +964,7 @@ void VcprojGenerator::initGeneratedFiles()
                               srcl.at(index).endsWith(Option::cpp_moc_ext)
                               ? false : true));
 
-    // ### These cannot have CustomBuild!!
+    // ### These cannot have CustomBuild (mocSrc)!!
     vcProject.GeneratedFiles.addFiles(project->variables()["RESOURCES"]);
     vcProject.GeneratedFiles.addFiles(project->variables()["IDLSOURCES"]);
     vcProject.GeneratedFiles.addFiles(project->variables()["RES_FILE"]);                 // compat

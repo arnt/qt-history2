@@ -1994,11 +1994,13 @@ XmlOutput &operator<<(XmlOutput &xml, VCFilter &tool)
     if(!tool.Files.count())
         return xml;
 
-    xml << tag(_Filter)
-            << attrS(_Name, tool.Name)
-            << attrS(_Filter, tool.Filter)
-            << attrS(_UniqueIdentifier, tool.Guid)
-            << attrT(_ParseFiles, tool.ParseFiles);
+    if (!tool.Name.isEmpty()) {
+        xml << tag(_Filter)
+                << attrS(_Name, tool.Name)
+                << attrS(_Filter, tool.Filter)
+                << attrS(_UniqueIdentifier, tool.Guid)
+                << attrT(_ParseFiles, tool.ParseFiles);
+    }
     for (int i = 0; i < tool.Files.count(); ++i) {
         const VCFilterFile &info = tool.Files.at(i);
         xml << tag(_File)
@@ -2007,7 +2009,8 @@ XmlOutput &operator<<(XmlOutput &xml, VCFilter &tool)
         tool.outputFileConfig(xml, tool.Files.at(i).file);
         xml << closetag(_File);
     }
-    xml << closetag(_Filter);
+    if (!tool.Name.isEmpty())
+        xml << closetag(_Filter);
     return xml;
 }
 
@@ -2048,7 +2051,8 @@ XmlOutput &operator<<(XmlOutput &xml, const VCProjectSingleConfig &tool)
                 << (VCFilter&)tool.ResourceFiles;
     for(int j = 0; j < tool.ExtraCompilersFiles.size(); ++j)
         xml     << (VCFilter&)tool.ExtraCompilersFiles.at(j);
-    xml     << closetag(_Files)
+    xml     << (VCFilter&)tool.RootFiles
+            << closetag(_Files)
             << tag(_Globals)
                 << data(); // No "/>" end tag
     return xml;
@@ -2107,7 +2111,9 @@ void VCProject::outputFileConfigs(XmlOutput &xml,
             << attrS(_RelativePath, info.file);
     for (int i = 0; i < SingleProjects.count(); ++i) {
         VCFilter filter;
-        if (filtername == "Sources") {
+        if (filtername == "RootFiles") {
+            filter = SingleProjects.at(i).RootFiles;
+        } else if (filtername == "Sources") {
             filter = SingleProjects.at(i).SourceFiles;
         } else if (filtername == "Headers") {
             filter = SingleProjects.at(i).HeaderFiles;
@@ -2146,7 +2152,9 @@ void VCProject::outputFilter(XmlOutput &xml,
 
     for (int i = 0; i < SingleProjects.count(); ++i) {
         VCFilter filter;
-        if (filtername == "Sources") {
+        if (filtername == "RootFiles") {
+            filter = SingleProjects.at(i).RootFiles;
+        } else if (filtername == "Sources") {
             filter = SingleProjects.at(i).SourceFiles;
         } else if (filtername == "Headers") {
             filter = SingleProjects.at(i).HeaderFiles;
@@ -2183,14 +2191,16 @@ void VCProject::outputFilter(XmlOutput &xml,
         return;
 
     // Actual XML output ----------------------------------
-    xml << tag(_Filter)
-            << attrS(_Name, name)
-            << attrS(_Filter, extfilter)
-            << attrS(_UniqueIdentifier, guid)
-            << attrT(_ParseFiles, parse);
+    if (!name.isEmpty()) {
+        xml << tag(_Filter)
+                << attrS(_Name, name)
+                << attrS(_Filter, extfilter)
+                << attrS(_UniqueIdentifier, guid)
+                << attrT(_ParseFiles, parse);
+    }
     root->generateXML(xml, "", *this, filtername); // output root tree
-    xml << closetag(_Filter);
-
+    if (!name.isEmpty())
+        xml << closetag(_Filter);
 }
 
 XmlOutput &operator<<(XmlOutput &xml, VCProject &tool)
@@ -2229,6 +2239,7 @@ XmlOutput &operator<<(XmlOutput &xml, VCProject &tool)
     for (int x = 0; x < tool.ExtraCompilers.count(); ++x) {
         tool.outputFilter(xml, tool.ExtraCompilers.at(x));
     }
+    tool.outputFilter(xml, "RootFiles");
     xml     << closetag(_Files)
             << tag(_Globals)
             << data(); // No "/>" end tag

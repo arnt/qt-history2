@@ -798,6 +798,7 @@ public:
 
     // XML sub-parts
     VCConfiguration         Configuration;
+    VCFilter                RootFiles;
     VCFilter                SourceFiles;
     VCFilter                HeaderFiles;
     VCFilter                GeneratedFiles;

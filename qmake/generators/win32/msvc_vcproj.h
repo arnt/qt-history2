@@ -73,6 +73,7 @@ protected:
     void initPreBuildEventTools();
     void initPostBuildEventTools();
     void initPreLinkEventTools();
+    void initRootFiles();
     void initSourceFiles();
     void initHeaderFiles();
     void initGeneratedFiles();
