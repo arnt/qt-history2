@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#99 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#100 $
 **
 ** Implementation of QTextStream class
 **
@@ -1275,7 +1275,7 @@ QString QTextStream::readLine()
 	c = ts_getc();
     }
 
-    if ( result && result[result.length()-1] == '\r' )
+    if ( result && result[int(result.length())-1] == '\r' )
 	result.truncate(result.length()-1);
 	    // (if there are two \r, let one stay)
 
