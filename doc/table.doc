@@ -38,24 +38,26 @@
 
 This module is part of the <a href="editions.html">Qt Enterprise Edition</a>.
 
-The table module provides a flexible and editable table widget dubbed \l QTable.
+The table module provides a flexible and editable table widget, \l
+QTable. For many applications QTables can be used directly and simply,
+providing a grid of editable cells. QTable can also be subclassed in a
+straightforward way to provide very large sparse tables, e.g. one
+million by one million cells.
 
-<center>
 \link qtable.html <img src="qtable.png" alt="Screenshot of QTable"> \endlink
-</center>
 
-It consists of the following classes:
+The table module provides the following classes:
 <ul>
-<li> \l QTable is the abstract widget of choice whenever you need to present
-  spreadsheet data to the user or let the user edit such data.
-<li> \l QTableItem objects are used to populate a QTable with data: 
-  each of them contains the content for one cell. 
-<li> The \l QComboTableItem class provides a convenient way to
-  put combo box items in a QTable. 
-<li> \l QCheckTableItem implements a convenient class to
-  integrate check box items into a QTable. 
-<li> \l QTableSelection provides access to selected areas in a
-  QTable.  
+<li> \l QTable itself is the abstract widget of choice whenever you need to
+    provide your users with the ability to display and edit
+  tabular data such as spreadsheet or database data.
+<li> \l QTableItem objects are used to populate a QTable with data with
+each table item holding the contents of a cell. 
+<li> The \l QComboTableItem class provides memory-efficient combobox items for QTables. 
+<li> The \l QCheckTableItem class provides memory-efficient checkbox items for QTables.
+<li> \l QTableSelection provides access to selections of cells in a QTable.  
+<li> QHeader provides access to the table's horizontal header (column
+headers) and vertical header (row headers).
 </ul>
 
 
