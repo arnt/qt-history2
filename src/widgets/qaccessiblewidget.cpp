@@ -23,14 +23,14 @@
 
 /*!
   Creates a QAccessibleWidget object for the widget \a w. \a role, \a name, \a description,
-  \a value, \a help, \a defAction and \a accelerator are optional parameters for static values
+  \a value, \a help, \a defAction, \a accelerator and \a state are optional parameters for static values
   of the object's property.
 */
 QAccessibleWidget::QAccessibleWidget( QWidget *w, Role role, QString name, 
-    QString description, QString value, QString help, QString defAction, QString accelerator )
+    QString description, QString value, QString help, QString defAction, QString accelerator, State state )
     : QAccessibleObject( w ), role_(role), name_(name), 
       description_(description),value_(value),help_(help), 
-      defAction_(defAction), accelerator_(accelerator)
+      defAction_(defAction), accelerator_(accelerator), state_(state)
 {
 }
 
@@ -313,7 +313,10 @@ QAccessible::State	QAccessibleWidget::state( int who ) const
 	qWarning( "QAccessibleWidget::state: This implementation does not support subelements!" );
 #endif
 
-    int state = QAccessible::Normal;
+    if ( state_ != Normal )
+	return state_;
+
+    int state = Normal;
 
     QWidget *widget = (QWidget*)object();
     if ( widget->isHidden() )
@@ -324,6 +327,11 @@ QAccessible::State	QAccessibleWidget::state( int who ) const
 	state |= Focused;
     if ( !widget->isEnabled() )
 	state |= Unavailable;
+    if ( widget->isTopLevel() ) {
+	state |= Moveable;
+	if ( widget->minimumSize() != widget->maximumSize() )
+	    state |= Sizeable;
+    }   
 
     return (State)state;
 }

@@ -15,7 +15,7 @@ public:
     QAccessibleWidget( QWidget *w, Role r = Client, QString name = QString::null, 
 	QString description = QString::null, QString value = QString::null, 
 	QString help = QString::null, QString defAction = QString::null,
-	QString accelerator = QString::null );
+	QString accelerator = QString::null, State s = Normal );
 
     QAccessibleInterface* hitTest( int x, int y, int *who ) const;
     QRect	location( int who ) const;
@@ -38,6 +38,7 @@ public:
 
 private:
     Role role_;
+    State state_;
     QString name_;
     QString description_;
     QString value_;
