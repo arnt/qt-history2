@@ -818,7 +818,7 @@ const QPixmap *QComboBox::pixmap(int index) const
     if (d->usingListBox())
         return d->listBox()->pixmap(index);
     else
-        return &(d->popup()->pixmap(index));
+        return &(d->popup()->pixmap(index)); // FIXME - returning address of temporary
 }
 
 /*!
@@ -1125,10 +1125,10 @@ void QComboBox::paintEvent(QPaintEvent *)
             p.drawText(clip, AlignCenter | SingleLine, str);
         }
 
-        QPixmap *pix = &(d->popup()->pixmap(this->d->current));
-        QIconSet *iconSet = &(d->popup()->iconSet(this->d->current));
-        if (pix || iconSet) {
-            QPixmap pm = (pix ? *pix : iconSet->pixmap());
+        QPixmap pix = d->popup()->pixmap(this->d->current);
+        QIconSet iconSet = d->popup()->iconSet(this->d->current);
+        if (!pix.isNull() || !iconSet.isNull()) {
+            QPixmap pm = (pix.isNull() ? iconSet.pixmap() : pix);
             p.setClipRect(clip);
             p.drawPixmap(4, (height()-pm.height())/2, pm);
             p.setClipping(false);
@@ -1149,22 +1149,22 @@ void QComboBox::paintEvent(QPaintEvent *)
         p.setClipRect(re);
 
         QString str = d->popup()->text(this->d->current);
-        QPixmap *pix = &(d->popup()->pixmap(this->d->current));
+        QPixmap pix = d->popup()->pixmap(this->d->current);
         if (!str.isNull()) {
             p.save();
             p.setFont(font());
             QFontMetrics fm(font());
             int x = re.x(), y = re.y() + fm.ascent();
-            if(pix)
-                x += pix->width() + 5;
+            if(!pix.isNull())
+                x += pix.width() + 5;
             p.drawText(x, y, str);
             p.restore();
         }
-        if (pix) {
-            p.fillRect(re.x(), re.y(), pix->width() + 4, re.height(),
+        if (!pix.isNull()) {
+            p.fillRect(re.x(), re.y(), pix.width() + 4, re.height(),
                         palette().brush(QPalette::Base));
             p.drawPixmap(re.x() + 2, re.y() +
-                          (re.height() - pix->height()) / 2, *pix);
+                          (re.height() - pix.height()) / 2, pix);
         }
     } else {
         style().drawComplexControl(QStyle::CC_ComboBox, &p, this, rect(), pal,
