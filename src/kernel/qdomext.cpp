@@ -385,9 +385,12 @@ void QDomElement::setProperty( const QString& name, const QVariant& prop )
     // MovieType,
   case QVariant::Pixmap:
     {
-	QString n = ownerDocument().mimeSourceFactory()->pixmapName( prop.pixmapValue() );
-	ASSERT( !n.isEmpty() );
-	setAttribute( name, n );
+	if ( !prop.pixmapValue().isNull() )
+        {
+	    QString n = ownerDocument().mimeSourceFactory()->pixmapName( prop.pixmapValue() );
+	    ASSERT( !n.isEmpty() );
+	    setAttribute( name, n );
+	}
     }
     break;
   case QVariant::Brush:
