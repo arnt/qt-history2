@@ -1042,7 +1042,7 @@ Q_TYPEINFO_DECLARE_PRIMITIVE(bool)
 Q_TYPEINFO_DECLARE_PRIMITIVE(float)
 Q_TYPEINFO_DECLARE_PRIMITIVE(double)
 
-#ifdef QT_NO_GENERIC_POINTER_TEMPLATES
+#ifdef QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 
 template <class T> inline bool qIsPointer(T &) { return false; }
 #define Q_TYPEINFO_DECLARE_POINTER(T) \
@@ -1059,7 +1059,7 @@ template <class T> inline void qInit(T &t)
 { if (sizeof(T) == sizeof(void*)) { void* v = 0; t = * new (&v) T; } }
 template <class T> inline void qDelete(T &) {}
 
-#else // GENERIC_POINTER_TEMPLATES
+#else // QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 
 template <class T> Q_TYPEINFO_DECLARE(T*, 8)
 #define Q_TYPEINFO_COMPLEX(T) ((qTypeInfo(*(T*)0)&3)!=0)
@@ -1073,9 +1073,10 @@ template <class T> inline void qInit(T &) {}
 template <class T> inline void qInit(T* &t) { t = 0; }
 template <class T> inline void qDelete(T &) {}
 template <class T> inline void qDelete(T* &t){ delete t; }
-inline void qDelete(void ()) {}
+typedef void(*qt_DeleteFunction)();
+inline void qDelete(qt_DeleteFunction) {}
 
-#endif // QT_NO_GENERIC_POINTER_TEMPLATES
+#endif // QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 
 template <class T> inline bool qIsDetached(T &) { return true; }
 #define Q_TYPEINFO_DECLARE_SHARED(T) \
