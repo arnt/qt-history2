@@ -3239,6 +3239,19 @@ static void invalidateEngine(QRegExpPrivate *priv)
 */
 
 /*!
+    \enum QRegExp::PatternSyntax
+
+    The syntax used to interpret the meaning of the pattern.
+
+    \value RegExp A rich Perl-like pattern matching syntax. This is
+    the default. See the \link #details Detailed Description\endlink.
+
+    \value Wildcard This provides a simple pattern matching syntax
+    similar to that used by shells (command interpreters) for "file
+    globbing". See \link #wildcard-matching Wildcard Matching\endlink.
+*/
+
+/*!
     Constructs an empty regexp.
 
     \sa isValid() errorString()
@@ -3256,8 +3269,8 @@ QRegExp::QRegExp()
 /*!
     Constructs a regular expression object for the given \a pattern
     string. The pattern must be given using wildcard notation if \a
-    wildcard is true (default is false). The pattern is case
-    sensitive, unless \a cs is Qt::CaseInsensitive. Matching is
+    syntax is \c Wildcard; the default is \c RegExp. The pattern is
+    case sensitive, unless \a cs is Qt::CaseInsensitive. Matching is
     greedy (maximal), but can be changed by calling
     setMinimalMatching().
 
@@ -3421,7 +3434,7 @@ void QRegExp::setPattern(const QString &pattern)
     Returns \c QString::CaseSensitive if the regexp is matched case
     sensitively; otherwise returns \c QString::CaseInsensitive.
 
-    \sa setCaseSensitivy()
+    \sa setCaseSensitivity()
 */
 QString::CaseSensitivity QRegExp::caseSensitivity() const
 {
@@ -3431,10 +3444,10 @@ QString::CaseSensitivity QRegExp::caseSensitivity() const
 /*!
     Sets case sensitive matching to \a cs.
 
-    If \a sensitive is \c QString::CaseSensitive, \bold{\\.txt$}
-    matches \c{readme.txt} but not \c{README.TXT}.
+    If \a cs is \c QString::CaseSensitive, \bold{\\.txt$} matches
+    \c{readme.txt} but not \c{README.TXT}.
 
-    \sa caseSensitivy()
+    \sa caseSensitivity()
 */
 void QRegExp::setCaseSensitivity(QString::CaseSensitivity cs)
 {
