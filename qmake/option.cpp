@@ -50,6 +50,7 @@ QString Option::output_dir;
 bool Option::recursive = false;
 QStringList Option::before_user_vars;
 QStringList Option::after_user_vars;
+QStringList Option::user_configs;
 QString Option::user_template;
 QString Option::user_template_prefix;
 #if defined(Q_OS_WIN32)
@@ -220,6 +221,8 @@ Option::internalParseCommandLine(int argc, char **argv, int skip)
                 Option::recursive = true;
             } else if(opt == "norecursive") {
                 Option::recursive = false;
+            } else if(opt == "config") {
+                Option::user_configs += argv[++x];
             } else {
                 if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
                    Option::qmake_mode == Option::QMAKE_GENERATE_PRL) {

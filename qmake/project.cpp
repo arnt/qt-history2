@@ -836,6 +836,12 @@ QMakeProject::read(uchar cmd)
             }
         }
     }
+    if(cmd & ReadConfigs && !Option::user_configs.isEmpty()) {
+        parser.file = "(configs)";
+        parser.from_file = false;
+        parser.line_no = 1; //really arg count now.. duh
+        parse("CONFIG += " + Option::user_configs.join(" "), base_vars);
+    }
 
     vars = base_vars; /* start with the base */
 
@@ -866,6 +872,13 @@ QMakeProject::read(uchar cmd)
             }
             parser.line_no++;
         }
+    }
+
+    if(cmd & ReadConfigs && !Option::user_configs.isEmpty()) {
+        parser.file = "(configs)";
+        parser.from_file = false;
+        parser.line_no = 1; //really arg count now.. duh
+        parse("CONFIG += " + Option::user_configs.join(" "), base_vars);
     }
 
     if(cmd & ReadFeatures) {
