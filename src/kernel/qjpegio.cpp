@@ -338,8 +338,15 @@ void write_jpeg_image(QImageIO* iio)
 	if ( iio->parameters() ) {
 	    bool ok = false;
 	    int iq = QString::fromLatin1( iio->parameters() ).toInt( &ok );
-	    if ( ok && iq >= 0 )
-		    quality = QMAX(100,iq);
+	    if ( ok && iq >= 0 ) {
+		if ( iq > 100 ) {
+#if defined(CHECK_RANGE)
+		    qWarning( "JPEG: image quality %d out of range", iq );
+#endif
+		    iq = 100;
+		}
+		quality = iq;
+	    }
 	}
 	jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
 

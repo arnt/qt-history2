@@ -329,6 +329,11 @@ static void set_text(const QImage& image, png_structp png_ptr, png_infop info_pt
 
 bool QPNGImageWriter::writeImage(const QImage& image, int off_x, int off_y)
 {
+    return writeImage(image, -1, off_x, off_y);
+}
+
+bool QPNGImageWriter::writeImage(const QImage& image, int quality, int off_x, int off_y)
+{
     QPoint offset = image.offset();
     off_x += offset.x();
     off_y += offset.y();
@@ -351,6 +356,16 @@ bool QPNGImageWriter::writeImage(const QImage& image, int off_x, int off_y)
     if (setjmp(png_ptr->jmpbuf)) {
 	png_destroy_write_struct(&png_ptr, &info_ptr);
 	return FALSE;
+    }
+
+    if (quality > 0) {
+	if (quality > 9) {
+#if defined(CHECK_RANGE)
+	    qWarning( "PNG: Quality %d out of range", quality );
+#endif
+	    quality = 9;
+	}
+	png_set_compression_level(png_ptr, quality);
     }
 
     png_set_write_fn(png_ptr, (void*)this, qpiw_write_fn, 0);
@@ -484,7 +499,21 @@ static
 void write_png_image(QImageIO* iio)
 {
     QPNGImageWriter writer(iio->ioDevice());
-    if ( writer.writeImage(iio->image()) )
+    int quality = -1;
+    if ( iio->parameters() ) {
+	bool ok = false;
+	int iq = QString::fromLatin1( iio->parameters() ).toInt( &ok );
+	if ( ok && iq >= 0 ) {
+	    if ( iq > 100) {
+#if defined(CHECK_RANGE)
+		qWarning( "PNG: Quality %d out of range", iq );
+#endif
+		iq = 100;
+	    }
+	    quality = (100-iq) * 9 / 91; // map [0,100] -> [9,0]
+	}
+    }
+    if ( writer.writeImage(iio->image(), quality) )
 	iio->setStatus(0);
     else
 	iio->setStatus(-1);

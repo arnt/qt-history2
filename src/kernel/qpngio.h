@@ -48,8 +48,11 @@ public:
     void setFrameDelay(int msecs);
 
     bool writeImage(const QImage& img, int x, int y);
+    bool writeImage(const QImage& img, int quality, int x, int y);
     bool writeImage(const QImage& img)
 	{ return writeImage(img, 0, 0); }
+    bool writeImage(const QImage& img, int quality)
+	{ return writeImage(img, quality, 0, 0); }
 
     QIODevice* device() { return dev; }
 
