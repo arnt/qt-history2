@@ -192,6 +192,10 @@ static const int default_height = 30;
     \a mode.
 */
 
+/*!
+    \property QHeaderView::highlightCurrentSection
+    \brief whether the current selection is highlighted
+*/
 
 /*!
     Creates a new generic header with the given \a orientation and \a parent.
