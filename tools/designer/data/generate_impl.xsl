@@ -593,7 +593,7 @@
         <xsl:text>::write(QDomDocument &amp;doc, const QString &amp;tagName)&endl;</xsl:text>
         <xsl:text>{&endl;</xsl:text>
       
-        <xsl:text>    QDomElement e = doc.createElement(tagName.isEmpty() ? QLatin1String("</xsl:text>
+        <xsl:text>    QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromLatin1("</xsl:text>
         <xsl:value-of select="$lower-name"/>
         <xsl:text>") : tagName.toLower());&endl;&endl;</xsl:text>
         <xsl:text>    QDomElement child;&endl;&endl;</xsl:text>
