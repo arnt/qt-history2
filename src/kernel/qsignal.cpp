@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#25 $
 **
 ** Implementation of QSignal class
 **
@@ -137,8 +137,6 @@ bool QSignal::connect( const QObject *receiver, const char *member )
     return QObject::connect( (QObject *)this, SIGNAL(x()),
 			     receiver, member );
 }
-
-#warning "disconnect const foo -- Arnt"
 
 /*!
   Disonnects the signal from \e member in object \e receiver.
