@@ -1003,6 +1003,7 @@ bool QTableItem::isEnabled() const
 */
 
 QComboBox *QComboTableItem::fakeCombo = 0;
+QWidget *fakeComboWidget = 0;
 
 /*! Creates a combo table item for the table \a table. The combobox's
     list of items is passed in the \a list argument. If \a editable is
@@ -1020,7 +1021,8 @@ QComboTableItem::QComboTableItem( QTable *table, const QStringList &list, bool e
 {
     setReplaceable( FALSE );
     if ( !fakeCombo ) {
-	fakeCombo = new QComboBox( FALSE, 0, 0 );
+	fakeComboWidget = new QWidget( 0, 0 );
+	fakeCombo = new QComboBox( FALSE, fakeComboWidget, 0 );
 	fakeCombo->hide();
     }
 }
