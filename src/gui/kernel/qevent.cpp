@@ -19,6 +19,12 @@
 #include "qmime.h"
 #include "qdnd_p.h"
 
+
+QAcceptEvent::QAcceptEvent(Type type)
+    : QEvent(type), m_accept(true)
+{
+}
+
 /*!
     \class QInputEvent qevent.h
     \ingroup events
@@ -34,7 +40,7 @@
     \internal
 */
 QInputEvent::QInputEvent(Type type, Qt::KeyboardModifiers modifiers)
-    : QEvent(type), modState(modifiers), m_accept(true)
+    : QAcceptEvent(type), modState(modifiers)
 {}
 
 /*!
@@ -1183,7 +1189,7 @@ QResizeEvent::QResizeEvent(const QSize &size, const QSize &oldSize)
     \sa accept()
 */
 QCloseEvent::QCloseEvent()
-    : QEvent(Close), m_accept(true)
+    : QAcceptEvent(Close)
 {}
 
 /*!
@@ -1210,8 +1216,8 @@ QCloseEvent::QCloseEvent()
     \sa accept()
 */
 QIconDragEvent::QIconDragEvent()
-    : QEvent(IconDrag), m_accept(false)
-{}
+    : QAcceptEvent(IconDrag)
+{ ignore(); }
 
 /*!
     \fn bool QIconDragEvent::isAccepted() const
@@ -2057,15 +2063,15 @@ QDragLeaveEvent::QDragLeaveEvent()
 
 
 QHelpEvent::QHelpEvent(Type type, const QPoint &pos, const QPoint &globalPos)
-    : QEvent(type), p(pos), gp(globalPos)
+    : QAcceptEvent(type), p(pos), gp(globalPos)
 {}
 
 QStatusTipEvent::QStatusTipEvent(const QString &tip)
-    : QEvent(StatusTip), s(tip)
+    : QAcceptEvent(StatusTip), s(tip)
 {}
 
 QWhatsThisClickedEvent::QWhatsThisClickedEvent(const QString &href)
-    : QEvent(WhatsThisClicked), s(href)
+    : QAcceptEvent(WhatsThisClicked), s(href)
 {}
 
 QActionEvent::QActionEvent(int type, QAction *action, QAction *before)

@@ -26,18 +26,24 @@
 
 class QAction;
 
-class Q_GUI_EXPORT QInputEvent : public QEvent
+class Q_GUI_EXPORT QAcceptEvent : public QEvent
 {
 public:
-    QInputEvent(Type type, Qt::KeyboardModifiers modifiers = Qt::NoModifier);
+    QAcceptEvent(Type type);
     inline bool isAccepted() const { return m_accept; }
     inline void accept() { m_accept = true; }
     inline void ignore() { m_accept = false; }
+private:
+    bool m_accept;
+};
+
+class Q_GUI_EXPORT QInputEvent : public QAcceptEvent
+{
+public:
+    QInputEvent(Type type, Qt::KeyboardModifiers modifiers = Qt::NoModifier);
     inline Qt::KeyboardModifiers modifiers() const {return modState; }
 protected:
     Qt::KeyboardModifiers modState;
-private:
-    bool m_accept;
 };
 
 
@@ -265,27 +271,17 @@ protected:
 };
 
 
-class Q_GUI_EXPORT QCloseEvent : public QEvent
+class Q_GUI_EXPORT QCloseEvent : public QAcceptEvent
 {
 public:
     QCloseEvent();
-    inline bool isAccepted() const { return m_accept; }
-    inline void accept() { m_accept = true; }
-    inline void ignore() { m_accept = false; }
-private:
-    bool m_accept;
 };
 
 
-class Q_GUI_EXPORT QIconDragEvent : public QEvent
+class Q_GUI_EXPORT QIconDragEvent : public QAcceptEvent
 {
 public:
     QIconDragEvent();
-    inline bool isAccepted() const { return m_accept; }
-    inline void accept() { m_accept = true; }
-    inline void ignore() { m_accept = false; }
-protected:
-    bool m_accept;
 };
 
 
@@ -368,7 +364,7 @@ public:
     enum Action { Ask, Copy, Link, Move, Private, UserAction = Private };
     inline bool isActionAccepted() const { return m_acceptact; }
     inline void acceptAction(bool y = true)  { m_acceptact = y; }
-    
+
     inline void setAction(Action a) { act = uint(a); }
     inline Action action() const { return Action(act); }
 
@@ -436,7 +432,7 @@ public:
 #endif // QT_NO_DRAGANDDROP
 
 
-class Q_GUI_EXPORT QHelpEvent : public QEvent
+class Q_GUI_EXPORT QHelpEvent : public QAcceptEvent
 {
 public:
     QHelpEvent(Type type, const QPoint &pos, const QPoint &globalPos);
@@ -455,7 +451,7 @@ private:
 };
 
 
-class Q_GUI_EXPORT QStatusTipEvent : public QEvent
+class Q_GUI_EXPORT QStatusTipEvent : public QAcceptEvent
 {
 public:
     QStatusTipEvent(const QString &tip);
@@ -464,7 +460,7 @@ private:
     QString s;
 };
 
-class Q_GUI_EXPORT QWhatsThisClickedEvent : public QEvent
+class Q_GUI_EXPORT QWhatsThisClickedEvent : public QAcceptEvent
 {
 public:
     QWhatsThisClickedEvent(const QString &href);
