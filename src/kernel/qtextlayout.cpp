@@ -21,7 +21,7 @@
 QRect QTextItem::rect() const
 {
     QScriptItem& si = eng->items[itm];
-    return QRect( si.x, si.y, si.width, si.ascent+si.descent );
+    return QRect( si.x, si.y - si.ascent, si.width, si.ascent+si.descent );
 }
 
 int QTextItem::x() const
