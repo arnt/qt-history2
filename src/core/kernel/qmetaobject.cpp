@@ -657,8 +657,11 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixSc
     */
     QByteArray constbuf;
     for (int i = 1; i < len; i++) {
-        if (t[i] == 'c' &&
-             strncmp(t + i + 1, "onst", 4) == 0) {
+        if ( t[i] == 'c'
+             && strncmp(t + i + 1, "onst", 4) == 0
+             && (i + 5 >= len || !is_ident_char(t[i + 5]))
+             && !is_ident_char(t[i-1])
+            ) {
             constbuf = QByteArray(t, len);
             if (is_space(t[i-1]))
                 constbuf.remove(i-1, 6);
