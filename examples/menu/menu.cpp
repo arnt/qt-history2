@@ -133,14 +133,14 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
 
     QPopupMenu *file = new QPopupMenu( this );
     Q_CHECK_PTR( file );
-    file->insertItem( p1, "&Open",  this, SLOT(open()), CTRL+Key_O );
-    file->insertItem( p2, "&New", this, SLOT(news()), CTRL+Key_N );
-    file->insertItem( p3, "&Save", this, SLOT(save()), CTRL+Key_S );
-    file->insertItem( "&Close", this, SLOT(closeDoc()), CTRL+Key_W );
+    file->insertItem( p1, "&Open",  this, SLOT(open()), Qt::CTRL+Qt::Key_O );
+    file->insertItem( p2, "&New", this, SLOT(news()), Qt::CTRL+Qt::Key_N );
+    file->insertItem( p3, "&Save", this, SLOT(save()), Qt::CTRL+Qt::Key_S );
+    file->insertItem( "&Close", this, SLOT(closeDoc()), Qt::CTRL+Qt::Key_W );
     file->insertSeparator();
-    file->insertItem( "&Print", print, CTRL+Key_P );
+    file->insertItem( "&Print", print, Qt::CTRL+Qt::Key_P );
     file->insertSeparator();
-    file->insertItem( "E&xit",  qApp, SLOT(quit()), CTRL+Key_Q );
+    file->insertItem( "E&xit",  qApp, SLOT(quit()), Qt::CTRL+Qt::Key_Q );
 
     QPopupMenu *edit = new QPopupMenu( this );
     Q_CHECK_PTR( edit );
@@ -160,12 +160,12 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     QFont f = options->font();
     f.setBold( TRUE );
     boldID = options->insertItem( new MyMenuItem( "Bold", f ) );
-    options->setAccel( CTRL+Key_B, boldID );
+    options->setAccel( Qt::CTRL+Qt::Key_B, boldID );
     options->connectItem( boldID, this, SLOT(bold()) );
     f = font();
     f.setUnderline( TRUE );
     underlineID = options->insertItem( new MyMenuItem( "Underline", f ) );
-    options->setAccel( CTRL+Key_U, underlineID );
+    options->setAccel( Qt::CTRL+Qt::Key_U, underlineID );
     options->connectItem( underlineID, this, SLOT(underline()) );
 #else
 //#warning "Do we want something like this?! -Sam"
@@ -178,7 +178,7 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
 
     QPopupMenu *help = new QPopupMenu( this );
     Q_CHECK_PTR( help );
-    help->insertItem( "&About", this, SLOT(about()), CTRL+Key_H );
+    help->insertItem( "&About", this, SLOT(about()), Qt::CTRL+Qt::Key_H );
     help->insertItem( "About &Qt", this, SLOT(aboutQt()) );
 
     // If we used a QMainWindow we could use its built-in menuBar().
@@ -198,20 +198,20 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
 		  "Invoke it by right-clicking or by"
 		  " pressing the 'context' button." );
     msg->setGeometry( 0, height() - 60, width(), 60 );
-    msg->setAlignment( AlignCenter );
+    msg->setAlignment( Qt::AlignCenter );
 
     label = new QLabel( this );
     Q_CHECK_PTR( label );
     label->setGeometry( 20, rect().center().y()-20, width()-40, 40 );
     label->setFrameStyle( QFrame::Box | QFrame::Raised );
     label->setLineWidth( 1 );
-    label->setAlignment( AlignCenter );
+    label->setAlignment( Qt::AlignCenter );
 
     connect( this,  SIGNAL(explain(const QString&)),
 	     label, SLOT(setText(const QString&)) );
 
     setMinimumSize( 100, 80 );
-    setFocusPolicy( QWidget::ClickFocus );
+    setFocusPolicy( Qt::ClickFocus );
 }
 
 class MyFancyMenu : public QMenu
@@ -245,10 +245,10 @@ protected:
         QPainter p(this);
         //draw gradiant
         p.setClipRect(QRect(0, 0, margin, height()));
-        p.setBrush(QBrush(QPoint(margin/2, 0), black, QPoint(margin/2, height()), red));
+        p.setBrush(QBrush(QPoint(margin/2, 0), Qt::black, QPoint(margin/2, height()), Qt::red));
         p.drawRect(0, 0, margin, height());
         //draw text
-        p.setPen(white);
+        p.setPen(Qt::white);
         p.setFont(myFont());
         p.translate((margin/2)+(p.fontMetrics().ascent()/2), height());
         p.rotate(-90);
@@ -259,9 +259,9 @@ protected:
 void MenuExample::contextMenuEvent( QContextMenuEvent * )
 {
     MyFancyMenu contextMenu(tr("Context!"), this);
-    contextMenu.addAction("&New",  this, SLOT(news()), CTRL+Key_N);
-    contextMenu.addAction("&Open...", this, SLOT(open()), CTRL+Key_O);
-    contextMenu.addAction("&Save", this, SLOT(save()), CTRL+Key_S);
+    contextMenu.addAction("&New",  this, SLOT(news()), Qt::CTRL+Qt::Key_N);
+    contextMenu.addAction("&Open...", this, SLOT(open()), Qt::CTRL+Qt::Key_O);
+    contextMenu.addAction("&Save", this, SLOT(save()), Qt::CTRL+Qt::Key_S);
     QMenu *submenu = new QMenu(this);
     submenu->addAction("&Print to printer", this, SLOT(printer()));
     submenu->addAction("Print to &file", this, SLOT(file()));
