@@ -121,10 +121,15 @@ public:
   on the underlying platform audio facilities.
 
   On Microsoft Windows the underlying multimedia system is used; only WAVE
-  format sound files are supported. On X11 the
-  <a href="ftp://ftp.x.org/contrib/audio/nas/">Network Audio System</a>
-  is used if available, otherwise all operations work silently. NAS
-  supports WAVE and AU files.
+  format sound files are supported. 
+
+  On X11 the <a href="ftp://ftp.x.org/contrib/audio/nas/">Network Audio
+  System</a> is used if available, otherwise all operations work
+  silently. NAS supports WAVE and AU files.
+
+  On Macintosh, in an ironic turn of events we use QT (<a
+  href="http://quicktime.apple.com">QuickTime</a>) for sound, this means
+  all QuickTime formats are supported by Qt/Mac.
 
   On Qt/Embedded, a built-in mixing sound server is used, which accesses
   \c /dev/dsp directly. Only the WAVE format is supported.
