@@ -440,14 +440,6 @@ void QWindowsXPStyle::polish( QWidget *widget )
 	    if ( dw->area() && dw->area()->orientation() == Horizontal )
 		tb->move( 0, 2 );
 	    // ok, you can look again
-	    QPalette pl = tb->palette();
-	    QColorGroup cga = pl.active();
-	    QColorGroup cgi = pl.inactive();
-	    cga.setColor( QColorGroup::Button, d->dockColorActive );
-	    cgi.setColor( QColorGroup::Button, d->dockColorInactive );
-	    pl.setActive( cga );
-	    pl.setInactive( cgi );
-	    tb->setPalette( pl );
 	}
     } else if ( widget->inherits( "QDockWindowHandle" ) ) {
 	QWidget *p = (QWidget*)widget->parent();
@@ -785,8 +777,9 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	    QString title;
 	    bool drawDockTitle = FALSE;
 	    bool isDockWindow = FALSE;
+	    QWidget *w = 0;
 	    if ( p && p->device()->devType() == QInternal::Widget ) {
-		QWidget *w = (QWidget *) p->device();
+		w = (QWidget *) p->device();
 		QWidget *p = w->parentWidget();
 		if (p->inherits("QDockWindow") && ! p->inherits("QToolBar")) {
 		    drawDockTitle = TRUE;
@@ -814,8 +807,11 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 
 	    if ( drawDockTitle ) {
 		QRect rt = r;
-		QColorGroup cgroup = ((QWidget*)p->device())->palette().active();
-		p->setPen( cgroup.highlightedText() );
+		if ( w ) {
+		    QColorGroup cgroup = w->isActiveWindow() ? w->palette().active() : w->palette().inactive();
+		    p->setPen( cgroup.highlightedText() );
+		}
+		    
 		if ( flags & Style_Horizontal ) {
 		    // Vertical Title  ( Horizontal DockWindow )
 		    rt.addCoords( 2, 4, -1, -4 );
@@ -827,6 +823,24 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 		    // Horizontal Title
 		    rt.addCoords( 4, 1, -4, 1 );
 		    p->drawText( rt, AlignLeft, title );
+		}
+
+		// Change close button to match new title
+		if ( w ) {
+		    QToolButton *tb = (QToolButton*)w->child( "qt_close_button1", "QToolButton", FALSE );
+		    if ( !tb ) 
+			return;
+		    if ( w->isActiveWindow() ) {
+			QPalette pl = tb->palette();
+			pl.setColor( QColorGroup::Button, d->dockColorActive );
+			tb->setPalette( pl );
+			tb->setPixmap( *(d->dockCloseActive) );
+		    } else {
+			QPalette pl = tb->palette();
+			pl.setColor( QColorGroup::Button, d->dockColorInactive );
+			tb->setPalette( pl );
+			tb->setPixmap( *(d->dockCloseInactive) );
+		    }
 		}
 	    }
 	    return;
