@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#136 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#137 $
 **
 ** Implementation of QScrollBar class
 **
@@ -764,6 +764,7 @@ void QScrollBar::drawControls( uint controls, uint activeControl,
  */
 void QScrollBar::styleChange( QStyle& old )
 {
+    positionSliderFromValue();
     if ( style() == MotifStyle )
 	setBackgroundMode( PaletteMid );
     else
