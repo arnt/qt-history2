@@ -170,7 +170,7 @@ kernel {
 		      $$KERNEL_CPP/qeventloop_unix.cpp
         }
 	unix:SOURCES += $$KERNEL_CPP/qprocess_unix.cpp \
-		        $$KERNEL_CPP/qthread_unix.cpp 
+		        $$KERNEL_CPP/qthread_unix.cpp
 
 	SOURCES += $$KERNEL_CPP/qabstractlayout.cpp \
 		  $$KERNEL_CPP/qucomextra.cpp \
@@ -252,6 +252,10 @@ kernel {
 	embedded:SOURCES += $$KERNEL_CPP/qsharedmemory_p.cpp \
 		  	    $$KERNEL_CPP/qfontengine_qws.cpp
 
+	wince-msvc {
+	      HEADERS += $$KERNEL_H/qfunctions_wce.h
+	      SOURCES += $$KERNEL_CPP/qfunctions_wce.cpp
+	}
 
 	accessibility {
 	      HEADERS += $$KERNEL_H/qaccessible.h
