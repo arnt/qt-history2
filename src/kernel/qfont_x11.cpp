@@ -2372,7 +2372,7 @@ static QChar sampleCharacter(QFont::Script script)
     case QFont::NumberForms:               ch = 0x215b; break;
     case QFont::MathematicalOperators:     ch = 0x222b; break;
     case QFont::TechnicalSymbols:          ch = 0x2440; break;
-    case QFont::GeometricSymbols:          ch = 0x25a1; break;
+    case QFont::GeometricSymbols:          ch = 0x2500; break;
     case QFont::MiscellaneousSymbols:      ch = 0x2600; break;
     case QFont::EnclosedAndSquare:         ch = 0x2460; break;
     case QFont::Braille:                   ch = 0x2800; break;
