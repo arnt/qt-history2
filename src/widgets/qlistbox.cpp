@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#82 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#81 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#82 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -345,6 +345,13 @@ int QListBoxPixmap::width( const QListBox * ) const
 */
 
 
+
+//### How to provide new member variables while keeping binary compatibility:
+
+#include <qintdict.h>
+
+static QIntDict<int> *qlb_maxLenDict;
+
 /*!
   Constructs a list box.  The arguments are passed directly to the
   QTableView constructor.
@@ -379,6 +386,9 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
 	    setLineWidth( 1 );
     }
     setAcceptFocus( TRUE );
+    if ( !qlb_maxLenDict )
+	qlb_maxLenDict = new QIntDict<int>;
+    ASSERT( qlb_maxLenDict );
 }
 
 /*!
@@ -389,6 +399,8 @@ QListBox::~QListBox()
 {
     goingDown = TRUE;
     clearList();
+    if ( qlb_maxLenDict )
+	qlb_maxLenDict->remove( (long)this );
     delete itemList;
 }
 
@@ -1333,7 +1345,7 @@ void QListBox::focusInEvent( QFocusEvent * )
 void QListBox::resizeEvent( QResizeEvent *e )
 {
     QTableView::resizeEvent( e );
-    updateCellWidth();
+    setCellWidth( QMAX(maxItemWidth(), viewWidth()) );
 }
 
 /*!
@@ -1424,7 +1436,7 @@ void QListBox::updateCellWidth()
 {
     QListBoxItem *lbi = itemList->first();
     QFontMetrics fm = fontMetrics();
-    int maxW = viewWidth();
+    int maxW = 0;
     int w;
     while ( lbi ) {
 	w = lbi->width( this );
@@ -1432,7 +1444,8 @@ void QListBox::updateCellWidth()
 	    maxW = w;
 	lbi = itemList->next();
     }
-    setCellWidth( maxW );
+    setMaxItemWidth( maxW );
+    setCellWidth( QMAX( maxW, viewWidth() ) );
 }
 
 /*!
@@ -1454,8 +1467,11 @@ void QListBox::insertDangerously( const QListBoxItem *lbi, int index,
 	current++;
     if ( updateCellWidth ) {
 	int w = lbi->width( this );
-	if ( w > cellWidth() )
+	if ( w > maxItemWidth() )
+	    setMaxItemWidth( w );
+	if ( w > cellWidth() ) {
 	    setCellWidth( w );
+	}
     }
 }
 
@@ -1505,4 +1521,28 @@ void QListBox::updateNumRows( bool updateWidth )
 	updateCellWidth();
     if ( autoU )
 	setAutoUpdate( TRUE );
+}
+
+
+/*!
+  Returns the width in pixels of the longest item. 
+*/
+
+int QListBox::maxItemWidth()
+{
+    if ( !qlb_maxLenDict )
+	return 0;
+    return (int) qlb_maxLenDict->find( (long)this );
+}
+
+
+/*!
+  Updates the cached value used by maxItemWidth().
+*/
+
+void QListBox::setMaxItemWidth( int len )
+{
+    ASSERT( qlb_maxLenDict );
+    qlb_maxLenDict->remove( (long)this );
+    qlb_maxLenDict->insert( (long)this, (int*)len );
 }
