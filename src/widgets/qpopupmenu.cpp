@@ -214,6 +214,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     autoaccel	  = 0;
     accelDisabled = FALSE;
     popupActive	  = -1;
+    snapToMouse	  = TRUE;
     tab = 0;
     checkable = 0;
     tornOff = 0;
@@ -244,6 +245,12 @@ QPopupMenu::~QPopupMenu()
 
     if ( parentMenu )
 	parentMenu->removePopup( this );	// remove from parent menu
+
+    if ( preventAnimation ) {
+	delete preventAnimation;
+	preventAnimation = 0;
+    }
+
 }
 
 
@@ -377,6 +384,10 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	insertSeparator();			// Save Our Souls
     if ( badSize )
 	updateSize();
+
+    QPoint mouse = QCursor::pos();
+    snapToMouse = snapToMouse && pos == mouse;
+
     QWidget *desktop = QApplication::desktop();
     int sw = desktop->width();			// screen width
     int sh = desktop->height();			// screen height
@@ -386,24 +397,35 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	y -= itemGeometry( indexAtPoint ).y();		// (would subtract 2 pixels!)
     int w  = width();
     int h  = height();
-    if ( x+w > sw )				// the complete widget must
-	x = sw - w;				//   be visible
-    if ( y+h > sh )
-	y = sh - h;
-    if ( x < 0 )
-	x = 0;
-    if ( y < 0 )
-	y = 0;
+
+    if ( snapToMouse ) {
+	if ( x+w > sw )
+	    x = mouse.x()-w;
+	if ( y+h > sh )
+	    y = mouse.y()-h;
+	if ( x < 0 )
+	    x = mouse.x();
+	if ( y < 0 )
+	    y = mouse.y();
+    } else {
+	if ( x+w > sw )				// the complete widget must
+	    x = sw - w;				//   be visible
+	if ( y+h > sh )
+	    y = sh - h;
+	if ( x < 0 )
+	    x = 0;
+	if ( y < 0 )
+	    y = 0;
+    }
     move( x, y );
     motion=0;
     actItem = -1;
 
-    QPoint mouse = QCursor::pos();
     int hGuess = QEffects::RightScroll;
     int vGuess = QEffects::DownScroll;
-    if ( x < mouse.x() )
+    if ( x + w/2 < mouse.x() )
 	hGuess = QEffects::LeftScroll;
-    if ( y < mouse.y() )
+    if ( y + h/2 < mouse.y() )
 	vGuess = QEffects::UpScroll;
 
     if ( QApplication::effectEnabled( UI_AnimateMenu ) && !preventAnimation ) {

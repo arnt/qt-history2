@@ -370,25 +370,24 @@ void QRollEffect::scroll()
 	done = ( ( currentHeight >= totalHeight ) && 
 		 ( currentWidth >= totalWidth ) );
 
-	int w, h;
-	int x, y;
+	int w = totalWidth;
+	int h = totalHeight;
+	int x = widget->geometry().x();
+	int y = widget->geometry().y();
 
 	if ( orientation & RightScroll || orientation & LeftScroll )
 	    w = QMIN( currentWidth, totalWidth );
-	else
-	    w = totalWidth;
-
 	if ( orientation & DownScroll || orientation & UpScroll )
 	    h = QMIN( currentHeight, totalHeight );
-	else
-	    h = totalHeight;
 
 	setUpdatesEnabled( FALSE );
-	if ( orientation & UpScroll || orientation & LeftScroll ) {
-	    x = widget->geometry().x() + totalWidth - currentWidth;
-	    y = widget->geometry().y() + totalHeight - currentHeight;
+	if ( orientation & UpScroll )
+	    y = widget->geometry().y() + QMAX( 0, totalHeight - currentHeight );
+	if ( orientation & LeftScroll )
+	    x = widget->geometry().x() + QMAX( 0, totalWidth - currentWidth );
+	if ( orientation & UpScroll || orientation & LeftScroll )
 	    move( x, y );
-	}
+
 	resize( w, h );	
 	setUpdatesEnabled( TRUE );
 	repaint( FALSE );

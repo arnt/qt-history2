@@ -138,6 +138,7 @@ private:
     uint tornOff : 1;
     int maxPMWidth;
     int ncols;
+    bool	snapToMouse;
     bool	tryMouseEvent( QPopupMenu *, QMouseEvent * );
 
     friend class QMenuData;

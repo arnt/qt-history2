@@ -533,7 +533,9 @@ void QMenuBar::openActPopup()
 	menuInsPopup(popup);
     }
 
+    popup->snapToMouse = FALSE;
     popup->popup( pos );
+    popup->snapToMouse = TRUE;
 }
 
 /*!
