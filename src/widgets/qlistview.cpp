@@ -4874,10 +4874,10 @@ void QListView::keyPressEvent( QKeyEvent * e )
 		QString keyItemKey;
 		QString prefix;
 		while( keyItem ) {
-		    // Look for text in column 0, then left-to-right
-		    keyItemKey = keyItem->text(0);
-		    for (int col = 0; col < d->h->count() && !keyItemKey; col++ )
-			keyItemKey = keyItem->text( d->h->mapToLogical(col) );
+		    // Look first in the sort column, then left to right
+		    keyItemKey = keyItem->text( d->sortcolumn );
+		    for ( int col = 0; col < d->h->count() && keyItemKey.isNull(); ++col )
+			keyItemKey = keyItem->text( d->h->mapToSection(col) );
 		    if ( !keyItemKey.isEmpty() ) {
 			prefix = keyItemKey;
 			prefix.truncate( input.length() );
