@@ -82,8 +82,8 @@ variables: Makefile
 	@echo If you build Qt now reading of GIF images will not be
 	@echo supported. Please see the file src/kernel/qt_gif.h
 	@echo if you want to enable GIF reading support.
-        @echo
-        @echo The make process will now abort with an error.
+	@echo
+	@echo The make process will now abort with an error.
 	@echo
 	@exit 1
 
