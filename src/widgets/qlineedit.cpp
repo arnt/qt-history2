@@ -853,13 +853,27 @@ void QLineEdit::imStartEvent( QIMEvent *e )
  */
 void QLineEdit::imComposeEvent( QIMEvent *e )
 {
+    d->parag->removeSelection( QTextDocument::IMCompositionText );
+    d->parag->removeSelection( QTextDocument::IMSelectionText );
+
     if (d->preeditLength > 0)
 	d->parag->remove(d->preeditStart, d->preeditLength);
-    d->parag->insert(d->preeditStart, e->text());
+    d->cursor->setIndex( d->preeditStart );
+    insert( e->text() );
     d->preeditLength = e->text().length();
+
+    d->parag->setSelection( QTextDocument::IMCompositionText,
+			    d->preeditStart, d->preeditStart + d->preeditLength );
+
     d->cursor->setIndex(d->preeditStart + e->cursorPos());
 
-    emit textChanged( text() );
+    int sellen = e->selectionLength();
+    if ( sellen > 0 ) {
+	d->parag->setSelection( QTextDocument::IMSelectionText,
+				d->preeditStart + e->cursorPos(),
+				d->preeditStart + e->cursorPos() + sellen );
+    }
+
     e->accept();
 }
 
@@ -868,13 +882,15 @@ void QLineEdit::imComposeEvent( QIMEvent *e )
  */
 void QLineEdit::imEndEvent( QIMEvent *e )
 {
+    d->parag->removeSelection( QTextDocument::IMCompositionText );
+    d->parag->removeSelection( QTextDocument::IMSelectionText );
+
     if (d->preeditLength > 0)
 	d->parag->remove(d->preeditStart, d->preeditLength);
-    d->parag->insert(d->preeditStart, e->text());
-    d->cursor->setIndex(d->preeditStart + e->text().length());
+    d->cursor->setIndex( d->preeditStart );
+    insert( e->text() );
     d->preeditStart = d->preeditLength = -1;
 
-    emit textChanged( text() );
     e->accept();
 }
 
