@@ -232,11 +232,12 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
 #endif
     if ( chr ) {
 	DWORD res = GetGlyphOutline( currHDC, chr, GGO_METRICS, &gm, 0, 0, mat );
+	if ( res != GDI_ERROR )
+	    return QRect(gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y, gm.gmBlackBoxX, gm.gmBlackBoxY);
 #ifndef Q_NO_DEBUG
-	if ( res == GDI_ERROR && qt_winver & Qt::WV_NT_based )
+	else if ( qt_winver & Qt::WV_NT_based )
 	    qSystemWarning( "QFontPrivate: GetGlyphOutline failed error code=%d", GetLastError() );
 #endif
-	return QRect(gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y, gm.gmBlackBoxX, gm.gmBlackBoxY);
     }
     return QRect();
 }
@@ -748,23 +749,23 @@ int QFontMetrics::descent() const
     return TMX->tmDescent;
 }
 
-// #### FIXME. This does not work at all.
 bool QFontMetrics::inFont(QChar ch) const
 {
 #ifdef UNICODE
     if ( qt_winver & Qt::WV_NT_based ) {
 	TEXTMETRICW *f = TMW;
 	WCHAR ch16 = ch.unicode();
-	return ch16 >= f->tmFirstChar
-	    && ch16 <= f->tmLastChar;
+	if( ch16 < f->tmFirstChar || ch16 > f->tmLastChar )
+	    return FALSE;
+	return !d->boundingRect( ch ).isEmpty();
     } else
 #endif
     {
 	TEXTMETRICA *f = TMA;
-	if ( ch.row() )
+	if ( ch.row() || (WCHAR)ch.cell() < f->tmFirstChar
+	    || (WCHAR)ch.cell() > f->tmLastChar )
 	    return FALSE;
-	return (WCHAR)ch.cell() >= f->tmFirstChar
-	    && (WCHAR)ch.cell() <= f->tmLastChar;
+	return !d->boundingRect( ch ).isEmpty();
     }
 }
 
