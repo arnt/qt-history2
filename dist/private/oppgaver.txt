@@ -65,6 +65,10 @@ Funksjonalitet:
 	vaere at vi dumper genererte events.
 
 
+Bugs:
+-----
+    QComboBox resize
+
 Ferdigstilling:
 ---------------
 
