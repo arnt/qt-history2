@@ -2804,7 +2804,7 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 
 //screen coordinates, clipped
 template <const int depth, const int type>
-GFX_INLINE void QGfxRaster<depth,type>::vline( int x,int y1,int y2 )
+void QGfxRaster<depth,type>::vline( int x,int y1,int y2 )
 {
     if ( y1 > y2 ) {
 	int ty = y2;
@@ -3106,7 +3106,7 @@ drawing code. Performs clipping.
 
 //screen coordinates, clipped, x1<=x2
 template <const int depth, const int type>
-GFX_INLINE void QGfxRaster<depth,type>::hline( int x1,int x2,int y)
+void QGfxRaster<depth,type>::hline( int x1,int x2,int y)
 {
     // gross clip.
     if ( x1 > clipbounds.right() || x2 < clipbounds.left() )
@@ -5714,6 +5714,28 @@ bool QScreen::supportsDepth(int d) const
     }
     return FALSE;
 }
+
+// explicit template instaniation
+#if defined(Q_TEMPLATEDLL)
+# ifndef QT_NO_QWS_DEPTH_1
+Q_TEMPLATE_EXTERN template class Q_EXPORT QT_TRANS_GFX_BASE<1,0>;
+# endif
+# ifndef QT_NO_QWS_DEPTH_4
+Q_TEMPLATE_EXTERN template class Q_EXPORT QT_TRANS_GFX_BASE<4,0>;
+# endif
+# ifndef QT_NO_QWS_DEPTH_8
+Q_TEMPLATE_EXTERN template class Q_EXPORT QT_TRANS_GFX_BASE<8,0>;
+# endif
+# ifndef QT_NO_QWS_DEPTH_16
+Q_TEMPLATE_EXTERN template class Q_EXPORT QT_TRANS_GFX_BASE<16,0>;
+# endif
+# ifndef QT_NO_QWS_DEPTH_24
+Q_TEMPLATE_EXTERN template class Q_EXPORT QT_TRANS_GFX_BASE<24,0>;
+# endif
+# ifndef QT_NO_QWS_DEPTH_32
+Q_TEMPLATE_EXTERN template class Q_EXPORT QT_TRANS_GFX_BASE<32,0>;
+# endif
+#endif
 
 /*!
 \fn Qfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
