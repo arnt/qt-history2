@@ -51,6 +51,8 @@ Preferences::Preferences(QWidget* parent, const char* name, int f) :
     PreferenceItem *group;
 
     QVBox *appearance = new QVBox;
+    QLabel *l = new QLabel( "Appearance   Change the appearance of the display"
+			    , appearance );
     QLabelled *frame = new QLabelled( "On startup, launch", appearance );
     QVBox *box = new QVBox( frame );
     new QCheckBox( "&Navigator", box );
@@ -58,7 +60,7 @@ Preferences::Preferences(QWidget* parent, const char* name, int f) :
     new QCheckBox( "Collabra &Discussions", box );
     new QCheckBox( "Page &Composer", box );
     new QCheckBox( "N&etcaster", box );
-    frame = new QLabelled( "Show toolbar as", appearance );
+    frame = new QLabelled( "Show Toolbar As", appearance );
     box = new QVBox( frame );
     new QRadioButton( "&Pictures and Text", box );
     new QRadioButton( "Pictures &Only", box );
