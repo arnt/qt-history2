@@ -80,6 +80,7 @@ clean:
 	cd src; \$(MAKE) clean
 	cd tutorial; \$(MAKE) clean
 	cd examples; \$(MAKE) clean
+	cd tools; \$(MAKE) clean
 
 depend:
 	cd src; \$(MAKE) depend
