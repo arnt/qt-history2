@@ -485,9 +485,6 @@ static int indentWhenBottomLineStartsInCComment()
 	    }
 	    return indent + ppCommentOffset;
 	}
-
-	if ( !readLine() )
-	    break;
     }
     return 0;
 }
