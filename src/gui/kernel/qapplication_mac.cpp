@@ -2238,6 +2238,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             //find which widget to send to
             if(mac_keyboard_grabber)
                 widget = mac_keyboard_grabber;
+            else if (app->inPopupMode())
+                widget = (app->activePopupWidget()->focusWidget() ?
+                          app->activePopupWidget()->focusWidget() : app->activePopupWidget());
             else if(QApplicationPrivate::focus_widget)
                 widget = QApplicationPrivate::focus_widget;
             if(!widget || (app_do_modal && !qt_try_modal(widget, event)))
@@ -2323,6 +2326,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 
         if(mac_keyboard_grabber)
             widget = mac_keyboard_grabber;
+        else if (app->inPopupMode())
+            widget = (app->activePopupWidget()->focusWidget() ?
+                      app->activePopupWidget()->focusWidget() : app->activePopupWidget());
         else if(QApplicationPrivate::focus_widget)
             widget = QApplicationPrivate::focus_widget;
         if(widget) {
