@@ -56,7 +56,7 @@ protected:
 
 public:
     QMemArray() {}
-    QMemArray( int size ) : QGArray(size*sizeof(type)) {}
+    QMemArray( int size ) : QGArray(size*sizeof(type)) {} // ### 4.0 Q_EXPLICIT
     QMemArray( const QMemArray<type> &a ) : QGArray(a) {}
    ~QMemArray() {}
     QMemArray<type> &operator=(const QMemArray<type> &a)
