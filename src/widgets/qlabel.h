@@ -56,7 +56,7 @@ class Q_EXPORT QLabel : public QFrame
     Q_PROPERTY( bool scaledContents READ hasScaledContents WRITE setScaledContents )
     Q_PROPERTY( Alignment alignment READ alignment WRITE setAlignment )
     Q_PROPERTY( int indent READ indent WRITE setIndent )
-	
+
 public:
     QLabel( QWidget *parent, const char *name=0, WFlags f=0 );
     QLabel( const QString &text, QWidget *parent, const char *name=0,
@@ -67,6 +67,9 @@ public:
 
     QString	 text()		const	{ return ltext; }
     QPixmap     *pixmap()	const	{ return lpixmap; }
+#ifndef QT_NO_PICTURE
+    QPicture    *picture()	const	{ return lpicture; }
+#endif
 #ifndef QT_NO_MOVIE
     QMovie      *movie()		const;
 #endif
@@ -81,7 +84,7 @@ public:
 
     bool 	 autoResize() const	{ return autoresize; }
     virtual void setAutoResize( bool );
-#ifndef QT_NO_IMAGE_SMOOTHSCALE    
+#ifndef QT_NO_IMAGE_SMOOTHSCALE
     bool 	hasScaledContents() const;
     void 	setScaledContents( bool );
 #endif
@@ -98,6 +101,9 @@ public:
 public slots:
     virtual void setText( const QString &);
     virtual void setPixmap( const QPixmap & );
+#ifndef QT_NO_PICTURE
+    virtual void setPicture( const QPicture & );
+#endif
 #ifndef QT_NO_MOVIE
     virtual void setMovie( const QMovie & );
 #endif
@@ -128,6 +134,9 @@ private:
     QSize	sizeForWidth( int w ) const;
     QString	ltext;
     QPixmap    *lpixmap;
+#ifndef QT_NO_PICTURE
+    QPicture   *lpicture;
+#endif
 #ifndef QT_NO_MOVIE
     QMovie *	lmovie;
 #endif

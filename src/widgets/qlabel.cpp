@@ -44,6 +44,7 @@
 #include <ctype.h>
 #include "qimage.h"
 #include "qbitmap.h"
+#include "qpicture.h"
 #include "qapplication.h"
 #include "qsimplerichtext.h"
 #include "qstylesheet.h"
@@ -200,6 +201,9 @@ void QLabel::init()
     accel = 0;
 #endif
     lpixmap = 0;
+#ifndef QT_NO_PICTURE
+    lpicture = 0;
+#endif
     align = AlignAuto | AlignVCenter | ExpandTabs;
     extraMargin= -1;
     autoresize = FALSE;
@@ -318,6 +322,24 @@ void QLabel::setPixmap( const QPixmap &pixmap )
     updateLabel( osh );
 }
 
+#ifndef QT_NO_PICTURE
+/*!
+  Sets the label contents to \a picture. Any previous content is cleared.
+
+  The buddy accelerator, if any, is disabled.
+
+  \sa picture(), setBuddy()
+ */
+
+void QLabel::setPicture( const QPicture &picture )
+{
+    QSize osh = sizeHint();
+    clearContents();
+    lpicture = new QPicture( picture );
+
+    updateLabel( osh );
+}
+#endif // QT_NO_PICTURE
 
 /*!
   Sets the label contents to a plain text containing the printed value
@@ -482,6 +504,9 @@ QSize QLabel::sizeForWidth( int w ) const
     QFontMetrics fm = fontMetrics();
     QRect br;
     QPixmap *pix = pixmap();
+#ifndef QT_NO_PICTURE
+    QPicture *pic = picture();
+#endif
 #ifndef QT_NO_MOVIE
     QMovie *mov = movie();
 #endif
@@ -496,6 +521,11 @@ QSize QLabel::sizeForWidth( int w ) const
     if ( pix ) {
 	br = pix->rect();
     }
+#ifndef QT_NO_PICTURE
+    else if ( pic ) {
+	br = pic->boundingRect();
+    }
+#endif
 #ifndef QT_NO_MOVIE
     else if ( mov ) {
 	br = mov->framePixmap().rect();
@@ -705,6 +735,32 @@ void QLabel::drawContents( QPainter *p )
 	    doc->draw(p, cr.x()+xo+1, cr.y()+yo+1, cr, cg, 0);
 	}
 	doc->draw(p, cr.x()+xo, cr.y()+yo, cr, colorGroup(), 0);
+    } else
+#endif
+#ifndef QT_NO_PICTURE
+    if ( lpicture ) {
+	QRect br = lpicture->boundingRect();
+	int rw = br.width();
+	int rh = br.height();
+	if ( scaledcontents ) {
+	    p->save();
+	    p->translate( cr.x(), cr.y() );
+	    p->scale( (double)cr.width()/rw, (double)cr.height()/rh );
+	    p->drawPicture( -br.x(), -br.y(), *lpicture );
+	    p->restore();
+	} else {
+	    int xo = 0;
+	    int yo = 0;
+	    if ( align & AlignVCenter )
+		yo = (cr.height()-rh)/2;
+	    else if ( align & AlignBottom )
+		yo = cr.height()-rh;
+	    if ( align & AlignRight )
+		xo = cr.width()-rw;
+	    else if ( align & AlignHCenter )
+		xo = (cr.width()-rw)/2;
+	    p->drawPicture( cr.x()+xo-br.x(), cr.y()+yo-br.y(), *lpicture );
+	}
     } else
 #endif
     {
@@ -1056,6 +1112,10 @@ void QLabel::clearContents()
 
     delete lpixmap;
     lpixmap = 0;
+#ifndef QT_NO_PICTURE
+    delete lpicture;
+    lpicture = 0;
+#endif
     delete d->img;
     d->img = 0;
     delete d->pix;
