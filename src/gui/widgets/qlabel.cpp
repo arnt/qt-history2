@@ -258,7 +258,6 @@ QLabel::QLabel(QWidget *buddy,  const QString &text,
 QLabel::~QLabel()
 {
     d->clearContents();
-    delete d;
 }
 
 
