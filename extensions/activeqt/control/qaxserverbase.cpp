@@ -768,8 +768,13 @@ public:
     // IClassFactory
     HRESULT WINAPI CreateInstance( IUnknown *pUnkOuter, REFIID iid, void **ppObject )
     {
-	if ( pUnkOuter && iid != IID_IUnknown )
-	    return CLASS_E_NOAGGREGATION;
+	if ( pUnkOuter ) {
+	    if (iid != IID_IUnknown)
+		return CLASS_E_NOAGGREGATION;
+	    QMetaObject *mo = qAxFactory()->metaObject(className);
+	    if (mo && !qstrcmp(mo->classInfo("Aggregatable", TRUE), "no"))
+		return CLASS_E_NOAGGREGATION;
+	}
 
 	// Make sure a QApplication instance is present (inprocess case)
 	if ( !qApp ) {

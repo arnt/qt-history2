@@ -638,6 +638,9 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
     bool hasEvents = !QUuid(eventsID).isNull();
     STRIPCB(eventsID);
 
+    QString defProp(mo->classInfo("DefaultProperty", TRUE));
+    QString defSignal(mo->classInfo("DefaultSignal", TRUE));
+
     QStrList enumerators = mo->enumeratorNames( TRUE );
     for ( i = 0; i < enumerators.count(); ++i ) {
 	if ( !enums )
@@ -711,6 +714,8 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
 		out << ", nonbrowsable";
 	    if ( isBindable )
 		out << ", requestedit";
+	    if (defProp == name)
+		out << ", uidefault";
 	    out << "] " << type << " " << name << ";" << endl;
 	}
 
@@ -837,6 +842,7 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
 
 	    bool ok = TRUE;
 	    QString signal = renameOverloads( replaceKeyword( signaldata->method->name ) );
+	    bool isDefault = defSignal == signal;
 	    QString returnType = "void ";
 	    QString paramType;
 	    signal += "(";
@@ -900,7 +906,10 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
 	    if ( !ok )
 		out << "\t/****** Signal parameter uses unsupported datatype" << endl;
 
-	    out << "\t\t[id(" << id << ")] ";
+	    out << "\t\t[id(" << id << ")";
+	    if (isDefault)
+		out << ", uidefault";
+	    out << "] ";
 	    out << returnType << signal << ";" << endl;
 
 	    if ( !ok )
@@ -912,6 +921,10 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
 
     out << "\t[" << endl;
     out << "\t\tuuid(" << classID << ")," << endl;
+
+    if (qstricmp(mo->classInfo("Aggregatable", TRUE), "no"))
+	out << "\t\taggregatable," << endl;
+
     out << "\t\thelpstring(\"" << className << " Class\")";
     const char *classVersion = mo->classInfo( "Version", TRUE );
     if ( classVersion ) {
