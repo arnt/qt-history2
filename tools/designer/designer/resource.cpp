@@ -1166,6 +1166,8 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	    createItem( n, w );
 	} else if ( n.tagName() == "column" || n.tagName() =="row" ) {
 	    createColumn( n, w );
+	} else if ( n.tagName() == "event" ) {
+	    MetaDataBase::setEventFunction( obj, formwindow, n.attribute( "name" ), n.attribute( "function" ), FALSE );
 	}
 
 	n = n.nextSibling().toElement();

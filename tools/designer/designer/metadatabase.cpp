@@ -990,7 +990,7 @@ public:
     static QCString normalizeSignalSlot( const char *signalSlot ) { return QObject::normalizeSignalSlot( signalSlot ); }
 };
 
-bool MetaDataBase::setEventFunction( QObject *o, QObject *form, const QString &event, const QString &function )
+bool MetaDataBase::setEventFunction( QObject *o, QObject *form, const QString &event, const QString &function, bool addIfNotExisting )
 {
     if ( !o )
 	return FALSE;
@@ -1043,7 +1043,7 @@ bool MetaDataBase::setEventFunction( QObject *o, QObject *form, const QString &e
 	}
     }
 
-    if ( !slotExists )
+    if ( !slotExists && addIfNotExisting )
 	addSlot( form, fName.latin1(), "public" );
 
     r->eventFunctions.insert( event, function );
