@@ -1,0 +1,3 @@
+qdoc 3 is a partial rewrite of qdoc 2 to support multiple programming
+languages in input and output, and multiple document formats in
+output.
