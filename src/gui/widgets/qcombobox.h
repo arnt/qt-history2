@@ -37,8 +37,13 @@ public:
         BeforeCurrent
     };
 
+    enum Mode {
+        NonEditable,
+        Editable
+    };
+
     QComboBox(QWidget *parent = 0);
-    QComboBox(bool rw, QWidget *parent=0);
+    QComboBox(Mode m, QWidget *parent=0);
     QComboBox(QAbstractItemModel *model, QWidget *parent = 0);
     ~QComboBox();
 
@@ -102,7 +107,7 @@ public:
 
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QComboBox(QWidget *parent, const char *name);
-    QT_COMPAT_CONSTRUCTOR QComboBox(bool rw, QWidget *parent, const char *name);
+    QT_COMPAT_CONSTRUCTOR QComboBox(bool rw, QWidget *parent, const char *name = 0);
     QT_COMPAT bool editable() const { return isEditable(); }
     QT_COMPAT void insertItem(const QPixmap &pix, int row = -1)
         { insertItem(QIconSet(pix), row); }

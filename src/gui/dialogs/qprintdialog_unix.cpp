@@ -1254,7 +1254,7 @@ QGroupBox *QPrintDialogUnix::setupPaper()
     d->pageSize = QPrinter::A4;
 
     // page orientation
-    d->orientationCombo = new QComboBox(false, g);
+    d->orientationCombo = new QComboBox(g);
     d->orientationCombo->insertItem(tr("Portrait"), -1);
     d->orientationCombo->insertItem(tr("Landscape"), -1);
     tll->addWidget(d->orientationCombo);
@@ -1267,7 +1267,7 @@ QGroupBox *QPrintDialogUnix::setupPaper()
              this, SLOT(orientSelected(int)));
 
     // paper size
-    d->sizeCombo = new QComboBox(false, g);
+    d->sizeCombo = new QComboBox(g);
     tll->addWidget(d->sizeCombo);
 
     int n;

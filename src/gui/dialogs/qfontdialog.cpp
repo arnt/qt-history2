@@ -184,7 +184,7 @@ QFontDialog::QFontDialog(QWidget *parent, const char *name,
     d->sampleEdit->setText("AaBbYyZz");
     hbox->addWidget(d->sampleEdit);
 
-    d->scriptCombo = new QComboBox(false, this);
+    d->scriptCombo = new QComboBox(this);
     d->scriptCombo->setObjectName("font encoding");
 
     d->scriptAccel
