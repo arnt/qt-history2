@@ -22,11 +22,17 @@
 #include <qwidget.h>
 #include <qtoolbutton.h>
 #include "mainwindow.h"
+#include <qwindowsstyle.h>
+
+static QWindowsStyle *windowsStyle = 0;
 
 void WidgetAction::addedTo( QWidget *w, QWidget *container )
 {
     if ( w->inherits( "QToolButton" ) && container->parent()->parent() &&
 	 container->parent()->parent()->inherits( "QScrollView" ) ) {
+	if ( !windowsStyle )
+	    windowsStyle = new QWindowsStyle;
+	w->setStyle( windowsStyle );
 	( (QToolButton*)w )->setUsesTextLabel( TRUE );
 	( (QToolButton*)w )->setTextPosition( QToolButton::Right );
 	( (QToolButton*)w )->setBackgroundMode( container->backgroundMode() );
@@ -44,4 +50,3 @@ void WidgetAction::init( const QString &g )
     MainWindow::self->toolActions.append( this );
     grp = g;
 }
-
