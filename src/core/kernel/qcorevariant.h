@@ -77,7 +77,7 @@ class Q_CORE_EXPORT QCoreVariant
         LastType = 0xffffffff // need this so that gcc >= 3.4 really allocates 32 bits for Type
 #ifdef QT_COMPAT
         ,ColorGroup = 12,
-        IconSet = Icon,
+        IconSet = Icon
 #endif
     };
 
