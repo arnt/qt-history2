@@ -77,35 +77,11 @@ Q_EXPORT inline uint cstrlen( const char *str )
 Q_EXPORT inline uint qstrlen( const char *str )
 { return str ? strlen(str) : 0; }
 
-// ### remove 3.0
-#undef	strlen
-#define strlen qstrlen
-
 Q_EXPORT inline char *cstrcpy( char *dst, const char *src )
 { return strcpy(dst,src); }
 
 Q_EXPORT inline char *qstrcpy( char *dst, const char *src )
 { return src ? strcpy(dst, src) : 0; }
-
-
-// ### TODO for 3.0: these should be used if !defined(QT_CLEAN_NAMESPACE)
-//                   We want to keep source compatibility for 2.x
-// ### TODO for 4.0: completely remove these
-#undef	strcpy
-#define strcpy qstrcpy
-
-#undef	strcmp
-#define strcmp qstrcmp
-
-#undef	strncmp
-#define strncmp qstrncmp
-
-#undef	stricmp
-#define stricmp	 qstricmp
-
-#undef	strnicmp
-#define strnicmp qstrnicmp
-
 
 Q_EXPORT char *qstrncpy( char *dst, const char *src, uint len );
 
@@ -125,6 +101,30 @@ Q_EXPORT inline int qstrncmp( const char *str1, const char *str2, uint len )
 Q_EXPORT int qstricmp( const char *, const char * );
 
 Q_EXPORT int qstrnicmp( const char *, const char *, uint len );
+
+// ### TODO for 3.0: these should be used if !defined(QT_CLEAN_NAMESPACE)
+//                   We want to keep source compatibility for 2.x
+// ### TODO for 4.0: completely remove these
+
+#undef	strlen
+#define strlen qstrlen
+
+#undef	strcpy
+#define strcpy qstrcpy
+
+#undef	strcmp
+#define strcmp qstrcmp
+
+#undef	strncmp
+#define strncmp qstrncmp
+
+#undef	stricmp
+#define stricmp	 qstricmp
+
+#undef	strnicmp
+#define strnicmp qstrnicmp
+
+
 
 // qChecksum: Internet checksum
 
