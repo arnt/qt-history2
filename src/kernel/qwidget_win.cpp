@@ -1217,6 +1217,8 @@ void QWidget::showWindow()
 
     ShowWindow( winId(), sm );
     UpdateWindow( winId() );
+    if ( isTopLevel() && sm == SW_SHOW )
+	SetForegroundWindow( winId() );
 }
 
 
