@@ -291,7 +291,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 	    } else {
 		if((Option::target_mode == Option::TARG_MAC9_MODE && inc.find(':')) ||
 		   (Option::target_mode == Option::TARG_WIN_MODE && inc[1] != ':') ||
-		   ((Option::target_mode == Option::TARG_UNIX_MODE || Option::target_mode == Option::TARG_MACX_MODE) && 
+		   ((Option::target_mode == Option::TARG_UNIX_MODE || Option::target_mode == Option::TARG_MACX_MODE) &&
 		    inc[0] != '/')) {
 		    for(MakefileDependDir *mdd = dirs.first(); mdd; mdd = dirs.next() ) {
 			if(QFile::exists(mdd->local_dir + QDir::separator() + inc))
@@ -575,6 +575,7 @@ MakefileGenerator::init()
 		    QString trg = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
 		    impldeps.append(trg);
 		    impldeps += findDependencies(lexsrc);
+		    depends[lexsrc].clear();
 		}
 	    }
 	    yaccdeps.clear();
@@ -844,7 +845,7 @@ MakefileGenerator::writeImageSrc(QTextStream &t, const QString &src)
     QStringList &l = project->variables()[src];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	t << (*it) << ": " << findDependencies((*it)).join(" \\\n\t\t") << "\n\t"
-	  << "$(UIC) " << " -embed " << project->first("QMAKE_ORIG_TARGET") 
+	  << "$(UIC) " << " -embed " << project->first("QMAKE_ORIG_TARGET")
 	  << " " << findDependencies((*it)).join(" ") << " -o " << (*it) << endl << endl;
     }
 }
