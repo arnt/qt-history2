@@ -304,13 +304,17 @@ MakefileGenerator::generateMocList(QString fn_target)
 }
 
 
+#define GOOD_FIND
+
 bool
 MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 {
     int pos;
     int end;
     int l;
-    const QString stringInc( "#include" );
+    // don't search for '#include' since you can write '#  include' (using
+    // QRegExp instead is too expensive)
+    const QString stringInc( "include" );
     QChar term;
 
     QStringList &fndeps = depends[fn];
@@ -335,7 +339,8 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 
 	    // find the name of the header
 	    l = s.length();
-	    pos += 8; // go to character after '#include'
+#if defined(GOOD_FIND)
+	    pos += 7; // go to character after 'include'
 	    while ( pos < l ) {
 		if ( s[pos] == '<' ) {
 		    term = '>';
@@ -346,9 +351,21 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 		}
 		pos++;
 	    }
-	    pos++;
+	    if ( pos >= l )
+		continue; // no quoting found
+#else
+	    pos += 8; // go to character after 'include '
 	    if ( pos >= l )
 		continue;
+	    if ( s[pos] == '<' ) {
+		term = '>';
+	    } else if ( s[pos] == '"' ) {
+		term = '"';
+	    } else {
+		continue;
+	    }
+#endif
+	    pos++;
 	    end = s.find( term, pos );
 	    if ( end == -1 )
 		continue;
