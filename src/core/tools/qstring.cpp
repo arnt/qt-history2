@@ -4461,9 +4461,13 @@ QString &QString::sprintf(const char* cformat, ...)
     base, which is 10 by default and must be between 2 and 36, or 0.
 
     If \a base is 0, the base is determined automatically using the
-    following rules: If the string begins with "0x", it is assumed to
-    be hexadecimal; if it begins with "0", it is assumed to be octal;
-    otherwise it is assumed to be decimal.
+    following rules:
+    <ul>
+    <li>If the string begins with "0x", it is assumed to
+    be hexadecimal; 
+    <li>If it begins with "0", it is assumed to be octal;
+    <li>Otherwise it is assumed to be decimal.
+    </ul>
 
     Returns 0 if the conversion fails.
 
@@ -4515,9 +4519,14 @@ Q_LONGLONG QString::toLongLong(bool *ok, int base) const
     base, which is 10 by default and must be between 2 and 36, or 0.
 
     If \a base is 0, the base is determined automatically using the
-    following rules: If the string begins with "0x", it is assumed to
-    be hexadecimal; if it begins with "0", it is assumed to be octal;
-    otherwise it is assumed to be decimal.
+    following rules:
+    <ul>
+    <li>If the string begins with "0x", it is assumed to
+    be hexadecimal; 
+    <li>If it begins with "0", it is assumed to be octal;
+    <li>Otherwise it is assumed to be decimal.
+    </ul>
+
 
     Returns 0 if the conversion fails.
 
@@ -4569,9 +4578,14 @@ Q_ULONGLONG QString::toULongLong(bool *ok, int base) const
     base, which is 10 by default and must be between 2 and 36, or 0.
 
     If \a base is 0, the base is determined automatically using the
-    following rules: If the string begins with "0x", it is assumed to
-    be hexadecimal; if it begins with "0", it is assumed to be octal;
-    otherwise it is assumed to be decimal.
+    following rules: 
+    <ul>
+    <li>If the string begins with "0x", it is assumed to
+    be hexadecimal; 
+    <li>If it begins with "0", it is assumed to be octal;
+    <li>Otherwise it is assumed to be decimal.
+    </ul>
+
 
     Returns 0 if the conversion fails.
 
@@ -4605,9 +4619,13 @@ long QString::toLong(bool *ok, int base) const
     base, which is 10 by default and must be between 2 and 36, or 0.
 
     If \a base is 0, the base is determined automatically using the
-    following rules: If the string begins with "0x", it is assumed to
-    be hexadecimal; if it begins with "0", it is assumed to be octal;
-    otherwise it is assumed to be decimal.
+    following rules: 
+    <ul>
+    <li>If the string begins with "0x", it is assumed to
+    be hexadecimal; 
+    <li>If it begins with "0", it is assumed to be octal;
+    <li>Otherwise it is assumed to be decimal.
+    </ul>
 
     Returns 0 if the conversion fails.
 
@@ -4641,9 +4659,13 @@ ulong QString::toULong(bool *ok, int base) const
     base, which is 10 by default and must be between 2 and 36, or 0.
 
     If \a base is 0, the base is determined automatically using the
-    following rules: If the string begins with "0x", it is assumed to
-    be hexadecimal; if it begins with "0", it is assumed to be octal;
-    otherwise it is assumed to be decimal.
+    following rules:
+    <ul>
+    <li>If the string begins with "0x", it is assumed to
+    be hexadecimal; 
+    <li>If it begins with "0", it is assumed to be octal;
+    <li>Otherwise it is assumed to be decimal.
+    </ul>
 
     Returns 0 if the conversion fails.
 
@@ -4677,9 +4699,13 @@ int QString::toInt(bool *ok, int base) const
     base, which is 10 by default and must be between 2 and 36, or 0.
 
     If \a base is 0, the base is determined automatically using the
-    following rules: If the string begins with "0x", it is assumed to
-    be hexadecimal; if it begins with "0", it is assumed to be octal;
-    otherwise it is assumed to be decimal.
+    following rules: 
+    <ul>
+    <li>If the string begins with "0x", it is assumed to
+    be hexadecimal; 
+    <li>If it begins with "0", it is assumed to be octal;
+    <li>Otherwise it is assumed to be decimal.
+    </ul>
 
     Returns 0 if the conversion fails.
 
@@ -4713,9 +4739,13 @@ uint QString::toUInt(bool *ok, int base) const
     base, which is 10 by default and must be between 2 and 36, or 0.
 
     If \a base is 0, the base is determined automatically using the
-    following rules: If the string begins with "0x", it is assumed to
-    be hexadecimal; if it begins with "0", it is assumed to be octal;
-    otherwise it is assumed to be decimal.
+    following rules: 
+    <ul>
+    <li>If the string begins with "0x", it is assumed to
+    be hexadecimal; 
+    <li>If it begins with "0", it is assumed to be octal;
+    <li>Otherwise it is assumed to be decimal.
+    </ul>
 
     Returns 0 if the conversion fails.
 
@@ -4749,9 +4779,14 @@ short QString::toShort(bool *ok, int base) const
     base, which is 10 by default and must be between 2 and 36, or 0.
 
     If \a base is 0, the base is determined automatically using the
-    following rules: If the string begins with "0x", it is assumed to
-    be hexadecimal; if it begins with "0", it is assumed to be octal;
-    otherwise it is assumed to be decimal.
+    following rules: 
+    <ul>
+    <li>If the string begins with "0x", it is assumed to
+    be hexadecimal; 
+    <li>If it begins with "0", it is assumed to be octal;
+    <li>Otherwise it is assumed to be decimal.
+    </ul>
+
 
     Returns 0 if the conversion fails.
 
