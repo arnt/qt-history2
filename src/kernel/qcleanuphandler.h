@@ -6,7 +6,7 @@
 #include <qpixmap.h>
 
 template<class Type>
-class QCleanUpHandler
+class Q_EXPORT QCleanUpHandler
 {
 public:
     ~QCleanUpHandler()

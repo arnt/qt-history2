@@ -7,7 +7,7 @@
 
 class QApplication;
 
-class QPlugInInterface
+class Q_EXPORT QPlugInInterface
 {
 public:
     QPlugInInterface() {}

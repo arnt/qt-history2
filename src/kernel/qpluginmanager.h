@@ -5,7 +5,7 @@
 #include <qdir.h>
 
 template<class Type>
-class QPlugInManager
+class Q_EXPORT QPlugInManager
 {
 public:
     QPlugInManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so", 
