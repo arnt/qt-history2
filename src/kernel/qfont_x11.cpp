@@ -2953,13 +2953,13 @@ void QFont::initialize()
     QString sample;
 
     if (ttmp != -1) {
-#  if defined(QT_THREAD_SUPPORT) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
-    // use the reentrant versions of localtime() and gmtime() where available
+#if defined(QT_THREAD_SUPPORT) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
+	// use the reentrant versions of localtime() where available
 	tm res;
-	tt = localtime_r( &ttmp, &res );
-#  else
-	tt = localtime( &ttmp );
-#  endif // QT_THREAD_SUPPORT && _POSIX_THREAD_SAFE_FUNCTIONS
+	tt = localtime_r(&ttmp, &res);
+#else
+	tt = localtime(&ttmp);
+#endif // QT_THREAD_SUPPORT && _POSIX_THREAD_SAFE_FUNCTIONS
 	if (tt != 0 && strftime(samp, 64, "%A%B", tt) > 0)
 	    if (codec)
 		sample = codec->toUnicode(samp);
