@@ -16,26 +16,34 @@ class QDockWidget : public QFrame
 
 public:
     enum Place { InDock, OutsideDock };
-    
+
     QDockWidget( QWidget *parent = 0, const char *name = 0 );
 
     virtual void setWidget( QWidget *w );
     QWidget *widget() const;
 
     Place place() const { return curPlace; }
+
+    virtual void setResizeEnabled( bool b );
+    bool isResizeEnabled() const;
+    
+    virtual void setCloseEnabled( bool b );
+    bool isCloseEnabled() const;
+
+    QDockArea *area() const;
     
 protected:
     void resizeEvent( QResizeEvent *e );
-    
+
 private:
     void handleMoveInDock( const QPoint &pos );
     void handleMoveOutsideDock( const QPoint &pos, const QPoint &gp );
     void updateGui();
-    
+
     void startRectDraw();
     void endRectDraw();
     void updatePosition();
-    
+
 private:
     QDockWidgetHandle *handle;
     QDockWidgetTitleBar *titleBar;
@@ -45,7 +53,13 @@ private:
     QRect currRect;
     Place state;
     QDockArea *dockArea, *tmpDockArea;
+    bool closeEnabled, resizeEnabled;
     
 };
+
+inline QDockArea *QDockWidget::area() const
+{
+    return dockArea;
+}
 
 #endif
