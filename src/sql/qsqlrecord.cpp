@@ -365,9 +365,13 @@ void QSqlRecord::setDisplayLabel( const QString& name, const QString& label )
 
 QString QSqlRecord::displayLabel( const QString& name ) const
 {
-    if ( !field( name ) )
+    if ( !field( name ) ) {
 	return name;
-    return d->fieldInfo[ position( name ) ].label;
+    }
+    QString ret = d->fieldInfo[ position( name ) ].label;
+    if ( ret.isNull() )
+	ret = name;
+    return ret;
 }
 
 /*! Sets the visible flag of field \a name to \a visible.  If the
