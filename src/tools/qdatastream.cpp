@@ -630,20 +630,10 @@ QDataStream &QDataStream::operator>>( Q_INT64 &i )
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
 	i = read_int_ascii( this );
-    } else if ( noswap ) {			// no conversion needed
-	dev->readBlock( (char *)&i, 8 );
-    } else {					// swap bytes
-	uchar *p = (uchar *)(&i);
-	char b[8];
-	dev->readBlock( b, 8 );
-	*p++ = b[7];
-	*p++ = b[6];
-	*p++ = b[5];
-	*p++ = b[4];
-	*p++ = b[3];
-	*p++ = b[2];
-	*p++ = b[1];
-	*p   = b[0];
+    } else {
+	Q_UINT32 i1, i2;
+	*this >> i2 >> i1;
+	i = ((Q_UINT64)i1 << 32) + i2;
     }
     return *this;
 }
@@ -959,20 +949,10 @@ QDataStream &QDataStream::operator<<( Q_INT64 i )
 	sprintf( buf, "%lld\n", i );
 #endif
 	dev->writeBlock( buf, strlen(buf) );
-    } else if ( noswap ) {			// no conversion needed
-	dev->writeBlock( (char *)&i, 8 );
-    } else {					// swap bytes
-	register uchar *p = (uchar *)(&i);
-	char b[8];
-	b[7] = *p++;
-	b[6] = *p++;
-	b[5] = *p++;
-	b[4] = *p++;
-	b[3] = *p++;
-	b[2] = *p++;
-	b[1] = *p++;
-	b[0] = *p;
-	dev->writeBlock( b, 8 );
+    } else {
+	Q_UINT32 i1 = i & 0xffffffff;
+	Q_UINT32 i2 = i >> 32;
+	*this << i1 << i2;
     }
     return *this;
 }
