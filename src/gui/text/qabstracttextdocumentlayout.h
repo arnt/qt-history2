@@ -34,15 +34,21 @@ public:
     explicit QAbstractTextDocumentLayout(QTextDocument *doc);
     ~QAbstractTextDocumentLayout();
 
+    struct Selection
+    {
+        QTextCursor cursor;
+        QTextCharFormat format;
+    };
+
     struct PaintContext
     {
         PaintContext()
-            : showCursor(false)
+            : cursorPosition(-1)
             {}
-        QTextCursor cursor;
+        int cursorPosition;
         QPalette palette;
-        bool showCursor;
         QRectF clip;
+        QVector<Selection> selections;
     };
 
     virtual void draw(QPainter *painter, const PaintContext &context) = 0;

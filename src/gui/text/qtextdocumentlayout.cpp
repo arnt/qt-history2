@@ -238,7 +238,7 @@ public:
     void drawBlock(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
                    QTextBlock bl) const;
     void drawListItem(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
-                      QTextBlock bl, bool highlight) const;
+                      QTextBlock bl, const QTextCharFormat *selectionFormat) const;
 
     enum HitPoint {
         PointBefore,
@@ -501,11 +501,6 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
         const int columns = table->columns();
         QTextTableData *td = static_cast<QTextTableData *>(data(table));
 
-        int row_start = -1, col_start = -1, num_rows = -1, num_cols = -1;
-
-        if (context.cursor.currentTable() == table)
-            context.cursor.selectedTableCells(&row_start, &num_rows, &col_start,  &num_cols);
-
         for (int r = 0; r < rows; ++r) {
             for (int c = 0; c < columns; ++c) {
                 QTextTableCell cell = table->cellAt(r, c);
@@ -562,13 +557,20 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
                 }
 
                 QAbstractTextDocumentLayout::PaintContext cell_context = context;
-                if (row_start != -1) {
-                    if (r >= row_start && r < row_start + num_rows
-                        && c >= col_start && c < col_start + num_cols) {
-                        cell_context.cursor.setPosition(cell.firstPosition());
-                        cell_context.cursor.setPosition(cell.lastPosition(), QTextCursor::KeepAnchor);
-                    } else {
-                        cell_context.cursor.clearSelection();
+                for (int i = 0; i < context.selections.size(); ++i) {
+                    const QAbstractTextDocumentLayout::Selection &s = context.selections.at(i);
+                    int row_start = -1, col_start = -1, num_rows = -1, num_cols = -1;
+
+                    if (s.cursor.currentTable() == table)
+                        s.cursor.selectedTableCells(&row_start, &num_rows, &col_start,  &num_cols);
+                    if (row_start != -1) {
+                        if (r >= row_start && r < row_start + num_rows
+                            && c >= col_start && c < col_start + num_cols) {
+                            cell_context.selections[i].cursor.setPosition(cell.firstPosition());
+                            cell_context.selections[i].cursor.setPosition(cell.lastPosition(), QTextCursor::KeepAnchor);
+                        } else {
+                            cell_context.selections[i].cursor.clearSelection();
+                        }
                     }
                 }
                 for (QTextFrame::Iterator it = cell.begin(); !it.atEnd(); ++it) {
@@ -607,7 +609,7 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *pain
 
     QTextBlockFormat blockFormat = bl.blockFormat();
 
-    int cursor = context.showCursor ? context.cursor.position() : -1;
+    int cursor = context.cursorPosition;
 
     if (bl.contains(cursor))
         cursor -= bl.position();
@@ -622,27 +624,27 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *pain
     }
 
     QVector<QTextLayout::FormatRange> selections;
-    bool highlightListItem = false;
-    if (context.cursor.hasSelection()) {
-        int blpos = bl.position();
-        int bllen = bl.length();
-        const int selStart = context.cursor.selectionStart() - blpos;
-        const int selEnd = context.cursor.selectionEnd() - blpos;
+    int blpos = bl.position();
+    int bllen = bl.length();
+    const QTextCharFormat *selFormat = 0;
+    for (int i = 0; i < context.selections.size(); ++i) {
+        const QAbstractTextDocumentLayout::Selection &range = context.selections.at(i);
+        const int selStart = range.cursor.selectionStart() - blpos;
+        const int selEnd = range.cursor.selectionEnd() - blpos;
         if (selStart < bllen && selEnd > 0) {
             QTextLayout::FormatRange o;
             o.start = selStart;
             o.length = selEnd - selStart;
-            o.format.setBackgroundColor(context.palette.color(QPalette::Highlight));
-            o.format.setTextColor(context.palette.color(QPalette::HighlightedText));
+            o.format = range.format;
             selections.append(o);
         }
         if (selStart <= 0 && selEnd >= 1)
-            highlightListItem = true;
+            selFormat = &range.format;
     }
 
     QTextObject *object = q->document()->objectForFormat(bl.blockFormat());
     if (object && object->format().toListFormat().style() != QTextListFormat::ListStyleUndefined)
-        drawListItem(offset, painter, context, bl, highlightListItem);
+        drawListItem(offset, painter, context, bl, selFormat);
 
     painter->setPen(context.palette.color(QPalette::Text));
     tl->draw(painter, offset, selections, context.clip);
@@ -653,7 +655,7 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *pain
 
 void QTextDocumentLayoutPrivate::drawListItem(const QPointF &offset, QPainter *painter,
                                               const QAbstractTextDocumentLayout::PaintContext &context,
-                                              QTextBlock bl, bool highlight) const
+                                              QTextBlock bl, const QTextCharFormat *selectionFormat) const
 {
     Q_Q(const QTextDocumentLayout);
     const QTextBlockFormat blockFormat = bl.blockFormat();
@@ -708,10 +710,9 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPointF &offset, QPainter *p
 
     painter->save();
 
-    if (highlight) {
-        painter->setPen(context.palette.highlightedText().color());
-
-        painter->fillRect(r, context.palette.highlight());
+    if (selectionFormat) {
+        painter->setPen(selectionFormat->textColor());
+        painter->fillRect(r, selectionFormat->backgroundColor());
     } else {
         QColor col = charFormat.textColor();
         if (!col.isValid())

@@ -29,6 +29,7 @@
 #include "qtextdocument.h"
 #include "qtextlist.h"
 
+#include <qtextformat.h>
 #include <qdatetime.h>
 #include <qapplication.h>
 #include <limits.h>
@@ -1642,9 +1643,15 @@ void QTextEditPrivate::paint(QPainter *p, QPaintEvent *e)
     p->setClipRect(r);
 
     QAbstractTextDocumentLayout::PaintContext ctx;
-    ctx.showCursor = (cursorOn && q->isEnabled());
-    ctx.cursor = cursor;
-    ctx.palette = q->palette();
+    if (cursorOn && q->isEnabled())
+        ctx.cursorPosition = cursor.position();
+    if (cursor.hasSelection()) {
+        QAbstractTextDocumentLayout::Selection selection;
+        selection.cursor = cursor;
+        selection.format.setBackgroundColor(q->palette().color(QPalette::Highlight));
+        selection.format.setTextColor(q->palette().color(QPalette::HighlightedText));
+        ctx.selections.append(selection);
+    }
     ctx.clip = r;
 
     doc->documentLayout()->draw(p, ctx);
@@ -1742,7 +1749,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
     if (!(e->buttons() & Qt::LeftButton))
         return;
 
-    if (!(d->mousePressed 
+    if (!(d->mousePressed
           || d->selectedWordOnDoubleClick.hasSelection()
           || d->selectedLineOnDoubleClick.hasSelection()))
         return;

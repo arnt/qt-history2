@@ -1355,14 +1355,10 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
         if (!si.num_glyphs)
             eng->shape(item);
 
-        if (selection && (si.position >= selection->start + selection->length
-                          || si.position + si_len <= selection->start)) {
-            x += si.width;
-            continue;
-        }
-
         if (si.isObject || si.isTab) {
-            if (eng->block.docHandle()) {
+            if (eng->block.docHandle() &&
+                (!selection || (si.position < selection->start + selection->length
+                                && si.position + si_len > selection->start))) {
                 p->save();
                 QTextCharFormat format = eng->format(&si).toCharFormat();
                 if (selection)
