@@ -765,7 +765,6 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         }
         selectionModel()->setCurrentItem(index, QItemSelectionModel::NoUpdate);
     }
-    qDebug("state selecting");
     setState(Selecting);
     setSelection(QRect(topLeft, bottomRight).normalize(),
                  selectionCommand(e->state(), index, e->type()));
