@@ -413,7 +413,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                             opt->rect.width() - 8, opt->rect.height() - 8);
             }
 	} else {
-	    QRect r = opt->rect;
+            QRect r = opt->rect.adjusted(0,0,-1,-1);
  	    p->setBrush(Qt::Dense4Pattern);
 	    p->setBackground(QBrush(opt->palette.base()));
 	    p->setBackgroundMode(Qt::OpaqueMode);
