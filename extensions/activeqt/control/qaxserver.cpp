@@ -918,7 +918,7 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
     if (outfile.contains("\\")) {
         QString outpath = outfile.left(outfile.lastIndexOf("\\"));
         QDir dir;
-        dir.mkdir(outpath, QDir::Recursive);
+        dir.mkpath(outpath);
     }
     QFile file(outfile);
     file.remove();
