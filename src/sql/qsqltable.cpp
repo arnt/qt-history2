@@ -949,11 +949,19 @@ QSqlTable::Confirm QSqlTable::confirmEdit( QSqlTable::Mode m )
 	cap = "Delete";
 	break;
     }
-    QSqlTable::Confirm conf = (QSqlTable::Confirm)QMessageBox::information ( this, tr( cap ),
-					      m == Delete ? tr("Are you sure?") : tr( "Save edits?" ),
-					      tr( "Yes" ),
-					      tr( "No" ),
-					      m == Delete ? QString::null : tr( "Cancel" ), 0, m == Delete ? 1 : 2 );
+    QSqlTable::Confirm conf;
+    if ( m == Delete )
+	conf = (QSqlTable::Confirm)QMessageBox::information ( this, tr( cap ),
+		tr("Are you sure?"),
+		tr( "Yes" ),
+		tr( "No" ),
+		QString::null, 0, 1 );
+    else
+	conf = (QSqlTable::Confirm)QMessageBox::information ( this, tr( cap ),
+		tr( "Save edits?" ),
+		tr( "Yes" ),
+		tr( "No" ),
+		tr( "Cancel" ), 0, 2 );
     return conf;
 }
 

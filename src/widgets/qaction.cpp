@@ -1068,10 +1068,17 @@ bool QActionGroup::addTo( QWidget* w )
 	    connect( popup, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 
 	    int id;
-	    if ( !iconSet().isNull() )
-		id = menu->insertItem( iconSet(), menuText().isEmpty() ? text() : menuText(), popup );
-	    else
-		id = menu->insertItem( menuText().isEmpty() ? text() : menuText(), popup );
+	    if ( !iconSet().isNull() ) {
+		if ( menuText().isEmpty() )
+		    id = menu->insertItem( iconSet(), text(), popup );
+		else
+		    id = menu->insertItem( iconSet(), menuText(), popup );
+	    } else {
+		if ( menuText().isEmpty() )
+		    id = menu->insertItem( text(), popup );
+		else
+		    id = menu->insertItem( menuText(), popup );
+	    }
 
 	    QActionGroupPrivate::MenuItem *item = new QActionGroupPrivate::MenuItem;
 	    item->id = id;
