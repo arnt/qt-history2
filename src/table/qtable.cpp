@@ -2007,7 +2007,8 @@ QTable::QTable( QWidget *parent, const char *name )
 */
 
 QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
-    : QScrollView( parent, name, WStaticContents ),
+    : QScrollView( parent, name, WNoAutoErase | WStaticContents ),
+      leftHeader( 0 ), topHeader( 0 ),
       currentSel( 0 ), lastSortCol( -1 ), sGrid( TRUE ), mRows( FALSE ), mCols( FALSE ),
       asc( TRUE ), doSort( TRUE ), readOnly( FALSE )
 {
@@ -4490,7 +4491,6 @@ void QTable::columnClicked( int col )
 	lastSortCol = col;
 	asc = TRUE;
     }
-
     sortColumn( lastSortCol, asc );
 }
 
@@ -4504,6 +4504,8 @@ void QTable::columnClicked( int col )
 void QTable::setSorting( bool b )
 {
     doSort = b;
+    if ( topHeader )
+ 	topHeader->setSortIndicator( b ? lastSortCol : -1 );
 }
 
 bool QTable::sorting() const
@@ -5520,6 +5522,8 @@ void QTable::sortColumn( int col, bool ascending, bool wholeRows )
 	}
     }
     setUpdatesEnabled( updatesEnabled );
+    if ( topHeader )
+ 	topHeader->setSortIndicator( col, ascending );
 
     if ( !wholeRows )
 	repaintContents( columnPos( col ), contentsY(),
