@@ -1747,9 +1747,9 @@ void Q3MainWindow::triggerLayout(bool deleteLayout)
     help->insertItem("What's &This", this , SLOT(enterWhatsThis()), Qt::SHIFT+Qt::Key_F1);
     \endcode
 
-    \sa QWhatsThis::enterWhatsThisMode()
+    \sa Q3WhatsThis::enterWhatsThisMode()
 */
-void Q3MainWindow::enterWhatsThis()
+void Q3MainWindow::whatsThis()
 {
 #ifndef QT_NO_WHATSTHIS
     QWhatsThis::enterWhatsThisMode();
