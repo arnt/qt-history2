@@ -6153,6 +6153,8 @@ void QTextTable::enterAt( QTextCursor *c, QTextDocument *&doc, QTextParag *&para
     int lastY = -1;
     for ( int i = 0; i < (int)cells.count(); ++i ) {
 	QTextTableCell *cell = cells.at( i );
+	if ( !cell )
+	    continue;
 	if ( cell->geometry().x() - innerborder <= pos.x() &&
 	     cell->geometry().x() + cell->geometry().width() + innerborder >= pos.x() ) {
 	    if ( cell->geometry().y() > lastY ) {
@@ -6193,12 +6195,16 @@ void QTextTable::next( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, 
 	currCell.insert( c, 0 );
 	QTextCustomItem::next( c, doc, parag, idx, ox, oy );
 	QTextTableCell *cell = cells.at( 0 );
+	if ( !cell )
+	    return;
 	doc = cell->richText();
 	idx = -1;
 	return;
     }
 
     QTextTableCell *cell = cells.at( *currCell.find( c ) );
+    if ( !cell )
+	return;
     doc = cell->richText();
     parag = doc->firstParag();
     idx = 0;
@@ -6217,12 +6223,16 @@ void QTextTable::prev( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, 
 	currCell.insert( c, 0 );
 	QTextCustomItem::prev( c, doc, parag, idx, ox, oy );
 	QTextTableCell *cell = cells.at( 0 );
+	if ( !cell )
+	    return;
 	doc = cell->richText();
 	idx = -1;
 	return;
     }
 
     QTextTableCell *cell = cells.at( *currCell.find( c ) );
+    if ( !cell )
+	return;
     doc = cell->richText();
     parag = doc->firstParag();
     idx = parag->length() - 1;
@@ -6237,6 +6247,8 @@ void QTextTable::down( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, 
 	currCell.insert( c, 0 );
 	QTextCustomItem::down( c, doc, parag, idx, ox, oy );
 	QTextTableCell *cell = cells.at( 0 );
+	if ( !cell )
+	    return;
 	doc = cell->richText();
 	idx = -1;
 	return;
@@ -6253,6 +6265,8 @@ void QTextTable::down( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, 
 	}
     }
     doc = cell->richText();
+    if ( !cell )
+	return;
     parag = doc->firstParag();
     idx = 0;
     ox += cell->geometry().x() + outerborder + parent->x(),
@@ -6266,6 +6280,8 @@ void QTextTable::up( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, in
 	currCell.insert( c, 0 );
 	QTextCustomItem::up( c, doc, parag, idx, ox, oy );
 	QTextTableCell *cell = cells.at( 0 );
+	if ( !cell )
+	    return;
 	doc = cell->richText();
 	idx = -1;
 	return;
@@ -6282,6 +6298,8 @@ void QTextTable::up( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, in
 	}
     }
     doc = cell->richText();
+    if ( !cell )
+	return;
     parag = doc->lastParag();
     idx = parag->length() - 1;
     ox += cell->geometry().x() + outerborder + parent->x();
