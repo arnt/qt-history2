@@ -36,7 +36,7 @@
 #include "qdatastream.h"
 #include "qwsdisplay_qws.h"
 
-static int nextCursorId = BitmapCursor + 1;
+static int nextCursorId = Qt::BitmapCursor + 1;
 
 /*****************************************************************************
   Internal QCursorData class

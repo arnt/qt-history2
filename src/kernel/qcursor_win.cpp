@@ -93,7 +93,7 @@ QCursorData::~QCursorData()
 
 QCursor *QCursor::find_cur( int shape )	// find predefined cursor
 {
-    return (uint)shape <= Qt::LastCursor ? &cursorTable[shape] : 0;
+    return (uint)shape <= LastCursor ? &cursorTable[shape] : 0;
 }
 
 
@@ -127,7 +127,7 @@ QCursor::QCursor()
 	}
 	initialize();
     }
-    QCursor* c = (QCursor *)&Qt::arrowCursor;
+    QCursor* c = (QCursor *)&arrowCursor;
     c->data->ref();
     data = c->data;
 }
@@ -138,7 +138,7 @@ QCursor::QCursor( int shape )
 	initialize();
     QCursor *c = find_cur( shape );
     if ( !c )					// not found
-	c = (QCursor *)&Qt::arrowCursor;	//   then use arrowCursor
+	c = (QCursor *)&arrowCursor;	//   then use arrowCursor
     c->data->ref();
     data = c->data;
 }
@@ -154,7 +154,7 @@ void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
 #if defined(CHECK_NULL)
 	qWarning( "QCursor: Cannot create bitmap cursor; invalid bitmap(s)" );
 #endif
-	QCursor *c = (QCursor *)&Qt::arrowCursor;
+	QCursor *c = (QCursor *)&arrowCursor;
 	c->data->ref();
 	data = c->data;
 	return;
@@ -164,7 +164,7 @@ void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
     data->bm  = new QBitmap( bitmap );
     data->bmm = new QBitmap( mask );
     data->hcurs = 0;
-    data->cshape = Qt::BitmapCursor;
+    data->cshape = BitmapCursor;
     data->hx = hotX >= 0 ? hotX : bitmap.width()/2;
     data->hy = hotY >= 0 ? hotY : bitmap.height()/2;
 }
@@ -211,7 +211,7 @@ void QCursor::setShape( int shape )
 	initialize();
     QCursor *c = find_cur( shape );		// find one of the global ones
     if ( !c )					// not found
-	c = (QCursor *)&Qt::arrowCursor;	//   then use arrowCursor
+	c = (QCursor *)&arrowCursor;	//   then use arrowCursor
     c->data->ref();
     if ( data->deref() )			// make shallow copy
 	delete data;
@@ -353,59 +353,59 @@ void QCursor::update() const
 
     unsigned short *sh;
     switch ( data->cshape ) {			// map to windows cursor
-    case Qt::ArrowCursor:
+    case ArrowCursor:
 	sh = IDC_ARROW;
 	break;
-    case Qt::UpArrowCursor:
+    case UpArrowCursor:
 	sh = IDC_UPARROW;
 	break;
-    case Qt::CrossCursor:
+    case CrossCursor:
 	sh = IDC_CROSS;
 	break;
-    case Qt::WaitCursor:
+    case WaitCursor:
 	sh = IDC_WAIT;
 	break;
-    case Qt::IbeamCursor:
+    case IbeamCursor:
 	sh = IDC_IBEAM;
 	break;
-    case Qt::SizeVerCursor:
+    case SizeVerCursor:
 	sh = IDC_SIZENS;
 	break;
-    case Qt::SizeHorCursor:
+    case SizeHorCursor:
 	sh = IDC_SIZEWE;
 	break;
-    case Qt::SizeBDiagCursor:
+    case SizeBDiagCursor:
 	sh = IDC_SIZENESW;
 	break;
-    case Qt::SizeFDiagCursor:
+    case SizeFDiagCursor:
 	sh = IDC_SIZENWSE;
 	break;
-    case Qt::SizeAllCursor:
+    case SizeAllCursor:
 	sh = IDC_SIZEALL;
 	break;
-    case Qt::ForbiddenCursor:
+    case ForbiddenCursor:
 	sh = IDC_NO;
 	break;
-    case Qt::BlankCursor:
-    case Qt::SplitVCursor:
-    case Qt::SplitHCursor:
-    case Qt::PointingHandCursor:
-    case Qt::BitmapCursor: {
+    case BlankCursor:
+    case SplitVCursor:
+    case SplitHCursor:
+    case PointingHandCursor:
+    case BitmapCursor: {
 	QImage bbits, mbits;
 	bool invb, invm;
-	if ( data->cshape == Qt::BlankCursor ) {
+	if ( data->cshape == BlankCursor ) {
 	    bbits.create( 32, 32, 1, 2, QImage::BigEndian );
 	    bbits.fill( 0 );		// ignore color table
 	    mbits = bbits.copy();
 	    data->hx = data->hy = 16;
 	    invb = invm = FALSE;
-	} else if ( data->cshape != Qt::BitmapCursor ) {
-	    int i = data->cshape - Qt::SplitVCursor;
+	} else if ( data->cshape != BitmapCursor ) {
+	    int i = data->cshape - SplitVCursor;
 	    QBitmap cb( 32, 32, cursor_bits32[i*2], TRUE );
 	    QBitmap cm( 32, 32, cursor_bits32[i*2+1], TRUE );
 	    bbits = cb;
 	    mbits = cm;
-	    if ( data->cshape == Qt::PointingHandCursor )
+	    if ( data->cshape == PointingHandCursor )
 		data->hx = data->hy = 0;
 	    else
 		data->hx = data->hy = 16;

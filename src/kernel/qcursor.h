@@ -48,7 +48,7 @@
 */
 #ifdef QT_NO_CURSOR
 
-class Q_EXPORT QCursor
+class Q_EXPORT QCursor : public Qt
 {
 public:
     static QPoint pos();
@@ -65,7 +65,7 @@ private:
 struct QCursorData;
 
 
-class Q_EXPORT QCursor
+class Q_EXPORT QCursor : public Qt
 {
 public:
     QCursor();					// create default arrow cursor
