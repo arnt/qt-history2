@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#228 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#229 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -752,7 +752,8 @@ void QLineEdit::cursorRight( bool mark, int steps )
     cp = QMAX( cp, 0 );
     cp = QMIN( cp, (int)tbuf.length() );
     if ( cp == cursorPos ) {
-	// nothing
+	if ( !mark )
+	    deselect();
     } else if ( mark ) {
 	newMark( cp );
 	blinkOn();
