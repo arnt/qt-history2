@@ -124,6 +124,9 @@ void FileMainWindow::setup()
     connect( fileview, SIGNAL( readDirDone() ),
 	     this, SLOT( slotReadDirDone() ) );
 
+    setDockEnabled( Left, FALSE );
+    setDockEnabled( Right, FALSE );
+    
     label = new QLabel( statusBar() );
     statusBar()->addWidget( label, 2, TRUE );
     progress = new QProgressBar( statusBar() );
