@@ -126,10 +126,6 @@ public:
 QDateTimeEdit::QDateTimeEdit(QWidget *parent)
     : QAbstractSpinBox(*new QDateTimeEditPrivate, parent)
 {
-    Q_ASSERT(0);
-    printf("fassa\n");
-
-    qDebug("fassa");
     d->minimum = QCoreVariant(DATETIME_MIN);
     d->maximum = QCoreVariant(DATETIME_MAX);
     d->value = d->minimum;
