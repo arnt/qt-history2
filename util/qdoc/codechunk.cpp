@@ -95,7 +95,9 @@ void CodeChunk::append( const QString& lexeme )
 	  Should there be a space or not between the code chunk so far and the
 	  new lexeme?
 	*/
-	if ( needSpace[category(s.right(1)[0])][category(lexeme[0])] )
+        int y = category(s.right(1)[0]);
+        int z = category(lexeme[0]);
+	if ( needSpace[y][z] )
 	    s += QChar( ' ' );
     }
     s += lexeme;
