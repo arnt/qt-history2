@@ -47,6 +47,8 @@ struct Q_EXPORT QUuid
     QUuid( const QString & );
     QString toString() const;
 
+    bool isNull() const;
+
     QUuid operator=(const QUuid &orig )
     {
 	return QUuid( orig );

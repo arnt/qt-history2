@@ -123,3 +123,13 @@ QString QUuid::toString() const
 
   Returns TRUE if the value of \a uuid is different from the value if this QUuid object, otherwise returns FALSE.
 */
+
+/*!
+  Returns TRUE if this is the null UUID {00000000-0000-0000-0000-000000000000}, otherwise returns FALSE.
+*/
+bool QUuid::isNull() const
+{
+    return data4[0] == 0 && data4[1] == 0 && data4[2] == 0 && data4[3] == 0 &&
+	   data4[4] == 0 && data4[5] == 0 && data4[6] == 0 && data4[7] == 0 &&
+	   data1 == 0 && data2 == 0 && data3 == 0;
+}
