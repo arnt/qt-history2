@@ -1,22 +1,45 @@
-#include <qmenudata.h>
-#include "actiondnd.h"
+/**********************************************************************
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of Qt Designer.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+
 #include <qaction.h>
-#include <qmainwindow.h>
-#include <qpainter.h>
-#include <qobjectlist.h>
 #include <qapplication.h>
-#include <qlayout.h>
-#include "metadatabase.h"
-#include <qdragobject.h>
 #include <qbitmap.h>
+#include <qdragobject.h>
 #include <qinputdialog.h>
-#include <qstyle.h>
-#include "mainwindow.h"
-#include "defs.h"
-#include "widgetfactory.h"
-#include "formwindow.h"
-#include "command.h"
+#include <qlayout.h>
+#include <qmainwindow.h>
+#include <qmenudata.h>
 #include <qmessagebox.h>
+#include <qobjectlist.h>
+#include <qpainter.h>
+#include <qstyle.h>
+#include <qtimer.h>
+
+#include "actiondnd.h"
+#include "command.h"
+#include "defs.h"
+#include "formwindow.h"
+#include "mainwindow.h"
+#include "metadatabase.h"
+#include "widgetfactory.h"
+
 
 bool QDesignerAction::addTo( QWidget *w )
 {
@@ -943,7 +966,8 @@ QCString QDesignerMenuBar::itemName() const
 
 
 QDesignerPopupMenu::QDesignerPopupMenu( QWidget *w )
-    : QPopupMenu( w, 0 )
+    : QPopupMenu( w, 0 ),
+      popupMenu( 0 )
 {
     findFormWindow();
     setAcceptDrops( TRUE );
@@ -1001,46 +1025,62 @@ void QDesignerPopupMenu::mousePressEvent( QMouseEvent *e )
 	return;
 
     if ( e->button() == RightButton ) {
-	e->accept();
-	int itm = itemAtPos( e->pos(), FALSE );
-	if ( itm == -1 )
-	    return;
-	QPopupMenu menu( 0 );
-	const int ID_DELETE = 1;
-	const int ID_SEP = 2;
-	menu.insertItem( tr( "Delete Item" ), ID_DELETE );
-	menu.insertItem( tr( "Insert Separator" ), ID_SEP );
-	int res = menu.exec( e->globalPos() );
-	if ( res == ID_DELETE ) {
-	    QAction *a = actionList.at( itm );
-	    if ( !a )
-		return;
-	    RemoveActionFromPopupCommand *cmd = new RemoveActionFromPopupCommand(
-										 tr( "Delete Action '%1' from Popup Menu '%2'" ).
-										 arg( a->name() ).arg( caption() ),
-										 formWindow, a, this, itm );
-	    formWindow->commandHistory()->addCommand( cmd );
-	    cmd->execute();
-	} else if ( res == ID_SEP ) {
-	    QPoint p( pos() );
-	    calcIndicatorPos( mapFromGlobal( e->globalPos() ) );
-	    QAction *a = new QSeparatorAction( 0 );
-	    AddActionToPopupCommand *cmd = new AddActionToPopupCommand(
-								       tr( "Add Separator to Popup Menu '%1'" ).
-								       arg( name() ),
-								       formWindow, a, this, insertAt );
-	    formWindow->commandHistory()->addCommand( cmd );
-	    cmd->execute();
-	    ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();
-	    ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->activateItemAt( -1 );
-	    popup( p );
+	// A popup for a popup, we only need one, so make sure that
+	// we don't create multiple.  The timer keeps the event loop sane.
+	popupPos = e->globalPos();
+	popupLocalPos = e->pos();
+	if ( popupMenu ) {
+	    popupMenu->close();
 	}
+	e->accept();
+	QTimer::singleShot( 0, this, SLOT(createPopupMenu()) );
 	return;
     }
-
     mousePressed = TRUE;
     dragStartPos = e->pos();
     QPopupMenu::mousePressEvent( e );
+}
+
+void QDesignerPopupMenu::createPopupMenu()
+{
+    // actually creates our popup for the popupmenu.
+    QPopupMenu menu( 0 );
+    popupMenu = &menu;
+    int itm;
+    const int ID_DELETE = 1;
+    const int ID_SEP = 2;
+    itm = itemAtPos( popupLocalPos, FALSE );
+    if ( itm == -1 )
+	return;
+    menu.insertItem( tr( "Delete Item" ), ID_DELETE );
+    menu.insertItem( tr( "Insert Separator" ), ID_SEP );
+    int res = menu.exec( popupPos );
+    if ( res == ID_DELETE ) {
+	QAction *a = actionList.at( itm );
+	if ( !a )
+	    return;
+	RemoveActionFromPopupCommand *cmd = new RemoveActionFromPopupCommand(
+									     tr( "Delete Action '%1' from Popup Menu '%2'" ).
+									     arg( a->name() ).arg( caption() ),
+									     formWindow, a, this, itm );
+	formWindow->commandHistory()->addCommand( cmd );
+	cmd->execute();
+    } else if ( res == ID_SEP ) {
+	QPoint p( pos() );
+	calcIndicatorPos( mapFromGlobal( popupPos ) );
+	QAction *a = new QSeparatorAction( 0 );
+	AddActionToPopupCommand *cmd = new AddActionToPopupCommand(
+								   tr( "Add Separator to Popup Menu '%1'" ).
+								   arg( name() ),
+								   formWindow, a, this, insertAt );
+	formWindow->commandHistory()->addCommand( cmd );
+	cmd->execute();
+	( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();
+	( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->activateItemAt( -1 );
+	popup( p );
+    }
+    // set this back to zero so we know a popup (will soon) not exist.
+    popupMenu = 0;
 }
 
 void QDesignerPopupMenu::mouseMoveEvent( QMouseEvent *e )

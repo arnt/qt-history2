@@ -21,13 +21,13 @@
 #ifndef ACTIONDND_H
 #define ACTIONDND_H
 
-#include <qtoolbar.h>
-#include <qmenubar.h>
-#include <qpopupmenu.h>
-#include <qpixmap.h>
-#include <qptrlist.h>
-#include <qmap.h>
 #include <qaction.h>
+#include <qmap.h>
+#include <qmenubar.h>
+#include <qpixmap.h>
+#include <qpopupmenu.h>
+#include <qptrlist.h>
+#include <qtoolbar.h>
 
 class QDesignerPopupMenu;
 class QDesignerIndicatorWidget;
@@ -267,6 +267,7 @@ protected:
 
 private slots:
     void actionRemoved();
+    void createPopupMenu();
 
 private:
     void drawIndicator( const QPoint &pos );
@@ -281,6 +282,9 @@ private:
     bool mousePressed;
     QDesignerIndicatorWidget *indicator;
     FormWindow *formWindow;
+    QPopupMenu *popupMenu;
+    QPoint popupPos;
+    QPoint popupLocalPos;
 
 };
 
