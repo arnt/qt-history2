@@ -1073,7 +1073,7 @@ void QDragManager::move(const QPoint & globalPos)
         move.data.l[1] = 0; // flags
         move.data.l[2] = (globalPos.x() << 16) + globalPos.y();
         move.data.l[3] = X11->time;
-        move.data.l[4] = qtaction_to_xdndaction(defaultAction());
+        move.data.l[4] = qtaction_to_xdndaction(defaultAction(object->d->possible_actions));
 
         if (w)
             qt_handle_xdnd_position(w, (const XEvent *)&move, false);
