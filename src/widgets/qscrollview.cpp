@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#51 $
 **
 ** Implementation of QScrollView class
 **
@@ -265,7 +265,7 @@ void QScrollView::updateScrollBars()
     bool needv;
     bool showh;
     bool showv;
-    
+
     if ( d->policy != AutoOne || d->anyVisibleChildren() ) {
 	// Do we definitely need the scrollbar?
 	needh = w-lmarg-rmarg < contentsWidth();
@@ -644,9 +644,8 @@ int QScrollView::childY(QWidget* child)
     return d->rec(child)->y;
 }
 
-/*!
-  Returns TRUE if \a child is visible.
-  Use this rather than QWidget::isVisible() for widgets added to the view.
+/*! Returns TRUE if \a child is visible.  Use this rather than
+  QWidget::isVisible() for widgets added to the view.
 */
 bool QScrollView::childIsVisible(QWidget* child)
 {
@@ -654,9 +653,8 @@ bool QScrollView::childIsVisible(QWidget* child)
 }
 
 /*!
-  Sets the visibility of \a child.
-  Use this rather than QWidget::show() or QWidget::hide()
-  for widgets added to the view.
+  Sets the visibility of \a child.  Use this rather than
+  QWidget::show() or QWidget::hide() for widgets added to the view.
 */
 void QScrollView::showChild(QWidget* child, bool y)
 {
@@ -1126,7 +1124,7 @@ void QScrollView::setMargins(int left, int top, int right, int bottom)
 	 right == d->r_marg &&
 	 bottom == d->b_marg )
 	return;
-	 
+	
     d->l_marg = left;
     d->t_marg = top;
     d->r_marg = right;
@@ -1180,51 +1178,40 @@ int QScrollView::bottomMargin() const
 */
 bool QScrollView::focusNextPrevChild( bool next )
 {
+    // first set things up for the scan
     QFocusData *f = focusData();
-
     QWidget *startingPoint = f->home();
-
-    if (!startingPoint)
-	return FALSE;
-
-    ChildRec *r = focusWidget() ? d->ancestorRec(focusWidget()) : 0;
-    if ( r && r->wantshown && !r->child->isVisible() )
-	return FALSE;
-
     QWidget *candidate = 0;
     QWidget *w = next ? f->next() : f->prev();
+    ChildRec *r;
 
-    while ( w && w != startingPoint ) {
-	while( w!=startingPoint ) {
-	    if ( w->testWFlags( WState_TabToFocus ) && !w->focusProxy() &&
-		 w->isEnabledToTLW() ) {
-		candidate = w;
-		break;
-	    }
-	    w = next ? f->next() : f->prev();
-	}
-
-	if ( !candidate )
-	    return FALSE;
-
-	r = d->ancestorRec(candidate);
-
-	if ( r ) {
-	    if ( candidate->isVisibleTo( r->child ) ) {
-		QPoint cp = candidate->mapToGlobal(QPoint(0,0));
-		QPoint cr = r->child->mapToGlobal(QPoint(0,0)) - cp;
-		ensureVisible( r->x+cr.x()+candidate->width()/2,
-			       r->y+cr.y()+candidate->height()/2,
-			       candidate->width()/2,
-			       candidate->height()/2 );
-		candidate->setFocus();
-		break;
-	    }
-	} else if ( candidate->isVisible() ) {
-	    candidate->setFocus();
-	    break;
-	}
+    // then scan for a possible focus widget candidate
+    while( !candidate && w != startingPoint ) {
+	r = d->ancestorRec( w );
+	if ( w != startingPoint && w->testWFlags( WState_TabToFocus ) &&
+	     w->isEnabledToTLW() &&!w->focusProxy() &&
+	     ( r 
+	       ? ( r->wantshown && w->isVisibleTo( r->child ) )
+	       : w->isVisibleToTLW() ) )
+	    candidate = w;
+	w = next ? f->next() : f->prev();
     }
 
+    // if we could not find one, maybe super or parentWidget() can?
+    if ( !candidate )
+	return QFrame::focusNextPrevChild( next );
+
+    // we've found one.
+    r = d->ancestorRec( candidate );
+    if ( r && candidate->isVisibleTo( r->child ) ) {
+	QPoint cp = candidate->mapToGlobal(QPoint(0,0));
+	QPoint cr = r->child->mapToGlobal(QPoint(0,0)) - cp;
+	ensureVisible( r->x+cr.x()+candidate->width()/2,
+		       r->y+cr.y()+candidate->height()/2,
+		       candidate->width()/2,
+		       candidate->height()/2 );
+    }
+
+    candidate->setFocus();
     return TRUE;
 }
