@@ -53,6 +53,9 @@
 class QIODevice;
 class QTextStream;
 
+class QXmlInputSource;
+class QXmlReader;
+
 class QDomDocumentPrivate;
 class QDomDocumentTypePrivate;
 class QDomDocumentFragmentPrivate;
@@ -318,6 +321,8 @@ public:
     bool setContent( const QByteArray& text, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
     bool setContent( const QString& text, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
     bool setContent( QIODevice* dev, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
+
+    bool setContent( QXmlInputSource *source, QXmlReader *reader, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
 
     // Reimplemented from QDomNode
     QDomNode::NodeType nodeType() const;

@@ -501,7 +501,8 @@ public:
     QDomDocumentPrivate( QDomDocumentPrivate* n, bool deep );
     ~QDomDocumentPrivate();
 
-    bool setContent( QXmlInputSource& source, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn );
+    bool setContent( QXmlInputSource *source, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn );
+    bool setContent( QXmlInputSource *source, QXmlReader *reader, QString *errorMsg, int *errorLine, int *errorColumn );
 
     // Attributes
     QDomDocumentTypePrivate* doctype() { return type; };
@@ -562,6 +563,8 @@ public:
     // lexical handler
     bool startCDATA();
     bool endCDATA();
+    bool startEntity( const QString & );
+    bool endEntity( const QString & );
     bool startDTD( const QString& name, const QString& publicId, const QString& systemId );
     bool comment( const QString& ch );
 
@@ -577,8 +580,9 @@ public:
     int errorColumn;
 
 private:
-    QDomDocumentPrivate* doc;
-    QDomNodePrivate* node;
+    QDomDocumentPrivate *doc;
+    QDomNodePrivate *node;
+    QString entityName;
     bool cdata;
     bool nsProcessing;
 };
@@ -5752,19 +5756,9 @@ void QDomDocumentPrivate::clear()
     QDomNodePrivate::clear();
 }
 
-bool QDomDocumentPrivate::setContent( QXmlInputSource& source, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn )
+bool QDomDocumentPrivate::setContent( QXmlInputSource *source, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn )
 {
-    clear();
-    impl = new QDomImplementationPrivate;
-    type = new QDomDocumentTypePrivate( this, this );
-
     QXmlSimpleReader reader;
-    QDomHandler hnd( this, namespaceProcessing );
-    reader.setContentHandler( &hnd );
-    reader.setErrorHandler( &hnd );
-    reader.setLexicalHandler( &hnd );
-    reader.setDeclHandler( &hnd );
-    reader.setDTDHandler( &hnd );
     if ( namespaceProcessing ) {
 	reader.setFeature( "http://xml.org/sax/features/namespaces", TRUE );
 	reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", FALSE );
@@ -5774,7 +5768,26 @@ bool QDomDocumentPrivate::setContent( QXmlInputSource& source, bool namespacePro
     }
     reader.setFeature( "http://trolltech.com/xml/features/report-whitespace-only-CharData", FALSE );
 
-    if ( !reader.parse( &source ) ) {
+    return setContent( source, &reader, errorMsg, errorLine, errorColumn );
+}
+
+bool QDomDocumentPrivate::setContent( QXmlInputSource *source, QXmlReader *reader, QString *errorMsg, int *errorLine, int *errorColumn )
+{
+    clear();
+    impl = new QDomImplementationPrivate;
+    type = new QDomDocumentTypePrivate( this, this );
+
+    bool namespaceProcessing = reader->feature( "http://xml.org/sax/features/namespaces" )
+	&& !reader->feature( "http://xml.org/sax/features/namespace-prefixes" );
+
+    QDomHandler hnd( this, namespaceProcessing );
+    reader->setContentHandler( &hnd );
+    reader->setErrorHandler( &hnd );
+    reader->setLexicalHandler( &hnd );
+    reader->setDeclHandler( &hnd );
+    reader->setDTDHandler( &hnd );
+
+    if ( !reader->parse( source ) ) {
 	if ( errorMsg )
 	    *errorMsg = hnd.errorMsg;
 	if ( errorLine )
@@ -6147,7 +6160,7 @@ bool QDomDocument::setContent( const QString& text, bool namespaceProcessing, QS
 	impl = new QDomDocumentPrivate;
     QXmlInputSource source;
     source.setData( text );
-    return IMPL->setContent( source, namespaceProcessing, errorMsg, errorLine, errorColumn );
+    return IMPL->setContent( &source, namespaceProcessing, errorMsg, errorLine, errorColumn );
 }
 
 /*!
@@ -6185,7 +6198,7 @@ bool QDomDocument::setContent( const QByteArray& buffer, bool namespaceProcessin
 	impl = new QDomDocumentPrivate;
     QBuffer buf( buffer );
     QXmlInputSource source( &buf );
-    return IMPL->setContent( source, namespaceProcessing, errorMsg, errorLine, errorColumn );
+    return IMPL->setContent( &source, namespaceProcessing, errorMsg, errorLine, errorColumn );
 }
 
 /*!
@@ -6198,7 +6211,7 @@ bool QDomDocument::setContent( QIODevice* dev, bool namespaceProcessing, QString
     if ( !impl )
 	impl = new QDomDocumentPrivate;
     QXmlInputSource source( dev );
-    return IMPL->setContent( source, namespaceProcessing, errorMsg, errorLine, errorColumn );
+    return IMPL->setContent( &source, namespaceProcessing, errorMsg, errorLine, errorColumn );
 }
 
 /*!
@@ -6240,6 +6253,24 @@ bool QDomDocument::setContent( QIODevice* dev, QString *errorMsg, int *errorLine
     return setContent( dev, FALSE, errorMsg, errorLine, errorColumn );
 }
 
+/*!
+    \overload
+
+    This function reads the XML document from the QXmlInputSource \a source and
+    parses it with the QXmlReader \a reader.
+
+    This function doesn't change the features of the \a reader. If you want to
+    use certain features for parsing you can use this function to set up the
+    reader appropriate.
+
+    \sa QXmlSimpleReader
+*/
+bool QDomDocument::setContent( QXmlInputSource *source, QXmlReader *reader, QString *errorMsg, int *errorLine, int *errorColumn  )
+{
+    if ( !impl )
+	impl = new QDomDocumentPrivate;
+    return IMPL->setContent( source, reader, errorMsg, errorLine, errorColumn );
+}
 
 /*!
     Converts the parsed document back to its textual representation.
@@ -6840,6 +6871,12 @@ bool QDomHandler::characters( const QString&  ch )
 
     if ( cdata ) {
 	node->appendChild( doc->createCDATASection( ch ) );
+    } else if ( !entityName.isEmpty() ) {
+	QDomEntityPrivate* e = new QDomEntityPrivate( doc, 0, entityName,
+		QString::null, QString::null, QString::null );
+	e->value = ch;
+	doc->doctype()->appendChild( e );
+	node->appendChild( doc->createEntityReference( entityName ) );
     } else {
 	node->appendChild( doc->createTextNode( ch ) );
     }
@@ -6876,6 +6913,18 @@ bool QDomHandler::startCDATA()
 bool QDomHandler::endCDATA()
 {
     cdata = FALSE;
+    return TRUE;
+}
+
+bool QDomHandler::startEntity( const QString &name )
+{
+    entityName = name;
+    return TRUE;
+}
+
+bool QDomHandler::endEntity( const QString & )
+{
+    entityName = QString::null;
     return TRUE;
 }
 
