@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#1 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#2 $
 **
 ** Definition of tab dialog
 **
@@ -47,7 +47,7 @@ signals:
 
 private:
     void showTab();
-    void setButtonSizes();
+    void setSizes();
 
     QTab * tabs;
     QTab * currentTab;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#1 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#2 $
 **
 ** Implementation of tab dialog
 **
@@ -11,7 +11,7 @@
 #include "qpushbt.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#2 $");
 
 
 // a small private class to show the tabs on top
@@ -34,8 +34,8 @@ protected:
 
 
 QTab::QTab( QWidget * child, const char * tabString,
-	    QTabDialog * parent, const char * name )
-    : QWidget( parent, name )
+	    QTabDialog * parent, const char * objectName )
+    : QWidget( parent, objectName )
 {
     w = child;
     name = qstrdup( tabString );
@@ -54,6 +54,7 @@ void QTab::paintEvent( QPaintEvent * )
 {
     QPainter p;
 
+    p.begin( this );
     p.setPen( white );
     if ( daddy->currentTab == this ) {
 	p.drawLine( 0, height() - 1, 0, 2 );
@@ -109,9 +110,6 @@ void QTab::paintEvent( QPaintEvent * )
   QTabDialog provides an OK button and optionally Cancel and Defaults
   buttons.  In order to 
   
-
-
-
   */
 
 
@@ -150,6 +148,7 @@ QTabDialog::~QTabDialog()
 
 void QTabDialog::show()
 {
+    setSizes();
     showTab();
 
     // now hide the others so QWidget::show won't pop them up
@@ -219,7 +218,7 @@ void QTabDialog::setDefaultButton( bool enable )
     if ( enable ) {
 	db = new QPushButton( this, "back to default" );
 	if ( isVisible() ) {
-	    setButtonSizes();
+	    setSizes();
 	    db->show();
 	}
 	connect( db, SIGNAL(clicked()),
@@ -249,7 +248,7 @@ void QTabDialog::setCancelButton( bool enable )
     if ( enable ) {
 	cb = new QPushButton( this, "cancel dialog" );
 	if ( isVisible() ) {
-	    setButtonSizes();
+	    setSizes();
 	    cb->show();
 	}
 	connect( db, SIGNAL(clicked()),
@@ -263,10 +262,17 @@ void QTabDialog::setCancelButton( bool enable )
 }
 
 
-/*! Set the appropriate size for each of the buttons, and if the widget is
-  visible, their positions too. \sa setCancelButton() setDefaultButton() */
+/*! Set the appropriate size for each of the fixed children, and if
+  the widget is visible, their positions too.
 
-void QTabDialog::setButtonSizes()
+  Finally set the minimum and maximum sizes for the dialog.
+
+  This function does not resize or move the panes - only resizeEvent()
+  does that.
+
+  \sa setCancelButton() setDefaultButton() */
+
+void QTabDialog::setSizes()
 {
     int w,h;
     ok->adjustSize();
@@ -295,6 +301,35 @@ void QTabDialog::setButtonSizes()
     if ( cb )
 	cb->resize( w, h );
 
+    QTab * t = tabs;
+    QFontMetrics fm( fontMetrics() );
+    QSize min(0,0), max(QCOORD_MAX,QCOORD_MAX);
+    int th = fm.height() + 10;
+    int tw = 5;
+    while ( t ) {
+	t->resize( fm.width( t->name )+10, th );
+	tw += t->width();
+	if ( t->w->minimumSize().height() < max.height() )
+	    max.setHeight( t->w->minimumSize().height() );
+	if ( t->w->minimumSize().width() < max.width() )
+	    max.setWidth( t->w->minimumSize().width() );
+	if ( t->w->minimumSize().height() > min.height() )
+	    min.setHeight( t->w->minimumSize().height() );
+	if ( t->w->minimumSize().height() > min.height() )
+	    min.setHeight( t->w->minimumSize().height() );
+	t = t->next;
+    }
+
+    if ( min.width() < tw )
+	min.setWidth( tw );
+    if ( max.width() < min.width() )
+	max.setWidth( min.width() );
+    if ( max.height() < min.height() )
+	max.setHeight( min.height() );
+
+    setMinimumSize( min.width() + 13, min.height() + th + h + 18 );
+    setMinimumSize( max.width() + 13, max.height() + th + h + 18 );
+
     if ( isVisible() ) {
 	// need to set the appropriate positions too
 	int x = width();
@@ -311,6 +346,14 @@ void QTabDialog::setButtonSizes()
 
 	if ( ok ) {
 	    ok->move( x - 5 - ok->width(), height() - 5 - ok->height() );
+	}
+
+	t = tabs;
+	x = 0;
+	while ( t ) {
+	    t->move( x, 0 );
+	    x += t->width();
+	    t = t->next;
 	}
     }
 }
@@ -344,13 +387,13 @@ void QTabDialog::resizeEvent( QResizeEvent * )
 	    ok->move( x - 5 - ok->width(), height() - 5 - ok->height() );
 	}
 
-	childRect.setRect( 1, tabs->height(), width() - 3, 
-			   ok->geometry().y() - tabs->height() - 5 );
-	x = 0;
+	childRect.setRect( 6, tabs->height() + 5, width() - 12,
+			   height() - ok->height() - tabs->height() - 18 );
+	x = 5;
 	for ( QTab * tab = tabs; tab; tab = tab->next ) {
 	    if ( tab->w && tab->w->rect() != childRect )
 		tab->w->setGeometry( childRect );
-	    tab->move( x, 0 );
+	    tab->move( x, 5 );
 	    x += tab->width();
 	}
     }
@@ -359,7 +402,7 @@ void QTabDialog::resizeEvent( QResizeEvent * )
 
 /*! Handles paint events for the tabbed dialog */
 
-void QTabDialog::paintEvent( QPaintEvent * e )
+void QTabDialog::paintEvent( QPaintEvent * )
 {
     if ( !tabs )
 	return;
@@ -377,7 +420,7 @@ void QTabDialog::paintEvent( QPaintEvent * e )
     p.drawLine( l, t + 1, l, b );
     p.setPen( black );
     p.drawLine( r, b, l,b );
-    p.drawLine( l, b-1, l, t );
+    p.drawLine( r, b-1, r, t );
     p.setPen( colorGroup().dark() );
     p.drawLine( l+1, b-1, r-1, b-1 );
     p.drawLine( r-1, b-2, r-1, t+1 );
@@ -418,4 +461,3 @@ bool QTabDialog::eventFilter( QObject * o, QEvent * e )
     }
     return FALSE;
 }
-	    
