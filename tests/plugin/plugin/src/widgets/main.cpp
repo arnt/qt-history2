@@ -36,18 +36,11 @@
 #include <qtoolbutton.h>
 #include <qwidgetstack.h>
 
-#ifdef _WS_WIN_
-#undef LIBEXPORT
-#define LIBEXPORT __declspec(dllexport)
-#else
-#define LIBEXPORT
-#endif
-
-class QWidgetsInterface : public WidgetInterface
+class StandardWidgetsInterface : public WidgetInterface
 {
 public:
-    QWidgetsInterface();
-    ~QWidgetsInterface();
+    StandardWidgetsInterface();
+    ~StandardWidgetsInterface();
 
     bool connectNotify( QApplication* theApp );
     bool disconnectNotify( QApplication* theApp );
@@ -68,27 +61,27 @@ public:
     QGuardedCleanUpHandler<QObject> objects;
 };
 
-QWidgetsInterface::QWidgetsInterface()
+StandardWidgetsInterface::StandardWidgetsInterface()
 {
 }
 
-QWidgetsInterface::~QWidgetsInterface()
+StandardWidgetsInterface::~StandardWidgetsInterface()
 {
 }
 
-bool QWidgetsInterface::connectNotify( QApplication* theApp )
+bool StandardWidgetsInterface::connectNotify( QApplication* theApp )
 {
     return TRUE;
 }
 
-bool QWidgetsInterface::disconnectNotify( QApplication* theApp )
+bool StandardWidgetsInterface::disconnectNotify( QApplication* theApp )
 {
     if ( !objects.clean() )
 	return FALSE;
     return TRUE;
 }
 
-QStringList QWidgetsInterface::featureList()
+QStringList StandardWidgetsInterface::featureList()
 {
     QStringList list;
 
@@ -129,7 +122,7 @@ QStringList QWidgetsInterface::featureList()
     return list;
 }
 
-QWidget* QWidgetsInterface::create( const QString &description, QWidget* parent, const char* name )
+QWidget* StandardWidgetsInterface::create( const QString &description, QWidget* parent, const char* name )
 {
     QWidget* w = 0;
     if ( description == "QButtonGroup" ) {
@@ -213,7 +206,7 @@ QWidget* QWidgetsInterface::create( const QString &description, QWidget* parent,
     return w;
 }
 
-QString QWidgetsInterface::group( const QString& description )
+QString StandardWidgetsInterface::group( const QString& description )
 {
     if ( description == "QButtonGroup" )
 	return "Containers";
@@ -285,12 +278,12 @@ QString QWidgetsInterface::group( const QString& description )
     return QString::null;
 }
 
-QString QWidgetsInterface::iconSet( const QString& )
+QString StandardWidgetsInterface::iconSet( const QString& )
 {
     return QString::null;
 }
 
-QString QWidgetsInterface::includeFile( const QString& description )
+QString StandardWidgetsInterface::includeFile( const QString& description )
 {
     if ( description == "QButtonGroup" )
 	return "Containers";
@@ -362,7 +355,7 @@ QString QWidgetsInterface::includeFile( const QString& description )
     return QString::null;
 }
 
-QString QWidgetsInterface::toolTip( const QString& description )
+QString StandardWidgetsInterface::toolTip( const QString& description )
 {
     if ( description == "QButtonGroup" )
 	return "Button Group";
@@ -434,12 +427,12 @@ QString QWidgetsInterface::toolTip( const QString& description )
     return QString::null;
 }
 
-QString QWidgetsInterface::whatsThis( const QString& )
+QString StandardWidgetsInterface::whatsThis( const QString& )
 {
     return QString::null;
 }
 
-bool QWidgetsInterface::isContainer( const QString& description)
+bool StandardWidgetsInterface::isContainer( const QString& description)
 {
     if ( ( description == "QButtonGroup" ) ||
     ( description == "QFrame" ) ||
@@ -456,16 +449,4 @@ bool QWidgetsInterface::isContainer( const QString& description)
     return FALSE;
 }
 
-#if defined(__cplusplus )
-extern "C"
-{
-#endif
-
-LIBEXPORT WidgetInterface* loadInterface()
-{
-    return new QWidgetsInterface();
-}
-
-#if defined(__cplusplus)
-}
-#endif // __cplusplus
+QtExportInterface(WidgetInterface, StandardWidgetsInterface )
