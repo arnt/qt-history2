@@ -68,16 +68,6 @@
     \o \l{qmsdev.html}{The QMsDev Plugin}
     \o \l{qmake-manual.html}{qmake Manual}
     \o \l{compatclasses.html}{The Qt 3 Compatibility Classes}
-    \o \l{qt4-accessibility.html}{Qt 4: Cross-Platform Accessibility Support}
-    \o \l{qt4-sql.html}{Qt 4: Database GUI Layer}
-    \o \l{qt4-styles.html}{Qt 4: Style API}
-    \o \l{qt4-arthur.html}{Qt 4: The Arthur Paint System}
-    \o \l{qt4-interview.html}{Qt 4: The Interview Classes}
-    \o \l{qt4-mainwindow.html}{Qt 4: The Main Window Classes}
-    \o \l{qt4-network.html}{Qt 4: The Network Module}
-    \o \l{qt4-scribe.html}{Qt 4: The Scribe Classes}
-    \o \l{qt4-tulip.html}{Qt 4: The Tulip Container Classes}
-    \o \l{qt4-threads.html}{Qt 4: Thread Support}
     \o \l{assistant-manual.html}{Qt Assistant Manual}
     \o \l{commercialedition.html}{Qt Commercial Edition}
     \o \l{designer-manual.html}{Qt Designer}

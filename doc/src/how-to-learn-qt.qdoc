@@ -47,7 +47,7 @@
     object.html Qt Object Model \endlink and \link signalsandslots.html
     Signals and Slots\endlink.
 
-    At this point, we recommend looking at the \link index.html
+    At this point, we recommend looking at the \link overviews.html
     overviews\endlink and reading those that are relevant to your
     projects. You may also find it useful to browse the source code of the
     \link examples.html examples\endlink that have things in common with
