@@ -5371,7 +5371,9 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 			bool showIt )
 {
     bool sameFont = parent && font() == parent->font();
+#ifndef QT_NO_PALETTE
     bool samePalette = parent && palette() == parent->palette();
+#endif
     reparentSys( parent, f, p, showIt );
     QEvent e( QEvent::Reparent );
     QApplication::sendEvent( this, &e );
