@@ -92,7 +92,7 @@ public:
     Role role(int child) const;
 
     int defaultAction(int child) const;
-    QString actionText(int action, Text t, int child);
+    QString actionText(int action, Text t, int child) const;
     bool doAction(int action, int child, const QVariantList &params);
 
 protected:
