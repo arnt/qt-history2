@@ -186,11 +186,12 @@ QVariant QSqlQueryModel::data(const QModelIndex &item, int role) const
 */
 QVariant QSqlQueryModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (orientation == Qt::Horizontal) {
+    if (orientation == Qt::Horizontal && role == DisplayRole) {
         QVariant val = d->headers.value(section);
         if (val.isValid())
             return val;
-        return d->rec.fieldName(section);
+        if (d->rec.count() > section)
+            return d->rec.fieldName(section);
     }
     return QAbstractItemModel::headerData(section, orientation, role);
 }
