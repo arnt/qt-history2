@@ -406,12 +406,6 @@ void QGenericListView::resizeContents(int w, int h)
     verticalScrollBar()->setRange(0, h - viewport()->height());
 }
 
-void QGenericListView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
-{
-    // FIXME: do something here
-    QAbstractItemView::dataChanged(topLeft, bottomRight);
-}
-
 void QGenericListView::rowsInserted(const QModelIndex &parent, int, int)
 {
     if (parent == root() && isVisible())
@@ -769,20 +763,6 @@ QRect QGenericListView::selectionViewportRect(const QItemSelection &selection) c
         return itemViewportRect(singleItem);
     }
     return d->viewport->clipRegion().boundingRect();
-//     QList<QModelIndex> items = selection.items(model());
-//     QList<QModelIndex>::iterator it = items.begin();
-//     QRect rect;
-//     for (; it != items.end(); ++it)
-//         rect |= itemRect(*it);
-//     items.clear();
-//     rect.moveLeft(rect.left() - horizontalScrollBar()->value());
-//     rect.moveTop(rect.top() - verticalScrollBar()->value());
-//     if (!d->wrap && d->movement == QGenericListView::Static)
-//         if (d->flow == QGenericListView::TopToBottom)
-//             rect.setWidth(d->viewport->width());
-//         else
-//             rect.setHeight(d->viewport->height());
-//     return rect;
 }
 
 void QGenericListView::doItemsLayout()
@@ -1065,8 +1045,15 @@ void QGenericListView::moveItem(int index, const QPoint &dest)
 
 void QGenericListView::updateGeometries()
 {
+    QModelIndex index = model()->index(0, 0, root());
+    QItemOptions options = viewOptions();
+    QSize size = itemDelegate()->sizeHint(fontMetrics(), options, index);
+    
+    horizontalScrollBar()->setSingleStep(size.width() + d->spacing);
     horizontalScrollBar()->setPageStep(d->viewport->width());
     horizontalScrollBar()->setRange(0, d->contentsSize.width() - d->viewport->width());
+
+    verticalScrollBar()->setSingleStep(size.height() + d->spacing);
     verticalScrollBar()->setPageStep(d->viewport->height());
     verticalScrollBar()->setRange(0, d->contentsSize.height() - d->viewport->height());
 }
@@ -1213,10 +1200,8 @@ QGenericListViewItem QGenericListViewPrivate::indexToListViewItem(const QModelIn
     if (movement != QGenericListView::Static)
         if (item.row() < tree.itemCount())
             return tree.const_item(item.row());
-        else {
-            qDebug("returns invalid listview item");
+        else
             return QGenericListViewItem();
-        }
 
     // movement == Static
     if ((flow == QGenericListView::LeftToRight && item.row() >= xposVector.count()) ||
