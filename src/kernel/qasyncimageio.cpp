@@ -751,7 +751,7 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		    globalcmap = new QRgb[gncols+1]; // +1 for trans_index
 		    globalcmap[gncols] = 0x00000000;
 		} else {
-		    state=ImageDescriptor;
+		    state=Introducer;
 		}
 	    }
 	    break;
@@ -1123,7 +1123,7 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		int delay=count>3 ? LM(hold[2], hold[3]) : 0;
 		bool havetrans=hold[1]&0x1;
 		int newtrans=havetrans ? hold[4] : -1;
-		if (newtrans >= ncols) {
+		if (newtrans > ncols) {
 		    // Ignore invalid transparency.
 		    newtrans=-1;
 		}
@@ -1131,7 +1131,7 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		    preserve_trans = TRUE;
 		if (newtrans != trans) {
 		    if (trans >= 0 && trans < gncols) {
-			if (globalcmap)
+			if (globalcmap && trans_index >=0 && trans_index < gncols)
 			    globalcmap[trans_index]|=0xff000000;
 		    }
 		    trans = newtrans;
@@ -1140,7 +1140,7 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		    else
 			trans_index = newtrans;
 		    if (trans >= 0 && trans < gncols) {
-			if (globalcmap)
+			if (globalcmap && trans_index >=0 && trans_index < gncols)
 			    globalcmap[trans_index]&=0x00ffffff;
 		    }
 		}
@@ -1204,7 +1204,17 @@ void QGIFFormat::nextY(QImage& img, QImageConsumer* consumer)
 	    if (consumer && !out_of_bounds)
 		consumer->changed(QRect(left, y, right-left+1, my+1));
 	    y+=8;
-	    if (y>bottom) { interlace++; y=top+4; }
+	    if (y>bottom) {
+		interlace++; y=top+4;
+		if (y > bottom) { // for really broken GIFs with bottom < 5
+		    interlace=2;
+		    y = top + 2;
+		    if (y > bottom) { // for really broken GIF with bottom < 3
+			interlace = 0;
+			y = top + 1;
+		    }
+		}
+	    }
 	} break;
       case 2:
 	{
@@ -1217,8 +1227,14 @@ void QGIFFormat::nextY(QImage& img, QImageConsumer* consumer)
 	    if (consumer && !out_of_bounds)
 		consumer->changed(QRect(left, y, right-left+1, my+1));
 	    y+=8;
-	    if (y>bottom) { interlace++; y=top+2; }
-	} break;
+	    if (y>bottom) {
+		interlace++; y=top+2;
+		if (y > bottom) { // for really broken GIF with bottom < 3
+		    interlace = 3;
+		    y = top + 1;
+		}
+	    }
+  	} break;
       case 3:
 	{
 	    int i;
