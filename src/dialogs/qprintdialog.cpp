@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#5 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#6 $
 **
 ** Implementation of QPrintDialog class for X-Windows
 **
@@ -20,7 +20,7 @@
 #include "qprinter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#6 $";
 #endif
 
 
@@ -97,6 +97,7 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     lined = new QLineEdit( this, "printerName" );
     lined->setText( printer->printerName() );
     lined->setGeometry( 140,65, 130,25 );
+    connect( lined, SIGNAL(returnPressed()), SLOT(okClicked()) );
 
     label = new QLabel( this, "printCommandLabel" );
     label->setText( "Print Command:" );
@@ -106,6 +107,7 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     lined = new QLineEdit( this, "printCommand" );
     lined->setText( printer->printProgram() );
     lined->setGeometry( 140,105, 130,25 );
+    connect( lined, SIGNAL(returnPressed()), SLOT(okClicked()) );
 
     label = new QLabel( this, "printFileLabel" );
     label->setText( "File Name:" );
@@ -115,6 +117,8 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     lined = new QLineEdit( this, "printFile" );
     lined->setText( printer->outputFileName() );
     lined->setGeometry( 140,145, 130,25 );
+    connect( lined, SIGNAL(returnPressed()), SLOT(okClicked()) );
+
     button = new QPushButton( this, "browseButton" );
     button->setText( "Browse..." );
     button->setGeometry( 300,140, 80,30 );
@@ -209,9 +213,14 @@ void QPrintDialog::printerOrFileSelected( int index )
 
 void QPrintDialog::browseClicked()
 {
-    QString fileName = QFileDialog::getOpenFileName( 0, 0, this, 0 );
-    if ( !fileName.isNull() )
+    QFileDialog filedlg( this, 0, TRUE );
+    QString dir = filedlg.dirPath();
+    if ( filedlg.exec() == QDialog::Accepted ) {
+	QString fileName = filedlg.selectedFile();
+	if ( fileName.find(dir) == 0 )		// get relative file name
+	    fileName.remove( 0, dir.length()+1 );
 	WIDGET(this,QLineEdit,"printFile")->setText( fileName );
+    }
 }
 
 void QPrintDialog::okClicked()
@@ -219,7 +228,6 @@ void QPrintDialog::okClicked()
     QLineEdit	*printerName	= WIDGET(this,QLineEdit,"printerName");
     QLineEdit	*printCommand	= WIDGET(this,QLineEdit,"printCommand");
     QLineEdit   *printFile	= WIDGET(this,QLineEdit,"printFile");
-    QPushButton *browseButton   = WIDGET(this,QPushButton,"browseButton");
     QComboBox	*orientation	= WIDGET(this,QComboBox,"orientation");
     QComboBox	*pageSize	= WIDGET(this,QComboBox,"pageSize");
     printer->setPrinterName( printerName->text() );
