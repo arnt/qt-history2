@@ -120,7 +120,7 @@ ProjectGenerator::init()
 				l.append(src);
 			}
 		    } else if((*dep_it).right(2) == ".l" && 
-			      file_no_path.left(Option::lex_mod.length() == Option::lex_mod)) {
+			      file_no_path.left(Option::lex_mod.length()) == Option::lex_mod) {
 			addConfig("lex_included");
 		    } 
 		    if(!h.contains((*dep_it))) {
