@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: layout.doc,v 2.1 1999/04/22 19:10:10 paul Exp $
+** $Id: layout.doc,v 2.2 1999/04/23 11:48:50 paul Exp $
 **
 ** Explanation of the layout subsystem
 **
@@ -51,19 +51,20 @@ By specifying the logical layout once, you get the following benefits:
 <h2>Layout Widgets</h2>
 
 The easiest way to give your widgets a good layout is to use the
-layout widgets: QHBox, QVBox and QGrid. A layout widget automatically
+layout widgets: \link QHBox QHBox\endlink, \link QVBox QVBox\endlink
+ and \link QGrid QGrid \endlink. A layout widget automatically
 lays out its children in the order they are constructed. To make more
 complex layouts, you can nest layout widgets inside each other.
 
 <dl>
-  <dt>QHBox
+  <dt>\link QHBox QHBox\endlink
       <dd>A QHBox lays out its children in a horizontal row, left to right.
 	<br><img src="qhbox.gif" alt="QHBox with five children.">
 
-  <dt>QVBox
+  <dt>\link QVBox QVBox\endlink
       <dd>A QVBox lays out its children in a vertical row, top to bottom.
 	<br><img src="qvbox.gif" alt="QVBox with five children.">
-  <dt>QGrid
+  <dt>\link QGrid QGrid\endlink
       <dd>A QGrid lays out its children in a table. You specify how
 	many columns the table has, and it is filled left to right,
 	beginning a new row when the previous is filled up. The grid
@@ -72,34 +73,77 @@ complex layouts, you can nest layout widgets inside each other.
 	<br><img src="qgrid.gif" alt="Two-column QGrid with five children.">
 </dl>
 
-You can adjust the layout somewhat by calling setMinimumSize() or
-setFixedSize() on the children.
+You can adjust the layout somewhat by calling \link
+QWidget::setMinimumSize() setMinimumSize()\endlink or 
+\link QWidget::setFixedSize() setFixedSize()\endlink on
+the children.
 
 <h2>QLayout</h2>
 
-If you need more control over the layout, use a QLayout subclass.
-Currently Qt includes QGridLayout and QBoxLayout.
+If you need more control over the layout, use a \link QLayout QLayout\endlink
+ subclass. Currently Qt includes \link QGridLayout QGridLayout\endlink and 
+\link QBoxLayout QBoxLayout\endlink.
 <p>
+
 When you use a layout, you have to insert each child both into its
 parent widget (done in the constructor) and into its layout (typically
-done with addWidget()). This way, you can give layout parameters for
-each widget, specifying properties like alignment, stretch, and
-placement.
+done with a function called \c addWidget()). This way, you can give
+layout parameters for each widget, specifying properties like
+alignment, stretch, and placement.
 
 <h2>Custom Layouts</h2>
 
 If the built-in layout classes are not sufficient, you can define your
-own. You will have to make a subclass of QLayout that handles resizing
-and size calculations, and a subclass of QGLayoutIterator to iterate
+own. You will have to make a subclass of \link QLayout QLayout\endlink
+ that handles resizing
+and size calculations, and a subclass of \link QGLayoutIterator QGLayoutIterator\endlink to iterate
 over your layout class.
 
-<h2>If All Else Fails</h2>
+<h2>Custom Widgets In Layouts</h2>
 
-If you are making a one-of-a-kind widget class with special layout
-requirements, you can also reimplement QWidget::resizeEvent().
-Calculate the required distribution of sizes and call setGeometry() on
-each child. In this case, it is a good idea also to reimplement
-sizePolicy(), sizeHint() and minimumSizeHint().
+When you make your own widget class, you should also communicate its
+layout properties. If the widget has a QLayout, this is already taken
+care of. If the widget does not have any children, or uses manual
+layout, you should implement the following functions:
+
+<dl>
+  <dt>\link QWidget::sizeHint() sizeHint()\endlink
+      <dd> Returns the preferred size of the widget.
+  <dt>\link QWidget::minimumSizeHint() minimumSizeHint()\endlink
+      <dd> Returns the smallest size the widget can have.
+  <dt>\link \link QWidget::sizePolicy() sizePolicy()\endlink
+      <dd> Returns a \link QSizePolicy QSizePolicy\endlink; a value
+      describing the space requirements of the widget.
+
+</dl>
+
+Call \link QWidget::updateGeometry() updateGeometry()\endlink whenever
+the size hint, minimum size hint or size policy changes. This will
+cause a layout recalculation. Multiple calls to updateGeometry() will
+only cause one recalculation.
+
+If the preferred height of your widget depends on its actual width
+(eg. a label with automatic word-breaking), set the \c hasHeightForWidth()
+flag in \c sizePolicy(), and implement \link QWidget::heightForWidth()
+heightForWidth()\endlink.
+
+Even if you implement heightForWidth(), it is still necessary to
+provide a good sizeHint(). The sizeHint() provides the preferred width
+of the widget. In addition, QLayout subclasses do not need to
+implement support for heightForWidth() (is is supported by both
+QGridLayout and QBoxLayout).
+
+<h2>Manual Layout</h2>
+
+If you are making a one-of-a-kind special layout, you can also make a
+custom widget as described above. Reimplement \link
+QWidget::resizeEvent() resizeEvent()\endlink to calculate the
+required distribution of sizes and call \link QWidget::setGeometry()
+setGeometry()\endlink on each child.
+
+The widget will get a \c LayoutHint event when the layout needs to be
+recalculated. Reimplement \link QWidget::event() event()\endlink
+to be notified.
 
 */
 
