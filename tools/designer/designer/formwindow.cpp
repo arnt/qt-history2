@@ -1258,8 +1258,13 @@ void FormWindow::deleteWidgets()
 {
     QWidgetList widgets;
     QPtrDictIterator<WidgetSelection> it( usedSelections );
-    for ( ; it.current(); ++it )
-	widgets.append( it.current()->widget() );
+    for ( ; it.current(); ++it ) {
+	if ( !mainWindow()->isAToolBarChild( it.current()->widget() ) )
+	     widgets.append( it.current()->widget() );
+    }
+
+    if ( widgets.isEmpty() )
+	return;
 
     DeleteCommand *cmd = new DeleteCommand( tr( "Delete" ), this, widgets );
     commandHistory()->addCommand( cmd );
