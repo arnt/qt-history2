@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#115 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#116 $
 **
 ** Implementation of QMenuBar class
 **
@@ -208,8 +208,9 @@ void QMenuBar::menuContentsChanged()
 
 void QMenuBar::menuStateChanged()
 {
- //   repaint(); ###H: avoid this until we get a better solution
+    repaint();
 }
+
 
 void QMenuBar::menuInsPopup( QPopupMenu *popup )
 {
@@ -984,7 +985,7 @@ void QMenuBar::setActItem( int i, bool clear )
 {
     if ( i == actItem )
 	return;
-
+    
     if ( i < 0 || actItem < 0 ) {
 	// just one item needs repainting
 	int n = QMAX( actItem, i );
