@@ -349,8 +349,24 @@ void Uic::createToolbarDecl( const QDomElement &e )
 
 void Uic::createMenuBarDecl( const QDomElement &e )
 {
-    if ( e.tagName() == "item" )
+    if ( e.tagName() == "item" ) {
 	out << "    " << "QPopupMenu *" << e.attribute( "name" ) << ";" << endl;
+	createPopupMenuDecl( e );
+    }
+}
+
+void Uic::createPopupMenuDecl( const QDomElement &e )
+{
+    for ( QDomElement n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+	if ( n.tagName() == "action" ) {
+	    QDomElement n2 = n.nextSibling().toElement();
+	    if ( n2.tagName() == "item" ) { // the action has a sub menu
+		out << "    " << "QPopupMenu *" << n2.attribute( "name" ) << ";" << endl;
+		createPopupMenuDecl( n2 );
+		n = n2;
+	    }
+	}
+    }
 }
 
 void Uic::createActionImpl( const QDomElement &n, const QString &parent )
@@ -482,17 +498,20 @@ void Uic::createMenuBarImpl( const QDomElement &n, const QString &parentClass, c
 
 void Uic::createPopupMenuImpl( const QDomElement &e, const QString &parentClass, const QString &parent )
 {
+    int i = 0;
     for ( QDomElement n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "action" ) {
 	    QDomElement n2 = n.nextSibling().toElement();
 	    if ( n2.tagName() == "item" ) { // the action has a sub menu
 		QString itemName = n2.attribute( "name" );
 		QString itemText = n2.attribute( "text" );
-		out << indent << "QPopupMenu *" << itemName << " = new QPopupMenu( this );" << endl;
+		out << indent << itemName << " = new QPopupMenu( this );" << endl;
 		out << indent << parent << "->setAccel( tr( \"" << n2.attribute( "accel" ) << "\" ), " << endl;
-		out << indent << indent << parent << "->insertItem( " << n.attribute( "name" ) << "->iconSet(),";
+		out << indent << indent << parent << "->insertItem( " << n.attribute( "name" ) << "->iconSet(), ";
 		out << trcall( itemText ) << ", " << itemName << " ) );" << endl;
-		createPopupMenuImpl( n2, parentClass, itemName );
+		trout << indent << parent << "->changeItem( " << parent << "->idAt( " << i << " ), ";
+		trout << trcall( itemText ) << " );" << endl;
+		createPopupMenuImpl( n2, parentClass, itemName );	
 		n = n2;
 	    } else {
 		out << indent << n.attribute( "name" ) << "->addTo( " << parent << " );" << endl;
@@ -501,6 +520,7 @@ void Uic::createPopupMenuImpl( const QDomElement &e, const QString &parentClass,
 	    out << indent << parent << "->insertSeparator();" << endl;
 	}
     }
+    ++i;
 }
 
 /*!

@@ -40,6 +40,7 @@ public:
     void createActionDecl( const QDomElement &e );
     void createToolbarDecl( const QDomElement &e );
     void createMenuBarDecl( const QDomElement &e );
+    void createPopupMenuDecl( const QDomElement &e );  
     void createActionImpl( const QDomElement &e, const QString &parent );
     void createToolbarImpl( const QDomElement &e, const QString &parentClass, const QString &parent );
     void createMenuBarImpl( const QDomElement &e, const QString &parentClass, const QString &parent );
