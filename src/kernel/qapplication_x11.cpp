@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#379 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#380 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3445,12 +3445,40 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	}
 	curr_autorep = autor ? event->xkey.keycode : 0;
     }
+    
+    // autorepeat compression
+    int autoRepeatCount = 1;
+    if (event->type == XKeyPress && text.length() <= 1) { 
+	XEvent evPress = *event;
+	XEvent evRelease;
+	while (1) {
+	    if (!XCheckTypedWindowEvent(dpy,event->xkey.window,XKeyRelease,&evRelease) )
+		break;
+	    if (evRelease.xkey.keycode != event->xkey.keycode ) {
+		XPutBackEvent(dpy, &evRelease);
+		break;
+	    }
+	    if (!XCheckTypedWindowEvent(dpy,event->xkey.window,XKeyPress,&evPress))
+		break;
+	    if ( evPress.xkey.keycode != event->xkey.keycode || evRelease.xkey.time != evPress.xkey.time){
+		XPutBackEvent(dpy, &evRelease);
+		XPutBackEvent(dpy, &evPress);
+		break;
+	    }
+	    autoRepeatCount++;
+	}
+    }
+    
+    if (autoRepeatCount > 1 && text.length() == 1) {
+	for (int i = 1; i < autoRepeatCount; i++)
+	    text += text[0];
+    }
 
     // process accelerates before popups
-    QKeyEvent e( type, code, ascii, state, text, autor );
+    QKeyEvent e( type, code, ascii, state, text, autor, QMAX(autoRepeatCount, int(text.length())) );
     if ( type == QEvent::KeyPress && !grab ) {
 	// send accel event to tlw if the keyboard is not grabbed
-	QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor );
+	QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor, QMAX(autoRepeatCount, int(text.length())) );
 	a.ignore();
 	QApplication::sendEvent( topLevelWidget(), &a );
 	if ( a.isAccepted() )
@@ -3678,10 +3706,10 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 {
     if ( parentWidget() && !testWFlags(WType_Modal) )
 	return TRUE;				// child widget
-    
-    while (XCheckTypedWindowEvent(dpy, winId(), ConfigureNotify, event)); // compress
-    
-    
+
+    while (XCheckTypedWindowEvent(dpy, winId(), ConfigureNotify, (XEvent*)event)); // compress
+
+
     Window child;
     int	   x, y;
     XTranslateCoordinates( dpy, winId(), DefaultRootWindow(dpy),

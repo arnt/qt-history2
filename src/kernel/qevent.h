@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#70 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#71 $
 **
 ** Definition of event classes
 **
@@ -149,9 +149,9 @@ class Q_EXPORT QKeyEvent : public QEvent
 {
 public:
     QKeyEvent( Type type, int key, int ascii, int state,
-		const QString& text=QString::null, bool autorep=FALSE )
+		const QString& text=QString::null, bool autorep=FALSE, ushort count=1 )
 	: QEvent(type), txt(text), k((ushort)key), s((ushort)state),
-	    a((uchar)ascii), accpt(TRUE), autor(autorep) {}
+	    a((uchar)ascii), accpt(TRUE), autor(autorep), c(count) {}
     int	   key()	const	{ return k; }
     int	   ascii()	const	{ return a; }
     ButtonState state()	const	{ return ButtonState(s); }
@@ -159,6 +159,7 @@ public:
     bool   isAccepted() const	{ return accpt; }
     QString text()      const   { return txt; }
     bool   isAutoRepeat() const	{ return autor; }
+    int   count() const	{ return int(c); }
     void   accept()		{ accpt = TRUE; }
     void   ignore()		{ accpt = FALSE; }
 
@@ -168,6 +169,7 @@ protected:
     uchar  a;
     uint   accpt:1;
     uint   autor:1;
+    ushort c;
 };
 
 
