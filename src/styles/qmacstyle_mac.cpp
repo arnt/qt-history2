@@ -194,11 +194,7 @@ bool QMacStylePrivate::doAnimate(QAquaAnimate::Animates as)
 	    buttonState.dir = ButtonState::ButtonDark;
 	buttonState.frame += ((buttonState.dir == ButtonState::ButtonDark) ? 1 : -1);
     } else if(as == AquaProgressBar) {
-	if(progressbarState.frame == 20)
-	    progressbarState.frame = 0;
-	else
-	    progressbarState.frame++;
-	return FALSE;
+	progressbarState.frame++;
     }
     return TRUE;
 }
@@ -806,12 +802,8 @@ void QMacStyle::drawControl(ControlElement element,
 	ttdi.bounds = *qt_glb_mac_rect(r, p);
 	ttdi.max = pbar->totalSteps();
 	ttdi.value = pbar->progress();
-#if 0
-	ttdi.bounds.left -= d->progressbarState.frame;
-	if(ttdi.value && ttdi.value != ttdi.max)
-	    ttdi.value += d->progressbarState.frame;
-#endif
 	ttdi.attributes |= kThemeTrackHorizontal;
+	ttdi.trackInfo.progress.phase = d->progressbarState.frame;
 	if(!qAquaActive(cg))
 	    ttdi.enableState = kThemeTrackInactive;
 	else if(!pbar->isEnabled())
@@ -1232,10 +1224,15 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    ttdi.trackInfo.slider.pressState = kThemeLeftTrackPressed;
 	else if(subActive == SC_SliderHandle)
 	    ttdi.trackInfo.slider.pressState = kThemeThumbPressed;
-	if(sldr->backgroundPixmap())
-	    p->drawPixmap(r, *sldr->backgroundPixmap());
-	else
-	    p->fillRect(r, sldr->backgroundColor());
+
+	sldr->erase(); //fill the area once..
+
+	//The AppManager draws outside my rectangle, so account for that difference..
+	Rect macRect;
+	GetThemeTrackBounds(&ttdi, &macRect);
+	ttdi.bounds.left  += ttdi.bounds.left  - macRect.left;
+	ttdi.bounds.right -= macRect.right - ttdi.bounds.right;
+
 	((QMacPainter *)p)->setport();
 	DrawThemeTrack(&ttdi, NULL, NULL, 0);
 	if(sub & SC_SliderTickmarks)
