@@ -26,6 +26,9 @@ be certain that they will look and feel exactly as you expect.
   \i \l{designer-designing-a-component.html#CreatingALayout}{Creating a Layout}
   \endlist
 \i \l{designer-using-a-component.html}{Using a Component In Your Application}
+  \list
+  \i \l{designer-using-a-component.html#ASimpleCase}{A Simple Case}
+  \endlist
 \endlist
 
 \list
@@ -325,6 +328,68 @@ it to make it smaller.
 
 \title Using a Component In Your Application
 
+\section1 Overview
+
+With Qt's integrated build tools, \e qmake and \e uic, the code for user
+interface components created with \QD is automatically generated when the
+rest of of your application is built. Forms can be included and used
+directly from your application or, for extra flexibility, they can be
+subclassed and extended from your code.
+
+\target ASimpleCase
+\section1 A Simple Case
+
+To demonstrate how user interface components can be used straight from
+\QD, we take the dialog that we created in the chapter on
+\l{designer-designing-a-component.html}{Designing a Component}, and we
+create a simple application to display it.
+
+The source of the application consists of two files: \c main.cpp and
+\c imagedialog.ui. We will use \e qmake to build the executable, so we
+need to write a \c .pro file:
+
+\quotefromfile snippets/designer/imagedialog/imagedialog.pro
+\skipto TEMPLATE
+\printuntil SOURCES
+
+The special feature of this file is the \c FORMS declaration that tells
+\e qmake which files it needs to process with \e uic. In this case,
+the \c imagedialog.ui file is used to create a \c ui_imagedialog.h file
+that can be used by any files listed in the \c SOURCES declaration.
+To ensure that \e qmake generates the \c ui_imagedialog.h file, we need
+to include it in a file listed in \c SOURCES. Since we only have
+\c main.cpp, we include it there:
+
+\quotefromfile snippets/designer/imagedialog/main.cpp
+\skipto #include "ui_
+\printuntil #include <QApplication>
+
+This additional check ensures that we do not generate code for \e .ui
+files that are not used.
+
+The \c main function creates the image dialog by constructing a standard
+QDialog that we use to host the user interface described by the
+\c imagedialog.ui file.
+
+\skipto main
+\printuntil /^\};/
+
+In this case, the \c{Ui::ImageDialog} is an interface description object
+from the \c ui_imagedialog.h file that sets up all the dialog's widgets
+and the connections between its signals and slots.
+
+This approach provides a quick and easy way to use simple, self-contained
+components in your applications, but many components created with \QD
+will need to be integrated more closely with the rest of the application
+code. To achieve this, we need to subclass the form that we created.
+
+\target SubclassingAForm
+\section1 Subclassing a Form
+
+Components created with \QD can be subclassed to provide additional
+functionality, and to enable signal and slot connections to be made
+with objects in your application.
+
 
 \l{designer-designing-a-component.html}{[Designing a Component]}
 \l{designer-manual.html}{[Up]}
@@ -469,8 +534,19 @@ manually, or you can influence the widget's geometry by resizing the
 layout. You can also add and remove spacers from the layout to influence
 the geometries of the widgets.
 
-The top level layout of the form can be set by clearing the selection
-(click the left mouse button on the form itself) and applying a layout.
+\table
+\row
+\i \inlineimage designer-layout-inserting.png
+\i \bold{Inserting objects into a layout}
+
+Objects can be inserted into an existing layout by dragging them from
+their current positions and dropping them at the required location.
+A blue cursor is displayed in the layout as an object is dragged over it
+to indicate where the object will be added.
+\endtable
+
+The form's top level layout can be set by clearing the selection (click
+the left mouse button on the form itself) and applying a layout.
 
 \section2 Horizontal and Vertical Layouts
 
@@ -672,9 +748,20 @@ from the toolbox or from elsewhere on the form, each container will become
 highlighted as the cursor is positioned over it. This indicates that you
 can drop the object inside, and that it will become a child object of the
 container. This feedback is important because it is easy to place objects
-close to containers without actually placing them inside.
+close to containers without actually placing them inside. Both widgets
+and spacers can be used inside containers.
 
-Each container typically allows its child objects to be arranged by
+Stacked widgets, tab widgets, and toolboxes are handled specially in
+\QD. Normally, when adding pages (tabs, pages, compartments) to these
+containers in your own code, you need to supply existing widgets, either
+as placeholders or containing child widgets. In \QD, these are
+automatically created for you, so you can add child objects to each page
+straight away. New pages are added to each of these containers in the
+same way: select the container on the form, open the context menu, and
+select \key{Add Page}. To delete the current page, select the container
+widget then select the \key{Delete Page} from the context menu.
+
+Each container typically allows its child objects to be arranged in
 one or more layouts. The type of layout management provided depends on
 each container, although setting the layout is usually just a matter of
 selecting the container by clicking it, and applying a layout.
@@ -694,17 +781,74 @@ in more detail in the QFrame class description.
 Each frame can contain its own layout. Select the frame and apply the
 layout as usual.
 
-\section1 Groupboxes
+\section1 Group Boxes
 
 \image designer-containers-groupbox.png
 
-Groupboxes are usually used to group together collections of checkboxes and
-radio buttons with similar purposes.
+Group boxes are usually used to group together collections of checkboxes
+and radio buttons with similar purposes.
 
 The most important properties of groupboxes are \c title, \c flat,
-\c checkable, and \c checked. These are demonstrated in the 
+\c checkable, and \c checked. These are demonstrated in the
+\l{widgets-groupbox.html}{Group Boxes} example, and described in the
+QGroupBox class documentation.
 
+Each group box can contain its own layout, and this is needed if it
+contains other widgets. To add a layout to the group box, click inside
+it and apply the layout as usual.
 
+\section1 Stacked Widgets
+
+\image designer-containers-stackedwidget.png
+
+Stacked widgets are collections of widgets in which only the topmost
+layer is visible. Control over the visible layer is usually managed by
+another widget, such as a combobox, using signals and slots.
+
+\QD shows arrows in the top-right corner of the stack to allow you to
+see all the widgets in the stack; these do not appear in either the
+preview or in the final component. To navigate between pages in the
+stack, select the stacked widget and use the \key{Next Page} and
+\key{Previous Page} entries from the context menu. The \key{Add Page}
+and \key{Delete Page} context menu options allow you add and remove
+pages.
+
+\section1 Tab Widgets
+
+\image designer-containers-tabwidget.png
+
+Tab widgets allow the developer to split up the contents of a widget
+into different labelled sections, only one of which is displayed at
+any given time. By default, the tab widget contains three tabs, and
+these can be deleted or renamed as required; you can also add additional
+tabs.
+
+To delete a tab, make it the current tab by clicking on its label,
+select the tab widget, open the context menu over the tab, and select
+\key{Delete Page}. To add a new tab \e{to the left} of the current tab,
+select the tab widget, open the context menu, and select \key{Add Page}.
+\QD will create a new widget for that tab, and insert it into the
+tab widget. The title of the current tab can be set by selecting the
+tab widget, and changing the \c currentTabText property in the
+Property Editor.
+
+Each tab can provide its own layout, and one must be defined for each
+tab that contains objects.
+
+\section1 Toolbox Widgets
+
+\image designer-containers-toolbox.png
+
+Toolbox widgets provide a series of pages or compartments in a toolbox,
+much like the toolbox used in Qt 3's \QD. Toolboxes are handled in
+much the same way as stacked widgets.
+
+To rename a page in a toolbox, make it the current page, open the
+Property Editor, and change the \c currentItemText property.
+To add a new page \e above the current page in the toolbox, select the
+toolbox widget, open the context menu, and select \key{Add Page}.
+To delete the current page, select the toolbox widget, open the context
+menu, and select \key{Delete Page}.
 
 \l{designer-designing-a-component.html}{[Designing a Component]}
 \l{designer-editing-mode.html}{[Form Editing Mode]}
