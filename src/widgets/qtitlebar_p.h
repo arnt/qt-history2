@@ -82,7 +82,7 @@ protected:
 
     bool event( QEvent* );
 
-    void drawLabel();
+    void drawLabel( bool redraw = TRUE );
     void frameChanged();
 
 private:

@@ -684,13 +684,13 @@ void QTitleBarLabel::setRightMargin( int x )
     cutText();
 }
 
-void QTitleBarLabel::drawLabel()
+void QTitleBarLabel::drawLabel( bool redraw )
 {
     if ( !buffer ) {
 	buffer = new QPixmap;
 	buffer_cleanup.add( buffer );
     }
-    
+
     if ( buffer->isNull() )
 	return;
 
@@ -725,8 +725,8 @@ void QTitleBarLabel::drawLabel()
 
     p.end();
 
-    // why does it flicker using update()?
-    repaint( FALSE );
+    if ( redraw )
+	update();
 }
 
 void QTitleBarLabel::frameChanged()
@@ -736,8 +736,11 @@ void QTitleBarLabel::frameChanged()
 
 void QTitleBarLabel::paintEvent( QPaintEvent* )
 {
-    if ( buffer )
-	bitBlt( this, 0, 0, buffer, 0, 0, width(), height() );
+    if ( !buffer ) 
+	return;
+    buffer->resize( size() );
+    drawLabel( FALSE );
+    bitBlt( this, 0, 0, buffer, 0, 0, width(), height() );
 }
 
 void QTitleBarLabel::resizeEvent( QResizeEvent* e )
