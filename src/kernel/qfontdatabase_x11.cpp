@@ -711,11 +711,11 @@ static void loadXlfds( const char *reqFamily, int encoding_id )
 	    else
 		bitmap_scalable = TRUE;
 	}
-	int pixelSize = atoi( tokens[PixelSize] );
-	int xpointSize = atoi( tokens[PointSize] );
-	int xres = atoi( tokens[ResolutionX] );
-	int yres = atoi( tokens[ResolutionY] );
-	int avgwidth = atoi( tokens[AverageWidth] );
+	uint pixelSize = atoi( tokens[PixelSize] );
+	uint xpointSize = atoi( tokens[PointSize] );
+	uint xres = atoi( tokens[ResolutionX] );
+	uint yres = atoi( tokens[ResolutionY] );
+	uint avgwidth = atoi( tokens[AverageWidth] );
 	bool fixedPitch = isFixedPitch( tokens );
 
 	QtFontFamily *family = fontFamily ? fontFamily : db->family( familyName, TRUE );

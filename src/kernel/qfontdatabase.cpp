@@ -110,11 +110,12 @@ static int getFontWeight( const QString &weightString )
 struct QtFontEncoding
 {
     int encoding : 16;
-    int xpoint : 16;
-    int xres : 8;
-    int yres : 8;
-    int avgwidth : 8;
-    unsigned char pitch : 8;
+
+    uint xpoint   : 16;
+    uint xres     : 8;
+    uint yres     : 8;
+    uint avgwidth : 16;
+    uchar pitch   : 8;
 };
 #endif // Q_WS_X11
 
@@ -125,15 +126,15 @@ struct QtFontSize
 #ifdef Q_WS_X11
     int count;
     QtFontEncoding *encodings;
-    QtFontEncoding *encodingID( int id, int xpoint = 0, int xres = 0,
-				int yres = 0, int avgwidth = 0, bool add = FALSE);
+    QtFontEncoding *encodingID( int id, uint xpoint = 0, uint xres = 0,
+				uint yres = 0, uint avgwidth = 0, bool add = FALSE);
 #endif // Q_WS_X11
 };
 
 
 #ifdef Q_WS_X11
-QtFontEncoding *QtFontSize::encodingID( int id, int xpoint, int xres,
-					int yres, int avgwidth, bool add )
+QtFontEncoding *QtFontSize::encodingID( int id, uint xpoint, uint xres,
+					uint yres, uint avgwidth, bool add )
 {
     // we don't match using the xpoint, xres and yres parameters, only the id
     for ( int i = 0; i < count; ++i ) {
