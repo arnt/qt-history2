@@ -177,7 +177,11 @@ QVariant QMYSQLResult::data( int field )
 	return QVariant( QTime::fromString( val, Qt::ISODate ) );
 	break;
     case QVariant::DateTime:
-	return QVariant( QDateTime::fromString( val, Qt::ISODate ) );
+	if ( d->fieldTypes[ field ] == FIELD_TYPE_TIMESTAMP ) {
+	    // TIMESTAMPS have the format yyyyMMddhhmmss
+	    val.insert(4, "-").insert(7, "-").insert(10, 'T').insert(13, ':').insert(16, ':');
+	}
+        return QVariant( QDateTime::fromString( val, Qt::ISODate ) );
 	break;
     case QVariant::ByteArray: {
 	MYSQL_FIELD* f = mysql_fetch_field_direct( d->result, field );
