@@ -105,17 +105,9 @@ QAXFACTORY_DEFAULT(QSimpleAX,
 
 int main( int argc, char **argv )
 {
+    if ( !QAxFactory::isServer() )
+	return -1;
+
     QApplication app( argc, argv );
-    QWidget *w = 0;
-
-    if ( !QAxFactory::isServer() ) {
-	w = new QSimpleAX();
-	app.setMainWidget( w );
-	w->show();
-    }
-
-    int res = app.exec();
-    delete w;
-
-    return res;
+    return app.exec();
 }
