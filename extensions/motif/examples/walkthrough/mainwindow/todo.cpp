@@ -68,6 +68,8 @@ static char *rcsid = "$XConsortium: todo.c /main/6 1995/07/14 09:46:43 drk $";
 
 /* Demo include files */
 extern "C" {
+#include <Xmd/Print.h>
+
 #include "page.h"
 } // extern "C"
 
