@@ -62,9 +62,9 @@
 
 #include "qt_x11.h"
 
-#include <ctype.h> 
-#include <stdlib.h> 
-#include <time.h> 
+#include <ctype.h>
+#include <stdlib.h>
+#include <time.h>
 
 
 #if !defined(QT_NO_XFTFREETYPE) && defined(QT_NO_XFTNAMEUNPARSE)
@@ -256,6 +256,21 @@ static QPixmapDict *qt_xft_render_sources = 0;
 QCleanupHandler<QPixmapDict> cleanup_pixmapdict;
 #endif // QT_NO_XFTFREETYPE
 
+
+static inline float pixelSize( const QFontDef &request, QPaintDevice *paintdevice )
+{
+    float pSize;
+    if ( request.pointSize != -1 ) {
+	if ( paintdevice )
+	    pSize = request.pointSize * QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 720. + 0.5;
+	else
+	    pSize = request.pointSize * QPaintDevice::x11AppDpiY() / 720. + 0.5;
+    } else {
+	pSize = request.pixelSize;
+    }
+    return pSize;
+
+}
 
 
 class QXFontName
@@ -1173,7 +1188,7 @@ void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE
 			    chars[i].byte2 = cache->string[i].cell();
 			}
 		    }
-		    
+		
 		    if (bgmode != Qt::TransparentMode)
 			XDrawImageString16(dpy, hd, gc, x + cache->xoff, y + cache->yoff,
 					   chars, cache->length );
@@ -1309,21 +1324,6 @@ XftPattern *QFontPrivate::findXftFont(const QChar &sample, bool *exact) const
     return match;
 }
 
-
-static inline float pixelSize( const QFontDef &request, QPaintDevice *paintdevice )
-{
-    float pSize;
-    if ( request.pointSize != -1 ) {
-	if ( paintdevice )
-	    pSize = request.pointSize * QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 720. + 0.5;
-	else
-	    pSize = request.pointSize * QPaintDevice::x11AppDpiY() / 720. + 0.5;
-    } else {
-	pSize = request.pixelSize;
-    }
-    return pSize;
-    
-}
 
 // finds an XftPattern best matching the familyname, foundryname and other
 // requested pieces of the font
@@ -1876,7 +1876,7 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	if ( diff == 0 && (request.styleStrategy & QFont::PreferOutline || request.styleStrategy & QFont::ForceOutline) )
 	    diff = 0.9;
 
-	if ( percentDiff < 10 && 
+	if ( percentDiff < 10 &&
 	     (!(request.styleStrategy & QFont::PreferMatch) || request.styleStrategy & QFont::PreferQuality) ) {
 	    score |= SizeScore;
 
@@ -3092,7 +3092,7 @@ int QFontMetrics::width(QChar ch) const
 }
 
 
-/*! 
+/*!
     Returns the width of the character at position \a pos in the string
     \a str.
 
@@ -3143,7 +3143,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 }
 
 
-/*! 
+/*!
     Returns the width in pixels of the first \a len characters of \a
     str. If \a len is negative (the default), the entire string is used.
 
@@ -3169,7 +3169,7 @@ int QFontMetrics::width( const QString &str, int len ) const
 }
 
 
-/*! 
+/*!
     Returns the bounding rectangle of the first \a len characters of \a
     str, which is the set of pixels the text would cover if drawn at
     (0,0).
