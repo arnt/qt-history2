@@ -43,7 +43,11 @@
 #include <qtextcodec.h>
 #include <qtranslator.h>
 
+#ifdef Q_WS_WIN
+#define INDEX_CHECK( text ) if( i+1 >= argc ) { QMessageBox::information( 0, "Qt Assistant", text ); return 1; }
+#else
 #define INDEX_CHECK( text ) if( i+1 >= argc ) { fprintf( stderr, text "\n" ); return 1; }
+#endif
 
 static bool allowFirstRun = TRUE;
 
@@ -137,10 +141,12 @@ int main( int argc, char ** argv )
     if ( argc > 1 ) {
 	QString arg( argv[1] );
 	arg = arg.lower();
+#ifndef Q_WS_WIN
 	if ( arg == "-addprofile" ||
 	     arg == "-installqtdoc" ||
 	     arg == "-help" )
 	    withGUI = FALSE;
+#endif
     }
     QApplication a( argc, argv, withGUI );
 
@@ -186,27 +192,32 @@ int main( int argc, char ** argv )
 	    } else if ( QString( argv[i] ).lower() == "-hidesidebar" ) {
 		hideSidebar = TRUE;
 	    } else if ( QString( argv[i] ).lower() == "-help" ) {
-		printf( "Usage: assistant [option]\n" );
-		printf( "Options:\n" );
-		printf( " -file Filename          assistant opens the specified file\n" );
-		//printf( " -disableFirstRun        assistant will not try to register defaults.\n" );
-		printf( " -server                 reads commands from a socket after\n" );
-		printf( "                         assistant has started\n" );
-		printf( " -profile Name           starts assistant and displays the\n" );
-		printf( "                         profile Name.\n" );
-		printf( " -addProfile File [Path] adds the profile defined in File.\n" );
-		printf( "                         Specify the location of the content\n" );
-		printf( "                         files via Path. Otherwise, the base\n" );
-		printf( "                         path of the profile is taken.\n" );
-		printf( "                         For further informations have a look\n" );
-		printf( "                         at the assistant online help.\n" );
-		printf( " -installQtDoc           installs the Qt profile. This option is\n" );
-		printf( "                         only necessary if assistants first installed\n" );
-		printf( "                         profile was another than the Qt one.\n" );
-		printf( "                         If assistant is run the first time without\n" );
-		printf( "                         any argument this is called by default.\n" );
-		printf( " -hideSidebar            assistant will hide the sidebar.\n" );
-		printf( " -help                   shows this help\n" );
+		QString helpText( "Usage: assistant [option]\n"
+				  "Options:\n"
+				  " -file Filename          assistant opens the specified file\n"
+				  //" -disableFirstRun        assistant will not try to register defaults.\n"
+				  " -server                 reads commands from a socket after\n"
+				  "                         assistant has started\n"
+				  " -profile Name           starts assistant and displays the\n"
+				  "                         profile Name.\n"
+				  " -addProfile File [Path] adds the profile defined in File.\n"
+				  "                         Specify the location of the content\n"
+				  "                         files via Path. Otherwise, the base\n"
+				  "                         path of the profile is taken.\n"
+				  "                         For further informations have a look\n"
+				  "                         at the assistant online help.\n"
+				  " -installQtDoc           installs the Qt profile. This option is\n"
+				  "                         only necessary if assistants first installed\n"
+				  "                         profile was another than the Qt one.\n"
+				  "                         If assistant is run the first time without\n"
+				  "                         any argument this is called by default.\n"
+				  " -hideSidebar            assistant will hide the sidebar.\n"
+				  " -help                   shows this help.");
+#ifdef Q_WS_WIN
+		QMessageBox::information( 0, "Qt Assistant", "<pre>" + helpText + "</pre>" );				
+#else
+		printf( helpText.latin1() );
+#endif
 		exit( 0 );
 	    } else if ( QString( argv[i] ).lower() == "-resourcedir" ) {
 		INDEX_CHECK( "Missing resource directory argument!" );
