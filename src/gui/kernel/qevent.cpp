@@ -19,53 +19,50 @@
 #include "qmime.h"
 #include "qdnd_p.h"
 
+/*!
+    \class QAcceptEvent qevent.h
+    \ingroup events
 
+    \brief The QAcceptEvent class is the base class for events that
+    can be either accepted or ignored.
+
+    An accept event has only one property: the accept flag that is
+    read with isAccepted(). The flag is set by calling accept(), and
+    cleared by calling ignore().
+
+    The accept flag is set by default, but don't rely on it as
+    subclasses may choose to call ignore() in their constructor.
+*/
+
+
+/*!\internal
+ */
 QAcceptEvent::QAcceptEvent(Type type)
     : QEvent(type), m_accept(true)
 {
 }
 
 /*!
-    \class QInputEvent qevent.h
-    \ingroup events
+    \fn bool QAcceptEvent::isAccepted() const
 
-    \brief The QInputEvent class is the base class for events that
-    describe user input.
-
-*/
-
-/*!
-    \fn QInputEvent::QInputEvent(Type type)
-
-    \internal
-*/
-QInputEvent::QInputEvent(Type type, Qt::KeyboardModifiers modifiers)
-    : QAcceptEvent(type), modState(modifiers)
-{}
-
-/*!
-    \fn bool QInputEvent::isAccepted() const
-
-    Returns the accept flag of the event object. It is set by default.
+    Returns the accept flag of the event object.
 
     \sa accept(), ignore()
 */
 
 /*!
-    \fn void QInputEvent::accept()
+    \fn void QAcceptEvent::accept()
 
     Setting the accept parameter indicates that the event receiver
     wants the event. Unwanted events might be propagated to the parent
     widget.
-
-    By default, the accept flag is set.
 
     \sa ignore()
 */
 
 
 /*!
-    \fn void QInputEvent::ignore()
+    \fn void QAcceptEvent::ignore()
 
     Clears the accept flag parameter of the event object.
 
@@ -73,10 +70,26 @@ QInputEvent::QInputEvent(Type type, Qt::KeyboardModifiers modifiers)
     does not want the event. Unwanted events might be propgated to the
     parent widget.
 
-    By default, the accept flag is set.
 
     \sa accept()
 */
+
+
+/*!
+    \class QInputEvent qevent.h
+    \ingroup events
+
+    \brief The QInputEvent class is the base class for events that
+    describe user input.
+*/
+
+/*!
+    \internal
+*/
+QInputEvent::QInputEvent(Type type, Qt::KeyboardModifiers modifiers)
+    : QAcceptEvent(type), modState(modifiers)
+{}
+
 
 
 
