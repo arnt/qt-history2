@@ -317,11 +317,14 @@
 
 
 /*! \fn QValueVector::QValueVector()
-  Constructs an empty vector without any items.  To create a vector
-  which reserves an initial amount of space for items, use \c
-  QValueVector(size_type n).  */
+
+  Constructs an empty vector without any elements.  To create a vector
+  which reserves an initial amount of space for elements, use \c
+  QValueVector(size_type n).  
+*/
 
 /*! \fn QValueVector::QValueVector( const QValueVector<T>& v )
+
   Constructs a copy of \a v.
 
   This operation costs O(1) time because QValueVector is shared
@@ -335,21 +338,22 @@
 */
 
 /*! \fn QValueVector::QValueVector( const std::vector<T>& v )
+
   Constructs a copy of \a v.
 
-  This operation costs O(1) time because QValueVector is shared
-  implicitly.
-
-  The first modification to the vector does however take O(n) time.
+  This operation costs O(n) time because \a v is copied.
 */
 
 /*! \fn QValueVector::QValueVector( size_type n, const T& val )
-  Constructs a vector with an initial size of \a n items.  Each
-  item is initialized with the value of \a val.
+
+  Constructs a vector with an initial size of \a n elements.  Each
+  element is initialized with the value of \a val.
 */
 
 /*! \fn QValueVector::~QValueVector()
-  Destroys the vector, destroying all items and freeing the memory.
+
+  Destroys the vector, destroying all elements and freeing the memory.
+
   References to the values in the vector and all iterators of this
   vector become invalidated. Note that it is impossible for an
   iterator to check whether or not it is valid - QValueVector is
@@ -357,6 +361,7 @@
 */
 
 /*! \fn QValueVector<T>& QValueVector::operator=( const QValueVector<T>& v )
+
   Assigns \a v to this vector and returns a reference to this vector.
 
   All iterators of the current vector become invalidated by this operation.
@@ -365,11 +370,11 @@
 */
 
 /*! \overload QValueVector<T>& QValueVector::operator=( const std::vector<T>& v )
+
   Assigns \a v to this vector and returns a reference to this vector.
 
   All iterators of the current vector become invalidated by this operation.
-  The cost of such an assignment is O(1) since QValueVector is implicitly
-  shared.
+  The cost of this assignment is O(n) since \a v is copied.
 */
 
 /*! \fn size_type QValueVector::size() const
