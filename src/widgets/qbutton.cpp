@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#57 $
 **
 ** Implementation of QButton widget class
 **
@@ -11,12 +11,12 @@
 
 #include "qbutton.h"
 #include "qbttngrp.h"
-#include "qpixmap.h"
+#include "qbitmap.h"
 #include "qpainter.h"
 #include "qkeycode.h"
 #include "qtimer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#57 $");
 
 
 /*!
@@ -52,7 +52,8 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#56 $");
   auto-resizing\endlink.  Enabling auto-resizing makes a button resize
   itself whenever the contents change.
 
-  \sa QButtonGroup */
+  \sa QButtonGroup
+*/
 
 
 /*!
@@ -71,8 +72,8 @@ QButton::QButton( QWidget *parent, const char *name )
     buttonDown = FALSE;			// button is up
     buttonOn   = FALSE;			// button is off
     mlbDown    = FALSE;			// mouse left button up
+    autoresize = FALSE;			// not auto resizing
     isTiming   = FALSE;			// not in keyboard mode
-    autoresize = FALSE;
     if ( parent && parent->inherits("QButtonGroup") ) {
 	group = (QButtonGroup*)parent;
 	group->insert( this );			// insert into button group
@@ -164,30 +165,39 @@ void QButton::setText( const char *text )
 */
 
 /*!
-  Sets the button pixmap to \e pixmap and redraws the contents.
+  Sets the button pixmap to \a pixmap and redraws the contents.
+
+  If \a pixmap is monochrome (i.e. it is a QBitmap or its \link
+  QPixmap::depth() depth\endlink is 1) and it does not have a mask, this
+  function sets the pixmap to be its own mask. The purpose is to draw
+  transparent bitmaps, which is important for e.g. toggle buttons.
 
   The button resizes itself if auto-resizing is enabled.
 
-  \sa pixmap(), setText(), setAutoResize()
+  \sa pixmap(), setText(), setAutoResize(), QPixmap::mask()
 */
 
 void QButton::setPixmap( const QPixmap &pixmap )
 {
-    int w, h;
+    int  w, h;
     if ( bpixmap ) {
 	w = bpixmap->width();
 	h = bpixmap->height();
     } else {
 	bpixmap = new QPixmap;
+	CHECK_PTR( bpixmap );
 	w = h = -1;
     }
+    bool sameSize = w == bpixmap->width() && h == bpixmap->height();
     *bpixmap = pixmap;
+    if ( bpixmap->depth() == 1 && !bpixmap->mask() )
+	bpixmap->setMask( *((QBitmap *)&pixmap) );
     if ( !btext.isNull() )
 	btext.resize( 0 );
-    if ( autoresize &&	(w != bpixmap->width() || h != bpixmap->height()) )
+    if ( autoresize &&	!sameSize )
 	adjustSize();
     else
-	update();
+	repaint( FALSE );
 }
 
 
@@ -374,8 +384,7 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
 	    emit toggled( buttonOn );
 	emit released();
 	emit clicked();
-    }
-    else {
+    } else {
 	repaint( FALSE );
 	emit released();
     }
@@ -416,7 +425,7 @@ void QButton::paintEvent( QPaintEvent * )
 {
     QPainter paint;
     paint.begin( this );
-    drawButton( &paint );			// ask subclass to draw button
+    drawButton( &paint );
     paint.end();
 }
 

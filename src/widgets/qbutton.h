@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#43 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#44 $
 **
 ** Definition of QButton widget class
 **
@@ -25,17 +25,17 @@ public:
     QButton( QWidget *parent=0, const char *name=0 );
    ~QButton();
 
-    const char *text()		const	{ return btext; }
+    const char *text() const;
     void	setText( const char * );
-    const QPixmap *pixmap()	const	{ return bpixmap; }
+    const QPixmap *pixmap() const;
     void	setPixmap( const QPixmap & );
 
-    bool	isToggleButton() const	{ return toggleBt; }
+    bool	isToggleButton() const;
 
-    bool	isDown()	const	{ return buttonDown; }
-    bool	isOn()		const	{ return buttonOn; }
+    bool	isDown()	const;
+    bool	isOn()		const;
 
-    bool	autoResize()	const	{ return autoresize; }
+    bool	autoResize()	const;
     void	setAutoResize( bool );
 
 signals:
@@ -80,6 +80,37 @@ private:	// Disabled copy constructor and operator=
     QButton( const QButton & ) {}
     QButton &operator=( const QButton & ) { return *this; }
 };
+
+
+inline const char *QButton::text() const
+{
+    return btext;
+}
+
+inline const QPixmap *QButton::pixmap() const
+{
+    return bpixmap;
+}
+
+inline bool QButton::isToggleButton() const
+{
+    return toggleBt;
+}
+
+inline  bool QButton::isDown() const
+{
+    return buttonDown;
+}
+
+inline bool QButton::isOn() const
+{
+    return buttonOn;
+}
+
+inline bool QButton::autoResize() const
+{
+    return autoresize;
+}
 
 
 #endif // QBUTTON_H
