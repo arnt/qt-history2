@@ -563,7 +563,7 @@ void QWSDisplay::Data::init()
 	if ( !QWSDisplay::initLock( pipe, FALSE ) )
 	    qFatal( "Cannot get display lock" );
 
-	shm = QSharedMemory(0,pipe.latin1());
+	shm = QSharedMemory(0,pipe.latin1(),'m');
 	if (shm.create() && shm.attach()) {
 	    QScreen *s = qt_get_screen( qws_display_id, qws_display_spec );
 	    sharedRamSize += s->memoryNeeded(qws_display_spec);
@@ -585,7 +585,7 @@ void QWSDisplay::Data::init()
 	
 #ifndef QT_NO_QWS_MULTIPROCESS
 	
-	shm = QSharedMemory(sharedRamSize,pipe.latin1());
+	shm = QSharedMemory(sharedRamSize,pipe.latin1(), 'm');
 	if (!shm.create())
 	    perror("Cannot create main ram shared memory\n");
 	if (!shm.attach())
