@@ -682,7 +682,7 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 				}
 			  opt_property	{ BEGIN IN_CLASS; }
 			| ENUM_IN_CLASS { BEGIN QT_DEF; }
-			  enum_in_class_tail ';' { BEGIN IN_CLASS;}
+			  enum_in_class_tail { BEGIN IN_CLASS;}
 			| class_key_in_class { BEGIN QT_DEF; }
 			  IDENTIFIER { BEGIN IN_EAT; eatLevel=0;}
 			  ';' { BEGIN IN_CLASS; }
