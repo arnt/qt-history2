@@ -352,7 +352,15 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
 
     case PE_FocusRect:
     {
+#if defined (Q_WS_WIN) && !defined(QT_GDIPLUS_SUPPORT)
+        {
+            HDC hdc = p->handle();
+            RECT rect = { r.left(), r.top(), r.right()+1, r.bottom()+1 };
+            DrawFocusRect(hdc, &rect);
+        }
+#else
         p->save();
+        p->setBackgroundMode(TransparentMode);
 	QColor bg_col = opt.isDefault() ? p->background().color() : opt.color();
 	if (qGray(bg_col.rgb()) < 128)
 	    p->setBrush(QBrush(white, Dense4Pattern));
@@ -365,6 +373,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
         p->drawRect(r.left(),  r.top(),    1,         r.height()); // Left
         p->drawRect(r.right(), r.top(),    1,         r.height()); // Right
         p->restore();
+#endif
         break;
     }
 
