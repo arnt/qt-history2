@@ -511,37 +511,33 @@
 #endif
 
 
-typedef unsigned char uchar;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long ulong;
 
-#if 0
+#if 0 /* ### remove me */
 typedef char *pchar;
 typedef uchar *puchar;
 typedef const char *pcchar;
 #endif
 
-//
-// Size-dependent types (architechture-dependent byte order)
-//
+/*
+  Size-dependent types (architechture-dependent byte order)
+*/
 
-typedef signed char qint8;         // 8 bit signed
-typedef unsigned char quint8;      // 8 bit unsigned
-typedef short qint16;              // 16 bit signed
-typedef unsigned short quint16;    // 16 bit unsigned
-typedef int qint32;                // 32 bit signed
-typedef unsigned int quint32;      // 32 bit unsigned
+typedef signed char qint8;         /* 8 bit signed */
+typedef unsigned char quint8;      /* 8 bit unsigned */
+typedef short qint16;              /* 16 bit signed */
+typedef unsigned short quint16;    /* 16 bit unsigned */
+typedef int qint32;                /* 32 bit signed */
+typedef unsigned int quint32;      /* 32 bit unsigned */
 #if defined(Q_OS_WIN) && !defined(Q_CC_GNU)
-#  define Q_INT64_C(c) c ## i64    // signed 64 bit constant
-#  define Q_UINT64_C(c) c ## ui64   // unsigned 64 bit constant
-typedef __int64 qint64;            // 64 bit signed
-typedef unsigned __int64 quint64;  // 64 bit unsigned
+#  define Q_INT64_C(c) c ## i64    /* signed 64 bit constant */
+#  define Q_UINT64_C(c) c ## ui64   /* unsigned 64 bit constant */
+typedef __int64 qint64;            /* 64 bit signed */
+typedef unsigned __int64 quint64;  /* 64 bit unsigned */
 #else
-#  define Q_INT64_C(c) static_cast<long long>(c ## LL)            // signed 64 bit constant
-#  define Q_UINT64_C(c) static_cast<unsigned long long>(c ## ULL) // unsigned 64 bit constant
-typedef long long qint64;          // 64 bit signed
-typedef unsigned long long quint64;// 64 bit unsigned
+#  define Q_INT64_C(c) static_cast<long long>(c ## LL)     /* signed 64 bit constant */
+#  define Q_UINT64_C(c) static_cast<unsigned long long>(c ## ULL) /* unsigned 64 bit constant */
+typedef long long qint64;           /* 64 bit signed */
+typedef unsigned long long quint64; /* 64 bit unsigned */
 #endif
 
 typedef qint64 qlonglong;
@@ -560,11 +556,11 @@ typedef quint64 Q_UINT64;
 typedef qint64 Q_LLONG;
 typedef quint64 Q_ULLONG;
 #if defined(Q_OS_WIN64)
-typedef __int64 Q_LONG;             // word up to 64 bit signed
-typedef unsigned __int64 Q_ULONG;   // word up to 64 bit unsigned
+typedef __int64 Q_LONG;             /* word up to 64 bit signed */
+typedef unsigned __int64 Q_ULONG;   /* word up to 64 bit unsigned */
 #else
-typedef long Q_LONG;                // word up to 64 bit signed
-typedef unsigned long Q_ULONG;      // word up to 64 bit unsigned
+typedef long Q_LONG;                /* word up to 64 bit signed */
+typedef unsigned long Q_ULONG;      /* word up to 64 bit unsigned */
 #endif
 #endif
 
@@ -576,35 +572,40 @@ typedef unsigned long Q_ULONG;      // word up to 64 bit unsigned
 
 #if defined(__cplusplus)
 
-//
-// Useful type definitions for Qt
-//
+/*
+   Useful type definitions for Qt
+*/
+
+typedef unsigned char uchar;
+typedef unsigned short ushort;
+typedef unsigned int uint;
+typedef unsigned long ulong;
 
 #if defined(Q_NO_BOOL_TYPE)
 #error "Compiler doesn't support the bool type"
 #endif
 
-//
-// Constant bool values
-//
+/*
+   Constant bool values
+*/
 
 #ifndef TRUE
 #define TRUE true
 #define FALSE false
 #endif
 
-//
-// Proper for-scoping in VC++6 and MIPSpro CC
-//
+/*
+   Proper for-scoping in VC++6 and MIPSpro CC
+*/
 
 #if (defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET) && !defined(Q_CC_INTEL)) || defined(Q_CC_MIPS)
 #  define for if(0){}else for
 #endif
 
 
-//
-// Workaround for static const members on MSVC++.
-//
+/*
+   Workaround for static const members on MSVC++.
+*/
 
 #if defined(Q_CC_MSVC)
 #  define QT_STATIC_CONST static
@@ -614,9 +615,9 @@ typedef unsigned long Q_ULONG;      // word up to 64 bit unsigned
 #  define QT_STATIC_CONST_IMPL const
 #endif
 
-//
-// Warnings and errors when using deprecated methods
-//
+/*
+   Warnings and errors when using deprecated methods
+*/
 #if defined(Q_MOC_RUN)
 #  define Q_DECL_DEPRECATED Q_DECL_DEPRECATED
 #elif defined(Q_CC_GNU) && !defined(Q_CC_INTEL) && (__GNUC__ - 0 > 3 || (__GNUC__ - 0 == 3 && __GNUC_MINOR__ - 0 >= 2))
