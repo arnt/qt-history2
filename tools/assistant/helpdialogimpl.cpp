@@ -682,6 +682,9 @@ void HelpDialog::removeBookmark()
 
     delete listBookmarks->currentItem();
     saveBookmarks();
+    if ( listBookmarks->firstChild() ) {
+	listBookmarks->setSelected( listBookmarks->firstChild(), TRUE );
+    }
     help->updateBookmarkMenu();
 }
 

@@ -219,7 +219,7 @@
                                     <cstring>buttonAdd</cstring>
                                 </property>
                                 <property name="text">
-                                    <string>&amp;New Bookmark</string>
+                                    <string>&amp;New</string>
                                 </property>
                                 <property name="toolTip" stdset="0">
                                     <string>Add new bookmark</string>
@@ -233,7 +233,7 @@
                                     <cstring>buttonRemove</cstring>
                                 </property>
                                 <property name="text">
-                                    <string>D&amp;elete Bookmark</string>
+                                    <string>D&amp;elete</string>
                                 </property>
                                 <property name="toolTip" stdset="0">
                                     <string>Delete bookmark</string>
