@@ -108,7 +108,7 @@ public:
 
     int numItemsVisible() const;
 
-    QListBoxItem* currentItem() const;
+    int currentItem() const;
     QString currentText() const { return text(currentItem()); }
     virtual void setCurrentItem( int index );
     virtual void setCurrentItem( QListBoxItem * );
@@ -130,7 +130,7 @@ public:
     void setSelected( int, bool );
     bool isSelected( int ) const;
     bool isSelected( const QListBoxItem * ) const;
-    int selectedItem() const;
+    QListBoxItem* selectedItem() const;
 
     QSize sizeHint() const;
     QSize	minimumSizeHint() const;
