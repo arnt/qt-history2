@@ -433,9 +433,7 @@ int QEventLoop::activateTimers()
     int n_act = 0, maxCount = d->timerList->size();
     QTimerInfo *begin = 0;
 
-    for (;;) {
-        if (!maxCount) break;
-
+    while (maxCount--) {
         getTime(currentTime);
         if (first) {
             if (currentTime < d->watchtime)
@@ -469,8 +467,6 @@ int QEventLoop::activateTimers()
         d->timerInsert(t);
         if (t->interval.tv_usec > 0 || t->interval.tv_sec > 0)
             n_act++;
-        else
-            maxCount--;
 
         // send event
         QTimerEvent e(t->id);
