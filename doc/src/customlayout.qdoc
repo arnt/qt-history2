@@ -1,0 +1,203 @@
+/*!  \page customlayout.html
+
+\title Writing your own layout manager
+
+Here we present an example in detail. The class CardLayout is inspired
+by the Java layout manager of the same name. It lays out the items
+(widgets or nested layouts) on top of each other, each item offset by
+QLayout::spacing().
+
+To write your own layout class, you must define the following:
+\list
+\i A data structure to store the items handled by the layout. Each
+item is a \link QLayoutItem QLayoutItem\endlink. We will use a
+QList in this example.
+\i \link QLayout::addItem() addItem() \endlink, how to add items to
+the layout.
+\i \link QLayout::setGeometry() setGeometry() \endlink, how to perform
+the layout.
+\i \link QLayout::sizeHint() sizeHint() \endlink, the preferred size
+of the layout.
+\i \link QLayout::itemAt() itemAt() \endlink, how to iterate over
+the layout.
+\i \link QLayout::takeAt() takeAt() \endlink, how to remove items
+ from the layout.
+\endlist
+
+In most cases, you will also implement \link QLayout::minimumSize()
+minimumSize\endlink().
+
+\section1 card.h
+
+\code
+#ifndef CARD_H
+#define CARD_H
+
+#include <qlayout.h>
+#include <qlist.h>
+
+class CardLayout : public QLayout
+{
+public:
+    CardLayout(QWidget *parent, int dist)
+	: QLayout(parent, 0, dist) {}
+    CardLayout(QLayout* parent, int dist)
+	: QLayout(parent, dist) {}
+    CardLayout(int dist)
+	: QLayout(dist) {}
+    ~CardLayout();
+
+    void addItem(QLayoutItem *item);
+    QSize sizeHint() const;
+    QSize minimumSize() const;
+    QLayoutItem *itemAt(int) const;
+    QLayoutItem *takeAt(int);
+    void setGeometry(const QRect &rect);
+
+private:
+    QList<QLayoutItem*> list;
+};
+#endif
+
+\endcode
+
+\section2 card.cpp
+
+\code
+#include "card.h"
+\endcode
+
+First we define two functions that iterate over the layout: 
+itemAt() and takeAt(). These functions are used internally by the
+layout system to handle deletion of widgets. They are also available
+for application programmers. 
+
+ItemAt() returns the item at the given index. takeAt() removes the
+item at the given index, and returns it. In this case we use the list
+index as the layout index. In other cases where we have a more complex
+data structure, we may have to spend more effort defining a linear
+order for the items.
+
+\code
+QLayoutItem *CardLayout::itemAt(int idx) const
+{
+    // QList::value() performs index checking, and returns 0 if we are
+    // outside the valid range
+    return list.value(idx);
+}
+
+QLayoutItem *CardLayout::takeAt(int idx)
+{
+    // QList::take does not do index checking
+    return idx >= 0 && idx < list.size() ? list.takeAt(idx) : 0;
+}
+\endcode
+
+
+addItem() implements the default placement strategy for layout items.
+It must be implemented. It is used by QLayout::add(), by the QLayout
+constructor that takes a layout as parent. If your layout
+has advanced placement options that require parameters, you must
+provide extra access functions such as the row and column spanning
+overloads of \l QGridLayout::addItem(), addWidget(), and addLayout().
+
+\code
+void CardLayout::addItem(QLayoutItem *item)
+{
+    list.append(item);
+}
+\endcode
+
+The layout takes over responsibility of the items added. Since
+QLayoutItem does not inherit QObject, we must delete the items
+manually. The function QLayout::deleteAllItems() uses takeAt()
+defined above to delete all the items in the layout.
+
+\code
+CardLayout::~CardLayout()
+{
+    deleteAllItems();
+}
+\endcode
+
+The setGeometry() function actually performs the layout. The rectangle
+supplied as an argument does not include margin(). If relevant, use
+spacing() as the distance between items.
+
+\code
+void CardLayout::setGeometry(const QRect &r)
+{
+    QLayout::setGeometry(r);
+
+    if (list.size() == 0)
+        return;
+
+    int w = r.width() - (list.count() - 1) * spacing();
+    int h = r.height() - (list.count() - 1) * spacing();
+    int i = 0;
+    while (i < list.size()) {
+        QLayoutItem *o = list.at(i);
+        QRect geom(r.x() + i * spacing(), r.y() + i * spacing(), w, h);
+        o->setGeometry(geom);
+        ++i;
+    }
+}
+\endcode
+
+sizeHint() and minimumSize() are normally very similar in
+implementation. The sizes returned by both functions should include
+spacing(), but not margin().
+
+\code
+QSize CardLayout::sizeHint() const
+{
+    QSize s(0,0);
+    int n = list.count();
+    if (n > 0)
+        s = QSize(100,70); //start with a nice default size
+    int i = 0;
+    while (i < n) {
+        QLayoutItem *o = list.at(i);
+        s = s.expandedTo(o->sizeHint());
+        ++i;
+    }
+    return s + n*QSize(spacing(), spacing());
+}
+
+QSize CardLayout::minimumSize() const
+{
+    QSize s(0,0);
+    int n = list.count();
+    int i = 0;
+    while (i < n) {
+        QLayoutItem *o = list.at(i);
+        s = s.expandedTo(o->minimumSize());
+        ++i;
+    }
+    return s + n*QSize(spacing(), spacing());
+}
+\endcode
+
+\section1 Further Notes
+
+This layout does not implement heightForWidth().
+
+We ignore QLayoutItem::isEmpty(), this means that the layout will
+treat hidden widgets as visible.
+
+For complex layouts, speed can be greatly increased by caching
+calculated values. In that case, implement QLayoutItem::invalidate()
+to mark the cached data as dirty.
+
+Calling QLayoutItem::sizeHint(), etc. may be expensive, so you should
+store the value in a local variable if you need it again later in the
+same function.
+
+You should not call QLayoutItem::setGeometry() twice on the same item
+in the same function. That can be very expensive if the item has
+several child widgets, because it will have to do a complete layout
+every time. Instead, calculate the geometry and then set it. (This
+doesn't only apply to layouts, you should do the same if you implement
+your own resizeEvent().)
+
+*/

@@ -11,7 +11,7 @@
 ****************************************************************************/
 
 /*!
-\page embedporting.html
+\page emb-porting.html
 
 \title Issues to be aware of when porting Qt/Embedded
 
