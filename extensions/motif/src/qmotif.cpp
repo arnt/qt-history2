@@ -56,6 +56,7 @@ public:
     QWidgetIntDict mapper;
 
     QIntDict<QSocketNotifier> socknotDict;
+    uint pending_socknots;
     bool activate_timers;
     int timerid;
 
@@ -95,7 +96,7 @@ XEvent* QMotif::lastEvent()
 
 QMotifPrivate::QMotifPrivate()
     : appContext(NULL), ownContext(NULL),
-      activate_timers(FALSE), timerid(-1)
+      pending_socknots(0), activate_timers(FALSE), timerid(-1)
 {
 }
 
@@ -388,6 +389,16 @@ void qmotif_socknot_handler( XtPointer pointer, int *, XtInputId *id )
     if ( ! socknot ) // this shouldn't happen
 	return;
     eventloop->setSocketNotifierPending( socknot );
+    if ( ++static_d->pending_socknots > static_d->socknotDict.count() ) {
+	/*
+	  We have too many pending socket notifiers.  Since Xt prefers
+	  socket notifiers over X events, we should go ahead and
+	  activate all our pending socket notifiers so that the event
+	  loop doesn't freeze up because of this.
+	*/
+	eventloop->activateSocketNotifiers();
+	static_d->pending_socknots = 0;
+    }
 }
 
 /*! \reimp
@@ -489,8 +500,10 @@ bool QMotif::processEvents( ProcessEventsFlags flags )
 	XtAppProcessEvent( d->appContext, mask );
 
     int nevents = 0;
-    if ( ! ( flags & ExcludeSocketNotifiers ) )
+    if ( ! ( flags & ExcludeSocketNotifiers ) ) {
 	nevents += activateSocketNotifiers();
+	d->pending_socknots = 0;
+    }
 
     if ( d->activate_timers ) {
 	nevents += activateTimers();
