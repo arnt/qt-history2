@@ -1085,6 +1085,29 @@ QApplication::~QApplication()
     delete session_key;
     session_key = 0;
 #endif //QT_NO_SESSIONMANAGER
+
+    qt_explicit_app_style = FALSE;
+    qt_app_has_font = FALSE;
+    app_tracking = 0;
+    is_app_running = FALSE;
+    is_app_closing = FALSE;
+    obey_desktop_settings = TRUE;
+    cursor_flash_time = 1000;
+    mouse_double_click_time = 400;
+#ifndef QT_NO_WHEELEVENT
+    wheel_scroll_lines = 3;
+#endif
+    drag_time = 500;
+    drag_distance = 4;
+    reverse_layout = FALSE;
+    app_strut = QSize( 0, 0 );
+    animate_ui = TRUE;
+    animate_menu = FALSE;
+    fade_menu = FALSE;
+    animate_combo = FALSE;
+    animate_tooltip = FALSE;
+    fade_tooltip = FALSE;
+    widgetCount = FALSE;
 }
 
 
