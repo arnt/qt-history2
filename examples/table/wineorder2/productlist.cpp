@@ -54,8 +54,6 @@ ProductList::ProductList()
 
     adjustColumn( 1 );
     adjustColumn( 2 );
-
-    viewport()->setFocus();
 }
 
 void ProductList::processValueChanged( int row, int )

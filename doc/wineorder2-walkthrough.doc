@@ -408,17 +408,12 @@ slot.
 
 \printline adjustColumn
 \printline adjustColumn
+\printline }
 
 As we want the user to see all product titles and the longish section header
 of column no. 2 in full we apply some cosmetics and adjust the second and the
 third column to fit their contents.
 
-\printline viewport()
-\printline }
-
-Finally we set the keyboard focus to the part of the spreadsheet where
-the active cell is located, i.e. the view port. Initially this is the cell
-with the coordinates 0,0.
 
 
 <a name="processValueChanged()"></a>
