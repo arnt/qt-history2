@@ -33,7 +33,6 @@ class Q_GUI_EXPORT QProgressBar : public QWidget
 
 public:
     QProgressBar(QWidget *parent = 0);
-    QProgressBar(int minimum, int maximum, QWidget *parent = 0);
 
     void setMinimum(int minimum);
     int minimum() const;

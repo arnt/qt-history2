@@ -118,31 +118,6 @@ QProgressBar::QProgressBar(QWidget *parent)
     d->init();
 }
 
-
-/*!
-    Constructs a progress bar.
-
-    The \a totalSteps is the total number of steps that need to be
-    completed for the operation which this progress bar represents.
-    For example, if the operation is to examine 50 files, this value
-    would be 50. Before examining the first file, call setProgress(0);
-    call setProgress(50) after examining the last file.
-
-    The \a parent, and widget flags, \a f, are passed to the
-    QFrame::QFrame() constructor.
-
-    \sa setTotalSteps(), setProgress()
-*/
-
-QProgressBar::QProgressBar(int minimum, int maximum, QWidget *parent)
-    : QWidget(*(new QProgressBarPrivate), parent, 0)
-{
-    d->init();
-    setMinimum(minimum);
-    setMaximum(maximum);
-}
-
-
 /*!
     Reset the progress bar. The progress bar "rewinds" and shows no
     progress.
