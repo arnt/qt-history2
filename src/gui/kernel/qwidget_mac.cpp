@@ -1474,13 +1474,17 @@ void QWidget::setWindowState(uint newstate)
                     if(data->fstrut_dirty)
                         updateFrameStrut();
                     bounds.left += tlextra->fleft;
+                    if(bounds.right < avail.x()+avail.width())
+                        bounds.right = QMIN((uint)avail.x()+avail.width(), bounds.right+tlextra->fleft);
+                    if(bounds.bottom < avail.y()+avail.height())
+                        bounds.bottom = QMIN((uint)avail.y()+avail.height(), bounds.bottom+tlextra->ftop);
                     bounds.top += tlextra->ftop;
                     bounds.right -= tlextra->fright;
                     bounds.bottom -= tlextra->fbottom;
                 }
                 QRect orect(geometry().x(), geometry().y(), width(), height()),
                     nrect(bounds.left, bounds.top, bounds.right - bounds.left, bounds.bottom - bounds.top);
-                if(orect.size() != nrect.size()) { // no real point..
+                if(orect != nrect) { // no real point..
                     Rect oldr;
                     if(QTLWExtra *tlextra = d->topData())
                         SetRect(&oldr, tlextra->normalGeometry.left(), tlextra->normalGeometry.top(),
