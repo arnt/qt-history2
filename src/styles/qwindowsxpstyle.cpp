@@ -437,7 +437,6 @@ void QWindowsXPStyle::unPolish( QWidget *widget )
 		widget->parentWidget() &&
 		widget->parentWidget()->inherits( "QTabWidget" ) ) {
 	widget->setPaletteBackgroundPixmap( QPixmap() );
-
     } else if ( widget->inherits( "QTabBar" ) ) {
 	disconnect( widget, SIGNAL(selected(int)), this, SLOT(activeTabChanged()) );
     }
@@ -642,6 +641,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	name = "STATUS";
 	partId = SP_PANE;
 	break;
+
     case PE_PanelGroupBox:
 	name = "BUTTON";
 	partId = BP_GROUPBOX;
@@ -1163,21 +1163,26 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 
 		    theme.drawBackground( flags & Style_Horizontal ? SBP_THUMBBTNHORZ : SBP_THUMBBTNVERT, stateId );
 
-		    QRect gr;
-		    if ( flags & Style_Horizontal ) {
-			gr.setLeft( theme.rec.left() + swidth/2 - 5 );
-			gr.setRight( gr.left() + 10 );
-			gr.setTop( theme.rec.top() + sheight/2 - 3 );
-			gr.setBottom( gr.top() + 6 );
-		    } else {
-			gr.setLeft( theme.rec.left() + swidth/2 - 3 );
-			gr.setRight( gr.left() + 6 );
-			gr.setTop( theme.rec.top() + sheight/2 - 5 );
-			gr.setBottom( gr.top() + 10 );
-		    }
+		    // paint gripper if there is enough space
+		    SIZE size;
+		    GetThemePartSize( theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size );
+		    if ( sheight > size.cy ) {
+			QRect gr;
+			if ( flags & Style_Horizontal ) {
+			    gr.setLeft( theme.rec.left() + swidth/2 - 5 );
+			    gr.setRight( gr.left() + 10 );
+			    gr.setTop( theme.rec.top() + sheight/2 - 3 );
+			    gr.setBottom( gr.top() + 6 );
+			} else {
+			    gr.setLeft( theme.rec.left() + swidth/2 - 3 );
+			    gr.setRight( gr.left() + 6 );
+			    gr.setTop( theme.rec.top() + sheight/2 - 5 );
+			    gr.setBottom( gr.top() + 10 );
+			}
 
-		    theme.rec = gr;
-		    theme.drawBackground( flags & Style_Horizontal ? SBP_GRIPPERHORZ : SBP_GRIPPERVERT, 1 );
+			theme.rec = gr;
+			theme.drawBackground( flags & Style_Horizontal ? SBP_GRIPPERHORZ : SBP_GRIPPERVERT, 1 );
+		    }
 		}
 		if ( sub & SC_ScrollBarGroove ) {
 		    theme.rec = querySubControlMetrics( CC_ScrollBar, w, SC_ScrollBarGroove );
@@ -1700,18 +1705,6 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
     case PM_ScrollBarExtent:
 	{
 	    XPThemeData theme( widget, 0, "SCROLLBAR", SBP_LOWERTRACKHORZ );
-
-	    if ( theme.isValid() ) {
-		SIZE size;
-		pGetThemePartSize( theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size );
-		return size.cy;
-	    }
-	}
-	break;
-
-    case PM_ScrollBarSliderMin:
-	{
-	    XPThemeData theme( widget, 0, "SCROLLBAR", SBP_THUMBBTNVERT );
 
 	    if ( theme.isValid() ) {
 		SIZE size;
