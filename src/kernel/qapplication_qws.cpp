@@ -1725,9 +1725,9 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 #endif
 	if (w) {
 	    widget = w;
-	} else 
+	} else
 #ifndef QT_NO_QWS_MANAGER
-	    if (!wm || !(wm->region().contains(p))) 
+	    if (!wm || !(wm->region().contains(p)))
 #endif
 		{
 	    static int btnstate = 0;
@@ -1753,7 +1753,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		    QPaintDevice::qwsDisplay()->selectCursor(widget, ArrowCursor);
 		}
 	    }
-#endif	    
+#endif	
 	    widget = w;
 	}
     }
@@ -2564,7 +2564,7 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 		&& (widget->topData()->qwsManager->region().contains(globalPos)
 		    || (QWSManager::grabbedMouse() && QWidget::mouseGrabber())) ) {
 		QApplication::sendEvent( widget->topData()->qwsManager, &e );
-	    } else 
+	    } else
 #endif
 		{
 		QApplication::sendEvent( widget, &e );
@@ -2673,7 +2673,7 @@ void QETWidget::repaintDecoration(QRegion r)
 	qt_clear_paintevent_clipping();
 	clearWState( WState_InPaintEvent );
     }
-#endif    
+#endif
 }
 
 
@@ -2894,5 +2894,6 @@ void QApplication::enableEffect( Qt::UIEffect, bool )
 }
 
 bool QApplication::effectEnabled( Qt::UIEffect )
-{    return FALSE;
+{    
+    return FALSE;
 }
