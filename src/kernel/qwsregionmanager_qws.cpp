@@ -162,8 +162,6 @@ void QWSRegionManager::remove( int idx )
 {
     if ( client ) return;
 
-    qDebug( "QWSRegionManager: Removing region %d (%d)", regIdx[idx].id, idx );
-
     regIdx[idx].id = -1;
 }
 

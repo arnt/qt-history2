@@ -67,7 +67,7 @@ MovieScreen::MovieScreen( const QString& fn,
     
     
     connect( mpeg, SIGNAL(finished()), this, SLOT( movieFinished()) );
-    connect( mpeg, SIGNAL(stopped()), this, SLOT( finished()) );
+    connect( mpeg, SIGNAL(stopped()), this, SIGNAL( finished()) );
     vbox->addWidget( mpeg );
     
     

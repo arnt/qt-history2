@@ -740,7 +740,7 @@ void QWSDisplay::defineCursor(int id, const QBitmap &curs, const QBitmap &mask,
 void QWSDisplay::selectCursor( WId winId, unsigned int cursId )
 {
     if ( winId >= INT_MAX ) {
-	qWarning( "QWSDisplay::selectCursor winId %d", int(winId) );
+	// qWarning( "QWSDisplay::selectCursor winId %d", int(winId) );
 	return;
     }
     if (cursId != qt_last_cursor)
