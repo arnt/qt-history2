@@ -624,9 +624,10 @@ bool QObject::event(QEvent *e)
         QMetaCallEvent *mce = static_cast<QMetaCallEvent*>(e);
         QObjectPrivate::Senders *senders = d->senders;
         bool was_active;
-        QObject *sender =
-            QObjectPrivate::setCurrentSender(senders, const_cast<QObject*>(mce->sender()),
-                                             &was_active);
+        QObject *sender = 0;
+        if (senders)
+            sender = QObjectPrivate::setCurrentSender(senders, const_cast<QObject*>(mce->sender()),
+                                                      &was_active);
 #if defined(QT_NO_EXCEPTIONS)
         qt_metacall((e->type() == QEvent::InvokeSlot
                      ? QMetaObject::InvokeSlot
@@ -639,13 +640,15 @@ bool QObject::event(QEvent *e)
                          : QMetaObject::EmitSignal),
                         mce->id(), mce->args());
         } catch (...) {
-            QObjectPrivate::resetCurrentSender(senders->orphaned ? senders : d->senders,
-                                               sender, was_active);
+            if (senders)
+                QObjectPrivate::resetCurrentSender(senders->orphaned ? senders : d->senders,
+                                                   sender, was_active);
             throw;
         }
 #endif
-        QObjectPrivate::resetCurrentSender(senders->orphaned ? senders : d->senders,
-                                           sender, was_active);
+        if (senders)
+            QObjectPrivate::resetCurrentSender(senders->orphaned ? senders : d->senders,
+                                               sender, was_active);
         return true;
     }
 
