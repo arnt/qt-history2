@@ -70,7 +70,7 @@ QHostAddressPrivate::QHostAddressPrivate(const Q_IPV6ADDR &a_) : a(0), isIp4(fal
     to a host.
 
     Host addresses may be set with setAddress() and retrieved with
-    ip4Addr() or toString().
+    toIPv4Address() or toString().
 
     \sa QSocket, QServerSocket, QSocketDevice
 */
@@ -349,12 +349,12 @@ Q_IPV6ADDR QHostAddress::toIPv6Address() const
     For example, if the address is the IPv4 address 127.0.0.1, the
     returned string is "127.0.0.1".
 
-    \sa ip4Addr()
+    \sa toIPv4Address()
 */
 QString QHostAddress::toString() const
 {
     if (d->isIp4) {
-        Q_UINT32 i = ip4Addr();
+        Q_UINT32 i = toIPv4Address();
         QString s;
         s.sprintf("%d.%d.%d.%d", (i>>24) & 0xff, (i>>16) & 0xff,
                 (i >> 8) & 0xff, i & 0xff);
