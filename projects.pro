@@ -21,7 +21,7 @@ unix {
 			&& (cd config.tests/x11/notype && $(MAKE) distclean) \
 			&& (cd qmake && $(MAKE) distclean)
   QMAKE_EXTRA_UNIX_TARGETS += confclean
-  qmakeclean.commands += (cd qmake $(MAKE) clean)
+  qmakeclean.commands += (cd qmake && $(MAKE) clean)
   QMAKE_EXTRA_UNIX_TARGETS += qmakeclean
   CLEAN_DEPS += qmakeclean
 }
