@@ -99,19 +99,46 @@ QPocketPCStyle::~QPocketPCStyle()
 /*! \reimp */
 void QPocketPCStyle::polish( QApplication* )
 {
-    QFont f = QApplication::font();
+    static bool stopRetardedRecursion = FALSE;
+    if ( stopRetardedRecursion ) return; else stopRetardedRecursion = TRUE;
 
+//    QFont f = QApplication::font();
+
+    QFont fa( "Tahoma", 9 );
+    QFont fb( "Tahoma", 9, QFont::Bold );
+    QFont fc( "Tahoma", 8, QFont::Bold  );
+
+    QApplication::setFont( fa );
+    QApplication::setFont( fb, TRUE, "QPopupMenu");
+    QApplication::setFont( fb, TRUE, "QMenuBar");
+    QApplication::setFont( fb, TRUE, "QMessageBox");
+    QApplication::setFont( fb, TRUE, "QTipLabel");
+    QApplication::setFont( fb, TRUE, "QStatusBar");
+    QApplication::setFont( fc, TRUE, "QTabBar" );
+
+/*
     f.setPointSize( f.pointSize() + 1 );
     f.setBold( TRUE );
     QApplication::setFont( f, TRUE, "QPopupMenu" );
     QApplication::setFont( f, TRUE, "QMenuBar" );
 
+    f.setPointSize( f.pointSize() - 2 );
+    f.setBold( FALSE );
+    QApplication::setFont( f, TRUE, "QTabBar" );
+*/
+
     QPalette pal = QApplication::palette();
     pal.setColor( QColorGroup::Background, pal.active().light() );
     // darker basecolor in list-widgets
 //    pal.setColor( QColorGroup::Base, pal.active().base().dark(130) );
-
+/*
+// ####### Temp comment to fix bug in QApp ctor. Uncomment when fixed
     QApplication::setPalette( pal, TRUE );
+    pal = QApplication::palette();
+    pal.setColor( QColorGroup::Button, pal.active().midlight() ); // background() );
+    QApplication::setPalette( pal, TRUE, "QMenuBar" );
+    QApplication::setPalette( pal, TRUE, "QToolBar" );
+*/
 /*
     // different basecolor and highlighting in Q(Multi)LineEdit
     pal.setColor( QColorGroup::Base, QColor(211,181,181) );
@@ -124,10 +151,7 @@ void QPocketPCStyle::polish( QApplication* )
     QApplication::setPalette( pal, TRUE, "QLineEdit" );
     QApplication::setPalette( pal, TRUE, "QMultiLineEdit" );
 */
-    pal = QApplication::palette();
-    pal.setColor( QColorGroup::Button, pal.active().midlight() ); // background() );
-    QApplication::setPalette( pal, TRUE, "QMenuBar" );
-    QApplication::setPalette( pal, TRUE, "QToolBar" );
+    stopRetardedRecursion = FALSE;
 }
 
 
@@ -141,6 +165,8 @@ void QPocketPCStyle::unPolish( QApplication* )
     QApplication::setFont( f, TRUE, "QPopupMenu" );
     QApplication::setFont( f, TRUE, "QMenuBar" );
 //    QApplication::setFont( f, TRUE, "QComboBox" );
+    f.setPointSize( f.pointSize() + 2 );
+    QApplication::setFont( f, TRUE, "QTabBar" );
 }
 
 
@@ -179,7 +205,21 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
 		p->setPen( Qt::black );
 		p->drawRect( r );
 	break;
-    case PE_HeaderSection:
+    case PE_PanelLineEdit:
+    case PE_PanelTabWidget:
+    case PE_WindowFrame:
+	qDrawShadePanel(p, r, cg, (flags & Style_Sunken), 
+	    opt.isDefault() ? pixelMetric(PM_DefaultFrameWidth) : opt.lineWidth());
+	break;
+     case PE_HeaderSection:
+/*
+	p->setBrush( Qt::white );
+	p->setPen( Qt::black );
+	{QRect tempRect = r;
+	tempRect.setRight( r.right() + 1 );
+	p->drawRect( tempRect );}
+	break;
+*/
     case PE_Panel:
     case PE_PanelPopup:
     case PE_PanelMenuBar:
@@ -240,10 +280,17 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
 	p->setPen( Qt::black );
 	p->drawRect( r );
 	// the 3 little lines on the slider button
-	int midy = r.y() + r.height() / 2;
-	p->drawLine( r.x() + 3, midy - 2, r.x() + r.width() - 4, midy - 2 );
-	p->drawLine( r.x() + 3, midy + 0, r.x() + r.width() - 4, midy + 0 );
-	p->drawLine( r.x() + 3, midy + 2, r.x() + r.width() - 4, midy + 2 );
+	if (flags & Style_Horizontal) {
+	    int midx = r.x() + r.width() / 2;
+	    p->drawLine( midx - 2, r.y() + 3, midx - 2, r.y() + r.height() - 4 );
+	    p->drawLine( midx + 0, r.y() + 3, midx + 0, r.y() + r.height() - 4 );
+	    p->drawLine( midx + 2, r.y() + 3, midx + 2, r.y() + r.height() - 4 );
+	} else {
+	    int midy = r.y() + r.height() / 2;
+	    p->drawLine( r.x() + 3, midy - 2, r.x() + r.width() - 4, midy - 2 );
+	    p->drawLine( r.x() + 3, midy + 0, r.x() + r.width() - 4, midy + 0 );
+	    p->drawLine( r.x() + 3, midy + 2, r.x() + r.width() - 4, midy + 2 );
+	}
 	break; }
     case PE_ArrowUp:
 	arrow--;
@@ -544,7 +591,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 	    drawPrimitive(PE_ButtonCommand, p, br, cg, flags);
 	    break;
 	}
-
+/*
     case CE_PushButtonLabel:
 	{
 	    const QPushButton *button = (const QPushButton *) widget;
@@ -581,8 +628,8 @@ void QPocketPCStyle::drawControl( ControlElement element,
 	    }
 
 	    drawItem(p, ir, AlignCenter | ShowPrefix, cg,
-		flags & Style_Enabled, button->pixmap(), button->text(), -1,
-		(flags & Style_Sunken) ? &Qt::white : &Qt::black );
+		     flags & Style_Enabled, button->pixmap(), button->text(),
+		     button->text().length(), (flags & Style_Sunken) ? &Qt::white : &Qt::black );
 
 	    if (button->hasFocus()) {
 		p->setBrush( NoBrush );
@@ -591,7 +638,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 	    }
 	    break;
 	}
-
+*/
 #ifndef QT_NO_TABBAR
     case CE_TabBarTab:
 	{
@@ -603,7 +650,9 @@ void QPocketPCStyle::drawControl( ControlElement element,
 	    if ( selected ) {
 		p->setBrush( Qt::white );
 		p->setPen( Qt::black );
-		p->drawRect( r );
+		p->drawLine( r.topLeft(), r.topRight() );
+		p->drawLine( r.topLeft(), r.bottomLeft() );
+		p->drawLine( r.topRight(), r.bottomRight() );
 	    } else {
 	        p->setBrush( Qt::lightGray );
 		p->setPen( Qt::black );
@@ -994,7 +1043,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 #endif // QT_NO_PROGRESSBAR
 
     default:
-	break;
+	QCommonStyle::drawControl(element, p, widget, r, cg, flags, opt);
 
     }
 }
