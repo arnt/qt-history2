@@ -135,8 +135,7 @@ void ColorSwatch::contextMenuEvent(QContextMenuEvent *event)
 
 void ColorSwatch::polishEvent(QEvent *)
 {
-    // const Qt::DockWindowArea area = mainWindow()->dockWindowArea(this);
-    const Qt::DockWindowArea area = this->area();
+    const Qt::DockWindowArea area = mainWindow()->dockWindowArea(this);
     const Qt::DockWindowAreas areas = allowedAreas();
 
     closableAction->setChecked(hasFeature(QDockWindow::DockWindowClosable));
@@ -194,8 +193,7 @@ void ColorSwatch::place(Qt::DockWindowArea area, bool p)
 {
     if (!p) return;
 
-    setArea(area);
-    // mainWindow()->addDockWindow(area, this);
+    mainWindow()->addDockWindow(area, this);
 
     if (allowedAreasActions->isEnabled()) {
         allowLeftAction->setEnabled(area != Qt::DockWindowAreaLeft);

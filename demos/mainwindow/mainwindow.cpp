@@ -124,9 +124,8 @@ void MainWindow::setupDockWindows()
         ColorSwatch *swatch = new ColorSwatch(tr(sets[i].name), this, Qt::WFlags(sets[i].flags));
         swatch->setAllowedAreas(Qt::DockWindowAreas(sets[i].allowedAreas));
         swatch->setFeatures(QDockWindow::DockWindowFeatures(sets[i].features));
-        swatch->setArea(sets[i].area);
 
-        // addDockWindow(sets[i].area, swatch);
+        addDockWindow(sets[i].area, swatch);
 
         dockWindowMenu->addMenu(swatch->menu);
     }
