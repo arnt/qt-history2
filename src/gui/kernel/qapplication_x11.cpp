@@ -855,7 +855,7 @@ bool QApplication::x11_apply_settings()
         settings.value(QLatin1String("useRtlExtensions"), false).toBool();
 
     qt_has_accelerated_xrender =
-        settings.readBoolEntry("/qt/hasAcceleratedXrender", false);
+        settings.value(QLatin1String("hasAcceleratedXrender"), false).toBool();
 
 #ifndef QT_NO_XIM
     if (xim_preferred_style == 0) {
@@ -1296,7 +1296,7 @@ extern bool qt_app_has_font;
 // ### it because "storage class specifiers invalid in friend function
 // ### declarations" :-) Ideas anyone?
 void qt_init(QApplicationPrivate *priv, int,
-              Display *display, Qt::HANDLE visual, Qt::HANDLE colormap)
+	     Display *display, Qt::HANDLE /*visual*/, Qt::HANDLE /*colormap*/)
 {
     X11 = new QX11Data;
     X11->display = display;
