@@ -58,8 +58,8 @@ correct arguments. Secondly the callback is strongly coupled to the
 processing function since the processing function must know which
 callback to call.
 
-\img callbacks.png
-\caption Old-fashioned callbacks impair component programming
+\img abstract-connections.png
+\caption An abstract view of some signals and slots connections
 
 In Qt we have an alternative to the callback technique. We use signals
 and slots. A signal is emitted when a particular event occurs. Qt's
@@ -68,9 +68,6 @@ add our own. A slot is a function that is called in reponse to a
 particular signal. Qt's widgets have many pre-defined slots, but it is
 common practice to add your own slots so that you can handle the
 signals that you are interested in. 
-
-\img signals-and-slots.png
-\caption Signals and Slots facilitate true type-safe component programming
 
 The signals and slots mechanism is type safe: the signature of a
 signal must match the signature of the receiving slot. (In fact a slot
@@ -91,6 +88,9 @@ to the outside world.  This is all the object does to communicate.  It
 does not know or care whether anything is receiving the signals it
 emits. This is true information encapsulation, and ensures that the
 object can be used as a software component.
+
+\img concrete-connections.png
+\caption An example of signals and slots connections
 
 Slots can be used for receiving signals, but they are normal member
 functions. A slot does not know if it has any signals connected to
