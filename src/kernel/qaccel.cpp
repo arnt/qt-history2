@@ -208,7 +208,11 @@ bool Q_EXPORT qt_tryComposeUnicode( QWidget* w, QKeyEvent*  e){
     Returns TRUE if the accel is in the current subwindow, else FALSE.
 */
 bool QAccelManager::correctSubWindow( QWidget* w, QAccelPrivate* d ) {
+#if !defined ( Q_OS_MACX )
     if ( !d->watch || !d->watch->isVisible() || !d->watch->isEnabled() )
+#else
+    if ( !d->watch || (!d->watch->isVisible() && !d->watch->inherits( "QMenuBar" )) || !d->watch->isEnabled() )
+#endif
 	return FALSE;
     QWidget* tlw = w->topLevelWidget();
     QWidget* wtlw = d->watch->topLevelWidget();
