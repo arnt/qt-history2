@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#15 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -19,7 +19,7 @@
 #include "qobjcoll.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#14 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#15 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -67,9 +67,9 @@ bool QWidget::create()				// create widget
     }
 
     char *title = 0;
-    DWORD style = WS_CHILD | WS_CLIPSIBLINGS;
+    DWORD style = WS_CHILD;
     if ( popup )
-	style = WS_POPUP | WS_CLIPSIBLINGS;
+	style = WS_POPUP;
     else if ( modal )
 	style = WS_DLGFRAME;
     else if ( overlap ) {
@@ -81,7 +81,7 @@ bool QWidget::create()				// create widget
 	setWFlags(WStyle_MinMax);
     }
     if ( !desktop )
-	style |= WS_CLIPCHILDREN;
+	style |= WS_CLIPSIBLINGS /* | WS_CLIPCHILDREN */;
     if ( testWFlags(WStyle_Border) )
 	style |= WS_BORDER;
     if ( testWFlags(WStyle_Title) )
@@ -110,12 +110,19 @@ bool QWidget::create()				// create widget
 	    set_id( id );
     }
     else if ( overlap ) {			// create overlapped widget
-	id = CreateWindow( wcln, title, style,
-			   CW_USEDEFAULT, CW_USEDEFAULT,
-			   CW_USEDEFAULT, CW_USEDEFAULT,
-			   parentwin, 0,
-			   qWinAppInst(), NULL );
-	set_id( id );
+	if ( modal )
+	    id = CreateWindowEx( WS_EX_DLGMODALFRAME, wcln, title, style,
+				 CW_USEDEFAULT, CW_USEDEFAULT,
+				 CW_USEDEFAULT, CW_USEDEFAULT,
+				 parentwin, 0,
+				 qWinAppInst(), 0 );
+	else
+	    id = CreateWindow(	 wcln, title, style,
+				 CW_USEDEFAULT, CW_USEDEFAULT,
+				 CW_USEDEFAULT, CW_USEDEFAULT,
+				 parentwin, 0,
+				 qWinAppInst(), 0 );
+ 	set_id( id );
 	if ( popup ) {
 	    SetWindowPos( id, HWND_TOPMOST, 0, 0, 100, 100,
 			  SWP_NOACTIVATE );
