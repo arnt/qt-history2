@@ -1663,23 +1663,13 @@ void QTextDocument::setRichTextInternal( const QString &text )
 #ifndef QT_NO_TEXTCUSTOMITEM
 		QTextCustomItem* custom =  0;
 #endif
-		// some well-known empty tags
+		// some well-known tags
 		if ( tagname == "br" ) {
 		    emptyTag = TRUE;
 		    hasNewPar = FALSE;
 		    NEWPAR;
 		    curpar->isBr = TRUE;
-#ifndef QT_NO_TEXTCUSTOMITEM
-		}  else if ( tagname == "hr" ) {
-		    emptyTag = TRUE;
-		    custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
-		    NEWPAR;
-		} else if ( tagname == "table" ) {
-		    QTextFormat format = curtag.format.makeTextFormat(  nstyle, attr );
 		    curpar->setAlignment( curtag.alignment );
-		    custom = parseTable( attr, format, doc, pos, curpar );
-		    (void)eatSpace( doc, pos );
-		    emptyTag = TRUE;
 		} else if ( tagname == "qt" ) {
 		    for ( QMap<QString, QString>::Iterator it = attr.begin(); it != attr.end(); ++it ) {
 			if ( it.key() == "bgcolor" ) {
@@ -1721,6 +1711,17 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			    attribs.replace( it.key(), *it );
 			}
 		    }
+#ifndef QT_NO_TEXTCUSTOMITEM
+		}  else if ( tagname == "hr" ) {
+		    emptyTag = TRUE;
+		    custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
+		    NEWPAR;
+		} else if ( tagname == "table" ) {
+		    QTextFormat format = curtag.format.makeTextFormat(  nstyle, attr );
+		    curpar->setAlignment( curtag.alignment );
+		    custom = parseTable( attr, format, doc, pos, curpar );
+		    (void)eatSpace( doc, pos );
+		    emptyTag = TRUE;
 		} else {
 		    custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
 #endif
