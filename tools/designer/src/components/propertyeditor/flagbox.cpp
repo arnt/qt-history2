@@ -12,7 +12,10 @@
 ****************************************************************************/
 
 #include "flagbox_p.h"
+
 #include <QtGui/QAbstractItemView>
+#include <QtGui/QItemDelegate>
+
 #include <QtCore/qdebug.h>
 
 FlagBox::FlagBox(QWidget *parent)
@@ -20,6 +23,10 @@ FlagBox::FlagBox(QWidget *parent)
 {
     m_model = new FlagBoxModel(this);
     setModel(m_model);
+
+#ifdef Q_WS_MAC
+    setItemDelegate(new QItemDelegate(this));
+#endif
 
     connect(this, SIGNAL(activated(int)), this, SLOT(slotActivated(int)));
 }
