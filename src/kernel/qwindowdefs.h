@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#8 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#9 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -135,17 +135,19 @@ class QListM_QPainter;				// internal class for QPainter
 
 typedef short QCOOT;				// coordinate type
 
-char *qAppName();
+char *qAppName();				// get application name
 
 
 // Misc functions
 
-void  qAddPreRoutine( void (*)(...) );
-void  qAddPostRoutine( void (*)(...) );
+void  qAddPreRoutine( void (*)() );
+void  qAddPostRoutine( void (*)() );
 
 class QAddPreRoutine {				// class for registering pre-
 public:						//    routines
-    QAddPreRoutine( void (*p)(...) ) { qAddPreRoutine(p); }
+    typedef void (*vf)();
+    QAddPreRoutine( void (*p)( int, char ** ) ) { qAddPreRoutine((vf)p); }
+    QAddPreRoutine( void (*p)() ) { qAddPreRoutine(p); }
 };
 
 
