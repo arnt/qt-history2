@@ -585,8 +585,6 @@ QPoint QDesignerToolBar::calcIndicatorPos( const QPoint &pos )
 	}
 	return pnt;
     }
-
-    return QPoint( -1, -1 );
 }
 
 void QDesignerToolBar::drawIndicator( const QPoint &pos )
