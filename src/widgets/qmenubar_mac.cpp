@@ -138,12 +138,11 @@ uint QMenuBar::isCommand(QMenuItem *it)
     int st = t.findRev('\t');
     if(st != -1) 
 	t.remove(st, t.length()-st);
+    t.replace(QRegExp("\\.*$"), ""); //no ellipses
     //now the fun part
     uint ret = 0;
-#if 0
     if(t.find("about", 0, FALSE) == 0 && t.find(QRegExp("qt$", FALSE)) == -1) 
 	ret = kHICommandAbout;
-#endif
     if(t.find("config", 0, FALSE) == 0 || t.find("preference", 0, FALSE) == 0 || 
        t.find("options", 0, FALSE) == 0 || t.find("setting", 0, FALSE) == 0) 
 	ret = kHICommandPreferences;
@@ -151,10 +150,11 @@ uint QMenuBar::isCommand(QMenuItem *it)
 	ret = kHICommandQuit;
     //shall we?
     if(ret && activeMenuBar && (!activeMenuBar->mac_d->commands || 
-				!activeMenuBar->mac_d->commands->find(ret))) 
+				!activeMenuBar->mac_d->commands->find(ret))) {
 	EnableMenuCommand(NULL, ret);
-    else 
+    } else {
 	ret = 0;
+    }
     return ret;
 }
 #endif
