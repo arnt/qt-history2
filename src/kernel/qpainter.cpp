@@ -136,7 +136,7 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
     coordsys.html The Coordinate System \endlink for an explanation of
     this, or see below for a very brief overview of the functions.
 
-    \i clipping() is whether the painter clips at all. (The paint
+    \i hasClipping() is whether the painter clips at all. (The paint
     device clips, too.) If the painter clips, it clips to clipRegion().
 
     \i pos() is the current position, set by moveTo() and used by
