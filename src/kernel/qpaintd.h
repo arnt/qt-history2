@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#33 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#34 $
 **
 ** Definition of QPaintDevice class
 **
@@ -76,13 +76,13 @@ protected:
     friend class QPainter;
     friend class QPaintDeviceMetrics;
     friend void bitBlt( QPaintDevice *, int, int, const QPaintDevice *,
-			int, int, int, int, RasterOp );
+			int, int, int, int, RasterOp, bool );
 };
 
 
 void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
-	     RasterOp = CopyROP );
+	     RasterOp = CopyROP, bool ignoreMask=FALSE );
 
 
 // ----------------------------------------------------------------------------
