@@ -14,7 +14,6 @@ public:
 
     void parseCmdLine();
 #if !defined(EVAL)
-    void buildModulesList();
     void validateArgs();
 #endif
     bool displayHelp();

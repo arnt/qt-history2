@@ -114,7 +114,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "LIBPNG" ]	    = "qt";
     dictionary[ "LIBMNG" ]	    = "qt";
 
-    dictionary[ "COMPAT" ]	    = "yes";
+    dictionary[ "QT3SUPPORT" ]	    = "yes";
     dictionary[ "ACCESSIBILITY" ]   = "yes";
     dictionary[ "BIG_CODECS" ]	    = "yes";
     dictionary[ "OPENGL" ]	    = "yes";
@@ -179,8 +179,6 @@ Configure::Configure( int& argc, char** argv )
     readLicense();
     if (!isOk())
         return;
-
-    buildModulesList();
 #endif
 }
 
@@ -210,41 +208,6 @@ QString Configure::firstLicensePath()
     return QString();
 }
 
-
-#if !defined(EVAL)
-void Configure::buildModulesList()
-{
-    QDir dir( dictionary[ "QT_SOURCE_TREE" ] + "/src" );
-    QFileInfoList fiList = dir.entryInfoList();
-    if ( fiList.isEmpty() )
-	return;
-
-
-    licensedModules = QStringList() << "compat"
-                                    << "styles"
-                                    << "tools"
-                                    << "core"
-                                    << "gui"
-                                    << "dialogs"
-                                    << "iconview"
-                                    << "workspace";
-
-    QString products = licenseInfo[ "PRODUCTS" ];
-    if( ( products == "qt-enterprise" || products == "qt-internal" ) && ( dictionary[ "FORCE_PROFESSIONAL" ] != "yes" ) )
-	licensedModules += QStringList() << "network"
-                                         << "canvas"
-                                         << "table"
-                                         << "xml"
-                                         << "opengl"
-                                         << "sql";
-
-    for(int i = 0; i < fiList.size(); ++i) {
-	const QFileInfo &fi = fiList.at(i);
-	if( licensedModules.indexOf( fi.fileName() ) != -1 )
-	    modules += fi.fileName();
-    }
-}
-#endif
 
 // #### somehow I get a compiler error about vc++ reaching the nesting limit without
 // undefining the ansi for scoping.
@@ -862,6 +825,9 @@ void Configure::generateOutputVars()
     if( dictionary[ "LIBJPEG" ] == "system" )
 	qtConfig += "system-jpeg";
 
+    if (dictionary[ "QT3SUPPORT" ] == "yes")
+        qtConfig += "qt3support";
+
  //   if( dictionary[ "MNG" ] == "no" )
 	//qtConfig += "no-mng";
  //   else if( dictionary[ "MNG" ] == "qt" )
@@ -1181,7 +1147,7 @@ void Configure::generateConfigfiles()
             qconfigList += "QT_NO_COMPRESS";
         }
 
-        if(dictionary["COMPAT"] == "no")            qconfigList += "QT_NO_COMPAT";
+        if(dictionary["QT3SUPPORT"] == "no")        qconfigList += "QT_NO_QT3SUPPORT";
         if(dictionary["ACCESSIBILITY"] == "no")     qconfigList += "QT_NO_ACCESSIBILITY";
         if(dictionary["EXCEPTIONS"] == "no")        qconfigList += "QT_NO_EXCEPTIONS";
         if(dictionary["BIG_CODECS"] == "no")        qconfigList += "QT_NO_BIG_CODECS";
@@ -1812,7 +1778,7 @@ void Configure::readLicense()
 	cout << "Enterprise modules will not be available." << endl << endl;
 	licenseInfo[ "PRODUCTS" ] = "qt-professional";
 #endif
-    }
+   }
 
     if( dictionary[ "FORCE_PROFESSIONAL" ] == "yes" )
         licenseInfo[ "PRODUCTS" ]= "qt-professional";
