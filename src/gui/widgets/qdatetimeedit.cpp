@@ -33,7 +33,8 @@ extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
 #  define QDTEDEBUGN if (false) qDebug
 #endif
 #include <qdebug.h>
-static const QChar space = QLatin1Char(' ');
+
+static const char space = ' ';
 
 class QDateTimeEditPrivate : public QAbstractSpinBoxPrivate
 {
@@ -119,6 +120,7 @@ public:
     mutable QVariant cached;
     mutable QString cachedText;
 };
+
 
 
 // --- QDateTimeEdit ---
@@ -721,7 +723,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
     }
 
     bool forward = true;
-    switch((Qt::Key)e->key()) {
+    switch ((Qt::Key)e->key()) {
     case Qt::Key_Enter:
     case Qt::Key_Return:
         d->interpret(AlwaysEmit);
@@ -834,7 +836,7 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *e)
     Q_D(QDateTimeEdit);
     QAbstractSpinBox::focusInEvent(e);
     QDateTimeEditPrivate::Section s;
-    switch(e->reason()) {
+    switch (e->reason()) {
     case Qt::ShortcutFocusReason:
     case Qt::TabFocusReason: s = d->sections.first().section; break;
     case Qt::BacktabFocusReason: s = d->sections.at(d->sections.size() - 1).section; break;
@@ -1332,11 +1334,11 @@ void QDateTimeEditPrivate::readLocaleSettings()
     QVariant var(QDate(2004, 02, 02));
     int digit = getDigit(var, Year);
     // digit = 2004
-*/
+  */
 
 int QDateTimeEditPrivate::getDigit(const QVariant &t, Section s) const
 {
-    switch(s) {
+    switch (s) {
     case HourSection: {
         int h = t.toTime().hour();
         if (display & AmPmSection) {
@@ -1390,7 +1392,7 @@ void QDateTimeEditPrivate::setDigit(QVariant &v, Section section, int newVal) co
     second = dt.time().second();
     msec = dt.time().msec();
 
-    switch(section) {
+    switch (section) {
     case HourSection: hour = newVal; break;
     case MinuteSection: minute = newVal; break;
     case SecondSection: second = newVal; break;
@@ -1547,7 +1549,7 @@ QVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
 
 int QDateTimeEditPrivate::absoluteMax(Section s) const
 {
-    switch(s) {
+    switch (s) {
     case HourSection: return 23;
     case MinuteSection:
     case SecondSection: return 59;
@@ -1574,7 +1576,7 @@ int QDateTimeEditPrivate::absoluteMax(Section s) const
 
 int QDateTimeEditPrivate::absoluteMin(Section s) const
 {
-    switch(s) {
+    switch (s) {
     case HourSection:
     case MinuteSection:
     case SecondSection:
@@ -2580,7 +2582,7 @@ QValidator::State QDateTimeEditPrivate::checkIntermediate(const QDateTime &dt,
 
 QString QDateTimeEditPrivate::sectionName(int s)
 {
-    switch(s) {
+    switch (s) {
     case QDateTimeEditPrivate::AmPmSection: return "AmPmSection";
     case QDateTimeEditPrivate::AmPmLowerCaseSection: return "AmPmLowerCaseSection";
     case QDateTimeEditPrivate::DaySection: return "DaySection";
@@ -2606,7 +2608,7 @@ QString QDateTimeEditPrivate::sectionName(int s)
 
 QString QDateTimeEditPrivate::stateName(int s)
 {
-    switch(s) {
+    switch (s) {
     case QValidator::Invalid: return "Invalid";
     case QValidator::Intermediate: return "Intermediate";
     case QValidator::Acceptable: return "Acceptable";

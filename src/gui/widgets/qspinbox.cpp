@@ -24,6 +24,7 @@
 #  define QSBDEBUG if (false) qDebug
 #endif
 
+static const char dot = '.';
 
 class QSpinBoxPrivate : public QAbstractSpinBoxPrivate
 {
@@ -38,7 +39,6 @@ public:
                                   QValidator::State &state) const;
 };
 
-static const QLatin1Char dot('.');
 class QDoubleSpinBoxPrivate : public QAbstractSpinBoxPrivate
 {
     Q_DECLARE_PUBLIC(QDoubleSpinBox)
@@ -57,6 +57,7 @@ public:
     int decimals;
     QChar delimiter, thousand;
 };
+
 
 /*!
     \class QSpinBox
