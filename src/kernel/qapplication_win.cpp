@@ -122,6 +122,20 @@ extern IAccessible *qt_createWindowsAccessible( QAccessibleInterface *object );
 #ifndef WM_THEMECHANGED
 #define WM_THEMECHANGED                 0x031A
 #endif
+
+// support for xbuttons
+#ifndef WM_XBUTTONDOWN
+#define WM_XBUTTONDOWN                  0x020B
+#define WM_XBUTTONUP                    0x020C
+#define WM_XBUTTONDBLCLK                0x020D
+#define GET_KEYSTATE_WPARAM(wParam)     (LOWORD(wParam))
+#define GET_XBUTTON_WPARAM(wParam)      (HIWORD(wParam))
+#define XBUTTON1      0x0001
+#define XBUTTON2      0x0002
+#define MK_XBUTTON1         0x0020
+#define MK_XBUTTON2         0x0040
+#endif
+
 // support for multi-media-keys on ME/2000/XP
 #ifndef WM_APPCOMMAND
 #define WM_APPCOMMAND                   0x0319
@@ -164,6 +178,7 @@ extern IAccessible *qt_createWindowsAccessible( QAccessibleInterface *object );
 static UINT WM95_MOUSEWHEEL = 0;
 
 extern void qt_dispatchEnterLeave( QWidget*, QWidget* ); // qapplication.cpp
+static int translateButtonState( int s, int type, int button );
 
 /*
   Internal functions.
@@ -1894,16 +1909,19 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
     case WM_RBUTTONDOWN:
+    case WM_XBUTTONDOWN:
 	if ( ignoreNextMouseReleaseEvent )
 	    ignoreNextMouseReleaseEvent = FALSE;
 	break;
     case WM_LBUTTONUP:
     case WM_MBUTTONUP:
     case WM_RBUTTONUP:
+    case WM_XBUTTONUP:
 	if ( ignoreNextMouseReleaseEvent ) {
 	    ignoreNextMouseReleaseEvent = FALSE;
 	    RETURN(0);
 	}
+	break;
 
     default:
 	break;
@@ -1948,7 +1966,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	if ( type >= 0 )
 	    sn_activate_fd( wParam, type );
     } else {
-	if ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST
+	if ( ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ||
+	       message >= WM_XBUTTONDOWN && message <= WM_XBUTTONDBLCLK )
 	     && message != WM_MOUSEWHEEL ) {
 	    if ( qApp->activePopupWidget() != 0) { // in popup mode
 		POINT curPos;
@@ -1967,7 +1986,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    if ( widget->isEnabled() &&
 		 (message == WM_LBUTTONDOWN ||
 		  message == WM_MBUTTONDOWN ||
-		  message == WM_RBUTTONDOWN) ) {
+		  message == WM_RBUTTONDOWN ||
+		  message == WM_XBUTTONDOWN ) ) {
 		QWidget* w = widget;
 		while ( w->focusProxy() )
 		    w = w->focusProxy();
@@ -2014,11 +2034,12 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    uint uDevice = GET_DEVICE_LPARAM(lParam);
 		    uint dwKeys = GET_KEYSTATE_LPARAM(lParam);
 
+		    int state = translateButtonState( dwKeys, QEvent::KeyPress, 0 );
+
 		    switch ( uDevice ) {
 		    case FAPPCOMMAND_KEY:
 			{
 			    int key = 0;
-			    int state = 0;
 
 			    switch( cmd ) {
 			    case APPCOMMAND_BASS_BOOST:
@@ -3036,6 +3057,9 @@ static ushort mouseTbl[] = {
     WM_MBUTTONDOWN,	QEvent::MouseButtonPress,	Qt::MidButton,
     WM_MBUTTONUP,	QEvent::MouseButtonRelease,	Qt::MidButton,
     WM_MBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	Qt::MidButton,
+    WM_XBUTTONDOWN,	QEvent::MouseButtonPress,	0, //### Qt::XButton
+    WM_XBUTTONUP,	QEvent::MouseButtonRelease,	0,
+    WM_XBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	0,
     0,			0,				0
 };
 
@@ -3052,6 +3076,12 @@ static int translateButtonState( int s, int type, int button )
 	bst |= Qt::ShiftButton;
     if ( s & MK_CONTROL )
 	bst |= Qt::ControlButton;
+
+    if ( s & MK_XBUTTON1 )
+	bst |= 0;//### Qt::XButton;
+    if ( s & MK_XBUTTON2 )
+	bst |= 0;//### Qt::XButton;
+
     if ( GetKeyState(VK_MENU) < 0 )
 	bst |= Qt::AltButton;
 
@@ -3065,8 +3095,6 @@ static int translateButtonState( int s, int type, int button )
 
     return bst;
 }
-
-
 
 // In DnD, the mouse release event never appears, so the
 // mouse button state machine must be manually reset
@@ -3133,9 +3161,19 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	return FALSE;
     type   = (QEvent::Type)mouseTbl[++i];	// event type
     button = mouseTbl[++i];			// which button
+    if ( !button ) {
+	switch( GET_XBUTTON_WPARAM( msg.wParam ) ) {
+	case XBUTTON1:
+	    //###button = XButton1;
+	    break;
+	case XBUTTON2:
+	    //###button = XButton2;
+	    break;
+	}
+    }
     state  = translateButtonState( msg.wParam, type, button ); // button state    
     if ( type == QEvent::MouseMove ) {
-	if ( !(state & (LeftButton | MidButton | RightButton) ) )
+	if ( !(state & (LeftButton | MidButton | RightButton) ) ) //### | XButton
 	    qt_button_down = 0;
 	QCursor *c = qt_grab_cursor();
 	if ( !c )
@@ -3261,6 +3299,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	int bs = state & (Qt::LeftButton
 			| Qt::RightButton
 			| Qt::MidButton);
+	// ###		| Qt::XButton
 	if ( (type == QEvent::MouseButtonPress ||
 	      type == QEvent::MouseButtonDblClick) && bs == 0 ) {
 	    if ( QWidget::mouseGrabber() == 0 )
@@ -3282,7 +3321,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	if ( type == QEvent::MouseButtonRelease &&
 	     (state & (~button) & ( LeftButton |
 				    MidButton |
-				    RightButton)) == 0 ) {
+				    RightButton)) == 0 ) { //### | XButton
 	    qt_button_down = 0;
 	}
 
