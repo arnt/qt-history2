@@ -41,14 +41,37 @@ OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.
 	metrowerks_xml.obj pbuilder_pbx.obj msvc_objectmodel.obj property.obj meta.obj qtmd5.obj makefiledeps.obj
 
 #qt code
-QTOBJS=qchar.obj qstring.obj quuid.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qbytearray.obj qcstring.obj qdatastream.obj \
-	qgarray.obj qbuffer.obj qglist.obj qlist.obj qptrcollection.obj qfile.obj qfile_win.obj qregexp.obj qgvector.obj \
-	qvector.obj qbitarray.obj qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj qhash.obj \
-	qstringlist.obj qmap.obj qlibrary.obj qlibrary_win.obj qconfig.obj qsettings.obj qsettings_win.obj qunicodetables.obj qlinkedlist.obj \
-	qlocale.obj
-
-
-
+QTOBJS= \
+	qbitarray.obj \
+	qbuffer.obj \
+	qbytearray.obj \
+	qchar.obj \
+	qconfig.obj \
+	qdatastream.obj \
+	qdatetime.obj \
+	qdir.obj \
+	qdir_win.obj \
+	qfile.obj \
+	qfile_win.obj \
+	qfileinfo.obj \
+	qfileinfo_win.obj \
+	qglobal.obj \
+	qhash.obj \
+	qiodevice.obj \
+	qlibrary.obj \
+	qlibrary_win.obj \
+	qlist.obj \
+	qlocale.obj \
+	qmap.obj \
+	qregexp.obj \
+	qsettings.obj \
+	qsettings_win.obj \
+	qstring.obj \
+	qstringlist.obj \
+	qtextstream.obj \
+	qunicodetables.obj \
+	quuid.obj \
+	qvector.obj 
 
 qmake.exe: $(OBJS) $(QTOBJS)
 	$(LINKQMAKE)
