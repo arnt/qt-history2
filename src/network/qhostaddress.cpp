@@ -186,7 +186,8 @@ void QHostAddress::setAddress( Q_UINT8 *ip6Addr )
 
 static bool parseIp4(const QString& address, Q_UINT32 *addr)
 {
-    QStringList ipv4 = QStringList::split(".", address, FALSE);
+    QStringList ipv4 = address.split(".");
+    ipv4.remove(QString()); // Remove empties
     if (ipv4.count() == 4) {
 	int i = 0;
 	bool ok = TRUE;
@@ -224,7 +225,7 @@ bool QHostAddress::setAddress(const QString& address)
     }
 
     // try ipv6
-    QStringList ipv6 = QStringList::split(":", a, TRUE);
+    QStringList ipv6 = a.split(":");
     int count = ipv6.count();
     if (count < 3)
 	return FALSE; // there must be at least two ":"

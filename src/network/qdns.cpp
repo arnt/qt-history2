@@ -2337,12 +2337,12 @@ void QDns::doResInit()
 	}
     }
 
-    nameServer = nameServer.simplifyWhiteSpace();
+    nameServer = nameServer.simplified();
     int first, last;
     if ( !nameServer.isEmpty() ) {
 	first = 0;
 	do {
-	    last = nameServer.find( separator, first );
+	    last = nameServer.indexOf(separator, first);
 	    if ( last < 0 )
 		last = nameServer.length();
 	    QDns tmp( nameServer.mid( first, last-first ), QDns::A );
@@ -2355,10 +2355,10 @@ void QDns::doResInit()
     }
 
     searchList = searchList + QLatin1String(" ") + domainName;
-    searchList = searchList.simplifyWhiteSpace().toLower();
+    searchList = searchList.simplified().toLower();
     first = 0;
     do {
-	last = searchList.find( separator, first );
+	last = searchList.indexOf( separator, first );
 	if ( last < 0 )
 	    last = searchList.length();
 	domains->append( qstrdup( searchList.mid( first, last-first ).latin1() ) );

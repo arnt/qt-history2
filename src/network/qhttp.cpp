@@ -422,9 +422,10 @@ bool QHttpHeader::parse( const QString& str )
     QStringList lst;
     int pos = str.indexOf( '\n' );
     if ( pos > 0 && str.at( pos - 1 ) == '\r' )
-	lst = QStringList::split( "\r\n", str.trimmed(), FALSE );
+	lst = str.trimmed().split("\r\n"); 
     else
-	lst = QStringList::split( "\n", str.trimmed(), FALSE );
+	lst = str.trimmed().split("\n"); 
+    lst.remove(QString()); // No empties
 
     if ( lst.isEmpty() )
 	return TRUE;
@@ -939,7 +940,7 @@ bool QHttpRequestHeader::parseLine( const QString& line, int number )
     if ( number != 0 )
 	return QHttpHeader::parseLine( line, number );
 
-    QStringList lst = QStringList::split( " ", line.simplified() );
+    QStringList lst = line.simplified().split(" ");
     if ( lst.count() > 0 ) {
 	m = lst[0];
 	if ( lst.count() > 1 ) {
