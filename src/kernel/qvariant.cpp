@@ -177,6 +177,9 @@ QVariant::Private::Private( Private* d )
 	case QVariant::SizePolicy:
 	    value.ptr = new QSizePolicy( *((QSizePolicy*)d->value.ptr) );
 	    break;
+	case QVariant::Cursor:
+	    value.ptr = new QCursor( *((QCursor*)d->value.ptr) );
+	    break;
 	default:
 	    Q_ASSERT( 0 );
 	}
