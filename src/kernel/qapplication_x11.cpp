@@ -683,7 +683,7 @@ static bool qt_set_desktop_properties()
     unsigned long nitems, after;
     unsigned char *data;
 
-    bool read_settings = FALSE, success = FALSE;
+    bool read_settings = FALSE, success = FALSE, prop_exists = FALSE;
 
     int e = XGetWindowProperty(appDpy, appRootWin, qt_desktop_prop_stamp, 0, 1,
 			       FALSE, AnyPropertyType, &type, &format, &nitems,
@@ -721,17 +721,17 @@ static bool qt_set_desktop_properties()
 	read_settings = TRUE;
     }
 
-    if (! read_settings) {
-	int e = XGetWindowProperty(appDpy, appRootWin, qt_desktop_properties, 0, 1,
-				   FALSE, AnyPropertyType, &type, &format, &nitems,
-				   &after, &data);
-	if (data) {
-	    XFree(data);
-	}
+    e = XGetWindowProperty(appDpy, appRootWin, qt_desktop_properties, 0, 1,
+			       FALSE, AnyPropertyType, &type, &format, &nitems,
+			       &after, &data);
+    if (data) {
+	XFree(data);
+    }
 
-	if (e != Success || ! nitems) {
-	    read_settings = TRUE;
-	}
+    if (e != Success || ! nitems) {
+	read_settings = TRUE;
+    } else {
+	prop_exists = TRUE;
     }
 
     if (read_settings) {
@@ -918,7 +918,9 @@ static bool qt_set_desktop_properties()
 			    (unsigned char *) stamp.buffer().data(),
 			    stamp.buffer().size());
 	}
-    } else {
+    }
+
+    if (! success && prop_exists) {
 	QBuffer prop;
 	prop.open(IO_WriteOnly);
 	offset = 0;
