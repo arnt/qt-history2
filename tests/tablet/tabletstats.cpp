@@ -18,6 +18,8 @@
 MyOrientation::MyOrientation( QWidget *parent, const char *name )
     : QFrame( parent, name, WRepaintNoErase )
 {
+//    QSizePolicy mySize( QSizePolicy::Minimum, QSizePolicy::Expanding );
+//    setSizePolicy( mySize );
     setFrameStyle( QFrame::Box | QFrame::Sunken );
 }
 
@@ -27,7 +29,7 @@ MyOrientation::~MyOrientation()
 
 void MyOrientation::newOrient( int tiltX, int tiltY )
 {    
-    
+    qDebug( "here" );
     double PI = 3.14159265359;
     int realWidth,
         realHeight,
@@ -70,13 +72,24 @@ void MyOrientation::newOrient( int tiltX, int tiltY )
 }
 
 
+StatsCanvas::StatsCanvas( QWidget *parent, const char* name )
+  : Canvas( parent, name, WRepaintNoErase )
+{
+    QSizePolicy mySize( QSizePolicy::Expanding, QSizePolicy::Minimum );
+    setSizePolicy( mySize );
+}
+
+StatsCanvas::~StatsCanvas()
+{
+}
+
 void StatsCanvas::tabletEvent( QTabletEvent *e )
 {
     static QRect oldR( -1, -1, -1, -1);
     QPainter p;
     
     e->accept();
-    r.setRect( e->x() - e->pressure() / 2, 
+    r.setRect( e->x() - e->pressure() / 2,
 	e->y() - e->pressure() / 2, e->pressure(), e->pressure() );
     QRect tmpR = r | oldR;
     oldR = r;
@@ -122,6 +135,15 @@ void StatsCanvas::paintEvent( QPaintEvent *e )
 TabletStats::TabletStats( QWidget *parent, const char *name )
 	: TabletStatsBase( parent, name )
 {
+    lblXPos->setMinimumSize( lblXPos->sizeHint() );
+    lblYPos->setMinimumSize( lblYPos->sizeHint() );
+    lblPressure->setMinimumSize( lblPressure->sizeHint() );
+    lblDev->setMinimumSize( lblDev->sizeHint() );
+    lblXTilt->setMinimumSize( lblXTilt->sizeHint() );
+    lblYTilt->setMinimumSize( lblYTilt->sizeHint() );
+
+    QObject::connect( statCan, SIGNAL(signalNewTilt(int, int)),
+	              orient, SLOT(newOrient(int, int)) );
     QObject::connect( statCan, SIGNAL(signalNewTilt(int, int)),
 	              this, SLOT(slotTiltChanged(int, int)) );
     QObject::connect( statCan, SIGNAL(signalNewDev(int)),

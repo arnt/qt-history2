@@ -34,9 +34,8 @@ class StatsCanvas : public Canvas
 {
     Q_OBJECT
 public:
-    StatsCanvas( QWidget *parent = 0, const char* name = 0 ) : Canvas( parent, name, WRepaintNoErase )
-    {};
-    ~StatsCanvas() {};
+    StatsCanvas( QWidget *parent = 0, const char* name = 0 );
+    ~StatsCanvas();
 signals:
     void signalNewPressure( int );
     void signalNewTilt( int, int );

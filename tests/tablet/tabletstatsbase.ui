@@ -1,6 +1,5 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>TabletStatsBase</class>
-<include location="local" implDecl="in declaration">tabletstatsbase.ui.h</include>
 <layoutdefaults spacing="6" margin="11"/>
 <widget class="QWidget">
     <property name="name">
@@ -10,8 +9,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>669</width>
-            <height>533</height>
+            <width>657</width>
+            <height>527</height>
         </rect>
     </property>
     <property name="caption">
@@ -59,12 +58,6 @@
                             <property name="name">
                                 <cstring>TextLabel1</cstring>
                             </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>5</hsizetype>
-                                    <vsizetype>1</vsizetype>
-                                </sizepolicy>
-                            </property>
                             <property name="text">
                                 <string>X Pos:</string>
                             </property>
@@ -73,14 +66,8 @@
                             <property name="name">
                                 <cstring>lblXPos</cstring>
                             </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>5</hsizetype>
-                                    <vsizetype>1</vsizetype>
-                                </sizepolicy>
-                            </property>
                             <property name="text">
-                                <string>Touch The Canvas</string>
+                                <string>0</string>
                             </property>
                         </widget>
                     </hbox>
@@ -103,12 +90,6 @@
                             <property name="name">
                                 <cstring>TextLabel3</cstring>
                             </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>5</hsizetype>
-                                    <vsizetype>1</vsizetype>
-                                </sizepolicy>
-                            </property>
                             <property name="text">
                                 <string>Y Pos:</string>
                             </property>
@@ -117,14 +98,8 @@
                             <property name="name">
                                 <cstring>lblYPos</cstring>
                             </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>5</hsizetype>
-                                    <vsizetype>1</vsizetype>
-                                </sizepolicy>
-                            </property>
                             <property name="text">
-                                <string>Touch The Canvas</string>
+                                <string>0</string>
                             </property>
                         </widget>
                     </hbox>
@@ -147,12 +122,6 @@
                             <property name="name">
                                 <cstring>TextLabel5</cstring>
                             </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>5</hsizetype>
-                                    <vsizetype>1</vsizetype>
-                                </sizepolicy>
-                            </property>
                             <property name="text">
                                 <string>Pressure:</string>
                             </property>
@@ -161,14 +130,8 @@
                             <property name="name">
                                 <cstring>lblPressure</cstring>
                             </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>5</hsizetype>
-                                    <vsizetype>1</vsizetype>
-                                </sizepolicy>
-                            </property>
                             <property name="text">
-                                <string>Touch The Canvas</string>
+                                <string>0</string>
                             </property>
                         </widget>
                     </hbox>
@@ -191,12 +154,6 @@
                             <property name="name">
                                 <cstring>TextLabel7</cstring>
                             </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>5</hsizetype>
-                                    <vsizetype>1</vsizetype>
-                                </sizepolicy>
-                            </property>
                             <property name="text">
                                 <string>Device:</string>
                             </property>
@@ -205,14 +162,8 @@
                             <property name="name">
                                 <cstring>lblDev</cstring>
                             </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>5</hsizetype>
-                                    <vsizetype>1</vsizetype>
-                                </sizepolicy>
-                            </property>
                             <property name="text">
-                                <string>Touch The Canvas</string>
+                                <string>0</string>
                             </property>
                         </widget>
                     </hbox>
@@ -220,12 +171,6 @@
                 <widget class="QLabel">
                     <property name="name">
                         <cstring>TextLabel9</cstring>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>1</vsizetype>
-                        </sizepolicy>
                     </property>
                     <property name="text">
                         <string>Tilt Information</string>
@@ -252,12 +197,6 @@
                             <property name="name">
                                 <cstring>TextLabel10</cstring>
                             </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>5</hsizetype>
-                                    <vsizetype>1</vsizetype>
-                                </sizepolicy>
-                            </property>
                             <property name="text">
                                 <string>X Tilt:</string>
                             </property>
@@ -266,25 +205,13 @@
                             <property name="name">
                                 <cstring>lblXTilt</cstring>
                             </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>5</hsizetype>
-                                    <vsizetype>1</vsizetype>
-                                </sizepolicy>
-                            </property>
                             <property name="text">
-                                <string>Touch The Canvas</string>
+                                <string>000</string>
                             </property>
                         </widget>
                         <widget class="QLabel">
                             <property name="name">
                                 <cstring>TextLabel12</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>5</hsizetype>
-                                    <vsizetype>1</vsizetype>
-                                </sizepolicy>
                             </property>
                             <property name="text">
                                 <string>Y Tilt:</string>
@@ -294,14 +221,8 @@
                             <property name="name">
                                 <cstring>lblYTilt</cstring>
                             </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>5</hsizetype>
-                                    <vsizetype>1</vsizetype>
-                                </sizepolicy>
-                            </property>
                             <property name="text">
-                                <string>Touch The Canvas</string>
+                                <string>000</string>
                             </property>
                         </widget>
                     </hbox>
@@ -334,6 +255,10 @@
             <verdata>7</verdata>
         </sizepolicy>
         <pixmap>image0</pixmap>
+        <slot access="public" specifier="">slotNewOrient( int, int )</slot>
+        <slot access="public" specifier="">slotNewOrient( int, int )</slot>
+        <slot access="public" specifier="">slotNewOrient( int, int )</slot>
+        <slot access="public" specifier="">slotNewOrient( int, int )</slot>
     </customwidget>
     <customwidget>
         <class>StatsCanvas</class>
