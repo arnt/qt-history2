@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#74 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#75 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#74 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#75 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -1148,6 +1148,5 @@ QSize QLineEdit::sizeHint() const
 {
     int h = fontMetrics().height();
     int margin = frame() ? 8 : 4;
-    debug( "h = %d", h );
     return QSize( 10*h + margin, h + margin );
 }
