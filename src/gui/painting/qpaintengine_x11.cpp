@@ -1137,6 +1137,8 @@ void QX11PaintEngine::updateRenderHints(QPainter::RenderHints hints)
         if (dst)
             XRenderChangePicture(d->dpy, dst, CPPolyEdge, &attrs);
     }
+#else
+    Q_UNUSED(hints);
 #endif
 }
 
