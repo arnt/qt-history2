@@ -30,7 +30,7 @@ public: \
     inline Q##C##Iterator(const Q##C<T> &container) \
         : c(container), i(c.constBegin()) {} \
     inline void operator=(const Q##C<T> &container) \
-    { c = container.c; i = c.constBegin(); } \
+    { c = container; i = c.constBegin(); } \
     inline void toFront() { i = c.constBegin(); } \
     inline void toBack() { i = c.constEnd(); } \
     inline bool hasNext() const { return i != c.constEnd(); } \
