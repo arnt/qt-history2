@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#24 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#25 $
 **
 ** Definition of QTabDialog class
 **
@@ -50,9 +50,6 @@ public:
 
     void setOKButton( const char * text = "OK" );
     bool hasOKButton() const;
-
-    void setMargins( int l, int r, int t, int b );
-    void getMargins( int& l, int& r, int& t, int& b ) const;
 
 protected:
     void paintEvent( QPaintEvent * );

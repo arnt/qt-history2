@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#46 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#47 $
 **
 ** Implementation of QTabDialog class
 **
@@ -14,8 +14,9 @@
 #include "qpushbt.h"
 #include "qpainter.h"
 #include "qpixmap.h"
+#include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#46 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#47 $");
 
 
 /*!
@@ -369,10 +370,24 @@ void QTabDialog::showTab( int i )
     if ( d && (uint)i < d->children.size() ) {
 	d->children[i]->setGeometry( childRect() );
 	d->children[i]->show();
-	d->children[i]->raise();
+	QWidget * f = qApp ? qApp->focusWidget() : 0;
+	while ( f && f->parent() != this )
+	    f = f->parentWidget();
 	for ( int t = 0; t< (int)d->children.size(); t++ )
-	    if ( i != t )
-		d->children[t]->hide();
+	    if ( i != t ) {
+		if ( f == d->children[t] ) {
+		    // move focus to first object on the incoming page,
+		    // without ugly flicker.
+		    bool b = d->tabs->isUpdatesEnabled();
+		    d->tabs->setUpdatesEnabled( FALSE );
+		    d->tabs->setFocus();
+		    d->children[t]->hide();
+		    focusNextPrevChild( TRUE );
+		    d->tabs->setUpdatesEnabled( b );
+		} else if ( d->children[t]->isVisible() ) {
+		    d->children[t]->hide();
+		}
+	    }
 	emit selected( d->tabs->tab( i )->label );
     }
 }
@@ -887,27 +902,4 @@ void QTabDialog::styleChange( GUIStyle s )
 {
     QDialog::styleChange( s );
     setSizes();
-}
-
-/*!
-  Set the margins.
-*/
-void QTabDialog::setMargins( int left, int right, int top, int bottom )
-{
-    d->l_marg = (QCOORD)left;
-    d->r_marg = (QCOORD)right;
-    d->t_marg = (QCOORD)top;
-    d->b_marg = (QCOORD)bottom;
-    setSizes();
-}
-
-/*!
-  Get the margins.
-*/
-void QTabDialog::getMargins( int& left, int& right, int& top, int& bottom ) const
-{
-    left = d->l_marg;
-    right = d->r_marg;
-    top = d->t_marg;
-    bottom = d->b_marg;
 }
