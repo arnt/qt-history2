@@ -255,11 +255,6 @@ QWSDisplay *QPaintDevice::qwsDisplay()
     return qt_fbdpy;
 }
 
-Qt::HANDLE QPaintDevice::handle() const
-{
-    return 0;
-}
-
 /*!
     \internal
 */

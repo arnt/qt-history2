@@ -105,7 +105,7 @@ public:
 QWSPaintEngine::QWSPaintEngine(QPaintEnginePrivate &dptr)
     : QPaintEngine(dptr, UsesFontEngine)
 {
-    d->pdev = pdev;
+//    d->pdev = pdev;
 //        qDebug("QWSPaintEngine::QWSPaintEngine");
 }
 
