@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#305 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#306 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2652,7 +2652,6 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
     const QTextCodec* mapper = cfont.d->mapper();
     if ( mapper ) {
 	// translate from Unicode to font charset encoding here
-//debug("Drawing text with mapper %s",mapper->name());
 	mapped = mapper->fromUnicode(str,len);
     }
 
