@@ -81,7 +81,7 @@
             </sizepolicy>
           </property>
           <property name="text" >
-            <string>&lt;p>Qt Commercial Edition license holders: This program is licensed to you under the terms of the Qt Commercial License Agreement. For details, see the file LICENSE that came with this software distribution.&lt;/p>&lt;p>&lt;/p>&lt;p>Qt Free Edition users: This program is licensed to you under the terms of the GNU General Public License Version 2. For details, see the file LICENSE.GPL that came with this software distribution.&lt;/p>&lt;p>The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;/p></string>
+            <string>&lt;p>Qt Commercial Edition license holders: This program is licensed to you under the terms of the Qt Commercial License Agreement. For details, see the file LICENSE that came with this software distribution.&lt;/p>&lt;p>&lt;/p>&lt;p>Qt Open Source Edition users: This program is licensed to you under the terms of the GNU General Public License Version 2. For details, see the file LICENSE.GPL that came with this software distribution.&lt;/p>&lt;p>The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;/p></string>
           </property>
         </widget>
       </item>
