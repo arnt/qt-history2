@@ -553,7 +553,7 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 // 	QBrush defaultBrush;
 // 	ps->brush = defaultBrush;
 //     }
-    if (w && (unclipped/* || w->testWFlags(WPaintUnclipped)*/)) {  // paint direct on device
+    if (w && (unclipped || w->testWFlags(WPaintUnclipped))) {  // paint direct on device
 	setf(NoCache);
 	setf(UsePrivateCx);
 	updatePen(ps);
@@ -699,9 +699,7 @@ void QX11GC::drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, const Q
         else
             d->cpen.setColor(black);
     }
-    QPainterState ps; // ### hacky, backy - find a better way
-    ps.pen = d->cpen;
-    updatePen(&ps);
+    updatePen(0);
 
     if (w <= 0 || h <= 0) {
         if (w == 0 || h == 0)
@@ -714,13 +712,13 @@ void QX11GC::drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, const Q
     XDrawRectangle(d->dpy, d->hd, d->gc, x, y, w-1, h-1);
     XSetLineAttributes(d->dpy, d->gc, 0, LineSolid, CapButt, JoinMiter);
     setRasterOp(old_rop);
-    ps.pen = old_pen;
-    updatePen(&ps);
+    updatePen(0);
 }
 
 void QX11GC::updatePen(QPainterState *state)
 {
-    d->cpen = state->pen;
+    if (state)
+	d->cpen = state->pen;
 
     int ps = d->cpen.style();
     bool cacheIt = !testf(ClipOn|MonoDev|NoCache) &&
@@ -873,8 +871,10 @@ void QX11GC::updatePen(QPainterState *state)
 
 void QX11GC::updateBrush(QPainterState *ps)
 {
-    d->cbrush = ps->brush;
-    d->bg_brush = ps->bgBrush;
+    if (ps) {
+	d->cbrush = ps->brush;
+	d->bg_brush = ps->bgBrush;
+    }
 
     static const uchar dense1_pat[] = { 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff };
     static const uchar dense2_pat[] = { 0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd, 0xff };
@@ -1113,11 +1113,11 @@ void QX11GC::setRasterOp(RasterOp r)
         return;
     }
     d->rop = r;
-//  This won't work - guaranteed
-//     if (d->penRef)
-//         updatePen(0);                            // get non-cached pen GC
-//     if (d->brushRef)
-//         updateBrush(0);                          // get non-cached brush GC
+
+    if (d->penRef)
+        updatePen(0);                            // get non-cached pen GC
+    if (d->brushRef)
+        updateBrush(0);                          // get non-cached brush GC
     XSetFunction(d->dpy, d->gc, ropCodes[d->rop]);
     XSetFunction(d->dpy, d->gc_brush, ropCodes[d->rop]);
 }
@@ -1478,7 +1478,6 @@ void QX11GC::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int
             else
                 rgn = *paintEventClipRegion;
         }
-	QRect rg = rgn.boundingRect();
 
         QBitmap *comb = new QBitmap( sw, sh );
         comb->detach();
@@ -1568,10 +1567,14 @@ void QX11GC::updateClipRegion(QPainterState *ps)
     clearf(ClipOn);
     d->crgn = ps->clipRegion;
     if (ps->clipEnabled) {
+	setf(ClipOn);
  	if (d->pdev == paintEventDevice && paintEventClipRegion)
  	    d->crgn = d->crgn.intersect(*paintEventClipRegion);
+        if ( d->penRef )
+            updatePen(ps);
+        if ( d->brushRef )
+            updateBrush(ps);
 	x11SetClipRegion(d->dpy, d->gc, d->rendhd, d->crgn, d->gc_brush);
-	setf(ClipOn);
     } else {
         if (d->pdev == paintEventDevice && paintEventClipRegion) {
 	    x11SetClipRegion(d->dpy, d->gc, d->rendhd, *paintEventClipRegion, d->gc_brush);
@@ -1593,7 +1596,6 @@ void QX11GC::updateClipRegion(QPainterState *ps)
 void QX11GC::updateFont(QPainterState *ps)
 {
     clearf(DirtyFont);
-    setf(NoCache);
     if (d->penRef)
         updatePen(ps);                            // force a non-cached GC
 }
