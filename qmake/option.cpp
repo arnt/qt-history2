@@ -59,7 +59,7 @@ QString Option::lex_mod;
 Option::QMAKE_MODE Option::qmake_mode = Option::QMAKE_GENERATE_NOTHING;
 
 //all modes
-char Option::warn_level = WarnLogic;
+int Option::warn_level = WarnLogic;
 int Option::debug_level = 0;
 QFile Option::output;
 QString Option::output_dir;

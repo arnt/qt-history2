@@ -84,7 +84,7 @@ struct Option
     static QFile output;
     static QString output_dir;
     static int debug_level;
-    static char warn_level;
+    static int warn_level;
     static QStringList user_vars;
     enum TARG_MODE { TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE, TARG_MAC9_MODE };
     static TARG_MODE target_mode;
