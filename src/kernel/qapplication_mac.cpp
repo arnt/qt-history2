@@ -1319,10 +1319,10 @@ int QApplication::macProcessEvent(MSG * m)
 	}
     } else if(er->what == activateEvt) {
 	widget = QWidget::find( (WId)er->message );	
-	if(widget && (er->modifiers & 0x01)) {
+	if(widget && !widget->isPopup() && (er->modifiers & 0x01)) {
 	    setActiveWindow(widget);
 	} else {
-	    if(!inPopupMode() && widget == active_window)
+	    if(!inPopupMode() && widget == active_window) 
 		setActiveWindow(NULL);
 	    while(inPopupMode())
 		activePopupWidget()->close();
@@ -1560,7 +1560,7 @@ void QApplication::openPopup( QWidget *popup )
     // popups are not focus-handled by the window system (the first
     // popup grabbed the keyboard), so we have to do that manually: A
     // new popup gets the focus
-    active_window = popup;
+//    setActiveWindow(popup);
     QFocusEvent::setReason( QFocusEvent::Popup );
     if (active_window->focusWidget())
 	active_window->focusWidget()->setFocus();
@@ -1583,7 +1583,6 @@ void QApplication::closePopup( QWidget *popup )
 	popupCloseDownMode = TRUE;		// control mouse events
 	delete popupWidgets;
 	popupWidgets = 0;
-	active_window = (*activeBeforePopup);
 	// restore the former active window immediately, although
 	// we'll get a focusIn later
 	QFocusEvent::setReason( QFocusEvent::Popup );
@@ -1593,19 +1592,22 @@ void QApplication::closePopup( QWidget *popup )
 	    else
 		active_window->setFocus();
 	QFocusEvent::resetReason();
+	qDebug("Restoring active to %s %s", (*activeBeforePopup)->name(), 
+	       (*activeBeforePopup)->className());
+//	setActiveWindow((*activeBeforePopup));
     } else {
 	// popups are not focus-handled by the window system (the
 	// first popup grabbed the keyboard), so we have to do that
 	// manually: A popup was closed, so the previous popup gets
 	// the focus.
-	 active_window = popupWidgets->getLast();
-	 QFocusEvent::setReason( QFocusEvent::Popup );
-	 if (active_window->focusWidget())
-	     active_window->focusWidget()->setFocus();
-	 else
-	     active_window->setFocus();
-	 QFocusEvent::resetReason();
-     }
+//	setActiveWindow(popupWidgets->getLast());
+	QFocusEvent::setReason( QFocusEvent::Popup );
+	if (active_window->focusWidget())
+	    active_window->focusWidget()->setFocus();
+	else
+	    active_window->setFocus();
+	QFocusEvent::resetReason();
+    }
 }
 
 /*****************************************************************************
