@@ -17,7 +17,42 @@ qmake.exe: $(OBJS) $(QTOBJS)
 	-copy qmake.exe $(QTDIR)\bin\qmake.exe
 
 clean::
-	-del $(OBJS) $(QTOBJS)
+	-del project.obj
+	-del main.obj
+	-del makefile.obj 
+	-del unixmake.obj
+	-del borland_bmake.obj
+	-del msvc_nmake.obj
+	-del msvc_dsp.obj
+	-del option.obj
+	-del winmakefile.obj
+	-del projectgenerator.obj
+	-del qstring.obj
+	-del qtextstream.obj
+	-del qiodevice.obj
+	-del qglobal.obj
+	-del qgdict.obj
+	-del qcstring.obj
+	-del qdatastream.obj
+	-del qgarray.obj
+	-del qbuffer.obj
+	-del qglist.obj
+	-del qptrcollection.obj
+	-del qfile.obj
+	-del qfile_win.obj
+	-del qregexp.obj
+	-del qgvector.obj
+	-del qgcache.obj
+	-del qbitarray.obj
+	-del qdir.obj
+	-del qfileinfo_win.obj
+	-del qdir_win.obj
+	-del qfileinfo.obj
+	-del qdatetime.obj
+	-del qstringlist.obj
+	-del qmap.obj
+	-del qlibrary.obj
+	-del qtextcodec.obj
 
 distclean:: clean
 	-del qmake 
