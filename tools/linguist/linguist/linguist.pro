@@ -1,7 +1,7 @@
 TEMPLATE = app
 LANGUAGE = C++
 
-CONFIG        += qt warn_on
+CONFIG        += qt warn_on assistantclient
 
 SOURCES        += finddialog.cpp \
 	about.cpp \
@@ -37,15 +37,6 @@ include( ../../../src/qt_professional.pri )
 
 DESTDIR                = ../../../bin
 TARGET                = linguist
-
-LIBS += -lqassistantclient
-!debug_and_release|build_pass {
-   CONFIG(debug, debug|release) {
-      LIBS -= -lqassistantclient
-      unix:LIBS += -lqassistantclient_debug
-      else:LIBS += -lqassistantclientd
-   }
-}
 
 win32:RC_FILE        = linguist.rc
 
