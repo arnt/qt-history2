@@ -113,7 +113,7 @@ QPrinter::QPrinter( PrinterMode m )
     page_order = FirstPageFirst;
     color_mode = GrayScale;
     ncopies     = 1;
-    appcolcopies  = TRUE;
+    appcolcopies  = FALSE;
     usercolcopies = FALSE;
     from_pg     = to_pg = min_pg  = max_pg = 0;
     state       = PST_IDLE;
