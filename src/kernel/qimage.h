@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#19 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#20 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -50,7 +50,6 @@ public:
     uchar      *bits()		const;
     uchar      *scanLine( int ) const;
     uchar     **jumpTable()	const;
-    bool	contiguousBits()const;
     ulong      *colorTable()	const;
     long	numBytes()	const;
     int		bytesPerLine()	const;
@@ -78,9 +77,6 @@ private:
 	int	bitordr;			// bit order (1 bit depth)
 	ulong  *ctbl;				// color table
 	uchar **bits;				// image data
-#if defined(_WS_WIN16_)
-	bool	contig;
-#endif
     } *data;
 };
 
@@ -166,20 +162,11 @@ inline uchar *QImage::bits() const
     return data->bits ? data->bits[0] : 0;
 }
 
-inline bool QImage::contiguousBits() const
-{
-#if defined(_WS_WIN16_)
-    return data->contig;
-#else
-    return TRUE;
-#endif
-}
-
 #if !(defined(QIMAGE_C) || defined(DEBUG))
 
 inline ulong QImage::color( int i ) const
 {
-    return data->ctbl ? data->ctbl[i] : -1L;
+    return data->ctbl ? data->ctbl[i] : (ulong)-1;
 }
 
 inline void QImage::setColor( int i, ulong c )
