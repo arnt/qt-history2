@@ -1384,7 +1384,7 @@ void QWin32PaintEngine::updateFont(const QFont &font)
 
 void QWin32PaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
-    d->forceGdiplus |= (hints & QPainter::LineAntialiasing);
+    d->forceGdiplus |= (hints & QPainter::Antialiasing);
     if (d->tryGdiplus())
         d->gdiplusEngine->updateRenderHints(hints);
 }
@@ -1392,7 +1392,7 @@ void QWin32PaintEngine::updateRenderHints(QPainter::RenderHints hints)
 QPainter::RenderHints QWin32PaintEngine::supportedRenderHints() const
 {
     if (qt_gdiplus_support)
-        return QPainter::LineAntialiasing;
+        return QPainter::Antialiasing;
     return 0;
 }
 
@@ -2409,7 +2409,7 @@ void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
 void QGdiplusPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
     // We switch the pixel offset mode to avoid antialiased edges on rect fills.
-    if (hints & QPainter::LineAntialiasing) {
+    if (hints & QPainter::Antialiasing) {
         GdipSetSmoothingMode(d->graphics, 2);
         GdipSetPixelOffsetMode(d->graphics, PixelOffsetModeHalf);
     } else {

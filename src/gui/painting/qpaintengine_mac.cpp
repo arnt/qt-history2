@@ -1075,7 +1075,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
     } else if(d->pdev->devType() == QInternal::Pixmap) {             // device is a pixmap
         QPixmap *pm = (QPixmap*)d->pdev;
         if(pm->depth() == 1) {
-            setRenderHint(QPainter::LineAntialiasing, false);
+            setRenderHint(QPainter::Antialiasing, false);
             setRenderHint(QPainter::TextAntialiasing, false);
         }
 
@@ -1530,13 +1530,13 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
 QPainter::RenderHints
 QCoreGraphicsPaintEngine::supportedRenderHints() const
 {
-    return QPainter::RenderHints(QPainter::LineAntialiasing | QPainter::TextAntialiasing);
+    return QPainter::RenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
 }
 
 void
 QCoreGraphicsPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
-    CGContextSetShouldAntialias(d->hd, hints & QPainter::LineAntialiasing);
+    CGContextSetShouldAntialias(d->hd, hints & QPainter::Antialiasing);
     CGContextSetShouldSmoothFonts(d->hd, hints & QPainter::TextAntialiasing);
 }
 

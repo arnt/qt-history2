@@ -486,7 +486,7 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
         clearDirty(DirtyHints);
 
         // Emulate line antialiasing only if we can antialias through polygon filling.
-        if (d->renderhints & QPainter::LineAntialiasing && s->pen.style() != Qt::NoPen
+        if (d->renderhints & QPainter::Antialiasing && s->pen.style() != Qt::NoPen
             && !hasFeature(LineAntialiasing) && hasFeature(FillAntialiasing))
             emulationSpecifier |= LineAntialiasing;
         else
@@ -536,7 +536,7 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
             emulationSpecifier &= ~PenWidthTransform;
 
         // Emulate line antialiasing only if we can antialias through polygon filling.
-        if (d->renderhints & QPainter::LineAntialiasing && s->pen.style() != Qt::NoPen
+        if (d->renderhints & QPainter::Antialiasing && s->pen.style() != Qt::NoPen
             && !hasFeature(LineAntialiasing) && hasFeature(FillAntialiasing))
             emulationSpecifier |= LineAntialiasing;
         else

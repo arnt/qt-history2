@@ -473,12 +473,12 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &rgn, Qt::ClipOperation 
 void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
     dgl->makeCurrent();
-    if (hints & QPainter::LineAntialiasing) {
+    if (hints & QPainter::Antialiasing) {
   	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
  	// glEnable(GL_POLYGON_SMOOTH); // not supported properly - too many artifacts
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_BLEND);
-    } else { // i.e. !LineAntialiasing
+    } else { // i.e. !Antialiasing
 	// glDisable(GL_POLYGON_SMOOTH);
 	glDisable(GL_LINE_SMOOTH);
     }

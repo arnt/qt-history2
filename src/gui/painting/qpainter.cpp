@@ -766,7 +766,7 @@ void QPainterPrivate::updateInvMatrix()
 
     \internal
 
-    \value LineAntialiasing
+    \value Antialiasing
 */
 
 /*!
@@ -1086,7 +1086,7 @@ bool QPainter::begin(QPaintDevice *pd)
         d->updateMatrix();
 
     Q_ASSERT(d->engine->isActive());
-    d->engine->setRenderHint(QPainter::LineAntialiasing, false);
+    d->engine->setRenderHint(QPainter::Antialiasing, false);
     d->engine->setRenderHint(QPainter::TextAntialiasing, true);
     ++d->device->painters;
 
@@ -4257,7 +4257,7 @@ void qt_fill_linear_gradient(const QRect &rect, QPainter *p, const QBrush &brush
     int rw = rect.width();
     int rh = rect.height();
 
-    p->setRenderHint(QPainter::LineAntialiasing, false);
+    p->setRenderHint(QPainter::Antialiasing, false);
 
     if (QABS(dx) > QABS(dy)) { // Fill horizontally
         // Make sure we fill left to right.

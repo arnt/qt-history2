@@ -154,7 +154,7 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si,
     }
 
     bool textAA = p->renderHints() & QPainter::TextAntialiasing;
-    bool lineAA = p->renderHints() & QPainter::LineAntialiasing;
+    bool lineAA = p->renderHints() & QPainter::Antialiasing;
     if(p->type() == QPaintEngine::CoreGraphics && textAA != lineAA)
         CGContextSetShouldAntialias(QMacCGContext(p->painter()), textAA);
 
@@ -175,7 +175,7 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si,
         p->painter()->setBrush(p->painter()->pen().color());
         p->painter()->setPen(Qt::NoPen);
         const float lw = lineThickness();
-        if(textFlags & Qt::TextUnderline) 
+        if(textFlags & Qt::TextUnderline)
             p->painter()->drawRect(QRectF(req_x, req_y + underlinePosition(), si.width, lw));
         if(textFlags & Qt::TextOverline)
             p->painter()->drawRect(QRectF(req_x, req_y - (ascent() + 1), si.width, lw));

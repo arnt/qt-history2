@@ -1090,7 +1090,7 @@ QPainter::RenderHints QX11PaintEngine::supportedRenderHints() const
 {
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
     if (X11->use_xrender)
-        return QPainter::LineAntialiasing;
+        return QPainter::Antialiasing;
 #endif
     return QFlag(0);
 }
@@ -1100,7 +1100,7 @@ void QX11PaintEngine::updateRenderHints(QPainter::RenderHints hints)
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
     if (X11->use_xrender) {
         XRenderPictureAttributes attrs;
-        attrs.poly_edge = (hints & QPainter::LineAntialiasing) ? PolyEdgeSmooth : PolyEdgeSharp;
+        attrs.poly_edge = (hints & QPainter::Antialiasing) ? PolyEdgeSmooth : PolyEdgeSharp;
 	::Picture dst = d->xft_hd ? XftDrawPicture(d->xft_hd) : 0;
         if (dst)
             XRenderChangePicture(d->dpy, dst, CPPolyEdge, &attrs);
@@ -1372,7 +1372,7 @@ void QX11PaintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
         }
 
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
-        bool smooth_edges = renderHints() & QPainter::LineAntialiasing;
+        bool smooth_edges = renderHints() & QPainter::Antialiasing;
         if (X11->use_xrender && d->cbrush.style() != Qt::NoBrush &&
             (smooth_edges || d->cbrush.color().alpha() != 255
              || d->cbrush.style() == Qt::LinearGradientPattern))
