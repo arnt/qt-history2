@@ -121,9 +121,8 @@
 
     \img alphafill.png
 
-    Alpha-blended drawing is supported on Windows (GDI+ or 32 bit
-    depth only), Mac OS X, and on X11 systems that have the X Render
-    extension installed.
+    Alpha-blended drawing is supported on Windows, Mac OS X, and on
+    X11 systems that have the X Render extension installed.
 
 
     \section2 QPainter and QGLWidget
@@ -256,6 +255,7 @@
     \i Not all primitive types are supported with gradient filling or
        alpha filling at the moment. These will be made more consistent
        in the time to come.
+    \i Use painter paths for clipping.
     \endlist
 
     \link tech-preview.html [Back to the Technology Preview page] \endlink
