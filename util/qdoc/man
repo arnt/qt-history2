@@ -209,7 +209,7 @@ $_ = <A>;
 s/ / /gs;
 close A;
 
-while ( m@<strong><a href=\"(.*?\.html)\">(.*?)</a></strong></td><td>(.*?)</td>@gs ) {
+while ( m@<b><a href=\"(.*?\.html)\">(.*?)</a></b></td><td>(.*?)</td>@gs ) {
     $name{$1} = $2;
     $desc{$1} = $3;
 }
