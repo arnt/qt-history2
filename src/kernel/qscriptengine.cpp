@@ -418,8 +418,8 @@ static void basic_attributes( int /*script*/, const QString &text, int from, int
 enum Shape {
     XIsolated,
     XFinal,
-    XMedial,
-    XInitial
+    XInitial,
+    XMedial
 };
 
 /*
@@ -475,7 +475,6 @@ static inline bool nextLogicalCharJoins( const QString &str, int pos)
 
 static inline Shape glyphVariantLogical( const QString &str, int pos)
 {
-    // ignores L1 - L3, ligatures are job of the codec
     QChar::Joining joining = ::joining( str.unicode()[pos] );
     //qDebug("checking %x, joining=%d", str[pos].unicode(), joining);
     switch ( joining ) {
@@ -837,7 +836,7 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
 	    uchar c = ch->cell();
 	    int pos = i + from;
 	    int shape = glyphVariantLogical( uc, pos );
-// 	    qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, getShape(c, shape));
+//  	    qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, getShape(c, shape));
 	    // take care of lam-alef ligatures (lam right of alef)
 	    ushort map;
 	    switch ( c ) {
@@ -970,7 +969,9 @@ static void arabicSyriacOpenTypeShape( int script, QOpenType *openType, const QS
 	    openType->applyGSUBFeature(features[j]);
     }
 
-    openType->applyGPOSFeatures();
+    // ### gpos positioning often fails for arabic. Our heuristics are better!
+    // use this instead of open type positioning
+//     openType->applyGPOSFeatures();
     si->num_glyphs = 0;
     openType->appendTo(engine, si);
 
@@ -1003,7 +1004,9 @@ static void arabic_attributes( int /*script*/, const QString &text, int from, in
 static void arabic_shape( int /*script*/, const QString &string, int from, int len,
 			  QTextEngine *engine, QScriptItem *si )
 {
-#if defined( Q_WS_X11) && !defined( QT_NO_XFTFREETYPE )
+    // ### disable open typ for arabic for now. It has some bigger trouble with
+    // non spacing marks.
+#if 0 && defined( Q_WS_X11) && !defined( QT_NO_XFTFREETYPE )
     QOpenType *openType = si->fontEngine->openType();
 
     if ( openType && openType->supportsScript( QFont::Arabic ) ) {
@@ -1024,6 +1027,11 @@ static void arabic_shape( int /*script*/, const QString &string, int from, int l
 		  glyphAttributes, logClusters );
 
     convertToCMap( shapedChars, slen, engine, si );
+    advance_t *advances = engine->advances(si);
+    for (int i = 0; i < slen; ++i)
+	if (glyphAttributes[i].mark)
+	    advances[i] = 0;
+
     ::free( shapedChars );
     q_heuristicPosition( engine, si );
 }
