@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include <qplatformdefs.h>
 #include <private/qabstractspinbox_p.h>
 #include <qabstractspinbox.h>
 #include <qapplication.h>
