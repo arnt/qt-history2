@@ -1,7 +1,9 @@
+Stuff with priority is marked with #
+
 New functionality
 -----------------
 
-MainWindow editing (Reggie)
+MainWindow editing (Reggie) #
     Creating a mainwindow with menubar, toolbar, statusbar and
     centralwidget. This can be done using the passiveInteractor and
     mainContainer concept in the designer's formwindow like done with
@@ -19,14 +21,7 @@ Editing of Slots (Reggie)
     designer, so that one doesn't need to subclass always just to
     implement a slot. This is easy to do using QTextEdit.
 
-Support for the database classes/widgets to build database forms (Dave, Reggie)
-
-Dynamic creating of dialogs from XML (Reggie, Volker)
-    Loading XML files and creating dialogs dynamically from that. This is exactly
-    what we do in the designer when preview, so it is basically using that code
-    and getting the designer dependencies out there. Also we need to have to dynamic
-    customwidget stuff ready for that, so that customwidgets can be used. Access to
-    the widgets by name is available through QObject::child( const char * ).
+Support for the database classes/widgets to build database forms (Dave, Reggie) #
 
 Add splitter support (Reggie)
     Same concept as tabwidgets
@@ -44,19 +39,22 @@ Provide application interfaces for plugins (Reggie, Volker)
     - interfaces for propertyeditor, objecthierarchy and formlist
     - interface for formwindow
 
-QApplication-method to retrieve key-modifier state without event
-    This is possible on Windows with GetKeyState, or cache values in an application
-    event filter.
-
 Extending existing functionality
 --------------------------------
 
-Custom Widgets (Volker)
+Custom Widgets (Volker) #
     PlugIn support, see also Qt/Desktop todo for that
 
 ListView editor
     - Support for checkable items
     - Able to set column width
+
+New file format (Reggie, Matthias) #
+    - As desussed move name, class, etc. in attributes to shorten it. Reggie
+      started with resource.cpp, the work so far is in designer/designer/newfileformat
+      on his machine. Continue there and provide a filter to modify the DOM tree
+      if it is an old format, so that loading/saving in the designer/uic/widgetfactory
+      only needs to support one format.
 
 Feature Requests
 ----------------
@@ -102,7 +100,3 @@ QMsDev
       suboptimal (exposes implementation detail, which changes if I revise
       a class to use UIC), so I just changed to use [MyFormBase,MyForm]
       in all my .UI forms." (support/arc-07/15878)
-
-QSlider
-    Make slider-rect available in a protected function qt-bugs/arc-07/15674
-
