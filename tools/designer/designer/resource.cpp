@@ -888,7 +888,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    ts << makeIndent( indent ) << "</widget>" << endl;
 	}
 //	delete tmpl;
-    } else if ( (ws = ::qt_cast<QDesignerWidgetStack*>(obj)) ) {
+    } else if ( (ws = ::qt_cast<QDesignerWidgetStack*>(obj)) != 0 ) {
 	for ( int i = 0; i < ws->count(); ++i ) {
 	    QWidget *w = ws->page( i );
 	    if ( !w )
