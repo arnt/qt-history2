@@ -84,6 +84,8 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include <qx11info_x11.h>
 #endif
 
+#include "qplatformdefs.h"
+
 static bool qt_gen_epsf = false;
 
 void qt_generate_epsf(bool b)
