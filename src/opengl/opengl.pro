@@ -1,7 +1,5 @@
-# Qt opengl module
-
 TARGET = QtOpenGL
-
+QPRO_PWD        = $$PWD
 include(../qbase.pri)
 
 QT = core gui

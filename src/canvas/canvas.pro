@@ -1,11 +1,8 @@
-# Qt canvas module
-
-REQUIRES = !qt_one_lib
 TARGET = QtCanvas
+iconview/.
+include(../qbase.pri)
 
 DEFINES += QT_BUILD_CANVAS_LIB
-
-include(../qbase.pri)
 QT = core gui
 
 HEADERS += qcanvas.h

@@ -1,4 +1,4 @@
-TARGET		= QtGUI
+TARGET		= QtGui
 QPRO_PWD        = $$PWD
 DEFINES += QT_BUILD_GUI_LIB
 

@@ -1,7 +1,5 @@
-# Qt sql module
-
-REQUIRES = !qt_one_lib
-TARGET		= QtSQL
+TARGET		= QtSql
+QPRO_PWD        = $$PWD
 QT = core
 
 DEFINES += QT_BUILD_SQL_LIB

@@ -53,11 +53,11 @@ my @ignore_headers = ();
 my @ignore_master_headers = ( "qt.h", "qpaintdevicedefs.h" );
 
 my %dirs = (
-	 "src/gui" => "QtGUI",
+	 "src/gui" => "QtGui",
 	 "src/opengl" => "QtOpenGL",
 	 "src/core" => "QtCore",
-	 "src/xml" => "QtXML",
-	 "src/sql" => "QtSQL",
+	 "src/xml" => "QtXml",
+	 "src/sql" => "QtSql",
 	 "src/network" => "QtNetwork",
 	 "src/canvas" => "QtCanvas",
 	 "src/compat" => "Qt3Compat",
