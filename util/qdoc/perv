@@ -1,0 +1,171 @@
+#!/usr/bin/perl
+
+
+$prolog = 
+"{\rtf1 {\fonttbl
+\f0\fswiss Arial;
+\f1\froman Times New Roman;
+\f2\fmodern Courier New;
+\f3\fswiss MS Sans Serif;
+\f4\froman MS Serif;
+ 
+" . # font table
+"\deff0" . # default font
+"\fs18"; # font size
+
+sub prepare {
+    local ($_) = @_;
+
+    s/\\/\\\\/gs;
+    $_;
+}
+
+
+sub fixup {
+    local ($_) = @_;
+
+    # fix header font sizes and indentation
+    s/<h1>(.*?)</h1>/\$\{\\footnote $1\}\n\{\\fs32 $1\}/g; # h1 is 32 points
+    s/<h2>(.*?)</h2>/\{\\fs28 $1\}/g; # h2 is 28 points
+    s/<h3>(.*?)</h3>/\{\\fs24 $1\}/g; # h3 is 24 points
+
+    # fix the font changes
+    s-<tt>(.*?)</tt>-\{\\f2 $1\}-gs;
+    s-<dfn>(.*?)</dfn>-\{\\i $1\}-gs;
+    s-<em>(.*?)</em>-\{\\i $1\}-gs;
+    s-<strong>(.*?)</strong>-\{\\b $1\}-gs;
+    s-<i>(.*?)</i>-\{\\i $1\}-gs;
+    s-<var>(.*?)</var>-\{\\i $1\}-gs;
+    s-<code>(.*?)</code>-\{\\f2 $1\}-gs;
+
+    # images
+    s!\s*<img src=(.*?\.gif).*?>\s*!{
+	my ( $filename ) = "/tmp/".$$."-".++$uniq.".ps";
+	open(PS, "giftopnm < $1 | ppmtobmp |")
+	    || die;
+	$postscript = <PS>;
+	close PS;
+	open(PS, "> $filename" ) || die;
+	print PS $postscript;
+	close PS;
+	$delete{$filename}++;
+	sprintf( "\n\\\{bml %s\\\}\n", $filename );
+    }!gse;
+
+    # undo quoted characters
+    s/&gt;/>/gs;
+    s/&lt;/</gs;
+    s/&quot;/\x22/gs;
+    s/&amp;/&/gs;
+
+    $_;
+}
+    
+
+sub parsetutfile {
+    local ($_, $url) = @_;
+
+    # strip head and tail
+    s/^.*?<body>\s*//s;
+    s/<p>\s*You may now go on to.*$//gs;
+    
+    # paragraphs, lines
+    s/\s*<p>\s*/\n\n\\par\n\n/gs;
+    s/\s*<hr>\s*//gs;
+
+    # links
+    s-<a name=(.*?)>(.*?)</a>-\023\{\\footnote $1\}$2-gs;
+    s-<a href=(.*?)>(.*?)</a>-\{\\uldb $2\}\{\\v $1\}-gs;
+
+    # do the preformat dance
+    s-\s*<pre>(.*?)</pre>\s*-&parsepre($1)-gse;
+    s/\s*<br>\n?/\n.br\n/gs;
+
+    # do the list dance
+    $_ = &parselist( $_ );
+
+}
+
+
+# the argument is a preformatted html block excluding <pre>...</pre>
+# returns an rtf scope block that does all the same stuff
+#
+sub parsepre {
+    local ($_) = @_;
+
+    s/[ \t]*(?=\n)/\n\\line/gs;
+    s/^(?:\s*\\line\n)*//s;
+    s/\s*\n(?:\\line\n)*$//s;
+    sprintf( "\n\{\f2\n%s\m\}\n", $_ );
+}
+
+
+sub parselist {
+    local ($_) = @_;
+
+    s!<((?:(?:/?[uo]l)|(?:li)))(?:[\s\w]*)>!{
+	if ( $1 eq "ul" ) {
+	    $m = "ul";
+	    "\n\{\\tx360\li360\fi-360\n";
+	} elsif ( $1 eq "ol" ) {
+	    $n = 0;
+	    $m = "ol";
+	    "\n\{\\tx360\li360\fi-360\n";
+	} elsif ($1 eq "li") {
+	    if ( $m eq "ul" ) {
+		"\n.bu\n";
+	    } else {
+		$++n;
+		"\n.ip $n\n";
+	    }
+	}
+    }!gse;
+
+    s-<dl\b[\s\w]*>--gs;
+    s-\s*<dt>\s*(.*?)\s*<dd>\s*(.*?)(?=\s*<(?:(?:dt)|(?:/dl))\b)-\n.ip "$1" 1c\n$2\n-gs;
+    s-\s*</dl\b[\s\w]*>\s*-\n.pp\n-gs;
+    $_;
+}
+
+
+
+
+undef $/;
+chdir "/local/qt/doc/html" || die;
+
+$rtf = "";
+
+opendir( DIR, "." ) || die;
+for $a ( sort grep( /^t[1-9].html$/, readdir( DIR ) ) ) {
+    print $a, "\n";
+    $rtf = join( "", $rtf, 
+		&fixup( &parsetutfile( &prepare( <F> ), 
+				      "http://www.troll.no/qt/$a" ) ) ) 
+	if open( F, "< $a" );
+}
+closedir DIR;
+
+opendir( DIR, "." ) || die;
+for $a ( sort grep( /^t1[0-9].html$/, readdir( DIR ) ) ) {
+    print $a, "\n";
+    $rtf = join( "", $rtf, 
+		 &fixup( &parsetutfile( &prepare( <F> ), 
+				       "http://www.troll.no/qt/$a" ) ) )
+	if open( F, "< $a" );
+}
+closedir DIR;
+
+opendir( DIR, "." ) || die;
+for $a ( sort grep( /-members.html$/, readdir( DIR ) ) ) {
+    $a =~ s/-members//;
+    print $a, "\n";
+    $rtf = join( "", $rtf, 
+		&fixup( &parseclassfile( &prepare( <F> ), 
+					"http://www.troll.no/qt/$a" ) ) )
+	if open( F, "< $a" );
+}
+closedir DIR;
+
+foreach ( keys %delete ) {
+    unlink $_ if ( -f $_ );
+}

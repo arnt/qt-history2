@@ -1,0 +1,383 @@
+#!/usr/bin/perl
+
+# a4:
+
+$pointsize = 10;
+
+$a4 = ".pl 29.7c-1i\n.ll 21c-2i\n";
+
+$initstr =
+".nr pi 0
+.nr tp $pointsize
+.nr pp $pointsize
+.nr bs 0
+.ad l
+.nh
+.ls 1.2
+.nr $v 120
+.sp 8
+.ft CR
+.sz 24
+.ce 10
+Troll Tech AS
+.sp 2
+.sz 36
+Qt 0.96 beta
+.sz 24
+Tutorial and Reference
+.sz 18
+Preliminary Version, \\*(td
+.sp 4\nhttp://www.troll.no/
+.br
+info\@troll.no / bugs\@troll.no
+.br\nfax: +47 22646949
+.ce 0
+.pn 1
+.ef '%'''
+.of '''%'
+.bp
+";   ;
+
+$intro = 
+".eh 'Introduction''Qt Tuturial and Reference'
+.eh 'Qt Tuturial and Reference''Introduction'
+.ba 0
+.nr sp 16
+.uh Introduction
+.ba 1c
+.pp
+This manual consists of two sections, the tutorial (chapters 1-14) and
+the class reference (the rest).  Both are generated automatically from
+HTML documents and do lose some content when transformed to paper,
+links mostly.  The relevant URL is printed at the end of each chapter.
+.pp
+The tutorial gives an introduction to GUI programming using the Qt
+toolkit.  It introduces some of the most important features, but the
+emphasis is on the programming philosophy in Qt.  It starts with a
+five-line hello-world and builds gradually, introducing one or a few
+concepts at a time, into a simple, 650-line game which consists of
+several reusable components.
+.pp
+To compile and run the tutorial programs, you need the Qt
+toolkit, gcc version 2.6.2 or later, and X11R6.  You do not need
+libg++ or libstdc++.
+.pp
+You also need a basic knowledge of C++ and makefiles.  O'Reilly
+Associates (for example) publishes good books on both:
+.(l
+Andrew Oram and Steve Talbott: Managing Projects with make, second edition
+ISBN 0-937175-90-0
+152 pages\nhttp://www.ora.com/gnn/bus/ora/item/make2.html
+.)l
+.pp
+.(l
+Steve Oualline: Practical C++ Programming
+ISBN 1-56592-139-9
+584 pages\nhttp://www.ora.com/gnn/bus/ora/item/cplus.html
+.)l
+.pp
+The class reference documents each class in Qt in strictly
+alphabetical order and lists the example program which uses each
+class.  Some information in the on-line documentation has been left
+out as we felt it was not worth the paper (several hundred pages).
+.pp
+This is a beta beta release of this manual, so it is less complete and
+polished than our HTML documentation.  We appreciate any comments and
+will change the format as well as extend the content in the next beta
+releases.  Please send comments to bugs\@troll.no.
+.bp
+";
+
+
+
+sub prepare {
+    local ($_) = @_;
+
+    s/\\/\\\\/gs;
+    $_;
+}
+
+sub fixup {
+    local ($_) = @_;
+
+    # ensure that section header is kept with first paragraph
+    s/\n+\.sh([^\n]+)\n(?:\.pp\s*)+(.*?)\n+(?=\.(?:(?:pp)|(?:[us]h)|(?:$ )))/\n.(b\n.sh$1\n.pp\n$2\n.)b\n/gsx;
+
+    # join neighbouring blocks and delete empty blocks
+    s/\n\.\)b\s*\n\.\(b\s+/\n/gs;
+    s/\n\.\(b\s*\n\.\)b\s+/\n/gs;
+
+    # fix header font sizes and indentation
+    s/\n\.sh 1.*?\n/\n.ba 0\n.nr sp 16$&.ba 1c\n/gs;
+    s/\n\.sh 2.*?\n/\n.ba 0\n.nr sp $pointsize$&.ba 1c\n/gs;
+    s/\n\.sh 3.*?\n/\n.ba 0\n.nr sp $pointsize$&.ba 1c\n/gs;
+    s/\n\.sh 4.*?\n/\n.ba 0\n.nr sp $pointsize$&.ba 1c\n/gs;
+    s/\n\.sh 5.*?\n/\n.ba 0\n.nr sp $pointsize$&.ba 1c\n/gs;
+    s/\n\.sh 6.*?\n/\n.ba 0\n.nr sp $pointsize$&.ba 1c\n/gs;
+
+    # fix the font changes
+    s-<tt>(.*?)</tt>-\\fC$1\\fP-gs;
+    s-<dfn>(.*?)</dfn>-\\fI$1\\fP-gs;
+    s-<em>(.*?)</em>-\\fI$1\\fP-gs;
+    s-<strong>(.*?)</strong>-\\fB$1\\fP-gs;
+    s-<i>(.*?)</i>-\\fI$1\\fP-gs;
+    s-<var>(.*?)</var>-\\fI$1\\fP-gs;
+
+    # images
+    s!\s*<img src=(.*?\.gif).*?>\s*!{
+	my ( $filename ) = "/tmp/".$$."-".++$uniq.".ps";
+	my ( $postscript, $width, $height );
+	open(PS, "giftopnm < $1 | ppmtopgm | pnmtops -noturn -nocenter |")
+	    || die;
+	$postscript = <PS>;
+	close PS;
+	if ( $postscript =~
+	    /\n%%BoundingBox:\s+\d+\s+\d+\s+(\d+)\s+(\d+)\s+/s ) {
+	    $width = $1;
+	    $height = $2;
+	    open(PS, "> $filename" ) || die;
+	    print PS $postscript;
+	    close PS;
+	} else {
+	    die;
+	}
+	$delete{$filename}++;
+	sprintf( "\n.PSPIC -L %s %2.2fi %2.2fi\n", 
+		$filename, $width/100, $height/100 );
+    }!gse;
+
+    # undo quoted characters
+    s/&gt;/>/gs;
+    s/&lt;/</gs;
+    s/&quot;/\x22/gs;
+    s/&amp;/&/gs;
+
+    # ' at start of line?
+    s/\n'/ '/gs;
+
+    $_;
+}
+
+# the argument is a preformatted html block excluding <pre>...</pre>
+# returns an nroff block that does all the same stuff
+#
+sub parsepre {
+    local ($_) = @_;
+
+    s/[ \t]*(?=\n)/\n.br/gs;
+    s/^(?:\s*\.br\n)*//s;
+    s/\s*\n(?:\.br\n)*$//s;
+    sprintf( "\n.pp\n.ft C\n.sz 8\n.nf\n.nh\n.br\n%s\n.ft P\n.fi\n", $_ );
+}
+
+
+sub parselist {
+    local ($_) = @_;
+
+    s!<((?:(?:/?[uo]l)|(?:li)))(?:[\s\w]*)>!{
+	if ( $1 eq "ul" ) {
+	    $m = "ul";
+	    "";
+	} elsif ( $1 eq "ol" ) {
+	    $n = 0;
+	    $m = "ol";
+	    "";
+	} elsif ($1 eq "li") {
+	    if ( $m eq "ul" ) {
+		"\n.bu\n";
+	    } else {
+		$++n;
+		"\n.ip $n\n";
+	    }
+	}
+    }!gse;
+
+    s-<dl\b[\s\w]*>--gs;
+    s-\s*<dt>\s*(.*?)\s*<dd>\s*(.*?)(?=\s*<(?:(?:dt)|(?:/dl))\b)-\n.ip "$1" 1c\n$2\n-gs;
+    s-\s*</dl\b[\s\w]*>\s*-\n.pp\n-gs;
+    $_;
+}
+
+
+
+sub parsemembers {
+    local ($_) = @_;
+
+    s/\n(:!\.)/ /gs;
+    s-\s*<ul>\s*-\n.\(l\n-gs;
+    s-\s*</ul>\s*-\n.\)l\n-gs;
+    s-\s*<li>\s*-\n-gs;
+    $_;
+}
+    
+
+
+sub parseclassfile {
+    local ($_, $url) = @_;
+
+    local ($title );
+    
+    # strip head and tail
+    s/^.*?<body>\s*//s;
+    s/<hr><p>\s+This file is part of the.*$//s;
+
+    # paragraphs, lines
+    s/\s*<p>\s*/\n\n.pp\n/gs;
+    s/\s*<hr>\s*//gs;
+
+    # links, headers, widow/orphan hack
+    s-.pp\n.*?<a href=#details>More...</a>--s;
+    s-<a href=.*?members.html>List of all member functions.</a>--;
+    s-<a.*?>(.*?)</a>-$1-gs;
+    s-\s*<h1\b.*?>\s*(.*?)</h1.*?>-\n.sh 1 "$1"\n-gs;
+    s-\s*<h2\b.*?>\s*(.*?)</h2.*?>(\s*\.pp)?-\n.sh 2 "$1"\n.pp\n-gs;
+    s/\s*<h3>/\n.pp\n<h3>/gs;
+    s-(?:\s*\n\.pp)*\s*<h3\b.*?>\s*(.*?)</h3.*?>\s*(?:\.pp\s*)*(.*?)\n(?=\.(?:(?:pp)|(?:[us]h)|(?:$ )))-\n.(b\n.pp\n.sp\n.b\n.ti 0\n.nh\n$1\n.r\n.pp\n$2\n.)b\n-gsx;
+
+    # fonts, code and emphasized text
+    s-<em>(.*?)</em>-\\fI$1\\fP-gs;
+    s-<strong>(.*?)</strong>-\\fB$1\\fP-gs;
+    s-<code>(.*?)</code>-\\fC$1\\fP-gs;
+
+    # preformatted stuff
+    s-\s*(?:\.pp\s*)?<pre>(.*?)</pre>\s*-&parsepre($1)-gse;
+    s/\s*<br>\n?/\n.br\n/gs;
+
+    # do the list voodoo
+#    $_ =~ s/"Public Members"\n.*?"Detailed Description"/&parsemembers($&)/es;
+    $_ =~ s/"Public Members".*?"Detailed Description"/"Detailed Description"/s;
+    $_ = &parselist( $_ );
+
+    # clean up multi-line space
+    s/\n\s*\n/\n/gs;
+
+    # make bulleted lists for the examples
+    s-Examples:((?:\n [\w/\.]+)*)-{
+	my ($examples) = $&;
+	$examples =~ s/\n /\n/gs;
+	$examples =~ s/:\n/:\n.\(l\n/s;
+	$examples =~ s/\s*$/\n.\)l/s;
+	$examples;
+    }-gse;
+
+    $title = $1 if ( /\b(\w+)\s+Class Reference/s );
+    $me = sprintf( ".eh ''''\n.oh ''''\n.bp\n.oh 'Qt Class Reference''%s'\n.eh '%s''Qt Class Reference'\n%s\n.sh 3 URL\n.pp\nGenerated from %s.\n", $title, $title, $_, $url );
+}
+
+
+sub parsetutfile {
+    local ($_, $url) = @_;
+
+    local ($title );
+
+    # strip head and tail
+    s/^.*?<body>\s*//s;
+    s/<p>\s*You may now go on to.*$//gs;
+
+    # paragraphs, lines
+    s/\s*<p>\s*/\n\n.pp\n/gs;
+    s/\s*<hr>\s*//gs;
+
+    # links, headers, widow/orphan hack
+    s-<a.*?>(.*?)</a>-$1-gs;
+    s-\s*<h1\b.*?>\s*(.*?)</h1.*?>-\n.sh 1 "$1"\n-gs;
+    s-\s*<h2\b.*?>\s*(.*?)</h2.*?>(\s*\.pp)?-\n.sh 2 "$1"\n.pp\n-gs;
+    s-(?:\s*\n\.pp)*\s*<h3\b.*?>\s*(.*?)</h3.*?>\s*(?:\.pp\s*)*(.*?)\n(?=\.(?:(?:pp)|(?:[us]h)|(?:$ )))-\n.(b\n.pp\n.sp\n.b\n.ti 0\n.nh\n$1\n.r\n.pp\n$2\n.)b\n-gsx;
+
+    # fonts, code and emphasized text
+    s-<em>(.*?)</em>-\\fI$1\\fP-gs;
+    s-<strong>(.*?)</strong>-\\fB$1\\fP-gs;
+    s-<code>(.*?)</code>-\\fC$1\\fP-gs;
+
+    # preformatted stuff
+    s-\s*(?:\.pp\s*)?<pre>(.*?)</pre>\s*-&parsepre($1)-gse;
+    s/\s*<br>\n?/\n.br\n/gs;
+
+    # do the list voodoo
+    $_ = &parselist( $_ );
+
+    # clean up multi-line space
+    s/\n\s*\n/\n/gs;
+
+    $title = $1 if ( /\bChapter\s+(\d+:[\s\w\,\'\!]+?)\s*[\n\x22]/s );
+    $title =~ s/'/\\'/g;
+    $me = sprintf( ".eh ''''\n.oh ''''\n.bp\n.oh 'Qt Tutorial''%s'\n.eh '%s''Qt Tutorial'\n%s\n.sh 3 URL\n.pp\nGenerated from %s.\n", $title, $title, $_, $url );
+}
+
+
+
+
+undef $/;
+chdir "/local/qt/doc/html" || die;
+
+$roff = "";
+
+opendir( DIR, "." ) || die;
+for $a ( sort grep( /^t[1-9].html$/, readdir( DIR ) ) ) {
+    print $a, "\n";
+    $roff = join( "", $roff, 
+		 &fixup( &parsetutfile( &prepare( <F> ), 
+				       "http://www.troll.no/qt/$a" ) ) ) 
+	if open( F, "< $a" );
+}
+closedir DIR;
+
+opendir( DIR, "." ) || die;
+for $a ( sort grep( /^t1[0-9].html$/, readdir( DIR ) ) ) {
+    print $a, "\n";
+    $roff = join( "", $roff, 
+		 &fixup( &parsetutfile( &prepare( <F> ), 
+				       "http://www.troll.no/qt/$a" ) ) )
+	if open( F, "< $a" );
+}
+closedir DIR;
+
+opendir( DIR, "." ) || die;
+for $a ( sort grep( /-members.html$/, readdir( DIR ) ) ) {
+    $a =~ s/-members//;
+    print $a, "\n";
+    $roff = join( "", $roff, 
+		 &fixup( &parseclassfile( &prepare( <F> ), 
+					 "http://www.troll.no/qt/$a" ) ) )
+	if open( F, "< $a" );
+}
+closedir DIR;
+
+open( O, "> /tmp/qtdoc-0.96.me" ) || die;
+print O $initstr, $intro, $roff;
+close O;
+print "/tmp/qtdoc-0.96.me\n";
+
+open( O, "| groff -me -Tps > /tmp/qtdoc-0.96-a4.ps" ) || die;
+print O $a4, $initstr, $intro, $roff;
+close O;
+print "/tmp/qtdoc-0.96-a4.ps\n";
+
+open( O, "| groff -me -Tps > /tmp/qtdoc-0.96-letter.ps" ) || die;
+print O $initstr, $intro, $roff;
+close O;
+print "/tmp/qtdoc-0.96-letter.ps\n";
+
+open( I, "multi -o /proc/self/fd/1 -2 -d -f /tmp/qtdoc-0.96-a4.ps |" )
+    || die;
+$_ = <I>;
+close I;
+s/\n%[^\n]*//gs; # strip all comments except the first - this isn't viewable
+open( O, "> /tmp/qtdoc-0.96-a4-2.ps" ) || die;
+print O $_;
+close O;
+print "/tmp/qtdoc-0.96-a4-2.ps\n";
+
+open( I, "multi -o /proc/self/fd/1 -2 -d -f /tmp/qtdoc-0.96-letter.ps |" )
+    || die;
+$_ = <I>;
+close I;
+s/\n%[^\n]*//gs; # strip all comments except the first - this isn't viewable
+open( O, "> /tmp/qtdoc-0.96-letter-2.ps" ) || die;
+print O $_;
+close O;
+print "/tmp/qtdoc-0.96-letter-2.ps\n";
+
+foreach ( keys %delete ) {
+    unlink $_ if ( -f $_ );
+}
