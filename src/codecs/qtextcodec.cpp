@@ -459,7 +459,7 @@ static QString lettersAndNumbers( const char * input )
 int QTextCodec::simpleHeuristicNameMatch(const char* name, const char* hint)
 {
     // if they're the same, return a perfect score.
-    if ( name && hint && strcmp( name, hint ) == 0 )
+    if ( name && hint && *name && *hint && strcmp( name, hint ) == 0 )
 	return qstrlen( hint );
 
     // if the letters and numbers are the same, we have an "almost"
@@ -648,7 +648,7 @@ static const char * const tis_620locales[] = {
 static bool try_locale_list( const char * const locale[], const char * lang )
 {
     int i;
-    for( i=0; locale[i] && strcmp(locale[i], lang); i++ )
+    for( i=0; lang && *lang && locale[i] && *locale[i] && strcmp(locale[i], lang); i++ )
     { }
     return locale[i] != 0;
 }
