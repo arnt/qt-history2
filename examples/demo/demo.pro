@@ -65,7 +65,8 @@ opengl {
 sql {
 	INTERFACES += sql/book.ui \
 		      sql/editbook.ui \
-	              sql/connect.ui
+	              sql/connect.ui \
+		      sql/sqlex.ui
 }
 
 table {

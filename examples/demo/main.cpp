@@ -47,6 +47,7 @@
 #if defined(QT_MODULE_SQL)
 #include <qsqldatabase.h>
 #include "sql/book.h"
+#include "sql/sqlex.h"
 #endif
 
 int main( int argc, char **argv )
@@ -84,6 +85,7 @@ int main( int argc, char **argv )
     // Database
     tab = new QTabWidget();
     w = new BookForm( tab );
+    tab->addTab( new SqlEx(), "SQL Explorer" );
     tab->addTab( w, "Database" );
     frame.addCategory( tab, dbpix, dbpix_sel, "Database" );
 #endif
