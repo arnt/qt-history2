@@ -37,9 +37,11 @@
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
+#ifdef Q_WS_X11
 #ifndef QT_NO_IM
 #include "qinputcontext.h"
 #include "qlist.h"
+#endif
 #endif
 
 #ifndef QT_NO_ACCEL
@@ -1986,10 +1988,12 @@ QMenu *QLineEdit::createPopupMenu()
     popup->addAction(d->actions[QLineEditPrivate::ClearAct]);
     popup->addSeparator();
     popup->addAction(d->actions[QLineEditPrivate::SelectAllAct]);
+#ifdef Q_WS_X11
 #ifndef QT_NO_IM
     QInputContext *qic = inputContext();
     if ( qic )
 	qic->addActionsTo(popup);
+#endif
 #endif
     return popup;
 #else

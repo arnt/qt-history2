@@ -3158,14 +3158,14 @@ bool QETWidget::sendKeyEvent(QEvent::Type type, int code,
     if (type == QEvent::KeyPress && !grab
         && static_cast<QApplicationPrivate*>(qApp->d_ptr)->use_compat()) {
         // send accel events if the keyboard is not grabbed
-        QKeyEvent a(type, code, state, text, autor, qMax(1, int(text.length())));
+        QKeyEvent a(type, code, 0, state, text, autor, qMax(1, int(text.length())));
         if (static_cast<QApplicationPrivate*>(qApp->d_ptr)->qt_tryAccelEvent(this, &a))
             return true;
     }
 #endif
     if (!isEnabled())
         return false;
-    QKeyEvent e(type, code, state, text, autor, qMax(1, int(text.length())));
+    QKeyEvent e(type, code, 0, state, text, autor, qMax(1, int(text.length())));
     QApplication::sendSpontaneousEvent(this, &e);
     if (!isModifierKey(code) && state == Qt::AltButton
          && ((code>=Qt::Key_A && code<=Qt::Key_Z) || (code>=Qt::Key_0 && code<=Qt::Key_9))
