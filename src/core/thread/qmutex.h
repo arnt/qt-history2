@@ -31,7 +31,7 @@ class Q_CORE_EXPORT QMutex
     friend class QWaitConditionPrivate;
 
 public:
-    QMutex(bool recursive = true);
+    QMutex(bool recursive = false);
     ~QMutex();
 
     void lock();
@@ -93,7 +93,7 @@ private:
 class Q_CORE_EXPORT QMutex
 {
 public:
-    inline QMutex(bool) {}
+    inline QMutex(bool = false) {}
     inline ~QMutex() {}
 
     static inline void lock() {}
