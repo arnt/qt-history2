@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#91 $
 **
 ** Implementation of QTabBar class
 **
@@ -478,16 +478,25 @@ void QTabBar::paintEvent( QPaintEvent * e )
     } while ( t != 0 );
 
     if ( d->scrolls && lstatic->first()->r.left() < 0 ) {
-	int h = height();
-	p.fillRect( 0, 3, 4, h-5,
-		    QBrush( colorGroup().brush( QColorGroup::Background ) ));
 	QPointArray a;
-	a.setPoints( 5,  0,2,  3,h/4, 0,h/2, 3,3*h/4, 0,h );
-	p.setPen( colorGroup().light() );
-	p.drawPolyline( a );
-	a.translate( 1, 0 );
-	p.setPen( colorGroup().midlight() );
-	p.drawPolyline( a );
+	int h = height();
+	if ( d->s == RoundedAbove ) {
+	    p.fillRect( 0, 3, 4, h-5,
+			QBrush( colorGroup().brush( QColorGroup::Background ) ));
+	    a.setPoints( 5,  0,2,  3,h/4, 0,h/2, 3,3*h/4, 0,h );
+	} else if ( d->s == RoundedBelow ) {
+	    p.fillRect( 0, 2, 4, h-5,
+			QBrush( colorGroup().brush( QColorGroup::Background ) ));
+	    a.setPoints( 5,  0,0,  3,h/4, 0,h/2, 3,3*h/4, 0,h-3 );
+	}
+	
+	if ( !a.isEmpty() ) {
+	    p.setPen( colorGroup().light() );
+	    p.drawPolyline( a );
+	    a.translate( 1, 0 );
+	    p.setPen( colorGroup().midlight() );
+	    p.drawPolyline( a );
+	}
     }
 }
 
