@@ -3758,7 +3758,7 @@ void QFileDialog::updateFileNameEdit( QListViewItem * newItem )
 	    emit fileHighlighted( u.toString( FALSE, FALSE ) );
     } else if ( files->isSelected( newItem ) ) {
 	QFileDialogPrivate::File * i = (QFileDialogPrivate::File *)newItem;
-	if ( !i->i->isSelected() ) {
+	if ( i->i && !i->i->isSelected() ) {
 	    d->moreFiles->blockSignals( TRUE );
 	    d->moreFiles->setSelected( i->i, TRUE );
 	    d->moreFiles->blockSignals( FALSE );
