@@ -306,8 +306,6 @@ void QSlider::resizeEvent( QResizeEvent * )
 {
     rangeChange();
     initTicks();
-    if ( autoMask() )
-	updateMask();
 }
 
 
@@ -377,7 +375,6 @@ QRect QSlider::sliderRect() const
   Setting the color group is useful for reusing the code to draw a mask if
   the slider supports transparency.
 
-  \sa setAutoMask(), updateMask()
 */
 
 void QSlider::paintSlider( QPainter *p, const QColorGroup &g, const QRect &r )
@@ -414,8 +411,6 @@ void QSlider::reallyMoveSlider( int newPos )
     }
     repaint( oldR );
     repaint( newR, FALSE );
-    if ( autoMask() )
-	updateMask();
 }
 
 /*!\obsolete
@@ -501,58 +496,6 @@ void QSlider::paintEvent( QPaintEvent * )
 
 }
 
-
-/*!
-
- Reimplementation of QWidget::updateMask(). Draws the mask of the
- slider when transparency is required.
-
- \sa QWidget::setAutoMask()
-*/
-void QSlider::updateMask()
-{
-    QBitmap bm( size() );
-    bm.fill( color0 );
-
-    {
-	QPainter p( &bm, this );
-	QRect sliderR = sliderRect();
-	QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color1, color0);
-	int mid = tickOffset + thickness()/2;
-	if ( ticks & Above )
-	    mid += style().sliderLength() / 8;
-	if ( ticks & Below )
-	    mid -= style().sliderLength() / 8;
-	if ( orient == Horizontal ) {
-	    style().drawSliderGrooveMask(&p, 0, tickOffset, width(), thickness(),
-					 mid, Horizontal );
-	}
-	else {
-	    style().drawSliderGrooveMask( &p, tickOffset, 0, thickness(), height(),
-					  mid, Vertical );
-	}
-	style().drawSliderMask( &p, sliderR.x(), sliderR.y(),
-				sliderR.width(), sliderR.height(),
-				orient, ticks & Above, ticks & Below );
-
-	int interval = tickInt;
-	if ( interval <= 0 ) {
-	    interval = lineStep();
-	    if ( positionFromValue( interval ) - positionFromValue( 0 ) < 3 )
-		interval = pageStep();
-	}
-	if ( ticks & Above )
-	    drawTicks( &p, g, 0, tickOffset - 2, interval );
-
-	if ( ticks & Below ) {
-	    int avail = (orient == Horizontal) ? height() : width();
-	    avail -= tickOffset + thickness();
-	    drawTicks( &p, g, tickOffset + thickness() + 1, avail - 2, interval );
-	}
-
-    }
-    setMask( bm );
-}
 
 /*!\reimp
 */
@@ -675,7 +618,7 @@ void QSlider::moveSlider( int pos )
     }
     if ( tracking() && sliderVal != value() ) {
 	setValue( sliderVal );
-	// ### Why do we emit the valueChanged signal here?  It will get emitted in 
+	// ### Why do we emit the valueChanged signal here?  It will get emitted in
 	// valueChange() anyway...
 	//emit valueChanged( sliderVal );
     }
@@ -933,7 +876,6 @@ int QSlider::thickness() const
   Setting the color group is useful for reusing the code to draw a mask if
   the slider supports transparency.
 
-  \sa setAutoMask(), updateMask()
 */
 
 void QSlider::drawTicks( QPainter *p, const QColorGroup& g, int dist, int w,
@@ -942,7 +884,7 @@ void QSlider::drawTicks( QPainter *p, const QColorGroup& g, int dist, int w,
     p->setPen( g.foreground() );
     int v = minValue();
     int fudge = slideLength() / 2 + 1;
-    if(!i) 
+    if(!i)
 	i = 1;
     while ( v <= maxValue() + 1 ) {
 	int pos = positionFromValue( v ) + fudge;
@@ -977,8 +919,6 @@ void QSlider::setTickmarks( TickSetting s )
     ticks = s;
     initTicks();
     update();
-    if ( autoMask() )
-	updateMask();
 }
 
 
@@ -997,8 +937,6 @@ void QSlider::setTickInterval( int i )
 {
     tickInt = QMAX( 0, i );
     update();
-    if ( autoMask() )
-	updateMask();
 }
 
 
@@ -1100,7 +1038,7 @@ int QSlider::value() const
 }
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-/*! 
+/*!
   \reimp
 */
 QAccessibleInterface *QSlider::accessibleInterface()

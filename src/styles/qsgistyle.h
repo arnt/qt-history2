@@ -121,15 +121,10 @@ public:
     // slider
     void drawSlider( QPainter* p, int x, int y, int w, int h, const QColorGroup& g,
                 Orientation orient, bool tickAbove, bool tickBelow );
-    void drawSliderMask( QPainter* p, int x, int y, int w, int h,
-                Orientation orient, bool tickAbove, bool tickBelow );
     void drawSliderGroove( QPainter* p, int x, int y, int w, int h,
                 const QColorGroup& g, QCOORD c, Orientation orient );
-    void drawSliderGrooveMask( QPainter* p, int x, int y, int w, int h,
-                QCOORD c, Orientation orient );
     // tabs
     void drawTab( QPainter *p, const QTabBar *tb, QTab* t, bool selected );
-    void drawTabMask( QPainter *p, const QTabBar *tb, QTab* t, bool selected );
     // splitter
     int splitterWidth() const;
     void drawSplitter( QPainter *p, int x, int y, int w, int h,

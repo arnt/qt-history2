@@ -624,11 +624,6 @@ void QMotifStyle::drawTab( QPainter* p, const QTabBar* tb, QTab* t , bool select
 
 }
 
-/*! \reimp */
-void QMotifStyle::drawTabMask( QPainter* p,  const  QTabBar* tb, QTab* t, bool selected )
-{
-    QCommonStyle::drawTabMask(p, tb, t, selected );
-}
 
 
 #define HORIZONTAL      (sb->orientation() == QScrollBar::Horizontal)

@@ -305,36 +305,6 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 }
 
 
-/*! \reimp */
-void QGroupBox::updateMask()
-{
-    QRegion reg( rect() );
-
-    int len = str.length();
-    if ( len ) {
-	QFontMetrics fm = fontMetrics();
-	int h = fm.height();
-	int tw = 0;
-	while ( len ) {
-	    tw = fm.width( str, len ) + 2 * fm.width( QChar(' ') );
-	    if ( tw < rect().width() )
-		break;
-	    len--;
-	}
-	int x;
-	if ( align & AlignHCenter )
-	    x = rect().width() / 2 - tw / 2;
-	else if ( align & AlignRight )
-	    x = rect().width() - tw - 8;
-	else
-	    x = 8;
-	reg = reg.subtract( QRect( 0, 0, x, h / 2 ) );
-	reg = reg.subtract( QRect( x + tw, 0, rect().width() - ( x + tw ), h / 2 ) );
-    }
-
-    setMask( reg );
-}
-
 /*!
   Adds an empty cell at the next free position. If \a size is greater
   than 0, the empty cell has a fixed height or width.

@@ -689,11 +689,6 @@ QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, int /*state*
 
 */
 
-/* \fn void QStyle::drawTabMask( QPainter* p,  const  QTabBar* tb , QTab* t, bool selected )
-
-TO DO.
-
-*/
 
 /*!
 
@@ -767,16 +762,6 @@ void QStyle::drawTabBarExtension( QPainter *, int, int, int, int,
 
 */
 
-/*!
-  Draws the mask of a slider
-*/
-void QStyle::drawSliderMask( QPainter *p,
-			int x, int y, int w, int h,
-			Orientation, bool, bool )
-{
-    p->fillRect(x, y, w, h, Qt::color1);
-}
-
 
 /*!
   \fn  void QStyle::drawSliderGroove( QPainter *p,  int x, int y, int w, int h,
@@ -787,17 +772,6 @@ void QStyle::drawSliderMask( QPainter *p,
 */
 
 
-
-/*!
-  Draws the mask of a slider groove
-*/
-void QStyle::drawSliderGrooveMask( QPainter *p,int x, int y, int w, int h,
-				   QCOORD c, Orientation orient )
-{
-    QColorGroup g(Qt::color1, Qt::color1, Qt::color1, Qt::color1, Qt::color1,
-		  Qt::color1, Qt::color1, Qt::color1, Qt::color0);
-    drawSliderGroove( p, x, y, w, h, g, c, orient );
-}
 
 /*!
   Some styles require the scroll bar (or other slider) to jump back to
@@ -1051,7 +1025,7 @@ const QWidget *QStyle::contextWidget()
 /*!
   \fn int QStyle::spinBoxFrameWidth () const
 
-  Returns the width of the frame around a spinbox. 
+  Returns the width of the frame around a spinbox.
   If this function returns is 0, the spin buttons are embedded into the spinbox,
   otherwise they are placed separately next to the edit control.
 */
@@ -1059,30 +1033,30 @@ const QWidget *QStyle::contextWidget()
 /*!
   \fn void QStyle::drawSpinWidgetButton ( QPainter * p, int x, int y, int w, int h, const QColorGroup & g, QSpinWidget * sw, bool downbtn, bool enabled, bool down )
 
-  Draws the spinbox button of the spin widget \a sw with the painter \a p into the rectangle 
-  (\a x, \a y, \a w, \a h) using colorgroup \a g. The function draws the down button if \a downbtn is TRUE, 
+  Draws the spinbox button of the spin widget \a sw with the painter \a p into the rectangle
+  (\a x, \a y, \a w, \a h) using colorgroup \a g. The function draws the down button if \a downbtn is TRUE,
   otherwise the up button. \a enabled and \a down represent the state of the button.
 */
 
 /*!
   \fn void QStyle::drawSpinWidgetSymbol ( QPainter * p, int x, int y, int w, int h, const QColorGroup & g, QSpinWidget * sw, bool downbtn, bool enabled, bool down )
 
-  Draws the spinbox button symbol of the spin widget \a sw with the painter \a p into the rectangle 
-  (\a x, \a y, \a w, \a h) using colorgroup \a g. The function draws the down symbol if \a downbtn is TRUE, 
+  Draws the spinbox button symbol of the spin widget \a sw with the painter \a p into the rectangle
+  (\a x, \a y, \a w, \a h) using colorgroup \a g. The function draws the down symbol if \a downbtn is TRUE,
   otherwise the up symbol. \a enabled and \a down represent the state of the button.
 */
 
 /*!
   \fn void QStyle::drawGroupBoxTitle ( QPainter * p, int x, int y, int w, int h, const QColorGroup & g, const QString & text, bool enabled )
 
-  Draws a groupbox title \a text with painter \a p into the rectangle (\a x, \a y, \a w, \a h) 
+  Draws a groupbox title \a text with painter \a p into the rectangle (\a x, \a y, \a w, \a h)
   using colorgroup \a g. \a enabled represents the state of the groupbox.
 */
 
 /*!
   \fn void QStyle::drawGroupBoxFrame ( QPainter * p, int x, int y, int w, int h, const QColorGroup & g, const QGroupBox * gb )
 
-  Draws the frame of groupbox \a gb with painter \a p into the rectangle 
+  Draws the frame of groupbox \a gb with painter \a p into the rectangle
   (\a x, \a y, \a w, \a h) using colorgroup \a g.
 */
 
@@ -1114,7 +1088,7 @@ const QWidget *QStyle::contextWidget()
 /*!
   \fn void QStyle::drawProgressChunk ( QPainter * p, int x, int y, int w, int h, const QColorGroup & g )
 
-  Draws a progressbar chunk with painter \a p into the rectangle (\a x, \a y, \a w, \a h) using 
+  Draws a progressbar chunk with painter \a p into the rectangle (\a x, \a y, \a w, \a h) using
   colorgroup \a g.
 */
 

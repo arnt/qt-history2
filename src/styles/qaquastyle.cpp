@@ -12818,18 +12818,6 @@ void QAquaStyle::drawSlider( QPainter *p, int x, int y, int /*w*/, int h,
     p->drawPixmap( x, y, px );
 }
 
-/*! \reimp */
-void QAquaStyle::drawSliderMask( QPainter *p, int x, int y, int /*w*/,
-                                 int /*h*/,
-                                 Orientation /*orient*/ , bool /* tickAbove */,
-                                 bool /*tickBelow*/ )
-{
-    // ### Orientation
-    QBitmap slider_mask( aqua_sldr_pty_mask_width,
-                         aqua_sldr_pty_mask_height,
-                         (const uchar *) aqua_sldr_pty_mask_bits, TRUE );
-    p->drawPixmap( x, y, slider_mask );
-}
 
 /*! \reimp */
 void QAquaStyle::drawSliderGroove( QPainter *p, int x, int y, int w, int h,

@@ -982,15 +982,6 @@ QSGIStyle::drawSlider( QPainter* p, int x, int y, int w, int h, const QColorGrou
     }
 }
 
-/*! \reimp
-*/
-void
-QSGIStyle::drawSliderMask( QPainter* p, int x, int y, int w, int h,
-                 Orientation orient, bool tickAbove, bool tickBelow )
-{
-    QColorGroup g1(color1, color1, color1, color1, color1, color1, color1);
-    drawSlider( p, x, y, w, h, g1, orient, tickAbove, tickBelow);
-}
 
 /*!
     Draws the groove of a slider-widget.
@@ -1014,15 +1005,6 @@ QSGIStyle::drawSliderGroove( QPainter* p, int x, int y, int w, int h,
     p->setClipping( FALSE );
 }
 
-/*! \reimp
-*/
-void
-QSGIStyle::drawSliderGrooveMask( QPainter* p, int x, int y, int w, int h,
-                 QCOORD c, Orientation orient )
-{
-    QColorGroup g1(color1, color1, color1, color1, color1, color1, color1);
-    drawSliderGroove( p, x, y, w, h, g1, c, orient);
-}
 
 /*! \reimp
 */
@@ -1030,14 +1012,6 @@ void
 QSGIStyle::drawTab( QPainter *p, const QTabBar *tb, QTab* t, bool selected )
 {
     QMotifStyle::drawTab( p, tb, t, selected );
-}
-
-/*! \reimp
-*/
-void
-QSGIStyle::drawTabMask( QPainter *p, const QTabBar *tb, QTab* t, bool selected )
-{
-    QMotifStyle::drawTabMask( p, tb, t, selected );
 }
 
 /*! \reimp

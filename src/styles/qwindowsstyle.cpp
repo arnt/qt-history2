@@ -721,11 +721,6 @@ void QWindowsStyle::drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool sel
 #endif
 }
 
-/*! \reimp */
-void QWindowsStyle::drawTabMask( QPainter* p,  const QTabBar* tb, QTab* t, bool selected )
-{
-    QCommonStyle::drawTabMask(p, tb, t, selected );
-}
 
 #define HORIZONTAL      (sb->orientation() == QScrollBar::Horizontal)
 #define VERTICAL        !HORIZONTAL
@@ -1095,77 +1090,6 @@ void QWindowsStyle::drawSlider( QPainter *p,
     }
 #endif
 }
-
-/*!\reimp
-*/
-void
-QWindowsStyle::drawSliderMask( QPainter *p,
-                        int x, int y, int w, int h,
-                        Orientation orient, bool tickAbove, bool tickBelow )
-{
-
-    if ( tickAbove && tickBelow || !tickAbove && !tickBelow ) {
-        p->fillRect(x, y, w, h, color1);
-        return;
-    }
-
-    int x1 = x;
-    int x2 = x+w-1;
-    int y1 = y;
-    int y2 = y+h-1;
-
-    enum  { SlUp, SlDown, SlLeft, SlRight } dir;
-
-    if ( orient == Horizontal )
-        if ( tickAbove )
-            dir = SlUp;
-        else
-            dir = SlDown;
-    else
-        if ( tickAbove )
-            dir = SlLeft;
-        else
-            dir = SlRight;
-
-    switch ( dir ) {
-    case SlUp:
-        y1 = y1 + w/2;
-        break;
-    case SlDown:
-        y2 = y2 - w/2;
-        break;
-    case SlLeft:
-        x1 = x1 + h/2;
-        break;
-    case SlRight:
-        x2 = x2 - h/2;
-        break;
-    }
-
-    QPointArray a;
-
-    switch ( dir ) {
-    case SlUp:
-    a.setPoints(5, x1,y1, x1 + w/2, y1 - w/2, x2,y1, x2,y2, x1,y2);
-        break;
-    case SlDown:
-    a.setPoints(5, x1,y1, x2,y1,  x2,y2,  x1 + w/2, y2 + w/2, x1,y2);
-        break;
-    case SlLeft:
-    a.setPoints(5, x1,y1, x2,y1, x2,y2, x1,y2, x1 - h/2, y1 + h/2 );
-        break;
-    case SlRight:
-    a.setPoints(5, x1,y1, x2,y1, x2 + h/2, y1 + h/2,  x2,y2, x1,y2);
-        break;
-    }
-
-
-    p->setBrush(color1);
-    p->setPen(color1);
-    p->drawPolygon( a );
-
-}
-
 
 /*!\reimp
  */

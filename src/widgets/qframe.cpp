@@ -187,7 +187,7 @@ static const int wpwidth = 2; // WinPanel lwidth
 
 /*! \property QFrame::frameShadow
     \brief the frame shadow value from the frame style
-    
+
   \sa frameStyle(), frameShape()
 */
 
@@ -299,7 +299,7 @@ void QFrame::setMidLineWidth( int w )
 /*! \property QFrame::margin
     \brief the width of the margin
 
-  The margin is the distance between the innermost pixel of the frame and 
+  The margin is the distance between the innermost pixel of the frame and
   he outermost pixel of contentsRect(). It is included in frameWidth().
 
   The margin is filled according to backgroundMode().
@@ -410,7 +410,7 @@ void QFrame::updateFrameWidth()
 
 /*! \property QFrame::frameRect
     \brief the frame rectangle
-  
+
   The frame rectangle is the rectangle the frame is drawn in.  By
   default, this is the entire widget.  Setting this property does \e
   not cause a widget update.
@@ -438,7 +438,7 @@ void QFrame::setFrameRect( const QRect &r )
 
 /*! \property QFrame::contentsRect
     \brief the rectangle inside the frame
-    
+
   \sa frameRect(), drawContents()
 */
 
@@ -515,22 +515,20 @@ void QFrame::resizeEvent( QResizeEvent *e )
                  height() - (e->oldSize().height() - frect.height()) );
         setFrameRect( r );
     }
-
-    if ( autoMask())
-        updateMask();
+    QWidget::resizeEvent( e );
 }
 
 
 /*!
-  Draws the frame using the painter \a p and the current frame 
-  attributes and color group.  The rectangle inside the frame 
+  Draws the frame using the painter \a p and the current frame
+  attributes and color group.  The rectangle inside the frame
   is not affected.
 
   This function is virtual, but in general you do not need to
   reimplement it.  If you do, note that the QPainter is already open
   and must remain open.
 
-  \sa frameRect(), contentsRect(), drawContents(), frameStyle(), setPalette(), drawFrameMask()
+  \sa frameRect(), contentsRect(), drawContents(), frameStyle(), setPalette()
 */
 
 void QFrame::drawFrame( QPainter *p )
@@ -630,7 +628,7 @@ void QFrame::drawFrame( QPainter *p )
   inside the frame.  It should draw only inside contentsRect(). The
   default function does nothing.
 
-  \sa contentsRect(), QPainter::setClipRect(), drawContentsMask()
+  \sa contentsRect(), QPainter::setClipRect()
 */
 
 void QFrame::drawContents( QPainter * )
@@ -651,125 +649,6 @@ void QFrame::drawContents( QPainter * )
 void QFrame::frameChanged()
 {
     update();
-}
-
-/*!
-
- Reimplementation of QWidget::updateMask(). Draws the mask of the
- frame when transparency is required.
-
- This function calls the virtual functions drawFrameMask() and
- drawContentsMask(). These are the ones you may want to reimplement
- in subclasses.
-
- \sa QWidget::setAutoMask(), drawFrameMask(), drawContentsMask()
-
-*/
-void QFrame::updateMask()
-{
-    QBitmap bm( size() );
-    bm.fill( color0 );
-    QPainter p( &bm, this );
-    p.setPen( color1 );
-    p.setBrush( color1 );
-    drawFrameMask( &p );
-    drawContentsMask( &p );
-    p.end();
-    setMask( bm );
-}
-
-
-/*!
-  Virtual function that draws the mask of the frame's frame using
-  the painter \a p.
-
-  If you reimplemented drawFrame() and your widget should support
-  transparency, you probably have to re-implement this function as
-  well.
-
-  \sa drawFrame(), updateMask(), QWidget::setAutoMask(), QPainter::setClipRect()
-*/
-void QFrame::drawFrameMask( QPainter* p )
-{
-    QPoint      p1, p2;
-    QRect       r     = frameRect();
-    int         type  = fstyle & MShape;
-    int         style = fstyle & MShadow;
-#ifdef QT_NO_DRAWUTIL
-    p->setPen( color1 );
-    p->drawRect( r ); //### a bit too simple
-#else
-    QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color1, color0);
-
-    switch ( type ) {
-
-    case Box:
-        if ( style == Plain )
-            qDrawPlainRect( p, r, g.foreground(), lwidth );
-        else
-            qDrawShadeRect( p, r, g, style == Sunken, lwidth,
-                            midLineWidth() );
-        break;
-
-    case Panel:
-        if ( style == Plain )
-            qDrawPlainRect( p, r, g.foreground(), lwidth );
-        else
-            qDrawShadePanel( p, r, g, style == Sunken, lwidth );
-        break;
-
-    case WinPanel:
-        if ( style == Plain )
-            qDrawPlainRect( p, r, g.foreground(), wpwidth );
-        else
-            qDrawWinPanel( p, r, g, style == Sunken );
-        break;
-    case HLine:
-    case VLine:
-        if ( type == HLine ) {
-            p1 = QPoint( r.x(), r.height()/2 );
-            p2 = QPoint( r.x()+r.width(), p1.y() );
-        }
-        else {
-            p1 = QPoint( r.x()+r.width()/2, 0 );
-            p2 = QPoint( p1.x(), r.height() );
-        }
-        if ( style == Plain ) {
-            QPen oldPen = p->pen();
-            p->setPen( QPen(g.foreground(),lwidth) );
-            p->drawLine( p1, p2 );
-            p->setPen( oldPen );
-        }
-        else
-            qDrawShadeLine( p, p1, p2, g, style == Sunken,
-                            lwidth, midLineWidth() );
-        break;
-    }
-#endif // QT_NO_DRAWUTIL
-}
-
-/*!
-  Virtual function that draws the mask of the frame's contents using
-  the painter \a p.
-
-  If you reimplemented drawContents() and your widget should support
-  transparency, you probably have to re-implement this function as
-  well.
-
-  The default implementation masks the contents-rect.
-
-  \sa drawContents(), updateMask(), QWidget::setAutoMask(), contentsRect(), QPainter::setClipRect()
-*/
-void QFrame::drawContentsMask( QPainter* p)
-{
-    int type  = fstyle & MShape;
-    if ( type == HLine || type == VLine )
-        return;
-    QBrush oldBrush = p->brush();
-
-    p->fillRect( contentsRect(), QBrush( color1 ) );
-
-    p->setBrush( oldBrush );
 }
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)

@@ -1237,6 +1237,10 @@ void QWidget::setActiveWindow()
 
   Calling update() several times normally results in just one
   paintEvent() call.
+  
+  Qt normally erases the widget's area before the paintEvent() call.
+  Only if the WRepaintNoErase widget flag is set, the widget itself is
+  responsible for painting all its pixels.
 
   \sa repaint(), paintEvent(), setUpdatesEnabled(), erase(), setWFlags()
 */
@@ -1263,8 +1267,9 @@ void QWidget::update()
   If \e w is negative, it is replaced with <code>width() - x</code>.
   If \e h is negative, it is replaced width <code>height() - y</code>.
 
-  If the widget sets the WRepaintNoErase flag, update() will not erase
-  its contents.
+  Qt normally erases the specified area before the paintEvent() call.
+  Only if the WRepaintNoErase widget flag is set, the widget itself is
+  responsible for painting all its pixels.
 
   \sa repaint(), paintEvent(), setUpdatesEnabled(), erase()
 */

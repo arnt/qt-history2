@@ -84,9 +84,7 @@ public:
     void scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int &sliderMax, int &sliderLength, int &buttonDim );
     void drawScrollBarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl );
     void drawSlider( QPainter * p, int x, int y, int w, int h, const QColorGroup & g, Orientation, bool tickAbove, bool tickBelow );
-    void drawSliderMask( QPainter * p, int x, int y, int w, int h, Orientation, bool tickAbove, bool tickBelow );
     void drawSliderGroove( QPainter * p, int x, int y, int w, int h, const QColorGroup & g, QCOORD c, Orientation );
-    void drawSliderGrooveMask( QPainter * p, int x, int y, int w, int h, QCOORD c, Orientation );
     int splitterWidth() const;
     void drawSplitter( QPainter *p, int x, int y, int w, int h,
 		      const QColorGroup &g, Orientation orient);

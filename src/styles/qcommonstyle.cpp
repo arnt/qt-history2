@@ -198,13 +198,6 @@ void QCommonStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool sel
 #endif
 }
 
-/*! \reimp */
-void QCommonStyle::drawTabMask( QPainter* p,  const  QTabBar* /* tb*/ , QTab* t, bool /* selected */ )
-{
-#ifndef QT_NO_TABBAR
-    p->drawRect( t->rect() );
-#endif
-}
 
 /*! \reimp */
 QStyle::ScrollControl QCommonStyle::scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p )
@@ -439,7 +432,7 @@ void QCommonStyle::drawSizeGrip( QPainter *p, int x, int y, int w, int h, const 
 /*!
  \reimp
  */
-void QCommonStyle::titleBarMetrics( const QTitleBar*tb, int &ctrlW, int &ctrlH, 
+void QCommonStyle::titleBarMetrics( const QTitleBar*tb, int &ctrlW, int &ctrlH,
 				    int &titleW, int &titleH) const
 {
     titleH = 18;
@@ -470,12 +463,12 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 	if(controls & TitleCloseButton) {
 	    bool down = activeControl & TitleCloseButton;
 	    QPixmap pm(titleBarPixmap(tb, TitleCloseButton));
-	    drawToolButton( p, r.x(), r.y(), r.width(), r.height(), 
+	    drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
 			    tb->colorGroup(), FALSE, down, TRUE, FALSE );
 	    int xoff=0, yoff=0;
 	    if(down)
 		getButtonShift(xoff, yoff);
-	    drawItem( p, r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH, 
+	    drawItem( p, r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
 		      TITLEBAR_CONTROL_HEIGHT, AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
 	}
 
@@ -485,12 +478,12 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 	if(controls & TitleMaxButton) {
 	    bool down = activeControl & TitleMaxButton;
 	    QPixmap pm(titleBarPixmap(tb, TitleMaxButton));
-	    drawToolButton( p, r.x(), r.y(), r.width(), r.height(), 
+	    drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
 			    tb->colorGroup(), FALSE, down, TRUE, FALSE );
 	    int xoff=0, yoff=0;
 	    if(down)
 		getButtonShift(xoff, yoff);
-	    drawItem( p, r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH, 
+	    drawItem( p, r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
 		      TITLEBAR_CONTROL_HEIGHT, AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
 	}
 
@@ -501,12 +494,12 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 	    QStyle::TitleControl ctrl = controls & TitleNormalButton ? TitleNormalButton : TitleMinButton;
 	    bool down = activeControl & ctrl;
 	    QPixmap pm(titleBarPixmap(tb, ctrl));
-	    drawToolButton( p, r.x(), r.y(), r.width(), r.height(), 
+	    drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
 			    tb->colorGroup(), FALSE, down, TRUE, FALSE );
 	    int xoff=0, yoff=0;
 	    if(down)
 		getButtonShift(xoff, yoff);
-	    drawItem( p, r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH, 
+	    drawItem( p, r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
 		      TITLEBAR_CONTROL_HEIGHT, AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
 	}
 
@@ -514,8 +507,8 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 	titleReg -= r;
 	if(tb->pixmap.mask())
 	    titleReg += QRegion(*tb->pixmap.mask()) ^ QRegion(r);
-	if(controls & TitleSysMenu) 
-	    drawItem( p, r.x(), r.y(), TITLEBAR_CONTROL_WIDTH, 
+	if(controls & TitleSysMenu)
+	    drawItem( p, r.x(), r.y(), TITLEBAR_CONTROL_WIDTH,
 		      TITLEBAR_CONTROL_HEIGHT, AlignCenter, tb->colorGroup(), TRUE, &tb->pixmap, QString::null );
 	p->setClipRegion(titleReg);
     }
@@ -553,7 +546,7 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 		       tb->height());
 	else
 	    r = QRect(0, 0, tb->width(), tb->height());
-	p->drawText(r.x()+2, r.y(), r.width(), r.height(), 
+	p->drawText(r.x()+2, r.y(), r.width(), r.height(),
 		    AlignAuto | AlignVCenter | SingleLine, tb->cuttext );
     }
 }
@@ -564,16 +557,16 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 QStyle::TitleControl QCommonStyle::titleBarPointOver( const QTitleBar*tb, const QPoint&point )
 {
     if(tb->window) {
-	if(QRect(tb->width()-(TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION), 2, 
-		 TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT).contains(point)) 
+	if(QRect(tb->width()-(TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION), 2,
+		 TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT).contains(point))
 	    return TitleCloseButton;
-	else if(QRect(tb->width()-((TITLEBAR_CONTROL_HEIGHT+TITLEBAR_SEPARATION) * 2), 2, 
-		      TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT).contains(point)) 
+	else if(QRect(tb->width()-((TITLEBAR_CONTROL_HEIGHT+TITLEBAR_SEPARATION) * 2), 2,
+		      TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT).contains(point))
 	    return TitleMaxButton;
 	else if(QRect(tb->width()-((TITLEBAR_CONTROL_HEIGHT+TITLEBAR_SEPARATION) * 3), 2,
-		      TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT).contains(point)) 
+		      TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT).contains(point))
 	    return TitleMinButton;
-	else if(QRect(2+TITLEBAR_SEPARATION, 2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT).contains(point)) 
+	else if(QRect(2+TITLEBAR_SEPARATION, 2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT).contains(point))
 	    return TitleSysMenu;
     }
     return TitleLabel;
@@ -587,7 +580,7 @@ QCommonStyle::listViewItemPointOver( const QListViewItem *i, const QPoint &pos )
 {
     if(pos.x() >= 0 && pos.x() < i->listView()->treeStepSize())
        return ListViewExpand;
-    return ListViewNone;    
+    return ListViewNone;
 }
 
 #endif

@@ -139,8 +139,6 @@ protected:
     void focusInEvent( QFocusEvent *e );
     void focusOutEvent( QFocusEvent *e );
 
-    void updateMask();
-
     void resizeEvent( QResizeEvent * );
     void paintEvent( QPaintEvent * );
     void mousePressEvent ( QMouseEvent * );

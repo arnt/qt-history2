@@ -154,7 +154,7 @@ void QInterlaceStyle::polish( QWidget* w)
 
     if ( !w->isTopLevel() ) {
 	if ( w->inherits("QGroupBox")
-	     || w->inherits("QTabWidget") 
+	     || w->inherits("QTabWidget")
 	     || w->inherits("QPushButton") ) {
 	    w->setAutoMask( TRUE );
 	    return;
@@ -212,7 +212,7 @@ void QInterlaceStyle::unPolish( QWidget* w)
 
     if ( !w->isTopLevel() ) {
 	if ( w->inherits("QGroupBox")
-	     || w->inherits("QTabWidget") 
+	     || w->inherits("QTabWidget")
 	     || w->inherits("QPushButton" ) ) {
 	    w->setAutoMask( FALSE );
 	    return;
@@ -236,7 +236,7 @@ QRect QInterlaceStyle::pushButtonContentsRect( QPushButton *btn )
     int fw = 0;
     if ( btn->isDefault() || btn->autoDefault() )
 	fw = buttonDefaultIndicatorWidth();
-	     
+	
     return buttonRect( fw+5, fw, btn->width()-2*fw-10, btn->height()-2*fw );
 }
 
@@ -707,13 +707,6 @@ void QInterlaceStyle::drawSlider ( QPainter * p, int x, int y, int w, int h, con
     }
 }
 
-/*!
-  \reimp
-*/
-void QInterlaceStyle::drawSliderMask ( QPainter * p, int x, int y, int w, int h, Orientation, bool, bool)
-{
-    drawButtonMask( p, x, y, w, h );
-}
 
 /*!
   \reimp
@@ -729,16 +722,6 @@ void QInterlaceStyle::drawSliderGroove ( QPainter * p, int x, int y, int w, int 
 	drawButton( p, x+w/2-3, y, 6, h, g, FALSE, &g.brush( QColorGroup::Mid ) );
 }
 
-/*!
-  \reimp
-*/
-void QInterlaceStyle::drawSliderGrooveMask( QPainter * p, int x, int y, int w, int h, QCOORD c, Orientation o)
-{
-    QColorGroup cg;
-    cg.setBrush( QColorGroup::Dark, color1 );
-    cg.setBrush( QColorGroup::Mid, color1 );
-    drawSliderGroove( p, x, y, w, h, cg, c, o );
-}
 
 /*!
   \reimp

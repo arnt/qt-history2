@@ -86,7 +86,6 @@ public slots:
 
 protected:
     void	drawContents( QPainter * );
-    void	drawContentsMask( QPainter * );
     virtual bool setIndicator( QString & progress_str, int progress,
 			       int totalSteps );
     void styleChange( QStyle& );

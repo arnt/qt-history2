@@ -112,9 +112,6 @@ protected:
     virtual void drawFrame( QPainter * );
     virtual void drawContents( QPainter * );
     virtual void frameChanged();
-    void        updateMask();
-    virtual void drawFrameMask( QPainter * );
-    virtual void drawContentsMask( QPainter * );
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessibleInterface *accessibleInterface();

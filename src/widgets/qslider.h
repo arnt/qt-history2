@@ -119,8 +119,7 @@ protected:
     void	focusInEvent( QFocusEvent *e );
     void	focusOutEvent( QFocusEvent *e );
 
-    void updateMask();
-    void styleChange( QStyle& );
+    void	styleChange( QStyle& );
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessibleInterface *accessibleInterface();

@@ -116,7 +116,6 @@ public:
 
     void tabbarMetrics( const QTabBar*, int&, int&, int& ) const;
     void drawTab( QPainter*, const QTabBar*, QTab*, bool selected );
-    void drawTabMask( QPainter*, const QTabBar*, QTab*, bool selected );
 
     void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int&) const;
     void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart,
@@ -128,9 +127,6 @@ public:
                              int x, int y, int w, int h,
                              const QColorGroup &g,
                              Orientation, bool tickAbove, bool tickBelow);
-    void drawSliderMask( QPainter *p,
-                         int x, int y, int w, int h,
-                         Orientation, bool tickAbove, bool tickBelow);
     void drawSliderGroove( QPainter *p,
                            int x, int y, int w, int h,
                            const QColorGroup& g, QCOORD c,

@@ -115,9 +115,6 @@ public:
                      int x, int y, int w, int h,
                      const QColorGroup &g,
                      Orientation, bool tickAbove, bool tickBelow );
-    void drawSliderMask( QPainter *p,
-                         int x, int y, int w, int h,
-                         Orientation, bool tickAbove, bool tickBelow);
     void drawSliderGroove( QPainter *p,
                            int x, int y, int w, int h,
                            const QColorGroup& g, QCOORD c,

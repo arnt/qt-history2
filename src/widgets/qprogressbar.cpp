@@ -130,14 +130,12 @@ void QProgressBar::reset()
     percentage = -1;
     setIndicator(progress_str, progress_val, total_steps);
     repaint( FALSE );
-    if ( autoMask() )
-	updateMask();
 }
 
 
 /*!
   \property QProgressBar::totalSteps
-  \brief The total number of steps. 
+  \brief The total number of steps.
 
   If totalSteps is null, the progress bar will display a busy indicator.
 
@@ -147,20 +145,16 @@ void QProgressBar::reset()
 void QProgressBar::setTotalSteps( int totalSteps )
 {
     total_steps = totalSteps;
-    if ( isVisible() ) {
-	if ( setIndicator(progress_str, progress_val, total_steps) || !total_steps ) {
-	    repaint( FALSE );
-	    if ( autoMask() )
-		updateMask();
-	}
-    }
+    if ( isVisible() &&
+	 ( setIndicator(progress_str, progress_val, total_steps) || !total_steps ) )
+	repaint( FALSE );
 }
 
 
 /*!
   \property QProgressBar::progress
   \brief the current amount of progress
-  
+
   This property is -1 if the progress counting has not started.
 */
 
@@ -179,11 +173,6 @@ void QProgressBar::setProgress( int progress )
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     emit accessibilityChanged( QAccessible::ValueChanged );
 #endif
-
-    if ( !isVisible() )
-	return;
-    if ( autoMask() )
-	updateMask();
 }
 
 
@@ -208,8 +197,8 @@ QSize QProgressBar::minimumSizeHint() const
 /*!
   \property QProgressBar::centerIndicator
 
-  \brief where the indicator string should be displayed 
-  
+  \brief where the indicator string should be displayed
+
   If set to TRUE, the indicator is displayed centered.
   Changing this property sets indicatorFollowsStyle to FALSE.
 
@@ -223,8 +212,6 @@ void QProgressBar::setCenterIndicator( bool on )
     auto_indicator   = FALSE;
     center_indicator = on;
     repaint( FALSE );
-    if ( autoMask() )
-	updateMask();
 }
 
 /*!
@@ -240,8 +227,6 @@ void QProgressBar::setIndicatorFollowsStyle( bool on )
 	return;
     auto_indicator = on;
     repaint( FALSE );
-    if ( autoMask() )
-	updateMask();
 }
 
 /*!
@@ -393,7 +378,7 @@ void QProgressBar::drawContents( QPainter *p )
 	const int unit_width = style().progressChunkWidth();
 
 	bool hasExtraIndicator = percentage_visible && total_steps && (
-				 style() != MotifStyle && auto_indicator || 
+				 style() != MotifStyle && auto_indicator ||
 				!auto_indicator && !center_indicator );
 
 	int textw = 0;
@@ -429,7 +414,7 @@ void QProgressBar::drawContents( QPainter *p )
 	    if ( progress_val != total_steps ) {
 		paint.setClipRect( bar.x() + x+2, bar.y(), bar.width() - x - 2, bar.height() );
 		paint.setPen( colorGroup().highlight() );
-		paint.drawText( bar, AlignCenter | SingleLine, progress_str );	    
+		paint.drawText( bar, AlignCenter | SingleLine, progress_str );	
 	    }
 	} else if ( hasExtraIndicator ) {
 	    paint.setPen( colorGroup().foreground() );
@@ -443,50 +428,6 @@ void QProgressBar::drawContents( QPainter *p )
     p->drawPixmap( bar.x(), bar.y(), pm );
 }
 
-
-/*!
-  Draws the progress bar contents mask using the painter \e p.
-  Used only in transparent mode.
-
-  \sa QWidget::setAutoMask();
-*/
-void QProgressBar::drawContentsMask( QPainter *p )
-{
-    const QRect bar = contentsRect();
-
-    if ( !total_steps ) {
-    } else {
-	const int unit_width  = style().progressChunkWidth();
-	bool hasExtraIndicator = percentage_visible && total_steps && (
-				 style() != MotifStyle && auto_indicator || 
-				!auto_indicator && !center_indicator );
-	int textw = 0;
-	if ( hasExtraIndicator ) {
-	    QFontMetrics fm = p->fontMetrics();
-	    textw = fm.width(QString::fromLatin1("100%")) + 6;
-	}
-	int u = (bar.width() - textw ) / unit_width;
-	int p_v = progress_val;
-	int t_s = total_steps;
-	if ( u > 0 && progress_val >= INT_MAX / u && t_s >= u ) {
-	    // scale down to something usable.
-	    p_v /= u;
-	    t_s /= u;
-	}
-	int nu = ( u * p_v + t_s/2 ) / t_s;
-	const QRect r( bar.x(), bar.y(), u*unit_width + 4, bar.height() );
-
-	p->fillRect( bar.x() + 2, bar.y() + 2, unit_width * nu, bar.height() - 4, color1 );
-	if ( !hasExtraIndicator && percentage_visible && total_steps ) {
-	    p->setPen( color1 );
-	    p->drawText( bar, AlignCenter, progress_str );
-	} else if ( hasExtraIndicator ) {
-	    p->setPen( color1 );
-	    p->drawText( r.x()+r.width(), bar.y(), textw, bar.height(),
-		AlignRight | AlignVCenter, progress_str );
-	}
-    }
-}
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 /*! \reimp */

@@ -309,7 +309,6 @@ void QTabBar::setTabEnabled( int id, bool enabled )
 			emit selected( t->id );
 		    }
 		}
-		updateMask();
 		repaint( r );
 	    }
 	    return;
@@ -414,10 +413,10 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
     if ( t->id == currentTab() )
 	tr.setBottom( tr.bottom() - style().defaultFrameWidth() );
 
-    style().drawItem( p, tr.x(), tr.y(), tr.width(), tr.height(), 
+    style().drawItem( p, tr.x(), tr.y(), tr.width(), tr.height(),
 		      AlignCenter | ShowPrefix, colorGroup(), isEnabled() && t->enabled,
 		      0, t->label );
-    
+
     if ( !has_focus )
 	return;
 
@@ -427,39 +426,6 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 	p->drawRect( br );
 }
 
-
-/*!
-  Draws the mask for this tab bar.
-
-  \internal
-  This is not totally right - a few corner pixels missing.
-*/
-
-void  QTabBar::updateMask()
-{
-    if ( !autoMask() )
-	return;
-    QBitmap bm( size() );
-    bm.fill( color0 );
-
-    QPainter p;
-    p.begin( &bm, this );
-    p.setBrush(color1);
-    p.setPen(color1);
-
-    QTab * t;
-    t = l->first();
-    do {
-	QTab * n = l->next();
-	if ( t )
-	    style().drawTabMask( &p, this, t, n == 0 );
-	t = n;
-    } while ( t != 0 );
-
-
-    p.end();
-    setMask( bm );
-}
 
 /*!
   Repaints the tab row.  All the painting is done by paint();
@@ -593,7 +559,7 @@ void QTabBar::show()
 
 /*! \property QTabBar::currentTab
     \brief the id of the currently visible tab in the tab bar
-  
+
   If no tab page is currently visible, -1 will be the current value
   for this property.
   Even if the property value is not -1, you cannot assume either that
@@ -603,7 +569,7 @@ void QTabBar::show()
 
   When this property is set to \e id, it will raise the tab with the
   id \e id and emit the selected() signal.
-  
+
   \sa selected() isTabEnabled()
 */
 
@@ -640,7 +606,6 @@ void QTabBar::setCurrentTab( QTab * tab )
 
 	setMicroFocusHint( tab->rect().x(), tab->rect().y(), tab->rect().width(), tab->rect().height(), FALSE );
 
-	updateMask();
 	if ( tab->r.intersects( r ) ) {
 	    repaint( r.unite( tab->r ) );
 	} else {
@@ -654,7 +619,7 @@ void QTabBar::setCurrentTab( QTab * tab )
 
 /*! \property QTabBar::keyboardFocusTab
     \brief the id of the tab that currently has the keyboard focus
-    
+
   This property contains the id of the tab that currently has the
   keyboard focus. If this tab bar does not have keyboard focus, the
   value of this property will be -1.
@@ -785,8 +750,8 @@ QPtrList<QTab> * QTabBar::tabList()
 
 /*! \property QTabBar::shape
     \brief the shape of this tab bar
-    
-    The value of this property can be one of the following: 
+
+    The value of this property can be one of the following:
     \c RoundedAbove (default), \c RoundedBelow, \c TriangularAbove or \c
     TriangularBelow.
 */
@@ -801,7 +766,6 @@ void QTabBar::setShape( Shape s )
 	return;
     //######### must recalculate heights
     d->s = s;
-    updateMask();
     update();
 }
 

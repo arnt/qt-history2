@@ -63,7 +63,6 @@ public:
     // tabbars
     void tabbarMetrics( const QTabBar*, int&, int&, int& ) const;
     void drawTab( QPainter*, const QTabBar*, QTab*, bool selected );
-    void drawTabMask( QPainter*, const QTabBar*, QTab*, bool selected );
 
     // scrollbars
     ScrollControl scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p );

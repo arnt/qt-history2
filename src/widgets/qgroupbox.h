@@ -96,7 +96,6 @@ protected:
     void resizeEvent( QResizeEvent * );
     void paintEvent( QPaintEvent * );
     void focusInEvent( QFocusEvent * );
-    void updateMask();
     void fontChange( const QFont & );
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)

@@ -207,8 +207,6 @@ public:
 				int&, int&, int& ) const = 0;
     virtual void drawTab( QPainter*, const QTabBar*, QTab*,
 			  bool selected ) = 0;
-    virtual void drawTabMask( QPainter*, const QTabBar*, QTab*,
-			      bool selected ) = 0;
     virtual void tabBarExtensionMetrics( const QTabWidget *, int & w, int & h,
 					 int & overlap ) const;
     virtual void drawTabBarExtension( QPainter * p, int x, int y, int w, int h,
@@ -236,17 +234,10 @@ public:
 			     const QColorGroup &g,
 			     Orientation, bool tickAbove, bool tickBelow) = 0;
 
-    virtual void drawSliderMask( QPainter *p,
-				 int x, int y, int w, int h,
-				 Orientation, bool tickAbove, bool tickBelow);
     virtual void drawSliderGroove( QPainter *p,
 				   int x, int y, int w, int h,
 				   const QColorGroup& g, QCOORD c,
 				   Orientation ) = 0;
-    virtual void drawSliderGrooveMask( QPainter *p,
-				       int x, int y, int w, int h,
-				       QCOORD c,
-				       Orientation );
     virtual int maximumSliderDragDistance() const;
 
     // splitter
