@@ -27,7 +27,6 @@ my %modules = ( # path to module name map
 	    "QtXml" => "$basedir/src/xml",
 	    "QtSql" => "$basedir/src/sql",
 	    "QtNetwork" => "$basedir/src/network",
-	    "QtCanvas" => "$basedir/src/canvas",
 	    "Qt3Compat" => "$basedir/src/compat",
 	    "ActiveQt" => "$basedir/extensions/activeqt/container;$basedir/extensions/activeqt/control",
 	    "QtMotif" => "$basedir/extensions/motif/src",
@@ -529,6 +528,28 @@ foreach (@modules_to_sync) {
     my $master_contents = "";
     my $install_classes = "";
     my $install_files = "";
+
+    #get dependencies
+    if(-e "$dir/" . basename($dir) . ".pro") {
+	if(open(F, "<$dir/" . basename($dir) . ".pro")) {
+	    while(<F>) {
+		my $line = $_;
+		chomp $line;
+		if($line =~ /^ *QT *\+?= *(.*)/) {
+		    foreach(split(/ /, "$1")) {
+			$master_contents .= "#include <QtCore/QtCore>\n" if("$_" eq "core");
+			$master_contents .= "#include <QtGui/QtGui>\n" if("$_" eq "gui");
+			$master_contents .= "#include <QtNetwork/QtNetwork>\n" if("$_" eq "network");
+			$master_contents .= "#include <Qt3Compat/Qt3Compat>\n" if("$_" eq "compat");
+			$master_contents .= "#include <QtSql/QtSql>\n" if("$_" eq "sql");
+			$master_contents .= "#include <QtXml/QtXml>\n" if("$_" eq "xml");
+			$master_contents .= "#include <QtOpenGL/QtOpenGL>\n" if("$_" eq "opengl");
+		    }
+		}
+	    }
+	    close(F);
+	}
+    }
 
     #remove the old files
     if($remove_stale) {
