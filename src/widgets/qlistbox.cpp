@@ -2227,7 +2227,7 @@ void QListBox::updateSelection()
 		    QListBoxItem * i = item( c*numRows()+r );
 		    int rtmp = r;
 		    while( i && rtmp <= r2 ) {
-			if ( (bool)i->s != d->select && i->isSelectable() ) {
+			if ( (bool)i->s != (bool)d->select && i->isSelectable() ) {
 			    i->s = d->select;
 			    i->dirty = TRUE;
 			    changed = TRUE;
@@ -3487,7 +3487,7 @@ bool QListBox::variableHeight() const
 
 void QListBox::setVariableHeight( bool enable )
 {
-    if ( d->variableHeight == enable )
+    if ( (bool)d->variableHeight == enable )
 	return;
 
     d->variableHeight = enable;
@@ -3515,7 +3515,7 @@ bool QListBox::variableWidth() const
 
 void QListBox::setVariableWidth( bool enable )
 {
-    if ( d->variableWidth == enable )
+    if ( (bool)d->variableWidth == enable )
 	return;
 
     d->variableWidth = enable;
