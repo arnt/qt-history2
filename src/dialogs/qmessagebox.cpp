@@ -179,7 +179,7 @@ switch( QMessageBox::warning( this, "Application name",
         "This program can't function correctly "
         "without the server.\n\n",
         "Retry",
-        "Quit", 0, 0, 1 );
+        "Quit", 0, 0, 1 ) )
     case 0: // The user clicked the Retry again button or pressed Enter
 	// try again
 	break;

@@ -53,7 +53,7 @@
   class with the Q_EXPORT_PLUGIN macro.  See the \link plugins-howto.html Qt
   Plugins documentation \endlink for details.
 
-  See the \link ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets IANA
+  See the \link http://www.iana.org/assignments/character-sets IANA
   character-sets encoding file\endlink for more information on mime
   names and mib enums.
 

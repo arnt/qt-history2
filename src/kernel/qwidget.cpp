@@ -2166,13 +2166,12 @@ void QWidget::setBackgroundFromMode()
   this mode can be both fast and flicker-free.
   \value FixedColor the widget is cleared to a fixed color,
   normally different from all the ones in the palette().  Set using
-  \link QWidget::setBackgroundColor() setBackgroundColor()\endlink.
-  \value FixedPixmap the widget is cleared to a fixed pixmap,
-  normally different from all the ones in the palette().  Set using
-  \link QWidget::setBackgroundPixmap() setBackgroundPixmap()\endlink.
-  \value PaletteLink
-  \value PaletteLinkVisited
-  \value X11ParentRelative (internal use only)
+  \link QWidget::setPaletteBackgroundColor()
+  setPaletteBackgroundColor()\endlink. \value FixedPixmap the widget
+  is cleared to a fixed pixmap, normally different from all the ones
+  in the palette().  Set using \link QWidget::setBackgroundPixmap()
+  setBackgroundPixmap()\endlink. \value PaletteLink \value
+  PaletteLinkVisited \value X11ParentRelative (internal use only)
 
   Although \c FixedColor and \c FixedPixmap are sometimes just right,
   if you use them, make sure that your application looks
@@ -2181,13 +2180,13 @@ void QWidget::setBackgroundFromMode()
   have to use the control panel.)
 
   \sa QWidget::setBackgroundMode() QWidget::backgroundMode() QWidget::setBackgroundPixmap()
-  QWidget::setBackgroundColor()
+  QWidget::setPaletteBackgroundColor()
 */
 
 /*! \property QWidget::backgroundMode
     \brief the color role used for painting the background of the widget
 
-  setBackgroundColor() reads this property to determine which entry of
+  setPaletteBackgroundColor() reads this property to determine which entry of
   the \link QWidget::palette palette\endlink to set.
 
   For most widgets the default suffices (PaletteBackground, typically
@@ -2203,11 +2202,11 @@ void QWidget::setBackgroundFromMode()
 
   You will never need to set the background mode of a built-in widget
   in Qt, but you might consider setting it in your custom widgets, so
-  that setBackgroundColor() works as expected.
+  that setPaletteBackgroundColor() works as expected.
 
   Note that two of the BackgroundMode values make no sense for
   setBackgroundMode(), namely FixedPixmap and FixedColor. You have to
-  call setBackgroundPixmap() and setBackgroundColor() instead.
+  call setBackgroundPixmap() and setPaletteBackgroundColor() instead.
 */
 Qt::BackgroundMode QWidget::backgroundMode() const
 {
@@ -4602,7 +4601,7 @@ void QWidget::leaveEvent( QEvent * )
   you whether the widget has been erased or not.
 
   The background can be set using setBackgroundMode(),
-  setBackgroundColor() or setBackgroundPixmap(). The documentation for
+  setPaletteBackgroundColor() or setBackgroundPixmap(). The documentation for
   setBackgroundMode() elaborates on the background; we recommend
   reading it.
 
