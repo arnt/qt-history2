@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#107 $
+** $Id: //depot/qt/main/src/moc/moc.y#108 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -781,6 +781,8 @@ extern "C" int hack_isatty( int )
     return 0;
 }
 #define isatty hack_isatty
+#else
+#include <unistd.h>
 #endif
 
 #include "lex.yy.c"
@@ -1274,7 +1276,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.41 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.42 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
