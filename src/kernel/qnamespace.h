@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#16 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#17 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -32,6 +32,7 @@
 
 
 class QColor;
+class QCursor;
 
 
 class Q_EXPORT Qt {
@@ -419,6 +420,24 @@ public:
 	WV_98,
 	WV_32s
     };
+
+    // Global cursors
+
+    QT_STATIC_CONST QCursor & arrowCursor;	// standard arrow cursor
+    QT_STATIC_CONST QCursor & upArrowCursor;	// upwards arrow
+    QT_STATIC_CONST QCursor & crossCursor;	// crosshair
+    QT_STATIC_CONST QCursor & waitCursor;	// hourglass/watch
+    QT_STATIC_CONST QCursor & ibeamCursor;	// ibeam/text entry
+    QT_STATIC_CONST QCursor & sizeVerCursor;	// vertical resize
+    QT_STATIC_CONST QCursor & sizeHorCursor;	// horizontal resize
+    QT_STATIC_CONST QCursor & sizeBDiagCursor;	// diagonal resize (/)
+    QT_STATIC_CONST QCursor & sizeFDiagCursor;	// diagonal resize (\)
+    QT_STATIC_CONST QCursor & sizeAllCursor;	// all directions resize
+    QT_STATIC_CONST QCursor & blankCursor;	// blank/invisible cursor
+    QT_STATIC_CONST QCursor & splitVCursor;	// vertical bar with left-right
+						// arrows
+    QT_STATIC_CONST QCursor & splitHCursor;	// horizontal bar with up-down
+						// arrows
 
 };
 

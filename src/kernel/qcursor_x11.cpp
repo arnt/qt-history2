@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#60 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -38,7 +38,7 @@
 
 struct QCursorData : public QShared
 {
-    QCursorData();
+    QCursorData( int s = 0 );
    ~QCursorData();
     int	      cshape;
     QBitmap  *bm, *bmm;
@@ -48,8 +48,10 @@ struct QCursorData : public QShared
     Pixmap    pm, pmm;
 };
 
-QCursorData::QCursorData()
+QCursorData::QCursorData( int s )
 {
+    cshape = s;
+    hcurs = 0;
     bm = bmm = 0;
     hx = hy  = 0;
     pm = pmm = 0;
@@ -75,45 +77,40 @@ QCursorData::~QCursorData()
   Global cursors
  *****************************************************************************/
 
-const QCursor arrowCursor;
-const QCursor upArrowCursor;
-const QCursor crossCursor;
-const QCursor waitCursor;
-const QCursor ibeamCursor;
-const QCursor sizeVerCursor;
-const QCursor sizeHorCursor;
-const QCursor sizeBDiagCursor;
-const QCursor sizeFDiagCursor;
-const QCursor sizeAllCursor;
-const QCursor blankCursor;
-const QCursor splitHCursor;
-const QCursor splitVCursor;
+static const int cursors = 13;
+static QCursor cursorTable[cursors];
 
+QT_STATIC_CONST_IMPL QCursor & Qt::arrowCursor = cursorTable[0];
+QT_STATIC_CONST_IMPL QCursor & Qt::upArrowCursor = cursorTable[1];
+QT_STATIC_CONST_IMPL QCursor & Qt::crossCursor = cursorTable[2];
+QT_STATIC_CONST_IMPL QCursor & Qt::waitCursor = cursorTable[3];
+QT_STATIC_CONST_IMPL QCursor & Qt::ibeamCursor = cursorTable[4];
+QT_STATIC_CONST_IMPL QCursor & Qt::sizeVerCursor = cursorTable[5];
+QT_STATIC_CONST_IMPL QCursor & Qt::sizeHorCursor = cursorTable[6];
+QT_STATIC_CONST_IMPL QCursor & Qt::sizeBDiagCursor = cursorTable[7];
+QT_STATIC_CONST_IMPL QCursor & Qt::sizeFDiagCursor = cursorTable[8];
+QT_STATIC_CONST_IMPL QCursor & Qt::sizeAllCursor = cursorTable[9];
+QT_STATIC_CONST_IMPL QCursor & Qt::blankCursor = cursorTable[10];
+QT_STATIC_CONST_IMPL QCursor & Qt::splitHCursor = cursorTable[11];
+QT_STATIC_CONST_IMPL QCursor & Qt::splitVCursor = cursorTable[12];
 
-/*****************************************************************************
-  QCursor member functions
- *****************************************************************************/
-
-static QCursor *cursorTable[] = {		// the order is important!!
-    (QCursor*)&arrowCursor,
-    (QCursor*)&upArrowCursor,
-    (QCursor*)&crossCursor,
-    (QCursor*)&waitCursor,
-    (QCursor*)&ibeamCursor,
-    (QCursor*)&sizeVerCursor,
-    (QCursor*)&sizeHorCursor,
-    (QCursor*)&sizeBDiagCursor,
-    (QCursor*)&sizeFDiagCursor,
-    (QCursor*)&sizeAllCursor,
-    (QCursor*)&blankCursor,
-    (QCursor*)&splitHCursor,
-    (QCursor*)&splitVCursor,
-    0
-};
 
 QCursor *QCursor::find_cur( int shape )		// find predefined cursor
 {
-    return (uint)shape <= LastCursor ? cursorTable[shape] : 0;
+    return (uint)shape <= LastCursor ? &cursorTable[shape] : 0;
+}
+
+
+bool initialized = FALSE;
+
+void QCursor::cleanup()
+{
+    int shape;
+    for( shape = 0; shape < cursors; shape++ ) {
+	delete cursorTable[shape].data;
+	cursorTable[shape].data = 0;
+    }
+    initialized = FALSE;
 }
 
 
@@ -125,51 +122,19 @@ QCursor *QCursor::find_cur( int shape )		// find predefined cursor
 
 void QCursor::initialize()
 {
-    int shape = ArrowCursor;
-    while ( cursorTable[shape] ) {
-	if ( !cursorTable[shape]->data ) {	// workaround for gcc-2.6.3 bug
-	    cursorTable[shape]->data = new QCursorData;
-	    CHECK_PTR( cursorTable[shape]->data );
-	    cursorTable[shape]->data->hcurs = 0;
-	}
-	cursorTable[shape]->data->cshape = shape;
-	shape++;
-    }
-}
-
-/*!
-  Internal function that cleans up the predefined cursors.
-  This function is called from the QApplication destructor.
-  \sa initialize()
-*/
-
-void QCursor::cleanup()
-{
-    int shape = ArrowCursor;
-    while ( cursorTable[shape] ) {
-	delete cursorTable[shape]->data;
-	cursorTable[shape]->data = 0;
-	shape++;
-    }
+    int shape;
+    for( shape = 0; shape < cursors; shape++ )
+	cursorTable[shape].data = new QCursorData( shape );
+    initialized = TRUE;
+    qAddPostRoutine( cleanup );
 }
 
 
-/*!
+/*! \fn QCursor::QCursor()
+
   Constructs a cursor with the default arrow shape.
 */
 
-QCursor::QCursor()
-{
-    if ( QApplication::startingUp() ) {		// this is a global cursor
-	data = new QCursorData;
-	CHECK_PTR( data );
-	data->cshape = 0;
-	data->hcurs = 0;
-    } else {					// default arrow cursor
-	data = arrowCursor.data;
-	data->ref();
-    }
-}
 
 /*!
   Constructs a cursor with the specified \e shape.
@@ -177,22 +142,27 @@ QCursor::QCursor()
 
 QCursor::QCursor( int shape )			// cursor with shape
 {
+    if ( !initialized )
+	initialize();
     QCursor *c = find_cur( shape );
     if ( !c )					// not found
-	c = (QCursor *)&arrowCursor;		//   then use arrowCursor
+	c = (QCursor *)&Qt::arrowCursor;	//   then use arrowCursor
     c->data->ref();
     data = c->data;
 }
 
+
 void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
 		  int hotX, int hotY )
 {
+    if ( !initialized )
+	initialize();
     if ( bitmap.depth() != 1 || mask.depth() != 1 ||
 	 bitmap.size() != mask.size() ) {
 #if defined(CHECK_NULL)
 	warning( "QCursor: Cannot create bitmap cursor; invalid bitmap(s)" );
 #endif
-	QCursor *c = (QCursor *)&arrowCursor;
+	QCursor *c = (QCursor *)&Qt::arrowCursor;
 	c->data->ref();
 	data = c->data;
 	return;
@@ -220,6 +190,8 @@ void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
 
 QCursor::QCursor( const QCursor &c )
 {
+    if ( !initialized )
+	initialize();
     data = c.data;				// shallow copy
     data->ref();
 }
@@ -241,6 +213,8 @@ QCursor::~QCursor()
 
 QCursor &QCursor::operator=( const QCursor &c )
 {
+    if ( !initialized )
+	initialize();
     c.data->ref();				// avoid c = c
     if ( data->deref() )
 	delete data;
@@ -258,6 +232,8 @@ QCursor &QCursor::operator=( const QCursor &c )
 
 int QCursor::shape() const			// get cursor shape
 {
+    if ( !initialized )
+	initialize();
     return data->cshape;
 }
 
@@ -275,9 +251,11 @@ int QCursor::shape() const			// get cursor shape
 
 void QCursor::setShape( int shape )
 {
+    if ( !initialized )
+	initialize();
     QCursor *c = find_cur( shape );		// find one of the global ones
     if ( !c )					// not found
-	c = (QCursor *)&arrowCursor;		//   then use arrowCursor
+	c = (QCursor *)&Qt::arrowCursor;	//   then use arrowCursor
     c->data->ref();
     if ( data->deref() )			// make shallow copy
 	delete data;
@@ -290,6 +268,8 @@ void QCursor::setShape( int shape )
 */
 const QBitmap *QCursor::bitmap() const
 {
+    if ( !initialized )
+	initialize();
     return data->bm;
 }
 
@@ -299,6 +279,8 @@ const QBitmap *QCursor::bitmap() const
 
 const QBitmap *QCursor::mask() const
 {
+    if ( !initialized )
+	initialize();
     return data->bmm;
 }
 
@@ -308,6 +290,8 @@ const QBitmap *QCursor::mask() const
 
 QPoint QCursor::hotSpot() const
 {
+    if ( !initialized )
+	initialize();
     return QPoint( data->hx, data->hy );
 }
 
@@ -322,6 +306,8 @@ QPoint QCursor::hotSpot() const
 
 HANDLE QCursor::handle() const
 {
+    if ( !initialized )
+	initialize();
     if ( !data->hcurs )
 	update();
     return data->hcurs;
@@ -381,6 +367,8 @@ void QCursor::setPos( int x, int y )
 
 void QCursor::update() const
 {
+    if ( !initialized )
+	initialize();
     register QCursorData *d = data;		// cheat const!
     if ( d->hcurs )				// already loaded
 	return;

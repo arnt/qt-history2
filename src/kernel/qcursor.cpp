@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#29 $
 **
 ** Implementation of QCursor class
 **
@@ -63,7 +63,7 @@
   <li> sizeAllCursor : all directions resize
   <li> blankCursor : blank/invisible cursor
   </ul>
-  
+
   \sa QWidget
   <a href="guibooks.html#fowler">GUI Design Handbook: Cursors.</a>
 */
@@ -107,6 +107,7 @@ QDataStream &operator>>( QDataStream &s, QCursor &c )
     }
     return s;
 }
+
 
 /*!
   Constructs a custom pixmap cursor.

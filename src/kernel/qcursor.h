@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#34 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#35 $
 **
 ** Definition of QCursor class
 **
@@ -29,16 +29,17 @@
 #ifndef QT_H
 #include "qpoint.h"
 #include "qshared.h"
+#include "qnamespace.h"
 #endif // QT_H
 
 
 struct QCursorData;				// internal cursor data
 
 
-class Q_EXPORT QCursor					// cursor class
+class Q_EXPORT QCursor				// cursor class
 {
 public:
-    QCursor();					// create default arrow cursor
+    QCursor(): data( 0 ) {}			// create default arrow cursor
     QCursor( int shape );
     QCursor( const QBitmap &bitmap, const QBitmap &mask,
 	     int hotX=-1, int hotY=-1 );
@@ -92,25 +93,6 @@ enum QCursorShape {
     SizeVerCursor, SizeHorCursor, SizeBDiagCursor, SizeFDiagCursor,
     SizeAllCursor, BlankCursor, SplitVCursor, SplitHCursor,
     LastCursor=SplitHCursor, BitmapCursor=24 };
-
-
-/*****************************************************************************
-  Global cursors
- *****************************************************************************/
-
-extern Q_EXPORT const QCursor arrowCursor;	// standard arrow cursor
-extern Q_EXPORT const QCursor upArrowCursor;	// upwards arrow
-extern Q_EXPORT const QCursor crossCursor;	// crosshair
-extern Q_EXPORT const QCursor waitCursor;	// hourglass/watch
-extern Q_EXPORT const QCursor ibeamCursor;	// ibeam/text entry
-extern Q_EXPORT const QCursor sizeVerCursor;	// vertical resize
-extern Q_EXPORT const QCursor sizeHorCursor;	// horizontal resize
-extern Q_EXPORT const QCursor sizeBDiagCursor;	// diagonal resize (/)
-extern Q_EXPORT const QCursor sizeFDiagCursor;	// diagonal resize (\)
-extern Q_EXPORT const QCursor sizeAllCursor;	// all directions resize
-extern Q_EXPORT const QCursor blankCursor;	// blank/invisible cursor
-extern Q_EXPORT const QCursor splitVCursor;	// vertical bar with left-rigth arrows
-extern Q_EXPORT const QCursor splitHCursor;	// horizontal bar with up-down arrows
 
 
 /*****************************************************************************

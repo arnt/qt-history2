@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#433 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#434 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -858,7 +858,6 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
     QColor::initialize();
     QFont::initialize();
-    QCursor::initialize();
     QPainter::initialize();
     gettimeofday( &watchtime, 0 );
 
@@ -982,7 +981,6 @@ void qt_cleanup()
     cleanupTimers();
     QPixmapCache::clear();
     QPainter::cleanup();
-    QCursor::cleanup();
     QFont::cleanup();
     QColor::cleanup();
 
