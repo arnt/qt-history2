@@ -37,17 +37,6 @@
 #include "fileopen.xpm"
 #include "fileprint.xpm"
 
-class WhatsThis : public Q3WhatsThis
-{
-public:
-    WhatsThis(QWidget *w):Q3WhatsThis(w){}
-
-    QString text( const QPoint & p) {
-	return QString::fromLatin1("Position %1 %2 and a linke <a href=\"helloref\">hello</hello>").arg(p.x()).arg(p.y());
-    }
-    bool clicked( const QString& href ) { qDebug(href.latin1());return false;}
-
-};
 
 ApplicationWindow::ApplicationWindow()
     : QMainWindow( 0, "example application main window", WDestructiveClose | WGroupLeader )
@@ -81,8 +70,7 @@ ApplicationWindow::ApplicationWindow()
                  "You can also select the <b>Open</b> command "
                  "from the <b>File</b> menu.</p>";
 
-//    QWhatsThis::add( fileOpen, fileOpenText );
-    new WhatsThis(fileOpen);
+    QWhatsThis::add( fileOpen, fileOpenText );
 
     QMimeSourceFactory::defaultFactory()->setPixmap( "fileopen", openIcon );
 
