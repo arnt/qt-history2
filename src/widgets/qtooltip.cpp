@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#81 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -309,6 +309,16 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 	 !tips )
 	return FALSE;
     QWidget *w = (QWidget *)obj;
+
+    if ( e->type() == QEvent::FocusOut || e->type() == QEvent::FocusIn ) {
+	// user moved focus somewhere - hide the tip
+	hideTip();
+	fallAsleep.stop();
+	leaveWindow.stop();
+	wakeUp.stop();
+	return FALSE;
+    }
+	
 
     QTipManager::Tip *t = 0;
     while( w && !t ) {
@@ -964,7 +974,7 @@ void QToolTipGroup::setDelay( bool enable )
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.75 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.76 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
