@@ -717,8 +717,8 @@ fi
 qdir="\$(QTDIR)"
 [ "$OPT_SHADOW" = "yes" ] && qdir="$outpath"
 
-# we may write in the source tree, let's take advantage of this
-# to test that QTDIR is correctly set to be the source tree
+# we may write in the build tree, let's take advantage of this
+# to test that QTDIR is correctly set to be the build tree
 touch .test.qt.
 if [ '!' -f ${QTDIR}/.test.qt. ]
 then
