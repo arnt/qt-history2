@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#225 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#226 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -29,7 +29,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#225 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#226 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -1484,9 +1484,12 @@ void QWidget::scroll( int dx, int dy )
     if ( dx == 0 && dy == 0 )
 	return;
 
-    XCopyArea( dpy, winid, winid, qt_xget_readonly_gc(), x1, y1, w, h, x2, y2);
+    GC gc = qt_xget_readonly_gc();
+    XSetGraphicsExposures( dpy, gc, TRUE );	// want expose events
+    XCopyArea( dpy, winid, winid, gc, x1, y1, w, h, x2, y2);
+    XSetGraphicsExposures( dpy, gc, FALSE );
 
-    if ( children() ) {	// scroll children
+    if ( children() ) {				// scroll children
 	QPoint pd( dx, dy );
 	QObjectListIt it(*children());
 	register QObject *object;
@@ -1508,14 +1511,16 @@ void QWidget::scroll( int dx, int dy )
 	if ( repaint_immediately )
 	    repaint( x1, 0, crect.width()-w, crect.height(), TRUE );
 	else
-	    XClearArea( dpy, winid, x1, 0, crect.width()-w, crect.height(), TRUE);
+	    XClearArea( dpy, winid, x1, 0, crect.width()-w, crect.height(),
+			TRUE);
     }
     if ( dy ) {
 	y1 = y2 == 0 ? h : 0;
 	if ( repaint_immediately )
 	    repaint( 0, y1, crect.width(), crect.height()-h, TRUE );
 	else
-	    XClearArea( dpy, winid, 0, y1, crect.width(), crect.height()-h, TRUE);
+	    XClearArea( dpy, winid, 0, y1, crect.width(), crect.height()-h,
+			TRUE );
     }
 
     qt_insert_sip( this, dx, dy );
