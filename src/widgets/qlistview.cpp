@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#178 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#179 $
 **
 ** Implementation of QListView widget class
 **
@@ -310,6 +310,8 @@ QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after )
   \code
      (void)new QListViewItem( lv, "/", "Root directory" );
   \endcode
+  
+  \sa setText()
 */
 
 QListViewItem::QListViewItem( QListView * parent,
@@ -343,6 +345,8 @@ QListViewItem::QListViewItem( QListView * parent,
   \code
      (void)new QListViewItem( parentMessage, author, subject );
   \endcode
+  
+  \sa setText()
 */
 
 QListViewItem::QListViewItem( QListViewItem * parent,
@@ -374,6 +378,8 @@ QListViewItem::QListViewItem( QListViewItem * parent,
   Note that the order is changed according to QListViewItem::key()
   unless the list view's sorting is disabled using
   QListView::setSorting( -1 ).
+  
+  \sa setText()
 */
 
 QListViewItem::QListViewItem( QListView * parent, QListViewItem * after,
@@ -408,6 +414,8 @@ QListViewItem::QListViewItem( QListView * parent, QListViewItem * after,
   Note that the order is changed according to QListViewItem::key()
   unless the list view's sorting is disabled using
   QListView::setSorting( -1 ).
+
+  \sa setText()
 */
 
 QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after,
@@ -479,6 +487,8 @@ QListViewItem::~QListViewItem()
 /*!  Inserts \a newChild into its list of children.  You should not
   need to call this function; it is called automatically by the
   constructor of \a newChild.
+
+  This function works even if this item is not contained in a list view.
 */
 
 void QListViewItem::insertItem( QListViewItem * newChild )
@@ -494,9 +504,15 @@ void QListViewItem::insertItem( QListViewItem * newChild )
 }
 
 
-/*!  Removes \a tbg from this object's list of children.  You should
-  normally not need to call this function, as
-  QListViewItem::~QListViewItem() calls it.
+/*!  Removes \a tbg from this object's list of children and causes an
+  update of the screen display.  You should normally not need to call
+  this function, as QListViewItem::~QListViewItem() calls it.
+
+  \warning This function leaves \a tbg and its children in a state
+  where most member functions are unsafe.  Only the few functions that
+  are explicitly documented to work in this state may be used then.
+  
+  \sa QListViewItem::insertItem()
 */
 
 void QListViewItem::removeItem( QListViewItem * tbg )
@@ -670,6 +686,8 @@ void QListViewItem::setHeight( int height )
 
 /*!  Invalidates the cached total height of this item including
   all open children.
+
+  This function works even if this item is not contained in a list view.
 
   \sa setHeight() ownHeight() totalHeight()
 */
@@ -897,6 +915,10 @@ int QListViewItem::totalHeight() const
   reimplementations of this function are at liberty to e.g. return a
   pointer into a static buffer.
 
+  This function works even if this item is not contained in a list
+  view, but reimplementations of it are not required to work properly
+  in that case.
+
   \sa key() paintCell()
 */
 
@@ -977,6 +999,10 @@ void QListViewItem::setPixmap( int column, const QPixmap & pm )
 
 /*!  Returns a pointer to the pixmap for \a column, or a null pointer
   if there is no pixmap for \a column.
+
+  This function works even if this item is not contained in a list
+  view, but reimplementations of it are not required to work properly
+  in that case.
 
   \sa setText() setPixmap()
 */
