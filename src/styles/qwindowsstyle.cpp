@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#63 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#64 $
 **
 ** Implementation of Windows-like style class
 **
@@ -1217,7 +1217,7 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
     } else  if ( checkable ) {  // just "checking"...
         if ( mi->isChecked() ) {
 	    int xp = reverse ? xpos - windowsItemFrame : xpos + windowsItemFrame;
-            drawCheckMark( p, xp, y + windowsItemFrame, checkcol - 2*windowsItemFrame, h - 2*windowsItemFrame, 
+            drawCheckMark( p, xp, y + windowsItemFrame, checkcol - 2*windowsItemFrame, h - 2*windowsItemFrame,
 		itemg, act, dis );
 	}
     }
@@ -1804,11 +1804,12 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
 			  PStyle_Enabled | ((subActive == SC_ScrollBarSubLine) ?
 					    PStyle_Sunken :
 					    PStyle_Default));
-	    drawPrimitive(PO_ArrowUp, p, subline, cg,
+	    drawPrimitive(((scrollbar->orientation() == Qt::Horizontal) ?
+			   PO_ArrowLeft : PO_ArrowUp),
+			  p, subline, cg,
 			  ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
 			  ((subActive == SC_ScrollBarSubLine) ?
-			   PStyle_Sunken :
-			   PStyle_Default));
+			   PStyle_Sunken : PStyle_Default));
 	}
 
 	if (sub & SC_ScrollBarAddLine) {
@@ -1816,7 +1817,9 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
 			  PStyle_Enabled | ((subActive == SC_ScrollBarAddLine) ?
 					    PStyle_Sunken :
 					    PStyle_Default));
-	    drawPrimitive(PO_ArrowDown, p, addline, cg,
+	    drawPrimitive(((scrollbar->orientation() == Qt::Horizontal) ?
+			   PO_ArrowRight : PO_ArrowDown),
+			  p, addline, cg,
 			  ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
 			  ((subActive == SC_ScrollBarAddLine) ?
 			   PStyle_Sunken :
