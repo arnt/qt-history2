@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stat.h>
+#include <string.h>
 #include <socket.h>
 #include <ioctl.h>
 #include <wait.h>

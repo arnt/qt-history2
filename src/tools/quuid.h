@@ -5,6 +5,7 @@
 #include <qstring.h>
 #endif // QT_H
 
+#include <string.h>
 #include <memory.h>
 
 #if defined(Q_OS_WIN32)

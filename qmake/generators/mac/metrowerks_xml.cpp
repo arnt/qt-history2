@@ -295,12 +295,10 @@ MetrowerksMakefileGenerator::init()
     if(project->isActiveConfig("qt")) {
 	if(configs.findIndex("moc")) configs.append("moc");
 	if ( !( (project->first("TARGET") == "qt") || (project->first("TARGET") == "qte") ||
-		(project->first("TARGET") == "qt-mt") ) ) {
+		(project->first("TARGET") == "qt-mt") ) ) 
 	    project->variables()["LIBS"] += project->variables()["QMAKE_LIBS_QT"];
-	}
 	if(configs.findIndex("moc")) 
 	    configs.append("moc");
-	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QT"];
 	if ( !project->isActiveConfig("debug") ) 
 	    project->variables()["DEFINES"].append("QT_NO_DEBUG");
     }
@@ -334,12 +332,35 @@ MetrowerksMakefileGenerator::init()
 	    if(s != -1) {
 		QString dir = (*val_it).left(s);
 		(*val_it) = (*val_it).right((*val_it).length() - s - 1);
-		if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
-		   project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
+
+		bool add_in = TRUE;
+		QString tmpd=dir, tmpv;
+		if(fixifyToMacPath(tmpd, tmpv)) {
+		    QString deps[] = { QString("DEPENDPATH"), 
+				     QString("INCLUDEPATH"), QString::null }, 
+				     dd, dv;
+		    for(int yy = 0; deps[yy] != QString::null; yy++) {
+			QStringList &l2 = project->variables()[deps[yy]];
+			for(QStringList::Iterator val_it2 = l2.begin(); 
+			    val_it2 != l2.end(); ++val_it2) {
+			    QString dd= (*val_it2), dv;
+			    if(!fixifyToMacPath(dd, dv)) 
+				break;
+			    if(dd == tmpd && tmpv == dv) {
+				add_in = FALSE;
+				break;
+			    }
+			}
+		    }
+		}
+		if(add_in) 
 		    project->variables()["INCLUDEPATH"].append(dir);
 	    }
 	}
     }
+    if(project->isActiveConfig("qt"))
+	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QT"];
+
     //..grrr.. libs!
     QStringList &l = project->variables()["LIBS"];
     for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
@@ -385,7 +406,7 @@ MetrowerksMakefileGenerator::init()
     if(!project->isEmpty("DEFINES"))
 	project->variables()["CODEWARRIOR_PREFIX_HEADER"].append(project->first("TARGET") + "_prefix.h");
 
-    //finally set the target up
+    //set the target up
     project->variables()["TARGET_STEM"] = project->variables()["TARGET"];
     if(project->first("TEMPLATE") == "lib") 
 	project->variables()["TARGET"].first() =  "lib" + project->first("TARGET") + "." +
@@ -468,7 +489,7 @@ MetrowerksMakefileGenerator::fixifyToMacPath(QString &p, QString &v)
 #endif
     }
     fixEnvVariables(p);
-    if(p.isEmpty())
+    if(p.isEmpty()) 
 	return FALSE;
     if(p.right(1) != "/")
 	p += "/";
