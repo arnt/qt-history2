@@ -663,7 +663,11 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 
             int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
             drawItem(p, r, alignment | AlignVCenter | ShowPrefix, pal,
-                     flags & Style_Enabled, 0, checkbox->text()); // #### FIX!!!
+                     flags & Style_Enabled,
+                     !checkbox->icon().isNull() ? checkbox->icon().pixmap(QIconSet::Small,
+                                                                          QIconSet::Normal)
+                                                : QPixmap(),
+                     checkbox->text());
 
             if (checkbox->hasFocus()) {
                 QRect fr = visualRect(subRect(SR_CheckBoxFocusRect, widget), widget);
@@ -688,7 +692,11 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 
             int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
             drawItem(p, r, alignment | AlignVCenter | ShowPrefix, pal,
-                     flags & Style_Enabled, 0, radiobutton->text()); // #### FIX
+                     flags & Style_Enabled,
+                    !radiobutton->icon().isNull() ? radiobutton->icon().pixmap(QIconSet::Small,
+                                                                               QIconSet::Normal)
+                                                  : QPixmap(),
+                     radiobutton->text());
 
             if (radiobutton->hasFocus()) {
                 QRect fr = visualRect(subRect(SR_RadioButtonFocusRect, widget), widget);
@@ -712,7 +720,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             QAction *mi = opt.action();
             QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
             drawItem(p, r, AlignCenter | ShowPrefix | DontClip | SingleLine,
-                     pal, flags & Style_Enabled, pix.isNull() ? 0 : &pix, mi->text(), -1,
+                     pal, flags & Style_Enabled, pix, mi->text(), -1,
                      &pal.buttonText().color());
 #endif
             break;
@@ -732,7 +740,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
                 p->fillRect(r, pal.button());
 
             drawItem(p, r, AlignCenter | ShowPrefix | DontClip | SingleLine,
-                     pal, flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
+                     pal, flags & Style_Enabled, *mi->pixmap(), mi->text(), -1,
                      &pal.buttonText().color());
 #endif
             break;

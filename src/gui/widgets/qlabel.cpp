@@ -676,7 +676,9 @@ void QLabel::paintEvent(QPaintEvent *)
     QRect cr = contentsRect();
     cr.addCoords(d->margin, d->margin, -d->margin, -d->margin);
 
-    QPixmap *pix = pixmap();
+    QPixmap pix;
+    if (pixmap())
+        pix = *pixmap();
 #ifndef QT_NO_PICTURE
     QPicture *pic = picture();
 #else
@@ -708,7 +710,7 @@ void QLabel::paintEvent(QPaintEvent *)
 #ifndef QT_NO_MOVIE
     if (mov) {
         // ### should add movie to qDrawItem
-        QRect r = style().itemRect(&paint, cr, align, isEnabled(), &(mov->framePixmap()),
+        QRect r = style().itemRect(&paint, cr, align, isEnabled(), mov->framePixmap(),
                                     QString::null);
         // ### could resize movie frame at this point
         paint.drawPixmap(r.x(), r.y(), mov->framePixmap());
@@ -771,7 +773,7 @@ void QLabel::paintEvent(QPaintEvent *)
 #endif
     {
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
-        if (scaledcontents && pix) {
+        if (scaledcontents && !pix.isNull()) {
             if (!d->img)
                 d->img = new QImage(lpixmap->convertToImage());
 
@@ -779,7 +781,7 @@ void QLabel::paintEvent(QPaintEvent *)
                 d->pix = new QPixmap;
             if (d->pix->size() != cr.size())
                 d->pix->convertFromImage(d->img->smoothScale(cr.width(), cr.height()));
-            pix = d->pix;
+            pix = *d->pix;
         }
 #endif
         int alignment = align;
@@ -935,7 +937,7 @@ void QLabel::movieUpdated(const QRect& rect)
     QMovie *mov = movie();
     if (mov && !mov->isNull()) {
         QRect r = contentsRect();
-        r = style().itemRect(0, r, align, isEnabled(), &(mov->framePixmap()),
+        r = style().itemRect(0, r, align, isEnabled(), mov->framePixmap(),
                               QString::null);
         r.moveBy(rect.x(), rect.y());
         r.setWidth(qMin(r.width(), rect.width()));

@@ -1255,7 +1255,7 @@ void QSGIStyle::drawControl(ControlElement element,
             if (!mi->icon().isNull()) {
                 QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
                 drawItem(p, r, AlignCenter|DontClip|SingleLine,
-                        pal, mi->isEnabled(), &pix, "", -1, &pal.buttonText().color());
+                        pal, mi->isEnabled(), pix, "", -1, &pal.buttonText().color());
             }
 
             if (mi->text().size()) {
@@ -1296,7 +1296,7 @@ void QSGIStyle::drawControl(ControlElement element,
 
             if (mi->pixmap())
                 drawItem(p, r, AlignCenter|DontClip|SingleLine,
-                        pal, mi->isEnabled(), mi->pixmap(), "", -1, &pal.buttonText().color());
+                        pal, mi->isEnabled(), *mi->pixmap(), "", -1, &pal.buttonText().color());
 
             if (mi->text().size()) {
                 QString* text = new QString(mi->text());

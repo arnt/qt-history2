@@ -509,12 +509,11 @@ QRect QStyle::itemRect(const QRect &r,
 */
 QRect QStyle::itemRect(QPainter *p, const QRect &r,
                         int flags, bool enabled,
-                        const QPixmap *pixmap,
+                        const QPixmap &pixmap,
                         const QString &text, int len) const
 {
-    return pixmap
-        ? itemRect(r, flags, *pixmap)
-        : itemRect(p->fontMetrics(), r, flags, enabled, text, len);
+    return !pixmap.isNull() ? itemRect(r, flags, pixmap)
+                            : itemRect(p->fontMetrics(), r, flags, enabled, text, len);
 }
 
 /*!

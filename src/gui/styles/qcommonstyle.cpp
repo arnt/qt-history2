@@ -747,7 +747,7 @@ void QCommonStyle::drawControl(ControlElement element,
 #endif //QT_NO_ICONSET
                 tf |= AlignHCenter;
             drawItem(p, ir, tf, pal,
-                     flags & Style_Enabled, 0, button->text(), -1, &(pal.buttonText().color()));
+                     flags & Style_Enabled, QPixmap(), button->text(), -1, &(pal.buttonText().color()));
 
             if (flags & Style_HasFocus)
                 drawPrimitive(PE_FocusRect, p, subRect(SR_PushButtonFocusRect, widget),
@@ -769,7 +769,11 @@ void QCommonStyle::drawControl(ControlElement element,
             if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
                 alignment |= NoAccel;
             drawItem(p, r, alignment | AlignVCenter | ShowPrefix, pal,
-                     flags & Style_Enabled, 0, checkbox->text()); // #### FIX!!!
+                     flags & Style_Enabled,
+                     !checkbox->icon().isNull() ? checkbox->icon().pixmap(QIconSet::Small,
+                                                                          QIconSet::Normal)
+                                                : QPixmap(),
+                     checkbox->text());
 
             if (flags & Style_HasFocus) {
                 QRect fr = visualRect(subRect(SR_CheckBoxFocusRect, widget), widget);
@@ -792,7 +796,11 @@ void QCommonStyle::drawControl(ControlElement element,
             if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
                 alignment |= NoAccel;
             drawItem(p, r, alignment | AlignVCenter | ShowPrefix, pal,
-                     flags & Style_Enabled, 0, radiobutton->text());  // #### FIX
+                    flags & Style_Enabled,
+                    !radiobutton->icon().isNull() ? radiobutton->icon().pixmap(QIconSet::Small,
+                                                                               QIconSet::Normal)
+                                                  : QPixmap(),
+                    radiobutton->text());
 
             if (flags & Style_HasFocus) {
                 QRect fr = visualRect(subRect(SR_RadioButtonFocusRect, widget), widget);
@@ -1012,7 +1020,7 @@ void QCommonStyle::drawControl(ControlElement element,
             if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
                 alignment |= NoAccel;
             QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
-            drawItem(p, r, alignment, pal, flags & Style_Enabled, pix.isNull() ? 0 : &pix, mi->text(), -1,
+            drawItem(p, r, alignment, pal, flags & Style_Enabled, pix, mi->text(), -1,
                       &pal.buttonText().color());
             break;
         }
@@ -1029,8 +1037,8 @@ void QCommonStyle::drawControl(ControlElement element,
             if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
                 alignment |= NoAccel;
             drawItem(p, r, alignment, pal,
-                      flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
-                      &pal.buttonText().color());
+                      flags & Style_Enabled, *mi->pixmap(), mi->text(),
+                      -1, &pal.buttonText().color());
 #endif
             break;
         }
@@ -1116,7 +1124,7 @@ void QCommonStyle::drawControl(ControlElement element,
                         }
                         tr.moveBy(shiftX, shiftY);
                         drawItem(p, tr, alignment, pal,
-                                  flags & Style_Enabled, 0, toolbutton->text(),
+                                  flags & Style_Enabled, QPixmap(), toolbutton->text(),
                                   toolbutton->text().length(), &btext);
                     } else {
                         rect.moveBy(shiftX, shiftY);

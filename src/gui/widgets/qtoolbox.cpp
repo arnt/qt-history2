@@ -240,7 +240,7 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
     if (!style().styleHint(QStyle::SH_UnderlineAccelerator, this))
         alignment |= NoAccel;
     style().drawItem(p, tr, alignment, pal,
-                      isEnabled(), 0, txt, -1, fill);
+                      isEnabled(), QPixmap(), txt, -1, fill);
 
     if (!txt.isEmpty() && hasFocus())
         style().drawPrimitive(QStyle::PE_FocusRect, p, tr, pal);

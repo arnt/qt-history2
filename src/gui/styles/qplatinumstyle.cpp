@@ -732,7 +732,7 @@ void QPlatinumStyle::drawControl(ControlElement element,
             // take care of the flags based on what we know...
             if (btn->isDown())
                 flags |= Style_Down;
-            if (btn->isOn())
+            if (btn->isChecked())
                 flags |= Style_On;
             if (btn->isEnabled())
                 flags |= Style_Enabled;
@@ -752,15 +752,14 @@ void QPlatinumStyle::drawControl(ControlElement element,
                 // this could be done differently, but this
                 // makes a down Bezel drawn correctly...
                 pal2.setBrush(QPalette::Mid, fill);
-            } else if (btn->isOn()) {
+            } else if (btn->isChecked()) {
                 fill = QBrush(pal.mid(), Dense4Pattern);
                 pal2.setBrush(QPalette::Mid, fill);
             }
             // to quote the old QPlatinumStlye drawPushButton...
             // small or square image buttons as well as toggle buttons are
             // bevel buttons (what a heuristic....)
-            if (btn->isToggleButton()
-                 || (btn->pixmap() &&
+            if (btn->isCheckable() || (btn->pixmap() &&
                       (btn->width() * btn->height() < 1600 ||
                        QABS(btn->width() - btn->height()) < 10)))
                 useBevelButton = true;
@@ -802,7 +801,7 @@ void QPlatinumStyle::drawControl(ControlElement element,
                 y2 -= diw;
             }
 
-            if (!btn->isFlat() || btn->isOn() || btn->isDown()) {
+            if (!btn->isFlat() || btn->isChecked() || btn->isDown()) {
                 if (useBevelButton) {
                     // fix for toggle buttons...
                     if (flags & (Style_Down | Style_On))
@@ -835,9 +834,9 @@ void QPlatinumStyle::drawControl(ControlElement element,
             SFlags flags;
             flags = Style_Default;
             btn = (const QPushButton*)widget;
-            on = btn->isDown() || btn->isOn();
+            on = btn->isDown() || btn->isChecked();
             r.rect(&x, &y, &w, &h);
-            if (btn->isMenuButton()) {
+            if (btn->menu()) {
                 int dx = pixelMetric(PM_MenuButtonIndicator, widget);
 
                 int xx = x + w - dx - 4;
@@ -860,16 +859,15 @@ void QPlatinumStyle::drawControl(ControlElement element,
                 w -= dx;
             }
 #ifndef QT_NO_ICONSET
-            if (btn->iconSet() && !btn->iconSet()->isNull()) {
+            if (!btn->icon().isNull()) {
                 QIconSet::Mode mode = btn->isEnabled()
                                       ? QIconSet::Normal : QIconSet::Disabled;
                 if (mode == QIconSet::Normal && btn->hasFocus())
                     mode = QIconSet::Active;
                 QIconSet::State state = QIconSet::Off;
-                if (btn->isToggleButton() && btn->isOn())
+                if (btn->isCheckable() && btn->isChecked())
                     state = QIconSet::On;
-                QPixmap pixmap = btn->iconSet()->pixmap(QIconSet::Small,
-                                                         mode, state);
+                QPixmap pixmap = btn->icon().pixmap(QIconSet::Small, mode, state);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 p->drawPixmap(x + 2, y + h / 2 - pixh / 2, pixmap);
@@ -880,7 +878,7 @@ void QPlatinumStyle::drawControl(ControlElement element,
             drawItem(p, QRect(x, y, w, h),
                       AlignCenter | ShowPrefix,
                       btn->palette(), btn->isEnabled(),
-                      btn->pixmap(), btn->text(), -1,
+                      QPixmap(), btn->text(), -1,
                       on ? &btn->palette().brightText().color()
                       : &btn->palette().buttonText().color());
             if (btn->hasFocus())

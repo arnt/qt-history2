@@ -16,10 +16,10 @@
 
 #ifndef QT_H
 #include "qobject.h"
+#include "qpixmap.h"
 #include "qrect.h"
 #include "qsize.h"
 #endif // QT_H
-
 
 #ifndef QT_NO_STYLE
 
@@ -31,6 +31,7 @@ class QListViewItem;
 class QCheckListItem;
 class QFontMetrics;
 
+// You'll be going away soon, deary.
 class QStyleOption {
 public:
     enum StyleOptionDefault { Default };
@@ -133,7 +134,7 @@ public:
 
     QRect itemRect(QPainter *p, const QRect &r,
                     int flags, bool enabled,
-                    const QPixmap *pixmap,
+                    const QPixmap &pixmap,
                     const QString &text, int len = -1) const;
 
     virtual void drawItem(QPainter *p, const QRect &r,
@@ -148,11 +149,11 @@ public:
 
     void drawItem(QPainter *p, const QRect &r,
                    int flags, const QPalette &pal, bool enabled,
-                   const QPixmap *pixmap,
+                   const QPixmap &pixmap,
                    const QString &text, int len = -1,
                    const QColor *penColor = 0) const {
-        if (pixmap)
-            drawItem(p, r, flags, pal, enabled, *pixmap, penColor);
+        if (!pixmap.isNull())
+            drawItem(p, r, flags, pal, enabled, pixmap, penColor);
         else
             drawItem(p, r, flags, pal, enabled, text, len, penColor);
     }
@@ -860,6 +861,5 @@ private:
     QStyle& operator=(const QStyle &);
 #endif
 };
-
 #endif // QT_NO_STYLE
 #endif // QSTYLE_H

@@ -638,7 +638,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
 #endif //QT_NO_ICONSET
             tf |= AlignHCenter;
         drawItem(p, ir, tf, pal,
-                 how & Style_Enabled, 0, button->text(), -1, // ### FIX
+                 how & Style_Enabled, QPixmap(), button->text(), -1,
                  &(pal.buttonText().color()));
 #endif
         break; }
