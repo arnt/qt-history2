@@ -322,16 +322,11 @@ void HelpMainWindow::slotFilePrint()
 	QRect body(margin*dpix/72, (30+margin)*dpiy/72,
 		   metrics.width()-margin*dpix/72*2,
 		   metrics.height()-(margin+30)*dpiy/72*2 );
-	double scale = 0.75;
-	p.scale(scale, scale );
-	body = QRect( int(body.x()/scale), int(body.y()/scale),
-		      int(body.width()/scale), int(body.height()/scale) );
-	QFont font("times");
+	QFont font("times", 10);
 	QSimpleRichText richText( viewer->text(), font, viewer->context(), viewer->styleSheet(),
 				  viewer->mimeSourceFactory(), body.height() );
 	richText.setWidth( &p, body.width() );
 	font.setItalic( TRUE );
-	font.setPointSize( 10 );
 	p.setFont( font );
 	QRect view( body );
 	int page = 1;
