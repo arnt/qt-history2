@@ -37,7 +37,7 @@ MultiLineEditor::MultiLineEditor( QWidget *parent, QWidget *editWidget, FormWind
     preview->setWordWrap( mlined->wordWrap() );
     preview->setWrapColumnOrWidth( mlined->wrapColumnOrWidth() );
     preview->setWrapPolicy( mlined->wrapPolicy() );
-    preview->setTextFormat( mlined->textFormat() );
+    //preview->setTextFormat( mlined->textFormat() );
     preview->setText( mlined->text() );
     preview->setFocus();
     preview->selectAll();
