@@ -340,7 +340,7 @@ QString QColor::name() const
 }
 
 
-inline static int hex2int( QChar hexchar )
+static int hex2int( QChar hexchar )
 {
     int v;
     if ( hexchar.isDigit() )
