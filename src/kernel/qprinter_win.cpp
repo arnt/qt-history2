@@ -1213,7 +1213,6 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             bits = image.bits();
 
             int rc = GetDeviceCaps(hdc,RASTERCAPS);
-	    int bpp = GetDeviceCaps(hdc,BITSPIXEL);
 	    if ( (rc & RC_STRETCHDIB) != 0 ) {
                 // StretchDIBits supported
                 StretchDIBits( hdc, pos.x(), pos.y(), dw, dh, 0, 0, w, h,
