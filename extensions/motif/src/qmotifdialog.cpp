@@ -157,24 +157,24 @@ public:
 
     \extension Motif
 
-    QMotifDialog provides two separate modes of operation.  The
+    QMotifDialog provides two separate modes of operation. The
     application programmer can use QMotifDialog with an existing
     Motif-based dialog and a QWidget parent, or the application
     programmer can use QMotifDialog with a custom Qt-based dialog and
-    a Motif-based parent.  Modailty continues to work as expected.
+    a Motif-based parent. Modality continues to work as expected.
 
-    Motif-based dialogs must have a Shell widget parent with a single
-    child, due to requirements in the Motif toolkit.  The Shell
-    widget, which is a special subclass of XmDialogShell, is created
-    during construction.  It can be accessed using the shell() member
-    function.
+    Motif-based dialogs must have a \c Shell widget parent with a
+    single child, due to requirements of the Motif toolkit. The \c
+    Shell widget, which is a special subclass of \c XmDialogShell, is
+    created during construction. It can be accessed using the shell()
+    member function.
 
-    The single child of the Shell can be accessed using the dialog()
-    member function \e after it has been created.
+    The single child of the \c Shell can be accessed using the
+    dialog() member function \e after it has been created.
 
     The acceptCallback() and rejectCallback() functions provide a
     convenient way to call QDialog::accept() and QDialog::reject()
-    through callbacks.  A pointer to the QMotifDialog should be passed
+    through callbacks. A pointer to the QMotifDialog should be passed
     as the \c client_data argument to the callback.
 
     The API and behavior QMotifDialog is identical to that of QDialog
@@ -204,13 +204,13 @@ public:
 /*! \obsolete
 
     Creates a QMotifDialog using one of the predefined Motif dialog
-    types.  The \a name, \a modal and \a flags arguments are passed to
+    types. The \a name, \a modal and \a flags arguments are passed to
     the QDialog constructor.
 
     This constructor creates a Shell widget, which is a special
     subclass of XmDialogShell. The \a parent, \a args and \a argcount
     arguments are passed to XtCreatePopupShell() when creating the
-    subclass.  You can access the Shell widget with the shell() member
+    subclass. You can access the Shell widget with the shell() member
     function.
 
     This constructor also creates the dialog widget with the Shell
@@ -220,7 +220,7 @@ public:
     the dialog() member function.
 
     \warning QMotifDialog takes ownership of the child widget and
-    destroys it during destruction.  You should not destroy the dialog
+    destroys it during destruction. You should not destroy the dialog
     widget yourself.
 
     \sa DialogType shell() dialog()
@@ -306,7 +306,7 @@ QMotifDialog::QMotifDialog( DialogType dialogtype, Widget parent,
 /*! \obsolete
 
     Creates a QMotifDialog which allows the application programmer to
-    use the Motif-based \a parent for a custom QDialog.  The \a name,
+    use the Motif-based \a parent for a custom QDialog. The \a name,
     \a modal and \a flags arguments are passed to the QDialog
     constructor.
 
@@ -315,9 +315,9 @@ QMotifDialog::QMotifDialog( DialogType dialogtype, Widget parent,
     are passed to XtCreatePopupShell() when creating the subclass.
     You can access the Shell widget with the shell() member function.
 
-    The dialog widget is not created by the constructor.  You must
+    The dialog widget is not created by the constructor. You must
     create the dialog widget as a child of the the widget returned by
-    shell().  You can access the child widget with the dialog() member
+    shell(). You can access the child widget with the dialog() member
     function.
 
     A dialog widget is not created by this constructor. Instead, you
@@ -326,7 +326,7 @@ QMotifDialog::QMotifDialog( DialogType dialogtype, Widget parent,
     and you can access it with the dialog() member function.
 
     \warning QMotifDialog takes ownership of the child widget and
-    destroys it during destruction.  You should not destroy the dialog
+    destroys it during destruction. You should not destroy the dialog
     widget yourself.
 
     \sa shell() dialog()
@@ -340,13 +340,13 @@ QMotifDialog::QMotifDialog( Widget parent, ArgList args, Cardinal argcount,
 
 /*!
     Creates a QMotifDialog which allows the application programmer to
-    use the Motif-based \a parent for a custom QDialog.  The \a name,
+    use the Motif-based \a parent for a custom QDialog. The \a name,
     \a modal and \a flags arguments are passed to the QDialog
     constructor.
 
-    This constructor creates a Shell widget, which is a special
-    subclass of XmDialogShell.  You can access the Shell widget with
-    the shell() member function.
+    This constructor creates a \c Shell widget, which is a special
+    subclass of \c XmDialogShell. You can access the \c Shell widget
+    with the shell() member function.
 
     \sa shell()
 */
@@ -358,18 +358,13 @@ QMotifDialog::QMotifDialog( Widget parent, const char *name, bool modal, WFlags 
 
 /*!
     Creates a QMotifDialog which allows the application programmer to
-    use a QWidget parent for an existing Motif-based dialog.  The \a
+    use a QWidget parent for an existing Motif-based dialog. The \a
     parent, \a name, \a modal and \a flags arguments are passed to the
     QDialog constructor.
 
-    This constructor creates a Shell widget, which is a special
-    subclass of XmDialogShell.  You can access the Shell widget with
-    the shell() member functon.
-
-    The dialog widget is not created by the constructor.  You must
-    create the dialog widget as a child of the the widget returned by
-    shell().  You can access the child widget with the dialog() member
-    function.
+    This constructor creates a \c Shell widget, which is a special
+    subclass of \c XmDialogShell. You can access the \c Shell widget
+    with the shell() member functon.
 
     A dialog widget is not created by this constructor. Instead, you
     should create the dialog widget as a child of this
@@ -377,7 +372,7 @@ QMotifDialog::QMotifDialog( Widget parent, const char *name, bool modal, WFlags 
     and you can access it with the dialog() member function.
 
     \warning QMotifDialog takes ownership of the child widget and
-    destroys it during destruction.  You should not destroy the dialog
+    destroys it during destruction. You should not destroy the dialog
     widget yourself.
 
     \sa shell() dialog()
@@ -427,7 +422,7 @@ void QMotifDialog::init( Widget parent, ArgList args, Cardinal argcount )
 }
 
 /*!
-    Destroys the QDialog, dialog widget and shell widget.
+    Destroys the QDialog, dialog widget and \c Shell widget.
 */
 QMotifDialog::~QMotifDialog()
 {
@@ -441,7 +436,7 @@ QMotifDialog::~QMotifDialog()
 }
 
 /*!
-    Returns the Shell widget embedded in this dialog.
+    Returns the \c Shell widget embedded in this dialog.
 */
 Widget QMotifDialog::shell() const
 {

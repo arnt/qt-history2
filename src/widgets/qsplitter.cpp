@@ -204,7 +204,7 @@ public:
 
     A splitter lets the user control the size of child widgets by
     dragging the boundary between the children. Any number of widgets
-    may be controlled.
+    may be controlled by a single splitter.
 
     To show a QListBox, a QListView and a QTextEdit side by side:
     \code
@@ -214,9 +214,9 @@ public:
 	QTextEdit *ed = new QTextEdit( split );
     \endcode
 
-    By default, QSplitter lays out its children horizontally (side by
-    side); you can use setOrientation(QSplitter::Vertical) to lay
-    out the children vertically.
+    QSplitter lays out its children horizontally (side by side); you
+    can use setOrientation(QSplitter::Vertical) to lay out the
+    children vertically.
 
     By default, all widgets can be as large or as small as the user
     wishes, between the \l minimumSizeHint() (or \l minimumSize())
@@ -331,12 +331,12 @@ void QSplitter::setOrientation( Orientation o )
     recalc( isVisible() );
 }
 
-/*! \property QSplitter::childrenCollapsible
-
+/*!
+    \property QSplitter::childrenCollapsible
     \brief whether child widgets can be resized down to size 0 by the user
 
     By default, children are collapsible. It is possible to enable
-    and disable collapsing of individual children; see
+    and disable the collapsing of individual children; see
     setCollapsible().
 */
 
@@ -357,7 +357,8 @@ bool QSplitter::childrenCollapsible() const
     resize them down to size 0, even if they have a non-zero
     minimumSize() or minimumSizeHint(). This behavior can be changed
     on a per-widget basis by calling this function, or globally for
-    the splitter by setting the \l childrenCollapsible property.
+    all the widgets in the splitter by setting the \l
+    childrenCollapsible property.
 
     \sa childrenCollapsible
 */
@@ -387,14 +388,13 @@ QSplitterLayoutStruct *QSplitter::findWidget( QWidget *w )
     return addWidget( w );
 }
 
-/*!
+/*
     Inserts the widget \a w at the end (or at the beginning if \a
     prepend is TRUE) of the splitter's list of widgets.
 
-  It is the responsibility of the caller of this function to make sure
-  that \a w is not already in the splitter and to call recalcId() if
-  needed. (If \a prepend is TRUE, then recalcId() is very probably
-  needed.)
+    It is the responsibility of the caller to make sure that \a w is
+    not already in the splitter and to call recalcId() if needed. (If
+    \a prepend is TRUE, then recalcId() is very probably needed.)
 */
 
 QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool prepend )
@@ -431,8 +431,8 @@ QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool prepend )
 
 
 /*!
-    Tells the splitter that child widget described by \a c has been
-    inserted or removed.
+    Tells the splitter that the child widget described by \a c has
+    been inserted or removed.
 */
 
 void QSplitter::childEvent( QChildEvent *c )
@@ -477,7 +477,7 @@ void QSplitter::childEvent( QChildEvent *c )
 
 
 /*!
-    Shows a rubber band at position \a p. If \a p is negative, the
+    Displays a rubber band at position \a p. If \a p is negative, the
     rubber band is removed.
 */
 
@@ -549,9 +549,9 @@ void QSplitter::drawSplitter( QPainter *p,
 
 
 /*!
-    Returns the ID of the splitter to the right of or below the widget
-    \a w, or 0 if there is no such splitter (i.e. it is either not in
-    this QSplitter or it is at the end).
+    Returns the ID of the widget to the right of or below the widget
+    \a w, or 0 if there is no such widget (i.e. it is either not in
+    this QSplitter or \a w is at the end).
 */
 
 int QSplitter::idAfter( QWidget* w ) const
@@ -574,8 +574,9 @@ int QSplitter::idAfter( QWidget* w ) const
     close as possible to position \a p, which is the distance from the
     left (or top) edge of the widget.
 
-    For Arabic and Hebrew the layout is reversed.  \a p is then the
-    distance from the right (or top) edge of the widget.
+    For Arabic, Hebrew and other right-to-left languages the layout is
+    reversed.  \a p is then the distance from the right (or top) edge
+    of the widget.
 
     \sa idAfter()
 */
@@ -754,8 +755,8 @@ void QSplitter::getRange( int id, int *min, int *max )
 
 
 /*!
-    Returns the closest legal position to \a pos of the splitter with
-    ID \a id.
+    Returns the closest legal position to \a pos of the widget with ID
+    \a id.
 
     \sa idAfter()
 */
@@ -971,7 +972,7 @@ void QSplitter::recalc( bool update )
     \value Stretch  The widget will be resized when the splitter
     itself is resized.
 
-    \value KeepSize  QSplitter will try to keep this widget's size
+    \value KeepSize  QSplitter will try to keep the widget's size
     unchanged.
 
     \value FollowSizeHint  QSplitter will resize the widget when the
@@ -1251,7 +1252,7 @@ void QSplitter::setHandleWidth( int width )
 
 /*!
     Processes all posted child events, ensuring that the internal state of
-    the splitter is consistent.
+    the splitter is kept consistent.
 */
 
 void QSplitter::processChildEvents()

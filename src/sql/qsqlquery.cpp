@@ -111,18 +111,21 @@ void QSqlResultShared::slotResultDestroyed()
     To access the data returned by a query, use the value() method.
     Each field in the data returned by a SELECT statement is accessed
     by passing the field's position in the statement, starting from 0.
-    For the sake of efficiency there are no methods to access a field
-    by name. (The \l QSqlCursor class provides a higher level
-    interface that generates SQL automatically and through which
-    fields are accessible by name.)
+    This makes using \c{SELECT *} queries inadvisable because the
+    order of the fields returned is indeterminate. For the sake of
+    efficiency there are no methods to access a field by name. (The \l
+    QSqlCursor class provides a higher level interface that generates
+    SQL automatically and through which fields are accessible by
+    name.)
 
-    QSqlQuery supports prepared query execution and binding of
-    parameter values to placeholders. Since not all databases support
-    these features, Qt emulates them when necessary. For example, the
-    Oracle and ODBC drivers have proper prepared query support, and Qt
-    makes use of it; but for databases that don't have this support,
-    Qt implements the feature itself, e.g. by replacing placeholders
-    with actual values when a query is executed.
+    QSqlQuery supports prepared query execution and the binding of
+    parameter values to placeholders. Some databases don't support
+    these features, so for them Qt emulates the required
+    functionality. For example, the Oracle and ODBC drivers have
+    proper prepared query support, and Qt makes use of it; but for
+    databases that don't have this support, Qt implements the feature
+    itself, e.g. by replacing placeholders with actual values when a
+    query is executed.
 
     Oracle databases identify placeholders by using a colon-name
     syntax, e.g \c{:name}. ODBC simply uses \c ? characters. Qt
@@ -135,7 +138,8 @@ void QSqlResultShared::slotResultDestroyed()
     <b>Named binding using named placeholders</b>
     \code
     QSqlQuery query;
-    query.prepare( "INSERT INTO atable (id, forename, surname) VALUES (:id, :forename, :surname)" );
+    query.prepare( "INSERT INTO atable (id, forename, surname) "
+	           "VALUES (:id, :forename, :surname)" );
     query.bindValue( ":id", 1001 );
     query.bindValue( ":forename", "Bart" );
     query.bindValue( ":surname", "Simpson" );
@@ -145,7 +149,8 @@ void QSqlResultShared::slotResultDestroyed()
     <b>Positional binding using named placeholders</b>
     \code
     QSqlQuery query;
-    query.prepare( "INSERT INTO atable (id, forename, surname) VALUES (:id, :forename, :surname)" );
+    query.prepare( "INSERT INTO atable (id, forename, surname) "
+		   "VALUES (:id, :forename, :surname)" );
     query.bindValue( 0, 1001 );
     query.bindValue( 1, "Bart" );
     query.bindValue( 2, "Simpson" );
@@ -155,7 +160,8 @@ void QSqlResultShared::slotResultDestroyed()
     <b>Binding values using positional placeholders #1</b>
     \code
     QSqlQuery query;
-    query.prepare( "INSERT INTO atable (id, forename, surname) VALUES (?, ?, ?)" );
+    query.prepare( "INSERT INTO atable (id, forename, surname) "
+		   "VALUES (?, ?, ?)" );
     query.bindValue( 0, 1001 );
     query.bindValue( 1, "Bart" );
     query.bindValue( 2, "Simpson" );
@@ -164,7 +170,8 @@ void QSqlResultShared::slotResultDestroyed()
 
     <b>Binding values using positional placeholders #2</b>
     \code
-    query.prepare( "INSERT INTO atable (id, forename, surname) VALUES (?, ?, ?)" );
+    query.prepare( "INSERT INTO atable (id, forename, surname) "
+		   "VALUES (?, ?, ?)" );
     query.addBindValue( 1001 );
     query.addBindValue( "Bart" );
     query.addBindValue( "Simpson" );
@@ -364,7 +371,7 @@ QVariant QSqlQuery::value( int i ) const
     record is at position zero. If the position is invalid, a
     QSql::Location will be returned indicating the invalid position.
 
-    \sa isValid()
+    \sa prev() next() first() last() seek() isActive() isValid()
 */
 
 int QSqlQuery::at() const
@@ -445,6 +452,8 @@ const QSqlResult* QSqlQuery::result() const
     negative), and FALSE is returned. If the record is successfully
     retrieved, TRUE is returned.
     \endlist
+
+    \sa next() prev() first() last() at() isActive() isValid()
 */
 bool QSqlQuery::seek( int i, bool relative )
 {
@@ -548,7 +557,7 @@ bool QSqlQuery::seek( int i, bool relative )
     the last record and FALSE is returned. If the record is successfully
     retrieved, TRUE is returned.
 
-    \sa at() isValid()
+    \sa prev() first() last() seek() at() isActive() isValid()
 */
 
 bool QSqlQuery::next()
@@ -600,7 +609,7 @@ bool QSqlQuery::next()
     before the first record and FALSE is returned. If the record is
     successfully retrieved, TRUE is returned.
 
-    \sa at()
+    \sa next() first() last() seek() at() isActive() isValid()
 */
 
 bool QSqlQuery::prev()
@@ -643,6 +652,8 @@ bool QSqlQuery::prev()
     calling this function or it will do nothing and return FALSE.
     Returns TRUE if successful. If unsuccessful the query position is
     set to an invalid position and FALSE is returned.
+
+    \sa next() prev() last() seek() at() isActive() isValid()
 */
 
 bool QSqlQuery::first()
@@ -670,6 +681,8 @@ bool QSqlQuery::first()
     calling this function or it will do nothing and return FALSE.
     Returns TRUE if successful. If unsuccessful the query position is
     set to an invalid position and FALSE is returned.
+
+    \sa next() prev() first() seek() at() isActive() isValid()
 */
 
 bool QSqlQuery::last()
@@ -686,11 +699,11 @@ bool QSqlQuery::last()
 
 /*!
     Returns the size of the result, (number of rows returned), or -1
-    if the size cannot be determined or the database does not support
-    reporting information about query sizes. Note that for non-SELECT
-    statements (isSelect() returns FALSE), size() will return -1. If
-    the query is not active (isActive() returns FALSE), -1 is
-    returned.
+    if the size cannot be determined or if the database does not
+    support reporting information about query sizes. Note that for
+    non-\c SELECT statements (isSelect() returns FALSE), size() will
+    return -1. If the query is not active (isActive() returns FALSE),
+    -1 is returned.
 
     To determine the number of rows affected by a non-SELECT
     statement, use numRowsAffected().
@@ -708,9 +721,9 @@ int QSqlQuery::size() const
 
 /*!
     Returns the number of rows affected by the result's SQL statement,
-    or -1 if it cannot be determined.
-    Note that for SELECT statements, the value is undefined.
-    If the query is not active (isActive() returns FALSE), -1 is returned.
+    or -1 if it cannot be determined. Note that for \c SELECT
+    statements, the value is undefined; see size() instead. If the
+    query is not active (isActive() returns FALSE), -1 is returned.
 
     \sa size() QSqlDriver::hasFeature()
 */
@@ -789,9 +802,9 @@ bool QSqlQuery::isForwardOnly() const
 
 /*!
     Sets forward only mode to \a forward. If forward is TRUE only
-    next() and seek() with positive values are allowed for navigating
-    the results. Forward only mode needs far less memory since results
-    do not have to be cached.
+    next(), and seek() with positive values, are allowed for
+    navigating the results. Forward only mode needs far less memory
+    since results do not need to be cached.
 
     Forward only mode is off by default.
 
@@ -1112,7 +1125,7 @@ QVariant QSqlQuery::boundValue( int pos ) const
 /*!
     Returns a map of the bound values.
 
-    The bound values can be examined the following way:
+    The bound values can be examined in the following way:
     \code
     QSqlQuery query;
     ...

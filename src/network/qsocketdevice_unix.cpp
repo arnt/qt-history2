@@ -432,12 +432,11 @@ bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 /*!
     Specifies how many pending connections a server socket can have.
     Returns TRUE if the operation was successful; otherwise returns
-    FALSE.
+    FALSE. A \a backlog value of 50 is quite common.
 
     The listen() call only applies to sockets where type() is \c
     Stream, i.e. not to \c Datagram sockets. listen() must not be
-    called before bind() or after accept(). It is common to use a \a
-    backlog value of 50 on most Unix systems.
+    called before bind() or after accept().
 
     \sa bind(), accept()
 */
