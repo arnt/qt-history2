@@ -37,6 +37,7 @@
 #include <QToolBox>
 #include <QMainWindow>
 #include <QMenuBar>
+#include <QClipboard>
 
 #include <qdebug.h>
 
@@ -444,6 +445,7 @@ void FormWindowManager::slotActionCutActivated()
 void FormWindowManager::slotActionCopyActivated()
 {
     m_activeFormWindow->copy();
+    slotUpdateActions();
 }
 
 void FormWindowManager::slotActionPasteActivated()
@@ -584,7 +586,7 @@ void FormWindowManager::slotUpdateActions()
 
     m_actionCut->setEnabled(enable);
     m_actionCopy->setEnabled(enable);
-    m_actionPaste->setEnabled(true);
+    m_actionPaste->setEnabled(!qApp->clipboard()->text().isEmpty());
     m_actionDelete->setEnabled(enable);
     m_actionLower->setEnabled(enable);
     m_actionRaise->setEnabled(enable);
