@@ -19,8 +19,8 @@ to provide better access to the non-class documentation.
 OpenGL Module
 -------------
 
-Qt beta 5 provides better support for rendering GL widgets to pixmaps
-on the different Unix platforms.
+The beta5 provides some fixes which will make rendering GL widgets to
+pixmaps work on a wider range of X servers.
 
 QDateTimeEdit
 -------------
