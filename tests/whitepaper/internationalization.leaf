@@ -1,5 +1,10 @@
 \chapter Internationalization
 
+\index i18n
+\index internationalization
+\index l10n
+\index localization
+
 \omit ### Mark, I'll need your help here ### \endomit
 
 Qt provides full Unicode support. Applications can mix Arabic,
@@ -88,6 +93,7 @@ subclassing \Class QTextCodec.
 \index diacritical marks
 \index fonts
 \index line breaking
+\index right-to-left languages
 \index text rendering
 
 Qt provides a powerful text-rendering engine for all text that is
@@ -213,6 +219,7 @@ More advanced topics:
  * variables in strings: arg()
  * automatic sizes in layouts
  * reversed layouts in Hebrew
+ * designer
 \endomit
 
 \section1 Further Reading
