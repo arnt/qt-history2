@@ -1969,7 +1969,7 @@ bool QColorDrag::decode(QMimeSource *e, QColor &col)
     b = (b >> 8) & 0xff;
     a = (a >> 8) & 0xff;
 
-    col.setRgba(r, g, b, a);
+    col.setRgb(r, g, b, a);
     return true;
 }
 

@@ -324,7 +324,7 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem
         painter->drawPixmap(rect.topLeft(), pixmap);
         if (option.state & QStyle::Style_Selected) {
             QColor col = option.palette.highlight();
-            col.setRgba(col.red(), col.green(), col.blue(), 127);
+            col.setRgb(col.red(), col.green(), col.blue(), 127);
             QPen pen = painter->pen();
             painter->setPen(col);
             painter->drawPixmap(rect.topLeft(), *pixmap.mask());

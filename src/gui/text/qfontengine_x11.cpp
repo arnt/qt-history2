@@ -23,6 +23,7 @@
 #include "qpainter.h"
 #include "qvarlengtharray.h"
 #include "qwidget.h"
+#include "qcolormap.h"
 
 #include "qpaintengine_x11.h"
 
@@ -1393,17 +1394,23 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
 
 
     XftDraw *draw = 0;
+    int screen = -1;
     QPaintDevice *pd = p->painter()->device();
-    if (pd->devType() == QInternal::Widget)
-	draw = reinterpret_cast<XftDraw *>(static_cast<const QWidget *>(pd)->xftDrawHandle());
-    else
-	draw = reinterpret_cast<XftDraw *>(static_cast<const QPixmap *>(pd)->xftDrawHandle());
+    if (pd->devType() == QInternal::Widget) {
+        QWidget *w = static_cast<const QWidget *>(pd);
+	draw = reinterpret_cast<XftDraw *>(w->xftDrawHandle());
+        screen = w->x11Info().screen();
+    } else {
+        QPixmap *px = static_cast<const QPixmap *>(pd);
+	draw = reinterpret_cast<XftDraw *>(px->xftDrawHandle());
+        screen = px->x11Info().screen();
+    }
     XftColor col;
     col.color.red = pen.red () | pen.red() << 8;
     col.color.green = pen.green () | pen.green() << 8;
     col.color.blue = pen.blue () | pen.blue() << 8;
     col.color.alpha = 0xffff;
-    col.pixel = pen.pixel();
+    col.pixel = QColormap::instance(screen).pixel(pen);
 #ifdef FONTENGINE_DEBUG
     qDebug("===== drawing %d glyphs reverse=%s ======", si.num_glyphs, si.right_to_left?"true":"false");
     p->painter()->save();

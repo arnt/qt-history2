@@ -726,7 +726,8 @@ void QColorLuminancePicker::paintEvent(QPaintEvent *)
         QImage img(wi, hi, 32);
         int y;
         for (y = 0; y < hi; y++) {
-            QColor c(hue, sat, y2val(y+coff), QColor::Hsv);
+            QColor c;
+            c.setHsv(hue, sat, y2val(y+coff));
             QRgb r = c.rgb();
             int x;
             for (x = 0; x < wi; x++)
@@ -777,8 +778,9 @@ QColorPicker::QColorPicker(QWidget* parent)
     for (y = 0; y < pHeight; y++)
         for (x = 0; x < pWidth; x++) {
             QPoint p(x, y);
-            img.setPixel(x, y, QColor(huePt(p), satPt(p),
-                                       200, QColor::Hsv).rgb());
+            QColor c;
+            c.setHsv(huePt(p), satPt(p), 200);
+            img.setPixel(x, y, c.rgb());
         }
     pix = new QPixmap;
     pix->convertFromImage(img);
@@ -1156,7 +1158,9 @@ void QColorShower::hsvEd()
     sat = sEd->val();
     val = vEd->val();
 
-    curCol = QColor(hue, sat, val, QColor::Hsv).rgb();
+    QColor c;
+    c.setHsv(hue, sat, val);
+    curCol = c.rgb();
 
     rEd->setNum(qRed(currentColor()));
     gEd->setNum(qGreen(currentColor()));
@@ -1191,7 +1195,9 @@ void QColorShower::setHsv(int h, int s, int v)
 
     rgbOriginal = false;
     hue = h; val = v; sat = s;
-    curCol = QColor(hue, sat, val, QColor::Hsv).rgb();
+    QColor c;
+    c.setHsv(hue, sat, val);
+    curCol = c.rgb();
 
     hEd->setNum(hue);
     sEd->setNum(sat);

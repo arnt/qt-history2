@@ -26,6 +26,7 @@
 #include "qcursor.h"
 #include "qstack.h"
 #include "qcleanuphandler.h"
+#include "qcolormap.h"
 
 // Paint event clipping magic
 extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
@@ -402,11 +403,11 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
                                              data->crect.left(), data->crect.top(),
                                              data->crect.width(), data->crect.height(),
                                              0,
-                                             QColor(Qt::black).pixel(d->xinfo.screen()),
-                                             QColor(Qt::white).pixel(d->xinfo.screen()));
+                                             BlackPixel(dpy, d->xinfo.screen()),
+                                             WhitePixel(dpy, d->xinfo.screen()));
         } else {
-            wsa.background_pixel = QColor(Qt::white).pixel(d->xinfo.screen());
-            wsa.border_pixel = QColor(Qt::black).pixel(d->xinfo.screen());
+            wsa.background_pixel = WhitePixel(dpy, d->xinfo.screen());
+            wsa.border_pixel = BlackPixel(dpy, d->xinfo.screen());
             wsa.colormap = d->xinfo.colormap();
             id = (WId)qt_XCreateWindow(this, dpy, parentw,
                                        data->crect.left(), data->crect.top(),
@@ -983,7 +984,8 @@ void QWidgetPrivate::updateSystemBackground()
                                    ? ParentRelative
                                    : pix.handle());
     } else {
-        XSetWindowBackground(xinfo.display(), q->winId(), brush.color().pixel(xinfo.screen()));
+        XSetWindowBackground(xinfo.display(), q->winId(),
+                             QColormap::instance(xinfo.screen()).pixel(brush.color()));
     }
 }
 

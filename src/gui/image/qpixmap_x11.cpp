@@ -35,6 +35,7 @@
 #include "qimage.h"
 #include "qmatrix.h"
 #include "qapplication.h"
+#include "qcolormap.h"
 #include "private/qpaintengine_x11_p.h"
 #include "qpaintengine_x11.h"
 #include <private/qt_x11_p.h>
@@ -496,7 +497,8 @@ void QPixmap::fill(const QColor &fillColor)
         return;
     detach();                                        // detach other references
     GC gc = qt_xget_temp_gc(data->xinfo.screen(), depth()==1);
-    XSetForeground(data->xinfo.display(), gc, fillColor.pixel(data->xinfo.screen()));
+    XSetForeground(data->xinfo.display(), gc,
+                   QColormap::instance(data->xinfo.screen()).pixel(fillColor));
     XFillRectangle(data->xinfo.display(), data->hd, gc, 0, 0, width(), height());
 }
 
@@ -1355,11 +1357,12 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
             pixarr[minpix].use = 0;
         }
 
+        QColormap cmap = QColormap::instance(data->xinfo.screen());
         uint pix[256];                                // pixel translation table
         px = &pixarr_sorted[0];
         for (i=0; i< (uint) ncols; i++) {                // allocate colors
             QColor c(px->r, px->g, px->b);
-            pix[px->index] = c.pixel(data->xinfo.screen());
+            pix[px->index] = cmap.pixel(c);
             px++;
         }
 
@@ -1709,7 +1712,7 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
         if (depth1)                                // fill with zeros
             memset(dptr, 0, dbytes);
         else if (bpp == 8)                        // fill with background color
-            memset(dptr, QColor(Qt::white).pixel(data->xinfo.screen()), dbytes);
+            memset(dptr, WhitePixel(data->xinfo.display(), data->xinfo.screen()), dbytes);
         else
             memset(dptr, 0xff, dbytes);
 #if defined(QT_MITSHM)

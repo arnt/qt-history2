@@ -32,6 +32,7 @@
 
 #include "qpen.h"
 #include "qcolor.h"
+#include "qcolormap.h"
 #include "qfont.h"
 
 #include "qmath_p.h"
@@ -416,7 +417,7 @@ void qt_erase_background(QPaintDevice *pd, int screen,
     Display *dpy = QX11Info::display();
     GC gc;
     void *penref = 0;
-    ulong pixel = brush.color().pixel(screen);
+    ulong pixel = QColormap::instance(screen).pixel(brush.color());
     bool obtained = obtain_gc(&penref, &gc, pixel, dpy, screen, hd, gc_cache_clip_serial);
 
     if (!obtained && !penref) {
@@ -484,9 +485,10 @@ void qt_draw_transformed_rect(QPaintEngine *pe,  int x, int y, int w,  int h, bo
 void qt_draw_background(QPaintEngine *pe, int x, int y, int w,  int h)
 {
     QX11PaintEngine *p = static_cast<QX11PaintEngine *>(pe);
-    XSetForeground(p->d->dpy, p->d->gc, p->d->bg_brush.color().pixel(p->d->scrn));
+    QColormap cmap = QColormap::instance(p->d->scrn);
+    XSetForeground(p->d->dpy, p->d->gc, cmap.pixel(p->d->bg_brush.color()));
     qt_draw_transformed_rect(p, x, y, w, h, true);
-    XSetForeground(p->d->dpy, p->d->gc, p->d->cpen.color().pixel(p->d->scrn));
+    XSetForeground(p->d->dpy, p->d->gc, cmap.pixel(p->d->cpen.color()));
 }
 
 
@@ -751,6 +753,7 @@ void QX11PaintEngine::updatePen(const QPen &pen)
                    (ps == Qt::NoPen || ps == Qt::SolidLine) &&
                    pen.width() == 0;
 
+    QColormap cmap = QColormap::instance(d->scrn);
     bool obtained = false;
     bool internclipok = hasClipping();
     if (cacheIt) {
@@ -760,8 +763,8 @@ void QX11PaintEngine::updatePen(const QPen &pen)
             else
                 free_gc(d->dpy, d->gc);
         }
-        obtained = obtain_gc(&d->penRef, &d->gc, pen.color().pixel(d->scrn), d->dpy, d->scrn,
-                             d->hd, d->clip_serial);
+        obtained = obtain_gc(&d->penRef, &d->gc, cmap.pixel(pen.color()),
+                             d->dpy, d->scrn, d->hd, d->clip_serial);
         if (!obtained && !d->penRef)
             d->gc = alloc_gc(d->dpy, d->scrn, d->hd, false);
     } else {
@@ -876,8 +879,8 @@ void QX11PaintEngine::updatePen(const QPen &pen)
             break;
     }
 
-    XSetForeground(d->dpy, d->gc, pen.color().pixel(d->scrn));
-    XSetBackground(d->dpy, d->gc, d->bg_col.pixel(d->scrn));
+    XSetForeground(d->dpy, d->gc, cmap.pixel(pen.color()));
+    XSetBackground(d->dpy, d->gc, cmap.pixel(d->bg_col));
 
     if (dash_len) {                           // make dash list
         XSetDashes(d->dpy, d->gc, 0, dashes, dash_len);
@@ -900,6 +903,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
                    (bs == Qt::NoBrush || bs == Qt::SolidPattern) &&
                    origin.x() == 0 && origin.y() == 0;
 
+    QColormap cmap = QColormap::instance(d->scrn);
     bool obtained = false;
     bool internclipok = hasClipping();
     if (cacheIt) {
@@ -909,8 +913,8 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
             else
                 free_gc(d->dpy, d->gc_brush);
         }
-        obtained = obtain_gc(&d->brushRef, &d->gc_brush, d->cbrush.color().pixel(d->scrn), d->dpy,
-                             d->scrn, d->hd, d->clip_serial);
+        obtained = obtain_gc(&d->brushRef, &d->gc_brush, cmap.pixel(d->cbrush.color()),
+                             d->dpy, d->scrn, d->hd, d->clip_serial);
         if (!obtained && !d->brushRef)
             d->gc_brush = alloc_gc(d->dpy, d->scrn, d->hd, false);
     } else {
@@ -946,8 +950,8 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
 
 
     XSetLineAttributes(d->dpy, d->gc_brush, 0, LineSolid, CapButt, JoinMiter);
-    XSetForeground(d->dpy, d->gc_brush, d->cbrush.color().pixel(d->scrn));
-    XSetBackground(d->dpy, d->gc_brush, d->bg_col.pixel(d->scrn));
+    XSetForeground(d->dpy, d->gc_brush, cmap.pixel(d->cbrush.color()));
+    XSetBackground(d->dpy, d->gc_brush, cmap.pixel(d->bg_col));
 
     int s  = FillSolid;
     if (bs == Qt::CustomPattern || bs >= Qt::Dense1Pattern && bs <= Qt::DiagCrossPattern) {
@@ -1041,7 +1045,7 @@ void QX11PaintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode mode)
 		   G = qc.green(),
 		   B = qc.blue();
 
-	xfc.pixel = qc.pixel();
+	xfc.pixel = QColormap::instance(d->scrn).pixel(qc);
 	xfc.color.alpha = (A | A << 8);
 	xfc.color.red   = (R | R << 8) * xfc.color.alpha / 0x10000;
 	xfc.color.green = (B | G << 8) * xfc.color.alpha / 0x10000;
@@ -1357,8 +1361,9 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
 				 GCStipple | GCTileStipXOrigin | GCTileStipYOrigin;
         if (td == QInternal::Widget) {        // set GC colors
             QWidget *w = (QWidget *)dst;
-            gcvals.background = w->palette().color(w->backgroundRole()).pixel(dst_xf->screen());
-            gcvals.foreground = w->palette().color(w->foregroundRole()).pixel(dst_xf->screen());
+            QColormap cmap = QColormap::instance(dst_xf->screen());
+            gcvals.background = cmap.pixel(w->palette().color(w->backgroundRole()));
+            gcvals.foreground = cmap.pixel(w->palette().color(w->foregroundRole()));
             if (include_inferiors) {
                 valmask |= GCSubwindowMode;
                 gcvals.subwindow_mode = IncludeInferiors;
@@ -1367,8 +1372,8 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
             gcvals.background = 0;
             gcvals.foreground = 1;
         } else {
-            gcvals.background = QColor(Qt::white).pixel(dst_xf->screen());
-            gcvals.foreground = QColor(Qt::black).pixel(dst_xf->screen());
+            gcvals.background = WhitePixel(dpy, dst_xf->screen());
+            gcvals.foreground = BlackPixel(dpy, dst_xf->screen());
         }
 
         gcvals.fill_style  = FillOpaqueStippled;
@@ -1532,7 +1537,8 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
     if (mono) {
    	XSetClipMask(d->dpy, d->gc, pixmap.handle());
    	XSetClipOrigin(d->dpy, d->gc, x-sx, y-sy);
-	XSetBackground(d->dpy, d->gc, d->bg_brush.color().pixel(d->scrn));
+	XSetBackground(d->dpy, d->gc,
+                       QColormap::instance(d->scrn).pixel(d->bg_brush.color()));
 	XFillRectangle(d->dpy, d->hd, d->gc, x, y, sw, sh);
 	XSetClipMask(d->dpy, d->gc, XNone);
   	XSetClipOrigin(d->dpy, d->gc, 0, 0);
