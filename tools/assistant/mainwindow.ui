@@ -139,7 +139,7 @@
       <addAction name="bookmarkMenuAction" />
       <addAction name="helpMenuAction" />
     </widget>
-    <actionGroup>
+
       <action name="actionFilePrint" >
         <property name="objectName" >
           <cstring>actionFilePrint</cstring>
@@ -456,7 +456,6 @@
           <string>Qt Assistant Manual</string>
         </property>
       </action>
-    </actionGroup>
   </widget>
   <layoutDefault spacing="6" margin="11" />
   <includes>
