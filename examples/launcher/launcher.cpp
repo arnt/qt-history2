@@ -110,7 +110,7 @@ to the right invoke additional applications.<p><br><hr>"
 
 	vb = new QVBox(this);
 	vb->setBackgroundColor(white);
-	QPushButton *pb;
+	QPushButton *pb=0;
 	int i;
 	for (i=0; command[i].label; i++) {
 	    pb = new QPushButton(command[i].label,vb,command[i].file);
@@ -312,22 +312,26 @@ bool SimpleIM::filter(int code, int modifiers, bool isPress,
 		       bool autoRepeat)
 {
     int unicode = code & 0xffff;
-    if ( modifiers == Qt::ShiftButton && unicode  == ' ' ) {
+    int keycode = code >> 16;
+    if ( modifiers == Qt::ShiftButton && keycode == Qt::Key_Space ) {
 	if ( !isPress ) {
 	    active = !active;
 	}
+	//qDebug( "Shift+space, IM is %d", active );
+
 	return TRUE; //filter
     }
-    if ( active  && !modifiers ) {
-	if ( !isPress ) {
+    if ( active  && !(modifiers&~Qt::ShiftButton) ) {
+	if ( isPress && code>>16 != Qt::Key_Shift ) {
 	    soFar = soFar + QChar( unicode );
 	    soFar = soFar.right( maxlen );
 	
 	    int n = soFar.length();
 	    while ( n > 0 ) {
 		QString candidate = soFar.right( n );
+		//qDebug( "trying %s", candidate.latin1() );
 		if ( map.contains( candidate ) ) {
-		    for ( int i = 0; i < n; i++ )
+		    for ( int i = 0; i < n-1; i++ )
 			fakeKey( Qt::Key_Backspace << 16 );
 		    fakeKey( map[candidate] );
 		    return TRUE;
