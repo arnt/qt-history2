@@ -13,8 +13,9 @@ unix {
 	LIBS 	*= -lsybdb
 }
 win32 {
-	OBJECTS_DIR	= obj
-	LIBS 	*= NTWDBLIB.LIB
+	OBJECTS_DIR		= obj
+	!win32-borland:LIBS 	*= NTWDBLIB.LIB
+	win32-borland:LIBS 	*= $(BCB)/lib/PSDK/NTWDBLIB.LIB
 }
 
 REQUIRES	= sql

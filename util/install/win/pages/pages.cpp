@@ -9,6 +9,7 @@
 #include <qbuttongroup.h>
 #include <qpushbutton.h>
 #include <qradiobutton.h>
+#include <qmultilineedit.h>
 
 #if defined(Q_OS_WIN32)
 #include <windows.h>
@@ -17,10 +18,6 @@
 BuildPageImpl::BuildPageImpl( QWidget* parent, const char* name, WFlags fl )
     : BuildPage( parent, name, fl )
 {
-#if 0
-    outputDisplay->setWordWrap( QTextView::WidgetWidth );
-    outputDisplay->setWrapPolicy( QTextView::Anywhere );
-#endif
 }
 
 ConfigPageImpl::ConfigPageImpl( QWidget* parent, const char* name, WFlags fl )
@@ -127,10 +124,9 @@ OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WFlags fl )
 ProgressPageImpl::ProgressPageImpl( QWidget* parent, const char* name, WFlags fl )
     : ProgressPage( parent, name, fl )
 {
-#if 0
-    setWordWrap( QTextView::WidgetWidth );
-    setWrapPolicy( QTextView::Anywhere );
-#endif
+    // ######### At the moment, we show only one line when unpacking. So the
+    // horizontal scrollbar is never shown for now to avoid flickering.
+    filesDisplay->setHScrollBarMode( QScrollView::AlwaysOff );
 }
 
 #if defined(Q_OS_WIN32)

@@ -872,7 +872,7 @@ then
      Linux:*)
 	PLATFORM=linux-${ARCH}g++
 	PLATFORM_NOTES="
-	    - Also available for Linux: linux-kcc linux-cxx
+	    - Also available for Linux: linux-kcc linux-icc linux-cxx
 	"
 	;;
      SunOS:5*)
@@ -2072,6 +2072,15 @@ then
     echo "XRender support ..... $XRENDER"
     echo "XftFreeType support . $XFTFREETYPE"
     echo "XKB Support ......... $XKB"
+fi
+
+# complain about not being able to use plugins if we are using a static build.
+if [ "$SHARED" = "no" ]
+then
+    echo
+    echo "WARNING: Using static linking will disable the use of plugins."
+    echo "Make sure you compile ALL needed modules into the library."
+    echo
 fi
 echo
 

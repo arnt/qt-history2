@@ -5,7 +5,7 @@ includes a significantly improved Qt Designer, and introduces Qt
 Linguist, Qt Assistant and a new multi-platform build tool,
 'qmake'. In addition to the traditional Qt platforms- Linux, Unix and
 the various flavors of MS-Windows, Qt 3 for the first time also
-introduces a native port to MacOS X.
+introduces a native port to Mac OS X.
 
 Detailed information about the modifications and new features for Qt 3
 is included in the Online Reference Documentation.
@@ -27,12 +27,12 @@ complete, so it is possible that you'll discover issues that are not
 yet covered in the documentation.
 
 The most visible change for long term Qt users is the reworked build
-system. On MS-Windows, run qt-win-commercial-3.0.1.exe; on
-Unix, unpack the package and run ./configure. Compiling and installing
-Qt uses a new utility 'qmake' which we recommend for writing Qt­based
-applications. 'qmake' is the successor of our free software add-on
-'tmake', and is written using Qt rather than Perl. 'qmake' is fully
-compatible with 'tmake'.
+system. On MS-Windows, run qt-win-commercial-3.0.1.exe; on Unix and
+Mac OS X, unpack the package and run ./configure. Compiling and
+installing Qt uses a new utility 'qmake' which we recommend for
+writing Qt­based applications. 'qmake' is the successor of our free
+software add-on 'tmake', and is written using Qt rather than
+Perl. 'qmake' is fully compatible with 'tmake'.
 
 To improve maintainability between different platforms, all specific
 platform #defines and #includes have been moved out of the Qt sources

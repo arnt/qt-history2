@@ -48,6 +48,12 @@
                             <family>Courier</family>
                         </font>
                     </property>
+                    <property name="vScrollBarMode">
+                        <enum>Auto</enum>
+                    </property>
+                    <property name="hScrollBarMode">
+                        <enum>AlwaysOn</enum>
+                    </property>
                     <property name="wordWrap">
                         <enum>NoWrap</enum>
                     </property>

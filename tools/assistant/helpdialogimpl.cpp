@@ -165,17 +165,26 @@ HelpDialog::HelpDialog( QWidget *parent, MainWindow *h, QTextBrowser *v )
 #ifdef QT_PALMTOPCENTER_DOCS
     QSettings settings;
     settings.insertSearchPath( QSettings::Unix,
-			       FileSystemOperator::localCenterPath() );
+			   QDir::homeDirPath() + "/.palmtopcenter/" );
+
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );    
     QString basePath;
     basePath = settings.readEntry( "/palmtopcenter/qtopiadir" );
-    documentationPath = basePath + "/doc";
+    if ( basePath.isEmpty() )
+	basePath = getenv( "PALMTOPCENTERDIR" );
+    QString lang = settings.readEntry( "/palmtopcenter/language" );
+    if ( lang.isEmpty() )
+	lang = getenv( "LANG" );
+    documentationPath = basePath + "/doc/" + lang;
 
     QMimeSourceFactory *mime = QMimeSourceFactory::defaultFactory();
     mime->addFilePath( basePath + "/pics" );
     mime->addFilePath( basePath + "/pics/inline" );
     mime->addFilePath( basePath + "/pics/large" );
     mime->addFilePath( basePath + "/pics/small" );
+    mime->addFilePath( documentationPath );
+    mime->addFilePath( basePath + "/doc/en" );
+    mime->setExtensionType("html","text/html;charset=UTF-8");
 #else
     documentationPath = QString( getenv( "QTDIR" ) ) + "/doc/html";
 #endif
@@ -671,13 +680,14 @@ void HelpDialog::insertContents()
     }
     delete lst;
 #ifdef QT_PALMTOPCENTER_DOCS
+	QSettings settings;
     settings.insertSearchPath( QSettings::Unix,
-			       FileSystemOperator::localCenterPath() );
+			       QDir::homeDirPath() + "/.palmtopcenter/" );
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
-    QString basePath;
-    basePath = settings.readEntry( "/palmtopcenter/qtopiadir", QString::null, &okay );    
-    QString manualdir = basePath + "/book.html/qtopiadesktop.html";
+//     QString basePath;
+//     basePath = settings.readEntry( "/palmtopcenter/qtopiadir", QString::null, &okay );    
+    QString manualdir = "qtopiadesktop.html";
     insertContents( manualdir, tr( "Qtopia Desktop Manual" ), lastItem, handbook );
 #else    
     QString manualdir = QString( getenv( "QTDIR" ) ) + "/doc/html/designer-manual.html";

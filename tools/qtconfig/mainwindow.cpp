@@ -562,6 +562,8 @@ MainWindow::MainWindow()
     sublistbox->clear();
     sublistbox->insertStringList(subs);
 
+    rtlExtensions->setChecked( settings.readBoolEntry( "/qt/useRtlExtensions", FALSE ) );
+    
 #ifdef Q_WS_X11
     xftcheckbox->setChecked( settings.readBoolEntry( "/qt/enableXft", TRUE ) );
     if ( xftcheckbox->isChecked() ) {
@@ -645,6 +647,8 @@ void MainWindow::fileSave()
 	strut << QString::number(strutheight->value());
 	settings.writeEntry("/qt/globalStrut", strut);
 
+	settings.writeEntry("/qt/useRtlExtensions", rtlExtensions->isChecked() );
+	
 	QStringList effects;
 	if (effectcheckbox->isChecked()) {
 	    effects << "general";

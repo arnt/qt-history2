@@ -19,8 +19,8 @@ static char* unForK( const char *f ) {
     char *res = new char[strlen(f)+1];
     int i = 0;
     while ( f[i] ) {
- res[i] = f[i] ^ 5;
- i++;
+	res[i] = f[i] ^ 5;
+	i++;
     }
     res[i] = '\0';
     return res;
@@ -36,9 +36,9 @@ static char* unForK( const char *f ) {
 	} else {\
 	    qstr = QString::fromLocal8Bit( (const char*)msg.lParam );\
 	}\
-	char* q = ForK("Tq");\
-	char* t = ForK("Qwjiiq`fm");\
-	char* f = ForK("^Cw``rdw`X%(%");\
+	char* q = ForK("Tq"); /* "Qt" */\
+	char* t = ForK("Qwjiiq`fm"); /* "Trolltech" */\
+	char* f = ForK("^Cw``rdw`X%(%"); /* "[Freeware] - " */\
 	if ( qstr.find( QString(f) ) == -1 && qstr.find( QString(t) ) == -1 && qstr.find( QString(q) ) == -1 ) {\
 	    widget = (QETWidget*)QWidget::find( hwnd );\
 	    if ( ! (widget->parentWidget() && widget->parentWidget()->caption().find( QString(t) ) != -1\
@@ -73,9 +73,9 @@ static char* unForK( const char *f ) {
 
 #define QT_NC_CAPTION \
     QString cap;\
-    char* t = ForK("Qwjiiq`fm");\
-    char* q = ForK("Tq");\
-    char* f = ForK("^Cw``rdw`X%(%");\
+    char* t = ForK("Qwjiiq`fm"); /* "Trolltech" */\
+    char* q = ForK("Tq"); /* "Qt" */\
+    char* f = ForK("^Cw``rdw`X%(%"); /* "[Freeware] - " */\
     if ( caption.find( QString(t) ) != -1 && caption.find( QString(q) ) != -1 )\
 	cap = caption;\
     else if ( caption.find( QString(q) + " Example" ) != -1 )\
@@ -95,7 +95,7 @@ static char* unForK( const char *f ) {
 	if ( isTopLevel() && caption() == QString::null\
 	    && ! ( inherits("QFileDialog") || inherits("QMessageBox")\
 	    || inherits("QFontDialog") || inherits("QColorDialog") ) ) {\
-	    char* f = ForK("^Cw``rdw`X%(%");\
+	    char* f = ForK("^Cw``rdw`X%(%"); /* "[Freeware] - " */\
 	    setCaption( QString(f) + QString(qApp->name()) );\
 	    delete[] f;\
 	}

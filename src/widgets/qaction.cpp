@@ -51,19 +51,20 @@
 #include "qobjectlist.h"
 
 
-/*! \class QAction qaction.h
-    \ingroup basic
-    \ingroup application
+/*!
+  \class QAction qaction.h
+  \ingroup basic
+  \ingroup application
   \mainclass
-  \brief The QAction class provides an abstract user interface action that can
-  appear both in menus and tool bars.
+  \brief The QAction class provides an abstract user interface
+  action that can appear both in menus and tool bars.
 
   In GUI applications many commands can be invoked via a menu option, a
   toolbar button and a keyboard accelerator. Since the same action must
   be performed regardless of how the action was invoked, and since the
   menu and toolbar should be kept in sync, it is useful to represent a
   command as an \e action. An action can be added to a menu and a
-  toolbar and will automatically be kept in sync, for example, if the
+  toolbar and will automatically keep them in sync. For example, if the
   user presses a Bold toolbar button the Bold menu item will
   automatically be checked.
 
@@ -74,7 +75,7 @@
   and setAccel(), respectively.
 
   An action may be a toggle action e.g. a Bold toolbar button, or a
-  command action, e.g. 'Open File' which invokes an open file dialog.
+  command action, e.g. 'Open File' to invoke an open file dialog.
   Toggle actions emit the toggled() signal when their state changes.
   Both command and toggle actions emit the activated() signal when they
   are invoked. Use setToggleAction() to set an action's toggled status.
@@ -85,31 +86,31 @@
   Actions are added to widgets (menus or toolbars) using addTo(), and
   removed using removeFrom().
 
-    Once a QAction has been created it should be added to the relevant
-    menu and toolbar and then connected to the slot which will perform
-    the action. For example:
+  Once a QAction has been created it should be added to the relevant
+  menu and toolbar and then connected to the slot which will perform
+  the action. For example:
 
-    \quotefile action/application.cpp
-    \skipto Save File
-    \printuntil connect
+  \quotefile action/application.cpp
+  \skipto Save File
+  \printuntil connect
 
-    We create a "Save File" action with a menu text of "&Save" and
-    \e{Ctrl+S} as the keyboard accelerator. We connect the
-    fileSaveAction's activated() signal to our save() slot. Note that at
-    this point there is no menu or toolbar action, we'll add them next:
+  We create a "File Save" action with a menu text of "&Save" and
+  \e{Ctrl+S} as the keyboard accelerator. We connect the
+  fileSaveAction's activated() signal to our own save() slot. Note that at
+  this point there is no menu or toolbar action, we'll add them next:
 
-    \skipto new QToolBar
-    \printline
-    \skipto fileSaveAction->addTo
-    \printline
-    \skipto new QPopupMenu
-    \printuntil insertItem
-    \skipto fileSaveAction->addTo
-    \printline
+  \skipto new QToolBar
+  \printline
+  \skipto fileSaveAction->addTo
+  \printline
+  \skipto new QPopupMenu
+  \printuntil insertItem
+  \skipto fileSaveAction->addTo
+  \printline
 
-    We create a toolbar and add our fileSaveAction to it. Similarly we
-    create a menu, add a top-level menu item, and add our
-    fileSaveAction.
+  We create a toolbar and add our fileSaveAction to it. Similarly we
+  create a menu, add a top-level menu item, and add our
+  fileSaveAction.
 
   (See the \link simple-application-action.html Simple Application
   Walkthrough featuring QAction \endlink for a detailed example.)
@@ -118,7 +119,7 @@
   they are used in. In most cases actions will be children of the
   application's main window.
 
-  To prevent recursion don't create an action as a child of a widget
+  To prevent recursion, don't create an action as a child of a widget
   that the action is later added to.
 */
 
@@ -313,15 +314,16 @@ QString QActionPrivate::statusTip() const
 
 
 
-/*! Constructs an action with parent \a parent and name \a name.
+/*!
+  Constructs an action with parent \a parent and name \a name.
 
-  If \a toggle is TRUE the action will be a toggle action otherwise it
+  If \a toggle is TRUE the action will be a toggle action, otherwise it
   will be a command action.
 
   If \a parent is a QActionGroup, the new action inserts itself into \a parent.
 
-  Note: for accelerators and status tips to work, \a parent
-  must be a widget.
+  For accelerators and status tips to work, \a parent must either be a
+  widget, or an action group whose parent is a widget.
 */
 QAction::QAction( QObject* parent, const char* name, bool toggle )
     : QObject( parent, name )
@@ -332,17 +334,18 @@ QAction::QAction( QObject* parent, const char* name, bool toggle )
 }
 
 
-/*! This constructor creates an action with the following properties:
+/*!
+  This constructor creates an action with the following properties:
   the description \a text, the icon or iconset \a icon, the menu text
   \a menuText and keyboard accelerator \a accel. It is a child of \a parent
   and named \a name. If \a toggle is TRUE the action will be a toggle
-  action otherwise it will be a command action.
-
-    The \a parent should be a widget for accelerators and status tips to
-    work.
+  action, otherwise it will be a command action.
 
   If  \a parent is a QActionGroup, the action automatically becomes a
   member of it.
+
+  For accelerators and status tips to work, \a parent must either be a
+  widget, or an action group whose parent is a widget.
 
   The \a text and \a accel will be used for tool tips and status tips
   unless you provide specific text for these using setToolTip() and
@@ -366,13 +369,13 @@ QAction::QAction( const QString& text, const QIconSet& icon, const QString& menu
   \a text, the menu text \a menuText and the keyboard accelerator \a accel.
   Its parent is \a parent and its name \a
   name. If \a toggle is TRUE the action will be a toggle
-  action otherwise it will be a command action.
+  action, otherwise it will be a command action.
 
   The action automatically becomes a member of \a parent if \a parent
   is a QActionGroup.
 
-    The \a parent should be a widget for accelerators and status tips to
-    work.
+  For accelerators and status tips to work, \a parent must either be a
+  widget, or an action group whose parent is a widget.
 
   The \a text and \a accel will be used for tool tips and status tips
   unless you provide specific text for these using setToolTip() and
@@ -458,35 +461,30 @@ QString QAction::text() const
 /*! \property QAction::menuText
   \brief the action's menu text
 
-    If the action is added to a menu the menu option will consist of the
-    icon (if there is one), the menu text and the accelerator (if there
-    is one). If the menu text is not explicitly set in the constructor
-    or using setMenuText() the action's description text will be used as
-    the menu text. There is no default menu text.
+    If the action is added to a menu the menu option will consist of
+    the icon (if there is one), the menu text and the accelerator (if
+    there is one). If the menu text is not explicitly set in the
+    constructor or using setMenuText() the action's description text
+    will be used as the menu text. There is no default menu text.
 
   \sa text
 */
-void QAction::setMenuText( const QString& text )
-{
-    d->menutext = text;
-    d->update();
-}
+void QAction::setMenuText( const QString& text ) { d->menutext = text;
+    d->update(); }
 
-QString QAction::menuText() const
-{
-    return d->menuText();
-}
+QString QAction::menuText() const { return d->menuText(); }
 
-/*! \property QAction::toolTip
-  \brief the action's tool tip
+/*!
+  \property QAction::toolTip \brief the action's tool tip
 
-    This text is used for the tool tip. If no status tip has been set
-    the tool tip will be used for the status tip.
+  This text is used for the tool tip. If no status tip has been set
+  the tool tip will be used for the status tip.
 
-    If no tool tip is specified the action's text and accelerator
-    description are used as a default tool tip.
+  If no tool tip is specified the action's text is used, and if that
+  hasn't been specified the description text is used as the tool tip
+  text.
 
-    There is no default tool tip text.
+  There is no default tool tip text.
 
   \sa setStatusTip() setAccel()
 */
@@ -504,8 +502,8 @@ QString QAction::toolTip() const
 /*! \property QAction::statusTip
   \brief the action's status tip
 
-  The statusTip is displayed on all status bars that the toplevel
-  widget parenting this action provides.
+  The statusTip is displayed on all status bars that this action's
+  toplevel parent widget provides.
 
   If no status tip is defined, the action uses the tool tip text.
 
@@ -610,17 +608,20 @@ QKeySequence QAction::accel() const
 }
 
 
-/*! \property QAction::toggleAction
+/*!
+  \property QAction::toggleAction
   \brief whether the action is a toggle action
 
-    A toggle action is one which has an on/off state. For example a Bold
-    toolbar button is either on or off. An action which is not a toggle
-    action is a command action; a command action is simply executed.
-    For example a file open toolbar button would invoke a file open
-    dialog. This property's default is FALSE.
+  A toggle action is one which has an on/off state. For example a Bold
+  toolbar button is either on or off. An action which is not a toggle
+  action is a command action; a command action is simply executed.
+  This property's default is FALSE.
 
-  For exclusive toggling, add toggle actions to
-  a QActionGroup with the \l QActionGroup::exclusive property set to TRUE.
+  In some situations, the state of one toggle action should depend on
+  the state of others. For example, "Left Align", "Center" and "Right
+  Align" toggle actions are mutually exclusive. To achieve exclusive
+  toggling, add the relevant toggle actions to a QActionGroup with the
+  \l QActionGroup::exclusive property set to TRUE.
 
 */
 void QAction::setToggleAction( bool enable )
@@ -661,8 +662,10 @@ void QAction::toggle()
   \property QAction::on
   \brief whether a toggle action is on
 
-  This property is always on for command actions and QActionGroups.
-  setOn() has no effect on them. This property's default is FALSE.
+  This property is always on (TRUE) for command actions and
+  QActionGroups; setOn() has no effect on them. For action's where
+  isToggleAction() is TRUE, this property's default value is off
+  (FALSE).
 
   \sa toggleAction
 */
@@ -890,10 +893,11 @@ void QAction::clearStatusText()
     showStatusText( QString::null );
 }
 
-/*! Removes the action from widget \a w.
+/*!
+  Removes the action from widget \a w.
 
-  Returns TRUE if the action was removed successfully, FALSE
-  otherwise.
+  Returns TRUE if the action was removed successfully; otherwise
+  returns FALSE.
 
   \sa addTo()
 */
@@ -1088,58 +1092,59 @@ void QActionGroupPrivate::update( const QActionGroup* that )
     }
 }
 
-/*! \class QActionGroup qaction.h
-    \ingroup basic
-    \ingroup application
+/*!
+  \class QActionGroup qaction.h
+  \ingroup basic
+  \ingroup application
 
   \brief The QActionGroup class groups actions together.
 
-    In some situations it is useful to group actions together. For
-    example, if you have a left justify action, a right justify action
-    and a center action, only one of these actions should be active at
-    any one time, and one simple way of achieving this is to group the
-    actions together in an action group and setExclusive(TRUE).
+  In some situations it is useful to group actions together. For
+  example, if you have a left justify action, a right justify action
+  and a center action, only one of these actions should be active at
+  any one time, and one simple way of achieving this is to group the
+  actions together in an action group and setExclusive(TRUE).
 
-    An action group can also be added to a menu or a toolbar as a single
-    unit, with all the actions within the action group appearing as
-    separate menu options and toolbar buttons.
+  An action group can also be added to a menu or a toolbar as a single
+  unit, with all the actions within the action group appearing as
+  separate menu options and toolbar buttons.
 
-    Here's an example from examples/textedit:
-    \quotefile textedit/textedit.cpp
-    \skipto QActionGroup
-    \printuntil connect
+  Here's an example from examples/textedit:
+  \quotefile textedit/textedit.cpp
+  \skipto QActionGroup
+  \printuntil connect
 
-    We create a new action  group, call setExclusive() to ensure that
-    only one of the actions in the group is ever active at any one time.
-    We then connect the group to our textAlign() slot.
+  We create a new action  group, call setExclusive() to ensure that
+  only one of the actions in the group is ever active at any one time.
+  We then connect the group to our textAlign() slot.
 
-    \printuntil actionAlignLeft->setToggleAction
+  \printuntil actionAlignLeft->setToggleAction
 
-    We create a left align action, add it to the toolbar and the menu
-    and make it a toggle action. We create center and right align
-    actions in exactly the same way.
+  We create a left align action, add it to the toolbar and the menu
+  and make it a toggle action. We create center and right align
+  actions in exactly the same way.
 
-    \omit
-    A QActionGroup emits an activated() signal when one of its actions
-    is activated.
-    \endomit
-    The actions in an action group emit their activated()
-    (and for toggle actions, toggled()) signals as usual.
+  \omit
+  A QActionGroup emits an activated() signal when one of its actions
+  is activated.
+  \endomit
+  The actions in an action group emit their activated()
+  (and for toggle actions, toggled()) signals as usual.
 
-    The setExclusive() function is used to ensure that only one action
-    is active at any one time: it should be used with actions which have
-    their toggleAction set to TRUE.
+  The setExclusive() function is used to ensure that only one action
+  is active at any one time: it should be used with actions which have
+  their \c toggleAction set to TRUE.
 
-    Action group actions appear as individual menu options and toolbar
-    buttons. For exclusive action groups use setUsesDropDown() to
-    display the actions in a subwidget of any widget the action group is
-    added to. For example, the actions would appear in a combobox in a
-    toolbar or as a submenu in a menu.
+  Action group actions appear as individual menu options and toolbar
+  buttons. For exclusive action groups use setUsesDropDown() to
+  display the actions in a subwidget of any widget the action group is
+  added to. For example, the actions would appear in a combobox in a
+  toolbar or as a submenu in a menu.
 
-    Actions can be added to an action group using add(), but normally
-    they are added by creating the action with the action group as
-    parent. Actions can have separators dividing them using
-    addSeparator(). Action groups are added to widgets with addTo().
+  Actions can be added to an action group using add(), but normally
+  they are added by creating the action with the action group as
+  parent. Actions can have separators dividing them using
+  addSeparator(). Action groups are added to widgets with addTo().
 
 */
 
@@ -1233,7 +1238,7 @@ bool QActionGroup::isExclusive() const
   In a popup menu the member actions are displayed in a
   submenu.
 
-  Changing usesDropDown effects subsequent calls to addTo() only.
+  Changing usesDropDown only effects \e subsequent calls to addTo().
 
   This property's default is FALSE.
 
@@ -1306,23 +1311,24 @@ void QActionGroup::addSeparator()
   group as its parent.
  */
 
-/*! Adds this action group to the widget \a w.
+/*!
+  Adds this action group to the widget \a w.
 
-    If usesDropDown() is TRUE and exclusive is TRUE (see setExclusive())
-    the actions are presented in a combobox if \a w is a toolbar and as
-    a submenu if \a w is a menu. Otherwise (the default) the actions
-    within the group are added to the widget individually, for example
-    if the widget is a menu the actions will appear as individual menu
-    options and if the widget is a toolbar the actions will appear as
-    toolbar buttons.
+  If usesDropDown() is TRUE and exclusive is TRUE (see setExclusive())
+  the actions are presented in a combobox if \a w is a toolbar and as
+  a submenu if \a w is a menu. Otherwise (the default) the actions
+  within the group are added to the widget individually, for example
+  if the widget is a menu the actions will appear as individual menu
+  options and if the widget is a toolbar the actions will appear as
+  toolbar buttons.
 
-    It is recommended that actions is action groups, especially where
-    usesDropDown() is TRUE, have their menuText() or text() property set.
+  It is recommended that actions in action groups, especially where
+  usesDropDown() is TRUE, have their menuText() or text() property set.
 
-    All actions should be added to the action group \e before the action
-    group is added to the widget. If actions are added to the action
-    group \e after the action group has been added to the widget these
-    later actions will \e not appear.
+  All actions should be added to the action group \e before the action
+  group is added to the widget. If actions are added to the action
+  group \e after the action group has been added to the widget these
+  later actions will \e not appear.
 
   \sa setExclusive() setUsesDropDown() removeFrom()
 */
@@ -1622,7 +1628,8 @@ void QActionGroup::childEvent( QChildEvent *e )
     }
 }
 
-/*! \fn void QActionGroup::selected( QAction* )
+/*!
+  \fn void QActionGroup::selected( QAction* )
 
   This signal is emitted from exclusive groups when toggle actions
   change state.
@@ -1635,9 +1642,9 @@ void QActionGroup::childEvent( QChildEvent *e )
   \skipto QObject::connect
   \printuntil SLOT
 
-  In this example we connect the selected() signal to our setFontColor()
-  slot, passing the QAction so that we know which action was chosen by
-  the user.
+  In this example we connect the selected() signal to our own
+  setFontColor() slot, passing the QAction so that we know which
+  action was chosen by the user.
 
   (See the \link actiongroup.html QActionGroup Walkthrough. \endlink)
 

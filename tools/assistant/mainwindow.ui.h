@@ -22,11 +22,18 @@ void MainWindow::init()
 #ifdef QT_PALMTOPCENTER_DOCS
     QSettings settings;
     settings.insertSearchPath( QSettings::Unix,
-			       FileSystemOperator::localCenterPath() );
+			       QDir::homeDirPath() + "/.palmtopcenter/" );
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
    
     QString dir = settings.readEntry( "/palmtopcenter/qtopiadir" );
-    browser->mimeSourceFactory()->addFilePath( dir + "/doc/" );
+    if ( dir.isEmpty() )
+	dir = getenv( "PALMTOPCENTERDIR" );
+    QString lang = settings.readEntry( "/palmtopcenter/language" );
+    if ( lang.isEmpty() )
+	lang = getenv( "LANG" );
+    browser->mimeSourceFactory()->addFilePath( dir + "/doc/" + lang );
+    browser->mimeSourceFactory()->addFilePath( dir + "/doc/en/" );
+    browser->mimeSourceFactory()->setExtensionType("html","text/html;charset=UTF-8");
     actionGoLinguist->removeFrom( goMenu );
     actionGoLinguist->removeFrom( Toolbar );
     actionGoQt->removeFrom( goMenu );

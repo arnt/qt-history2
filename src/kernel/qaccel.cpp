@@ -54,7 +54,7 @@
 
   A keyboard accelerator triggers an action when a certain key
   combination is pressed. The accelerator handles all keyboard
-  activity for all children of one top-level widget, so it is not
+  activity for all the children of one top-level widget, so it is not
   affected by the keyboard focus.
 
   In most cases, you will not need to use this class directly. Use the
@@ -66,7 +66,7 @@
   QLabel (with QLabel::setBuddy()), QMenuBar and QTabBar.
   Example:
   \code
-     QPushButton p( "&Exit", parent ); //automatic shortcut ALT+Key_E
+     QPushButton p( "&Exit", parent ); // automatic shortcut ALT+Key_E
      QPopupMenu *fileMenu = new fileMenu( parent );
      fileMenu->insertItem( "Undo", parent, SLOT(undo()), CTRL+Key_Z );
   \endcode
@@ -80,7 +80,7 @@
   combined with modifiers (\c SHIFT, \c CTRL, \c ALT or \c
   UNICODE_ACCEL).  For example, \c{CTRL + Key_P} could be a
   shortcut for printing a document. The key codes are listed in
-  qnamespace.h. As an alternative, use \c UNICODE_ACCEL with the
+  \c qnamespace.h. As an alternative, use \c UNICODE_ACCEL with the
   unicode code point of the character. For example,
   \c{UNICODE_ACCEL + 'A'} gives the same accelerator as \c
   Key_A.
@@ -98,7 +98,7 @@
   The function setWhatsThis() specifies a help text that appears when
   the user presses an accelerator key in What's This mode.
 
-  A QAccel object handles key events to the QWidget::topLevelWidget()
+  A QAccel object passes key events to the QWidget::topLevelWidget()
   containing \e parent, and hence to any child widgets of that window.
   The accelerator will be deleted when \e parent is deleted, and will
   consume relevant key events until then.
@@ -307,12 +307,12 @@ static int get_seq_id()
   negative identifier less than -1.
 
   \code
-    QAccel *a = new QAccel( myWindow );		// create accels for myWindow
-    a->insertItem( Key_P + CTRL, 200 );		// Ctrl+P, e.g. to print document
-    a->insertItem( Key_X + ALT , 201 );		// Alt+X, e.g.  to quit
-    a->insertItem( UNICODE_ACCEL + 'q', 202 );	// Unicode 'q' to quit
-    a->insertItem( Key_D );			// gets a unique negative id < -1
-    a->insertItem( Key_P + CTRL + SHIFT );	// gets a unique negative id < -1
+    QAccel *a = new QAccel( myWindow );        // create accels for myWindow
+    a->insertItem( CTRL + Key_P, 200 );        // Ctrl+P, e.g. to print document
+    a->insertItem( ALT + Key_X, 201 );         // Alt+X, e.g. to quit
+    a->insertItem( UNICODE_ACCEL + 'q', 202 ); // Unicode 'q', e.g. to quit
+    a->insertItem( Key_D );                    // gets a unique negative id < -1
+    a->insertItem( CTRL + SHIFT + Key_P );     // gets a unique negative id < -1
   \endcode
 */
 
@@ -599,7 +599,7 @@ QKeySequence QAccel::stringToKey( const QString & s )
 
 
 /*!
-  Sets a What's This help for the accelerator item \a id to \a text.
+  Sets a What's This help text for the accelerator item \a id to \a text.
 
   The text will be shown when the application is in What's This mode
   and the user hits the accelerator key.

@@ -2,9 +2,9 @@
 
 
 /* File created by MIDL compiler version 5.01.0164 */
-/* at Wed Aug 08 18:09:39 2001
+/* at Fri Nov 23 18:56:09 2001
  */
-/* Compiler settings for C:\depot\qt\main\tests\distsystem\licproc_com\licproc_com.idl:
+/* Compiler settings for C:\depot\qt\3.0\tests\distsystem\licproc_com\licproc_com.idl:
     Oicf (OptLev=i2), W1, Zp8, env=Win32, ms_ext, c_ext
     error checks: allocation ref bounds_check enum stub_data 
 */
@@ -1211,7 +1211,7 @@ static const MIDL_PROC_FORMAT_STRING __MIDL_ProcFormatString =
 #else
 			NdrFcShort( 0x8 ),	/* Alpha Stack size/offset = 8 */
 #endif
-/* 630 */	0x1,		/* FC_BYTE */
+/* 630 */	0x2,		/* FC_CHAR */
 			0x0,		/* 0 */
 
 	/* Return value */
@@ -1278,11 +1278,11 @@ static const MIDL_TYPE_FORMAT_STRING __MIDL_TypeFormatString =
 /* 56 */	NdrFcShort( 0x2 ),	/* Offset= 2 (58) */
 /* 58 */	
 			0x13, 0x8,	/* FC_OP [simple_pointer] */
-/* 60 */	0x1,		/* FC_BYTE */
+/* 60 */	0x2,		/* FC_CHAR */
 			0x5c,		/* FC_PAD */
 /* 62 */	
 			0x11, 0x8,	/* FC_RP [simple_pointer] */
-/* 64 */	0x1,		/* FC_BYTE */
+/* 64 */	0x2,		/* FC_CHAR */
 			0x5c,		/* FC_PAD */
 
 			0x0

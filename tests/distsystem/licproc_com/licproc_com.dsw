@@ -16,65 +16,8 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name qsqlmysql
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name qt_mt
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name qtmain
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "qsqlmysql"=..\..\..\plugins\src\sqldrivers\mysql\qsqlmysql.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    qsqlmysql
-    ..\..\..
-    end source code control
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name qt_mt
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "qt_mt"=..\..\..\src\qt_mt.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    qt_mt
-    ..\..\..\src
-    end source code control
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "qtmain"=..\..\..\src\qtmain.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    qtmain
-    ..\..\..\src
-    end source code control
-}}}
-
-Package=<4>
-{{{
 }}}
 
 ###############################################################################

@@ -8,7 +8,6 @@
 #include "qapplication.h"
 #include "qstring.h"
 
-class QSqlDatabase;
 /////////////////////////////////////////////////////////////////////////////
 // LicProc
 class ATL_NO_VTABLE LicProc : 
@@ -34,7 +33,6 @@ BEGIN_COM_MAP(LicProc)
 END_COM_MAP()
 
 private:
-    QSqlDatabase* distDb;
     QApplication* app;
     QString srvName;
 // ILicProc
