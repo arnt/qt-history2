@@ -1046,16 +1046,30 @@ void QHeaderView::paintEvent(QPaintEvent *e)
     int logical;
     int width = d->viewport->width();
     int height = d->viewport->height();
-//    bool focus = d->highlightCurrent && parentWidget() && parentWidget()->hasFocus();
+    QModelIndex current = selectionModel()->currentIndex();
+    bool focus = d->highlightCurrent && (parentWidget() && parentWidget()->hasFocus());
+    bool highlight = false;
+    QFont fnt(painter.font()); // save the painter font
     for (int i = start; i <= end; ++i) {
         if (sections.at(i).hidden)
             continue;
         logical = sections.at(i).logical;
-        if (orientation() == Qt::Horizontal)
+        if (orientation() == Qt::Horizontal) {
             rect.setRect(sectionPosition(logical) - offset, 0, sectionSize(logical), height);
-        else
+            highlight = (focus && i == current.column());
+        } else {
             rect.setRect(0, sectionPosition(logical) - offset, width, sectionSize(logical));
-        paintSection(&painter, rect, logical);
+            highlight = (focus && i == current.row());
+        }
+        if (highlight) {
+            QFont bf(font());
+            bf.setBold(true);
+            painter.setFont(bf);
+            paintSection(&painter, rect, logical);
+            painter.setFont(fnt); // restore the font
+        } else {
+            paintSection(&painter, rect, logical);
+        }
     }
 
     if (rect.right() < area.right()) {
