@@ -34,7 +34,7 @@ class QWindowsPipeWriter : public QThread
 public:
     QWindowsPipeWriter(HANDLE writePipe, QObject * parent = 0);
     ~QWindowsPipeWriter();
-    
+
     bool waitForWrite(int msecs);
     Q_LONGLONG write(const char *data, Q_LONGLONG maxlen);
 
@@ -54,9 +54,9 @@ private:
 
 
 QWindowsPipeWriter::QWindowsPipeWriter(HANDLE pipe, QObject * parent)
-  : QThread(parent), quitNow(false) 
+  : QThread(parent), quitNow(false)
 {
-  
+
     DuplicateHandle(GetCurrentProcess(), pipe, GetCurrentProcess(),
                          &writePipe, 0, FALSE, DUPLICATE_SAME_ACCESS);
 }
@@ -97,7 +97,7 @@ Q_LONGLONG QWindowsPipeWriter::write(const char *ptr, Q_LONGLONG maxlen)
 
 void QWindowsPipeWriter::run()
 {
-    
+
     for (;;) {
 
         lock.lock();
@@ -245,7 +245,7 @@ void QProcessPrivate::startProcess()
 	    int pos = 0;
 	    // add PATH if necessary (for DLL loading)
 	    char *path = qgetenv("PATH");
-	    if (environment.find(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty() && path) {
+	    if (environment.filter(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty() && path) {
                 QString tmp = QString("PATH=%1").arg(qgetenv("PATH"));
                 uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
                 envlist.resize(envlist.size() + tmpSize );
@@ -295,7 +295,7 @@ void QProcessPrivate::startProcess()
             int pos = 0;
             // add PATH if necessary (for DLL loading)
             char *path = qgetenv("PATH");
-            if (environment.find(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty() && path) {
+            if (environment.filter(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty() && path) {
                 QByteArray tmp = QString("PATH=%1").arg(qgetenv("PATH")).local8Bit();
                 uint tmpSize = tmp.length() + 1;
                 envlist.resize(envlist.size() + tmpSize);
@@ -482,7 +482,7 @@ Q_LONGLONG QProcessPrivate::writeToStdin(const char *data, Q_LONGLONG maxlen)
         pipeWriter = new QWindowsPipeWriter(writePipe[1], q);
         pipeWriter->start();
     }
-    
+
     return pipeWriter->write(data, qMin(MAXSINGLEWRITE, maxlen));
 }
 
