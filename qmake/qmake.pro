@@ -41,8 +41,14 @@ exists($$QT_BUILD_TREE/src/core/base/qconfig.cpp) {  #qconfig.cpp
 }
 
 #where to find the Qt code, and platform dependant SOURCES
+VPATH += $$QT_SOURCE_TREE/src/core/base \
+         $$QT_SOURCE_TREE/src/core/tools \
+         $$QT_SOURCE_TREE/src/core/library \
+	 $$QT_SOURCE_TREE/src/core/io \
+         $$QT_SOURCE_TREE/src/core/other \
+         $$QT_SOURCE_TREE/src/compat/tools
+
 unix {
-   VPATH += $$QT_SOURCE_TREE/src/core/tools $$QT_SOURCE_TREE/src/compat
    SOURCES += qfile_unix.cpp qfileinfo_unix.cpp qdir_unix.cpp
    mac {
      VPATH += $$QT_SOURCE_TREE/src/core/object
@@ -50,12 +56,6 @@ unix {
    }
 }
 win32 {
-   VPATH +=	$$QT_SOURCE_TREE/src/core/base \
-		$$QT_SOURCE_TREE/src/core/tools \
-		$$QT_SOURCE_TREE/src/core/library \
-		$$QT_SOURCE_TREE/src/core/io \
-		$$QT_SOURCE_TREE/src/core/other \
-		$$QT_SOURCE_TREE/src/compat/tools
    SOURCES += qfile_win.cpp qfileinfo_win.cpp qdir_win.cpp qsettings_win.cpp
    *-msvc:LIBS += ole32.lib advapi32.lib
 }

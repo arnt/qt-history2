@@ -41,7 +41,7 @@ protected:
 
 public:
     QMakeSourceFileInfo();
-    ~QMakeSourceFileInfo();
+    virtual ~QMakeSourceFileInfo();
     void setDependencyPaths(const QList<QMakeLocalFileName> &);
     enum SourceFileSeek { SEEK_DEPS=0x01, SEEK_MOCS=0x02, ADD_MOC=0x04 };
     void addSourceFiles(const QStringList &, uchar);

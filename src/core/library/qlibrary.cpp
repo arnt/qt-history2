@@ -380,11 +380,11 @@ QString QLibrary::library() const
 #else
     QString filter = ".so";
 #endif
-    if ( filename.find(filter) == -1 ) {
+    if ( filename.indexOf(filter) == -1 ) {
 	if(QFile::exists(filename + filter)) {
 	    filename += filter;
 	} else {
-	    const int x = filename.findRev( "/" );
+	    const int x = filename.lastIndexOf( "/" );
 	    if ( x != -1 ) {
 		QString path = filename.left( x + 1 );
 		QString file = filename.right( filename.length() - x - 1 );

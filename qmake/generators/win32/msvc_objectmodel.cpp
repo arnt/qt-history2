@@ -1807,7 +1807,7 @@ VCFilter::VCFilter()
     useCompilerTool = FALSE;
 }
 
-void VCFilter::addMOCstage(QTextStream &strm, QString filename)
+void VCFilter::addMOCstage(QTextStream &, QString filename)
 {
     QString mocOutput = Project->mocFile(filename);
     QString mocApp = Project->var("QMAKE_MOC");
@@ -1831,7 +1831,7 @@ void VCFilter::addMOCstage(QTextStream &strm, QString filename)
     CustomBuildTool.Outputs += mocOutput;
 }
 
-void VCFilter::addUICstage(QTextStream &strm, QString str)
+void VCFilter::addUICstage(QTextStream &, QString str)
 {
     CustomBuildTool = VCCustomBuildTool();
     useCustomBuildTool = TRUE;
@@ -1885,7 +1885,7 @@ void VCFilter::addUICstage(QTextStream &strm, QString str)
 	uiHeaders + fname + ".h;" + uiSources + fname + ".cpp;" + mocDir + Option::h_moc_mod + fname + Option::h_moc_ext;
 }
 
-void VCFilter::modifyPCHstage(QTextStream &strm, QString str)
+void VCFilter::modifyPCHstage(QTextStream &, QString str)
 {
     bool isCFile = str.endsWith(".c");
     bool isHFile = (str.endsWith(".h") && str == Project->precompH);
@@ -1970,7 +1970,7 @@ QTextStream &operator<<(QTextStream &strm, VCFilter &tool)
 	// Output custom build and compiler options 
 	// for all configurations
 	if(tool.useCustomBuildTool || tool.useCompilerTool) {
-	    for(uint i = 0; i < tool.Config->count(); i++) {
+	    for(int i = 0; i < tool.Config->count(); i++) {
 		strm << _begFileConfiguration;
 		strm << _Name5;
 		strm << (*tool.Config)[i].Name;

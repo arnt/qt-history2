@@ -527,7 +527,7 @@ MakefileGenerator::init()
 			}
 			QDir qdir(dir, regex);
 			if(qdir.count()) {
-			    for(int i = 0; i < qdir.count(); i++)
+			    for(uint i = 0; i < qdir.count(); i++)
 				out_deps.append(dir + qdir[i]);
 			} else {
 			    warn_msg(WarnLogic, "Dependency for [%s]: Not found %s", (*file_it).latin1(),
@@ -1352,9 +1352,7 @@ MakefileGenerator::createMocFileName(const QString &file)
     }
 
     QString ret;
-    int dir_pos = file.lastIndexOf(Option::dir_sep),
-	ext_pos = file.indexOf('.', dir_pos == -1 ? 0 : dir_pos),
-	ext_len = file.length() - ext_pos;
+    int dir_pos = file.lastIndexOf(Option::dir_sep), ext_pos = file.indexOf('.', dir_pos == -1 ? 0 : dir_pos);
     if(!project->isEmpty("MOC_DIR"))
 	ret = project->first("MOC_DIR");
     else if(dir_pos != -1)
