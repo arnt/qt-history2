@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#220 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#221 $
 **
 ** Definition of QWidget class
 **
@@ -42,7 +42,7 @@
 class QLayout;
 struct QWExtra;
 class QFocusData;
-
+class QStyle;
 
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
 {
@@ -56,6 +56,8 @@ public:
   // GUI style setting
 
     QStyle& style() const;
+
+    void setStyle( QStyle* );
 
   // Widget types and states
 
@@ -633,6 +635,7 @@ struct QWExtra {
 #endif
     char     bg_mode;				// background mode
     uint     sizegrip : 1;			// size grip
+    QStyle* style;
 };
 
 

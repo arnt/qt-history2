@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#389 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#390 $
 **
 ** Implementation of QWidget class
 **
@@ -752,6 +752,7 @@ void QWidget::createExtra()
 	extra->topextra = 0;
 	extra->bg_mode = PaletteBackground;
 	extra->sizegrip = 0;
+	extra->style = 0;
 	createSysExtra();
     }
 }
@@ -847,14 +848,16 @@ QWidget *QWidget::find( WId id )
 
 
 /*!
-  Returns the GUI style for this widget, which is the style
-  for the application.
+  Returns the GUI style for this widget
 
-  \sa QApplication::setStyle(), QApplication::style()
+  \sa QWidget::setStyle(), QApplication::setStyle(),
+  QApplication::style()
 */
 
 QStyle& QWidget::style() const
 {
+    if ( extra && extra->style )
+	return *extra->style;
     return qApp->style();
 }
 
@@ -888,18 +891,18 @@ void QWidget::styleChange( GUIStyle )
   A top-level widget is a widget which usually has a frame and a \link
   setCaption() caption\endlink (title bar). \link isPopup() Popup\endlink
   and \link isDesktop() desktop\endlink widgets are also top-level
-  widgets. 
-    
+  widgets.
+
   A top-level widgets can have a \link parentWidget() parent
   widget\endlink. It will then be grouped with its parent: deleted
   when the parent is deleted, minimized when the parent is minimized
   etc. If supported by the window manager, it will also have a common
   taskbar entry with its parent.
-  
+
   QDialog and QMainWindow widgets are by default top-level, even if a
   parent widget is specified in the constructor. This behavior is
   specified by the \c WType_TopLevel widget flag.
-  
+
   Child widgets are the opposite of top-level widgets.
 
   \sa topLevelWidget(), isModal(), isPopup(), isDesktop(), parentWidget()
@@ -4099,3 +4102,27 @@ void QWidget::updateGeometry()
 				 new QEvent( QEvent::LayoutHint ) );
 }
 
+
+
+/*!
+  Sets the widget's GUI style to \e style. Ownership of the style
+  object is not transfered.
+  
+  If no style is set, the widget uses the application's style
+  QApplication::style() instead.
+
+  \sa style(), QStyle, QApplication::style(), QApplication::setStyle()
+*/
+
+void QWidget::setStyle( QStyle *style )
+{
+    QStyle& old  = QWidget::style();
+    createExtra();
+    extra->style = style;
+    if ( !testWFlags(WType_Desktop) // (except desktop)
+	 && testWState(WState_Polished)) { // (and have been polished)
+	old.unPolish( this );
+	QWidget::style().polish( this );
+	styleChange(old.guiStyle());
+    }
+}
