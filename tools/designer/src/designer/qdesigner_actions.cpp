@@ -463,6 +463,10 @@ bool QDesignerActions::saveFormAs(AbstractFormWindow *fw)
             tr("Designer UI files (*.ui)"));
     if (saveFile.isEmpty())
         return false;
+
+    if (QFileInfo(saveFile).suffix() != QLatin1String("ui"))
+        saveFile.append(QLatin1String(".ui"));
+
     fw->setFileName(saveFile);
     return writeOutForm(fw, saveFile);
 }
