@@ -288,7 +288,7 @@ void QRegion::translate( int dx, int dy )
 
 #define RGN_NOP -1
 
-/*!
+/*
   Performs the actual OR, AND, SUB and XOR operation between regions.
   Sets the resulting region handle to 0 to indicate an empty region.
 */

@@ -42,61 +42,66 @@
 
 // BEING REVISED: paul
 /*!
-  \class QRegion qregion.h
-  \brief The QRegion class specifies a clip region for a painter.
+    \class QRegion qregion.h
+    \brief The QRegion class specifies a clip region for a painter.
 
-  \ingroup images
-  \ingroup graphics
+    \ingroup images
+    \ingroup graphics
 
-  QRegion is used with QPainter::setClipRegion() to limit the paint
-  area to what needs to be painted. There is also a QWidget::repaint()
-  that takes a QRegion parameter. QRegion is the best tool for
-  reducing flicker.
+    QRegion is used with QPainter::setClipRegion() to limit the paint
+    area to what needs to be painted. There is also a
+    QWidget::repaint() that takes a QRegion parameter. QRegion is the
+    best tool for reducing flicker.
 
-  A region can be created from a rectangle, an ellipse, a polygon or a
-  bitmap. Complex regions may be created by combining simple regions
-  using unite(), intersect(), subtract() or eor() (exclusive or). You can
-  move a region using translate().
+    A region can be created from a rectangle, an ellipse, a polygon or
+    a bitmap. Complex regions may be created by combining simple
+    regions using unite(), intersect(), subtract() or eor() (exclusive
+    or). You can move a region using translate().
 
-  You can test whether a region isNull(), isEmpty() or if it contains()
-  a QPoint or QRect. The bounding rectangle is given by boundingRect().
+    You can test whether a region isNull(), isEmpty() or if it
+    contains() a QPoint or QRect. The bounding rectangle is given by
+    boundingRect().
 
-  The function rects() gives a decomposition of the region into rectangles.
+    The function rects() gives a decomposition of the region into
+    rectangles.
 
-  Example of using complex regions:
-  \code
-    void MyWidget::paintEvent( QPaintEvent * )
-    {
-    QPainter p;                         // our painter
-    QRegion r1( QRect(100,100,200,80),  // r1 = elliptic region
-                QRegion::Ellipse );
-    QRegion r2( QRect(100,120,90,30) ); // r2 = rectangular region
-    QRegion r3 = r1.intersect( r2 );    // r3 = intersection
-    p.begin( this );                    // start painting widget
-    p.setClipRegion( r3 );              // set clip region
-    ...                                 // paint clipped graphics
-    p.end();                            // painting done
-    }
-  \endcode
+    Example of using complex regions:
+    \code
+	void MyWidget::paintEvent( QPaintEvent * )
+	{
+	    QPainter p;                         // our painter
+	    QRegion r1( QRect(100,100,200,80),  // r1 = elliptic region
+			QRegion::Ellipse );
+	    QRegion r2( QRect(100,120,90,30) ); // r2 = rectangular region
+	    QRegion r3 = r1.intersect( r2 );    // r3 = intersection
+	    p.begin( this );                    // start painting widget
+	    p.setClipRegion( r3 );              // set clip region
+	    ...                                 // paint clipped graphics
+	    p.end();                            // painting done
+	}
+    \endcode
 
-  QRegion is an \link shclass.html implicitly shared\endlink class.
+    QRegion is an \link shclass.html implicitly shared\endlink class.
 
-  Due to window system limitations, the width and height of a region
-  is limited to 65535 on Unix/X11.
+    Due to window system limitations, the width and height of a region
+    is limited to 65535 on Unix/X11.
 
-  \sa QPainter::setClipRegion(), QPainter::setClipRect()
+    \sa QPainter::setClipRegion(), QPainter::setClipRect()
 */
 
 
-/*! \enum QRegion::RegionType
-  Determines the shape of the region to be created.
+/*!
+    \enum QRegion::RegionType
 
-  \value Rectangle  the region covers the entire rectangle.
-  \value Ellipse  the region is an ellipse inside the rectangle.
- */
+    Specifies the shape of the region to be created.
+
+    \value Rectangle  the region covers the entire rectangle.
+    \value Ellipse  the region is an ellipse inside the rectangle.
+*/
 
 /*!
     \fn Region  QRegion::handle() const
+
     Returns the region's handle.
 */
 
@@ -105,13 +110,12 @@
  *****************************************************************************/
 
 /*!
-  Constructs a rectangular or elliptic region.
+    Constructs a rectangular or elliptic region.
 
-  If \a t is \c Rectangle, the region is the filled rectangle (\a x,
-  \a y, \a w, \a h). If \a t is \c Ellipse, the region is the filled
-  ellipse with center at (\a x + \a w / 2, \a y + \a h / 2) and
-  size (\a w ,\a h ).
-
+    If \a t is \c Rectangle, the region is the filled rectangle (\a x,
+    \a y, \a w, \a h). If \a t is \c Ellipse, the region is the filled
+    ellipse with center at (\a x + \a w / 2, \a y + \a h / 2) and size
+    (\a w ,\a h ).
 */
 QRegion::QRegion( int x, int y, int w, int h, RegionType t )
 {
@@ -121,10 +125,10 @@ QRegion::QRegion( int x, int y, int w, int h, RegionType t )
 }
 
 /*!
-  Detaches from shared region data to makes sure that this region is the
-  only one referring to the data.
+    Detaches from shared region data to make sure that this region is
+    the only one referring to the data.
 
-  \sa copy(), \link shclass.html shared classes\endlink
+    \sa copy(), \link shclass.html shared classes\endlink
 */
 
 void QRegion::detach()
@@ -134,15 +138,14 @@ void QRegion::detach()
 }
 
 #ifndef QT_NO_DATASTREAM
-/*!
-  Executes region commands in the internal buffer and rebuilds the original
-  region.
+/*
+    Executes region commands in the internal buffer and rebuilds the
+    original region.
 
-  We do this when we read a region from the data stream.
+    We do this when we read a region from the data stream.
 
-  If \a ver is non-0, uses the format version \a ver on reading the
-  byte array.
-
+    If \a ver is non-0, uses the format version \a ver on reading the
+    byte array.
 */
 
 void QRegion::exec( const QByteArray &buffer, int ver )
@@ -222,11 +225,12 @@ void QRegion::exec( const QByteArray &buffer, int ver )
  *****************************************************************************/
 
 /*!
-  \relates QRegion
-  Writes the region \a r to the stream \a s and returns a reference to
-  the stream.
+    \relates QRegion
 
-  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    Writes the region \a r to the stream \a s and returns a reference
+    to the stream.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QRegion &r )
@@ -257,11 +261,12 @@ QDataStream &operator<<( QDataStream &s, const QRegion &r )
 }
 
 /*!
-  \relates QRegion
-  Reads a region from the stream \a s into \a r and returns a
-  reference to the stream.
+    \relates QRegion
 
-  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    Reads a region from the stream \a s into \a r and returns a
+    reference to the stream.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QRegion &r )
@@ -278,86 +283,96 @@ QDataStream &operator>>( QDataStream &s, QRegion &r )
 
 
 /*!
-    Applies the unite() function to this region and \a r.
-    \c r1|r2 is equivalent to \c r1.unite(r2)
- \sa unite(), operator+()
- */
+    Applies the unite() function to this region and \a r. \c r1|r2 is
+    equivalent to \c r1.unite(r2)
+
+    \sa unite(), operator+()
+*/
 const QRegion QRegion::operator|( const QRegion &r ) const
     { return unite(r); }
 
 /*!
-    Applies the unite() function to this region and \a r.
-    \c r1+r2 is equivalent to \c r1.unite(r2)
- \sa unite(), operator|()
- */
+    Applies the unite() function to this region and \a r. \c r1+r2 is
+    equivalent to \c r1.unite(r2)
+
+    \sa unite(), operator|()
+*/
 const QRegion QRegion::operator+( const QRegion &r ) const
     { return unite(r); }
 
 /*!
-    Applies the intersect() function to this region and \a r.
-    \c r1&r2 is equivalent to \c r1.intersect(r2)
- \sa intersect()
+    Applies the intersect() function to this region and \a r. \c r1&r2
+    is equivalent to \c r1.intersect(r2)
+
+    \sa intersect()
 */
 const QRegion QRegion::operator&( const QRegion &r ) const
     { return intersect(r); }
 
 /*!
-    Applies the subtract() function to this region and \a r.
-    \c r1-r2 is equivalent to \c r1.subtract(r2)
- \sa subtract()
+    Applies the subtract() function to this region and \a r. \c r1-r2
+    is equivalent to \c r1.subtract(r2)
+
+    \sa subtract()
 */
 const QRegion QRegion::operator-( const QRegion &r ) const
     { return subtract(r); }
 
 /*!
-    Applies the eor() function to this region and \a r.
-    \c r1^r2 is equivalent to \c r1.eor(r2)
- \sa eor()
+    Applies the eor() function to this region and \a r. \c r1^r2 is
+    equivalent to \c r1.eor(r2)
+
+    \sa eor()
 */
 const QRegion QRegion::operator^( const QRegion &r ) const
     { return eor(r); }
 
 /*!
-    Applies the unite() function to this region and \a r and assigns the
-    result to this region.
-    \c r1|=r2 is equivalent to \c r1=r1.unite(r2)
- \sa unite()
+    Applies the unite() function to this region and \a r and assigns
+    the result to this region. \c r1|=r2 is equivalent to \c
+    r1=r1.unite(r2)
+
+    \sa unite()
 */
 QRegion& QRegion::operator|=( const QRegion &r )
     { return *this = *this | r; }
 
 /*!
-    Applies the unite() function to this region and \a r and assigns the
-    result to this region.
-    \c r1+=r2 is equivalent to \c r1=r1.unite(r2)
- \sa intersect()
+    Applies the unite() function to this region and \a r and assigns
+    the result to this region. \c r1+=r2 is equivalent to \c
+    r1=r1.unite(r2)
+
+    \sa intersect()
 */
 QRegion& QRegion::operator+=( const QRegion &r )
     { return *this = *this + r; }
 
 /*!
     Applies the intersect() function to this region and \a r and
-    assigns the result to this region.
-    \c r1&=r2 is equivalent to \c r1=r1.intersect(r2)
- \sa intersect()
+    assigns the result to this region. \c r1&=r2 is equivalent to \c
+    r1=r1.intersect(r2)
+
+    \sa intersect()
 */
 QRegion& QRegion::operator&=( const QRegion &r )
     { return *this = *this & r; }
 
 /*!
     Applies the subtract() function to this region and \a r and
-    assigns the result to this region.
-    \c r1-=r2 is equivalent to \c r1=r1.subtract(r2)
- \sa subtract()
+    assigns the result to this region. \c r1-=r2 is equivalent to \c
+    r1=r1.subtract(r2)
+
+    \sa subtract()
 */
 QRegion& QRegion::operator-=( const QRegion &r )
     { return *this = *this - r; }
 
 /*!
     Applies the eor() function to this region and \a r and
-    assigns the result to this region.
-    \c r1^=r2 is equivalent to \c r1=r1.eor(r2)
- \sa eor()
+    assigns the result to this region. \c r1^=r2 is equivalent to \c
+    r1=r1.eor(r2)
+
+    \sa eor()
 */
 QRegion& QRegion::operator^=( const QRegion &r )
     { return *this = *this ^ r; }

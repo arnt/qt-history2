@@ -49,138 +49,142 @@
 
 
 /*!
-  \class QProcess qprocess.h
+    \class QProcess qprocess.h
 
-  \brief The QProcess class is used to start external programs and to
-  communicate with them.
+    \brief The QProcess class is used to start external programs and
+    to communicate with them.
 
-  \ingroup io
-  \ingroup misc
-  \mainclass
+    \ingroup io
+    \ingroup misc
+    \mainclass
 
-  You can write to the started program's standard input, and can read
-  the program's standard output and standard error. You can pass
-  command line arguments to the program either in the constructor or
-  with setArguments() or addArgument(). The program's working
-  directory can be set with setWorkingDirectory(). If you need to set
-  up environment variables pass them to the start() or launch()
-  function (see below). The processExited() signal is emitted if the
-  program exits. The program's exit status is available from
-  exitStatus(), although you could simply call normalExit() to see if
-  the program terminated normally.
+    You can write to the started program's standard input, and can
+    read the program's standard output and standard error. You can
+    pass command line arguments to the program either in the
+    constructor or with setArguments() or addArgument(). The program's
+    working directory can be set with setWorkingDirectory(). If you
+    need to set up environment variables pass them to the start() or
+    launch() functions (see below). The processExited() signal is
+    emitted if the program exits. The program's exit status is
+    available from exitStatus(), although you could simply call
+    normalExit() to see if the program terminated normally.
 
-  There are two different ways to start a process. If you just want to
-  run a program, optionally passing data to its standard input at the
-  beginning, use one of the launch() functions. If you want full
-  control of the program's standard input (especially if you don't know all
-  data you want to send to standard input at the beginning), use the start()
-  function.
+    There are two different ways to start a process. If you just want
+    to run a program, optionally passing data to its standard input at
+    the beginning, use one of the launch() functions. If you want full
+    control of the program's standard input (especially if you don't
+    know all the data you want to send to standard input at the
+    beginning), use the start() function.
 
-  If you use start() you can write to the program's standard input
-  using writeToStdin() and you can close the standard input with
-  closeStdin(). The wroteToStdin() signal is emitted if the data sent
-  to standard input has been written. You can read from the program's
-  standard output using readStdout() or readLineStdout(). These
-  functions return an empty QByteArray if there is no data to read.
-  The readyReadStdout() signal is emitted when there is data available
-  to be read from standard output. Standard error has a set of
-  functions that correspond to the standard output functions, i.e.
-  readStderr(), readLineStderr() and readyReadStderr().
+    If you use start() you can write to the program's standard input
+    using writeToStdin() and you can close the standard input with
+    closeStdin(). The wroteToStdin() signal is emitted if the data
+    sent to standard input has been written. You can read from the
+    program's standard output using readStdout() or readLineStdout().
+    These functions return an empty QByteArray if there is no data to
+    read. The readyReadStdout() signal is emitted when there is data
+    available to be read from standard output. Standard error has a
+    set of functions that correspond to the standard output functions,
+    i.e. readStderr(), readLineStderr() and readyReadStderr().
 
-  If you use one of the launch() functions the data you pass will be
-  sent to the program's standard input which will be closed once all
-  the data has been written. You should \e not use writeToStdin() or
-  closeStdin() if you use launch(). If you need to send data to the
-  program's standard input after it has started running use start()
-  instead of launch().
+    If you use one of the launch() functions the data you pass will be
+    sent to the program's standard input which will be closed once all
+    the data has been written. You should \e not use writeToStdin() or
+    closeStdin() if you use launch(). If you need to send data to the
+    program's standard input after it has started running use start()
+    instead of launch().
 
-  Both start() and launch() can accept a string list of strings with
-  the format, key=value, where the keys are the names of environment
-  variables.
+    Both start() and launch() can accept a string list of strings each
+    of which has the format, key=value, where the keys are the names
+    of environment variables.
 
-  You can test to see if a program is running with isRunning(). The
-  program's process identifier is available from processIdentifier().
-  If you want to terminate a running program use tryTerminate(), but note
-  that the program may ignore this. If you \e really want to terminate
-  the program, without it having any chance to clean up, you can use
-  kill().
+    You can test to see if a program is running with isRunning(). The
+    program's process identifier is available from
+    processIdentifier(). If you want to terminate a running program
+    use tryTerminate(), but note that the program may ignore this. If
+    you \e really want to terminate the program, without it having any
+    chance to clean up, you can use kill().
 
-  As an example, suppose we want to start the \c uic command (a Qt
-  command line tool used with \e{Qt Designer}) and perform some
-  operations on the output (the \c uic outputs the code it generates
-  to standard output by default). Suppose further that we want to run
-  the program on the file "small_dialog.ui" with the command line
-  options "-tr i18n". On the command line we would write:
-  \code
-  uic -tr i18n small_dialog.ui
-  \endcode
+    As an example, suppose we want to start the \c uic command (a Qt
+    command line tool used with \e{Qt Designer}) and perform some
+    operations on the output (the \c uic outputs the code it generates
+    to standard output by default). Suppose further that we want to
+    run the program on the file "small_dialog.ui" with the command
+    line options "-tr i18n". On the command line we would write:
+    \code
+    uic -tr i18n small_dialog.ui
+    \endcode
 
-  \quotefile process/process.cpp
+    \quotefile process/process.cpp
 
-  A code snippet for this with the QProcess class might look like this:
+    A code snippet for this with the QProcess class might look like
+    this:
 
-  \skipto UicManager::UicManager()
-  \printline UicManager::UicManager()
-  \printline {
-  \skipto proc = new QProcess( this );
-  \printline proc = new QProcess( this );
-  \skipto proc->addArgument( "uic" );
-  \printuntil this, SLOT(readFromStdout()) );
-  \skipto if ( !proc->start() ) {
-  \printuntil // error handling
-  \skipto }
-  \printline }
-  \printline }
+    \skipto UicManager::UicManager()
+    \printline UicManager::UicManager()
+    \printline {
+    \skipto proc = new QProcess( this );
+    \printline proc = new QProcess( this );
+    \skipto proc->addArgument( "uic" );
+    \printuntil this, SLOT(readFromStdout()) );
+    \skipto if ( !proc->start() ) {
+    \printuntil // error handling
+    \skipto }
+    \printline }
+    \printline }
 
-  \skipto void UicManager::readFromStdout()
-  \printuntil // Bear in mind that the data might be output in chunks.
-  \skipto }
-  \printline }
+    \skipto void UicManager::readFromStdout()
+    \printuntil // Bear in mind that the data might be output in chunks.
+    \skipto }
+    \printline }
 
-  Although you may need quotes for a file named on the command line
-  (e.g. if it contains spaces) you shouldn't use extra quotes for
-  arguments passed to addArgument() or setArguments().
+    Although you may need quotes for a file named on the command line
+    (e.g. if it contains spaces) you shouldn't use extra quotes for
+    arguments passed to addArgument() or setArguments().
 
-  The readyReadStdout() signal is emitted when there is new data on
-  standard output. This happens asynchronously: you don't know if more
-  data will arrive later. In the above example you could connect the
-  processExited() signal to the slot UicManager::readFromStdout()
-  instead. If you do so, you will be certain that all the data is
-  available when the slot is called. On the other hand, you must wait
-  until the process has finished before doing any processing.
+    The readyReadStdout() signal is emitted when there is new data on
+    standard output. This happens asynchronously: you don't know if
+    more data will arrive later. In the above example you could
+    connect the processExited() signal to the slot
+    UicManager::readFromStdout() instead. If you do so, you will be
+    certain that all the data is available when the slot is called. On
+    the other hand, you must wait until the process has finished
+    before doing any processing.
 
-  \sa QSocket
+    \sa QSocket
 */
 
 /*!
-  \enum QProcess::Communication
+    \enum QProcess::Communication
 
-  This enum type defines the communication channels connected to the
-  process.
+    This enum type defines the communication channels connected to the
+    process.
 
-  \value Stdin  Data can be written to the process's standard input.
+    \value Stdin  Data can be written to the process's standard input.
 
-  \value Stdout  Data can be read from the process's standard output.
+    \value Stdout  Data can be read from the process's standard
+    output.
 
-  \value Stderr  Data can be read from the process's standard error.
+    \value Stderr  Data can be read from the process's standard error.
 
-  \value DupStderr  Duplicates standard error to standard output for new
-  processes; i.e.  everything that the process writes to standard error, is
-  reported by QProcess on standard output instead. This is especially useful if
-  your application requires that the output on standard output and standard
-  error is read in the same order as the process output it. Please note that
-  this is a binary flag, so if you want to activate this together with standard
-  input, output and error redirection (the default), you have to specify
-  \c{Stdin|Stdout|Stderr|DupStderr} for the setCommunication() call.
+    \value DupStderr  Both the process's standard error output \e and
+    its standard output are written to its standard output. (Like
+    Unix's dup2().) This means that nothing is sent to the standard
+    error output. This is especially useful if your application
+    requires that the output on standard output and on standard error
+    must be read in the same order that they are produced. This is a
+    flag, so to activate it you must pass \c{Stdout|Stderr|DupStderr},
+    or \c{Stdin|Stdout|Stderr|DupStderr} if you want to provide input,
+    to the setCommunication() call.
 
-  \sa setCommunication() communication()
+    \sa setCommunication() communication()
 */
 
 /*!
-  Constructs a QProcess object. The \a parent and \a name parameters are passed
-  to the QObject constructor.
+    Constructs a QProcess object. The \a parent and \a name parameters
+    are passed to the QObject constructor.
 
-  \sa setArguments() addArgument() start()
+    \sa setArguments() addArgument() start()
 */
 QProcess::QProcess( QObject *parent, const char *name )
     : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
@@ -192,13 +196,14 @@ QProcess::QProcess( QObject *parent, const char *name )
 }
 
 /*!
-  Constructs a QProcess with \a arg0 as the command to be executed. The
-  \a parent and \a name parameters are passed to the QObject constructor.
+    Constructs a QProcess with \a arg0 as the command to be executed.
+    The \a parent and \a name parameters are passed to the QObject
+    constructor.
 
-  The process is not started. You must call start() or launch()
-  to start the process.
+    The process is not started. You must call start() or launch() to
+    start the process.
 
-  \sa setArguments() addArgument() start()
+    \sa setArguments() addArgument() start()
 */
 QProcess::QProcess( const QString& arg0, QObject *parent, const char *name )
     : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
@@ -211,15 +216,16 @@ QProcess::QProcess( const QString& arg0, QObject *parent, const char *name )
 }
 
 /*!
-  Constructs a QProcess with \a args as the arguments of the process. The first
-  element in the list is the command to be executed. The other elements in the
-  list are the arguments to this command. The \a parent and \a name
-  parameters are passed to the QObject constructor.
+    Constructs a QProcess with \a args as the arguments of the
+    process. The first element in the list is the command to be
+    executed. The other elements in the list are the arguments to this
+    command. The \a parent and \a name parameters are passed to the
+    QObject constructor.
 
-  The process is not started. You must call start() or launch()
-  to start the process.
+    The process is not started. You must call start() or launch() to
+    start the process.
 
-  \sa setArguments() addArgument() start()
+    \sa setArguments() addArgument() start()
 */
 QProcess::QProcess( const QStringList& args, QObject *parent, const char *name )
     : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
@@ -233,12 +239,12 @@ QProcess::QProcess( const QStringList& args, QObject *parent, const char *name )
 
 
 /*!
-  Returns the list of arguments that are set for the process. Arguments can be
-  specified with the constructor or with the functions setArguments() and
-  addArgument().
+    Returns the list of arguments that are set for the process.
+    Arguments can be specified with the constructor or with the
+    functions setArguments() and addArgument().
 
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
+    Note that if you want to iterate over the list, you should iterate
+    over a copy, e.g.
     \code
     QStringList list = myProcess.arguments();
     QStringList::Iterator it = list.begin();
@@ -248,7 +254,7 @@ QProcess::QProcess( const QStringList& args, QObject *parent, const char *name )
     }
     \endcode
 
-  \sa setArguments() addArgument()
+    \sa setArguments() addArgument()
 */
 QStringList QProcess::arguments() const
 {
@@ -256,9 +262,9 @@ QStringList QProcess::arguments() const
 }
 
 /*!
-  Clears the list of arguments that are set for the process.
+    Clears the list of arguments that are set for the process.
 
-  \sa setArguments() addArgument()
+    \sa setArguments() addArgument()
 */
 void QProcess::clearArguments()
 {
@@ -266,20 +272,29 @@ void QProcess::clearArguments()
 }
 
 /*!
-  Sets \a args as the arguments for the process. The first element in the list
-  is the command to be executed. The other elements in the list are the
-  arguments to the command. Any previous arguments are deleted.
+    Sets \a args as the arguments for the process. The first element
+    in the list is the command to be executed. The other elements in
+    the list are the arguments to the command. Any previous arguments
+    are deleted.
 
-  QProcess does not make any substitution of the arguments: if you specify "*"
-  or "$DISPLAY", these values are passed to the process literally. If you want
-  to have the same behavior as on the shell, you have to do the substitution
-  yourself; i.e. instead of specifying a "*" you have to specify the list of
-  all filenames and instead of the "$DISPLAY" you have to specify the value of
-  the environment variable \c DISPLAY. The same applies for Windows, although a
-  literal "*" as an argument is usually understood and substituted by Windows
-  programs.
+    QProcess does perform argument substitutions; for example, if you
+    specify "*" or "$DISPLAY", these values are passed to the process
+    literally. If you want to have the same behavior as the shell
+    provides, you must do the substitutions yourself; i.e. instead of
+    specifying a "*" you must specify the list of all the filenames in
+    the current directory, and instead of "$DISPLAY" you must specify
+    the value of the environment variable \c DISPLAY.
 
-  \sa arguments() addArgument()
+    Note for Windows users. The standard Windows shells, e.g. \c
+    command.com and \c cmd.exe, do not perform file globbing, i.e.
+    they do not convert a "*" on the command line into a list of files
+    in the current directory. For this reason most Windows
+    applications implement their own file globbing, and as a result of
+    this, specifying an argument of "*" for a Windows application is
+    likely to result in the application performing a file glob and
+    ending up with a list of filenames.
+
+    \sa arguments() addArgument()
 */
 void QProcess::setArguments( const QStringList& args )
 {
@@ -287,12 +302,12 @@ void QProcess::setArguments( const QStringList& args )
 }
 
 /*!
-  Adds \a arg to the end of the list of arguments.
+    Adds \a arg to the end of the list of arguments.
 
-  The first element in the list of arguments is the command to be
-  executed; the following elements are the arguments to the command.
+    The first element in the list of arguments is the command to be
+    executed; the following elements are the command's arguments.
 
-  \sa arguments() setArguments()
+    \sa arguments() setArguments()
 */
 void QProcess::addArgument( const QString& arg )
 {
@@ -301,11 +316,11 @@ void QProcess::addArgument( const QString& arg )
 
 #ifndef QT_NO_DIR
 /*!
-  Returns the working directory that was set with
-  setWorkingDirectory(), or the current directory if none has been
-  set.
+    Returns the working directory that was set with
+    setWorkingDirectory(), or the current directory if none has been
+    explicitly set.
 
-  \sa setWorkingDirectory() QDir::current()
+    \sa setWorkingDirectory() QDir::current()
 */
 QDir QProcess::workingDirectory() const
 {
@@ -313,13 +328,14 @@ QDir QProcess::workingDirectory() const
 }
 
 /*!
-  Sets \a dir as the working directory for a process. This does not affect
-  running processes; only processes that are started afterwards are affected.
+    Sets \a dir as the working directory for processes. This does not
+    affect running processes; only processes that are started
+    afterwards are affected.
 
-  Setting the working directory is especially useful for processes that try to
-  access files with relative filenames.
+    Setting the working directory is especially useful for processes
+    that try to access files with relative paths.
 
-  \sa workingDirectory() start()
+    \sa workingDirectory() start()
 */
 void QProcess::setWorkingDirectory( const QDir& dir )
 {
@@ -328,9 +344,10 @@ void QProcess::setWorkingDirectory( const QDir& dir )
 #endif //QT_NO_DIR
 
 /*!
-  Returns the communication required with the process.
+    Returns the communication required with the process, i.e. some
+    combination of the \c Communication flags.
 
-  \sa setCommunication()
+    \sa setCommunication()
 */
 int QProcess::communication() const
 {
@@ -338,13 +355,14 @@ int QProcess::communication() const
 }
 
 /*!
-  Sets \a commFlags as the communication required with the process.
+    Sets \a commFlags as the communication required with the process.
 
-  \a commFlags is a bitwise OR between the flags defined in \c Communication.
+    \a commFlags is a bitwise OR of the flags defined by the \c
+    Communication enum.
 
-  The default is \c{Stdin|Stdout|Stderr}.
+    The default is \c{Stdin|Stdout|Stderr}.
 
-  \sa communication()
+    \sa communication()
 */
 void QProcess::setCommunication( int commFlags )
 {
@@ -352,11 +370,11 @@ void QProcess::setCommunication( int commFlags )
 }
 
 /*!
-  Returns TRUE if the process has exited normally; otherwise returns
-  FALSE. This implies that this function returns FALSE if the process
-  is still running.
+    Returns TRUE if the process has exited normally; otherwise returns
+    FALSE. This implies that this function returns FALSE if the
+    process is still running.
 
-  \sa isRunning() exitStatus() processExited()
+    \sa isRunning() exitStatus() processExited()
 */
 bool QProcess::normalExit() const
 {
@@ -368,15 +386,15 @@ bool QProcess::normalExit() const
 }
 
 /*!
-  Returns the exit status of the process or 0 if the process is still
-  running. This function returns immediately and does not wait until
-  the process is finished.
+    Returns the exit status of the process or 0 if the process is
+    still running. This function returns immediately and does not wait
+    until the process is finished.
 
-  If normalExit() is FALSE (e.g. if the program was killed or
-  crashed), this function returns 0, so you should check the return
-  value of normalExit() before relying on this value.
+    If normalExit() is FALSE (e.g. if the program was killed or
+    crashed), this function returns 0, so you should check the return
+    value of normalExit() before relying on this value.
 
-  \sa normalExit() processExited()
+    \sa normalExit() processExited()
 */
 int QProcess::exitStatus() const
 {
@@ -389,14 +407,14 @@ int QProcess::exitStatus() const
 
 
 /*!
-  Reads the data that the process has written to standard output. When
-  new data is written to standard output, the class emits the signal
-  readyReadStdout().
+    Reads the data that the process has written to standard output.
+    When new data is written to standard output, the class emits the
+    signal readyReadStdout().
 
-  If there is no data to read, this function returns a QByteArray of
-  size 0: it does not wait until there is something to read.
+    If there is no data to read, this function returns a QByteArray of
+    size 0: it does not wait until there is something to read.
 
-  \sa readyReadStdout() readLineStdout() readStderr() writeToStdin()
+    \sa readyReadStdout() readLineStdout() readStderr() writeToStdin()
 */
 QByteArray QProcess::readStdout()
 {
@@ -413,14 +431,14 @@ QByteArray QProcess::readStdout()
 }
 
 /*!
-  Reads the data that the process has written to standard error. When
-  new data is written to standard error, the class emits the signal
-  readyReadStderr().
+    Reads the data that the process has written to standard error.
+    When new data is written to standard error, the class emits the
+    signal readyReadStderr().
 
-  If there is no data to read, this function returns a QByteArray of
-  size 0: it does not wait until there is something to read.
+    If there is no data to read, this function returns a QByteArray of
+    size 0: it does not wait until there is something to read.
 
-  \sa readyReadStderr() readLineStderr() readStdout() writeToStdin()
+    \sa readyReadStderr() readLineStderr() readStdout() writeToStdin()
 */
 QByteArray QProcess::readStderr()
 {
@@ -437,10 +455,10 @@ QByteArray QProcess::readStderr()
 }
 
 /*!
-  Returns TRUE if it's possible to read an entire line of text from
-  standard output at this time; otherwise returns FALSE.
+    Returns TRUE if it's possible to read an entire line of text from
+    standard output at this time; otherwise returns FALSE.
 
-  \sa readLineStdout() canReadLineStderr()
+    \sa readLineStdout() canReadLineStderr()
 */
 bool QProcess::canReadLineStdout() const
 {
@@ -449,10 +467,10 @@ bool QProcess::canReadLineStdout() const
 }
 
 /*!
-  Returns TRUE if it's possible to read an entire line of text from
-  standard error at this time; otherwise returns FALSE.
+    Returns TRUE if it's possible to read an entire line of text from
+    standard error at this time; otherwise returns FALSE.
 
-  \sa readLineStderr() canReadLineStdout()
+    \sa readLineStderr() canReadLineStdout()
 */
 bool QProcess::canReadLineStderr() const
 {
@@ -461,11 +479,11 @@ bool QProcess::canReadLineStderr() const
 }
 
 /*!
-  Reads a line of text from standard output, excluding any trailing newline or
-  carriage return characters, and returns it. Returns QString::null if
-  canReadLineStdout() returns FALSE.
+    Reads a line of text from standard output, excluding any trailing
+    newline or carriage return characters, and returns it. Returns
+    QString::null if canReadLineStdout() returns FALSE.
 
-  \sa canReadLineStdout() readyReadStdout() readStdout() readLineStderr()
+    \sa canReadLineStdout() readyReadStdout() readStdout() readLineStderr()
 */
 QString QProcess::readLineStdout()
 {
@@ -481,11 +499,11 @@ QString QProcess::readLineStdout()
 }
 
 /*!
-  Reads a line of text from standard error, excluding any trailing newline or
-  carriage return characters and returns it. Returns QString::null if
-  canReadLineStderr() returns FALSE.
+    Reads a line of text from standard error, excluding any trailing
+    newline or carriage return characters and returns it. Returns
+    QString::null if canReadLineStderr() returns FALSE.
 
-  \sa canReadLineStderr() readyReadStderr() readStderr() readLineStdout()
+    \sa canReadLineStderr() readyReadStderr() readStderr() readLineStdout()
 */
 QString QProcess::readLineStderr()
 {
@@ -500,7 +518,7 @@ QString QProcess::readLineStderr()
     return s;
 }
 
-/*!
+/*
   This private function scans for any occurrence of \n or \r\n in the
   buffer \e buf. It stores the text in the byte array \a store if it is
   non-null.
@@ -537,58 +555,61 @@ bool QProcess::scanNewline( bool stdOut, QByteArray *store )
 }
 
 /*!
-  \fn void QProcess::launchFinished()
+    \fn void QProcess::launchFinished()
 
-  This signal is emitted when the process was started with launch().
-  If the start was successful, this signal is emitted after all the
-  data has been written to standard input. If the start failed, then
-  this signal is emitted immediately.
+    This signal is emitted when the process was started with launch().
+    If the start was successful, this signal is emitted after all the
+    data has been written to standard input. If the start failed, then
+    this signal is emitted immediately.
 
-  This signal is especially useful if you want to know when you can safely
-  delete the QProcess object for the case that you are not intrested in reading
-  from standard output or standard error.
+    This signal is especially useful if you want to know when you can
+    safely delete the QProcess object when you are not intrested in
+    reading from standard output or standard error.
 
-  \sa launch() QObject::deleteLater()
+    \sa launch() QObject::deleteLater()
 */
 
 /*!
-  Runs the process and writes the data \a buf to the process's standard input.
-  If all the data is written to standard input, standard input is
-  closed. The command is searched for in the path for executable programs;
-  you can also use an absolute path in the command itself.
+    Runs the process and writes the data \a buf to the process's
+    standard input. If all the data is written to standard input,
+    standard input is closed. The command is searched for in the path
+    for executable programs; you can also use an absolute path in the
+    command itself.
 
-  If \a env is null, then the process is started with the same environment as
-  the starting process. If \a env is non-null, then the values in the
-  stringlist are interpreted as environment setttings of the form \c
-  {key=value} and the process is started with these environment settings. For
-  convenience, there is a small exception to this rule under Unix: if \a env
-  does not contain any settings for the environment variable \c
-  LD_LIBRARY_PATH, then this variable is inherited from the starting process.
+    If \a env is null, then the process is started with the same
+    environment as the starting process. If \a env is non-null, then
+    the values in the string list are interpreted as environment
+    setttings of the form \c {key=value} and the process is started
+    with these environment settings. For convenience, there is a small
+    exception to this rule under Unix: if \a env does not contain any
+    settings for the environment variable \c LD_LIBRARY_PATH, then
+    this variable is inherited from the starting process.
 
-  Returns TRUE if the process could be started; otherwise returns FALSE.
+    Returns TRUE if the process could be started; otherwise returns
+    FALSE.
 
-  Note that you should not use the slots writeToStdin() and closeStdin() on
-  processes started with launch(), since the result is not well-defined. If you
-  need these slots, use start() instead.
+    Note that you should not use the slots writeToStdin() and
+    closeStdin() on processes started with launch(), since the result
+    is not well-defined. If you need these slots, use start() instead.
 
-  The process may or may not read the \a buf data sent to its standard
-  input.
+    The process may or may not read the \a buf data sent to its
+    standard input.
 
-  You can call this function even when a process that was started with
-  this instance is still running. Be aware that if you do this the
-  standard input of the process that was launched first will be
-  closed, with any pending data being deleted, and the process will be
-  left to run out of your control. Similarly, if the process could not
-  be started the standard input will be closed and the pending data
-  deleted. (On operating systems that have zombie processes, Qt will
-  also wait() on the old process.)
+    You can call this function even when a process that was started
+    with this instance is still running. Be aware that if you do this
+    the standard input of the process that was launched first will be
+    closed, with any pending data being deleted, and the process will
+    be left to run out of your control. Similarly, if the process
+    could not be started the standard input will be closed and the
+    pending data deleted. (On operating systems that have zombie
+    processes, Qt will also wait() on the old process.)
 
-  The object emits the signal launchFinished() when this function
-  call is finished. If the start was successful, this signal is
-  emitted after all the data has been written to standard input. If
-  the start failed, then this signal is emitted immediately.
+    The object emits the signal launchFinished() when this function
+    call is finished. If the start was successful, this signal is
+    emitted after all the data has been written to standard input. If
+    the start failed, then this signal is emitted immediately.
 
-  \sa start() launchFinished();
+    \sa start() launchFinished();
 */
 bool QProcess::launch( const QByteArray& buf, QStringList *env )
 {
@@ -608,10 +629,11 @@ bool QProcess::launch( const QByteArray& buf, QStringList *env )
     }
 }
 
-/*! \overload
+/*!
+    \overload
 
-  The data \a buf is written to standard input with writeToStdin()
-  using the QString::local8Bit() representation of the strings.
+    The data \a buf is written to standard input with writeToStdin()
+    using the QString::local8Bit() representation of the strings.
 */
 bool QProcess::launch( const QString& buf, QStringList *env )
 {
@@ -631,7 +653,7 @@ bool QProcess::launch( const QString& buf, QStringList *env )
     }
 }
 
-/*!
+/*
   This private slot is used by the launch() functions to close standard input.
 */
 void QProcess::closeStdinLaunch()
@@ -644,55 +666,60 @@ void QProcess::closeStdinLaunch()
 
 
 /*!
-  \fn void QProcess::readyReadStdout()
+    \fn void QProcess::readyReadStdout()
 
-  This signal is emitted when the process has written data to standard output.
-  You can read the data with readStdout().
+    This signal is emitted when the process has written data to
+    standard output. You can read the data with readStdout().
 
-  Note that this signal is only emitted when there is new data and not
-  when there is old, but unread data. In the slot connected to this signal, you
-  should always read everything that is available at that moment to make sure
-  that you don't lose any data.
+    Note that this signal is only emitted when there is new data and
+    not when there is old, but unread data. In the slot connected to
+    this signal, you should always read everything that is available
+    at that moment to make sure that you don't lose any data.
 
-  \sa readStdout() readLineStdout() readyReadStderr()
+    \sa readStdout() readLineStdout() readyReadStderr()
 */
+
 /*!
-  \fn void QProcess::readyReadStderr()
+    \fn void QProcess::readyReadStderr()
 
-  This signal is emitted when the process has written data to standard error.
-  You can read the data with readStderr().
+    This signal is emitted when the process has written data to
+    standard error. You can read the data with readStderr().
 
-  Note that this signal is only emitted when there is new data and not
-  when there is old, but unread data. In the slot connected to this signal, you
-  should always read everything that is available at that moment to make sure
-  that you don't lose any data.
+    Note that this signal is only emitted when there is new data and
+    not when there is old, but unread data. In the slot connected to
+    this signal, you should always read everything that is available
+    at that moment to make sure that you don't lose any data.
 
-  \sa readStderr() readLineStderr() readyReadStdout()
+    \sa readStderr() readLineStderr() readyReadStdout()
 */
+
 /*!
-  \fn void QProcess::processExited()
+    \fn void QProcess::processExited()
 
-  This signal is emitted when the process has exited.
+    This signal is emitted when the process has exited.
 
-  \sa isRunning() normalExit() exitStatus() start() launch()
+    \sa isRunning() normalExit() exitStatus() start() launch()
 */
+
 /*!
-  \fn void QProcess::wroteToStdin()
+    \fn void QProcess::wroteToStdin()
 
-  This signal is emitted if the data sent to standard input (via
-  writeToStdin()) was actually written to the process. This does not
-  imply that the process really read the data, since this class only detects
-  when it was able to write the data to the operating system. But it is now
-  safe to close standard input without losing pending data.
+    This signal is emitted if the data sent to standard input (via
+    writeToStdin()) was actually written to the process. This does not
+    imply that the process really read the data, since this class only
+    detects when it was able to write the data to the operating
+    system. But it is now safe to close standard input without losing
+    pending data.
 
-  \sa writeToStdin() closeStdin()
+    \sa writeToStdin() closeStdin()
 */
 
 
-/*! \overload
+/*!
+    \overload
 
-  The string \a buf is handled as text using
-  the QString::local8Bit() representation.
+    The string \a buf is handled as text using the
+    QString::local8Bit() representation.
 */
 void QProcess::writeToStdin( const QString& buf )
 {

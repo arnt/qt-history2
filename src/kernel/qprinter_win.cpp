@@ -132,7 +132,7 @@ QPrinter::QPrinter( PrinterMode m )
     doc_name = "document1";
     hdevmode  = 0;
     hdevnames = 0;
-    
+
 #if defined(UNICODE)
 #ifndef Q_OS_TEMP
     if ( qWinVersion() & Qt::WV_NT_based ) {
@@ -183,12 +183,12 @@ QPrinter::~QPrinter()
         GlobalFree( hdevnames );
         hdevnames = 0;
     }
-    
+
     if ( hdc ) {
         DeleteDC( hdc );
         hdc = 0;
     }
-    
+
     delete d;
 }
 
@@ -389,10 +389,10 @@ static int mapPageSizeDevmode( QPrinter::PageSize s )
 }
 
 /*!
-Returns the Windows page size value as used by the DEVMODE struct
-(Windows only). Using this function is not portable.
+    Returns the Windows page size value as used by the \c DEVMODE
+    struct (Windows only). Using this function is not portable.
 
-  Use pageSize() to get the \l{PageSize}, e.g. 'A4', 'Letter', etc.
+    Use pageSize() to get the \l{PageSize}, e.g. 'A4', 'Letter', etc.
 */
 short QPrinter::winPageSize() const
 {
@@ -405,7 +405,7 @@ Copy the settings from the Windows structures into QPrinter
 void QPrinter::readPdlg( void* pdv )
 {
     // Note: Remember to reflect any changes here in readPdlgA below!
-    
+
     PRINTDLG* pd = (PRINTDLG*)pdv;
     output_file = (pd->Flags & PD_PRINTTOFILE) != 0;
     from_pg = pd->nFromPage;
@@ -442,7 +442,7 @@ void QPrinter::readPdlg( void* pdv )
 	    GlobalUnlock( pd->hDevMode );
         }
     }
-    
+
     if ( pd->hDevNames ) {
         DEVNAMES* dn = (DEVNAMES*)GlobalLock( pd->hDevNames );
         if ( dn ) {
@@ -455,10 +455,10 @@ void QPrinter::readPdlg( void* pdv )
 	    GlobalUnlock( pd->hDevNames );
         }
     }
-    
+
     if ( d->printerMode != ScreenResolution )
 	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
-    
+
     if ( pd->hDevMode ) {
         if ( hdevmode )
             GlobalFree( hdevmode );
@@ -513,7 +513,7 @@ void QPrinter::readPdlgA( void* pdv )
 	    GlobalUnlock( pd->hDevMode );
         }
     }
-    
+
     if ( pd->hDevNames ) {
         DEVNAMES* dn = (DEVNAMES*)GlobalLock( pd->hDevNames );
         // (There is no DEVNAMESA)
@@ -527,10 +527,10 @@ void QPrinter::readPdlgA( void* pdv )
 	    GlobalUnlock( pd->hDevNames );
         }
     }
-    
+
     if ( d->printerMode != ScreenResolution )
 	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
-    
+
     if ( pd->hDevMode ) {
         if ( hdevmode )
             GlobalFree( hdevmode );
@@ -570,7 +570,7 @@ static void setDefaultPrinter(const QString &printerName, HANDLE *hmode, HANDLE 
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based ) {
         GetPrinter(hPrinter,2,NULL,0,&nbytes);
-    } else 
+    } else
 #endif
     {
 	GetPrinterA(hPrinter,2,NULL,0,&nbytes);
@@ -591,8 +591,8 @@ static void setDefaultPrinter(const QString &printerName, HANDLE *hmode, HANDLE 
 	GlobalFree(pinf2);
 	return;
     }
-    
-    
+
+
     // There are drivers with no pDevMode structure!
     if ( pinf2->pDevMode ) {
         // Allocate a global HANDLE for a DEVMODE Structure
@@ -605,13 +605,13 @@ static void setDefaultPrinter(const QString &printerName, HANDLE *hmode, HANDLE 
         Q_ASSERT(hdevmode != 0);
         DEVMODE *pDevMode = (DEVMODE *)GlobalLock(hdevmode);
         Q_ASSERT(pDevMode != 0);
-	
+
         // Copy DEVMODE from PRINTER_INFO_2 Structure
         memcpy(pDevMode,pinf2->pDevMode,szDEVMODE);
         if ( hdevmode )
 	    GlobalUnlock(hdevmode);
     }
-    
+
     // Allocate a global HANDLE for a DEVNAMES Structure
     DWORD   lDrvrName = lstrlen(pinf2->pDriverName) + 1;
     DWORD   lPrntName = lstrlen(pinf2->pPrinterName) + 1;
@@ -624,30 +624,30 @@ static void setDefaultPrinter(const QString &printerName, HANDLE *hmode, HANDLE 
     Q_ASSERT(hdevnames != 0);
     DEVNAMES *pDevNames = (DEVNAMES *)GlobalLock(hdevnames);
     Q_ASSERT(pDevNames != 0);
-    
+
     // Create DEVNAMES Information from PRINTER_INFO_2 Structure
     int tcOffset = sizeof(DEVNAMES) / sizeof(TCHAR);
     Q_ASSERT(sizeof(DEVNAMES) == tcOffset * sizeof(TCHAR));
-    
+
     pDevNames->wDriverOffset = tcOffset;
     memcpy((LPTSTR)pDevNames + tcOffset,pinf2->pDriverName,lDrvrName * sizeof(TCHAR));
     tcOffset += lDrvrName;
-    
+
     pDevNames->wDeviceOffset = tcOffset;
     memcpy((LPTSTR)pDevNames + tcOffset,pinf2->pPrinterName,lPrntName * sizeof(TCHAR));
     tcOffset += lPrntName;
-    
+
     pDevNames->wOutputOffset = tcOffset;
     memcpy((LPTSTR)pDevNames + tcOffset,pinf2->pPortName,lPortName * sizeof(TCHAR));
     tcOffset += lPortName;
-    
+
     // This is (probably) not the Default Printer
     pDevNames->wDefault = 0;
-    
+
     // Clean up
     GlobalUnlock(hdevnames);
     GlobalFree(pinf2);
-    
+
     *hnames = hdevnames;
     *hmode = hdevmode;
 }
@@ -734,9 +734,9 @@ bool QPrinter::setup( QWidget *parent )
         parent = parent->topLevelWidget();
     else
         parent = qApp->mainWidget();
-    
+
     bool result = FALSE;
-    
+
     // Must handle the -A and -W versions separately; they're incompatible
 #if defined(UNICODE)
 #ifndef Q_OS_TEMP
@@ -745,7 +745,7 @@ bool QPrinter::setup( QWidget *parent )
         PRINTDLG pd;
         memset( &pd, 0, sizeof(PRINTDLG) );
         pd.lStructSize = sizeof(PRINTDLG);
-	
+
         pd.hDevMode   = hdevmode;
         pd.hDevNames  = hdevnames;
 	hdevnames = 0;
@@ -755,7 +755,7 @@ bool QPrinter::setup( QWidget *parent )
             pd.Flags = PD_RETURNDEFAULT;
             result = PrintDlg( &pd ) != 0;
         }
-	
+
 	if ( result ) {
 	    // writePdlg {
 	    pd.Flags = PD_RETURNDC;
@@ -789,7 +789,7 @@ bool QPrinter::setup( QWidget *parent )
             pd.nMinPage  = min_pg;
             pd.nMaxPage  = max_pg;
             pd.nCopies   = ncopies;
-	    
+
 	    if ( pd.hDevMode ) {
 		DEVMODE* dm = (DEVMODE*)GlobalLock( pd.hDevMode );
 		writeDevmode( dm );
@@ -812,7 +812,7 @@ bool QPrinter::setup( QWidget *parent )
         PRINTDLGA pd;
         memset( &pd, 0, sizeof(PRINTDLGA) );
         pd.lStructSize = sizeof(PRINTDLGA);
-	
+
         pd.hDevMode   = hdevmode;
         pd.hDevNames  = hdevnames;
 	hdevnames = 0;
@@ -822,7 +822,7 @@ bool QPrinter::setup( QWidget *parent )
             pd.Flags         = PD_RETURNDEFAULT;
             result = PrintDlgA( &pd ) != 0;
         }
-	
+
 	if ( result ) {
 	    pd.Flags = PD_RETURNDC;
 #if 0
@@ -855,7 +855,7 @@ bool QPrinter::setup( QWidget *parent )
             pd.nMinPage  = min_pg;
             pd.nMaxPage  = max_pg;
             pd.nCopies   = ncopies;
-	    
+
 	    if ( pd.hDevMode ) {
 		DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd.hDevMode );
 		writeDevmodeA( dm );
@@ -869,15 +869,15 @@ bool QPrinter::setup( QWidget *parent )
         }
     }
 #endif // Q_OS_TEMP
-    
+
     SetMapMode(hdc, MM_ANISOTROPIC);
-    // The following two lines are the cause of problems on Windows 9x, 
-    // for some reason, either one of these functions or both don't 
-    // have an effect.  This appears to be a bug with the Windows API 
+    // The following two lines are the cause of problems on Windows 9x,
+    // for some reason, either one of these functions or both don't
+    // have an effect.  This appears to be a bug with the Windows API
     // and as of yet I can't find a workaround.
     SetWindowExtEx(hdc, res, res, NULL);
     SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), NULL);
-    
+
     return result;
 }
 
@@ -897,10 +897,10 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
         h = image.height();
         d = image.depth();
     }
-    
+
     if ( w == 0 || h == 0 || d == 0 )           // invalid image or pixmap
         return 0;
-    
+
     if ( d > 1 && d <= 8 ) {                    // set to nearest valid depth
         d = 8;                                  //   2..7 ==> 8
         ncols = 256;
@@ -909,7 +909,7 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
         d = 32;                                 //   > 8  ==> 32
         ncols = 0;
     }
-    
+
     int   bpl = ((w*d+31)/32)*4;                // bytes per line
     int   bmi_len = sizeof(BITMAPINFO)+sizeof(RGBQUAD)*ncols;
     char *bmi_data = (char *)malloc( bmi_len );
@@ -928,7 +928,7 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
     bmh->biSizeImage      = bpl*h;
     bmh->biClrUsed        = ncols;
     bmh->biClrImportant   = 0;
-    
+
     if ( ncols > 0  && !image.isNull()) {       // image with color map
         RGBQUAD *r = (RGBQUAD*)(bmi_data + sizeof(BITMAPINFOHEADER));
         ncols = QMIN(ncols,image.numColors());
@@ -940,7 +940,7 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
             r[i].rgbReserved = 0;
         }
     }
-    
+
     return bmi;
 }
 
@@ -992,10 +992,10 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), NULL);
             }
 	    QSize margs = margins();
-	    
+
             OffsetViewportOrgEx( hdc, -margs.width(), -margs.height(), 0 );
             //### CS097 viewOffsetDone = TRUE;
-	    
+
         }
         if ( !ok ) {
             if ( hdc ) {
@@ -1030,10 +1030,10 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	    QPoint pos( rect.x(), rect.y() );
 	    QPixmap pixmap;
             QImage  image;
-	    
+
             int w;
             int h;
-	    
+
             if ( c == PdcDrawPixmap ) {
                 pixmap = *p[1].pixmap;
                 w = pixmap.width();
@@ -1054,7 +1054,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
                 w = image.width();
                 h = image.height();
             }
-	    
+
             double xs = 1.0;                    // x stretch
             double ys = 1.0;                    // y stretch
             if ( paint ) {
@@ -1136,7 +1136,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             BITMAPINFO *bmi = getWindowsBITMAPINFO( pixmap, image );
             BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
             uchar *bits;
-	    
+
             if ( image.isNull() ) {
                 bits = new uchar[bmh->biSizeImage];
                 // We are guaranteed that the QPainter does not pass

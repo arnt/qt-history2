@@ -227,7 +227,7 @@ int qnx6SocketPairReplacement (int socketFD[2]) {
 
     if (listen(tmpSocket, 5)) { BAILOUT };
 
-    // Select non-blocking mode 
+    // Select non-blocking mode
     int originalFlags = fcntl(socketFD[1], F_GETFL, 0);
     fcntl(socketFD[1], F_SETFL, originalFlags | O_NONBLOCK);
 
@@ -532,7 +532,7 @@ QT_SIGNAL_RETTYPE qt_C_sigchldHnd( QT_SIGNAL_ARGS )
  * QProcess
  *
  **********************************************************************/
-/*!
+/*
   This private class does basic initialization.
 */
 void QProcess::init()
@@ -542,7 +542,7 @@ void QProcess::init()
     exitNormal = FALSE;
 }
 
-/*!
+/*
   This private class resets the process variables, etc. so that it can be used
   for another process to start.
 */
@@ -601,15 +601,17 @@ void QProcess::consumeBufStderr( int consume )
 }
 
 /*!
-  Destroys the class.
+    Destroys the instance.
 
-  If the process is running, it is NOT terminated! Standard input, standard
-  output and standard error of the process are closed.
+    If the process is running, it is <b>not</b> terminated! The
+    standard input, standard output and standard error of the process
+    are closed.
 
-  You can connect the destroyed() signal to the kill() slot, if you want the
-  process to be terminated automatically when the class is destroyed.
+    You can connect the destroyed() signal to the kill() slot, if you
+    want the process to be terminated automatically when the instance
+    is destroyed.
 
-  \sa tryTerminate() kill()
+    \sa tryTerminate() kill()
 */
 QProcess::~QProcess()
 {
@@ -617,34 +619,38 @@ QProcess::~QProcess()
 }
 
 /*!
-  Tries to run a process for the command and arguments that were specified with
-  setArguments(), addArgument() or that were specified in the constructor. The
-  command is searched in the path for executable programs; you can also use an
-  absolute path to the command.
+    Tries to run a process for the command and arguments that were
+    specified with setArguments(), addArgument() or that were
+    specified in the constructor. The command is searched for in the
+    path for executable programs; you can also use an absolute path in
+    the command itself.
 
-  If \a env is null, then the process is started with the same environment as
-  the starting process. If \a env is non-null, then the values in the
-  stringlist are interpreted as environment setttings of the form \c
-  {key=value} and the process is started in these environment settings. For
-  convenience, there is a small exception to this rule: under Unix, if \a env
-  does not contain any settings for the environment variable \c
-  LD_LIBRARY_PATH, then this variable is inherited from the starting process;
-  under Windows the same applies for the environment variable \c PATH.
+    If \a env is null, then the process is started with the same
+    environment as the starting process. If \a env is non-null, then
+    the values in the stringlist are interpreted as environment
+    setttings of the form \c {key=value} and the process is started in
+    these environment settings. For convenience, there is a small
+    exception to this rule: under Unix, if \a env does not contain any
+    settings for the environment variable \c LD_LIBRARY_PATH, then
+    this variable is inherited from the starting process; under
+    Windows the same applies for the environment variable \c PATH.
 
-  Returns TRUE if the process could be started, otherwise FALSE.
+    Returns TRUE if the process could be started; otherwise returns
+    FALSE.
 
-  You can write data to standard input of the process with
-  writeToStdin(), you can close standard input with closeStdin() and you can
-  terminate the process tryTerminate() resp. kill().
+    You can write data to the process's standard input with
+    writeToStdin(). You can close standard input with closeStdin() and
+    you can terminate the process with tryTerminate(), or with kill().
 
-  You can call this function even when there already is a running
-  process in this object. In this case, QProcess closes standard input
-  of the old process and deletes pending data, i.e., you loose all
-  control over that process, but the process is not terminated. This applies
-  also if the process could not be started. (On operating systems that have
-  zombie processes, Qt will also wait() on the old process.)
+    You can call this function even if you've used this instance to
+    create a another process which is still running. In such cases,
+    QProcess closes the old process's standard input and deletes
+    pending data, i.e., you lose all control over the old process, but
+    the old process is not terminated. This applies also if the
+    process could not be started. (On operating systems that have
+    zombie processes, Qt will also wait() on the old process.)
 
-  \sa launch() closeStdin()
+    \sa launch() closeStdin()
 */
 bool QProcess::start( QStringList *env )
 {
@@ -886,14 +892,15 @@ error:
 
 
 /*!
-  Asks the process to terminate. Processes can ignore this wish. If you want to
-  be sure that the process really terminates, you must use kill() instead.
+    Asks the process to terminate. Processes can ignore this if they
+    wish. If you want to be certain that the process really
+    terminates, you can use kill() instead.
 
-  The slot returns immediately: it does not wait until the process has
-  finished. When the process really exited, the signal processExited() is
-  emitted.
+    The slot returns immediately: it does not wait until the process
+    has finished. When the process terminates, the processExited()
+    signal is emitted.
 
-  \sa kill() processExited()
+    \sa kill() processExited()
 */
 void QProcess::tryTerminate() const
 {
@@ -902,28 +909,29 @@ void QProcess::tryTerminate() const
 }
 
 /*!
-  Terminates the process. This is not a safe way to end a process since the
-  process will not be able to do cleanup. tryTerminate() is a safer way to do
-  it, but processes might ignore a tryTerminate().
+    Terminates the process. This is not a safe way to end a process
+    since the process will not be able to do any cleanup.
+    tryTerminate() is safer, but processes can ignore a
+    tryTerminate().
 
-  The nice way to end a process and to be sure that it is finished, is doing
-  something like this:
-  \code
-    process->tryTerminate();
-    QTimer::singleShot( 5000, process, SLOT( kill() ) );
-  \endcode
+    The nice way to end a process and to be sure that it is finished,
+    is to do something like this:
+    \code
+	process->tryTerminate();
+	QTimer::singleShot( 5000, process, SLOT( kill() ) );
+    \endcode
 
-  This tries to terminate the process the nice way. If the process is still
-  running after 5 seconds, it terminates the process the hard way. The timeout
-  should be chosen depending on the time the process needs to do all the
-  cleanup: use a higher value if the process is likely to do heavy computation
-  on cleanup.
+    This tries to terminate the process the nice way. If the process
+    is still running after 5 seconds, it terminates the process the
+    hard way. The timeout should be chosen depending on the time the
+    process needs to do all its cleanup: use a higher value if the
+    process is likely to do a lot of computation or I/O on cleanup.
 
-  The slot returns immediately: it does not wait until the process has
-  finished. When the process really exited, the signal processExited() is
-  emitted.
+    The slot returns immediately: it does not wait until the process
+    has finished. When the process terminates, the processExited()
+    signal is emitted.
 
-  \sa tryTerminate() processExited()
+    \sa tryTerminate() processExited()
 */
 void QProcess::kill() const
 {
@@ -932,9 +940,9 @@ void QProcess::kill() const
 }
 
 /*!
-  Returns TRUE if the process is running, otherwise FALSE.
+    Returns TRUE if the process is running; otherwise returns FALSE.
 
-  \sa normalExit() exitStatus() processExited()
+    \sa normalExit() exitStatus() processExited()
 */
 bool QProcess::isRunning() const
 {
@@ -968,16 +976,17 @@ bool QProcess::isRunning() const
 }
 
 /*!
-  Writes the data \a buf to the standard input of the process. The process may
-  or may not read this data.
+    Writes the data \a buf to the process's standard input. The
+    process may or may not read this data.
 
-  This function returns immediately; the QProcess class might write the data at
-  a later point (you have to enter the event loop for that). When all the data
-  is written to the process, the signal wroteToStdin() is emitted. This does
-  not mean that the process really read the data, since this class only detects
-  when it was able to write the data to the operating system.
+    This function returns immediately; the QProcess class might write
+    the data at a later point (you must enter the event loop for this
+    to occur). When all the data is written to the process, the signal
+    wroteToStdin() is emitted. This does not mean that the process
+    actually read the data, since this class only detects when it was
+    able to write the data to the operating system.
 
-  \sa wroteToStdin() closeStdin() readStdout() readStderr()
+    \sa wroteToStdin() closeStdin() readStdout() readStderr()
 */
 void QProcess::writeToStdin( const QByteArray& buf )
 {
@@ -991,12 +1000,12 @@ void QProcess::writeToStdin( const QByteArray& buf )
 
 
 /*!
-  Closes standard input of the process.
+    Closes the process's standard input.
 
-  This function also deletes pending data that is not written to standard input
-  yet.
+    This function also deletes any pending data that has not been
+    written to standard input.
 
-  \sa wroteToStdin()
+    \sa wroteToStdin()
 */
 void QProcess::closeStdin()
 {
@@ -1155,7 +1164,7 @@ void QProcess::socketWrite( int fd )
   \internal
   Flushes standard input. This is useful if you want to use QProcess in a
   synchronous manner.
-  
+
   This function should probably go into the public API.
 */
 void QProcess::flushStdin()
@@ -1215,14 +1224,16 @@ void QProcess::setWroteStdinConnected( bool value )
   \internal
 */
 /*!
-  Returns platform dependent information about the process. This can be used
-  together with platform specific system calls.
+    Returns platform dependent information about the process. This can
+    be used together with platform specific system calls.
 
-  Under Unix the return value is the PID of the process, or -1 if no process is
-  belonging to this object.
+    Under Unix the return value is the PID of the process, or -1 if no
+    process is belongs to this object.
 
-  Under Windows it is a pointer to the \c PROCESS_INFORMATION struct, or 0 if
-  no process is belonging to this object.
+    Under Windows it is a pointer to the \c PROCESS_INFORMATION
+    struct, or 0 if no process is belongs to this object.
+
+    Use of this function's return value is likely to be non-portable.
 */
 QProcess::PID QProcess::processIdentifier()
 {

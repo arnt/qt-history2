@@ -64,18 +64,19 @@ public:
 };
 
 /*!
-  \class QSignalMapper qsignalmapper.h
-  \ingroup io
-  \brief The QSignalMapper class bundles signals from identifiable senders.
+    \class QSignalMapper qsignalmapper.h
+    \brief The QSignalMapper class bundles signals from identifiable senders.
 
-  This class collects a set of parameterless signals, and re-emits
-  them with integer or string parameters corresponding to the
-  object that sent the signal.
+    \ingroup io
+
+    This class collects a set of parameterless signals, and re-emits
+    them with integer or string parameters corresponding to the object
+    that sent the signal.
 */
 
 /*!
-  Constructs a QSignalMapper with parent \a parent and name \a name.
-  Like all QObjects, it will be deleted when the parent is deleted.
+    Constructs a QSignalMapper called \a name, with parent \a parent.
+    Like all QObjects, it will be deleted when the parent is deleted.
 */
 QSignalMapper::QSignalMapper( QObject* parent, const char* name ) :
     QObject( parent, name )
@@ -84,7 +85,7 @@ QSignalMapper::QSignalMapper( QObject* parent, const char* name ) :
 }
 
 /*!
-  Destroys the QSignalMapper.
+    Destroys the QSignalMapper.
 */
 QSignalMapper::~QSignalMapper()
 {
@@ -92,10 +93,10 @@ QSignalMapper::~QSignalMapper()
 }
 
 /*!
-  Adds a mapping so that when map() is signaled from the given
-  \a sender, the signal mapped(\a identifier) is emitted.
+    Adds a mapping so that when map() is signaled from the given \a
+    sender, the signal mapped(\a identifier) is emitted.
 
-  There may be at most one integer identifier for each object.
+    There may be at most one integer identifier for each object.
 */
 void QSignalMapper::setMapping( const QObject* sender, int identifier )
 {
@@ -106,11 +107,12 @@ void QSignalMapper::setMapping( const QObject* sender, int identifier )
 
 /*!
     \overload
-  Adds a mapping so that when map() is signaled from the given
-  \a sender, the signal mapper(\a identifier) is emitted.
 
-  There may be at most one string identifier for each object, and
-  it may not be null.
+    Adds a mapping so that when map() is signaled from the given \a
+    sender, the signal mapper(\a identifier) is emitted.
+
+    There may be at most one string identifier for each object, and it
+    may not be null.
 */
 void QSignalMapper::setMapping( const QObject* sender, const QString &identifier )
 {
@@ -119,8 +121,8 @@ void QSignalMapper::setMapping( const QObject* sender, const QString &identifier
 }
 
 /*!
-  Removes all mappings for \a sender.  This is done automatically
-  when mapped objects are destroyed.
+    Removes all mappings for \a sender. This is done automatically
+    when mapped objects are destroyed.
 */
 void QSignalMapper::removeMappings( const QObject* sender )
 {
@@ -133,8 +135,7 @@ void QSignalMapper::removeMapping()
 }
 
 /*!
-  This slot emits signals based on which object sends signals
-  to it.
+    This slot emits signals based on which object sends signals to it.
 */
 void QSignalMapper::map()
 {
@@ -160,21 +161,20 @@ QSignalMapperRec* QSignalMapper::getRec( const QObject* sender )
 }
 
 /*!
-  \fn void QSignalMapper::mapped(int)
+    \fn void QSignalMapper::mapped(int)
 
-  This signal is emitted when map() is signaled from an object that
-  has an integer mapping set.
+    This signal is emitted when map() is signaled from an object that
+    has an integer mapping set.
 
-  \sa setMapping()
+    \sa setMapping()
 */
 
 /*!
-  \overload void QSignalMapper::mapped(const QString&)
+    \overload void QSignalMapper::mapped(const QString&)
 
+    This signal is emitted when map() is signaled from an object that
+    has a string mapping set.
 
-  This signal is emitted when map() is signaled from an object that
-  has a string mapping set.
-
-  \sa setMapping()
+    \sa setMapping()
 */
 #endif //QT_NO_SIGNALMAPPER

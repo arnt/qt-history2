@@ -40,72 +40,72 @@
 #include <ctype.h>
 
 /*!
-  \class QSignal qsignal.h
-  \brief The QSignal class can be used to send signals for classes
-  that don't inherit QObject.
+    \class QSignal qsignal.h
+    \brief The QSignal class can be used to send signals for classes
+    that don't inherit QObject.
 
-  \ingroup io
-  \ingroup misc
+    \ingroup io
+    \ingroup misc
 
-  If you want to send signals from a class that does not inherit
-  QObject, you can create an internal QSignal object to emit the
-  signal. You must also provide a function that connects the signal to
-  an outside object slot.  This is how we have implemented signals in
-  the QMenuData class, which is not a QObject.
+    If you want to send signals from a class that does not inherit
+    QObject, you can create an internal QSignal object to emit the
+    signal. You must also provide a function that connects the signal
+    to an outside object slot.  This is how we have implemented
+    signals in the QMenuData class, which is not a QObject.
 
-  In general, we recommend inheriting QObject instead.	QObject provides
-  much more functionality.
+    In general, we recommend inheriting QObject instead. QObject
+    provides much more functionality.
 
-  You can set a single QVariant parameter for the signal with
-  setValue().
+    You can set a single QVariant parameter for the signal with
+    setValue().
 
-  Note that QObject is a \e private base class of QSignal, i.e. you cannot
-  call any QObject member functions from a QSignal object.
+    Note that QObject is a \e private base class of QSignal, i.e. you
+    cannot call any QObject member functions from a QSignal object.
 
-  Example:
-  \code
-    #include <qsignal.h>
+    Example:
+    \code
+	#include <qsignal.h>
 
-    class MyClass
-    {
-    public:
-	MyClass();
-        ~MyClass();
+	class MyClass
+	{
+	public:
+	    MyClass();
+	    ~MyClass();
 
-	void doSomething();
+	    void doSomething();
 
-	void connect( QObject *receiver, const char *member );
+	    void connect( QObject *receiver, const char *member );
 
-    private:
-	QSignal *sig;
-    };
+	private:
+	    QSignal *sig;
+	};
 
-    MyClass::MyClass()
-    {
-	sig = new QSignal;
-    }
+	MyClass::MyClass()
+	{
+	    sig = new QSignal;
+	}
 
-    MyClass::~MyClass()
-    {
-	delete sig;
-    }
+	MyClass::~MyClass()
+	{
+	    delete sig;
+	}
 
-    void MyClass::doSomething()
-    {
-	// ... does something
-	sig->activate(); // emits the signal
-    }
+	void MyClass::doSomething()
+	{
+	    // ... does something
+	    sig->activate(); // emits the signal
+	}
 
-    void MyClass::connect( QObject *receiver, const char *member )
-    {
-	sig->connect( receiver, member );
-    }
-  \endcode
+	void MyClass::connect( QObject *receiver, const char *member )
+	{
+	    sig->connect( receiver, member );
+	}
+    \endcode
 */
 
 /*!
-  Constructs a signal object with the parent object \a parent and a \a name.
-  These arguments are passed directly to QObject.
+    Constructs a signal object called \a name, with the parent object
+    \a parent. These arguments are passed directly to QObject.
 */
 
 QSignal::QSignal( QObject *parent, const char *name )
@@ -118,8 +118,8 @@ QSignal::QSignal( QObject *parent, const char *name )
 }
 
 /*!
-  Destroys the signal.  All connections are removed, as is the case
-  with all QObjects.
+    Destroys the signal. All connections are removed, as is the case
+    with all QObjects.
 */
 QSignal::~QSignal()
 {
@@ -134,8 +134,9 @@ static inline bool intSignature( const char *member )
 }
 #endif
 /*!
-  Connects the signal to \a member in object \a receiver.
-  \sa disconnect(), QObject::connect()
+    Connects the signal to \a member in object \a receiver.
+
+    \sa disconnect(), QObject::connect()
 */
 
 bool QSignal::connect( const QObject *receiver, const char *member )
@@ -151,8 +152,9 @@ bool QSignal::connect( const QObject *receiver, const char *member )
 }
 
 /*!
-  Disonnects the signal from \a member in object \a receiver.
-  \sa connect(), QObject::disconnect()
+    Disonnects the signal from \a member in object \a receiver.
+
+    \sa connect(), QObject::disconnect()
 */
 
 bool QSignal::disconnect( const QObject *receiver, const char *member )
@@ -190,9 +192,11 @@ bool QSignal::disconnect( const QObject *receiver, const char *member )
 
 
 /*!
-  \fn void QSignal::activate()
-  Emits the signal. If the platform supports QVariant and a parameter
-  has been set with setValue(), this value is passed in the signal.
+    \fn void QSignal::activate()
+
+    Emits the signal. If the platform supports QVariant and a
+    parameter has been set with setValue(), this value is passed in
+    the signal.
 */
 void  QSignal::activate()
 {
@@ -206,7 +210,7 @@ void  QSignal::activate()
 
 #ifndef QT_NO_VARIANT
 /*!
-  Sets the signal's parameter to \a value
+    Sets the signal's parameter to \a value
 */
 void QSignal::setValue( const QVariant &value )
 {
@@ -214,7 +218,7 @@ void QSignal::setValue( const QVariant &value )
 }
 
 /*!
-  Returns the signal's parameter
+    Returns the signal's parameter
 */
 QVariant QSignal::value() const
 {

@@ -1944,8 +1944,9 @@ OpenGL headers and libraries are installed on your system, and if so, it
 will include the Qt OpenGL module in the Qt library. (If your OpenGL
 headers or libraries are placed in a non-standard directory, you may need
 to change the SYSCONF_CXXFLAGS_OPENGL and/or SYSCONF_LFLAGS_OPENGL in the
-config file for your system). The configure script may fail to detect
-OpenGL if you do not have threading (\c{configure -thread}) enabled.
+config file for your system). Some configurations require threading to
+be enabled for OpenGL, so if OpenGL is not detected, try \c{configure
+-thread}.
 
 When you install Qt for Windows, the Qt OpenGL module is always included.
 

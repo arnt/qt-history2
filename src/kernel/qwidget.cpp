@@ -332,7 +332,9 @@
   \endlist
 
   If your widget only contains child widgets, you probably do not need to
-  implement any event handlers.
+  implement any event handlers. If you want to detect a mouse click in
+  a child widget call the child's hasMouse() function inside the
+  parent widget's mousePressEvent().
 
   Widgets that accept keyboard input need to reimplement a few more
   event handlers:
@@ -1897,10 +1899,12 @@ void QWidget::setFixedHeight( int h )
 }
 
 
-/*! Translates the widget coordinate \a pos to the coordinate system
-  of \a parent, which must be non-null and be a parent of this widget.
+/*!
+    Translates the widget coordinate \a pos to the coordinate system
+    of \a parent. The \a parent must be non-null and must be a parent
+    of the calling widget.
 
-  \sa mapFrom() mapToParent() mapToGlobal()
+    \sa mapFrom() mapToParent() mapToGlobal() hasMouse()
 */
 
 QPoint QWidget::mapTo( QWidget * parent, const QPoint & pos ) const
@@ -1917,11 +1921,12 @@ QPoint QWidget::mapTo( QWidget * parent, const QPoint & pos ) const
 }
 
 
-/*! Translates the widget coordinate \a pos from the coordinate system
-  of \a parent to this widget's coordinate system, which must be non-null
-  and be a parent of this widget.
+/*!
+    Translates the widget coordinate \a pos from the coordinate system
+    of \a parent to this widget's coordinate system. The \a parent
+    must be non-null and must be a parent of the calling widget.
 
-  \sa mapTo() mapFromParent() mapFromGlobal()
+    \sa mapTo() mapFromParent() mapFromGlobal() hasMouse()
 */
 
 QPoint QWidget::mapFrom( QWidget * parent, const QPoint & pos ) const
@@ -1939,11 +1944,12 @@ QPoint QWidget::mapFrom( QWidget * parent, const QPoint & pos ) const
 
 
 /*!
-  Translates the widget coordinate \a pos to a coordinate in the parent widget.
+    Translates the widget coordinate \a pos to a coordinate in the
+    parent widget.
 
-  Same as mapToGlobal() if the widget has no parent.
+    Same as mapToGlobal() if the widget has no parent.
 
-  \sa mapFromParent() mapTo() mapToGlobal()
+    \sa mapFromParent() mapTo() mapToGlobal() hasMouse()
 */
 
 QPoint QWidget::mapToParent( const QPoint &pos ) const
@@ -1952,11 +1958,12 @@ QPoint QWidget::mapToParent( const QPoint &pos ) const
 }
 
 /*!
-  Translates the parent widget coordinate \a pos to widget coordinates.
+    Translates the parent widget coordinate \a pos to widget
+    coordinates.
 
-  Same as mapFromGlobal() if the widget has no parent.
+    Same as mapFromGlobal() if the widget has no parent.
 
-  \sa mapToParent() mapFrom() mapFromGlobal()
+    \sa mapToParent() mapFrom() mapFromGlobal() hasMouse()
 */
 
 QPoint QWidget::mapFromParent( const QPoint &pos ) const

@@ -77,9 +77,9 @@ struct PrinterDefaults {
 static PrinterDefaults * globalPrinterDefaults = 0;
 
 /*!
-  Constructs a printer paint device with mode \a m.
+    Constructs a printer paint device with mode \a m.
 
-  \sa QPrinter::PrinterMode
+    \sa QPrinter::PrinterMode
 */
 
 QPrinter::QPrinter( PrinterMode m )
@@ -115,7 +115,7 @@ QPrinter::QPrinter( PrinterMode m )
 }
 
 /*!
-  Destroys the printer paint device and cleans up.
+    Destroys the printer paint device and cleans up.
 */
 
 QPrinter::~QPrinter()
@@ -130,8 +130,8 @@ QPrinter::~QPrinter()
 
 
 /*!
-  Advances to a new page on the printer.
-  Returns TRUE if successful, otherwise FALSE.
+    Advances to a new page on the printer. Returns TRUE if successful;
+    otherwise returns FALSE.
 */
 
 bool QPrinter::newPage()
@@ -143,9 +143,10 @@ bool QPrinter::newPage()
 
 
 /*!
-  Aborts the print job.
-  Returns TRUE if successful, otherwise FALSE.
-  \sa aborted()
+    Aborts the print job. Returns TRUE if successful; otherwise
+    returns FALSE.
+
+    \sa aborted()
 */
 
 bool QPrinter::abort()
@@ -163,8 +164,10 @@ bool QPrinter::abort()
 }
 
 /*!
-  Returns TRUE is the printer job was aborted, otherwise FALSE.
-  \sa abort()
+    Returns TRUE is the printer job was aborted; otherwise returns
+    FALSE.
+
+    \sa abort()
 */
 
 bool QPrinter::aborted() const
@@ -173,15 +176,15 @@ bool QPrinter::aborted() const
 }
 
 /*!
-  Sets the printer name to \a name.
+    Sets the printer name to \a name.
 
-  The default printer will be used if no printer name is set.
+    The default printer will be used if no printer name is set.
 
-  Under X11, the PRINTER environment variable defines the
-  default printer.  Under any other window system, the window
-  system defines the default printer.
+    Under X11, the \c PRINTER environment variable defines the default
+    printer.  Under any other window system, the window system defines
+    the default printer.
 
-  \sa printerName()
+    \sa printerName()
 */
 
 void QPrinter::setPrinterName( const QString &name )
@@ -202,12 +205,12 @@ static void deleteGlobalPrinterDefaults()
 }
 
 /*!
-  Opens a printer setup dialog, with parent \a parent, and asks the
-  user to specify what printer to use and miscellaneous printer
-  settings.
+    Opens a printer setup dialog, with parent \a parent, and asks the
+    user to specify which printer they wish to use and what settings
+    it should have.
 
-  Returns TRUE if the user pressed "OK" to print, or FALSE if the
-  user cancelled the operation.
+    Returns TRUE if the user pressed "OK" to print, or FALSE if the
+    user cancelled the operation.
 */
 
 bool QPrinter::setup( QWidget * parent )
@@ -511,19 +514,22 @@ int QPrinter::metric( int m ) const
 }
 
 
-/*!  Returns the width of the left margin and the height of the top
-  margin of the printer. This is a best-effort guess, not based on
-  perfect knowledge.
+/*!
+    Returns the width of the left margin and the height of the top
+    margin of the printer. This is a best-effort guess, not based on
+    perfect knowledge.
 
-If you have called setFullPage( TRUE ) (this is recommended for
-high-quality printing), margins().width() may be treated as the
-smallest sane left/right margin you can use, and margins().height() as
-the smallest sane top/bottom margins you can use.
+    If you have called setFullPage( TRUE ) (this is recommended for
+    high-quality printing), margins().width() may be treated as the
+    smallest sane left/right margin you can use, and
+    margins().height() as the smallest sane top/bottom margins you can
+    use.
 
-If you have called setFullPage( FALSE ) (this is the default),
-margins() is automatically subtracted from the pageSize() by QPrinter.
+    If you have called setFullPage( FALSE ) (this is the default),
+    margins() is automatically subtracted from the pageSize() by
+    QPrinter.
 
-\sa setFullPage() QPaintDeviceMetrics PageSize
+    \sa setFullPage() QPaintDeviceMetrics PageSize
 */
 
 QSize QPrinter::margins() const
