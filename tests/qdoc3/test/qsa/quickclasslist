@@ -66,6 +66,7 @@ QIconView
 QImageDrag
 QInputDialog
 QIntValidator
+QKeySequence
 QLCDNumber
 QLabel
 QLayout

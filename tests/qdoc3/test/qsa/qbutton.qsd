@@ -1,7 +1,8 @@
 /*!
     \quickclass QButton
 
-    \b{This is an abstract base class that you cannot instantiate.}
+    \bold{This is an abstract base class that you cannot instantiate.}
+
     To create a button, use one of the concrete subclasses, e.g.
     QPushButton, QCheckBox, QRadioButton or QToolButton.
 
@@ -30,17 +31,16 @@
        button or not.
     \endlist
 
-\omit
     The difference between \c down and \c on is as follows: When the
     user clicks a toggle button to toggle it on, the button is first
     \e pressed and then released into the \e on state. When the user
     clicks it again (to toggle it off), the button moves first to the
     \e pressed state, then to the \e off state (\c on and \c down
     are both false).
-
+\omit
     Default buttons (as used in many dialogs) are provided by
     QPushButton::setDefault() and QPushButton::setAutoDefault().
-
+\endomit
     QButton provides five signals:
     \list 1
     \i pressed() is emitted when the left mouse button is pressed while
@@ -56,41 +56,29 @@
 
     If the button is a text button with an ampersand (\&) in its text,
     QButton creates an automatic accelerator key. This code creates a
-    push button labelled "Ro<u>c</u>k \& Roll" (where the c is
+    push button labelled "Ro\underline{c}k \& Roll" (where the c is
     underlined). The button gets an automatic accelerator key, Alt+C:
 
     \code
-	QPushButton *p = new QPushButton( "Ro&ck && Roll", this );
+	var button = new QPushButton( "Ro&ck && Roll", this );
     \endcode
 
     In this example, when the user presses Alt+C the button will call
     animateClick().
 
-    You can also set a custom accelerator using the setAccel()
-    function. This is useful mostly for pixmap buttons because they
+    You can also set a custom accelerator using the \c accel
+    property. This is useful mostly for pixmap buttons because they
     have no automatic accelerator.
 
     \code
-	p->setPixmap( QPixmap("print.png") );
-	p->setAccel( ALT+Key_F7 );
+	button.pixmap = new QPixmap("print.png");
+	button.accel = Qt.ALT+Qt.Key_F7;
     \endcode
 
     All of the buttons provided by Qt (\l QPushButton, \l QToolButton,
     \l QCheckBox and \l QRadioButton) can display both text and
     pixmaps.
 
-    To subclass QButton, you must reimplement at least drawButton()
-    (to draw the button's outline) and drawButtonLabel() (to draw its
-    text or pixmap). It is generally advisable to reimplement
-    sizeHint() as well, and sometimes hitButton() (to determine
-    whether a button press is within the button).
-
-    To reduce flickering, QButton::paintEvent() sets up a pixmap that
-    the drawButton() function draws in. You should not reimplement
-    paintEvent() for a subclass of QButton unless you want to take
-    over all drawing.
-
     \sa QButtonGroup
-\endomit
 
 */
