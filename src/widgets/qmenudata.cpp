@@ -90,6 +90,7 @@ QMenuItem::~QMenuItem()
     delete iconset_data;
     delete pixmap_data;
     delete signal_data;
+    delete widget_item;
     delete d;
 }
 

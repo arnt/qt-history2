@@ -623,9 +623,17 @@ int QMenuBar::calculateRects( int max_width )
     while ( i < (int)mitems->count() ) {	// for each menu item...
 	QMenuItem *mi = mitems->at(i);
 	int w=0, h=0;
-	if ( mi->pixmap() ) {			// pixmap item
-	    w = mi->pixmap()->width() + 2*motifItemHMargin;
-	    h = mi->pixmap()->height() + 2*motifItemVMargin;
+	if ( mi->widget() ) {
+	    if ( mi->widget()->parentWidget() != this ) {
+		mi->widget()->reparent( this, QPoint(0,0), TRUE );
+	    }
+	    w = mi->widget()->sizeHint().width()+2;
+	    h = mi->widget()->sizeHint().height()+2;
+	    if ( separator < 0 )
+		separator = i;
+	} else if ( mi->pixmap() ) {			// pixmap item
+	    w = mi->pixmap()->width() + 4;
+	    h = mi->pixmap()->height() + 4;
 	} else if ( !mi->text().isNull() ) {	// text item
 	    QString s = mi->text();
 	    w = fm.boundingRect( s ).width()
@@ -634,10 +642,11 @@ int QMenuBar::calculateRects( int max_width )
 	    w += s.contains("&&")*fm.width('&');
 	    h = fm.height() + motifItemVMargin;
 	} else if ( mi->isSeparator() ) {	// separator item
-	    separator = i;
+	    if ( style() == MotifStyle )
+		separator = i; //### only motif?
 	}
-	if ( !mi->isSeparator() ) {
-	    if ( gs == MotifStyle && !mi->isSeparator() ) {
+	if ( !mi->isSeparator() || mi->widget() ) {
+	    if ( gs == MotifStyle ) {
 		w += 2*motifItemFrame;
 		h += 2*motifItemFrame;
 	    }
@@ -652,17 +661,18 @@ int QMenuBar::calculateRects( int max_width )
 	    if ( h > max_item_height )
 		max_item_height = h;
 	}
-	if ( update )
+	if ( update ) {
 	    irects[i].setRect( x, y, w, h );
+	}
 	x += w;
 	nlitems++;
 	i++;
     }
     if ( update ) {
-	if ( separator >= 0 && style() == MotifStyle ) {
+	if ( separator >= 0 ) {
 	    int moveBy = max_width - x;
 	    rightSide = x;
-	    while( --i > separator ) {
+	    while( --i >= separator ) {
 		irects[i].moveBy( moveBy, 0 );
 	    }
 	} else {
@@ -670,8 +680,15 @@ int QMenuBar::calculateRects( int max_width )
 	}
 	if ( max_height != height() )
 	    resize( max_width, max_height );
- 	for ( i = 0; i < (int)mitems->count(); i++ )
+ 	for ( i = 0; i < (int)mitems->count(); i++ ) {
  	    irects[i].setHeight( max_item_height  );
+	    QMenuItem *mi = mitems->at(i);
+	    if ( mi->widget() ) {
+		QRect r ( QPoint(0,0), mi->widget()->sizeHint() );
+		r.moveCenter( irects[i].center() );
+		mi->widget()->setGeometry( r );
+	    }
+	}
 	badSize = FALSE;
     }
 

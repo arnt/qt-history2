@@ -109,6 +109,7 @@ ApplicationWindow::ApplicationWindow()
 	     this, SLOT( windowsMenuAboutToShow() ) );
     menuBar()->insertItem( "&Windows", windowsMenu );
 
+    menuBar()->insertSeparator();
     QPopupMenu * help = new QPopupMenu( this );
     menuBar()->insertItem( "&Help", help );
 
@@ -121,7 +122,7 @@ ApplicationWindow::ApplicationWindow()
     vb->setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
     ws = new QWorkspace( vb );
     setCentralWidget( vb );
-    
+
     statusBar()->message( "Ready", 2000 );
     resize( 450, 600 );
 }
@@ -139,6 +140,7 @@ MDIWindow* ApplicationWindow::newDoc()
     MDIWindow* w = new MDIWindow( ws, 0, WDestructiveClose );
     connect( w, SIGNAL( message(const QString&, int) ), statusBar(), SLOT( message(const QString&, int )) );
     w->setCaption("unnamed document");
+    w->setIcon( QPixmap("document.xpm") );
     if ( ws->clientList().isEmpty() ) // show the very first window in maximized mode
 	w->showMaximized();
     else
@@ -327,4 +329,4 @@ void MDIWindow::print( QPrinter* printer)
     }
 }
 
- 
+

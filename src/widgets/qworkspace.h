@@ -45,9 +45,6 @@ public:
     QWidget* activeClient() const;
     QWidgetList clientList() const;
 
-    void setMaximizeControls( bool );
-    bool maximizeControls() const;
-
 signals:
     void clientActivated( QWidget* w);
 
@@ -61,8 +58,10 @@ private slots:
     void closeActiveClient();
     void normalizeActiveClient();
     void minimizeActiveClient();
-    void showOperationMenu(const QPoint&);
     void showOperationMenu();
+    void popupOperationMenu( const QPoint& );
+    void operationMenuActivated( int );
+    void operationMenuAboutToShow();
     void activateNextClient();
     void activatePreviousClient();
 
@@ -81,7 +80,7 @@ private:
     void maximizeClient( QWidget* w);
     void minimizeClient( QWidget* w);
     void normalizeClient( QWidget* w);
-    void popupOperationMenu( const QPoint&, bool down = TRUE );
+    QPopupMenu* popup;
     friend QWorkspaceChild;
 
 
