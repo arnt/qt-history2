@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#8 $
 **
 ** Implementation of QSizeGrip class
 **
@@ -77,7 +77,7 @@ QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
 }
 
 
-/*
+/*!
   Destructor
  */
 QSizeGrip::~QSizeGrip()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#94 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#95 $
 **
 ** Implementation of QTabDialog class
 **
@@ -1116,8 +1116,8 @@ void QTabDialog::changeTab( QWidget *w, const QString &label)
     d->tw->changeTab( w, label );
 }
 
-/*
-  Defines a new iconset and a new label for the tab of page \w
+/*!
+  Defines a new \a iconset and a new \a label for the tab of page \w
  */
 void QTabDialog::changeTab( QWidget *w, const QIconSet& iconset, const QString &label)
 {
