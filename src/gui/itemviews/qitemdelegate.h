@@ -9,7 +9,7 @@ class Q_GUI_EXPORT QItemDelegate : public QAbstractItemDelegate
 {
 public:
     QItemDelegate(QGenericItemModel *model);
-    ~QItemDelegate();
+    virtual ~QItemDelegate();
 
     // painting
     void paint(QPainter *painter, const QItemOptions &options, const QModelIndex &item) const;
