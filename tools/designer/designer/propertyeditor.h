@@ -30,6 +30,7 @@
 #include <qmodules.h>
 #include <qptrlist.h>
 #include <qlayout.h>
+#include <qcheckbox.h>
 #include "hierarchyview.h"
 #include "metadatabase.h"
 
@@ -51,7 +52,6 @@ class PropertyWhatsThis;
 class QDateEdit;
 class QTimeEdit;
 class QDateTimeEdit;
-class QCheckBox;
 
 class PropertyItem : public QListViewItem
 {
