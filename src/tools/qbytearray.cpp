@@ -34,32 +34,13 @@
  *****************************************************************************/
 
 /*!
-    \relates QCString
+  \fn void *qmemmove( void *dst, const void *src, uint len )
 
-    This function is normally part of the C library. Qt implements
-    memmove() for platforms that do not provide it.
+  \obsolete
 
-    memmove() copies \a len bytes from \a src into \a dst. The data
-    is copied correctly even if \a src and \a dst overlap.
+  Use memmove instead.
 */
 
-void *qmemmove( void *dst, const void *src, uint len )
-{
-    register char *d;
-    register char *s;
-    if ( dst > src ) {
-	d = (char *)dst + len - 1;
-	s = (char *)src + len - 1;
-	while ( len-- )
-	    *d-- = *s--;
-    } else if ( dst < src ) {
-	d = (char *)dst;
-	s = (char *)src;
-	while ( len-- )
-	    *d++ = *s++;
-    }
-    return dst;
-}
 
 
 /*!
@@ -240,14 +221,14 @@ int qstrnicmp( const char *str1, const char *str2, uint len )
 }
 
 
-static Q_UINT16 crc_tbl[16];
-static bool   crc_tbl_init = FALSE;
-
+// the CRC table below is created by the following piece of code
+#if 0
 static void createCRC16Table()			// build CRC16 lookup table
 {
-    register uint i;
-    register uint j;
-    uint v0, v1, v2, v3;
+    register unsigned int i;
+    register unsigned int j;
+    unsigned short crc_tbl[16];
+    unsigned int v0, v1, v2, v3;
     for ( i = 0; i < 16; i++ ) {
 	v0 = i & 1;
 	v1 = ( i >> 1 ) & 1;
@@ -270,7 +251,19 @@ static void createCRC16Table()			// build CRC16 lookup table
 	SET_BIT( j, 15, v3 );
 	crc_tbl[i] = j;
     }
+    printf("static const Q_UINT16 crc_tbl[16] = {\n");
+    for (int i = 0; i < 16; i +=4)
+	printf("    0x%04x, 0x%04x, 0x%04x, 0x%04x,\n", crc_tbl[i], crc_tbl[i+1], crc_tbl[i+2], crc_tbl[i+3]);
+    printf("};\n");
 }
+#endif
+
+static const Q_UINT16 crc_tbl[16] = {
+    0x0000, 0x1081, 0x2102, 0x3183,
+    0x4204, 0x5285, 0x6306, 0x7387,
+    0x8408, 0x9489, 0xa50a, 0xb58b,
+    0xc60c, 0xd68d, 0xe70e, 0xf78f
+};
 
 /*!
     \relates QByteArray
@@ -282,18 +275,6 @@ static void createCRC16Table()			// build CRC16 lookup table
 
 Q_UINT16 qChecksum( const char *data, uint len )
 {
-    if ( !crc_tbl_init ) {			// create lookup table
-
-#ifdef QT_THREAD_SUPPORT
-	QMutexLocker locker( qt_global_mutexpool ?
-			     qt_global_mutexpool->get( &crc_tbl_init ) : 0 );
-#endif // QT_THREAD_SUPPORT
-
-	if ( !crc_tbl_init ) {
-	    createCRC16Table();
-	    crc_tbl_init = TRUE;
-	}
-    }
     register Q_UINT16 crc = 0xffff;
     uchar c;
     uchar *p = (uchar *)data;

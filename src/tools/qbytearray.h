@@ -26,7 +26,8 @@
   Safe and portable C string functions; extensions to standard string.h
  *****************************************************************************/
 
-Q_CORE_EXPORT void *qmemmove( void *dst, const void *src, uint len );
+inline void *qmemmove( void *dst, const void *src, uint len )
+{ return memmove(dst, src, len); }
 
 Q_CORE_EXPORT char *qstrdup( const char * );
 
