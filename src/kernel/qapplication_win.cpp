@@ -2379,6 +2379,8 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
 #endif
     else if ( type == WM_CLOSE ) {
 	block_event = TRUE;
+    } else if ( type == WM_SYSCOMMAND ) {
+	block_event = TRUE;
     }
 
     return !block_event;
