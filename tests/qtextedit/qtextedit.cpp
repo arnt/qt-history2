@@ -43,7 +43,7 @@ QTextEdit::QTextEdit( QWidget *parent, const QString &text )
     : QScrollView( parent, "", WNorthWestGravity | WRepaintNoErase ),
       doc( new QTextEditDocument( QString::null, FALSE ) ), undoRedoInfo( doc )
 {
-    doc->setText( text );
+    setText( text );
     init();
 }
 
@@ -1308,6 +1308,24 @@ void QTextEdit::setFont( const QFont &f_ )
     QTextEditFormat f( *currentFormat );
     f.setFont( f_ );
     setFormat( &f, QTextEditFormat::Font );
+}
+
+QString QTextEdit::text() const
+{
+    return doc->text();
+}
+
+QString QTextEdit::text( int parag, bool formatted ) const
+{
+    return doc->text( parag, formatted );
+}
+
+void QTextEdit::setText( const QString &txt )
+{
+    doc->setText( txt );
+    cursor->setParag( doc->firstParag() );
+    cursor->setIndex( 0 );
+    viewport()->repaint( FALSE );
 }
 
 void QTextEdit::UndoRedoInfo::clear()

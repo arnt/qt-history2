@@ -790,8 +790,52 @@ void QTextEditDocument::loadRichText( const QString &fn )
 
 void QTextEditDocument::setText( const QString &text )
 {
-    qWarning( "QTextEditDocument::setText not implemented!" );
-    // ########### todo
+    if ( fParag ) {
+	QTextEditParag *p = 0;
+	while ( fParag ) {
+	    p = fParag->next();
+	    delete fParag;
+	    fParag = p;
+	}
+	fParag = 0;
+    }
+    
+    lParag = 0;
+    QStringList lst = QStringList::split( '\n', text );
+    QStringList::Iterator it = lst.begin();
+    for ( ; it != lst.end(); ++it ) {
+	lParag = new QTextEditParag( this, lParag, 0 );
+	if ( !fParag )
+	    fParag = lParag;
+	lParag->append( *it + " " );
+    }
+}
+
+QString QTextEditDocument::text() const
+{
+    QString buffer;
+    QString s;
+    QTextEditParag *p = fParag;
+    while ( p ) {
+	s = p->string()->toString();
+	s += "\n";
+	buffer += s;
+	p = p->next();
+    }
+
+    return buffer;
+}
+
+QString QTextEditDocument::text( int parag, bool formatted ) const
+{
+    QTextEditParag *p = paragAt( parag );
+    if ( !p )
+	return QString::null;
+    if ( !formatted )
+	return p->string()->toString();
+    
+    // ##### TODO: return formatted string
+    return p->string()->toString();
 }
 
 void QTextEditDocument::invalidate()

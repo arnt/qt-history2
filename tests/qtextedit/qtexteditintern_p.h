@@ -171,7 +171,7 @@ public:
     void loadPlainText( const QString &fn, bool tabify = FALSE );
     void loadRichText( const QString &fn );
     void setText( const QString &text );
-    
+
     int x() const;
     int y() const;
     int width() const;
@@ -213,6 +213,9 @@ public:
     void copySelectedText( int id );
     void removeSelectedText( int id, QTextEditCursor *cursor );
 
+    QString text() const;
+    QString text( int parag, bool formatted ) const;
+    
     void setCompletionEnabled( bool b );
     bool isCompletionEnabled() const;
 
