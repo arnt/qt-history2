@@ -513,8 +513,6 @@ void QTextHTMLImporter::import()
 
     QVarLengthArray<int> usedFormats;
 
-    int idx = 0;
-
     Q_FOREACH(const QTextDocumentFragmentPrivate::Block &b, d->blocks) {
 
         int idx = usedFormats.size();
