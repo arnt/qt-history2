@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#44 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#45 $
 **
 ** Definition of QIconView widget class
 **
@@ -397,7 +397,8 @@ private:
     void findItemByName( const QString text );
     int calcGridNum( int w, int x ) const;
     QIconViewItem *rowBegin( QIconViewItem *item ) const;
-
+    void clearSingleClickConfig();
+    
     QIconViewPrivate *d;
 
 };

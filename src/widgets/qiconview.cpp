@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#100 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#101 $
 **
 ** Definition of QIconView widget class
 **
@@ -1422,14 +1422,18 @@ void QIconViewItem::setIconRect( const QRect &r )
   \brief The QIconView class
 
   The QIconView provides a widget which can contain lots of iconview items which can
-  be selected, dragged and so on.
+  be selected, dragged and so on. The iconview can be used in double click mode
+  (default) or single click mode (behaves like a web page). For the programmer which 
+  uses the iconview these modes are transparent, this means the iconview does all the 
+  work for that.
 
   Items can be inserted in a grid and can flow from top to bottom (South) or from
-  left to right (East).
+  left to right (East). The text can be either displayed at the bottom of the icons
+  or the the right of the icons.
 
   The QIconView is designed for Drag'n'Drop, as the icons are also moved inside
-  the iconview itself using DnD. So the QIconView provides some methods for DnD
-  too.
+  the iconview itself using DnD. So the QIconView provides some methods for 
+  extended DnD too.
 
   There can be specified different selection modes, which describe if more that one item
   can be selected and under which conditions.
@@ -1437,6 +1441,7 @@ void QIconViewItem::setIconRect( const QRect &r )
   Items can of course be selected. When multiple items may be selected, the iconview
   provides a rubberband too.
 
+  Items can also be in-place renamed.
 */
 
 /*! \enum QIconView::ResizeMode
@@ -1611,8 +1616,19 @@ QIconView::~QIconView()
 	item = tmp;
     }
 
-    delete d->adjustTimer;
-    delete d->inputTimer;
+    if ( d->scrollTimer )
+	delete d->scrollTimer;
+    if ( d->adjustTimer )
+	delete d->adjustTimer;
+    if ( d->updateTimer )
+	delete d->updateTimer;
+    if ( d->inputTimer )
+	delete d->inputTimer;
+    if ( d->singleClickSelectTimer )
+	delete d->singleClickSelectTimer;
+
+    clearSingleClickConfig();
+    
     delete d;
 }
 
@@ -2036,10 +2052,29 @@ QIconView::SelectionMode QIconView::selectionMode() const
     return d->selectionMode;
 }
 
+/*!
+  Sets the configuration for the single click mode. \a normalText
+  is the font and \a normalTextCol the color which should be used 
+  for the normal icon text. \a highlightedText is the font and 
+  \a highlightedTextCol the color which should be used for the icon 
+  text, when the icon is highlighted (means, when the mouse cursor is
+  over the item). \a highlightedCursor is the mouse cursor which should
+  be used when the mouse is over an item. Passing NULL for one of these
+  parameters lets the iconview use the default value.
+  \a setCurrentInterval specifies the time interval (in ms) after which
+  a highlighted item (item over which the mouse is) gets the current
+  item and gets selected. Passing -1 here disables this feature.
+  
+  The QIconView takes the ownership of the passed pointers. This means
+  you must not delete them! The QIconView cares about deleting them.
+*/
+
 void QIconView::setSingleClickConfiguration( QFont *normalText, QColor *normalTextCol,
 					     QFont *highlightedText, QColor *highlightedTextCol,
 					     QCursor *highlightedCursor, int setCurrentInterval )
 {
+    clearSingleClickConfig();
+    
     d->singleClickConfig.normalText = normalText;
     d->singleClickConfig.normalTextCol = normalTextCol;
     d->singleClickConfig.highlightedText = highlightedText;
@@ -2047,6 +2082,13 @@ void QIconView::setSingleClickConfiguration( QFont *normalText, QColor *normalTe
     d->singleClickConfig.highlightedCursor = highlightedCursor;
     d->singleClickConfig.setCurrentInterval = setCurrentInterval;
 }
+
+/*!
+  This methode gives back the current single click configuration
+  using the parameters.
+  
+  \sa QIconView::setSingleClickConfiguration(), QIconView::setUseSingleClickMode()
+*/
 
 void QIconView::singleClickConfiguration( QFont *normalText, QColor *normalTextCol,
 					  QFont *highlightedText, QColor *highlightedTextCol,
@@ -2060,10 +2102,34 @@ void QIconView::singleClickConfiguration( QFont *normalText, QColor *normalTextC
     setCurrentInterval = d->singleClickConfig.setCurrentInterval;
 }
 
+/*!
+  If \a b is TRUE, the iconview is switched to single click mode. This means
+  it behaves quite like a web page. E.g. a single click on an item lets the
+  iconview emit a doubleClicked signal, and the items behave a bit like links
+  (can be configures in QIconView::setSingleClickConfiguration()).
+  If \b is FALSE, the normal mode of the iconview is used, with double clicks
+  and so on.
+  
+  If you use the QIconView you don't have to care about the difference of single 
+  click or double click modes. For you this is transparent (the QIconView translates
+  the important signals and evets).
+  So you can offer the user to switch between single and doubleclick mode, but
+  you don't need to care about the handling of that at all.
+
+  \sa QIconView::setSingleClickConfiguration()
+*/
+
 void QIconView::setUseSingleClickMode( bool b )
 {
     d->singleClickMode = b;
 }
+
+/*!
+  Returns TRUE if the iconview is in single click mode, or
+  FALSE if it is in double click mode.
+  
+  \sa QIconView::setUseSingleClickMode(), QIconView::setSingleClickConfiguration()
+*/
 
 bool QIconView::useSingleClickMode() const
 {
@@ -3670,6 +3736,13 @@ QIconViewItem *QIconView::rowBegin( QIconViewItem * ) const
     return d->firstItem;
 }
 
+/*!
+  This slot selects the currentle highlighed item (if there is one).
+  This is used in the single click mode.
+  
+  \sa QIconView::setSingleClickConfiguration(), QIconView::setUseSingleClickMode()
+*/
+
 void QIconView::selectHighlightedItem()
 {
     if ( d->highlightedItem ) {
@@ -3678,6 +3751,30 @@ void QIconView::selectHighlightedItem()
 	repaintItem( old );
 	d->highlightedItem->setSelected( TRUE );
     }
+}
+
+/*!
+  \internal
+*/
+
+void QIconView::clearSingleClickConfig()
+{
+    if ( d->singleClickConfig.normalText ) 
+	delete d->singleClickConfig.normalText;
+    if ( d->singleClickConfig.normalTextCol )
+	delete d->singleClickConfig.normalTextCol;
+    if ( d->singleClickConfig.highlightedText )
+	delete d->singleClickConfig.highlightedText;
+    if ( d->singleClickConfig.highlightedTextCol )
+	delete d->singleClickConfig.highlightedTextCol;
+    if ( d->singleClickConfig.highlightedCursor )
+	delete d->singleClickConfig.highlightedCursor;
+    d->singleClickConfig.normalText = 0;
+    d->singleClickConfig.normalTextCol = 0;
+    d->singleClickConfig.highlightedText = 0;
+    d->singleClickConfig.highlightedTextCol = 0;
+    d->singleClickConfig.highlightedCursor = 0;
+    d->singleClickConfig.setCurrentInterval = -1;
 }
 
 #include "qiconview.moc"
