@@ -995,7 +995,7 @@ void QTreeView::updateGeometries()
     d->header->setGeometry(vg.left(), vg.top() - hint.height(), vg.width(), hint.height());
 
     // update scrollbars
-    if (model()) {
+    if (model() && model()->rowCount(root()) > 0 && model()->columnCount(root()) > 0) {
         QModelIndex topLeft = model()->index(0, 0);
         QSize size = itemDelegate()->sizeHint(fontMetrics(), viewOptions(), model(), topLeft);
         d->updateVerticalScrollbar(size.height());
