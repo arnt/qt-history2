@@ -1208,10 +1208,10 @@ NETWinInfo::NETWinInfo(Display *d, Window win, Window rwin,
     role = rl;
 
     if (! atoms_created) create_atoms(p->display);
-    
+
     update(p->properties);
 
-    
+
 }
 
 
@@ -1244,7 +1244,7 @@ void NETWinInfo::setIcon(NETIcon icon, Bool replace) {
     }
 
     p->icons[p->icon_count++] = icon;
-    
+
     // do a deep copy, we want to own the data
     NETIcon& ni = p->icons[ p->icon_count - 1 ];
     ni.data = new CARD32[ ni.size.width * ni.size.height * 4 ];
@@ -1400,8 +1400,19 @@ void NETWinInfo::setKDEDockWinFor(Window win) {
 
 
 NETIcon NETWinInfo::icon(int w, int h) const {
+    
+    if ( !p->icons.size() ) {
+	NETIcon ni;
+	ni.size.width = 0;
+	ni.size.height = 0;
+	ni.data = 0;
+	return ni;
+    }
+    
+    
     // find the icon that's closest in size to w x h...
     // return the first icon if w and h are -1
+    // ### TODO this doesn't work
     if (w == h && h == -1) return p->icons[0];
 
     int i;
