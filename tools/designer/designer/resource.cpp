@@ -1614,9 +1614,11 @@ void Resource::createItem( const QDomElement &e, QWidget *widget, QListViewItem 
 	bool hasPixmap = FALSE;
 	QString txt;
 	loadItem( n, pix, txt, hasPixmap );
-
 	QIconView *iv = (QIconView*)widget;
-	new QIconViewItem( iv, txt, pix );
+	if ( hasPixmap )
+	    new QIconViewItem( iv, txt, pix );
+	else
+	    new QIconViewItem( iv, txt );
     } else if ( widget->inherits( "QListView" ) ) {
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;
