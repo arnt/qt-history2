@@ -53,7 +53,7 @@ public:
     typedef typename QBinTree::Data QBinTreeData;
     typedef void callback(QVector<int> &leaf, const QRect &area, uint visited, QBinTreeData data);
 
-    inline QBinTree() : depth_(6), visited(0) {}
+    inline QBinTree() : depth(6), visited(0) {}
 
     void create(int n);
     void destroy();
@@ -92,7 +92,7 @@ private:
     void climbTree(const QRect &rect, callback *function, QBinTreeData data, int index);
     void init(const QRect &area, int depth, NodeType type, int index);
 
-    uint depth_ : 8;
+    uint depth : 8;
     mutable uint visited : 16;
     QVector<T> itemVector;
     QVector<Node> nodeVector;
@@ -109,7 +109,7 @@ void QBinTree<T>::climbTree(const QRect &rect, callback *function, QBinTreeData 
 template <class T>
 void QBinTree<T>::init(const QRect &area, NodeType type)
 {
-    init(area, depth_, type, 0);
+    init(area, depth, type, 0);
 }
 
 template <class T>

@@ -34,9 +34,9 @@ void QBinTree<T>::create(int n)
     int c;
     for (c = 0; n; ++c)
         n = n / 10;
-    depth_ = c << 1;
-    nodeVector.resize((1 << depth_) - 1); // resize to number of nodes
-    leafVector.resize(1 << depth_); // resize to number of leaves
+    depth = c << 1;
+    nodeVector.resize((1 << depth) - 1); // resize to number of nodes
+    leafVector.resize(1 << depth); // resize to number of leaves
 }
 
 template <class T>
@@ -583,12 +583,11 @@ void QListView::reset()
 void QListView::scrollContentsBy(int dx, int dy)
 {
     d->viewport->scroll(dx, dy);
-
+    // update the dragged items
     if (d->draggedItems.isEmpty())
         return;
     QRect rect = d->draggedItemsRect();
     rect.translate(dx, dy);
-
     d->viewport->repaint(rect); //FIXME: d->viewport->update(rect);
 }
 
@@ -1425,7 +1424,7 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
             flowPosition += deltaFlowPosition;
             deltaSegPosition = qMax(deltaSegPosition, deltaSegHint);
             rect |= item->rect();
-            // create new dynamic wrap
+            // create new segment
             if (wrap && (flowPosition + deltaFlowPosition >= segEndPosition)) {
                 flowPosition = segStartPosition;
                 segPosition += deltaSegPosition;
