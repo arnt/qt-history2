@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#11 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#11 $";
 #endif
 
 
@@ -76,6 +76,12 @@ QMenuBar::~QMenuBar()
     delete irects;
     if ( parent() )
 	parent()->removeEventFilter( this );
+}
+
+
+void QMenuBar::updateItem( int )		// update menu bar item
+{
+    repaint( FALSE );
 }
 
 
@@ -242,9 +248,9 @@ void QMenuBar::updateRects()
     while ( i < mitems->count() ) {		// for each menu item...
 	QMenuItem *mi = mitems->at(i);
 	int w, h;
-	if ( mi->bitmap() ) {			// bitmap item
-	    w = mi->bitmap()->size().width();
-	    h = mi->bitmap()->size().height();
+	if ( mi->image() ) {			// image item
+	    w = mi->image()->width();
+	    h = mi->image()->height();
 	}
 	else {					// text item
 	    w = fm.width( mi->string() ) + 2*motifItemHMargin;
@@ -326,10 +332,10 @@ void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
 	    p->drawShadePanel( r, lightColor, darkColor, motifItemFrame );
 	else					// incognito frame
 	    p->drawShadePanel( r, normalColor, normalColor, motifItemFrame );
-	if ( mi->bitmap() )
+	if ( mi->image() )
 	    p->drawPixMap( r.left() + motifItemFrame,
 			   r.top() + motifItemFrame,
-			   *mi->bitmap() );
+			   *mi->image() );
 	else if ( mi->string() )
 	    p->drawText( r, AlignCenter | AlignVCenter | ShowPrefix | DontClip,
 			 mi->string() );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#14 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -20,7 +20,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#14 $";
 #endif
 
 
@@ -119,6 +119,11 @@ QPopupMenu::~QPopupMenu()
 	parentMenu->removePopup( this );
 }
 
+
+void QPopupMenu::updateItem( int id )		// update popup menu item
+{
+    updateCell( indexOf(id), 0, FALSE );
+}
 
 void QPopupMenu::menuContentsChanged()
 {
@@ -266,16 +271,16 @@ void QPopupMenu::updateSize()			// update popup size params
     bool hasSubMenu = FALSE;
     int cellh = fm.ascent() + motifItemVMargin + 2*motifItemFrame;
     int tab_width = 0;
-
+    debug( "updateSize()" );	// !!! DEBUG
     while ( (mi=it.current()) ) {
 	int w = 0;
 	if ( mi->popup() )
 	    hasSubMenu = TRUE;
 	if ( mi->isSeparator() )
 	    height += motifSepHeight;
-	else if ( mi->bitmap() ) {
-	    height += mi->bitmap()->size().height() + 2*motifItemFrame;
-	    w = mi->bitmap()->size().width();
+	else if ( mi->image() ) {
+	    height += mi->image()->height() + 2*motifItemFrame;
+	    w = mi->image()->width();
 	}
 	else if ( mi->string() ) {
 	    height += cellh;
@@ -352,8 +357,8 @@ int QPopupMenu::cellHeight( long row )
     int h = 0;					// default cell height
     if ( mi->isSeparator() )			// separator height
 	h = motifSepHeight;
-    else if ( mi->bitmap() )			// bitmap height
-	h = mi->bitmap()->size().height() + 2*motifItemFrame;
+    else if ( mi->image() )			// image height
+	h = mi->image()->height() + 2*motifItemFrame;
     else {					// text height
         QFontMetrics fm = fontMetrics();
 	h = fm.ascent() + motifItemVMargin + 2*motifItemFrame;
@@ -387,9 +392,9 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
     else					// incognito frame
 	p->drawShadePanel( 0, 0, cellw, cellh, normalColor, normalColor,
 			   motifItemFrame );
-    if ( mi->bitmap() )				// draw bitmap
+    if ( mi->image() )				// draw image
 	p->drawPixMap( motifItemFrame + motifItemHMargin, motifItemFrame,
-		       *mi->bitmap() );
+		       *mi->image() );
     else if ( mi->string() ) {			// draw text
 	const char *s = mi->string();
 	const char *t = strchr( s, '\t' );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#5 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#6 $
 **
 ** Definition of QMenuBar class
 **
@@ -23,6 +23,8 @@ friend class QPopupMenu;
 public:
     QMenuBar( QWidget *parent=0, const char *name=0 );
    ~QMenuBar();
+
+    void	updateItem( int id );
 
     void	setFont( const QFont & );	// reimplemented set font
     void	show();				// reimplemented show

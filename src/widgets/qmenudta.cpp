@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#11 $
 **
 ** Implementation of QMenuData class
 **
@@ -15,7 +15,7 @@
 #include "qpopmenu.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#11 $";
 #endif
 
 
@@ -27,14 +27,14 @@ QMenuItem::QMenuItem()				// initialize menu item
 {
     ident = -1;
     is_separator = is_disabled = is_checked = FALSE;
-    bitmap_data = 0;
+    image_data = 0;
     popup_menu = 0;
     signal_data = 0;
 }
 
 QMenuItem::~QMenuItem()
 {
-    delete bitmap_data;
+    delete image_data;
     delete signal_data;
 }
 
@@ -66,6 +66,10 @@ QMenuData::~QMenuData()
 }
 
 
+void QMenuData::updateItem( int )		// reimplemented in subclass
+{
+}
+
 void QMenuData::menuContentsChanged()		// reimplemented in subclass
 {
 }
@@ -83,9 +87,9 @@ void QMenuData::menuDelPopup( QPopupMenu * )	// reimplemented in subclass
 }
 
 
-void QMenuData::insertAny( const char *string, QBitMap *bitmap,
+void QMenuData::insertAny( const char *string, QImage *image,
 			   QPopupMenu *popup, int id, int index )
-{						// insert bitmap + sub menu
+{						// insert image + sub menu
     if ( index > (int)mitems->count() ) {
 #if defined(CHECK_RANGE)
 	warning( "QMenuData::insertItem: Index %d out of range", index );
@@ -101,11 +105,12 @@ void QMenuData::insertAny( const char *string, QBitMap *bitmap,
     mi->ident = id == -1 ? index : id;
     if ( mi->ident == -2 )
 	mi->ident = -1;
-    if ( string == 0 && bitmap == 0 && popup == 0 )
+    if ( string == 0 && image == 0 && popup == 0 )
 	mi->is_separator = TRUE;		// separator
     else {
 	mi->string_data = string;
-	mi->bitmap_data = bitmap;
+	if ( image )
+	    mi->image_data = new QImage( *image );
 	mi->popup_menu = popup;
 	if ( popup ) {
 	    menuInsPopup( popup );
@@ -150,15 +155,15 @@ void QMenuData::insertItem( const char *string, QPopupMenu *popup,
     insertAny( string, 0, popup, id, index );
 }
 
-void QMenuData::insertItem( QBitMap *bitmap, int id, int index )
-{						// insert bitmap item
-    insertAny( 0, bitmap, 0, id, index );
+void QMenuData::insertItem( const QImage &image, int id, int index )
+{						// insert image item
+    insertAny( 0, (QImage*)&image, 0, id, index );
 }
 
-void QMenuData::insertItem( QBitMap *bitmap, QPopupMenu *popup,
+void QMenuData::insertItem( const QImage &image, QPopupMenu *popup,
 			    int id, int index )
 {						// insert bitmap + popup menu
-    insertAny( 0, bitmap, popup, id, index );
+    insertAny( 0, (QImage*)&image, popup, id, index );
 }
 
 void QMenuData::insertSeparator( int index )	// insert menu separator
@@ -189,10 +194,10 @@ const char *QMenuData::string( int id ) const	// get string
     return mi ? mi->string() : 0;
 }
 
-QBitMap *QMenuData::bitmap( int id ) const	// get bitmap
+QImage *QMenuData::image( int id ) const	// get image
 {
     QMenuItem *mi = findItem( id );
-    return mi ? mi->bitmap() : 0;
+    return mi ? mi->image() : 0;
 }
 
 void QMenuData::changeItem( const char *string, int id )
@@ -201,23 +206,23 @@ void QMenuData::changeItem( const char *string, int id )
     if ( mi ) {					// item found
 	if ( mi->string_data == string )	// same string
 	    return;
-	if ( mi->bitmap ) {			// delete bitmap
-	    delete mi->bitmap_data;
-	    mi->bitmap_data = 0;
+	if ( mi->image ) {			// delete image
+	    delete mi->image_data;
+	    mi->image_data = 0;
 	}
 	mi->string_data = string;
 	menuContentsChanged();
     }
 }
 
-void QMenuData::changeItem( QBitMap *bitmap, int id )
+void QMenuData::changeItem( const QImage &image, int id )
 {
     QMenuItem *mi = findItem( id );
     if ( mi ) {					// item found
 	if ( !mi->string_data.isNull() )	// delete string
 	    mi->string_data.resize( 0 );
-	delete mi->bitmap_data;
-	mi->bitmap_data = bitmap;
+	delete mi->image_data;
+	mi->image_data = new QImage( image );
 	menuContentsChanged();
     }
 }
