@@ -1483,9 +1483,25 @@ public:
     QMetaType::Destructor destr;
 };
 
-static QCustomTypeInfo nullInfo;
-
 static QVector<QCustomTypeInfo> customTypes;
+
+/*
+   returns the type name associated for \a type or 0 if no type was
+   found. The returned pointer must not be deleted.
+ */
+const char *QMetaType::typeName(int type)
+{
+    if (type >= User)
+        return isRegistered(type) ? customTypes.at(type - User).typeName : 0;
+
+    int i = 0;
+    while (types[i].typeName) {
+        if (types[i].type == type)
+            return types[i].typeName;
+        ++i;
+    }
+    return 0;
+}
 
 /*!
   Registers a user type for marshalling, with \a typeName, a \a
