@@ -1547,10 +1547,12 @@ for (QForeachMemory<sizeof(qForeachSizeofContainerHelper(container))> _container
 #  endif
 #endif
 
+#if 0
 // tell gcc to use it's built-in methods for some common functions.
 #if defined(QT_NO_DEBUG) && defined(Q_CC_GNU)
 #  define qMemCopy __builtin_memcpy
 #  define qMemSet __builtin_memset
+#endif
 #endif
 
 
