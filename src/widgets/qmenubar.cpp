@@ -184,6 +184,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     }
 #elif defined(QMAC_QMENUBAR_NATIVE)
       mac_dirty_menubar = 1;
+      mac_eaten_menubar = parent && !parent->parentWidget();
 #endif
 #endif
     isMenuBar = TRUE;
@@ -738,7 +739,7 @@ int QMenuBar::calculateRects( int max_width )
 
         int w=0, h=0;
 #if defined(Q_WS_MAC) && defined(QMAC_QMENUBAR_NATIVE)
-	if(!mi->custom() && !mi->widget()) {
+	if(mac_eaten_menubar && !mi->custom() && !mi->widget()) {
 	    w = 0;
 	    h = 0;
 	} else
@@ -768,11 +769,17 @@ int QMenuBar::calculateRects( int max_width )
         }
         if ( !mi->isSeparator() || mi->widget() ) {
 #if !defined(Q_WS_MAC) || !defined(QMAC_QMENUBAR_NATIVE)
-            if ( gs == MotifStyle ) {
-                w += 2*motifItemFrame;
-                h += 2*motifItemFrame;
-            }
+	    if ( !mac_eaten_menubar ) {
 #endif
+		if ( gs == MotifStyle ) {
+		    w += 2*motifItemFrame;
+		    h += 2*motifItemFrame;
+		}
+#if !defined(Q_WS_MAC) || !defined(QMAC_QMENUBAR_NATIVE)
+	    }
+#endif
+
+
             if ( ( ( !reverse && x + w + style().defaultFrameWidth() - max_width > 0 ) ||
                  ( reverse && x - w -style().defaultFrameWidth() < 0 ) )
                  && nlitems > 0 ) {
@@ -946,14 +953,18 @@ void QMenuBar::drawContents( QPainter *p )
                                   ( hasFocus() || hasmouse || popupvisible ) );
         }
     }
-#if !defined( Q_WS_MAC ) || !defined(QMAC_QMENUBAR_NATIVE)
-    GUIStyle gs = style().guiStyle();
-    if ( mseparator == InWindowsStyle && gs == WindowsStyle ) {
-        p->setPen( g.light() );
-        p->drawLine( 0, height()-1, width()-1, height()-1 );
-        p->setPen( g.dark() );
-        p->drawLine( 0, height()-2, width()-1, height()-2 );
-    }
+#if !defined(Q_WS_MAC) || !defined(QMAC_QMENUBAR_NATIVE)
+	    if ( !mac_eaten_menubar ) {
+#endif
+		GUIStyle gs = style().guiStyle();
+		if ( mseparator == InWindowsStyle && gs == WindowsStyle ) {
+		    p->setPen( g.light() );
+		    p->drawLine( 0, height()-1, width()-1, height()-1 );
+		    p->setPen( g.dark() );
+		    p->drawLine( 0, height()-2, width()-1, height()-2 );
+		}
+#if !defined(Q_WS_MAC) || !defined(QMAC_QMENUBAR_NATIVE)
+	    }
 #endif
 }
 

@@ -216,7 +216,7 @@ void QMenuBar::macUpdateMenuBar()
     if(QWidget *w = qApp->activeWindow()) {
 	if(QObject *mb = qApp->activeWindow()->child(0, "QMenuBar", FALSE)) {
 	    QMenuBar *bar = (QMenuBar *)mb;
-	    if(!first && !bar->mac_dirty_menubar)
+	    if(!bar->mac_eaten_menubar || (!first && !bar->mac_dirty_menubar))
 		return;
 	    first = FALSE;
 	    bar->mac_dirty_menubar = 0;
