@@ -3980,9 +3980,6 @@ void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkO
 
 void QFileDialog::insertEntry( const QUrlInfo &inf, QNetworkOperation * )
 {
-    if ( d->mode == Directory && !inf.isDir() )
-	return;
-
     if ( inf.name() == ".." ) {
 	d->hadDotDot = TRUE;
 	if ( isRoot( d->url ) )
