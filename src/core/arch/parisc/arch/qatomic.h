@@ -107,13 +107,13 @@ struct QBasicAtomicPointer
     inline QBasicAtomicPointer<T> &operator=(T *t)
     {
         q_atomic_lock(lock);
-        pointer = t;
+        pointer = const_cast<T *>(t);
         q_atomic_unlock(lock);
         return *this;
     }
 
     inline T *operator->()
-    { return pointer; }
+    { return const_cast<T *>(pointer); }
     inline const T *operator->() const
     { return pointer; }
 
