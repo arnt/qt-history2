@@ -660,7 +660,8 @@ void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
     QRegion region;
     region.setRects(cmd->rectangles, cmd->simpleData.nrectangles);
 
-    changingw->setNeedAck( TRUE );
+    if ( !region.isEmpty() )
+	changingw->setNeedAck( TRUE );
     setWindowRegion( changingw, region );
     syncRegions( changingw );
     if ( focusw == changingw && region.isEmpty() )
@@ -1305,7 +1306,8 @@ void QWSServer::request_region( int wid, QRegion region )
 {
     QWSClient *serverClient = qwsServer->client[-1];
     QWSWindow* changingw = qwsServer->findWindow( wid, serverClient );
-    changingw->setNeedAck( TRUE );
+    if ( !region.isEmpty() )
+	changingw->setNeedAck( TRUE );
     qwsServer->setWindowRegion( changingw, region );
     qwsServer->syncRegions( changingw );
     if ( qwsServer->focusw == changingw && region.isEmpty() )

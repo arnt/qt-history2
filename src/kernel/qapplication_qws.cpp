@@ -250,7 +250,7 @@ private:
 public:
     bool queueNotEmpty()
     {
-	return mouse_event||region_event||region_ack||queue.count() > 0;
+	return mouse_event||region_event||queue.count() > 0;
     }
     QWSEvent *dequeue()
     {
@@ -260,9 +260,6 @@ public:
 	} else if ( mouse_event ) {
 	    r = mouse_event;
 	    mouse_event = 0;
-	} else if ( region_ack ) {
-	    r = region_ack;
-	    region_ack = 0;
 	} else {
 	    r = region_event;
 	    region_event = 0;
