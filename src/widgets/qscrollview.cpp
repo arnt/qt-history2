@@ -76,16 +76,7 @@ struct QSVChildRec {
 			    y-sv->contentsY()-clipped_viewport->y());
 	    }
 	} else {
-	    if ( x-sv->contentsX() < -child->width()
-	      || x-sv->contentsX() > sv->visibleWidth()
-	      || y-sv->contentsY() < -child->height()
-	      || y-sv->contentsY() > sv->visibleHeight() )
-	    {
-		child->move(sv->visibleWidth()+10000,
-			    sv->visibleHeight()+10000);
-	    } else {
-		child->move(x-sv->contentsX(), y-sv->contentsY());
-	    }
+	    child->move(x-sv->contentsX(), y-sv->contentsY());
 	}
     }
     QWidget* child;
