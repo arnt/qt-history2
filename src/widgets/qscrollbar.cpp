@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#15 $
 **
 ** Implementation of QScrollBar class
 **
 ** Author  : Eirik Eng
 ** Created : 940427
 **
-** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include "qwmatrix.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#15 $";
 #endif
 
 
@@ -359,8 +359,8 @@ void QScrollBar_Private::action( ScrollControl control )
 	case SUB_PAGE:
 	    subtractPage();
 	    break;
-	default:
 #if defined(CHECK_RANGE)
+	default:
 	    warning( "QScrollBar_Private::action internal error" );
 #endif
     }
