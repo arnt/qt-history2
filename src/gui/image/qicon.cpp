@@ -54,14 +54,16 @@
   \value On  Display the pixmap when the widget is in an "on" state
 */
 
+static int serialNumCounter = 0;
 
 class QIconPrivate
 {
 public:
-    QIconPrivate():ref(1),engine(0){}
+    QIconPrivate():ref(1),engine(0),serialNum(++serialNumCounter){}
     ~QIconPrivate() { delete engine; }
     QAtomic ref;
     QIconEngine *engine;
+    int serialNum;
 };
 
 
@@ -488,6 +490,20 @@ QIcon &QIcon::operator=(const QIcon &other)
     return *this;
 }
 
+/*!
+    Returns a number that uniquely identifies the contents of this
+    QIcon object. This means that multiple QIcon objects can have
+    the same serial number as long as they refer to the same contents.
+
+    A null icon always have a serial number of 0.
+
+    \sa QPixmap::serialNumber()
+*/
+
+int QIcon::serialNumber() const
+{
+    return d ? d->serialNum : 0;
+}
 
 /*!  Returns a pixmap with the requested \a size, \a mode, and \a
   state, generating one if necessary. The pixmap might be smaller than
