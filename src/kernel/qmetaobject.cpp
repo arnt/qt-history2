@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#2 $
 **
 ** Implementation of QMetaObject class
 **
 ** Author  : Haavard Nord
 ** Created : 930419
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include "qstrlist.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#2 $";
 #endif
 
 
@@ -56,7 +56,6 @@ static int optDictSize( int n )
 //
 
 QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
-			  QMetaData *method_data, int n_methods,
 			  QMetaData *slot_data,	  int n_slots,
 			  QMetaData *signal_data, int n_signals )
 {
@@ -69,9 +68,8 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 	objectDict->setAutoDelete( TRUE );	// use as master dict
     }
 
-    className = (char *)class_name;		// copy in data
+    className = (char *)class_name;		// set meta data
     superclassName = (char *)superclass_name;
-    methodDict = init( methodData = method_data, n_methods );
     slotDict = init( slotData = slot_data, n_slots );
     signalDict = init( signalData = signal_data, n_signals );
 
@@ -83,36 +81,20 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 
 QMetaObject::~QMetaObject()
 {
-    delete methodData;				// delete arrays created in
-    delete slotData;				//   initMetaObject()
-    delete signalData;
-    delete methodDict;				// delete dicts
-    delete slotDict;
+    delete slotData;				// delete arrays created in
+    delete signalData;				//   initMetaObject()
+    delete slotDict;				// delete dicts
     delete signalDict;
 }
 
-
-int QMetaObject::nMethods( bool super ) const	// number of methods
-{
-    if ( !super )
-	return methodDict ? methodDict->count() : 0;
-    int n = 0;
-    QMetaObject *meta = (QMetaObject *)this;	// for all classes
-    while ( meta ) {
-	if ( meta->methodDict )
-	    n += meta->methodDict->count();
-	meta = meta->superMetaObject;
-    }
-    return n;
-}
 
 int QMetaObject::nSlots( bool super ) const	// number of slots
 {
     if ( !super )
 	return slotDict ? slotDict->count() : 0;
     int n = 0;
-    QMetaObject *meta = (QMetaObject *)this;	// for all classes
-    while ( meta ) {
+    register QMetaObject *meta = (QMetaObject *)this;
+    while ( meta ) {				// for all super classes...
 	if ( meta->slotDict )
 	    n += meta->slotDict->count();
 	meta = meta->superMetaObject;
@@ -125,8 +107,8 @@ int QMetaObject::nSignals( bool super ) const	// number of signals
     if ( !super )
 	return signalDict ? signalDict->count() : 0;
     int n = 0;
-    QMetaObject *meta = (QMetaObject *)this;	// for all classes
-    while ( meta ) {
+    register QMetaObject *meta = (QMetaObject *)this;
+    while ( meta ) {				// for all super classes...
 	if ( meta->signalDict )
 	    n += meta->signalDict->count();
 	meta = meta->superMetaObject;
@@ -135,35 +117,24 @@ int QMetaObject::nSignals( bool super ) const	// number of signals
 }
 
 
-QMember *QMetaObject::method( const char *n, bool super ) const
+QMetaData *QMetaObject::slot( const char *n, bool super ) const
 {
-    return member( METHOD_CODE, n, super );	// get method member
+    return mdata( SLOT_CODE, n, super );	// get slot meta data
 }
 
-QMember *QMetaObject::slot( const char *n, bool super ) const
+QMetaData *QMetaObject::signal( const char *n, bool super ) const
 {
-    return member( SLOT_CODE, n, super );	// get slot member
+    return mdata( SIGNAL_CODE, n, super );	// get signal meta data
 }
 
-QMember *QMetaObject::signal( const char *n, bool super ) const
+QMetaData *QMetaObject::slot( int index, bool super ) const
 {
-    return member( SIGNAL_CODE, n, super );	// get signal member
+    return mdata( SLOT_CODE, index, super );	// get slot meta data
 }
 
-
-void QMetaObject::getMethods( QStrList *list, bool super ) const
+QMetaData *QMetaObject::signal( int index, bool super ) const
 {
-    getNames( METHOD_CODE, list, super );	// get method names into list
-}
-
-void QMetaObject::getSlots( QStrList *list, bool super ) const
-{
-    getNames( SLOT_CODE, list, super );		// get method names into list
-}
-
-void QMetaObject::getSignals( QStrList *list, bool super ) const
-{
-    getNames( SIGNAL_CODE, list, super );	// get method names into list
+    return mdata( SIGNAL_CODE, index, super );	// get signal meta data
 }
 
 
@@ -180,24 +151,20 @@ QMemberDict *QMetaObject::init( QMetaData *data, int n )
     return dict;
 }
 
-QMember *QMetaObject::member( int code, const char *name, bool super ) const
-{						// get member pointer
-    QMetaObject *meta = (QMetaObject *)this;
+
+QMetaData *QMetaObject::mdata( int code, const char *name, bool super ) const
+{						// get meta data
+    register QMetaObject *meta = (QMetaObject *)this;
     QMetaData *d;
     QMemberDict *dict;
     while ( TRUE ) {
 	switch ( code ) {			// find member
-	    case METHOD_CODE: dict = meta->methodDict; break;
 	    case SLOT_CODE:   dict = meta->slotDict;   break;
 	    case SIGNAL_CODE: dict = meta->signalDict; break;
-	    default:
-#if defined(CHECK_RANGE)
-		warning( "QMetaObject::member: Invalid code for %s", name );
-#endif
-		dict = meta->methodDict;	// recover
+	    default:	      return 0;		// should not happen
 	}
 	if ( dict && (d=dict->find(name)) )	// found it
-	    return &d->ptr;
+	    return d;
 	if ( super && meta->superMetaObject )	// try for super class
 	    meta = meta->superMetaObject;
 	else					// not found
@@ -205,23 +172,35 @@ QMember *QMetaObject::member( int code, const char *name, bool super ) const
     }
 }
 
-void QMetaObject::getNames( int code, QStrList *list, bool super ) const
-{
-    if ( super && superMetaObject )		// first get from super class
-	superMetaObject->getNames( code, list, TRUE );
-    int n = 0;
-    switch ( code ) {				// get # members
-	case METHOD_CODE: n = nMethods(); break;
-	case SLOT_CODE:	  n = nSlots();	  break;
-	case SIGNAL_CODE: n = nSignals(); break;
-    }
-    for ( int i=0; i<n; i++ ) {			// get member names
-	char *name = 0;
-	switch ( code ) {			// member type
-	    case METHOD_CODE: name = methodData[i].name; break;
-	    case SLOT_CODE:   name = slotData[i].name;	 break;
-	    case SIGNAL_CODE: name = signalData[i].name; break;
+QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
+{						// get meta data
+    register QMetaObject *meta = (QMetaObject *)this;
+    QMetaData *d;
+    QMemberDict *dict;
+    while ( TRUE ) {
+	switch ( code ) {			// find member
+	    case SLOT_CODE:   dict = meta->slotDict;   break;
+	    case SIGNAL_CODE: dict = meta->signalDict; break;
+	    default:	      return 0;		// should not happen
 	}
-	list->append( name );
+	int n = dict->count();
+	if ( super ) {
+	    if ( index >= n ) {			// try the superclass
+		index -= dict->count();
+		meta = meta->superMetaObject;
+		if ( !meta )			// there is no superclass
+		    return 0;
+		continue;
+	    }
+	}
+	if ( index >= 0 || index < n ) {
+	    switch ( code ) {			// find member
+		case SLOT_CODE:   d = slotData;   break;
+		case SIGNAL_CODE: d = signalData; break;
+	    }
+	    return &d[n-index-1];
+	}
+	else					// bad index
+	    return 0;
     }
 }
