@@ -670,11 +670,11 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
 	destdir += Option::dir_sep;
     t << "distclean: " << "clean\n\t"
-      << "-rm -f " << destdir << "$(TARGET)" << " " << "$(TARGET)" << "\n\t";
+      << "-rm -f " << destdir << "$(TARGET)" << " " << "$(TARGET)" << "\n";
     if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty() &&
        !project->isActiveConfig("plugin"))
-	t << "-rm -f " << destdir << "$(TARGET0) " << destdir << "$(TARGET1) "
-	  << destdir << "$(TARGET2) $(TARGETA)" << "\n\t";
+	t << "\t-rm -f " << destdir << "$(TARGET0) " << destdir << "$(TARGET1) "
+	  << destdir << "$(TARGET2) $(TARGETA)" << "\n";
     t << endl << endl;
 
     if ( !project->isEmpty("PRECOMPH") ) {

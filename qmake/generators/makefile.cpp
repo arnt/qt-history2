@@ -1461,7 +1461,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
  	tmp = project->variables()[(*it) + ".files"];
  	if(!tmp.isEmpty()) {
 	    if(!target.isEmpty())
- 		target += "\n\t";
+ 		target += "\n";
 	    do_default = FALSE;
 	    for(QStringList::Iterator wild_it = tmp.begin(); wild_it != tmp.end(); ++wild_it) {
 		QString wild = Option::fixPathToLocalOS((*wild_it), FALSE), wild_var = wild;
@@ -1470,10 +1470,10 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 		if(QFile::exists(wild)) { //real file
 		    QString file = wild;
 		    QFileInfo fi(file);
-		    target += QString("-") + (fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
-			      " \"" + Option::fixPathToTargetOS(fi.filePath(), FALSE) + "\" \"" + dst + "\"\n\t";
+		    target += QString("\t-") + (fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
+			      " \"" + Option::fixPathToTargetOS(fi.filePath(), FALSE) + "\" \"" + dst + "\"\n";
 		    if(fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
-			target += var("QMAKE_STRIP") + " \"" + dst + "\"\n\t";
+			target += QString("\t") + var("QMAKE_STRIP") + " \"" + dst + "\"\n";
 		    uninst.append(QString("-$(DEL_FILE) -r") + " \"" + dst + "\"");
 		    continue;
 		}
@@ -1497,10 +1497,10 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 		    file = dirstr + file;
 		    fileFixify(file);
 		    QFileInfo fi(file);
-		    target += QString("-") + (fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
-			      " \"" + Option::fixPathToTargetOS(fi.filePath(), FALSE) + "\" \"" + dst + "\"\n\t";
+		    target += QString("\t-") + (fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
+			      " \"" + Option::fixPathToTargetOS(fi.filePath(), FALSE) + "\" \"" + dst + "\"\n";
 		    if(fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
-			target += var("QMAKE_STRIP") + " \"" + dst + "\"\n\t";
+			target += QString("\t") + var("QMAKE_STRIP") + " \"" + dst + "\"\n";
 		}
 	    }
  	}
@@ -1511,12 +1511,12 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 	if(!target.isEmpty()) {
 	    t << "install_" << (*it) << ": " << "\n\t"
 	      << "@test -d " << dst << " || mkdir -p " << dst << "\n\t"
-	      << target << endl;
+	      << target << endl << endl;
 	    all_installs += QString("install_") + (*it) + " ";
 	    if(!uninst.isEmpty()) {
 		t << "uninstall_" << (*it) << ": " << "\n\t"
 		  << uninst.join(" ") << "\n\t"
-		  << "-$(DEL_DIR) \"" << dst << "\"" << endl;
+		  << "-$(DEL_DIR) \"" << dst << "\"" << endl << endl;
 		all_uninstalls += "uninstall_" + (*it) + " ";
 	    }
 	    t << endl;
