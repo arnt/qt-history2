@@ -1266,9 +1266,11 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	}
 	break;
     }
-    case inCollapseBox:
+    case inCollapseBox: {
 	widget->showMinimized();
-	break;
+	QEvent e(QEvent::ShowMinimized);
+	QApplication::sendSpontaneousEvent(widget, &e);
+	break; }
     case inZoomIn:
 	widget->showNormal();
 	break;
