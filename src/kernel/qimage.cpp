@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#149 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#150 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#149 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#150 $");
 
 
 /*!
@@ -298,6 +298,18 @@ QImage QImage::copy() const
     return image;
 }
 
+/*!
+  Returns a
+  \link shclass.html deep copy\endlink of a sub-area of the image.
+
+  \sa bitBlt()
+*/
+QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
+{
+    QImage result( w, h, depth(), numColors(), bitOrder() );
+    bitBlt( &result, 0, 0, this, x, y, -1, -1, conversion_flags );
+    return result;
+}
 
 /*!
   \fn bool QImage::isNull() const
@@ -775,7 +787,7 @@ struct QRgbMap {
     QRgb  rgb;
 };
 
-static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flags )
+static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flags, QRgb* palette=0, int palette_count=0 )
 {
     register QRgb *p;
     uchar  *b;
@@ -788,6 +800,37 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
     const int tablesize = 997; // prime
     QRgbMap table[tablesize];
     int   pix=0;
+
+    if ( palette ) {
+	// Preload palette into table.
+
+	p = palette;
+	// Almost same code as pixel insertion below
+	while ( palette_count-- > 0 ) {
+	    // Find in table...
+	    int hash = *p % tablesize;
+	    for (;;) {
+		if ( table[hash].used() ) {
+		    if ( table[hash].rgb == (*p & 0x00ffffff) ) {
+			// Found previous insertion - use it
+			break;
+		    } else {
+			// Keep searching...
+			if (++hash == tablesize) hash = 0;
+		    }
+		} else {
+		    // Cannot be in table
+		    ASSERT ( pix != 256 );		// too many colors
+		    // Insert into table at this unused position
+		    dst->setColor( pix, *p );
+		    table[hash].pix = pix++;
+		    table[hash].rgb = *p & 0x00ffffff;
+		    break;
+		}
+	    }
+	    p++;
+	}
+    }
 
     if ( (conversion_flags & DitherMode_Mask) == PreferDither ) {
 	do_quant = TRUE;
@@ -4026,4 +4069,141 @@ static void write_xpm_image( QImageIO * iio )
     s << "};" << endl;
 
     iio->setStatus( 0 );
+}
+
+/*!
+  Note:  currently no closest-color search is made.  If colors are found that
+  are not in the palette, the palette may not be used at all.  This result
+  should not be considered valid, as it may change in future implementations.
+
+  Currently inefficient for non 32-bit images.
+*/
+QImage QImage::convertDepthWithPalette( int d, QRgb* palette, int palette_count, int conversion_flags ) const
+{
+    if ( depth() == 1 ) {
+	return convertDepth( 8, conversion_flags )
+	       .convertDepthWithPalette( d, palette, palette_count, conversion_flags );
+    } else if ( depth() == 8 ) {
+	// ### this could be easily made more efficient
+	return convertDepth( 32, conversion_flags )
+	       .convertDepthWithPalette( d, palette, palette_count, conversion_flags );
+    } else {
+	QImage result;
+	convert_32_to_8( this, &result,
+	    (conversion_flags&~DitherMode_Mask) | AvoidDither,
+	    palette, palette_count );
+	return result.convertDepth( d );
+    }
+}
+
+/*!
+  Copies a \a sw by \a sh pixel area from \a src to position (\a dx, \a dy)
+  in \a dst.  The pixels copied from source (src) are converted according
+  to \a conversion_flags if it is incompatible with the destination (dst).
+
+  The copying is clipped if areas outside \a src or \a dst are specified.
+
+  If \a sw is -1, it is adjusted to src->width().
+  Similarly, if \a sh is -1, it is adjusted to src->height().
+
+  Currently inefficient for non 32-bit images.
+*/
+void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
+		int sx, int sy, int sw, int sh, int conversion_flags )
+{
+    // Parameter correction
+    if ( sw < 0 ) sw = src->width();
+    if ( sh < 0 ) sh = src->height();
+    if ( sx < 0 ) { dx -= sx; sw += sx; sx = 0; }
+    if ( sy < 0 ) { dy -= sy; sh += sy; sy = 0; }
+    if ( dx < 0 ) { sx -= dx; sw += dx; dx = 0; }
+    if ( dy < 0 ) { sy -= dy; sh += dy; dy = 0; }
+    if ( sx + sw > src->width() ) sw = src->width() - sx;
+    if ( sy + sh > src->height() ) sh = src->height() - sy;
+    if ( dx + sw > dst->width() ) sw = dst->width() - dx;
+    if ( dy + sh > dst->height() ) sh = dst->height() - dy;
+    if ( sw <= 0 || sh <= 0 ) return; // Nothing left to copy
+    if ( (dst->data == src->data) && dx==sx && dy==sy ) return; // Same pixels
+
+    if ( dst->depth() != 32 ) {
+	QImage dstconv = dst->convertDepth( 32 );
+	bitBlt( &dstconv, dx, dy, src, sx, sy, sw, sh, 
+	   (conversion_flags&~DitherMode_Mask) | AvoidDither );
+	*dst = dstconv.convertDepthWithPalette( dst->depth(),
+	    dst->colorTable(), dst->numColors() );
+	return;
+    }
+
+    // Now assume dst is 32-bit
+
+    if ( dst->depth() != src->depth() ) {
+	if ( sw == src->width() && sh == src->height() || dst->depth()==32 ) {
+	    QImage srcconv = src->convertDepth( dst->depth(), conversion_flags );
+	    bitBlt( dst, dx, dy, &srcconv, sx, sy, sw, sh, conversion_flags );
+	} else {
+	    QImage srcconv = src->copy( sx, sy, sw, sh ); // ie. bitBlt
+	    bitBlt( dst, dx, dy, &srcconv, 0, 0, sw, sh, conversion_flags );
+	}
+	return;
+    }
+
+    // Now assume both are the same depth.
+
+    // Now assume both are 32-bit or 8-bit with compatible palettes.
+
+    switch ( dst->depth() ) {
+      case 8:
+	{
+	    uchar* d = dst->scanLine(dy) + dx;
+	    uchar* s = src->scanLine(sy) + sx;
+	    if ( sw < 64 ) {
+		// Trust ourselves
+		const int dd = dst->width() - sw;
+		const int ds = src->width() - sw;
+		while ( sh-- ) {
+		    for ( int t=sw; t--; )
+			*d++ = *s++;
+		    d += dd;
+		    s += ds;
+		}
+	    } else {
+		// Trust libc
+		const int dd = dst->width();
+		const int ds = src->width();
+		while ( sh-- ) {
+		    memcpy( d, s, sw );
+		    d += dd;
+		    s += ds;
+		}
+	    }
+	}
+	break;
+      case 32:
+	{
+	    QRgb* d = (QRgb*)dst->scanLine(dy) + dx;
+	    QRgb* s = (QRgb*)src->scanLine(sy) + sx;
+	    if ( sw < 64 ) {
+		// Trust ourselves
+		const int dd = dst->width() - sw;
+		const int ds = src->width() - sw;
+		while ( sh-- ) {
+		    for ( int t=sw; t--; )
+			*d++ = *s++;
+		    d += dd;
+		    s += ds;
+		}
+	    } else {
+		// Trust libc
+		const int dd = dst->width();
+		const int ds = src->width();
+		const int b = sw*sizeof(QRgb);
+		while ( sh-- ) {
+		    memcpy( d, s, b );
+		    d += dd;
+		    s += ds;
+		}
+	    }
+	}
+	break;
+    }
 }

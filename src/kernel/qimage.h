@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#55 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#56 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -37,6 +37,8 @@ public:
     QImage     &operator=( const QPixmap & );
     void	detach();
     QImage	copy()		const;
+    QImage	copy(int x, int y, int w, int h, int conversion_flags=0) const;
+    QImage	copy(QRect&)	const;
 
     bool	isNull()	const	{ return data->bits == 0; }
 
@@ -74,6 +76,7 @@ public:
     void	fill( uint pixel );
 
     QImage	convertDepth( int ) const;
+    QImage	convertDepthWithPalette( int, QRgb* p, int pc, int cf=0 ) const;
     QImage	convertDepth( int, int conversion_flags ) const;
     QImage	convertBitOrder( Endian ) const;
     QImage	smoothScale(int width, int height) const;
@@ -121,6 +124,9 @@ private:
 	uchar **bits;				// image data
 	bool	alpha;				// alpha buffer
     } *data;
+
+    friend void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
+		int sx, int sy, int sw, int sh, int conversion_flags );
 };
 
 
@@ -188,6 +194,10 @@ private:	// Disabled copy constructor and operator=
 };
 
 
+void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
+	    int sx=0, int sy=0, int sw=-1, int sh=-1, int conversion_flags=0 );
+
+
 /*****************************************************************************
   QImage member functions
  *****************************************************************************/
@@ -220,6 +230,11 @@ inline int QImage::numBytes() const
 inline int QImage::bytesPerLine() const
 {
     return data->h ? data->nbytes/data->h : 0;
+}
+
+inline QImage QImage::copy(QRect& r) const
+{
+    return copy(r.x(), r.y(), r.width(), r.height());
 }
 
 #if !(defined(QIMAGE_C) || defined(DEBUG))

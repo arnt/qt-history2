@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#49 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#50 $
 **
 ** Definition of QPaintDevice class
 **
@@ -115,6 +115,10 @@ private:	// Disabled copy constructor and operator=
 void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
 	     RasterOp = CopyROP, bool ignoreMask=FALSE );
+
+void bitBlt( QPaintDevice *dst, int dx, int dy,
+	     const QImage *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
+	     int conversion_flags=0 );
 
 
 /*****************************************************************************
