@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#53 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#54 $
 **
 ** Definition of QWidget class
 **
@@ -132,6 +132,8 @@ public:
 			   bool showIt=FALSE );
 
     void	 erase();
+    void	 erase( int x, int y, int w, int h );
+    void	 erase( const QRect & );
     void	 scroll( int dx, int dy );
 
     void	 drawText( int x, int y, const char * );
@@ -272,6 +274,12 @@ inline void QWidget::repaint( bool erase )
 
 inline void QWidget::repaint( int x, int y, int w, int h, bool erase )
 { repaint( QRect(x,y,w,h), erase ); }
+
+inline void QWidget::erase()
+{ erase( 0, 0, crect.width(), crect.height() ); }
+
+inline void QWidget::erase( const QRect &r )
+{ erase( r.x(), r.y(), r.width(), r.height() ); }
 
 inline bool QWidget::isVisible() const
 { return testWFlags(WState_Visible); }
