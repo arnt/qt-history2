@@ -93,78 +93,21 @@
   There are also several other signals which may be useful: <ul> <li>
   cancelButtonPressed() is emitted when the user clicks Cancel.  <li>
   defaultButtonPressed() is emitted when the user clicks Defaults.
-  <li>
-  helpButtonPressed() is emitted when the user clicks Help;
-  the slot it is connected to should reset the state of the dialog to the
+  <li> helpButtonPressed() is emitted when the user clicks Help; the
+  slot it is connected to should reset the state of the dialog to the
   application defaults.  <li> aboutToShow() is emitted at the start of
   show(); if there is any chance that the state of the application may
-  change between the creation of the tab dialog and the time show()
-  is called, you must connect this signal to a slot that resets the
-  state of the dialog. <li> currentChanged() is emitted when the user
+  change between the creation of the tab dialog and the time show() is
+  called, you must connect this signal to a slot that resets the state
+  of the dialog. <li> currentChanged() is emitted when the user
   selects some page. </ul>
 
   Each tab is either enabled or disabled at any given time.  If a tab
   is enabled the tab text is drawn in black and the user can select
-  that tab.  If it is disabled the tab is drawn in a different way
-  and the user cannot select that tab.  Note that even if a tab
-  is disabled, the page can still be visible - for example, if all of
-  the tabs happen to be disabled.
-
-  Although tab dialogs can be a very good way to split up a complex
-  dialog, it's also very easy to make a royal mess out of a tab
-  dialog.  Here is some advice (for more, see the <a
-  href="http://world.std.com/~uieweb/tabbed.htm">UIE web page on tab
-  dialogs).</a>
-
-  <ol><li> Make sure that each page forms a logical whole that is
-  adequately described by the label on the tab. If two related functions are on different pages, users will often
-  not find one of the functions or will spend far too long searching
-  for it.
-
-  <li> Do not join several independent dialogs into one tab dialog.
-  Several aspects of one complex dialog are acceptable (such as the
-  various aspects of "preferences"), but a tab dialog is no substitute
-  for a pop-up menu leading to several smaller dialogs.
-
-  The OK button (and the other buttons) apply to the \e entire dialog.
-  If the tab dialog is really several independent, smaller dialogs,
-  users often press Cancel to cancel only the changes he/she made
-  on the current page. Many users will treat that page as independent
-  of the other pages.
-
-  <li> Do not use tab dialogs for frequent operations.  The tab dialog
-  is probably the most complex widget in common use at the moment, and
-  subjecting the user to this complexity during his/her normal use of
-  your application is usually a bad idea.
-
-  The tab dialog is good for complex operations that are seldom
-  performed, such as Preferences dialogs.  (Not for common
-  operations, such as setting left/right alignment in a word processor.
-  These common operations are often actually independent dialogs and
-  should be treated as such.)
-
-  The tab dialog is not a navigational aid; it is an organizational
-  aid.  It is a good way to organize aspects of a complex operation
-  (such as setting up caching and proxies in a web browser), but it is a bad
-  way to navigate toward a simple operation (such as emptying the
-  cache in a web browser - emptying the cache is \e not part of
-  setting up the cache; it is a separate and independent operation).
-
-  <li> The changes should take effect when the user presses Apply or
-  OK, not before.
-
-  Providing Apply, Cancel, or OK buttons on the individual pages is
-  likely to weaken the user's mental model of how tab dialogs work.
-  If you think a page needs its own buttons, consider making it a
-  separate dialog.
-
-  <li> There should be no implicit ordering of the pages.  If there
-  is, it is probably better to use a wizard dialog.
-
-  If some of the pages seem to be ordered and others do not, perhaps they
-  ought not to be joined in a tab dialog.
-
-  </ol>
+  that tab.  If it is disabled the tab is drawn in a different way and
+  the user cannot select that tab.  Note that even if a tab is
+  disabled, the page can still be visible - for example, if all of the
+  tabs happen to be disabled.
 
   Most of the functionality in QTabDialog is provided by a QTabWidget.
 

@@ -71,7 +71,7 @@
   meaningful and descriptive to the user, whereas the widget name is
   used primarily for debugging.
 
-  the signal currentChanged() is emitted when the user selects a page.
+  The signal currentChanged() is emitted when the user selects a page.
 
   Each tab is either enabled or disabled at any given time.  If a tab
   is enabled, the tab text is drawn in black and the user can select
