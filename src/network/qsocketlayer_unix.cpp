@@ -142,6 +142,7 @@ bool QSocketLayerPrivate::createNewSocket(Qt::SocketType socketType,
     if (socket <= 0) {
         switch (errno) {
         case EPROTONOSUPPORT:
+        case EAFNOSUPPORT:
         case EINVAL:
             setError(Qt::UnsupportedSocketOperationError, "Protocol type not supported");
             break;
