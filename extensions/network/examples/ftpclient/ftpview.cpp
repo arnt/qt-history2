@@ -11,6 +11,7 @@
 #include "ftpview.h"
 
 #include <qpixmap.h>
+#include <qvaluelist.h>
 
 /* XPM */
 static const char* closed_xpm[]={
@@ -137,13 +138,16 @@ FtpView::FtpView( QWidget *parent )
 	     this, SLOT( slotSelected( QListViewItem * ) ) );
 }
 
-void FtpView::slotInsertEntry( const QUrlInfo &info )
+void FtpView::slotInsertEntries( const QValueList<QUrlInfo> &info )
 {
-    if ( info.name() != ".." && info.name() != "." && info.name()[ 0 ] == '.' )
-	return;
-    FtpViewItem *item = new FtpViewItem( this, info );
-    if ( info.isDir() )
-	item->setSelectable( FALSE );
+    QValueList<QUrlInfo>::ConstIterator it;
+    for( it = info.begin(); it != info.end(); ++it ) {
+	if ( (*it).name() != ".." && (*it).name() != "." && (*it).name()[ 0 ] == '.' )
+	    continue;
+	FtpViewItem *item = new FtpViewItem( this, (*it) );
+	if ( (*it).isDir() )
+	    item->setSelectable( FALSE );
+    }
 }
 
 void FtpView::slotSelected( QListViewItem *item )

@@ -42,7 +42,7 @@ public:
     QValueList<QUrlInfo> selectedItems() const;
     
 public slots:
-    void slotInsertEntry( const QUrlInfo &info );
+    void slotInsertEntries( const QValueList<QUrlInfo> &info );
     
 signals:
     void itemSelected( const QUrlInfo &info );

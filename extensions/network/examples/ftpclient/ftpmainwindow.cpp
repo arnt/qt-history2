@@ -35,8 +35,8 @@ FtpMainWindow::FtpMainWindow()
     // connect to the signals of the local QUrlOperator - this will be used to
     // work on the local file system (listing dirs, etc.) and to copy files
     // TO the local filesystem (downloading)
-    connect( &localOperator, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
-	     leftView, SLOT( slotInsertEntry( const QUrlInfo & ) ) );
+    connect( &localOperator, SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ),
+	     leftView, SLOT( slotInsertEntries( const QValueList<QUrlInfo> & ) ) );
     connect( &localOperator, SIGNAL( start( QNetworkOperation * ) ),
 	     this, SLOT( slotLocalStart( QNetworkOperation *) ) );
     connect( &localOperator, SIGNAL( finished( QNetworkOperation * ) ),
@@ -49,8 +49,8 @@ FtpMainWindow::FtpMainWindow()
     // connect to the signals of the remote QUrlOperator - this will be used to
     // work on the remote file system (on the FTP Server) and to copy files
     // TO the ftp server (uploading)
-    connect( &remoteOperator, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
-	     rightView, SLOT( slotInsertEntry( const QUrlInfo & ) ) );
+    connect( &remoteOperator, SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ),
+	     rightView, SLOT( slotInsertEntries( const QValueList<QUrlInfo> & ) ) );
     connect( &remoteOperator, SIGNAL( start( QNetworkOperation * ) ),
 	     this, SLOT( slotRemoteStart( QNetworkOperation *) ) );
     connect( &remoteOperator, SIGNAL( finished( QNetworkOperation * ) ),
