@@ -863,20 +863,6 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 	    break;
 	}
 
-    case CT_ComboBox:
-	{
-	    QComboBox *combobox = (QComboBox *) widget;
-
-	    if (sz.height() <= 20 && combobox->parentWidget() &&
-		(combobox->parentWidget()->inherits("QToolBar") ||
-		 combobox->parentWidget()->inherits("QDialog")) &&
-		combobox->editable())
-		sz.setHeight(12);
-
-	    sz = QCommonStyle::sizeFromContents(contents, widget, sz, data);
-	    break;
-	}
-
     case CT_PopupMenuItem:
 	{
 	    if (! widget || ! data)
@@ -1390,7 +1376,7 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 				    const QWidget * w,
 				    const QRect & r,
 				    const QColorGroup & cg,
-				    CFlags flags,
+				    CFlags /*flags*/,
 				    SCFlags subActive,
 				    void **data ) const
 {
