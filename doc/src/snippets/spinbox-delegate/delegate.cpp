@@ -59,11 +59,10 @@ QWidget *SpinBoxDelegate::editor(QWidget *parent,
     widget to the model before destroying it.
 */
 
-void SpinBoxDelegate::releaseEditor(QWidget *editor)
+void SpinBoxDelegate::releaseEditor(QWidget *editor, const QModelIndex &index)
 {
     if (editor == spinBox) {
-        spinBox->removeEventFilter(this);
-        delete spinBox;
+        QItemDelegate::releaseEditor(editor, index);
         spinBox = 0;
     }
 }
@@ -98,7 +97,7 @@ void SpinBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
     spinBox->interpretText();
     int value = spinBox->value();
 
-    model->setData(index, QAbstractItemModel::EditRole, value);
+    model->setData(index, value);
 }
 
 /*!
