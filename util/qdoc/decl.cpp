@@ -14,6 +14,9 @@
 #include "htmlwriter.h"
 #include "messages.h"
 
+
+#define DO_APPLE_ANCHORS //sam
+
 static QString gulbrandsen( "::" );
 static QString parenParen( "()" );
 
@@ -726,6 +729,13 @@ void ClassDecl::printHtmlShort( HtmlWriter& out ) const
 
 void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 {
+#ifdef DO_APPLE_ANCHORS
+    if(Decl *c = context()) 
+        out.printfMeta( "<a name=//apple_ref/cpp/cl/%s/%s</a>", c->fullName().latin1(), fullName().latin1() );
+    else
+        out.printfMeta( "<a name=//apple_ref/cpp/cl/%s</a>", fullName().latin1() );
+#endif
+
     QMap<QString, Decl *> publicMembers;
     QMap<QString, Decl *> publicSlots;
     QMap<QString, Decl *> publicSignals;
@@ -1564,6 +1574,29 @@ void FunctionDecl::printHtmlShort( HtmlWriter& out ) const
 
 void FunctionDecl::printHtmlLong( HtmlWriter& out ) const
 {
+#ifdef DO_APPLE_ANCHORS
+    if(Decl *c = context()) {
+        out.printfMeta( "<a name=//apple_ref/cpp/%s/%s/%s/", isStatic() ? "clm" : "instm", 
+                        c->fullName().latin1(), name().latin1());
+        if ( returnType().isEmpty() )
+            out.printfMeta( "void" );
+        else
+            returnType().printHtml( out );
+        ParameterList::ConstIterator param = parameters().begin();
+	out.putsMeta( "/(" );
+        if ( param != parameters().end() ) {
+            (*param).dataType().printHtml( out );
+            while ( ++param != parameters().end() ) {
+                out.putsMeta( "," );
+                (*param).dataType().printHtml( out );
+            }
+	}
+	out.putsMeta( ")></a>" );
+    } else {
+        out.printfMeta( "<a name=//apple_ref/cpp/func/%s></a>", name().latin1());
+    }
+#endif
+
     if ( !returnType().isEmpty() ) {
 	printHtmlDataType( out, returnType(), context() );
 	out.putsMeta( " " );
@@ -1668,6 +1701,12 @@ void EnumDecl::printHtmlShort( HtmlWriter& out ) const
 
 void EnumDecl::printHtmlLong( HtmlWriter& out ) const
 {
+#ifdef DO_APPLE_ANCHORS
+    if(Decl *c = context()) 
+        out.printfMeta( "<a name=//apple_ref/cpp/econst/%s/%s</a>", c->fullName().latin1(), name().latin1() );
+    else
+        out.printfMeta( "<a name=//apple_ref/cpp/econst/%s</a>", name().latin1() );
+#endif
     out.printfMeta( "<a name=\"%s\"></a>%s", ref().latin1(),
 		    fullName().latin1() );
 }
@@ -1686,6 +1725,12 @@ void TypedefDecl::printHtmlShort( HtmlWriter& out ) const
 
 void TypedefDecl::printHtmlLong( HtmlWriter& out ) const
 {
+#ifdef DO_APPLE_ANCHORS
+    if(Decl *c = context()) 
+        out.printfMeta( "<a name=//apple_ref/cpp/tdef/%s/%s</a>", c->fullName().latin1(), name().latin1() );
+    else
+        out.printfMeta( "<a name=//apple_ref/cpp/tdef/%s</a>", name().latin1() );
+#endif
     out.printfMeta( "<a name=\"%s\"></a>%s", ref().latin1(),
 		    fullName().latin1() );
 }
