@@ -504,7 +504,11 @@ bool QFontPrivate::fillFontDef( const QCString &xlfd, QFontDef *fd,
 	// calculate pixel size from pointsize/dpi
 	fd->pixelSize = ( fd->pointSize * QPaintDevice::x11AppDpiY() ) / 720;
     }
-
+    // ### This looks wrong to me. Lars
+//     else {
+// 	fd->pixelSize = ( fd->pointSize * QPaintDevice::x11AppDpiY() ) / 720;
+//      }
+ 
     fd->underline     = FALSE;
     fd->strikeOut     = FALSE;
     fd->hintSetByUser = FALSE;
@@ -1786,9 +1790,9 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 	    int pSize;
 
 	    if ( request.pointSize != -1 )
-		pSize = request.pointSize / 10;
+		pSize = request.pointSize;
 	    else
-		pSize = int( (request.pixelSize * QPaintDevice::x11AppDpiY()) / 72. + 0.5 );
+		pSize = int( (10.*request.pixelSize * QPaintDevice::x11AppDpiY()) / 72. + 0.5 );
 	    if ( bestScalable.smooth ) {
 		// X will scale the font accordingly
 		resx  = QPaintDevice::x11AppDpiX();
@@ -1894,9 +1898,9 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 
 	int reqPSize;
 	if ( request.pointSize != -1 )
-	    reqPSize = request.pointSize / 10;
+	    reqPSize = request.pointSize;
 	else
-	    reqPSize = int( (request.pixelSize * QPaintDevice::x11AppDpiY()) / 72. + 0.5 );
+	    reqPSize = int( (10*request.pixelSize * QPaintDevice::x11AppDpiY()) / 72. + 0.5 );
 	
 	if ( reqPSize != 0 ) {
 	    diff = (float)QABS(pSize - reqPSize);
