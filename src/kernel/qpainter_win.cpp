@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#161 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#162 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -1915,12 +1915,14 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
        - no mask
     */
     QBitmap *mask = (QBitmap *)pixmap.mask();
+#if 0 // Windows is too buggy, so we just use our own code (which is faster).
     if ( !testf(ExtDev) && txop <= TxTranslate && mask == 0 ) {
 	if ( txop == TxTranslate )
 	    map( x, y, &x, &y );
 	qt_draw_tiled_pixmap( hdc, x, y, w, h, &pixmap, sx, sy );
 	return;
     }
+#endif
     if ( sw*sh < 8192 && sw*sh < 16*w*h ) {
 	int tw = sw, th = sh;
 	while ( tw*th < 32678 && tw < w/2 )
