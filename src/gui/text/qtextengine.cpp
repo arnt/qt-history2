@@ -186,6 +186,9 @@ static fAppendItems appendItems = qAppendItems;
 // creates the next QScript items.
 static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
 {
+#if BIDI_DEBUG >= 2
+    cout << "bidiItemize: rightToLeft=" << rightToLeft << endl;
+#endif
     BidiControl control(rightToLeft);
 
     bool hasBidi = rightToLeft;
@@ -349,14 +352,12 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
                 case QChar::DirL:
                 case QChar::DirEN:
                 case QChar::DirAN:
-                    if (!first) {
+                    if (!first)
                         appendItems(engine, sor, eor, control, dir);
-                        dir = QChar::DirON; status.eor = QChar::DirON;
-                        break;
-                    }
+                    // fall through
                 case QChar::DirR:
                 case QChar::DirAL:
-                    eor = current; status.eor = QChar::DirR; break;
+                    dir = QChar::DirR; eor = current; status.eor = QChar::DirR; break;
                 case QChar::DirES:
                 case QChar::DirET:
                 case QChar::DirCS:
@@ -370,14 +371,12 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
                         if(control.direction() == QChar::DirR
                            || status.lastStrong == QChar::DirR || status.lastStrong == QChar::DirAL) {
                             appendItems(engine, sor, eor, control, dir);
-                            dir = QChar::DirON; status.eor = QChar::DirON;
-                            dir = QChar::DirR;
+                            dir = QChar::DirR; status.eor = QChar::DirON;
                             eor = current;
                         } else {
                             eor = current - 1;
                             appendItems(engine, sor, eor, control, dir);
-                            dir = QChar::DirON; status.eor = QChar::DirON;
-                            dir = QChar::DirR;
+                            dir = QChar::DirR; status.eor = QChar::DirON;
                         }
                     } else {
                         eor = current; status.eor = QChar::DirR;
