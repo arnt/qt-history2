@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#95 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#96 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -6732,15 +6732,29 @@ bool QXmlSimpleReader::processReference()
 		// "External Parsed General"
 		switch ( d->parseReference_context ) {
 		    case InContent:
-			// Included if validating
-			if ( contentHnd ) {
-			    if ( !contentHnd->skippedEntity( reference ) ) {
-				reportParseError( contentHnd->errorString() );
-				return FALSE; // error
+			{
+			    // Included if validating
+			    bool skipIt = TRUE;
+			    if ( entityRes ) {
+				QXmlInputSource *ret;
+				if ( !entityRes->resolveEntity( itExtern.data().publicId, itExtern.data().systemId, ret ) ) {
+				    reportParseError( entityRes->errorString() );
+				    return FALSE;
+				}
+				if ( ret ) {
+				    skipIt = FALSE;
+				    if ( !insertXmlRef( ret->data(), reference, FALSE ) )
+					return FALSE;
+				} 
 			    }
-			}
-			d->parseReference_charDataRead = FALSE;
-			break;
+			    if ( skipIt && contentHnd ) {
+				if ( !contentHnd->skippedEntity( reference ) ) {
+				    reportParseError( contentHnd->errorString() );
+				    return FALSE; // error
+				}
+			    }
+			    d->parseReference_charDataRead = FALSE;
+			} break;
 		    case InAttributeValue:
 			// Forbidden
 			d->parseReference_charDataRead = FALSE;
