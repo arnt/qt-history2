@@ -100,6 +100,7 @@ DEPENDPATH += $$ICONVIEW_H:$$OPENGL_H:$$TOOLS_H:$$CODECS_H:$$WORKSPACE_H:$$XML_H
 thread {
 	!win32-borland:TARGET = qt-mt
 	win32-borland:TARGET = qtmt
+	embedded:TARGET = qte-mt
 	DEFINES += QT_THREAD_SUPPORT
 }
 
