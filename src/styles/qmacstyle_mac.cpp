@@ -891,11 +891,10 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
     if(qAquaActive(cg)) {
 	if(!(flags & Style_Enabled))
 	    tds = kThemeStateUnavailable;
+    } else if(flags & Style_Enabled) {
+	tds = kThemeStateInactive;
     } else {
-	if(flags & Style_Enabled)
-	    tds = kThemeStateInactive;
-	else
-	    tds = kThemeStateUnavailableInactive;
+	tds = kThemeStateUnavailableInactive;
     }
 
     switch(ctrl) {
@@ -1045,6 +1044,8 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    twa |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox | kThemeWindowHasCollapseBox;
 	else if(tbar->testWFlags( WStyle_SysMenu)) 
 	    twa |= kThemeWindowHasCloseBox;
+	if(flags & Style_MouseOver) //nah I like my State better
+	    tds = kThemeStateRollover;
 	//AppMan paints outside the given rectangle, so I have to adjust for the height properly!
 	QRegion treg;
 	GetThemeWindowRegion(macWinType, qt_glb_mac_rect(r), 
