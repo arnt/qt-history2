@@ -79,18 +79,39 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	break;
     case Atom::BriefLeft:
 	out() << "<p>";
+	if ( relative->type() == Node::Property ) {
+	    QString str;
+	    atom = atom->next();
+	    while ( atom != 0 && atom->type() != Atom::BriefRight ) {
+		if ( atom->type() == Atom::String )
+		    str += atom->string();
+		skipAhead++;
+		atom = atom->next();
+	    }
+	    str[0] = str[0].lower();
+	    if ( str.right(1) == "." )
+		str.truncate( str.length() - 1 );
+
+qDebug( "******************** str['%s']", str.left(10).latin1() );
+	    if ( str.startsWith("whether") ) {
+		out() << "Returns <tt>true</tt> if " << str.mid(8)
+		      << "; otherwise returns <tt>false</tt>.";
+	    } else {
+		out() << "Returns " << str << ".";
+	    }
+	}
 	break;
     case Atom::BriefRight:
 	out() << "</p>\n";
 	break;
     case Atom::C:
-	out() << "<code>";
+	out() << formattingLeftMap()[ATOM_FORMATTING_TELETYPE];
 	if ( inLink ) {
 	    out() << protect( plainCode(atom->string()) );
 	} else {
 	    out() << highlightedCode( atom->string(), relative );
 	}
-	out() << "</code>";
+	out() << formattingRightMap()[ATOM_FORMATTING_TELETYPE];
 	break;
     case Atom::Code:
 	out() << "<pre>" << protect( plainCode(indent(4, atom->string())) )

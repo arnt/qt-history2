@@ -547,7 +547,6 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 			append( Atom::ListItemLeft,
 				openedLists.top().styleString() );
 			enterPara();
-			skipSpacesOrOneEndl();
 		    }
 		    break;
 		case CMD_OMIT:
@@ -698,7 +697,6 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 			append( Atom::ListTagRight, ATOM_LIST_VALUE );
 			append( Atom::ListItemLeft, ATOM_LIST_VALUE );
 			enterPara();
-			skipSpacesOrOneEndl();
 		    } else {
 			// ### problems
 		    }
@@ -1153,6 +1151,7 @@ void DocParser::enterPara( Atom::Type leftType, Atom::Type rightType,
 	} else {
 	    paraState = InsideMultiLinePara;
 	}
+	skipSpacesOrOneEndl();
     }
 }
 
