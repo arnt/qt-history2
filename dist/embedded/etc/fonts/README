@@ -1,0 +1,8 @@
+The fonts here are in various formats:
+
+    *.ttf - TrueType fonts, requires QT_FEATURE_TRUETYPE
+    *.bdf - BDF fonts, requires QT_FEATURE_BDF
+    *.qpf - Qt prerendered fonts, generated automatically from above fonts
+
+Normally, small embedded devices will only use QPF files, and these will only
+contain the subset of Unicode appropriate for the device.

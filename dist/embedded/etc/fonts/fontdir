@@ -1,0 +1,82 @@
+times timR08.bdf BDF n 50 80
+times timR10.bdf BDF n 50 100
+times timR12.bdf BDF n 50 120
+times timR14.bdf BDF n 50 140
+times timR18.bdf BDF n 50 180
+times timR24.bdf BDF n 50 240
+times timB08.bdf BDF n 75 80
+times timB10.bdf BDF n 75 100
+times timB12.bdf BDF n 75 120
+times timB14.bdf BDF n 75 140
+times timB18.bdf BDF n 75 180
+times timB24.bdf BDF n 75 240
+times timBO08.bdf BDF y 75 80
+times timBO10.bdf BDF y 75 100
+times timBO12.bdf BDF y 75 120
+times timBO14.bdf BDF y 75 140
+times timBO18.bdf BDF y 75 180
+times timBO24.bdf BDF y 75 240
+times timO08.bdf BDF y 50 80
+times timO10.bdf BDF y 50 100
+times timO12.bdf BDF y 50 120
+times timO14.bdf BDF y 50 140
+times timO18.bdf BDF y 50 180
+times timO24.bdf BDF y 50 240
+courier courR08.bdf BDF n 50 80
+courier courR10.bdf BDF n 50 100
+courier courR12.bdf BDF n 50 120
+courier courR14.bdf BDF n 50 140
+courier courR18.bdf BDF n 50 180
+courier courR24.bdf BDF n 50 240
+courier courB08.bdf BDF n 75 80
+courier courB10.bdf BDF n 75 100
+courier courB12.bdf BDF n 75 120
+courier courB14.bdf BDF n 75 140
+courier courB18.bdf BDF n 75 180
+courier courB24.bdf BDF n 75 240
+courier courBO08.bdf BDF y 75 80
+courier courBO10.bdf BDF y 75 100
+courier courBO12.bdf BDF y 75 120
+courier courBO14.bdf BDF y 75 140
+courier courBO18.bdf BDF y 75 180
+courier courBO24.bdf BDF y 75 240
+courier courO08.bdf BDF y 50 80
+courier courO10.bdf BDF y 50 100
+courier courO12.bdf BDF y 50 120
+courier courO14.bdf BDF y 50 140
+courier courO18.bdf BDF y 50 180
+courier courO24.bdf BDF y 50 240
+helvetica helvR08.bdf BDF n 50 80
+helvetica helvR10.bdf BDF n 50 100
+helvetica helvR12.bdf BDF n 50 120
+helvetica helvR14.bdf BDF n 50 140
+helvetica helvR18.bdf BDF n 50 180
+helvetica helvR24.bdf BDF n 50 240
+helvetica helvB08.bdf BDF n 75 80
+helvetica helvB10.bdf BDF n 75 100
+helvetica helvB12.bdf BDF n 75 120
+helvetica helvB14.bdf BDF n 75 140
+helvetica helvB18.bdf BDF n 75 180
+helvetica helvB24.bdf BDF n 75 240
+helvetica helvBO08.bdf BDF y 75 80
+helvetica helvBO10.bdf BDF y 75 100
+helvetica helvBO12.bdf BDF y 75 120
+helvetica helvBO14.bdf BDF y 75 140
+helvetica helvBO18.bdf BDF y 75 180
+helvetica helvBO24.bdf BDF y 75 240
+helvetica helvO08.bdf BDF y 50 80
+helvetica helvO10.bdf BDF y 50 100
+helvetica helvO12.bdf BDF y 50 120
+helvetica helvO14.bdf BDF y 50 140
+helvetica helvO18.bdf BDF y 50 180
+helvetica helvO24.bdf BDF y 50 240
+japanese 12x13ja.bdf BDF n 50 120
+japanese 18x18ja.bdf BDF n 50 180
+# Unifont is available in source form from http://czyborra.com/unifont/
+unifont unifont.bdf BDF n 50 160 u
+babelfish babelfish.ttf TTF n 50 0 s
+smoothtimes times.ttf TTF n 50 0 su
+smoothtimes timesbd.ttf TTF n 75 0 sa
+smoothtimes timesi.ttf TTF y 50 0 sa
+smoothtimes timesbi.ttf TTF y 75 0 sa
+i18n arialuni.ttf TTF n 50 0 su
