@@ -1,0 +1,41 @@
+libmng 1.0.0
+------------
+
+The first public release. Finally(!)!
+
+This is the 0.9.5 CVS version, which will never be released, because I feel it
+is now ready for a public release. So apart from the version-numbers here and
+there, all other changes are listed under 0.9.5.
+
+This library will work with every MNG/JNG known and available to me. Note that
+there are still parts that need to be coded, and that MNG support is around
+90-95% (JNG at 100%). It is however compliant with the latest and greatest
+MNG 1.0 specification.
+
+I hope to dedicate a bit more time this year to finish up full support and fill
+in the remaining blanks. But this is coming out of my spare time. And extra
+help is always appreciated.
+
+Please enjoy!
+
+Gerard
+
+
+For more information please visit:
+
+The official libmng web-site:
+
+  http://www.libmng.com
+
+Libmng's community on SourceForge:
+
+  https://sourceforge.net/project/?group_id=5635
+
+The official MNG homepage:
+
+  http://www.libpng.org/pub/mng
+
+The official PNG homepage:
+
+  http://www.libpng.org/pub/png
+
