@@ -33,15 +33,6 @@
 #include "qevent.h"
 #endif
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-#ifndef Q_NO_TYPESAFE_FLAGS
-template class Q_GUI_EXPORT QFlags<Qt::WidgetState>;
-template class Q_GUI_EXPORT QFlags<Qt::WindowFlags>;
-#endif
-// MOC_SKIP_END
-#endif
-
 class QLayout;
 class QWSRegionManager;
 class QStyle;
@@ -603,10 +594,10 @@ private:
     void	 updateFrameStrut() const;
 
     WId		 winid;
-    WState widget_state; // will go away, eventually
+    uint widget_state; // will go away, eventually
     uint widget_attributes;
     bool testAttribute_helper(WidgetAttribute) const;
-    WFlags widget_flags;
+    uint widget_flags;
     uint	 focus_policy : 4;
     uint 	 sizehint_forced :1;
     uint 	 is_closing :1;
@@ -744,10 +735,10 @@ template <> inline QWidget *qt_cast<QWidget*>(const QObject *o)
 }
 
 inline Qt::WState QWidget::testWState( WState s ) const
-{ return (widget_state & s); }
+{ return QFlag(widget_state & s); }
 
 inline Qt::WFlags QWidget::testWFlags( WFlags f ) const
-{ return (widget_flags & f); }
+{ return QFlag(widget_flags & f); }
 
 inline WId QWidget::winId() const
 { return winid; }
@@ -852,7 +843,7 @@ inline QWidgetMapper *QWidget::wmapper()
 { return mapper; }
 
 inline Qt::WState QWidget::getWState() const
-{ return widget_state; }
+{ return QFlag(widget_state); }
 
 inline void QWidget::setWState(WState f)
 { widget_state |= f; }
@@ -861,7 +852,7 @@ inline void QWidget::clearWState(WState f)
 { widget_state &= ~f; }
 
 inline Qt::WFlags QWidget::getWFlags() const
-{ return widget_flags; }
+{ return QFlag(widget_flags); }
 
 inline void QWidget::setWFlags(WFlags f)
 { widget_flags |= f; }
