@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#237 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#238 $
 **
 ** Implementation of the QTextView class
 **
@@ -40,12 +40,14 @@
 #ifndef QT_NO_TEXTVIEW
 
 /*! \class QTextView
+    \brief The QTextView provides a rich-text viewer.
+
   \obsolete
   \brief This class provides a read-only QTextEdit wrapper.
 
-  This class is only provided for compatibility. Use a QTextEdit instead, set
-  to read-only.
-
+  This class wraps a read-only \l QTextEdit.
+  Use a \l QTextEdit instead, and call setReadOnly(TRUE)
+  to disable editing.
 */
 
 /*! \reimp */
