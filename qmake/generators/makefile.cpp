@@ -1009,9 +1009,11 @@ MakefileGenerator::fileFixify(QString &file) const
 		if(sl == -1)
 		    break;
 		match_dir = match_dir.left(sl);
+		if(match_dir.isEmpty())
+		    break;
 		if(file.left(match_dir.length()) == match_dir) {
 		    file = file.right(file.length() - (match_dir.length() + 1));
-		    for(int o = 0; o < i; o++)
+		    for(int o = 0; o < i; o++) 
 			file.prepend(".." + Option::dir_sep);
 		}
 	    }
