@@ -150,8 +150,6 @@ public:
     QAtomic ref;
     QFontDef request;
     QFontEngineData *engineData;
-    // ##### so it continues compiling until the other platforms are fixed.
-//    QPaintDevice *paintdevice;
     int dpi;
     int screen;
 

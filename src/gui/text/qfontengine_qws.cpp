@@ -117,14 +117,12 @@ FT_Face QFontEngineFT::handle() const
     return face;
 }
 
-QFontEngineFT::QFontEngineFT(const QFontDef& d, const QPaintDevice *pd, FT_Face ft_face)
+QFontEngineFT::QFontEngineFT(const QFontDef& d, FT_Face ft_face)
 {
     _openType = 0;
     fontDef = d;
     face = ft_face;
-////    _scale = pd ? (pd->resolution()<<8)/72 : 1<<8;
-#warning "QPaintDevice::resolution() -- must find scale somehow"
-    _scale =  1<<8; //###################
+    _scale =  1<<8;
 
     smooth = FT_IS_SCALABLE(face);
     if (fontDef.styleStrategy & QFont::NoAntialias)
@@ -866,7 +864,7 @@ public:
 };
 
 
-QFontEngineQPF::QFontEngineQPF(const QFontDef&, const QPaintDevice *, const QString &fn)
+QFontEngineQPF::QFontEngineQPF(const QFontDef&, const QString &fn)
 {
     cache_cost = 1;
 

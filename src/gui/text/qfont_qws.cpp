@@ -109,7 +109,7 @@ void QFontPrivate::load(QFont::Script)
         req.pointSize = req.pixelSize*10;
 
     if (! engineData) {
-        QFontCache::Key key(req, script, (int)paintdevice);
+        QFontCache::Key key(req, script);
 
         // look for the requested font in the engine data cache
         engineData = QFontCache::instance->findEngineData(key);

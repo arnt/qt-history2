@@ -23,8 +23,6 @@
 #include "qt_windows.h"
 #endif
 
-class QPaintDevice;
-
 struct glyph_metrics_t;
 class QChar;
 typedef unsigned short glyph_t;
@@ -157,7 +155,7 @@ class QGlyph;
 class QFontEngineFT : public QFontEngine
 {
 public:
-    QFontEngineFT(const QFontDef&, const QPaintDevice *, FT_Face face);
+    QFontEngineFT(const QFontDef&, FT_Face face);
    ~QFontEngineFT();
     FT_Face handle() const;
 
@@ -203,7 +201,7 @@ class QFontEngineQPFData;
 class QFontEngineQPF : public QFontEngine
 {
 public:
-    QFontEngineQPF(const QFontDef&, const QPaintDevice *, const QString &fn);
+    QFontEngineQPF(const QFontDef&, const QString &fn);
    ~QFontEngineQPF();
 
     FECaps capabilites() const;

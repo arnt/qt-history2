@@ -185,7 +185,6 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
     Q_UNUSED(script);
     //Q_UNUSED(family);
 //    Q_UNUSED(style);
-    QPaintDevice *paintdevice = fp->paintdevice;
 
     Q_ASSERT(size);
 
@@ -208,13 +207,13 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
     FT_Set_Pixel_Sizes(face, pixelSize, pixelSize);
     FD_DEBUG("setting pixel size to %d", pixelSize);
 
-    QFontEngine *fe = new QFontEngineFT(request, paintdevice, face);
+    QFontEngine *fe = new QFontEngineFT(request, face);
     return fe;
     } else {
         QString fn= QLatin1String(qInstallPath())+QLatin1String("/lib/fonts/") + family->name.toLower() + "_" + QString::number(pixelSize*10) + "_" + QString::number(style->key.weight) + (style->key.italic ? "i.qpf" : ".qpf");
         //###rotation ###
 
-        QFontEngine *fe = new QFontEngineQPF(request, paintdevice, fn);
+        QFontEngine *fe = new QFontEngineQPF(request, fn);
         return fe;
     }
 }
