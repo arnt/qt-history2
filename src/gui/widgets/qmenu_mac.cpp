@@ -144,7 +144,7 @@ static QString qt_mac_menu_merge_text(MenuCommand cmd)
 {
     QString ret;
     if(cmd == kHICommandAbout)
-	ret = "About";
+	ret = "About " + QString(qAppName());
     else if(cmd == kHICommandAboutQt)
 	ret = "About Qt";
     else if(cmd == kHICommandPreferences)
