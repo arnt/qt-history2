@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: shclass.doc,v 2.8 1999/01/28 15:40:45 warwick Exp $
+** $Id: shclass.doc,v 2.9 1999/03/22 16:43:15 warwick Exp $
 **
 ** Qt Shared Classes Documentation
 **
@@ -71,19 +71,21 @@ mechanism takes place behind the scenes and the programmer does not need
 to worry about it.
 
 
-<h2>A QString Example</h2>
+<h2>A QByteArray Example</h2>
 
-QString is an example of an shared class that uses explicit sharing.
+QByteArray is an example of an shared class that uses explicit sharing.
 Example:
 \code
-  QString a = "one";    // 1)     a = "one"
-  QString b = "two";    // 2)     a = "one",    b = "two"
-  a = b;                // 3)   a,b = "two"
-  a[1] = 'a';           // 4)   a,b = "tao"
-  QString c = a;        // 5) a,b,c = "tao"
-  a.detach();           // 6)     a = "tao"   b,c = "tao"
-  a[1] = 'o';           // 7)     a = "too",  b,c = "tao"
-  b = a.copy();         // 8)     a = "too",    b = "too",  c = "tao"
+                        //         a=         b=         c=
+  QByteArray a(3),b(2)  // 1)     {?,?,?}    {?,?}
+  b[0] = 12; b[1] = 34; // 2)     {?,?,?}    {12,34}
+  a = b;                // 3)     {12,34}    {12,34}
+  a[1] = 56;            // 4)     {12,56}    {12,56}
+  QByteArray c = a;     // 5)     {12,56}    {12,56}    {12,56}
+  a.detach();           // 6)     {12,56}    {12,56}    {12,56}
+  a[1] = 78;            // 7)     {12,78}    {12,56}    {12,56}
+  b = a.copy();         // 8)     {12,78}    {12,78}    {12,56}
+  a[1] = 90;            // 9)     {12,90}    {12,78}    {12,56}
 \endcode
 
 The assignment <code>a = b</code> on line 3 throws away <code>a</code>'s
@@ -99,7 +101,8 @@ The \c a object detaches from the common data on line 6.  Detaching means
 to copy the shared data to make sure that an object has its own private
 data.  Therefore, modifying \c a on line 7 will not affect \c b or \c c.
 
-Finally, on line 8 we make a deep copy of \c a and assign it to \c b.
+Finally, on line 8 we make a deep copy of \c a and assign it to \c b,
+so that when \c a is modified on line 9, \c b remains unchanged.
 
 
 <h2>Explicit vs. Implicit Sharing</h2>
@@ -114,8 +117,9 @@ objects that refer the same data.
 Implicit sharing optimizes memory usage and copying of data without this
 side-effect.  Then, why didn't we implement implicit sharing for all
 shared classes?  The answer is that a class that allows direct access to
-its internal data (for efficiency reasons), like QString, cannot be
-implicitly shared, because it can be changed without letting QString know.
+its internal data (for efficiency reasons), like QByteArray, cannot be
+implicitly shared, because it can be changed without letting QByteArray
+know.
 
 An implicitly shared class has total control of its internal data.  In any
 member function that modify its data, it automatically detaches before
@@ -158,10 +162,9 @@ All classes that are instances of the QArray template class are explicitly
 shared:
 <ul>
 <li>\link QBitArray QBitArray\endlink
-<li>\link QByteArray QByteArray\endlink
 <li>\link QImage QImage\endlink (does not inherit QArray)
 <li>\link QPointArray QPointArray\endlink
-<li>\link QString QString\endlink
+<li>\link QByteArray QByteArray\endlink
 <li>Any other instantiation of \link QArray QArray\<type\>\endlink
 </ul>
 
@@ -183,7 +186,8 @@ The Qt classes that are implicitly shared are:
 <li>\link QPen QPen\endlink
 <li>\link QPalette QPalette\endlink
 <li>\link QPixmap QPixmap\endlink
-<li>\link QRegion QRegion\endlink (not fully implemented)
+<li>\link QString QPixmap\endlink
+<li>\link QRegion QRegion\endlink (not fully implemented) <!-- ##### -->
 </ul>
 
 These classes automatically detach from common data if an object is about
@@ -209,5 +213,13 @@ In this example, \c p1 and \c p2 share data until QPainter::begin() is
 called for \c p2, because painting a pixmap will modify it.  The same
 happens also if anything is \link ::bitBlt() bitBlt()\endlink'ed into \c p2.
 
+<h2>QCString - implicit or explicit?</h2>
+
+\link QCString QCString\endlink is a mixture of implicit
+and explicit sharing - functions inherited from QByteArray, such as data(),
+employ explicit sharing, while those in QCString detach automatically.  Thus,
+QCString is somewhat an "expert only" class, provided mainly to ease porting
+from Qt 1.x to Qt 2.0. We recommend you use QString, which is purely
+implicitly shared.
 */
 
