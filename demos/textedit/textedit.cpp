@@ -363,10 +363,11 @@ void TextEdit::filePrint()
 
 void TextEdit::fileClose()
 {
+    const bool hadFocus = (currentEditor && currentEditor->hasFocus());
     delete currentEditor;
     currentEditor = qt_cast<QTextEdit *>(tabWidget->currentWidget());
-    if (currentEditor)
-        currentEditor->viewport()->setFocus();
+    if (currentEditor && hadFocus)
+        currentEditor->setFocus();
 }
 
 void TextEdit::fileExit()
@@ -400,7 +401,6 @@ void TextEdit::textFamily(const QString &f)
     if (!currentEditor)
         return;
     currentEditor->setFontFamily(f);
-    currentEditor->viewport()->setFocus();
 }
 
 void TextEdit::textSize(const QString &p)
@@ -408,7 +408,6 @@ void TextEdit::textSize(const QString &p)
     if (!currentEditor)
         return;
     currentEditor->setFontPointSize(p.toFloat());
-    currentEditor->viewport()->setFocus();
 }
 
 void TextEdit::textStyle(int i)
@@ -463,8 +462,6 @@ void TextEdit::textStyle(int i)
         bfmt.setObjectIndex(-1);
         cursor.mergeBlockFormat(bfmt);
     }
-
-    currentEditor->viewport()->setFocus();
 }
 
 void TextEdit::textColor()
@@ -594,7 +591,7 @@ QTextEdit *TextEdit::createNewEditor(const QString &title)
 
     int tab = tabWidget->addTab(edit, title.isEmpty() ? tr("noname") : title);
     tabWidget->setCurrentIndex(tab);
-    edit->viewport()->setFocus();
+    edit->setFocus();
 
     return edit;
 }
