@@ -47,28 +47,7 @@
 #include <qwidgetlist.h>
 #include <qlayout.h>
 #include <qptrdict.h>
-
-class QCategoryBarPrivate
-{
-public:
-    QCategoryBarPrivate()
-	{
-	    currentPage = 0;
-	    lastTab = 0;
-	    buttons = new QWidgetList;
-	}
-
-    ~QCategoryBarPrivate()
-	{
-	    delete buttons;
-	}
-
-    QPtrDict<QWidget> pages;
-    QWidgetList *buttons;
-    QVBoxLayout *layout;
-    QWidget *currentPage;
-    QCategoryButton *lastTab;
-};
+#include <qtooltip.h>
 
 class QCategoryButton : public QToolButton
 {
@@ -86,6 +65,77 @@ private:
     bool selected;
 
 };
+
+class QCategoryBarPrivate
+{
+public:
+    struct Category
+    {
+	QToolButton *button;
+	QString label;
+	QIconSet iconSet;
+	QString toolTip;
+    };
+
+    QCategoryBarPrivate()
+	{
+	    currentPage = 0;
+	    lastTab = 0;
+	    categories = new QPtrList<Category>;
+	    categories->setAutoDelete( TRUE );
+	}
+
+    ~QCategoryBarPrivate()
+	{
+	    delete categories;
+	}
+
+    QCategoryButton *button( QWidget *page )
+	{
+	    QPtrDictIterator<QWidget> it( pages );
+	    while ( it.current() ) {
+		if ( it.current() == page )
+		    return (QCategoryButton*)it.currentKey();
+		++it;
+	    }
+	    return 0;
+	}
+
+    Category *category( QWidget *page )
+	{
+	    QCategoryButton *b = button( page );
+	    for ( QCategoryBarPrivate::Category *c = categories->first(); c;
+		  c = categories->next() ) {
+		if ( c->button == b )
+		    return c;
+	    }
+	    return 0;
+	}
+
+    // #### improve that algorithm
+    QWidget *findClosestPage( QWidget *page )
+	{
+	    QWidget *p;
+	    QPtrDictIterator<QWidget> it( pages );
+	    while ( it.current() ) {
+		if ( it.current() != page ) {
+		    p = it.current();
+		    break;
+		}
+		++it;
+	    }
+	    return p;
+
+	}
+
+    QPtrDict<QWidget> pages;
+    QPtrList<Category> *categories;
+    QVBoxLayout *layout;
+    QWidget *currentPage;
+    QCategoryButton *lastTab;
+};
+
+
 
 void QCategoryButton::drawButton( QPainter *p )
 {
@@ -156,24 +206,64 @@ static void set_background_mode( QWidget *top, Qt::BackgroundMode bm )
     delete l;
 }
 
-void QCategoryBar::addCategory( const QString &name, QWidget *page )
+void QCategoryBar::addCategory( const QString &label, QWidget *page )
+{
+    addCategory( label, QIconSet(), page );
+}
+
+void QCategoryBar::addCategory( const QString &label, const QIconSet &iconSet,
+				QWidget *page )
+{
+    insertCategory( label, iconSet, page );
+}
+
+void QCategoryBar::insertCategory( const QString &label, QWidget *page, int index )
+{
+    insertCategory( label, QIconSet(), page, index );
+}
+
+void QCategoryBar::insertCategory( const QString &label, const QIconSet &iconSet,
+				   QWidget *page, int index )
 {
     page->setBackgroundMode( PaletteBackground );
-    QCategoryButton *button = new QCategoryButton( this, name.latin1() );
-    d->buttons->append( button );
-    button->setText( name );
+
+    QCategoryButton *button = new QCategoryButton( this, label.latin1() );
+    QCategoryBarPrivate::Category *c = new QCategoryBarPrivate::Category;
+    c->button = button;
+    c->label = label;
+    c->iconSet = iconSet;
+    bool needRelayout = FALSE;
+    if ( index < 0 || index >= count() ) {
+	d->categories->append( c );
+    } else {
+	d->categories->insert( index, c );
+	needRelayout = TRUE;
+    }
+
+    button->setText( label );
+    if ( !iconSet.isNull() )
+	button->setIconSet( iconSet );
     button->setFixedHeight( button->sizeHint().height() );
     connect( button, SIGNAL( clicked() ), this, SLOT( buttonClicked() ) );
+
     QScrollView *sv = new QScrollView( this );
     sv->setResizePolicy( QScrollView::AutoOneFit );
     sv->addChild( page );
     sv->setFrameStyle( QFrame::NoFrame );
-    page->show();
+
     d->pages.insert( button, sv );
-    d->layout->addWidget( button );
-    d->layout->addWidget( sv );
+
+    if ( !needRelayout ) {
+	d->layout->addWidget( button );
+	d->layout->addWidget( sv );
+    } else {
+	relayout();
+    }
+
+    page->show();
     button->show();
-    if ( d->pages.count() == 1 ) {
+
+    if ( count() == 1 ) {
 	d->currentPage = sv;
 	d->lastTab = button;
 	d->lastTab->setSelected( TRUE );
@@ -182,6 +272,7 @@ void QCategoryBar::addCategory( const QString &name, QWidget *page )
     } else {
 	sv->hide();
     }
+
     updateTabs();
 }
 
@@ -189,8 +280,39 @@ void QCategoryBar::buttonClicked()
 {
     QCategoryButton *tb = (QCategoryButton*)sender();
     QWidget *page = d->pages.find( tb );
+    setCurrentPage( page );
+}
+
+void QCategoryBar::updateTabs()
+{
+    bool after = FALSE;
+    for ( QCategoryBarPrivate::Category *c = d->categories->first(); c;
+	  c = d->categories->next() ) {
+	c->button->setBackgroundMode( !after ? PaletteBackground : PaletteLight );
+	c->button->update();
+	after = c->button == d->lastTab;
+    }
+}
+
+int QCategoryBar::count() const
+{
+    return d->categories->count();
+}
+
+void QCategoryBar::setCurrentPage( int index )
+{
+    setCurrentPage( page( index ) );
+}
+
+void QCategoryBar::setCurrentPage( QWidget *page )
+{
     if ( !page || d->currentPage == page )
 	return;
+
+    QCategoryButton *tb = d->button( page );
+    if( !tb )
+	return;
+
     tb->setSelected( TRUE );
     if ( d->lastTab )
 	d->lastTab->setSelected( FALSE );
@@ -201,14 +323,150 @@ void QCategoryBar::buttonClicked()
     d->currentPage->show();
     set_background_mode( d->currentPage, PaletteLight );
     updateTabs();
+    emit currentChanged( page );
 }
 
-void QCategoryBar::updateTabs()
+void QCategoryBar::relayout()
 {
-    bool after = FALSE;
-    for ( QWidget *w = d->buttons->first(); w; w = d->buttons->next() ) {
-	w->setBackgroundMode( !after ? PaletteBackground : PaletteLight );
-	w->update();
-	after = w == d->lastTab;
+    delete d->layout;
+    d->layout = new QVBoxLayout( this );
+    for ( QCategoryBarPrivate::Category *c = d->categories->first(); c;
+	  c = d->categories->next() ) {
+	d->layout->addWidget( c->button );
+	d->layout->addWidget( d->pages.find( c->button ) );
     }
+    QWidget *currPage = d->currentPage;
+    d->currentPage = 0;
+    setCurrentPage( currPage );
+}
+
+void QCategoryBar::removeCategory( QWidget *page )
+{
+    if ( !page )
+	return;
+
+    QCategoryButton *tb = d->button( page );
+    if ( !tb )
+	return;
+
+    activateClosestPage( page );
+
+    page->hide();
+    tb->hide();
+    d->layout->remove( page );
+    d->layout->remove( tb );
+}
+
+QWidget *QCategoryBar::currentPage() const
+{
+    return d->currentPage;
+}
+
+int QCategoryBar::currentIndex() const
+{
+    return pageIndex( d->currentPage );
+}
+
+QWidget *QCategoryBar::page( int index ) const
+{
+    return d->pages.find( d->categories->at( index )->button );
+}
+
+int QCategoryBar::pageIndex( QWidget *page ) const
+{
+    QCategoryButton *tb = d->button( page );
+    int i = 0;
+    for ( QCategoryBarPrivate::Category *c = d->categories->first(); c;
+	  c = d->categories->next(), ++i ) {
+	if ( c->button == tb )
+	    return i;
+    }
+    return -1;
+}
+
+void QCategoryBar::setCategoryEnabled( QWidget *page, bool enabled )
+{
+    QCategoryButton *tb = d->button( page );
+    if ( !tb )
+	return;
+
+    if ( !enabled )
+	activateClosestPage( page );
+
+    tb->setEnabled( enabled );
+}
+
+void QCategoryBar::activateClosestPage( QWidget *page )
+{
+    if ( page != d->currentPage )
+	return;
+
+    QWidget *p = 0;
+    if ( page == d->currentPage ) {
+	p = d->findClosestPage( page );
+	if ( !p ) {
+	    d->currentPage = 0;
+	    d->lastTab = 0;
+	} else {
+	    setCurrentPage( p );
+	}
+    }
+}
+
+void QCategoryBar::setCategoryLabel( QWidget *page, const QString &label )
+{
+    QCategoryButton *tb = d->button( page );
+    QCategoryBarPrivate::Category *c = d->category( page );
+    if ( !tb || !c )
+	return;
+
+    c->label = label;
+    c->button->setText( label );
+}
+
+void QCategoryBar::setCategoryIconSet( QWidget *page, const QIconSet &iconSet )
+{
+    QCategoryButton *tb = d->button( page );
+    QCategoryBarPrivate::Category *c = d->category( page );
+    if ( !tb || !c )
+	return;
+
+    c->iconSet = iconSet;
+    c->button->setIconSet( iconSet );
+}
+
+void QCategoryBar::setCategoryToolTip( QWidget *page, const QString &toolTip )
+{
+    QCategoryButton *tb = d->button( page );
+    QCategoryBarPrivate::Category *c = d->category( page );
+    if ( !tb || !c )
+	return;
+
+    c->toolTip = toolTip;
+    QToolTip::remove( tb );
+    QToolTip::add( tb, toolTip );
+}
+
+bool QCategoryBar::isCategoryEnabled( QWidget *page ) const
+{
+    QCategoryButton *tb = d->button( page );
+    return tb && tb->isEnabled();
+}
+
+QString QCategoryBar::categoryLabel( QWidget *page ) const
+{
+    QCategoryBarPrivate::Category *c = d->category( page );
+    return c ? c->label : QString::null;
+}
+
+QIconSet QCategoryBar::categoryIconSet( QWidget *page ) const
+{
+    QCategoryBarPrivate::Category *c = d->category( page );
+    return c ? c->iconSet : QIconSet();
+}
+
+QString QCategoryBar::categoryToolTip( QWidget *page ) const
+{
+    QCategoryBarPrivate::Category *c = d->category( page );
+    return c ? c->toolTip : QString::null;
 }

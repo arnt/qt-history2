@@ -71,7 +71,7 @@ public:
     QWidget *currentPage() const;
     int currentIndex() const;
     QWidget *page( int index ) const;
-    int index( QWidget *page ) const;
+    int pageIndex( QWidget *page ) const;
 
     int count() const;
 
@@ -80,19 +80,20 @@ public slots:
     virtual void setCurrentPage( QWidget *page );
     virtual void setCategoryEnabled( QWidget *page, bool enabled );
     virtual void removeCategory( QWidget *page );
-    virtual void setCategoryLabel( QWidget *page, const QString &lable );
+    virtual void setCategoryLabel( QWidget *page, const QString &label );
     virtual void setCategoryIconSet( QWidget *page, const QIconSet &iconSet );
     virtual void setCategoryToolTip( QWidget *page, const QString &toolTip );
 
 signals:
     void currentChanged( QWidget *page );
-    void currentChanged( int index );
 
 private slots:
     void buttonClicked();
 
 private:
     void updateTabs();
+    void relayout();
+    void activateClosestPage( QWidget *page );
 
 private:
     QCategoryBarPrivate *d;
