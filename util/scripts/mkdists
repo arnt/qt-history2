@@ -652,6 +652,7 @@ for plat in mac win x11 embedded; do
 	dist_for_edition=$edition
 	case $edition in
 	commercial|commercial-US)
+	    dist_for_edition="commercial"
 	    [ "$edition" = "commercial-US" ] && [ "$pack_US" = "no" ] && continue
 	    [ "x$DO_COMMERCIAL" = "xyes" ] || continue
 	    ;;
