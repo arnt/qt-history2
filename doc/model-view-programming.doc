@@ -1,97 +1,108 @@
 /*!
 \page model-view-programming.html
+
 \title Model/View Programming
+
+\tableofcontents
+
+\section1 Introduction
+
+Qt 4 introduces a new set of item view classes that use a Model/View
+architecture to manage the relationship between raw data and the way it
+is presented to the user. The separation of functionality that this
+architecture introduces gives developers greater flexibility and
+access to more features than was previously possible. In this document,
+we give a brief introduction to the Model/View paradigm, outline the
+concepts involved, describe the architecture of the item view system, 
+and show some example uses.
+
+\section1 The Model/View architecture
+
+Model-View-Controller (MVC) is a design pattern originating from
+Smalltalk that is often used when building user interfaces.
+In \l{#Gamma}{Design Patterns}, Gamma et al. write:
+
+\quote
+MVC consists of three kinds of objects. The Model is the application
+object, the View is its screen presentation, and the Controller defines
+the way the user interface reacts to user input. Before MVC, user
+interface designs tended to lump these objects together. MVC decouples
+them to increase flexibility and reuse.
+\endquote
+
+If the view and the controller objects are combined, the result is
+the Model/View architecture. This still separates the data in the
+model from its presentation to the user, but provides a simpler
+framework based on the same principles. This separation makes it
+possible to display data from the same model in several different
+views, and to implement new types of views, without changing the
+underlying model.
+To allow flexible handling of user input, we introduce the concept of
+the \e delegate. The advantage of using a delegate is that it allows
+input methods to be defined in addition to those provided by the view,
+but does not introduce additional complexity by default.
+
+Generally, the Model/View classes can be separated into the three groups
+described above: model classes, view classes, and delegate classes. Each
+of these components are defined by \e abstract classes that provide
+common interfaces and, in some cases, default implementations of features.
+Abstract classes are meant to be subclassed in order to provide the full
+set of functionality expected by other components, and for the purposes of
+specialization.
+For example, all item models are based on the \l QAbstractItemModel
+class. This class can be used to provide models to views that represent
+data in the form of tables and lists. However, the \l QAbstractListModel
+and \l QAbstractTableModel classes are better starting points for new list
+and table models because they provide default implementation for common
+functions.
+
+\e Generic, complete implementations are provided for different kinds of
+view widgets based on the \l QAbstractItemView class. \l QGenericListView
+provides a complete implementation of a simple list widget,
+\l QGenericTableView displays items from a model in a tabular form, and
+\l QGenericTreeView shows model items as a hierarchical list. Although
+these classes are ready-to-use implementations, they can also be
+subclassed to provide customized views.
+
+A number of \e convenience classes are derived from the generic view
+classes for the benefit of applications that rely on Qt's item-based
+item view and table classes. They are not intended to be subclassed,
+but simply exist to provide a familiar interface to the equivalent classes
+in Qt 3.
+Examples of these include the \l QTreeView and \l QTableView convenience
+classes; these offer compatibility with the \c QListView and \c QTable
+classes from Qt 3.
+
+
+\section1 The Model/View classes
+
+The following sections describe the way in which the Model/View pattern
+is used in Qt.
+
+\list
+\i \l{model-view-model.html}{The Model Classes}
+\i \l{model-view-view.html}{The View Classes}
+\i \l{model-view-delegate.html}{The Delegate Classes}
+\endlist
+
+
+\section1 References
+
+\target Gamma
+\bold{Design Patterns - Elements of Reusable Object-Oriented Software},
+by Gamma, Helm, Johnson, and Vlissides, ISBN 0-201-63361-2, provides
+more information on the MVC paradigm, explaining MVC and its
+sub-patterns in detail.
 
 See also \link model-view.html the Model/View classes\endlink
 
 */
 
 /*!
+\page model-view-architecture.html
 
-\ingroup itemviews-examples
-\page introduction.html
-\title Introduction
-
-This document describes the new \e Interview item view classes in Qt 4.
-We give a brief introduction to the model-view paradigm, describe the
-architecture for \e Interview, and show both simple and advanced uses of the
-classes.
-
-Finally, the document describes the current state of the implementation, what
-is complete and what is missing. We also discuss extensions that are planned
-for future releases.
-
-\section1 Model-View
-
-Model-View-Controller (MVC) is a design pattern originating from Smalltalk that
-is often used when building user interfaces.
-In \l{references.html#Gamma}{Design Patterns}, Gamma et al. write:
-
-\quote
-MVC consists of three kinds of objects. The Model is the application object, the View is
-its screen presentation, and the Controller defines the way the user interface reacts to
-user input. Before MVC, user interface designs tended to lump these objects together.
-MVC decouples them to increase flexibility and reuse.
-\endquote
-
-It is a common modification of the MVC paradigm to merge the View and Controller,
-and our implementation uses this modification. Therefore, rather than call it
-MVC, we will refer to this architecture as Model/View.
-The main reason for choosing the Model/View approach for the new item views
-is the separation between the data and its presentation. This separation makes it
-possible to display the same data in several views, and to implement new types
-of views, without changing the data model.
-
-In MVC the model manages and stores the data to be presented in the view, and
-notifies the view when any changes occur. This is handled in Qt by
-the QAbstractItemModel class. QAbstractItemModel notifies any attached views
-through the "signals and slots" mechanism whenever the model is updated.
-The view renders the contents of a model, accessing data via the model's
-interfaces, and sends user gestures to the controller. This is handled in Qt by
-QAbstractItemView and its generic (list, tree, or table) subclasses.
-
-The controller translates interactions with the view into actions to be
-performed by the model. This is handled in Qt mostly by QAbstractItemDelegate,
-but some user interaction (like item navigation and selections) is handled by
-the view and supporting classes.
-
-\l{model.html}{The model}
-
-*/
-
-/*!
-
-\ingroup itemviews-examples
-\page architecture.html
 \title Architecture Overview
 
-\section1 Class Hierarchy
-
-The Interview Model/View classes can roughly be separated into three groups:
-model classes, view classes, and controller classes. Each group has three levels
-of inheritance: the abstract level, the generic level, and the convenience level.
-
-The \bold{model} is the data source in the MVC design pattern. It manages and
-stores the data, and informs the views of changes to the data.
-The \bold{view} presents the contents of a model to the user. Presenting the data
-consists of laying out the items and optionally calling on a \bold{delegate} to
-perform tasks traditionally associated with a \bold{controller}.
-
-The classes on the \bold{abstract level} define interfaces used when working with
-classes in that group. They also implement common functionality for their group.
-The classes on the \bold{generic level} implement the interfaces defined by
-abstract superclasses. They also implement any specific functionality required
-by either the models they represent, or the views they present to the user.
-Currently, the classes provided by Qt on the generic level are generic views such
-as \c QGenericTableView and \c QGenericTreeView. It is recommended that these
-classes are subclassed if more specialized functionality is needed.
-
-The classes on the \bold{convenience level} are the easy to use subclasses of the
-generic classes. They offer more functionality, but are less flexible. They are
-not intended to be subclassed, but simply to provide a familiar interface to the
-equivalent classes in Qt 3.
-Examples of these include the \c QTreeView and \c QTableView convenience classes;
-these offer compatibility with the \c QListView and \c QTable classes from Qt 3.
 
 For example, the following diagram shows the relationship between the Model/View
 classes that can be used to display a directory structure in a tree view.
@@ -196,114 +207,171 @@ The QItemSelectionModel is always connected to a model. This means that the top 
 
 ### more on the selection model
 
+
+
+
+
+\section1 Comparison with the Qt 3 Itemview Classes.
+
+\section1 Architecture
+
+The two main differences between the new itemview classes and the old views are the separation
+between data and presentation, and the views now have a common baseclass.
+
+\section2 The Model-View Architecture
+
+The separation between data and presentation means that data is no longer duplicated.
+This saves memory and saves startup-time because the views nolonger have to be initialized
+with the data.
+...
+
+\section2 The New Class Hierarchy
+
+The new common baseclass means that the views now share a lot of code that was previously
+duplicated.
+...
+
+\section1 New Features
+
+In addition to the Model-View architecture and the shared code, the new itemview classes have
+several new features.
+...
+
+\section1 More
+
+### How does the new architecture help the user ?
+
 */
 
 /*!
+\page model-view-model.html
 
-\ingroup itemviews-examples
-\page model.html
-\title Implementing a Model
+\title The Model Classes
 
-\section1 The Model
+\tableofcontents
 
-According to the Model-View-Controller design pattern, the role of the model
-is to manage and store data.
+\section1 Introduction
+
+In the Model/View architecture, the model's purpose is to manage data,
+and to provide a representation of that data to the other components
+in the framework. In Qt, the standard interface for accessing data within
+a model is provided by the \l QAbstractItemModel class.
+Whenever the model is updated, this class notifies any attached views
+through the signals and slots mechanism.
 
 When implementing a model it is important to remember that the
-QAbstractItemModel class itself does not store any data. It merely presents
-an interface that the views use to access the data to be presented.
+\l QAbstractItemModel class does not store any data itself, it merely
+presents an interface that the views use to access the data.
+The interface supports models that arrange their data in hierarchical
+structures, allowing for the possibility that data will be inserted,
+removed, changed, or sorted in some way. It also provides functions for
+drag and drop support.
 
-The interface supports models with a hierarchical data structures, with the
-posibility to insert, remove, change, and sort data. It also has functions
-for drag and drop.
+\section1 A read-only example model
 
-For a minimal model you only have to implement a few functions as there are
-default implementations for most of this functionality.
+For a minimal read-only model it is only necessary to implement a few
+functions as there are default implementations for most of the
+interface.
 
-\section1 The String List Model
-\quotefile model01.cpp
+\quotefile stringlistmodel/model.h
 
 The model implemented here is a simple, non-hierarchical, read-only data
-model. It has a QStringList as its internal data source, and implements
+model. It has a \l QStringList as its internal data source, and implements
 only what is needed for a functional model.
 
-\skipto int rowCount
-\printto private
-
-The interface we need to implement consists of three functions: the rowCount()
-and columnCount() functions return the dimensions of the model, and the data()
-function returns the data for a model item.
-
-\section2 The class Declaration
-\quotefile model01.cpp
-
 \skipto class
-\printuntil };
-
-Note that this is a non-hierarchical model, so we don't have to worry about
-the child parent relationships. If our model was hierarchical, we would also
-have to implement the index() and parent() functions.
-
-\section2 The Model Dimensions
-
-\skipto int
+\printto isEditable
+\skipto private
 \printuntil }
+
+Apart from the constructor of the model, we need to implement only two
+functions: \c rowCount() returns the number of rows in the model, and
+\c data() returns data corresponding to model item indices.
+
+Note that this is a non-hierarchical model, so we don't have to worry
+about the parent-child relationships. If our model was hierarchical, we
+would also have to implement the \c index() and \c parent() functions.
+
+\section2 Dimensions of the model
 
 We want the number of rows in the model to be the same as the number of
-strings in the string list. Since this is a non-hierarchical model, we don't
-have to worry about the model index argument to this function.
+strings in the string list. We implement the \c rowCount() function with
+this in mind:
 
-\skipto int
+\quotefile stringlistmodel/model.cpp
+\skipto int StringListModel
 \printuntil }
 
-A list is a one-dimensional structure, so we only need one column in our
-model.
+Since the model is non-hierarchical, we can safely ignore the model index
+corresponding to the parent item. By default, models derived from
+\l QAbstractListModel only contain one column, so we do not need to
+reimplement the \c columnCount() function.
 
-\section2 The Data
+\section2 Model data
+
+The \c data() function is responsible for returning the data that
+corresponds to the index argument. There are three types of indices:
+\c View, \c HorizontalHeader, and \c VerticalHeader. If our model is
+displayed in a view with headers, we want the headers to show the row and
+column numbers. For \c View items, we want to return the strings in our
+string list.
 
 \skipto QVariant
 \printuntil }
 
-The data function is responsible for returning the data that corresponds to
-the index argument. There are three types of indexes: View, HorizontalHeader,
-and VerticalHeader. If our model is displayed in a view with headers, we want
-the headers to show the row and column numbers. For View items, we want to
-return the strings in our string list.
-
 An item can have several roles, giving out different data depending on the
-role. The items in our model only have one role, Display, so we will ignore
-requests for data for any other roles.
+role specified. The items in our model only have one role, \c DisplayRole,
+so we will return the data for items irrespective of the role specified.
 
-\section1 The Editable String List Model
-\quotefile model02.cpp
+\section1 An editable model
 
-In this section we are going to make it possible to edit the strings in the StringListModel.
+The read-only model showed how simple choices could be presented to the
+user but, for many applications, an editable list model is much more
+useful. We can modify the read-only model to make the items editable
+by implementing two extra functions: \c isEditable() and \c setData().
+These are declared in the header file:
 
-\section2 Making the Items Editable
+\quotefile stringlistmodel/model.h
+\skipto bool isEditable
+\printuntil setData
 
-\skipto bool StringListModel
+A delegate will check whether an item is editable before creating an
+editor. The model has to let the delegate know that its items are
+editable:
+
+\quotefile stringlistmodel/model.cpp
+\skipto bool StringListModel::isEditable
 \printuntil }
 
-A delegate will typically check if an item is editable before creating an editor. The model has to let the delegate know that its items are editable.
+Note that we do not have to know how the delegate will perform the actual
+editing process. We only have to provide a way for the delegate to set the
+data in the model. This is achieved through the \c setData() function:
 
-When the user has finished editing, the delegate will set the data in the model. The StringListModel has to set the new data in the string list.
-
-\skipto bool StringListModel
+\quotefile stringlistmodel/model.cpp
+\skipto bool StringListModel::setData
 \printuntil }
 
-Before we actally set the data in the model, we make sure that the index is within the model bounds and that the role is supported.
-When the data has been set, the model has to let the views know that the data has changed. This is done by emitting the dataChanged signal.
-Since only one item has changed, the signal is emitted with the same index as the top left and bottom right index.
+In this model, the item in the string list that corresponds to the model
+index specified is replaced by the data provided by the delegate.
+However, before we actally set the data in the model, we make sure that
+the index is valid, the item is of the correct type, and that the role is
+supported. We insist that the role must be the \c EditRole since this
+indicates to us that the item is being modified by an editing operation.
 
-\section1 Inserting and Removing Rows
-\quotefile model03.cpp
+When the data has been set, the model has to let the views know that the
+data in the model has changed. This is done by emitting the
+\c dataChanged() signal. Since only one item has changed, the range of
+items specified in the signal is limited to just one item.
 
+\section2 Inserting and removing rows
+
+\quotefile stringlistmodel/model.h
 \skipto bool insertRows
-\printto private
+\printto removeRows
 
 It is possible to change the number of rows or columns in a model. To enable inserting and removing of rows, the following functions have to be reimplemented:
 
-\section2 Inserting Rows
+\section3 Inserting Rows
 
 \skipto bool StringListModel::insertRows
 \printuntil }
@@ -312,25 +380,25 @@ When inserting rows in the StringListModel, we are inserting empty strings in th
 The model emits the rowsInserted signal to inform the views that the number of rows has changed.
 Note that the signal is always emitted after the rows are inserted. This is because listeners to the signal may want to access the data in the new rows.
 
-\section2 Removing Rows
+\section3 Removing Rows
 \skipto bool StringListModel::removeRows
 \printuntil }
 
 The rowsRemoved signal is always emitted before the rows are removed. Again, this is because listeners to the signal may want to access the data that is going to be removed.
 
-\section1 The QObject Tree Model
+\section2 The QObject Tree Model
 \quotefile model04.cpp
 
 We are going to implement a model we can use to visualize the hierarchy of QObjects. The model will have two columns: "Object Name" and "Class Name".
 
-\section2 The Class Declaration
+\section3 The Class Declaration
 
 \skipto class
 \printuntil };
 
 Note that all we store in the model is a pointer to the root of the QObject tree.
 
-\section2 The Hierarchy
+\section3 The Hierarchy
 
 Because the internal data structure is a tree we have to handle parent child relationships in our model. This means we have to implement the following functions:
 
@@ -354,7 +422,7 @@ We get the list of children from the grandparent (the parent of the parent), and
 
 These two functions are the only ones that can create valid model indexes. It is therefor safe to assume that a valid model index contains a valid pointer. To keep things simple, we ignore the posibility of objects being deleted outside the model.
 
-\section2 The Model Dimensions
+\section3 The Model Dimensions
 \quotefile model04.cpp
 
 As we said above, we want two columns: "Object Name" and "Class Name". The number of rows on each level depends on the number of objects in that branch of the tree.
@@ -365,7 +433,7 @@ As we said above, we want two columns: "Object Name" and "Class Name". The numbe
 \skipto ObjectModel::columnCount
 \printuntil }
 
-\section2 The Data
+\section3 The Data
 
 In this model return data for horizontal header items and view items, otherwise we return an invalid QVariant.
 
@@ -375,7 +443,7 @@ In this model return data for horizontal header items and view items, otherwise 
 Note that the pointer in the index gives us direct access to the QObject without expensive lookup operations. This is important because the data function is called when the view is drawing, and any inefficiency will cause the application to feel slower.
 In some cases it makes sense to cache data in the model, if your data source is too slow.
 
-\section1 Final Words
+\section2 Final Words
 
 We have seen how to implement both non-hierarchical and hierarchical models. It is important to remember that QAbstractItemModel is just an interface to your internal data structure. The views use this interface to access the data and to get the dimensions of the data model.
 It is guarantied that all valid indexes are created by the model, either by the index() function or by the parent() function. This puts a responsibility on the implementor of the model to return the correct data for a model index, and to manage the hierarchy of model indexes correctly.
@@ -383,50 +451,73 @@ It is guarantied that all valid indexes are created by the model, either by the 
 */
 
 /*!
+\page model-view-view.html
 
-\ingroup itemviews-examples
-\page view.html
-\title Viewing a Model
+\title Viewing A Model
 
-\section1 The Views
+\section1 The generic views
 
-The views in the Model-View architecture is responsible for presenting the data in the model. It handles item layout, navigation and some aspects of item selection.
-In addition to the Model-View related functionality, the views also implement more user interface related functionality, like context menus and drag and drop.
 
-\section1 Creating a View on a Model
+
+\section2 The view
+
+The view renders the contents of a model, accessing data via the model's
+interfaces, and sends user gestures to the controller. This is handled in Qt by QAbstractItemView and its
+generic (list, tree, or table) subclasses.
+
+The views in the Model-View architecture is responsible for presenting
+the data in the model. It handles item layout, navigation and some
+aspects of item selection.
+In addition to the Model/View related functionality, the views also
+implement more user interface related functionality, like context menus
+and drag and drop.
+
+\section2 Creating a view onto a model
 \quotefile view01.cpp
 
 \skipto view->setModel(model)
 \printuntil view->setModel(model)
 
-To view the contents of a model, simply call setModel() with the model pointer as argument. The view will listen to the models signals and update itself when the model changes.
+To view the contents of a model, simply call setModel() with the model
+pointer as argument. The view will listen to the models signals and update
+itself when the model changes.
 
-\section1 Creating Multiple Views on a Model
+\section2 Creating Multiple Views on a Model
 \quotefile view02.cpp
 
 \skipto table->setModel(model)
 \printuntil list->setModel(model)
 
-The same model can be viewed in several different views. What you see of the model depends on the view. 
-Note that the model does not know about the views, and that the views don't know about each other.
+The same model can be viewed in several different views. What you see of the
+model depends on the view. 
+Note that the model does not know about the views, and that the views don't
+know about each other.
 
-\section1 Sharing Selections
+\section2 Sharing Selections
 \quotefile view03.cpp
 
 \skipto QItemSelectionModel
 \printto hbox.show();
 
-Selections are stored in the QItemSelectionModel. They are stored in model indexes, and are independent of the views. Sharing selections between views can be very usefull when the views are operating on the same model.
+Selections are stored in the QItemSelectionModel. They are stored in model
+indexes, and are independent of the views. Sharing selections between views
+can be very useful when the views are operating on the same model.
 
 */
 
 /*!
+\page model-view-delegate.html
 
-\ingroup itemviews-examples
-\page delegate.html
 \title Rendering and Editing Items
 
 \section1 The Delegate
+
+The controller translates interactions with the view into actions to be
+performed by the model. This is handled in Qt mostly by
+QAbstractItemDelegate, but some user interaction (like item navigation
+and selections) is handled by the view and supporting classes.
+
+
 \quotefile delegate01.cpp
 
 The item delegate is responsible for drawing and editing items.
@@ -544,9 +635,8 @@ elements in the item.
 */
 
 /*!
+\page model-view-selection.html
 
-\ingroup itemviews-examples
-\page selection.html
 \title More Selections
 
 \section1 The Selection Model
@@ -678,53 +768,5 @@ always on rows or columns respectively.
 Both the selection modes and the selection behaviors are completely
 expressed by their implementation in the selectionCommand(...) 
 function and the resulting SelectionFlags they return.
-
-*/
-
-/*!
-
-\ingroup itemviews-examples
-\page comparison.html
-\title Comparison with the Qt 3 Itemview Classes.
-
-\section1 Architecture
-
-The two main differences between the new itemview classes and the old views are the separation
-between data and presentation, and the views now have a common baseclass.
-
-\section2 The Model-View Architecture
-
-The separation between data and presentation means that data is no longer duplicated.
-This saves memory and saves startup-time because the views nolonger have to be initialized
-with the data.
-...
-
-\section2 The New Class Hierarchy
-
-The new common baseclass means that the views now share a lot of code that was previously
-duplicated.
-...
-
-\section1 New Features
-
-In addition to the Model-View architecture and the shared code, the new itemview classes have
-several new features.
-...
-
-\section1 More
-
-### How does the new architecture help the user ?
-
-*/
-
-/*!
-    \page references.html
-
-    \title References
-
-    \target Gamma
-    \bold{Design Patterns - Elements of Reusable Object-Oriented Software}, by
-    Gamma, Helm, Johnson, and Vlissides, ISBN 0-201-63361-2, provides more
-    information on the MVC paradigm, explaining MVC and its sub-patterns in detail.
 
 */
