@@ -83,7 +83,6 @@ void SpinBoxDelegate::releaseEditor(EndEditAction action, QWidget *editor,
     if (action == QItemDelegate::Accepted)
         setModelData(editor, model, index);
 
-    editor->close();
     delete editor;
 }
 
@@ -113,8 +112,7 @@ void SpinBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
     value = static_cast<QSpinBox *>(editor)->cleanText().toInt();
 #endif
 
-    if (spinBox == editor)
-        model->setData(index, QAbstractItemModel::EditRole, value);
+    model->setData(index, QAbstractItemModel::EditRole, value);
 }
 
 /*!
