@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#19 $
 **
 ** Implementation of QPainter class
 **
@@ -23,7 +23,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#19 $";
 #endif
 
 
@@ -511,15 +511,16 @@ void QPainter::drawText( const QPoint &p, const char *s, int len )
 }
 
 void QPainter::drawText( const QRect &r, int tf, const char *str, int len,
-			 QSize *s, char **i )
+			 QRect *br, char **i )
 {
-    drawText( r.x(), r.y(), r.width(), r.height(), tf, str, len, s, i );
+    drawText( r.x(), r.y(), r.width(), r.height(), tf, str, len, br, i );
 }
 
 QRect QPainter::boundingRect( const QRect &r, int tf,
-			      const char *str, int len )
+			      const char *str, int len, char **i )
 {
-    return boundingRect( r.x(), r.y(), r.width(), r.height(), tf, str, len );
+    return boundingRect( r.x(), r.y(), r.width(), r.height(), tf, str, len,
+			 i );
 }
 
 
