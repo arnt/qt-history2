@@ -1,0 +1,352 @@
+/*!
+\page mainwindow-overview.html
+\title The Main Window Classes
+
+Qt 4 introduces a new set of main window classes that will replace the
+Qt 3 main window classes, providing a more efficient implementation
+while remaining easy-to-use.
+
+\tableofcontents
+
+\section1 Overview of the main window classes
+
+The main window-related classes have been redesigned to satisfy a
+number of requirements, addressing issues raised by our customers and
+internal developers. The aim of this redesign is to provide a more
+consistent and efficient framework for main window management.
+
+Tool bar and dock window functionality is provided by two independent
+classes: \c QToolBar and \c QDockWindow. Tool bars and dock windows
+reside in \e separate areas, with tool bars outside the dock window
+area. This behavior differs from the standard Qt 3 behavior, where \c
+QToolBar inherited functionality from \c QDockWindow, and both types of
+component shared the same areas. The result is a more consistent
+and predictable experience for users. Tool bars and dock windows
+provide feedback while being dragged into their new positions.
+
+\img mainwindow-docks.png
+
+The diagram above shows the layout of a main window that contains both
+tool bars and dock windows. Each corner area can be used by either
+of the adjacent dock window areas, allowing dock window behavior and
+main window layout to be specified precisely.
+
+Tool bars and dock windows are child widgets of the main window. They
+are no longer reparented into a dock area widget by the main window.
+Instead, layouts are used to manage the placement of tool bars and dock
+windows. One consequence is that the old \c QDockArea class is no
+longer required in Qt 4.
+
+
+\section1 The current state of the main window classes
+
+Qt 4 provides the following classes for managing main windows and
+associated user interface components:
+
+\list
+\i \c QMainWindow remains the central class around which applications
+   can be built. The interface to this class has been simplified --
+   much of the functionality previously included is now present in the
+   companion classes, \c QDockWindow and \c QToolBar.
+
+\i \c QDockWindow provides a widget that can be used to create
+   detachable tool palettes or helper windows. Dock windows keep track
+   of their own properties -- they can be moved, closed, and floated as
+   external windows.
+
+\i \c QToolBar provides a generic tool bar widget that can hold a
+   number of different action-related widgets, such as buttons,
+   drop-down menus, comboboxes, and spin boxes. The emphasis on a
+   unified action model in Qt 4 means that tool bars cooperate well
+   with menus and keyboard shortcuts.
+\endlist
+
+The new main window classes are working well, but are not quite complete.
+In their current state, they are not ready for production use. There
+are a number of features in each class that we have not included in this
+release.
+
+In the \c QMainWindow class:
+
+\list
+\i The tool bar and dock window context menu is missing.
+\i Saving and restoring of dock window and tool bar states is not
+   implemented.
+\i Support for large pixmaps and text labels in tool bar buttons is not
+   present.
+\endlist
+
+In the \c QDockWindow class:
+
+\list
+\i There is currently no support for tabbed dock windows. The API for
+   this feature is under discussion.
+\endlist
+
+In the \c QToolBar class:
+
+\list
+\i Support for using \c{QActionGroup}s to manage tool bar items is not
+   implemented. The API for action group support in \c QToolBar is under
+   discussion.
+\i Support for arbitrary widgets in the tool bar is not present.
+\i Better support for widgets in the extension menu is required.
+\endlist
+
+We are interested in feedback regarding the look and feel, API, and
+design of each of these classes.
+
+
+\section1 Examples
+
+Using \c QMainWindow is straightforward. Generally, we subclass \c
+QMainWindow and set up menus, tool bars, and dock windows inside
+the QMainWindow constructor.
+
+To add a menu bar to the main window, we simply create the menus, and
+add them to the main window's menu bar. Note that the \c
+QMainWindow::menuBar() function will automatically create the menu bar
+the first time it is called. You can also call \c
+QMainWindow::setMenuBar() to use a custom menu bar in the main window.
+
+\code
+    MainWindow::MainWindow(QWidget *parent)
+        : QMainWindow(parent)
+    {
+        ...
+        QAction *newAction = new QAction(tr("&New"), this);
+        QAction *openAction = new QAction(tr("&Open"), this);
+        ...
+\endcode
+
+Once actions have been created, we can add them to the main window
+components. To begin with, we add them to the popup menus:
+
+\code
+        QMenu *fileMenu = new QMenu(tr("&File"), this);
+        QMenu *editMenu = new QMenu(tr("&Edit"), this);
+        QMenu *helpMenu = new QMenu(tr("&Help"), this);
+        ...
+        fileMenu->addAction(newAction);
+        fileMenu->addAction(openAction);
+        fileMenu->addAction(saveAction);
+        fileMenu->addAction(saveAsAction);
+        fileMenu->addSeparator();
+        ...
+        menuBar()->addMenu(fileMenu);
+        menuBar()->addMenu(editMenu);
+        menuBar()->addMenu(helpMenu);
+        ...
+    }
+\endcode
+
+The \c QToolBar and \c QMenu classes use Qt's action system to provide a
+consistent API. In the above code, some existing actions were added to
+the file menu with the \c QMenu::addAction() function. \c QToolBar also
+provides this function, making it easy to reuse actions in different
+parts of the main window. This avoids unnecessary duplication of work.
+
+We create a tool bar as a child of the main window, and add the desired
+actions to it:
+
+\code
+    QToolBar *toolbar = new QToolBar(this);
+    toolbar->setWindowTitle(tr("Main Tool Bar"));
+
+    toolbar->addAction(openAction);
+    toolbar->addAction(saveAction);
+    toolbar->addAction(printAction);
+    toolbar->addSeparator();
+    toolbar->addAction(undoAction);
+    toolbar->addAction(redoAction);
+    ...
+    toolbar->setAllowedAreas(Qt::ToolBarAreaTop | Qt::ToolBarAreaBottom);
+    toolbar->setArea(Qt::ToolBarAreaTop);
+\endcode
+
+In this example, the tool bar is restricted to the top and bottom tool
+bar areas of the main window, and is initially placed in the top tool
+bar area. We can see that the actions specified by \c openAction and
+\c saveAction will be displayed both on the tool bar and in the file
+menu.
+
+\c QDockWindow is used in a similar way to \c QToolBar. We create a
+dock window as a child of the main window, and add widgets as children
+of the dock window:
+
+\code
+    QDockWindow *dockwindow = new QDockWindow(this);
+    dockwindow->setWindowTitle(tr("Tools"));
+
+    QWidget *widget = new QWidget(dockwindow);
+    ...
+    dockwindow->setAllowedArea(Qt::DockWindowAreaLeft | Qt::DockWindowAreaRight);
+    dockwindow->setArea(Qt::DockWindowAreaLeft);
+\endcode
+
+In this example, the dock window can only be placed in the left and
+right dock areas, and it is initially placed in the left dock area.
+
+The \c QMainWindow API allows the programmer to customize which dock
+window areas occupy the four corners of the dock window area. If
+required, the default can be changed with the \c
+QMainWindow::setCorner() function:
+
+\code
+    setCorner(Qt::TopLeftCorner, Qt::DockWindowAreaLeft);
+    setCorner(Qt::BottomLeftCorner, Qt::DockWindowAreaLeft);
+    setCorner(Qt::TopRightCorner, Qt::DockWindowAreaRight);
+    setCorner(Qt::BottomRightCorner, Qt::DockWindowAreaRight);
+\endcode
+
+The following diagram shows the configuration produced by the above code.
+Note that the left and right dock windows will occupy the top and bottom
+corners of the main window in this layout.
+
+\img mainwindow-docks-example.png
+
+Finally, once all of the main window components have been set up, the
+center widget is created and installed:
+
+\code
+    QWidget *centralWidget = new QWidget(this);
+    setCentralWidget(centralWidget);
+\endcode
+
+The center widget can be any subclass of \c QWidget.
+
+
+\section1 What's changed since Qt 3?
+
+Although the \c QMainWindow class in Qt 3 provided support for tool
+bars, dock windows, and other standard user interface components, its
+design meant that these items were managed through a large number of \c
+QMainWindow member functions. In Qt 4, the \c QMainWindow class
+delegates many of the management tasks to \c QDockWindow and \c
+QToolBar. As a result, these classes are used in a slightly different
+way in Qt 4.
+
+\c QMainWindow retains the \c menuBar() function, but menus are always
+constructed using \c QAction objects. All kinds of menus are
+constructed using the general \c QMenu class.
+
+Qt 3:
+\code
+    QPopupMenu *fileMenu = new QPopupMenu(this);
+    ...
+    openAction->addTo(fileMenu);
+    ...
+    menuBar()->insertItem(tr("&File"), fileMenu);
+\endcode
+Qt 4:
+\code
+    QMenu *fileMenu = new QMenu(this);
+    ...
+    fileMenu->addAction(openAction);
+    ...
+    menuBar()->addMenu(tr("&File"), fileMenu);
+\endcode
+
+Tool bars follow the same pattern as menus, with the new, more
+consistent behavior:
+
+Qt 3:
+\code
+    QToolBar *fileTools = new QToolBar(this, "file tool bar");
+    ...
+    openAction->addTo(fileTools);
+\endcode
+Qt 4:
+\code
+    QToolBar *fileTools = new QToolBar(this);
+    fileTools->setWindowTitle(tr("File Tool Bar"));
+    ...
+    fileTools->addAction(openAction);
+\endcode
+
+The behavior of dock windows is now configured through the member
+functions of \c QDockWindow. For example, compare the old and new ways
+of creating a dock window in the dock area on the left hand side of the
+main window.
+
+In Qt 3:
+\code
+    QDockWindow *dockWindow = new QDockWindow(this);
+    mainWin->moveDockWindow(dockWindow, Qt::DockLeft);
+\endcode
+In Qt 4:
+\code
+    QDockWindow *dockWindow = new QDockWindow(this);
+    dockWindow->setArea(dockWindow, Qt::DockWindowAreaLeft);
+\endcode
+
+The central widget in a main window is now defined using
+\c setCentralWidget().
+
+In Qt 3:
+\code
+    setCentralWidget(centralWidget);
+\endcode
+In Qt 4:
+\code
+    setCentralWidget(centralWidget);
+\endcode
+
+These changes provide more than a cosmetic improvement to Qt's API.
+They allow more consistent behavior to be defined and implemented. In
+response to feedback from customers, we hope to improve these classes
+even further.
+
+
+\section1 Future work
+
+The main window classes will continue to evolve and improve as part of
+the push toward Qt 4. Below are some ideas that have been discussed by
+the Trolltech development team, and put forward for implementation.
+Feedback is welcome and encouraged.
+
+In the \c QMainWindow class:
+
+\list
+\i Convenience functions to return a \c QMenu (or, possibly, a \c
+   QAction with a menu) that can list all tool bars and dock windows.
+   This menu will allow the user to toggle the visibility of each tool
+   bar and dock window.
+\endlist
+
+In the \c QDockWindow class:
+
+\list
+\i Dragging/dropping behavior may change such that dropped dock
+   windows will always split a single dock window.
+
+   The current behavior when placing a dock window between two other
+   dock windows is to take equal space from each to make room for the
+   newly placed dock window.
+
+\i When unfloating a dock window, the main window could remember the
+   original location such that, if the user clicks the "unfloat" button,
+   the dockwindow would return to the original location.
+
+   The current behavior is to re-insert the dock window at the end of
+   the layout.
+
+\i Support for auto-hiding of dock windows.
+
+   A tab bar along each edge of the main window would slide out a single
+   dock window when a tab is selected. When the dock window loses focus,
+   the main window will automatically hide the dock window.
+\endlist
+
+In the \c QToolBar class:
+
+\list
+\i Currently, a private button class (\c QToolBarButton) is used when
+   using the action interface (e.g. \c addAction() and \c insertAction()).
+   This class may either become public, or be merged with \c
+   QToolButton.
+\endlist
+
+\link tech-preview.html [Back to the Technology Preview page] \endlink
+
+*/
