@@ -33,9 +33,11 @@ protected:
 
 private:
     ClassNode *tryClass( const QString& className );
-    void extractTarget( const QString& target, QString *source,
+    void extractRegExp( const QRegExp& regExp, QString& source,
 			const Doc& doc );
-    void applyReplacementList( QString *source, const Doc& doc );
+    void extractTarget( const QString& target, QString& source,
+			const Doc& doc );
+    void applyReplacementList( QString& source, const Doc& doc );
     void quickifyClass( ClassNode *quickClass );
     void quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,
 			   FunctionNode *func, QMap<QString, int> *blackList );

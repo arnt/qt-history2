@@ -225,7 +225,27 @@ ClassNode *QsCodeParser::tryClass( const QString& className )
     return (ClassNode *) cppTre->findNode( className, Node::Class );
 }
 
-void QsCodeParser::extractTarget( const QString& target, QString *source,
+void QsCodeParser::extractRegExp( const QRegExp& regExp, QString& source,
+				  const Doc& doc )
+{
+    QRegExp blankLineRegExp(
+	    "[ \t]*(?:\n(?:[ \t]*\n)+[ \t]*|[ \n\t]*\\\\code|"
+	    "\\\\endcode[ \n\t]*)" );
+    QStringList paras = QStringList::split( blankLineRegExp,
+					    source.stripWhiteSpace() );
+    paras = paras.grep( regExp );
+    if ( paras.count() == 0 ) {
+	doc.location().warning( tr("Cannot find regular expression '%1'")
+				.arg(regExp.pattern()) );
+    } else if ( paras.count() > 1 ) {
+	doc.location().warning( tr("Regular rexpression '%1' matches multiple"
+				   "times").arg(regExp.pattern()) );
+    } else {
+	source = paras.first() + "\n\n";
+    }
+}
+
+void QsCodeParser::extractTarget( const QString& target, QString& source,
 				  const Doc& doc )
 {
     QRegExp targetRegExp(
@@ -235,9 +255,9 @@ void QsCodeParser::extractTarget( const QString& target, QString *source,
     targetRegExp.setMinimal( TRUE );
 
     int pos = 0;
-    while ( (pos = source->find(targetRegExp, pos)) != -1 ) {
+    while ( (pos = source.find(targetRegExp, pos)) != -1 ) {
 	if ( targetRegExp.cap(2) == target ) {
-	    *source = targetRegExp.cap( 1 ) + "\n";
+	    source = targetRegExp.cap( 1 ) + "\n\n";
 	    return;
 	}
 	pos += targetRegExp.matchedLength();
@@ -245,7 +265,7 @@ void QsCodeParser::extractTarget( const QString& target, QString *source,
     doc.location().warning( tr("Cannot find target '%1'").arg(target) );
 }
 
-void QsCodeParser::applyReplacementList( QString *source, const Doc& doc )
+void QsCodeParser::applyReplacementList( QString& source, const Doc& doc )
 {
     QStringList args = doc.metaCommandArgs( COMMAND_REPLACE );
     QStringList::ConstIterator a = args.begin();
@@ -256,11 +276,11 @@ void QsCodeParser::applyReplacementList( QString *source, const Doc& doc )
 	    QString after = replaceRegExp.cap( 2 );
 
 	    if ( before.isValid() ) {
-		uint oldLen = source->length();
-		source->replace( before, after );
+		uint oldLen = source.length();
+		source.replace( before, after );
 
 		// this condition is sufficient but not necessary
-		if ( oldLen == source->length() && !source->contains(after) )
+		if ( oldLen == source.length() && !source.contains(after) )
 		    doc.location().warning(
 			    tr("Regular expression '%1' did not match anything")
 			    .arg(before.pattern()) );
@@ -701,13 +721,20 @@ void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc )
 	int pos = source.find( quickifyCommand );
 	if ( pos != -1 ) {
 	    QString quickifiedSource = quickNode->doc().source();
-	    applyReplacementList( &quickifiedSource, doc );
+	    applyReplacementList( quickifiedSource, doc );
 
 	    do {
 		QString extract = quickifiedSource;
-		QString target = quickifyCommand.cap( 1 ).simplifyWhiteSpace();
-		if ( !target.isEmpty() )
-		    extractTarget( target, &extract, doc );
+		QString arg = quickifyCommand.cap( 1 ).simplifyWhiteSpace();
+		if ( !arg.isEmpty() ) {
+		    if ( arg.startsWith("/") && arg.endsWith("/") &&
+			 arg.length() > 2 ) {
+			QString pattern = arg.mid( 1, arg.length() - 2 );
+			extractRegExp( QRegExp(pattern), extract, doc );
+		    } else {
+			extractTarget( arg, extract, doc );
+		    }
+		}
 		source.replace( pos, quickifyCommand.matchedLength(), extract );
 		pos += quickifyCommand.matchedLength();
 	    } while ( (pos = source.find(quickifyCommand)) != -1 );
