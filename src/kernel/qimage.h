@@ -62,6 +62,7 @@ public:
 	    Endian bitOrder=IgnoreEndian );
     QImage( const QString &fileName, const char* format=0 );
     QImage( const char *xpm[] );
+    QImage( const char * const xpm[] );
     QImage( const QByteArray &data );
     QImage( uchar* data, int w, int h, int depth,
 		QRgb* colortable, int numColors,
